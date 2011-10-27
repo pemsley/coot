@@ -1366,7 +1366,7 @@ coot::util::get_fragment_from_atom_spec(const coot::atom_spec_t &atom_spec,
       int selHnd = mol_in->NewSelection();
 
       mol_in->Select(selHnd, STYPE_RESIDUE, 1,
-		     (char *) atom_spec.chain.c_str(),
+		     atom_spec.chain.c_str(),
 		     resno_bot, "",
 		     resno_top, "",
 		     "*",  // residue name
@@ -2482,12 +2482,8 @@ coot::util::create_mmdbmanager_from_res_selection(CMMDBManager *orig_mol,
    int atom_index_handle = residues_mol->RegisterUDInteger(UDR_ATOM, "mol's atom index");
    int afix_handle_orig = orig_mol->GetUDDHandle(UDR_ATOM, "shelx afix");
    int afix_handle_new_mol = -1;
-   if (afix_handle_orig >= 0) { 
+   if (afix_handle_orig >= 0)
       afix_handle_new_mol = residues_mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
-      // int udd_afix_handle_test = residues_mol->GetUDDHandle(UDR_ATOM, "shelx afix");
-//       std::cout << "DEBUG:: in create_mmdbmanager_from_res_selection, "
-// 		<< "test : " << afix_handle_new_mol << " vs " << udd_afix_handle_test << std::endl;
-   }
 
    for (int ires=start_offset; ires<(nSelResidues + end_offset); ires++) { 
 
