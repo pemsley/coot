@@ -6232,4 +6232,35 @@ Thu Aug 18 16:25:07 CEST 2011
    c.f.  Pioglitazone with Rosiglitazone
 
 
+----
+
+   Discuss with Max: 3s5x and its refmac LINKR records
+
+----
+
+   3oeg: the BCLs at the end of the chain: can we navigate to them
+   correctly in density fit and geometry graphs?
+
+----
+
+   "At least one person should look at the map" - GWK
+
+   1qw9
+
+----
+
+   Dale Tronrud structures: 1qlw - nice difference map peaks, waters,
+                                   phosphate, disulphide
+
+                            3ls9 - lots of model-building errors, 
+                                   missing ligand? badly built loop
+                                  THR-ILE mutation
+
+                            3oeg - BCL fantasy.
+
+----
+Wed Oct 26 13:49:32 EDT 2011
+
+	predict3d for membrane proteins?
+
 ------
