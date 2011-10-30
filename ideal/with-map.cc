@@ -42,7 +42,7 @@
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
-#ifndef _MSC_VER
+#if !defined _MSC_VER && !defined WINDOWS_MINGW
 #include <unistd.h>
 #endif
 

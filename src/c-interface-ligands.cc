@@ -1632,6 +1632,23 @@ multi_residue_torsion_scm(int imol, SCM residues_specs_scm) {
 }
 #endif 
 
+
+#ifdef USE_PYTHON
+void
+multi_residue_torsion_py(int imol, PyObject *residues_specs_py) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(residues_specs_py);
+      g.multi_torsion_residues(imol, residue_specs);
+
+      graphics_draw();
+   } 
+
+} 
+
+#endif // USE_PYTHON
+
 void
 setup_multi_residue_torsion() {
 
@@ -1644,6 +1661,7 @@ setup_multi_residue_torsion() {
    GtkWidget *w = create_multi_residue_torsion_pick_dialog();
    gtk_widget_show(w);
 } 
+
 
 /* show the rotatable bonds dialog */
 void

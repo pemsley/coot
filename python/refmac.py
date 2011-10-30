@@ -291,10 +291,14 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
 
     data_lines += ["END"]
 
-    if (coot_has_gobject() and sys.version_info >= (2, 4)):
+    if (coot_has_gobject() and sys.version_info >= (2, 4)
+        and make_molecules_flag):
         # can spawn refmac and add button
 
-        refmac_process, logObj = run_concurrently(refmac_execfile, command_line_args, data_lines, refmac_log_file_name)
+        refmac_process, logObj = run_concurrently(refmac_execfile,
+                                                  command_line_args,
+                                                  data_lines,
+                                                  refmac_log_file_name)
 
         separator   = add_coot_toolbar_separator()
         kill_button = coot_toolbar_button("Kill refmac",
@@ -314,14 +318,22 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
                             (kill_button, separator), True)
     else:
         # no gobject and no subprocess, so run 'old' popen_command
-        refmac_status = popen_command(refmac_execfile, command_line_args, data_lines, refmac_log_file_name)
-        # pass refmac_status as refmac_process!?
-        post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
-                        show_diff_map_flag,
-                        pdb_out_filename, mtz_out_filename, mtz_in_filename,
-                        refmac_log_file_name,
-                        phib_fom_pair, f_col, sig_f_col, r_free_col,
-                        phase_combine_flag, refmac_status)
+        refmac_status = popen_command(refmac_execfile,
+                                      command_line_args,
+                                      data_lines,
+                                      refmac_log_file_name)
+        if (make_molecules_flag == 0):
+            # e.g. from get_recent_pdb, i.e. dont load new files, basically
+            # dont thread here...
+            return pdb_out_filename, mtz_out_filename  # return values
+        else:
+            # pass refmac_status as refmac_process!?
+            post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
+                            show_diff_map_flag,
+                            pdb_out_filename, mtz_out_filename, mtz_in_filename,
+                            refmac_log_file_name,
+                            phib_fom_pair, f_col, sig_f_col, r_free_col,
+                            phase_combine_flag, refmac_status)
 
 
 def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
