@@ -978,6 +978,11 @@ bool      graphics_info_t::edit_chi_angles_reverse_fragment = 0;
 short int graphics_info_t::moving_atoms_move_chis_flag = 0;
 coot::atom_spec_t graphics_info_t::chi_angles_clicked_atom_spec;
 std::string graphics_info_t::chi_angle_alt_conf = "";
+// multi-residue torsion
+bool graphics_info_t::in_multi_residue_torsion_mode = false;
+bool graphics_info_t::multi_residue_torsion_reverse_fragment_mode = false;
+std::pair<int, int> graphics_info_t::multi_residue_torsion_rotating_atom_index_pair = std::pair<int,int>(-1,-1);
+
 
 // 180 degree flip
 short int graphics_info_t::in_180_degree_flip_define = 0;
@@ -2697,7 +2702,10 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 
       } else {
 
-	 if (info.in_edit_chi_mode_flag || info.in_edit_torsion_general_flag) {
+	 if (info.in_edit_chi_mode_flag ||
+	     info.in_edit_torsion_general_flag ||
+	     info.in_multi_residue_torsion_mode) {
+	    
 	    if (info.in_edit_chi_mode_flag) {
 	       
 	       if (info.in_edit_chi_mode_view_rotate_mode) { 
@@ -2717,8 +2725,16 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 		  info.rotate_chi_torsion_general(x,y);
 	       }
 	    }
+	    if (info.in_multi_residue_torsion_mode) {
+	       if (info.in_edit_chi_mode_view_rotate_mode) { 
+		  local_rotate_view_mode = 1;
+	       } else {
+		  info.rotate_multi_residue_torsion(x,y);
+	       }
+	    }
 	    
 	 } else {
+
 	    // not rotating chi or torsion_general
 	    if (info.in_moving_atoms_drag_atom_mode_flag) {
 

@@ -3869,7 +3869,12 @@ SCM set_torsion_scm(int imol, const char *chain_id, int res_no, const char *inse
 		    const char *atom_name_2,
 		    const char *atom_name_3,
 		    const char *atom_name_4, double tors);
+
+void multi_residue_torsion_scm(int imol, SCM residues_specs_scm);
+
 #endif  /* USE_GUILE */
+
+
 
 
 

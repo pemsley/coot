@@ -3007,6 +3007,11 @@ public:
    void clear_out_container(GtkWidget *vbox);
    static std::string chi_angle_alt_conf;
 
+   // multi-residue torsion
+   static bool in_multi_residue_torsion_mode;
+   static bool multi_residue_torsion_reverse_fragment_mode; 
+   static std::pair<int, int> multi_residue_torsion_rotating_atom_index_pair;
+
 
    // real values start at 1:
    static int edit_chi_current_chi;
@@ -3792,6 +3797,10 @@ string   static std::string sessionid;
    // 
    static coot::nomenclature_error_handle_type nomenclature_errors_mode;
 
+   void multi_torsion_residues(int imol, const std::vector<coot::residue_spec_t> &v);
+   static void on_multi_residue_torsion_button_clicked(GtkButton *button, gpointer user_data);
+   void rotate_multi_residue_torsion(double x, double y); 
+
 };
 
 
@@ -3815,7 +3824,7 @@ GtkWidget *wrapped_create_accept_reject_refinement_dialog();
 void update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 					      coot::accept_reject_text_type text_type,
 					      const coot::refinement_results_t &rr);
-
+GtkWidget *wrapped_create_multi_residue_torsion_dialog(const std::vector<std::pair<CAtom *, CAtom *> > &pairs);
 
 // Some currently useless Perspective View definition
 // 

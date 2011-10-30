@@ -285,8 +285,8 @@ int test_internal_single() {
       // status = test_COO_mod();
       // status = test_remove_whitespace();
       // status = test_beam_in_residue();
-      // status = test_multi_residue_torsion();
-      status = test_torsions_from_residue_selection();
+      status = test_multi_residue_torsion();
+      // status = test_torsions_from_residue_selection();
       
    }
    catch (std::runtime_error mess) {

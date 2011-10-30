@@ -1615,3 +1615,19 @@ int read_small_molecule_cif(const char *file_name) {
 
    return imol;
 } 
+
+#ifdef USE_GUILE
+void
+multi_residue_torsion_scm(int imol, SCM residues_specs_scm) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(residues_specs_scm);
+      g.multi_torsion_residues(imol, residue_specs);
+
+      graphics_draw();
+   } 
+
+} 
+
+#endif 

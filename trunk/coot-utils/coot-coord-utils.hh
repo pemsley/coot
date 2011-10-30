@@ -1175,7 +1175,7 @@ namespace coot {
 
       // calling function deletes
       // 
-      CMMDBManager *create_mmdbmanager_from_residue_specs(std::vector<coot::residue_spec_t> &r1,
+      CMMDBManager *create_mmdbmanager_from_residue_specs(const std::vector<coot::residue_spec_t> &r1,
 							  CMMDBManager *mol);
 
       void add_copy_of_atom(CMMDBManager *mol, CAtom *atom);

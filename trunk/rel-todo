@@ -67,7 +67,7 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 
      ::: 0.5
 
-
+   o check that probe works 
 
    o use COOT_N_PROCESSOR in the conformer and ligand search. Puntable
 

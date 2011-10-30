@@ -317,7 +317,6 @@ coot_real_SOURCES = \
 	globjects.h gl-matrix.h  \
 	graphics-info.cc	 \
 	graphics-info-defines.cc \
-	graphics-info-refmac.cc  \
 	graphics-info-graphs.cc	 \
 	graphics-info-gui.cc	 \
 	graphics-info-modelling.cc \
@@ -329,7 +328,9 @@ coot_real_SOURCES = \
 	graphics-info-mutate.cc	 \
 	graphics-info-lsq.cc	 \
 	graphics-info-pick.cc	 \
+	graphics-info-refmac.cc  \
 	graphics-info-render.cc	 \
+	graphics-info-residues.cc	 \
 	graphics-info-state.cc	 \
 	graphics-info-superpose.cc	\
 	gl-matrix.cc 		 \

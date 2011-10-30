@@ -492,27 +492,31 @@ coot::torsionable_bonds_monomer_internal(CResidue *residue_p,
       is_pyranose = 1;
 
    if (tors_restraints.size()) {
-      for (unsigned int itor=0; itor<tors_restraints.size(); itor++) { 
-	 std::string tr_atom_name_2 = tors_restraints[itor].atom_id_2_4c();
-	 std::string tr_atom_name_3 = tors_restraints[itor].atom_id_3_4c();
+      for (unsigned int itor=0; itor<tors_restraints.size(); itor++) {
 
-	 for (unsigned int iat1=0; iat1<n_selected_atoms; iat1++) {
-	    CResidue *res_1 = atom_selection[iat1]->residue;
-	    std::string atom_name_1 = atom_selection[iat1]->name;
-	    for (unsigned int iat2=0; iat2<n_selected_atoms; iat2++) {
-	       if (iat1 != iat2) { 
-		  CResidue *res_2 = atom_selection[iat2]->residue;
-		  if (res_1 == res_2) {
-		     std::string atom_name_2 = atom_selection[iat2]->name;
-		     if (atom_name_1 == tr_atom_name_2) {
-			if (atom_name_2 == tr_atom_name_3) {
+	 if (! tors_restraints[itor].is_const()) { 
+	    std::string tr_atom_name_2 = tors_restraints[itor].atom_id_2_4c();
+	    std::string tr_atom_name_3 = tors_restraints[itor].atom_id_3_4c();
 
-			   if ((include_pyranose_ring_torsions_flag == 1) ||
-			       (is_pyranose && !tors_restraints[itor].is_pyranose_ring_torsion())) {
+	    for (unsigned int iat1=0; iat1<n_selected_atoms; iat1++) {
+	       CResidue *res_1 = atom_selection[iat1]->residue;
+	       std::string atom_name_1 = atom_selection[iat1]->name;
+	       for (unsigned int iat2=0; iat2<n_selected_atoms; iat2++) {
+		  if (iat1 != iat2) { 
+		     CResidue *res_2 = atom_selection[iat2]->residue;
+		     if (res_1 == res_2) {
+			std::string atom_name_2 = atom_selection[iat2]->name;
+			if (atom_name_1 == tr_atom_name_2) {
+			   if (atom_name_2 == tr_atom_name_3) {
 
-			      std::pair<CAtom *, CAtom *> p(atom_selection[iat1],
-							    atom_selection[iat2]);
-			      v.push_back(p);
+			      if ((include_pyranose_ring_torsions_flag == 1) ||
+				  (is_pyranose && !tors_restraints[itor].is_pyranose_ring_torsion()) ||
+				  (! is_pyranose)) { 
+
+				 std::pair<CAtom *, CAtom *> p(atom_selection[iat1],
+							       atom_selection[iat2]);
+				 v.push_back(p);
+			      }
 			   }
 			}
 		     }

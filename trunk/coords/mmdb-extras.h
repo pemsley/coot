@@ -155,6 +155,9 @@ namespace coot {
     void setup_atom_radii();
     realtype get_radius(const std::string &element) const;
 
+    void contacts_from_monomer_restraints(const atom_selection_container_t asc, 
+			    std::map<CResidue *, dictionary_residue_restraints_t> &res_restraints); // non-const for map [] usage
+
   public:
     std::vector<contacts_pair> contacts;
     contact_info(PSContact con_in, int nc) {
@@ -199,6 +202,10 @@ namespace coot {
     contact_info(const atom_selection_container_t &asc,
 		 coot::protein_geometry *geom_p, 
 		 const bonded_pair_container_t &bonded_pairs);
+
+    contact_info(const atom_selection_container_t &asc,
+		 coot::protein_geometry *geom_p, 
+		 const std::vector<std::pair<CAtom *, CAtom *> > &link_bond_atoms);
 
     void add_MSE_Se_bonds(const atom_selection_container_t &asc);
     int n_contacts() const { return contacts.size(); } 

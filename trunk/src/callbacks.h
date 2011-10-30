@@ -4328,3 +4328,17 @@ on_fix_nomenclature_errors_cancel_button_clicked
 void
 on_ligand_builder1_activate            (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
+void
+on_multi_residue_torsion_cancel_button_clicked
+                                        (GtkButton       *button,
+					 gpointer         user_data);
+
+void
+on_multi_residue_torsion_OK_button_clicked
+                                        (GtkButton       *button,
+					 gpointer         user_data);
+
+void
+on_multi_residue_torsion_reverse_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+					 gpointer         user_data);

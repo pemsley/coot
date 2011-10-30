@@ -7315,6 +7315,8 @@ coot::restraints_container_t::info() const {
    }
 } 
 
+// this can throw an exception
+// 
 std::vector<std::pair<CAtom *, CAtom *> >
 coot::torsionable_bonds(CMMDBManager *mol, PPCAtom atom_selection,
 			int n_selected_atoms,
@@ -7335,7 +7337,8 @@ coot::torsionable_bonds(CMMDBManager *mol, PPCAtom atom_selection,
    std::map<CResidue *, coot::dictionary_residue_restraints_t> res_restraints;
    for (unsigned int ires=0; ires<residues.size(); ires++) { 
       std::string rn = residues[ires]->GetResName();
-      std::pair<bool, coot::dictionary_residue_restraints_t> rest = geom_p->get_monomer_restraints(rn);
+      std::pair<bool, coot::dictionary_residue_restraints_t> rest =
+	 geom_p->get_monomer_restraints(rn);
       if (! rest.first) {
 	 std::string m = "Restraints not found for type ";
 	 m += rn;
@@ -7344,12 +7347,15 @@ coot::torsionable_bonds(CMMDBManager *mol, PPCAtom atom_selection,
       res_restraints[residues[ires]] = rest.second;
    }
 
-   std::cout << "debug:: torsionable_bonds found " << residues.size() << " residues " << std::endl;
+   std::cout << "debug:: torsionable_bonds found " << residues.size() << " residues "
+	     << std::endl;
    for (unsigned int ires=0; ires<residues.size(); ires++) {
       // a coot-util function
       std::vector<std::pair<CAtom *, CAtom *> > v_inner =
 	 coot::torsionable_bonds_monomer_internal(residues[ires], atom_selection, n_selected_atoms,
 						  include_pyranose_ring_torsions_flag, geom_p);
+      std::cout << "found " << v_inner.size() << " monomer internal torsions for "
+		<< residues[ires]->GetResName() << std::endl;
       for (unsigned int ip=0; ip<v_inner.size(); ip++)
 	 v.push_back(v_inner[ip]);
    }
@@ -7387,25 +7393,28 @@ coot::torsionable_link_bonds(std::vector<CResidue *> residues_in,
    // t.geom.link_add_torsion("NAG-ASN", 1, 2, 2, 2, " C1 ", "ND2 ", " CG ", " CB ", 180, 40, 3, "Psi-N");
    // t.geom.link_add_torsion("NAG-ASN", 1, 1, 2, 2, " O5 ", " C1 ", "ND2 ", " CG ", 180, 40, 3, "Psi-N");
       
-   std::cout << "found LINKR linked pairs:\n   " <<  bpc;
+   // std::cout << "found LINKR linked pairs:\n   " <<  bpc;
 
    for (unsigned int i=0; i<bpc.bonded_residues.size(); i++) { 
       coot::dictionary_residue_link_restraints_t link = geom_p->link(bpc[i].link_type);
       if (link.link_id != "") {
-	 std::cout << "   dictionary link found " << link.link_id << " with "
-		   << link.link_bond_restraint.size() << " bond restraints and "
-		   << link.link_torsion_restraint.size() << " link torsions " << std::endl;
+	 if (0) 
+	    std::cout << "   dictionary link found " << link.link_id << " with "
+		      << link.link_bond_restraint.size() << " bond restraints and "
+		      << link.link_torsion_restraint.size() << " link torsions " << std::endl;
 	 for (unsigned int ib=0; ib<link.link_bond_restraint.size(); ib++) { 
 	    // we need to get the atoms and add them to "pairs".
-	    std::cout << "   "
-		      << link.link_bond_restraint[ib].atom_id_1_4c() << " "
-		      << link.link_bond_restraint[ib].atom_1_comp_id << " to "
-		      << link.link_bond_restraint[ib].atom_id_2_4c() << " " 
-		      << link.link_bond_restraint[ib].atom_2_comp_id << " "
-		      << " of "
-		      << bpc[i].res_1->GetResName() << " to "
-		      << bpc[i].res_2->GetResName()
-		      << std::endl;
+
+	    if (0) 
+	       std::cout << "   "
+			 << link.link_bond_restraint[ib].atom_id_1_4c() << " "
+			 << link.link_bond_restraint[ib].atom_1_comp_id << " to "
+			 << link.link_bond_restraint[ib].atom_id_2_4c() << " " 
+			 << link.link_bond_restraint[ib].atom_2_comp_id << " "
+			 << " of "
+			 << bpc[i].res_1->GetResName() << " to "
+			 << bpc[i].res_2->GetResName()
+			 << std::endl;
 	    CAtom *link_atom_1 = bpc[i].res_1->GetAtom(link.link_bond_restraint[ib].atom_id_1_4c().c_str());
 	    CAtom *link_atom_2 = bpc[i].res_2->GetAtom(link.link_bond_restraint[ib].atom_id_2_4c().c_str());
 	    if (link_atom_1 && link_atom_2) { 
