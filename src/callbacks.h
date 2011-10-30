@@ -4342,3 +4342,24 @@ void
 on_multi_residue_torsion_reverse_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
 					 gpointer         user_data);
+
+
+void
+on_multi_residue_torsion_pick_apply_button_clicked
+                                        (GtkButton       *button,
+					 gpointer         user_data);
+
+
+void
+on_multi_residue_torsion_pick_cancel_button_activate
+                                        (GtkButton       *button,
+					 gpointer         user_data);
+
+
+void
+on_multi_residue_torsion_start_button_clicked
+                                        (GtkButton       *button,
+					 gpointer         user_data);
+
+
+

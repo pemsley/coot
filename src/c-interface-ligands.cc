@@ -1622,12 +1622,44 @@ multi_residue_torsion_scm(int imol, SCM residues_specs_scm) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(residues_specs_scm);
+      std::vector<coot::residue_spec_t> residue_specs =
+	 scm_to_residue_specs(residues_specs_scm);
       g.multi_torsion_residues(imol, residue_specs);
 
       graphics_draw();
    } 
 
+}
+#endif 
+
+void
+setup_multi_residue_torsion() {
+
+   graphics_info_t g;
+   g.in_multi_residue_torsion_define = true; // we are about to pick atoms
+   g.multi_residue_torsion_picked_residue_specs.clear(); // clear previous picked residues
+   pick_cursor_maybe(); // depends on ctrl key for rotate
+
+   g.multi_residue_torsion_reverse_fragment_mode = false;
+   GtkWidget *w = create_multi_residue_torsion_pick_dialog();
+   gtk_widget_show(w);
 } 
 
-#endif 
+/* show the rotatable bonds dialog */
+void
+show_multi_residue_torsion_dialog() {
+
+   graphics_info_t g;
+   if (g.multi_residue_torsion_picked_residue_specs.size()) {
+      g.multi_torsion_residues(g.multi_residue_torsion_picked_residues_imol,
+			       g.multi_residue_torsion_picked_residue_specs);
+      g.in_multi_residue_torsion_mode = true;
+   }
+
+}
+
+void clear_multi_residue_torsion_mode() {
+
+   graphics_info_t g;
+   g.in_multi_residue_torsion_mode = false;
+} 

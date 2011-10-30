@@ -783,6 +783,7 @@ class graphics_info_t {
    void check_if_in_lsq_plane_deviant_atom_define(GdkEventButton *event);
    void check_if_in_torsion_general_define(GdkEventButton *event);
    void check_if_in_base_pairing_define(GdkEventButton *event);
+   void check_if_in_multi_residue_torsion_define(GdkEventButton *event);
    void check_if_in_fixed_atom_define(GdkEventButton *event,
 				      const GdkModifierType &state); // can use Ctrl key
    void check_if_in_user_defined_define(GdkEventButton *event);
@@ -3008,9 +3009,12 @@ public:
    static std::string chi_angle_alt_conf;
 
    // multi-residue torsion
-   static bool in_multi_residue_torsion_mode;
+   static bool in_multi_residue_torsion_mode;   // for rotating atoms (not view)
+   static bool in_multi_residue_torsion_define; // for picking atoms 
    static bool multi_residue_torsion_reverse_fragment_mode; 
+   static int multi_residue_torsion_picked_residues_imol; 
    static std::pair<int, int> multi_residue_torsion_rotating_atom_index_pair;
+   static std::vector<coot::residue_spec_t> multi_residue_torsion_picked_residue_specs;
 
 
    // real values start at 1:
