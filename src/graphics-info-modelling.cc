@@ -3594,6 +3594,12 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
    }
 }
 
+void
+graphics_info_t::rotate_multi_residue_torsion(double x, double y) {
+
+}
+
+
 
 // 	 //  debug:
 // 	 std::cout << "DEBUG:: residue_mol: ----------------- " << std::endl;

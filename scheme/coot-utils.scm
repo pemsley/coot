@@ -104,6 +104,7 @@
 (define list-nomenclature-errors list-nomenclature-errors-scm)
 (define matching-compound-names-from-dictionary matching-compound-names-from-dictionary-scm)
 (define comp-id->name comp-id-to-name-scm)
+(define multi-residue-torsion multi-residue-torsion-scm)
 
 ;; documented functions
 

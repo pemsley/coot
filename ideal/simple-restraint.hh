@@ -1676,6 +1676,7 @@ namespace coot {
 
    }; 
 
+   // this can throw an exception
    std::vector<std::pair<CAtom *, CAtom *> >
    torsionable_bonds(CMMDBManager *mol, PPCAtom atom_selection, int n_selected_atoms,
 		     protein_geometry *geom);
@@ -1683,6 +1684,11 @@ namespace coot {
    std::vector<std::pair<CAtom *, CAtom *> >
    torsionable_link_bonds(std::vector<CResidue *> residues_in, CMMDBManager *mol,
 			  protein_geometry *geom);
+   std::vector<std::pair<CAtom *, CAtom *> >
+   torsionable_link_bonds(std::vector<CResidue *> residues,
+			  CMMDBManager *mol,
+			  protein_geometry *geom);
+   
 
 } // namespace coot
 

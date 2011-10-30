@@ -34,6 +34,8 @@
 #include <vector>
 #endif
 
+#include <algorithm>
+
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
 #include <GL/glut.h>  // for some reason...  // Eh?
 
@@ -354,7 +356,7 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 GtkWidget *
 wrapped_create_accept_reject_refinement_dialog() {
 
-  GtkWidget *w;
+  GtkWidget *w = 0;
   if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
     w = lookup_widget(GTK_WIDGET(graphics_info_t::glarea), "accept_reject_dialog_frame_docked");
   } else {
@@ -3747,4 +3749,116 @@ graphics_info_t::wrapped_create_lsq_plane_dialog() {
    gtk_window_set_transient_for(GTK_WINDOW(w), main_window);
    
    return w;
+} 
+
+
+// 
+GtkWidget *
+wrapped_create_multi_residue_torsion_dialog(const std::vector<std::pair<CAtom *, CAtom *> > &pairs) {
+
+   GtkWidget *w = create_multi_residue_torsion_dialog();
+   GtkWidget *vbox = lookup_widget(GTK_WIDGET(w), "multi_residue_torsion_vbox");
+   graphics_info_t::multi_residue_torsion_reverse_fragment_mode = 0; // reset every time 
+
+   for (unsigned int i=0; i<pairs.size(); i++) { 
+      std::string s;
+      s += pairs[i].first->name;
+      s += " ";
+      s += coot::util::int_to_string(pairs[i].first->GetSeqNum());
+      s += "  ->  ";
+      s += pairs[i].second->name;
+      s += " ";
+      s += coot::util::int_to_string(pairs[i].second->GetSeqNum());
+      GtkWidget *button = gtk_button_new_with_label(s.c_str());
+      gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 2);
+      gtk_container_set_border_width(GTK_CONTAINER(button), 2);
+      gtk_signal_connect(GTK_OBJECT(button), "clicked",
+			 GTK_SIGNAL_FUNC(graphics_info_t::on_multi_residue_torsion_button_clicked),
+			 GINT_TO_POINTER(i));
+      gtk_widget_show(button);
+      coot::atom_spec_t atom_spec_1(pairs[i].first);
+      coot::atom_spec_t atom_spec_2(pairs[i].second);
+      std::pair<coot::atom_spec_t, coot::atom_spec_t> *atom_spec_pair =
+	 new std::pair<coot::atom_spec_t, coot::atom_spec_t>(atom_spec_1, atom_spec_2);
+      g_object_set_data_full(G_OBJECT(button), "spec_pair", atom_spec_pair, g_free);
+   }
+
+   return w;
+}
+
+// static
+void
+graphics_info_t::on_multi_residue_torsion_button_clicked(GtkButton *button,
+							 gpointer user_data) {
+
+   graphics_info_t g;
+   int i = GPOINTER_TO_INT(user_data);
+   GtkWidget *check_button = lookup_widget(GTK_WIDGET(button), "multi_residue_torsion_reverse_checkbutton");
+   std::pair<coot::atom_spec_t, coot::atom_spec_t> *atom_spec_pair =   
+      static_cast<std::pair<coot::atom_spec_t, coot::atom_spec_t> *> (g_object_get_data (G_OBJECT (button), "spec_pair"));
+
+   if (atom_spec_pair) {
+      if (g.moving_atoms_asc->n_selected_atoms) {
+	 if (moving_atoms_asc->mol) {
+	    int index_1 = -1; // unset
+	    int index_2 = -1; // unset
+	    for (unsigned int i=0; i<g.moving_atoms_asc->n_selected_atoms; i++) { 
+	       coot::atom_spec_t moving_spec_1(moving_atoms_asc->atom_selection[i]);
+	       if (moving_spec_1 == atom_spec_pair->first)
+		  index_1 = i;
+	       if (moving_spec_1 == atom_spec_pair->second)
+		  index_2 = i;
+	       if (index_1 != -1)
+		  if (index_2 != -1)
+		     break;
+	    }
+
+	    if (index_1 == -1) {
+	       std::cout << "ERROR:: index_1 not found " << std::endl;
+	    } else {
+	       if (index_2 == -1) {
+		  std::cout << "ERROR:: index_2 not found " << std::endl;
+	       } else {
+
+		  // ------------------------------------------------
+		  // We don't want to rotate here really, we want to
+		  // set the atom pair which we will rotate about when
+		  // the mouse moves (c.f. rotate_chi()).
+		  // ------------------------------------------------
+		  
+		  // std::cout << "rotate! " << index_1 << " " << index_2 << std::endl;
+		  bool reverse_flag = false; // read from GUI check button
+		  if (GTK_TOGGLE_BUTTON(check_button)->active)
+		     reverse_flag = 1;
+
+		  
+		  std::vector<CResidue *> residues;
+		  for (unsigned int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+		     CResidue *r = moving_atoms_asc->atom_selection[i]->residue;
+		     if (std::find(residues.begin(), residues.end(), r) == residues.end())
+			residues.push_back(r);
+		  }
+		  
+		  std::vector<std::pair<CAtom *, CAtom *> > link_bond_atom_pairs = 
+		     coot::torsionable_link_bonds(residues, moving_atoms_asc->mol, g.Geom_p());
+		  coot::contact_info contacts(*moving_atoms_asc, geom_p, link_bond_atom_pairs);
+		  std::vector<std::vector<int> > contact_indices =
+		     contacts.get_contact_indices_with_reverse_contacts();
+		  try { 
+		     coot::atom_tree_t tree(contact_indices, 0,
+					    moving_atoms_asc->mol,
+					    moving_atoms_asc->SelectionHandle);
+		     double angle = 5.0; // degress
+			tree.rotate_about(index_1, index_2, angle, reverse_flag);
+			g.make_moving_atoms_graphics_object(*moving_atoms_asc);
+			graphics_draw();
+		     }
+		  catch (std::runtime_error rte) {
+		     std::cout << "WARNING:: " << rte.what() << std::endl;
+		  }
+	       }
+	    }
+	 } 
+      }
+   }
 } 

@@ -425,39 +425,7 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
       res_restraints[residues[ires]] = rest.second;
    }
 
-   // make contacts from monomer restraints
-   // 
-   for (unsigned int iat=0; iat<asc.n_selected_atoms; iat++) {
-      CAtom *at_1 = asc.atom_selection[iat];
-      std::string atom_name_1 = at_1->name;
-      for (unsigned int jat=0; jat<asc.n_selected_atoms; jat++) {
-	 // if they are in the same residue...
-	 CAtom *at_2 = asc.atom_selection[jat];
-	 if (at_1->residue == at_2->residue) { 
-	    std::string atom_name_2 = at_2->name;
-	    // was there a bond between them?
-	    const std::vector<coot::dict_bond_restraint_t> &bond_restraints =
-	       res_restraints[at_1->residue].bond_restraint;
-	    for (unsigned int ibond=0; ibond<bond_restraints.size(); ibond++) {
-	       if (bond_restraints[ibond].atom_id_1_4c() == atom_name_1) { 
-		  if (bond_restraints[ibond].atom_id_2_4c() == atom_name_2) {
-		     contacts_pair p(iat, jat);
-		     contacts.push_back(p);
-		     break;
-		  }
-	       }
-	       // and the reverse indexing of that...
-	       if (bond_restraints[ibond].atom_id_1_4c() == atom_name_2) { 
-		  if (bond_restraints[ibond].atom_id_2_4c() == atom_name_1) {
-		     contacts_pair p(jat, iat);
-		     contacts.push_back(p);
-		     break;
-		  }
-	       }
-	    }
-	 }
-      } 
-   }
+   contacts_from_monomer_restraints(asc, res_restraints);
 
    // now handle the bonded_pairs (they have residue_1, residue_2 and a link name)
    for (unsigned int ib=0; ib<bonded_pairs.bonded_residues.size(); ib++) {
@@ -519,6 +487,98 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
 	       }
 	    }
 	 }
+      }
+   }
+}
+
+
+void
+coot::contact_info::contacts_from_monomer_restraints(const atom_selection_container_t asc,
+				       std::map<CResidue *, coot::dictionary_residue_restraints_t> &res_restraints) {
+   
+   // make contacts from monomer restraints
+   // 
+   for (unsigned int iat=0; iat<asc.n_selected_atoms; iat++) {
+      CAtom *at_1 = asc.atom_selection[iat];
+      std::string atom_name_1 = at_1->name;
+      for (unsigned int jat=0; jat<asc.n_selected_atoms; jat++) {
+	 // if they are in the same residue...
+	 CAtom *at_2 = asc.atom_selection[jat];
+	 if (at_1->residue == at_2->residue) { 
+	    std::string atom_name_2 = at_2->name;
+	    // was there a bond between them?
+	    const std::vector<coot::dict_bond_restraint_t> &bond_restraints =
+	       res_restraints[at_1->residue].bond_restraint;
+	    for (unsigned int ibond=0; ibond<bond_restraints.size(); ibond++) {
+	       if (bond_restraints[ibond].atom_id_1_4c() == atom_name_1) { 
+		  if (bond_restraints[ibond].atom_id_2_4c() == atom_name_2) {
+		     contacts_pair p(iat, jat);
+		     contacts.push_back(p);
+		     break;
+		  }
+	       }
+	       // and the reverse indexing of that...
+	       if (bond_restraints[ibond].atom_id_1_4c() == atom_name_2) { 
+		  if (bond_restraints[ibond].atom_id_2_4c() == atom_name_1) {
+		     contacts_pair p(jat, iat);
+		     contacts.push_back(p);
+		     break;
+		  }
+	       }
+	    }
+	 }
+      } 
+   }
+}
+
+
+
+coot::contact_info::contact_info(const atom_selection_container_t &asc,
+				 coot::protein_geometry *geom_p, 
+				 const std::vector<std::pair<CAtom *, CAtom *> > &link_bond_atoms) {
+
+   std::vector<CResidue *> residues;
+   std::map<CResidue *, std::vector<int> > atoms_in_residue;
+
+   // fill residues and atoms_in_residue
+   for (unsigned int i=0; i<asc.n_selected_atoms; i++) {
+      CResidue *r = asc.atom_selection[i]->residue;
+      if (std::find(residues.begin(), residues.end(), r) == residues.end())
+	 residues.push_back(r);
+      atoms_in_residue[r].push_back(i);
+   }
+   std::map<CResidue *, coot::dictionary_residue_restraints_t> res_restraints;
+   for (unsigned int ires=0; ires<residues.size(); ires++) { 
+      std::string rn = residues[ires]->GetResName();
+      std::pair<bool, coot::dictionary_residue_restraints_t> rest = 
+	 geom_p->get_monomer_restraints(rn);
+      if (! rest.first) {
+	 std::string m = "Restraints not found for type ";
+	 m += rn;
+	 throw std::runtime_error(m);
+      }
+      res_restraints[residues[ires]] = rest.second;
+   }
+
+   contacts_from_monomer_restraints(asc, res_restraints);
+
+   // now the link bond restraints
+   for (unsigned int ilb=0; ilb<link_bond_atoms.size(); ilb++) {
+      bool ifound = 0;
+      for (unsigned int i=0; i<asc.n_selected_atoms; i++) {
+	 if (asc.atom_selection[i] == link_bond_atoms[ilb].first) {
+	    for (unsigned int j=0; j<asc.n_selected_atoms; j++) {
+	       if (asc.atom_selection[j] == link_bond_atoms[ilb].second) {
+		  contacts_pair p(j, i);
+		  // std::cout << "---- added link bond contact " << i << " " << j << std::endl;
+		  contacts.push_back(p);
+		  ifound = 1;
+		  break;
+	       }
+	    }
+	 }
+	 if (ifound)
+	    break;
       }
    }
 }

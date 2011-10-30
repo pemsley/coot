@@ -1283,7 +1283,7 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (reset_view_toolbutton), tooltips, _("Usage Note: click again to centre on a different molecule"), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (reset_view_toolbutton), TRUE);
 
-  tmp_image = gtk_image_new_from_stock ("display-manager.png", GTK_ICON_SIZE_MENU);
+  tmp_image = gtk_image_new_from_stock ("display-manager.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   display_manager_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _(" Display Manager"));
   gtk_widget_show (display_manager_toolbutton);
@@ -1291,7 +1291,7 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (display_manager_toolbutton), tooltips, _("Display the dialog for displaying and undisplaying molecules and changing their representation (F7)"), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (display_manager_toolbutton), TRUE);
 
-  tmp_image = gtk_image_new_from_stock ("go-to-atom.svg", GTK_ICON_SIZE_MENU);
+  tmp_image = gtk_image_new_from_stock ("go-to-atom.svg", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   go_to_atom_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Go To Atom..."));
   gtk_widget_show (go_to_atom_toolbutton);
@@ -1301,7 +1301,7 @@ create_window1 (void)
                               GDK_F6, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
-  tmp_image = gtk_image_new_from_stock ("go-to-ligand.svg", GTK_ICON_SIZE_MENU);
+  tmp_image = gtk_image_new_from_stock ("go-to-ligand.svg", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   go_to_ligand_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Go To Ligand"));
   gtk_widget_show (go_to_ligand_toolbutton);
@@ -3999,6 +3999,7 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_container_add (GTK_CONTAINER (frame33), symmetry_colorbutton);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), _("Pick a Colour"));
 
   label68 = gtk_label_new (_("Sym Colour"));
   gtk_widget_show (label68);
@@ -6441,12 +6442,12 @@ create_find_ligand_dialog (void)
   gtk_widget_show (find_ligand_sigma_level_entry);
   gtk_box_pack_start (GTK_BOX (hbox79), find_ligand_sigma_level_entry, FALSE, TRUE, 0);
 
-  label145 = gtk_label_new (_("  sigma  "));
+  label145 = gtk_label_new (_("  rmsd  "));
   gtk_widget_show (label145);
   gtk_box_pack_start (GTK_BOX (hbox79), label145, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label145), GTK_JUSTIFY_CENTER);
 
-  label280 = gtk_label_new (_("Sigma Level"));
+  label280 = gtk_label_new (_("r.m.s. d level"));
   gtk_widget_show (label280);
   gtk_frame_set_label_widget (GTK_FRAME (frame85), label280);
 
@@ -8870,9 +8871,9 @@ create_find_waters_dialog (void)
   gtk_widget_show (find_waters_peak_level_entry);
   gtk_box_pack_start (GTK_BOX (hbox44), find_waters_peak_level_entry, FALSE, TRUE, 6);
   gtk_widget_set_size_request (find_waters_peak_level_entry, 78, -1);
-  gtk_tooltips_set_tip (tooltips, find_waters_peak_level_entry, _("Note that this is sigma of the map after it has been masked by the protein.  1.8 sigma seems good for a 2Fo-Fc style map and about 3.0 for a difference map."), NULL);
+  gtk_tooltips_set_tip (tooltips, find_waters_peak_level_entry, _("Note that this is r.m.s.d. of the map after it has been masked by the protein.  1.8 r.m.s.d seems good for a 2Fo-Fc style map and about 3.0 for a difference map."), NULL);
 
-  label88 = gtk_label_new (_(" sigma "));
+  label88 = gtk_label_new (_(" rmsd "));
   gtk_widget_show (label88);
   gtk_box_pack_start (GTK_BOX (hbox44), label88, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label88), GTK_JUSTIFY_CENTER);
@@ -11884,7 +11885,7 @@ create_single_map_properties_dialog (void)
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (single_map_properties_absolute_radiobutton), single_map_properties_absolute_radiobutton_group);
   single_map_properties_absolute_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (single_map_properties_absolute_radiobutton));
 
-  single_map_properties_sigma_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("sigma"));
+  single_map_properties_sigma_radiobutton = gtk_radio_button_new_with_mnemonic (NULL, _("rmsd"));
   gtk_widget_show (single_map_properties_sigma_radiobutton);
   gtk_box_pack_start (GTK_BOX (vbox198), single_map_properties_sigma_radiobutton, FALSE, FALSE, 0);
   gtk_radio_button_set_group (GTK_RADIO_BUTTON (single_map_properties_sigma_radiobutton), single_map_properties_absolute_radiobutton_group);
@@ -11924,14 +11925,14 @@ create_single_map_properties_dialog (void)
                     (GtkAttachOptions) (0),
                     (GtkAttachOptions) (0), 0, 0);
 
-  single_map_sigma_checkbutton = gtk_check_button_new_with_mnemonic (_("Change by sigma? "));
+  single_map_sigma_checkbutton = gtk_check_button_new_with_mnemonic (_("Change by rmsd? "));
   gtk_widget_show (single_map_sigma_checkbutton);
   gtk_table_attach (GTK_TABLE (table1), single_map_sigma_checkbutton, 0, 1, 1, 2,
                     (GtkAttachOptions) (0),
                     (GtkAttachOptions) (0), 0, 0);
-  gtk_tooltips_set_tip (tooltips, single_map_sigma_checkbutton, _("By default, maps are contoured by fixed e/A3 units.  Setting this allows you to contour using sigma step instead.  This is useful for unusual maps - such as E-maps and maps synthesised from structure factors far off the absolute scale."), NULL);
+  gtk_tooltips_set_tip (tooltips, single_map_sigma_checkbutton, _("By default, maps are contoured by fixed e/A3 units.  Setting this allows you to contour using r.m.s.d. step instead.  This is useful for unusual maps - such as E-maps and maps synthesised from structure factors far off the absolute scale."), NULL);
 
-  label168 = gtk_label_new (_("  Sigma Step  "));
+  label168 = gtk_label_new (_("  r.m.s.d. step  "));
   gtk_widget_show (label168);
   gtk_table_attach (GTK_TABLE (table1), label168, 1, 2, 0, 1,
                     (GtkAttachOptions) (0),
@@ -13750,7 +13751,7 @@ create_check_waters_dialog (void)
   gtk_widget_show (check_waters_sigma_level_hbox);
   gtk_box_pack_start (GTK_BOX (hbox75), check_waters_sigma_level_hbox, TRUE, TRUE, 0);
 
-  label138 = gtk_label_new (_("  with map sigma level less than:  "));
+  label138 = gtk_label_new (_("  with map r.m.s.d. level less than:  "));
   gtk_widget_show (label138);
   gtk_box_pack_start (GTK_BOX (check_waters_sigma_level_hbox), label138, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label138), GTK_JUSTIFY_CENTER);
@@ -14227,7 +14228,7 @@ create_no_new_ligands_info_dialog (void)
   dialog_vbox41 = GTK_DIALOG (no_new_ligands_info_dialog)->vbox;
   gtk_widget_show (dialog_vbox41);
 
-  label149 = gtk_label_new (_("Sadly no ligands were found.\n\nPerhaps there were no ligands to be found?\n\nAlternatively you could try to reduce the search \nsigma level or the acceptable fit fraction."));
+  label149 = gtk_label_new (_("Sadly no ligands were found.\n\nPerhaps there were no ligands to be found?\n\nAlternatively you could try to reduce the search \nr.m.s.d. level or the acceptable fit fraction."));
   gtk_widget_show (label149);
   gtk_box_pack_start (GTK_BOX (dialog_vbox41), label149, FALSE, FALSE, 10);
   gtk_label_set_justify (GTK_LABEL (label149), GTK_JUSTIFY_CENTER);
@@ -16957,9 +16958,9 @@ create_unmodelled_blobs_dialog (void)
   find_blobs_peak_level_entry = gtk_entry_new ();
   gtk_widget_show (find_blobs_peak_level_entry);
   gtk_box_pack_start (GTK_BOX (hbox111), find_blobs_peak_level_entry, FALSE, TRUE, 6);
-  gtk_tooltips_set_tip (tooltips, find_blobs_peak_level_entry, _("Note that this is sigma of the map after it has been masked by the protein.  1.8 sigma seems good for a 2Fo-Fc style map and about 3.0 for a difference map."), NULL);
+  gtk_tooltips_set_tip (tooltips, find_blobs_peak_level_entry, _("Note that this is r.m.s.d. of the map after it has been masked by the protein.  1.8 r.m.s.d. seems good for a 2Fo-Fc style map and about 3.0 for a difference map."), NULL);
 
-  label214 = gtk_label_new (_(" sigma "));
+  label214 = gtk_label_new (_(" r.m.s.d. "));
   gtk_widget_show (label214);
   gtk_box_pack_start (GTK_BOX (hbox111), label214, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label214), GTK_JUSTIFY_CENTER);
@@ -20770,12 +20771,12 @@ create_generate_diff_map_peaks_dialog (void)
   gtk_widget_show (generate_diff_map_peaks_sigma_level_entry);
   gtk_box_pack_start (GTK_BOX (hbox117), generate_diff_map_peaks_sigma_level_entry, FALSE, FALSE, 0);
 
-  label230 = gtk_label_new (_("  sigma  "));
+  label230 = gtk_label_new (_("  r.m.s.d.  "));
   gtk_widget_show (label230);
   gtk_box_pack_start (GTK_BOX (hbox117), label230, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label230), GTK_JUSTIFY_CENTER);
 
-  label312 = gtk_label_new (_("Sigma Level"));
+  label312 = gtk_label_new (_("r.m.s.d. level"));
   gtk_widget_show (label312);
   gtk_frame_set_label_widget (GTK_FRAME (frame141), label312);
 
@@ -27525,6 +27526,139 @@ create_fix_nomenclature_errors_dialog (void)
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, fix_nomenclature_errors_cancel_button, "fix_nomenclature_errors_cancel_button");
 
   return fix_nomenclature_errors_dialog;
+}
+
+GtkWidget*
+create_multi_residue_torsion_dialog (void)
+{
+  GtkWidget *multi_residue_torsion_dialog;
+  GdkPixbuf *multi_residue_torsion_dialog_icon_pixbuf;
+  GtkWidget *dialog_vbox127;
+  GtkWidget *vbox321;
+  GtkWidget *label769;
+  GtkWidget *scrolledwindow35;
+  GtkWidget *viewport23;
+  GtkWidget *multi_residue_torsion_vbox;
+  GtkWidget *hbox422;
+  GtkWidget *multi_residue_torsion_reverse_checkbutton;
+  GtkWidget *alignment156;
+  GtkWidget *hbox424;
+  GtkWidget *image9926;
+  GtkWidget *label771;
+  GtkWidget *hseparator17;
+  GtkWidget *dialog_action_area126;
+  GtkWidget *multi_residue_torsion_OK_button;
+  GtkWidget *multi_residue_torsion_cancel_button;
+
+  multi_residue_torsion_dialog = gtk_dialog_new ();
+  gtk_widget_set_size_request (multi_residue_torsion_dialog, 240, 270);
+  gtk_window_set_title (GTK_WINDOW (multi_residue_torsion_dialog), _("Multi-Residue Torsions"));
+  multi_residue_torsion_dialog_icon_pixbuf = create_pixbuf ("coot-icon.png");
+  if (multi_residue_torsion_dialog_icon_pixbuf)
+    {
+      gtk_window_set_icon (GTK_WINDOW (multi_residue_torsion_dialog), multi_residue_torsion_dialog_icon_pixbuf);
+      gdk_pixbuf_unref (multi_residue_torsion_dialog_icon_pixbuf);
+    }
+  gtk_window_set_type_hint (GTK_WINDOW (multi_residue_torsion_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+  gtk_dialog_set_has_separator (GTK_DIALOG (multi_residue_torsion_dialog), FALSE);
+
+  dialog_vbox127 = GTK_DIALOG (multi_residue_torsion_dialog)->vbox;
+  gtk_widget_show (dialog_vbox127);
+  gtk_widget_set_size_request (dialog_vbox127, -1, 220);
+
+  vbox321 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox321);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox127), vbox321, TRUE, TRUE, 0);
+
+  label769 = gtk_label_new (_("Torsions"));
+  gtk_widget_show (label769);
+  gtk_box_pack_start (GTK_BOX (vbox321), label769, FALSE, FALSE, 0);
+
+  scrolledwindow35 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_show (scrolledwindow35);
+  gtk_box_pack_start (GTK_BOX (vbox321), scrolledwindow35, TRUE, TRUE, 0);
+
+  viewport23 = gtk_viewport_new (NULL, NULL);
+  gtk_widget_show (viewport23);
+  gtk_container_add (GTK_CONTAINER (scrolledwindow35), viewport23);
+
+  multi_residue_torsion_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (multi_residue_torsion_vbox);
+  gtk_container_add (GTK_CONTAINER (viewport23), multi_residue_torsion_vbox);
+
+  hbox422 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox422);
+  gtk_box_pack_start (GTK_BOX (vbox321), hbox422, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox422), 6);
+
+  multi_residue_torsion_reverse_checkbutton = gtk_check_button_new ();
+  gtk_widget_show (multi_residue_torsion_reverse_checkbutton);
+  gtk_box_pack_start (GTK_BOX (hbox422), multi_residue_torsion_reverse_checkbutton, FALSE, FALSE, 0);
+
+  alignment156 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment156);
+  gtk_container_add (GTK_CONTAINER (multi_residue_torsion_reverse_checkbutton), alignment156);
+
+  hbox424 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox424);
+  gtk_container_add (GTK_CONTAINER (alignment156), hbox424);
+
+  image9926 = gtk_image_new_from_stock ("gtk-refresh", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image9926);
+  gtk_box_pack_start (GTK_BOX (hbox424), image9926, FALSE, FALSE, 0);
+
+  label771 = gtk_label_new_with_mnemonic (_("Reverse "));
+  gtk_widget_show (label771);
+  gtk_box_pack_start (GTK_BOX (hbox424), label771, FALSE, FALSE, 0);
+
+  hseparator17 = gtk_hseparator_new ();
+  gtk_widget_show (hseparator17);
+  gtk_box_pack_start (GTK_BOX (vbox321), hseparator17, FALSE, FALSE, 0);
+
+  dialog_action_area126 = GTK_DIALOG (multi_residue_torsion_dialog)->action_area;
+  gtk_widget_show (dialog_action_area126);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area126), GTK_BUTTONBOX_END);
+
+  multi_residue_torsion_OK_button = gtk_button_new_from_stock ("gtk-ok");
+  gtk_widget_show (multi_residue_torsion_OK_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (multi_residue_torsion_dialog), multi_residue_torsion_OK_button, GTK_RESPONSE_OK);
+  GTK_WIDGET_SET_FLAGS (multi_residue_torsion_OK_button, GTK_CAN_DEFAULT);
+
+  multi_residue_torsion_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_show (multi_residue_torsion_cancel_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (multi_residue_torsion_dialog), multi_residue_torsion_cancel_button, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (multi_residue_torsion_cancel_button, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) multi_residue_torsion_reverse_checkbutton, "toggled",
+                    G_CALLBACK (on_multi_residue_torsion_reverse_checkbutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) multi_residue_torsion_OK_button, "clicked",
+                    G_CALLBACK (on_multi_residue_torsion_OK_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) multi_residue_torsion_cancel_button, "clicked",
+                    G_CALLBACK (on_multi_residue_torsion_cancel_button_clicked),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_dialog, multi_residue_torsion_dialog, "multi_residue_torsion_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_dialog, dialog_vbox127, "dialog_vbox127");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, vbox321, "vbox321");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, label769, "label769");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, scrolledwindow35, "scrolledwindow35");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, viewport23, "viewport23");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, multi_residue_torsion_vbox, "multi_residue_torsion_vbox");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, hbox422, "hbox422");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, multi_residue_torsion_reverse_checkbutton, "multi_residue_torsion_reverse_checkbutton");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, alignment156, "alignment156");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, hbox424, "hbox424");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, image9926, "image9926");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, label771, "label771");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, hseparator17, "hseparator17");
+  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_dialog, dialog_action_area126, "dialog_action_area126");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, multi_residue_torsion_OK_button, "multi_residue_torsion_OK_button");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, multi_residue_torsion_cancel_button, "multi_residue_torsion_cancel_button");
+
+  return multi_residue_torsion_dialog;
 }
 
 #endif /* (GTK_MAJOR_VERSION > 1) */

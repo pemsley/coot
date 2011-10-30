@@ -2619,7 +2619,7 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<CResidue *>
 
 
 CMMDBManager *
-coot::util::create_mmdbmanager_from_residue_specs(std::vector<coot::residue_spec_t> &r1,
+coot::util::create_mmdbmanager_from_residue_specs(const std::vector<coot::residue_spec_t> &r1,
 						  CMMDBManager *mol) {
    std::vector<CResidue *> residues;
 

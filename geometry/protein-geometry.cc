@@ -783,16 +783,12 @@ coot::dict_torsion_restraint_t::is_pyranose_ring_torsion() const {
 
    int n_matches = 0;
    for (unsigned int i=0; i<6; i++) { 
-      if (atom_id_1_4c() == ring_atoms[i])
-	 n_matches++;
       if (atom_id_2_4c() == ring_atoms[i])
 	 n_matches++;
       if (atom_id_3_4c() == ring_atoms[i])
 	 n_matches++;
-      if (atom_id_4_4c() == ring_atoms[i])
-	 n_matches++;
    }
-   if (n_matches == 4)
+   if (n_matches == 2)
       status = true;
    return status;
 } 
