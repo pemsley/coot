@@ -3760,6 +3760,7 @@ wrapped_create_multi_residue_torsion_dialog(const std::vector<std::pair<CAtom *,
    GtkWidget *vbox = lookup_widget(GTK_WIDGET(w), "multi_residue_torsion_vbox");
    graphics_info_t::multi_residue_torsion_reverse_fragment_mode = 0; // reset every time 
 
+
    for (unsigned int i=0; i<pairs.size(); i++) { 
       std::string s;
       s += pairs[i].first->name;
@@ -3796,6 +3797,8 @@ graphics_info_t::on_multi_residue_torsion_button_clicked(GtkButton *button,
    GtkWidget *check_button = lookup_widget(GTK_WIDGET(button), "multi_residue_torsion_reverse_checkbutton");
    std::pair<coot::atom_spec_t, coot::atom_spec_t> *atom_spec_pair =   
       static_cast<std::pair<coot::atom_spec_t, coot::atom_spec_t> *> (g_object_get_data (G_OBJECT (button), "spec_pair"));
+   if (GTK_TOGGLE_BUTTON(check_button)->active)
+      g.multi_residue_torsion_reverse_fragment_mode = 1;
 
    if (atom_spec_pair) {
       if (g.moving_atoms_asc->n_selected_atoms) {
@@ -3813,52 +3816,20 @@ graphics_info_t::on_multi_residue_torsion_button_clicked(GtkButton *button,
 		     break;
 	    }
 
+	    if (GTK_TOGGLE_BUTTON(check_button)->active)
+	       g.multi_residue_torsion_reverse_fragment_mode = 1;
+	    
 	    if (index_1 == -1) {
 	       std::cout << "ERROR:: index_1 not found " << std::endl;
 	    } else {
 	       if (index_2 == -1) {
 		  std::cout << "ERROR:: index_2 not found " << std::endl;
 	       } else {
-
-		  // ------------------------------------------------
-		  // We don't want to rotate here really, we want to
-		  // set the atom pair which we will rotate about when
-		  // the mouse moves (c.f. rotate_chi()).
-		  // ------------------------------------------------
-		  
-		  // std::cout << "rotate! " << index_1 << " " << index_2 << std::endl;
-		  bool reverse_flag = false; // read from GUI check button
-		  if (GTK_TOGGLE_BUTTON(check_button)->active)
-		     reverse_flag = 1;
-
-		  
-		  std::vector<CResidue *> residues;
-		  for (unsigned int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
-		     CResidue *r = moving_atoms_asc->atom_selection[i]->residue;
-		     if (std::find(residues.begin(), residues.end(), r) == residues.end())
-			residues.push_back(r);
-		  }
-		  
-		  std::vector<std::pair<CAtom *, CAtom *> > link_bond_atom_pairs = 
-		     coot::torsionable_link_bonds(residues, moving_atoms_asc->mol, g.Geom_p());
-		  coot::contact_info contacts(*moving_atoms_asc, geom_p, link_bond_atom_pairs);
-		  std::vector<std::vector<int> > contact_indices =
-		     contacts.get_contact_indices_with_reverse_contacts();
-		  try { 
-		     coot::atom_tree_t tree(contact_indices, 0,
-					    moving_atoms_asc->mol,
-					    moving_atoms_asc->SelectionHandle);
-		     double angle = 5.0; // degress
-			tree.rotate_about(index_1, index_2, angle, reverse_flag);
-			g.make_moving_atoms_graphics_object(*moving_atoms_asc);
-			graphics_draw();
-		     }
-		  catch (std::runtime_error rte) {
-		     std::cout << "WARNING:: " << rte.what() << std::endl;
-		  }
+		  std::pair<int, int> p(index_1, index_2);
+		  g.multi_residue_torsion_rotating_atom_index_pair = p;
 	       }
 	    }
-	 } 
+	 }
       }
    }
-} 
+}

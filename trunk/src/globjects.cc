@@ -979,9 +979,12 @@ short int graphics_info_t::moving_atoms_move_chis_flag = 0;
 coot::atom_spec_t graphics_info_t::chi_angles_clicked_atom_spec;
 std::string graphics_info_t::chi_angle_alt_conf = "";
 // multi-residue torsion
+bool graphics_info_t::in_multi_residue_torsion_define = false;
 bool graphics_info_t::in_multi_residue_torsion_mode = false;
 bool graphics_info_t::multi_residue_torsion_reverse_fragment_mode = false;
+int  graphics_info_t::multi_residue_torsion_picked_residues_imol = -1;
 std::pair<int, int> graphics_info_t::multi_residue_torsion_rotating_atom_index_pair = std::pair<int,int>(-1,-1);
+std::vector<coot::residue_spec_t> graphics_info_t::multi_residue_torsion_picked_residue_specs;
 
 
 // 180 degree flip
@@ -3143,6 +3146,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 1;
       if (graphics_info_t::in_edit_torsion_general_flag)
 	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 1;
+      if (graphics_info_t::in_multi_residue_torsion_mode)
+	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 1;
 
       if (graphics_info_t::control_key_for_rotate_flag) {
 	 normal_cursor();
@@ -3787,6 +3792,8 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       if (graphics_info_t::in_edit_chi_mode_flag)
 	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
       if (graphics_info_t::in_edit_torsion_general_flag)
+	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
+      if (graphics_info_t::in_multi_residue_torsion_mode)
 	 graphics_info_t::in_edit_chi_mode_view_rotate_mode = 0;
 
       if (graphics_info_t::control_key_for_rotate_flag) {

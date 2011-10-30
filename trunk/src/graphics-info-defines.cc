@@ -24,6 +24,8 @@
 #include <windows.h>
 #endif
 
+#include <algorithm>
+
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "interface.h"
@@ -59,6 +61,7 @@ graphics_info_t::clear_pending_picks() {
    in_torsion_general_define   = 0;
    pick_pending_flag           = 0;
    in_user_defined_define      = 0;
+   in_multi_residue_torsion_define = 0; 
    in_edit_chi_angles_define   = 0; // Added 20100815: is there a reason why this was missing?
 
    std::vector<std::string> button_name_vec =
@@ -259,6 +262,7 @@ graphics_info_t::check_if_in_range_defines(GdkEventButton *event,
    check_if_in_torsion_general_define(event);
    check_if_in_fixed_atom_define(event, state);
    check_if_in_base_pairing_define(event);
+   check_if_in_multi_residue_torsion_define(event);
 
    return iv;
 }
@@ -1762,3 +1766,29 @@ graphics_info_t::check_if_in_base_pairing_define(GdkEventButton *event) {
       } 
    } 
 } 
+
+void
+graphics_info_t::check_if_in_multi_residue_torsion_define(GdkEventButton *event) {
+
+   // Note: when we set in_mutate_auto_fit_define, we need to clear
+   // the picked atom spec list
+   
+   if (in_multi_residue_torsion_define) {
+      pick_info naii = atom_pick(event);
+      if (naii.success == TRUE) {
+	 int im = naii.imol;
+	 CAtom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
+	 coot::residue_spec_t residue_spec(at);
+	 if (std::find(multi_residue_torsion_picked_residue_specs.begin(),
+		       multi_residue_torsion_picked_residue_specs.end(),
+		       residue_spec) ==
+	     multi_residue_torsion_picked_residue_specs.end()) 
+	    multi_residue_torsion_picked_residue_specs.push_back(residue_spec);
+	 
+	 multi_residue_torsion_picked_residues_imol = naii.imol;
+	 molecules[im].add_to_labelled_atom_list(naii.atom_index);
+	 graphics_draw();
+      }
+   }
+}
+

@@ -22219,6 +22219,10 @@ create_other_model_tools_dialog (void)
   GtkWidget *image6803;
   GtkWidget *label693;
   GtkWidget *model_refine_dialog_find_ligands_button;
+  GtkWidget *alignment157;
+  GtkWidget *hbox425;
+  GtkWidget *image9927;
+  GtkWidget *label773;
   GtkWidget *model_refine_dialog_fast_sss_button;
   GtkWidget *hbox395;
   GtkWidget *image6810;
@@ -22227,6 +22231,7 @@ create_other_model_tools_dialog (void)
   GtkWidget *model_refine_dialog_baton_button;
   GtkWidget *model_refine_dialog_db_main_togglebutton;
   GtkWidget *model_refine_dialog_add_OXT_button;
+  GtkWidget *multi_residue_torsion_start_button;
   GtkWidget *reverse_fragment_direction_togglebutton;
   GtkWidget *place_helix_here_button;
   GtkWidget *other_tools_place_strand_here_button;
@@ -22277,10 +22282,26 @@ create_other_model_tools_dialog (void)
   gtk_widget_show (label693);
   gtk_box_pack_start (GTK_BOX (hbox376), label693, TRUE, TRUE, 0);
 
-  model_refine_dialog_find_ligands_button = gtk_button_new_with_mnemonic (_("Find Ligands..."));
+  model_refine_dialog_find_ligands_button = gtk_button_new ();
   gtk_widget_show (model_refine_dialog_find_ligands_button);
   gtk_box_pack_start (GTK_BOX (vbox163), model_refine_dialog_find_ligands_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_find_ligands_button), 1);
+
+  alignment157 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment157);
+  gtk_container_add (GTK_CONTAINER (model_refine_dialog_find_ligands_button), alignment157);
+
+  hbox425 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox425);
+  gtk_container_add (GTK_CONTAINER (alignment157), hbox425);
+
+  image9927 = gtk_image_new_from_stock ("go-to-ligand.svg", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image9927);
+  gtk_box_pack_start (GTK_BOX (hbox425), image9927, FALSE, FALSE, 0);
+
+  label773 = gtk_label_new_with_mnemonic (_("Find Ligands..."));
+  gtk_widget_show (label773);
+  gtk_box_pack_start (GTK_BOX (hbox425), label773, FALSE, FALSE, 0);
 
   model_refine_dialog_fast_sss_button = gtk_button_new ();
   gtk_widget_show (model_refine_dialog_fast_sss_button);
@@ -22322,6 +22343,11 @@ create_other_model_tools_dialog (void)
   gtk_widget_show (model_refine_dialog_add_OXT_button);
   gtk_box_pack_start (GTK_BOX (vbox163), model_refine_dialog_add_OXT_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (model_refine_dialog_add_OXT_button), 1);
+
+  multi_residue_torsion_start_button = gtk_button_new_with_mnemonic (_("Multi-Residue Torsion"));
+  gtk_widget_show (multi_residue_torsion_start_button);
+  gtk_box_pack_start (GTK_BOX (vbox163), multi_residue_torsion_start_button, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (multi_residue_torsion_start_button), 1);
 
   reverse_fragment_direction_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Reverse Direction..."));
   gtk_widget_show (reverse_fragment_direction_togglebutton);
@@ -22405,6 +22431,9 @@ create_other_model_tools_dialog (void)
   g_signal_connect ((gpointer) model_refine_dialog_add_OXT_button, "clicked",
                     G_CALLBACK (on_model_refine_dialog_add_OXT_button_clicked),
                     NULL);
+  g_signal_connect ((gpointer) multi_residue_torsion_start_button, "clicked",
+                    G_CALLBACK (on_multi_residue_torsion_start_button_clicked),
+                    NULL);
   g_signal_connect ((gpointer) reverse_fragment_direction_togglebutton, "toggled",
                     G_CALLBACK (on_reverse_fragment_direction_togglebutton_toggled),
                     NULL);
@@ -22437,6 +22466,10 @@ create_other_model_tools_dialog (void)
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, image6803, "image6803");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, label693, "label693");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, model_refine_dialog_find_ligands_button, "model_refine_dialog_find_ligands_button");
+  GLADE_HOOKUP_OBJECT (other_model_tools_dialog, alignment157, "alignment157");
+  GLADE_HOOKUP_OBJECT (other_model_tools_dialog, hbox425, "hbox425");
+  GLADE_HOOKUP_OBJECT (other_model_tools_dialog, image9927, "image9927");
+  GLADE_HOOKUP_OBJECT (other_model_tools_dialog, label773, "label773");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, model_refine_dialog_fast_sss_button, "model_refine_dialog_fast_sss_button");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, hbox395, "hbox395");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, image6810, "image6810");
@@ -22445,6 +22478,7 @@ create_other_model_tools_dialog (void)
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, model_refine_dialog_baton_button, "model_refine_dialog_baton_button");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, model_refine_dialog_db_main_togglebutton, "model_refine_dialog_db_main_togglebutton");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, model_refine_dialog_add_OXT_button, "model_refine_dialog_add_OXT_button");
+  GLADE_HOOKUP_OBJECT (other_model_tools_dialog, multi_residue_torsion_start_button, "multi_residue_torsion_start_button");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, reverse_fragment_direction_togglebutton, "reverse_fragment_direction_togglebutton");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, place_helix_here_button, "place_helix_here_button");
   GLADE_HOOKUP_OBJECT (other_model_tools_dialog, other_tools_place_strand_here_button, "other_tools_place_strand_here_button");
@@ -27659,6 +27693,82 @@ create_multi_residue_torsion_dialog (void)
   GLADE_HOOKUP_OBJECT (multi_residue_torsion_dialog, multi_residue_torsion_cancel_button, "multi_residue_torsion_cancel_button");
 
   return multi_residue_torsion_dialog;
+}
+
+GtkWidget*
+create_multi_residue_torsion_pick_dialog (void)
+{
+  GtkWidget *multi_residue_torsion_pick_dialog;
+  GtkWidget *dialog_vbox128;
+  GtkWidget *vbox322;
+  GtkWidget *label772;
+  GtkWidget *multi_residue_torsion_pick_auto_select_checkbutton;
+  GtkWidget *multi_residue_torsion_pick_auto_refine_checkbutton;
+  GtkWidget *hseparator18;
+  GtkWidget *dialog_action_area127;
+  GtkWidget *multi_residue_torsion_pick_apply_button;
+  GtkWidget *multi_residue_torsion_pick_cancel_button;
+
+  multi_residue_torsion_pick_dialog = gtk_dialog_new ();
+  gtk_window_set_title (GTK_WINDOW (multi_residue_torsion_pick_dialog), _("Pick Residues"));
+  gtk_window_set_type_hint (GTK_WINDOW (multi_residue_torsion_pick_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+  gtk_dialog_set_has_separator (GTK_DIALOG (multi_residue_torsion_pick_dialog), FALSE);
+
+  dialog_vbox128 = GTK_DIALOG (multi_residue_torsion_pick_dialog)->vbox;
+  gtk_widget_show (dialog_vbox128);
+
+  vbox322 = gtk_vbox_new (FALSE, 0);
+  gtk_widget_show (vbox322);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox128), vbox322, TRUE, TRUE, 0);
+
+  label772 = gtk_label_new (_("Pick (atoms in) residues..."));
+  gtk_widget_show (label772);
+  gtk_box_pack_start (GTK_BOX (vbox322), label772, FALSE, FALSE, 6);
+
+  multi_residue_torsion_pick_auto_select_checkbutton = gtk_check_button_new_with_mnemonic (_("Auto-select"));
+  gtk_box_pack_start (GTK_BOX (vbox322), multi_residue_torsion_pick_auto_select_checkbutton, FALSE, FALSE, 0);
+
+  multi_residue_torsion_pick_auto_refine_checkbutton = gtk_check_button_new_with_mnemonic (_("Auto-refine"));
+  gtk_box_pack_start (GTK_BOX (vbox322), multi_residue_torsion_pick_auto_refine_checkbutton, FALSE, FALSE, 0);
+
+  hseparator18 = gtk_hseparator_new ();
+  gtk_widget_show (hseparator18);
+  gtk_box_pack_start (GTK_BOX (vbox322), hseparator18, FALSE, FALSE, 0);
+
+  dialog_action_area127 = GTK_DIALOG (multi_residue_torsion_pick_dialog)->action_area;
+  gtk_widget_show (dialog_action_area127);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area127), GTK_BUTTONBOX_END);
+
+  multi_residue_torsion_pick_apply_button = gtk_button_new_from_stock ("gtk-apply");
+  gtk_widget_show (multi_residue_torsion_pick_apply_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (multi_residue_torsion_pick_dialog), multi_residue_torsion_pick_apply_button, GTK_RESPONSE_APPLY);
+  GTK_WIDGET_SET_FLAGS (multi_residue_torsion_pick_apply_button, GTK_CAN_DEFAULT);
+
+  multi_residue_torsion_pick_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
+  gtk_widget_show (multi_residue_torsion_pick_cancel_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (multi_residue_torsion_pick_dialog), multi_residue_torsion_pick_cancel_button, GTK_RESPONSE_CANCEL);
+  GTK_WIDGET_SET_FLAGS (multi_residue_torsion_pick_cancel_button, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) multi_residue_torsion_pick_apply_button, "clicked",
+                    G_CALLBACK (on_multi_residue_torsion_pick_apply_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) multi_residue_torsion_pick_cancel_button, "activate",
+                    G_CALLBACK (on_multi_residue_torsion_pick_cancel_button_activate),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_dialog, "multi_residue_torsion_pick_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_pick_dialog, dialog_vbox128, "dialog_vbox128");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, vbox322, "vbox322");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, label772, "label772");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_auto_select_checkbutton, "multi_residue_torsion_pick_auto_select_checkbutton");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_auto_refine_checkbutton, "multi_residue_torsion_pick_auto_refine_checkbutton");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, hseparator18, "hseparator18");
+  GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_pick_dialog, dialog_action_area127, "dialog_action_area127");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_apply_button, "multi_residue_torsion_pick_apply_button");
+  GLADE_HOOKUP_OBJECT (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_cancel_button, "multi_residue_torsion_pick_cancel_button");
+
+  return multi_residue_torsion_pick_dialog;
 }
 
 #endif /* (GTK_MAJOR_VERSION > 1) */
