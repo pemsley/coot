@@ -3319,9 +3319,11 @@ void refine_zone(int imol, const char *chain_id, int resno1, int resno2, const c
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
 SCM refine_zone_with_score_scm(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
+SCM regularize_zone_with_score_scm(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
 #endif /* guile */
 #ifdef USE_PYTHON
 PyObject *refine_zone_with_score_py(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
+PyObject *regularize_zone_with_score_py(int imol, const char *chain_id, int resno1, int resno2, const char *altconf);
 #endif /* PYTHON */
 #endif /* c++ */
 

@@ -2786,6 +2786,7 @@ refine_zone_with_score = refine_zone_with_score_py
 regularize_residues    = regularize_residues_py
 regularize_residues_with_alt_conf  = regularize_residues_with_alt_conf_py
 refine_zone_with_score = refine_zone_with_score_py
+regularize_zone_with_score = regularize_zone_with_score_py
 change_chain_id_with_result        = change_chain_id_with_result_py
 non_standard_residue_names         = non_standard_residue_names_py
 chain_id_for_shelxl_residue_number = chain_id_for_shelxl_residue_number_py

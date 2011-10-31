@@ -212,3 +212,81 @@ SCM refine_zone_with_score_scm(int imol, const char *chain_id,
    return rv;
 }
 #endif // USE_GUILE
+
+#ifdef USE_PYTHON
+PyObject *regularize_zone_with_score_py(int imol, const char *chain_id, int resno1, int resno2, const char *altconf) {
+   int status = 0;
+   
+   PyObject *rv = Py_False;
+   
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      // the "" is the insertion code (not passed to this function (yet)
+      int index1 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno1, ""); 
+      int index2 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno2, "");
+      short int auto_range = 0;
+      if (index1 >= 0) {
+	 if (index2 >= 0) { 
+	    coot::refinement_results_t rr = g.regularize(imol, auto_range, index1, index2);
+	    std::cout << "debug:: restraints results " << rr.found_restraints_flag << " "
+		      << rr.lights.size() << " " << rr.info << std::endl;
+	    if ((rr.lights.size() > 0) || (rr.found_restraints_flag)) {
+	       rv = g.refinement_results_to_py(rr);
+	    }
+	    
+	 } else {
+	    std::cout << "WARNING:: regularize_zone: Can't get index for resno2: "
+		      << resno2 << std::endl;
+	 } 
+      } else {
+	 std::cout << "WARNING:: regularize_zone: Can't get index for resno1: "
+		   << resno1 << std::endl;
+      }
+   } else {
+      std::cout << "Not a valid model molecule" << std::endl;
+   }
+   
+   if (PyBool_Check(rv)) {
+     Py_INCREF(rv);
+   }
+
+   return rv;
+}
+#endif	/* USE_PYTHON */
+
+#ifdef USE_GUILE
+SCM regularize_zone_with_score_scm(int imol, const char *chain_id, int resno1, int resno2, const char *altconf) {
+   int status = 0;
+   
+   SCM rv = SCM_BOOL_F;
+   
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      // the "" is the insertion code (not passed to this function (yet)
+      int index1 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno1, ""); 
+      int index2 = graphics_info_t::molecules[imol].atom_index_first_atom_in_residue(chain_id, resno2, "");
+      short int auto_range = 0;
+      if (index1 >= 0) {
+	 if (index2 >= 0) { 
+	    coot::refinement_results_t rr = g.regularize(imol, auto_range, index1, index2);
+	    std::cout << "debug:: restraints results " << rr.found_restraints_flag << " "
+		      << rr.lights.size() << " " << rr.info << std::endl;
+	    if ((rr.lights.size() > 0) || (rr.found_restraints_flag)) {
+	       rv = g.refinement_results_to_scm(rr);
+	    }
+	    
+	 } else {
+	    std::cout << "WARNING:: regularize_zone: Can't get index for resno2: "
+		      << resno2 << std::endl;
+	 } 
+      } else {
+	 std::cout << "WARNING:: regularize_zone: Can't get index for resno1: "
+		   << resno1 << std::endl;
+      }
+   } else {
+      std::cout << "Not a valid model molecule" << std::endl;
+   }
+
+   return rv;
+}
+#endif // USE_GUILE
