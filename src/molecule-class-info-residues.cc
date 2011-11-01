@@ -981,7 +981,6 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
    bool status = false;
    CResidue *residue_ref = get_residue(spec_in);
    if (residue_ref) {
-      const std::string link_type = "NAG-ASN"; // needs to be 
       coot::beam_in_linked_residue lr(residue_ref, link_type, new_residue_comp_id);
       CResidue *result = lr.get_residue();
       std::pair<bool, CResidue *> status_pair = add_residue(result, spec_in.chain);

@@ -131,6 +131,15 @@ coot::dots_representation_info_t::get_radius(const std::string &ele) const {
       radius = 1.52;
    if (ele == " S")
       radius = 1.8;
+   // PDB v 3
+   if (ele == "H")
+      radius = 1.20;
+   if (ele == "N")
+      radius = 1.55;
+   if (ele == "O")
+      radius = 1.52;
+   if (ele == "S")
+      radius = 1.8;
    return radius;
 } 
 
@@ -4151,13 +4160,13 @@ molecule_class_info_t::fit_residue_range_to_map_by_simplex(int resno1, int resno
 
 #ifdef HAVE_GSL   
    int selHnd = atom_sel.mol->NewSelection();
-   atom_sel.mol->SelectAtoms(selHnd, 0,  (char *) chain_id.c_str(),
+   atom_sel.mol->SelectAtoms(selHnd, 0,  chain_id.c_str(),
 			     resno1, "*",
 			     resno2, "*",
 			     "*", // residue name
 			     "*", // atom name
 			     "*", // ?
-			     (char *) altloc.c_str());
+			     altloc.c_str());
    PPCAtom local_SelAtom = NULL;
    int nSelAtoms;
    atom_sel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms);
@@ -4167,8 +4176,8 @@ molecule_class_info_t::fit_residue_range_to_map_by_simplex(int resno1, int resno
 		<< "score_residue_range_fit_to_map\n";
    } else {
       make_backup();
-      coot::util::fit_to_map_by_simplex(local_SelAtom, nSelAtoms,
-					graphics_info_t::molecules[imol_for_map].xmap_list[0]);
+      coot::util::fit_to_map_by_simplex_rigid(local_SelAtom, nSelAtoms,
+					      graphics_info_t::molecules[imol_for_map].xmap_list[0]);
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();
    }

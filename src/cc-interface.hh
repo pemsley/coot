@@ -962,6 +962,14 @@ void make_link_scm(int imol, SCM spec_1, SCM spec_2, const std::string&link_name
 void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2, const std::string&link_name, float length);
 #endif
 
+
+/*! \name  Drag and Drop */
+// \{
+//! \brief handle the string that get when a file or URL is dropped.
+int handle_drag_and_drop_string(const std::string &uri);
+// \}
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  Utility Functions                                       */
 /*  ----------------------------------------------------------------------- */

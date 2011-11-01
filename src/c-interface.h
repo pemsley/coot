@@ -209,6 +209,9 @@ void set_file_selection_dialog_size(GtkWidget *w);
 /*! \brief, return the state of the above variable */
 int filter_fileselection_filenames_state();
 
+/*! \brief is the given file name suitable to be read as coordinates? */
+short int file_type_coords(const char *file_name);
+
 
 /*! \brief display the open coordinates dialog */
 void open_coords_dialog();
@@ -3108,6 +3111,9 @@ void set_found_coot_python_gui();
 /* \{ */
 /* Accession code */
 void handle_get_accession_code(GtkWidget *widget); 
+
+/*! \brief return the new molecule number */
+int get_coords_for_accession_code(const char *code);
 
 /* in here we check if libcheck is available (if scripting is available) */
 GtkWidget *wrapped_create_libcheck_monomer_dialog();
@@ -6671,6 +6677,7 @@ int single_model_view_next_model_number(int imol);
 return 0 on non-multimodel-molecule. */
 int single_model_view_prev_model_number(int imol);
 /* \} */
+
 
 
 /*  ----------------------------------------------------------------------- */

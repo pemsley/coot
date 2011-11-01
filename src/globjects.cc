@@ -66,6 +66,7 @@
 #include <string>
 #endif // HAVE_STRING
 
+#include "drag-and-drop.hh"
 #include "interface.h"
 
 #include "mmdb_manager.h"
@@ -1215,235 +1216,11 @@ float graphics_info_t::electrostatic_surface_charge_range = 0.5;
 volatile bool graphics_info_t::curl_handlers_lock = 0; // not locked.
 
 
-// surface
-
-#if (GTK_MAJOR_VERSION == 1)
-
-GtkWidget*
-gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
-
-
- /* Attribute list for gtkglarea widget. Specifies a
-     list of Boolean attributes and enum/integer
-     attribute/value pairs. The last attribute must be
-     GDK_GL_NONE. See glXChooseVisual manpage for further
-     explanation.  */
-
-   GtkWidget *glarea = NULL;
-   graphics_info_t g;
-   gchar *info_str;
-
-   int *attrlist;
-   int mono_attrlist[]  = {
-      GDK_GL_RGBA,
-      GDK_GL_RED_SIZE,   1,
-      GDK_GL_GREEN_SIZE, 1,
-      GDK_GL_BLUE_SIZE,  1,
-      GDK_GL_DEPTH_SIZE, 1,
-      GDK_GL_DOUBLEBUFFER,
-      //      GDK_GL_MODE_MULTISAMPLE | /* 2x FSAA */ (2 << GDK_GL_MODE_SAMPLE_SHIFT),
-      // (1 << 7) | /* 2x FSAA */ (2 << 24),
-      GDK_GL_NONE
-   };
-   attrlist = mono_attrlist;
-
-   if (try_stereo_flag == coot::HARDWARE_STEREO_MODE) { 
-     int hardware_attrlist[] = {
-	GDK_GL_RGBA,
-	GDK_GL_RED_SIZE,   1,
-	GDK_GL_GREEN_SIZE, 1,
-	GDK_GL_BLUE_SIZE,  1,
-	GDK_GL_DEPTH_SIZE, 1,
-	GDK_GL_STEREO,
-	GDK_GL_DOUBLEBUFFER,
-	GDK_GL_NONE
-     };
-     attrlist = hardware_attrlist;
-  }
-
-   if (try_stereo_flag == coot::ZALMAN_STEREO) { 
-     int hardware_attrlist[] = {
-	GDK_GL_RGBA,
-	GDK_GL_RED_SIZE,   1,
-	GDK_GL_GREEN_SIZE, 1,
-	GDK_GL_BLUE_SIZE,  1,
-	GDK_GL_DEPTH_SIZE, 1,
-	GDK_GL_STENCIL_SIZE, 1,  // BL test this
-	GDK_GL_DOUBLEBUFFER,
-	GDK_GL_NONE
-     };
-     attrlist = hardware_attrlist;
-  }
-
-
-  /* Check if OpenGL is supported. */
-  if (gdk_gl_query() == FALSE) {
-    g_print("OpenGL not supported\n");
-  }
-
-  gtk_container_set_border_width(GTK_CONTAINER(vbox1), 1);
-
-  /* Quit form main if got delete event */
-  gtk_signal_connect(GTK_OBJECT(vbox1), "delete_event",
-		     GTK_SIGNAL_FUNC(gtk_main_quit), NULL);
-
-
-  /* You should always delete gtk_gl_area widgets before exit or else
-     GLX contexts are left undeleted, this may cause problems (=core dump)
-     in some systems.
-     Destroy method of objects is not automatically called on exit.
-     You need to manually enable this feature. Do gtk_quit_add_destroy()
-     for all your top level windows unless you are certain that they get
-     destroy signal by other means.
-  */
-  GtkWidget *window1 = lookup_widget(vbox1, "window1");
-  if (window1)
-     // Perhaps this should simply be glarea and placed after glarea
-     // is inited.  BTW, gtk_exit() is normally used to end coot session.
-     gtk_quit_add_destroy(1, GTK_OBJECT(window1));
-  else
-     // this shouldn't happen
-     std::cout << "ERROR:: NULL top_level in gl_extras" << std::endl;
-
-  int n_gl_contexts = 1;
-  if ((try_stereo_flag == coot::SIDE_BY_SIDE_STEREO) ||
-      (try_stereo_flag == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
-      (try_stereo_flag == coot::DTI_SIDE_BY_SIDE_STEREO)){
-     n_gl_contexts = 2;
-  }
-
-  for (int i_gl_contexts=0; i_gl_contexts < n_gl_contexts; i_gl_contexts++) { 
-     /* create new OpenGL widget. */
-     GtkWidget *glarea_a = 0;
-
-     if (i_gl_contexts == 0)
-	glarea_a = gtk_gl_area_new(attrlist);
-     if (i_gl_contexts == 1)
-	glarea_a = gtk_gl_area_share_new(attrlist, GTK_GL_AREA(glarea));
-     
-
-     // This is kludgey.
-     if (i_gl_contexts == 0)
-	glarea = glarea_a;
-
-     if (glarea_a) {
-
-	if (i_gl_contexts == 1) { 
-	   graphics_info_t::glarea_2 = glarea_a;
-	   graphics_info_t::display_mode = try_stereo_flag;
-	}
-	
-	if (try_stereo_flag == coot::HARDWARE_STEREO_MODE) {
-	   std::cout << "INFO:: Hardware stereo widget opened successfully"
-		     << std::endl;
-	   graphics_info_t::display_mode = coot::HARDWARE_STEREO_MODE;
-	}
-
-	if (try_stereo_flag == coot::ZALMAN_STEREO) {
-	   std::cout << "INFO:: Zalman stereo widget opened successfully?!"
-		     << std::endl;
-	   graphics_info_t::display_mode = coot::ZALMAN_STEREO;
-	}
-
-	/* Events for widget must be set before X Window is created */
-#if !defined(WINDOWS_MINGW)
-	gtk_widget_set_events(GTK_WIDGET(glarea_a),
-			      GDK_EXPOSURE_MASK      |
-			      GDK_BUTTON_PRESS_MASK  |
-			      GDK_BUTTON_RELEASE_MASK|
-			      GDK_POINTER_MOTION_MASK|
-			      GDK_KEY_PRESS_MASK     |
-			      GDK_KEY_RELEASE_MASK   |
-			      GDK_POINTER_MOTION_HINT_MASK);
-#else 	
-     gtk_widget_set_events(GTK_WIDGET(glarea_a),
-                           GDK_EXPOSURE_MASK      |
-                           GDK_BUTTON_PRESS_MASK  |
-                           GDK_BUTTON_RELEASE_MASK|
-                           GDK_SCROLL_MASK        |
-                           GDK_POINTER_MOTION_MASK|
-                           GDK_KEY_PRESS_MASK     |
-                           GDK_KEY_RELEASE_MASK   |
-			   GDK_POINTER_MOTION_HINT_MASK);
-#endif      
- 
-	/* Connect signal handlers */
-	/* Redraw image when exposed. */
-	gtk_signal_connect(GTK_OBJECT(glarea_a), "expose_event",
-			   GTK_SIGNAL_FUNC(expose), NULL);
-	/* When window is resized viewport needs to be resized also. */
-	gtk_signal_connect(GTK_OBJECT(glarea_a), "configure_event",
-			   GTK_SIGNAL_FUNC(reshape), NULL);
-	/* Do initialization when widget has been realized. */
-	gtk_signal_connect(GTK_OBJECT(glarea_a), "realize",
-			   GTK_SIGNAL_FUNC(init), NULL);
-
-	/* pressed a button? */
-	gtk_signal_connect (GTK_OBJECT(glarea_a), "button_press_event",
-			    GTK_SIGNAL_FUNC(glarea_button_press), NULL);
-	gtk_signal_connect (GTK_OBJECT(glarea_a), "button_release_event",
-			    GTK_SIGNAL_FUNC(glarea_button_release), NULL);
-	/* mouse in motion! */
-	gtk_signal_connect (GTK_OBJECT(glarea_a), "motion_notify_event",
-			    GTK_SIGNAL_FUNC(glarea_motion_notify), NULL);
-
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-	// scroll wheel changed on windows is not a button press event
-	// (as is the case elsewhere) it is a scrollevent.  So says FR.
-	//
-	// This is conditional on Windows GTK2.
-	// Proper GTK2 code path is elsewhere.
-     
-	gtk_signal_connect (GTK_OBJECT(glarea_a), "scroll_event",
-			    GTK_SIGNAL_FUNC(glarea_scroll_event), NULL);
-#endif
-
-	/* set minimum size */
-	gtk_widget_set_usize(GTK_WIDGET(glarea_a), 300, 300);
-
-	// Not today.
-	//   std::cout << "setting window size to " << g. graphics_x_size
-	// 	    << " " << g. graphics_x_size << std::endl;
-
-	GtkWindow *window1 = GTK_WINDOW(lookup_widget(vbox1,"window1"));
-	gtk_window_set_default_size(window1, g.graphics_x_size, g.graphics_y_size);
-
-	/* put glarea into vbox */
-	GtkWidget *main_window_graphics_hbox =
-	   lookup_widget(vbox1, "main_window_graphics_hbox");
-	// gtk_container_add(GTK_CONTAINER(main_window_graphics_hbox), GTK_WIDGET(glarea_a));
-	gtk_box_pack_start(GTK_BOX(main_window_graphics_hbox),
-			   GTK_WIDGET(glarea_a), TRUE, TRUE, 0);
-	
-	/* Capture keypress events */
-	gtk_signal_connect(GTK_OBJECT(glarea_a), "key_press_event",
-			   GTK_SIGNAL_FUNC(key_press_event), NULL);
-	gtk_signal_connect(GTK_OBJECT(glarea_a), "key_release_event",
-			   GTK_SIGNAL_FUNC(key_release_event), NULL);
-
-	/* set focus to glarea widget - we need this to get key presses. */
-	GTK_WIDGET_SET_FLAGS(glarea_a, GTK_CAN_FOCUS);
-	gtk_widget_grab_focus(GTK_WIDGET(glarea_a));
-
-	/* vendor dependent version info string */
-#if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
-	info_str = gdk_gl_get_info();
-	g_print("%s\n", info_str);
-	g_free(info_str);
-#endif
-     } else {
-	std::cout << "CATASTROPHIC ERROR:: in gl_extras no GtkGL widget!"
-		  << std::endl; 
-     }
-  }
-  return glarea; 
-}
-
-#else
-
 // Defaults for the file chooser
 int graphics_info_t::gtk2_file_chooser_selector_flag = coot::CHOOSER_STYLE;
 int graphics_info_t::gtk2_chooser_overwrite_flag = coot::CHOOSER_OVERWRITE_PROTECT;
+
+
 
 // GTK2 code
 // 
@@ -1613,6 +1390,11 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 			      GDK_POINTER_MOTION_MASK|
 			      GDK_KEY_PRESS_MASK     |
 			      GDK_KEY_RELEASE_MASK   |
+// 			      GDK_DRAG_ENTER         |
+// 			      GDK_DRAG_LEAVE         |
+// 			      GDK_DRAG_STATUS        |
+// 			      GDK_DROP_START         |
+// 			      GDK_DROP_FINISHED      |
 			      GDK_POINTER_MOTION_HINT_MASK);
 
 	/* Connect signal handlers */
@@ -1650,6 +1432,33 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 	gtk_signal_connect(GTK_OBJECT(drawing_area_tmp), "key_release_event",
 			   GTK_SIGNAL_FUNC(key_release_event), NULL);
 
+	// setup drag and drop
+	int n_dnd_targets = 2;
+	GtkTargetEntry target_list[] = {
+	   { "STRING",     0, TARGET_STRING },
+	   { "text/plain", 0, TARGET_STRING }}; // deprecated conversions from string constant
+                                                // to char *.  GTK+ problem AFAICS.
+	GtkDestDefaults dest_defaults = GTK_DEST_DEFAULT_ALL; // we don't need ALL, but this
+	                                                      // removes int->GtkDestDefaults
+	                                                      // conversion problems with |.
+	gtk_drag_dest_set(GTK_WIDGET(drawing_area_tmp), /* widget that will accept a drop */
+			  dest_defaults,
+			  target_list,            /* lists of target to support */
+			  n_dnd_targets,          
+			  GDK_ACTION_COPY);       /* what to do with data after dropped */
+
+	// 2.6? - but... what does it give us?  Something useful?
+	// More documenation-reading required...
+	// 
+	gtk_drag_dest_add_uri_targets(GTK_WIDGET(drawing_area_tmp));
+
+	// if something was dropped
+        g_signal_connect (GTK_WIDGET(drawing_area_tmp), "drag-drop",
+			  G_CALLBACK (on_drag_drop), NULL);
+	// what to we do with dropped data...
+	g_signal_connect (GTK_WIDGET(drawing_area_tmp), "drag-data-received",
+			  G_CALLBACK(on_drag_data_received), NULL);
+
 	/* set focus to glarea widget - we need this to get key presses. */
 	GTK_WIDGET_SET_FLAGS(drawing_area_tmp, GTK_CAN_FOCUS);
 	gtk_widget_grab_focus(GTK_WIDGET(drawing_area_tmp));
@@ -1663,7 +1472,6 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
   return drawing_area;
    
 }
-#endif // #if (GTK_MAJOR_VERSION == 1)
 
 
 gint
@@ -4550,32 +4358,58 @@ void test_object() {
 void
 set_bond_colour(int i) {
 
-   switch (i) {
-   case GREEN_BOND:
-      glColor3f (0.1, 0.8, 0.1);
-      break;
-   case BLUE_BOND: 
-      glColor3f (0.2, 0.2, 0.8);
-      break;
-   case RED_BOND: 
-      glColor3f (0.8, 0.1, 0.1);
-      break;
-   case YELLOW_BOND: 
-      glColor3f (0.7, 0.7, 0.0);
-      break;
-   case GREY_BOND: 
-      glColor3f (0.7, 0.7, 0.7);
-      break;
-   case HYDROGEN_GREY_BOND: 
-      glColor3f (0.6, 0.6, 0.6);
-      break;
-   case MAGENTA_BOND: 
-      glColor3f (0.99, 0.2, 0.99);
-      break;
-      
-   default:
-      glColor3f (0.7, 0.8, 0.8);
-
+   if (background_is_black_p()) { 
+      switch (i) {
+      case GREEN_BOND:
+	 glColor3f (0.1, 0.8, 0.1);
+	 break;
+      case BLUE_BOND: 
+	 glColor3f (0.2, 0.2, 0.8);
+	 break;
+      case RED_BOND: 
+	 glColor3f (0.8, 0.1, 0.1);
+	 break;
+      case YELLOW_BOND: 
+	 glColor3f (0.7, 0.7, 0.0);
+	 break;
+      case GREY_BOND: 
+	 glColor3f (0.7, 0.7, 0.7);
+	 break;
+      case HYDROGEN_GREY_BOND: 
+	 glColor3f (0.6, 0.6, 0.6);
+	 break;
+      case MAGENTA_BOND: 
+	 glColor3f (0.99, 0.2, 0.99);
+	 break;
+      default:
+	 glColor3f (0.7, 0.8, 0.8);
+      }
+   } else {
+      switch (i) {
+      case GREEN_BOND:
+	 glColor3f (0.05, 0.6, 0.05);
+	 break;
+      case BLUE_BOND: 
+	 glColor3f (0.1, 0.1, 0.8);
+	 break;
+      case RED_BOND: 
+	 glColor3f (0.6, 0.05, 0.5);
+	 break;
+      case YELLOW_BOND: 
+	 glColor3f (0.35, 0.35, 0.0);
+	 break;
+      case GREY_BOND: 
+	 glColor3f (0.3, 0.3, 0.3);
+	 break;
+      case HYDROGEN_GREY_BOND: 
+	 glColor3f (0.4, 0.4, 0.4);
+	 break;
+      case MAGENTA_BOND: 
+	 glColor3f (0.7, 0.1, 0.7);
+	 break;
+      default:
+	 glColor3f (0.3, 0.4, 0.4);
+      }
    } 
 }
 
