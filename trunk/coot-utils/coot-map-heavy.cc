@@ -34,9 +34,9 @@
 // return status success (something moved = 1) or error/failure (0)
 //
 int
-coot::util::fit_to_map_by_simplex(PPCAtom atom_selection,
-				  int n_selected_atoms,
-				  const clipper::Xmap<float> &xmap) { 
+coot::util::fit_to_map_by_simplex_rigid(PPCAtom atom_selection,
+					int n_selected_atoms,
+					const clipper::Xmap<float> &xmap) { 
 
    int i_r = 0;
 
@@ -79,7 +79,7 @@ coot::util::fit_to_map_by_simplex(PPCAtom atom_selection,
 
    // setup_simplex_x_internal(x, atom_selection, n_selected_atoms);
    
-   minex_func.f = &coot::util::my_f_simplex_internal;
+   minex_func.f = &coot::util::my_f_simplex_rigid_internal;
    minex_func.n = np;
    minex_func.params = (void *)&par;
 
@@ -98,7 +98,7 @@ coot::util::fit_to_map_by_simplex(PPCAtom atom_selection,
       if (rval == GSL_SUCCESS) { 
 	 std::cout << "converged at minimum\n";
 	 i_r = 1;
-	 simplex_apply_shifts_internal(s->x, par);
+	 simplex_apply_shifts_rigid_internal(s->x, par);
       }
 
 //       std::cout << iter << " "
@@ -121,9 +121,9 @@ coot::util::fit_to_map_by_simplex(PPCAtom atom_selection,
 
 // internal simplex setup function:
 void 
-coot::util::setup_simplex_x_internal(gsl_vector *x,
-				     PPCAtom atom_selection,
-				     int n_selected_atoms) {
+coot::util::setup_simplex_x_internal_ridig(gsl_vector *x,
+					   PPCAtom atom_selection,
+					   int n_selected_atoms) {
 
    // unnecessary, I think.  All rots and trans angles are set to 0.
 }
@@ -132,8 +132,8 @@ coot::util::setup_simplex_x_internal(gsl_vector *x,
 // coordinates) back into the atom_selection.
 // 
 void
-coot::util::simplex_apply_shifts_internal(gsl_vector *s,
-					  coot::util::simplex_param_t &par) {
+coot::util::simplex_apply_shifts_rigid_internal(gsl_vector *s,
+						coot::util::simplex_param_t &par) {
 
 
    double sin_t;
@@ -182,8 +182,8 @@ coot::util::simplex_apply_shifts_internal(gsl_vector *s,
 // which are applied to the (original) coordinates (in params)
 // 
 double
-coot::util::my_f_simplex_internal (const gsl_vector *v,
-				   void *params) {
+coot::util::my_f_simplex_rigid_internal (const gsl_vector *v,
+					 void *params) {
 
    coot::util::simplex_param_t *p = (coot::util::simplex_param_t *) params;
 

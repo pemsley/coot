@@ -1011,6 +1011,14 @@ int filter_fileselection_filenames_state() {
    return graphics_info_t::filter_fileselection_filenames_flag;
 }
 
+/*! \brief is the given file name suitable to be read as coordinates? */
+short int file_type_coords(const char *file_name) {
+
+   graphics_info_t g;
+   return g.file_type_coords(file_name);
+} 
+
+
 void set_unit_cell_colour(float red, float green, float blue) {
 
    coot::colour_holder ch(red, green, blue);
@@ -1023,7 +1031,36 @@ void set_unit_cell_colour(float red, float green, float blue) {
    args.push_back(green);
    args.push_back(blue);
    add_to_history_typed(cmd, args);
-} 
+}
+
+/*! \brief return the new molecule number */
+int get_coords_for_accession_code(const char *text) {
+
+#ifdef USE_GUILE
+   string scheme_command;
+   scheme_command = "(get-ebi-pdb ";
+   scheme_command += single_quote(text);
+   scheme_command += ")";
+   safe_scheme_command(scheme_command); 
+#else 
+   
+#ifdef USE_PYTHON
+   string python_command;
+
+   python_command = "get_ebi_pdb(";
+   python_command += single_quote(text);
+   python_command += ")";
+   safe_python_command(python_command);
+   
+#else 
+   std::cout << "WARING:: Executable not compiled with guile or python." << std::endl;
+   std::cout << "         This won't work." << std::endl; 
+
+#endif // USE_PYTHON
+#endif // USE_GUILE
+
+}
+
 
 
 void swap_map_colours(int imol1, int imol2) {
@@ -9146,3 +9183,4 @@ float get_electrostatic_surface_opacity(int imol) {
    }
    return r;
 } 
+

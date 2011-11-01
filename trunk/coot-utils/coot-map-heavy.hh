@@ -45,20 +45,20 @@ namespace coot {
       // Use asc.atom_selection as the moving atoms
       // and move them.
       // 
-      int fit_to_map_by_simplex(PPCAtom atom_selection,
+      int fit_to_map_by_simplex_rigid(PPCAtom atom_selection,
 				int n_selected_atoms,
 				const clipper::Xmap<float> &xmap);
 
       // internal simplex setup function:
-      void setup_simplex_x_internal(gsl_vector *s,
+      void setup_simplex_x_internal_ridig(gsl_vector *s,
 				    PPCAtom atom_selection,
 				    int n_selected_atoms);
 
       // the function that returns the value:
-      double my_f_simplex_internal (const gsl_vector *v,
+      double my_f_simplex_rigid_internal (const gsl_vector *v,
 				    void *params);
 
-      void simplex_apply_shifts_internal(gsl_vector *s,
+      void simplex_apply_shifts_rigid_internal(gsl_vector *s,
 					 simplex_param_t &par);
 
       float z_weighted_density_at_point(const clipper::Coord_orth &pt,

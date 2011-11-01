@@ -27,6 +27,7 @@
 #endif
 
 #include <fstream>
+#include <algorithm>
 
 #include <gtk/gtk.h>
 #include "interface.h"
@@ -1068,3 +1069,17 @@ graphics_info_t::schemize_command_strings(const std::vector<std::string> &comman
    return command;
 }
 
+
+/*! \brief is the given file name suitable to be read as coordinates? */
+short int
+graphics_info_t::file_type_coords(const std::string &file_name) {
+
+   short int state = 0;
+   std::string ext = coot::util::file_name_extension(file_name);
+   std::vector<std::string>::const_iterator it;
+   if (std::find(coordinates_glob_extensions->begin(),
+		 coordinates_glob_extensions->end(),
+		 ext) != coordinates_glob_extensions->end())
+      state = 1;
+   return state;
+} 
