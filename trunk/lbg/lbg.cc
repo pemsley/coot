@@ -42,7 +42,6 @@
 #endif
 #include "lbg.hh"
 
-
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
 // 
 lbg_info_t *
@@ -78,6 +77,11 @@ lbg(lig_build::molfile_molecule_t mm,
       if (! add_from_file_status) {
 	 std::cout << "ERROR:: gtk_builder_add_from_file() \"" << glade_file_full
 		   << "\" failed." << std::endl;
+	 if (builder) {
+	    std::cout << "ERROR:: where builder was non-null" << std::endl;
+	 } else {
+	    std::cout << "ERROR:: where builder was NULL" << std::endl;
+	 } 
       } else { 
 	 lbg = new lbg_info_t(imol);
 	 if (stand_alone_flag_in)
