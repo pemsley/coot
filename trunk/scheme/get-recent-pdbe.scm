@@ -63,37 +63,40 @@
 					  (loop (+ i 1) n))))))))))
 		    
 	 (timeout 
-	  ;; pull off items from the queue and run them
+
+	  ;; pull off items from the queue and run them (if we have loaded gtk gui functions)
 	  ;; 
-	  (gtk-timeout-add 400
-			   (lambda ()
-			     (if (= (q-length q) 0)
-				 (begin
-				   ;; (format #t "nothing in queue\n")
-				   #t ;; nothing in queue
-				   )
-				 (begin
-				   
-				   (while (and (< n-threads 100) 
-					       (not (= (q-length q) 0)))
-					  
-					  (begin
-					    (get-q-lock)
-					    (let ((q-image-name-and-func (q-pop! q))) ;; changes q
-					      (release-q-lock)
+	  (if (not (defined? 'gtk-timeout-add))
+	      #f 
+	      (gtk-timeout-add 400
+			       (lambda ()
+				 (if (= (q-length q) 0)
+				     (begin
+				       ;; (format #t "nothing in queue\n")
+				       #t ;; nothing in queue
+				       )
+				     (begin
+				       
+				       (while (and (< n-threads 100) 
+						   (not (= (q-length q) 0)))
 					      
-					      (let ((my-func
-						     (lambda ()
-						       (get-n-threads-lock)
-						       (set! n-threads (+ n-threads 1))
-						       (release-n-threads-lock)
-						       ((cdr q-image-name-and-func))
-						       (get-n-threads-lock)
-						       (set! n-threads (- n-threads 1))
-						       (release-n-threads-lock)
-						       #t)))
-						(call-with-new-thread my-func)))))))
-			     #t)))) ;; lots of threads already, pass for this round.
+					      (begin
+						(get-q-lock)
+						(let ((q-image-name-and-func (q-pop! q))) ;; changes q
+						  (release-q-lock)
+						  
+						  (let ((my-func
+							 (lambda ()
+							   (get-n-threads-lock)
+							   (set! n-threads (+ n-threads 1))
+							   (release-n-threads-lock)
+							   ((cdr q-image-name-and-func))
+							   (get-n-threads-lock)
+							   (set! n-threads (- n-threads 1))
+							   (release-n-threads-lock)
+							   #t)))
+						    (call-with-new-thread my-func)))))))
+				 #t))))) ;; lots of threads already, pass for this round.
 
     (lambda (image-name func)
       ;; add the func to the queue
@@ -376,7 +379,7 @@
 				  (gtk-progress-set-activity-mode progress-bar f))))))))))))
 
 ;;; 
-(define (dig-table t level)
+(define (recent-structure-browser t)
 
   ;; is this a list of hash tables?
   ;; 
@@ -1035,49 +1038,32 @@
     (map handle-pdb-entry-entity hash-table-list))
 
 
-  ;; This block is a hideous result of guess and fiddle - I don't know
-  ;; anything about json, I just messed about until I got a something
-  ;; interpretable.
-  ;; 
+  ;; main line of recent-structure-browser
   (if (not (hash-table? t))
 
       (begin
-	(if (not (list? t))
-	    t
-	    (begin
-	      (if (null? t)
-		  '()
-		  (if (null? (cdr t))
-		      (map (lambda (x) (dig-table x (+ level 1))) t)
-		      (begin
+	(format #t "Not hash table\n"))
+	  
 
-			;; not null? t, 
-			;; not null? (cdr t)
-			;; 
-			(if (and (= level 3)
-				 (contains-pdb-entry-entities? t))
-			    (let ((button-list (handle-pdb-entry-entities t)))
-			      (dialog-box-of-buttons-with-async-ligands "Recent Entries"
-						     (cons 700 500)
-						     button-list ;; cleverness here.  The third part of a 
-						                 ;; button is a function (to add the 
-                                                                 ;; ligands icon to the button).  The button
-						                 ;; is passed as an argument.
-						     "Close"))
-
-			    (cons
-			     (if (list? (car t))
-				 (map (lambda(x) (dig-table x (+ level 1))) (car t))
-				 (dig-table (car t) (+ level 1)))
-			     (map (lambda(x) (dig-table x (+ level 1))) (cdr t))))))))))
-
-      (begin 
-	(let ((l (hash-map->list (lambda(x y) (list x y)) t)))
-	  (if (null? (cdr l))
-	      (map (lambda(x) (dig-table x (+ level 1))) (car l))
-	      (cons (map (lambda(x) (dig-table x (+ level 1))) (car l))
-		    (map (lambda(x) (dig-table x (+ level 1))) (cdr l))))))))
-
+      (begin
+	(format #t "Is hash table\n")
+	(let ((a (hash-ref t "ResultSet")))
+	  (if (not (hash-table? a))
+	      #f
+	      (let ((b (hash-ref a "Result")))
+		(if (not (list? b))
+		    #f
+		    (let ((button-list (handle-pdb-entry-entities b)))
+		      ;; (format #t "button-list: ~s\n" button-list)
+		      (dialog-box-of-buttons-with-async-ligands 
+		       "Recent Entries"
+		       (cons 700 500)
+		       button-list ;; cleverness here.  The third part of a 
+		       ;; button is a function (to add the 
+		       ;; ligands icon to the button).  The button
+		       ;; is passed as an argument.
+		       "Close")))))))))
+      
 
 (define (recent-entries-progress-dialog)
 
@@ -1119,7 +1105,7 @@
 	       (set! curl-status 'fail-recent-entry-list)
 	       (set! curl-status 
 		     (lambda ()
-		       (dig-table (get-recent-json json-file-name) 0)))))))
+		       (recent-structure-browser (get-recent-json json-file-name))))))))
 
       (gtk-timeout-add 200 
 		       (lambda ()
@@ -1142,12 +1128,11 @@
 
 
 
-;;; put this on a menu item
-;; 
-;(if (defined? 'coot-main-menubar)
-;    (let ((menu (coot-menubar-menu "PDB")))
-;      (add-simple-coot-menu-menuitem 
-;       menu
-;       "Latest Releases" pdbe-latest-releases-gui)))
-
+; ;;; put this on a menu item
+; ;; 
+; (if (defined? 'coot-main-menubar)
+;     (let ((menu (coot-menubar-menu "PDBe")))
+;       (add-simple-coot-menu-menuitem 
+;        menu
+;        "Test" (lambda () (recent-structure-browser (get-recent-json "latest-releases.json"))))))
 
