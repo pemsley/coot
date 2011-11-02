@@ -1164,13 +1164,8 @@ molecule_class_info_t::delete_residue(int model_number,
 	       for (int ires=0; ires<nres; ires++) { 
 		  CResidue *res = chain->GetResidue(ires);
 		  if (res) {
-		     std::cout << "DEBUG:: comparing resno: " << res->GetSeqNum()
-			       << " with ref " << resno << std::endl;
 		     if (res->GetSeqNum() == resno) {
 
-			std::cout << "DEUBG:: ================== matching resno on " << resno
-				  << std::endl;
-		  
 			// so we have a matching residue:
 			int iseqno = res->GetSeqNum();
 			pstr inscode = res->GetInsCode();
@@ -1181,7 +1176,6 @@ molecule_class_info_t::delete_residue(int model_number,
 			   delete_ghost_selections();
 			   chain->DeleteResidue(iseqno, inscode);
 			   was_deleted = 1;
-			   std::cout << "DEUBG:: deleted.... " << std::endl;
 			   res = NULL;
 			   break;
 			}
