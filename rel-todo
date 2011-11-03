@@ -18,7 +18,8 @@
 
   o Fix crash, Jim Branigan message ::: 4
 
-  o Related to above: Fix crash-catcher script to work with pythonized coot ::: 2
+  o Related to above: Fix crash-catcher script to work with pythonized
+    coot ::: 2
 
   o consider better analysis of disulfides, bonding and refinement.
     Consider iron-sulfur clusters.  ::: 3
@@ -34,6 +35,9 @@
 
   o Does RCrane work? ::: 0.5
 
+  o Downloading pdbe data needs to be silent (in scheme) in case the
+    user has the coot scheme scripting window open (threading issues).
+
   o download 3s9q from pdbe - crashes (not crash when files cached)  :: 2
 
   o Unusual Rotamers on 3amy ::: 2
@@ -45,27 +49,20 @@
     unique to this structure? (but not everything! Hmm!))  Try 3sq6
     first, that has just this message:
 
-    WARNING:: dictionary vs model problem? We didn't find the bonded linking atoms : C1 : : ND2:
+    WARNING:: dictionary vs model problem? We didn't find the bonded
+    linking atoms : C1 : : ND2:
  
-    and refines to completion.  ::: 2
+    and refines to completion.
 
-  o get rid of this debugging:
+  o changing chain ids and residue numbers should change the header
+    info (SSBOND, LINK, HELIX, SHEET, CISPEP, SITE etc). Puntable. ::: 6
 
-Adding monomer torsion restraint: 2 1 8 6 angle -155.341 esd 20 period 3
-Adding monomer torsion restraint: 2 1 0 11 angle 60 esd 20 period 3
-Adding monomer torsion restraint: 3 2 1 8 angle 180 esd 20 period 3
-Adding monomer torsion restraint: 4 3 2 1 angle 60 esd 20 period 3
-Adding monomer torsion restraint: 11 4 3 2 angle -60 esd 20 period 3
-Adding monomer torsion restraint: 11 4 5 12 angle 65.068 esd 20 period 3
-Adding monomer torsion restraint: 0 11 4 3 angle 60 esd 20 period 1
-Adding monomer torsion restraint: 14 15 18 19 angle 180 esd 15 period 3
-Adding monomer torsion restraint: 20 21 24 25 angle 180 esd 15 period 3
-Adding monomer torsion restraint: 21 24 25 26 angle 180 esd 15 period 3
-Adding monomer torsion restraint: 24 25 26 28 angle 0 esd 30 period 2
-Adding monomer torsion restraint: 29 30 33 34 angle 180 esd 15 period 3
-Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
+  o "Save coordinates file name selector" window should be a transient
+    (Andrew Sharff).  
 
-     ::: 0.5
+* It is, AFAICS.  Hmmm!
+
+
 
    o check that probe works 
 
@@ -137,7 +134,20 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 
 * Fixed.
 
-   o It would be good to allow the setting of n-processors for the
-     build-it-gtk2-simple ::: 0.5
+  o get rid of this debugging:
+
+Adding monomer torsion restraint: 2 1 8 6 angle -155.341 esd 20 period 3
+Adding monomer torsion restraint: 2 1 0 11 angle 60 esd 20 period 3
+Adding monomer torsion restraint: 3 2 1 8 angle 180 esd 20 period 3
+Adding monomer torsion restraint: 4 3 2 1 angle 60 esd 20 period 3
+Adding monomer torsion restraint: 11 4 3 2 angle -60 esd 20 period 3
+Adding monomer torsion restraint: 11 4 5 12 angle 65.068 esd 20 period 3
+Adding monomer torsion restraint: 0 11 4 3 angle 60 esd 20 period 1
+Adding monomer torsion restraint: 14 15 18 19 angle 180 esd 15 period 3
+Adding monomer torsion restraint: 20 21 24 25 angle 180 esd 15 period 3
+Adding monomer torsion restraint: 21 24 25 26 angle 180 esd 15 period 3
+Adding monomer torsion restraint: 24 25 26 28 angle 0 esd 30 period 2
+Adding monomer torsion restraint: 29 30 33 34 angle 180 esd 15 period 3
+Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 
 * Done.

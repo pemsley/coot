@@ -421,16 +421,16 @@ void output_residue_info_as_text(int atom_index, int imol) {
    picked_atom->residue->GetAtomTable(atoms,n_atoms);
    for (int i=0; i<n_atoms; i++) { 
       std::string segid = atoms[i]->segID;
-      std::cout << "(" << imol << ") " 
-		<< atoms[i]->name << "/"
+      std::cout << "(" << imol << ") \"" 
+		<< atoms[i]->name << "\"/"
 		<< atoms[i]->GetModelNum()
-		<< "/"
-		<< atoms[i]->GetChainID()  << "/"
-		<< atoms[i]->GetSeqNum()   << "/"
+		<< "/\""
+		<< atoms[i]->GetChainID()  << "\"/"
+		<< atoms[i]->GetSeqNum()   << "/\""
 		<< atoms[i]->GetResName()
-		<< ", "
+		<< "\", \""
 		<< segid
-		<< " occ: " 
+		<< "\" occ: " 
 		<< atoms[i]->occupancy 
 		<< " with B-factor: "
 		<< atoms[i]->tempFactor

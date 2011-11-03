@@ -5736,15 +5736,16 @@ coot::restraints_container_t::add_torsions(int idr, PPCAtom res_selection,
 					geom[idr].torsion_restraint[ib].esd(),
 					1.2,  // junk value
 					geom[idr].torsion_restraint[ib].periodicity());
-				    std::cout << "Adding monomer torsion restraint: "
-					      << index1 << " "
-					      << index2 << " "
-					      << index3 << " "
-					      << index4 << " angle "
-					      << geom[idr].torsion_restraint[ib].angle() << " esd " 
-					      << geom[idr].torsion_restraint[ib].esd() << " period " 
-					      << geom[idr].torsion_restraint[ib].periodicity()
-					      << std::endl;
+				    if (0) // debug
+				       std::cout << "Adding monomer torsion restraint: "
+						 << index1 << " "
+						 << index2 << " "
+						 << index3 << " "
+						 << index4 << " angle "
+						 << geom[idr].torsion_restraint[ib].angle() << " esd " 
+						 << geom[idr].torsion_restraint[ib].esd() << " period " 
+						 << geom[idr].torsion_restraint[ib].periodicity()
+						 << std::endl;
 				    n_torsion_restr++;
 				 }
 			      }

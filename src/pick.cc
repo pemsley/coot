@@ -93,7 +93,7 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
 
 		     bool allow_pick = 1;
 
-		     std::cout << "pick_mode: " << pick_mode << std::endl;
+		     // std::cout << "pick_mode: " << pick_mode << std::endl;
 		     
 		     // 20101211 stop picking on regular residue atoms
 		     // in CA+ligand mode

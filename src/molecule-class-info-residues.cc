@@ -1081,12 +1081,6 @@ coot::dict_link_info_t::dict_link_info_t(CResidue *residue_ref,
 	 }
       }
    }
-
-   std::cout << "Got to end of dict_link_info_t() constructor" << std::endl;
-   std::cout << "    ifound: " << ifound << std::endl;
-   std::cout << "    " << spec_ref << std::endl;
-   std::cout << "    " << spec_new << std::endl;
-   
 }
 
 bool
@@ -1118,6 +1112,5 @@ coot::dict_link_info_t::check_for_order_switch(CResidue *residue_ref,
    catch (std::runtime_error rte) {
       std::cout << "WARNING:: check_for_order_switch() exception: " << rte.what() << std::endl;
    } 
-   std::cout << "returning order_switch_flag: " << order_switch_flag << std::endl;
    return order_switch_flag;
 }
