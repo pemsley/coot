@@ -1447,10 +1447,12 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 			  n_dnd_targets,          
 			  GDK_ACTION_COPY);       /* what to do with data after dropped */
 
+#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 4) ) || GTK_MAJOR_VERSION > 2)
 	// 2.6? - but... what does it give us?  Something useful?
 	// More documenation-reading required...
 	// 
 	gtk_drag_dest_add_uri_targets(GTK_WIDGET(drawing_area_tmp));
+#endif	
 
 	// if something was dropped
         g_signal_connect (GTK_WIDGET(drawing_area_tmp), "drag-drop",
