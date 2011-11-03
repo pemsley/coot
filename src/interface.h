@@ -178,6 +178,7 @@ GtkWidget* create_scheme_window(void);
 GtkWidget* create_remarks_browser_molecule_chooser_dialog (void);
 GtkWidget* create_multi_residue_torsion_dialog(void);
 GtkWidget* create_multi_residue_torsion_pick_dialog (void);
+GtkWidget* create_keyboard_goto_residue_window (void);
 #endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS

@@ -6687,6 +6687,15 @@ int single_model_view_prev_model_number(int imol);
 void run_update_self_maybe(); // called when --update-self given at command line
 
 /*  ----------------------------------------------------------------------- */
+/*                    keyboarding mode  */
+/*  ----------------------------------------------------------------------- */
+void show_go_to_residue_keyboarding_mode_window();
+void    handle_go_to_residue_keyboarding_mode(const gchar *text);
+
+
+
+
+/*  ----------------------------------------------------------------------- */
 /*                  experimental                                            */
 /*  ----------------------------------------------------------------------- */
 void nsv(int imol);

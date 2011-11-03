@@ -27771,4 +27771,38 @@ create_multi_residue_torsion_pick_dialog (void)
   return multi_residue_torsion_pick_dialog;
 }
 
+GtkWidget*
+create_keyboard_goto_residue_window (void)
+{
+  GtkWidget *keyboard_goto_residue_window;
+  GtkWidget *keyboard_go_to_residue_entry;
+
+  keyboard_goto_residue_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
+  gtk_window_set_title (GTK_WINDOW (keyboard_goto_residue_window), _("Go To Atom..."));
+  gtk_window_set_modal (GTK_WINDOW (keyboard_goto_residue_window), TRUE);
+  gtk_window_set_decorated (GTK_WINDOW (keyboard_goto_residue_window), FALSE);
+  gtk_window_set_type_hint (GTK_WINDOW (keyboard_goto_residue_window), GDK_WINDOW_TYPE_HINT_DIALOG);
+
+  keyboard_go_to_residue_entry = gtk_entry_new ();
+  gtk_widget_show (keyboard_go_to_residue_entry);
+  gtk_container_add (GTK_CONTAINER (keyboard_goto_residue_window), keyboard_go_to_residue_entry);
+  GTK_WIDGET_SET_FLAGS (keyboard_go_to_residue_entry, GTK_CAN_DEFAULT);
+  gtk_entry_set_invisible_char (GTK_ENTRY (keyboard_go_to_residue_entry), 8226);
+
+  g_signal_connect ((gpointer) keyboard_go_to_residue_entry, "changed",
+                    G_CALLBACK (on_keyboard_go_to_residue_entry_changed),
+                    NULL);
+  g_signal_connect ((gpointer) keyboard_go_to_residue_entry, "key_press_event",
+                    G_CALLBACK (on_keyboard_go_to_residue_entry_key_press_event),
+                    NULL);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (keyboard_goto_residue_window, keyboard_goto_residue_window, "keyboard_goto_residue_window");
+  GLADE_HOOKUP_OBJECT (keyboard_goto_residue_window, keyboard_go_to_residue_entry, "keyboard_go_to_residue_entry");
+
+  gtk_widget_grab_focus (keyboard_go_to_residue_entry);
+  gtk_widget_grab_default (keyboard_go_to_residue_entry);
+  return keyboard_goto_residue_window;
+}
+
 #endif /* (GTK_MAJOR_VERSION > 1) */

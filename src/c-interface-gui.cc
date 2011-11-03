@@ -6028,3 +6028,20 @@ void set_baton_build_params_from_widget(GtkWidget *params_dialog) {
 
 } 
 
+// keyboarding mode
+void show_go_to_residue_keyboarding_mode_window() {
+
+   GtkWidget *w = create_keyboard_goto_residue_window();
+   graphics_info_t g;
+   // g.graphics_x_position, graphics_x_size
+   int x_pos = g.graphics_x_position + 5;
+   int y_pos = g.graphics_y_position + g.graphics_y_size + 65;
+   gtk_widget_set_uposition(w, x_pos, y_pos);   
+   gtk_widget_show(w);
+
+}
+
+
+void    handle_go_to_residue_keyboarding_mode(const gchar *text) {
+   graphics_info_t::apply_go_to_residue_keyboading_string(text);
+}
