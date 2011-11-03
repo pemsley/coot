@@ -3555,7 +3555,8 @@ Bond_lines_container::add_ligand_bonds(const atom_selection_container_t &SelAtom
    atom_selection_container_t asc = SelAtom;
    asc.atom_selection = ligand_atoms_selection;
    asc.n_selected_atoms = n_ligand_atoms;
-   std::cout << "debug:: here in add_ligand_bonds() with " << asc.n_selected_atoms << " ligand atoms" << std::endl;
+   // std::cout << "debug:: here in add_ligand_bonds() with " << asc.n_selected_atoms
+   // << " ligand atoms" << std::endl;
    int model_number = 0; // all models
    construct_from_asc(asc, 0.01, 1.9, coot::COLOUR_BY_ATOM_TYPE, 0, model_number);
 
@@ -3904,7 +3905,7 @@ void
 Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_container_t &asc,
 							   int draw_hydrogens_flag) {
 
-   std::cout << "debug:: colour by chain, carbons only" << std::endl;
+   // std::cout << "debug:: colour by chain, carbons only" << std::endl;
    float max_dist = 1.9;
    float min_dist = 0.01; // As in the constructor
 			  // Bond_lines_container::Bond_lines_container(const
