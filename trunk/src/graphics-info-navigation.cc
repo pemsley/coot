@@ -952,38 +952,46 @@ graphics_info_t::active_atom_spec() {
 
 // static 
 void
-graphics_info_t::apply_go_to_residue_keyboading_string() {
+graphics_info_t::apply_go_to_residue_keyboading_string(const std::string &ks) {
 
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > aas = active_atom_spec();
    coot::Cartesian rc = g.RotationCentre();
-   std::string ks = graphics_info_t::go_to_residue_keyboarding_string;
 
    if (aas.first) {
       int imol = aas.second.first;
-      CAtom *new_centre_atom =
-	 graphics_info_t::molecules[imol].get_atom(ks, aas.second.second, rc);
+      CAtom *new_centre_atom = g.molecules[imol].get_atom(ks, aas.second.second, rc);
       if (new_centre_atom) {
-	 coot::Cartesian new_pt(new_centre_atom->x,
-				new_centre_atom->y,
-				new_centre_atom->z);
-	 g.setRotationCentre(new_pt);
-	 for (int ii=0; ii<graphics_info_t::n_molecules(); ii++) { 
-	    graphics_info_t::molecules[ii].update_map();
-	    graphics_info_t::molecules[ii].update_clipper_skeleton(); 
-	 }
-	 graphics_draw();
-	 g.set_go_to_atom_molecule(imol);
-	 g.set_go_to_atom_chain_residue_atom_name(new_centre_atom->GetChainID(),
-						  new_centre_atom->GetSeqNum(),
-						  new_centre_atom->GetAtomName());
+	 g.apply_go_to_residue_keyboading_string_inner(imol,new_centre_atom);
       } else {
-	 std::cout << "no new centre atom " << std::endl;
-      }
+	 new_centre_atom = g.molecules[imol].get_atom(coot::util::upcase(ks), aas.second.second, rc);
+	 g.apply_go_to_residue_keyboading_string_inner(imol, new_centre_atom);
+      } 
    } else {
-      std::cout << "No active atom " << std::endl;
+      std::cout << "WARNING:: No active atom " << std::endl;
    } 
-   
+}
+
+void
+graphics_info_t::apply_go_to_residue_keyboading_string_inner(int imol, CAtom *new_centre_atom) {
+
+   if (new_centre_atom) {
+      coot::Cartesian new_pt(new_centre_atom->x,
+			     new_centre_atom->y,
+			     new_centre_atom->z);
+      setRotationCentre(new_pt);
+      for (int ii=0; ii<graphics_info_t::n_molecules(); ii++) { 
+	 graphics_info_t::molecules[ii].update_map();
+	 graphics_info_t::molecules[ii].update_clipper_skeleton(); 
+      }
+      graphics_draw();
+      set_go_to_atom_molecule(imol);
+      set_go_to_atom_chain_residue_atom_name(new_centre_atom->GetChainID(),
+					     new_centre_atom->GetSeqNum(),
+					     new_centre_atom->GetAtomName());
+   } else {
+      std::cout << "WARNING:: failed to find that residue - no new centre atom " << std::endl;
+   }
 } 
 
 

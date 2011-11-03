@@ -3623,9 +3623,8 @@ public:
    static int update_go_to_atom_from_current_residue_key;
    
    // --- keyboarding the Go To Atom (or residue, really)
-   static std::string go_to_residue_keyboarding_string;
-   static bool in_go_to_residue_keyboarding_mode;
-   static void apply_go_to_residue_keyboading_string();
+   static void apply_go_to_residue_keyboading_string(const std::string &text);
+   void apply_go_to_residue_keyboading_string_inner(int imol, CAtom *new_centre_atom);
 
    // -- PHENIX support
    static std::string external_refinement_program_button_label;

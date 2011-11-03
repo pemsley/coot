@@ -585,10 +585,6 @@ GtkWidget *graphics_info_t::other_modelling_tools_dialog = 0;
 
 coot::residue_spec_t graphics_info_t::current_residue = coot::residue_spec_t();
 
-std::string graphics_info_t::go_to_residue_keyboarding_string = "";
-bool graphics_info_t::in_go_to_residue_keyboarding_mode = 0;
-
-
 // Skeleton Widgets:
 float graphics_info_t::skeleton_level = 0.2; 
 float graphics_info_t::skeleton_box_radius = 40.0; 
@@ -1435,8 +1431,8 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 	// setup drag and drop
 	int n_dnd_targets = 2;
 	GtkTargetEntry target_list[] = {
-	   { "STRING",     0, TARGET_STRING },
-	   { "text/plain", 0, TARGET_STRING }}; // deprecated conversions from string constant
+	   { (gchar *) "STRING",     0, TARGET_STRING },
+	   { (gchar *) "text/plain", 0, TARGET_STRING }}; // deprecated conversions from string constant
                                                 // to char *.  GTK+ problem AFAICS.
 	GtkDestDefaults dest_defaults = GTK_DEST_DEFAULT_ALL; // we don't need ALL, but this
 	                                                      // removes int->GtkDestDefaults
@@ -2986,34 +2982,27 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       
    case GDK_Return:
 
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 if (graphics_info_t::go_to_residue_keyboarding_string != "")
-	    graphics_info_t::apply_go_to_residue_keyboading_string();
-      } else {
-	 if (graphics_info_t::accept_reject_dialog) {
-	    accept_regularizement();
-	    if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
-	       save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
-	       gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+      if (graphics_info_t::accept_reject_dialog) {
+	 accept_regularizement();
+	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
+	    save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
+	    gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
+	 } else {
+	    // have docked dialog
+	    if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_HIDE) {
+	       gtk_widget_hide(graphics_info_t::accept_reject_dialog);
 	    } else {
-          // have docked dialog
-          if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_HIDE) {
-            gtk_widget_hide(graphics_info_t::accept_reject_dialog);
-          } else {
-            gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
-          }
+	       gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
 	    }
-	    graphics_info_t::accept_reject_dialog = 0;
 	 }
+	 graphics_info_t::accept_reject_dialog = 0;
       }
-      graphics_info_t::go_to_residue_keyboarding_string = ""; // reset.
-      graphics_info_t::in_go_to_residue_keyboarding_mode = 0;
       handled = TRUE;
       break;
 
    case GDK_Escape:
 
-      std::cout << "GDK_Escape pressed" << std::endl;
+      // std::cout << "GDK_Escape pressed" << std::endl;
 
       clear_up_moving_atoms();
       
@@ -3027,8 +3016,6 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	 }
       }
       
-      graphics_info_t::go_to_residue_keyboarding_string = ""; // reset.
-      graphics_info_t::in_go_to_residue_keyboarding_mode = 0;
       handled = TRUE;
       break;
 
@@ -3039,68 +3026,45 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_g:
       // say I want to go to residue 1G: first time Ctrl-G (second if)
       // and then the first if.
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "G";
-	 handled = TRUE;
-      }
       if (graphics_info_t::control_is_pressed) {
-	 graphics_info_t::in_go_to_residue_keyboarding_mode = 1;
+	 show_go_to_residue_keyboarding_mode_window();
 	 handled = TRUE;
       }
       break;
       
    case GDK_i:
       // throw away i key pressed (we act on i key released).
-      if (! graphics_info_t::control_is_pressed) { 
-	 if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	    graphics_info_t::go_to_residue_keyboarding_string += "i";
-	 }
-      }
       handled = TRUE; 
       break;
 
    case GDK_a:
 
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "A";
-	 handled = TRUE;
-      } else { 
-
-	 if (graphics_info_t::in_range_define_for_refine == 2) {
+      if (graphics_info_t::in_range_define_for_refine == 2) {
 	    
-	    graphics_info_t::a_is_pressed = 1;
+	 graphics_info_t::a_is_pressed = 1;
 
-	    int rot_trans_rotation_origin_atom = 0; // flag for Ctrl left
-	    // mouse behaviour (we don't want to rotate
-	    // the atoms)
-	    graphics_info_t::watch_cursor();
-	    int auto_range_flag = 1;
-	    graphics_info_t g;
-	    g.refine(graphics_info_t::residue_range_mol_no,
-		     auto_range_flag,
-		     graphics_info_t::residue_range_atom_index_1,
-		     graphics_info_t::residue_range_atom_index_1);
-	    g.in_range_define_for_refine = 0;
-	    normal_cursor();
-	    g.pick_pending_flag = 0;
-	    g.model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
-	    handled = TRUE; 
-	 }
+	 int rot_trans_rotation_origin_atom = 0; // flag for Ctrl left
+	 // mouse behaviour (we don't want to rotate
+	 // the atoms)
+	 graphics_info_t::watch_cursor();
+	 int auto_range_flag = 1;
+	 graphics_info_t g;
+	 g.refine(graphics_info_t::residue_range_mol_no,
+		  auto_range_flag,
+		  graphics_info_t::residue_range_atom_index_1,
+		  graphics_info_t::residue_range_atom_index_1);
+	 g.in_range_define_for_refine = 0;
+	 normal_cursor();
+	 g.pick_pending_flag = 0;
+	 g.model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
+	 handled = TRUE; 
       }
       break;
 
    case GDK_b:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "B";
-	 handled = TRUE; 
-      }
       break;
       
    case GDK_c:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "C";
-	 handled = TRUE; 
-      }
       break; // stops C key getting through to key-press-hook
 
    case GDK_u:
@@ -3117,226 +3081,152 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_d:
       
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "D";
-	 handled = TRUE; 
-      } else { 
-	 
-	 if (graphics_info_t::clipping_back < 10.0) { 
-	    set_clipping_front(graphics_info_t::clipping_front + 0.2);
-	    set_clipping_back (graphics_info_t::clipping_front + 0.2);
-	    // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
-	 }
+      if (graphics_info_t::clipping_back < 10.0) { 
+	 set_clipping_front(graphics_info_t::clipping_front + 0.2);
+	 set_clipping_back (graphics_info_t::clipping_front + 0.2);
+	 // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
       }
       handled = TRUE; 
       break;
 
    case GDK_e:
    case GDK_E:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "E";
-	 handled = TRUE; 
-      }
       break;
       
    case GDK_f:
       
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "E";
-	 handled = TRUE; 
-      } else { 
-	 if (graphics_info_t::clipping_back > -10.2) { 
-	    set_clipping_front(graphics_info_t::clipping_front - 0.2);
-	    set_clipping_back (graphics_info_t::clipping_front - 0.2);
-	    // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
-	 }
+      if (graphics_info_t::clipping_back > -10.2) { 
+	 set_clipping_front(graphics_info_t::clipping_front - 0.2);
+	 set_clipping_back (graphics_info_t::clipping_front - 0.2);
+	 // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
       }
       handled = TRUE; 
       break;
 
    case GDK_n:
       
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "n";
-      } else { 
-	 for (int i=0; i<5; i++) {
-	    graphics_info_t::zoom *= 1.01;
-	    graphics_info_t::graphics_draw();
-	 }
+      for (int i=0; i<5; i++) {
+	 graphics_info_t::zoom *= 1.01;
+	 graphics_info_t::graphics_draw();
       }
       handled = TRUE; 
       break;
 
    case GDK_m:
 
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "m";
-      } else { 
-	 for (int i=0; i<5; i++) {
-	    graphics_info_t::zoom *= 0.99;
-	    graphics_info_t::graphics_draw();
-	 }
+      for (int i=0; i<5; i++) {
+	 graphics_info_t::zoom *= 0.99;
+	 graphics_info_t::graphics_draw();
       }
       handled = TRUE; 
       break;
 
    case GDK_1:
    case GDK_KP_1:
-
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "1";
-      } else { 
-	 if (graphics_info_t::moving_atoms_move_chis_flag) { 
-	    graphics_info_t::edit_chi_current_chi = 1;
-	    graphics_info_t::in_edit_chi_mode_flag = 1; // on
-	 }
+      if (graphics_info_t::moving_atoms_move_chis_flag) { 
+	 graphics_info_t::edit_chi_current_chi = 1;
+	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }
       handled = TRUE; 
       break;
    case GDK_2:
    case GDK_KP_2:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "2";
-      } else { 
-	 if (graphics_info_t::moving_atoms_move_chis_flag) { 
-	    graphics_info_t::edit_chi_current_chi = 2;
-	    graphics_info_t::in_edit_chi_mode_flag = 1; // on
-	 }
+      if (graphics_info_t::moving_atoms_move_chis_flag) { 
+	 graphics_info_t::edit_chi_current_chi = 2;
+	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }
       handled = TRUE; 
       break;
    case GDK_3:
    case GDK_KP_3:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "3";
+      if (graphics_info_t::moving_atoms_move_chis_flag) { 
+	 graphics_info_t::edit_chi_current_chi = 3;
+	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       } else { 
-	 if (graphics_info_t::moving_atoms_move_chis_flag) { 
-	    graphics_info_t::edit_chi_current_chi = 3;
-	    graphics_info_t::in_edit_chi_mode_flag = 1; // on
-	 } else { 
-	    keypad_translate_xyz(3, 1);
-	 }
+	 keypad_translate_xyz(3, 1);
       }
       handled = TRUE; 
       break;
    case GDK_4:
    case GDK_KP_4:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "4";
-      } else { 
-	 if (graphics_info_t::moving_atoms_move_chis_flag) { 
-	    graphics_info_t::edit_chi_current_chi = 4;
-	    graphics_info_t::in_edit_chi_mode_flag = 1; // on
-	 }
+      if (graphics_info_t::moving_atoms_move_chis_flag) { 
+	 graphics_info_t::edit_chi_current_chi = 4;
+	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }
       handled = TRUE; 
       break;
    case GDK_5:
    case GDK_KP_5:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "5";
-      } else { 
-	 if (graphics_info_t::moving_atoms_move_chis_flag) { 
-	    graphics_info_t::edit_chi_current_chi = 5;
-	    graphics_info_t::in_edit_chi_mode_flag = 1; // on
-	 }
+      if (graphics_info_t::moving_atoms_move_chis_flag) { 
+	 graphics_info_t::edit_chi_current_chi = 5;
+	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }
       handled = TRUE; 
       break;
    case GDK_6:
    case GDK_KP_6:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "6";
-      } else { 
-	 if (graphics_info_t::moving_atoms_move_chis_flag) { 
-	    graphics_info_t::edit_chi_current_chi = 6;
-	    graphics_info_t::in_edit_chi_mode_flag = 1; // on
-	 }
+      if (graphics_info_t::moving_atoms_move_chis_flag) { 
+	 graphics_info_t::edit_chi_current_chi = 6;
+	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }
       handled = TRUE; 
       break;
 
    case GDK_7:
    case GDK_KP_7:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "7";
-      }
       handled = TRUE;
       break;
       
    case GDK_8:
    case GDK_KP_8:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "8";
-      }
       handled = TRUE;
       break;
       
    case GDK_9:
    case GDK_KP_9:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "9";
-      }
       handled = TRUE;
       break;
       
    case GDK_0:
    case GDK_KP_0:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "0";
-      } else { 
-	 graphics_info_t::edit_chi_current_chi = 0;
-	 graphics_info_t::in_edit_chi_mode_flag = 0; // off
-      }
+      graphics_info_t::edit_chi_current_chi = 0;
+      graphics_info_t::in_edit_chi_mode_flag = 0; // off
       handled = TRUE; 
       break;
       
    case GDK_l:
       {
-	 if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	    graphics_info_t::go_to_residue_keyboarding_string += "l";
-	 } else { 
-	    graphics_info_t g;
-	    std::pair<int, int> cl_at = g.get_closest_atom();
-	    if (is_valid_model_molecule(cl_at.second)) {
-	       g.molecules[cl_at.second].add_to_labelled_atom_list(cl_at.first);
-           // shall add to status_bar ? maybe this should be a function?
-           // it is now
-           std::string ai;
-           ai = atom_info_as_text_for_statusbar(cl_at.first, cl_at.second);
-           g.add_status_bar_text(ai);
-           // insert end
-	    }
-	    graphics_info_t::graphics_draw();
+	 graphics_info_t g;
+	 std::pair<int, int> cl_at = g.get_closest_atom();
+	 if (is_valid_model_molecule(cl_at.second)) {
+	    g.molecules[cl_at.second].add_to_labelled_atom_list(cl_at.first);
+	    // shall add to status_bar ? maybe this should be a function?
+	    // it is now
+	    std::string at_info = atom_info_as_text_for_statusbar(cl_at.first,
+								  cl_at.second);
+	    g.add_status_bar_text(at_info);
 	 }
+	 graphics_info_t::graphics_draw();
       }
       handled = TRUE; 
       break;
 
    case GDK_z:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "z";
-      } else { 
-	 graphics_info_t::z_is_pressed = 1;
-	 if (graphics_info_t::control_is_pressed) { 
-	    if (graphics_info_t::draw_baton_flag)
-	       baton_build_delete_last_residue();
-	    else 
-	       apply_undo();
-	    handled = TRUE; 
-	 }
+      graphics_info_t::z_is_pressed = 1;
+      if (graphics_info_t::control_is_pressed) { 
+	 if (graphics_info_t::draw_baton_flag)
+	    baton_build_delete_last_residue();
+	 else 
+	    apply_undo();
+	 handled = TRUE; 
       }
       break;
 
    case GDK_y:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 graphics_info_t::go_to_residue_keyboarding_string += "y";
-      } else { 
-	 graphics_info_t::y_is_pressed = 1;
-	 if (graphics_info_t::control_is_pressed) { 
-	    apply_redo();
-	    handled = TRUE; 
-	 }
+      graphics_info_t::y_is_pressed = 1;
+      if (graphics_info_t::control_is_pressed) { 
+	 apply_redo();
+	 handled = TRUE; 
       }
       break;
 
@@ -3685,23 +3575,15 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_b:
       // Only toggle baton mode if we are showing a baton!
       // (Otherwise confusion reigns!)
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 // do nothing B was added on key press
-      } else { 
-	 if (g.draw_baton_flag)
-	    g.toggle_baton_mode();
-      }
+      if (g.draw_baton_flag)
+	 g.toggle_baton_mode();
       break;
       
    case GDK_c:
    case GDK_C:
-      if (graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 // do nothing C was added on key press
-      } else { 
-	 g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag; 
-	 g.crosshairs_text();
-	 g.graphics_draw();
-      }
+      g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag; 
+      g.crosshairs_text();
+      g.graphics_draw();
       break;
 
    case GDK_s:
@@ -3718,12 +3600,8 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       
    case GDK_i:
    case GDK_I:
-      if (! graphics_info_t::in_go_to_residue_keyboarding_mode) {
-	 // toggle the idle function using the I key.
-	 //
-	 if (! graphics_info_t::control_is_pressed) 
-	    toggle_idle_spin_function();
-      }
+      if (! graphics_info_t::control_is_pressed) 
+	 toggle_idle_spin_function();
       break; 
       
    case GDK_l:

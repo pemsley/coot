@@ -12068,3 +12068,39 @@ on_multi_residue_torsion_start_button_clicked
 
 }
 
+
+/* wrong callback possibly */
+void
+on_keyboard_go_to_residue_entry_changed   (GtkEditable     *editable,
+                                        gpointer         user_data)
+{
+
+}
+
+
+
+
+gboolean
+on_keyboard_go_to_residue_entry_key_press_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *w = lookup_widget(widget, "keyboard_goto_residue_window");
+  gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
+  if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
+    /* do something  */
+    handle_go_to_residue_keyboarding_mode(text);
+    gtk_widget_destroy(w);
+    return TRUE;
+  }
+  if (event->keyval == GDK_Escape) {
+    /* do somethingelse */
+    gtk_widget_destroy(w);
+    return TRUE;
+  }
+
+  return FALSE;
+}
+

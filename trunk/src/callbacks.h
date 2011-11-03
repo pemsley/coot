@@ -4363,3 +4363,13 @@ on_multi_residue_torsion_start_button_clicked
 
 
 
+void
+on_keyboard_go_to_residue_entry_changed   (GtkEditable     *editable,
+                                        gpointer         user_data);
+
+
+gboolean
+on_keyboard_go_to_residue_entry_key_press_event
+                                        (GtkWidget       *widget,
+                                        GdkEventKey     *event,
+					 gpointer         user_data);
