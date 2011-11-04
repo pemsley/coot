@@ -252,6 +252,16 @@ int move_waters_to_around_protein(int imol) {
    return r;
 }
 
+void move_hetgroups_to_around_protein(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].move_hetgroups_to_around_protein();
+      graphics_draw();
+   } 
+
+}
+
+
 /*! \brief return the maximum minimum distance of any water atom to
   any protein atom - used in validation of
   move_waters_to_around_protein() funtion.*/

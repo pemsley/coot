@@ -4371,6 +4371,10 @@ void find_waters(int imol_for_map,
 @return the number of moved waters. */
 int move_waters_to_around_protein(int imol);
 
+/*! \brief move all hetgroups (including waters) of molecule number
+  imol so that they are around the protein.
+ */
+void move_hetgroups_to_around_protein(int imol);
 
 /*! \brief return the maximum minimum distance of any water atom to
   any protein atom - used in validation of

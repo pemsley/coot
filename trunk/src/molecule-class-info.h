@@ -2891,6 +2891,8 @@ public:        //                      public
    // return the number of moved atoms
    int move_waters_to_around_protein();
 
+   void move_hetgroups_to_around_protein();
+
 
    // Return the maximum minimum distance of waters to protein atoms.
    // return something negative when we can't do above (no protein
