@@ -61,12 +61,13 @@ AM_LDFLAGS = $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
 # 
 # libcoot_ideal_la_LDFLAGS = $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
 
-libcoot_ideal_la_LIBADD = \
-   ../geometry/libcoot-geometry.la \
-   ../coot-utils/libcoot-coord-extras.la  \
-   ../coot-utils/libcoot-coord-utils.la  \
-   ../utils/libcoot-utils.la  \
-   ../mini-mol/libcoot-mini-mol.la  \
+libcoot_ideal_la_LIBADD =                 \
+   $(top_builddir)/geometry/libcoot-geometry.la        \
+   $(top_builddir)/coot-utils/libcoot-coord-extras.la  \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la   \
+   $(top_builddir)/utils/libcoot-utils.la              \
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la        \
+   $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
    $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
 
 
@@ -98,8 +99,9 @@ with_geometry_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 	$(top_builddir)/utils/libcoot-utils.la             \
+        $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
-	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+        $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 # add libcoot-map-utils for  the debugging density_around_point function
 with_map_LDADD =  \
@@ -110,10 +112,11 @@ with_map_LDADD =  \
 	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+        $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
 	$(top_builddir)/utils/libcoot-utils.la        \
         $(top_builddir)/compat/libcoot-compat.la           \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
-	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+        $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 #test_indexing_LDADD = \
 #        ./libcoot-ideal.la                                \
