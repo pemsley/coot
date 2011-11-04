@@ -559,19 +559,12 @@ molecule_class_info_t::residue_has_hetatms(const std::string &chain_id,
 					   int resno,
 					   const std::string &ins_code) const {
 
+   // return 1 if any of the atoms are HETATMs.
+   // 
    int r = -1;
    CResidue *residue_p = get_residue(chain_id, resno, ins_code);
    if (residue_p) {
-      r = 1;
-      PPCAtom residue_atoms = 0;
-      int n_residue_atoms;
-      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	 if (! residue_atoms[iat]->Het) {
-	    r = 0;
-	    break;
-	 } 
-      }
+      r = coot::util::residue_has_hetatms(residue_p);
    }
    return r;
 }

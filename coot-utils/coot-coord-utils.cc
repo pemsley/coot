@@ -5593,15 +5593,40 @@ coot::util::residue_has_hydrogens_p(CResidue *res) {
       res->GetAtomTable(residue_atoms, natoms);
       for (int iat=0; iat<natoms; iat++) {
 	 CAtom *at = residue_atoms[iat];
-	 std::string ele(at->element);
-	 if ((ele == " H") || (ele == " D")) {
-	    result = 1;
-	    break;
+	 if (! at->isTer()) { 
+	    std::string ele(at->element);
+	    if ((ele == " H") || (ele == " D")) {
+	       result = 1;
+	       break;
+	    }
 	 }
       }
    }
    return result;
 }
+
+// return 0 for no, 1 for yes, -1 for NULL residue or 0 atoms;
+int
+coot::util::residue_has_hetatms(CResidue *residue_p) {
+
+   int result = -1;
+   if (residue_p) { 
+      PPCAtom residue_atoms = 0;
+      int natoms;
+      residue_p->GetAtomTable(residue_atoms, natoms);
+      if (natoms) {
+	 result = 0;
+	 for (int iat=0; iat<natoms; iat++) {
+	    if (residue_atoms[iat]->Het) {
+	       result = 1;
+	       break;
+	    }
+	 }
+      }
+   }
+   return result;
+} 
+
 
 // angle in radians.
 clipper::Coord_orth
@@ -6136,6 +6161,119 @@ coot::util::move_waters_around_protein(CMMDBManager *mol) {
    return n_moved;
 }
 
+// move hetgroups round protein.  Find the centres of each
+// hetgroup and move it to the protein.  Waters are handled individually.
+// Fiddle with mol.
+//
+void
+coot::util::move_hetgroups_around_protein(CMMDBManager *mol) {
+
+   if (mol) {
+      // do the waters first
+      coot::util::move_waters_around_protein(mol);
+
+      // now other stuff
+      // 
+      try { 
+	 // Now clipperize the variables.
+	 std::pair<clipper::Cell,clipper::Spacegroup> csp = get_cell_symm(mol);
+	 clipper::Cell cell = csp.first;
+	 clipper::Spacegroup spacegroup = csp.second;
+
+	 if (cell.is_null()) {
+	    std::cout << "WARNING:: null cell in move_waters_around_protein" << std::endl;
+	 } else {
+	    if (spacegroup.is_null()) { 
+	       std::cout << "WARNING:: null spgr in move_waters_around_protein" << std::endl;
+	    } else {
+
+	       for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+		  // first find the protein coords
+		  std::vector<clipper::Coord_orth> protein_coords;
+		  CModel *model_p = mol->GetModel(imod);
+		  CChain *chain_p;
+		  // run over chains of the existing mol
+		  int nchains = model_p->GetNumberOfChains();
+		  for (int ichain=0; ichain<nchains; ichain++) {
+		     chain_p = model_p->GetChain(ichain);
+		     int nres = chain_p->GetNumberOfResidues();
+		     CResidue *residue_p;
+		     CAtom *at = 0;
+		     for (int ires=0; ires<nres; ires++) {
+			residue_p = chain_p->GetResidue(ires);
+			int n_atoms = residue_p->GetNumberOfAtoms();
+			for (int iat=0; iat<n_atoms; iat++) {
+			   at = residue_p->GetAtom(iat);
+			   if (! at->Het) { 
+			      std::string element(at->element);
+			      if (element != "C" && element != " C") {
+				 clipper::Coord_orth pt(at->x, at->y, at->z);
+				 protein_coords.push_back(pt);
+			      }
+			   }
+			}
+		     }
+		  }
+		  // OK, protein_coords is set.
+
+		  // run over chains of the existing mol
+		  for (int ichain=0; ichain<nchains; ichain++) {
+		     chain_p = model_p->GetChain(ichain);
+		     int nres = chain_p->GetNumberOfResidues();
+		     CResidue *residue_p;
+		     CAtom *at = 0;
+		     for (int ires=0; ires<nres; ires++) {
+			residue_p = chain_p->GetResidue(ires);
+			int n_atoms = residue_p->GetNumberOfAtoms();
+			std::string residue_name(residue_p->name);
+			if (residue_name == "WAT" ||
+			    residue_name == "HOH") {
+			   // Waters are handled above.
+			} else {
+			   if (coot::util::residue_has_hetatms(residue_p)) {
+			      std::pair<bool, clipper::Coord_orth> centre =
+				 coot::util::get_residue_centre(residue_p);
+			      if (centre.first) {
+
+				 // fill hetgroup_atoms:
+				 std::vector<std::pair<CAtom*, clipper::Coord_orth> > hetgroup_atoms;
+				 PPCAtom residue_atoms = 0;
+				 int n_residue_atoms;
+				 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+				 for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+				    clipper::Coord_orth co(residue_atoms[iat]->x,
+							   residue_atoms[iat]->y,
+							   residue_atoms[iat]->z);
+				    std::pair<CAtom*, clipper::Coord_orth> p(residue_atoms[iat], co);
+				    hetgroup_atoms.push_back(p);
+				 }
+				 
+				 std::vector<std::pair<CAtom*, clipper::Coord_orth> > atoms_moved =
+				    symmetry_move_atoms(protein_coords, hetgroup_atoms, cell, spacegroup);
+
+				 for (unsigned int iw=0; iw<atoms_moved.size(); iw++) {
+				    if (atoms_moved[iw].first) {
+				       atoms_moved[iw].first->x = atoms_moved[iw].second.x();
+				       atoms_moved[iw].first->y = atoms_moved[iw].second.y();
+				       atoms_moved[iw].first->z = atoms_moved[iw].second.z();
+				    }
+				 }
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << rte.what() << std::endl;
+      }
+   }
+} 
+
+
 // Return waters atoms of the same size as the input, except if the
 // first is NULL, then the atom need not move, if it is not null, then
 // the water atom (first) should be moved to the second position.
@@ -6146,13 +6284,27 @@ coot::util::symmetry_move_atoms(const std::vector<clipper::Coord_orth> &protein_
 				clipper::Cell cell,
 				clipper::Spacegroup spacegroup) {
 
+   std::vector<double> current_best_dist(water_atoms_in.size(), -1);
 
    clipper::Coord_frac pre_shift_frac = coot::util::shift_to_origin(protein_coords, cell, spacegroup);
    clipper::Coord_orth pre_shift_orth = pre_shift_frac.coord_orth(cell);
 
+   // Let's not move atoms if the best distance is not better than the current best distance
+   // so let's make a note of those now.
    std::vector<std::pair<CAtom*, clipper::Coord_orth> > water_atoms = water_atoms_in;
-   
-   if (0) 
+   for (unsigned int iat=0; iat<water_atoms_in.size(); iat++) { 
+      for (unsigned int iprot=0; iprot<protein_coords.size(); iprot++) { 
+	 double d = clipper::Coord_orth::length(water_atoms_in[iat].second, protein_coords[iprot]);
+	 if (current_best_dist[iat] < 0) { 
+	    current_best_dist[iat] = d;
+	 } else {
+	    if (d < current_best_dist[iat])
+	       current_best_dist[iat] = d;
+	 }
+      }
+   }
+
+   if (0)
       std::cout << "DEBUG:: pre_shift_frac " << pre_shift_frac.format()
 		<< " pre_shift_orth " << pre_shift_orth.format()
 		<< std::endl;
@@ -6190,14 +6342,19 @@ coot::util::symmetry_move_atoms(const std::vector<clipper::Coord_orth> &protein_
 	    for (int y_shift = -1; y_shift<2; y_shift++) { 
 	       for (int z_shift = -1; z_shift<2; z_shift++) {
 		  cell_shift = clipper::Coord_frac(x_shift, y_shift, z_shift); 
-		  clipper::RTop_orth orthop = clipper::RTop_frac(spacegroup.symop(isym).rot(), spacegroup.symop(isym).trn() + cell_shift).rtop_orth(cell);
+		  clipper::RTop_orth orthop =
+		     clipper::RTop_frac(spacegroup.symop(isym).rot(),
+					spacegroup.symop(isym).trn() + cell_shift).rtop_orth(cell);
 		  clipper::Coord_orth t_point = water_pos.transform(orthop);
 		  double t_dist = coot::util::min_dist_to_points(t_point, protein_coords_origin_shifted);
 		  if (t_dist < d_best) {
-		     // std::cout << " better dist " << t_dist << std::endl;
-		     d_best = t_dist;
-		     rtop_best = orthop;
-		     improved = 1;
+// 		     std::cout << " better dist " << t_dist << "  "  << t_point.format() << " "
+// 			       << current_best_dist[iw] << std::endl;
+		     if (t_dist < current_best_dist[iw]) {
+			d_best = t_dist;
+			rtop_best = orthop;
+			improved = 1;
+		     }
 		  }
 	       }
 	    }
@@ -6209,6 +6366,7 @@ coot::util::symmetry_move_atoms(const std::vector<clipper::Coord_orth> &protein_
 	 clipper::Coord_orth t_point = water_pos.transform(rtop_best);
 	 water_atoms[iw].second = t_point - pre_shift_orth;
       } else {
+	 // std::cout << "debug:: no improvement NULLING the atom " << iw << std::endl;
 	 water_atoms[iw].first = 0; // NULL, don't move it.
       }
    }

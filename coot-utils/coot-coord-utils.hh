@@ -915,6 +915,9 @@ namespace coot {
       bool nucleotide_is_DNA(CResidue *r);  // test for presence of O2'
 
       bool residue_has_hydrogens_p(CResidue *res);
+      
+      // return 0 for no, 1 for yes, -1 for NULL residue or 0 atoms;
+      int residue_has_hetatms(CResidue *residue_p);
 
       // Return NULL on residue not found in this molecule.
       // 
@@ -1397,6 +1400,12 @@ namespace coot {
 
       // remove wrong cis_peptides
       void remove_wrong_cis_peptides(CMMDBManager *mol);
+
+      // move hetgroups round protein.  Find the centres of each
+      // hetgroup and move it to the protein.  Waters are handled individually.
+      // Fiddle with mol.
+      //
+      void move_hetgroups_around_protein(CMMDBManager *mol);
 
       // move waters round protein, fiddle with mol.
       // return the number of moved waters.

@@ -7551,7 +7551,17 @@ molecule_class_info_t::move_waters_to_around_protein() {
    have_unsaved_changes_flag = 1; 
    make_bonds_type_checked();
    return r;
-} 
+}
+
+void
+molecule_class_info_t::move_hetgroups_to_around_protein() {
+
+   make_backup();
+   coot::util::move_hetgroups_around_protein(atom_sel.mol);
+   have_unsaved_changes_flag = 1; 
+   make_bonds_type_checked();
+}
+
 
 
 
