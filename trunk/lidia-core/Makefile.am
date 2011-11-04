@@ -32,6 +32,9 @@ INCLUDES = \
 
 libcoot_lidia_core_la_SOURCES = lbg-molfile.cc lig-build.cc rdkit-interface.cc
 
+libcoot_lidia_core_la_LIBADD =                 \
+   $(RDKIT_LIBS)
+
 # noinst_PROGRAMS = test-molfile
 
 # test_molfile_SOURCES: test-molfile.cc
