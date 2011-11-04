@@ -46,11 +46,11 @@ libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
 		 Bond_lines_ext.cc coot-close.cc
 
 libcoot_coords_la_LIBADD = \
-   ../lidia-core/libcoot-lidia-core.la  \
-   ../geometry/libcoot-geometry.la      \
-   ../coot-utils/libcoot-shelx.la       \
-   ../coot-utils/libcoot-coord-utils.la \
-   ../utils/libcoot-utils.la            \
-   ../mini-mol/libcoot-mini-mol.la      \
+   $(top_builddir)/geometry/libcoot-geometry.la      \
+   $(top_builddir)/coot-utils/libcoot-shelx.la       \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la \
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la      \
+   $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
+   $(top_builddir)/utils/libcoot-utils.la            \
    $(RDKIT_LIBS)	        \
    $(MMDB_LIBS)
