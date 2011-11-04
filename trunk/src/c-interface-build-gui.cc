@@ -2056,10 +2056,18 @@ show_fix_nomenclature_errors_gui(int imol,
 
 	 GtkWidget *label = lookup_widget(w, "fix_nomenclature_errors_label");
 
-	 std::string s = "\n  Molecule ";
+	 std::string s = "\n  Molecule number ";
 	 s += coot::util::int_to_string(imol);
-	 s += " has nomenclature errors  \n\n";
-	 s += "  Correct them?\n";
+	 s += " has ";
+	 s += coot::util::int_to_string(nomenclature_errors.size());
+	 s += " nomenclature error";
+	 if (nomenclature_errors.size() > 1)
+	    s += "s";
+	 s += ".\n";
+	 if (nomenclature_errors.size() > 1)
+	    s += "  Correct them?\n";
+	 else 
+	    s += "  Correct it?\n";
 
 	 gtk_object_set_user_data(GTK_OBJECT(w), GINT_TO_POINTER(imol));
 	 
