@@ -75,37 +75,62 @@ coot::beam_in_linked_residue::beam_in_linked_residue(CResidue *residue_ref_in,
 		<< full_path_pdb_filename << std::endl;
 
       if (coot::file_exists(full_path_pdb_filename)) {
-	 // Cool.
-	 CMMDBManager *t_mol = new CMMDBManager;
-	 int status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
-	 if (status != Error_NoError) {
-	    std::cout << "ERROR:: on reading " << full_path_pdb_filename << std::endl;
-	 } else { 
-	    // More cool.
-	    template_res_ref = get_residue(comp_id_ref, t_mol);
-	    if (! template_res_ref) {
-	       std::cout << "ERROR:: failed to find residue with comp_id " << comp_id_ref
-			 << " in " << full_path_pdb_filename << std::endl;
-	    } else { 
 
-	       // should be this path
-	       
-	       template_res_mov = get_residue(new_residue_type, t_mol);
-
-	       if (! template_res_mov) {
-		  std::cout << "ERROR:: failed to find residue with comp_id " << new_residue_type
-			    << " in " << full_path_pdb_filename << std::endl;
-	       } else { 
-		  // Happy path
-		  have_template = 1; // template_res_mov and
-				     // template_res_ref are correctly
-				     // set.
-	       } 
-	    }
-	 } 
+	 std::cout << "debug passing comp_id_ref: " << comp_id_ref << std::endl;
+	 setup_by_comp_id(full_path_pdb_filename, comp_id_ref, new_residue_type);
+	 
+      } else {
+	 setup_by_group(comp_id_ref, new_residue_type, link_type);
       } 
    } 
 }
+
+// factor out for clarity.  template_file_name exists before calling this.
+// 
+void
+coot::beam_in_linked_residue::setup_by_comp_id(const std::string &template_file_name,
+					       const std::string &comp_id_ref,
+					       const std::string &new_residue_type) {
+
+   CMMDBManager *t_mol = new CMMDBManager;
+   int status = t_mol->ReadPDBASCII(template_file_name.c_str());
+   if (status != Error_NoError) {
+      std::cout << "ERROR:: on reading " << template_file_name << std::endl;
+   } else {
+
+      // More cool.
+      template_res_ref = get_residue(comp_id_ref, t_mol);
+      if (! template_res_ref) {
+	 std::cout << "ERROR:: failed to find residue with comp_id " << comp_id_ref
+		   << " in " << template_file_name << std::endl;
+      } else {
+
+	 // should be this path
+	       
+	 template_res_mov = get_residue(new_residue_type, t_mol);
+
+	 if (! template_res_mov) {
+	    std::cout << "ERROR:: failed to find (adding) residue with comp_id "
+		      << new_residue_type << " in " << template_file_name << std::endl;
+	 } else { 
+	    // Happy path
+	    have_template = 1; // template_res_mov and
+	    // template_res_ref are correctly
+	    // set.
+	 } 
+      }
+   } 
+} 
+
+
+// factor out for clarity.  template_file_name exists before calling this.
+// 
+void
+coot::beam_in_linked_residue::setup_by_group(const std::string &comp_id_ref,
+					     const std::string &new_residue_type,
+					     const std::string &link_type) {
+
+} 
 
 // This can return NULL if we were unable to make the residue to be attached.
 CResidue *
@@ -182,12 +207,31 @@ coot::beam_in_linked_residue::get_atoms(CResidue *residue_p,
 std::vector<std::string>
 coot::beam_in_linked_residue::make_reference_atom_names(const std::string &comp_id) const {
 
+   // Should we pass the group here, instead of simply enumerating all
+   // the possible pyranoses (etc.?)
+
    std::vector<std::string> lsq_reference_atom_names;
    if (comp_id == "ASN") {
       lsq_reference_atom_names.push_back(" ND2");
       lsq_reference_atom_names.push_back(" OD1");
       lsq_reference_atom_names.push_back(" CG ");
       lsq_reference_atom_names.push_back(" CB ");
+   }
+   if (comp_id == "NAG") {
+      lsq_reference_atom_names.push_back(" C1 ");
+      lsq_reference_atom_names.push_back(" C2 ");
+      lsq_reference_atom_names.push_back(" C3 ");
+      lsq_reference_atom_names.push_back(" C4 ");
+      lsq_reference_atom_names.push_back(" C5 ");
+      lsq_reference_atom_names.push_back(" O5 ");
+   }
+   if (comp_id == "MAN" || comp_id == "BMA") {
+      lsq_reference_atom_names.push_back(" C1 ");
+      lsq_reference_atom_names.push_back(" C2 ");
+      lsq_reference_atom_names.push_back(" C3 ");
+      lsq_reference_atom_names.push_back(" C4 ");
+      lsq_reference_atom_names.push_back(" C5 ");
+      lsq_reference_atom_names.push_back(" O5 ");
    }
    return lsq_reference_atom_names;
 } 
