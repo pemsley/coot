@@ -45,64 +45,82 @@ coot::rdkit_mol(CResidue *residue_p,
    // this is so that we don't add multiple copies of an atom with
    // the same name (that is, only add the first atom of a given
    // atom name in a residue with alt confs).
+   // 
+   // We also need added_atoms so that that is what we iterate over
+   // when handling bond restraints (we don't want to consider B
+   // conformer for restraints if they are ignored when we are adding
+   // atoms).
+   // 
    std::vector<std::string> added_atom_names;
+   std::vector<CAtom *>     added_atoms; // gets added to as added_atom_names gets added to.
    std::map<std::string, int> atom_index;
    int current_atom_id = 0;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-      std::string atom_name(residue_atoms[iat]->name);
-      // only add the atom if the atom_name is not in the list of
-      // already-added atom names.
-      if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name) == added_atom_names.end()) {
-	 RDKit::Atom *at = new RDKit::Atom;
-	 try {
-	    std::string ele_capped = coot::util::capitalise(coot::util::remove_leading_spaces(residue_atoms[iat]->element));
-	    at->setAtomicNum(tbl->getAtomicNumber(ele_capped));
+      if (! residue_atoms[iat]->Ter) { 
+	 std::string atom_name(residue_atoms[iat]->name);
+	 std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " " 
+		   << atom_name << std::endl;
+	 // only add the atom if the atom_name is not in the list of
+	 // already-added atom names.
+	 if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name) == added_atom_names.end()) {
+	    RDKit::Atom *at = new RDKit::Atom;
+	    try {
+	       std::string ele_capped =
+		  coot::util::capitalise(coot::util::remove_leading_spaces(residue_atoms[iat]->element));
+	       at->setAtomicNum(tbl->getAtomicNumber(ele_capped));
 	    
-	    at->setProp("name", std::string(residue_atoms[iat]->name));
+	       at->setProp("name", std::string(residue_atoms[iat]->name));
 
-	    // set the valence from they type energy.  Abstract?
-	    //
-	    std::string type_energy = restraints.type_energy(residue_atoms[iat]->name);
-	    if (type_energy != "") {
-	       if (type_energy == "NT") {
-		  at->setFormalCharge(1);
+	       // set the valence from they type energy.  Abstract?
+	       //
+	       std::string type_energy = restraints.type_energy(residue_atoms[iat]->name);
+	       if (type_energy != "") {
+		  if (type_energy == "NT") {
+		     at->setFormalCharge(1);
+		  }
+		  // other NT*s will drop hydrogens in RDKit, no need to
+		  // fix up formal charge (unless there is a hydrogen! Hmm).
 	       }
-	       // other NT*s will drop hydrogens in RDKit, no need to
-	       // fix up formal charge (unless there is a hydrogen! Hmm).
-	    }
 
-	    // set the chirality
-	    // (if this atom is chiral)
-	    //
-	    for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) { 
-	       if (restraints.chiral_restraint[ichi].atom_id_c_4c() == atom_name) {
-		  if (!restraints.chiral_restraint[ichi].has_unassigned_chiral_volume()) {
-		     if (!restraints.chiral_restraint[ichi].is_a_both_restraint()) {
-			// e.g. RDKit::Atom::CHI_TETRAHEDRAL_CCW;
-			RDKit::Atom::ChiralType chiral_tag = get_chiral_tag(residue_p, restraints, residue_atoms[iat]);
+	       // set the chirality
+	       // (if this atom is chiral)
+	       //
+	       for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) { 
+		  if (restraints.chiral_restraint[ichi].atom_id_c_4c() == atom_name) {
+		     if (!restraints.chiral_restraint[ichi].has_unassigned_chiral_volume()) {
+			if (!restraints.chiral_restraint[ichi].is_a_both_restraint()) {
+			   // e.g. RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+			   RDKit::Atom::ChiralType chiral_tag = get_chiral_tag(residue_p, restraints, residue_atoms[iat]);
 			
-			at->setChiralTag(chiral_tag);
+			   at->setChiralTag(chiral_tag);
+			} 
 		     } 
 		  } 
-	       } 
-	    }
+	       }
 	    
-	    m.addAtom(at);
-	    if (0) 
-	       std::cout << "adding atom with name " << atom_name << " to added_atom_names"
-			 << " which is now size " << added_atom_names.size() << std::endl;
-	    added_atom_names.push_back(atom_name);
-	    atom_index[atom_name] = current_atom_id;
-	    current_atom_id++; // for next round
+	       m.addAtom(at);
+	       if (0) 
+		  std::cout << "adding atom with name " << atom_name << " to added_atom_names"
+			    << " which is now size " << added_atom_names.size() << std::endl;
+	       added_atom_names.push_back(atom_name);
+	       added_atoms.push_back(residue_atoms[iat]);
+	       atom_index[atom_name] = current_atom_id;
+	       current_atom_id++; // for next round
+	    }
+	    catch (std::exception rte) {
+	       std::cout << rte.what() << std::endl;
+	    } 
 	 }
-	 catch (std::exception rte) {
-	    std::cout << rte.what() << std::endl;
-	 } 
       }
    }
 
-   for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) { 
+   std::cout << "bond restraints " << restraints.bond_restraint.size() << std::endl;
+   for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
+      std::cout << "   handling bond " << ib << " of " << restraints.bond_restraint.size()
+		<< " :" << restraints.bond_restraint[ib].atom_id_1_4c() << ": " 
+		<< " :" << restraints.bond_restraint[ib].atom_id_2_4c() << ": " 
+		<< std::endl;
       RDKit::Bond::BondType type = convert_bond_type(restraints.bond_restraint[ib].type());
       RDKit::Bond *bond = new RDKit::Bond(type);
 	    
@@ -112,26 +130,29 @@ coot::rdkit_mol(CResidue *residue_p,
       std::string ele_2 = restraints.element(atom_name_2);
       int idx_1 = -1; // unset
       int idx_2 = -1; // unset
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	 if (! residue_atoms[iat]->Ter) { 
-	    std::string atom_name(residue_atoms[iat]->name);
-	    if (atom_name == atom_name_1)
-	       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
-		   != added_atom_names.end())
-		  idx_1 = iat;
-	    if (atom_name == atom_name_2)
-	       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
-		   != added_atom_names.end())
-		  idx_2 = iat;
+
+      // this block sets idx_1 and idx_2
+      //
+      for (unsigned int iat=0; iat<added_atom_names.size(); iat++) { 
+	 if (added_atom_names[iat] == atom_name_1) { 
+	    idx_1 = iat;
+	    break;
 	 }
       }
+      for (unsigned int iat=0; iat<added_atom_names.size(); iat++) { 
+	 if (added_atom_names[iat] == atom_name_2) { 
+	    idx_2 = iat;
+	    break;
+	 }
+      }
+      
+      
       if (idx_1 != -1) { 
 	 if (idx_2 != -1) {	 
 	    if (type == RDKit::Bond::AROMATIC) { 
 	       bond->setIsAromatic(true);
 	       m[idx_1]->setIsAromatic(true);
 	       m[idx_2]->setIsAromatic(true);
-
 	    }
 	    bond->setBeginAtomIdx(idx_1);
 	    bond->setEndAtomIdx(  idx_2);
@@ -702,17 +723,17 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
       std::cout << "atom " << iat << "/" << n_mol_atoms << "  " << at_p->getAtomicNum()
 		<< " with valence " << at_p->getExplicitValence()
 		<< std::endl;
-      if (at_p->getAtomicNum() == 7) {
-	 
+      if (at_p->getAtomicNum() == 7) { // N
 	 int e_valence = at_p->getExplicitValence();
-
 	 std::cout << " atom N has explicit valence: " << e_valence << std::endl;
-
 	 if (e_valence == 4) { 
 	    std::cout << ".......... assign_formal_charges: found one! "
 		      << at_p << std::endl;
 	    at_p->setFormalCharge(1);
 	 }
+      }
+      if (at_p->getAtomicNum() == 12) { // Mg
+	 at_p->setFormalCharge(2);
       }
    }
    std::cout << "----------- normal completion of assign_formal_charges()" << std::endl;
