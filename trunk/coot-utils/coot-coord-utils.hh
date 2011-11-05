@@ -702,6 +702,12 @@ namespace coot {
       CResidue *get_residue(const std::string &comp_id, CMMDBManager*mol) const;
       std::vector<CAtom *> get_atoms(CResidue *residue_p,
 				     const std::vector<std::string> &names) const;
+      void setup_by_comp_id(const std::string &template_file_name,
+			    const std::string &comp_id_ref,
+			    const std::string &new_res_type);
+      void setup_by_group(const std::string &comp_id_ref,
+			  const std::string &new_res_type,
+			  const std::string &link_type);
    public:
       beam_in_linked_residue(CResidue *residue_ref,
 			     const std::string &link_type,
