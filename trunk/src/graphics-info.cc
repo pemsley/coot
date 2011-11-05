@@ -636,6 +636,63 @@ graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
 				     short int do_zoom_and_move_flag,
 				     float target_zoom) {
 
+   smooth_scroll_maybe_sinusoidal_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
+
+}
+
+void
+graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, float z,
+							     short int do_zoom_and_move_flag,
+							     float target_zoom) {
+
+   // This is more like how PyMol does it (and is better than stepped
+   // acceleration).
+
+   // acceleration between istep 0 and smooth_scroll_steps (n_steps) is:
+   //
+   // acc = sin(istep/nsteps * 2 pi)
+   //
+   // v   = -cos(istep/nsteps * pi)
+
+   float xd = x - rotation_centre_x;
+   float yd = y - rotation_centre_y;
+   float zd = z - rotation_centre_z;
+
+   float pre_zoom = zoom;
+
+   float frac = 1;
+   if (smooth_scroll_steps > 0)
+      frac = 1/float (smooth_scroll_steps);
+   float stepping_x = frac*xd;
+   float stepping_y = frac*yd;
+   float stepping_z = frac*zd;
+   
+   float rc_x_start = rotation_centre_x;
+   float rc_y_start = rotation_centre_y;
+   float rc_z_start = rotation_centre_z;
+
+   double v_acc = 0; // accumulated distance
+   for (int istep=0; istep<smooth_scroll_steps; istep++) {
+      smooth_scroll_on = 1; // flag to stop wirecube being drawn.
+      if (do_zoom_and_move_flag)
+	 zoom = pre_zoom + float(istep+1)*frac*(target_zoom - pre_zoom);
+      double theta = 2 * M_PI * frac * istep;
+      double v = (1-cos(theta))*frac;
+      v_acc += v;
+      rotation_centre_x = rc_x_start + v_acc * xd;
+      rotation_centre_y = rc_y_start + v_acc * yd;
+      rotation_centre_z = rc_z_start + v_acc * zd;
+      graphics_draw();
+   }
+   
+   smooth_scroll_on = 0;
+}
+
+void
+graphics_info_t::smooth_scroll_maybe_stepped_acceleration(float x, float y, float z,
+							  short int do_zoom_and_move_flag,
+							  float target_zoom) {
+
    float xd = x - rotation_centre_x;
    float yd = y - rotation_centre_y;
    float zd = z - rotation_centre_z;

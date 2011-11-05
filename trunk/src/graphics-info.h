@@ -524,6 +524,13 @@ class graphics_info_t {
    void smooth_scroll_maybe(float x, float y, float z,
 			    short int do_zoom_and_move_flag,
 			    float target_zoom);
+   void smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, float z,
+			    short int do_zoom_and_move_flag,
+			    float target_zoom);
+   void smooth_scroll_maybe_stepped_acceleration(float x, float y, float z,
+			    short int do_zoom_and_move_flag,
+			    float target_zoom);
+
 
    static float trackball_size;
 
