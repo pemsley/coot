@@ -1055,10 +1055,20 @@ Punted from 0.6:
      function, if you need to rotate a polypeptide around a single
      bond. 
 
-  o cross2 chiral restraints, HEC and HEA.
+   o cross2 chiral restraints, HEC and HEA.
 
   * rework build script with guile-gnome dependencies (can of worms?)
     ::: 8
+
+   o Fix various bondings of 2ldf mmCIF (for example).  Punted from 0.7
+
+   o use COOT_N_PROCESSOR in the conformer and ligand search. Puntable
+
+
+  o changing chain ids and residue numbers should change the header
+    info (SSBOND, LINK, HELIX, SHEET, CISPEP, SITE etc). Punted from 0.7. 
+    ::: 6
+
 
 
 

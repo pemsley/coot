@@ -3,37 +3,36 @@
 
 ----
 
+  o update go to atom on merge water chains. ::: 0.5
+
+  o double reading/displaying (or modification?) of HET residues? ::: 1
+
+  o Make sure ligands work with prodrg ::: 6
+
+  o Does RCrane work? ::: 0.5
+
+  o rework get-monomer() to be cleaner and use the prefer_python system. ::: 1
+
   o Accept/Reject dialog is not opening where I left it on previous
     usage (not previous session, even!) ::: 1
 
-  o Fix splash screen per SS message.  Fix symmetry file names too ::: 2
+  o Fix splash screen per SS message.  ::: 0.5
+
+  o SS: Fix symmetry file names ::: 2
 
   o CCP4-based integrated path for FLEV ::: 6
-
-  o Make sure ligands work with prodrg ::: 6
 
   o Fix lighting for solid env distances ::: 1
 
   o Fix lighting for solid generic objects ::: 1
 
-  o Fix crash, Jim Branigan message ::: 4
-
-  o Related to above: Fix crash-catcher script to work with pythonized
-    coot ::: 2
+  o inhibitor in 3p5k fails on torsion matching. ::: 3
 
   o consider better analysis of disulfides, bonding and refinement.
     Consider iron-sulfur clusters.  ::: 3
 
-  o double reading/displaying (or modification?) of HET residues? ::: 1
-
-  o Fix various bondings of 2ldf mmCIF (for example).
-
   o try to make a difference map by making an average map with scale
     -1 for the second map.  Does it work? ::: 1
-
-  o rework get-monomer() to be cleaner and use the prefer_python system. ::: 1
-
-  o Does RCrane work? ::: 0.5
 
   o Downloading pdbe data needs to be silent (in scheme) in case the
     user has the coot scheme scripting window open (threading issues).
@@ -42,31 +41,12 @@
 
   o Unusual Rotamers on 3amy ::: 2
 
-  o update go to atom on merge water chains. ::: 0.5
+  o check that probe works ::: 1
 
-  o sphere refine 1284 A of 3zr5 -> fails to find link bonds and
-    GSL_NOPROG.  (Try NAGs in other proteins, seems this problem is not
-    unique to this structure? (but not everything! Hmm!))  Try 3sq6
-    first, that has just this message:
+  o Fix crash, Jim Branigan message ::: 4
 
-    WARNING:: dictionary vs model problem? We didn't find the bonded
-    linking atoms : C1 : : ND2:
- 
-    and refines to completion.
-
-  o changing chain ids and residue numbers should change the header
-    info (SSBOND, LINK, HELIX, SHEET, CISPEP, SITE etc). Puntable. ::: 6
-
-  o "Save coordinates file name selector" window should be a transient
-    (Andrew Sharff).  
-
-* It is, AFAICS.  Hmmm!
-
-
-
-   o check that probe works 
-
-   o use COOT_N_PROCESSOR in the conformer and ligand search. Puntable
+  o Related to above: Fix crash-catcher script to work with pythonized
+    coot ::: 2
 
 ------
 
@@ -151,3 +131,22 @@ Adding monomer torsion restraint: 29 30 33 34 angle 180 esd 15 period 3
 Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 
 * Done.
+
+  o "Save coordinates file name selector" window should be a transient
+    (Andrew Sharff).  
+
+* It is, AFAICS.  Hmmm!
+
+  o sphere refine 1284 A of 3zr5 -> fails to find link bonds and
+    GSL_NOPROG.  (Try NAGs in other proteins, seems this problem is not
+    unique to this structure? (but not everything! Hmm!))  Try 3sq6
+    first, that has just this message:
+
+    WARNING:: dictionary vs model problem? We didn't find the bonded
+    linking atoms : C1 : : ND2:
+ 
+    and refines to completion.
+
+* Yay already fixed - presumably link code fixups from a week or two
+   ago.  Stephen Graham structure?
+

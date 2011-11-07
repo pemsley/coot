@@ -1,4 +1,25 @@
+/* geometry/protein-geometry.cc
+ * 
+ * Copyright 2010 The University of Oxford
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
+
+#include <algorithm>
 #include <stdlib.h>
 
 #include "coot-utils.hh"
@@ -225,20 +246,28 @@ coot::protein_geometry::fill_using_sbase(const std::string &monomer_type) {
 // correctly.  Use fill_using_sbase().
 // 
 bool
-coot::protein_geometry::try_load_sbase_description(const std::vector<std::string> &comp_ids) {
+coot::protein_geometry::try_load_sbase_description(const std::vector<std::string> &comp_ids_with_duplicates) {
+
+   std::vector<std::string> uniques;
+   for (unsigned int ic=0; ic<comp_ids_with_duplicates.size(); ic++) { 
+      if (std::find(uniques.begin(), uniques.end(), comp_ids_with_duplicates[ic]) ==
+	  uniques.end())
+	 uniques.push_back(comp_ids_with_duplicates[ic]);
+	  
+   }
 
    bool status = 0; // none added;
    if (SBase) {
-      for (unsigned int i=0; i<comp_ids.size(); i++) {
-	 std::string comp_id = comp_ids[i];
+      for (unsigned int i=0; i<uniques.size(); i++) {
+	 std::cout << i << " " << uniques[i] << std::endl;
+	 std::string comp_id = uniques[i];
 	 bool s = fill_using_sbase(comp_id);
-	 if (s)
-	    std::cout << "debug:: sbase dictionary for " << comp_id << " succssfully loaded "
-		      << std::endl;
+// 	 if (s)
+// 	    std::cout << "debug:: sbase dictionary for " << comp_id << " successfully loaded "
+// 		      << std::endl;
 	 if (s)
 	    status = 1;
       }
    }
-   
    return status; // return true of something was added.
 }

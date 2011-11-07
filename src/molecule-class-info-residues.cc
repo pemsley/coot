@@ -24,6 +24,7 @@
 //
 
 #include <string>
+#include <algorithm>
 #include <stdexcept>
 
 #include <GL/glut.h>
@@ -314,7 +315,10 @@ molecule_class_info_t::no_dictionary_for_residue_type_as_yet(const coot::protein
 	    residue_p = chain_p->GetResidue(ires);
 	    std::string residue_name = residue_p->GetResName();
 	    if (! geom.have_at_least_minimal_dictionary_for_residue_type(residue_name)) {
-	       v.push_back(residue_name);
+
+	       // add it to v, if it is not already there:
+	       if (std::find(v.begin(), v.end(), residue_name) == v.end())
+		  v.push_back(residue_name);
 	    } 
 	 }
       }

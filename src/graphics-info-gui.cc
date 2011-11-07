@@ -108,8 +108,6 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 			    "accept_dialog_accept_docked_label_string");
    } else {
 
-      std::cout << "DEBUG:: ------------- here ... " 
-		<< " --------" << std::endl;
       label = lookup_widget(GTK_WIDGET(window), "accept_dialog_accept_label_string");
       gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
       

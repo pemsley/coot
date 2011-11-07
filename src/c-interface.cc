@@ -515,13 +515,13 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	 std::vector<std::string> types_with_no_dictionary =
 	    g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
 
-      
 	 std::cout << "Debug:: there were " << types_with_no_dictionary.size() << " types "
-		   << "with no dictionary " << std::endl;
+		   << "with no dictionary " << std::endl; 
 
-	 for (unsigned int ii=0; ii<types_with_no_dictionary.size(); ii++) {
-	    std::cout << "   " << types_with_no_dictionary[ii] << std::endl;
-	 }
+	 // debugging
+	 // for (unsigned int ii=0; ii<types_with_no_dictionary.size(); ii++) {
+	 // std::cout << "   " << types_with_no_dictionary[ii] << std::endl;
+         // }
       
 	 if (types_with_no_dictionary.size()) {
 	    if (g.Geom_p()->try_load_sbase_description(types_with_no_dictionary))
