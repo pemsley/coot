@@ -671,9 +671,9 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
    float rc_y_start = rotation_centre_y;
    float rc_z_start = rotation_centre_z;
 
+   smooth_scroll_on = 1; // flag to stop wirecube being drawn.
    double v_acc = 0; // accumulated distance
    for (int istep=0; istep<smooth_scroll_steps; istep++) {
-      smooth_scroll_on = 1; // flag to stop wirecube being drawn.
       if (do_zoom_and_move_flag)
 	 zoom = pre_zoom + float(istep+1)*frac*(target_zoom - pre_zoom);
       double theta = 2 * M_PI * frac * istep;
