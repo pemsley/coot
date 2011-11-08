@@ -888,28 +888,46 @@ coot::atom_tree_t::rotate_about(int index2, int index3,
 	    }
       }
 
-      CAtom *at2 = atom_selection[index2];
-      CAtom *at3 = atom_selection[index3];
-      clipper::Coord_orth base_atom_pos(at2->x, at2->y, at2->z);
-      clipper::Coord_orth    third_atom(at3->x, at3->y, at3->z);;
-      clipper::Coord_orth direction = third_atom - base_atom_pos;
-      if (xor_reverse) {
-	 direction = base_atom_pos - third_atom;
-	 base_atom_pos = third_atom;
-      }
+      CAtom *at2 = NULL; 
+      CAtom *at3 = NULL;
 
-      if (debug)
-	 std::cout << " calling rotate_internal() vector "
-		   <<  direction.format() << " with base position "
-		   << base_atom_pos.format() << " by " << angle
+      if (atom_selection) { 
+	 at2 = atom_selection[index2];
+	 at3 = atom_selection[index3];
+      } 
+      if (residue) {
+	 PPCAtom residue_atoms = 0;
+	 int n_residue_atoms;
+	 residue->GetAtomTable(residue_atoms, n_residue_atoms);
+	 at2 = residue_atoms[index2];
+	 at3 = residue_atoms[index3];
+      } 
+
+      if (at2 && at3) { 
+	 clipper::Coord_orth base_atom_pos(at2->x, at2->y, at2->z);
+	 clipper::Coord_orth    third_atom(at3->x, at3->y, at3->z);;
+	 clipper::Coord_orth direction = third_atom - base_atom_pos;
+	 if (xor_reverse) {
+	    direction = base_atom_pos - third_atom;
+	    base_atom_pos = third_atom;
+	 }
+
+	 if (debug)
+	    std::cout << " calling rotate_internal() vector "
+		      <<  direction.format() << " with base position "
+		      << base_atom_pos.format() << " by " << angle
+		      << std::endl;
+	 rotate_internal(unique_moving_atom_indices, direction, base_atom_pos,
+			 clipper::Util::d2rad(angle));
+
+	 // set the new_torsion (return value) if possible.
+	 // 
+	 if (atom_vertex_vec[index2].torsion_quad.first) {
+	    new_torsion = quad_to_torsion(index2);
+	 }
+      } else {
+	 std::cout << "ERROR:: null atom rotate_about() - this should not happen"
 		   << std::endl;
-      rotate_internal(unique_moving_atom_indices, direction, base_atom_pos,
-		      clipper::Util::d2rad(angle));
-
-      // set the new_torsion (return value) if possible.
-      // 
-      if (atom_vertex_vec[index2].torsion_quad.first) {
-	 new_torsion = quad_to_torsion(index2);
       } 
    }
 }
