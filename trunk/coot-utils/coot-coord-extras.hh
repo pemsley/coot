@@ -333,6 +333,13 @@ namespace coot {
 			  const std::string &atom3, const std::string &atom4,
 			  double angle);
 
+      double set_dihedral(const map_index_t &i1,
+			  const map_index_t &i2,
+			  const map_index_t &i3,
+			  const map_index_t &i4, 
+			  double angle);
+
+
       // this can throw an exception
       // 
       // return the set of angles - should be the same that they were

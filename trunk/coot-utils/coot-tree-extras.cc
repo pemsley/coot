@@ -1141,6 +1141,7 @@ coot::atom_tree_t::rotate_internal(std::vector<coot::map_index_t> moving_atom_in
 }
 
 // can throw an exception
+//
 double
 coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &atom2,
 				const std::string &atom3, const std::string &atom4,
@@ -1152,46 +1153,16 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
 //       std::cout << "set_dihedral() :" << it->first << ": -> " <<  it->second.index() << std::endl;
 //    }
    
-   double dihedral_angle = 0.0;
-
    coot::map_index_t i1 = name_to_index[atom1];
    coot::map_index_t i2 = name_to_index[atom2];
    coot::map_index_t i3 = name_to_index[atom3];
    coot::map_index_t i4 = name_to_index[atom4];
 
-
    if (i1.is_assigned() && i2.is_assigned() && i3.is_assigned() && i4.is_assigned()) {
-      try {
-	 coot::atom_index_quad iq(i1.index(), i2.index(), i3.index(), i4.index());
-	 double current_dihedral_angle = iq.torsion(residue);
-	 double diff = angle - current_dihedral_angle;
-	 if (diff > 360.0)
-	    diff -= 360.0;
-	 if (diff < -360.0)
-	    diff += 360.0;
-	 // take out this try/catch when done.
-	 rotate_about(atom2, atom3, diff, 0);
-	 dihedral_angle = iq.torsion(residue);
-	 if (0)
-	    std::cout << "   current, target, diff new "
-		      << current_dihedral_angle << "  " << angle << "  " << diff << "  "
-		      << dihedral_angle << std::endl;
-      }
-      catch (std::runtime_error rte) {
-	 std::cout << rte.what() << std::endl;
-	 std::string mess = "Torsion failure for ";
-	 mess += atom1;
-	 mess += " to ";
-	 mess += atom2;
-	 mess += " to ";
-	 mess += atom3;
-	 mess += " to ";
-	 mess += atom4;
-	 mess += ": rotate_about() fails.";
-	 throw std::runtime_error(mess);
-      }
+      return set_dihedral(i1, i2, i3, i4, angle); // can throw an exception
    } else {
       std::string mess = "Atom name(s) not found in residue. ";
+
       std::vector<std::string> unassigned;
       if (! i1.is_assigned()) unassigned.push_back(atom1);
       if (! i2.is_assigned()) unassigned.push_back(atom2);
@@ -1205,6 +1176,61 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
 	    mess += "\"  ";
 	 }
       }
+      throw std::runtime_error(mess);
+      // no return from this path.
+   }
+}
+
+
+// can throw an exception.
+//
+// i1, i2, i3, i4 are not checked for having been assigned.  We
+// presume that that has been done before we get here.
+// 
+double
+coot::atom_tree_t::set_dihedral(const coot::map_index_t &i1,
+				const coot::map_index_t &i2,
+				const coot::map_index_t &i3,
+				const coot::map_index_t &i4, 
+				double angle) {
+
+   double dihedral_angle = 0.0;
+   try { 
+      coot::atom_index_quad iq(i1.index(), i2.index(), i3.index(), i4.index());
+      
+      double current_dihedral_angle = -1000; // unset
+      if (residue)
+	 current_dihedral_angle = iq.torsion(residue);
+      if (atom_selection)
+	 current_dihedral_angle = iq.torsion(atom_selection, n_selected_atoms);
+      // this should not happen
+      if (current_dihedral_angle == -1000)
+	 throw std::runtime_error("bad current_dihedral_angle, no resiude or selection?");
+
+      double diff = angle - current_dihedral_angle;
+      if (diff > 360.0)
+	 diff -= 360.0;
+      if (diff < -360.0)
+	 diff += 360.0;
+      // take out this try/catch when done.
+      rotate_about(i2.index(), i3.index(), diff, 0);
+      dihedral_angle = iq.torsion(residue);
+      if (0)
+	 std::cout << "   current, target, diff new "
+		   << current_dihedral_angle << "  " << angle << "  " << diff << "  "
+		   << dihedral_angle << std::endl;
+   }
+   catch (std::runtime_error rte) {
+      std::cout << rte.what() << std::endl;
+      std::string mess = "Torsion failure for index ";
+      mess += i1.index();
+      mess += " to ";
+      mess += i2.index();
+      mess += " to ";
+      mess += i3.index();
+      mess += " to ";
+      mess += i4.index();
+      mess += ": rotate_about() fails.";
       throw std::runtime_error(mess);
    }
    return dihedral_angle;
