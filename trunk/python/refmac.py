@@ -124,7 +124,9 @@ def run_loggraph(logfile):
                     #os.spawnl(os.P_NOWAIT, bltwish_exe , bltwish_exe , loggraph_exe , logfile)
                     run_concurrently(wish_exe, [loggraph_exe, logfile])
 
-
+                    
+# make_molecules_flag is synonymous with continue after refmac run, i.e.
+# read molecules, run loggraph etc., furthermore not threaded
 def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
                            mtz_in_filename, mtz_out_filename,
                            extra_cif_lib_filename, imol_refmac_count,

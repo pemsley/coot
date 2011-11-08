@@ -248,6 +248,10 @@ from Osaka 2010
 
 **** Windows ****
 
+   o make installer log
+
+   o check Win7 installation bat file mod [Jola]
+
    o installer options for guile/windowsy (sections)
 
    o installer option to install (or not) icons/shortcuts
