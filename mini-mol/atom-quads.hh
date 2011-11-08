@@ -108,6 +108,12 @@ namespace coot {
       // Can throw an exception on not all indices found
       // 
       double torsion(CResidue *res) const;
+
+      // as above, but we reference atoms in a selection rather than a
+      // residue.
+      // 
+      double torsion(PPCAtom atom_selection, int n_selected_atoms) const;
+      
       friend std::ostream& operator<<(std::ostream &o, const atom_index_quad &q);
    };
    std::ostream& operator<<(std::ostream &o, const atom_index_quad &q);

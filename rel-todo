@@ -48,6 +48,9 @@
   o Related to above: Fix crash-catcher script to work with pythonized
     coot ::: 2
 
+  o match ligand torsions for ligand in 3oho.  Close (AFAICS) but no
+    cigar - we need to add in a bond order check?  ::: 3
+
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
