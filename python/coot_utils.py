@@ -411,6 +411,7 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
 
             for data in data_list:
                 process.stdin.write(data + "\n")
+            process.stdin.close()
             if (screen_flag):
                 for line in process.stdout:
                     print "#", line.rstrip(" \n")  # remove trailing whitespace

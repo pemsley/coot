@@ -20,6 +20,7 @@
 #      b) do a) whilst running thread (using Paul's function global thingy)
 #   2.) thread long running things individually and wait for completion (in main)
 #       [slightly pointless!?]
+# let's try 1b...
 
 # FIXME: review this intiallisations
 import gtk
@@ -28,7 +29,7 @@ import os
 gobject.threads_init()
 # some timeout setting (used?)
 import socket
-socket.setdefaulttimeout(20)
+socket.setdefaulttimeout(30)
 
 import thread
 safe_print = thread.allocate_lock()
@@ -160,13 +161,10 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
     scrolled_win.add_with_viewport(inside_vbox)
     scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
     from time import time
-    print "BL DEBUG:: before mapping"
-    t0 = time()
     map(lambda button_info:
         add_button_info_to_box_of_buttons_vbox_for_ligand_images(button_info,
                                                                  inside_vbox),
         buttons)
-    print "BL DEBUG:: after mapping", time()-t0
 
     outside_vbox.set_border_width(2)
     outside_vbox.pack_start(h_sep, False, False, 2)
@@ -289,6 +287,7 @@ def dig_table(t, level):
                                  entry_id, method_string):
 
         global download_thread_status
+        download_thread_status = None     # start
 
         status = make_directory_maybe("coot-download")
         if (not status == 0):
@@ -409,7 +408,6 @@ def dig_table(t, level):
             sfs_cif_url = "http://www.ebi.ac.uk/pdbe-srv/view/files/r" + \
                           entry_id + "sf.ent"
             pdb_file_name = os.path.join("coot-download", entry_id + ".ent")
-            print "BL DEBUG:: making pdb_file_name and type", pdb_file_name, type(pdb_file_name), type(entry_id)
             sfs_cif_file_name = os.path.join("coot-download", "r" + entry_id + "sf.cif")
             sfs_mtz_file_name = os.path.join("coot-download", "r" + entry_id + "sf.mtz")
             refmac_out_mtz_file_name = os.path.join("coot-download",
@@ -439,7 +437,6 @@ def dig_table(t, level):
                                    refmac_out_mtz_file_name,
                                    cif_progress_bar, window):
 
-                print "BL DEBUG:: cif and mtz", sfs_cif_file_name, sfs_mtz_file_name
                 global download_thread_status
 
                 #
@@ -465,18 +462,20 @@ def dig_table(t, level):
                         #refmac_inner(pdb_file_name, sfs_mtz_file_name,
                         #             refmac_out_mtz_file_name)
                         download_thread_status = "running-refmac-for-phases"
-                        print "BL DEBUG:: now run refmac with pdb", pdb_file_name
                         refmac_result = refmac_calc_sfs_make_mtz(pdb_file_name,
                                                                  sfs_mtz_file_name,
                                                                  refmac_out_mtz_file_name)
                         print "      refmac-result: ", refmac_result
 
-                        # if refmac_result is good?
-                        if not (isinstance(refmac_result, types.ListType)):
-                            downoad_thread_status = "refmac-fail"
+                        # if refmac_result is good? (is tuple not list)
+                        # good enough if it's not false?!
+                        if not (isinstance(refmac_result, types.TupleType)):
+                            download_thread_status = "fail-refmac"
                         else:
                             # make map
-                            make_and_draw_map_local(refmac_out_mtz_file_name)
+                            # cant do here!! we are in thread!!
+                            #make_and_draw_map_local(refmac_out_mtz_file_name)
+                            download_thread_status = "done"  #??
                             
                 # main line get_sfs_run_refmac
                 print "in get_sfs_run_refmac", sfs_cif_file_name, sfs_mtz_file_name, pdb_file_name, refmac_out_mtz_file_name
@@ -535,10 +534,7 @@ def dig_table(t, level):
                     file_name_local, url_info = urllib.urlretrieve(url, file_name,
                                                              lambda nb, bs, fs, progress_bar= progress_bar:
                                                              update_progressbar_in_download(nb, bs, fs, progress_bar))
-                    print "BL DEBUG:: filename(s) and type", file_name, type(file_name)
-                    print "BL DEBUG:: locale filename(s) and type", file_name_local, type(file_name_local)
-                    print "BL DEBUG:: done!?", download_thread_status
-                    download_thread_status = "done"
+                    download_thread_status = "done-download"
                 except socket.timeout:
                     print "BL ERROR:: timout download", url
                     download_thread_status = "fail"
@@ -557,7 +553,7 @@ def dig_table(t, level):
                 max_lines = 350     # thats 450 - 100
                 n_lines = file_n_lines(log_file_name)
                 if n_lines:  # check for number?
-                    n_lines_rest = n_lines - 100
+                    n_lines_rest = n_lines - 100.
                     if (n_lines > 0):
                         f = n_lines_rest / max_lines
                         if (f < 1):
@@ -585,7 +581,7 @@ def dig_table(t, level):
                     refmac_execute_icon.set_sensitive(True)
                     cif_execute_icon.hide()
                     cif_good_icon.show()
-                    print "BL DEBUG:: update refmac progress bar?",refmac_progress_bar, refmac_log_file_name
+                    # de-sensitise cancel?!
                     update_refmac_progress_bar(refmac_progress_bar,
                                                refmac_log_file_name)
 
@@ -602,6 +598,7 @@ def dig_table(t, level):
                     return False # dont continue
                 
                 if (download_thread_status == "done"):
+                    make_and_draw_map_local(refmac_out_mtz_file_name)
                     window.destroy()
                     return False  # we are done!
                 return True
@@ -646,11 +643,9 @@ def dig_table(t, level):
                 # now read the sfs cif and if that is good then
                 # convert to mtz and run refmac, but for now, let's
                 #  just show the PDB file.
-                print "BL DEBUG:: X-ray with files", os.path.isfile(sfs_cif_file_name), os.path.isfile(refmac_out_mtz_file_name)
                 if not (os.path.isfile(sfs_cif_file_name) and
                         os.path.isfile(refmac_out_mtz_file_name)):
                     # download and run refmac
-                    print "BL DEBUG:: run refmac?!"
                     #get_sfs_run_refmac(sfs_cif_url, sfs_cif_file_name,
                     thread.start_new_thread(get_sfs_run_refmac, (sfs_cif_url, sfs_cif_file_name,
                                        sfs_mtz_file_name, pdb_file_name,
@@ -663,7 +658,6 @@ def dig_table(t, level):
                     # read_pdb(pdb_file_name)
                     # make_and_draw_map_local(refmac_out_mtz_file_name)
                     download_thread_status = "done"
-                    print "BL DEBUG:: everything done!?"
                         
     def get_dic_all_entries(js):
         # simple minded, we know where the entries are,
