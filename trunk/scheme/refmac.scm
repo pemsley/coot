@@ -74,6 +74,10 @@
 ;; 
 ;; So we only use text after the last /.
 ;;
+;; make-molecules-flag is tested for being = 0, if not 0, then this is
+;; the main thread and we can do graphics things, like read in a pdb
+;; and mtz file to make new molecules.
+;;
 ;; 
 (define (run-refmac-by-filename pdb-in-filename pdb-out-filename mtz-in-filename mtz-out-filename extra-cif-lib-filename imol-refmac-count swap-map-colours-post-refmac? imol-mtz-molecule show-diff-map-flag phase-combine-flag phib-fom-pair force-n-cycles make-molecules-flag ccp4i-project-dir f-col sig-f-col . r-free-col) 
 
@@ -233,7 +237,7 @@
 					     command-line-args 
 					     data-lines 
 					     refmac-log-file-name #t))) ; to screen too
-		  
+
 		  (if (and (number? status) (= status 0)) ; refmac ran OK
 
 		      (if (= make-molecules-flag 0)
@@ -243,6 +247,7 @@
 
 			  (begin ;; normal/main thread
 			    
+
 			    ;; now let's read in those newly-created
 			    ;; coordinates and phases for a map:
 			    
@@ -278,9 +283,6 @@
 			      (let ((new-map-id
 				     (apply make-and-draw-map-with-refmac-params 
 					    (if (= phase-combine-flag 3) args-default args))))
-
-				(format #t "============== debug here ============ imol ~s new-map-id ~s~%"
-					imol new-map-id)
 				
 				(if (= swap-map-colours-post-refmac? 1)
 				    (swap-map-colours imol-mtz-molecule new-map-id))
@@ -314,7 +316,6 @@
 										     (list-ref hl-list 2)
 										     (list-ref hl-list 3))))))))))
 			      
-			      
 			      (if (= 1 show-diff-map-flag) ; flag was set
 				  (if (= phase-combine-flag 3)
 				      (begin
@@ -332,13 +333,14 @@
 							   f-col sig-f-col)
 						     r-free-bit)))
 					  
-					  (apply make-and-draw-map-with-refmac-params args))))))
-				
-			    (if (coot-has-pygtk?)
-				(let ((s (string-append "read_refmac_log("
-							(number->string imol) ", \""
-							refmac-log-file-name "\")")))
-				  (run-python-command s))))))))))))
+					  (apply make-and-draw-map-with-refmac-params args)))))
+
+
+			      (if (coot-has-pygtk?)
+				  (let ((s (string-append "read_refmac_log("
+							  (number->string imol) ", \""
+							  refmac-log-file-name "\")")))
+				    (run-python-command s)))))))))))))
 
 
 ;; Return #t if the list of strings @var{params-list} contains a
@@ -496,8 +498,8 @@
 					      mtz-file-name mtz-out
 					      cif-lib-filename 0 0 -1
 					      1 0 '() 0 
-					      #t ;; let run-refmac-by-filename make molecules 
-					         ;; (this is not a sub-thread)
+					      1 ;; let run-refmac-by-filename make molecules 
+					        ;; (this is not a sub-thread)
 					      "" 
 					      f-col sig-f-col)
 		      ; reset the ncs and tls states
