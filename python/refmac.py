@@ -544,7 +544,7 @@ def run_refmac_for_phases(imol, mtz_file_name, f_col, sig_f_col):
                 run_refmac_by_filename(pdb_in, pdb_out,
                         mtz_file_name, mtz_out, 
                         cif_lib_filename, 0, 0, -1,
-                        1, 0, [], 0, 0, "",
+                        1, 0, [], 0, 1, "",
                         f_col, sig_f_col, "")
                 # I wish I could reset the state, but I currently cannot
                 # as refmac runs only after the button has been pushed

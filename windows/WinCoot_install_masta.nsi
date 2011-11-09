@@ -1127,8 +1127,8 @@ Function FinishPagePreFunction
    ; first apply changes to runwincoot.bat
    Var /GLOBAL GUILE_INST_DIR
    ${WordReplace} "$INSTDIR" "\" "/" "+" $GUILE_INST_DIR
-   !insertmacro ReplaceOnLine "yourWinCootdirectory" "$INSTDIR" "4" "$INSTDIR\runwincoot.bat.tmp"
-   !insertmacro ReplaceOnLine "yourWinCootdirectoryGuile" "$GUILE_INST_DIR" "5" "$INSTDIR\runwincoot.bat.tmp"
+   !insertmacro ReplaceOnLine "yourWinCootdirectory" "$INSTDIR" "5" "$INSTDIR\runwincoot.bat.tmp"
+   !insertmacro ReplaceOnLine "yourWinCootdirectoryGuile" "$GUILE_INST_DIR" "6" "$INSTDIR\runwincoot.bat.tmp"
    ;we want to change more for Vista (and possibly for Windows 7 too FIXME!)
    GetVersion::WindowsName
      Pop $R0
