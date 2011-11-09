@@ -2216,14 +2216,14 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
                 rn = residue_name(imol, chain_id, res_no, ins_code)
                 with_auto_accept([regularize_zone, imol_new, "", 1, 1, ""])
                 overlap_ligands(iml_new, imol, chain_id, res_no)
-                # match_ligand_torsions(imol_new, imol, chain_id, res_no) # broken?
+                match_ligand_torsions(imol_new, imol, chain_id, res_no) # broken?
                 set_residue_name(imol_new, "", 1, "", rn)
                 change_chain_id(imol_new, "", chain_id, 1, 1, 1)
                 renumber_residue_range(imol_new, chain_id, 1, 1, res_no - 1)
                 set_mol_displayed(imol_new, 0)
                 set_mol_active   (imol_new, 0)
-                set_mol_displayed(imol, 0)
-                set_mol_active   (imol, 0)
+                #set_mol_displayed(imol, 0)
+                #set_mol_active   (imol, 0)
 
                 # I don't think that replace-fragment is the right
                 # function because that does not copy across the hydrogen
@@ -2237,6 +2237,8 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
                 col = get_molecule_bonds_colour_map_rotation(imol)
                 new_col = col + 5
                 set_molecule_bonds_colour_map_rotation(imol_replacement, new_col)
+                set_mol_displayed(imol_replacing, 0)
+                set_mol_active   (imol_replacing, 0)
                 graphics_draw()
     
                 
