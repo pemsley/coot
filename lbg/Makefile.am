@@ -24,7 +24,7 @@ bin_PROGRAMS = lidia
 
 libcoot_lidia_la_SOURCES = lbg.cc wmolecule.cc  \
     lbg-search.cc  residue-circles.cc \
-    flev-annotations.cc
+    flev-annotations.cc lbg-drag-and-drop.cc
 
 libcoot_lidia_la_LIBADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
@@ -33,9 +33,10 @@ libcoot_lidia_la_LIBADD = \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
 
-lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc
+lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc 
 
-include_HEADERS = lbg.hh wmolecule.hh  flev-annotations.hh graphics-c-interface-functions.hh
+include_HEADERS = lbg.hh wmolecule.hh  flev-annotations.hh graphics-c-interface-functions.hh \
+	lbg-drag-and-drop.hh
 
 
 # res spec output operator means we include libcoot-coord-utils

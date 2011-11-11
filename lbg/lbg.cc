@@ -41,6 +41,7 @@
 #include <cairo-pdf.h>
 #endif
 #include "lbg.hh"
+#include "lbg-drag-and-drop.hh"
 
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
 // 
@@ -2274,6 +2275,10 @@ lbg_info_t::init(GtkBuilder *builder) {
       // 		    "key_press_event",
       // 		    G_CALLBACK(on_key_press_event), NULL);
 
+      // setup_lbg_drag_and_drop(lbg_window); // this lbg_info_t is not attached to this object.
+      setup_lbg_drag_and_drop(canvas);
+
+
       if (use_graphics_interface_flag)
 	 gtk_widget_show(canvas);
 
@@ -2296,6 +2301,35 @@ lbg_info_t::init(GtkBuilder *builder) {
 
 }
 #endif // GTK_VERSION
+
+void
+lbg_info_t::setup_lbg_drag_and_drop(GtkWidget *lbg_window) {
+
+   // setup drag and drop
+   int n_dnd_targets = 2;
+   GtkTargetEntry target_list[] = {
+      { (gchar *) "STRING",     0, TARGET_STRING },
+      { (gchar *) "text/plain", 0, TARGET_STRING }}; // deprecated conversions from string constant
+   // to char *.  GTK+ problem AFAICS.
+   GtkDestDefaults dest_defaults = GTK_DEST_DEFAULT_ALL; // we don't need ALL, but this
+                                                         // removes int->GtkDestDefaults
+                                                         // conversion problems with |.
+   
+   gtk_drag_dest_set(GTK_WIDGET(lbg_window), /* widget that will accept a drop */
+		     dest_defaults,
+		     target_list,            /* lists of target to support */
+		     n_dnd_targets,          
+		     GDK_ACTION_COPY);       /* what to do with data after dropped */
+   
+   // if something was dropped
+   g_signal_connect (GTK_WIDGET(lbg_window), "drag-drop",
+		     G_CALLBACK (on_lbg_drag_drop), NULL);
+   // what to we do with dropped data...
+   g_signal_connect (GTK_WIDGET(lbg_window), "drag-data-received",
+		     G_CALLBACK(on_lbg_drag_data_received), NULL);
+   
+} 
+      
 
 std::string
 lbg_info_t::get_smiles_string_from_mol() const {

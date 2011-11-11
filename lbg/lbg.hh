@@ -889,6 +889,7 @@ public:
 	  DELETE_MODE};
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
    bool init(GtkBuilder *builder); // return success status (true is good).
+   void setup_lbg_drag_and_drop(GtkWidget *lbg_window);
 #endif // GTK_VERSION
    int imol; // the coot molecule number from which this plot was
 	     // generated (quite possibly -1, i.e. no coot molecule)
@@ -1008,6 +1009,10 @@ public:
    }
 
    void clear_and_redraw(const lig_build::pos_t &delta);
+
+   // drag and drop callbacks
+   int handle_lbg_drag_and_drop_string(const std::string &uri);
+   int handle_lbg_drag_and_drop_single_item(const std::string &uri);
    
 };
 
