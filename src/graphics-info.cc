@@ -306,7 +306,7 @@ graphics_info_t::draw_anti_aliasing() {
   }
 }
 
-void
+int
 graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 				    short int show_no_bonds_dialog_maybe_flag) {
 
@@ -343,6 +343,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 	 molecules[i].make_bonds_type_checked();
       }
    }
+   return nbonds;
 }
 
 void

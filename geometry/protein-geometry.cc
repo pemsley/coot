@@ -4717,7 +4717,7 @@ coot::simple_cif_reader::simple_cif_reader(const std::string &cif_dictionary_fil
 	       PCMMCIFCategory cat = data->GetCategory(icat);
 	       std::string cat_name(cat->GetCategoryName());
 	       PCMMCIFLoop mmCIFLoop =
-		  data->GetLoop( (char *) cat_name.c_str() );
+		  data->GetLoop(cat_name.c_str() );
 	       if (mmCIFLoop == NULL) { 
 		  std::cout << "null loop" << std::endl; 
 	       } else {
@@ -4725,7 +4725,7 @@ coot::simple_cif_reader::simple_cif_reader(const std::string &cif_dictionary_fil
 		     int ierr = 0;
 		     for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
 			char *n = mmCIFLoop->GetString("name", j, ierr);
-			char *t = mmCIFLoop->GetString("name", j, ierr);
+			char *t = mmCIFLoop->GetString("three_letter_code", j, ierr);
 			if (n && t) {
 			   names.push_back(n);
 			   three_letter_codes.push_back(t);

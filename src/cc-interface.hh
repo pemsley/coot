@@ -259,47 +259,8 @@ std::string ccp4_project_directory(const std::string &ccp4_project_name);
 /*  -------------------------------------------------------------------- */
 /*                     history                                           */
 /*  -------------------------------------------------------------------- */
+#include "command-arg.hh"
 
-namespace coot { 
-   class command_arg_t {
-   public:
-      enum coot_script_arg_type{INT, FLOAT, STRING};
-      command_arg_t(int iin) {
-	 i = iin;
-	 type = INT;
-      }
-      command_arg_t(float fin) {
-	 f = fin;
-	 type = FLOAT;
-      }
-      command_arg_t(const clipper::String &sin) {
-	 s = sin;
-	 type = STRING;
-      }
-      command_arg_t(const std::string &sin) {
-	 s = sin;
-	 type = STRING;
-      }
-      command_arg_t(const char *sin) {
-	 s = sin;
-	 type = STRING;
-      }
-      coot_script_arg_type type;
-      float f;
-      int i;
-      std::string s;
-      std::string as_string() const {
-	 std::string os("unknown-arg-type");
-	 if (type == INT)
-	    os = coot::util::int_to_string(i);
-	 if (type == FLOAT)
-	    os = coot::util::float_to_string(f);
-	 if (type == STRING)
-	    os = s;
-	 return os;
-      }
-   };
-}
 void add_to_history(const std::vector<std::string> &ls);
 void add_to_history_simple(const std::string &cmd);
 void add_to_history_typed(const std::string &command,

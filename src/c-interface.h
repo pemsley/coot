@@ -3714,8 +3714,12 @@ int read_cif_data_with_phases_fo_alpha_calc(const char *filename);
 
 
 /*                  cif (geometry) dictionary                            */
-void handle_cif_dictionary(const char *filename);
-void read_cif_dictionary(const char *filename);
+/* \brief return the number of bonds read (> 0 can be treated as success) */
+int handle_cif_dictionary(const char *filename);
+/* \brief synonym for above. 
+
+return the number of bonds read (> 0 can be treated as success) */
+int read_cif_dictionary(const char *filename);
 int write_connectivity(const char* monomer_name, const char *filename);
 /*! \brief open the cif dictionary file selector dialog */
 void open_cif_dictionary_file_selector_dialog(); 

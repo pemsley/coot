@@ -46,6 +46,7 @@
 ;; 
 (define (monomer-molecule-from-3-let-code code dict-cif-libin . ccp4i-project-dir)
 
+
   ;; return #t if log file has "has the minimal description" in it.
   ;; else return #f
   ;; 
@@ -130,8 +131,7 @@
 		 (string-append "FILE_CIF " dict-cif-libin)
 		 (string-append "MON " code-str)
 		 "")))
-	   (log-file-name (string-append "coot-libcheck-"
-					 code-str ".log"))
+	   (log-file-name (string-append "coot-libcheck-" code-str ".log"))
 	   (log-file-name-in-dir (append-dir-file dir-prefix log-file-name))
 	   (refmac-input (list "MODE NEWENTRY" "END"))
 
@@ -139,6 +139,7 @@
 						 code-str ".log"))
 	   (refmac-command-line (list "LIBIN" cif-file-name "XYZIN" pdb-file-name 
 				      "XYZOUT" post-refmac-pdb-file-name)))
+
 
       (move-aside (append-dir-file dir-prefix "libcheck.lib"))
       (let ((libstatus (run-command-in-dir dir-prefix libcheck-exe '() libcheck-input
@@ -159,8 +160,11 @@
 		;; libcheck exists.
 		;; 
 		(if (not (file-exists? cif-file-name))
-
-		    (format #t "libcheck failed to write the output cif file.~%")
+		    
+		    (begin
+		      (format #t "libcheck failed to write the output cif file ~s .~%"
+			      cif-file-name)
+		      #f)
 
 		    ;; OK, now let's run refmac:
 		    ;; 
@@ -202,7 +206,6 @@
 		pdb-status))))) ; return imol of the ligand
 
   
-
   ;; main body
   (if (not (or (string? code) (symbol? code)))
 	  
@@ -242,5 +245,8 @@
 		  (begin
 		    (info-dialog "You need to setup CCP4 (specifically LIBCHECK) first.")
 		    -2)
-		  (libcheck-monomer-gui dir-prefix code-str cif-file-name pdb-file-name post-refmac-pdb-file-name))))))
+		  (begin
+		    (let ((v (libcheck-monomer-gui dir-prefix code-str cif-file-name pdb-file-name post-refmac-pdb-file-name)))
+		      v
+		      )))))))
   
