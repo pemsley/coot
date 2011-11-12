@@ -12,6 +12,7 @@
 #include "lbg.hh"
 
 #include "c-interface.h"
+#include "cc-interface.hh" // for coot_get_url()
 
 void residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char *ins_code,
 			       double weight_for_3d_distances) {
@@ -81,7 +82,11 @@ void residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const
 	       bool use_graphics_flag = graphics_info_t::use_graphics_interface_flag;
 	       bool stand_alone_flag = 0; // no, it isn't from here.
 	       
-	       lbg(m, p, mol, view_name, "", imol, use_graphics_flag, stand_alone_flag);
+	       int (*get_url_func_ptr) (const char *s1, const char *s2) = NULL;
+#ifdef USE_LIBCURL
+	       get_url_func_ptr = coot_get_url;
+#endif      
+	       lbg(m, p, mol, view_name, "", imol, use_graphics_flag, stand_alone_flag, get_url_func_ptr);
 	    }
 	    delete mol;
 	 }
@@ -137,7 +142,11 @@ void smiles_to_ligand_builder(const char *smiles_string) {
       std::pair<bool, coot::residue_spec_t> dummy_spec(0, coot::residue_spec_t());
       bool use_graphics_flag = graphics_info_t::use_graphics_interface_flag;
       bool stand_alone_flag = 0; // no, it isn't from here.
-      lbg(m, dummy_spec, mol, "", "", -1, use_graphics_flag, stand_alone_flag);
+      int (*get_url_func_ptr) (const char *s1, const char *s2) = NULL;
+#ifdef USE_LIBCURL
+      get_url_func_ptr = coot_get_url;
+#endif      
+      lbg(m, dummy_spec, mol, "", "", -1, use_graphics_flag, stand_alone_flag, get_url_func_ptr);
    }
    catch (std::exception e) {
       std::cout << "WARNING:: in generating molecule from SMILES: "

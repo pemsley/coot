@@ -1,4 +1,6 @@
 
+#ifdef HAVE_GOOCANVAS
+
 enum { TARGET_STRING };
 
 #include <string>
@@ -20,3 +22,4 @@ on_lbg_drag_data_received (GtkWidget *widget,
 		       guint target_type, 
 		       guint time,
 		       gpointer data);
+#endif 
