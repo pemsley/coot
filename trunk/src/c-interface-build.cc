@@ -6587,38 +6587,17 @@ int get_monomer(const char *three_letter_code) {
    // However, we only want to pass the bespoke cif library if the
    // monomer to be generated is in the cif file.
    std::string cif_lib_filename = "";
-   std::cout << "cif_dictionary_filename_vec size is "
-	     << graphics_info_t::cif_dictionary_filename_vec->size()
-	     << std::endl;
    if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
       std::string dict_name = (*graphics_info_t::cif_dictionary_filename_vec)[0];
-      std::cout << "Here with :" << dict_name << ":" << std::endl;
-      std::cout << "Here with 3lc :" << three_letter_code << ":" << std::endl;
       coot::simple_cif_reader r(dict_name);
-      std::cout << "Here with restraints for :" << three_letter_code << ": "
-		<< r.has_restraints_for(three_letter_code)
-		<< std::endl;
       if (r.has_restraints_for(three_letter_code))
 	 cif_lib_filename = dict_name;
    }
-
-   std::cout << "-------------------------------------------" << std::endl;
-   std::cout << "-------------------------------------------" << std::endl;
-   std::cout << "get_monomer() cif_lib_filename :" << cif_lib_filename
-	     << ":" << std::endl;
-   std::cout << "-------------------------------------------" << std::endl;
-   std::cout << "-------------------------------------------" << std::endl;
    args.push_back(single_quote(cif_lib_filename));
-
 
    coot::command_arg_t retval = coot::scripting_function(function_name, args);
    if (retval.type == coot::command_arg_t::INT) {
-      // ----------------------------------------------------------
-      // ----------------------------------------------------------
-      // does this acutally happen?
       imol = retval.i;
-      std::cout << "DEBUG:: good retval from scripting_function() was an int and imol"
-		<< " was set to " << imol << std::endl;
    } 
 
    std::vector<std::string> command_strings;
