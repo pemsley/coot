@@ -286,6 +286,7 @@ coot_real_SOURCES = \
         canvas-fixes.hh          \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \
+	command-arg.hh           \
 	command-line.cc		 \
 	command-line.hh		 \
 	coot-database.hh	 \
