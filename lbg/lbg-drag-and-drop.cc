@@ -1,4 +1,6 @@
 
+#ifdef HAVE_GOOCANVAS
+
 #include <iostream>
 #include "lbg-drag-and-drop.hh"
 
@@ -88,6 +90,51 @@ lbg_info_t::handle_lbg_drag_and_drop_single_item(const std::string &uri) {
 	 }
 	 handled = TRUE;
       }
+      if (uri.substr(0,7) == "http://") {
+	 if (get_url_func_ptr_flag) { // we have a function get get urls?
+	    int l = uri.length();
+	    std::string uri_clean = uri;
+	    if (uri[l-1] == '\n') 
+	       uri_clean = uri.substr(0, l-1);
+	    int status = coot::util::create_directory("coot-download"); // like make_directory_maybe()
+	    if (status == 0) { // OK, we made it (or had it)
+	       std::string::size_type pos = uri_clean.find_last_of('/');
+	       if (pos != std::string::npos) {
+		  // normal path
+		  std::string url_file_name_file = uri_clean.substr(pos+1);
+		  std::string ext = coot::util::file_name_extension(uri_clean);
+		  if (ext == ".mol" || ext == ".sdf") {
+		     std::string file_name =
+			coot::util::append_dir_file("coot-download", url_file_name_file);
+		     get_url_func_ptr(uri_clean.c_str(), file_name.c_str());
+		     import_mol_from_file(file_name);
+		  }
+
+		  std::cout << "url_file_name_file :" << url_file_name_file << ":" << std::endl;
+		  if (url_file_name_file == "image.png") {
+		     if (uri_clean.find_last_of("/molecules/DB") != std::string::npos) {
+			std::pair<std::string, std::string> s =
+			   coot::util::split_string_on_last_slash(uri_clean);
+			std::pair<std::string, std::string> ss =
+			   coot::util::split_string_on_last_slash(s.first);
+			if (ss.second.find("DB") != std::string::npos) {
+			   std::string local_file = ss.second;
+			   local_file += ".mol";
+			   std::string drugbank_mol_url = "http://drugbank.ca/drugs/";
+			   drugbank_mol_url += local_file;
+			   std::string file_name =
+			      coot::util::append_dir_file("coot-download", local_file);
+			   get_url_func_ptr(drugbank_mol_url.c_str(), file_name.c_str());
+			   import_mol_from_file(file_name);
+			} 
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
    }
    return handled;
 }
+
+#endif // HAVE_GOOCANVAS

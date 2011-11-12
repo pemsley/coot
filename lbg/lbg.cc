@@ -53,7 +53,8 @@ lbg(lig_build::molfile_molecule_t mm,
     const std::string &molecule_file_name,
     int imol,
     bool use_graphics_interface_flag,
-    bool stand_alone_flag_in) {
+    bool stand_alone_flag_in,
+    int (*get_url_func_pointer_in) (const char *s1, const char *s2)) {
 
    lbg_info_t *lbg = NULL; // failure return value.
    bool r = 0; // fail
@@ -101,6 +102,9 @@ lbg(lig_build::molfile_molecule_t mm,
 
 	    widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
 	    lbg->render_from_molecule(wmol);
+	 }
+	 if (get_url_func_pointer_in != NULL) {
+	    lbg->set_curl_function(get_url_func_pointer_in);
 	 }
       }
    } 

@@ -697,6 +697,7 @@ private:
       atom_X = "H";
       lbg_atom_x_dialog = NULL;
       lbg_atom_x_entry = NULL;
+      get_url_func_ptr_flag = false;      
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
@@ -1013,6 +1014,19 @@ public:
    // drag and drop callbacks
    int handle_lbg_drag_and_drop_string(const std::string &uri);
    int handle_lbg_drag_and_drop_single_item(const std::string &uri);
+
+   // we want to use curl functions, but they are declared - and
+   // stored in the src functions.  We can't move them down the
+   // hierarchy because curl function handlers are stored in
+   // graphics_info_t.  So pass lbg a pointer to a function
+   // (coot_get_url).
+   //
+   int (*get_url_func_ptr) (const char *s1, const char *s2);
+   bool get_url_func_ptr_flag; 
+   void set_curl_function(int (*f) (const char *s1, const char *s2)) {
+      get_url_func_ptr = f;
+      get_url_func_ptr_flag = true;
+   }
    
 };
 
@@ -1029,7 +1043,8 @@ lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 		int imol, // molecule number of the molecule of the
 			  // layed-out residue
 		bool use_graphics_interface_flag,
-		bool stand_alone_flag_in);
+		bool stand_alone_flag_in,
+		int (*get_url_func_pointer) (const char *s1, const char *s2));
 
 #endif // HAVE_GOOCANVAS
 
