@@ -333,6 +333,7 @@ coot_real_SOURCES = \
 	graphics-info-refmac.cc  \
 	graphics-info-render.cc	 \
 	graphics-info-residues.cc	 \
+	graphics-info-scripting.cc	\
 	graphics-info-state.cc	 \
 	graphics-info-superpose.cc	\
 	gl-matrix.cc 		 \

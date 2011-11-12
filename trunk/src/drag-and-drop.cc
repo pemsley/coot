@@ -90,7 +90,7 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
    if (! tried_already) {
       // OK, was it an HTTP type string?
       std::string url = uri_in;
-      if (url.length() > 7) {
+      if (url.length() > 8) {
 	 tried_already = true;
 	 if (url.substr(0,7) == "http://") {
 	    int l = url.length();
@@ -161,16 +161,29 @@ int handle_drag_and_drop_single_item(const std::string &file_name) {
    int handled = FALSE;
    // std::cout << "handle_drag_and_drop_single_item() " << file_name << ":" << std::endl; 
 
-   if (file_type_coords(file_name.c_str())) {
-      int imol = read_pdb(file_name.c_str());
-      if (is_valid_model_molecule(imol))
+   std::string ext = coot::util::file_name_extension(file_name);
+   if (ext == ".cif") {
+      // try as restraints file
+      int n_bonds = read_cif_dictionary(file_name.c_str());
+      if (n_bonds > 0) {
 	 handled = TRUE;
-   } else { 
-      std::string ext = coot::util::file_name_extension(file_name);
-      if (ext == ".mtz") {
-	 int imol_map = auto_read_make_and_draw_maps(file_name.c_str());
-	 if (is_valid_map_molecule(imol_map))
+      }
+   }
+
+   if (handled == FALSE) { 
+      if (file_type_coords(file_name.c_str())) {
+	 int imol = read_pdb(file_name.c_str());
+	 if (is_valid_model_molecule(imol))
 	    handled = TRUE;
+	 else
+	    std::cout << "INFO:: " << file_name << " was not a coordinates file" << std::endl;
+      } else { 
+	 std::string ext = coot::util::file_name_extension(file_name);
+	 if (ext == ".mtz") {
+	    int imol_map = auto_read_make_and_draw_maps(file_name.c_str());
+	    if (is_valid_map_molecule(imol_map))
+	       handled = TRUE;
+	 }
       }
    }
    return handled;

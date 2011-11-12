@@ -907,7 +907,7 @@ int probe_available_p() {
    int was_boolean_flag = gh_scm2bool(scm_boolean_p(scm_thunk));
 
    if (was_boolean_flag)
-      if (gh_scm2bool(scm_thunk) == 1)
+      if (gh_scm2bool(scm_thunk) == 1) // gh_ !!!!???
 	 r = 1;
 
 #else

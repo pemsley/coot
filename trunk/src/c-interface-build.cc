@@ -6404,17 +6404,17 @@ float residue_density_fit_scale_factor() {
 
 
 // dictionary
-void handle_cif_dictionary(const char *filename) {
+int handle_cif_dictionary(const char *filename) {
 
    graphics_info_t g;
-   g.add_cif_dictionary(filename, 1); // show dialog if no bonds
-
+   int r = g.add_cif_dictionary(filename, 1); // show dialog if no bonds
    graphics_draw();
+   return r;
 }
 
-void read_cif_dictionary(const char *filename) { 
+int read_cif_dictionary(const char *filename) { 
    
-   handle_cif_dictionary(filename);
+   return handle_cif_dictionary(filename);
 
 }
 
@@ -6575,15 +6575,11 @@ int get_monomer(const char *three_letter_code) {
    }
 	 
 
-// OK, the slow path, using LIBCHECK.
+   // OK, the slow path, using LIBCHECK.
 
-#ifdef USE_GUILE
-   string scheme_command;
-
-   scheme_command = "(monomer-molecule-from-3-let-code \"";
-
-   scheme_command += three_letter_code;
-   scheme_command += "\"";
+   std::string function_name = "monomer-molecule-from-3-let-code";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote(three_letter_code));
 
    // now add in the bespoke cif library if it was given.  It is
    // ignored in the libcheck script if cif_lib_filename is "".
@@ -6591,81 +6587,39 @@ int get_monomer(const char *three_letter_code) {
    // However, we only want to pass the bespoke cif library if the
    // monomer to be generated is in the cif file.
    std::string cif_lib_filename = "";
+   std::cout << "cif_dictionary_filename_vec size is "
+	     << graphics_info_t::cif_dictionary_filename_vec->size()
+	     << std::endl;
    if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
       std::string dict_name = (*graphics_info_t::cif_dictionary_filename_vec)[0];
+      std::cout << "Here with :" << dict_name << ":" << std::endl;
+      std::cout << "Here with 3lc :" << three_letter_code << ":" << std::endl;
       coot::simple_cif_reader r(dict_name);
+      std::cout << "Here with restraints for :" << three_letter_code << ": "
+		<< r.has_restraints_for(three_letter_code)
+		<< std::endl;
       if (r.has_restraints_for(three_letter_code))
 	 cif_lib_filename = dict_name;
    }
 
-   scheme_command += " ";
-   std::string quoted_cif_lib_filename = single_quote(cif_lib_filename);
-   scheme_command += quoted_cif_lib_filename;
+   std::cout << "-------------------------------------------" << std::endl;
+   std::cout << "-------------------------------------------" << std::endl;
+   std::cout << "get_monomer() cif_lib_filename :" << cif_lib_filename
+	     << ":" << std::endl;
+   std::cout << "-------------------------------------------" << std::endl;
+   std::cout << "-------------------------------------------" << std::endl;
+   args.push_back(single_quote(cif_lib_filename));
 
-   if (graphics_info_t::libcheck_ccp4i_project_dir != "") { 
-      scheme_command += " ";
-      scheme_command += single_quote(graphics_info_t::libcheck_ccp4i_project_dir);
-   }
 
-   scheme_command += ")";
-
-   SCM v = safe_scheme_command(scheme_command);
-
-   int was_int_flag = scm_is_true(scm_integer_p(v));
-   if (was_int_flag)
-      imol = scm_to_int(v);
-
-#else 
-   
-#ifdef USE_PYTHON
-   string python_command;
-
-   python_command = "monomer_molecule_from_3_let_code(\"";
-
-   python_command += three_letter_code;
-   python_command += "\"";
-
-   // now add in the bespoke cif library if it was given
-   // ignored in the libcheck script if cif_lib_filename is "".
-   //
-   // However, we only want to pass the bespoke cif library if the
-   // monomer to be generated is in the cif file.
-   std::string cif_lib_filename = "";
-   if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
-      std::string dict_name = (*graphics_info_t::cif_dictionary_filename_vec)[0];
-      coot::simple_cif_reader r(dict_name);
-      if (r.has_restraints_for(three_letter_code))
-         cif_lib_filename = dict_name;
-   }
-
-   python_command += ",";
-   std::string quoted_cif_lib_filename = single_quote(coot::util::intelligent_debackslash(cif_lib_filename));
-   python_command += quoted_cif_lib_filename;
-   python_command += ",";
-
-   std::string cif_lib_dirname = "";
-   if (graphics_info_t::libcheck_ccp4i_project_dir != "") {
-      cif_lib_dirname = (graphics_info_t::libcheck_ccp4i_project_dir);
-   }
-   std::string quoted_cif_lib_dirname = single_quote(coot::util::intelligent_debackslash(cif_lib_dirname));
-   python_command += quoted_cif_lib_dirname;
-   python_command += ")";
-
-   PyObject *v = safe_python_command_with_return(python_command);
-
-   int was_int_flag = PyInt_AsLong(v);
-
-//   std::cout << "BL DEBUG:: was_int_flag is " << was_int_flag << std::endl;
-
-   if (was_int_flag)
-      imol = was_int_flag;
-   
-// BL says: I guess I've done it now..., at least sort of
-//   std::cout << "not compiled with guile.  This won't work \n"
-//          << "Need function to be coded in python..." << std::endl; 
-#endif // USE_PYTHON
-
-#endif // USE_GUILE
+   coot::command_arg_t retval = coot::scripting_function(function_name, args);
+   if (retval.type == coot::command_arg_t::INT) {
+      // ----------------------------------------------------------
+      // ----------------------------------------------------------
+      // does this acutally happen?
+      imol = retval.i;
+      std::cout << "DEBUG:: good retval from scripting_function() was an int and imol"
+		<< " was set to " << imol << std::endl;
+   } 
 
    std::vector<std::string> command_strings;
    command_strings.push_back("get-monomer");

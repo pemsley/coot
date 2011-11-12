@@ -63,6 +63,7 @@
 #include "clipper/core/xmap.h"
 
 #include "coot-sysdep.h"
+#include "command-arg.hh"
 
 #include "rotamer.hh"
 
@@ -205,6 +206,12 @@ namespace coot {
    enum scripting_language_type { SCRIPT_UNSET = -1, 
 				  SCHEME_SCRIPT = 1,
 				  PYTHON_SCRIPT = 2};
+
+   // we can (only) use scripting_function for things that return a
+   // command_arg_t (bool, int, float, string) but that should cover
+   // most cases.
+   coot::command_arg_t scripting_function(const std::string &function_name, 
+					  const std::vector<coot::command_arg_t> &args);
 
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
@@ -2514,8 +2521,8 @@ public:
 
    // uses cif_dictionary_filename_vec
    //
-   void add_cif_dictionary(std::string cif_dictionary_filename,
-			   short int show_no_bonds_dialog_maybe_flag);
+   int add_cif_dictionary(std::string cif_dictionary_filename,
+			  short int show_no_bonds_dialog_maybe_flag);
    void import_all_refmac_cifs();
    static std::vector<std::string> *cif_dictionary_filename_vec;
 
@@ -2524,7 +2531,12 @@ public:
    static short int guile_history;
    void add_history_command(const std::vector<std::string> &command_strings);
    static coot::history_list_t history_list;
+
+   // this does not quote strings - it just copies out the arguments
+   // "bare".  If the arguments are strings they should be quoted
+   // before calling this.
    static std::string pythonize_command_strings(const std::vector<std::string> &command_strings);
+   // likewise, no string quoting.
    static std::string schemize_command_strings(const std::vector<std::string> &command_strings);
 
    static coot::console_display_commands_t console_display_commands;
