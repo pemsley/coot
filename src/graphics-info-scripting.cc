@@ -51,8 +51,9 @@ coot::scripting_function(const std::string &function_name,
       SCM ss = safe_scheme_command(s.c_str());
 
 //       std::cout << "debug:: scripting_function() returns "
-// 		<< scm_to_locale_string(display_scm(ss)) 
+//  		<< scm_to_locale_string(display_scm(ss)) 
 // 		<< std::endl;
+       
       if (scm_is_true(scm_boolean_p(ss))) {
 	 r.type = coot::command_arg_t::BOOL;
 	 r.b = scm_to_bool(ss);
