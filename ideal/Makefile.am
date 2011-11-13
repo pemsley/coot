@@ -99,8 +99,9 @@ with_geometry_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 	$(top_builddir)/utils/libcoot-utils.la             \
-        $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
+        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+	$(RDKIT_LIBS) \
         $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 # add libcoot-map-utils for  the debugging density_around_point function
@@ -116,6 +117,7 @@ with_map_LDADD =  \
 	$(top_builddir)/utils/libcoot-utils.la        \
         $(top_builddir)/compat/libcoot-compat.la           \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+	$(RDKIT_LIBS) \
         $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 #test_indexing_LDADD = \
