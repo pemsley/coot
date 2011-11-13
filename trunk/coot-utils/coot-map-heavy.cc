@@ -121,7 +121,7 @@ coot::util::fit_to_map_by_simplex_rigid(PPCAtom atom_selection,
 
 // internal simplex setup function:
 void 
-coot::util::setup_simplex_x_internal_ridig(gsl_vector *x,
+coot::util::setup_simplex_x_internal_rigid(gsl_vector *x,
 					   PPCAtom atom_selection,
 					   int n_selected_atoms) {
 
