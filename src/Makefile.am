@@ -431,6 +431,7 @@ fix_nomenclature_errors_LDADD = \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la	  	        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
+        $(RDKIT_LIBS) \
 	$(GSL_LIBS)		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)		
@@ -477,6 +478,7 @@ test_cholesky_LDADD =	\
 	$(top_builddir)/geometry/libcoot-geometry.la      \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la            \
+        $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 # testmap_SOURCES = testmap.cc xmap-interface.cc
@@ -501,6 +503,7 @@ test_coot_align_LDADD =	\
 	$(top_builddir)/coot-utils/libcoot-shelx.la  		\
 	$(top_builddir)/utils/libcoot-utils.la  		\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
+        $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)
 
@@ -519,6 +522,7 @@ density_score_by_residue_real_LDADD  =	\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(top_builddir)/compat/libcoot-compat.la  		\
+        $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)		\
 	$(GSL_LIBS)
