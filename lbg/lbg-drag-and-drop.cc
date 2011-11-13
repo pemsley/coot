@@ -85,7 +85,12 @@ lbg_info_t::handle_lbg_drag_and_drop_single_item(const std::string &uri) {
    if (uri.length() > 7) {
       if (uri.substr(0,7)== "file://") {
 	 std::cout << "---:" << uri << ": was a file:// string " << std::endl;
-	 std::string file_name = uri.substr(7);
+	 std::string file_name;
+#ifdef WINDOWS_MINGW
+	 file_name = uri.substr(8);
+#else
+	 file_name = uri.substr(7);
+#endif
 
 	 std::string ext = coot::util::file_name_extension(file_name);
 	 if (ext == ".mdl" || ext == ".mol" || ext == ".mol2") { 
