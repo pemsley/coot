@@ -147,8 +147,8 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
           # libcheck exists.
           # 
           if (not os.path.isfile(cif_file_name)):
-            print "libcheck failed to write the output cif file."
-
+            print "libcheck failed to write the output cif file", cif_file_name
+            return False
           else:
             # OK, now let's run refmac:
             #
@@ -223,7 +223,8 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
         info_dialog("You need to setup CCP4 (specifically LIBCHECK) first.")
         return -2
       else:
-        return libcheck_monomer_gui(dir_prefix, code_str, cif_file_name,
-                                    pdb_file_name, post_refmac_pdb_file_name)
+        v = libcheck_monomer_gui(dir_prefix, code_str, cif_file_name,
+                                 pdb_file_name, post_refmac_pdb_file_name)
+        return v
       
 #monomer_molecule_from_3_let_code("3GP","")

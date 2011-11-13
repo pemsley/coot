@@ -76,9 +76,14 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
 //       std::cout << "Now URI is " << uri.size() << ":" << uri << ":" << std::endl;
 //       std::cout << "Now URL is " << url.size() << ":" << url << ":" << std::endl;
       if (url.length() > 7) {
-	 if (url.substr(0,7)== "file://") {
+	 if (url.substr(0,7) == "file://") {
 	    std::cout << "---:" << url << ": was a file " << std::endl;
-	    std::string file = url.substr(7);
+	    std::string file;
+#ifdef WINDOWS_MINGW
+        file = url.substr(8);
+#else
+        file = url.substr(7);
+#endif
 	    handle_drag_and_drop_single_item(file);
 	    tried_already = true;
 	 }
