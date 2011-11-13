@@ -1034,31 +1034,12 @@ void set_unit_cell_colour(float red, float green, float blue) {
 }
 
 /*! \brief return the new molecule number */
-int get_coords_for_accession_code(const char *text) {
 
-#ifdef USE_GUILE
-   string scheme_command;
-   scheme_command = "(get-ebi-pdb ";
-   scheme_command += single_quote(text);
-   scheme_command += ")";
-   safe_scheme_command(scheme_command); 
-#else 
-   
-#ifdef USE_PYTHON
-   string python_command;
+void get_coords_for_accession_code(const char *text) {
 
-   python_command = "get_ebi_pdb(";
-   python_command += single_quote(text);
-   python_command += ")";
-   safe_python_command(python_command);
-   
-#else 
-   std::cout << "WARING:: Executable not compiled with guile or python." << std::endl;
-   std::cout << "         This won't work." << std::endl; 
-
-#endif // USE_PYTHON
-#endif // USE_GUILE
-
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote(text));
+   scripting_function("get-ebi-pdb", args);
 }
 
 

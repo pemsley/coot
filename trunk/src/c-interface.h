@@ -3112,8 +3112,11 @@ void set_found_coot_python_gui();
 /* Accession code */
 void handle_get_accession_code(GtkWidget *widget); 
 
-/*! \brief return the new molecule number */
-int get_coords_for_accession_code(const char *code);
+/*! \brief if possible, read in the new coords getting coords via web.
+
+(no return value because get-url-str does not return one).
+ */
+void get_coords_for_accession_code(const char *code);
 
 /* in here we check if libcheck is available (if scripting is available) */
 GtkWidget *wrapped_create_libcheck_monomer_dialog();
