@@ -930,6 +930,7 @@ coot::atom_tree_t::rotate_about(int index2, int index3,
 		   << std::endl;
       } 
    }
+   return new_torsion;
 }
 
 
