@@ -48,8 +48,12 @@ namespace coot {
 	    os = coot::util::float_to_string(f);
 	 if (type == STRING)
 	    os = s;
-	 if (type == BOOL)
-	    os = b;
+	 if (type == BOOL) { 
+	    if (b)
+	       os = "True";
+	    else 
+	       os = "False";
+	 }
 	 return os;
       }
    };
