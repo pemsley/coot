@@ -14,7 +14,8 @@ on_lbg_drag_drop (GtkWidget *widget,
 		  gpointer user_data) {
 
    
-   gboolean is_valid_drop_site = TRUE;
+   // gboolean is_valid_drop_site = TRUE;
+   gboolean retval = FALSE;
    // Request the data from the source.
    if (context->targets) {
       GdkAtom target_type =
@@ -23,9 +24,11 @@ on_lbg_drag_drop (GtkWidget *widget,
       gtk_drag_get_data(widget, context,  
 			target_type,    /* the target type we want (a string) */
 			time);
+      retval = TRUE;
    } else {
       std::cout << "ERROR:: null dnd context" << std::endl;
-   } 
+   }
+   return retval;
 }
 
 
