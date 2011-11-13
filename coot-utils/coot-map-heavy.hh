@@ -50,7 +50,7 @@ namespace coot {
 				const clipper::Xmap<float> &xmap);
 
       // internal simplex setup function:
-      void setup_simplex_x_internal_ridig(gsl_vector *s,
+      void setup_simplex_x_internal_rigid(gsl_vector *s,
 				    PPCAtom atom_selection,
 				    int n_selected_atoms);
 
