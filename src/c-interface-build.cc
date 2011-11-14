@@ -2915,6 +2915,7 @@ int renumber_residue_range(int imol, const char *chain_id,
 									start_res,
 									last_res,
 									offset);
+
 	    if (i) {
 	       graphics_info_t g;
 	       graphics_draw();
@@ -4901,13 +4902,16 @@ void do_base_mutation(const char *type) {
 void change_chain_id(int imol, const char *from_chain_id, const char *to_chain_id, 
 		     short int use_res_range_flag, int from_resno, int to_resno) {
 
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
       std::pair<int, std::string> r = 
 	 graphics_info_t::molecules[imol].change_chain_id(from_chain_id,
 							  to_chain_id,
 							  use_res_range_flag,
 							  from_resno,
 							  to_resno);
+      graphics_draw();
+      g.update_go_to_atom_window_on_changed_mol(imol);
    }
 } 
 
@@ -4917,12 +4921,15 @@ SCM change_chain_id_with_result_scm(int imol, const char *from_chain_id, const c
 
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) { 
+      graphics_info_t g;
       std::pair<int, std::string> p = 
-	 graphics_info_t::molecules[imol].change_chain_id(from_chain_id,
-							  to_chain_id,
-							  use_res_range_flag,
-							  from_resno,
-							  to_resno);
+	 g.molecules[imol].change_chain_id(from_chain_id,
+					   to_chain_id,
+					   use_res_range_flag,
+					   from_resno,
+					   to_resno);
+      graphics_draw();
+      g.update_go_to_atom_window_on_changed_mol(imol);
       r = SCM_EOL;
       r = scm_cons(scm_makfrom0str(p.second.c_str()), r);
       r = scm_cons(SCM_MAKINUM(p.first), r);
@@ -4938,13 +4945,16 @@ PyObject *change_chain_id_with_result_py(int imol, const char *from_chain_id, co
 
    PyObject *v = Py_False;
    if (is_valid_model_molecule(imol)) { 
+      graphics_info_t g;
       std::pair<int, std::string> r = 
-	 graphics_info_t::molecules[imol].change_chain_id(from_chain_id,
-							  to_chain_id,
-							  use_res_range_flag,
-							  from_resno,
-							  to_resno);
+	 g.molecules[imol].change_chain_id(from_chain_id,
+					   to_chain_id,
+					   use_res_range_flag,
+					   from_resno,
+					   to_resno);
    
+      graphics_draw();
+      g.update_go_to_atom_window_on_changed_mol(imol);
       v = PyList_New(2);
       PyList_SetItem(v, 0, PyInt_FromLong(r.first));
       PyList_SetItem(v, 1, PyString_FromString(r.second.c_str()));
