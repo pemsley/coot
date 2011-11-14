@@ -427,7 +427,7 @@ follow the autobuilder:
 @url{http://coot.googlecode.com/svn/trunk/build-it-gtk2-simple} 
 
 Coot
-requires mmdb, clipper, glut, gtk, gtkglarea.  gtkglarea requires gtk
+requires mmdb, clipper, glut, gtk, gtkglext.  gtkglext requires GTK
 and OpenGL.  gtk requires glib. clipper requires fftw, mccp4 and
 mmdb. Optionally you can enhance coot using gtk-canvas, libSSM,
 guile/guile-gtk/guile-gui/guile-www or python (the support for python
