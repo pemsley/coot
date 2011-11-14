@@ -455,7 +455,7 @@ molecule_class_info_t::install_model(int imol_no_in,
 				     bool is_from_shelx_ins) {
 
    imol_no = imol_no_in;
-   graphics_info_t g;
+   graphics_info_t g; 
    bond_width = g.default_bond_width; // bleugh, perhaps this should
 				      // be a passed parameter?
    is_from_shelx_ins_flag = is_from_shelx_ins;
@@ -473,8 +473,7 @@ molecule_class_info_t::install_model(int imol_no_in,
       std::cout << "Symmetry available for this molecule" << std::endl;
    }
    set_have_unit_cell_flag_maybe();
-   
-   // make_bonds_type_checked();
+
    makebonds();
    if (g.show_symmetry == 1)
       if (show_symmetry) 
@@ -2720,7 +2719,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
 
 
 void 
-molecule_class_info_t::make_bonds_type_checked() { 
+molecule_class_info_t::make_bonds_type_checked() {
 
    if (bonds_box_type == coot::NORMAL_BONDS)
       makebonds();

@@ -458,8 +458,11 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
       
       delete [] contact;
 
-      // OK, now we can handle the het_residues:
-      add_bonds_het_residues(het_residues, atom_colour_type, have_udd_atoms, udd_handle);
+      // OK, now we can handle the het_residues: But we don't want to
+      // do this every time that this function is called (X-X, X-H).
+      // So do it only on X-X.
+      if (! are_different_atom_selections) 
+	 add_bonds_het_residues(het_residues, atom_colour_type, have_udd_atoms, udd_handle);
       
    }
 }
@@ -807,14 +810,13 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 
 
    if (het_residues.size()) {
-      // std::cout << ":::::: bonding " << het_residues.size() << " het residues" << std::endl;
       for (unsigned int ires=0; ires<het_residues.size(); ires++) {
 	 if (het_residues[ires].first) {
 	    std::string res_name = het_residues[ires].second->GetResName();
 	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints = 
 	       geom->get_monomer_restraints_at_least_minimal(res_name);
    	    // if (res_name != "HOH")
-	    // std::cout << "============== Considering bonding HET residue: " << res_name << " " << std::endl;
+	    // std::cout << "          ============== Considering bonding HET residue: " << res_name << " " << std::endl;
 
 	    if (! restraints.first) {
 	       std::cout << "Oooppps!  No bonding rules for residue type :" << res_name
