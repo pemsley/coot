@@ -3,15 +3,11 @@
 
 ----
 
-  o update go to atom on merge water chains. ::: 0.5
-
   o double reading/displaying (or modification?) of HET residues? ::: 1
 
   o Make sure ligands work with prodrg ::: 6
 
   o Does RCrane work? ::: 0.5
-
-  o rework get-monomer() to be cleaner and use the prefer_python system. ::: 1
 
   o Accept/Reject dialog is not opening where I left it on previous
     usage (not previous session, even!) ::: 1
@@ -25,8 +21,6 @@
   o Fix lighting for solid env distances ::: 1
 
   o Fix lighting for solid generic objects ::: 1
-
-  o inhibitor in 3p5k fails on torsion matching. ::: 3
 
   o consider better analysis of disulfides, bonding and refinement.
     Consider iron-sulfur clusters.  ::: 3
@@ -48,8 +42,9 @@
   o Related to above: Fix crash-catcher script to work with pythonized
     coot ::: 2
 
-  o match ligand torsions for ligand in 3oho.  Close (AFAICS) but no
-    cigar - we need to add in a bond order check?  ::: 3
+  o place atom at pointer. Use tutorial data from clean.  Does the
+    water go into the correct molecule? (or does it go into Pointer
+    Atoms molecule?) ::: 1
 
 ------
 
@@ -153,3 +148,20 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 * Yay already fixed - presumably link code fixups from a week or two
    ago.  Stephen Graham structure?
 
+
+  o match ligand torsions for ligand in 3oho.  Close (AFAICS) but no
+    cigar - we need to add in a bond order check?  ::: 1
+
+* Seems OK now.
+
+  o inhibitor in 3p5k fails on torsion matching. ::: 0.5
+
+* Fine now.
+
+  o rework get-monomer() to be cleaner and use the prefer_python system. ::: 1
+
+* Done.
+
+  o update go to atom on merge water chains. ::: 0.5
+
+* Done - simply add call to update go to atom window after change_chain_id().

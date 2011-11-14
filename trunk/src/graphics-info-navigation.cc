@@ -636,6 +636,7 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
    // residue and atom list is the molecule that has just been
    // deleted)
 
+
    if (go_to_atom_window) { 
 
       // The go to atom molecule matched this molecule, so we
@@ -647,11 +648,7 @@ graphics_info_t::update_go_to_atom_window_on_changed_mol(int imol) {
       if (residue_tree == NULL) {
 	 std::cout << "ERROR:: residue_tree (go_to_atom_residue_tree) is null!\n"; 
       } else {
-#if (GTK_MAJOR_VERSION == 1)
-	 graphics_info_t::fill_go_to_atom_residue_list_gtk1(residue_tree);
-#else
 	 graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, residue_tree, atom_list);
-#endif	 
       }
    } 
 }
