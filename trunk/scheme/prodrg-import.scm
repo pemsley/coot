@@ -101,7 +101,11 @@
 	  (prodrg-cif    (append-dir-file prodrg-dir 
 					  (string-append "prodrg-out.cif")))
 	  (prodrg-log    (append-dir-file prodrg-dir "prodrg.log")))
-      (let* ((mini-mode (if (eq? minimize-mode 'mini-no) "NO" "PREP"))
+      (let* ((mini-mode (if (or 
+			     (eq? minimize-mode 'mini-no)
+			     (and (string? minimize-mode)
+				  (string=? minimize-mode "mini-no")))
+			     "NO" "PREP"))
 	     (status 
 	      (goosh-command *cprodrg*
 			     (list "XYZIN"  prodrg-xyzin
@@ -238,44 +242,44 @@
 ;; not needed?
 (define get-mdl-latest-time get-file-latest-time)
 
-(let ((mdl-latest-time (get-mdl-latest-time prodrg-xyzin))
-      (sbase-transfer-latest-time (get-mdl-latest-time sbase-to-coot-tlc)))
-  (let ((func (lambda ()
-		(let ((mdl-now-time (get-mdl-latest-time prodrg-xyzin))
-		      (sbase-now-time (get-mdl-latest-time sbase-to-coot-tlc)))
+; (let ((mdl-latest-time (get-mdl-latest-time prodrg-xyzin))
+;       (sbase-transfer-latest-time (get-mdl-latest-time sbase-to-coot-tlc)))
+;   (let ((func (lambda ()
+; 		(let ((mdl-now-time (get-mdl-latest-time prodrg-xyzin))
+; 		      (sbase-now-time (get-mdl-latest-time sbase-to-coot-tlc)))
 
-;		  (format #t "sbase-now-time ~s   sbase-transfer-latest-time ~s~%" 
-;			  sbase-now-time sbase-transfer-latest-time)
+; ;		  (format #t "sbase-now-time ~s   sbase-transfer-latest-time ~s~%" 
+; ;			  sbase-now-time sbase-transfer-latest-time)
 
-		  (if (number? mdl-now-time)
-		      (if (number? mdl-latest-time)
-			  (if (> mdl-now-time mdl-latest-time)
-			      (begin
-				(set! mdl-latest-time mdl-now-time)
-				(import-from-prodrg 'mini-prep)))))
+; 		  (if (number? mdl-now-time)
+; 		      (if (number? mdl-latest-time)
+; 			  (if (> mdl-now-time mdl-latest-time)
+; 			      (begin
+; 				(set! mdl-latest-time mdl-now-time)
+; 				(import-from-prodrg 'mini-prep)))))
 
-		  (if (number? sbase-transfer-latest-time)
-		      (if (number? sbase-now-time)
-			  (if (> sbase-now-time sbase-transfer-latest-time)
-			      (begin
-				(set! sbase-transfer-latest-time sbase-now-time)
-				(let ((tlc-symbol 
-				       (call-with-input-file sbase-to-coot-tlc
-					 (lambda (port)
-					   (read-line port)))))
-				  (let ((imol (get-sbase-monomer tlc-symbol)))
-				    (if (not (valid-model-molecule? imol))
-					(format #t "failed to get SBase molecule for ~s~%"
-						tlc-symbol)
+; 		  (if (number? sbase-transfer-latest-time)
+; 		      (if (number? sbase-now-time)
+; 			  (if (> sbase-now-time sbase-transfer-latest-time)
+; 			      (begin
+; 				(set! sbase-transfer-latest-time sbase-now-time)
+; 				(let ((tlc-symbol 
+; 				       (call-with-input-file sbase-to-coot-tlc
+; 					 (lambda (port)
+; 					   (read-line port)))))
+; 				  (let ((imol (get-sbase-monomer tlc-symbol)))
+; 				    (if (not (valid-model-molecule? imol))
+; 					(format #t "failed to get SBase molecule for ~s~%"
+; 						tlc-symbol)
 					
-					;; it was read OK, do an overlap:
-					(using-active-atom
-					 (overlap-ligands imol aa-imol aa-chain-id aa-res-no))
+; 					;; it was read OK, do an overlap:
+; 					(using-active-atom
+; 					 (overlap-ligands imol aa-imol aa-chain-id aa-res-no))
 					
-					))))))))
+; 					))))))))
 		
-		#t))) ;; return value, keep running
-    (gtk-timeout-add 500 func)))
+; 		#t))) ;; return value, keep running
+;     (gtk-timeout-add 500 func)))
 
 
 ;; return #f (if fail) or a list of: the molecule number of the

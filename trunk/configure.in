@@ -43,7 +43,7 @@ AM_PROG_CC_STDC
 AC_HEADER_STDC
 
 AC_PROG_CXX
-AM_PROG_LIBTOOL
+# AM_PROG_LIBTOOL
 LT_INIT
 # AC_PROG_INTLTOOL, no, not today.  Mac compilation problems, no perl/ XML or something.
 

@@ -334,7 +334,13 @@ def mdl_update_timeout_func():
                     print "BL ERROR:: reading sbase file", sbase_to_coot_tlc
                 
     return True # return value, keep running; FIXME:: how to stop?
-gobject.timeout_add(500, mdl_update_timeout_func)
+
+
+# This is done internally now, by passing lbg a function that runs
+# prodrg after the mdl file has been written.  On demand.  We no
+# longer need to have a timeout looking for a new prodrg-in.mdl file.
+#
+# gobject.timeout_add(500, mdl_update_timeout_func)
 
 # return False (if fail) or a list of: the molecule number of the
 # selected residue, the prodrg output mol file_name, the prodrg

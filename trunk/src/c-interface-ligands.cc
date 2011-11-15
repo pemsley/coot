@@ -1681,3 +1681,20 @@ void clear_multi_residue_torsion_mode() {
    graphics_info_t g;
    g.in_multi_residue_torsion_mode = false;
 } 
+
+/* ------------------------------------------------------------------------- */
+/*                      prodrg import function                               */
+/* ------------------------------------------------------------------------- */
+// the function passed to lbg, so that it calls it when a new
+// prodrg-in.mdl file has been made.  We no longer have a timeout
+// function waiting for prodrg-in.mdl to be updated/written.
+// 
+void prodrg_import_function(std::string file_name) {
+
+   std::string name = "import-from-prodrg";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote("mini-no"));
+   std::cout << "prodrg_import_function() " << name << " " << args[0].as_string() << std::endl;
+   coot::scripting_function(name, args);
+
+} 

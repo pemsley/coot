@@ -882,7 +882,7 @@ start_ligand_builder_gui(GtkMenuItem     *menuitem,
    bool stand_alone_flag = 0;
    int imol_dummy = -1;
    lbg(mm, dummy_pair, mol, view_name, molecule_file_name, imol_dummy,
-       use_graphics_interface_flag, stand_alone_flag, coot_get_url);
+       use_graphics_interface_flag, stand_alone_flag, coot_get_url, prodrg_import_function);
 #else
    std::cout << "No goocanvas" << std::endl;
 #endif // HAVE_GOOCANVAS

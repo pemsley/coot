@@ -54,7 +54,8 @@ lbg(lig_build::molfile_molecule_t mm,
     int imol,
     bool use_graphics_interface_flag,
     bool stand_alone_flag_in,
-    int (*get_url_func_pointer_in) (const char *s1, const char *s2)) {
+    int (*get_url_func_pointer_in) (const char *s1, const char *s2),
+    void (*prodrg_import_function_pointer) (std::string file_name)) {
 
    lbg_info_t *lbg = NULL; // failure return value.
    bool r = 0; // fail
@@ -106,6 +107,9 @@ lbg(lig_build::molfile_molecule_t mm,
 	 if (get_url_func_pointer_in != NULL) {
 	    lbg->set_curl_function(get_url_func_pointer_in);
 	 }
+	 if (prodrg_import_function_pointer) {
+	    lbg->set_prodrg_import_function(prodrg_import_function_pointer);
+	 } 
       }
    } 
    return lbg;

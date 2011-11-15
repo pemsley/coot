@@ -697,7 +697,8 @@ private:
       atom_X = "H";
       lbg_atom_x_dialog = NULL;
       lbg_atom_x_entry = NULL;
-      get_url_func_ptr_flag = false;      
+      get_url_func_ptr_flag = false;
+      prodrg_import_func_ptr = NULL;
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
@@ -1027,6 +1028,20 @@ public:
       get_url_func_ptr = f;
       get_url_func_ptr_flag = true;
    }
+
+   // handle PRODRG output
+   // 
+   void (*prodrg_import_func_ptr) (std::string file_name);
+   void set_prodrg_import_function(void (*f) (std::string)) {
+      prodrg_import_func_ptr = f;
+   }
+   void import_prodrg_output(const std::string &prodrg_mdl_file_name) {
+      if (prodrg_import_func_ptr) {
+	 prodrg_import_func_ptr(prodrg_mdl_file_name);
+      } else {
+	 std::cout << "WARNING:: No prodrg_import_func_ptr set" << std::endl;
+      } 
+   } 
    
 };
 
@@ -1044,7 +1059,8 @@ lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 			  // layed-out residue
 		bool use_graphics_interface_flag,
 		bool stand_alone_flag_in,
-		int (*get_url_func_pointer) (const char *s1, const char *s2));
+		int (*get_url_func_pointer) (const char *s1, const char *s2),
+		void (*prodrg_import_function_pointer) (std::string file_name));
 
 #endif // HAVE_GOOCANVAS
 
