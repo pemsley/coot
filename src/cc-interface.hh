@@ -931,6 +931,17 @@ int handle_drag_and_drop_string(const std::string &uri);
 // \}
 
 
+
+/* ------------------------------------------------------------------------- */
+/*                      prodrg import function                               */
+/* ------------------------------------------------------------------------- */
+// the function passed to lbg, so that it calls it when a new
+// prodrg-in.mdl file has been made.  We no longer have a timeout
+// function waiting for prodrg-in.mdl to be updated/written.
+// 
+void prodrg_import_function(std::string file_name);
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  Utility Functions                                       */
 /*  ----------------------------------------------------------------------- */

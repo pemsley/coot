@@ -86,7 +86,8 @@ void residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const
 #ifdef USE_LIBCURL
 	       get_url_func_ptr = coot_get_url;
 #endif      
-	       lbg(m, p, mol, view_name, "", imol, use_graphics_flag, stand_alone_flag, get_url_func_ptr);
+	       lbg(m, p, mol, view_name, "", imol, use_graphics_flag, stand_alone_flag,
+		   get_url_func_ptr, prodrg_import_function);
 	    }
 	    delete mol;
 	 }
@@ -146,7 +147,8 @@ void smiles_to_ligand_builder(const char *smiles_string) {
 #ifdef USE_LIBCURL
       get_url_func_ptr = coot_get_url;
 #endif      
-      lbg(m, dummy_spec, mol, "", "", -1, use_graphics_flag, stand_alone_flag, get_url_func_ptr);
+      lbg(m, dummy_spec, mol, "", "", -1, use_graphics_flag, stand_alone_flag,
+	  get_url_func_ptr, prodrg_import_function);
    }
    catch (std::exception e) {
       std::cout << "WARNING:: in generating molecule from SMILES: "

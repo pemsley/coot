@@ -71,8 +71,10 @@ main(int argc, char *argv[]) {
    std::pair<bool, coot::residue_spec_t> p(0, coot::residue_spec_t());
    int imol = -1; // dummy/unset
    int (*func) (const char *s1, const char *s2) = NULL;
+   void (*prodrg_import_func_ptr) (std::string file_name) = NULL;
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
-   if (lbg(mm, p, mol, view_name, molecule_file_name, imol, use_graphics, stand_alone_flag, func)) {
+   if (lbg(mm, p, mol, view_name, molecule_file_name, imol, use_graphics, stand_alone_flag,
+	   func, prodrg_import_func_ptr)) {
        gtk_main ();
    } 
 #endif // GTK_VERSION

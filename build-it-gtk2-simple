@@ -2778,6 +2778,10 @@ else
 fi 
 exit $status
 ) > $HOSTLOGDIR/11-guile.txt 2>&1
+# -> 1: command not found
+# if $status ; then 
+#    echo guile build failed
+# fi
 else
     echo not building guile:
 fi

@@ -4488,37 +4488,22 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
    SCM handler = scm_c_eval_string ("(lambda (key . args) (display (list \"(safe_scheme_command) Error in proc: key: \" key \" args: \" args)) (newline))"); 
 
    // I am undecided if I want this or not:
-   // std::cout << "safe running :" << scheme_command << ":" << std::endl; 
+   std::cout << "debug:: safe running :" << scheme_command << ":" << std::endl; 
    std::string thunk("(lambda() "); 
    thunk += scheme_command; 
    thunk += " )";
    SCM scm_thunk = SCM_BOOL_F;
 
    // try/catch does not make flow control come back here when bad thunk.
-   //    std::cout << "..... making thunk... " << std::endl;
+   // 
    scm_thunk = scm_c_eval_string(thunk.c_str());
-   //    std::cout << "..... making thunk done. " << std::endl;
-
-   //    std::cout << "..... scm_catch... " << std::endl;
    SCM v = scm_catch(SCM_BOOL_T, scm_thunk, handler);
-   //    std::cout << "..... scm_catch done " << std::endl;
 
    SCM dest = SCM_BOOL_F;
    SCM mess = scm_makfrom0str("scm_catch returns: ~s\n");
    SCM sf = scm_simple_format(dest, mess, scm_list_1(v));
-#if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
    std::string bad_str = scm_to_locale_string(sf);
-#else   
-   std::string bad_str = SCM_STRING_CHARS(sf);
-#endif    
-   // std::cout << bad_str << std::endl;
 
-//   int is_int_p = scm_integer_p(v);
-//   if (is_int_p) { 
-//      std::cout << "returned value was int: " <<  std::endl;
-//   } 
-
-  // std::cout << "INFO:: finished scheme command " << std::endl;
    return v;
 }
 #endif // USE_GUILE

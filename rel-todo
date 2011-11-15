@@ -3,8 +3,6 @@
 
 ----
 
-  o double reading/displaying (or modification?) of HET residues? ::: 1
-
   o Make sure ligands work with prodrg ::: 6
 
   o Does RCrane work? ::: 0.5
@@ -45,6 +43,9 @@
   o place atom at pointer. Use tutorial data from clean.  Does the
     water go into the correct molecule? (or does it go into Pointer
     Atoms molecule?) ::: 1
+
+  o problems bonding problem-x.pdb (marmoset) - no dictionary,
+    cyclobutane. ::: 1
 
 ------
 
@@ -165,3 +166,7 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
   o update go to atom on merge water chains. ::: 0.5
 
 * Done - simply add call to update go to atom window after change_chain_id().
+
+  o double reading/displaying (or modification?) of HET residues? ::: 1
+
+* It was - and the get-monomer calling it twice is fine (it re-centres).

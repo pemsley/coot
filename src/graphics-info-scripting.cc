@@ -8,7 +8,7 @@ coot::command_arg_t
 coot::scripting_function(const std::string &function_name,
 			 const std::vector<coot::command_arg_t> &args) {
 
-   coot::command_arg_t r; 
+   coot::command_arg_t r;
    if (graphics_info_t::prefer_python) {
 #ifdef USE_PYTHON      
       std::string c = pythonize_command_name(function_name);

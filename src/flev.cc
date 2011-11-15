@@ -276,7 +276,8 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 #ifdef HAVE_GOOCANVAS		     
 		     lbg_info_t *lbg_local_p = lbg(m, ligand_spec_pair,
 						   NULL, view_name, ligand_res_name, imol,
-						   use_graphics_flag, stand_alone_flag, coot_get_url);
+						   use_graphics_flag, stand_alone_flag,
+						   coot_get_url, prodrg_import_function);
 
 #endif // HAVE_GOOCANVAS		     
 		     
@@ -388,7 +389,7 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
 		  lbg_info_t *lbg_local_p = lbg(m, ligand_spec_pair,
 						NULL, view_name, ligand_res_name, imol,
 						use_graphics_flag, stand_alone_flag,
-						coot_get_url);
+						coot_get_url, prodrg_import_function);
 
  		  std::map<std::string, std::string> name_map =
  		     coot::make_flat_ligand_name_map(res_ref);
