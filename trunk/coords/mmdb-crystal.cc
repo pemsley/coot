@@ -926,7 +926,6 @@ symm_trans_t::is_identity() {
    }
 }
 
-// This (the old way) is an utter mess
 //
 std::string
 symm_trans_t::str(short int expanded_flag) const {
@@ -934,55 +933,18 @@ symm_trans_t::str(short int expanded_flag) const {
    //
    std::string b; 
    if (expanded_flag) {
-
       b = coot::util::Upper(symm_as_string);
-      b += " + (";
-      b += coot::util::int_to_string(x());
-      b += " ";
-      b += coot::util::int_to_string(y());
-      b += " ";
-      b += coot::util::int_to_string(z());
-      b += ")";
-
    } else {
-
-      // the old way:
-      char *t, *t_start;
-      int i;
-      t = new char[30];
-      for (int i=0; i<30; i++) t[i] = '\0';
-
-      t_start = t;
-   
-      snprintf(t,20,"%-4d", symm_no);
-      for (int a=0; a<20; a++) if (t[a] == ' ') t[a] = '\0';
-      i = strlen(t);
-      t[i] = ':';
-      t += i+1;
-
-      snprintf(t,20,"%-4d", x_shift_);
-      for (int a=0; a<20; a++) if (t[a] == ' ') t[a] = '\0';
-      i = strlen(t);
-      t[i] = ':';
-      t += i+1;
-   
-      snprintf(t,20,"%-4d", y_shift_);
-      for (int a=0; a<20; a++) if (t[a] == ' ') t[a] = '\0';
-      i = strlen(t);
-      t[i] = ':';
-      t += i+1;
-   
-      snprintf(t,20,"%-4d", z_shift_);
-      for (int a=0; a<20; a++) if (t[a] == ' ') t[a] = '\0';
-      i = strlen(t);
-      t[i] = '\0';
-
-      // delete t_start;
-      //
-      b = std::string(" #s ") + t_start;
-      delete [] t_start;
+      b = " #s ";
+      b += coot::util::int_to_string(symm_no+1);
    }
-   
+   b += " + (";
+   b += coot::util::int_to_string(x());
+   b += " ";
+   b += coot::util::int_to_string(y());
+   b += " ";
+   b += coot::util::int_to_string(z());
+   b += ")";
    return b;
 } 
 

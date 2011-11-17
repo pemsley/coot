@@ -4774,15 +4774,12 @@ void save_symmetry_coords_from_fileselection(GtkWidget *fileselection) {
       (coot::Symm_Atom_Pick_Info_t *) gtk_object_get_user_data(GTK_OBJECT(fileselection));
 
    const gchar *filename;
-#if (GTK_MAJOR_VERSION > 1)
+
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
 	 filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
    } else {
 	 filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
    }
-#else
-   filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
-#endif // GTK_MAJOR_VERSION
 
    if (symm_info) {
       // std::cout << "Preshift to origin:  " << symm_info->pre_shift_to_origin << std::endl;
