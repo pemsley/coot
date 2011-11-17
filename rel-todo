@@ -10,8 +10,6 @@
 
   o Fix splash screen per SS message.  ::: 0.5
 
-  o SS: Fix symmetry file names ::: 2
-
   o Fix up transform_map by sorting by distance from the target centre
     the grid points that have new density . ::: 2
 
@@ -178,4 +176,9 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 * No problem, as it turns out.  PEBKAC - DRG exists in the monomer
   library/SBase already (and the atoms of problem-x.pdb do not match
   the names of DRG).
+
+  o SS: Fix symmetry file names ::: 0.5
+
+* Done. And cleanup sym_trans_t::str() and use 1-indexed not zero index.
+
 

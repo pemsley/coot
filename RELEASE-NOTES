@@ -2,6 +2,8 @@
   Pre-release 0.7
 
   o FEATURE: PDBe Recent structure browser.
+
+  o CHANGE: symmetry operator number are no longer zero indexed.
  
   o BUG-FIX: Fix missing C7 on DA -> DT mutation [Sabine Schneider].
 

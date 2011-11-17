@@ -1607,7 +1607,34 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
 	 int imol = naii.imol;
 	 std::string filename = molecules[imol].name_sans_extension(0);
 	 filename += "-symmetry-";
-	 filename += int_to_string(naii.symm_trans.isym());
+	 // 20111117 - previously we had just the symmetry number.
+	 // Now let's add the translation too.
+	 std::string fill_char = "0";
+	 filename += int_to_string(naii.symm_trans.isym()+1); // +1 because of
+             	                                              // zero indexing -> real-world/dictionary indexing.
+	 // x
+	 if (naii.symm_trans.x() < 0)
+	    fill_char = "-";
+	 else
+	    fill_char = "0";
+	 filename += fill_char;
+	 filename += int_to_string(naii.symm_trans.x());
+	 // y 
+	 if (naii.symm_trans.y() < 0)
+	    fill_char = "";
+	 else
+	    fill_char = "0";
+	 filename += fill_char;
+	 filename += int_to_string(naii.symm_trans.y());
+	 // z
+	 if (naii.symm_trans.z() < 0)
+	    fill_char = "";
+	 else
+	    fill_char = "0";
+	 filename += fill_char;
+	 filename += int_to_string(naii.symm_trans.z());
+	 
+	 // 
 	 filename += ".pdb";
 
 #if (GTK_MAJOR_VERSION > 1)
