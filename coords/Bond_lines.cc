@@ -361,7 +361,6 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 			      } 
 			   }
 
-		  std::cout << "debug:: here bond_het_residue_by_dictionary: " << bond_het_residue_by_dictionary << std::endl;
 		  if (! bond_het_residue_by_dictionary) {
 
 		     // this +/- 1 residue test
