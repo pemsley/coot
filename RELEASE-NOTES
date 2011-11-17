@@ -1,4 +1,18 @@
 
+  Pre-release 0.7
+
+  o FEATURE: PDBe Recent structure browser.
+ 
+  o BUG-FIX: Fix missing C7 on DA -> DT mutation [Sabine Schneider].
+
+  o BUG-FIX: TER records on base mutation [James Parker].
+
+  o BUG-FIX: DNA in sequence view [Miguel Ortiz Lombardia].
+ 
+  o BUG-FIX: Update Go To Atom dialog after water merging [Bob Nolte].
+
+------
+
   Release 0.6.2
 
   o FEATURE: PISA Interfaces can now be represented in Coot (requires

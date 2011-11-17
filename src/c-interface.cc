@@ -212,7 +212,18 @@ void set_prefer_python() {
 #ifdef USE_PYTHON
    graphics_info_t::prefer_python = 1;
 #endif // USE_PYTHON   
+}
+
+/*! \brief the python-prefered mode. 
+
+This is available so that the scripting functions know whether on not
+to put themselves onto in as menu items.
+
+return 1 for python is prefered, 0 for not. */
+int prefer_python() {
+   return graphics_info_t::prefer_python;
 } 
+
 
 
 

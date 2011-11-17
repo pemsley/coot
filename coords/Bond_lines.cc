@@ -330,6 +330,11 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 			      std::pair<bool, CResidue *> tp1(1, atom_p_1->residue);
 			      
 			      // add this residue to the vector if it is not there already)
+			      // 
+			      // We have to check both pairs against
+			      // the cached results (where we have a
+			      // dictionary and where we don't).
+			      // 
 			      std::vector<std::pair<bool, CResidue *> >::const_iterator it_1 =
 				 std::find(het_residues.begin(), het_residues.end(), tp0);
 			      
@@ -356,6 +361,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 			      } 
 			   }
 
+		  std::cout << "debug:: here bond_het_residue_by_dictionary: " << bond_het_residue_by_dictionary << std::endl;
 		  if (! bond_het_residue_by_dictionary) {
 
 		     // this +/- 1 residue test

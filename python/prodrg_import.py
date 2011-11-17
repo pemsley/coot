@@ -229,24 +229,31 @@ def import_from_prodrg(minimize_mode):
 
 if (have_coot_python):
     if coot_python.main_menubar():
-        menu = coot_menubar_menu("_Lidia")
-        add_simple_coot_menu_menuitem(
-            menu,
-            "Import (using MINI PREP)",
-            lambda func:
-            # run prodrg, read its output files, and run regularisation
-            # on the imported PDB file
-            import_from_prodrg('mini-prep')
-            )
 
-        add_simple_coot_menu_menuitem(
-            menu,
-            "Import (no pre-minimisation)",
-            lambda func:
-            # run prodrg, read its output files, (no regularisation
-            # on the imported PDB file)
-            import_from_prodrg('mini-no')
-            )
+        # don't do this if the LIDIA interface functions have already
+        # been done in guile-gtk.
+        # Otherwise, do, of course
+        #
+        if (use_gui_qm != 2):
+
+            menu = coot_menubar_menu("_Lidia")
+            add_simple_coot_menu_menuitem(
+                menu,
+                "Import (using MINI PREP)",
+                lambda func:
+                # run prodrg, read its output files, and run regularisation
+                # on the imported PDB file
+                import_from_prodrg('mini-prep')
+                )
+
+            add_simple_coot_menu_menuitem(
+                menu,
+                "Import (no pre-minimisation)",
+                lambda func:
+                # run prodrg, read its output files, (no regularisation
+                # on the imported PDB file)
+                import_from_prodrg('mini-no')
+                )
 
 #        add_simple_coot_menu_menuitem(
 #            menu,
@@ -255,36 +262,36 @@ if (have_coot_python):
 #            using_active_atom(prodrg_flat, "aa_imol", "aa_chain_id", "aa_res_no")
 #            )
 
-        add_simple_coot_menu_menuitem(
-            menu,
-            "View in LIDIA",
-            lambda func:
-            using_active_atom(fle_view,
-                              "aa_imol", "aa_chain_id",
-                              "aa_res_no", "aa_ins_code")
-            )
-        
-        add_simple_coot_menu_menuitem(
-            menu,
-            "Load SBase monomer...",
-            lambda func:
-            generic_single_entry("Load SBase Monomer from three-letter-code: ",
-                                 "",
-                                 " Load ",
-                                 lambda tlc:
-                                 get_sbase_monomer(tlc))
-            )
+            add_simple_coot_menu_menuitem(
+                menu,
+                "View in LIDIA",
+                lambda func:
+                using_active_atom(fle_view,
+                                  "aa_imol", "aa_chain_id",
+                                  "aa_res_no", "aa_ins_code")
+                )
 
-        # should be in rdkit file FIXME!
-        add_simple_coot_menu_menuitem(
-            menu,
-            "FLEV this residue [RDKIT]",
-            lambda func:
-            using_active_atom(fle_view_with_rdkit,
-                              "aa_imol", "aa_chain_id",
-                              "aa_res_no", "aa_ins_code", 4.2)
-            )
+            add_simple_coot_menu_menuitem(
+                menu,
+                "Load SBase monomer...",
+                lambda func:
+                generic_single_entry("Load SBase Monomer from three-letter-code: ",
+                                     "",
+                                     " Load ",
+                                     lambda tlc:
+                                     get_sbase_monomer(tlc))
+                )
 
+            # should be in rdkit file FIXME!
+            add_simple_coot_menu_menuitem(
+                menu,
+                "FLEV this residue [RDKIT]",
+                lambda func:
+                using_active_atom(fle_view_with_rdkit,
+                                  "aa_imol", "aa_chain_id",
+                                  "aa_res_no", "aa_ins_code", 4.2)
+                )
+            
         
 def get_file_latest_time(file_name):
     if not os.path.isfile(file_name):

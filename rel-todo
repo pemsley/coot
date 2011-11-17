@@ -5,8 +5,6 @@
 
   o Make sure ligands work with prodrg ::: 6
 
-  o Does RCrane work? ::: 0.5
-
   o Accept/Reject dialog is not opening where I left it on previous
     usage (not previous session, even!) ::: 1
 
@@ -14,20 +12,17 @@
 
   o SS: Fix symmetry file names ::: 2
 
+  o Fix up transform_map by sorting by distance from the target centre
+    the grid points that have new density . ::: 2
+
   o CCP4-based integrated path for FLEV ::: 6
 
   o Fix lighting for solid env distances ::: 1
 
   o Fix lighting for solid generic objects ::: 1
 
-  o consider better analysis of disulfides, bonding and refinement.
-    Consider iron-sulfur clusters.  ::: 3
-
-  o try to make a difference map by making an average map with scale
-    -1 for the second map.  Does it work? ::: 1
-
   o Downloading pdbe data needs to be silent (in scheme) in case the
-    user has the coot scheme scripting window open (threading issues).
+    user has the coot scheme scripting window open (threading issues).  ::: 2
 
   o download 3s9q from pdbe - crashes (not crash when files cached)  :: 2
 
@@ -43,9 +38,6 @@
   o place atom at pointer. Use tutorial data from clean.  Does the
     water go into the correct molecule? (or does it go into Pointer
     Atoms molecule?) ::: 1
-
-  o problems bonding problem-x.pdb (marmoset) - no dictionary,
-    cyclobutane. ::: 1
 
 ------
 
@@ -170,3 +162,20 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
   o double reading/displaying (or modification?) of HET residues? ::: 1
 
 * It was - and the get-monomer calling it twice is fine (it re-centres).
+
+  o Does RCrane work? ::: 0.5
+
+* Yes it does - out the box.
+
+  o try to make a difference map by making an average map with scale
+    -1 for the second map.  Does it work? ::: 0.5
+
+* Is fine.  PEBKAC I suspect.
+
+  o problems bonding problem-x.pdb (marmoset) - no dictionary,
+    cyclobutane. ::: 0.5
+
+* No problem, as it turns out.  PEBKAC - DRG exists in the monomer
+  library/SBase already (and the atoms of problem-x.pdb do not match
+  the names of DRG).
+

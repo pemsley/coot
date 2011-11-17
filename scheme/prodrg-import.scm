@@ -196,30 +196,37 @@
 
 (if (defined? 'coot-main-menubar)
     (let ((menu (coot-menubar-menu "Lidia")))
-      (add-simple-coot-menu-menuitem
-       menu "Import (using MINI PREP)" 
-       (lambda () 
-	 ;; run prodrg, read its output files, and run regularisation
-	 ;; on the imported PDB file.
-	 (import-from-prodrg 'mini-prep)))
+
+;   Not for public use.
+;
+;       (add-simple-coot-menu-menuitem
+;        menu "Import (using MINI PREP)" 
+;        (lambda () 
+; 	 ;; run prodrg, read its output files, and run regularisation
+; 	 ;; on the imported PDB file.
+; 	 (import-from-prodrg 'mini-prep)))
+
+;   Not for public use.
+; 
+;       (add-simple-coot-menu-menuitem
+;        menu "Import (no pre-minimisation)" 
+;        (lambda () 
+; 	 ;; run prodrg, read its output files, and run regularisation
+; 	 ;; on the imported PDB file.
+; 	 (import-from-prodrg 'mini-no)))
 
       (add-simple-coot-menu-menuitem
-       menu "Import (no pre-minimisation)" 
-       (lambda () 
-	 ;; run prodrg, read its output files, and run regularisation
-	 ;; on the imported PDB file.
-	 (import-from-prodrg 'mini-no)))
-
-;      (add-simple-coot-menu-menuitem
-;       menu "Export to LIDIA"
-;       (lambda ()
-;	 (using-active-atom 
-;	  (prodrg-flat aa-imol aa-chain-id aa-res-no))))
-
-      (add-simple-coot-menu-menuitem
-       menu "View in LIDIA"
+       menu "Activate prodrg flat mode"
        (lambda ()
-	 (using-active-atom (fle-view aa-imol aa-chain-id aa-res-no aa-ins-code))))
+	 (using-active-atom 
+	  (prodrg-flat aa-imol aa-chain-id aa-res-no))))
+      
+;   This doesn't work at the moment - let's activate it later...
+;
+;       (add-simple-coot-menu-menuitem
+;        menu "View in LIDIA"
+;        (lambda ()
+; 	 (using-active-atom (fle-view aa-imol aa-chain-id aa-res-no aa-ins-code))))
 
       (add-simple-coot-menu-menuitem
        menu "Load SBase monomer..."

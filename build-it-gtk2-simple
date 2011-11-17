@@ -2893,7 +2893,11 @@ if test -n "$build_guile_lib" ; then
    echo BUILDING guile-lib:
 #
 guile_lib_version=0.1.6
-${WGET} http://download.gna.org/guile-lib/guile-lib-$guile_lib_version.tar.gz
+guile_lib_version=0.2.1
+# guile-lib has moved
+# ${WGET} http://download.gna.org/guile-lib/guile-lib-$guile_lib_version.tar.gz
+${WGET} http://download.savannah.gnu.org/releases/guile-lib/guile-lib-$guile_lib_version.tar.gz
+
 ( 
 date
 pwd
