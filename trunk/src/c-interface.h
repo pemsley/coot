@@ -114,6 +114,18 @@ void try_load_python_extras_dir();
 /*!  \brief tell coot that you prefer to run python scripts if/when
   there is an option to do so. */
 void set_prefer_python();
+/*! \brief the python-prefered mode. 
+
+This is available so that the scripting functions know whether on not
+to put themselves onto in as menu items.  
+
+If you consider using this, consider in preference use_gui_qm == 2,
+which is used elsewhere to stop python functions adding to the gui,
+when guile-gtk functions have alread done so.  We should clean up this
+(rather obscure) interface at some stage.
+
+return 1 for python is prefered, 0 for not. */
+int prefer_python();
 /* \} */
 
 /*  ------------------------------------------------------------------------ */

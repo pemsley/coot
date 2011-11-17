@@ -43,6 +43,8 @@ reduce_command = 'reduce'
 global do_coot_tips_flag
 do_coot_tips_flag = True
 
+# this is the variable we check so that coot doesn't double-load its extensions
+# - this is set in src/main.cc
 global use_gui_qm
 global have_guile_gtk
 

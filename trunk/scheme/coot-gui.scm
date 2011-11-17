@@ -3308,7 +3308,7 @@
 	(gtk-signal-connect 
 	 ok-button "clicked"
 	 (lambda ()
-	   ;; 
+
 	   (let ((maps-to-average-list 
 		  (map 
 		   (lambda (mav-bits)
