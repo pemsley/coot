@@ -828,7 +828,8 @@ graphics_info_t::rotamer_graphs(int imol) {
 			      for (int ir=0; ir<nSelResidues; ir++) {
 				 int this_resno = SelResidues[ir]->GetSeqNum();
 				 std::string res_name = SelResidues[ir]->GetResName();
-				 if (res_name != "HOH") { 
+				 if (coot::util::is_standard_amino_acid_name(res_name)) { 
+				 // if (res_name != "HOH") { 
 				    std::string this_inscode = SelResidues[ir]->GetInsCode();
 				    if (this_resno > max_resno)
 				       max_resno = this_resno;

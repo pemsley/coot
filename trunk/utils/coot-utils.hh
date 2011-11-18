@@ -95,6 +95,8 @@ namespace coot {
 
       // is ALA, GLY, TRP, MET, MSE...? (RNA, DNA allowed too)
       bool is_standard_residue_name(const std::string &residue_name);
+      // as above but only protein atom names allowed (and MSE).
+      bool is_standard_amino_acid_name(const std::string &residue_name);
 
       std::string downcase(const std::string &s);
       std::string upcase(const std::string &s);

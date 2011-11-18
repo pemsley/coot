@@ -98,6 +98,7 @@
 // 
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
 
+   bool debug = 0; 
    GtkWidget *window = wrapped_create_accept_reject_refinement_dialog();
    GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea, 
 						     "window1"));
@@ -107,24 +108,11 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
       label = lookup_widget(GTK_WIDGET(window),
 			    "accept_dialog_accept_docked_label_string");
    } else {
-
-      label = lookup_widget(GTK_WIDGET(window), "accept_dialog_accept_label_string");
-      gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
       
-      // now set the position, if it was set:
-      if ((graphics_info_t::accept_reject_dialog_x_position > -100) && 
-	  (graphics_info_t::accept_reject_dialog_y_position > -100)) {
-// 	 std::cout << "Here...... setting ..... " 
-// 		   << graphics_info_t::accept_reject_dialog_x_position
-// 		   << " "
-// 		   << graphics_info_t::accept_reject_dialog_y_position
-// 		   << std::endl;
-	 gtk_widget_set_uposition(window,
-				  graphics_info_t::accept_reject_dialog_x_position,
-				  graphics_info_t::accept_reject_dialog_y_position);
-      }
-   }
+      label = lookup_widget(GTK_WIDGET(window), "accept_dialog_accept_label_string");
 
+   }
+   
    update_accept_reject_dialog_with_results(window, coot::CHI_SQUAREDS, rr);
    if (rr.lights.size() > 0){
       if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
@@ -165,6 +153,36 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
       gtk_widget_show(label);
       if (graphics_info_t::accept_reject_dialog_docked_show_flag == coot::DIALOG_DOCKED_SHOW) {
 	 gtk_widget_set_sensitive(window, TRUE);
+      }
+   }
+
+   if (graphics_info_t::accept_reject_dialog_docked_flag != coot::DIALOG_DOCKED){
+
+      // gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
+      
+      // now set the position, if it was set:
+
+      if (debug)
+	 std::cout << "Here...... outer "
+		   << graphics_info_t::accept_reject_dialog_x_position
+		   << " "
+		   << graphics_info_t::accept_reject_dialog_y_position
+		   << std::endl;
+      if ((graphics_info_t::accept_reject_dialog_x_position > -100) && 
+	  (graphics_info_t::accept_reject_dialog_y_position > -100)) {
+	 if (debug)
+	    std::cout << "Here...... inside if setting ..... " 
+		      << graphics_info_t::accept_reject_dialog_x_position
+		      << " "
+		      << graphics_info_t::accept_reject_dialog_y_position
+		      << std::endl;
+	 // gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_NONE);
+	 gtk_widget_set_uposition(window,
+				  graphics_info_t::accept_reject_dialog_x_position,
+				  graphics_info_t::accept_reject_dialog_y_position);
+	 gtk_window_move(GTK_WINDOW(window), 
+			 graphics_info_t::accept_reject_dialog_x_position,
+			 graphics_info_t::accept_reject_dialog_y_position);
       }
    }
    gtk_widget_show(window);
@@ -219,11 +237,9 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
              GdkColor color = colour_by_rama_plot_distortion(ref_results.lights[i_rest_type].value);
              set_colour_accept_reject_event_box(w, &color);
            }
-#if (GTK_MAJOR_VERSION > 1)	       
            gtk_widget_show(p); // event boxes don't get coloured
 				   // in GTK1 version - no need to
 				   // show them then.
-#endif	       
          } else {
            std::cout << "ERROR:: lookup of event_box_name: " << event_box_name
                      << " failed" << std::endl;
@@ -251,18 +267,7 @@ void add_accept_reject_lights(GtkWidget *window, const coot::refinement_results_
 // the function that calls it is not compiled (for Gtk1).
 // 
 void set_colour_accept_reject_event_box(GtkWidget *eventbox, GdkColor *col) {
-
-#if (GTK_MAJOR_VERSION == 1)    
-  GtkRcStyle *rc_style = gtk_rc_style_new ();
-  rc_style->fg[GTK_STATE_NORMAL] = *col;
-  // rc_style->color_flags[GTK_STATE_NORMAL] |= GTK_RC_FG; // compiler failure, try...
-  GtkRcFlags new_colour_flags = GtkRcFlags(GTK_RC_FG | rc_style->color_flags[GTK_STATE_NORMAL]);
-  rc_style->color_flags[GTK_STATE_NORMAL] = new_colour_flags;
-  gtk_widget_modify_style (eventbox, rc_style);
-#else    
    gtk_widget_modify_bg(eventbox, GTK_STATE_NORMAL, col);
-#endif
-   
 }
 
 void
