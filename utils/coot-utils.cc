@@ -1024,5 +1024,54 @@ coot::util::is_standard_residue_name(const std::string &residue_name) {
 
 } 
 
+bool
+coot::util::is_standard_amino_acid_name(const std::string &residue_name) {
+
+   if (residue_name == "ALA")
+      return 1;
+   if (residue_name == "ARG")
+      return 1;
+   if (residue_name == "ASN")
+      return 1;
+   if (residue_name == "ASP")
+      return 1;
+   if (residue_name == "CYS")
+      return 1;
+   if (residue_name == "GLN")
+      return 1;
+   if (residue_name == "GLU")
+      return 1;
+   if (residue_name == "GLY")
+      return 1;
+   if (residue_name == "HIS")
+      return 1;
+   if (residue_name == "ILE")
+      return 1;
+   if (residue_name == "LEU")
+      return 1;
+   if (residue_name == "LYS")
+      return 1;
+   if (residue_name == "MET")
+      return 1;
+   if (residue_name == "MSE")
+      return 1;
+   if (residue_name == "PHE")
+      return 1;
+   if (residue_name == "PRO")
+      return 1;
+   if (residue_name == "SER")
+      return 1;
+   if (residue_name == "THR")
+      return 1;
+   if (residue_name == "TRP")
+      return 1;
+   if (residue_name == "TYR")
+      return 1;
+   if (residue_name == "VAL")
+      return 1;
+
+   return 0;
+} 
+
 
 

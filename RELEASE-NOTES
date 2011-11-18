@@ -3,7 +3,8 @@
 
   o FEATURE: PDBe Recent structure browser.
 
-  o CHANGE: symmetry operator number are no longer zero indexed.
+  o CHANGE: symmetry operator number are no longer zero indexed.  Add
+    trans component to symmetry file names. [Steven Sheriff].
  
   o BUG-FIX: Fix missing C7 on DA -> DT mutation [Sabine Schneider].
 

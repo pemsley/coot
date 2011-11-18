@@ -3,17 +3,19 @@
 
 ----
 
-  o Make sure ligands work with prodrg ::: 6
-
   o Accept/Reject dialog is not opening where I left it on previous
     usage (not previous session, even!) ::: 1
 
   o Fix splash screen per SS message.  ::: 0.5
 
+  o CCP4-based integrated path for FLEV ::: 6
+
+  o Make sure ligands work with prodrg ::: 4
+
+* Seems OK.
+
   o Fix up transform_map by sorting by distance from the target centre
     the grid points that have new density . ::: 2
-
-  o CCP4-based integrated path for FLEV ::: 6
 
   o Fix lighting for solid env distances ::: 1
 
@@ -23,8 +25,6 @@
     user has the coot scheme scripting window open (threading issues).  ::: 2
 
   o download 3s9q from pdbe - crashes (not crash when files cached)  :: 2
-
-  o Unusual Rotamers on 3amy ::: 2
 
   o check that probe works ::: 1
 
@@ -182,3 +182,7 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 * Done. And cleanup sym_trans_t::str() and use 1-indexed not zero index.
 
 
+  o Unusual Rotamers on 3amy - I guess I mean: don't try to find
+    rotamers for AGI, EDO etc. ::: 2
+
+* is_standard_amino_acid_name() introduced.
