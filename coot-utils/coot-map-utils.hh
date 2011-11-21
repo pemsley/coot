@@ -241,6 +241,28 @@ namespace coot {
 	 
       };
 
+
+      class map_ref_triple_t {
+      public:
+         double dist_sq;
+         clipper::Xmap<float>::Map_reference_coord iw;
+         float density;
+         map_ref_triple_t(const double &d_in,
+			  const clipper::Xmap<float>::Map_reference_coord &iw_in,
+			  const float &den_in) {
+            dist_sq = d_in;
+            iw = iw_in;
+            density = den_in;
+         }
+         map_ref_triple_t() {}
+         bool operator<(const map_ref_triple_t &mrt) const {
+            return (mrt.dist_sq < dist_sq);
+         }
+      };
+
+
+
+
       class segment_map {
 	 enum {UNASSIGNED = -1, TOO_LOW = -2 };
 	 // sorting function used by above
