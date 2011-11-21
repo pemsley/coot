@@ -373,29 +373,48 @@ coot::util::transform_map(const clipper::Xmap<float> &xmap_in,
 	     << std::endl;
    
    xmap.init(new_space_group, new_cell, new_gs);
+
+   std::cout << "coord info:         to_pt: " << to_pt.format()    << std::endl;
+   std::cout << "coord info:      about_pt: " << about_pt.format() << std::endl;
    
-   clipper::Coord_orth pt_new_centre = about_pt.transform(rtop);
    clipper::Grid_sampling grid = xmap.grid_sampling();
-   clipper::Grid_range gr(xmap.cell(), xmap.grid_sampling(), 2*box_size);
+   clipper::Grid_range gr(xmap.cell(), xmap.grid_sampling(), box_size);
    clipper::Coord_grid g, g0, g1;
    clipper::RTop_orth rtop_inv = rtop.inverse();
    typedef clipper::Xmap<float>::Map_reference_coord MRC;
    MRC i0, iu, iv, iw;
-   g = pt_new_centre.coord_frac(new_cell).coord_grid(new_gs);
+   g = to_pt.coord_frac(new_cell).coord_grid(new_gs);
 
    std::cout << "DEBUG:: pulling map from point:   " << about_pt.format() << std::endl;
-   std::cout << "DEBUG:: creating map about point: " << pt_new_centre.format() << std::endl;
-   
+   std::cout << "DEBUG:: creating map about point: " << to_pt.format() << std::endl;
+
+   std::cout << "DEBUG:: grid point g: " << g.format() << std::endl;
+   std::cout << "DEBUG:: grid range gr: " << gr.format() << std::endl;
+   std::cout << "DEBUG:: grid range gr.min: " << gr.min().format() << std::endl;
+   std::cout << "DEBUG:: grid range gr.max: " << gr.max().format() << std::endl;
+
+   std::vector<coot::util::map_ref_triple_t> density_points;
+
    g0 = g + gr.min();
    g1 = g + gr.max();
    i0 = MRC( xmap, g0 );
+
+   clipper::Coord_orth iw_pos;
+   clipper::Coord_orth dpt;
+   double d2;
+   
    for ( iu = i0; iu.coord().u() <= g1.u(); iu.next_u() )
       for ( iv = iu; iv.coord().v() <= g1.v(); iv.next_v() )
-	 for ( iw = iv; iw.coord().w() <= g1.w(); iw.next_w() ) {
-	    clipper::Coord_orth dpt = iw.coord().coord_frac(grid).coord_orth(xmap.cell()).transform(rtop_inv);
-	    xmap[iw] = coot::util::density_at_point(xmap_in, dpt);
-	 }
-   
+         for ( iw = iv; iw.coord().w() <= g1.w(); iw.next_w() ) {
+	    iw_pos = iw.coord().coord_frac(grid).coord_orth(xmap.cell());
+            dpt =    iw_pos.transform(rtop_inv);
+            d2 = (iw_pos - to_pt).lengthsq();
+            density_points.push_back(coot::util::map_ref_triple_t(d2, iw, coot::util::density_at_point(xmap_in, dpt)));
+         }
+   std::sort(density_points.begin(), density_points.end());
+   for (unsigned int ic=0; ic<density_points.size(); ic++)
+      xmap[density_points[ic].iw] = density_points[ic].density;
+
    return xmap;
 }
 
