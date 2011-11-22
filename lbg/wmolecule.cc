@@ -38,6 +38,7 @@
 widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mol_in,
 					 CMMDBManager *pdb_mol) { 
 
+   bool debug = 0;
 
    // the input coordinates are not necessarily centred on (0,0), so
    // let's find the centre of the input molecule first.
@@ -72,10 +73,10 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 
       centre_correction = lig_build::pos_t(centre_x, centre_y);
 
-      std::cout << "::::::::::::::: y stats: extents " << mol_in_min_y << " "
-		<< mol_in_max_y << " centre correction: " << centre_correction.y
-		<< std::endl;
-
+      if (debug)
+	 std::cout << "::::::::::::::: y stats: extents " << mol_in_min_y << " "
+		   << mol_in_max_y << " centre correction: " << centre_correction.y
+		   << std::endl;
    
       for (unsigned int iat=0; iat<mol_in.atoms.size(); iat++) {
 
@@ -96,7 +97,7 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 	    std::string atom_name = get_atom_name(pt, pdb_mol);
 	    // and if atom_name is not "", then set atom name of at.
 	    if (atom_name != "") {
-	       if (1) 
+	       if (debug) 
 		  std::cout << "Hoorah setting atom at " << pt.format() << " with name :"
 			    << atom_name << ":" << std::endl;
 	       at.set_atom_name(atom_name);
@@ -129,7 +130,6 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 
       // add ring centres
       //
-      bool debug = 0;
       for (unsigned int ib=0; ib<bonds.size(); ib++) {
 	 if (! bonds[ib].have_centre_pos()) { 
 	    int atom_index = bonds[ib].get_atom_1_index();
