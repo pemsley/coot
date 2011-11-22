@@ -46,7 +46,6 @@ on_lbg_drag_data_received (GtkWidget *widget,
    
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(widget)));
-   std::cout << "Here in on_lbg_drag_data_received() " << l << std::endl;
    if (l) {
       // Deal with what the source sent over
       if((selection_data != NULL) && (selection_data-> length >= 0)) {
@@ -118,7 +117,7 @@ lbg_info_t::handle_lbg_drag_and_drop_single_item(const std::string &uri) {
 		     import_mol_from_file(file_name);
 		  }
 
-		  std::cout << "url_file_name_file :" << url_file_name_file << ":" << std::endl;
+		  // std::cout << "url_file_name_file :" << url_file_name_file << ":" << std::endl;
 		  if (url_file_name_file == "image.png") {
 		     if (uri_clean.find_last_of("/molecules/DB") != std::string::npos) {
 			std::pair<std::string, std::string> s =
