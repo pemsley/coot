@@ -101,6 +101,7 @@ lbg(lig_build::molfile_molecule_t mm,
 	    if (ligand_spec_pair.first)
 	       lbg->set_ligand_spec(ligand_spec_pair.second);
 
+	    std::cout << "debug:: lbg() making a widgeted_molecule_t with mol " << mol << std::endl;
 	    widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
 	    lbg->render_from_molecule(wmol);
 	 }
@@ -2241,8 +2242,9 @@ lbg_info_t::init(GtkBuilder *builder) {
       // gtk_widget_set(GTK_WIDGET(canvas), "automatic-bounds",  1, NULL);
       gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
       gtk_object_set_user_data(GTK_OBJECT(canvas), (gpointer) this);
-      std::cout << ":::::: attached this lbg_info_t pointer to canvas: " << this
-		<< " to " << canvas << std::endl;
+      if (0) 
+	 std::cout << ":::::: attached this lbg_info_t pointer to canvas: " << this
+		   << " to " << canvas << std::endl;
    
       save_togglebutton_widgets(builder);
       gtk_container_add(GTK_CONTAINER(lbg_scrolled_win), canvas);
@@ -2979,7 +2981,10 @@ lbg_info_t::draw_all_flev_annotations() {
 void
 lbg_info_t::draw_all_flev_residue_attribs() {
 
-   if (draw_flev_annotations_flag) { 
+   if (draw_flev_annotations_flag) {
+
+      std::cout << "debug:: in draw_all_flev_residue_attribs() drawing "
+		<< residue_circles.size() << " residue circles " << std::endl;
       draw_residue_circles(residue_circles, additional_representation_handles);
       draw_bonds_to_ligand();
       draw_stacking_interactions(residue_circles);
@@ -4042,10 +4047,11 @@ lbg_info_t::ligand_grid::ligand_grid(const lig_build::pos_t &low_x_and_y,
    grid_.resize(x_size_);
    for (unsigned int i=0; i<x_size_; i++)
       grid_[i] = tmp_y;
-   std::cout << "--- ligand_grid constructor, grid has extents "
-	     << x_size_ << " " << y_size_ << " real " << grid_.size()
-	     << " " << grid_[0].size()
-	     << std::endl;
+   if (0) 
+      std::cout << "--- ligand_grid constructor, grid has extents "
+		<< x_size_ << " " << y_size_ << " real " << grid_.size()
+		<< " " << grid_[0].size()
+		<< std::endl;
    
 }
 
@@ -5256,22 +5262,21 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
 		     const coot::pi_stacking_container_t &pi_stack_info,
 		     const coot::dictionary_residue_restraints_t &restraints) {
 
-#ifndef MAKE_ENTERPRISE_TOOLS
-   return 0;
-#else   
 
    if (0) {
       for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) { 
-	 std::cout << "  =============== bond to ligand " << ib << " "
+	 std::cout << "  =============== lbg::annotate() bond to ligand " << ib << " "
 		   << bonds_to_ligand[ib].ligand_atom_spec.atom_name
 		   << " by residue " << bonds_to_ligand[ib].res_spec.chain << " "
-		   << bonds_to_ligand[ib].res_spec.resno << " " << std::endl;
+		   << bonds_to_ligand[ib].res_spec.resno << " type: "
+		   << bonds_to_ligand[ib].bond_type
+		   << std::endl;
       }
    }
 
-   if (0) { 
+   if (1) { 
       std::cout << "--------------------------------------------------------------" << std::endl;
-      std::cout << "in lbg_info_t::annotate() here are bash distances for atoms:" << std::endl;
+      std::cout << "======== lbg_info_t::annotate() here are bash distances for atoms:" << std::endl;
       std::map<std::string, std::vector<coot::bash_distance_t> >::const_iterator it;
       for (it=ah.atom_bashes.begin(); it!=ah.atom_bashes.end(); it++) {
 	 std::cout << it->first << " " << it->second.size() << " bashes " << std::endl;
@@ -5292,6 +5297,10 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
    // 
    residue_circles.clear();
    for (unsigned int i=0; i<centres.size(); i++) {
+
+      std::cout << "debugg:: in lbg_info_t::annotate() handling circle " << i << " of "
+		<< centres.size() << std::endl;
+      
       std::string label = centres[i].spec.chain;
       label += coot::util::int_to_string(centres[i].spec.resno);
       label += centres[i].spec.insertion_code;
@@ -5388,7 +5397,7 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
    refine_residue_circle_positions();
    
    return r;
-#endif   
+
 }
 
 

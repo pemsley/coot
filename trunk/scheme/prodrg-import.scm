@@ -216,17 +216,16 @@
 ; 	 (import-from-prodrg 'mini-no)))
 
       (add-simple-coot-menu-menuitem
-       menu "Activate prodrg flat mode"
-       (lambda ()
-	 (using-active-atom 
-	  (prodrg-flat aa-imol aa-chain-id aa-res-no))))
+       menu "Hydrogenate region"
+       (lambda () 
+	 (hydrogenate-region 6)))
       
 ;   This doesn't work at the moment - let's activate it later...
 ;
-;       (add-simple-coot-menu-menuitem
-;        menu "View in LIDIA"
-;        (lambda ()
-; 	 (using-active-atom (fle-view aa-imol aa-chain-id aa-res-no aa-ins-code))))
+       (add-simple-coot-menu-menuitem
+        menu "View in LIDIA"
+        (lambda ()
+	  (using-active-atom (fle-view aa-imol aa-chain-id aa-res-no aa-ins-code))))
 
       (add-simple-coot-menu-menuitem
        menu "Load SBase monomer..."
@@ -234,7 +233,13 @@
 	 (generic-single-entry "Load SBase Monomer from three-letter-code: " ""
 			       " Load "
 			       (lambda (tlc)
-				 (get-sbase-monomer tlc)))))))
+				 (get-sbase-monomer tlc)))))
+
+      (add-simple-coot-menu-menuitem
+       menu "Activate prodrg flat mode"
+       (lambda ()
+	 (using-active-atom 
+	  (prodrg-flat aa-imol aa-chain-id aa-res-no))))))
 
 		  
 			   
@@ -295,6 +300,23 @@
 ;; 
 (define (prodrg-flat imol-in chain-id-in res-no-in)
 
+  ;; return a text string, or at least "" if we can't find the prodrg
+  ;; error message output line.
+  ;; 
+  (define (get-prodrg-error-message log-file)
+    (if (not (file-exists? log-file))
+	""
+	(call-with-input-file log-file
+	  (lambda (port)
+	    (let f ((obj (read-line port)))
+	      (print-var obj)
+	      (cond
+	       ((eof-object? obj) "")
+	       ((string-match " PRODRG: " obj) obj)
+	       (else 
+		(f (read-line port)))))))))
+		      
+
   (let* ((selection-string (string-append "//" chain-id-in "/" (number->string res-no-in)))
 	 (imol (new-molecule-by-atom-selection imol-in selection-string))
 	 (prodrg-input-file-name (append-dir-file "coot-ccp4"
@@ -321,9 +343,8 @@
 	    (info-dialog "Ooops: cprodrg not found?")
 	    #f)
 	  (if (not (= status 0))
-	      (let ((mess (string-append "Something went wrong running cprodrg\n"
-					 (if (< (random 100) 10)
-					     "(quelle surprise)" ""))))
+	      (let ((mess (string-append "Something went wrong running cprodrg\n\n" 
+					 (get-prodrg-error-message prodrg-log))))
 		(info-dialog mess)
 		#f)
 
@@ -367,7 +388,7 @@
 	 (res-no aa-res-no))
      (let ((r-flat  (prodrg-flat  imol chain-id res-no))
 	   (r-plain (prodrg-plain 'mini-no  imol chain-id res-no)))
-           ;; (r-plain (list 0 0))) ;; dummy value
+
        (if (and r-flat
 		(and (number? (car r-plain))
 		     (= (car r-plain) 0)))
@@ -382,8 +403,6 @@
 	      prodrg-output-flat-pdb-file-name
 	      prodrg-output-3d-pdb-file-name
 	      prodrg-output-cif-file-name)
-	     (goosh-command "touch" 
-			    (list
-			     (append-dir-file "coot-ccp4" ".coot-to-lbg-mol-ready"))
-			    '() "/dev/null" #f)))))))
+	     ))))))
+
 

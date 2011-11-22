@@ -30,7 +30,7 @@ INCLUDES = \
 	$(RDKIT_CXXFLAGS) 		\
         $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 
-libcoot_lidia_core_la_SOURCES = lbg-molfile.cc lig-build.cc rdkit-interface.cc
+libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc rdkit-interface.cc
 
 libcoot_lidia_core_la_LIBADD =                 \
    $(RDKIT_LIBS)

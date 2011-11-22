@@ -276,7 +276,7 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 // Use hydrogen->acceptor distances, not donor and acceptor distances,
 // i.e. model (both selections) has full hydrogens.
 //
-// ligand is the selHnd_1 and selHnd_2 is everything (including ligand (usually, AFAICS).
+// ligand is the selHnd_1 and selHnd_2 is everything (including ligand (usually) AFAICS).
 //
 //
 //          H
@@ -352,6 +352,13 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManage
 	       at_1->GetUDData(hb_type_udd_handle, hb_type_1);
 	       at_2->GetUDData(hb_type_udd_handle, hb_type_2);
 
+	       if (0)
+		  std::cout << "debug:: in get_mcdonald_and_thornton() "
+			    << coot::atom_spec_t(at_1) << " "
+			    << coot::atom_spec_t(at_2) << "   "
+			    << hb_type_1 << " " << hb_type_2 
+			    << std::endl;
+
 	       // hydrogen on ligand
 	       // 
 	       if (hb_type_1 == coot::energy_lib_atom::HB_HYDROGEN) { 
@@ -365,7 +372,9 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManage
 		     if (b_hbond.first)
 			v.push_back(b_hbond.second);
 		  }
-	       }
+	       } else {
+		  // std::cout << ".... rejected..." << std::endl;
+	       } 
 
 	       // hydrogen on environment (protein) residue
 	       //

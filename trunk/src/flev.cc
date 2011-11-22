@@ -86,6 +86,19 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 		       const char *prodrg_output_flat_pdb_file_name,
 		       const char *prodrg_output_3d_pdb_file_name,
 		       const char *prodrg_output_dict_cif_file_name) {
+
+   if (0) 
+      std::cout << "debug:: fle_view_internal() called with " 
+		<< imol << " " 
+		<< chain_id << " " 
+		<< res_no << " " 
+		<< ins_code << " " 
+		<< imol_ligand_fragment << " " 
+		<< prodrg_output_flat_mol_file_name << " " 
+		<< prodrg_output_flat_pdb_file_name << " " 
+		<< prodrg_output_3d_pdb_file_name   << " " 
+		<< prodrg_output_dict_cif_file_name << " " 
+		<< std::endl;
    
    float residues_near_radius = 4.5;
    float water_dist_max = 3.25;
@@ -272,12 +285,34 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 		     bool stand_alone_flag = 0; // no, it isn't from here.
 
 		     lig_build::molfile_molecule_t m;
+		     m.read(prodrg_output_flat_mol_file_name);
+
+		     std::vector<coot::fle_residues_helper_t> res_centres =
+			coot::get_flev_residue_centres(res_ref,
+						       mol, // mol_for_res_ref,
+						       filtered_residues,
+						       flat.mol // mol_for_flat_residue
+						       );
+		     std::vector<int> add_reps_vec =
+			coot::make_add_reps_for_near_residues(filtered_residues, imol);
+		     
+		     if (0) { 
+			std::cout << "------------- in flev: centres.size() is "
+				  << res_centres.size() << std::endl;
+			for (unsigned int ic=0; ic<res_centres.size(); ic++)
+			   std::cout << "   " << ic << "  " << res_centres[ic]
+				     << std::endl;
+		     }
+		     
 
 #ifdef HAVE_GOOCANVAS		     
 		     lbg_info_t *lbg_local_p = lbg(m, ligand_spec_pair,
-						   NULL, view_name, ligand_res_name, imol,
+						   flat.mol, view_name, ligand_res_name, imol,
 						   use_graphics_flag, stand_alone_flag,
 						   coot_get_url, prodrg_import_function);
+		     lbg_local_p->annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand, sed,
+					   ah, pi_stack_info, p.second);
+		     
 
 #endif // HAVE_GOOCANVAS		     
 		     
@@ -587,7 +622,7 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 						       const std::vector<CResidue *> &residues,
 						       CResidue *res_ref) {
 
-   bool debug = 1;
+   bool debug = false;
 
    // --------------------------------------------------------------------
    //          ligand ring systems
@@ -1303,16 +1338,6 @@ coot::write_fle_centres(const std::vector<fle_residues_helper_t> &v,
    }
 }
 
-std::ostream&
-coot::operator<< (std::ostream& s, const coot::bash_distance_t &bd) {
-
-   if (bd.unlimited()) { 
-      s << "unlimited"; // C&L.
-   } else {
-      s << bd.dist;
-   } 
-   return s;
-} 
 
 
 // the reference_residue is the flat residue
@@ -1396,10 +1421,11 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 	 std::cout << "DEBUG:: get_fle_ligand_bonds from h_bonds class found "
 		   << hbonds.size() << " H bonds." << std::endl;
 
-      for (unsigned int i=0; i<hbonds.size(); i++) { 
-	 std::cout << coot::atom_spec_t(hbonds[i].donor) << "..."
-		   << coot::atom_spec_t(hbonds[i].acceptor) << " with ligand donor flag "
-		   << hbonds[i].ligand_atom_is_donor << std::endl;
+      for (unsigned int i=0; i<hbonds.size(); i++) {
+	 if (debug)
+	    std::cout << coot::atom_spec_t(hbonds[i].donor) << "..."
+		      << coot::atom_spec_t(hbonds[i].acceptor) << " with ligand donor flag "
+		      << hbonds[i].ligand_atom_is_donor << std::endl;
 
 	 int bond_type = fle_ligand_bond_t::get_bond_type(hbonds[i].donor,
 							  hbonds[i].acceptor,
@@ -2330,15 +2356,16 @@ coot::flev_attached_hydrogens_t::distances_to_protein(CResidue *residue_referenc
       try {
 	 if (named_torsions[i].hydrogen_type == coot::H_IS_RIDING) {
 
-	    std::cout << "hydrogen on " << named_torsions[i].atom_name_bonded_to_H 
-		      << " is riding " << std::endl;
+	    if (debug)
+	       std::cout << "hydrogen on " << named_torsions[i].atom_name_bonded_to_H 
+			 << " is riding " << std::endl;
 	    
 	    std::pair<clipper::Coord_orth, clipper::Coord_orth> pt_base_and_H =
 	       hydrogen_pos(named_torsions[i], residue_reference);
 
-	    std::cout << "pt_base_and_H: ligand atom at: " << pt_base_and_H.first.format()
-		      << " H atom at: " << pt_base_and_H.second.format() << std::endl;
-	    
+	    if (debug)
+	       std::cout << "pt_base_and_H: ligand atom at: " << pt_base_and_H.first.format()
+			 << " H atom at: " << pt_base_and_H.second.format() << std::endl;
 	    
 	    std::vector<CAtom *> atoms = close_atoms(pt_base_and_H.second, env_residues);
 
@@ -2349,14 +2376,16 @@ coot::flev_attached_hydrogens_t::distances_to_protein(CResidue *residue_referenc
 	    coot::bash_distance_t bash = find_bash_distance(pt_base_and_H.first,
 							    pt_base_and_H.second,
 							    atoms);
-	    std::cout << "   found bash: " << bash << std::endl;
+	    if (debug)
+	       std::cout << "   found bash: " << bash << std::endl;
 	    atom_bashes[named_torsions[i].atom_name_bonded_to_H].push_back(bash);
 	 }
 	 
 	 if (named_torsions[i].hydrogen_type == coot::H_IS_ROTATABLE) {
 
-	    std::cout << "hydrogen on " << named_torsions[i].atom_name_bonded_to_H 
-		      << " is rotatable " << std::endl;
+	    if (debug)
+	       std::cout << "hydrogen on " << named_torsions[i].atom_name_bonded_to_H 
+			 << " is rotatable " << std::endl;
 	    
 	    int n_torsion_samples = 8;
 	    std::pair<clipper::Coord_orth, clipper::Coord_orth> pt_base_and_H =
