@@ -21,7 +21,8 @@
 (use-modules (ice-9 popen)
 	     (ice-9 string-fun)
 	     (ice-9 format)
-	     (ice-9 rdelim))
+	     (ice-9 rdelim)
+	     (srfi srfi-1))
 (use-modules (os process)) 
 
 ;; 3D annotations - a bit of a hack currently
@@ -546,34 +547,27 @@
 	    (newline write-port)
 	    (f (cdr data-list)))))))
 
-;; Return #t or #f:
-;; 
-(define (command-in-path? cmd)
 
-  ;; test for command (see goosh-command-with-file-input description)
-  ;; 
-  (if (string? cmd) 
-      (let ((have-command? (run "which" cmd)))
-	
-	(= have-command? 0)) ; return #t or #f
-      #f))
+;; Thank you for this, rixed@happyleptic.org
+(define (command-in-path? f)
+  (let ((path (string-split (getenv "PATH") #\:))
+	(make-absolute (lambda (path) (string-append path "/" f))))
+    (any file-exists? (map make-absolute path))))
+
 
 ;; Return #t or #f
 ;; 
 (define (command-in-path-or-absolute? cmd)
 
-  (let ((v (command-in-path? cmd)))
-    (if (not v)
-        (begin
-          (if (not (string? cmd))
-              #f
-              (let ((l (string-length cmd)))
-                (if (= l 0)
-                    #f
-                    (if (file-exists? cmd)
-                        #t
-                        #f)))))
-        #t)))
+  (if (command-in-path? cmd)
+      #t
+      (begin
+	(if (not (string? cmd))
+	    #f
+	    (let ((l (string-length cmd)))
+	      (if (= l 0)
+		  #f
+		  (file-exists? cmd)))))))
 
       
 ;; Where cmd is e.g. "refmac" 
@@ -585,7 +579,7 @@
 ;; 
 (define (goosh-command cmd args data-list log-file-name screen-output-also?)
     
-  (if (not (command-in-path? cmd))
+  (if (not (command-in-path-or-absolute? cmd))
       
       (begin 
 	(format #t "command ~s not found~%" cmd)
@@ -635,9 +629,9 @@
   ;; running "which" on it.
   ;; 
   (if (string? cmd) 
-      (let ((have-command? (run "which" cmd)))
+      (let ((have-command? (command-in-path-or-absolute? cmd)))
 
-	(if (= have-command? 0) ; we *do* have the command
+	(if have-command? ; we *do* have the command
 
 	    (with-output-to-file log-file-name
 	      (lambda ()
@@ -651,7 +645,7 @@
 ;; 
 (define (run-command/strings cmd args data-list)
     
-  (if (not (command-in-path? cmd))
+  (if (not (command-in-path-or-absolute? cmd))
 
       (begin
 	(format #t "command ~s not found~%" cmd)

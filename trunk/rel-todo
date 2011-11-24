@@ -7,16 +7,11 @@
 
   o CCP4-based integrated path for FLEV ::: 6
 
+* Looks good.
+
   o Make sure ligands work with prodrg ::: 4
 
 * Seems OK.
-
-  o Fun: make another version of the dots() interface so that it will
-    accept a list of residue specs.  Use atomic radii from energy lib
-    or some such.
-
-  o Fix up transform_map by sorting by distance from the target centre
-    the grid points that have new density . ::: 2
 
   o Fix lighting for solid env distances ::: 1
 
@@ -33,10 +28,6 @@
 
   o Related to above: Fix crash-catcher script to work with pythonized
     coot ::: 2
-
-  o place atom at pointer. Use tutorial data from clean.  Does the
-    water go into the correct molecule? (or does it go into Pointer
-    Atoms molecule?) ::: 1
 
 ------
 
@@ -193,3 +184,19 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 
 * Changed.  I give up.
 
+  o Fun: make another version of the dots() interface so that it will
+    accept a list of residue specs.  Use atomic radii from energy lib
+    or some such.  ::: 1
+
+* Done.
+
+  o Fix up transform_map by sorting by distance from the target centre
+    the grid points that have new density . ::: 2
+
+* Done. 
+
+  o place atom at pointer. Use tutorial data from clean.  Does the
+    water go into the correct molecule? (or does it go into Pointer
+    Atoms molecule?) ::: 0.5
+
+* It's fine.

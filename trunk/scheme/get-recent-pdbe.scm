@@ -314,7 +314,7 @@
     (let ((save-refmac-extra-params refmac-extra-params))
       
       (if (list? refmac-extra-params)
-	  (set! refmac-extra-params (cons "MAKE NEWLIGAND CONTINUE") refmac-extra-params)
+	  (set! refmac-extra-params (cons (list "MAKE NEWLIGAND CONTINUE") refmac-extra-params))
 	  (set! refmac-extra-params (list "MAKE NEWLIGAND CONTINUE")))
 
       (let ((refmac-result
@@ -1040,13 +1040,10 @@
 
   ;; main line of recent-structure-browser
   (if (not (hash-table? t))
-
       (begin
 	(format #t "Not hash table\n"))
-	  
 
       (begin
-	(format #t "Is hash table\n")
 	(let ((a (hash-ref t "ResultSet")))
 	  (if (not (hash-table? a))
 	      #f

@@ -5,6 +5,12 @@
 
   o CHANGE: symmetry operator number are no longer zero indexed.  Add
     trans component to symmetry file names. [Steven Sheriff].
+
+  o CHANGE: Dotted surfaces now are colour by atom type and are at
+    atomic radii rather than 1A.
+
+  o CHANGE: map transformation no longer has symmetry overwrite
+    problems [JED].
  
   o BUG-FIX: Fix missing C7 on DA -> DT mutation [Sabine Schneider].
 

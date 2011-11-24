@@ -1298,7 +1298,8 @@ int make_and_draw_map(const char* mtz_file_name,
 					     graphics_info_t::map_sampling_rate);
 	 // save the mtz file from where the map comes
 	 g.molecules[imol].store_refmac_mtz_filename(std::string(mtz_file_name));
-	 g.scroll_wheel_map = imol;
+	 if (! is_diff_map)
+	    g.scroll_wheel_map = imol;
 	 graphics_draw();
 	 g.activate_scroll_radio_button_in_display_manager(imol);
 	 
@@ -3362,13 +3363,15 @@ PyObject *additional_representation_info_py(int imol) {
 /*                  dots display                                            */
 /*  ----------------------------------------------------------------------- */
 int dots(int imol,
-	  const char *atom_selection_str,
-	  float dot_density, float sphere_size_scale) {
+	 const char *atom_selection_str,
+	 const char *dots_name,
+	 float dot_density, float sphere_size_scale) {
 
    int idots = -1;
    if (is_valid_model_molecule(imol)) {
       if (atom_selection_str) { 
 	 idots = graphics_info_t::molecules[imol].make_dots(std::string(atom_selection_str),
+							    dots_name,
 							    dot_density,
 							    sphere_size_scale);
       }
@@ -3387,12 +3390,24 @@ void set_dots_colour(int imol, float r, float g, float b) {
 
 void clear_dots(int imol, int dots_handle) {
 
-   if ((imol >= 0) && (imol < graphics_info_t::n_molecules())) { 
+   if (is_valid_model_molecule(imol)) {
       bool cleared_p = graphics_info_t::molecules[imol].clear_dots(dots_handle);
       if (cleared_p)
 	 graphics_draw();
    }
 }
+
+/*! \brief clear the first dots object for imol with given name */
+void clear_dots_by_name(int imol, const char *dots_object_name) {
+
+   if (is_valid_model_molecule(imol)) {
+      bool cleared = graphics_info_t::molecules[imol].clear_dots(dots_object_name);
+      if (cleared)
+	 graphics_draw();
+
+   } 
+} 
+
 
 /* return the number of dots sets for molecule number imol */
 int n_dots_sets(int imol) {
