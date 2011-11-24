@@ -233,10 +233,13 @@
 		  (format #t " - no new map and molecule available~%"))
 
 		;; OK, we found the executable, this should be OK then...
-		(let ((status (goosh-command refmac-exe 
-					     command-line-args 
-					     data-lines 
-					     refmac-log-file-name #t))) ; to screen too
+		(let* ((to-screen-flag (if (= make-molecules-flag 0)
+					   #f   ;; In a sub-thread, do it noiselessly.
+					   #t)) ;; As normal.
+		       (status (goosh-command refmac-exe 
+					      command-line-args 
+					      data-lines 
+					      refmac-log-file-name to-screen-flag))) ; to screen too
 
 		  (if (and (number? status) (= status 0)) ; refmac ran OK
 
