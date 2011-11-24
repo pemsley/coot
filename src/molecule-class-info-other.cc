@@ -141,8 +141,35 @@ coot::dots_representation_info_t::get_radius(const std::string &ele) const {
    if (ele == "S")
       radius = 1.8;
    return radius;
+}
+
+coot::colour_t
+coot::dots_representation_info_t::get_colour(const std::string &ele) const {
+
+   coot::colour_t col(0.4, 0.4, 0.4);
+   if (ele == " C")
+      col = coot::colour_t(0.33, 0.4, 0.2);
+   if (ele == " N")
+      col = coot::colour_t(0.2, 0.2, 0.6);
+   if (ele == " O")
+      col = coot::colour_t(0.6, 0.2, 0.2);
+   if (ele == " S")
+      col = coot::colour_t(0.5, 0.5, 0.2);
+   // PDB 3
+   if (ele == "C")
+      col = coot::colour_t(0.33, 0.4, 0.3);
+   if (ele == "N")
+      col = coot::colour_t(0.2, 0.2, 0.6);
+   if (ele == "O")
+      col = coot::colour_t(0.6, 0.2, 0.2);
+   if (ele == "S")
+      col = coot::colour_t(0.5, 0.5, 0.2);
+
+   return col;
 } 
 
+// 20111123 modern usage
+//
 void
 coot::dots_representation_info_t::add_dots(int SelHnd, CMMDBManager *mol,
 					   CMMDBManager *mol_exclude,
@@ -160,9 +187,11 @@ coot::dots_representation_info_t::add_dots(int SelHnd, CMMDBManager *mol,
    mol->GetSelIndex(SelHnd, atoms, n_atoms);
    std::vector<double> radius(n_atoms);
    std::vector<double> radius_exclude;
+   std::vector<coot::colour_t> colour(n_atoms);
    for (unsigned int iat=0; iat<n_atoms; iat++) {
       std::string ele(atoms[iat]->element);
       radius[iat] = get_radius(ele);
+      colour[iat] = get_colour(ele);
    }
 
 
@@ -181,6 +210,8 @@ coot::dots_representation_info_t::add_dots(int SelHnd, CMMDBManager *mol,
    }
    
    for (int iatom=0; iatom<n_atoms; iatom++) {
+      std::vector<clipper::Coord_orth> local_points;
+      coot::colour_t col = colour[iatom];
       if (! atoms[iatom]->isTer()) { 
 	 clipper::Coord_orth centre(atoms[iatom]->x,
 				    atoms[iatom]->y,
@@ -197,7 +228,7 @@ coot::dots_representation_info_t::add_dots(int SelHnd, CMMDBManager *mol,
 
 		  double atom_radius = radius[iatom];
 		  double atom_radius_squard = atom_radius * atom_radius;
-	       
+
 		  clipper::Coord_orth pt(atom_radius*cos(phi)*sin(theta),
 					 atom_radius*sin(phi)*sin(theta),
 					 atom_radius*cos(theta));
@@ -246,13 +277,15 @@ coot::dots_representation_info_t::add_dots(int SelHnd, CMMDBManager *mol,
 		  }
 		  
 		  if (draw_it) {
-		     points.push_back(pt);
+		     local_points.push_back(pt);
 		  }
 	       }
 	       even = 1 - even;
 	    }
 	 }
       }
+      std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > p(col, local_points);
+      points.push_back(p);
    }
    if (mol_exclude) {
       mol_exclude->DeleteSelection(SelHnd_exclude);
@@ -473,6 +506,8 @@ coot::dots_representation_info_t::pure_points(CMMDBManager *mol) {
 
    is_closed = 0;
    int imod = 1;
+   std::vector<clipper::Coord_orth> local_points;
+   
    CModel *model_p = mol->GetModel(imod);
    CChain *chain_p;
    // run over chains of the existing mol
@@ -488,10 +523,13 @@ coot::dots_representation_info_t::pure_points(CMMDBManager *mol) {
 	 
 	 for (int iat=0; iat<n_atoms; iat++) {
 	    at = residue_p->GetAtom(iat);
-	    points.push_back(clipper::Coord_orth(at->x, at->y, at->z));
+	    local_points.push_back(clipper::Coord_orth(at->x, at->y, at->z));
 	 }
       }
    }
+   coot::colour_t col(0.3, 0.4, 0.5);
+   std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > p(col, local_points);
+   points.push_back(p);
 }
 
 // ---------------------------------------------------------------------------------------
@@ -4994,9 +5032,6 @@ int
 molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
 					      int start_resno, int last_resno, int offset) {
 
-   std::cout << "debug:: renumber_residue_range() with " << chain_id << " " << start_resno
-	     << " " << last_resno << " offset: " << offset << std::endl;
-
    int status = 0;
 
    // PDBCleanup(PDBCLEAN_SERIAL) doesn't move the residue to
@@ -7534,15 +7569,19 @@ molecule_class_info_t::draw_dots() {
       for (int iset=0; iset<dots.size(); iset++) {
 	 if (dots[iset].is_open_p() == 1) {
 	    glPointSize(2);
-	    glColor3f(dots_colour[0], dots_colour[1], dots_colour[2]);
-	    glBegin(GL_POINTS);
-	    unsigned int n_points = dots[iset].points.size();
-	    for (unsigned int i=0; i<n_points; i++) {
-	       glVertex3f(dots[iset].points[i].x(),
-			  dots[iset].points[i].y(),
-			  dots[iset].points[i].z());
+	    unsigned int n_atoms = dots[iset].points.size();
+	    for (unsigned int iat=0; iat<n_atoms; iat++) {
+	       glColor3f(dots[iset].points[iat].first.col[0],
+			 dots[iset].points[iat].first.col[1],
+			 dots[iset].points[iat].first.col[2]);
+	       glBegin(GL_POINTS);
+	       for (unsigned int i=0; i<dots[iset].points[iat].second.size(); i++) { 
+		  glVertex3f(dots[iset].points[iat].second[i].x(),
+			     dots[iset].points[iat].second[i].y(),
+			     dots[iset].points[iat].second[i].z());
+	       }
+	       glEnd();
 	    }
-	    glEnd();
 	 }
       }
    }
@@ -7565,93 +7604,45 @@ molecule_class_info_t::clear_dots(int dots_handle) {
    return r;
 }
 
+// close the first open dots object with name dots_object_name.
+bool
+molecule_class_info_t::clear_dots(const std::string &dots_object_name) {
+
+   bool r = 0;
+   for (unsigned int i=0; i<dots.size(); i++) { 
+      if (dots[i].name() == dots_object_name) {
+	 dots[i].close_yourself();
+	 r = 1;
+	 break;
+      } 
+   }
+   return r;
+} 
+
+
 
 int
 molecule_class_info_t::make_dots(const std::string &atom_selection_str,
+				 const std::string &dots_object_name,
 				 float dot_density, float atom_radius_scale) {
 
    int dots_handle = -1;
 
    if (has_model()) {
-      int SelHnd = atom_sel.mol->NewSelection();
+      int SelHnd = atom_sel.mol->NewSelection(); // yes, deleted.
       atom_sel.mol->Select(SelHnd, STYPE_ATOM,
 			   atom_selection_str.c_str(),
 			   SKEY_OR);
       int n_selected_atoms;
       PPCAtom atom_selection = NULL;
       atom_sel.mol->GetSelIndex(SelHnd, atom_selection, n_selected_atoms);
-      float phi_step = 5.0 * (M_PI/180.0);
-      float theta_step = 5.0 * (M_PI/180.0);
-      if (dot_density > 0.0) { 
-	 phi_step   /= dot_density;
-	 theta_step /= dot_density;
-      }
-      float r = 1.0;
       
-      std::vector<clipper::Coord_orth> points;
-      // make the atoms of the selection with user-defined dots UD data.
-      int udd_dots_handle = atom_sel.mol->RegisterUDInteger(UDR_ATOM, "dots selection");
-      int IN_DOTS_SELECTION = 777;
-      for (int iatom=0; iatom<n_selected_atoms; iatom++)
-	 atom_selection[iatom]->PutUDData(udd_dots_handle, IN_DOTS_SELECTION);
-
-      
-      for (int iatom=0; iatom<n_selected_atoms; iatom++) {
-	 
-	 clipper::Coord_orth centre(atom_selection[iatom]->x,
-				    atom_selection[iatom]->y,
-				    atom_selection[iatom]->z);
-
-	 bool even = 1;
-	 for (float theta=0; theta<M_PI; theta+=theta_step) {
-	    float phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
-	    for (float phi=0; phi<2*M_PI; phi+=phi_step_inner) {
-	       if (even) {
-
-		  // Is there another atom in the same residue as this
-		  // atom, that is closer to pt than the centre atom?
-		  // If so, don't draw this point.
-		  
-		  clipper::Coord_orth pt(r*atom_radius_scale*cos(phi)*sin(theta),
-					 r*atom_radius_scale*sin(phi)*sin(theta),
-					 r*atom_radius_scale*cos(theta));
-		  pt += centre;
-		  
-		  PPCAtom residue_atoms = NULL;
-		  int n_residue_atoms;
-
-		  atom_selection[iatom]->residue->GetAtomTable(residue_atoms, n_residue_atoms);
-		  bool draw_it = 1;
-		  for (int i=0; i<n_residue_atoms; i++) {
-		     if (residue_atoms[i] != atom_selection[iatom]) {
-
-			int local_in_selection = -1;
-
-			if (residue_atoms[i]->GetUDData(udd_dots_handle, local_in_selection) == UDDATA_Ok) {
-			   if (local_in_selection == IN_DOTS_SELECTION) { 
-			      clipper::Coord_orth residue_atom_pt(residue_atoms[i]->x,
-								  residue_atoms[i]->y,
-								  residue_atoms[i]->z);
-			      if (clipper::Coord_orth::length(pt, residue_atom_pt) < r*atom_radius_scale) {
-				 draw_it = 0;
-				 break;
-			      }
-			   }
-			} 
-		     }
-		  }
-		  if (draw_it) { 
-		     points.push_back(pt);
-		  }
-	       }
-	       even = 1 - even;
-	    }
-	 }
-      } 
-      
-      coot::dots_representation_info_t dots_info(points);
+      coot::dots_representation_info_t dots_info(dots_object_name);
+      dots_info.add_dots(SelHnd, atom_sel.mol, NULL, dot_density);
       dots.push_back(dots_info);
       dots_handle = dots.size() -1;
+      
+      atom_sel.mol->DeleteSelection(SelHnd);
    }
    return dots_handle;
 } 

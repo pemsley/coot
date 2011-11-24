@@ -2982,9 +2982,6 @@ void
 lbg_info_t::draw_all_flev_residue_attribs() {
 
    if (draw_flev_annotations_flag) {
-
-      std::cout << "debug:: in draw_all_flev_residue_attribs() drawing "
-		<< residue_circles.size() << " residue circles " << std::endl;
       draw_residue_circles(residue_circles, additional_representation_handles);
       draw_bonds_to_ligand();
       draw_stacking_interactions(residue_circles);
@@ -4038,8 +4035,9 @@ lbg_info_t::ligand_grid::ligand_grid(const lig_build::pos_t &low_x_and_y,
    scale_fac = 5; // seems good
    double delta_x = bottom_right.x - top_left.x;
    double delta_y = bottom_right.y - top_left.y;
-   std::cout << " in making grid, got delta_x and delta_y "
-	     << delta_x << " " << delta_y << std::endl;
+   if (0)
+      std::cout << " in making grid, got delta_x and delta_y "
+		<< delta_x << " " << delta_y << std::endl;
    x_size_ = int(delta_x/scale_fac+1);
    y_size_ = int(delta_y/scale_fac+1);
 

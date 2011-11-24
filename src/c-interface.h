@@ -4598,8 +4598,10 @@ void toggle_idle_ligand_interactions();
 
 return a generic objects handle (which can be used to remove later) */
 int dots(int imol,
-	  const char *atom_selection_str,
-	  float dot_density, float sphere_size_scale);
+	 const char *atom_selection_str,
+	 const char *dots_object_name,
+	 float dot_density, float sphere_size_scale);
+
 
 /*! \brief set the colour of the surface of the imol-th molecule
 
@@ -4608,6 +4610,9 @@ void set_dots_colour(int imol, float r, float g, float b);
 
 /*! \brief clear dots in imol with dots_handle */
 void clear_dots(int imol, int dots_handle);
+
+/*! \brief clear the first dots object for imol with given name */
+void clear_dots_by_name(int imol, const char *dots_object_name);
 
 /*! \brief return the number of dots sets for molecule number imol */
 int n_dots_sets(int imol); 

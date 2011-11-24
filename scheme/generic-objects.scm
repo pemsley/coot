@@ -115,7 +115,7 @@
 (define (reduce-on-pdb-file imol pdb-in pdb-out)
 
   (format #t "running reduce on ~s~%" pdb-in)
-  (if (not (command-in-path? *reduce-command*))
+  (if (not (command-in-path-or-absolute? *reduce-command*))
       (format #t "command for reduce (~s) is not in path~%" *reduce-command*)
       (begin
 	(let ((reduce-het-dict-file-name "coot-molprobity/reduce-het-dict.txt"))
@@ -153,9 +153,9 @@
   (lambda (imol)
 
     (if (valid-model-molecule? imol)
-	(if (not (command-in-path? *probe-command*))
+	(if (not (command-in-path-or-absolute? *probe-command*))
 	    (format #t "command for probe (~s) is not in path~%" *probe-command*)
-	    (if (not (command-in-path? *reduce-command*))
+	    (if (not (command-in-path-or-absolute? *reduce-command*))
 		(format #t "command for reduce (~s) is not in path~%" *reduce-command*)
 		(begin
 		  (make-directory-maybe "coot-molprobity")

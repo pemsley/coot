@@ -316,14 +316,20 @@ namespace coot {
 
    class dots_representation_info_t {
       bool is_closed;
-      double get_radius(const std::string &ele) const; 
+      double get_radius(const std::string &ele) const;
+      coot::colour_t get_colour(const std::string &ele) const;      
+      std::string name_;
    public:
       dots_representation_info_t() {
 	 is_closed = 0;
       }
-      std::vector<clipper::Coord_orth> points;
+      std::vector<std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > > points;
+      // 20111123 modern usage
+      dots_representation_info_t(const std::string &name_in) {
+	 name_ = name_in;
+      }
       dots_representation_info_t(const std::vector<clipper::Coord_orth> &points_in) {
-	 points = points_in;
+	 points.push_back(std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > (coot::colour_t(0.3, 0.4, 0.5), points_in));
 	 is_closed = 0;
       }
       dots_representation_info_t(CMMDBManager *mol);
@@ -343,6 +349,8 @@ namespace coot {
 	 int r = 1 - is_closed;
 	 return r;
       }
+      void set_name(const std::string &name_in) { name_ = name_in; }
+      std::string name() const { return name_;}
 
       // This is added later (20100413)
       // 
@@ -1421,7 +1429,11 @@ public:        //                      public
    void draw_dots();
    // return the status of whether or not the dots were cleared.
    bool clear_dots(int dots_handle);
+   // clear the first open dots object with the given name.
+   // return the status of whether or not the dots were cleared.
+   bool clear_dots(const std::string &dots_object_name);
    int  make_dots(const std::string &atom_selection_str,
+		  const std::string &dots_name,
 		  float dot_density, float atom_radius_scale);
    int n_dots_sets() const {  // return the number of sets of dots.
       return dots.size();

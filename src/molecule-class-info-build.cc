@@ -141,7 +141,7 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
 	 for (int i_new_at=0; i_new_at<n_new_atoms; i_new_at++) {
 	    new_at = new_residue_p->GetAtom(i_new_at);
 	    std::string ele = new_at->element;
-	    if (ele == " H") {
+	    if (ele == " H" || ele == "H") { // PDB v2 and v3.
 
 	       const char *chain_id  = new_at->GetChainID();
 	       const char *atom_name = new_at->GetAtomName();
@@ -165,7 +165,10 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
 	       atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 	       
 	       if (nSelResidues != 1) {
-		  std::cout << "Ooops in add_hydrogens_from_file() " << std::endl;
+		  std::cout << "Ooops in add_hydrogens_from_file() - expected 1 residue but found "
+			    << nSelResidues << " residues with attributes \"" << chain_id << "\" "
+			    << resno << " \"" << ins_code << "\""
+			    << std::endl;
 	       } else {
 
 		  // normal case
@@ -179,7 +182,8 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
 	 }
       }
    }
-   if (added) { 
+   have_unsaved_changes_flag = 1; // because we do a backup whatever...
+   if (added) {
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions();
    }
