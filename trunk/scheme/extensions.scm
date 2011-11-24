@@ -637,6 +637,13 @@
 	 (lambda ()
 	    (superpose-ligand-gui)))
 
+	;; ---- U ---------
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Use \"Backrub\" Rotamers"
+	 (lambda ()
+	   (set-rotamer-search-mode (ROTAMERSEARCHLOWRES))))
+
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Use SEGIDs..."
 	 (lambda () 
@@ -644,6 +651,23 @@
 	    "Exchange the Chain IDs, replace with SEG IDs"
 	    (lambda (imol)
 	      (exchange-chain-ids-for-seg-ids imol)))))
+
+	;; ---- W ---------
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "What's this?"
+	 (lambda ()
+	   (using-active-atom
+	    (let* ((central-residue (active-residue))
+		   (res-name (apply residue-name (list-head central-residue 4)))
+		   (mol-no (car central-residue))
+		   (n (comp-id->name res-name))
+		   (s (string-append "(mol. no: " (number->string mol-no) ")  "
+				     res-name ":  "
+				     (if (string? n) n " <no-name-found>"))))
+	      (add-status-bar-text s)))))
+	    
+
 
 	;; ---------------------------------------------------------------------
 	;;     NCS functions
@@ -975,14 +999,6 @@
 	       (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)
 	       (make-and-draw-map mtz-file-name "DELFWT" "PHDELWT" "" 0 1)))))
 
-	;; ---------------------------------------------------------------------
-	;; u
-	;; ---------------------------------------------------------------------
-	;;
-	(add-simple-coot-menu-menuitem
-	 submenu-models "Use \"Backrub\" Rotamers"
-	 (lambda ()
-	   (set-rotamer-search-mode (ROTAMERSEARCHLOWRES))))
 
 	;; ---------------------------------------------------------------------
 	;;     Views/Representations
