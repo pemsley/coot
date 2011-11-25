@@ -607,7 +607,7 @@
 		  (begin 
 		    (let* ((status-info (waitpid pid))
 			   (status (status:exit-val (cdr status-info))))
-		      (format #t "exit status: ~s~%" status)
+		      ;; (format #t "exit status: ~s~%" status) silence
 		      status)) ; return status 
 		  
 		  (begin
