@@ -13,16 +13,10 @@
 
 * Seems OK.
 
-  o Fix lighting for solid env distances ::: 1
-
-  o Fix lighting for solid generic objects ::: 1
-
   o Downloading pdbe data needs to be silent (in scheme) in case the
     user has the coot scheme scripting window open (threading issues).  ::: 2
 
   o download 3s9q from pdbe - crashes (not crash when files cached)  :: 2
-
-  o check that probe works ::: 1
 
   o Fix crash, Jim Branigan message ::: 4
 
@@ -200,3 +194,14 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
     Atoms molecule?) ::: 0.5
 
 * It's fine.
+
+  o Fix lighting for solid env distances ::: 0.5
+  o Fix lighting for solid generic objects ::: 0.5
+
+* Simple enable GL_COLOR_MATERIAL.
+
+  o check that probe works ::: 0.5
+
+* It does if you use 2.12.*
+
+
