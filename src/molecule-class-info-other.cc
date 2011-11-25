@@ -5914,7 +5914,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 }
 
 
-// return the display list tag
+// return the display list info
 coot::display_list_object_info
 molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str,
 					   float bond_thickness, float sphere_size,
@@ -5958,6 +5958,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       
 
       GLfloat bgcolor[4]={0.8, 0.8, 0.8, 0.8};
+      
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
       // glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, bgcolor);
       glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
@@ -5976,6 +5977,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       // glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
 
+      // Do these things do anything??
       glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
       glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
       glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
