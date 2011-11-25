@@ -1691,6 +1691,8 @@ graphics_info_t::environment_graphics_object_internal_tubes(const graphical_bond
 	 if (! background_is_black_p())
 	    dark_bg_cor = 0.29;
 	 
+	 glEnable(GL_COLOR_MATERIAL);
+
 	 for (int i=0; i< env_bonds_box.num_colours; i++) {
 
 	    bool display_these_distances_flag = 1;
@@ -3887,11 +3889,11 @@ graphics_info_t::draw_generic_objects_simple() {
    // std::cout << "debug:: drawing " << generic_objects_p->size() << " generic objects" << std::endl;
    for (unsigned int i=0; i<generic_objects_p->size(); i++) {
 
-      //       std::cout << "debug:: drawing generic object - outer " << i << std::endl;
+//       std::cout << "debug:: drawing generic object - outer " << i << std::endl;
       if ((*generic_objects_p)[i].is_displayed_flag) {
 
-	 // std::cout << "debug:: drawing generic  " << (*generic_objects_p)[i].lines_set.size()
-	 // << " lines " << std::endl;
+// 	 std::cout << "debug:: drawing generic  " << (*generic_objects_p)[i].lines_set.size()
+// 		   << " lines " << std::endl;
 
 	 // Lines
 	 for (unsigned int ils=0; ils< (*generic_objects_p)[i].lines_set.size(); ils++) {
@@ -3946,6 +3948,8 @@ graphics_info_t::draw_generic_objects_solid() {
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT1);
    glEnable(GL_LIGHT0);
+   glEnable(GL_COLOR_MATERIAL);
+
    for (unsigned int i=0; i<generic_objects_p->size(); i++) {
 
       if ((*generic_objects_p)[i].is_displayed_flag) {
