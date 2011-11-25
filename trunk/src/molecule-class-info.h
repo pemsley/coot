@@ -1588,12 +1588,12 @@ public:        //                      public
    void draw_dipoles() const;
    bool has_display_list_objects();
    int draw_display_list_objects(int GL_context); // return number of display list objects drawn
-   // return the display list tag
+   // return the display list object index
    int make_ball_and_stick(const std::string &atom_selection_str,
  			   float bond_thickness, float sphere_size,
  			   bool do_spheres_flag, gl_context_info_t gl_info,
 			   const coot::protein_geometry *geom);
-   // return the display list tag
+   // return the display list object info
    coot::display_list_object_info
    make_ball_and_stick(const std::string &atom_selection_str,
 		       float bond_thickness, float sphere_size,

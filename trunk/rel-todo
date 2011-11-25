@@ -18,10 +18,14 @@
 
   o download 3s9q from pdbe - crashes (not crash when files cached)  :: 2
 
+* Yep - not checked with local updates though...
+
   o Fix crash, Jim Branigan message ::: 4
 
   o Related to above: Fix crash-catcher script to work with pythonized
     coot ::: 2
+
+  o Fix distorted axis with wide screen. ::: 1
 
 ------
 

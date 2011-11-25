@@ -1617,7 +1617,7 @@ graphics_info_t::environment_graphics_object_internal_lines(const graphical_bond
    if (environment_show_distances == 1) {
 
       if (env_bonds_box.num_colours > 0) {
-	 
+
 	 Lines_list ll;
 	 coot::Cartesian text_pos;
 	 float dist;

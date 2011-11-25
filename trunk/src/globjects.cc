@@ -2044,8 +2044,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 if (graphics_info_t::molecules[ii].has_display_list_objects()) {
 	    glEnable(GL_LIGHTING);
 	    glEnable(GL_LIGHT0);
-	    n_display_list_objects +=
-	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
+ 	    n_display_list_objects +=
+ 	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
 
 	    glDisable(GL_LIGHT0);
 	    glDisable(GL_LIGHTING);
