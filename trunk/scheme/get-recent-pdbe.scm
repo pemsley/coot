@@ -469,7 +469,7 @@
 						 sfs-mtz-file-name
 						 refmac-out-mtz-file-name)))
 
-		  (format #t "      refmac-result: ~s\n" refmac-result)
+		  ;; (format #t "      refmac-result: ~s\n" refmac-result) silence!
 
 ;		  ;; if refmac-result is good?
 		  (if (not (list? refmac-result))

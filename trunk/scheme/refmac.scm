@@ -81,7 +81,12 @@
 ;; 
 (define (run-refmac-by-filename pdb-in-filename pdb-out-filename mtz-in-filename mtz-out-filename extra-cif-lib-filename imol-refmac-count swap-map-colours-post-refmac? imol-mtz-molecule show-diff-map-flag phase-combine-flag phib-fom-pair force-n-cycles make-molecules-flag ccp4i-project-dir f-col sig-f-col . r-free-col) 
 
-    (format #t "got args: pdb-in-filename: ~s, pdb-out-filename: ~s, mtz-in-filename: ~s, mtz-out-filename: ~s, imol-refmac-count: ~s, show-diff-map-flag: ~s, phase-combine-flag: ~s, phib-fom-pair: ~s, force-n-cycles: ~s, f-col: ~s, sig-f-col: ~s, r-free-col: ~s~%"
+  (define local-format 
+    (lambda args
+      (if (not (= make-molecules-flag 0))
+	  (apply format args))))
+
+    (local-format #t "got args: pdb-in-filename: ~s, pdb-out-filename: ~s, mtz-in-filename: ~s, mtz-out-filename: ~s, imol-refmac-count: ~s, show-diff-map-flag: ~s, phase-combine-flag: ~s, phib-fom-pair: ~s, force-n-cycles: ~s, f-col: ~s, sig-f-col: ~s, r-free-col: ~s~%"
 	    pdb-in-filename pdb-out-filename
 	    mtz-in-filename mtz-out-filename
 	    imol-refmac-count show-diff-map-flag
@@ -130,10 +135,10 @@
 	     "HKLOUT" mtz-out-filename)
 	    (if (string=? extra-cif-lib-filename "")
 		(begin
-		  (format #t "Not Passing LIBIN to refmac LIBIN~%")
+		  (local-format #t "Not Passing LIBIN to refmac LIBIN~%")
 		  (list)) ; nothing
 		(begin
-		  (format #t "Passing to refmac LIBIN ~s~%" extra-cif-lib-filename)
+		  (local-format #t "Passing to refmac LIBIN ~s~%" extra-cif-lib-filename)
 		  (list "LIBIN" extra-cif-lib-filename)))))
       
 	  (data-lines (let* ((std-lines
@@ -193,7 +198,7 @@
 				    extra-sad-params
 				    (list labin-string)))))
 
-	  (nov (format #t "DEBUG:: refmac-extra-params returns ~s~%"
+	  (nov (local-format #t "DEBUG:: refmac-extra-params returns ~s~%"
 		       (get-refmac-extra-params)))
 	  ;; this should be a database filename:
 	  ;; 
@@ -205,23 +210,23 @@
 				 (number->string refmac-count) ".log")))
 
       (set! refmac-count (+ imol-refmac-count 1))
-      (format #t "INFO:: Running refmac with these command line args: ~s~%"
+      (local-format #t "INFO:: Running refmac with these command line args: ~s~%"
 	      command-line-args)
-      (format #t "INFO:: Running refmac with these data lines: ~s~%"
+      (local-format #t "INFO:: Running refmac with these data lines: ~s~%"
 	      data-lines)
-      (format #t "environment variable:  SYMOP: ~s~%" (getenv "SYMOP"))
-      (format #t "environment variable: ATOMSF: ~s~%" (getenv "ATOMSF"))
-      (format #t "environment variable:  CLIBD: ~s~%" (getenv "CLIBD"))
-      (format #t "environment variable:   CLIB: ~s~%" (getenv "CLIB"))
+      (local-format #t "environment variable:  SYMOP: ~s~%" (getenv "SYMOP"))
+      (local-format #t "environment variable: ATOMSF: ~s~%" (getenv "ATOMSF"))
+      (local-format #t "environment variable:  CLIBD: ~s~%" (getenv "CLIBD"))
+      (local-format #t "environment variable:   CLIB: ~s~%" (getenv "CLIB"))
 
       ;; first check if refmac exists?
-      (format #t "INFO:: now checking for refmac exe - [it should give status 1...]~%" )
+      (local-format #t "INFO:: now checking for refmac exe - [it should give status 1...]~%" )
       (let ((test-refmac-status  (goosh-command refmac-exe '() (list "END")
 					   refmac-log-file-name #f)))
 
 	;; potentially a no-clobber problem here, I think.
 
-	(format #t "INFO:: test-refmac-status: ~s~%" test-refmac-status)
+	(local-format #t "INFO:: test-refmac-status: ~s~%" test-refmac-status)
 
 	(if (not (number? test-refmac-status))
 	    -3
@@ -229,8 +234,8 @@
 		
 		;; problem finding refmac executable
 		(begin 
-		  (format #t "refmac failed (no executable)")
-		  (format #t " - no new map and molecule available~%"))
+		  (local-format #t "refmac failed (no executable)")
+		  (local-format #t " - no new map and molecule available~%"))
 
 		;; OK, we found the executable, this should be OK then...
 		(let* ((to-screen-flag (if (= make-molecules-flag 0)
@@ -250,7 +255,6 @@
 
 			  (begin ;; normal/main thread
 			    
-
 			    ;; now let's read in those newly-created
 			    ;; coordinates and phases for a map:
 			    
@@ -276,7 +280,7 @@
 				     r-free-bit))
 				   (recentre-status (recentre-on-read-pdb))
 				   (novalue (set-recentre-on-read-pdb 0))
-				   (novalue2 (format #t "DEBUG:: recentre status: ~s~%" recentre-status))
+				   (novalue2 (local-format #t "DEBUG:: recentre status: ~s~%" recentre-status))
 				   (imol
 				    (handle-read-draw-molecule pdb-out-filename))) ;; normal/old-style case
 			      
