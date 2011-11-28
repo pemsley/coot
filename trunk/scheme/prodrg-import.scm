@@ -90,7 +90,7 @@
       imol))
 
 
-  ;; main line
+  ;; main line of import-from-prodrg
   ;; 
   (let ((prodrg-dir "coot-ccp4")
 	(res-name "DRG"))
