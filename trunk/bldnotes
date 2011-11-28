@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 3746 (prodrg stuff needs testing) generic objects
+scripts      rev 3783 (prodrg stuff needs testing) generic objects
 			missing get-recent-pdb
 tests        rev 3688 update
 build-it-win rev 2122

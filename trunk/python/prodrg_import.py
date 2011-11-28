@@ -130,6 +130,8 @@ def import_from_prodrg(minimize_mode):
     prodrg_cif    = os.path.join(prodrg_dir, "prodrg-out.cif")
     prodrg_log    = os.path.join(prodrg_dir, "prodrg.log")
 
+    # FIXME? maybe, we could use 'enum' for mini-no rather than string?!
+    # see news_status stuff
     # requires python >= 2.5 (shall we test?)
     mini_mode = "NO" if (minimize_mode == 'mini-no') else "PREP"
     # see if we have cprodrg
@@ -237,23 +239,25 @@ if (have_coot_python):
         if (use_gui_qm != 2):
 
             menu = coot_menubar_menu("_Lidia")
-            add_simple_coot_menu_menuitem(
-                menu,
-                "Import (using MINI PREP)",
-                lambda func:
-                # run prodrg, read its output files, and run regularisation
-                # on the imported PDB file
-                import_from_prodrg('mini-prep')
-                )
+            # Not for public use (why?)
+            #add_simple_coot_menu_menuitem(
+            #    menu,
+            #    "Import (using MINI PREP)",
+            #    lambda func:
+            #    # run prodrg, read its output files, and run regularisation
+            #    # on the imported PDB file
+            #    import_from_prodrg('mini-prep')
+            #    )
 
-            add_simple_coot_menu_menuitem(
-                menu,
-                "Import (no pre-minimisation)",
-                lambda func:
-                # run prodrg, read its output files, (no regularisation
-                # on the imported PDB file)
-                import_from_prodrg('mini-no')
-                )
+            # Not for public use
+            #add_simple_coot_menu_menuitem(
+            #    menu,
+            #    "Import (no pre-minimisation)",
+            #    lambda func:
+            #    # run prodrg, read its output files, (no regularisation
+            #    # on the imported PDB file)
+            #    import_from_prodrg('mini-no')
+            #    )
 
 #        add_simple_coot_menu_menuitem(
 #            menu,
@@ -262,6 +266,14 @@ if (have_coot_python):
 #            using_active_atom(prodrg_flat, "aa_imol", "aa_chain_id", "aa_res_no")
 #            )
 
+            add_simple_coot_menu_menuitem(
+                menu,
+                "Hydrogenate region",
+                lambda func:
+                hydrogenate_region(6)
+                )
+
+            # Does it work?! Maybe not!?
             add_simple_coot_menu_menuitem(
                 menu,
                 "View in LIDIA",
@@ -282,15 +294,24 @@ if (have_coot_python):
                                      get_sbase_monomer(tlc))
                 )
 
-            # should be in rdkit file FIXME!
             add_simple_coot_menu_menuitem(
                 menu,
-                "FLEV this residue [RDKIT]",
+                "Activate prodrg flat mode",
                 lambda func:
-                using_active_atom(fle_view_with_rdkit,
+                using_active_atom(prodrg_flat,
                                   "aa_imol", "aa_chain_id",
-                                  "aa_res_no", "aa_ins_code", 4.2)
+                                  "aa_res_no")
                 )
+            
+            # should be in rdkit file (but where?!)
+            #add_simple_coot_menu_menuitem(
+            #    menu,
+            #    "FLEV this residue [RDKIT]",
+            #    lambda func:
+            #    using_active_atom(fle_view_with_rdkit,
+            #                      "aa_imol", "aa_chain_id",
+            #                      "aa_res_no", "aa_ins_code", 4.2)
+            #    )
             
         
 def get_file_latest_time(file_name):
@@ -368,6 +389,21 @@ def prodrg_flat(imol_in, chain_id_in, res_no_in):
     import operator
     import random
 
+    # return a text string, or at least "" if we can't find the prodrg
+    # error message output line.
+    def get_prodrg_error_message(log_file):
+        if not os.path.isfile(log_file):
+            return ""
+        else:
+            fin = open(log_file, 'r')
+            lines = fin.readlines()
+            fin.close()
+            for line in lines:
+                if (" PRODRG: " in line):
+                    # assuming only one error?!
+                    return line
+            return ""  # no error
+
     selection_string = "//" + chain_id_in + "/" + str(res_no_in)
     imol = new_molecule_by_atom_selection(imol_in, selection_string)
     prodrg_input_file_name = os.path.join("coot-ccp4", "tmp-residue-for-prodrg.pdb")
@@ -396,7 +432,7 @@ def prodrg_flat(imol_in, chain_id_in, res_no_in):
         if not (status == 0):
             # only for python >=2.5
             mess = "Something went wrong running cprodrg\n" + \
-                   ("(quelle surprise)" if random.randint(0,100) <10 else "")
+                   get_prodrg_error_message(prodrg_log)
             info_dialog(mess)
             return False
         else:
@@ -461,23 +497,26 @@ def fle_view(imol, chain_id, res_no, ins_code):
         # copy NUL YourFile.txt
         # for existing:
         # copy /b filename.ext +,,
-        #if (is_windows() and not have_mingw):
-        if (is_windows()):
-            import subprocess
-            lbg_ready = os.path.abspath(os.path.join("coot-ccp4",
-                                                      ".coot-to-lbg-mol-ready"))
-            print "BL DEBUG:: lbg_ready is", lbg_ready
-            if os.path.isfile(lbg_ready):
-                subprocess.call("copy /b /y " + lbg_ready + " +,, " + lbg_ready
-                                , shell=True)
-            else:
-                subprocess.call("copy NUL " + lbg_ready, shell=True)
-        else:
-            popen_command("touch",
-                          [os.path.join("coot-ccp4",
-                                        ".coot-to-lbg-mol-ready")],
-                          [],
-                          "/dev/null", False)
+        #
+        # all not neede any more...
+        # BL says:: just keep in case I need to touch anything again!!!
+        #
+        #if (is_windows()):
+        #    import subprocess
+        #    lbg_ready = os.path.abspath(os.path.join("coot-ccp4",
+        #                                              ".coot-to-lbg-mol-ready"))
+        #    print "BL DEBUG:: lbg_ready is", lbg_ready
+        #    if os.path.isfile(lbg_ready):
+        #        subprocess.call("copy /b /y " + lbg_ready + " +,, " + lbg_ready
+        #                        , shell=True)
+        #    else:
+        #        subprocess.call("copy NUL " + lbg_ready, shell=True)
+        #else:
+        #    popen_command("touch",
+        #                  [os.path.join("coot-ccp4",
+        #                                ".coot-to-lbg-mol-ready")],
+        #                  [],
+        #                  "/dev/null", False)
 
 
                 

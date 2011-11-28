@@ -683,6 +683,45 @@ if (have_coot_python):
        lambda func: molecule_chooser_gui("Exchange the Chain IDs, replace with SEG IDs",
 		lambda imol: exchange_chain_ids_for_seg_ids(imol)))
 
+     # ---- U ---------
+     
+     submenu = gtk.Menu()
+     menuitem2 = gtk.MenuItem("Rotamer Search...")
+     
+     menuitem2.set_submenu(submenu)
+     submenu_models.append(menuitem2)
+     menuitem2.show()
+
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Use \"Backrub\" Rotamers",
+       lambda func: set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
+       )
+     
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "DONT use \"Backrub\" Rotamers",
+       lambda func: set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
+       )
+
+     # ---- W ---------
+
+     def whats_this():
+       central_residue = active_residue()
+       res_name = residue_name(*central_residue[0:4])
+       mol_no = central_residue[0]
+       n = comp_id2name(res_name)
+       s = "(mol. no: " + str(mol_no) + ")  " + \
+           res_name  + ":  " + \
+           n if isinstance(n, str) else " <no-name-found>"
+       add_status_bar_text(s)
+       
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "What's this?",
+       lambda func: whats_this()
+       )
+     
      
      # an python extra, this is
      add_simple_coot_menu_menuitem(
@@ -1013,25 +1052,6 @@ if (have_coot_python):
        lambda func: load_tutorial_data_func()
        )
 
-
-     # ---------------------------------------------------------------------
-     #     u
-     # ---------------------------------------------------------------------
-     #
-
-     # maybe we should have one for 'normal' romtamers too... FIXME
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Use \"Backrub\" Rotamers",
-       lambda func: set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
-       )
-     
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "DONT use \"Backrub\" Rotamers",
-       lambda func: set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
-       )
-     
      
      # ---------------------------------------------------------------------
      #     Views/Representations
