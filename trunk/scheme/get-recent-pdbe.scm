@@ -79,8 +79,9 @@
 				       
 				       ;; note: 24 seems too many, server seems to drops the connection
 				       ;; on some partially transfered images, when we have 24 threads.
+				       ;; Hmm... Perhaps even 20 is too many...
 				       ;; 
-				       (while (and (< n-threads 20)
+				       (while (and (< n-threads 17)
 						   (not (= (q-length q) 0)))
 					      
 					      (begin
@@ -447,6 +448,13 @@
 				      (info-dialog s))
 				    
 				    (make-and-draw-map-local refmac-out-mtz-file-name)))))))))
+
+	    ;; just a small bit of abstraction.
+	    ;; 
+	    (define (make-and-draw-map-local refmac-out-mtz-file-name)
+	      
+	      (make-and-draw-map refmac-out-mtz-file-name "FWT" "PHWT" "" 0 0)
+	      (make-and-draw-map refmac-out-mtz-file-name "DELFWT" "PHDELWT" "" 0 1))
 
 
 
@@ -839,17 +847,6 @@
       (files-exist? (cdr file-list)))))
 
 
-  ;; 
-  ;; 
-  (define (make-and-draw-map-local refmac-out-mtz-file-name)
-
-    (make-and-draw-map refmac-out-mtz-file-name "FWT" "PHWT" "" 0 0)
-    (make-and-draw-map refmac-out-mtz-file-name "DELFWT" "PHDELWT" "" 0 1))
-
-
-	
-
-			 
 
   (define n-atoms-limit-small-ligands 6)
 		
