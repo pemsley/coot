@@ -126,7 +126,12 @@ def run_loggraph(logfile):
 
                     
 # make_molecules_flag is synonymous with continue after refmac run, i.e.
-# read molecules, run loggraph etc., furthermore not threaded
+# read molecules, run loggraph etc., furthermore not threaded, in other words
+#
+# make_molecules_flag is tested for being = 0, if not 0, then this is
+# the main thread and we can do graphics things, like read in a pdb
+# and mtz file to make new molecules.
+#
 def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
                            mtz_in_filename, mtz_out_filename,
                            extra_cif_lib_filename, imol_refmac_count,
@@ -136,6 +141,8 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
                            force_n_cycles, make_molecules_flag,
                            ccp4i_project_dir, f_col, sig_f_col, r_free_col=""):
 
+    # Paul's scheme code is ommitting threaded print. Why? FIXME
+    
     global refmac_count
     import os, stat, operator
 

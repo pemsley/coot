@@ -2315,6 +2315,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 void
 lbg_info_t::setup_lbg_drag_and_drop(GtkWidget *lbg_window) {
 
+  std::cout << "BL DEBUG:: initialise drag n drop" <<std::endl;
    // setup drag and drop
    int n_dnd_targets = 2;
    GtkTargetEntry target_list[] = {
@@ -2325,12 +2326,16 @@ lbg_info_t::setup_lbg_drag_and_drop(GtkWidget *lbg_window) {
                                                          // removes int->GtkDestDefaults
                                                          // conversion problems with |.
    
+
    gtk_drag_dest_set(GTK_WIDGET(lbg_window), /* widget that will accept a drop */
 		     dest_defaults,
 		     target_list,            /* lists of target to support */
 		     n_dnd_targets,          
 		     GDK_ACTION_COPY);       /* what to do with data after dropped */
-   
+#ifdef WINDOWS_MINGW
+// this may be a general thing?
+   gtk_drag_dest_add_uri_targets(GTK_WIDGET(lbg_window));
+#endif   
    // if something was dropped
    g_signal_connect (GTK_WIDGET(lbg_window), "drag-drop",
 		     G_CALLBACK (on_lbg_drag_drop), NULL);
