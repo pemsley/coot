@@ -77,7 +77,10 @@
 				       )
 				     (begin
 				       
-				       (while (and (< n-threads 100) 
+				       ;; note: 24 seems too many, server seems to drops the connection
+				       ;; on some partially transfered images, when we have 24 threads.
+				       ;; 
+				       (while (and (< n-threads 20)
 						   (not (= (q-length q) 0)))
 					      
 					      (begin
@@ -106,7 +109,7 @@
 	    (begin 
 	      ;; (format #t ":::::::: ~s was not in queue already, adding it~%" image-name)
 	      (get-q-lock)
-	      (q-push! q (cons image-name func))
+	      (enq! q (cons image-name func)) ;; add to the rear (pop from the front (elsewhere, of course)).
 	      (release-q-lock)
 	      'dummy)
 	    (begin 
@@ -249,7 +252,7 @@
 		      ;; some other thread got there first.  Let's wait
 		      ;; for that to put the image in place.
 		      (begin
-			(format #t "----------------- another thread already getting ~s~%" image-name)
+			;; (format #t "----------------- another thread already getting ~s~%" image-name)
 			(gtk-timeout-add 600 show-image-when-ready))
 
 		      ;; OK, this thread should get the image.
@@ -378,6 +381,428 @@
 				  ;; (format #t "setting activity mode....~%")
 				  (gtk-progress-set-activity-mode progress-bar f))))))))))))
 
+
+;; Use progress bars
+;; 
+;; include-get-sfs-flag is either 'no-sfs or 'include-sfs
+;; 
+(define (pdbe-get-pdb-and-sfs-cif include-get-sfs-flag entry-id)
+
+  (let ((status (make-directory-maybe "coot-download")))
+    (if (not (= status 0))
+	(info-dialog "Failed to make download directory")
+
+	;; do it!
+	;; 
+	(let ((curl-status 'start))
+
+	  ;; we touch curl-status, that's why this is here.
+	  ;; 
+	  (define (get-sfs-run-refmac sfs-cif-url sfs-cif-file-name sfs-mtz-file-name pdb-file-name refmac-out-mtz-file-name)
+
+	    ;; 
+	    (define (convert-to-mtz-and-refmac sfs-cif-file-name sfs-mtz-file-name pdb-file-name)
+
+	      ;; OK, let's run convert to mtz and run refmac
+	      ;; 
+	      (set! curl-status 'converting-to-mtz)
+	      (let ((convert-status (mmcif-sfs-to-mtz sfs-cif-file-name sfs-mtz-file-name)))
+		(if (not (= convert-status 1))
+		    ;; 
+		    (begin
+		      ;; we can't make a dialog of course
+		      ;; (format #t "WARNING:: Failed to convert ~s to an mtz file~%" sfs-cif-file-name)
+		      (set! curl-status 'fail))
+		    
+		    (begin
+		      (refmac-inner pdb-file-name sfs-mtz-file-name refmac-out-mtz-file-name)))))
+
+	    ;; 
+	    ;; 
+	    (define (refmac-inner pdb-file-name sfs-mtz-file-name refmac-out-mtz-file-name)
+
+	      (set! curl-status 'running-refmac-for-phases)
+	      (let ((refmac-result
+		     (refmac-calc-sfs-make-mtz pdb-file-name 
+					       sfs-mtz-file-name
+					       refmac-out-mtz-file-name)))
+		;; (format #t "      refmac-result: ~s\n" refmac-result) ; silence
+
+
+		(if (not (list? refmac-result))
+
+		    (begin
+		      ;; problem
+		      (set! curl-status 'fail-refmac))
+		    
+		    (begin
+		      ;; OK
+		      (set! curl-status 
+			    (lambda ()
+			      (let ((imol (read-pdb pdb-file-name)))
+				(if (not (valid-model-molecule? imol))
+				    (let ((s  (string-append
+					       "Oops - failed to correctly read "
+					       pdb-file-name)))
+				      (info-dialog s))
+				    
+				    (make-and-draw-map-local refmac-out-mtz-file-name)))))))))
+
+
+
+	    ;; main line of get-sfs-run-refmac
+	    ;; 
+;	      (format #t "in get-sfs-run-refmac ~s ~s ~s ~s~%"
+;		      sfs-cif-file-name
+;		      sfs-mtz-file-name
+;		      pdb-file-name
+;		      refmac-out-mtz-file-name)
+	    
+	    ;; check for cached results: Only run refmac if the
+	    ;; output file does not exist or is empty.
+	    ;; 
+	    (if (not (or (not (file-exists? refmac-out-mtz-file-name))
+			 (= (stat:size (stat refmac-out-mtz-file-name)) 0)))
+		
+		(begin
+		  ;; using cached result
+		  (lambda ()
+		    (let ((imol (read-pdb pdb-file-name)))
+		      (if (not (valid-model-molecule? imol))
+			  (let ((s  (string-append
+				     "Oops - failed to correctly read "
+				     pdb-file-name)))
+			    (info-dialog s)))
+		      (make-and-draw-map refmac-out-mtz-file-name "FWT" "PHWT" "" 0 0)
+		      (make-and-draw-map refmac-out-mtz-file-name "DELFWT" "PHDELWT" "" 0 1))))
+		
+
+		;; the coot refmac interface writes its
+		;; output in coot-refmac directory.  If
+		;; that doesn't exist and we can't make
+		;; it, then give up.
+		;; 
+		(if (not (= (make-directory-maybe "coot-refmac") 0))
+		    (begin 
+		      (info-dialog "Can't make output directory coot-refmac"))
+		    (begin
+		      (if (not (or (not (file-exists? sfs-cif-file-name))
+				   (= (stat:size (stat sfs-cif-file-name)) 0)))
+			  (begin
+			    ;; OK we have sfs-cif-file-name already
+			    (format #t ".... path 3~%")
+			    (convert-to-mtz-and-refmac sfs-cif-file-name sfs-mtz-file-name pdb-file-name))
+
+			  (begin
+			    ;; need to get sfs-mtz-file-name 
+			    ;; 
+			    (set! curl-status 'downloading-sfs)
+			    (let ((status-cif (coot-get-url-and-activate-curl-hook 
+					       sfs-cif-url sfs-cif-file-name 1)))
+
+			      (if (not (= status-cif 0))
+				  (begin
+				    (format #t "failed to download cif ~s~%" sfs-cif-file-name)
+				    (set! curl-status 'fail))
+
+				  (begin
+				    (convert-to-mtz-and-refmac sfs-cif-file-name sfs-mtz-file-name pdb-file-name))))))))))
+
+	  (define (get-widget progress-widgets widget-symbol)
+	    (let ((v (assoc-ref progress-widgets widget-symbol)))
+	      v))
+
+	  ;; return a list of the progress bars and the window 
+	  ;; 
+					; (the pdb-file-name and sfs-cif-file-name are passed so
+					; that the cancel button knows what transfers to cancel (if
+	  ;; needed)).
+	  ;; 
+	  (define (progress-dialog pdb-file-name sfs-cif-file-name)
+	    (let* ((window (gtk-window-new 'toplevel))
+		   (dialog-name (string-append "Download and make SFS for " entry-id))
+		   (main-vbox (gtk-vbox-new #f 6))
+		   (cancel-button (gtk-button-new-with-label "  Cancel  "))
+		   (buttons-hbox (gtk-hbox-new #f 2))
+		   (pdb-hbox (gtk-hbox-new #f 6))
+		   (cif-hbox (gtk-hbox-new #f 6))
+		   (refmac-hbox (gtk-hbox-new #f 6))
+		   (pdb-label (gtk-label-new "Download Coords: "))
+		   (cif-label (gtk-label-new "Download SFs cif:"))
+		   (refmac-label (gtk-label-new "Running Refmac:"))
+		   (refmac-fail-label (gtk-label-new "Running Refmac Failed"))
+		   (fail-label        (gtk-label-new "Something Went Wrong"))
+
+		   (   pdb-progress-bar (gtk-progress-bar-new))
+		   (   cif-progress-bar (gtk-progress-bar-new))
+		   (refmac-progress-bar (gtk-progress-bar-new))
+
+		   (   pdb-execute-icon (gtk-image-new-from-stock "gtk-execute" 1))
+		   (   cif-execute-icon (gtk-image-new-from-stock "gtk-execute" 1))
+		   (refmac-execute-icon (gtk-image-new-from-stock "gtk-execute" 1))
+		   (   pdb-good-icon (gtk-image-new-from-stock "gtk-ok" 1))
+		   (   cif-good-icon (gtk-image-new-from-stock "gtk-ok" 1))
+		   (refmac-good-icon (gtk-image-new-from-stock "gtk-ok" 1))
+		   (   pdb-fail-icon (gtk-image-new-from-stock "gtk-no" 1))
+		   (   cif-fail-icon (gtk-image-new-from-stock "gtk-no" 1))
+		   (refmac-fail-icon (gtk-image-new-from-stock "gtk-no" 1))
+		   (h-sep (gtk-hseparator-new)))
+	      
+	      
+	      (gtk-window-set-title window dialog-name)
+	      (gtk-box-pack-start buttons-hbox cancel-button #t #f 2)
+	      (gtk-box-pack-start pdb-hbox       pdb-label #t #f 2)
+	      (gtk-box-pack-start cif-hbox       cif-label #t #f 2)
+	      (gtk-box-pack-start refmac-hbox refmac-label #t #f 2)
+	      (gtk-box-pack-start pdb-hbox       pdb-progress-bar #t #f 3)
+	      (gtk-box-pack-start cif-hbox       cif-progress-bar #t #f 3)
+	      (gtk-box-pack-start refmac-hbox refmac-progress-bar #t #f 3)
+	      (gtk-box-pack-start pdb-hbox       pdb-execute-icon #f #f 2)
+	      (gtk-box-pack-start cif-hbox       cif-execute-icon #f #f 2)
+	      (gtk-box-pack-start refmac-hbox refmac-execute-icon #f #f 2)
+	      (gtk-box-pack-start pdb-hbox       pdb-good-icon #f #f 2)
+	      (gtk-box-pack-start cif-hbox       cif-good-icon #f #f 2)
+	      (gtk-box-pack-start refmac-hbox refmac-good-icon #f #f 2)
+	      (gtk-box-pack-start pdb-hbox       pdb-fail-icon #f #f 2)
+	      (gtk-box-pack-start cif-hbox       cif-fail-icon #f #f 2)
+	      (gtk-box-pack-start refmac-hbox refmac-fail-icon #f #f 2)
+	      
+	      (gtk-box-pack-start main-vbox pdb-hbox     #t #f 4)
+	      (gtk-box-pack-start main-vbox cif-hbox     #t #f 4)
+	      (gtk-box-pack-start main-vbox refmac-hbox  #t #f 4)
+	      (gtk-box-pack-start main-vbox refmac-fail-label #t #f 2)
+	      (gtk-box-pack-start main-vbox fail-label   #t #f 2)
+	      (gtk-box-pack-start main-vbox h-sep        #t #f 4)
+	      (gtk-box-pack-start main-vbox buttons-hbox #t #f 4)
+	      (gtk-container-border-width main-vbox 6)
+	      
+	      (gtk-container-add window main-vbox)
+	      (gtk-container-border-width window 4)
+	      (gtk-widget-show-all window)
+	      (gtk-widget-hide    pdb-good-icon)
+	      (gtk-widget-hide    cif-good-icon)
+	      (gtk-widget-hide refmac-good-icon)
+	      (gtk-widget-hide    pdb-fail-icon)
+	      (gtk-widget-hide    cif-fail-icon)
+	      (gtk-widget-hide refmac-fail-icon)
+	      (gtk-widget-hide refmac-fail-label)
+	      (gtk-widget-hide fail-label)
+
+	      (gtk-widget-set-sensitive    pdb-execute-icon #f)
+	      (gtk-widget-set-sensitive    cif-execute-icon #f)
+	      (gtk-widget-set-sensitive refmac-execute-icon #f)
+
+	      (gtk-progress-set-show-text    pdb-progress-bar #t)
+	      (gtk-progress-set-show-text    cif-progress-bar #t)
+	      (gtk-progress-set-show-text refmac-progress-bar #t)
+
+
+	      (gtk-signal-connect cancel-button "clicked"
+				  (lambda ()
+				    (stop-curl-download pdb-file-name)
+				    (stop-curl-download sfs-cif-file-name)
+				    (set! curl-status 'fail)
+				    (gtk-widget-destroy window)))
+	      
+	      ;; return these
+	      (list 
+	       (cons 'pdb-progress-bar pdb-progress-bar)
+	       (cons 'cif-progress-bar cif-progress-bar)
+	       (cons 'refmac-progress-bar refmac-progress-bar)
+	       (cons 'window window)
+	       (cons    'refmac-fail-label   refmac-fail-label)
+	       (cons    'fail-label          fail-label)
+	       (cons    'pdb-execute-icon    pdb-execute-icon)
+	       (cons    'cif-execute-icon    cif-execute-icon)
+	       (cons 'refmac-execute-icon refmac-execute-icon)
+	       (cons    'pdb-good-icon    pdb-good-icon)
+	       (cons    'cif-good-icon    cif-good-icon)
+	       (cons 'refmac-good-icon refmac-good-icon)
+	       (cons    'pdb-fail-icon    pdb-fail-icon)
+	       (cons    'cif-fail-icon    cif-fail-icon)
+	       (cons 'refmac-fail-icon refmac-fail-icon))))
+
+	  ;; ----------------------------------------
+	  ;; 
+	  (let* ((coords-type ".pdb") ;; can/will be ".cif"
+		 (pdb-url (string-append 
+			   "http://www.ebi.ac.uk/pdbe-srv/view/files/"
+			   entry-id coords-type))
+		 (sfs-cif-url (string-append
+			       "http://www.ebi.ac.uk/pdbe-srv/view/files/r"
+			       entry-id "sf.ent"))
+		 (pdb-file-name (append-dir-file "coot-download" (string-append entry-id coords-type)))
+		 (sfs-cif-file-name (append-dir-file "coot-download" 
+						     (string-append "r" entry-id "sf.cif")))
+		 (sfs-mtz-file-name (append-dir-file "coot-download" 
+						     (string-append "r" entry-id "sf.mtz")))
+		 (refmac-out-mtz-file-name 
+		  (append-dir-file "coot-download" (string-append "r" entry-id "-refmac.mtz")))
+		 (refmac-log-file-name (string-append "refmac-from-coot-" 
+						      (number->string refmac-count)
+						      ".log")) ;; set in run-refmac-by-filename
+		 (progr-widgets (progress-dialog pdb-file-name sfs-cif-file-name)) 
+		 (window              (get-widget progr-widgets    'window))
+		 (pdb-progress-bar    (get-widget progr-widgets    'pdb-progress-bar))
+		 (cif-progress-bar    (get-widget progr-widgets    'cif-progress-bar))
+		 (refmac-progress-bar (get-widget progr-widgets 'refmac-progress-bar))
+		 (fail-label          (get-widget progr-widgets 'fail-label))
+		 (pdb-execute-icon    (get-widget progr-widgets    'pdb-execute-icon))
+		 (cif-execute-icon    (get-widget progr-widgets    'cif-execute-icon))
+		 (refmac-execute-icon (get-widget progr-widgets 'refmac-execute-icon))
+		 (pdb-good-icon     (get-widget progr-widgets    'pdb-good-icon))
+		 (cif-good-icon     (get-widget progr-widgets    'cif-good-icon))
+		 (refmac-good-icon  (get-widget progr-widgets 'refmac-good-icon))
+		 (pdb-fail-icon     (get-widget progr-widgets    'pdb-fail-icon))
+		 (cif-fail-icon     (get-widget progr-widgets    'cif-fail-icon))
+		 (refmac-fail-icon  (get-widget progr-widgets 'refmac-fail-icon))
+		 (refmac-fail-label (get-widget progr-widgets 'refmac-fail-label)))
+	    
+
+	    (if (file-exists? refmac-log-file-name)
+		(delete-file refmac-log-file-name))
+
+	    (gtk-timeout-add 200 
+			     (lambda ()
+
+			       (define (update-refmac-progress-bar refmac-progress-bar log-file-name)
+				 ;; refmac puts out 100 lines of text before it starts running. 
+				 ;; Let's not count those as progress of the computation (otherwise 
+				 ;; we jump to 22% after a fraction of a second).
+				 ;; 
+				 (let ((max-lines 350) ;; thats 450 - 100
+				       (n-lines (file-n-lines log-file-name)))
+				   (if (number? n-lines)
+				       (let ((n-lines-rest (- n-lines 100)))
+					 (if (> n-lines-rest 0)
+					     (let ((f (/ n-lines-rest max-lines)))
+; 						 (format #t "refmac progress bar update to ~s/~s = ~s~%"
+; 							 n-lines-rest max-lines f)
+					       (if (< f 1)
+						   (gtk-progress-bar-update refmac-progress-bar f))))))))
+			       
+			       
+			       
+			       ;; main line of timeout
+			       ;; 
+			       (let ((pdb-curl-progress-info (curl-progress-info pdb-file-name))
+				     (cif-curl-progress-info (curl-progress-info sfs-cif-file-name)))
+				 
+;				   (format #t "curl-status: ~s~%" curl-status)
+;				   (format #t "pdb info: ~s~%" pdb-curl-progress-info)
+;				   (format #t "sfs info: ~s~%" cif-curl-progress-info)
+
+				 (if (eq? curl-status 'downloading-pdb)
+				     (begin
+				       (gtk-widget-set-sensitive pdb-execute-icon #t)))
+
+				 (if (eq? curl-status 'converting-to-mtz)
+				     (begin
+				       (gtk-progress-bar-update pdb-progress-bar 1)
+				       (gtk-progress-bar-update cif-progress-bar 1)))
+
+				 (if (eq? curl-status 'downloading-sfs)
+				     (begin
+				       (gtk-progress-bar-update pdb-progress-bar 1)
+				       (gtk-widget-hide pdb-execute-icon)
+				       (gtk-widget-show pdb-good-icon)
+				       (gtk-widget-set-sensitive cif-execute-icon #t)))
+
+				 (if (eq? curl-status 'running-refmac-for-phases)
+				     (begin
+				       (gtk-progress-bar-update pdb-progress-bar 1)
+				       (gtk-progress-bar-update cif-progress-bar 1)
+				       (gtk-widget-set-sensitive refmac-execute-icon #t)
+				       (gtk-widget-hide cif-execute-icon)
+				       (gtk-widget-show cif-good-icon)
+				       (update-refmac-progress-bar refmac-progress-bar refmac-log-file-name)))
+				 
+				 (update-download-progress-bar-maybe pdb-curl-progress-info pdb-progress-bar)
+				 (update-download-progress-bar-maybe cif-curl-progress-info cif-progress-bar))
+
+			       (cond 
+
+				((eq? curl-status 'fail-refmac)
+				 (gtk-widget-show refmac-fail-label)
+				 (gtk-widget-hide refmac-execute-icon)
+				 (gtk-widget-show refmac-fail-icon)
+				 #f ;; don't continue
+				 )
+				
+				;; generic fail (don't turn off execute icons because we 
+				;; don't know *what* failed. (Not so useful).
+				;; 
+				((eq? curl-status 'fail)
+				 (gtk-widget-show fail-label)
+				 #f ;; don't continue
+				 )
+				((procedure? curl-status)
+				 (curl-status) 
+				 (gtk-widget-destroy window)
+				 #f ;; we are all done
+				 )
+				(else
+				 #t ;; normal continue, downloading file(s) 
+				 ;; (and computing sfs)
+				 ))))
+
+	    
+	    (coot-thread-dispatcher
+	     pdb-file-name
+	     (lambda ()
+
+	       ;; Get the PDB file if we don't have it already.
+	       ;; 
+	       (if (not (file-exists? pdb-file-name))
+		   (begin
+		     (set! curl-status 'downloading-pdb)
+		     (let ((status (coot-get-url-and-activate-curl-hook pdb-url pdb-file-name 1)))
+		       (if (not (= status 0))
+			   
+			   ;; OK failure, turn off the timeout function
+			   (set! curl-status 'fail)
+
+			   (if (not (eq? include-get-sfs-flag 'include-sfs))
+
+			       ;; an NMR structure
+			       ;; 
+			       (begin
+				 (set! curl-status 
+				       (lambda () (read-pdb pdb-file-name)))))))))
+
+	       
+	       (if (eq? include-get-sfs-flag 'include-sfs)
+
+		   ;; An X-ray structure
+		   ;; 
+		   ;; now read the sfs cif and if that is good then
+		   ;; convert to mtz and run refmac, but for now, let's
+		   ;; just show the PDB file.  But we can't do that in a
+		   ;; subthread.  So we semaphore to the waiting timeout
+		   ;; function that we are ready.  We do that by setting
+		   ;; curl-status to the function that we want to
+		   ;; timeout function to run when it's finishing up (on
+		   ;; successful termination).
+		   ;; 
+		   (if (or (not (file-exists? sfs-cif-file-name))
+			   (not (file-exists? refmac-out-mtz-file-name)))
+		       (get-sfs-run-refmac sfs-cif-url
+					   sfs-cif-file-name 
+					   sfs-mtz-file-name 
+					   pdb-file-name 
+					   refmac-out-mtz-file-name)
+
+		       ;; OK, the files exist already.
+		       ;; 
+		       (begin
+			 (format #t "%%%%%%%%% files exist ~s ~s~%"
+				 pdb-file-name refmac-out-mtz-file-name)
+			 (set! curl-status
+			       (lambda () 
+				 (read-pdb pdb-file-name)
+				 (make-and-draw-map-local refmac-out-mtz-file-name)))))))))))))
+
+
 ;;; 
 (define (recent-structure-browser t)
 
@@ -424,424 +849,6 @@
 
 	
 
-  ;; Activate a progress bar here, I think.
-  ;; 
-  ;; include-get-sfs-flag is either 'no-sfs or 'include-sfs
-  ;; 
-  (define (pdbe-get-pdb-and-sfs-cif include-get-sfs-flag entry-id method-string)
-
-    (let ((status (make-directory-maybe "coot-download")))
-      (if (not (= status 0))
-	  (info-dialog "Failed to make download directory")
-
-	  ;; do it!
-	  ;; 
-	  (let ((curl-status 'start))
-
-	    ;; we touch curl-status, that's why this is here.
-	    ;; 
-	    (define (get-sfs-run-refmac sfs-cif-url sfs-cif-file-name sfs-mtz-file-name pdb-file-name refmac-out-mtz-file-name)
-
-	      ;; 
-	      (define (convert-to-mtz-and-refmac sfs-cif-file-name sfs-mtz-file-name pdb-file-name)
-
-		;; OK, let's run convert to mtz and run refmac
-		;; 
-		(set! curl-status 'converting-to-mtz)
-		(let ((convert-status (mmcif-sfs-to-mtz sfs-cif-file-name sfs-mtz-file-name)))
-		  (if (not (= convert-status 1))
-		      ;; 
-		      (begin
-			;; we can't make a dialog of course
-			(format #t "WARNING:: Failed to convert ~s to an mtz file~%" sfs-cif-file-name)
-			(set! curl-status 'fail))
-		      
-		      (begin
-			(refmac-inner pdb-file-name sfs-mtz-file-name refmac-out-mtz-file-name)))))
-
-	      ;; 
-	      ;; 
-	      (define (refmac-inner pdb-file-name sfs-mtz-file-name refmac-out-mtz-file-name)
-
-		(set! curl-status 'running-refmac-for-phases)
-		(let ((refmac-result
-		       (refmac-calc-sfs-make-mtz pdb-file-name 
-						 sfs-mtz-file-name
-						 refmac-out-mtz-file-name)))
-
-		  ;; (format #t "      refmac-result: ~s\n" refmac-result) silence!
-
-;		  ;; if refmac-result is good?
-		  (if (not (list? refmac-result))
-
-		      (begin
-			(set! curl-status 'fail-refmac))
-		      
-		      (begin
-			(set! curl-status 
-			      (lambda ()
-				(let ((imol (read-pdb pdb-file-name)))
-				  (if (not (valid-model-molecule? imol))
-				      (let ((s  (string-append
-						 "Oops - failed to correctly read "
-						 pdb-file-name)))
-					(info-dialog s))
-				      
-				      (make-and-draw-map-local refmac-out-mtz-file-name)))))))))
-
-
-
-	      ;; main line of get-sfs-run-refmac
-	      ;; 
-;	      (format #t "in get-sfs-run-refmac ~s ~s ~s ~s~%"
-;		      sfs-cif-file-name
-;		      sfs-mtz-file-name
-;		      pdb-file-name
-;		      refmac-out-mtz-file-name)
-	      
-	      ;; check for cached results: Only run refmac if the
-	      ;; output file does not exist or is empty.
-	      ;; 
-	      (if (not (or (not (file-exists? refmac-out-mtz-file-name))
-			   (= (stat:size (stat refmac-out-mtz-file-name)) 0)))
-		  
-		  (begin
-		    ;; using cached result
-		    (lambda ()
-		      (let ((imol (read-pdb pdb-file-name)))
-			(if (not (valid-model-molecule? imol))
-			    (let ((s  (string-append
-				       "Oops - failed to correctly read "
-				       pdb-file-name)))
-			      (info-dialog s)))
-			(make-and-draw-map refmac-out-mtz-file-name "FWT" "PHWT" "" 0 0)
-			(make-and-draw-map refmac-out-mtz-file-name "DELFWT" "PHDELWT" "" 0 1))))
-		      
-
-		  ;; the coot refmac interface writes its
-		  ;; output in coot-refmac directory.  If
-		  ;; that doesn't exist and we can't make
-		  ;; it, then give up.
-		  ;; 
-		  (if (not (= (make-directory-maybe "coot-refmac") 0))
-		      (begin 
-			(info-dialog "Can't make output directory coot-refmac"))
-		      (begin
-			(if (not (or (not (file-exists? sfs-cif-file-name))
-				     (= (stat:size (stat sfs-cif-file-name)) 0)))
-			    (begin
-			      ;; OK we have sfs-cif-file-name already
-			      (format #t ".... path 3~%")
-			      (convert-to-mtz-and-refmac sfs-cif-file-name sfs-mtz-file-name pdb-file-name))
-
-			    (begin
-			      ;; need to get sfs-mtz-file-name 
-			      ;; 
-			      (set! curl-status 'downloading-sfs)
-			      (let ((status-cif (coot-get-url-and-activate-curl-hook 
-						 sfs-cif-url sfs-cif-file-name 1)))
-
-				(if (not (= status-cif 0))
-				    (begin
-				      (format #t "failed to download cif ~s~%" sfs-cif-file-name)
-				      (set! curl-status 'fail))
-
-				    (begin
-				      (convert-to-mtz-and-refmac sfs-cif-file-name sfs-mtz-file-name pdb-file-name))))))))))
-
-	    (define (get-widget progress-widgets widget-symbol)
-	      (let ((v (assoc-ref progress-widgets widget-symbol)))
-		v))
-
-	    ;; return a list of the progress bars and the window 
-	    ;; 
-	    ; (the pdb-file-name and sfs-cif-file-name are passed so
-	    ; that the cancel button knows what transfers to cancel (if
-	    ;; needed)).
-	    ;; 
-	    (define (progress-dialog pdb-file-name sfs-cif-file-name)
-	      (let* ((window (gtk-window-new 'toplevel))
-		     (dialog-name (string-append "Download and make SFS for " entry-id))
-		     (main-vbox (gtk-vbox-new #f 6))
-		     (cancel-button (gtk-button-new-with-label "  Cancel  "))
-		     (buttons-hbox (gtk-hbox-new #f 2))
-		     (pdb-hbox (gtk-hbox-new #f 6))
-		     (cif-hbox (gtk-hbox-new #f 6))
-		     (refmac-hbox (gtk-hbox-new #f 6))
-		     (pdb-label (gtk-label-new "Download Coords: "))
-		     (cif-label (gtk-label-new "Download SFs cif:"))
-		     (refmac-label (gtk-label-new "Running Refmac:"))
-		     (refmac-fail-label (gtk-label-new "Running Refmac Failed"))
-		     (fail-label        (gtk-label-new "Something Went Wrong"))
-
-		     (   pdb-progress-bar (gtk-progress-bar-new))
-		     (   cif-progress-bar (gtk-progress-bar-new))
-		     (refmac-progress-bar (gtk-progress-bar-new))
-
-		     (   pdb-execute-icon (gtk-image-new-from-stock "gtk-execute" 1))
-		     (   cif-execute-icon (gtk-image-new-from-stock "gtk-execute" 1))
-		     (refmac-execute-icon (gtk-image-new-from-stock "gtk-execute" 1))
-		     (   pdb-good-icon (gtk-image-new-from-stock "gtk-ok" 1))
-		     (   cif-good-icon (gtk-image-new-from-stock "gtk-ok" 1))
-		     (refmac-good-icon (gtk-image-new-from-stock "gtk-ok" 1))
-		     (   pdb-fail-icon (gtk-image-new-from-stock "gtk-no" 1))
-		     (   cif-fail-icon (gtk-image-new-from-stock "gtk-no" 1))
-		     (refmac-fail-icon (gtk-image-new-from-stock "gtk-no" 1))
-		     (h-sep (gtk-hseparator-new)))
-		     
-		    
-		(gtk-window-set-title window dialog-name)
-		(gtk-box-pack-start buttons-hbox cancel-button #t #f 2)
-		(gtk-box-pack-start pdb-hbox       pdb-label #t #f 2)
-		(gtk-box-pack-start cif-hbox       cif-label #t #f 2)
-		(gtk-box-pack-start refmac-hbox refmac-label #t #f 2)
-		(gtk-box-pack-start pdb-hbox       pdb-progress-bar #t #f 3)
-		(gtk-box-pack-start cif-hbox       cif-progress-bar #t #f 3)
-		(gtk-box-pack-start refmac-hbox refmac-progress-bar #t #f 3)
-		(gtk-box-pack-start pdb-hbox       pdb-execute-icon #f #f 2)
-		(gtk-box-pack-start cif-hbox       cif-execute-icon #f #f 2)
-		(gtk-box-pack-start refmac-hbox refmac-execute-icon #f #f 2)
-		(gtk-box-pack-start pdb-hbox       pdb-good-icon #f #f 2)
-		(gtk-box-pack-start cif-hbox       cif-good-icon #f #f 2)
-		(gtk-box-pack-start refmac-hbox refmac-good-icon #f #f 2)
-		(gtk-box-pack-start pdb-hbox       pdb-fail-icon #f #f 2)
-		(gtk-box-pack-start cif-hbox       cif-fail-icon #f #f 2)
-		(gtk-box-pack-start refmac-hbox refmac-fail-icon #f #f 2)
-		
-		(gtk-box-pack-start main-vbox pdb-hbox     #t #f 4)
-		(gtk-box-pack-start main-vbox cif-hbox     #t #f 4)
-		(gtk-box-pack-start main-vbox refmac-hbox  #t #f 4)
-		(gtk-box-pack-start main-vbox refmac-fail-label #t #f 2)
-		(gtk-box-pack-start main-vbox fail-label   #t #f 2)
-		(gtk-box-pack-start main-vbox h-sep        #t #f 4)
-		(gtk-box-pack-start main-vbox buttons-hbox #t #f 4)
-		(gtk-container-border-width main-vbox 6)
-		
-		(gtk-container-add window main-vbox)
-		(gtk-container-border-width window 4)
-		(gtk-widget-show-all window)
-		(gtk-widget-hide    pdb-good-icon)
-		(gtk-widget-hide    cif-good-icon)
-		(gtk-widget-hide refmac-good-icon)
-		(gtk-widget-hide    pdb-fail-icon)
-		(gtk-widget-hide    cif-fail-icon)
-		(gtk-widget-hide refmac-fail-icon)
-		(gtk-widget-hide refmac-fail-label)
-		(gtk-widget-hide fail-label)
-
-		(gtk-widget-set-sensitive    pdb-execute-icon #f)
-		(gtk-widget-set-sensitive    cif-execute-icon #f)
-		(gtk-widget-set-sensitive refmac-execute-icon #f)
-
-		(gtk-progress-set-show-text    pdb-progress-bar #t)
-		(gtk-progress-set-show-text    cif-progress-bar #t)
-		(gtk-progress-set-show-text refmac-progress-bar #t)
-
-
-		(gtk-signal-connect cancel-button "clicked"
-				    (lambda ()
-				      (stop-curl-download pdb-file-name)
-				      (stop-curl-download sfs-cif-file-name)
-				      (set! curl-status 'fail)
-				      (gtk-widget-destroy window)))
-		
-		;; return these
-		(list 
-		 (cons 'pdb-progress-bar pdb-progress-bar)
-		 (cons 'cif-progress-bar cif-progress-bar)
-		 (cons 'refmac-progress-bar refmac-progress-bar)
-		 (cons 'window window)
-		 (cons    'refmac-fail-label   refmac-fail-label)
-		 (cons    'fail-label          fail-label)
-		 (cons    'pdb-execute-icon    pdb-execute-icon)
-		 (cons    'cif-execute-icon    cif-execute-icon)
-		 (cons 'refmac-execute-icon refmac-execute-icon)
-		 (cons    'pdb-good-icon    pdb-good-icon)
-		 (cons    'cif-good-icon    cif-good-icon)
-		 (cons 'refmac-good-icon refmac-good-icon)
-		 (cons    'pdb-fail-icon    pdb-fail-icon)
-		 (cons    'cif-fail-icon    cif-fail-icon)
-		 (cons 'refmac-fail-icon refmac-fail-icon))))
-
-	    ;; ----------------------------------------
-	    ;; 
-	    (let* ((coords-type ".pdb") ;; can/will be ".cif"
-		   (pdb-url (string-append 
-			     "http://www.ebi.ac.uk/pdbe-srv/view/files/"
-			     entry-id coords-type))
-		   (sfs-cif-url (string-append
-				 "http://www.ebi.ac.uk/pdbe-srv/view/files/r"
-				 entry-id "sf.ent"))
-		   (pdb-file-name (append-dir-file "coot-download" (string-append entry-id coords-type)))
-		   (sfs-cif-file-name (append-dir-file "coot-download" 
-						       (string-append "r" entry-id "sf.cif")))
-		   (sfs-mtz-file-name (append-dir-file "coot-download" 
-						       (string-append "r" entry-id "sf.mtz")))
-		   (refmac-out-mtz-file-name 
-		    (append-dir-file "coot-download" (string-append "r" entry-id "-refmac.mtz")))
-		   (refmac-log-file-name (string-append "refmac-from-coot-" 
-							(number->string refmac-count)
-							".log")) ;; set in run-refmac-by-filename
-		   (progr-widgets (progress-dialog pdb-file-name sfs-cif-file-name)) 
-		   (window              (get-widget progr-widgets    'window))
-		   (pdb-progress-bar    (get-widget progr-widgets    'pdb-progress-bar))
-		   (cif-progress-bar    (get-widget progr-widgets    'cif-progress-bar))
-		   (refmac-progress-bar (get-widget progr-widgets 'refmac-progress-bar))
-		   (fail-label          (get-widget progr-widgets 'fail-label))
-		   (pdb-execute-icon    (get-widget progr-widgets    'pdb-execute-icon))
-		   (cif-execute-icon    (get-widget progr-widgets    'cif-execute-icon))
-		   (refmac-execute-icon (get-widget progr-widgets 'refmac-execute-icon))
-		   (pdb-good-icon     (get-widget progr-widgets    'pdb-good-icon))
-		   (cif-good-icon     (get-widget progr-widgets    'cif-good-icon))
-		   (refmac-good-icon  (get-widget progr-widgets 'refmac-good-icon))
-		   (pdb-fail-icon     (get-widget progr-widgets    'pdb-fail-icon))
-		   (cif-fail-icon     (get-widget progr-widgets    'cif-fail-icon))
-		   (refmac-fail-icon  (get-widget progr-widgets 'refmac-fail-icon))
-		   (refmac-fail-label (get-widget progr-widgets 'refmac-fail-label)))
-	      
-
-	      (if (file-exists? refmac-log-file-name)
-		  (delete-file refmac-log-file-name))
-
-	      (gtk-timeout-add 200 
-			       (lambda ()
-
-				 (define (update-refmac-progress-bar refmac-progress-bar log-file-name)
-				   ;; refmac puts out 100 lines of text before it starts running. 
-				   ;; Let's not count those as progress of the computation (otherwise 
-				   ;; we jump to 22% after a fraction of a second).
-				   ;; 
-				   (let ((max-lines 350) ;; thats 450 - 100
-					 (n-lines (file-n-lines log-file-name)))
-				     (if (number? n-lines)
-					 (let ((n-lines-rest (- n-lines 100)))
-					   (if (> n-lines-rest 0)
-					       (let ((f (/ n-lines-rest max-lines)))
-; 						 (format #t "refmac progress bar update to ~s/~s = ~s~%"
-; 							 n-lines-rest max-lines f)
-						 (if (< f 1)
-						     (gtk-progress-bar-update refmac-progress-bar f))))))))
-				     
-				 
-				 
-				 ;; main line of timeout
-				 ;; 
-				 (let ((pdb-curl-progress-info (curl-progress-info pdb-file-name))
-				       (cif-curl-progress-info (curl-progress-info sfs-cif-file-name)))
-				   
-;				   (format #t "curl-status: ~s~%" curl-status)
-;				   (format #t "pdb info: ~s~%" pdb-curl-progress-info)
-;				   (format #t "sfs info: ~s~%" cif-curl-progress-info)
-
-				   (if (eq? curl-status 'downloading-pdb)
-				       (begin
-					 (gtk-widget-set-sensitive pdb-execute-icon #t)))
-
-				   (if (eq? curl-status 'converting-to-mtz)
-				       (begin
-					 (gtk-progress-bar-update pdb-progress-bar 1)
-					 (gtk-progress-bar-update cif-progress-bar 1)))
-
-				   (if (eq? curl-status 'downloading-sfs)
-				       (begin
-					 (gtk-progress-bar-update pdb-progress-bar 1)
-					 (gtk-widget-hide pdb-execute-icon)
-					 (gtk-widget-show pdb-good-icon)
-					 (gtk-widget-set-sensitive cif-execute-icon #t)))
-
-				   (if (eq? curl-status 'running-refmac-for-phases)
-				       (begin
-					 (gtk-progress-bar-update pdb-progress-bar 1)
-					 (gtk-progress-bar-update cif-progress-bar 1)
-					 (gtk-widget-set-sensitive refmac-execute-icon #t)
-					 (gtk-widget-hide cif-execute-icon)
-					 (gtk-widget-show cif-good-icon)
-					 (update-refmac-progress-bar refmac-progress-bar refmac-log-file-name)))
-								  
-				   (update-download-progress-bar-maybe pdb-curl-progress-info pdb-progress-bar)
-				   (update-download-progress-bar-maybe cif-curl-progress-info cif-progress-bar))
-
-				 (cond 
-
-				  ((eq? curl-status 'fail-refmac)
-				   (gtk-widget-show refmac-fail-label)
-				   (gtk-widget-hide refmac-execute-icon)
-				   (gtk-widget-show refmac-fail-icon)
-				   #f ;; don't continue
-				   )
-				  
-				  ;; generic fail (don't turn off execute icons because we 
-				  ;; don't know *what* failed. (Not so useful).
-				  ;; 
-				  ((eq? curl-status 'fail)
-				   (gtk-widget-show fail-label)
-				   #f ;; don't continue
-				   )
-				  ((procedure? curl-status)
-				   (curl-status) 
-				   (gtk-widget-destroy window)
-				   #f ;; we are all done
-				   )
-				  (else
-				   #t ;; normal continue, downloading file(s) 
-				      ;; (and computing sfs)
-				   ))))
-
-	      
-	      (coot-thread-dispatcher
-	       pdb-file-name
-	       (lambda ()
-
-		 ;; Get the PDB file if we don't have it already.
-		 ;; 
-		 (if (not (file-exists? pdb-file-name))
-		     (begin
-		       (set! curl-status 'downloading-pdb)
-		       (let ((status (coot-get-url-and-activate-curl-hook pdb-url pdb-file-name 1)))
-			 (if (not (= status 0))
-			     
-			     ;; OK failure, turn off the timeout function
-			     (set! curl-status 'fail)
-
-			     (if (not (eq? include-get-sfs-flag 'include-sfs))
-
-				 ;; an NMR structure
-				 ;; 
-				 (begin
-				   (set! curl-status 
-					 (lambda () (read-pdb pdb-file-name)))))))))
-
-		 
-		 (if (eq? include-get-sfs-flag 'include-sfs)
-
-		     ;; An X-ray structure
-		     ;; 
-		     ;; now read the sfs cif and if that is good then
-		     ;; convert to mtz and run refmac, but for now, let's
-		     ;; just show the PDB file.  But we can't do that in a
-		     ;; subthread.  So we semaphore to the waiting timeout
-		     ;; function that we are ready.  We do that by setting
-		     ;; curl-status to the function that we want to
-		     ;; timeout function to run when it's finishing up (on
-		     ;; successful termination).
-		     ;; 
-		     (if (or (not (file-exists? sfs-cif-file-name))
-			     (not (file-exists? refmac-out-mtz-file-name)))
-			 (get-sfs-run-refmac sfs-cif-url
-					     sfs-cif-file-name 
-					     sfs-mtz-file-name 
-					     pdb-file-name 
-					     refmac-out-mtz-file-name)
-
-			 ;; OK, the files exist already.
-			 ;; 
-			 (begin
-			   (format #t "%%%%%%%%% files exist ~s ~s~%"
-				   pdb-file-name refmac-out-mtz-file-name)
-			   (set! curl-status
-				 (lambda () 
-				   (read-pdb pdb-file-name)
-				   (make-and-draw-map-local refmac-out-mtz-file-name)))))))))))))
 			 
 
   (define n-atoms-limit-small-ligands 6)
@@ -948,10 +955,10 @@
 
 	  (cache-or-net-get-image image-url image-name pack-image-func)))
 	  
-
       ;; main line of make-active-ligand-button-func
       ;; 
       (for-each (lambda (tlc)
+
 		  (let* ((image-size 100)
 			 (image-url (string-append
 				     "http://www.ebi.ac.uk/pdbe-srv/pdbechem/image/showNew?code=" 
@@ -1021,13 +1028,13 @@
 	  (if (string=? method-label "x-ray diffraction")
 	      (list label
 		    (lambda () 
-		      (pdbe-get-pdb-and-sfs-cif 'include-sfs entry-id method-label))
+		      (pdbe-get-pdb-and-sfs-cif 'include-sfs entry-id))
 		    (make-active-ligand-button-func entry-id ligand-tlc-list))
 		    
 	      ;; I am not interested in the ligands in NMR structures.  (Not yet).
 	      (list label
 		    (lambda () 
-		      (pdbe-get-pdb-and-sfs-cif 'no-sfs      entry-id method-label))
+		      (pdbe-get-pdb-and-sfs-cif 'no-sfs      entry-id))
 		    (make-active-ligand-button-func entry-id ligand-tlc-list)))))))
 		    
     
@@ -1041,7 +1048,9 @@
   ;; main line of recent-structure-browser
   (if (not (hash-table? t))
       (begin
-	(format #t "Not hash table\n"))
+	;; (format #t "Not hash table\n"))
+	#f ;; in silence please
+	)
 
       (begin
 	(let ((a (hash-ref t "ResultSet")))
