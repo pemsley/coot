@@ -4953,9 +4953,9 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 			   // User Typed atom:
 
 			   // make up (guess) the residue type and element
-			   std::string at_name = type;
-			   std::string ele = type;
-			   std::string resname = type;
+			   std::string at_name = coot::util::upcase(type);
+			   std::string ele     = coot::util::upcase(type);
+			   std::string resname = coot::util::upcase(type);
 			   if (type.length() > 4)
 			      at_name = at_name.substr(0,4);
 			   if (type.length() > 3)
