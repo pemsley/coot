@@ -13,22 +13,7 @@
 
 * Seems OK.
 
-  o Downloading pdbe data needs to be silent (in scheme) in case the
-    user has the coot scheme scripting window open (threading issues).  
-    ::: 2
-
-* Looks good.
-
-  o download 3s9q from pdbe - crashes (not crash when files cached)  :: 2
-
-* Done.
-
-  o Fix crash, Jim Branigan message ::: 4
-
-  o Related to above: Fix crash-catcher script to work with pythonized
-    coot ::: 2
-
-  o Fix distorted axis with wide screen. ::: 1
+  o Fix crash-catcher script to work with pythonized coot ::: 2
 
   o when using secondary structure representation, (CAs) on accepting
     atoms after refinement update the secondary structure ::: 1
@@ -221,3 +206,18 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 
 
 * Done.
+
+  o Fix distorted axis with wide screen. ::: 1
+
+* Done.
+
+  o Downloading pdbe data needs to be silent (in scheme) in case the
+    user has the coot scheme scripting window open (threading issues).  
+    ::: 2
+
+* Looks good.
+
+  o download 3s9q from pdbe - crashes (not crash when files cached)  :: 2
+
+* Done.
+
