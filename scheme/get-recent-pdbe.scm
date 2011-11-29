@@ -397,6 +397,13 @@
 	;; 
 	(let ((curl-status 'start))
 
+	  ;; just a small bit of abstraction.
+	  ;; 
+	  (define (make-and-draw-map-local refmac-out-mtz-file-name)
+	    
+	    (make-and-draw-map refmac-out-mtz-file-name "FWT" "PHWT" "" 0 0)
+	    (make-and-draw-map refmac-out-mtz-file-name "DELFWT" "PHDELWT" "" 0 1))
+
 	  ;; we touch curl-status, that's why this is here.
 	  ;; 
 	  (define (get-sfs-run-refmac sfs-cif-url sfs-cif-file-name sfs-mtz-file-name pdb-file-name refmac-out-mtz-file-name)
@@ -449,14 +456,6 @@
 				    
 				    (make-and-draw-map-local refmac-out-mtz-file-name)))))))))
 
-	    ;; just a small bit of abstraction.
-	    ;; 
-	    (define (make-and-draw-map-local refmac-out-mtz-file-name)
-	      
-	      (make-and-draw-map refmac-out-mtz-file-name "FWT" "PHWT" "" 0 0)
-	      (make-and-draw-map refmac-out-mtz-file-name "DELFWT" "PHDELWT" "" 0 1))
-
-
 
 	    ;; main line of get-sfs-run-refmac
 	    ;; 
@@ -498,7 +497,7 @@
 				   (= (stat:size (stat sfs-cif-file-name)) 0)))
 			  (begin
 			    ;; OK we have sfs-cif-file-name already
-			    (format #t ".... path 3~%")
+			    ;; (format #t ".... path 3~%")
 			    (convert-to-mtz-and-refmac sfs-cif-file-name sfs-mtz-file-name pdb-file-name))
 
 			  (begin

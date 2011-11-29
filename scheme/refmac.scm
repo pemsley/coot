@@ -84,7 +84,17 @@
   (define local-format 
     (lambda args
       (if (not (= make-molecules-flag 0))
-	  (apply format args))))
+	  (apply format args))
+      
+      ;;  (this is pointless unless the ouptut filename is different
+      ;;  for every time this is called)
+      ;; 
+      ;; (call-with-output-file "refmac-input-debug"
+      ;; (lambda (port)
+      ;; (apply format port (cdr args))))
+
+      ))
+	  
 
     (local-format #t "got args: pdb-in-filename: ~s, pdb-out-filename: ~s, mtz-in-filename: ~s, mtz-out-filename: ~s, imol-refmac-count: ~s, show-diff-map-flag: ~s, phase-combine-flag: ~s, phib-fom-pair: ~s, force-n-cycles: ~s, f-col: ~s, sig-f-col: ~s, r-free-col: ~s~%"
 	    pdb-in-filename pdb-out-filename
