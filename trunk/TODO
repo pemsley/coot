@@ -1079,6 +1079,11 @@ Punted from 0.6:
   - punted. ::: 2
 
 
+  o ligand in 3ti6 (I think) G39, hydrogenate, remove a H from the NH3+
+  and view in LIDIA - ccp4 path - and it puts the H back (now NH3+
+  in LIDIA)
+
+
 ------
 
    Release 0.9, Facelift-release [Dec 2009]

@@ -14,11 +14,14 @@
 * Seems OK.
 
   o Downloading pdbe data needs to be silent (in scheme) in case the
-    user has the coot scheme scripting window open (threading issues).  ::: 2
+    user has the coot scheme scripting window open (threading issues).  
+    ::: 2
+
+* Looks good.
 
   o download 3s9q from pdbe - crashes (not crash when files cached)  :: 2
 
-* Yep - not checked with local updates though...
+* Done.
 
   o Fix crash, Jim Branigan message ::: 4
 
@@ -26,6 +29,10 @@
     coot ::: 2
 
   o Fix distorted axis with wide screen. ::: 1
+
+  o when using secondary structure representation, (CAs) on accepting
+    atoms after refinement update the secondary structure ::: 1
+
 
 ------
 
@@ -200,12 +207,17 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 * It's fine.
 
   o Fix lighting for solid env distances ::: 0.5
-  o Fix lighting for solid generic objects ::: 0.5
 
 * Simple enable GL_COLOR_MATERIAL.
 
   o check that probe works ::: 0.5
 
 * It does if you use 2.12.*
+* not checked with local updates though...
 
 
+  o Fix lighting for solid generic objects - needs translation? (atom
+    pick) problem addressing. ::: 0.5
+
+
+* Done.
