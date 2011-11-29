@@ -3761,15 +3761,31 @@ draw_axes(GL_matrix &m) {
    
    if (g.draw_axes_flag) {
 
+      float f = (float) graphics_info_t::graphics_y_size/(float) graphics_info_t::graphics_x_size;
+      
       glPushMatrix();
       glMultMatrixf(m.transpose().get());
-      glTranslatef(-0.88, +0.85, 0);
+
+      // Guess and fiddle debugging... Now that the scale is before
+      // the load (now multiplication) of mat_p we have to adjust
+      // where the axes are.  At least now the axes along screen x
+      // don't expand as the window is widened.
+      float mf = f * 0.121;
+
+      // top left corner
+      glTranslatef(-0.26/(mf), +0.85/0.4, 0);
+
+      // This orients the axes to match world orientation
+      // 
       glMultMatrixf(m.get());
       if (graphics_info_t::use_axes_orientation_matrix_flag)
 	 glMultMatrixf(graphics_info_t::axes_orientation.get());
 
       glMatrixMode(GL_MODELVIEW);
+
+      // If we don't have this, we can't see the axes
       glGetFloatv(GL_MODELVIEW_MATRIX, mat_p);
+      
       glPushMatrix();
       glLoadIdentity();
 
@@ -3777,13 +3793,17 @@ draw_axes(GL_matrix &m) {
       glPushMatrix();
 
       glLoadIdentity();
+
+      glScalef(0.4*f, 0.4, 0.4);
       
-      glTranslatef(0.1, 0.1, 0.1);
-      
-      glLoadMatrixf(mat_p);
+      // This doesn't do much/anything.
+      // glTranslatef(0.1, 0.1, 0.1);
+
+      // without this, axes are at the centre of the screen and don't rotate
+      // glLoadMatrixf(mat_p);
+      glMultMatrixf(mat_p);
 
 
-      glScalef(0.4, 0.4, 0.4);
       glLineWidth(1.0);
       
 //       std::cout << endl;
