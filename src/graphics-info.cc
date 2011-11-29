@@ -3960,13 +3960,12 @@ graphics_info_t::draw_generic_objects_solid() {
 	    glColor3f((*generic_objects_p)[i].lines_set[ils].colour.red,
 		      (*generic_objects_p)[i].lines_set[ils].colour.green,
 		      (*generic_objects_p)[i].lines_set[ils].colour.blue);
-	    glBegin(GL_LINES);
 	    unsigned int s = (*generic_objects_p)[i].lines_set[ils].lines.size();
 	    for (unsigned int iline=0; iline<s; iline++) {
 
-	       g.graphics_object_internal_single_tube((*generic_objects_p)[i].lines_set[ils].lines[iline].coords.first,
-						      (*generic_objects_p)[i].lines_set[ils].lines[iline].coords.second,
-						      radius, coot::ROUND_ENDS);
+ 	       g.graphics_object_internal_single_tube((*generic_objects_p)[i].lines_set[ils].lines[iline].coords.first,
+ 						      (*generic_objects_p)[i].lines_set[ils].lines[iline].coords.second,
+ 						      radius, coot::ROUND_ENDS);
 	    }
 	 }
 	 
