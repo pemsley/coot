@@ -2214,6 +2214,7 @@ molecules and can be found under @command{Calculate ->
 @menu
 * Dictionary::
 * Sphere Refinement::
+* Refining Specific Residues::
 * Refining Carbohydrates::
 * Planar Peptide Restraints::
 * The UNK residue type::
@@ -2372,6 +2373,19 @@ within 3.5@AA{} of the residue at the centre of the screen:
 @end verbatim
 
 
+@node       Refining Specific Residues
+@subsection Refining Specific Residues
+@cindex refining residues
+
+You can specify the residues that you want to refine without using a
+linear or sphere selection usine @code{refine-residues}.   For example:
+
+@code{(refine-residues 0 '(("L" 501 "") ("L" 503 "")))}
+
+will refine residues A501 and A503 (and residue A502 (if it exists)
+will be an anchoring residue - used in optimizing the link geometry of
+the atoms in A501 and A503).
+
 @node       Refining Carbohydrates
 @subsection Refining Carbohydrates
 @cindex carbohydrates
@@ -2394,8 +2408,15 @@ in the refinement.
 Bonds between protein and carbohydrate and branched carbohydrates can be
 refined using ``Sphere Refinement''.
 
-LINK and LNKR cards are not used to determine the geometry of the
+Instead of using a sphere to make a residue selection, you can specify
+the residues directly using @code{refine-residues}, for example:
+
+@code{(refine-residues 0 '(("L" 501 "") ("L" 503 "")))}
+
+LINK and LINKR cards are not yet used to determine the geometry of the
 restraints.
+
+
 
 @node Planar Peptide Restraints
 @subsection Planar Peptide Restraints
