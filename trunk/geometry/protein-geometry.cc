@@ -239,6 +239,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		  add_synonyms(data);
 	       }
 	    }
+	    
 	    int n_chiral = 0;
 	    std::vector<std::string> comp_ids_for_chirals;
 	    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
@@ -254,19 +255,38 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	       int n_loop_time = 0;
 	       if (mmCIFLoop == NULL) {
 
-
+		  bool handled = false;
 		  if (cat_name == "_chem_comp") {
 		     // read the chemical component library which does
 		     // not have a loop (the refmac files do) for the
 		     // chem_comp info.
+		     handled = 1;
 		     PCMMCIFStruct structure = data->GetStructure(cat_name.c_str());
 		     if (structure) {
 			chem_comp_component(structure);
 		     }
-		  } else {
+		  }
+
+		  if (cat_name == "_chem_comp_chir") {
+		     handled = 1;
+		     PCMMCIFStruct structure = data->GetStructure(cat_name.c_str());
+		     if (structure) {
+			chem_comp_chir_structure(structure);
+		     }
+		  } 
+		     
+		  if (cat_name == "_chem_comp_tor") {
+		     handled = 1;
+		     PCMMCIFStruct structure = data->GetStructure(cat_name.c_str());
+		     if (structure) {
+			chem_comp_tor_structure(structure);
+		     }
+		  }
+		  
+		  if (! handled) 
 		     std::cout << "in init_refmac_mon_lib() null loop for catagory "
 			       << cat_name << std::endl; 
-		  } 
+		  
 	       } else {
                
 		  n_loop_time++;
@@ -382,13 +402,14 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
       }
    }
 
-   std::cout
-      << "comp_id :" << comp_id.first << " :" << comp_id.second << ": "
-      << "three_letter_code :" << three_letter_code.first << " :" << three_letter_code.second << ": "
-      << "name :" << name.first << " :" << name.second << ": "
-      << "type :" << type.first << " :" << type.second << ": "
-      << "description_level :" << description_level.first << " :" << description_level.second << ": "
-      << std::endl;
+   if (0) 
+      std::cout
+	 << "comp_id :" << comp_id.first << " :" << comp_id.second << ": "
+	 << "three_letter_code :" << three_letter_code.first << " :" << three_letter_code.second << ": "
+	 << "name :" << name.first << " :" << name.second << ": "
+	 << "type :" << type.first << " :" << type.second << ": "
+	 << "description_level :" << description_level.first << " :" << description_level.second << ": "
+	 << std::endl;
 
    if (comp_id.first && three_letter_code.first && name.first) {
       mon_lib_add_chem_comp(comp_id.second, three_letter_code.second,
@@ -400,6 +421,146 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
    } 
 
 }
+
+
+// non-looping (single) tor
+void
+coot::protein_geometry::chem_comp_tor_structure(PCMMCIFStruct structure) {
+   
+   int n_tags = structure->GetNofTags();
+   std::string cat_name = structure->GetCategoryName();
+
+   if (0)
+      std::cout << "DEBUG: ================= by chem_comp_tor by structure: in category "
+		<< cat_name << " there are "
+		<< n_tags << " tags" << std::endl;
+
+   std::pair<bool, std::string> comp_id(0, "");
+   std::pair<bool, std::string> torsion_id(0, "");
+   std::pair<bool, std::string> atom_id_1(0, "");
+   std::pair<bool, std::string> atom_id_2(0, "");
+   std::pair<bool, std::string> atom_id_3(0, "");
+   std::pair<bool, std::string> atom_id_4(0, "");
+   std::pair<bool, int> period(0, 0);
+   std::pair<bool, realtype> value_angle(0, 0);
+   std::pair<bool, realtype> value_angle_esd(0, 0);
+   
+   for (int itag=0; itag<n_tags; itag++) {
+      std::string tag = structure->GetTag(itag);
+      std::string field = structure->GetField(itag);
+      // std::cout << " by structure got tag " << itag << " \""
+      // << tag << "\" field: \"" << field << "\"" << std::endl;
+      if (tag == "comp_id")
+	 comp_id = std::pair<bool, std::string> (1,field);
+      if (tag == "torsion_id")
+	 torsion_id = std::pair<bool, std::string> (1,field);
+      if (tag == "atom_id_1")
+	 atom_id_1 = std::pair<bool, std::string> (1,field);
+      if (tag == "atom_id_2")
+	 atom_id_2 = std::pair<bool, std::string> (1,field);
+      if (tag == "atom_id_3")
+	 atom_id_3 = std::pair<bool, std::string> (1,field);
+      if (tag == "atom_id_4")
+	 atom_id_4 = std::pair<bool, std::string> (1,field);
+      if (tag == "period") { 
+	 try { 
+	    period = std::pair<bool, int> (1,coot::util::string_to_int(field));
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << "WARNING:: not an integer: " << field << std::endl;
+	 }
+      }
+      if (tag == "value_angle") { 
+	 try { 
+	    value_angle = std::pair<bool, float> (1,coot::util::string_to_float(field));
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << "WARNING:: value_angle not an number: " << field << std::endl;
+	 }
+      }
+      if (tag == "value_angle_esd") { 
+	 try { 
+	    value_angle_esd = std::pair<bool, float> (1,coot::util::string_to_float(field));
+	 }
+	 catch (std::runtime_error rte) {
+	    std::cout << "WARNING:: value_angle_esd not an number: " << field << std::endl;
+	 }
+      }
+   }
+
+   if (comp_id.first && 
+       atom_id_1.first && atom_id_2.first && atom_id_3.first && atom_id_4.first &&
+       value_angle.first && value_angle_esd.first && 
+       period.first) {
+      mon_lib_add_torsion(comp_id.second,
+			  torsion_id.second,
+			  atom_id_1.second,
+			  atom_id_2.second,
+			  atom_id_3.second,
+			  atom_id_4.second,
+			  value_angle.second, value_angle_esd.second,
+			  period.second);
+   } else {
+      std::cout << "WARNING:: chem_comp_tor_structure() something bad" << std::endl;
+   } 
+}
+
+// non-looping (single) chir
+void
+coot::protein_geometry::chem_comp_chir_structure(PCMMCIFStruct structure) {
+
+   int n_tags = structure->GetNofTags();
+   std::string cat_name = structure->GetCategoryName();
+
+   if (0)
+      std::cout << "DEBUG: ================= by chem_comp_dot by structure: in category "
+		<< cat_name << " there are "
+		<< n_tags << " tags" << std::endl;
+
+   std::pair<bool, std::string> comp_id(0, "");
+   std::pair<bool, std::string>      id(0, "");
+   std::pair<bool, std::string> atom_id_centre(0, "");
+   std::pair<bool, std::string> atom_id_1(0, "");
+   std::pair<bool, std::string> atom_id_2(0, "");
+   std::pair<bool, std::string> atom_id_3(0, "");
+   std::pair<bool, std::string> volume_sign(0, "");
+   
+   for (int itag=0; itag<n_tags; itag++) {
+      std::string tag = structure->GetTag(itag);
+      std::string field = structure->GetField(itag);
+      // std::cout << " by structure got tag " << itag << " \""
+      // << tag << "\" field: \"" << field << "\"" << std::endl;
+      if (tag == "comp_id")
+	 comp_id = std::pair<bool, std::string> (1,field);
+      if (tag == "id")
+	 id = std::pair<bool, std::string> (1,field);
+      if (tag == "atom_id_centre")
+	 atom_id_centre = std::pair<bool, std::string> (1,field);
+      if (tag == "atom_id_1")
+	 atom_id_1 = std::pair<bool, std::string> (1,field);
+      if (tag == "atom_id_2")
+	 atom_id_2 = std::pair<bool, std::string> (1,field);
+      if (tag == "atom_id_3")
+	 atom_id_3 = std::pair<bool, std::string> (1,field);
+      if (tag == "volume_sign")
+	 volume_sign = std::pair<bool, std::string> (1,field);
+   }
+
+   if (comp_id.first && atom_id_centre.first &&
+       atom_id_1.first && atom_id_2.first && atom_id_3.first &&
+       volume_sign.first) {
+      mon_lib_add_chiral(comp_id.second,
+			 id.second,
+			 atom_id_centre.second,
+			 atom_id_1.second,
+			 atom_id_2.second,
+			 atom_id_3.second,
+			 volume_sign.second);
+   } else {
+      std::cout << "WARNING:: chem_comp_chir_structure() something bad" << std::endl;
+   } 
+}
+
 
 
 void
@@ -965,13 +1126,14 @@ coot::protein_geometry::mon_lib_add_torsion(std::string comp_id,
 					    realtype value_angle_esd,
 					    int period) {
 
-//      std::cout << "adding torsion " << comp_id <<  " " << atom_id_1
-// 	       << " " << atom_id_2 << " " << atom_id_3 << " "
-// 	       << atom_id_4 << " "
-// 	       << "value_angle: " << value_angle
-// 	       << ", value_angle_esd: " << value_angle_esd
-// 	       << ", period: " << period << std::endl;
-
+   if (0)
+      std::cout << "adding torsion " << comp_id <<  " " << atom_id_1
+		<< " " << atom_id_2 << " " << atom_id_3 << " "
+		<< atom_id_4 << " "
+		<< "value_angle: " << value_angle
+		<< ", value_angle_esd: " << value_angle_esd
+		<< ", period: " << period << std::endl;
+   
    add_restraint(comp_id, dict_torsion_restraint_t(torsion_id,
 						   atom_id_1,
 						   atom_id_2,
@@ -1043,8 +1205,8 @@ coot::protein_geometry::mon_lib_add_chiral(std::string comp_id,
 
     volume_sign_int = coot::protein_geometry::chiral_volume_string_to_chiral_sign(volume_sign);
 
-//     std::cout << "DEBUG:: " << comp_id << " " << atom_id_centre << " " << volume_sign
-// 	      << " " << volume_sign_int << std::endl;
+    // std::cout << "DEBUG:: " << comp_id << " " << atom_id_centre << " " << volume_sign
+    // << " " << volume_sign_int << std::endl;
 
 //     std::cout << "adding chiral " << comp_id <<  " " << id
 // 	      << " " << atom_id_centre << " " << volume_sign 
