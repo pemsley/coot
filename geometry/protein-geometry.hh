@@ -1149,6 +1149,10 @@ namespace coot {
       int  link_chiral  (PCMMCIFLoop mmCIFLoop); // return number of new chirals
 
       void chem_comp_component(PCMMCIFStruct structure);
+      // non-looping (single) tor
+      void chem_comp_tor_structure(PCMMCIFStruct structure);
+      // non-looping (single) chir
+      void chem_comp_chir_structure(PCMMCIFStruct structure);
 
 
       void mon_lib_add_chem_comp(const std::string &comp_id,
