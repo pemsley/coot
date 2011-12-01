@@ -978,14 +978,15 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
    bool status = false;
    CResidue *residue_ref = get_residue(spec_in);
    if (residue_ref) {
-      coot::beam_in_linked_residue lr(residue_ref, link_type, new_residue_comp_id);
+      coot::beam_in_linked_residue lr(residue_ref, link_type, new_residue_comp_id, geom);
       CResidue *result = lr.get_residue();
       std::pair<bool, CResidue *> status_pair = add_residue(result, spec_in.chain);
       status = status_pair.first;
       if (status_pair.first) {
 
 	 try { 
-	    coot::dict_link_info_t link_info(residue_ref, status_pair.second, link_type, geom);
+	    coot::dict_link_info_t link_info(residue_ref, status_pair.second,
+					     link_type, geom);
 	    make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist);
 	 }
 	 catch (std::runtime_error rte) {

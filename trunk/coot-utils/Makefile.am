@@ -51,7 +51,7 @@ AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(COOT_WINDOWS_CFLAGS) \
 # for pure coordinates (mmdb) things
 libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc hole.cc read-sm-cif.cc \
-	coot-coord-utils-glyco.cc bonded-pairs.cc
+	bonded-pairs.cc
 
 # clean
 libcoot_coord_utils_la_LIBADD = \
@@ -69,7 +69,7 @@ libcoot_shelx_la_LIBADD =  \
 
 # for non-simple coordinates things
 libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
-	coot-tree-extras.cc water-coordination.cc lsq-improve.cc
+	coot-tree-extras.cc water-coordination.cc lsq-improve.cc coot-coord-utils-glyco.cc
 
 # needs more, mini-mol, geometry
 libcoot_coord_extras_la_LIBADD = \

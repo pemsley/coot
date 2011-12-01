@@ -660,61 +660,6 @@ namespace coot {
    //
    bool mol_has_symmetry(CMMDBManager *mol);
 
-   // Note: this is a simple-minded hack.  The right way of doing this
-   // is to define a bonding tree that includes atoms from both
-   // residues.  Then we don't need reference structures - the
-   // "moving" residue atoms will get placed by internal coordinates.
-   //
-   // This can be viewed as starting (or test material) for the Proper
-   // Way code.
-   // 
-   // Scenario Simple Beam-in:
-   //    User has an ASN onto which they want to beam in a NAG.
-   // 
-   //    setup:
-   //    Make CResidue *s and/or molecule for the N-linked NAG reference residues.
-   // 
-   ///   Get the CResidue * for the user residue ASN 
-   //    Get the CAtoms *s for the OD1, ND2, GC and CB in user residue [1]
-   //    Get the CAtoms *s for the OD1, ND2, GC and CB in N-linked ASN molecule [2]
-   //
-   //    LSQ fit the NAG residue from the reference ASN+NAG pair using
-   //    matrix that rotates [2] onto [1].  (We don't need the ASN from
-   //    that pair).  Now we can add that rotated NAG CResidue * to user
-   //    molecule.  we have N-linked-NAG template - consider renaming to
-   //    ASN-NAG-via-NAG-ASN i.e. the general case
-   //    {ResType1}-{ResType2}-via-{LinkName} where ResType1 and ResType2
-   //    are comp-ids, of course.  Actually, NAG-ASN is a pyranose-ASN
-   //    link (group to comp_id). Hmm...
-   //
-   // 
-   class beam_in_linked_residue {
-      CResidue *residue_ref; // in user-defined molecule
-      CResidue *template_res_ref;
-      CResidue *template_res_mov;
-      std::string comp_id_ref;
-      
-      bool have_template;
-
-      // return success status (0 = fail).
-      std::vector<std::string> make_reference_atom_names(const std::string &comp_id) const;
-      // get the given residue from the template coordinates
-      CResidue *get_residue(const std::string &comp_id, CMMDBManager*mol) const;
-      std::vector<CAtom *> get_atoms(CResidue *residue_p,
-				     const std::vector<std::string> &names) const;
-      void setup_by_comp_id(const std::string &template_file_name,
-			    const std::string &comp_id_ref,
-			    const std::string &new_res_type);
-      void setup_by_group(const std::string &comp_id_ref,
-			  const std::string &new_res_type,
-			  const std::string &link_type);
-   public:
-      beam_in_linked_residue(CResidue *residue_ref,
-			     const std::string &link_type,
-			     const std::string &new_residue_type);
-      // This can return NULL if we were unable to make the residue to be attached.
-      CResidue *get_residue() const;
-   };
 
    // This class doesn't work with alt confs - it just finds the first
    // atom names that matches the strings in the given quad.
@@ -932,6 +877,14 @@ namespace coot {
 			    CMMDBManager *mol);
 
       CResidue *get_first_residue(CMMDBManager *mol);
+
+      // Trivial helper function.
+      // Can return NULL.
+      // 
+      // Typically called with nth is 1, 2 or 3.
+      // Will return 0 if called with nth is 0.
+      // i.e. if you want the first residue in mol, nth is 1.
+      CResidue *get_nth_residue(int nth, CMMDBManager *mol);
 
       // convenience interface to above
       CResidue *get_residue(const residue_spec_t &rs, CMMDBManager *mol);
