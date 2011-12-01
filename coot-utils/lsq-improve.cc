@@ -45,7 +45,8 @@ coot::lsq_improve::lsq_improve(CMMDBManager *mol_ref, const std::string &ref_sel
    } else { 
       if (! n_mov_atoms) { 
 	 std::cout << "no CA atoms from moving mol " << std::endl;
-      } else { 
+      } else {
+	 // delete on deconstruction.
 	 sel_hnd_1 = mol->NewSelection();
 	 sel_hnd_2 = mol->NewSelection();
 

@@ -1631,8 +1631,10 @@ namespace coot {
       CMMDBManager *mol_from_dictionary(const std::string &three_letter_code,
 					bool idealised_flag);
 
-      // Thow an exception if we can't get the group of r
+      // Thow a std::runtime_error exception if we can't get the group of r
       std::string get_group(CResidue *r) const;
+      // and the string version of this
+      std::string get_group(const std::string &res_name) const;
 
       // bool is the need-order-switch-flag
       std::vector<std::pair<chem_link, bool> >

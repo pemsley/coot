@@ -4960,9 +4960,17 @@ coot::protein_geometry::monomer_types() const {
 std::string
 coot::protein_geometry::get_group(CResidue *r) const {
 
-   bool found = 0;
-   std::string group; 
    std::string res_name = r->GetResName();
+   return get_group(res_name);
+}
+
+
+std::string
+coot::protein_geometry::get_group(const std::string &res_name_in) const {
+   
+   bool found = 0;
+   std::string group;
+   std::string res_name = res_name_in;
    if (res_name.length() > 3)
       res_name = res_name.substr(0,2);
    for (unsigned int i=0; i<size(); i++) {

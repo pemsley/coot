@@ -2298,6 +2298,42 @@ coot::util::get_first_residue(CMMDBManager *mol) {
    return res;
 }
 
+// Can return NULL.
+// Typically called with nth is 1, 2 or 3.  Will return 0 if called with nth is 0.
+CResidue *
+coot::util::get_nth_residue(int nth, CMMDBManager *mol) {
+
+   int count = 0; 
+   CResidue *res = NULL;
+   if (mol) {
+      CModel *model_p = mol->GetModel(1);
+      if (model_p) { 
+	 CChain *chain_p;
+      
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	    chain_p = model_p->GetChain(i_chain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_p;
+	    for (int ires=0; ires<nres; ires++) {
+	       residue_p = chain_p->GetResidue(ires);
+	       if (residue_p) {
+		  count++;
+		  if (count == nth) {
+		     res = residue_p;
+		     break;
+		  }
+	       }
+	    }
+	    if (res)
+	       break;
+	 }
+      }
+   }
+   return res;
+} 
+
+
 // Return NULL on atom not found in this molecule
 //
 CAtom *

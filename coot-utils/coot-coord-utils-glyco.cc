@@ -19,7 +19,7 @@
  */
 
 #include "coot-utils.hh"
-#include "coot-coord-utils.hh"
+#include "coot-coord-extras.hh"
 
 #include "coot-sysdep.h"
 
@@ -49,9 +49,11 @@
 //    {ResType1}-{ResType2}-via-{LinkName} where ResType1 and ResType2
 //    are comp-ids, of course.  Actually, NAG-ASN is a pyranose-ASN
 //    link (group to comp_id). Hmm...
+//
 coot::beam_in_linked_residue::beam_in_linked_residue(CResidue *residue_ref_in,
 						     const std::string &link_type,
-						     const std::string &new_residue_type) {
+						     const std::string &new_residue_type,
+						     const coot::protein_geometry &geom_p) {
    
    // do we have a template structure for the given args?
    have_template = false;
@@ -75,12 +77,10 @@ coot::beam_in_linked_residue::beam_in_linked_residue(CResidue *residue_ref_in,
 		<< full_path_pdb_filename << std::endl;
 
       if (coot::file_exists(full_path_pdb_filename)) {
-
-	 std::cout << "debug passing comp_id_ref: " << comp_id_ref << std::endl;
 	 setup_by_comp_id(full_path_pdb_filename, comp_id_ref, new_residue_type);
-	 
       } else {
-	 setup_by_group(comp_id_ref, new_residue_type, link_type);
+	 std::cout << "Trying by group..." << std::endl;
+	 setup_by_group(comp_id_ref, new_residue_type, link_type, geom_p);
       } 
    } 
 }
@@ -123,12 +123,66 @@ coot::beam_in_linked_residue::setup_by_comp_id(const std::string &template_file_
 } 
 
 
-// factor out for clarity.  template_file_name exists before calling this.
+//
 // 
 void
 coot::beam_in_linked_residue::setup_by_group(const std::string &comp_id_ref,
 					     const std::string &new_residue_type,
-					     const std::string &link_type) {
+					     const std::string &link_type,
+					     const coot::protein_geometry &geom) {
+   try {
+      std::string g1 = geom.get_group(comp_id_ref);
+      std::string g2 = geom.get_group(new_residue_type);
+      std::string file_name = g1;
+      file_name += "-";
+      file_name += g2;
+      file_name += "-via-";
+      file_name += link_type;
+      file_name += ".pdb";
+      
+      std::string pkgdatadir = coot::package_data_dir();
+      std::string full_path_pdb_filename = pkgdatadir; // and then add to it...
+      full_path_pdb_filename += "/";
+      full_path_pdb_filename += file_name;
+      std::cout << "debug:: setup_by_group() full_path_pdb_filename "
+		<< full_path_pdb_filename
+		<< std::endl;
+      if (coot::file_exists(full_path_pdb_filename)) {
+	 CMMDBManager *t_mol = new CMMDBManager;
+	 int status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
+	 if (status != Error_NoError) {
+	    std::cout << "ERROR:: on reading " << full_path_pdb_filename << std::endl;
+	 } else {
+
+	    // More cool.
+	    template_res_ref = coot::util::get_nth_residue(1, t_mol);
+	    if (! template_res_ref) {
+	       std::cout << "ERROR:: failed to find residue with comp_id " << comp_id_ref
+			 << " in " << full_path_pdb_filename << std::endl;
+	    } else {
+
+	       // should be this path
+	       
+	       template_res_mov = coot::util::get_nth_residue(2, t_mol); // get the BMA
+
+	       if (! template_res_mov) {
+		  std::cout << "ERROR:: failed to find (adding) residue with comp_id "
+			    << new_residue_type << " in " << full_path_pdb_filename
+			    << std::endl;
+	       } else { 
+		  // Happy path
+		  have_template = 1; // template_res_mov and
+		  // template_res_ref are correctly
+		  // set.
+	       } 
+	    }
+	 }
+      }
+   }
+
+   catch (std::runtime_error rte) {
+      std::cout << "ERROR:: runtime error " << rte.what() << std::endl;
+   } 
 
 } 
 
@@ -137,7 +191,9 @@ CResidue *
 coot::beam_in_linked_residue::get_residue() const {
 
    CResidue *r = NULL;
-   if (have_template) {
+   if (! have_template) {
+      std::cout << "WARNING:: no template" << std::endl;
+   } else {
       // this mean that comp_id_ref, template_res_ref and
       // template_res_mov are correctly set.
 
@@ -174,8 +230,6 @@ coot::beam_in_linked_residue::get_residue() const {
 	    } 
 	 } 
       }
-   } else {
-      std::cout << "WARNING:: no template" << std::endl;
    }
    return r;
 }
