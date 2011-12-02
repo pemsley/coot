@@ -263,7 +263,7 @@
 	    (t (get-torsions r)))
 
        ;; 
-       (if (not (= (length t) 25))
+       (if (not (< (length t) 26)) ;; 22 in new dictionary, it seems.
 	   (begin
 	     (format #t "torsions: ~s ~s~%" (length t) t)
 	     (throw 'fail))

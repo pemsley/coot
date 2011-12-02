@@ -3092,7 +3092,11 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 	       found = 1;
 	       std::pair<coot::chem_link, bool> p(clt, switch_order_flag);
 	       matching_chem_links.push_back(p);
-	       break; // we only want to find one chem link for this comp_id pair.
+
+	       // no! We want all of them - not just the first glycosidic bond that matches
+	       // i.e. don't return just BETA1-2 when we have a BETA1-4.
+	       // break; // we only want to find one chem link for this comp_id pair.
+	       
 	    } else {
 	       if (debug)
 		  std::cout << "reject link on peptide/allow-peptide test " << std::endl;
@@ -3134,6 +3138,152 @@ coot::protein_geometry::matching_chem_link_non_peptide(const std::string &comp_i
 						       const std::string &group_2) const {
    return matching_chem_link(comp_id_1, group_1, comp_id_2, group_2, 0);
 }
+
+// return "" on failure.
+// no order switch is considered.
+// 
+std::string
+coot::protein_geometry::find_glycosidic_linkage_type(CResidue *first, CResidue *second) const {
+
+   double critical_dist = 3.0; // A, less than that and Coot should
+			       // try to make the bond.
+   PPCAtom res_selection_1 = NULL;
+   PPCAtom res_selection_2 = NULL;
+   int i_no_res_atoms_1;
+   int i_no_res_atoms_2;
+   double d;
+   std::vector<coot::glycosidic_distance> close;
+   
+   first->GetAtomTable( res_selection_1, i_no_res_atoms_1);
+   second->GetAtomTable(res_selection_2, i_no_res_atoms_2);
+
+   for (int i1=0; i1<i_no_res_atoms_1; i1++) { 
+      clipper::Coord_orth a1(res_selection_1[i1]->x,
+			     res_selection_1[i1]->y,
+			     res_selection_1[i1]->z);
+      for (int i2=0; i2<i_no_res_atoms_2; i2++) {
+	 clipper::Coord_orth a2(res_selection_2[i2]->x,
+				res_selection_2[i2]->y,
+				res_selection_2[i2]->z);
+	 d = (a1-a2).lengthsq();
+	 if (d < critical_dist*critical_dist) {
+	    close.push_back(coot::glycosidic_distance(res_selection_1[i1],
+						      res_selection_2[i2],
+						      sqrt(d)));
+	 }
+      }
+   }
+
+   std::sort(close.begin(), close.end());
+
+   // if you consider to uncomment this to debug a repulsion instead
+   // the forming of a glycosidic bond, consider the residue numbering
+   // of the residues involved: the "residue 1" should have the O4 and
+   // the "residue 2" (+1 residue number) should have the C1.
+   // 
+   if (0) { 
+      std::cout << "DEBUG:: number of sorted distances in glycosidic_linkage: "
+		<< close.size() << std::endl;
+      for (unsigned int i=0; i<close.size(); i++) {
+	 std::cout << "#### glyco close: " << close[i].distance << "  "
+		   << close[i].at1->GetChainID() << " " 
+		   << close[i].at1->GetSeqNum() << " " 
+		   << close[i].at1->GetAtomName() << " " 
+		   << " to "
+		   << close[i].at2->GetChainID() << " " 
+		   << close[i].at2->GetSeqNum() << " " 
+		   << close[i].at2->GetAtomName() << " " 
+		   << std::endl;
+      }
+   }
+
+   std::string link_type("");
+   
+   // short int found_link = 0;
+   float smallest_link_dist = 99999.9;
+   for (unsigned int i=0; i<close.size(); i++) {
+      std::string name_1(close[i].at1->name);
+      std::string name_2(close[i].at2->name);
+      if (name_1 == " O4 " )
+	 if (name_2 == " C1 ")
+	    if (close[i].distance < smallest_link_dist) {
+	       smallest_link_dist = close[i].distance;
+	       link_type = "BETA1-4";
+	    }
+      
+      if (name_1 == " O2 " )
+	 if (name_2 == " C1 ")
+	    if (close[i].distance < smallest_link_dist) {
+	       smallest_link_dist = close[i].distance;
+	       link_type = "BETA1-2";
+	    }
+      
+      if (name_1 == " O3 " )
+	 if (name_2 == " C1 ")
+	    if (close[i].distance < smallest_link_dist) {
+	       smallest_link_dist = close[i].distance;
+	       link_type = "BETA1-3";
+	    }
+      
+      if (name_1 == " O3 " )
+	 if (name_2 == " C1 ")
+	    if (close[i].distance < smallest_link_dist) {
+	       smallest_link_dist = close[i].distance;
+	       link_type = "BETA1-3";
+	    }
+	       
+      if (name_1 == " C2 " )
+	 if (name_2 == " O3 ")
+	    if (close[i].distance < smallest_link_dist) {
+	       smallest_link_dist = close[i].distance;
+	       link_type = "BETA2-3";
+	    }
+	       
+      if (name_1 == " O6 " )
+	 if (name_2 == " C1 ")
+	    if (close[i].distance < smallest_link_dist) {
+	       smallest_link_dist = close[i].distance;
+	       link_type = "BETA1-6";
+	    }
+	       
+      if (name_1 == " O2 " )
+	 if (name_2 == " C1 ")
+	    if (close[i].distance < smallest_link_dist) {
+	       smallest_link_dist = close[i].distance;
+	       link_type = "ALPHA1-2";
+	    }
+	       
+      if (name_1 == " O3 " )
+	 if (name_2 == " C1 ")
+	    if (close[i].distance < smallest_link_dist) {
+	       smallest_link_dist = close[i].distance;
+	       link_type = "ALPHA1-3";
+	    }
+      
+      if (name_1 == " C2 " )
+	 if (name_2 == " O3 ")
+	    if (close[i].distance < smallest_link_dist) {
+	       smallest_link_dist = close[i].distance;
+	       link_type = "ALPHA2-3";
+	    }
+      
+      if (name_1 == " O4 " )
+	 if (name_2 == " C1 ")
+	    if (close[i].distance < smallest_link_dist) {
+	       smallest_link_dist = close[i].distance;
+	       link_type = "ALPHA1-4";
+	    }
+      
+      if (name_1 == " O6 " )
+	 if (name_2 == " C1 ")
+	    if (close[i].distance < smallest_link_dist) {
+	       smallest_link_dist = close[i].distance;
+	       link_type = "ALPHA1-6";
+	    }
+   }
+   return link_type;
+} 
+
 
       
 void
@@ -4148,6 +4298,32 @@ coot::protein_geometry::get_vdw_radius(const std::string &atom_name,
    return r;
 }
 
+// expand to 4c, the atom_id, give that it should match an atom of the type comp_id.
+// Used in chem mods, when we don't know the comp_id until residue modification time.
+// 
+std::string
+coot::protein_geometry::atom_id_expand(const std::string &atom_id,
+				       const std::string &comp_id) const {
+
+   std::string s = atom_id;
+   int idx = get_monomer_restraints_index(comp_id, 1);
+   if (idx != -1) {
+      const coot::dictionary_residue_restraints_t &restraints =
+	 dict_res_restraints[idx];
+      const std::vector<dict_atom> &atoms = restraints.atom_info;
+      for (unsigned int iat=0; iat<atoms.size(); iat++) { 
+	 if (atoms[iat].atom_id == atom_id) { 
+	    s = atoms[iat].atom_id_4c;
+	    break;
+	 }
+      }
+   }
+//    std::cout << "atom_id_expand() \"" << atom_id << "\" expanded to \""
+// 	     << s << "\"" << std::endl;
+   return s; 
+} 
+
+
 
 
 
@@ -4996,39 +5172,44 @@ coot::protein_geometry::get_group(const std::string &res_name_in) const {
       throw std::runtime_error(s);
    }
    return group;
-} 
+}
 
+CResidue *
+coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_flag) {
 
-CMMDBManager *
-coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code,
-					    bool idealised_flag) {
+   CResidue *residue_p = NULL;
 
    // force use of try_dynamic_add (if needed).
-   bool r = have_dictionary_for_residue_type(three_letter_code, 42);
+   bool r = have_dictionary_for_residue_type(comp_id, 42);
 
-   bool make_hetatoms = ! coot::util::is_standard_residue_name(three_letter_code);
+   bool make_hetatoms = ! coot::util::is_standard_residue_name(comp_id);
    
-   CMMDBManager *mol = 0;
    std::vector<CAtom *> atoms;
    for (int i=0; i<dict_res_restraints.size(); i++) {
-      if (dict_res_restraints[i].residue_info.comp_id == three_letter_code) {
+      if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
 	 std::vector<coot::dict_atom> atom_info = dict_res_restraints[i].atom_info;
+	 int atom_index = 0;
 	 for (unsigned int iat=0; iat<atom_info.size(); iat++) {
+	    
 
-	    // real
 	    clipper::Coord_orth p(0,0,0);
 	    bool flag_and_have_coords = 0;
 
-	    if ((idealised_flag == 0) && (atom_info[iat].model_Cartn.first)) {
-	       p = atom_info[iat].model_Cartn.second;
-	       flag_and_have_coords = 1;
-	    }
-	    
 	    if (idealised_flag && atom_info[iat].pdbx_model_Cartn_ideal.first) {
 	       p = atom_info[iat].pdbx_model_Cartn_ideal.second;
 	       flag_and_have_coords = 1;
 	    }
 
+	    if (! flag_and_have_coords) { 
+	       // OK, try model_Cartn (and that is idealised if the dictionary was refmac)
+	       // (better than nothing).
+	       // 
+	       if (atom_info[iat].model_Cartn.first) {
+		  p = atom_info[iat].model_Cartn.second;
+		  flag_and_have_coords = 1;
+	       }
+	    }
+	    
 	    if (flag_and_have_coords) { 
 	       CAtom *atom = new CAtom;
 	       realtype occ = 1.0;
@@ -5036,24 +5217,42 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
 	       std::string ele = atom_info[iat].type_symbol; // element
 	       atom->SetCoordinates(p.x(), p.y(), p.z(), occ, b);
 	       atom->SetAtomName(atom_info[iat].atom_id_4c.c_str());
+
+//	       Strange things happen when I use this...
+// 	       atom->SetAtomName(atom_index, -1,
+// 				 atom_info[iat].atom_id_4c.c_str(),
+// 				 "", "", ele.c_str());
+	       
 	       atom->SetElementName(ele.c_str());
 	       if (make_hetatoms)
 		  atom->Het = 1;
 	       atoms.push_back(atom);
+	       atom_index++; // for next round
 	    }
 	 }
       }
    }
-//    std::cout << " mol_from_dictionary found " << atoms.size()
-// 	     << " atoms " << std::endl;
    if (atoms.size() > 0) {
-      CResidue *res_p = new CResidue;
-      res_p->SetResID(three_letter_code.c_str(), 1, "");
+      residue_p = new CResidue;
+      residue_p->SetResID(comp_id.c_str(), 1, "");
       for (unsigned int iat=0; iat<atoms.size(); iat++) 
-	 res_p->AddAtom(atoms[iat]);
+	 residue_p->AddAtom(atoms[iat]);
+   }
+   return residue_p;
+} 
+
+
+
+CMMDBManager *
+coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code,
+					    bool idealised_flag) {
+
+   CMMDBManager *mol = NULL; 
+   CResidue *residue_p = get_residue(three_letter_code, idealised_flag);
+   if (residue_p) { 
       CChain *chain_p = new CChain;
       chain_p->SetChainID("A");
-      chain_p->AddResidue(res_p);
+      chain_p->AddResidue(residue_p);
       CModel *model_p = new CModel;
       model_p->AddChain(chain_p);
       mol = new CMMDBManager;

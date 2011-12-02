@@ -651,14 +651,14 @@ namespace coot {
    };
 
    class chem_link {
-       std::string id;
-       std::string chem_link_comp_id_1;
-       std::string chem_link_mod_id_1;
-       std::string chem_link_group_comp_1;
-       std::string chem_link_comp_id_2;
-       std::string chem_link_mod_id_2;
-       std::string chem_link_group_comp_2;
-       std::string chem_link_name;
+      std::string id;
+      std::string chem_link_comp_id_1;
+      std::string chem_link_mod_id_1;
+      std::string chem_link_group_comp_1;
+      std::string chem_link_comp_id_2;
+      std::string chem_link_mod_id_2;
+      std::string chem_link_group_comp_2;
+      std::string chem_link_name;
    public: 
       chem_link(const std::string &id_in,
 		const std::string &chem_link_comp_id_1_in,
@@ -692,6 +692,9 @@ namespace coot {
 	 else
 	    return 0;
       }
+      std::pair<std::string, std::string> chem_mod_names() const {
+	 return std::pair<std::string, std::string> (chem_link_mod_id_1, chem_link_mod_id_2);
+      } 
    };
    std::ostream& operator<<(std::ostream &s, chem_link lnk);
 
@@ -728,12 +731,6 @@ namespace coot {
 			      CHEM_MOD_FUNCTION_DELETE };
    
    class chem_mod_atom {
-      chem_mod_function_t function;
-      std::string atom_id;
-      std::string new_atom_id;
-      std::string new_type_symbol;
-      std::string new_type_energy;
-      realtype new_partial_charge;
    public:
       chem_mod_atom(const std::string &function_in,
 		    const std::string &atom_id_in,
@@ -754,6 +751,12 @@ namespace coot {
 	 new_type_energy = new_type_energy_in;
 	 new_partial_charge = new_partial_charge_in;
       }
+      chem_mod_function_t function;
+      std::string atom_id;
+      std::string new_atom_id;
+      std::string new_type_symbol;
+      std::string new_type_energy;
+      realtype new_partial_charge;
       friend std::ostream& operator<<(std::ostream &s, const chem_mod_atom &a);
    };
    std::ostream& operator<<(std::ostream &s, const chem_mod_atom &a);
@@ -1084,6 +1087,31 @@ namespace coot {
       std::vector<energy_lib_angle> angles;
       std::vector<energy_lib_torsion> torsions;
    };
+
+
+   // ---------------------------------------------------------------
+   // helper classes for linkage selection
+   // ---------------------------------------------------------------
+
+   class glycosidic_distance {
+   public:
+      double distance;
+      CAtom *at1;
+      CAtom *at2;
+      glycosidic_distance(CAtom *at1_in, CAtom *at2_in, double d) {
+	 at1 = at1_in;
+	 at2 = at2_in;
+	 distance = d;
+      }
+      bool operator<(const glycosidic_distance &d1) const {
+	 if (d1.distance < distance)
+	    return 1;
+	 else
+	    return 0;
+      }
+   };
+
+   
 
    // ------------------------------------------------------------------------
    // ------------------------------------------------------------------------
@@ -1465,6 +1493,9 @@ namespace coot {
       
       
       std::map<std::string, chem_mod> mods;
+      // can throw an std::runtime exception if there is no chem mod
+      // for the link_id (and that's fine)
+      std::pair<chem_mod, chem_mod> get_chem_mods_for_link(const std::string &link_id) const;
       void debug_mods() const;
       
       
@@ -1484,11 +1515,11 @@ namespace coot {
 	 for (unsigned int id=0; id<dict_link_res_restraints.size(); id++) {
 	    if (dict_link_res_restraints[id].link_id == id_in) {
 	       r = dict_link_res_restraints[id];
-	       break;;
+	       break;
 	    }
 	 } 
-	    return r;
-	 }
+	 return r;
+      }
       
       int link_size() const { return dict_link_res_restraints.size(); }
       void info() const;
@@ -1630,6 +1661,17 @@ namespace coot {
       // make HETATMs if non-standard residue name.
       CMMDBManager *mol_from_dictionary(const std::string &three_letter_code,
 					bool idealised_flag);
+      
+      // Used by above (or maybe you just want a residue?)
+      // (Can return NULL).
+      // 
+      // Something strange happens with internal-to-a-CResidue atom
+      // indexing when I tried to use this.  The problem was resoloved
+      // by using mol_from_dictionary() above and getting the first
+      // residue.  Something to do with atom indexing on checking
+      // in...?
+      // 
+      CResidue *get_residue(const std::string &comp_id, bool idealised_flag);
 
       // Thow a std::runtime_error exception if we can't get the group of r
       std::string get_group(CResidue *r) const;
@@ -1654,6 +1696,14 @@ namespace coot {
 				     const std::string &group_1,
 				     const std::string &comp_id_2,
 				     const std::string &group_2) const;
+
+      // return "" on failure.
+      // no order switch is considered.
+      // 
+      std::string find_glycosidic_linkage_type(CResidue *first, CResidue *second) const;
+
+      // can throw a std::runtime_error
+      chem_link get_chem_link(const std::string &link_id);
 
       void print_chem_links() const;
       static int chiral_volume_string_to_chiral_sign(const std::string &chiral_vol_string);
@@ -1691,6 +1741,12 @@ namespace coot {
       // correctly.  Use fill_using_sbase().
       // 
       bool try_load_sbase_description(const std::vector<std::string> &comp_ids);
+
+      // expand to 4c, the atom_id, give that it should match an atom of the type comp_id.
+      // Used in chem mods, when we don't know the comp_id until residue modification time.
+      // 
+      std::string atom_id_expand(const std::string &atom_id,
+				 const std::string &comp_id) const;
 
       // return "" if not found, else return the energy type found in ener_lib.cif
       // 

@@ -3094,7 +3094,7 @@ public:        //                      public
    bool add_linked_residue(const coot::residue_spec_t &spec_in,
 			   const std::string &new_residue_comp_id,
 			   const std::string &link_type,
-			   const coot::protein_geometry &geom);
+			   coot::protein_geometry *geom_p);
 
    // n-models
    int n_models() const;

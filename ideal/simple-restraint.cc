@@ -4362,7 +4362,7 @@ coot::restraints_container_t::find_link_type(CResidue *first, CResidue *second,
        t1 == "pyranose" || t1 == "furanose" /* new-style refmac dictionary */) { 
       if (t2 == "D-pyranose" || t2 == "D-furanose" || t2 == "L-pyranose" || t2 == "L-furanose" ||
 	  t2 == "pyranose" || t2 == "furanose"  /* new-style refmac dictionary */) {
-	 link_type = find_glycosidic_linkage_type(first, second, t1, t2, geom);
+	 link_type = find_glycosidic_linkage_type(first, second, geom);
 	 std::cout << "INFO:: glycosidic_linkage type :" << link_type << ":\n";
       } 
    }
@@ -4377,147 +4377,9 @@ coot::restraints_container_t::find_link_type(CResidue *first, CResidue *second,
 // 
 std::string
 coot::restraints_container_t::find_glycosidic_linkage_type(CResidue *first, CResidue *second,
-							   const std::string &group1,
-							   const std::string &group2,
 							   const protein_geometry &geom) const {
 
-   double critical_dist = 3.0; // A, less than that and Coot should
-			       // try to make the bond.
-   PPCAtom res_selection_1 = NULL;
-   PPCAtom res_selection_2 = NULL;
-   int i_no_res_atoms_1;
-   int i_no_res_atoms_2;
-   double d;
-   std::vector<coot::glycosidic_distance> close;
-   
-   first->GetAtomTable( res_selection_1, i_no_res_atoms_1);
-   second->GetAtomTable(res_selection_2, i_no_res_atoms_2);
-
-   for (int i1=0; i1<i_no_res_atoms_1; i1++) { 
-      clipper::Coord_orth a1(res_selection_1[i1]->x,
-			     res_selection_1[i1]->y,
-			     res_selection_1[i1]->z);
-      for (int i2=0; i2<i_no_res_atoms_2; i2++) {
-	 clipper::Coord_orth a2(res_selection_2[i2]->x,
-				res_selection_2[i2]->y,
-				res_selection_2[i2]->z);
-	 d = (a1-a2).lengthsq();
-	 if (d < critical_dist*critical_dist) {
-	    close.push_back(coot::glycosidic_distance(res_selection_1[i1],
-						      res_selection_2[i2],
-						      sqrt(d)));
-	 }
-      }
-   }
-
-   std::sort(close.begin(), close.end());
-
-   // if you consider to uncomment this to debug a repulsion instead
-   // the forming of a glycosidic bond, consider the residue numbering
-   // of the residues involved: the "residue 1" should have the O4 and
-   // the "residue 2" (+1 residue number) should have the C1.
-   // 
-   if (0) { 
-      std::cout << "DEBUG:: number of sorted distances in glycosidic_linkage: "
-		<< close.size() << std::endl;
-      for (unsigned int i=0; i<close.size(); i++) {
-	 std::cout << "#### glyco close: " << close[i].distance << "  "
-		   << close[i].at1->GetChainID() << " " 
-		   << close[i].at1->GetSeqNum() << " " 
-		   << close[i].at1->GetAtomName() << " " 
-		   << " to "
-		   << close[i].at2->GetChainID() << " " 
-		   << close[i].at2->GetSeqNum() << " " 
-		   << close[i].at2->GetAtomName() << " " 
-		   << std::endl;
-      }
-   }
-
-   std::string link_type("");
-   
-   // short int found_link = 0;
-   float smallest_link_dist = 99999.9;
-   for (unsigned int i=0; i<close.size(); i++) {
-      std::string name_1(close[i].at1->name);
-      std::string name_2(close[i].at2->name);
-      if (name_1 == " O4 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "BETA1-4";
-	    }
-      
-      if (name_1 == " O2 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "BETA1-2";
-	    }
-      
-      if (name_1 == " O3 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "BETA1-3";
-	    }
-      
-      if (name_1 == " O3 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "BETA1-3";
-	    }
-	       
-      if (name_1 == " C2 " )
-	 if (name_2 == " O3 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "BETA2-3";
-	    }
-	       
-      if (name_1 == " O6 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "BETA1-6";
-	    }
-	       
-      if (name_1 == " O2 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "ALPHA1-2";
-	    }
-	       
-      if (name_1 == " O3 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "ALPHA1-3";
-	    }
-      
-      if (name_1 == " C2 " )
-	 if (name_2 == " O3 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "ALPHA2-3";
-	    }
-      
-      if (name_1 == " O4 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "ALPHA1-4";
-	    }
-      
-      if (name_1 == " O6 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "ALPHA1-6";
-	    }
-   }
-   return link_type;
+   return geom.find_glycosidic_linkage_type(first, second);
 }
 
 bool
@@ -4580,8 +4442,6 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 	 // each other.  If not, then we should fail to find a link
 	 // between these 2 residues.
 	 // 
-	 // unsigned int ilink = 0; // the first link
-
 	 for (unsigned int ilink=0; ilink<link_infos.size(); ilink++) { 
 
 	    if (link_infos[ilink].first.is_peptide_link_p()) {
@@ -4607,8 +4467,8 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 		  // debug::
 		  if (debug)
 		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
-			std::cout << "   DEBUG:: non-peptide link: " << link_infos_non_peptide[il].first.Id()
-				  << std::endl;
+			std::cout << "   DEBUG:: non-peptide link: "
+				  << link_infos_non_peptide[il].first.Id() << std::endl;
 	       
 		  // 20100330 eh?  is something missing here?  What
 		  // shall we do with link_infos_non_peptide?  did I
@@ -4636,9 +4496,9 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 	       order_switch_flag = link_infos[ilink].second;
 	    
 	       if (link_infos_are_glycosidic_p(link_infos)) {
-		  link_type = find_glycosidic_linkage_type(first, second, group_1, group_2, geom);
+		  link_type = find_glycosidic_linkage_type(first, second, geom);
 		  if (link_type == "") {
-		     link_type = find_glycosidic_linkage_type(second, first, group_2, group_1, geom);
+		     link_type = find_glycosidic_linkage_type(second, first, geom);
 		     if (link_type != "")
 			order_switch_flag = 1;
 		  }

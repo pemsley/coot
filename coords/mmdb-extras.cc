@@ -207,14 +207,17 @@ coot::deep_copy_this_residue(CResidue *residue,
       
       int n_added_atoms = 0; 
       for(int iat=0; iat<nResidueAtoms; iat++) {
-	 if (! residue_atoms[iat]->isTer()) { 
-	    std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
-	    if (whole_residue_flag ||
-		this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
-	       atom_p = new CAtom;
-	       atom_p->Copy(residue_atoms[iat]);
-	       int i_add = rres->AddAtom(atom_p);
-	       n_added_atoms++;
+	 CAtom *at = residue_atoms[iat];
+	 if (at) { // can have been deleted
+	    if (! at->isTer()) { 
+	       std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
+	       if (whole_residue_flag ||
+		   this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
+		  atom_p = new CAtom;
+		  atom_p->Copy(residue_atoms[iat]);
+		  int i_add = rres->AddAtom(atom_p);
+		  n_added_atoms++;
+	       }
 	    }
 	 }
       }

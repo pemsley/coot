@@ -436,6 +436,9 @@ namespace coot {
       CResidue *template_res_ref;
       CResidue *template_res_mov;
       std::string comp_id_ref;
+      std::string comp_id_new;
+      protein_geometry *geom_p;
+      std::string link_type;
       
       bool have_template;
 
@@ -450,13 +453,23 @@ namespace coot {
 			    const std::string &new_res_type);
       void setup_by_group(const std::string &comp_id_ref,
 			  const std::string &new_res_type,
-			  const std::string &link_type,
-			  const protein_geometry &geom_p);
+			  const std::string &link_type_in);
+      // move the residues of mov_res, don't change object variables.
+      bool lsq_fit(CResidue *ref_res,
+		   CResidue *matcher_res,
+		   CResidue *mov_res,
+		   const std::vector<std::string> &lsq_reference_atom_names) const;
+      // apply the chem mod (specifically, the CHEM_MOD_FUNCTION_DELETE
+      // (delete all atoms with the given name)
+      void delete_atom(CResidue *res, const std::string &atom_name) const;
+      std::string atom_id_mmdb_expand(const std::string &atom_id,
+				      const std::string &res_name) const; 
+      
    public:
       beam_in_linked_residue(CResidue *residue_ref,
-			     const std::string &link_type,
+			     const std::string &link_type_in,
 			     const std::string &new_residue_type,
-			     const protein_geometry &geom_p);
+			     protein_geometry *geom_p);
       // This can return NULL if we were unable to make the residue to be attached.
       CResidue *get_residue() const;
    };

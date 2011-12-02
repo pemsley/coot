@@ -804,7 +804,7 @@ Bond_lines_container::invert_deloc_bond_displacement_vector(const clipper::Coord
 
    // std::cout << ":::::::::: invert_deloc_bond_displacement_vector() returns " << r << std::endl;
    return r;
-} 
+}
 
 
 void
@@ -821,7 +821,9 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints = 
 	       geom->get_monomer_restraints_at_least_minimal(res_name);
    	    // if (res_name != "HOH")
-	    // std::cout << "          ============== Considering bonding HET residue: " << res_name << " " << std::endl;
+	    // std::cout << "          ============== Considering bonding HET residue: "
+	    // << coot::residue_spec_t(het_residues[ires].second) << " "
+	    // << res_name << " " << std::endl;
 
 	    if (! restraints.first) {
 	       std::cout << "Oooppps!  No bonding rules for residue type :" << res_name

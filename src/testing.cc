@@ -2682,7 +2682,7 @@ int test_beam_in_residue() {
    r_mol->ReadPDBASCII("coot-ccp4/monomer-ASN.pdb");
    CResidue *r = coot::util::get_first_residue(r_mol);
    if (r) {
-      coot::beam_in_linked_residue lr(r, "NAG-ASN", "NAG", t.geom);
+      coot::beam_in_linked_residue lr(r, "NAG-ASN", "NAG", &t.geom);
       CResidue *result = lr.get_residue();
       if (result) {
 	 status = 1;
