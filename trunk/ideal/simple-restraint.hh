@@ -224,28 +224,6 @@ namespace coot {
    enum { BONDS_MASK = 1,  ANGLES_MASK = 2, TORSIONS_MASK = 4, PLANES_MASK = 8, 
           NON_BONDED_MASK = 16, CHIRAL_VOLUME_MASK = 32, RAMA_PLOT_MASK = 64};
 
-   // ---------------------------------------------------------------
-   // helper classes for linkage selection
-   // ---------------------------------------------------------------
-
-   class glycosidic_distance {
-   public:
-      double distance;
-      CAtom *at1;
-      CAtom *at2;
-      glycosidic_distance(CAtom *at1_in, CAtom *at2_in, double d) {
-	 at1 = at1_in;
-	 at2 = at2_in;
-	 distance = d;
-      }
-      bool operator<(const glycosidic_distance &d1) const {
-	 if (d1.distance < distance)
-	    return 1;
-	 else
-	    return 0;
-      }
-   };
-
 
    class ramachandran_restraint_flanking_residues_helper_t {
    public:
@@ -1235,8 +1213,6 @@ namespace coot {
 
       // return "" on failure to find link
       std::string find_glycosidic_linkage_type(CResidue *first, CResidue *second,
-					       const std::string &group1,
-					       const std::string &group2,
 					       const protein_geometry &geom) const;
    
       int add_link_bond(std::string link_type,

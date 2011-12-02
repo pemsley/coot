@@ -5040,7 +5040,6 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
    // (insert) after the original residues have been deleted.
    // 
    std::vector<CResidue *> renumbered_residues;
-   // std::vector<std::pair<CChain *, int> > residues_to_be_deleted;
    std::vector<CResidue *> residues_to_be_deleted;
    CChain *chain_p_active = NULL; // the renumbered residues are in this chain
 	    

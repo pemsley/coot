@@ -6827,7 +6827,7 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
       g.Geom_p()->try_dynamic_add(new_residue_comp_id, 34);
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
       status = g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
-						    link_type, *(g.Geom_p()));
+						    link_type, g.Geom_p());
       if (status) {
 	 graphics_draw();
       } 

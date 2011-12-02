@@ -973,20 +973,24 @@ bool
 molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
 					  const std::string &new_residue_comp_id,
 					  const std::string &link_type,
-					  const coot::protein_geometry &geom) {
+					  coot::protein_geometry *geom_p) {
 
    bool status = false;
    CResidue *residue_ref = get_residue(spec_in);
    if (residue_ref) {
-      coot::beam_in_linked_residue lr(residue_ref, link_type, new_residue_comp_id, geom);
+      coot::beam_in_linked_residue lr(residue_ref, link_type, new_residue_comp_id, geom_p);
       CResidue *result = lr.get_residue();
+      // get_residue() can (and often does) modify residue_ref (for
+      // deleting link mod atom, for example). So we need a FinishStructEdit() here
+      atom_sel.mol->FinishStructEdit();
+      
       std::pair<bool, CResidue *> status_pair = add_residue(result, spec_in.chain);
       status = status_pair.first;
       if (status_pair.first) {
 
 	 try { 
 	    coot::dict_link_info_t link_info(residue_ref, status_pair.second,
-					     link_type, geom);
+					     link_type, *geom_p);
 	    make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist);
 	 }
 	 catch (std::runtime_error rte) {
@@ -1005,6 +1009,8 @@ coot::dict_link_info_t::dict_link_info_t(CResidue *residue_ref,
 					 const std::string &link_type,
 					 const coot::protein_geometry &geom) {
 
+   std::cout << "dict_link_info_t() constructor start with link_type: "
+	     << link_type << std::endl;
    std::cout << "dict_link_info_t() constructor start with residue_ref: "
 	     << coot::residue_spec_t(residue_ref) << std::endl;
    std::cout << "dict_link_info_t() constructor start with residue_new: "
@@ -1093,18 +1099,20 @@ coot::dict_link_info_t::check_for_order_switch(CResidue *residue_ref,
 
    try {
       std::string group_ref = geom.get_group(residue_ref);
-      std::cout << "got group_ref: " << group_ref << std::endl;
+      // std::cout << "got group_ref: " << group_ref << std::endl;
       std::string group_new = geom.get_group(residue_new);
-      std::cout << "got group_new: " << group_new << std::endl;
+      // std::cout << "got group_new:o " << group_new << std::endl;
       std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	 geom.matching_chem_link(comp_id_ref, group_ref, comp_id_new, group_new);
       std::cout << "DEBUG:: in check_for_order_switch() found " << link_infos.size()
 		<< " link infos " << std::endl;
-      for (unsigned int ilink=0; ilink<link_infos.size(); ilink++) { 
-	 std::cout << "chem_link: " << ilink << " " << link_infos[ilink].first
-		   << " " << link_infos[ilink].second << std::endl;
-	 order_switch_flag = link_infos[ilink].second;
-	 break;
+      for (unsigned int ilink=0; ilink<link_infos.size(); ilink++) {
+	 // std::cout << "   chem_link: " << ilink << " " << link_infos[ilink].first
+	 // << " " << link_infos[ilink].second << std::endl;
+	 if (link_infos[ilink].first.Id() == link_type) { 
+	    order_switch_flag = link_infos[ilink].second;
+	    break;
+	 }
       }
    }
    catch (std::runtime_error rte) {

@@ -51,12 +51,17 @@
 //    link (group to comp_id). Hmm...
 //
 coot::beam_in_linked_residue::beam_in_linked_residue(CResidue *residue_ref_in,
-						     const std::string &link_type,
+						     const std::string &link_type_in,
 						     const std::string &new_residue_type,
-						     const coot::protein_geometry &geom_p) {
+						     coot::protein_geometry *geom_p_in) {
    
    // do we have a template structure for the given args?
    have_template = false;
+   geom_p = geom_p_in;
+   link_type = link_type_in;
+   comp_id_new = new_residue_type; // save for comparison in get_residue() (because the
+                                   // residue retrieved could be of the wrong type (but
+                                   // correct group).
    template_res_ref = NULL;
    template_res_mov = NULL;
 
@@ -73,14 +78,15 @@ coot::beam_in_linked_residue::beam_in_linked_residue(CResidue *residue_ref_in,
       full_path_pdb_filename += "/";
       full_path_pdb_filename += file_name;
 
-      std::cout << "DEBUG:: Looking for template link file-name: "
-		<< full_path_pdb_filename << std::endl;
+      if (0)
+	 std::cout << "DEBUG:: Looking for template link file-name: "
+		   << full_path_pdb_filename << std::endl;
 
       if (coot::file_exists(full_path_pdb_filename)) {
 	 setup_by_comp_id(full_path_pdb_filename, comp_id_ref, new_residue_type);
       } else {
-	 std::cout << "Trying by group..." << std::endl;
-	 setup_by_group(comp_id_ref, new_residue_type, link_type, geom_p);
+	 // std::cout << "Trying by group..." << std::endl;
+	 setup_by_group(comp_id_ref, new_residue_type, link_type);
       } 
    } 
 }
@@ -128,25 +134,26 @@ coot::beam_in_linked_residue::setup_by_comp_id(const std::string &template_file_
 void
 coot::beam_in_linked_residue::setup_by_group(const std::string &comp_id_ref,
 					     const std::string &new_residue_type,
-					     const std::string &link_type,
-					     const coot::protein_geometry &geom) {
+					     const std::string &link_type_in) { 
+
    try {
-      std::string g1 = geom.get_group(comp_id_ref);
-      std::string g2 = geom.get_group(new_residue_type);
+      std::string g1 = geom_p->get_group(comp_id_ref);
+      std::string g2 = geom_p->get_group(new_residue_type);
       std::string file_name = g1;
       file_name += "-";
       file_name += g2;
       file_name += "-via-";
-      file_name += link_type;
+      file_name += link_type_in;
       file_name += ".pdb";
       
       std::string pkgdatadir = coot::package_data_dir();
       std::string full_path_pdb_filename = pkgdatadir; // and then add to it...
       full_path_pdb_filename += "/";
       full_path_pdb_filename += file_name;
-      std::cout << "debug:: setup_by_group() full_path_pdb_filename "
-		<< full_path_pdb_filename
-		<< std::endl;
+      if (0)
+	 std::cout << "debug:: setup_by_group() full_path_pdb_filename "
+		   << full_path_pdb_filename
+		   << std::endl;
       if (coot::file_exists(full_path_pdb_filename)) {
 	 CMMDBManager *t_mol = new CMMDBManager;
 	 int status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
@@ -203,36 +210,174 @@ coot::beam_in_linked_residue::get_residue() const {
 	 make_reference_atom_names(comp_id_ref);
       if (lsq_reference_atom_names.size() == 0) {
 	 std::cout << "WARNING:: no reference atoms for LSQing" << std::endl;
-      } else { 
-	 std::vector<CAtom *> va_1 = get_atoms(template_res_ref, lsq_reference_atom_names);
-	 std::vector<CAtom *> va_2 = get_atoms(residue_ref,      lsq_reference_atom_names);
+      } else {
+	 // fit template_res_ref to residue_ref and move the atoms of template_res_mov
+	 //
+	 bool status = lsq_fit(template_res_ref, residue_ref, template_res_mov,
+			       lsq_reference_atom_names);
+	 if (status) { 
+	    r = template_res_mov;
 
-	 if (va_1.size() != lsq_reference_atom_names.size()) {
-	    std::cout << "Mismatch atoms length for " << comp_id_ref << " in "
-		      << "get_residue() (c.f. reference atoms) "
-		      << va_1.size() << " need " << lsq_reference_atom_names.size() << std::endl;
-	 } else {
-	    if (va_1.size() != va_2.size()) {
-	       std::cout << "Mismatch atoms length for " << comp_id_ref << " in "
-			 << "get_residue()" << std::endl;
-	    } else {
-	       // Happy path
-	       int n = lsq_reference_atom_names.size();
-	       std::vector<clipper::Coord_orth> co_1(n);
-	       std::vector<clipper::Coord_orth> co_2(n);
-	       for (unsigned int iat=0; iat<va_1.size(); iat++) { 
-		  co_1[iat] = clipper::Coord_orth(va_1[iat]->x, va_1[iat]->y, va_1[iat]->z);
-		  co_2[iat] = clipper::Coord_orth(va_2[iat]->x, va_2[iat]->y, va_2[iat]->z);
+	    // Now, if r is a BMA, but we actually want a NAG (or
+	    // so) then we need to get a NAG from the dictionary
+	    // and LSQ it onto r.  And then replace r.
+	    // (comp_id_new is set in the constructor).
+	    // 
+	    std::string r_res_name(r->GetResName());
+	    // std::cout << "DEBUG:: comparing " << r_res_name
+	    // << " with wanted " << comp_id_new << std::endl;
+	    if (r_res_name != comp_id_new) {
+
+	       // Something strange happens with the atom indices,
+	       // CResidue *r_new = geom_p->get_residue(comp_id_new, 1);
+
+	       // Try getting a molecule, then extracting the residue
+	       // (yes, that works).
+	       //
+	       CMMDBManager *r_mol = geom_p->mol_from_dictionary(comp_id_new, 1);
+	       if (r_mol) {
+		  CResidue *r_new = coot::util::get_first_residue(r_mol);
+	       
+		  if (! r_new) {
+		     std::cout << "WARNING:: couldn't get reference residue coords for "
+			       << comp_id_new << " substituting "
+			       << r_res_name << std::endl;
+		  } else {
+		     // happy path, lsq_fit: reference_res moving_res atom_names
+		     bool state = lsq_fit(r_new, r, r_new, lsq_reference_atom_names);
+		     if (state)
+			r = r_new;
+		     else 
+			std::cout << "WARNING:: couldn't match coords for "
+				  << comp_id_new << " substituting "
+				  << r_res_name << std::endl;
+		  }
 	       }
-	       clipper::RTop_orth rtop(co_1, co_2);
-	       coot::util::transform_atoms(template_res_mov, rtop);
-	       r = template_res_mov;
-	    } 
+	    }
 	 } 
       }
    }
+
+   if (r) {
+      try { 
+	 // apply the mods given the link type
+	 std::pair<coot::protein_geometry::chem_mod, coot::protein_geometry::chem_mod>
+	    mods = geom_p->get_chem_mods_for_link(link_type);
+
+	 std::string res_name_ref = residue_ref->GetResName();
+	 for (unsigned int i=0; i<mods.first.atom_mods.size(); i++) { 
+	    if (mods.first.atom_mods[i].function == CHEM_MOD_FUNCTION_DELETE) {
+	       std::string atom_name = mods.first.atom_mods[i].atom_id;
+	       // now we need to expand the atom_id;
+	       std::string at_name = atom_id_mmdb_expand(atom_name, res_name_ref);
+	       // std::cout << ".... delete atom \"" << at_name << "\" in residue_ref"
+	       // << std::endl;
+	       delete_atom(residue_ref, at_name);
+	    }
+	 }
+	 
+	 std::string res_name_new = r->GetResName();
+	 for (unsigned int i=0; i<mods.second.atom_mods.size(); i++) { 
+	    if (mods.second.atom_mods[i].function == CHEM_MOD_FUNCTION_DELETE) {
+	       std::string atom_name = mods.second.atom_mods[i].atom_id;
+	       // now we need to expand the atom_id;
+	       std::string at_name = atom_id_mmdb_expand(atom_name, res_name_new);
+ 	       delete_atom(r, at_name);
+	    }
+	 }
+      }
+      catch (std::runtime_error rte) {
+	 // no chem mod for that link, that's fine.
+	 
+	 // std::cout << "DEBUG:: no chem mod for link " << link_type
+	 // << " - that's OK" << std::endl;
+      } 
+   }
    return r;
 }
+
+// fit template res ref (i.e. matcher_res) to residue_ref and move the
+// atoms of template_res_mov.
+// 
+bool
+coot::beam_in_linked_residue::lsq_fit(CResidue *ref_res,
+				      CResidue *matcher_res,
+				      CResidue *mov_res,
+				      const std::vector<std::string> &lsq_reference_atom_names) const {
+
+   bool status = false; 
+   std::vector<CAtom *> va_1 = get_atoms(    ref_res, lsq_reference_atom_names);
+   std::vector<CAtom *> va_2 = get_atoms(matcher_res, lsq_reference_atom_names);
+
+   if (va_1.size() != lsq_reference_atom_names.size()) {
+      std::cout << "Mismatch atoms length for " << comp_id_ref << " in "
+		<< "get_residue() (c.f. reference atoms) "
+		<< va_1.size() << " need " << lsq_reference_atom_names.size()
+		<< std::endl;
+   } else {
+      if (va_1.size() != va_2.size()) {
+	 std::cout << "Mismatch atoms length for " << comp_id_ref << " in "
+		   << "get_residue()" << std::endl;
+      } else {
+	 // Happy path
+	 int n = lsq_reference_atom_names.size();
+	 std::vector<clipper::Coord_orth> co_1(n);
+	 std::vector<clipper::Coord_orth> co_2(n);
+	 for (unsigned int iat=0; iat<va_1.size(); iat++) { 
+	    co_1[iat] = clipper::Coord_orth(va_1[iat]->x, va_1[iat]->y, va_1[iat]->z);
+	    co_2[iat] = clipper::Coord_orth(va_2[iat]->x, va_2[iat]->y, va_2[iat]->z);
+	 }
+	 clipper::RTop_orth rtop(co_1, co_2);
+	 coot::util::transform_atoms(mov_res, rtop);
+	 status = true;
+      }
+   }
+   return status;
+}
+
+// apply the chem mod (specifically, the CHEM_MOD_FUNCTION_DELETE
+// 
+void
+coot::beam_in_linked_residue::delete_atom(CResidue *res, const std::string &atom_name) const {
+
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   bool deleted = false;
+   res->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      CAtom *at = residue_atoms[iat];
+      if (at) {  // unneeded precaution?
+	 std::string at_name(at->name);
+	 if (at_name == atom_name) {
+	    // std::cout << "..... delete_atom() deleting atom with index " << iat
+	    // << " and  name \"" << at_name << "\"" << std::endl;
+	    delete at;
+	    at = NULL;
+	    deleted = true;
+	 }
+      }
+   }
+
+   residue_atoms = NULL;
+   res->GetAtomTable(residue_atoms, n_residue_atoms);
+   std::string rn = res->GetResName();
+   for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      CAtom *at = residue_atoms[iat];
+   }
+   
+   if (deleted)
+      res->TrimAtomTable();
+}
+
+std::string
+coot::beam_in_linked_residue::atom_id_mmdb_expand(const std::string &atom_id,
+						  const std::string &res_name) const {
+
+
+   std::string atom_id_expanded = geom_p->atom_id_expand(atom_id, res_name);
+   return atom_id_expanded;
+} 
+
 
 std::vector<CAtom *>
 coot::beam_in_linked_residue::get_atoms(CResidue *residue_p,
