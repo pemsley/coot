@@ -2,7 +2,7 @@
 
 scripts      rev 3783 (prodrg stuff needs testing) generic objects
 			missing get-recent-pdb
-tests        rev 3688 update
+tests        rev 3797 update
 build-it-win rev 2122
 
 -------------------------------------------------------
