@@ -145,8 +145,20 @@ int test_function(int i, int j) {
 //    g.wrapped_create_symmetry_controller_dialog();
 //    return 0;
 
-
    if (1) {
+
+      if (is_valid_model_molecule(i)) { 
+	 if (is_valid_map_molecule(j)) { 
+	    const clipper::Xmap<float> &xmap =
+	       graphics_info_t::molecules[j].xmap_list[0];
+	    
+	 }
+      }
+   }
+
+
+
+   if (0) {
       // coot::atom_spec_t spec_1("A", 41, "", " OE1", "");
       // coot::atom_spec_t spec_2("A", 39, "", " N  ", "");
 //       coot::atom_spec_t spec_1("B", 48, "", " OG ", "");

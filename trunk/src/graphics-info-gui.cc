@@ -3802,6 +3802,8 @@ graphics_info_t::on_multi_residue_torsion_button_clicked(GtkButton *button,
       static_cast<std::pair<coot::atom_spec_t, coot::atom_spec_t> *> (g_object_get_data (G_OBJECT (button), "spec_pair"));
    if (GTK_TOGGLE_BUTTON(check_button)->active)
       g.multi_residue_torsion_reverse_fragment_mode = 1;
+   else 
+      g.multi_residue_torsion_reverse_fragment_mode = 0;
 
    if (atom_spec_pair) {
       if (g.moving_atoms_asc->n_selected_atoms) {

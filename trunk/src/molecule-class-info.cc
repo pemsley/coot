@@ -3223,7 +3223,8 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
 
    // some protection for null molecule.
    if (! atom_sel.mol) {
-      std::cout << "ERROR:: null molecule " << imol_no << " " << atom_sel.mol
+      std::cout << "ERROR:: null molecule for molecule number "
+		<< imol_no << " pointer: " << atom_sel.mol
 		<< " (in full_atom_spec_to_atom_index)" << std::endl;
       return -1;
    }

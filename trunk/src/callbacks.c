@@ -12030,6 +12030,11 @@ on_multi_residue_torsion_reverse_checkbutton_toggled
                                         gpointer         user_data)
 {
 
+  if (togglebutton->active)
+    set_multi_residue_torsion_reverse_mode(1);
+  else 
+    set_multi_residue_torsion_reverse_mode(0);
+
 }
 
 
@@ -12088,7 +12093,7 @@ on_keyboard_go_to_residue_entry_key_press_event
 {
 
   GtkWidget *w = lookup_widget(widget, "keyboard_goto_residue_window");
-  gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
+  const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
   if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter) {
     /* do something  */
     handle_go_to_residue_keyboarding_mode(text);

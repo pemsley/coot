@@ -1673,14 +1673,21 @@ show_multi_residue_torsion_dialog() {
 			       g.multi_residue_torsion_picked_residue_specs);
       g.in_multi_residue_torsion_mode = true;
    }
-
+   graphics_draw();
 }
 
 void clear_multi_residue_torsion_mode() {
 
    graphics_info_t g;
    g.in_multi_residue_torsion_mode = false;
+}
+
+void set_multi_residue_torsion_reverse_mode(short int mode) {
+
+   graphics_info_t g;
+   g.multi_residue_torsion_reverse_fragment_mode = mode;
 } 
+
 
 /* ------------------------------------------------------------------------- */
 /*                      prodrg import function                               */
