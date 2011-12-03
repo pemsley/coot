@@ -3904,6 +3904,7 @@ void multi_residue_torsion_scm(int imol, SCM residues_specs_scm);
 void setup_multi_residue_torsion();  /* show the pick dialog */
 void show_multi_residue_torsion_dialog(); /* show the rotatable bonds dialog */
 void clear_multi_residue_torsion_mode();
+void set_multi_residue_torsion_reverse_mode(short int mode);
 
 
 #ifdef USE_PYTHON

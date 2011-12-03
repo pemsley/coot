@@ -60,7 +60,8 @@ graphics_info_t:: multi_torsion_residues(int imol, const std::vector<coot::resid
 
       if (! moving_mol) {
 	 std::cout << "no moving mol" << std::endl;
-      } else { 
+      } else {
+	 imol_moving_atoms = imol;
 	 // now select everything in moving mol
 	 int selhnd = moving_mol->NewSelection();
 	 PPCAtom atom_selection = 0;
