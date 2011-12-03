@@ -27,6 +27,7 @@
 #endif // HAVE_GSL
 #include "clipper/core/nxmap.h"
 #include "mini-mol.hh"
+#include "protein-geometry.hh"
 
 namespace coot {
 
@@ -81,6 +82,7 @@ namespace coot {
       std::vector<CAtom> jiggle_atoms(const std::vector<CAtom *> &atoms,
 				      const clipper::Coord_orth &centre_pt,
 				      float jiggle_scale_factor);
+
 
 #endif // HAVE_GSL      
 

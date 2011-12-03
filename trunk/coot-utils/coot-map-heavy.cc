@@ -28,6 +28,7 @@
 #include "coot-map-heavy.hh"
 #include "coot-map-utils.hh"
 #include "coot-coord-utils.hh"
+#include "coot-coord-extras.hh" // torsionable-bonds
 
 
 #ifdef HAVE_GSL
@@ -325,3 +326,4 @@ coot::util::jiggle_atoms(const std::vector<CAtom *> &atoms,
    }
    return new_atoms;
 }
+

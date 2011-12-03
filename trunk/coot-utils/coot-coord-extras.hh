@@ -401,7 +401,8 @@ namespace coot {
    bonded_pair_container_t    
    linkrs_in_atom_selection(CMMDBManager *mol, PPCAtom atom_selection, int n_selected_atoms,
 			    protein_geometry *geom_p);
-      
+
+   
 
    // Note: this is a simple-minded hack.  The right way of doing this
    // is to define a bonding tree that includes atoms from both
