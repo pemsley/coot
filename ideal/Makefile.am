@@ -73,7 +73,7 @@ libcoot_ideal_la_LIBADD =                 \
 
 libcoot_ideal_la_SOURCES = simple-restraint.cc chirals.cc  extra-restraints.cc \
 	pepflip.cc regularize-minimol.cc lograma.cpp \
-        extra-restraints-kk.cc simple-restraint-kk.cc
+        extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc
 
 
 noinst_PROGRAMS =  with-geometry with-map logramatest

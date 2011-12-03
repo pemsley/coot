@@ -137,11 +137,13 @@
 #include "wmolecule.hh"
 #endif
 
+#include "simple-restraint.hh"  // for multi-residue torsion map fitting.
 
 
 int test_function(int i, int j) {
 
-//    graphics_info_t g;
+   graphics_info_t g;
+   
 //    g.wrapped_create_symmetry_controller_dialog();
 //    return 0;
 
@@ -149,9 +151,22 @@ int test_function(int i, int j) {
 
       if (is_valid_model_molecule(i)) { 
 	 if (is_valid_map_molecule(j)) { 
-	    const clipper::Xmap<float> &xmap =
-	       graphics_info_t::molecules[j].xmap_list[0];
-	    
+	    const clipper::Xmap<float> &xmap = g.molecules[j].xmap_list[0];
+	    CMMDBManager *mol = g.molecules[i].atom_sel.mol;
+	    std::vector<coot::residue_spec_t> v;
+	    v.push_back(coot::residue_spec_t("G", 160, ""));
+	    v.push_back(coot::residue_spec_t("G", 847, ""));
+	    CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
+
+	    // do we need to send over the base atom too?  Or just say
+	    // that it's the first atom in moving_mol?
+	    // 
+	    coot::multi_residue_torsion_fit_map(moving_mol, xmap, g.Geom_p());
+
+	    atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
+	    g.molecules[i].replace_coords(moving_atoms_asc, 1, 1);
+
+	    delete moving_mol;
 	 }
       }
    }

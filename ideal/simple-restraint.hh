@@ -1664,7 +1664,10 @@ namespace coot {
    torsionable_link_bonds(std::vector<CResidue *> residues,
 			  CMMDBManager *mol,
 			  protein_geometry *geom);
-   
+   // this can throw an std::runtime exception
+   void multi_residue_torsion_fit_map(CMMDBManager *mol,
+				      const clipper::Xmap<float> &xmap,
+				      coot::protein_geometry *geom_p); 
 
 } // namespace coot
 
