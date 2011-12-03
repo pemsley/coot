@@ -32,7 +32,9 @@ INCLUDES = \
 
 libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc rdkit-interface.cc
 
-libcoot_lidia_core_la_LIBADD =                 \
+libcoot_lidia_core_la_LIBADD =                        \
+   $(top_builddir)/geometry/libcoot-geometry.la       \
+   $(top_builddir)/utils/libcoot-utils.la             \
    $(RDKIT_LIBS)
 
 # noinst_PROGRAMS = test-molfile
