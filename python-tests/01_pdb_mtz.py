@@ -1177,7 +1177,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         print "   diff-high-values: %s  diff-low-values: %s" %(diff_high_values, diff_low_values)
 
-        self.failUnless((sum(diff_high_values) < 0.03),
+        self.failUnless((sum(diff_high_values) < 0.04),
                         "Bad diff low values")
 
         self.failUnless((sum(diff_low_values) < -5), "Bad diff high values")
