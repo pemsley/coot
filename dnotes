@@ -6105,7 +6105,9 @@ Thu Jul 28 14:42:51 BST 2011
 ----
 Fri Jul 29 19:48:03 BST 2011
 
-    importing an sdf/mdl file should create a residue with HETATMs!
+    Importing an sdf/mdl file should create a residue with HETATMs!
+
+* Done, I think - needs checking.
 
     Get the TLC from the first line (if the first line consists of 3 letters)
 
@@ -6113,12 +6115,10 @@ Fri Jul 29 19:48:03 BST 2011
 ----
 Fri Aug 12 15:59:29 BST 2011
 
-	Areej bug: Adding an altconf on a ligand (hetgroup) makes the
-	atoms into ATOMs, (they were HETATMs)
-
+   Areej bug: Adding an altconf on a ligand (hetgroup) makes the
+   atoms into ATOMs, (they were HETATMs)
 
     or is it that ligands with alt confs are drawn without dictionary?
-
 
 ----
 Fri Aug 12 16:05:07 BST 2011
@@ -6129,6 +6129,8 @@ Fri Aug 12 16:05:07 BST 2011
    In the sequence view (the window needs a title) it would be nice if
    the ligands had a highlighting background colour and showed the TLC
    (and molecule name?) as a tooltip.
+    
+   Yes.  Very nice.
 
 ----
 Fri Aug 12 16:07:05 BST 2011
@@ -6151,7 +6153,6 @@ Fri Aug 12 16:17:52 BST 2011
 
     And it would be nice if the molecule names were there too.
 
-
 ---
 Fri Aug 12 12:29:03 BST 2011
 
@@ -6168,9 +6169,9 @@ Fri Aug 12 12:29:03 BST 2011
    http://www.ebi.ac.uk/pdbe-srv/view/files/$code.ent
    http://www.ebi.ac.uk/pdbe-srv/view/files/r{$code}sf.ent
 
-
    Then cif_to_mtz 
 
+* Done!  For the most part...
 
 ---
 Mon Sep  5 16:19:45 BST 2011
@@ -6200,6 +6201,8 @@ guile> db-obj
 ----
 Wed Aug 17 16:05:36 CEST 2011
 
+Some ideas for Control key bindings:
+
     C-c to copy residue 
 
     Shift C-c to copy a molecule
@@ -6214,7 +6217,7 @@ Wed Aug 17 16:05:36 CEST 2011
 ----
 
   learnable (discoverable),
-  usable, 
+  usable (get stuff done with least amount of clicking).
   forgiving (undo), 
   repsonsive (feedback), 
   asthetics (pretty)
@@ -6278,7 +6281,8 @@ Fri Oct 28 11:20:15 EDT 2011
 ----
 Sat Oct 29 16:36:25 EDT 2011
   
-   allow colour by c-a deviation , c-b deviations etc.  (user-defined scale and colour map of course)
+   allow colour by c-a deviation , c-b deviations etc.  (user-defined scale and 
+   colour map of course)
 
 
 ------
