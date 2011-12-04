@@ -24,9 +24,9 @@ else
 
     for dir in $dir_list
     do 
-    if [ -e $dir ] ; then
-	aclocal_extras="$aclocal_extras -I $dir"
-    fi
+       if [ -e $dir ] ; then
+	  aclocal_extras="$aclocal_extras -I $dir"
+       fi
     done
 
     if test $sys = MINGW32_NT-5.1 ; then
