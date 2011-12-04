@@ -5825,7 +5825,7 @@ create_phs_cell_choice_window (void)
   vbox39 = gtk_vbox_new (FALSE, 0);
   gtk_widget_show (vbox39);
   gtk_container_add (GTK_CONTAINER (phs_cell_choice_window), vbox39);
-  gtk_widget_set_size_request (vbox39, 290, 126);
+  gtk_widget_set_size_request (vbox39, 600, 250);
 
   label67 = gtk_label_new (_("Choose a Symmetry and Cell for the Phases file"));
   gtk_widget_show (label67);
@@ -5838,7 +5838,7 @@ create_phs_cell_choice_window (void)
 
   hbox32 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox32);
-  gtk_box_pack_start (GTK_BOX (vbox39), hbox32, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox39), hbox32, FALSE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox32), 6);
 
   phs_cell_choice_ok_button = gtk_button_new_with_mnemonic (_("OK"));

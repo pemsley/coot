@@ -10505,8 +10505,8 @@ just the cell and symmetry)
 
   <child>
     <widget class="GtkVBox" id="vbox39">
-      <property name="width_request">290</property>
-      <property name="height_request">126</property>
+      <property name="width_request">600</property>
+      <property name="height_request">250</property>
       <property name="visible">True</property>
       <property name="homogeneous">False</property>
       <property name="spacing">0</property>
@@ -10607,7 +10607,7 @@ just the cell and symmetry)
 	</widget>
 	<packing>
 	  <property name="padding">0</property>
-	  <property name="expand">True</property>
+	  <property name="expand">False</property>
 	  <property name="fill">True</property>
 	</packing>
       </child>
