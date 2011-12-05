@@ -697,7 +697,7 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       GLfloat  diffuseLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
       GLfloat specularLight[] = { 0.8f, 0.8f, 0.8f, 1.0f };
    
-      // Assign created components to GL_LIGHT0
+      // Assign created components to GL_LIGHT2
       glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
       glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
       glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
@@ -3145,8 +3145,8 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
    
    for (int itrial=0; itrial<n_trials; itrial++) {
 
-      std::vector<CAtom> jiggled_atoms = coot::util::jiggle_atoms(initial_atoms, centre_pt,
-								  jiggle_scale_factor);
+      std::vector<CAtom> jiggled_atoms =
+	 coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
       coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms);
       coot::minimol::molecule fitted_mol = rigid_body_fit(jiggled_mol, xmap, map_sigma);
       float this_score = coot::util::z_weighted_density_score(fitted_mol, atom_numbers, xmap);

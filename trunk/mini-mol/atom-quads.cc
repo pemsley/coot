@@ -40,6 +40,19 @@ coot::operator<<(std::ostream &o, const coot::atom_index_quad &q) {
    return o;
 }
 
+
+
+std::ostream&
+coot::operator<<(std::ostream &o, const coot::atom_quad &q) {
+
+   // can't use specs at this level.  Maybe consider moving atom spec definition then...
+   o << "("
+     << q.atom_1 << " " << q.atom_2 << " "
+     << q.atom_3 << " " << q.atom_4 << ")";
+   return o;
+}
+
+
 // can throw an exception
 double 
 coot::atom_index_quad::torsion(CResidue *residue_p) const {
@@ -91,3 +104,19 @@ coot::atom_index_quad::torsion(PPCAtom atom_selection, int n_selected_atoms) con
    } 
    return angle;
 }
+
+// Can throw a std::runtime_error if any of the atoms are null.
+double
+coot::atom_quad::torsion() const {
+
+   if (atom_1 && atom_2 && atom_3 && atom_4) { 
+      clipper::Coord_orth pt_1(atom_1->x, atom_1->y, atom_1->z);
+      clipper::Coord_orth pt_2(atom_2->x, atom_2->y, atom_2->z);
+      clipper::Coord_orth pt_3(atom_3->x, atom_3->y, atom_3->z);
+      clipper::Coord_orth pt_4(atom_4->x, atom_4->y, atom_4->z);
+      double angle = clipper::Util::rad2d(clipper::Coord_orth::torsion(pt_1, pt_2, pt_3, pt_4));
+      return angle;
+   } else {
+      throw std::runtime_error("quad::torsion() Null atom(s)");
+   }
+} 

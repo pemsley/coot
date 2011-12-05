@@ -335,6 +335,12 @@ namespace coot {
    // 
    double angle(CAtom *at_1, CAtom *at_2, CAtom *at_3);
 
+   // Return torsion angle in degrees, can throw an exception if any of the
+   // atoms is null.
+   // 
+   // double torsion() do this by making an atom_quad.
+
+
    class lsq_range_match_info_t {
    public:
       int model_number_reference; // usually 0, meaning unset.

@@ -62,12 +62,14 @@ AM_LDFLAGS = $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
 # libcoot_ideal_la_LDFLAGS = $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
 
 libcoot_ideal_la_LIBADD =                 \
+   $(top_builddir)/coot-utils/libcoot-map-heavy.la     \
    $(top_builddir)/geometry/libcoot-geometry.la        \
+   $(top_builddir)/coords/libcoot-coords.la            \
    $(top_builddir)/coot-utils/libcoot-coord-extras.la  \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la   \
    $(top_builddir)/utils/libcoot-utils.la              \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la        \
-   $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
+   $(top_builddir)/lidia-core/libcoot-lidia-core.la    \
    $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
 
 
@@ -93,6 +95,7 @@ with_map_SOURCES = with-map.cc
 #
 with_geometry_LDADD = \
         ./libcoot-ideal.la                                 \
+	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/coords/libcoot-coords.la           \
 	$(top_builddir)/coot-utils/libcoot-shelx.la        \
@@ -107,6 +110,7 @@ with_geometry_LDADD = \
 # add libcoot-map-utils for  the debugging density_around_point function
 with_map_LDADD =  \
         ./libcoot-ideal.la                                 \
+	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/coords/libcoot-coords.la           \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
@@ -133,9 +137,13 @@ with_map_LDADD =  \
 # Badness....
 logramatest_LDADD = \
 	./libcoot-ideal.la \
+	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
+	$(top_builddir)/coords/libcoot-coords.la           \
+        $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/utils/libcoot-utils.la       \
+	$(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(GSL_LIBS)

@@ -22,6 +22,7 @@
 lib_LTLIBRARIES=libcoot-skeleton.la
 
 INCLUDES = \
+	  -I$(top_srcdir)/mini-mol   \
 	  -I$(top_srcdir)/geometry   \
           -I$(top_srcdir)/coords     \
           -I$(top_srcdir)/angles     \

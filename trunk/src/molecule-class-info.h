@@ -3104,6 +3104,12 @@ public:        //                      public
    int single_model_view_this_model_number() const;
    int single_model_view_next_model_number(); // changes the represenation
    int single_model_view_prev_model_number(); //    ditto.
+
+   // multi-residue torsion map fitting interface
+   void multi_residue_torsion_fit(const std::vector<coot::residue_spec_t> &residue_specs,
+				  const clipper::Xmap<float> &xmap,
+				  coot::protein_geometry *geom_p);   
+   
 };
 
 #endif // MOLECULE_CLASS_INFO_T

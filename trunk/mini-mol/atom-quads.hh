@@ -118,6 +118,33 @@ namespace coot {
    };
    std::ostream& operator<<(std::ostream &o, const atom_index_quad &q);
 
+   class atom_quad {
+   public:
+      CAtom *atom_1;
+      CAtom *atom_2;
+      CAtom *atom_3;
+      CAtom *atom_4;
+      atom_quad(CAtom *atom_1_in, CAtom *atom_2_in, CAtom *atom_3_in, CAtom *atom_4_in) {
+	 atom_1 = atom_1_in;
+	 atom_2 = atom_2_in;
+	 atom_3 = atom_3_in;
+	 atom_4 = atom_4_in;
+      }
+      atom_quad() {
+	 atom_1 = NULL;
+	 atom_2 = NULL;
+	 atom_3 = NULL;
+	 atom_4 = NULL;
+      } 
+      friend std::ostream& operator<<(std::ostream &o, const atom_quad &q);
+      // Can throw a std::runtime_error if any of the atoms are null.
+      double torsion() const;
+      atom_quad reverse() const {
+	 return atom_quad(atom_4, atom_3, atom_2, atom_1);
+      } 
+   }; 
+   std::ostream& operator<<(std::ostream &o, const atom_quad &q);
+
 }
 
 #endif // LIGAND_ATOM_QUAD_HH

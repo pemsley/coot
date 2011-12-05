@@ -107,6 +107,7 @@
 (define matching-compound-names-from-dictionary matching-compound-names-from-dictionary-scm)
 (define comp-id->name comp-id-to-name-scm)
 (define multi-residue-torsion multi-residue-torsion-scm)
+(define multi-residue-torsion-fit multi-residue-torsion-fit-scm)
 
 ;; documented functions
 

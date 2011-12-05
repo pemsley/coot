@@ -535,10 +535,9 @@ coot::contact_info::contacts_from_monomer_restraints(const atom_selection_contai
 }
 
 
-
-coot::contact_info::contact_info(const atom_selection_container_t &asc,
-				 coot::protein_geometry *geom_p, 
-				 const std::vector<std::pair<CAtom *, CAtom *> > &link_bond_atoms) {
+void
+coot::contact_info::setup_from_monomer_restraints(const atom_selection_container_t &asc,
+						  coot::protein_geometry *geom_p) {
 
    std::vector<CResidue *> residues;
    std::map<CResidue *, std::vector<int> > atoms_in_residue;
@@ -562,9 +561,16 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
       }
       res_restraints[residues[ires]] = rest.second;
    }
-
    contacts_from_monomer_restraints(asc, res_restraints);
+}
 
+coot::contact_info::contact_info(const atom_selection_container_t &asc,
+				 coot::protein_geometry *geom_p, 
+				 const std::vector<std::pair<CAtom *, CAtom *> > &link_bond_atoms) {
+
+
+   setup_from_monomer_restraints(asc, geom_p);
+   
    // now the link bond restraints
    for (unsigned int ilb=0; ilb<link_bond_atoms.size(); ilb++) {
       bool ifound = 0;
@@ -582,6 +588,38 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
 	 }
 	 if (ifound)
 	    break;
+      }
+   }
+}
+
+coot::contact_info::contact_info(CMMDBManager *mol, int selhnd,
+				 const std::vector<coot::atom_quad> &link_torsions,
+				 coot::protein_geometry *geom_p) {
+
+   atom_selection_container_t asc(mol, selhnd);
+   setup_from_monomer_restraints(asc, geom_p);
+   // now the bond between monomers (middle atoms must be in different residues).
+   for (unsigned int itor=0; itor<link_torsions.size(); itor++) { 
+      bool ifound = false;
+      CResidue *r1 = link_torsions[itor].atom_2->residue;
+      CResidue *r2 = link_torsions[itor].atom_3->residue;
+      if (r1 != r2) {
+	 for (unsigned int i=0; i<asc.n_selected_atoms; i++) {
+	    if (asc.atom_selection[i] == link_torsions[itor].atom_2) {
+	       for (unsigned int j=0; j<asc.n_selected_atoms; j++) {
+		  if (asc.atom_selection[j] == link_torsions[itor].atom_3) {
+		     contacts_pair p(j, i);
+		     std::cout << "---- contact_info() constructor added link bond contact "
+			       << i << " " << j << std::endl;
+		     contacts.push_back(p);
+		     ifound = true;
+		     break;
+		  }
+	       }
+	    }
+	    if (ifound)
+	       break;
+	 }
       }
    }
 }

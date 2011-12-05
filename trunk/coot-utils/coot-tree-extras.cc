@@ -21,6 +21,7 @@
 
 #include <queue>
 #include <sstream>
+#include <algorithm>
 #include <string.h>
 
 #include "coot-utils.hh"
@@ -783,8 +784,7 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 // We pass atoms 2 and 3 of the torsion
 // 
 double
-coot::atom_tree_t::rotate_about(int index2, int index3,
-				double angle, bool reversed_flag) {
+coot::atom_tree_t::rotate_about(int index2, int index3, double angle, bool reversed_flag) {
 
    bool debug = 0;
    double new_torsion = 0.0;
@@ -1255,6 +1255,29 @@ coot::atom_tree_t::set_dihedral(const coot::map_index_t &i1,
    return dihedral_angle;
 }
 
+// this can throw an exception
+// 
+// return the angle of the torsion (should be the same as was set)
+//
+double
+coot::atom_tree_t::set_dihedral(const coot::atom_quad &quad, double angle,
+				bool reverse_flag) {
+
+   double dihedral_angle = 0.0;
+   double current_dihedral_angle = quad.torsion();
+   double diff = angle - current_dihedral_angle;
+   if (diff >  360.0) diff -= 360.0;
+   if (diff < -360.0) diff += 360.0;
+   int ind_2 = get_index(quad.atom_2).index();
+   int ind_3 = get_index(quad.atom_3).index();
+   if (ind_2 == -1) throw std::runtime_error("set_dihedral(quad) missing atom 2");
+   if (ind_3 == -1) throw std::runtime_error("set_dihedral(quad) missing atom 3");
+   rotate_about(ind_2, ind_3, diff, reverse_flag);
+
+   dihedral_angle = quad.torsion();
+   return dihedral_angle;
+} 
+
 
 // this can throw an exception
 // 
@@ -1263,6 +1286,8 @@ coot::atom_tree_t::set_dihedral(const coot::map_index_t &i1,
 std::vector<double>
 coot::atom_tree_t::set_dihedral_multi(const std::vector<tree_dihedral_info_t> &di) {
 
+   // tree_dihedral_info_t is an atom_name_quad and a angle in degrees.
+   // 
    std::vector<double> v(di.size());
    for (unsigned int id=0; id<di.size(); id++) {
       v[id] = set_dihedral(di[id].quad.atom_name(0), di[id].quad.atom_name(1),
@@ -1270,6 +1295,83 @@ coot::atom_tree_t::set_dihedral_multi(const std::vector<tree_dihedral_info_t> &d
 			   di[id].dihedral_angle);
    }
    return v;
+}
+
+std::vector<double>
+coot::atom_tree_t::set_dihedral_multi(const std::vector<tree_dihedral_quad_info_t> &quads) {
+
+   std::vector<double> v(quads.size());
+   for (unsigned int iquad=0; iquad<quads.size(); iquad++) {
+      coot::map_index_t index2 = get_index(quads[iquad].quad.atom_2);
+      coot::map_index_t index3 = get_index(quads[iquad].quad.atom_3);
+
+      if (0) 
+	 std::cout << "testing if  " << quads[iquad].fixed_atom_index.index() << " "
+		   << coot::atom_spec_t(atom_selection[quads[iquad].fixed_atom_index.index()]) << " "
+		   << "is a forward atom of " 
+		   << index2.index() << " "
+		   << coot::atom_spec_t(atom_selection[index2.index()]) << " "
+		   << std::endl;
+      bool iff = in_forward_atoms(index2, quads[iquad].fixed_atom_index);
+
+      bool index3_is_forward_of_index2 = 0;
+      for (unsigned int ifo=0; ifo<atom_vertex_vec[index2.index()].forward.size(); ifo++) {
+	 if (atom_vertex_vec[index2.index()].forward[ifo] == index3.index()) {
+	    index3_is_forward_of_index2 = true;
+	    break;
+	 }
+      }
+      if (0)
+	 std::cout << "   result: " << iff << "  index3_is_forward_of_index2: "
+		   << index3_is_forward_of_index2 << std::endl;
+      
+      bool xor_reverse = ! (iff ^ index3_is_forward_of_index2);
+      v[iquad] = set_dihedral(quads[iquad].quad, quads[iquad].dihedral_angle, xor_reverse);
+   }
+   return v;
+}
+
+bool
+coot::atom_tree_t::in_forward_atoms(const coot::map_index_t &bond_atom_index,
+				    const coot::map_index_t &fixed) const {
+
+   bool status = false;
+
+   if (fixed.is_assigned()) { 
+      std::pair<int, std::vector<coot::map_index_t> >  p = 
+	 get_forward_atoms(bond_atom_index, bond_atom_index);
+      if (std::find(p.second.begin(), p.second.end(), fixed) != p.second.end())
+	 status = true;
+   }
+   return status;
+} 
+
+
+coot::map_index_t
+coot::atom_tree_t::get_index(CAtom *atom) const {
+
+   coot::map_index_t idx;
+   if (residue) {
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 if (residue_atoms[iat] == atom) {
+	    idx = iat;
+	    break;
+	 } 
+      }
+   }
+   if (atom_selection) {
+      for (unsigned int iat=0; iat<n_selected_atoms; iat++) {
+	 if (atom_selection[iat] == atom) {
+	    idx = iat;
+	    break;
+	 }
+      }
+   } 
+
+   return idx;
 }
 
 

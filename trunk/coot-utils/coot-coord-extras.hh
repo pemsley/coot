@@ -2,7 +2,7 @@
  * 
  * Copyright 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2009 by the University of Oxford
- * Author: Paul Emsley
+ * Copyright 2011 by the University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -216,6 +216,12 @@ namespace coot {
 			   double angle);
       double quad_to_torsion(const map_index_t &index2) const;
 
+      map_index_t get_index(CAtom *atom) const;
+
+      bool in_forward_atoms(const coot::map_index_t &bond_atom_index,
+			    const coot::map_index_t &fixed) const;
+      
+
       // factored out:
       bool fill_atom_vertex_vec_using_contacts_by_atom_selection(const std::vector<std::vector<int> > &contact_indices,
 								 PPCAtom residue_atoms,
@@ -225,8 +231,7 @@ namespace coot {
       
    public:
 
-      // The angles are in degrees (they get converted to radians in
-      // set_dihedral()).
+      // The angles are in degrees.
       // 
       class tree_dihedral_info_t {
       public:
@@ -238,6 +243,20 @@ namespace coot {
 	 }
 	 tree_dihedral_info_t() {}
 	 friend std::ostream& operator<<(std::ostream &o, tree_dihedral_info_t t);
+      };
+
+      class tree_dihedral_quad_info_t {
+      public:
+	 atom_quad quad;
+	 double dihedral_angle;
+	 map_index_t fixed_atom_index; // from which the reverse flag gets derived;
+	 tree_dihedral_quad_info_t() {}
+	 // fixed can be unset, then we don't care if this is reversed or not.
+	 tree_dihedral_quad_info_t(const atom_quad &quad_in, double angle_in, const map_index_t &fixed) {
+	    quad = quad_in;
+	    dihedral_angle = angle_in;
+	    fixed_atom_index = fixed;
+	 } 
       };
       
       // the constructor throws an exception if there is no tree in
@@ -297,11 +316,14 @@ namespace coot {
       // degress).  This is a relative rotation - not setting the
       // torsion angle.  The atoms of the CResidue residue are
       // manipulated.
+      // 
+      // This can be used either by the residue or atom_selection
+      // method of tree generation.
       //
-      // The reversed flag (being true) allows the rotation of the
-      // base, rather than the branch (dog wags rather than tail).
-      // atom1 and atom2 can be passed in either way round, this
-      // function will sort out the position in the tree.  The
+      // If the reversed flag is true, this allows the rotation of the
+      // "base" atoms, rather than the branch (dog wags rather than
+      // tail).  atom1 and atom2 can be passed in either way round,
+      // this function will sort out the position in the tree.  The
       // fragment rotation is reversed by setting the reversed_flag
       // (not the atom order).
       // 
@@ -341,6 +363,9 @@ namespace coot {
 			  const map_index_t &i4, 
 			  double angle);
 
+      // reverse_flag to 1 to rotate "base" atoms rather than "tail" atoms.
+      // 
+      double set_dihedral(const atom_quad &quad, double angle, bool reverse_flag);
 
       // this can throw an exception
       // 
@@ -349,7 +374,17 @@ namespace coot {
       //
       // angle in degrees
       std::vector<double> set_dihedral_multi(const std::vector<tree_dihedral_info_t> &di);
-      //
+
+      // this can throw an exception.
+      // 
+      // angle in the double part of the pair, in degrees.
+      // 
+      // return the set of angles - should be the same that they were 
+      // set to (for validation).
+      
+      std::vector<double> set_dihedral_multi(const std::vector<tree_dihedral_quad_info_t> &quads);
+
+      
       minimol::residue GetResidue() const; // for use with above
 					   // function, where the
 					   // class constructor is
@@ -390,8 +425,21 @@ namespace coot {
    // (just the torsionable bonds (middle atom pairs)) by looking at
    // the monomer restraints
    // 
+   // Don't return any hydrogen torsions - perhaps we should make that a
+   // passed parameter.
+   //
+   // These functions should be part of protein_geometry, should they not?
+   // 
    std::vector<std::pair<CAtom *, CAtom *> >
    torsionable_bonds_monomer_internal(CResidue *residue_p,
+				      PPCAtom atom_selection, int n_selected_atoms,
+				      bool include_pyranose_ring_torsions_flag,
+				      protein_geometry *geom_p);
+
+   // The quad version of this (for actually setting torsions)
+   // 
+   std::vector<atom_quad>
+   torsionable_bonds_monomer_internal_quads(CResidue *residue_p,
 				      PPCAtom atom_selection, int n_selected_atoms,
 				      bool include_pyranose_ring_torsions_flag,
 				      protein_geometry *geom_p);

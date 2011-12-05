@@ -488,8 +488,8 @@ coot::torsionable_bonds_monomer_internal(CResidue *residue_p,
       geom_p->get_monomer_torsions_from_geometry(rn, hydrogen_torsions);
    bool is_pyranose = false; // reset maybe
    std::string group = geom_p->get_group(residue_p);
-   if (group == "pyranose")
-      is_pyranose = 1;
+   if (group == "pyranose" || group == "D-pyranose" || group == "L-pyranose")
+      is_pyranose = true;
 
    if (tors_restraints.size()) {
       for (unsigned int itor=0; itor<tors_restraints.size(); itor++) {
@@ -527,7 +527,61 @@ coot::torsionable_bonds_monomer_internal(CResidue *residue_p,
       }
    }
    return v;
+}
+
+// The quad version of this (for actually setting torsions)
+// 
+// Don't return any hydrogen torsions - perhaps we should make that a
+// passed parameter.
+// 
+std::vector<coot::atom_quad>
+coot::torsionable_bonds_monomer_internal_quads(CResidue *residue_p,
+					       PPCAtom atom_selection, int n_selected_atoms,
+					       bool include_pyranose_ring_torsions_flag,
+					       coot::protein_geometry *geom_p) {
+   std::vector<coot::atom_quad> quads;
+   bool hydrogen_torsions = false;
+   std::string rn = residue_p->GetResName();
+   std::vector <dict_torsion_restraint_t> tors_restraints = 
+      geom_p->get_monomer_torsions_from_geometry(rn, hydrogen_torsions);
+   bool is_pyranose = false;
+   std::string group = geom_p->get_group(residue_p);
+   if (group == "pyranose" || group == "D-pyranose" || group == "L-pyranose")
+      is_pyranose = true;
+   std::vector<std::string> residue_alt_confs = coot::util::get_residue_alt_confs(residue_p);
+   for (unsigned int itor=0; itor<tors_restraints.size(); itor++) {
+      if (! tors_restraints[itor].is_const()) { 
+	 std::string tor_atom_name[5];
+	 std::vector<CAtom *> ats(5, NULL);
+	 tor_atom_name[1] = tors_restraints[itor].atom_id_1_4c();
+	 tor_atom_name[2] = tors_restraints[itor].atom_id_2_4c();
+	 tor_atom_name[3] = tors_restraints[itor].atom_id_3_4c();
+	 tor_atom_name[4] = tors_restraints[itor].atom_id_4_4c();
+	 if ((include_pyranose_ring_torsions_flag == 1) ||
+	     (is_pyranose && !tors_restraints[itor].is_pyranose_ring_torsion()) ||
+	     (! is_pyranose)) { 
+	    for (unsigned int ialt=0; ialt<residue_alt_confs.size(); ialt++) { 
+	       for (unsigned int iat=0; iat<n_selected_atoms; iat++) {
+		  std::string atom_name = atom_selection[iat]->name;
+		  std::string alt_conf  = atom_selection[iat]->altLoc;
+		  if (alt_conf == residue_alt_confs[ialt]) { 
+		     for (unsigned int itor=1; itor<5; itor++) { 
+			if (atom_name == tor_atom_name[itor])
+			   ats[itor] = atom_selection[iat];
+		     }
+		  }
+	       }
+	       // yes we got for atoms (of matching alt confs)
+	       if (ats[1] && ats[2] && ats[3] && ats[4]) {
+		  quads.push_back(coot::atom_quad(ats[1],ats[2],ats[3],ats[4]));
+	       }
+	    }
+	 }
+      }
+   }
+   return quads;
 } 
+
 
 coot::bonded_pair_container_t 
 coot::linkrs_in_atom_selection(CMMDBManager *mol, PPCAtom atom_selection, int n_selected_atoms,

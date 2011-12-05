@@ -668,8 +668,7 @@ coot::angle(CAtom *at_1, CAtom *at_2, CAtom *at_3) {
 
    } 
    return ang; 
-} 
-
+}
 
 
 clipper::RTop_orth
