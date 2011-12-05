@@ -1120,3 +1120,23 @@ coot::dict_link_info_t::check_for_order_switch(CResidue *residue_ref,
    } 
    return order_switch_flag;
 }
+
+// multi-residue torsion map fitting interface
+void
+molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue_spec_t> &residue_specs,
+						 const clipper::Xmap<float> &xmap,
+						 coot::protein_geometry *geom_p) {
+
+   CMMDBManager *moving_mol =
+      coot::util::create_mmdbmanager_from_residue_specs(residue_specs, atom_sel.mol);
+   
+   // do we need to send over the base atom too?  Or just say
+   // that it's the first atom in moving_mol?
+   // 
+   coot::multi_residue_torsion_fit_map(moving_mol, xmap, geom_p);
+
+   atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
+   replace_coords(moving_atoms_asc, 1, 1);
+   
+}
+

@@ -54,6 +54,7 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 # clean
 libcoot_ligand_la_LIBADD = \
    $(top_builddir)/ideal/libcoot-ideal.la             \
+   $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
    $(top_builddir)/db-main/libcoot-db-main.la         \
    $(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
    $(top_builddir)/geometry/libcoot-geometry.la       \
@@ -160,6 +161,7 @@ findwaters_real_SOURCES = find-waters.cc
 findligand_real_LDADD = \
 	./libcoot-ligand.la                                \
 	$(top_builddir)/ideal/libcoot-ideal.la             \
+        $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/coords/libcoot-coords.la           \
 	$(top_builddir)/db-main/libcoot-db-main.la         \
@@ -178,6 +180,7 @@ findligand_real_LDADD = \
 findwaters_real_LDADD = \
 	./libcoot-ligand.la                                \
 	$(top_builddir)/ideal/libcoot-ideal.la             \
+        $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/coords/libcoot-coords.la           \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \

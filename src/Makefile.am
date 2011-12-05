@@ -251,9 +251,6 @@ coot_real_SOURCES = \
 	c-interface-build-gui.cc \
 	c-interface-database.hh  \
 	c-interface-database.cc  \
-	c-interface-pisa.cc	 \
-	c-interface-pisa-gui.cc	 \
-	c-interface-python.hh	 \
 	c-interface-gui.cc	 \
 	c-interface-gtk2.cc	 \
 	c-interface-info.cc	 \
@@ -268,7 +265,10 @@ coot_real_SOURCES = \
 	c-interface-network.cc	 \
 	c-interface-nucleotides.cc \
 	c-interface-python.cc	 \
+	c-interface-pisa.cc	 \
+	c-interface-pisa-gui.cc	 \
 	c-interface-preferences.cc \
+	c-interface-python.hh	 \
 	c-interface-refine.cc	 \
 	c-interface-scm.hh	 \
 	c-interface-scm.cc	 \
@@ -421,6 +421,7 @@ fix_nomenclature_errors_LDADD = \
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
 	$(top_builddir)/db-main/libcoot-db-main.la      	\
 	$(top_builddir)/ideal/libcoot-ideal.la    		\
+        $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la      		\
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\

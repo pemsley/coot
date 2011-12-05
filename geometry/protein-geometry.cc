@@ -939,6 +939,26 @@ coot::dictionary_residue_restraints_t::get_non_const_torsions(bool include_hydro
 bool
 coot::dict_torsion_restraint_t::is_pyranose_ring_torsion() const {
 
+   // Needs fixup for PDBv3
+   bool status = false;
+   std::string ring_atoms[6] = { " C1 ", " C2 ", " C3 ", " C4 ", " C5 ", " O5 " };
+
+   int n_matches = 0;
+   for (unsigned int i=0; i<6; i++) { 
+      if (atom_id_2_4c() == ring_atoms[i])
+	 n_matches++;
+      if (atom_id_3_4c() == ring_atoms[i])
+	 n_matches++;
+   }
+   if (n_matches == 2)
+      status = true;
+   return status;
+}
+
+bool
+coot::dict_link_torsion_restraint_t::is_pyranose_ring_torsion() const {
+
+   // Needs fixup for PDBv3
    bool status = false;
    std::string ring_atoms[6] = { " C1 ", " C2 ", " C3 ", " C4 ", " C5 ", " O5 " };
 
@@ -953,6 +973,8 @@ coot::dict_torsion_restraint_t::is_pyranose_ring_torsion() const {
       status = true;
    return status;
 } 
+
+
 
 
 bool
@@ -1020,6 +1042,26 @@ coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name)
    return r;
 }
 
+std::vector<std::string>
+coot::dictionary_residue_restraints_t::neighbours(const std::string &atom_name, bool allow_hydrogen_neighbours_flag) const {
+
+   std::vector<std::string> n;
+   for (unsigned int i=0; i<bond_restraint.size(); i++) { 
+      if (bond_restraint[i].atom_id_1() == atom_name) {
+	 if (allow_hydrogen_neighbours_flag || ! is_hydrogen(bond_restraint[i].atom_id_2())) {
+	    n.push_back(bond_restraint[i].atom_id_2());
+	 }
+      }
+      if (bond_restraint[i].atom_id_2() == atom_name) {
+	 if (allow_hydrogen_neighbours_flag || ! is_hydrogen(bond_restraint[i].atom_id_1())) {
+	    n.push_back(bond_restraint[i].atom_id_1());
+	 }
+      }
+   }
+   return n;
+} 
+
+
 
 
 
@@ -1029,11 +1071,13 @@ coot::dictionary_residue_restraints_t::get_attached_H_names(const std::string &a
    std::vector<std::string> v;
    for (unsigned int i=0; i<bond_restraint.size(); i++) { 
       if (bond_restraint[i].atom_id_1() == atom_name) {
-	 if (element(bond_restraint[i].atom_id_2()) == " H")
+	 // if (element(bond_restraint[i].atom_id_2()) == " H")
+	 if (is_hydrogen(bond_restraint[i].atom_id_2()))
 	    v.push_back(bond_restraint[i].atom_id_2());
       }
       if (bond_restraint[i].atom_id_2() == atom_name) {
-	 if (element(bond_restraint[i].atom_id_1()) == " H")
+	 // if (element(bond_restraint[i].atom_id_1()) == " H")
+	 if (is_hydrogen(bond_restraint[i].atom_id_1()))
 	    v.push_back(bond_restraint[i].atom_id_1());
       }
    }
@@ -4349,7 +4393,9 @@ coot::dictionary_residue_restraints_t::is_hydrogen(const std::string &atom_name)
    bool r = 0;
    for (unsigned int i=0; i<atom_info.size(); i++) {
       if (atom_info[i].atom_id_4c == atom_name) {
-	 if (atom_info[i].type_symbol == "H" || atom_info[i].type_symbol == "D") {
+	 if (atom_info[i].type_symbol == "H" ||
+	     atom_info[i].type_symbol == " H" ||
+	     atom_info[i].type_symbol == "D") {
 	    r = 1;
 	    break;
 	 }
@@ -4697,6 +4743,7 @@ coot::protein_geometry::remove_omega_peptide_restraints() {
       }
    }
 }
+
 
 
 // a list of three-letter-codes (should that be comp_ids?) that match

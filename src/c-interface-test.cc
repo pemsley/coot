@@ -156,17 +156,34 @@ int test_function(int i, int j) {
 	    std::vector<coot::residue_spec_t> v;
 	    v.push_back(coot::residue_spec_t("G", 160, ""));
 	    v.push_back(coot::residue_spec_t("G", 847, ""));
-	    CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 
-	    // do we need to send over the base atom too?  Or just say
-	    // that it's the first atom in moving_mol?
-	    // 
-	    coot::multi_residue_torsion_fit_map(moving_mol, xmap, g.Geom_p());
+	    int n_rounds = 10;
+	    for (unsigned int iround=0; iround<n_rounds; iround++) { 
+   
+	       CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 
-	    atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
-	    g.molecules[i].replace_coords(moving_atoms_asc, 1, 1);
+	       // do we need to send over the base atom too?  Or just say
+	       // that it's the first atom in moving_mol?
+	       // 
+	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, g.Geom_p());
 
-	    delete moving_mol;
+	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
+
+	       std::pair<CMMDBManager *, int> new_mol =
+		  coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
+	       atom_selection_container_t asc_new = make_asc(new_mol.first);
+	       std::string name = "test-" + coot::util::int_to_string(iround);
+	       bool shelx_flag = 0;
+	       int imol_new = g.create_molecule();
+	       g.molecules[imol_new].install_model(imol_new, asc_new, name, 1, shelx_flag);
+
+	       // Don't update - not at the moment at least.
+	       // 
+	       // g.molecules[i].replace_coords(moving_atoms_asc, 1, 1);
+	       
+	       delete moving_mol;
+	       graphics_draw();
+	    }
 	 }
       }
    }

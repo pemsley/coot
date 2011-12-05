@@ -67,9 +67,12 @@ namespace coot {
 					const std::vector<std::pair<std::string, int> > &atom_number_list,
 					const clipper::Xmap<float> &map_in);
 
-      float z_weighted_density_score(const std::vector<CAtom> &atoms,
+      float z_weighted_density_score(const std::vector<CAtom *> &atoms,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
 				     const clipper::Xmap<float> &map);
+
+      float z_weighted_density_score_new(const std::vector<std::pair<CAtom *, float> > &atom_atom_number_pairs,
+					 const clipper::Xmap<float> &map);
 
       float z_weighted_density_score(const minimol::molecule &mol,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,

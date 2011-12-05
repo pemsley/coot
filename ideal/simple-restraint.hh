@@ -1658,12 +1658,19 @@ namespace coot {
 		     protein_geometry *geom);
    // not sure this needs to public
    std::vector<std::pair<CAtom *, CAtom *> >
-   torsionable_link_bonds(std::vector<CResidue *> residues_in, CMMDBManager *mol,
-			  protein_geometry *geom);
-   std::vector<std::pair<CAtom *, CAtom *> >
-   torsionable_link_bonds(std::vector<CResidue *> residues,
+   torsionable_link_bonds(std::vector<CResidue *> residues_in,
 			  CMMDBManager *mol,
 			  protein_geometry *geom);
+
+   // And the atom_quad version of that (for setting link torsions)
+   // 
+   std::vector<atom_quad>
+   torsionable_quads(CMMDBManager *mol, PPCAtom atom_selection, int n_selected_atoms,
+		     protein_geometry *geom);
+   std::vector<atom_quad>
+   torsionable_link_quads(std::vector<CResidue *> residues_in,
+			  CMMDBManager *mol, protein_geometry *geom_p);
+   
    // this can throw an std::runtime exception
    void multi_residue_torsion_fit_map(CMMDBManager *mol,
 				      const clipper::Xmap<float> &xmap,

@@ -58,33 +58,54 @@ class MyCMMDBManager : public CMMDBManager {
 
 // we need this for bonded_pair_container_t.
 #include "bonded-pairs.hh"
+// and atom quads
+#include "atom-quads.hh"
 
 // 
 //
 class atom_selection_container_t { 
- public:
-  //PCMMDBManager mol; 
-  MyCMMDBManager *mol;
-  int n_selected_atoms; 
-  PPCAtom atom_selection; 
-  std::string read_error_message;
-  int read_success;
-  int SelectionHandle;
-  int UDDAtomIndexHandle; // no negative is OK.
-  int UDDOldAtomIndexHandle; // ditto. // set initially to -1 in make_asc
-  void clear_up() { 
-    if (read_success) 
-      if (SelectionHandle)
-	mol->DeleteSelection(SelectionHandle);
-    delete mol;
-    atom_selection = 0;
-    mol = 0; 
-  } 
-  void delete_atom_selection() { 
-    mol->DeleteSelection(SelectionHandle);
-    n_selected_atoms = 0;
-    atom_selection = 0;
-  } 
+public:
+   //PCMMDBManager mol; 
+   MyCMMDBManager *mol;
+   int n_selected_atoms; 
+   PPCAtom atom_selection; 
+   std::string read_error_message;
+   int read_success;
+   int SelectionHandle;
+   int UDDAtomIndexHandle; // no negative is OK.
+   int UDDOldAtomIndexHandle; // ditto. // set initially to -1 in make_asc
+
+   atom_selection_container_t(CMMDBManager *mol_in, int selhnd) {
+      // one day this casting should go away...
+      mol =  (MyCMMDBManager *) mol_in;
+      atom_selection = NULL;
+      mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
+      SelectionHandle = selhnd;
+      UDDAtomIndexHandle = -1;
+      UDDOldAtomIndexHandle = -1;
+   }
+
+   atom_selection_container_t() {
+      mol = NULL;
+      atom_selection = NULL;
+      SelectionHandle = -1;
+      UDDAtomIndexHandle = -1;
+      UDDOldAtomIndexHandle = -1;
+   } 
+  
+   void clear_up() { 
+      if (read_success) 
+	 if (SelectionHandle)
+	    mol->DeleteSelection(SelectionHandle);
+      delete mol;
+      atom_selection = 0;
+      mol = 0; 
+   } 
+   void delete_atom_selection() { 
+      mol->DeleteSelection(SelectionHandle);
+      n_selected_atoms = 0;
+      atom_selection = 0;
+   } 
 };
 
 // debug this struct
@@ -158,6 +179,10 @@ namespace coot {
     void contacts_from_monomer_restraints(const atom_selection_container_t asc, 
 			    std::map<CResidue *, dictionary_residue_restraints_t> &res_restraints); // non-const for map [] usage
 
+    void setup_from_monomer_restraints(const atom_selection_container_t &asc, 
+				       coot::protein_geometry *geom_p);
+
+
   public:
     std::vector<contacts_pair> contacts;
     contact_info(PSContact con_in, int nc) {
@@ -191,7 +216,7 @@ namespace coot {
     //
     contact_info(const atom_selection_container_t &asc, 
 		 const std::string &monomer_type,
-		 coot::protein_geometry *geom_p);
+		 protein_geometry *geom_p);
 
     // Here we look up the contacts for each monomer in the atom
     // selection. We also allow descriptions of bonds between
@@ -200,12 +225,19 @@ namespace coot {
     // Can throw a std::runtime_error.
     // 
     contact_info(const atom_selection_container_t &asc,
-		 coot::protein_geometry *geom_p, 
+		 protein_geometry *geom_p, 
 		 const bonded_pair_container_t &bonded_pairs);
 
     contact_info(const atom_selection_container_t &asc,
-		 coot::protein_geometry *geom_p, 
+		 protein_geometry *geom_p, 
 		 const std::vector<std::pair<CAtom *, CAtom *> > &link_bond_atoms);
+
+    // like above, but we have link atom quads (selhnd is a selection
+    // handle - usually all atoms in mol, but not necessarily).
+    // 
+    contact_info(CMMDBManager *mol, int selhnd,
+		 const std::vector<atom_quad> &link_torsions,
+		 protein_geometry *geom_p);
 
     void add_MSE_Se_bonds(const atom_selection_container_t &asc);
     int n_contacts() const { return contacts.size(); } 
@@ -220,7 +252,7 @@ namespace coot {
   };
   contact_info getcontacts(const atom_selection_container_t &asc); 
   contact_info getcontacts(const atom_selection_container_t &asc, const std::string &monomer_type, 
-			   coot::protein_geometry *geom_p); 
+			   protein_geometry *geom_p); 
 
   // Typically this is used on an asc (moving atoms) to get the N of a
   // peptide (say).  Return NULL on atom not found.

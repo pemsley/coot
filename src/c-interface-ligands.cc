@@ -1630,7 +1630,31 @@ multi_residue_torsion_scm(int imol, SCM residues_specs_scm) {
    } 
 
 }
-#endif 
+#endif
+
+/*! \brief fit residues
+
+(note: fit to the current-refinement map)
+*/
+#ifdef USE_GUILE
+SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_refinement_map())) {
+	 graphics_info_t g;
+	 std::vector<coot::residue_spec_t> residue_specs =
+	    scm_to_residue_specs(residues_specs_scm);
+	 const clipper::Xmap<float> &xmap =
+	    g.molecules[imol_refinement_map()].xmap_list[0];
+	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	 graphics_draw();
+      }
+   }
+   return r;
+} 
+#endif
+
 
 
 #ifdef USE_PYTHON

@@ -244,13 +244,13 @@ coot::util::z_weighted_density_at_point(const clipper::Coord_orth &pt,
 }
 
 float
-coot::util::z_weighted_density_score(const std::vector<CAtom> &atoms,
+coot::util::z_weighted_density_score(const std::vector<CAtom *> &atoms,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
 				     const clipper::Xmap<float> &map) {
    float sum_d = 0;
    for (unsigned int iat=0; iat<atoms.size(); iat++) {
-      clipper::Coord_orth co(atoms[iat].x, atoms[iat].y, atoms[iat].z);
-      float d = coot::util::z_weighted_density_at_point(co, atoms[iat].element, atom_number_list, map);
+      clipper::Coord_orth co(atoms[iat]->x, atoms[iat]->y, atoms[iat]->z);
+      float d = coot::util::z_weighted_density_at_point(co, atoms[iat]->element, atom_number_list, map);
       sum_d += d;
    }
    return  sum_d;
@@ -269,6 +269,22 @@ coot::util::z_weighted_density_score(const minimol::molecule &mol,
    }
    return sum_d;
 }
+
+float
+coot::util::z_weighted_density_score_new(const std::vector<std::pair<CAtom *, float> > &atom_atom_number_pairs,
+					 const clipper::Xmap<float> &map) {
+
+   float sum_d = 0;
+   for (unsigned int iat=0; iat<atom_atom_number_pairs.size(); iat++) {
+      const CAtom *at = atom_atom_number_pairs[iat].first;
+      clipper::Coord_orth co(at->x, at->y, at->z);
+      float d = coot::util::density_at_point(map, co) * atom_atom_number_pairs[iat].second;
+      sum_d += d;
+   }
+   return sum_d;
+}
+
+
 
 // High density fitting is down-weighted and negative density fitting
 // is upweighted.

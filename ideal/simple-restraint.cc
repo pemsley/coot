@@ -615,14 +615,18 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    // 
    // for (int i=0; i<100; i++) { // time testing
 
-   gsl_multimin_fdfminimizer_set (s, &multimin_func, x, 0.02, 0.03);
+   float tolerance = 0.035;
+   if (! include_map_terms())
+      tolerance = 0.1;
+   
+   gsl_multimin_fdfminimizer_set (s, &multimin_func, x, 0.02, tolerance);
    // stepsize 0.01, tolerance 1e-4
 
 
    if (print_initial_chi_sq_flag) { 
       double d = coot::distortion_score(x,(double *)this); 
       std::cout << "initial distortion_score: " << d << std::endl; 
-      chi_squareds("Initial Chi Squareds", s->x);
+      chi_squareds("Initial RMS Z values", s->x);
    }
 
 //      std::cout << "pre minimization atom positions\n";
@@ -662,7 +666,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 
 	 // back of envelope calculation suggests g_crit = 0.1 for
 	 // coordinate shift of 0.001:  So let's choose 0.05
-	 status = gsl_multimin_test_gradient (s->gradient, 0.2);
+	 status = gsl_multimin_test_gradient (s->gradient, 0.22);
 
 	 if (status == GSL_SUCCESS) { 
 	    std::cout << "Minimum found (iteration number " << iter << ") at ";

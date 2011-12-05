@@ -457,6 +457,8 @@ namespace coot {
       std::vector<std::string> get_attached_H_names(const std::string &atom_name) const;
 
       bool is_from_sbase_data() const { return filled_with_sbase_data_flag; }
+
+      std::vector<std::string> neighbours(const std::string &atom_name, bool allow_hydrogen_neighbours_flag) const;
       
    };
 
@@ -554,6 +556,7 @@ namespace coot {
       std::string atom_id_4_4c() const { return atom_id_mmdb_expand(atom_id_4_);}
       int period() const { return period_; }
       std::string id() const { return id_;}
+      bool is_pyranose_ring_torsion() const; 
    }; 
 
    class dict_link_chiral_restraint_t : public basic_dict_restraint_t {

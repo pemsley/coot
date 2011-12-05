@@ -21,6 +21,8 @@
   o How do I deal with the responses correctly in the lidia file
     dialogs? ::: 2
 
+  o LINKR recognition (draw it) - and use in restraints ::: 3
+
   o test and use new mmdb ::: 1
 
 ------
@@ -225,3 +227,6 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 
 * Done.
 
+  o Fix cif torsions and chiral, no loop single entry ::: 1
+
+* Done.
