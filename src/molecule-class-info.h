@@ -3091,10 +3091,14 @@ public:        //                      public
    // 
    //  (the protein_geometry is passes so that we // can look up the
    //  bonded atoms in it for the link).
-   bool add_linked_residue(const coot::residue_spec_t &spec_in,
-			   const std::string &new_residue_comp_id,
-			   const std::string &link_type,
-			   coot::protein_geometry *geom_p);
+   //
+   // return the spec of the new residue (possibly unset).
+   // 
+   coot::residue_spec_t
+   add_linked_residue(const coot::residue_spec_t &spec_in,
+		      const std::string &new_residue_comp_id,
+		      const std::string &link_type,
+		      coot::protein_geometry *geom_p);
 
    // n-models
    int n_models() const;

@@ -49,6 +49,7 @@ EXTRA_DIST = 		\
 	ASN-NAG-via-NAG-ASN.pdb \
 	pyranose-pyranose-via-BETA1-4.pdb  \
 	pyranose-pyranose-via-ALPHA1-3.pdb \
+	pyranose-pyranose-via-ALPHA1-6.pdb \
 	BUGS		\
 	depcomp 	\
 	libtool 	\
@@ -103,7 +104,10 @@ dist-hook:
 
 subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = cootrc standard-residues.pdb colours.def \
-	mtrix-to-ncs-matrix.awk theor-helix-70.pdb ASN-NAG-via-NAG-ASN.pdb \
-	pyranose-pyranose-via-BETA1-4.pdb 	pyranose-pyranose-via-ALPHA1-3.pdb
+	mtrix-to-ncs-matrix.awk theor-helix-70.pdb \
+        ASN-NAG-via-NAG-ASN.pdb \
+	pyranose-pyranose-via-BETA1-4.pdb 	\
+        pyranose-pyranose-via-ALPHA1-3.pdb      \
+	pyranose-pyranose-via-ALPHA1-6.pdb 	
 
 

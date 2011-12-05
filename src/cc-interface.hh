@@ -194,6 +194,17 @@ PyObject *map_colour_components_py(int imol);
 #endif // PYTHON
 //! \}
 
+
+#ifdef USE_GUILE
+/*! \brief fit residues
+
+(note: fit to the current-refinement map)
+*/
+SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm);
+void multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t> &specs);
+#endif // GUILE
+
+
 /*  ------------------------------------------------------------------------ */
 /*                         refmac stuff                                      */
 /*  ------------------------------------------------------------------------ */

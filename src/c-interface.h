@@ -3899,11 +3899,6 @@ SCM set_torsion_scm(int imol, const char *chain_id, int res_no, const char *inse
 
 void multi_residue_torsion_scm(int imol, SCM residues_specs_scm);
 
-/*! \brief fit residues
-
-(note: fit to the current-refinement map)
-*/
-SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm);
 
 #endif  /* USE_GUILE */
 
