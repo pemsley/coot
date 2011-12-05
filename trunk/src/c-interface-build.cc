@@ -6826,11 +6826,21 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
       graphics_info_t g;
       g.Geom_p()->try_dynamic_add(new_residue_comp_id, 34);
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
-      status = g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
-						    link_type, g.Geom_p());
-      if (status) {
-	 graphics_draw();
-      } 
+      coot::residue_spec_t new_res_spec =
+	 g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
+					      link_type, g.Geom_p());
+
+      if (! new_res_spec.unset_p()) { 
+	 if (is_valid_map_molecule(imol_refinement_map())) {
+	    const clipper::Xmap<float> &xmap =
+	       g.molecules[imol_refinement_map()].xmap_list[0];
+	    std::vector<coot::residue_spec_t> residue_specs;
+	    residue_specs.push_back(res_spec);
+	    residue_specs.push_back(new_res_spec);
+	    g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	 }
+      }
+      graphics_draw();
    }
    return status;
 } 

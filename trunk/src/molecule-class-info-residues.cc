@@ -969,13 +969,13 @@ molecule_class_info_t::add_residue(CResidue *new_res,
 
 // Add a LINK record if link_type is not blank (link_type is for example "NAG-ASN")
 // 
-bool
+coot::residue_spec_t
 molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
 					  const std::string &new_residue_comp_id,
 					  const std::string &link_type,
 					  coot::protein_geometry *geom_p) {
 
-   bool status = false;
+   coot::residue_spec_t new_residue_spec;   
    CResidue *residue_ref = get_residue(spec_in);
    if (residue_ref) {
       coot::beam_in_linked_residue lr(residue_ref, link_type, new_residue_comp_id, geom_p);
@@ -985,9 +985,11 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
       atom_sel.mol->FinishStructEdit();
       
       std::pair<bool, CResidue *> status_pair = add_residue(result, spec_in.chain);
-      status = status_pair.first;
+
       if (status_pair.first) {
 
+	 new_residue_spec = coot::residue_spec_t(status_pair.second);
+	 
 	 try { 
 	    coot::dict_link_info_t link_info(residue_ref, status_pair.second,
 					     link_type, *geom_p);
@@ -1000,7 +1002,7 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
 	 } 
       }
    }
-   return status;
+   return new_residue_spec;
 } 
 
 // this can throw a std::runtime_error
@@ -1139,4 +1141,5 @@ molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue
    replace_coords(moving_atoms_asc, 1, 1);
    
 }
+
 
