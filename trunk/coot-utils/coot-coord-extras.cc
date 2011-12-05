@@ -552,7 +552,7 @@ coot::torsionable_bonds_monomer_internal_quads(CResidue *residue_p,
    for (unsigned int itor=0; itor<tors_restraints.size(); itor++) {
       if (! tors_restraints[itor].is_const()) { 
 	 std::string tor_atom_name[5];
-	 std::vector<CAtom *> ats(5, NULL);
+	 std::vector<CAtom *> ats(5, static_cast<CAtom *>(NULL));
 	 tor_atom_name[1] = tors_restraints[itor].atom_id_1_4c();
 	 tor_atom_name[2] = tors_restraints[itor].atom_id_2_4c();
 	 tor_atom_name[3] = tors_restraints[itor].atom_id_3_4c();
