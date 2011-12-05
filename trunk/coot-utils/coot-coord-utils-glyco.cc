@@ -154,7 +154,10 @@ coot::beam_in_linked_residue::setup_by_group(const std::string &comp_id_ref,
 	 std::cout << "debug:: setup_by_group() full_path_pdb_filename "
 		   << full_path_pdb_filename
 		   << std::endl;
-      if (coot::file_exists(full_path_pdb_filename)) {
+      if (! coot::file_exists(full_path_pdb_filename)) {
+	 std::cout << "WARNING:: link template file " << full_path_pdb_filename
+		   << " does not exist " << std::endl;
+      } else { 
 	 CMMDBManager *t_mol = new CMMDBManager;
 	 int status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
 	 if (status != Error_NoError) {
