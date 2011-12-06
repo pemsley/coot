@@ -25,6 +25,8 @@
 
   o test and use new mmdb ::: 1
 
+  o Ctrl-shift middle mouse vs shift-ctrl middle mouse ::: 1
+
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
@@ -209,7 +211,6 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 
   o Fix lighting for solid generic objects - needs translation? (atom
     pick) problem addressing. ::: 0.5
-
 
 * Done.
 
