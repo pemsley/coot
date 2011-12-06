@@ -51,15 +51,9 @@ graphics_info_t:: multi_torsion_residues(int imol, const std::vector<coot::resid
       // uses dynamic add
       bool dict_status = geom_p->have_dictionary_for_residue_types(residue_types);
 
-
-      
-
-      std::cout << "calling create_mmdbmanager_from_residue_vector() with "
-		<< v.size() << " specs " << std::endl;
       CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
-
       if (! moving_mol) {
-	 std::cout << "no moving mol" << std::endl;
+	 std::cout << "WARNING:: multi_torsion_residues() no moving mol" << std::endl;
       } else {
 	 imol_moving_atoms = imol;
 	 // now select everything in moving mol
