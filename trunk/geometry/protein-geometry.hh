@@ -1705,6 +1705,9 @@ namespace coot {
       // 
       std::string find_glycosidic_linkage_type(CResidue *first, CResidue *second) const;
 
+      std::pair<std::string, bool>
+      find_glycosidic_linkage_type_with_order_switch(CResidue *first, CResidue *second) const;
+
       // can throw a std::runtime_error
       chem_link get_chem_link(const std::string &link_id);
 

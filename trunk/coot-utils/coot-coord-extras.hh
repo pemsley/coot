@@ -522,6 +522,16 @@ namespace coot {
       // This can return NULL if we were unable to make the residue to be attached.
       CResidue *get_residue() const;
    };
+
+
+   class glyco_tree_t {
+      coot::protein_geometry *geom_p;
+      bool is_pyranose(CResidue *r) const; 
+      void find_ASN_rooted_tree(CResidue *residue_p, const std::vector<CResidue *> &residues) const;
+   public:
+      glyco_tree_t(CResidue *residue_p, CMMDBManager *mol, coot::protein_geometry *geom_p_in);
+
+   }; 
    
 
 }

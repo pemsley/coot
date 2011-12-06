@@ -25,7 +25,21 @@
 
 #include "coot-utils.hh"
 #include "coot-coord-utils.hh"
+#include "coot-coord-extras.hh"
 #include "lsq-improve.hh"
+
+
+class testing_data {
+public:
+   static coot::protein_geometry geom;
+   testing_data() {
+      if (geom.size() == 0)
+	 geom.init_standard();
+   }
+};
+
+coot::protein_geometry testing_data::geom;
+
 
 namespace coot { 
    class SortableChainsCMMDBManager : public CMMDBManager {
@@ -111,7 +125,7 @@ void test_sort_chains() {
 
    std::string file_name = "test-sort-chains.pdb";
    CMMDBManager *mol = new CMMDBManager;
-   mol->ReadCoorFile((const pstr) file_name.c_str());
+   mol->ReadCoorFile(file_name.c_str());
    coot::sort_chains(mol);
    mol->WritePDBASCII("test-sort-chains-sorted.pdb");
 }
@@ -151,10 +165,9 @@ void test_lsq_improve() {
       }
    }
 
-} 
+}
 
-
-int main(int argv, char **argc) {
+int test_string_manipulation() {
 
 
    /*
@@ -211,6 +224,13 @@ int main(int argv, char **argc) {
    r = " Columns     of   letters  ";
    split_test(r);
 
+   return 0;
+   
+}
+
+int test_matrices() {
+
+
    clipper::Mat33<double> m1 (1,0,0, 0,1,0, 0,0,1);
    test_quaternion_matrix(m1);
    clipper::Mat33<double> m2 (0,1,0, 1,0,0, 0,0,-1);
@@ -233,12 +253,51 @@ int main(int argv, char **argc) {
    test_quaternion_quaternion(q4);
    test_quaternion_quaternion(q5);
 
+   return 0;
+}
 
-   test_sort_chains();
+int test_glyco_tree() {
 
-   test_euler_angles();
+   testing_data t;
+   int dynamic_add_status_1 = t.geom.try_dynamic_add("NAG", 1);
+   int dynamic_add_status_2 = t.geom.try_dynamic_add("MAN", 1);
+   int dynamic_add_status_3 = t.geom.try_dynamic_add("BMA", 1);
+   
+   CMMDBManager *mol = new CMMDBManager;
+   std::string file_name = "3u2s.pdb";
+   mol->ReadCoorFile(file_name.c_str());
+   coot::residue_spec_t spec("G", 560, "");
+   CResidue *r = coot::util::get_residue(spec, mol);
+   if (! r) {
+      std::cout << "No residue " << spec << std::endl;
+   } else {
+      coot::glyco_tree_t gt(r, mol, &t.geom);
+   } 
 
-   test_lsq_improve();
+
+   delete mol;
+   return 0;
+} 
+
+
+
+int main(int argv, char **argc) {
+
+
+   if (0)
+      test_string_manipulation();
+
+   if (0) 
+      test_sort_chains();
+
+   if (0) 
+      test_euler_angles();
+
+   if (0) 
+      test_lsq_improve();
+
+   if (1)
+      test_glyco_tree();
    
    return 0;
 }

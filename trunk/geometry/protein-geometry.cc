@@ -3189,6 +3189,8 @@ coot::protein_geometry::matching_chem_link_non_peptide(const std::string &comp_i
 std::string
 coot::protein_geometry::find_glycosidic_linkage_type(CResidue *first, CResidue *second) const {
 
+   // Fixup needed for PDBv3
+
    double critical_dist = 3.0; // A, less than that and Coot should
 			       // try to make the bond.
    PPCAtom res_selection_1 = NULL;
@@ -3248,6 +3250,17 @@ coot::protein_geometry::find_glycosidic_linkage_type(CResidue *first, CResidue *
    for (unsigned int i=0; i<close.size(); i++) {
       std::string name_1(close[i].at1->name);
       std::string name_2(close[i].at2->name);
+
+
+      // First test the NAG-ASN link (that order - as per dictionary)
+      //
+      if (name_1 == " C1 ")
+	 if (name_2 == " ND2")
+	    if (close[i].distance < smallest_link_dist) {
+	       smallest_link_dist = close[i].distance;
+	       link_type = "NAG-ASN";
+	    }
+      
       if (name_1 == " O4 " )
 	 if (name_2 == " C1 ")
 	    if (close[i].distance < smallest_link_dist) {
@@ -3326,7 +3339,28 @@ coot::protein_geometry::find_glycosidic_linkage_type(CResidue *first, CResidue *
 	    }
    }
    return link_type;
+}
+
+std::pair<std::string, bool>
+coot::protein_geometry::find_glycosidic_linkage_type_with_order_switch(CResidue *first, CResidue *second) const {
+
+   std::pair<std::string, bool> r("", false);
+
+   std::string l = find_glycosidic_linkage_type(first, second);
+
+   if (l == "") { 
+      l = find_glycosidic_linkage_type(second,first);
+      if (l != "") {
+	 r.first = l;
+	 r.second = true;
+      } 
+   } else {
+      r.first = l;
+      r.second = false;
+   } 
+   return r;
 } 
+
 
 
       
