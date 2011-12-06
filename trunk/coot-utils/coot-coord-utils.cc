@@ -2189,28 +2189,30 @@ coot::util::get_residue(const std::string &chain_id,
 
    if (mol) {
       CModel *model_p = mol->GetModel(1);
-      CChain *chain_p;
-      int n_chains = model_p->GetNumberOfChains(); 
-      for (int i_chain=0; i_chain<n_chains; i_chain++) {
-	 chain_p = model_p->GetChain(i_chain);
-	 std::string mol_chain(chain_p->GetChainID());
-	 if (mol_chain == chain_id) {
-	    int nres = chain_p->GetNumberOfResidues();
-	    CResidue *residue_p;
-	    for (int ires=0; ires<nres; ires++) { // ires is a serial number
-	       residue_p = chain_p->GetResidue(ires);
-	       if (residue_p->GetSeqNum() == reso) {
-		  std::string ins_code(residue_p->GetInsCode());
-		  if (insertion_code == ins_code) {
-		     res = residue_p;
-		     found_res = 1;
-		     break;
+      if (model_p) { 
+	 CChain *chain_p;
+	 int n_chains = model_p->GetNumberOfChains(); 
+	 for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	    chain_p = model_p->GetChain(i_chain);
+	    std::string mol_chain(chain_p->GetChainID());
+	    if (mol_chain == chain_id) {
+	       int nres = chain_p->GetNumberOfResidues();
+	       CResidue *residue_p;
+	       for (int ires=0; ires<nres; ires++) { // ires is a serial number
+		  residue_p = chain_p->GetResidue(ires);
+		  if (residue_p->GetSeqNum() == reso) {
+		     std::string ins_code(residue_p->GetInsCode());
+		     if (insertion_code == ins_code) {
+			res = residue_p;
+			found_res = 1;
+			break;
+		     }
 		  }
+		  if (found_res) break;
 	       }
-	       if (found_res) break;
 	    }
+	    if (found_res) break;
 	 }
-	 if (found_res) break;
       }
    }
    return res;
