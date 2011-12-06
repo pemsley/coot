@@ -1304,7 +1304,6 @@ coot::atom_tree_t::set_dihedral_multi(const std::vector<tree_dihedral_quad_info_
    for (unsigned int iquad=0; iquad<quads.size(); iquad++) {
       coot::map_index_t index2 = get_index(quads[iquad].quad.atom_2);
       coot::map_index_t index3 = get_index(quads[iquad].quad.atom_3);
-
       if (0) 
 	 std::cout << "testing if  " << quads[iquad].fixed_atom_index.index() << " "
 		   << coot::atom_spec_t(atom_selection[quads[iquad].fixed_atom_index.index()]) << " "
