@@ -18,6 +18,10 @@
  * 02110-1301, USA
  */
 
+#include <queue>
+#include <list>
+#include <algorithm>
+
 #include "coot-utils.hh"
 #include "coot-coord-extras.hh"
 
@@ -465,4 +469,93 @@ coot::beam_in_linked_residue::get_residue(const std::string &comp_id,
    }
 
    return r;
+} 
+
+// should this be part of protein_geometry?
+// 
+coot::glyco_tree_t::glyco_tree_t(CResidue *residue_p, CMMDBManager *mol, coot::protein_geometry *geom_p_in) {
+
+   float dist_crit = 3.0; // A
+
+   if (residue_p) { 
+      geom_p = geom_p_in;
+
+      std::queue<CResidue *> q;
+      std::vector<CResidue *> considered;
+      std::vector<CResidue *> linked_residues;
+      
+      if (is_pyranose(residue_p) || std::string(residue_p->name) == "ASN")
+	 q.push(residue_p);
+
+      while (q.size()) {
+	 CResidue *test_residue = q.front();
+	 q.pop();
+	 std::vector<CResidue *> residues = coot::residues_near_residue(test_residue, mol, dist_crit);
+	 for (unsigned int ires=0; ires<residues.size(); ires++) { 
+	    if (is_pyranose(residues[ires]) || std::string(residues[ires]->name) == "ASN") {
+	       // std::cout << "   " << ires << " " << coot::residue_spec_t(residues[ires]) << std::endl;
+	       if (std::find(considered.begin(),
+			     considered.end(), residues[ires]) == considered.end()) { 
+		  q.push(residues[ires]);
+		  linked_residues.push_back(residues[ires]);
+	       }
+	    } 
+	    considered.push_back(residues[ires]);
+	 }
+      }
+
+      std::cout << ":::::::::: " << linked_residues.size() << " glycan/ASN residues" << std::endl;
+      for (unsigned int ires=0; ires<linked_residues.size(); ires++) { 
+	 std::cout << "  glycan/ASN_residue " << ires << " " << coot::residue_spec_t(linked_residues[ires])
+		   << std::endl;
+	 std::string residue_name(linked_residues[ires]->name);
+	 if (residue_name == "ASN") {
+	    find_ASN_rooted_tree(linked_residues[ires], linked_residues);
+	 } 
+      }
+   }
+}
+
+bool
+coot::glyco_tree_t::is_pyranose(CResidue *residue_p) const {
+
+   bool is_pyranose = false;
+   try { 
+      std::string group = geom_p->get_group(residue_p);
+      if (group == "pyranose" || group == "D-pyranose" || group == "L-pyranose")
+	 is_pyranose = true;
+   }
+   catch (std::runtime_error rte) {
+      std::cout << "ERROR::" << rte.what() << std::endl;
+   } 
+
+   return is_pyranose;
+} 
+
+
+// find tree rooted on residue_p.
+// 
+// residue_p is a member of residues.
+// 
+void
+coot::glyco_tree_t::find_ASN_rooted_tree(CResidue *residue_p, const std::vector<CResidue *> &residues) const {
+
+
+   for (unsigned int ires=0; ires<residues.size(); ires++) { 
+      if (residues[ires] != residue_p) {
+	 std::pair<std::string, bool> link =
+	    geom_p->find_glycosidic_linkage_type_with_order_switch(residue_p, residues[ires]);
+	 std::cout << " Condsidering "
+		   << coot::residue_spec_t(residue_p) << " and " << coot::residue_spec_t(residues[ires])
+		   << " \"" << link.first << "\""
+		   << std::endl;
+	 if (link.first != "") {
+	    std::cout << "found link " << link.first << " order-switch " << link.second << " between " 
+		      << coot::residue_spec_t(residue_p) << " and " << coot::residue_spec_t(residues[ires])
+		      << std::endl;
+	 } 
+      } 
+   }
+   
+
 } 

@@ -27,6 +27,10 @@
 
   o Ctrl-shift middle mouse vs shift-ctrl middle mouse ::: 1
 
+
+  o ball-and-stickify on G100 P (ASN) in 3u2s fails (ins code not
+    taken into account) ::: 1
+
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
