@@ -144,6 +144,7 @@ coot::torsionable_quads(CMMDBManager *mol, PPCAtom atom_selection,
       int n_residue_atoms;
       residues[ires]->GetAtomTable(residue_atoms, n_residue_atoms);
       std::vector<coot::atom_quad> monomer_quads =
+
 	 coot::torsionable_bonds_monomer_internal_quads(residues[ires], residue_atoms,
 							n_residue_atoms,
 							pyranose_ring_torsion_flag, geom_p);
