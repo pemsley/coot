@@ -30,6 +30,7 @@
 #endif
 
 #include <stdlib.h>
+#include <string.h> // strncmp
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
