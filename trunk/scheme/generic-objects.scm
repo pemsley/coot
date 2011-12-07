@@ -199,7 +199,7 @@
 			
 			(goosh-command "grep" (list "-v" "^USER" reduce-out-pdb-file)
 				       '() probe-pdb-in #f)
-			(goosh-command *probe-command* (list "-u" "-stdbonds" "-mc"
+			(goosh-command *probe-command* (list "-u"  "-mc"
 					; "'(chainA,chainZ) alta'" 
 							     "ALL"
 							     probe-pdb-in)
@@ -316,7 +316,8 @@
 		      ")),file2")))
 
       (format #t "probe command ~s ~s~%" *probe-command* 
-	      (list "-mc" "-u" "-quiet" "-drop" "-stdbonds" "-both" 
+	      ;; no longer use "--std-bonds"
+	      (list "-mc" "-u" "-quiet" "-drop" "-both" 
 		    atom-sel "file2" probe-pdb-in-1 probe-pdb-in-2))
 
       ;; if unset, then set it.
