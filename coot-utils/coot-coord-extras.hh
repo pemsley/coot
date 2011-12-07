@@ -25,6 +25,7 @@
 
 #include <iostream>
 #include <map>
+#include "tree.hh" // Kasper Peeters tree
 
 #include "coot-coord-utils.hh"
 #include "protein-geometry.hh"
@@ -524,12 +525,29 @@ namespace coot {
    };
 
 
+   // the class that is the template for the glyco_tree
+   class linked_residue_t {
+   public:
+      CResidue * residue;
+      std::string link_type; // to parent (root node has this as "")
+      linked_residue_t(CResidue *residue_in, const std::string &link_in) {
+	 residue = residue_in;
+	 link_type = link_in;
+      }
+      linked_residue_t() {
+	 residue = NULL;
+      }
+      friend std::ostream& operator<<(std::ostream &o, const linked_residue_t &lr);
+   };
+   std::ostream& operator<<(std::ostream &o, const linked_residue_t &lr);
+
    class glyco_tree_t {
       coot::protein_geometry *geom_p;
       bool is_pyranose(CResidue *r) const; 
       void find_ASN_rooted_tree(CResidue *residue_p, const std::vector<CResidue *> &residues) const;
    public:
       glyco_tree_t(CResidue *residue_p, CMMDBManager *mol, coot::protein_geometry *geom_p_in);
+      void print(const tree<linked_residue_t> &glyco_tree) const;
 
    }; 
    

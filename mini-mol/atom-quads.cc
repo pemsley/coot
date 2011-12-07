@@ -25,6 +25,77 @@
 
 #include "atom-quads.hh"
 
+// return the cente atom as atom_4, the others as numbered.
+// If not all atoms found, then return all nulls.
+//
+// Just because I am lazy, setup wth the first atom names that match -
+// don't consider alt confs.
+// 
+coot::atom_quad::atom_quad(CResidue *first, CResidue *second, const std::string &link) {
+
+   // Fixup needed for PDBv3.
+   //
+
+   atom_1 = NULL;
+   atom_2 = NULL;
+   atom_3 = NULL;
+   atom_4 = NULL; // atom_c for a chiral quad.
+   
+   std::string O_name = "";
+   if (link == "ALPHA1-2" || link == "BETA1-2" )
+      O_name = " O2 "; 
+   if (link == "ALPHA1-3" || link == "BETA1-3" )
+      O_name = " O3 "; 
+   if (link == "ALPHA1-4" || link == "BETA1-4" )
+      O_name = " O4 "; 
+   if (link == "ALPHA1-6" || link == "BETA1-6" )
+      O_name = " O6 ";
+   if (O_name != "") { 
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      first->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 std::string atom_name(residue_atoms[iat]->name);
+	 if (atom_name == O_name) {
+	    // the O atom name comes from the first residue
+	    if (!atom_1) { 
+	       atom_1 = residue_atoms[iat];
+	       break;
+	    }
+	 }
+      }
+      // atoms 2 and 3 and the chiral centre atom come from the second residue.
+      residue_atoms = NULL;
+      second->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 CAtom *at = residue_atoms[iat];
+	 std::string atom_name(at->name);
+	 if (atom_name == " C1 ") {
+	    if (! atom_4)
+	       atom_4 = at; // chiral centre atom
+	 }
+	 if (atom_name == " O5 ") {
+	    if (! atom_2)
+	       atom_2 = at;
+	 }
+	 if (atom_name == " C2 ") {
+	    if (! atom_3)
+	       atom_3 = at;
+	 }
+      }
+   }
+
+   // all or nothing
+   // 
+   if (atom_1 == NULL || atom_2 == NULL || atom_3 == NULL || atom_4 == NULL) {
+      atom_1 = NULL;
+      atom_2 = NULL;
+      atom_3 = NULL;
+      atom_4 = NULL;
+   } 
+} 
+
+
 std::ostream&
 coot::operator<<(std::ostream &o, const coot::atom_name_quad &q) {
 
@@ -118,5 +189,27 @@ coot::atom_quad::torsion() const {
       return angle;
    } else {
       throw std::runtime_error("quad::torsion() Null atom(s)");
+   }
+} 
+
+// can throw a std::runtime_error exception
+// 
+double
+coot::atom_quad::chiral_volume() const {
+
+   if (atom_1 == NULL || atom_2 == NULL || atom_3 == NULL || atom_4 == NULL) {
+      throw std::runtime_error("Null atoms in quad for chiral volume");
+   } else { 
+
+      clipper::Coord_orth centre(atom_4->x, atom_4->y, atom_4->z);
+      clipper::Coord_orth   at_1(atom_1->x, atom_1->y, atom_1->z);
+      clipper::Coord_orth   at_2(atom_2->x, atom_2->y, atom_2->z);
+      clipper::Coord_orth   at_3(atom_3->x, atom_3->y, atom_3->z);
+      
+      clipper::Coord_orth a = at_1 - centre;
+      clipper::Coord_orth b = at_2 - centre;
+      clipper::Coord_orth c = at_3 - centre;
+      double cv = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b,c));
+      return cv;
    }
 } 

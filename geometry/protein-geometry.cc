@@ -26,6 +26,7 @@
 #include <algorithm>  // needed for sort? Yes.
 #include <stdexcept>  // Thow execption.
 
+#include "atom-quads.hh"
 #include "protein-geometry.hh"
 #include "coot-utils.hh"
 
@@ -3244,100 +3245,130 @@ coot::protein_geometry::find_glycosidic_linkage_type(CResidue *first, CResidue *
    }
 
    std::string link_type("");
+
+   // glyco_chiral constructor can throw an exception
+   try { 
    
-   // short int found_link = 0;
-   float smallest_link_dist = 99999.9;
-   for (unsigned int i=0; i<close.size(); i++) {
-      std::string name_1(close[i].at1->name);
-      std::string name_2(close[i].at2->name);
+      float smallest_link_dist = 99999.9;
+      for (unsigned int i=0; i<close.size(); i++) {
+	 std::string name_1(close[i].at1->name);
+	 std::string name_2(close[i].at2->name);
 
 
-      // First test the NAG-ASN link (that order - as per dictionary)
-      //
-      if (name_1 == " C1 ")
-	 if (name_2 == " ND2")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "NAG-ASN";
-	    }
+	 // First test the NAG-ASN link (that order - as per dictionary)
+	 //
+	 if (name_1 == " C1 ")
+	    if (name_2 == " ND2")
+	       if (close[i].distance < smallest_link_dist) {
+		  smallest_link_dist = close[i].distance;
+		  link_type = "NAG-ASN";
+	       }
       
-      if (name_1 == " O4 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "BETA1-4";
-	    }
+	 if (name_1 == " O4 " )
+	    if (name_2 == " C1 ")
+	       if (close[i].distance < smallest_link_dist) {
+		  coot::atom_quad glyco_chiral_quad(first, second, "BETA1-4");
+		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
+		     smallest_link_dist = close[i].distance;
+		     link_type = "BETA1-4";
+		  }
+	       }
       
-      if (name_1 == " O2 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "BETA1-2";
-	    }
+	 if (name_1 == " O2 " )
+	    if (name_2 == " C1 ")
+	       if (close[i].distance < smallest_link_dist) {
+		  coot::atom_quad glyco_chiral_quad(first, second, "BETA1-2");
+		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
+		     smallest_link_dist = close[i].distance;
+		     link_type = "BETA1-2";
+		  }
+	       }
       
-      if (name_1 == " O3 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "BETA1-3";
-	    }
+	 if (name_1 == " O3 " )
+	    if (name_2 == " C1 ")
+	       if (close[i].distance < smallest_link_dist) {
+		  coot::atom_quad glyco_chiral_quad(first, second, "BETA1-3");
+		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
+		     smallest_link_dist = close[i].distance;
+		     link_type = "BETA1-3";
+		  }
+	       }
       
-      if (name_1 == " O3 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "BETA1-3";
-	    }
 	       
-      if (name_1 == " C2 " )
-	 if (name_2 == " O3 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "BETA2-3";
-	    }
+	 if (name_1 == " C2 " )
+	    if (name_2 == " O3 ")
+	       if (close[i].distance < smallest_link_dist) {
+		  coot::atom_quad glyco_chiral_quad(first, second, "BETA2-3");
+		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
+		     smallest_link_dist = close[i].distance;
+		     link_type = "BETA2-3";
+		  }
+	       }
 	       
-      if (name_1 == " O6 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "BETA1-6";
-	    }
+	 if (name_1 == " O6 " )
+	    if (name_2 == " C1 ")
+	       if (close[i].distance < smallest_link_dist) {
+		  coot::atom_quad glyco_chiral_quad(first, second, "BETA1-6");
+		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
+		     smallest_link_dist = close[i].distance;
+		     link_type = "BETA1-6";
+		  }
+	       }
 	       
-      if (name_1 == " O2 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "ALPHA1-2";
-	    }
+	 if (name_1 == " O2 " )
+	    if (name_2 == " C1 ")
+	       if (close[i].distance < smallest_link_dist) {
+		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA1-2");
+		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
+		     smallest_link_dist = close[i].distance;
+		     link_type = "ALPHA1-2";
+		  }
+	       }
 	       
-      if (name_1 == " O3 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "ALPHA1-3";
-	    }
+	 if (name_1 == " O3 " )
+	    if (name_2 == " C1 ")
+	       if (close[i].distance < smallest_link_dist) {
+		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA1-3");
+		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
+		     smallest_link_dist = close[i].distance;
+		     link_type = "ALPHA1-3";
+		  }
+	       }
       
-      if (name_1 == " C2 " )
-	 if (name_2 == " O3 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "ALPHA2-3";
-	    }
+	 if (name_1 == " C2 " )
+	    if (name_2 == " O3 ")
+	       if (close[i].distance < smallest_link_dist) {
+		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-2");
+		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
+		     smallest_link_dist = close[i].distance;
+		     link_type = "ALPHA2-3";
+		  }
+	       }
       
-      if (name_1 == " O4 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "ALPHA1-4";
-	    }
+	 if (name_1 == " O4 " )
+	    if (name_2 == " C1 ")
+	       if (close[i].distance < smallest_link_dist) {
+		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA1-4");
+		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
+		     smallest_link_dist = close[i].distance;
+		     link_type = "ALPHA1-4";
+		  }
+	       }
       
-      if (name_1 == " O6 " )
-	 if (name_2 == " C1 ")
-	    if (close[i].distance < smallest_link_dist) {
-	       smallest_link_dist = close[i].distance;
-	       link_type = "ALPHA1-6";
-	    }
+	 if (name_1 == " O6 " )
+	    if (name_2 == " C1 ")
+	       if (close[i].distance < smallest_link_dist) {
+		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA1-6");
+		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
+		     smallest_link_dist = close[i].distance;
+		     link_type = "ALPHA1-6";
+		  }
+	       }
+      }
    }
+   catch (std::runtime_error rte) {
+      std::cout << "WARNING::" << rte.what() << std::endl;
+   } 
    return link_type;
 }
 

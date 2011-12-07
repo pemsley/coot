@@ -107,6 +107,7 @@ testshelxreader_LDADD =          \
 	./libcoot-shelx.la       \
 	./libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
+        $(top_builddir)/mini-mol/libcoot-mini-mol.la \
         $(top_builddir)/utils/libcoot-utils.la
 
 testcootutils_SOURCES = test-utils.cc
@@ -122,12 +123,14 @@ test_h_bonds_SOURCES = test-h-bonds.cc
 test_h_bonds_LDADD = \
 	 ./libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
+        $(top_builddir)/mini-mol/libcoot-mini-mol.la \
         $(top_builddir)/utils/libcoot-utils.la
 
 test_hole_SOURCES = test-hole.cc
 test_hole_LDADD = ./libcoot-coord-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
-	$(top_builddir)/utils/libcoot-utils.la
+        $(top_builddir)/mini-mol/libcoot-mini-mol.la 
 
 
 #    $(MMDB_LIBS)

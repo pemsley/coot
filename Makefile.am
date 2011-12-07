@@ -28,7 +28,7 @@ ACLOCAL_AMFLAGS=-I macros
 # coot-utils depends on mini-mol.
 # geometry depends on utils
 #
-SUBDIRS = auxil scheme python macros compat utils protein_db geometry mini-mol \
+SUBDIRS = auxil scheme python macros compat utils protein_db mini-mol geometry  \
         coot-utils surface coot-surface lidia-core \
 	coords angles skeleton ccp4mg-utils density-contour \
 	db-main ideal ligand high-res build greg-tests python-tests \
