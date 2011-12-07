@@ -23,7 +23,8 @@
 #include <algorithm>  // for sort
 
 #include "mini-mol.hh"
-#include "coot-coord-utils.hh"
+// #include "coot-coord-utils.hh"   no! mini-mol should be a low level library, not depend on
+                                 // higher level libs.
 
 #include "coot-sysdep.h"
 

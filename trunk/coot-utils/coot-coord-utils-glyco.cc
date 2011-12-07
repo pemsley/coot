@@ -469,7 +469,16 @@ coot::beam_in_linked_residue::get_residue(const std::string &comp_id,
    }
 
    return r;
+}
+
+std::ostream&
+coot::operator<<(std::ostream &o, const linked_residue_t &lr) {
+
+   o << lr.link_type << " " << coot::residue_spec_t(lr.residue);
+   return o;
+
 } 
+
 
 // should this be part of protein_geometry?
 // 
@@ -493,7 +502,6 @@ coot::glyco_tree_t::glyco_tree_t(CResidue *residue_p, CMMDBManager *mol, coot::p
 	 std::vector<CResidue *> residues = coot::residues_near_residue(test_residue, mol, dist_crit);
 	 for (unsigned int ires=0; ires<residues.size(); ires++) { 
 	    if (is_pyranose(residues[ires]) || std::string(residues[ires]->name) == "ASN") {
-	       // std::cout << "   " << ires << " " << coot::residue_spec_t(residues[ires]) << std::endl;
 	       if (std::find(considered.begin(),
 			     considered.end(), residues[ires]) == considered.end()) { 
 		  q.push(residues[ires]);
@@ -506,8 +514,6 @@ coot::glyco_tree_t::glyco_tree_t(CResidue *residue_p, CMMDBManager *mol, coot::p
 
       std::cout << ":::::::::: " << linked_residues.size() << " glycan/ASN residues" << std::endl;
       for (unsigned int ires=0; ires<linked_residues.size(); ires++) { 
-	 std::cout << "  glycan/ASN_residue " << ires << " " << coot::residue_spec_t(linked_residues[ires])
-		   << std::endl;
 	 std::string residue_name(linked_residues[ires]->name);
 	 if (residue_name == "ASN") {
 	    find_ASN_rooted_tree(linked_residues[ires], linked_residues);
@@ -538,24 +544,93 @@ coot::glyco_tree_t::is_pyranose(CResidue *residue_p) const {
 // residue_p is a member of residues.
 // 
 void
-coot::glyco_tree_t::find_ASN_rooted_tree(CResidue *residue_p, const std::vector<CResidue *> &residues) const {
+coot::glyco_tree_t::find_ASN_rooted_tree(CResidue *residue_p,
+					 const std::vector<CResidue *> &residues) const {
 
 
-   for (unsigned int ires=0; ires<residues.size(); ires++) { 
-      if (residues[ires] != residue_p) {
-	 std::pair<std::string, bool> link =
-	    geom_p->find_glycosidic_linkage_type_with_order_switch(residue_p, residues[ires]);
-	 std::cout << " Condsidering "
-		   << coot::residue_spec_t(residue_p) << " and " << coot::residue_spec_t(residues[ires])
-		   << " \"" << link.first << "\""
-		   << std::endl;
-	 if (link.first != "") {
-	    std::cout << "found link " << link.first << " order-switch " << link.second << " between " 
-		      << coot::residue_spec_t(residue_p) << " and " << coot::residue_spec_t(residues[ires])
-		      << std::endl;
-	 } 
-      } 
-   }
+   std::cout << "------------------ ASN-rooted tree search for "
+	     << coot::residue_spec_t(residue_p) << std::endl;
    
+   linked_residue_t first_res(residue_p, "");
+   tree<linked_residue_t> glyco_tree;
+   tree<linked_residue_t>::iterator top = glyco_tree.insert(glyco_tree.begin(), first_res);
+   bool something_added = true; // initial value 
+   tree<linked_residue_t>::iterator this_iterator = top; // initial value
+   std::vector<std::pair<bool, CResidue *> > done_residues(residues.size());
+   for (unsigned int i=0; i<residues.size(); i++)
+      done_residues[i] = std::pair<bool, CResidue *>(0, residues[i]);
+      
+   while (something_added) {
+      something_added = false; 
+      for (unsigned int ires=0; ires<done_residues.size(); ires++) {
 
-} 
+	 if (! done_residues[ires].first) { 
+	    // iterate over the residues already placed in the tree
+	    // 
+	    tree<linked_residue_t>::iterator it;
+	    for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+	       if (it->residue != done_residues[ires].second) {
+		  if (0)
+		     std::cout << "      considering if " << coot::residue_spec_t(done_residues[ires].second)
+			       << "  was linked to tree residue "
+			       << coot::residue_spec_t(it->residue) << std::endl;
+		  // the residue order here is carefully considered
+		  std::pair<std::string, bool> link =
+		     geom_p->find_glycosidic_linkage_type_with_order_switch(it->residue,
+									    done_residues[ires].second);
+		  if (link.first != "") {
+
+		     if (link.first == "NAG-ASN") {
+			if (link.second == true) {
+			   std::cout << "   Adding " << coot::residue_spec_t(done_residues[ires].second)
+				     << " " << "via NAG-ASN" << " to parent "
+				     << coot::residue_spec_t(it->residue)
+				     << std::endl;
+			   linked_residue_t this_linked_residue(done_residues[ires].second, "NAG-ASN");
+			   glyco_tree.append_child(it, this_linked_residue);
+			   something_added = true;
+			   done_residues[ires].first = true;
+			}
+		     } else {
+			if (link.first != "") {
+			   if (link.second == false) {
+			      linked_residue_t this_linked_residue(done_residues[ires].second, link.first);
+			      std::cout << "   Adding " << coot::residue_spec_t(done_residues[ires].second)
+					<< " via " << link.first << " to parent " 
+					<< coot::residue_spec_t(it->residue)
+					<< std::endl;
+			      glyco_tree.append_child(it, this_linked_residue);
+			      something_added = true;
+			      done_residues[ires].first = true;
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   print(glyco_tree);
+}
+
+void 
+coot::glyco_tree_t::print(const tree<linked_residue_t> &glyco_tree) const {
+
+   tree<linked_residue_t>::iterator it, this_one;
+   // for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+   for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+      std::string s;
+      this_one = it;
+      bool has_parent = true;
+      while (has_parent) { 
+	 if (! this_one.node->parent) { 
+	    has_parent = false;
+	 } else { 
+	    s += "   ";
+	    this_one = this_one.node->parent;
+	 } 
+      }
+      std::cout << "   " << s << " " << *it << std::endl;
+   }
+}

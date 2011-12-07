@@ -135,10 +135,14 @@ namespace coot {
 	 atom_2 = NULL;
 	 atom_3 = NULL;
 	 atom_4 = NULL;
-      } 
+      }
+      atom_quad(CResidue *first, CResidue *second, const std::string &link);
+      
       friend std::ostream& operator<<(std::ostream &o, const atom_quad &q);
       // Can throw a std::runtime_error if any of the atoms are null.
       double torsion() const;
+      // Can throw a std::runtime_error if any of the atoms are null.
+      double chiral_volume() const;
       atom_quad reverse() const {
 	 return atom_quad(atom_4, atom_3, atom_2, atom_1);
       } 
