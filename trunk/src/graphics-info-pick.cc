@@ -34,7 +34,7 @@
 
 #include <string.h> // strncmp
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #include "mmdb-extras.h"
 #include "mmdb.h"
 #include "mmdb-crystal.h" //need for Bond_lines now

@@ -28,8 +28,8 @@
 #include <string.h> // for strcpy
 #include "coot-utils.hh"
 #include "coot-coord-utils.hh"
-#include "mmdb_tables.h"  // for Get1LetterCode()
-#include "mmdb_graph.h" // for graph matching
+#include <mmdb/mmdb_tables.h>  // for Get1LetterCode()
+#include <mmdb/mmdb_graph.h> // for graph matching
 
 #include "coot-sysdep.h"
 

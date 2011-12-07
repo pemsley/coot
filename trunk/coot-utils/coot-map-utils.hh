@@ -27,7 +27,7 @@
 #include "clipper/core/xmap.h"
 #include "clipper/core/hkl_data.h"
 #include "coot-coord-utils.hh"
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 
 namespace coot {
 

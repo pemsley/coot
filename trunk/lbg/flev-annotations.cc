@@ -2,7 +2,7 @@
 #include <string>
 #include <vector>
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #include "protein-geometry.hh"
 #include "lbg-shared.hh"
 #include "coot-coord-utils.hh"

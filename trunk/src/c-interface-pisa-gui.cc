@@ -23,7 +23,7 @@
 #endif
 
 #include <string>
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #include <gtk/gtk.h>
 
 #include "graphics-info.h"

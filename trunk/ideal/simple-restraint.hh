@@ -28,7 +28,7 @@
 #include <string>
 #include <stdexcept>
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #include "bonded-pairs.hh"
 
 // refinement_results_t is outside of the GSL test because it is

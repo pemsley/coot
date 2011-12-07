@@ -31,7 +31,7 @@
 
 #include <string>
 #include "sequence-view.hh"
-#include "mmdb_tables.h"
+#include <mmdb/mmdb_tables.h>
 #include "seq-view-interface.h"
 #include "graphics-info.h" // for the callback
 

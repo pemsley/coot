@@ -39,8 +39,8 @@
 
 #include "gsl/gsl_multimin.h"
 
-#include "mmdb_manager.h"
-#include "mmdb_sbase.h"
+#include <mmdb/mmdb_manager.h>
+#include <mmdb/mmdb_sbase.h>
 #define MONOMER_DIR_STR "COOT_SBASE_DIR"
 
 #include "lig-build.hh"

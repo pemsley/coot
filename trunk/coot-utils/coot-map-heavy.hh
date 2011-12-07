@@ -21,7 +21,7 @@
 
 #include "clipper/core/coords.h"
 #include "clipper/core/xmap.h"
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #ifdef HAVE_GSL
 #include "gsl/gsl_multimin.h"
 #endif // HAVE_GSL

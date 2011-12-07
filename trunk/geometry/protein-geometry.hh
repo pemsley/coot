@@ -38,10 +38,10 @@
 #include <map>
 #include <stdexcept>
 
-#include "mmdb_mmcif.h"
+#include <mmdb/mmdb_mmcif.h>
 
 #ifndef  __MMDB_SBase__
-#include "mmdb_sbase.h"
+#include <mmdb/mmdb_sbase.h>
 #endif
 
 #include "clipper/core/coords.h"

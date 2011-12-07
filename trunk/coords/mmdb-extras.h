@@ -44,7 +44,7 @@ using namespace std;  // ugh.  This should not be here.  FIXME
 
 #ifndef MMDB_MANAGER_H
 #define MMDB_MANAGER_H
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #endif
 
 class MyCMMDBManager : public CMMDBManager { 

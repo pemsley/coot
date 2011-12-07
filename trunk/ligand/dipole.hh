@@ -27,7 +27,7 @@
 #include "protein-geometry.hh"
 
 #ifndef HAVE_MMMDB
-#include <mmdb_manager.h>
+#include <mmdb/mmdb_manager.h>
 #define HAVE_MMMDB
 #endif
 

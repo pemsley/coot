@@ -4,8 +4,8 @@
 #include <vector>
 #include <stdexcept>
 
-#include "mmdb_align.h"
-#include "mmdb_tables.h"
+#include <mmdb/mmdb_align.h>
+#include <mmdb/mmdb_tables.h>
 #include "mmdb-extras.h"
 #include "mmdb.h"
 #include "coot-align.hh"

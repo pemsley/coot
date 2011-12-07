@@ -23,7 +23,7 @@
 #include <iostream>
 #include "protein-geometry.hh"
 
-#include "mmdb_manager.h" // for debugging.
+#include <mmdb/mmdb_manager.h> // for debugging.
 
 // This function is based on mmdb's CATom::MakePDBAtomName(), so we share
 // the copyright.

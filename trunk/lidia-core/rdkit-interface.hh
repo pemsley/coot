@@ -23,7 +23,7 @@
 
 #include "use-rdkit.hh"
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #include "protein-geometry.hh"
 #include "lbg-molfile.hh"
 

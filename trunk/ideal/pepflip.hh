@@ -25,7 +25,7 @@
 #include <vector>
 #endif
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #include "clipper/core/coords.h"
 
 namespace coot {

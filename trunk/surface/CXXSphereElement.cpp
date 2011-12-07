@@ -19,8 +19,8 @@
 #include "CXXNewHood.h"
 #include "CXXTorusElement.h"
 #include <math.h>
-#include "mmdb_manager.h"
-#include "mmdb_tables.h"
+#include <mmdb/mmdb_manager.h>
+#include <mmdb/mmdb_tables.h>
 
 
 void CXXSphereElement::init(){

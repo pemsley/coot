@@ -23,7 +23,7 @@
 // A misnamed file, perhaps.  This is for mmdb<->SCM interface.
 
 #include <deque>
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 
 #ifdef __cplusplus
 #ifdef USE_GUILE

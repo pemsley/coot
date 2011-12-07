@@ -4,7 +4,7 @@
 #endif
  
 #include <iostream> // fixes undefined strchr, strchrr problems
-#include <mmdb_manager.h>
+#include <mmdb/mmdb_manager.h>
 
 #include "protein-geometry.hh"
 #include "coot-hydrogens.hh"

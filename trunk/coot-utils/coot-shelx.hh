@@ -31,7 +31,7 @@
 #define HAVE_VECTOR
 #endif
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #include "clipper/core/cell.h"
 
 namespace coot {

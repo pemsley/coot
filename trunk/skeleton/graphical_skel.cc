@@ -5,7 +5,7 @@
 #include <map> // associative array
 
 #include "Cartesian.h"
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #include "mmdb-extras.h"
 
 #include "graphical_skel.h"

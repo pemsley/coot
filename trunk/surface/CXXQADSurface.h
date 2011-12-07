@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
 #include "clipper/clipper.h"
-#include "mmdb_manager.h"
-#include "mmdb_tables.h"
-#include "mmdb_uddata.h"
+#include <mmdb/mmdb_manager.h>
+#include <mmdb/mmdb_tables.h>
+#include <mmdb/mmdb_uddata.h>
 #include <math.h>
 #include "CXXCircle.h"
 #include "CXXCoord.h"

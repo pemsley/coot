@@ -24,7 +24,7 @@
 
 // include files needed to include molecule-class-info.h correctly. Useful.
 #include "Cartesian.h"
-#include "mmdb_manager.h" 
+#include <mmdb/mmdb_manager.h> 
 #include "mmdb-extras.h"
 #include "mmdb-crystal.h"
 

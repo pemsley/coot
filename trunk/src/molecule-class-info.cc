@@ -40,8 +40,8 @@
 #include <stdexcept>
 
 #include <string.h> // strcmp
-#include "mmdb_manager.h"
-#include "mmdb_tables.h"
+#include <mmdb/mmdb_manager.h>
+#include <mmdb/mmdb_tables.h>
 #include "mmdb-extras.h"
 #include "mmdb.h"
 #include "mmdb-crystal.h"
