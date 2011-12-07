@@ -16,8 +16,8 @@
 #endif
 
 #ifndef  __MMDB_Manager__
-#include "mmdb_manager.h"
-#include "mmdb_tables.h"
+#include <mmdb/mmdb_manager.h>
+#include <mmdb/mmdb_tables.h>
 #endif
 #ifndef  __CXXException__
 #include "CXXException.h"

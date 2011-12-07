@@ -26,7 +26,7 @@
 #define HAVE_STRING
 #endif
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 
 #ifdef HAVE_GTK_CANVAS
 

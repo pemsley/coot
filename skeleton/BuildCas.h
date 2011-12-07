@@ -2,7 +2,7 @@
 // mode: -*-c++-*-
 
 #include <string>
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 
 #include "mmdb-extras.h"
 #include "clipper/core/xmap.h"

@@ -39,7 +39,7 @@
    #endif
 #endif
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #ifndef HAVE_STRING
 #define HAVE_STRING
 #include <string>

@@ -29,7 +29,7 @@
 #include <string>
 #include <stdexcept>
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #include "mmdb-extras.h"
 
 #include "graphics-info.h"

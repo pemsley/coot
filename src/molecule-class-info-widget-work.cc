@@ -25,7 +25,7 @@
 
 #include <vector>
 #include "Cartesian.h"
-#include "mmdb_manager.h" 
+#include <mmdb/mmdb_manager.h> 
 #include "mmdb-extras.h"
 #include "mmdb-crystal.h"
 

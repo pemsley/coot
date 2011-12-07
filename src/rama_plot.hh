@@ -47,7 +47,7 @@ typedef GnomeCanvasPoints GtkCanvasPoints;
 // ------------------------ End of Canvas stuff ------------------------------
 
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #include "clipper/core/ramachandran.h"
 #include "coot-rama.hh"
 

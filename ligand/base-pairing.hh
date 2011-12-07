@@ -20,7 +20,7 @@
  * 02110-1301, USA.
  */
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #include "clipper/core/coords.h"
 #include "coot-lsq-types.h"
 

@@ -68,7 +68,7 @@ src
 lib/src
 lib/src/mmdb'
 for ac_dir in $ac_mmdb_dirs; do
-   if test -r "$mmdb_prefix/$ac_dir/mmdb_manager.h"; then
+   if test -r "$mmdb_prefix/$ac_dir/mmdb/mmdb_manager.h"; then
       ac_MMDB_CXXFLAGS="-I$mmdb_prefix/$ac_dir"
       break
    fi
@@ -95,12 +95,12 @@ AC_MSG_CHECKING([for MMDB])
 	# temporarily reassign $CC to the c++ compiler.
  	#
 	AC_LANG_PUSH(C++)
-	AC_TRY_LINK([#include "mmdb_manager.h"] ,[ CMMDBManager a;  ], have_generic_mmdb=yes, have_generic_mmdb=no)
-        AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CAtom at; const char *name = "test"; at.SetAtomName(name); CMMDBManager *m; cpstr sg = m->GetSpaceGroup(); ], have_mmdb=yes, have_mmdb=no)
+	AC_TRY_LINK([#include <mmdb/mmdb_manager.h>] ,[ CMMDBManager a;  ], have_generic_mmdb=yes, have_generic_mmdb=no)
+        AC_TRY_COMPILE([#include <mmdb/mmdb_manager.h>] ,[ CAtom at; const char *name = "test"; at.SetAtomName(name); CMMDBManager *m; cpstr sg = m->GetSpaceGroup(); ], have_mmdb=yes, have_mmdb=no)
 	# version 1.10 CISPEP code currently not used because of licence problem
-	AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CMMDBManager *m; m->SetFlag(MMDBF_IgnoreHash)  ], have_mmdb_ignore_hash=yes, have_mmdb_ignore_hash=no)	
-	AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CMMDBManager *m; m->GetModel(1)->GetNumberOfCisPeps(); ], have_mmdb_with_cispep=yes, have_mmdb_with_cispep=no)	
-	AC_TRY_COMPILE([#include "mmdb_manager.h"] ,[ CLinkR c; ], have_mmdb_with_linkr=yes, have_mmdb_with_linkr=no)	
+	AC_TRY_COMPILE([#include <mmdb/mmdb_manager.h>] ,[ CMMDBManager *m; m->SetFlag(MMDBF_IgnoreHash)  ], have_mmdb_ignore_hash=yes, have_mmdb_ignore_hash=no)	
+	AC_TRY_COMPILE([#include <mmdb/mmdb_manager.h>] ,[ CMMDBManager *m; m->GetModel(1)->GetNumberOfCisPeps(); ], have_mmdb_with_cispep=yes, have_mmdb_with_cispep=no)	
+	AC_TRY_COMPILE([#include <mmdb/mmdb_manager.h>] ,[ CLinkR c; ], have_mmdb_with_linkr=yes, have_mmdb_with_linkr=no)	
 	AC_LANG_POP(C++)  # the language we have just quit
 	AC_MSG_RESULT($have_mmdb)
 
@@ -129,7 +129,7 @@ else
 
  if test x$have_generic_mmdb = xyes ; then
    echo Opps - You have an mmdb library, but it is out of date.
-   echo You need version 1.12
+   echo You need version 1.12 or later
  fi
 
  LIBS="$saved_LIBS"

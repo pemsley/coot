@@ -38,7 +38,7 @@
 
 #include <map>
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 
 #include "clipper/core/coords.h"
 #include "atom-quads.hh"

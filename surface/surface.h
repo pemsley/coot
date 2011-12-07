@@ -25,7 +25,7 @@
 #include <GL/gl.h>
 
 #include <string>
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #include "cdisplayobject.h"
 #include "cprimitive.h"
 #include "mg_colour.h"

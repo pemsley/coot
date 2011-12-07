@@ -34,7 +34,7 @@
 // #include "rdkit-interface.hh" // needed for add_hydrogens()
 // #endif
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #include "mmdb-extras.h"
 #include "Cartesian.h"
 #include "mmdb-crystal.h"

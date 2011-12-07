@@ -59,7 +59,7 @@
 #include "ligand.hh" // has mmdb-manager because PPCAtom is part
 			  // of mask_map interface.
 
-#include "mmdb_coormngr.h" // for GetMassCenter()
+#include <mmdb/mmdb_coormngr.h> // for GetMassCenter()
 #include "mmdb-extras.h"   // 220403
 #include "mmdb.h"
 

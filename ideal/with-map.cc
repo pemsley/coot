@@ -60,14 +60,14 @@
 #define UNSET -9999
 
 #ifndef  __MMDB_MMCIF__
-#include "mmdb_mmcif.h"
+#include <mmdb/mmdb_mmcif.h>
 #endif
   
 #include <iostream>
 #include <string>
 #include <vector>
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #include "mmdb-extras.h"
 #include "mmdb.h"
 

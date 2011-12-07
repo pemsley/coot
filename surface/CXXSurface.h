@@ -14,7 +14,7 @@
 #include <iostream>
 #include <fstream>
 #ifndef  __MMDB_Manager__
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #endif
 
 using namespace std;

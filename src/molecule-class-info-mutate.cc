@@ -42,7 +42,7 @@
 #include "clipper/core/map_utils.h" // Map_stats
 
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 // #include "mmdb-extras.h"
 // #include "mmdb.h"
 // #include "mmdb-crystal.h"
@@ -55,8 +55,8 @@
 #include "coot-map-utils.hh"
 
 #include "molecule-class-info.h"
-#include "mmdb_align.h"
-#include "mmdb_tables.h"
+#include <mmdb/mmdb_align.h>
+#include <mmdb/mmdb_tables.h>
 
 int
 molecule_class_info_t::mutate(int resno, const std::string &insertion_code,

@@ -22,7 +22,7 @@
 
 
 #include "clipper/core/coords.h"
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 
 // clipper::Coord_orth
 // closest_approach(const clipper::Coord_orth &moving_point, 

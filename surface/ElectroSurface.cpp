@@ -9,7 +9,7 @@ using namespace clipper;
 #include "CXXSurface.h"
 #include "CXXCreator.h"
 #ifndef  __MMDB_Manager__
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 #endif
 #include "CXXSphereTriangleEdge.h"
 #include "CXXCoord.h"

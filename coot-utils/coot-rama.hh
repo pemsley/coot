@@ -29,7 +29,7 @@
 #include <string>
 #endif // HAVE_STRING
 
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 
 
 namespace coot {
