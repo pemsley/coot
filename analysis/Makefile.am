@@ -12,7 +12,10 @@ INCLUDES = \
 libcoot_analysis_la_SOURCES = bfkurt.cc
 
 libcoot_analysis_la_LIBADD = \
-   ../coot-utils/libcoot-coord-utils.la \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la    \
+   $(top_builddir)/geometry/libcoot-geometry.la    	\
+   $(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
+   $(top_builddir)/utils/libcoot-utils.la 		\
    $(MMDB_LIBS) 
 
 bin_PROGRAMS = bfactan
@@ -23,6 +26,7 @@ bfactan_LDADD = \
 	libcoot-analysis.la 					\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la 	\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
+        $(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/utils/libcoot-utils.la 		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)

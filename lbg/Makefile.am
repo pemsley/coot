@@ -29,6 +29,7 @@ libcoot_lidia_la_SOURCES = lbg.cc wmolecule.cc  \
 libcoot_lidia_la_LIBADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
@@ -46,6 +47,7 @@ lidia_LDADD = \
 	./libcoot-lidia.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
