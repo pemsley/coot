@@ -2842,6 +2842,11 @@ void do_skeleton_prune();
 int test_function(int i, int j);
 
 
+/*                    glyco tools test  */
+void glyco_tree_test();
+
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  map and molecule control                                */
 /*  ----------------------------------------------------------------------- */
@@ -6721,8 +6726,6 @@ void run_update_self_maybe(); // called when --update-self given at command line
 /*  ----------------------------------------------------------------------- */
 void show_go_to_residue_keyboarding_mode_window();
 void    handle_go_to_residue_keyboarding_mode(const gchar *text);
-
-
 
 
 /*  ----------------------------------------------------------------------- */
