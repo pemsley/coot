@@ -589,7 +589,8 @@ coot::glyco_tree_t::find_rooted_tree(CResidue *residue_p,
 	    for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
 	       if (it->residue != done_residues[ires].second) {
 		  if (0)
-		     std::cout << "      considering if " << coot::residue_spec_t(done_residues[ires].second)
+		     std::cout << "      considering if "
+			       << coot::residue_spec_t(done_residues[ires].second)
 			       << "  was linked to tree residue "
 			       << coot::residue_spec_t(it->residue) << std::endl;
 		  // the residue order here is carefully considered
@@ -600,7 +601,8 @@ coot::glyco_tree_t::find_rooted_tree(CResidue *residue_p,
 
 		     if (link.first == "NAG-ASN") {
 			if (link.second == true) {
-			   std::cout << "   Adding " << coot::residue_spec_t(done_residues[ires].second)
+			   std::cout << "   Adding "
+				     << coot::residue_spec_t(done_residues[ires].second)
 				     << " " << "via NAG-ASN" << " to parent "
 				     << coot::residue_spec_t(it->residue)
 				     << std::endl;
