@@ -43,6 +43,10 @@
 #undef __GNU_LIBRARY__
 #endif
 
+#ifdef WINDOWS_MINGW
+// for whatever reason (getopt) include python here for windows
+#include "Python.h"  
+#endif //WINDOWS_MINGW
 
 #include <iostream>
 #include <string>

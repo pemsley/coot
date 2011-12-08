@@ -23,6 +23,10 @@
 /*                  Superpose                                               */
 /*  ----------------------------------------------------------------------- */
 
+#if defined (USE_PYTHON)
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #if defined _MSC_VER
 #include <windows.h>
 #endif

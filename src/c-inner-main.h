@@ -12,10 +12,6 @@
 
 #endif /* BEGIN_C_DECLS */
 
-#if defined (USE_PYTHON)
-#include "Python.h" 
-#endif 
-
 BEGIN_C_DECLS
 
 // Bernhard turns these off for now.

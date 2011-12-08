@@ -24,11 +24,6 @@
 
 #ifdef USE_PYTHON
 
-// Load the head if it hasn't been included.
-#ifndef PYTHONH
-#include <Python.h>
-#endif
-
 #include "coot-coord-utils.hh"
 // This is a common denominator really.  It does not depend on mmdb,
 // but it can't be declared in c-interface.h because then we'd have to

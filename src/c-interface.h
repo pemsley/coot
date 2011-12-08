@@ -66,10 +66,6 @@
 #include <cstdio> // for std::FILE in gmp.h for libguile.h
 #include <libguile.h>		/* for SCM type (returned by safe_scheme_command) */
 #endif /*  USE_GUILE */
-// BL says:: ok then we put python here too
-#ifdef USE_PYTHON
-#include <Python.h>
-#endif /*  PYTHON */
 #endif /* c++ */
 
 #ifndef BEGIN_C_DECLS

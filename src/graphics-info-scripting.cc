@@ -1,4 +1,7 @@
 
+#if defined (USE_PYTHON)
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
 
 #include "graphics-info.h"
 #include "cc-interface.hh" // for pythonize_command_name()

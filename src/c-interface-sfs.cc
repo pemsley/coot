@@ -18,6 +18,10 @@
  * 02110-1301, USA
  */
 
+#if defined (USE_PYTHON)
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #include <iostream>
 
 #include <sys/types.h>
