@@ -512,13 +512,22 @@ coot::glyco_tree_t::glyco_tree_t(CResidue *residue_p, CMMDBManager *mol, coot::p
 	 }
       }
 
+      bool have_ASN_rooted_tree = false;
       std::cout << ":::::::::: " << linked_residues.size() << " glycan/ASN residues" << std::endl;
       for (unsigned int ires=0; ires<linked_residues.size(); ires++) { 
 	 std::string residue_name(linked_residues[ires]->name);
 	 if (residue_name == "ASN") {
-	    find_ASN_rooted_tree(linked_residues[ires], linked_residues);
+	    tree<coot::linked_residue_t> tr = find_ASN_rooted_tree(linked_residues[ires], linked_residues);
+	    if (tr.size() > 1) {
+	       // std::cout << "found tree with " << tr.size() << " nodes " << std::endl;
+	       have_ASN_rooted_tree = true;
+	    }
 	 } 
       }
+
+      if (! have_ASN_rooted_tree) {
+	 tree<coot::linked_residue_t> tr = find_stand_alone_tree(linked_residues);
+      } 
    }
 }
 
@@ -543,14 +552,23 @@ coot::glyco_tree_t::is_pyranose(CResidue *residue_p) const {
 // 
 // residue_p is a member of residues.
 // 
-void
+tree<coot::linked_residue_t> 
 coot::glyco_tree_t::find_ASN_rooted_tree(CResidue *residue_p,
 					 const std::vector<CResidue *> &residues) const {
 
-
    std::cout << "------------------ ASN-rooted tree search for "
 	     << coot::residue_spec_t(residue_p) << std::endl;
-   
+   return find_rooted_tree(residue_p, residues);
+}
+
+// find tree rooted on residue_p.
+// 
+// residue_p is a member of residues.
+// 
+tree<coot::linked_residue_t> 
+coot::glyco_tree_t::find_rooted_tree(CResidue *residue_p,
+				     const std::vector<CResidue *> &residues) const {
+
    linked_residue_t first_res(residue_p, "");
    tree<linked_residue_t> glyco_tree;
    tree<linked_residue_t>::iterator top = glyco_tree.insert(glyco_tree.begin(), first_res);
@@ -592,17 +610,15 @@ coot::glyco_tree_t::find_ASN_rooted_tree(CResidue *residue_p,
 			   done_residues[ires].first = true;
 			}
 		     } else {
-			if (link.first != "") {
-			   if (link.second == false) {
-			      linked_residue_t this_linked_residue(done_residues[ires].second, link.first);
-			      std::cout << "   Adding " << coot::residue_spec_t(done_residues[ires].second)
-					<< " via " << link.first << " to parent " 
-					<< coot::residue_spec_t(it->residue)
-					<< std::endl;
-			      glyco_tree.append_child(it, this_linked_residue);
-			      something_added = true;
-			      done_residues[ires].first = true;
-			   }
+			if (link.second == false) {
+			   linked_residue_t this_linked_residue(done_residues[ires].second, link.first);
+			   std::cout << "   Adding " << coot::residue_spec_t(done_residues[ires].second)
+				     << " via " << link.first << " to parent " 
+				     << coot::residue_spec_t(it->residue)
+				     << std::endl;
+			   glyco_tree.append_child(it, this_linked_residue);
+			   something_added = true;
+			   done_residues[ires].first = true;
 			}
 		     }
 		  }
@@ -612,7 +628,54 @@ coot::glyco_tree_t::find_ASN_rooted_tree(CResidue *residue_p,
       }
    }
    print(glyco_tree);
+   return glyco_tree;
 }
+
+tree<coot::linked_residue_t>
+coot::glyco_tree_t::find_stand_alone_tree(const std::vector<CResidue *> &residues) const {
+
+   // The task is the find the root of the tree, then we simply call
+   // find_rooted_tree with that residue.
+   
+   tree<linked_residue_t> tr;
+   if (!residues.size())
+      return tr;
+   
+   std::vector<std::pair<bool, CResidue *> > done_residues(residues.size());
+   for (unsigned int i=0; i<residues.size(); i++)
+      done_residues[i] = std::pair<bool, CResidue *>(0, residues[i]);
+
+
+   CResidue *current_head = residues[0];
+   bool something_added = true; 
+   while (something_added) {
+      something_added = false;
+      for (unsigned int ires=0; ires<residues.size(); ires++) {
+	 if (residues[ires] != current_head) {
+	    std::pair<std::string, bool> link =
+	       geom_p->find_glycosidic_linkage_type_with_order_switch(current_head,
+								      done_residues[ires].second);
+	    std::cout << "link test on " << coot::residue_spec_t(current_head)
+		      << " and " << coot::residue_spec_t(residues[ires]) << " returns "
+		      << "\"" << link.first << "\" " << link.second << std::endl;
+	    if (link.first != "") { 
+	       if (link.second) {
+		  current_head = residues[ires];
+		  something_added = true;
+		  break;
+	       }
+	    } 
+	 } 
+      }
+   }
+
+   std::cout << "calling find_rooted_tree with current_head " << coot::residue_spec_t(current_head)
+	     << std::endl;
+   tr = find_rooted_tree(current_head, residues);
+
+   return tr;
+}
+
 
 void 
 coot::glyco_tree_t::print(const tree<linked_residue_t> &glyco_tree) const {
@@ -627,7 +690,7 @@ coot::glyco_tree_t::print(const tree<linked_residue_t> &glyco_tree) const {
 	 if (! this_one.node->parent) { 
 	    has_parent = false;
 	 } else { 
-	    s += "   ";
+	    s += "     ";
 	    this_one = this_one.node->parent;
 	 } 
       }

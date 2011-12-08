@@ -544,7 +544,12 @@ namespace coot {
    class glyco_tree_t {
       coot::protein_geometry *geom_p;
       bool is_pyranose(CResidue *r) const; 
-      void find_ASN_rooted_tree(CResidue *residue_p, const std::vector<CResidue *> &residues) const;
+      tree<linked_residue_t> find_rooted_tree(CResidue *residue_root_p,
+					      const std::vector<CResidue *> &residues) const;
+      tree<linked_residue_t> find_ASN_rooted_tree(CResidue *residue_p,
+						  const std::vector<CResidue *> &residues) const;
+      tree<linked_residue_t> find_stand_alone_tree(const std::vector<CResidue *> &residues) const;
+      
    public:
       glyco_tree_t(CResidue *residue_p, CMMDBManager *mol, coot::protein_geometry *geom_p_in);
       void print(const tree<linked_residue_t> &glyco_tree) const;
