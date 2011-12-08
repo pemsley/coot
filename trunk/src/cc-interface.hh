@@ -20,10 +20,6 @@
  * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif
-
 #ifndef CC_INTERFACE_HH
 #define CC_INTERFACE_HH
 

@@ -19,6 +19,10 @@
  */
 
 
+#if defined (USE_PYTHON)
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #ifdef USE_GUILE
 #include <libguile.h>
 #endif

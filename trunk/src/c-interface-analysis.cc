@@ -17,6 +17,10 @@
  * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
+#if defined (USE_PYTHON)
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #include "graphics-info.h"
 #include "cc-interface.hh"
 #include "c-interface.h"

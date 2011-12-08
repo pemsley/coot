@@ -26,10 +26,6 @@
 #ifndef GRAPHICS_INFO_H
 #define GRAPHICS_INFO_H
 
-#ifdef USE_PYTHON
-#include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
-#endif
-
 
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR

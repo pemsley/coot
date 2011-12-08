@@ -11,6 +11,10 @@ build-it-win rev 2122
 
 OIST-CCP4
 - phs read on windows convert slash [AT]
+- indicate rotamer option somewhere/how [PhilE]
+- delete DB loop candidates after accepting?!
+- stereo: shift/shear rather than rotate [PhilE]
+- Mac: enable goocanvas!
 
 FIX pythonic probe/reduce status (seems ok at the moment?!)
 
@@ -205,6 +209,8 @@ from Osaka 2010
 
 
 **** Python ****
+
+   o remove probe dots if interactive probe is toggled off (???)
 
    o merge ligand chains?!
 

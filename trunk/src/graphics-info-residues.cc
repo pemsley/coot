@@ -17,6 +17,10 @@
  * Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#if defined (USE_PYTHON)
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
 #include <algorithm>
 #include "graphics-info.h"
 #include "interface.h" // for create_multi_residue_torsion_dialog()
