@@ -529,14 +529,37 @@ namespace coot {
    class linked_residue_t {
    public:
       CResidue * residue;
+      std::string residue_name;
       std::string link_type; // to parent (root node has this as "")
       linked_residue_t(CResidue *residue_in, const std::string &link_in) {
 	 residue = residue_in;
+	 if (residue)
+	    residue_name = residue->GetResName();
 	 link_type = link_in;
       }
       linked_residue_t() {
 	 residue = NULL;
       }
+      linked_residue_t(const std::string &res_name_in, const std::string &link_in) {
+	 residue = NULL;
+	 residue_name = res_name_in;
+	 link_type = link_in;
+      }
+      std::string res_name() const {
+	 if (residue)
+	    return std::string(residue->GetResName());
+	 else
+	    return residue_name;
+      } 
+      bool operator==(const linked_residue_t &test_lr) const {
+	 if (test_lr.link_type == link_type)
+	    if (test_lr.res_name() == res_name())
+	       return true;
+	    else
+	       return false; 
+	 else
+	    return false;
+      } 
       friend std::ostream& operator<<(std::ostream &o, const linked_residue_t &lr);
    };
    std::ostream& operator<<(std::ostream &o, const linked_residue_t &lr);
@@ -549,6 +572,10 @@ namespace coot {
       tree<linked_residue_t> find_ASN_rooted_tree(CResidue *residue_p,
 						  const std::vector<CResidue *> &residues) const;
       tree<linked_residue_t> find_stand_alone_tree(const std::vector<CResidue *> &residues) const;
+      void compare_vs_allowed_trees(const tree<linked_residue_t> &tr) const;
+      tree<coot::linked_residue_t> oligomannose_tree() const;
+      tree<coot::linked_residue_t>      complex_tree() const;
+      tree<coot::linked_residue_t>       hybrid_tree() const;
       
    public:
       glyco_tree_t(CResidue *residue_p, CMMDBManager *mol, coot::protein_geometry *geom_p_in);

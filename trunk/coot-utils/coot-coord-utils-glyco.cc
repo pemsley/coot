@@ -474,7 +474,11 @@ coot::beam_in_linked_residue::get_residue(const std::string &comp_id,
 std::ostream&
 coot::operator<<(std::ostream &o, const linked_residue_t &lr) {
 
-   o << lr.link_type << " " << coot::residue_spec_t(lr.residue);
+   if (lr.residue)
+      o << lr.link_type << " " << lr.residue->GetResName() << " "
+	<< coot::residue_spec_t(lr.residue);
+   else 
+      o << lr.link_type << " " << lr.residue_name;
    return o;
 
 } 
@@ -482,7 +486,8 @@ coot::operator<<(std::ostream &o, const linked_residue_t &lr) {
 
 // should this be part of protein_geometry?
 // 
-coot::glyco_tree_t::glyco_tree_t(CResidue *residue_p, CMMDBManager *mol, coot::protein_geometry *geom_p_in) {
+coot::glyco_tree_t::glyco_tree_t(CResidue *residue_p, CMMDBManager *mol,
+				 coot::protein_geometry *geom_p_in) {
 
    float dist_crit = 3.0; // A
 
@@ -521,6 +526,7 @@ coot::glyco_tree_t::glyco_tree_t(CResidue *residue_p, CMMDBManager *mol, coot::p
 	    if (tr.size() > 1) {
 	       // std::cout << "found tree with " << tr.size() << " nodes " << std::endl;
 	       have_ASN_rooted_tree = true;
+	       compare_vs_allowed_trees(tr);
 	    }
 	 } 
       }
@@ -647,7 +653,6 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<CResidue *> &residue
    for (unsigned int i=0; i<residues.size(); i++)
       done_residues[i] = std::pair<bool, CResidue *>(0, residues[i]);
 
-
    CResidue *current_head = residues[0];
    bool something_added = true; 
    while (something_added) {
@@ -671,8 +676,8 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<CResidue *> &residue
       }
    }
 
-   std::cout << "calling find_rooted_tree with current_head " << coot::residue_spec_t(current_head)
-	     << std::endl;
+//    std::cout << "calling find_rooted_tree with current_head " << coot::residue_spec_t(current_head)
+// 	     << std::endl;
    tr = find_rooted_tree(current_head, residues);
 
    return tr;
@@ -683,19 +688,171 @@ void
 coot::glyco_tree_t::print(const tree<linked_residue_t> &glyco_tree) const {
 
    tree<linked_residue_t>::iterator it, this_one;
-   // for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
    for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
-      std::string s;
+      int n_space = 36;
       this_one = it;
       bool has_parent = true;
       while (has_parent) { 
 	 if (! this_one.node->parent) { 
 	    has_parent = false;
 	 } else { 
-	    s += "     ";
+	    n_space -= 4;
 	    this_one = this_one.node->parent;
 	 } 
       }
+      std::string s;
+      for (int i=0; i<n_space; i++)
+	 s += " ";
       std::cout << "   " << s << " " << *it << std::endl;
    }
+}
+
+void
+coot::glyco_tree_t::compare_vs_allowed_trees(const tree<linked_residue_t> &tr_for_testing) const {
+
+   std::cout << "Oligomannose" << std::endl;
+   tree<coot::linked_residue_t> omt = oligomannose_tree();
+   print(omt);
+   
+   std::cout << "Hybrid" << std::endl;
+   tree<coot::linked_residue_t> hybrid = hybrid_tree();
+   print(hybrid);
+   
+   std::cout << "Complex" << std::endl;
+   tree<coot::linked_residue_t> complex = complex_tree();
+   print(complex);
+
+}
+
+tree<coot::linked_residue_t>
+coot::glyco_tree_t::oligomannose_tree() const {
+
+   // make oligomannose
+   linked_residue_t ASN    ("ASN", "");
+   linked_residue_t NAG_1  ("NAG", "NAG-ASN");  // parent is ASN
+   linked_residue_t NAG_2  ("NAG", "BETA1-4");  // parent is NAG_1
+   linked_residue_t MAN_3  ("BMA", "BETA1-4");  // parent is NAG_2
+   linked_residue_t MAN_4_1("MAN", "ALPHA1-6"); // parent is MAN_3
+   linked_residue_t MAN_4_2("MAN", "ALPHA1-6"); // parent is MAN_4_1
+   linked_residue_t MAN_4_3("MAN", "ALPHA1-2"); // parent is MAN_4_2
+   linked_residue_t MAN_5_1("MAN", "ALPHA1-3"); // parent is MAN_4_1
+   linked_residue_t MAN_5_2("MAN", "ALPHA1-2"); // parent is MAN_5_1
+   linked_residue_t MAN_6_1("MAN", "ALPHA1-3"); // parent is MAN_3
+   linked_residue_t MAN_6_2("MAN", "ALPHA1-2"); // parent is MAN_6_1
+   linked_residue_t MAN_6_3("MAN", "ALPHA1-2"); // parent is MAN_6_2
+   linked_residue_t GLU_6_4("GLC", "ALPHA1-3"); // parent is MAN_6_3
+   linked_residue_t GLU_6_5("GLC", "ALPHA1-3"); // parent is MAN_6_4
+   linked_residue_t GLU_6_6("GLC", "ALPHA1-2"); // parent is MAN_6_5
+
+   tree<linked_residue_t> omt;
+   tree<linked_residue_t>::iterator asn     = omt.insert(omt.begin(), ASN);
+   tree<linked_residue_t>::iterator nag_1   = omt.append_child(asn,     NAG_1);
+   tree<linked_residue_t>::iterator nag_2   = omt.append_child(nag_1,   NAG_2);
+   tree<linked_residue_t>::iterator man_3   = omt.append_child(nag_2,   MAN_3);
+   tree<linked_residue_t>::iterator man_4_1 = omt.append_child(man_3,   MAN_4_1);
+   tree<linked_residue_t>::iterator man_4_2 = omt.append_child(man_4_1, MAN_4_2);
+   tree<linked_residue_t>::iterator man_4_3 = omt.append_child(man_4_2, MAN_4_3);
+   tree<linked_residue_t>::iterator man_5_1 = omt.append_child(man_4_1, MAN_5_1);
+   tree<linked_residue_t>::iterator man_5_2 = omt.append_child(man_5_1, MAN_5_2);
+   tree<linked_residue_t>::iterator man_6_1 = omt.append_child(man_3,   MAN_6_1);
+   tree<linked_residue_t>::iterator man_6_2 = omt.append_child(man_6_1, MAN_6_2);
+   tree<linked_residue_t>::iterator man_6_3 = omt.append_child(man_6_2, MAN_6_3);
+   tree<linked_residue_t>::iterator glu_6_4 = omt.append_child(man_6_3, GLU_6_4);
+   tree<linked_residue_t>::iterator glu_6_5 = omt.append_child(glu_6_4, GLU_6_5);
+   tree<linked_residue_t>::iterator glu_6_6 = omt.append_child(glu_6_5, GLU_6_6);
+
+   return omt;
+} 
+
+tree<coot::linked_residue_t>
+coot::glyco_tree_t::hybrid_tree() const {
+
+   linked_residue_t ASN    ("ASN", "");
+   linked_residue_t NAG_1  ("NAG", "NAG-ASN");  // parent is ASN
+   linked_residue_t NAG_2  ("NAG", "BETA1-4");  // parent is NAG_1
+   linked_residue_t MAN_3  ("BMA", "BETA1-4");  // parent is NAG_2
+   linked_residue_t MAN_4_1("MAN", "ALPHA1-6"); // parent is MAN_3
+   linked_residue_t MAN_4_2("MAN", "ALPHA1-6"); // parent is MAN_4_1
+   linked_residue_t MAN_5_1("MAN", "ALPHA1-3"); // parent is MAN_4_1
+   linked_residue_t NAG_4  ("NAG", "BETA1-4");  // parent is MAN_3
+   linked_residue_t MAN_6_1("MAN", "ALPHA1-3"); // parent is MAN_3
+   linked_residue_t NAG_6_2("NAG", "BETA1-4");  // parent is MAN_6_1
+   linked_residue_t GAL_6_3("GAL", "BETA1-4");  // parent is NAG_6_2
+   linked_residue_t NAG_7_1("NAG", "BETA1-2");  // parent is MAN_6_1
+   linked_residue_t GAL_7_2("GAL", "BETA1-4");  // parent is NAG_7_1
+   linked_residue_t SIA_7_3("SIA", "ALPHA1-3"); // parent is GAL_7_2
+   linked_residue_t FUC_1  ("FUC", "BETA1-6");  // parent is NAG_1
+   
+   tree<linked_residue_t> t;
+   tree<linked_residue_t>::iterator asn     = t.insert(t.begin(), ASN);
+   tree<linked_residue_t>::iterator nag_1   = t.append_child(asn,     NAG_1);
+   tree<linked_residue_t>::iterator fuc_1   = t.append_child(nag_1,   FUC_1);
+   tree<linked_residue_t>::iterator nag_2   = t.append_child(nag_1,   NAG_2);
+   tree<linked_residue_t>::iterator man_3   = t.append_child(nag_2,   MAN_3);
+   tree<linked_residue_t>::iterator man_4_1 = t.append_child(man_3,   MAN_4_1);
+   tree<linked_residue_t>::iterator man_4_2 = t.append_child(man_4_1, MAN_4_2);
+   tree<linked_residue_t>::iterator man_5_1 = t.append_child(man_4_1, MAN_5_1);
+   tree<linked_residue_t>::iterator nag_4   = t.append_child(man_3,   NAG_4);
+   tree<linked_residue_t>::iterator man_6_1 = t.append_child(man_3,   MAN_6_1);
+   tree<linked_residue_t>::iterator nag_6_2 = t.append_child(man_6_1, NAG_6_2);
+   tree<linked_residue_t>::iterator gal_6_3 = t.append_child(nag_6_2, GAL_6_3);
+   tree<linked_residue_t>::iterator nag_7_1 = t.append_child(man_6_1, NAG_7_1);
+   tree<linked_residue_t>::iterator gal_7_2 = t.append_child(nag_7_1, GAL_7_2);
+   tree<linked_residue_t>::iterator sia_7_3 = t.append_child(gal_7_2, SIA_7_3);
+
+   return t;
+}
+
+tree<coot::linked_residue_t>
+coot::glyco_tree_t::complex_tree() const {
+
+   linked_residue_t ASN    ("ASN", "");
+   linked_residue_t NAG_1  ("NAG", "NAG-ASN");  // parent is ASN
+   linked_residue_t FUC_1  ("FUC", "BETA1-6");  // parent is NAG_1
+   linked_residue_t FUC_2  ("FUC", "BETA1-3");  // parent is NAG_1
+   linked_residue_t NAG_2  ("NAG", "BETA1-4");  // parent is NAG_1
+   linked_residue_t MAN_3  ("BMA", "BETA1-4");  // parent is NAG_2
+   linked_residue_t NAG_4  ("NAG", "BETA1-4");  // parent is MAN_3
+
+   linked_residue_t XYL_4  ("XYL", "BETA1-2");  // parent is MAN_3
+   
+   linked_residue_t MAN_4_1("MAN", "ALPHA1-6"); // parent is MAN_3
+   linked_residue_t NAG_4_2("NAG", "ALPHA1-6"); // parent is MAN_4_1
+   linked_residue_t GAL_4_3("MAN", "BETA1-4");  // parent is NAG_4_2
+
+   linked_residue_t NAG_5_1("NAG", "ALPHA1-2"); // parent is MAN_4_1
+   linked_residue_t GAL_5_2("GAL", "BETA1-4");  // parent is NAG_5_1
+   
+   linked_residue_t MAN_6_1("MAN", "ALPHA1-3"); // parent is MAN_3
+   linked_residue_t NAG_6_2("NAG", "BETA1-4");  // parent is MAN_6_1
+   linked_residue_t GAL_6_3("GAL", "BETA1-4");  // parent is NAG_6_2
+   linked_residue_t NAG_7_1("NAG", "BETA1-2");  // parent is MAN_6_1
+   linked_residue_t GAL_7_2("GAL", "BETA1-4");  // parent is NAG_7_1
+
+
+   tree<linked_residue_t> t;
+   tree<linked_residue_t>::iterator asn     = t.insert(t.begin(), ASN);
+   tree<linked_residue_t>::iterator nag_1   = t.append_child(asn,     NAG_1);
+   tree<linked_residue_t>::iterator fuc_1   = t.append_child(nag_1,   FUC_1);
+   tree<linked_residue_t>::iterator fuc_2   = t.append_child(nag_1,   FUC_2);
+   tree<linked_residue_t>::iterator nag_2   = t.append_child(nag_1,   NAG_2);
+   tree<linked_residue_t>::iterator man_3   = t.append_child(nag_2,   MAN_3);
+   tree<linked_residue_t>::iterator man_4_1 = t.append_child(man_3,   MAN_4_1);
+   tree<linked_residue_t>::iterator nag_4_2 = t.append_child(man_4_1, NAG_4_2);
+   tree<linked_residue_t>::iterator gal_4_3 = t.append_child(nag_4_2, GAL_4_3);
+   
+   tree<linked_residue_t>::iterator nag_5_1 = t.append_child(man_4_1, NAG_5_1);
+   tree<linked_residue_t>::iterator gal_5_2 = t.append_child(nag_5_1, GAL_5_2);
+   
+   tree<linked_residue_t>::iterator nag_4   = t.append_child(man_3,   NAG_4);
+   tree<linked_residue_t>::iterator xyl_4   = t.append_child(man_3,   XYL_4);
+
+   tree<linked_residue_t>::iterator man_6_1 = t.append_child(man_3,   MAN_6_1);
+   tree<linked_residue_t>::iterator nag_6_2 = t.append_child(man_6_1, NAG_6_2);
+   tree<linked_residue_t>::iterator gal_6_3 = t.append_child(nag_6_2, GAL_6_3);
+   tree<linked_residue_t>::iterator nag_7_1 = t.append_child(man_6_1, NAG_7_1);
+   tree<linked_residue_t>::iterator gal_7_2 = t.append_child(nag_7_1, GAL_7_2);
+
+
+   return t;
 }
