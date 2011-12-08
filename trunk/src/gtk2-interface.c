@@ -3999,7 +3999,6 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_container_add (GTK_CONTAINER (frame33), symmetry_colorbutton);
-  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), _("Pick a Colour"));
 
   label68 = gtk_label_new (_("Sym Colour"));
   gtk_widget_show (label68);
@@ -5214,15 +5213,15 @@ create_goto_atom_window (void)
   GtkWidget *go_to_atom_molecule_optionmenu;
   GtkWidget *label40;
   GtkWidget *table5;
-  GtkWidget *update_go_to_atom_from_current_position_button;
-  GtkWidget *hbox26;
-  GtkWidget *go_to_atom_atom_name_entry;
-  GtkWidget *label43;
   GtkWidget *hbox25;
   GtkWidget *go_to_atom_residue_entry;
-  GtkWidget *label42;
   GtkWidget *hbox24;
   GtkWidget *go_to_atom_chain_entry;
+  GtkWidget *hbox26;
+  GtkWidget *go_to_atom_atom_name_entry;
+  GtkWidget *update_go_to_atom_from_current_position_button;
+  GtkWidget *label42;
+  GtkWidget *label43;
   GtkWidget *label41;
   GtkWidget *hseparator1;
   GtkWidget *hbox238;
@@ -5292,59 +5291,28 @@ create_goto_atom_window (void)
   gtk_box_pack_start (GTK_BOX (hbox23), label40, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label40), GTK_JUSTIFY_CENTER);
 
-  table5 = gtk_table_new (3, 2, FALSE);
+  table5 = gtk_table_new (3, 3, FALSE);
   gtk_widget_show (table5);
   gtk_box_pack_start (GTK_BOX (vbox35), table5, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (table5), 2);
-
-  update_go_to_atom_from_current_position_button = gtk_button_new_with_mnemonic (_(" Update from Current Postion "));
-  gtk_widget_show (update_go_to_atom_from_current_position_button);
-  gtk_table_attach (GTK_TABLE (table5), update_go_to_atom_from_current_position_button, 1, 2, 0, 1,
-                    (GtkAttachOptions) (0),
-                    (GtkAttachOptions) (0), 0, 0);
-
-  hbox26 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_show (hbox26);
-  gtk_table_attach (GTK_TABLE (table5), hbox26, 0, 1, 2, 3,
-                    (GtkAttachOptions) (0),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
-  gtk_widget_set_size_request (hbox26, 160, -1);
-  gtk_container_set_border_width (GTK_CONTAINER (hbox26), 2);
-
-  go_to_atom_atom_name_entry = gtk_entry_new ();
-  gtk_widget_show (go_to_atom_atom_name_entry);
-  gtk_box_pack_start (GTK_BOX (hbox26), go_to_atom_atom_name_entry, FALSE, TRUE, 0);
-  gtk_widget_set_size_request (go_to_atom_atom_name_entry, 50, -1);
-
-  label43 = gtk_label_new (_("Atom Name"));
-  gtk_widget_show (label43);
-  gtk_box_pack_start (GTK_BOX (hbox26), label43, FALSE, FALSE, 6);
-  gtk_label_set_justify (GTK_LABEL (label43), GTK_JUSTIFY_CENTER);
 
   hbox25 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox25);
   gtk_table_attach (GTK_TABLE (table5), hbox25, 0, 1, 1, 2,
                     (GtkAttachOptions) (0),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
-  gtk_widget_set_size_request (hbox25, 160, -1);
+                    (GtkAttachOptions) (0), 0, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox25), 2);
 
   go_to_atom_residue_entry = gtk_entry_new ();
   gtk_widget_show (go_to_atom_residue_entry);
-  gtk_box_pack_start (GTK_BOX (hbox25), go_to_atom_residue_entry, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox25), go_to_atom_residue_entry, FALSE, FALSE, 0);
   gtk_widget_set_size_request (go_to_atom_residue_entry, 50, -1);
-
-  label42 = gtk_label_new (_("Residue Number"));
-  gtk_widget_show (label42);
-  gtk_box_pack_start (GTK_BOX (hbox25), label42, FALSE, FALSE, 6);
-  gtk_label_set_justify (GTK_LABEL (label42), GTK_JUSTIFY_CENTER);
 
   hbox24 = gtk_hbox_new (FALSE, 0);
   gtk_widget_show (hbox24);
   gtk_table_attach (GTK_TABLE (table5), hbox24, 0, 1, 0, 1,
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
-  gtk_widget_set_size_request (hbox24, 140, -1);
+                    (GtkAttachOptions) (0),
+                    (GtkAttachOptions) (0), 0, 0);
   gtk_container_set_border_width (GTK_CONTAINER (hbox24), 2);
 
   go_to_atom_chain_entry = gtk_entry_new ();
@@ -5352,10 +5320,42 @@ create_goto_atom_window (void)
   gtk_box_pack_start (GTK_BOX (hbox24), go_to_atom_chain_entry, FALSE, FALSE, 0);
   gtk_widget_set_size_request (go_to_atom_chain_entry, 50, -1);
 
-  label41 = gtk_label_new (_("Chain"));
+  hbox26 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox26);
+  gtk_table_attach (GTK_TABLE (table5), hbox26, 0, 1, 2, 3,
+                    (GtkAttachOptions) (0),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox26), 2);
+
+  go_to_atom_atom_name_entry = gtk_entry_new ();
+  gtk_widget_show (go_to_atom_atom_name_entry);
+  gtk_box_pack_start (GTK_BOX (hbox26), go_to_atom_atom_name_entry, FALSE, FALSE, 0);
+  gtk_widget_set_size_request (go_to_atom_atom_name_entry, 50, -1);
+
+  update_go_to_atom_from_current_position_button = gtk_button_new_with_mnemonic (_(" Update from Current Postion "));
+  gtk_widget_show (update_go_to_atom_from_current_position_button);
+  gtk_table_attach (GTK_TABLE (table5), update_go_to_atom_from_current_position_button, 2, 3, 0, 1,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  GTK_WIDGET_UNSET_FLAGS (update_go_to_atom_from_current_position_button, GTK_CAN_FOCUS);
+
+  label42 = gtk_label_new (_("Residue Number"));
+  gtk_widget_show (label42);
+  gtk_table_attach (GTK_TABLE (table5), label42, 1, 2, 1, 2,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+
+  label43 = gtk_label_new (_("Atom Name        "));
+  gtk_widget_show (label43);
+  gtk_table_attach (GTK_TABLE (table5), label43, 1, 2, 2, 3,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+
+  label41 = gtk_label_new_with_mnemonic (_("Chain                   "));
   gtk_widget_show (label41);
-  gtk_box_pack_start (GTK_BOX (hbox24), label41, FALSE, FALSE, 6);
-  gtk_label_set_justify (GTK_LABEL (label41), GTK_JUSTIFY_CENTER);
+  gtk_table_attach (GTK_TABLE (table5), label41, 1, 2, 0, 1,
+                    (GtkAttachOptions) (0),
+                    (GtkAttachOptions) (0), 0, 0);
 
   hseparator1 = gtk_hseparator_new ();
   gtk_widget_show (hseparator1);
@@ -5481,17 +5481,17 @@ create_goto_atom_window (void)
   g_signal_connect ((gpointer) goto_atom_window, "destroy",
                     G_CALLBACK (on_goto_atom_window_destroy),
                     NULL);
-  g_signal_connect ((gpointer) update_go_to_atom_from_current_position_button, "clicked",
-                    G_CALLBACK (on_update_go_to_atom_from_current_position_button_clicked),
-                    NULL);
-  g_signal_connect ((gpointer) go_to_atom_atom_name_entry, "key_press_event",
-                    G_CALLBACK (on_go_to_atom_atom_name_entry_key_press_event),
-                    NULL);
   g_signal_connect ((gpointer) go_to_atom_residue_entry, "key_press_event",
                     G_CALLBACK (on_go_to_atom_residue_entry_key_press_event),
                     NULL);
   g_signal_connect ((gpointer) go_to_atom_chain_entry, "key_press_event",
                     G_CALLBACK (on_go_to_atom_chain_entry_key_press_event),
+                    NULL);
+  g_signal_connect ((gpointer) go_to_atom_atom_name_entry, "key_press_event",
+                    G_CALLBACK (on_go_to_atom_atom_name_entry_key_press_event),
+                    NULL);
+  g_signal_connect ((gpointer) update_go_to_atom_from_current_position_button, "clicked",
+                    G_CALLBACK (on_update_go_to_atom_from_current_position_button_clicked),
                     NULL);
   g_signal_connect ((gpointer) go_to_atom_previous_residue_button, "clicked",
                     G_CALLBACK (on_go_to_atom_previous_residue_button_clicked),
@@ -5517,15 +5517,15 @@ create_goto_atom_window (void)
   GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_molecule_optionmenu, "go_to_atom_molecule_optionmenu");
   GLADE_HOOKUP_OBJECT (goto_atom_window, label40, "label40");
   GLADE_HOOKUP_OBJECT (goto_atom_window, table5, "table5");
-  GLADE_HOOKUP_OBJECT (goto_atom_window, update_go_to_atom_from_current_position_button, "update_go_to_atom_from_current_position_button");
-  GLADE_HOOKUP_OBJECT (goto_atom_window, hbox26, "hbox26");
-  GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_atom_name_entry, "go_to_atom_atom_name_entry");
-  GLADE_HOOKUP_OBJECT (goto_atom_window, label43, "label43");
   GLADE_HOOKUP_OBJECT (goto_atom_window, hbox25, "hbox25");
   GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_residue_entry, "go_to_atom_residue_entry");
-  GLADE_HOOKUP_OBJECT (goto_atom_window, label42, "label42");
   GLADE_HOOKUP_OBJECT (goto_atom_window, hbox24, "hbox24");
   GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_chain_entry, "go_to_atom_chain_entry");
+  GLADE_HOOKUP_OBJECT (goto_atom_window, hbox26, "hbox26");
+  GLADE_HOOKUP_OBJECT (goto_atom_window, go_to_atom_atom_name_entry, "go_to_atom_atom_name_entry");
+  GLADE_HOOKUP_OBJECT (goto_atom_window, update_go_to_atom_from_current_position_button, "update_go_to_atom_from_current_position_button");
+  GLADE_HOOKUP_OBJECT (goto_atom_window, label42, "label42");
+  GLADE_HOOKUP_OBJECT (goto_atom_window, label43, "label43");
   GLADE_HOOKUP_OBJECT (goto_atom_window, label41, "label41");
   GLADE_HOOKUP_OBJECT (goto_atom_window, hseparator1, "hseparator1");
   GLADE_HOOKUP_OBJECT (goto_atom_window, hbox238, "hbox238");
