@@ -262,11 +262,17 @@ int test_glyco_tree() {
    int dynamic_add_status_1 = t.geom.try_dynamic_add("NAG", 1);
    int dynamic_add_status_2 = t.geom.try_dynamic_add("MAN", 1);
    int dynamic_add_status_3 = t.geom.try_dynamic_add("BMA", 1);
+   int dynamic_add_status_4 = t.geom.try_dynamic_add("GAL", 1);
+   // int dynamic_add_status_4 = t.geom.try_dynamic_add("GLB", 1); minimal
    
    CMMDBManager *mol = new CMMDBManager;
-   std::string file_name = "3u2s.pdb";
+   // std::string file_name = "3u2s.pdb";
+   // coot::residue_spec_t spec("G", 560, "");
+
+   std::string file_name = "sweet2-test-1.pdb";
+   coot::residue_spec_t spec("", 1, "");
+   
    mol->ReadCoorFile(file_name.c_str());
-   coot::residue_spec_t spec("G", 560, "");
    CResidue *r = coot::util::get_residue(spec, mol);
    if (! r) {
       std::cout << "No residue " << spec << std::endl;
