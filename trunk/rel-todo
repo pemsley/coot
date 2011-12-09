@@ -36,7 +36,7 @@
   o try to regularize pyranose-pyranose-via-ALPHA1-6.pdb, breaks bond,
     doesn't find glyco linkage ::: 1
 
-  o Don't recentre button doesn't work with modern file selector ::: 2
+  o "Don't recentre" button doesn't work with Modern fileselector ::: 2
 
 ------
 
