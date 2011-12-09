@@ -293,6 +293,7 @@ dnl Set PACKAGE_LOCALE_DIR in config.h.
 AC_OUTPUT([
 Makefile
 macros/Makefile
+pdb-templates/Makefile
 scheme/Makefile
 python/Makefile
 compat/Makefile
