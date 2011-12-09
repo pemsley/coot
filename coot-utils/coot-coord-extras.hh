@@ -514,6 +514,16 @@ namespace coot {
       void delete_atom(CResidue *res, const std::string &atom_name) const;
       std::string atom_id_mmdb_expand(const std::string &atom_id,
 				      const std::string &res_name) const; 
+
+      // If the link is a BETA1-6 or an ALPHA1-6 then the linked
+      // residue (and the O6 of the residue to which we are adding)
+      // can rotate about the C5-C6 bond (the template is just one of
+      // the many options).
+      clipper::Coord_orth get_O6_position_from_template() const;
+      //
+      // simply get the attached residue, don't handle the positioning
+      // of the O6 on the residue to whcih we are adding.
+      CResidue *get_residue_raw() const; 
       
    public:
       beam_in_linked_residue(CResidue *residue_ref,

@@ -956,6 +956,7 @@ molecule_class_info_t::add_residue(CResidue *new_res,
 	    if (chain_id == chain_id_in) {
 	       res_copied = copy_and_add_residue_to_chain(chain_p, new_res);
 	       status = true;
+	       have_unsaved_changes_flag = 1;
 	       atom_sel.mol->FinishStructEdit();
 	       update_molecule_after_additions();
 	       break;
@@ -1001,6 +1002,7 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
 		      << rte.what() << "\"" << std::endl;
 	 } 
       }
+      have_unsaved_changes_flag
    }
    return new_residue_spec;
 } 
@@ -1106,8 +1108,9 @@ coot::dict_link_info_t::check_for_order_switch(CResidue *residue_ref,
       // std::cout << "got group_new:o " << group_new << std::endl;
       std::vector<std::pair<coot::chem_link, bool> > link_infos =
 	 geom.matching_chem_link(comp_id_ref, group_ref, comp_id_new, group_new);
-      std::cout << "DEBUG:: in check_for_order_switch() found " << link_infos.size()
-		<< " link infos " << std::endl;
+      if (0)
+	 std::cout << "DEBUG:: in check_for_order_switch() found " << link_infos.size()
+		   << " link infos " << std::endl;
       for (unsigned int ilink=0; ilink<link_infos.size(); ilink++) {
 	 // std::cout << "   chem_link: " << ilink << " " << link_infos[ilink].first
 	 // << " " << link_infos[ilink].second << std::endl;

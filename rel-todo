@@ -27,9 +27,16 @@
 
   o Ctrl-shift middle mouse vs shift-ctrl middle mouse ::: 1
 
-  o jligand interface.
+  o jligand interface ::: 2
 
   o put helix, pyranose pdbs into pdb-templates directory ::: 1
+
+  o export a map fragment (xmap -> nxmap conversion and export_nxmap()) ::: 2
+
+  o try to regularize pyranose-pyranose-via-ALPHA1-6.pdb, breaks bond,
+    doesn't find glyco linkage ::: 1
+
+  o Don't recentre button doesn't work with modern file selector ::: 2
 
 ------
 

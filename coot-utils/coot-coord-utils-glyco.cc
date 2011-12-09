@@ -205,6 +205,88 @@ CResidue *
 coot::beam_in_linked_residue::get_residue() const {
 
    CResidue *r = NULL;
+   bool needs_O6_manip = false;
+   double current_torsion;
+   double template_torsion = 64.0; // degrees (in the file)
+   CAtom *at_O6 = NULL;
+   clipper::Coord_orth origin_shift;
+   clipper::Coord_orth     position;
+   clipper::Coord_orth    direction;
+   
+   if (link_type == "ALPHA1-6" || link_type == "BETA1-6")
+      needs_O6_manip = true;
+
+   if (needs_O6_manip) { 
+      try { 
+	 // We need to find the current torsion around C5-C6, temporarily
+	 // move the O6 of the residue to which we are linking, then
+	 // rotate rotate it and r back to match current torsion.
+	 // Fix-up needed for PDBv3
+	 CAtom *at_O5 = residue_ref->GetAtom(" O5 ");
+	 CAtom *at_C5 = residue_ref->GetAtom(" C5 ");
+	 CAtom *at_C6 = residue_ref->GetAtom(" C6 ");
+	 at_O6 = residue_ref->GetAtom(" O6 ");
+	 if (at_O5 && at_C5 && at_C6 && at_O6) {
+	    coot::atom_quad quad(at_O5, at_C5, at_C6, at_O6);
+	    current_torsion = quad.torsion();
+	    double diff = clipper::Util::d2rad(template_torsion - current_torsion);
+	    clipper::Coord_orth base;
+	    base         = clipper::Coord_orth(at_C5->x, at_C5->y, at_C5->z);
+	    origin_shift = clipper::Coord_orth(at_C6->x, at_C6->y, at_C6->z);
+	    position =     clipper::Coord_orth(at_O6->x, at_O6->y, at_O6->z);
+	    direction = origin_shift - base;
+	    clipper::Coord_orth new_pos =
+	       coot::util::rotate_round_vector(direction, position,
+					       origin_shift, diff);
+	    at_O6->x = new_pos.x();
+	    at_O6->y = new_pos.y();
+	    at_O6->z = new_pos.z();
+	 }
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "WARNING:: " << rte.what() << std::endl;
+      }
+   }
+   
+   r = get_residue_raw();
+
+   if (needs_O6_manip) {
+      if (r) { 
+	 // now rotate r and O6 back to current_torsion
+	 if (at_O6) {
+	    position = clipper::Coord_orth(at_O6->x, at_O6->y, at_O6->z);
+	    double diff = clipper::Util::d2rad(template_torsion - current_torsion);
+	    clipper::Coord_orth new_pos =
+	       coot::util::rotate_round_vector(direction, position, origin_shift, -diff);
+
+	    at_O6->x = new_pos.x();
+	    at_O6->y = new_pos.y();
+	    at_O6->z = new_pos.z();
+
+	    PPCAtom residue_atoms = 0;
+	    int n_residue_atoms;
+	    r->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (unsigned int i=0; i<n_residue_atoms; i++) {
+	       CAtom *at = residue_atoms[i];
+	       clipper::Coord_orth p(at->x, at->y, at->z);
+	       clipper::Coord_orth n =
+		  coot::util::rotate_round_vector(direction, p, origin_shift, -diff);
+	       at->x = n.x();
+	       at->y = n.y();
+	       at->z = n.z();
+	    }
+	 }
+      } 
+   }
+   
+   return r;
+}
+
+// This can return NULL if we were unable to make the residue to be attached.
+CResidue *
+coot::beam_in_linked_residue::get_residue_raw() const {
+
+   CResidue *r = NULL;
    if (! have_template) {
       std::cout << "WARNING:: no template" << std::endl;
    } else {
@@ -300,6 +382,7 @@ coot::beam_in_linked_residue::get_residue() const {
 	 // << " - that's OK" << std::endl;
       } 
    }
+   std::cout << "get_residue_raw() returns " << r << std::endl;
    return r;
 }
 
