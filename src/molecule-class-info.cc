@@ -2182,9 +2182,16 @@ coot::atom_selection_info_t::mmdb_string() const {
       s += chain_id;
       s += "/";
       s += coot::util::int_to_string(resno_start);
-      s += "-";
-      s += coot::util::int_to_string(resno_end);
-   } 
+      if (resno_end != resno_start) {
+	 s += "-";
+	 s += coot::util::int_to_string(resno_end);
+      } else { 
+	 if (!ins_code.empty()) {
+	    s += ".";
+	    s += ins_code;
+	 } 
+      }
+   }
    return s;
 }
 

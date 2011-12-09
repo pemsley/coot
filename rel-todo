@@ -27,11 +27,9 @@
 
   o Ctrl-shift middle mouse vs shift-ctrl middle mouse ::: 1
 
-
-  o ball-and-stickify on G100 P (ASN) in 3u2s fails (ins code not
-    taken into account) ::: 1
-
   o jligand interface.
+
+  o put helix, pyranose pdbs into pdb-templates directory ::: 1
 
 ------
 
@@ -237,3 +235,9 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
   o Fix cif torsions and chiral, no loop single entry ::: 1
 
 * Done.
+
+  o ball-and-stickify on G100 P (ASN) in 3u2s fails (ins code not
+    taken into account) ::: 0.5
+
+* Done. mmdb_string() needed fixing to add .ins_code.
+
