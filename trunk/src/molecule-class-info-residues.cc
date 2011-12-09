@@ -1002,7 +1002,6 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
 		      << rte.what() << "\"" << std::endl;
 	 } 
       }
-      have_unsaved_changes_flag
    }
    return new_residue_spec;
 } 
