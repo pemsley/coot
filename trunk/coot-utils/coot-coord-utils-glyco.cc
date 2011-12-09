@@ -206,7 +206,7 @@ coot::beam_in_linked_residue::get_residue() const {
 
    CResidue *r = NULL;
    bool needs_O6_manip = false;
-   double current_torsion;
+   double current_torsion = 0;
    double template_torsion = 64.0; // degrees (in the file)
    CAtom *at_O6 = NULL;
    clipper::Coord_orth origin_shift;
