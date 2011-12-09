@@ -1,6 +1,11 @@
 
 #ifdef MAKE_ENTERPRISE_TOOLS
 
+#if defined (USE_PYTHON)
+#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
+#endif
+
+
 #include <cstring>
 #define ENABLE_NLS // fix dcgettext() header problems on including
 		   // libintl.h (via RDKitBase.h etc (including boost
