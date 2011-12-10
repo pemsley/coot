@@ -745,7 +745,7 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<CResidue *> &residue
 	    std::pair<std::string, bool> link =
 	       geom_p->find_glycosidic_linkage_type_with_order_switch(current_head,
 								      done_residues[ires].second);
-	    std::cout << "link test on " << coot::residue_spec_t(current_head)
+	    std::cout << "find_stand_alone_tree() link test on " << coot::residue_spec_t(current_head)
 		      << " and " << coot::residue_spec_t(residues[ires]) << " returns "
 		      << "\"" << link.first << "\" " << link.second << std::endl;
 	    if (link.first != "") { 
@@ -759,8 +759,13 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<CResidue *> &residue
       }
    }
 
-//    std::cout << "calling find_rooted_tree with current_head " << coot::residue_spec_t(current_head)
-// 	     << std::endl;
+   std::cout << "find_stand_alone_tree() calling find_rooted_tree with current_head "
+	     << coot::residue_spec_t(current_head) << std::endl;
+   std::cout << "and residues: " << std::endl;
+   for (unsigned int i=0; i<residues.size(); i++) { 
+      std::cout << "   " << coot::residue_spec_t(residues[i]) << std::endl;
+   }
+    
    tr = find_rooted_tree(current_head, residues);
 
    return tr;

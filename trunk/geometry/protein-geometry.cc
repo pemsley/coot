@@ -3299,6 +3299,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(CResidue *first, CResidue *
 	    if (name_2 == " O3 ")
 	       if (close[i].distance < smallest_link_dist) {
 		  coot::atom_quad glyco_chiral_quad(first, second, "BETA2-3");
+		  std::cout << "glyco_chiral B2-3 " << glyco_chiral_quad.chiral_volume() << std::endl;
 		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
 		     smallest_link_dist = close[i].distance;
 		     link_type = "BETA2-3";
@@ -3338,7 +3339,8 @@ coot::protein_geometry::find_glycosidic_linkage_type(CResidue *first, CResidue *
 	 if (name_1 == " C2 " )
 	    if (name_2 == " O3 ")
 	       if (close[i].distance < smallest_link_dist) {
-		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-2");
+		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-3");
+		  std::cout << "glyco_chiral ALPHA2-3 " << glyco_chiral_quad.chiral_volume() << std::endl;
 		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
 		     smallest_link_dist = close[i].distance;
 		     link_type = "ALPHA2-3";
@@ -3368,7 +3370,17 @@ coot::protein_geometry::find_glycosidic_linkage_type(CResidue *first, CResidue *
    }
    catch (std::runtime_error rte) {
       std::cout << "WARNING::" << rte.what() << std::endl;
-   } 
+   }
+
+   if (0) 
+      std::cout << "debug:: find_glycosidic_linkage_type() for "
+		<< first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetInsCode()
+		<< first->GetResName() << ","
+		<< second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetInsCode()
+		<< second->GetResName() 
+		<< " returns \"" << link_type << "\""
+		<< std::endl;
+   
    return link_type;
 }
 

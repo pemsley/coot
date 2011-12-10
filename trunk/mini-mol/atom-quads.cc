@@ -40,6 +40,11 @@ coot::atom_quad::atom_quad(CResidue *first, CResidue *second, const std::string 
    atom_2 = NULL;
    atom_3 = NULL;
    atom_4 = NULL; // atom_c for a chiral quad.
+
+   // standard (1-linked) atom names for chiral centre:
+   std::string atom_4_name = " C1 "; // chiral centre (on second residue)
+   std::string atom_2_name = " O5 "; 
+   std::string atom_3_name = " C2 "; 
    
    std::string O_name = "";
    if (link == "ALPHA1-2" || link == "BETA1-2" )
@@ -50,6 +55,15 @@ coot::atom_quad::atom_quad(CResidue *first, CResidue *second, const std::string 
       O_name = " O4 "; 
    if (link == "ALPHA1-6" || link == "BETA1-6" )
       O_name = " O6 ";
+
+   // override settings for 2-linked residues
+   if (link == "ALPHA2-3" || link == "BETA2-3" ) {
+      O_name = " O3 ";      // from first residue
+      atom_4_name = " C2 "; // chiral centre (on 1st residue)
+      atom_2_name = " O6 ";
+      atom_3_name = " C3 ";
+   } 
+   
    if (O_name != "") { 
       PPCAtom residue_atoms = 0;
       int n_residue_atoms;
@@ -70,15 +84,15 @@ coot::atom_quad::atom_quad(CResidue *first, CResidue *second, const std::string 
       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
 	 CAtom *at = residue_atoms[iat];
 	 std::string atom_name(at->name);
-	 if (atom_name == " C1 ") {
+	 if (atom_name == atom_4_name) {
 	    if (! atom_4)
 	       atom_4 = at; // chiral centre atom
 	 }
-	 if (atom_name == " O5 ") {
+	 if (atom_name == atom_2_name) {
 	    if (! atom_2)
 	       atom_2 = at;
 	 }
-	 if (atom_name == " C2 ") {
+	 if (atom_name == atom_3_name) {
 	    if (! atom_3)
 	       atom_3 = at;
 	 }
@@ -88,6 +102,19 @@ coot::atom_quad::atom_quad(CResidue *first, CResidue *second, const std::string 
    // all or nothing
    // 
    if (atom_1 == NULL || atom_2 == NULL || atom_3 == NULL || atom_4 == NULL) {
+      std::cout << "WARNING:: atom_quad() problems given "
+		<< first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetInsCode()
+		<< "  and "
+		<< second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetInsCode()
+		<< " and link type " << link << std::endl;
+      if (!atom_1)
+	 std::cout << "WARNING:: atom_quad() [for chiral] missing 1 \"" << O_name << "\"" << std::endl;
+      if (!atom_2)
+	 std::cout << "WARNING:: atom_quad() [for chiral] missing 2 \"" << atom_2_name << "\"" << std::endl;
+      if (!atom_3)
+	 std::cout << "WARNING:: atom_quad() [for chiral] missing 3 \"" << atom_3_name << "\"" << std::endl;
+      if (!atom_4)
+	 std::cout << "WARNING:: atom_quad() [for chiral] missing 4 \"" << atom_4_name << "\"" << std::endl;
       atom_1 = NULL;
       atom_2 = NULL;
       atom_3 = NULL;
