@@ -83,7 +83,7 @@ case $ac_cv_build_alias in
     # dependend!?
     break;;
   *)
-    # note that we use ./libtool (running in the build dir) because $LIBOOL is wrong(!)
+    # note that we use ./libtool (running in the build dir) because $LIBTOOL is wrong(!)
     CXX="libtool --mode=link $CXX"
     break;;
 esac

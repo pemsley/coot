@@ -33,10 +33,15 @@
 
   o export a map fragment (xmap -> nxmap conversion and export_nxmap()) ::: 2
 
+  o consider exporting a fragment of a map (with a NXMap?)
+
+  o consider the exporting of frames and using ffmpeg to make a movie...
+
   o try to regularize pyranose-pyranose-via-ALPHA1-6.pdb, breaks bond,
     doesn't find glyco linkage ::: 1
 
   o "Don't recentre" button doesn't work with Modern fileselector ::: 2
+
 
 ------
 
