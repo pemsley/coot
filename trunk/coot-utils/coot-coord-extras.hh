@@ -541,19 +541,23 @@ namespace coot {
       CResidue * residue;
       std::string residue_name;
       std::string link_type; // to parent (root node has this as "")
+      bool order_switch; // should be false most of the time
       linked_residue_t(CResidue *residue_in, const std::string &link_in) {
 	 residue = residue_in;
 	 if (residue)
 	    residue_name = residue->GetResName();
 	 link_type = link_in;
+	 order_switch = false;
       }
       linked_residue_t() {
 	 residue = NULL;
+	 order_switch = false;
       }
       linked_residue_t(const std::string &res_name_in, const std::string &link_in) {
 	 residue = NULL;
 	 residue_name = res_name_in;
 	 link_type = link_in;
+	 order_switch = false;
       }
       std::string res_name() const {
 	 if (residue)
@@ -562,6 +566,9 @@ namespace coot {
 	    return residue_name;
       } 
       bool operator==(const linked_residue_t &test_lr) const {
+
+	 // should we test order switch here too?
+	 
 	 if (test_lr.link_type == link_type)
 	    if (test_lr.res_name() == res_name())
 	       return true;
@@ -569,7 +576,11 @@ namespace coot {
 	       return false; 
 	 else
 	    return false;
-      } 
+      }
+      // needs testing
+      bool operator<(const linked_residue_t &test_lr) const {
+	 return (residue_spec_t(residue) < residue_spec_t(test_lr.residue));
+      }
       friend std::ostream& operator<<(std::ostream &o, const linked_residue_t &lr);
    };
    std::ostream& operator<<(std::ostream &o, const linked_residue_t &lr);
@@ -583,9 +594,14 @@ namespace coot {
 						  const std::vector<CResidue *> &residues) const;
       tree<linked_residue_t> find_stand_alone_tree(const std::vector<CResidue *> &residues) const;
       void compare_vs_allowed_trees(const tree<linked_residue_t> &tr) const;
+      bool compare_trees(const tree<linked_residue_t> &tree_for_testing,
+			 const tree<linked_residue_t> &tree_reference) const;
       tree<coot::linked_residue_t> oligomannose_tree() const;
       tree<coot::linked_residue_t>      complex_tree() const;
       tree<coot::linked_residue_t>       hybrid_tree() const;
+      static bool residue_comparitor(CResidue *res1, CResidue *res2) {
+	 return (residue_spec_t(res1) < residue_spec_t(res2));
+      } 
       
    public:
       glyco_tree_t(CResidue *residue_p, CMMDBManager *mol, coot::protein_geometry *geom_p_in);

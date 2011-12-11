@@ -2957,7 +2957,7 @@
 
   ;; 
   (define (add-ligand-func imol tlc)
-    (format #t "Add a ~s to molecule ~s here ~%" tlc imol)
+    (format #t "Add a ~a to molecule ~s here ~%" tlc imol)
     (let ((imol-ligand (get-monomer tlc)))
       (if (valid-model-molecule? imol-ligand)
 	  (begin
@@ -2982,7 +2982,7 @@
   ;; add a button for a 3-letter-code to the scrolled vbox that runs
   ;; add-ligand-func when clicked.
   ;; 
-  (define (add-solvent-button button-label inside-vbox molecule-option-menu model-list)
+  (define (add-solvent-button comp-id button-label inside-vbox molecule-option-menu model-list)
     (let ((button (gtk-button-new-with-label button-label)))
       (gtk-box-pack-start inside-vbox button #f #f 1)
       (gtk-widget-show button)
@@ -2990,7 +2990,7 @@
 			  (lambda ()
 			    (let ((imol (get-option-menu-active-molecule
 					 molecule-option-menu model-list)))
-			      (add-ligand-func imol button-label))))))
+			      (add-ligand-func imol comp-id))))))
 
   (define (comp-id->button-label comp-id)
     (let* ((comp-id-name (comp-id->name comp-id)))
@@ -3033,7 +3033,7 @@
     
     (map (lambda (comp-id)
 	   (let ((button-label (comp-id->button-label comp-id)))
-	     (add-solvent-button button-label inside-vbox molecule-option-menu model-list)))
+	     (add-solvent-button comp-id button-label inside-vbox molecule-option-menu model-list)))
 	 (append *solvent-ligand-list* *additional-solvent-ligands*))
 
     (gtk-signal-connect add-new-button "clicked"
@@ -3043,7 +3043,8 @@
 			       (lambda (txt)
 				 (set! *additional-solvent-ligands*
 				       (cons txt *additional-solvent-ligands*))
-				 (add-solvent-button (comp-id->button-label txt)
+				 (add-solvent-button txt
+						     (comp-id->button-label txt)
 						     inside-vbox 
 						     molecule-option-menu 
 						     model-list)))))

@@ -35,18 +35,15 @@ coot::atom_quad::atom_quad(CResidue *first, CResidue *second, const std::string 
 
    // Fixup needed for PDBv3.
    //
-
-   atom_1 = NULL;
-   atom_2 = NULL;
-   atom_3 = NULL;
-   atom_4 = NULL; // atom_c for a chiral quad.
-
+   coot::atom_quad quad;
+   
    // standard (1-linked) atom names for chiral centre:
-   std::string atom_4_name = " C1 "; // chiral centre (on second residue)
    std::string atom_2_name = " O5 "; 
    std::string atom_3_name = " C2 "; 
+   std::string atom_4_name = " C1 "; // chiral centre (on second residue)
    
-   std::string O_name = "";
+   std::string O_name;
+   
    if (link == "ALPHA1-2" || link == "BETA1-2" )
       O_name = " O2 "; 
    if (link == "ALPHA1-3" || link == "BETA1-3" )
@@ -56,72 +53,110 @@ coot::atom_quad::atom_quad(CResidue *first, CResidue *second, const std::string 
    if (link == "ALPHA1-6" || link == "BETA1-6" )
       O_name = " O6 ";
 
-   // override settings for 2-linked residues
-   if (link == "ALPHA2-3" || link == "BETA2-3" ) {
-      O_name = " O3 ";      // from first residue
-      atom_4_name = " C2 "; // chiral centre (on 1st residue)
-      atom_2_name = " O6 ";
-      atom_3_name = " C3 ";
-   } 
-   
-   if (O_name != "") { 
-      PPCAtom residue_atoms = 0;
-      int n_residue_atoms;
-      first->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	 std::string atom_name(residue_atoms[iat]->name);
-	 if (atom_name == O_name) {
-	    // the O atom name comes from the first residue
-	    if (!atom_1) { 
-	       atom_1 = residue_atoms[iat];
-	       break;
-	    }
-	 }
-      }
-      // atoms 2 and 3 and the chiral centre atom come from the second residue.
-      residue_atoms = NULL;
-      second->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	 CAtom *at = residue_atoms[iat];
-	 std::string atom_name(at->name);
-	 if (atom_name == atom_4_name) {
-	    if (! atom_4)
-	       atom_4 = at; // chiral centre atom
-	 }
-	 if (atom_name == atom_2_name) {
-	    if (! atom_2)
-	       atom_2 = at;
-	 }
-	 if (atom_name == atom_3_name) {
-	    if (! atom_3)
-	       atom_3 = at;
-	 }
+
+   if (! O_name.empty()) {
+      // is standard (non-SIA) link
+      std::vector<std::string> v;
+      v.push_back(atom_2_name);
+      v.push_back(atom_3_name);
+      v.push_back(atom_4_name); // chiral centre
+      quad = setup_chiral_quad(first, second, O_name, v);
+
+   } else { 
+
+      if (link == "ALPHA2-3" || link == "BETA2-3" ) {
+	 O_name = " O3 ";      // from first residue
+	 atom_2_name = " O6 ";
+	 atom_3_name = " C3 ";
+	 atom_4_name = " C2 "; // chiral centre (on 1st residue)
+
+	 std::vector<std::string> v;
+	 v.push_back(atom_2_name);
+	 v.push_back(atom_3_name);
+	 v.push_back(atom_4_name); // chiral centre
+	 quad = setup_chiral_quad(second, first, O_name, v);
       }
    }
 
    // all or nothing
    // 
-   if (atom_1 == NULL || atom_2 == NULL || atom_3 == NULL || atom_4 == NULL) {
-      std::cout << "WARNING:: atom_quad() problems given "
-		<< first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetInsCode()
-		<< "  and "
-		<< second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetInsCode()
-		<< " and link type " << link << std::endl;
-      if (!atom_1)
-	 std::cout << "WARNING:: atom_quad() [for chiral] missing 1 \"" << O_name << "\"" << std::endl;
-      if (!atom_2)
-	 std::cout << "WARNING:: atom_quad() [for chiral] missing 2 \"" << atom_2_name << "\"" << std::endl;
-      if (!atom_3)
-	 std::cout << "WARNING:: atom_quad() [for chiral] missing 3 \"" << atom_3_name << "\"" << std::endl;
-      if (!atom_4)
-	 std::cout << "WARNING:: atom_quad() [for chiral] missing 4 \"" << atom_4_name << "\"" << std::endl;
+   if (quad.atom_1 == NULL || quad.atom_2 == NULL || quad.atom_3 == NULL || quad.atom_4 == NULL) {
+
+      if (0) {
+	 std::cout << "WARNING:: atom_quad() problems given "
+		   << first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetInsCode()
+		   << "  and "
+		   << second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetInsCode()
+		   << " and link type " << link << std::endl;
+	 if (!quad.atom_1)
+	    std::cout << "WARNING:: atom_quad() [for chiral] missing 1 \"" << O_name << "\"" << std::endl;
+	 if (!quad.atom_2)
+	    std::cout << "WARNING:: atom_quad() [for chiral] missing 2 \"" << atom_2_name << "\"" << std::endl;
+	 if (!quad.atom_3)
+	    std::cout << "WARNING:: atom_quad() [for chiral] missing 3 \"" << atom_3_name << "\"" << std::endl;
+	 if (!quad.atom_4)
+	    std::cout << "WARNING:: atom_quad() [for chiral] missing 4 \"" << atom_4_name << "\"" << std::endl;
+      }
       atom_1 = NULL;
       atom_2 = NULL;
       atom_3 = NULL;
       atom_4 = NULL;
+   } else {
+      *this = quad;
    } 
 } 
 
+
+// a bit strange :-)
+// 
+coot::atom_quad
+coot::atom_quad::setup_chiral_quad(CResidue *residue_with_O, CResidue *residue_with_chiral_centre,
+				   const std::string &O_name,
+				   const std::vector<std::string> &chiral_atom_names) const {
+
+   coot::atom_quad quad;
+
+   // yes.
+   std::string atom_2_name = chiral_atom_names[0];
+   std::string atom_3_name = chiral_atom_names[1];
+   std::string atom_4_name = chiral_atom_names[2]; // chiral atom
+
+   if (O_name != "") { 
+      PPCAtom residue_atoms = NULL;
+      int n_residue_atoms;
+      residue_with_O->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 std::string atom_name(residue_atoms[iat]->name);
+	 if (atom_name == O_name) {
+	    // the O atom name comes from the residue_with_O
+	    if (!quad.atom_1) { 
+	       quad.atom_1 = residue_atoms[iat];
+	       break;
+	    }
+	 }
+      }
+      // atoms 2 and 3 and the chiral centre atom come from the residue_with_chiral_centre residue.
+      residue_atoms = NULL;
+      residue_with_chiral_centre->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 CAtom *at = residue_atoms[iat];
+	 std::string atom_name(at->name);
+	 if (atom_name == atom_4_name) {
+	    if (! quad.atom_4)
+	       quad.atom_4 = at; // chiral centre atom
+	 }
+	 if (atom_name == atom_2_name) {
+	    if (! quad.atom_2)
+	       quad.atom_2 = at;
+	 }
+	 if (atom_name == atom_3_name) {
+	    if (! quad.atom_3)
+	       quad.atom_3 = at;
+	 }
+      }
+   }
+   return quad;
+} 
 
 std::ostream&
 coot::operator<<(std::ostream &o, const coot::atom_name_quad &q) {

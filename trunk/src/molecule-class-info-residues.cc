@@ -1012,12 +1012,14 @@ coot::dict_link_info_t::dict_link_info_t(CResidue *residue_ref,
 					 const std::string &link_type,
 					 const coot::protein_geometry &geom) {
 
-   std::cout << "dict_link_info_t() constructor start with link_type: "
-	     << link_type << std::endl;
-   std::cout << "dict_link_info_t() constructor start with residue_ref: "
-	     << coot::residue_spec_t(residue_ref) << std::endl;
-   std::cout << "dict_link_info_t() constructor start with residue_new: "
-	     << coot::residue_spec_t(residue_new) << std::endl;
+   if (0) { 
+      std::cout << "dict_link_info_t() constructor start with link_type: "
+		<< link_type << std::endl;
+      std::cout << "dict_link_info_t() constructor start with residue_ref: "
+		<< coot::residue_spec_t(residue_ref) << std::endl;
+      std::cout << "dict_link_info_t() constructor start with residue_new: "
+		<< coot::residue_spec_t(residue_new) << std::endl;
+   }
    
    bool ifound = false;
    if (! residue_ref) {
