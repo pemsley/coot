@@ -979,29 +979,25 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
    coot::residue_spec_t new_residue_spec;   
    CResidue *residue_ref = get_residue(spec_in);
    if (residue_ref) {
-      coot::beam_in_linked_residue lr(residue_ref, link_type, new_residue_comp_id, geom_p);
-      CResidue *result = lr.get_residue();
-      // get_residue() can (and often does) modify residue_ref (for
-      // deleting link mod atom, for example). So we need a FinishStructEdit() here
-      atom_sel.mol->FinishStructEdit();
+      try { 
+	 coot::beam_in_linked_residue lr(residue_ref, link_type, new_residue_comp_id, geom_p);
+	 CResidue *result = lr.get_residue();
+	 // get_residue() can (and often does) modify residue_ref (for
+	 // deleting link mod atom, for example). So we need a FinishStructEdit() here
+	 atom_sel.mol->FinishStructEdit();
       
-      std::pair<bool, CResidue *> status_pair = add_residue(result, spec_in.chain);
+	 std::pair<bool, CResidue *> status_pair = add_residue(result, spec_in.chain);
 
-      if (status_pair.first) {
-
-	 new_residue_spec = coot::residue_spec_t(status_pair.second);
-	 
-	 try { 
+	 if (status_pair.first) {
+	    new_residue_spec = coot::residue_spec_t(status_pair.second);
 	    coot::dict_link_info_t link_info(residue_ref, status_pair.second,
 					     link_type, *geom_p);
 	    make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist);
 	 }
-	 catch (std::runtime_error rte) {
-	    // we didn't find the info to make the link specs, oh well...
-	    std::cout << "WARNING:: add_linked_residue() catches exception \""
-		      << rte.what() << "\"" << std::endl;
-	 } 
       }
+      catch (std::runtime_error rte) {
+	 std::cout << "WARNING:: " << rte.what() << std::endl;
+      } 
    }
    return new_residue_spec;
 } 
