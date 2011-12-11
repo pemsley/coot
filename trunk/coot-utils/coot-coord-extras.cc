@@ -573,7 +573,10 @@ coot::torsionable_bonds_monomer_internal_quads(CResidue *residue_p,
 	       }
 	       // yes we got for atoms (of matching alt confs)
 	       if (ats[1] && ats[2] && ats[3] && ats[4]) {
-		  quads.push_back(coot::atom_quad(ats[1],ats[2],ats[3],ats[4]));
+		  coot::atom_quad q(ats[1],ats[2],ats[3],ats[4]);
+		  q.name = tors_restraints[itor].id();
+		  quads.push_back(q);
+		  
 	       }
 	    }
 	 }

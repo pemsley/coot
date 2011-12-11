@@ -103,6 +103,7 @@ coot::atom_quad::atom_quad(CResidue *first, CResidue *second, const std::string 
       atom_4 = NULL;
    } else {
       *this = quad;
+      name = link;
    } 
 } 
 

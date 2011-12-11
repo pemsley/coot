@@ -230,7 +230,9 @@ coot::torsionable_link_quads(std::vector<CResidue *> residues_in,
 			    << coot::atom_spec_t(link_atom_3) << " " << coot::atom_spec_t(link_atom_4) << " "
 			    << std::endl;
 		  if (link_atom_1 && link_atom_2 && link_atom_3 && link_atom_4) {
-		     quads.push_back(coot::atom_quad(link_atom_1, link_atom_2, link_atom_3, link_atom_4));
+		     coot::atom_quad q(link_atom_1, link_atom_2, link_atom_3, link_atom_4);
+		     q.name = link.link_id;
+		     quads.push_back(q);
 		  }
 	       }
 	    }
@@ -312,7 +314,8 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
 		   << coot::atom_spec_t(quads[iquad].atom_1) << " " 
 		   << coot::atom_spec_t(quads[iquad].atom_2) << " " 
 		   << coot::atom_spec_t(quads[iquad].atom_3) << " " 
-		   << coot::atom_spec_t(quads[iquad].atom_4) << " torsion: "
+		   << coot::atom_spec_t(quads[iquad].atom_4) << " \""
+		   << quads[iquad].name << "\" torsion: "
 		   << quads[iquad].torsion() 
 		   << std::endl;
       }
