@@ -480,6 +480,8 @@ namespace coot {
    //    are comp-ids, of course.  Actually, NAG-ASN is a pyranose-ASN
    //    link (group to comp_id). Hmm...
    //
+   // This can throw a std::runtime_error if we can't find the group
+   // of the input residues (for example).
    // 
    class beam_in_linked_residue {
       CResidue *residue_ref; // in user-defined molecule
@@ -498,17 +500,18 @@ namespace coot {
       CResidue *get_residue(const std::string &comp_id, CMMDBManager*mol) const;
       std::vector<CAtom *> get_atoms(CResidue *residue_p,
 				     const std::vector<std::string> &names) const;
-      void setup_by_comp_id(const std::string &template_file_name,
-			    const std::string &comp_id_ref,
+      bool setup_by_comp_id(const std::string &comp_id_ref,
 			    const std::string &new_res_type);
-      void setup_by_group(const std::string &comp_id_ref,
-			  const std::string &new_res_type,
-			  const std::string &link_type_in);
+      bool setup_by_comp_id_group(const std::string &comp_id_ref,
+				  const std::string &group_new);
+      bool setup_by_group_group(const std::string &group_ref,
+				const std::string &group_new);
       // move the residues of mov_res, don't change object variables.
       bool lsq_fit(CResidue *ref_res,
 		   CResidue *matcher_res,
 		   CResidue *mov_res,
-		   const std::vector<std::string> &lsq_reference_atom_names) const;
+		   const std::vector<std::string> &lsq_atom_names_ref,
+		   const std::vector<std::string> &lsq_atom_names_match) const;
       // apply the chem mod (specifically, the CHEM_MOD_FUNCTION_DELETE
       // (delete all atoms with the given name)
       void delete_atom(CResidue *res, const std::string &atom_name) const;
