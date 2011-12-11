@@ -588,20 +588,22 @@ coot::glyco_tree_t::glyco_tree_t(CResidue *residue_p, CMMDBManager *mol,
 	 CResidue *test_residue = q.front();
 	 q.pop();
 	 std::vector<CResidue *> residues = coot::residues_near_residue(test_residue, mol, dist_crit);
-	 for (unsigned int ires=0; ires<residues.size(); ires++) { 
+	 for (unsigned int ires=0; ires<residues.size(); ires++) {
 	    if (is_pyranose(residues[ires]) || std::string(residues[ires]->name) == "ASN") {
-	       if (std::find(considered.begin(),
-			     considered.end(), residues[ires]) == considered.end()) { 
+	       if (std::find(considered.begin(), considered.end(), residues[ires]) == considered.end()) { 
 		  q.push(residues[ires]);
 		  linked_residues.push_back(residues[ires]);
-	       }
-	    } 
+	       } 
+	    }
 	    considered.push_back(residues[ires]);
 	 }
       }
 
+      std::sort(linked_residues.begin(), linked_residues.end(), residue_comparitor);
+
       bool have_ASN_rooted_tree = false;
       std::cout << ":::::::::: " << linked_residues.size() << " glycan/ASN residues" << std::endl;
+
       for (unsigned int ires=0; ires<linked_residues.size(); ires++) { 
 	 std::string residue_name(linked_residues[ires]->name);
 	 if (residue_name == "ASN") {
@@ -645,8 +647,6 @@ tree<coot::linked_residue_t>
 coot::glyco_tree_t::find_ASN_rooted_tree(CResidue *residue_p,
 					 const std::vector<CResidue *> &residues) const {
 
-   std::cout << "------------------ ASN-rooted tree search for "
-	     << coot::residue_spec_t(residue_p) << std::endl;
    return find_rooted_tree(residue_p, residues);
 }
 
@@ -664,8 +664,15 @@ coot::glyco_tree_t::find_rooted_tree(CResidue *residue_p,
    bool something_added = true; // initial value 
    tree<linked_residue_t>::iterator this_iterator = top; // initial value
    std::vector<std::pair<bool, CResidue *> > done_residues(residues.size());
-   for (unsigned int i=0; i<residues.size(); i++)
-      done_residues[i] = std::pair<bool, CResidue *>(0, residues[i]);
+   for (unsigned int i=0; i<residues.size(); i++) {
+      // Mark as not yet done, except if it is the first one, we have
+      // inserted that one already.
+      if (residues[i] == residue_p) {
+	 done_residues[i] = std::pair<bool, CResidue *>(1, residues[i]);
+      } else {
+	 done_residues[i] = std::pair<bool, CResidue *>(0, residues[i]);
+      }
+   }
       
    while (something_added) {
       something_added = false; 
@@ -701,16 +708,17 @@ coot::glyco_tree_t::find_rooted_tree(CResidue *residue_p,
 			   done_residues[ires].first = true;
 			}
 		     } else {
-			if (link.second == false) {
-			   linked_residue_t this_linked_residue(done_residues[ires].second, link.first);
-			   std::cout << "   Adding " << coot::residue_spec_t(done_residues[ires].second)
-				     << " via " << link.first << " to parent " 
-				     << coot::residue_spec_t(it->residue)
-				     << std::endl;
-			   glyco_tree.append_child(it, this_linked_residue);
-			   something_added = true;
-			   done_residues[ires].first = true;
-			}
+			std::cout << "found link type " << link.first << " order-switch " 
+				  << link.second << std::endl;
+			linked_residue_t this_linked_residue(done_residues[ires].second, link.first);
+			this_linked_residue.order_switch = link.second;
+			std::cout << "   Adding " << coot::residue_spec_t(done_residues[ires].second)
+				  << " via " << link.first << " to parent " 
+				  << coot::residue_spec_t(it->residue)
+				  << std::endl;
+			glyco_tree.append_child(it, this_linked_residue);
+			something_added = true;
+			done_residues[ires].first = true;
 		     }
 		  }
 	       }
@@ -718,7 +726,8 @@ coot::glyco_tree_t::find_rooted_tree(CResidue *residue_p,
 	 }
       }
    }
-   print(glyco_tree);
+   if (glyco_tree.size() > 1)
+      print(glyco_tree);
    return glyco_tree;
 }
 
@@ -745,11 +754,13 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<CResidue *> &residue
 	    std::pair<std::string, bool> link =
 	       geom_p->find_glycosidic_linkage_type_with_order_switch(current_head,
 								      done_residues[ires].second);
-	    std::cout << "find_stand_alone_tree() link test on " << coot::residue_spec_t(current_head)
+	    std::cout << "find_stand_alone_tree(): glyco_link test on " << coot::residue_spec_t(current_head)
 		      << " and " << coot::residue_spec_t(residues[ires]) << " returns "
 		      << "\"" << link.first << "\" " << link.second << std::endl;
 	    if (link.first != "") { 
 	       if (link.second) {
+		  std::cout << ".... reseting current_head to " << coot::residue_spec_t(residues[ires])
+			    << std::endl;
 		  current_head = residues[ires];
 		  something_added = true;
 		  break;
@@ -759,7 +770,7 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<CResidue *> &residue
       }
    }
 
-   std::cout << "find_stand_alone_tree() calling find_rooted_tree with current_head "
+   std::cout << "----------- find_stand_alone_tree() calling find_rooted_tree with current_head "
 	     << coot::residue_spec_t(current_head) << std::endl;
    std::cout << "and residues: " << std::endl;
    for (unsigned int i=0; i<residues.size(); i++) { 
@@ -798,18 +809,112 @@ coot::glyco_tree_t::print(const tree<linked_residue_t> &glyco_tree) const {
 void
 coot::glyco_tree_t::compare_vs_allowed_trees(const tree<linked_residue_t> &tr_for_testing) const {
 
-   std::cout << "Oligomannose" << std::endl;
    tree<coot::linked_residue_t> omt = oligomannose_tree();
-   print(omt);
-   
-   std::cout << "Hybrid" << std::endl;
    tree<coot::linked_residue_t> hybrid = hybrid_tree();
-   print(hybrid);
-   
-   std::cout << "Complex" << std::endl;
    tree<coot::linked_residue_t> complex = complex_tree();
-   print(complex);
 
+   if (0) { 
+      std::cout << "Oligomannose" << std::endl;
+      print(omt);
+      std::cout << "Hybrid" << std::endl;
+      print(hybrid);
+      std::cout << "Complex" << std::endl;
+      print(complex);
+   }
+
+   if (compare_trees(tr_for_testing, omt))
+      std::cout << "This tree matches \"oligomannose\"" << std::endl;
+   else 
+      std::cout << "This tree is not oligomannose" << std::endl;
+   if (compare_trees(tr_for_testing, hybrid))
+      std::cout << "This tree matches \"hybrid\"" << std::endl;
+   else 
+      std::cout << "This tree is not \"hybrid\"" << std::endl;
+   if (compare_trees(tr_for_testing, complex))
+      std::cout << "This tree matches \"complex\"" << std::endl;
+   else 
+      std::cout << "This tree is not \"complex\"" << std::endl;
+
+}
+
+bool
+coot::glyco_tree_t::compare_trees(const tree<linked_residue_t> &tr_for_testing,
+				  const tree<linked_residue_t> &ref_tree) const {
+
+   tree<linked_residue_t>::leaf_iterator it_leaf;
+   tree<linked_residue_t>::iterator it_ref;
+
+//    std::cout << "Ref tree" << std::endl;
+//    print(ref_tree);
+
+//    std::cout << "tree for testing" << std::endl;
+//    print(tr_for_testing);
+
+   
+   // leaf iterators in the ref_tree that have already 
+   std::vector<tree<linked_residue_t>::iterator> done_iterators;
+
+   // get a leaf in tr_for_testing
+   //    find a potential corresponding leaf in ref_tree (not in done_iterators)
+   //      compare the parents of the leaf
+   //      if they are the same, add that (reference) leaf iterator to done_iterators
+   //
+   int n_leaves = 0;
+   int n_matched_leaves = 0;
+   for (it_leaf=tr_for_testing.begin_leaf(); it_leaf != tr_for_testing.end_leaf(); it_leaf++) {
+      
+      // std::cout << "------ new leaf for testing --- Here 1 " << *it_leaf << std::endl;
+      bool found_a_match = false;
+      n_leaves++;
+      for (it_ref=ref_tree.begin(); it_ref != ref_tree.end(); it_ref++) {
+	 if (std::find(done_iterators.begin(), done_iterators.end(), it_ref) ==
+	     done_iterators.end()) {
+	    if (*it_leaf == *it_ref) {
+	       tree<linked_residue_t>::iterator it_p, it_p_ref;
+	       it_p = it_leaf;
+	       it_p_ref = it_ref;
+	       bool parents_match = true;
+	       while (parents_match && it_p.node->parent && it_p_ref.node->parent) {
+		  it_p = it_p.node->parent;
+		  it_p_ref = it_p_ref.node->parent;
+		  if (*it_p == *it_p_ref) {
+		     // Good...
+		  } else {
+		     parents_match = false;
+		     break;
+		  } 
+	       }
+
+	       if (parents_match) {
+		  if (0) 
+		     std::cout << "   all match " << parents_match << " "
+			       << *it_leaf << " and " << *it_ref
+			       << std::endl;
+		  found_a_match = true;
+		  n_matched_leaves++;
+		  done_iterators.push_back(it_p_ref);
+	       } 
+	    } else {
+	       // std::cout << "      Here 3 Result: b no leaf match " << std::endl;
+	    } 
+	 }
+      }
+
+      if (! found_a_match) {
+	 // std::cout << "No match found - breaking" << std::endl;
+	 break;
+      }
+   }
+
+   if (0)
+      std::cout << "n_leaves: " << n_leaves << " n_matched_leaves: " << n_matched_leaves
+		<< std::endl;
+
+   bool success = false;
+   if (n_matched_leaves == n_leaves)
+      success = true;
+
+   return success;
 }
 
 tree<coot::linked_residue_t>

@@ -23,6 +23,8 @@
 #ifndef LIGAND_ATOM_QUAD_HH
 #define LIGAND_ATOM_QUAD_HH
 
+#include <vector>
+
 #ifndef HAVE_STRING
 #include <string>
 #define HAVE_STRING
@@ -119,6 +121,10 @@ namespace coot {
    std::ostream& operator<<(std::ostream &o, const atom_index_quad &q);
 
    class atom_quad {
+      atom_quad setup_chiral_quad(CResidue *residue_with_O, CResidue *residue_with_chiral_centre,
+				  const std::string &O_name,
+				  const std::vector<std::string> &chiral_atom_names) const;
+      
    public:
       CAtom *atom_1;
       CAtom *atom_2;

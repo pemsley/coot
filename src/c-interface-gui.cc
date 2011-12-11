@@ -1778,35 +1778,25 @@ void push_the_buttons_on_fileselection(GtkWidget *filter_button,
 				       GtkWidget *sort_button,
 				       GtkWidget *fileselection) {
 
-  bool no_chooser = 1;
-#if (GTK_MAJOR_VERSION > 1)
-  if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE)
-    {
-      no_chooser = 0;
-    }
-#endif
-  if (filter_fileselection_filenames_state() && no_chooser) {
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-    gtk_signal_emit_by_name(GTK_OBJECT(filter_button), "clicked");    
-#else
-    g_signal_emit_by_name(G_OBJECT(filter_button), "clicked");
-#endif
-    std::cout << "INFO:: Filtering file names \n";
-  }
-  if (graphics_info_t::sticky_sort_by_date) {
-    GtkWidget *file_list;
-    if (no_chooser) {
-      std::cout << "INFO:: Sorting files by date\n";
-      file_list = GTK_FILE_SELECTION(fileselection)->file_list;
-    }
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-     fileselection_sort_button_clicked_gtk1(sort_button, (GtkCList *) file_list);
-#else
-     if (no_chooser) {
-       g_signal_emit_by_name(G_OBJECT(sort_button), "clicked", file_list);
-     }
-#endif     
-  }
+   bool no_chooser = 1;
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE)
+      {
+	 no_chooser = 0;
+      }
+   if (filter_fileselection_filenames_state() && no_chooser) {
+      g_signal_emit_by_name(G_OBJECT(filter_button), "clicked");
+      std::cout << "INFO:: Filtering file names \n";
+   }
+   if (graphics_info_t::sticky_sort_by_date) {
+      GtkWidget *file_list;
+      if (no_chooser) {
+	 std::cout << "INFO:: Sorting files by date\n";
+	 file_list = GTK_FILE_SELECTION(fileselection)->file_list;
+      }
+      if (no_chooser) {
+	 g_signal_emit_by_name(G_OBJECT(sort_button), "clicked", file_list);
+      }
+   }
 }
 
 void 

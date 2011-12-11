@@ -3295,14 +3295,23 @@ coot::protein_geometry::find_glycosidic_linkage_type(CResidue *first, CResidue *
 	       }
       
 	       
+	 // This should never happen :-)
+	 // There are no biosynthetic pathways to make an BETA2-3 link for a SIA.
+	 // (SIA BETA2-3 would be axial if it existed)
+	 // 
 	 if (name_1 == " C2 " )
 	    if (name_2 == " O3 ")
-	       if (close[i].distance < smallest_link_dist) {
-		  coot::atom_quad glyco_chiral_quad(first, second, "BETA2-3");
-		  std::cout << "glyco_chiral B2-3 " << glyco_chiral_quad.chiral_volume() << std::endl;
-		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
-		     smallest_link_dist = close[i].distance;
-		     link_type = "BETA2-3";
+	       if (std::string(close[i].at1->GetResName()) == "SIA") { 
+		  if (close[i].distance < smallest_link_dist) {
+		     coot::atom_quad glyco_chiral_quad(first, second, "BETA2-3");
+		     std::cout << "   glyco_chiral BETA2-3 "
+			       << close[i].at1->GetResName() << " "
+			       << close[i].at2->GetResName() << " "
+			       << glyco_chiral_quad.chiral_volume() << std::endl;
+		     if (glyco_chiral_quad.chiral_volume() > 0.0) { 
+			smallest_link_dist = close[i].distance;
+			link_type = "BETA2-3";
+		     }
 		  }
 	       }
 	       
@@ -3335,15 +3344,20 @@ coot::protein_geometry::find_glycosidic_linkage_type(CResidue *first, CResidue *
 		     link_type = "ALPHA1-3";
 		  }
 	       }
-      
+
 	 if (name_1 == " C2 " )
 	    if (name_2 == " O3 ")
-	       if (close[i].distance < smallest_link_dist) {
-		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-3");
-		  std::cout << "glyco_chiral ALPHA2-3 " << glyco_chiral_quad.chiral_volume() << std::endl;
-		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
-		     smallest_link_dist = close[i].distance;
-		     link_type = "ALPHA2-3";
+	       if (std::string(close[i].at1->GetResName()) == "SIA") { 
+		  if (close[i].distance < smallest_link_dist) {
+		     coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-3");
+		     std::cout << "   glyco_chiral ALPHA2-3 "
+			       << close[i].at1->GetResName() << " "
+			       << close[i].at2->GetResName() << " "
+			       << glyco_chiral_quad.chiral_volume() << std::endl;
+		     if (glyco_chiral_quad.chiral_volume() < 0.0) { 
+			smallest_link_dist = close[i].distance;
+			link_type = "ALPHA2-3";
+		     }
 		  }
 	       }
       
@@ -3373,7 +3387,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(CResidue *first, CResidue *
    }
 
    if (0) 
-      std::cout << "debug:: find_glycosidic_linkage_type() for "
+      std::cout << "   debug:: find_glycosidic_linkage_type() for "
 		<< first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetInsCode()
 		<< first->GetResName() << ","
 		<< second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetInsCode()
@@ -5311,6 +5325,7 @@ coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_f
    std::vector<CAtom *> atoms;
    for (int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
+
 	 std::vector<coot::dict_atom> atom_info = dict_res_restraints[i].atom_info;
 	 int atom_index = 0;
 	 for (unsigned int iat=0; iat<atom_info.size(); iat++) {
@@ -5371,7 +5386,7 @@ CMMDBManager *
 coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code,
 					    bool idealised_flag) {
 
-   CMMDBManager *mol = NULL; 
+   CMMDBManager *mol = NULL;
    CResidue *residue_p = get_residue(three_letter_code, idealised_flag);
    if (residue_p) { 
       CChain *chain_p = new CChain;
