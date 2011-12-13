@@ -638,6 +638,7 @@ graphics_info_t::smooth_scroll_maybe(float x, float y, float z,
 				     float target_zoom) {
 
    smooth_scroll_maybe_sinusoidal_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
+   // smooth_scroll_maybe_stepped_acceleration(x,y,z,do_zoom_and_move_flag, target_zoom);
 
 }
 
@@ -658,35 +659,38 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
    float xd = x - rotation_centre_x;
    float yd = y - rotation_centre_y;
    float zd = z - rotation_centre_z;
+   if ( (xd*xd + yd*yd + zd*zd) < smooth_scroll_limit*smooth_scroll_limit ) {
+      
 
-   float pre_zoom = zoom;
+      float pre_zoom = zoom;
 
-   float frac = 1;
-   if (smooth_scroll_steps > 0)
-      frac = 1/float (smooth_scroll_steps);
-   float stepping_x = frac*xd;
-   float stepping_y = frac*yd;
-   float stepping_z = frac*zd;
+      float frac = 1;
+      if (smooth_scroll_steps > 0)
+	 frac = 1/float (smooth_scroll_steps);
+      float stepping_x = frac*xd;
+      float stepping_y = frac*yd;
+      float stepping_z = frac*zd;
    
-   float rc_x_start = rotation_centre_x;
-   float rc_y_start = rotation_centre_y;
-   float rc_z_start = rotation_centre_z;
+      float rc_x_start = rotation_centre_x;
+      float rc_y_start = rotation_centre_y;
+      float rc_z_start = rotation_centre_z;
 
-   smooth_scroll_on = 1; // flag to stop wirecube being drawn.
-   double v_acc = 0; // accumulated distance
-   for (int istep=0; istep<smooth_scroll_steps; istep++) {
-      if (do_zoom_and_move_flag)
-	 zoom = pre_zoom + float(istep+1)*frac*(target_zoom - pre_zoom);
-      double theta = 2 * M_PI * frac * istep;
-      double v = (1-cos(theta))*frac;
-      v_acc += v;
-      rotation_centre_x = rc_x_start + v_acc * xd;
-      rotation_centre_y = rc_y_start + v_acc * yd;
-      rotation_centre_z = rc_z_start + v_acc * zd;
-      graphics_draw();
+      smooth_scroll_on = 1; // flag to stop wirecube being drawn.
+      double v_acc = 0; // accumulated distance
+      for (int istep=0; istep<smooth_scroll_steps; istep++) {
+	 if (do_zoom_and_move_flag)
+	    zoom = pre_zoom + float(istep+1)*frac*(target_zoom - pre_zoom);
+	 double theta = 2 * M_PI * frac * istep;
+	 double v = (1-cos(theta))*frac;
+	 v_acc += v;
+	 rotation_centre_x = rc_x_start + v_acc * xd;
+	 rotation_centre_y = rc_y_start + v_acc * yd;
+	 rotation_centre_z = rc_z_start + v_acc * zd;
+	 graphics_draw();
+      }
+   
+      smooth_scroll_on = 0;
    }
-   
-   smooth_scroll_on = 0;
 }
 
 void
@@ -714,7 +718,7 @@ graphics_info_t::smooth_scroll_maybe_stepped_acceleration(float x, float y, floa
       zoom_out = 1;
 
    // This bit of code doesn't get executed (practically ever).
-   if (smooth_scroll_do_zoom && (pre_zoom < 70.0)) { 
+   if (smooth_scroll_do_zoom && (pre_zoom < 70.0)) {
       if ( (xd*xd + yd*yd + zd*zd) > smooth_scroll_limit*smooth_scroll_limit ) {
 	 for (int ii=0; ii<n_extra_steps+smooth_scroll_steps; ii++) {
 	    graphics_info_t::zoom *= zoom_in; // typically 1.1
@@ -766,7 +770,6 @@ graphics_info_t::smooth_scroll_maybe_stepped_acceleration(float x, float y, floa
 	 }
       }
    }
-
 
    // Also not executed generally.
    if (smooth_scroll_do_zoom && pre_zoom < 70.0 ) { 
