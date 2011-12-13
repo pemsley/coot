@@ -917,7 +917,10 @@
 			 (if (null? running-list)
 			     word-list
 			     (cons (list->string (reverse running-list)) word-list))))
-	 ((char=? (car chars) #\space) (f (cdr chars)
+	 ((or (char=? (car chars) #\space) 
+	      (char=? (car chars) #\tab)
+	      (char=? (car chars) #\newline))
+	  (f (cdr chars)
 					  (if (null? running-list)
 					      word-list
 					      (cons (list->string 
