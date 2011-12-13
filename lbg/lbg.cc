@@ -2280,7 +2280,7 @@ lbg_info_t::init(GtkBuilder *builder) {
       g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
 		       "motion_notify_event",
 		       G_CALLBACK(on_canvas_motion_new), NULL);
-
+      
       //    g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
       // 		    "key_press_event",
       // 		    G_CALLBACK(on_key_press_event), NULL);
@@ -2295,7 +2295,29 @@ lbg_info_t::init(GtkBuilder *builder) {
       // search combobox
       add_search_combobox_text();
 
-
+      // --------------------- image test -------------------------------
+      // failing
+      
+      if (0) { 
+	 
+	 // GdkPixbuf *im = gdk_pixbuf_new_from_file ("glyco-structures.png", NULL);
+	 GdkPixbuf *im = gdk_pixbuf_new_from_file ("toroid.png", NULL);
+	 if (im) {
+	    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+	    double w = gdk_pixbuf_get_width (im);
+	    double h = gdk_pixbuf_get_height (im);
+	    GooCanvasItem *image =
+	       goo_canvas_image_new (root, im, 100.0 - w / 2, 225.0 - h / 2,
+				     "width", w,
+				     "height", h,
+				     NULL);
+	    g_object_unref(im);
+	    std::cout << "goocanvasitem image " << image << std::endl;
+	 } else { 
+	    g_warning ("Could not find the glyco-structures.png file");
+	 }
+      }
+	 
       // ------------ sbase ---------------------------
       // 
       init_sbase(".");
@@ -5301,8 +5323,9 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
    residue_circles.clear();
    for (unsigned int i=0; i<centres.size(); i++) {
 
-      std::cout << "debugg:: in lbg_info_t::annotate() handling circle " << i << " of "
-		<< centres.size() << std::endl;
+      if (0)
+	 std::cout << "debugg:: in lbg_info_t::annotate() handling circle " << i << " of "
+		   << centres.size() << std::endl;
       
       std::string label = centres[i].spec.chain;
       label += coot::util::int_to_string(centres[i].spec.resno);
