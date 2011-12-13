@@ -998,6 +998,8 @@ graphics_info_t::dump_a_movie_image() {
    std::string number_str =
       coot::util::int_to_string(graphics_info_t::movie_frame_number);
 
+   if (graphics_info_t::movie_frame_number < 10000)
+      number_str = "0" + number_str;
    if (graphics_info_t::movie_frame_number < 1000)
       number_str = "0" + number_str;
    if (graphics_info_t::movie_frame_number < 100)
@@ -1006,9 +1008,12 @@ graphics_info_t::dump_a_movie_image() {
       number_str = "0" + number_str;
 
    std::string file_name = graphics_info_t::movie_file_prefix;
-   file_name += file_name + number_str;
+   std::cout << "movie_file_prefix is " << graphics_info_t::movie_file_prefix << std::endl;
+   file_name += number_str;
    file_name += ".ppm";
+   std::cout << "dumping to " << file_name << std::endl;
    graphics_info_t::screendump_image(file_name);
+   graphics_info_t::movie_frame_number++;
 
 }
 
