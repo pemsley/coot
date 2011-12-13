@@ -2112,6 +2112,7 @@ public:        //                      public
    // Return -1 on no atoms in residue.
    //
    int intelligent_this_residue_atom(CResidue *res_p) const;
+   coot::atom_spec_t intelligent_this_residue_atom(const coot::residue_spec_t &rs) const;
    CAtom *intelligent_this_residue_mmdb_atom(CResidue *res_p) const;
 
    // pointer atoms:

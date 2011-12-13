@@ -283,6 +283,7 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::pos_t &pos_1_raw,
    case SINGLE_OR_AROMATIC:
    case AROMATIC_BOND:
    case BOND_ANY:
+      std::cout << "   Here's a line " << pos_1 << " to " << pos_2 << std::endl;
       ci = goo_canvas_polyline_new_line(root,
 					pos_1.x, pos_1.y,
 					pos_2.x, pos_2.y,

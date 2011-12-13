@@ -4621,6 +4621,21 @@ molecule_class_info_t::intelligent_this_residue_atom(CResidue *res_p) const {
    return ir;
 }
 
+coot::atom_spec_t 
+molecule_class_info_t::intelligent_this_residue_atom(const coot::residue_spec_t &rs) const {
+
+   coot::atom_spec_t atom_spec;
+   CResidue *res_p = get_residue(rs);
+   if (res_p) { 
+      CAtom *at = intelligent_this_residue_mmdb_atom(res_p);
+      if (at) {
+	 atom_spec = coot::atom_spec_t(at);
+      }
+   }
+   return atom_spec;
+}
+
+
 // If there is a CA in this residue then return that atom (pointer)
 // atom, if not, then return the index of the first atom in the
 // residue.

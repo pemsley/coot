@@ -1415,20 +1415,57 @@ PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *i
 // 
 int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec) {
 
+   int success = 0;
    graphics_info_t g;
 
-   g.set_go_to_atom_chain_residue_atom_name(atom_spec.chain.c_str(), 
-					    atom_spec.resno,
-					    atom_spec.insertion_code.c_str(), 
-					    atom_spec.atom_name.c_str(),
-					    atom_spec.alt_conf.c_str());
-
-   int success = g.try_centre_from_new_go_to_atom(); 
-   if (success)
-      update_things_on_move_and_redraw(); 
-
+   if (! atom_spec.empty()) { 
+      g.set_go_to_atom_chain_residue_atom_name(atom_spec.chain.c_str(), 
+					       atom_spec.resno,
+					       atom_spec.insertion_code.c_str(), 
+					       atom_spec.atom_name.c_str(),
+					       atom_spec.alt_conf.c_str());
+      
+      success = g.try_centre_from_new_go_to_atom(); 
+      if (success)
+	 update_things_on_move_and_redraw();
+   }
    return success; 
 }
+
+int set_go_to_atom_from_res_spec(const coot::residue_spec_t &spec) {
+
+   int success = 0;
+   graphics_info_t g;
+   int imol = g.go_to_atom_molecule();
+
+   if (is_valid_model_molecule(imol)) { 
+      coot::atom_spec_t atom_spec = g.molecules[imol].intelligent_this_residue_atom(spec);
+      if (! atom_spec.empty()) {
+	 success = set_go_to_atom_from_spec(atom_spec);
+      }
+   }
+   return success;
+}
+
+#ifdef USE_GUILE
+int set_go_to_atom_from_res_spec_scm(SCM residue_spec_scm) {
+
+   coot::residue_spec_t spec = residue_spec_from_scm(residue_spec_scm);
+   return set_go_to_atom_from_res_spec(spec);
+}
+
+#endif 
+
+#ifdef USE_PYTHON
+int set_go_to_atom_from_res_spec_py(PyObject *residue_spec_py) {
+
+   coot::residue_spec_t spec = residue_spec_from_py(residue_spec_py);
+   return set_go_to_atom_from_res_spec(spec);
+
+} 
+#endif 
+
+
 
 // (is-it-valid? (active-molecule-number spec))
 std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec() {

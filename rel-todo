@@ -3,6 +3,9 @@
 
 ----
 
+  o It would be nice if "triple refine" worked on 2 residues (e.g. 
+    we are at the end of the chain).  ::: 2 
+
   o Fix splash screen per SS message.  ::: 0.5
 
   o CCP4-based integrated path for FLEV ::: 6
@@ -253,3 +256,6 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 
 * Done. mmdb_string() needed fixing to add .ins_code.
 
+  o Fix recentering by shift ::: 0.5
+
+* Done. 
