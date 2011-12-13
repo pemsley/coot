@@ -230,8 +230,8 @@
 		       (s2 (net-get-url mtz-url   dir-target-mtz-file)))
 
 		  ;; (format #t "INFO:: --------------- pre-download-info-sxml: ~s~%" pre-download-info-sxml)
+		  ;; (format #t "INFO:: --------------- pre-download-info: ~s~%" pre-download-info)
 
-		  (format #t "INFO:: --------------- pre-download-info: ~s~%" pre-download-info)
 		  (let ((bad-map-status (string-match "No reliable map available" pre-download-info)))
 		    (if bad-map-status
 			(let ((s  (string-append 
