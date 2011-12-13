@@ -6619,7 +6619,16 @@ int get_sbase_monomer(const char *comp_id);
 */
 int add_linked_residue(int imol, const char *chain_id, int resno, const char *ins_code, 
 		       const char *new_residue_comp_id, const char *link_type);
-		       
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char *ins_code, 
+			   const char *new_residue_comp_id, const char *link_type);
+#endif 
+#ifdef USE_PYTHON
+PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const char *ins_code, 
+				const char *new_residue_comp_id, const char *link_type);
+#endif 
+#endif 		       
 
 /*  ----------------------------------------------------------------------- */
 /*               Flattened Ligand Environment View  Interface               */

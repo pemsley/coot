@@ -128,6 +128,14 @@ namespace coot {
 	 alt_conf = at->altLoc;
 	 string_user_data = user_data_string;
       }
+
+      bool empty() const {
+	 if (resno == MinInt4)
+	    return true;
+	 else
+	    return false;
+      }
+
       void selectatoms(CMMDBManager *mol, int SelHnd) {
 	 const char *chainid = chain.c_str();
 	 const char *inscode = insertion_code.c_str();

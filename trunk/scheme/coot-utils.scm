@@ -108,6 +108,8 @@
 (define comp-id->name comp-id-to-name-scm)
 (define multi-residue-torsion multi-residue-torsion-scm)
 (define multi-residue-torsion-fit multi-residue-torsion-fit-scm)
+(define add-linked-residue add-linked-residue-scm)
+(define set-go-to-atom-from-res-spec set-go-to-atom-from-res-spec-scm)
 
 ;; documented functions
 
@@ -1898,6 +1900,40 @@
 	     (f (cdr atom-ls) alt-confs)
 	     (f (cdr atom-ls) (cons alt-conf-str alt-confs)))))))))
 
+;; simple extraction function 
+(define (res-spec->chain-id res-spec)
+  (cond 
+   ((null? res-spec) #f)
+   ((= (length res-spec) 4)
+    (list-ref res-spec 1))
+   ((= (length res-spec) 3)
+    (list-ref res-spec 0))
+   (else 
+    #f)))
+    
+;; simple extraction function 
+(define (res-spec->res-no res-spec)
+  (cond 
+   ((null? res-spec) #f)
+   ((= (length res-spec) 4)
+    (list-ref res-spec 2))
+   ((= (length res-spec) 3)
+    (list-ref res-spec 1))
+   (else 
+    #f)))
+
+;; simple extraction function 
+(define (res-spec->ins-code res-spec)
+  (cond 
+   ((null? res-spec) #f)
+   ((= (length res-spec) 4)
+    (list-ref res-spec 3))
+   ((= (length res-spec) 3)
+    (list-ref res-spec 2))
+   (else 
+    #f)))
+    
+
 
 ;; Return #f if no atom can be found given the spec else return a list
 ;; consisting of the atom name and alt-conf specifier.  
@@ -1925,6 +1961,13 @@
 		  (if (string=? atom-name " CA ")
 		      (f (cdr atom-ls) (list " CA " alt-conf-str))
 		      (f (cdr atom-ls) centre-atom-name-alt-conf))))))))))
+
+(define (set-go-to-atom res-spec)
+  (set-go-to-atom-chain-residue-atom-name 
+   (res-spec->chain-id res-spec)
+   (res-spec->res-no   res-spec)
+   " CA "))
+
 
 ;; 
 ;; 

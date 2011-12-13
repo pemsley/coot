@@ -559,6 +559,8 @@ lbg_info_t::clear_and_redraw(const lig_build::pos_t &delta) {
       render_from_molecule(saved_mol);
    }
    draw_all_flev_annotations();
+
+   
 }
 
 
@@ -2296,7 +2298,7 @@ lbg_info_t::init(GtkBuilder *builder) {
       add_search_combobox_text();
 
       // --------------------- image test -------------------------------
-      // failing
+      // It works, but then gets immediately cleared.  top left is 0,0.
       
       if (0) { 
 	 
@@ -2306,11 +2308,23 @@ lbg_info_t::init(GtkBuilder *builder) {
 	    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 	    double w = gdk_pixbuf_get_width (im);
 	    double h = gdk_pixbuf_get_height (im);
+	    std::cout << "width:  " << w << std::endl;
+	    std::cout << "height: " << h << std::endl;
 	    GooCanvasItem *image =
-	       goo_canvas_image_new (root, im, 100.0 - w / 2, 225.0 - h / 2,
+	       goo_canvas_image_new (root, im,
+				     // 100.0 - w / 2, 225.0 - h / 2,
+				     200.0, 200.0,
 				     "width", w,
 				     "height", h,
 				     NULL);
+	    GooCanvasItem *h_line =
+	       goo_canvas_polyline_new_line(root,
+					    180.0, 180.0,
+					    200.0, 200.0,
+					    "line-width", 7.0,
+					    "stroke-color", "blue",
+					    NULL);
+
 	    g_object_unref(im);
 	    std::cout << "goocanvasitem image " << image << std::endl;
 	 } else { 

@@ -329,7 +329,7 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
       double pre_score = coot::util::z_weighted_density_score_new(atoms, xmap);
       std::cout << "---------- scores: pre " << pre_score << std::endl;
 
-      int n_trials = 200;
+      int n_trials = 400;
       double best_score = pre_score;
       int n_quads = quads.size();
       std::vector<double> best_quads(n_quads, -1);
@@ -345,7 +345,7 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
 	 for (unsigned int iquad=0; iquad<n_quads; iquad++) {
 	    double minus_one_to_one = -1 + 2 * coot::util::random()/float(RAND_MAX);
 	    double angle_scale_factor = 0.2 + 1.0 - double(itrial)/double(n_trials);
-	    double rand_angle = best_quads[iquad] + 25.0 * minus_one_to_one * angle_scale_factor;
+	    double rand_angle = best_quads[iquad] + 40.0 * minus_one_to_one * angle_scale_factor;
 // 	    std::cout << "   trying rand_angle " << rand_angle << " from "
 // 		      << best_quads[iquad] << " + " << minus_one_to_one
 // 		      << std::endl;
