@@ -881,7 +881,9 @@ public:
    lbg_info_t(int imol_in) {
       init_internal();
       imol = imol_in;
-      std::cout << "in lbg_info_t(imol) mdl_file_name is now :" << mdl_file_name << ":" << std::endl;
+      if (0)
+	 std::cout << "in lbg_info_t(imol) mdl_file_name is now :"
+		   << mdl_file_name << ":" << std::endl;
    }
       
    // toggle button modes, mutually exclusive
