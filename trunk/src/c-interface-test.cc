@@ -364,6 +364,64 @@ int test_function(int i, int j) {
    return 0;
 }
 
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM test_function_scm(SCM i_scm, SCM j_scm) {
+
+   graphics_info_t g;
+   SCM r = SCM_BOOL_F;
+
+   if (1) {
+      int i = scm_to_int(i_scm); // map molecule
+      int j = scm_to_int(j_scm);
+
+      // was_found, imol, atom_spec
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
+      if (active_atom.first) {
+
+	 int imol = active_atom.second.first;
+	 coot::atom_spec_t spec = active_atom.second.second;
+	 if (! is_valid_map_molecule(i)) {
+	    std::cout << "Not valid map " << i << std::endl;
+	 } else { 
+	    std::vector<coot::residue_spec_t> v;
+	    v.push_back(coot::residue_spec_t(spec));
+	    int n_rounds = 10;
+	    CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+	    const clipper::Xmap<float> &xmap = g.molecules[j].xmap_list[0];
+	    for (unsigned int iround=0; iround<n_rounds; iround++) {
+	       std::cout << "round " << iround << std::endl;
+	       CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
+	       
+	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, g.Geom_p());
+	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
+	       std::pair<CMMDBManager *, int> new_mol =
+		  coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
+	       atom_selection_container_t asc_new = make_asc(new_mol.first);
+	       std::string name = "test-" + coot::util::int_to_string(iround);
+	       bool shelx_flag = 0;
+	       int imol_new = g.create_molecule();
+	       g.molecules[imol_new].install_model(imol_new, asc_new, name, 1, shelx_flag);
+	       add_linked_residue(imol_new,
+				  active_atom.second.second.chain.c_str(),
+				  active_atom.second.second.resno,
+				  active_atom.second.second.insertion_code.c_str(),
+				  "NAG", "ASN-NAG");
+	       
+	       delete moving_mol;
+	       graphics_draw();
+	    }
+	 } 
+      }
+   }
+   return r;
+}
+
+#endif
+#endif
+
+
 /* glyco tools test  */
 void glyco_tree_test() {
 
