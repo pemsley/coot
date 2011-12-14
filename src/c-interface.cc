@@ -6245,6 +6245,7 @@ int export_map_fragment(int imol, float x, float y, float z, float radius, const
       graphics_info_t g;
       clipper::Coord_orth pos(x,y,z);
       g.molecules[imol].export_map_fragment(radius, pos, filename);
+      rv = 1;
    } 
    return rv;
 } 
