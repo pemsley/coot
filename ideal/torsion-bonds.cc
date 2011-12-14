@@ -306,72 +306,75 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
 	    z = 6.0f;
 	 atoms[iat] = std::pair<CAtom *, float> (atom_selection[iat], z);
       } 
+
+      if (n_selected_atoms > 0) { 
+	 std::vector<coot::atom_quad> quads = 
+	    coot::torsionable_quads(mol, atom_selection, n_selected_atoms, geom_p);
+
+	 if (0) 
+	    for (unsigned int iquad=0; iquad<quads.size(); iquad++)
+	       std::cout << "   " << iquad << " "
+			 << coot::atom_spec_t(quads[iquad].atom_1) << " " 
+			 << coot::atom_spec_t(quads[iquad].atom_2) << " " 
+			 << coot::atom_spec_t(quads[iquad].atom_3) << " " 
+			 << coot::atom_spec_t(quads[iquad].atom_4) << " \""
+			 << quads[iquad].name << "\" torsion: "
+			 << quads[iquad].torsion() 
+			 << std::endl;
+
+
+	 coot::contact_info contacts(mol, selhnd, quads, geom_p);
+	 std::vector<std::vector<int> > contact_indices =
+	    contacts.get_contact_indices_with_reverse_contacts();
+	 coot::atom_tree_t tree(contact_indices, 0, mol, selhnd);
+
+	 bool reverse_flag = 1;
+	 double pre_score = coot::util::z_weighted_density_score_new(atoms, xmap);
+	 std::cout << "---------- scores: pre " << pre_score << std::endl;
+
+	 int n_trials = 400;
+	 double best_score = pre_score;
+	 int n_quads = quads.size();
+	 std::vector<double> best_quads(n_quads, -1);
+	 coot::map_index_t fixed_index(0);
+
+	 // save the current
+	 for (unsigned int iquad=0; iquad<n_quads; iquad++)
+	    best_quads[iquad] = quads[iquad].torsion();
       
-      std::vector<coot::atom_quad> quads = 
-	 coot::torsionable_quads(mol, atom_selection, n_selected_atoms, geom_p);
-      for (unsigned int iquad=0; iquad<quads.size(); iquad++) { 
-	 std::cout << "   " << iquad << " "
-		   << coot::atom_spec_t(quads[iquad].atom_1) << " " 
-		   << coot::atom_spec_t(quads[iquad].atom_2) << " " 
-		   << coot::atom_spec_t(quads[iquad].atom_3) << " " 
-		   << coot::atom_spec_t(quads[iquad].atom_4) << " \""
-		   << quads[iquad].name << "\" torsion: "
-		   << quads[iquad].torsion() 
-		   << std::endl;
-      }
+	 double frac = 360.0/(float) RAND_MAX;
+	 for (unsigned int itrial=0; itrial<n_trials; itrial++) {
+	    std::vector<coot::atom_tree_t::tree_dihedral_quad_info_t> torsion_quads;
+	    for (unsigned int iquad=0; iquad<n_quads; iquad++) {
+	       double minus_one_to_one = -1 + 2 * coot::util::random()/float(RAND_MAX);
+	       double angle_scale_factor = 0.2 + 1.0 - double(itrial)/double(n_trials);
+	       double rand_angle = best_quads[iquad] + 40.0 * minus_one_to_one * angle_scale_factor;
+	       // 	    std::cout << "   trying rand_angle " << rand_angle << " from "
+	       // 		      << best_quads[iquad] << " + " << minus_one_to_one
+	       // 		      << std::endl;
+	       coot::atom_tree_t::tree_dihedral_quad_info_t tor(quads[iquad], rand_angle, fixed_index);
+	       torsion_quads.push_back(tor);
+	    }
+	    tree.set_dihedral_multi(torsion_quads);
+	    double this_score = coot::util::z_weighted_density_score_new(atoms, xmap);
+	    // std::cout << "this_score: " << this_score << std::endl;
+	    if (this_score > best_score) {
+	       // std::cout << "----------------- updating best quads!" << std::endl;
+	       best_score = this_score;
 
-      coot::contact_info contacts(mol, selhnd, quads, geom_p);
-      std::vector<std::vector<int> > contact_indices =
-	 contacts.get_contact_indices_with_reverse_contacts();
-      coot::atom_tree_t tree(contact_indices, 0, mol, selhnd);
+	       // save best quads
+	       for (unsigned int iquad=0; iquad<n_quads; iquad++)
+		  best_quads[iquad] = quads[iquad].torsion();
 
-      bool reverse_flag = 1;
-      double pre_score = coot::util::z_weighted_density_score_new(atoms, xmap);
-      std::cout << "---------- scores: pre " << pre_score << std::endl;
-
-      int n_trials = 400;
-      double best_score = pre_score;
-      int n_quads = quads.size();
-      std::vector<double> best_quads(n_quads, -1);
-      coot::map_index_t fixed_index(0);
-
-      // save the current
-      for (unsigned int iquad=0; iquad<n_quads; iquad++)
-	 best_quads[iquad] = quads[iquad].torsion();
-      
-      double frac = 360.0/(float) RAND_MAX;
-      for (unsigned int itrial=0; itrial<n_trials; itrial++) {
-	 std::vector<coot::atom_tree_t::tree_dihedral_quad_info_t> torsion_quads;
-	 for (unsigned int iquad=0; iquad<n_quads; iquad++) {
-	    double minus_one_to_one = -1 + 2 * coot::util::random()/float(RAND_MAX);
-	    double angle_scale_factor = 0.2 + 1.0 - double(itrial)/double(n_trials);
-	    double rand_angle = best_quads[iquad] + 40.0 * minus_one_to_one * angle_scale_factor;
-// 	    std::cout << "   trying rand_angle " << rand_angle << " from "
-// 		      << best_quads[iquad] << " + " << minus_one_to_one
-// 		      << std::endl;
-	    coot::atom_tree_t::tree_dihedral_quad_info_t tor(quads[iquad], rand_angle, fixed_index);
-	    torsion_quads.push_back(tor);
+	    }
 	 }
-	 tree.set_dihedral_multi(torsion_quads);
-	 double this_score = coot::util::z_weighted_density_score_new(atoms, xmap);
-	 // std::cout << "this_score: " << this_score << std::endl;
-	 if (this_score > best_score) {
-	    // std::cout << "----------------- updating best quads!" << std::endl;
-	    best_score = this_score;
-
-	    // save best quads
-	    for (unsigned int iquad=0; iquad<n_quads; iquad++)
-	       best_quads[iquad] = quads[iquad].torsion();
-
-	 }
-      }
-      std::cout << "--------------- best_score: " << best_score << std::endl;
-      // tree.set_dihedral_multi(best_quads);
+	 std::cout << "--------------- best_score: " << best_score << std::endl;
+	 // tree.set_dihedral_multi(best_quads);
       
-      mol->DeleteSelection(selhnd);
-   } 
+	 mol->DeleteSelection(selhnd);
+      }
+   }
    catch (std::runtime_error rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
-   } 
-   
+   }
 } 

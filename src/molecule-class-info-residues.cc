@@ -954,6 +954,7 @@ molecule_class_info_t::add_residue(CResidue *new_res,
 	    chain_p = model_p->GetChain(ichain);
 	    std::string chain_id(chain_p->GetChainID());
 	    if (chain_id == chain_id_in) {
+	       make_backup();
 	       res_copied = copy_and_add_residue_to_chain(chain_p, new_res);
 	       status = true;
 	       have_unsaved_changes_flag = 1;
@@ -979,7 +980,7 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
    coot::residue_spec_t new_residue_spec;   
    CResidue *residue_ref = get_residue(spec_in);
    if (residue_ref) {
-      try { 
+      try {
 	 coot::beam_in_linked_residue lr(residue_ref, link_type, new_residue_comp_id, geom_p);
 	 CResidue *result = lr.get_residue();
 	 // get_residue() can (and often does) modify residue_ref (for

@@ -2837,6 +2837,12 @@ void do_skeleton_prune();
 
 int test_function(int i, int j);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM test_function_scm(SCM i, SCM j);
+#endif
+#endif
+
 
 /*                    glyco tools test  */
 void glyco_tree_test();
