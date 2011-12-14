@@ -317,6 +317,7 @@
 # 4.84 20110821 Hack in a solution the the new clipper problem (new clipper with cif 
 #               tools needs new libtools/configure new ccp4 libs (underlay-2).
 # 4.85 20111021 Update python to 2.6, guile to 1.8.8, add guile patch.
+# 4.86 20111214 Update to mmdb 1.24 (new) which has working LINKRs.
 script_version=4.84
 
 
@@ -2199,7 +2200,7 @@ mmdb_version=1.21
 mmdb_version=1.22
 mmdb_version=1.23
 mmdb_version=1.23.2
-# mmdb_version=1.24
+mmdb_version=1.24
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 # ${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
 # for now get mmdb-1.21 from york, the ebi one has out of date files causing 
