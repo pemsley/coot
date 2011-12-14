@@ -3232,4 +3232,3 @@ molecule_class_info_t::map_is_too_blue_p() const {
    return state;
 }
 
-
