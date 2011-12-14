@@ -3,18 +3,10 @@
 
 ----
 
-  o It would be nice if "triple refine" worked on 2 residues (e.g. 
-    we are at the end of the chain).  ::: 2 
+
+  o export a map fragment (xmap -> nxmap conversion and export_nxmap()) ::: 2
 
   o Fix splash screen per SS message.  ::: 0.5
-
-  o CCP4-based integrated path for FLEV ::: 6
-
-* Looks good.
-
-  o Make sure ligands work with prodrg ::: 4
-
-* Seems OK.
 
   o Fix crash-catcher script to work with pythonized coot ::: 2
 
@@ -24,27 +16,18 @@
   o How do I deal with the responses correctly in the lidia file
     dialogs? ::: 2
 
-  o LINKR recognition (draw it) - and use in restraints ::: 3
-
-  o test and use new mmdb ::: 1
-
   o Ctrl-shift middle mouse vs shift-ctrl middle mouse ::: 1
 
   o jligand interface ::: 2
 
-  o put helix, pyranose pdbs into pdb-templates directory ::: 1
-
-  o export a map fragment (xmap -> nxmap conversion and export_nxmap()) ::: 2
-
   o consider exporting a fragment of a map (with a NXMap?)
-
-  o consider the exporting of frames and using ffmpeg to make a movie...
 
   o try to regularize pyranose-pyranose-via-ALPHA1-6.pdb, breaks bond,
     doesn't find glyco linkage ::: 1
 
-  o "Don't recentre" button doesn't work with Modern fileselector ::: 2
+  o Use LINKRs in restraints (puntable) ::: 2
 
+  o draw hydrogens mode is ignored for hetgroups.
 
 ------
 
@@ -259,3 +242,36 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
   o Fix recentering by shift ::: 0.5
 
 * Done. 
+
+  o LINKR recognition (draw it)  ::: 1
+
+* Done.
+
+  o test and use new mmdb ::: 1
+
+* Done.
+
+  o CCP4-based integrated path for FLEV ::: 6
+
+* Looks good.
+
+  o Make sure ligands work with prodrg ::: 4
+
+* Seems OK.
+
+  o put helix, pyranose pdbs into pdb-templates directory ::: 1
+
+* Done.
+
+  o consider the exporting of frames and using ffmpeg to make a movie... ::: 1 
+
+* Done.
+
+  o "Don't recentre" button doesn't work with Modern fileselector ::: 0.3
+
+* It works fine.  PEBKAC.
+
+  o It would be nice if "triple refine" worked on 2 residues (e.g. 
+    we are at the end of the chain).  ::: 1
+
+* Done.  Needs exporting.
