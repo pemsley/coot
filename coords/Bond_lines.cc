@@ -1052,113 +1052,163 @@ Bond_lines_container::construct_from_model_links(CModel *model_p,
    if (n_links > 0) { 
       for (int i_link=1; i_link<=n_links; i_link++) {
 	 PCLink link = model_p->GetLink(i_link);
-
+	 
 	 // For the moment, don't make Link dashed bonds to
 	 // symmetry-related molecules.
 	 // 
 	 if ((link->s1 == link->s2) && (link->i1 == link->i2) &&
 	     (link->j1 == link->j2) && (link->k1 == link->k2)) { 
-	     
-	    PCAtom atom_1 = NULL;
-	    PCAtom atom_2 = NULL;
-	    int n_chains = model_p->GetNumberOfChains();
-	    for (int ich=0; ich<n_chains; ich++) {
-	       CChain *chain_p = model_p->GetChain(ich);
-	       if (chain_p) { 
-		  if (std::string(chain_p->GetChainID()) ==
-		      std::string(link->chainID1)) {
-		     int n_residues = model_p->GetNumberOfResidues();
-		     for (int i_res=0; i_res<n_residues; i_res++) {
-			CResidue *res_p = chain_p->GetResidue(i_res);
-			if (res_p) {
-			   if (res_p->GetSeqNum() == link->seqNum1) {
-			      if (std::string(res_p->GetInsCode()) ==
-				  std::string(link->insCode1)) {
-				 int n_atoms = res_p->GetNumberOfAtoms();
-				 for (int iat=0; iat<n_atoms; iat++) {
-				    CAtom *at = res_p->GetAtom(iat);
-				    if (! at->isTer()) { 
-				       if (std::string(at->name) ==
-					   std::string(link->atName1)) {
-					  if (std::string(at->altLoc) ==
-					      std::string(link->aloc1)) {
-					     atom_1 = at;
-					     break;
-					  }
-				       }
-				    }
-				    if (atom_1) break;
-				 }
-			      }
-			   }
-			} // null residue test
-			if (atom_1) break;
-		     }
-		  }
-	       } // chain_p test
-	       if (atom_1) break;
-	    }
-
-	    if (atom_1) {
-	       for (int ich=0; ich<n_chains; ich++) {
-		  CChain *chain_p = model_p->GetChain(ich);
-		  if (chain_p) { 
-		     if (std::string(chain_p->GetChainID()) ==
-			 std::string(link->chainID2)) {
-			int n_residues = model_p->GetNumberOfResidues();
-			for (int i_res=0; i_res<n_residues; i_res++) {
-			   CResidue *res_p = chain_p->GetResidue(i_res);
-			   if (res_p) { 
-			      if (res_p->GetSeqNum() == link->seqNum2) {
-				 if (std::string(res_p->GetInsCode()) ==
-				     std::string(link->insCode2)) {
-				    int n_atoms = res_p->GetNumberOfAtoms();
-				    for (int iat=0; iat<n_atoms; iat++) {
-				       CAtom *at = res_p->GetAtom(iat);
-				       if (! at->isTer()) { 
-					  if (std::string(at->name) ==
-					      std::string(link->atName2)) {
-					     if (std::string(at->altLoc) ==
-						 std::string(link->aloc2)) {
-						atom_2 = at;
-						break;
-					     }
-					  }
-				       }
-				       if (atom_2) break;
-				    }
-				 }
-			      }
-			   } // res_p test
-			   if (atom_2) break;
-			}
-		     }
-		     if (atom_2) break;
-		  } // chain_p test
-	       }
-	    } 
-
-	    // OK, make the link bond then!
-	    if (atom_1 && atom_2) {
-	       coot::Cartesian pos_1(atom_1->x, atom_1->y, atom_1->z);
-	       coot::Cartesian pos_2(atom_2->x, atom_2->y, atom_2->z);
-	       std::string ele_1 = atom_1->element;
-	       std::string ele_2 = atom_2->element;
-	       if (ele_1 == ele_2) {
-		  int col = atom_colour(atom_1, atom_colour_type);
-		  add_dashed_bond(col, pos_1, pos_2, NOT_HALF_BOND);
-	       } else {
-		  coot::Cartesian bond_mid_point = pos_1.mid_point(pos_2);
-		  int col = atom_colour(atom_1, atom_colour_type);
-		  add_dashed_bond(col, pos_1, bond_mid_point, HALF_BOND_FIRST_ATOM);
-		  col = atom_colour(atom_2, atom_colour_type);
-		  add_dashed_bond(col, bond_mid_point, pos_2, HALF_BOND_SECOND_ATOM);
-	       } 
-	    }
+	    add_link_bond(model_p, atom_colour_type, link);
 	 }
       }
    }
+   
+#ifdef MMDB_WITHOUT_LINKR
+#else
+   int n_linkrs = model_p->GetNumberOfLinkRs();
+   if (n_linkrs > 0) { 
+      for (int i_link=1; i_link<=n_linkrs; i_link++) {
+	 PCLinkR link = model_p->GetLinkR(i_link);
+	 add_link_bond(model_p, atom_colour_type, link);
+      }
+   }
+#endif   
 }
+
+void
+Bond_lines_container::add_link_bond(CModel *model_p, int atom_colour_type,
+				    CLink *link) {
+
+   std::cout << "calling add_link_bond_templ with LINK" << std::endl;
+   add_link_bond_templ(model_p, atom_colour_type, link);
+
+}
+
+void
+Bond_lines_container::add_link_bond(CModel *model_p, int atom_colour_type,
+				    CLinkR *linkr) {
+
+   // Missing LINKR bond is due to incorrect placement of atom names in the LINKR card
+   if (0) 
+      std::cout << "calling add_link_bond_templ with LINKR "
+		<< "\"" << linkr->chainID1 << "\""
+		<< " " << linkr->seqNum1   << " "
+		<< "\"" << linkr->seqNum1  << "\""
+		<< "\"" << linkr->atName1  << "\""
+		<< " to " 
+		<< "\"" << linkr->chainID2 << "\""
+		<< " " << linkr->seqNum2  << " "
+		<< "\"" << linkr->atName2  << "\""
+		<< std::endl;
+   add_link_bond_templ(model_p, atom_colour_type, linkr);
+
+}
+
+template<class T>
+void
+Bond_lines_container::add_link_bond_templ(CModel *model_p, int atom_colour_type, T *link) {
+
+
+   PCAtom atom_1 = NULL;
+   PCAtom atom_2 = NULL;
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ich=0; ich<n_chains; ich++) {
+      CChain *chain_p = model_p->GetChain(ich);
+      if (chain_p) { 
+	 if (std::string(chain_p->GetChainID()) ==
+	     std::string(link->chainID1)) {
+	    int n_residues = model_p->GetNumberOfResidues();
+	    for (int i_res=0; i_res<n_residues; i_res++) {
+	       CResidue *res_p = chain_p->GetResidue(i_res);
+	       if (res_p) {
+		  if (res_p->GetSeqNum() == link->seqNum1) {
+		     if (std::string(res_p->GetInsCode()) ==
+			 std::string(link->insCode1)) {
+			int n_atoms = res_p->GetNumberOfAtoms();
+			for (int iat=0; iat<n_atoms; iat++) {
+			   CAtom *at = res_p->GetAtom(iat);
+			   if (! at->isTer()) { 
+			      if (std::string(at->name) ==
+				  std::string(link->atName1)) {
+				 if (std::string(at->altLoc) ==
+				     std::string(link->aloc1)) {
+				    atom_1 = at;
+				    break;
+				 }
+			      }
+			   }
+			   if (atom_1) break;
+			}
+		     }
+		  }
+	       } // null residue test
+	       if (atom_1) break;
+	    }
+	 }
+      } // chain_p test
+      if (atom_1) break;
+   }
+
+   if (atom_1) {
+      for (int ich=0; ich<n_chains; ich++) {
+	 CChain *chain_p = model_p->GetChain(ich);
+	 if (chain_p) { 
+	    if (std::string(chain_p->GetChainID()) ==
+		std::string(link->chainID2)) {
+	       int n_residues = model_p->GetNumberOfResidues();
+	       for (int i_res=0; i_res<n_residues; i_res++) {
+		  CResidue *res_p = chain_p->GetResidue(i_res);
+		  if (res_p) { 
+		     if (res_p->GetSeqNum() == link->seqNum2) {
+			if (std::string(res_p->GetInsCode()) ==
+			    std::string(link->insCode2)) {
+			   int n_atoms = res_p->GetNumberOfAtoms();
+			   for (int iat=0; iat<n_atoms; iat++) {
+			      CAtom *at = res_p->GetAtom(iat);
+			      if (! at->isTer()) { 
+				 if (std::string(at->name) ==
+				     std::string(link->atName2)) {
+				    if (std::string(at->altLoc) ==
+					std::string(link->aloc2)) {
+				       atom_2 = at;
+				       break;
+				    }
+				 }
+			      }
+			      if (atom_2) break;
+			   }
+			}
+		     }
+		  } // res_p test
+		  if (atom_2) break;
+	       }
+	    }
+	    if (atom_2) break;
+	 } // chain_p test
+      }
+   } 
+
+   // OK, make the link bond then!
+   if (atom_1 && atom_2) {
+      std::cout << ".... found a bond " << coot::atom_spec_t(atom_1) << "  "
+		<< coot::atom_spec_t(atom_2) << std::endl;
+      coot::Cartesian pos_1(atom_1->x, atom_1->y, atom_1->z);
+      coot::Cartesian pos_2(atom_2->x, atom_2->y, atom_2->z);
+      std::string ele_1 = atom_1->element;
+      std::string ele_2 = atom_2->element;
+      if (ele_1 == ele_2) {
+	 int col = atom_colour(atom_1, atom_colour_type);
+	 add_dashed_bond(col, pos_1, pos_2, NOT_HALF_BOND);
+      } else {
+	 coot::Cartesian bond_mid_point = pos_1.mid_point(pos_2);
+	 int col = atom_colour(atom_1, atom_colour_type);
+	 add_dashed_bond(col, pos_1, bond_mid_point, HALF_BOND_FIRST_ATOM);
+	 col = atom_colour(atom_2, atom_colour_type);
+	 add_dashed_bond(col, bond_mid_point, pos_2, HALF_BOND_SECOND_ATOM);
+      } 
+   }
+} 
+
 
 
 PPCAtom
