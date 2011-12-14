@@ -3113,7 +3113,14 @@ public:        //                      public
    // multi-residue torsion map fitting interface
    void multi_residue_torsion_fit(const std::vector<coot::residue_spec_t> &residue_specs,
 				  const clipper::Xmap<float> &xmap,
-				  coot::protein_geometry *geom_p);   
+				  coot::protein_geometry *geom_p);
+
+
+   // export map fragment (.ext)
+   //
+   void export_map_fragment(float radius,
+			    clipper::Coord_orth centre,
+			    const std::string &file_name) const;
    
 };
 

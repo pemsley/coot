@@ -6,6 +6,9 @@
 
   o export a map fragment (xmap -> nxmap conversion and export_nxmap()) ::: 2
 
+  o try to regularize pyranose-pyranose-via-ALPHA1-6.pdb, breaks bond,
+    doesn't find glyco linkage ::: 1
+
   o Fix splash screen per SS message.  ::: 0.5
 
   o Fix crash-catcher script to work with pythonized coot ::: 2
@@ -19,11 +22,6 @@
   o Ctrl-shift middle mouse vs shift-ctrl middle mouse ::: 1
 
   o jligand interface ::: 2
-
-  o consider exporting a fragment of a map (with a NXMap?)
-
-  o try to regularize pyranose-pyranose-via-ALPHA1-6.pdb, breaks bond,
-    doesn't find glyco linkage ::: 1
 
   o Use LINKRs in restraints (puntable) ::: 2
 

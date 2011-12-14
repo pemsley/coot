@@ -6238,6 +6238,18 @@ int export_map(int imol, const char *filename) {
    return rv; 
 }
 
+int export_map_fragment(int imol, float x, float y, float z, float radius, const char *filename) {
+
+   int rv = 0;
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t g;
+      clipper::Coord_orth pos(x,y,z);
+      g.molecules[imol].export_map_fragment(radius, pos, filename);
+   } 
+   return rv;
+} 
+
+
 /* create a number of maps by segmenting the given map, above the
    (absolute) low_level.  New maps are on the same grid as the input
    map.  */
