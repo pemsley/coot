@@ -69,6 +69,7 @@ molecule_class_info_t::export_map_fragment(float radius,
       }
       clipper::CCP4MAPfile mapout;
       mapout.open_write(file_name);
+      mapout.set_cell(cell);
       mapout.export_nxmap(nxmap);
       mapout.close_write();
    }
