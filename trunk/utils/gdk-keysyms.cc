@@ -19,6 +19,7 @@
  * 02110-1301, USA
  */
 
+
 #include "coot-utils.hh"
 namespace coot {
    namespace util {
@@ -472,6 +473,8 @@ coot::util::key_sym_vec() {
    a.push_back(std::pair<std::string,int>("-", 45));
    a.push_back(std::pair<std::string,int>(".", 46));
    a.push_back(std::pair<std::string,int>("/", 47));
+   a.push_back(std::pair<std::string,int>("(", 40));
+   a.push_back(std::pair<std::string,int>(")", 41));
    a.push_back(std::pair<std::string,int>("[", 91));
    a.push_back(std::pair<std::string,int>("]", 93));
    a.push_back(std::pair<std::string,int>("_", 95)); 

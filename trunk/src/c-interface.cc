@@ -2396,7 +2396,7 @@ void set_draw_hydrogens(int imol, int istate) {
 
    graphics_info_t g;
    
-   if ((imol < g.n_molecules()) && (imol >= 0)) {
+   if (is_valid_model_molecule(imol)) {
       g.molecules[imol].set_draw_hydrogens_state(istate);
       graphics_draw();
    } else { 

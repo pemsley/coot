@@ -885,13 +885,15 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 					  }
 				       } 
 				    } else {
-				       if (res_name == "HOH") {
-					  add_half_bonds(p1, p2,
-							 residue_atoms[iat],
-							 residue_atoms[jat],
-							 atom_colour_type);
-				       } else { 
-					  addBond(HYDROGEN_GREY_BOND, p1, p2);
+				       if (do_bonds_to_hydrogens) { 
+					  if (res_name == "HOH") {
+					     add_half_bonds(p1, p2,
+							    residue_atoms[iat],
+							    residue_atoms[jat],
+							    atom_colour_type);
+					  } else { 
+					     addBond(HYDROGEN_GREY_BOND, p1, p2);
+					  }
 				       }
 				    }
 
@@ -1079,9 +1081,7 @@ void
 Bond_lines_container::add_link_bond(CModel *model_p, int atom_colour_type,
 				    CLink *link) {
 
-   std::cout << "calling add_link_bond_templ with LINK" << std::endl;
    add_link_bond_templ(model_p, atom_colour_type, link);
-
 }
 
 void
@@ -1190,8 +1190,6 @@ Bond_lines_container::add_link_bond_templ(CModel *model_p, int atom_colour_type,
 
    // OK, make the link bond then!
    if (atom_1 && atom_2) {
-      std::cout << ".... found a bond " << coot::atom_spec_t(atom_1) << "  "
-		<< coot::atom_spec_t(atom_2) << std::endl;
       coot::Cartesian pos_1(atom_1->x, atom_1->y, atom_1->z);
       coot::Cartesian pos_2(atom_2->x, atom_2->y, atom_2->z);
       std::string ele_1 = atom_1->element;
