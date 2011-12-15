@@ -68,6 +68,21 @@ void hole(int imol, float start_x, float start_y, float start_z, float end_x, fl
       set_display_generic_object(obj_path,    1);
       set_display_generic_object(obj_surface, 1);
 
+      std::string text;
+      double path_length = sqrt((p_1-p_2).lengthsq());
+      int n = hole_path_and_surface.first.size();
+      for (unsigned int i=0; i<n; i++) {
+	 double f = path_length * double(i)/double(n);
+	 std::string line;
+	 line += coot::util::float_to_string_using_dec_pl(f, 4);
+	 line += "      ";
+	 line += coot::util::float_to_string_using_dec_pl(hole_path_and_surface.first[i].second, 4);
+	 line += "\n";
+	 text += line;
+      }
+
+      std::pair<int, int> geom(160, 400);
+      simple_text_dialog("Probe radius data", text, geom);
    }
 
 } 
