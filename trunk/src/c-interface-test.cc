@@ -148,6 +148,10 @@ int test_function(int i, int j) {
 //    return 0;
 
    if (1) {
+   } 
+   
+
+   if (0) {
 
       if (is_valid_model_molecule(i)) { 
 	 if (is_valid_map_molecule(j)) { 
