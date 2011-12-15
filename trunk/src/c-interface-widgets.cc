@@ -225,3 +225,34 @@ GdkColor remark_number_to_colour(int remark_number) {
    }
    return colour;
 } 
+
+void simple_text_dialog(const std::string &dialog_title, const std::string &text,
+			std::pair<int, int> geom) {
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+
+      GtkWidget *d = gtk_dialog_new();
+      gtk_object_set_data(GTK_OBJECT(d), "simple_text_dialog", d);
+      gtk_window_set_title (GTK_WINDOW (d), _(dialog_title.c_str()));
+      GtkWidget *vbox = GTK_DIALOG(d)->vbox;
+      GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
+      GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+					    GTK_WIDGET(vbox_inner));
+      gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
+      gtk_widget_show(scrolled_window);
+      gtk_widget_show(vbox_inner);
+      
+      GtkWidget *text_widget = gtk_text_view_new ();
+      gtk_widget_show (text_widget);
+      gtk_container_add (GTK_CONTAINER (vbox_inner), text_widget);
+      gtk_text_view_set_editable (GTK_TEXT_VIEW (text_widget), FALSE);
+      gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (text_widget), GTK_WRAP_WORD);
+      gtk_text_buffer_set_text (gtk_text_view_get_buffer(GTK_TEXT_VIEW (text_widget)),
+				text.c_str(), -1);
+      gtk_window_set_default_size(GTK_WINDOW(d), geom.first, geom.second);
+      
+      gtk_widget_show(d);
+
+   }
+}

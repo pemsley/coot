@@ -659,15 +659,11 @@ void fill_about_window(GtkWidget *widget) {
    widget_text += VERSION;
    widget_text += body_text;
 
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-   gtk_text_insert (GTK_TEXT (text_widget), NULL, NULL, NULL,
-		    _(widget_text.c_str()), -1);
-#else   
   gtk_text_view_set_editable (GTK_TEXT_VIEW (text_widget), FALSE);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (text_widget), GTK_WRAP_WORD);
   gtk_text_buffer_set_text (gtk_text_view_get_buffer (GTK_TEXT_VIEW (text_widget)),
 			    _(widget_text.c_str()), -1);
-#endif    
+
 }
 
 void add_coot_references_button(GtkWidget *widget) {

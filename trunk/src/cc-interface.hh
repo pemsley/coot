@@ -917,7 +917,7 @@ PyObject *protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imo
 /* ------------------------------------------------------------------------- */
 /*! \name Coot's Hole implementation */
 
-/*! \brief starting pont and end point, colour map multiplier and
+/*! \brief starting piont and end point, colour map multiplier and
   shall the probe radius graph be shown (dummy value currently). */
 void hole(int imol,
 	  float start_x, float start_y, float start_z,
@@ -956,6 +956,12 @@ int handle_drag_and_drop_string(const std::string &uri);
 // 
 void prodrg_import_function(std::string file_name);
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  GUIL Utility Functions                                  */
+/*  ----------------------------------------------------------------------- */
+void simple_text_dialog(const std::string &dialog_title, const std::string &text,
+			std::pair<int, int> geom);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Utility Functions                                       */
