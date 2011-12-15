@@ -292,6 +292,20 @@
 			      " exported to " text)))
 		      (add-status-bar-text s))))))))
 
+	(add-simple-coot-menu-menuitem
+	 submenu-maps "Export Local Map Fragment... (for Pymol, say)"
+	 (lambda ()
+	   (generic-chooser-entry-and-file-selector
+	    "Export Map: "
+	    valid-map-molecule?
+	    "Radius (A): " "10"
+	    "File-name: "
+	    (lambda (imol radius-string file-name)
+	      (let ((radius (string->number radius-string)))
+		(if (number? radius)
+		    (apply export-map-fragment (append (cons imol (rotation-centre)) 
+						       (list radius file-name)))))))))
+
 
 	(add-simple-coot-menu-menuitem
 	 submenu-maps "Brighten Maps"
