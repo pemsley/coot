@@ -3930,9 +3930,11 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
    coot::bonded_pair_container_t bonded_residue_pairs =
       bonded_residues_conventional(selHnd, geom);
 
-   std::cout << "debug in make_link_restraints_by_linear() " << bonded_residue_pairs.size()
-	     << " bonded residue pairs " << std::endl;
-      std::cout << "  " << bonded_residue_pairs << std::endl;
+   if (0) 
+      std::cout << "debug -------- in make_link_restraints_by_linear() "
+		<< bonded_residue_pairs.size() << " bonded residue pairs "
+		<< std::endl;
+   std::cout << "  " << bonded_residue_pairs << std::endl;
 
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, "Link");
 
@@ -4197,7 +4199,7 @@ coot::restraints_container_t::bonded_residues_conventional(int selHnd,
 coot::bonded_pair_container_t
 coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 							const coot::protein_geometry &geom) const {
-   
+
    coot::bonded_pair_container_t c;
    PPCResidue SelResidue;
    int nSelResidues;
@@ -4222,8 +4224,8 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 	    // ins code test here in the future.
 	    if ( abs(SelResidue[i]->GetSeqNum() - SelResidue[i+1]->GetSeqNum()) <= 1) { 
 	       link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
-	       // std::cout << "DEBUG in bonded_residues_by_linear() link_type is :"
-		// 	 << link_type << ":" << std::endl;
+	       // std::cout << "DEBUG ------------ in bonded_residues_by_linear() link_type is :"
+	       // << link_type << ":" << std::endl;
 	       if (link_type != "") {
 		  bool whole_first_residue_is_fixed = 0;
 		  bool whole_second_residue_is_fixed = 0;
@@ -4242,19 +4244,21 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 	       // link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
 	       std::pair<std::string, bool> link_info =
 		  find_link_type_rigourous(SelResidue[i], SelResidue[i+1], geom);
+	       // std::cout << "DEBUG ------------ in bonded_residues_by_linear() link_info is :"
+	       //           << link_info.first << " " << link_info.second << ":" << std::endl;
 	       if (link_info.first != "") {
 		  bool whole_first_residue_is_fixed = 0;
 		  bool whole_second_residue_is_fixed = 0;
 		  if (link_info.second == 0) { 
 		     coot::bonded_pair_t p(SelResidue[i], SelResidue[i+1],
 					   whole_first_residue_is_fixed,
-					   whole_second_residue_is_fixed, link_type);
+					   whole_second_residue_is_fixed, link_info.first);
 		     c.try_add(p);
 		  } else {
 		     // order switch
 		     coot::bonded_pair_t p(SelResidue[i+1], SelResidue[i],
 					   whole_first_residue_is_fixed,
-					   whole_second_residue_is_fixed, link_type);
+					   whole_second_residue_is_fixed, link_info.first);
 		     c.try_add(p);
 		  }
 	       } 
@@ -6234,6 +6238,7 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 					    short int is_fixed_first,
 					    short int is_fixed_second,
 					    const coot::protein_geometry &geom) {
+
 
    PPCAtom first_sel;
    PPCAtom second_sel;
