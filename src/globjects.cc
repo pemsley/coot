@@ -2933,18 +2933,22 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 {
 
    // Try to correct cntrl and shift anomalies:
+   // (I don't think this code does anything useful...)
    //
-   // 
-   if (event->state & GDK_CONTROL_MASK)
+   if (event->state & GDK_CONTROL_MASK) { 
       graphics_info_t::control_is_pressed = 1;
-   else
+   } else { 
       graphics_info_t::control_is_pressed = 0;
-   if (event->state & GDK_SHIFT_MASK)
+   }
+   if (event->state & GDK_SHIFT_MASK) { 
       graphics_info_t::shift_is_pressed = 1;
-   else
+   } else { 
       graphics_info_t::shift_is_pressed = 0;
+   }
 
    gint handled = 0; // initially unhandled
+
+   // std::cout << "keyval: " << event->keyval << " " << std::hex << event->keyval << std::endl;
 
    switch (event->keyval) {
    case GDK_Control_L:
@@ -2984,7 +2988,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_Shift_L: // stops Shift key getting through to key-press-hook
    case GDK_Shift_R:
-
+      graphics_info_t::shift_is_pressed = 1;
       handled = TRUE;
       break;
       
@@ -3614,9 +3618,12 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       
    case GDK_l:
    case GDK_L:
+      // something here, L is released.
+      break;
+      
    case GDK_Shift_L:
    case GDK_Shift_R:
-      // something here, L is released.
+      graphics_info_t::shift_is_pressed = 0;
       break;
 
    case GDK_z:
@@ -3903,8 +3910,8 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
    GdkModifierType my_button2_mask = info.gdk_button2_mask();
    GdkModifierType my_button3_mask = info.gdk_button3_mask();
 
-   //cout << "mouse button " << event->button << " was pressed at ("
-   //<< event->x << "," << event->y << ")" << endl;
+//    std::cout << "debug:: mouse button " << event->button << " was pressed at ("
+// 	     << event->x << "," << event->y << ")" << std::endl;
 
    // cout << gtk_events_pending() << " events pending..." << endl;
 
@@ -4120,12 +4127,16 @@ gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
    if (info.control_is_pressed) {
       if (info.shift_is_pressed) {
 	 if (event->direction == GDK_SCROLL_UP)
-	    change_model_molecule_representation_mode(1); // up
+	    change_model_molecule_representation_mode(1);
 	 if (event->direction == GDK_SCROLL_DOWN)
-	    change_model_molecule_representation_mode(0); // up
+	    change_model_molecule_representation_mode(0);
 	 handled = 1;
-      }
-   }
+      } else {
+	 std::cout << "shift is not pressed" << std::endl;
+      } 
+   } else {
+      std::cout << "control is not pressed " << std::endl;
+   } 
 
    if (! handled) {
       if (event->direction == GDK_SCROLL_UP)
