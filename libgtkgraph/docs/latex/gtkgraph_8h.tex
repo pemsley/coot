@@ -1,0 +1,679 @@
+\hypertarget{gtkgraph_8h}{
+\section{gtkgraph.h File Reference}
+\label{gtkgraph_8h}\index{gtkgraph.h@{gtkgraph.h}}
+}
+
+
+The main header file for \hyperlink{struct_gtk_graph}{GtkGraph}.  
+
+
+{\ttfamily \#include $<$gdk/gdk.h$>$}\par
+{\ttfamily \#include $<$gtk/gtk.h$>$}\par
+\subsection*{Data Structures}
+\begin{DoxyCompactItemize}
+\item 
+struct \hyperlink{struct_gtk_graph_axis}{GtkGraphAxis}
+\item 
+struct \hyperlink{struct_gtk_graph_trace_format}{GtkGraphTraceFormat}
+\item 
+struct \hyperlink{struct_gtk_graph_polar_format}{GtkGraphPolarFormat}
+\item 
+struct \hyperlink{struct_gtk_graph}{GtkGraph}
+\end{DoxyCompactItemize}
+\subsection*{Defines}
+\begin{DoxyCompactItemize}
+\item 
+\#define \hyperlink{gtkgraph_8h_a0da19a76d185e02bc491cecd5a63d498}{GTK\_\-GRAPH}(obj)~GTK\_\-CHECK\_\-CAST (obj, gtk\_\-graph\_\-get\_\-type (), \hyperlink{struct_gtk_graph}{GtkGraph})
+\item 
+\#define \hyperlink{gtkgraph_8h_adadf3bc5b136a5098b6409cae207de79}{GTK\_\-IS\_\-GRAPH}(obj)~GTK\_\-CHECK\_\-TYPE (obj, gtk\_\-graph\_\-get\_\-type ())
+\end{DoxyCompactItemize}
+\subsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \hyperlink{gtkgraph_8h_a5209845787e901af39b7ba7ca45427e0}{GtkGraphType} \{ \par
+\hyperlink{gtkgraph_8h_a5209845787e901af39b7ba7ca45427e0a149dd0bcd1edf7546abcfb6bbb210973}{XY} =  1 $<$$<$ 0, 
+\par
+\hyperlink{gtkgraph_8h_a5209845787e901af39b7ba7ca45427e0a58b6e3f1d10d890c951b637812751db7}{POLAR} =  1 $<$$<$ 1, 
+\par
+\hyperlink{gtkgraph_8h_a5209845787e901af39b7ba7ca45427e0aa077f0c97957d77475561b98fcf8e209}{SMITH} =  1 $<$$<$ 2
+ \}
+\item 
+enum \hyperlink{gtkgraph_8h_abd03a2ad59e3618bd24a99fea229cafc}{GtkGraphAxisType} \{ \par
+\hyperlink{gtkgraph_8h_abd03a2ad59e3618bd24a99fea229cafcacfe62e89547880ccbfa1186ff827dc00}{GTK\_\-GRAPH\_\-AXIS\_\-INDEPENDANT} =  1 $<$$<$ 0, 
+\par
+\hyperlink{gtkgraph_8h_abd03a2ad59e3618bd24a99fea229cafca226ba222e1f49d63cf956e8d093d1427}{GTK\_\-GRAPH\_\-AXIS\_\-DEPENDANT} =  1 $<$$<$ 1
+ \}
+\item 
+enum \hyperlink{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0}{GtkGraphPolarType} \{ \par
+\hyperlink{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0a12b1b3a0f4becfa990fadc731919045c}{DEGREES\_\-SYMMETRIC} =  1 $<$$<$ 0, 
+\par
+\hyperlink{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0af76793a05dc98fa4946bf2d76fdbede0}{DEGREES\_\-ANTISYMMETRIC} =  1 $<$$<$ 1, 
+\par
+\hyperlink{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0a8e718237aa75539f25c9ae5c2d6204f7}{RADIANS\_\-SYMMETRIC} =  1 $<$$<$ 2, 
+\par
+\hyperlink{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0a2a7e53c8023754cbcc56374988ec2ce6}{RADIANS\_\-ANTISYMMETRIC} =  1 $<$$<$ 3
+ \}
+\item 
+enum \hyperlink{gtkgraph_8h_a949d46ae1ce4f633981a07efed118f43}{GtkGraphNumberFormat} \{ \par
+\hyperlink{gtkgraph_8h_a949d46ae1ce4f633981a07efed118f43a2d3ca4ad538a734d3259146ab06983ec}{FLOATING\_\-POINT} =  1 $<$$<$ 0, 
+\par
+\hyperlink{gtkgraph_8h_a949d46ae1ce4f633981a07efed118f43a30720becb6a4d1f81f8b68e5d9385215}{ENGINEERING} =  1 $<$$<$ 1, 
+\par
+\hyperlink{gtkgraph_8h_a949d46ae1ce4f633981a07efed118f43a1544c17db6960d0eeb1eacfd11b32696}{SCIENTIFIC} =  1 $<$$<$ 2
+ \}
+\item 
+enum \hyperlink{gtkgraph_8h_a3cb376278fad0073773dfe875bad991b}{GtkGraphCrossingType} \{ \par
+\hyperlink{gtkgraph_8h_a3cb376278fad0073773dfe875bad991ba01c11c1f36e52af6d7c6bdfdf4c4e334}{GTK\_\-GRAPH\_\-AXISMAX} =  1 $<$$<$ 0, 
+\par
+\hyperlink{gtkgraph_8h_a3cb376278fad0073773dfe875bad991ba47ff2a253aa1d0bc242cf6b0725edca7}{GTK\_\-GRAPH\_\-AXISMIN} =  1 $<$$<$ 1, 
+\par
+\hyperlink{gtkgraph_8h_a3cb376278fad0073773dfe875bad991ba308da6387059d0b1b43ce4d92a7d6094}{GTK\_\-GRAPH\_\-USERVALUE} =  1 $<$$<$ 2
+ \}
+\item 
+enum \hyperlink{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880}{GtkGraphMarkerType} \{ \par
+\hyperlink{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880ad7d3a08fe6ade9ffbee33d39a86b5092}{GTK\_\-GRAPH\_\-MARKER\_\-NONE} =  1 $<$$<$ 0, 
+\par
+\hyperlink{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a853a6565591f97483f078eabc0903b98}{GTK\_\-GRAPH\_\-MARKER\_\-SQUARE} =  1 $<$$<$ 1, 
+\par
+\hyperlink{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880aa450cc57fdcfdfce1d5dd2728a575b5c}{GTK\_\-GRAPH\_\-MARKER\_\-CIRCLE} =  1 $<$$<$ 2, 
+\par
+\hyperlink{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880ad13650e00b4dafd1e4c133e46cdf4b57}{GTK\_\-GRAPH\_\-MARKER\_\-DIAMOND} =  1 $<$$<$ 3, 
+\par
+\hyperlink{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a3b9f8d4ff2f13afa8fdadabe1fd95608}{GTK\_\-GRAPH\_\-MARKER\_\-TRIANGLE} =  1 $<$$<$ 4, 
+\par
+\hyperlink{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a748465bca064a98c03a60c02ade63515}{GTK\_\-GRAPH\_\-MARKER\_\-PLUS} =  1 $<$$<$ 5, 
+\par
+\hyperlink{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a6d141e534bea67a65721edecadc4c720}{GTK\_\-GRAPH\_\-MARKER\_\-CROSS} =  1 $<$$<$ 6, 
+\par
+\hyperlink{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a3355e48b259738097fee4888b48f4a5a}{GTK\_\-GRAPH\_\-MARKER\_\-STAR} =  1 $<$$<$ 7
+ \}
+\item 
+enum \hyperlink{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24}{GtkGraphLineType} \{ \par
+\hyperlink{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24a4a7fa3354f82a7ea74a59c5228241906}{NO\_\-LINE} =  1 $<$$<$ 0, 
+\par
+\hyperlink{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24ad4dc268a0069fcec89321aaacfc28656}{SOLID} =  1 $<$$<$ 1, 
+\par
+\hyperlink{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24aa5735a6ae8895085e4dac6146c9e5a04}{DASHED} =  1 $<$$<$ 2, 
+\par
+\hyperlink{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24a696c340c11803fe3227ed89630686888}{DASH\_\-DOT} =  1 $<$$<$ 3, 
+\par
+\hyperlink{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24a19e6f47ab83de2022455cfe25e62626d}{DOTTED} =  1 $<$$<$ 4, 
+\par
+\hyperlink{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24ad817cac5ec73a5aff92545242ff7c9a5}{LONG\_\-DASH} =  1 $<$$<$ 5
+ \}
+\item 
+enum \hyperlink{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777}{GtkGraphAnnotationType} \{ \par
+\hyperlink{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777ae8eab539a7d5d566fcc020c177947950}{VERTICAL} =  1 $<$$<$ 0, 
+\par
+\hyperlink{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777a8f11cb65b7c808151dd87745ebaef359}{HORIZONTAL} =  1 $<$$<$ 1, 
+\par
+\hyperlink{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777ac033230e7767356165cefb19c563a0cc}{RADIAL} =  1 $<$$<$ 2, 
+\par
+\hyperlink{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777ad0a14daf6c94841f911e175535bbbe3f}{AZIMUTHAL} =  1 $<$$<$ 3, 
+\par
+\hyperlink{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777a5c012f12349b872c7b5ce08b5eb45b9c}{VSWR} =  1 $<$$<$ 4, 
+\par
+\hyperlink{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777a082416c49db3d09f030b105a581d7951}{Q} =  1 $<$$<$ 5
+ \}
+\item 
+enum \hyperlink{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84}{GtkGraphPosition} \{ , \par
+\hyperlink{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84ac362e858a8971fe145cfc8dec3c3492a}{GTK\_\-GRAPH\_\-NORTH\_\-EAST} =  1 $<$$<$ 1, 
+\par
+\hyperlink{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84af8d5f66b37734614d1e9cbe09994ca86}{GTK\_\-GRAPH\_\-EAST} =  1 $<$$<$ 2, 
+\par
+\hyperlink{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84a01dd398c9e78e9379ff4fdd09a61fa29}{GTK\_\-GRAPH\_\-SOUTH\_\-EAST} =  1 $<$$<$ 3, 
+\par
+\hyperlink{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84a08f9f06ec26dbb79b0202be35fdb7065}{GTK\_\-GRAPH\_\-SOUTH} =  1 $<$$<$ 4, 
+\par
+\hyperlink{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84a1e010babcc13d8df45797e09523a0070}{GTK\_\-GRAPH\_\-SOUTH\_\-WEST} =  1 $<$$<$ 5, 
+\par
+\hyperlink{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84a7e615540ec937e381235d7469296170c}{GTK\_\-GRAPH\_\-WEST} =  1 $<$$<$ 6, 
+\par
+\hyperlink{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84aaa54203db232f8ae980b32057c440bec}{GTK\_\-GRAPH\_\-NORTH\_\-WEST} =  1 $<$$<$ 7
+ \}
+\end{DoxyCompactItemize}
+\subsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+GtkWidget $\ast$ \hyperlink{gtkgraph_8h_a40d33faffdf97ef054e6d12df02e0686}{gtk\_\-graph\_\-new} (\hyperlink{gtkgraph_8h_a5209845787e901af39b7ba7ca45427e0}{GtkGraphType} type)
+\item 
+void \hyperlink{gtkgraph_8h_ae3844c36b8c7e8c318f6c7b8efd794af}{gtk\_\-graph\_\-set\_\-title} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph, gchar $\ast$title, gchar $\ast$subtitle)
+\item 
+void \hyperlink{gtkgraph_8h_a5bcebb2a313b4c57a79bae9187670c0e}{gtk\_\-graph\_\-legend\_\-format} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph, gboolean is\_\-visible, \hyperlink{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84}{GtkGraphPosition} position)
+\item 
+gint \hyperlink{gtkgraph_8h_afd173ee00803547d769cf924e8331674}{gtk\_\-graph\_\-trace\_\-new} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph)
+\item 
+void \hyperlink{gtkgraph_8h_a56bdaf9c2c4612d33a57ca1af2e151c9}{gtk\_\-graph\_\-trace\_\-set\_\-data} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph, gint trace\_\-id, gfloat $\ast$xd, gfloat $\ast$yd, gint n)
+\item 
+void \hyperlink{gtkgraph_8h_a0006dc30b139c49bfe454eee512c0754}{gtk\_\-graph\_\-trace\_\-format\_\-line} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph, gint trace\_\-id, \hyperlink{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24}{GtkGraphLineType} type, gint width, GdkColor $\ast$line\_\-color, gboolean visible)
+\item 
+void \hyperlink{gtkgraph_8h_a6d76b02b2e2db42af55cd3dd8a3df357}{gtk\_\-graph\_\-trace\_\-format\_\-marker} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph, gint trace\_\-id, \hyperlink{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880}{GtkGraphMarkerType} type, gint marker\_\-size, GdkColor $\ast$fg, GdkColor $\ast$bg, gboolean is\_\-filled)
+\item 
+void \hyperlink{gtkgraph_8h_ad81fd5d72e63d30a708d05707a657996}{gtk\_\-graph\_\-trace\_\-format\_\-title} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph, gint trace\_\-id, gchar $\ast$legend\_\-text)
+\item 
+void \hyperlink{gtkgraph_8h_af496e4f1eeb700326be471f23cfbae39}{gtk\_\-graph\_\-axis\_\-set\_\-limits} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph, \hyperlink{gtkgraph_8h_abd03a2ad59e3618bd24a99fea229cafc}{GtkGraphAxisType} axis, gfloat max, gfloat min)
+\item 
+void \hyperlink{gtkgraph_8h_a349339d011d0b7df44a52231764b5baa}{gtk\_\-graph\_\-axis\_\-set\_\-tick} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph, \hyperlink{gtkgraph_8h_abd03a2ad59e3618bd24a99fea229cafc}{GtkGraphAxisType} axis, gfloat majtick, gfloat mintick)
+\item 
+void \hyperlink{gtkgraph_8h_a35458ae0311500eac317eb9c525d0b18}{gtk\_\-graph\_\-axis\_\-format} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph, \hyperlink{gtkgraph_8h_abd03a2ad59e3618bd24a99fea229cafc}{GtkGraphAxisType} axis, \hyperlink{gtkgraph_8h_a949d46ae1ce4f633981a07efed118f43}{GtkGraphNumberFormat} number\_\-format, gint precision, gchar $\ast$title)
+\item 
+void \hyperlink{gtkgraph_8h_ac6472ddc01480db45cc28c1e6b525a6a}{gtk\_\-graph\_\-axis\_\-set\_\-crossing} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph, \hyperlink{gtkgraph_8h_abd03a2ad59e3618bd24a99fea229cafc}{GtkGraphAxisType} axis, \hyperlink{gtkgraph_8h_a3cb376278fad0073773dfe875bad991b}{GtkGraphCrossingType} type, gfloat value)
+\item 
+void \hyperlink{gtkgraph_8h_ab4e5de677d315a0f2a1a469ec1ebdf8b}{gtk\_\-graph\_\-axis\_\-format\_\-grid} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph, \hyperlink{gtkgraph_8h_abd03a2ad59e3618bd24a99fea229cafc}{GtkGraphAxisType} axis, gboolean visible)
+\item 
+gint \hyperlink{gtkgraph_8h_a9ae9cf6641e4571685d3be9b07989bad}{gtk\_\-graph\_\-annotation\_\-new} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph)
+\item 
+void \hyperlink{gtkgraph_8h_a2852248fc89a7b4d8df476663c48cefb}{gtk\_\-graph\_\-annotation\_\-set\_\-data} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph, gint annotation\_\-id, \hyperlink{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777}{GtkGraphAnnotationType} type, gfloat value, gchar $\ast$text)
+\item 
+void \hyperlink{gtkgraph_8h_af0f641802393c6a19f247581726840d9}{gtk\_\-graph\_\-set\_\-polar\_\-format} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph, \hyperlink{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0}{GtkGraphPolarType} type, gfloat polar\_\-start)
+\item 
+void \hyperlink{gtkgraph_8h_a5fabadd1b264a182bc2b4afb8281d376}{gtk\_\-graph\_\-smith\_\-set\_\-Z0} (\hyperlink{struct_gtk_graph}{GtkGraph} $\ast$graph, gfloat Z0)
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+
+
+\subsection{Define Documentation}
+\hypertarget{gtkgraph_8h_a0da19a76d185e02bc491cecd5a63d498}{
+\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH@{GTK\_\-GRAPH}}
+\index{GTK\_\-GRAPH@{GTK\_\-GRAPH}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{GTK\_\-GRAPH}]{\setlength{\rightskip}{0pt plus 5cm}\#define GTK\_\-GRAPH(obj)~GTK\_\-CHECK\_\-CAST (obj, gtk\_\-graph\_\-get\_\-type (), {\bf GtkGraph})}}
+\label{gtkgraph_8h_a0da19a76d185e02bc491cecd5a63d498}
+Cast the object to a \hyperlink{struct_gtk_graph}{GtkGraph} \hypertarget{gtkgraph_8h_adadf3bc5b136a5098b6409cae207de79}{
+\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-IS\_\-GRAPH@{GTK\_\-IS\_\-GRAPH}}
+\index{GTK\_\-IS\_\-GRAPH@{GTK\_\-IS\_\-GRAPH}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{GTK\_\-IS\_\-GRAPH}]{\setlength{\rightskip}{0pt plus 5cm}\#define GTK\_\-IS\_\-GRAPH(obj)~GTK\_\-CHECK\_\-TYPE (obj, gtk\_\-graph\_\-get\_\-type ())}}
+\label{gtkgraph_8h_adadf3bc5b136a5098b6409cae207de79}
+Query whether the object is a \hyperlink{struct_gtk_graph}{GtkGraph} 
+
+\subsection{Enumeration Type Documentation}
+\hypertarget{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777}{
+\index{gtkgraph.h@{gtkgraph.h}!GtkGraphAnnotationType@{GtkGraphAnnotationType}}
+\index{GtkGraphAnnotationType@{GtkGraphAnnotationType}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{GtkGraphAnnotationType}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf GtkGraphAnnotationType}}}
+\label{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777}
+Enumerated type to specify the nature of any annotations drawn on a graph \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{VERTICAL@{VERTICAL}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!VERTICAL@{VERTICAL}}\item[{\em 
+\hypertarget{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777ae8eab539a7d5d566fcc020c177947950}{
+VERTICAL}
+\label{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777ae8eab539a7d5d566fcc020c177947950}
+}]Applies to XY Graphs: a Vertical Annotation line \index{HORIZONTAL@{HORIZONTAL}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!HORIZONTAL@{HORIZONTAL}}\item[{\em 
+\hypertarget{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777a8f11cb65b7c808151dd87745ebaef359}{
+HORIZONTAL}
+\label{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777a8f11cb65b7c808151dd87745ebaef359}
+}]Applies to XY Graphs: a Horizontal Annotation line \index{RADIAL@{RADIAL}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!RADIAL@{RADIAL}}\item[{\em 
+\hypertarget{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777ac033230e7767356165cefb19c563a0cc}{
+RADIAL}
+\label{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777ac033230e7767356165cefb19c563a0cc}
+}]Applies to Polar Plots: an Annotation line from the centre to the edge \index{AZIMUTHAL@{AZIMUTHAL}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!AZIMUTHAL@{AZIMUTHAL}}\item[{\em 
+\hypertarget{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777ad0a14daf6c94841f911e175535bbbe3f}{
+AZIMUTHAL}
+\label{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777ad0a14daf6c94841f911e175535bbbe3f}
+}]Applies to Polar Plots: a Circular annotation line \index{VSWR@{VSWR}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!VSWR@{VSWR}}\item[{\em 
+\hypertarget{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777a5c012f12349b872c7b5ce08b5eb45b9c}{
+VSWR}
+\label{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777a5c012f12349b872c7b5ce08b5eb45b9c}
+}]Applies to Smith Charts: A Line of constant VSWR \index{Q@{Q}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!Q@{Q}}\item[{\em 
+\hypertarget{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777a082416c49db3d09f030b105a581d7951}{
+Q}
+\label{gtkgraph_8h_a78e491c34344b2ee4cd82baefa598777a082416c49db3d09f030b105a581d7951}
+}]Applies to Smith Charts: A Line of constant Q \end{description}
+\end{Desc}
+
+\hypertarget{gtkgraph_8h_abd03a2ad59e3618bd24a99fea229cafc}{
+\index{gtkgraph.h@{gtkgraph.h}!GtkGraphAxisType@{GtkGraphAxisType}}
+\index{GtkGraphAxisType@{GtkGraphAxisType}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{GtkGraphAxisType}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf GtkGraphAxisType}}}
+\label{gtkgraph_8h_abd03a2ad59e3618bd24a99fea229cafc}
+Enumerated type to specify which axis changes apply to \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{GTK\_\-GRAPH\_\-AXIS\_\-INDEPENDANT@{GTK\_\-GRAPH\_\-AXIS\_\-INDEPENDANT}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-AXIS\_\-INDEPENDANT@{GTK\_\-GRAPH\_\-AXIS\_\-INDEPENDANT}}\item[{\em 
+\hypertarget{gtkgraph_8h_abd03a2ad59e3618bd24a99fea229cafcacfe62e89547880ccbfa1186ff827dc00}{
+GTK\_\-GRAPH\_\-AXIS\_\-INDEPENDANT}
+\label{gtkgraph_8h_abd03a2ad59e3618bd24a99fea229cafcacfe62e89547880ccbfa1186ff827dc00}
+}]The independant axis of the graph; for XY graphs this is the X-\/axis, for POLAR graphs this is the angle \index{GTK\_\-GRAPH\_\-AXIS\_\-DEPENDANT@{GTK\_\-GRAPH\_\-AXIS\_\-DEPENDANT}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-AXIS\_\-DEPENDANT@{GTK\_\-GRAPH\_\-AXIS\_\-DEPENDANT}}\item[{\em 
+\hypertarget{gtkgraph_8h_abd03a2ad59e3618bd24a99fea229cafca226ba222e1f49d63cf956e8d093d1427}{
+GTK\_\-GRAPH\_\-AXIS\_\-DEPENDANT}
+\label{gtkgraph_8h_abd03a2ad59e3618bd24a99fea229cafca226ba222e1f49d63cf956e8d093d1427}
+}]The dependant axis of the graph; for XY graphs this is the Y-\/axis, for POLAR graphs this is the radial distance \end{description}
+\end{Desc}
+
+\hypertarget{gtkgraph_8h_a3cb376278fad0073773dfe875bad991b}{
+\index{gtkgraph.h@{gtkgraph.h}!GtkGraphCrossingType@{GtkGraphCrossingType}}
+\index{GtkGraphCrossingType@{GtkGraphCrossingType}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{GtkGraphCrossingType}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf GtkGraphCrossingType}}}
+\label{gtkgraph_8h_a3cb376278fad0073773dfe875bad991b}
+Enumerated type to specify where one axis should cross the other on an XY graph \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{GTK\_\-GRAPH\_\-AXISMAX@{GTK\_\-GRAPH\_\-AXISMAX}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-AXISMAX@{GTK\_\-GRAPH\_\-AXISMAX}}\item[{\em 
+\hypertarget{gtkgraph_8h_a3cb376278fad0073773dfe875bad991ba01c11c1f36e52af6d7c6bdfdf4c4e334}{
+GTK\_\-GRAPH\_\-AXISMAX}
+\label{gtkgraph_8h_a3cb376278fad0073773dfe875bad991ba01c11c1f36e52af6d7c6bdfdf4c4e334}
+}]The other axis should cross at the minumum value of this axis \index{GTK\_\-GRAPH\_\-AXISMIN@{GTK\_\-GRAPH\_\-AXISMIN}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-AXISMIN@{GTK\_\-GRAPH\_\-AXISMIN}}\item[{\em 
+\hypertarget{gtkgraph_8h_a3cb376278fad0073773dfe875bad991ba47ff2a253aa1d0bc242cf6b0725edca7}{
+GTK\_\-GRAPH\_\-AXISMIN}
+\label{gtkgraph_8h_a3cb376278fad0073773dfe875bad991ba47ff2a253aa1d0bc242cf6b0725edca7}
+}]The other axis should cross at the maximum value of this axis \index{GTK\_\-GRAPH\_\-USERVALUE@{GTK\_\-GRAPH\_\-USERVALUE}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-USERVALUE@{GTK\_\-GRAPH\_\-USERVALUE}}\item[{\em 
+\hypertarget{gtkgraph_8h_a3cb376278fad0073773dfe875bad991ba308da6387059d0b1b43ce4d92a7d6094}{
+GTK\_\-GRAPH\_\-USERVALUE}
+\label{gtkgraph_8h_a3cb376278fad0073773dfe875bad991ba308da6387059d0b1b43ce4d92a7d6094}
+}]The other axis should cross at a user specified value on this axis \end{description}
+\end{Desc}
+
+\hypertarget{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24}{
+\index{gtkgraph.h@{gtkgraph.h}!GtkGraphLineType@{GtkGraphLineType}}
+\index{GtkGraphLineType@{GtkGraphLineType}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{GtkGraphLineType}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf GtkGraphLineType}}}
+\label{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24}
+Enumerated type to specify which line should be used to draw a trace \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{NO\_\-LINE@{NO\_\-LINE}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!NO\_\-LINE@{NO\_\-LINE}}\item[{\em 
+\hypertarget{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24a4a7fa3354f82a7ea74a59c5228241906}{
+NO\_\-LINE}
+\label{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24a4a7fa3354f82a7ea74a59c5228241906}
+}]No line \index{SOLID@{SOLID}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!SOLID@{SOLID}}\item[{\em 
+\hypertarget{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24ad4dc268a0069fcec89321aaacfc28656}{
+SOLID}
+\label{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24ad4dc268a0069fcec89321aaacfc28656}
+}]Solid line \index{DASHED@{DASHED}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!DASHED@{DASHED}}\item[{\em 
+\hypertarget{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24aa5735a6ae8895085e4dac6146c9e5a04}{
+DASHED}
+\label{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24aa5735a6ae8895085e4dac6146c9e5a04}
+}]Dashed line \index{DASH\_\-DOT@{DASH\_\-DOT}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!DASH\_\-DOT@{DASH\_\-DOT}}\item[{\em 
+\hypertarget{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24a696c340c11803fe3227ed89630686888}{
+DASH\_\-DOT}
+\label{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24a696c340c11803fe3227ed89630686888}
+}]Alternate dash-\/dot line \index{DOTTED@{DOTTED}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!DOTTED@{DOTTED}}\item[{\em 
+\hypertarget{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24a19e6f47ab83de2022455cfe25e62626d}{
+DOTTED}
+\label{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24a19e6f47ab83de2022455cfe25e62626d}
+}]Dotted line \index{LONG\_\-DASH@{LONG\_\-DASH}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!LONG\_\-DASH@{LONG\_\-DASH}}\item[{\em 
+\hypertarget{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24ad817cac5ec73a5aff92545242ff7c9a5}{
+LONG\_\-DASH}
+\label{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24ad817cac5ec73a5aff92545242ff7c9a5}
+}]Long Dashed line \end{description}
+\end{Desc}
+
+\hypertarget{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880}{
+\index{gtkgraph.h@{gtkgraph.h}!GtkGraphMarkerType@{GtkGraphMarkerType}}
+\index{GtkGraphMarkerType@{GtkGraphMarkerType}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{GtkGraphMarkerType}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf GtkGraphMarkerType}}}
+\label{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880}
+Enumerated type to specify which markers should be used to identify data points on a trace \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{GTK\_\-GRAPH\_\-MARKER\_\-NONE@{GTK\_\-GRAPH\_\-MARKER\_\-NONE}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-MARKER\_\-NONE@{GTK\_\-GRAPH\_\-MARKER\_\-NONE}}\item[{\em 
+\hypertarget{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880ad7d3a08fe6ade9ffbee33d39a86b5092}{
+GTK\_\-GRAPH\_\-MARKER\_\-NONE}
+\label{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880ad7d3a08fe6ade9ffbee33d39a86b5092}
+}]No marker \index{GTK\_\-GRAPH\_\-MARKER\_\-SQUARE@{GTK\_\-GRAPH\_\-MARKER\_\-SQUARE}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-MARKER\_\-SQUARE@{GTK\_\-GRAPH\_\-MARKER\_\-SQUARE}}\item[{\em 
+\hypertarget{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a853a6565591f97483f078eabc0903b98}{
+GTK\_\-GRAPH\_\-MARKER\_\-SQUARE}
+\label{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a853a6565591f97483f078eabc0903b98}
+}]A Square \index{GTK\_\-GRAPH\_\-MARKER\_\-CIRCLE@{GTK\_\-GRAPH\_\-MARKER\_\-CIRCLE}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-MARKER\_\-CIRCLE@{GTK\_\-GRAPH\_\-MARKER\_\-CIRCLE}}\item[{\em 
+\hypertarget{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880aa450cc57fdcfdfce1d5dd2728a575b5c}{
+GTK\_\-GRAPH\_\-MARKER\_\-CIRCLE}
+\label{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880aa450cc57fdcfdfce1d5dd2728a575b5c}
+}]A Circle \index{GTK\_\-GRAPH\_\-MARKER\_\-DIAMOND@{GTK\_\-GRAPH\_\-MARKER\_\-DIAMOND}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-MARKER\_\-DIAMOND@{GTK\_\-GRAPH\_\-MARKER\_\-DIAMOND}}\item[{\em 
+\hypertarget{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880ad13650e00b4dafd1e4c133e46cdf4b57}{
+GTK\_\-GRAPH\_\-MARKER\_\-DIAMOND}
+\label{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880ad13650e00b4dafd1e4c133e46cdf4b57}
+}]A Diamond \index{GTK\_\-GRAPH\_\-MARKER\_\-TRIANGLE@{GTK\_\-GRAPH\_\-MARKER\_\-TRIANGLE}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-MARKER\_\-TRIANGLE@{GTK\_\-GRAPH\_\-MARKER\_\-TRIANGLE}}\item[{\em 
+\hypertarget{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a3b9f8d4ff2f13afa8fdadabe1fd95608}{
+GTK\_\-GRAPH\_\-MARKER\_\-TRIANGLE}
+\label{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a3b9f8d4ff2f13afa8fdadabe1fd95608}
+}]A Triangle \index{GTK\_\-GRAPH\_\-MARKER\_\-PLUS@{GTK\_\-GRAPH\_\-MARKER\_\-PLUS}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-MARKER\_\-PLUS@{GTK\_\-GRAPH\_\-MARKER\_\-PLUS}}\item[{\em 
+\hypertarget{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a748465bca064a98c03a60c02ade63515}{
+GTK\_\-GRAPH\_\-MARKER\_\-PLUS}
+\label{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a748465bca064a98c03a60c02ade63515}
+}]A Plus (+) \index{GTK\_\-GRAPH\_\-MARKER\_\-CROSS@{GTK\_\-GRAPH\_\-MARKER\_\-CROSS}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-MARKER\_\-CROSS@{GTK\_\-GRAPH\_\-MARKER\_\-CROSS}}\item[{\em 
+\hypertarget{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a6d141e534bea67a65721edecadc4c720}{
+GTK\_\-GRAPH\_\-MARKER\_\-CROSS}
+\label{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a6d141e534bea67a65721edecadc4c720}
+}]A Cross (X) \index{GTK\_\-GRAPH\_\-MARKER\_\-STAR@{GTK\_\-GRAPH\_\-MARKER\_\-STAR}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-MARKER\_\-STAR@{GTK\_\-GRAPH\_\-MARKER\_\-STAR}}\item[{\em 
+\hypertarget{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a3355e48b259738097fee4888b48f4a5a}{
+GTK\_\-GRAPH\_\-MARKER\_\-STAR}
+\label{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880a3355e48b259738097fee4888b48f4a5a}
+}]A Star ($\ast$) \end{description}
+\end{Desc}
+
+\hypertarget{gtkgraph_8h_a949d46ae1ce4f633981a07efed118f43}{
+\index{gtkgraph.h@{gtkgraph.h}!GtkGraphNumberFormat@{GtkGraphNumberFormat}}
+\index{GtkGraphNumberFormat@{GtkGraphNumberFormat}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{GtkGraphNumberFormat}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf GtkGraphNumberFormat}}}
+\label{gtkgraph_8h_a949d46ae1ce4f633981a07efed118f43}
+Enumerated type to specify how numbers should be displayed \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{FLOATING\_\-POINT@{FLOATING\_\-POINT}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!FLOATING\_\-POINT@{FLOATING\_\-POINT}}\item[{\em 
+\hypertarget{gtkgraph_8h_a949d46ae1ce4f633981a07efed118f43a2d3ca4ad538a734d3259146ab06983ec}{
+FLOATING\_\-POINT}
+\label{gtkgraph_8h_a949d46ae1ce4f633981a07efed118f43a2d3ca4ad538a734d3259146ab06983ec}
+}]Standard Floating point \index{ENGINEERING@{ENGINEERING}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!ENGINEERING@{ENGINEERING}}\item[{\em 
+\hypertarget{gtkgraph_8h_a949d46ae1ce4f633981a07efed118f43a30720becb6a4d1f81f8b68e5d9385215}{
+ENGINEERING}
+\label{gtkgraph_8h_a949d46ae1ce4f633981a07efed118f43a30720becb6a4d1f81f8b68e5d9385215}
+}]Engineering notation (i.e. 1.2E+3) but with exponent always as powers of 3 \index{SCIENTIFIC@{SCIENTIFIC}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!SCIENTIFIC@{SCIENTIFIC}}\item[{\em 
+\hypertarget{gtkgraph_8h_a949d46ae1ce4f633981a07efed118f43a1544c17db6960d0eeb1eacfd11b32696}{
+SCIENTIFIC}
+\label{gtkgraph_8h_a949d46ae1ce4f633981a07efed118f43a1544c17db6960d0eeb1eacfd11b32696}
+}]Scientific notation (i.e. 2.7E+4) but with exponent taking any integer value \end{description}
+\end{Desc}
+
+\hypertarget{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0}{
+\index{gtkgraph.h@{gtkgraph.h}!GtkGraphPolarType@{GtkGraphPolarType}}
+\index{GtkGraphPolarType@{GtkGraphPolarType}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{GtkGraphPolarType}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf GtkGraphPolarType}}}
+\label{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0}
+Enumerated type to specify radial range of POLAR Graphs \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{DEGREES\_\-SYMMETRIC@{DEGREES\_\-SYMMETRIC}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!DEGREES\_\-SYMMETRIC@{DEGREES\_\-SYMMETRIC}}\item[{\em 
+\hypertarget{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0a12b1b3a0f4becfa990fadc731919045c}{
+DEGREES\_\-SYMMETRIC}
+\label{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0a12b1b3a0f4becfa990fadc731919045c}
+}]Angle measured in degrees from -\/180 to 180 \index{DEGREES\_\-ANTISYMMETRIC@{DEGREES\_\-ANTISYMMETRIC}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!DEGREES\_\-ANTISYMMETRIC@{DEGREES\_\-ANTISYMMETRIC}}\item[{\em 
+\hypertarget{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0af76793a05dc98fa4946bf2d76fdbede0}{
+DEGREES\_\-ANTISYMMETRIC}
+\label{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0af76793a05dc98fa4946bf2d76fdbede0}
+}]Angle measured in degrees from 0 to 360 \index{RADIANS\_\-SYMMETRIC@{RADIANS\_\-SYMMETRIC}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!RADIANS\_\-SYMMETRIC@{RADIANS\_\-SYMMETRIC}}\item[{\em 
+\hypertarget{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0a8e718237aa75539f25c9ae5c2d6204f7}{
+RADIANS\_\-SYMMETRIC}
+\label{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0a8e718237aa75539f25c9ae5c2d6204f7}
+}]Angle measured in radians from -\/PI to PI \index{RADIANS\_\-ANTISYMMETRIC@{RADIANS\_\-ANTISYMMETRIC}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!RADIANS\_\-ANTISYMMETRIC@{RADIANS\_\-ANTISYMMETRIC}}\item[{\em 
+\hypertarget{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0a2a7e53c8023754cbcc56374988ec2ce6}{
+RADIANS\_\-ANTISYMMETRIC}
+\label{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0a2a7e53c8023754cbcc56374988ec2ce6}
+}]Angle measured in radians from 0 to 2 PI \end{description}
+\end{Desc}
+
+\hypertarget{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84}{
+\index{gtkgraph.h@{gtkgraph.h}!GtkGraphPosition@{GtkGraphPosition}}
+\index{GtkGraphPosition@{GtkGraphPosition}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{GtkGraphPosition}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf GtkGraphPosition}}}
+\label{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84}
+Enumerated type to specify legend positions on a graph \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{GTK\_\-GRAPH\_\-NORTH\_\-EAST@{GTK\_\-GRAPH\_\-NORTH\_\-EAST}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-NORTH\_\-EAST@{GTK\_\-GRAPH\_\-NORTH\_\-EAST}}\item[{\em 
+\hypertarget{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84ac362e858a8971fe145cfc8dec3c3492a}{
+GTK\_\-GRAPH\_\-NORTH\_\-EAST}
+\label{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84ac362e858a8971fe145cfc8dec3c3492a}
+}]Top Edge Centred Horizontally \index{GTK\_\-GRAPH\_\-EAST@{GTK\_\-GRAPH\_\-EAST}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-EAST@{GTK\_\-GRAPH\_\-EAST}}\item[{\em 
+\hypertarget{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84af8d5f66b37734614d1e9cbe09994ca86}{
+GTK\_\-GRAPH\_\-EAST}
+\label{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84af8d5f66b37734614d1e9cbe09994ca86}
+}]Top Right Corner \index{GTK\_\-GRAPH\_\-SOUTH\_\-EAST@{GTK\_\-GRAPH\_\-SOUTH\_\-EAST}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-SOUTH\_\-EAST@{GTK\_\-GRAPH\_\-SOUTH\_\-EAST}}\item[{\em 
+\hypertarget{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84a01dd398c9e78e9379ff4fdd09a61fa29}{
+GTK\_\-GRAPH\_\-SOUTH\_\-EAST}
+\label{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84a01dd398c9e78e9379ff4fdd09a61fa29}
+}]Left Edge Centred Vertically \index{GTK\_\-GRAPH\_\-SOUTH@{GTK\_\-GRAPH\_\-SOUTH}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-SOUTH@{GTK\_\-GRAPH\_\-SOUTH}}\item[{\em 
+\hypertarget{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84a08f9f06ec26dbb79b0202be35fdb7065}{
+GTK\_\-GRAPH\_\-SOUTH}
+\label{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84a08f9f06ec26dbb79b0202be35fdb7065}
+}]Bottom Right Corner \index{GTK\_\-GRAPH\_\-SOUTH\_\-WEST@{GTK\_\-GRAPH\_\-SOUTH\_\-WEST}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-SOUTH\_\-WEST@{GTK\_\-GRAPH\_\-SOUTH\_\-WEST}}\item[{\em 
+\hypertarget{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84a1e010babcc13d8df45797e09523a0070}{
+GTK\_\-GRAPH\_\-SOUTH\_\-WEST}
+\label{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84a1e010babcc13d8df45797e09523a0070}
+}]Bottom Edge Centred Horizontally \index{GTK\_\-GRAPH\_\-WEST@{GTK\_\-GRAPH\_\-WEST}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-WEST@{GTK\_\-GRAPH\_\-WEST}}\item[{\em 
+\hypertarget{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84a7e615540ec937e381235d7469296170c}{
+GTK\_\-GRAPH\_\-WEST}
+\label{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84a7e615540ec937e381235d7469296170c}
+}]Bottom Left Corner \index{GTK\_\-GRAPH\_\-NORTH\_\-WEST@{GTK\_\-GRAPH\_\-NORTH\_\-WEST}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!GTK\_\-GRAPH\_\-NORTH\_\-WEST@{GTK\_\-GRAPH\_\-NORTH\_\-WEST}}\item[{\em 
+\hypertarget{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84aaa54203db232f8ae980b32057c440bec}{
+GTK\_\-GRAPH\_\-NORTH\_\-WEST}
+\label{gtkgraph_8h_a15cbe066ec8be17ca9f036c3d4899a84aaa54203db232f8ae980b32057c440bec}
+}]Right Edge Centred Vertically \end{description}
+\end{Desc}
+
+\hypertarget{gtkgraph_8h_a5209845787e901af39b7ba7ca45427e0}{
+\index{gtkgraph.h@{gtkgraph.h}!GtkGraphType@{GtkGraphType}}
+\index{GtkGraphType@{GtkGraphType}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{GtkGraphType}]{\setlength{\rightskip}{0pt plus 5cm}enum {\bf GtkGraphType}}}
+\label{gtkgraph_8h_a5209845787e901af39b7ba7ca45427e0}
+Enumerated type to specify which type of graph is required \begin{Desc}
+\item[Enumerator: ]\par
+\begin{description}
+\index{XY@{XY}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!XY@{XY}}\item[{\em 
+\hypertarget{gtkgraph_8h_a5209845787e901af39b7ba7ca45427e0a149dd0bcd1edf7546abcfb6bbb210973}{
+XY}
+\label{gtkgraph_8h_a5209845787e901af39b7ba7ca45427e0a149dd0bcd1edf7546abcfb6bbb210973}
+}]An XY (Scatter) graph \index{POLAR@{POLAR}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!POLAR@{POLAR}}\item[{\em 
+\hypertarget{gtkgraph_8h_a5209845787e901af39b7ba7ca45427e0a58b6e3f1d10d890c951b637812751db7}{
+POLAR}
+\label{gtkgraph_8h_a5209845787e901af39b7ba7ca45427e0a58b6e3f1d10d890c951b637812751db7}
+}]A Polar plot \index{SMITH@{SMITH}!gtkgraph.h@{gtkgraph.h}}\index{gtkgraph.h@{gtkgraph.h}!SMITH@{SMITH}}\item[{\em 
+\hypertarget{gtkgraph_8h_a5209845787e901af39b7ba7ca45427e0aa077f0c97957d77475561b98fcf8e209}{
+SMITH}
+\label{gtkgraph_8h_a5209845787e901af39b7ba7ca45427e0aa077f0c97957d77475561b98fcf8e209}
+}]A Smith's Chart \end{description}
+\end{Desc}
+
+
+
+\subsection{Function Documentation}
+\hypertarget{gtkgraph_8h_a9ae9cf6641e4571685d3be9b07989bad}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-annotation\_\-new@{gtk\_\-graph\_\-annotation\_\-new}}
+\index{gtk\_\-graph\_\-annotation\_\-new@{gtk\_\-graph\_\-annotation\_\-new}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-annotation\_\-new}]{\setlength{\rightskip}{0pt plus 5cm}gint gtk\_\-graph\_\-annotation\_\-new ({\bf GtkGraph} $\ast$ {\em graph})}}
+\label{gtkgraph_8h_a9ae9cf6641e4571685d3be9b07989bad}
+
+
+Adds an annotation to a pre-\/existing \hyperlink{struct_gtk_graph}{GtkGraph} graph. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]The \hyperlink{struct_gtk_graph}{GtkGraph} that you wish to add the annotation to \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+an unique integer identifying the new annotation. 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+The identifier returned by this function must be stored by the user if you wish to alter the properties of the annotation 
+\end{DoxyNote}
+\hypertarget{gtkgraph_8h_a2852248fc89a7b4d8df476663c48cefb}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-annotation\_\-set\_\-data@{gtk\_\-graph\_\-annotation\_\-set\_\-data}}
+\index{gtk\_\-graph\_\-annotation\_\-set\_\-data@{gtk\_\-graph\_\-annotation\_\-set\_\-data}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-annotation\_\-set\_\-data}]{\setlength{\rightskip}{0pt plus 5cm}void gtk\_\-graph\_\-annotation\_\-set\_\-data ({\bf GtkGraph} $\ast$ {\em graph}, \/  gint {\em annotation\_\-id}, \/  {\bf GtkGraphAnnotationType} {\em type}, \/  gfloat {\em value}, \/  gchar $\ast$ {\em text})}}
+\label{gtkgraph_8h_a2852248fc89a7b4d8df476663c48cefb}
+
+
+Determines where and what type of annotation should be displayed. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} that contains the annotation you wish to modify \item[{\em annotation\_\-id}]the unique integer ID returned by \hyperlink{gtkgraph_8h_a9ae9cf6641e4571685d3be9b07989bad}{gtk\_\-graph\_\-annotation\_\-new()} \item[{\em type}]the type of annotation to display \item[{\em value}]value at which to display the annotation \item[{\em text}]any text that you want displayed next to the annotation \end{DoxyParams}
+\hypertarget{gtkgraph_8h_a35458ae0311500eac317eb9c525d0b18}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-axis\_\-format@{gtk\_\-graph\_\-axis\_\-format}}
+\index{gtk\_\-graph\_\-axis\_\-format@{gtk\_\-graph\_\-axis\_\-format}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-axis\_\-format}]{\setlength{\rightskip}{0pt plus 5cm}void gtk\_\-graph\_\-axis\_\-format ({\bf GtkGraph} $\ast$ {\em graph}, \/  {\bf GtkGraphAxisType} {\em axis}, \/  {\bf GtkGraphNumberFormat} {\em number\_\-format}, \/  gint {\em precision}, \/  gchar $\ast$ {\em title})}}
+\label{gtkgraph_8h_a35458ae0311500eac317eb9c525d0b18}
+
+
+set the format of numerical and axis labels for one axis of a graph 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} that contains the axis being modified \item[{\em axis}]the axis being modified \item[{\em number\_\-format}]the format of numerical labels \item[{\em precision}]the number of decimal points to which numerical values should be displayed \item[{\em title}]a string containg the title to be displayed against that axis \end{DoxyParams}
+\hypertarget{gtkgraph_8h_ab4e5de677d315a0f2a1a469ec1ebdf8b}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-axis\_\-format\_\-grid@{gtk\_\-graph\_\-axis\_\-format\_\-grid}}
+\index{gtk\_\-graph\_\-axis\_\-format\_\-grid@{gtk\_\-graph\_\-axis\_\-format\_\-grid}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-axis\_\-format\_\-grid}]{\setlength{\rightskip}{0pt plus 5cm}void gtk\_\-graph\_\-axis\_\-format\_\-grid ({\bf GtkGraph} $\ast$ {\em graph}, \/  {\bf GtkGraphAxisType} {\em axis}, \/  gboolean {\em visible})}}
+\label{gtkgraph_8h_ab4e5de677d315a0f2a1a469ec1ebdf8b}
+
+
+specifies whether grid lines should extend outwards from the axis 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} that contains the axis being modified \item[{\em axis}]the axis being modified \item[{\em visible}]whether grid lines are visible for this axis or not \end{DoxyParams}
+\hypertarget{gtkgraph_8h_ac6472ddc01480db45cc28c1e6b525a6a}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-axis\_\-set\_\-crossing@{gtk\_\-graph\_\-axis\_\-set\_\-crossing}}
+\index{gtk\_\-graph\_\-axis\_\-set\_\-crossing@{gtk\_\-graph\_\-axis\_\-set\_\-crossing}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-axis\_\-set\_\-crossing}]{\setlength{\rightskip}{0pt plus 5cm}void gtk\_\-graph\_\-axis\_\-set\_\-crossing ({\bf GtkGraph} $\ast$ {\em graph}, \/  {\bf GtkGraphAxisType} {\em axis}, \/  {\bf GtkGraphCrossingType} {\em type}, \/  gfloat {\em value})}}
+\label{gtkgraph_8h_ac6472ddc01480db45cc28c1e6b525a6a}
+
+
+specifies how one axis should cross another on an XY graph 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} that contains the axis being modified \item[{\em axis}]the axis being modified \item[{\em type}]the \hyperlink{gtkgraph_8h_a3cb376278fad0073773dfe875bad991b}{GtkGraphCrossingType} specifying where the other axis should cross the axis currently being modified \item[{\em value}]if type was set to \hyperlink{gtkgraph_8h_a3cb376278fad0073773dfe875bad991ba308da6387059d0b1b43ce4d92a7d6094}{GTK\_\-GRAPH\_\-USERVALUE} this holds the value that the axis should cross at \end{DoxyParams}
+\hypertarget{gtkgraph_8h_af496e4f1eeb700326be471f23cfbae39}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-axis\_\-set\_\-limits@{gtk\_\-graph\_\-axis\_\-set\_\-limits}}
+\index{gtk\_\-graph\_\-axis\_\-set\_\-limits@{gtk\_\-graph\_\-axis\_\-set\_\-limits}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-axis\_\-set\_\-limits}]{\setlength{\rightskip}{0pt plus 5cm}void gtk\_\-graph\_\-axis\_\-set\_\-limits ({\bf GtkGraph} $\ast$ {\em graph}, \/  {\bf GtkGraphAxisType} {\em axis}, \/  gfloat {\em max}, \/  gfloat {\em min})}}
+\label{gtkgraph_8h_af496e4f1eeb700326be471f23cfbae39}
+
+
+set the maximum extents (limiting values) for one axis of a graph 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} that contains the axis being modified \item[{\em axis}]the axis being modified \item[{\em max}]the maximum value to display \item[{\em min}]the minimum value to display \end{DoxyParams}
+\hypertarget{gtkgraph_8h_a349339d011d0b7df44a52231764b5baa}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-axis\_\-set\_\-tick@{gtk\_\-graph\_\-axis\_\-set\_\-tick}}
+\index{gtk\_\-graph\_\-axis\_\-set\_\-tick@{gtk\_\-graph\_\-axis\_\-set\_\-tick}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-axis\_\-set\_\-tick}]{\setlength{\rightskip}{0pt plus 5cm}void gtk\_\-graph\_\-axis\_\-set\_\-tick ({\bf GtkGraph} $\ast$ {\em graph}, \/  {\bf GtkGraphAxisType} {\em axis}, \/  gfloat {\em majtick}, \/  gfloat {\em mintick})}}
+\label{gtkgraph_8h_a349339d011d0b7df44a52231764b5baa}
+
+
+set the tick increment for one axis of a graph 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} that contains the axis being modified \item[{\em axis}]the axis being modified \item[{\em majtick}]the spacing between major ticks \item[{\em mintick}]the spacing between minor ticks \end{DoxyParams}
+\hypertarget{gtkgraph_8h_a5bcebb2a313b4c57a79bae9187670c0e}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-legend\_\-format@{gtk\_\-graph\_\-legend\_\-format}}
+\index{gtk\_\-graph\_\-legend\_\-format@{gtk\_\-graph\_\-legend\_\-format}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-legend\_\-format}]{\setlength{\rightskip}{0pt plus 5cm}void gtk\_\-graph\_\-legend\_\-format ({\bf GtkGraph} $\ast$ {\em graph}, \/  gboolean {\em is\_\-visible}, \/  {\bf GtkGraphPosition} {\em position})}}
+\label{gtkgraph_8h_a5bcebb2a313b4c57a79bae9187670c0e}
+
+
+Format the legend of a \hyperlink{struct_gtk_graph}{GtkGraph}. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} that is having its legend modified \item[{\em is\_\-visible}]whether the legend is visible or not \item[{\em position}]the position of the legend on the \hyperlink{struct_gtk_graph}{GtkGraph} \end{DoxyParams}
+\hypertarget{gtkgraph_8h_a40d33faffdf97ef054e6d12df02e0686}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-new@{gtk\_\-graph\_\-new}}
+\index{gtk\_\-graph\_\-new@{gtk\_\-graph\_\-new}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-new}]{\setlength{\rightskip}{0pt plus 5cm}GtkWidget$\ast$ gtk\_\-graph\_\-new ({\bf GtkGraphType} {\em type})}}
+\label{gtkgraph_8h_a40d33faffdf97ef054e6d12df02e0686}
+
+
+Create a new \hyperlink{struct_gtk_graph}{GtkGraph}. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em type}]the type of graph to be created \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+A GtkWidget pointer to the graph just created 
+\end{DoxyReturn}
+\hypertarget{gtkgraph_8h_af0f641802393c6a19f247581726840d9}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-set\_\-polar\_\-format@{gtk\_\-graph\_\-set\_\-polar\_\-format}}
+\index{gtk\_\-graph\_\-set\_\-polar\_\-format@{gtk\_\-graph\_\-set\_\-polar\_\-format}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-set\_\-polar\_\-format}]{\setlength{\rightskip}{0pt plus 5cm}void gtk\_\-graph\_\-set\_\-polar\_\-format ({\bf GtkGraph} $\ast$ {\em graph}, \/  {\bf GtkGraphPolarType} {\em type}, \/  gfloat {\em polar\_\-start})}}
+\label{gtkgraph_8h_af0f641802393c6a19f247581726840d9}
+
+
+Determines the formatting of Polar graphs. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} that contains the annotation you wish to modify \item[{\em type}]the type of polar graph see \hyperlink{gtkgraph_8h_aa88f40af206f7a3463efb23f71bb56a0}{GtkGraphPolarType} for more details \item[{\em polar\_\-start}]\end{DoxyParams}
+\hypertarget{gtkgraph_8h_ae3844c36b8c7e8c318f6c7b8efd794af}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-set\_\-title@{gtk\_\-graph\_\-set\_\-title}}
+\index{gtk\_\-graph\_\-set\_\-title@{gtk\_\-graph\_\-set\_\-title}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-set\_\-title}]{\setlength{\rightskip}{0pt plus 5cm}void gtk\_\-graph\_\-set\_\-title ({\bf GtkGraph} $\ast$ {\em graph}, \/  gchar $\ast$ {\em title}, \/  gchar $\ast$ {\em subtitle})}}
+\label{gtkgraph_8h_ae3844c36b8c7e8c318f6c7b8efd794af}
+
+
+Set the title and/or subtitle of a \hyperlink{struct_gtk_graph}{GtkGraph}. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} that is having its title/subtitle modified \item[{\em title}]a string containing the title text \item[{\em subtitle}]a string containing the subtitle text \end{DoxyParams}
+\hypertarget{gtkgraph_8h_a5fabadd1b264a182bc2b4afb8281d376}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-smith\_\-set\_\-Z0@{gtk\_\-graph\_\-smith\_\-set\_\-Z0}}
+\index{gtk\_\-graph\_\-smith\_\-set\_\-Z0@{gtk\_\-graph\_\-smith\_\-set\_\-Z0}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-smith\_\-set\_\-Z0}]{\setlength{\rightskip}{0pt plus 5cm}void gtk\_\-graph\_\-smith\_\-set\_\-Z0 ({\bf GtkGraph} $\ast$ {\em graph}, \/  gfloat {\em Z0})}}
+\label{gtkgraph_8h_a5fabadd1b264a182bc2b4afb8281d376}
+
+
+All Smith's Charts are normalised to a particular impendance (Z0). This function allows the user to normalise the Smith's Chart to a value to something other than the default value of 50 Ohms. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} containing the Smiths Chart that you wish to re-\/normalise \item[{\em Z0}]the new normalisation value \end{DoxyParams}
+\hypertarget{gtkgraph_8h_a0006dc30b139c49bfe454eee512c0754}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-trace\_\-format\_\-line@{gtk\_\-graph\_\-trace\_\-format\_\-line}}
+\index{gtk\_\-graph\_\-trace\_\-format\_\-line@{gtk\_\-graph\_\-trace\_\-format\_\-line}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-trace\_\-format\_\-line}]{\setlength{\rightskip}{0pt plus 5cm}void gtk\_\-graph\_\-trace\_\-format\_\-line ({\bf GtkGraph} $\ast$ {\em graph}, \/  gint {\em trace\_\-id}, \/  {\bf GtkGraphLineType} {\em type}, \/  gint {\em width}, \/  GdkColor $\ast$ {\em line\_\-color}, \/  gboolean {\em visible})}}
+\label{gtkgraph_8h_a0006dc30b139c49bfe454eee512c0754}
+
+
+Change the formatting of the lines used to draw a particular trace. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} that contains the trace being modified \item[{\em trace\_\-id}]the unique integer identifier of the trace as returned by \hyperlink{gtkgraph_8h_afd173ee00803547d769cf924e8331674}{gtk\_\-graph\_\-trace\_\-new()} \item[{\em type}]what type of line (see \hyperlink{gtkgraph_8h_a7fb041ed000ceca1af4280510fb12f24}{GtkGraphLineType} for details) \item[{\em width}]how wide is the line drawn \item[{\em line\_\-color}]what color to draw the line \item[{\em visible}]whether the trace be drawn or not \end{DoxyParams}
+\hypertarget{gtkgraph_8h_a6d76b02b2e2db42af55cd3dd8a3df357}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-trace\_\-format\_\-marker@{gtk\_\-graph\_\-trace\_\-format\_\-marker}}
+\index{gtk\_\-graph\_\-trace\_\-format\_\-marker@{gtk\_\-graph\_\-trace\_\-format\_\-marker}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-trace\_\-format\_\-marker}]{\setlength{\rightskip}{0pt plus 5cm}void gtk\_\-graph\_\-trace\_\-format\_\-marker ({\bf GtkGraph} $\ast$ {\em graph}, \/  gint {\em trace\_\-id}, \/  {\bf GtkGraphMarkerType} {\em type}, \/  gint {\em marker\_\-size}, \/  GdkColor $\ast$ {\em fg}, \/  GdkColor $\ast$ {\em bg}, \/  gboolean {\em is\_\-filled})}}
+\label{gtkgraph_8h_a6d76b02b2e2db42af55cd3dd8a3df357}
+
+
+Change the formatting of the marker used when drawing a particular trace. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} that contains the trace being modified \item[{\em trace\_\-id}]the unique integer identifier of the trace as returned by \hyperlink{gtkgraph_8h_afd173ee00803547d769cf924e8331674}{gtk\_\-graph\_\-trace\_\-new()} \item[{\em type}]what type of marker (see \hyperlink{gtkgraph_8h_a86ad298d4ac122c58e08a789541b9880}{GtkGraphMarkerType} for details) \item[{\em marker\_\-size}]size of marker (from 1-\/6) \item[{\em fg}]the foreground colour of the marker \item[{\em bg}]the background colour of the marker \item[{\em is\_\-filled}]whether the marker should be filled or not \end{DoxyParams}
+\hypertarget{gtkgraph_8h_ad81fd5d72e63d30a708d05707a657996}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-trace\_\-format\_\-title@{gtk\_\-graph\_\-trace\_\-format\_\-title}}
+\index{gtk\_\-graph\_\-trace\_\-format\_\-title@{gtk\_\-graph\_\-trace\_\-format\_\-title}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-trace\_\-format\_\-title}]{\setlength{\rightskip}{0pt plus 5cm}void gtk\_\-graph\_\-trace\_\-format\_\-title ({\bf GtkGraph} $\ast$ {\em graph}, \/  gint {\em trace\_\-id}, \/  gchar $\ast$ {\em legend\_\-text})}}
+\label{gtkgraph_8h_ad81fd5d72e63d30a708d05707a657996}
+
+
+Change the legend text for a particular trace. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} that contains the trace being modified \item[{\em trace\_\-id}]the unique integer identifier of the trace as returned by \hyperlink{gtkgraph_8h_afd173ee00803547d769cf924e8331674}{gtk\_\-graph\_\-trace\_\-new()} \item[{\em legend\_\-text}]a string containing the trace title as it will appear in the legend \end{DoxyParams}
+\hypertarget{gtkgraph_8h_afd173ee00803547d769cf924e8331674}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-trace\_\-new@{gtk\_\-graph\_\-trace\_\-new}}
+\index{gtk\_\-graph\_\-trace\_\-new@{gtk\_\-graph\_\-trace\_\-new}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-trace\_\-new}]{\setlength{\rightskip}{0pt plus 5cm}gint gtk\_\-graph\_\-trace\_\-new ({\bf GtkGraph} $\ast$ {\em graph})}}
+\label{gtkgraph_8h_afd173ee00803547d769cf924e8331674}
+
+
+Create a new trace with a \hyperlink{struct_gtk_graph}{GtkGraph}. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} that will contain the newly created trace. \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+an unique integer identifier of the newly created trace. 
+\end{DoxyReturn}
+\begin{DoxyNote}{Note}
+The return value must be stored for by the user for later use (e.g. by \hyperlink{gtkgraph_8h_a56bdaf9c2c4612d33a57ca1af2e151c9}{gtk\_\-graph\_\-trace\_\-set\_\-data()}) 
+\end{DoxyNote}
+\hypertarget{gtkgraph_8h_a56bdaf9c2c4612d33a57ca1af2e151c9}{
+\index{gtkgraph.h@{gtkgraph.h}!gtk\_\-graph\_\-trace\_\-set\_\-data@{gtk\_\-graph\_\-trace\_\-set\_\-data}}
+\index{gtk\_\-graph\_\-trace\_\-set\_\-data@{gtk\_\-graph\_\-trace\_\-set\_\-data}!gtkgraph.h@{gtkgraph.h}}
+\subsubsection[{gtk\_\-graph\_\-trace\_\-set\_\-data}]{\setlength{\rightskip}{0pt plus 5cm}void gtk\_\-graph\_\-trace\_\-set\_\-data ({\bf GtkGraph} $\ast$ {\em graph}, \/  gint {\em trace\_\-id}, \/  gfloat $\ast$ {\em xd}, \/  gfloat $\ast$ {\em yd}, \/  gint {\em n})}}
+\label{gtkgraph_8h_a56bdaf9c2c4612d33a57ca1af2e151c9}
+
+
+Used to allocate a data set to a trace. 
+
+
+\begin{DoxyParams}{Parameters}
+\item[{\em graph}]the \hyperlink{struct_gtk_graph}{GtkGraph} that contains the trace being modified \item[{\em trace\_\-id}]the unique integer identifier of the trace as returned by \hyperlink{gtkgraph_8h_afd173ee00803547d769cf924e8331674}{gtk\_\-graph\_\-trace\_\-new()} \item[{\em xd}]an array containing the {\itshape x\/} co-\/ordinates (must be n points long) \item[{\em yd}]an array containing the {\itshape y\/} co-\/ordinates (must be n points long) \item[{\em n}]the number of points in the x and y arrays \end{DoxyParams}

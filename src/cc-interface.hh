@@ -927,8 +927,9 @@ void hole(int imol,
 
 
 // GUI stuff
-//void probe_radius_graph_close_callback( GtkWidget *button,
-// 					GtkWidget *dialog);
+void probe_radius_graph_close_callback( GtkWidget *button,
+ 					GtkWidget *dialog);
+void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
 
 
 /* ------------------------------------------------------------------------- */

@@ -320,6 +320,7 @@ cootaneer/Makefile
 greg-tests/Makefile
 python-tests/Makefile
 lidia-core/Makefile
+libgtkgraph/Makefile
 lbg/Makefile
 doc/Makefile
 src/Makefile
@@ -337,7 +338,6 @@ auxil/vectors/Makefile
 # removed setup/Makefile
 # po/Makefile.in
 # lbg/Makefile
-# libgtkgraph/Makefile later
 
 # GETTEXT related things: When AM_GNU_GETTEXT get enabled, these get enabled.
 # po/Makefile
