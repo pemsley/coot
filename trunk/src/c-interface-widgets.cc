@@ -226,6 +226,13 @@ GdkColor remark_number_to_colour(int remark_number) {
    return colour;
 } 
 
+
+void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
+						 GtkWidget *dialog) {
+   gtk_widget_destroy(dialog);
+}
+
+
 void simple_text_dialog(const std::string &dialog_title, const std::string &text,
 			std::pair<int, int> geom) {
 
@@ -251,6 +258,13 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
       gtk_text_buffer_set_text (gtk_text_view_get_buffer(GTK_TEXT_VIEW (text_widget)),
 				text.c_str(), -1);
       gtk_window_set_default_size(GTK_WINDOW(d), geom.first, geom.second);
+
+      GtkWidget *close_button = gtk_dialog_add_button(GTK_DIALOG(d), "Close", 2);
+      gtk_widget_show(close_button);
+
+       g_signal_connect(G_OBJECT(close_button), "clicked",
+ 		       G_CALLBACK(on_simple_text_dialog_close_button_pressed),
+ 		       (gpointer) d);
       
       gtk_widget_show(d);
 

@@ -17,6 +17,41 @@
 
   o Use LINKRs in restraints (puntable) ::: 2
 
+  o valgrind on reading 1alz
+
+Molecule 0 read successfully
+Debug:: there were 5 types with no dictionary 
+trying to dynamic add: FOR
+INFO:: using standard CCP4 Refmac dictionary to search for FOR
+==7395== Invalid read of size 1
+==7395==    at 0x66E8E77: coot::protein_geometry::try_dynamic_add(std::string const&, int) (protein-geometry.cc:3684)
+==7395==    by 0x580EF4: handle_read_draw_molecule_with_recentre (c-interface.cc:534)
+==7395==    by 0x5A03F1: on_ok_button_coordinates_clicked (callbacks.c:264)
+==7395==    by 0x1228EE7D: g_closure_invoke (in /usr/lib/libgobject-2.0.so.0.2514.0)
+==7395==    by 0x122A7708: ??? (in /usr/lib/libgobject-2.0.so.0.2514.0)
+==7395==    by 0x122A8E85: g_signal_emit_valist (in /usr/lib/libgobject-2.0.so.0.2514.0)
+==7395==    by 0x122A96F2: g_signal_emit (in /usr/lib/libgobject-2.0.so.0.2514.0)
+==7395==    by 0x1074B64A: ??? (in /usr/lib/libgtk-x11-2.0.so.0.2000.1)
+==7395==    by 0x1228EE7D: g_closure_invoke (in /usr/lib/libgobject-2.0.so.0.2514.0)
+==7395==    by 0x122A7708: ??? (in /usr/lib/libgobject-2.0.so.0.2514.0)
+==7395==    by 0x122A8E85: g_signal_emit_valist (in /usr/lib/libgobject-2.0.so.0.2514.0)
+==7395==    by 0x122A96F2: g_signal_emit (in /usr/lib/libgobject-2.0.so.0.2514.0)
+==7395==  Address 0x1cf58108 is 24 bytes inside a block of size 26 free'd
+==7395==    at 0x4C26DCF: operator delete(void*) (vg_replace_malloc.c:387)
+==7395==    by 0x12E67128: std::basic_string<char, std::char_traits<char>, std::allocator<char> >::~basic_string() (in /usr/lib/libstdc++.so.6.0.13)
+6.0.13)
+==7395==    by 0x66E8E76: coot::protein_geometry::try_dynamic_add(std::string const&, int) (protein-geometry.cc:3683)
+==7395==    by 0x580EF4: handle_read_draw_molecule_with_recentre (c-interface.cc:534)
+==7395==    by 0x5A03F1: on_ok_button_coordinates_clicked (callbacks.c:264)
+==7395==    by 0x1228EE7D: g_closure_invoke (in /usr/lib/libgobject-2.0.so.0.2514.0)
+==7395==    by 0x122A7708: ??? (in /usr/lib/libgobject-2.0.so.0.2514.0)
+==7395==    by 0x122A8E85: g_signal_emit_valist (in /usr/lib/libgobject-2.0.so.0.2514.0)
+==7395==    by 0x122A96F2: g_signal_emit (in /usr/lib/libgobject-2.0.so.0.2514.0)
+==7395==    by 0x1074B64A: ??? (in /usr/lib/libgtk-x11-2.0.so.0.2000.1)
+==7395==    by 0x1228EE7D: g_closure_invoke (in /usr/lib/libgobject-2.0.so.0.2514.0)
+==7395==    by 0x122A7708: ??? (in /usr/lib/libgobject-2.0.so.0.2514.0)
+
+
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
