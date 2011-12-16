@@ -3680,8 +3680,8 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 filename += "/data/monomers/";
       }
       if (resname.length() > 0) {
-	 const char *rs = resname.substr(0,1).c_str();
-	 const char v = tolower(*rs); // get the sub directory name
+	 const char rs = resname[0];
+	 const char v = tolower(rs); // get the sub directory name
          char v1[2];
 	 v1[0] = v;
 	 v1[1] = '\0';
