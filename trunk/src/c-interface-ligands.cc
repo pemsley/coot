@@ -1632,6 +1632,24 @@ multi_residue_torsion_scm(int imol, SCM residues_specs_scm) {
 }
 #endif
 
+
+#ifdef USE_PYTHON
+void
+multi_residue_torsion_py(int imol, PyObject *residues_specs_py) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(residues_specs_py);
+      g.multi_torsion_residues(imol, residue_specs);
+
+      graphics_draw();
+   } 
+
+} 
+
+#endif // USE_PYTHON
+
+
 void
 multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t> &residue_specs) {
 
@@ -1672,22 +1690,31 @@ SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm) {
 #endif
 
 
+/*! \brief fit residues
 
+(note: fit to the current-refinement map)
+*/
 #ifdef USE_PYTHON
-void
-multi_residue_torsion_py(int imol, PyObject *residues_specs_py) {
+PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py) {
 
+   PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t g;
-      std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(residues_specs_py);
-      g.multi_torsion_residues(imol, residue_specs);
-
-      graphics_draw();
-   } 
-
+      if (is_valid_map_molecule(imol_refinement_map())) {
+	 graphics_info_t g;
+	 std::vector<coot::residue_spec_t> residue_specs =
+       py_to_residue_specs(residues_specs_py);
+	 const clipper::Xmap<float> &xmap =
+	    g.molecules[imol_refinement_map()].xmap_list[0];
+	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	 graphics_draw();
+	 r = Py_True; // we did something at least.
+      }
+   }
+   Py_INCREF(r);
+   return r;
 } 
+#endif // PYTHON
 
-#endif // USE_PYTHON
 
 void
 setup_multi_residue_torsion() {

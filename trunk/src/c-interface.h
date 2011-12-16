@@ -2843,6 +2843,9 @@ int test_function(int i, int j);
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i, SCM j);
 #endif
+#ifdef USE_PYTHON
+PyObject *test_function_py(PyObject *i, PyObject *j);
+#endif // PYTHON
 #endif
 
 

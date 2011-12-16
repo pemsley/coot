@@ -1491,6 +1491,46 @@ def atoms_with_zero_occ(imol):
     return r
 
 
+# simple extraction function
+def res_spec2chain_id(res_spec):
+
+    """simple extraction function"""
+
+    if not res_spec:
+        return False
+    if (len(res_spec) == 4):
+        return res_spec[1]
+    if (len(res_spec) == 3):
+        return res_spec[0]
+    return False
+
+# simple extraction function
+def res_spec2res_no(res_spec):
+
+    """simple extraction function"""
+
+    if not res_spec:
+        return False
+    if (len(res_spec) == 4):
+        return res_spec[2]
+    if (len(res_spec) == 3):
+        return res_spec[1]
+    return False
+
+# simple extraction function
+def res_spec2ins_code(res_spec):
+
+    """simple extraction function"""
+
+    if not res_spec:
+        return False
+    if (len(res_spec) == 4):
+        return res_spec[3]
+    if (len(res_spec) == 3):
+        return res_spec[2]
+    return False
+
+
 # Return False if no atom can be found given the spec else return a list
 # consisting of the atom name and alt-conf specifier.  
 # 
@@ -1519,6 +1559,13 @@ def residue_spec2atom_for_centre(imol, chain_id, res_no, ins_code):
     return centre_atom_name_alt_conf
  
 
+def set_go_to_atom(res_spec):
+    set_go_to_atom_chain_residue_atom_name(
+        res_spec2chain_id(res_spec),
+        res_spec2res_no(res_spec),
+        " CA ")
+
+    
 def update_go_to_atom_from_current_atom():
 
     active_atom = active_residue()
@@ -2846,10 +2893,16 @@ get_pkgdatadir         = get_pkgdatadir_py
 handle_pisa_interfaces = handle_pisa_interfaces_py
 pkgdatadir             = get_pkgdatadir_py
 matching_compound_names_from_sbase = matching_compound_names_from_sbase_py
+add_linked_residue     = add_linked_residue_py
+all_molecule_rotamer_score = all_molecule_rotamer_score_py
+all_molecule_ramachandran_score = all_molecule_ramachandran_score_py
 user_defined_click     = user_defined_click_py
+
 get_torsion            = get_torsion_py
 set_torsion            = set_torsion_py
 multi_residue_torsion  = multi_residue_torsion_py
+multi_residue_torsion_fit  = multi_residue_torsion_fit_py
+test_function          = test_function_py
 space_group            = space_group_py
 
 # graphics_info.h:
@@ -2861,6 +2914,7 @@ make_atom_spec         = make_atom_spec_py
 # cc-interface.hh:
 goto_next_atom_maybe   = goto_next_atom_maybe_py
 goto_prev_atom_maybe   = goto_prev_atom_maybe_py
+set_go_to_atom_from_res_spec = set_go_to_atom_from_res_spec_py
 get_symmetry           = get_symmetry_py
 map_colour_components  = map_colour_components_py
 dictionaries_read      = dictionaries_read_py

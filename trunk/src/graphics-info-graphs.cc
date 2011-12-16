@@ -900,7 +900,7 @@ graphics_info_t::rotamer_graphs(int imol) {
 // 			      std::cout << "render_to_canvas: (rotamer) chain: " << ich << " min_resno: "
 // 					<< m.second << " max_resno: " << max_resno
 // 					<< " offset: " << offset << std::endl;
-			      if (use_graphics_interface_flag)
+			      if (use_graphics_interface_flag && max_resno > 0)
 				 graphs->render_to_canvas(v, ich, std::string(chain_id),
 							  max_resno, m.second, offset);
 
