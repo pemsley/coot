@@ -308,6 +308,30 @@ if (have_coot_python):
                                     add_status_bar_text("Map " + str(imol) + " exported to " + text))))
                                     
 
+     def export_map_func(imol, radius_string, file_name):
+       radius = -1.
+       try:
+         radius = float(radius_string)
+       except:
+         print "BL WARNING:: radius %s was no number!" %(radius_string)
+       if (radius >= 0):
+         export_map_fragment(*([imol] + rotation_centre() + \
+                               [radius, file_name]))
+         
+     add_simple_coot_menu_menuitem(
+       submenu_maps,
+       "Export Local Map Fragment... (for Pymol, say)",
+       lambda func: generic_chooser_entry_and_file_selector(
+               "Export Map: ",
+               valid_map_molecule_qm,
+               "Radius (A): ", "10",
+               "File-name: ",
+               lambda imol, radius_string, file_name:
+                   export_map_func(imol, radius_string, file_name)
+               )
+       )
+
+
      add_simple_coot_menu_menuitem(
        submenu_maps,
        "Brighten Maps",

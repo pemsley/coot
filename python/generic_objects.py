@@ -258,57 +258,56 @@ def probe(imol):
                                     arg_list,
                                     [],
                                     reduce_out_pdb_file)
-      if (reduce_status):
-        print "BL WARNING:: reduce didnt run ok, so stop here!"
+      
+      # dont check for status as meaningless...
+      if not probe_command:
+        # couldnt find probe
+        print "BL WARNING:: Could not locate the program probe!! Please check if installed!"
       else:
-        if not probe_command:
-          # couldnt find probe
-          print "BL WARNING:: Could not locate the program probe!! Please check if installed!"
+        probe_name_stub = strip_extension(strip_path(molecule_name(imol)))
+        probe_pdb_in = "coot-molprobity/" + probe_name_stub + "-with-H.pdb"
+        probe_out = "coot-molprobity/probe-dots.out"
+
+        prepare_file_for_probe(reduce_out_pdb_file, probe_pdb_in)
+
+        probe_status = popen_command(probe_command,
+                                     ["-u", "-mc", "ALL", probe_pdb_in],
+                                     [],
+                                     probe_out)
+
+        if (probe_status):
+          print "BL WARNING:: probe failed, cannot continue!"
         else:
-          probe_name_stub = strip_extension(strip_path(molecule_name(imol)))
-          probe_pdb_in = "coot-molprobity/" + probe_name_stub + "-with-H.pdb"
-          probe_out = "coot-molprobity/probe-dots.out"
-          
-          prepare_file_for_probe(reduce_out_pdb_file, probe_pdb_in)
-          
-          probe_status = popen_command(probe_command,
-                                       ["-u", "-stdbonds", "-mc", "ALL", probe_pdb_in],
-                                       [],
-                                       probe_out)
-
-          if (probe_status):
-            print "BL WARNING:: probe failed, cannot continue!"
+          # by default, we don't want to click on the
+          # imol-probe molecule (I think :-)
+          recentre_status = recentre_on_read_pdb()
+          novalue = set_recentre_on_read_pdb(0)
+          if (reduce_molecule_updates_current):
+            print "======= update molecule ======="
+            imol_probe = clear_and_update_model_molecule_from_file(imol, probe_pdb_in)
           else:
-            # by default, we don't want to click on the
-            # imol-probe molecule (I think :-)
-            recentre_status = recentre_on_read_pdb()
-            novalue = set_recentre_on_read_pdb(0)
-            if (reduce_molecule_updates_current):
-              print "======= update molecule ======="
-              imol_probe = clear_and_update_model_molecule_from_file(imol, probe_pdb_in)
-            else:
-              print "======= read new pdb file ======="
-              imol_probe = read_pdb(probe_pdb_in)
+            print "======= read new pdb file ======="
+            imol_probe = read_pdb(probe_pdb_in)
 
-            if recentre_status == 1:
-              set_recentre_on_read_pdb(1)
+          if recentre_status == 1:
+            set_recentre_on_read_pdb(1)
 
-            # show the GUI for USER MODS
-            if using_gui():
-              user_mods_gui(imol_probe, reduce_out_pdb_file)
-                    
-            # toggle_active_mol(imol_probe) let's not do
-            # that actually.  I no longer think that the
-            # new probe molecule should not be clickable
-            # when it is initally displayed (that plus
-            # there is some active/displayed logic problem
-            # for the molecules, which means that after
-            # several probes, the wrong molecule is
-            # getting refined).
+          # show the GUI for USER MODS
+          if using_gui():
+            user_mods_gui(imol_probe, reduce_out_pdb_file)
 
-            handle_read_draw_probe_dots_unformatted(probe_out, imol_probe, 2)
-            generic_objects_gui()
-            graphics_draw()
+          # toggle_active_mol(imol_probe) let's not do
+          # that actually.  I no longer think that the
+          # new probe molecule should not be clickable
+          # when it is initally displayed (that plus
+          # there is some active/displayed logic problem
+          # for the molecules, which means that after
+          # several probes, the wrong molecule is
+          # getting refined).
+
+          handle_read_draw_probe_dots_unformatted(probe_out, imol_probe, 2)
+          generic_objects_gui()
+          graphics_draw()
 
 
 # Write the connectivity for the non-standard (non-water) residues in
@@ -384,9 +383,10 @@ def interactive_probe(x_cen, y_cen, z_cen, radius, chain_id, res_no):
 	       + "not water not (" + chain_str + string.lower(chain_id) + " " \
 	       + str(res_no) + ")),file2"
 
+    # no longer use std-bonds
     print "probe command", probe_command, \
-          ["-mc", "-u", "-quiet", "-drop", "-stdbonds", "-both",
-           atom_sel, "file2", probe_pdb_in_1, probe_pdb_in_2]
+          ["-mc", "-u", "-quiet", "-drop", "-both",
+          atom_sel, "file2", probe_pdb_in_1, probe_pdb_in_2]
 
     # if unset, then set it.
     if (interactive_probe_is_OK_qm == 'unset'):
@@ -397,7 +397,7 @@ def interactive_probe(x_cen, y_cen, z_cen, radius, chain_id, res_no):
         
     if (interactive_probe_is_OK_qm == 'yes'):
        status = popen_command(probe_command,
-			      ["-mc", "-u", "-quiet", "-drop", "-stdbonds", "-both",
+			      ["-mc", "-u", "-quiet", "-drop", "-both",
 			       atom_sel, "file2",
 			       probe_pdb_in_1, probe_pdb_in_2],
 			      [],

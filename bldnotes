@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 3783 (prodrg stuff needs testing) generic objects
+scripts      rev 3860 (prodrg stuff needs testing) generic objects
 			missing get-recent-pdb
 tests        rev 3797 update
 build-it-win rev 2122
@@ -15,6 +15,10 @@ OIST-CCP4
 - delete DB loop candidates after accepting?!
 - stereo: shift/shear rather than rotate [PhilE]
 - Mac: enable goocanvas!
+- brightness warning dialog behind other dialog-> move forward?!
+- alt conf slider adjustment
+- change occ for master (accept return or just tick button)
+- after change the canvas (geometry) doesnt work for non-aa any more
 
 FIX pythonic probe/reduce status (seems ok at the moment?!)
 

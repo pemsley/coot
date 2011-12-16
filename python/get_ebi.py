@@ -224,7 +224,7 @@ def get_eds_pdb_and_mtz(id):
 
             try:
                 pre_download_info = coot_get_url_as_string(eds_info_page)
-                print "INFO:: --------------- pre-download-info:", pre_download_info
+                # print "INFO:: --------------- pre-download-info:", pre_download_info
                 bad_map_status = "No reliable map available" in pre_download_info
             except:
                 print "BL ERROR:: could not get pre_download_info from", eds_core
