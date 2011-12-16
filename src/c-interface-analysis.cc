@@ -21,6 +21,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+// #include "gtkgraph.h"
+
 #include "graphics-info.h"
 #include "cc-interface.hh"
 #include "c-interface.h"
@@ -83,6 +85,66 @@ void hole(int imol, float start_x, float start_y, float start_z, float end_x, fl
 
       std::pair<int, int> geom(160, 400);
       simple_text_dialog("Probe radius data", text, geom);
-   }
 
+      /* 
+      { 
+	 GtkWidget *d = gtk_dialog_new();
+	 gtk_object_set_data(GTK_OBJECT(d), "probe_radius_graph", d);
+	 gtk_window_set_title (GTK_WINDOW(d), "Probe Radius Graph");
+	 gtk_window_set_default_size(GTK_WINDOW(d), 500, 400);
+	 GtkWidget *vbox = GTK_DIALOG(d)->vbox;
+	 GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
+	 GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+	 gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+					       GTK_WIDGET(vbox_inner));
+	 gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
+	 gtk_widget_show(scrolled_window);
+	 gtk_widget_show(vbox_inner);
+      
+	 GtkWidget *graph = gtk_graph_new(XY);
+	 gtk_graph_set_title(GTK_GRAPH(graph), "Probe Radius along Path", NULL);
+	 gtk_container_add(GTK_CONTAINER(vbox_inner), graph);
+	 gtk_widget_show(graph);
+	 gtk_widget_show(d);
+	 
+	 GtkWidget *close_button = gtk_dialog_add_button(GTK_DIALOG(d),
+							 "Close", 2);
+	 gtk_widget_show(close_button);
+	 g_signal_connect(G_OBJECT(close_button), "clicked",
+			  G_CALLBACK(probe_radius_graph_close_callback),
+			  (gpointer) d);
+
+	 // graph needs to be realized before gtk_graph_trace_new()
+	 // returns a useful result.
+	 int trace = gtk_graph_trace_new(GTK_GRAPH(graph));
+	 gfloat *x = (gfloat *) malloc (n * sizeof(gfloat));
+	 gfloat *y = (gfloat *) malloc (n * sizeof(gfloat));
+	 for (unsigned int i=0; i<n; i++) {
+	    x[i] = path_length * double(i)/double(n);
+	    y[i] = hole_path_and_surface.first[i].second;
+	 }
+	 gtk_graph_trace_set_data(GTK_GRAPH(graph), trace, x, y, n);
+	 gtk_graph_axis_format(GTK_GRAPH(graph),
+			       GTK_GRAPH_AXIS_INDEPENDANT,
+			       FLOATING_POINT,
+			       1, "Position along Path");
+	 gtk_graph_axis_format(GTK_GRAPH(graph),
+			       GTK_GRAPH_AXIS_DEPENDANT,
+			       FLOATING_POINT,
+			       2, "Hole Radius");
+	 gtk_graph_axis_set_limits(GTK_GRAPH(graph),
+				   GTK_GRAPH_AXIS_INDEPENDANT,
+				   path_length+1.0, 0.0);
+	 gtk_graph_axis_set_limits(GTK_GRAPH(graph),
+				   GTK_GRAPH_AXIS_DEPENDANT,
+				   3.5, 0.0);
+      }
+      */
+   }
 } 
+
+// void probe_radius_graph_close_callback( GtkWidget *button,
+// 					GtkWidget *dialog) {
+
+//    gtk_widget_destroy(dialog);
+// } 

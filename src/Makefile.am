@@ -52,6 +52,7 @@ GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 
 # remove this from coot dependencies:
 # 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la 
+#	$(top_builddir)/libgtkgraph/libcoot-gtkgraph.la      	
 
 COOT_EXTRA_LIBS = \
 	$(top_builddir)/lbg/libcoot-lidia.la      		\
@@ -177,6 +178,8 @@ AM_CXXFLAGS = \
 # SWIG_FLAGS is something of a misnomer.  It actually defines
 # COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
 # correct callbacks in both GTK1 and GTK2 regimes.
+#
+#	-I$(top_srcdir)/libgtkgraph     
 #
 INCLUDES = \
 	-I$(top_srcdir)/compat 		\

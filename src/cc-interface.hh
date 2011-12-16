@@ -925,6 +925,12 @@ void hole(int imol,
 	  float colour_map_multiplier, float colour_map_offset,
 	  int n_runs, bool show_probe_radius_graph_flag);
 
+
+// GUI stuff
+//void probe_radius_graph_close_callback( GtkWidget *button,
+// 					GtkWidget *dialog);
+
+
 /* ------------------------------------------------------------------------- */
 /*                      LINKs                                                */
 /* ------------------------------------------------------------------------- */
@@ -962,6 +968,11 @@ void prodrg_import_function(std::string file_name);
 /*  ----------------------------------------------------------------------- */
 void simple_text_dialog(const std::string &dialog_title, const std::string &text,
 			std::pair<int, int> geom);
+
+// gui nuts and bolts
+void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
+						 GtkWidget *dialog);
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Utility Functions                                       */

@@ -1846,15 +1846,9 @@ GtkWidget *add_sort_button_fileselection(GtkWidget *fileselection) {
       gtk_object_set_user_data(GTK_OBJECT(button), (char *) history_pulldown); 
       
       
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-      gtk_signal_connect (GTK_OBJECT(button), "clicked",
-			  (GtkSignalFunc) fileselection_sort_button_clicked_gtk1,
-			  file_list);
-#else
       g_signal_connect (G_OBJECT(button), "clicked",
 			G_CALLBACK(fileselection_sort_button_clicked),
 			file_list);
-#endif
       
       gtk_container_add(GTK_CONTAINER(aa),frame);
       gtk_container_add(GTK_CONTAINER(frame), button);
