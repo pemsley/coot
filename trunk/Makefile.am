@@ -28,13 +28,11 @@ ACLOCAL_AMFLAGS=-I macros
 # coot-utils depends on mini-mol.
 # geometry depends on utils
 #
-# libgtkgraph later
-#
 SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-mol geometry  \
         coot-utils surface coot-surface lidia-core \
 	coords angles skeleton ccp4mg-utils density-contour \
 	db-main ideal ligand high-res build greg-tests python-tests \
-	analysis  tw lbg cootaneer  src data rama-data doc
+	analysis  tw libgtkgraph lbg cootaneer  src data rama-data doc
 
 # po, no po today.
 

@@ -52,12 +52,13 @@ GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 
 # remove this from coot dependencies:
 # 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la 
-#	$(top_builddir)/libgtkgraph/libcoot-gtkgraph.la      	
+#	
 
 COOT_EXTRA_LIBS = \
 	$(top_builddir)/lbg/libcoot-lidia.la      		\
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la      	\
+	$(top_builddir)/libgtkgraph/libcoot-gtkgraph.la      	\
 	$(top_builddir)/density-contour/libcoot-isosurface.la  	\
 	$(top_builddir)/build/libcoot-cabuild.la		\
 	$(top_builddir)/skeleton/libcoot-skeleton.la    	\
@@ -179,7 +180,6 @@ AM_CXXFLAGS = \
 # COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
 # correct callbacks in both GTK1 and GTK2 regimes.
 #
-#	-I$(top_srcdir)/libgtkgraph     
 #
 INCLUDES = \
 	-I$(top_srcdir)/compat 		\
@@ -204,6 +204,7 @@ INCLUDES = \
 	-I$(top_srcdir)/analysis	\
 	-I$(top_srcdir)/cootaneer	\
 	-I$(top_srcdir)/lidia-core      \
+	-I$(top_srcdir)/libgtkgraph     \
 	-I$(top_srcdir)/lbg             \
 	$(RDKIT_CXXFLAGS) 		\
 	$(ENTERPRISE_TOOLS_CFLAGS)      \

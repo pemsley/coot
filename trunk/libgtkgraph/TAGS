@@ -1,0 +1,96 @@
+
+annotation.c,219
+static GtkGraphAnnotation *gtk_graph_annotation_allocate(gtk_graph_annotation_allocate11,263
+gint gtk_graph_annotation_new(39,1011
+void gtk_graph_annotation_set_data(75,2190
+void gtk_graph_plot_annotations(94,2667
+
+axis.c,313
+void gtk_graph_axis_set_tick(12,192
+void gtk_graph_axis_set_limits(41,776
+void gtk_graph_axis_set_crossing(65,1301
+void gtk_graph_axis_scale_axis(82,1883
+void gtk_graph_axis_format(206,6784
+void gtk_graph_axis_format_grid(226,7480
+#define expt(241,7990
+static double nicenum(243,8030
+#undef expt278,8653
+
+gtkgraph.c,1708
+GdkColor BLACK 16,269
+GdkColor WHITE 17,318
+GdkColor RED 18,367
+GdkColor GREEN 19,416
+GdkColor BLUE 20,465
+GdkColor LIGHT_GREY 21,514
+GdkColor MID_GREY 22,566
+GdkColor DARK_GREY 23,617
+GdkColor CYAN 24,669
+GdkColor MAGENTA 25,717
+GdkColor YELLOW 26,767
+GdkColor ORANGE	27,817
+GdkColor NAVY_BLUE	28,867
+GdkColor OLIVE_GREEN 29,919
+GdkColor PURPLE	30,973
+GdkColor BROWN	31,1023
+GdkPixmap *buffer buffer33,1074
+GdkGC *BandWcontext BandWcontext34,1101
+GdkGC *BlueandWcontext BlueandWcontext35,1130
+GdkGC *Whitecontext Whitecontext36,1162
+GdkGC *Gridcontext Gridcontext37,1191
+gint true_width 39,1221
+gint true_height 40,1243
+gint user_width 41,1266
+gint user_height 42,1288
+gint user_origin_x 43,1311
+gint user_origin_y 44,1336
+gint margin 45,1361
+#define MAJ_TICK_LEN	47,1382
+#define MIN_TICK_LEN	48,1407
+static GtkWidgetClass *parent_class parent_class52,1474
+guint gtk_graph_get_type 80,2691
+static void gtk_graph_class_init 116,3567
+static void gtk_graph_init 138,4421
+GtkWidget* gtk_graph_new 168,5595
+static void gtk_graph_realize 218,7156
+static void gtk_graph_draw 295,10137
+static void gtk_graph_size_request 343,12136
+static void gtk_graph_size_allocate 363,12624
+static gint gtk_graph_expose 389,13457
+static void gtk_graph_destroy 404,13929
+static void gtk_graph_create_pixmap 424,14442
+static void gtk_graph_set_grid_clipping_rectangles(460,15318
+static void gtk_graph_plot_axes 487,16259
+static void gtk_graph_plot_axes_titles 628,22323
+static void gtk_graph_plot_traces 736,26986
+static void gtk_graph_plot_title 795,29290
+void gtk_graph_set_title 845,30900
+static void gtk_graph_plot_legend 860,31262
+void gtk_graph_legend_format(994,36247
+
+polar.c,227
+static gint centre_x;7,92
+static gint centre_y;8,114
+static gint radius;9,136
+#define TWOPI	11,157
+void gtk_graph_polar_plot_axes(14,234
+void gtk_graph_polar_plot_traces(210,6558
+void gtk_graph_set_polar_format(289,9626
+
+polar_util.c,24
+gfloat wrap_angle(5,72
+
+smith.c,176
+static gint centre_x;7,114
+static gint centre_y;8,136
+void gtk_graph_smith_plot_axes(15,486
+void gtk_graph_smith_plot_traces(142,6538
+void gtk_graph_smith_set_Z0(213,8852
+
+trace.c,281
+GtkGraphTrace *gtk_graph_trace_allocate(gtk_graph_trace_allocate13,238
+gint gtk_graph_trace_new(62,1599
+void gtk_graph_trace_set_data(113,3253
+void gtk_graph_trace_format_marker(159,4356
+void gtk_graph_trace_format_line(367,11396
+void gtk_graph_trace_format_title(428,13468
