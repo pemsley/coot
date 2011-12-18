@@ -10,7 +10,6 @@ build-it-win rev 2122
 -------------------------------------------------------
 
 OIST-CCP4
-- phs read on windows convert slash [AT]
 - indicate rotamer option somewhere/how [PhilE]
 - delete DB loop candidates after accepting?!
 - stereo: shift/shear rather than rotate [PhilE]
@@ -261,6 +260,10 @@ from Osaka 2010
 
 **** Windows ****
 
+   o update gtk!?
+
+   o distribute srces!!
+
    o make installer log
 
    o installer options for guile/windowsy (sections)
@@ -492,5 +495,9 @@ Osaka 2010
 * Done
 
    o check Win7 installation bat file mod [Jola]
+
+* Done
+
+   o phs read on windows convert slash [AT]
 
 * Done

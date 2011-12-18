@@ -451,6 +451,9 @@ PyObject *residue_centre_py(int imol, const char *chain_id, int resno, const cha
 /*! \brief sort the chain ids of the imol-th molecule in lexographical order */
 void sort_chains(int imol);	
 
+/*! \brief sort the residues of the imol-th molecule */
+void sort_residues(int imol);	
+
 /*! \brief a gui dialog showing remarks header info (for a model molecule). */
 void remarks_dialog(int imol);
 void on_remarks_dialog_close_button_clicked     (GtkButton *button,

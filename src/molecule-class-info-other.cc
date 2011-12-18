@@ -8021,6 +8021,19 @@ molecule_class_info_t::sort_chains() {
 #endif
 }
 
+void
+molecule_class_info_t::sort_residues() {
+
+#ifdef MMDB_MAJOR_VERSION
+
+  if (atom_sel.mol)
+    coot::sort_residues(atom_sel.mol);
+
+#endif
+   // no alternative...
+}
+
+
 std::vector<coot::residue_spec_t>
 molecule_class_info_t::residues_near_residue(const coot::residue_spec_t &rspec, float radius) const {
 

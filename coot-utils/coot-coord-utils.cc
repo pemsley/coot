@@ -293,6 +293,28 @@ coot::sort_chains_util(const std::pair<CChain *, std::string> &a,
    return (a.second < b.second); 
 }
 
+void
+coot::sort_residues(CMMDBManager *mol) {
+
+#ifdef MMDB_MAJOR_VERSION
+#if ((MMDB_MAJOR_VERSION > 1) || ((MMDB_MAJOR_VERSION == 1) && (MMDB_MINOR_VERSION >= 22)))
+
+   for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      // run over chains of the existing mol
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+        chain_p = model_p->GetChain(ichain);
+        chain_p->SortResidues();
+      }
+   }
+   mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   mol->FinishStructEdit();
+#endif   
+#endif
+}
+
 // return residue specs for residues that have atoms that are
 // closer than radius Angstroems to any atom in the residue
 // specified by res_in.

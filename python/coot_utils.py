@@ -3400,6 +3400,22 @@ def cmd2str(*args):
 def is_windows():
     return os.name == 'nt'
 
+# clean up pdb file (imol)
+# a wrapper for fix_nomenclature errors, sort chains, residues, merge
+# solvent chains, renumber waters, etc.
+#
+def clean_pdb(imol):
+
+    """clean up pdb file (imol)
+    a wrapper for fix_nomenclature errors, sort chains, residues, merge
+    solvent chains, renumber waters, etc."""
+
+    fix_nomenclature_errors(imol)
+    merge_solvent_chains(imol)
+    renumber_waters(imol)
+    sort_chains(imol)
+    sort_residues(imol)
+
 # acronym
 merge_water_chains = merge_solvent_chains
 
