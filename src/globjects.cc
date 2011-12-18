@@ -4132,10 +4132,10 @@ gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 	    change_model_molecule_representation_mode(0);
 	 handled = 1;
       } else {
-	 std::cout << "shift is not pressed" << std::endl;
+	 // std::cout << "shift is not pressed" << std::endl;
       } 
    } else {
-      std::cout << "control is not pressed " << std::endl;
+      // std::cout << "control is not pressed " << std::endl;
    } 
 
    if (! handled) {

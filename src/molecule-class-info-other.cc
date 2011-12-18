@@ -1182,9 +1182,10 @@ molecule_class_info_t::delete_residue(int model_number,
    int n_models = atom_sel.mol->GetNumberOfModels();
    for (unsigned int imod=1; imod<=n_models; imod++) {
 
-      std::cout << "debug:: delete_residue() comparing imod: "
-		<< imod << " and model_number "
-		<< model_number << std::endl;
+      if (0)
+	 std::cout << "debug:: delete_residue() comparing imod: "
+		   << imod << " and model_number "
+		   << model_number << std::endl;
       
       if ((imod == model_number) || (model_number == MinInt4)) { 
    
@@ -1196,7 +1197,7 @@ molecule_class_info_t::delete_residue(int model_number,
       
 	    if (chain_id == mol_chain_id) {
 
-	       std::cout << "debug:: matching chain_ids on  " << chain_id << std::endl;
+	       // std::cout << "debug:: matching chain_ids on  " << chain_id << std::endl;
 
 	       int nres = chain->GetNumberOfResidues();
 	       for (int ires=0; ires<nres; ires++) { 
