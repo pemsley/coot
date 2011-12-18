@@ -1972,9 +1972,13 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
   update_map();
   std::cout << "done updating map..." << std::endl;
 
+  // as for 'normal' maps
+  std::string cwd = coot::util::current_working_dir();
+  std::string f1  = coot::util::intelligent_debackslash(phs_filename);
+  std::string f2  = coot::util::relativise_file_name(f1, cwd);
   // how do we restore this map?
   save_state_command_strings_.push_back("read-phs-and-make-map-using-cell-symm");
-  save_state_command_strings_.push_back(single_quote(phs_filename));
+  save_state_command_strings_.push_back(single_quote(f2));
   save_state_command_strings_.push_back(single_quote(sg.symbol_hm()));
   save_state_command_strings_.push_back(coot::util::float_to_string(cell.descr().a()));
   save_state_command_strings_.push_back(coot::util::float_to_string(cell.descr().b()));

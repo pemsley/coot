@@ -590,6 +590,9 @@ namespace coot {
    // sort chains in lexographical order
    void sort_chains(CMMDBManager *mol);
 
+   // sort residues
+   void sort_residues(CMMDBManager *mol);
+
 
    // Pukka puckers?
    //

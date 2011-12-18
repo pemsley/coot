@@ -2858,6 +2858,20 @@ void sort_chains(int imol) {
    }
 }
 
+// /*! \brief sort the residues of the imol-th molecule */
+void sort_residues(int imol) { 
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].sort_residues();
+      if (graphics_info_t::use_graphics_interface_flag) {
+        graphics_info_t g;
+        if (g.go_to_atom_window) {
+          g.update_go_to_atom_window_on_changed_mol(imol);
+        }
+      }
+   }
+}
+
 
 /*! \brief simply print secondardy structure info to the
   terminal/console.  In future, this could/should return the info.  */

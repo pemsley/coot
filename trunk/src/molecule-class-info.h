@@ -2847,6 +2847,9 @@ public:        //                      public
    // reorder the chains in the models
    void sort_chains();
 
+   // reorder the residues in the models
+   void sort_residues();
+
    int add_additional_representation(int representation_type,
 				     const int &bonds_box_type_in, 
 				     float bonds_width,
