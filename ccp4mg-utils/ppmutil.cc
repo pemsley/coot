@@ -491,13 +491,14 @@ void image_info::writeppm(const char *filename) const {
     throw ImageInfoWritePPMExc();
   }
 
-  fprintf(fp, "P6\n# CREATOR: CCP4's Write PPM util\n%d %d\n%d\n",
+  fprintf(fp, "P6\n# CREATOR: Coot using CCP4's Write PPM util\n%d %d\n%d\n",
           width, height, UCHAR_MAX);
 
   if(colourspace_type!=IMAGEINFO_RGB){
     image_info tmp = image_info(*this);
     tmp.convert_rgb();
     tmp.write(filename);
+    fclose(fp);
     return;
   }
 
@@ -510,7 +511,6 @@ void image_info::writeppm(const char *filename) const {
     }
   }
   fclose(fp);
-
 }
 
 void image_info::invert_colourmap(){
