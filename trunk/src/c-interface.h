@@ -1984,13 +1984,8 @@ GtkWidget *lookup_file_selection_widgets(GtkWidget *item, int file_selector_type
 /* We wrote this button/callback by hand, most of the rest are in
    callbacks.c  */
 
-#ifdef COOT_USE_GTK2_INTERFACE
 void fileselection_sort_button_clicked( GtkWidget *sort_button,
 					GtkWidget *file_list); 
-#else
-void fileselection_sort_button_clicked_gtk1( GtkWidget *sort_button,
-					     GtkCList  *file_list); 
-#endif
 
 void push_the_buttons_on_fileselection(GtkWidget *filter_button, 
 				       GtkWidget *sort_button,
