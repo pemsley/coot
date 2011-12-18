@@ -800,10 +800,11 @@ namespace coot {
       // using residue_vector
       bool is_a_moving_residue_p(CResidue *r) const;
 
-      void filter_non_bonded_by_distance(const std::vector<std::vector<int> > &non_bonded_atom_indices, double dist); 
-      void construct_non_bonded_contact_list(); // fills filtered_non_bonded_atom_indices;
+      void filter_non_bonded_by_distance(const std::vector<std::vector<int> > &non_bonded_atom_indices, double dist);
+      // don't include bonds which are make to flanking atoms/residues
+      void construct_non_bonded_contact_list(const bonded_pair_container_t &bpc); // fills filtered_non_bonded_atom_indices;
       // which uses
-      void construct_non_bonded_contact_list_by_res_vec();
+      void construct_non_bonded_contact_list_by_res_vec(const bonded_pair_container_t &bpc);
       // or 
       void construct_non_bonded_contact_list_conventional();
       // to make
@@ -1125,8 +1126,8 @@ namespace coot {
       int make_link_restraints_by_linear(const coot::protein_geometry &geom,
 					 bool do_rama_plot_retraints);
 
-      // or 
-      int make_link_restraints_from_res_vec(const coot::protein_geometry &geom,
+      bonded_pair_container_t
+      make_link_restraints_from_res_vec(const coot::protein_geometry &geom,
 					    bool do_rama_plot_retraints);
       // both of which use:
       int make_link_restraints_by_pairs(const coot::protein_geometry &geom,
@@ -1150,17 +1151,25 @@ namespace coot {
       restraint_counts_t make_monomer_restraints_by_residue(CResidue *residue_p,
 							    const protein_geometry &geom,
 							    bool do_residue_internal_torsions);
-      int make_flanking_atoms_restraints(const protein_geometry &geom,
-					 bool do_rama_plot_retraints); // no torsions
+      
+      bonded_pair_container_t
+      make_flanking_atoms_restraints(const protein_geometry &geom,
+				     bool do_rama_plot_retraints); // no torsions
       // uses the following
-
-      coot::bonded_pair_container_t
+      bonded_pair_container_t
       bonded_flanking_residues(const coot::protein_geometry &geom) const;
    
       // new flanking residue search
-      coot::bonded_pair_container_t bonded_flanking_residues_by_residue_vector(const coot::protein_geometry &geom) const;
+      bonded_pair_container_t bonded_flanking_residues_by_residue_vector(const protein_geometry &geom) const;
       // old style linear search (n +/- 1) selection for flanking residues
-      coot::bonded_pair_container_t bonded_flanking_residues_by_linear(const coot::protein_geometry &geom) const;
+      coot::bonded_pair_container_t bonded_flanking_residues_by_linear(const protein_geometry &geom) const;
+      // find residues in the neighbourhood that are not in the refining set
+      // and are not already marked as bonded flankers.
+      // 
+      std::vector<CResidue *> non_bonded_neighbour_residues;
+      // set by this function:
+      void set_non_bonded_neighbour_residues_by_residue_vector(const bonded_pair_container_t &bonded_flanking_pairs, const protein_geometry &geom);
+
       
       int make_flanking_atoms_rama_restraints(const protein_geometry &geom);
 
@@ -1254,7 +1263,7 @@ namespace coot {
 			 short int is_fixed_second_res,
 			 const coot::protein_geometry &geom);
 
-      int make_non_bonded_contact_restraints(const protein_geometry &geom);
+      int make_non_bonded_contact_restraints(const bonded_pair_container_t &bpc, const protein_geometry &geom);
       std::vector<std::vector<int> > bonded_atom_indices;
 
       //! Set a flag that we have an OXT and we need to position it
@@ -1274,6 +1283,7 @@ namespace coot {
       distortion_vector(const gsl_vector *v) const;
 
       std::vector<bool>  make_fixed_flags(int index1, int index2) const;
+      std::vector<bool>  make_non_bonded_fixed_flags(int index1, int index2) const;
       std::vector<bool>  make_fixed_flags(int index1, int index2, int index3) const;
       std::vector<bool>  make_fixed_flags(int index1, int index2, int index3, int index4) const;
       std::vector<bool>  make_fixed_flags(const std::vector<int> &indices) const;

@@ -396,9 +396,9 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
       atom_z_weight[i] = z;
    }
    
-   // similarly for the fixed atoms:   
+   // the fixed atoms:   
    // 
-   assign_fixed_atom_indices(fixed_atom_specs); // convert from std::vector<CAtom *>
+   assign_fixed_atom_indices(fixed_atom_specs); // convert from std::vector<atom_spec_t>
    				                // to std::vector<int> fixed_atom_indices;
 
    // blank out those atoms from seeing electron density map gradients
@@ -458,6 +458,10 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    // indexing of that work when (say) adding a bond?
    coot::bonded_pair_container_t bpc = bonded_flanking_residues_by_residue_vector(geom);
 
+   // internal variable non_bonded_neighbour_residues is set by this
+   // function:
+   set_non_bonded_neighbour_residues_by_residue_vector(bpc, geom);
+
    //    std::cout << "   DEBUG:: made " << bpc.size() << " bonded flanking pairs " << std::endl;
 
    // passed and flanking
@@ -480,6 +484,11 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 	 all_residues.push_back(bpc[i].res_2);
 	 n_bonded_flankers_in_total++;
       } 
+   }
+
+   // Finally add the neighbour residues that are not bonded:
+   for (unsigned int ires=0; ires<non_bonded_neighbour_residues.size(); ires++) { 
+      all_residues.push_back(non_bonded_neighbour_residues[ires]);
    }
 
 //    std::cout << "   DEBUG:: There are " << residues.size() << " passed residues and "
@@ -3371,7 +3380,8 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
 
       iret += make_link_restraints(geom, do_rama_plot_restraints);
       //  don't do torsions, ramas maybe.   
-      iret += make_flanking_atoms_restraints(geom, do_rama_plot_restraints);
+      coot::bonded_pair_container_t bpc = make_flanking_atoms_restraints(geom, do_rama_plot_restraints);
+      iret += bpc.size();
       int iret_prev = restraints_vec.size();
 
       if (sec_struct_pseudo_bonds == coot::HELIX_PSEUDO_BONDS) {
@@ -3383,7 +3393,7 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
 
       if (restraints_usage_flag & coot::NON_BONDED_MASK) {
 	 if (iret_prev > 0) {
-	    int n_nbcr = make_non_bonded_contact_restraints(geom);
+	    int n_nbcr = make_non_bonded_contact_restraints(bpc, geom);
 	    std::cout << "INFO:: made " << n_nbcr << " non-bonded restraints\n";
 	 }
       }
@@ -3441,8 +3451,54 @@ coot::restraints_container_t::make_fixed_flags(int index1, int index2) const {
       if (index2 == fixed_atom_indices[ifixed])
 	 r[1] = 1;
    }
+
+   return r;
+}
+
+std::vector<bool>
+coot::restraints_container_t::make_non_bonded_fixed_flags(int index1, int index2) const {
+
+   std::vector<bool> r(2,0);
+   bool set_0 = 0;
+   bool set_1 = 0;
+   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
+      if (index1 == fixed_atom_indices[ifixed]) { 
+	 r[0] = 1;
+	 set_0 == 1;
+	 break;
+      }
+   } 
+      
+   for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
+      if (index2 == fixed_atom_indices[ifixed]) { 
+	 r[1] = 1;
+	 set_1 == 1;
+	 break;
+      }
+   }
+
+   if (set_0 && set_1 ) {
+      return r;  // yeay, fast.
+   }
+
+   if (! set_0) {
+      CResidue *res = atom[index1]->residue;
+      if (std::find(non_bonded_neighbour_residues.begin(),
+		    non_bonded_neighbour_residues.end(),
+		    res) != non_bonded_neighbour_residues.end())
+	 r[0] = 1; // if we found the residue in non_bonded_neighbour_residues
+                   // then that atom of that residue is fixed
+   }
+   if (! set_1) {
+      CResidue *res = atom[index2]->residue;
+      if (std::find(non_bonded_neighbour_residues.begin(),
+		    non_bonded_neighbour_residues.end(),
+		    res) != non_bonded_neighbour_residues.end())
+	 r[1] = 1; 
+   }
    return r;
 } 
+
 
 std::vector<bool>
 coot::restraints_container_t::make_fixed_flags(int index1, int index2, int index3) const {
@@ -3879,11 +3935,13 @@ int
 coot::restraints_container_t::make_link_restraints(const coot::protein_geometry &geom,
 						   bool do_rama_plot_restraints) {
 
-   if (from_residue_vector)
-      return make_link_restraints_from_res_vec(geom, do_rama_plot_restraints);
-   else 
+   if (from_residue_vector) {
+      coot::bonded_pair_container_t bpc = make_link_restraints_from_res_vec(geom, do_rama_plot_restraints);      
+      return bpc.size();
+   } else { 
       return make_link_restraints_by_linear(geom, do_rama_plot_restraints); // conventional
-
+   }
+   
    int ir = 0;
    return ir; 
 }
@@ -3948,20 +4006,20 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
 }
 
 
-int
+coot::bonded_pair_container_t
 coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::protein_geometry &geom,
 								bool do_rama_plot_restraints) {
 
    // this determines the link type
    coot::bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
-//     std::cout << "   DEBUG:: in make_link_restraints_from_res_vec() found "
-//  	     << bonded_residue_pairs.size() << " bonded residues " << std::endl;
+   // std::cout << "   DEBUG:: in make_link_restraints_from_res_vec() found "
+   //           << bonded_residue_pairs.size() << " bonded residues " << std::endl;
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, "Link");
 
    if (do_rama_plot_restraints)
       add_rama_links_from_res_vec(bonded_residue_pairs, geom);
 
-   return iv;
+   return bonded_residue_pairs;
 }
 
 int
@@ -4414,7 +4472,7 @@ std::pair<std::string, bool>
 coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue *second,
 						       const coot::protein_geometry &geom) const {
 
-   bool debug = 0;
+   bool debug = false;
    std::string link_type = "";
    bool order_switch_flag = 0;
    std::string comp_id_1 = first->GetResName();
@@ -4454,6 +4512,9 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 
 	    if (link_infos[ilink].first.is_peptide_link_p()) {
 	       std::pair<bool, bool> close_info = peptide_C_and_N_are_close_p(first, second);
+	       if (debug)
+		  std::cout << "   peptide_C_and_N_are_close returns " <<  close_info.first
+			    << " and order-switch: " << close_info.second << std::endl;
 	       if (close_info.first) {
 		  order_switch_flag = close_info.second;
 		  // link_type = link_infos[ilink].first.Id();
@@ -4568,6 +4629,8 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 std::pair<bool, bool>
 coot::restraints_container_t::peptide_C_and_N_are_close_p(CResidue *r1, CResidue *r2) const {
 
+   // needs PDBv3 fixup.
+   
    float dist_crit = 2.0; // 2.0 A for a peptide link - so that we
 			  // don't find unintentional peptides - which
 			  // would be a disaster.
@@ -4758,7 +4821,7 @@ coot::restraints_container_t::closest_approach(CResidue *r1, CResidue *r2) const
 } 
 
 
-int
+coot::bonded_pair_container_t
 coot::restraints_container_t::make_flanking_atoms_restraints(const coot::protein_geometry &geom,
 							     bool do_rama_plot_restraints) {
 
@@ -4771,7 +4834,7 @@ coot::restraints_container_t::make_flanking_atoms_restraints(const coot::protein
       // e.g 1 free 2 free 3 flanking (fixed).
       n_rama_restraints = make_flanking_atoms_rama_restraints(geom);  // returns 0 or something.
    }
-   return iv;
+   return bonded_residue_pairs;
 }
 
 
@@ -4984,6 +5047,7 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
 			bpc.try_add(bp);
 		     } else {
 			coot::bonded_pair_t bp(residues_vec[ir].second, neighbours[ineighb], 0, 1, link_type);
+
 			bpc.try_add(bp);
 		     }
 		  }
@@ -4994,6 +5058,60 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
    } 
    return bpc;
 }
+
+
+// find residues in the neighbourhood that are not in the refining set
+// and are not already marked as bonded flankers.
+// 
+void
+coot::restraints_container_t::set_non_bonded_neighbour_residues_by_residue_vector(const coot::bonded_pair_container_t &bonded_flanking_pairs, const coot::protein_geometry &geom) {
+
+   std::vector<CResidue *> nbr; // non-bonded residues 
+   float dist_crit = 3.0;
+
+   for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
+      std::vector<CResidue *> neighbours =
+	 coot::residues_near_residue(residues_vec[ir].second, mol, dist_crit);
+      for (unsigned int ineighb=0; ineighb<neighbours.size(); ineighb++) {
+	 CResidue *test_res = neighbours[ineighb];
+	 if (std::find(nbr.begin(), nbr.end(), test_res) == nbr.end()) {
+	    // not already there...
+	    bool found = 0;
+	    for (unsigned int ires=0; ires<residues_vec.size(); ires++) {
+	       if (test_res == residues_vec[ires].second) {
+		  found = 1;
+		  break;
+	       } 
+	    }
+
+	    if (! found) {
+	       // OK, so this neighbour was not in the passed set of
+	       // moving residues (and not already in nbr)... it can
+	       // be a flanking residue then...
+
+	       // check that it is not a bonded flanking residue...
+	       for (unsigned int iflank=0; iflank<bonded_flanking_pairs.size(); iflank++) { 
+		  if (bonded_flanking_pairs[iflank].res_1 == test_res) {
+		     found = 1;
+		     // std::cout << "      oops bonded flanking residue res1 " << std::endl;
+		     break;
+		  } 
+		  if (bonded_flanking_pairs[iflank].res_2 == test_res) {
+		     found = 1;
+		     // std::cout << "   oops bonded flanking residue res2 " << std::endl;
+		     break;
+		  }
+	       }
+
+	       if (! found) {
+		  nbr.push_back(test_res);
+	       } 
+	    }
+	 }
+      }
+   }
+   non_bonded_neighbour_residues = nbr;
+} 
 
 
 // Atoms that are not involved in bonds or angles, but are in the
@@ -5041,40 +5159,31 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
 
 
 int 
-coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::protein_geometry &geom) { 
+coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bonded_pair_container_t &bpc,
+								 const coot::protein_geometry &geom) { 
 
-   construct_non_bonded_contact_list();
-   
+   construct_non_bonded_contact_list(bpc);
    // so now filtered_non_bonded_atom_indices is filled.
-   std::vector<bool> fixed_atom_flags(2);  // 2 atoms in this restraint.
-
-
-//   std::cout << "non-bonded list:" << std::endl;
-//   std::cout << "--------------------------------------------------\n";
-//   for (int i=0; i<filtered_non_bonded_atom_indices.size(); i++) { 
-//     std::cout << i << "  " << atom[i]->GetSeqNum() << " " << atom[i]->name << " : "; 
-//     for (int j=0; j<filtered_non_bonded_atom_indices[i].size(); j++) { 
-//       std::cout << filtered_non_bonded_atom_indices[i][j] << " ";
-//     } 
-//     std::cout << std::endl;
-//   } 
-//  std::cout << "--------------------------------------------------\n";
 
    int n_nbc_r = 0;
    for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) { 
       for (unsigned int j=0; j<filtered_non_bonded_atom_indices[i].size(); j++) {
 
-	 std::vector<bool> fixed_atom_flags = make_fixed_flags(i, filtered_non_bonded_atom_indices[i][j]);
-
+	 std::vector<bool> fixed_atom_flags =
+	    make_non_bonded_fixed_flags(i, filtered_non_bonded_atom_indices[i][j]);
+	 std::string type_1 = get_type_energy(atom[i], geom);
+	 std::string type_2 = get_type_energy(atom[filtered_non_bonded_atom_indices[i][j]], geom);
+	 
 	 if (0)
 	    std::cout << "adding non-bonded contact restraint " 
 		      << i << ":  " << filtered_non_bonded_atom_indices[i][j] << " ["
 		      << atom[i]->GetSeqNum() << " " << atom[i]->name << "] to [" 
 		      << atom[filtered_non_bonded_atom_indices[i][j]]->GetSeqNum() << " " 
-		      << atom[filtered_non_bonded_atom_indices[i][j]]->name << "]" << std::endl;
-
-	 std::string type_1 = get_type_energy(atom[i], geom);
-	 std::string type_2 = get_type_energy(atom[filtered_non_bonded_atom_indices[i][j]], geom);
+		      << atom[filtered_non_bonded_atom_indices[i][j]]->name << "]  types: "
+		      << type_1 <<  " "
+		      << type_2 <<  " fixed: "
+		      << fixed_atom_flags[0] << " " << fixed_atom_flags[1]
+		      << std::endl;
 	 add_non_bonded(i, filtered_non_bonded_atom_indices[i][j], type_1, type_2, fixed_atom_flags, geom);
 	 n_nbc_r++;
       }
@@ -5085,10 +5194,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::pro
 // fill the member data filtered_non_bonded_atom_indices
 // 
 void
-coot::restraints_container_t::construct_non_bonded_contact_list() {
+coot::restraints_container_t::construct_non_bonded_contact_list(const coot::bonded_pair_container_t &bpc) {
 
    if (from_residue_vector)
-      construct_non_bonded_contact_list_by_res_vec();
+      construct_non_bonded_contact_list_by_res_vec(bpc);
    else 
       construct_non_bonded_contact_list_conventional();
 
@@ -5236,20 +5345,31 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
 }
 
 void
-coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec() {
+coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const coot::bonded_pair_container_t &bpc) {
 
-   double dist_crit = 8.0;
+   if (0) // debug
+      for (unsigned int i=0; i<bpc.size(); i++)
+	 std::cout << "   "
+		   << coot::residue_spec_t(bpc[i].res_1) << " "
+		   << coot::residue_spec_t(bpc[i].res_2) << " "
+		   << bpc[i].is_fixed_first << " " 
+		   << bpc[i].is_fixed_second << " " 
+		   << std::endl;
+
+   
+   const double dist_crit = 8.0;
    filtered_non_bonded_atom_indices.resize(bonded_atom_indices.size());
 
    for (int i=0; i<bonded_atom_indices.size(); i++) {
       for (int j=0; j<bonded_atom_indices.size(); j++) {
 	 if (i != j) {
-	    if (!coot::is_member_p(bonded_atom_indices[i], j)) {
 
-	       // We don't want NCBs for fixed residues (i.e. the
-	       // flanking residues), so if both atoms are in residues
-	       // that are not in residue_vec, then we don't add a NCB
-	       // for that atom pair.
+	    // We don't want NCBs for fixed residues (i.e. the
+	    // flanking residues), so if both atoms are in residues
+	    // that are not in residue_vec, then we don't add a NCB
+	    // for that atom pair.
+
+	    if (!coot::is_member_p(bonded_atom_indices[i], j)) {
 
 	       // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)
 	       clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
@@ -5259,14 +5379,52 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec() {
 		  CResidue *r1 = atom[i]->residue;
 		  CResidue *r2 = atom[j]->residue;
 		  
-		  if (is_a_moving_residue_p(r1) && is_a_moving_residue_p(r2)) { 
+		  if (is_a_moving_residue_p(r1) && is_a_moving_residue_p(r2)) {
 		     filtered_non_bonded_atom_indices[i].push_back(j);
 		  }
 	       } 
 	    }
 	 } 
       }
-   } 
+   }
+
+   // now add NBC restraints between atoms that are moving and atoms
+   // of the neighbour residues.
+   // 
+   for (unsigned int iat=0; iat<n_atoms; iat++) {
+      if (bonded_atom_indices[iat].size()) { 
+	 CResidue *bonded_atom_residue = atom[iat]->residue;
+	 for (unsigned int jat=0; jat<n_atoms; jat++) {
+	    CResidue *other_atom_residue = atom[jat]->residue;
+	    if (bonded_atom_residue != other_atom_residue) {
+	       if ( is_a_moving_residue_p(bonded_atom_residue) &&
+		    !is_a_moving_residue_p(other_atom_residue)) {
+
+		  if (! bpc.matches(bonded_atom_residue, other_atom_residue)) { 
+		     if (iat != jat) {
+			if (!coot::is_member_p(bonded_atom_indices[iat], jat)) {
+			
+			   // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)
+			   clipper::Coord_orth pt1(atom[iat]->x, atom[iat]->y, atom[iat]->z);
+			   clipper::Coord_orth pt2(atom[jat]->x, atom[jat]->y, atom[jat]->z);
+			   double d = clipper::Coord_orth::length(pt1, pt2);
+			   if (d < dist_crit) {
+			      if (0)
+				 std::cout << " ///////////////////////////// NBC   here "
+					   << iat << " " << jat << " "
+					   << coot::atom_spec_t(atom[iat]) << " "
+					   << coot::atom_spec_t(atom[jat]) << " "
+					   << std::endl;
+			      filtered_non_bonded_atom_indices[iat].push_back(jat);
+			   }
+			} 
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
 } 
 
 
@@ -5301,7 +5459,7 @@ coot::restraints_container_t::filter_non_bonded_by_distance(const std::vector<st
 	    atom_2->GetUDData(udd_atom_index_handle, i_at_ind); // sets i_at_ind.
 	    filtered_non_bonded_atom_indices[i].push_back(i_at_ind);
 	 } else { 
-// 	    std::cout << "          non-bonded contact between " << atom_1->GetSeqNum() 
+// 	    std::cout << "          reject non-bonded contact between " << atom_1->GetSeqNum() 
 // 		      << " " << atom_1->name  << " and " << atom_2->GetSeqNum() 
 // 		      << " " << atom_2->name << " rejected by distance\n";
 	 } 
