@@ -592,8 +592,9 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
    }
 }
 
+template <class T>
 coot::contact_info::contact_info(CMMDBManager *mol, int selhnd,
-				 const std::vector<coot::atom_quad> &link_torsions,
+				 const std::vector<T> &link_torsions,
 				 coot::protein_geometry *geom_p) {
 
    atom_selection_container_t asc(mol, selhnd);
@@ -625,6 +626,10 @@ coot::contact_info::contact_info(CMMDBManager *mol, int selhnd,
 }
 
 
+// instantiate that:
+template coot::contact_info::contact_info(CMMDBManager *mol, int selhnd,
+				 const std::vector<coot::torsion_atom_quad> &link_torsions,
+				 coot::protein_geometry *geom_p);
 
 // try to get the bonds/contacts from the dictionary.  If there are no
 // bonds, then fall back to the distance based search.

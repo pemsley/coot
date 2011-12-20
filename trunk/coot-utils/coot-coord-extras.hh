@@ -439,7 +439,7 @@ namespace coot {
 
    // The quad version of this (for actually setting torsions)
    // 
-   std::vector<atom_quad>
+   std::vector<torsion_atom_quad>
    torsionable_bonds_monomer_internal_quads(CResidue *residue_p,
 				      PPCAtom atom_selection, int n_selected_atoms,
 				      bool include_pyranose_ring_torsions_flag,

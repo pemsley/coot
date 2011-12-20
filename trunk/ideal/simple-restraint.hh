@@ -1674,10 +1674,10 @@ namespace coot {
 
    // And the atom_quad version of that (for setting link torsions)
    // 
-   std::vector<atom_quad>
+   std::vector<torsion_atom_quad>
    torsionable_quads(CMMDBManager *mol, PPCAtom atom_selection, int n_selected_atoms,
 		     protein_geometry *geom);
-   std::vector<atom_quad>
+   std::vector<torsion_atom_quad>
    torsionable_link_quads(std::vector<CResidue *> residues_in,
 			  CMMDBManager *mol, protein_geometry *geom_p);
    
@@ -1685,6 +1685,8 @@ namespace coot {
    void multi_residue_torsion_fit_map(CMMDBManager *mol,
 				      const clipper::Xmap<float> &xmap,
 				      coot::protein_geometry *geom_p); 
+  // which calls 
+  double get_rand_angle(double current_angle, const torsion_atom_quad &quad, int itrial, int n_trials); 
 
 } // namespace coot
 

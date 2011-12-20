@@ -534,12 +534,12 @@ coot::torsionable_bonds_monomer_internal(CResidue *residue_p,
 // Don't return any hydrogen torsions - perhaps we should make that a
 // passed parameter.
 // 
-std::vector<coot::atom_quad>
+std::vector<coot::torsion_atom_quad>
 coot::torsionable_bonds_monomer_internal_quads(CResidue *residue_p,
 					       PPCAtom atom_selection, int n_selected_atoms,
 					       bool include_pyranose_ring_torsions_flag,
 					       coot::protein_geometry *geom_p) {
-   std::vector<coot::atom_quad> quads;
+   std::vector<coot::torsion_atom_quad> quads;
    bool hydrogen_torsions = false;
    std::string rn = residue_p->GetResName();
    std::vector <dict_torsion_restraint_t> tors_restraints = 
@@ -573,8 +573,12 @@ coot::torsionable_bonds_monomer_internal_quads(CResidue *residue_p,
 	       }
 	       // yes we got for atoms (of matching alt confs)
 	       if (ats[1] && ats[2] && ats[3] && ats[4]) {
-		  coot::atom_quad q(ats[1],ats[2],ats[3],ats[4]);
+		  coot::torsion_atom_quad q(ats[1],ats[2],ats[3],ats[4],
+					    tors_restraints[itor].angle(),
+					    tors_restraints[itor].esd(),
+					    tors_restraints[itor].periodicity());
 		  q.name = tors_restraints[itor].id();
+		  q.residue_name = rn;
 		  quads.push_back(q);
 		  
 	       }
