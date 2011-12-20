@@ -235,8 +235,9 @@ namespace coot {
     // like above, but we have link atom quads (selhnd is a selection
     // handle - usually all atoms in mol, but not necessarily).
     // 
+    template<class T>
     contact_info(CMMDBManager *mol, int selhnd,
-		 const std::vector<atom_quad> &link_torsions,
+		 const std::vector<T> &link_torsions,
 		 protein_geometry *geom_p);
 
     void add_MSE_Se_bonds(const atom_selection_container_t &asc);

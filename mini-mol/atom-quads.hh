@@ -158,6 +158,24 @@ namespace coot {
    }; 
    std::ostream& operator<<(std::ostream &o, const atom_quad &q);
 
+   class torsion_atom_quad : public atom_quad {
+   public:
+      int period;
+      double angle;
+      double angle_esd;
+      std::string residue_name; // set in the case of monomer torsions.
+      torsion_atom_quad(CAtom *atom_1_in,
+			CAtom *atom_2_in,
+			CAtom *atom_3_in,
+			CAtom *atom_4_in,
+			double angle_in, double angle_esd_in, int period_in) :
+	 atom_quad(atom_1_in, atom_2_in, atom_3_in, atom_4_in) {
+	 period = period_in;
+	 angle = angle_in;
+	 angle_esd = angle_esd_in;
+      } 
+   };
+
 }
 
 #endif // LIGAND_ATOM_QUAD_HH

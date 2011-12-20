@@ -122,20 +122,20 @@ coot::torsionable_link_bonds(std::vector<CResidue *> residues_in,
 // 
 // this can throw an exception
 // 
-std::vector<coot::atom_quad>
+std::vector<coot::torsion_atom_quad>
 coot::torsionable_quads(CMMDBManager *mol, PPCAtom atom_selection,
 			int n_selected_atoms,
 			coot::protein_geometry *geom_p) {
 
    bool pyranose_ring_torsion_flag = false; // no thanks
-   std::vector<coot::atom_quad> quads;
+   std::vector<coot::torsion_atom_quad> quads;
    std::vector<CResidue *> residues;
    for (unsigned int i=0; i<n_selected_atoms; i++) { 
       CResidue *r = atom_selection[i]->residue;
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	 residues.push_back(r);
    }
-   std::vector<coot::atom_quad> link_quads =
+   std::vector<coot::torsion_atom_quad> link_quads =
       coot::torsionable_link_quads(residues, mol, geom_p);
    for (unsigned int iquad=0; iquad<link_quads.size(); iquad++)
       quads.push_back(link_quads[iquad]);
@@ -143,8 +143,7 @@ coot::torsionable_quads(CMMDBManager *mol, PPCAtom atom_selection,
       PPCAtom residue_atoms = 0;
       int n_residue_atoms;
       residues[ires]->GetAtomTable(residue_atoms, n_residue_atoms);
-      std::vector<coot::atom_quad> monomer_quads =
-
+      std::vector<coot::torsion_atom_quad> monomer_quads =
 	 coot::torsionable_bonds_monomer_internal_quads(residues[ires], residue_atoms,
 							n_residue_atoms,
 							pyranose_ring_torsion_flag, geom_p);
@@ -156,11 +155,11 @@ coot::torsionable_quads(CMMDBManager *mol, PPCAtom atom_selection,
 
 // And the atom_quad version of that (for setting link torsions)
 // 
-std::vector<coot::atom_quad>
+std::vector<coot::torsion_atom_quad>
 coot::torsionable_link_quads(std::vector<CResidue *> residues_in,
 			     CMMDBManager *mol, coot::protein_geometry *geom_p) {
 
-   std::vector<coot::atom_quad> quads;
+   std::vector<coot::torsion_atom_quad> quads;
    std::vector<std::pair<bool, CResidue *> > residues(residues_in.size());
    for (unsigned int i=0; i<residues_in.size(); i++)
       residues[i] = std::pair<bool, CResidue *> (0, residues_in[i]);
@@ -230,8 +229,11 @@ coot::torsionable_link_quads(std::vector<CResidue *> residues_in,
 			    << coot::atom_spec_t(link_atom_3) << " " << coot::atom_spec_t(link_atom_4) << " "
 			    << std::endl;
 		  if (link_atom_1 && link_atom_2 && link_atom_3 && link_atom_4) {
-		     coot::atom_quad q(link_atom_1, link_atom_2, link_atom_3, link_atom_4);
-		     q.name = link.link_id;
+		     coot::torsion_atom_quad q(link_atom_1, link_atom_2, link_atom_3, link_atom_4,
+					       rest.angle(),
+					       rest.angle_esd(),
+					       rest.period());
+		     q.name = rest.id();
 		     quads.push_back(q);
 		  }
 	       }
@@ -263,7 +265,10 @@ coot::torsionable_link_quads(std::vector<CResidue *> residues_in,
 		     CAtom *n_at_1 = bpc[i].res_1->GetAtom(neigbhour_1_name.c_str());
 		     CAtom *n_at_2 = bpc[i].res_2->GetAtom(neigbhour_2_name.c_str());
 		     if (n_at_1 && n_at_2) {
-			quads.push_back(coot::atom_quad(n_at_1, link_atom_1, link_atom_2, n_at_2));
+ 			coot::torsion_atom_quad q(n_at_1, link_atom_1, link_atom_2, n_at_2,
+						  180.0, 40, 3); // synthetic values
+			q.name = "Bond-derived synthetic torsion";
+			quads.push_back(q);
 		     } 
 		  } 
 	       } else {
@@ -308,7 +313,7 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
       } 
 
       if (n_selected_atoms > 0) { 
-	 std::vector<coot::atom_quad> quads = 
+	 std::vector<coot::torsion_atom_quad> quads = 
 	    coot::torsionable_quads(mol, atom_selection, n_selected_atoms, geom_p);
 
 	 if (0) 
@@ -344,11 +349,12 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
       
 	 double frac = 360.0/(float) RAND_MAX;
 	 for (unsigned int itrial=0; itrial<n_trials; itrial++) {
+	    std::cout << "Round " << itrial << " of " << n_trials << " for " << n_quads << " quads "
+		      << std::endl;
 	    std::vector<coot::atom_tree_t::tree_dihedral_quad_info_t> torsion_quads;
 	    for (unsigned int iquad=0; iquad<n_quads; iquad++) {
-	       double minus_one_to_one = -1 + 2 * coot::util::random()/float(RAND_MAX);
-	       double angle_scale_factor = 0.2 + 1.0 - double(itrial)/double(n_trials);
-	       double rand_angle = best_quads[iquad] + 40.0 * minus_one_to_one * angle_scale_factor;
+	       // double rand_angle = best_quads[iquad] + 40.0 * minus_one_to_one * angle_scale_factor;
+               double rand_angle = get_rand_angle(best_quads[iquad], quads[iquad], itrial, n_trials);
 	       // 	    std::cout << "   trying rand_angle " << rand_angle << " from "
 	       // 		      << best_quads[iquad] << " + " << minus_one_to_one
 	       // 		      << std::endl;
@@ -362,7 +368,7 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
 	       // std::cout << "----------------- updating best quads!" << std::endl;
 	       best_score = this_score;
 
-	       // save best quads
+	       // save best torsion angles
 	       for (unsigned int iquad=0; iquad<n_quads; iquad++)
 		  best_quads[iquad] = quads[iquad].torsion();
 
@@ -378,3 +384,31 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
       std::cout << "WARNING:: " << rte.what() << std::endl;
    }
 } 
+
+
+double 
+coot::get_rand_angle(double current_angle, 
+                     const coot::torsion_atom_quad &quad, 
+                     int itrial, int n_trials) { 
+
+   double r = current_angle;
+   double minus_one_to_one = -1 + 2 * float(coot::util::random())/float(RAND_MAX);
+   double angle_scale_factor = 0.2 + 0.8 - double(itrial)/double(n_trials);
+ 
+   r += 30 * minus_one_to_one * angle_scale_factor;
+
+   // allow gauche+/gauche-/trans
+   double rn = float(coot::util::random())/float(RAND_MAX);
+   if (rn < 0.3) {
+      double rn_2 = float(coot::util::random())/float(RAND_MAX);
+      double step = floor(3 * rn_2) * 60.0;
+      // std::cout << "      step " << step << std::endl;
+      r += step;
+   } 
+
+   //    std::cout << "   varying " << quad.name << " was " << current_angle << " now "
+   // << r << std::endl;
+   
+   return r; 
+} 
+
