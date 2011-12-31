@@ -578,7 +578,7 @@ coot::goograph::plot_smoothed_line_graph(int trace_id,
 	 if (dashed)
 	    dash = goo_canvas_line_dash_new (2, 5.7, 3.0);
 	 else
-	    dash = goo_canvas_line_dash_new (2, 5.7, 0.0);
+	    dash = goo_canvas_line_dash_new (2, 4.0, 0.0);
 	 
 	 GooCanvasItem *line =
 	    goo_canvas_path_new(root, path_data.c_str(), 
