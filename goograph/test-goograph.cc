@@ -32,9 +32,9 @@ int main (int argc, char **argv) {
    data.push_back(std::pair<double, double> (3.5, 0.01));
 
     for (unsigned int i=0; i<data.size(); i++) { 
-       data[i].first *= 100;
-       data[i].second *= 2;
-       data[i].second += 0.5;
+       data[i].first *= 60;
+       data[i].second *= 4;
+       data[i].second += 0.3;
     }
    
    coot::goograph g;
@@ -61,12 +61,12 @@ int main (int argc, char **argv) {
       data[i].second *= 0.6;
       data[i].second += 0.5;
    }
-   trace = g.trace_new();
-   g.set_data(trace, data);
-   g.plot(trace, coot::goograph::PLOT_TYPE_SMOOTHED_LINE);
+    trace = g.trace_new();
+    g.set_data(trace, data);
+    g.plot(trace, coot::goograph::PLOT_TYPE_SMOOTHED_LINE);
 
    bool do_annotations = false;
-   do_annotations = true; 
+   // do_annotations = true; 
    if (do_annotations) {
       // red lines
       lig_build::pos_t p1(150*f, 12*fy);
