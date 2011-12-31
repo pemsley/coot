@@ -91,16 +91,17 @@ coot::goograph::draw_axes() {
 // 				   NULL);
 
    GooCanvasLineDash *dash=goo_canvas_line_dash_new (2, 5.7, 0.0);
-   lig_build::pos_t A_yaxis(0,0);
-   lig_build::pos_t B_yaxis(0,350);
+   lig_build::pos_t A_yaxis(extents_min_x, 0);
+   lig_build::pos_t B_yaxis(extents_min_x, y_range()*1.1);
    lig_build::pos_t wAy = world_to_canvas(A_yaxis);
    lig_build::pos_t wBy = world_to_canvas(B_yaxis);
-   lig_build::pos_t A_xaxis(0,0);
-   lig_build::pos_t B_xaxis(x_range()*1.1, 0);
-   std::cout << "in draw_axes() X: 0 to 300 extents " << extents_min_x << " " << extents_max_x
-	     << std::endl;
-   std::cout << "in draw_axes() Y: 0 to 500 extents " << extents_min_y << " " << extents_max_y
-	     << std::endl;
+   lig_build::pos_t A_xaxis(extents_min_x, 0);
+   lig_build::pos_t B_xaxis(extents_min_x + x_range()*1.1, 0);
+   std::cout << "in draw_axes() X: 0 to 300 extents " << extents_min_x << " "
+	     << extents_max_x << std::endl;
+   std::cout << "in draw_axes() Y: 0 to 500 extents " << extents_min_y << " "
+	     << extents_max_y << std::endl;
+   
    lig_build::pos_t wAx = world_to_canvas(A_xaxis);
    lig_build::pos_t wBx = world_to_canvas(B_xaxis);
    gboolean start_arrow = 0;
@@ -185,16 +186,16 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	 double tick_label_x_off = 0;
 	 double tick_label_y_off = 0;
 	 if (axis == Y_AXIS) { 
-	    A_axis = lig_build::pos_t(0.0, tick_pos);
-	    B_axis = lig_build::pos_t(-x_range()*0.04*tick_length_multiplier, tick_pos);
-	    tick_label_x_off = 20;
+	    A_axis = lig_build::pos_t(extents_min_x, tick_pos);
+	    B_axis = lig_build::pos_t(extents_min_x + -x_range()*0.04*tick_length_multiplier, tick_pos);
+	    tick_label_x_off = 10;
 	    tick_label_y_off = 0;
 	 }
 	 if (axis == X_AXIS) { 
 	    A_axis = lig_build::pos_t(tick_pos, 0.0);
 	    B_axis = lig_build::pos_t(tick_pos, -y_range()*0.05*tick_length_multiplier);
-	    tick_label_x_off = 20;
-	    tick_label_y_off = -12;
+	    tick_label_x_off = 7;
+	    tick_label_y_off = -13;
 	 }
 	 lig_build::pos_t wA = world_to_canvas(A_axis);
 	 lig_build::pos_t wB = world_to_canvas(B_axis);
@@ -212,9 +213,14 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	    anchor_type = GTK_ANCHOR_SOUTH_WEST;
 
 	 if (tick_type == MAJOR_TICK) {
-	    std::string txt = coot::util::float_to_string_using_dec_pl(tick_pos,0);
+	    int n_dec_pl = 0;
+	    if (y_range() < 3)
+	       n_dec_pl = 1;
+	    std::string txt =
+	       coot::util::float_to_unspaced_string_using_dec_pl(tick_pos, n_dec_pl);
 	    GooCanvasItem *text = goo_canvas_text_new(root, txt.c_str(),
-						      wB.x-tick_label_x_off, wB.y - tick_label_y_off,
+						      wB.x - tick_label_x_off,
+						      wB.y - tick_label_y_off,
 						      -1,
 						      anchor_type,
 						      "font", "Sans 7",
@@ -242,11 +248,12 @@ coot::goograph::set_extents(int axis, double min, double max) {
    if (axis == Y_AXIS) {
       extents_min_y = min;
       extents_max_y = max;
-      data_scale_y = 0.003 * (extents_max_y - extents_min_y);
+      double delta = extents_max_y - extents_min_y;
+      if (delta > 0.1)
+	 data_scale_y = 300/delta;
       std::cout << "data_scale_y " << data_scale_y << std::endl;
    }
-   
-} 
+}
 
 void
 coot::goograph::set_ticks(int axis, double tick_major, double tick_minor) {
@@ -266,11 +273,28 @@ coot::goograph::set_ticks(int axis, double tick_major, double tick_minor) {
 void
 coot::goograph::set_axis_label(int axis, const std::string &label) {
 
+   GooCanvasItem *root = goo_canvas_get_root_item(canvas);
+   lig_build::pos_t A;
+   if (axis == X_AXIS) {
+      A = lig_build::pos_t(x_range()*0.8, -y_range()*0.12);
+   }
+   if (axis == Y_AXIS) {
+      A = lig_build::pos_t(extents_min_x-x_range()*0.14, y_range()*1.15);
+   }
+   lig_build::pos_t wA = world_to_canvas(A);
+   GtkAnchorType anchor_type = GTK_ANCHOR_NORTH_WEST;
+   GooCanvasItem *text =
+      goo_canvas_text_new(root, label.c_str(),
+			  wA.x, wA.y,
+			  -1,
+			  anchor_type,
+			  "font", "Sans 9",
+			  "fill_color", dark.c_str(),
+			  NULL);
 } 
 
 void
 coot::goograph::set_plot_title(const std::string &title) {
-
    gtk_window_set_title (GTK_WINDOW(dialog), title.c_str());
 } 
 
@@ -289,6 +313,24 @@ coot::goograph::set_data(int trace_id, const std::vector<std::pair<double, doubl
    if (is_valid_trace(trace_id))
       traces[trace_id].data = data_in;
 
+   if (data_in.size()) { 
+      double max_x = -10000000;
+      double min_x =  10000000;
+      double max_y = -10000000;
+      double min_y =  10000000;
+      for (unsigned int i=0; i<data_in.size(); i++) { 
+	 if (data_in[i].first < min_x)
+	    min_x = data_in[i].first;
+	 if (data_in[i].first > max_x)
+	    max_x = data_in[i].first;
+	 if (data_in[i].second < min_y)
+	    min_y = data_in[i].second;
+	 if (data_in[i].second > max_y)
+	    max_y = data_in[i].second;
+      }
+      set_extents(X_AXIS, min_x, max_x);
+      set_extents(Y_AXIS, min_y, max_y);
+   }
 }
 
 void
@@ -297,6 +339,9 @@ coot::goograph::plot(int trace_id, int plot_type) {
    if (is_valid_trace(trace_id)) {
       if (plot_type == coot::goograph::PLOT_TYPE_BAR) {
 	 plot_bar_graph(trace_id);
+      }
+      if (plot_type == coot::goograph::PLOT_TYPE_LINE) {
+	 plot_line_graph(trace_id);
       }
    } 
 }
@@ -312,12 +357,10 @@ coot::goograph::plot_bar_graph(int trace_id) {
 
       for (unsigned int i=0; i<data.size(); i++) {
 	 double width  = mbw * data_scale_x;
-	 double height = data[i].second * data_scale_y * 500;
-	 lig_build::pos_t A(data[i].first, height);
+	 double height = -data[i].second * data_scale_y * 1;
+	 lig_build::pos_t A(data[i].first-mbw*0.5, 0);
 	 lig_build::pos_t wA = world_to_canvas(A);
 	 
-	 std::cout << "   " << A.x << " " << A.y << "     "
-		   << width << " " << height << std::endl;
 	 GooCanvasItem *rect =
 	    goo_canvas_rect_new(root,
 				wA.x, wA.y,
@@ -326,10 +369,44 @@ coot::goograph::plot_bar_graph(int trace_id) {
 				"fill_color", colour.c_str(),
 				"stroke-color", "#333333",
 				NULL);
-	    
       }
    }
 }
+
+void
+coot::goograph::plot_line_graph(int trace_id) {
+
+   if (is_valid_trace(trace_id)) { 
+      const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
+      if (data.size()) { 
+	 GooCanvasItem *root = goo_canvas_get_root_item(canvas);
+	 int n_points = data.size();
+	 GooCanvasPoints *points  = goo_canvas_points_new(n_points);
+	 for (unsigned int i=0; i<data.size(); i++) {
+	    lig_build::pos_t p(data[i].first, data[i].second);
+	    lig_build::pos_t wp = world_to_canvas(p);
+	    std::cout << "   canvas point " << i << " " << wp << std::endl;
+	    points->coords[2*i  ] = wp.x;
+	    points->coords[2*i+1] = wp.y;
+	 }
+
+	 guint n = 2*data.size();
+	 std::cout << ".... i limit: " << n << std::endl;
+	 for (unsigned int ii=0; ii<n; ii++) { 
+	    std::cout << "   " << ii 
+		      << "        " << points->coords[ii] << std::endl;
+	 }
+	 GooCanvasItem *line =
+	    goo_canvas_polyline_new(root, 0, 0,
+				    "line-width", 3.0,
+				    "stroke-color", dark.c_str(),
+				    "points", points,
+				    NULL);
+	 goo_canvas_points_unref(points); 
+      }
+   }
+} 
+
 
 double
 coot::goograph::median_bin_width(int trace_id) const {

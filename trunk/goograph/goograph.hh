@@ -55,6 +55,7 @@ namespace coot {
 	 }
       }
       void plot_bar_graph(int trace_id);
+      void plot_line_graph(int trace_id);
       static void goograph_close_callback(GtkWidget *button,
 					  GtkWidget *dialog);
       void draw_graph();
@@ -66,7 +67,7 @@ namespace coot {
       void draw_ticks_generic(int axis, int tick_type,
 			      double tick_step, double tick_length_multiplier);
       lig_build::pos_t world_to_canvas(const lig_build::pos_t &p) const {
-	 lig_build::pos_t r(canvas_offset_x+p.x*data_scale_x, canvas_offset_y*data_scale_y-p.y);
+	 lig_build::pos_t r(canvas_offset_x+(p.x-extents_min_x)*data_scale_x, canvas_offset_y-data_scale_y*p.y);
 	 return r;
       }
       double y_range() const { return extents_max_y - extents_min_y; }
@@ -91,10 +92,10 @@ namespace coot {
 	 tick_major_y = 0.1;
 	 tick_minor_y = 0.05;
 	 dark = "#111111";
-	 canvas_offset_x = 50.0; // how much is the Y axis displaced
+	 canvas_offset_x = 70.0; // how much is the Y axis displaced
 				 // from the left-hand edge of the
 				 // canvas?
-	 canvas_offset_y = 380.0; // how much is the size of the //
+	 canvas_offset_y = 360.0; // how much is the size of the //
 	                          // canvas - and include an offset of
 	                          // // the axis from the bottom edge.
 	                          // (the smaller the number the
