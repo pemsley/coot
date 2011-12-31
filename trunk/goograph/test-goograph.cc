@@ -55,11 +55,11 @@ int main (int argc, char **argv) {
       data[i].second *= 0.6;
       data[i].second += 0.5;
    }
-   bool dashed = true;
+   bool dashed = false;
    trace = g.trace_new();
    g.set_data(trace, data);
    std::string colour = "blue";
-   g.plot(trace, coot::goograph::PLOT_TYPE_SMOOTHED_LINE, colour, true);
+   g.plot(trace, coot::goograph::PLOT_TYPE_SMOOTHED_LINE, colour, dashed);
 
    bool do_annotations = false;
    do_annotations = true; 
