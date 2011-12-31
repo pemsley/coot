@@ -380,7 +380,7 @@ coot::util::float_to_string_using_dec_pl(float f, unsigned short int n_dec_pl) {
    prec += coot::util::int_to_string(n_dec_pl);
    prec += "f";
    // snprintf(s,99,"%7.4f",f); // haha, FIXME. (use n_dec_pl, not 4)
-   snprintf(s, 99, prec.c_str() ,f); // haha, FIXME. (use n_dec_pl, not 4)
+   snprintf(s, 99, prec.c_str() ,f);
    return std::string(s);
 }
 
