@@ -343,6 +343,12 @@ coot::goograph::set_data(int trace_id, const std::vector<std::pair<double, doubl
 	    if (data_in[i].second > max_y)
 	       max_y = data_in[i].second;
 	 }
+	 if (0) {
+	    std::cout << "   in set_data() setting X exents "
+		      << min_x << " " << max_x << std::endl;
+	    std::cout << "   in set_data() setting Y exents "
+		      << min_y << " " << max_y << std::endl;
+	 }
 	 set_extents(X_AXIS, min_x, max_x);
 	 set_extents(Y_AXIS, min_y, max_y);
 
