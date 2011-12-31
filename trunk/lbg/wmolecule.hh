@@ -43,6 +43,8 @@
 
 #include "lbg-shared.hh"
 
+// #define dark "#111111"
+
 class solvent_accessible_atom_t {
 public:
    std::string atom_name;
@@ -67,12 +69,90 @@ public:
 };
 
 
+class wrap_goo {
+public:
+   wrap_goo() {
+      dark = "#111111";
+   }
+   std::string dark;
+   int i;
+   GooCanvasItem *wrap_goo_canvas_group_new (GooCanvasItem *root,
+					     const std::string &stroke_colour) const {
+      // need fill-colour too?
+      return goo_canvas_group_new(root, "stroke-color", stroke_colour.c_str(), NULL);
+   }
+
+   GooCanvasItem *wrap_goo_canvas_text_new(GooCanvasItem *group,
+					   const std::string &text,
+					   double x_pos, double y_pos, 
+					   int something,
+					   int anchor_type,
+					   const std::string &font,
+					   const std::string &fill_colour) const {
+      return goo_canvas_text_new(group,
+				 text.c_str(),
+				 x_pos, y_pos, 
+				 -1,
+				 GTK_ANCHOR_CENTER,
+				 "font", font.c_str(),
+				 "fill_color", fill_colour.c_str(),
+				 NULL);
+   }
+   GooCanvasItem *wrap_goo_canvas_polyline_new_line(GooCanvasItem *root,
+						    double pos_1_x, double pos_1_y,
+						    double pos_2_x, double pos_2_y,
+						    const std::string &key="stroke-color",
+						    const std::string &value="#111111") const { 
+      return goo_canvas_polyline_new_line(root,
+					  pos_1_x, pos_1_y,
+					  pos_2_x, pos_2_y,
+					  key.c_str(), value.c_str(),
+					  NULL);
+   }
+   GooCanvasItem *wrap_goo_canvas_polyline_new_line(GooCanvasItem *root,
+						    double pos_1_x, double pos_1_y,
+						    double pos_2_x, double pos_2_y,
+						    double pos_3_x, double pos_3_y,
+						    double pos_4_x, double pos_4_y,
+						    const std::string &stroke_colour,
+						    const std::string &fill_colour) const { 
+      return goo_canvas_polyline_new_line(root, TRUE, 4,
+					  pos_1_x, pos_1_y,
+					  pos_2_x, pos_2_y,
+					  "stroke-color", stroke_colour.c_str(),
+					  "fill-color", fill_colour.c_str(),
+					  NULL);
+   }
+
+   GooCanvasItem *
+   wrap_goo_canvas_polyline_new(GooCanvasItem *root,
+				double sharp_point_2_x, double sharp_point_2_y, 
+				double sharp_point_1_x, double sharp_point_1_y, 
+				double short_edge_pt_1_x, double short_edge_pt_1_y,
+				double short_edge_pt_2_x, double short_edge_pt_2_y,
+				std::string fc, std::string sc) const {
+      return 
+	 goo_canvas_polyline_new(root, 
+				 sharp_point_2_x, sharp_point_2_y, 
+				 sharp_point_1_x, sharp_point_1_y, 
+				 short_edge_pt_1_x, short_edge_pt_1_y,
+				 short_edge_pt_2_x, short_edge_pt_2_y,
+				 "fill-color", fc.c_str(),
+				 "stroke-color", sc.c_str(),
+				 NULL);
+   } 
+   
+   void wrap_wrap_goo_canvas_item_rotate(GooCanvasItem *ci,
+					 double degrees, double cx, double cy) const {
+      goo_canvas_item_rotate(ci, degrees, cx, cy);
+   } 
+};
 
 // ====================================================================
 //                     widgeted_atom_t
 // ====================================================================
 
-class widgeted_atom_t : public lig_build::atom_t {
+class widgeted_atom_t : public lig_build::atom_t , wrap_goo {
    std::string font_colour;
    double solvent_accessibility;
    GooCanvasItem *ci;
@@ -106,9 +186,7 @@ class widgeted_atom_t : public lig_build::atom_t {
 					      const std::string &fc,
 					      GooCanvasItem *root) const {
 
-      GooCanvasItem *group = goo_canvas_group_new (root,
-						   "fill_color", fc.c_str(),
-						   NULL);
+      GooCanvasItem *group = wrap_goo_canvas_group_new (root, fc);
       for (unsigned int i=0; i<atom_id_info_in.size(); i++) {
 	 double x_o = 0; 
 	 double y_o = 0;
@@ -125,13 +203,10 @@ class widgeted_atom_t : public lig_build::atom_t {
 		      << atom_id_info_in[i].tweak << std::endl;
 	 
 	 GooCanvasItem *item =
-	    goo_canvas_text_new(group, atom_id_info_in.offsets[i].text.c_str(),
-				x_pos, y_pos, 
-				-1,
-				GTK_ANCHOR_CENTER,
-				"font", "Sans 10",
-				"fill_color", fc.c_str(),
-				NULL);
+	    wrap_goo_canvas_text_new(group, atom_id_info_in.offsets[i].text.c_str(),
+				     x_pos, y_pos, 
+				     -1, GTK_ANCHOR_CENTER,
+				     "Sans 10", fc);
       }
       return group;
    }
@@ -142,32 +217,23 @@ class widgeted_atom_t : public lig_build::atom_t {
 					       const std::string &fc,
 					       GooCanvasItem *root) const {
 
-      GooCanvasItem *group = goo_canvas_group_new (root,
-						   "fill_color", fc.c_str(),
-						   NULL);
+      GooCanvasItem *group = wrap_goo_canvas_group_new (root, fc);
 
-      // hack
-      // std::string p1 = atom_id_in.substr(0,2);
-      // std::string p2 = atom_id_in.substr(2);
       std::string p1 = atom_id_info_in.atom_id.substr(0,2);
       std::string p2 = atom_id_info_in.atom_id.substr(2);
       
-      GooCanvasItem *item_1 = goo_canvas_text_new(group, p1.c_str(),
-						  atom_position.x, atom_position.y, -1,
-						  GTK_ANCHOR_CENTER,
-						  "font", "Sans 10",
-						  "fill_color", fc.c_str(),
-						  NULL);
+      GooCanvasItem *item_1 = wrap_goo_canvas_text_new(group, p1.c_str(),
+						       atom_position.x, atom_position.y, -1,
+						       GTK_ANCHOR_CENTER,
+						       "Sans 10", fc);
 
       double pos_p2_x = atom_position.x + 13;
       double pos_p2_y = atom_position.y + 4;
       
-      GooCanvasItem *item_2 = goo_canvas_text_new(group, p2.c_str(),
-						  pos_p2_x, pos_p2_y, -1,
-						  GTK_ANCHOR_CENTER,
-						  "font", "Sans 8",
-						  "fill_color", fc.c_str(),
-						  NULL);
+      GooCanvasItem *item_2 = wrap_goo_canvas_text_new(group, p2.c_str(),
+						       pos_p2_x, pos_p2_y, -1,
+						       GTK_ANCHOR_CENTER,
+						       "Sans 8", fc);
       return group;
    }
 
@@ -249,7 +315,7 @@ public:
 //                     widgeted_bond_t
 // ====================================================================
 
-class widgeted_bond_t : public lig_build::bond_t {
+class widgeted_bond_t : public lig_build::bond_t, wrap_goo {
    GooCanvasItem *ci;
    void clear(GooCanvasItem *root) {
       gint child_index = goo_canvas_item_find_child(root, ci);
@@ -359,7 +425,7 @@ public:
    }
 
    void rotate_canvas_item(gdouble cx, gdouble cy, gdouble degrees) {
-      goo_canvas_item_rotate(ci, degrees, cx, cy);
+      wrap_wrap_goo_canvas_item_rotate(ci, degrees, cx, cy);
    }
 
    // We need to make a shorter bond canvas line because we have (say)

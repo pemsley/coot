@@ -1158,7 +1158,7 @@ lbg_info_t::font_colour(int addition_element_mode) const {
 
 std::string
 lbg_info_t::font_colour(const std::string &ele) const {
-   std::string font_colour = dark;
+   std::string font_colour = "#111111";
 
    if (ele == "N")
       font_colour = "blue";
@@ -3919,7 +3919,7 @@ lbg_info_t::ligand_grid::make_contour_lines(const std::vector<std::pair<lig_buil
 void
 lbg_info_t::ligand_grid::plot_contour_lines(const std::vector<std::vector<lig_build::pos_t> > &contour_lines, GooCanvasItem *root) const {
 
-   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", dark,
+   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", "#111111",
 						NULL);
    GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 1.5, 2.5);
 
@@ -4489,7 +4489,7 @@ lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle
       
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
-   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", dark,
+   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", "#111111",
 						NULL);
 
    // don't draw waters that don't have bonds to the ligand (or the
@@ -4509,7 +4509,7 @@ lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle
    // fill colour and stroke colour of the residue circle
    std::pair<std::string, std::string> col = get_residue_circle_colour(residue_circle.residue_type);
    double line_width = 1.0;
-   if (col.second != dark)
+   if (col.second != "#111111") // needs checking, FIXME
       line_width = 3.0;
    GooCanvasItem *circle = NULL;
    GooCanvasItem *text_1 = NULL;
@@ -4539,14 +4539,14 @@ lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle
 				circle_pos.x, circle_pos.y-6, -1,
 				GTK_ANCHOR_CENTER,
 				"font", "Sans 9",
-				"fill_color", dark,
+				"fill_color", "#111111",
 				NULL);
 
    text_2 = goo_canvas_text_new(group, residue_circle.residue_label.c_str(),
 				circle_pos.x, circle_pos.y+6.5, -1,
 				GTK_ANCHOR_CENTER,
 				"font", "Sans 7",
-				"fill_color", dark,
+				"fill_color", "#111111",
 				NULL);
 
    if (circle && text_1 && text_2) {
@@ -4578,7 +4578,7 @@ std::pair<std::string, std::string>
 lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
 
    std::string fill_colour = "";
-   std::string stroke_colour = dark;
+   std::string stroke_colour = "#111111";
 
    std::string grease = "#ccffbb";
    std::string purple = "#eeccee";
@@ -5204,7 +5204,7 @@ lbg_info_t::draw_bonds_to_ligand() {
 	       std::string blue = "blue";
 	       std::string green = "darkgreen";
 	       std::string lime = "#888820";
-	       std::string stroke_colour = dark; // unset
+	       std::string stroke_colour = "#111111"; // unset
 
 	       // arrows (acceptor/donor) and stroke colour (depending
 	       // on mainchain or sidechain interaction)

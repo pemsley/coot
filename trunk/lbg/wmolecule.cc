@@ -283,11 +283,10 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::pos_t &pos_1_raw,
    case SINGLE_OR_AROMATIC:
    case AROMATIC_BOND:
    case BOND_ANY:
-      ci = goo_canvas_polyline_new_line(root,
-					pos_1.x, pos_1.y,
-					pos_2.x, pos_2.y,
-					"stroke-color", dark,
-					NULL);
+      ci = wrap_goo_canvas_polyline_new_line(root,
+					     pos_1.x, pos_1.y,
+					     pos_2.x, pos_2.y,
+					     "stroke-color", dark);
       break;
    case DOUBLE_BOND:
    case DOUBLE_OR_AROMATIC:
@@ -301,8 +300,8 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::pos_t &pos_1_raw,
       break;
    case TRIPLE_BOND:
       { 
-	 GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", dark,
-						      NULL);
+	 GooCanvasItem *group = wrap_goo_canvas_group_new (root, dark);
+							   
       
 	 lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
 	 lig_build::pos_t buv_90 = buv.rotate(90);
@@ -313,17 +312,15 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::pos_t &pos_1_raw,
 	 lig_build::pos_t p4 = pos_2;
 	 lig_build::pos_t p5 = pos_1 - buv_90 * small;
 	 lig_build::pos_t p6 = pos_2 - buv_90 * small;
-	 GooCanvasItem *ci_1 = goo_canvas_polyline_new_line(group,
-							    p1.x, p1.y,
-							    p2.x, p2.y, NULL);
-	 GooCanvasItem *ci_2 = goo_canvas_polyline_new_line(group,
-							    p3.x, p3.y,
-							    p4.x, p4.y,
-							    NULL);
-	 GooCanvasItem *ci_3 = goo_canvas_polyline_new_line(group,
-							    p5.x, p5.y,
-							    p6.x, p6.y,
-							    NULL);
+	 GooCanvasItem *ci_1 = wrap_goo_canvas_polyline_new_line(group,
+								 p1.x, p1.y,
+								 p2.x, p2.y);
+	 GooCanvasItem *ci_2 = wrap_goo_canvas_polyline_new_line(group,
+								 p3.x, p3.y,
+								 p4.x, p4.y);
+	 GooCanvasItem *ci_3 = wrap_goo_canvas_polyline_new_line(group,
+								 p5.x, p5.y,
+								 p6.x, p6.y);
 	 ci = group;
       }
       break;
@@ -345,8 +342,8 @@ widgeted_bond_t::canvas_item_double_bond(const lig_build::pos_t &pos_1,
 					 const lig_build::pos_t &pos_2,
 					 GooCanvasItem *root) const { 
 	 
-   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", dark,
-						NULL);
+   GooCanvasItem *group = wrap_goo_canvas_group_new (root, dark);
+						     
       
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
@@ -356,10 +353,10 @@ widgeted_bond_t::canvas_item_double_bond(const lig_build::pos_t &pos_1,
    lig_build::pos_t p2 = pos_2 + buv_90 * small;
    lig_build::pos_t p3 = pos_1 - buv_90 * small;
    lig_build::pos_t p4 = pos_2 - buv_90 * small;
-   GooCanvasItem *ci_1 = goo_canvas_polyline_new_line(group,
+   GooCanvasItem *ci_1 = wrap_goo_canvas_polyline_new_line(group,
 						      p1.x, p1.y,
 						      p2.x, p2.y, NULL);
-   GooCanvasItem *ci_2 = goo_canvas_polyline_new_line(group,
+   GooCanvasItem *ci_2 = wrap_goo_canvas_polyline_new_line(group,
 						      p3.x, p3.y,
 						      p4.x, p4.y,
 						      NULL);
@@ -375,11 +372,11 @@ widgeted_bond_t::canvas_item_double_aromatic_bond(const lig_build::pos_t &pos_1,
 						  const lig_build::pos_t &pos_2,
 						  GooCanvasItem *root) const {
 
-   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", dark,
-						NULL);
-   GooCanvasItem *ci_1 = goo_canvas_polyline_new_line(group,
-						      pos_1.x, pos_1.y,
-						      pos_2.x, pos_2.y, NULL);
+   GooCanvasItem *group = wrap_goo_canvas_group_new (root, dark);
+
+   GooCanvasItem *ci_1 = wrap_goo_canvas_polyline_new_line(group,
+							   pos_1.x, pos_1.y,
+							   pos_2.x, pos_2.y);
 
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
@@ -409,7 +406,7 @@ widgeted_bond_t::canvas_item_double_aromatic_bond(const lig_build::pos_t &pos_1,
       lig_build::pos_t::fraction_point(inner_start_point, inner_end_point, 0.9);
    
    GooCanvasItem *ci_2 =
-      goo_canvas_polyline_new_line(group,
+      wrap_goo_canvas_polyline_new_line(group,
 				   cutened_inner_start_point.x, 
 				   cutened_inner_start_point.y, 
 				   cutened_inner_end_point.x, 
@@ -461,15 +458,23 @@ widgeted_bond_t::make_wedge_out_bond_item(const lig_build::pos_t &pos_1,
    lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.1;
    lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.1;
    
+//    GooCanvasItem *item =
+//       goo_canvas_polyline_new(root, TRUE, 4,
+// 				   sharp_point_2.x, sharp_point_2.y, 
+// 				   sharp_point_1.x, sharp_point_1.y, 
+// 				   short_edge_pt_1.x, short_edge_pt_1.y,
+// 				   short_edge_pt_2.x, short_edge_pt_2.y,
+// 				   "stroke-color", dark,
+// 				   "fill-color", dark);
+
    GooCanvasItem *item =
-      goo_canvas_polyline_new(root, TRUE, 4,
-			      sharp_point_2.x, sharp_point_2.y, 
-			      sharp_point_1.x, sharp_point_1.y, 
-			      short_edge_pt_1.x, short_edge_pt_1.y,
-			      short_edge_pt_2.x, short_edge_pt_2.y,
-			      "stroke-color", dark,
-			      "fill-color", dark,
-			      NULL);
+      wrap_goo_canvas_polyline_new(root, 
+				   sharp_point_2.x, sharp_point_2.y, 
+				   sharp_point_1.x, sharp_point_1.y, 
+				   short_edge_pt_1.x, short_edge_pt_1.y,
+				   short_edge_pt_2.x, short_edge_pt_2.y,
+				   dark, dark);
+
    return item;
 }
 
@@ -480,7 +485,7 @@ widgeted_bond_t::make_wedge_in_bond_item(const lig_build::pos_t &pos_1,
 					 const lig_build::pos_t &pos_2,
 					 GooCanvasItem *root) const {
    
-   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", dark, NULL);
+   GooCanvasItem *group = wrap_goo_canvas_group_new (root, dark);
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
    int n_lines = 5;
@@ -491,7 +496,7 @@ widgeted_bond_t::make_wedge_in_bond_item(const lig_build::pos_t &pos_1,
       lig_build::pos_t fp = lig_build::pos_t::fraction_point(pos_1, pos_2, frac);
       lig_build::pos_t p1 = fp + buv_90 * len;
       lig_build::pos_t p2 = fp - buv_90 * len;
-      GooCanvasItem *ci_1 = goo_canvas_polyline_new_line(group,
+      GooCanvasItem *ci_1 = wrap_goo_canvas_polyline_new_line(group,
 							 p1.x, p1.y,
 							 p2.x, p2.y, NULL);
    }
