@@ -34,7 +34,7 @@ int main (int argc, char **argv) {
     for (unsigned int i=0; i<data.size(); i++) { 
        data[i].first *= 100;
        data[i].second *= 2;
-       data[i].second += 1.5;
+       data[i].second += 0.5;
     }
    
    coot::goograph g;
@@ -53,20 +53,37 @@ int main (int argc, char **argv) {
    // g.plot(trace, coot::goograph::PLOT_TYPE_LINE);
    // g.plot(trace, coot::goograph::PLOT_TYPE_SMOOTHED_LINE);
 
-   double f = 0.01;
+   double f = 1;
+   double fy = 0.04;
 
-   bool do_annotations = false; 
-   if (do_annotations) { 
-      lig_build::pos_t p1(150*f,  0*f);
-      lig_build::pos_t p2(150*f, 50*f);
-      lig_build::pos_t p3(195*f, 47*f);
-      lig_build::pos_t p4(152*f, 47*f);
-      lig_build::pos_t p5(230*f, 47*f);
-      lig_build::pos_t p6(200*f, 35*f);
-      lig_build::pos_t p7(200*f,  0*f);
-      lig_build::pos_t p8(202*f, 30*f);
-      lig_build::pos_t p9(240*f, 30*f);
-      lig_build::pos_t p10(270*f, 30*f);
+   for (unsigned int i=0; i<data.size(); i++) { 
+      data[i].first += 50;
+      data[i].second *= 0.6;
+      data[i].second += 0.5;
+   }
+   trace = g.trace_new();
+   g.set_data(trace, data);
+   g.plot(trace, coot::goograph::PLOT_TYPE_SMOOTHED_LINE);
+
+   bool do_annotations = false;
+   do_annotations = true; 
+   if (do_annotations) {
+      // red lines
+      lig_build::pos_t p1(150*f, 12*fy);
+      lig_build::pos_t p2(150*f, 36*fy);
+      lig_build::pos_t p3(195*f, 35*fy);
+      lig_build::pos_t p4(152*f, 35*fy);
+      // red text
+      lig_build::pos_t p5(230*f, 35*fy);
+
+      // black lines
+      lig_build::pos_t p6(200*f, 33*fy);
+      lig_build::pos_t p7(200*f, 12*fy);
+      lig_build::pos_t p8(202*f, 28*fy);
+      lig_build::pos_t p9(250*f, 28*fy);
+      // black text
+      lig_build::pos_t p10(280*f, 28*fy);
+      
       bool dashed = true;
       g.add_annotation_line(p1, p2, "#aa0000", 3, dashed, false, false);
       g.add_annotation_line(p3, p4, "#aa0000", 2, dashed, false, true);

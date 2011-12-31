@@ -84,10 +84,10 @@ namespace coot {
       enum {MAJOR_TICK, MINOR_TICK};
       goograph() {
 	 init_widgets();
-	 extents_min_x = 0.0;
-	 extents_min_y = 0.0;
-	 extents_max_x = 100.0;
-	 extents_max_y = 100.0;
+	 extents_min_x = 9999999990.0;
+	 extents_min_y = 9999999990.0;
+	 extents_max_x = -9999999990.0;
+	 extents_max_y = -9999999990.0;
 	 tick_major_x = 0.1;
 	 tick_minor_x = 0.05;
 	 tick_major_y = 0.1;

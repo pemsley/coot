@@ -245,16 +245,20 @@ void
 coot::goograph::set_extents(int axis, double min, double max) {
 
    if (axis == X_AXIS) {
-      extents_min_x = min;
-      extents_max_x = max;
+      if (min < extents_min_x)
+	 extents_min_x = min;
+      if (max > extents_max_x)
+	 extents_max_x = max;
       double delta = extents_max_x - extents_min_x;
       if (delta > 0.1) 
 	 data_scale_x = 400.0/delta;
       std::cout << "data_scale_x " << data_scale_x << std::endl;
    }
    if (axis == Y_AXIS) {
-      extents_min_y = min;
-      extents_max_y = max;
+      if (min < extents_min_y) 
+	 extents_min_y = min;
+      if (max > extents_max_y)
+	 extents_max_y = max;
       double delta = extents_max_y - extents_min_y;
       if (delta > 0.1)
 	 data_scale_y = 300/delta;
@@ -286,7 +290,7 @@ coot::goograph::set_axis_label(int axis, const std::string &label) {
       A = lig_build::pos_t(extents_min_x+x_range()*0.8, extents_min_y -y_range()*0.12);
    }
    if (axis == Y_AXIS) {
-      A = lig_build::pos_t(extents_min_x-x_range()*0.14, y_range()*1.15);
+      A = lig_build::pos_t(extents_min_x-x_range()*0.14, extents_min_y + y_range()*1.15);
    }
    lig_build::pos_t wA = world_to_canvas(A);
    GtkAnchorType anchor_type = GTK_ANCHOR_NORTH_WEST;
@@ -342,7 +346,7 @@ coot::goograph::set_data(int trace_id, const std::vector<std::pair<double, doubl
 	 set_extents(X_AXIS, min_x, max_x);
 	 set_extents(Y_AXIS, min_y, max_y);
 
-	 std::cout << "in set_data: x_range() is " << x_range() << std::endl;
+	 // std::cout << "in set_data: x_range() is " << x_range() << std::endl;
 	 set_ticks(X_AXIS, x_range()*0.1, x_range()*0.02);
 	 set_ticks(Y_AXIS, y_range()*0.1, y_range()*0.02);
       }
@@ -369,6 +373,7 @@ void
 coot::goograph::plot_bar_graph(int trace_id) {
 
    if (is_valid_trace(trace_id)) { 
+      std::cout << "bar graph data got from trace_id " << trace_id << std::endl;
       const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
       GooCanvasItem *root = goo_canvas_get_root_item(canvas);
       std::string colour = "#70e070";
@@ -380,11 +385,12 @@ coot::goograph::plot_bar_graph(int trace_id) {
 	 lig_build::pos_t A(data[i].first-mbw*0.5, extents_min_y);
 	 lig_build::pos_t wA = world_to_canvas(A);
 
-	 std::cout << "  plot_bar_graph() " << A << " -> " << wA << " "
-		   << width << " " << height << " " 
-		   << " data_scale_x " << data_scale_x
-		   << " data_scale_y " << data_scale_y
-		   << std::endl;
+	 if (0) 
+	    std::cout << "  plot_bar_graph() " << A << " -> " << wA << " "
+		      << width << " " << height << " " 
+		      << " data_scale_x " << data_scale_x
+		      << " data_scale_y " << data_scale_y
+		      << std::endl;
 	 
 	 GooCanvasItem *rect =
 	    goo_canvas_rect_new(root,
@@ -428,7 +434,8 @@ coot::goograph::plot_line_graph(int trace_id) {
 void
 coot::goograph::plot_smoothed_line_graph(int trace_id) {
 
-   if (is_valid_trace(trace_id)) { 
+   if (is_valid_trace(trace_id)) {
+      std::cout << "smoothed data got from trace_id " << trace_id << std::endl;
       const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
       if (data.size()) { 
 	 GooCanvasItem *root = goo_canvas_get_root_item(canvas);
