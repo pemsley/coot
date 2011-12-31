@@ -33,26 +33,19 @@ int main (int argc, char **argv) {
    data.push_back(std::pair<double, double> (3.5, 0.01));
 
     for (unsigned int i=0; i<data.size(); i++) { 
-       data[i].first *= 6;
+       data[i].first *= 87;
        data[i].second *= 4;
-       data[i].second += 0.3;
+       data[i].second += 0.6;
     }
    
    coot::goograph g;
    int trace = g.trace_new();
    g.set_plot_title("Test graph");
    g.set_data(trace, data);
-   // g.set_ticks(  coot::goograph::X_AXIS, 50,  10);
-   // g.set_ticks(  coot::goograph::Y_AXIS, 10,   2);
-   // g.set_extents(coot::goograph::X_AXIS, 0.0,   4.0);
-   // g.set_extents(coot::goograph::Y_AXIS, 0.0, 0.6);
-
    
    g.set_axis_label(coot::goograph::X_AXIS, "Bond length");
    g.set_axis_label(coot::goograph::Y_AXIS, "Counts");
-   g.plot(trace, coot::goograph::PLOT_TYPE_BAR);
-   // g.plot(trace, coot::goograph::PLOT_TYPE_LINE);
-   // g.plot(trace, coot::goograph::PLOT_TYPE_SMOOTHED_LINE);
+   g.plot(trace, coot::goograph::PLOT_TYPE_BAR, "#99aa20");
 
    double f = 1;
    double fy = 0.04;
@@ -62,12 +55,14 @@ int main (int argc, char **argv) {
       data[i].second *= 0.6;
       data[i].second += 0.5;
    }
-    trace = g.trace_new();
-    g.set_data(trace, data);
-    g.plot(trace, coot::goograph::PLOT_TYPE_SMOOTHED_LINE);
+   bool dashed = true;
+   trace = g.trace_new();
+   g.set_data(trace, data);
+   std::string colour = "blue";
+   g.plot(trace, coot::goograph::PLOT_TYPE_SMOOTHED_LINE, colour, true);
 
    bool do_annotations = false;
-   // do_annotations = true; 
+   do_annotations = true; 
    if (do_annotations) {
       // red lines
       lig_build::pos_t p1(150*f, 12*fy);
@@ -85,7 +80,6 @@ int main (int argc, char **argv) {
       // black text
       lig_build::pos_t p10(280*f, 28*fy);
       
-      bool dashed = true;
       g.add_annotation_line(p1, p2, "#aa0000", 3, dashed, false, false);
       g.add_annotation_line(p3, p4, "#aa0000", 2, dashed, false, true);
       g.add_annotation_text("Median 4.52", p5, "#aa0000", "");

@@ -96,8 +96,8 @@ coot::goograph::draw_axes() {
 // 				   "line-width", 7.0,
 // 				   "stroke-color", col.c_str(),
 // 				   NULL);
-
-   GooCanvasLineDash *dash=goo_canvas_line_dash_new (2, 5.7, 0.0);
+//    GooCanvasLineDash *dash=goo_canvas_line_dash_new (2, 5.7, 0.0);
+   
    lig_build::pos_t A_yaxis(extents_min_x, extents_min_y);
    lig_build::pos_t B_yaxis(extents_min_x, extents_min_y + y_range()*1.1);
    lig_build::pos_t wAy = world_to_canvas(A_yaxis);
@@ -368,8 +368,7 @@ coot::goograph::draw_title() {
 			     "font", "Sans 11",
 			     "fill_color", dark.c_str(),
 			     NULL);
-      
-   } 
+   }
 }
 
 
@@ -464,28 +463,29 @@ coot::goograph::calc_tick(double range) const {
 } 
 
 void
-coot::goograph::plot(int trace_id, int plot_type) {
+coot::goograph::plot(int trace_id, int plot_type, const std::string &colour, bool dashed) {
 
    if (is_valid_trace(trace_id)) {
       if (plot_type == coot::goograph::PLOT_TYPE_BAR) {
-	 plot_bar_graph(trace_id);
+	 plot_bar_graph(trace_id, colour);
       }
       if (plot_type == coot::goograph::PLOT_TYPE_LINE) {
-	 plot_line_graph(trace_id);
+	 plot_line_graph(trace_id, colour, dashed);
       }
       if (plot_type == coot::goograph::PLOT_TYPE_SMOOTHED_LINE) {
-	 plot_smoothed_line_graph(trace_id);
+	 plot_smoothed_line_graph(trace_id, colour, dashed);
       }
    } 
 }
 
 void
-coot::goograph::plot_bar_graph(int trace_id) {
+coot::goograph::plot_bar_graph(int trace_id, std::string colour) {
 
    if (is_valid_trace(trace_id)) { 
       const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
       GooCanvasItem *root = goo_canvas_get_root_item(canvas);
-      std::string colour = "#70e070";
+      if (colour.empty())
+	 colour = "#70e070";
       double mbw = median_bin_width(trace_id);
 
       for (unsigned int i=0; i<data.size(); i++) {
@@ -514,7 +514,7 @@ coot::goograph::plot_bar_graph(int trace_id) {
 }
 
 void
-coot::goograph::plot_line_graph(int trace_id) {
+coot::goograph::plot_line_graph(int trace_id, std::string colour, bool dashed) {
 
    if (is_valid_trace(trace_id)) { 
       const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
@@ -528,11 +528,13 @@ coot::goograph::plot_line_graph(int trace_id) {
 	    points->coords[2*i  ] = wp.x;
 	    points->coords[2*i+1] = wp.y;
 	 }
+	 if (colour.empty())
+	    colour = dark;
 
 	 GooCanvasItem *line =
 	    goo_canvas_polyline_new(root, 0, 0,
 				    "line-width", 2.0,
-				    "stroke-color", dark.c_str(),
+				    "stroke-color", colour.c_str(),
 				    "points", points,
 				    NULL);
 	 goo_canvas_points_unref(points); 
@@ -541,7 +543,9 @@ coot::goograph::plot_line_graph(int trace_id) {
 }
 
 void
-coot::goograph::plot_smoothed_line_graph(int trace_id) {
+coot::goograph::plot_smoothed_line_graph(int trace_id,
+					 std::string colour,
+					 bool dashed) {
 
    if (is_valid_trace(trace_id)) {
       const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
@@ -567,10 +571,20 @@ coot::goograph::plot_smoothed_line_graph(int trace_id) {
 	    path_data += " ";
 	 }
 
+	 if (colour.empty())
+	    colour = dark;
+
+	 GooCanvasLineDash *dash;
+	 if (dashed)
+	    dash = goo_canvas_line_dash_new (2, 5.7, 3.0);
+	 else
+	    dash = goo_canvas_line_dash_new (2, 5.7, 0.0);
+	 
 	 GooCanvasItem *line =
 	    goo_canvas_path_new(root, path_data.c_str(), 
 				"line-width", 3.0,
-				"stroke-color", dark.c_str(),
+				"line-dash", dash,
+				"stroke-color", colour.c_str(),
 				NULL);
       }
    }
@@ -650,7 +664,6 @@ coot::goograph::add_annotation_text(const std::string &text,
 			  "font", font.c_str(),
 			  "fill_color", colour.c_str(),
 			  NULL);
-
 }
 
 
