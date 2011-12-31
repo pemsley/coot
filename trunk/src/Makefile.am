@@ -206,6 +206,7 @@ INCLUDES = \
 	-I$(top_srcdir)/cootaneer	\
 	-I$(top_srcdir)/lidia-core      \
 	-I$(top_srcdir)/libgtkgraph     \
+	-I$(top_srcdir)/goograph        \
 	-I$(top_srcdir)/lbg             \
 	$(RDKIT_CXXFLAGS) 		\
 	$(ENTERPRISE_TOOLS_CFLAGS)      \

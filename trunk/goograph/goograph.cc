@@ -3,20 +3,23 @@
 #include <iostream>
 #include <algorithm>
 #include "goograph.hh"
-#include "utils/coot-utils.hh"
+#include "coot-utils.hh"
 
 
 void
 coot::goograph::show_dialog() {
    draw_graph();
    gtk_widget_show(dialog);
+
 }
 
 void
-coot::goograph::init_widgets() { 
-   canvas = GOO_CANVAS(goo_canvas_new());
-   dialog = gtk_dialog_new();
+coot::goograph::init_widgets() {
 
+   canvas = GOO_CANVAS(goo_canvas_new());
+
+   dialog = gtk_dialog_new();
+   gtk_window_set_default_size(GTK_WINDOW(dialog), 600, 500);
    gtk_object_set_data(GTK_OBJECT(dialog), "goograph", dialog);
    gtk_window_set_default_size(GTK_WINDOW(dialog), 600, 500);
    GtkWidget *vbox = GTK_DIALOG(dialog)->vbox;
@@ -186,8 +189,8 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	 double tick_label_x_off = 0;
 	 double tick_label_y_off = 0;
 	 if (axis == Y_AXIS) { 
-	    A_axis = lig_build::pos_t(extents_min_x, tick_pos);
-	    B_axis = lig_build::pos_t(extents_min_x + -x_range()*0.04*tick_length_multiplier, tick_pos);
+	    A_axis = lig_build::pos_t(extents_min_x, tick_pos-extents_min_y);
+	    B_axis = lig_build::pos_t(extents_min_x -x_range()*0.04*tick_length_multiplier, tick_pos-extents_min_y);
 	    tick_label_x_off = 10;
 	    tick_label_y_off = 0;
 	 }
@@ -214,7 +217,7 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 
 	 if (tick_type == MAJOR_TICK) {
 	    int n_dec_pl = 0;
-	    if (y_range() < 3)
+	    if (y_range() < 5)
 	       n_dec_pl = 1;
 	    std::string txt =
 	       coot::util::float_to_unspaced_string_using_dec_pl(tick_pos, n_dec_pl);
@@ -295,7 +298,8 @@ coot::goograph::set_axis_label(int axis, const std::string &label) {
 
 void
 coot::goograph::set_plot_title(const std::string &title) {
-   gtk_window_set_title (GTK_WINDOW(dialog), title.c_str());
+   if (dialog) 
+      gtk_window_set_title (GTK_WINDOW(dialog), title.c_str());
 } 
 
 
@@ -364,7 +368,7 @@ coot::goograph::plot_bar_graph(int trace_id) {
 
       for (unsigned int i=0; i<data.size(); i++) {
 	 double width  = mbw * data_scale_x;
-	 double height = -data[i].second * data_scale_y * 1;
+	 double height = -(data[i].second - extents_min_y) * data_scale_y;
 	 lig_build::pos_t A(data[i].first-mbw*0.5, 0);
 	 lig_build::pos_t wA = world_to_canvas(A);
 	 
@@ -398,7 +402,7 @@ coot::goograph::plot_line_graph(int trace_id) {
 
 	 GooCanvasItem *line =
 	    goo_canvas_polyline_new(root, 0, 0,
-				    "line-width", 3.0,
+				    "line-width", 2.0,
 				    "stroke-color", dark.c_str(),
 				    "points", points,
 				    NULL);
