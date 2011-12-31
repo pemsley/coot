@@ -1,7 +1,7 @@
 /* lbg/wmolecule.cc
  * 
  * Author: Paul Emsley
- * Copyright 2010 by The University of Oxford
+ * Copyright 2010, 2011 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -180,34 +180,7 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 
 std::pair<bool, double>
 widgeted_molecule_t::get_scale_correction(const lig_build::molfile_molecule_t &mol_in) const {
-
-   bool status = 0;
-   double scale = 1.0;
-   std::vector<double> bond_lengths; // process this to scale up the mol file molecule if
-                  		     // needed.
-   
-   for (unsigned int i=0; i<mol_in.bonds.size(); i++) {
-      int index_1 = mol_in.bonds[i].index_1;
-      int index_2 = mol_in.bonds[i].index_2;
-      if (mol_in.atoms[index_1].element != "H") { 
-	 if (mol_in.atoms[index_2].element != "H") { 
-	    double l =
-	       clipper::Coord_orth::length(mol_in.atoms[index_1].atom_position,
-					   mol_in.atoms[index_2].atom_position);
-	    bond_lengths.push_back(l);
-	 }
-      }
-   }
-
-   if (bond_lengths.size() > 0) {
-      status = 1;
-      std::sort(bond_lengths.begin(), bond_lengths.end());
-      int index = bond_lengths.size()/2;
-      double bll = bond_lengths[index];
-      scale = 1.54/bll; // sqrt(1.54) is 1.24
-   }
-
-   return std::pair<bool, double> (status, scale);
+   return mol_in.get_scale_correction();
 }
 
 
@@ -235,18 +208,18 @@ widgeted_molecule_t::input_coords_to_canvas_coords(const clipper::Coord_orth &po
 }
 
 
-void
-widgeted_molecule_t::translate(const lig_build::pos_t &delta) {
+// void
+// widgeted_molecule_t::translate(const lig_build::pos_t &delta) {
 
-   for (unsigned int iat=0; iat<atoms.size(); iat++) {
-      atoms[iat].atom_position += delta;
-   }
-   for (unsigned int ib=0; ib<bonds.size(); ib++) {
-      if (bonds[ib].have_centre_pos()) {
-	 bonds[ib].move_centre_pos(delta);
-      }
-   }
-}
+//    for (unsigned int iat=0; iat<atoms.size(); iat++) {
+//       atoms[iat].atom_position += delta;
+//    }
+//    for (unsigned int ib=0; ib<bonds.size(); ib++) {
+//       if (bonds[ib].have_centre_pos()) {
+// 	 bonds[ib].move_centre_pos(delta);
+//       }
+//    }
+// }
 
 
 // simple (non-ring system) bonds.
@@ -355,11 +328,10 @@ widgeted_bond_t::canvas_item_double_bond(const lig_build::pos_t &pos_1,
    lig_build::pos_t p4 = pos_2 - buv_90 * small;
    GooCanvasItem *ci_1 = wrap_goo_canvas_polyline_new_line(group,
 						      p1.x, p1.y,
-						      p2.x, p2.y, NULL);
+						      p2.x, p2.y);
    GooCanvasItem *ci_2 = wrap_goo_canvas_polyline_new_line(group,
-						      p3.x, p3.y,
-						      p4.x, p4.y,
-						      NULL);
+							   p3.x, p3.y,
+							   p4.x, p4.y);
    return group;
 }
 
@@ -407,12 +379,12 @@ widgeted_bond_t::canvas_item_double_aromatic_bond(const lig_build::pos_t &pos_1,
    
    GooCanvasItem *ci_2 =
       wrap_goo_canvas_polyline_new_line(group,
-				   cutened_inner_start_point.x, 
-				   cutened_inner_start_point.y, 
-				   cutened_inner_end_point.x, 
-				   cutened_inner_end_point.y, 
-				   NULL);
-   return group;
+					cutened_inner_start_point.x, 
+					cutened_inner_start_point.y, 
+					cutened_inner_end_point.x, 
+					cutened_inner_end_point.y);
+
+      return group;
 }
 
 GooCanvasItem *
@@ -439,6 +411,8 @@ widgeted_bond_t::make_wedge_out_bond_item(const lig_build::pos_t &pos_1,
 					  const lig_build::pos_t &pos_2,
 					  GooCanvasItem *root) const {
 
+   // A filled shape (quadralateral (almost triangle)).
+   
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
    lig_build::pos_t short_edge_pt_1 = pos_2 + buv_90 * 3;
@@ -498,7 +472,7 @@ widgeted_bond_t::make_wedge_in_bond_item(const lig_build::pos_t &pos_1,
       lig_build::pos_t p2 = fp - buv_90 * len;
       GooCanvasItem *ci_1 = wrap_goo_canvas_polyline_new_line(group,
 							 p1.x, p1.y,
-							 p2.x, p2.y, NULL);
+							 p2.x, p2.y);
    }
    return group;
 }
@@ -550,38 +524,36 @@ widgeted_molecule_t::highlighted_atom_p(int x, int y) const {
 }
 
 
-int
-widgeted_molecule_t::n_stray_atoms() const {  // unbonded atoms
+// int
+// widgeted_molecule_t::n_stray_atoms() const {  // unbonded atoms
+//    return stray_atoms().size();
+// }
 
-   return stray_atoms().size();
+// std::vector<int>
+// widgeted_molecule_t::stray_atoms() const {
+
+//    std::vector<int> strays;
    
-}
+//    bool found[atoms.size()];
 
-std::vector<int>
-widgeted_molecule_t::stray_atoms() const {
+//    for (unsigned int i=0; i<atoms.size(); i++)
+//       found[i] = 0;
 
-   std::vector<int> strays;
-   
-   bool found[atoms.size()];
+//    for (unsigned int ib=0; ib<bonds.size(); ib++) { 
+//       int iat_1 = bonds[ib].get_atom_1_index();
+//       int iat_2 = bonds[ib].get_atom_2_index();
+//       if (! atoms[iat_1].is_closed())
+// 	 found[iat_1] = 1;
+//       if (! atoms[iat_2].is_closed())
+// 	 found[iat_2] = 1;
+//    }
 
-   for (unsigned int i=0; i<atoms.size(); i++)
-      found[i] = 0;
+//    for (unsigned int i=0; i<atoms.size(); i++)
+//       if (! found[i])
+// 	 strays.push_back(i);
 
-   for (unsigned int ib=0; ib<bonds.size(); ib++) { 
-      int iat_1 = bonds[ib].get_atom_1_index();
-      int iat_2 = bonds[ib].get_atom_2_index();
-      if (! atoms[iat_1].is_closed())
-	 found[iat_1] = 1;
-      if (! atoms[iat_2].is_closed())
-	 found[iat_2] = 1;
-   }
-
-   for (unsigned int i=0; i<atoms.size(); i++)
-      if (! found[i])
-	 strays.push_back(i);
-
-   return strays;
-}
+//    return strays;
+// }
 
 std::ostream&
 operator<<(std::ostream &s, widgeted_atom_ring_centre_info_t wa) {
@@ -594,208 +566,208 @@ operator<<(std::ostream &s, widgeted_atom_ring_centre_info_t wa) {
 
 
 
-bool
-widgeted_molecule_t::operator==(const widgeted_molecule_t &mol_other) const {
+// bool
+// widgeted_molecule_t::operator==(const widgeted_molecule_t &mol_other) const {
 
-   bool status = 0;
+//    bool status = 0;
 
-   // need to check that bonds are the same (atom indexing can be
-   // different) and also stray atoms need to be checked after bonds.
-   //
-   int n_bond_hits = 0;
+//    // need to check that bonds are the same (atom indexing can be
+//    // different) and also stray atoms need to be checked after bonds.
+//    //
+//    int n_bond_hits = 0;
 
-   if (mol_other.bonds.size() != bonds.size())
-      return status;
-   for (unsigned int ib=0; ib<bonds.size(); ib++) {
-      lig_build::atom_t atom_i_1 = atoms[bonds[ib].get_atom_1_index()];
-      lig_build::atom_t atom_i_2 = atoms[bonds[ib].get_atom_2_index()];
-      int n_hits = 0;
-      for (unsigned int jb=0; jb<mol_other.bonds.size(); jb++) {
-	 lig_build::atom_t atom_j_1 = mol_other.atoms[bonds[ib].get_atom_1_index()];
-	 lig_build::atom_t atom_j_2 = mol_other.atoms[bonds[ib].get_atom_2_index()];
-	 if (atom_i_1 == atom_j_1)
-	    if (atom_i_2 == atom_j_2)
-	       n_hits++;
-      }
-      if (n_hits == 1) {
-	 n_bond_hits++;
-      }
-   }
+//    if (mol_other.bonds.size() != bonds.size())
+//       return status;
+//    for (unsigned int ib=0; ib<bonds.size(); ib++) {
+//       lig_build::atom_t atom_i_1 = atoms[bonds[ib].get_atom_1_index()];
+//       lig_build::atom_t atom_i_2 = atoms[bonds[ib].get_atom_2_index()];
+//       int n_hits = 0;
+//       for (unsigned int jb=0; jb<mol_other.bonds.size(); jb++) {
+// 	 lig_build::atom_t atom_j_1 = mol_other.atoms[bonds[ib].get_atom_1_index()];
+// 	 lig_build::atom_t atom_j_2 = mol_other.atoms[bonds[ib].get_atom_2_index()];
+// 	 if (atom_i_1 == atom_j_1)
+// 	    if (atom_i_2 == atom_j_2)
+// 	       n_hits++;
+//       }
+//       if (n_hits == 1) {
+// 	 n_bond_hits++;
+//       }
+//    }
 
-   if (n_bond_hits == bonds.size()) {
+//    if (n_bond_hits == bonds.size()) {
 
-      // So the bonds were the same, now the strays...
+//       // So the bonds were the same, now the strays...
 
-      if (mol_other.n_stray_atoms() == n_stray_atoms()) {
-	 std::vector<int> i_stray_atoms = stray_atoms();
-	 std::vector<int> j_stray_atoms = mol_other.stray_atoms();
-	 int n_stray_hits = 0;
-	 for (unsigned int i=0; i<i_stray_atoms.size(); i++) {
-	    for (unsigned int j=0; j<j_stray_atoms.size(); j++) {
-	       if (atoms[i_stray_atoms[i]] == mol_other.atoms[j_stray_atoms[j]])
-		  n_stray_hits++;
-	    }
-	 }
-	 if (n_stray_hits == n_stray_atoms())
-	    status = 1;
-      }
+//       if (mol_other.n_stray_atoms() == n_stray_atoms()) {
+// 	 std::vector<int> i_stray_atoms = stray_atoms();
+// 	 std::vector<int> j_stray_atoms = mol_other.stray_atoms();
+// 	 int n_stray_hits = 0;
+// 	 for (unsigned int i=0; i<i_stray_atoms.size(); i++) {
+// 	    for (unsigned int j=0; j<j_stray_atoms.size(); j++) {
+// 	       if (atoms[i_stray_atoms[i]] == mol_other.atoms[j_stray_atoms[j]])
+// 		  n_stray_hits++;
+// 	    }
+// 	 }
+// 	 if (n_stray_hits == n_stray_atoms())
+// 	    status = 1;
+//       }
 
-   }
-   return status;
-}
-
-
-std::vector<int>
-widgeted_molecule_t::bonds_having_atom_with_atom_index(int test_atom_index) const {
-
-   std::vector<int> v;
-   std::vector<int> vb =  bond_indices_with_atom_index(test_atom_index);
-
-   for (unsigned int iv=0; iv<vb.size(); iv++) {
-      if (! bonds[vb[iv]].is_closed())
-	 v.push_back(vb[iv]);
-   }
-
-   return v;
-} 
+//    }
+//    return status;
+// }
 
 
+// std::vector<int>
+// widgeted_molecule_t::bonds_having_atom_with_atom_index(int test_atom_index) const {
 
-// return a vector of the atom indices of unconnected atoms
-//
-std::vector<int>
-widgeted_molecule_t::get_unconnected_atoms() const {
+//    std::vector<int> v;
+//    std::vector<int> vb =  bond_indices_with_atom_index(test_atom_index);
 
-   std::vector<int> v;
-   for (unsigned int iat=0; iat<atoms.size(); iat++) {
-      if (! atoms[iat].is_closed()) { 
-	 bool in_a_bond = 0;
-	 for (unsigned int ib=0; ib<bonds.size(); ib++) { 
-	    if (! bonds[ib].is_closed()) {
-	       if (bonds[ib].get_atom_1_index() == iat)
-		  in_a_bond = 1;
-	       if (bonds[ib].get_atom_2_index() == iat)
-		  in_a_bond = 1;
-	    }
-	    if (in_a_bond)
-	       break;
-	 }
-	 if (! in_a_bond)
-	    v.push_back(iat);
-      }
-   }
-   return v;
-}
+//    for (unsigned int iv=0; iv<vb.size(); iv++) {
+//       if (! bonds[vb[iv]].is_closed())
+// 	 v.push_back(vb[iv]);
+//    }
 
-// can throw an exception (no atoms)
-// 
-lig_build::pos_t
-widgeted_molecule_t::get_ligand_centre() const {
-
-   lig_build::pos_t centre(0,0);
-
-   if (atoms.size() == 0) {
-      std::string message("No atoms in ligand");
-      throw std::runtime_error(message);
-   } else {
-      lig_build::pos_t centre_sum(0,0);
-      for (unsigned int iat=0; iat<atoms.size(); iat++) {
-	 centre_sum += atoms[iat].atom_position;
-      }
-      if (atoms.size() > 0)
-	 centre = centre_sum * (1.0/double(atoms.size()));
-   }
-   return centre;
-}
-
-// can throw an exception (no atoms)
-// 
-lig_build::pos_t
-widgeted_molecule_t::get_ring_centre(const std::vector<std::string> &ring_atom_names) const {
-
-   lig_build::pos_t positions_sum(0,0);
-   int n_found = 0;
-   for (unsigned int jat=0; jat<ring_atom_names.size(); jat++) {
-      for (unsigned int iat=0; iat<atoms.size(); iat++) {
-	 if (ring_atom_names[jat] == atoms[iat].get_atom_name()) {
-	    positions_sum += atoms[iat].atom_position;
-	    n_found++;
-	    break;
-	 }
-      }
-   }
-   if (n_found == 0) {
-      std::string mess = "No ring atom names found in ligand!";
-      throw(std::runtime_error(mess));
-   }
-   lig_build::pos_t centre = positions_sum * (1.0/double(n_found));
-   return centre;
-}
-
-// can throw an exception (no rings with this atom)
-//
-lig_build::pos_t
-widgeted_molecule_t::get_ring_centre(const widgeted_atom_ring_centre_info_t &atom) const {
-
-   lig_build::pos_t position(0,0);
-   bool found = 0;
-
-   for (unsigned int ibond=0; ibond<bonds.size(); ibond++) { 
-      if ((atoms[bonds[ibond].get_atom_1_index()] == atom.atom) ||
-	  (atoms[bonds[ibond].get_atom_2_index()] == atom.atom)) {
-	 if (bonds[ibond].have_centre_pos()) {
-	    position = bonds[ibond].centre_pos();
-	    found = 1;
-	 }
-      }
-      if (found)
-	 break;
-   }
-
-   if (! found) {
-      std::string mess("No atom ");
-      mess += atom.atom.get_atom_name();
-      mess += " found to be in a ring";
-      throw(std::runtime_error(mess));
-   }
-   return position;
-}
+//    return v;
+// } 
 
 
-// can throw an exception (no bonds)
-//
-// not const because it now caches the return value;
-//
-std::vector<lig_build::pos_t>
-widgeted_molecule_t::get_ring_centres() {
 
-   if (have_cached_bond_ring_centres_flag) {
-      return cached_bond_ring_centres;
-   } else { 
-      std::vector<lig_build::pos_t> v;
-      for (unsigned int ib=0; ib<bonds.size(); ib++) {
-	 if (bonds[ib].have_centre_pos()) {
-	    lig_build::pos_t rc = bonds[ib].centre_pos();
-	    bool found = 0;
-	    for (unsigned int i=0; i<v.size(); i++) {
-	       if (v[i].near_point(rc, 7)) { // 7 seems good, others tested.
-		  found = 1;
-		  break;
-	       }
-	    }
-	    if (! found)
-	       v.push_back(rc);
-	 }
-      }
-      //    std::cout << "get_ring_centres returns\n";
-      //    for (unsigned int iv=0; iv<v.size(); iv++) {
-      //       std::cout << "   "  << iv << " " << v[iv] << "\n";
-      //    }
-      cached_bond_ring_centres = v;
-      have_cached_bond_ring_centres_flag = 1;
-      return v;
-   }
-}
+// // return a vector of the atom indices of unconnected atoms
+// //
+// std::vector<int>
+// widgeted_molecule_t::get_unconnected_atoms() const {
+
+//    std::vector<int> v;
+//    for (unsigned int iat=0; iat<atoms.size(); iat++) {
+//       if (! atoms[iat].is_closed()) { 
+// 	 bool in_a_bond = 0;
+// 	 for (unsigned int ib=0; ib<bonds.size(); ib++) { 
+// 	    if (! bonds[ib].is_closed()) {
+// 	       if (bonds[ib].get_atom_1_index() == iat)
+// 		  in_a_bond = 1;
+// 	       if (bonds[ib].get_atom_2_index() == iat)
+// 		  in_a_bond = 1;
+// 	    }
+// 	    if (in_a_bond)
+// 	       break;
+// 	 }
+// 	 if (! in_a_bond)
+// 	    v.push_back(iat);
+//       }
+//    }
+//    return v;
+// }
+
+// // can throw an exception (no atoms)
+// // 
+// lig_build::pos_t
+// widgeted_molecule_t::get_ligand_centre() const {
+
+//    lig_build::pos_t centre(0,0);
+
+//    if (atoms.size() == 0) {
+//       std::string message("No atoms in ligand");
+//       throw std::runtime_error(message);
+//    } else {
+//       lig_build::pos_t centre_sum(0,0);
+//       for (unsigned int iat=0; iat<atoms.size(); iat++) {
+// 	 centre_sum += atoms[iat].atom_position;
+//       }
+//       if (atoms.size() > 0)
+// 	 centre = centre_sum * (1.0/double(atoms.size()));
+//    }
+//    return centre;
+// }
+
+// // can throw an exception (no atoms)
+// // 
+// lig_build::pos_t
+// widgeted_molecule_t::get_ring_centre(const std::vector<std::string> &ring_atom_names) const {
+
+//    lig_build::pos_t positions_sum(0,0);
+//    int n_found = 0;
+//    for (unsigned int jat=0; jat<ring_atom_names.size(); jat++) {
+//       for (unsigned int iat=0; iat<atoms.size(); iat++) {
+// 	 if (ring_atom_names[jat] == atoms[iat].get_atom_name()) {
+// 	    positions_sum += atoms[iat].atom_position;
+// 	    n_found++;
+// 	    break;
+// 	 }
+//       }
+//    }
+//    if (n_found == 0) {
+//       std::string mess = "No ring atom names found in ligand!";
+//       throw(std::runtime_error(mess));
+//    }
+//    lig_build::pos_t centre = positions_sum * (1.0/double(n_found));
+//    return centre;
+// }
+
+// // can throw an exception (no rings with this atom)
+// //
+// lig_build::pos_t
+// widgeted_molecule_t::get_ring_centre(const widgeted_atom_ring_centre_info_t &atom) const {
+
+//    lig_build::pos_t position(0,0);
+//    bool found = 0;
+
+//    for (unsigned int ibond=0; ibond<bonds.size(); ibond++) { 
+//       if ((atoms[bonds[ibond].get_atom_1_index()] == atom.atom) ||
+// 	  (atoms[bonds[ibond].get_atom_2_index()] == atom.atom)) {
+// 	 if (bonds[ibond].have_centre_pos()) {
+// 	    position = bonds[ibond].centre_pos();
+// 	    found = 1;
+// 	 }
+//       }
+//       if (found)
+// 	 break;
+//    }
+
+//    if (! found) {
+//       std::string mess("No atom ");
+//       mess += atom.atom.get_atom_name();
+//       mess += " found to be in a ring";
+//       throw(std::runtime_error(mess));
+//    }
+//    return position;
+// }
+
+
+// // can throw an exception (no bonds)
+// //
+// // not const because it now caches the return value;
+// //
+// std::vector<lig_build::pos_t>
+// widgeted_molecule_t::get_ring_centres() {
+
+//    if (have_cached_bond_ring_centres_flag) {
+//       return cached_bond_ring_centres;
+//    } else { 
+//       std::vector<lig_build::pos_t> v;
+//       for (unsigned int ib=0; ib<bonds.size(); ib++) {
+// 	 if (bonds[ib].have_centre_pos()) {
+// 	    lig_build::pos_t rc = bonds[ib].centre_pos();
+// 	    bool found = 0;
+// 	    for (unsigned int i=0; i<v.size(); i++) {
+// 	       if (v[i].near_point(rc, 7)) { // 7 seems good, others tested.
+// 		  found = 1;
+// 		  break;
+// 	       }
+// 	    }
+// 	    if (! found)
+// 	       v.push_back(rc);
+// 	 }
+//       }
+//       //    std::cout << "get_ring_centres returns\n";
+//       //    for (unsigned int iv=0; iv<v.size(); iv++) {
+//       //       std::cout << "   "  << iv << " " << v[iv] << "\n";
+//       //    }
+//       cached_bond_ring_centres = v;
+//       have_cached_bond_ring_centres_flag = 1;
+//       return v;
+//    }
+// }
 
 
 
@@ -872,161 +844,9 @@ widgeted_molecule_t::close_atom(int iat, GooCanvasItem *root) {
 }
 
 
-// atom_index_other is the index of the other atom, the path back to
-// atom_index_start must pass through atom_index_other.
-// 
-std::pair<bool, std::vector<int> >
-widgeted_molecule_t::found_self_through_bonds(int atom_index_start,
-					      int atom_index_other) const {
-
-   std::vector<int> empty_no_pass_atoms;
-   empty_no_pass_atoms.push_back(atom_index_start);
-   std::pair<bool, std::vector<int> > r =
-      find_bonded_atoms_with_no_pass(atom_index_start, atom_index_start, atom_index_other, empty_no_pass_atoms,
-				     MAX_SEARCH_DEPTH);
-   return r;
-}
 
 
-// Can I find start_atom_index from this_atom_index running through
-// bond tree until given depth?
-//
-// Must pass through atom_index_other for good solution.
-// 
-std::pair<bool, std::vector<int> >
-widgeted_molecule_t::find_bonded_atoms_with_no_pass(int start_atom_index,
-						    int atom_index_other,
-						    int this_atom_index,
-						    const std::vector<int> &no_pass_atoms,
-						    int depth) const {
 
-   std::vector<int> atoms_bonded_to_atom_index_start;
-   std::vector<int> local_no_pass_atoms = no_pass_atoms;
-   if (depth == 0) {
-      std::vector<int> empty;
-      return std::pair<bool, std::vector<int> > (0, empty);
-   } else {
-
-      // get a list of all the atoms that are bonded to this atom not
-      // in the no_pass list
-      
-      for (unsigned int i=0; i<bonds.size(); i++) { 
-	 if (bonds[i].get_atom_1_index() == this_atom_index) {
-	    int idx = bonds[i].get_atom_2_index();
-	    if (idx == start_atom_index)
-	       if (depth < (MAX_SEARCH_DEPTH-1)) {
-		  if (member(atom_index_other, local_no_pass_atoms)) {
-		     // if this_atom_index was not alread in
-		     // local_no_pass_atoms, then add it.
-		     bool ifound = 0; 
-		     for (unsigned int ilnp=0; ilnp<local_no_pass_atoms.size(); ilnp++) {
-			if (local_no_pass_atoms[ilnp] == this_atom_index) {
-			   ifound = 1;
-			   break;
-			}
-		     }
-		     if (! ifound)
-			local_no_pass_atoms.push_back(this_atom_index);
-		     // debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
-		     return std::pair<bool, std::vector<int> > (1, local_no_pass_atoms);
-		  }
-	       }
-	    if (! member(idx, local_no_pass_atoms)) {
-	       atoms_bonded_to_atom_index_start.push_back(idx);
-	       // add this_atom_index to local_no_pass_atoms if it is not already a member.
-	       bool found_this_atom_in_no_pass_atoms = 0;
-	       for (unsigned int inp=0; inp<local_no_pass_atoms.size(); inp++) { 
-		  if (local_no_pass_atoms[inp] == this_atom_index) {
-		     found_this_atom_in_no_pass_atoms = 1;
-		     break;
-		  }
-	       }
-	       if (! found_this_atom_in_no_pass_atoms)
-		  local_no_pass_atoms.push_back(this_atom_index);
-	    } 
-	 }
-	 if (bonds[i].get_atom_2_index() == this_atom_index) {
-	    int idx = bonds[i].get_atom_1_index();
-	    if (idx == start_atom_index)
-	       if (depth < (MAX_SEARCH_DEPTH-1)) {
-		  if (member(atom_index_other, local_no_pass_atoms)) { 
-		     local_no_pass_atoms.push_back(this_atom_index);
-		     // if this_atom_index was not alread in
-		     // local_no_pass_atoms, then add it.
-		     bool ifound = 0; 
-		     for (unsigned int ilnp=0; ilnp<local_no_pass_atoms.size(); ilnp++) {
-			if (local_no_pass_atoms[ilnp] == this_atom_index) {
-			   ifound = 1;
-			   break;
-			}
-		     }
-		     if (! ifound)
-			local_no_pass_atoms.push_back(this_atom_index);
-		     // debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
-		     return std::pair<bool, std::vector<int> > (1, local_no_pass_atoms);
-		  }
-	       }
-	    if (! member(idx, local_no_pass_atoms)) {
-	       atoms_bonded_to_atom_index_start.push_back(idx);
-	       // add this_atom_index to local_no_pass_atoms if it is not already a member.
-	       bool found_this_atom_in_no_pass_atoms = 0;
-	       for (unsigned int inp=0; inp<local_no_pass_atoms.size(); inp++) { 
-		  if (local_no_pass_atoms[inp] == this_atom_index) {
-		     found_this_atom_in_no_pass_atoms = 1;
-		     break;
-		  }
-	       }
-	       if (! found_this_atom_in_no_pass_atoms)
-		  local_no_pass_atoms.push_back(this_atom_index);
-	    } 
-	 }
-      }
-
-      if (0) {  // debug;
-	 std::cout << "     atom index " << this_atom_index << " has "
-		   << atoms_bonded_to_atom_index_start.size()
-		   << " connected atoms not in the no-pass list (";
-	 for (unsigned int i=0; i<local_no_pass_atoms.size(); i++)
-	    std::cout << local_no_pass_atoms[i] << " ";
-	 std::cout << ")\n";
-      }
-	 
-      for (unsigned int iat=0; iat<atoms_bonded_to_atom_index_start.size(); iat++) { 
-	 std::pair<bool, std::vector<int> > r =
-	    find_bonded_atoms_with_no_pass(start_atom_index,
-					   atom_index_other,
-					   atoms_bonded_to_atom_index_start[iat],
-					   local_no_pass_atoms, depth-1);
-	 if (r.first) {
-	    // std::cout << "    passing on success...." << std::endl;
-	    // debug_pass_atoms(start_atom_index, this_atom_index, depth, r.second);
-	    return r;
-	 }
-      }
-      
-   } // end depth test
-
-   if (0) { 
-      std::cout << "returning 0 with this depth " << depth << " no-pass-list: (";
-      for (unsigned int i=0; i<local_no_pass_atoms.size(); i++)
-	 std::cout << local_no_pass_atoms[i] << " ";
-      std::cout << ")\n";
-   }
-   std::vector<int> empty;
-   return std::pair<bool, std::vector<int> > (0, empty);
-}
-
-void
-widgeted_molecule_t::debug_pass_atoms(int atom_index_start, int this_atom_index, int depth,
-				      const std::vector<int> &local_no_pass_atoms) const {
-
-   std::cout << "    found atom index " << atom_index_start << " from this atom: " << this_atom_index
-	     << ", at depth " << depth << " no-pass-atoms: (";
-   for (unsigned int i=0; i<local_no_pass_atoms.size(); i++) { 
-      std::cout << local_no_pass_atoms[i] << " ";
-   }
-   std::cout << ")" << std::endl;
-}
 
 
 
@@ -1061,7 +881,8 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
    
 
    if (! of) {
-      std::cout << "WARNING:: Cannot open file :" << file_name << ": to write molfile" << std::endl;
+      std::cout << "WARNING:: Cannot open file :" << file_name << ": to write molfile"
+		<< std::endl;
    } else {
 
       // 3 lines of header
@@ -1216,13 +1037,6 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
    of.close();
    
    return status;
-}
-
-int
-widgeted_molecule_t::get_number_of_atom_including_hydrogens() const {
-
-   return atoms.size();
-
 }
 
 
@@ -1452,72 +1266,72 @@ widgeted_molecule_t::get_atom_canvas_position(const std::string &atom_name) cons
 }
 
 
-// can throw an exception (no atoms) return pseudo points top-left
-// (small small) bottom-right (high high).
-//
-std::pair<lig_build::pos_t, lig_build::pos_t>
-widgeted_molecule_t::ligand_extents() const {
+// // can throw an exception (no atoms) return pseudo points top-left
+// // (small small) bottom-right (high high).
+// //
+// std::pair<lig_build::pos_t, lig_build::pos_t>
+// widgeted_molecule_t::ligand_extents() const {
 
-   lig_build::pos_t top_left;
-   lig_build::pos_t bottom_right;
+//    lig_build::pos_t top_left;
+//    lig_build::pos_t bottom_right;
 
-   double mol_min_x =  9999999;
-   double mol_max_x = -9999999;
-   double mol_min_y =  9999999;
-   double mol_max_y = -9999999;
+//    double mol_min_x =  9999999;
+//    double mol_max_x = -9999999;
+//    double mol_min_y =  9999999;
+//    double mol_max_y = -9999999;
 
-   if (atoms.size()) { 
+//    if (atoms.size()) { 
       
-      for (unsigned int iat=0; iat<atoms.size(); iat++) {
-	 if (atoms[iat].atom_position.x > mol_max_x)
-	    mol_max_x = atoms[iat].atom_position.x;
-	 if (atoms[iat].atom_position.x < mol_min_x)
-	    mol_min_x = atoms[iat].atom_position.x;
-	 if (atoms[iat].atom_position.y > mol_max_y)
-	    mol_max_y = atoms[iat].atom_position.y;
-	 if (atoms[iat].atom_position.y < mol_min_y)
-	    mol_min_y = atoms[iat].atom_position.y;
-      }
-      top_left     = lig_build::pos_t(mol_min_x, mol_min_y);
-      bottom_right = lig_build::pos_t(mol_max_x, mol_max_y);
-   } else {
-      std::string mess = "WARNING:: no atoms in ligand_extents()";
-      throw std::runtime_error(mess);
-   }
+//       for (unsigned int iat=0; iat<atoms.size(); iat++) {
+// 	 if (atoms[iat].atom_position.x > mol_max_x)
+// 	    mol_max_x = atoms[iat].atom_position.x;
+// 	 if (atoms[iat].atom_position.x < mol_min_x)
+// 	    mol_min_x = atoms[iat].atom_position.x;
+// 	 if (atoms[iat].atom_position.y > mol_max_y)
+// 	    mol_max_y = atoms[iat].atom_position.y;
+// 	 if (atoms[iat].atom_position.y < mol_min_y)
+// 	    mol_min_y = atoms[iat].atom_position.y;
+//       }
+//       top_left     = lig_build::pos_t(mol_min_x, mol_min_y);
+//       bottom_right = lig_build::pos_t(mol_max_x, mol_max_y);
+//    } else {
+//       std::string mess = "WARNING:: no atoms in ligand_extents()";
+//       throw std::runtime_error(mess);
+//    }
    
-   return std::pair<lig_build::pos_t, lig_build::pos_t> (top_left, bottom_right);
+//    return std::pair<lig_build::pos_t, lig_build::pos_t> (top_left, bottom_right);
 
-}
-
-
-
-int
-widgeted_molecule_t::n_open_bonds() const {
-
-   int n_bonds = 0;
-   for (unsigned int i=0; i<bonds.size(); i++) { 
-      if (! bonds[i].is_closed())
-	 n_bonds++;
-   }
-   return n_bonds;
-}
+// }
 
 
-bool
-widgeted_molecule_t::is_close_to_non_last_atom(const lig_build::pos_t &test_pos) const {
 
-   bool close = 0;
-   int n_atoms_for_test = atoms.size() - 1; 
-   for (int iat=0; iat<n_atoms_for_test; iat++) {
-      if (! atoms[iat].is_closed()) {
-	 if (atoms[iat].atom_position.near_point(test_pos, 2.1)) {
-	    close = 1;
-	    break;
-	 }
-      }
-   }
-   return close;
-}
+// int
+// widgeted_molecule_t::n_open_bonds() const {
+
+//    int n_bonds = 0;
+//    for (unsigned int i=0; i<bonds.size(); i++) { 
+//       if (! bonds[i].is_closed())
+// 	 n_bonds++;
+//    }
+//    return n_bonds;
+// }
+
+
+// bool
+// widgeted_molecule_t::is_close_to_non_last_atom(const lig_build::pos_t &test_pos) const {
+
+//    bool close = 0;
+//    int n_atoms_for_test = atoms.size() - 1; 
+//    for (int iat=0; iat<n_atoms_for_test; iat++) {
+//       if (! atoms[iat].is_closed()) {
+// 	 if (atoms[iat].atom_position.near_point(test_pos, 2.1)) {
+// 	    close = 1;
+// 	    break;
+// 	 }
+//       }
+//    }
+//    return close;
+// }
 
 void
 widgeted_molecule_t::delete_hydrogens(GooCanvasItem *root) {

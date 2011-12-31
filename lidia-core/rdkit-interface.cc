@@ -34,6 +34,8 @@ RDKit::RWMol
 coot::rdkit_mol(CResidue *residue_p, const coot::protein_geometry &geom) {
 
    std::string res_name = residue_p->GetResName();
+   std::cout << "====================  here in rdkit_mol() with geometry with res_name \""
+	     << res_name << "\"" << std::endl;
    
    std::pair<bool, coot::dictionary_residue_restraints_t> p = 
       geom.get_monomer_restraints_at_least_minimal(res_name);
@@ -44,7 +46,10 @@ coot::rdkit_mol(CResidue *residue_p, const coot::protein_geometry &geom) {
       m += " not in dictionary";
       throw(std::runtime_error(m));
 
-   } else { 
+   } else {
+      std::cout << "......... calling rdkit_mol() with restraints that have "
+		<< p.second.bond_restraint.size() << " bond restraints"
+		<< std::endl;
       return rdkit_mol(residue_p, p.second);
    } 
 }
@@ -53,6 +58,9 @@ RDKit::RWMol
 coot::rdkit_mol(CResidue *residue_p,
 		const coot::dictionary_residue_restraints_t &restraints) {
 
+   std::cout << "==================== here in rdkit_mol() with restraints that have "
+	     << restraints.bond_restraint.size() << " bond restraints" << std::endl;
+   
    RDKit::RWMol m;
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
 
@@ -75,8 +83,9 @@ coot::rdkit_mol(CResidue *residue_p,
    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
       if (! residue_atoms[iat]->Ter) { 
 	 std::string atom_name(residue_atoms[iat]->name);
-	 std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " " 
-		   << atom_name << std::endl;
+	 if (0)
+	    std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " " 
+		      << atom_name << std::endl;
 	 // only add the atom if the atom_name is not in the list of
 	 // already-added atom names.
 	 if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name) == added_atom_names.end()) {
@@ -131,12 +140,14 @@ coot::rdkit_mol(CResidue *residue_p,
       }
    }
 
-   std::cout << "bond restraints " << restraints.bond_restraint.size() << std::endl;
+   if (0) 
+      std::cout << "number of bond restraints: " << restraints.bond_restraint.size() << std::endl;
    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
-      std::cout << "   handling bond " << ib << " of " << restraints.bond_restraint.size()
-		<< " :" << restraints.bond_restraint[ib].atom_id_1_4c() << ": " 
-		<< " :" << restraints.bond_restraint[ib].atom_id_2_4c() << ": " 
-		<< std::endl;
+      if (0)
+	 std::cout << "   handling bond " << ib << " of " << restraints.bond_restraint.size()
+		   << " :" << restraints.bond_restraint[ib].atom_id_1_4c() << ": " 
+		   << " :" << restraints.bond_restraint[ib].atom_id_2_4c() << ": " 
+		   << std::endl;
       RDKit::Bond::BondType type = convert_bond_type(restraints.bond_restraint[ib].type());
       RDKit::Bond *bond = new RDKit::Bond(type);
 	    
@@ -254,14 +265,14 @@ coot::rdkit_mol(CResidue *residue_p,
    }
 
    
-   std::cout << "---------------------- calling assign_formal_charges() -----------" << std::endl;
+   // std::cout << "---------------------- calling assign_formal_charges() -----------" << std::endl;
    coot::assign_formal_charges(&m);
    
 
    RDKit::MolOps::cleanUp(m);
 
    // OK, so cleanUp() doesn't fix the N charge problem our prodrg molecule
-   if (1) { // debug, formal charges
+   if (0) { // debug, formal charges
       std::cout << "::::::::::::::::::::::::::: after cleanup :::::::::::::::::"
 		<< std::endl;
       int n_mol_atoms = m.getNumAtoms();
@@ -283,18 +294,19 @@ coot::rdkit_mol(CResidue *residue_p,
 		<< std::endl;
    }
 
-   std::cout << "DEBUG:: sanitizeMol() " << std::endl;
+   if (0)
+      std::cout << "DEBUG:: sanitizeMol() " << std::endl;
    RDKit::MolOps::sanitizeMol(m);
 
-   std::cout << "in constructing rdk molecule now adding a conf" << std::endl;
+   if (0)
+      std::cout << "in constructing rdk molecule now adding a conf" << std::endl;
    RDKit::Conformer *conf = new RDKit::Conformer(added_atom_names.size());
-   std::cout << "==== setting 3d flag" << std::endl;
    conf->set3D(true);
       
    // Add positions to the conformer (only the first instance of an
    // atom with a particular atom name).
    // 
-   std::cout << "==== adding positions to the conformer " << std::endl;
+   // std::cout << "==== adding positions to the conformer " << std::endl;
    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
       std::string atom_name(residue_atoms[iat]->name);
       std::map<std::string, int>::const_iterator it = atom_index.find(atom_name);
@@ -310,8 +322,9 @@ coot::rdkit_mol(CResidue *residue_p,
       } 
    }
    m.addConformer(conf);
-   std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms()
-	     << std::endl;
+   if (0) 
+      std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms()
+		<< std::endl;
    return m;
 }
 
@@ -722,29 +735,34 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
 
    
    int n_mol_atoms = rdkm->getNumAtoms();
-   std::cout << "---------------------- in assign_formal_charges() with " << n_mol_atoms
-	     << " atoms -----------" << std::endl;
+   if (0)
+      std::cout << "---------------------- in assign_formal_charges() with " << n_mol_atoms
+		<< " atoms -----------" << std::endl;
 
    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
       RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
       // debug
-      std::cout << "in assign_formal_charges() calcExplicitValence on atom "
-		<< iat << "/" << n_mol_atoms
-		<< "  " << at_p->getAtomicNum() << std::endl;
+      if (0)
+	 std::cout << "in assign_formal_charges() calcExplicitValence on atom "
+		   << iat << "/" << n_mol_atoms
+		   << "  " << at_p->getAtomicNum() << std::endl;
       at_p->calcExplicitValence(false);
    }
    
    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
       RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
-      std::cout << "atom " << iat << "/" << n_mol_atoms << "  " << at_p->getAtomicNum()
-		<< " with valence " << at_p->getExplicitValence()
-		<< std::endl;
+      if (0) 
+	 std::cout << "atom " << iat << "/" << n_mol_atoms << "  " << at_p->getAtomicNum()
+		   << " with valence " << at_p->getExplicitValence()
+		   << std::endl;
       if (at_p->getAtomicNum() == 7) { // N
 	 int e_valence = at_p->getExplicitValence();
-	 std::cout << " atom N has explicit valence: " << e_valence << std::endl;
-	 if (e_valence == 4) { 
-	    std::cout << ".......... assign_formal_charges: found one! "
-		      << at_p << std::endl;
+	 if (0) 
+	    std::cout << " atom N has explicit valence: " << e_valence << std::endl;
+	 if (e_valence == 4) {
+	    if (0)
+	       std::cout << ".......... assign_formal_charges: found one! "
+			 << at_p << std::endl;
 	    at_p->setFormalCharge(1);
 	 }
       }
@@ -752,7 +770,8 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
 	 at_p->setFormalCharge(2);
       }
    }
-   std::cout << "----------- normal completion of assign_formal_charges()" << std::endl;
+   if (0) 
+      std::cout << "----------- normal completion of assign_formal_charges()" << std::endl;
 }
 
 // a wrapper for the above, matching hydrogens names to the

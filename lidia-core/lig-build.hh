@@ -25,7 +25,9 @@
 #include <math.h>  // for fabs, cos, sin
 #include <string>
 #include <vector>
+#include <stdexcept>
 
+#define MAX_SEARCH_DEPTH 9
 
 #define DEG_TO_RAD .01745327 // defined elsewhere maybe.
 
@@ -147,6 +149,58 @@ namespace lig_build {
       static double dot(const pos_t &a, const pos_t &b) {
 	 return (a.x*b.x + a.y*b.y);
       }
+      static std::vector<std::pair<pos_t, pos_t> > make_wedge_in_bond(const pos_t &pos_1,
+								      const pos_t &pos_2) {
+	 std::vector<std::pair<pos_t, pos_t> > lines;
+	 pos_t buv = (pos_2-pos_1).unit_vector();
+	 pos_t buv_90 = buv.rotate(90);
+	 int n_lines = 5;
+	 double bond_length = pos_t::length(pos_2, pos_1);
+	 double length_scale = 0.03 * bond_length;
+	 for (unsigned int i=1; i<=n_lines; i++) {
+	    // then centre point of the line, some way along the pos_1 -> pos_2 vector;
+	    double len = double(i) * length_scale;
+	    double frac = (double(i)- 0.3)/double(n_lines);
+	    pos_t fp = pos_t::fraction_point(pos_1, pos_2, frac);
+	    pos_t p1 = fp + buv_90 * len;
+	    pos_t p2 = fp - buv_90 * len;
+	    lines.push_back(std::pair<pos_t, pos_t>(p1,p2));
+	 }
+	 return lines;
+      }
+      static std::vector<pos_t> make_wedge_out_bond(const pos_t &pos_1,
+						    const pos_t &pos_2) {
+
+	 // double sharp_point_sharp_factor = 0.1; // for canvas
+	 double sharp_point_sharp_factor = 0.02;
+	 std::vector<pos_t> v;
+	 pos_t buv = (pos_2-pos_1).unit_vector();
+	 pos_t buv_90 = buv.rotate(90);
+	 double bond_length = pos_t::length(pos_2, pos_1);
+	 double length_scale = 0.1 * bond_length;
+	 pos_t short_edge_pt_1 = pos_2 + buv_90 * length_scale;
+	 pos_t short_edge_pt_2 = pos_2 - buv_90 * length_scale;
+	 // the line width means that the sharp angle an pos_1 here results
+	 // in a few pixels beyond the pos_1, so artificially shorten it a
+	 // tiny amount.
+	 //
+	 // Also, make it a quadralateral, with the sharp points very close,
+	 // this make the spike go away.
+	 //
+	 // 
+	 // pos_t sharp_point = pos_t::fraction_point(pos_1, pos_2, 0.11);
+	 // pos_t sharp_point = pos_t::fraction_point(pos_1, pos_2, 0.07);
+	 pos_t sharp_point = pos_t::fraction_point(pos_1, pos_2, 0.03);
+   
+	 pos_t sharp_point_1 = sharp_point + buv_90 * sharp_point_sharp_factor;
+	 pos_t sharp_point_2 = sharp_point - buv_90 * sharp_point_sharp_factor;
+	 v.push_back(sharp_point_2);
+	 v.push_back(sharp_point_1);
+	 v.push_back(short_edge_pt_1);
+	 v.push_back(short_edge_pt_2);
+	 return v;
+      }
+
       // return angle to X axis in degrees
       double axis_orientation() const {
 	 double angle = atan2(y,x)/DEG_TO_RAD;
@@ -261,6 +315,7 @@ namespace lig_build {
       pos_t atom_position;
       std::string element;
       std::string atom_id;
+      std::string atom_name; // PDB atom names typically
       int charge;
       bool aromatic;
       atom_t(pos_t pos_in, std::string ele_in, int charge_in) {
@@ -294,6 +349,9 @@ namespace lig_build {
       bool atomatic_p() const {
 	 return aromatic;
       }
+      std::string get_atom_name() const {
+	 return atom_name;
+      } 
       std::string get_atom_id() const { return atom_id; }
       // return atom-id-was-changed status
       bool set_atom_id(const std::string &atom_id_in ) {
@@ -324,6 +382,22 @@ namespace lig_build {
    
    std::ostream& operator<<(std::ostream &s, atom_t);
    
+   // trivial container for a (copy of an) atom an its ring centre (if
+   // it has one)
+   class atom_ring_centre_info_t {
+   public:
+      atom_t atom;
+      bool has_ring_centre_flag;
+      pos_t ring_centre;
+      atom_ring_centre_info_t(const atom_t &at) : atom(at) {
+	 has_ring_centre_flag = 0;
+      }
+      void add_ring_centre(const pos_t &pos) {
+	 ring_centre = pos;
+	 has_ring_centre_flag = 1;
+      }
+   };
+   std::ostream& operator<<(std::ostream &s, atom_ring_centre_info_t wa);
 
    // -----------------------------------------------------------------
    //                   bond_t
@@ -349,7 +423,7 @@ namespace lig_build {
       bond_t() {
 	 atom_1 = UNASSIGNED_INDEX;
 	 atom_2 = UNASSIGNED_INDEX;
-	 have_centre_pos_ = 0;
+	 have_centre_pos_ = false;
 	 is_closed_ = 0;
 	 bond_type = BOND_UNDEFINED;
       }
@@ -357,14 +431,14 @@ namespace lig_build {
 	 atom_1 = first;
 	 atom_2 = second;
 	 bond_type = bt;
-	 have_centre_pos_ = 0;
+	 have_centre_pos_ = false;
 	 is_closed_ = 0;
       }
       bond_t(int first, int second, pos_t centre_pos_in, bond_type_t bt) {
 	 atom_1 = first;
 	 atom_2 = second;
 	 bond_type = bt;
-	 have_centre_pos_ = 1;
+	 have_centre_pos_ = true;
 	 centre_pos_ = centre_pos_in;
 	 is_closed_ = 0;
       }
@@ -384,9 +458,12 @@ namespace lig_build {
       // post-hoc bond modification
       void set_centre_pos(const pos_t &pos_in) {
 	 centre_pos_ = pos_in;
-	 have_centre_pos_ = 1;
+	 have_centre_pos_ = true;
       } 
       pos_t centre_pos() const { return centre_pos_; }
+      void add_centre(const pos_t &centre_in) {
+	 set_centre_pos(centre_in);
+      }
       bool operator==(const bond_t &bond_in) const {
 	 bool status = 0;
 	 if (bond_in.get_bond_type() == bond_type)
@@ -419,6 +496,14 @@ namespace lig_build {
 	    idx = get_atom_2_index();
 	 return idx;
       }
+
+      // (the long/normal stick for this is just pos_1 to pos_2)
+      std::pair<pos_t, pos_t>
+      make_double_aromatic_short_stick(const pos_t &pos_1, const pos_t &pos_2) const;
+
+      std::pair<std::pair<pos_t, pos_t>, std::pair<pos_t, pos_t> >
+      make_double_bond(const pos_t &pos_1, const pos_t &pos_2) const;
+
    };
    std::ostream& operator<<(std::ostream &s, bond_t);
 
@@ -426,6 +511,9 @@ namespace lig_build {
    // -----------------------------------------------------------------
    //                   template molecule_t
    // -----------------------------------------------------------------
+
+   // from sub-class back down here.
+   // 20111229
 
    template<class Ta, class Tb> class molecule_t {
    private:
@@ -449,11 +537,151 @@ namespace lig_build {
 	 }
 	 return std::pair<bool, int> (is_new, new_atom_index);
       }
-//       bool equivalent_bonds(<class Ta, class Tb> molecule_t) const {
-// 	 bool status = 0;
-// 	 return status;
-//       } 
+      bool member(const int &ind, const std::vector<int> &no_pass_atoms) const {
+	 bool found = 0;
+	 for (unsigned int i=0; i<no_pass_atoms.size(); i++) { 
+	    if (no_pass_atoms[i] == ind) {
+	       found = 1;
+	       break;
+	    }
+	 }
+	 return found;
+      } 
+
+      std::pair<bool, std::vector<int> >
+      find_bonded_atoms_with_no_pass(int start_atom_index,
+				     int atom_index_other,
+				     int this_atom_index,
+				     const std::vector<int> &no_pass_atoms,
+				     int depth) const {
+	 
+	 std::vector<int> atoms_bonded_to_atom_index_start;
+	 std::vector<int> local_no_pass_atoms = no_pass_atoms;
+	 if (depth == 0) {
+	    std::vector<int> empty;
+	    return std::pair<bool, std::vector<int> > (0, empty);
+	 } else {
+
+	    // get a list of all the atoms that are bonded to this atom not
+	    // in the no_pass list
+      
+	    for (unsigned int i=0; i<bonds.size(); i++) { 
+	       if (bonds[i].get_atom_1_index() == this_atom_index) {
+		  int idx = bonds[i].get_atom_2_index();
+		  if (idx == start_atom_index)
+		     if (depth < (MAX_SEARCH_DEPTH-1)) {
+			if (member(atom_index_other, local_no_pass_atoms)) {
+			   // if this_atom_index was not alread in
+			   // local_no_pass_atoms, then add it.
+			   bool ifound = 0; 
+			   for (unsigned int ilnp=0; ilnp<local_no_pass_atoms.size(); ilnp++) {
+			      if (local_no_pass_atoms[ilnp] == this_atom_index) {
+				 ifound = 1;
+				 break;
+			      }
+			   }
+			   if (! ifound)
+			      local_no_pass_atoms.push_back(this_atom_index);
+			   // debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
+			   return std::pair<bool, std::vector<int> > (1, local_no_pass_atoms);
+			}
+		     }
+		  if (! member(idx, local_no_pass_atoms)) {
+		     atoms_bonded_to_atom_index_start.push_back(idx);
+		     // add this_atom_index to local_no_pass_atoms if it is not already a member.
+		     bool found_this_atom_in_no_pass_atoms = 0;
+		     for (unsigned int inp=0; inp<local_no_pass_atoms.size(); inp++) { 
+			if (local_no_pass_atoms[inp] == this_atom_index) {
+			   found_this_atom_in_no_pass_atoms = 1;
+			   break;
+			}
+		     }
+		     if (! found_this_atom_in_no_pass_atoms)
+			local_no_pass_atoms.push_back(this_atom_index);
+		  } 
+	       }
+	       if (bonds[i].get_atom_2_index() == this_atom_index) {
+		  int idx = bonds[i].get_atom_1_index();
+		  if (idx == start_atom_index)
+		     if (depth < (MAX_SEARCH_DEPTH-1)) {
+			if (member(atom_index_other, local_no_pass_atoms)) { 
+			   local_no_pass_atoms.push_back(this_atom_index);
+			   // if this_atom_index was not alread in
+			   // local_no_pass_atoms, then add it.
+			   bool ifound = 0; 
+			   for (unsigned int ilnp=0; ilnp<local_no_pass_atoms.size(); ilnp++) {
+			      if (local_no_pass_atoms[ilnp] == this_atom_index) {
+				 ifound = 1;
+				 break;
+			      }
+			   }
+			   if (! ifound)
+			      local_no_pass_atoms.push_back(this_atom_index);
+			   // debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
+			   return std::pair<bool, std::vector<int> > (1, local_no_pass_atoms);
+			}
+		     }
+		  if (! member(idx, local_no_pass_atoms)) {
+		     atoms_bonded_to_atom_index_start.push_back(idx);
+		     // add this_atom_index to local_no_pass_atoms if it is not already a member.
+		     bool found_this_atom_in_no_pass_atoms = 0;
+		     for (unsigned int inp=0; inp<local_no_pass_atoms.size(); inp++) { 
+			if (local_no_pass_atoms[inp] == this_atom_index) {
+			   found_this_atom_in_no_pass_atoms = 1;
+			   break;
+			}
+		     }
+		     if (! found_this_atom_in_no_pass_atoms)
+			local_no_pass_atoms.push_back(this_atom_index);
+		  } 
+	       }
+	    }
+
+	    if (0) {  // debug;
+	       std::cout << "     atom index " << this_atom_index << " has "
+			 << atoms_bonded_to_atom_index_start.size()
+			 << " connected atoms not in the no-pass list (";
+	       for (unsigned int i=0; i<local_no_pass_atoms.size(); i++)
+		  std::cout << local_no_pass_atoms[i] << " ";
+	       std::cout << ")\n";
+	    }
+	 
+	    for (unsigned int iat=0; iat<atoms_bonded_to_atom_index_start.size(); iat++) { 
+	       std::pair<bool, std::vector<int> > r =
+		  find_bonded_atoms_with_no_pass(start_atom_index,
+						 atom_index_other,
+						 atoms_bonded_to_atom_index_start[iat],
+						 local_no_pass_atoms, depth-1);
+	       if (r.first) {
+		  // std::cout << "    passing on success...." << std::endl;
+		  // debug_pass_atoms(start_atom_index, this_atom_index, depth, r.second);
+		  return r;
+	       }
+	    }
+      
+	 } // end depth test
+
+	 if (0) { 
+	    std::cout << "returning 0 with this depth " << depth << " no-pass-list: (";
+	    for (unsigned int i=0; i<local_no_pass_atoms.size(); i++)
+	       std::cout << local_no_pass_atoms[i] << " ";
+	    std::cout << ")\n";
+	 }
+	 std::vector<int> empty;
+	 return std::pair<bool, std::vector<int> > (0, empty);
+      }
+
+      // can throw an exception (no bonds)
+      //
+      // not const because it now caches the return value;
+      //
+      bool have_cached_bond_ring_centres_flag;
+      std::vector<pos_t> cached_bond_ring_centres;
+      
    public:
+      molecule_t() {
+	 have_cached_bond_ring_centres_flag = false;
+      } 
       std::vector<Ta> atoms;
       std::vector<Tb> bonds;
       
@@ -499,6 +727,16 @@ namespace lig_build {
 	 bonds.clear();
       }
 
+      std::pair<bool, std::vector<int> >
+      found_self_through_bonds(int atom_index_start,
+			       int atom_index_other) const {
+	 std::vector<int> empty_no_pass_atoms;
+	 empty_no_pass_atoms.push_back(atom_index_start);
+	 std::pair<bool, std::vector<int> > r =
+	    find_bonded_atoms_with_no_pass(atom_index_start, atom_index_start, atom_index_other, empty_no_pass_atoms,
+					   MAX_SEARCH_DEPTH);
+	 return r;
+      } 
       // "Put the template class method definitions in the .h file" - Thanks, Kevin!
       // 
       virtual std::vector<Tb> bonds_with_vertex(const pos_t &pos) const {
@@ -548,7 +786,372 @@ namespace lig_build {
 	    }
 	 }
 	 return bi;
+      }
+
+      void debug_pass_atoms(int atom_index_start, int this_atom_index, int depth,
+			    const std::vector<int> &local_no_pass_atoms) const {
+
+	 std::cout << "    found atom index " << atom_index_start << " from this atom: "
+		   << this_atom_index
+		   << ", at depth " << depth << " no-pass-atoms: (";
+	 for (unsigned int i=0; i<local_no_pass_atoms.size(); i++) { 
+	    std::cout << local_no_pass_atoms[i] << " ";
+	 }
+	 std::cout << ")" << std::endl;
+      }
+
+
+      int get_number_of_atom_including_hydrogens() const {
+	 return atoms.size();
+      }
+
+      void assign_ring_centres() {
+	 bool debug = false;
+	 for (unsigned int ib=0; ib<bonds.size(); ib++) {
+	    if (! bonds[ib].have_centre_pos()) { 
+	       int atom_index = bonds[ib].get_atom_1_index();
+	       int atom_index_other = bonds[ib].get_atom_2_index();
+	       if (debug) 
+		  std::cout << "=============== checking ring for atom index "
+			    << atom_index << " ===============" << std::endl;
+	       // path must pass through atom_index_other
+	       std::pair<bool, std::vector<int> > found =
+		  found_self_through_bonds(atom_index, atom_index_other);
+	       if (debug) { 
+		  std::cout << "-- constructor of widgeted_bond_t atom " << atom_index
+			    << " other bond index (not tested) " << bonds[ib].get_atom_2_index()
+			    << ", found status "
+			    << found.first << " (";
+		  for (unsigned int i=0; i<found.second.size(); i++)
+		     std::cout << found.second[i] << " ";
+		  std::cout << ")\n"
+			    << std::endl;
+	       }
+	       if (found.first) {
+		  if (found.second.size() > 0) { 
+		     lig_build::pos_t centre_pos_sum;
+		     std::string centre_pos_atoms_string;
+		     for (unsigned int i_ring_atom_list=0;
+			  i_ring_atom_list<found.second.size();
+			  i_ring_atom_list++) {
+			centre_pos_sum += atoms[found.second[i_ring_atom_list]].atom_position;
+		     }
+		     lig_build::pos_t centre_pos = centre_pos_sum * (1.0/double(found.second.size()));
+		     bonds[ib].add_centre(centre_pos);
+		     if (debug)
+			std::cout << "adding centre at " << centre_pos
+				  << " generated from (" << centre_pos_atoms_string << ")" 
+				  << " for bond " << ib
+				  << " connecting " << bonds[ib].get_atom_1_index() << " to "
+				  << bonds[ib].get_atom_2_index() << std::endl;
+		  }
+	       }
+	    }
+	 }
       } 
+
+      // 
+      std::vector<pos_t> get_ring_centres() {
+
+	 if (have_cached_bond_ring_centres_flag) {
+	    return cached_bond_ring_centres;
+	 } else { 
+	    std::vector<pos_t> v;
+	    for (unsigned int ib=0; ib<bonds.size(); ib++) {
+	       if (bonds[ib].have_centre_pos()) {
+		  pos_t rc = bonds[ib].centre_pos();
+		  bool found = 0;
+		  for (unsigned int i=0; i<v.size(); i++) {
+		     if (v[i].near_point(rc, 7)) { // "7"? is that gocanvas coords? FIXME
+			found = 1;
+			break;
+		     }
+		  }
+		  if (! found)
+		     v.push_back(rc);
+	       }
+	    }
+	    std::cout << "DEBUG:: get_ring_centres() returns\n";
+	    for (unsigned int iv=0; iv<v.size(); iv++) {
+	       std::cout << "   "  << iv << " " << v[iv] << "\n";
+	    }
+	    cached_bond_ring_centres = v;
+	    have_cached_bond_ring_centres_flag = true;
+	    return v;
+	 }
+      }
+
+      // can throw an exception (no atoms)
+      // 
+      pos_t
+      get_ring_centre(const std::vector<std::string> &ring_atom_names) const {
+
+	 pos_t positions_sum(0,0);
+	 int n_found = 0;
+	 for (unsigned int jat=0; jat<ring_atom_names.size(); jat++) {
+	    for (unsigned int iat=0; iat<atoms.size(); iat++) {
+	       if (ring_atom_names[jat] == atoms[iat].get_atom_name()) {
+		  positions_sum += atoms[iat].atom_position;
+		  n_found++;
+		  break;
+	       }
+	    }
+	 }
+	 if (n_found == 0) {
+	    std::string mess = "No ring atom names found in ligand!";
+	    throw(std::runtime_error(mess));
+	 }
+	 pos_t centre = positions_sum * (1.0/double(n_found));
+	 return centre;
+      }
+
+      // can throw an exception (no rings with this atom)
+      //
+      pos_t
+      get_ring_centre(const atom_ring_centre_info_t &rc_atom) const {
+
+	 pos_t position(0,0);
+	 bool found = 0;
+
+	 for (unsigned int ibond=0; ibond<bonds.size(); ibond++) { 
+	    if ((atoms[bonds[ibond].get_atom_1_index()] == rc_atom.atom) ||
+		(atoms[bonds[ibond].get_atom_2_index()] == rc_atom.atom)) {
+	       if (bonds[ibond].have_centre_pos()) {
+		  position = bonds[ibond].centre_pos();
+		  found = 1;
+	       }
+	    }
+	    if (found)
+	       break;
+	 }
+
+	 if (! found) {
+	    std::string mess("No atom ");
+	    mess += rc_atom.atom.get_atom_name();
+	    mess += " found to be in a ring";
+	    throw(std::runtime_error(mess));
+	 }
+	 return position;
+      }
+
+
+      // can throw an exception (no atoms) return pseudo points top-left
+      // (small small) bottom-right (high high).
+      //
+      // return coords for top_left, bottom_right
+      // 
+      std::pair<pos_t, pos_t>
+      ligand_extents() const {
+
+	 pos_t top_left;
+	 pos_t bottom_right;
+
+	 double mol_min_x =  9999999;
+	 double mol_max_x = -9999999;
+	 double mol_min_y =  9999999;
+	 double mol_max_y = -9999999;
+
+	 if (atoms.size()) { 
+      
+	    for (unsigned int iat=0; iat<atoms.size(); iat++) {
+	       if (atoms[iat].atom_position.x > mol_max_x)
+		  mol_max_x = atoms[iat].atom_position.x;
+	       if (atoms[iat].atom_position.x < mol_min_x)
+		  mol_min_x = atoms[iat].atom_position.x;
+	       if (atoms[iat].atom_position.y > mol_max_y)
+		  mol_max_y = atoms[iat].atom_position.y;
+	       if (atoms[iat].atom_position.y < mol_min_y)
+		  mol_min_y = atoms[iat].atom_position.y;
+	    }
+	    top_left     = pos_t(mol_min_x, mol_min_y);
+	    bottom_right = pos_t(mol_max_x, mol_max_y);
+	 } else {
+	    std::string mess = "WARNING:: no atoms in ligand_extents()";
+	    throw std::runtime_error(mess);
+	 }
+	 return std::pair<pos_t, pos_t> (top_left, bottom_right);
+      }
+
+
+      int n_open_bonds() const {
+
+	 int n_bonds = 0;
+	 for (unsigned int i=0; i<bonds.size(); i++) { 
+	    if (! bonds[i].is_closed())
+	       n_bonds++;
+	 }
+	 return n_bonds;
+      }
+      
+      bool is_close_to_non_last_atom(const pos_t &test_pos) const {
+
+	 bool close = false;
+	 int n_atoms_for_test = atoms.size() - 1; 
+	 for (int iat=0; iat<n_atoms_for_test; iat++) {
+	    if (! atoms[iat].is_closed()) {
+	       if (atoms[iat].atom_position.near_point(test_pos, 2.1)) {
+		  close = true;
+		  break;
+	       }
+	    }
+	 }
+	 return close;
+      }
+
+      void delete_hydrogens() {
+	 for (unsigned int iat=0; iat<atoms.size(); iat++) { 
+	    if (atoms[iat].element == "H") {
+	       std::vector<int> bds = bonds_having_atom_with_atom_index(iat);
+	       atoms[iat].close();
+	       for (unsigned int i=0; i<bds.size(); i++)
+		  bonds[bds[i]].close();
+	    }
+	 }
+      }
+
+      std::vector<int> bonds_having_atom_with_atom_index(int test_atom_index) const {
+
+	 std::vector<int> v;
+	 std::vector<int> vb =  bond_indices_with_atom_index(test_atom_index);
+	 
+	 for (unsigned int iv=0; iv<vb.size(); iv++) {
+	    if (! bonds[vb[iv]].is_closed())
+	       v.push_back(vb[iv]);
+	 }
+	 
+	 return v;
+      }
+
+      // return a vector of the atom indices of unconnected atoms
+      //
+      std::vector<int> get_unconnected_atoms() const {
+
+	 std::vector<int> v;
+	 for (unsigned int iat=0; iat<atoms.size(); iat++) {
+	    if (! atoms[iat].is_closed()) { 
+	       bool in_a_bond = 0;
+	       for (unsigned int ib=0; ib<bonds.size(); ib++) { 
+		  if (! bonds[ib].is_closed()) {
+		     if (bonds[ib].get_atom_1_index() == iat)
+			in_a_bond = 1;
+		     if (bonds[ib].get_atom_2_index() == iat)
+			in_a_bond = 1;
+		  }
+		  if (in_a_bond)
+		     break;
+	       }
+	       if (! in_a_bond)
+		  v.push_back(iat);
+	    }
+	 }
+	 return v;
+      }
+
+      // can throw an exception (no atoms)
+      // 
+      pos_t get_ligand_centre() const {
+
+	 pos_t centre(0,0);
+
+	 if (atoms.size() == 0) {
+	    std::string message("No atoms in ligand");
+	    throw std::runtime_error(message);
+	 } else {
+	    pos_t centre_sum(0,0);
+	    for (unsigned int iat=0; iat<atoms.size(); iat++) {
+	       centre_sum += atoms[iat].atom_position;
+	    }
+	    if (atoms.size() > 0)
+	       centre = centre_sum * (1.0/double(atoms.size()));
+	 }
+	 return centre;
+      }
+
+      bool
+      operator==(const molecule_t &mol_other) const {
+
+	 bool status = 0;
+
+	 // need to check that bonds are the same (atom indexing can be
+	 // different) and also stray atoms need to be checked after bonds.
+	 //
+	 int n_bond_hits = 0;
+
+	 if (mol_other.bonds.size() != bonds.size())
+	    return status;
+	 for (unsigned int ib=0; ib<bonds.size(); ib++) {
+	    atom_t atom_i_1 = atoms[bonds[ib].get_atom_1_index()];
+	    atom_t atom_i_2 = atoms[bonds[ib].get_atom_2_index()];
+	    int n_hits = 0;
+	    for (unsigned int jb=0; jb<mol_other.bonds.size(); jb++) {
+	       atom_t atom_j_1 = mol_other.atoms[bonds[ib].get_atom_1_index()];
+	       atom_t atom_j_2 = mol_other.atoms[bonds[ib].get_atom_2_index()];
+	       if (atom_i_1 == atom_j_1)
+		  if (atom_i_2 == atom_j_2)
+		     n_hits++;
+	    }
+	    if (n_hits == 1) {
+	       n_bond_hits++;
+	    }
+	 }
+
+	 if (n_bond_hits == bonds.size()) {
+
+	    // So the bonds were the same, now the strays...
+
+	    if (mol_other.n_stray_atoms() == n_stray_atoms()) {
+	       std::vector<int> i_stray_atoms = stray_atoms();
+	       std::vector<int> j_stray_atoms = mol_other.stray_atoms();
+	       int n_stray_hits = 0;
+	       for (unsigned int i=0; i<i_stray_atoms.size(); i++) {
+		  for (unsigned int j=0; j<j_stray_atoms.size(); j++) {
+		     if (atoms[i_stray_atoms[i]] == mol_other.atoms[j_stray_atoms[j]])
+			n_stray_hits++;
+		  }
+	       }
+	       if (n_stray_hits == n_stray_atoms())
+		  status = 1;
+	    }
+	 }
+	 return status;
+      }
+
+
+      int n_stray_atoms() const {  // unbonded atoms
+	 return stray_atoms().size();
+      }
+
+      std::vector<int> stray_atoms() const {
+	 std::vector<int> strays;
+	 bool found[atoms.size()];
+	 for (unsigned int i=0; i<atoms.size(); i++)
+	    found[i] = 0;
+	 for (unsigned int ib=0; ib<bonds.size(); ib++) { 
+	    int iat_1 = bonds[ib].get_atom_1_index();
+	    int iat_2 = bonds[ib].get_atom_2_index();
+	    if (! atoms[iat_1].is_closed())
+	       found[iat_1] = 1;
+	    if (! atoms[iat_2].is_closed())
+	       found[iat_2] = 1;
+	 }
+	 for (unsigned int i=0; i<atoms.size(); i++)
+	    if (! found[i])
+	       strays.push_back(i);
+	 return strays;
+      }
+
+      void translate(const pos_t &delta) {
+
+	 for (unsigned int iat=0; iat<atoms.size(); iat++) {
+	    atoms[iat].atom_position += delta;
+	 }
+	 for (unsigned int ib=0; ib<bonds.size(); ib++) {
+	    if (bonds[ib].have_centre_pos()) {
+	       bonds[ib].move_centre_pos(delta);
+	    }
+	 }
+      }
+
 
       // return the closest approach of test_pos to the atoms in the
       // molecule (except dont test against avoid_atom_index).
@@ -584,22 +1187,31 @@ namespace lig_build {
       make_atom_id_by_using_bonds(int atom_index,
 				  const std::string &ele,
 				  const std::vector<int> &bond_indices) const {
-   
+
+	 // This might/should be a passed parameter?
+	 // The offset tweaks depend on the way the text is positioned on the canvas.
+	 // presumably simple OpenGL is anchored bottom left.
+	 //
+	 // So, for example, whereas before "OH" needed an x-tweak
+	 // with simple_gl_render, it does not.
+	 // 
+	 bool simple_gl_render = true;
+	 
 	 std::string atom_id = ele;
    
 	 // Have we added an NH2, an NH or an N (for example)
 	 //
 	 int sum_neigb_bond_order = 0;
 	 for (unsigned int ib=0; ib<bond_indices.size(); ib++) {
-	    if (bonds[bond_indices[ib]].get_bond_type() == lig_build::bond_t::SINGLE_BOND)
+	    if (bonds[bond_indices[ib]].get_bond_type() == bond_t::SINGLE_BOND)
 	       sum_neigb_bond_order += 1;
-	    if (bonds[bond_indices[ib]].get_bond_type() == lig_build::bond_t::IN_BOND)
+	    if (bonds[bond_indices[ib]].get_bond_type() == bond_t::IN_BOND)
 	       sum_neigb_bond_order += 1;
-	    if (bonds[bond_indices[ib]].get_bond_type() == lig_build::bond_t::OUT_BOND)
+	    if (bonds[bond_indices[ib]].get_bond_type() == bond_t::OUT_BOND)
 	       sum_neigb_bond_order += 1;
-	    if (bonds[bond_indices[ib]].get_bond_type() == lig_build::bond_t::DOUBLE_BOND)
+	    if (bonds[bond_indices[ib]].get_bond_type() == bond_t::DOUBLE_BOND)
 	       sum_neigb_bond_order += 2;
-	    if (bonds[bond_indices[ib]].get_bond_type() == lig_build::bond_t::TRIPLE_BOND)
+	    if (bonds[bond_indices[ib]].get_bond_type() == bond_t::TRIPLE_BOND)
 	       sum_neigb_bond_order += 3;
 	 }
 
@@ -670,7 +1282,7 @@ namespace lig_build {
 	    atom_id_info_t atom_id_info;
 	    
 	    if (bond_indices.size() == 1) {
-	       // HO or HN
+	       // OH, HO, NH, HN
 	       if (sum_delta.x > 0) {
 
 		  atom_id_info.set_atom_id(atom_id);
@@ -683,9 +1295,12 @@ namespace lig_build {
 	       } else {
 		  // simple
 		  atom_id_info = atom_id_info_t(atom_id);
-		  // add a tweak to that, push it to the right a tiny
-		  // bit (we want the O (or N) at the end of the bond)
-		  atom_id_info.offsets.back().tweak += pos_t(5,0);
+
+		  // We don't need to do this with a simple GL renderer
+		  if (! simple_gl_render) 
+		     // add a tweak to that, push it to the right a tiny
+		     // bit (we want the O (or N) at the end of the bond)
+		     atom_id_info.offsets.back().tweak += pos_t(5,0);
 	       } 
 	    }
 

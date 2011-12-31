@@ -486,7 +486,7 @@ graphics_info_t::setRotationCentre(int index, int imol) {
    
 
    update_ramachandran_plot_point_maybe(imol, atom);
-   setup_graphics_ligand_view();
+   setup_graphics_ligand_view(atom->residue);
 
    if (environment_show_distances) {
       mol_no_for_environment_distances = imol;
@@ -2331,7 +2331,7 @@ graphics_info_t::update_things_on_move() {
       molecules[ii].update_clipper_skeleton(); 
       molecules[ii].update_symmetry();
    }
-   setup_graphics_ligand_view();
+   setup_graphics_ligand_view_aa();
 } 
 
 // return the state whether to really show the baton.

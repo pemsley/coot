@@ -1,7 +1,7 @@
 /* lbg/wmolecule.hh
  * 
  * Author: Paul Emsley
- * Copyright 2010 by The University of Oxford
+ * Copyright 2010, 2011 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -69,20 +69,20 @@ public:
 };
 
 
-class wrap_goo {
+class ligand_layout_graphic_primitives {
 public:
-   wrap_goo() {
+   ligand_layout_graphic_primitives() {
       dark = "#111111";
    }
    std::string dark;
    int i;
-   GooCanvasItem *wrap_goo_canvas_group_new (GooCanvasItem *root,
+   virtual GooCanvasItem *wrap_goo_canvas_group_new (GooCanvasItem *root,
 					     const std::string &stroke_colour) const {
       // need fill-colour too?
       return goo_canvas_group_new(root, "stroke-color", stroke_colour.c_str(), NULL);
    }
 
-   GooCanvasItem *wrap_goo_canvas_text_new(GooCanvasItem *group,
+   virtual GooCanvasItem *wrap_goo_canvas_text_new(GooCanvasItem *group,
 					   const std::string &text,
 					   double x_pos, double y_pos, 
 					   int something,
@@ -98,41 +98,50 @@ public:
 				 "fill_color", fill_colour.c_str(),
 				 NULL);
    }
-   GooCanvasItem *wrap_goo_canvas_polyline_new_line(GooCanvasItem *root,
+   virtual GooCanvasItem *wrap_goo_canvas_polyline_new_line(GooCanvasItem *root,
 						    double pos_1_x, double pos_1_y,
 						    double pos_2_x, double pos_2_y,
 						    const std::string &key="stroke-color",
 						    const std::string &value="#111111") const { 
-      return goo_canvas_polyline_new_line(root,
-					  pos_1_x, pos_1_y,
-					  pos_2_x, pos_2_y,
-					  key.c_str(), value.c_str(),
-					  NULL);
+      GooCanvasItem *item = 
+ 	 goo_canvas_polyline_new_line(root, 
+ 				      pos_1_x, pos_1_y,
+ 				      pos_2_x, pos_2_y,
+ 				      key.c_str(), value.c_str(),
+ 				      NULL);
+      return item;
    }
-   GooCanvasItem *wrap_goo_canvas_polyline_new_line(GooCanvasItem *root,
-						    double pos_1_x, double pos_1_y,
-						    double pos_2_x, double pos_2_y,
-						    double pos_3_x, double pos_3_y,
-						    double pos_4_x, double pos_4_y,
-						    const std::string &stroke_colour,
-						    const std::string &fill_colour) const { 
-      return goo_canvas_polyline_new_line(root, TRUE, 4,
-					  pos_1_x, pos_1_y,
-					  pos_2_x, pos_2_y,
-					  "stroke-color", stroke_colour.c_str(),
-					  "fill-color", fill_colour.c_str(),
-					  NULL);
+   virtual GooCanvasItem *wrap_goo_canvas_polyline_new_line(GooCanvasItem *root,
+							    double pos_1_x, double pos_1_y,
+							    double pos_2_x, double pos_2_y,
+							    double pos_3_x, double pos_3_y,
+							    double pos_4_x, double pos_4_y,
+							    const std::string &stroke_colour,
+							    const std::string &fill_colour) const {
+      
+      GooCanvasItem *item = goo_canvas_polyline_new_line(root,
+							 TRUE, 4,
+							 pos_1_x, pos_1_y,
+							 pos_2_x, pos_2_y,
+							 pos_3_x, pos_3_y,
+							 pos_4_x, pos_4_y,
+							 "stroke-color", stroke_colour.c_str(),
+							 "fill-color", fill_colour.c_str(),
+							 NULL);
+      return item;
    }
 
-   GooCanvasItem *
+   virtual GooCanvasItem *
    wrap_goo_canvas_polyline_new(GooCanvasItem *root,
 				double sharp_point_2_x, double sharp_point_2_y, 
 				double sharp_point_1_x, double sharp_point_1_y, 
 				double short_edge_pt_1_x, double short_edge_pt_1_y,
 				double short_edge_pt_2_x, double short_edge_pt_2_y,
 				std::string fc, std::string sc) const {
-      return 
+
+      GooCanvasItem *item = 
 	 goo_canvas_polyline_new(root, 
+				 TRUE, 4,
 				 sharp_point_2_x, sharp_point_2_y, 
 				 sharp_point_1_x, sharp_point_1_y, 
 				 short_edge_pt_1_x, short_edge_pt_1_y,
@@ -140,6 +149,7 @@ public:
 				 "fill-color", fc.c_str(),
 				 "stroke-color", sc.c_str(),
 				 NULL);
+      return item;
    } 
    
    void wrap_wrap_goo_canvas_item_rotate(GooCanvasItem *ci,
@@ -152,11 +162,11 @@ public:
 //                     widgeted_atom_t
 // ====================================================================
 
-class widgeted_atom_t : public lig_build::atom_t , wrap_goo {
+class widgeted_atom_t : public lig_build::atom_t , ligand_layout_graphic_primitives {
    std::string font_colour;
    double solvent_accessibility;
    GooCanvasItem *ci;
-   std::string atom_name; // typically names from a PDB file.
+   // std::string atom_name; // typically names from a PDB file. 20111229 base class now
    void clear(GooCanvasItem *root) {
       gint child_index = goo_canvas_item_find_child(root, ci);
       if (child_index != -1) {
@@ -305,9 +315,9 @@ public:
    void set_atom_name(const std::string atom_name_in) {
       atom_name = atom_name_in;
    }
-   std::string get_atom_name() const {
-      return atom_name;
-   } 
+//    std::string get_atom_name() const {
+//       return atom_name;
+//    } 
    std::vector<coot::bash_distance_t> bash_distances;
 };
 
@@ -315,7 +325,7 @@ public:
 //                     widgeted_bond_t
 // ====================================================================
 
-class widgeted_bond_t : public lig_build::bond_t, wrap_goo {
+class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitives {
    GooCanvasItem *ci;
    void clear(GooCanvasItem *root) {
       gint child_index = goo_canvas_item_find_child(root, ci);
@@ -516,11 +526,8 @@ public:
       }
       return mmdb_bt;
    }
-   void add_centre(const lig_build::pos_t &centre_in) {
-      set_centre_pos(centre_in);
-   }
 
-};
+}; // end of widgeted_bond_t
 
 // trivial container for a (copy of an) atom an its ring centre (if
 // it has one)
@@ -545,7 +552,6 @@ std::ostream& operator<<(std::ostream &s, widgeted_atom_ring_centre_info_t wa);
 //                     widgeted_molecule_t
 // ====================================================================
 
-#define MAX_SEARCH_DEPTH 9
 
 class widgeted_molecule_t : public lig_build::molecule_t<widgeted_atom_t, widgeted_bond_t> {
    
@@ -556,39 +562,35 @@ private:
       mol_in_min_y = 0;
       scale_correction.first = 0;
       scale_correction.second = 1;
-      have_cached_bond_ring_centres_flag = 0;
+      // have_cached_bond_ring_centres_flag = 0; in base class now
    }
-   bool member(const int &ind, const std::vector<int> &no_pass_atoms) const {
-      bool found = 0;
-      for (unsigned int i=0; i<no_pass_atoms.size(); i++) { 
-	 if (no_pass_atoms[i] == ind) {
-	    found = 1;
-	    break;
-	 }
-      }
-      return found;
-   } 
    // Return a vector of bonds.  If empty, then it didn't find self.
-   // 
-   std::pair<bool, std::vector<int> >
-   found_self_through_bonds(int atom_index_start, int atom_index_other) const;
-   std::pair<bool, std::vector<int> >
-   find_bonded_atoms_with_no_pass(int atom_index_start,
-				  int atom_index_other, // must pass through this
-				  int this_atom_index,
-				  const std::vector<int> &no_pass_atoms,
-				  int depth) const;
-   void debug_pass_atoms(int atom_index, int this_atom_index, 
-			 int depth,  const std::vector<int> &local_no_pass_atoms) const;
+   //
+
+   // 20111229
+//    std::pair<bool, std::vector<int> >
+//    found_self_through_bonds(int atom_index_start, int atom_index_other) const;
+//    std::pair<bool, std::vector<int> >
+//    find_bonded_atoms_with_no_pass(int atom_index_start,
+// 				  int atom_index_other, // must pass through this
+// 				  int this_atom_index,
+// 				  const std::vector<int> &no_pass_atoms,
+// 				  int depth) const;
+   
+   // void debug_pass_atoms(int atom_index, int this_atom_index, 
+   // int depth,  const std::vector<int> &local_no_pass_atoms) const;
+   
    std::pair<bool, double>
-   get_scale_correction(const lig_build::molfile_molecule_t &mol_in) const;
-   int get_number_of_atom_including_hydrogens() const;
+      get_scale_correction(const lig_build::molfile_molecule_t &mol_in) const;
+   
+   // int get_number_of_atom_including_hydrogens() const;
    // return negative if not solvent accessibility available.
    double get_solvent_accessibility(const clipper::Coord_orth &pt,
 				    const std::vector<solvent_accessible_atom_t> &sa) const;
+
+   // This uses mmdb and clipper, so is not in lig-build.hh
+   // 
    std::string get_atom_name(const clipper::Coord_orth &pt, CMMDBManager *mol) const;
-   bool have_cached_bond_ring_centres_flag;
-   std::vector<lig_build::pos_t> cached_bond_ring_centres;
 
 public:
    widgeted_molecule_t() { init(); }
@@ -603,14 +605,17 @@ public:
    bool write_minimal_cif_file(const std::string &file_name) const;
    bool close_bond(int ib, GooCanvasItem *root, bool handle_post_delete_stray_atoms_flag);
    bool close_atom(int iat, GooCanvasItem *root);
-   std::vector<int> get_unconnected_atoms() const;
+   // std::vector<int> get_unconnected_atoms() const; 20111229 base class now
 
    // don't count closed bonds.
-   std::vector<int> bonds_having_atom_with_atom_index(int test_atom_index) const;
-   bool operator==(const widgeted_molecule_t &mol_other) const;
-   int n_stray_atoms() const; // unbonded atoms
-   std::vector<int> stray_atoms() const;
-   void translate(const lig_build::pos_t &delta); // move the atoms
+   // 
+   // std::vector<int> bonds_having_atom_with_atom_index(int test_atom_index) const;
+
+   // bool operator==(const widgeted_molecule_t &mol_other) const;
+   // int n_stray_atoms() const; // unbonded atoms
+   // std::vector<int> stray_atoms() const;
+   // void translate(const lig_build::pos_t &delta); // move the atoms 20111229 base class now
+
    lig_build::pos_t input_coords_to_canvas_coords(const clipper::Coord_orth &in) const;
       
 
@@ -628,7 +633,7 @@ public:
 
    // can throw an exception (no atoms)
    // 
-   lig_build::pos_t get_ligand_centre() const;
+   // lig_build::pos_t get_ligand_centre() const; // 20111229 base class now
 
    // If the ligand is not created in lbg, (as is the case if it gets
    // its ligand from Coot/Prodrg-FLAT) then these are not read and
@@ -648,25 +653,26 @@ public:
    // 
    // (not const because it caches the return value)
    // 
-   std::vector<lig_build::pos_t> get_ring_centres();
+   // std::vector<lig_build::pos_t> get_ring_centres(); 20111229 base class now
 
-   // can throw an exception (no atoms)
-   // 
-   lig_build::pos_t get_ring_centre(const std::vector<std::string> &ring_atom_names) const;
+// base class now   
+//    // can throw an exception (no atoms)
+//    // 
+//    lig_build::pos_t get_ring_centre(const std::vector<std::string> &ring_atom_names) const;
 
-   // can throw an exception (no rings with this atom)
-   //
-   lig_build::pos_t get_ring_centre(const widgeted_atom_ring_centre_info_t &atom) const;
+//    // can throw an exception (no rings with this atom)
+//    //
+//    lig_build::pos_t get_ring_centre(const widgeted_atom_ring_centre_info_t &atom) const;
 
 
-   // can throw an exception (no atoms) - top-left (small small)
-   // bottom-right (high high)
-   //
-   std::pair<lig_build::pos_t, lig_build::pos_t> ligand_extents() const;
+//    // can throw an exception (no atoms) - top-left (small small)
+//    // bottom-right (high high)
+//    //
+//    std::pair<lig_build::pos_t, lig_build::pos_t> ligand_extents() const;
 
-   int n_open_bonds() const;
+//    int n_open_bonds() const;
 
-   bool is_close_to_non_last_atom(const lig_build::pos_t &test_post) const;
+//    bool is_close_to_non_last_atom(const lig_build::pos_t &test_post) const;
 
    void delete_hydrogens(GooCanvasItem *root);
 
