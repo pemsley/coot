@@ -70,7 +70,7 @@
 
 bool close_float_p(float f1, float f2) {
 
-   return (fabs(f1-f2) < 0.0001);
+   return (fabsf(f1-f2) < 0.0001);
 
 } 
 
