@@ -17,8 +17,6 @@
 
   o Use LINKRs in restraints (puntable) ::: 2
 
-  o "View in LIDIA" button on a NAG - if we have restraints, we don't
-     need to run prodrg, surely (oh, if we have rdkit, that is).
 
 
 ------
