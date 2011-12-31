@@ -99,9 +99,9 @@
 #endif // HAVE_CURL_H
 #endif 
 
-#if (GTK_MAJOR_VERSION > 1) 
+#include "graphics-ligand-view.hh"
+
 #include "restraints-editor.hh"
-#endif 
 
 #ifdef USE_GUILE
 #include <libguile.h>
@@ -834,7 +834,7 @@ class graphics_info_t {
 
    // bottom left flat ligand view:
    // 
-   void setup_graphics_ligand_view();
+   void setup_graphics_ligand_view_aa();
    static bool graphics_ligand_view_flag;
 
    // ----------------------------------------------------------------
@@ -3826,8 +3826,11 @@ string   static std::string sessionid;
    void rotate_multi_residue_torsion(double x, double y); 
 
    // bottom left ligand view 
+   void setup_graphics_ligand_view(CResidue *residue);
+   // which stores in:
+   static graphics_ligand_molecule graphics_ligand_mol;
+   
    static void graphics_ligand_view();  // actually draw it 
-
 
 };
 

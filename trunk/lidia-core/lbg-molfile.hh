@@ -22,6 +22,8 @@
 #ifndef LBG_MOLFILE_HH
 #define LBG_MOLFILE_HH
 
+#include <algorithm>
+
 #include "clipper/core/coords.h"
 
 #include <mmdb/mmdb_manager.h> // 20110408 for the construtor using restraints and CResidue
@@ -100,17 +102,44 @@ namespace lig_build {
       // This is a bit of bone-headedness on my part - this is not
       // needed for what I want - I do not need the atom position.
       // 
-      molfile_molecule_t(CResidue *residue_p, const coot::dictionary_residue_restraints_t &restraints);
+      molfile_molecule_t(CResidue *residue_p,
+			 const coot::dictionary_residue_restraints_t &restraints);
 
       // This is what I want - make fake atom positions and return a
       // list of chiral atoms (i.e. tetravalent and have
       // non-equivalent bonding atoms)
       // 
       molfile_molecule_t(const coot::dictionary_residue_restraints_t &restraints);
-      
-   };
 
+      std::pair<bool, double> get_scale_correction() const {
+
+	 bool status = 0;
+	 double scale = 1.0;
+	 std::vector<double> bond_lengths; // process this to scale up the mol file molecule if
+	 // needed.
    
+	 for (unsigned int i=0; i<bonds.size(); i++) {
+	    int index_1 = bonds[i].index_1;
+	    int index_2 = bonds[i].index_2;
+	    if (atoms[index_1].element != "H") { 
+	       if (atoms[index_2].element != "H") { 
+		  double l =
+		     clipper::Coord_orth::length(atoms[index_1].atom_position,
+						 atoms[index_2].atom_position);
+		  bond_lengths.push_back(l);
+	       }
+	    }
+	 }
+	 if (bond_lengths.size() > 0) {
+	    status = 1;
+	    std::sort(bond_lengths.begin(), bond_lengths.end());
+	    int index = bond_lengths.size()/2;
+	    double bll = bond_lengths[index];
+	    scale = 1.54/bll; // sqrt(1.54) is 1.24
+	 }
+	 return std::pair<bool, double> (status, scale);
+      }
+   };
 }
 
 #endif // LBG_MOLFILE_HH

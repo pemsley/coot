@@ -377,8 +377,10 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (1) {
+#if HAVE_GOOCANVAS      
       coot::goograph g;
       g.show_dialog();
+#endif       
    } 
 
    if (0) {

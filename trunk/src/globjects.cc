@@ -1227,6 +1227,8 @@ int graphics_info_t::gtk2_file_chooser_selector_flag = coot::CHOOSER_STYLE;
 int graphics_info_t::gtk2_chooser_overwrite_flag = coot::CHOOSER_OVERWRITE_PROTECT;
 
 
+// Graphics ligand view
+graphics_ligand_molecule graphics_info_t::graphics_ligand_mol;
 
 // GTK2 code
 // 
@@ -3221,6 +3223,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	    std::string at_info = atom_info_as_text_for_statusbar(cl_at.first,
 								  cl_at.second);
 	    g.add_status_bar_text(at_info);
+	    CResidue *r = g.molecules[cl_at.second].atom_sel.atom_selection[cl_at.first]->residue;
+	    g.setup_graphics_ligand_view(r);
 	 }
 	 graphics_info_t::graphics_draw();
       }
@@ -3935,8 +3939,9 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	 pick_info nearest_atom_index_info = atom_pick(event);
 	 if ( nearest_atom_index_info.success == GL_TRUE ) {
 	    int im = nearest_atom_index_info.imol;
-	    graphics_info_t g;
-	    g.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
+	    info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
+	    CResidue *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
+	    info.setup_graphics_ligand_view(r);
 	 } else {
 	    if (graphics_info_t::show_symmetry) {
 	       coot::Symm_Atom_Pick_Info_t symm_atom_info = info.symmetry_atom_pick();
@@ -3969,6 +3974,8 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	    
 	    int im = nearest_atom_index_info.imol; 
 	    info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
+	    CResidue *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
+	    info.setup_graphics_ligand_view(r);
 	    info.graphics_draw();
 
 	 } else {

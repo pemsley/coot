@@ -97,64 +97,111 @@ graphics_info_t:: multi_torsion_residues(int imol, const std::vector<coot::resid
 // bottom left flat ligand view:
 // 
 void
-graphics_info_t::setup_graphics_ligand_view() {
+graphics_info_t::setup_graphics_ligand_view_aa() {
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
-
    if (active_atom.first) {
       CResidue *residue_p = molecules[active_atom.second.first].get_residue(active_atom.second.second);
-      if (residue_p) {
-	 if (coot::util::residue_has_hetatms(residue_p) == 1) {
-	    std::cout << "   setup_graphics_ligand() on residue "
-		      << coot::residue_spec_t(residue_p) << std::endl;
-	    graphics_ligand_view_flag = true;
-	 } else {
-	    std::cout << "   setup_graphics_ligand() clear for "
-		      << coot::residue_spec_t(residue_p) << std::endl;
-	    graphics_ligand_view_flag = false;
-	 }
-      } 
+      setup_graphics_ligand_view(residue_p);
    }
 }
+
+void
+graphics_info_t::setup_graphics_ligand_view(CResidue *residue_p) {
+
+   if (!residue_p) {
+      graphics_ligand_view_flag = false;
+   } else {
+      if (coot::util::residue_has_hetatms(residue_p) != 1) {
+	 std::cout << "   setup_graphics_ligand() clear for "
+		   << coot::residue_spec_t(residue_p) << std::endl;
+	 graphics_ligand_view_flag = false;
+      } else { 
+	 std::cout << "   setup_graphics_ligand() on residue "
+		   << coot::residue_spec_t(residue_p) << std::endl;
+	 graphics_ligand_mol.setup_from(residue_p, Geom_p(), background_is_black_p());
+	 graphics_ligand_view_flag = true;
+      }
+   }
+}
+
 
 
 void
 graphics_info_t::graphics_ligand_view() {
 
    if (graphics_ligand_view_flag) { 
-      glPushMatrix();
-      glLoadIdentity();
-      glScalef(0.1, 0.1, 0.1);
-      glTranslatef(-8, -8., 0);
 
-      glMatrixMode(GL_PROJECTION);
-      glPushMatrix();
-      glLoadIdentity();
-   
-      GLfloat col[3] = { 0.9, 0.9, 0.9 };
-      glColor3fv(col);
+      try {
+	 
+	 graphics_info_t g;
+	 std::pair<lig_build::pos_t, lig_build::pos_t> ext = 
+	    g.graphics_ligand_mol.ligand_extents();
 
-      // the lines ------------------
-      glBegin(GL_LINES);
-   
-      glVertex3f( 0.0,  0.0, 0.0);
-      glVertex3f( 1.0,  0.0, 0.0);
+	 // float sc = 0.1;
+	 float sc = 0.043;
+	 glPushMatrix();
+	 glLoadIdentity();
+	 glScalef(sc, sc, sc);
+	 //       glTranslatef(-8, -8., 0); // unscaled molecule
 
-      glVertex3f( 1.0,  0.0, 0.0);
-      glVertex3f( 1.0,  1.0, 0.0);
+	 // std::cout << "extents: top_left " << ext.first
+	 // << "   bottom right" << ext.second << std::endl;
+	 // 
+	 // If the offset scale factor (now 0.9) is 1.0, then when we
+	 // have big molecules, they sit too much towards the centre
+	 // of the screen (i.e. the offset correction is too much).
+	 // 
+	 // glTranslatef(-20.5-0.8*ext.first.x, -21.0+0.8*ext.second.y, 0);
+	 glTranslatef(-20.5-0.8*ext.first.x, -20.5-0.8*ext.first.y, 0);
+	 
+	 glMatrixMode(GL_PROJECTION);
+	 glPushMatrix();
+	 glLoadIdentity();
    
-      glVertex3f( 1.0,  1.0, 0.0);
-      glVertex3f( 0.0,  1.0, 0.0);
+	 GLfloat col[3] = { 0.6, 0.6, 0.6 };
+	 glColor3fv(col);
+	 glLineWidth(2.0);
+
+	 glEnable(GL_LINE_SMOOTH);
+	 glEnable(GL_BLEND);
+	 if (g.background_is_black_p())
+	    glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
+
+	 g.graphics_ligand_mol.render();
+
+	 // debug box
+	 if (0) { 
+	    // the lines ------------------
+	    glBegin(GL_LINES);
    
-      glVertex3f( 0.0,  1.0, 0.0);
-      glVertex3f( 0.0,  0.0, 0.0);
+	    glVertex3f( 0.0,  0.0, 0.0);
+	    glVertex3f( 1.0,  0.0, 0.0);
+
+	    glVertex3f( 1.0,  0.0, 0.0);
+	    glVertex3f( 1.0,  1.0, 0.0);
    
-      glEnd();
-      // end of the lines ------------
+	    glVertex3f( 1.0,  1.0, 0.0);
+	    glVertex3f( 0.0,  1.0, 0.0);
    
-      glPopMatrix();
-      glMatrixMode(GL_MODELVIEW);
-      glPopMatrix();
+	    glVertex3f( 0.0,  1.0, 0.0);
+	    glVertex3f( 0.0,  0.0, 0.0);
+   
+	    glEnd();
+	    // end of the lines ------------
+	 }
+
+	 glDisable(GL_LINE_SMOOTH);
+	 glDisable(GL_BLEND);
+   
+	 glPopMatrix();
+	 glMatrixMode(GL_MODELVIEW);
+	 glPopMatrix();
+      }
+
+      catch (std::runtime_error rte) {
+	 std::cout << "ERROR:: " << rte.what() << std::endl;
+      }
    }
 } 
 

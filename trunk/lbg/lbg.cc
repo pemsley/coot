@@ -2578,7 +2578,7 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
    clear();
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
    
-   int re_index[mol_in.atoms.size()]; // map form mol_in atom indexing
+   int re_index[mol_in.atoms.size()]; // map from mol_in atom indexing
 				      // the this molecule atom
 				      // indexing.
    for (unsigned int i=0; i<mol_in.atoms.size(); i++)

@@ -343,6 +343,8 @@ coot_real_SOURCES = \
 	graphics-info-scripting.cc	\
 	graphics-info-state.cc	 \
 	graphics-info-superpose.cc	\
+	graphics-ligand-view.cc	 \
+	graphics-ligand-view.hh	 \
 	gl-matrix.cc 		 \
 	graphics-info.h 	 \
 	gtk-manual.cc		 \
