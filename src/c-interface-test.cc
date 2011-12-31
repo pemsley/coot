@@ -135,6 +135,7 @@
 #ifdef HAVE_GOOCANVAS
 #include "goocanvas.h"
 #include "wmolecule.hh"
+#include "goograph.hh"
 #endif
 
 #include "simple-restraint.hh"  // for multi-residue torsion map fitting.
@@ -143,9 +144,8 @@
 int test_function(int i, int j) {
 
    graphics_info_t g;
-   
-//    g.wrapped_create_symmetry_controller_dialog();
-//    return 0;
+
+   // Is this the function you are really looking for (these days)?
 
    if (1) {
    } 
@@ -377,6 +377,11 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (1) {
+      coot::goograph g;
+      g.show_dialog();
+   } 
+
+   if (0) {
       int i = scm_to_int(i_scm); // map molecule
       int j = scm_to_int(j_scm);
 

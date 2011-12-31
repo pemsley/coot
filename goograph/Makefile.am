@@ -1,6 +1,8 @@
 
 
-INCLUDES = -I$(top_srcdir)  $(GOOCANVAS_CFLAGS) $(GTK_CFLAGS)        
+INCLUDES = -I$(top_srcdir)/lidia-core \
+           -I$(top_srcdir)/utils \
+     $(GOOCANVAS_CFLAGS) $(GTK_CFLAGS)        
 
 lib_LTLIBRARIES=libcoot-goograph.la 
 

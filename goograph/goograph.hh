@@ -11,7 +11,7 @@
 
 #include <gtk/gtk.h>
 #include <goocanvas.h>
-#include "lidia-core/lig-build.hh"
+#include "lig-build.hh"
 
 namespace coot {
 
@@ -68,7 +68,8 @@ namespace coot {
       void draw_ticks_generic(int axis, int tick_type,
 			      double tick_step, double tick_length_multiplier);
       lig_build::pos_t world_to_canvas(const lig_build::pos_t &p) const {
-	 lig_build::pos_t r(canvas_offset_x+(p.x-extents_min_x)*data_scale_x, canvas_offset_y-data_scale_y*p.y);
+	 lig_build::pos_t r(canvas_offset_x+(p.x-extents_min_x)*data_scale_x,
+			    canvas_offset_y-(p.y-0)*data_scale_y);
 	 return r;
       }
       double y_range() const { return extents_max_y - extents_min_y; }
@@ -105,9 +106,6 @@ namespace coot {
 	 data_scale_x = 1.0;
 	 data_scale_y = 1.0;
       }
-      ~goograph() {
-	 gtk_widget_destroy(dialog);
-      } 
       void show_dialog();
       void set_extents(int axis, double min, double max); 
       void set_ticks(int axis, double tick_major, double tick_minor);
