@@ -63,6 +63,7 @@ coot::goograph::draw_graph() {
 
    draw_axes();
    draw_ticks();
+   draw_title();
 }
 
 void
@@ -343,12 +344,33 @@ coot::goograph::set_axis_label(int axis, const std::string &label) {
 			  "font", "Sans 9",
 			  "fill_color", dark.c_str(),
 			  NULL);
-} 
+}
 
 void
 coot::goograph::set_plot_title(const std::string &title) {
    title_string = title;
-} 
+}
+
+void
+coot::goograph::draw_title() {
+
+   if (! title_string.empty()) {
+      lig_build::pos_t A(extents_min_x + 0.5 * x_range(),
+			 extents_min_y + 1.15 * y_range());
+      lig_build::pos_t wA = world_to_canvas(A);
+      GooCanvasItem *root = goo_canvas_get_root_item(canvas);
+      GtkAnchorType anchor_type = GTK_ANCHOR_CENTER;
+      GooCanvasItem *text =
+	 goo_canvas_text_new(root, title_string.c_str(),
+			     wA.x, wA.y,
+			     -1,
+			     anchor_type,
+			     "font", "Sans 11",
+			     "fill_color", dark.c_str(),
+			     NULL);
+      
+   } 
+}
 
 
 int
