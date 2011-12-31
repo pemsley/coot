@@ -118,6 +118,7 @@ float r_50(std::string ele);
 float rad_50_and_prob_to_radius(float rad_50, float prob);
 
 void draw_axes(GL_matrix &m);
+void graphics_ligand_view();
 
 void draw_crosshairs_maybe();
 

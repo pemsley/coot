@@ -22,6 +22,7 @@
 #endif
 
 #include <algorithm>
+
 #include "graphics-info.h"
 #include "interface.h" // for create_multi_residue_torsion_dialog()
 
@@ -89,6 +90,71 @@ graphics_info_t:: multi_torsion_residues(int imol, const std::vector<coot::resid
 
 	 moving_mol->DeleteSelection(selhnd);
       }
+   }
+} 
+
+
+// bottom left flat ligand view:
+// 
+void
+graphics_info_t::setup_graphics_ligand_view() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
+
+   if (active_atom.first) {
+      CResidue *residue_p = molecules[active_atom.second.first].get_residue(active_atom.second.second);
+      if (residue_p) {
+	 if (coot::util::residue_has_hetatms(residue_p) == 1) {
+	    std::cout << "   setup_graphics_ligand() on residue "
+		      << coot::residue_spec_t(residue_p) << std::endl;
+	    graphics_ligand_view_flag = true;
+	 } else {
+	    std::cout << "   setup_graphics_ligand() clear for "
+		      << coot::residue_spec_t(residue_p) << std::endl;
+	    graphics_ligand_view_flag = false;
+	 }
+      } 
+   }
+}
+
+
+void
+graphics_info_t::graphics_ligand_view() {
+
+   if (graphics_ligand_view_flag) { 
+      glPushMatrix();
+      glLoadIdentity();
+      glScalef(0.1, 0.1, 0.1);
+      glTranslatef(-8, -8., 0);
+
+      glMatrixMode(GL_PROJECTION);
+      glPushMatrix();
+      glLoadIdentity();
+   
+      GLfloat col[3] = { 0.9, 0.9, 0.9 };
+      glColor3fv(col);
+
+      // the lines ------------------
+      glBegin(GL_LINES);
+   
+      glVertex3f( 0.0,  0.0, 0.0);
+      glVertex3f( 1.0,  0.0, 0.0);
+
+      glVertex3f( 1.0,  0.0, 0.0);
+      glVertex3f( 1.0,  1.0, 0.0);
+   
+      glVertex3f( 1.0,  1.0, 0.0);
+      glVertex3f( 0.0,  1.0, 0.0);
+   
+      glVertex3f( 0.0,  1.0, 0.0);
+      glVertex3f( 0.0,  0.0, 0.0);
+   
+      glEnd();
+      // end of the lines ------------
+   
+      glPopMatrix();
+      glMatrixMode(GL_MODELVIEW);
+      glPopMatrix();
    }
 } 
 

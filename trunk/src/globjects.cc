@@ -747,6 +747,8 @@ int   graphics_info_t::find_ligand_ligand_atom_limit = 400;
 short int graphics_info_t::ligand_water_write_peaksearched_atoms = 0; 
 std::vector<clipper::Coord_orth> *graphics_info_t::ligand_big_blobs = NULL;
 
+bool graphics_info_t::graphics_ligand_view_flag = false;
+
 
 short int graphics_info_t::do_probe_dots_on_rotamers_and_chis_flag = 0;
 short int graphics_info_t::do_probe_dots_post_refine_flag = 0;
@@ -2153,6 +2155,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       draw_axes(m);
 
+      graphics_info_t::graphics_ligand_view(); // maybe
+
       glScalef (graphics_info_t::rotation_centre_cube_size, 
 		graphics_info_t::rotation_centre_cube_size, 
 		graphics_info_t::rotation_centre_cube_size);
@@ -2261,8 +2265,8 @@ display_density_level_maybe() {
 	 glPushMatrix();
  	 glLoadIdentity();
 
-	 // Disable the fix so that the density leve will not change
-	 // intensity in a zoom-dependent way:
+	 // Disable the fog so that the density level text will not
+	 // change intensity in a zoom-dependent way:
 	 glPushAttrib(GL_ENABLE_BIT);
 	 glDisable(GL_FOG);
 
