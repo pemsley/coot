@@ -832,6 +832,11 @@ class graphics_info_t {
    void info_dialog_alignment(coot::chain_mutation_info_container_t mutation_info) const;
    void info_dialog_refinement_non_matching_atoms(std::vector<std::pair<std::string, std::vector<std::string> > > nma);
 
+   // bottom left flat ligand view:
+   // 
+   void setup_graphics_ligand_view();
+   static bool graphics_ligand_view_flag;
+
    // ----------------------------------------------------------------
    //             public:
    // ----------------------------------------------------------------
@@ -3747,7 +3752,6 @@ string   static std::string sessionid;
 
    // ------------------------- restraints editor ----------------------------
    // 
-#if (GTK_MAJOR_VERSION > 1) 
    static std::vector<coot::restraints_editor> restraints_editors;
    coot::restraints_editor get_restraints_editor(GtkWidget *w) { 
      coot::restraints_editor r; // a null/unset restraints editor
@@ -3788,7 +3792,6 @@ string   static std::string sessionid;
        }
      }
    }
-#endif //GTK_MAJOR_VERSION
 
    // Kevin Keating (for example) wants to be able set torsion
    // restraints but not have those "fight" the built-in torsion
@@ -3821,6 +3824,10 @@ string   static std::string sessionid;
    void multi_torsion_residues(int imol, const std::vector<coot::residue_spec_t> &v);
    static void on_multi_residue_torsion_button_clicked(GtkButton *button, gpointer user_data);
    void rotate_multi_residue_torsion(double x, double y); 
+
+   // bottom left ligand view 
+   static void graphics_ligand_view();  // actually draw it 
+
 
 };
 

@@ -193,7 +193,7 @@ void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper:
    g.set_ticks(coot::goograph::Y_AXIS, 1, 0.2);
    g.set_axis_label(coot::goograph::X_AXIS, "Position along Path");
    g.set_axis_label(coot::goograph::Y_AXIS, "Radius");
-   g.plot(trace, coot::goograph::PLOT_TYPE_LINE);
+   g.plot(trace, coot::goograph::PLOT_TYPE_LINE, "");
    g.show_dialog();
 
 #endif // HAVE_GOOCANVAS   
