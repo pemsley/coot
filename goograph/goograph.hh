@@ -56,6 +56,7 @@ namespace coot {
       }
       void plot_bar_graph(int trace_id);
       void plot_line_graph(int trace_id);
+      void plot_smoothed_line_graph(int trace_id);
       static void goograph_close_callback(GtkWidget *button,
 					  GtkWidget *dialog);
       void draw_graph();
@@ -79,7 +80,7 @@ namespace coot {
 
    public:
       enum {X_AXIS, Y_AXIS};
-      enum {PLOT_TYPE_LINE, PLOT_TYPE_BAR};
+      enum {PLOT_TYPE_LINE, PLOT_TYPE_BAR, PLOT_TYPE_SMOOTHED_LINE};
       enum {MAJOR_TICK, MINOR_TICK};
       goograph() {
 	 init_widgets();
@@ -115,6 +116,20 @@ namespace coot {
       void set_data(int trace_id, const std::vector<std::pair<double, double> > &data);
       int trace_new();
       void plot(int trace_id, int plot_type);
+      void add_annotation_line(const lig_build::pos_t &pos_1,
+			       const lig_build::pos_t &pos_2,
+			       const std::string &colour,
+			       double line_width,
+			       bool dashed_flag,
+			       bool start_arrow,
+			       bool end_arrow);
+      // font can be "" meaning default ("Sans 9");
+      // colour can be "" meaning standard dark colour
+      void add_annotation_text(const std::string &text,
+			       const lig_build::pos_t &pos_1,
+			       const std::string &colour,
+			       const std::string &font);
+		    
    };
 }
 

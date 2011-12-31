@@ -7,11 +7,11 @@ int main (int argc, char **argv) {
    gtk_init (&argc, &argv);
    std::vector<std::pair<double, double> > data;
    data.push_back(std::pair<double, double> (1.0, 0.1));
-   data.push_back(std::pair<double, double> (1.1, 0.1));
+   data.push_back(std::pair<double, double> (1.1, 0.2));
    data.push_back(std::pair<double, double> (1.2, 0.25));
    data.push_back(std::pair<double, double> (1.3, 0.32));
    data.push_back(std::pair<double, double> (1.4, 0.37));
-   data.push_back(std::pair<double, double> (1.5, 0.47));
+   data.push_back(std::pair<double, double> (1.5, 0.44));
    data.push_back(std::pair<double, double> (1.6, 0.42));
    data.push_back(std::pair<double, double> (1.7, 0.32));
    data.push_back(std::pair<double, double> (1.8, 0.3));
@@ -21,12 +21,15 @@ int main (int argc, char **argv) {
    data.push_back(std::pair<double, double> (2.2, 0.08));
    data.push_back(std::pair<double, double> (2.3, 0.05));
    data.push_back(std::pair<double, double> (2.4, 0.01));
+   data.push_back(std::pair<double, double> (2.5, 0.0 ));
+   data.push_back(std::pair<double, double> (2.9, 0.0 ));
    data.push_back(std::pair<double, double> (3.0, 0.01));
    data.push_back(std::pair<double, double> (3.1, 0.03));
    data.push_back(std::pair<double, double> (3.2, 0.06));
    data.push_back(std::pair<double, double> (3.3, 0.05));
    data.push_back(std::pair<double, double> (3.4, 0.02));
    data.push_back(std::pair<double, double> (3.5, 0.01));
+   data.push_back(std::pair<double, double> (0.5, 0.01));
 
    for (unsigned int i=0; i<data.size(); i++) { 
       data[i].first *= 100;
@@ -51,8 +54,27 @@ int main (int argc, char **argv) {
    
    g.set_axis_label(coot::goograph::X_AXIS, "Bond length");
    g.set_axis_label(coot::goograph::Y_AXIS, "Counts");
-   // g.plot(trace, coot::goograph::PLOT_TYPE_BAR);
-   g.plot(trace, coot::goograph::PLOT_TYPE_LINE);
+   g.plot(trace, coot::goograph::PLOT_TYPE_BAR);
+   // g.plot(trace, coot::goograph::PLOT_TYPE_LINE);
+   // g.plot(trace, coot::goograph::PLOT_TYPE_SMOOTHED_LINE);
+
+   lig_build::pos_t p1(150,  0);
+   lig_build::pos_t p2(150, 55);
+   lig_build::pos_t p3(195, 50);
+   lig_build::pos_t p4(152, 50);
+   lig_build::pos_t p5(230, 50);
+   lig_build::pos_t p6(200, 35);
+   lig_build::pos_t p7(200,  0);
+   lig_build::pos_t p8(202, 30);
+   lig_build::pos_t p9(240, 30);
+   lig_build::pos_t p10(270, 30);
+   bool dashed = true;
+   g.add_annotation_line(p1, p2, "#aa0000", 3, dashed, false, false);
+   g.add_annotation_line(p3, p4, "#aa0000", 2, dashed, false, true);
+   g.add_annotation_text("Median 4.52", p5, "#aa0000", "");
+   g.add_annotation_line(p6, p7, "black", 2, dashed, false, false);
+   g.add_annotation_line(p8, p9, "black", 2, dashed, true, false);
+   g.add_annotation_text("Model 5.3", p10, "black", "");
    g.show_dialog();
 
    gtk_main();
