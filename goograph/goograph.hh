@@ -64,10 +64,12 @@ namespace coot {
       void draw_axes();
       void draw_ticks();
       void draw_data();
-      void draw_y_ticks(int tick_type, double tick_step, double tick_length_multiplier);
-      void draw_x_ticks(int tick_type, double tick_step, double tick_length_multiplier);
+      void draw_y_ticks(int tick_type, double tick_major_step, double tick_step, double tick_length_multiplier);
+      void draw_x_ticks(int tick_type, double tick_major_step, double tick_step, double tick_length_multiplier);
       void draw_ticks_generic(int axis, int tick_type,
-			      double tick_step, double tick_length_multiplier);
+			      double tick_major_step,
+			      double tick_step,
+			      double tick_length_multiplier);
       lig_build::pos_t world_to_canvas(const lig_build::pos_t &p) const {
 	 return lig_build::pos_t(canvas_offset_x + (p.x-extents_min_x)*data_scale_x,
 				 canvas_offset_y - (p.y-extents_min_y)*data_scale_y);

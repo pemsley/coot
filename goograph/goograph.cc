@@ -103,10 +103,12 @@ coot::goograph::draw_axes() {
    lig_build::pos_t wBy = world_to_canvas(B_yaxis);
    lig_build::pos_t A_xaxis(extents_min_x, extents_min_y);
    lig_build::pos_t B_xaxis(extents_min_x + x_range()*1.1, extents_min_y);
-   std::cout << "in draw_axes() X: extents " << extents_min_x << " "
-	     << extents_max_x << " data_scale_x " << data_scale_x << std::endl;
-   std::cout << "in draw_axes() Y: extents " << extents_min_y << " "
-	     << extents_max_y << " data_scale_y " << data_scale_y << std::endl;
+   if (0) {
+      std::cout << "in draw_axes() X: extents " << extents_min_x << " "
+		<< extents_max_x << " data_scale_x " << data_scale_x << std::endl;
+      std::cout << "in draw_axes() Y: extents " << extents_min_y << " "
+		<< extents_max_y << " data_scale_y " << data_scale_y << std::endl;
+   }
    
    lig_build::pos_t wAx = world_to_canvas(A_xaxis);
    lig_build::pos_t wBx = world_to_canvas(B_xaxis);
@@ -133,43 +135,74 @@ coot::goograph::draw_axes() {
 void
 coot::goograph::draw_ticks() {
 
-   draw_y_ticks(MINOR_TICK, tick_minor_y, 0.5);
-   draw_y_ticks(MAJOR_TICK, tick_major_y, 1.0);
+   draw_y_ticks(MINOR_TICK, tick_major_y, tick_minor_y, 0.5);
+   draw_y_ticks(MAJOR_TICK, tick_major_y, tick_major_y, 1.0);
 
-   draw_x_ticks(MINOR_TICK, tick_minor_x, 0.5);
-   draw_x_ticks(MAJOR_TICK, tick_major_x, 1.0);
+   draw_x_ticks(MINOR_TICK, tick_major_x, tick_minor_x, 0.5);
+   draw_x_ticks(MAJOR_TICK, tick_major_x, tick_major_x, 1.0);
    
 }
 
 void
-coot::goograph::draw_y_ticks(int tick_type, double tick_step, double tick_length_multiplier) {
-   draw_ticks_generic(Y_AXIS, tick_type, tick_step, tick_length_multiplier);
+coot::goograph::draw_y_ticks(int tick_type, double tick_major_step, double tick_step, double tick_length_multiplier) {
+   draw_ticks_generic(Y_AXIS, tick_type, tick_major_step, tick_step, tick_length_multiplier);
 }
 
 void
-coot::goograph::draw_x_ticks(int tick_type, double tick_step, double tick_length_multiplier) {
-   draw_ticks_generic(X_AXIS, tick_type, tick_step, tick_length_multiplier);
+coot::goograph::draw_x_ticks(int tick_type, double tick_major_step, double tick_step, double tick_length_multiplier) {
+   draw_ticks_generic(X_AXIS, tick_type, tick_major_step, tick_step, tick_length_multiplier);
 }
 
 void
 coot::goograph::draw_ticks_generic(int axis, int tick_type,
-				   double tick_step, double tick_length_multiplier) {
+				   double tick_major_step,
+				   double tick_step,
+				   double tick_length_multiplier) {
 
    GooCanvasItem *root = goo_canvas_get_root_item(canvas);
    double extents_min = 0.0;
+   double data_extents_min = 0.0;
    double extents_max = 0.0;
-   double tick_major_step = 0;
 
    if (axis == Y_AXIS) {
+      data_extents_min = extents_min_y;
       extents_min = extents_min_y;
-      extents_max = extents_max_y;
-      tick_major_step = tick_major_y;
+      extents_max = extents_max_y * 1.05;
    } 
    if (axis == X_AXIS) {
+      data_extents_min = extents_min_x;
       extents_min = extents_min_x;
-      extents_max = extents_max_x;
-      tick_major_step = tick_major_x;
+      extents_max = extents_max_x * 1.05;
    } 
+
+   // what is the tick that is a multiple of tick_major_step, that is
+   // greater than or equal to extents_min?
+   // 
+   double tick_major_start = 0.0;
+   // sanity check first
+   if (tick_major_step > 0) { 
+      if (tick_step > 0) { 
+	 int n = int(extents_min/tick_major_step);
+	 double diff = double(n)*tick_major_step - extents_min;
+	 tick_major_start = extents_min + diff;
+	 if (0) 
+	    std::cout << "   extents_min: " << extents_min
+		      << "  tick_major_step " << tick_major_step
+		      << " n " << n
+		      << " diff " << diff 
+		      << " tick_major_start " << tick_major_start
+		      << std::endl;
+	 if (tick_major_start < extents_min) 
+	    extents_min = tick_major_start + tick_major_step;
+	 if (tick_type == MINOR_TICK) { 
+	    extents_min -= tick_major_step;
+	    while (extents_min < data_extents_min)
+	       extents_min += tick_step;
+	 }
+      }
+   }
+   
+
    // 
    for (double tick_pos = extents_min; tick_pos <= extents_max; tick_pos+=tick_step) {
 
@@ -177,7 +210,7 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
       if (tick_type == MINOR_TICK) {
 	 // if the minor tick overlaps a major tick then don't display
 	 // it (set do_tick to false).
-	 for (double tick_pos_inner = extents_min;
+	 for (double tick_pos_inner = tick_major_start;
 	      tick_pos_inner <= extents_max;
 	      tick_pos_inner+=tick_major_step) {
 	    if (close_float_p(tick_pos_inner, tick_pos)) {
@@ -394,17 +427,16 @@ coot::goograph::calc_tick(double range) const {
  	    r = 0.5*pow(10, nbi);
  	 }
       }
-
-      
-      std::cout << "  calc_tick() range " << range << "    "
-		<< " r_1 " << r_1
-		<< " rr_1 " << rr_1
-		<< " r_2 " << r_2
-		<< " rr_2 " << rr_2
-		<< " r_5 " << r_5
-		<< " rr_5 " << rr_5
-		<< " nbi: " << nbi
-		<< " r: " << r << std::endl;
+      if (0) 
+	 std::cout << "  calc_tick() range " << range << "    "
+		   << " r_1 " << r_1
+		   << " rr_1 " << rr_1
+		   << " r_2 " << r_2
+		   << " rr_2 " << rr_2
+		   << " r_5 " << r_5
+		   << " rr_5 " << rr_5
+		   << " nbi: " << nbi
+		   << " r: " << r << std::endl;
    } 
    return r;
 } 
