@@ -9,17 +9,9 @@
 void
 coot::goograph::show_dialog() {
    draw_graph();
-   gtk_widget_show(dialog);
-
-}
-
-void
-coot::goograph::init_widgets() {
-
-   canvas = GOO_CANVAS(goo_canvas_new());
-
    dialog = gtk_dialog_new();
    gtk_window_set_default_size(GTK_WINDOW(dialog), 600, 500);
+   gtk_window_set_title (GTK_WINDOW(dialog), title_string.c_str());
    gtk_object_set_data(GTK_OBJECT(dialog), "goograph", dialog);
    gtk_window_set_default_size(GTK_WINDOW(dialog), 600, 500);
    GtkWidget *vbox = GTK_DIALOG(dialog)->vbox;
@@ -37,14 +29,25 @@ coot::goograph::init_widgets() {
    g_signal_connect(G_OBJECT(close_button), "clicked",
 		    G_CALLBACK(goograph_close_callback),
 		    (gpointer) dialog);
+   gtk_widget_show(dialog);
+}
+
+void
+coot::goograph::init_widgets() {
+
+   canvas = GOO_CANVAS(goo_canvas_new());
 
    double left = 0;
    double top = 0;
    double right = 1000;;
    double bottom = 1000;;
    goo_canvas_set_bounds(canvas, left, top, right, bottom); // we can't "invert" these.
-   
 }
+
+GtkWidget *
+coot::goograph::get_canvas() const {
+   return GTK_WIDGET(canvas);
+} 
 
 // static
 void
@@ -215,14 +218,19 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	 if (axis == X_AXIS)
 	    anchor_type = GTK_ANCHOR_SOUTH_WEST;
 
+	 // if it's a MAJOR_TICK, then we want a text label too
+	 // 
 	 if (tick_type == MAJOR_TICK) {
 	    int n_dec_pl = 0;
-	    if (axis == Y_AXIS) { 
-	       if (y_range() < 5)
-		  n_dec_pl = 1;
-	       if (y_range() < 2)
-		  n_dec_pl = 2;
-	    }
+	    double range = y_range();
+	    if (axis == X_AXIS)
+	       range = x_range();
+
+	    if (range < 5)
+	       n_dec_pl = 1;
+	    if (range < 2)
+	       n_dec_pl = 2;
+
 	    std::string txt =
 	       coot::util::float_to_unspaced_string_using_dec_pl(tick_pos, n_dec_pl);
 	    GooCanvasItem *text = goo_canvas_text_new(root, txt.c_str(),
@@ -306,8 +314,7 @@ coot::goograph::set_axis_label(int axis, const std::string &label) {
 
 void
 coot::goograph::set_plot_title(const std::string &title) {
-   if (dialog) 
-      gtk_window_set_title (GTK_WINDOW(dialog), title.c_str());
+   title_string = title;
 } 
 
 
@@ -353,11 +360,54 @@ coot::goograph::set_data(int trace_id, const std::vector<std::pair<double, doubl
 	 set_extents(Y_AXIS, min_y, max_y);
 
 	 // std::cout << "in set_data: x_range() is " << x_range() << std::endl;
-	 set_ticks(X_AXIS, x_range()*0.1, x_range()*0.02);
-	 set_ticks(Y_AXIS, y_range()*0.1, y_range()*0.02);
+	 double x_major_tick = calc_tick(x_range());
+	 double y_major_tick = calc_tick(y_range());
+	 set_ticks(X_AXIS, x_major_tick, x_major_tick*0.2);
+	 set_ticks(Y_AXIS, y_major_tick, y_major_tick*0.2);
       }
    }
 }
+
+// return closes multiple of 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100...
+double
+coot::goograph::calc_tick(double range) const { 
+
+   double r = 1;
+   if (range > 0) {
+      double m = 1.0/log(10);
+      double r_1 = log(range*0.1)*m;
+      double rr_1 = fabs(r_1 - nearbyint(r_1));
+
+      double r_2 = log(range/2)*m;
+      double rr_2 = fabs(r_2 - nearbyint(r_2));
+      
+      double r_5 = log(range/5)*m;
+      double rr_5 = fabs(r_5 - nearbyint(r_5));
+      
+      double nbi = nearbyint(r_1);
+      r = pow(10, nbi);
+      if (rr_2 < rr_1) { 
+ 	 nbi = nearbyint(r_2);
+ 	 r = 0.2*pow(10, nbi);
+ 	 if (rr_5 < rr_2) {
+ 	    nbi = nearbyint(r_5);
+ 	    r = 0.5*pow(10, nbi);
+ 	 }
+      }
+
+      
+      std::cout << "  calc_tick() range " << range << "    "
+		<< " r_1 " << r_1
+		<< " rr_1 " << rr_1
+		<< " r_2 " << r_2
+		<< " rr_2 " << rr_2
+		<< " r_5 " << r_5
+		<< " rr_5 " << rr_5
+		<< " nbi: " << nbi
+		<< " r: " << r << std::endl;
+   } 
+   return r;
+} 
 
 void
 coot::goograph::plot(int trace_id, int plot_type) {
@@ -379,7 +429,6 @@ void
 coot::goograph::plot_bar_graph(int trace_id) {
 
    if (is_valid_trace(trace_id)) { 
-      std::cout << "bar graph data got from trace_id " << trace_id << std::endl;
       const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
       GooCanvasItem *root = goo_canvas_get_root_item(canvas);
       std::string colour = "#70e070";
@@ -441,7 +490,6 @@ void
 coot::goograph::plot_smoothed_line_graph(int trace_id) {
 
    if (is_valid_trace(trace_id)) {
-      std::cout << "smoothed data got from trace_id " << trace_id << std::endl;
       const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
       if (data.size()) { 
 	 GooCanvasItem *root = goo_canvas_get_root_item(canvas);

@@ -23,8 +23,9 @@ namespace coot {
    };
 
    class goograph {
-      GtkWidget *dialog;
       GooCanvas *canvas;
+      GtkWidget *dialog;
+      std::string title_string;
       double extents_min_x;
       double extents_max_x;
       double extents_min_y;
@@ -77,7 +78,7 @@ namespace coot {
 	    return (fabs(f1-f2) < 0.0001);
       }
       double median_bin_width(int trace_id) const;
-
+      double calc_tick(double range) const;
    public:
       enum {X_AXIS, Y_AXIS};
       enum {PLOT_TYPE_LINE, PLOT_TYPE_BAR, PLOT_TYPE_SMOOTHED_LINE};
@@ -105,7 +106,8 @@ namespace coot {
 	 data_scale_x = 1.0;
 	 data_scale_y = 1.0;
       }
-      void show_dialog();
+      GtkWidget *get_canvas() const; // for embedding in other windows
+      void show_dialog();            // for graph in dialog
       void set_extents(int axis, double min, double max); 
       void set_ticks(int axis, double tick_major, double tick_minor);
       void set_axis_label(int axis, const std::string &label);
