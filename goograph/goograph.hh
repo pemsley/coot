@@ -74,6 +74,7 @@ namespace coot {
 	 return lig_build::pos_t(canvas_offset_x + (p.x-extents_min_x)*data_scale_x,
 				 canvas_offset_y - (p.y-extents_min_y)*data_scale_y);
       }
+      void draw_title();
       double y_range() const { return extents_max_y - extents_min_y; }
       double x_range() const { return extents_max_x - extents_min_x; }
       bool close_float_p(const double &f1, const double &f2) {
