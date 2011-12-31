@@ -14,6 +14,7 @@ int main (int argc, char **argv) {
    data.push_back(std::pair<double, double> (1.5, 0.44));
    data.push_back(std::pair<double, double> (1.6, 0.42));
    data.push_back(std::pair<double, double> (0.5, 0.01));
+   data.push_back(std::pair<double, double> (0.434, 0.01));
    data.push_back(std::pair<double, double> (1.7, 0.32));
    data.push_back(std::pair<double, double> (1.8, 0.3));
    data.push_back(std::pair<double, double> (1.9, 0.2));
@@ -32,7 +33,7 @@ int main (int argc, char **argv) {
    data.push_back(std::pair<double, double> (3.5, 0.01));
 
     for (unsigned int i=0; i<data.size(); i++) { 
-       data[i].first *= 60;
+       data[i].first *= 6;
        data[i].second *= 4;
        data[i].second += 0.3;
     }

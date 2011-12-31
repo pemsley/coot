@@ -2722,6 +2722,10 @@ lbg_info_t::write_png(const std::string &file_name) const {
 
    std::pair<lig_build::pos_t, lig_build::pos_t> extents = mol.ligand_extents();
 
+   gdouble scale =  goo_canvas_get_scale(GOO_CANVAS(canvas));
+   // doesn't do anything
+   // goo_canvas_set_scale(GOO_CANVAS(canvas), 4*scale);
+   // goo_canvas_update(GOO_CANVAS(canvas));
    int size_x = (int)extents.second.x + 220; // or so... (ideally should reside circle-based).
    int size_y = (int)extents.second.y + 220;
    
@@ -2735,6 +2739,8 @@ lbg_info_t::write_png(const std::string &file_name) const {
    cairo_surface_write_to_png(surface, file_name.c_str());
    cairo_surface_destroy (surface);
    cairo_destroy (cr);
+   goo_canvas_set_scale(GOO_CANVAS(canvas), scale);
+   // goo_canvas_update(GOO_CANVAS(canvas));
 }
 
 
