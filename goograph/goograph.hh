@@ -68,9 +68,8 @@ namespace coot {
       void draw_ticks_generic(int axis, int tick_type,
 			      double tick_step, double tick_length_multiplier);
       lig_build::pos_t world_to_canvas(const lig_build::pos_t &p) const {
-	 lig_build::pos_t r(canvas_offset_x+(p.x-extents_min_x)*data_scale_x,
-			    canvas_offset_y-(p.y-0)*data_scale_y);
-	 return r;
+	 return lig_build::pos_t(canvas_offset_x + (p.x-extents_min_x)*data_scale_x,
+				 canvas_offset_y - (p.y-extents_min_y)*data_scale_y);
       }
       double y_range() const { return extents_max_y - extents_min_y; }
       double x_range() const { return extents_max_x - extents_min_x; }
@@ -97,7 +96,7 @@ namespace coot {
 	 canvas_offset_x = 70.0; // how much is the Y axis displaced
 				 // from the left-hand edge of the
 				 // canvas?
-	 canvas_offset_y = 360.0; // how much is the size of the //
+	 canvas_offset_y = 370.0; // how much is the size of the //
 	                          // canvas - and include an offset of
 	                          // // the axis from the bottom edge.
 	                          // (the smaller the number the

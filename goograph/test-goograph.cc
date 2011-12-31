@@ -13,6 +13,7 @@ int main (int argc, char **argv) {
    data.push_back(std::pair<double, double> (1.4, 0.37));
    data.push_back(std::pair<double, double> (1.5, 0.44));
    data.push_back(std::pair<double, double> (1.6, 0.42));
+   data.push_back(std::pair<double, double> (0.5, 0.01));
    data.push_back(std::pair<double, double> (1.7, 0.32));
    data.push_back(std::pair<double, double> (1.8, 0.3));
    data.push_back(std::pair<double, double> (1.9, 0.2));
@@ -29,29 +30,22 @@ int main (int argc, char **argv) {
    data.push_back(std::pair<double, double> (3.3, 0.05));
    data.push_back(std::pair<double, double> (3.4, 0.02));
    data.push_back(std::pair<double, double> (3.5, 0.01));
-   data.push_back(std::pair<double, double> (0.5, 0.01));
 
     for (unsigned int i=0; i<data.size(); i++) { 
        data[i].first *= 100;
-       data[i].second *= 10;
-       data[i].second += 5.5;
+       data[i].second *= 2;
+       data[i].second += 1.5;
     }
    
    coot::goograph g;
    int trace = g.trace_new();
    g.set_plot_title("Test graph");
    g.set_data(trace, data);
-   g.set_ticks(coot::goograph::X_AXIS, 0.5, 0.1);
-   g.set_ticks(coot::goograph::Y_AXIS, 0.1, 0.02);
+   // g.set_ticks(  coot::goograph::X_AXIS, 50,  10);
+   // g.set_ticks(  coot::goograph::Y_AXIS, 10,   2);
    // g.set_extents(coot::goograph::X_AXIS, 0.0,   4.0);
    // g.set_extents(coot::goograph::Y_AXIS, 0.0, 0.6);
 
-   if (1) {
-      g.set_ticks(  coot::goograph::X_AXIS, 50,  10);
-      g.set_ticks(  coot::goograph::Y_AXIS, 1,   0.2);
-      // g.set_extents(coot::goograph::X_AXIS, 40.0, 400.0);
-      // g.set_extents(coot::goograph::Y_AXIS, 0.0, 60);
-   } 
    
    g.set_axis_label(coot::goograph::X_AXIS, "Bond length");
    g.set_axis_label(coot::goograph::Y_AXIS, "Counts");

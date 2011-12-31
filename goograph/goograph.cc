@@ -94,16 +94,16 @@ coot::goograph::draw_axes() {
 // 				   NULL);
 
    GooCanvasLineDash *dash=goo_canvas_line_dash_new (2, 5.7, 0.0);
-   lig_build::pos_t A_yaxis(extents_min_x, 0);
-   lig_build::pos_t B_yaxis(extents_min_x, y_range()*1.1);
+   lig_build::pos_t A_yaxis(extents_min_x, extents_min_y);
+   lig_build::pos_t B_yaxis(extents_min_x, extents_min_y + y_range()*1.1);
    lig_build::pos_t wAy = world_to_canvas(A_yaxis);
    lig_build::pos_t wBy = world_to_canvas(B_yaxis);
-   lig_build::pos_t A_xaxis(extents_min_x, 0);
-   lig_build::pos_t B_xaxis(extents_min_x + x_range()*1.1, 0);
-   std::cout << "in draw_axes() X: 0 to 300 extents " << extents_min_x << " "
-	     << extents_max_x << std::endl;
-   std::cout << "in draw_axes() Y: 0 to 500 extents " << extents_min_y << " "
-	     << extents_max_y << std::endl;
+   lig_build::pos_t A_xaxis(extents_min_x, extents_min_y);
+   lig_build::pos_t B_xaxis(extents_min_x + x_range()*1.1, extents_min_y);
+   std::cout << "in draw_axes() X: extents " << extents_min_x << " "
+	     << extents_max_x << " data_scale_x " << data_scale_x << std::endl;
+   std::cout << "in draw_axes() Y: extents " << extents_min_y << " "
+	     << extents_max_y << " data_scale_y " << data_scale_y << std::endl;
    
    lig_build::pos_t wAx = world_to_canvas(A_xaxis);
    lig_build::pos_t wBx = world_to_canvas(B_xaxis);
@@ -189,14 +189,14 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	 double tick_label_x_off = 0;
 	 double tick_label_y_off = 0;
 	 if (axis == Y_AXIS) { 
-	    A_axis = lig_build::pos_t(extents_min_x, tick_pos-extents_min_y);
-	    B_axis = lig_build::pos_t(extents_min_x -x_range()*0.04*tick_length_multiplier, tick_pos-extents_min_y);
+	    A_axis = lig_build::pos_t(extents_min_x, tick_pos);
+	    B_axis = lig_build::pos_t(extents_min_x -x_range()*0.04*tick_length_multiplier, tick_pos);
 	    tick_label_x_off = 10;
 	    tick_label_y_off = 0;
 	 }
 	 if (axis == X_AXIS) { 
-	    A_axis = lig_build::pos_t(tick_pos, 0.0);
-	    B_axis = lig_build::pos_t(tick_pos, -y_range()*0.05*tick_length_multiplier);
+	    A_axis = lig_build::pos_t(tick_pos, extents_min_y);
+	    B_axis = lig_build::pos_t(tick_pos, extents_min_y - y_range()*0.06*tick_length_multiplier);
 	    tick_label_x_off = 7;
 	    tick_label_y_off = -13;
 	 }
@@ -217,8 +217,12 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 
 	 if (tick_type == MAJOR_TICK) {
 	    int n_dec_pl = 0;
-	    if (y_range() < 5)
-	       n_dec_pl = 1;
+	    if (axis == Y_AXIS) { 
+	       if (y_range() < 5)
+		  n_dec_pl = 1;
+	       if (y_range() < 2)
+		  n_dec_pl = 2;
+	    }
 	    std::string txt =
 	       coot::util::float_to_unspaced_string_using_dec_pl(tick_pos, n_dec_pl);
 	    GooCanvasItem *text = goo_canvas_text_new(root, txt.c_str(),
@@ -279,7 +283,7 @@ coot::goograph::set_axis_label(int axis, const std::string &label) {
    GooCanvasItem *root = goo_canvas_get_root_item(canvas);
    lig_build::pos_t A;
    if (axis == X_AXIS) {
-      A = lig_build::pos_t(x_range()*0.8, -y_range()*0.12);
+      A = lig_build::pos_t(extents_min_x+x_range()*0.8, extents_min_y -y_range()*0.12);
    }
    if (axis == Y_AXIS) {
       A = lig_build::pos_t(extents_min_x-x_range()*0.14, y_range()*1.15);
@@ -337,6 +341,10 @@ coot::goograph::set_data(int trace_id, const std::vector<std::pair<double, doubl
 	 }
 	 set_extents(X_AXIS, min_x, max_x);
 	 set_extents(Y_AXIS, min_y, max_y);
+
+	 std::cout << "in set_data: x_range() is " << x_range() << std::endl;
+	 set_ticks(X_AXIS, x_range()*0.1, x_range()*0.02);
+	 set_ticks(Y_AXIS, y_range()*0.1, y_range()*0.02);
       }
    }
 }
@@ -369,8 +377,14 @@ coot::goograph::plot_bar_graph(int trace_id) {
       for (unsigned int i=0; i<data.size(); i++) {
 	 double width  = mbw * data_scale_x;
 	 double height = -(data[i].second - extents_min_y) * data_scale_y;
-	 lig_build::pos_t A(data[i].first-mbw*0.5, 0);
+	 lig_build::pos_t A(data[i].first-mbw*0.5, extents_min_y);
 	 lig_build::pos_t wA = world_to_canvas(A);
+
+	 std::cout << "  plot_bar_graph() " << A << " -> " << wA << " "
+		   << width << " " << height << " " 
+		   << " data_scale_x " << data_scale_x
+		   << " data_scale_y " << data_scale_y
+		   << std::endl;
 	 
 	 GooCanvasItem *rect =
 	    goo_canvas_rect_new(root,
