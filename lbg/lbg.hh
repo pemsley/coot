@@ -62,10 +62,6 @@
 #undef small
 #endif
 
-
-#define dark "#111111"
-
-
 // static double LIGAND_TO_CANVAS_SCALE_FACTOR = 23;
 static double LIGAND_TO_CANVAS_SCALE_FACTOR = 17;
 static double SINGLE_BOND_CANVAS_LENGTH= LIGAND_TO_CANVAS_SCALE_FACTOR * 1.54;
