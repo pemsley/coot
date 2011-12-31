@@ -293,7 +293,7 @@ coot::goograph::set_extents(int axis, double min, double max) {
       double delta = extents_max_x - extents_min_x;
       if (delta > 0.1) 
 	 data_scale_x = 400.0/delta;
-      std::cout << "data_scale_x " << data_scale_x << std::endl;
+      // std::cout << "data_scale_x " << data_scale_x << std::endl;
    }
    if (axis == Y_AXIS) {
       if (min < extents_min_y) 
@@ -303,7 +303,7 @@ coot::goograph::set_extents(int axis, double min, double max) {
       double delta = extents_max_y - extents_min_y;
       if (delta > 0.1)
 	 data_scale_y = 300/delta;
-      std::cout << "data_scale_y " << data_scale_y << std::endl;
+      // std::cout << "data_scale_y " << data_scale_y << std::endl;
    }
 }
 
