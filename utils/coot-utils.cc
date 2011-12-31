@@ -384,6 +384,16 @@ coot::util::float_to_string_using_dec_pl(float f, unsigned short int n_dec_pl) {
    return std::string(s);
 }
 
+std::string
+coot::util::float_to_unspaced_string_using_dec_pl(float f, unsigned short int n_dec_pl) {
+   char s[100];
+   std::string prec="%.";
+   prec += coot::util::int_to_string(n_dec_pl);
+   prec += "f";
+   snprintf(s, 99, prec.c_str() ,f);
+   return std::string(s);
+}
+
 // throw an exception on unable to convert
 int
 coot::util::string_to_int(const std::string &s) {

@@ -69,6 +69,7 @@ namespace coot {
       std::string long_int_to_string(long int i);
       std::string float_to_string(float f);
       std::string float_to_string_using_dec_pl(float f, unsigned short int n_dec_pl);
+      std::string float_to_unspaced_string_using_dec_pl(float f, unsigned short int n_dec_pl);
       // throw an exception on unable to convert
       int string_to_int(const std::string &s);
       // throw an exception on unable to convert
