@@ -1,3 +1,22 @@
+/* src/test-goograph.cc
+ * 
+ * Copyright 2011, 2012 by The University of Oxford
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 
 #include "goograph.hh"
@@ -34,28 +53,28 @@ int main (int argc, char **argv) {
 
     for (unsigned int i=0; i<data.size(); i++) { 
        data[i].first *= 87;
-       data[i].second *= 4;
+       data[i].second *= 83;
        data[i].second += 0.6;
     }
    
    coot::goograph g;
    int trace = g.trace_new();
-   g.set_plot_title("Test graph");
+   g.set_plot_title("Bond length distribution vs. database");
    g.set_data(trace, data);
    
    g.set_axis_label(coot::goograph::X_AXIS, "Bond length");
    g.set_axis_label(coot::goograph::Y_AXIS, "Counts");
-   g.plot(trace, coot::goograph::PLOT_TYPE_BAR, "#99aa20");
+   g.plot(trace, coot::goograph::PLOT_TYPE_BAR, "");
 
    double f = 1;
-   double fy = 0.04;
+   double fy = 1;
 
    for (unsigned int i=0; i<data.size(); i++) { 
-      data[i].first += 50;
+      data[i].first += 80;
       data[i].second *= 0.6;
       data[i].second += 0.5;
    }
-   bool dashed = false;
+   bool dashed = true;
    trace = g.trace_new();
    g.set_data(trace, data);
    std::string colour = "blue";
@@ -65,17 +84,17 @@ int main (int argc, char **argv) {
    do_annotations = true; 
    if (do_annotations) {
       // red lines
-      lig_build::pos_t p1(150*f, 12*fy);
-      lig_build::pos_t p2(150*f, 36*fy);
+      lig_build::pos_t p1(150*f, 0*fy);
+      lig_build::pos_t p2(150*f, 40*fy);
       lig_build::pos_t p3(195*f, 35*fy);
       lig_build::pos_t p4(152*f, 35*fy);
       // red text
       lig_build::pos_t p5(230*f, 35*fy);
 
       // black lines
-      lig_build::pos_t p6(200*f, 33*fy);
-      lig_build::pos_t p7(200*f, 12*fy);
-      lig_build::pos_t p8(202*f, 28*fy);
+      lig_build::pos_t p6(211*f, 30*fy);
+      lig_build::pos_t p7(211*f, 0*fy);
+      lig_build::pos_t p8(213*f, 28*fy);
       lig_build::pos_t p9(250*f, 28*fy);
       // black text
       lig_build::pos_t p10(280*f, 28*fy);
