@@ -177,6 +177,50 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
    }
 }
 
+GooCanvasItem *
+widgeted_atom_t::make_canvas_text_item(const lig_build::atom_id_info_t &atom_id_info_in,
+				       const std::string &fc,
+				       GooCanvasItem *root) {
+
+   GooCanvasItem *group = NULL;
+   if (atom_id_info_in.atom_id != "C") {
+      group = wrap_goo_canvas_group_new (root, fc);
+      // run through each of the offsets (i.e. each letter)
+      for (unsigned int i=0; i<atom_id_info_in.size(); i++) {
+	 double x_o = -5; 
+	 double y_o =  8;
+	 if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::UP)
+	    y_o = 12;
+	 if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::DOWN)
+	    y_o = -12;
+
+	 std::string font = "Sans 10";
+	 
+	 double x_pos = atom_position.x + atom_id_info_in.offsets[i].tweak.x + x_o;
+	 double y_pos = atom_position.y + atom_id_info_in.offsets[i].tweak.y + y_o;
+	 // subscripts are lower and smaller font
+	 if (atom_id_info_in.offsets[i].subscript) { 
+	    font = "Sans 8";
+	    y_pos += 3;
+	 } 
+
+	 if (1)
+	    std::cout << "Rendering :" << atom_id_info_in[i].text << ": with tweak "
+		      << atom_id_info_in[i].tweak << std::endl;
+	 
+	 GooCanvasItem *item =
+	    wrap_goo_canvas_text_new(group, atom_id_info_in.offsets[i].text.c_str(),
+				     x_pos, y_pos, 
+				     -1,
+				     // GTK_ANCHOR_CENTER,
+				     GTK_ANCHOR_SW,
+				     font, fc);
+      }
+   }
+   return group;
+}
+
+
 
 std::pair<bool, double>
 widgeted_molecule_t::get_scale_correction(const lig_build::molfile_molecule_t &mol_in) const {

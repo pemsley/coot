@@ -242,8 +242,9 @@ coot::rdkit_mol(CResidue *residue_p,
 	       if (m[idx_1]->getAtomicNum() == 7) {
 		  if (std::find(Hs_added_list.begin(), Hs_added_list.end(), idx_1) == Hs_added_list.end()) { 
 		     std::string n = add_H_to_ring_N_as_needed(&m, idx_1, atom_name_1, restraints);
-		     std::cout << "testing 1 idx_1 " << idx_1 << " idx_2 " << idx_2 << " n was :" << n << ":"
-			       << std::endl;
+		     if (0)
+			std::cout << "testing 1 idx_1 " << idx_1 << " idx_2 " << idx_2
+				  << " n was :" << n << ":" << std::endl;
 		     if (n != "")
 			added_atom_names.push_back(n);
 		     Hs_added_list.push_back(idx_1);

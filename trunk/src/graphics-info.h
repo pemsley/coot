@@ -1279,22 +1279,9 @@ public:
    /* OpenGL functions can be called only if make_current returns true */
    static int make_current_gl_context(GtkWidget *widget) {
    
-#if (GTK_MAJOR_VERSION == 1)
-     return gtk_gl_area_make_current(GTK_GL_AREA(widget));
-#else
      GdkGLContext *glcontext = gtk_widget_get_gl_context (widget);
      GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
      return gdk_gl_drawable_gl_begin (gldrawable, glcontext);
-     
-     // Something from Bernhard which I don't understand.
-     // 
-     // BL says:: dunno how to use gdk_gl_drawable_make_current here, currently
-     //       glViewport(0,0, widget->allocation.width, widget->allocation.height);
-     //       graphics_info_t g;
-     //       g.graphics_x_size = widget->allocation.width;
-     //     g.graphics_y_size = widget->allocation.height;
-     //    graphics_info_t::graphics_draw();
-#endif   
    }
 
 

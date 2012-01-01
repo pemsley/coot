@@ -109,18 +109,20 @@ graphics_info_t::setup_graphics_ligand_view_aa() {
 void
 graphics_info_t::setup_graphics_ligand_view(CResidue *residue_p) {
 
-   if (!residue_p) {
+   if (!use_graphics_interface_flag) {
       graphics_ligand_view_flag = false;
-   } else {
-      if (coot::util::residue_has_hetatms(residue_p) != 1) {
-	 std::cout << "   setup_graphics_ligand() clear for "
-		   << coot::residue_spec_t(residue_p) << std::endl;
+   } else { 
+      if (!residue_p) {
 	 graphics_ligand_view_flag = false;
-      } else { 
-	 std::cout << "   setup_graphics_ligand() on residue "
-		   << coot::residue_spec_t(residue_p) << std::endl;
-	 graphics_ligand_view_flag =
-	    graphics_ligand_mol.setup_from(residue_p, Geom_p(), background_is_black_p());
+      } else {
+	 if (coot::util::residue_has_hetatms(residue_p) != 1) {
+	    graphics_ligand_view_flag = false;
+	 } else { 
+	    std::cout << "   setup_graphics_ligand() on residue "
+		      << coot::residue_spec_t(residue_p) << std::endl;
+	    graphics_ligand_view_flag =
+	       graphics_ligand_mol.setup_from(residue_p, Geom_p(), background_is_black_p());
+	 }
       }
    }
 }
@@ -138,12 +140,15 @@ graphics_info_t::graphics_ligand_view() {
 	 std::pair<lig_build::pos_t, lig_build::pos_t> ext = 
 	    g.graphics_ligand_mol.ligand_extents();
 
-	 // float sc = 0.1;
-	 float sc = 0.043;
+	 float sc = 28;
+	 float h =  float(glarea->allocation.height);
+	 float w = float(glarea->allocation.width);
+	 float ar = h/w;
 	 glPushMatrix();
 	 glLoadIdentity();
-	 glScalef(sc, sc, sc);
-	 //       glTranslatef(-8, -8., 0); // unscaled molecule
+	 glScalef(sc/w, sc/h, sc/100); // stops the view ligand
+				       // changing size as the window
+				       // is reshaped
 
 	 // std::cout << "extents: top_left " << ext.first
 	 // << "   bottom right" << ext.second << std::endl;
@@ -153,24 +158,58 @@ graphics_info_t::graphics_ligand_view() {
 	 // of the screen (i.e. the offset correction is too much).
 	 // 
 	 // glTranslatef(-20.5-0.8*ext.first.x, -21.0+0.8*ext.second.y, 0);
-	 glTranslatef(-20.5-0.8*ext.first.x, -20.5-0.8*ext.first.y, 0);
+	 // glTranslatef(-20.5-0.8*ext.first.x, -20.5-0.8*ext.first.y, 0);
+
+	 double screen_bottom_left_x_pos = -1 * w/sc;
+	 double screen_bottom_left_y_pos = -1 * h/sc;
+	 double x_trans = screen_bottom_left_x_pos -0.8*ext.first.x + 3;
+	 double y_trans = screen_bottom_left_y_pos -0.8*ext.first.y + 2;
 	 
+	 glTranslatef(x_trans, y_trans, 0);
+
 	 glMatrixMode(GL_PROJECTION);
 	 glPushMatrix();
 	 glLoadIdentity();
    
 	 GLfloat col[3] = { 0.6, 0.6, 0.6 };
 	 glColor3fv(col);
-	 glLineWidth(2.0);
 
 	 glEnable(GL_LINE_SMOOTH);
 	 glEnable(GL_BLEND);
 	 if (g.background_is_black_p())
 	    glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
 
+	 if (0) {
+	    GLfloat col[3] = { 0.9, 0.1, 0.1 };
+	    glColor3fv(col);
+	    double x_pos = ext.first.x;
+	    double y_pos = ext.first.y;
+	    glLineWidth(1.0);
+	    glBegin(GL_LINES);
+	    glVertex3d(x_pos-1, y_pos,   0);
+	    glVertex3d(x_pos+1, y_pos,   0);
+	    glVertex3d(x_pos,   y_pos-1, 0);
+	    glVertex3d(x_pos,   y_pos+1, 0);
+	    glEnd();
+	 } 
+	 
+	 glLineWidth(2.0);
 	 g.graphics_ligand_mol.render();
 
-	 // debug box
+	 if (0) {
+	    // box at corner of screen;
+	    double x_pos = -1 * w/sc - x_trans;
+	    double y_pos = -1 * h/sc - y_trans;
+	    glColor3f(0.4, 0.7, 0.9);
+	    glBegin(GL_POLYGON);
+	    glVertex3d(x_pos-3, y_pos-3, 0);
+	    glVertex3d(x_pos-3, y_pos+3, 0);
+	    glVertex3d(x_pos+3, y_pos+3, 0);
+	    glVertex3d(x_pos+3, y_pos-3, 0);
+	    glEnd();
+	 } 
+
+	 // debug box, ligand space
 	 if (0) { 
 	    // the lines ------------------
 	    glBegin(GL_LINES);
