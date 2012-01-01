@@ -99,29 +99,33 @@ graphics_info_t:: multi_torsion_residues(int imol, const std::vector<coot::resid
 void
 graphics_info_t::setup_graphics_ligand_view_aa() {
 
-   std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
-   if (active_atom.first) {
-      CResidue *residue_p = molecules[active_atom.second.first].get_residue(active_atom.second.second);
-      setup_graphics_ligand_view(residue_p);
+   if (show_graphics_ligand_view_flag) { // user control
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
+      if (active_atom.first) {
+	 CResidue *residue_p = molecules[active_atom.second.first].get_residue(active_atom.second.second);
+	 setup_graphics_ligand_view(residue_p);
+      }
    }
 }
 
 void
 graphics_info_t::setup_graphics_ligand_view(CResidue *residue_p) {
 
-   if (!use_graphics_interface_flag) {
-      graphics_ligand_view_flag = false;
-   } else { 
-      if (!residue_p) {
+   if (show_graphics_ligand_view_flag) { // user control
+      if (!use_graphics_interface_flag) {
 	 graphics_ligand_view_flag = false;
-      } else {
-	 if (coot::util::residue_has_hetatms(residue_p) != 1) {
+      } else { 
+	 if (!residue_p) {
 	    graphics_ligand_view_flag = false;
-	 } else { 
-	    std::cout << "   setup_graphics_ligand() on residue "
-		      << coot::residue_spec_t(residue_p) << std::endl;
-	    graphics_ligand_view_flag =
-	       graphics_ligand_mol.setup_from(residue_p, Geom_p(), background_is_black_p());
+	 } else {
+	    if (coot::util::residue_has_hetatms(residue_p) != 1) {
+	       graphics_ligand_view_flag = false;
+	    } else { 
+	       std::cout << "   setup_graphics_ligand() on residue "
+			 << coot::residue_spec_t(residue_p) << std::endl;
+	       graphics_ligand_view_flag =
+		  graphics_ligand_mol.setup_from(residue_p, Geom_p(), background_is_black_p());
+	    }
 	 }
       }
    }
@@ -132,6 +136,9 @@ graphics_info_t::setup_graphics_ligand_view(CResidue *residue_p) {
 void
 graphics_info_t::graphics_ligand_view() {
 
+   if (! show_graphics_ligand_view_flag)  // user control
+      return;
+   
    if (graphics_ligand_view_flag) { 
 
       try {

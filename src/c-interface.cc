@@ -323,7 +323,13 @@ void set_molecule_name(int imol, const char *new_name) {
        is_valid_map_molecule(imol)) { 
       graphics_info_t::molecules[imol].set_name(new_name);
    } 
+}
+
+void set_show_graphics_ligand_view(int state) {
+   graphics_info_t::show_graphics_ligand_view_flag = state;
+   graphics_draw();
 } 
+
 
 
 //  Display characteristics:

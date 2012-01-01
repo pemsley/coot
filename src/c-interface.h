@@ -6743,6 +6743,14 @@ void    handle_go_to_residue_keyboarding_mode(const gchar *text);
 
 
 /*  ----------------------------------------------------------------------- */
+/*                    graphics ligand view                                  */
+/*  ----------------------------------------------------------------------- */
+/*! \brief set the graphics ligand view state
+
+ (default is 1 (on)). */
+void set_show_graphics_ligand_view(int state);
+
+/*  ----------------------------------------------------------------------- */
 /*                  experimental                                            */
 /*  ----------------------------------------------------------------------- */
 void nsv(int imol);

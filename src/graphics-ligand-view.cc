@@ -270,7 +270,7 @@ graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_in
 	 double x_pos = atom_position.x + 0.06 * atom_id_info_in.offsets[i].tweak.x + x_o;
 	 double y_pos = atom_position.y + 0.06 * atom_id_info_in.offsets[i].tweak.y + y_o;
 
-	 if (1) 
+	 if (0)
 	    std::cout << "Rendering tweak " << i << " :" << atom_id_info_in[i].text
 		      << ": with tweak " << atom_id_info_in[i].tweak << std::endl;
 
