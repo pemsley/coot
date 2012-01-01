@@ -180,15 +180,18 @@ namespace lig_build {
 	 text = text_in;
 	 text_pos_offset = HERE;
 	 tweak = pos_t(0,0);
+	 subscript = false;
       }
       offset_text_t(const std::string &text_in, text_pos_offset_t text_pos_offset_in) {
 	 text = text_in;
 	 text_pos_offset = text_pos_offset_in;
 	 tweak = pos_t(0,0);
+	 subscript = false;
       }
       std::string text;
       text_pos_offset_t text_pos_offset;
       pos_t tweak;
+      bool subscript;
       friend std::ostream& operator<<(std::ostream &s, offset_text_t a);
    };
    std::ostream& operator<<(std::ostream &s, offset_text_t a);
@@ -206,9 +209,22 @@ namespace lig_build {
       // bonds by adding offsets.
       atom_id_info_t() { }
 
+      // convenience constructor (for NH2, OH2 typically)
+      atom_id_info_t(const std::string &front,
+		     const std::string &subscripted_text) {
+	 offset_text_t ot1(front);
+	 offset_text_t ot2(subscripted_text);
+	 atom_id = front + subscripted_text;
+	 ot1.tweak = pos_t( 5,0);
+	 ot2.tweak = pos_t(18,0);
+	 ot2.subscript = true;
+	 offsets.push_back(ot1);
+	 offsets.push_back(ot2);
+      } 
+
       void set_atom_id(const std::string &atom_id_in) {
 	 atom_id = atom_id_in;
-      } 
+      }
       
       std::vector<offset_text_t> offsets;
       const offset_text_t &operator[](const unsigned int &indx) const {
@@ -1117,20 +1133,29 @@ namespace lig_build {
 	 return std::pair<bool, double> (set_status, dist_closest);
       }
 
+      pos_t get_sum_delta_neighbours(int atom_index, const std::vector<int> &bond_indices) const {
+	 pos_t sum_delta(0,0);
+	 for (unsigned int ibond=0; ibond<bond_indices.size(); ibond++) {
+	    int idx_other = bonds[bond_indices[ibond]].get_other_index(atom_index);
+	    pos_t delta = atoms[idx_other].atom_position - atoms[atom_index].atom_position;
+	    sum_delta += delta;
+	 }
+	 return sum_delta;
+      }
+      
+
       //
       atom_id_info_t
       make_atom_id_by_using_bonds(int atom_index,
 				  const std::string &ele,
-				  const std::vector<int> &bond_indices) const {
+				  const std::vector<int> &bond_indices,
+				  bool simple_gl_render) const {
 
-	 // This might/should be a passed parameter?
 	 // The offset tweaks depend on the way the text is positioned on the canvas.
 	 // presumably simple OpenGL is anchored bottom left.
 	 //
 	 // So, for example, whereas before "OH" needed an x-tweak
 	 // with simple_gl_render, it does not.
-	 // 
-	 bool simple_gl_render = true;
 	 
 	 std::string atom_id = ele;
    
@@ -1201,19 +1226,46 @@ namespace lig_build {
 
 	 if (atom_id != "NH" && atom_id != "OH") {
 
-	    atom_id_info_t simple(atom_id);
-	    return simple;
+	    if (atom_id == "NH2") {
+	       // Could be "NH2" or "H2N", let's investigate
+
+	       if (bond_indices.size() != 1) {
+		  // strange case - I don't know what else to do..
+		  return atom_id_info_t("NH", "2");
+	       } else {
+
+		  // If the bond is on the left of the text, we're good.
+		  // If it comes from the right, then we need to write
+		  // H2N, with the 2 subscripted.
+		  // 
+		  pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
+		  if (sum_delta.x < 0.2) { // prefer NH2 to H2N when (nearly) vertical.
+		     return atom_id_info_t("NH", "2");
+		  } else {
+		     // more tricky case then...
+		     atom_id_info_t id;
+		     offset_text_t otH("H");
+		     offset_text_t ot2("2");
+		     offset_text_t otN("N");
+		     ot2.subscript = true;
+		     otH.tweak = pos_t(-14, 0);
+		     ot2.tweak = pos_t(-7, 0);
+		     otN.tweak = pos_t(0, 0);
+		     id.add(otH);
+		     id.add(ot2);
+		     id.add(otN);
+		     return id;
+		  } 
+	       } 
+
+	    } else { 
+	       atom_id_info_t simple(atom_id);
+	       return simple;
+	    } 
 	    
 	 } else {
 	    
-	    pos_t sum_delta(0,0);
-	    // maybe up and down offsets needed.
-	    for (unsigned int ibond=0; ibond<bond_indices.size(); ibond++) {
-	       int idx_other = bonds[bond_indices[ibond]].get_other_index(atom_index);
-	       pos_t delta = atoms[idx_other].atom_position - atoms[atom_index].atom_position;
-	       sum_delta += delta;
-	    }
-
+	    pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
 	    atom_id_info_t atom_id_info;
 	    
 	    if (bond_indices.size() == 1) {
@@ -1282,7 +1334,7 @@ namespace lig_build {
 	       } 
 	    }
 
-// 	    std::cout << "----------- returning-------------- "
+// 	    std::cout << "----------- make_atom_id_by_using_bonds() returning-------------- "
 // 		      << atom_id_info.offsets.size() << " offsets "
 // 		      << std::endl;
 // 	    for (unsigned int ioff=0; ioff<atom_id_info.offsets.size(); ioff++) { 
@@ -1292,12 +1344,12 @@ namespace lig_build {
 // 			 << atom_id_info.offsets[ioff].tweak << std::endl;
 // 	    }
 // 	    std::cout << std::endl;
-
+	    
 	    return atom_id_info;
-
 	 }
-      }
+      } // end of make_atom_id_by_using_bonds()
 
+      
       // write out the atom and bond tables:
       // 
       void debug() const {
