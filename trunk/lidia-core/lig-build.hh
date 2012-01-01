@@ -150,80 +150,14 @@ namespace lig_build {
 	 return (a.x*b.x + a.y*b.y);
       }
       static std::vector<std::pair<pos_t, pos_t> > make_wedge_in_bond(const pos_t &pos_1,
-								      const pos_t &pos_2) {
-	 std::vector<std::pair<pos_t, pos_t> > lines;
-	 pos_t buv = (pos_2-pos_1).unit_vector();
-	 pos_t buv_90 = buv.rotate(90);
-	 int n_lines = 5;
-	 double bond_length = pos_t::length(pos_2, pos_1);
-	 double length_scale = 0.03 * bond_length;
-	 for (unsigned int i=1; i<=n_lines; i++) {
-	    // then centre point of the line, some way along the pos_1 -> pos_2 vector;
-	    double len = double(i) * length_scale;
-	    double frac = (double(i)- 0.3)/double(n_lines);
-	    pos_t fp = pos_t::fraction_point(pos_1, pos_2, frac);
-	    pos_t p1 = fp + buv_90 * len;
-	    pos_t p2 = fp - buv_90 * len;
-	    lines.push_back(std::pair<pos_t, pos_t>(p1,p2));
-	 }
-	 return lines;
-      }
+								      const pos_t &pos_2);
       static std::vector<pos_t> make_wedge_out_bond(const pos_t &pos_1,
-						    const pos_t &pos_2) {
-
-	 // double sharp_point_sharp_factor = 0.1; // for canvas
-	 double sharp_point_sharp_factor = 0.02;
-	 std::vector<pos_t> v;
-	 pos_t buv = (pos_2-pos_1).unit_vector();
-	 pos_t buv_90 = buv.rotate(90);
-	 double bond_length = pos_t::length(pos_2, pos_1);
-	 double length_scale = 0.1 * bond_length;
-	 pos_t short_edge_pt_1 = pos_2 + buv_90 * length_scale;
-	 pos_t short_edge_pt_2 = pos_2 - buv_90 * length_scale;
-	 // the line width means that the sharp angle an pos_1 here results
-	 // in a few pixels beyond the pos_1, so artificially shorten it a
-	 // tiny amount.
-	 //
-	 // Also, make it a quadralateral, with the sharp points very close,
-	 // this make the spike go away.
-	 //
-	 // 
-	 // pos_t sharp_point = pos_t::fraction_point(pos_1, pos_2, 0.11);
-	 // pos_t sharp_point = pos_t::fraction_point(pos_1, pos_2, 0.07);
-	 pos_t sharp_point = pos_t::fraction_point(pos_1, pos_2, 0.03);
-   
-	 pos_t sharp_point_1 = sharp_point + buv_90 * sharp_point_sharp_factor;
-	 pos_t sharp_point_2 = sharp_point - buv_90 * sharp_point_sharp_factor;
-	 v.push_back(sharp_point_2);
-	 v.push_back(sharp_point_1);
-	 v.push_back(short_edge_pt_1);
-	 v.push_back(short_edge_pt_2);
-	 return v;
-      }
+						    const pos_t &pos_2);
 
       // return angle to X axis in degrees
-      double axis_orientation() const {
-	 double angle = atan2(y,x)/DEG_TO_RAD;
-	 return angle;
-      }
-      bool non_zero() const {
-	 if (fabs(x) > 0.00001)
-	    return true;
-	 if (fabs(y) > 0.00001)
-	    return true;
-	 return false;
-      } 
-      bool operator==(const pos_t &pos) const {
-	 if (fabs(pos.x-x) < 0.00001) {
-	    if (fabs(pos.x-x) < 0.00001) {
-	       return 1;
-	    } else {
-	       return 0;
-	    }
-	 } else {
-	    return 0;
-	 } 
-      }
+      double axis_orientation() const;
+      bool non_zero() const;
+      bool operator==(const pos_t &pos) const;
       friend std::ostream& operator<<(std::ostream &s, const pos_t &p);
    };
    std::ostream& operator<<(std::ostream &s, const pos_t &p);
@@ -733,7 +667,8 @@ namespace lig_build {
 	 std::vector<int> empty_no_pass_atoms;
 	 empty_no_pass_atoms.push_back(atom_index_start);
 	 std::pair<bool, std::vector<int> > r =
-	    find_bonded_atoms_with_no_pass(atom_index_start, atom_index_start, atom_index_other, empty_no_pass_atoms,
+	    find_bonded_atoms_with_no_pass(atom_index_start, atom_index_start,
+					   atom_index_other, empty_no_pass_atoms,
 					   MAX_SEARCH_DEPTH);
 	 return r;
       } 

@@ -74,5 +74,5 @@ public:
    // some OpenGL stuff.
    void render();
    void generate_display_list(bool against_a_dark_background);
-   void setup_from(CResidue *r, coot::protein_geometry *geom_p, bool against_a_dark_background);
+   bool setup_from(CResidue *r, coot::protein_geometry *geom_p, bool against_a_dark_background);
 };

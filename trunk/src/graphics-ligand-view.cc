@@ -109,8 +109,7 @@ void graphics_ligand_molecule::gl_bonds(bool dark_background) {
       if (ele != "C") { 
 	 std::vector<int> local_bonds = bonds_having_atom_with_atom_index(iat);
 	 lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, ele, local_bonds);
-	 atoms[iat].set_atom_id(atom_id_info.atom_id); // quick hack
-	 std::cout << "   " << iat << " " << atoms[iat] << " " << atom_id_info << std::endl;
+	 // atoms[iat].set_atom_id(atom_id_info.atom_id); // quick hack
 	 bool background_black = true;
 	 coot::colour_t col = atoms[iat].get_colour(background_black); // using ele
 	 atoms[iat].make_text_item(atom_id_info, col);
@@ -260,7 +259,7 @@ graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_in
 				     const coot::colour_t &fc) const { 
    if (atom_id_info_in.atom_id != "C") {
       if (atom_id_info_in.atom_id.length() > 2) {
-	 // make_subscripted_text_item(atom_id_info_in, fc);
+	 make_subscripted_text_item(atom_id_info_in, fc);
       } else { 
 	 make_convention_text_item(atom_id_info_in, fc);
       }
@@ -292,7 +291,7 @@ graphics_ligand_atom::make_convention_text_item(const lig_build::atom_id_info_t 
       double x_pos = atom_position.x + 0.1 * atom_id_info_in.offsets[i].tweak.x + x_o;
       double y_pos = atom_position.y + 0.1 * atom_id_info_in.offsets[i].tweak.y + y_o;
 
-      if (1) 
+      if (0) 
 	 std::cout << "Rendering atom index " << i << " :" << atom_id_info_in[i].text
 		   << ": with tweak " << atom_id_info_in[i].tweak << std::endl;
 
@@ -308,24 +307,18 @@ graphics_ligand_atom::make_subscripted_text_item(const lig_build::atom_id_info_t
 						 const coot::colour_t &fc) const {
 
    glColor3f(fc.col[0], fc.col[1], fc.col[2]);
+   double x_o = -0.25; 
+   double y_o = -0.25;
+   
    std::string p1 = atom_id_info_in.atom_id.substr(0,2);
    std::string p2 = atom_id_info_in.atom_id.substr(2);
 
-   //       GooCanvasItem *item_1 = wrap_goo_canvas_text_new(group, p1.c_str(),
-   // 						       atom_position.x, atom_position.y, -1,
-   // 						       GTK_ANCHOR_CENTER,
-   // 						       "Sans 10", fc);
-   glRasterPos3d(atom_position.x, atom_position.y, 0.0);
+   glRasterPos3d(atom_position.x+x_o, atom_position.y+y_o, 0.0);
    bitmap_text(p1);
 
-   double pos_p2_x = atom_position.x + 1.3;
-   double pos_p2_y = atom_position.y - 0.4;
+   double pos_p2_x = atom_position.x + x_o + 1.15;
+   double pos_p2_y = atom_position.y + y_o - 0.4;
       
-   //       GooCanvasItem *item_2 = wrap_goo_canvas_text_new(group, p2.c_str(),
-   // 						       pos_p2_x, pos_p2_y, -1,
-   // 						       GTK_ANCHOR_CENTER,
-   // 						       "Sans 8", fc);
-
    glRasterPos3d(pos_p2_x, pos_p2_y, 0.0);
    bitmap_text(p2);
 }
@@ -340,11 +333,13 @@ graphics_ligand_molecule::render() {
    glCallList(display_list_tag);
 } 
 
-void
+bool
 graphics_ligand_molecule::setup_from(CResidue *residue_p,
 				     coot::protein_geometry *geom_p,
 				     bool against_a_dark_background) {
 
+   bool status = false; // "failed" status initially
+   
 #ifdef MAKE_ENTERPRISE_TOOLS
 
    if (residue_p) {
@@ -396,6 +391,8 @@ graphics_ligand_molecule::setup_from(CResidue *residue_p,
 	    lig_build::molfile_molecule_t m =
 	       coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
 	    init_from_molfile_molecule(m, against_a_dark_background);
+
+	    status = true; // OK, if we got to here...
 	 }
       }
       catch (std::runtime_error coot_error) {
@@ -406,6 +403,7 @@ graphics_ligand_molecule::setup_from(CResidue *residue_p,
       }
    }
 #endif   // MAKE_ENTERPRISE_TOOLS
+   return status;
 } 
 
 
