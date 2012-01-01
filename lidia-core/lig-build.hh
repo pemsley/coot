@@ -215,8 +215,8 @@ namespace lig_build {
 	 offset_text_t ot1(front);
 	 offset_text_t ot2(subscripted_text);
 	 atom_id = front + subscripted_text;
-	 ot1.tweak = pos_t( 5,0);
-	 ot2.tweak = pos_t(18,0);
+	 ot1.tweak = pos_t(0,0);
+	 ot2.tweak = pos_t(front.length()*10,0);
 	 ot2.subscript = true;
 	 offsets.push_back(ot1);
 	 offsets.push_back(ot2);
@@ -1249,7 +1249,7 @@ namespace lig_build {
 		     offset_text_t otN("N");
 		     ot2.subscript = true;
 		     otH.tweak = pos_t(-14, 0);
-		     ot2.tweak = pos_t(-7, 0);
+		     ot2.tweak = pos_t(-5, 0);
 		     otN.tweak = pos_t(0, 0);
 		     id.add(otH);
 		     id.add(ot2);
@@ -1277,7 +1277,7 @@ namespace lig_build {
 		  if (ele == "N")
 		     txt = "HN";
 		  offset_text_t ot(txt);
-		  ot.tweak = pos_t(-6, 0);
+		  ot.tweak = pos_t(-8, 0);
 		  atom_id_info.add(ot);
 	       } else {
 		  // simple
@@ -1287,7 +1287,7 @@ namespace lig_build {
 		  if (! simple_gl_render) 
 		     // add a tweak to that, push it to the right a tiny
 		     // bit (we want the O (or N) at the end of the bond)
-		     atom_id_info.offsets.back().tweak += pos_t(5,0);
+		     atom_id_info.offsets.back().tweak += pos_t(0,0);
 	       } 
 	    }
 

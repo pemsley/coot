@@ -32,9 +32,10 @@
 void 
 graphics_ligand_molecule::generate_display_list(bool dark_background) {
 
-   std::cout << "graphics_ligand_molecule::store() molecule graphics based on "
-	     << atoms.size() << " atoms and "
-	     << bonds.size() << " bonds" << std::endl;
+   if (0)
+      std::cout << "graphics_ligand_molecule::store() molecule graphics based on "
+		<< atoms.size() << " atoms and "
+		<< bonds.size() << " bonds" << std::endl;
 
    if (glIsList(display_list_tag)) { 
       glDeleteLists(display_list_tag, 1);
@@ -148,10 +149,6 @@ graphics_ligand_bond::gl_bond(const lig_build::pos_t &pos_1_raw, const lig_build
    case lig_build::bond_t::SINGLE_OR_AROMATIC:
    case lig_build::bond_t::AROMATIC_BOND:
    case lig_build::bond_t::BOND_ANY:
-//       ci = wrap_goo_canvas_polyline_new_line(root,
-// 					     pos_1.x, pos_1.y,
-// 					     pos_2.x, pos_2.y,
-// 					     "stroke-color", dark);
 
       glBegin(GL_LINES);
       glVertex3d(pos_1.x, pos_1.y, 0);
@@ -266,21 +263,31 @@ graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_in
 	 double x_o = -0.25; 
 	 double y_o = -0.25;
 	 if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::UP)
-	    y_o += 0.8;
+	    y_o += 0.7;
 	 if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::DOWN)
-	    y_o -= 0.8;
+	    y_o -= 0.7;
 
-	 double x_pos = atom_position.x + 0.1 * atom_id_info_in.offsets[i].tweak.x + x_o;
-	 double y_pos = atom_position.y + 0.1 * atom_id_info_in.offsets[i].tweak.y + y_o;
+	 double x_pos = atom_position.x + 0.06 * atom_id_info_in.offsets[i].tweak.x + x_o;
+	 double y_pos = atom_position.y + 0.06 * atom_id_info_in.offsets[i].tweak.y + y_o;
 
-	 if (0) 
-	    std::cout << "Rendering atom index " << i << " :" << atom_id_info_in[i].text
+	 if (1) 
+	    std::cout << "Rendering tweak " << i << " :" << atom_id_info_in[i].text
 		      << ": with tweak " << atom_id_info_in[i].tweak << std::endl;
 
 	 if (atom_id_info_in.offsets[i].subscript)
 	    y_pos -= 0.3;
 	    
-	    glRasterPos3d(x_pos, y_pos, 0);
+	 glRasterPos3d(x_pos, y_pos, 0);
+
+	 if (0) {  // Yes the 0,0 position is bottom left of the letter
+	    glLineWidth(1.0);
+	    glBegin(GL_LINES);
+	    glVertex3d(x_pos-1, y_pos,   0);
+	    glVertex3d(x_pos+1, y_pos,   0);
+	    glVertex3d(x_pos,   y_pos-1, 0);
+	    glVertex3d(x_pos,   y_pos+1, 0);
+	    glEnd();
+	 }
 	 bitmap_text(atom_id_info_in.offsets[i].text.c_str());
       }
    }
