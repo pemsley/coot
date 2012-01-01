@@ -969,8 +969,9 @@ lbg_info_t::change_atom_element(int atom_index, std::string new_ele, std::string
    // 20110410: Old/simple
    // std::string atom_id = mol.make_atom_id_by_using_bonds(new_ele, local_bonds);
    
+   bool gl_flag = false; // not a GL render engine
    lig_build::atom_id_info_t atom_id_info = 
-      mol.make_atom_id_by_using_bonds(atom_index, new_ele, local_bonds);
+      mol.make_atom_id_by_using_bonds(atom_index, new_ele, local_bonds, gl_flag);
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 
    changed_status = mol.atoms[atom_index].update_atom_id_maybe(atom_id_info, fc, root);
@@ -2638,7 +2639,9 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
       std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(iat);
       std::string ele = mol.atoms[iat].element;
-      lig_build::atom_id_info_t atom_id_info = mol.make_atom_id_by_using_bonds(iat, ele, local_bonds);
+      bool gl_flag = false; // not a GL render engine
+      lig_build::atom_id_info_t atom_id_info =
+	 mol.make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
 
       std::string fc = font_colour(ele);
       if (ele != "C") 

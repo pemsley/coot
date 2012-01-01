@@ -62,7 +62,7 @@ graphics_ligand_atom::get_colour(bool against_a_dark_background) const {
    if (element == "P")  {
       col.col[0] = 0.7;
       col.col[1] = 0.3;
-      col.col[2] = 0.7;
+      col.col[2] = 0.9;
    }
    if ((element == "S") || (element == "Se")) {
       col.col[0] = 0.76;
@@ -108,7 +108,8 @@ void graphics_ligand_molecule::gl_bonds(bool dark_background) {
       std::string ele = atoms[iat].element;
       if (ele != "C") { 
 	 std::vector<int> local_bonds = bonds_having_atom_with_atom_index(iat);
-	 lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, ele, local_bonds);
+	 bool gl_flag = true;
+	 lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
 	 // atoms[iat].set_atom_id(atom_id_info.atom_id); // quick hack
 	 bool background_black = true;
 	 coot::colour_t col = atoms[iat].get_colour(background_black); // using ele
@@ -257,11 +258,30 @@ graphics_ligand_bond::gl_bond_double_bond(const lig_build::pos_t &pos_1, const l
 void 
 graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_info_in,
 				     const coot::colour_t &fc) const { 
+
    if (atom_id_info_in.atom_id != "C") {
-      if (atom_id_info_in.atom_id.length() > 2) {
-	 make_subscripted_text_item(atom_id_info_in, fc);
-      } else { 
-	 make_convention_text_item(atom_id_info_in, fc);
+      glColor3f(fc.col[0], fc.col[1], fc.col[2]);
+   
+      for (unsigned int i=0; i<atom_id_info_in.size(); i++) {
+	 double x_o = -0.25; 
+	 double y_o = -0.25;
+	 if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::UP)
+	    y_o += 0.8;
+	 if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::DOWN)
+	    y_o -= 0.8;
+
+	 double x_pos = atom_position.x + 0.1 * atom_id_info_in.offsets[i].tweak.x + x_o;
+	 double y_pos = atom_position.y + 0.1 * atom_id_info_in.offsets[i].tweak.y + y_o;
+
+	 if (0) 
+	    std::cout << "Rendering atom index " << i << " :" << atom_id_info_in[i].text
+		      << ": with tweak " << atom_id_info_in[i].tweak << std::endl;
+
+	 if (atom_id_info_in.offsets[i].subscript)
+	    y_pos -= 0.3;
+	    
+	    glRasterPos3d(x_pos, y_pos, 0);
+	 bitmap_text(atom_id_info_in.offsets[i].text.c_str());
       }
    }
 }
@@ -273,55 +293,6 @@ graphics_ligand_atom::bitmap_text(const std::string &s) const {
       glutBitmapCharacter (GLUT_BITMAP_HELVETICA_10, s[i]);
    glPopAttrib();
 } 
-
-void
-graphics_ligand_atom::make_convention_text_item(const lig_build::atom_id_info_t &atom_id_info_in,
-						const coot::colour_t &fc) const {
-
-   glColor3f(fc.col[0], fc.col[1], fc.col[2]);
-   
-   for (unsigned int i=0; i<atom_id_info_in.size(); i++) {
-      double x_o = -0.25; 
-      double y_o = -0.25;
-      if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::UP)
-	 y_o += 0.8;
-      if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::DOWN)
-	 y_o -= 0.8;
-
-      double x_pos = atom_position.x + 0.1 * atom_id_info_in.offsets[i].tweak.x + x_o;
-      double y_pos = atom_position.y + 0.1 * atom_id_info_in.offsets[i].tweak.y + y_o;
-
-      if (0) 
-	 std::cout << "Rendering atom index " << i << " :" << atom_id_info_in[i].text
-		   << ": with tweak " << atom_id_info_in[i].tweak << std::endl;
-
-      glRasterPos3d(x_pos, y_pos, 0);
-      bitmap_text(atom_id_info_in.offsets[i].text.c_str());
-   }
-}
-
-// This will take just the straight text, no reorientation (due to subscripting).
-// 
-void
-graphics_ligand_atom::make_subscripted_text_item(const lig_build::atom_id_info_t &atom_id_info_in,
-						 const coot::colour_t &fc) const {
-
-   glColor3f(fc.col[0], fc.col[1], fc.col[2]);
-   double x_o = -0.25; 
-   double y_o = -0.25;
-   
-   std::string p1 = atom_id_info_in.atom_id.substr(0,2);
-   std::string p2 = atom_id_info_in.atom_id.substr(2);
-
-   glRasterPos3d(atom_position.x+x_o, atom_position.y+y_o, 0.0);
-   bitmap_text(p1);
-
-   double pos_p2_x = atom_position.x + x_o + 1.15;
-   double pos_p2_y = atom_position.y + y_o - 0.4;
-      
-   glRasterPos3d(pos_p2_x, pos_p2_y, 0.0);
-   bitmap_text(p2);
-}
 
 
 

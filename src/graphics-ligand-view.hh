@@ -35,12 +35,6 @@ public:
 
    void make_text_item(const lig_build::atom_id_info_t &atom_id_info_in,
 		       const coot::colour_t &fc) const;
-   void make_convention_text_item(const lig_build::atom_id_info_t &atom_id_info_in,
-				  const coot::colour_t &fc) const;
-   // This will take just the straight text, no reorientation (due to subscripting).
-   // 
-   void make_subscripted_text_item(const lig_build::atom_id_info_t &atom_id_info_in,
-				   const coot::colour_t &fc) const;   
    coot::colour_t get_colour(bool against_a_dark_background) const;
    
 };

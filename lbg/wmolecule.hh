@@ -86,13 +86,14 @@ public:
 					   const std::string &text,
 					   double x_pos, double y_pos, 
 					   int something,
-					   int anchor_type,
+					   GtkAnchorType anchor_type,
 					   const std::string &font,
 					   const std::string &fill_colour) const {
       return goo_canvas_text_new(group,
 				 text.c_str(),
 				 x_pos, y_pos, 
 				 -1,
+				 // anchor_type,
 				 GTK_ANCHOR_CENTER,
 				 "font", font.c_str(),
 				 "fill_color", fill_colour.c_str(),
@@ -183,20 +184,17 @@ class widgeted_atom_t : public lig_build::atom_t , ligand_layout_graphic_primiti
 					GooCanvasItem *root) {
       GooCanvasItem *text_item = NULL;
       if (atom_id_info_in.atom_id != "C") {
-	 if (atom_id_info_in.atom_id.length() > 2) {
-	    text_item = make_subscripted_canvas_item(atom_id_info_in, fc, root);
-	 } else { 
-	    text_item = make_convention_canvas_item(atom_id_info_in, fc, root);
-	 }
+	 text_item = make_text_canvas_item(atom_id_info_in, fc, root);
       }
-      return  text_item;
+      return text_item;
    }
    
-   GooCanvasItem *make_convention_canvas_item(const lig_build::atom_id_info_t &atom_id_info_in,
-					      const std::string &fc,
-					      GooCanvasItem *root) const {
+   GooCanvasItem *make_text_canvas_item(const lig_build::atom_id_info_t &atom_id_info_in,
+					const std::string &fc,
+					GooCanvasItem *root) const {
 
       GooCanvasItem *group = wrap_goo_canvas_group_new (root, fc);
+      // run through each of the offsets (i.e. each letter)
       for (unsigned int i=0; i<atom_id_info_in.size(); i++) {
 	 double x_o = 0; 
 	 double y_o = 0;
@@ -205,8 +203,15 @@ class widgeted_atom_t : public lig_build::atom_t , ligand_layout_graphic_primiti
 	 if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::DOWN)
 	    y_o = -12;
 
-	 double x_pos =    atom_position.x + atom_id_info_in.offsets[i].tweak.x + x_o;
-	 double y_pos =    atom_position.y + atom_id_info_in.offsets[i].tweak.y + y_o;
+	 std::string font = "Sans 10";
+	 
+	 double x_pos = atom_position.x + atom_id_info_in.offsets[i].tweak.x + x_o;
+	 double y_pos = atom_position.y + atom_id_info_in.offsets[i].tweak.y + y_o;
+	 // subscripts are lower and smaller font
+	 if (atom_id_info_in.offsets[i].subscript) { 
+	    font = "Sans 8";
+	    y_pos += 3;
+	 } 
 
 	 if (0) 
 	    std::cout << "Rendering :" << atom_id_info_in[i].text << ": with tweak "
@@ -215,37 +220,14 @@ class widgeted_atom_t : public lig_build::atom_t , ligand_layout_graphic_primiti
 	 GooCanvasItem *item =
 	    wrap_goo_canvas_text_new(group, atom_id_info_in.offsets[i].text.c_str(),
 				     x_pos, y_pos, 
-				     -1, GTK_ANCHOR_CENTER,
-				     "Sans 10", fc);
+				     -1,
+				     // GTK_ANCHOR_CENTER,
+				     GTK_ANCHOR_SW,
+				     font, fc);
       }
       return group;
    }
 
-   // This will take just the straight text, no reorientation (due to subscripting).
-   // 
-   GooCanvasItem *make_subscripted_canvas_item(const lig_build::atom_id_info_t &atom_id_info_in,
-					       const std::string &fc,
-					       GooCanvasItem *root) const {
-
-      GooCanvasItem *group = wrap_goo_canvas_group_new (root, fc);
-
-      std::string p1 = atom_id_info_in.atom_id.substr(0,2);
-      std::string p2 = atom_id_info_in.atom_id.substr(2);
-      
-      GooCanvasItem *item_1 = wrap_goo_canvas_text_new(group, p1.c_str(),
-						       atom_position.x, atom_position.y, -1,
-						       GTK_ANCHOR_CENTER,
-						       "Sans 10", fc);
-
-      double pos_p2_x = atom_position.x + 13;
-      double pos_p2_y = atom_position.y + 4;
-      
-      GooCanvasItem *item_2 = wrap_goo_canvas_text_new(group, p2.c_str(),
-						       pos_p2_x, pos_p2_y, -1,
-						       GTK_ANCHOR_CENTER,
-						       "Sans 8", fc);
-      return group;
-   }
 
 public:
 
