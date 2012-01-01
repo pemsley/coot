@@ -119,8 +119,8 @@ graphics_info_t::setup_graphics_ligand_view(CResidue *residue_p) {
       } else { 
 	 std::cout << "   setup_graphics_ligand() on residue "
 		   << coot::residue_spec_t(residue_p) << std::endl;
-	 graphics_ligand_mol.setup_from(residue_p, Geom_p(), background_is_black_p());
-	 graphics_ligand_view_flag = true;
+	 graphics_ligand_view_flag =
+	    graphics_ligand_mol.setup_from(residue_p, Geom_p(), background_is_black_p());
       }
    }
 }
