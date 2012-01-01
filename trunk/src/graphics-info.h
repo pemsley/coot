@@ -3816,7 +3816,8 @@ string   static std::string sessionid;
    void setup_graphics_ligand_view(CResidue *residue);
    // which stores in:
    static graphics_ligand_molecule graphics_ligand_mol;
-   
+
+   static int show_graphics_ligand_view_flag; // user control, default 1 (on).
    static void graphics_ligand_view();  // actually draw it 
 
 };
