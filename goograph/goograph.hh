@@ -35,14 +35,70 @@ namespace coot {
 
    class graph_trace_info_t {
    public:
+      enum {PLOT_TYPE_LINE, PLOT_TYPE_BAR, PLOT_TYPE_SMOOTHED_LINE};
+      int plot_type;
+      std::string colour;
+      double line_width;
+      bool dashed;
       graph_trace_info_t () {
+	 dashed = false;
+	 plot_type = PLOT_TYPE_LINE;
       }
       std::vector<std::pair<double, double> > data;
    };
 
    class goograph {
+      class annotation_line_t {
+      public:
+	 annotation_line_t(lig_build::pos_t pos_1_in,
+			   lig_build::pos_t pos_2_in,
+			   std::string colour_in,
+			   double line_width_in,
+			   bool dashed_in,
+			   bool start_arrow_in,
+			   bool end_arrow_in) {
+	    pos_1 = pos_1_in;
+	    pos_2 = pos_2_in;
+	    colour = colour_in;
+	    line_width = line_width_in;
+	    dashed = dashed_in;
+	    start_arrow = start_arrow_in;
+	    end_arrow = end_arrow_in;
+	 }
+	 lig_build::pos_t pos_1;
+	 lig_build::pos_t pos_2;
+	 std::string colour;
+	 double line_width;
+	 bool dashed;
+	 bool start_arrow;
+	 bool end_arrow;
+      };
+      class annotation_text_t {
+      public:
+	 annotation_text_t(std::string text_in,
+			   lig_build::pos_t pos_in,
+			   std::string colour_in,
+			   std::string font_in) {
+	    text = text_in;
+	    pos = pos_in;
+	    colour = colour_in;
+	    font = font_in;
+	 }
+	 std::string text;
+	 lig_build::pos_t pos;
+	 std::string colour;
+	 std::string font;
+      };
+
       GooCanvas *canvas;
       GtkWidget *dialog;
+      int dialog_width_orig;
+      int dialog_height_orig;
+      int dialog_width; // variable
+      int dialog_height;// variable
+      std::vector<GooCanvasItem *> items;
+      std::vector<annotation_line_t> annotation_lines;
+      std::vector<annotation_text_t> annotation_texts;
       std::string title_string;
       double extents_min_x;
       double extents_max_x;
@@ -61,7 +117,9 @@ namespace coot {
       std::string dark; // axis colour
       double data_scale_x;
       double data_scale_y;
+      void init();
       void init_widgets();
+      void clear();
       bool is_valid_trace(int trace_id) {
 	 if (trace_id < 0) { 
 	    return false;
@@ -73,11 +131,14 @@ namespace coot {
 	    }
 	 }
       }
-      void plot_bar_graph(int trace_id, std::string colour);
-      void plot_line_graph(int trace_id, std::string colour, bool dashed);
-      void plot_smoothed_line_graph(int trace_id, std::string colour, bool dashed);
+      void plot_bar_graph(int trace_id);
+      void plot_line_graph(int trace_id);
+      void plot_smoothed_line_graph(int trace_id);
       static void goograph_close_callback(GtkWidget *button,
 					  GtkWidget *dialog);
+      static gint reshape(GtkWidget *widget, GdkEventConfigure *event);
+
+      void set_bounds(double right, double bottom);
       void draw_graph();
       void draw_axes();
       void draw_ticks();
@@ -89,8 +150,10 @@ namespace coot {
 			      double tick_step,
 			      double tick_length_multiplier);
       lig_build::pos_t world_to_canvas(const lig_build::pos_t &p) const {
-	 return lig_build::pos_t(canvas_offset_x + (p.x-extents_min_x)*data_scale_x,
-				 canvas_offset_y - (p.y-extents_min_y)*data_scale_y);
+// 	 return lig_build::pos_t(canvas_offset_x + (p.x-extents_min_x)*data_scale_x,
+// 				 canvas_offset_y - (p.y-extents_min_y)*data_scale_y);
+	 return lig_build::pos_t((canvas_offset_x + (p.x-extents_min_x)*data_scale_x) * dialog_width / dialog_width_orig,
+				 (canvas_offset_y - (p.y-extents_min_y)*data_scale_y) * dialog_height/ dialog_height_orig);
       }
       void draw_title();
       double y_range() const { return extents_max_y - extents_min_y; }
@@ -100,11 +163,15 @@ namespace coot {
       }
       double median_bin_width(int trace_id) const;
       double calc_tick(double range) const;
+      void draw_axis_label(int axis);
+      void draw_annotation_lines();
+      void draw_annotation_texts();
+      void set_data_scales();
    public:
       enum {X_AXIS, Y_AXIS};
-      enum {PLOT_TYPE_LINE, PLOT_TYPE_BAR, PLOT_TYPE_SMOOTHED_LINE};
       enum {MAJOR_TICK, MINOR_TICK};
       goograph() {
+	 init();
 	 init_widgets();
 	 extents_min_x =  9999999990.0;
 	 extents_min_y =  9999999990.0;
@@ -127,6 +194,8 @@ namespace coot {
 	 data_scale_x = 1.0;
 	 data_scale_y = 1.0;
       }
+      void set_trace_type(int trace_id, int plot_type, bool dashed=false);
+      void set_trace_colour(int trace, const std::string colour);
       GtkWidget *get_canvas() const; // for embedding in other windows
       void show_dialog();            // for graph in dialog
       void set_extents(int axis, double min, double max); 
@@ -135,7 +204,7 @@ namespace coot {
       void set_plot_title(const std::string &title);
       void set_data(int trace_id, const std::vector<std::pair<double, double> > &data);
       int trace_new();
-      void plot(int trace_id, int plot_type, const std::string &colour, bool dashed=false);
+      void plot_trace(int trace_id);
       void add_annotation_line(const lig_build::pos_t &pos_1,
 			       const lig_build::pos_t &pos_2,
 			       const std::string &colour,
