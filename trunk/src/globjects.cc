@@ -1632,21 +1632,6 @@ setup_lighting(short int do_lighting_flag) {
 
 gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
 
-#if (GTK_MAJOR_VERSION == 1)
-   
-   /* OpenGL functions can be called only if make_current returns true */
-
-   if (gtk_gl_area_make_current(GTK_GL_AREA(widget))) {
-      glViewport(0,0, widget->allocation.width, widget->allocation.height);
-      graphics_info_t g;
-      g.graphics_x_size = widget->allocation.width;
-      g.graphics_y_size = widget->allocation.height;
-   }
-   graphics_info_t::graphics_draw();
-   return TRUE;
-#else
-
-   // GTK2 code
    if (graphics_info_t::make_current_gl_context(widget)) {
       glViewport(0,0, widget->allocation.width, widget->allocation.height);
       graphics_info_t g;
@@ -1654,7 +1639,6 @@ gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
       g.graphics_y_size = widget->allocation.height;
    } 
    graphics_info_t::graphics_draw(); // Added 20080408, needed?
-#endif
    return TRUE;
 }
 

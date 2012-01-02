@@ -27,12 +27,15 @@
 
 void
 coot::goograph::show_dialog() {
+
    draw_graph();
+   
    dialog = gtk_dialog_new();
-   gtk_window_set_default_size(GTK_WINDOW(dialog), 600, 500);
+   std::cout << "gtk_dialog_new() made dialog " << dialog << std::endl;
+   gtk_window_set_default_size(GTK_WINDOW(dialog), dialog_width, dialog_height);
    gtk_window_set_title (GTK_WINDOW(dialog), title_string.c_str());
-   gtk_object_set_data(GTK_OBJECT(dialog), "goograph", dialog);
-   gtk_window_set_default_size(GTK_WINDOW(dialog), 600, 500);
+   gtk_object_set_data(GTK_OBJECT(dialog), "goograph_dialog", dialog);
+   gtk_object_set_data(GTK_OBJECT(dialog), "goograph", this);
    GtkWidget *vbox = GTK_DIALOG(dialog)->vbox;
    GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
    GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
@@ -48,18 +51,38 @@ coot::goograph::show_dialog() {
    g_signal_connect(G_OBJECT(close_button), "clicked",
 		    G_CALLBACK(goograph_close_callback),
 		    (gpointer) dialog);
+   g_signal_connect(G_OBJECT(dialog), "configure_event",
+		    G_CALLBACK(reshape),
+		    (gpointer) dialog);
    gtk_widget_show(dialog);
+}
+
+void
+coot::goograph::init() {
+
+   canvas = NULL;
+   dialog = NULL;
+   
+   dialog_width_orig = 600;
+   dialog_height_orig = 500;
+
+   dialog_width = dialog_width_orig;
+   dialog_height = dialog_height_orig;
 }
 
 void
 coot::goograph::init_widgets() {
 
-   canvas = GOO_CANVAS(goo_canvas_new());
+   if (! canvas)
+      canvas = GOO_CANVAS(goo_canvas_new());
+   set_bounds(1000, 1000);
+}
+
+void
+coot::goograph::set_bounds(double right, double bottom) {
 
    double left = 0;
    double top = 0;
-   double right = 1000;;
-   double bottom = 1000;;
    goo_canvas_set_bounds(canvas, left, top, right, bottom); // we can't "invert" these.
 }
 
@@ -74,15 +97,46 @@ coot::goograph::goograph_close_callback(GtkWidget *button,
 					GtkWidget *dialog) {
    gtk_widget_destroy(dialog);
    dialog = NULL;
-} 
+}
+
+// static
+gint
+coot::goograph::reshape(GtkWidget *widget, GdkEventConfigure *event) {
+
+   gint status = 0;
+   coot::goograph *g_p = (coot::goograph *) gtk_object_get_data(GTK_OBJECT(widget), "goograph");
+   if (g_p) {
+      bool do_redraw = false;
+      if (g_p->dialog_width != widget->allocation.width)
+ 	 do_redraw = true;
+      if (g_p->dialog_height != widget->allocation.height)
+ 	 do_redraw = true;
+      if (do_redraw) { 
+ 	 g_p->dialog_width = widget->allocation.width;
+ 	 g_p->dialog_height = widget->allocation.height;
+	 // g_p->set_data_scales();
+ 	 g_p->draw_graph();
+	 // status = 1; // this slows things down dramatically!
+      }
+   }
+   return status;
+}
+
 
 
 void
 coot::goograph::draw_graph() {
-
+   clear();
    draw_axes();
    draw_ticks();
    draw_title();
+   draw_axis_label(X_AXIS);
+   draw_axis_label(Y_AXIS);
+   for (unsigned int i=0; i<traces.size(); i++) { 
+      plot_trace(i);
+   }
+   draw_annotation_lines();
+   draw_annotation_texts();
 }
 
 void
@@ -129,6 +183,7 @@ coot::goograph::draw_axes() {
       std::cout << "in draw_axes() Y: extents " << extents_min_y << " "
 		<< extents_max_y << " data_scale_y " << data_scale_y << std::endl;
    }
+   std::string grey = "#333333";
    
    lig_build::pos_t wAx = world_to_canvas(A_xaxis);
    lig_build::pos_t wBx = world_to_canvas(B_xaxis);
@@ -140,7 +195,7 @@ coot::goograph::draw_axes() {
 							"line-width", 2.5,
 							"start_arrow", start_arrow,
 							"end_arrow",   end_arrow,
-							"stroke-color", dark.c_str(),
+							"stroke-color", grey.c_str(),
 							NULL);
    GooCanvasItem *item_2 = goo_canvas_polyline_new_line(root,
 							wAx.x, wAx.y,
@@ -148,8 +203,23 @@ coot::goograph::draw_axes() {
 							"line-width", 2.5,
 							"start_arrow", start_arrow,
 							"end_arrow",   end_arrow,
-							"stroke-color", dark.c_str(),
+							"stroke-color", grey.c_str(),
 							NULL);
+   items.push_back(item_1);
+   items.push_back(item_2);
+}
+
+void
+coot::goograph::clear() {
+
+   GooCanvasItem *root = goo_canvas_get_root_item(canvas);
+   for (unsigned int i=0; i<items.size(); i++) { 
+      gint child_index = goo_canvas_item_find_child(root, items[i]);
+      if (child_index != -1) {
+	 goo_canvas_item_remove_child(root, child_index);
+      }
+   }
+   items.clear();
 } 
 
 void
@@ -266,6 +336,7 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 					 "line-width", 1.0,
 					 "stroke-color", dark.c_str(),
 					 NULL);
+	 items.push_back(tick);
 
 	 GtkAnchorType anchor_type = GTK_ANCHOR_CENTER;
 	 if (axis == X_AXIS)
@@ -284,6 +355,7 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	    if (range < 2)
 	       n_dec_pl = 2;
 
+	    std::string grey = "#333333";
 	    std::string txt =
 	       coot::util::float_to_unspaced_string_using_dec_pl(tick_pos, n_dec_pl);
 	    GooCanvasItem *text = goo_canvas_text_new(root, txt.c_str(),
@@ -292,8 +364,9 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 						      -1,
 						      anchor_type,
 						      "font", "Sans 7",
-						      "fill_color", dark.c_str(),
+						      "fill_color", grey.c_str(),
 						      NULL);
+	    items.push_back(text);
 	 }
       }
    }
@@ -310,22 +383,32 @@ coot::goograph::set_extents(int axis, double min, double max) {
 	 extents_min_x = min;
       if (max > extents_max_x)
 	 extents_max_x = max;
-      double delta = extents_max_x - extents_min_x;
-      if (delta > 0.1) 
-	 data_scale_x = 400.0/delta;
-      // std::cout << "data_scale_x " << data_scale_x << std::endl;
    }
    if (axis == Y_AXIS) {
       if (min < extents_min_y) 
 	 extents_min_y = min;
       if (max > extents_max_y)
 	 extents_max_y = max;
-      double delta = extents_max_y - extents_min_y;
-      if (delta > 0.1)
-	 data_scale_y = 300/delta;
-      // std::cout << "data_scale_y " << data_scale_y << std::endl;
    }
+   set_data_scales();
 }
+
+void
+coot::goograph::set_data_scales() {
+
+   double dsx = data_scale_x;
+   double dsy = data_scale_y;
+
+   double delta_x = extents_max_x - extents_min_x;
+   if (delta_x > 0.1) 
+      data_scale_x = double(dialog_width)/double(dialog_width_orig) * 400.0/delta_x;
+   double delta_y = extents_max_y - extents_min_y;
+   if (delta_y > 0.1)
+      data_scale_y = double(dialog_height)/double(dialog_height_orig) * 300.0/delta_y;
+
+   std::cout << "x was " << dsx << " now  " << data_scale_x << " "
+	     << "y was " << dsy << " now  " << data_scale_y << std::endl;
+} 
 
 void
 coot::goograph::set_ticks(int axis, double tick_major, double tick_minor) {
@@ -341,18 +424,32 @@ coot::goograph::set_ticks(int axis, double tick_major, double tick_minor) {
 
 }
 
-
 void
 coot::goograph::set_axis_label(int axis, const std::string &label) {
+   
+   if (axis == X_AXIS) {
+      x_axis_label = label;
+   }
+   if (axis == Y_AXIS) {
+      y_axis_label = label;
+   }
+} 
+
+void
+coot::goograph::draw_axis_label(int axis) {
 
    GooCanvasItem *root = goo_canvas_get_root_item(canvas);
    lig_build::pos_t A;
+   std::string label;
    if (axis == X_AXIS) {
       A = lig_build::pos_t(extents_min_x+x_range()*0.8, extents_min_y -y_range()*0.12);
+      label = x_axis_label;
    }
    if (axis == Y_AXIS) {
       A = lig_build::pos_t(extents_min_x-x_range()*0.14, extents_min_y + y_range()*1.15);
+      label = y_axis_label;
    }
+   std::string grey = "#333333";
    lig_build::pos_t wA = world_to_canvas(A);
    GtkAnchorType anchor_type = GTK_ANCHOR_NORTH_WEST;
    GooCanvasItem *text =
@@ -361,8 +458,9 @@ coot::goograph::set_axis_label(int axis, const std::string &label) {
 			  -1,
 			  anchor_type,
 			  "font", "Sans 9",
-			  "fill_color", dark.c_str(),
+			  "fill_color", grey.c_str(),
 			  NULL);
+   items.push_back(text);
 }
 
 void
@@ -387,6 +485,7 @@ coot::goograph::draw_title() {
 			     "font", "Sans 11",
 			     "fill_color", dark.c_str(),
 			     NULL);
+      items.push_back(text);
    }
 }
 
@@ -479,30 +578,53 @@ coot::goograph::calc_tick(double range) const {
 		   << " r: " << r << std::endl;
    } 
    return r;
-} 
+}
 
 void
-coot::goograph::plot(int trace_id, int plot_type, const std::string &colour, bool dashed) {
+coot::goograph::set_trace_type(int trace_id, int plot_type, bool dashed) {
+   
+   if (is_valid_trace(trace_id)) {
+      if (plot_type == coot::graph_trace_info_t::PLOT_TYPE_BAR)
+	 traces[trace_id].plot_type = plot_type;
+      if (plot_type == coot::graph_trace_info_t::PLOT_TYPE_LINE)
+	 traces[trace_id].plot_type = plot_type;
+      if (plot_type == coot::graph_trace_info_t::PLOT_TYPE_SMOOTHED_LINE)
+	 traces[trace_id].plot_type = plot_type;
+      traces[trace_id].dashed = dashed;
+   } 
+}
+
+void
+coot::goograph::set_trace_colour(int trace_id, const std::string colour) {
+
+   if (is_valid_trace(trace_id))
+      traces[trace_id].colour = colour;
+} 
+
+
+void
+coot::goograph::plot_trace(int trace_id) {
 
    if (is_valid_trace(trace_id)) {
-      if (plot_type == coot::goograph::PLOT_TYPE_BAR) {
-	 plot_bar_graph(trace_id, colour);
+      if (traces[trace_id].plot_type == coot::graph_trace_info_t::PLOT_TYPE_BAR) {
+	 plot_bar_graph(trace_id);
       }
-      if (plot_type == coot::goograph::PLOT_TYPE_LINE) {
-	 plot_line_graph(trace_id, colour, dashed);
+      if (traces[trace_id].plot_type == coot::graph_trace_info_t::PLOT_TYPE_LINE) {
+	 plot_line_graph(trace_id);
       }
-      if (plot_type == coot::goograph::PLOT_TYPE_SMOOTHED_LINE) {
-	 plot_smoothed_line_graph(trace_id, colour, dashed);
+      if (traces[trace_id].plot_type == coot::graph_trace_info_t::PLOT_TYPE_SMOOTHED_LINE) {
+	 plot_smoothed_line_graph(trace_id);
       }
    } 
 }
 
 void
-coot::goograph::plot_bar_graph(int trace_id, std::string colour) {
+coot::goograph::plot_bar_graph(int trace_id) {
 
+   GooCanvasItem *root = goo_canvas_get_root_item(canvas);
    if (is_valid_trace(trace_id)) { 
       const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
-      GooCanvasItem *root = goo_canvas_get_root_item(canvas);
+      std::string colour = traces[trace_id].colour;
       if (colour.empty())
 	 colour = "#70e070";
       double mbw = median_bin_width(trace_id);
@@ -513,7 +635,7 @@ coot::goograph::plot_bar_graph(int trace_id, std::string colour) {
 	 lig_build::pos_t A(data[i].first-mbw*0.5, extents_min_y);
 	 lig_build::pos_t wA = world_to_canvas(A);
 
-	 if (0) 
+	 if (0)
 	    std::cout << "  plot_bar_graph() " << A << " -> " << wA << " "
 		      << width << " " << height << " " 
 		      << " data_scale_x " << data_scale_x
@@ -528,15 +650,19 @@ coot::goograph::plot_bar_graph(int trace_id, std::string colour) {
 				"fill_color", colour.c_str(),
 				"stroke-color", "#333333",
 				NULL);
+	 items.push_back(rect);
       }
    }
 }
 
+
 void
-coot::goograph::plot_line_graph(int trace_id, std::string colour, bool dashed) {
+coot::goograph::plot_line_graph(int trace_id) {
 
    if (is_valid_trace(trace_id)) { 
       const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
+      std::string colour = traces[trace_id].colour;
+      bool dashed = traces[trace_id].dashed;
       if (data.size()) { 
 	 GooCanvasItem *root = goo_canvas_get_root_item(canvas);
 	 int n_points = data.size();
@@ -557,17 +683,18 @@ coot::goograph::plot_line_graph(int trace_id, std::string colour, bool dashed) {
 				    "points", points,
 				    NULL);
 	 goo_canvas_points_unref(points); 
+	 items.push_back(line);
       }
    }
 }
 
 void
-coot::goograph::plot_smoothed_line_graph(int trace_id,
-					 std::string colour,
-					 bool dashed) {
+coot::goograph::plot_smoothed_line_graph(int trace_id) {
 
    if (is_valid_trace(trace_id)) {
       const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
+      std::string colour = traces[trace_id].colour;
+      bool dashed = traces[trace_id].dashed;
       if (data.size()) { 
 	 GooCanvasItem *root = goo_canvas_get_root_item(canvas);
 	 int n_points = data.size();
@@ -605,6 +732,7 @@ coot::goograph::plot_smoothed_line_graph(int trace_id,
 				"line-dash", dash,
 				"stroke-color", colour.c_str(),
 				NULL);
+	 items.push_back(line);
       }
    }
 } 
@@ -632,7 +760,7 @@ coot::goograph::median_bin_width(int trace_id) const {
       bw = bin_widths[idx];
    }
    return bw;
-} 
+}
 
 void
 coot::goograph::add_annotation_line(const lig_build::pos_t &pos_1,
@@ -642,21 +770,35 @@ coot::goograph::add_annotation_line(const lig_build::pos_t &pos_1,
 				    bool dashed_flag,
 				    bool start_arrow_in,
 				    bool end_arrow_in) {
-   
-   lig_build::pos_t wA = world_to_canvas(pos_1);
-   lig_build::pos_t wB = world_to_canvas(pos_2);
-   gboolean start_arrow = start_arrow_in;
-   gboolean   end_arrow =   end_arrow_in;
+
+   annotation_line_t line(pos_1, pos_2, colour, line_width, dashed_flag, start_arrow_in, end_arrow_in);
+   annotation_lines.push_back(line);
+
+} 
+
+void
+coot::goograph::draw_annotation_lines() {
+
    GooCanvasItem *root = goo_canvas_get_root_item(canvas);
-   GooCanvasItem *line =
-      goo_canvas_polyline_new_line(root,
-				   wA.x, wA.y,
-				   wB.x, wB.y,
-				   "line-width", line_width,
-				   "stroke-color", colour.c_str(),
-				   "start_arrow", start_arrow,
-				   "end_arrow",   end_arrow,
-				   NULL);
+
+   for (unsigned int i=0; i<annotation_lines.size(); i++) { 
+      lig_build::pos_t wA = world_to_canvas(annotation_lines[i].pos_1);
+      lig_build::pos_t wB = world_to_canvas(annotation_lines[i].pos_2);
+      gboolean start_arrow = annotation_lines[i].start_arrow;
+      gboolean   end_arrow = annotation_lines[i].end_arrow;
+      double   line_width  = annotation_lines[i].line_width;
+      std::string colour   = annotation_lines[i].colour;
+      GooCanvasItem *line =
+	 goo_canvas_polyline_new_line(root,
+				      wA.x, wA.y,
+				      wB.x, wB.y,
+				      "line-width", line_width,
+				      "stroke-color", colour.c_str(),
+				      "start_arrow", start_arrow,
+				      "end_arrow",   end_arrow,
+				      NULL);
+      items.push_back(line);
+   }
 
 } 
 
@@ -665,24 +807,36 @@ coot::goograph::add_annotation_text(const std::string &text,
 				    const lig_build::pos_t &pos_1,
 				    const std::string &colour_in,
 				    const std::string &font_in) {
+   annotation_text_t at(text, pos_1, colour_in, font_in);
+   annotation_texts.push_back(at);
 
-   std::string font = font_in;
-   std::string colour = colour_in;
-   lig_build::pos_t wA = world_to_canvas(pos_1);
-   if (font.empty())
-      font = "Sans 9";
-   if (colour.empty())
-      colour = dark;
-   GtkAnchorType anchor_type = GTK_ANCHOR_CENTER;
-   GooCanvasItem *root = goo_canvas_get_root_item(canvas);
-   GooCanvasItem *text_item =
-      goo_canvas_text_new(root, text.c_str(),
-			  wA.x, wA.y,
-			  -1,
-			  anchor_type,
-			  "font", font.c_str(),
-			  "fill_color", colour.c_str(),
-			  NULL);
+}
+
+void
+coot::goograph::draw_annotation_texts() { 
+
+   for (unsigned int i=0; i<annotation_texts.size(); i++) { 
+
+      std::string text = annotation_texts[i].text;
+      std::string font = annotation_texts[i].font;
+      std::string colour = annotation_texts[i].colour;
+      lig_build::pos_t wA = world_to_canvas(annotation_texts[i].pos);
+      if (font.empty())
+	 font = "Sans 9";
+      if (colour.empty())
+	 colour = dark;
+      GtkAnchorType anchor_type = GTK_ANCHOR_CENTER;
+      GooCanvasItem *root = goo_canvas_get_root_item(canvas);
+      GooCanvasItem *text_item =
+	 goo_canvas_text_new(root, text.c_str(),
+			     wA.x, wA.y,
+			     -1,
+			     anchor_type,
+			     "font", font.c_str(),
+			     "fill_color", colour.c_str(),
+			     NULL);
+      items.push_back(text_item);
+   }
 }
 
 

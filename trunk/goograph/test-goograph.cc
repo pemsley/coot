@@ -64,7 +64,7 @@ int main (int argc, char **argv) {
    
    g.set_axis_label(coot::goograph::X_AXIS, "Bond length");
    g.set_axis_label(coot::goograph::Y_AXIS, "Counts");
-   g.plot(trace, coot::goograph::PLOT_TYPE_BAR, "");
+   g.set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_BAR);
 
    double f = 1;
    double fy = 1;
@@ -78,7 +78,8 @@ int main (int argc, char **argv) {
    trace = g.trace_new();
    g.set_data(trace, data);
    std::string colour = "blue";
-   g.plot(trace, coot::goograph::PLOT_TYPE_SMOOTHED_LINE, colour, dashed);
+   g.set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_SMOOTHED_LINE, dashed);
+   g.set_trace_colour(trace, colour);
 
    bool do_annotations = false;
    do_annotations = true; 
