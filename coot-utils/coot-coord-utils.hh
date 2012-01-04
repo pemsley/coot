@@ -1442,6 +1442,7 @@ namespace coot {
       // Print secondary structure info:
       void print_secondary_structure_info(CModel *model_p);
 
+      
    } // namespace util
    std::ostream&  operator<<(std::ostream&  s, const util::quaternion &q);
    std::ofstream& operator<<(std::ofstream& s, const util::quaternion &q);

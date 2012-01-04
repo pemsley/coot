@@ -31,7 +31,7 @@ include_HEADERS = peak-search.hh coot-trim.hh \
 	coot-coord-utils.hh coot-map-utils.hh coot-coord-extras.hh \
 	coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh \
 	coot-rama.hh xmap-stats.hh coot-h-bonds.hh lsq-improve.hh coot-hole.hh \
-	read-sm-cif.hh bonded-pairs.hh tree.hh
+	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh
 
 INCLUDES = \
 	-I$(top_srcdir)/utils	        \
@@ -51,7 +51,7 @@ AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(COOT_WINDOWS_CFLAGS) \
 # for pure coordinates (mmdb) things
 libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc hole.cc read-sm-cif.cc \
-	bonded-pairs.cc
+	bonded-pairs.cc helix-analysis.cc
 
 # clean
 libcoot_coord_utils_la_LIBADD = \

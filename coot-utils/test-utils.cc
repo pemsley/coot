@@ -27,6 +27,7 @@
 #include "coot-coord-utils.hh"
 #include "coot-coord-extras.hh"
 #include "lsq-improve.hh"
+#include "helix-analysis.hh"
 
 
 class testing_data {
@@ -283,8 +284,29 @@ int test_glyco_tree() {
 
    delete mol;
    return 0;
-} 
+}
 
+int test_helix_analysis() {
+
+   CMMDBManager *mol = new CMMDBManager;
+   // std::string file_name = "theor-helix-down-z.pdb";
+   std::string file_name = "helix-just-off-z.pdb";
+   // file_name = "../src/pdb2qc1-sans-sans-ASN.pdb";
+   coot::residue_spec_t spec("A", 10, "");
+   // coot::residue_spec_t spec("B", 201, "");
+   
+   mol->ReadCoorFile(file_name.c_str());
+   CResidue *r = coot::util::get_residue(spec, mol);
+   if (! r) {
+      std::cout << "No residue " << spec << std::endl;
+   } else {
+      coot::helix_params_container_t h;
+      // h.make(mol, "B", 201, 207);
+      h.make(mol, "A", 10, 15);
+   }
+   delete mol;
+   return 0;
+} 
 
 
 int main(int argv, char **argc) {
@@ -302,8 +324,11 @@ int main(int argv, char **argc) {
    if (0) 
       test_lsq_improve();
 
-   if (1)
+   if (0)
       test_glyco_tree();
+
+   if (1)
+      test_helix_analysis();
    
    return 0;
 }
