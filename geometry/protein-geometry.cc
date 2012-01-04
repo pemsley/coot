@@ -3649,7 +3649,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
    // The highest priority is COOT_REFMAC_LIB_DIR, if that is set we use it.
    // If COOT_REFMAC_LIB_DIR is then try CLIB (a CCP4 setting).
    // If that is not set, then we fall back to the default directory:
-   // $prefix/share/coot onto whcih we tag a "lib" dir.
+   // $prefix/share/coot onto which we tag a "lib" dir.
    // 
 
    char *s  = getenv("COOT_REFMAC_LIB_DIR");
@@ -3689,12 +3689,17 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 filename += letter;
 	 filename += "/";
 	 std::string upcased_resname_filename = filename;
-	 if (resname[2] != ' ') { 
-	    filename += resname;
-	    upcased_resname_filename += coot::util::upcase(resname);
+	 if (resname.length() > 2 ) { 
+	    if (resname[2] != ' ') { 
+	       filename += resname;
+	       upcased_resname_filename += coot::util::upcase(resname);
+	    } else {
+	       filename += resname.substr(0,2);
+	       upcased_resname_filename += coot::util::upcase(resname.substr(0,2));
+	    }
 	 } else {
-	    filename += resname.substr(0,2);
-	    upcased_resname_filename += coot::util::upcase(resname.substr(0,2));
+	    filename += resname;
+	    upcased_resname_filename += coot::util::upcase(resname);	    
 	 }
 	 beta_anomer_name = filename;
 	 beta_anomer_name += "-b-D.cif";
