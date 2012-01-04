@@ -146,8 +146,12 @@ namespace coot {
 	 name = "";
       }
       atom_quad(CResidue *first, CResidue *second, const std::string &link);
+      bool filled_p() const; // ! were there any nulls?
       
       friend std::ostream& operator<<(std::ostream &o, const atom_quad &q);
+      // Can throw a std::runtime_error if any of the atoms are null.
+      double angle_2() const; // angle 1-2-3 in degrees
+      double angle_3() const; // angle 2-3-4 in degrees
       // Can throw a std::runtime_error if any of the atoms are null.
       double torsion() const;
       // Can throw a std::runtime_error if any of the atoms are null.
@@ -164,6 +168,7 @@ namespace coot {
       double angle;
       double angle_esd;
       std::string residue_name; // set in the case of monomer torsions.
+      torsion_atom_quad() : atom_quad() {}
       torsion_atom_quad(CAtom *atom_1_in,
 			CAtom *atom_2_in,
 			CAtom *atom_3_in,
@@ -173,7 +178,7 @@ namespace coot {
 	 period = period_in;
 	 angle = angle_in;
 	 angle_esd = angle_esd_in;
-      } 
+      }
    };
 
 }
