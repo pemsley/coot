@@ -1,6 +1,6 @@
 /* src/c-interface-kk.cc
  * 
- * Copyright 2009, 2010, 2011 by Kevin Keating
+ * Copyright 2009, 2010, 2011, 2012 by Kevin Keating
  * Copyright 2009 The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -115,6 +115,7 @@ void
 clear_extra_restraints(int imol) {
     if (is_valid_model_molecule(imol)) {
         graphics_info_t::molecules[imol].extra_restraints.bond_restraints.clear();
+        graphics_info_t::molecules[imol].extra_restraints.angle_restraints.clear();
         graphics_info_t::molecules[imol].extra_restraints.torsion_restraints.clear();
         graphics_info_t::molecules[imol].extra_restraints.start_pos_restraints.clear();
     }
@@ -150,6 +151,23 @@ int add_extra_start_pos_restraint(int imol, const char *chain_id_1, int res_no_1
       coot::atom_spec_t as_1(chain_id_1, res_no_1, ins_code_1, atom_name_1, alt_conf_1);
       r = graphics_info_t::molecules[imol].add_extra_start_pos_restraint(as_1, esd);
       //graphics_draw();
+   }
+   return r;
+}
+
+int add_extra_angle_restraint(int imol, 
+				const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, 
+				const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, 
+				const char *chain_id_3, int res_no_3, const char *ins_code_3, const char *atom_name_3, const char *alt_conf_3, 
+				double angle, double esd) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_spec_t as_1(chain_id_1, res_no_1, ins_code_1, atom_name_1, alt_conf_1);
+      coot::atom_spec_t as_2(chain_id_2, res_no_2, ins_code_2, atom_name_2, alt_conf_2);
+      coot::atom_spec_t as_3(chain_id_3, res_no_3, ins_code_3, atom_name_3, alt_conf_3);
+      r = graphics_info_t::molecules[imol].add_extra_angle_restraint(as_1, as_2, as_3, angle, esd);
+      graphics_draw();
    }
    return r;
 }

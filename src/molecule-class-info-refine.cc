@@ -56,7 +56,6 @@ molecule_class_info_t::clear_extra_restraints() {
    extra_restraints.clear();
 } 
 
-
 // return an index of the new restraint
 int
 molecule_class_info_t::add_extra_torsion_restraint(coot::atom_spec_t atom_1,
@@ -67,8 +66,8 @@ molecule_class_info_t::add_extra_torsion_restraint(coot::atom_spec_t atom_1,
 
    CAtom *at_1 = get_atom(atom_1);
    CAtom *at_2 = get_atom(atom_2);
-   CAtom *at_3 = get_atom(atom_2);
-   CAtom *at_4 = get_atom(atom_2);
+   CAtom *at_3 = get_atom(atom_3);
+   CAtom *at_4 = get_atom(atom_4);
    if (at_1) {
       int atom_index = -1;
       at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
