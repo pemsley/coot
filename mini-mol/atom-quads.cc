@@ -105,7 +105,19 @@ coot::atom_quad::atom_quad(CResidue *first, CResidue *second, const std::string 
       *this = quad;
       name = link;
    } 
+}
+
+bool
+coot::atom_quad::filled_p() const { // ! were there any nulls?
+
+   bool filled = true;
+   if (atom_1 == NULL) filled = false;
+   if (atom_2 == NULL) filled = false;
+   if (atom_3 == NULL) filled = false;
+   if (atom_4 == NULL) filled = false;
+   return filled;
 } 
+
 
 
 // a bit strange :-)
@@ -238,6 +250,41 @@ coot::atom_index_quad::torsion(PPCAtom atom_selection, int n_selected_atoms) con
    } 
    return angle;
 }
+
+
+// Can throw a std::runtime_error if any of the atoms are null.
+double
+coot::atom_quad::angle_2() const {  // angle 1-2-3 in degrees
+
+   if (atom_1 && atom_2 && atom_3) { 
+      clipper::Coord_orth pt_1(atom_1->x, atom_1->y, atom_1->z);
+      clipper::Coord_orth pt_2(atom_2->x, atom_2->y, atom_2->z);
+      clipper::Coord_orth pt_3(atom_3->x, atom_3->y, atom_3->z);
+      double angle = clipper::Util::rad2d(clipper::Coord_orth::angle(pt_1, pt_2, pt_3));
+      return angle;
+   } else {
+      throw std::runtime_error("quad::torsion() Null atom(s)");
+   }
+} 
+
+
+double
+coot::atom_quad::angle_3() const { // angle 2-3-4 in degrees
+
+   if (atom_2 && atom_3 && atom_3) { 
+      clipper::Coord_orth pt_2(atom_2->x, atom_2->y, atom_2->z);
+      clipper::Coord_orth pt_3(atom_3->x, atom_3->y, atom_3->z);
+      clipper::Coord_orth pt_4(atom_4->x, atom_4->y, atom_4->z);
+      double angle = clipper::Util::rad2d(clipper::Coord_orth::angle(pt_2, pt_3, pt_4));
+      return angle;
+   } else {
+      throw std::runtime_error("quad::torsion() Null atom(s)");
+   }
+
+}
+
+
+
 
 // Can throw a std::runtime_error if any of the atoms are null.
 double
