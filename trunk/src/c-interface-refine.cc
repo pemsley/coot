@@ -382,8 +382,6 @@ int add_extra_torsion_restraint(int imol,
       r = graphics_info_t::molecules[imol].add_extra_torsion_restraint(as_1, as_2, as_3, as_4, torsion_angle, esd, period);
       graphics_draw();
    }
-   
-
    return r;
 }
 
@@ -409,7 +407,21 @@ SCM list_extra_restraints_scm(int imol) {
 	    l = scm_cons(scm_str2symbol("bond"), l);
 	    r = scm_cons(l, r);
 	 }
-
+         
+         for (int it=g.molecules[imol].extra_restraints.angle_restraints.size()-1; it>=0; it--) {
+	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.angle_restraints[it].atom_1;
+	    coot::atom_spec_t spec_2 = g.molecules[imol].extra_restraints.angle_restraints[it].atom_2;
+	    coot::atom_spec_t spec_3 = g.molecules[imol].extra_restraints.angle_restraints[it].atom_3;
+	    double a = g.molecules[imol].extra_restraints.angle_restraints[it].angle;
+	    double e = g.molecules[imol].extra_restraints.angle_restraints[it].esd;
+	    SCM l = scm_list_2(scm_double2num(a), scm_double2num(e));
+	    l = scm_cons(atom_spec_to_scm(spec_3), l);
+	    l = scm_cons(atom_spec_to_scm(spec_2), l);
+	    l = scm_cons(atom_spec_to_scm(spec_1), l);
+	    l = scm_cons(scm_str2symbol("angle"), l);
+	    r = scm_cons(l, r);
+	 }
+         
 	 for (int it=g.molecules[imol].extra_restraints.torsion_restraints.size()-1; it>=0; it--) {
 	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_1;
 	    coot::atom_spec_t spec_2 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_2;
@@ -467,7 +479,26 @@ PyObject *list_extra_restraints_py(int imol) {
 	    PyList_SetItem(l, 4, PyFloat_FromDouble(esd));
 	    PyList_Append(r, l);
 	 }
-
+	 
+	 for (int it=0; it<g.molecules[imol].extra_restraints.angle_restraints.size(); it++) {
+	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.angle_restraints[it].atom_1;
+	    coot::atom_spec_t spec_2 = g.molecules[imol].extra_restraints.angle_restraints[it].atom_2;
+	    coot::atom_spec_t spec_3 = g.molecules[imol].extra_restraints.angle_restraints[it].atom_3;
+	    PyObject *spec_1_py = atom_spec_to_py(spec_1);
+	    PyObject *spec_2_py = atom_spec_to_py(spec_2);
+	    PyObject *spec_3_py = atom_spec_to_py(spec_3);
+	    double a = g.molecules[imol].extra_restraints.angle_restraints[it].angle;
+	    double e = g.molecules[imol].extra_restraints.angle_restraints[it].esd;
+	    PyObject *l = PyList_New(6);
+	    PyList_SetItem(l, 0, PyString_FromString("angle"));
+	    PyList_SetItem(l, 1, spec_1_py);
+	    PyList_SetItem(l, 2, spec_2_py);
+	    PyList_SetItem(l, 3, spec_3_py);
+	    PyList_SetItem(l, 4, PyFloat_FromDouble(a));
+	    PyList_SetItem(l, 5, PyFloat_FromDouble(e));
+	    PyList_Append(r, l);
+	 }
+	 
 	 for (int it=0; it<g.molecules[imol].extra_restraints.torsion_restraints.size(); it++) {
 	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_1;
 	    coot::atom_spec_t spec_2 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_2;
@@ -491,8 +522,8 @@ PyObject *list_extra_restraints_py(int imol) {
 	    PyList_SetItem(l, 7, PyInt_FromLong(p));
 	    PyList_Append(r, l);
 	 }
-         
-         for (int is=0; is<g.molecules[imol].extra_restraints.start_pos_restraints.size(); is++) {
+	 
+	 for (int is=0; is<g.molecules[imol].extra_restraints.start_pos_restraints.size(); is++) {
 	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.start_pos_restraints[is].atom_1;
 	    double esd = g.molecules[imol].extra_restraints.start_pos_restraints[is].esd;
 	    PyObject *spec_1_py = atom_spec_to_py(spec_1);
@@ -527,7 +558,7 @@ delete_extra_restraint_scm(int imol, SCM restraint_spec) {
       SCM restraint_spec_length_scm = scm_length(restraint_spec);
       int restraint_spec_length = scm_to_int(restraint_spec_length_scm);
       if (restraint_spec_length == 2) {
-         SCM restraint_type_scm = SCM_CAR(restraint_spec);
+	 SCM restraint_type_scm = SCM_CAR(restraint_spec);
 	 SCM spec_1_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(1));
 	 if (scm_is_true(scm_eq_p(restraint_type_scm, scm_str2symbol("start-pos")))) {
 	    coot::atom_spec_t spec_1 = atom_spec_from_scm_expression(spec_1_scm);
@@ -546,8 +577,21 @@ delete_extra_restraint_scm(int imol, SCM restraint_spec) {
 	    graphics_draw();
 	 }
          
+      } else if (restraint_spec_length == 4) {
+	 SCM restraint_type_scm = SCM_CAR(restraint_spec);
+	 SCM spec_1_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(1));
+	 SCM spec_2_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(2));
+	 SCM spec_3_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(3));
+	 if (scm_is_true(scm_eq_p(restraint_type_scm, scm_str2symbol("angle")))) {
+	    coot::atom_spec_t spec_1 = atom_spec_from_scm_expression(spec_1_scm);
+	    coot::atom_spec_t spec_2 = atom_spec_from_scm_expression(spec_2_scm);
+	    coot::atom_spec_t spec_3 = atom_spec_from_scm_expression(spec_3_scm);
+	    graphics_info_t::molecules[imol].remove_extra_angle_restraint(spec_1, spec_2, spec_3);
+	    //graphics_draw(); //there is currently no graphical representation for torsion restraints
+	 }
+      
       } else if (restraint_spec_length == 5) {
-         SCM restraint_type_scm = SCM_CAR(restraint_spec);
+	 SCM restraint_type_scm = SCM_CAR(restraint_spec);
 	 SCM spec_1_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(1));
 	 SCM spec_2_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(2));
 	 SCM spec_3_scm = scm_list_ref(restraint_spec, SCM_MAKINUM(3));
@@ -558,7 +602,7 @@ delete_extra_restraint_scm(int imol, SCM restraint_spec) {
 	    coot::atom_spec_t spec_3 = atom_spec_from_scm_expression(spec_3_scm);
 	    coot::atom_spec_t spec_4 = atom_spec_from_scm_expression(spec_4_scm);
 	    graphics_info_t::molecules[imol].remove_extra_torsion_restraint(spec_1, spec_2, spec_3, spec_4);
-            //graphics_draw(); //there is currently no graphical representation for torsion restraints
+	    //graphics_draw(); //there is currently no graphical representation for torsion restraints
 	 }
       }
    }
@@ -595,10 +639,24 @@ delete_extra_restraint_py(int imol, PyObject *restraint_spec) {
          PyObject *spec_1_py = PyList_GetItem(restraint_spec, 1);
          PyObject *spec_2_py = PyList_GetItem(restraint_spec, 2);
          if (strcmp(PyString_AsString(restraint_type_py), "bond") == 0 ) {
-	    coot::atom_spec_t spec_1 = atom_spec_from_python_expression(spec_1_py);
-	    coot::atom_spec_t spec_2 = atom_spec_from_python_expression(spec_2_py);
-	    graphics_info_t::molecules[imol].remove_extra_bond_restraint(spec_1, spec_2);
-	    graphics_draw();
+            coot::atom_spec_t spec_1 = atom_spec_from_python_expression(spec_1_py);
+            coot::atom_spec_t spec_2 = atom_spec_from_python_expression(spec_2_py);
+            graphics_info_t::molecules[imol].remove_extra_bond_restraint(spec_1, spec_2);
+            graphics_draw();
+         }
+      
+      } else if (restraint_spec_length == 4) {
+         PyObject *restraint_type_py = PyList_GetItem(restraint_spec, 0);
+         PyObject *spec_1_py = PyList_GetItem(restraint_spec, 1);
+         PyObject *spec_2_py = PyList_GetItem(restraint_spec, 2);
+         PyObject *spec_3_py = PyList_GetItem(restraint_spec, 3);
+         
+         if (strcmp(PyString_AsString(restraint_type_py), "angle") == 0 ) {
+            coot::atom_spec_t spec_1 = atom_spec_from_python_expression(spec_1_py);
+            coot::atom_spec_t spec_2 = atom_spec_from_python_expression(spec_2_py);
+            coot::atom_spec_t spec_3 = atom_spec_from_python_expression(spec_3_py);
+            graphics_info_t::molecules[imol].remove_extra_angle_restraint(spec_1, spec_2, spec_3);
+            //graphics_draw(); //there is currently no graphical representation for torsion restraints
          }
       
       } else if (restraint_spec_length == 5) {

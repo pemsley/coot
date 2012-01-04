@@ -674,6 +674,24 @@ namespace coot {
 	    esd = e;
 	 } 
       };
+        
+      class extra_angle_restraint_t {
+      public:
+	 atom_spec_t atom_1;
+	 atom_spec_t atom_2;
+	 atom_spec_t atom_3;
+	 double angle;
+	 double esd;
+	 extra_angle_restraint_t(const atom_spec_t &a1, const atom_spec_t &a2,
+				   const atom_spec_t &a3, 
+				   double angle_in, double esd_in) {
+	    atom_1 = a1;
+	    atom_2 = a2;
+	    atom_3 = a3;
+	    angle = angle_in;
+	    esd = esd_in;
+	 }
+      };
 
       class extra_torsion_restraint_t {
       public:
@@ -708,12 +726,15 @@ namespace coot {
       };
 
       std::vector<extra_bond_restraint_t> bond_restraints;
+      std::vector<extra_angle_restraint_t> angle_restraints;
       std::vector<extra_torsion_restraint_t> torsion_restraints;
       std::vector<extra_start_pos_restraint_t> start_pos_restraints;
 
       bool has_restraints() const {
 
 	 if (bond_restraints.size() > 0)
+	    return 1;
+	 if (angle_restraints.size() > 0)
 	    return 1;
 	 else if (torsion_restraints.size() > 0)
 	    return 1;
@@ -724,6 +745,7 @@ namespace coot {
       }
       void clear() {
 	 bond_restraints.clear();
+	 angle_restraints.clear();
 	 torsion_restraints.clear();
 	 start_pos_restraints.clear();
       }
@@ -913,17 +935,20 @@ namespace coot {
 	 }
       }
 
-      void add(short int rest_type, int atom_1, int atom_2, int atom_3, 
+      bool add(short int rest_type, int atom_1, int atom_2, int atom_3, 
 	       const std::vector<bool> &fixed_atom_flags,
 	       float tar, 
 	       float sig, float obs){
-    
+         
+	 bool r = 0;
 	 if (sig > 0.0) { 
 	    restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, 
 						      atom_3,
 						      fixed_atom_flags,
 						      tar, sig, obs));
+	    r = 1;
 	 }
+	 return r;
       }
 
       bool add(short int rest_type, int atom_1, int atom_2, 
@@ -950,6 +975,19 @@ namespace coot {
 					      float sig, float obs, int periodicty) {
 	 bool r = add(rest_type, atom_1, atom_2, atom_3, atom_4,
 		      fixed_atom_flags, tar, sig, obs, periodicty);
+	 if (r) {
+	    // bleugh.
+	    restraints_vec.back().is_user_defined_restraint = 1;
+	 }
+      }
+      
+      void add_user_defined_angle_restraint(short int rest_type, int atom_1, int atom_2, 
+					      int atom_3,
+					      const std::vector<bool> &fixed_atom_flags,
+					      float tar, 
+					      float sig, float obs) {
+	 bool r = add(rest_type, atom_1, atom_2, atom_3,
+		      fixed_atom_flags, tar, sig, obs);
 	 if (r) {
 	    // bleugh.
 	    restraints_vec.back().is_user_defined_restraint = 1;
@@ -1600,6 +1638,7 @@ namespace coot {
       void add_extra_restraints(const extra_restraints_t &extra_restraints);
       // and that calls:
       void add_extra_bond_restraints(const extra_restraints_t &extra_restraints);
+      void add_extra_angle_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_torsion_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_start_pos_restraints(const extra_restraints_t &extra_restraints);
 

@@ -30,6 +30,7 @@ void
 coot::restraints_container_t::add_extra_restraints(const extra_restraints_t &extra_restraints) {
 
    add_extra_bond_restraints(extra_restraints);
+   add_extra_angle_restraints(extra_restraints);
    add_extra_torsion_restraints(extra_restraints);
    add_extra_start_pos_restraints(extra_restraints);
 }
