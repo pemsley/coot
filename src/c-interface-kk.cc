@@ -308,3 +308,9 @@ SCM regularize_zone_with_score_scm(int imol, const char *chain_id, int resno1, i
    return rv;
 }
 #endif // USE_GUILE
+
+int
+use_only_extra_torsion_restraints_for_torsions_state() {
+   return graphics_info_t:: use_only_extra_torsion_restraints_for_torsions_flag;
+
+}
