@@ -3511,6 +3511,7 @@ PyObject *list_extra_restraints_py(int imol);
 #endif /*  __cplusplus */
 
 void set_use_only_extra_torsion_restraints_for_torsions(short int state);
+int use_only_extra_torsion_restraints_for_torsions_state();
 
 
 /*  ----------------------------------------------------------------------- */
