@@ -388,7 +388,7 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                                              
                                              //parse the B-factor information
                                              bool have_aniso = 0;
-                                             float b, b_u11, b_u22, b_u33, b_u12, b_u13, b_u23;
+                                             float b=0, b_u11=0, b_u22=0, b_u33=0, b_u12=0, b_u13=0, b_u23=0;
                                              PyObject *b_iso_python, *b_u11_python, *b_u22_python, *b_u33_python, *b_u12_python, *b_u13_python, *b_u23_python;
                                              if (PyObject_TypeCheck(b_python, &PyFloat_Type) || PyObject_TypeCheck(b_python, &PyLong_Type) || PyObject_TypeCheck(b_python, &PyInt_Type)) {
                                                 //if the atom has an isotropic B-factor only
