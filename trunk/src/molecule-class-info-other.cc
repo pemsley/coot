@@ -7951,7 +7951,8 @@ molecule_class_info_t::replace_models(std::deque<CModel *> model_list) {
       atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
       
       CMMDBManager *mol = atom_sel.mol;
-      mol->DeleteAllModels();
+      // mol->DeleteAllModels(); Crash 20120105
+      mol->Delete(MMDBFCM_Coord);
       while (!model_list.empty()) {
          mol->AddModel(model_list.front());
          model_list.pop_front();
