@@ -46,10 +46,6 @@ EXTRA_DIST = 		\
 	mapview.glade 	\
 	cootrc.template	\
 	standard-residues.pdb \
-	ASN-NAG-via-NAG-ASN.pdb \
-	pyranose-pyranose-via-BETA1-4.pdb  \
-	pyranose-pyranose-via-ALPHA1-3.pdb \
-	pyranose-pyranose-via-ALPHA1-6.pdb \
 	BUGS		\
 	depcomp 	\
 	libtool 	\
