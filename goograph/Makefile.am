@@ -26,7 +26,7 @@ INCLUDES = -I$(top_srcdir)/lidia-core \
 lib_LTLIBRARIES=libcoot-goograph.la 
 
 libcoot_goograph_la_SOURCES = \
-    goograph.cc goograph.h 
+    goograph.cc goograph.hh
 
 libcoot_goograph_la_LIBADD = $(top_builddir)/lidia-core/libcoot-lidia-core.la \
 			     $(top_builddir)/utils/libcoot-utils.la \
