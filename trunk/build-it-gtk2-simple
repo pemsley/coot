@@ -319,7 +319,7 @@
 # 4.85 20111021 Update python to 2.6, guile to 1.8.8, add guile patch.
 # 4.86 20111214 Update to mmdb 1.24 (new) which has working LINKRs.
 # 4.87 20120108 use make not MAKE for guile-gtk.
-script_version=4.85
+script_version=4.87
 
 
 # :: NOTE:: 
