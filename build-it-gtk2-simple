@@ -318,7 +318,8 @@
 #               tools needs new libtools/configure new ccp4 libs (underlay-2).
 # 4.85 20111021 Update python to 2.6, guile to 1.8.8, add guile patch.
 # 4.86 20111214 Update to mmdb 1.24 (new) which has working LINKRs.
-script_version=4.84
+# 4.87 20120108 use make not MAKE for guile-gtk.
+script_version=4.85
 
 
 # :: NOTE:: 
@@ -2847,8 +2848,8 @@ $0 !~ " gtk_dialog_get_response_for_widget"
 ' glue.tmp.c > gtk-glue.c
 fi
 
-
-$MAKE
+# make not MAKE (using multiprocessors seems to fail).
+make
 status=$?
 guile_gtk_status=$status
 if [ "$guile_gtk_status" != 0 ] ; then 
@@ -2857,7 +2858,8 @@ else
     echo 1 -------------------------------------------------------------------------
     echo '                                ' make install
     echo 1 -------------------------------------------------------------------------
-    $MAKE install
+    # $MAKE install
+    make install
 fi
 ) > $HOSTLOGDIR/12-guile-gtk.txt 2>&1
 else
