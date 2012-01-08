@@ -63,7 +63,7 @@ class graphics_ligand_molecule : public lig_build::molecule_t<graphics_ligand_at
 
 public:
    graphics_ligand_molecule() {
-      display_list_tag = -1;
+      display_list_tag = 0;
    } 
    // some OpenGL stuff.
    void render();

@@ -46,9 +46,7 @@
 // return 0 on success
 #ifdef USE_LIBCURL
 int coot_get_url(const char *url, const char *file_name) {
-
    return coot_get_url_and_activate_curl_hook(url, file_name, 0);
-
 }
 #endif /* USE_LIBCURL */
 

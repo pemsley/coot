@@ -1759,7 +1759,7 @@ void set_multi_residue_torsion_reverse_mode(short int mode) {
 /* ------------------------------------------------------------------------- */
 /*                      prodrg import function                               */
 /* ------------------------------------------------------------------------- */
-// the function passed to lbg, so that it calls it when a new
+// the function passed to lbg, which is called when a new
 // prodrg-in.mdl file has been made.  We no longer have a timeout
 // function waiting for prodrg-in.mdl to be updated/written.
 // 
