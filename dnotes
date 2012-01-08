@@ -6303,4 +6303,13 @@ Sat Dec 31 18:09:09 GMT 2011
 
  PLP  in 3zzj 1246 A
 
+
+---
+Sun Jan  8 12:07:43 GMT 2012
+
+   to get the lbg icon labels on Ubuntu:
+
+   gconf-editor desktop -> gnome -> interface -> toolbar_style "both"
+
+
 ------
