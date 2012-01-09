@@ -1907,6 +1907,14 @@ int move_molecule_to_screen_centre_internal(int imol) {
       // finally show and activate
       set_mol_displayed(imol, 1);
       set_mol_active(imol, 1);
+
+      if (0) { 
+	 std::cout << "-------------------- move_molecule_to_screen_centre_internal() "
+		   << imol << std::endl;
+	 std::cout << "           calling g.setup_graphics_ligand_view_aa() "
+		   << std::endl;
+      }
+      g.setup_graphics_ligand_view_aa(imol);
    }
    return imoved_stat;
 }

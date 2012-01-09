@@ -103,6 +103,28 @@ graphics_info_t::setup_graphics_ligand_view_aa() {
       std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
       if (active_atom.first) {
 	 CResidue *residue_p = molecules[active_atom.second.first].get_residue(active_atom.second.second);
+	 if (0)
+	    std::cout << "-------------------------- setup_graphics_ligand_view_aa() imol: "
+		      << active_atom.second.first
+		      << " residue: " << coot::residue_spec_t(residue_p) << std::endl;
+	 setup_graphics_ligand_view(residue_p);
+      }
+   }
+}
+
+// bottom left flat ligand view:
+// 
+void
+graphics_info_t::setup_graphics_ligand_view_aa(int imol) {
+
+   if (show_graphics_ligand_view_flag) { // user control
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec(imol);
+      if (active_atom.first) {
+	 CResidue *residue_p = molecules[active_atom.second.first].get_residue(active_atom.second.second);
+	 if (0)
+	    std::cout << "-------------------------- setup_graphics_ligand_view_aa() imol: "
+		      << active_atom.second.first
+		      << " residue: " << coot::residue_spec_t(residue_p) << std::endl;
 	 setup_graphics_ligand_view(residue_p);
       }
    }

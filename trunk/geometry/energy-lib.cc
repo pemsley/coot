@@ -290,7 +290,7 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name, const std:
 } 
 
 
-// Find the non-bonded contact distance
+// Find the non_bonded_contact distance, get_nbc_dist()
 // 
 // Return a pair, if not found the first is 0.  Look up in the energy_lib.
 // 
@@ -298,13 +298,26 @@ std::pair<bool, double>
 coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
 				     const std::string &energy_type_2) const {
 
-   std::pair<bool, double> r(0,0);
+   std::pair<bool, double> r(false, 0);
    std::map<std::string, coot::energy_lib_atom>::const_iterator it_1 = energy_lib.atom_map.find(energy_type_1);
    std::map<std::string, coot::energy_lib_atom>::const_iterator it_2 = energy_lib.atom_map.find(energy_type_2);
 
    if (it_1 != energy_lib.atom_map.end()) { 
       if (it_2 != energy_lib.atom_map.end()) {
+	 r.first = true;
 	 r.second = it_1->second.vdw_radius + it_2->second.vdw_radius;
+
+	 // hack in a correction factor - that makes atoms fit into density  :-/
+	 // 
+	 // 0.9 is too much.
+
+	 // There is an algorithm problem.
+	 // 
+	 // I need to reject atoms that have bond (done), angle and
+	 // torsion interactions from NBC interactions, I think.  Then
+	 // I can set r.second to 1.0 maybe.
+	 // 
+	 r.second *= 0.84;
 
 	 // ring atoms should not be NBCed to each other.  Not sure
 	 // that 5 atom rings need to be excluded in this manner.
@@ -333,15 +346,23 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
 	      it_1->second.hb_type == coot::energy_lib_atom::HB_BOTH  ||
 	      it_1->second.hb_type == coot::energy_lib_atom::HB_HYDROGEN) &&
 	     (it_2->second.hb_type == coot::energy_lib_atom::HB_ACCEPTOR ||
-	      it_2->second.hb_type == coot::energy_lib_atom::HB_BOTH))
-	    r.second =- 0.8;
+	      it_2->second.hb_type == coot::energy_lib_atom::HB_BOTH)) { 
+	    r.second -= 0.7;
+	    // actual hydrogens to aceptors can be shorter still 
+	    if (it_1->second.hb_type == coot::energy_lib_atom::HB_HYDROGEN)
+	       r.second -=0.3;
+	 } 
 
 	 if ((it_2->second.hb_type == coot::energy_lib_atom::HB_DONOR ||
 	      it_2->second.hb_type == coot::energy_lib_atom::HB_BOTH  ||
 	      it_2->second.hb_type == coot::energy_lib_atom::HB_HYDROGEN) &&
 	     (it_1->second.hb_type == coot::energy_lib_atom::HB_ACCEPTOR ||
-	      it_1->second.hb_type == coot::energy_lib_atom::HB_BOTH))
-	    r.second =- 0.8;
+	      it_1->second.hb_type == coot::energy_lib_atom::HB_BOTH)) { 
+	    r.second -= 0.7;
+	    // as above
+	    if (it_1->second.hb_type == coot::energy_lib_atom::HB_HYDROGEN)
+	       r.second -=0.3;
+	 }
       }
    }
    return r;

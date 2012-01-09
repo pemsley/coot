@@ -909,7 +909,21 @@ graphics_info_t::undo_last_move() {  // suggested by Frank von Delft
 
 // static 
 std::pair<bool, std::pair<int, coot::atom_spec_t> >
+graphics_info_t::active_atom_spec(int imol) {
+
+   return active_atom_spec_internal(imol);
+}
+
+std::pair<bool, std::pair<int, coot::atom_spec_t> >
 graphics_info_t::active_atom_spec() {
+   return active_atom_spec_internal(-1); // any molecule
+}
+
+// if imol_only is -1 then we can allow any molecule to be active.  If it
+// is >=0, only allow molecule imol_only to have the the active.
+// 
+std::pair<bool, std::pair<int, coot::atom_spec_t> >
+graphics_info_t::active_atom_spec_internal(int imol_only) {
 
    coot::atom_spec_t spec;
    bool was_found_flag = 0;
@@ -921,16 +935,18 @@ graphics_info_t::active_atom_spec() {
    
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
 
-      if (is_valid_model_molecule(imol)) {
-	 if (graphics_info_t::molecules[imol].is_displayed_p()) { 
-	    if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) { 
-	       coot::at_dist_info_t at_info =
-		  graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
-	       if (at_info.atom) {
-		  if (at_info.dist <= dist_best) {
-		     dist_best = at_info.dist;
-		     imol_closest = at_info.imol;
-		     at_close = at_info.atom;
+      if ((imol_only == -1) || (imol == imol_only)) { 
+	 if (is_valid_model_molecule(imol)) {
+	    if (graphics_info_t::molecules[imol].is_displayed_p()) { 
+	       if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) { 
+		  coot::at_dist_info_t at_info =
+		     graphics_info_t::molecules[imol].closest_atom(g.RotationCentre());
+		  if (at_info.atom) {
+		     if (at_info.dist <= dist_best) {
+			dist_best = at_info.dist;
+			imol_closest = at_info.imol;
+			at_close = at_info.atom;
+		     }
 		  }
 	       }
 	    }

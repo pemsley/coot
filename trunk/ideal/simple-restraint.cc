@@ -5305,6 +5305,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
 	      
 		    was_bonded_flag = 0;
 
+		    // PDBv3 FIXME
 		    if (have_oxt_flag) 
 		       if (! strcmp(res_selection_local_inner[jat]->name, " OXT")) // matched
 			  matched_oxt = 1;

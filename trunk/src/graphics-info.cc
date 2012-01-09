@@ -2332,7 +2332,7 @@ graphics_info_t::update_things_on_move() {
       molecules[ii].update_symmetry();
    }
    setup_graphics_ligand_view_aa();
-} 
+}
 
 // return the state whether to really show the baton.
 bool
