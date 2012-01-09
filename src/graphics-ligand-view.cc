@@ -25,6 +25,8 @@
 #include <mmdb/mmdb_manager.h>
 #include "graphics-ligand-view.hh"
 
+#include "coot-sysdep.h"
+
 #ifdef MAKE_ENTERPRISE_TOOLS
 #include "rdkit-interface.hh"
 #endif 
