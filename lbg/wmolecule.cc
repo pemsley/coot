@@ -190,9 +190,9 @@ widgeted_atom_t::make_canvas_text_item(const lig_build::atom_id_info_t &atom_id_
 	 double x_o = -5; 
 	 double y_o =  8;
 	 if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::UP)
-	    y_o = 12;
+	    y_o += 12;
 	 if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::DOWN)
-	    y_o = -12;
+	    y_o += -12;
 
 	 std::string font = "Sans 10";
 	 
@@ -204,9 +204,10 @@ widgeted_atom_t::make_canvas_text_item(const lig_build::atom_id_info_t &atom_id_
 	    y_pos += 3;
 	 } 
 
-	 if (1)
+	 if (0)
 	    std::cout << "Rendering :" << atom_id_info_in[i].text << ": with tweak "
-		      << atom_id_info_in[i].tweak << std::endl;
+		      << atom_id_info_in[i].tweak << " and y-offset due to UP/DOWN "
+		      << y_o << std::endl;
 	 
 	 GooCanvasItem *item =
 	    wrap_goo_canvas_text_new(group, atom_id_info_in.offsets[i].text.c_str(),

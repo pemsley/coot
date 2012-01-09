@@ -834,7 +834,6 @@ class graphics_info_t {
 
    // bottom left flat ligand view:
    // 
-   void setup_graphics_ligand_view_aa();
    static bool graphics_ligand_view_flag;
 
    // ----------------------------------------------------------------
@@ -3590,6 +3589,8 @@ public:
 
    // ---- active atom:
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
+   static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec(int imol);
+   static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec_internal(int imol);
 
    // ---- open url
    // Hmm.. do we need a vector here?
@@ -3813,6 +3814,8 @@ string   static std::string sessionid;
    void rotate_multi_residue_torsion(double x, double y); 
 
    // bottom left ligand view 
+   void setup_graphics_ligand_view_aa();
+   void setup_graphics_ligand_view_aa(int imol); // only allow imol to be potential active residue.
    void setup_graphics_ligand_view(CResidue *residue);
    // which stores in:
    static graphics_ligand_molecule graphics_ligand_mol;
