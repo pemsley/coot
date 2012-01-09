@@ -1232,6 +1232,7 @@ namespace lig_build {
 	       if (bond_indices.size() != 1) {
 		  // strange case - I don't know what else to do..
 		  return atom_id_info_t("NH", "2");
+		  
 	       } else {
 
 		  // If the bond is on the left of the text, we're good.
@@ -1264,6 +1265,8 @@ namespace lig_build {
 	    } 
 	    
 	 } else {
+
+	    // NH or OH
 	    
 	    pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
 	    atom_id_info_t atom_id_info;
@@ -1323,12 +1326,12 @@ namespace lig_build {
 		     // H pokes to the left
 		     atom_id_info = atom_id_info_t();
 		     offset_text_t n("HN");
-		     n.tweak = pos_t(-5,0);
+		     n.tweak = pos_t(-7,0);
 		     atom_id_info.add(n);
 		  } else {
 		     atom_id_info = atom_id_info_t();
 		     offset_text_t n("NH");
-		     n.tweak = pos_t(5,0);
+		     n.tweak = pos_t(0,0);
 		     atom_id_info.add(n);
 		  } 
 	       } 
