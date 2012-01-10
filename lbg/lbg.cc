@@ -1,7 +1,6 @@
 /* lbg/lbg.cc
  * 
- * Author: Paul Emsley
- * Copyright 2010 by The University of Oxford
+ * Copyright 2010, 2011, 2012 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,7 +54,8 @@ lbg(lig_build::molfile_molecule_t mm,
     bool use_graphics_interface_flag,
     bool stand_alone_flag_in,
     int (*get_url_func_pointer_in) (const char *s1, const char *s2),
-    void (*prodrg_import_function_pointer) (std::string file_name)) {
+    void (*prodrg_import_function_pointer) (std::string file_name),
+    void (*sbase_import_function_pointer) (std::string comp_id)) {
 
    lbg_info_t *lbg = NULL; // failure return value.
    bool r = 0; // fail
@@ -110,6 +110,9 @@ lbg(lig_build::molfile_molecule_t mm,
 	 }
 	 if (prodrg_import_function_pointer) {
 	    lbg->set_prodrg_import_function(prodrg_import_function_pointer);
+	 }
+	 if (sbase_import_function_pointer) {
+	    lbg->set_sbase_import_function(sbase_import_function_pointer);
 	 } 
       }
    } 

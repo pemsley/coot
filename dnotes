@@ -6312,4 +6312,15 @@ Sun Jan  8 12:07:43 GMT 2012
    gconf-editor desktop -> gnome -> interface -> toolbar_style "both"
 
 
+----
+Tue Jan 10 06:03:39 GMT 2012
+
+   The new way to set data, set user data on a gtk object:
+
+   gtk_object_set_data(GTK_OBJECT(dialog), "goograph", this);
+
+   // and in the static callback function:
+   coot::goograph *g_p = (coot::goograph *) gtk_object_get_data(GTK_OBJECT(widget), "goograph");
+
+
 ------

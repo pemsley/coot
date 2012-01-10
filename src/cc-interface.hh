@@ -1,9 +1,8 @@
 /* src/c-interface.h
  * 
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
- * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
- * Copyright 2008, 2009 by The University of Oxford
+ * Copyright 2008, 2009, 2010, 2011, 2012 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -972,6 +971,18 @@ int handle_drag_and_drop_string(const std::string &uri);
 // function waiting for prodrg-in.mdl to be updated/written.
 // 
 void prodrg_import_function(std::string file_name);
+
+
+
+/* ------------------------------------------------------------------------- */
+/*                       SBase import function                               */
+/* ------------------------------------------------------------------------- */
+// the function passed to lbg, so that it calls it when a new
+// SBase comp_id is required.  We no longer have a timeout
+// function waiting for prodrg-in.mdl to be updated/written.
+// 
+void sbase_import_function(std::string comp_id);
+
 
 
 /*  ----------------------------------------------------------------------- */

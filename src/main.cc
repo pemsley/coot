@@ -1,8 +1,7 @@
 /* src/main.cc
  * 
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
- * Author: Paul Emsley
- * Copyright 2007, 2009 by The University of Oxford
+ * Copyright 2007, 2009, 2011, 2012 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -882,7 +881,8 @@ start_ligand_builder_gui(GtkMenuItem     *menuitem,
    bool stand_alone_flag = 0;
    int imol_dummy = -1;
    lbg(mm, dummy_pair, mol, view_name, molecule_file_name, imol_dummy,
-       use_graphics_interface_flag, stand_alone_flag, coot_get_url, prodrg_import_function);
+       use_graphics_interface_flag, stand_alone_flag, coot_get_url,
+       prodrg_import_function, sbase_import_function);
 #else
    std::cout << "No goocanvas" << std::endl;
 #endif // HAVE_GOOCANVAS

@@ -1,7 +1,7 @@
 /* lbg/lidia-main.cc
  * 
  * Author: Paul Emsley
- * Copyright 2010 by The University of Oxford
+ * Copyright 2010, 2011, 2012 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,9 +72,10 @@ main(int argc, char *argv[]) {
    int imol = -1; // dummy/unset
    int (*func) (const char *s1, const char *s2) = NULL;
    void (*prodrg_import_func_ptr) (std::string file_name) = NULL;
+   void (*sbase_import_func_ptr)  (std::string file_name) = NULL;
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
    if (lbg(mm, p, mol, view_name, molecule_file_name, imol, use_graphics, stand_alone_flag,
-	   func, prodrg_import_func_ptr)) {
+	   func, prodrg_import_func_ptr, sbase_import_func_ptr)) {
        gtk_main ();
    } 
 #endif // GTK_VERSION
