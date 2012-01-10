@@ -1,7 +1,6 @@
 /* src/flev.cc
  * 
- * Copyright 2010 The University of Oxford
- * Author: Paul Emsley
+ * Copyright 2010, 2011, 2012 The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -309,7 +308,9 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 		     lbg_info_t *lbg_local_p = lbg(m, ligand_spec_pair,
 						   flat.mol, view_name, ligand_res_name, imol,
 						   use_graphics_flag, stand_alone_flag,
-						   coot_get_url, prodrg_import_function);
+						   coot_get_url,
+						   prodrg_import_function,
+						   sbase_import_function);
 		     lbg_local_p->annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand, sed,
 					   ah, pi_stack_info, p.second);
 		     
@@ -424,7 +425,9 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
 		  lbg_info_t *lbg_local_p = lbg(m, ligand_spec_pair,
 						NULL, view_name, ligand_res_name, imol,
 						use_graphics_flag, stand_alone_flag,
-						coot_get_url, prodrg_import_function);
+						coot_get_url,
+						prodrg_import_function,
+						sbase_import_function);
 
  		  std::map<std::string, std::string> name_map =
  		     coot::make_flat_ligand_name_map(res_ref);

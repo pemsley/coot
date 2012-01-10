@@ -1,7 +1,6 @@
 /* lbg/lbg-search.cc
  * 
- * Author: Paul Emsley
- * Copyright 2010 by The University of Oxford
+ * Copyright 2010, 2011, 2012 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -354,6 +353,7 @@ lbg_info_t::display_search_results(const std::vector<lbg_info_t::match_results_t
       g_signal_connect(GTK_WIDGET(button), "clicked",
 		       GTK_SIGNAL_FUNC(on_sbase_search_result_button_clicked),
 		       (gpointer) (comp_id));
+      gtk_object_set_data(GTK_OBJECT(button), "lbg", (gpointer) this);
       gtk_widget_show(button);
    }
 }
@@ -370,11 +370,27 @@ lbg_info_t::on_sbase_search_result_button_clicked (GtkButton *button,
    } else { 
       std::string comp_id = *ud;
       // std::cout << "Do something with " << comp_id << std::endl;
-      std::string file_name = ".sbase-to-coot-comp-id";
-      std::ofstream of(file_name.c_str());
-      if (of) {
-	 of << comp_id;
+
+      // 20120110 new style, call an import function, using a pointer.
+      lbg_info_t *lbg = (lbg_info_t *) gtk_object_get_data(GTK_OBJECT(button), "lbg");
+      if (!lbg) { 
+	 std::cout << "ERROR NULL lbg in on_sbase_search_result_button_clicked() " << std::endl;
+      } else { 
+	 if (! lbg->sbase_import_func_ptr) {
+	    std::cout << "WARNING:: null SBase import function " << std::endl;
+	 } else {
+	    lbg->sbase_import_func_ptr(comp_id);
+	 }
       }
+      
+      // 20120110, old-style write out the comp-id to a special file name
+      // 
+      // std::string file_name = ".sbase-to-coot-comp-id";
+      // std::ofstream of(file_name.c_str());
+      // /if (of) {
+      // of << comp_id;
+      // }
+
    }
 }
 

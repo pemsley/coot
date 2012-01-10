@@ -1,7 +1,6 @@
 /* lbg/lbg.hh
  * 
- * Author: Paul Emsley
- * Copyright 2010 by The University of Oxford
+ * Copyright 2010, 2011, 2012 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -695,6 +694,7 @@ private:
       lbg_atom_x_entry = NULL;
       get_url_func_ptr_flag = false;
       prodrg_import_func_ptr = NULL;
+      sbase_import_func_ptr = NULL;
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
@@ -1033,6 +1033,14 @@ public:
    void set_prodrg_import_function(void (*f) (std::string)) {
       prodrg_import_func_ptr = f;
    }
+   // handle SBase input, i.e. when a user clicks on a sbase-search
+   // button result, then call an action which affects the graphics.
+   // the string is the comp_id to import.
+   void (*sbase_import_func_ptr) (std::string file_name);
+   void set_sbase_import_function(void (*f) (std::string)) {
+      sbase_import_func_ptr = f;
+   }
+
    void import_prodrg_output(const std::string &prodrg_mdl_file_name) {
       if (prodrg_import_func_ptr) {
 	 prodrg_import_func_ptr(prodrg_mdl_file_name);
@@ -1058,7 +1066,8 @@ lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 		bool use_graphics_interface_flag,
 		bool stand_alone_flag_in,
 		int (*get_url_func_pointer) (const char *s1, const char *s2),
-		void (*prodrg_import_function_pointer) (std::string file_name));
+		void (*prodrg_import_function_pointer) (std::string file_name),
+		void (*sbase_import_function_pointer) (std::string comp_id));
 
 #endif // HAVE_GOOCANVAS
 
