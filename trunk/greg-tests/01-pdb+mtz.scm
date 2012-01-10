@@ -800,7 +800,8 @@
 	   (let ((d (bond-length-from-atoms at-1 at-2)))
 	     ;; the atom should move in refinement
 	     (format #t "   refined moved: d=~s~%" d)
-	     (if (< d 0.4)
+	     (if (< d 0.25) ;; 20120110 new-style NBCs means that the
+                            ;; atoms move less here
 		 (begin
 		   (format #t "   refined atom failed to move: d=~s~%" d)
 		   (throw 'fail))
