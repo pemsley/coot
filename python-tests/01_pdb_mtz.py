@@ -694,7 +694,9 @@ class PdbMtzTestFunctions(unittest.TestCase):
         d = bond_length_from_atoms(at_1, at_2)
         # the atom should move in the refinement
         print "   refined moved: d=", d
-        self.failIf(d < 0.4,
+        # 20120110 new-style NBCs means that the
+        # atoms move less here
+        self.failIf(d < 0.25,
                     "   refined atom failed to move: d=%s" %d)
 
 
