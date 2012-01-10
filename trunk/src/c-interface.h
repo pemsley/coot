@@ -6804,3 +6804,9 @@ void user_defined_click_py(int n_clicks, PyObject *func);
 #endif /* C_INTERFACE_H */
 END_C_DECLS
 
+#ifdef WII_INTERFACE_WIIUSE
+int setup_wii();
+void stop_wii();
+void wii_status();
+#endif
+

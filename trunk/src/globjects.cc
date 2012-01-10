@@ -98,6 +98,10 @@
 #include "rotate-translate-modes.hh"
 #include "rotamer-search-modes.hh"
 
+#ifdef WII_INTERFACE_WIIUSE
+#include "wiiuse.h"
+#endif // WII_INTERFACE_WIIUSE
+
 std::vector<molecule_class_info_t> graphics_info_t::molecules;
 
 
@@ -131,6 +135,11 @@ std::vector<coot::lsq_range_match_info_t> *graphics_info_t::lsq_matchers;
 std::vector<coot::generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
 std::vector<coot::view_info_t> *graphics_info_t::views = 0;
 bool graphics_info_t::do_expose_swap_buffers_flag = 1;
+
+//WII
+#ifdef WII_INTERFACE_WIIUSE
+wiimote** graphics_info_t::wiimotes = NULL;
+#endif
 
 // Views 
 float graphics_info_t::views_play_speed = 10.0;
@@ -3441,11 +3450,31 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 // 
 void keypad_translate_xyz(short int axis, short int direction) { 
 
-   coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glarea);
-   v *= 0.05 * float(direction);
-   graphics_info_t g;
-   g.add_vector_to_RotationCentre(v);
+  graphics_info_t g;
+  if (axis == 3) {
+    coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glarea);
+    v *= 0.05 * float(direction);
+    g.add_vector_to_RotationCentre(v);
+  } else {
+    gdouble x_diff, y_diff;
+    x_diff = y_diff = 0;
+    coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(graphics_info_t::glarea);
+    if (axis == 1) x_diff = 1;
+    if (axis == 2) y_diff = 1;
+    g.add_to_RotationCentre(vec_x_y, x_diff * 0.1 * float(direction), 
+                            y_diff * 0.1 * float(direction));
+    if (g.GetActiveMapDrag() == 1) {
+      for (int ii=0; ii<g.n_molecules(); ii++) { 
+        g.molecules[ii].update_map(); // to take account
+        // of new rotation centre.
+      }
+    }
+    for (int ii=0; ii<g.n_molecules(); ii++) { 
+      g.molecules[ii].update_symmetry();
+    }
+    g.graphics_draw();
 
+  }
 } 
 
 

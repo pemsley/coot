@@ -48,6 +48,10 @@
 // #define WII_INTERFACE 1 // FIXME WII
 // #endif
 
+#ifdef WII_INTERFACE_WIIUSE
+#include "wiiuse.h"
+#endif // WII_INTERFACE_WIIUSE
+
 #ifdef WII_INTERFACE
 #include "cwiid.h"
 #endif 
@@ -1203,6 +1207,9 @@ public:
 								  1, 1));
 
       do_expose_swap_buffers_flag = 1;
+#ifdef WII_INTERFACE_WIIUSE
+      wiimotes = NULL;
+#endif
 
       refmac_dialog_mtz_file_label = NULL;
       /* set no of refmac cycles */
@@ -1226,6 +1233,10 @@ public:
 #ifdef WII_INTERFACE
    static cwiid_wiimote_t *wiimote;
 #endif
+
+#ifdef WII_INTERFACE_WIIUSE
+  static wiimote** wiimotes;
+#endif // WII_INTERFACE_WIIUSE
 
    static void graphics_draw() {
      if (glarea) { 
