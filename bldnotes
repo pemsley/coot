@@ -1,25 +1,37 @@
  -*-text-*-
 
 scripts      rev 3860 (prodrg stuff needs testing) generic objects
-			missing get-recent-pdb
-tests        rev 3797 update
+			update get-recent-pdb
+tests        rev 3917 update
 build-it-win rev 2122
 
 -------------------------------------------------------
-* THINGS TO DO BEFORE 0.6.2 RELEASE * ONLY URGENT THING
+* THINGS TO DO BEFORE 0.7.0 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
+
+CCP4 SW:
+- seq vs PIR have extra button to insert, delete, mutate
+- Windows: save working dir directory to properties/start in (possible?)
+- powerpoint plug in
+
+- add nomenclature error check to preferences
+- focus on button of nomenclature error dialog
+- bind arrow keys to translation!?
+- show all bond distances (angles etc?) for ligand/residue
+- update WIKI (key bindings)
 
 OIST-CCP4
 - indicate rotamer option somewhere/how [PhilE]
-- delete DB loop candidates after accepting?!
+- delete/hide DB loop candidates after accepting?!
 - stereo: shift/shear rather than rotate [PhilE]
 - Mac: enable goocanvas!
 - brightness warning dialog behind other dialog-> move forward?!
 - alt conf slider adjustment
 - change occ for master (accept return or just tick button)
 - after change the canvas (geometry) doesnt work for non-aa any more
+- improve seq assignment interface (take all seq, assign to all prot chains etc)
+- seq alignment produces N-term gaps which are not there... (gap to -2.5?)
 
-FIX pythonic probe/reduce status (seems ok at the moment?!)
 
 UPDATE CCP4 on build machine! Use new dictionary!!!
 
@@ -259,6 +271,8 @@ from Osaka 2010
 
 
 **** Windows ****
+
+   o optionally include reduce/probe (via download?)
 
    o update gtk!?
 
@@ -501,3 +515,12 @@ Osaka 2010
    o phs read on windows convert slash [AT]
 
 * Done
+
+   o sort python text completion in scripting entry
+
+* Done
+
+  o FIX pythonic probe/reduce status (seems ok at the moment?!)
+
+* Done
+

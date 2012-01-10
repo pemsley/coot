@@ -284,6 +284,7 @@ def coot_gui():
       tmp = [i][0]
       if (not tmp[-3:len(tmp)] == '_py'):
           liststore.append([i])
+   liststore.set_sort_column_id(0, gtk.SORT_ASCENDING)
    completion.set_model(liststore)
    completion.set_text_column(0)
 #   completion.connect("match-selected", match_cb)
@@ -4937,6 +4938,39 @@ def click_protein_db_loop_gui():
                           "Number of residues for basis",
                           "Pick Atoms...",
                           lambda n: pick_loop_func(n))
+
+
+def toggle_wiimote(widget=None):
+   """a toggle function to connect and disconnect from a Wiimote
+
+   Keyword arguments:
+   widget -- can be passed from the toolbutton
+
+   """
+
+   if widget:
+      if widget.get_active():
+         # the button is toggled on
+         try:
+            setup_wii()
+         except NameError:
+            print ("BL WARNING:: setup_wii not defined! " 
+                   "Did you compile with WII_INTERFACE_WIIUSE?")
+         except:
+            print "BL WARNING:: could not set up Wii"
+      else:
+         try:
+            stop_wii()
+         except NameError:
+            print ("BL WARNING:: stop_wii not defined! "
+                   "Did you compile with WII_INTERFACE_WIIUSE?")
+         except:
+            print "BL WARNING:: could not stop wii"
+
+   else:
+      # no alternative for now (could just go by state and change back and forth)
+      print "BL WARNING:: no widget"
+
    
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_python_gui()
