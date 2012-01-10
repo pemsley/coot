@@ -3,20 +3,11 @@
 
 ----
 
-  o jligand interface ::: 2
+  o JLigand interface ::: 2
 
   o Fix splash screen per SS message.  ::: 0.5
 
-  o Fix crash-catcher script to work with pythonized coot ::: 2
-
-  o when using secondary structure representation, (CAs) on accepting
-    atoms after refinement update the secondary structure ::: 1
-
-  o How do I deal with the responses correctly in the lidia file
-    dialogs? ::: 2
-
   o Use LINKRs in restraints (puntable) ::: 2
-
 
 
 ------
@@ -279,7 +270,6 @@ Adding monomer torsion restraint: 30 33 34 36 angle 0 esd 30 period 2
 
 * Done - yikes!
 
-
   o valgrind on reading 1alz ::: 0.5
 
 Molecule 0 read successfully
@@ -316,3 +306,11 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
 
 * Done - crazy string/char manipulation...
 
+  o Fix crash-catcher script to work with pythonized coot ::: 2
+
+* Done.
+
+  o How do I deal with the responses correctly in the lidia file
+    dialogs? ::: 0.5
+
+* They are behaving as normal, it seems.

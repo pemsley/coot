@@ -1069,6 +1069,8 @@ Punted from 0.6:
     info (SSBOND, LINK, HELIX, SHEET, CISPEP, SITE etc). Punted from 0.7. 
     ::: 6
 
+  o when using secondary structure representation, (CAs) on accepting
+    atoms after refinement update the secondary structure. Punted.
 
 
   o consider better analysis of disulfides, bonding and refinement.
