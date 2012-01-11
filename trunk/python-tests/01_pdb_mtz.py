@@ -758,9 +758,9 @@ class PdbMtzTestFunctions(unittest.TestCase):
         set_imol_refinement_map(imol_map)
 
         # not convinced this should be an 'indefinite' loop,
-        # so we just try 5 times (wild guess for now)
+        # so we just try 10 times (wild guess for now)
         failed = True
-        for idum in range(5):
+        for idum in range(10):
             results = refine_zone_with_full_residue_spec(imol, "A", 40, "", 43, "", "")
             print "   refinement results:", results
             ow = weight_scale_from_refinement_results(results)
