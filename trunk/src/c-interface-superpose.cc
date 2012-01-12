@@ -821,8 +821,6 @@ void lsq_moving_chain_option_menu_item_activate(GtkWidget *item,
 /*  ----------------------------------------------------------------------- */
 /*               LSQ-improve               */
 /*  ----------------------------------------------------------------------- */
-/*! \name LSQ-improve */
-/* \{ */
 void lsq_improve(int imol_ref, const char *ref_selection,
 		 int imol_moving, const char *moving_selection,
 		 int n_res, float dist_crit) {
@@ -833,11 +831,11 @@ void lsq_improve(int imol_ref, const char *ref_selection,
 	 graphics_info_t::molecules[imol_moving].lsq_improve(mol_ref, ref_selection,
 							     moving_selection,
 							     n_res, dist_crit);
+	 graphics_draw();
       }
    }
-
 } 
-/* \} */
+
 
 
 // --------------------------------------------------------------------------
