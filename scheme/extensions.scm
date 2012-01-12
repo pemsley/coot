@@ -991,6 +991,14 @@
 	 menu "PDBe recent structures"
 	 pdbe-latest-releases-gui)
 
+	(add-simple-coot-menu-menuitem
+	 menu "Get from PDBe"
+	 (lambda () 
+	   (generic-single-entry "Get PDBe accession code"
+				 "" " Get it "
+				 (lambda (text)
+				   (pdbe-get-pdb-and-sfs-cif 'include-sfs text)))))
+
 
 	;; ---------------------------------------------------------------------
 	;;     Tutorial data
