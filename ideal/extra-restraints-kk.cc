@@ -215,6 +215,10 @@ coot::restraints_container_t::add_extra_angle_restraints(const extra_restraints_
 						  extra_restraints.angle_restraints[i].angle,
 						  extra_restraints.angle_restraints[i].esd,
 						  1.2); // dummy value);
+               
+	       //mark the 1 and 3 as "bonded" so that we don't add a non-bonded restraint between them
+	       bonded_atom_indices[index_1].push_back(index_3);
+	       bonded_atom_indices[index_3].push_back(index_1);
 	    }
 	 } 
       }
