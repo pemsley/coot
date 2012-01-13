@@ -520,9 +520,15 @@ Sun Sep 16 00:33:44 BST 2007
 
     o Better algorithm to find picked atoms (prefer atoms at the front).
 
+* Done.
+
     o "Reverse" chi angle fragment tail/dog
 
+* Done.
+
     o Cache libcheck results for faster "Get Monomer"
+
+* Done.
 
 -----
 Sun Sep 16 01:25:09 BST 2007

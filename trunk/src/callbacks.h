@@ -21,11 +21,7 @@
 
 #include <gtk/gtk.h>
 
-#if (GTK_MAJOR_VERSION == 1)
-typedef char entry_char_type;
-#else
 typedef const char entry_char_type;
-#endif
 
 void
 on_window1_destroy                     (GtkObject       *object,

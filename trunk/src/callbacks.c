@@ -76,15 +76,13 @@ on_window1_destroy                     (GtkObject       *object,
                                         gpointer         user_data)
 {
   gtk_main_quit();
-
-
 }
 
 /* When the window manager "close window" events happens it send the
    application a delete_event event.  If we return FALSE from this
    attached function, then a "destroy" signal will be emitted.
    Returning TRUE means that we don't want the window to be destroyed.
-   Seee helloworld.c in the gtk_tut.txt */
+   See helloworld.c in the gtk_tut.txt */
 gboolean
 on_window1_delete_event                (GtkWidget       *widget,
                                         GdkEvent        *event,
