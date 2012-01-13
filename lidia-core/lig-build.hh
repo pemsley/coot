@@ -822,10 +822,10 @@ namespace lig_build {
 		     v.push_back(rc);
 	       }
 	    }
-	    std::cout << "DEBUG:: get_ring_centres() returns\n";
-	    for (unsigned int iv=0; iv<v.size(); iv++) {
-	       std::cout << "   "  << iv << " " << v[iv] << "\n";
-	    }
+// 	    std::cout << "DEBUG:: get_ring_centres() returns\n";
+// 	    for (unsigned int iv=0; iv<v.size(); iv++) {
+// 	       std::cout << "   "  << iv << " " << v[iv] << "\n";
+// 	    }
 	    cached_bond_ring_centres = v;
 	    have_cached_bond_ring_centres_flag = true;
 	    return v;
