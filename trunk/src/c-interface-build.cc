@@ -5243,10 +5243,11 @@ SCM missing_atom_info_scm(int imol) {
       coot::util::missing_atom_info m_i_info =
 	 g.molecules[imol].missing_atoms(missing_hydrogens_flag, g.Geom_p());
       for (unsigned int i=0; i<m_i_info.residues_with_missing_atoms.size(); i++) {
-	 int resno =  m_i_info.residues_with_missing_atoms[i]->GetSeqNum();
-	 std::string chain_id = m_i_info.residues_with_missing_atoms[i]->GetChainID();
-	 std::string residue_type = m_i_info.residues_with_missing_atoms[i]->GetResName();
-	 std::string inscode = m_i_info.residues_with_missing_atoms[i]->GetInsCode();
+	 CResidue *residue_p = m_i_info.residues_with_missing_atoms[i];
+	 int resno                = residue_p->GetSeqNum();
+	 std::string chain_id     = residue_p->GetChainID();
+	 std::string residue_type = residue_p->GetResName();
+	 std::string inscode      = residue_p->GetInsCode();
 	 std::string altconf("");
 	 SCM l = SCM_EOL;
 	 l = scm_cons(scm_makfrom0str(inscode.c_str()), l);

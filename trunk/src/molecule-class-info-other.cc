@@ -7428,7 +7428,7 @@ molecule_class_info_t::missing_atoms(short int missing_hydrogens_flag,
 	       // assigning them as present if we don't care if they
 	       // don't exist.
 	       //
-	       // Not this kludges the isHydrogen? flag.  We are
+	       // Note: this kludges the isHydrogen? flag.  We are
 	       // testing if it was set (existed) or not!
 	       // 
 	       std::vector<coot::util::dict_atom_info_t> dict_atom_names_pairs;
@@ -7441,12 +7441,14 @@ molecule_class_info_t::missing_atoms(short int missing_hydrogens_flag,
 		  } else {
 		     // put it in the list and initially mark it as not found.
 		     coot::util::dict_atom_info_t p(residue_dict_atoms[iat].name, 0);
-		     dict_atom_names_pairs.push_back(p);
+		     // PDBv3 FIXME
+		     if (residue_dict_atoms[iat].name != " OXT") 
+			dict_atom_names_pairs.push_back(p);
 		  }
 	       }
 	       
 	       // OK for every atom in the PDB residue, was it in the dictionary?
-	       // 
+	       //
 	       int n_atoms = residue_p->GetNumberOfAtoms();
 	       for (int iat=0; iat<n_atoms; iat++) {
 		  at = residue_p->GetAtom(iat);
@@ -7463,11 +7465,14 @@ molecule_class_info_t::missing_atoms(short int missing_hydrogens_flag,
 
 	       // OK, so we have run through all atoms in the PDB
 	       // residue.  How many atoms in the dictionary list for
-	       // this residue were not found?
+	       // this residue were not found? Counterintuitive: the 
+	       // is_Hydrogen_flag is used as a marker of being found!
+	       // 
 	       int n_atoms_unfound = 0;
 	       for (unsigned int idictat=0; idictat<dict_atom_names_pairs.size(); idictat++) {
-		  if (dict_atom_names_pairs[idictat].is_Hydrogen_flag == 0)
+		  if (! dict_atom_names_pairs[idictat].is_Hydrogen_flag) {
 		     n_atoms_unfound++;
+		  }
 	       }
 		  
 	       if (n_atoms_unfound> 0) {
