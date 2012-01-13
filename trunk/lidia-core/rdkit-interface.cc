@@ -34,8 +34,9 @@ RDKit::RWMol
 coot::rdkit_mol(CResidue *residue_p, const coot::protein_geometry &geom) {
 
    std::string res_name = residue_p->GetResName();
-   std::cout << "====================  here in rdkit_mol() with geometry with res_name \""
-	     << res_name << "\"" << std::endl;
+   if (0)
+      std::cout << "====================  here in rdkit_mol() with geometry with res_name \""
+		<< res_name << "\"" << std::endl;
    
    std::pair<bool, coot::dictionary_residue_restraints_t> p = 
       geom.get_monomer_restraints_at_least_minimal(res_name);
@@ -47,9 +48,10 @@ coot::rdkit_mol(CResidue *residue_p, const coot::protein_geometry &geom) {
       throw(std::runtime_error(m));
 
    } else {
-      std::cout << "......... calling rdkit_mol() with restraints that have "
-		<< p.second.bond_restraint.size() << " bond restraints"
-		<< std::endl;
+      if (0)
+	 std::cout << "......... calling rdkit_mol() with restraints that have "
+		   << p.second.bond_restraint.size() << " bond restraints"
+		   << std::endl;
       return rdkit_mol(residue_p, p.second);
    } 
 }
@@ -58,8 +60,9 @@ RDKit::RWMol
 coot::rdkit_mol(CResidue *residue_p,
 		const coot::dictionary_residue_restraints_t &restraints) {
 
-   std::cout << "==================== here in rdkit_mol() with restraints that have "
-	     << restraints.bond_restraint.size() << " bond restraints" << std::endl;
+   if (0)
+      std::cout << "==================== here in rdkit_mol() with restraints that have "
+		<< restraints.bond_restraint.size() << " bond restraints" << std::endl;
    
    RDKit::RWMol m;
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
@@ -106,6 +109,10 @@ coot::rdkit_mol(CResidue *residue_p,
 		  }
 		  // other NT*s will drop hydrogens in RDKit, no need to
 		  // fix up formal charge (unless there is a hydrogen! Hmm).
+
+		  if (type_energy == "P") {
+		     at->setFormalCharge(1);
+		  } 
 	       }
 
 	       // set the chirality
