@@ -3,11 +3,15 @@
 
 ----
 
-  o JLigand interface ::: 2
+  o JLigand interface ::: 3
 
   o Fix splash screen per SS message.  ::: 0.5
 
-  o Use LINKRs in restraints (puntable) ::: 2
+  o Boaz torsion problem ::: 2
+
+  o Eleanor: do MSEs have missing atoms? ::: 1
+
+  o fix fails-to-recentre-state.scm problem ::: 1
 
 
 ------
