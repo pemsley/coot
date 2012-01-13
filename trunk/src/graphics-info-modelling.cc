@@ -437,16 +437,15 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 // refinement of the phi and psi.
 	 //
 	 // However, ramachandran goodness will use phi and psi
-	 // 
+	 //
+	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
+	    restraints.add_extra_restraints(molecules[imol_for_atoms].extra_restraints);
 	 int nrestraints = 
 	    restraints.make_restraints(*geom_p, flags,
 				       do_residue_internal_torsions,
 				       rama_plot_restraint_weight,
 				       do_rama_restraints,
 				       pseudo_bonds_type);
-	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
-	    restraints.add_extra_restraints(molecules[imol_for_atoms].extra_restraints);
-
 
 	 if (do_numerical_gradients)
 	    restraints.set_do_numerical_gradients();
@@ -673,13 +672,13 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  restraints.add_map(xmap, weight);
 	       }
 	 
+	       if (molecules[imol].extra_restraints.has_restraints())
+		  restraints.add_extra_restraints(molecules[imol].extra_restraints);
 	       int n_restraints = restraints.make_restraints(*Geom_p(), flags,
 							     do_residue_internal_torsions,
 							     rama_plot_restraint_weight,
 							     do_rama_restraints,
 							     pseudo_bonds_type);
-	       if (molecules[imol].extra_restraints.has_restraints())
-		  restraints.add_extra_restraints(molecules[imol].extra_restraints);
 	 
 	       std::string dummy_chain = ""; // not used
 	       rr = update_refinement_atoms(n_restraints, restraints, rr, local_moving_atoms_asc,
