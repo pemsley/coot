@@ -3043,6 +3043,9 @@ public:
 						    gpointer user_data);
    static void on_change_current_chi_button_entered(GtkButton *button,
 						    gpointer user_data);
+   static void on_change_current_chi_motion_notify(GtkWidget *widget, 
+						   GdkEventMotion *event);
+
    static short int moving_atoms_move_chis_flag;
    void setup_flash_bond_internal(int ibond);
 

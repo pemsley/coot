@@ -2120,12 +2120,24 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type)
 	    label += torsion_restraints[i].atom_id_3_4c();
 	    label += "  ";
 	    GtkWidget *button = gtk_button_new_with_label(label.c_str());
+	    gtk_widget_set_events(GTK_WIDGET(button),
+				  GDK_EXPOSURE_MASK      |
+				  GDK_BUTTON_PRESS_MASK  |
+				  GDK_BUTTON_RELEASE_MASK|
+				  GDK_SCROLL_MASK        |
+				  GDK_POINTER_MOTION_MASK|
+				  GDK_POINTER_MOTION_HINT_MASK);
 	    gtk_signal_connect(GTK_OBJECT(button), "clicked",
 			       GTK_SIGNAL_FUNC(on_change_current_chi_button_clicked),
 			       GINT_TO_POINTER(ichi));
 	    gtk_signal_connect(GTK_OBJECT(button), "enter",
 			       GTK_SIGNAL_FUNC(on_change_current_chi_button_entered),
 			       GINT_TO_POINTER(ichi));
+	    gtk_signal_connect(GTK_OBJECT(button), "motion_notify_event",
+			       GTK_SIGNAL_FUNC(on_change_current_chi_motion_notify),
+			       GINT_TO_POINTER(ichi));
+	    int *ichi_ptr = new int(ichi);
+	    gtk_object_set_data(GTK_OBJECT(button), "i_bond_user", ichi_ptr);
 	    gtk_widget_set_name(button, "edit_chi_angles_button");
 	    gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
 	    gtk_container_set_border_width(GTK_CONTAINER(button), 2);
@@ -2154,12 +2166,45 @@ void
 graphics_info_t::on_change_current_chi_button_entered(GtkButton *button,
 						      gpointer user_data) {
 
-   graphics_info_t g;
-   int ibond_user = GPOINTER_TO_INT(user_data);
-
-   g.setup_flash_bond_internal(ibond_user);
+   // graphics_info_t g;
+   // int ibond_user = GPOINTER_TO_INT(user_data);
+   // g.setup_flash_bond_internal(ibond_user);
 
 }
+
+// static
+void 
+graphics_info_t::on_change_current_chi_motion_notify(GtkWidget *button, GdkEventMotion *event) {
+
+   graphics_info_t g;
+
+   int *ex = new int(event->x);
+   int *ey = new int(event->y);
+
+   int *old_x = (int *) gtk_object_get_data(GTK_OBJECT(button), "old-x");
+   int *old_y = (int *) gtk_object_get_data(GTK_OBJECT(button), "old-y");
+
+   int *i_bond_user = (int *) gtk_object_get_data(GTK_OBJECT(button), "i_bond_user");
+
+   if (i_bond_user) {  // should be every time 
+   
+      if (old_x && old_y) {
+	 int delta_x = event->x - *old_x;
+	 int delta_y = event->y - *old_y;
+ 	 if (abs(delta_y) > abs(delta_x))
+	    if (abs(delta_y) < 20)
+ 	    g.setup_flash_bond_internal(*i_bond_user);
+      } else {
+	 // first time entered
+	 g.setup_flash_bond_internal(*i_bond_user);
+      }
+      // save current values for next movement
+      gtk_object_set_data(GTK_OBJECT(button), "old-x", ex);
+      gtk_object_set_data(GTK_OBJECT(button), "old-y", ey);
+   }
+}
+
+
 
 // Create a moving atoms molecule, consisting of the Ca(n), Ca(n+1) of
 // the peptide, N(n) C(n+1), O(n+1).  Note the alt conf should be the
