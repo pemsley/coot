@@ -3,15 +3,11 @@
 
 ----
 
+  o Boaz torsion problem ::: 2
+
   o JLigand interface ::: 3
 
   o Fix splash screen per SS message.  ::: 0.5
-
-  o Boaz torsion problem ::: 2
-
-  o Eleanor: do MSEs have missing atoms? ::: 1
-
-  o fix fails-to-recentre-state.scm problem ::: 1
 
 
 ------
@@ -318,3 +314,7 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
     dialogs? ::: 0.5
 
 * They are behaving as normal, it seems.
+
+  o Eleanor: do MSEs have missing atoms? ::: 1
+
+* Done.  No, OXTs - ignored now.
