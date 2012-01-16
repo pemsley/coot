@@ -3430,7 +3430,7 @@ graphics_info_t::setup_flash_bond_internal(int i_torsion_index) {
    // turn it off first, only enable it if we find a pair:
    draw_chi_angle_flash_bond_flag = 0; // member data item
 
-   std::cout << "flash bond i_torsion_index: " << i_torsion_index << std::endl;
+   // std::cout << "flash bond i_torsion_index: " << i_torsion_index << std::endl;
 
    // get the residue type and from that the atom name pairs:
    // 
