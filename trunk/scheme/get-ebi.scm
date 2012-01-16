@@ -235,8 +235,7 @@
 		  (let ((bad-map-status (string-match "No reliable map available" pre-download-info)))
 		    (if bad-map-status
 			(let ((s  (string-append 
-				   "EDS message: This map ("
-				   down-id ") is not a reliable map")))
+				   "This map (" down-id ") is marked by the EDS as \"not a reliable map\"")))
 			  (info-dialog s))))
 
 		  (format #t "INFO:: read model status: ~s~%" s1)
