@@ -800,10 +800,24 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 	 // 		    << std::endl;
       }
    }
-
-    
-
 }
+
+// Because they were all at origin, for example.
+// 
+void
+coot::protein_geometry::delete_atom_positions(const std::string &comp_id, int pos_type) {
+   
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
+	 for (unsigned int iat=0; iat<dict_res_restraints[i].atom_info.size(); iat++) { 
+	    if (pos_type == coot::dict_atom::IDEAL_MODEL_POS)
+	       dict_res_restraints[i].atom_info[iat].pdbx_model_Cartn_ideal.first = false;
+	    if (pos_type == coot::dict_atom::REAL_MODEL_POS)
+	       dict_res_restraints[i].atom_info[iat].model_Cartn.first = false;
+	 }
+      }
+   }
+} 
 
 void
 coot::dict_atom::add_pos(int pos_type,
@@ -1548,7 +1562,15 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
    int ierr = 0;
    int n_atoms = 0;
    int n_atoms_with_partial_charge = 0;
+   // count the following to see if we need to delete the model/ideal
+   // atom coordinates because there were all at the origin.
+   int n_origin_ideal_atoms = 0; 
+   int n_origin_model_atoms = 0;
+   std::string comp_id; // used to delete atoms (if needed).
+   
    std::string comp_id_for_partial_charges = "unset"; // unassigned.
+
+   
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) { 
 
@@ -1572,7 +1594,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 
       if (ierr == 0) {
 	 int ierr_tot = 0; 
-	 std::string comp_id(s); // e.g. "ALA"
+	 comp_id = std::string(s); // e.g. "ALA"
 
 	 s = mmCIFLoop->GetString("atom_id",j,ierr);
 	 ierr_tot += ierr;
@@ -1621,8 +1643,13 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	 int ierr_optional_z = mmCIFLoop->GetReal(z, "pdbx_model_Cartn_z_ideal", j);
 	 if (ierr_optional_x == 0)
 	    if (ierr_optional_y == 0)
-	       if (ierr_optional_z == 0)
+	       if (ierr_optional_z == 0) { 
+		  if (close_float_p(x, 0.0))
+		     if (close_float_p(z, 0.0))
+			if (close_float_p(z, 0.0))
+			   n_origin_ideal_atoms++;
 		  pdbx_model_Cartn_ideal = std::pair<bool, clipper::Coord_orth>(1, clipper::Coord_orth(x,y,z));
+	       }
 
 	 model_Cartn.first = 0;
 	 ierr_optional_x = mmCIFLoop->GetReal(x, "model_Cartn_x", j);
@@ -1630,8 +1657,13 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	 ierr_optional_z = mmCIFLoop->GetReal(z, "model_Cartn_z", j);
 	 if (ierr_optional_x == 0)
 	    if (ierr_optional_y == 0)
-	       if (ierr_optional_z == 0)
+	       if (ierr_optional_z == 0) { 
+		  if (close_float_p(x, 0.0))
+		     if (close_float_p(z, 0.0))
+			if (close_float_p(z, 0.0))
+			   n_origin_model_atoms++;
 		  model_Cartn = std::pair<bool, clipper::Coord_orth>(1, clipper::Coord_orth(x,y,z));
+	       }
 
 	 // Try simple x, y, z (like the refmac dictionary that Garib sent has)
 	 // 
@@ -1641,8 +1673,13 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	    ierr_optional_z = mmCIFLoop->GetReal(z, "z", j);
 	    if (ierr_optional_x == 0)
 	       if (ierr_optional_y == 0)
-		  if (ierr_optional_z == 0)
+		  if (ierr_optional_z == 0) {
+		     if (close_float_p(x, 0.0))
+			if (close_float_p(z, 0.0))
+			   if (close_float_p(z, 0.0))
+			      n_origin_model_atoms++;
 		     model_Cartn = std::pair<bool, clipper::Coord_orth>(1, clipper::Coord_orth(x,y,z));
+		  }
 	 }
 
 	 // It's possible that this data type is not in the cif file,
@@ -1698,6 +1735,14 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	 }
       }
    }
+
+   // Now we need to check that the atom ideal or model coordinates were not at the origin.
+   // 
+   if (n_origin_ideal_atoms > 2) // trash all ideal atoms
+      delete_atom_positions(comp_id, coot::dict_atom::IDEAL_MODEL_POS);
+   if (n_origin_model_atoms > 2) // trash all model/real atoms
+      delete_atom_positions(comp_id, coot::dict_atom::REAL_MODEL_POS);
+   
    return n_atoms;
 }
 
