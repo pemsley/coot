@@ -1136,8 +1136,16 @@ namespace coot {
 				       // (currently).
 
       enum { UNSET_NUMBER = -1 };  // An unset number, for example the
-				  // number of atoms.
+      // number of atoms.
 
+      bool close_float_p (const realtype &f1, const realtype &f2) { //testing func
+	 float d = fabsf(f1-f2);
+	 if (d < 0.001)
+	    return true;
+	 else
+	    return false;
+      }
+      
       // std::vector<simple_residue_t> residue; 
       std::vector<std::string> residue_codes;
       bool verbose_mode;
@@ -1201,6 +1209,9 @@ namespace coot {
 			    const std::pair<bool, realtype> &partial_charge,
 			    const std::pair<bool, clipper::Coord_orth> &model_pos,
 			    const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
+
+      // called because they were all at origin, for example.
+      void delete_atom_positions(const std::string &comp_id, int pos_type);
 			    
       void mon_lib_add_tree(std::string comp_id,
 			    std::string atom_id,
