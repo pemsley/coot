@@ -3,12 +3,11 @@
 
 ----
 
-  o Boaz torsion problem ::: 2
-
   o JLigand interface ::: 3
 
   o Fix splash screen per SS message.  ::: 0.5
-
+ 
+  o Rename old LIGs on reading a new one. ::: 2 
 
 ------
 
@@ -318,3 +317,7 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
   o Eleanor: do MSEs have missing atoms? ::: 1
 
 * Done.  No, OXTs - ignored now.
+
+  o Boaz torsion problem ::: 2
+
+* Added test for dictionary molecule coordinates as zeros, thus forcing libcheck.

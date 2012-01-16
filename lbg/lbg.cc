@@ -5322,7 +5322,7 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
       }
    }
 
-   if (1) { 
+   if (0) { 
       std::cout << "--------------------------------------------------------------" << std::endl;
       std::cout << "======== lbg_info_t::annotate() here are bash distances for atoms:" << std::endl;
       std::map<std::string, std::vector<coot::bash_distance_t> >::const_iterator it;
@@ -5386,7 +5386,7 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
 	 }
       }
 
-      // Now add and pi-stacking interactions to/from the ligand:
+      // Now add any pi-stacking interactions to/from the ligand:
       //
       for (unsigned int istack=0; istack<pi_stack_info.stackings.size(); istack++) {
 	 coot::residue_spec_t spec(pi_stack_info.stackings[istack].res);
