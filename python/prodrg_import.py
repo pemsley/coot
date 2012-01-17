@@ -47,8 +47,11 @@ sbase_to_coot_tlc = "../../build-xp-python/lbg/.sbase-to-coot-comp-id"
 prodrg_xyzin      = "prodrg-in.mdl"
 sbase_to_coot_tlc = ".sbase-to-coot-comp-id"
 
-print "new prodrg_import.py"
+# to be over-ridden by your favourite 3d conformer generator, if you like...
+def import_from_3d_generator_from_mdl(file_name):
+    import_from_prodrg("mini-no")
 
+print "new prodrg_import.py"
 def import_from_prodrg(minimize_mode):
 
     import operator
