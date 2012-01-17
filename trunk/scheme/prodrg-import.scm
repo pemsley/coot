@@ -18,6 +18,11 @@
 ;; (define sbase-to-coot-tlc  "/lmb/wear/emsley/Projects/coot/lbg/.sbase-to-coot-comp-id")
 
 
+;; This function can be overwritten by your favourite 3d conformer and restraints generator.
+;; 
+(define (import-from-3d-generator-from-mdl mdl-file-name)
+  (import-from-prodrg "mini-no"))
+
 
 (define (import-from-prodrg minimize-mode)
 

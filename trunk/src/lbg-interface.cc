@@ -170,9 +170,10 @@ void smiles_to_ligand_builder(const char *smiles_string) {
       int (*get_url_func_ptr) (const char *s1, const char *s2) = NULL;
 #ifdef USE_LIBCURL
       get_url_func_ptr = coot_get_url;
-#endif      
+#endif
+
       lbg(m, dummy_spec, mol, "", "", -1, use_graphics_flag, stand_alone_flag,
-	  get_url_func_ptr, prodrg_import_function, sbase_import_function);
+ 	  get_url_func_ptr, prodrg_import_function, sbase_import_function);
    }
    catch (std::exception e) {
       std::cout << "WARNING:: in generating molecule from SMILES: "
