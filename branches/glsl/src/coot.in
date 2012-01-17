@@ -1,0 +1,260 @@
+#!/bin/bash
+# -*-shell-script-*-
+# coot wrapper script 
+# Copyright 2004, 2005, 2006, 2007 University of York
+# written by Paul Emsley
+
+# 20091210 /bin/sh changed to /bin/bash, because /bin/sh is dash on ubuntu and 
+# it doesn't do functions.  Pathetic. 
+
+# Magic (eh?).  Stops bash doing the word spliting expansion on the
+# command line arguments.
+#
+# Note: setting IFS in a dash script causes problems (it splits on ts
+# and ns! (disaster)).
+#
+if [ -n "$BASH" ] ; then
+   IFS=$'\t\n'
+fi
+
+function apply_pending_install { 
+
+   COOT_PREFIX="$1"
+   dir_list="
+bin
+info
+man
+share
+include
+lib"
+
+   old_dir="old"
+   old_dir=revision-$($coot_real --version | sed -e 's/.*revision //' -e 's/).*//')
+   echo in apply_pending_install COOT_PREFIX is set too $COOT_PREFIX
+
+   if [ -d $COOT_PREFIX/$old_dir ] ; then
+       rm -rf $COOT_PREFIX/$old_dir
+   fi 
+
+   if [ ! -e $COOT_PREFIX/$old_dir ] ; then
+      mkdir $COOT_PREFIX/$old_dir
+
+      if [ -d $COOT_PREFIX/$old_dir ] ; then
+
+	 # set $coot_bin_dir to the newly installed 
+         # coot-something directory in pending-install
+         # (if we can, that is).
+	 #
+         t=$(echo $COOT_PREFIX/pending-install/coot*)
+         if [ -e "$t" ] ; then 
+            coot_bin_dir=$t
+            echo set coot_bin_dir to $coot_bin_dir
+         else 
+            echo situation too complicated to install - clean up pending installs.
+         fi
+
+         if [ -z "$coot_bin_dir" ] ; then 
+           echo coot_bin_dir not set.
+         else 
+            # continue, it's good
+
+	    echo =====================================================================
+	    echo ==================== installing fresh coot ==========================
+	    echo =====================================================================
+
+            # move aside current dirs
+            for dir in $dir_list
+            do
+	      if [ -e "$COOT_PREFIX/$dir" ] ; then 
+                 # echo move out $COOT_PREFIX/$dir $COOT_PREFIX/old/$dir
+                 mv $COOT_PREFIX/$dir $COOT_PREFIX/$old_dir/$dir
+              else 
+                 echo on move-out: "$COOT_PREFIX/$dir" does not exist.
+              fi
+            done
+
+
+   	    # move in the new ones
+            for dir in $dir_list
+            do 
+	      # echo debug:: moving in $dir
+	      if [ -e "$coot_bin_dir/$dir" ] ; then 
+                 # echo move-in "$coot_bin_dir/$dir" $COOT_PREFIX/$dir
+                 mv "$coot_bin_dir/$dir" $COOT_PREFIX/$dir
+              else 
+                 echo on move-in: "$coot_bin_dir/$dir" does not exist.
+              fi
+            done
+         fi
+      else 
+         echo WARNING:: $COOT_PREFIX/$old_dir could not be created.
+      fi 
+   else 
+       echo WARNING:: $COOT_PREFIX/$old_dir could not be removed, aborting new binary install
+   fi
+
+   echo  removing pending-install...
+   rm -rf $COOT_PREFIX/pending-install
+
+}
+
+
+#
+current_exe_dir=`dirname $0`
+# echo current_exe_dir is $current_exe_dir
+
+if [ $current_exe_dir = . ] ; then 
+  COOT_PREFIX=`dirname $PWD`
+else 
+  COOT_PREFIX=`dirname "$current_exe_dir"`
+fi
+
+echo COOT_PREFIX is $COOT_PREFIX
+coot_real=$current_exe_dir/coot-real
+# echo coot-real is at $coot_real
+
+# unlimit coredumpsize:
+# ulimit -c unlimited
+
+
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# If the COOT_PREFIX is correct, then these should not need modification
+# i.e.  nothing below here need be changed.
+# ----------------------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# 
+prefix=$COOT_PREFIX
+PATH=$COOT_PREFIX/bin:$PATH
+
+SYMINFO=$COOT_PREFIX/share/coot/syminfo.lib
+COOT_SCHEME_DIR=$COOT_PREFIX/share/coot/scheme
+# COOT_REFMAC_LIB_DIR=$COOT_PREFIX/share/coot/lib
+COOT_STANDARD_RESIDUES=$COOT_PREFIX/share/coot/standard-residues.pdb
+COOT_PIXMAPS_DIR=$COOT_PREFIX/share/coot/pixmaps
+COOT_DATA_DIR=$COOT_PREFIX/share/coot
+COOT_RESOURCES_FILE=$COOT_PREFIX/share/coot/cootrc
+COOT_REF_STRUCTS=$COOT_PREFIX/share/coot/reference-structures
+COOT_PYTHON_DIR=$COOT_PREFIX/share/coot/python
+#PYTHONPATH=$COOT_PREFIX/share/coot/python
+if [ -z "$PYTHONPATH" ] ; then
+    PYTHONPATH=$COOT_PREFIX/share/coot/python
+else
+    PYTHONPATH=$COOT_PREFIX/share/coot/python:${PYTHONPATH}
+fi
+
+systype=`uname`
+
+if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then 
+    PYTHONHOME=$COOT_PREFIX/bin
+    # for MinGW we only use Coot's pythonpath otherwise too complicated
+    # i'm probably the only one using it anyway...
+    PYTHONPATH=$COOT_PREFIX/share/coot/python
+else
+    PYTHONHOME=$COOT_PREFIX
+fi
+
+# Added 20090429 - take this out when trying internationalization.
+LANG=C
+LC_ALL=C
+LC_NUMERIC=C
+export LANG
+export LC_ALL
+export LC_NUMERIC
+
+
+
+# GUILE_VERSION=1.6
+
+# Reluctantly, I kludge in 1.8 to the GUILE_LOAD_PATH because I don't
+# know why it is failing to be set correctly from Coot's configure in
+# Kevin's Ubuntu.  Needless to say, it works fine on my Ubuntu
+# (Gutsy).  Must fix later.
+#
+GUILE_LOAD_PATH=\
+$COOT_PREFIX/share/guile/1.8:$COOT_PREFIX/share/guile/@GUILE_VERSION@:$COOT_PREFIX/share/guile:$COOT_PREFIX/share/guile/gtk-1.2:$COOT_PREFIX/share/guile/gui:$COOT_PREFIX/share/guile/www:$COOT_PREFIX/share/guile/site
+GUILE_WARN_DEPRECATED=no
+export GUILE_WARN_DEPRECATED
+
+if [ -n "$LOCAL_GUILE_LOAD_PATH_EXTRAS" ] ; then 
+    GUILE_LOAD_PATH=${LOCAL_GUILE_LOAD_PATH_EXTRAS}:$GUILE_LOAD_PATH
+fi
+
+# echo GUILE_LOAD_PATH is now $GUILE_LOAD_PATH
+
+if [ $systype = Linux ] ; then 
+   if [ -z "$LD_LIBRARY_PATH" ] ;  then
+	LD_LIBRARY_PATH=$COOT_PREFIX/lib
+   else 
+	LD_LIBRARY_PATH=$COOT_PREFIX/lib:${LD_LIBRARY_PATH}
+   fi
+fi
+
+# some (Intel, I supose) Mac users may need to change
+# DYLD_LIBRARY_PATH to DYLD_FALLBACK_LIBRARY_PATH, if running into
+#  problems with Framwork jpeg libraries (don't forget the export 
+# at the end too).
+#
+if [ $systype = Darwin ] ; then 
+   if [ -z "$DYLD_LIBRARY_PATH" ] ;  then
+	DYLD_LIBRARY_PATH=$COOT_PREFIX/lib
+   else 
+	DYLD_LIBRARY_PATH=$COOT_PREFIX/lib:${DYLD_LIBRARY_PATH}
+   fi
+fi
+if [ $systype = IRIX ] ; then 
+   if [ -z "$LD_LIBRARYN32_PATH" ] ;  then
+	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib
+   else 
+	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib:${LD_LIBRARYN32_PATH}
+   fi
+fi
+if [ $systype = IRIX64 ] ; then 
+   if [ -z "$LD_LIBRARYN32_PATH" ] ;  then
+	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib
+   else 
+	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib:${LD_LIBRARYN32_PATH}
+   fi
+fi
+
+
+export SYMINFO
+export COOT_PREFIX
+export COOT_STANDARD_RESIDUES
+# export COOT_REFMAC_LIB_DIR
+export COOT_PYTHON_DIR
+export PYTHONPATH
+export PYTHONHOME
+export COOT_SCHEME_DIR
+export COOT_REF_STRUCTS
+export COOT_RESOURCES_FILE
+export COOT_PIXMAPS_DIR
+export COOT_DATA_DIR
+export GUILE_LOAD_PATH
+export DYLD_LIBRARY_PATH
+export LD_LIBRARY_PATH
+export LD_LIBRARYN32_PATH
+
+# if a pending binary install exists, apply it before starting coot
+if [ -e $COOT_PREFIX/pending-install ] ; then
+   apply_pending_install $COOT_PREFIX
+fi
+  
+# "Use $@ to stop word splitting" from Ben Eisenbraun.  But it doesn't work for me.  
+# this shell does not see the arguments as split, but coot does. Don't understand. Grrr.  
+# So the IFS up top stays.
+echo $coot_real $@
+$coot_real $@
+status=$?
+
+if [ $status != 0 ] ; then
+    #./guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real
+    # $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm .libs/lt-`basename $coot_real`
+    unset PYTHONHOME
+    unset PYTHONPATH
+    # only run the crash catcher if coot was compiled with guile
+    if [ "$COOT_USE_GUILE" = "-DUSE_GUILE" ] ; then 
+       $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real $*
+    fi
+fi 
+

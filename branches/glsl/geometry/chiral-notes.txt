@@ -1,0 +1,22 @@
+
+
+
+mon_lib_add_chiral() adds a chiral restraint to the dictionary.
+
+It tests volumn_sign (as string) for POS or NEG, and only if those are
+set does it add it.
+
+coot::protein_geometry::assign_chiral_volume_targets() checks each
+restraint with has_unassigned_chiral_volumes() (calling
+has_unassigned_chiral_volume() [and this checks volume_sigma_ < 0.0) .
+We need to make sure that that is not unassigned when we include BOTH.
+
+We do this now by in the dict_chiral_restraint_t constructor (in
+protein_geometry.hh) by setting volume_sigma_ to 1.0.
+
+When there is a BOTH restraint, exclude it (for now).
+
+
+
+
+

@@ -1,0 +1,108 @@
+
+; -*-scheme-*-
+
+(define (file-to-strings file-name)
+  
+  (if (not (file-exists? file-name))
+      '()
+      (call-with-input-file file-name
+	(lambda (port)
+
+	  (let loop ((l (read-line port))
+		     (string-list '()))
+	    (cond
+	     ((eof-object? l) (reverse string-list))
+     (else 
+	      (loop (read-line port) (cons l string-list)))))))))
+
+;;
+(define pump-file
+  (lambda (port file) 
+    
+    (let ((ls (file-to-strings file)))
+      
+      (let loop ((ls ls))
+	(cond
+	 ((null? ls) '())
+	 (else 
+	  (display (car ls) port)
+	  (display (car ls))
+	  (newline port)
+	  (newline)
+	  (loop (cdr ls))))))))
+
+
+(define connection-proc
+  (lambda (socket socket-address)
+
+    (define end-transmition-string "; end transmition")    
+
+    (define end-transmition
+      (lambda ()
+	(format (socket:outport socket) "~a" end-transmition-string)))
+
+    ;; main body
+    (format #t "################ Got a connection!~%")
+
+;     (format #t "socket details: family ~s inport ~s outport ~s~%"
+; 	    (socket:family socket)
+; 	    (socket:inport socket)
+; 	    (socket:outport socket))
+
+    (let loop ((count 0))
+      (let ((line (read-line (socket:inport socket))))
+
+ 	(format (socket:outport socket) "(newline)")
+	(end-transmition)
+
+ 	(format (socket:outport socket) "(read-pdb \"monomer-ACT.pdb\")")
+	(end-transmition)
+
+	;; more
+  	(format (socket:outport socket)
+  		"(let ((imol (read-pdb \"monomer-PIN.pdb\")))
+                      (set-rotation-centre 5 5 5)
+                      (move-molecule-to-screen-centre imol)
+                     '())")
+	(newline (socket:outport socket))
+	(end-transmition)
+
+        (format #t "########### sending a display time\n")
+	(format (socket:outport socket)
+		"(display (localtime (current-time)))")
+	(format (socket:outport socket) "(newline)")
+	(newline (socket:outport socket))
+        (format #t "########### done sent a display time\n")
+	(end-transmition)
+	
+;	;; wait for char happens...
+;        (format #t "########### sending numbers\n")
+;	(format (socket:outport socket)
+; 		";; 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16")
+;	(newline (socket:outport socket))
+;        (format #t "########### done sent numbers\n")
+;	(end-transmition)
+	
+        (format #t "########### sending spin\n")
+ 	(format (socket:outport socket)
+ 		"(spin-zoom-trans 2 400 0.2 0.4 0 0 0)")
+	(newline (socket:outport socket))
+        (format #t "########### done sent spin\n")
+	(end-transmition)
+
+ 	(format (socket:outport socket)
+ 		"(rotate-y-scene 700 0.15)")
+	(newline (socket:outport socket))
+	(end-transmition)
+
+		  
+	(loop (+ count 1))))))
+
+;; 
+(define (create-server-socket port)
+  (bind-listen-accept-loop protocol-family/internet
+			   connection-proc port))
+
+;; 
+(create-server-socket 12345)
+

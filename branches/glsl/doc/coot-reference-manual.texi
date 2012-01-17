@@ -1,0 +1,258 @@
+\input texinfo   @c -*-texinfo-*-
+@c @input palatino
+
+@c %**start of header
+@setfilename coot.info
+@settitle The Coot Reference Manual
+@c %**end of header
+
+@dircategory The Molecular Modelling program Coot
+@direntry
+* Coot: (coot).  The Coot Reference Manual.
+@end direntry
+
+@titlepage
+@title The Coot Reference Manual
+
+@flushright
+Paul Emsley 
+@email{emsley@@ysbl.york.ac.uk}
+@end flushright
+
+@vskip 10mm
+
+@image{coot-plain-2,127mm}
+
+@c The following two commands start the copyright page.
+@page
+@vskip 0pt plus 1filll
+@c @copying is not understood by tex2dvi on bubbles - Grrr!
+@c @insertcopying
+@end titlepage
+     
+@c Output the table of contents at the beginning.
+@contents
+
+@c Part 4: `Top' Node and Master Menu
+
+@c The `Top' node contains the master menu for the Info file. Since the
+@c printed manual uses a table of contents rather than a menu, it excludes
+@c the `Top' node. We also include the copying text again for the benefit
+@c of online readers. Since the copying text begins with a brief
+@c description of the manual, no other text is needed in this case. The
+@c `@top' command itself helps makeinfo determine the relationships between
+@c nodes.
+
+@ifnottex
+@node Top
+@top Coot Reference Manual
+@c @insertcopying : FIXME see above.
+@end ifnottex
+
+
+@c -------------------------------------------------------------
+@node    Acknowledgments
+@chapter Acknowledgments
+@c -------------------------------------------------------------
+
+Paul Emsley is grateful to use the library code of the
+following people, without whom Coot could not have been realised:
+
+@itemize
+@item Kevin Cowtan
+@item Eugene Krissinel
+@item Stuart McNicholas
+@item Raghavendra Chandrashekara
+@item Paul Bourke & Cory Gene Bloyd
+@end itemize
+
+For dictionaries:
+
+@itemize
+@item Alexei Vagin for Refmac Monomer Library
+@item Roland Dunbrack & co-workers for rotamer library data
+@end itemize
+
+Also (for generally useful software used in Coot):
+
+@itemize
+@item Matteo Frigo & Steven G. Johnson
+@item Gary Houston & other Guile developers
+@item Python developers
+@item GTk+ and GNOME-Canvas developers
+@item GNU Scientific Library developers
+@item OpenGL developers
+@item Janne L@"of
+@end itemize
+
+Also those with whom Paul has corresponded or provided features and bug
+fixes and built the software from source code:
+
+@itemize
+@item William G. Scott
+@item Bernhard Lohkamp 
+@item Joel Bard  
+@item Ezra Peisach           
+@item Alex Schuettelkopf
+@item Charlie Bond 
+@item Ethan Merritt
+@end itemize
+
+Not forgetting the testers@footnote{in no particular order}
+
+@itemize
+@item Eleanor J. Dodson
+@item Jan Dohnalek
+@item Karen McLuskey
+@item Bernhard Lohkamp
+@item Aleks Roszak
+@item Florence Vincent
+@item Roberto Steiner
+@item Alex Schuettelkopf
+@item Charlie Bond
+@item Constantina Fotinou
+@item Miguel Ortiz Lombard@'ia
+@item William G. Scott
+@item Adrian Lapthorn
+@item Frank von Delft
+@end itemize
+
+
+Those with experience of Quanta, XFit and O will notice similarities
+between Coot and those programs, it's fair to say that they have had
+considerable influence in the look of Coot, so Paul respectively thanks
+for inspiration: Tom Oldfield, Alwyn Jones @footnote{Alwyn Jones should
+be specially thanked, without him (and Frodo) I might never have become
+a crystallographer.} and Duncan McRee (and their co-workers).
+
+
+@c -------------------------------------------------------------
+@node    Design Overview
+@chapter Design Overview
+@c -------------------------------------------------------------
+
+@section Why?
+@node    Why?
+
+``Why does Coot exist?'' you might ask.  ``Given that other molecular
+graphics @footnote{molecular graphics with protein modeling and
+  density fitting functions, that is.} programs exist, why write
+another?''
+
+Because I like having the source code to programs I use and think/would
+like/hope that others feel the same.  Because the other programs don't
+quite work how I wanted them to @footnote{and of course, there was no
+way to fix that.}. Because there was the possibility to seamlessly
+integrate molecular graphics into the CCP4 Suite/CCP4i and because there
+was an opportunity to use new powerful CCP4 library code for
+model-building.
+
+As to why write Coot when CCP4MG was available: that is not how it
+happened. Coot @footnote{it was called ``MapView'' at the time.} was
+released over a year before CCP4MG was available.  I followed my own
+design, GUI, toolkit and aesthetic decisions - for good or bad
+@footnote{for example, I was (and remain) less concerned about porting
+to various shades of Microsoft Windows operating systems than the CCP4MG
+  developers.}.
+
+@section Hacker's Guide
+@node    Hacker's Guide
+
+The are several core libraries that are fundamental to Coot:
+
+@itemize
+@item Clipper: Kevin Cowtan's General crystallographic object library
+@item mmdb: CCP4's Coordinate Library
+@item GTk+: GNU's GUI toolkit.
+@end itemize
+
+@subsection GUI
+@node GUI
+The GUI is almost entirely built using glade.  Glade writes out its
+code in pure C.  This causes a problem.  @file{src/interface.h} and
+@file{src/support.h} both get regenerated in ``C mode'' every time
+glade is run.  So, after every time we change the GUI with glade, we
+need to run @file{post-glade} to introduce the C/C++ linking type
+declaration wrapper into these files.
+
+Not all of the GUI is build with glade - there are dynamic elements,
+for example the ``Map and Molecule (Display) Control'' window the
+frame of which are generated in glade, but the hboxs are filled using
+hand-made code (see @file{gtk-manual.c}).
+
+@subsection GUI/State Variables
+The @file{graphics_info_t} class contains a host of static state
+variables, mostly manipulated by GUI element (@emph{e.g} button)
+callbacks @footnote{mostly button clicked signals and menu item
+  activative signals}. For historical reasons they are initially set
+in @file{globjects.cc}.  Because the callbacks are written in C by
+glade @footnote{the GUI builder}, these variables need a functional
+interface to set the variables, and that interface is used by both the
+GUI button @footnote{and other GUI elements} callbacks and is exported
+to the scripting level.  These function declarations are in
+@file{c-interface.h}.  All manipulations of @file{graphics_info_t}'s
+state variables go via @file{c-interface.h}.
+
+Notice that MMDB functions are not allowed in
+this interface @footnote{because SWIG chokes on them}. 
+
+@subsection Scripting
+So, SWIG uses @file{c-interface.h} to generate the python/scheme
+scripting interface. The scripting language is chosen at
+configure-time using either @command{--with-guile} or
+@command{--with-python}.
+
+@section Validation
+As I write this, a few of us are cobbling together a XML-based system
+for validation.  We think that validation data should be presented as
+XML data that can be passed between packages and programs.  Either the
+program itself will output the data, or we will write a wrapper to
+turn the output into the appropriate XML format.  
+
+These XML data will be then available for use in the molecular
+graphics and will provide information for a ``Next Unusual Feature''
+button.  The library to provide the XML cabability for this is expat,
+the same library used in Perl's XML::Parser, Python's XML parser
+Pyexpat and Mozilla's XML parser.
+
+@subsection Example: Temperature Factor Analysis 
+Recall that the kurtosis of a distribution, @math{k} is given by:
+
+@c \begin{equation}
+@c   \label{eq:kurtosis}
+@c   k = \frac{\Sigma(X_i - \mu)^4} {N \sigma^4} - 3 
+@c \end{equation}
+
+We calculate the kurtosis for the isotropic temperature factors for
+each residue in the molecule and residues with the most leptokurtic
+distributions are written out to a file.  The format of the file is
+XML.
+
+This is an example of how we expect validation data to be presented to
+molecular graphics programs.
+
+@c ----------------------------------------------------
+@node    Exported Functions
+@chapter Exported Functions
+@c ----------------------------------------------------
+
+So, here for reference purposes is the full list of user-accessable
+functions exported to the scripting interface.  I have tried to remove
+from this list functions that pass or return a @code{GtkWidget *}, since
+they are not useful in the scripting interface at the moment.
+
+I hope to enable direct access to the menu-bar and menu items will be
+available to the scripting layer at some stage in the future.  This will
+open the door to user-defined menus and (I hope) encourage 3rd-party
+coot scripts.
+
+
+@include functions.texi
+
+
+@node Index
+@unnumbered Index
+     
+@printindex cp
+ 
+@bye
