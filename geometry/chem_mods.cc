@@ -589,9 +589,11 @@ coot::protein_geometry::add_chem_mod_plane(PCMMCIFLoop mmCIFLoop) {
       if (s) atom_id = s;
 
       ierr = mmCIFLoop->GetReal(new_dist_esd, "new_dist_esd", j);
+      if (ierr)
+	 new_dist_esd = 0.0; // some ignored dummy value
       ierr_tot += ierr;
 
-      if (ierr_tot == 0) {
+      if (ierr_tot == 0 || function == "delete") {
 	 coot::chem_mod_plane plane(plane_id, function);
 	 mods[mod_id][plane].add_atom(atom_id_mmdb_expand(atom_id), new_dist_esd);
       } else {
