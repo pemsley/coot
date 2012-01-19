@@ -9,6 +9,8 @@
  
   o Rename old LIGs on reading a new one. ::: 2 
 
+  o residue -> 2d should work for prodrg route. ::: 2
+
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
@@ -321,3 +323,4 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
   o Boaz torsion problem ::: 2
 
 * Added test for dictionary molecule coordinates as zeros, thus forcing libcheck.
+
