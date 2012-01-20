@@ -275,12 +275,13 @@ coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraint
 	       if (fixed_3) fixed_flags[2] = 1;
 	       if (fixed_4) fixed_flags[3] = 1;
 
-	       std::cout << "DEBUG:: adding user-defined torsion restraint with fixed flags: "
-			 << "[" << index_1 << " " << coot::atom_spec_t(atom[index_1]) << " " << fixed_flags[0] << "]  " 
-			 << "[" << index_2 << " " << coot::atom_spec_t(atom[index_2]) << " " << fixed_flags[1] << "]  " 
-			 << "[" << index_3 << " " << coot::atom_spec_t(atom[index_3]) << " " << fixed_flags[2] << "]  " 
-			 << "[" << index_4 << " " << coot::atom_spec_t(atom[index_4]) << " " << fixed_flags[3] << "]  " 
-			 << std::endl;
+	       if (0)
+		  std::cout << "DEBUG:: adding user-defined torsion restraint with fixed flags: "
+		            << "[" << index_1 << " " << coot::atom_spec_t(atom[index_1]) << " " << fixed_flags[0] << "]  " 
+		            << "[" << index_2 << " " << coot::atom_spec_t(atom[index_2]) << " " << fixed_flags[1] << "]  " 
+		            << "[" << index_3 << " " << coot::atom_spec_t(atom[index_3]) << " " << fixed_flags[2] << "]  " 
+		            << "[" << index_4 << " " << coot::atom_spec_t(atom[index_4]) << " " << fixed_flags[3] << "]  " 
+		            << std::endl;
 	       
 	       add_user_defined_torsion_restraint(TORSION_RESTRAINT,
 						  index_1, index_2, index_3, index_4,
