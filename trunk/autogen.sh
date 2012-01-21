@@ -6,6 +6,7 @@ hostname=`hostname`
 
 
 # Bernie wants libtoolize
+echo libtoolize --copy
 libtoolize --copy
 
 if test $sys = Darwin ; then 

@@ -35,10 +35,10 @@ if test x$goocanvas_prefix != x; then
   # SGI compiler CC (CXX=CC) needs -lm to link maths library, but 
   # GCC c++ does not.
   #
-  if test -e $goocanvas_prefix/lib/libgoocanvas.la ; then
-    GOOCANVAS_LDOPTS="$goocanvas_prefix/lib/libgoocanvas.la"
+  if test -e $goocanvas_prefix/$acl_libdirstem/libgoocanvas.la ; then
+    GOOCANVAS_LDOPTS="$goocanvas_prefix/$acl_libdirstem/libgoocanvas.la"
   else
-    GOOCANVAS_LDOPTS="-L$goocanvas_prefix/lib -lgoocanvas"
+    GOOCANVAS_LDOPTS="-L$goocanvas_prefix/$acl_libdirstem -lgoocanvas"
   fi
 else
   # the compiler looks in the "standard" places for GOOCANVAS. (or uses pkgconfig)
@@ -56,7 +56,7 @@ else
     GOOCANVAS_CFLAGS="-I/usr/include/goocanvas-1.0"
     break;;
   esac
-  if test -e /usr/lib/libgoocanvas.la ; then
+  if test -e /usr/$acl_libdirstem/libgoocanvas.la ; then
     GOOCANVAS_LDOPTS="libgoocanvas.la"
   else
     if test -z "${PKG_CONFIG}"; then

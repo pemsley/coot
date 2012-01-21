@@ -134,48 +134,23 @@ AC_SUBST(COOT_GSL_FLAGS)
 
 dnl =========================== GTK, GNOMECANVAS ===========================
 
-AC_ARG_WITH(gtk2, [  use to compile coot with Gtk+2, rather than Gtk1 (default)],
+AC_ARG_WITH(gtk2, [  use to compile coot with GTK+2],
  coot_gtk2="TRUE", coot_gtk2="FALSE")
 
-if test $coot_gtk2 = TRUE ; then
+coot_gtk2=TRUE
 
-     # GTK2 path:
-
-  dnl PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.8.0)
+	#  AM_PATH_GTK(2.4.14)
   PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.12)
   PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
   if test -n "$GNOME_CANVAS_CFLAGS" ; then 
 	GNOME_CANVAS_CFLAGS="-DHAVE_GNOME_CANVAS $GNOME_CANVAS_CFLAGS"
   fi
   AC_SUBST(GNOME_CANVAS_CFLAGS)
-  
-  # Temporary remove because I can't properly run autgen.sh on Paris
-  # at Logan airport 23/07/06
-  # No longer at Logan airport, so re-enable...
-  #
+
   AM_PATH_GTKGLEXT_1_0(1.0.0,,[exit 1]) 
   MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
   AC_SUBST(MAKE_COOTRC_CMD)
 
-else 
-
-   # GTK 1
-
-   dnl AM_PATH_GLIB([MINIMUM-VERSION, [ACTION-IF-FOUND [, ACTION-IF-NOT-FOUND [, MODULES]]]])
-   dnl Test for GLIB, and define GLIB_CFLAGS and GLIB_LIBS, if "gmodule" or 
-   dnl gthread is specified in MODULES, pass to glib-config
-   dnl
-   AM_PATH_GLIB(1.2.8,,[exit 1])
-
-   dnl Check for GTKGL library
-   AM_PATH_GTKGL(, [echo You need the gtkgl library provided by gtkglarea; exit 1],AC_MSG_ERROR([Cannot find proper gtkgl version]))
-
-   dnl Check for gtk-canvas
-   AM_PATH_GTKCANVAS
-   MAKE_COOTRC_CMD=cat
-   AC_SUBST(MAKE_COOTRC_CMD)
-
-fi # coot_gtk2
 
 
 dnl =========================== GLUT ================================
