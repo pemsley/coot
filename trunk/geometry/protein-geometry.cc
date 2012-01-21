@@ -172,7 +172,12 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
    // changing its name to blank.  However, we don't know the name of
    // the restraint yet!  We only know that at the add_atom(),
    // add_bond() [etc] stage.
-   
+
+   // added 20120121, to fix Jack Sack and Kevin Madauss bug (so that
+   // in mon_lib_add_chem_comp(), the read numbers between new file
+   // and previous are different, hence trash the old restraints).
+   // 
+   read_number = read_number_in;
 
    struct stat buf;
    int istat = stat(ciffilename.c_str(), &buf);
@@ -249,7 +254,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	       std::string cat_name(cat->GetCategoryName());
 	       
 	       // All catagories have loops (AFAICS). 
-	       // std::cout << "debug got catagory: " << cat_name << std::endl; 
+	       // std::cout << "DEBUG:: got catagory: " << cat_name << std::endl; 
 
 	       PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
 
@@ -355,9 +360,10 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
    int n_tags = structure->GetNofTags();
    std::string cat_name = structure->GetCategoryName();
 
-//     std::cout << "DEBUG: ================= by structure: in category " << cat_name << " there are "
-//  	     << n_tags << " tags" << std::endl;
-
+   std::cout << "DEBUG: ================= chem_comp_component() by structure: in category "
+	     << cat_name << " there are "
+	     << n_tags << " tags" << std::endl;
+    
    std::pair<bool, std::string> comp_id(0, "");
    std::pair<bool, std::string> three_letter_code(0, "");
    std::pair<bool, std::string> name(0, "");
@@ -403,7 +409,7 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
       }
    }
 
-   if (0) 
+   if (1) 
       std::cout
 	 << "comp_id :" << comp_id.first << " :" << comp_id.second << ": "
 	 << "three_letter_code :" << three_letter_code.first << " :" << three_letter_code.second << ": "
@@ -659,34 +665,42 @@ coot::protein_geometry::mon_lib_add_chem_comp(const std::string &comp_id,
 					      const std::string &description_level) {
 
 
-//    std::cout << "DEBUG:: in mon_lib_add_chem_comp :"
-// 	     << comp_id << ": :" << three_letter_code << ": :"
-// 	     << name << ": :" << group << ": :"
-// 	     << description_level << ": :" << number_atoms_all << ": :"
-// 	     << number_atoms_nh << std::endl;
-
+   if (0) 
+      std::cout << "DEBUG:: in mon_lib_add_chem_comp :"
+		<< comp_id << ": :" << three_letter_code << ": :"
+		<< name << ": :" << group << ": :"
+		<< description_level << ": :" << number_atoms_all << ": :"
+		<< number_atoms_nh << std::endl;
+   
    coot::dict_chem_comp_t ri(comp_id, three_letter_code, name, group, number_atoms_all, number_atoms_nh,
 			     description_level);
-   short int ifound = 0;
+   bool ifound = false;
 
-       for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
-       if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
-	  if (dict_res_restraints[i].read_number == read_number) { 
-	     ifound = 1;
-	     dict_res_restraints[i].residue_info = ri;
-	     break;
-	  } else {
-	     // trash the old one then
-	     dict_res_restraints[i].clear_dictionary_residue();
-	  }
-       }
-    }
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
 
-    if (! ifound) {
-       // std::cout << "residue not found in mon_lib_add_chem_comp" << std::endl;
-       dict_res_restraints.push_back(dictionary_residue_restraints_t(comp_id, read_number));
-       dict_res_restraints[dict_res_restraints.size()-1].residue_info = ri;
-    }
+	 if (0) 
+	    std::cout << "DEBUG:: comparing read numbers: " << dict_res_restraints[i].read_number
+		      << " " << read_number << std::endl;
+	 
+	 if (dict_res_restraints[i].read_number == read_number) { 
+	    ifound = true;
+	    dict_res_restraints[i].residue_info = ri;
+	    break;
+	 } else {
+	    // trash the old one then
+	    // Message for Kevin.
+	    std::cout << "INFO:: clearing old restraints for  " << comp_id << std::endl;
+	    dict_res_restraints[i].clear_dictionary_residue();
+	 }
+      }
+   }
+
+   if (! ifound) {
+      // std::cout << "DEBUG:: residue not found in mon_lib_add_chem_comp" << std::endl;
+      dict_res_restraints.push_back(dictionary_residue_restraints_t(comp_id, read_number));
+      dict_res_restraints[dict_res_restraints.size()-1].residue_info = ri;
+   }
 }
 
 
@@ -773,7 +787,7 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 // 		   << dict_res_restraints[i].read_number << " and "
 // 		   << read_number << std::endl;
 	 if (dict_res_restraints[i].read_number == read_number) { 
-	    ifound = 1;
+	    ifound = true;
 	    this_index = i;
 	    dict_res_restraints[i].atom_info.push_back(at_info);
 	    break;
@@ -4170,7 +4184,7 @@ bool
 coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std::string> &residue_types) {
 
    bool have_all = 1;
-   int read_number = 30; // hack dummy thing.
+   int read_number = 30; // FIXME hack dummy thing.
    for (unsigned int i=0; i<residue_types.size(); i++) {
       int ifound = have_dictionary_for_residue_type(residue_types[i], read_number);
       if (ifound == 0) {
