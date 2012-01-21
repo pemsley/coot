@@ -6440,7 +6440,10 @@ float residue_density_fit_scale_factor() {
 int handle_cif_dictionary(const char *filename) {
 
    graphics_info_t g;
-   int r = g.add_cif_dictionary(filename, 1); // show dialog if no bonds
+   short int show_dialog_flag = 0;
+   if (graphics_info_t::use_graphics_interface_flag)
+      show_dialog_flag = 1;
+   int r = g.add_cif_dictionary(filename, show_dialog_flag); 
    graphics_draw();
    return r;
 }
