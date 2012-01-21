@@ -1764,19 +1764,12 @@ void set_multi_residue_torsion_reverse_mode(short int mode) {
 // 
 void prodrg_import_function(std::string file_name) {
 
-   // Before genericization 
-//    std::string name = "import-from-prodrg";
-//    std::vector<coot::command_arg_t> args;
-//    args.push_back(single_quote("mini-no"));
-//    std::cout << "prodrg_import_function() " << name << " " << args[0].as_string() << std::endl;
-//    coot::scripting_function(name, args);
-
    std::string func_name = "import-from-3d-generator-from-mdl";
    std::vector<coot::command_arg_t> args;
    args.push_back(single_quote(file_name));
    coot::scripting_function(func_name, args);
+}
 
-} 
 
 /* ------------------------------------------------------------------------- */
 /*                       SBase import function                               */
