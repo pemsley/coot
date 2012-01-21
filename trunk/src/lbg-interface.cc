@@ -38,12 +38,14 @@
 #include "c-interface.h"
 #include "cc-interface.hh" // for coot_get_url()
 
-void residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char *ins_code,
-			       double weight_for_3d_distances) {
+void
+residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char *ins_code,
+			  double weight_for_3d_distances) {
 
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
-      CResidue *residue_p = graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
+      CResidue *residue_p =
+	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (residue_p) {
 	 try {
 	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, *g.Geom_p());
