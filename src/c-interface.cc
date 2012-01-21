@@ -532,26 +532,32 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	 std::vector<std::string> types_with_no_dictionary =
 	    g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
 
+	 int first_n_types_with_no_dictionary = types_with_no_dictionary.size();
+	 
 	 std::cout << "Debug:: there were " << types_with_no_dictionary.size() << " types "
 		   << "with no dictionary " << std::endl;
 
 	 for (unsigned int i=0; i<types_with_no_dictionary.size(); i++) {
-	    std::cout << "trying to dynamic add: " << types_with_no_dictionary[i] << std::endl;
-	    g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+	    std::cout << "IFO:: trying to dynamic add: " << types_with_no_dictionary[i]
+		      << " with read number " << g.cif_dictionary_read_number << std::endl;
+	    int n_bonds = g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i],
+						      g.cif_dictionary_read_number);
+	    g.cif_dictionary_read_number++;
 	 }
 	 
-
-	 // debugging
-	 // for (unsigned int ii=0; ii<types_with_no_dictionary.size(); ii++) {
-	 // std::cout << "   " << types_with_no_dictionary[ii] << std::endl;
-         // }
-      
 	 types_with_no_dictionary = g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
 	 if (types_with_no_dictionary.size()) {
 	    if (g.Geom_p()->try_load_sbase_description(types_with_no_dictionary))
 	       g.molecules[imol].make_bonds_type_checked();
-	 }
+	 } else {
+	    // perhaps we have read dictionaries for everything (but
+	    // first check that there had been dictionaries to read.
+	    if (first_n_types_with_no_dictionary > 0) {
+	       g.molecules[imol].make_bonds_type_checked();
+	    } 
+	 } 
 
+	 
 	 if (graphics_info_t::nomenclature_errors_mode == coot::PROMPT) { 
 	    // Now, did that PDB file contain nomenclature errors?
 	    std::vector<std::pair<std::string,coot::residue_spec_t> > nomenclature_errors = 
