@@ -11,6 +11,8 @@
 
   o residue -> 2d should work for prodrg route. ::: 2
 
+  o consider --with-valgrind arg when configuring python
+
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
