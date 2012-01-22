@@ -19,6 +19,7 @@
       <source stock-id="generated-icon-6-c-exp-2-svg" filename="pixmaps/6-c-exp-2.svg"/>
       <source stock-id="generated-icon-triple-svg" filename="pixmaps/triple.svg"/>
       <source stock-id="generated-icon-single-svg" filename="pixmaps/single.svg"/>
+      <source stock-id="generated-icon-face-smile-svg" filename="pixmaps/face-smile.svg"/>
     </sources>
   </object>
   <object class="GtkWindow" id="lbg_window">
@@ -267,7 +268,7 @@
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">SMILES</property>
                 <property name="use_underline">True</property>
-                <property name="icon_name">face-smile</property>
+                <property name="stock-id">generated-icon-face-smile-svg</property>
                 <signal name="clicked" handler="on_lbg_smiles_toolbutton_clicked"/>
               </object>
               <packing>
