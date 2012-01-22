@@ -48,6 +48,7 @@ prodrg_xyzin      = "prodrg-in.mdl"
 sbase_to_coot_tlc = ".sbase-to-coot-comp-id"
 
 # to be over-ridden by your favourite 3d conformer generator, if you like...
+#
 def import_from_3d_generator_from_mdl(file_name):
     import_from_prodrg("mini-no")
 
