@@ -1941,8 +1941,7 @@ fi
 if test -n "$build_ccp4c" ; then 
     echo BUILDING: libccp4c
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
-    # BL says:: not sure if needed?!
-    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/ccp4-libs-underlay.tar.gz
+    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/ccp4-libs-underlay-2.tar.gz
     ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/ccp4_library_utils.c.patch
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
     ( 
@@ -1953,8 +1952,8 @@ if test -n "$build_ccp4c" ; then
     echo BL debug we are here `pwd`
     cd libccp4c-5.0.2-ysbl-2
     # apply the ccp4 new files
-    gzip -dc ${AUTOBUILD_SOURCES}/ccp4-libs-underlay.tar.gz | tar xf -
-    cp src/*.[ch] .
+    gzip -dc ${AUTOBUILD_SOURCES}/ccp4-libs-underlay-2.tar.gz | tar xf -
+    #cp src/*.[ch] .
     gzip -dc ${AUTOBUILD_SOURCES}/martyn-extras.tar.gz | tar xf -
     patch -p0 < ${AUTOBUILD_SOURCES}/ccp4_library_utils.c.patch
     ./configure $generic_prefix
@@ -2109,6 +2108,8 @@ if test -n "$build_clipper" ; then
        CXXFLAGS="-g -O2 -fno-strict-aliasing -DCLIPPER_DISABLE_THREADS"
        # We have to disable the threading for now, no clean exit from (Win)Coot
        # CXXFLAGS="-g -O2 -fno-strict-aliasing"
+       # not need any more ?!
+       # CCP4_CXXFLAGS=-I$install_top_dir/include CCP4_LIBS=$install_top_dir/lib/libccp4c.la	\
     # we don't want to make the clipper executables, so let's cd in to the clipper libs and 
     # make (just) those.
     cd clipper
