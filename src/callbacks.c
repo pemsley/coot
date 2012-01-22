@@ -4925,10 +4925,10 @@ on_select_map_for_fitting_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *widget = lookup_widget(GTK_WIDGET(button),
-				    "select_fitting_map_dialog");
+//  GtkWidget *widget = lookup_widget(GTK_WIDGET(button),
+//				    "select_fitting_map_dialog");
 
-  gtk_widget_destroy(widget);
+ // gtk_widget_destroy(widget);
 
 }
 

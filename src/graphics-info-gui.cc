@@ -818,7 +818,17 @@ graphics_info_t::show_select_map_dialog() {
       // fill_option_menu_with_map_options and pass it the active item
       // as an argument.
       //
-      gtk_widget_show(widget);
+      //gtk_widget_show(widget);
+      // BL says:: run as dialog to block for input
+      gint resp;
+      resp = gtk_dialog_run(GTK_DIALOG(widget));
+      if (resp == GTK_RESPONSE_DELETE_EVENT) {
+          if (imol_map == -1) {
+              // unset map if it has not been set previously!
+              set_refinement_map(-1);
+          }
+      }
+      gtk_widget_destroy (widget);
    } else {
       std::cout << "No graphics!  Can't make Map Selection dialog.\n";
    } 

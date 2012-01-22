@@ -236,6 +236,10 @@ void do_refine(short int state) {
       
       int imol_map = g.Imol_Refinement_Map();
       // std::cout << "DEBUG:: in do_refine, imol_map: " << imol_map << std::endl;
+      if (imol_map < 0) {
+          g.show_select_map_dialog();
+          imol_map = g.Imol_Refinement_Map();
+      }
       if (imol_map >= 0) {
 	 if (g.molecules[imol_map].has_map()) { 
 	    std::cout << "click on 2 atoms (in the same molecule)" << std::endl; 
@@ -252,9 +256,11 @@ void do_refine(short int state) {
 	 }
       } else {
 	 // map chooser dialog
-	 g.show_select_map_dialog();
-	 g.in_range_define_for_refine = 0;
-	 g.model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
+	 //g.show_select_map_dialog();
+         // shouldnt get here any more?!? Only if we destroy the dialog above!
+          g.in_range_define_for_refine = 0;
+          g.model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
+          info_dialog("INFO:: Still, no refinement map has been set!");
       }
    } else { 
       g.normal_cursor();
