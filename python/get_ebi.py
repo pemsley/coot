@@ -241,8 +241,8 @@ def get_eds_pdb_and_mtz(id):
                 print "BL ERROR:: We can't open ", mtz_url 
 
             if bad_map_status:
-                s = "EDS message: This map (" + \
-                    down_id + ") is not a reliable map"
+                s = "This map (" + down_id + \
+                    ") is marked by the EDS as \"not a reliable map\""
                 info_dialog(s)
 
             # maybe should then not load the map!?
