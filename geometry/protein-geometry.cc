@@ -360,9 +360,10 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
    int n_tags = structure->GetNofTags();
    std::string cat_name = structure->GetCategoryName();
 
-   std::cout << "DEBUG: ================= chem_comp_component() by structure: in category "
-	     << cat_name << " there are "
-	     << n_tags << " tags" << std::endl;
+   if (0) 
+      std::cout << "DEBUG: ================= chem_comp_component() by structure: in category "
+		<< cat_name << " there are "
+		<< n_tags << " tags" << std::endl;
     
    std::pair<bool, std::string> comp_id(0, "");
    std::pair<bool, std::string> three_letter_code(0, "");
