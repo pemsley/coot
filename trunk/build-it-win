@@ -1980,11 +1980,13 @@ mmdb_version=1.19
 mmdb_version=1.21
 mmdb_version=1.22
 mmdb_version=1.23.2
+mmdb_version=1.24
 # only configure, make required?!
 ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
 # now we need to patch to not play with string definitions  
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.23.2-mattype_.h.patch
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.23.2-file_.cpp.patch
+#${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.23.2-mattype_.h.patch
+#${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.23.2-file_.cpp.patch
+${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.24-mattype_.h.patch
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
@@ -1992,8 +1994,7 @@ echo gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz
 cd  mmdb-$mmdb_version
 pwd
 # str stuff and newline
-patch -p0 < ${AUTOBUILD_SOURCES}/mmdb-1.23.2-mattype_.h.patch
-patch -p0 < ${AUTOBUILD_SOURCES}/mmdb-1.23.2-file_.cpp.patch
+patch -p0 < ${AUTOBUILD_SOURCES}/mmdb-1.24-mattype_.h.patch
 # patch to read long lines in a cif file
 #patch -p0 < ../mmdb-mmcif-long-line.patch
 ./configure $generic_prefix
@@ -2065,16 +2066,24 @@ if test -n "$build_clipper" ; then
     #clipper_version=2.1-081201-ac
     #clipper_version=2.1-090210-ac
     #clipper_version=2.1-090522-ac
-    clipper_version=2.1-091215-ac
+    #clipper_version=2.1-091215-ac
+    clipper_version=2.1-100511-ac
     clipper_dir_version=2.1
     ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
+    # 20110921 hack in a temporary solution, while Kevin's new clipper
+    # is not available yet from his site.
+    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-2.1-110915-fixup.tar.gz
+    # fix threading on windows, i.e. disable
     ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper-2.1.thread.patch
     if [ "$need_clipper_contrib_patch" = true ] ; then
        ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
     fi 
     (
-    echo Unzipping ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz
-    gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
+    # temp hack
+    # echo Unzipping ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz
+    # gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
+    #
+    gzip -dc ${AUTOBUILD_SOURCES}/clipper-2.1-110915-fixup.tar.gz | tar xf -
     cd clipper-$clipper_dir_version
     pwd
     date
@@ -2097,7 +2106,6 @@ if test -n "$build_clipper" ; then
 	--enable-ccp4    \
 	--enable-minimol \
 	--enable-cns     \
-       CCP4_CXXFLAGS=-I$install_top_dir/include CCP4_LIBS=$install_top_dir/lib/libccp4c.la \
        CXXFLAGS="-g -O2 -fno-strict-aliasing -DCLIPPER_DISABLE_THREADS"
        # We have to disable the threading for now, no clean exit from (Win)Coot
        # CXXFLAGS="-g -O2 -fno-strict-aliasing"
