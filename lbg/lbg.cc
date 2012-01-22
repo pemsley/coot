@@ -398,7 +398,13 @@ void
 lbg_info_t::clear_button_down_bond_addition() {
 
    button_down_bond_addition = 0;
-   save_molecule();
+   
+   // 20120122 why were we saving here? It was giving a double-save on
+   // every modification, thus leading to the need to double tap
+   // delete to undo a modification...
+   // 
+   // std::cout << "save_molecule() from clear_button_down_bond_addition() " << std::endl;
+   // save_molecule();
 } 
    
 
@@ -831,7 +837,7 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
       changed_status = try_add_or_modify_bond(canvas_addition_mode, x_as_int, y_as_int);
    }
 
-   if (changed_status) { 
+   if (changed_status) {
       save_molecule();
 #ifdef MAKE_ENTERPRISE_TOOLS
       update_statusbar_smiles_string();
@@ -2669,7 +2675,7 @@ lbg_info_t::undo() {
    save_molecule_index--;
    if (save_molecule_index >= 0) { 
       widgeted_molecule_t saved_mol = previous_molecules[save_molecule_index];
-      std::cout << "undo... reverting to save molecule number " << save_molecule_index << std::endl;
+      // std::cout << "undo... reverting to save molecule number " << save_molecule_index << std::endl;
       render_from_molecule(saved_mol);
    } else {
       clear();
@@ -2754,7 +2760,9 @@ lbg_info_t::save_molecule() {
    if (make_saves_mutex) { 
       previous_molecules.push_back(mol);
       save_molecule_index = previous_molecules.size() - 1;
-      // std::cout << "saved molecule to index: " << save_molecule_index << std::endl;
+      if (0)
+	 std::cout << "saved molecule to index: " << save_molecule_index << std::endl;
+      
    } else {
       std::cout << "debug:: save_molecule() excluded" << std::endl;
    }
