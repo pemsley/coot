@@ -6850,7 +6850,8 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      g.Geom_p()->try_dynamic_add(new_residue_comp_id, 34);
+      g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
+      g.cif_dictionary_read_number++;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
       coot::residue_spec_t new_res_spec =
 	 g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
@@ -6885,7 +6886,8 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      g.Geom_p()->try_dynamic_add(new_residue_comp_id, 34);
+      g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
+      g.cif_dictionary_read_number++;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
       coot::residue_spec_t new_res_spec =
 	 g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
@@ -6915,7 +6917,8 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      g.Geom_p()->try_dynamic_add(new_residue_comp_id, 34);
+      g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
+      g.cif_dictionary_read_number++;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
       coot::residue_spec_t new_res_spec =
 	 g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
