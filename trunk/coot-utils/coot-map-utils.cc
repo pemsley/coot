@@ -596,7 +596,50 @@ coot::util::average_map(const std::vector<std::pair<clipper::Xmap<float>, float>
       }
    }
    return rmap;
-} 
+}
+
+// like above, but variance, scales are ignored.
+// 
+clipper::Xmap<float>
+coot::util::variance_map(const std::vector<std::pair<clipper::Xmap<float>, float> > &maps_and_scales_vec) {
+
+   clipper::Xmap<float> rmap;
+   clipper::Xmap<float> sum_map;
+   clipper::Xmap<float> sum_squares_map;
+   if (maps_and_scales_vec.size()) {
+      // set the first map
+      int n_maps = maps_and_scales_vec.size();
+      const clipper::Xmap<float> &first_map = maps_and_scales_vec[0].first;
+      sum_map = first_map;
+      sum_squares_map.init(first_map.spacegroup(), first_map.cell(), first_map.grid_sampling());
+      rmap.init(           first_map.spacegroup(), first_map.cell(), first_map.grid_sampling());
+      clipper::Xmap_base::Map_reference_index ix;
+      for (ix = sum_map.first(); !ix.last(); ix.next())  {
+	 sum_squares_map[ix] = sum_map[ix] * sum_map[ix];
+      }
+      for (unsigned int iothers=1; iothers<maps_and_scales_vec.size(); iothers++) {
+	 for (ix = sum_map.first(); !ix.last(); ix.next())  {
+	    clipper::Coord_map  cm1 = ix.coord().coord_map();
+	    clipper::Coord_frac cf1 = cm1.coord_frac(sum_map.grid_sampling());
+	    clipper::Coord_orth co  = cf1.coord_orth(sum_map.cell());
+	    clipper::Coord_frac cf2 =  co.coord_frac(maps_and_scales_vec[iothers].first.cell());
+	    clipper::Coord_map  cm2 = cf2.coord_map(maps_and_scales_vec[iothers].first.grid_sampling());
+	    float map_2_val;
+	    clipper::Interp_cubic::interp(maps_and_scales_vec[iothers].first, cm2, map_2_val);
+	    float v = map_2_val;
+	    sum_map[ix] += v;
+	    sum_squares_map[ix] += v * v;
+	 }
+      }
+      float f = 1.0/float(n_maps);
+      for (ix = rmap.first(); !ix.last(); ix.next()) {
+	 float mean = sum_map[ix] * f;
+	 rmap[ix] = sum_squares_map[ix] * f  - mean*mean;
+      }
+   }
+   return rmap;
+}
+
 
 
 // Delete atoms that don't have this alt conf (or "" alt conf).
