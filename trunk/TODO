@@ -1022,6 +1022,8 @@ Punted from 0.6:
    o sort out the includes so that I use -I .. and
      #include "ideal/geometry.hh" etc.
 
+   o consider --with-valgrind arg when configuring python
+
    o handle links properly (as above).
 
    o multiple representations?
