@@ -264,6 +264,7 @@ coot_real_SOURCES = \
 	c-interface-ligands.hh   \
 	c-interface-ligands.cc   \
 	c-interface-ligands-gui.cc \
+	c-interface-maps.cc	 \
 	c-interface-mmdb.cc	 \
 	c-interface-mmdb.hh      \
 	c-interface-mutate.cc    \

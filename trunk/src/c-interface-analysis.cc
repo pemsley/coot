@@ -27,6 +27,8 @@
 #include "goograph.hh"
 #endif
 
+#include "coot-map-utils.hh" // for variance map
+
 #include "graphics-info.h"
 #include "cc-interface.hh"
 #include "c-interface.h"
@@ -206,3 +208,4 @@ void probe_radius_graph_close_callback( GtkWidget *button,
 
    gtk_widget_destroy(dialog);
 } 
+
