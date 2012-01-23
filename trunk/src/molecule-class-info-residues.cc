@@ -301,25 +301,27 @@ std::vector<std::string>
 molecule_class_info_t::no_dictionary_for_residue_type_as_yet(const coot::protein_geometry &geom) const {
 
    std::vector<std::string> v;
-   int imod = 1;
-   if (atom_sel.mol) { 
-      CModel *model_p = atom_sel.mol->GetModel(imod);
-      CChain *chain_p;
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 CResidue *residue_p;
-	 CAtom *at;
-	 for (int ires=0; ires<nres; ires++) { 
-	    residue_p = chain_p->GetResidue(ires);
-	    std::string residue_name = residue_p->GetResName();
-	    if (! geom.have_at_least_minimal_dictionary_for_residue_type(residue_name)) {
+   if (has_model()) { 
+      int imod = 1;
+      if (atom_sel.mol) { 
+	 CModel *model_p = atom_sel.mol->GetModel(imod);
+	 CChain *chain_p;
+	 int nchains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_p;
+	    CAtom *at;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       std::string residue_name = residue_p->GetResName();
+	       if (! geom.have_at_least_minimal_dictionary_for_residue_type(residue_name)) {
 
-	       // add it to v, if it is not already there:
-	       if (std::find(v.begin(), v.end(), residue_name) == v.end())
-		  v.push_back(residue_name);
-	    } 
+		  // add it to v, if it is not already there:
+		  if (std::find(v.begin(), v.end(), residue_name) == v.end())
+		     v.push_back(residue_name);
+	       } 
+	    }
 	 }
       }
    }
