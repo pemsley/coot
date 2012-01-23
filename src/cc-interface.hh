@@ -679,6 +679,20 @@ PyObject *water_chain_py(int imol);
 //! \}
 
 /*  ----------------------------------------------------------------------- */
+/*                  variance map                                            */
+/*  ----------------------------------------------------------------------- */
+//! \name Variance Map
+//! \{
+//! \brief Make a variance map, based on the grid of the first map.
+//!
+//!  @return the molecule number of the new map.  Return -1 if unable to
+//!   make a variance map.
+int make_variance_map(std::vector<int> map_molecule_number_vec);
+int make_variance_map_scm(SCM map_molecule_number_list);
+int make_variance_map_py(PyObject *map_molecule_number_list);
+//! \}
+
+/*  ----------------------------------------------------------------------- */
 /*                  spin search                                             */
 /*  ----------------------------------------------------------------------- */
 //! \name Spin Search Functions

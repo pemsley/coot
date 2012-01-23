@@ -293,7 +293,7 @@
 		      (add-status-bar-text s))))))))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-maps "Export Local Map Fragment... (for Pymol, say)"
+	 submenu-maps "Export Local Map Fragment..." ;;  (for Pymol, say)
 	 (lambda ()
 	   (generic-chooser-entry-and-file-selector
 	    "Export Map: "

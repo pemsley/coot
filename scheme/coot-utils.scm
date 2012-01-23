@@ -111,6 +111,7 @@
 (define add-linked-residue add-linked-residue-scm)
 (define set-go-to-atom-from-res-spec set-go-to-atom-from-res-spec-scm)
 (define test-function test-function-scm)
+(define make-variance-map make-variance-map-scm)
 
 ;; documented functions
 
