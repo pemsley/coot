@@ -4,7 +4,12 @@ namespace coot {
    class smcif {
       clipper::Cell get_cell(PCMMCIFData data) const;
       std::pair<bool,clipper::Spacegroup> get_space_group(const std::vector<std::string> &symm_strings) const;
-      std::vector<CAtom *> read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const; 
+      std::vector<CAtom *> read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const;
+      // e.g. "O"    -> " O"
+      //      "V5+"  -> " V"
+      //      "Zn2+" -> "ZN"
+      //  return the oxidation state also in second - if possible. 0 if not.
+      std::pair<std::string, int> symbol_to_element(const std::string &symbol) const;
    public:
       smcif() {};
       CMMDBManager *read_sm_cif(const std::string &file_name) const;
