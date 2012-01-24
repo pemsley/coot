@@ -50,7 +50,7 @@ coot::smcif::get_cell(PCMMCIFData data) const {
    clipper::Cell cell;
 
    if (! ierr) {
-      if (0)
+      if (1)
 	 std::cout << "make cell from " 
 		   << cell_a << " " 
 		   << cell_b << " " 
@@ -76,7 +76,7 @@ coot::smcif::get_cell(PCMMCIFData data) const {
 				     clipper::Util::d2rad(alpha),
 				     clipper::Util::d2rad(beta),
 				     clipper::Util::d2rad(gamma));
-      clipper::Cell cell(cell_descr);
+      cell.init(cell_descr);
    } else {
       std::string mess = "failed to get cell";
       throw std::runtime_error(mess);
@@ -119,10 +119,10 @@ coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const
 
    std::vector<CAtom *> atom_vec;
    const char *loopTagsAtom[6] = { "_atom_site_label",
-			       "_atom_site_type_symbol",
-			       "_atom_site_fract_x",
-			       "_atom_site_fract_y",
-			       "_atom_site_fract_z", ""};
+				   "_atom_site_type_symbol",
+				   "_atom_site_fract_x",
+				   "_atom_site_fract_y",
+				   "_atom_site_fract_z", ""};
    const char *loopTagsAniso[2] = { "_atom_site_aniso_label", ""};
 
 
@@ -172,17 +172,16 @@ coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const
 	    if (ierr_tot == 0) {
 	       CAtom *at = new CAtom;
 	       clipper::Coord_frac cf(xf,yf,zf);
-	       if (0)
-		  std::cout << " found atom: " << label << " " << symbol << " "
-			    << cf.format() << std::endl;
 	       clipper::Coord_orth co = cf.coord_orth(cell);
 	       at->SetCoordinates(co.x(), co.y(),co.z(), occ, tf);
 	       // label -> 4c atom name conversion? 
 	       at->SetAtomName(label);
-	       std::string symbol_string(symbol);
-	       if (symbol_string.length() == 1)
-		  symbol_string = " " + symbol_string; // pad element name
-	       at->SetElementName(symbol_string.c_str());
+	       std::pair<std::string, int> ele = symbol_to_element(symbol);
+	       if (1)
+		  std::cout << " found atom: \"" << label << "\" symbol: \"" << symbol
+			    << "\" ele: \"" << ele.first << "\" " << ele.second << " "
+			    << cf.format() << std::endl;
+	       at->SetElementName(ele.first.c_str());
 	       at->Het = 1; // all SM cifs atoms are HETATMs :)
 	       atom_vec.push_back(at);
 	    } else {
@@ -252,6 +251,33 @@ coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const
    } 
    return atom_vec;
 }
+
+std::pair<std::string, int>
+coot::smcif::symbol_to_element(const std::string &symbol) const {
+
+   std::string s = symbol;
+   std::string::size_type l = symbol.length();
+   int sign_mult = 1;
+   int oxidation_state = 0;
+   for (std::string::size_type i=0; i<l; i++) {
+      char c = symbol[i];
+      if (c >= '0' && c <= '9') { 
+	 s[i] = ' ';
+	 oxidation_state = c - 48;
+      } 
+      if (c == '+')
+	 s[i] = ' ';
+      if (c == '-') {
+	 s[i] = ' ';
+	 sign_mult = -1; 
+      } 
+   }
+   std::string s1 = util::upcase(util::remove_whitespace(s));
+   if (s1.length() == 1)
+      s1 = " " + s1;
+   return std::pair<std::string, int> (s1, oxidation_state * sign_mult);
+} 
+
 
 
 CMMDBManager *
