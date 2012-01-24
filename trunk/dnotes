@@ -6305,7 +6305,9 @@ Sat Dec 31 18:09:09 GMT 2011
 
     Failing ligands:
 
-	4a55 A 2062
+	4a55 A 2062. P08 Prodrgified.  Ring oxygen has 3 bonds.
+[19:27:05] Explicit valence for atom # 10 O, 3, is greater than permitted
+
 
  PLP  in 3zzj 1246 A
 
@@ -6348,5 +6350,16 @@ Fri Jan 13 01:23:15 GMT 2012
    chi angle if delta(Y) > delta(X)?
 
    Something for 0.8?
+
+* Done, I think.  Or at least, tinkered with...
+
+
+---
+Tue Jan 24 19:15:37 GMT 2012
+
+gentoo libtool usage:
+ * Running libtoolize --copy --force --install --automake ...
+
+
 
 ------

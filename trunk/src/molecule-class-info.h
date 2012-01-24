@@ -3,9 +3,8 @@
 /* src/molecule-class-info.h
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
- * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
- * Copyright 2008, 2009 by the University of Oxford
+ * Copyright 2008, 2009, 2010, 2011, 2012 by the University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -3052,6 +3051,9 @@ public:        //                      public
 
    // change them if they are not standard PDB 'ATOM' residues
    int hetify_residue_atoms(const std::string &chain_id, int resno, const std::string &ins_code);
+
+   // so that we only draw things that need redrawing on modifying ligands
+   bool has_residue_with_name(const std::string comp_id) const; // unimplemented
 
    // --------- LINKs ---------------
    void make_link(const coot::atom_spec_t &spec_1, const coot::atom_spec_t &spec_2,

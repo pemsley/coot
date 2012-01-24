@@ -594,6 +594,39 @@ molecule_class_info_t::hetify_residue_atoms(const std::string &chain_id,
    return r;
 }
 
+bool
+molecule_class_info_t::has_residue_with_name(const std::string comp_id) const {
+
+   bool r = false;
+
+   if (has_model()) { 
+      for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+	 CModel *model_p = atom_sel.mol->GetModel(imod);
+	 CChain *chain_p;
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_p;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       std::string residue_name = residue_p->GetResName();
+	       if (residue_name == comp_id) { 
+		  r = true;
+		  break;
+	       }
+	    }
+	    if (r)
+	       break;
+	 }
+	 if (r)
+	    break;
+      }
+   }
+   return r;
+} 
+
+
 //////////////////////////////////////////////////////////////////////////////
 ////////////// animated ligands  /////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////////////

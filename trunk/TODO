@@ -1031,9 +1031,9 @@ Punted from 0.6:
    o Add Terminal Residue should pick up from the assigned sequence.
      Should work for bases too.
 
-  o Use LINKRs in restraints (punted from 0.7) ::: 2
+   o Use LINKRs in restraints (punted from 0.7) ::: 2
 
-
+   o "Isolate ligand" (i.e. ligand an neighbours) view.  Animated scale on application.
 
    o Fix leak and deprecated functions message.
 

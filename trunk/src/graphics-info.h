@@ -3837,6 +3837,9 @@ string   static std::string sessionid;
    static int show_graphics_ligand_view_flag; // user control, default 1 (on).
    static void graphics_ligand_view();  // actually draw it 
 
+   // don't redraw everything, just those that have a residue with name res_name
+   // 
+   void redraw_molecules_with_residue(const std::string &res_name);
 };
 
 

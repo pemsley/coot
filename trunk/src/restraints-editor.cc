@@ -1251,10 +1251,11 @@ void apply_restraint_by_widget(GtkWidget *w) {
       coot::protein_geometry *pg = g.Geom_p();
       std::string type = r.residue_info.comp_id;
       bool v = pg->replace_monomer_restraints(type, r);
+      g.redraw_molecules_with_residue(type);
       if (v)
-	 std::cout << "INFO:: restraints for :" << type << ": were replaced" << std::endl;
+	 std::cout << "INFO:: restraints for \"" << type << "\" were replaced" << std::endl;
       else
-	 std::cout << "INFO:: restraints for :" << type << ": were added " << std::endl;
+	 std::cout << "INFO:: restraints for \"" << type << "\" were added " << std::endl;
    }
 }
 
