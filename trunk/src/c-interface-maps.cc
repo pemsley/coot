@@ -22,6 +22,10 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+// for stat()
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #include "coot-map-utils.hh" // for variance map
 #include "xmap-stats.hh"
@@ -1526,6 +1530,7 @@ int make_variance_map(std::vector<int> map_molecule_number_vec) {
 //! \}
 
 
+#ifdef USE_GUILE
 int make_variance_map_scm(SCM map_molecule_number_list) {
 
    std::vector<int> v;
@@ -1541,7 +1546,9 @@ int make_variance_map_scm(SCM map_molecule_number_list) {
    }
    return make_variance_map(v);
 }
+#endif // USE_GUILE
 
+#ifdef USE_PYTHON
 int make_variance_map_py(PyObject *map_molecule_number_list) {
 
    std::vector<int> v;
@@ -1559,3 +1566,4 @@ int make_variance_map_py(PyObject *map_molecule_number_list) {
    }
    return make_variance_map(v);
 } 
+#endif // USE_PYTHON
