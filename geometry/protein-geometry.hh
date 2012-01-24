@@ -1433,7 +1433,10 @@ namespace coot {
       // return -1 on restraints not found.
       // 
       int get_monomer_restraints_index(const std::string &monomer_type, bool allow_minimal_flag) const;
-      
+
+      std::vector<std::string> non_auto_load_residue_names;
+      bool is_non_auto_load_ligand(const std::string resname) const;
+      void fill_default_non_auto_load_residue_names(); // build-it defaults
 
    public:
 
@@ -1441,6 +1444,7 @@ namespace coot {
 	 read_number = 0;
 	 set_verbose(1);
 	 SBase = NULL;
+	 fill_default_non_auto_load_residue_names();
       }
       
       // SBase things
@@ -1783,6 +1787,11 @@ namespace coot {
       // 
       std::pair<bool, double> get_nbc_dist(const std::string &energy_type_1,
 					   const std::string &energy_type_2) const;
+
+      // Add XXX or whatever to non-auto residue names
+      // 
+      void add_non_auto_load_residue_name(const std::string &res_name);
+      void remove_non_auto_load_residue_name(const std::string &res_name);
 
    };
 
