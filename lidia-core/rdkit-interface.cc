@@ -1111,7 +1111,8 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
    // 5)         if found, then make bond_1 single, bond_2 double
 
 
-   std::cout << "======================= undelocalise ==========" << std::endl;
+   if (1)
+      std::cout << "======================= undelocalise ==========" << std::endl;
     
 
    int n_bonds = rdkm->getNumBonds();
