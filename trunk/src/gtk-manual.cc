@@ -1317,10 +1317,21 @@ GtkWidget *get_radio_button_in_scroll_group(GtkWidget *display_manager_dialog,
    // This is only called from one place, (in the combo_box renderer)
    // so let's only look for map molecule with a molecule number less
    // than imol_this.  (if not found, return null of course).
+
+   std::cout << "called get_radio_button_in_scroll_group() with dialog "
+	     << display_manager_dialog << " and imol_this " << imol_this << std::endl;
+
+   // 
    // 
    GtkWidget *w = NULL;
    if (display_manager_dialog) {
-      for (int i=0; i<graphics_n_molecules(); i++) {
+      // for (int i=0; i<graphics_n_molecules(); i++) {
+      // 
+      // 20120124 but surely when we are creating a new dialog and we
+      // are here from the first map, we don't want to check all the
+      // next maps // for previous scroll buttons!?  - Those widgets
+      // haven't been created yet.
+      for (int i=0; i<imol_this; i++) { // 20120124
 	 if (is_valid_map_molecule(i)) {
 	    if (i != imol_this) {
 	       std::string test_name = "map_scroll_button_";
