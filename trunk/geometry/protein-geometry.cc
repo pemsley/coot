@@ -3706,6 +3706,11 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 		     // atoms read from the mmcif dictionary file in
 		     // init_refmac_mon_lib().
 
+   // If this is INH, DRG etc, don't try to auto-add
+   // 
+   if (is_non_auto_load_ligand(resname))
+      return success; 
+
    // So what is happening here?
    //
    // It is a heirachy of setting
@@ -3855,7 +3860,42 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
       }
    }
    return success;
-} 
+}
+
+
+bool
+coot::protein_geometry::is_non_auto_load_ligand(const std::string resname) const {
+
+   bool r = false;
+   std::vector<std::string>::const_iterator it;
+   for (it=non_auto_load_residue_names.begin(); it!=non_auto_load_residue_names.end(); it++) {
+      if (*it == resname) {
+	 r = true;
+	 break;
+      } 
+   }
+   return r;
+}
+
+
+void
+coot::protein_geometry::fill_default_non_auto_load_residue_names() { // build-it default
+   non_auto_load_residue_names.push_back("XXX");
+   non_auto_load_residue_names.push_back("LIG");
+   non_auto_load_residue_names.push_back("DRG");
+   non_auto_load_residue_names.push_back("INH");
+   non_auto_load_residue_names.push_back("LG0");
+   non_auto_load_residue_names.push_back("LG1");
+   non_auto_load_residue_names.push_back("LG2");
+   non_auto_load_residue_names.push_back("LG3");
+   non_auto_load_residue_names.push_back("LG4");
+   non_auto_load_residue_names.push_back("LG5");
+   non_auto_load_residue_names.push_back("LG6");
+   non_auto_load_residue_names.push_back("LG7");
+   non_auto_load_residue_names.push_back("LG8");
+   non_auto_load_residue_names.push_back("LG9");
+}
+
 
 std::vector <coot::dict_torsion_restraint_t>
 coot::protein_geometry::get_monomer_torsions_from_geometry(const std::string &monomer_type) {
