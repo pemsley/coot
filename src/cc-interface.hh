@@ -688,8 +688,12 @@ PyObject *water_chain_py(int imol);
 //!  @return the molecule number of the new map.  Return -1 if unable to
 //!   make a variance map.
 int make_variance_map(std::vector<int> map_molecule_number_vec);
+#ifdef USE_GUILE
 int make_variance_map_scm(SCM map_molecule_number_list);
+#endif
+#ifdef USE_PYTHON
 int make_variance_map_py(PyObject *map_molecule_number_list);
+#endif 
 //! \}
 
 /*  ----------------------------------------------------------------------- */
