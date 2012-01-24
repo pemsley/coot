@@ -346,6 +346,23 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
    return nbonds;
 }
 
+
+// Ideally don't redraw everything, just those that have a residue with name res_name
+// 
+void
+graphics_info_t::redraw_molecules_with_residue(const std::string &res_name) {
+
+   for (unsigned int i=0; i<molecules.size(); i++) {
+      if (is_valid_model_molecule(i)) {
+	 if (molecules[i].has_residue_with_name(res_name)) { 
+	    molecules[i].make_bonds_type_checked();
+	 }
+      }
+   }
+   graphics_draw();
+} 
+
+
 void
 graphics_info_t::import_all_refmac_cifs() {
 
