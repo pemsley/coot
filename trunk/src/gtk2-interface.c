@@ -27560,6 +27560,7 @@ create_fix_nomenclature_errors_dialog (void)
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, fix_nomenclature_errors_ok_button, "fix_nomenclature_errors_ok_button");
   GLADE_HOOKUP_OBJECT (fix_nomenclature_errors_dialog, fix_nomenclature_errors_cancel_button, "fix_nomenclature_errors_cancel_button");
 
+  gtk_widget_grab_default (fix_nomenclature_errors_ok_button);
   return fix_nomenclature_errors_dialog;
 }
 
