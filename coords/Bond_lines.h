@@ -442,6 +442,9 @@ public:
    Bond_lines_container(atom_selection_container_t asc, 
 			float min_dist, float max_dist);
 
+   // The constructor for ball and stick, this constructor implies that
+   // for_GL_solid_model_rendering is set.
+   // 
    // geom_in can be null.
    Bond_lines_container (atom_selection_container_t asc, const coot::protein_geometry *geom);
 
