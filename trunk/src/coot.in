@@ -99,17 +99,16 @@ lib"
 }
 
 
-#
-current_exe_dir=`dirname $0`
+current_exe_dir=$(dirname $0)
 # echo current_exe_dir is $current_exe_dir
 
 if [ $current_exe_dir = . ] ; then 
-  COOT_PREFIX=`dirname $PWD`
+  COOT_PREFIX=$(readlink -f $(dirname $PWD))
 else 
-  COOT_PREFIX=`dirname "$current_exe_dir"`
+  COOT_PREFIX=$(readlink -f $(dirname "$current_exe_dir"))
 fi
-
 echo COOT_PREFIX is $COOT_PREFIX
+
 coot_real=$current_exe_dir/coot-real
 # echo coot-real is at $coot_real
 
