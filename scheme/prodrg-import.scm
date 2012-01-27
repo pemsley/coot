@@ -333,6 +333,7 @@
     (set-mol-displayed imol 0)
     (set-mol-active    imol 0)
     (write-pdb-file imol prodrg-input-file-name)
+    (make-directory-maybe "coot-ccp4")
     (let* ((arg-list (list "XYZIN"  prodrg-input-file-name
 			   "MOLOUT" prodrg-output-mol-file
 			   "XYZOUT" prodrg-output-pdb-file
