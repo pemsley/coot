@@ -9,11 +9,13 @@
  
   o Rename old LIGs on reading a new one. ::: 2 
 
-  o When map is undefined choose the first non-difference map. Puntable. 
+  o Search for difference map peaks - sigma check. ::: 0.5
 
-  o residue -> 2d should work for prodrg route. ::: 2
+  o When map is undefined choose the first non-difference map. Puntable.
 
-  o  WARNING **: Widget not found: map_scroll_button_13 etc on opening display manager dialog ::: 2
+  o residue -> 2d should work for prodrg route. puntable. ::: 2
+
+  o Lothar crash, Jack Sack crash.  Same?
 
 ------
 

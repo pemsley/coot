@@ -318,8 +318,9 @@
 #               tools needs new libtools/configure new ccp4 libs (underlay-2).
 # 4.85 20111021 Update python to 2.6, guile to 1.8.8, add guile patch.
 # 4.86 20111214 Update to mmdb 1.24 (new) which has working LINKRs.
-# 4.87 20120108 use make not MAKE for guile-gtk.
-script_version=4.87
+# 4.87 20120108 Use make not MAKE for guile-gtk.
+# 4.88 20120120 Don't use -j $nproc for make if we don't have memory.
+script_version=4.88
 
 
 # :: NOTE:: 
@@ -1133,7 +1134,10 @@ if [ ! -e $HOSTLOGDIR ] ; then
 fi
 
 
-# need to add test that make is GNU make
+
+# need to add test that make is GNU make, and set number of processor if we have 
+# enough memory and cpus...
+#
 echo "Testing version of make"
 MAKE=make
 make --version
@@ -1154,15 +1158,18 @@ if [ $? -ne 0 ] ; then
    fi
 else 
    # let's try to set some args
-   if [ -e /proc/cpuinfo ] ; then
-      if np=$(grep processor /proc/cpuinfo | wc -l) ; then
-         # limit to 4 processors, not much speed up after that.
-         if [ "$np" -gt 4 ] ; then 
-            np=4
+   memory_kb=$(awk '/MemTotal:/ {print $2} ' /proc/meminfo)
+   if [ "$memory_kb" -gt 2000512 ] ; then 
+      if [ -e /proc/cpuinfo ] ; then
+         if np=$(grep processor /proc/cpuinfo | wc -l) ; then
+            # limit to 4 processors, not much speed up after that.
+            if [ "$np" -gt 4 ] ; then 
+               np=4
+            fi
+            echo using $np processors in compilation
+            MAKE="make -j$np"
+            echo MAKE set to $MAKE
          fi
-         echo using $np processors in compilation
-         MAKE="make -j$np"
-         echo MAKE set to $MAKE
       fi
    fi
 fi
