@@ -346,8 +346,12 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				 if (it_2 == het_residues.end()) { 
 				    // if (geom->have_dictionary_for_residue_type_no_dynamic_add(atom_p_1->residue->GetResName())) {
 				    if (geom->have_at_least_minimal_dictionary_for_residue_type(atom_p_1->residue->GetResName())) {
-				       het_residues.push_back(tp1);
-				       bond_het_residue_by_dictionary = 1;
+				       if (geom->atoms_match_dictionary(atom_p_1->residue, true).first) {
+					  het_residues.push_back(tp1);
+					  bond_het_residue_by_dictionary = 1;
+				       } else {
+					  het_residues.push_back(tp0);
+				       } 
 				    }  else {
 				       het_residues.push_back(tp0);
 				    } 
