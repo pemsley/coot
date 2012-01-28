@@ -4302,7 +4302,7 @@ coot::protein_geometry::have_at_least_minimal_dictionary_for_residue_type(const 
 std::pair<bool, std::vector<std::string> >
 coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
 					       bool check_hydrogens_too_flag,
-					       const coot::dictionary_residue_restraints_t &restraints) {
+					       const coot::dictionary_residue_restraints_t &restraints) const {
 
    std::vector<std::string> atom_name_vec;
    bool status = 1;
@@ -4322,10 +4322,7 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
 	 std::cout << irat << "  :" << restraints.atom_info[irat].atom_id_4c
 		   << ":" << std::endl;
       } 
-      
-
    } 
-
    
    for (unsigned int i=0; i<n_residue_atoms; i++) {
 
@@ -4354,10 +4351,23 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
 	 }
       }
    }
-   
    return std::pair<bool, std::vector<std::string> > (status, atom_name_vec);
 }
 
+
+std::pair<bool, std::vector<std::string> >
+coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p, bool check_hydrogens_too_flag) const {
+
+   std::string res_name(residue_p->GetResName());
+   std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
+      get_monomer_restraints(res_name);
+   if (restraints.first) {
+      return atoms_match_dictionary(residue_p, check_hydrogens_too_flag, restraints.second);
+   } else { 
+      std::vector<std::string> atom_name_vec;
+      return std::pair<bool, std::vector<std::string> > (false, atom_name_vec);
+   }
+} 
 
 
 // return a pair, overall status, and pair of residue names and
@@ -4365,11 +4375,10 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
 //
 std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
 coot::protein_geometry::atoms_match_dictionary(const std::vector<CResidue *> residues,
-		       bool check_hydrogens_too_flag) {
+		       bool check_hydrogens_too_flag) const {
 
    bool status = 1;
    std::vector<std::pair<std::string, std::vector<std::string> > > p;
-   
    
    for (unsigned int ires=0; ires<residues.size(); ires++) { 
       std::string res_name(residues[ires]->GetResName());
@@ -4386,7 +4395,6 @@ coot::protein_geometry::atoms_match_dictionary(const std::vector<CResidue *> res
 	 }
       }
    }
-
    return std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > > (status, p);
 }
 

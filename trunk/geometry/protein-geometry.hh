@@ -1639,20 +1639,24 @@ namespace coot {
       // likewise not const
       bool have_dictionary_for_residue_types(const std::vector<std::string> &residue_types);
 
-      // return a pair: a status, yes/no atoms match and a vector of
-      // atoms whose names do not match.
-      // 
-      std::pair<bool, std::vector<std::string> >
-      atoms_match_dictionary(CResidue *res,
-			     bool check_hydrogens_too_flag,
-			     const dictionary_residue_restraints_t &restraints);
 
       // return a pair, overall status, and pair of residue names and
       // atom names that dont't match.
       //
       std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
       atoms_match_dictionary(const std::vector<CResidue *> residues,
-			     bool check_hydrogens_too_flag);
+			     bool check_hydrogens_too_flag) const;
+
+      std::pair<bool, std::vector<std::string> >
+      atoms_match_dictionary(CResidue *res, bool check_hydrogens_too_flag) const;
+
+      // return a pair: a status, yes/no atoms match and a vector of
+      // atoms whose names do not match.
+      // 
+      std::pair<bool, std::vector<std::string> >
+      atoms_match_dictionary(CResidue *res,
+			     bool check_hydrogens_too_flag,
+			     const dictionary_residue_restraints_t &restraints) const;
 
       // add "synthetic" 5 atom planar peptide restraint
       void add_planar_peptide_restraint();
