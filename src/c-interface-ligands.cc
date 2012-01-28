@@ -1411,6 +1411,22 @@ SCM matching_compound_names_from_dictionary_scm(const char *compound_name_fragme
 }
 
 
+/*! \brief add residue name to the list of residue names that don't
+  get auto-loaded from the Refmac dictionary. */
+void add_non_auto_load_residue_name(const char *s) {
+   graphics_info_t g;
+   g.Geom_p()->add_non_auto_load_residue_name(s);
+}
+
+/*! \brief remove residue name from the list of residue names that don't
+  get auto-loaded from the Refmac dictionary. */
+void remove_non_auto_load_residue_name(const char *s) {
+   graphics_info_t g;
+   g.Geom_p()->remove_non_auto_load_residue_name(s);
+}
+
+
+
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
 /*! \brief return a list of compoundIDs in the dictionary which the

@@ -3877,6 +3877,36 @@ coot::protein_geometry::is_non_auto_load_ligand(const std::string resname) const
    return r;
 }
 
+void
+coot::protein_geometry::add_non_auto_load_residue_name(const std::string &res_name) {
+
+   bool found = false;
+   std::vector<std::string>::const_iterator it;
+   for (it=non_auto_load_residue_names.begin(); it!=non_auto_load_residue_names.end(); it++) {
+      if (*it == res_name) {
+	 found = true;
+	 break;
+      }
+      if (found)
+	 break;
+   }
+   if (! found)
+      non_auto_load_residue_names.push_back(res_name);
+}
+
+void
+coot::protein_geometry::remove_non_auto_load_residue_name(const std::string &res_name) {
+
+   std::vector<std::string>::iterator it;
+   for (it=non_auto_load_residue_names.begin(); it!=non_auto_load_residue_names.end(); it++) {
+      if (*it == res_name) {
+	 non_auto_load_residue_names.erase(it);
+	 break;
+      } 
+   }
+} 
+
+
 
 void
 coot::protein_geometry::fill_default_non_auto_load_residue_names() { // build-it default

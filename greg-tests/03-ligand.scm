@@ -57,6 +57,28 @@
 	 (> n 0)))))
 
 
+(greg-testcase #t "Non-Autoloads work as expected"
+   (lambda ()
+
+     (let ((r-1 (monomer-restraints "LIG")))
+       (greg-pdb "test-LIG.pdb")
+       (let ((r-2 (monomer-restraints "LIG")))
+	 (remove-non-auto-load-residue-name "LIG")
+	 (greg-pdb "test-LIG.pdb")
+	 (let ((r-3 (monomer-restraints "LIG")))
+	   (delete-restraints "LIG")
+	   (add-non-auto-load-residue-name "LIG")
+	   (let ((r-4 (monomer-restraints "LIG")))
+
+	     ;; r-1, r-2, r-3 should be #f, r-3 should be filled.
+	     (all-true? 
+	      (list 
+	       (eq? #f r-1)
+	       (eq? #f r-2)
+	       (eq? #f r-4)
+	       (list? r-3)))))))))
+
+
 
 (greg-testcase "Move and Refine Ligand test" #t 
    (lambda ()
