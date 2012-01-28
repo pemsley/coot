@@ -727,6 +727,16 @@
       (let f ((str str))
 	(apply string-append (string-split str #\space)))))
 
+;; "  53" -> "53", " " -> ""
+(define (strip-leading-spaces str)
+  (let ((l (string-length str)))
+    (if (= l 0)
+	str
+	(if (not (string=? (substring str 0 1) " "))
+	    str
+	    (strip-leading-spaces (substring str 1))))))
+
+
 ;; Append strings with tag-str between them
 ;; 
 (define (string-append-with-string str-ls tag-str)
