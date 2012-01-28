@@ -311,11 +311,23 @@ molecule_class_info_t::no_dictionary_for_residue_type_as_yet(const coot::protein
 	    chain_p = model_p->GetChain(ichain);
 	    int nres = chain_p->GetNumberOfResidues();
 	    CResidue *residue_p;
-	    CAtom *at;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       std::string residue_name = residue_p->GetResName();
 	       if (! geom.have_at_least_minimal_dictionary_for_residue_type(residue_name)) {
+
+// 		  // now check the HETSYNs
+// 		  for (unsigned int ihet=0; ihet<model_p->HetCompounds.nHets; ihet++) { 
+// 		     std::string het_id = model_p->HetCompounds[ihet].hetID;
+// 		     std::cout << "het_id: " << het_id << std::endl;
+// 		     if (het_id == residue_name) {
+// 			int ns = model_p->HetCompounds[ihet].nSynonyms;
+// 			for (unsigned int i_syn=0; i_syn<ns; i_syn++) { 
+			   
+// 			}
+// 		     }
+// 		  }
+		  
 
 		  // add it to v, if it is not already there:
 		  if (std::find(v.begin(), v.end(), residue_name) == v.end())
