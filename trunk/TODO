@@ -1006,6 +1006,10 @@ Punted from 0.6:
 
    o Use gtk-builder.
 
+   o Can lbg be called in command-line mode to make a picture?
+
+   o Can the picture from lidia be double resolution?
+
    o make minimol's addresidue() work with inscodes.  e.g. the 52A PRO
    in "Autofit Rotamer on Residues with Insertion codes" test. (see
    that an exception is thrown in backrub_rotamer search().)
@@ -1042,7 +1046,6 @@ Punted from 0.6:
 
    o Add parentheses if they are missing from an interactive scripting
      command
-
 
    o RNA rotamer analysis "What is the rotamer of this suite here?"
 
