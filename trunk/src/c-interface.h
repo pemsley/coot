@@ -3185,6 +3185,12 @@ int import_python_module(const char *module_name, int use_namespace);
 SCM matching_compound_names_from_dictionary_scm(const char *compound_name_fragment,
 						short int allow_minimal_descriptions_flag);
 
+/*! \brief return the monomer name
+
+  return scheme false if not found */
+SCM comp_id_to_name_scm(const char *comp_id);
+#endif /* USE_GUILE */
+
 /*! \brief add residue name to the list of residue names that don't
   get auto-loaded from the Refmac dictionary. */
 void add_non_auto_load_residue_name(const char *s); 
@@ -3192,11 +3198,6 @@ void add_non_auto_load_residue_name(const char *s);
   get auto-loaded from the Refmac dictionary. */
 void remove_non_auto_load_residue_name(const char *s); 
 
-/*! \brief return the monomer name
-
-  return scheme false if not found */
-SCM comp_id_to_name_scm(const char *comp_id);
-#endif /* USE_GUILE */
 #ifdef USE_PYTHON
 /*! \brief return a list of compoundIDs in the dictionary which the
   given string is a substring of the compound name */
