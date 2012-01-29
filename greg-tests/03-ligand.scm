@@ -57,7 +57,7 @@
 	 (> n 0)))))
 
 
-(greg-testcase #t "Non-Autoloads work as expected"
+(greg-testcase "Non-Autoloads work as expected" #t
    (lambda ()
 
      (let ((r-1 (monomer-restraints "LIG")))
