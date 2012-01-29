@@ -53,16 +53,33 @@ class LigandTestFunctions(unittest.TestCase):
 	set_bond_thickness(imol_ligand, 5)
 
 
-    def test02_1(self):
+    def test03_0(self):
         """Delete all-molecule Hydrogens"""
         imol = unittest_pdb("monomer-3GP.pdb")
         self.failUnless(valid_model_molecule_qm(imol))
         print "here 1"
         n = delete_hydrogens(imol)
         self.failUnless(n > 0)
-        
 
-    def test03_0(self):
+
+    def test04_0(self):
+        """Non-Autoloads work as expected"""
+
+        r_1 = monomer_restraints("LIG")
+        unittest_pdb("test-LIG.pdb")
+        r_2 = monomer_restraints("LIG")
+        remove_non_auto_load_residue_name("LIG")
+        unittest_pdb("test-LIG.pdb")
+        r_3 = monomer_restraints("LIG")
+        delete_restraints("LIG")
+        add_non_auto_load_residue_name("LIG")
+        r_4 = monomer_restraints("LIG")
+        # r_1, r_2, r_4 should be False, r_3 shouldbe filled
+
+        unittest_pdb("test-LIG.pdb")
+
+
+    def test05_0(self):
 	"""Move and Refine Ligand test"""
         
 	new_rc = [55.3, 9.1, 20.6]
@@ -96,7 +113,7 @@ class LigandTestFunctions(unittest.TestCase):
 
         # testing what?
 
-    def test04_0(self):
+    def test06_0(self):
         """Many Molecules - Ligand Fitting"""
 
         npo_pdb = os.path.join(unittest_data_dir, "monomer-NPO.pdb")
@@ -128,7 +145,7 @@ class LigandTestFunctions(unittest.TestCase):
         # checked for non crash
 
         
-    def test05_0(self):
+    def test07_0(self):
         """flip residue (around eigen vectors)"""
 
         mon_file = os.path.join("coot-ccp4", "monomer-3GP.pdb")
@@ -184,7 +201,7 @@ class LigandTestFunctions(unittest.TestCase):
         self.failUnless(d2 < 0.001, "fail to move atom back to start d2")
 
 
-    def test06_0(self):
+    def test08_0(self):
         """Test dipole"""
 
         imol = unittest_pdb("dipole-residues.pdb")
@@ -213,7 +230,7 @@ class LigandTestFunctions(unittest.TestCase):
         self.failUnless(dip_x < 0 and dip_x > -20)
 
         
-    def test06_0(self):
+    def test09_0(self):
         """Reading new dictionary restraints replaces"""
 
         def get_torsions(r):

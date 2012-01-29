@@ -1410,6 +1410,8 @@ SCM matching_compound_names_from_dictionary_scm(const char *compound_name_fragme
 
 }
 
+#endif /* USE_GUILE */
+
 
 /*! \brief add residue name to the list of residue names that don't
   get auto-loaded from the Refmac dictionary. */
@@ -1426,8 +1428,6 @@ void remove_non_auto_load_residue_name(const char *s) {
 }
 
 
-
-#endif /* USE_GUILE */
 #ifdef USE_PYTHON
 /*! \brief return a list of compoundIDs in the dictionary which the
   given string is a substring of the compound name */
