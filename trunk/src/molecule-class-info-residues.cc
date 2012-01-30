@@ -1030,7 +1030,7 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
       try {
 	 coot::beam_in_linked_residue lr(residue_ref, link_type, new_residue_comp_id, geom_p);
 	 CResidue *result = lr.get_residue();
-	 // get_residue() can (and often does) modify residue_ref (for
+	 // lr.get_residue() can (and often does) modify residue_ref (for
 	 // deleting link mod atom, for example). So we need a FinishStructEdit() here
 	 atom_sel.mol->FinishStructEdit();
       
@@ -1040,15 +1040,15 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
 	    new_residue_spec = coot::residue_spec_t(status_pair.second);
 	    coot::dict_link_info_t link_info(residue_ref, status_pair.second,
 					     link_type, *geom_p);
-	    make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist);
+	    make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist, *geom_p);
 	 }
       }
       catch (std::runtime_error rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
-      } 
+      }
    }
    return new_residue_spec;
-} 
+}
 
 // this can throw a std::runtime_error
 coot::dict_link_info_t::dict_link_info_t(CResidue *residue_ref,

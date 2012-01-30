@@ -3057,7 +3057,8 @@ public:        //                      public
 
    // --------- LINKs ---------------
    void make_link(const coot::atom_spec_t &spec_1, const coot::atom_spec_t &spec_2,
-		  const std::string &link_name, float length);
+		  const std::string &link_name, float length,
+		  const coot::protein_geometry &geom);
 
    // ------------ watson crick pair additions  ---------
    int watson_crick_pair_for_residue_range(const std::string &chain_id,

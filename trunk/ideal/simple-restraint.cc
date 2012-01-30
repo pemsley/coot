@@ -3398,9 +3398,18 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
 	 }
       }
    }
-
    return restraints_vec.size();
 }
+
+// Using bonded pairs internal copy, modify residues as needed
+// by deleting atoms in chem mods.
+//
+void
+coot::restraints_container_t::apply_link_chem_mods(const coot::protein_geometry &geom) {
+
+   bonded_pairs_container.apply_chem_mods(geom);
+} 
+
 
 // This only marks the first OXT atom we find that has all its
 // reference atoms (which is reasonable (I hope)).
@@ -3936,8 +3945,9 @@ coot::restraints_container_t::make_link_restraints(const coot::protein_geometry 
 						   bool do_rama_plot_restraints) {
 
    if (from_residue_vector) {
-      coot::bonded_pair_container_t bpc = make_link_restraints_from_res_vec(geom, do_rama_plot_restraints);      
-      return bpc.size();
+      // coot::bonded_pair_container_t bonded_pair_container;
+      bonded_pairs_container = make_link_restraints_from_res_vec(geom, do_rama_plot_restraints);      
+      return bonded_pairs_container.size();
    } else { 
       return make_link_restraints_by_linear(geom, do_rama_plot_restraints); // conventional
    }
@@ -4330,7 +4340,7 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 coot::bonded_pair_container_t
 coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_geometry &geom) const {
 
-   bool debug = 0;
+   bool debug = false;
    coot::bonded_pair_container_t bpc;
    float dist_crit = 3.0;
 

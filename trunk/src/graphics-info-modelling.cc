@@ -679,6 +679,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 							     rama_plot_restraint_weight,
 							     do_rama_restraints,
 							     pseudo_bonds_type);
+	       
 	 
 	       std::string dummy_chain = ""; // not used
 	       rr = update_refinement_atoms(n_restraints, restraints, rr, local_moving_atoms_asc,

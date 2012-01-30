@@ -8,10 +8,13 @@
 
 #include <mmdb/mmdb_manager.h>
 
+#include "protein-geometry.hh"
+
 namespace coot {
 
    // The residues here are in order.  res_1 is comp_1 and res_2 is comp_2
    class bonded_pair_t {
+      void delete_atom(CResidue *res, const std::string &atom_name);
    public:
       CResidue *res_1;
       CResidue *res_2;
@@ -36,8 +39,11 @@ namespace coot {
 	       return false;
 	    } 
 	 }
-      } 
+      }
+      void apply_chem_mods(const protein_geometry &geom);
    };
+   std::ostream &operator<<(std::ostream &s, bonded_pair_t bp);
+   
    class bonded_pair_container_t {
    public:
       std::vector<bonded_pair_t> bonded_residues;
@@ -58,6 +64,7 @@ namespace coot {
 	 }
 	 return r;
       } 
+      void apply_chem_mods(const protein_geometry &geom);
    };
    std::ostream& operator<<(std::ostream &s, bonded_pair_container_t bpc);
 

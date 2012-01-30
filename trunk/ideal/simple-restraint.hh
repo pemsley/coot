@@ -1366,7 +1366,9 @@ namespace coot {
 	    } 
 	 }
 	 return r;
-      } 
+      }
+
+      bonded_pair_container_t bonded_pairs_container;
       
 
    public: 
@@ -1692,12 +1694,18 @@ namespace coot {
       // between residues when all we have to go on is the refmac
       // dictionary - no LINKRs and no user input.
       bonded_pair_container_t bonded_residues_from_res_vec(const coot::protein_geometry &geom) const;
+
+      // Using bonded pairs internal copy, modify residues as needed
+      // by deleting atoms in chem mods.
+      //
+      // But what about the mod_OXT code?  How does that fit in here?
+      //
+      void apply_link_chem_mods(const protein_geometry &geom);
       
       // more debugging interface:
       //
       void set_do_numerical_gradients() { do_numerical_gradients_flag = 1;}
       bool do_numerical_gradients_status() { return do_numerical_gradients_flag; }
-
 
    }; 
 
