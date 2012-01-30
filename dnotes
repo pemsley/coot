@@ -6361,5 +6361,18 @@ gentoo libtool usage:
  * Running libtoolize --copy --force --install --automake ...
 
 
+---
+Mon Jan 30 11:45:55 GMT 2012
+
+   Mogul chemistry perception
+
+      determined using input file (mol, mol2, pdb) information.
+
+      http://www.ccdc.cam.ac.uk/support/documentation/mogul/mogul/mogul.3.12.html
+
+      There is no guarantee that bond-type deduction or hydrogen-atom
+      addition will be completely correct. Consequently, you should
+      check the changes that Mogul has made. A summary of the changes
+      made will be given in a Structure edited pop-up.
 
 ------

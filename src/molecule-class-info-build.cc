@@ -192,7 +192,8 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
 // --------- LINKs ---------------
 void
 molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::atom_spec_t &spec_2,
-				 const std::string &link_name, float length) {
+				 const std::string &link_name, float length,
+				 const coot::protein_geometry &geom) {
 
    // I don't see how link_name and length are part of a CLink.
    // Perhaps they should not be passed then?
@@ -218,6 +219,8 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 	 } else {
 
 	    make_backup();
+
+	    CMMDBManager *mol = atom_sel.mol;
 	 
 	    CLink *link = new CLink; // sym ids default to 1555 1555
 
@@ -238,6 +241,19 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 	    model_1->AddLink(link);
 	    have_unsaved_changes_flag = 1;
 	    atom_sel.mol->FinishStructEdit();
+
+	    // now, do we need to do any deletions to the model that
+	    // are defined in the dictionary?
+	    //
+	    std::vector<std::pair<bool, CResidue *> > residues(2);
+	    residues[0] = std::pair<bool, CResidue *> (0, at_1->residue);
+	    residues[1] = std::pair<bool, CResidue *> (0, at_2->residue);
+	    std::vector<coot::atom_spec_t> dummy_fixed_atom_specs;
+	    coot::restraints_container_t restraints(residues, geom, mol, dummy_fixed_atom_specs);
+	    coot::bonded_pair_container_t bpc = restraints.bonded_residues_from_res_vec(geom);
+	    bpc.apply_chem_mods(geom);
+	    atom_sel.mol->FinishStructEdit();
+	    
 	    update_molecule_after_additions();
 	 }
       } 
