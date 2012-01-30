@@ -1010,6 +1010,10 @@ Punted from 0.6:
 
    o Can the picture from lidia be double resolution?
 
+  o residue -> 2d should work for prodrg route. Punted. ::: 2
+
+  o When map is undefined choose the first non-difference map. Punted.
+
    o make minimol's addresidue() work with inscodes.  e.g. the 52A PRO
    in "Autofit Rotamer on Residues with Insertion codes" test. (see
    that an exception is thrown in backrub_rotamer search().)
