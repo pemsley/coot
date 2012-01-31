@@ -250,21 +250,12 @@ coot::protein_geometry::try_load_sbase_description(const std::vector<std::string
 
    bool status = 0; // none added initially.
 
-   // If this is INH, DRG etc, don't try to auto-add
-   // 
-   if (is_non_auto_load_ligand(resname)) {
-      std::cout << "INFO:: comp-id: " << resname << " is marked for non-autoloading - stopping now "
-		<< std::endl;
-      return false;
-   }
-   
 
    std::vector<std::string> uniques;
    for (unsigned int ic=0; ic<comp_ids_with_duplicates.size(); ic++) { 
       if (std::find(uniques.begin(), uniques.end(), comp_ids_with_duplicates[ic]) ==
 	  uniques.end())
 	 uniques.push_back(comp_ids_with_duplicates[ic]);
-	  
    }
 
    
