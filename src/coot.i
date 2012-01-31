@@ -18,6 +18,7 @@
 #include "manipulation-modes.hh"
 #include "rotamer-search-modes.hh"
 #include "lbg-interface.hh"
+#include "sdf-interface.hh"
 %}
 
 
@@ -42,3 +43,4 @@
 %include "manipulation-modes.hh"
 %include "rotamer-search-modes.hh"
 %include "lbg-interface.hh"
+%include "sdf-interface.hh"

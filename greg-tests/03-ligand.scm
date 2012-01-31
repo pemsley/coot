@@ -70,13 +70,20 @@
 	   (add-non-auto-load-residue-name "LIG")
 	   (let ((r-4 (monomer-restraints "LIG")))
 
-	     ;; r-1, r-2, r-3 should be #f, r-3 should be filled.
-	     (all-true? 
-	      (list 
-	       (eq? #f r-1)
-	       (eq? #f r-2)
-	       (eq? #f r-4)
-	       (list? r-3)))))))))
+	     ;; r-1, r-2, r-4 should be #f, r-3 should be filled.
+	     (if (all-true? 
+		  (list 
+		   (eq? #f r-1)
+		   (eq? #f r-2)
+		   (eq? #f r-4)
+		   (list? r-3)))
+		 #t ;; good return value
+		 (begin
+		   (format #t "restraints: r-1 ~s~%" r-1)
+		   (format #t "restraints: r-2 ~s~%" r-2)
+		   (format #t "restraints: r-3 ~s~%" r-3)
+		   (format #t "restraints: r-4 ~s~%" r-4)
+		   #f))))))))
 
 
 

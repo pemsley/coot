@@ -248,6 +248,8 @@ coot::protein_geometry::fill_using_sbase(const std::string &monomer_type) {
 bool
 coot::protein_geometry::try_load_sbase_description(const std::vector<std::string> &comp_ids_with_duplicates) {
 
+   bool status = 0; // none added initially.
+
    std::vector<std::string> uniques;
    for (unsigned int ic=0; ic<comp_ids_with_duplicates.size(); ic++) { 
       if (std::find(uniques.begin(), uniques.end(), comp_ids_with_duplicates[ic]) ==
@@ -256,17 +258,22 @@ coot::protein_geometry::try_load_sbase_description(const std::vector<std::string
 	  
    }
 
-   bool status = 0; // none added;
+   
    if (SBase) {
       for (unsigned int i=0; i<uniques.size(); i++) {
 	 std::cout << i << " " << uniques[i] << std::endl;
-	 std::string comp_id = uniques[i];
-	 bool s = fill_using_sbase(comp_id);
-// 	 if (s)
-// 	    std::cout << "debug:: sbase dictionary for " << comp_id << " successfully loaded "
-// 		      << std::endl;
-	 if (s)
-	    status = 1;
+	 const std::string comp_id = uniques[i];
+	 if (is_non_auto_load_ligand(comp_id)) {
+	    std::cout << "INFO:: sbase-descriptions: comp-id: " << comp_id
+		      << " is marked for non-autoloading - ignore " << std::endl;
+	 } else { 
+	    bool s = fill_using_sbase(comp_id);
+	    if (s)
+	       std::cout << "DEBUG:: sbase dictionary for " << comp_id << " successfully loaded "
+			 << std::endl;
+	    if (s)
+	       status = 1;
+	 }
       }
    }
    return status; // return true of something was added.

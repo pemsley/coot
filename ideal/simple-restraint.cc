@@ -4312,8 +4312,10 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 	       // link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
 	       std::pair<std::string, bool> link_info =
 		  find_link_type_rigourous(SelResidue[i], SelResidue[i+1], geom);
-	       // std::cout << "DEBUG ------------ in bonded_residues_by_linear() link_info is :"
-	       //           << link_info.first << " " << link_info.second << ":" << std::endl;
+	       if (false) 
+		  std::cout << "DEBUG ------------ in bonded_residues_by_linear() link_info is :"
+			    << link_info.first << " " << link_info.second << ":" << std::endl;
+	       
 	       if (link_info.first != "") {
 		  bool whole_first_residue_is_fixed = 0;
 		  bool whole_second_residue_is_fixed = 0;
@@ -4614,8 +4616,9 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
       catch (std::runtime_error mess_in) {
 	 if (debug) { 
 	    // didn't find a chem_link for this pair, that's OK sometimes.
-	    std::cout << "CAUGHT exception: " << mess_in.what() << std::endl;
-	    // geom.print_chem_links();
+	    std::cout << "CAUGHT exception in find_link_type_rigourous(): "
+		      << mess_in.what() << std::endl;
+	    geom.print_chem_links();
 	 }
       } 
    }
@@ -4739,7 +4742,7 @@ coot::restraints_container_t::general_link_find_close_link_inner(std::vector<std
 								 const coot::protein_geometry &geom) const {
 
    float dist_crit = 3.0; // Angstroms.
-   bool debug = 0;
+   bool debug = false;
 
    if (order_switch_flag)
       std::swap(r1, r2);

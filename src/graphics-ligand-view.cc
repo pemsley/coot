@@ -54,7 +54,7 @@ graphics_ligand_atom::get_colour(bool against_a_dark_background) const {
    coot::colour_t col(0.6,0.6,0.6);
    if ((element == "F") ||  (element == "Br") || (element == "Cl")) {
       col.col[0] = 0.3;
-      col.col[1] = 0.8;
+      col.col[1] = 0.7;
       col.col[2] = 0.3;
    }
    if (element == "O") {
@@ -73,9 +73,9 @@ graphics_ligand_atom::get_colour(bool against_a_dark_background) const {
       col.col[2] = 0.2;
    }
    if (element == "N")  {
-      col.col[0] = 0.4;
-      col.col[1] = 0.4;
-      col.col[2] = 0.95;
+      col.col[0] = 0.5;
+      col.col[1] = 0.5;
+      col.col[2] = 1.0;
    }
    return col;
 }

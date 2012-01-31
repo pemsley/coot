@@ -807,6 +807,7 @@
 		   (throw 'fail))
 		 #t)))))))
 
+
 (greg-testcase "Sphere Refine" #t
    (lambda () 
 
@@ -824,8 +825,18 @@
 				  (cons centred-residue other-residues)
 				  (list centred-residue))))
 	   
-	   (format #t "   imol: ~s residues: ~s~%" imol all-residues)
-	   (refine-residues imol all-residues))))
+	   ;; (format #t " ===== in sphere-refine-here  imol: ~s residues: ~s~%" imol all-residues)
+	   (with-auto-accept
+	    (refine-residues imol all-residues)))))
+
+
+     ;; main line
+
+     ;; refine against something, temporary for single test
+     ;;
+     ;; (let ((imol-map (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0)))
+     ;; (valid-map-molecule? imol-map))
+
 
      (let ((imol (greg-pdb "tutorial-add-terminal-1-test.pdb")))
        (if (not (valid-model-molecule? imol))
@@ -843,7 +854,19 @@
 		 (throw 'fail)))
 
 	   (sphere-refine-here)
-	   #t)))))
+
+	   (set-go-to-atom-chain-residue-atom-name "A" 41 " CA ")
+	   (sphere-refine-here)
+
+	   ;; these should be a standard peptide bond length - however, if we don't find
+	   ;; the peptide link, they get pushed apart.  Test for that. 
+	   (let* ((atom-1 (get-atom imol "A" 40 "" " C  " ""))
+		  (atom-2 (get-atom imol "A" 41 "" " N  " ""))
+		  (bl (bond-length-from-atoms atom-1 atom-2)))
+	     (format #t "======= got bond length ~s~%" bl)
+	     (< bl 1.4)))))))
+
+
 
 
 (greg-testcase "Refinement gives useful results" #t 
