@@ -2569,7 +2569,7 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 					     const std::string &comp_id_2,
 					     const std::string &group_2) const {
 
-   bool debug = 0;
+   bool debug = false;
    if (debug) { 
       std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups "
 		<< id << " " << chem_link_name << ": input comp_ids "
@@ -2582,8 +2582,8 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 		<< chem_link_group_comp_2 << ":" << std::endl;
    }
 
-   bool match = 0;
-   bool order_switch = 0;
+   bool match = false; // initially
+   bool order_switch = false;
 
    std::string local_group_1 = group_1; 
    std::string local_group_2 = group_2;
@@ -2591,32 +2591,26 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    // chem_links specify "peptide" or "pyranose", but comp_groups are "L-peptide"/"D-pyranose".
    // So allow them to match.
    // 201201013 (Friday) allow M-peptides to match too.
-   if (local_group_1 == "L-peptide")
-      local_group_1 = "peptide";
-   if (local_group_1 == "L-peptide")
-      local_group_1 = "peptide";
-   if (local_group_1 == "M-peptide")
-      local_group_1 = "peptide";
-   if (local_group_2 == "M-peptide")
-      local_group_2 = "peptide";
-   if (local_group_1 == "D-pyranose")
-      local_group_1 = "pyranose";
-   if (local_group_2 == "D-pyranose")
-      local_group_2 = "pyranose";
+   if (local_group_1 == "L-peptide")  local_group_1 = "peptide";
+   if (local_group_2 == "L-peptide")  local_group_2 = "peptide";
+   if (local_group_1 == "M-peptide")  local_group_1 = "peptide";
+   if (local_group_2 == "M-peptide")  local_group_2 = "peptide";
+   if (local_group_1 == "D-pyranose") local_group_1 = "pyranose";
+   if (local_group_2 == "D-pyranose") local_group_2 = "pyranose";
    
    if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_1)) &&
        ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_2)))
       if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_1)) &&
 	  ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_2)))
-	 match = 1;
+	 match = true;
 
    if (((chem_link_group_comp_1 == "DNA/RNA") && (local_group_1 == "RNA") && 
 	(chem_link_group_comp_1 == "DNA/RNA") && (local_group_2 == "RNA")))
-      match = 1;
+      match = true;
 
    if (((chem_link_group_comp_1 == "DNA/RNA") && (local_group_1 == "DNA") && 
 	(chem_link_group_comp_1 == "DNA/RNA") && (local_group_2 == "DNA")))
-      match = 1;
+      match = true;
 
    if (debug) 
       std::cout << "    matches_comp_ids_and_groups given comp_id_1: \""
@@ -2624,7 +2618,7 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 		<< comp_id_2 << "\" and group_2: \"" << group_2 
 		<< "\" returns " << match << std::endl;
 	
-   if (match == 1)
+   if (match)
       return std::pair<bool, bool>(match, order_switch);
       
    // And what about if the residues come here backward? We should
@@ -2636,8 +2630,8 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
        ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_1)))
       if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_2)) &&
 	  ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_1))) { 
-	 match = 1;
-	 order_switch = 1;
+	 match = true;
+	 order_switch = true;
       }
    
    return std::pair<bool, bool>(match, order_switch);
@@ -3167,9 +3161,10 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 					   bool allow_peptide_link_flag) const {
 
    bool switch_order_flag = 0;
-   bool found = 0;
-   bool debug = 0;
+   bool found = false;
 
+   bool debug = false;
+   
 //    if (debug) { 
 //       std::cout << "---------------------- Here are the chem_links: -----------------"
 // 		<< std::endl;
@@ -3708,8 +3703,11 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 
    // If this is INH, DRG etc, don't try to auto-add
    // 
-   if (is_non_auto_load_ligand(resname))
-      return success; 
+   if (is_non_auto_load_ligand(resname)) {
+      std::cout << "INFO:: comp-id: " << resname << " is marked for non-autoloading - stopping now "
+		<< std::endl;
+      return success;
+   }
 
    // So what is happening here?
    //
@@ -3748,6 +3746,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
       } else {
 	 filename += "/data/monomers/";
       }
+
       if (resname.length() > 0) {
 	 const char rs = resname[0];
 	 const char v = tolower(rs); // get the sub directory name

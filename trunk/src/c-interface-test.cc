@@ -377,6 +377,13 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (1) {
+      std::cout << "======== n monomers in dictionary: " << g.Geom_p()->size() << std::endl;
+      for (unsigned int irest=0; irest<g.Geom_p()->size(); irest++) { 
+	 std::cout << "   " << irest << "  " << (*g.Geom_p())[irest].residue_info.comp_id << std::endl;
+      }
+   } 
+
+   if (0) {
 #if HAVE_GOOCANVAS      
       coot::goograph g;
       g.show_dialog();

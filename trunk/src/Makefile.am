@@ -394,6 +394,8 @@ coot_real_SOURCES = \
 	restraints-editor-c.h    \
 	rotate-translate-modes.hh \
 	rotamer-search-modes.hh  \
+	sdf-interface.hh         \
+	sdf-interface.cc         \
 	support.c support.h 	 \
 	support-gtk2-extras.c    \
 	testing.cc testing.hh    \

@@ -492,17 +492,18 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	 // types not in the dictionary and then try to read an sbase
 	 // description (should be fast) and if found, rerun the bonding
 	 // algorithm.
+
       
 	 std::vector<std::string> types_with_no_dictionary =
 	    g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
 
 	 int first_n_types_with_no_dictionary = types_with_no_dictionary.size();
 	 
-	 std::cout << "Debug:: there were " << types_with_no_dictionary.size() << " types "
+	 std::cout << "DEBUG:: there were " << types_with_no_dictionary.size() << " types "
 		   << "with no dictionary " << std::endl;
 
 	 for (unsigned int i=0; i<types_with_no_dictionary.size(); i++) {
-	    std::cout << "IFO:: trying to dynamic add: " << types_with_no_dictionary[i]
+	    std::cout << "DEBUG:: calling try_dynamic_add: " << types_with_no_dictionary[i]
 		      << " with read number " << g.cif_dictionary_read_number << std::endl;
 	    int n_bonds = g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i],
 						      g.cif_dictionary_read_number);
@@ -510,6 +511,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	 }
 	 
 	 types_with_no_dictionary = g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+
 	 if (types_with_no_dictionary.size()) {
 	    if (g.Geom_p()->try_load_sbase_description(types_with_no_dictionary))
 	       g.molecules[imol].make_bonds_type_checked();
