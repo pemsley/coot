@@ -5277,7 +5277,7 @@
 	      <child>
 		<widget class="GtkLabel" id="label7">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">Angstroems</property>
+		  <property name="label" translatable="yes">Ångström</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -5410,7 +5410,7 @@
 	      <child>
 		<widget class="GtkLabel" id="label33">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">e/A^3</property>
+		  <property name="label" translatable="yes">e/Å^3</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -5501,7 +5501,7 @@
 	      <child>
 		<widget class="GtkLabel" id="label35">
 		  <property name="visible">True</property>
-		  <property name="label" translatable="yes">e/A^3</property>
+		  <property name="label" translatable="yes">e/Å^3</property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
 		  <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -10454,7 +10454,7 @@ just the cell and symmetry)
 	  <child>
 	    <widget class="GtkLabel" id="label52">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">Angstroems</property>
+	      <property name="label" translatable="yes">Ångström</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -18015,7 +18015,7 @@ Do you want to continue?
 			  <child>
 			    <widget class="GtkLabel" id="label92">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">  Angstroms  </property>
+			      <property name="label" translatable="yes">  Ångström  </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -18099,7 +18099,7 @@ Do you want to continue?
 			  <child>
 			    <widget class="GtkLabel" id="label93">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes">  Angstroms  </property>
+			      <property name="label" translatable="yes">  Ångström  </property>
 			      <property name="use_underline">False</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -39397,7 +39397,7 @@ distances more than:</property>
 			      <child>
 				<widget class="GtkLabel" id="label552">
 				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Angstroems</property>
+				  <property name="label" translatable="yes">Ångström</property>
 				  <property name="use_underline">False</property>
 				  <property name="use_markup">False</property>
 				  <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -41375,7 +41375,7 @@ distances more than:</property>
 			      <child>
 				<widget class="GtkLabel" id="label583">
 				  <property name="visible">True</property>
-				  <property name="label" translatable="yes">Angstroems</property>
+				  <property name="label" translatable="yes">Ångström</property>
 				  <property name="use_underline">False</property>
 				  <property name="use_markup">False</property>
 				  <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -43044,7 +43044,7 @@ distances more than:</property>
 		      <child>
 			<widget class="GtkLabel" id="label236">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes"> Angstroms </property>
+			  <property name="label" translatable="yes"> Ångström </property>
 			  <property name="use_underline">False</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_CENTER</property>
@@ -43072,7 +43072,7 @@ distances more than:</property>
 		      <child>
 			<widget class="GtkLabel" id="label235">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes"> Angstroms </property>
+			  <property name="label" translatable="yes"> Ångström </property>
 			  <property name="use_underline">False</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_CENTER</property>
