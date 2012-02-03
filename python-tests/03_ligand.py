@@ -74,9 +74,11 @@ class LigandTestFunctions(unittest.TestCase):
         delete_restraints("LIG")
         add_non_auto_load_residue_name("LIG")
         r_4 = monomer_restraints("LIG")
-        # r_1, r_2, r_4 should be False, r_3 shouldbe filled
-
-        unittest_pdb("test-LIG.pdb")
+        # r_1, r_2, r_4 should be False, r_3 should be filled
+        self.failUnless(all([r_1 == False,
+                             r_2 == False,
+                             r_4 == False,
+                             isinstance(r_3, dict)]))
 
 
     def test05_0(self):
@@ -146,7 +148,7 @@ class LigandTestFunctions(unittest.TestCase):
 
         
     def test07_0(self):
-        """flip residue (around eigen vectors)"""
+        """Flip residue (around eigen vectors)"""
 
         mon_file = os.path.join("coot-ccp4", "monomer-3GP.pdb")
         self.failIf(not os.path.isfile(mon_file),
