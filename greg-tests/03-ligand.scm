@@ -57,10 +57,30 @@
 	 (> n 0)))))
 
 
-(greg-testcase "Non-Autoloads work as expected" #t
+
+(greg-testcase "Non-Autoloads" #t
    (lambda ()
 
-     (let ((r-1 (monomer-restraints "LIG")))
+     (define (get-ccp4-version)
+       (let ((s (string-split (shell-command-to-string "cad -i") #\newline)))
+	 (let loop ((s s))
+	   (cond 
+	    ((null? s) #f)
+	    ((string-match "CCP4 software suite: patch level" (car s))
+	     (let ((sl (string->list-of-strings (car s))))
+	       (car (reverse sl))))
+	    (else (loop (cdr s)))))))
+
+     (define (old-ccp4-restraints?)
+       (if (not have-ccp4?)
+           #f
+	   (let ((v (get-ccp4-version)))
+	     (if (not (string? v))
+		 #t ;; bizarre
+		 (string<? v "6.2")))))
+
+     (let ((r-1 (monomer-restraints "LIG"))
+	   (o (old-ccp4-restraints?)))
        (greg-pdb "test-LIG.pdb")
        (let ((r-2 (monomer-restraints "LIG")))
 	 (remove-non-auto-load-residue-name "LIG")
@@ -76,7 +96,14 @@
 		   (eq? #f r-1)
 		   (eq? #f r-2)
 		   (eq? #f r-4)
-		   (list? r-3)))
+		   ;; just to be clear here: either this is modern
+		   ;; restraints and we should get a list in r-3... or
+		   ;; this is old restraints. Either of those should
+		   ;; result in a PASS.
+                   (or 
+                    (and (not (old-ccp4-restraints?))
+                         (list? r-3))
+                    (old-ccp4-restraints?))))
 		 #t ;; good return value
 		 (begin
 		   (format #t "restraints: r-1 ~s~%" r-1)
@@ -84,6 +111,8 @@
 		   (format #t "restraints: r-3 ~s~%" r-3)
 		   (format #t "restraints: r-4 ~s~%" r-4)
 		   #f))))))))
+
+
 
 
 
