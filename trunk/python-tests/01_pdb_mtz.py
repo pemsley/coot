@@ -716,8 +716,9 @@ class PdbMtzTestFunctions(unittest.TestCase):
             if other_residues:
                 all_residues += other_residues
             print "   imol: %s residues: %s" %(imol, all_residues)
-            refine_residues(imol, all_residues)
+            with_auto_accept([refine_residues, imol, all_residues])
 
+        # main line
         imol = unittest_pdb("tutorial-add-terminal-1-test.pdb")
         self.failUnless(valid_model_molecule_qm(imol),
                         "   molecule pdb not found")
@@ -728,6 +729,17 @@ class PdbMtzTestFunctions(unittest.TestCase):
         success = set_go_to_atom_chain_residue_atom_name("A", 93, " CA ")
         self.failIf(success == 0, "   failed to go to A93 CA atom")
         sphere_refine_here()
+
+        set_go_to_atom_chain_residue_atom_name("A", 41, " CA ")
+        sphere_refine_here()
+
+        # these should be a standard peptide bond length - however, if we don't find
+        # the peptide link, they get pushed apart.  Test for that.
+        atom_1 = get_atom(imol, "A", 40, "", " C  ", "")
+        atom_2 = get_atom(imol, "A", 41, "", " N  ", "")
+        bl = bond_length_from_atoms(atom_1, atom_2)
+        print "======= got bond length", bl
+        self.failUnless(bl < 1.4)
 
 
     def test20_1(self):
