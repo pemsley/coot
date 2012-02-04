@@ -46,6 +46,28 @@ void residue_to_sdf_file(int imol, const char *chain_id, int res_no, const char 
 	    bool includeStereo = true;
 	    int confId = 0;
 	    bool kekulize = true;
+
+	    // clear out any cached properties
+	    rdkm.clearComputedProps();
+	    // clean up things like nitro groups
+	    RDKit::MolOps::cleanUp(rdkm);
+	    // update computed properties on atoms and bonds:
+	    rdkm.updatePropertyCache();
+	    RDKit::MolOps::Kekulize(rdkm);
+	    RDKit::MolOps::assignRadicals(rdkm);
+	    
+	    // then do aromaticity perception
+	    // RDKit::MolOps::setAromaticity(rdkm);
+    
+	    // set conjugation
+	    RDKit::MolOps::setConjugation(rdkm);
+	       
+	    // set hybridization
+	    RDKit::MolOps::setHybridization(rdkm); // non-linear ester bonds.
+
+	    // remove bogus chirality specs:
+	    RDKit::MolOps::cleanupChirality(rdkm);
+
 	    RDKit::MolToMolFile(rdkm, sdf_file_name, includeStereo, confId, kekulize);
 	 }
 	 catch (std::runtime_error coot_error) {
