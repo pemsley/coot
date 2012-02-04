@@ -2361,7 +2361,6 @@ lbg_info_t::init(GtkBuilder *builder) {
 void
 lbg_info_t::setup_lbg_drag_and_drop(GtkWidget *lbg_window) {
 
-  std::cout << "BL DEBUG:: initialise drag n drop" <<std::endl;
    // setup drag and drop
    int n_dnd_targets = 2;
    GtkTargetEntry target_list[] = {
