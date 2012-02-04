@@ -338,7 +338,43 @@ def file_n_lines(file_name):
         n_lines = sum(1 for line in fin)
         fin.close()
         return n_lines
+
+# backport, so that we can replace once move to Python 2.7 is done
+def check_output(*popenargs, **kwargs):
+    r"""Run command with arguments and return its output as a byte string.
+
+Backported from Python 2.7 as it's implemented as pure python on stdlib.
+
+>>> check_output(['/usr/bin/python', '--version'])
+Python 2.6.2
+"""
     
+    import subprocess
+    process = subprocess.Popen(stdout=subprocess.PIPE, *popenargs, **kwargs)
+    output, unused_err = process.communicate()
+    retcode = process.poll()
+    if retcode:
+        cmd = kwargs.get("args")
+        if cmd is None:
+            cmd = popenargs[0]
+        error = subprocess.CalledProcessError(retcode, cmd)
+        error.output = output
+        raise error
+    return output
+
+def shell_command_to_string(cmd):
+
+    import subprocess
+    import sys
+
+    major, minor, micro, releaselevel, serial = sys.version_info
+
+    if (major >= 2 and minor >= 7):
+        ret = subprocess.check_output(cmd)
+    else:
+        ret = check_output(cmd)
+    return ret
+
 # Return True or False
 # adapted from find_exe
 # this finds absolute file names too
