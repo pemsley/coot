@@ -136,46 +136,51 @@ void smiles_to_ligand_builder(const char *smiles_string) {
    try {
       
       RDKit::RWMol *rdk_mol = RDKit::SmilesToMol(smiles_string);
-      // clear out any cached properties
-      rdk_mol->clearComputedProps();
-      // clean up things like nitro groups
-      RDKit::MolOps::cleanUp(*rdk_mol);
-      // update computed properties on atoms and bonds:
-      rdk_mol->updatePropertyCache();
-      RDKit::MolOps::Kekulize(*rdk_mol);
-      RDKit::MolOps::assignRadicals(*rdk_mol);
-      // set conjugation
-      RDKit::MolOps::setConjugation(*rdk_mol);
-      // set hybridization
-      RDKit::MolOps::setHybridization(*rdk_mol); 
-      // remove bogus chirality specs:
-      RDKit::MolOps::cleanupChirality(*rdk_mol);
-      int iconf = RDDepict::compute2DCoords(*rdk_mol, 0, true);
-      lig_build::molfile_molecule_t m = coot::make_molfile_molecule(*rdk_mol, iconf);
+      // if SmilesToMol() fails on parsing the string, then that
+      // (can?) results in rdk_mol returning NULL (rather than an
+      // exception being thrown).
+      if (rdk_mol) { 
+	 // clear out any cached properties
+	 rdk_mol->clearComputedProps();
+	 // clean up things like nitro groups
+	 RDKit::MolOps::cleanUp(*rdk_mol);
+	 // update computed properties on atoms and bonds:
+	 rdk_mol->updatePropertyCache();
+	 RDKit::MolOps::Kekulize(*rdk_mol);
+	 RDKit::MolOps::assignRadicals(*rdk_mol);
+	 // set conjugation
+	 RDKit::MolOps::setConjugation(*rdk_mol);
+	 // set hybridization
+	 RDKit::MolOps::setHybridization(*rdk_mol); 
+	 // remove bogus chirality specs:
+	 RDKit::MolOps::cleanupChirality(*rdk_mol);
+	 int iconf = RDDepict::compute2DCoords(*rdk_mol, 0, true);
+	 lig_build::molfile_molecule_t m = coot::make_molfile_molecule(*rdk_mol, iconf);
    
-      std::cout << " molfile contains " << m.atoms.size() << " atoms " << std::endl;
-      for (unsigned int i=0; i<m.atoms.size(); i++) {
-	 std::cout << "   " << i << "   name: " << m.atoms[i].name << " element: "
-		   << m.atoms[i].element << " position: "
-		   << m.atoms[i].atom_position.format() << " " << std::endl;
-      }
-      std::cout << " molfile contains " << m.bonds.size() << " atoms " << std::endl;
-      for (unsigned int i=0; i<m.bonds.size(); i++) { 
-	 std::cout << "   " << m.bonds[i].index_1 << " " << m.bonds[i].index_2 << " type: "
-		   << m.bonds[i].bond_type << std::endl;
-      }
+	 std::cout << " molfile contains " << m.atoms.size() << " atoms " << std::endl;
+	 for (unsigned int i=0; i<m.atoms.size(); i++) {
+	    std::cout << "   " << i << "   name: " << m.atoms[i].name << " element: "
+		      << m.atoms[i].element << " position: "
+		      << m.atoms[i].atom_position.format() << " " << std::endl;
+	 }
+	 std::cout << " molfile contains " << m.bonds.size() << " atoms " << std::endl;
+	 for (unsigned int i=0; i<m.bonds.size(); i++) { 
+	    std::cout << "   " << m.bonds[i].index_1 << " " << m.bonds[i].index_2 << " type: "
+		      << m.bonds[i].bond_type << std::endl;
+	 }
    
-      CMMDBManager *mol = NULL;
-      std::pair<bool, coot::residue_spec_t> dummy_spec(0, coot::residue_spec_t());
-      bool use_graphics_flag = graphics_info_t::use_graphics_interface_flag;
-      bool stand_alone_flag = 0; // no, it isn't from here.
-      int (*get_url_func_ptr) (const char *s1, const char *s2) = NULL;
+	 CMMDBManager *mol = NULL;
+	 std::pair<bool, coot::residue_spec_t> dummy_spec(0, coot::residue_spec_t());
+	 bool use_graphics_flag = graphics_info_t::use_graphics_interface_flag;
+	 bool stand_alone_flag = 0; // no, it isn't from here.
+	 int (*get_url_func_ptr) (const char *s1, const char *s2) = NULL;
 #ifdef USE_LIBCURL
-      get_url_func_ptr = coot_get_url;
+	 get_url_func_ptr = coot_get_url;
 #endif
 
-      lbg(m, dummy_spec, mol, "", "", -1, use_graphics_flag, stand_alone_flag,
- 	  get_url_func_ptr, prodrg_import_function, sbase_import_function);
+	 lbg(m, dummy_spec, mol, "", "", -1, use_graphics_flag, stand_alone_flag,
+	     get_url_func_ptr, prodrg_import_function, sbase_import_function);
+      }
    }
    catch (std::exception e) {
       std::cout << "WARNING:: in generating molecule from SMILES: "
