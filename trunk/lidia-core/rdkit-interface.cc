@@ -96,8 +96,9 @@ coot::rdkit_mol(CResidue *residue_p,
 	    try {
 	       std::string ele_capped =
 		  coot::util::capitalise(coot::util::remove_leading_spaces(residue_atoms[iat]->element));
-	       at->setAtomicNum(tbl->getAtomicNumber(ele_capped));
-	    
+	       int atomic_number = tbl->getAtomicNumber(ele_capped);
+	       at->setAtomicNum(atomic_number);
+	       at->setMass(tbl->getAtomicWeight(atomic_number));
 	       at->setProp("name", std::string(residue_atoms[iat]->name));
 
 	       // set the valence from they type energy.  Abstract?
@@ -1118,6 +1119,7 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
    int n_bonds = rdkm->getNumBonds();
    RDKit::ROMol::BondIterator bondIt;
    RDKit::ROMol::BondIterator bondIt_inner;
+   RDKit::ROMol::BondIterator bondIt_in_in;
    for(bondIt=rdkm->beginBonds(); bondIt!=rdkm->endBonds(); ++bondIt) {
       if ((*bondIt)->getBondType() == RDKit::Bond::ONEANDAHALF) {
 	 // was one of these atoms a Nitrogen?
@@ -1150,11 +1152,11 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 			// swap them then
 			(*bondIt)->setBondType(RDKit::Bond::SINGLE);
 			(*bondIt_inner)->setBondType(RDKit::Bond::DOUBLE);
-			std::cout << "^^^^^^^^^^^^^^^^^ fixed up a bond! 1" << std::endl;
+			// std::cout << "^^^^^^^^^^^^^^^^^ fixed up a bond! 1" << std::endl;
 			int e_valence_post = atom_1->getExplicitValence();
-			std::cout << "::::::: explicit pre valence " << e_valence_pre
-				  << "   explicit post valence "
-				  << e_valence_post << std::endl;
+// 			std::cout << "::::::: explicit pre valence " << e_valence_pre
+// 				  << "   explicit post valence "
+// 				  << e_valence_post << std::endl;
 		     }
 		  }
 	       }
@@ -1164,10 +1166,107 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 			// swap them then
 			(*bondIt)->setBondType(RDKit::Bond::SINGLE);
 			(*bondIt_inner)->setBondType(RDKit::Bond::DOUBLE);
-			std::cout << "^^^^^^^^^^^^^^^^^ fixed up a bond! 2" << std::endl;
+			// std::cout << "^^^^^^^^^^^^^^^^^ fixed up a bond! 2" << std::endl;
 		     }
 		  }
 	       }
+	    }
+	 }
+      }
+   }
+
+   // The valence of 2 1/2 on a methyl on one of the oxygens of a carboxylate
+   // 
+   for(bondIt=rdkm->beginBonds(); bondIt!=rdkm->endBonds(); ++bondIt) {
+      if ((*bondIt)->getBondType() == RDKit::Bond::ONEANDAHALF) {
+	 RDKit::Atom *atom_1 = (*bondIt)->getBeginAtom();
+	 RDKit::Atom *atom_2 = (*bondIt)->getEndAtom();
+
+	 if (atom_1->getAtomicNum() == 6) {
+	    if (atom_2->getAtomicNum() == 8) {
+
+	       // rename for clarity
+	       RDKit::Atom *central_C = atom_1;
+	       RDKit::Atom *O1 = atom_2;
+	       
+	       for(bondIt_inner=rdkm->beginBonds(); bondIt_inner!=rdkm->endBonds(); ++bondIt_inner) {
+		  if ((*bondIt_inner)->getBondType() == RDKit::Bond::ONEANDAHALF) {
+		     RDKit::Atom *atom_1_in = (*bondIt_inner)->getBeginAtom();
+		     RDKit::Atom *atom_2_in = (*bondIt_inner)->getEndAtom();
+		     if (atom_1_in == atom_1) {
+			if (atom_2_in != atom_2) {
+			   if (atom_2_in->getAtomicNum() == 8) {
+
+			      // OK, we have a carbon (atom_1) bonded to two Os via delocs -
+			      // the oxygens are atom_2 and atom_2_in
+			      // 
+			      // rename for clarity
+			      //
+			      RDKit::Atom *O2 = atom_2_in;
+			      
+			      // bondIt and bondIt_inner are the bonds that we will ultimately modify
+
+			      // OK, so was there something attached to either of the Oxygens?
+			      // 
+			      for(bondIt_in_in=rdkm->beginBonds(); bondIt_in_in!=rdkm->endBonds(); ++bondIt_in_in) {
+				 if ((*bondIt_in_in)->getBondType() == RDKit::Bond::SINGLE) {
+				    RDKit::Atom *atom_1_in_in = (*bondIt_in_in)->getBeginAtom();
+				    RDKit::Atom *atom_2_in_in = (*bondIt_in_in)->getEndAtom();
+				    
+				    // check atom_1_in_in vs the first oxygen
+				    if (atom_1_in_in == O1) {
+				       if (atom_2_in_in != central_C) {
+
+					  // OK, so O1 was bonded to something else
+					  // 
+					  (*bondIt)->setBondType(RDKit::Bond::SINGLE);
+					  (*bondIt_inner)->setBondType(RDKit::Bond::DOUBLE);
+				       }
+				    }
+				    
+				    // check vs the second oxygen
+				    if (atom_1_in_in == O2) {
+				       if (atom_2_in_in != central_C) {
+					  // OK, so O2 was bonded to something else
+					  (*bondIt)->setBondType(RDKit::Bond::DOUBLE);
+					  (*bondIt_inner)->setBondType(RDKit::Bond::SINGLE);
+				       }
+				    }
+
+				    // check atom_2_in_in vs the first oxygen
+				    if (atom_2_in_in == O1) {
+				       if (atom_1_in_in != central_C) {
+					  // OK, so O1 was bonded to something else
+					  // 
+					  (*bondIt)->setBondType(RDKit::Bond::SINGLE);
+					  (*bondIt_inner)->setBondType(RDKit::Bond::DOUBLE);
+				       }
+				    }
+				    
+				    // check atom_2_in_in vs the second oxygen
+				    if (atom_2_in_in == O2) { 
+				       if (atom_1_in_in != central_C) {
+					  // OK, so O2 was bonded to something else
+					  (*bondIt)->setBondType(RDKit::Bond::DOUBLE);
+					  (*bondIt_inner)->setBondType(RDKit::Bond::SINGLE);
+				       }
+				    }
+				 }
+			      }
+			   }
+			}
+		     }
+
+		     // The central carbon was the other atom?
+		     if (atom_2_in == atom_1) {
+		     }
+		  }
+	       }
+	    }
+	 }
+	    
+	 if (atom_1->getAtomicNum() == 8) {
+	    if (atom_2->getAtomicNum() == 6) {
 	    }
 	 }
       }
