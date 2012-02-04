@@ -63,9 +63,27 @@ class LigandTestFunctions(unittest.TestCase):
 
 
     def test04_0(self):
-        """Non-Autoloads work as expected"""
+        """Non-Autoloads"""
 
+        def get_ccp4_version():
+            s = shell_command_to_string("cad -i").split("\n")
+            for line in s:
+                if "CCP4 software suite: patch level" in line:
+                    sl = line.split()
+                    return sl[-1]
+            return False
+
+        def old_ccp4_restraints_qm():
+            global have_ccp4_qm
+            if (not have_ccp4_qm):
+                return False
+            else:
+                v = get_ccp4_version()
+                # will always be string
+                return v < "6.2"
+            
         r_1 = monomer_restraints("LIG")
+        o = old_ccp4_restraints_qm()
         unittest_pdb("test-LIG.pdb")
         r_2 = monomer_restraints("LIG")
         remove_non_auto_load_residue_name("LIG")
@@ -75,9 +93,16 @@ class LigandTestFunctions(unittest.TestCase):
         add_non_auto_load_residue_name("LIG")
         r_4 = monomer_restraints("LIG")
         # r_1, r_2, r_4 should be False, r_3 should be filled
+        #
+        # just to be clear here: either this is modern
+        # restraints and we should get a list in r-3... or
+        # this is old restraints. Either of those should
+        # result in a PASS.
         self.failUnless(all([r_1 == False,
                              r_2 == False,
                              r_4 == False,
+                             old_ccp4_restraints_qm() if \
+                             old_ccp4_restraints_qm() else \
                              isinstance(r_3, dict)]))
 
 
