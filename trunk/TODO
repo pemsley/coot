@@ -1027,6 +1027,8 @@ Punted from 0.6:
      colour-picker/patch widget for maps.  This needs to update the map 
      colour dynamically.
 
+   o turn off ring torsions in conformer generation.
+
    o sort out the includes so that I use -I .. and
      #include "ideal/geometry.hh" etc.
 

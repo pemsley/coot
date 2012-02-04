@@ -6375,4 +6375,12 @@ Mon Jan 30 11:45:55 GMT 2012
       check the changes that Mogul has made. A summary of the changes
       made will be given in a Structure edited pop-up.
 
+---
+Fri Feb  3 11:46:48 GMT 2012
+
+on windows:
+
+ECHO %HOMEDRIVE%%HOMEPATH%
+
+
 ------
