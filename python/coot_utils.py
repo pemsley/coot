@@ -362,6 +362,8 @@ Python 2.6.2
         raise error
     return output
 
+# returns false of there is a problem running cmd
+#
 def shell_command_to_string(cmd):
 
     import subprocess
@@ -370,9 +372,15 @@ def shell_command_to_string(cmd):
     major, minor, micro, releaselevel, serial = sys.version_info
 
     if (major >= 2 and minor >= 7):
-        ret = subprocess.check_output(cmd)
+        try:
+            ret = subprocess.check_output(cmd.split())
+        except:
+            ret = False
     else:
-        ret = check_output(cmd)
+        try:
+            ret = check_output(cmd)
+        except:
+            ret = False
     return ret
 
 # Return True or False
