@@ -67,10 +67,11 @@ class LigandTestFunctions(unittest.TestCase):
 
         def get_ccp4_version():
             s = shell_command_to_string("cad -i").split("\n")
-            for line in s:
-                if "CCP4 software suite: patch level" in line:
-                    sl = line.split()
-                    return sl[-1]
+            if s:
+                for line in s:
+                    if "CCP4 software suite: patch level" in line:
+                        sl = line.split()
+                        return sl[-1]
             return False
 
         def old_ccp4_restraints_qm():
