@@ -853,7 +853,7 @@ test_fragmemt_atom_selection() {
 int test_peptide_link() {
    
    std::string f = "1h4p.pdb";
-   atom_selection_container_t asc = get_atom_selection(f, 1);
+   atom_selection_container_t asc = get_atom_selection(greg_test(f), 1);
    if (! asc.read_success)
       return 0;
 
@@ -1278,7 +1278,7 @@ int test_ligand_fit_from_given_point() {
    testing_data t;
 
    std::string cif_file_name = "libcheck_3GP-torsion-filtered.cif";
-   int geom_stat = t.geom.init_refmac_mon_lib(cif_file_name, 0);
+   int geom_stat = t.geom.init_refmac_mon_lib(greg_test(cif_file_name), 0);
    if (geom_stat == 0) {
       std::string m = "Critical cif dictionary reading failure.";
       std::cout << m << std::endl;
@@ -1349,7 +1349,7 @@ int test_ligand_conformer_torsion_angles() {
    testing_data t;
 
    std::string cif_file_name = "libcheck_3GP-torsion-filtered.cif";
-   int geom_stat = t.geom.init_refmac_mon_lib(cif_file_name, 0);
+   int geom_stat = t.geom.init_refmac_mon_lib(greg_test(cif_file_name), 0);
    if (geom_stat == 0) {
       std::string m = "Critical cif dictionary reading failure.";
       std::cout << m << std::endl;
@@ -1514,7 +1514,7 @@ int test_coot_atom_tree() {
    
    std::string cif_file_name = "libcheck_ASP.cif";
    coot::protein_geometry geom;
-   int geom_stat = geom.init_refmac_mon_lib(cif_file_name, 0);
+   int geom_stat = geom.init_refmac_mon_lib(greg_test(cif_file_name), 0);
    std::pair<short int, coot::dictionary_residue_restraints_t> p = 
       geom.get_monomer_restraints("ASP");
 
@@ -1545,13 +1545,13 @@ int test_coot_atom_tree() {
    if (1) {
       try {
 	 filename = "monomer-3GP.pdb";
-	 atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
+	 atom_selection_container_t atom_sel = get_atom_selection(greg_test(filename), 1);
 	 if (!atom_sel.read_success) {
 	    std::cout << "monomer-3GP.pdb not read successfully." << std::endl;
 	 } else { 
 	    CResidue *res = test_get_residue(atom_sel.mol, "A", 1);
 	    if (res) {
-	       geom_stat = geom.init_refmac_mon_lib("libcheck_3GP.cif", 0);
+          geom_stat = geom.init_refmac_mon_lib(greg_test("libcheck_3GP.cif"), 0);
 	       std::pair<short int, coot::dictionary_residue_restraints_t> p = 
 		  geom.get_monomer_restraints("3GP");
 	       if (p.first) { 
@@ -1831,7 +1831,7 @@ test_rotate_round_vector() {
    int r = 0;
    
    std::string filename = "monomer-3GP.pdb";
-   atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
+   atom_selection_container_t atom_sel = get_atom_selection(greg_test(filename), 1);
 
    std::string rotate_atom_1 = " N9 ";
    std::string rotate_atom_2 = " C1*";
@@ -2295,7 +2295,7 @@ int test_flev_aromatics() {
    // std::string filename = "test-with-5GP.pdb";
    std::string filename = "test-with-5GP-with-ideal-A37-PHE.pdb";
    // std::string filename = "coot-download/1x8b.pdb";
-   atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
+   atom_selection_container_t atom_sel = get_atom_selection(greg_test(filename), 1);
    CResidue *res_ref = coot::util::get_residue("C", 1, "", atom_sel.mol);
    // CResidue *res_ref = coot::util::get_residue("A", 901, "", atom_sel.mol);
    if (! res_ref) {
@@ -2518,8 +2518,8 @@ int test_mcd_and_thornton_h_bonds() {
    int r = 0;
 
    testing_data t;
-   t.geom.init_refmac_mon_lib("SGP-modified.cif", 0);
-   atom_selection_container_t asc = get_atom_selection("test-hydrogenated-region.pdb", 0);
+   t.geom.init_refmac_mon_lib(greg_test("SGP-modified.cif"), 0);
+   atom_selection_container_t asc = get_atom_selection(greg_test("test-hydrogenated-region.pdb"), 0);
    if (asc.read_success) {
 
       int SelHnd_all = asc.mol->NewSelection();
