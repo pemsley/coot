@@ -1790,7 +1790,6 @@ graphics_info_t::graphics_object_internal_single_tube(const coot::Cartesian &bas
    coot::Cartesian bond_frag = end_point - base_point;
    double height = bond_frag.amplitude();
 
-
    glTranslatef(base_point.x(), base_point.y(), base_point.z());
 
 
@@ -1847,7 +1846,126 @@ graphics_info_t::graphics_object_internal_single_tube(const coot::Cartesian &bas
    
    gluDeleteQuadric(quad);
    glPopMatrix();
-} 
+}
+
+void
+graphics_info_t::graphics_object_internal_arrow(const coot::Cartesian &base_point,
+						const coot::Cartesian &end_point, 
+						float fraction_head_size,
+						const double &radius) const {
+
+   double top =  radius;
+   double base = radius;
+   int slices  = 12;
+   int stacks  = 2;
+   
+   glPushMatrix();
+	       
+   coot::Cartesian bond_frag = end_point - base_point;
+   double height = bond_frag.amplitude();
+
+   glTranslatef(base_point.x(), base_point.y(), base_point.z());
+
+
+   // 	    This code from ccp4mg's cprimitive.cc (but modified)
+   //  	    ----- 
+   double ax;
+   double rx = 0; 
+   double ry = 0;
+   double length = height;
+   double vz = bond_frag.z();
+	 
+   bool rot_x = false;
+   if(fabs(vz)>1e-7){
+      ax = 180.0/M_PI*acos(vz/length);
+      if(vz<0.0) ax = -ax;
+      rx = -bond_frag.y()*vz;
+      ry = bond_frag.x()*vz;
+   }else{
+      double vx = bond_frag.x();
+      double vy = bond_frag.y();
+      ax = 180.0/M_PI*acos(vx/length);
+      if(vy<0) ax = -ax;
+      rot_x = true;
+   }
+	 
+   if (rot_x) { 
+      glRotated(90.0, 0.0, 1.0, 0.0);
+      glRotated(ax,  -1.0, 0.0, 0.0);
+   } else {
+      glRotated(ax, rx, ry, 0.0);
+   }
+   // 	    --------
+
+   GLUquadric* quad_1 = gluNewQuadric();
+   GLUquadric* quad_2 = gluNewQuadric();
+   GLUquadric* quad_3 = gluNewQuadric();
+   
+   gluCylinder(quad_1, base, top, height, slices, stacks);
+   glTranslated(0, 0, height);
+   gluCylinder(quad_2, 2*base, 0, fraction_head_size * height, slices, stacks);
+   
+   glScalef(1.0, 1.0, -1.0);
+   gluDisk(quad_3, 0, base, slices, 2);
+
+
+   gluDeleteQuadric(quad_1);
+   gluDeleteQuadric(quad_2);
+   gluDeleteQuadric(quad_3);
+   glPopMatrix();
+}
+
+void
+graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_point,
+						const coot::Cartesian &end_point, 
+						const double &radius_1,
+						const double &radius_2,
+						int n_ring_atoms) const {
+
+   double top =  0.2;
+   double base = 0.2;
+   double fraction_head_size = 0.3;
+   int slices  = 12;
+   int stacks  = 2;
+   
+	       
+   coot::Cartesian bond_frag = end_point - base_point;
+   double height = bond_frag.amplitude();
+   
+   if (height > 0.0) { 
+      glPushMatrix();
+      glTranslatef(base_point.x(), base_point.y(), base_point.z());
+      
+      // we need to rotate the world so that the normal (bond_frag) is
+      // along the z axis.  (maybe it already is - say, we are looking at
+      // the feats from a raw prodrg result - which is aligned in the XY
+      // plane)
+      //
+      coot::Cartesian normal = bond_frag * (1.0/height);
+      if (normal.z() > 0.999) {
+	 // std::cout << "      no rotation needed" << normal << std::endl;
+      } else {
+
+	 double cos_theta_y = normal.z();
+	 double theta_y_rad = acos(cos_theta_y);
+	 double theta_z_rad = atan2(normal.y(), normal.x());
+	 double theta_z = clipper::Util::rad2d(theta_z_rad);
+	 double theta_y = clipper::Util::rad2d(theta_y_rad);
+	 glRotated(theta_z, 0, 0, 1); // not negative.  I don't know why.
+	 glRotated(theta_y, 0, 1, 0); //   ditto.
+      }
+   
+      glTranslated(0, 0, 1.3 * height);
+      if (n_ring_atoms == 5)
+	 // this makes the ring brighter.  I don't know why.
+	 glScalef(0.95, 0.95, 0.95);
+      else 
+	 glScalef(1.1, 1.1, 1.1);
+      glutSolidTorus(radius_1, radius_2, 20, 20);
+   }
+   glPopMatrix();
+}
+
 
 
 void
@@ -3968,6 +4086,7 @@ graphics_info_t::draw_generic_objects_solid() {
    double radius = 0.05;
    
    glEnable(GL_LIGHTING);
+   glEnable(GL_LIGHT2);
    glEnable(GL_LIGHT1);
    glEnable(GL_LIGHT0);
    glEnable(GL_COLOR_MATERIAL);
@@ -3997,10 +4116,10 @@ graphics_info_t::draw_generic_objects_solid() {
 		      (*generic_objects_p)[i].points_set[ips].colour.green,
 		      (*generic_objects_p)[i].points_set[ips].colour.blue);
 	    
+	    int sphere_slices = 5;
+	    int sphere_stacks = 5;
 	    unsigned int npoints = (*generic_objects_p)[i].points_set[ips].points.size();
 	    for (unsigned int ipoint=0; ipoint<npoints; ipoint++) {
-	       int sphere_slices = 5;
-	       int sphere_stacks = 5;
 	       GLUquadric* sphere_quad = gluNewQuadric();
 	       glPushMatrix();
 	       glTranslatef((*generic_objects_p)[i].points_set[ips].points[ipoint].x(),
@@ -4009,6 +4128,87 @@ graphics_info_t::draw_generic_objects_solid() {
 	       gluSphere(sphere_quad, radius, sphere_slices, sphere_stacks);
 	       gluDeleteQuadric(sphere_quad);
 	       glPopMatrix();	 
+	    }
+	 }
+
+	 // Other stuff:
+	 // float feature_opacity = 0.6;
+	 float feature_opacity = 0.9;
+
+	 // spheres
+
+	 if ((*generic_objects_p)[i].spheres.size()) {
+	    glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
+	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	    for (unsigned int isphere=0; isphere<(*generic_objects_p)[i].spheres.size(); isphere++) { 
+
+	       const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
+	       GLfloat  mat_specular[]  = {obj.spheres[isphere].col.col[0],
+					   obj.spheres[isphere].col.col[1],
+					   obj.spheres[isphere].col.col[2], 
+					   feature_opacity};
+	       GLfloat  mat_shininess[] = {15};
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+	       
+	       int sphere_slices = 10;
+	       int sphere_stacks = 10;
+	       GLUquadric* sphere_quad = gluNewQuadric();
+	       glPushMatrix();
+	       glTranslatef((*generic_objects_p)[i].spheres[isphere].centre.x(),
+			    (*generic_objects_p)[i].spheres[isphere].centre.y(),
+			    (*generic_objects_p)[i].spheres[isphere].centre.z());
+	       gluSphere(sphere_quad,
+			 (*generic_objects_p)[i].spheres[isphere].radius,
+			 sphere_slices, sphere_stacks);
+	       gluDeleteQuadric(sphere_quad);
+	       glPopMatrix();
+	    }
+	 }
+
+	 // arrows
+	 if ((*generic_objects_p)[i].arrows.size()) {
+	    glEnable (GL_BLEND);
+	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	    for (unsigned int iarrow=0; iarrow<(*generic_objects_p)[i].arrows.size(); iarrow++) {
+	       const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
+	       GLfloat  mat_specular[]  = {obj.arrows[iarrow].col.col[0],
+					   obj.arrows[iarrow].col.col[1],
+					   obj.arrows[iarrow].col.col[2], 
+					   feature_opacity};
+	       GLfloat  mat_shininess[] = {15};
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+	       g.graphics_object_internal_arrow((*generic_objects_p)[i].arrows[iarrow].start_point,
+						(*generic_objects_p)[i].arrows[iarrow].end_point,
+						0.3, 0.1); 
+	    }
+	 }
+
+	 // tori
+	 if ((*generic_objects_p)[i].tori.size()) {
+	    glEnable (GL_BLEND);
+	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	    for (unsigned int itor=0; itor<(*generic_objects_p)[i].tori.size(); itor++) {
+	       const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
+	       GLfloat  mat_specular[]  = {obj.tori[itor].col.col[0],
+					   obj.tori[itor].col.col[1],
+					   obj.tori[itor].col.col[2], 
+					   feature_opacity};
+	       GLfloat  mat_shininess[] = {15};
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+	       g.graphics_object_internal_torus((*generic_objects_p)[i].tori[itor].start_point,
+						(*generic_objects_p)[i].tori[itor].end_point,
+						(*generic_objects_p)[i].tori[itor].radius_1,
+						(*generic_objects_p)[i].tori[itor].radius_2,
+						(*generic_objects_p)[i].tori[itor].n_ring_atoms);
 	    }
 	 }
       }

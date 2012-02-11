@@ -1,6 +1,6 @@
 /* lidia-core/rdkit-interface.cc
  * 
- * Copyright 2010, 2011 by The University of Oxford
+ * Copyright 2010, 2011, 2012 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -60,7 +60,9 @@ RDKit::RWMol
 coot::rdkit_mol(CResidue *residue_p,
 		const coot::dictionary_residue_restraints_t &restraints) {
 
-   if (0)
+   bool debug = false;
+   
+   if (debug)
       std::cout << "==================== here in rdkit_mol() with restraints that have "
 		<< restraints.bond_restraint.size() << " bond restraints" << std::endl;
    
@@ -273,15 +275,24 @@ coot::rdkit_mol(CResidue *residue_p,
       }
    }
 
-   
-   // std::cout << "---------------------- calling assign_formal_charges() -----------" << std::endl;
+
+   if (debug)
+      std::cout << "=============== calling undelocalise() " << &m << std::endl;
+   coot::undelocalise(&m);
+
+   if (debug)
+      std::cout << "---------------------- calling assign_formal_charges() -----------" << std::endl;
+
    coot::assign_formal_charges(&m);
    
-
+   if (debug)
+      std::cout << "---------------------- calling cleanUp() -----------" << std::endl;
    RDKit::MolOps::cleanUp(m);
 
+   
    // OK, so cleanUp() doesn't fix the N charge problem our prodrg molecule
-   if (0) { // debug, formal charges
+   // 
+   if (debug) { // debug, formal charges
       std::cout << "::::::::::::::::::::::::::: after cleanup :::::::::::::::::"
 		<< std::endl;
       int n_mol_atoms = m.getNumAtoms();
@@ -303,11 +314,11 @@ coot::rdkit_mol(CResidue *residue_p,
 		<< std::endl;
    }
 
-   if (0)
+   if (debug)
       std::cout << "DEBUG:: sanitizeMol() " << std::endl;
    RDKit::MolOps::sanitizeMol(m);
 
-   if (0)
+   if (debug)
       std::cout << "in constructing rdk molecule now adding a conf" << std::endl;
    RDKit::Conformer *conf = new RDKit::Conformer(added_atom_names.size());
    conf->set3D(true);
@@ -315,7 +326,6 @@ coot::rdkit_mol(CResidue *residue_p,
    // Add positions to the conformer (only the first instance of an
    // atom with a particular atom name).
    // 
-   // std::cout << "==== adding positions to the conformer " << std::endl;
    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
       std::string atom_name(residue_atoms[iat]->name);
       std::map<std::string, int>::const_iterator it = atom_index.find(atom_name);
@@ -336,6 +346,39 @@ coot::rdkit_mol(CResidue *residue_p,
 		<< std::endl;
    return m;
 }
+
+// can throw a std::runtime_error or std::exception.
+//
+// should kekulize flag be an argmuent?
+// 
+RDKit::RWMol
+coot::rdkit_mol_sanitized(CResidue *residue_p, const protein_geometry &geom) {
+
+   RDKit::RWMol mol = coot::rdkit_mol(residue_p, geom);
+
+   // clear out any cached properties
+   mol.clearComputedProps();
+   // clean up things like nitro groups
+   RDKit::MolOps::cleanUp(mol);
+   // update computed properties on atoms and bonds:
+   mol.updatePropertyCache();
+   RDKit::MolOps::Kekulize(mol);
+   RDKit::MolOps::assignRadicals(mol);
+	    
+   // then do aromaticity perception
+   RDKit::MolOps::setAromaticity(mol);
+    
+   // set conjugation
+   RDKit::MolOps::setConjugation(mol);
+	       
+   // set hybridization
+   RDKit::MolOps::setHybridization(mol); // non-linear ester bonds.
+
+   // remove bogus chirality specs:
+   RDKit::MolOps::cleanupChirality(mol);
+   return mol;
+}
+
 
 
 RDKit::Bond::BondType
@@ -1112,14 +1155,14 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
    // 5)         if found, then make bond_1 single, bond_2 double
 
 
-   if (1)
+   bool debug = false;
+   if (debug)
       std::cout << "======================= undelocalise ==========" << std::endl;
     
 
    int n_bonds = rdkm->getNumBonds();
    RDKit::ROMol::BondIterator bondIt;
    RDKit::ROMol::BondIterator bondIt_inner;
-   RDKit::ROMol::BondIterator bondIt_in_in;
    for(bondIt=rdkm->beginBonds(); bondIt!=rdkm->endBonds(); ++bondIt) {
       if ((*bondIt)->getBondType() == RDKit::Bond::ONEANDAHALF) {
 	 // was one of these atoms a Nitrogen?
@@ -1137,6 +1180,7 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 	       std::swap(atom_1, atom_2);
 	    }
 	 }
+
 	 if (do_it) {
 
 	    // atom_1 is a Nitrogen, atom_2 is a Carbon.  Does the
@@ -1148,15 +1192,16 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 	       if (atom_1_in == atom_2) {
 		  if (atom_2_in != atom_1) {
 		     if ((*bondIt_inner)->getBondType() == RDKit::Bond::ONEANDAHALF) {
-			int e_valence_pre = atom_1->getExplicitValence();
+
+			// this can throw exception:
+			// getExplicitValence() called without call to calcExplicitValence()
+			// int e_valence_pre = atom_1->getExplicitValence();
+			
 			// swap them then
 			(*bondIt)->setBondType(RDKit::Bond::SINGLE);
 			(*bondIt_inner)->setBondType(RDKit::Bond::DOUBLE);
-			// std::cout << "^^^^^^^^^^^^^^^^^ fixed up a bond! 1" << std::endl;
-			int e_valence_post = atom_1->getExplicitValence();
-// 			std::cout << "::::::: explicit pre valence " << e_valence_pre
-// 				  << "   explicit post valence "
-// 				  << e_valence_post << std::endl;
+			if (debug)
+			   std::cout << "^^^^^^^^^^^^^^^^^ fixed up a bond! 1" << std::endl;
 		     }
 		  }
 	       }
@@ -1166,7 +1211,9 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 			// swap them then
 			(*bondIt)->setBondType(RDKit::Bond::SINGLE);
 			(*bondIt_inner)->setBondType(RDKit::Bond::DOUBLE);
-			// std::cout << "^^^^^^^^^^^^^^^^^ fixed up a bond! 2" << std::endl;
+			if (debug)
+			   std::cout << "^^^^^^^^^^^^^^^^^ fixed up a alternative path bond!"
+				     << std::endl;
 		     }
 		  }
 	       }
@@ -1193,8 +1240,8 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 		  if ((*bondIt_inner)->getBondType() == RDKit::Bond::ONEANDAHALF) {
 		     RDKit::Atom *atom_1_in = (*bondIt_inner)->getBeginAtom();
 		     RDKit::Atom *atom_2_in = (*bondIt_inner)->getEndAtom();
-		     if (atom_1_in == atom_1) {
-			if (atom_2_in != atom_2) {
+		     if (atom_1_in == central_C) {
+			if (atom_2_in != O1) {
 			   if (atom_2_in->getAtomicNum() == 8) {
 
 			      // OK, we have a carbon (atom_1) bonded to two Os via delocs -
@@ -1205,60 +1252,27 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 			      RDKit::Atom *O2 = atom_2_in;
 			      
 			      // bondIt and bondIt_inner are the bonds that we will ultimately modify
-
-			      // OK, so was there something attached to either of the Oxygens?
 			      // 
-			      for(bondIt_in_in=rdkm->beginBonds(); bondIt_in_in!=rdkm->endBonds(); ++bondIt_in_in) {
-				 if ((*bondIt_in_in)->getBondType() == RDKit::Bond::SINGLE) {
-				    RDKit::Atom *atom_1_in_in = (*bondIt_in_in)->getBeginAtom();
-				    RDKit::Atom *atom_2_in_in = (*bondIt_in_in)->getEndAtom();
-				    
-				    // check atom_1_in_in vs the first oxygen
-				    if (atom_1_in_in == O1) {
-				       if (atom_2_in_in != central_C) {
+			      deloc_O_check_inner(rdkm, central_C, O1, O2, *bondIt, *bondIt_inner);
 
-					  // OK, so O1 was bonded to something else
-					  // 
-					  (*bondIt)->setBondType(RDKit::Bond::SINGLE);
-					  (*bondIt_inner)->setBondType(RDKit::Bond::DOUBLE);
-				       }
-				    }
-				    
-				    // check vs the second oxygen
-				    if (atom_1_in_in == O2) {
-				       if (atom_2_in_in != central_C) {
-					  // OK, so O2 was bonded to something else
-					  (*bondIt)->setBondType(RDKit::Bond::DOUBLE);
-					  (*bondIt_inner)->setBondType(RDKit::Bond::SINGLE);
-				       }
-				    }
-
-				    // check atom_2_in_in vs the first oxygen
-				    if (atom_2_in_in == O1) {
-				       if (atom_1_in_in != central_C) {
-					  // OK, so O1 was bonded to something else
-					  // 
-					  (*bondIt)->setBondType(RDKit::Bond::SINGLE);
-					  (*bondIt_inner)->setBondType(RDKit::Bond::DOUBLE);
-				       }
-				    }
-				    
-				    // check atom_2_in_in vs the second oxygen
-				    if (atom_2_in_in == O2) { 
-				       if (atom_1_in_in != central_C) {
-					  // OK, so O2 was bonded to something else
-					  (*bondIt)->setBondType(RDKit::Bond::DOUBLE);
-					  (*bondIt_inner)->setBondType(RDKit::Bond::SINGLE);
-				       }
-				    }
-				 }
-			      }
 			   }
 			}
 		     }
 
 		     // The central carbon was the other atom?
-		     if (atom_2_in == atom_1) {
+		     if (atom_2_in == central_C) {
+			if (atom_1_in != O1) {
+			   if (atom_1_in->getAtomicNum() == 8) {
+
+			      // OK, we have a carbon (atom_1) bonded to two Os via delocs -
+			      // the oxygens are atom_2 and atom_2_in
+			      // 
+			      // rename for clarity
+			      //
+			      RDKit::Atom *O2 = atom_1_in;
+			      deloc_O_check_inner(rdkm, central_C, O1, O2, *bondIt, *bondIt_inner);
+			   } 
+			} 
 		     }
 		  }
 	       }
@@ -1267,11 +1281,99 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 	    
 	 if (atom_1->getAtomicNum() == 8) {
 	    if (atom_2->getAtomicNum() == 6) {
+	       // rename for clarity
+	       RDKit::Atom *central_C = atom_2;
+	       RDKit::Atom *O1 = atom_1;
+	       
+	       for(bondIt_inner=rdkm->beginBonds(); bondIt_inner!=rdkm->endBonds(); ++bondIt_inner) {
+		  if ((*bondIt_inner)->getBondType() == RDKit::Bond::ONEANDAHALF) {
+		     RDKit::Atom *atom_1_in = (*bondIt_inner)->getBeginAtom();
+		     RDKit::Atom *atom_2_in = (*bondIt_inner)->getEndAtom();
+		     if (atom_1_in == central_C) {
+			if (atom_2_in != O1) {
+			   if (atom_2_in->getAtomicNum() == 8) {
+
+			      // again, we have detected a central carbon bonded to two
+			      // oxygens with deloc bonds.
+			      RDKit::Atom *O2 = atom_2_in;
+			      deloc_O_check_inner(rdkm, central_C, O1, O2, *bondIt, *bondIt_inner);
+			   }
+			}
+		     }
+		     // The central carbon was the other atom?
+		     if (atom_2_in == central_C) {
+			if (atom_1_in != O1) {
+			   if (atom_1_in->getAtomicNum() == 8) {
+			      RDKit::Atom *O2 = atom_1_in;
+			      deloc_O_check_inner(rdkm, central_C, O1, O2, *bondIt, *bondIt_inner);
+			   }
+			}
+		     }
+		  }
+	       }
 	    }
 	 }
       }
    }
 }
+
+// fiddle with the bonds in rdkm as needed.
+void
+coot::deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
+			  RDKit::Atom *O1, RDKit::Atom *O2,
+			  RDKit::Bond *b1, RDKit::Bond *b2) {
+
+   RDKit::ROMol::BondIterator bondIt_in_in;
+   // OK, so was there something attached to either of the Oxygens?
+   // 
+   for(bondIt_in_in=rdkm->beginBonds(); bondIt_in_in!=rdkm->endBonds(); ++bondIt_in_in) {
+      if ((*bondIt_in_in)->getBondType() == RDKit::Bond::SINGLE) {
+	 RDKit::Atom *atom_1_in_in = (*bondIt_in_in)->getBeginAtom();
+	 RDKit::Atom *atom_2_in_in = (*bondIt_in_in)->getEndAtom();
+				    
+	 // check atom_1_in_in vs the first oxygen
+	 if (atom_1_in_in == O1) {
+	    if (atom_2_in_in != central_C) {
+
+	       // OK, so O1 was bonded to something else
+	       // 
+	       b1->setBondType(RDKit::Bond::SINGLE);
+	       b2->setBondType(RDKit::Bond::DOUBLE);
+	    }
+	 }
+				    
+	 // check vs the second oxygen
+	 if (atom_1_in_in == O2) {
+	    if (atom_2_in_in != central_C) {
+	       // OK, so O2 was bonded to something else
+	       b1->setBondType(RDKit::Bond::DOUBLE);
+	       b2->setBondType(RDKit::Bond::SINGLE);
+	    }
+	 }
+
+	 // check atom_2_in_in vs the first oxygen
+	 if (atom_2_in_in == O1) {
+	    if (atom_1_in_in != central_C) {
+	       // OK, so O1 was bonded to something else
+	       // 
+	       b1->setBondType(RDKit::Bond::SINGLE);
+	       b2->setBondType(RDKit::Bond::DOUBLE);
+	    }
+	 }
+				    
+	 // check atom_2_in_in vs the second oxygen
+	 if (atom_2_in_in == O2) { 
+	    if (atom_1_in_in != central_C) {
+	       // OK, so O2 was bonded to something else
+	       b1->setBondType(RDKit::Bond::DOUBLE);
+	       b2->setBondType(RDKit::Bond::SINGLE);
+	    }
+	 }
+      }
+   }
+}
+
+
 
 
 #endif // MAKE_ENTERPRISE_TOOLS   

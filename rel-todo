@@ -5,10 +5,7 @@
 
   o JLigand interface ::: 3
 
-  o Fix splash screen per SS message.  ::: 0.5
- 
-  o Search for difference map peaks - sigma check. ::: 0.5
-
+* needs to put put into the standard gui and committed. 
 
 ------
 
@@ -330,3 +327,7 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
   o Lothar crash, Jack Sack crash.  Same?
 
 * Bernhard fix.
+
+  o Search for difference map peaks - sigma check. ::: 0.5
+
+* Done.

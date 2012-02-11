@@ -137,6 +137,7 @@ General Features
 * Background colour::
 * Unit Cell::
 * Rotation Centre Pointer::
+* Orientation Axes::
 * Pointer Distances::
 * Crosshairs::
 * 3D Annotations::
@@ -781,6 +782,7 @@ describing the particular features and are documented in Chapter
 * Background colour::
 * Unit Cell::
 * Rotation Centre Pointer::
+* Orientation Axes::
 * Pointer Distances::
 * Crosshairs::
 * 3D Annotations::
@@ -1437,6 +1439,16 @@ at the centre of the screen that marks the rotation centre.
 The size of the pointer can be changed using @command{Edit
   -> Pink Pointer Size@dots{}} or using scripting commands:
 @code{(set-rotation-centre-size 0.3)}.
+
+@node  Orientation Axes
+@section Orientation Axes
+@cindex Orientation Axes
+
+The green axes showing the orientation of the molecule are displayed
+by default.  To remove them use the scripting function;
+
+@code{(set-draw-axes 0)}
+
 
 @node Pointer Distances
 @section Pointer Distances

@@ -20,6 +20,11 @@
 
 
 #ifdef MAKE_ENTERPRISE_TOOLS
-void residue_to_sdf_file(int imol, const char *chain_id, int resno, const char *ins_code, 
+// was it OK or not?  (i.e. did we not catch an exception)
+bool residue_to_sdf_file(int imol, const char *chain_id, int resno, const char *ins_code, 
 			 const char *sdf_file_name);
+// rdkit chemical features.
+bool show_feats(int imol, const char *chain_id, int resno, const char *ins_code);
+
 #endif
+

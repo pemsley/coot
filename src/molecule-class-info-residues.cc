@@ -684,7 +684,7 @@ coot::animated_ligand_interactions_t::draw(CMMDBManager *mol,
 	 glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
 	 glDisable(GL_COLOR_MATERIAL);
 
-	 GLfloat  mat_specular[]  = {0.18, 0.18, 0.80,  opacity};
+	 GLfloat  mat_specular[]  = {0.18, 0.18, 0.80, opacity};
 	 GLfloat  mat_ambient[]   = {0.20, 0.20, 0.20, opacity};
 	 GLfloat  mat_diffuse[]   = {0.20, 0.20, 0.90, opacity};
 	 GLfloat  mat_shininess[] = {100.0};
@@ -756,7 +756,6 @@ coot::animated_ligand_interactions_t::draw(CMMDBManager *mol,
 	       // 	    --------
 
 	       GLUquadric* quad = gluNewQuadric();
-	       // glScalef(1.0, 1.0, -1.0); // account for mg maths :-)
 	       gluCylinder(quad, base, top, height, slices, stacks);
 	       gluDeleteQuadric(quad);
 	       glPopMatrix();

@@ -104,7 +104,7 @@ EXTRA_DIST = \
 coot_wrap_guile_pre_gtk1.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
 	swig -o $@ $(WITH_GUILE_CFLAGS) $(USE_LIBCURL) -I$(top_srcdir)/src -guile -c++ $(top_srcdir)/src/coot.i
 
-coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i $(top_srcdir)/src/lbg-interface.hh
+coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i $(top_srcdir)/src/lbg-interface.hh $(top_srcdir)/src/sdf-interface.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENTERPRISE_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -guile -c++  $(top_srcdir)/src/coot.i
 
 # For GOOPS support: -proxy -Linkage module (or passive), however, doing that makes SWIG_init() go away.
@@ -120,7 +120,7 @@ coot_wrap_guile_gtk1.cc: coot_wrap_guile_pre_gtk1.cc
 coot_wrap_python_pre_gtk1.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
 	swig -o $@ $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk1.py
 
-coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i $(top_srcdir)/src/lbg-interface.hh
+coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i $(top_srcdir)/src/lbg-interface.hh  $(top_srcdir)/src/sdf-interface.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk2.py
 
 coot_wrap_python_gtk1.cc: coot_wrap_python_pre_gtk1.cc
@@ -297,6 +297,8 @@ coot_real_SOURCES = \
 	command-line.cc		 \
 	command-line.hh		 \
 	coot-database.hh	 \
+	coot-colour.hh	 	 \
+	coot-colour.cc	 	 \
 	coot-align.cc 		 \
 	coot-align.hh		 \
 	coot-nomenclature.cc	 \
@@ -395,6 +397,7 @@ coot_real_SOURCES = \
 	rotate-translate-modes.hh \
 	rotamer-search-modes.hh  \
 	sdf-interface.hh         \
+	sdf-internal.hh          \
 	sdf-interface.cc         \
 	support.c support.h 	 \
 	support-gtk2-extras.c    \

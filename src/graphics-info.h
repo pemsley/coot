@@ -400,7 +400,7 @@ namespace coot {
 				      view_info_t &view);
    };
 
-   enum tube_end_t { FLAT_ENDS, ROUND_ENDS};  // use gluDisk or gluSphere.
+   enum tube_end_t { NO_ENDS, FLAT_ENDS, ROUND_ENDS};  // use gluDisk or gluSphere.
 
 
    class console_display_commands_t {
@@ -622,6 +622,17 @@ class graphics_info_t {
 					     const coot::Cartesian &end_point, 
 					     const double &radius,
 					     const coot::tube_end_t &end_type) const;
+   void graphics_object_internal_arrow(const coot::Cartesian &base_point,
+				       const coot::Cartesian &end_point, 
+				       float fraction_head_size,
+				       const double &radius) const;
+   
+   void graphics_object_internal_torus(const coot::Cartesian &base_point,
+				       const coot::Cartesian &end_point, 
+				       const double &radius_1, 
+				       const double &radius_2, 
+				       int n_ring_atoms) const;
+   
 
 
    void read_standard_residues();   // for mutation, we have

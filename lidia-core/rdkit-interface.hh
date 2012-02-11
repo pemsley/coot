@@ -29,10 +29,10 @@
 
 namespace coot { 
 
-   // can throw an runtime_error exception (residue not in dictionary)
-   // 
+   // can throw an runtime_error exception (e.g. residue not in dictionary)
+   //
+   RDKit::RWMol rdkit_mol_sanitized(CResidue *residue_p, const protein_geometry &geom);
    RDKit::RWMol rdkit_mol(CResidue *residue_p, const protein_geometry &geom);
-
    RDKit::RWMol rdkit_mol(CResidue *residue_p, const coot::dictionary_residue_restraints_t &restraints);
 
    // tweaking function used by above (change mol maybe).
@@ -81,6 +81,12 @@ namespace coot {
 
    //
    void undelocalise(RDKit::RWMol *rdkm); // fiddle with rdkm
+   // which calls (not for public use)
+   // fiddle with the bonds in rdkm as needed.
+   void deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
+			    RDKit::Atom *O1, RDKit::Atom *O2,
+			    RDKit::Bond *b1, RDKit::Bond *b2);
+
 
    // try to add (for instance) a +1 to Ns with 4 bonds.
    //

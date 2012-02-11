@@ -4,6 +4,8 @@
 
 #include "coot-utils.hh"  // for colour_holder
 
+#include "coot-colour.hh"
+
 namespace coot { 
 
    class generic_display_line_t { 
@@ -55,16 +57,69 @@ namespace coot {
    class generic_display_object_t {
 
    public:
-      short int is_displayed_flag;
-      short int is_closed_flag; // don't make buttons for closed display objects
+
+      class arrow_t {
+      public:
+	 arrow_t() { fract_head_size = 0.3;}
+	 arrow_t(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2) {
+	    start_point = pt1;
+	    end_point = pt2;
+	    fract_head_size = 0.3;
+	 }
+	 clipper::Coord_orth start_point;
+	 clipper::Coord_orth end_point;
+	 coot::colour_t col;
+	 float fract_head_size;
+      };
+      class sphere_t {
+      public:
+	 sphere_t() {}
+	 sphere_t(const clipper::Coord_orth &centre_in, float r) {
+	    centre = centre_in;
+	    radius = r;
+	 }
+	 clipper::Coord_orth centre;
+	 coot::colour_t col;
+	 float radius;
+      };
+      class torus_t {
+      public:
+	 torus_t() {}
+	 torus_t(const clipper::Coord_orth &pt1,
+		 const clipper::Coord_orth &pt2,
+		 float r1, float r2) {
+	    start_point = pt1;
+	    end_point   = pt2;
+	    radius_1 = r1;
+	    radius_2 = r2;
+	    n_ring_atoms = 6;
+	 }
+	 clipper::Coord_orth start_point;
+	 clipper::Coord_orth end_point;
+	 coot::colour_t col;
+	 float radius_1;
+	 float radius_2;
+	 int n_ring_atoms;
+      };
+      
+      bool is_displayed_flag;
+      bool is_closed_flag; // don't make buttons for closed display objects
+      bool is_solid_flag;
+      bool is_transparent_flag;
+      float opacity; // 0.0 -> 1.0
       std::string name; // name the object, use for indexing, perhaps
       std::vector<generic_display_line_set_t> lines_set;
       std::vector<generic_display_point_set_t> points_set;
+      std::vector<arrow_t> arrows;
+      std::vector<sphere_t> spheres;
+      std::vector<torus_t> tori;
       std::vector<int> GL_display_list_handles;
       generic_display_object_t(const std::string &n) { 
 	 name = n;
-	 is_displayed_flag = 0;
-	 is_closed_flag = 0;
+	 is_displayed_flag = false;
+	 is_closed_flag = false;
+	 opacity = 1.0;
+	 is_transparent_flag = false;
       }
       void add_line(const coot::colour_holder &colour_in,
 		    const std::string &colour_name,
@@ -82,7 +137,7 @@ namespace coot {
       void close_yourself() { 
 	 std::string name = "Closed Generic Display Object";
 	 clear();
-	 is_closed_flag = 1;
+	 is_closed_flag = true;
       } 
       static coot::colour_holder colour_values_from_colour_name(const std::string &colour_name);
    };

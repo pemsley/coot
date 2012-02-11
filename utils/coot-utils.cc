@@ -772,6 +772,17 @@ coot::package_data_dir() {
       pkgdatadir = std::string(env);
    return pkgdatadir;
 }
+
+// Use this to find things in $prefix/share/RDKit
+std::string
+coot::rdkit_package_data_dir() {
+
+   std::string p = package_data_dir();
+   std::string d = util::file_name_directory(p);
+   std::string r = d + "/RDKit"; // maybe append_dir_file need to be moved to utils?
+   return r;
+}
+
  
  
 std::pair<std::string, std::string>

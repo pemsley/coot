@@ -35,6 +35,9 @@ namespace coot {
    // Use this to find things in $prefix/share/coot
    std::string package_data_dir();
 
+   // Use this to find things in $prefix/share/RDKit
+   std::string rdkit_package_data_dir();
+
    namespace sequence {
 
       class fasta {

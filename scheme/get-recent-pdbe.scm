@@ -26,6 +26,8 @@
 (define *coot-pdbe-image-cache-dir* "coot-pdbe-images") ;; can be shared (dir should
                                                         ;; be writable by sharers).
 
+;; (coot-thread-dispatcher image-name thunk)
+;; 
 (define coot-thread-dispatcher 
   (let* ((q-locked #f)
 	 (q (make-q))
