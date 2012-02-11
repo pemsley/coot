@@ -2098,7 +2098,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 	 //
 	 graphics_info_t::molecules[ii].draw_skeleton();
-
       }
 
 
@@ -2137,9 +2136,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 myWireCube (1.0);
       }
 
-      //
-      // test_object();
-
       graphics_info_t::draw_generic_objects();
       graphics_info_t::draw_generic_text();
 
@@ -2152,7 +2148,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       draw_axes(m);
 
-      graphics_info_t::graphics_ligand_view(); // maybe
+      graphics_info_t::graphics_ligand_view();
 
       glScalef (graphics_info_t::rotation_centre_cube_size, 
 		graphics_info_t::rotation_centre_cube_size, 
@@ -2164,8 +2160,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 myWireCube (1.0);
       }
 
-     // Now we have finished displaying our objects and making
-      // transformations, lets put the matrix back how it used
+     // Now we have finished displaying our annotation objects and
+     // making transformations, lets put the matrix back how it used
       // to be.
       glPopMatrix();
 
@@ -2173,7 +2169,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // view matrices that are the same as those that were when
       // the molecule was drawn.  Atom picking depends on this.
 
-      // transparent objects:
+      // Transparent density maps
       // 
       for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
 	 if (is_valid_map_molecule(ii)) {
@@ -2191,36 +2187,15 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       // 
       display_density_level_maybe();
 
-// This causes weird lighting effects.
-// commented out 20080322, seems to work proper now.      
-// Turn on the light(s)?  // moved here from end of loop 20051014
-//       if (n_display_list_objects > 0) {
-// 	 glPushMatrix();
-// 	 glMatrixMode(GL_MODELVIEW);
-// 	 glLoadIdentity();
-// 	 GLfloat  light_position_0[] = {1.0, 1.0, 1.0, 0.0};
-// 	 GLfloat  light_position_1[] = {0.0, 0.0, 1.0, 0.0};
-// 	 glLightfv(GL_LIGHT0,  GL_POSITION, light_position_0);
-// 	 glEnable(GL_LIGHTING);
-// 	 glEnable(GL_LIGHT0);
-// 	 glPopMatrix();
-//       }
-
       // BL says:: not sure if we dont need to do this for 2nd Zalman view
-      //      if (! in_stereo_flag) {
       if (in_stereo_flag != IN_STEREO_HARDWARE_STEREO && in_stereo_flag != IN_STEREO_ZALMAN_RIGHT) {
          /* Swap backbuffer to front */
-#if (GTK_MAJOR_VERSION == 1)
-         gtk_gl_area_swapbuffers(GTK_GL_AREA(widget));
-#else
          GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
          if (gdk_gl_drawable_is_double_buffered (gldrawable)) {
             gdk_gl_drawable_swap_buffers (gldrawable);
          } else {
             glFlush ();
          }
-
-#endif
          graphics_info_t::Increment_Frames();
       }
 
@@ -2229,11 +2204,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
   
    } // gtkgl make area current test
 
-#if (GTK_MAJOR_VERSION == 1)
-#else
    gdkglext_finish_frame(widget);
-#endif    
-   
    return TRUE;
 }
 

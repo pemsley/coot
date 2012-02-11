@@ -131,6 +131,8 @@ graphics_ligand_bond::gl_bond(const lig_build::pos_t &pos_1_raw, const lig_build
 // 	     << " " << shorten_first << " " << shorten_second << std::endl;
 
    double shorten_fraction = 0.76;
+
+   double screen_z = -1.5; // not sure if this is any better than 0.0 actually.
    
    lig_build::pos_t pos_1 = pos_1_raw;
    lig_build::pos_t pos_2 = pos_2_raw;
@@ -153,8 +155,8 @@ graphics_ligand_bond::gl_bond(const lig_build::pos_t &pos_1_raw, const lig_build
    case lig_build::bond_t::BOND_ANY:
 
       glBegin(GL_LINES);
-      glVertex3d(pos_1.x, pos_1.y, 0);
-      glVertex3d(pos_2.x, pos_2.y, 0);
+      glVertex3d(pos_1.x, pos_1.y, screen_z);
+      glVertex3d(pos_2.x, pos_2.y, screen_z);
       glEnd();
       break;
       
@@ -182,14 +184,14 @@ graphics_ligand_bond::gl_bond(const lig_build::pos_t &pos_1_raw, const lig_build
 	 lig_build::pos_t p6 = pos_2 - buv_90 * small;
 
 	 glBegin(GL_LINES);
-	 glVertex3d(p1.x, p1.y,0);
-	 glVertex3d(p2.x, p2.y,0);
+	 glVertex3d(p1.x, p1.y, screen_z);
+	 glVertex3d(p2.x, p2.y, screen_z);
 	 
-	 glVertex3d(p3.x, p3.y,0);
-	 glVertex3d(p4.x, p4.y,0);
+	 glVertex3d(p3.x, p3.y, screen_z);
+	 glVertex3d(p4.x, p4.y, screen_z);
 	 
-	 glVertex3d(p5.x, p5.y,0);
-	 glVertex3d(p6.x, p6.y,0);
+	 glVertex3d(p5.x, p5.y, screen_z);
+	 glVertex3d(p6.x, p6.y, screen_z);
 	 glEnd();
       }
       break;
@@ -201,8 +203,8 @@ graphics_ligand_bond::gl_bond(const lig_build::pos_t &pos_1_raw, const lig_build
 	 if (vp.size()) { 
 	    glBegin(GL_LINES);
 	    for (unsigned int i=0; i<vp.size(); i++) { 
-	       glVertex3d(vp[i].first.x, vp[i].first.y, 0);
-	       glVertex3d(vp[i].second.x, vp[i].second.y, 0);
+	       glVertex3d(vp[i].first.x,  vp[i].first.y,  screen_z);
+	       glVertex3d(vp[i].second.x, vp[i].second.y, screen_z);
 	    }
 	 }
 	 glEnd();
@@ -215,7 +217,7 @@ graphics_ligand_bond::gl_bond(const lig_build::pos_t &pos_1_raw, const lig_build
 	    lig_build::pos_t::make_wedge_out_bond(pos_1, pos_2);
 	 glBegin(GL_POLYGON);
 	 for (unsigned int i=0; i<v.size(); i++)
-	       glVertex3d(v[i].x,  v[i].y, 0);
+	       glVertex3d(v[i].x,  v[i].y, screen_z);
 	 glEnd();
       }
       break;
@@ -229,14 +231,16 @@ void
 graphics_ligand_bond::gl_bond_double_aromatic_bond(const lig_build::pos_t &pos_1,
 						   const lig_build::pos_t &pos_2) {
 
+   double screen_z = -1.5;
+   
    std::pair<lig_build::pos_t, lig_build::pos_t> p = 
       make_double_aromatic_short_stick(pos_1, pos_2);
 
    glBegin(GL_LINES);
-   glVertex3d(pos_1.x, pos_1.y, 0);
-   glVertex3d(pos_2.x, pos_2.y, 0);
-   glVertex3d(p.first.x, p.first.y, 0);
-   glVertex3d(p.second.x, p.second.y, 0);
+   glVertex3d(pos_1.x, pos_1.y, screen_z);
+   glVertex3d(pos_2.x, pos_2.y, screen_z);
+   glVertex3d(p.first.x,  p.first.y,  screen_z);
+   glVertex3d(p.second.x, p.second.y, screen_z);
    glEnd();
 }
 
@@ -245,11 +249,12 @@ graphics_ligand_bond::gl_bond_double_bond(const lig_build::pos_t &pos_1, const l
 
    std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> > p = make_double_bond(pos_1, pos_2);
 
+   double screen_z = -1.5;
    glBegin(GL_LINES);
-   glVertex3d(p.first.first.x,   p.first.first.y,  0);
-   glVertex3d(p.first.second.x,  p.first.second.y, 0);
-   glVertex3d(p.second.first.x,  p.second.first.y,  0);
-   glVertex3d(p.second.second.x, p.second.second.y, 0);
+   glVertex3d(p.first.first.x,   p.first.first.y,   screen_z);
+   glVertex3d(p.first.second.x,  p.first.second.y,  screen_z);
+   glVertex3d(p.second.first.x,  p.second.first.y,  screen_z);
+   glVertex3d(p.second.second.x, p.second.second.y, screen_z);
    glEnd();
 }
 
@@ -282,12 +287,13 @@ graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_in
 	 glRasterPos3d(x_pos, y_pos, 0);
 
 	 if (0) {  // Yes the 0,0 position is bottom left of the letter
+	    double screen_z = 0.0;
 	    glLineWidth(1.0);
 	    glBegin(GL_LINES);
-	    glVertex3d(x_pos-1, y_pos,   0);
-	    glVertex3d(x_pos+1, y_pos,   0);
-	    glVertex3d(x_pos,   y_pos-1, 0);
-	    glVertex3d(x_pos,   y_pos+1, 0);
+	    glVertex3d(x_pos-1, y_pos,   screen_z);
+	    glVertex3d(x_pos+1, y_pos,   screen_z);
+	    glVertex3d(x_pos,   y_pos-1, screen_z);
+	    glVertex3d(x_pos,   y_pos+1, screen_z);
 	    glEnd();
 	 }
 	 bitmap_text(atom_id_info_in.offsets[i].text.c_str());
