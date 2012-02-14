@@ -112,6 +112,7 @@
 (define set-go-to-atom-from-res-spec set-go-to-atom-from-res-spec-scm)
 (define test-function test-function-scm)
 (define make-variance-map make-variance-map-scm)
+(define residue->sdf-file residue-to-sdf-file)
 
 ;; documented functions
 
@@ -620,6 +621,14 @@
 			(format #t ":~a~%" obj))
 		    (format log-file-port "~a~%" obj)
 		    (f (read-line output-port))))))))))
+
+(define (ok-goosh-status? status)
+
+  (if (not (number? status))
+      #f
+      (= 0 status)))
+
+      
 
 ; example usage:
 ;(goosh-command "mtzdump" (list "HKLIN" "a.mtz") (list "HEAD" "END") "test.log" #t)
@@ -1597,8 +1606,8 @@
       (loop (cdr map-list))))))
 
 
-;; Ian Tickle says (as far as I can understand) that the target chi
-;; squared should be 0.25 or thereabouts.  You can over-ride it now.
+;; Ian Tickle says (as far as I can understand) that the target rmsd
+;; should be 0.25 or thereabouts.  You can over-ride it now.
 ;; 
 (define target-auto-weighting-value 0.25)
 
@@ -1666,25 +1675,54 @@
   
   ;; main body
   ;; 
-  (let loop ((results (refinement-func)))
-    (let ((ow (weight-scale-from-refinement-results results)))
-      (format #t "Overweight factor: ~s~%" ow)
-      (if (not (number? ow))
-	  #f 
-	  (if (and (< ow (* target-auto-weighting-value 1.1))
-		   (> ow (* target-auto-weighting-value 0.9)))
-	      ;; done
-	      (let ((s (string-append 
-			"Set weight matrix to "
-			(number->string (matrix-state)))))
-		(add-status-bar-text s))
-	      ;; more refinement required
-	      (let ((new-weight (/ (matrix-state) (expt ow 1.2)))) ;; squared causes ringing, 
-                                                                   ;; as does 1.5.
-		                                                   ;; Simple is overdamped.
-		(format #t "INFO:: setting refinement weight to ~s~%" new-weight)
+  (let loop ((results (refinement-func))
+	     (n-trials 0))
+    (let ((av-rms-d (weight-scale-from-refinement-results results)))
+      (format #t " av-rms-d: ~s~%" av-rms-d)
+
+      (cond 
+       ;; something bad happened?
+       ((not (number? av-rms-d))
+	#f)
+
+       ;; failed to converge?
+       ((> n-trials 20)
+	(begin 
+	  (format #t "Unconverged~%")
+	  #f))
+
+       ;; done?
+       ((and  (< av-rms-d (* target-auto-weighting-value 1.1))
+	      (> av-rms-d (* target-auto-weighting-value 0.9)))
+		  ;; done
+	(let ((s (string-append 
+		  "Success: Set weight matrix to "
+		  (number->string (matrix-state)))))
+		    (add-status-bar-text s)))
+
+       (else 
+	;; more refinement required
+	
+	;; squared causes ringing, 
+	;; as does 1.5.
+	;; Simple is overdamped.
+	;; 
+	(let* ((current-weight (matrix-state))
+	       (new-weight (/ (* target-auto-weighting-value current-weight) av-rms-d)))
+
+	  (format #t "INFO:: ==== setting refinement weight to ~s from * ~s / ~s ~%" 
+		   new-weight 
+		   current-weight 
+		   av-rms-d)
+
+	  (if (< new-weight 2)
+	      (begin 
+		;; weight refinement not converging
+		#f)
+	  
+	      (begin
 		(set-matrix new-weight)
-		(loop (refinement-func))))))))
+		(loop (refinement-func) (+ n-trials 1))))))))))
 
 
 
