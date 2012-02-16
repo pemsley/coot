@@ -112,7 +112,7 @@
 (define set-go-to-atom-from-res-spec set-go-to-atom-from-res-spec-scm)
 (define test-function test-function-scm)
 (define make-variance-map make-variance-map-scm)
-(define residue->sdf-file residue-to-sdf-file)
+;; (define residue->sdf-file residue-to-sdf-file)
 
 ;; documented functions
 
