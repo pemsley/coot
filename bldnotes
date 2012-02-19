@@ -1,13 +1,14 @@
  -*-text-*-
 
-scripts      rev 3860 (prodrg stuff needs testing) generic objects
+scripts      rev 3940 (prodrg stuff needs testing) generic objects
 			update get-recent-pdb
-tests        rev 3917 update
+tests        rev 3991 update
 build-it-win rev 2122
 
 -------------------------------------------------------
 * THINGS TO DO BEFORE 0.7.0 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
+
 
 CCP4 SW:
 - seq vs PIR have extra button to insert, delete, mutate
@@ -65,6 +66,10 @@ notes from Shanghai:
 ----------------
 
 **** General ****
+
+   o SSM of copied fragment doesnt work
+
+   o fix modal dialog: select map dialog when using density fit
 
    o 'map_scroll_button_2' widget not found (display manager warning)
 
@@ -225,6 +230,12 @@ from Osaka 2010
 
 **** Python ****
 
+   o use shell_command_to_string where possible
+
+   o change title in progress bars to % when downloading!?
+
+   o get ebi latest: use some queueing! server limits requestes?!
+
    o remove probe dots if interactive probe is toggled off (???)
 
    o merge ligand chains?!
@@ -271,6 +282,10 @@ from Osaka 2010
 
 
 **** Windows ****
+
+   o check recovery (once nomenclature is fixed)
+
+   o windows not reading gz file if space in name
 
    o optionally include reduce/probe (via download?)
 
