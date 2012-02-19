@@ -320,7 +320,7 @@ if (have_coot_python):
          
      add_simple_coot_menu_menuitem(
        submenu_maps,
-       "Export Local Map Fragment... (for Pymol, say)",
+       "Export Local Map Fragment...", # (for Pymol, say)
        lambda func: generic_chooser_entry_and_file_selector(
                "Export Map: ",
                valid_map_molecule_qm,

@@ -418,6 +418,7 @@ def prodrg_flat(imol_in, chain_id_in, res_no_in):
     set_mol_displayed(imol, 0)
     set_mol_active   (imol, 0)
     write_pdb_file(imol, prodrg_input_file_name)
+    make_directory_maybe("coot-ccp4")
     arg_list = ["XYZIN",  prodrg_input_file_name,
                 "MOLOUT", prodrg_output_mol_file,
                 "XYZOUT", prodrg_output_pdb_file,
