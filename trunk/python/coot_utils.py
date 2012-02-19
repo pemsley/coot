@@ -505,6 +505,7 @@ def close_float_qm(x1, x2):
 
 # "a.b.res" -> "a.b"
 # file_name_sans_extension
+#
 def strip_extension(s):
     import os
     head, tail = os.path.splitext(s)
@@ -1156,10 +1157,10 @@ def guess_refinement_map():
         return -1
 
     
-# Ian Tickle says (as far as I can understand) that the target chi
-# squared should be 0.25 or thereabouts.  You can over-ride it now.
+# Ian Tickle says (as far as I can understand) that the target rmsd
+# should be 0.25 or thereabouts.  You can over-ride it now.
 #
-# BL says:: but we never get there, so back to 1.0
+# BL says:: stil, I dont get it to 0.25, so we make it 1.0
 global target_auto_weighting_value
 target_auto_weighting_value = 1.0
     
@@ -1175,7 +1176,6 @@ def auto_weight_for_refinement():
     # return a pair of the imol and a list of residue specs.
     # or False if that is not possible
     def sphere_residues(radius):
-        from types import ListType
         active_atom = active_residue()
         if not active_atom:    # check for list?
             print "No active atom"
@@ -1184,8 +1184,8 @@ def auto_weight_for_refinement():
             centred_residue = active_atom[1:4]
             imol = active_atom[0]
             other_residues = residues_near_residue(imol, centred_residue, radius)
-            all_residues = centred_residue
-            if (type(other_residues) is ListType):
+            all_residues = [centred_residue]
+            if (isinstance(other_residues, list)):
                 all_residues += other_residues
             return [imol, all_residues]
         
@@ -1231,32 +1231,37 @@ def auto_weight_for_refinement():
     # main body
     #
     results = refinement_func()
-    count = 0
+    n_trials = 0
     while results:
-        count += 1
-        if count > 20:
+        av_rms_d = weight_scale_from_refinement_results(results)
+        print "av_rms_d:", av_rms_d
+        if not av_rms_d:   # check for number?
+            return False
+        if n_trials > 20:
             print "BL INFO:: refinement did not converge, bailing out"
             return False
-        ow = weight_scale_from_refinement_results(results)
-        print "Overweight factor:", ow
-        if not ow:   # check for number?
-            return False
+        if (av_rms_d < (target_auto_weighting_value * 1.1) and
+            av_rms_d > (target_auto_weighting_value * 0.9)):
+            # done
+            s = "Success: Set weight matrix to " + str(matrix_state())
+            add_status_bar_text(s)
+            break
         else:
-            if (ow < (target_auto_weighting_value * 1.1) and
-                ow > (target_auto_weighting_value * 0.9)):
-                # done
-                s = "Set weight matrix to " + str(matrix_state())
-                add_status_bar_text(s)
-                break
-            else:
-                # more refinement required
-                new_weight = matrix_state() / (ow ** 1.2)
-                # squared causes ringing, 
-                # as does 1.5.
-                # Simple is overdamped.
-                print "INFO:: setting refinement weight to", new_weight
-                set_matrix(new_weight)
-                results = refinement_func()
+            # more refinement required
+
+            # squared causes ringing, 
+            # as does 1.5.
+            # Simple is overdamped.
+            current_weight = matrix_state()
+            new_weight = (target_auto_weighting_value * current_weight) / av_rms_d
+            print "INFO:: setting refinement weight to %s from * %s / %s" \
+                  %(new_weight, current_weight, av_rms_d)
+            if (new_weight < 2):
+                # weight refinement not converging
+                print "BL INFO:: not convering, weight to set was", new_weight
+            set_matrix(new_weight)
+            results = refinement_func()
+        n_trials += 1
 
     return True   # return successful termination...
 
@@ -2979,6 +2984,7 @@ list_extra_restraints  = list_extra_restraints_py
 delete_extra_restraint = delete_extra_restraint_py
 water_chain_from_shelx_ins = water_chain_from_shelx_ins_py
 water_chain            = water_chain_py
+make_variance_map      = make_variance_map_py
 spin_search            = spin_search_py
 cootaneer              = cootaneer_py
 generic_string_vector_to_list_internal = generic_string_vector_to_list_internal_py
