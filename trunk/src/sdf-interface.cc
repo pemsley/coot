@@ -253,7 +253,7 @@ std::pair<bool, clipper::Coord_orth>
 chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, const RDKit::Conformer &conf) {
 
    bool r = false;
-   clipper::Coord_orth v;
+   clipper::Coord_orth v(0,0,0);
    if (feat->getNumAtoms() > 1) {
       RDGeom::Point3D centre_pos = feat->getPos();
       clipper::Coord_orth centre(centre_pos.x, centre_pos.y, centre_pos.z);
@@ -279,7 +279,7 @@ chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
 					 const RDKit::Conformer &conf) {
 
    bool r = false;
-   clipper::Coord_orth v;
+   clipper::Coord_orth v(0,0,0);
    if (feat->getNumAtoms() == 1) {
       RDGeom::Point3D centre_pos = feat->getPos();
       clipper::Coord_orth centre(centre_pos.x, centre_pos.y, centre_pos.z);
