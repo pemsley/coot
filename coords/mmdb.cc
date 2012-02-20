@@ -74,6 +74,13 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
 #ifdef MAKE_ENTERPRISE_TOOLS
        asc = coot::mol_to_asc_rdkit(pdb_name); // (not a PDB file of course)
+       // OK, if that failed, maybe it was an MDL mol file format.
+       // Use my parser for that for now.
+       if (! asc.read_success) { 
+	  lig_build::molfile_molecule_t m;
+	  m.read(pdb_name);
+	  asc = coot::mdl_mol_to_asc(m);
+       } 
 #else        
        lig_build::molfile_molecule_t m;
        m.read(pdb_name);
