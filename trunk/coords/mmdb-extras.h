@@ -83,6 +83,7 @@ public:
       SelectionHandle = selhnd;
       UDDAtomIndexHandle = -1;
       UDDOldAtomIndexHandle = -1;
+      read_success = 1;
    }
 
    atom_selection_container_t() {
@@ -91,6 +92,7 @@ public:
       SelectionHandle = -1;
       UDDAtomIndexHandle = -1;
       UDDOldAtomIndexHandle = -1;
+      read_success = 0;
    } 
   
    void clear_up() { 
