@@ -85,7 +85,8 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 	 try {
 	    // this can throw an exception
 	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, *g.Geom_p());
-	    show_chemical_features(rdkm, imol);
+	    chemical_features::show(rdkm, imol);
+	    g.graphics_draw(); 
 	 }
 	 catch (std::runtime_error coot_error) {
 	    success = false;
@@ -106,7 +107,11 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 
 // internal - no public access
 // 
+<<<<<<< HEAD
 void chemical_features::show(const RDKit::ROMol &rdkm, std::string name) {
+=======
+void chemical_features::show(const RDKit::ROMol &rdkm, int imol) {
+>>>>>>> chemical_features now namespaced.
 
    graphics_info_t g;
 
@@ -208,6 +213,7 @@ chemical_features::get_feature_factory() {
    const char *e = getenv("COOT_CHEMICAL_FEATURES_DEF");
    if (e) full_name = e;
    
+<<<<<<< HEAD
    if (coot::file_exists(full_name)) {
       std::ifstream inStream(full_name.c_str());
       std::istream &instrm = static_cast<std::istream &>(inStream);
@@ -220,6 +226,11 @@ chemical_features::get_feature_factory() {
    return factory;
 }
 
+=======
+   std::ifstream inStream(features_file_name.c_str());
+   std::istream &instrm = static_cast<std::istream &>(inStream);
+   RDKit::MolChemicalFeatureFactory *factory = RDKit::buildFeatureFactory(instrm);
+>>>>>>> chemical_features now namespaced.
 
 std::pair<bool, clipper::Coord_orth>
 chemical_features::get_normal_info(RDKit::MolChemicalFeature *feat,
@@ -282,7 +293,7 @@ chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, con
       // std::cout << "   type: " << sp.get()->getType() << std::endl;
       coot::colour_t col;
       if (family == "Hydrophobe")
-	 col = coot::colour_t(0.3, 0.3, 0.3);
+	 col = coot::colour_t(0.4, 0.6, 0.4);
       if (family == "LumpedHydrophobe")
 	 col = coot::colour_t(0.4, 0.4, 0.5);
       if (family == "Aromatic")
@@ -295,10 +306,31 @@ chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, con
 	 col = coot::colour_t(0.2, 0.2, 0.7);
       if (family == "NegIonizable")
 	 col = coot::colour_t(0.7, 0.2, 0.2);
+
       sphere.col = col;
-      features_obj.spheres.push_back(sphere);
-      if (family == "Aromatic" || family == "Donor" || family == "Acceptor") {
-	 std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), conf);
+
+      // make the lumped sphere be smaller for aesthetic reasons (more
+      // easily distinguished)
+      // 
+      if (family == "LumpedHydrophobe")
+	 sphere.radius = 0.38;
+
+      // don't show a sphere for an aromatic - but do for everything else.
+      // 
+      if (family != "Aromatic")
+	 features_obj.spheres.push_back(sphere);
+
+      if (family == "Donor" || family == "Acceptor") {
+	 std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), rdkm, conf);
+	 if (normal.first) {
+	    clipper::Coord_orth p1(centre + 1.3 * normal.second);
+ 	    coot::generic_display_object_t::arrow_t arrow_1(centre, p1);
+ 	    features_obj.arrows.push_back(arrow_1);
+	 }
+      }
+      
+      if (family == "Aromatic") {
+	 std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), rdkm, conf);
 	 if (normal.first) {
 	    clipper::Coord_orth p1(centre + 1.3 * normal.second);
 	    clipper::Coord_orth p2(centre - 1.3 * normal.second);
@@ -309,11 +341,6 @@ chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, con
  	    torus_2.col = col;
 	    features_obj.torii.push_back(torus_1);
  	    features_obj.torii.push_back(torus_2);
-
- 	    coot::generic_display_object_t::arrow_t arrow_1(centre, p1);
- 	    coot::generic_display_object_t::arrow_t arrow_2(centre, p2);
- 	    // features_obj.arrows.push_back(arrow_1);
- 	    // features_obj.arrows.push_back(arrow_2);
 	 }
       }
    }
@@ -325,20 +352,32 @@ chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, con
 
 
 std::pair<bool, clipper::Coord_orth>
-get_normal_info(RDKit::MolChemicalFeature *feat, const RDKit::Conformer &conf) {
-
+chemical_features::get_normal_info(RDKit::MolChemicalFeature *feat,
+				   const RDKit::ROMol &mol,
+				   const RDKit::Conformer &conf) {
+   
    bool r = false;
    clipper::Coord_orth v;
    if (feat->getFamily() == "Aromatic") {
       return get_normal_info_aromatic(feat, conf);
    } 
+   if (feat->getFamily() == "Donor") {
+      return get_normal_info_donor(feat, mol, conf);
+   } 
+   if (feat->getFamily() == "Acceptor") {
+      return get_normal_info_donor(feat, mol, conf);
+   } 
    return std::pair<bool, clipper::Coord_orth>(false, v); // fail
+<<<<<<< HEAD
 >>>>>>> aromatic rings work (but no colours there yet).
 
 std::pair<bool, clipper::Coord_orth>
 chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
 					 const RDKit::ROMol &mol,
 					 const RDKit::Conformer &conf) {
+=======
+}
+>>>>>>> chemical_features now namespaced.
 
 <<<<<<< HEAD
    bool r = false;
@@ -362,7 +401,7 @@ chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
       }
 =======
 std::pair<bool, clipper::Coord_orth>
-get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, const RDKit::Conformer &conf) {
+chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, const RDKit::Conformer &conf) {
 
    bool r = false;
    clipper::Coord_orth v;
@@ -378,15 +417,42 @@ get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, const RDKit::Conformer
       clipper::Coord_orth pt_1(r_pos_1.x, r_pos_1.y, r_pos_1.z);
       clipper::Coord_orth v0 = pt_0 - centre;
       clipper::Coord_orth v1 = pt_1 - centre;
-      std::cout << "v0: " << v0.format() << std::endl;
-      std::cout << "v1: " << v1.format() << std::endl;
       clipper::Coord_orth cp(clipper::Coord_orth::cross(v0,v1).unit());
       r = true;
       v = cp;
    }
    return std::pair<bool, clipper::Coord_orth>(r, v);
+<<<<<<< HEAD
 }
 >>>>>>> aromatic rings work (but no colours there yet).
+=======
+ }
+
+std::pair<bool, clipper::Coord_orth>
+chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
+					 const RDKit::ROMol &mol,
+					 const RDKit::Conformer &conf) {
+
+   bool r = false;
+   clipper::Coord_orth v;
+   if (feat->getNumAtoms() == 1) {
+      RDGeom::Point3D centre_pos = feat->getPos();
+      clipper::Coord_orth centre(centre_pos.x, centre_pos.y, centre_pos.z);
+      const std::vector<const RDKit::Atom *> &feat_atoms = feat->getAtoms();
+      int atom_index = feat_atoms[0]->getIdx();
+      // what we do now depends on how many non-hydrogen neighbours this atom has.
+      RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
+      boost::tie(nbrIdx, endNbrs) = mol.getAtomNeighbors(feat_atoms[0]);
+      std::vector<clipper::Coord_orth> neighbour_positions;
+      while(nbrIdx != endNbrs){
+	 const RDKit::ATOM_SPTR at = mol[*nbrIdx];
+	 if (at->getAtomicNum() != 1) {
+	    RDGeom::Point3D r_pos = conf.getAtomPos(*nbrIdx);
+	    neighbour_positions.push_back(clipper::Coord_orth(r_pos.x, r_pos.y, r_pos.z));
+	 } 
+	 ++nbrIdx;
+      }
+>>>>>>> chemical_features now namespaced.
 
       if (neighbour_positions.size()) {
 	 // normalize all the vectors from the neighbours to the
