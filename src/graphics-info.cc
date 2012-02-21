@@ -1973,7 +1973,6 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
 					      const coot::Cartesian &normal) {
 
    glPushMatrix();
-
    
    double cos_theta_y = normal.z();
    double theta_y_rad = acos(cos_theta_y);
@@ -2014,9 +2013,6 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
 
    // OK now we know the coordinates of the normal after these rotations.
    //
-
-   glColor3f (1.0, 0.6, 0.6);
-   glPointSize(5);
 
    double theta_z_prime_rad = atan2(start_dir_rot_2.y(), start_dir_rot_2.x());
    double theta_z_prime = clipper::Util::rad2d(theta_z_prime_rad);
@@ -2100,6 +2096,9 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
 	 clipper::Coord_orth smd_next(pt_multi_next - pt_next);
 	 clipper::Coord_orth smd_both = smd_this + smd_next;
 
+	 // get glNormal() wrong (as this is) and things turn dark brown or just matt.
+	 //
+	 // std::cout << "calling glNormal() with " << smd_both.format() << std::endl;
 	 glNormal3f(smd_both.x(), smd_both.y(), smd_both.z());
 
 	 glVertex3f(pt_multi_this.x(),      pt_multi_this.y(),      pt_multi_this.z());
@@ -4365,6 +4364,12 @@ graphics_info_t::draw_generic_objects_solid() {
 
 	 // arcs
 	 if ((*generic_objects_p)[i].arcs.size()) {
+	    // needed?
+	    glEnable(GL_LIGHTING);
+	    glEnable(GL_LIGHT2);
+	    glEnable(GL_LIGHT1);
+	    glEnable(GL_LIGHT0);
+	    glEnable(GL_COLOR_MATERIAL); 
 	    for (unsigned int iarc=0; iarc<(*generic_objects_p)[i].arcs.size(); iarc++) {
 	       const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
 	       glColor3f(obj.arcs[iarc].col.col[0], obj.arcs[iarc].col.col[1], obj.arcs[iarc].col.col[2]);
