@@ -4,6 +4,7 @@ lib_LTLIBRARIES=libcoot-analysis.la
 include_HEADERS=bfkurt.hh mogul-interface.hh
 
 INCLUDES = \
+	-I$(top_srcdir)/geometry        \
 	-I$(top_srcdir)/coot-utils   	\
 	-I$(top_srcdir)/mini-mol   	\
 	$(CLIPPER_CXXFLAGS)		\

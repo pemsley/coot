@@ -3846,7 +3846,9 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 //       std::cout << "Found " <<   plane_restraints.size() << "   plane restraints" << std::endl;
 //       std::cout << "Found " <<  chiral_restraints.size() << "  chiral restraints" << std::endl;
 
-      coot::dictionary_residue_restraints_t monomer_restraints(monomer_type, 1);
+      graphics_info_t g;
+      coot::dictionary_residue_restraints_t monomer_restraints(monomer_type,
+							       g.cif_dictionary_read_number++);
       monomer_restraints.bond_restraint    = bond_restraints;
       monomer_restraints.angle_restraint   = angle_restraints;
       monomer_restraints.torsion_restraint = torsion_restraints;
@@ -3855,7 +3857,6 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
       monomer_restraints.residue_info      = residue_info;
       monomer_restraints.atom_info         = atoms; 
 
-      graphics_info_t g;
       bool s = g.Geom_p()->replace_monomer_restraints(monomer_type, monomer_restraints);
       if (s)
 	 retval = SCM_BOOL_T;

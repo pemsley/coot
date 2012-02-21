@@ -267,6 +267,7 @@ coot_real_SOURCES = \
 	c-interface-maps.cc	 \
 	c-interface-mmdb.cc	 \
 	c-interface-mmdb.hh      \
+	c-interface-mogul.cc     \
 	c-interface-mutate.cc    \
 	c-interface-ncs.cc	 \
 	c-interface-network.cc	 \

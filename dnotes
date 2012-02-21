@@ -6383,4 +6383,11 @@ on windows:
 ECHO %HOMEDRIVE%%HOMEPATH%
 
 
+----
+Tue Feb 14 11:54:31 EST 2012
+
+   need a test that updating restraints from mogul works with atom names that are not 4-chars.
+
+   mogul::get_bond_type()
+
 ------
