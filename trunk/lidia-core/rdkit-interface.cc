@@ -275,7 +275,6 @@ coot::rdkit_mol(CResidue *residue_p,
       }
    }
 
-
    if (debug)
       std::cout << "=============== calling undelocalise() " << &m << std::endl;
    coot::undelocalise(&m);
@@ -353,6 +352,7 @@ coot::rdkit_mol(CResidue *residue_p,
 // 
 RDKit::RWMol
 coot::rdkit_mol_sanitized(CResidue *residue_p, const protein_geometry &geom) {
+
 
    RDKit::RWMol mol = coot::rdkit_mol(residue_p, geom);
 
