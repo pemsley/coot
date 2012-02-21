@@ -165,13 +165,13 @@ GtkWidget *wrapped_create_mogul_geometry_dialog(const coot::mogul &m) {
    GtkTreeView *mogul_angles_treeview   = GTK_TREE_VIEW(lookup_widget(w, "mogul_angles_treeview"));
    GtkTreeView *mogul_torsions_treeview = GTK_TREE_VIEW(lookup_widget(w, "mogul_torsions_treeview"));
 
-   GtkTreeStore *tree_store_atoms = gtk_tree_store_new (,
-							G_TYPE_STRING, G_TYPE_STRING, // atom names
-							G_TYPE_FLOAT, // value from model
-							G_TYPE_FLOAT, // median
-							G_TYPE_FLOAT, // std_dev
+//    GtkTreeStore *tree_store_atoms = gtk_tree_store_new (,
+// 							G_TYPE_STRING, G_TYPE_STRING, // atom names
+// 							G_TYPE_FLOAT, // value from model
+// 							G_TYPE_FLOAT, // median
+// 							G_TYPE_FLOAT, // std_dev
 
-							);
+// 							);
 
    return w;
 }
