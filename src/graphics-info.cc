@@ -4131,8 +4131,7 @@ graphics_info_t::draw_generic_objects_solid() {
 	 }
 
 	 // Other stuff:
-	 // float feature_opacity = 0.6;
-	 float feature_opacity = 0.9;
+	 float feature_opacity = 0.6;
 
 	 // spheres
 
@@ -4169,7 +4168,6 @@ graphics_info_t::draw_generic_objects_solid() {
 
 	 // arrows
 	 if ((*generic_objects_p)[i].arrows.size()) {
-
 	    glEnable (GL_BLEND);
 	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	    for (unsigned int iarrow=0; iarrow<(*generic_objects_p)[i].arrows.size(); iarrow++) {
@@ -4188,6 +4186,7 @@ graphics_info_t::draw_generic_objects_solid() {
 						0.3, 0.1); 
 	    }
 	 }
+
 
 	 // tori
 	 if ((*generic_objects_p)[i].tori.size()) {
