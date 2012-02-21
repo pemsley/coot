@@ -13,7 +13,7 @@
 #include "interface.h"
 
 void
-mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, const char *mogul_out_file_name) {
+undefined_function_markup(int imol, const char *chain_id, int res_no, const char *ins_code, const char *mogul_out_file_name) {
 
    coot::mogul m;
    m.parse(mogul_out_file_name);
@@ -132,8 +132,8 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 // residue to get the atom order).  The restraints can then apply to
 // all residues of that type.
 // 
-int update_restraints_using_mogul(int imol, const char *chain_id, int res_no, const char *ins_code,
-				 const char *monomer_type, const char *mogul_out_file_name) {
+int update_restraints_using_undefined_function(int imol, const char *chain_id, int res_no, const char *ins_code,
+					       const char *monomer_type, const char *mogul_out_file_name) {
 
    int s = 0;
    graphics_info_t g;
