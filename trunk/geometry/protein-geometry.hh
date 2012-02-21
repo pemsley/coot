@@ -459,6 +459,9 @@ namespace coot {
       bool is_from_sbase_data() const { return filled_with_sbase_data_flag; }
 
       std::vector<std::string> neighbours(const std::string &atom_name, bool allow_hydrogen_neighbours_flag) const;
+
+      // return "" on not found
+      std::string get_bond_type(const std::string &name_1, const std::string &name_2) const;
       
    };
 
@@ -1618,6 +1621,23 @@ namespace coot {
       // 
       bool replace_monomer_restraints(std::string monomer_type,
 				      const dictionary_residue_restraints_t &mon_res_in);
+
+      // Keep everything that we have already, replace only those
+      // parts that are in mon_res_in.  If there is not already
+      // something there then do nothing (because there are tree and
+      // atom and comp_id info) missing from Mogul information.
+
+      // Used to update bond and angle restraints from Mogul.
+      //
+      // status returned was if there was something already there.
+      // 
+      bool replace_monomer_restraints_conservatively(std::string monomer_type,
+						     const dictionary_residue_restraints_t &mon_res_in);
+      void replace_monomer_restraints_conservatively_bonds(int irest,
+							   const dictionary_residue_restraints_t &mon_res);
+      void replace_monomer_restraints_conservatively_angles(int irest,
+							    const dictionary_residue_restraints_t &mon_res);
+
 
       // this function is no longer const because it can run try_dynamic_add
       //

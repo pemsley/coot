@@ -2025,16 +2025,9 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
 
    // end_angle is less than start angle.
    double angle_step = -10.0; // degrees
-   double r = 0.55;
-   double radius_inner = 0.1;
+   double r = 0.6;
+   double radius_inner = 0.14;
    
-   GLfloat white[] = {0.8f, 0.8f, 0.8f, 1.0f};
-   GLfloat cyan[] = {0.f, .8f, .8f, 1.f};
-   glMaterialfv(GL_FRONT, GL_DIFFUSE, cyan);
-   glMaterialfv(GL_FRONT, GL_SPECULAR, white);
-   GLfloat shininess[] = {50};
-   glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
-	 
    glBegin(GL_QUADS);
 	       
    for (float a=start_angle; a>=end_angle; a+=angle_step) {
@@ -2060,7 +2053,7 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
       clipper::Coord_orth pt_ring_this = pt_this + radius_inner * pt_this_unit;
       clipper::Coord_orth pt_ring_next = pt_next + radius_inner * pt_next_unit;
 
-      float inner_angle_step = 30;
+      float inner_angle_step = 10;
       for (float iangle=0; iangle<=360.1; iangle+=inner_angle_step) {
 
 	 // rotate_round_vector() args: direction position origin_shift angle
@@ -2094,9 +2087,10 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
 	 // small radius direction
 	 clipper::Coord_orth smd_this(pt_multi_this - pt_this);
 	 clipper::Coord_orth smd_next(pt_multi_next - pt_next);
-	 clipper::Coord_orth smd_both = smd_this + smd_next;
+	 clipper::Coord_orth smd_both((smd_this + smd_next).unit());
 
-	 // get glNormal() wrong (as this is) and things turn dark brown or just matt.
+	 // get glNormal() wrong (as this is) and things turn dark brown or just matt
+	 // the normal needs to be normalized!
 	 //
 	 // std::cout << "calling glNormal() with " << smd_both.format() << std::endl;
 	 glNormal3f(smd_both.x(), smd_both.y(), smd_both.z());
@@ -4369,19 +4363,44 @@ graphics_info_t::draw_generic_objects_solid() {
 	    glEnable(GL_LIGHT2);
 	    glEnable(GL_LIGHT1);
 	    glEnable(GL_LIGHT0);
-	    glEnable(GL_COLOR_MATERIAL); 
+	    glEnable(GL_COLOR_MATERIAL);
+	    
+	    glEnable (GL_BLEND);
+	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	    for (unsigned int iarc=0; iarc<(*generic_objects_p)[i].arcs.size(); iarc++) {
 	       const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
-	       glColor3f(obj.arcs[iarc].col.col[0], obj.arcs[iarc].col.col[1], obj.arcs[iarc].col.col[2]);
+
+	       glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
+	       
+// 	       glColor3f(obj.arcs[iarc].col.col[0],
+// 			 obj.arcs[iarc].col.col[1],
+// 			 obj.arcs[iarc].col.col[2]);
+
+// 	       GLfloat  mat_specular[]  = {obj.arcs[iarc].col.col[0],
+// 					   obj.arcs[iarc].col.col[1],
+// 					   obj.arcs[iarc].col.col[2], 
+// 					   feature_opacity};
+ 	       GLfloat  mat_diffuse[]  = {obj.arcs[iarc].col.col[0],
+ 					  obj.arcs[iarc].col.col[1],
+ 					  obj.arcs[iarc].col.col[2], 
+ 					  1.0};
 	       GLfloat  mat_specular[]  = {obj.arcs[iarc].col.col[0],
-					   obj.arcs[iarc].col.col[1],
-					   obj.arcs[iarc].col.col[2], 
-					   feature_opacity};
-	       GLfloat  mat_shininess[] = {35};
+ 					  obj.arcs[iarc].col.col[1],
+ 					  obj.arcs[iarc].col.col[2], 
+ 					  1.0};
+	       GLfloat  mat_shininess[] = {40};
 	       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
 	       glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-	       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
-	       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+
+// 	       GLfloat white[] = {0.8f, 0.8f, 0.8f, 1.0f};
+// 	       GLfloat cyan[] = {0.f, .8f, .8f, 1.f};
+// 	       glMaterialfv(GL_FRONT, GL_DIFFUSE, cyan);
+// 	       glMaterialfv(GL_FRONT, GL_SPECULAR, white);
+// 	       GLfloat shininess[] = {50};
+// 	       glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
+	       
 	       g.graphics_object_internal_arc(obj.arcs[iarc].start_angle,
 					      obj.arcs[iarc].end_angle,
 					      obj.arcs[iarc].start_point,

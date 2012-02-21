@@ -5398,6 +5398,98 @@ coot::protein_geometry::replace_monomer_restraints(std::string monomer_type,
    return s;
 }
 
+
+// Keep everything that we have already, replace only those
+// parts that are in mon_res_in.
+// Used to update bond and angle restraints from Mogul.
+// 
+bool
+coot::protein_geometry::replace_monomer_restraints_conservatively(std::string monomer_type, 
+								  const dictionary_residue_restraints_t &mon_res) {
+
+   bool s = false;
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      if (dict_res_restraints[i].residue_info.comp_id == monomer_type) {
+	 replace_monomer_restraints_conservatively_bonds( i, mon_res);
+	 replace_monomer_restraints_conservatively_angles(i, mon_res);
+	 s = true;
+	 break;
+      }
+   }
+   return s;
+}
+
+void
+coot::protein_geometry::replace_monomer_restraints_conservatively_bonds(int irest,
+									const dictionary_residue_restraints_t &mon_res) {
+
+   // replace bonds
+   // 
+   for (unsigned int ibond=0; ibond<dict_res_restraints[irest].bond_restraint.size(); ibond++) { 
+      for (unsigned int jbond=0; jbond<mon_res.bond_restraint.size(); jbond++) {
+
+	 if (dict_res_restraints[irest].bond_restraint[ibond].atom_id_1_4c() ==
+	     mon_res.bond_restraint[jbond].atom_id_1_4c()) {
+	    if (dict_res_restraints[irest].bond_restraint[ibond].atom_id_2_4c() ==
+		mon_res.bond_restraint[jbond].atom_id_2_4c()) {
+	       dict_res_restraints[irest].bond_restraint[ibond] =
+		  mon_res.bond_restraint[jbond];
+	       break;
+	    }
+	 }
+
+	 if (dict_res_restraints[irest].bond_restraint[ibond].atom_id_1_4c() ==
+	     mon_res.bond_restraint[jbond].atom_id_2_4c()) {
+	    if (dict_res_restraints[irest].bond_restraint[ibond].atom_id_2_4c() ==
+		mon_res.bond_restraint[jbond].atom_id_1_4c()) {
+	       dict_res_restraints[irest].bond_restraint[ibond] =
+		  mon_res.bond_restraint[jbond];
+	       break;
+	    }
+	 }
+      }
+   }
+}
+
+
+
+
+void
+coot::protein_geometry::replace_monomer_restraints_conservatively_angles(int irest,
+									 const dictionary_residue_restraints_t &mon_res) {
+
+   for (unsigned int iangle=0; iangle<dict_res_restraints[irest].angle_restraint.size(); iangle++) { 
+      for (unsigned int jangle=0; jangle<mon_res.angle_restraint.size(); jangle++) {
+
+	 // middle atom the same
+	 // 
+	 if (dict_res_restraints[irest].angle_restraint[iangle].atom_id_2_4c() ==
+	     mon_res.angle_restraint[jangle].atom_id_2_4c()) {
+
+	    // check for either way round of 1 and 3:
+
+	    if (dict_res_restraints[irest].angle_restraint[iangle].atom_id_1_4c() ==
+		mon_res.angle_restraint[jangle].atom_id_1_4c()) {
+	       if (dict_res_restraints[irest].angle_restraint[iangle].atom_id_3_4c() ==
+		   mon_res.angle_restraint[jangle].atom_id_3_4c()) {
+		  dict_res_restraints[irest].angle_restraint[iangle] =
+		     mon_res.angle_restraint[jangle];
+	       }
+	    }
+
+	    if (dict_res_restraints[irest].angle_restraint[iangle].atom_id_1_4c() ==
+		mon_res.angle_restraint[jangle].atom_id_3_4c()) {
+	       if (dict_res_restraints[irest].angle_restraint[iangle].atom_id_3_4c() ==
+		   mon_res.angle_restraint[jangle].atom_id_1_4c()) {
+		  dict_res_restraints[irest].angle_restraint[iangle] =
+		     mon_res.angle_restraint[jangle];
+	       }
+	    }
+	 }
+      }
+   }
+}
+
 std::vector<std::string>
 coot::protein_geometry::monomer_types() const {
    std::vector<std::string> v;
@@ -5769,3 +5861,27 @@ coot::protein_geometry::get_bonded_neighbours(const std::string &residue_name,
    } 
    return v;
 } 
+
+// return "" on not found
+std::string
+coot::dictionary_residue_restraints_t::get_bond_type(const std::string &name_1,
+						     const std::string &name_2) const {
+
+   std::string r("unknown");
+   for (unsigned int i=0; i<bond_restraint.size(); i++) { 
+      if (bond_restraint[i].atom_id_1_4c() == name_1) { 
+	 if (bond_restraint[i].atom_id_2_4c() == name_2) { 
+	    r = bond_restraint[i].type();
+	    break;
+	 }
+      }
+      if (bond_restraint[i].atom_id_1_4c() == name_2) { 
+	 if (bond_restraint[i].atom_id_2_4c() == name_1) { 
+	    r = bond_restraint[i].type();
+	    break;
+	 }
+      }
+   }
+   return r;
+} 
+      
