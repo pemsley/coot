@@ -101,6 +101,28 @@ namespace coot {
 	 float radius_2;
 	 int n_ring_atoms;
       };
+      // arc is part of a torus
+      class arc_t {
+      public:
+	 arc_t(float start_angle_in, float end_angle_in,
+	       const clipper::Coord_orth &start_point_in,
+	       const clipper::Coord_orth &start_dir_in,
+	       const clipper::Coord_orth &normal_in) {
+	    start_point = start_point_in;
+	    start_angle = start_angle_in;
+	    end_angle = end_angle_in;
+	    normal = normal_in;
+	    start_dir = start_dir_in;
+	 }
+	 clipper::Coord_orth normal;
+	 clipper::Coord_orth start_point;
+	 clipper::Coord_orth start_dir;
+	 float start_angle;
+	 float end_angle;
+	 coot::colour_t col;
+	 float width;
+	 float radius;
+      };
       
       bool is_displayed_flag;
       bool is_closed_flag; // don't make buttons for closed display objects
@@ -113,6 +135,7 @@ namespace coot {
       std::vector<arrow_t> arrows;
       std::vector<sphere_t> spheres;
       std::vector<torus_t> tori;
+      std::vector<arc_t> arcs;
       std::vector<int> GL_display_list_handles;
       generic_display_object_t(const std::string &n) { 
 	 name = n;

@@ -1254,10 +1254,6 @@ int transform_map_raw(int imol,
 		      double cell_a, double cell_b, double cell_c,
 		      double alpha, double beta, double gamma);
 
-/* return the new molecule number (or should I do it in place?) */
-int rotate_map_round_screen_axis_x(float r_degrees); 
-int rotate_map_round_screen_axis_y(float r_degrees); 
-int rotate_map_round_screen_axis_z(float r_degrees); 
 
 /*! \brief make a difference map, taking map_scale * imap2 from imap1,
   on the grid of imap1.  Return the new molecule number.  
@@ -6175,6 +6171,24 @@ void to_generic_object_add_point(int object_number,
 				 float from_y1, 
 				 float from_z1);
 
+/*! \brief add point to generic object object_number */
+void to_generic_object_add_arc(int object_number, 
+			       const char *colour,
+			       int point_width,
+			       float from_angle,
+			       float to_angle,
+			       float start_point_x,
+			       float start_point_y,
+			       float start_point_z,
+			       float start_dir_x,
+			       float start_dir_y,
+			       float start_dir_z,
+			       float normal_x1, 
+			       float normal_y1, 
+			       float normal_z1);
+
+
+
 /*! \brief add a display list handle generic object */
 void to_generic_object_add_display_list_handle(int object_number, int display_list_id); 
 
@@ -6759,10 +6773,25 @@ void    handle_go_to_residue_keyboarding_mode(const gchar *text);
 /*  ----------------------------------------------------------------------- */
 /*                    graphics ligand view                                  */
 /*  ----------------------------------------------------------------------- */
+/*! \name graphics 2D ligand view */
+/* \{ */
 /*! \brief set the graphics ligand view state
 
  (default is 1 (on)). */
 void set_show_graphics_ligand_view(int state);
+/* \} */
+
+/*  ----------------------------------------------------------------------- */
+/*                    Mogul                                                 */
+/*  ----------------------------------------------------------------------- */
+/*! \name Mogul interface */
+/* \{ */
+/*! \brief set the graphics ligand view state
+
+ (default is 1 (on)). */
+void mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, const char *mogul_out_file_name);
+/* \} */
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  experimental                                            */

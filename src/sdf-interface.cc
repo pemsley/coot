@@ -85,7 +85,14 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 	 try {
 	    // this can throw an exception
 	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, *g.Geom_p());
-	    chemical_features::show(rdkm, imol);
+	    // create a name (used to name the  generic objects object)
+	    std::string name = "Chemical Features: ";
+	    name += residue_p->GetChainID();
+	    name += " ";
+	    name += g.int_to_string(residue_p->GetSeqNum());
+	    name += " ";
+	    name += residue_p->GetResName();
+	    chemical_features::show(rdkm, name);
 	    g.graphics_draw(); 
 	 }
 	 catch (std::runtime_error coot_error) {
@@ -107,11 +114,7 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 
 // internal - no public access
 // 
-<<<<<<< HEAD
 void chemical_features::show(const RDKit::ROMol &rdkm, std::string name) {
-=======
-void chemical_features::show(const RDKit::ROMol &rdkm, int imol) {
->>>>>>> chemical_features now namespaced.
 
    graphics_info_t g;
 
@@ -213,7 +216,6 @@ chemical_features::get_feature_factory() {
    const char *e = getenv("COOT_CHEMICAL_FEATURES_DEF");
    if (e) full_name = e;
    
-<<<<<<< HEAD
    if (coot::file_exists(full_name)) {
       std::ifstream inStream(full_name.c_str());
       std::istream &instrm = static_cast<std::istream &>(inStream);
@@ -226,11 +228,6 @@ chemical_features::get_feature_factory() {
    return factory;
 }
 
-=======
-   std::ifstream inStream(features_file_name.c_str());
-   std::istream &instrm = static_cast<std::istream &>(inStream);
-   RDKit::MolChemicalFeatureFactory *factory = RDKit::buildFeatureFactory(instrm);
->>>>>>> chemical_features now namespaced.
 
 std::pair<bool, clipper::Coord_orth>
 chemical_features::get_normal_info(RDKit::MolChemicalFeature *feat,
@@ -254,7 +251,7 @@ chemical_features::get_normal_info(RDKit::MolChemicalFeature *feat,
 std::pair<bool, clipper::Coord_orth>
 chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, const RDKit::Conformer &conf) {
 
-<<<<<<< HEAD
+
    bool r = false;
    clipper::Coord_orth v(0,0,0);
    if (feat->getNumAtoms() > 1) {
@@ -275,80 +272,6 @@ chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, con
    }
    return std::pair<bool, clipper::Coord_orth>(r, v);
  }
-=======
-   RDKit::FeatSPtrList features = factory->getFeaturesForMol(rdkm);
-   coot::generic_display_object_t features_obj("Chemical Feature Spheres");
-   RDKit::Conformer conf = rdkm.getConformer(0); // iconf?
-
-   std::list<RDKit::FeatSPtr>::const_iterator it;
-   for (it=features.begin(); it!=features.end(); it++) {
-      RDKit::FeatSPtr feat_ptr = *it;
-      boost::shared_ptr<RDKit::MolChemicalFeature> sp = *it;
-      RDGeom::Point3D pos = sp.get()->getPos();
-      // std::cout << "feature pos: " << pos << std::endl;
-      clipper::Coord_orth centre(pos.x, pos.y, pos.z);
-      coot::generic_display_object_t::sphere_t sphere(centre, 0.5);
-      std::string family = sp.get()->getFamily();
-      // std::cout << "family: " << sp.get()->getFamily() << std::endl;
-      // std::cout << "   type: " << sp.get()->getType() << std::endl;
-      coot::colour_t col;
-      if (family == "Hydrophobe")
-	 col = coot::colour_t(0.4, 0.6, 0.4);
-      if (family == "LumpedHydrophobe")
-	 col = coot::colour_t(0.4, 0.4, 0.5);
-      if (family == "Aromatic")
-	 col = coot::colour_t(0.7, 0.7, 0.5);
-      if (family == "Donor")
-	 col = coot::colour_t(0.2, 0.6, 0.7);
-      if (family == "Acceptor")
-	 col = coot::colour_t(0.7, 0.2, 0.7);
-      if (family == "PosIonizable")
-	 col = coot::colour_t(0.2, 0.2, 0.7);
-      if (family == "NegIonizable")
-	 col = coot::colour_t(0.7, 0.2, 0.2);
-
-      sphere.col = col;
-
-      // make the lumped sphere be smaller for aesthetic reasons (more
-      // easily distinguished)
-      // 
-      if (family == "LumpedHydrophobe")
-	 sphere.radius = 0.38;
-
-      // don't show a sphere for an aromatic - but do for everything else.
-      // 
-      if (family != "Aromatic")
-	 features_obj.spheres.push_back(sphere);
-
-      if (family == "Donor" || family == "Acceptor") {
-	 std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), rdkm, conf);
-	 if (normal.first) {
-	    clipper::Coord_orth p1(centre + 1.3 * normal.second);
- 	    coot::generic_display_object_t::arrow_t arrow_1(centre, p1);
- 	    features_obj.arrows.push_back(arrow_1);
-	 }
-      }
-      
-      if (family == "Aromatic") {
-	 std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), rdkm, conf);
-	 if (normal.first) {
-	    clipper::Coord_orth p1(centre + 1.3 * normal.second);
-	    clipper::Coord_orth p2(centre - 1.3 * normal.second);
-	    
- 	    coot::generic_display_object_t::torus_t torus_1(centre, p1, 0.1, 1.1);
- 	    coot::generic_display_object_t::torus_t torus_2(centre, p2, 0.1, 1.1);
- 	    torus_1.col = col;
- 	    torus_2.col = col;
-	    features_obj.torii.push_back(torus_1);
- 	    features_obj.torii.push_back(torus_2);
-	 }
-      }
-   }
-   g.generic_objects_p->push_back(features_obj);
-   // this is hacky.
-   int iobj = g.generic_objects_p->size() -1;
-   g.generic_objects_p->back().is_displayed_flag = true;
-}
 
 
 std::pair<bool, clipper::Coord_orth>
@@ -368,18 +291,8 @@ chemical_features::get_normal_info(RDKit::MolChemicalFeature *feat,
       return get_normal_info_donor(feat, mol, conf);
    } 
    return std::pair<bool, clipper::Coord_orth>(false, v); // fail
-<<<<<<< HEAD
->>>>>>> aromatic rings work (but no colours there yet).
-
-std::pair<bool, clipper::Coord_orth>
-chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
-					 const RDKit::ROMol &mol,
-					 const RDKit::Conformer &conf) {
-=======
 }
->>>>>>> chemical_features now namespaced.
 
-<<<<<<< HEAD
    bool r = false;
    clipper::Coord_orth v(0,0,0);
    if (feat->getNumAtoms() == 1) {
@@ -399,7 +312,6 @@ chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
 	 } 
 	 ++nbrIdx;
       }
-=======
 std::pair<bool, clipper::Coord_orth>
 chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, const RDKit::Conformer &conf) {
 
@@ -422,10 +334,6 @@ chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, con
       v = cp;
    }
    return std::pair<bool, clipper::Coord_orth>(r, v);
-<<<<<<< HEAD
-}
->>>>>>> aromatic rings work (but no colours there yet).
-=======
  }
 
 std::pair<bool, clipper::Coord_orth>
@@ -452,7 +360,6 @@ chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
 	 } 
 	 ++nbrIdx;
       }
->>>>>>> chemical_features now namespaced.
 
       if (neighbour_positions.size()) {
 	 // normalize all the vectors from the neighbours to the
