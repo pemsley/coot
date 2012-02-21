@@ -275,68 +275,6 @@ chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, con
 
 
 std::pair<bool, clipper::Coord_orth>
-chemical_features::get_normal_info(RDKit::MolChemicalFeature *feat,
-				   const RDKit::ROMol &mol,
-				   const RDKit::Conformer &conf) {
-   
-   bool r = false;
-   clipper::Coord_orth v;
-   if (feat->getFamily() == "Aromatic") {
-      return get_normal_info_aromatic(feat, conf);
-   } 
-   if (feat->getFamily() == "Donor") {
-      return get_normal_info_donor(feat, mol, conf);
-   } 
-   if (feat->getFamily() == "Acceptor") {
-      return get_normal_info_donor(feat, mol, conf);
-   } 
-   return std::pair<bool, clipper::Coord_orth>(false, v); // fail
-}
-
-   bool r = false;
-   clipper::Coord_orth v(0,0,0);
-   if (feat->getNumAtoms() == 1) {
-      RDGeom::Point3D centre_pos = feat->getPos();
-      clipper::Coord_orth centre(centre_pos.x, centre_pos.y, centre_pos.z);
-      const std::vector<const RDKit::Atom *> &feat_atoms = feat->getAtoms();
-      int atom_index = feat_atoms[0]->getIdx();
-      // what we do now depends on how many non-hydrogen neighbours this atom has.
-      RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
-      boost::tie(nbrIdx, endNbrs) = mol.getAtomNeighbors(feat_atoms[0]);
-      std::vector<clipper::Coord_orth> neighbour_positions;
-      while(nbrIdx != endNbrs){
-	 const RDKit::ATOM_SPTR at = mol[*nbrIdx];
-	 if (at->getAtomicNum() != 1) {
-	    RDGeom::Point3D r_pos = conf.getAtomPos(*nbrIdx);
-	    neighbour_positions.push_back(clipper::Coord_orth(r_pos.x, r_pos.y, r_pos.z));
-	 } 
-	 ++nbrIdx;
-      }
-std::pair<bool, clipper::Coord_orth>
-chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, const RDKit::Conformer &conf) {
-
-   bool r = false;
-   clipper::Coord_orth v;
-   if (feat->getNumAtoms() > 1) {
-      RDGeom::Point3D centre_pos = feat->getPos();
-      clipper::Coord_orth centre(centre_pos.x, centre_pos.y, centre_pos.z);
-      const std::vector<const RDKit::Atom *> &feat_atoms = feat->getAtoms();
-      int idx0 = feat_atoms[0]->getIdx();
-      int idx1 = feat_atoms[1]->getIdx();
-      const RDGeom::Point3D &r_pos_0 = conf.getAtomPos(idx0);
-      const RDGeom::Point3D &r_pos_1 = conf.getAtomPos(idx1);
-      clipper::Coord_orth pt_0(r_pos_0.x, r_pos_0.y, r_pos_0.z);
-      clipper::Coord_orth pt_1(r_pos_1.x, r_pos_1.y, r_pos_1.z);
-      clipper::Coord_orth v0 = pt_0 - centre;
-      clipper::Coord_orth v1 = pt_1 - centre;
-      clipper::Coord_orth cp(clipper::Coord_orth::cross(v0,v1).unit());
-      r = true;
-      v = cp;
-   }
-   return std::pair<bool, clipper::Coord_orth>(r, v);
- }
-
-std::pair<bool, clipper::Coord_orth>
 chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
 					 const RDKit::ROMol &mol,
 					 const RDKit::Conformer &conf) {
