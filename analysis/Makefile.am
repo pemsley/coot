@@ -7,6 +7,7 @@ INCLUDES = \
 	-I$(top_srcdir)/geometry        \
 	-I$(top_srcdir)/coot-utils   	\
 	-I$(top_srcdir)/mini-mol   	\
+	-I$(top_srcdir)/utils   	\
 	$(CLIPPER_CXXFLAGS)		\
 	$(MMDB_CXXFLAGS)
 
