@@ -136,6 +136,14 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
    RDKit::RWMol m;
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
 
+   // we need to account for atoms that are closed.  So we make
+   // atom_index[idx] to return the index of the atom in the rdkit
+   // molecule.  i.e. converting from (possibly closed) atoms in a
+   // lig_build::molecule
+   // 
+   std::vector<int> atom_index(mol.atoms.size());
+   int at_no = 0;
+
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
       if (! mol.atoms[iat].is_closed()) { 
 	 RDKit::Atom *at = new RDKit::Atom;
@@ -150,7 +158,10 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	    std::cout << rte.what() << std::endl;
 	 }
 	 m.addAtom(at);
-      }
+	 atom_index[iat] = at_no++;
+      } else {
+	 // std::cout << "debug:: atom " << iat << " is closed " << std::endl;
+      } 
    }
 
    for (unsigned int ib=0; ib<mol.bonds.size(); ib++) {
@@ -159,17 +170,21 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	 RDKit::Bond *bond = new RDKit::Bond(type);
 	 int idx_1 = mol.bonds[ib].get_atom_1_index();
 	 int idx_2 = mol.bonds[ib].get_atom_2_index();
-	 if (!mol.atoms[idx_1].is_closed() && !mol.atoms[idx_2].is_closed()) { 
-	    bond->setBeginAtomIdx(idx_1);
-	    bond->setEndAtomIdx(  idx_2);
+	 if (!mol.atoms[idx_1].is_closed() && !mol.atoms[idx_2].is_closed()) {
+	    int idx_1_rdkit = atom_index[idx_1];
+	    int idx_2_rdkit = atom_index[idx_2];
+	    bond->setBeginAtomIdx(idx_1_rdkit);
+	    bond->setEndAtomIdx(  idx_2_rdkit);
 	    if (type == RDKit::Bond::AROMATIC) { 
 	       bond->setIsAromatic(true);
-	       m[idx_1]->setIsAromatic(true);
-	       m[idx_2]->setIsAromatic(true);
+	       m[idx_1_rdkit]->setIsAromatic(true);
+	       m[idx_2_rdkit]->setIsAromatic(true);
 	    } 
 	    m.addBond(bond);
 	 }
-      }
+      } else {
+	 std::cout << "debug:: bond " << ib << " is closed " << std::endl;
+      } 
    }
    return m;
 }
@@ -203,7 +218,6 @@ lbg_info_t::get_smiles_string_from_mol_rdkit() const {
    RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(rdkm);
    std::string s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs);
    delete rdk_mol_with_no_Hs;
-
    return s;
 }
 #endif
@@ -211,7 +225,6 @@ lbg_info_t::get_smiles_string_from_mol_rdkit() const {
 void
 lbg_info_t::write_mdl_molfile_using_default_file_name() const {
 
-   std::cout << "DEBUG:: mdl_file_name " << mdl_file_name << std::endl;
    mol.write_mdl_molfile(mdl_file_name);
 }
 
@@ -277,15 +290,24 @@ on_canvas_button_press_new(GooCanvasItem  *item,
    }
 
    if (! target_item) { 
-             std::cout << "on_canvas_button_press_new() NULL target item ... trying item"
-		       << std::endl;
+      std::cout << "on_canvas_button_press_new() NULL target item ... trying item"
+		<< std::endl;
       lbg_info_t *l =
 	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
+      std::cout << "debug got l: " << l << std::endl;
       if (!l) {
 	 std::cout << "on button-click: NULL lbg-info from item" << std::endl;
       } else {
-	 l->handle_item_add(event);
-      } 
+	 std::cout << "debug:: handle item add " << event << std::endl;
+	 if (l->in_delete_mode_p()) {
+	    std::cout << "calling handle_item_delete() " << event << std::endl;
+	    l->handle_item_delete(event);
+	 } else { 
+	    std::cout << "calling handle_item_add() " << event << std::endl;
+	    l->handle_item_add(event);
+	 }
+      }
+      
    } else {
 
       std::cout << "on_canvas_button_press_new() non-NULL target_item " << target_item
@@ -522,11 +544,11 @@ lbg_info_t::handle_drag(GdkModifierType state, int x_as_int, int y_as_int) {
       }
    } else {
       if (button_down_bond_addition) {
-	 // if (highlight_data.single_atom()) 
-	    // extend_latest_bond(); // checks for sensible atom to snap to.
+	 if (highlight_data.single_atom()) 
+	    extend_latest_bond(); // checks for sensible atom to snap to.
       }
    }
-} 
+}
 
 void
 lbg_info_t::drag_canvas(int mouse_x, int mouse_y) {
@@ -684,6 +706,8 @@ lbg_info_t::extend_latest_bond() {
    // atom we just added a bond to.
 
    // use highlight_data
+
+   std::cout << "in extend_latest_bond() " << std::endl;
 
    if (mol.bonds.size() > 0) {
       if (mol.atoms.size() > 0) {

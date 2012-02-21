@@ -1,4 +1,8 @@
 
+
+#ifndef MOGUL_INTERFACE_HH
+#define MOGUL_INTERFACE_HH
+
 #include <string>
 #include <vector>
 
@@ -124,3 +128,6 @@ namespace coot {
    };
 
 }
+
+#endif // MOGUL_INTERFACE_HH
+

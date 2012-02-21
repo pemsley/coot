@@ -5677,9 +5677,8 @@ int fffear_search(int imol_model, int imol_map) {
 	 std::vector<std::pair<float, clipper::RTop_orth> > p = f.scored_orientations();
 	 if (p.size() > 0) {
 	    // install new molecule(s) that has been rotated.
-	   printf("BL INFO:: just a placeholder\n");
 	 }
-   }
+      }
    }
    return imol_new;
 }

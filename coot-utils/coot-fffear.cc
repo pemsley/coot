@@ -37,7 +37,7 @@
 #include "peak-search.hh"
 
 
-coot::util::fffear_search::fffear_search(CMMDBManager *mol, int SelectionHandle, const clipper::Xmap<float> &xmap, float angular_resolution) {
+coot::util::fffear_search::fffear_search(CMMDBManager *mol, int SelectionHandle, const clipper::Xmap<float> &xmap, float angular_resolution, bool translation_search_only) {
 
    std::pair<clipper::Coord_orth, clipper::Coord_orth> e = extents(mol, SelectionHandle);
    float bx  = e.second.x() - e.first.x();
@@ -99,7 +99,12 @@ coot::util::fffear_search::fffear_search(CMMDBManager *mol, int SelectionHandle,
    for ( ix = results.first(); !ix.last(); ix.next() )
       results[ix] = p;
 
-   generate_search_rtops(angular_resolution); // fill class member ops
+   if (translation_search_only)
+      ops.push_back(clipper::RTop_orth(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1),
+				       clipper::Coord_orth(0,0,0)));
+   else
+      generate_search_rtops(angular_resolution); // fill class member ops
+   
    clipper::Grid_range grid_extent(xmap.cell(), grid_sampling, box_size);
 
    // For each grid point store a best score and the rtop that
@@ -176,7 +181,7 @@ coot::util::fffear_search::fffear_search(CMMDBManager *mol, int SelectionHandle,
 	    }
 
 	 icount++;
-	 //       std::cout << ops.size() - iop << " "; 
+
 	 std::cout.flush();
 	 if (icount == 50) {
 	    std::cout << " " <<100*(float(iop)/float(ops.size())) << "%";

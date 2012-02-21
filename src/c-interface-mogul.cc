@@ -8,6 +8,9 @@
 
 #include "graphics-info.h"
 #include "c-interface.h"
+#include "cc-interface-mogul.hh"
+
+#include "interface.h"
 
 void
 mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, const char *mogul_out_file_name) {
@@ -23,6 +26,7 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 	 std::cout << "WARNING:: no such residue" << std::endl;
       } else { 
 	 if (m.n_items() > 0) {
+	    show_mogul_geometry_dialog(m);
 	    int new_obj = new_generic_object_number("Mogul Validation");
 	    PPCAtom residue_atoms = 0;
 	    int n_residue_atoms;
@@ -144,3 +148,31 @@ int update_restraints_using_mogul(int imol, const char *chain_id, int res_no, co
    }
    return s;
 }
+
+void show_mogul_geometry_dialog(const coot::mogul &m) {
+
+   GtkWidget *w = wrapped_create_mogul_geometry_dialog(m);
+   if (w)
+      gtk_widget_show(w);
+}
+
+GtkWidget *wrapped_create_mogul_geometry_dialog(const coot::mogul &m) {
+
+   GtkWidget *w = create_mogul_geometry_dialog();
+   // fill w here.
+
+   GtkTreeView *mogul_bonds_treeview    = GTK_TREE_VIEW(lookup_widget(w, "mogul_bonds_treeview"));
+   GtkTreeView *mogul_angles_treeview   = GTK_TREE_VIEW(lookup_widget(w, "mogul_angles_treeview"));
+   GtkTreeView *mogul_torsions_treeview = GTK_TREE_VIEW(lookup_widget(w, "mogul_torsions_treeview"));
+
+   GtkTreeStore *tree_store_atoms = gtk_tree_store_new (,
+							G_TYPE_STRING, G_TYPE_STRING, // atom names
+							G_TYPE_FLOAT, // value from model
+							G_TYPE_FLOAT, // median
+							G_TYPE_FLOAT, // std_dev
+
+							);
+
+   return w;
+}
+

@@ -3417,7 +3417,7 @@ create_global_map_properties_window (void)
   gtk_widget_show (entry1);
   gtk_box_pack_start (GTK_BOX (hbox5), entry1, FALSE, TRUE, 11);
 
-  label7 = gtk_label_new (_("Angstroems"));
+  label7 = gtk_label_new (_("\303\205ngstr\303\266m"));
   gtk_widget_show (label7);
   gtk_box_pack_start (GTK_BOX (hbox5), label7, FALSE, FALSE, 18);
   gtk_label_set_justify (GTK_LABEL (label7), GTK_JUSTIFY_CENTER);
@@ -3448,7 +3448,7 @@ create_global_map_properties_window (void)
   gtk_widget_show (iso_level_increment_entry);
   gtk_box_pack_start (GTK_BOX (hbox17), iso_level_increment_entry, FALSE, TRUE, 6);
 
-  label33 = gtk_label_new (_("e/A^3"));
+  label33 = gtk_label_new (_("e/\303\205^3"));
   gtk_widget_show (label33);
   gtk_box_pack_start (GTK_BOX (hbox17), label33, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label33), GTK_JUSTIFY_CENTER);
@@ -3470,7 +3470,7 @@ create_global_map_properties_window (void)
   gtk_widget_show (diff_map_iso_level_increment_entry);
   gtk_box_pack_start (GTK_BOX (hbox18), diff_map_iso_level_increment_entry, FALSE, TRUE, 0);
 
-  label35 = gtk_label_new (_("e/A^3"));
+  label35 = gtk_label_new (_("e/\303\205^3"));
   gtk_widget_show (label35);
   gtk_box_pack_start (GTK_BOX (hbox18), label35, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label35), GTK_JUSTIFY_CENTER);
@@ -3999,6 +3999,7 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_container_add (GTK_CONTAINER (frame33), symmetry_colorbutton);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), _("Pick a Colour"));
 
   label68 = gtk_label_new (_("Sym Colour"));
   gtk_widget_show (label68);
@@ -5778,7 +5779,7 @@ create_rotation_centre_cube_size_window (void)
   gtk_widget_show (rotation_centre_cube_size_entry);
   gtk_box_pack_start (GTK_BOX (hbox31), rotation_centre_cube_size_entry, TRUE, TRUE, 0);
 
-  label52 = gtk_label_new (_("Angstroems"));
+  label52 = gtk_label_new (_("\303\205ngstr\303\266m"));
   gtk_widget_show (label52);
   gtk_box_pack_start (GTK_BOX (hbox31), label52, FALSE, FALSE, 6);
   gtk_label_set_justify (GTK_LABEL (label52), GTK_JUSTIFY_CENTER);
@@ -9171,7 +9172,7 @@ create_environment_distance_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox46), environment_distance_min_entry, TRUE, TRUE, 0);
   gtk_widget_set_size_request (environment_distance_min_entry, 80, -1);
 
-  label92 = gtk_label_new (_("  Angstroms  "));
+  label92 = gtk_label_new (_("  \303\205ngstr\303\266m  "));
   gtk_widget_show (label92);
   gtk_box_pack_start (GTK_BOX (hbox46), label92, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label92), GTK_JUSTIFY_CENTER);
@@ -9190,7 +9191,7 @@ create_environment_distance_dialog (void)
   gtk_box_pack_start (GTK_BOX (hbox45), environment_distance_max_entry, TRUE, TRUE, 0);
   gtk_widget_set_size_request (environment_distance_max_entry, 80, -1);
 
-  label93 = gtk_label_new (_("  Angstroms  "));
+  label93 = gtk_label_new (_("  \303\205ngstr\303\266m  "));
   gtk_widget_show (label93);
   gtk_box_pack_start (GTK_BOX (hbox45), label93, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label93), GTK_JUSTIFY_CENTER);
@@ -19199,7 +19200,7 @@ create_preferences (void)
   gtk_widget_show (preferences_map_radius_entry);
   gtk_box_pack_start (GTK_BOX (hbox316), preferences_map_radius_entry, FALSE, TRUE, 11);
 
-  label552 = gtk_label_new (_("Angstroems"));
+  label552 = gtk_label_new (_("\303\205ngstr\303\266m"));
   gtk_widget_show (label552);
   gtk_box_pack_start (GTK_BOX (hbox316), label552, FALSE, FALSE, 18);
   gtk_label_set_justify (GTK_LABEL (label552), GTK_JUSTIFY_CENTER);
@@ -19757,7 +19758,7 @@ create_preferences (void)
   gtk_widget_show (preferences_pink_pointer_entry);
   gtk_box_pack_start (GTK_BOX (hbox324), preferences_pink_pointer_entry, FALSE, FALSE, 11);
 
-  label583 = gtk_label_new (_("Angstroems"));
+  label583 = gtk_label_new (_("\303\205ngstr\303\266m"));
   gtk_widget_show (label583);
   gtk_box_pack_start (GTK_BOX (hbox324), label583, FALSE, FALSE, 18);
   gtk_label_set_justify (GTK_LABEL (label583), GTK_JUSTIFY_CENTER);
@@ -21134,7 +21135,7 @@ create_pointer_distances_dialog (void)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
 
-  label236 = gtk_label_new (_(" Angstroms "));
+  label236 = gtk_label_new (_(" \303\205ngstr\303\266m "));
   gtk_widget_show (label236);
   gtk_table_attach (GTK_TABLE (table2), label236, 2, 3, 1, 2,
                     (GtkAttachOptions) (0),
@@ -21142,7 +21143,7 @@ create_pointer_distances_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label236), GTK_JUSTIFY_CENTER);
   gtk_misc_set_alignment (GTK_MISC (label236), 0, 0.5);
 
-  label235 = gtk_label_new (_(" Angstroms "));
+  label235 = gtk_label_new (_(" \303\205ngstr\303\266m "));
   gtk_widget_show (label235);
   gtk_table_attach (GTK_TABLE (table2), label235, 2, 3, 0, 1,
                     (GtkAttachOptions) (0),
@@ -27805,6 +27806,103 @@ create_keyboard_goto_residue_window (void)
   gtk_widget_grab_focus (keyboard_go_to_residue_entry);
   gtk_widget_grab_default (keyboard_go_to_residue_entry);
   return keyboard_goto_residue_window;
+}
+
+GtkWidget*
+create_mogul_geometry_dialog (void)
+{
+  GtkWidget *mogul_geometry_dialog;
+  GtkWidget *dialog_vbox129;
+  GtkWidget *mogul_notebook;
+  GtkWidget *scrolledwindow36;
+  GtkWidget *mogul_bonds_treeview;
+  GtkWidget *label774;
+  GtkWidget *scrolledwindow37;
+  GtkWidget *mogul_angles_treeview;
+  GtkWidget *label775;
+  GtkWidget *scrolledwindow38;
+  GtkWidget *mogul_torsions_treeview;
+  GtkWidget *label776;
+  GtkWidget *dialog_action_area128;
+  GtkWidget *button36;
+
+  mogul_geometry_dialog = gtk_dialog_new ();
+  gtk_window_set_title (GTK_WINDOW (mogul_geometry_dialog), _("Mogul Results"));
+  gtk_window_set_type_hint (GTK_WINDOW (mogul_geometry_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+  gtk_dialog_set_has_separator (GTK_DIALOG (mogul_geometry_dialog), FALSE);
+
+  dialog_vbox129 = GTK_DIALOG (mogul_geometry_dialog)->vbox;
+  gtk_widget_show (dialog_vbox129);
+
+  mogul_notebook = gtk_notebook_new ();
+  gtk_widget_show (mogul_notebook);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox129), mogul_notebook, TRUE, TRUE, 0);
+
+  scrolledwindow36 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_show (scrolledwindow36);
+  gtk_container_add (GTK_CONTAINER (mogul_notebook), scrolledwindow36);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow36), GTK_SHADOW_IN);
+
+  mogul_bonds_treeview = gtk_tree_view_new ();
+  gtk_widget_show (mogul_bonds_treeview);
+  gtk_container_add (GTK_CONTAINER (scrolledwindow36), mogul_bonds_treeview);
+
+  label774 = gtk_label_new (_("Bonds"));
+  gtk_widget_show (label774);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (mogul_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (mogul_notebook), 0), label774);
+
+  scrolledwindow37 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_show (scrolledwindow37);
+  gtk_container_add (GTK_CONTAINER (mogul_notebook), scrolledwindow37);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow37), GTK_SHADOW_IN);
+
+  mogul_angles_treeview = gtk_tree_view_new ();
+  gtk_widget_show (mogul_angles_treeview);
+  gtk_container_add (GTK_CONTAINER (scrolledwindow37), mogul_angles_treeview);
+
+  label775 = gtk_label_new (_("Angles"));
+  gtk_widget_show (label775);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (mogul_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (mogul_notebook), 1), label775);
+
+  scrolledwindow38 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_show (scrolledwindow38);
+  gtk_container_add (GTK_CONTAINER (mogul_notebook), scrolledwindow38);
+  gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow38), GTK_SHADOW_IN);
+
+  mogul_torsions_treeview = gtk_tree_view_new ();
+  gtk_widget_show (mogul_torsions_treeview);
+  gtk_container_add (GTK_CONTAINER (scrolledwindow38), mogul_torsions_treeview);
+
+  label776 = gtk_label_new (_("Torsions"));
+  gtk_widget_show (label776);
+  gtk_notebook_set_tab_label (GTK_NOTEBOOK (mogul_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (mogul_notebook), 2), label776);
+
+  dialog_action_area128 = GTK_DIALOG (mogul_geometry_dialog)->action_area;
+  gtk_widget_show (dialog_action_area128);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area128), GTK_BUTTONBOX_END);
+
+  button36 = gtk_button_new_from_stock ("gtk-close");
+  gtk_widget_show (button36);
+  gtk_dialog_add_action_widget (GTK_DIALOG (mogul_geometry_dialog), button36, GTK_RESPONSE_CLOSE);
+  GTK_WIDGET_SET_FLAGS (button36, GTK_CAN_DEFAULT);
+
+  /* Store pointers to all widgets, for use by lookup_widget(). */
+  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_dialog, mogul_geometry_dialog, "mogul_geometry_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_dialog, dialog_vbox129, "dialog_vbox129");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, mogul_notebook, "mogul_notebook");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, scrolledwindow36, "scrolledwindow36");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, mogul_bonds_treeview, "mogul_bonds_treeview");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, label774, "label774");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, scrolledwindow37, "scrolledwindow37");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, mogul_angles_treeview, "mogul_angles_treeview");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, label775, "label775");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, scrolledwindow38, "scrolledwindow38");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, mogul_torsions_treeview, "mogul_torsions_treeview");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, label776, "label776");
+  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_dialog, dialog_action_area128, "dialog_action_area128");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, button36, "button36");
+
+  return mogul_geometry_dialog;
 }
 
 #endif /* (GTK_MAJOR_VERSION > 1) */
