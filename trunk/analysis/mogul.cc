@@ -145,11 +145,12 @@ coot::mogul::parse_angle_line(const std::vector<std::string> &bond_bits,
 	 r = mogul_item(atom_idx_1, atom_idx_2, atom_idx_3, model_value,
 			counts, mean, median, std_dev, z);
 	 r.set_max_z_badness(max_z_badness);
-	 std::cout << " angle " << atom_idx_1 << " " << atom_idx_2 << " mean: " 
-		   << mean << " min: " << min << " max: " << max << " median: "
-		   << median << " std: " << std_dev
-		   << "  Z-score:" << z 
-		   << std::endl;
+	 if (0)
+	    std::cout << " angle " << atom_idx_1 << " " << atom_idx_2 << " mean: " 
+		      << mean << " min: " << min << " max: " << max << " median: "
+		      << median << " std: " << std_dev
+		      << "  Z-score:" << z 
+		      << std::endl;
       }
    }
    return r;

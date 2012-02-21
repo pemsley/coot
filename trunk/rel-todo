@@ -7,6 +7,18 @@
 
 * needs to put put into the standard gui and committed. 
 
+* crash problems here?
+
+   run python command:
+	graphics_general_key_press_hook(269025067)"
+
+
+* Does this need looking at? (mogul branch)
+
+called get_radio_button_in_scroll_group() with dialog 0x3995710 and imol_this 17
+
+* and map level (top right) (from a search map) was in sigma
+
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1

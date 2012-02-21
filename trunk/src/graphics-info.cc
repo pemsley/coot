@@ -4359,48 +4359,28 @@ graphics_info_t::draw_generic_objects_solid() {
 	 // arcs
 	 if ((*generic_objects_p)[i].arcs.size()) {
 	    // needed?
-	    glEnable(GL_LIGHTING);
-	    glEnable(GL_LIGHT2);
-	    glEnable(GL_LIGHT1);
-	    glEnable(GL_LIGHT0);
-	    glEnable(GL_COLOR_MATERIAL);
 	    
-	    glEnable (GL_BLEND);
-	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	    for (unsigned int iarc=0; iarc<(*generic_objects_p)[i].arcs.size(); iarc++) {
 	       const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
 
+	       glEnable(GL_COLOR_MATERIAL);
 	       glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 	       
-// 	       glColor3f(obj.arcs[iarc].col.col[0],
-// 			 obj.arcs[iarc].col.col[1],
-// 			 obj.arcs[iarc].col.col[2]);
-
+ 	       GLfloat  mat_diffuse[]  = {obj.arcs[iarc].col.col[0] * 0.8,
+ 					  obj.arcs[iarc].col.col[1] * 0.8,
+ 					  obj.arcs[iarc].col.col[2] * 0.8, 
+ 					  1.0};
 // 	       GLfloat  mat_specular[]  = {obj.arcs[iarc].col.col[0],
 // 					   obj.arcs[iarc].col.col[1],
 // 					   obj.arcs[iarc].col.col[2], 
-// 					   feature_opacity};
- 	       GLfloat  mat_diffuse[]  = {obj.arcs[iarc].col.col[0],
- 					  obj.arcs[iarc].col.col[1],
- 					  obj.arcs[iarc].col.col[2], 
- 					  1.0};
-	       GLfloat  mat_specular[]  = {obj.arcs[iarc].col.col[0],
- 					  obj.arcs[iarc].col.col[1],
- 					  obj.arcs[iarc].col.col[2], 
- 					  1.0};
-	       GLfloat  mat_shininess[] = {40};
+// 					   1.0};
+	       GLfloat  mat_specular[]  = {0.6, 0.6, 0.6, 1};
+	       GLfloat  mat_shininess[] = {35};
 	       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
 	       glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
 	       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
 	       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
 
-// 	       GLfloat white[] = {0.8f, 0.8f, 0.8f, 1.0f};
-// 	       GLfloat cyan[] = {0.f, .8f, .8f, 1.f};
-// 	       glMaterialfv(GL_FRONT, GL_DIFFUSE, cyan);
-// 	       glMaterialfv(GL_FRONT, GL_SPECULAR, white);
-// 	       GLfloat shininess[] = {50};
-// 	       glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
-	       
 	       g.graphics_object_internal_arc(obj.arcs[iarc].start_angle,
 					      obj.arcs[iarc].end_angle,
 					      obj.arcs[iarc].start_point,

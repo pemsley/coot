@@ -308,6 +308,14 @@ Cygwin
 To extend the available memory:
 http://cygwin.com/cygwin-ug-net/setup-maxmem.html
 
+
+Ligand Dialog, aka LIDIA
+------------------------
+
+To get ligand builder dialog you will need to comile with a
+sufficiently recent version of gtk (2.16 or later) and goocavanvas.
+
+
 extension language wrapper
 --------------------------
 

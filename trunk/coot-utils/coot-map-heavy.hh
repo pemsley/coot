@@ -117,7 +117,7 @@ namespace coot {
 	 clipper::NXmap<float> nxmap;
 	 clipper::NXmap<float> nxmap_mask;
 	 fffear_search(CMMDBManager *mol, int SelectionHandle, const clipper::Xmap<float> &xmap,
-		       float angular_resolution);
+		       float angular_resolution, bool translation_search_only=false);
 	 std::vector<std::pair<clipper::RTop_orth, float> > get_scored_transformations() const;
 	 clipper::RTop_orth get_best_transformation() const;
 	 clipper::Xmap<float> get_results_map() const;

@@ -76,6 +76,7 @@ main(int argc, char **argv) {
       std::string resolution_string;
       float resolution = 1; // set later if needed.
       float angle_step = 15;
+      bool trans_only = false;
 
       const char *optstr = "i:h:f:p:r:o:m";
       struct option long_options[] = {
@@ -88,6 +89,7 @@ main(int argc, char **argv) {
 	 {"mapin",  1, 0, 0},
 	 {"mapout", 1, 0, 0},
 	 {"angle-step", 1, 0, 0},
+	 {"trans-only", 0, 0, 0},
 	 {0, 0, 0, 0}
       };
 
@@ -132,6 +134,8 @@ main(int argc, char **argv) {
 	       
 	    } else { 
 	       std::string arg_str = long_options[option_index].name;
+	       if (arg_str == "trans-only")
+		  trans_only=true;
 	    }
 	    break;
 
@@ -241,7 +245,7 @@ main(int argc, char **argv) {
 
 	 coot::util::fffear_search f(atom_sel.mol,
 				     atom_sel.SelectionHandle,
-				     xmap, angle_step);
+				     xmap, angle_step, trans_only);
 	 clipper::Xmap<float> results_map = f.get_results_map();
 	 clipper::CCP4MAPfile mapout;
 	 mapout.open_write(map_out_file_name);
