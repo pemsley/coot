@@ -21,4 +21,5 @@ namespace coot {
    };
    std::ostream& operator<<(std::ostream &s, colour_t col);
 }
+
 #endif

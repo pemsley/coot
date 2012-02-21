@@ -275,6 +275,10 @@ coot::rdkit_mol(CResidue *residue_p,
       }
    }
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> Conflicts:
    if (debug)
       std::cout << "=============== calling undelocalise() " << &m << std::endl;
    coot::undelocalise(&m);
