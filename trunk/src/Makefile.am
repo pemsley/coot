@@ -324,6 +324,7 @@ coot_real_SOURCES = \
 	get-residue.cc           \
 	flev.hh			 \
 	flev.cc                  \
+	generic-objects.cc   	 \
 	gl-bits.hh		 \
 	globjects.cc 		 \
 	globjects.h gl-matrix.h  \

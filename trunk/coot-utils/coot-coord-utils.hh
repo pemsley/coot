@@ -1449,6 +1449,19 @@ namespace coot {
    std::ostream& operator<<(std::ostream& s, const atom_spec_t &spec);
    std::ostream& operator<<(std::ostream& s, const residue_spec_t &spec);
 
+   // can throw an exception (e.g. null pointers, overlapping atoms)
+   // 
+   class arc_info_type {
+   public:
+      float start; // degrees
+      float end; // degrees
+      clipper::Coord_orth start_point;
+      clipper::Coord_orth start_dir;
+      clipper::Coord_orth normal;
+      arc_info_type(CAtom *at_1, CAtom *at_2, CAtom *at_3);
+   };
+
+
 } // namespace coot
 
 #endif // HAVE_COOT_COORD_UTILS_HH

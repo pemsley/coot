@@ -633,6 +633,12 @@ class graphics_info_t {
 				       const double &radius_2, 
 				       int n_ring_atoms) const;
    
+   void graphics_object_internal_arc(float start_angle,
+				     float end_angle,
+				     const coot::Cartesian &start_point,
+				     const coot::Cartesian &start_dir,
+				     const coot::Cartesian &normal);
+
    void read_standard_residues();   // for mutation, we have
 				    // pre-prepared a pdb file with
 				    // residues in Buccaneer "Standard

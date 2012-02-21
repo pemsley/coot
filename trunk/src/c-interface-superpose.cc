@@ -837,31 +837,3 @@ void lsq_improve(int imol_ref, const char *ref_selection,
 } 
 
 
-
-// --------------------------------------------------------------------------
-//  for supperposition of maps
-//  by arbitary rotation round screen axis (as sister function of transform-map
-// --------------------------------------------------------------------------
-
-int
-rotate_map_round_screen_axis_x(float r_degrees) {
-
-   // Find screen axis x
-   // 
-   return -1; 
-} 
-
-int 
-rotate_map_round_screen_axis_y(float r_degrees) {
-
-   return -1; 
-}
-
-int
-rotate_map_round_screen_axis_z(float r_degrees) {
-
-   return -1; 
-} 
-
-   
-

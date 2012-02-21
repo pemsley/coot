@@ -1941,7 +1941,7 @@ graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_poin
       // plane)
       //
       coot::Cartesian normal = bond_frag * (1.0/height);
-      if (normal.z() > 0.999) {
+      if (normal.z() > 0.9999) {
 	 // std::cout << "      no rotation needed" << normal << std::endl;
       } else {
 
@@ -1961,10 +1961,161 @@ graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_poin
       else 
 	 glScalef(1.1, 1.1, 1.1);
       glutSolidTorus(radius_1, radius_2, 20, 20);
+      glPopMatrix();
    }
-   glPopMatrix();
 }
 
+void
+graphics_info_t::graphics_object_internal_arc(float start_angle,
+					      float end_angle,
+					      const coot::Cartesian &start_point,
+					      const coot::Cartesian &start_dir,
+					      const coot::Cartesian &normal) {
+
+   glPushMatrix();
+
+   
+   double cos_theta_y = normal.z();
+   double theta_y_rad = acos(cos_theta_y);
+   double theta_z_rad = atan2(normal.y(), normal.x());
+   double theta_z = clipper::Util::rad2d(theta_z_rad);
+   double theta_y = clipper::Util::rad2d(theta_y_rad);
+	 
+   glTranslatef(start_point.x(), start_point.y(), start_point.z());
+   
+   glRotated(theta_z, 0, 0, 1); // not negative.  I don't know why.
+   glRotated(theta_y, 0, 1, 0); //   ditto.
+	 
+   // where is the normal after these rotations?
+
+   // sin_t = sin(-theta_x_rad);
+   // cos_t = cos(-theta_x_rad);
+   // clipper::Mat33<double> x_mat(1,0,0, 0,cos_t,-sin_t, 0,sin_t,cos_t);
+
+   double sin_y_t = sin(-theta_y_rad);
+   double cos_y_t = cos(-theta_y_rad);
+
+   double sin_z_t = sin(-theta_z_rad);
+   double cos_z_t = cos(-theta_z_rad);
+
+   clipper::Mat33<double> y_mat(cos_y_t,0,sin_y_t, 0,1,0, -sin_y_t,0,cos_y_t);
+   clipper::RTop_orth y_rtop(y_mat, clipper::Coord_orth(0,0,0));
+
+   clipper::Mat33<double> z_mat(cos_z_t,-sin_z_t,0, sin_z_t, cos_z_t,0, 0,0,1);
+   clipper::RTop_orth z_rtop(z_mat, clipper::Coord_orth(0,0,0));
+
+   clipper::Coord_orth norm_rot_0(normal.x(), normal.y(), normal.z());
+   clipper::Coord_orth norm_rot_1 = norm_rot_0.transform(z_rtop);
+   clipper::Coord_orth norm_rot_2 = norm_rot_1.transform(y_rtop);
+
+   clipper::Coord_orth start_dir_rot_0(start_dir.x(), start_dir.y(), start_dir.z());
+   clipper::Coord_orth start_dir_rot_1 = start_dir_rot_0.transform(z_rtop);
+   clipper::Coord_orth start_dir_rot_2 = start_dir_rot_1.transform(y_rtop);
+
+   // OK now we know the coordinates of the normal after these rotations.
+   //
+
+   glColor3f (1.0, 0.6, 0.6);
+   glPointSize(5);
+
+   double theta_z_prime_rad = atan2(start_dir_rot_2.y(), start_dir_rot_2.x());
+   double theta_z_prime = clipper::Util::rad2d(theta_z_prime_rad);
+
+   start_angle += theta_z_prime;
+   end_angle   += theta_z_prime;
+
+   // draw arc here (it's at the origin now) in the XY plane
+   //
+
+   // end_angle is less than start angle.
+   double angle_step = -10.0; // degrees
+   double r = 0.55;
+   double radius_inner = 0.1;
+   
+   GLfloat white[] = {0.8f, 0.8f, 0.8f, 1.0f};
+   GLfloat cyan[] = {0.f, .8f, .8f, 1.f};
+   glMaterialfv(GL_FRONT, GL_DIFFUSE, cyan);
+   glMaterialfv(GL_FRONT, GL_SPECULAR, white);
+   GLfloat shininess[] = {50};
+   glMaterialfv(GL_FRONT, GL_SHININESS, shininess);
+	 
+   glBegin(GL_QUADS);
+	       
+   for (float a=start_angle; a>=end_angle; a+=angle_step) {
+      float b = a + angle_step;
+      if (b < end_angle) b = end_angle;
+
+      // these are the points on the centre of the axis of the curve
+      clipper::Coord_orth pt_this_unit(cos(clipper::Util::d2rad(a)), sin(clipper::Util::d2rad(a)), 0);
+      clipper::Coord_orth pt_next_unit(cos(clipper::Util::d2rad(b)), sin(clipper::Util::d2rad(b)), 0);
+
+      // perpendicular to pt_this_unit is the direction of the circle tangent.
+      // To get that, we rotate about the z-axis: 
+      clipper::Mat33<double> z_90_mat(0, -1, 0, 1, 0, 0, 0, 0, 1);
+      clipper::RTop_orth z_90_rtop(z_mat, clipper::Coord_orth(0,0,0));
+
+      clipper::Coord_orth pt_this(r*cos(clipper::Util::d2rad(a)), r*sin(clipper::Util::d2rad(a)), 0);
+      clipper::Coord_orth pt_next(r*cos(clipper::Util::d2rad(b)), r*sin(clipper::Util::d2rad(b)), 0);
+
+      clipper::Coord_orth this_circle_tangent(clipper::Coord_orth::cross(pt_this, norm_rot_2));
+      clipper::Coord_orth next_circle_tangent(clipper::Coord_orth::cross(pt_next, norm_rot_2));
+	    
+      // and a point on the ring that we shall rotate about the tangent
+      clipper::Coord_orth pt_ring_this = pt_this + radius_inner * pt_this_unit;
+      clipper::Coord_orth pt_ring_next = pt_next + radius_inner * pt_next_unit;
+
+      float inner_angle_step = 30;
+      for (float iangle=0; iangle<=360.1; iangle+=inner_angle_step) {
+
+	 // rotate_round_vector() args: direction position origin_shift angle
+	 clipper::Coord_orth pt_multi_this =
+	    coot::util::rotate_round_vector(this_circle_tangent,
+					    pt_ring_this,
+					    pt_this,
+					    clipper::Util::d2rad(iangle));
+	 clipper::Coord_orth pt_multi_next =
+	    coot::util::rotate_round_vector(next_circle_tangent,
+					    pt_ring_next,
+					    pt_next,
+					    clipper::Util::d2rad(iangle));
+
+	 // and the inner next of those points, i.e. neighbours
+	 // on the same inner ring.
+	 // 
+	 clipper::Coord_orth pt_multi_this_plus =
+	    coot::util::rotate_round_vector(this_circle_tangent,
+					    pt_ring_this,
+					    pt_this,
+					    clipper::Util::d2rad(iangle+inner_angle_step));
+	       
+	 clipper::Coord_orth pt_multi_next_plus =
+	    coot::util::rotate_round_vector(next_circle_tangent,
+					    pt_ring_next,
+					    pt_next,
+					    clipper::Util::d2rad(iangle+inner_angle_step));
+
+	 // 4 GL_QUAD vertices
+	 // small radius direction
+	 clipper::Coord_orth smd_this(pt_multi_this - pt_this);
+	 clipper::Coord_orth smd_next(pt_multi_next - pt_next);
+	 clipper::Coord_orth smd_both = smd_this + smd_next;
+
+	 glNormal3f(smd_both.x(), smd_both.y(), smd_both.z());
+
+	 glVertex3f(pt_multi_this.x(),      pt_multi_this.y(),      pt_multi_this.z());
+	 glVertex3f(pt_multi_this_plus.x(), pt_multi_this_plus.y(), pt_multi_this_plus.z());
+	 glVertex3f(pt_multi_next_plus.x(), pt_multi_next_plus.y(), pt_multi_next_plus.z());
+	 glVertex3f(pt_multi_next.x(),      pt_multi_next.y(),      pt_multi_next.z());
+
+	 // clipper::Coord_orth diff = pt_multi_this - pt_ring_this;
+	 // glNormal3f(diff.x(), diff.y(), diff.z());
+	 // glVertex3f(pt_multi_this.x(), pt_multi_this.y(), pt_multi_this.z());
+      }
+   }
+   glEnd();
+   
+   glPopMatrix();
+}
 
 
 void
@@ -4082,7 +4233,7 @@ void
 graphics_info_t::draw_generic_objects_solid() {
 
    graphics_info_t g;
-   double radius = 0.05;
+   double radius = 0.03;
    
    glEnable(GL_LIGHTING);
    glEnable(GL_LIGHT2);
@@ -4105,7 +4256,8 @@ graphics_info_t::draw_generic_objects_solid() {
 
  	       g.graphics_object_internal_single_tube((*generic_objects_p)[i].lines_set[ils].lines[iline].coords.first,
  						      (*generic_objects_p)[i].lines_set[ils].lines[iline].coords.second,
- 						      radius, coot::ROUND_ENDS);
+ 						      (*generic_objects_p)[i].lines_set[ils].width * radius,
+						      coot::ROUND_ENDS);
 	    }
 	 }
 	 
@@ -4187,7 +4339,6 @@ graphics_info_t::draw_generic_objects_solid() {
 	    }
 	 }
 
-
 	 // tori
 	 if ((*generic_objects_p)[i].tori.size()) {
 	    glEnable (GL_BLEND);
@@ -4203,11 +4354,34 @@ graphics_info_t::draw_generic_objects_solid() {
 	       glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
 	       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
 	       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
-	       g.graphics_object_internal_torus((*generic_objects_p)[i].tori[itor].start_point,
-						(*generic_objects_p)[i].tori[itor].end_point,
-						(*generic_objects_p)[i].tori[itor].radius_1,
-						(*generic_objects_p)[i].tori[itor].radius_2,
-						(*generic_objects_p)[i].tori[itor].n_ring_atoms);
+
+	       g.graphics_object_internal_torus(obj.tori[itor].start_point,
+						obj.tori[itor].end_point,
+						obj.tori[itor].radius_1,
+						obj.tori[itor].radius_2,
+						obj.tori[itor].n_ring_atoms);
+	    }
+	 }
+
+	 // arcs
+	 if ((*generic_objects_p)[i].arcs.size()) {
+	    for (unsigned int iarc=0; iarc<(*generic_objects_p)[i].arcs.size(); iarc++) {
+	       const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
+	       glColor3f(obj.arcs[iarc].col.col[0], obj.arcs[iarc].col.col[1], obj.arcs[iarc].col.col[2]);
+	       GLfloat  mat_specular[]  = {obj.arcs[iarc].col.col[0],
+					   obj.arcs[iarc].col.col[1],
+					   obj.arcs[iarc].col.col[2], 
+					   feature_opacity};
+	       GLfloat  mat_shininess[] = {35};
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+	       g.graphics_object_internal_arc(obj.arcs[iarc].start_angle,
+					      obj.arcs[iarc].end_angle,
+					      obj.arcs[iarc].start_point,
+					      obj.arcs[iarc].start_dir,
+					      obj.arcs[iarc].normal);
 	    }
 	 }
       }

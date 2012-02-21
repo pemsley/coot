@@ -6982,3 +6982,26 @@ coot::position_residue_by_internal_coordinates::get_atom(CResidue *res_1,
    return at;
 }
 
+// can throw a std::runtime_error exception
+// 
+coot::arc_info_type::arc_info_type(CAtom *at_1, CAtom *at_2, CAtom *at_3) {
+
+   if (! at_1) throw("null at_1");
+   if (! at_2) throw("null at_2");
+   if (! at_3) throw("null at_3");
+
+   clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+   clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+   clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+
+   clipper::Coord_orth v1 = p3 - p2;
+   clipper::Coord_orth v2 = p1 - p2; // vectors away from central atom
+
+   normal = clipper::Coord_orth(clipper::Coord_orth::cross(v1, v2).unit());
+   start_point = p2;
+   start_dir = clipper::Coord_orth(v2.unit());
+   start = 0.0;
+   end  = -clipper::Util::rad2d(clipper::Coord_orth::angle(p1,p2,p3));
+   // start to end needs to go backwards
+   
+}
