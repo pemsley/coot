@@ -23,8 +23,6 @@ pythondir = $(pkgdatadir)/python
 python_SCRIPTS = coot.py
 endif
 
-BOOST_PYTHON_LIBS=-lboost_python
-
 
 ######## 20091001 ########################################################
 
@@ -250,8 +248,6 @@ fix_nomenclature_errors_SOURCES = \
 
 coot_real_SOURCES = \
 	main.cc 		 \
-	boost-interface.hh       \
-	boost-interface.cc       \
 	svn-revision.cc 	 \
 	c-inner-main.c		 \
 	c-inner-main.h		 \
@@ -471,7 +467,6 @@ coot_real_LDADD =  $(OPENMP_CFLAGS)     \
 		$(MMDBSSM_LIBS)		\
 		$(MMDB_LIBS)		\
 		$(PYTHON_LIBS)		\
-		$(BOOST_PYTHON_LIBS)	\
 		$(GTKGL_CONTEXT_LIBS) 	\
 		$(GLUT_LIBS)		\
 		$(CANVAS_LIBS) 		\
