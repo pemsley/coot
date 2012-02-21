@@ -4,7 +4,6 @@
 #endif
 
 #include "mogul-interface.hh"
-#include "goograph.hh"
 
 #include "graphics-info.h"
 #include "c-interface.h"
@@ -46,43 +45,6 @@ undefined_function_markup(int imol, const char *chain_id, int res_no, const char
 						      at_1->x, at_1->y, at_1->z,
 						      at_2->x, at_2->y, at_2->z);
 		     }
-		  }
-
-		  // amusing? hack.
-		  // 
-		  if (i == -1) {
-		     coot::goograph *g = new coot::goograph;
-		     int trace = g->trace_new();
-		     g->set_plot_title("Bond length distribution vs. database");
-		     g->set_axis_label(coot::goograph::X_AXIS, "Bond length");
-		     g->set_axis_label(coot::goograph::Y_AXIS, "Counts");
-		     g->set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_BAR);
-		     std::vector<std::pair<double, double> > data;
-		     double bw = m[i].distribution.bin_width;
-		     double max_x_to_show = m[i].median + 5 * m[i].std_dev;
-		     double min_x_to_show = m[i].median - 5 * m[i].std_dev;
-		     for(unsigned int j=0; j<m[i].distribution.n_bins; j++) {
-			double x = m[i].distribution.bin_start + j * bw;
-			double y = m[i].distribution.counts[j];
-			if (x >= min_x_to_show) { 
-			   if (x <= max_x_to_show) { 
-			      std::pair<double, double> p(x,y);
-			      data.push_back(p);
-			   }
-			}
-		     }
-		     g->set_data(trace, data);
-		     int counts_high = int(0.94 * float(m[i].max_counts_in_a_bin()));
-		     lig_build::pos_t p1(m[i].value, 0);
-		     lig_build::pos_t p2(m[i].value, counts_high);
-		     lig_build::pos_t p3(m[i].value - 3*m[i].distribution.bin_width,
-					 0.8 * m[i].max_counts_in_a_bin());
-		     g->add_annotation_line(p1, p2, "#dd0000", 3, false, false, false);
-		     std::string font;
-		     std::string text = "Model: ";
-		     text += coot::util::float_to_string(m[i].value);
-		     g->add_annotation_text(text, p3, "#dd0000", font);
-		     g->show_dialog();
 		  }
 	       }
 	       if (m[i].type == coot::mogul_item::ANGLE) {
