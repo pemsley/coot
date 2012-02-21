@@ -85,15 +85,7 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 	 try {
 	    // this can throw an exception
 	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, *g.Geom_p());
-	    // create a name (used to name the  generic objects object)
-	    std::string name = "Chemical Features: ";
-	    name += residue_p->GetChainID();
-	    name += " ";
-	    name += g.int_to_string(residue_p->GetSeqNum());
-	    name += " ";
-	    name += residue_p->GetResName();
-	    chemical_features::show(rdkm, name);
-	    g.graphics_draw(); 
+	    show_chemical_features(rdkm, imol);
 	 }
 	 catch (std::runtime_error coot_error) {
 	    success = false;
@@ -227,7 +219,6 @@ chemical_features::get_feature_factory() {
    }
    return factory;
 }
-
 
 
 std::pair<bool, clipper::Coord_orth>
