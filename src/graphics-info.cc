@@ -1928,7 +1928,6 @@ graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_poin
    int slices  = 12;
    int stacks  = 2;
    
-	       
    coot::Cartesian bond_frag = end_point - base_point;
    double height = bond_frag.amplitude();
    
@@ -4170,6 +4169,7 @@ graphics_info_t::draw_generic_objects_solid() {
 
 	 // arrows
 	 if ((*generic_objects_p)[i].arrows.size()) {
+
 	    glEnable (GL_BLEND);
 	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	    for (unsigned int iarrow=0; iarrow<(*generic_objects_p)[i].arrows.size(); iarrow++) {

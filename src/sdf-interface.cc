@@ -243,6 +243,7 @@ chemical_features::get_normal_info(RDKit::MolChemicalFeature *feat,
 std::pair<bool, clipper::Coord_orth>
 chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, const RDKit::Conformer &conf) {
 
+<<<<<<< HEAD
    bool r = false;
    clipper::Coord_orth v(0,0,0);
    if (feat->getNumAtoms() > 1) {
@@ -263,12 +264,83 @@ chemical_features::get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, con
    }
    return std::pair<bool, clipper::Coord_orth>(r, v);
  }
+=======
+   RDKit::FeatSPtrList features = factory->getFeaturesForMol(rdkm);
+   coot::generic_display_object_t features_obj("Chemical Feature Spheres");
+   RDKit::Conformer conf = rdkm.getConformer(0); // iconf?
+
+   std::list<RDKit::FeatSPtr>::const_iterator it;
+   for (it=features.begin(); it!=features.end(); it++) {
+      RDKit::FeatSPtr feat_ptr = *it;
+      boost::shared_ptr<RDKit::MolChemicalFeature> sp = *it;
+      RDGeom::Point3D pos = sp.get()->getPos();
+      // std::cout << "feature pos: " << pos << std::endl;
+      clipper::Coord_orth centre(pos.x, pos.y, pos.z);
+      coot::generic_display_object_t::sphere_t sphere(centre, 0.5);
+      std::string family = sp.get()->getFamily();
+      // std::cout << "family: " << sp.get()->getFamily() << std::endl;
+      // std::cout << "   type: " << sp.get()->getType() << std::endl;
+      coot::colour_t col;
+      if (family == "Hydrophobe")
+	 col = coot::colour_t(0.3, 0.3, 0.3);
+      if (family == "LumpedHydrophobe")
+	 col = coot::colour_t(0.4, 0.4, 0.5);
+      if (family == "Aromatic")
+	 col = coot::colour_t(0.7, 0.7, 0.5);
+      if (family == "Donor")
+	 col = coot::colour_t(0.2, 0.6, 0.7);
+      if (family == "Acceptor")
+	 col = coot::colour_t(0.7, 0.2, 0.7);
+      if (family == "PosIonizable")
+	 col = coot::colour_t(0.2, 0.2, 0.7);
+      if (family == "NegIonizable")
+	 col = coot::colour_t(0.7, 0.2, 0.2);
+      sphere.col = col;
+      features_obj.spheres.push_back(sphere);
+      if (family == "Aromatic" || family == "Donor" || family == "Acceptor") {
+	 std::pair<bool, clipper::Coord_orth> normal = get_normal_info(sp.get(), conf);
+	 if (normal.first) {
+	    clipper::Coord_orth p1(centre + 1.3 * normal.second);
+	    clipper::Coord_orth p2(centre - 1.3 * normal.second);
+	    
+ 	    coot::generic_display_object_t::torus_t torus_1(centre, p1, 0.1, 1.1);
+ 	    coot::generic_display_object_t::torus_t torus_2(centre, p2, 0.1, 1.1);
+ 	    torus_1.col = col;
+ 	    torus_2.col = col;
+	    features_obj.torii.push_back(torus_1);
+ 	    features_obj.torii.push_back(torus_2);
+
+ 	    coot::generic_display_object_t::arrow_t arrow_1(centre, p1);
+ 	    coot::generic_display_object_t::arrow_t arrow_2(centre, p2);
+ 	    // features_obj.arrows.push_back(arrow_1);
+ 	    // features_obj.arrows.push_back(arrow_2);
+	 }
+      }
+   }
+   g.generic_objects_p->push_back(features_obj);
+   // this is hacky.
+   int iobj = g.generic_objects_p->size() -1;
+   g.generic_objects_p->back().is_displayed_flag = true;
+}
+
+
+std::pair<bool, clipper::Coord_orth>
+get_normal_info(RDKit::MolChemicalFeature *feat, const RDKit::Conformer &conf) {
+
+   bool r = false;
+   clipper::Coord_orth v;
+   if (feat->getFamily() == "Aromatic") {
+      return get_normal_info_aromatic(feat, conf);
+   } 
+   return std::pair<bool, clipper::Coord_orth>(false, v); // fail
+>>>>>>> aromatic rings work (but no colours there yet).
 
 std::pair<bool, clipper::Coord_orth>
 chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
 					 const RDKit::ROMol &mol,
 					 const RDKit::Conformer &conf) {
 
+<<<<<<< HEAD
    bool r = false;
    clipper::Coord_orth v(0,0,0);
    if (feat->getNumAtoms() == 1) {
@@ -288,6 +360,33 @@ chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
 	 } 
 	 ++nbrIdx;
       }
+=======
+std::pair<bool, clipper::Coord_orth>
+get_normal_info_aromatic(RDKit::MolChemicalFeature *feat, const RDKit::Conformer &conf) {
+
+   bool r = false;
+   clipper::Coord_orth v;
+   if (feat->getNumAtoms() > 1) {
+      RDGeom::Point3D centre_pos = feat->getPos();
+      clipper::Coord_orth centre(centre_pos.x, centre_pos.y, centre_pos.z);
+      const std::vector<const RDKit::Atom *> &feat_atoms = feat->getAtoms();
+      int idx0 = feat_atoms[0]->getIdx();
+      int idx1 = feat_atoms[1]->getIdx();
+      const RDGeom::Point3D &r_pos_0 = conf.getAtomPos(idx0);
+      const RDGeom::Point3D &r_pos_1 = conf.getAtomPos(idx1);
+      clipper::Coord_orth pt_0(r_pos_0.x, r_pos_0.y, r_pos_0.z);
+      clipper::Coord_orth pt_1(r_pos_1.x, r_pos_1.y, r_pos_1.z);
+      clipper::Coord_orth v0 = pt_0 - centre;
+      clipper::Coord_orth v1 = pt_1 - centre;
+      std::cout << "v0: " << v0.format() << std::endl;
+      std::cout << "v1: " << v1.format() << std::endl;
+      clipper::Coord_orth cp(clipper::Coord_orth::cross(v0,v1).unit());
+      r = true;
+      v = cp;
+   }
+   return std::pair<bool, clipper::Coord_orth>(r, v);
+}
+>>>>>>> aromatic rings work (but no colours there yet).
 
       if (neighbour_positions.size()) {
 	 // normalize all the vectors from the neighbours to the

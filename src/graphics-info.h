@@ -633,8 +633,6 @@ class graphics_info_t {
 				       const double &radius_2, 
 				       int n_ring_atoms) const;
    
-
-
    void read_standard_residues();   // for mutation, we have
 				    // pre-prepared a pdb file with
 				    // residues in Buccaneer "Standard
