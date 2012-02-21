@@ -1849,7 +1849,6 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 			   CAtom *at_2 = residue_atoms[idx_2];
 			   CAtom *at_3 = residue_atoms[idx_3];
 			   std::string hex_colour = m[i].colour();
-			   hex_colour = "#eeeeee";
 			   try { 
 			      coot::arc_info_type angle_info(at_1, at_2, at_3);
 			      to_generic_object_add_arc(new_obj, hex_colour.c_str(), 5,
