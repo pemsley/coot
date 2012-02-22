@@ -96,7 +96,9 @@ libcoot_map_heavy_la_LIBADD = \
    $(GSL_LIBS)
 
 
-noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-tt-morph
+noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole 
+
+check_PROGRAMS = test-tt-morph
 
 # testshelxreader fails to link for some reason! coot::protein_geometry::get_h_bond_type 
 # testcootutils also.  20100812 Fixed now - added libcoot-geometry.la
