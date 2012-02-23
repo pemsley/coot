@@ -137,7 +137,7 @@ coot::surface::draw(double *override_colour, int selective_override) {
         colour[k] = coords[k];
       }
       // set alpha to 1 (rather than default 0) needed for screenshot
-      colour[4] = 1.0;
+      colour[3] = 1.0;
     }
     for (int k=0; k<4; k++) colours [4*i+k] = colour[k];
     
