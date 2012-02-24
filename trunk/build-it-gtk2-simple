@@ -2193,8 +2193,8 @@ if test -n "$build_ccp4c" ; then
     ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/ccp4-libs-underlay-2.tar.gz
     ( 
     date
-    gzip -dc ${AUTOBUILD_SOURCES}/libccp4c-5.0.2-ysbl-2.tar.gz | tar xf -
-    cd libccp4c-5.0.2-ysbl-2
+    gzip -dc ${AUTOBUILD_SOURCES}/libccp4c-5.0.2-ysbl-3.tar.gz | tar xf -
+    cd libccp4c-5.0.2-ysbl-3
     # apply the ccp4 new files (underlay-2 is needed for clipper-2.1-2011* or later)
     gzip -dc ${AUTOBUILD_SOURCES}/ccp4-libs-underlay-2.tar.gz | tar xf -
     # cp src/*.[ch] .
