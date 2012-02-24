@@ -23,21 +23,23 @@ GL_matrix::GL_matrix() {
 
 GL_matrix::GL_matrix(const clipper::Mat33<double> &m) {
 
-   mat[0] = m(0,0);
-   mat[1] = m(0,1);
-   mat[2] = m(0,2);
-   mat[3] = 0;
-   mat[4] = m(1,0);
-   mat[5] = m(1,1);
-   mat[6] = m(1,2);
-   mat[7] = 0;
-   mat[8] = m(1,0);
-   mat[9] = m(2,1);
+   // indexing bug fix from Ansgar Esztermann
+   // 
+   mat[ 0] = m(0,0);
+   mat[ 1] = m(0,1);
+   mat[ 2] = m(0,2);
+   mat[ 3] = 0;
+   mat[ 4] = m(1,0);
+   mat[ 5] = m(1,1);
+   mat[ 6] = m(1,2);
+   mat[ 7] = 0;
+   mat[ 8] = m(2,0);
+   mat[ 9] = m(2,1);
    mat[10] = m(2,2);
    mat[11] = 0;
-   mat[12] = m(3,0);
-   mat[13] = m(3,1);
-   mat[14] = m(3,2);
+   mat[12] = 0; // don't skew
+   mat[13] = 0;
+   mat[14] = 0;
    mat[15] = 1;
 
 }
@@ -87,7 +89,7 @@ GL_matrix::GL_matrix(float m11, float m12, float m13,
 
 std::ostream&
 operator<<(std::ostream &s, const GL_matrix &m) {
-
+   
    s <<    "(" << m.mat[ 0] << " " << m.mat[ 1] << " " << m.mat[ 2] << " " << m.mat[ 3] << ")\n";
    s <<    "(" << m.mat[ 4] << " " << m.mat[ 5] << " " << m.mat[ 6] << " " << m.mat[ 7] << ")\n";
    s <<    "(" << m.mat[ 8] << " " << m.mat[ 9] << " " << m.mat[10] << " " << m.mat[11] << ")\n";
@@ -131,8 +133,8 @@ GL_matrix::to_clipper_mat() const {
    m(0,2) = mat[2];
 
    m(1,0) = mat[4];
-   m(2,1) = mat[5];
-   m(3,2) = mat[6];
+   m(1,1) = mat[5];
+   m(1,2) = mat[6];
 
    m(2,0) = mat[8];
    m(2,1) = mat[9];
