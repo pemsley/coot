@@ -76,12 +76,14 @@ bool residue_to_sdf_file(int imol, const char *chain_id, int res_no, const char 
 // rdkit chemical features.
 bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code) {
 
-   bool success = true; 
+   bool success = false; 
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
       CResidue *residue_p =
 	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
-      if (residue_p) {
+      if (! residue_p) {
+	 std::cout << "Residue not found in molecule " << imol << std::endl;
+      } else { 
 	 try {
 	    // this can throw an exception
 	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, *g.Geom_p());
@@ -93,7 +95,8 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 	    name += " ";
 	    name += residue_p->GetResName();
 	    chemical_features::show(rdkm, name);
-	    g.graphics_draw(); 
+	    g.graphics_draw();
+	    success = true;
 	 }
 	 catch (std::runtime_error coot_error) {
 	    success = false;
@@ -119,7 +122,10 @@ void chemical_features::show(const RDKit::ROMol &rdkm, std::string name) {
    graphics_info_t g;
 
    RDKit::MolChemicalFeatureFactory *factory = get_feature_factory();
-   if (! factory) return;
+   if (! factory) {
+      std::cout << "WARNING:: no factory" << std::endl;
+      return;
+   }
 
    RDKit::FeatSPtrList features = factory->getFeaturesForMol(rdkm);
    coot::generic_display_object_t features_obj(name);
