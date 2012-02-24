@@ -320,7 +320,8 @@
 # 4.86 20111214 Update to mmdb 1.24 (new) which has working LINKRs.
 # 4.87 20120108 Use make not MAKE for guile-gtk.
 # 4.88 20120120 Don't use -j $nproc for make if we don't have memory.
-script_version=4.88
+# 4.89 20120223 Use libccp4c-5.0.2-ysbl-3.tar.gz, that has libccp4c_la_LIBADD.
+script_version=4.89
 
 
 # :: NOTE:: 
@@ -2186,7 +2187,8 @@ fi
 # libccp4c:
 if test -n "$build_ccp4c" ; then 
     echo BUILDING: libccp4c
-    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
+    # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
+    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
     ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
     ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/ccp4-libs-underlay-2.tar.gz
     ( 
