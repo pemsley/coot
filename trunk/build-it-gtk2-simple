@@ -1133,6 +1133,20 @@ if [ ! -e $HOSTLOGDIR ] ; then
   fi
 fi
 
+# 20120223 Whether or not we need to patch guile depends on the
+# version of the compiler (or so I currently believe).  So here we do
+# a string comparison vs "4.5".  If greater than this (e.g. "4.5.1") then
+# we do need the patch. 
+#
+if awk -v v_fid=$v_fid 'BEGIN{if (v_fid > "gcc-4.5") exit 1 ; else exit 0}' ; then
+  echo gcc version: $v_fid
+else
+  need_guile_used_values_patch=true
+  echo new version path
+fi
+
+echo need_guile_used_values_patch is $need_guile_unused_values_patch
+
 
 
 # need to add test that make is GNU make, and set number of processor if we have 
@@ -2772,13 +2786,21 @@ cd guile-${guile_version}
 # arg to guile's configure
 ./configure $generic_prefix CFLAGS="-I$install_top_dir/include -O" LDFLAGS=-L$install_top_dir/lib CPPFLAGS=-P
 # Multilib fix for procedures.txt
+echo =========== post-configure patching threads.doc ====================
 perl -pi -e 's|threads.doc||' `find . -name Makefile`
-patch -p0 < ${AUTOBUILD_SOURCES}/guile-1.8.7-updated.patch
+if [ "$need_guile_unused_values_patch" = true ] ; then 
+   echo =========== post-configure patching for unused-values ====================
+   patch -p0 < ${AUTOBUILD_SOURCES}/guile-1.8.7-updated.patch
+else
+   echo not applying guile unused values patch
+fi
+echo =========== make ====================
 $MAKE
 status=$?
 if [ "$status" != 0 ] ; then 
     echo guile make failed.
     guile_build_status=$status
+    exit 2
 else
    echo 1 ---------------------------------------------------------------------
    echo '                               ' make install
@@ -2788,12 +2810,13 @@ fi
 exit $status
 ) > $HOSTLOGDIR/11-guile.txt 2>&1
 # -> 1: command not found
-# if $status ; then 
-#    echo guile build failed
-# fi
-else
-    echo not building guile:
+if [ ! $? = 0 ] ; then
+   echo guile build failed
 fi
+# outer
+else 
+    echo not building guile:
+fi 
 
 
 if test -n "$build_greg" ; then 
