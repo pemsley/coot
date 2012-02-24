@@ -6375,6 +6375,16 @@ Mon Jan 30 11:45:55 GMT 2012
       check the changes that Mogul has made. A summary of the changes
       made will be given in a Structure edited pop-up.
 
+
+---
+Tue Jan 31 22:44:31 GMT 2012
+
+rdkit
+
+python $RDBASE/rdkit/Chem/Features/ShowFeats.py --writeFeats --fdef=$RDBASE/Data/BaseFeatures.fdef 1ezq_RPR.sdf
+
+
+
 ---
 Fri Feb  3 11:46:48 GMT 2012
 
