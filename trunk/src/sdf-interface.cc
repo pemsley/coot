@@ -148,7 +148,7 @@ void chemical_features::show(const RDKit::ROMol &rdkm, std::string name) {
       if (family == "LumpedHydrophobe")
 	 col = coot::colour_t(0.4, 0.4, 0.5);
       if (family == "Aromatic")
-	 col = coot::colour_t(0.7, 0.7, 0.5);
+	 col = coot::colour_t(0.6, 0.6, 0.3);
       if (family == "Donor")
 	 col = coot::colour_t(0.2, 0.6, 0.7);
       if (family == "Acceptor")
@@ -187,8 +187,8 @@ void chemical_features::show(const RDKit::ROMol &rdkm, std::string name) {
 	    clipper::Coord_orth p1(centre + 1.3 * normal.second);
 	    clipper::Coord_orth p2(centre - 1.3 * normal.second);
 	    
- 	    coot::generic_display_object_t::torus_t torus_1(centre, p1, 0.1, 1.1);
- 	    coot::generic_display_object_t::torus_t torus_2(centre, p2, 0.1, 1.1);
+ 	    coot::generic_display_object_t::torus_t torus_1(centre, p1, 0.18, 1.1);
+ 	    coot::generic_display_object_t::torus_t torus_2(centre, p2, 0.18, 1.1);
  	    torus_1.col = col;
  	    torus_2.col = col;
 	    if (sp.get()->getNumAtoms() == 5) {

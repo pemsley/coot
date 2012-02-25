@@ -1957,10 +1957,10 @@ graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_poin
       glTranslated(0, 0, 1.3 * height);
       if (n_ring_atoms == 5)
 	 // this makes the ring brighter.  I don't know why.
-	 glScalef(0.95, 0.95, 0.95);
+	 glScalef(0.95, 0.95, 0.48);
       else 
-	 glScalef(1.1, 1.1, 1.1);
-      glutSolidTorus(radius_1, radius_2, 20, 20);
+	 glScalef(1.1, 1.1, 0.55);
+      glutSolidTorus(radius_1, radius_2, 20, 32);
       glPopMatrix();
    }
 }
@@ -4233,6 +4233,7 @@ graphics_info_t::draw_generic_objects_solid() {
    glEnable(GL_LIGHT1);
    glEnable(GL_LIGHT0);
    glEnable(GL_COLOR_MATERIAL);
+   glEnable(GL_NORMALIZE); // slows things, but makes the shiny nice
 
    for (unsigned int i=0; i<generic_objects_p->size(); i++) {
 
@@ -4277,6 +4278,7 @@ graphics_info_t::draw_generic_objects_solid() {
 
 	 // Other stuff:
 	 float feature_opacity = 0.6;
+	 // feature_opacity = 1.0; // hack for to fix shininess
 
 	 // spheres
 
@@ -4338,15 +4340,16 @@ graphics_info_t::draw_generic_objects_solid() {
 	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	    for (unsigned int itor=0; itor<(*generic_objects_p)[i].tori.size(); itor++) {
 	       const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
-	       GLfloat  mat_specular[]  = {obj.tori[itor].col.col[0],
+	       GLfloat  mat_diffuse[]  = {obj.tori[itor].col.col[0],
 					   obj.tori[itor].col.col[1],
 					   obj.tori[itor].col.col[2], 
 					   feature_opacity};
-	       GLfloat  mat_shininess[] = {15};
+	       GLfloat  mat_specular[]  = {0.1, 0.1, 0.1, 1.0};
+	       GLfloat  mat_shininess[] = {1};
 	       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
 	       glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-	       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
-	       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
 
 	       g.graphics_object_internal_torus(obj.tori[itor].start_point,
 						obj.tori[itor].end_point,
