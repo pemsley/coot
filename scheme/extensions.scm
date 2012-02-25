@@ -455,6 +455,13 @@
 	 (lambda ()
 	   (chiral-centre-inverter)))
 
+	
+	;; ---- J ---------
+
+	(add-simple-coot-menu-menuitem 
+	 submenu-models "JLigand launch"
+	 (lambda ()
+	   (launch-jligand-function)))
 
 	;; ---- M ---------
 
