@@ -5960,10 +5960,8 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       GLfloat bgcolor[4]={0.8, 0.8, 0.8, 0.8};
       
       glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      // glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, bgcolor);
       glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
-      // glMaterialfv(GL_FRONT, GL_EMISSION, bgcolor);
-      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128); 
+      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 40);
       //Let the returned colour dictate: note obligatory order of these calls
       glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
       glEnable(GL_COLOR_MATERIAL);
@@ -5972,35 +5970,27 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       GLfloat  mat_ambient[]   = {0.2, 0.2, 0.2, 1.0};
       GLfloat  mat_diffuse[]   = {0.7, 0.7, 0.7, 1.0};
       GLfloat  mat_shininess[] = {50.0};
-      // GLfloat  light_position[] = {1.0, 1.0, 1.0, 1.0};
       
-      // glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
 
-      // Do these things do anything??
-      glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
-      glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
-      glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-      glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-      // glLightfv(GL_LIGHT0,  GL_POSITION, light_position);
+//       // Do these things do anything??
+//       glMaterialfv(GL_FRONT, GL_SPECULAR,  mat_specular);
+//       glMaterialfv(GL_FRONT, GL_SHININESS, mat_shininess);
+//       glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+//       glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 
-      //       glEnable(GL_LIGHTING);
-      //       glEnable(GL_LIGHT0);
       glEnable(GL_DEPTH_TEST);
       glEnable(GL_NORMALIZE);
       
       for (int ii=0; ii<bonds_box_local.num_colours; ii++) {
 	 ll = bonds_box_local.bonds_[ii];
 	 set_bond_colour_by_mol_no(ii);
-	 //	 GLfloat bgcolor[4]={1.0,1.0,0.3,1.0};
+
 	 GLfloat bgcolor[4]={bond_colour_internal[0],
 			     bond_colour_internal[1],
 			     bond_colour_internal[2],
 			     1.0};
-	 // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	 // glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, bgcolor);
-	 // glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
-	 // glMaterialfv(GL_FRONT, GL_EMISSION, bgcolor);
+
 	 for (int j=0; j< bonds_box_local.bonds_[ii].num_lines; j++) {
 	    glPushMatrix();
 	    glTranslatef(ll.pair_list[j].getFinish().get_x(),
@@ -6097,9 +6087,6 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
                          bonds_box_local.rings[ir].centre.z());
             glMultMatrixf(m.get());
 	    glScalef(1.0, 1.0, 0.7);
-
-
-	    
 
  	    glutSolidTorus(bonds_box_local.rings[ir].inner_radius,
 			   bonds_box_local.rings[ir].outer_radius,
