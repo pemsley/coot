@@ -1010,6 +1010,9 @@ Punted from 0.6:
 
    o Can the picture from lidia be double resolution?
 
+   o consider: mmdb.cc:get_atom_selection() uses mdl_mol_to_asc(m).
+     Can we get the bond orders from there and make minimal restraints?
+
   o residue -> 2d should work for prodrg route. Punted. ::: 2
 
   o When map is undefined choose the first non-difference map. Punted.

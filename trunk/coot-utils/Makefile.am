@@ -136,7 +136,7 @@ test_hole_LDADD = ./libcoot-coord-utils.la \
 
 test_tt_morph_SOURCES = test-morph.cc
 
-test_tt_morph_LDADD = 	$(top_builddir)/coot-utils/libcoot-map-heavy.la
+test_tt_morph_LDADD = 	./libcoot-map-heavy.la
 
 
 #    $(MMDB_LIBS)
