@@ -1,18 +1,25 @@
 
 
-;; Define an environment variable for the place where jligand.jar
-;; resides in a canonical distribution
+;; Coot and JLigand communicate via "secret" files.
 ;; 
-
+;; Coot send to jligand the comp-ids it wants joined in *to-jligand-secret-file-name*.
+;;
+;; JLigand sends Coot a file that contains filenames for the link and
+;; new dictionary/restraints.
+;; 
 (define *to-jligand-secret-file-name* ".coot-to-jligand-8lcs")
 (define *from-jligand-secret-link-file-name* ".jligand-to-coot-link")
 
-(define *jligand-home* (let ((s (getenv "JLIGAND_HOME")))
-			 (if s s ".")))
+;; Define an environment variable for the place where jligand.jar
+;; resides in a canonical distribution
+;; 
+(define *jligand-home-env* (getenv "JLIGAND_HOME"))
+(define *jligand-home* (if *jligand-home-env* *jligand-home-env* "."))
 
-(define *java-command* "java")
+(define *java-command* "java")  ;; what else would it be?
+
 (define *jligand-jar* (append-dir-file *jligand-home* "jligand.jar"))
-(define *jligand-args* (list "-jar" *jligand-jar* "-coot"))
+(define *jligand-args* (list "-jar" *jligand-jar* "-coot"))  ;; for coot-enable jligand
 
 ;; jligand internal parameter
 (define *imol-jligand-link* #f)
@@ -50,57 +57,109 @@
 	(list-ref click 3)
 	(list-ref click 4)))
 
-(if (defined? 'coot-main-menubar)
+;; this could be in utils
+(define (get-file-mtime file-name)
+  (if (not (file-exists? file-name))
+      #f
+      (stat:mtime (stat file-name))))
 
-    (let* ((menu (coot-menubar-menu "JLigand")))
+;; every fraction of a second look to see if
+;; *from-jligand-secret-link-file-name* has been updated.  If so, then
+;; run the handle-read-from-jligand-file function.
+;; 
+(define (start-jligand-listener) 
+  (let ((startup-mtime (get-file-mtime *from-jligand-secret-link-file-name*)))
+    (gtk-timeout-add 700 
+		     (lambda ()
+		       (let ((now-time (get-file-mtime *from-jligand-secret-link-file-name*)))
+			 (if (number? now-time)
+			     (if (not (number? startup-mtime))
+				 (begin
+				   (set! startup-mtime now-time)
+				   (handle-read-from-jligand-file))
+				 (if (> now-time startup-mtime) 
+				     (begin
+				       (set! startup-mtime now-time)
+				       (handle-read-from-jligand-file)))))
+			 #t)))))
 
-      (add-simple-coot-menu-menuitem
-       menu "Launch JLigand"
-       (lambda ()
-	 (if (not (file-exists? *jligand-jar*))
-	     (let ((s (string-append "jligand java jar file: " *jligand-jar* " not found")))
-	       (info-dialog s)))
-	 (let ((s (string-append-with-spaces (cons *java-command* (append *jligand-args* (list "&"))))))
-	   (let ((status (system s)))
-	     (print-var status)))))
 
-      (add-simple-coot-menu-menuitem
-       menu "Send Link to JLigand (click 2 monomers)"
-       (lambda ()
-	   (user-defined-click 2 (lambda (clicks)
-				   (format #t "we received these clicks: ~s~%" clicks)
-				   (if (= (length clicks) 2)
-				       (let ((click-1 (list-ref clicks 0))
-					     (click-2 (list-ref clicks 1)))
-					 (format #t "click-1: ~s~%" click-1)
-					 (format #t "click-2: ~s~%" click-2)
-					 (if (and (= (length click-1) 7)
-						  (= (length click-2) 7))
-					     (let ((resname-1 (residue-name 
-							       (list-ref click-1 1)
-							       (list-ref click-1 2)
-							       (list-ref click-1 3)
-							       (list-ref click-1 4)))
-						   (resname-2 (residue-name 
-							       (list-ref click-2 1)
-							       (list-ref click-2 2)
-							       (list-ref click-2 3)
-							       (list-ref click-2 4)))
-						   (imol-click-1 (list-ref click-1 1))
-						   (imol-click-2 (list-ref click-2 1)))
-					       (if (not (and (string? resname-1)
-							     (string? resname-2)))
-						   (begin 
-						     (format #t "Bad resnames: ~s and ~s~%"
-							     resname-1 resname-2))
-						   (begin
-						     (if (not (= imol-click-1 imol-click-2))
-							 (begin
-							   (set! *imol-jligand-link* #f))
-							 (begin ;; happy path
-							   (set! *imol-jligand-link* imol-click-1)
-							   (write-file-for-jligand (click->res-spec click-1) resname-1 
-										   (click->res-spec click-2) resname-2)))))))))))))))
+;; This happens when user clicks on the "Launch JLigand" button.
+;; It starts a jligand and puts it in the background.
+;; 
+(define (launch-jligand-function)
+
+  (start-jligand-listener)
+  (if (not (file-exists? *jligand-jar*))
+
+      ;; Boo.  Give us a warning dialog
+      ;; 
+      (let ((s (string-append "jligand java jar file: " *jligand-jar* " not found"))
+	    ;; make an extra message telling us that JLIGAND_HOME is
+	    ;; not set if it is not set.
+	    (env-message (if (string? *jligand-home-env*) 
+			     ""
+			     (string-append "Environment variable JLIGAND_HOME not set\n\n"))))
+	(info-dialog (string-append env-message s)))
+      
+      ;; OK, it does exist - run it!
+      ;;
+      (let ((s (string-append-with-spaces (cons *java-command* (append *jligand-args* (list "&"))))))
+	(system s)
+	;; beam in a new menu to the menu bar:
+	(let* ((jligand-menu (coot-menubar-menu "JLigand")))
+
+	  (add-simple-coot-menu-menuitem 
+	   jligand-menu "Send Link to JLigand (click 2 monomers)"
+	   (lambda ()
+	     (click-select-residues-for-jligand)))))))
+
+
+
+
+;; This happens when user clicks on the "Select Residues for JLigand"
+;; (or some such) button.  It expects the user to click on atoms of
+;; the two residues involved in the link.
+;; 
+(define (click-select-residues-for-jligand)
+  (user-defined-click 
+   2
+   (lambda (clicks)
+     (format #t "we received these clicks: ~s~%" clicks)
+     (if (= (length clicks) 2)
+	 (let ((click-1 (list-ref clicks 0))
+	       (click-2 (list-ref clicks 1)))
+	   (format #t "click-1: ~s~%" click-1)
+	   (format #t "click-2: ~s~%" click-2)
+	   (if (and (= (length click-1) 7)
+		    (= (length click-2) 7))
+	       (let ((resname-1 (residue-name 
+				 (list-ref click-1 1)
+				 (list-ref click-1 2)
+				 (list-ref click-1 3)
+				 (list-ref click-1 4)))
+		     (resname-2 (residue-name 
+				 (list-ref click-2 1)
+				 (list-ref click-2 2)
+				 (list-ref click-2 3)
+				 (list-ref click-2 4)))
+		     (imol-click-1 (list-ref click-1 1))
+		     (imol-click-2 (list-ref click-2 1)))
+		 (if (not (and (string? resname-1)
+			       (string? resname-2)))
+		     (begin 
+		       (format #t "Bad resnames: ~s and ~s~%"
+			       resname-1 resname-2))
+		     (begin
+		       (if (not (= imol-click-1 imol-click-2))
+			   (begin
+			     (set! *imol-jligand-link* #f))
+			   (begin ;; happy path
+			     (set! *imol-jligand-link* imol-click-1)
+			     (write-file-for-jligand (click->res-spec click-1) resname-1 
+						     (click->res-spec click-2) resname-2))))))))))))
+
+
 
 (define (handle-read-from-jligand-file)
 
@@ -133,7 +192,6 @@
       ;; 
       (call-with-input-file *from-jligand-secret-link-file-name*
 	(lambda (port)
-	  (format #t "Here 2 ~%")
 	  (let ((cif-dictionary (read-line port)))
 	    (if (string? cif-dictionary)
 
@@ -195,25 +253,18 @@
 
 
 
-(define (get-file-mtime file-name)
-  (if (not (file-exists? file-name))
-      #f
-      (stat:mtime (stat file-name))))
+;;; stand-alone/development
+;;; 
+;(if (defined? 'stand-alone)n
+;    (if (defined? 'coot-main-menubar)
 
-(let ((startup-mtime (get-file-mtime *from-jligand-secret-link-file-name*)))
-  (gtk-timeout-add 500 (lambda ()
-			 (let ((now-time (get-file-mtime *from-jligand-secret-link-file-name*)))
-			   ;; (format  #t "startup-mtime: ~s   now-time: ~s~%" startup-mtime now-time)
-			   (if (number? now-time)
-			       (if (not (number? startup-mtime))
-				   (begin
-				     (set! startup-mtime now-time)
-				     (handle-read-from-jligand-file))
-				   (if (> now-time startup-mtime) 
-				       (begin
-					 (set! startup-mtime now-time)
-					 (format #t "just set startup-mtime to ~s~%" startup-mtime)
-					 (handle-read-from-jligand-file)))))
-			   #t))))
+;	(let* ((menu (coot-menubar-menu "JLigand")))
 
-				   
+;	  (add-simple-coot-menu-menuitem
+;	   menu "Launch JLigand"
+;	   (lambda ()
+;	     (launch-jligand-function))))))
+
+
+
+

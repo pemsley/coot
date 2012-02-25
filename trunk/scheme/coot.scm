@@ -90,6 +90,7 @@
 	      ((eq? #t use-gui?) 
 	       (append pre-list (list "coot-gui.scm") post-list (list "tips-gui.scm"
 								      "check-for-updates.scm"
+								      "jligand.scm"
 								      "get-recent-pdbe.scm"
 								      "extensions.scm"
 								      "shelx-extensions.scm"
