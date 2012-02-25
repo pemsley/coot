@@ -4232,7 +4232,7 @@ graphics_info_t::draw_generic_objects_solid() {
    glEnable(GL_LIGHT2);
    glEnable(GL_LIGHT1);
    glEnable(GL_LIGHT0);
-   glEnable(GL_COLOR_MATERIAL);
+   glDisable(GL_COLOR_MATERIAL);
    glEnable(GL_NORMALIZE); // slows things, but makes the shiny nice
 
    for (unsigned int i=0; i<generic_objects_p->size(); i++) {
