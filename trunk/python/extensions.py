@@ -499,6 +499,15 @@ if (have_coot_python):
           chiral_centre_inverter())
      
 
+     # --- J --------
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "JLigand launch",
+       lambda func:
+          launch_jligand_function())
+     
+
      # --- M ---
 
      def make_link_ext_func(*args):
