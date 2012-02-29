@@ -126,8 +126,8 @@ coot::rdkit_mol(CResidue *residue_p,
 		     if (!restraints.chiral_restraint[ichi].has_unassigned_chiral_volume()) {
 			if (!restraints.chiral_restraint[ichi].is_a_both_restraint()) {
 			   // e.g. RDKit::Atom::CHI_TETRAHEDRAL_CCW;
-			   RDKit::Atom::ChiralType chiral_tag = get_chiral_tag(residue_p, restraints, residue_atoms[iat]);
-			
+			   RDKit::Atom::ChiralType chiral_tag =
+			      get_chiral_tag(residue_p, restraints, residue_atoms[iat]);
 			   at->setChiralTag(chiral_tag);
 			} 
 		     } 
@@ -165,12 +165,17 @@ coot::rdkit_mol(CResidue *residue_p,
       std::string atom_name_2 = restraints.bond_restraint[ib].atom_id_2_4c();
       std::string ele_1 = restraints.element(atom_name_1);
       std::string ele_2 = restraints.element(atom_name_2);
-      int idx_1 = -1; // unset
+      int idx_1 = -1; // unset initially
       int idx_2 = -1; // unset
 
       // this block sets idx_1 and idx_2
       //
-      for (unsigned int iat=0; iat<added_atom_names.size(); iat++) { 
+      for (unsigned int iat=0; iat<added_atom_names.size(); iat++) {
+
+	 if (0) // debugging mismatching atom names - because
+		// restraints atom names don't match model atom names.
+	    std::cout << iat << " comparing \"" << added_atom_names[iat] << "\" and \""
+		      << atom_name_1 << "\"" << std::endl;
 	 if (added_atom_names[iat] == atom_name_1) { 
 	    idx_1 = iat;
 	    break;
@@ -186,26 +191,38 @@ coot::rdkit_mol(CResidue *residue_p,
       
       if (idx_1 != -1) { 
 	 if (idx_2 != -1) {	 
+	    bond->setBeginAtomIdx(idx_1);
+	    bond->setEndAtomIdx(  idx_2);
 	    if (type == RDKit::Bond::AROMATIC) { 
 	       bond->setIsAromatic(true);
 	       m[idx_1]->setIsAromatic(true);
 	       m[idx_2]->setIsAromatic(true);
 	    }
-	    bond->setBeginAtomIdx(idx_1);
-	    bond->setEndAtomIdx(  idx_2);
 	    m.addBond(bond);
 	 } else {
-	    if (ele_2 != " H") 
+	    if (ele_2 != " H") { 
 	       std::cout << "WARNING:: oops, bonding in making rdkit mol "
 			 << "failed to get atom index idx_2 for atom name: "
 			 << atom_name_2 << " ele :" << ele_2 << ":" << std::endl;
+	       // give up trying to construct this thing then.
+	       std::string message = "Failed to get atom index for atom name \"";
+	       message += atom_name_2;
+	       message += "\"";
+	       throw std::runtime_error(message);
+	    } 
 	 }
       } else {
-	 if (ele_1 != " H") 
+	 if (ele_1 != " H") { 
 	    std::cout << "WARNING:: oops, bonding in making rdkit mol "
-		      << "failed to get atom index idx_1 for atom name: "
-		      << atom_name_1 << " ele :" << ele_1 << ":" << std::endl;
-      } 
+		      << "failed to get atom index idx_1 for atom name: \""
+		      << atom_name_1 << "\" ele :" << ele_1 << ":" << std::endl;
+	    // give up trying to construct this thing then.
+	    std::string message = "Failed to get atom index for atom name \"";
+	    message += atom_name_1;
+	    message += "\"";
+	    throw std::runtime_error(message);
+	 }
+      }
    }
 
    // Now all the bonds are in place.  We can now try to add an extra H to the ring N that
