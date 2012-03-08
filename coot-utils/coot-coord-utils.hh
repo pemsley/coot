@@ -206,10 +206,17 @@ namespace coot {
 	 int_user_data = -1;
       }
       residue_spec_t(CResidue *res) {
-	 chain = res->GetChainID();
-	 model_number = res->GetModelNum();
-	 resno = res->GetSeqNum();
-	 insertion_code = res->GetInsCode();
+	 if (! res) {
+	    chain = "";
+	    model_number = MinInt4;
+	    resno = MinInt4;
+	    insertion_code = "";
+	 } else { 
+	    chain = res->GetChainID();
+	    model_number = res->GetModelNum();
+	    resno = res->GetSeqNum();
+	    insertion_code = res->GetInsCode();
+	 }
 	 int_user_data = -1;
       } 
       residue_spec_t(const atom_spec_t &atom_spec) { 
