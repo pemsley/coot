@@ -4427,18 +4427,52 @@ molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
       coot::residue_spec_t this_residue_spec(chain_id, resno, ins_code);
 
       CResidue *this_residue = get_residue(this_residue_spec);
+
       if (this_residue) {
+	 
 	 if (close_to_residue(this_residue, rc)) {
-	    // move on to next one
+	    
+	    // === move on to next one === 
+
+	    // Can we do that by residue index?
+	    // 
 	    int ser_num = this_residue->index;
-	    int ser_num_next = ser_num + 1;
-	    next_residue = this_residue->chain->GetResidue(ser_num_next);
+	    if (ser_num != -1) {
+	       // yes...
+	       int ser_num_next = ser_num + 1;
+	       CResidue *rr = this_residue->chain->GetResidue(ser_num);
+	       if (this_residue == rr) {
+		  // self reference works as it should
+		  next_residue = this_residue->chain->GetResidue(ser_num_next);
+	       } else {
+		  coot::residue_spec_t next_residue_spec(chain_id, resno+1, "");
+		  CResidue *residue_p = get_residue(next_residue_spec);
+		  if (residue_p)
+		     next_residue = residue_p;
+	       } 
+	    } else {
+	       // no... 
+	       // this_residue was not properly inserted into the
+	       // chain for some reason.
+	       // 
+	       coot::residue_spec_t next_residue_spec(chain_id, resno+1, "");
+	       CResidue *residue_p = get_residue(next_residue_spec);
+	       if (residue_p)
+		  next_residue = residue_p;
+	    } 
 
 	    if (next_residue) {
+	       
 	       i_atom_index = intelligent_this_residue_atom(next_residue);
+
 	    } else {
-	       // OK, we need to move onto the next chain.
+
+	       // OK, we need to move onto the next chain.... or find
+	       // the residue after the gap.
+	       //
+
 	       next_residue = next_residue_missing_residue(this_residue);
+	       i_atom_index = intelligent_this_residue_atom(next_residue);
 	    }
 	    
 	 } else {
@@ -6562,6 +6596,8 @@ molecule_class_info_t::append_to_molecule(const coot::minimol::molecule &water_m
 void
 molecule_class_info_t::update_molecule_after_additions() {
 
+   std::cout << "in update_molecule_after_additions() cleanup with PDBCLEAN_INDEX and PDBCLEAN_SERIAL"
+	     << std::endl;
    atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
 
    atom_sel = make_asc(atom_sel.mol); // does the udd stuff too.
