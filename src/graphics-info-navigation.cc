@@ -275,11 +275,22 @@ int
 graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 						const std::string &direction) {
 
+
+   
    std::string chain =     go_to_atom_chain_;
    std::string atom_name = go_to_atom_atom_name_;
    std::string ins_code =  go_to_atom_inscode_;
    int resno = go_to_atom_residue();
    int imol = go_to_atom_molecule();
+
+   if (0) { 
+      std::cout << "intelligent_near_atom_centring() " << direction << std::endl;
+      std::cout << "intelligent_near_atom_centring() " << imol << std::endl;
+      std::cout << "intelligent_near_atom_centring() :" << chain << ":" << std::endl;
+      std::cout << "intelligent_near_atom_centring() :" << ins_code << ":" << std::endl;
+      std::cout << "intelligent_near_atom_centring() " << resno << std::endl;
+      std::cout << "intelligent_near_atom_centring() :" << atom_name << ":" << std::endl;
+   }
 
    // check how the spaces in the name work in the
    // find_atom_index_from_goto_info function
