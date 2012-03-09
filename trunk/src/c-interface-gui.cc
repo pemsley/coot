@@ -4804,7 +4804,6 @@ GtkWidget *wrapped_create_goto_atom_window() {
 
 void post_go_to_atom_window() {
 
-   std::cout << "DEBUG:: post_go_to_atom_window()" << std::endl;
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *widget = wrapped_create_goto_atom_window();
       gtk_widget_show(widget);

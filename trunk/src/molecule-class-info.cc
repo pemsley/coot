@@ -4522,7 +4522,7 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
 
       CResidue *prev_residue_candidate = NULL;
       CResidue *prev_residue = NULL;
-      bool found_this_residue = 0; 
+      bool found_this_residue = false; 
       int imod = 1;
       CModel *model_p = atom_sel.mol->GetModel(imod);
       CChain *chain_p;
@@ -4530,23 +4530,26 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
-	 if (chain_id == chain_p->GetChainID() || (found_this_residue && !prev_residue)) {
+	 std::string this_chain_id = chain_p->GetChainID();
+	 if ((chain_id == this_chain_id) || (found_this_residue && !prev_residue)) {
 	    int nres = chain_p->GetNumberOfResidues();
 	    PCResidue residue_p;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       if (residue_p->GetSeqNum() == resno) {
 		  if (ins_code == residue_p->GetInsCode()) {
-		     found_this_residue = 1;
-		     if (prev_residue_candidate) { 
-			prev_residue = prev_residue_candidate;
-			break;
+		     if (chain_id == this_chain_id) { 
+			found_this_residue = true;
+			if (prev_residue_candidate) {
+			   prev_residue = prev_residue_candidate;
+			   break;
+			}
 		     }
 		  }
 	       }
+	       prev_residue_candidate = residue_p;
 	       if (prev_residue)
 		  break;
-	       prev_residue_candidate = residue_p;
 	    }
 	 }
 	 if (prev_residue)
@@ -4561,7 +4564,7 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
       // residue that is more than the seqnum of the atom we just
       // deleted, and the residue before that (prev_residue_candidate)
       // 
-      if (!found_this_residue) {
+      if (! found_this_residue) {
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    if (chain_id == chain_p->GetChainID()) {
@@ -4604,12 +4607,22 @@ molecule_class_info_t::intelligent_previous_atom(const std::string &chain_id,
 	    int nres = prev_chain->GetNumberOfResidues();
 	    if (nres > 0) 
 	       prev_residue = prev_chain->GetResidue(nres-1);
+	 } else {
+	    // OK the passed (current) residue was the first in the
+	    // coordinates.  Pick the last residue of the last chain.
+	    chain_p = model_p->GetChain(nchains-1);
+	    if (chain_p) {
+	       int nres = chain_p->GetNumberOfResidues();
+	       if (nres > 0) 
+		  prev_residue = chain_p->GetResidue(nres-1);
+	    }
 	 } 
-      }
+      } 
       
       if (prev_residue)
 	 i_atom_index = intelligent_this_residue_atom(prev_residue);
    }
+   
    return i_atom_index;
 }
 
