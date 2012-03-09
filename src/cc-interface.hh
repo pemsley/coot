@@ -198,6 +198,8 @@ PyObject *map_colour_components_py(int imol);
 //! \}
 
 
+//! \name Multi-Residue Torsion
+//! \{
 #ifdef USE_GUILE
 /*! \brief fit residues
 
@@ -214,6 +216,7 @@ void multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t>
 */
 PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py);
 #endif // PYTHON
+//! \}
 
 
 /*  ------------------------------------------------------------------------ */
