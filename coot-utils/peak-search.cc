@@ -128,7 +128,32 @@ coot::peak_search::get_peak_grid_points(const clipper::Xmap<float> &xmap,
 
    std::sort(v.begin(), v.end(), compare_ps_peaks_cg);
    return v;
-} 
+}
+
+
+std::vector<std::pair<clipper::Coord_grid, float> >
+coot::peak_search::get_minima_grid_points(const clipper::Xmap<float> &xmap,
+					  float n_sigma) const {
+
+   std::vector<std::pair<clipper::Coord_grid, float> > v;
+   clipper::Xmap<short int> marked_map(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = marked_map.first(); !ix.last(); ix.next() )  { // iterator index.
+      marked_map[ix] = 0;
+   }
+
+   peak_search_0_minima(xmap, &marked_map);
+
+   for (ix = marked_map.first(); !ix.last(); ix.next())  { 
+      if (marked_map[ix] == 2) {
+ 	 v.push_back(std::pair<clipper::Coord_grid, float> (ix.coord(), xmap[ix]));
+      }
+   }
+
+   std::sort(v.begin(), v.end(), compare_ps_peaks_cg);
+   std::reverse(v.begin(), v.end());
+   return v;
+}
 
 
 // We introduce now (20090901) peak search filtering, i.e. if there
@@ -223,7 +248,7 @@ coot::peak_search::peak_search_0_negative(const clipper::Xmap<float> &xmap,
    clipper::Xmap_base::Map_reference_index ix;
    clipper::Skeleton_basic::Neighbours neighb(xmap, 0.25, 1.75); // 3x3x3 cube, not centre
    clipper::Coord_grid c_g;
-   int is_peak;
+   bool is_peak;
    float v;
    float cut_off = -map_rms * n_sigma; 
 
@@ -232,11 +257,11 @@ coot::peak_search::peak_search_0_negative(const clipper::Xmap<float> &xmap,
    for (ix = marked_map_p->first(); !ix.last(); ix.next())  { // iterator index.
       v = xmap[ix];
       if (v < cut_off) {
-	 is_peak = 1;
+	 is_peak = true;
 	 for (int i=0; i<neighb.size(); i++) {
 	    c_g = ix.coord() + neighb[i];
 	    if (v > xmap.get_data(c_g)) {
-	       is_peak = 0;
+	       is_peak = false;
 	       break;
 	    }
 	 }
@@ -245,6 +270,35 @@ coot::peak_search::peak_search_0_negative(const clipper::Xmap<float> &xmap,
       }
    }
 }
+
+// Find troughs, but no cut-off
+void
+coot::peak_search::peak_search_0_minima(const clipper::Xmap<float> &xmap,
+					clipper::Xmap<short int> *marked_map_p) const { 
+
+   clipper::Xmap_base::Map_reference_index ix;
+   clipper::Skeleton_basic::Neighbours neighb(xmap, 0.25, 1.75); // 3x3x3 cube, not centre
+   clipper::Coord_grid c_g;
+   bool is_peak;
+   float v;
+
+   // find negative peaks
+   // 
+   for (ix = marked_map_p->first(); !ix.last(); ix.next())  { // iterator index.
+      v = xmap[ix];
+      is_peak = true; // initially
+      for (int i=0; i<neighb.size(); i++) {
+	 c_g = ix.coord() + neighb[i];
+	 if (v > xmap.get_data(c_g)) {
+	    is_peak = false;
+	    break;
+	 }
+      }
+      if (is_peak) 
+	 (*marked_map_p)[ix] = 2;
+   }
+}
+
 
 
 clipper::Coord_orth
@@ -385,6 +439,8 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
    
    return rf;
 }
+
+
 
 std::vector<std::pair<clipper::Coord_orth, float> >
 coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,

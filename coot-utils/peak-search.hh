@@ -40,6 +40,12 @@ namespace coot {
       void peak_search_0_negative(const clipper::Xmap<float> &xmap,
 				  clipper::Xmap<short int> *marked_map_p,
 				  float n_sigma);
+      // As above, but give us all the peaks, not just the negative
+      // ones.  e.g. if mean is 10 and min is 5, then we want to see
+      // such minima.
+      void peak_search_0_minima(const clipper::Xmap<float> &xmap,
+				clipper::Xmap<short int> *marked_map_p) const;
+				  
       void peak_search_1(const clipper::Xmap<float> &xmap,
 			 clipper::Xmap<short int> *marked_map_p);
       void peak_search_2(const clipper::Xmap<float> &xmap,
@@ -103,6 +109,9 @@ namespace coot {
       std::vector<std::pair<clipper::Coord_grid, float> >
       get_peak_grid_points(const clipper::Xmap<float> &xmap,
 			   float n_sigma) const;
+      std::vector<std::pair<clipper::Coord_grid, float> >
+      get_minima_grid_points(const clipper::Xmap<float> &xmap,
+			     float n_sigma) const;
 
       // return a list of peaks, together with the density level at
       // that position. but avoiding peaks where the molecule mol is.
