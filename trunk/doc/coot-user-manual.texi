@@ -1974,7 +1974,7 @@ The function returns a handle.
 (it might be a set of heavy atom coordinates) at the default dot density
 and radius:
 
-@code{(dots 0 "/1" 1 1)}
+@code{(dots 0 "/1"  "heavy-atom-sites" 1 1)}
 
 You can't change the colour of the dots.  
 
