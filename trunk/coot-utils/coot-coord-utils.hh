@@ -235,9 +235,9 @@ namespace coot {
 	 int_user_data = -1;
       }
       bool unset_p() const {
-	 short int u = 1;
+	 bool u = true;
 	 if (resno != MinInt4)
-	    u = 0;
+	    u = false;
 	 return u;
       }
       residue_spec_t next() const {
