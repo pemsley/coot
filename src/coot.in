@@ -2,7 +2,6 @@
 # -*-shell-script-*-
 # coot wrapper script 
 # Copyright 2004, 2005, 2006, 2007 University of York
-# written by Paul Emsley
 
 # 20091210 /bin/sh changed to /bin/bash, because /bin/sh is dash on ubuntu and 
 # it doesn't do functions.  Pathetic. 

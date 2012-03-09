@@ -6376,6 +6376,33 @@ Mon Jan 30 11:45:55 GMT 2012
       made will be given in a Structure edited pop-up.
 
 
+----
+Fri Feb  3 16:36:37 GMT 2012
+
+   relative rpath: 
+
+  http://groups.google.com/group/gnu.gcc.help/browse_thread/thread/1b713af28905247b?pli=1
+
+  man ld.so
+
+http://support.bibblelabs.com/webboard/viewtopic.php?p=64073&sid=04162de5073a8e07db92d0a0c22e23b6
+
+contains($$list($$[QT_VERSION]), 4.2.*) {
+    QMAKE_LFLAGS+=$${QMAKE_RPATH}\\\$\$ORIGIN/../lib
+} else {
+    QMAKE_LFLAGS+=$${QMAKE_RPATH}\\$\$ORIGIN/../lib
+}
+
+http://enchildfone.wordpress.com/2010/03/23/a-description-of-rpath-origin-ld_library_path-and-portable-linux-binaries/
+
+consider chrpath
+
+http://stackoverflow.com/questions/6323603/ld-using-rpath-origin-inside-a-shared-library-recursive
+
+    how about this:
+   LIBS=-Wl,-rpath,'$${ORIGIN}/../lib -Wl,-rpath,/usr/lib' 
+
+
 ---
 Tue Jan 31 22:44:31 GMT 2012
 
@@ -6404,5 +6431,6 @@ Tue Feb 14 11:54:31 EST 2012
 Mon Feb 20 17:42:28 GMT 2012
 
    3t3g has a covalently linked ligand?
+
 
 ------

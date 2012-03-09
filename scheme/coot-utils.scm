@@ -554,7 +554,10 @@
 	    (f (cdr data-list)))))))
 
 
-;; Thank you for this, rixed@happyleptic.org
+;; Is the command @var{f} in the path?
+;; return #t or #f.
+;; 
+;; Thank you for this, rixed at happyleptic.org
 (define (command-in-path? f)
   (let ((path (string-split (getenv "PATH") #\:))
 	(make-absolute (lambda (path) (string-append path "/" f))))

@@ -1037,6 +1037,12 @@ Punted from 0.6:
 
    o consider --with-valgrind arg when configuring python
 
+   o when reading SBase/SRS? minimal restraints and then FLEVing - we
+   miss aromatic ring detection.  Why?  We have kekulized bonds - but
+   are atoms marked as aromatic and we are ignoring that? (typically
+   we have restraints from prodrg that marks bonds as aromatic).  Can
+   I say that a bond between aromatic atoms is aromatic?
+
    o handle links properly (as above).
 
    o multiple representations?

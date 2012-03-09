@@ -973,7 +973,7 @@ void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2, const std::strin
 #endif
 
 
-/*! \name  Drag and Drop */
+/*! \name  Drag and Drop Functions */
 // \{
 //! \brief handle the string that get when a file or URL is dropped.
 int handle_drag_and_drop_string(const std::string &uri);
