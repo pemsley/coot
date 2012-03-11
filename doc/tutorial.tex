@@ -393,7 +393,22 @@ z-translation).
 \end{itemize}
 
 \subsection{Select a Map}
-Select a map for model building:
+Select a map for model building. We prefer you to use the modelling toolbar
+icon buttons (here ``Map'') displayed on the right side of the Coot window.
+Note: If you are not sure which icon corresponds to which function look at
+the displayed tips when over the button with the mouse. Or change
+the display style of the buttons by clicking on the bottom arrow and
+select another style to get only or additionally text displayed.
+
+\begin{trivlist}
+
+\item Right Toolbar: \textsf{``Map''} from the Modelling Toolbar
+
+\item click OK (you want to select the map with ``\ldots FWT PHWT'')
+
+\end{trivlist}
+
+Alternatively you can use the Model/Fit/Refine window:
 
 \begin{trivlist}
 
@@ -406,16 +421,11 @@ Select a map for model building:
 
 \item click OK (you want to select the map with ``\ldots FWT PHWT'')
 
-Alternatively you can use the modelling toolbar icon buttons (here
-``Map'') displayed on the right side of the Coot window. Most
-options found in the Model/Fit/Refine window are available here too.
-If you are not sure which icon corresponds to which function look at
-the displayed tips when over the button with the mouse. Or change
-the display style of the buttons by clicking on the bottom arrow and
-select another style to get only or additionally text displayed.
-  
 \end{trivlist}
 
+Note: Most options found in the Model/Fit/Refine window are available in
+the Modelling Toolbar too. You can change this with Preferences.
+  
 
 %% \subsection{Display rotamers and refine residue}
 %% \begin{itemize}
@@ -454,16 +464,16 @@ are available in Coot.
 \item Examine the situation\ldots
   \emph{[ The sidechain is pointing the wrong way.  Let's Fix it...]}
 
-\item Menubar: \textsf{Calculate $\rightarrow$ Model/Fit/Refine...}
-\footnote{or use the modelling toolbar on the right of the Coot window, 
-i.e. you don't need to open the Model/Fit/Refine window}
+\item Modelling Toolbar: Select the \textsf{``Rotamers''} button
+
+\item Alternatively:
+
+\subitem Menubar: \textsf{Calculate $\rightarrow$ Model/Fit/Refine...}
 
 \textsl{ [Coot displays the Model/Fit/Refine window]}
 
-\item Select \textsf{``Rotamers''} from the Model/Fit/Refine window
-\footnote{Or click on the \textsf{``Rotamers''} button of the modelling 
-toolbar}.
-  
+\subitem Select \textsf{``Rotamers''} from the Model/Fit/Refine window.
+
 \item In the graphics window, (left-mouse) click on an atom of residue
   89A (the C$\gamma$, say)
 
@@ -503,7 +513,7 @@ Now, how about if we just use Real Space Refinement only?
   \textsl{ [Coot puts the sidechain back to the original position] } 
   
 \item Click \textsf{``Real Space Refine Zone''} in the
-  Model/Fit/Refine window\footnote{\ldots or modelling toolbar button}.
+  Modelling Toolbar \footnote{\ldots or in the Model/Fit/Refine window}.
   
 \item In the graphics window, click on an atom of residue 89A.  Click
   it again.
@@ -550,7 +560,7 @@ Now let's have a look at the other region of outstanding badness:
 \item You can either Real Space Refine a few residues (40, 41 and 42)
   or just 41.  Take your pick.
 \item Click on \textsf{``Real Space Refine Zone''} in the
-  Model/Fit/Refine window
+  Modelling Toolbar (Model/Fit/Refine window)
 \item Select a range by clicking on atoms in the graphics window
   (either atoms in 40 then 42 or an atom in 41 twice)
 
@@ -595,8 +605,8 @@ Blobs 3 and 4 (if you have it) are the smallest).
 
   \emph{[We need something tetrahedral there\ldots]}
   
-\item \textsf{``Place Atom At Pointer''} on the Model/Fit/Refine
-  window\footnote{also available in the modelling toolbar}
+\item \textsf{``Place Atom At Pointer''} on the Modelling 
+ Toolbar \footnote{also available in Model/Fit/Refine window}
 
 \textsl{ [Coot shows a Pointer Atom Type window]}
 
@@ -634,8 +644,8 @@ That's what missing: 3' GMP.  So let's add it\ldots
 It is generally easier to work without hydrogens, so let's delete
 them
 
-\item \textsf{``Delete\ldots''} from the Model/Fit/Refine window
-  \footnote{Found in the modelling toolbar? Of course!}
+\item \textsf{``Delete\ldots''} from the Modelling Toolbar
+  \footnote{Found in the Model/Fit/Refine window too}
 \item \textsf{``Hydrogens in Residue''}
 \item click on an atom in 3GP
 
@@ -643,8 +653,8 @@ them
 
 The 3GP is displaced from where we want it to be.
 
-\item \textsf{``Rotate/Translate Zone''} from the Model/Fit/Refine
-  window\footnote{Found it in the modelling toolbar?}
+\item \textsf{``Rotate/Translate Zone''} from the Modelling Toolbar
+\footnote{Exists in the Model/Fit/Refine window too}
 \item click on an atom in 3GP twice
 
 \textsl{ [Intermediate (white) atoms appear]}
@@ -822,8 +832,8 @@ histogram of differences.
 
 
 \subsection{Add Terminal Residue}
-[To be found on the Model/Fit/Refine dialog\footnote{and in the 
-  modelling toolbar}]
+[To be found on the Modelling Toolbar\footnote{and in the 
+  Model/Fit/Refine window}]
 
 \begin{itemize}
 \item Use the Go To Atom window to go to residue 72 A.
