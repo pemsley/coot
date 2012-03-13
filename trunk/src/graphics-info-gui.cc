@@ -3669,8 +3669,7 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pai
       label += float_to_string(centres[i].second);
       label += " (";
       label += float_to_string(centres[i].second/map_sigma);
-      label += " sigma)";
-      label += " at ";
+      label += " rmsd) at ";
       label += centres[i].first.format();
       radio_button = gtk_radio_button_new_with_label(diff_map_group,
 						     label.c_str());
