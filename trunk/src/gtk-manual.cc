@@ -1318,9 +1318,6 @@ GtkWidget *get_radio_button_in_scroll_group(GtkWidget *display_manager_dialog,
    // so let's only look for map molecule with a molecule number less
    // than imol_this.  (if not found, return null of course).
 
-   std::cout << "called get_radio_button_in_scroll_group() with dialog "
-	     << display_manager_dialog << " and imol_this " << imol_this << std::endl;
-
    // 
    // 
    GtkWidget *w = NULL;
