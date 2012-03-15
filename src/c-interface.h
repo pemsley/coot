@@ -2705,6 +2705,12 @@ char *go_to_atom_alt_conf();
 */
 int set_go_to_atom_chain_residue_atom_name(const char *t1_chain_id, int iresno, 
 					   const char *t3_atom_name);
+int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id, 
+						int resno,
+						const char *ins_code,
+						const char *atom_name,
+						const char *alt_conf);
+
 int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno, const char *t3, 
 						     short int make_the_move_flag);
 

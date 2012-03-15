@@ -1799,8 +1799,8 @@ public:
    void set_go_to_atom_chain_residue_atom_name(const char *chain_id, 
 					       int resno, const char *atom_name, const char *altLoc);
    void set_go_to_atom_chain_residue_atom_name(const char *chain_id, 
-					       int resno, const char *ins_code,
-					       const char *atom_name, const char *altLoc);
+					      int resno, const char *ins_code,
+					      const char *atom_name, const char *altLoc);
    void set_go_to_residue_intelligent(const std::string &chain_id, int resno, 
 				      const std::string &ins_code);
    static std::pair<std::string, std::string> split_atom_name(const std::string &atom_name);

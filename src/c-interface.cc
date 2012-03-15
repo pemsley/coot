@@ -4042,6 +4042,27 @@ int set_go_to_atom_chain_residue_atom_name(const char *t1, int iresno, const cha
    return success;
 }
 
+int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id, 
+						int resno,
+						const char *ins_code,
+						const char *atom_name,
+						const char *alt_conf) {
+   
+   graphics_info_t g; 
+   g.set_go_to_atom_chain_residue_atom_name(chain_id, resno, ins_code, atom_name, alt_conf);
+   int success = g.try_centre_from_new_go_to_atom();
+   if (success) { 
+      CAtom *at = 0; // passed but not used, it seems.
+      GtkWidget *window = graphics_info_t::go_to_atom_window;
+      if (window)
+	 g.update_widget_go_to_atom_values(window, at);
+   }
+   graphics_draw();
+   return success;
+}
+
+
+
 
 // Note that t3 is an atom name with (possibly) an altLoc tag (after the comma).
 // 
