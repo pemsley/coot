@@ -5480,22 +5480,30 @@ molecule_class_info_t::find_water_baddies_AND(float b_factor_lim, const clipper:
       clipper::Coord_orth p(atom_sel.atom_selection[idx[i]]->x,
 			    atom_sel.atom_selection[idx[i]]->y,
 			    atom_sel.atom_selection[idx[i]]->z);
-      double dist_to_atoms_min = 99999;
+      double dist_to_atoms_min =  99999;
       double dist_to_atoms_max = -99999;
       for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
-	 clipper::Coord_orth a(atom_sel.atom_selection[iat]->x,
-			       atom_sel.atom_selection[iat]->y,
-			       atom_sel.atom_selection[iat]->z);
-	 d = clipper::Coord_orth::length(p,a);
-	 if (d < dist_to_atoms_min)
-	    dist_to_atoms_min = d;
-	 if (d > dist_to_atoms_max)
-	    dist_to_atoms_max = d;
-      }
-      if (dist_to_atoms_min < min_dist ||
-	  dist_to_atoms_min > max_dist) {
-	 coot::atom_spec_t atom_spec(atom_sel.atom_selection[idx[i]]);
-	 v.push_back(atom_spec);
+	 if (atom_sel.atom_selection[idx[i]] != atom_sel.atom_selection[iat]) {
+	    bool is_H = false;
+	    // PDB v3 FIXME?
+	    if (! strncmp(atom_sel.atom_selection[iat]->name, " H", 2))
+	       is_H = true;
+	    if (! is_H) { 
+	       clipper::Coord_orth a(atom_sel.atom_selection[iat]->x,
+				     atom_sel.atom_selection[iat]->y,
+				     atom_sel.atom_selection[iat]->z);
+	       d = clipper::Coord_orth::length(p,a);
+	       if (d < dist_to_atoms_min)
+		  dist_to_atoms_min = d;
+	       if (d > dist_to_atoms_max)
+		  dist_to_atoms_max = d;
+	    }
+	    if (dist_to_atoms_min < min_dist ||
+		dist_to_atoms_min > max_dist) {
+	       coot::atom_spec_t atom_spec(atom_sel.atom_selection[idx[i]]);
+	       v.push_back(atom_spec);
+	    }
+	 }
       }
    }
    return v;
@@ -5509,6 +5517,8 @@ molecule_class_info_t::find_water_baddies_AND(float b_factor_lim, const clipper:
 // If min_dist < 0, don't test for min dist
 // if max_dist < 0, don't test for max dist
 // if b_factor_lim < 0, don't test for b_factor 
+//
+// Hydrogens are ignored in neighbour distance search
 // 
 std::vector <coot::atom_spec_t>
 molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::Xmap<float> &xmap_in,
@@ -5522,7 +5532,7 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
 
    std::vector<std::pair<CAtom *, float> > marked_for_display;
 
-   short int this_is_marked;
+   bool this_is_marked;
    float den = 0.0;
    short int use_b_factor_limit_test = 1;
    short int use_map_sigma_limit_test = 1;
@@ -5583,7 +5593,7 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
 			
 			for (int iat=0; iat<n_atoms; iat++) {
 			   at = residue_p->GetAtom(iat);
-			   this_is_marked = 0;
+			   this_is_marked = false;
 
 			   if (! at->isTer()) { 
 			   
@@ -5594,7 +5604,7 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
 				 
 				 den /= map_in_sigma;
 				 if (den < outlier_sigma_level && use_map_sigma_limit_test) {
-				    this_is_marked = 1;
+				    this_is_marked = true;
 				    marked_for_display.push_back(std::pair<CAtom *, float>(at, den));
 				 }
 			      } else {
@@ -5605,7 +5615,7 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
 			      }
 			      
 			      // B factor check:
-			      if (this_is_marked == 0) {
+			      if (! this_is_marked) {
 				 if (at->tempFactor > b_factor_lim && use_b_factor_limit_test) {
 				    marked_for_display.push_back(std::pair<CAtom *, float>(at, den));
 			      }
@@ -5613,7 +5623,7 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
 			      
 			      
 			      // distance check
-			      if (this_is_marked == 0) {
+			      if (! this_is_marked) {
 				 
 				 // (ignoring things means less marked atoms)
 				 if (ignore_part_occ_contact_flag==0) { 
@@ -5623,25 +5633,44 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
 				    if (ignore_zero_occ_flag==0 || at->occupancy < 0.01) { 
 				       double dist_to_atoms_min = 99999;
 				       double d;
+				       double d_sqrd;
+				       double dc_sqrd = dist_to_atoms_min * dist_to_atoms_min;
+				       double d_sqrd_min = 999999999;
 				       clipper::Coord_orth a(at->x, at->y, at->z);
 				       for (int j=0; j<atom_sel.n_selected_atoms; j++) {
 					  if (at != atom_sel.atom_selection[j]) {
+					     bool is_H = false;
+					     // PDB v3 FIXME?
+					     if (! strncmp(atom_sel.atom_selection[j]->name, " H", 2))
+						is_H = true;
 					     clipper::Coord_orth p(atom_sel.atom_selection[j]->x,
 								   atom_sel.atom_selection[j]->y,
 								   atom_sel.atom_selection[j]->z);
-					     d = clipper::Coord_orth::length(p,a);
-					     if (d < dist_to_atoms_min)
-						dist_to_atoms_min = d;
+					     d_sqrd = (p-a).lengthsq();
+					     if (! is_H) { 
+						if (d_sqrd < d_sqrd_min)
+						   d_sqrd_min = d_sqrd;
+					     } else {
+						// special distance rule for hydrogens?
+						//
+						// currently ignored...
+					     } 
 					  }
 				       }
-				       short int failed_min_dist_test = 0;
-				       short int failed_max_dist_test = 0;
+				       bool dist_to_atoms_min_is_set = false;
+				       if (d_sqrd_min < 999999998) {
+					  // should be!
+					  dist_to_atoms_min_is_set = true;
+					  dist_to_atoms_min = sqrt(d_sqrd_min);
+				       } 
+				       bool failed_min_dist_test = false;
+				       bool failed_max_dist_test = false;
 				       
-				       if ((dist_to_atoms_min < min_dist) && use_min_dist_test)
-					  failed_min_dist_test = 1;
+				       if (dist_to_atoms_min_is_set && (dist_to_atoms_min < min_dist) && use_min_dist_test)
+					  failed_min_dist_test = true;
 				       
-				       if ((dist_to_atoms_min > max_dist) && use_max_dist_test)
-					  failed_max_dist_test = 1;
+				       if (dist_to_atoms_min_is_set && (dist_to_atoms_min > max_dist) && use_max_dist_test)
+					  failed_max_dist_test = true;
 				       
 				       if (failed_min_dist_test || failed_max_dist_test) {
 					  
@@ -5664,9 +5693,9 @@ molecule_class_info_t::find_water_baddies_OR(float b_factor_lim, const clipper::
       std::string s = "B fac: ";
       s += coot::util::float_to_string(marked_for_display[i].first->tempFactor);
       if (map_in_sigma > 0.0) { 
-	 s += " ED: ";
+	 s += "   ED: ";
 	 s += coot::util::float_to_string(marked_for_display[i].second);
-	 s += " sigma";
+	 s += " rmsd";
       }
       coot::atom_spec_t as(marked_for_display[i].first, s);
       as.float_user_data = marked_for_display[i].first->occupancy;
