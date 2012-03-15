@@ -1037,6 +1037,16 @@ Punted from 0.6:
 
    o consider --with-valgrind arg when configuring python
 
+   o BN: Delete waters is not rejecting waters that are overlapping
+   symmetry related molecules.  I just had a big rebuild that involved
+   moving a large amount of main chain.  I didn't bother to detete the
+   waters as I rebuilt the protein since I figured I would clean up at
+   the end.  When I used the validat waters function and clicked over
+   to delete, it only deleted a small number of waters, so I went
+   looking to see why.  It looks like most of the waters which overlap
+   with a symmetry copy of the molecule were not flagged or deleted.
+
+
    o when reading SBase/SRS? minimal restraints and then FLEVing - we
    miss aromatic ring detection.  Why?  We have kekulized bonds - but
    are atoms marked as aromatic and we are ignoring that? (typically
