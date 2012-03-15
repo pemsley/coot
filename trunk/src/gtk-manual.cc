@@ -881,7 +881,7 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
 			    render_optionmenu_1_menu);
 
   // A delete molecule button
-  display_control_add_delete_molecule_button(n, hbox32);
+  display_control_add_delete_molecule_button(n, hbox32, false);
 
   free(widget_name);
   // Now add the additional representations frame and vbox
@@ -890,11 +890,15 @@ void display_control_molecule_combo_box(GtkWidget *display_control_window_glade,
   
 }
 
-void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32) {
+void display_control_add_delete_molecule_button(int imol, GtkWidget *hbox32,
+						short int is_map_molecule) {
 
    std::string delete_button_name = "delete_molecule_";
    delete_button_name += coot::util::int_to_string(imol);
-   GtkWidget *delete_button = gtk_button_new_with_label(_("Delete Molecule"));
+   std::string button_string = "Delete Model";
+   if (is_map_molecule)
+      button_string = "Delete Map";
+   GtkWidget *delete_button = gtk_button_new_with_label(_(button_string.c_str()));
    gtk_widget_show(delete_button);
    gtk_box_pack_start (GTK_BOX (hbox32), delete_button, FALSE, FALSE, 0);
    gtk_container_set_border_width (GTK_CONTAINER (delete_button), 2);
@@ -1264,7 +1268,7 @@ GtkWidget *display_control_map_combo_box(GtkWidget *display_control_window_glade
     gtk_object_set_user_data (GTK_OBJECT (displayed_button_1), GINT_TO_POINTER(n));
 
   // A delete molecule button
-  display_control_add_delete_molecule_button(n, hbox32);
+  display_control_add_delete_molecule_button(n, hbox32, true);
 
   free(widget_name); 
   return my_combo_box; 
