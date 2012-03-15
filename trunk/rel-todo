@@ -3,21 +3,6 @@
 
 ----
 
-  o JLigand interface ::: 3
-
-* needs to put put into the standard gui and committed. 
-
-* crash problems here?
-
-   run python command:
-	graphics_general_key_press_hook(269025067)"
-
-
-* Does this need looking at? (mogul branch)
-
-called get_radio_button_in_scroll_group() with dialog 0x3995710 and imol_this 17
-
-* and map level (top right) (from a search map) was in sigma
 
 ------
 
@@ -343,3 +328,45 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
   o Search for difference map peaks - sigma check. ::: 0.5
 
 * Done.
+
+
+   o Does this need looking at? (mogul branch):
+
+   called get_radio_button_in_scroll_group() with dialog 0x3995710 and imol_this 17
+
+* Done.
+
+   o and map level (top right) (from a search map) was in sigma
+
+* Done
+
+  o JLigand interface ::: 3
+
+* Done.
+
+
+   o Also just noticed – for the maps section of the display menu, the
+   right hand button is ‘delete molecule’ not ‘delete map’ or delete
+   object’
+
+* Done.
+
+  o BN:
+
+    Your water validation routine not surprisingly flags nearly all
+    waters as outliers if you have hydrogen atoms on your pdb file.
+    Any way to make the validation routine ignore the hydrogen and
+    just flag heavy atom close contacts.
+
+                                                ::: 0.5
+ 
+* Done
+
+  o crash problems here?
+
+   run python command:
+	graphics_general_key_press_hook(269025067)"
+
+* No.
+
+ 
