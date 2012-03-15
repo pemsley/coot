@@ -4472,7 +4472,13 @@ molecule_class_info_t::intelligent_next_atom(const std::string &chain_id,
 	       //
 
 	       next_residue = next_residue_missing_residue(this_residue);
-	       i_atom_index = intelligent_this_residue_atom(next_residue);
+	       if (next_residue) { 
+		  i_atom_index = intelligent_this_residue_atom(next_residue);
+	       } else {
+		  // we are on the last atom then.
+		  i_atom_index = 0;
+		  
+	       } 
 	    }
 	    
 	 } else {
@@ -4639,30 +4645,32 @@ molecule_class_info_t::intelligent_this_residue_atom(CResidue *res_p) const {
    PPCAtom residue_atoms;
    int nResidueAtoms;
    int ir = -1; 
-   
-   res_p->GetAtomTable(residue_atoms, nResidueAtoms);
-   for (int i=0; i<nResidueAtoms; i++) {
-      std::string atom_name(residue_atoms[i]->name);
-      if (atom_name == " CA ") {
-	 ir = atom_to_atom_index(residue_atoms[i]);
-	 if (ir == -1)
-	    ir = full_atom_spec_to_atom_index(residue_atoms[i]->GetChainID(),
-					      residue_atoms[i]->GetSeqNum(),
-					      residue_atoms[i]->GetInsCode(),
-					      residue_atoms[i]->name,
-					      residue_atoms[i]->altLoc);
-      }
-   }
 
-   if (ir == -1) { 
-      if (nResidueAtoms > 0) {
-	 ir = atom_to_atom_index(residue_atoms[0]);
-	 if (ir == -1)
-	    ir =  full_atom_spec_to_atom_index(residue_atoms[0]->GetChainID(),
-					       residue_atoms[0]->GetSeqNum(),
-					       residue_atoms[0]->GetInsCode(),
-					       residue_atoms[0]->name,
-					       residue_atoms[0]->altLoc);
+   if (res_p) { 
+      res_p->GetAtomTable(residue_atoms, nResidueAtoms);
+      for (int i=0; i<nResidueAtoms; i++) {
+	 std::string atom_name(residue_atoms[i]->name);
+	 if (atom_name == " CA ") {
+	    ir = atom_to_atom_index(residue_atoms[i]);
+	    if (ir == -1)
+	       ir = full_atom_spec_to_atom_index(residue_atoms[i]->GetChainID(),
+						 residue_atoms[i]->GetSeqNum(),
+						 residue_atoms[i]->GetInsCode(),
+						 residue_atoms[i]->name,
+						 residue_atoms[i]->altLoc);
+	 }
+      }
+
+      if (ir == -1) { 
+	 if (nResidueAtoms > 0) {
+	    ir = atom_to_atom_index(residue_atoms[0]);
+	    if (ir == -1)
+	       ir =  full_atom_spec_to_atom_index(residue_atoms[0]->GetChainID(),
+						  residue_atoms[0]->GetSeqNum(),
+						  residue_atoms[0]->GetInsCode(),
+						  residue_atoms[0]->name,
+						  residue_atoms[0]->altLoc);
+	 }
       }
    }
    return ir;
