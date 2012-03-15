@@ -92,7 +92,9 @@ std::string greg_test(const std::string &file_name) {
    const char *c = getenv("COOT_TEST_DATA_DIR");
    if (c) {
       dd = c;
-   } else { 
+      dd += "/";
+      dd += file_name;
+   } else {
       const char *d = getenv("HOME");
       if (d) {
 	 dd = d;
@@ -101,7 +103,7 @@ std::string greg_test(const std::string &file_name) {
       }
    }
    return dd;
-} 
+}
 
 std::string stringify(double x) {
    std::ostringstream o;
