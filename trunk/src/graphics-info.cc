@@ -1749,11 +1749,11 @@ graphics_info_t::environment_graphics_object_internal_tubes(const graphical_bond
 		  }
 
 		  // the distance text
+		  glDisable(GL_LIGHTING);
 		  text_pos = pair.getFinish().mid_point(pair.getStart()) +
 		     coot::Cartesian(0.0, 0.2, 0.2);
 		  glRasterPos3f(text_pos.x(), text_pos.y(), text_pos.z());
 		  dist = (pair.getStart() - pair.getFinish()).amplitude();
-		  glDisable(GL_LIGHTING);
 		  printString(float_to_string(dist));
 		  glEnable(GL_LIGHTING);
 	       }
