@@ -996,7 +996,7 @@ public:
    }
 
    void no_graphics_mode() {
-      use_graphics_interface_flag = 0;
+      use_graphics_interface_flag = false;
    }
 
    void show_atom_x_dialog();

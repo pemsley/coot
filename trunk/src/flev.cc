@@ -327,8 +327,19 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 }
 
 void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
-			 const char *ins_code, float residues_near_radius) { 
+			 const char *ins_code, float residues_near_radius) {
 
+   fle_view_with_rdkit_internal(imol, chain_id, res_no, ins_code, residues_near_radius, "", "");
+}
+
+void fle_view_with_rdkit_to_png(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *png_file_name) {
+
+   fle_view_with_rdkit_internal(imol, chain_id, res_no, ins_code, residues_near_radius, "png", png_file_name);
+} 
+
+
+void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *file_format, const char *output_image_file_name) { 
+   
 #ifndef MAKE_ENTERPRISE_TOOLS
 # else
 
@@ -436,15 +447,18 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
  		     coot::get_fle_ligand_bonds(res_ref, filtered_residues,
 						mol_for_res_ref, name_map, *geom_p, water_dist_max);
 
-		  add_animated_ligand_interactions(imol, bonds_to_ligand);
+		  if (graphics_info_t::use_graphics_interface_flag)
+		     add_animated_ligand_interactions(imol, bonds_to_ligand);
 
 		  std::vector<coot::fle_residues_helper_t> res_centres =
 		     coot::get_flev_residue_centres(res_ref,
 						    mol_for_res_ref,
 						    filtered_residues,
 						    mol_for_flat_residue);
-		  std::vector<int> add_reps_vec =
-		     coot::make_add_reps_for_near_residues(filtered_residues, imol);
+
+		  std::vector<int> add_reps_vec;
+		  if (graphics_info_t::use_graphics_interface_flag)
+		     add_reps_vec = coot::make_add_reps_for_near_residues(filtered_residues, imol);
 
 		  if (0) { 
 		     std::cout << "------------- in flev: centres.size() is "
@@ -467,9 +481,14 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
  		  ah.distances_to_protein_using_correct_Hs(res_ref, mol_for_res_ref, *geom_p);
 
 		  // ------------ show it -----------------
-		  // 
+		  //
  		  lbg_local_p->annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand, sed,
 					ah, pi_stack_info, p.second);
+		  if (! use_graphics_flag) { 
+		     lbg_local_p->set_draw_flev_annotations(true);
+		     lbg_local_p->draw_all_flev_annotations();
+		     lbg_local_p->write_png(output_image_file_name);
+		  } 
 		  delete mol_for_flat_residue;
 	       }
 	    }

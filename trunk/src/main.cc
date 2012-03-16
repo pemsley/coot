@@ -216,10 +216,11 @@ main (int argc, char *argv[]) {
      show_citation_request();
   }
 
+  gtk_set_locale ();    // gtk stuff
+  load_gtk_resources();
+  gtk_init (&argc, &argv);
+  
   if (graphics_info_t::use_graphics_interface_flag) {
-     gtk_set_locale ();    // gtk stuff
-     load_gtk_resources();
-     gtk_init (&argc, &argv);
      glutInit(&argc, argv);
   } else {
 #ifdef WINDOWS_MINGW
