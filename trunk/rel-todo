@@ -3,8 +3,11 @@
 
 ----
 
-   run get pdbe structure for 2 different ligands (running refmac twice).
+   o run get pdbe structure for 2 different ligands (running refmac twice).
 
+   o Fix scheme remote control.
+
+   o sync CODE FILE with jligand.
 
 ------
 
