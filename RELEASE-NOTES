@@ -1,6 +1,10 @@
 
   Pre-release 0.7
 
+  o FEATURE: Het-groups are now represented with bond orders.
+
+  o FEATURE: Ligand Builder - working in conjunction with cprodrg.
+
   o FEATURE: PDBe Recent structure browser.
 
   o CHANGE: symmetry operator number are no longer zero indexed.  Add
