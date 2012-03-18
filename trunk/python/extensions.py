@@ -1060,17 +1060,16 @@ if (have_coot_python):
      #     Recent structures from the PDBe
      # ---------------------------------------------------------------------
      #
-# not as yet
-##     add_simple_coot_menu_menuitem(
-##       menu, "PDBe recent structures",
-##       lambda func: pdbe_latest_releases_gui())
+     add_simple_coot_menu_menuitem(
+       menu, "PDBe recent structures",
+       lambda func: pdbe_latest_releases_gui())
 
-##     add_simple_coot_menu_menuitem(
-##       menu, "Get from PDBe",
-##       lambda func: generic_single_entry("Get PDBe accession code",
-##                                         "", " Get it ",
-##                                         lambda text:
-##                                         pdbe_get_pdb_and_sfs_cif("include-sfs", text)))
+     add_simple_coot_menu_menuitem(
+       menu, "Get from PDBe",
+       lambda func: generic_single_entry("Get PDBe accession code",
+                                         "", " Get it ",
+                                         lambda text:
+                                         pdbe_get_pdb_and_sfs_cif("include-sfs", text)))
 
      # ---------------------------------------------------------------------
      #     Tutorial data
