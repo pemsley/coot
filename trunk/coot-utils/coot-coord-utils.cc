@@ -2821,7 +2821,16 @@ CMMDBManager *
 coot::util::create_mmdbmanager_from_atom_selection_straight(CMMDBManager *orig_mol,
 							    int SelectionHandle) { 
    CMMDBManager *atoms_mol = new CMMDBManager;
-   CModel *model = new CModel;
+
+   PPCAtom atoms;
+   int n_selected_atoms;
+
+   // the short version from Eugene
+   orig_mol->GetSelIndex(SelectionHandle, atoms, n_selected_atoms);
+   for (int iatom=0; iatom<n_selected_atoms; iatom++)
+     atoms_mol->PutAtom(0, atoms[iatom], iatom+1);
+
+   /*   CModel *model = new CModel;
    atoms_mol->AddModel(model);
 
    PCAtom *atoms = 0;
@@ -2919,7 +2928,7 @@ coot::util::create_mmdbmanager_from_atom_selection_straight(CMMDBManager *orig_m
       }
       atoms_mol->DeleteSelection(atom_residue_selection_handle);
    }
-
+   */
    realtype a[6];
    realtype vol;
    int orthcode;
