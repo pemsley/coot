@@ -16,19 +16,22 @@
 
 
 # FIXME: review this initiallisations
-import gtk
 import gobject
-import os
-gobject.threads_init()
 # some timeout setting (used?)
 import socket
-socket.setdefaulttimeout(30)
+# FIXME, depening on what we download!?
+socket.setdefaulttimeout(10)
+#sys.setcheckinterval(10) # doesnt seem to make much of a difference...
+
+import Queue
+max_queue = 10
+coot_queue = Queue.Queue()
 
 import thread
 safe_print = thread.allocate_lock()
-def print_thread(txt):
+def print_thread(*txt):
     safe_print.acquire()
-    print txt
+    print " ".join(map(str, txt))
     safe_print.release()
 
 #global coot_pdbe_image_cache_dir
@@ -153,7 +156,6 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
     outside_vbox.pack_start(scrolled_win, True, True, 0) # expand, fill, padding
     scrolled_win.add_with_viewport(inside_vbox)
     scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
-    from time import time
     map(lambda button_info:
         add_button_info_to_box_of_buttons_vbox_for_ligand_images(button_info,
                                                                  inside_vbox),
@@ -167,12 +169,20 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
     def delete_event(*args):
         # global setting of inside vbox (locked?)?
         inside_vbox = False
+        # shall empty the queue
+        if not coot_queue.empty():
+            while not coot_queue.empty():
+                coot_queue.get()
+                coot_queue.task_done()
         window.destroy()
         return False
     
     ok_button.connect("clicked", delete_event)
     window.connect("destroy", delete_event)
     window.show_all()
+    # make a few downloaders, 10 seems to be a good number according to Paule
+    for i in range(10):
+        downloader_thread(i)
     return inside_vbox
 
 # Get image-name (caller doesn't care how) and when it is in place run func.
@@ -203,13 +213,34 @@ def cache_or_net_get_image(image_url, image_name, hbox):
         try:
             file_name, url_info = urllib.urlretrieve(url, file_name)
         except socket.timeout:
-            print "BL ERROR:: timout download", url[-30:]
+            print_thread("BL ERROR:: timout download", url[-50:])
         except:
-            print "BL ERROR:: failed download", url[-30:]
-    # this takes time!! Use queue!?
-    thread.start_new_thread(get_image, (image_url, image_name))
+            print_thread("BL ERROR:: failed download", url[-50:])
+    # this takes time!! Use queue instead!
+    # thread.start_new_thread(get_image, (image_url, image_name))
+    coot_queue.put((image_url, image_name))
     gobject.timeout_add(1000, show_image_when_ready, image_name, hbox)
 
+def downloader_thread(thread_no):
+    
+    import urllib
+
+    def get_image():
+        while True:
+            try:
+                url, file_name = coot_queue.get()
+                try:
+                    file_name, url_info = urllib.urlretrieve(url, file_name)
+                except socket.timeout:
+                    print_thread("BL ERROR:: timout download", url[-50:])
+                except:
+                    print_thread("BL ERROR:: failed download", url[-50:])
+                coot_queue.task_done()
+            except Queue.Empty:
+                # nothing left to do, die baby
+                return
+    thread.start_new_thread(get_image, ())
+    
 
 # return refmac_result or False
 def refmac_calc_sfs_make_mtz(pdb_in_file_name, mtz_file_name,
@@ -267,6 +298,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                              entry_id, method_string=""):
 
     import urllib
+    import time
 
     global download_thread_status
     download_thread_status = None     # start
@@ -333,9 +365,6 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
 
             # check for cached results: only run refmac if
             # output file does not exist or is empty
-            xxx = os.path.isfile(refmac_out_mtz_file_name)
-            print "BL DEBUG:: file ", xxx
-            if xxx: print ".. and size",os.stat(refmac_out_mtz_file_name).st_size
             if (os.path.isfile(refmac_out_mtz_file_name) and
                 os.stat(refmac_out_mtz_file_name).st_size > 0):
                 # using cached result, i.e. skip
@@ -357,7 +386,11 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                     else:
                         # need to get sfs_mtz_file_name
                         download_thread_status = "downloading-sfs"
-                        cif_thread = thread.start_new_thread(download_file_and_update_widget, (sfs_cif_url, sfs_cif_file_name, cif_progress_bar, window))
+                        cif_thread = thread.start_new_thread(download_file_and_update_widget,
+                                                             (sfs_cif_url,
+                                                              sfs_cif_file_name,
+                                                              cif_progress_bar,
+                                                              window))
                         while download_thread_status == "downloading-sfs":
                             gtk.main_iteration(False)
                         print "BL DEBUG:: done with cif thread?!"
@@ -514,24 +547,33 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                 #print "BL DEBUG:: update pg bar" , percent, numblocks, blocksize, filesize, progress_bar
                 if download_thread_status == "cancelled":
                     sys.exit()
+                if (percent > 100):
+                    percent = 100
                 gobject.idle_add(progress_bar.set_fraction, percent/100.)
                 # in the end should change icons?!
 
+            def sleeper():
+                global download_thread_status
+                time.sleep(0.01)
+                if ("downloading" in download_thread_status):
+                    return True # continue downloading
+                else:
+                    return False
             try:
-                print "BL DEBUG:: downloading", url
-                
+                print "BL DEBUG:: start download", url
+                gobject.idle_add(sleeper)
                 file_name_local, url_info = urllib.urlretrieve(url, file_name,
                                                                lambda nb, bs, fs, progress_bar=progress_bar:
                                                                update_progressbar_in_download(nb, bs, fs, progress_bar))
                 download_thread_status = "done-download"
-            except s1ocket.timeout:
-                print "BL ERROR:: timout download", url
+            except socket.timeout:
+                print "BL ERROR:: timout download", url[-50:]
                 download_thread_status = "fail"
             except IOError:
-                print "BL ERROR:: ioerror downloading", url
+                print "BL ERROR:: ioerror downloading", url[-50:]
                 download_thread_status = "fail"
             except:
-                print "BL ERROR:: general problem downloading", url
+                print "BL ERROR:: general problem downloading", url[-50:]
                 download_thread_status = "fail"
 
         # or shall this be in the timeout function!?
@@ -545,7 +587,8 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                 n_lines_rest = n_lines - 100.
                 if (n_lines > 0):
                     f = n_lines_rest / max_lines
-                    if (f < 1):
+                    if (f <= 1.0 and
+                        f >= 0.):
                         refmac_progress_bar.set_fraction(f)
 
         def update_dialog_and_check_download(*args):
@@ -635,11 +678,10 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
             if not (os.path.isfile(sfs_cif_file_name) and
                     os.path.isfile(refmac_out_mtz_file_name)):
                 # download and run refmac
-                #get_sfs_run_refmac(sfs_cif_url, sfs_cif_file_name,
                 thread.start_new_thread(get_sfs_run_refmac, (sfs_cif_url, sfs_cif_file_name,
-                                   sfs_mtz_file_name, pdb_file_name,
-                                   refmac_out_mtz_file_name,
-                                   cif_progress_bar, window))
+                                                             sfs_mtz_file_name, pdb_file_name,
+                                                             refmac_out_mtz_file_name,
+                                                             cif_progress_bar, window))
             else:
                 # OK, files are here already.
                 #
@@ -886,27 +928,18 @@ def pdbe_latest_releases_gui():
             
         def run(self):
             try:
-                # FIXME: local file name has to be empty I think, so remove first
-                # maybe not, but add a timeout, otherwise we may hang!
                 self.file_name, url_info = MyURLopener().retrieve(self.url, self.file_name, self.update_function)
                 self.status = 0 #?
             except socket.timeout:
-                print "BL DEBUG:: timout download", self.url
+                print "BL ERROR:: timout download", self.url
             except IOError:
-                print "BL DEBUG:: ioerror"
+                print "BL ERROR:: ioerror"
             except:
                 self.status = 1
                 # FIXME here dies with the thread. need to go to main thread
                 gobject.idle_add(info_dialog, "Failed to get recent entry list from server.")
-                    
             gobject.idle_add(self.destroy_window)
 
-    #w = gtk.Window()
-    #l = gtk.Label()
-    #w.add(l)
-    #w.show_all()
-    #w.connect("destroy", lambda _: gtk.main_quit())
-    #thread = GetUrlThread(progressbar)
     thread = GetUrlThread(url, json_file_name,
                           progress_bars[0], progress_bars[1])
     thread.start()
@@ -916,6 +949,15 @@ def pdbe_latest_releases_gui():
             recent_structure_browser(get_recent_json(json_file_name))
             return False  # stop
         return True  # continue
-            
-    gobject.timeout_add(600, start_table)
+
+    def run_sleeper():
+        if thread.get_url_status() == 0:
+            return False   # stop
+        time.sleep(0.02)
+        return True # continue
     
+    gobject.idle_add(start_table)
+    # most likely not needed
+#    gobject.timeout_add(50, run_sleeper)
+
+

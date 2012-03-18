@@ -23,9 +23,6 @@
 # Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 
-# BL adaption of coot-gui scripting window running with pygtk
-global do_function
-
 # Fire up the coot scripting gui.  This function is called from the
 # main C++ code of coot.  Not much use if you don't have a gui to
 # type functions in to start with.
@@ -49,19 +46,18 @@ history = ['']
 # main C++ code of coot.  Not much use if you don't have a gui to
 # type functions in to start with.
 #
-def coot_gui():
+def coot_gui(own_gtk_main=False):
    
    global coot_listener_socket
    import sys, string
    import re
 
-   have_socket = False
    if (coot_listener_socket):
-      have_socket = True
+      own_gtk_main = True
    
    def delete_event(*args):
        window.destroy()
-       if (have_socket):
+       if (own_gtk_main):
           gtk.main_quit()
        return False
 
@@ -325,7 +321,7 @@ def coot_gui():
    text.modify_base(gtk.STATE_NORMAL, gtk.gdk.color_parse("#bfe6bf"))
    window.show_all()
    # run in own gtk loop only when using sockets!
-   if (have_socket):
+   if (own_gtk_main):
       gtk.main()
 
 
