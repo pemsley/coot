@@ -6617,15 +6617,8 @@ molecule_class_info_t::append_to_molecule(const coot::minimol::molecule &water_m
 void
 molecule_class_info_t::update_molecule_after_additions() {
 
-   std::cout << "in update_molecule_after_additions() cleanup with PDBCLEAN_INDEX and PDBCLEAN_SERIAL"
-	     << std::endl;
    atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
-
    atom_sel = make_asc(atom_sel.mol); // does the udd stuff too.
-
-//    std::cout << "old_n_atoms: " << old_n_atoms << " new: " 
-// 	     << atom_sel.n_selected_atoms << std::endl;
-
    have_unsaved_changes_flag = 1;
    make_bonds_type_checked();
 } 
