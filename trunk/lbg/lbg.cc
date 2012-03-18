@@ -59,7 +59,6 @@ lbg(lig_build::molfile_molecule_t mm,
 
    
    lbg_info_t *lbg = NULL; // failure return value.
-   bool r = 0; // fail
    std::string glade_file = "lbg.glade";
 
    std::string glade_file_full = coot::package_data_dir();
@@ -75,7 +74,6 @@ lbg(lig_build::molfile_molecule_t mm,
    if (! glade_file_exists) { 
       std::cout << "ERROR:: glade file " << glade_file_full << " not found" << std::endl;
    } else {
-      r = 1;
 
       // If we are using the graphics interface then we want non-null from the builder.
       // add_from_file_status should be good or we are in trouble.
@@ -86,7 +84,8 @@ lbg(lig_build::molfile_molecule_t mm,
       if (use_graphics_interface_flag) {
 	 
 	 GtkBuilder *builder = gtk_builder_new ();
-	 guint add_from_file_status = gtk_builder_add_from_file (builder, glade_file_full.c_str(), NULL);
+	 guint add_from_file_status =
+	    gtk_builder_add_from_file (builder, glade_file_full.c_str(), NULL);
 
 	 if (! add_from_file_status) {
 
@@ -2300,7 +2299,14 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
 
       }
-   }
+   } else {
+
+      // gtk_init() has not been called if use_graphics_interface_flag
+      // is false.  So we need to init g_type here so that
+      // goo_canvas_new() works cleanly.
+      //
+      g_type_init();
+   } 
 
    canvas = goo_canvas_new();
 
