@@ -170,18 +170,21 @@
 
   `(begin
      (let ((active-atom (active-residue)))
-       (if (not active-residue)
-	   (add-status-bar-text "No residue found")
-	   (let ((aa-imol      (list-ref active-atom 0))
-		 (aa-chain-id  (list-ref active-atom 1))
-		 (aa-res-no    (list-ref active-atom 2))
-		 (aa-ins-code  (list-ref active-atom 3))
-		 (aa-atom-name (list-ref active-atom 4))
-		 (aa-alt-conf  (list-ref active-atom 5)))
-	     
-		 ,@funcs
-		 
-		 )))))
+       (if (not active-atom)
+	   (begin 
+	     (add-status-bar-text "No residue found"))
+
+	   (begin
+	     (let ((aa-imol      (list-ref active-atom 0))
+		   (aa-chain-id  (list-ref active-atom 1))
+		   (aa-res-no    (list-ref active-atom 2))
+		   (aa-ins-code  (list-ref active-atom 3))
+		   (aa-atom-name (list-ref active-atom 4))
+		   (aa-alt-conf  (list-ref active-atom 5)))
+	       
+	       ,@funcs
+	       
+	       ))))))
 
 ; e.g.:
 ; (with-auto-accept 
@@ -293,7 +296,7 @@
 ;; there. Note "x", "", "/" -> ""
 ;; 
 (define (file-name-directory file-name)
-  (format #t "in file-name-directory: trying to split ~s~%" file-name)
+  ;; (format #t "in file-name-directory: trying to split ~s~%" file-name)
   (if (not (string? file-name))
       #f
       (let ((ls (split-after-char-last #\/ file-name list)))
