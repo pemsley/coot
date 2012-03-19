@@ -3,7 +3,7 @@
 scripts      rev 3940 (prodrg stuff needs testing) generic objects
 			update get-recent-pdb
 tests        rev 3991 update
-build-it-win rev 2122
+build-it-win rev 4031
 
 -------------------------------------------------------
 * THINGS TO DO BEFORE 0.7.0 RELEASE * ONLY URGENT THING
@@ -230,6 +230,8 @@ from Osaka 2010
 
 **** Python ****
 
+   o user_defined_restraints: rename and fix old RNA names
+
    o use shell_command_to_string where possible
 
    o change title in progress bars to % when downloading!?
@@ -350,6 +352,11 @@ from Osaka 2010
 				- download test data and unittests
 				- run tests
 				- send email about status/or notify otherwise
+
+
+**** Tutorial ****
+
+   o include Sphere refinement
 
 
 ---------------
