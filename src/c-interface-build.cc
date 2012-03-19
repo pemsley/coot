@@ -6081,20 +6081,6 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	 coot::util::create_mmdbmanager_from_atom_selection(mol_orig,
 							    SelectionHandle);
 
-      { // debug code 
-	 int imod = 1;
-	 
-	 CModel *model_p = mol->GetModel(imod);
-	 CChain *chain_p;
-	 // run over chains of the existing mol
-	 int nchains = model_p->GetNumberOfChains();
-	 for (int ichain=0; ichain<nchains; ichain++) {
-	    chain_p = model_p->GetChain(ichain);
-	    std::cout << "In new_molecule_by_atom_selection has contains chain id "
-		      << chain_p->GetChainID() << std::endl;
-	 }
-      }
-
       if (mol) {
 	 std::string name = "atom selection from ";
 	 name += graphics_info_t::molecules[imol_orig].name_for_display_manager();
