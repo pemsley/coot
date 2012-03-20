@@ -86,6 +86,25 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 		       const char *prodrg_output_3d_pdb_file_name,
 		       const char *prodrg_output_dict_cif_file_name) {
 
+   fle_view_internal_to_png(imol, chain_id, res_no, ins_code, imol_ligand_fragment,
+			    prodrg_output_flat_mol_file_name,
+			    prodrg_output_flat_pdb_file_name,
+			    prodrg_output_3d_pdb_file_name,
+			    prodrg_output_dict_cif_file_name, 0, "");
+
+}
+
+/* for command-line operation */
+void fle_view_internal_to_png(int imol, const char *chain_id, int res_no, 
+			      const char *ins_code, 
+			      int imol_ligand_fragment, 
+			      const char *prodrg_output_flat_mol_file_name,
+			      const char *prodrg_output_flat_pdb_file_name,
+			      const char *prodrg_output_3d_pdb_file_name,
+			      const char *prodrg_output_dict_cif_file_name,
+			      int output_to_png_file_flag,
+			      const char *png_file_name) {
+
    if (0) 
       std::cout << "debug:: fle_view_internal() called with " 
 		<< imol << " " 
@@ -281,6 +300,9 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 		     
 		     
 		     bool use_graphics_flag = graphics_info_t::use_graphics_interface_flag;
+		     if (output_to_png_file_flag)
+			use_graphics_flag = false;
+		     
 		     bool stand_alone_flag = 0; // no, it isn't from here.
 
 		     lig_build::molfile_molecule_t m;
@@ -292,8 +314,9 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 						       filtered_residues,
 						       flat.mol // mol_for_flat_residue
 						       );
-		     std::vector<int> add_reps_vec =
-			coot::make_add_reps_for_near_residues(filtered_residues, imol);
+		     std::vector<int> add_reps_vec;
+		     if (graphics_info_t::use_graphics_interface_flag)
+		     add_reps_vec = coot::make_add_reps_for_near_residues(filtered_residues, imol);
 		     
 		     if (0) { 
 			std::cout << "------------- in flev: centres.size() is "
@@ -314,6 +337,11 @@ void fle_view_internal(int imol, const char *chain_id, int res_no, const char *i
 		     lbg_local_p->annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand, sed,
 					   ah, pi_stack_info, p.second);
 		     
+		     if (! use_graphics_flag) { 
+			lbg_local_p->set_draw_flev_annotations(true);
+			lbg_local_p->draw_all_flev_annotations();
+			lbg_local_p->write_png(png_file_name);
+		     } 
 
 #endif // HAVE_GOOCANVAS		     
 		     
