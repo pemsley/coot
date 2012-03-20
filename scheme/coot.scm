@@ -82,6 +82,7 @@
 			   "cns2coot.scm"
 			   "clear-backup.scm"
 			   "tips.scm"
+			   "prodrg-import.scm"
 			   "americanisms.scm"
 			   "group-settings.scm")))
 
@@ -94,7 +95,7 @@
 								      "get-recent-pdbe.scm"
 								      "extensions.scm"
 								      "shelx-extensions.scm"
-								      "prodrg-import.scm"
+								      "prodrg-import-gui.scm"
 								      )))
 	      (else 
 	       (append pre-list post-list)))))

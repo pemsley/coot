@@ -199,53 +199,6 @@
 
 
 
-(if (defined? 'coot-main-menubar)
-    (let ((menu (coot-menubar-menu "Lidia")))
-
-;   Not for public use.
-;
-;       (add-simple-coot-menu-menuitem
-;        menu "Import (using MINI PREP)" 
-;        (lambda () 
-; 	 ;; run prodrg, read its output files, and run regularisation
-; 	 ;; on the imported PDB file.
-; 	 (import-from-prodrg 'mini-prep)))
-
-;   Not for public use.
-; 
-;       (add-simple-coot-menu-menuitem
-;        menu "Import (no pre-minimisation)" 
-;        (lambda () 
-; 	 ;; run prodrg, read its output files, and run regularisation
-; 	 ;; on the imported PDB file.
-; 	 (import-from-prodrg 'mini-no)))
-
-      (add-simple-coot-menu-menuitem
-       menu "Hydrogenate region"
-       (lambda () 
-	 (hydrogenate-region 6)))
-      
-;   This doesn't work at the moment - let's activate it later...
-;
-       (add-simple-coot-menu-menuitem
-        menu "View in LIDIA"
-        (lambda ()
-	  (using-active-atom (fle-view aa-imol aa-chain-id aa-res-no aa-ins-code))))
-
-      (add-simple-coot-menu-menuitem
-       menu "Load SBase monomer..."
-       (lambda ()
-	 (generic-single-entry "Load SBase Monomer from three-letter-code: " ""
-			       " Load "
-			       (lambda (tlc)
-				 (get-sbase-monomer tlc)))))
-
-      (add-simple-coot-menu-menuitem
-       menu "Activate prodrg flat mode"
-       (lambda ()
-	 (using-active-atom 
-	  (prodrg-flat aa-imol aa-chain-id aa-res-no))))))
-
 		  
 			   
 
@@ -411,4 +364,29 @@
 	      prodrg-output-cif-file-name)
 	     ))))))
 
+;; using cprodrg
+;;
+(define (fle-view-to-png imol chain-id res-no ins-code neighb-radius png-file-name)
 
+  (using-active-atom
+   (let ((imol aa-imol)
+	 (chain-id aa-chain-id)
+	 (res-no aa-res-no))
+     (let ((r-flat  (prodrg-flat  imol chain-id res-no))
+	   (r-plain (prodrg-plain 'mini-no  imol chain-id res-no)))
+
+       (if (and r-flat
+		(and (number? (car r-plain))
+		     (= (car r-plain) 0)))
+	   (let ((imol-ligand-fragment (car r-flat))
+		 (prodrg-output-flat-mol-file-name (list-ref r-flat  1))
+		 (prodrg-output-flat-pdb-file-name (list-ref r-flat  2))
+		 (prodrg-output-cif-file-name      (list-ref r-flat  3))
+		 (prodrg-output-3d-pdb-file-name   (list-ref r-plain 1)))
+	     (fle-view-internal-to-png imol chain-id res-no "" ;; from active atom
+	      imol-ligand-fragment
+	      prodrg-output-flat-mol-file-name
+	      prodrg-output-flat-pdb-file-name
+	      prodrg-output-3d-pdb-file-name
+	      prodrg-output-cif-file-name 1 png-file-name)
+	     ))))))
