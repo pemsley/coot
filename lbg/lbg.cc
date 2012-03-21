@@ -2299,13 +2299,6 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
 
       }
-   } else {
-
-      // gtk_init() has not been called if use_graphics_interface_flag
-      // is false.  So we need to init g_type here so that
-      // goo_canvas_new() works cleanly.
-      //
-      g_type_init();
    } 
 
    canvas = goo_canvas_new();
@@ -5223,11 +5216,17 @@ lbg_info_t::draw_bonds_to_ligand() {
 
 	       lig_build::pos_t pos = residue_circles[ic].pos;
 	       std::string at_name = residue_circles[ic].bonds_to_ligand[ib].ligand_atom_name;
-	       lig_build::pos_t lig_at_pos = mol.get_atom_canvas_position(at_name);
-	       lig_build::pos_t rc_to_lig_at = lig_at_pos - pos;
-	       lig_build::pos_t rc_to_lig_at_uv = rc_to_lig_at.unit_vector();
-	       lig_build::pos_t B = lig_at_pos - rc_to_lig_at_uv * 8;
-	       lig_build::pos_t A = pos + rc_to_lig_at_uv * 20;
+	       lig_build::pos_t lig_atom_pos = mol.get_atom_canvas_position(at_name);
+	       lig_build::pos_t rc_to_lig_atom = lig_atom_pos - pos;
+	       lig_build::pos_t rc_to_lig_atom_uv = rc_to_lig_atom.unit_vector();
+	       lig_build::pos_t B = lig_atom_pos;
+
+	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type != coot::fle_ligand_bond_t::BOND_COVALENT)
+		  B -= rc_to_lig_atom_uv * 8; // put the end point (say) of a hydrogen bond
+		                              // some pixels away from the atom centre - for better
+              		                      // aesthetics.
+		  
+	       lig_build::pos_t A = pos + rc_to_lig_atom_uv * 20;
 
 	       // some colours
 	       std::string blue = "blue";
@@ -5266,7 +5265,7 @@ lbg_info_t::draw_bonds_to_ligand() {
 	       }
 	       if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::BOND_COVALENT) {
 		  dash = goo_canvas_line_dash_new (2, 2.7, 0.1);
-		  stroke_colour = "#990099";
+		  stroke_colour = "#bb00bb";
 	       }
 	       
 	       if (residue_circles[ic].residue_type == "HOH") { 
@@ -5470,6 +5469,25 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
 
    render_from_molecule(new_mol);
    refine_residue_circle_positions();
+
+   // has the current solution problems due to residues too close to the ligand?
+   std::pair<bool, std::vector<int> > problem_status = solution_has_problems_p();
+   std::cout << "::::::::: problem status: " << problem_status.first << std::endl;
+   for (unsigned int ip=0; ip<problem_status.second.size(); ip++) {
+      std::cout << ":::::::::::: "
+		<< residue_circles[problem_status.second[ip]].residue_label << " "
+		<< residue_circles[problem_status.second[ip]].residue_type << " "
+		<< residue_circles[problem_status.second[ip]].pos
+		<< std::endl;
+   }
+   
+   if (problem_status.second.size()) {
+      
+      // fiddle with residue_circles and reoptimise.
+      // 
+      std::vector<int> primary_indices = get_primary_indices();
+      reposition_problematics_and_reoptimise(problem_status.second, primary_indices);
+   }
    
    return r;
 

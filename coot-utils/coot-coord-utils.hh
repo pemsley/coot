@@ -170,11 +170,11 @@ namespace coot {
       friend std::ostream& operator<< (std::ostream& s, const atom_spec_t &spec);
    };
    
-   bool compare_atom_specs_user_float(const coot::atom_spec_t &a1,
-				      const coot::atom_spec_t &a2);
-   bool compare_atom_specs_user_float_in_pair(const std::pair<coot::atom_spec_t, std::string> &a,
-					      const std::pair<coot::atom_spec_t, std::string> &b);
- 
+   bool compare_atom_specs_user_float(const atom_spec_t &a1,
+				      const atom_spec_t &a2);
+   bool compare_atom_specs_user_float_in_pair(const std::pair<atom_spec_t, std::string> &a,
+					      const std::pair<atom_spec_t, std::string> &b);
+   std::pair<atom_spec_t, atom_spec_t> link_atoms(CLink *link);
 
 
    class residue_spec_t {
@@ -1098,7 +1098,8 @@ namespace coot {
 
 	 // This checks against build-in values from the literature
 	 //
-	 std::vector<std::pair<coot::util::contact_atoms_info_t, coot::util::contact_atoms_info_t::ele_index_t> > metals() const;
+	 std::vector<std::pair<util::contact_atoms_info_t,
+			       util::contact_atoms_info_t::ele_index_t> > metals() const;
 	 
       };
 
@@ -1161,7 +1162,7 @@ namespace coot {
 
       // calling function deletes
       // 
-      CMMDBManager *create_mmdbmanager_from_residue_specs(const std::vector<coot::residue_spec_t> &r1,
+      CMMDBManager *create_mmdbmanager_from_residue_specs(const std::vector<residue_spec_t> &r1,
 							  CMMDBManager *mol);
 
       void add_copy_of_atom(CMMDBManager *mol, CAtom *atom);

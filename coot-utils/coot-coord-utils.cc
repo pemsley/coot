@@ -4002,7 +4002,19 @@ coot::lsq_plane_info_t::lsq_plane_info_t(const std::vector<clipper::Coord_orth> 
    if (v.size() > 0)
       rms = sqrt(var/double(v.size()));
 
+}
+
+
+std::pair<coot::atom_spec_t, coot::atom_spec_t>
+coot::link_atoms(CLink *link) {
+
+   atom_spec_t a1(link->chainID1, link->seqNum1, link->insCode1, link->atName1, link->aloc1);
+   atom_spec_t a2(link->chainID2, link->seqNum2, link->insCode2, link->atName2, link->aloc2);
+
+   return std::pair<coot::atom_spec_t, coot::atom_spec_t> (a1, a2);
+
 } 
+
 
 bool
 coot::compare_atom_specs_user_float(const coot::atom_spec_t &a1, const coot::atom_spec_t &a2) {

@@ -71,7 +71,7 @@ lbg_info_t::optimise_residue_circles::optimise_residue_circles(const std::vector
    s = gsl_multimin_fdfminimizer_alloc (T, n_var);
    gsl_multimin_fdfminimizer_set (s, &my_func, x, 1, 1e-4);
    size_t iter = 0;
-   int n_steps = 150; // increase?
+   int n_steps = 250; // increase?
    if (show_dynamics)
       n_steps = 60;
 
@@ -127,7 +127,7 @@ lbg_info_t::refine_residue_circle_positions() { // changes the positions of in r
    initial_residues_circles_layout(); // twiddle residue_circles
    std::vector<lbg_info_t::residue_circle_t> current_circles = residue_circles;
    
-   for (int iround=0; iround<120; iround++) {
+   for (int iround=0; iround<30; iround++) {
       std::pair<int, std::vector<lbg_info_t::residue_circle_t> > new_c =
 	 optimise_residue_circle_positions(residue_circles, current_circles, primary_indices);
       current_circles = new_c.second;
@@ -139,6 +139,23 @@ lbg_info_t::refine_residue_circle_positions() { // changes the positions of in r
    }
    residue_circles = current_circles;
 }
+
+std::pair<bool,lig_build::pos_t>
+lbg_info_t::get_residue_circles_top_left() const {
+
+   bool status = false;
+   lig_build::pos_t p(999999,999999);
+   
+   if (residue_circles.size()) {
+      status = true;
+      for (unsigned int i=0; i<residue_circles.size(); i++) {
+	 if (residue_circles[i].pos.x < p.x) p.x = residue_circles[i].pos.x;
+	 if (residue_circles[i].pos.y < p.y) p.y = residue_circles[i].pos.y;
+      }
+   }
+   return std::pair<bool, lig_build::pos_t> (status, p);
+}
+
 
 
 

@@ -1556,14 +1556,24 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
       //   covalent bonds 
       // -----------------------
 
-      std::vector<coot::fle_ligand_bond_t> covalent_bonds =
-	 get_covalent_bonds(m.second, SelHnd_lig, SelHnd_all, ligand_spec, geom);
+      // by distance and by LINK
+
+      std::vector<coot::fle_ligand_bond_t> covalent_bonds_d =
+	 get_covalent_bonds_by_distance(m.second, SelHnd_lig, SelHnd_all, ligand_spec, geom);
+      std::vector<coot::fle_ligand_bond_t> covalent_bonds_l =
+	 get_covalent_bonds_by_links(ligand_res, mol);
+      std::vector<coot::fle_ligand_bond_t> covalent_bonds = covalent_bonds_d;
+      // now add in bonds if they are not in there already
+      for (unsigned int i=0; i<covalent_bonds_l.size(); i++)
+	 if (std::find(covalent_bonds_d.begin(), covalent_bonds_d.end(), covalent_bonds_l[i])
+	     == covalent_bonds_d.end())
+	    covalent_bonds.push_back(covalent_bonds_l[i]);
+
+      // finally add the covent bonds to all-bonds
       for (unsigned int i=0; i<covalent_bonds.size(); i++)
 	 v.push_back(covalent_bonds[i]);
-
-      std::cout << ".... get_fle_ligand_bonds(): after covalent bonds v.size() is " << v.size()
-		<< std::endl;
-
+      
+     
       // -----------------------
       //   metal bonds 
       // -----------------------
@@ -1596,15 +1606,19 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
    return v;
 }
 
+
+
+
 std::vector<coot::fle_ligand_bond_t>
-coot::get_covalent_bonds(CMMDBManager *mol,
-			 int SelHnd_lig,
-			 int SelHnd_all,
-			 const residue_spec_t &ligand_spec,
-			 const protein_geometry &geom) {
+coot::get_covalent_bonds_by_distance(CMMDBManager *mol,
+				     int SelHnd_lig,
+				     int SelHnd_all,
+				     const residue_spec_t &ligand_spec,
+				     const protein_geometry &geom) {
 
    // 20101016, hydrogens don't make covalent bonds between ligands
-   // and protein (or residues to residues in general).
+   // and protein (or residues to residues in general) - so these get
+   // filtered out.
    
    std::vector<coot::fle_ligand_bond_t> v;
    int SelHnd_local = mol->NewSelection();
@@ -1638,12 +1652,12 @@ coot::get_covalent_bonds(CMMDBManager *mol,
    realtype max_dist = 2.3; //  even S-S is shorter than this, I think
    realtype cno_max_dist = 1.8;
 
-   mol->SeekContacts(  lig_atom_selection,   n_lig_atoms,
+   mol->SeekContacts(lig_atom_selection,   n_lig_atoms,
 		     other_atom_selection, n_other_atoms,
 		     min_dist, max_dist, // min, max distances
 		     0,        // seqDist 0 -> in same res also
 		     pscontact, n_contacts,
-		       0, &my_matt, i_contact_group);
+		     0, &my_matt, i_contact_group);
 
    std::vector<std::pair<CResidue *, CResidue *> > contacting_pairs_vec;
 
@@ -1693,6 +1707,74 @@ coot::get_covalent_bonds(CMMDBManager *mol,
    mol->DeleteSelection(SelHnd_local);
    return v;
 }
+
+std::vector<coot::fle_ligand_bond_t>
+coot::get_covalent_bonds_by_links(CResidue *residue_ligand_p,
+				  CMMDBManager *mol) {
+
+   std::vector<coot::fle_ligand_bond_t> v;
+
+   std::string residue_ligand_chain_id;
+   int residue_ligand_res_no;
+   std::string residue_ligand_ins_code;
+   if (residue_ligand_p) { 
+      residue_ligand_chain_id = residue_ligand_p->GetChainID();
+      residue_ligand_res_no   = residue_ligand_p->GetSeqNum();
+      residue_ligand_ins_code = residue_ligand_p->GetInsCode();
+   }
+   
+   if (residue_ligand_p) { 
+      if (mol) {
+	 for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	    CModel *model_p = mol->GetModel(imod);
+	    int n_links = model_p->GetNumberOfLinks();
+
+	    for (int i_link=1; i_link<=n_links; i_link++) {
+	       PCLink link = model_p->GetLink(i_link);
+
+	       // Ligand then Protein
+	       if (residue_ligand_chain_id == link->chainID1) {
+		  if (residue_ligand_res_no == link->seqNum1) {
+		     if (residue_ligand_ins_code == link->insCode1) {
+			std::cout << "Here 1 " << std::endl;
+			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link);
+			CAtom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
+			CAtom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
+			if (at_1 && at_2) { 
+			   double dist = distance(at_1, at_2);
+			   fle_ligand_bond_t b(linked_atoms.first, linked_atoms.second,
+					       fle_ligand_bond_t::BOND_COVALENT,
+					       dist);
+			   v.push_back(b);
+			}
+		     }
+		  }
+	       }
+
+	       // Protein then Ligand
+	       if (residue_ligand_chain_id == link->chainID2) {
+		  if (residue_ligand_res_no == link->seqNum2) {
+		     if (residue_ligand_ins_code == link->insCode2) {
+			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link);
+			CAtom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
+			CAtom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
+			if (at_1 && at_2) { 
+			   double dist = distance(at_1, at_2);
+			   fle_ligand_bond_t b(linked_atoms.second, linked_atoms.first,
+					       fle_ligand_bond_t::BOND_COVALENT,
+					       dist);
+			   v.push_back(b);
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
+}
+
 
 std::vector<coot::fle_ligand_bond_t>
 coot::get_metal_bonds(CResidue *ligand_residue, const std::vector<CResidue *> &residues) {
