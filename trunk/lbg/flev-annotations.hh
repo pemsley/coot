@@ -265,7 +265,18 @@ namespace coot {
 	    }
 	 }
 	 return r_bond_type;
-      } 
+      }
+      bool operator==(const fle_ligand_bond_t &in) const {
+	 bool status = false;
+	 if (in.bond_type == bond_type) {
+	    if (in.ligand_atom_spec == ligand_atom_spec) {
+	       if (in.interacting_residue_atom_spec == interacting_residue_atom_spec) {
+		  status = true;
+	       }
+	    }
+	 }
+	 return status;
+      }
    };
    std::ostream& operator<<(std::ostream &s, fle_ligand_bond_t flb);
 

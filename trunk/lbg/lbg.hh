@@ -758,6 +758,8 @@ private:
 					 const std::vector<int> &attached_bonds,
 					 const std::vector<int> &bond_indices);
    std::vector<residue_circle_t> residue_circles;
+   std::pair<bool,lig_build::pos_t> get_residue_circles_top_left() const;
+   
    // a set of handles (returned from
    // additional_representation_by_attributes()) that correspond to
    // the residues in residue_circles.  If there are no additional

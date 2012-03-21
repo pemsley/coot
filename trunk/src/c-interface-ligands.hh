@@ -50,6 +50,14 @@ namespace coot {
 						     int SelHnd_all,
 						     const residue_spec_t &ligand_spec,
 						     const protein_geometry &geom);
+   // which calls 
+   std::vector<fle_ligand_bond_t> get_covalent_bonds_by_distance(CMMDBManager *mol,
+						     int SelHnd_lig,
+						     int SelHnd_all,
+						     const residue_spec_t &ligand_spec,
+						     const protein_geometry &geom);
+   std::vector<fle_ligand_bond_t> get_covalent_bonds_by_links(CResidue *residue_ligand_p,
+							      CMMDBManager *mol);
 
    std::vector<fle_ligand_bond_t> get_metal_bonds(CResidue *ligand_res,
 						  const std::vector<CResidue *> &residues);
