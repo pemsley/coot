@@ -152,6 +152,15 @@ coot_gtk2=TRUE
   AC_SUBST(MAKE_COOTRC_CMD)
 
 
+dnl ============================ OPENGL ===================
+#
+AC_CHECK_LIB(GL, glLineWidth,
+	OPENGL_LIBS="-lGL",
+	AC_CHECK_LIB(opengl32, glLineWidth,
+		OPENGL_LIBS="-lopengl32",
+		AC_MSG_ERROR([OpenGL library not found.])))
+
+AC_SUBST([OPENGL_LIBS], [${OPENGL_LIBS}])
 
 dnl =========================== GLUT ================================
 

@@ -28,6 +28,9 @@ lib_LTLIBRARIES = libcoot-surface.la
 libcoot_surface_la_SOURCES = \
 	 coot-surface.cc coot-surface.hh rgbreps.cc rgbreps.h
 
+# We should provide the OpenGL library in the list of dependencies for libcoot-surface.
+# Usually it resolved to -lGL, but not on Windows - where it resolves to -lopengl32.
+#
 libcoot_surface_la_LIBADD = \
 	$(top_builddir)/surface/libccp4mg-surface.la \
-	$(GLUT_LIBS) $(CLIPPER_LIBS) $(MMDB_LIBS) -lGL
+	$(GLUT_LIBS) $(CLIPPER_LIBS) $(MMDB_LIBS) $(OPENGL_LIBS)
