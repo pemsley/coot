@@ -249,7 +249,11 @@ widgeted_molecule_t::input_coords_to_canvas_coords(const clipper::Coord_orth &po
    x += 300;
    y += y_offset;
 
-   return lig_build::pos_t(x,y);
+   lig_build::pos_t pos(x,y);
+
+   // pos -= top_left_correction; // FIXME
+
+   return pos;
 }
 
 

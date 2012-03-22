@@ -678,7 +678,8 @@ private:
       search_similarity = 0.95;
       coot_mdl_ready_time = 0;
       canvas_scale = 1.0;
-      canvas_drag_offset = lig_build::pos_t(0,0);
+      canvas_drag_offset =  lig_build::pos_t(0,0);
+      top_left_correction = lig_build::pos_t(0,0);
       standard_residue_circle_radius = 19;
       button_down_bond_addition = 0;
       latest_bond_canvas_item = 0;
@@ -759,6 +760,7 @@ private:
 					 const std::vector<int> &bond_indices);
    std::vector<residue_circle_t> residue_circles;
    std::pair<bool,lig_build::pos_t> get_residue_circles_top_left() const;
+   lig_build::pos_t top_left_correction; // 0,0 by default
    
    // a set of handles (returned from
    // additional_representation_by_attributes()) that correspond to
@@ -839,6 +841,7 @@ private:
    std::string sixteen_to_hex_let(int v) const;
    void reposition_problematics_and_reoptimise(const std::vector<int> &problematics,
 					       const std::vector<int> &primary_indices);
+   void recentre_considering_residue_centres();  // move atoms and residues
    std::vector<residue_circle_t>
    filter_residue_waters(const std::vector<residue_circle_t> &r_in,
 			 double max_dist_water_to_ligand_atom,
