@@ -3026,6 +3026,26 @@ lbg_info_t::reposition_problematics_and_reoptimise(const std::vector<int> &probl
    residue_circles = current_circles;
 }
 
+void
+lbg_info_t::recentre_considering_residue_centres() {
+
+   std::pair<bool,lig_build::pos_t> tl = get_residue_circles_top_left();
+   
+//    if (tl.first) { 
+//       top_left_correction = tl.second; 
+//       for (unsigned int i=0; i<residue_circles.size(); i++) { 
+// 	 residue_circles[i].pos -= tl.second;
+//       }
+
+//       for (unsigned int iat=0; iat<mol.atoms.size(); iat++) { 
+// 	 mol.atoms[iat].atom_position -= tl.second;
+//       }
+
+//       // now redraw mol... hmmm
+//    }
+} 
+
+
 // for debugging the minimization vs original positions
 std::vector<lbg_info_t::residue_circle_t>
 lbg_info_t::offset_residues_from_orig_positions() {
@@ -5482,15 +5502,13 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
    }
    
    if (problem_status.second.size()) {
-      
       // fiddle with residue_circles and reoptimise.
-      // 
       std::vector<int> primary_indices = get_primary_indices();
       reposition_problematics_and_reoptimise(problem_status.second, primary_indices);
    }
-   
-   return r;
 
+   recentre_considering_residue_centres();
+   return r;
 }
 
 
