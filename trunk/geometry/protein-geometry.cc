@@ -2,7 +2,7 @@
  * 
  * Copyright 2003, 2004, 2005, 2006 The University of York
  * Author: Paul Emsley
- * Copyright 2007, 2008, 2009, 2010 The University of Oxford
+ * Copyright 2007, 2008, 2009, 2010, 2011, 2012 The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -196,6 +196,8 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
    } else { 
 
       int ierr = ciffile.ReadMMCIFFile(ciffilename.c_str());
+      std::string comp_id_1; 
+      std::string comp_id_2;  // initially unset
    
       if (ierr!=CIFRC_Ok) {
 	 std::cout << "dirty mmCIF file? " << ciffilename.c_str() << std::endl;
@@ -204,7 +206,6 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	 char        err_buff[1000];
 	 std::cout <<  "CIF error rc=" << ierr << " reason:" << 
 	    GetCIFMessage (err_buff,ierr) << std::endl;
-
 
       } else {
 	 if (verbose_mode)
@@ -269,7 +270,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		     handled = 1;
 		     PCMMCIFStruct structure = data->GetStructure(cat_name.c_str());
 		     if (structure) {
-			chem_comp_component(structure);
+			comp_id_1 = chem_comp_component(structure);
 		     }
 		  }
 
@@ -301,9 +302,9 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		  // if the chem_comp info comes from mon_lib_list.cif:
 		  if (cat_name == "_chem_comp") { 
 		     if (read_number_in != coot::protein_geometry::MON_LIB_LIST_CIF)
-			chem_comp(mmCIFLoop);
+			comp_id_2 = chem_comp(mmCIFLoop);
 		     else
-			simple_mon_lib_chem_comp(mmCIFLoop);
+			comp_id_2 = simple_mon_lib_chem_comp(mmCIFLoop);
 		  }
 		  
 		  // monomer info, name, number of atoms etc.
@@ -346,6 +347,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	       filter_chiral_centres(comp_ids_for_chirals);
 	    }
 	 } // for idata
+	 add_cif_file_name(ciffilename, comp_id_1, comp_id_2);
       } // cif file is OK test
    } // is regular file test
 
@@ -354,7 +356,40 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
    return ret_val; // the number of atoms read.
 }
 
+
+// 
 void
+coot::protein_geometry::add_cif_file_name(const std::string &cif_file_name,
+					  const std::string &comp_id1,
+					  const std::string &comp_id2) {
+
+   std::string comp_id = comp_id1;
+   if (comp_id == "")
+      comp_id = comp_id2;
+   if (comp_id != "") { 
+      int idx = get_monomer_restraints_index(comp_id2, true);
+      if (idx != -1) {
+	 dict_res_restraints[idx].cif_file_name = cif_file_name;
+      }
+   }
+}
+
+
+std::string
+coot::protein_geometry::get_cif_file_name(const std::string &comp_id) const {
+
+   std::string r; 
+   int idx = get_monomer_restraints_index(comp_id, true);
+   if (idx != -1)
+      r = dict_res_restraints[idx].cif_file_name;
+   return r;
+}
+      
+
+
+// return the comp id (so that later we can associate the file name with the comp_id).
+// 
+std::string 
 coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
 
    int n_tags = structure->GetNofTags();
@@ -412,11 +447,13 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
 
    if (1) 
       std::cout
-	 << "comp_id :" << comp_id.first << " :" << comp_id.second << ": "
-	 << "three_letter_code :" << three_letter_code.first << " :" << three_letter_code.second << ": "
+	 << "chem_comp_component() comp_id :" << comp_id.first << " :" << comp_id.second << ": "
+	 << "three_letter_code :" << three_letter_code.first << " :" << three_letter_code.second
+	 << ": "
 	 << "name :" << name.first << " :" << name.second << ": "
 	 << "type :" << type.first << " :" << type.second << ": "
-	 << "description_level :" << description_level.first << " :" << description_level.second << ": "
+	 << "description_level :" << description_level.first << " :" << description_level.second
+	 << ": "
 	 << std::endl;
 
    if (comp_id.first && three_letter_code.first && name.first) {
@@ -426,8 +463,12 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
 			    description_level.second);
    } else { 
       // std::cout << "oooppps - something missing, not adding that" << std::endl;
-   } 
+   }
 
+   if (comp_id.first)
+      return comp_id.second;
+   else
+      return "";
 }
 
 
@@ -1416,13 +1457,19 @@ coot::dict_torsion_restraint_t::format() const {
 //
 // This is the function that we use read things other than
 // MON_LIB_LIST_CIF.  i.e. bespoke ligand dictionaries.
+//
+// return the chem_comp
 // 
-void
+std::string
 coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
 
    int ierr = 0;
+   std::string returned_chem_comp; 
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+
+      std::string id; // gets stored as comp_id, but is labelled "id"
+		      // in the cif file chem_comp block.
 
       // modify a reference (ierr)
       // 
@@ -1433,9 +1480,6 @@ coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
       int number_atoms_nh;
       std::string description_level = "None";
       
-      std::string id; // gets stored as comp_id, but is labelled "id"
-		      // in the cif file chem_comp block.
-
       int ierr_tot = 0;
       char *s = mmCIFLoop->GetString("id", j, ierr);
       ierr_tot += ierr;
@@ -1498,8 +1542,10 @@ coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
 	 mon_lib_add_chem_comp(id, three_letter_code, name,
 			       group, number_atoms_all, number_atoms_nh,
 			       description_level);
+	 returned_chem_comp = id;
       }
    }
+   return returned_chem_comp;
 }
 
 // We currently want to stop adding chem comp info
@@ -1507,10 +1553,12 @@ coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
 //
 // This is the function that we use read MON_LIB_LIST_CIF
 // 
-void
+// return the comp_id
+std::string
 coot::protein_geometry::simple_mon_lib_chem_comp(PCMMCIFLoop mmCIFLoop) {
 
    int ierr = 0;
+   std::string comp_id;
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) { 
       // modify a reference (ierr)
       // 
@@ -1524,7 +1572,7 @@ coot::protein_geometry::simple_mon_lib_chem_comp(PCMMCIFLoop mmCIFLoop) {
 
       if (ierr == 0) {
 	 int ierr_tot = 0;
-	 std::string comp_id(s);
+	 comp_id = s;
 	 s = mmCIFLoop->GetString("three_letter_code", j, ierr);
 	 ierr_tot += ierr;
 	 if (s)
@@ -1564,6 +1612,7 @@ coot::protein_geometry::simple_mon_lib_chem_comp(PCMMCIFLoop mmCIFLoop) {
 	 }
       }
    }
+   return comp_id;
 }
 
 // return the number of atoms.

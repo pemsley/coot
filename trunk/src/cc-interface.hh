@@ -313,10 +313,13 @@ std::pair<int, std::vector<std::string> > merge_molecules_by_vector(const std::v
 /*! \brief return a list of all the dictionaries read */
 #ifdef USE_GUILE
 SCM dictionaries_read();
+SCM cif_file_for_comp_id_scm(const std::string &comp_id);
 #endif // USE_GUILE
+
 
 #ifdef USE_PYTHON
 PyObject *dictionaries_read_py();
+PyObject *cif_file_for_comp_id_py(const std::string &comp_id);
 #endif // PYTHON
 //! \}
 
