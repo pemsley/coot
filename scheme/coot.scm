@@ -83,6 +83,7 @@
 			   "clear-backup.scm"
 			   "tips.scm"
 			   "prodrg-import.scm"
+			   "jligand.scm"
 			   "americanisms.scm"
 			   "group-settings.scm")))
 
@@ -91,7 +92,7 @@
 	      ((eq? #t use-gui?) 
 	       (append pre-list (list "coot-gui.scm") post-list (list "tips-gui.scm"
 								      "check-for-updates.scm"
-								      "jligand.scm"
+								      "jligand-gui.scm"
 								      "get-recent-pdbe.scm"
 								      "extensions.scm"
 								      "shelx-extensions.scm"

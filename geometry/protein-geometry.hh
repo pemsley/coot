@@ -415,6 +415,7 @@ namespace coot {
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
       }
+      std::string cif_file_name;
       void clear_dictionary_residue();
       dict_chem_comp_t residue_info;
       std::vector <dict_atom> atom_info;
@@ -1169,7 +1170,8 @@ namespace coot {
 
       int  comp_atom   (PCMMCIFLoop mmCIFLoop); 
       std::string comp_atom_pad_atom_name(const std::string &atom_id, const std::string &type_symbol) const;
-      void chem_comp   (PCMMCIFLoop mmCIFLoop);
+      // return the comp_id
+      std::string chem_comp   (PCMMCIFLoop mmCIFLoop);
       void comp_tree   (PCMMCIFLoop mmCIFLoop); 
       int  comp_bond   (PCMMCIFLoop mmCIFLoop); 
       void comp_angle  (PCMMCIFLoop mmCIFLoop); 
@@ -1190,7 +1192,9 @@ namespace coot {
       void link_plane  (PCMMCIFLoop mmCIFLoop);
       int  link_chiral  (PCMMCIFLoop mmCIFLoop); // return number of new chirals
 
-      void chem_comp_component(PCMMCIFStruct structure);
+      // return the comp id (so that later we can associate the file name with the comp_id).
+      // 
+      std::string chem_comp_component(PCMMCIFStruct structure);
       // non-looping (single) tor
       void chem_comp_tor_structure(PCMMCIFStruct structure);
       // non-looping (single) chir
@@ -1275,8 +1279,17 @@ namespace coot {
       std::string atom_name_for_tree_4c(const std::string &comp_id, const std::string &atom_id) const;
 
       // for simple monomer descriptions:
-      void simple_mon_lib_chem_comp   (PCMMCIFLoop mmCIFLoop);
+
+      // return the comp id (so that later we can associate the file name with the comp_id).
+      // 
+      std::string simple_mon_lib_chem_comp   (PCMMCIFLoop mmCIFLoop);
       // add to simple_monomer_descriptions not dict_res_restraints.
+
+
+      void add_cif_file_name(const std::string &cif_filename,
+			     const std::string &comp_id1,
+			     const std::string &comp_id2);
+
       void simple_mon_lib_add_chem_comp(const std::string &comp_id,
 					const std::string &three_letter_code,
 					const std::string &name,
@@ -1541,6 +1554,10 @@ namespace coot {
 	 } 
 	 return r;
       }
+
+      // return "" on comp_id not found, else return the file name.
+      // 
+      std::string get_cif_file_name(const std::string &comp_id) const;
       
       int link_size() const { return dict_link_res_restraints.size(); }
       void info() const;

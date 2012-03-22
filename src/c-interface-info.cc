@@ -3134,12 +3134,31 @@ SCM dictionaries_read() {
 }
 #endif
 
-// BL says:: python's fucn
+// BL says:: python's func.
 #ifdef USE_PYTHON
 PyObject *dictionaries_read_py() {
 
    return generic_string_vector_to_list_internal_py(*graphics_info_t::cif_dictionary_filename_vec);
 }
+#endif // PYTHON
+
+
+#ifdef USE_GUILE
+SCM cif_file_for_comp_id_scm(const std::string &comp_id) {
+
+   graphics_info_t g;
+   std::string f = g.Geom_p()->get_cif_file_name(comp_id);
+   return scm_makfrom0str(f.c_str());
+} 
+#endif // GUILE
+
+
+#ifdef USE_PYTHON
+PyObject *cif_file_for_comp_id_py(const std::string &comp_id) {
+
+   graphics_info_t g;
+   return PyString_FromString(g.Geom_p()->get_cif_file_name(comp_id).c_str());
+} 
 #endif // PYTHON
 
 
