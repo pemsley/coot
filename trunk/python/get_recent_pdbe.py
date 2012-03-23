@@ -394,7 +394,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                         while download_thread_status == "downloading-sfs":
                             gtk.main_iteration(False)
                         print "BL DEBUG:: done with cif thread?!"
-                    if (not download_thread_status == "fail"):
+                    if (download_thread_status == "done-download"):
                         # threaded!?
                         convert_to_mtz_and_refmac(sfs_cif_file_name,
                                                   sfs_mtz_file_name,
@@ -573,8 +573,11 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                 print "BL ERROR:: ioerror downloading", url[-50:]
                 download_thread_status = "fail"
             except:
-                print "BL ERROR:: general problem downloading", url[-50:]
-                download_thread_status = "fail"
+                if (not download_thread_status == "cancelled"):
+                    print "BL ERROR:: general problem downloading", url[-50:]
+                    download_thread_status = "fail"
+                else:
+                    print "BL INFO:: cancelled download"
 
         # or shall this be in the timeout function!?
         def update_refmac_progress_bar(refmac_progress_bar, log_file_name):
@@ -657,38 +660,39 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
             while download_thread_status == "downloading-pdb":
                 gtk.main_iteration(False)
             print "BL DEBUG:: done with pdb thread?!"
-        # read the pdb
-        imol = read_pdb(pdb_file_name)
-        if not valid_model_molecule_qm(imol):
-            s = "Oops - failed to correctly read " + pdb_file_name
-            info_dialog(s)
-        if (include_get_sfs_flag != "include-sfs"):
-            # an NMR structure
-            #
-            # FIXME:: better later as timeout_add
-            # read_pdb(pdb_file_name)
-            download_thread_status = "done"  #?
-            print "BL DEBUG:: NMR structure!?"
-        else:
-            # An X-ray structure
-            #
-            # now read the sfs cif and if that is good then
-            # convert to mtz and run refmac, but for now, let's
-            #  just show the PDB file.
-            if not (os.path.isfile(sfs_cif_file_name) and
-                    os.path.isfile(refmac_out_mtz_file_name)):
-                # download and run refmac
-                thread.start_new_thread(get_sfs_run_refmac, (sfs_cif_url, sfs_cif_file_name,
-                                                             sfs_mtz_file_name, pdb_file_name,
-                                                             refmac_out_mtz_file_name,
-                                                             cif_progress_bar, window))
-            else:
-                # OK, files are here already.
+        if (download_thread_status == "done-download"):
+            # read the pdb
+            imol = read_pdb(pdb_file_name)
+            if not valid_model_molecule_qm(imol):
+                s = "Oops - failed to correctly read " + pdb_file_name
+                info_dialog(s)
+            if (include_get_sfs_flag != "include-sfs"):
+                # an NMR structure
                 #
-                # FIXME:: again for later
+                # FIXME:: better later as timeout_add
                 # read_pdb(pdb_file_name)
-                # make_and_draw_map_local(refmac_out_mtz_file_name)
-                download_thread_status = "done"
+                download_thread_status = "done"  #?
+                print "BL DEBUG:: NMR structure!?"
+            else:
+                # An X-ray structure
+                #
+                # now read the sfs cif and if that is good then
+                # convert to mtz and run refmac, but for now, let's
+                #  just show the PDB file.
+                if not (os.path.isfile(sfs_cif_file_name) and
+                        os.path.isfile(refmac_out_mtz_file_name)):
+                    # download and run refmac
+                    thread.start_new_thread(get_sfs_run_refmac, (sfs_cif_url, sfs_cif_file_name,
+                                                                 sfs_mtz_file_name, pdb_file_name,
+                                                                 refmac_out_mtz_file_name,
+                                                                 cif_progress_bar, window))
+                else:
+                    # OK, files are here already.
+                    #
+                    # FIXME:: again for later
+                    # read_pdb(pdb_file_name)
+                    # make_and_draw_map_local(refmac_out_mtz_file_name)
+                    download_thread_status = "done"
 
     
 def recent_structure_browser(t):
