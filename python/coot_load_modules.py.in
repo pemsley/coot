@@ -70,6 +70,7 @@ pre_list = ["coot_utils.py",
             "parse_pisa_xml.py",
             "cns2coot.py",
             "tips.py",
+            "prodrg_import.py",
             "americanisms.py",
             "group_settings.py"]
 post_list = ["coot_gui.py",
@@ -79,7 +80,6 @@ post_list = ["coot_gui.py",
             "get_recent_pdbe.py",
             "extensions.py",
             "shelx_extensions.py",
-            "prodrg_import.py",
             "clear_backup.py",
             "coot_toolbuttons.py"]
 

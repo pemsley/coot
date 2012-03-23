@@ -1029,6 +1029,46 @@
 	       (make-and-draw-map mtz-file-name "DELFWT" "PHDELWT" "" 0 1)))))
 
 
+
+	;; ---------------------------------------------------------------------
+	;;     LIDIA
+	;; ---------------------------------------------------------------------
+	;; 
+	(if (coot-can-do-lidia-p)
+	    (let ((submenu-lidia (gtk-menu-new))
+		  (menuitem-lidia (gtk-menu-item-new-with-label "Lidia...")))
+
+	      (gtk-menu-item-set-submenu menuitem-lidia submenu-lidia)
+	      (gtk-menu-append menu menuitem-lidia)
+	      (gtk-widget-show menuitem-lidia)
+
+
+	      (add-simple-coot-menu-menuitem
+	       submenu-lidia "Hydrogenate region"
+	       (lambda () 
+		 (hydrogenate-region 6)))
+	      
+	      (add-simple-coot-menu-menuitem
+	       submenu-lidia "View in LIDIA"
+	       (lambda ()
+		 (using-active-atom (fle-view aa-imol aa-chain-id aa-res-no aa-ins-code))))
+
+	      (add-simple-coot-menu-menuitem
+	       submenu-lidia "Load SBase monomer..."
+	       (lambda ()
+		 (generic-single-entry "Load SBase Monomer from three-letter-code: " ""
+				       " Load "
+				       (lambda (tlc)
+					 (get-sbase-monomer tlc)))))
+
+	      (add-simple-coot-menu-menuitem
+	       submenu-lidia "Activate prodrg flat mode"
+	       (lambda ()
+		 (using-active-atom 
+		  (prodrg-flat aa-imol aa-chain-id aa-res-no))))))
+
+
+
 	;; ---------------------------------------------------------------------
 	;;     Views/Representations
 	;; ---------------------------------------------------------------------
