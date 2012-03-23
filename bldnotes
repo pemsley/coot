@@ -9,6 +9,22 @@ build-it-win rev 4031
 * THINGS TO DO BEFORE 0.7.0 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
+* jligand/names/path in windows
+ o update
+* update prodrg stuff
+ o almost done (test)
+* LIDIA menu exists without goocanvas..
+ o Done
+* Does "View in LIDIA" work?
+ o yes (test)
+* pdbe latest: cancel->kill thread
+ o Done but needs testing
+* fascinating_things.py ??
+ o ignore
+* check icon sizee
+* 
+
+---- FINISH URGENT ----
 
 CCP4 SW:
 - seq vs PIR have extra button to insert, delete, mutate
