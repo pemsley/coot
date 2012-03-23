@@ -231,10 +231,9 @@ def import_from_prodrg(minimize_mode):
                             set_mol_active(imol, 0)
                             graphics_draw()
                     return True
-        # return False otherwise? FIXME
+        # return False otherwise? FIXME            
 
-            
-        
+
 def get_file_latest_time(file_name):
     if not os.path.isfile(file_name):
         return False
@@ -440,5 +439,33 @@ def fle_view(imol, chain_id, res_no, ins_code):
         #                  [],
         #                  "/dev/null", False)
 
+# using cprodrg
+# again, why passing imol etc? FIXME
+#
+def fle_view_to_png(imol, chain_id, res_no, ins_code, neighb_radius,
+                    png_file_name):
 
+    # not using active atom, but make property list
+    # 'using_active_atom'
+    active_atom = active_residue()
+    imol     = active_atom[0]
+    chain_id = active_atom[1]
+    res_no   = active_atom[2]
+    
+    r_flat  = prodrg_flat (imol, chain_id, res_no)
+    r_plain = prodrg_plain('mini-no', imol, chain_id, res_no)
+    
+    if (r_flat and (r_plain[0] == 0 )):
+        imol_ligand_fragment = r_flat[0]
+        prodrg_output_flat_mol_file_name = r_flat[1]
+        prodrg_output_flat_pdb_file_name = r_flat[2]
+        prodrg_output_cif_file_name      = r_flat[3]
+        prodrg_output_3d_pdb_file_name   = r_plain[1]
+        fle_view_internal_to_png(imol, chain_id, res_no, "",  # should be from active_atom!!     using_active_atom([[]])
+                                 imol_ligand_fragment,
+                                 prodrg_output_flat_mol_file_name,
+                                 prodrg_output_flat_pdb_file_name,
+                                 prodrg_output_3d_pdb_file_name,
+                                 prodrg_output_cif_file_name, 1,
+                                 png_file_name)
                 
