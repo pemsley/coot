@@ -6691,7 +6691,6 @@ molecule_class_info_t::list_nomenclature_errors(coot::protein_geometry *geom_p) 
 
    std::vector<CResidue *> r;
    if (atom_sel.n_selected_atoms > 0) {
-      make_backup();
       coot::nomenclature n(atom_sel.mol);
       r = n.list(geom_p);
    }
