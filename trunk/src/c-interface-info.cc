@@ -122,6 +122,20 @@ PyObject *coot_has_guile() {
 }
 #endif
 
+bool coot_can_do_lidia_p() {
+   
+   bool r = false;
+
+#ifdef HAVE_GOOCANVAS
+#if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
+   r = true;
+#endif
+#endif
+   
+   return r;
+   
+}
+
 
 /*  ------------------------------------------------------------------------ */
 /*                         Molecule Functions       :                        */

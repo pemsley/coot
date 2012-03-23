@@ -96,7 +96,6 @@
 								      "get-recent-pdbe.scm"
 								      "extensions.scm"
 								      "shelx-extensions.scm"
-								      "prodrg-import-gui.scm"
 								      )))
 	      (else 
 	       (append pre-list post-list)))))

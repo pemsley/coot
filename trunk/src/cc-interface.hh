@@ -1,4 +1,4 @@
-/* src/c-interface.h
+/* src/cc-interface.hh
  * 
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2007 by Paul Emsley
@@ -406,6 +406,9 @@ SCM coot_has_python_p();
 #ifdef USE_PYTHON
 PyObject *coot_has_guile();
 #endif
+
+bool coot_can_do_lidia_p();
+
 
 /* commands to run python commands from guile and vice versa */
 /* we ignore return values for now */

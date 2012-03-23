@@ -1100,6 +1100,62 @@ if (have_coot_python):
        lambda func: load_tutorial_data_func()
        )
 
+
+     # ---------------------------------------------------------------------
+     #     Lidia
+     # ---------------------------------------------------------------------
+     #
+     if coot_can_do_lidia_p():
+       # don't do this if the LIDIA interface functions have already
+       # been done in guile-gtk.
+       # Otherwise, do, of course
+       #
+       if (use_gui_qm != 2):
+
+         submenu_lidia = gtk.Menu()
+         menuitem_lidia = gtk.MenuItem("Lidia...")
+
+         menuitem_lidia.set_submenu(submenu_lidia)
+         menu.append(menuitem_lidia)
+         menuitem_lidia.show()
+     
+         add_simple_coot_menu_menuitem(
+           submenu_lidia,
+           "Hydrogenate region",
+           lambda func:
+           hydrogenate_region(6)
+           )
+
+         # Does it work?! Maybe not!?
+         add_simple_coot_menu_menuitem(
+           submenu_lidia,
+           "View in LIDIA",
+           lambda func:
+           using_active_atom(fle_view,
+                             "aa_imol", "aa_chain_id",
+                             "aa_res_no", "aa_ins_code")
+           )
+         
+         add_simple_coot_menu_menuitem(
+           submenu_lidia,
+           "Load SBase monomer...",
+           lambda func:
+           generic_single_entry("Load SBase Monomer from three-letter-code: ",
+                                "",
+                                " Load ",
+                                lambda tlc:
+                                get_sbase_monomer(tlc))
+           )
+
+         add_simple_coot_menu_menuitem(
+           submenu_lidia,
+           "Activate prodrg flat mode",
+           lambda func:
+           using_active_atom(prodrg_flat,
+                             "aa_imol", "aa_chain_id",
+                             "aa_res_no")
+           )
+            
      
      # ---------------------------------------------------------------------
      #     Views/Representations

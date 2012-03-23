@@ -1002,6 +1002,8 @@ Punted from 0.6:
 
     Release 0.8, March 2012
 
+  * Split out graphics functions from c-interface.h. ::: 4
+
   * replace guile-gtk with guile-gnome ::: 15
 
    o Use gtk-builder.
