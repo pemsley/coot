@@ -507,8 +507,6 @@ coot::nomenclature::test_and_fix_ASP_GLU_nomenclature_errors(CResidue *residue_p
 	       }
 	       if (at_1 && at_2) {
 		  if (apply_swap_if_found) {
-		     std::cout << "debug:: setting " << coot::atom_spec_t(at_1) << " to " << swap_name_2 << std::endl;
-		     std::cout << "debug:: setting " << coot::atom_spec_t(at_2) << " to " << swap_name_1 << std::endl;
 		     at_1->SetAtomName(swap_name_2.c_str());
 		     at_2->SetAtomName(swap_name_1.c_str());
 		  }
