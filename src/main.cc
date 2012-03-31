@@ -218,9 +218,12 @@ main (int argc, char *argv[]) {
 
   
   if (graphics_info_t::use_graphics_interface_flag) {
-     gtk_init (&argc, &argv);
      gtk_set_locale ();    // gtk stuff
      load_gtk_resources();
+     gtk_init (&argc, &argv);
+     // activate to force icons in menus; cannot get it to work with 
+     // cootrc. Bug?
+     //gtk_settings_set_long_property(gtk_settings_get_default (), "gtk-menu-images", TRUE, NULL);
      glutInit(&argc, argv);
   } else {
      g_type_init(); // for lbg command-line mode, so that
