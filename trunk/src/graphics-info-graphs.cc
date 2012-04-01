@@ -1109,9 +1109,11 @@ graphics_info_t::density_fit_graphs(int imol) {
 	 if (molecules[imol].has_model()) {
 	    
 	    int imol_for_map = Imol_Refinement_Map();
-	    if (imol_for_map == -1) {
+	    if (imol_for_map == -1)
 	       show_select_map_dialog();
-	    } else { 
+        // maybe we have it now?!
+        imol_for_map = Imol_Refinement_Map();
+	    if (imol_for_map > -1) {
 	       // std::cout << "DEBUG:: starting" << std::endl;
 	       CMMDBManager *mol = molecules[imol].atom_sel.mol;
 	       // double max_grid_factor = coot::util::max_gridding(molecules[imol_for_map].xmap_list[0]);
