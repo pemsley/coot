@@ -2967,6 +2967,7 @@ set_go_to_atom_from_res_spec = set_go_to_atom_from_res_spec_py
 get_symmetry           = get_symmetry_py
 map_colour_components  = map_colour_components_py
 dictionaries_read      = dictionaries_read_py
+cif_file_for_comp_id   = cif_file_for_comp_id_py
 monomer_restraints     = monomer_restraints_py
 set_monomer_restraints = set_monomer_restraints_py
 list_nomenclature_errors = list_nomenclature_errors_py

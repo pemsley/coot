@@ -20,38 +20,50 @@ jligand_home = jligand_home_env if jligand_home_env else "."
 global java_command
 java_command = "java"
 
-jligand_jar = os.path.join(os.path.normpath(jligand_home), "jligand.jar")
-# windows ccp4 installation calls it "JLigand.jar" though! Grrr. FIXME
+jligand_name = "JLigand.jar"
+jligand_jar = os.path.join(os.path.normpath(jligand_home), jligand_name)
 # Not yet as the old version uses different files...
-#if not os.path.isfile(jligand_jar):
-#    # lets try CCP4_BIN and JLigand.jar
-#    ccp4_bin = os.getenv("CCP4_BIN")
-#    jligand_jar = os.path.join(os.path.normpath(ccp4_bin), "JLigand.jar")
+if not os.path.isfile(jligand_jar):
+    # lets try CCP4_BIN and JLigand.jar
+    ccp4_bin = os.getenv("CCP4_BIN")
+    jligand_jar = os.path.join(os.path.normpath(ccp4_bin), jligand_name)
 jligand_args = ["-jar", jligand_jar, "-coot"] # for coot-enable jligand
 
 # jligand internal parameter
 global imol_jligand_link
 imol_jligand_link = False
 
+def jligand_code_file_maybe(comp_id, port):
+
+    # if code was read from a cif file then write a line to port like
+    # "CODE TLC FILE file.cif" (with a newline).
+    #
+    cif_file = cif_file_for_comp_id(comp_id)
+    if (len(cif_file) > 0):
+        port.write("CODE " + comp_id + " " + "FILE " + cif_file + "\n")
 
 def write_file_for_jligand(res_spec_1, resname_1, res_spec_2, resname_2):
 
     fin = open(to_jligand_secret_file_name, 'w')
     int_time = time.time()
-    print "res_spec_1:", res_spec_1
-    print "res_spec_2:", res_spec_2
+    #print "res_spec_1:", res_spec_1
+    #print "res_spec_2:", res_spec_2
     chain_id_1 = res_spec2chain_id(res_spec_1)
     chain_id_2 = res_spec2chain_id(res_spec_2)
-    
+
     fin.write("CODE " + resname_1 + " " + chain_id_1 + " " + \
               str(res_spec2res_no(res_spec_1)) + "\n")
+    #jligand_code_file_maybe(resname_1, fin)
     fin.write("CODE " + resname_2 + " " + chain_id_2 + " " + \
               str(res_spec2res_no(res_spec_2)) + "\n")
+    #jligand_code_file_maybe(resname_2, fin)
     fin.write("TIME " + str(int_time) + "\n")
     fin.close()
 
 def click2res_spec(click):
-    return [click[2], click[3], click[4]]
+    return [click[2],
+            click[3],
+            click[4]]
 
 # every fraction of a second look to see if
 # from_jligand_secret_link_file_name has been updated.  If so, then
@@ -85,85 +97,6 @@ def start_jligand_listener():
 
     gobject.timeout_add(700, jligand_timeout_func)
 
-# This happens when user clicks on the "Launch JLigand" button.
-# It starts a jligand and puts it in the background.
-#
-def launch_jligand_function():
-
-    global jligand_jar
-    global jligand_home_env
-    global java_command
-    
-    start_jligand_listener()
-    if not os.path.isfile(jligand_jar):
-
-        # Boo.  Give us a warning dialog
-        #
-        s = "jligand java jar file: " + jligand_jar + " not found"
-
-        # make an extra message telling us that JLIGAND_HOME is
-        # not set if it is not set.
-        env_message = "Environment variable JLIGAND_HOME not set\n\n" \
-                      if not jligand_home_env else ""
-        info_dialog(env_message + s)
-
-    else:
-        # OK, it does exist - run it!
-        #
-        java_exe = find_exe(java_command)
-        if not java_exe:
-            print "BL INFO:: no java found"
-        else:
-            run_concurrently(java_exe, jligand_args)
-            # beam in a new menu to the menu bar:
-            if (have_coot_python):
-                if coot_python.main_menubar():
-                    jligand_menu = coot_menubar_menu("JLigand")
-                    add_simple_coot_menu_menuitem(
-                        jligand_menu, "Send Link to JLigand (click 2 monomers)",
-                        lambda func: click_select_residues_for_jligand()
-                        )
-
-# This happens when user clicks on the "Select Residues for JLigand"
-# (or some such) button.  It expects the user to click on atoms of
-# the two residues involved in the link.
-#
-def click_select_residues_for_jligand():
-
-    global imol_jligand_link
-    
-    def link_em(*args):
-        print "we received these clicks", args
-        if (len(args) == 2):
-            click_1 = args[0]
-            click_2 = args[1]
-            print "click_1:", click_1
-            print "click_2:", click_2
-            if ((len(click_1) == 7)
-                and (len(click_2) ==7)):
-                resname_1 = residue_name(click_1[1],
-                                         click_1[2],
-                                         click_1[3],
-                                         click_1[4])
-                resname_2 = residue_name(click_2[1],
-                                         click_2[2],
-                                         click_2[3],
-                                         click_2[4])
-                imol_click_1 = click_1[1]
-                imol_click_2 = click_2[1]
-                if not (isinstance(resname_1, str) and
-                        isinstance(resname_2, str)):
-                    print "Bad resnames: %s and %s" %(resname_1, resname_2)
-                else:
-                    if not (imol_click_1 == imol_click_2):
-                        imol_jligand_link = False
-                    else:
-                        # happy path
-                        imol_jligand_link = imol_click_1
-                        write_file_for_jligand(click2res_spec(click_1), resname_1,
-                                               click2res_spec(click_2), resname_2)
-
-    user_defined_click(2, link_em)
 
 def handle_read_from_jligand_file():
 
@@ -237,7 +170,7 @@ def handle_read_from_jligand_file():
                     alt_conf_2 = ""
                     link_type = link_line[72]
 
-                    print "we parsed  these: "
+                    print "we parsed these: "
                     print "       atom_name_1", atom_name_1
                     print "       atom_name_2", atom_name_2
                     print "        chain_id_1", chain_id_1
