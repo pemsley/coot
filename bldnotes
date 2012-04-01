@@ -1,7 +1,6 @@
  -*-text-*-
 
-scripts      rev 3940 (prodrg stuff needs testing) generic objects
-			update get-recent-pdb
+scripts      rev 4080 (some prodrg stuff needs testing) generic objects
 tests        rev 3991 update
 build-it-win rev 4031
 
@@ -9,20 +8,7 @@ build-it-win rev 4031
 * THINGS TO DO BEFORE 0.7.0 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
-* jligand/names/path in windows
- o update
-* update prodrg stuff
- o almost done (test)
-* LIDIA menu exists without goocanvas..
- o Done
-* Does "View in LIDIA" work?
- o yes (test)
-* pdbe latest: cancel->kill thread
- o Done but needs testing
-* fascinating_things.py ??
- o ignore
-* check icon sizee
-* 
+* jligand/names/path in CCP4 vs website
 
 ---- FINISH URGENT ----
 
@@ -85,7 +71,7 @@ notes from Shanghai:
 
    o SSM of copied fragment doesnt work
 
-   o fix modal dialog: select map dialog when using density fit
+   o fix modal show_select_map_dialog in all instances!!
 
    o 'map_scroll_button_2' widget not found (display manager warning)
 
@@ -300,8 +286,6 @@ from Osaka 2010
 
 
 **** Windows ****
-
-   o check recovery (once nomenclature is fixed)
 
    o windows not reading gz file if space in name
 
@@ -562,3 +546,10 @@ Osaka 2010
 
 * Done
 
+   o check recovery (once nomenclature is fixed)
+
+* Done
+
+   o increase icon size
+
+* Done
