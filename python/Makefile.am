@@ -43,9 +43,9 @@ dist_python_DATA = \
    tips.py              tips_gui.py          generic_objects.py  cns2coot.py  \
    extensions.py        ncs.py               create_server.py                 \
    python_coot_docs.py  clear_backup.py      bones_reader.py                  \
-   shelx_extensions.py  parse_pisa_xml.py    				                  \
+   shelx_extensions.py  parse_pisa_xml.py    		        		          \
    check_for_updates.py prodrg_import.py     								  \
-   get_recent_pdbe.py   jligand.py								              \
+   get_recent_pdbe.py   jligand.py	     	 jligand_gui.py	              \
    coot_toolbuttons.py              \
    $(TEXI_FILE)
 
