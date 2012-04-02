@@ -232,6 +232,8 @@ from Osaka 2010
 
 **** Python ****
 
+   o fix os.path arguments to be string (e.g. normpath)
+
    o user_defined_restraints: rename and fix old RNA names
 
    o use shell_command_to_string where possible
