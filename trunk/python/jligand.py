@@ -26,7 +26,8 @@ jligand_jar = os.path.join(os.path.normpath(jligand_home), jligand_name)
 if not os.path.isfile(jligand_jar):
     # lets try CCP4_BIN and JLigand.jar
     ccp4_bin = os.getenv("CCP4_BIN")
-    jligand_jar = os.path.join(os.path.normpath(ccp4_bin), jligand_name)
+    if ccp4_bin:
+        jligand_jar = os.path.join(os.path.normpath(ccp4_bin), jligand_name)
 jligand_args = ["-jar", jligand_jar, "-coot"] # for coot-enable jligand
 
 # jligand internal parameter
