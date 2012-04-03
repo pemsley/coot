@@ -701,7 +701,7 @@ Bond_lines_container::get_neighb_normal(int iat_1, int iat_2, PPCAtom atoms, int
 	    pt = lp.normal();
 	 } 
       } else {
-	 std::string m = "Not enough atoms to determine orientation ";
+	 std::string m = "Not enough atoms to determine orientation of ";
 	 m += atoms[iat_1]->residue->GetResName();
 	 m += " - dictionary bonding fails";
 	 m += " found ";
@@ -711,7 +711,9 @@ Bond_lines_container::get_neighb_normal(int iat_1, int iat_2, PPCAtom atoms, int
 	    m += neighbours[i];
 	    m += " ";
 	 }
-	 throw(std::runtime_error(m));
+	 // make something up...
+	 pt = clipper::Coord_orth(0,0,1); 
+	 // throw(std::runtime_error(m));
       } 
    } else {
       // this should not happend
