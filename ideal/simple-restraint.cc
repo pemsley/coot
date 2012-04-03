@@ -4429,8 +4429,8 @@ coot::restraints_container_t::find_link_type(CResidue *first, CResidue *second,
       }
    }
 
-   if (t1 == "L-peptide" || t1 == "D-peptide" || t1 == "M-peptide" || t1 == "peptide")
-      if (t2 == "L-peptide" || t2 == "D-peptide" || t1 == "M-peptide" || t2 == "peptide")
+   if (t1 == "L-peptide" || t1 == "D-peptide" || t1 == "M-peptide" || t1 == "P-peptide" || t1 == "peptide")
+      if (t2 == "L-peptide" || t2 == "D-peptide" || t2 == "M-peptide" || t2 == "P-peptide" || t2 == "peptide")
 	 link_type = "TRANS";
    
    if (coot::util::is_nucleotide_by_dict(first, geom))
