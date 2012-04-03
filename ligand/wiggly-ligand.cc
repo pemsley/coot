@@ -66,23 +66,86 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       pg->get_monomer_restraints(monomer_type);
 
    std::vector <coot::dict_torsion_restraint_t> non_const_torsions;
-   int n_torsionable = 0;
+   int n_non_const_torsionable = 0;
    for (unsigned int i_tor=0; i_tor<m_torsions.size(); i_tor++) {
       if (! m_torsions[i_tor].is_const()) { 
 	 non_const_torsions.push_back(m_torsions[i_tor]);
-	 n_torsionable++;
+	 n_non_const_torsionable++;
       } 
    } 
+
+   std::vector <coot::dict_torsion_restraint_t> non_const_non_ring_torsions;
+
+   if (monomer_restraints.first) {
+
+      // construct the non_const_non_ring_torsions vector by adding in
+      // torsions that are not in ring systems.
+      // 
+      std::vector<std::vector<std::string> >
+	 ring_atoms = monomer_restraints.second.get_ligand_ring_list();
+      // filter
+      for (unsigned int itor=0; itor<non_const_torsions.size(); itor++) {
+	 const coot::dict_torsion_restraint_t &torsion_rest = non_const_torsions[itor];
+	 // We need to test that the middle 2 atoms match atom names
+	 // I am unconvinced that this covers all cases.  Perhaps I should look for
+	 // 3 (or 4) atom name matches (comparing vs all torsion atom names).
+	 std::vector<std::string> torsion_restraint_atom_names(2);
+	 torsion_restraint_atom_names[0] = torsion_rest.atom_id_2_4c();
+	 torsion_restraint_atom_names[1] = torsion_rest.atom_id_3_4c();
+	 bool match = false; 
+	 for (unsigned int iring=0; iring<ring_atoms.size(); iring++) { 
+	    const std::vector<std::string> &ring_atom_names = ring_atoms[iring];
+	    // now, do the names in ring_atom_names match the names in torsion_restraint_atom_names?
+	    // if yes, this is a ring torsion, so reject it (otherwise add it of course)
+
+	    if (0) { 
+	       // debug
+	       std::cout << "ring " << iring << " atom names    : ";
+	       for (unsigned int iname_1=0; iname_1<ring_atom_names.size(); iname_1++)
+		  std::cout << "\"" << ring_atom_names[iname_1] << "\" ";
+	       std::cout << std::endl;
+	       std::cout << "torsion " << itor << " atom names : ";
+	       for (unsigned int iname_2=0; iname_2<torsion_restraint_atom_names.size(); iname_2++)
+		  std::cout << "\"" <<  torsion_restraint_atom_names[iname_2] << "\" ";
+	       std::cout << std::endl;
+	    }
+	    
+	    int n_match = 0;
+	    for (unsigned int iname_1=0; iname_1<ring_atom_names.size(); iname_1++) {
+	       for (unsigned int iname_2=0; iname_2<torsion_restraint_atom_names.size(); iname_2++) { 
+		  if (ring_atom_names[iname_1] == torsion_restraint_atom_names[iname_2])
+		     n_match++;
+	       }
+	    }
+	    if (n_match == 2) {
+	       match = true;
+	       break;
+	    }
+	 }
+
+	 if (! match) { 
+	    // non-ring torsion, add it.
+	    non_const_non_ring_torsions.push_back(torsion_rest);
+	 }
+      }
+
+   } else {
+      // urgh.  What to do...
+      non_const_non_ring_torsions = non_const_torsions;
+   } 
+
    std::cout << "This residues has " << m_torsions.size() << " defined non-H torsions "
-	     << "of which " << n_torsionable << " are rotatable " << std::endl;
+	     << "of which " << n_non_const_torsionable << " are (non-const) rotatable and "
+	     << non_const_non_ring_torsions.size() << " are non-const and non-ring torsions"
+	     << std::endl;
+   
    if (debug_wiggly_ligands) {
       for (unsigned int itor=0; itor<m_torsions.size(); itor++) { 
 	 std::cout << "   " << itor << " " << m_torsions[itor] << "\n";
       }
    }
-
    
-   if (non_const_torsions.size() == 0) {
+   if (non_const_non_ring_torsions.size() == 0) {
 
       // " Did you forget to read the dictionary?";
       
@@ -138,9 +201,9 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	 }
       }
 
-      std::vector<float> torsion_set = get_torsions_by_random(non_const_torsions);
+      std::vector<float> torsion_set = get_torsions_by_random(non_const_non_ring_torsions);
       std::vector<coot::atom_name_quad> atom_name_quads =
-	 get_torsion_bonds_atom_quads(monomer_type, non_const_torsions);
+	 get_torsion_bonds_atom_quads(monomer_type, non_const_non_ring_torsions);
       // the vector of rotation torsions. 
       std::vector<coot::atom_tree_t::tree_dihedral_info_t> v;
       if (torsion_set.size() == atom_name_quads.size()) { 
@@ -157,7 +220,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	 tree.set_dihedral_multi(v);
 	 coot::minimol::residue wiggled_ligand_residue = tree.GetResidue();
 	 returned_tors_molecules_info.push_back(optimize_and_install(wiggled_ligand_residue,
-								     pg, non_const_torsions,
+								     pg, non_const_non_ring_torsions,
 								     torsion_set, ligand_chain_id,
 								     isample, optimize_geometry_flag,
 								     fill_returned_molecules_vector_flag));
@@ -184,7 +247,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	    tree.set_dihedral_multi(v);
 	    coot::minimol::residue wiggled_ligand_residue = tree.GetResidue();
 	    returned_tors_molecules_info.push_back(optimize_and_install(wiggled_ligand_residue,
-									pg, non_const_torsions,
+									pg, non_const_non_ring_torsions,
 									torsion_set, ligand_chain_id,
 									isample, optimize_geometry_flag,
 									fill_returned_molecules_vector_flag));
