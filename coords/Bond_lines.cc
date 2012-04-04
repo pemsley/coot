@@ -384,7 +384,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 		  
 			      // Bonded to different atom elements.
 
-			      if ((element_1 != " H") && (element_2 != " H")) {
+			      if (! is_hydrogen(element_1) && ! is_hydrogen(element_2)) { 
 				 add_half_bonds(atom_1_pos, atom_2_pos,
 						atom_selection_1[contact[i].id1],
 						atom_selection_2[contact[i].id2],
@@ -866,7 +866,8 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 		  
 				    // Bonded to different atom elements.
 
-				    if ((element_1 != " H") && (element_2 != " H")) {
+				    // if ((element_1 != " H") && (element_2 != " H")) {
+				    if (!is_hydrogen(element_1) && !is_hydrogen(element_2)) { 
 				       if (bt == "double") {
 					  add_double_bond(iat, jat, residue_atoms, n_atoms, atom_colour_type,
 							  restraints.second.bond_restraint);
@@ -1625,8 +1626,8 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
 	    //
 	    std::string res_atom_ele = residue_atoms[i]->element;
 	    float len2 = (atom_pos - res_atom_pos).amplitude_squared();
-	    if (((len2 <   bl2) && (res_atom_ele != " H")) ||
-		((len2 < h_bl2) && (res_atom_ele == " H"))) {
+	    if (((len2 <   bl2) && (! is_hydrogen(res_atom_ele))) ||
+		((len2 < h_bl2) && (is_hydrogen(res_atom_ele)))) {
 	       std::string altconf1 = atom->altLoc;
 	       std::string altconf2 = residue_atoms[i]->altLoc;
 	       if ( (altconf1=="") || (altconf2=="") || (altconf1==altconf2) ) {
@@ -1748,9 +1749,9 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	    double bonding_dist_max = max_dist;
 	    double shorter_bit = 0.38; // tinkered value
 	    // 
-	    if (ele1 == "H" || ele1 == " H")
+	    if (is_hydrogen(ele1))
 	       bonding_dist_max -= shorter_bit;
-	    if (ele2 == "H" || ele2 == " H")
+	    if (is_hydrogen(ele2))
 	       bonding_dist_max -= shorter_bit;
 
 	    if (0) { // debug
@@ -1768,7 +1769,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 		   (alt_conf_1 == "") || 
 		   (alt_conf_2 == "")) {
 		  if (draw_env_distances_to_hydrogens_flag ||
-		      ((ele1 != " H") && (ele2 != " H"))) { 
+		      // ((ele1 != " H") && (ele2 != " H"))) { 
+		      ((! is_hydrogen(ele1)) && (! is_hydrogen(ele2)))) { 
 		     if (ele1 == " C")
 			addBond(0, atom_1, atom_2);
 		     else {
@@ -1778,7 +1780,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 			   
 			   // both atoms not Carbon
 			   
-			   if (ele1 == " H" && ele2 == " H") { 
+			   // if (ele1 == " H" && ele2 == " H") {
+			   if (is_hydrogen(ele1) && is_hydrogen(ele2)) { 
 			      addBond(0, atom_1, atom_2); // not a charged/H-bond
 			   } else { 
 			      addBond(1, atom_1, atom_2); // interesting
@@ -1788,7 +1791,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 		  }
 	       }
 	    }
-	 } 
+	 }
       }
       delete [] contact;
    }
@@ -1891,14 +1894,17 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	       std::string ele2 = translated[it]->element;
 
 	       if (draw_env_distances_to_hydrogens_flag ||
-		   ((ele1 != " H") && (ele2 != " H"))) { 
+		   // ((ele1 != " H") && (ele2 != " H"))) {
+		   ((!is_hydrogen(ele1)) && (! is_hydrogen(ele2)))) {
+		   
 		  if (ele1 == " C")
 		     addBond(0, symm_atom, res_atom_pos);
 		  else {
 		     if (ele2 == " C") { 
 			addBond(0, symm_atom, res_atom_pos);
 		     } else { 
-			if (ele1 == " H" && ele2 == " H") { 
+			// if (ele1 == " H" && ele2 == " H") { 
+			if (is_hydrogen(ele1) && is_hydrogen(ele2)) {
 			   addBond(0, symm_atom, res_atom_pos);
 			} else { 
 			   addBond(1, symm_atom, res_atom_pos);
@@ -3393,7 +3399,8 @@ Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type,
 		     if (element == " S") {
 			return GREEN_BOND;
 		     } else {
-			if (element == " H") {
+			// if (element == " H") {
+			if (is_hydrogen(element)) {
 			   return HYDROGEN_GREY_BOND;
 			}
 		     }
@@ -3425,7 +3432,8 @@ Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type,
 			if (element == " S") {
 			   return GREEN_BOND;
 			} else {
-			   if (element == " H") {
+			   // if (element == " H") {
+			   if (is_hydrogen(element)) {
 			      return HYDROGEN_GREY_BOND;
 			   }
 			}
@@ -3841,8 +3849,11 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 		     element1 = at1->element;
 		     element2 = at2->element;
 		     if ( (draw_hydrogens_flag == 1) ||
-			  (element1 != " H" && element1 != " D" &&
-			   element2 != " H" && element2 != " D") ) { 
+			  
+			  // (element1 != " H" && element1 != " D" &&
+			  //  element2 != " H" && element2 != " D") ) {
+
+			  (! is_hydrogen(element1) && ! is_hydrogen(element2))) { 
 
 			coot::Cartesian atom_1(at1->x, at1->y, at1->z);
 			coot::Cartesian atom_2(at2->x, at2->y, at2->z);
@@ -3942,7 +3953,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 		  // no contact found
 		  col = atom_colour(atom_selection[i], atom_colour_type);
 		  std::string ele = atom_selection[i]->element;
-		  if (ele != " H" || draw_hydrogens_flag) { 
+		  if (!is_hydrogen(ele) || draw_hydrogens_flag) { 
 		     coot::Cartesian atom(atom_selection[i]->x,
 					  atom_selection[i]->y,
 					  atom_selection[i]->z);
@@ -4058,8 +4069,11 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 		     element1 = at1->element;
 		     element2 = at2->element;
 		     if ( (draw_hydrogens_flag == 1) ||
-			  (element1 != " H" && element1 != " D" &&
-			   element2 != " H" && element2 != " D") ) { 
+			  
+			  // (element1 != " H" && element1 != " D" &&
+			  // element2 != " H" && element2 != " D") ) {
+
+			  (! is_hydrogen(element1) && ! is_hydrogen(element2))) { 
 
 			coot::Cartesian atom_1(at1->x, at1->y, at1->z);
 			coot::Cartesian atom_2(at2->x, at2->y, at2->z);
@@ -4128,7 +4142,8 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 				 // If we are here: same element, not a carbon, and either drawing hydrogens
 				 // or these are not hydrogens, so don't draw bonds between hydrogens
 
-				 if (element1 != " H") { 
+				 // if (element1 != " H") {
+				 if (! is_hydrogen(element1)) { 
 				    col = atom_colour(atom_selection[ contact[i].id1 ], atom_colour_type);
 				    bonds_size_colour_check(col);
 				    addBond(col, atom_1, atom_2);
@@ -4227,7 +4242,8 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 		  // no contact found
 		  col = atom_colour(atom_selection[i], atom_colour_type);
 		  std::string ele = atom_selection[i]->element;
-		  if (ele != " H" || draw_hydrogens_flag) { 
+		  // if (ele != " H" || draw_hydrogens_flag) {
+		  if (! is_hydrogen(ele) || draw_hydrogens_flag) { 
 		     coot::Cartesian atom(atom_selection[i]->x,
 					  atom_selection[i]->y,
 					  atom_selection[i]->z);
@@ -4340,8 +4356,9 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 		  element1 = at1->element;
 		  element2 = at2->element;
 		  if ( (draw_hydrogens_flag == 1) ||
-		       (element1 != " H" && element1 != " D" &&
-			element2 != " H" && element2 != " D") ) { 
+		       // (element1 != " H" && element1 != " D" &&
+		       // element2 != " H" && element2 != " D") ) {
+		       (! is_hydrogen(element1) && ! is_hydrogen(element2))) { 
 		  
 		     // alternate location test
 		     // 	    
@@ -4352,7 +4369,8 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 
 			// OK, draw a bond! (but not between 2 Hydrogens)
 
-			if (! (element1 == " H" && element2 == " H")) { 
+			// if (! (element1 == " H" && element2 == " H")) { 
+			if (! (is_hydrogen(element1) && is_hydrogen(element2))) { 
 			   bonds_size_colour_check(col);
 			   addBond(col, atom_1, atom_2);
 			}
@@ -4426,7 +4444,7 @@ Bond_lines_container::add_zero_occ_spots(const atom_selection_container_t &SelAt
 	 // file with zero occupancy spots.
 	 std::string ele(SelAtom.atom_selection[i]->element);
 	 if (do_bonds_to_hydrogens ||
-	     ((do_bonds_to_hydrogens == 0) && (ele != " H"))) { 
+	     ((do_bonds_to_hydrogens == 0) && (! is_hydrogen(ele)))) {
 	    zero_occ_spot.push_back(coot::Cartesian(SelAtom.atom_selection[i]->x,
 						    SelAtom.atom_selection[i]->y,
 						    SelAtom.atom_selection[i]->z));
@@ -4443,9 +4461,10 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
    atom_centres_colour.clear();
 
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
-      bool is_H_flag = 0;
-      if (std::string(SelAtom.atom_selection[i]->element) == " H")
-	 is_H_flag = 1;
+      bool is_H_flag = false;
+      // if (std::string(SelAtom.atom_selection[i]->element) == " H")
+      if (is_hydrogen(std::string(SelAtom.atom_selection[i]->element)))
+	 is_H_flag = true;
       if (do_bonds_to_hydrogens || (do_bonds_to_hydrogens == 0 && (!is_H_flag))) {
 	 std::pair<bool, coot::Cartesian> p(is_H_flag,
 					    coot::Cartesian(SelAtom.atom_selection[i]->x,

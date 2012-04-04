@@ -309,6 +309,14 @@ class Bond_lines_container {
 			   short int is_from_symmetry_flag,
 			   int model_number);
 
+   // PDBv3 FIXME
+   bool is_hydrogen(const std::string &ele) const {
+      if (ele == " H" || ele == " D")
+	 return true;
+      else
+	 return false; 
+   } 
+
    void construct_from_atom_selection(const atom_selection_container_t &asc,
 				      const PPCAtom atom_selection_1,
 				      int n_selected_atoms_1,
