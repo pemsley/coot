@@ -44,6 +44,14 @@
 #include "coot-shelx.hh"
 
 
+bool
+mmdb_utils::is_hydrogen(const std::string &ele) {
+   if (ele == " H" || ele == " D")
+      return true;
+   else
+      return false; 
+}
+
 // This is used for pick_test  (a function that returns
 // an atom selection from a pdb_file name string is not
 // generally so useful).
@@ -347,7 +355,7 @@ convert_to_old_nucleotide_atom_names(CResidue *r) {
       std::string ele(residue_atoms[i]->element);
       char c3 = atom_name[2]; // 3rd char
       char c4 = atom_name[3]; // 4th char
-      if (ele == " H") {
+      if (mmdb_utils::is_hydrogen(ele)) {
 	 if (c3 == '\'') {
 	    atom_name[2] = '*';
 	    if (c4 == '\'')
@@ -420,7 +428,7 @@ fix_wrapped_names(atom_selection_container_t asc) {
    // e.g. "3HB " -> " HB3", and "2HG2" -> "HG22"
    for (int i=0; i<asc.n_selected_atoms; i++) {
       // std::string ele(asc.atom_selection[i]->element);
-      // if (ele == " H") {
+
       if (1) { 
 	 std::string atom_name(asc.atom_selection[i]->name);
 	 if (atom_name[0] == '1' ||
@@ -664,7 +672,7 @@ coot::delete_hydrogens_from_mol(CMMDBManager *mol) {
 	    for (int iat=0; iat<n_atoms; iat++) {
 	       at = residue_p->GetAtom(iat);
 	       std::string ele(at->element);
-	       if (ele == " H") {
+	       if (mmdb_utils::is_hydrogen(ele)) {
 		  // delete this atom
 		  deleted = 1;
 		  residue_p->DeleteAtom(iat);
