@@ -2027,7 +2027,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 	       if (have_map_flag) { 
 		  for (unsigned int i=0; i<probabilities.size(); i++) {
 		     // std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
-		     rotamer_res = d.GetResidue(rest, i);
+		     rotamer_res = d.GetResidue(rest, i); // does a deep copy, needs deleting
 
 		     // first make a minimol molecule for the residue so that we
 		     // can install it into lig.
@@ -2083,6 +2083,12 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 		     catch (std::runtime_error rte) {
 			std::cout << "ERROR:: auto_fit_best_rotamer() " << rte.what() << std::endl;
 		     }
+
+		     if (rotamer_res) {
+			// implicitly delete rotamer_res too
+			delete rotamer_res->chain;
+		     } 
+		     rotamer_res = NULL;
 		     
 		  }
 	       } else {
@@ -2095,7 +2101,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 		  for (unsigned int i=0; i<probabilities.size(); i++) {
 		     // std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
 		     // std::cout << "Getting rotamered residue... " << std::endl;
-		     rotamer_res = d.GetResidue(rest, i);
+		     rotamer_res = d.GetResidue(rest, i); // does a deep copy, needs deleting
 		     // std::cout << "Got rotamered residue... " << std::endl;
 		     coot::minimol::residue  residue_res(rotamer_res);
 		     coot::minimol::molecule residue_mol;
@@ -2114,6 +2120,11 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 			best_score = clash_score;
 			best_rotamer_mol = moved_mol;
 		     }
+		     if (rotamer_res) {
+			// implicitly delete rotamer_res too
+			delete rotamer_res->chain;
+		     } 
+		     rotamer_res = NULL;
 		  }
 	       }
 	    }
@@ -2138,7 +2149,8 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 	       f = 0.0;
 	    }
 	 }
-      } // copied res
+	 delete copied_res->chain; // implicitly delete copied_res too.
+      } // non-null copied res
       
    } else {
       std::cout << "WARNING:: residue not found in molecule" << std::endl;

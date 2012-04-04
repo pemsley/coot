@@ -156,8 +156,9 @@
 		     (let ((res-atoms (residue-info imol chain-id res-no ins-code)))
 		       (if (> (length res-atoms) 3)
 			   (if (string=? alt-conf "")
-			       (auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol 
-						      imol-map 1 0.1))
+			       (with-no-backups imol
+						(auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol 
+								       imol-map 1 0.1)))
 			   (if (valid-map-molecule? imol-map)
 			       (begin
 				 (with-no-backups imol

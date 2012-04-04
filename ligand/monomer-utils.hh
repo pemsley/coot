@@ -38,6 +38,8 @@
 
 namespace coot {
 
+   // caller needs to delete returned residue and its chain
+   // 
    CResidue *deep_copy_residue(CResidue *residue);
 	 
    // Atom names for a torsion bond, old/Stuart style

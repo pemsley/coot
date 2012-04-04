@@ -585,6 +585,7 @@ write_atom_selection_file(atom_selection_container_t asc,
    int ierr = 0; 
    coot::util::remove_wrong_cis_peptides(asc.mol);
    CMMDBManager *mol = asc.mol;
+   bool mol_needs_deleting = false; // unless mol is reassigned...
    
    if (coot::is_mmcif_filename(filename)) {
       ierr = mol->WriteCIFASCII(filename.c_str());
@@ -596,6 +597,7 @@ write_atom_selection_file(atom_selection_container_t asc,
 	 n->Copy(mol, MMDBFCM_All);
 	 coot::delete_hydrogens_from_mol(n);
 	 mol = n;
+	 mol_needs_deleting = true;
       }
 
       if (! write_aniso_records) {
@@ -603,14 +605,16 @@ write_atom_selection_file(atom_selection_container_t asc,
 	 n->Copy(mol, MMDBFCM_All);
 	 coot::delete_aniso_records_from_atoms(n);
 	 mol = n;
+	 mol_needs_deleting = true;
       }
 
       if (! write_conect_records) {
 	 CMMDBManager *n = new CMMDBManager;
 	 n->Copy(mol, MMDBFCM_All);
-     // Eugenes magic code
+	 // Eugene's magic code
 	 n->Delete ( MMDBFCM_SC );
 	 mol = n;
+	 mol_needs_deleting = true;
       }
       
       // we need to put the hydrogen names back to how they used to be
@@ -649,6 +653,10 @@ write_atom_selection_file(atom_selection_container_t asc,
        	 }
       }
    }
+
+   if (mol_needs_deleting)
+      delete mol;
+   
    return ierr; 
 }
 

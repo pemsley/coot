@@ -6449,5 +6449,12 @@ Mon Mar 19 16:55:16 GMT 2012
 
    http://giv.sourceforge.net/gtk-image-viewer/gtkimageviewer_tutorial.html
 
+---
+Wed Apr  4 15:19:44 BST 2012
+
+valgrind:
+
+ valgrind --leak-check=full --suppressions=../../coot/guile.supp --suppressions=../../coot/valgrind-python.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-real 
+
 
 ------
