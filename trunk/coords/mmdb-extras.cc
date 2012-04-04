@@ -59,7 +59,7 @@ atom_colour(const std::string &element) {
 	    if (element == " S") {
 	       return GREEN_BOND;
 	    } else {
-	       if (element == " H") {
+	       if (mmdb_utils::is_hydrogen(element)) {
 		  return HYDROGEN_GREY_BOND;
 	       }
 	    }

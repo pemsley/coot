@@ -28,6 +28,9 @@
 // and "mmdb-extras.h" for atom_selection_container_t
 #include "Cartesian.h"
 
+namespace mmdb_utils { 
+  bool is_hydrogen(const std::string &ele);
+} 
 
 
 coot::Cartesian
