@@ -5755,8 +5755,7 @@ coot::protein_geometry::OXT_in_residue_restraints_p(const std::string &residue_t
 std::vector<std::vector<std::string> >
 coot::dictionary_residue_restraints_t::get_ligand_ring_list() const {
 
-   // get a list of aromatic bonds, so that they can be used to find
-   // aromatic rings.
+   // get a list of bonds, so that they can be used to find rings.
    // 
    std::vector<std::pair<std::string, std::string> > bonds;
    for (unsigned int irest=0; irest<bond_restraint.size(); irest++) {
@@ -5764,7 +5763,8 @@ coot::dictionary_residue_restraints_t::get_ligand_ring_list() const {
 					    bond_restraint[irest].atom_id_2_4c());
       bonds.push_back(p);
    }
-   
+
+   // used in non-necessarily-aromatic way...
    coot::aromatic_graph_t bond_list(bonds);
    std::vector<std::vector<std::string> > ring_list = bond_list.ring_list();
 
