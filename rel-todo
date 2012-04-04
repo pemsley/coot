@@ -9,6 +9,27 @@
 
    o sync CODE FILE with jligand.
 
+    o MR:
+
+       in case no refinement map is selected, asks you for one and
+       real space refinement stays active, which is quite handy since
+       it saves a click. Could you enable the same for the rigid body
+       fit function in the model-fit-refine menu?
+
+   o Boaz: deleting waters crash
+
+   o Memory leak on fit protein - Ed Pozharski
+
+   o Stu Fisher
+
+       We noticed a strange bug in the recent versions of coot. Since
+       upgrading to 0.7-pre (3832), water molecules (with hydrogens,
+       or in our case D2O as we are refining neutron structures) are
+       no longer shown as bonded, they just show up as three
+       crosses. 
+
+   o draw oxygen correctly: 1a6m
+
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
