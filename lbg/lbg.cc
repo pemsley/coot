@@ -5473,7 +5473,8 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
    //
    // However, for the substitution contour and the initial layout
    // ring avoidance, we blob in a circle of radius 1/(2*sin(180/n_ring_atoms)) bond lengths.
-   
+
+   // sets the object variable
    ring_atoms_list = restraints.get_ligand_ring_list();
    
 // just checking that it was passed correctly - it is, for the
