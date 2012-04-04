@@ -144,6 +144,9 @@ namespace coot {
   //
   // Returns NULL if input residue has no atoms
   // 
+  // caller should delete the chain of this residue (which will
+  // implicitly delete this residue too).
+  // 
   CResidue *
   deep_copy_this_residue(CResidue *residue, 
 			 const std::string &altconf, 

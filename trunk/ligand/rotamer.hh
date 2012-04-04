@@ -183,9 +183,13 @@ namespace coot {
       rotamer_probability_info_t probability_of_this_rotamer(); // can't const - mmdb
                                                                 // CResidue issues...
 
-      // return a manipulated deep copy of input residue.
+      // Return a manipulated deep copy of input residue.
+      // 
+      // caller needs to delete returned residue and its chain.
+      // 
       CResidue *GetResidue(const dictionary_residue_restraints_t &rest,
 			   int i_rot) const; // rotamer/button number
+      
       CResidue *GetResidue_old(int i_rot) const; // for transitioning.  Delete later
       std::vector<coot::simple_rotamer> rotamers(const std::string &res_type, float prob_cut) const; 
       float Chi1(int i) const; // chi1 for the ith rotamer

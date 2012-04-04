@@ -562,6 +562,8 @@ coot::rotamer::get_all_rotamers(const std::string &res_type) const {
 
 // Return NULL if no residues available for this residue type
 // 
+// caller needs to delete returned residue and its chain
+// 
 CResidue *
 coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
 			   int i_rot) const {
