@@ -1480,7 +1480,12 @@ graphics_info_t::make_moving_atoms_graphics_object(const atom_selection_containe
 
    if (! moving_atoms_asc) {
       moving_atoms_asc = new atom_selection_container_t;
-   }
+   } else { 
+      // moving_atoms_asc->clear_up(); // crash.  Much complexity to fix the crash, I think.
+      // i.e. the clear_up() should be here - I think the problem lies elsewhere.
+      // Not clearing up here produces a memory leak, I think (not a bad one (for some reason!)).
+   } 
+   
    *moving_atoms_asc = asc;
 
    // these not needed now, 

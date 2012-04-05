@@ -452,6 +452,25 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 
 	 rr = update_refinement_atoms(nrestraints, restraints, rr, local_moving_atoms_asc,
 				      1, imol_for_atoms, chain_id_1);
+
+	 // local_moving_atoms_asc.clear_up(); // crash.
+	 // 
+	 // Hmm... local_moving_atoms_asc gets transfered to (class
+	 // variable) moving_atoms_asc in update_refinement_atoms().
+	 // Do we delete old moving_atoms_asc mol and selection there
+	 // before they are replaced?
+	 //
+	 // No.
+	 //
+	 // Should we?
+	 //
+	 // Yes.
+	 //
+	 // Problem is that we are not sure that every time the old
+	 // moving_atoms_asc is replaced in that manner
+	 // (make_moving_atoms_asc()) that moving_atoms_asc is
+	 // expired/unreferenced.
+	 
 	 
       }
       
@@ -725,6 +744,8 @@ graphics_info_t::make_moving_atoms_asc(CMMDBManager *residues_mol,
    local_moving_atoms_asc.mol = (MyCMMDBManager *) residues_mol;
    local_moving_atoms_asc.UDDOldAtomIndexHandle = -1;  // true?
    local_moving_atoms_asc.UDDAtomIndexHandle = -1;
+   if (residues_mol)
+      local_moving_atoms_asc.read_success = 1;
 
    local_moving_atoms_asc.SelectionHandle = residues_mol->NewSelection();
    residues_mol->SelectAtoms (local_moving_atoms_asc.SelectionHandle, 0, "*",
@@ -910,10 +931,12 @@ graphics_info_t::create_mmdbmanager_from_res_selection(PCResidue *SelResidues,
 // 		<< whole_res_flag << " for altconf " << altconf
 // 		<< "\n       residue_from_alt_conf_split_flag "
 // 		<< residue_from_alt_conf_split_flag << std::endl;
-      
+
+      bool embed_in_chain_flag = false; // don't put r in a chain in deep_copy_this_residue()
+					// because we put r in a chain here.
       r = coot::deep_copy_this_residue(SelResidues[ires], altconf, whole_res_flag, 
-				       atom_index_udd);
-      if (r) { 
+				       atom_index_udd, embed_in_chain_flag);
+      if (r) {
 	 chain->AddResidue(r);
 	 r->seqNum = SelResidues[ires]->GetSeqNum();
 	 r->SetResName(SelResidues[ires]->GetResName());
