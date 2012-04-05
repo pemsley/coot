@@ -174,7 +174,8 @@ CResidue *
 coot::deep_copy_this_residue(CResidue *residue,
 			     const std::string &altconf,
 			     short int whole_residue_flag,
-			     int atom_index_handle) {
+			     int atom_index_handle,
+			     bool embed_in_chain_flag) { // true
 
    // 20090622 altconf is "", whole_residue_flag = 0, and residue is
    // completely split into A and B.
@@ -198,9 +199,8 @@ coot::deep_copy_this_residue(CResidue *residue,
 
    if (nResidueAtoms > 0) { 
       // 
+      CChain   *chain_p = NULL;
       rres = new CResidue();
-      CChain   *chain_p = new CChain;
-      chain_p->SetChainID(residue->GetChainID());
       rres->SetResID(residue->GetResName(),
 		     residue->GetSeqNum(),
 		     residue->GetInsCode());
@@ -227,7 +227,12 @@ coot::deep_copy_this_residue(CResidue *residue,
 	 rres = NULL;
       } else {
 	 // As normal
-	 chain_p->AddResidue(rres);
+	 
+	 if (embed_in_chain_flag) { 
+	    chain_p = new CChain;
+	    chain_p->SetChainID(residue->GetChainID());
+	    chain_p->AddResidue(rres);
+	 }
 
 	 // debug
 	 if (0) { 

@@ -151,7 +151,8 @@ namespace coot {
   deep_copy_this_residue(CResidue *residue, 
 			 const std::string &altconf, 
 			 short int whole_residue_flag,
-			 int atom_index_handle);
+			 int atom_index_handle,
+			 bool embed_in_chain_flag=true);
 
   std::pair<CResidue *, atom_selection_container_t>
     deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
