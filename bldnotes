@@ -10,6 +10,8 @@ build-it-win rev 4031
 
 * jligand/names/path in CCP4 vs website
 
+* auto-weight in scm
+
 ---- FINISH URGENT ----
 
 CCP4 SW:
@@ -83,6 +85,8 @@ notes from Shanghai:
    o check for updates in About?! Include info on pre- or release!?
 
    o phs file dialog, make fill/expand properly
+
+* Done (quick fix)
 
    o domain NCS (use parrot's code?!)
 
@@ -288,6 +292,8 @@ from Osaka 2010
 
 
 **** Windows ****
+
+   o fix DATADIR objidl.h conflict
 
    o windows not reading gz file if space in name
 

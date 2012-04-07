@@ -188,7 +188,10 @@ void do_phs_cell_choice_window() {
   // force to the top? (even on Mac?) 
   // maybe the above show may not be needed any more
 #if (GTK_MAJOR_VERSION > 1)
-  gtk_window_present(GTK_WINDOW(window));
+   gtk_window_set_transient_for(GTK_WINDOW(window),
+                                GTK_WINDOW(lookup_widget(main_window(),
+                                                         "window1")));
+   gtk_window_present(GTK_WINDOW(window));
 #endif
 
 } 
