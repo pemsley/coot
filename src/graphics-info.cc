@@ -2446,32 +2446,38 @@ graphics_info_t::float_to_string_using_dec_pl(float f, unsigned short int n_dec_
 
 
 int
-graphics_info_t::Imol_Refinement_Map() const { 
+graphics_info_t::Imol_Refinement_Map() const {
 
-   int nmaps = 0;
-   int only_map = -1;  // gets set
+   // maybe sets imol_refinement_map (if it was -1 or if the map it
+   // was previously is now closed).
 
-   if (imol_refinement_map != -1) { // has been set by user
+   int only_map = -1;  // gets set, maybe (when not a difference map)
 
+   if (imol_refinement_map != -1) { // has been set already (or was reset)
       if (imol_refinement_map < n_molecules())
 	 if (imol_refinement_map >= 0)
 	    if (molecules[imol_refinement_map].has_map())
 	       return imol_refinement_map;
    }
-      
+
+   // check the molecules for maps - we can assign if there is only
+   // one non-difference map.
+   // 
+   std::vector<int> direct_maps;
    for (int imol=0; imol<n_molecules(); imol++) { 
-      if (molecules[imol].has_map()) { 
-	 nmaps++;
-	 only_map = imol;
-      } 
+      if (molecules[imol].has_map()) {
+	 if (! molecules[imol].is_difference_map_p()) { 
+	    direct_maps.push_back(imol);
+	 }
+      }
    }
-   if (nmaps == 1) {
-      // let's set it then (trial code)
-      imol_refinement_map = only_map;
-      return only_map;
+   if (direct_maps.size() == 1) {
+      // let's set it then
+      imol_refinement_map = direct_maps[0];
    } else { 
-      return -1;
+      imol_refinement_map = -1;
    }
+   return imol_refinement_map;
 }
 
 int
