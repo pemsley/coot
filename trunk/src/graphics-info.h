@@ -2505,10 +2505,10 @@ public:
    //
    // return -1 on no map found.  
    //
-   // If there is exactly one map in all of the molecules, return the
-   // molecule index of that map.
-   // 
+   // This maybe sets imol_refinement_map (if it was -1 or if the map
+   // it was previously is now closed).
    int Imol_Refinement_Map() const;
+   // 
    int set_imol_refinement_map(int imol);
 
    void make_moving_atoms_graphics_object(const atom_selection_container_t &asc);
