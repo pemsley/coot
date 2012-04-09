@@ -118,7 +118,7 @@
 #include <glob.h>
 
 #ifdef USE_GUILE
-#include <guile/gh.h>
+#include <libguile.h>
 #endif 
 
 #if defined (USE_PYTHON)

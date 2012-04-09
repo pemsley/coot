@@ -1,5 +1,5 @@
 #ifdef USE_GUILE
-#include <guile/gh.h>
+#include <libguile.h>
 #if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
 // no fix up needed 
 #else    

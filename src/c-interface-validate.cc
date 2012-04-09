@@ -51,7 +51,7 @@
 #include "graphics-info.h"
 
 #ifdef USE_GUILE
-#include <guile/gh.h>
+#include <libguile.h>
 
 #if (SCM_MAJOR_VERSION > 1) || (SCM_MINOR_VERSION > 7)
 // no fix up needed 
@@ -904,10 +904,10 @@ int probe_available_p() {
 
    SCM scm_thunk = safe_scheme_command(command); 
 
-   int was_boolean_flag = gh_scm2bool(scm_boolean_p(scm_thunk));
+   int was_boolean_flag = scm_is_true(scm_boolean_p(scm_thunk));
 
    if (was_boolean_flag)
-      if (gh_scm2bool(scm_thunk) == 1) // gh_ !!!!???
+      if (scm_is_true(scm_thunk) == 1)
 	 r = 1;
 
 #else

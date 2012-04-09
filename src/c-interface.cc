@@ -42,7 +42,7 @@
 #endif
 
 #ifdef USE_GUILE
-#include <guile/gh.h>
+#include <libguile.h>
 #include "c-interface-scm.hh"
 #include "guile-fixups.h"
 #endif // USE_GUILE
