@@ -28,7 +28,6 @@
 #ifdef __cplusplus
 #ifdef USE_GUILE
 #include <libguile.h>	
-#include <guile/gh.h> // needed for guile-1.6.x
 
 // return 0 on failure.  An atom with an atom name of "" and element
 // of "" is converted to a Ter atom.

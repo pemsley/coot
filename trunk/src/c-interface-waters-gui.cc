@@ -53,7 +53,7 @@
 #include "graphics-info.h"
 
 #ifdef USE_GUILE
-#include <guile/gh.h>
+#include <libguile.h>
 #endif // USE_GUILE
 
 // Including python needs to come after graphics-info.h, because

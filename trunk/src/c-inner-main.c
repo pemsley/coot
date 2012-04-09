@@ -24,7 +24,7 @@
 #endif 
 
 #ifdef USE_GUILE
-#include <guile/gh.h>
+#include <libguile.h>
 #endif
 
 /* On some strange systems still no definition of NULL is found.  Sigh!  */

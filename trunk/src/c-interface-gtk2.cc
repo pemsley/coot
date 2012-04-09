@@ -38,7 +38,7 @@
 
 #ifdef USE_GUILE
 #include <cstdio>  // for std::FILE
-#include <guile/gh.h>
+#include <libguile.h>
 #endif 
 
 #if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
