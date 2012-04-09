@@ -1,0 +1,316 @@
+ -*-text-*-
+
+---------------
+* TO DO THINGS *
+---------------
+
+   o additional representations: hide parts of model (use bond thickness 0?!?
+
+   o revisit python sockets
+
+   o merge build-it-win with buid-it-gtk2-simple?!
+
+   o test vista compositing (* Done?!?!)
+
+   o povray view angle still not ok (view gets smaller the further away from 
+	 origin we are)
+
+   o refmac to run from an XML file
+
+   o read_refmac_log to read refmac XML output (if there)
+
+   o ribbons from aesop python things from CCP4MG (at some point)
+
+   o use libglade
+
+   o cootaneering (more testing, make documentation?)
+
+   o alternatives for loop building (wait for Kevin's implementation)
+
+   o add terminal residue (if Gly, Pro) use different target ramachandran
+	 function for placement of term residue;
+	 maybe we want to try general rama first, then Pro, then Gly (if we 
+	 dont know the residue type) for better loop fit (or in general)
+	 this may require some Gly noise filtering as Gly always will fit best
+
+   o side chain treatment in low res maps (test if torsion angle restraints 
+	 are good enough) otherwise we may want different weight for MC and SC
+	 and/or B-factor refinement
+
+   o fragment fitting/search
+
+   o rsync builds to Paul's dir
+
+   o fix threading in python 'Coot News'
+
+   o How about interfacing to a Wii?
+
+   o "Check for updates" button? (need to know which OS we are on, maybe 
+     from the install dir?!)
+
+   o read_shelx ins file:
+	 does it remove comments correctly? (! comment) from line!!!!
+
+   o tutorial/documentation for scripting/extensions [Ronan Keegan]
+
+   o python: rapper-gui and what-check (*Done?!)
+
+   o high resolution auto-build
+
+14/08/08
+   o probe dots on selected residue range (Bob van Dreele)
+
+14/08/08 
+   o change orientation of refinement toolbar and make it dockable to 
+     other sides of main window
+
+* Done (but not automatically to change orientation)
+
+14/08/08
+    o make guile-gtk properly gtk2 complient (esp. text-view)
+
+29/08/08
+	o refinement of H at high resolution blows H around (fixed?)
+	
+	o move (& merge) symmetry related molecules (globularize?)
+
+	o pictures in manual (how and where!?) Maybe more extensive (advanced)
+	  tutorial!?
+
+10/09/08
+   o no bond colours if no element column in pdb file (e.g. CNS files)
+     try to guess?! use coordconv?? new mmdb should fix
+
+16/09/08
+   o 'new', short display manager
+
+22/09/08
+   o fix size of chooser dialog (if possible, gtk2 bug?!)
+
+04/10/08
+   o simultaneous refinement of alt confs
+
+06/11/08
+   o individual runwincoot.bat for multiuser WinCoot installation [Neer Asherie]
+
+---------------
+* DONE THINGS *
+---------------
+
+   o make coot icons anti-alias
+
+* Done
+
+   o fit_gap in both direction => dialog to select A or B
+
+* Done
+
+   o auto-mutate after add terminal residue with sequence
+
+* Done
+
+   o find 32/64 bit povray exe (WinCoot) [Yen-Chywan]
+
+* Done
+
+   o python's read_refmac_log to run after schemey refmac run 
+	 (if we have pygtk)?
+
+* Done
+
+   o schemey run-refmac to work with twinning/sad etc.
+
+* Done (testing?!)
+
+   o python: rapper-gui and what-check
+
+* Done (what_check)
+
+   o switch on/off refine toolbar (preferences)
+
+* Done
+
+   o option for toolbar on the left (preferences)
+
+* Done
+
+   o fix the alignment of icons and labels in the Model/fit/refine dialog
+
+* Done
+
+27/08/08
+   o make example keybindings for python (based on Paul's scheme bindgs)
+
+* Done (put on Kay's WIKI)
+
+27/08/08
+   o Windows installer:
+     - question overwriting of runwincoot.bat
+     - make the 'start in' directory user changeable (use SetOutPath!?)
+       * for both make sure it works (sensibly) with a silent installer!!!
+
+* Done
+
+04/09/08
+   o check licence header in python(-test) modules
+
+* Done
+
+   o test db-main strands windows fix thingy (debackslash)
+
+* Fixed
+
+09/09/08
+   o check key binding codes for () []
+
+* Fixed by using gdk keymapping
+
+
+   o replace popen and spawn in python with subprocess functions!
+
+* Done
+
+   o clean-up use of probe/reduce command_name and command (python)
+
+* Done
+
+22/09/08
+   o current directory in chooser shortcuts
+
+* Done
+
+   o update tutorial with preferences
+
+* Done 
+
+07/10/08
+   o make pygtk gtk1 compliant (incl import gobject test)
+
+* Done (well not compliant but shouldnt crash)
+
+15/10/08
+   o make loading svg (in absence of libsvg) fail save
+
+* Fixed
+
+22/10/08
+   o add missing Model/Fit/Refine buttons to modelling toolbar (if possible)
+     - Torsion General
+
+* Done
+
+15/10/08
+   Notes from Phenix
+
+   o readline not accessible with ftp but with http in build-it-gtk2-simple?!
+     may just be temporarily?!
+
+* Done, server was temporarily down
+
+   o compile without GSL fails in graphics-info.hh as redefinition of 
+     refinement_results_t -> check (remove in graphics-info.hh?!?)
+
+* Done, compile without gsl now (not sure how usefull and if as functional as possible)
+
+   o update the tutorial with Kevin's figures?!
+
+* Done
+
+   o add copy button to LSQ fit
+
+* Done
+
+   o always be able to use mtz file in Refmac GUI
+
+* Done
+
+   o clean up the build-info webpage files/dirs for WinCoot
+
+* Done
+
+   o reset B-factors of refined/changed atoms
+
+* Done  
+
+23/10/08
+   o sync MFR dialog with modelling toolbar -> all or selected for toolbar
+
+* Done
+
+   o make all modelling toolbar icons preference-able
+
+* Done
+
+   o update probe/reduce to work with pdb v3 (remove oldpdb)
+
+* Done
+
+   o update WinCoot website for new probe/reduce use
+
+* Done
+
+   o clean-up use of probe/reduce command_name and command (python):
+      actually should not delete and overwrite group_settings.py
+      upon installation, in case people change the name of probe/reduce here.
+
+* Done
+
+22/09/08
+   o current directory in chooser shortcuts
+
+* Done
+
+   o read refmac log for outliers in Extensions
+
+* Done
+
+   o notes to self:
+     - backup windows imgs
+     - revise script to delete older binaries.
+
+* Done
+
+   o colouring/highlighting in console output in Dos Shell
+
+* Done
+
+   o set_display_lists... for windows stereo
+
+* Done
+
+   o zip/unzip pdb backup files in windows
+
+* Done (use gzip)
+
+   o dont use TLS in refmac if we dont have the button (i.e. new refmac)
+
+* Done
+
+   o Ramachandran restraints check button for loop fit
+
+* Done
+
+   o do loop building 1/2 from N and 1/2 from C terminus for langer loops (>=6?)
+
+* Done
+
+04/10/08
+   o make toolbutton GUI/wizard
+
+* Done (check which ones to use!?!)
+
+30/10/08
+   o LSQ option for ncs copy residue range
+
+* Done
+
+   o clean up Windows code:
+     - warnings about V_UNKNOWN 
+     - clean up the windows magic jiggery
+
+* Done
+
+   o Preferences -> default -> apply font colours
+
+* Done
+

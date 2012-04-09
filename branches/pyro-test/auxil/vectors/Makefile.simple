@@ -1,0 +1,15 @@
+
+
+# York
+MMDB = $(HOME)/autobuild/Darwin-paris.home-pre-release
+
+
+CPPFLAGS = -g
+CXXFLAGS = -I. -I$(MMDB)/include/mmdb
+
+LDFLAGS = -L$(MMDB)/lib -lmmdb \
+
+OBJS = ligand.o 
+
+diff-vec: diff-vec.cc
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)

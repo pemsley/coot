@@ -1,0 +1,401 @@
+# pixmap_path "<dir 1>:<dir 2>:<dir 3>:..."
+#
+# include "rc-file"
+#
+# style <name> [= <name>]
+# {
+#   <option>
+# }
+#
+# widget <widget_set> style <style_name>
+# widget_class <widget_class_set> style <style_name>
+
+# testgtkrc2 sets all the buttons in the main window to blue by default
+
+#include "/usr/local/share/themes/Pixmap/gtk/gtkrc"
+#include "/usr/local/share/themes/Redmond95/gtk/gtkrc"
+#include "/usr/local/share/themes/Metal/gtk/gtkrc"
+#include "/usr/local/share/themes/Notif/gtk/gtkrc"
+#include "/usr/local/share/themes/Default/gtk/gtkrc"
+
+# pixmap_path "."  # GTk2 complains.
+
+style "defaultfont"
+{
+#  fontset = "-adobe-helvetica-medium-r-normal--*-100-*-*-*-*-*-*,*"
+  font = "-adobe-helvetica-medium-r-normal--*-75-*-*-*-*-*-*,*"
+}
+
+#GTK2 style "small-font" 
+#GTK2 {
+#GTK2   font_name = "sans 8"
+#GTK2 }
+
+# common default
+class "GtkWidget" style "defaultfont"
+
+style "window"
+{
+# bg_pixmap[NORMAL] = "marble.xpm"
+}
+
+style "scale"
+{
+  fg[NORMAL] = { 0.2, 0, 0 }
+  bg_pixmap[NORMAL] = "<parent>"
+}
+
+style "button" = "default"
+{
+#  fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+#  bg[PRELIGHT] = { 0, 0, 0.75 }
+   bg[PRELIGHT] = { 0.93, 0.93, 0.96 }
+   fg[PRELIGHT] = { 0.0, 0.0, 0.0 }
+}
+
+style "entry" = "default"
+{ 
+
+#   bg[INSENSITIVE] = { 0.7, 0.7, 0.7 }
+   fg[INSENSITIVE] = { 0.4, 0.4, 0.4 }
+} 
+
+style "toggle_button" = "button"
+{
+  fg[NORMAL]   = { 0.0, 0, 0 }
+  fg[ACTIVE]   = { 0.2, 0, 0 }
+  bg[ACTIVE]   = { 0.9, 0.8, 0.9 }
+  # These are the pre-lights for the Model/Fit/Refine dialog
+  bg[PRELIGHT] = { 0.92, 0.92, 0.98 }
+}
+
+style "edit-chi-angles-button" = "default"
+{
+   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+   bg[PRELIGHT] = { 0.3, 0.95, 0.3 }
+}
+
+style "edit-torsion-general-button" = "default"
+{
+   fg[PRELIGHT] = { 1.0, 1.0, 1.0 }
+   bg[PRELIGHT] = { 0.3, 0.95, 0.3 }
+}
+
+
+style "model-fit-refine" = "button"
+{
+  fg[NORMAL]   = { 0.0, 0,   0 }
+  bg[NORMAL]   = { 0.9, 0.6, 0.6 }
+  fg[ACTIVE]   = { 0.9, 0.9, 0 }
+  bg[ACTIVE]   = { 0.9, 0.8, 0.5 }
+  # These are the pre-lights for the Model/Fit/Refine dialog
+  bg[PRELIGHT] = { 0.92, 0.92, 0.98 }
+}
+
+# #############################################################
+#          Model/Fit/Refine button colours               ######
+# #############################################################
+
+style "model-fit-refine-params" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.9, 0.8, 0.7 }
+}
+
+style "model-fit-refine-map-select" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.9, 0.8, 0.7 }
+}
+
+
+# These should be in order
+
+# ############# atom movers ###############################
+
+style "model-fit-refine-refine" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.9, 0.95, 0.75 }
+}
+
+style "model-fit-refine-regularize" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.92, 0.92, 0.79 }
+}
+
+style "model-fit-refine-fixed-atoms" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.93, 0.95, 0.76 }
+}
+
+style "model-fit-refine-rigid-body" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.93, 0.9, 0.8 }
+}
+
+style "model-fit-refine-rot-trans" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.93, 0.82, 0.72 }
+}
+
+style "model-fit-refine-auto-fit-rotamer" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.95, 0.79, 0.71 }
+}
+
+style "model-fit-refine-rotamer" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.95, 0.77, 0.66 }
+}
+
+style "model-fit-refine-edit-chi" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.95, 0.76, 0.68 }
+}
+
+style "model-fit-refine-torsion-general" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.95, 0.75, 0.69 }
+}
+
+style "model-fit-refine-pepflip" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.95, 0.70, 0.71 }
+}
+
+style "model-fit-refine-180-degree-flip" = "model-fit-refine"  
+{
+  bg[NORMAL]   = { 0.95, 0.69, 0.75 }
+}
+
+# actually backbone
+style "model-fit-refine-edit-phi-psi" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.95, 0.68, 0.81 }
+}
+
+######## Here are the atom list changers #####################
+
+style "model-fit-refine-mutate-auto-fit" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.95, 0.66, 0.94 }
+}
+
+style "model-fit-refine-mutate" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.91, 0.65, 0.95 }
+}
+
+style "model-fit-refine-ligands" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.82, 0.66, 0.95 }
+}
+
+style "model-fit-refine-waters" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.82, 0.66, 0.95 }
+}
+
+style "model-fit-refine-fit-terminal-residue" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.76, 0.64, 0.95 }
+}
+
+style "model-fit-refine-add-alt-conf" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.74, 0.67, 0.95 }
+}
+
+style "model-fit-refine-baton" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.69, 0.65, 0.95 }
+}
+
+style "model-fit-refine-db-main" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.68, 0.71, 0.95 }
+}
+
+style "model-fit-refine-pointer-atom" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.71, 0.79, 0.95 }
+}
+
+style "model-fit-refine-add-OXT" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.73, 0.88, 0.95 }
+}
+
+style "model-fit-refine-clear-pending" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.75, 0.95, 0.94 }
+}
+
+style "model-fit-refine-delete" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.75, 0.95, 0.91 }
+}
+
+style "model-fit-refine-undo" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.7, 0.95, 0.79 }
+}
+
+style "model-fit-refine-refmac" = "model-fit-refine"
+{
+  bg[NORMAL]   = { 0.65, 0.9, 0.6 }
+}
+
+# #########################################
+
+
+
+# This one is not visible? 
+
+
+# buttons
+
+
+
+
+# ----------------------------------------
+style "text"
+{
+#  bg_pixmap[NORMAL] = "marble.xpm"
+  text[NORMAL] = { 0.0, 0.0, 0.0 }
+#    bg[NORMAL] = { 1.0, 0.0, 0.0 }
+     fg[NORMAL] = { 1.0, 0.0, 0.0 }
+  base[NORMAL] = { 0.75, 0.9, 0.75 }
+}
+
+style "slider"
+{
+#  fg[NORMAL] = { 1.0, 1.0, 1.0 }
+#  bg[NORMAL] = { 0.0, 0.0, 1.0 }
+#  bg[ACTIVE] = { 0.0 ,0.0, 0.5 }
+#  bg[PRELIGHT] = { 0.75 ,0.75, 1.0 }
+}
+
+style "ruler"
+{
+ #  font = '-adobe-helvetica-medium-r-normal--*-80-*-*-*-*-*-*'
+}
+
+style "curve"
+{
+  # fg[NORMAL] = { 58000, 0, 0 }                  # red
+}
+
+style "red-bar"
+{
+  bg[PRELIGHT] = { 0.95, .55, 0.55 }
+}
+
+
+
+# override testgtk2, introduce the green color in the button list
+style 'button_list' = 'button'
+{
+  font = "-adobe-helvetica-medium-r-normal--*-100-*-*-*-*-*-*"
+  bg[PRELIGHT] = { 0, 0.75, 0x00 }
+}
+# widget "main window.*GtkScrolledWindow.*GtkButton*" style "button_list"
+
+
+widget "*.*.model_refine_dialog_map_select_button" style "model-fit-refine-map-select"
+widget "*.*.model_refine_dialog_regularize_zone_togglebutton" style "model-fit-refine-regularize"
+widget "*.*.model_refine_dialog_refine_togglebutton" style "model-fit-refine-refine"
+widget "*.*.model_refine_dialog_pepflip_togglebutton" style "model-fit-refine-pepflip"
+widget "*.*.model_refine_dialog_rigid_body_togglebutton" style "model-fit-refine-rigid-body"
+widget "*.*.model_refine_dialog_fit_terminal_residue_togglebutton" style "model-fit-refine-fit-terminal-residue"
+widget "*.*.model_refine_dialog_rot_trans_togglebutton" style "model-fit-refine-rot-trans"
+widget "*.*.model_refine_dialog_db_main_togglebutton" style "model-fit-refine-db-main"
+widget "*.*.model_refine_dialog_rotamer_togglebutton" style "model-fit-refine-rotamer"
+widget "*.*.model_refine_dialog_mutate_togglebutton" style "model-fit-refine-mutate"
+widget "*.*.model_refine_dialog_mutate_auto_fit_togglebutton" style "model-fit-refine-mutate-auto-fit"
+widget "*.*.model_refine_dialog_auto_fit_rotamer_togglebutton" style "model-fit-refine-auto-fit-rotamer"
+widget "*.*.model_refine_dialog_edit_backbone_torsions_togglebutton" style "model-fit-refine-edit-phi-psi"
+widget "*.*.model_refine_dialog_edit_chi_angles_togglebutton" style "model-fit-refine-edit-chi"
+widget "*.*.model_refine_dialog_torsion_general_togglebutton" style "model-fit-refine-torsion-general"
+widget "*.*.model_refine_dialog_do_180_degree_sidechain_flip_togglebutton" style "model-fit-refine-180-degree-flip"
+widget "*.*.edit_chi_angles_button" style "edit-chi-angles-button"
+
+# buttons
+widget "*.*.model_refine_dialog_refine_params_button" style "model-fit-refine-params"
+widget "*.*.model_refine_dialog_fixed_atoms_button" style "model-fit-refine-fixed-atoms"
+#widget "*.*.model_refine_dialog_find_ligands_button" style "model-fit-refine-ligands"
+#widget "*.*.model_refine_dialog_find_waters_button" style "model-fit-refine-waters"
+widget "*.*.model_refine_dialog_add_alt_conf_button" style "model-fit-refine-add-alt-conf"
+#widget "*.*.model_refine_dialog_baton_button" style "model-fit-refine-baton"
+widget "*.*.model_refine_dialog_pointer_atom_button" style "model-fit-refine-pointer-atom"
+#widget "*.*.model_refine_dialog_add_OXT_button" style "model-fit-refine-add-OXT"
+widget "*.*.model_refine_dialog_clear_pending_button" style "model-fit-refine-clear-pending"
+widget "*.*.model_refine_dialog_delete_button" style "model-fit-refine-delete"
+widget "*.*.model_refine_dialog_undo_button" style "model-fit-refine-undo"
+widget "*.*.model_refine_dialog_refmac_button" style "model-fit-refine-refmac"
+
+
+
+# play
+#widget "*togglebutton" style "toggle_button"
+
+class "GtkToggleButton" style "toggle_button"
+
+
+# behave!
+# class "GtkScrollbar" style "red-bar"
+
+widget_class "GtkWindow" style "window"
+widget_class "GtkDialog" style "window"
+widget_class "GtkFileSelection" style "window"
+widget_class "*Gtk*Scale" style "scale"
+widget_class "*GtkCheckButton*" style "toggle_button"
+widget_class "*GtkRadioButton*" style "toggle_button"
+widget_class "*GtkButton*" style "button"
+widget_class "*GtkEntr*" style "entry"
+widget_class "*Ruler" style "ruler"
+widget_class "*GtkText" style "text"
+widget "*GtkCurve" style "curve"
+
+binding "test1"
+{
+  bind "<ctrl>1" {
+    "debug-msg" ("jup!")
+  }
+}
+
+binding "test2"
+{
+  bind "<ctrl>1" {
+    "debug-msg" ("hallo and")
+    "debug-msg" ("huhu")
+  }
+}
+
+# possible priorities are (in ascending order):
+# lowest
+# gtk         (used by gtk for internal class bindings)
+# application (for hard coded bindings on application basis)
+# rc          (used implicitel by rc files)
+# highest
+class "GtkCList" binding  "test1"           # implicit : rc
+#class "GtkWindow" binding : highest "test2" # override "rc" priority
+
+binding "clist-test"
+{
+  bind "j" {
+    "scroll-vertical" (step-backward, 0.0)
+  }
+  bind "k" {
+    "scroll-vertical" (step-forward, 0.0)
+  }
+}
+
+class "GtkCList" binding "clist-test"
+
+# to make the gtk theme buttons at the model_toolbar smaller
+#gtk-icon-sizes = "gtk-large-toolbar=18,18"
+#GTK2 gtk-icon-sizes = "gtk-large-toolbar=16,16:gtk-button=16,16"
+# enable to make font of Model/Fit/Refine dialog smaller
+#widget "*.model*.GtkLabel" style "small-font"
+
+# enable to make all fonts smaller
+#class "GtkLabel" style "small-font"
