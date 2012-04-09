@@ -1,0 +1,17 @@
+
+install_top_dir=$(HOME)/autobuild/Linux-$(HOST)-pre-release-gtk2-python
+prfx=$(install_top_dir)
+INCLUDES=-I$(prfx)/include/python2.7
+
+_example.so: example.o example-wrap.o
+	ld -shared -fPIC example.o example-wrap.o -o _example.so 
+
+example-wrap.cc: example.i
+	swig -c++ -python -o example-wrap.cc example.i
+
+example-wrap.o:
+	g++ -c -fPIC $(INCLUDES) example-wrap.cc
+
+example.o:
+	g++ -c -fPIC $(INCLUDES) example.c
+

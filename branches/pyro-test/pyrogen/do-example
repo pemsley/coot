@@ -1,0 +1,10 @@
+
+install_top_dir=$HOME/autobuild/Linux-tiresias-pre-release-gtk2-python
+
+prfx=$install_top_dir
+INCLUDES=-I$prfx/include/python2.7
+
+swig -python example.i
+gcc -c -fPIC  $INCLUDES example.c example_wrap.c
+ld -shared -fPIC example.o example_wrap.o -o _example.so 
+
