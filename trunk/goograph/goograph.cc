@@ -31,7 +31,6 @@ coot::goograph::show_dialog() {
    draw_graph();
    
    dialog = gtk_dialog_new();
-   std::cout << "gtk_dialog_new() made dialog " << dialog << std::endl;
    gtk_window_set_default_size(GTK_WINDOW(dialog), dialog_width, dialog_height);
    gtk_window_set_title (GTK_WINDOW(dialog), title_string.c_str());
    gtk_object_set_data(GTK_OBJECT(dialog), "goograph_dialog", dialog);
@@ -104,7 +103,8 @@ gint
 coot::goograph::reshape(GtkWidget *widget, GdkEventConfigure *event) {
 
    gint status = 0;
-   coot::goograph *g_p = (coot::goograph *) gtk_object_get_data(GTK_OBJECT(widget), "goograph");
+   coot::goograph *g_p = static_cast<coot::goograph *> (gtk_object_get_data(GTK_OBJECT(widget), "goograph"));
+
    if (g_p) {
       bool do_redraw = false;
       if (g_p->dialog_width != widget->allocation.width)
