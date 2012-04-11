@@ -10,28 +10,7 @@
 
  * Needs testing.
 
-    o MR:
 
-       in case no refinement map is selected, asks you for one and
-       real space refinement stays active, which is quite handy since
-       it saves a click. Could you enable the same for the rigid body
-       fit function in the model-fit-refine menu?
-
-* Yes, but Punt.
-
-   o Boaz: deleting waters crash ::: 4
-
-* Gone. Fixed? Presume so.
-
-   o Stu Fisher
-
-       We noticed a strange bug in the recent versions of coot. Since
-       upgrading to 0.7-pre (3832), water molecules (with hydrogens,
-       or in our case D2O as we are refining neutron structures) are
-       no longer shown as bonded, they just show up as three
-       crosses. 
-
-* Done.  Check with 3ins
 
 ------
 
@@ -411,3 +390,17 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
 
 * Needs testing.
 
+   o Boaz: deleting waters crash ::: 4
+
+* Gone. Fixed? Presume so.
+
+
+   o Stu Fisher
+
+       We noticed a strange bug in the recent versions of coot. Since
+       upgrading to 0.7-pre (3832), water molecules (with hydrogens,
+       or in our case D2O as we are refining neutron structures) are
+       no longer shown as bonded, they just show up as three
+       crosses. 
+
+* Done.  Check with 3ins.  Hmm.. bonds to Ds are now thick.

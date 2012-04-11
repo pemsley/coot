@@ -2624,7 +2624,10 @@ int dots(int imol,
 
    int idots = -1;
    if (is_valid_model_molecule(imol)) {
-      if (atom_selection_str) { 
+      if (atom_selection_str) {
+	 // the colour is handled internally to make_dots - there the
+	 // state of molecule dots colour (see set_dots_colour()
+	 // below) is checked.
 	 idots = graphics_info_t::molecules[imol].make_dots(std::string(atom_selection_str),
 							    dots_name,
 							    dot_density,
@@ -2642,6 +2645,15 @@ void set_dots_colour(int imol, float r, float g, float b) {
       graphics_draw();
    }
 }
+
+void unset_dots_colour(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].unset_dots_colour();
+      graphics_draw();
+   }
+} 
+
 
 void clear_dots(int imol, int dots_handle) {
 
