@@ -4,10 +4,11 @@
 ----
 
    o run get pdbe structure for 2 different ligands (running refmac twice).
+     ::: 2
 
-   o Fix scheme remote control.
+   o Fix scheme remote control. ::: 1
 
-   o sync CODE FILE with jligand.
+ * Needs testing.
 
     o MR:
 
@@ -16,9 +17,11 @@
        it saves a click. Could you enable the same for the rigid body
        fit function in the model-fit-refine menu?
 
-   o Boaz: deleting waters crash
+* Yes, but Punt.
 
-   o Memory leak on fit protein - Ed Pozharski
+   o Boaz: deleting waters crash ::: 4
+
+* Gone. Fixed? Presume so.
 
    o Stu Fisher
 
@@ -28,7 +31,7 @@
        no longer shown as bonded, they just show up as three
        crosses. 
 
-   o draw oxygen correctly: 1a6m
+* Done.  Check with 3ins
 
 ------
 
@@ -396,3 +399,15 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
 * No.
 
  
+   o Memory leak on fit protein - Ed Pozharski ::: 2
+
+* Done.
+
+   o draw oxygen correctly: 1a6m ::: 0.5
+
+* Done 
+
+   o sync CODE FILE with jligand. ::: 1
+
+* Needs testing.
+
