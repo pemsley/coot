@@ -317,6 +317,7 @@ coot_real_SOURCES = \
 	coot-references.h        \
 	coot_wrap_guile_gtk1.cc  \
 	coot_wrap_guile_gtk2.cc  \
+        dots-representation.hh   \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	generic-display-object.hh\
