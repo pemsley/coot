@@ -314,3 +314,124 @@ use_only_extra_torsion_restraints_for_torsions_state() {
    return graphics_info_t:: use_only_extra_torsion_restraints_for_torsions_flag;
 
 }
+
+#ifdef USE_PYTHON
+PyObject *python_representation_kk(int imol) {
+   
+   PyObject *r = Py_False;
+   
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      int nchains = mol->GetNumberOfChains(1);
+      
+      PyObject *chain_list = PyList_New(nchains);
+      
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 CChain *chain_p = mol->GetChain(1,ichain);
+	 PyObject *chain_id = PyString_FromString(chain_p->GetChainID());
+         int nres;
+         PCResidue *residues;
+         chain_p->GetResidueTable(residues, nres);
+         
+         PyObject *chain_info = PyList_New(2);
+         PyList_SetItem(chain_info, 0, chain_id);
+         PyObject *res_list = PyList_New(nres);
+         
+         for (int ires=0; ires<nres; ires++) {
+            CResidue *this_res = residues[ires];
+            
+            //get the residue name, number, and insertion code
+            PyObject *res_name, *res_num, *res_inscode;
+            res_name    = PyString_FromString(this_res->GetResName());
+            res_num     = PyInt_FromLong(this_res->GetSeqNum());
+            res_inscode = PyString_FromString(this_res->GetInsCode());
+            
+            //store the residue name, number, and insertion code
+            PyObject *res_info = PyList_New(4);
+            PyList_SetItem(res_info, 0, res_num);
+            PyList_SetItem(res_info, 1, res_inscode);
+            PyList_SetItem(res_info, 2, res_name);
+            
+            //get the list of atoms (taken from residue_info_py)
+            int n_atoms = this_res->GetNumberOfAtoms();
+            PyObject *at_info = Py_False;
+            PyObject *at_pos;
+            PyObject *at_occ, *at_b, *at_biso, *at_ele, *at_name, *at_altconf;
+            PyObject *at_segid;
+            PyObject *at_x, *at_y, *at_z;
+            PyObject *compound_name;
+            PyObject *compound_attrib;
+            PyObject *all_atoms = PyList_New(0);
+            for (int iat=0; iat<n_atoms; iat++) {
+
+               CAtom *at = this_res->GetAtom(iat);
+               if (at->Ter) continue; //ignore TER records
+               
+               at_x  = PyFloat_FromDouble(at->x);
+               at_y  = PyFloat_FromDouble(at->y);
+               at_z  = PyFloat_FromDouble(at->z);
+               at_pos = PyList_New(3);
+               PyList_SetItem(at_pos, 0, at_x);
+               PyList_SetItem(at_pos, 1, at_y);
+               PyList_SetItem(at_pos, 2, at_z);
+
+               at_occ = PyFloat_FromDouble(at->occupancy);
+               at_biso= PyFloat_FromDouble(at->tempFactor);
+               at_ele = PyString_FromString(at->element);
+               at_name = PyString_FromString(at->name);
+               at_segid = PyString_FromString(at->segID);
+               at_altconf = PyString_FromString(at->altLoc);
+
+               at_b = at_biso;
+               if (at->WhatIsSet & ASET_Anis_tFac) {
+                  at_b = PyList_New(7);
+                  PyList_SetItem(at_b, 0, at_biso);
+                  PyList_SetItem(at_b, 1, PyFloat_FromDouble(at->u11));
+                  PyList_SetItem(at_b, 2, PyFloat_FromDouble(at->u22));
+                  PyList_SetItem(at_b, 3, PyFloat_FromDouble(at->u33));
+                  PyList_SetItem(at_b, 4, PyFloat_FromDouble(at->u12));
+                  PyList_SetItem(at_b, 5, PyFloat_FromDouble(at->u13));
+                  PyList_SetItem(at_b, 6, PyFloat_FromDouble(at->u23));
+               }
+
+               compound_name = PyList_New(2);
+               PyList_SetItem(compound_name, 0 ,at_name);
+               PyList_SetItem(compound_name, 1 ,at_altconf);
+
+               compound_attrib = PyList_New(4);
+               PyList_SetItem(compound_attrib, 0, at_occ);
+               PyList_SetItem(compound_attrib, 1, at_b);
+               PyList_SetItem(compound_attrib, 2, at_ele);
+               PyList_SetItem(compound_attrib, 3, at_segid);
+
+               at_info = PyList_New(3);
+               PyList_SetItem(at_info, 0, compound_name);
+               PyList_SetItem(at_info, 1, compound_attrib);
+               PyList_SetItem(at_info, 2, at_pos);
+
+               PyList_Append(all_atoms, at_info);
+            }
+            
+            //store the information about the current residue
+            PyList_SetItem(res_info, 3, all_atoms);
+            PyList_SetItem(res_list, ires, res_info);
+         }
+         
+         //store the information about the current chain
+         PyList_SetItem(chain_info, 1, res_list);
+         PyList_SetItem(chain_list, ichain, chain_info);
+      }
+      
+      //store the chain_list in r
+      r = PyList_New(1);
+      PyList_SetItem(r, 0, chain_list);
+      //if we were retrieving multiple models for the current molecule, we would store chain_list at position imodel
+   }
+   
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+   
+}
+#endif // USE_PYTHON
