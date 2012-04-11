@@ -59,12 +59,13 @@
 		 (mb-size-str-2 (if (> (string-length mb-size-str-1) 5)
 				    (substring mb-size-str-1 0 5)
 				    mb-size-str-1)))
-		
-	    (format #t "There are ~s old files  (~s bytes) (~aMb) in ~s~%"
-		    (length olds) 
-		    total-size
-		    mb-size-str-2
-		    dir)
+	    
+; 	    (format #t "There are ~s old files  (~s bytes) (~aMb) in ~s~%"
+; 		    (length olds) 
+; 		    total-size
+; 		    mb-size-str-2
+; 		    dir)
+
 	    (list (length olds) mb-size-str-2))
 
 	  (if (eq? action-type 'delete)
