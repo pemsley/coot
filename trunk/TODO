@@ -1002,6 +1002,8 @@ Punted from 0.6:
 
     Release 0.8, March 2012
 
+  o dot molecule-info-class dots functions in their own file.
+
   * Split out graphics functions from c-interface.h. ::: 4
 
   * replace guile-gtk with guile-gnome ::: 15
@@ -1022,6 +1024,17 @@ Punted from 0.6:
    o make minimol's addresidue() work with inscodes.  e.g. the 52A PRO
    in "Autofit Rotamer on Residues with Insertion codes" test. (see
    that an exception is thrown in backrub_rotamer search().)
+
+
+    o MR:
+
+       in case no refinement map is selected, asks you for one and
+       real space refinement stays active, which is quite handy since
+       it saves a click. Could you enable the same for the rigid body
+       fit function in the model-fit-refine menu?
+
+* Yes, but Punt.
+
 
 
    o 	We need to activate this: graphics_info_t::execute_add_terminal_residue

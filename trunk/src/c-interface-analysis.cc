@@ -104,7 +104,8 @@ void hole(int imol, float start_x, float start_y, float start_z, float end_x, fl
       std::pair<int, int> geom(160, 400);
       simple_text_dialog("Probe radius data", text, geom);
 
-      show_hole_probe_radius_graph(hole_path_and_surface.first, path_length);
+      if (show_probe_radius_graph_flag)
+	 show_hole_probe_radius_graph(hole_path_and_surface.first, path_length);
 
    }
 }
@@ -176,28 +177,29 @@ void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coo
 
 void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length) {
 
-#ifdef HAVE_GOOCANVAS   
-   coot::goograph g;
-   int trace = g.trace_new();
-   std::vector<std::pair<double, double> > data;
-   int n = hole_path.size();
-   for (unsigned int i=0; i<n; i++) {
-      double x, y;
-      x = path_length * double(i)/double(n);
-      y = hole_path[i].second;
-      std::pair<double, double> p(x,y);
-      data.push_back(p);
+#ifdef HAVE_GOOCANVAS
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      coot::goograph* g = new coot::goograph;
+      int trace = g->trace_new();
+      std::vector<std::pair<double, double> > data;
+      int n = hole_path.size();
+      for (unsigned int i=0; i<n; i++) {
+	 double x, y;
+	 x = path_length * double(i)/double(n);
+	 y = hole_path[i].second;
+	 std::pair<double, double> p(x,y);
+	 data.push_back(p);
+      }
+      g->set_plot_title("Probe Radius Graph");
+      g->set_data(trace, data);
+      g->set_extents(coot::goograph::Y_AXIS, 0, 5);
+      g->set_ticks(coot::goograph::X_AXIS, 5, 1);
+      g->set_ticks(coot::goograph::Y_AXIS, 1, 0.2);
+      g->set_axis_label(coot::goograph::X_AXIS, "Position along Path");
+      g->set_axis_label(coot::goograph::Y_AXIS, "Radius");
+      g->set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_LINE);
+      g->show_dialog();
    }
-   g.set_plot_title("Probe Radius Graph");
-   g.set_data(trace, data);
-   g.set_extents(coot::goograph::Y_AXIS, 0, 5);
-   g.set_ticks(coot::goograph::X_AXIS, 5, 1);
-   g.set_ticks(coot::goograph::Y_AXIS, 1, 0.2);
-   g.set_axis_label(coot::goograph::X_AXIS, "Position along Path");
-   g.set_axis_label(coot::goograph::Y_AXIS, "Radius");
-   g.set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_LINE);
-   g.show_dialog();
-
 #endif // HAVE_GOOCANVAS   
 }
 

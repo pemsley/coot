@@ -84,6 +84,8 @@ using namespace std; // Hmmm.. I don't approve, FIXME
 #include "gl-bits.hh"
 #include "flev-annotations.hh" // animated ligand interactions
 
+#include "dots-representation.hh"
+
 namespace molecule_map_type {
    enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3,
 	  TYPE_DIFF_SIGMAA=4 };
@@ -312,65 +314,6 @@ namespace coot {
 	 is_closed = 1;
       } 
    };
-
-   class dots_representation_info_t {
-      bool is_closed;
-      double get_radius(const std::string &ele) const;
-      coot::colour_t get_colour(const std::string &ele) const;      
-      std::string name_;
-   public:
-      dots_representation_info_t() {
-	 is_closed = 0;
-      }
-      std::vector<std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > > points;
-      // 20111123 modern usage
-      dots_representation_info_t(const std::string &name_in) {
-	 name_ = name_in;
-      }
-      dots_representation_info_t(const std::vector<clipper::Coord_orth> &points_in) {
-	 points.push_back(std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > (coot::colour_t(0.3, 0.4, 0.5), points_in));
-	 is_closed = 0;
-      }
-      dots_representation_info_t(CMMDBManager *mol);
-      // make dots around the atoms of mol, only if they are close to
-      // atoms of mol_exclude
-      dots_representation_info_t(CMMDBManager *mol, CMMDBManager *mol_exclude);
-      // mol_exclude can be NULL.
-      void add_dots(int SelHnd_in, CMMDBManager *mol, CMMDBManager *mol_exclude,
-		    double dots_density);
-      void close_yourself() {
-	 points.clear();
-	 is_closed = 1;
-      }
-      void pure_points(CMMDBManager *mol); // don't surface mol, the surface points *are* the
-					   // (synthetic) atoms in mol.
-      bool is_open_p() const {
-	 int r = 1 - is_closed;
-	 return r;
-      }
-      void set_name(const std::string &name_in) { name_ = name_in; }
-      std::string name() const { return name_;}
-
-      // This is added later (20100413)
-      // 
-      // what is the fraction solvent exposure of the atoms in the atom
-      // selection?  Calculate it for all the atoms in the selection (of
-      // mol) and use all the atoms of mol to "bump into" each atom (and
-      // that of course reduces the fraction of solvent exposure.
-      // 
-      std::vector<std::pair<CAtom *, float> > solvent_exposure(int SelHnd_in, CMMDBManager *mol) const;
-
-      // create (and later delete, of course) a new molecule by deep
-      // copying and assembling the passed residues.  Use that to make
-      // a atom selection which gets passed to
-      // dots_representation_info_t::solvent_exposure()
-      // 
-      std::vector<std::pair<coot::atom_spec_t, float> >
-      solvent_accessibilities(CResidue *res_ref, const std::vector<CResidue *> &residues) const;
-      std::vector<solvent_exposure_difference_helper_t>
-      solvent_exposure_differences(CResidue *res_ref, const std::vector<CResidue *> &residues) const;
-   };
-
 
    class at_dist_info_t {
 
@@ -907,7 +850,8 @@ class molecule_class_info_t {
 		  clipper::RTop_orth a_to_b_transform);
 
    std::vector<coot::dots_representation_info_t> dots;
-   float dots_colour[3];
+   coot::colour_t dots_colour;
+   bool dots_colour_set;
    coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
 				     bool ca_check_flag) const;
    coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
@@ -1160,9 +1104,8 @@ public:        //                      public
 
       // dots colour can now be set from outside.
       //
-      dots_colour[0] = 0.3;
-      dots_colour[1] = 0.4;
-      dots_colour[2] = 0.5;
+      dots_colour = coot::colour_t(0.3,0.4,0.5);
+      dots_colour_set = false; // so use atom-element colouring
 
       // solid surface density representation
       //
@@ -1436,6 +1379,9 @@ public:        //                      public
 		  float dot_density, float atom_radius_scale);
    int n_dots_sets() const {  // return the number of sets of dots.
       return dots.size();
+   }
+   void unset_dots_colour() {
+      dots_colour_set = false; // back to default
    } 
 
    void initialize_on_read_molecule(); 
@@ -2958,9 +2904,8 @@ public:        //                      public
    // ---- colour dots surface -----------
    //
    void set_dots_colour(float r, float g, float b) {
-      dots_colour[0] = r;
-      dots_colour[1] = g;
-      dots_colour[2] = b;
+      dots_colour.set(r,g,b);
+      dots_colour_set = true;
    }
 
    // ---- extra restraints (currently only bonds) -----------

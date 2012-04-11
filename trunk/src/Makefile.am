@@ -370,6 +370,7 @@ coot_real_SOURCES = \
 	molecule-class-info.cc 	 \
 	molecule-class-info-maps.cc 	\
 	molecule-class-info-kdc.cc      \
+	molecule-class-info-dots.cc 	\
 	molecule-class-info-other.cc 	\
 	molecule-class-info-build.cc 	\
 	molecule-class-info.h 	        \

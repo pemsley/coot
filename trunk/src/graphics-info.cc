@@ -4271,14 +4271,28 @@ graphics_info_t::draw_generic_objects_solid() {
 	 
 	 // Points
 	 for (unsigned int ips=0; ips<(*generic_objects_p)[i].points_set.size(); ips++) {
-	    glColor3f((*generic_objects_p)[i].points_set[ips].colour.red,
-		      (*generic_objects_p)[i].points_set[ips].colour.green,
-		      (*generic_objects_p)[i].points_set[ips].colour.blue);
+// 	    glColor3f((*generic_objects_p)[i].points_set[ips].colour.red,
+// 		      (*generic_objects_p)[i].points_set[ips].colour.green,
+// 		      (*generic_objects_p)[i].points_set[ips].colour.blue);
 	    
 	    int sphere_slices = 5;
 	    int sphere_stacks = 5;
+	    float feature_opacity = 1.0;
 	    unsigned int npoints = (*generic_objects_p)[i].points_set[ips].points.size();
 	    for (unsigned int ipoint=0; ipoint<npoints; ipoint++) {
+
+	       const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
+	       GLfloat  mat_specular[]  = {obj.points_set[ips].colour.red,
+					   obj.points_set[ips].colour.green,
+					   obj.points_set[ips].colour.blue,
+					   feature_opacity};
+	       GLfloat  mat_shininess[] = {15};
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
+	       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+
+	       
 	       GLUquadric* sphere_quad = gluNewQuadric();
 	       glPushMatrix();
 	       glTranslatef((*generic_objects_p)[i].points_set[ips].points[ipoint].x(),

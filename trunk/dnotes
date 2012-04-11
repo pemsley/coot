@@ -6452,9 +6452,28 @@ Mon Mar 19 16:55:16 GMT 2012
 ---
 Wed Apr  4 15:19:44 BST 2012
 
+  ---> we drop the image url
+
+  such as 
+
+  http://www.chemspider.com/ImagesHandler.ashx?id=24747352&w=200&h=200
+
+  extract chemspider_id = 24747352
+
+  --> we curl get mdl mol file:
+  "http://www.chemspider.com/FilesHandler.ashx?type=str&striph=yes&id=" + chemspider_id
+
+
+  and while you are at it, you might get the wikipedia page, look for 
+
+  href="http://www.chemspider.com/Chemical-Structure.24747352" to extract the chemspider_id
+
+
+---
+Tue Apr  3 17:04:40 BST 2012
+
 valgrind:
 
  valgrind --leak-check=full --suppressions=../../coot/guile.supp --suppressions=../../coot/valgrind-python.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-real 
-
 
 ------

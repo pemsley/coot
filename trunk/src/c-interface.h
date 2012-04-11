@@ -4635,6 +4635,10 @@ int dots(int imol,
 
   r,g,b are values between 0.0 and 1.0 */
 void set_dots_colour(int imol, float r, float g, float b);
+/*! \brief no longer set the dots of molecule imol to a single colour
+
+i.e. go back to element-based colours. */
+void unset_dots_colour(int imol); 
 
 /*! \brief clear dots in imol with dots_handle */
 void clear_dots(int imol, int dots_handle);
