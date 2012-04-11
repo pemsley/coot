@@ -13,7 +13,7 @@
    height="1052.3622047"
    id="svg2"
    version="1.1"
-   inkscape:version="0.48.1 r9760"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="glyco-structures.svg">
   <defs
      id="defs4">
@@ -32,9 +32,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="0.5"
-     inkscape:cx="259.6192"
-     inkscape:cy="540.5297"
+     inkscape:zoom="2"
+     inkscape:cx="510.20563"
+     inkscape:cy="258.89336"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -771,7 +771,7 @@
          transform="matrix(0.40639235,0,0,0.40639235,267.06271,327.69127)"
          inkscape:transform-center-y="-3.1024381"
          inkscape:transform-center-x="0.57893287"
-         d="m 364.89293,-75.054734 -28.71187,-9.377455 -16.49348,25.30361 0.046,-30.204398 -29.16193,-7.86699 28.74032,-9.289893 -1.52958,-30.16567 17.71646,24.46293 28.21659,-10.77643 -17.79094,24.408814 z"
+         d="m 364.89293,-75.054734 -28.71187,-9.377455 -16.49348,25.30361 0.046,-30.204398 -29.16193,-7.86699 28.74032,-9.289893 -1.52958,-30.16567 17.71646,24.46293 28.21659,-10.77643 -17.79094,24.408814 18.9684,23.505482 z"
          inkscape:randomized="0"
          inkscape:rounded="0"
          inkscape:flatsided="false"
@@ -1402,14 +1402,14 @@
          style="font-size:16px">GlcNAc</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:56px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:Microsoft Sans Serif, DejaVu Sans;-inkscape-font-specification:DejaVu Sans"
-       x="471.51697"
+       style="font-size:56px;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;text-align:start;line-height:125%;letter-spacing:0px;word-spacing:0px;writing-mode:lr-tb;text-anchor:start;fill:#000000;fill-opacity:1;stroke:none;font-family:'Microsoft Sans Serif, DejaVu Sans';-inkscape-font-specification:DejaVu Sans"
+       x="477.51697"
        y="785.51282"
        id="text5700-0-5-7-6"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan5702-7-9-7-1"
-         x="471.51697"
+         x="477.51697"
          y="785.51282"
          style="font-size:16px">Man</tspan></text>
     <text
