@@ -383,6 +383,12 @@ int  seqnum_from_serial_number(int imol, const char *chain_id,
    @return NULL (scheme False) on failure. */
 char *insertion_code_from_serial_number(int imol, const char *chain_id, int serial_num);
 
+#ifdef __cplusplus
+#ifdef USE_PYTHON
+PyObject *python_representation_kk(int imol);
+#endif
+#endif
+
 /*! \brief the chain_id (string) of the ichain-th chain
   molecule number imol  
    @return the chain-id */
