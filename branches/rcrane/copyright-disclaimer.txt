@@ -1,0 +1,20 @@
+
+If you want to work on Coot, please have the following signed by the
+copyright control people at your university/institution (and send it
+to me):
+
+Either:
+
+[University X] hereby disclaims all copyright interests in the package
+Coot (a suite of programs for macromolecular display and model
+building).
+
+or:
+
+[University X] hereby allows the contributions of [Person Y] to the
+package Coot (a suite of programs for macromolecular display and model
+building) to be distributed and licensed under the GNU General Public
+Licence.
+
+[Person Z]  [date] 
+

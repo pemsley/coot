@@ -1,0 +1,563 @@
+ -*-text-*-
+
+scripts      rev 4080 (some prodrg stuff needs testing) generic objects
+tests        rev 3991 update
+build-it-win rev 4031
+
+-------------------------------------------------------
+* THINGS TO DO BEFORE 0.7.0 RELEASE * ONLY URGENT THING
+-------------------------------------------------------
+
+* jligand/names/path in CCP4 vs website
+
+* auto-weight in scm
+
+---- FINISH URGENT ----
+
+CCP4 SW:
+- seq vs PIR have extra button to insert, delete, mutate
+- Windows: save working dir directory to properties/start in (possible?)
+- powerpoint plug in
+
+- add nomenclature error check to preferences
+- focus on button of nomenclature error dialog
+- bind arrow keys to translation!?
+- show all bond distances (angles etc?) for ligand/residue
+- update WIKI (key bindings)
+
+OIST-CCP4
+- indicate rotamer option somewhere/how [PhilE]
+- delete/hide DB loop candidates after accepting?!
+- stereo: shift/shear rather than rotate [PhilE]
+- Mac: enable goocanvas!
+- brightness warning dialog behind other dialog-> move forward?!
+- alt conf slider adjustment
+- change occ for master (accept return or just tick button)
+- after change the canvas (geometry) doesnt work for non-aa any more
+- improve seq assignment interface (take all seq, assign to all prot chains etc)
+- seq alignment produces N-term gaps which are not there... (gap to -2.5?)
+
+
+UPDATE CCP4 on build machine! Use new dictionary!!!
+
+CCP4
+- baton build no chainid (?)
+- 2nd baton build 'overrides' 1st
+
+notes from BioCrys
+- correct resno bsed on associated sequence (note: associate sequence produces
+	nonsens gaps at ends)
+- associate sequence GUI result GUI buttons, have action too rather than only
+	go-to-atom (have pair of buttons)
+
+ 
+notes APS CCP4 workshop
+- document refmac extra params + lib files location (note to self ?!)
+- SF4 library file (for Garib at some point)
+
+scripting exercise
+- shortcut for setting 0, 1, 0.5 occupancy
+- extend helix
+- adjust alt conf/occupancy
+- variance test for aa
+- doublicate residue range with alt conf
+
+notes from Shanghai:
+- on iconcs: replace the smilie in ligand editor, as it is theme specific
+
+----------------
+* TO DO THINGS *
+----------------
+
+**** General ****
+
+   o SSM of copied fragment doesnt work
+
+   o fix modal show_select_map_dialog in all instances!!
+
+   o 'map_scroll_button_2' widget not found (display manager warning)
+
+   o update sequence view after rename and renumber chains/residues
+
+   o gradually include residues for refinement, good if completely out 
+	(maybe not)!?
+
+   o check for updates in About?! Include info on pre- or release!?
+
+   o phs file dialog, make fill/expand properly
+
+* Done (quick fix)
+
+   o domain NCS (use parrot's code?!)
+
+   o make LINK search and LINK in pdb
+
+   o default bond length (e.g.) preferences conflict with state file
+
+   o seq view colour by alignment (optional/button)
+
+   o Go to Atom doe not update when open and new molecule gets created
+
+   o delete chain function (in scripting I guess)
+
+   o pick pointer disappears when using delete hydrogens (maybe in others too)
+	when keeping dialog open
+
+   o show symmetry axis !?
+
+   o grab focus of loaded state file window (only Win?)
+
+   o recalculate NCS
+
+   o 'force' NCS on non-matching sequences (*done?!)
+
+   o validate on top waters (already done maybe in 0.7)
+
+   o full screen mode? maximize screen function!?
+
+from Osaka 2010
+
+   o add preferences, dock accept refine etc in tutorial!?
+
+   o fix atoms dont give traffic lights (bug?)
+
+   o toolbar for other modelling tools?
+
+   o (more) menu separators (?)
+
+   o remove model fit refine dialog (for gtk2?)?
+
+-
+   o symmetry phosphates of DNA are bonded and not (i.e. get cross)
+
+   o what about ONLY torsion angle restraints for low res?
+
+   o add solvent molecule creates new monomers every time, check for existing ones
+
+   o space bar kills density fit window; feature or bug
+
+   o Difference map peaks do not respond to . , shortcuts
+
+   o symmetry colour button doesnt update (needs proper colour button)
+
+   o enable Alt key for scripting keyboard shortcuts
+
+   o reset button for map sharpening
+
+   o water check for B below threshold?!
+
+   o Tooltips for residues in new sequence view?! (wait for goocanvas - has
+	build-in tooltip)
+
+   o Edit Chi for hydrogens not working (H from reduce at least)
+
+   o transform whole asu for packing comparision?!
+
+   o doublication of find strand/find ss (Extensions, Other tools)
+
+   o glycosylate residue
+
+04/11/08 CCP4 dev meeting:
+   o activate bulk solvent correction for refmac?
+
+   o filechooser in save mode doesnt have delete & rename file!? Shall/can we?!
+
+   o refinement weighting by occupancy
+
+   o running shelx should be 'threaded'
+
+   o add all GtkWidget and similar functions as ignore to coot.i (script)
+
+   o simulate middle mouse with Alt left ?!
+
+04/10/08
+   o simultaneous refinement of alt confs
+
+   o interface to thomas schneider superposition program (ESCET)
+
+   o rigid body fit per residues (* done? bb script?! No! extend to nulceotides
+	i.e. use sugar and base as rb)
+
+   o fix OXT refinement
+     (maybe not now, as it may be fixed with MODRES etc... certainly already better)
+
+   o density histogram graph?!
+
+   o additional representations: hide parts of model (use bond thickness 0?!?
+	bond thickness 0 doesnt work. hiding seems tricky!?
+
+   o povray view angle still not ok (view gets smaller the further away from 
+	 origin we are) use openGL matrices?!
+
+   o refmac to run from an XML file
+
+   o read_refmac_log to read refmac XML output (if there)
+
+   o use libglade
+
+   o cootaneering (more testing, make documentation?)
+
+   o alternatives for loop building (wait for Kevin's implementation/sloopy)
+
+   o add terminal residue (if Gly, Pro) use different target ramachandran
+	 function for placement of term residue;
+	 maybe we want to try general rama first, then Pro, then Gly (if we 
+	 dont know the residue type) for better loop fit (or in general)
+	 this may require some Gly noise filtering as Gly always will fit best
+
+   o side chain treatment in low res maps (test if torsion angle restraints 
+	 are good enough) otherwise we may want different weight for MC and SC
+	 and/or B-factor refinement
+
+   o How about interfacing to a Wii?
+
+   o tutorial/documentation for scripting/extensions [Ronan Keegan]
+
+   o high resolution auto-build
+
+14/08/08
+   o probe dots on selected residue range (Bob van Dreele)
+
+	o move (& merge) symmetry related molecules (globularize?) Done?
+
+16/09/08
+   o 'new', short display manager
+
+22/09/08
+
+   o notes to self:
+     - ribbons: include ribbons
+  		save the ribbons for later use (?, maybe better to update and generate new)
+		sort out colouring
+        get lighting sorted
+		use CMMDBManager somehow...
+     - ccp4mg ellipsoids
+
+
+**** Python ****
+
+   o fix os.path arguments to be string (e.g. normpath)
+
+   o user_defined_restraints: rename and fix old RNA names
+
+   o use shell_command_to_string where possible
+
+   o change title in progress bars to % when downloading!?
+
+   o get ebi latest: use some queueing! server limits requestes?!
+
+   o remove probe dots if interactive probe is toggled off (???)
+
+   o merge ligand chains?!
+
+   o extensions menus separators (fill in)
+
+   o enable PISA interface for new enough PISA
+
+   o rethink threading - maybe better integration in event loop possible?
+
+   o check output libraries/cifs from libcheck, esp from smiles
+
+   o update documentation (tags); make extra file with title?!
+
+   o different 'Control_' spellings in key board shortcuts
+
+   o remove trailing space for EBI/downloaded file names (if exists)
+
+   o make all 'macros' (e.g. with_auto_accept) to use all sort of input
+	(list, args, ... - cf using_active_atom)
+
+   o refmac warning when no freeR (how to detect?!)
+
+   o document remote connection
+
+   o make a server-client swapped version for remote control (if possible)
+
+   o fix 'No Adjustment' buttons (and callbacks) in user_mods_gui
+(*done?)
+
+   o review pygtk button (and other) callbacks which are string, poss can be 
+	exchanged (see water_coordination_gui)
+
+   o fix addition of guile and python keybindings (translation of lambda functions?)
+
+   o key code for '(' and ')' not recognised (on FC10 e.g.)
+
+   o update python WIKI scripts
+
+   o python: rapper-gui and what-check (*Done?!)
+
+   o make guile-gtk properly gtk2 complient (esp. text-view) or wait for
+     proper gnome-guile
+
+
+**** Windows ****
+
+   o fix DATADIR objidl.h conflict
+
+   o windows not reading gz file if space in name
+
+   o optionally include reduce/probe (via download?)
+
+   o update gtk!?
+
+   o distribute srces!!
+
+   o make installer log
+
+   o installer options for guile/windowsy (sections)
+
+   o installer option to install (or not) icons/shortcuts
+
+   o use dlls in rdkit/enterprise rather than static ?!
+
+   o set sbase dir (maybe)
+
+   o make clean before new stable release! check and uninstall old python!?
+
+   o update download in defined directory, may go into examples folder
+
+   o streamline installer dirs/files, install and remove (use /r)
+
+   o swap guile and windows section in installer
+
+   o enable guile with extra warning in installer
+
+* Done, but better warning required!
+
+   o update with guile?
+
+   o changed runwincoot->wincoot.bat; make compatible
+
+   o investigate gtkglext stuff for newer gtk
+
+   o make a second test for windows?!
+
+   o move from runwincoot.bat to coot.bat and include in svn
+
+   o check that update mechanism works with windowsy feeling
+
+   o replace $COOT_HOME with %HOMEDRIVE%%HOMEPATH% or %APPDATA% or ??? ?
+
+   o installer with custom/typical to make easier (use InstType)
+
+   o check save times with gz compression, maybe make optional (feels slow)
+(* Done - optional compress that is, make entry in preferences?)
+
+   o better python std flushing for MINGW
+
+   o update WinCoot to guile 1.8.6 (if possible)
+
+   o simple guile implementation in WinCoot
+
+   o windows build: dont update src tar whilst building (if possible)
+
+   o merge build-it-win with build-it-gtk2-simple?!
+
+   o A comprehensive windows test system(?):	
+                - start XP for testing after installer build
+				- install WinCoot silent
+				- download test data and unittests
+				- run tests
+				- send email about status/or notify otherwise
+
+
+**** Tutorial ****
+
+   o include Sphere refinement
+
+
+---------------
+* DONE THINGS *
+---------------
+
+   o labelling with 'l' doesnt show status bar info (feature/bug?)
+
+* Done
+
+   o fix using_active_atom with respect to lists
+	.. and extra args
+
+* Done
+
+   o add read_vu files for python
+
+* Done
+
+   o move mol here: should auto display molecule!?
+
+* Done
+
+   o docked toolbar disappears when return is pressed
+
+* Done
+
+   o toolbuttons for probe dots chi and post-refine
+
+* Done
+
+   o make toogle_toolbuttons
+
+* Done
+
+   o optional tooltips for main toolbar buttons
+
+* Done
+
+Osaka 2010
+
+   o fix size of chooser dialog (if possible, gtk2 bug?!)
+
+* Done (appeared to have been a gtk2 bug)
+
+   o replace os.system with subprocess 
+
+* Done (maybe kill needs a revisit)
+
+   o save state cannot be expanded (as chooser?!)
+
+* Done
+
+   o rainbow doesnt ignore water (if in same chain)?!
+
+* Done
+
+   o fix atoms dont have pick cursor
+
+* Done
+ 
+   o sphere_refine_plus, i.e. sphere_refine with extra residues
+
+* Done
+
+   o reset Ramachandran lights in docked accept/reject dialog
+
+* Done
+
+   o do not create .coot-preferences if not needed?!
+
+* Done
+
+   o undocked refinement toolbar always on top
+
+* Doneish (bug on Windows and maybe other systems)
+
+   o refinement toolbar R/RC and Map should expand in text mode
+
+* Done
+
+   o bond colours dialog: remove(hide) general setting as already in preferences
+
+* Done
+
+   o add no map wheel rotation to preferences
+
+* Done
+
+   o separator after built-in toolbar buttons
+
+* Done
+
+   o grey out python/scheme when not available as scripting window
+
+* Done
+
+   o fix new large icon size for search water, preferences model toolbar (there
+	may be others)
+* Done
+
+   o rework coot_python
+
+* Done
+
+   o replace tooltips with tooltip (for newer pygtk)
+
+* Done
+
+   o update build-it 
+
+* Done!?
+
+   o update python 7z install (only for pygtk, newer ones have msi!)
+
+* Done
+
+   o update gtk (and gtk-glext)
+
+* Done (stupid gtk 2.16/gtkglext problem, newer version of gtk dont work
+	with gtkglext, not even the git one -> investigate!!!)
+
+   o martyn mrc ccp4 lib stuff in windows build
+
+* Done
+
+   o update windows to guile gui
+
+* Done
+
+   o update windows to new(er) RDKit (incl assignRadicals etc)
+
+* Done
+
+   o Esc removes docked acccept/reject toolbar
+
+* Done!?
+
+  o Windows NCS skip: after new chain(?), doesnt work, need to jump out of new chain (e.g. water)
+
+* Done
+
+  o WINDOWS:: update mechanism for stable release uses pre-release dir! Grrr
+
+* Done
+
+   o WinCoot:
+    - update gtk? Better for Windows 7?!
+	- before stable release copy python over
+	- silent python installation? Possible? (http://www.autoitscript.com/autoit3/)
+
+* Done 
+
+   o icon on WinCoot website
+
+* Done
+
+   o label main Window WinCoot
+
+* Done
+
+   o preferencable main toolbar
+
+* Done
+
+   o update statusbar using space skipping
+
+* Done
+
+   o disable the 'Question Accept..' in Preferences
+
+* Done
+
+   o check Win7 installation bat file mod [Jola]
+
+* Done
+
+   o phs read on windows convert slash [AT]
+
+* Done
+
+   o sort python text completion in scripting entry
+
+* Done
+
+  o FIX pythonic probe/reduce status (seems ok at the moment?!)
+
+* Done
+
+   o check recovery (once nomenclature is fixed)
+
+* Done
+
+   o increase icon size
+
+* Done
