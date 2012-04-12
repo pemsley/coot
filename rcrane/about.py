@@ -34,7 +34,7 @@ def createAboutDialog():
     aboutDialog = gtk.AboutDialog()
     aboutDialog.set_name("RCrane")
     aboutDialog.set_version("0.11-pre")
-    aboutDialog.set_copyright("Copyright 2010-2011 by Kevin Keating")
+    aboutDialog.set_copyright("Copyright 2010-2012 by Kevin Keating")
     aboutDialog.set_website("http://www.pylelab.org/software/index.html")
     aboutDialog.set_license(license)
     aboutDialog.set_logo(gtk.gdk.pixbuf_new_from_file(os.path.join(rcranePath, "logo.svg")))
