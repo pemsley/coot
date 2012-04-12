@@ -110,4 +110,4 @@ namespace coot {
    
 } 
 
-#endif // ENTERPRISE_HH
+#endif // RDKIT_INTERFACE_HH
