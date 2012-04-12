@@ -3961,7 +3961,9 @@ lbg_info_t::ligand_grid::make_contour_lines(const std::vector<std::pair<lig_buil
 void
 lbg_info_t::ligand_grid::plot_contour_lines(const std::vector<std::vector<lig_build::pos_t> > &contour_lines, GooCanvasItem *root) const {
 
-   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", "#111111",
+   GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color",
+						// "#111111", not so dark
+						"#777777",
 						NULL);
    GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 1.5, 2.5);
 
@@ -3979,6 +3981,8 @@ lbg_info_t::ligand_grid::plot_contour_lines(const std::vector<std::vector<lig_bu
 	 
       }
    }
+   goo_canvas_line_dash_unref(dash);
+   
 } 
 
 
