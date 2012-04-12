@@ -1,0 +1,120 @@
+CHANGELOG
+Notable changes are listed
+
+Version 0.11
+- The first time RCrane is run, a pop-up now appears informing the user of the
+	appropriate citation for RCrane.  This pop-up contains a Don't show
+	again checkbox that will prevent it from re-appearing.
+- A number of behind the scenes changes to make RCrane easier to distribute
+	with Coot
+
+Version 0.10 - April 3, 2012
+- Rotamerize without density... option now available.  This option performs a
+	rotamerization, but completely ignored the electron density.  This is
+	primarily intended to be used when building theoretical models (i.e.
+	building without any electron density present).
+- RCrane molecules are now named "RCrane-molecule-#" instead of "RCrane
+	molecule #" (i.e. dashes in place of spaces).  Now, when the molecules
+	are saved, the filename will not have spaces, as filenames with spaces
+	can cause problems for a few other crystallography programs.
+	(Requested by Maco Marcia)
+- RCrane can now optionally use the new Phenix/MolProbity pucker-specific
+	restraint parameters.  Enabled with rcrane.enablePhenixRestraints()
+	(Requested by Sri Somarowthu)
+- Nucleotides created using RCrane now follow the standard atom ordering when
+	saved as a PDB file (requested by Hasan Demirci)
+- Bug fix: During backbone tracing, mutating or flipping a base while a
+	Manually Adjust window is open no longer causes incorrect behavior.
+- Bug fix: A progress bar is now displayed when calculating coordinates for a
+	single nucleotide.
+- Bug fix: when rotamerizing, selecting alternate conformers for the first (or
+	last) nucleotide will properly retain the torsions for the preceeding
+	(or following) heminucleotide.
+- Bug fix: When rotamerizing, changing the starting pucker of the first
+	nucleotide no longer results in an error message.
+
+Version 0.9 - October 26, 2011
+- Rotamerization now functions properly when hydrogen atoms are present.
+    RCrane will now remove all hydrogen atoms from rotamerized nucleotides.
+    Previously, hydrogen atoms were allowed to float freely during
+    minimization.
+- RCrane now displays an appropriate error message if the user attempts to
+    rotamerize a modified nucleotide.  Previously, RCrane would fail with an
+    error about a missing N1/9 atom.  Future support for rotamerizing modified
+    nucleotides is planned.
+- RCrane now limits the number of nucleotides that can be rotamerized at once.
+    The default limit is 20.  This is done to prevent excessivly long run times
+    due to an erroneous mouse click.  To increase the limit, use the Python
+    command rcrane.setRotamerizeMaxNucleotides(40).  To remove the limit, use
+    the Python command rcrane.setRotamerizeMaxNucleotides(-1).
+
+Version 0.8 - August 26, 2011
+- Bug fix: Rotamerization occasionally added a dummy atom to the end of the
+    chain (reported by Francis Reyes)
+- RCrane now displays an error if the user attempts to rotamerize a structure
+    with anisotropic temperature factors when using versions of Coot older than
+    0.7-pre r3631.  Previously, attempts to rotamerize structures with
+    aniostropic temperature factors would fail without an obvious error message.
+    (reported by Francis Reyes)
+
+Version 0.7 - August 10, 2011
+- Can now trace structures 3'->5' in addition to 5'->3' (suggested by Gregor
+    Blaha)
+- Keyboard shortcut for a 5'->3' trace is now controlled by the
+    rcrane_keyboard_shortcut_trace3 variable rather than
+    rcrane_keyboard_shortcut
+- Keyboard shortcut for a 3'->5' trace can now be set using the
+    rcrane_keyboard_shortcut_trace5 (defaults to Shift+M).  The keyboard
+    shortcut for rotamerization can be set using
+    rcrane_keyboard_shortcut_rotamerize (defaults to no shortcut)
+- RCrane no longer minimizes terminal 3' oxygens for alternate conformers or
+    rotamerizations.  This speeds up minimization and avoids certain
+    minimization errors.
+- Bug fix: now works with negative residue numbers
+- Requires Coot 0.6.2 or newer
+
+Version 0.6 - July 11, 2011
+- Now using PDB3 naming instead of PDB2 due to the new Coot monomer library
+- Improved minimization of high-anti nucleotides
+- Bug fix: Installation under Windows would fail for certain paths
+- Bug fix: Building a single nucleotide now works (Note that no conformer
+    prediction can occur with only a single nucleotide.)
+- Requires Coot r3489 (0.6.2-pre) or greater
+
+
+Version 0.5 - June 16, 2011
+- The interface for reviewing suites now includes an overview listing all built
+    suites (suggested by Gregor Blaha)
+- The README now includes instructions for installing RCrane for all users of a
+    computer
+- Bug fix: The C3' atom of the previous residue was sometimes slighly moved
+    when selecting an alternate conformer
+
+
+Version 0.4 - June 7, 2011
+- Wannabe rotamers added (2g, 2u, 2z, 3g, 5n, 5r)
+- Phosphate search results are now cached between traces, which dramatically
+    speeds up subsequent new traces (requested by Gregor Blaha)
+- Added ability to rotamerize existing regions of structure.  This uses
+    already-built phosphate and base coordinates to predict new conformers and
+    rebuilt the backbone.
+
+
+Version 0.3 - March 30, 2011 (initial public release)
+- Coordinate calculation now uses start position (harmonic) restraints for
+    base and phosphate atoms of the current nucleotide
+- Improved minimization of syn nucleotides
+- Added install script
+- RCrane now manually draws backbone bonds that are too long for Coot to draw
+- Backbone tracing will automatically begin after selecting a refinement map
+    when starting RCrane with no map selected (suggested by Francis Reyes)
+- Mouse wheel now moves adjustment sliders by a usable amount (suggested by
+    Francis Reyes)
+- Requires Coot r3440 (0.6.2-pre) or greater
+
+
+Version 0.2 - February 1, 2011 (closed beta)
+- Requires Coot r3256 (0.6.2-pre) or greater
+
+
+Version 0.1 - November, 2010 (internal release)

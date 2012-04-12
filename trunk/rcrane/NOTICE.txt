@@ -1,0 +1,10 @@
+RCrane
+Copyright 2010-2012 Kevin Keating
+
+RCrane programmed by Kevin Keating, Pyle lab, Yale University.
+
+All publications resulting from use of this program must acknowledge
+the following:
+Keating KS and Pyle AM.  Semiautomated model building for RNA
+crystallography using a directed rotameric approach.  Proc Natl Acad
+Sci USA, 107: 8177-8182 (2010).
