@@ -82,7 +82,8 @@ post_list = ["coot_gui.py",
             "extensions.py",
             "shelx_extensions.py",
             "clear_backup.py",
-            "coot_toolbuttons.py"]
+            "coot_toolbuttons.py",
+            "rcrane_loader.py"]
 
 # list of modules not available on Windows
 non_win_list = ["brute_lsqman.py"]

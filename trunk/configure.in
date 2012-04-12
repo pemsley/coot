@@ -313,7 +313,8 @@ auxil/catcheck/Makefile
 auxil/rama/Makefile	
 auxil/sec-str/Makefile	
 auxil/strand-analysis/Makefile	
-auxil/vectors/Makefile	
+auxil/vectors/Makefile
+rcrane/Makefile
 ])
 # removed setup/Makefile
 # po/Makefile.in

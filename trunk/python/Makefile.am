@@ -47,5 +47,6 @@ dist_python_DATA = \
    check_for_updates.py prodrg_import.py     								  \
    get_recent_pdbe.py   jligand.py	     	 jligand_gui.py	              \
    coot_toolbuttons.py              \
+   rcrane_loader.py \
    $(TEXI_FILE)
 
