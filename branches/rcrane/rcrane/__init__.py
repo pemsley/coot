@@ -23,6 +23,7 @@ from rotamerize import setRotamerizeMaxNucleotides, getRotamerizeMaxNucleotides
 from citationPopup import dontShowPopup as dontShowCitationPopup
 from calcCoords import disablePhenixRestraints, enablePhenixRestraints, usingPhenixRestraints
 from menu import createRCraneMenu
+from preLaunchCheck import checkCootAndReportErrors
 
 try:
     from debug import enableDebugging
@@ -37,3 +38,19 @@ newTrace3to5 = newTrace
     #a convenience function to allow for consistant naming between different trace directions
 newRotamerizeWithoutDensity = lambda: newRotamerize(ignoreDensity = True)
     #a convenience function to rotamerize without density
+    
+def createRCraneMenuWithCheck():
+    """If Coot passes the RCrane pre-launch checks, then create the RCrane menu.
+    
+    ARGUMENTS:
+        None
+    RETURNS:
+        True if Coot passed the RCrane pre-launch checks
+        False otherwise
+    """
+    
+    if checkCootAndReportErrors():
+        createRCraneMenu()
+        return True
+    else:
+        return False
