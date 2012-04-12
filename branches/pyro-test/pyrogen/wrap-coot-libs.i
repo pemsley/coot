@@ -2,8 +2,10 @@
 %module coot_libs
 
 %{
-PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restraints);
+#include "mogul-interface.hh"
+#include "restraints.hh"
 %} 
 
-PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restraints);
+%include "mogul-interface.hh"
+%include "restraints.hh"
 
