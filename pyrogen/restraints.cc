@@ -1,17 +1,28 @@
 
-#include "Python.h"
-#include <string>
-#include <iostream>
-#include <vector>
+#include "restraints.hh"
 
-#include "protein-geometry.hh"
 
-PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restraints) {
+
+coot::mogul
+coot::make_a_mogul(PyObject* pyo) {
+   if (PyString_Check(pyo)) {
+      std::string file_name = PyString_AsString(pyo);
+      coot::mogul m(file_name);
+      return m;
+   } else { 
+      coot::mogul m;
+      return m;
+   } 
+}
+
+coot::dictionary_residue_restraints_t
+monomer_restraints_py(const char *monomer_type, PyObject *restraints) {
 
    PyObject *retval = Py_False;
 
    if (!PyDict_Check(restraints)) {
       std::cout << " Failed to read restraints - not a list" << std::endl;
+      coot::dictionary_residue_restraints_t monomer_restraints("", 1);
    } else {
 
       std::vector<coot::dict_bond_restraint_t> bond_restraints;
@@ -272,15 +283,6 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
       monomer_restraints.plane_restraint   = plane_restraints;
       monomer_restraints.residue_info      = residue_info;
       monomer_restraints.atom_info         = atoms; 
-      
-      bool s = false;
-          // g.Geom_p()->replace_monomer_restraints(monomer_type, monomer_restraints);
-      if (s)
-	 retval = Py_True;
-      
+      return monomer_restraints;
    }
-   if (PyBool_Check(retval)) {
-     Py_INCREF(retval);
-   }
-   return retval;
 } 
