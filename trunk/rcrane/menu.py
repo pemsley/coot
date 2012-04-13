@@ -26,11 +26,16 @@ def createRCraneMenu():
     ARGUMENTS:
         None
     RETURNS:
-        None
+        True if the RCrane menu was created
+        False if the RCrane menu already had entries and no new entries were created
     """
     
     #create a separate menu for RCrane (default)
     menu = coot_menubar_menu("_RCrane")
+    
+    #if the RCrane menu already has entries, then give up
+    if len(menu.get_children()) > 0:
+        return False
 
     add_simple_coot_menu_menuitem(menu, "New trace 5'->3'...", lambda x: rcrane.newTrace(direction=3))
     add_simple_coot_menu_menuitem(menu, "New trace 3'->5'...", lambda x: rcrane.newTrace(direction=5))
@@ -56,3 +61,5 @@ def createRCraneMenu():
         print "Coot r3728 (0.7-pre) required for Rotamerize without density.\n\tRotamerize without density not available."
     
     add_simple_coot_menu_menuitem(menu, "About RCrane...", lambda x: rcrane.createAboutDialog())
+    
+    return True

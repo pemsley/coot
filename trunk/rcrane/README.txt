@@ -30,24 +30,38 @@ http://sage.ucsc.edu/~wgscott/xtal/wiki/index.php/Stand-Alone_Coot.
 
 INSTALLATION
 
-To install RCrane, first unzip rcrane.zip.  If you are installing RCrane for
-all users of the computers, it is recommended that you put the RCrane directory
-within the Coot installation directory (e.g. /opt/coot/rcrane or
-C:\WinCoot\rcrane).  If you are installing RCrane for only yourself, you may
-put the rcrane directory anywhere within your home directory (i.e.
-/home/name/Documents/rcrane or C:\Users\name\Documents\rcrane).
+RCrane is included with Coot 0.7 or newer.  To launch RCrane, click on
+Extensions -> RCrane launch.
+
+If you are using Coot 0.6.2, you must install RCrane separately.  To do this,
+first unzip rcrane.zip.  If you are installing RCrane for all users of the
+computers, it is recommended that you put the RCrane directory within the Coot
+installation directory (e.g. /opt/coot/rcrane or C:\WinCoot\rcrane).  If you
+are installing RCrane for only yourself, you may put the rcrane directory
+anywhere within your home directory (i.e. /home/name/Documents/rcrane or
+C:\Users\name\Documents\rcrane).
 
 
 TO RUN RCRANE FOR THE CURRENT COOT SESSION
 
-In Coot, click on Calculate -> Run Script...  Then choose launch.py within the
-RCrane directory.  This will create an RCrane menu.
+RCrane is included with Coot 0.7 or newer.  To launch RCrane, click on
+Extensions -> RCrane launch.
+
+If you are using Coot 0.6.2, click on Calculate -> Run Script...  Then choose
+launch.py within the RCrane directory.  This will create an RCrane menu.
 
 
 TO AUTOMATICALLY LAUNCH RCRANE EVERY TIME COOT IS STARTED
 
-In Coot, click on Calculate -> Run Script...  Then choose installRCrane.py
-within the RCrane directory.
+If you are using Coot 0.7, edit the rcrane.py file within your .coot-
+preferences directory.  In Linux and OS X, this file is located at ~/.coot-
+preferences/rcrane.py.  In Windows, this file is located within the WinCoot
+directory at WinCoot/.coot-preferences/rcrane.py.  If the file does not exist,
+create it.  Add the line
+rcane.createRCraneMenuWithCheck()
+to the file.
+If you are using Coot 0.6.2, click on Calculate -> Run Script...  Then choose
+installRCrane.py within the RCrane directory.
 
 
 USING RCRANE - TRACING A NEW STRUCTURE
@@ -138,6 +152,10 @@ rcrane.newRotamerizeWithoutDensity)
 and replace the "K " with the desired keyboard shortcut.  Note that using an
 uppercase letter will create a shortcut for Shift+letter.
 
+If you are using Coot 0.7 or newer and would like RCrane to automatically
+launch with Coot, add the line
+rcane.createRCraneMenuWithCheck()
+
 By  default, RCrane limits the number of nucleotides that can be rotamerized at
 once (default: 20).  This is done to prevent excessively long run times due to
 an erroneous mouse click.  To increase the limit, add the line
@@ -164,7 +182,8 @@ return value of False indicates that the REFMAC5 parameters are being used.
 
 INSTALLING RCRANE FOR ALL USERS
 
-On Linux and OS X, installing RCrane will only install it for the current user.
+RCrane is included with Coot 0.7 and newer.  If you are using Coot 0.6.2 on
+Linux and OS X, installing RCrane will only install it for the current user.
 Additional users must also follow the steps in TO AUTOMATICALLY LAUNCH RCRANE
 EVERY TIME COOT IS STARTED above.  Alternatively, RCrane can be installed for
 all users of a computer by:
@@ -184,8 +203,10 @@ computer.
 
 UNINSTALLING RCRANE
 
-To prevent RCrane from running when Coot is started, delete the rcrane.py file
-within your .coot-preferences directory.  In Linux and OS X, this file is
-located at ~/.coot-preferences/rcrane.py.  In Windows, this file is located
-within the WinCoot directory at WinCoot/.coot-preferences/rcrane.py.  To
-completely uninstall RCrane, delete the RCrane directory as well.
+RCrane is included with Coot 0.7 and newer and cannot be uninstalled.  If you
+are using Coot 0.6.2, you may prevent RCrane from running when Coot is started
+by deleting the rcrane.py file within your .coot-preferences directory.  In
+Linux and OS X, this file is located at ~/.coot-preferences/rcrane.py.  In
+Windows, this file is located within the WinCoot directory at WinCoot/.coot-
+preferences/rcrane.py.  To completely uninstall RCrane from Coot 0.6.2, delete
+the RCrane directory as well.
