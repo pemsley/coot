@@ -2887,6 +2887,19 @@ void set_mol_displayed(int imol, int state);
   for off, 1 for on */
 void set_mol_active(int imol, int state);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief maps_list is a list of integers (map molecule numbers).  
+
+This interface is uses so that we don't get flashing when a map is turned off (using set_mol_displayed). */
+void display_maps_scm(SCM maps_list); 
+#endif 
+#ifdef USE_PYTHON
+void display_maps_py(PyObject *pyo); 
+#endif 
+#endif 
+
+
 
 /*! \brief return the display state of molecule number imol 
 
