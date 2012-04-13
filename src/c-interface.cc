@@ -4696,6 +4696,48 @@ void set_draw_map_standard_lines(int imol, short int state) {
 }
 
 
+#ifdef USE_GUILE
+void display_maps_scm(SCM maps_list_scm) {
+
+   graphics_info_t g;
+   int n_mol = graphics_n_molecules();
+   std::vector<bool> map_on(n_mol, false);
+   SCM s_test = scm_list_p(maps_list_scm);
+   if (scm_is_true(s_test)) {
+      SCM n_scm = scm_length(maps_list_scm);
+      int n = scm_to_int(n_scm);
+      for (unsigned int i=0; i<n; i++) {
+	 SCM item_scm = scm_list_ref(maps_list_scm, SCM_MAKINUM(i));
+	 if (scm_is_true(scm_integer_p(item_scm))) {
+	    int imol = scm_to_int(item_scm);
+	    if (is_valid_map_molecule(imol)) {
+	       map_on[imol] = true;
+	    }
+	 }
+      }
+   }
+
+   for (unsigned int imol=0; imol<n_mol; imol++) { 
+      if (is_valid_map_molecule(imol)) {
+	 if (map_on[imol])
+	    g.molecules[imol].set_map_is_displayed(1);
+	 else
+	    g.molecules[imol].set_map_is_displayed(0);
+      } 
+   }
+   graphics_draw();
+} 
+#endif 
+
+
+#ifdef USE_PYTHON
+void display_maps_py(PyObject *pyo) {
+
+} 
+#endif 
+
+
+
 // button_type is "Displayed" or "Active"
 void
 set_display_control_button_state(int imol, const std::string &button_type, int state) {

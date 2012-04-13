@@ -114,6 +114,8 @@
 (define make-variance-map make-variance-map-scm)
 ;; (define residue->sdf-file residue-to-sdf-file)
 (define cif-file-for-comp-id cif-file-for-comp-id-scm)
+(define display-maps display-maps-scm)
+
 
 ;; documented functions
 
