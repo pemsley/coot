@@ -2494,18 +2494,25 @@ void image_info::readpng(const char *filename){
 
   pixels = new unsigned char[width*height*colourspace];
 
+#if PNG_LIBPNG_VER_MAJOR >= 1 && PNG_LIBPNG_VER_MINOR >=4
+  png_colorp palette;
+  int num_trans;
+  png_bytep trans_alpha;
+#else
+#define palette png_ptr->palette
+#define num_trans png_ptr->num_trans
+#define trans_alpha png_ptr->trans
+#endif
+
   for (int i=0; i<height; i++){
     if(color_type==PNG_COLOR_TYPE_PALETTE){
       for (int j=0; j<width; j++){
-        pixels[i*width*colourspace+j*colourspace] = png_ptr->palette[row_pointers[i][j]].red;
-        pixels[i*width*colourspace+j*colourspace+1] = png_ptr->palette[row_pointers[i][j]].green;
-        pixels[i*width*colourspace+j*colourspace+2] = png_ptr->palette[row_pointers[i][j]].blue;
-        if(row_pointers[i][j]<png_ptr->num_trans){
-#if PNG_LIBPNG_VER_MAJOR >= 1 && PNG_LIBPNG_VER_MINOR >=4
-         pixels[i*width*colourspace+j*colourspace+3] = png_ptr->trans_alpha[row_pointers[i][j]];
-#else
-         pixels[i*width*colourspace+j*colourspace+3] = png_ptr->trans[row_pointers[i][j]];
-#endif
+        pixels[i*width*colourspace+j*colourspace] = palette[row_pointers[i][j]].red;
+        pixels[i*width*colourspace+j*colourspace+1] = palette[row_pointers[i][j]].green;
+        pixels[i*width*colourspace+j*colourspace+2] = palette[row_pointers[i][j]].blue;
+
+        if(row_pointers[i][j]<num_trans){
+         pixels[i*width*colourspace+j*colourspace+3] = trans_alpha[row_pointers[i][j]];
         }else
          pixels[i*width*colourspace+j*colourspace+3] = 255;
       }
