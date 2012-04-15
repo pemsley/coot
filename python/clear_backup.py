@@ -70,10 +70,10 @@ def delete_coot_backup_files(action_type):
     if (action_type == "count"):
         total_size = sum(map(os.path.getsize, olds))
         mb_size = total_size / (1024. * 1024)
-        print "There are %s old files  (%s bytes) (%.1fMb) in %s" %(len(olds),
-                                                                  total_size,
-                                                                  mb_size,
-                                                                  dir_str)
+        #print "There are %s old files  (%s bytes) (%.1fMb) in %s" %(len(olds),
+        #                                                          total_size,
+        #                                                          mb_size,
+        #                                                          dir_str)
         # obs: here mb_size is not a string!!!
         return [len(olds), mb_size]
 

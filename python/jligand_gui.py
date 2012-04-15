@@ -35,7 +35,9 @@ def launch_jligand_function():
                   string_append_with_spaces(jligand_version)
             res = shell_command_to_string(cmd)
             if (not res):
-                message = "  Sorry, your JLigand is not new enough to work with Coot!\nPlease download a new one!"
+                message = "Sorry, your JLigand:\n\n " + jligand_jar + "\n\n" + \
+                          "is not new enough to work with Coot!\n" + \
+                          "Please download a new one!"
                 info_dialog(message)
             else:
                 run_concurrently(java_exe, jligand_args)

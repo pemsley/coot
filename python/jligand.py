@@ -41,10 +41,15 @@ def jligand_code_file_maybe(comp_id, port):
     #
     cif_file = cif_file_for_comp_id(comp_id)
     if (len(cif_file) > 0):
-        port.write("CODE " + comp_id + " " + "FILE " + cif_file + "\n")
+        port.write("CODE " + comp_id + " " + \
+                   "FILE " + os.path.normpath(cif_file))
+        port.write("\n")
 
 def write_file_for_jligand(res_spec_1, resname_1, res_spec_2, resname_2):
 
+    refmac_version = get_refmac_version()
+    refmac_new_enough = (refmac_version[0] >= 5 and 
+                         refmac_version[1] > 6)       # newer than 5.6
     fin = open(to_jligand_secret_file_name, 'w')
     int_time = time.time()
     #print "res_spec_1:", res_spec_1
@@ -53,11 +58,15 @@ def write_file_for_jligand(res_spec_1, resname_1, res_spec_2, resname_2):
     chain_id_2 = res_spec2chain_id(res_spec_2)
 
     fin.write("CODE " + resname_1 + " " + chain_id_1 + " " + \
-              str(res_spec2res_no(res_spec_1)) + "\n")
-    #jligand_code_file_maybe(resname_1, fin)
+              str(res_spec2res_no(res_spec_1)))
+    fin.write("\n")
+    if refmac_new_enough:
+        jligand_code_file_maybe(resname_1, fin)
     fin.write("CODE " + resname_2 + " " + chain_id_2 + " " + \
-              str(res_spec2res_no(res_spec_2)) + "\n")
-    #jligand_code_file_maybe(resname_2, fin)
+              str(res_spec2res_no(res_spec_2)))
+    fin.write("\n")
+    if refmac_new_enough:
+        jligand_code_file_maybe(resname_2, fin)
     fin.write("TIME " + str(int_time) + "\n")
     fin.close()
 
