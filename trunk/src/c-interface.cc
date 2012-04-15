@@ -4733,6 +4733,30 @@ void display_maps_scm(SCM maps_list_scm) {
 #ifdef USE_PYTHON
 void display_maps_py(PyObject *pyo) {
 
+   graphics_info_t g;
+   int n_mol = graphics_n_molecules();
+   std::vector<bool> map_on(n_mol, false);
+   if (PyList_Check(pyo)) {
+      int n = PyObject_Length(pyo);
+      for (unsigned int i=0; i<n; i++) {
+	 PyObject *item_py = PyList_GetItem(pyo, 0);
+	 if (PyInt_Check(item_py)) {
+	    int imol = PyInt_AsLong(item_py);
+	    if (is_valid_map_molecule(imol)) {
+	       map_on[imol] = true;
+	    }
+	 } 
+      }
+   }
+   for (unsigned int imol=0; imol<n_mol; imol++) { 
+      if (is_valid_map_molecule(imol)) {
+	 if (map_on[imol])
+	    g.molecules[imol].set_map_is_displayed(1);
+	 else
+	    g.molecules[imol].set_map_is_displayed(0);
+      } 
+   }
+   graphics_draw();
 } 
 #endif 
 
