@@ -2952,8 +2952,8 @@ set_torsion            = set_torsion_py
 multi_residue_torsion  = multi_residue_torsion_py
 multi_residue_torsion_fit  = multi_residue_torsion_fit_py
 test_function          = test_function_py
-space_group            = space_group_py
 display_maps           = display_maps_py
+space_group            = space_group_py
 
 # graphics_info.h:
 #run_post_manipulation_hook = run_post_manipulation_hook_py
