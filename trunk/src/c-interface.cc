@@ -4739,7 +4739,7 @@ void display_maps_py(PyObject *pyo) {
    if (PyList_Check(pyo)) {
       int n = PyObject_Length(pyo);
       for (unsigned int i=0; i<n; i++) {
-	 PyObject *item_py = PyList_GetItem(pyo, 0);
+	 PyObject *item_py = PyList_GetItem(pyo, i);
 	 if (PyInt_Check(item_py)) {
 	    int imol = PyInt_AsLong(item_py);
 	    if (is_valid_map_molecule(imol)) {
