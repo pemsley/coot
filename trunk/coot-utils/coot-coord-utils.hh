@@ -504,6 +504,7 @@ namespace coot {
    // convert atoms in residue to HETATMs if residue is not of
    // standard PDB type
    int hetify_residue_atoms_as_needed(CResidue *res);
+   int hetify_residues_as_needed(CMMDBManager *mol);
 
    // convert atoms in residue to HETATMs.  Return the number of HET
    // atoms.

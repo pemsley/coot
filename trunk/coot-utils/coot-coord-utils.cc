@@ -6014,7 +6014,31 @@ coot::hetify_residue_atoms_as_needed(CResidue *res) {
 	 r = hetify_residue_atoms(res);
    }
    return r;
-} 
+}
+
+
+int
+coot::hetify_residues_as_needed(CMMDBManager *mol) {
+
+   int r = 0;
+   if (mol) {
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	 CModel *model_p = mol->GetModel(imod);
+	 CChain *chain_p;
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_p;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       coot::hetify_residue_atoms_as_needed(residue_p);
+	    }
+	 }
+      }
+   }
+   return r;
+}
 
 
 // Interacting Residues: Return all residues of mol1, mol2 that
