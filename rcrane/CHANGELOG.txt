@@ -1,7 +1,9 @@
 CHANGELOG
 Notable changes are listed
 
-Version 0.11
+Version 1.0 - April 16, 2012
+- RCrane is now distributed with Coot (accessed via Extensions -> RCrane
+	launch).  RCrane 1.0 is included with Coot 0.7.
 - The first time RCrane is run, a pop-up now appears informing the user of the
 	appropriate citation for RCrane.  This pop-up contains a Don't show
 	again checkbox that will prevent it from re-appearing.

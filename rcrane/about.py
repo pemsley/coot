@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Functions for the About dialog box."""
 
-# Copyright 2010, 2011 Kevin Keating
+# Copyright 2010, 2011, 2012 Kevin Keating
 # 
 # Licensed under the Educational Community License, Version 2.0 (the
 # "License"); you may not use this file except in compliance with the
@@ -33,7 +33,7 @@ def createAboutDialog():
     
     aboutDialog = gtk.AboutDialog()
     aboutDialog.set_name("RCrane")
-    aboutDialog.set_version("0.11-pre")
+    aboutDialog.set_version("1.0")
     aboutDialog.set_copyright("Copyright 2010-2012 by Kevin Keating")
     aboutDialog.set_website("http://www.pylelab.org/software/index.html")
     aboutDialog.set_license(license)
