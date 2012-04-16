@@ -575,7 +575,9 @@ execute_ligand_search_internal() {
       m = wlig.get_solution(ilig);
       if (! m.is_empty()) {
 	 float bf = graphics_info_t::default_new_atoms_b_factor;
-	 atom_selection_container_t asc = make_asc(m.pcmmdbmanager());
+	 CMMDBManager *ligand_mol = m.pcmmdbmanager();
+	 coot::hetify_residues_as_needed(ligand_mol);
+	 atom_selection_container_t asc = make_asc(ligand_mol);
 	 int g_mol = graphics_info_t::create_molecule();
 	 std::string label = "Fitted ligand #";
 	 label += g.int_to_string(ilig);
