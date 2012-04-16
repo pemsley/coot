@@ -2579,7 +2579,7 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
 	    score_card.many_atoms_fit = 1; // consider using a member function
 	    score_card.score_per_atom = score_card.score/float(n_non_hydrogens);
 	 } else {
-	    std::cout << "badly fitting atoms, failing fit_fraction test " << std::endl;
+	    // std::cout << "badly fitting atoms, failing fit_fraction test " << std::endl;
 	 }
       } else {
 	 // Pathalogical case.  No non-hydrogens in ligand.  This code
