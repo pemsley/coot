@@ -52,10 +52,7 @@ def checkForOldRCraneVersions():
     noticeDialog.set_markup("An old version of RCrane was detected.  Coot now includes "
         + "RCrane 1.0, which may be accessed via Extensions -> RCrane launch.  To prevent the "
         + "old version of RCrane from running, your "
-        + "~/.coot-preferences/rcrane.py file was moved to ~/.coot-preferences/rcrane.py.bak.\n\n"
-        + "If you would like the RCrane menu to be created automatically when Coot starts, please create a new "
-        + "~/.coot-preferences/rcrane.py file containing the line:\n"
-        + "rcrane.createRCraneMenuWithCheck()")
+        + "~/.coot-preferences/rcrane.py file was moved to ~/.coot-preferences/rcrane.py.bak.")
     noticeDialog.run()
     noticeDialog.destroy()
     
