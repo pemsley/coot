@@ -349,8 +349,8 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
       
 	 double frac = 360.0/(float) RAND_MAX;
 	 for (unsigned int itrial=0; itrial<n_trials; itrial++) {
-	    std::cout << "Round " << itrial << " of " << n_trials << " for " << n_quads << " quads "
-		      << std::endl;
+// 	    std::cout << "Round " << itrial << " of " << n_trials << " for " << n_quads << " quads "
+// 		      << std::endl;
 	    std::vector<coot::atom_tree_t::tree_dihedral_quad_info_t> torsion_quads;
 	    for (unsigned int iquad=0; iquad<n_quads; iquad++) {
 	       // double rand_angle = best_quads[iquad] + 40.0 * minus_one_to_one * angle_scale_factor;
