@@ -625,6 +625,52 @@ execute_ligand_search_internal() {
    return solutions;
 }
 
+
+/*! \brief make conformers of the ligand search molecules, each in its
+  own molecule.  
+
+Don't search the density. */
+void
+ligand_search_make_conformers() {
+
+   graphics_info_t g;
+   coot::wligand wlig;
+   if (g.ligand_verbose_reporting_flag)
+      wlig.set_verbose_reporting();
+   std::vector<std::pair<int, bool> > ligands = g.find_ligand_ligand_mols();
+   for(unsigned int i=0; i<ligands.size(); i++) {
+      if (ligands[i].second) {
+	 try { 
+	    bool optim_geom = true;
+	    bool fill_return_vec = false; // would give input molecules (not conformers)
+	    coot::minimol::molecule mmol(g.molecules[ligands[i].first].atom_sel.mol);
+	    wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol,
+					       g.ligand_wiggly_ligand_n_samples,
+					       optim_geom, fill_return_vec);
+	 }
+	 catch (std::runtime_error mess) {
+	    std::cout << "Error in flexible ligand definition.\n";
+	    std::cout << mess.what() << std::endl;
+	    if (graphics_info_t::use_graphics_interface_flag) { 
+	       GtkWidget *w = wrapped_nothing_bad_dialog(mess.what());
+	       gtk_widget_show(w);
+	    }
+	 }
+      }
+   }
+
+   std::vector<coot::minimol::molecule> conformers = wlig.get_conformers();
+   for (unsigned int iconf=0; iconf<conformers.size(); iconf++) {
+      atom_selection_container_t asc = make_asc(conformers[iconf].pcmmdbmanager());
+      int g_mol = graphics_info_t::create_molecule();
+      std::string label = "conformer-";
+      label+= coot::util::int_to_string(iconf);
+      graphics_info_t::molecules[g_mol].install_model(g_mol, asc, label, 1);
+   }
+
+} 
+
+
 void set_ligand_cluster_sigma_level(float f) { /* default 2.2 */
    graphics_info_t::ligand_cluster_sigma_level = f;
 }

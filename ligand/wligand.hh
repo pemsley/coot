@@ -178,7 +178,10 @@ namespace coot {
 					      const minimol::molecule &ligand,
 					      int n_samples);
 
-      void set_debug_wiggly_ligands() { debug_wiggly_ligands = 1; } 
+      void set_debug_wiggly_ligands() { debug_wiggly_ligands = 1; }
+      std::vector<minimol::molecule> get_conformers() const {
+	 return initial_ligand;
+      } 
    }; 
 
 }
