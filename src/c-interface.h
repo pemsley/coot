@@ -4299,11 +4299,8 @@ PyObject *execute_ligand_search_py();
 void free_ligand_search_user_data(GtkWidget *button); 
 void add_ligand_clear_ligands(); 
 
-/*! \brief make conformers of the ligand search molecules, each in its
-  own molecule.  
+/* conformers added to cc-interface because it uses a std::vector internally.  */
 
-Don't search the density. */
-void ligand_search_make_conformers();
 
 /*! \brief this sets the flag to have expert option ligand entries in
   the Ligand Searching dialog */

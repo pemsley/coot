@@ -626,13 +626,9 @@ execute_ligand_search_internal() {
 }
 
 
-/*! \brief make conformers of the ligand search molecules, each in its
-  own molecule.  
+std::vector<int> ligand_search_make_conformers_internal() { 
 
-Don't search the density. */
-void
-ligand_search_make_conformers() {
-
+   std::vector<int> mol_list;
    graphics_info_t g;
    coot::wligand wlig;
    if (g.ligand_verbose_reporting_flag)
@@ -666,10 +662,32 @@ ligand_search_make_conformers() {
       std::string label = "conformer-";
       label+= coot::util::int_to_string(iconf);
       graphics_info_t::molecules[g_mol].install_model(g_mol, asc, label, 1);
+      mol_list.push_back(g_mol);
    }
 
+   return mol_list;
 } 
 
+/*! \brief make conformers of the ligand search molecules, each in its
+  own molecule.  
+
+  Don't search the density. */
+#ifdef USE_GUILE
+SCM
+ligand_search_make_conformers_scm() {
+
+   std::vector<int> v = ligand_search_make_conformers_internal();
+   return generic_int_vector_to_list_internal(v);
+}
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+PyObject *ligand_search_make_conformers_py() {
+
+   std::vector<int> v = ligand_search_make_conformers_internal();
+   return generic_int_vector_to_list_internal_py(v);
+} 
+#endif // USE_PYTHON
 
 void set_ligand_cluster_sigma_level(float f) { /* default 2.2 */
    graphics_info_t::ligand_cluster_sigma_level = f;
