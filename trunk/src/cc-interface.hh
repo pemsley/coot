@@ -754,6 +754,27 @@ coot::graph_match_info_t
 overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref,
 			 int resno_ref, bool apply_rtop_flag);
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  conformers (part of ligand search)                      */
+/*  ----------------------------------------------------------------------- */
+
+#ifdef USE_GUILE
+/*! \brief make conformers of the ligand search molecules, each in its
+  own molecule.  
+
+Don't search the density.
+
+Return a list of new molecule numbers */
+SCM ligand_search_make_conformers_scm();
+#endif 
+
+#ifdef USE_PYTHON
+PyObject *ligand_search_make_conformers_py();
+#endif
+
+std::vector<int> ligand_search_make_conformers_internal();
+
 /*  ----------------------------------------------------------------------- */
 //                  animated ligand interactions
 /*  ----------------------------------------------------------------------- */

@@ -115,6 +115,7 @@
 ;; (define residue->sdf-file residue-to-sdf-file)
 (define cif-file-for-comp-id cif-file-for-comp-id-scm)
 (define display-maps display-maps-scm)
+(define ligand-search-make-conformers ligand-search-make-conformers-scm)
 
 
 ;; documented functions
