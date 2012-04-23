@@ -15,6 +15,7 @@ extensions.scm       ncs.scm create-server.scsh coot-crash-catcher.scm     \
 snarf-coot-docs.scm  clear-backup.scm     bones-reader.scm matrices.scm    \
 fascinating-things.scm shelx-extensions.scm parse-pisa-xml.scm             \
 check-for-updates.scm  prodrg-import.scm  			           \
-get-recent-pdbe.scm  json-reader.scm      jligand.scm      jligand-gui.scm
+get-recent-pdbe.scm  json-reader.scm      jligand.scm      jligand-gui.scm \
+redefine-functions.scm
 
 # scheme_TEXINFOS = ... something generated?  More reading needed.
