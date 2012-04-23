@@ -122,9 +122,10 @@ namespace coot {
 	 return items[item_no];
       }
       void set_max_z_badness(float b) { max_z_badness = b; }
-      dictionary_residue_restraints_t make_restraints(CResidue *residue_p,
-						      const std::string &comp_id,
-						      const coot::protein_geometry &geom);
+      // the following coot:: is for swig
+      coot::dictionary_residue_restraints_t make_restraints(CResidue *residue_p,
+							    const std::string &comp_id,
+							    const coot::protein_geometry &geom);
    };
 
 }
