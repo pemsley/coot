@@ -580,6 +580,18 @@ coot::minimol::residue::operator[](const std::string &atname) const {
    return atoms[0]; 
 }
 
+void
+coot::minimol::residue::write_file(const std::string &file_name) const {
+
+   coot::minimol::fragment f;
+   f.addresidue(*this, true);
+   coot::minimol::molecule m;
+   m.fragments.push_back(f);
+   m.write_file(file_name, 10.0);
+      
+
+} 
+
 coot::minimol::residue&
 coot::minimol::fragment::operator[](int i) {
 

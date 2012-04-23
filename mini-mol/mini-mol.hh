@@ -99,6 +99,7 @@ namespace coot {
 	 // throw an exception if atoms not found
 	 double get_torsion(coot::atom_name_quad &quad) const;
 	 bool is_undefined() const { if (seqnum == MinInt4) return 1; else return 0; };
+	 void write_file(const std::string &file_name) const;
       };
 
       class fragment {
@@ -144,7 +145,7 @@ namespace coot {
 	 void transform(const clipper::RTop_orth &rtop);
 	 bool operator<(const fragment &f1) const {
 	    return (fragment_id < f1.fragment_id);
-	 } 
+	 }
       };
 
       class molecule {
