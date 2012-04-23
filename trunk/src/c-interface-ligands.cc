@@ -468,8 +468,10 @@ execute_ligand_search_internal() {
       g.molecules[g.find_ligand_protein_mol()].atom_sel.mol;
 
    coot::wligand wlig;
-   if (g.ligand_verbose_reporting_flag)
+   if (g.ligand_verbose_reporting_flag) { 
       wlig.set_verbose_reporting();
+      wlig.set_debug_wiggly_ligands();
+   } 
    wlig.import_map_from(g.molecules[g.find_ligand_map_mol()].xmap_list[0]);
    std::vector<std::pair<int, bool> > ligands = g.find_ligand_ligand_mols();
 
@@ -502,8 +504,8 @@ execute_ligand_search_internal() {
 
 	 // std::pair<short int, std::string> istat_pair =
 	 try { 
-	    bool optim_geom = 1;
-	    bool fill_vec = 0;
+	    bool optim_geom = true;
+	    bool fill_vec = false;
 	    wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol,
 					       g.ligand_wiggly_ligand_n_samples,
 					       optim_geom, fill_vec);
