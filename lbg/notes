@@ -28,6 +28,9 @@ test_refmac1.pdb from David Banner. LIG, get it from the PDB.  Donor
 
 1j4r overlapping ligand problems (graphics window view is nice though)
 
+1xxb: fit the ligand using normal tools (with Flexible).  Fails
+
+
 
 ----
 Fri Apr 15 13:00:04 BST 2011
