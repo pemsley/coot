@@ -23,8 +23,19 @@ namespace coot {
 				int n_atoms_non_hydrogen,
 				PyObject *bond_order_restraints_py,
 				const std::string &mmcif_out_file_name);
+   
+   void mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
+				       const std::string &comp_id,
+				       const std::string &compound_name,
+				       PyObject *rdkit_mol,
+				       PyObject *bond_order_restraints_py,
+				       const std::string &mmcif_out_file_name);
+   
    void write_restraints(PyObject *restraints_py,
 			 const std::string &monomer_type,
 			 const std::string &file_name);
+
+   int assign_chirals(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   
 }
 
