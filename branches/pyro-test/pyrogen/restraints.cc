@@ -1,4 +1,6 @@
 
+
+#include <boost/python.hpp>
 #include "restraints.hh"
 
 
@@ -24,7 +26,96 @@ coot::mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 									    bond_order_restraints);
    restraints.write_cif(cif_file_name);
 
-} 
+}
+
+   
+void
+coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
+				     const std::string &comp_id,
+				     const std::string &compound_name,
+				     PyObject *rdkit_mol_py,
+				     PyObject *bond_order_restraints_py,
+				     const std::string &mmcif_out_file_name) {
+
+   
+   coot::mogul mogul(mogul_file_name);
+   coot::dictionary_residue_restraints_t bond_order_restraints = 
+      monomer_restraints_from_python(bond_order_restraints_py);
+   RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
+   std::vector<std::string> atom_names;
+   int n_atoms_all = mol.getNumAtoms();
+   int n_atoms_non_hydrogen = 0;
+
+   for (unsigned int iat=0; iat<n_atoms_all; iat++) { 
+      RDKit::ATOM_SPTR at_p = mol[iat];
+      if (at_p->getAtomicNum() != 1)
+	 n_atoms_non_hydrogen++;
+      try {
+	 std::string name = "";
+	 at_p->getProp("name", name);
+	 atom_names.push_back(name);
+      }
+      catch (KeyErrorException kee) {
+	 std::cout << "caught no-name for atom exception in mogul_out_to_mmcif_dict_by_mol(): "
+		   <<  kee.what() << std::endl;
+      } 
+   }
+
+   coot::dictionary_residue_restraints_t restraints = mogul.make_restraints(comp_id,
+									    compound_name,
+									    atom_names,
+									    n_atoms_all,
+									    n_atoms_non_hydrogen,
+									    bond_order_restraints);
+
+   int n_chirals = coot::assign_chirals(mol, &restraints); // alter restraints
+   if (n_chirals) 
+      restraints.assign_chiral_volume_targets();
+   
+   restraints.write_cif(mmcif_out_file_name);
+}
+
+int 
+coot::assign_chirals(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+   
+   int vol_sign = coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED;
+
+   int n_chirals = 0;
+
+   int n_atoms = mol.getNumAtoms();
+   for (unsigned int iat=0; iat<n_atoms; iat++) { 
+      RDKit::ATOM_SPTR at_p = mol[iat];
+      RDKit::Atom::ChiralType chiral_tag = at_p->getChiralTag();
+      std::cout << "atom " << iat << " chiral tag: " << chiral_tag << std::endl;
+
+      // do I need to check the atom order here, like I do in rdkit-interface.cc?
+      if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CCW)
+	 vol_sign = 1;
+      if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CW)
+	 vol_sign = -1;
+
+      if (chiral_tag != RDKit::Atom::CHI_UNSPECIFIED) { 
+	 try { 
+	    std::string chiral_centre;
+	    at_p->getProp("name", chiral_centre);
+	    std::string n1, n2, n3; // these need setting, c.f. rdkit-interface.cc?
+	    std::string chiral_id = "chiral_" + std::string("1");
+	    coot::dict_chiral_restraint_t chiral(chiral_id,
+						 chiral_centre,
+						 n1, n2, n3, vol_sign);
+	    restraints->chiral_restraint.push_back(chiral);
+	    n_chirals++;
+	 }
+	 catch (KeyErrorException kee) {
+	    std::cout << "caught no-name for atom exception in chiral assignment(): "
+		      <<  kee.what() << std::endl;
+	 }
+      }
+   }
+   return n_chirals;
+}
+
+
 
 
 void

@@ -7,7 +7,7 @@ prfx = $(install_top_dir)
 CXX = g++
 HACK_INCLUDES = -I../coot/analysis
 INCLUDES = -I$(prfx)/include/python2.7 -I$(prfx)/include $(HACK_INCLUDES) -I$(prfx)/include/rdkit
-LIBS=$(prfx)/lib/libcoot-geometry.la $(prfx)/lib/libcoot-analysis.la -L$(prfx)/lib -lGraphMol -lpython2.7
+LIBS=$(prfx)/lib/libcoot-geometry.la $(prfx)/lib/libcoot-analysis.la -L$(prfx)/lib -lGraphMol -lboost_python -lpython2.7
 
 libs: _coot_libs.so
 
