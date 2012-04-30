@@ -2,26 +2,9 @@
 from subprocess import call
 from rdkit import Chem
 from rdkit.Chem import AllChem
+import coot_libs as coot
 
-# from Jay, stackoverflow.com
-#
-def which(program):
-    import os
-    def is_exe(fpath):
-        return os.path.isfile(fpath) and os.access(fpath, os.X_OK)
-
-    fpath, fname = os.path.split(program)
-    if fpath:
-        if is_exe(program):
-            return program
-    else:
-        for path in os.environ["PATH"].split(os.pathsep):
-            exe_file = os.path.join(path, program)
-            if is_exe(exe_file):
-                return exe_file
-
-    return None
-
+import jay-util
 
 def make_mogul_ins_file(mogul_ins_file_name, mogul_out_file_name, sdf_file_name):
    f = open(mogul_ins_file_name, 'w')
@@ -50,6 +33,28 @@ def run_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name):
    else:
       return False
 
+def atom_name_from_atomic_number_and_count(element, count):
+    name = element
+    name += str(count)
+    return name
+
+def add_atom_names(mol):
+    nz = {}
+    for atom in mol.GetAtoms():
+        z = atom.GetAtomicNum()
+        if z in nz:
+            nz[z]  = nz[z] + 1
+        else:
+            nz[z] = 1;
+        ele = atom.GetSymbol()
+        name = atom_name_from_atomic_number_and_count(ele, nz[z])
+        atom.SetProp("name", name)
+        
+#     for i in nz:
+#         print "atomic_number", i, ": count", nz[i]
+
+    
+
 def make_restraints(smiles_string, sdf_file_name, mmcif_dict_name):
 
    mogol_exe = which('mogul')
@@ -61,13 +66,21 @@ def make_restraints(smiles_string, sdf_file_name, mmcif_dict_name):
       m = Chem.MolFromSmiles(smiles_string)
       AllChem.EmbedMolecule(m)
       AllChem.UFFOptimizeMolecule(m)
+      add_atom_names(m)
+#       for atom in m.GetAtoms():
+#           print atom, atom.GetProp('name')
+
       mb = Chem.MolToMolBlock(m)
       print >> file(sdf_file_name,'w'), mb
       mogul_ins_file_name = 'mogul.ins'
       mogul_out_file_name = 'mogul.out'
-      mogul_state = run_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
+      #nmogul_state = run_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
+      mogul_state = False
       if mogul_state:
-         return True
+          mogul = coot.mogul(mogul_out_file_name)
+          bor = make_restraints_for_bond_orders(m)
+          write_restraints(bor, mmcif_dict_name)
+          return True
       return mogul_state
 
 

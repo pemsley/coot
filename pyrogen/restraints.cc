@@ -3,26 +3,49 @@
 
 
 
-coot::mogul
-coot::make_a_mogul(PyObject* pyo) {
-   if (PyString_Check(pyo)) {
-      std::string file_name = PyString_AsString(pyo);
-      coot::mogul m(file_name);
-      return m;
-   } else { 
-      coot::mogul m;
-      return m;
-   } 
+void
+coot::mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
+			      const std::string &comp_id,
+			      const std::string &compound_name,
+			      const std::vector<std::string> &atom_names,
+			      int n_atoms_all,
+			      int n_atoms_non_hydrogen,
+			      PyObject *bond_order_restraints_py,
+			      const std::string &cif_file_name) {
+
+   coot::mogul mogul(mogul_file_name);
+   coot::dictionary_residue_restraints_t bond_order_restraints = 
+      monomer_restraints_from_python(bond_order_restraints_py);
+   coot::dictionary_residue_restraints_t restraints = mogul.make_restraints(comp_id,
+									    compound_name,
+									    atom_names,
+									    n_atoms_all,
+									    n_atoms_non_hydrogen,
+									    bond_order_restraints);
+   restraints.write_cif(cif_file_name);
+
+} 
+
+
+void
+coot::write_restraints(PyObject *restraints_py,
+		       const std::string &monomer_type,
+		       const std::string &file_name) {
+
+   coot::dictionary_residue_restraints_t rest = monomer_restraints_from_python(restraints_py);
+   rest.write_cif(file_name);
 }
 
+
+
 coot::dictionary_residue_restraints_t
-monomer_restraints_py(const char *monomer_type, PyObject *restraints) {
+monomer_restraints_from_python(PyObject *restraints) {
 
    PyObject *retval = Py_False;
 
    if (!PyDict_Check(restraints)) {
-      std::cout << " Failed to read restraints - not a list" << std::endl;
-      coot::dictionary_residue_restraints_t monomer_restraints("", 1);
+      std::cout << " Failed to read restraints - not a dictionary" << std::endl;
+
    } else {
 
       std::vector<coot::dict_bond_restraint_t> bond_restraints;
@@ -37,7 +60,6 @@ monomer_restraints_py(const char *monomer_type, PyObject *restraints) {
       PyObject *value;
       Py_ssize_t pos = 0;
 
-      std::cout << "looping over restraint" << std::endl;
       while (PyDict_Next(restraints, &pos, &key, &value)) {
 	 // std::cout << ":::::::key: " << PyString_AsString(key) << std::endl;
 
@@ -91,7 +113,7 @@ monomer_restraints_py(const char *monomer_type, PyObject *restraints) {
 	       int n_bonds = PyObject_Length(bond_restraint_list);
 	       for (int i_bond=0; i_bond<n_bonds; i_bond++) {
 		  PyObject *bond_restraint = PyList_GetItem(bond_restraint_list, i_bond);
-		  if (PyObject_Length(bond_restraint) == 5) { 
+		  if (PyObject_Length(bond_restraint) == 5) {
 		     PyObject *atom_1_py = PyList_GetItem(bond_restraint, 0);
 		     PyObject *atom_2_py = PyList_GetItem(bond_restraint, 1);
 		     PyObject *type_py   = PyList_GetItem(bond_restraint, 2);
@@ -275,7 +297,7 @@ monomer_restraints_py(const char *monomer_type, PyObject *restraints) {
 	 }
       }
 	
-      coot::dictionary_residue_restraints_t monomer_restraints(monomer_type, 1);
+      coot::dictionary_residue_restraints_t monomer_restraints;
       monomer_restraints.bond_restraint    = bond_restraints;
       monomer_restraints.angle_restraint   = angle_restraints;
       monomer_restraints.torsion_restraint = torsion_restraints;
