@@ -183,7 +183,7 @@ coot::mogul::make_restraints(CResidue *residue_p,
 			     const std::string &comp_id,
 			     const coot::protein_geometry &geom) {
 
-   coot::dictionary_residue_restraints_t r;
+   coot::dictionary_residue_restraints_t r(comp_id, -1);
    if (residue_p) { 
       PPCAtom residue_atoms = 0;
       int n_residue_atoms;
@@ -234,9 +234,74 @@ coot::mogul::make_restraints(CResidue *residue_p,
    return r;
 }
 
+coot::dictionary_residue_restraints_t
+coot::mogul::make_restraints(const std::string &comp_id,
+			     const std::string &compound_name,
+			     const std::vector<std::string> &atom_names,
+			     int n_atoms_all, int n_atoms_non_H,
+			     const coot::dictionary_residue_restraints_t &bond_types_dict) {
+
+   coot::dictionary_residue_restraints_t r(comp_id, -1);
+
+   r.residue_info.comp_id = comp_id;
+   r.residue_info.three_letter_code = comp_id;
+   r.residue_info.name = compound_name;
+   r.residue_info.number_atoms_all = n_atoms_all;
+   r.residue_info.number_atoms_nh = n_atoms_non_H;
+   r.residue_info.group = "non-polymer";
+   r.residue_info.description_level = "Partial";
+
+   
+   if (! atom_names.empty()) {
+      for (unsigned int i=0; i<items.size(); i++) { 
+	 if (items[i].type == mogul_item::BOND) {
+	    int idx_1 = items[i].idx_1 - 1;
+	    int idx_2 = items[i].idx_2 - 1;
+	    if (idx_1 >= 0 && idx_1 < atom_names.size()) { 
+	       if (idx_2 >= 0 && idx_2 < atom_names.size()) {
+		  std::string name_1 = atom_names[idx_1];
+		  std::string name_2 = atom_names[idx_2];
+		  // bt is "" if not found.
+		  std::cout << "calling get_bond_type() for :"
+			    << name_1 << ": :" << name_2 << ":" << std::endl;
+		  std::string bt = bond_types_dict.get_bond_type(name_1, name_2);
+		  float dist = items[i].median;
+		  float esd  = items[i].std_dev;
+		  dict_bond_restraint_t rest(name_1, name_2, bt, dist, esd);
+		  r.bond_restraint.push_back(rest);
+	       }
+	    }
+	 }
+
+
+	 if (items[i].type == mogul_item::ANGLE) {
+	    int idx_1 = items[i].idx_1 - 1;
+	    int idx_2 = items[i].idx_2 - 1;
+	    int idx_3 = items[i].idx_3 - 1;
+	    if (idx_1 >= 0 && idx_1 < atom_names.size()) { 
+	       if (idx_2 >= 0 && idx_2 < atom_names.size()) {
+		  if (idx_3 >= 0 && idx_3 < atom_names.size()) {
+		     std::string name_1 = atom_names[idx_1];
+		     std::string name_2 = atom_names[idx_2];
+		     std::string name_3 = atom_names[idx_3];
+		     float angle = items[i].median;
+		     float esd  = items[i].std_dev;
+		     dict_angle_restraint_t rest(name_1, name_2, name_3, angle, esd);
+		     r.angle_restraint.push_back(rest);
+		  }
+	       }
+	    }
+	 }
+      }
+
+   }
+   return r;
+} 
+
+
 
 std::string
-coot::mogul::get_bond_type(coot::dictionary_residue_restraints_t &restraints,
+coot::mogul::get_bond_type(const coot::dictionary_residue_restraints_t &restraints,
 			   const std::string &name_1,
 			   const std::string &name_2) const {
 
