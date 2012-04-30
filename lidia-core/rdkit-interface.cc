@@ -594,7 +594,6 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
       const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
       
       RDKit::Conformer conf = rdkm.getConformer(iconf);
-      int n_conf_atoms = conf.getNumAtoms();
       int n_mol_atoms = rdkm.getNumAtoms();
 
       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {

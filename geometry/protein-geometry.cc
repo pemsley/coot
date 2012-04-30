@@ -5125,73 +5125,83 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       comp_monomer_name += residue_info.comp_id.c_str(); 
       rc = mmCIFFile->AddMMCIFData(comp_monomer_name.c_str());
       mmCIFData = mmCIFFile->GetCIFData(comp_monomer_name.c_str());
-      rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
-      
-      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
-	 for (int i=0; i<atom_info.size(); i++) {
-	    const char *ss =  residue_info.comp_id.c_str();
-	    mmCIFLoop->PutString(ss, "comp_id", i);
-	    ss = atom_info[i].atom_id.c_str();
-	    mmCIFLoop->PutString(ss, "atom_id", i);
-	    ss = atom_info[i].type_symbol.c_str();
-	    mmCIFLoop->PutString(ss, "type_symbol", i);
-	    ss = atom_info[i].type_energy.c_str();
-	    mmCIFLoop->PutString(ss, "type_energy", i);
-	    if (atom_info[i].partial_charge.first) {
-	       float v = atom_info[i].partial_charge.second;
-	       mmCIFLoop->PutReal(v, "partial_charge", i);
+
+      if (atom_info.size()) { 
+	 rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
+	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	    for (int i=0; i<atom_info.size(); i++) {
+	       const char *ss =  residue_info.comp_id.c_str();
+	       mmCIFLoop->PutString(ss, "comp_id", i);
+	       ss = atom_info[i].atom_id.c_str();
+	       mmCIFLoop->PutString(ss, "atom_id", i);
+	       ss = atom_info[i].type_symbol.c_str();
+	       mmCIFLoop->PutString(ss, "type_symbol", i);
+	       ss = atom_info[i].type_energy.c_str();
+	       mmCIFLoop->PutString(ss, "type_energy", i);
+	       if (atom_info[i].partial_charge.first) {
+		  float v = atom_info[i].partial_charge.second;
+		  mmCIFLoop->PutReal(v, "partial_charge", i);
+	       }
 	    }
 	 }
       }
 
       // bond loop
 
-      rc = mmCIFData->AddLoop("_chem_comp_bond", mmCIFLoop);
-      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
-	 // std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
-	 for (int i=0; i<bond_restraint.size(); i++) {
-	    // std::cout << "ading bond number " << i << std::endl;
-	    const char *ss = residue_info.comp_id.c_str();
-	    mmCIFLoop->PutString(ss, "comp_id", i);
-	    ss = bond_restraint[i].atom_id_1_4c().c_str();
-	    mmCIFLoop->PutString(ss, "atom_id_1", i);
-	    ss = bond_restraint[i].atom_id_2_4c().c_str();
-	    mmCIFLoop->PutString(ss, "atom_id_2", i);
-	    ss = bond_restraint[i].type().c_str();
-	    mmCIFLoop->PutString(ss, "type", i);
-	    float v = bond_restraint[i].value_dist();
-	    try { 
-	       mmCIFLoop->PutReal(v, "value_dist", i);
-	       v = bond_restraint[i].value_esd();
-	       mmCIFLoop->PutReal(v, "value_dist_esd", i);
+      if (bond_restraint.size()) { 
+	 rc = mmCIFData->AddLoop("_chem_comp_bond", mmCIFLoop);
+	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	    // std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
+	    for (int i=0; i<bond_restraint.size(); i++) {
+	       // std::cout << "ading bond number " << i << std::endl;
+	       const char *ss = residue_info.comp_id.c_str();
+	       mmCIFLoop->PutString(ss, "comp_id", i);
+	       ss = bond_restraint[i].atom_id_1_4c().c_str();
+	       mmCIFLoop->PutString(ss, "atom_id_1", i);
+	       ss = bond_restraint[i].atom_id_2_4c().c_str();
+	       mmCIFLoop->PutString(ss, "atom_id_2", i);
+	       ss = bond_restraint[i].type().c_str();
+	       mmCIFLoop->PutString(ss, "type", i);
+	       float v = bond_restraint[i].value_dist();
+	       try { 
+		  mmCIFLoop->PutReal(v, "value_dist", i);
+		  v = bond_restraint[i].value_esd();
+		  mmCIFLoop->PutReal(v, "value_dist_esd", i);
+	       }
+	       catch (std::runtime_error rte) {
+		  // do nothing, it's not really an error if the dictionary
+		  // doesn't have target geometry (the bonding description came
+		  // from a Chemical Component Dictionary entry for example).
+	       } 
 	    }
-	    catch (std::runtime_error rte) {
-	       // do nothing, it's not really an error if the dictionary
-	       // doesn't have target geometry (the bonding description came
-	       // from a Chemical Component Dictionary entry for example).
-	    } 
 	 }
       }
 
       // angle loop
 
-      rc = mmCIFData->AddLoop("_chem_comp_angle", mmCIFLoop);
-      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
-	 // std::cout << " number of angles: " << angle_restraint.size() << std::endl;
-	 for (int i=0; i<angle_restraint.size(); i++) {
-	    // std::cout << "ading angle number " << i << std::endl;
-	    char *ss = (char *) residue_info.comp_id.c_str();
-	    mmCIFLoop->PutString(ss, "comp_id", i);
-	    ss = (char *) angle_restraint[i].atom_id_1_4c().c_str();
-	    mmCIFLoop->PutString(ss, "atom_id_1", i);
-	    ss = (char *) angle_restraint[i].atom_id_2_4c().c_str();
-	    mmCIFLoop->PutString(ss, "atom_id_2", i);
-	    ss = (char *) angle_restraint[i].atom_id_3_4c().c_str();
-	    mmCIFLoop->PutString(ss, "atom_id_3", i);
-	    float v = angle_restraint[i].angle();
-	    mmCIFLoop->PutReal(v, "angle", i);
-	    v = angle_restraint[i].esd();
-	    mmCIFLoop->PutReal(v, "esd", i);
+      if (angle_restraint.size()) { 
+	 rc = mmCIFData->AddLoop("_chem_comp_angle", mmCIFLoop);
+	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	    // std::cout << " number of angles: " << angle_restraint.size() << std::endl;
+	    for (int i=0; i<angle_restraint.size(); i++) {
+	       // std::cout << "ading angle number " << i << std::endl;
+	       char *ss = (char *) residue_info.comp_id.c_str();
+	       mmCIFLoop->PutString(ss, "comp_id", i);
+	       ss = (char *) angle_restraint[i].atom_id_1_4c().c_str();
+	       mmCIFLoop->PutString(ss, "atom_id_1", i);
+	       ss = (char *) angle_restraint[i].atom_id_2_4c().c_str();
+	       mmCIFLoop->PutString(ss, "atom_id_2", i);
+
+	       // bug fix(!) intermediate value my_ss clears up casting
+	       // problem (inheritance-related?) on writing.
+	       std::string my_ss = angle_restraint[i].atom_id_3_4c();
+	       ss = (char *) my_ss.c_str();
+	       mmCIFLoop->PutString(ss, "atom_id_3", i);
+	       float v = angle_restraint[i].angle();
+	       mmCIFLoop->PutReal(v, "angle", i);
+	       v = angle_restraint[i].esd();
+	       mmCIFLoop->PutReal(v, "esd", i);
+	    }
 	 }
       }
 
@@ -5917,7 +5927,7 @@ coot::dictionary_residue_restraints_t::get_bond_type(const std::string &name_1,
 						     const std::string &name_2) const {
 
    std::string r("unknown");
-   for (unsigned int i=0; i<bond_restraint.size(); i++) { 
+   for (unsigned int i=0; i<bond_restraint.size(); i++) {
       if (bond_restraint[i].atom_id_1_4c() == name_1) { 
 	 if (bond_restraint[i].atom_id_2_4c() == name_2) { 
 	    r = bond_restraint[i].type();

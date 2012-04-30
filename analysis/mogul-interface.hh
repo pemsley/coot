@@ -107,7 +107,7 @@ namespace coot {
 				  const std::vector<std::string> &distribution_bits) const;
       float max_z_badness; // passed to mogul items.
       
-      std::string get_bond_type(coot::dictionary_residue_restraints_t &restraints,
+      std::string get_bond_type(const coot::dictionary_residue_restraints_t &restraints,
 				const std::string &name_1,
 				const std::string &name_2) const;
    public:
@@ -122,12 +122,29 @@ namespace coot {
 	 return items[item_no];
       }
       void set_max_z_badness(float b) { max_z_badness = b; }
-      // the following coot:: is for swig
-      coot::dictionary_residue_restraints_t make_restraints(CResidue *residue_p,
-							    const std::string &comp_id,
-							    const coot::protein_geometry &geom);
-   };
 
+      coot::dictionary_residue_restraints_t make_restraints(CResidue *residue_p,
+						      const std::string &comp_id,
+						      const coot::protein_geometry &geom);
+      // coot:: needed?
+      // 
+      // interface coming from rdkit molecule - there we have synthetic names
+      // and the atom names are a simple vector indexing from residue/rdkit-molecule
+      // atoms to names.
+      // 
+      // the bond types tell us what the bond type is from atom-name-1 to atom-name-2
+      // (if any)
+      //
+      // bond_types_dict is a container simply to contain the bond
+      // orders for a given set of atom names.
+      // 
+      coot::dictionary_residue_restraints_t
+      make_restraints(const std::string &comp_id,
+		      const std::string &compound_name,
+		      const std::vector<std::string> &atom_names,
+		      int n_atom_all, int n_atoms_non_H,
+		      const coot::dictionary_residue_restraints_t &bond_types_dict);
+   };
 }
 
 #endif // MOGUL_INTERFACE_HH
