@@ -3503,8 +3503,6 @@ void
 graphics_info_t::fill_add_OXT_dialog_internal(GtkWidget *widget, int imol) {
 
    GtkWidget *chain_optionmenu = lookup_widget(widget, "add_OXT_chain_optionmenu");
-//    GtkWidget *at_c_terminus_radiobutton =
-//       lookup_widget(widget, "add_OXT_c_terminus_radiobutton");
    GtkSignalFunc signal_func = GTK_SIGNAL_FUNC(graphics_info_t::add_OXT_chain_menu_item_activate);
 
    std::string a = fill_chain_option_menu(chain_optionmenu, imol, signal_func);
@@ -3518,10 +3516,9 @@ void
 graphics_info_t::add_OXT_chain_menu_item_activate (GtkWidget *item,
 						   GtkPositionType pos) {
 
-   char *data = NULL;
-   data = (char *)pos;
-   if (data)
-      add_OXT_chain = std::string(data);
+   char *chain_id = (char *) g_object_get_data(G_OBJECT(item), "chain-id");
+   if (chain_id)
+      add_OXT_chain = std::string(chain_id);
 }
 
 // a copy of the c-interface function which does not pass the signal
@@ -3545,11 +3542,11 @@ graphics_info_t::fill_chain_option_menu(GtkWidget *chain_option_menu, int imol,
 	    if (menu)
 	       gtk_widget_destroy(menu);
 	    menu = gtk_menu_new();
-	    short int first_chain_set_flag = 0;
+	    bool first_chain_set_flag = false;
 	    std::string first_chain;
 	    for (unsigned int i=0; i<chains.size(); i++) {
-	       if (first_chain_set_flag == 0) {
-		  first_chain_set_flag = 1;
+	       if (! first_chain_set_flag) {
+		  first_chain_set_flag = true;
 		  first_chain = chains[i];
 	       }
 	       menu_item = gtk_menu_item_new_with_label(chains[i].c_str());
@@ -3560,6 +3557,7 @@ graphics_info_t::fill_chain_option_menu(GtkWidget *chain_option_menu, int imol,
 	       strncpy(v, chains[i].c_str(), l+1);
 	       gtk_signal_connect(GTK_OBJECT(menu_item), "activate", signal_func, v);
 	       gtk_menu_append(GTK_MENU(menu), menu_item);
+	       g_object_set_data(G_OBJECT(menu_item), "chain-id", v);
 	       gtk_widget_show(menu_item);
 	    }
 	    /* Link the new menu to the optionmenu widget */
