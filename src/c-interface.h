@@ -4715,6 +4715,9 @@ rigid_body_refine_by_atom_selection(int imol,
 SCM rigid_body_refine_by_residue_ranges_scm(int imol, SCM residue_ranges); 
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
+/*! \brief rigid body refine using residue ranges.  residue_ranges is
+    a list of residue ranges.  A residue range is [chain_id,
+    resno_start, resno_end]. */
 PyObject *
 rigid_body_refine_by_residue_ranges_py(int imol, PyObject *residue_ranges); 
 #endif /* USE_PYTHON */
