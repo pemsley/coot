@@ -6021,3 +6021,18 @@ void show_go_to_residue_keyboarding_mode_window() {
 void    handle_go_to_residue_keyboarding_mode(const gchar *text) {
    graphics_info_t::apply_go_to_residue_keyboading_string(text);
 }
+
+
+/* For GTK full screen mode */
+
+void full_screen(int mode) {
+
+  GtkWindow *win;
+  win = GTK_WINDOW(lookup_widget(main_window(), "window1"));
+  if (mode == 0) {
+    // switch off
+    gtk_window_unfullscreen(win);
+  } else {
+    gtk_window_fullscreen(win);
+  }  
+}

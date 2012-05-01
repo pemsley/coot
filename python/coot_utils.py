@@ -3370,6 +3370,7 @@ def kill_process(pid):
 
 
 # some example function for the toolbutton
+# maybe shoudl go in coot_gui!?
 def stereo_mono_toggle():
     display_state = stereo_mode_state()
     if (display_state == 0):
@@ -3394,6 +3395,25 @@ def zalman_stereo_mono_toggle():
 def switch_stereo_sides():
     factor = -1. * hardware_stereo_angle_factor_state()
     set_hardware_stereo_angle_factor(factor)
+
+def toggle_full_screen(widget=None):
+    """ Toggle between full screen and window mode
+
+    Keyword arguments:
+    widget -- can be passed from the toolbutton
+    """
+
+    if widget:
+        if widget.get_active():
+            # the button is toggled on
+            full_screen(1)
+        else:
+            full_screen(0)
+    else:
+        # no alternative for now (could just go by state and change back and forth)
+        print "BL WARNING:: no widget"
+
+    
 
 # helper function to test for a number
 # returns True if number, otherwise False

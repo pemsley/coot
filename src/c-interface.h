@@ -6884,12 +6884,16 @@ void user_defined_click_py(int n_clicks, PyObject *func);
 #endif /* PYTHON */
 #endif /* c++ */
 
-#endif /* C_INTERFACE_H */
-END_C_DECLS
 
 #ifdef WII_INTERFACE_WIIUSE
 int setup_wii();
 void stop_wii();
 void wii_status();
 #endif
+
+void full_screen(int mode);
+
+#endif /* C_INTERFACE_H */
+END_C_DECLS
+
 
