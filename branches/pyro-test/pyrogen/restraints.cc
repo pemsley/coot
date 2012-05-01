@@ -86,7 +86,7 @@ coot::assign_chirals(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *r
    for (unsigned int iat=0; iat<n_atoms; iat++) { 
       RDKit::ATOM_SPTR at_p = mol[iat];
       RDKit::Atom::ChiralType chiral_tag = at_p->getChiralTag();
-      std::cout << "atom " << iat << " chiral tag: " << chiral_tag << std::endl;
+      // std::cout << "atom " << iat << " chiral tag: " << chiral_tag << std::endl;
 
       // do I need to check the atom order here, like I do in rdkit-interface.cc?
       if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CCW)

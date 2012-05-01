@@ -27,7 +27,7 @@ def run_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name):
    f = make_mogul_ins_file(mogul_ins_file_name, mogul_out_file_name, sdf_file_name)
    if f: 
       # print 'now run mogul using ins file %s' % mogul_ins_file_name
-      # call(['mogul', '-ins', mogul_ins_file_name])
+      call(['mogul', '-ins', mogul_ins_file_name])
       return True
    else:
       return False
@@ -121,24 +121,25 @@ def make_restraints(smiles_string, sdf_file_name, mmcif_dict_name):
       AllChem.EmbedMolecule(m)
       AllChem.UFFOptimizeMolecule(m)
       n_nonH = m.GetNumAtoms();
-      AllChem.AddHs(m)
-      n_atoms = m.GetNumAtoms();
-      atom_names = add_atom_names(m)
-      m.SetProp('comp_id', comp_id)
-      m.SetProp('name', compound_name)
+      m_H = AllChem.AddHs(m)
+      n_atoms = m_H.GetNumAtoms();
+      atom_names = add_atom_names(m_H)
+      m_H.SetProp('comp_id', comp_id)
+      m_H.SetProp('name', compound_name)
 
-      mb = Chem.MolToMolBlock(m)
+      mb = Chem.MolToMolBlock(m_H)
       print >> file(sdf_file_name,'w'), mb
       mogul_ins_file_name = 'mogul.ins'
       mogul_out_file_name = 'mogul.out'
-      bor = make_restraints_for_bond_orders(m)
+      bor = make_restraints_for_bond_orders(m_H)
       # print "we got this bor: ", bor
       # coot.write_restraints(bor, comp_id, 'bond-orders.cif')
       
       mogul_state = run_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
       
       if mogul_state:
-          coot.mogul_out_to_mmcif_dict(mogul_out_file_name, comp_id, compound_name, atom_names, n_atoms, n_nonH, bor, mmcif_dict_name)
+          # coot.mogul_out_to_mmcif_dict(mogul_out_file_name, comp_id, compound_name, atom_names, n_atoms, n_nonH, bor, mmcif_dict_name)
+          coot.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id, compound_name, m_H, bor, mmcif_dict_name)
           return True
       return mogul_state
 
