@@ -133,6 +133,16 @@ if coot_python_dir:
 else:
     search_load_path = "@prefix@/share/coot/python"
 
+
+def load_from_search_load_path(file):
+    f = os.path.join(search_load_path, file)
+    if f:
+        print "load", file
+        execfile(f, globals())
+    else:
+        print "Error finding", file
+
+
 for name in python_list:
     filename = os.path.join(search_load_path, name)
     if filename and os.path.isfile(filename):
@@ -152,5 +162,4 @@ for name in python_list:
                 coot_real_exit(1)
     else:
         print "ERROR: cannot find", name
-
 

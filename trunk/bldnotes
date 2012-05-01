@@ -8,8 +8,6 @@ build-it-win rev 4031
 * THINGS TO DO BEFORE 0.7.0 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
-* libpng patching (properly)
-
 * auto-weight in scm (Paul?!)
 
 ---- FINISH URGENT ----
@@ -70,6 +68,12 @@ notes from Shanghai:
 ----------------
 
 **** General ****
+
+   o cancel plane picking!!!
+
+   o Validation summary
+
+   o graphical ssm/lsq output
 
    o read pdb string
 
@@ -299,6 +303,8 @@ low importance
 
 
 **** Windows ****
+
+   o installer: show/hide details
 
    o fix DATADIR objidl.h conflict
 
@@ -578,3 +584,7 @@ Osaka 2010
 
 * Done
 
+
+   o libpng patching (properly)
+
+* Done

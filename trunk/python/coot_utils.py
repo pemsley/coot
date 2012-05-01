@@ -1160,7 +1160,10 @@ def guess_refinement_map():
 # Ian Tickle says (as far as I can understand) that the target rmsd
 # should be 0.25 or thereabouts.  You can over-ride it now.
 #
-# BL says:: stil, I dont get it to 0.25, so we make it 1.0
+# BL says:: still, I dont get it to 0.25, so we make it 1.0
+# Even setting it to 0.8 (more or less arbitratry, but accounting for
+# some redundancy in the parameters (Ian's comment)) is not enough, I think
+# It seems reality is different to theory, here at least...
 global target_auto_weighting_value
 target_auto_weighting_value = 1.0
     
