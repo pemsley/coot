@@ -167,7 +167,7 @@ Section "!WinCoot" SEC01
   endifbat:
 
   SetOverwrite on
-  File /oname=$INSTDIR\runwincoot.bat.tmp "C:\msys\home\bernhard\autobuild\extras\runwincoot.bat"
+  File /oname=$INSTDIR\runwincoot.bat.tmp "C:\msys\home\bernhard\Projects\coot\windows\runwincoot.bat"
 
   SetOverwrite ifnewer
 ; bin DIR
@@ -339,8 +339,8 @@ Section "!WinCoot" SEC01
   File "${src_dir}\etc\pango\pango.modules"
 ; for ccp4 version
   SetOutPath "$INSTDIR\etc"
-  File "C:\msys\home\bernhard\autobuild\extras\runwincoot_ccp4.bat"
-  File "C:\msys\home\bernhard\autobuild\extras\runwincoot_ccp4_vista.bat"
+  File "C:\msys\home\bernhard\Projects\coot\windows\runwincoot_ccp4.bat"
+  File "C:\msys\home\bernhard\Projects\coot\windows\runwincoot_ccp4_vista.bat"
 ; SHARE
   SetOutPath "$INSTDIR\share\coot"
   File "${src_dir}\share\coot\*"
