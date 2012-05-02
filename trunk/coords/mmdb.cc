@@ -730,7 +730,7 @@ coot::mol_to_asc_rdkit(const std::string &file_name) {
    try { 
       RDKit::RWMol *m = RDKit::Mol2FileToMol(file_name);
       if (m) { 
-	 CResidue *res = coot::make_residue(*m, 0);
+	 CResidue *res = coot::make_residue(*m, 0, "XXX");
 	 if (res) { 
 	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(NULL, res);
 	    asc = make_asc(mol);

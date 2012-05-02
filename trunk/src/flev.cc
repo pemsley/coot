@@ -440,7 +440,8 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 		  lig_build::molfile_molecule_t m =
 		     coot::make_molfile_molecule(rdkm, mol_2d_depict_conformer);
 
-		  CResidue *residue_flat = coot::make_residue(rdkm, mol_2d_depict_conformer);
+		  CResidue *residue_flat =
+		     coot::make_residue(rdkm, mol_2d_depict_conformer, "XXX");
 		  CMMDBManager *mol_for_flat_residue =
 		     coot::util::create_mmdbmanager_from_residue(NULL, residue_flat);
 

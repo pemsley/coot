@@ -645,24 +645,24 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 // returns NULL on fail. Caller deletes.
 //
 CResidue *
-coot::make_residue(const RDKit::ROMol &rdkm, int iconf) {
+coot::make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name) {
 
    CResidue *residue_p = NULL;
-   std::cout << "in make_residue() calling make_molfile_molecule() " << std::endl;
    lig_build::molfile_molecule_t mol = coot::make_molfile_molecule(rdkm, iconf);
-   std::cout << "in make_residue() done calling make_molfile_molecule() " << std::endl;
 
    // now convert mol to a CResidue *
    // 
    if (mol.atoms.size()) {
       residue_p = new CResidue;
       residue_p->seqNum = 1;
+      residue_p->SetResName(res_name.c_str());
       CChain *chain_p = new CChain;
       chain_p->SetChainID("");
       chain_p->AddResidue(residue_p);
       for (unsigned int iat=0; iat<mol.atoms.size(); iat++) { 
 	 CAtom *at = new CAtom;
-	 at->SetAtomName(mol.atoms[iat].name.c_str());
+	 std::string atom_name = mol.atoms[iat].name; // overridden hopefully
+	 at->SetAtomName(atom_name.c_str());
 	 at->SetElementName(mol.atoms[iat].element.c_str());
 	 at->SetCoordinates(mol.atoms[iat].atom_position.x(),
 			    mol.atoms[iat].atom_position.y(),

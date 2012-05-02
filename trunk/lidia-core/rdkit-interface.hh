@@ -56,7 +56,7 @@ namespace coot {
    //
    // resulting residues has chain id of "" and residue number 1.
    //
-   CResidue *make_residue(const RDKit::ROMol &rdkm, int iconf);
+   CResidue *make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name);
    
    // lig_build::molfile_molecule_t make_molfile_molecule(const RDKit::RWMol &rdkm);
    lig_build::bond_t::bond_type_t convert_bond_type(const RDKit::Bond::BondType &type);

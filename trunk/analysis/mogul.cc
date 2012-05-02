@@ -262,8 +262,6 @@ coot::mogul::make_restraints(const std::string &comp_id,
 		  std::string name_1 = atom_names[idx_1];
 		  std::string name_2 = atom_names[idx_2];
 		  // bt is "" if not found.
-		  std::cout << "calling get_bond_type() for :"
-			    << name_1 << ": :" << name_2 << ":" << std::endl;
 		  std::string bt = bond_types_dict.get_bond_type(name_1, name_2);
 		  float dist = items[i].median;
 		  float esd  = items[i].std_dev;
