@@ -36,6 +36,10 @@ namespace coot {
 			 const std::string &file_name);
 
    int assign_chirals(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
-   
+
+   void write_pdb_from_mol(PyObject *rdkit_mol_py,
+			   const std::string &res_name,
+			   const std::string &file_name);
+
 }
 
