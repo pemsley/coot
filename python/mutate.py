@@ -243,5 +243,5 @@ def poly_ala(imol, res_type = False):
 def delete_sidechain_range(imol, chain_id, resno_start, resno_end):
 
    for resno in number_list(resno_start,resno_end):
-      delete_residue_sidechain(imol, chain_id, resno, "")
+      delete_residue_sidechain(imol, chain_id, resno, "", 0)
                 
