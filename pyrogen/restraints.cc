@@ -2,7 +2,8 @@
 
 #include <boost/python.hpp>
 #include "restraints.hh"
-
+#include <rdkit-interface.hh>
+#include <coot-coord-utils.hh>
 
 
 void
@@ -126,6 +127,24 @@ coot::write_restraints(PyObject *restraints_py,
    coot::dictionary_residue_restraints_t rest = monomer_restraints_from_python(restraints_py);
    rest.write_cif(file_name);
 }
+
+
+void
+coot::write_pdb_from_mol(PyObject *rdkit_mol_py,
+			 const std::string &res_name,
+			 const std::string &file_name) {
+
+   RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
+   CResidue *res = coot::make_residue(mol, 0, res_name);
+   if (! res) {
+      std::cout << "in write_pdb_from_mol() failed to make residue" << std::endl;
+   } else {
+      CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(NULL, res);
+      mol->WritePDBASCII(file_name.c_str());
+      delete mol;
+   }
+}
+
 
 
 
