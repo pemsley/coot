@@ -3211,6 +3211,16 @@ SCM matching_compound_names_from_dictionary_scm(const char *compound_name_fragme
 SCM comp_id_to_name_scm(const char *comp_id);
 #endif /* USE_GUILE */
 
+/*! \brief try to auto-load the dictionary for comp_id from the refmac monomer library.
+
+   return 0 on failure.
+   return 1 on successful auto-load.
+   return 2 on already-read.
+   */
+int auto_load_dictionary(const char *comp_id);
+/*! \brief as above, but dictionary is cleared and re-read if it already exists */
+int reload_dictionary(const char *comp_id);
+
 /*! \brief add residue name to the list of residue names that don't
   get auto-loaded from the Refmac dictionary. */
 void add_non_auto_load_residue_name(const char *s); 

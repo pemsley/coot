@@ -1,7 +1,7 @@
 /* geometry/protein-geometry.cc
  * 
  * Copyright 2004, 2005 The University of York
- * Copyright 2008, 2009, 2011 The University of Oxford
+ * Copyright 2008, 2009, 2011, 2012 The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -52,6 +52,29 @@ namespace coot {
 
    std::string atom_id_mmdb_expand(const std::string &atomname);
    std::string atom_id_mmdb_expand(const std::string &atomname, const std::string &element);
+
+   class pdbx_chem_comp_descriptor_item {
+   public:
+      std::string type;
+      std::string program;
+      std::string program_version;
+      std::string descriptor;
+      pdbx_chem_comp_descriptor_item(const std::string &type_in,
+				     const std::string &program_in,
+				     const std::string &program_version_in,
+				     const std::string &descriptor_in) {
+	 type = type_in;
+	 program = program_in;
+	 program_version = program_version_in;
+	 descriptor = descriptor_in;
+      }
+   };
+   
+   class pdbx_chem_comp_descriptor_container_t {
+   public:
+      std::vector<pdbx_chem_comp_descriptor_item> descriptors;
+   };
+   
    
    class dict_chem_comp_t {
       void setup_internal(const std::string &comp_id_in,
@@ -428,6 +451,7 @@ namespace coot {
       std::vector <dict_torsion_restraint_t> torsion_restraint;
       std::vector  <dict_chiral_restraint_t>  chiral_restraint;
       std::vector   <dict_plane_restraint_t>   plane_restraint;
+      pdbx_chem_comp_descriptor_container_t descriptors;
       // Return 1 for hydrogen or deuterium, 0 for not found or not a hydrogen.
       bool is_hydrogen(const std::string &atom_name) const;
       int assign_chiral_volume_targets(); // return the number of targets made.
@@ -1019,6 +1043,9 @@ namespace coot {
       float spring_constant; // for energetics
       float length;
       float esd;
+      energy_lib_bond() {
+	 type = "unset";
+      } 
       energy_lib_bond(const std::string &atom_type_1_in,
 		      const std::string &atom_type_2_in,
 		      const std::string &type_in,
@@ -1032,7 +1059,9 @@ namespace coot {
 	 length = length_in;
 	 esd = esd_in;
       }
+      friend std::ostream& operator<<(std::ostream &s, const energy_lib_bond &bond);
    };
+   std::ostream& operator<<(std::ostream &s, const energy_lib_bond &bond);
 
    class energy_lib_angle {
    public:
@@ -1093,6 +1122,8 @@ namespace coot {
       std::vector<energy_lib_bond> bonds;
       std::vector<energy_lib_angle> angles;
       std::vector<energy_lib_torsion> torsions;
+      energy_lib_bond get_bond(const std::string &atom_type_1,
+			       const std::string &atom_type_2) const;
    };
 
 
@@ -1191,6 +1222,7 @@ namespace coot {
       void link_torsion(PCMMCIFLoop mmCIFLoop); 
       void link_plane  (PCMMCIFLoop mmCIFLoop);
       int  link_chiral  (PCMMCIFLoop mmCIFLoop); // return number of new chirals
+      void pdbx_chem_comp_descriptor(PCMMCIFLoop mmCIFLoop); 
 
       // return the comp id (so that later we can associate the file name with the comp_id).
       // 
@@ -1271,6 +1303,9 @@ namespace coot {
       void add_restraint(std::string comp_id, const dict_angle_restraint_t &restr);
       void add_restraint(std::string comp_id, const dict_torsion_restraint_t &restr);
       void add_restraint(std::string comp_id, const dict_chiral_restraint_t &rest);
+
+      void add_pdbx_descriptor(const std::string &comp_id,
+			       pdbx_chem_comp_descriptor_item &descr);
 
       // comp_tree need to convert unquoted atom_ids to 4char atom
       // names.  So we look them up in the atom table.  If name not
@@ -1833,6 +1868,11 @@ namespace coot {
       // 
       void add_non_auto_load_residue_name(const std::string &res_name);
       void remove_non_auto_load_residue_name(const std::string &res_name);
+
+      std::vector<std::string> monomer_restraints_comp_ids() const;
+
+      // can throw a std::runtime_error
+      std::string Get_SMILES_for_comp_id(const std::string &comp_id) const;
 
    };
 

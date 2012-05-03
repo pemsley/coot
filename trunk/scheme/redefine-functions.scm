@@ -85,3 +85,5 @@
 (define display-maps display-maps-scm)
 (define ligand-search-make-conformers ligand-search-make-conformers-scm)
 (define coot-can-do-lidia? coot-can-do-lidia-p) ;; a c++ bool, which SWIG translates
+(define dictionary-entries dictionary-entries-scm)
+(define SMILES-for-comp-id SMILES-for-comp-id-scm)

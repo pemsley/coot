@@ -3156,6 +3156,30 @@ PyObject *dictionaries_read_py() {
 }
 #endif // PYTHON
 
+std::vector<std::string>
+dictionary_entries() {
+   graphics_info_t g;
+   return g.Geom_p()->monomer_restraints_comp_ids();
+} 
+
+#ifdef USE_GUILE
+SCM dictionary_entries_scm() {
+   std::vector<std::string> comp_ids = dictionary_entries();
+   return generic_string_vector_to_list_internal(comp_ids);
+} 
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+PyObject *dictionary_entries_py() {
+
+   std::vector<std::string> comp_ids = dictionary_entries();
+   return generic_string_vector_to_list_internal_py(comp_ids);
+} 
+#endif // USE_PYTHON
+
+
+
+
 
 #ifdef USE_GUILE
 SCM cif_file_for_comp_id_scm(const std::string &comp_id) {
@@ -3174,6 +3198,46 @@ PyObject *cif_file_for_comp_id_py(const std::string &comp_id) {
    return PyString_FromString(g.Geom_p()->get_cif_file_name(comp_id).c_str());
 } 
 #endif // PYTHON
+
+// can throw and std::runtime_error exception
+std::string SMILES_for_comp_id(const std::string &comp_id) {
+
+   graphics_info_t g;
+   std::string s = g.Geom_p()->Get_SMILES_for_comp_id(comp_id); // can throw
+   return s;
+}
+
+#ifdef USE_GUILE
+SCM SMILES_for_comp_id_scm(const std::string &comp_id) {
+
+   SCM r = SCM_BOOL_F;
+   try {
+      std::string s = SMILES_for_comp_id(comp_id);
+      r = scm_makfrom0str(s.c_str());
+   }
+   catch (std::runtime_error rte) {
+      std::cout << "WARNING:: " << rte.what() << std::endl;
+   } 
+   return r;
+}
+#endif
+
+
+#ifdef USE_PYTHON
+PyObject *SMILES_for_comp_id_py(const std::string &comp_id) {
+   PyObject *r = Py_False;
+   try {
+      std::string s = SMILES_for_comp_id(comp_id);
+      r = PyString_FromString(s.c_str());
+   }
+   catch (std::runtime_error rte) {
+      std::cout << "WARNING:: " << rte.what() << std::endl;
+   } 
+   if (PyBool_Check(r))
+      Py_INCREF(r);
+   return r;
+} 
+#endif // USE_PYTHON
 
 
 /*  ----------------------------------------------------------------------- */

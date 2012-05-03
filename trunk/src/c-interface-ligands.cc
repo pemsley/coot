@@ -1495,6 +1495,46 @@ void remove_non_auto_load_residue_name(const char *s) {
    g.Geom_p()->remove_non_auto_load_residue_name(s);
 }
 
+/*! \brief try to auto-load the dictionary for comp_id from the refmac monomer library.
+
+   return 0 on failure.
+   return 1 on successful auto-load.
+   return 2 on already-read.
+   */
+int auto_load_dictionary(const char *comp_id) {
+
+   graphics_info_t g;
+   int r = 0;
+   if (comp_id) {
+      std::string s = comp_id;
+      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(s)) { 
+	 r = 2;
+      } else { 
+	 int status = g.Geom_p()->try_dynamic_add(s, g.cif_dictionary_read_number);
+	 if (status)
+	    r = 1;
+      }
+   }
+   return r;
+}
+
+/*! \brief as above, but dictionary is cleared and re-read if it already exists */
+int reload_dictionary(const char *comp_id) {
+   
+   graphics_info_t g;
+   int r = 0;
+   if (comp_id) {
+      std::string s = comp_id;
+      int status = g.Geom_p()->try_dynamic_add(s, g.cif_dictionary_read_number);
+      if (status)
+	 r = 1;
+   }
+   return r;
+
+} 
+
+
+
 
 #ifdef USE_PYTHON
 /*! \brief return a list of compoundIDs in the dictionary which the
