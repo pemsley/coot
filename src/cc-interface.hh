@@ -310,16 +310,23 @@ std::pair<int, std::vector<std::string> > merge_molecules_by_vector(const std::v
 /*  ----------------------------------------------------------------------- */
 //! \name Dictionary Functions
 //! \{
+std::vector<std::string> dictionary_entries();
+// this can throw an exception
+std::string SMILES_for_comp_id(const std::string &comp_id);
 /*! \brief return a list of all the dictionaries read */
 #ifdef USE_GUILE
 SCM dictionaries_read();
 SCM cif_file_for_comp_id_scm(const std::string &comp_id);
+SCM dictionary_entries_scm();
+SCM SMILES_for_comp_id_scm(const std::string &comp_id);
 #endif // USE_GUILE
 
 
 #ifdef USE_PYTHON
 PyObject *dictionaries_read_py();
 PyObject *cif_file_for_comp_id_py(const std::string &comp_id);
+PyObject *dictionary_entries_py();
+PyObject *SMILES_for_comp_id_py(const std::string &comp_id);
 #endif // PYTHON
 //! \}
 

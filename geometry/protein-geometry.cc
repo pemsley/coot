@@ -16,7 +16,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
  * 02110-1301, USA
  */
 
@@ -340,6 +340,10 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		  if (cat_name == "_chem_comp_plane_atom")
 		     comp_plane(mmCIFLoop);
 
+		  // PDBx stuff
+		  if (cat_name == "_pdbx_chem_comp_descriptor")
+		     pdbx_chem_comp_descriptor(mmCIFLoop);
+
 	       }
 	    }
 	    if (n_chiral) {
@@ -445,7 +449,7 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
       }
    }
 
-   if (1) 
+   if (0) 
       std::cout
 	 << "chem_comp_component() comp_id :" << comp_id.first << " :" << comp_id.second << ": "
 	 << "three_letter_code :" << three_letter_code.first << " :" << three_letter_code.second
@@ -5198,9 +5202,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       ss = (char *) my_ss.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_3", i);
 	       float v = angle_restraint[i].angle();
-	       mmCIFLoop->PutReal(v, "angle", i);
+	       mmCIFLoop->PutReal(v, "value_angle", i);
 	       v = angle_restraint[i].esd();
-	       mmCIFLoop->PutReal(v, "esd", i);
+	       mmCIFLoop->PutReal(v, "value_angle_esd", i);
 	    }
 	 }
       }
@@ -5942,5 +5946,106 @@ coot::dictionary_residue_restraints_t::get_bond_type(const std::string &name_1,
       }
    }
    return r;
+}
+
+std::vector<std::string>
+coot::protein_geometry::monomer_restraints_comp_ids() const {
+
+   std::vector<std::string> v;
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++)
+      v.push_back(dict_res_restraints[i].residue_info.comp_id);
+   return v;
 } 
+
+
+// can throw a std::runtime_error
+std::string
+coot::protein_geometry::Get_SMILES_for_comp_id(const std::string &comp_id) const {
+
+   bool found = false;
+   std::string s; 
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+
+      if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
+
+	 unsigned int nd = dict_res_restraints[i].descriptors.descriptors.size();
+	 for (unsigned int idesc=0; idesc<nd; idesc++) { 
+	    if (dict_res_restraints[i].descriptors.descriptors[idesc].type == "SMILES")
+	       s = dict_res_restraints[i].descriptors.descriptors[idesc].descriptor;
+	    found = true;
+	    break;
+	 }
+      }
+      if (found)
+	 break;
+   }
+   if (! found){
+      std::string mess = "No SMILES in dictionary for ";
+      mess += comp_id;
+      throw (std::runtime_error(mess));
+   }
+   return s;
+} 
+
       
+
+
+// maybe these function need their own file.  For now they can go here.
+// 
+void
+coot::protein_geometry::pdbx_chem_comp_descriptor(PCMMCIFLoop mmCIFLoop) {
+
+   std::string comp_id;
+   std::string type;
+   std::string program;
+   std::string program_version;
+   std::string descriptor;
+   
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      int ierr;
+      int ierr_tot = 0;
+      char *s;
+      s = mmCIFLoop->GetString("comp_id",j,ierr);
+      ierr_tot += ierr;
+      if (s) comp_id = s;
+      s = mmCIFLoop->GetString("program",j,ierr);
+      if (s) program = s;
+      s = mmCIFLoop->GetString("program_version",j,ierr);
+      if (s) program_version = s;
+      s = mmCIFLoop->GetString("descriptor",j,ierr);
+      ierr_tot += ierr;
+      if (s) descriptor = s;
+      s = mmCIFLoop->GetString("type",j,ierr);
+      ierr_tot += ierr;
+      if (s) type = s;
+      
+      if (ierr_tot == 0) {
+	 coot::pdbx_chem_comp_descriptor_item descr(type, program, program_version, descriptor);
+	 add_pdbx_descriptor(comp_id, descr);
+      }
+   }
+}
+
+
+
+void
+coot::protein_geometry::add_pdbx_descriptor(const std::string &comp_id,
+					    pdbx_chem_comp_descriptor_item &descr) {
+
+   // like the others, not using iterators because we don't have a
+   // comparitor using a string (the comp_id).
+   // 
+   bool found = false;
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
+	 found = true;
+	 dict_res_restraints[i].descriptors.descriptors.push_back(descr);
+	 break;
+      }
+   }
+   if (! found) {
+      dictionary_residue_restraints_t rest(comp_id, read_number);
+      rest.descriptors.descriptors.push_back(descr);
+      dict_res_restraints.push_back(rest);
+   } 
+}

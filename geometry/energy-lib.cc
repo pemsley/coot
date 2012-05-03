@@ -190,8 +190,16 @@ coot::operator<<(std::ostream &s, const energy_lib_atom &at) {
      << " valency: " << at.valency << " sp_hybridisation: " << at.sp_hybridisation
      << "]";
    return s;
-
 }
+
+std::ostream&
+coot::operator<<(std::ostream &s, const energy_lib_bond &bond) {
+
+   s << "[type: " << bond.atom_type_1 << " " << bond.atom_type_2 << " "
+     << bond.length << " " << bond.esd << "]";
+   return s;
+}
+
 
 void
 coot::protein_geometry::add_energy_lib_bonds(PCMMCIFLoop mmCIFLoop) {
@@ -366,4 +374,26 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
       }
    }
    return r;
+} 
+
+
+coot::energy_lib_bond
+coot::energy_lib_t::get_bond(const std::string &energy_type_1,
+			     const std::string &energy_type_2) const {
+
+   energy_lib_bond bond;
+   std::map<std::string, energy_lib_atom>::const_iterator it_1 = atom_map.find(energy_type_1);
+   std::map<std::string, energy_lib_atom>::const_iterator it_2 = atom_map.find(energy_type_2);
+
+   if (it_1 != atom_map.end() && it_2 != atom_map.end()) {
+      for (unsigned int ibond=0; ibond<bonds.size(); ibond++) { 
+	 std::cout << "energy bond " << ibond << " " << bonds[ibond] << std::endl;
+      }
+
+   } else {
+      std::cout << "WARNING:: in get_bond() failed to find energy types given " << energy_type_1
+		<< " and " << energy_type_2 << std::endl;
+   } 
+
+   return bond;
 } 
