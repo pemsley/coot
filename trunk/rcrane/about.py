@@ -33,7 +33,7 @@ def createAboutDialog():
     
     aboutDialog = gtk.AboutDialog()
     aboutDialog.set_name("RCrane")
-    aboutDialog.set_version("1.0")
+    aboutDialog.set_version("1.0.1")
     aboutDialog.set_copyright("Copyright 2010-2012 by Kevin Keating")
     aboutDialog.set_website("http://www.pylelab.org/software/index.html")
     aboutDialog.set_license(license)

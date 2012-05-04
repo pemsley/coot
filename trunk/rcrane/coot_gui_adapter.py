@@ -16,7 +16,7 @@
 # permissions and limitations under the License.
 
 #"import coot_gui" results in an error, so this module is required to retrieve
-#functions that are defined in coot_utils
+#functions that are defined in coot_gui
 
 import os, sys
 from os.path import exists, join

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Allows functions from coot_utils to be imported"""
 
-# Copyright 2011 Kevin Keating
+# Copyright 2011, 2012 Kevin Keating
 # 
 # Licensed under the Educational Community License, Version 2.0 (the
 # "License"); you may not use this file except in compliance with the
@@ -29,5 +29,13 @@ for curpath in sys.path:
     abspath = join(curpath, "coot_utils.py")
     if exists(abspath):
         #when we find it, exec it
+        
+        #but first exec redefine_functions.py if it's in the same directory
+        #redefine_functions.py renames func_py() to func(), which used to be done in coot_utils.py itself
+        #new versions of coot_utils.py requires this renaming to be done before being exec'ed
+        redefAbspath = join(curpath, "redefine_functions.py")
+        if exists(redefAbspath):
+            execfile(redefAbspath)
+        
         execfile(abspath)
         break
