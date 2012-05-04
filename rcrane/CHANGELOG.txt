@@ -1,6 +1,9 @@
 CHANGELOG
 Notable changes are listed
 
+Version 1.0.1 - May 4, 2012
+- Minor update to ensure compatability with future releases of Coot
+
 Version 1.0 - April 16, 2012
 - RCrane is now distributed with Coot (accessed via Extensions -> RCrane
 	launch).  RCrane 1.0 is included with Coot 0.7.
