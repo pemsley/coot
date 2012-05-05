@@ -1595,8 +1595,14 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
    CResidue *residue_p =
       graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
    if (residue_p) {
-      coot::residue_spec_t spec(residue_p);
-      g.delete_residue_from_geometry_graphs(imol, spec);
+     if (residue_p->GetNumberOfAtoms() > 1) {
+       coot::residue_spec_t spec(residue_p);
+       g.delete_residue_from_geometry_graphs(imol, spec);
+     } else {
+       // only one atom left, so better delete whole residue.
+       delete_residue(imol, chain_id, resno, ins_code);
+       return;
+     }
    }
 
    short int istat = g.molecules[imol].delete_atom(chain_id, resno, ins_code, at_name, altLoc);
@@ -1621,6 +1627,7 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
    args.push_back(imol);
    args.push_back(coot::util::single_quote(chain_id_string));
    args.push_back(resno);
+   args.push_back(coot::util::single_quote(ins_code_string));
    args.push_back(coot::util::single_quote(atom_name_string));
    args.push_back(coot::util::single_quote(altloc_string));
    add_to_history_typed(cmd, args);
