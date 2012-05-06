@@ -62,20 +62,296 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
       } 
    }
 
-   coot::dictionary_residue_restraints_t restraints = mogul.make_restraints(comp_id,
-									    compound_name,
-									    atom_names,
-									    n_atoms_all,
-									    n_atoms_non_hydrogen,
-									    bond_order_restraints);
+   const char *env = getenv("ENERGY_LIB_CIF");
+   if (! env) {
+      std::cout << "ERROR:: no ENERGY_LIB_CIF env var" << std::endl;
+   } else { 
+      coot::energy_lib_t energy_lib(env);
 
-   int n_chirals = coot::assign_chirals(mol, &restraints); // alter restraints
-   if (n_chirals) 
-      restraints.assign_chiral_volume_targets();
-   
-   restraints.write_cif(mmcif_out_file_name);
+      // fill with ener_lib values and then add mogul updates.
+      // 
+      coot::dictionary_residue_restraints_t restraints (comp_id, 1);
+      restraints.residue_info.comp_id = comp_id;
+      restraints.residue_info.three_letter_code = comp_id;
+      restraints.residue_info.name = compound_name;
+      restraints.residue_info.number_atoms_all = n_atoms_all;
+      restraints.residue_info.number_atoms_nh = n_atoms_non_hydrogen;
+      restraints.residue_info.group = "non-polymer";
+      restraints.residue_info.description_level = "Partial";
+
+      
+      coot::dictionary_residue_restraints_t mogul_restraints =
+	 mogul.make_restraints(comp_id,
+			       compound_name,
+			       atom_names,
+			       n_atoms_all,
+			       n_atoms_non_hydrogen,
+			       bond_order_restraints);
+
+      coot::add_chem_comp_atoms(mol, &restraints); // alter restraints
+      coot::fill_with_energy_lib_bonds(mol, energy_lib, &restraints); // alter restraints
+      coot::fill_with_energy_lib_angles(mol, energy_lib, &restraints); // alter restraints
+      coot::fill_with_energy_lib_torsions(mol, energy_lib, &restraints); // alter restraints
+      // and angles and torsions
+
+      restraints.conservatively_replace_with(mogul_restraints);
+      
+      int n_chirals = coot::assign_chirals(mol, &restraints); // alter restraints
+      if (n_chirals) 
+	 restraints.assign_chiral_volume_targets();
+
+      
+      restraints.write_cif(mmcif_out_file_name);
+   }
 }
 
+void
+coot::fill_with_energy_lib_bonds(RDKit::ROMol &mol,
+				 const coot::energy_lib_t &energy_lib,
+				 coot::dictionary_residue_restraints_t *restraints) {
+   
+   int n_bonds = mol.getNumBonds();
+   for (unsigned int ib=0; ib<n_bonds; ib++) {
+      const RDKit::Bond *bond_p = mol.getBondWithIdx(ib);
+      int idx_1 = bond_p->getBeginAtomIdx();
+      int idx_2 = bond_p->getEndAtomIdx();
+      RDKit::ATOM_SPTR at_1 = mol[idx_1];
+      RDKit::ATOM_SPTR at_2 = mol[idx_2];
+      {
+	 // put the lighter atom first (so that we find "Hxx ."  rather than "N .")
+	 if (at_1->getAtomicNum() > at_2->getAtomicNum())
+	    std::swap(at_1, at_2);
+	 try {
+	    std::string atom_type_1;
+	    std::string atom_type_2;
+	    std::string atom_name_1;
+	    std::string atom_name_2;
+	    at_1->getProp("atom_type", atom_type_1);
+	    at_2->getProp("atom_type", atom_type_2);
+	    at_1->getProp("name", atom_name_1);
+	    at_2->getProp("name", atom_name_2);
+	    try {
+	       lig_build::bond_t::bond_type_t bt = convert_bond_type(bond_p->getBondType());
+	       energy_lib_bond bond =
+		  energy_lib.get_bond(atom_type_1, atom_type_2, bt);
+	       if (1)
+		  std::cout << "........... " << atom_name_1 << " " << atom_name_2 << " types \""
+			    << atom_type_1 << "\" \"" << atom_type_2
+			    << "\" got bond " << bond << std::endl;
+	       std::string bond_type = bond.type;
+	       dict_bond_restraint_t bondr(atom_name_1, atom_name_2, bond_type, bond.length, bond.esd);
+	       restraints->bond_restraint.push_back(bondr);
+	    }
+	    catch (std::runtime_error rte) {
+	       std::cout << "WARNING:: error in adding bond restraint for bond number "
+			 << ib << " " << rte.what() << std::endl;
+	    } 
+	 
+	 }
+	 catch (KeyErrorException kee) {
+	    std::cout << "WARNING:: caugh KeyErrorException in add_bonds_to_hydrogens() "
+		      << std::endl;
+	 }
+      }
+   }
+}
+
+void
+coot::fill_with_energy_lib_angles(RDKit::ROMol &mol,
+				  const coot::energy_lib_t &energy_lib,
+				  coot::dictionary_residue_restraints_t *restraints) {
+   
+   int n_atoms = mol.getNumAtoms();
+   for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
+      RDKit::ATOM_SPTR at_1 = mol[iat_1];
+      RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
+      boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_1);
+      while(nbr_idx_1 != end_nbrs_1){
+	 const RDKit::ATOM_SPTR at_2 = mol[*nbr_idx_1];
+
+	 RDKit::ROMol::ADJ_ITER nbr_idx_2, end_nbrs_2;
+	 boost::tie(nbr_idx_2, end_nbrs_2) = mol.getAtomNeighbors(at_2);
+	 while(nbr_idx_2 != end_nbrs_2){
+	    const RDKit::ATOM_SPTR at_3 = mol[*nbr_idx_2];
+	    if (at_3 != at_1) { 
+
+	       try {
+		  std::string atom_type_1;
+		  std::string atom_type_2;
+		  std::string atom_type_3;
+		  std::string atom_name_1;
+		  std::string atom_name_2;
+		  std::string atom_name_3;
+		  at_1->getProp("atom_type", atom_type_1);
+		  at_2->getProp("atom_type", atom_type_2);
+		  at_3->getProp("atom_type", atom_type_3);
+		  at_1->getProp("name", atom_name_1);
+		  at_2->getProp("name", atom_name_2);
+		  at_3->getProp("name", atom_name_3);
+
+		  try { 
+		     energy_lib_angle angle =
+			energy_lib.get_angle(atom_type_1, atom_type_2, atom_type_3);
+		     dict_angle_restraint_t angler(atom_name_1, atom_name_2, atom_name_3,
+						   angle.angle, angle.angle_esd);
+		     restraints->angle_restraint.push_back(angler);
+		  }
+		  catch (std::runtime_error rte) {
+		     std::cout << "WARNING:: error in adding angle restraint for atoms "
+			       << at_1->getIdx() << " "
+			       << at_2->getIdx() << " "
+			       << at_3->getIdx() << " "
+			       << rte.what() << std::endl;
+		  } 
+	       }
+	       catch (KeyErrorException kee) {
+		  std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_angles() "
+			    << std::endl;
+	       }
+	       
+	       
+	    }
+	    ++nbr_idx_2;
+	 }
+	 
+	 ++nbr_idx_1;
+      }
+   }
+}
+
+void
+coot::fill_with_energy_lib_torsions(RDKit::ROMol &mol,
+				    const coot::energy_lib_t &energy_lib,
+				    coot::dictionary_residue_restraints_t *restraints) {
+   
+   int n_atoms = mol.getNumAtoms();
+   int tors_no = 1; // incremented on addition
+   std::map<std::string, bool> done_torsion;
+   
+   for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
+      RDKit::ATOM_SPTR at_1 = mol[iat_1];
+
+      RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
+      boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_1);
+      while(nbr_idx_1 != end_nbrs_1){
+	 const RDKit::ATOM_SPTR at_2 = mol[*nbr_idx_1];
+
+	 RDKit::ROMol::ADJ_ITER nbr_idx_2, end_nbrs_2;
+	 boost::tie(nbr_idx_2, end_nbrs_2) = mol.getAtomNeighbors(at_2);
+	 while(nbr_idx_2 != end_nbrs_2){
+	    const RDKit::ATOM_SPTR at_3 = mol[*nbr_idx_2];
+	    if (at_3 != at_1) {
+
+	       RDKit::ROMol::ADJ_ITER nbr_idx_3, end_nbrs_3;
+	       boost::tie(nbr_idx_3, end_nbrs_3) = mol.getAtomNeighbors(at_3);
+	       while(nbr_idx_3 != end_nbrs_3){
+		  const RDKit::ATOM_SPTR at_4 = mol[*nbr_idx_3];
+		  if (at_4 != at_2 && at_4 != at_1) {
+
+		     // now do something with those indices
+
+		     if (0) // debug
+			std::cout << "torsion-atoms..... "
+				  << at_1->getIdx() << " "
+				  << at_2->getIdx() << " "
+				  << at_3->getIdx() << " "
+				  << at_4->getIdx() << " "
+				  << std::endl;
+		     
+		     try {
+			std::string atom_type_1;
+			std::string atom_type_2;
+			std::string atom_type_3;
+			std::string atom_type_4;
+			std::string atom_name_1;
+			std::string atom_name_2;
+			std::string atom_name_3;
+			std::string atom_name_4;
+			at_1->getProp("atom_type", atom_type_1);
+			at_2->getProp("atom_type", atom_type_2);
+			at_3->getProp("atom_type", atom_type_3);
+			at_4->getProp("atom_type", atom_type_4);
+			at_1->getProp("name", atom_name_1);
+			at_2->getProp("name", atom_name_2);
+			at_3->getProp("name", atom_name_3);
+			at_4->getProp("name", atom_name_4);
+
+			// if we have not done this atom-2 <-> atom-3 torsion before...
+			//
+			std::string torsion_key_name_1;
+			std::string torsion_key_name_2;
+			torsion_key_name_1  = atom_name_2;
+			torsion_key_name_1 += "-";
+			torsion_key_name_1 += atom_name_3;
+			torsion_key_name_2  = atom_name_3;
+			torsion_key_name_2 += "-";
+			torsion_key_name_2 += atom_name_2;
+
+			if (done_torsion.find(torsion_key_name_1) == done_torsion.end() &&
+			    done_torsion.find(torsion_key_name_2) == done_torsion.end()) { 
+
+			   energy_lib_torsion tors =
+			      energy_lib.get_torsion(atom_type_2, atom_type_3);
+
+			   if (tors.period != 0) { 
+			      double esd = 20.0;
+			      std::string tors_id = "torsion_";
+			      char s[100];
+			      snprintf(s,99,"%d", tors_no);
+			      tors_id += std::string(s);
+			      dict_torsion_restraint_t torsionr(tors_id,
+								atom_name_1, atom_name_2,
+								atom_name_3, atom_name_4,
+								tors.angle, esd, tors.period);
+			      restraints->torsion_restraint.push_back(torsionr);
+			      done_torsion[torsion_key_name_1] = true;
+			      done_torsion[torsion_key_name_2] = true;
+			   
+			      tors_no++;
+			   }
+			}
+		     }
+		     catch (KeyErrorException kee) {
+			std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_angles() "
+				  << std::endl;
+		     }
+		  }
+		  ++nbr_idx_3;
+	       }
+	    }
+	    ++nbr_idx_2;
+	 }
+	 ++nbr_idx_1;
+      }
+   }
+}
+
+
+void
+coot::add_chem_comp_atoms(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+
+   int n_atoms = mol.getNumAtoms();
+   for (unsigned int iat=0; iat<n_atoms; iat++) { 
+      RDKit::ATOM_SPTR at_p = mol[iat];
+      try {
+	 std::string name;
+	 std::string atom_type;
+	 double charge;
+	 bool have_charge = true; // can be clever with GetProp() KeyErrorException if you like
+	 at_p->getProp("name", name);
+	 at_p->getProp("atom_type", atom_type);
+	 at_p->getProp("_GasteigerCharge", charge);
+	 std::pair<bool, float> charge_pair(have_charge, charge);
+	 dict_atom atom(name, name, at_p->getSymbol(), atom_type, charge_pair);
+	 restraints->atom_info.push_back(atom);
+      }
+      catch (KeyErrorException kee) {
+	 std::cout << "WARNING:: caught property exception in add_chem_comp_atoms()" << std::endl;
+      }
+   }
+
+}
+   
 int 
 coot::assign_chirals(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
    
