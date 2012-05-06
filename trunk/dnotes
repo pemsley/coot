@@ -6482,4 +6482,14 @@ Mon Apr  9 16:45:32 BST 2012
    COOT_CHEMICAL_FEATURES_DEF file needs to be put in place (or the
    env var to be defined in coot script).  See sdf-interface.cc:get_feature_factory().
 
+---
+Thu May  3 18:45:01 BST 2012
+
+    energy-lib.cc
+
+	 // FIXME, allow bond definitions with no distances?
+	 if (0)
+	    std::cout << "WARNING reject energy lib bond \"" << atom_type_1
+		      << "\" \"" << atom_type_2 << "\" \"" << type << "\"" << std::endl;
+
 ------

@@ -1049,7 +1049,31 @@ coot::dict_link_torsion_restraint_t::is_pyranose_ring_torsion() const {
    return status;
 } 
 
+bool
+coot::dict_torsion_restraint_t::is_ring_torsion(const std::vector<std::vector<std::string> > &ring_atoms_sets) const {
 
+   bool match = true; 
+   std::vector<std::string> torsion_restraint_atom_names(2);
+   torsion_restraint_atom_names[0] = atom_id_2_4c();
+   torsion_restraint_atom_names[1] = atom_id_3_4c();
+   
+   for (unsigned int iring=0; iring<ring_atoms_sets.size(); iring++) { 
+      const std::vector<std::string> &ring_atom_names = ring_atoms_sets[iring];
+
+      int n_match = 0;
+      for (unsigned int iname_1=0; iname_1<ring_atom_names.size(); iname_1++) {
+	 for (unsigned int iname_2=0; iname_2<torsion_restraint_atom_names.size(); iname_2++) { 
+	    if (ring_atom_names[iname_1] == torsion_restraint_atom_names[iname_2])
+	       n_match++;
+	 }
+      }
+      if (n_match == 2) {
+	 match = true;
+	 break;
+      }
+   }
+   return match;
+} 
 
 
 bool
@@ -1109,6 +1133,10 @@ coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name)
 
    std::string r = "";
    for (unsigned int iat=0; iat<atom_info.size(); iat++) {
+      if (0)
+	 std::cout << "type_energy() for comp-id " << residue_info.comp_id
+		   << " comparing \"" << atom_name << "\" with \"" << atom_info[iat].atom_id_4c
+		   << "\"" << std::endl;
       if (atom_info[iat].atom_id_4c == atom_name) {
 	 r = atom_info[iat].type_energy;
 	 break;
@@ -1661,8 +1689,9 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
       std::pair<bool, clipper::Coord_orth> model_Cartn;
 
       if (ierr == 0) {
-	 int ierr_tot = 0; 
-	 comp_id = std::string(s); // e.g. "ALA"
+	 int ierr_tot = 0;
+	 if (s)
+	    comp_id = std::string(s); // e.g. "ALA"
 
 	 s = mmCIFLoop->GetString("atom_id",j,ierr);
 	 ierr_tot += ierr;
@@ -5230,9 +5259,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       ss = (char *) torsion_restraint[i].atom_id_4_4c().c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_4", i);
 	       float v = torsion_restraint[i].angle();
-	       mmCIFLoop->PutReal(v, "angle", i);
+	       mmCIFLoop->PutReal(v, "value_angle", i);
 	       v = torsion_restraint[i].esd();
-	       mmCIFLoop->PutReal(v, "angle_esd", i);
+	       mmCIFLoop->PutReal(v, "value_angle_esd", i);
 	       int p = torsion_restraint[i].periodicity();
 	       mmCIFLoop->PutInteger(p, "period", i);
 	    }
@@ -5552,6 +5581,73 @@ coot::protein_geometry::replace_monomer_restraints_conservatively_angles(int ire
       }
    }
 }
+
+// replace the restraints that we have with new_restraints,
+// keeping restraints that in the current set bu not in
+// new_restraints
+void
+coot::dictionary_residue_restraints_t::conservatively_replace_with(const dictionary_residue_restraints_t &new_restraints) {
+
+   conservatively_replace_with_bonds(new_restraints);
+   conservatively_replace_with_angles(new_restraints);
+
+}
+
+void
+coot::dictionary_residue_restraints_t::conservatively_replace_with_bonds (const dictionary_residue_restraints_t &new_restraints) {
+
+   for (unsigned int ibond=0; ibond<bond_restraint.size(); ibond++) { 
+      for (unsigned int jbond=0; jbond<new_restraints.bond_restraint.size(); jbond++) {
+	 if (bond_restraint[ibond].atom_id_1_4c() ==
+	     new_restraints.bond_restraint[jbond].atom_id_1_4c()) {
+	    if (bond_restraint[ibond].atom_id_2_4c() ==
+		new_restraints.bond_restraint[jbond].atom_id_2_4c()) {
+	       bond_restraint[ibond] = new_restraints.bond_restraint[jbond];
+	       break;
+	    }
+	 } 
+
+	 if (bond_restraint[ibond].atom_id_1_4c() ==
+	     new_restraints.bond_restraint[jbond].atom_id_2_4c()) {
+	    if (bond_restraint[ibond].atom_id_2_4c() ==
+		new_restraints.bond_restraint[jbond].atom_id_1_4c()) {
+	       bond_restraint[ibond] = new_restraints.bond_restraint[jbond];
+	       break;
+	    }
+	 } 
+      }
+   }
+}
+
+void
+coot::dictionary_residue_restraints_t::conservatively_replace_with_angles(const dictionary_residue_restraints_t &new_restraints) {
+
+   for (unsigned int iangle=0; iangle<angle_restraint.size(); iangle++) { 
+      for (unsigned int jangle=0; jangle<new_restraints.angle_restraint.size(); jangle++) {
+	 
+	 if (angle_restraint[iangle].atom_id_1_4c() ==
+	     new_restraints.angle_restraint[jangle].atom_id_1_4c()) {
+	    if (angle_restraint[iangle].atom_id_2_4c() ==
+		new_restraints.angle_restraint[jangle].atom_id_2_4c()) {
+	       if (angle_restraint[iangle].atom_id_3_4c() ==
+		   new_restraints.angle_restraint[jangle].atom_id_3_4c()) {
+		  angle_restraint[iangle] = new_restraints.angle_restraint[jangle];
+	       }
+	    }
+	 }
+	 if (angle_restraint[iangle].atom_id_3_4c() ==
+	     new_restraints.angle_restraint[jangle].atom_id_1_4c()) {
+	    if (angle_restraint[iangle].atom_id_2_4c() ==
+		new_restraints.angle_restraint[jangle].atom_id_2_4c()) {
+	       if (angle_restraint[iangle].atom_id_1_4c() ==
+		   new_restraints.angle_restraint[jangle].atom_id_3_4c()) {
+		  angle_restraint[iangle] = new_restraints.angle_restraint[jangle];
+	       }
+	    }
+	 }
+      }
+   }
+} 
 
 std::vector<std::string>
 coot::protein_geometry::monomer_types() const {
@@ -5970,15 +6066,37 @@ coot::protein_geometry::Get_SMILES_for_comp_id(const std::string &comp_id) const
 
 	 unsigned int nd = dict_res_restraints[i].descriptors.descriptors.size();
 	 for (unsigned int idesc=0; idesc<nd; idesc++) { 
-	    if (dict_res_restraints[i].descriptors.descriptors[idesc].type == "SMILES")
+	    if (dict_res_restraints[i].descriptors.descriptors[idesc].type == "SMILES_CANONICAL") { 
 	       s = dict_res_restraints[i].descriptors.descriptors[idesc].descriptor;
-	    found = true;
-	    break;
+	       found = true;
+	       break;
+	    }
 	 }
       }
       if (found)
 	 break;
    }
+
+   if (! found){
+      // check non-canonical
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+
+      if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
+
+	 unsigned int nd = dict_res_restraints[i].descriptors.descriptors.size();
+	 for (unsigned int idesc=0; idesc<nd; idesc++) { 
+	    if (dict_res_restraints[i].descriptors.descriptors[idesc].type == "SMILES") {
+	       s = dict_res_restraints[i].descriptors.descriptors[idesc].descriptor;
+	       found = true;
+	       break;
+	    }
+	 }
+      }
+      if (found)
+	 break;
+   }
+}
+
    if (! found){
       std::string mess = "No SMILES in dictionary for ";
       mess += comp_id;

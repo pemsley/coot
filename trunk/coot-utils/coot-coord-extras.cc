@@ -176,6 +176,52 @@ coot::util::get_contact_indices_from_restraints(CResidue *residue,
    return contact_indices;
 }
 
+std::vector<std::vector<int> >
+coot::util::get_contact_indices_from_restraints(CResidue *residue,
+						const coot::dictionary_residue_restraints_t &restraints,
+						bool regular_residue_flag,
+						bool add_reverse_contacts) {
+   
+   int nResidueAtoms = residue->GetNumberOfAtoms(); 
+   std::vector<std::vector<int> > contact_indices(nResidueAtoms);
+   CAtom *atom_p;
+   
+   for (unsigned int ibr=0; ibr< restraints.bond_restraint.size(); ibr++) {
+      for (int iat=0; iat<nResidueAtoms; iat++) {
+	 atom_p = residue->GetAtom(iat);
+	 std::string at_name(atom_p->GetAtomName());
+	 if (restraints.bond_restraint[ibr].atom_id_1_4c() == at_name ) {
+	    int ibond_to = -1;  // initially unassigned.
+	    std::string at_name_2;
+	    for (int iat2=0; iat2<nResidueAtoms; iat2++) {
+	       atom_p = residue->GetAtom(iat2);
+	       at_name_2 = atom_p->GetAtomName();
+	       if (restraints.bond_restraint[ibr].atom_id_2_4c() == at_name_2 ) {
+		  ibond_to = iat2;
+		  break;
+	       }
+	    }
+	    if (ibond_to > -1 ) {
+	       if (add_reverse_contacts == 0) { 
+		  if (regular_residue_flag) {
+		     contact_indices[iat].push_back(ibond_to);  // for ALA etc
+		  } else {
+		     contact_indices[ibond_to].push_back(iat);  // ligands
+		     // contact_indices[iat].push_back(ibond_to);  // ALA etc
+		  }
+	       } else {
+		  // add reverse contacts.
+		  contact_indices[ibond_to].push_back(iat);
+		  contact_indices[iat].push_back(ibond_to);
+	       }
+	    } 
+	 }
+      }
+   }
+   return contact_indices;
+} 
+
+
 // The atoms of residue_atoms are in the "right" order for not making
 // a tree along the main chain.
 // 
@@ -340,7 +386,7 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
       for (unsigned int i=0; i<match_info.matching_atom_names.size(); i++) { 
 	 atom_name_map[match_info.matching_atom_names[i].second.first] =
 	    match_info.matching_atom_names[i].first.first;
-	 if (0) 
+	 if (1) 
 	    std::cout << "      name map construction  :"
 		      << match_info.matching_atom_names[i].second.first
 		      << ": -> :"
@@ -350,6 +396,7 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
 
       // for debugging
       std::vector<std::pair<coot::atom_name_quad, double> > check_quads;
+      std::vector<double> starting_quads;
 
       for (unsigned int itr=0; itr<tr_ref.size(); itr++) {
 	 coot::atom_name_quad quad_ref(tr_ref[itr].atom_id_1_4c(),
@@ -368,15 +415,26 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
 	       std::cout << "  Reference torsion: "
 			 << ":" << tr_ref[itr].format() << " maps to "
 			 << quad_moving << std::endl;
+	       
+	       double starting_quad = quad_moving.torsion(res_moving); // debugging
 	       std::pair<bool, double> result = apply_torsion(quad_moving, quad_ref, alt_conf);
+	       if (! result.first) {
+		  // no tree in restraints? Try without
+		  result = apply_torsion_by_contacts(quad_moving, quad_ref, alt_conf);
+	       } 
 	       if (result.first) { 
 		  n_matched++;
 		  // result.second is in radians
 		  std::pair<coot::atom_name_quad, double> cq (quad_moving, result.second);
 		  check_quads.push_back(cq);
+		  starting_quads.push_back(starting_quad);
 	       }
-	    }
-	 }
+	    } else {
+	       std::cout << "WARNING:: in torsion match() quad moving not all non-blank" << std::endl;
+	    } 
+	 } else {
+	       std::cout << "WARNING:: in torsion match() quad ref not all non-blank" << std::endl;
+	 } 
       }
 
       // after matching, check the torsions:
@@ -384,7 +442,10 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
 	 std::pair<bool, double> mtr = get_torsion(coot::match_torsions::MOVING_TORSION,
 						   check_quads[iquad].first);
 	 if (mtr.first) { 
-	    std::cout << "   torsion check: " << check_quads[iquad].first
+	    std::cout << "   torsion check:  "
+		      << check_quads[iquad].first << "  was "
+		      << std::fixed << std::setw(7) << std::setprecision(2)
+		      << starting_quads[iquad] << " "
 		      << " should be " << std::fixed << std::setw(7) << std::setprecision(2)
 		      << check_quads[iquad].second * 180/M_PI
 		      << " and is "  << std::fixed << std::setw(7) << std::setprecision(2)
@@ -463,12 +524,68 @@ coot::match_torsions::apply_torsion(const coot::atom_name_quad &moving_quad,
 	 status = 1; // may not happen if set_dihedral() throws an exception
       }
       catch (std::runtime_error rte) {
-	 std::cout << "WARNING setting dihedral failed, " << rte.what() << std::endl;
+	 std::cout << "WARNING tree-based setting dihedral failed, " << rte.what() << std::endl;
       } 
    }
    return std::pair<bool, double> (status, new_angle * M_PI/180.0);
 }
 
+
+std::pair<bool, double>
+coot::match_torsions::apply_torsion_by_contacts(const coot::atom_name_quad &moving_quad,
+						const coot::atom_name_quad &reference_quad,
+						const std::string &alt_conf) {
+
+   bool status = false;
+   double new_angle = 0.0;
+
+   try { 
+      bool add_reverse_contacts = true;
+      std::vector<std::vector<int> > contact_indices =
+	 coot::util::get_contact_indices_from_restraints(res_moving, moving_residue_restraints, 1, add_reverse_contacts);
+      std::pair<bool, double> tors = get_torsion(res_ref, reference_quad);
+   
+      int base_atom_index = 0; // hopefully this will work
+      coot::minimol::residue ligand_residue(res_moving);
+      coot::atom_tree_t tree(moving_residue_restraints, contact_indices, base_atom_index, ligand_residue, alt_conf);
+      new_angle = tree.set_dihedral(moving_quad.atom_name(0), moving_quad.atom_name(1),
+				    moving_quad.atom_name(2), moving_quad.atom_name(3),
+				    tors.second * 180/M_PI);
+      
+      coot::minimol::residue wiggled_ligand_residue = tree.GetResidue();
+
+      // transfer from the ligand_residue to res_moving
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      int n_transfered = 0;
+      res_moving->GetAtomTable(residue_atoms, n_residue_atoms);
+      if (wiggled_ligand_residue.atoms.size() <= n_residue_atoms) { 
+	 for (unsigned int iat=0; iat<wiggled_ligand_residue.atoms.size(); iat++) { 
+	    CAtom *at = res_moving->GetAtom(wiggled_ligand_residue.atoms[iat].name.c_str(), NULL, alt_conf.c_str());
+	    if (at) {
+	       if (0)
+		  std::cout << "transfering coords was "
+			    << at->z << " " << at->y << " " << at->z << " to "
+			    << ligand_residue.atoms[iat] << std::endl;
+	       at->x = wiggled_ligand_residue.atoms[iat].pos.x();
+	       at->y = wiggled_ligand_residue.atoms[iat].pos.y();
+	       at->z = wiggled_ligand_residue.atoms[iat].pos.z();
+	       n_transfered++;
+	    }
+	 }
+      }
+      if (0)
+	 std::cout << "-------------------------------- n_transfered " << n_transfered << "------------------- "
+		   << std::endl;
+   
+      std::cout << "in apply_torsion_by_contacts() new_angle is " << new_angle << std::endl;
+      status = 1;
+   }
+   catch (std::runtime_error rte) {
+      std::cout << "WARNING:: " << rte.what() << std::endl;
+   } 
+   return std::pair<bool, double> (status, new_angle * M_PI/180.0);
+} 
 
 
 // Don't return any hydrogen torsions - perhaps we should make that a

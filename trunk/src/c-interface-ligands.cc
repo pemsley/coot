@@ -153,7 +153,8 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
    // 20110608 I don't think that this function should make
    // restraints.  Let's get restraints outside and test for their
    // existance before we run this function.
-   
+
+   std::cout << "%%%%%%%%%%% match_ligand_torsions() start" << std::endl;
    if (!is_valid_model_molecule(imol_ligand)) {
       std::cout << "WARNING molecule number " << imol_ligand << " is not a valid model molecule"
 		<< std::endl;
@@ -183,6 +184,7 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 			       << std::endl;
 		  } else {
 		     // normal case
+		     std::cout << "%%%%%%%%%%% match_ligand_torsions() meat " << std::endl;
 		     int n_rotated = g.molecules[imol_ligand].match_torsions(res_ref, tr, *g.Geom_p());
 		     std::cout << "INFO:: rotated " << n_rotated << " torsions in matching torsions"
 			       << std::endl;
@@ -193,6 +195,7 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 	 }
       }
    }
+   std::cout << "%%%%%%%%%%% match_ligand_torsions() end" << std::endl;
 }
 
 
@@ -275,6 +278,74 @@ PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const cha
 }
 #endif //USE_PYTHON
 
+
+
+#ifdef USE_GUILE
+// For testing that pyrogen generates consistent atom types.  Not
+// useful for general public.
+// 
+SCM
+compare_ligand_atom_types_scm(int imol_ligand, int imol_ref, const char *chain_id_ref,
+			      int resno_ref) {
+
+   SCM scm_status = SCM_BOOL_F;
+   bool match_hydrogens_also = false;
+   bool apply_rtop_flag = true;
+
+   if (is_valid_model_molecule(imol_ligand)) { 
+      if (is_valid_model_molecule(resno_ref)) {
+
+	 graphics_info_t g;
+	 CResidue *res_ref = g.molecules[imol_ref].get_residue(chain_id_ref, resno_ref, "");
+	 CResidue *res_mov = g.molecules[imol_ligand].get_first_residue();
+
+	 if (! res_ref) {
+	    std::cout << "WARNING failed to find reference residue" << std::endl;
+	 } else { 
+	    if (! res_mov) {
+	       std::cout << "WARNING failed to find moving residue" << std::endl;
+	    } else {
+   
+	       coot::graph_match_info_t rtop_info =
+		  coot::graph_match(res_mov, res_ref, apply_rtop_flag, match_hydrogens_also);
+
+	       // work atom-names then ref atom-names
+	       std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > matches = rtop_info.matching_atom_names;
+
+	       std::cout << "found " << matches.size() << " graph matched atoms" << std::endl;
+	       std::string rn1 = res_mov->GetResName();
+	       std::string rn2 = res_ref->GetResName();
+
+	       if (matches.size()) {
+		  int n_fail = 0;
+
+		  for (unsigned int i=0; i<matches.size(); i++) { 
+		     std::string energy_type_1 = g.Geom_p()->get_type_energy(matches[i].first.first,  rn1);
+		     std::string energy_type_2 = g.Geom_p()->get_type_energy(matches[i].second.first, rn2);
+
+		     std::string extra_space = "";
+		     if (i<10) extra_space = " ";
+		     std::cout << "   " << extra_space << i << " names: \""
+			       << matches[i].second.first << "\" \""
+			       << matches[i].first.first << "\" ->  "
+			       << "\"" << energy_type_2 << "\"  and  \"" << energy_type_1 << "\"";
+		     if (energy_type_1 != energy_type_2) { 
+			std::cout << "   #### fail " << std::endl;
+			n_fail++;
+		     } else { 
+			std::cout << std::endl;
+		     }
+		  }
+		  scm_status = SCM_MAKINUM(n_fail);
+	       }
+	    }
+	 }
+      }
+   }
+   return scm_status;
+   
+}
+#endif   
 
 coot::graph_match_info_t
 overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref,

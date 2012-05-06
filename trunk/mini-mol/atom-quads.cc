@@ -283,7 +283,26 @@ coot::atom_quad::angle_3() const { // angle 2-3-4 in degrees
 
 }
 
+double
+coot::atom_name_quad::torsion(CResidue *residue) const {
 
+   double r = -999.9;
+
+   CAtom *at_0 = residue->GetAtom(atom_name_[0].c_str());
+   CAtom *at_1 = residue->GetAtom(atom_name_[1].c_str());
+   CAtom *at_2 = residue->GetAtom(atom_name_[2].c_str());
+   CAtom *at_3 = residue->GetAtom(atom_name_[3].c_str());
+
+   if (at_0 && at_1 && at_2 && at_3) {
+      clipper::Coord_orth pt_0(at_0->x, at_0->y, at_0->z);
+      clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
+      clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+      clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
+      double angle = clipper::Util::rad2d(clipper::Coord_orth::torsion(pt_0, pt_1, pt_2, pt_3));
+      return angle;
+   } 
+   return r;
+} 
 
 
 // Can throw a std::runtime_error if any of the atoms are null.
