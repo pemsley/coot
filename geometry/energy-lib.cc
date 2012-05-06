@@ -7,28 +7,35 @@
 #include "protein-geometry.hh"
 
 void
-coot::protein_geometry::add_energy_lib_atom(    const coot::energy_lib_atom    &atom) {
-   energy_lib.atom_map[atom.type] = atom;
+coot::energy_lib_t::add_energy_lib_atom(    const coot::energy_lib_atom    &atom) {
+   atom_map[atom.type] = atom;
 } 
 
 void
-coot::protein_geometry::add_energy_lib_bond(const coot::energy_lib_bond &bond) {
-   energy_lib.bonds.push_back(bond);
+coot::energy_lib_t::add_energy_lib_bond(const coot::energy_lib_bond &bond) {
+   bonds.push_back(bond);
 }
 
 
 void
-coot::protein_geometry::add_energy_lib_angle(   const coot::energy_lib_angle   &angle) {
-   energy_lib.angles.push_back(angle);
+coot::energy_lib_t::add_energy_lib_angle(   const coot::energy_lib_angle   &angle) {
+   angles.push_back(angle);
 }
 
 void
-coot::protein_geometry::add_energy_lib_torosion(const coot::energy_lib_torsion &torsion) {
-   energy_lib.torsions.push_back(torsion);
+coot::energy_lib_t::add_energy_lib_torsion(const coot::energy_lib_torsion &torsion) {
+   torsions.push_back(torsion);
 }
 
 void
 coot::protein_geometry::read_energy_lib(const std::string &file_name) {
+
+   energy_lib.read(file_name);
+}
+
+
+void
+coot::energy_lib_t::read(const std::string &file_name) {
 
    struct stat buf;
    int istat = stat(file_name.c_str(), &buf);
@@ -74,6 +81,10 @@ coot::protein_geometry::read_energy_lib(const std::string &file_name) {
 		     add_energy_lib_atoms(mmCIFLoop);
 		  if (cat_name == "_lib_bond")
 		     add_energy_lib_bonds(mmCIFLoop);
+		  if (cat_name == "_lib_angle")
+		     add_energy_lib_angles(mmCIFLoop);
+		  if (cat_name == "_lib_tors")
+		     add_energy_lib_torsions(mmCIFLoop);
 	       }
 	    }
 	 } 
@@ -83,7 +94,7 @@ coot::protein_geometry::read_energy_lib(const std::string &file_name) {
 
 
 void
-coot::protein_geometry::add_energy_lib_atoms(PCMMCIFLoop mmCIFLoop) {
+coot::energy_lib_t::add_energy_lib_atoms(PCMMCIFLoop mmCIFLoop) {
 
    // note that that:
    // if (ierr) {
@@ -195,14 +206,25 @@ coot::operator<<(std::ostream &s, const energy_lib_atom &at) {
 std::ostream&
 coot::operator<<(std::ostream &s, const energy_lib_bond &bond) {
 
-   s << "[type: " << bond.atom_type_1 << " " << bond.atom_type_2 << " "
+   s << "[type: " << bond.type << " atom-types: \""
+     << bond.atom_type_1 << "\" \"" << bond.atom_type_2 << "\" "
      << bond.length << " " << bond.esd << "]";
    return s;
 }
 
+std::ostream&
+coot::operator<<(std::ostream &s, const energy_lib_torsion &torsion) {
+
+   s << "[" << " atom-types: \""
+     << torsion.atom_type_1 << "\" \"" << torsion.atom_type_2 << "\" "
+     << torsion.atom_type_3 << "\" \"" << torsion.atom_type_4 << "\" "
+     << torsion.spring_constant << " " << torsion.angle << " " << torsion.period
+     << "]";
+} 
+
 
 void
-coot::protein_geometry::add_energy_lib_bonds(PCMMCIFLoop mmCIFLoop) {
+coot::energy_lib_t::add_energy_lib_bonds(PCMMCIFLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
       
@@ -223,7 +245,7 @@ coot::protein_geometry::add_energy_lib_bonds(PCMMCIFLoop mmCIFLoop) {
 
       s = mmCIFLoop->GetString("atom_type_2", j, ierr);
       ierr_tot += ierr;
-      if (s) atom_type_1 = s;
+      if (s) atom_type_2 = s;
 
       s = mmCIFLoop->GetString("type", j, ierr);
       ierr_tot += ierr;
@@ -243,11 +265,117 @@ coot::protein_geometry::add_energy_lib_bonds(PCMMCIFLoop mmCIFLoop) {
       }
 
       if (ierr_tot == 0) {
-	 coot::energy_lib_bond bond(atom_type_1, atom_type_1, type, spring_const, length, value_esd);
+	 coot::energy_lib_bond bond(atom_type_1, atom_type_2, type, spring_const,
+				    length, value_esd);
 	 add_energy_lib_bond(bond);
-      }
+      } else {
+	 // FIXME, allow bond definitions with no distances?
+	 if (0)
+	    std::cout << "WARNING reject energy lib bond \"" << atom_type_1
+		      << "\" \"" << atom_type_2 << "\" \"" << type << "\"" << std::endl;
+      } 
    } 
-} 
+}
+
+void
+coot::energy_lib_t::add_energy_lib_angles(PCMMCIFLoop mmCIFLoop) {
+
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      
+      std::string atom_type_1;
+      std::string atom_type_2;
+      std::string atom_type_3;
+      std::string type;
+      realtype spring_const;
+      realtype value = 90.0;
+      realtype value_esd = 1.8; // some arbitrary default!
+      realtype ktheta = 45;
+      int ierr;
+      int ierr_tot = 0;
+
+      char *s;
+
+      s = mmCIFLoop->GetString("atom_type_1", j, ierr);
+      if (s) atom_type_1 = s;
+
+      s = mmCIFLoop->GetString("atom_type_2", j, ierr);
+      if (ierr) std::cout << "error reading atom_type_1" << std::endl;
+      ierr_tot += ierr;
+      if (s) atom_type_2 = s;
+
+      s = mmCIFLoop->GetString("atom_type_3", j, ierr);
+      if (s) atom_type_3 = s;
+
+      // F, V, Br, Cd, I all have no value.... Hmmm..
+      ierr = mmCIFLoop->GetReal(value, "value", j);
+      // if (ierr) std::cout << "error reading value" << std::endl;
+      // ierr_tot += ierr;
+
+      ierr = mmCIFLoop->GetReal(ktheta, "const", j);
+      value_esd = ktheta * 0.04;
+
+      if (ierr_tot == 0) {
+	 energy_lib_angle angle(atom_type_1, atom_type_2, atom_type_3, ktheta, value, value_esd);
+	 angles.push_back(angle);
+      } else {
+	 std::cout << "  reject energy lib angle " 
+		   << "\"" << atom_type_1 << "\" "
+		   << "\"" << atom_type_2 << "\" "
+		   << "\"" << atom_type_3 << "\" "
+		   << std::endl;
+      } 
+   }
+}
+
+void
+coot::energy_lib_t::add_energy_lib_torsions(PCMMCIFLoop mmCIFLoop) {
+
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+
+      std::string atom_type_1;
+      std::string atom_type_2;
+      std::string atom_type_3;
+      std::string atom_type_4;
+      std::string label;
+      realtype constant = 0;
+      realtype angle;
+      int period;
+      int ierr;
+      int ierr_tot = 0;
+
+      char *s;
+
+      s = mmCIFLoop->GetString("atom_type_1", j, ierr);
+      ierr_tot += ierr;
+      if (s) atom_type_1 = s;
+
+      s = mmCIFLoop->GetString("atom_type_2", j, ierr);
+      ierr_tot += ierr;
+      if (s) atom_type_2 = s;
+
+      s = mmCIFLoop->GetString("atom_type_3", j, ierr);
+      ierr_tot += ierr;
+      if (s) atom_type_3 = s;
+
+      s = mmCIFLoop->GetString("atom_type_4", j, ierr);
+      ierr_tot += ierr;
+      if (s) atom_type_4 = s;
+
+      ierr = mmCIFLoop->GetReal(constant, "const", j);
+
+      ierr = mmCIFLoop->GetReal(angle, "angle", j);
+      ierr_tot += ierr;
+
+      ierr = mmCIFLoop->GetInteger(period, "period", j);
+      ierr_tot += ierr;
+
+      if (ierr_tot == 0) {
+	 energy_lib_torsion tors(atom_type_1, atom_type_2, atom_type_3, atom_type_4,
+				 constant, angle, period);
+	 torsions.push_back(tors);
+      }
+   }
+}
 
 
 
@@ -376,24 +504,185 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
    return r;
 } 
 
-
+// throw a std::runtime_error if bond not found
+// 
+// Order dependent.
 coot::energy_lib_bond
 coot::energy_lib_t::get_bond(const std::string &energy_type_1,
 			     const std::string &energy_type_2) const {
 
+   try {
+      return get_bond(energy_type_1, energy_type_2, false);
+   }
+   catch (std::runtime_error rte) {
+      try { 
+	 return get_bond(energy_type_2, energy_type_1, false);
+      } 
+      catch (std::runtime_error rte) {
+	 try { 
+	    return get_bond(energy_type_1, energy_type_2, true);
+	 }
+	 catch (std::runtime_error rte) {
+	    return get_bond(energy_type_2 , energy_type_1, true);
+	 }
+      }
+   }
+}
+
+
+// throw a std::runtime_error if bond not found
+// 
+// Order dependent.
+coot::energy_lib_bond
+coot::energy_lib_t::get_bond(const std::string &energy_type_1,
+			     const std::string &energy_type_2,
+			     bool permissive_atom_type) const {
+
+   bool found = false;
+   std::string mess; // for exception
+   
    energy_lib_bond bond;
    std::map<std::string, energy_lib_atom>::const_iterator it_1 = atom_map.find(energy_type_1);
    std::map<std::string, energy_lib_atom>::const_iterator it_2 = atom_map.find(energy_type_2);
 
    if (it_1 != atom_map.end() && it_2 != atom_map.end()) {
       for (unsigned int ibond=0; ibond<bonds.size(); ibond++) { 
-	 std::cout << "energy bond " << ibond << " " << bonds[ibond] << std::endl;
+	 if (bonds[ibond].matches(energy_type_1, energy_type_2, permissive_atom_type)) {
+	    bond = bonds[ibond];
+	    found = true;
+	    break;
+	 }
       }
-
+      if (! found) {
+	 mess = "in get_bond() failed to find bond for energy types ";
+	 mess += energy_type_1;
+	 mess += " and ";
+	 mess += energy_type_2;
+	 throw std::runtime_error(mess);
+      }
    } else {
-      std::cout << "WARNING:: in get_bond() failed to find energy types given " << energy_type_1
-		<< " and " << energy_type_2 << std::endl;
-   } 
-
+      mess = "in get_bond() failed to find energy types given "; 
+      mess += energy_type_1;
+      mess += " and ";
+      mess += energy_type_2;
+      throw std::runtime_error(mess);
+   }
    return bond;
 } 
+
+coot::energy_lib_angle
+coot::energy_lib_t::get_angle(const std::string &atom_type_1,
+			      const std::string &atom_type_2,
+			      const std::string &atom_type_3) const {
+
+   coot::energy_lib_angle default_angle;
+   energy_angle_info_t angle_info;
+
+   angle_info = get_angle(atom_type_1, atom_type_2, atom_type_3, false, false);
+   if (angle_info.status == energy_angle_info_t::OK)
+      return angle_info.angle;
+   angle_info = get_angle(atom_type_3, atom_type_2, atom_type_1, false, false);
+   if (angle_info.status == energy_angle_info_t::OK)
+      return angle_info.angle;
+   angle_info = get_angle(atom_type_1, atom_type_2, atom_type_3, true, false);
+   if (angle_info.status == energy_angle_info_t::OK)
+      return angle_info.angle;
+   angle_info = get_angle(atom_type_3, atom_type_2, atom_type_1, true, false);
+   if (angle_info.status == energy_angle_info_t::OK)
+      return angle_info.angle;
+   angle_info = get_angle(atom_type_1, atom_type_2, atom_type_3, false, true);
+   if (angle_info.status == energy_angle_info_t::OK)
+      return angle_info.angle;
+   angle_info = get_angle(atom_type_3, atom_type_2, atom_type_1, false, true);
+   if (angle_info.status == energy_angle_info_t::OK)
+      return angle_info.angle;
+   angle_info = get_angle(atom_type_1, atom_type_2, atom_type_3, true, true);
+   if (angle_info.status == energy_angle_info_t::OK)
+      return angle_info.angle;
+   angle_info = get_angle(atom_type_3, atom_type_2, atom_type_1, true, true);
+   if (angle_info.status == energy_angle_info_t::OK)
+      return angle_info.angle;
+
+   std::cout << "WARNING:: returning default angle for "
+	     << atom_type_1 << " " << atom_type_2 << " " << atom_type_3 << std::endl;
+   return default_angle;
+}
+
+
+// 
+coot::energy_lib_t::energy_angle_info_t
+coot::energy_lib_t::get_angle(const std::string &energy_type_1,
+			      const std::string &energy_type_2,
+			      const std::string &energy_type_3,
+			      bool permissive_atom_2,
+			      bool permissive_atom_3) const {
+
+   coot::energy_lib_t::energy_angle_info_t angle_info;
+
+   std::map<std::string, energy_lib_atom>::const_iterator it_1 = atom_map.find(energy_type_1);
+   std::map<std::string, energy_lib_atom>::const_iterator it_2 = atom_map.find(energy_type_2);
+   std::map<std::string, energy_lib_atom>::const_iterator it_3 = atom_map.find(energy_type_3);
+
+   if (it_1 == atom_map.end() || it_2 == atom_map.end() || it_3 == atom_map.end()) {
+      std::string mess;
+      mess = "in get_angle() failed to find energy types given "; 
+      mess += energy_type_1;
+      mess += " and ";
+      mess += energy_type_2;
+      mess += " and ";
+      mess += energy_type_3;
+
+      angle_info.message = mess;
+      angle_info.status  = energy_angle_info_t::ENERGY_TYPES_NOT_FOUND;
+      return angle_info;
+
+   } else { 
+      for (unsigned int iangle=0; iangle<angles.size(); iangle++) { 
+	 if (angles[iangle].matches(energy_type_1,
+				    energy_type_2,
+				    energy_type_3, permissive_atom_2, permissive_atom_3)) {
+
+	    angle_info.message = "OK";
+	    angle_info.status  = energy_angle_info_t::OK;
+	    angle_info.angle = angles[iangle];
+	    return angle_info;
+	 }
+      }
+      std::string mess;
+      mess = "in get_angle() failed to find matching angle given "; 
+      mess += energy_type_1;
+      mess += " and ";
+      mess += energy_type_2;
+      mess += " and ";
+      mess += energy_type_3;
+      angle_info.message = mess;
+      angle_info.status  = energy_angle_info_t::ANGLE_NOT_FOUND;
+      return angle_info;
+   } 
+} 
+
+
+coot::energy_lib_torsion
+coot::energy_lib_t::get_torsion(const std::string &energy_type_2,
+				const std::string &energy_type_3) const {
+
+   energy_lib_torsion default_torsion;
+   std::map<std::string, energy_lib_atom>::const_iterator it_1 = atom_map.find(energy_type_2);
+   std::map<std::string, energy_lib_atom>::const_iterator it_2 = atom_map.find(energy_type_3);
+
+   if (it_1 == atom_map.end() || it_2 == atom_map.end()) {
+      std::cout << "providing default torsion - bad types! "
+		<< energy_type_2 << " " << energy_type_3 << std::endl;
+      return default_torsion;
+   } else {
+      for (unsigned int itor=0; itor<torsions.size(); itor++) { 
+	 if (torsions[itor].matches(energy_type_2, energy_type_3)) {
+	    return torsions[itor];
+	 } 
+	 if (torsions[itor].matches(energy_type_3, energy_type_2)) { 
+	    return torsions[itor];
+	 }
+      }
+   }
+   return default_torsion;
+}

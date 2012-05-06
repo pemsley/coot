@@ -2154,6 +2154,36 @@ molecule_class_info_t::get_residue(const coot::residue_spec_t &residue_spec) con
    return res;
 }
 
+// Useful when we know that the molecule is just one residue
+CResidue *
+molecule_class_info_t::get_first_residue() {
+
+   CResidue *res = 0;
+
+   if (atom_sel.mol) { 
+      int imod = 1;
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      CChain *chain_p;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    if (n_atoms) { 
+	       res = residue_p;
+	       break;
+	    }
+	 }
+      }
+   }
+   return res;
+} 
+
+
 
 // Can return NULL.
 CResidue *
@@ -7965,9 +7995,15 @@ molecule_class_info_t::match_torsions(CResidue *res_reference,
 	    atom_sel.mol->FinishStructEdit();
 	    make_bonds_type_checked(); // calls update_ghosts()
 	    have_unsaved_changes_flag = 1;
-	 }
-      }
-   }
+	 } else {
+	    std::cout << "WARNING torsion restraints of ligand: size 0" << std::endl;
+	 } 
+      } else {
+	 std::cout << "WARNING ligand_restraints_info.first failed " << std::endl;
+      } 
+   } else {
+      std::cout << "WARNING:: null ligand residue (trying to get first) " << std::endl;
+   } 
    return n_torsions_moved;
 }
 

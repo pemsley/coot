@@ -80,7 +80,7 @@ namespace coot {
 	    }
 	 } 
       } 
-      
+      double torsion(CResidue *residue) const;
       friend std::ostream& operator<<(std::ostream &o, const atom_name_quad &q);
    };
    std::ostream& operator<<(std::ostream &o, const atom_name_quad &q);

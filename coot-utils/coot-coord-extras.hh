@@ -60,6 +60,13 @@ namespace coot {
 					  bool add_reverse_contacts);
 
       std::vector<std::vector<int> >
+      get_contact_indices_from_restraints(CResidue *residue,
+					  const coot::dictionary_residue_restraints_t &restraints,
+					  bool regular_residue_flag,
+					  bool add_reverse_contacts);
+
+
+      std::vector<std::vector<int> >
       get_contact_indices_for_PRO_residue(PPCAtom residue_atom,
 					  int nResidueAtoms, 
 					  coot::protein_geometry *geom_p);
@@ -407,6 +414,9 @@ namespace coot {
       std::pair<bool, double> apply_torsion(const atom_name_quad &quad_moving,
 					    const atom_name_quad &reference,
 					    const std::string &alt_conf);
+      std::pair<bool, double> apply_torsion_by_contacts(const atom_name_quad &quad_moving,
+							const atom_name_quad &reference,
+							const std::string &alt_conf);
       // return in radians
       std::pair<bool, double> get_torsion(int torsion_type, const coot::atom_name_quad &quad) const;
       // return in radians

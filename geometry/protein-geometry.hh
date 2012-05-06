@@ -253,6 +253,7 @@ namespace coot {
       double esd ()  const { return angle_esd_;}
       friend std::ostream& operator<<(std::ostream &s, const dict_torsion_restraint_t &rest);
       bool is_pyranose_ring_torsion() const;
+      bool is_ring_torsion(const std::vector<std::vector<std::string> > &ring_atoms_sets) const;
       // hack for mac, ostream problems
       std::string format() const;
    };
@@ -487,6 +488,13 @@ namespace coot {
 
       // return "" on not found
       std::string get_bond_type(const std::string &name_1, const std::string &name_2) const;
+
+      // replace the restraints that we have with new_restraints,
+      // keeping restraints that in the current set bu not in
+      // new_restraints
+      void conservatively_replace_with(const dictionary_residue_restraints_t &new_restraints);
+      void conservatively_replace_with_bonds (const dictionary_residue_restraints_t &new_restraints);
+      void conservatively_replace_with_angles(const dictionary_residue_restraints_t &new_restraints);
       
    };
 
@@ -1045,7 +1053,9 @@ namespace coot {
       float esd;
       energy_lib_bond() {
 	 type = "unset";
-      } 
+	 length = 0;
+	 esd = 0;
+      }
       energy_lib_bond(const std::string &atom_type_1_in,
 		      const std::string &atom_type_2_in,
 		      const std::string &type_in,
@@ -1059,6 +1069,20 @@ namespace coot {
 	 length = length_in;
 	 esd = esd_in;
       }
+      // Order-dependent.  Call twice.
+      bool matches(const std::string &type_1, const std::string &type_2, bool permissive) const {
+	 bool r = false;
+	 if (atom_type_1 == type_1) {
+	    if (atom_type_2 == "") { 
+	       if (permissive) 
+		  r = true;
+	    } else {
+	       if (atom_type_2 == type_2)
+		  r = true;
+	    }
+	 }
+	 return r;
+      } 
       friend std::ostream& operator<<(std::ostream &s, const energy_lib_bond &bond);
    };
    std::ostream& operator<<(std::ostream &s, const energy_lib_bond &bond);
@@ -1070,17 +1094,61 @@ namespace coot {
       std::string atom_type_3;
       float spring_constant; // for energetics
       float angle;
+      float angle_esd;
+      energy_lib_angle() {
+	 angle = 120;
+	 angle_esd = 6;
+	 spring_constant = 450;
+      }
       energy_lib_angle(const std::string &atom_type_1_in,
 		       const std::string &atom_type_2_in,
 		       const std::string &atom_type_3_in,
 		       float spring_constant_in,
-		       float value_in) {
+		       float value_in,
+		       float value_esd_in) {
 	 
 	 atom_type_1 = atom_type_1_in;
 	 atom_type_2 = atom_type_2_in;
 	 atom_type_3 = atom_type_3_in;
 	 spring_constant = spring_constant_in;
 	 angle = value_in;
+	 angle_esd = value_esd_in;
+      }
+      bool matches(const std::string &type_1,
+		   const std::string &type_2,
+		   const std::string &type_3,
+		   bool permissive_1, bool permissive_3) const {
+
+	 bool r = false;
+	 // must match the middle atom at least.
+	 if (atom_type_2 == type_2) {
+	 
+	    // first atom matches
+	    if (atom_type_1 == type_1) {
+	       if (atom_type_3 == type_3)
+		  r = true;
+	       if (atom_type_3 == "")
+		  if (permissive_3)
+		     r = true;
+	    }
+
+	    // 3rd atom  match
+	    if (atom_type_3 == type_3) {
+	       if (atom_type_1 == "")
+		  if (permissive_1)
+		     r = true;
+	    }
+
+	    // permissive 1 and 3
+	    if (permissive_1 && permissive_3) {
+// 	       std::cout << "looking at \"" << atom_type_1 << "\" and \"" << atom_type_3
+// 			 << "\"" << std::endl;
+	       if (atom_type_1 == "")
+		  if (atom_type_3 == "")
+		     r = true;
+	    }
+	 }
+	 return r;
       }
    };
 
@@ -1094,6 +1162,11 @@ namespace coot {
       float spring_constant; // for energetics
       float angle;
       int period;
+      energy_lib_torsion() {
+	 spring_constant = 0.0;
+	 angle = 0.0;
+	 period = 0;
+      }
       energy_lib_torsion(const std::string &atom_type_1_in,
 			 const std::string &atom_type_2_in,
 			 const std::string &atom_type_3_in,
@@ -1110,20 +1183,101 @@ namespace coot {
 	 angle = value_in;
 	 period = period_in;
       }
+      // order dependent.  Call twice.
+      bool matches(const std::string &type_2, const std::string &type_3) const {
+	 bool r = false;
+	 if (atom_type_2 == type_2)
+	    if (atom_type_3 == type_3)
+	       r = true;
+	 return r;
+      }
+      friend std::ostream& operator<<(std::ostream &s, const energy_lib_torsion &torsion);
    };
+   std::ostream& operator<<(std::ostream &s, const energy_lib_torsion &torsion);
 
    // --------------------------
    // energy container
    // --------------------------
    // 
    class energy_lib_t {
+
+      // so that we can return an angle, a status and a message.  We
+      // don't want to keep calling get_angle when the first time we
+      // get a ENERGY_TYPES_NOT_FOUND.
+      // 
+      class energy_angle_info_t {
+      public:
+	 enum { OK, ANGLE_NOT_FOUND, ENERGY_TYPES_NOT_FOUND};
+	 short int status;
+	 energy_lib_angle angle;
+	 std::string message;
+	 energy_angle_info_t() {
+	    status = ANGLE_NOT_FOUND;
+	 }
+	 energy_angle_info_t(short int status, const energy_lib_angle &angle, std::string message);
+      };
+
+      class energy_torsion_info_t {
+      public:
+	 enum { OK, TORSION_NOT_FOUND, ENERGY_TYPES_NOT_FOUND};
+	 short int status;
+	 energy_lib_angle angle;
+	 std::string message;
+	 energy_torsion_info_t() {
+	    status = TORSION_NOT_FOUND;
+	 }
+	 energy_torsion_info_t(short int status,
+			       const energy_lib_torsion &torsion,
+			       std::string message);
+      };
+      
+      // if permissive is true, allow the bond to be matched by
+      // default/"" energy type.  Order dependent.
+      energy_lib_bond get_bond(const std::string &atom_type_1,
+			       const std::string &atom_type_2,
+			       bool permissive) const;
+
+      // if permissive is true, allow the bond to be matched by
+      // default/"" energy type.  Order dependent.
+      // 
+      energy_angle_info_t get_angle(const std::string &atom_type_1,
+				    const std::string &atom_type_2,
+				    const std::string &atom_type_3,
+				    bool permissive_atom_2,
+				    bool permissive_atom_3) const;
+
+      
    public:
       std::map<std::string, energy_lib_atom> atom_map;
       std::vector<energy_lib_bond> bonds;
       std::vector<energy_lib_angle> angles;
       std::vector<energy_lib_torsion> torsions;
+      
+      energy_lib_t() {}
+      energy_lib_t(const std::string &file_name) { read(file_name); }
+
+      // Will throw an std::runtime_error if not found.
+      // 
       energy_lib_bond get_bond(const std::string &atom_type_1,
 			       const std::string &atom_type_2) const;
+      // 
+      energy_lib_angle get_angle(const std::string &atom_type_1,
+				 const std::string &atom_type_2,
+				 const std::string &atom_type_3) const;
+
+      // types of the 2 middle atoms
+      energy_lib_torsion get_torsion(const std::string &atom_type_2,
+				     const std::string &atom_type_3) const;
+      
+      void read(const std::string &file_name);
+      void add_energy_lib_atom(    const energy_lib_atom    &atom);
+      void add_energy_lib_bond(    const energy_lib_bond    &bond);
+      void add_energy_lib_angle(   const energy_lib_angle   &angle);
+      void add_energy_lib_torsion(const energy_lib_torsion &torsion);
+      void add_energy_lib_atoms( PCMMCIFLoop mmCIFLoop);
+      void add_energy_lib_bonds( PCMMCIFLoop mmCIFLoop);
+      void add_energy_lib_angles(PCMMCIFLoop mmCIFLoop);
+      void add_energy_lib_torsions(PCMMCIFLoop mmCIFLoop);
    };
 
 
@@ -1470,12 +1624,6 @@ namespace coot {
 
 
       energy_lib_t energy_lib;
-      void add_energy_lib_atom(    const energy_lib_atom    &atom);
-      void add_energy_lib_bond(    const energy_lib_bond    &bond);
-      void add_energy_lib_angle(   const energy_lib_angle   &angle);
-      void add_energy_lib_torosion(const energy_lib_torsion &torsion);
-      void add_energy_lib_atoms(PCMMCIFLoop mmCIFLoop);
-      void add_energy_lib_bonds(PCMMCIFLoop mmCIFLoop);
 
       std::pair<bool, dictionary_residue_restraints_t>
       get_monomer_restraints_internal(const std::string &monomer_type, bool allow_minimal_flag) const;

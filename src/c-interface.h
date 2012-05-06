@@ -4359,6 +4359,8 @@ imol_ligand or imo_ref.  If success, return the RT operator.
 SCM overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
 SCM analyse_ligand_differences(int imol_ligand, int imol_ref, const char *chain_id_ref,
 			       int resno_ref);
+SCM compare_ligand_atom_types_scm(int imol_ligand, int imol_ref, const char *chain_id_ref,
+				  int resno_ref);
 #endif /* USE_GUILE */
 void match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
 #ifdef USE_PYTHON

@@ -1310,6 +1310,9 @@ public:        //                      public
    // 
    CResidue *get_following_residue(const coot::residue_spec_t &rs) const;
 
+   // Useful when we know that the molecule is just one residue
+   CResidue *get_first_residue();
+
    // A function of molecule-class that returns the position
    // (if posible) of an atom given a string e.g. 
    // "A" -> nearest atom in the "A" chain

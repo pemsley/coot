@@ -1178,6 +1178,10 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
    coot::map_index_t i4 = name_to_index[atom4];
 
    if (i1.is_assigned() && i2.is_assigned() && i3.is_assigned() && i4.is_assigned()) {
+      if (0) 
+	 std::cout << "in atom_tree_t::set_dihedral() calling set_dihedral with indices  "
+		   << i1.index() << " " << i2.index() << " " << i3.index() << " " << i4.index()
+		   << " to angle " << angle << std::endl;
       return set_dihedral(i1, i2, i3, i4, angle); // can throw an exception
    } else {
       std::string mess = "Atom name(s) not found in residue. ";
@@ -1242,13 +1246,13 @@ coot::atom_tree_t::set_dihedral(const coot::map_index_t &i1,
    catch (std::runtime_error rte) {
       std::cout << rte.what() << std::endl;
       std::string mess = "Torsion failure for index ";
-      mess += i1.index();
+      mess += util::int_to_string(i1.index());
       mess += " to ";
-      mess += i2.index();
+      mess += util::int_to_string(i2.index());
       mess += " to ";
-      mess += i3.index();
+      mess += util::int_to_string(i3.index());
       mess += " to ";
-      mess += i4.index();
+      mess += util::int_to_string(i4.index());
       mess += ": rotate_about() fails.";
       throw std::runtime_error(mess);
    }
