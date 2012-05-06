@@ -35,7 +35,23 @@ namespace coot {
 			 const std::string &monomer_type,
 			 const std::string &file_name);
 
+   // alter restraints
    int assign_chirals(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   // alter restraints
+   void add_chem_comp_atoms(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   // alter restraints
+   void fill_with_energy_lib_bonds(RDKit::ROMol &mol,
+				   const coot::energy_lib_t &energy_lib,
+				   coot::dictionary_residue_restraints_t *restraints);
+   // alter restraints
+   void fill_with_energy_lib_angles(RDKit::ROMol &mol,
+				    const coot::energy_lib_t &energy_lib,
+				    coot::dictionary_residue_restraints_t *restraints);
+
+   // alter restraints
+   void fill_with_energy_lib_torsions(RDKit::ROMol &mol,
+				      const coot::energy_lib_t &energy_lib,
+				      coot::dictionary_residue_restraints_t *restraints);
 
    void write_pdb_from_mol(PyObject *rdkit_mol_py,
 			   const std::string &res_name,
