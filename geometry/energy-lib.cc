@@ -614,7 +614,7 @@ coot::energy_lib_t::energy_angle_info_t
 coot::energy_lib_t::get_angle(const std::string &energy_type_1,
 			      const std::string &energy_type_2,
 			      const std::string &energy_type_3,
-			      bool permissive_atom_2,
+			      bool permissive_atom_1,
 			      bool permissive_atom_3) const {
 
    coot::energy_lib_t::energy_angle_info_t angle_info;
@@ -637,14 +637,16 @@ coot::energy_lib_t::get_angle(const std::string &energy_type_1,
       return angle_info;
 
    } else { 
-      for (unsigned int iangle=0; iangle<angles.size(); iangle++) { 
+      for (unsigned int iangle=0; iangle<angles.size(); iangle++) {
+// 	 std::cout << "searching for " << energy_type_1 << " " << energy_type_2 << " " << energy_type_3
+// 		   << " " << permissive_atom_1 << " "  << permissive_atom_3 << "\n";
 	 if (angles[iangle].matches(energy_type_1,
 				    energy_type_2,
-				    energy_type_3, permissive_atom_2, permissive_atom_3)) {
-
+				    energy_type_3, permissive_atom_1, permissive_atom_3)) {
 	    angle_info.message = "OK";
 	    angle_info.status  = energy_angle_info_t::OK;
 	    angle_info.angle = angles[iangle];
+	    // 	    std::cout << "found " << angle_info.angle.angle << std::endl;
 	    return angle_info;
 	 }
       }
