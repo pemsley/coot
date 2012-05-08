@@ -285,6 +285,11 @@ coot::ShelxIns::read_file(const std::string &filename) {
 				       } else {
 					  if (card_word_0.substr(0, 3) == "END") {
 					     // handle END
+					     CResidue *residue = add_shelx_residue(atom_vector,
+										   current_res_name,
+										   current_res_no);
+					     chain->AddResidue(residue);
+					     atom_vector.clear();
 					     post_atoms_flag = 1;
 					     post_END_flag = 1;
 
