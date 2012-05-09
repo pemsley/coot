@@ -1069,16 +1069,37 @@ namespace coot {
 	 length = length_in;
 	 esd = esd_in;
       }
-      // Order-dependent.  Call twice.
-      bool matches(const std::string &type_1, const std::string &type_2, bool permissive) const {
+      // Order-dependent.  Call twice - or more.
+      bool matches(const std::string &type_1, const std::string &type_2,
+		   const std::string &bond_type_in,
+		   bool permissive_type,
+		   bool permissive_bond_order) const {
+	 
 	 bool r = false;
-	 if (atom_type_1 == type_1) {
-	    if (atom_type_2 == "") { 
-	       if (permissive) 
-		  r = true;
-	    } else {
-	       if (atom_type_2 == type_2)
-		  r = true;
+
+	 if (! permissive_bond_order) {
+
+	    if (type == bond_type_in) { 
+	       if (atom_type_1 == type_1) {
+		  if (atom_type_2 == "") { 
+		     if (permissive_type) 
+			r = true;
+		  } else {
+		     if (atom_type_2 == type_2)
+			r = true;
+		  }
+	       }
+	    }
+	    
+	 } else { 
+	    if (atom_type_1 == type_1) {
+	       if (atom_type_2 == "") { 
+		  if (permissive_type) 
+		     r = true;
+	       } else {
+		  if (atom_type_2 == type_2)
+		     r = true;
+	       }
 	    }
 	 }
 	 return r;
@@ -1235,6 +1256,7 @@ namespace coot {
       // default/"" energy type.  Order dependent.
       energy_lib_bond get_bond(const std::string &atom_type_1,
 			       const std::string &atom_type_2,
+			       const std::string &bond_type, // refmac energy lib format
 			       bool permissive) const;
 
       // if permissive is true, allow the bond to be matched by
@@ -1259,7 +1281,8 @@ namespace coot {
       // Will throw an std::runtime_error if not found.
       // 
       energy_lib_bond get_bond(const std::string &atom_type_1,
-			       const std::string &atom_type_2) const;
+			       const std::string &atom_type_2,
+			       const std::string &bond_type) const; // refmac energy lib format 
       // 
       energy_lib_angle get_angle(const std::string &atom_type_1,
 				 const std::string &atom_type_2,
