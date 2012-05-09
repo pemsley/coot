@@ -201,7 +201,7 @@
 				    (value      (list-ref restraint 3))
 				    (esd        (list-ref restraint 4)))
 				
-			      (format port "EXT DIST FIRST CHAIN ~a RESI ~s INS ~a ATOM ~a "
+			      (format port "EXTE DIST FIRST CHAIN ~a RESI ~s INS ~a ATOM ~a "
 				      (if (or (string=? chain-id-1 " ")
 					      (string=? chain-id-1 ""))
 					  "."
