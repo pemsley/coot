@@ -6,6 +6,7 @@
 #include <coot-coord-utils.hh>
 
 
+
 void
 coot::mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 			      const std::string &comp_id,
@@ -100,6 +101,7 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
       if (n_chirals) 
 	 restraints.assign_chiral_volume_targets();
 
+      coot::add_chem_comp_planes(mol, &restraints);
       
       restraints.write_cif(mmcif_out_file_name);
    }
@@ -131,11 +133,11 @@ coot::fill_with_energy_lib_bonds(RDKit::ROMol &mol,
 	    at_1->getProp("name", atom_name_1);
 	    at_2->getProp("name", atom_name_2);
 	    try {
-	       lig_build::bond_t::bond_type_t bt = convert_bond_type(bond_p->getBondType());
+	       std::string bt = convert_to_energy_lib_bond_type(bond_p->getBondType());
 	       energy_lib_bond bond =
-		  energy_lib.get_bond(atom_type_1, atom_type_2, bt);
+		  energy_lib.get_bond(atom_type_1, atom_type_2, bt); // add bond type as arg
 	       if (1)
-		  std::cout << "........... " << atom_name_1 << " " << atom_name_2 << " types \""
+		  std::cout << "....... " << atom_name_1 << " " << atom_name_2 << " types \""
 			    << atom_type_1 << "\" \"" << atom_type_2
 			    << "\" got bond " << bond << std::endl;
 	       std::string bond_type = bond.type;
@@ -156,12 +158,40 @@ coot::fill_with_energy_lib_bonds(RDKit::ROMol &mol,
    }
 }
 
+std::string
+coot::convert_to_energy_lib_bond_type(RDKit::Bond::BondType bt) {
+
+   std::string r = "unset";
+
+   if (bt == RDKit::Bond::UNSPECIFIED) r = "unset";
+   if (bt == RDKit::Bond::SINGLE) r = "single";
+   if (bt == RDKit::Bond::DOUBLE) r = "double";
+   if (bt == RDKit::Bond::TRIPLE) r = "triple";
+   if (bt == RDKit::Bond::QUADRUPLE) r = "quadruple";
+   if (bt == RDKit::Bond::QUINTUPLE) r = "quintuple";
+   if (bt == RDKit::Bond::HEXTUPLE) r = "hextuple";
+   if (bt == RDKit::Bond::ONEANDAHALF) r = "deloc";
+   if (bt == RDKit::Bond::AROMATIC) r = "aromatic";
+   
+//       TWOANDAHALF,
+//       THREEANDAHALF,
+//       FOURANDAHALF,
+//       FIVEANDAHALF,
+//       AROMATIC,
+//       IONIC,
+//       HYDROGEN,
+
+   return r;
+} 
+
+
 void
 coot::fill_with_energy_lib_angles(RDKit::ROMol &mol,
 				  const coot::energy_lib_t &energy_lib,
 				  coot::dictionary_residue_restraints_t *restraints) {
    
    int n_atoms = mol.getNumAtoms();
+   std::map<std::string, bool> done_angle;
    for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
       RDKit::ATOM_SPTR at_1 = mol[iat_1];
       RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
@@ -189,12 +219,23 @@ coot::fill_with_energy_lib_angles(RDKit::ROMol &mol,
 		  at_2->getProp("name", atom_name_2);
 		  at_3->getProp("name", atom_name_3);
 
-		  try { 
-		     energy_lib_angle angle =
-			energy_lib.get_angle(atom_type_1, atom_type_2, atom_type_3);
-		     dict_angle_restraint_t angler(atom_name_1, atom_name_2, atom_name_3,
-						   angle.angle, angle.angle_esd);
-		     restraints->angle_restraint.push_back(angler);
+		  try {
+
+		     std::string dash("-");
+		     std::string angle_key_name_1 = atom_name_1 + dash + atom_name_2 + dash + atom_name_3;
+		     std::string angle_key_name_2 = atom_name_3 + dash + atom_name_2 + dash + atom_name_1;
+
+		     if (done_angle.find(angle_key_name_1) == done_angle.end() &&
+			 done_angle.find(angle_key_name_2) == done_angle.end()) { 
+		     
+			energy_lib_angle angle =
+			   energy_lib.get_angle(atom_type_1, atom_type_2, atom_type_3);
+			dict_angle_restraint_t angler(atom_name_1, atom_name_2, atom_name_3,
+						      angle.angle, angle.angle_esd);
+			restraints->angle_restraint.push_back(angler);
+			done_angle[angle_key_name_1] = true;
+			done_angle[angle_key_name_2] = true;
+		     }
 		  }
 		  catch (std::runtime_error rte) {
 		     std::cout << "WARNING:: error in adding angle restraint for atoms "
@@ -346,11 +387,196 @@ coot::add_chem_comp_atoms(RDKit::ROMol &mol, coot::dictionary_residue_restraints
 	 restraints->atom_info.push_back(atom);
       }
       catch (KeyErrorException kee) {
-	 std::cout << "WARNING:: caught property exception in add_chem_comp_atoms()" << std::endl;
+	 std::cout << "WARNING:: caught property exception in add_chem_comp_atoms()" << iat << std::endl;
       }
    }
+}
+
+// what fun!
+// C++ smarts
+void
+coot::add_chem_comp_planes(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+
+   add_chem_comp_aromatic_planes(mol, restraints);
+   add_chem_comp_deloc_planes(mol, restraints);
 
 }
+
+// what fun!
+// C++ smarts
+void
+coot::add_chem_comp_aromatic_planes(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+
+   std::vector<std::string> patterns;
+   patterns.push_back("a12aaaaa1aaaa2");
+   patterns.push_back("a12aaaaa1aaa2");
+   patterns.push_back("a1aaaaa1");
+   patterns.push_back("a1aaaa1");
+   patterns.push_back("[*;^2]1[*;^2][*;^2][A;^2][*;^2]1"); // non-aromatic 5-ring
+
+   int n_planes = 1; 
+   for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
+      RDKit::ROMol *query = RDKit::SmartsToMol(patterns[ipat]);
+      std::vector<RDKit::MatchVectType>  matches;
+      bool recursionPossible = true;
+      bool useChirality = true;
+      bool uniquify = true;
+      int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
+	 if (matches[imatch].size() > 0) {
+	    std::cout << "matched plane pattern: " << patterns[ipat] << std::endl;
+	    std::string plane_id = "plane-arom-";
+	    char s[100];
+	    snprintf(s,99,"%d", n_planes);
+	    plane_id += std::string(s);
+	    std::vector<std::string> plane_restraint_atoms; 
+	    try {
+	       for (unsigned int ii=0; ii<matches[imatch].size(); ii++) {
+		  RDKit::ATOM_SPTR at_p = mol[matches[imatch][ii].second];
+
+		  // only add this atom to a plane restraint if it not
+		  // already in a plane restraint.  Test by failing to
+		  // get the plane_id property.
+
+		  bool add_atom_to_plane = true;
+
+		  // add the atom to the plane if the plane that it is
+		  // already is not this plane.
+
+		  try {
+		     std::string atom_plane;
+		     at_p->getProp("plane_id", atom_plane);
+		     if (atom_plane == plane_id)
+			add_atom_to_plane = false;
+		  }
+		  catch (KeyErrorException kee) {
+		     add_atom_to_plane = true;
+		  }
+
+		  if (add_atom_to_plane) {
+		     
+		     std::string name = "";
+		     at_p->getProp("name", name);
+		     // add name if it is not already in the vector
+		     if (std::find(plane_restraint_atoms.begin(), plane_restraint_atoms.end(), name) ==
+			 plane_restraint_atoms.end())
+			plane_restraint_atoms.push_back(name);
+		     at_p->setProp("plane_id", plane_id);
+
+		     // debug
+		     if (0) { 
+			std::string plane_id_lookup_debug; 
+			at_p->getProp("plane_id", plane_id_lookup_debug);
+			std::cout << "debug:: set atom " << name << " to plane_id " << plane_id_lookup_debug << std::endl;
+		     }
+
+		     // run through neighours, because neighours of
+		     // aromatic system atoms are in the plane too.
+		     // 
+		     RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
+		     boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);
+		     std::vector<RDKit::ATOM_SPTR> attached_atoms;
+		     while(nbr_idx_1 != end_nbrs_1) {
+			const RDKit::ATOM_SPTR at_2 = mol[*nbr_idx_1];
+			attached_atoms.push_back(at_2);
+			++nbr_idx_1;
+		     }
+		     if (attached_atoms.size() == 3) {
+			
+			// Yes, there was something
+			for (unsigned int iattached=0; iattached<attached_atoms.size(); iattached++) { 
+			   
+			   try {
+			      std::string attached_atom_name;
+			      attached_atoms[iattached]->getProp("name", attached_atom_name);
+			      // add it if it is not already in a plane,
+			      // 
+			      if (std::find(plane_restraint_atoms.begin(), plane_restraint_atoms.end(), attached_atom_name) ==
+				  plane_restraint_atoms.end())
+				 plane_restraint_atoms.push_back(attached_atom_name);
+			   }
+			   catch (KeyErrorException kee) {
+			      // do nothing then (no name found)
+			   }
+			}
+		     }
+		  }
+	       }
+	       // make a plane restraint with those atoms in then
+	       if (plane_restraint_atoms.size() > 3) {
+		  realtype dist_esd = 0.02;
+		  for (unsigned int iat=0; iat<plane_restraint_atoms.size(); iat++) { 
+		     coot::dict_plane_restraint_t rest(plane_id, plane_restraint_atoms[iat], dist_esd);
+		     restraints->plane_restraint.push_back(rest);
+		  }
+	       } 
+	       // maybe this should be in above clause for aesthetic reasons?
+	       n_planes++;
+	    }
+	    catch (KeyErrorException kee) {
+	       // this should not happen
+	       std::cout << "WARNING:: add_chem_comp_planes() failed to get atom name "
+			 << std::endl;
+	    } 
+	 }
+      }
+   }
+}
+
+void
+coot::add_chem_comp_deloc_planes(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+
+   std::vector<std::string> patterns;
+   patterns.push_back("*C(=O)[O;H]");     // ASP
+   patterns.push_back("*C(=O)[N^2;H2]([H])[H]");  // ASN
+   patterns.push_back("*C(=N)[N^2;H2]([H])[H]");  // amidine
+   patterns.push_back("CNC(=[NH])N([H])[H]");  // guanidinium with H - testing
+   patterns.push_back("CNC(=[NH])N");  // guanidinium sans Hs
+   
+   int n_planes = 1; 
+   for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
+      RDKit::ROMol *query = RDKit::SmartsToMol(patterns[ipat]);
+      std::vector<RDKit::MatchVectType>  matches;
+      bool recursionPossible = true;
+      bool useChirality = true;
+      bool uniquify = true;
+      int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
+	 if (matches[imatch].size() > 0) {
+	    std::cout << "matched deloc pattern: " << patterns[ipat] << std::endl;
+	    std::vector<std::string> atom_names;
+	    std::string plane_id = "plane-deloc-";
+	    char s[100];
+	    snprintf(s,99,"%d", n_planes);
+	    plane_id += std::string(s);
+	    try {
+	       for (unsigned int ii=0; ii<matches[imatch].size(); ii++) {
+		  RDKit::ATOM_SPTR at_p = mol[matches[imatch][ii].second];
+
+		  // Unlike aromatics, the atoms of this type of plane
+		  // can be in more than one plane.
+
+		  std::string name = "";
+		  at_p->getProp("name", name);
+		  atom_names.push_back(name);
+		  realtype dist_esd = 0.02;
+		  coot::dict_plane_restraint_t res(plane_id, name, dist_esd);
+		  restraints->plane_restraint.push_back(res);
+		  at_p->setProp("plane_id", plane_id);
+	       }
+	    }
+
+	    catch (KeyErrorException kee) {
+	       std::cout << "ERROR:: in add_chem_comp_planes_deloc failed to get atom name"
+			 << std::endl;
+	    } 
+	    n_planes++;
+	 }
+      }
+   }
+} 
+
+
    
 int 
 coot::assign_chirals(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
