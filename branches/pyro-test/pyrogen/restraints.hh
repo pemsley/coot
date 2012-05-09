@@ -6,6 +6,7 @@
 
 #include <GraphMol/GraphMol.h>
 #include <GraphMol/MolOps.h>
+#include <GraphMol/Bond.h>
 
 #include "protein-geometry.hh"
 #include "mogul-interface.hh"
@@ -40,6 +41,14 @@ namespace coot {
    // alter restraints
    void add_chem_comp_atoms(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
    // alter restraints
+   void add_chem_comp_planes(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   // alter restraints
+   void add_chem_comp_aromatic_planes(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   // alter restraints
+   void add_chem_comp_deloc_planes(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+
+
+   // alter restraints
    void fill_with_energy_lib_bonds(RDKit::ROMol &mol,
 				   const coot::energy_lib_t &energy_lib,
 				   coot::dictionary_residue_restraints_t *restraints);
@@ -52,6 +61,8 @@ namespace coot {
    void fill_with_energy_lib_torsions(RDKit::ROMol &mol,
 				      const coot::energy_lib_t &energy_lib,
 				      coot::dictionary_residue_restraints_t *restraints);
+
+   std::string convert_to_energy_lib_bond_type(RDKit::Bond::BondType bt);
 
    void write_pdb_from_mol(PyObject *rdkit_mol_py,
 			   const std::string &res_name,

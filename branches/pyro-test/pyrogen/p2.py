@@ -192,25 +192,28 @@ def set_atom_types(mol):
 
         # Carbon SP3
         ('CT',   '[CX4H0]', 0), # single bonded to 4 things not hydrogen
-        ('CH3',  '*[CH3]',      1), # bonded to H and 3 things
-        ('CH1',  '*[C](*)*',    1), # bonded to H and 3 things
+        ('CH3',  '*[CH3^3]',    0), # bonded to 3 Hs
+        ('CH2',  '[C;^3;H2]',   0), # standard aliphatic C.
+        ('CH1',  '*[C](*)*',    1), # bonded to H and 3 things --- ??? mistake?
 
         # sp??? needs sorting 
         ('CH2',  '[CH2]',   0), # bonded to 2 hydrogens
         
         # Carbon fallback
         ('C', '[C,c]', 0),
-        
+
         # Hydrogen
-        ('HCH1', '[H][CH1]',   0),
-        ('HCH3', '[H][CH3]',   0),
-        ('HNC1', '[H][NX2;H1;^2]', 0),  # H of N of N=C ? 
-        ('HNT2', '[H][NX3;H2;^3]',  0), # H connected to type NT2
+        ('HCH1', '[H][CH1]',    0),
+        ('HCH2', '[H][C;H2^3]', 0),
+        ('HCH3', '[H][CH3]',    0),
+        ('HNC1', '[H][NX2;H1;^2]', 0), # H of N of N=C ? 
+        ('HNT2', '[H][NX3;H2;^3]', 0), # H connected to type NT2
         ('HNH2', '[H][NH2;^2]', 0), # NH2 is sp2
         ('HNH1', '[H][NH1]',    0),
         ('HCR6', '[H][cr6;H1]', 0),
         ('HCR1', '[H]c',        0),
         ('HNH1', '[H][NH1]',    0),
+        ('HOH1', '[H][OH1]',    0),
         ('HCH',  '[H]',         0),
         
         # Nitrogen, SP3
@@ -267,11 +270,11 @@ def set_atom_types(mol):
         if mol.HasSubstructMatch(pattern):
             matches = mol.GetSubstructMatches(pattern)
             print "SMARTS ", smarts
-            print "  ", atom_type, matches
+            print "  ", atom_type, ": ", matches
             for match in matches:
                 set_atom_type(match, match_atom_index, mol, atom_type)
         else:
-            print "SMARTS ", smarts, " --- No hits  "
+            # print "SMARTS ", smarts, " --- No hits  "
             pass
 
 
@@ -310,8 +313,10 @@ def make_restraints(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mm
       charge = atom.GetProp('_GasteigerCharge')
       name   = atom.GetProp('name')
       try:
-         atom_type = atom.GetProp('atom_type')
-         print "types: ", name, atom.GetSymbol(), atom_type, "    ", charge
+         atom_type   = atom.GetProp('atom_type')
+         is_aromatic = atom.GetIsAromatic()
+         hybrid      = atom.GetHybridization()
+         print "   atom: ", name, atom.GetSymbol(), " ", is_aromatic, " ", hybrid, "   ", atom_type, "    ", charge
       except KeyError:
          print "miss", name, atom.GetSymbol(), charge
 
