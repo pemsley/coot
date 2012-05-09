@@ -288,7 +288,9 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
    PCMMCIFData data = new CMMCIFData();
    data->SetFlag (CIFFL_SuggestCategories);
    int ierr = data->ReadMMCIFData (file_name.c_str());
-   if (!ierr) {
+   if (ierr) {
+      std::cout << "WARNING:: Error reading small-molecule cif \"" << file_name << "\"" << std::endl;
+   } else { 
 
 // testing      
 //       int ierr = data->GetString (S, "" ,"_chemical_formula_sum");
