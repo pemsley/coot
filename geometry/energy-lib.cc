@@ -312,9 +312,21 @@ coot::energy_lib_t::add_energy_lib_angles(PCMMCIFLoop mmCIFLoop) {
       // ierr_tot += ierr;
 
       ierr = mmCIFLoop->GetReal(ktheta, "const", j);
-      value_esd = ktheta * 0.04;
+      if (ierr != 0)
+	 value_esd = 2.8; // dummy value
+      else 
+	 value_esd = ktheta * 0.04;
 
       if (ierr_tot == 0) {
+
+	 if (0) // debug
+	    std::cout << "DEBUG:: adding energy lib angle " 
+		      << "\"" << atom_type_1 << "\" "
+		      << "\"" << atom_type_2 << "\" "
+		      << "\"" << atom_type_3 << "\" "
+		      << "ktheta " << ktheta << " value " << value << " value_esd: " << value_esd
+		      << std::endl;
+	 
 	 energy_lib_angle angle(atom_type_1, atom_type_2, atom_type_3, ktheta, value, value_esd);
 	 angles.push_back(angle);
       } else {
@@ -509,21 +521,22 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
 // Order dependent.
 coot::energy_lib_bond
 coot::energy_lib_t::get_bond(const std::string &energy_type_1,
-			     const std::string &energy_type_2) const {
+			     const std::string &energy_type_2,
+			     const std::string &bond_type) const {
 
    try {
-      return get_bond(energy_type_1, energy_type_2, false);
+      return get_bond(energy_type_1, energy_type_2, bond_type, false);
    }
    catch (std::runtime_error rte) {
       try { 
-	 return get_bond(energy_type_2, energy_type_1, false);
+	 return get_bond(energy_type_2, energy_type_1, bond_type, false);
       } 
       catch (std::runtime_error rte) {
 	 try { 
-	    return get_bond(energy_type_1, energy_type_2, true);
+	    return get_bond(energy_type_1, energy_type_2, bond_type, true);
 	 }
 	 catch (std::runtime_error rte) {
-	    return get_bond(energy_type_2 , energy_type_1, true);
+	    return get_bond(energy_type_2 , energy_type_1, bond_type, true);
 	 }
       }
    }
@@ -536,6 +549,7 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
 coot::energy_lib_bond
 coot::energy_lib_t::get_bond(const std::string &energy_type_1,
 			     const std::string &energy_type_2,
+			     const std::string &bond_type, // refmac energy lib format
 			     bool permissive_atom_type) const {
 
    bool found = false;
@@ -546,8 +560,12 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
    std::map<std::string, energy_lib_atom>::const_iterator it_2 = atom_map.find(energy_type_2);
 
    if (it_1 != atom_map.end() && it_2 != atom_map.end()) {
-      for (unsigned int ibond=0; ibond<bonds.size(); ibond++) { 
-	 if (bonds[ibond].matches(energy_type_1, energy_type_2, permissive_atom_type)) {
+      for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+	 bool permissive_bond_order = false;
+	 if (bonds[ibond].matches(energy_type_1, energy_type_2,
+				  bond_type, 
+				  permissive_atom_type,
+				  permissive_bond_order)) {
 	    bond = bonds[ibond];
 	    found = true;
 	    break;
