@@ -181,7 +181,7 @@ def extra_restraints2refmac_restraints_file(imol, file_name):
         atom_2     = restraint[2][4]
         value      = restraint[3]
         esd        = restraint[4]
-        fin.write("EXT DIST FIRST CHAIN %s RESI %i INS %s ATOM %s " \
+        fin.write("EXTE DIST FIRST CHAIN %s RESI %i INS %s ATOM %s " \
                   %(chain_id_1 if (chain_id_1 != "" and chain_id_1 != " ") else ".",
                     resno_1,
                     inscode_1 if (inscode_1 != "" and inscode_1 != " ") else ".",
