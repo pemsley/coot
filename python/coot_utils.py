@@ -1489,7 +1489,7 @@ def residues_with_alt_confs(imol):
     def alt_func1(chain_id, res_no, ins_code, res_serial_no):
         r = False
         atom_ls = residue_info(imol, chain_id, res_no, ins_code)
-        for i in range(len(atom_ls)-1):
+        for i in range(len(atom_ls)):
             alt_conf_str = atom_ls[i][0][1]
             if alt_conf_str:
                 r = True
@@ -1507,7 +1507,7 @@ def residue_alt_confs(imol, chain_id, res_no, ins_code):
     alt_confs = []
 
     if atom_ls:
-        for i in range(len(atom_ls)-1):
+        for i in range(len(atom_ls)):
             alt_conf_str = atom_ls[i][0][1]
             if not alt_conf_str in alt_confs:
                 alt_confs.append(alt_conf_str)
@@ -1598,7 +1598,7 @@ def residue_spec2atom_for_centre(imol, chain_id, res_no, ins_code):
     centre_atom_name_alt_conf = False
 
     if type(atom_ls) is ListType:
-        for i in range(len(atom_ls)-1):
+        for i in range(len(atom_ls)):
             alt_conf_str = atom_ls[i][0][1]
             atom = atom_ls[i][0][0]
             if (atom == " CA "):
@@ -3470,6 +3470,34 @@ def cmd2str(*args):
             ret += ", "
     ret += ")"
     return ret
+
+
+# Function to change the occupancies of alternative conformations
+# alt_conf_list is a list of alt_conf string and occ,
+# e.g. [["A", 0.8], ["B", 0.2]]
+#
+def set_alt_conf_occ(imol, chain_id, res_no, ins_code, alt_conf_list):
+    """
+    Function to change the occupancies of alternative conformations
+    alt_conf_list is a list of alt_conf string and occ,
+    e.g. [["A", 0.8], ["B", 0.2]]
+    """
+    # first check if we have alt confs:
+    alt_confs = residue_alt_confs(imol, chain_id, res_no, ins_code)
+    if (alt_confs > 1):
+        atom_ls = residue_info(imol, chain_id, res_no, ins_code)
+        change_list = []
+        for i in range(len(atom_ls)):
+            alt_conf_str = atom_ls[i][0][1]
+            atom_name    = atom_ls[i][0][0]
+            for (alt_conf_name, alt_conf_occ) in alt_conf_list:
+                if (alt_conf_str == alt_conf_name):
+                    change_list.append([imol, chain_id, res_no, ins_code, atom_name,
+                                        alt_conf_str, "occ", alt_conf_occ])
+        set_atom_attributes(change_list)
+    else:
+        print "BL INFO:: no alt confs in residue", imol, chain_id, res_no, ins_code
+            
 
 # simplyfy check for windows
 def is_windows():

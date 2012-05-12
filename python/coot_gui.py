@@ -4933,8 +4933,99 @@ def click_protein_db_loop_gui():
    generic_number_chooser(range(2,10), 4,
                           "Number of residues for basis",
                           "Pick Atoms...",
+
                           lambda n: pick_loop_func(n))
 
+def scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code):
+
+    alt_confs = residue_alt_confs(imol, chain_id, res_no, ins_code)
+    try:
+        # remove no alt conf, i.e. '', from list if present
+        alt_confs.remove('')
+    except:
+        pass
+
+    if (len(alt_confs) != 2):
+        print "INFO:: no (or too many) alt confs, no gui!"
+    else:
+        # only do if 2 alt confs (plus no)
+        res_info = residue_info(imol, chain_id, res_no, ins_code)
+        alt_conf = alt_confs[0]
+
+        def get_occ_for_alt_conf(atom_ls, alt_conf):
+            # should check that they are consistent!!
+            for i in range(len(atom_ls)):
+                alt_conf_str = atom_ls[i][0][1]
+                if (alt_conf_str == alt_conf):
+                    occ = atom_ls[i][1][0]
+                    return occ            
+
+        occ_start = get_occ_for_alt_conf(res_info, alt_conf)
+    
+        def delete_event(*args):
+            window.destroy()
+            return False
+
+        def go_function_event(widget, occ_adjust,
+                              imol, chain_id, res_no, ins_code,
+                              alt_confs):
+            new_occ = occ_adjust.value
+            print "BL INFO:: setting new occupancy ", new_occ
+            alt_conf_list = [[alt_confs[0], new_occ], [alt_confs[1], 1 - new_occ]]
+            set_alt_conf_occ(imol, chain_id, res_no, ins_code, alt_conf_list)
+            delete_event()
+
+        def change_occ(*args):
+            # needed?!
+            # print "change occ slider?!"
+            pass
+
+        window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+        title = gtk.Label("Adjust alt conf occupancies")
+        occ_label = gtk.Label("Occupancy")
+        alt_conf_label = gtk.Label("Alt Conf: " + alt_conf)
+        occ_adj = gtk.Adjustment(occ_start, 0.1, 0.99, 0.01, 0.1, 0.1)
+        occ_scale = gtk.HScale(occ_adj)
+        vbox = gtk.VBox(False, 0)
+        scale_hbox = gtk.HBox(False, 0)
+        scale_hbox.pack_start(alt_conf_label, False, False, 2)
+        scale_hbox.pack_start(occ_scale, True, True, 2)
+        vbox.pack_start(occ_label, False, False, 0)
+        vbox.pack_start(scale_hbox, False, False, 0)
+
+        occ_adj.connect("value_changed", change_occ)
+
+        window.add(vbox)
+
+        h_sep = gtk.HSeparator()
+        buttons_hbox = gtk.HBox(True, 6)
+        ok_button = gtk.Button("   OK   ")
+        cancel_button = gtk.Button(" Cancel ")
+
+        buttons_hbox.pack_start(ok_button, True, False, 2)
+        buttons_hbox.pack_start(cancel_button, True, False, 2)
+
+        vbox.pack_start(h_sep, True, False, 2)
+        vbox.pack_start(buttons_hbox, True, False, 2)
+
+        ok_button.connect("clicked", go_function_event, occ_adj,
+                          imol, chain_id, res_no, ins_code, alt_confs)
+
+        cancel_button.connect("clicked", delete_event)
+
+        window.show_all()
+
+
+def select_atom_alt_conf_occ_gui():
+
+    def helper_function(*args):
+        imol      = args[0][1]
+        chain_id  = args[0][2]
+        res_no    = args[0][3]
+        ins_code  = args[0][4]
+        scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code)
+    user_defined_click(1, helper_function)
+    
 
 def toggle_wiimote(widget=None):
    """a toggle function to connect and disconnect from a Wiimote

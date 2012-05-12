@@ -113,10 +113,8 @@ if (have_coot_python):
       for icon_filename in coot_icon_filename_ls:
         if os.path.isfile(icon_filename):
           icon = os.path.basename(icon_filename)
-          pixbuf = gtk.gdk.pixbuf_new_from_file(icon_filename)
-          #print "BL DEBUG:: height and width", pixbuf.get_height(), pixbuf.get_width()
-          if (pixbuf.get_height() < 25 and pixbuf.get_width() < 25):
-            model.append([pixbuf, icon, icon_filename])
+          pixbuf = gtk.gdk.pixbuf_new_from_file_at_size(icon_filename, 16, 16)
+          model.append([pixbuf, icon, icon_filename])
 
       # build in default gtk icons
       icon_theme = gtk.icon_theme_get_default()
@@ -625,6 +623,7 @@ def list_of_toolbar_functions():
          ["Reset B", "reset_b_factor_active_residue()", "Reset the B-Factor of active Residue"],
          ["Find Waters", "wrapped_create_find_waters_dialog()", "Find water molecules in map", "add-water.svg"],
          ["Add Alt Conf", "altconf()", "Add alternative conformation", "add-alt-conf.svg"],
+         ["Change Alt Conf Occ", "select_atom_alt_conf_occ_gui()", "Change occupancies for alternative conformations", "add-alt-conf.svg"],
          ["Edit BB", "setup_backbone_torsion_edit(1)", "Edit Backbone Torsion Angle", "flip-peptide.svg"],
          ['Torsion Gen.', "setup_torsion_general(1)", "Torsion General (after O function)", "edit-chi.svg"],
          ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement", "azerbaijan.svg"]],
