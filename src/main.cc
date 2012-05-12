@@ -886,8 +886,15 @@ start_ligand_builder_gui(GtkMenuItem     *menuitem,
    bool use_graphics_interface_flag = 1;
    bool stand_alone_flag = 0;
    int imol_dummy = -1;
+
+   int (*get_url_func_pointer) (const char *s1, const char *s2) = NULL;
+#ifdef USE_LIBCURL
+   get_url_func_pointer= coot_get_url;
+#endif    
+   
    lbg(mm, dummy_pair, mol, view_name, molecule_file_name, imol_dummy,
-       use_graphics_interface_flag, stand_alone_flag, coot_get_url,
+       use_graphics_interface_flag, stand_alone_flag,
+       get_url_func_pointer,
        prodrg_import_function, sbase_import_function);
 #else
    std::cout << "No goocanvas" << std::endl;
