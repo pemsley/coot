@@ -69,6 +69,9 @@ notes from Shanghai:
 
 **** General ****
 
+   o set_go_to_atom_chain_residue_atom_name (and maybe others, for sure 'space')
+	do not update environment distances
+
    o cancel plane picking!!!
 
    o Validation summary
@@ -242,6 +245,8 @@ low importance
 
 
 **** Python ****
+
+   o residues with missing atoms gives empty dialog, better give info_dialog
 
    o tooltips for flips/clashes molprobity
 
