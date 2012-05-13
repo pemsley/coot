@@ -220,6 +220,7 @@ coot::operator<<(std::ostream &s, const energy_lib_torsion &torsion) {
      << torsion.atom_type_3 << "\" \"" << torsion.atom_type_4 << "\" "
      << torsion.spring_constant << " " << torsion.angle << " " << torsion.period
      << "]";
+   return s;
 } 
 
 
