@@ -561,8 +561,8 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
    std::map<std::string, energy_lib_atom>::const_iterator it_2 = atom_map.find(energy_type_2);
 
    if (it_1 != atom_map.end() && it_2 != atom_map.end()) {
+      bool permissive_bond_order = false;
       for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
-	 bool permissive_bond_order = false;
 	 if (bonds[ibond].matches(energy_type_1, energy_type_2,
 				  bond_type, 
 				  permissive_atom_type,
@@ -572,11 +572,28 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
 	    break;
 	 }
       }
+
+      if (! found) {
+	 permissive_bond_order = true;
+	 for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+	    if (bonds[ibond].matches(energy_type_1, energy_type_2,
+				     bond_type, 
+				     permissive_atom_type,
+				     permissive_bond_order)) {
+	       bond = bonds[ibond];
+	       found = true;
+	       break;
+	    }
+	 }
+      } 
+      
       if (! found) {
 	 mess = "in get_bond() failed to find bond for energy types ";
 	 mess += energy_type_1;
 	 mess += " and ";
 	 mess += energy_type_2;
+	 mess += " with bond-order ";
+	 mess += bond_type;
 	 throw std::runtime_error(mess);
       }
    } else {
@@ -584,6 +601,8 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
       mess += energy_type_1;
       mess += " and ";
       mess += energy_type_2;
+      mess += " with bond-order ";
+      mess += bond_type;
       throw std::runtime_error(mess);
    }
    return bond;
@@ -622,6 +641,11 @@ coot::energy_lib_t::get_angle(const std::string &atom_type_1,
    if (angle_info.status == energy_angle_info_t::OK)
       return angle_info.angle;
 
+   // hack in some execptions
+   if (atom_type_2 == "S2") {
+      default_angle.angle = 90.0;
+      return default_angle; }
+   
    std::cout << "WARNING:: returning default angle for "
 	     << atom_type_1 << " " << atom_type_2 << " " << atom_type_3 << std::endl;
    return default_angle;

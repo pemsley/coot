@@ -214,8 +214,9 @@ coot::geometry_graphs::render_to_canvas(const coot::geometry_distortion_info_con
    int min_resno = dc.min_resno;
    int nres = max_resno - min_resno +1;
    offsets[chain_number] = min_resno -1;
-   std::cout << "::::::::::: in render_to_canvas() offsets[" << chain_number << "] is set to "
-	     << offsets[chain_number] << std::endl;
+   if (0)
+       std::cout << "::::::::::: in render_to_canvas() offsets[" << chain_number << "] is set to "
+       << offsets[chain_number] << std::endl;
 
    draw_chain_axis(nres, chain_number);
    draw_chain_axis_tick_and_tick_labels(min_resno, max_resno, chain_number);
@@ -507,7 +508,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal_linear(const c
       if (dc.geometry_distortion[i].restraint.restraint_type == coot::ANGLE_RESTRAINT) {
 	 idx1 = dc.geometry_distortion[i].restraint.atom_index_1;
 	 idx2 = dc.geometry_distortion[i].restraint.atom_index_2;
-	 idx3 = dc.geometry_distortion[i].restraint.atom_index_2;
+	 idx3 = dc.geometry_distortion[i].restraint.atom_index_3;
 	 this_resno1 = dc.atom[idx1]->GetSeqNum();
 	 this_resno2 = dc.atom[idx2]->GetSeqNum();
 	 this_resno3 = dc.atom[idx3]->GetSeqNum();
@@ -522,8 +523,12 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal_linear(const c
 	 // std::cout << "Angle restraint extra " << extra << std::endl;
 	 if (extra > distortion_worst[this_resno1 - min_resno]) {
 	    info  = info_stub;
-	    info += " Angle at: ";
-	    info += dc.atom[idx2]->name;
+	    info += " Angle: ";
+	    info += coot::util::remove_whitespace(dc.atom[idx1]->name);
+	    info += "-";
+	    info += coot::util::remove_whitespace(dc.atom[idx2]->name);
+	    info += "-";
+	    info += coot::util::remove_whitespace(dc.atom[idx3]->name);
 	    info += " z score: ";
 	    info += coot::util::float_to_string(sqrt(extra));
 	    // std::cout << "new worst " << info << std::endl;

@@ -369,6 +369,7 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
 			    const std::vector <coot::dict_torsion_restraint_t>  &tr_ref) {
 
    int n_matched = 0; // return value.
+
    coot::graph_match_info_t match_info = coot::graph_match(res_moving, res_ref, 0, 0);
 
    if (! match_info.success) {
@@ -386,7 +387,7 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
       for (unsigned int i=0; i<match_info.matching_atom_names.size(); i++) { 
 	 atom_name_map[match_info.matching_atom_names[i].second.first] =
 	    match_info.matching_atom_names[i].first.first;
-	 if (1) 
+	 if (0) 
 	    std::cout << "      name map construction  :"
 		      << match_info.matching_atom_names[i].second.first
 		      << ": -> :"
@@ -396,9 +397,10 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
 
       // for debugging
       std::vector<std::pair<coot::atom_name_quad, double> > check_quads;
-      std::vector<double> starting_quads;
+      std::vector<double> starting_quad_torsions;
 
       for (unsigned int itr=0; itr<tr_ref.size(); itr++) {
+
 	 coot::atom_name_quad quad_ref(tr_ref[itr].atom_id_1_4c(),
 				       tr_ref[itr].atom_id_2_4c(),
 				       tr_ref[itr].atom_id_3_4c(),
@@ -409,34 +411,50 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
 					  atom_name_map[tr_ref[itr].atom_id_3_4c()],
 					  atom_name_map[tr_ref[itr].atom_id_4_4c()]);
 
-	 if (quad_ref.all_non_blank()) {
-	    if (quad_moving.all_non_blank()) { 
+	 // test if quad_moving/tr_moving (whatever that is) is a ring torsion
+	 // 
+	 // if (moving_residue_restraints.is_ring_torsion(quad_moving))
+
+	 
+	 if (moving_residue_restraints.is_ring_torsion(quad_moving)) { 
+	    // std::cout << "    ignore this ring torsion " << quad_moving << std::endl;
+	 } else { 
+	    // std::cout << "    OK moving torsion " << quad_moving << " is not a ring torsion"
+	    // << std::endl;
+	 
+
+	    if (quad_ref.all_non_blank()) {
+	       if (quad_moving.all_non_blank()) { 
+
+		  if (0)
+		     std::cout << "  Reference torsion: "
+			       << ":" << tr_ref[itr].format() << " maps to "
+			       << quad_moving << std::endl;
 	       
-	       std::cout << "  Reference torsion: "
-			 << ":" << tr_ref[itr].format() << " maps to "
-			 << quad_moving << std::endl;
-	       
-	       double starting_quad = quad_moving.torsion(res_moving); // debugging
-	       std::pair<bool, double> result = apply_torsion(quad_moving, quad_ref, alt_conf);
-	       if (! result.first) {
-		  // no tree in restraints? Try without
-		  result = apply_torsion_by_contacts(quad_moving, quad_ref, alt_conf);
+		  double starting_quad_tor = quad_moving.torsion(res_moving); // debugging
+		  std::pair<bool, double> result = apply_torsion(quad_moving, quad_ref, alt_conf);
+		  if (! result.first) {
+		     // no tree in restraints? Try without
+		     result = apply_torsion_by_contacts(quad_moving, quad_ref, alt_conf);
+		  }
+
+		  if (result.first) { 
+		     n_matched++;
+		     // result.second is in radians
+		     std::pair<coot::atom_name_quad, double> cq (quad_moving, result.second);
+		     check_quads.push_back(cq);
+		     starting_quad_torsions.push_back(starting_quad_tor);
+		  }
+	       } else {
+		  std::cout << "WARNING:: in torsion match() quad moving not all non-blank" << std::endl;
 	       } 
-	       if (result.first) { 
-		  n_matched++;
-		  // result.second is in radians
-		  std::pair<coot::atom_name_quad, double> cq (quad_moving, result.second);
-		  check_quads.push_back(cq);
-		  starting_quads.push_back(starting_quad);
-	       }
 	    } else {
-	       std::cout << "WARNING:: in torsion match() quad moving not all non-blank" << std::endl;
-	    } 
-	 } else {
 	       std::cout << "WARNING:: in torsion match() quad ref not all non-blank" << std::endl;
-	 } 
+	    } 
+	 }
       }
 
+      std::cout << "------ after matching, check the torsions " << std::endl;
       // after matching, check the torsions:
       for (unsigned int iquad=0; iquad<check_quads.size(); iquad++) {
 	 std::pair<bool, double> mtr = get_torsion(coot::match_torsions::MOVING_TORSION,
@@ -445,7 +463,7 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
 	    std::cout << "   torsion check:  "
 		      << check_quads[iquad].first << "  was "
 		      << std::fixed << std::setw(7) << std::setprecision(2)
-		      << starting_quads[iquad] << " "
+		      << starting_quad_torsions[iquad] << " "
 		      << " should be " << std::fixed << std::setw(7) << std::setprecision(2)
 		      << check_quads[iquad].second * 180/M_PI
 		      << " and is "  << std::fixed << std::setw(7) << std::setprecision(2)
@@ -524,7 +542,7 @@ coot::match_torsions::apply_torsion(const coot::atom_name_quad &moving_quad,
 	 status = 1; // may not happen if set_dihedral() throws an exception
       }
       catch (std::runtime_error rte) {
-	 std::cout << "WARNING tree-based setting dihedral failed, " << rte.what() << std::endl;
+	 // std::cout << "WARNING tree-based setting dihedral failed, " << rte.what() << std::endl;
       } 
    }
    return std::pair<bool, double> (status, new_angle * M_PI/180.0);
@@ -574,11 +592,11 @@ coot::match_torsions::apply_torsion_by_contacts(const coot::atom_name_quad &movi
 	    }
 	 }
       }
-      if (0)
+      if (0) { 
 	 std::cout << "-------------------------------- n_transfered " << n_transfered << "------------------- "
 		   << std::endl;
-   
-      std::cout << "in apply_torsion_by_contacts() new_angle is " << new_angle << std::endl;
+	 std::cout << "in apply_torsion_by_contacts() new_angle is " << new_angle << std::endl;
+      }
       status = 1;
    }
    catch (std::runtime_error rte) {

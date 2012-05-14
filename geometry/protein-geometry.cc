@@ -1052,7 +1052,7 @@ coot::dict_link_torsion_restraint_t::is_pyranose_ring_torsion() const {
 bool
 coot::dict_torsion_restraint_t::is_ring_torsion(const std::vector<std::vector<std::string> > &ring_atoms_sets) const {
 
-   bool match = true; 
+   bool match = false; 
    std::vector<std::string> torsion_restraint_atom_names(2);
    torsion_restraint_atom_names[0] = atom_id_2_4c();
    torsion_restraint_atom_names[1] = atom_id_3_4c();
@@ -1438,6 +1438,18 @@ std::ostream& coot::operator<<(std::ostream&s, coot::dict_plane_restraint_t rest
    s << "]";
    return s;
 }
+
+std::ostream&
+coot::operator<<(std::ostream &s, const dict_angle_restraint_t &rest) {
+
+   s << "[angle-restraint: " 
+     << rest.atom_id_1_4c() << " "
+     << rest.atom_id_2_4c() << " "
+     << rest.atom_id_3_4c() << " "
+     << rest.angle_ << " " << rest.angle_esd_
+     <<  "]";
+   return s;
+} 
 
 std::ostream&
 coot::operator<<(std::ostream &s, const coot::dict_torsion_restraint_t &rest) {
@@ -4723,6 +4735,34 @@ coot::dictionary_residue_restraints_t::is_hydrogen(const std::string &atom_name)
    return r;
 }
 
+// c.f. dict_torsion_restraint_t::is_ring_torsion()
+bool
+coot::dictionary_residue_restraints_t::is_ring_torsion(const coot::atom_name_quad &quad) const {
+
+   bool match = false; 
+   std::vector<std::string> torsion_atom_names(2);
+   torsion_atom_names[0] = quad.atom_name(1);
+   torsion_atom_names[1] = quad.atom_name(2);
+   std::vector<std::vector<std::string> > ring_atoms_sets = get_ligand_ring_list();
+
+   for (unsigned int iring=0; iring<ring_atoms_sets.size(); iring++) { 
+      const std::vector<std::string> &ring_atom_names = ring_atoms_sets[iring];
+      int n_match = 0;
+      for (unsigned int iname_1=0; iname_1<ring_atom_names.size(); iname_1++) {
+	 for (unsigned int iname_2=0; iname_2<torsion_atom_names.size(); iname_2++) { 
+	    if (ring_atom_names[iname_1] == torsion_atom_names[iname_2])
+	       n_match++;
+	 }
+      }
+      if (n_match == 2) {
+	 match = true;
+	 break;
+      }
+   }
+
+   return match;
+} 
+
 bool
 coot::dictionary_residue_restraints_t::has_unassigned_chiral_volumes() const {
    bool r = 0;
@@ -5159,6 +5199,17 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       rc = mmCIFFile->AddMMCIFData(comp_monomer_name.c_str());
       mmCIFData = mmCIFFile->GetCIFData(comp_monomer_name.c_str());
 
+      // shall we add coordinates too?
+      //
+      bool add_coordinates = false; // if all atoms have coords, add this
+      int n_atoms_with_coords = 0;
+      for (int i=0; i<atom_info.size(); i++) {
+	 if (atom_info[i].model_Cartn.first)
+	    n_atoms_with_coords++;
+      }
+      if (n_atoms_with_coords == atom_info.size())
+	 add_coordinates = true;
+      
       if (atom_info.size()) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
 	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
@@ -5175,6 +5226,14 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 		  float v = atom_info[i].partial_charge.second;
 		  mmCIFLoop->PutReal(v, "partial_charge", i);
 	       }
+	       if (add_coordinates) {
+		  float x = atom_info[i].model_Cartn.second.x();
+		  float y = atom_info[i].model_Cartn.second.y();
+		  float z = atom_info[i].model_Cartn.second.z();
+		  mmCIFLoop->PutReal(x, "x", i);
+		  mmCIFLoop->PutReal(y, "y", i);
+		  mmCIFLoop->PutReal(z, "z", i);
+	       } 
 	    }
 	 }
       }
