@@ -46,7 +46,7 @@
 
 #include "clipper/core/coords.h"
 
-// #include "db-main.h"
+#include "atom-quads.hh"
 
 namespace coot {
 
@@ -209,7 +209,9 @@ namespace coot {
       std::string atom_id_3_4c() const { return atom_id_mmdb_expand(atom_id_3_);}
       double angle() const { return angle_; }
       double esd ()  const { return angle_esd_;}
+      friend std::ostream& operator<<(std::ostream &s, const dict_angle_restraint_t &rest);
    };
+   std::ostream& operator<<(std::ostream &s, const dict_angle_restraint_t &rest);
 
    // Note hydrogen torsions can only be detected at the container
    // (protein_geometry) level, because we don't have acces to the
@@ -462,6 +464,11 @@ namespace coot {
 	 has_partial_charges_flag = state;
       }
       std::vector<dict_torsion_restraint_t> get_non_const_torsions(bool include_hydrogen_torsions_flag) const;
+
+      // compares atoms of torsion_restraint vs the ring atoms.
+      // bool is_ring_torsion(const dict_torsion_restraint_t &torsion_restraint) const;
+      bool is_ring_torsion(const atom_name_quad &quad) const;
+      
       void write_cif(const std::string &filename) const;
       // look up the atom id in the atom_info (dict_atom vector)
       std::string atom_name_for_tree_4c(const std::string &atom_id) const;

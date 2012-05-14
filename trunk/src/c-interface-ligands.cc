@@ -154,7 +154,6 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
    // restraints.  Let's get restraints outside and test for their
    // existance before we run this function.
 
-   std::cout << "%%%%%%%%%%% match_ligand_torsions() start" << std::endl;
    if (!is_valid_model_molecule(imol_ligand)) {
       std::cout << "WARNING molecule number " << imol_ligand << " is not a valid model molecule"
 		<< std::endl;
@@ -184,7 +183,6 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 			       << std::endl;
 		  } else {
 		     // normal case
-		     std::cout << "%%%%%%%%%%% match_ligand_torsions() meat " << std::endl;
 		     int n_rotated = g.molecules[imol_ligand].match_torsions(res_ref, tr, *g.Geom_p());
 		     std::cout << "INFO:: rotated " << n_rotated << " torsions in matching torsions"
 			       << std::endl;
@@ -195,7 +193,7 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 	 }
       }
    }
-   std::cout << "%%%%%%%%%%% match_ligand_torsions() end" << std::endl;
+
 }
 
 
