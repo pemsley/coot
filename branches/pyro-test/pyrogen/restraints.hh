@@ -31,34 +31,45 @@ namespace coot {
 				       PyObject *rdkit_mol,
 				       PyObject *bond_order_restraints_py,
 				       const std::string &mmcif_out_file_name);
+
+   void 
+   mmcif_dict_from_mol(const std::string &comp_id,
+		       const std::string &compound_name,
+		       PyObject *rdkit_mol,
+		       const std::string &mmcif_out_file_name);
+   // which is a wrapper for:
+   coot::dictionary_residue_restraints_t
+   mmcif_dict_from_mol_inner(const std::string &comp_id,
+			     const std::string &compound_name,
+			     PyObject *rdkit_mol);
    
    void write_restraints(PyObject *restraints_py,
 			 const std::string &monomer_type,
 			 const std::string &file_name);
 
    // alter restraints
-   int assign_chirals(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   int assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
    // alter restraints
-   void add_chem_comp_atoms(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   void add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
    // alter restraints
-   void add_chem_comp_planes(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   void add_chem_comp_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
    // alter restraints
-   void add_chem_comp_aromatic_planes(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   void add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
    // alter restraints
-   void add_chem_comp_deloc_planes(RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   void add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
 
 
    // alter restraints
-   void fill_with_energy_lib_bonds(RDKit::ROMol &mol,
+   void fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 				   const coot::energy_lib_t &energy_lib,
 				   coot::dictionary_residue_restraints_t *restraints);
    // alter restraints
-   void fill_with_energy_lib_angles(RDKit::ROMol &mol,
+   void fill_with_energy_lib_angles(const RDKit::ROMol &mol,
 				    const coot::energy_lib_t &energy_lib,
 				    coot::dictionary_residue_restraints_t *restraints);
 
    // alter restraints
-   void fill_with_energy_lib_torsions(RDKit::ROMol &mol,
+   void fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 				      const coot::energy_lib_t &energy_lib,
 				      coot::dictionary_residue_restraints_t *restraints);
 
@@ -67,6 +78,12 @@ namespace coot {
    void write_pdb_from_mol(PyObject *rdkit_mol_py,
 			   const std::string &res_name,
 			   const std::string &file_name);
+
+   // private
+   bool is_const_torsion(const RDKit::ROMol &mol,
+			 const RDKit::Atom *at_2,
+			 const RDKit::Atom *at_3);
+
 
 }
 

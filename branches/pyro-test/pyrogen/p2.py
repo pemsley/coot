@@ -34,7 +34,9 @@ def execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name):
       # print 'now run mogul using ins file %s' % mogul_ins_file_name
       if run_mogul:
           call(['mogul', '-ins', mogul_ins_file_name])
-      return True
+          return True
+      else:
+          return False
    else:
       return False
 
@@ -136,7 +138,7 @@ def set_atom_type(match, match_atom_index, mol, atom_type):
             # print "   oops - atom ", mol.GetAtomWithIdx(this_atom).GetProp("name"), " already has type ", current_type
         except KeyError:
             mol.GetAtomWithIdx(this_atom).SetProp("atom_type", atom_type)
-            print "    set atom number ", this_atom, " having name ", mol.GetAtomWithIdx(this_atom).GetProp("name"), " as ", atom_type
+            print "    set atom number ", this_atom, " having name \"", mol.GetAtomWithIdx(this_atom).GetProp("name"), "\" as type ", atom_type
     except TypeError:
         for match_atom in match_atom_index:
             set_atom_type(match, match_atom, mol, atom_type)
@@ -170,13 +172,19 @@ def set_atom_types(mol):
         ('O2',  "[oX2;H0]", 0), # ring oxygen
         ('O',   'O=*',   0), # carbonyl oxygen
         # Fallback oxygen
-        ('O',   'O',   0), 
+        ('O',   'O',   0),
+
+        # Carbon SP
+        ("CSP",  '[C]#[C]',   (0,1)),
+        ("CSP",  '[C]#*',     0),
         
         # Carbon SP2
         ('CR56', 'c12aaaac1aaa2',  (0,5)), # works on indole
+        ('CR56', 'c12aaaan1aaa2',  0), # same pattern as (below) N56, but catching first 56 atom
         ('CR66', 'c12aaaac1aaaa2', (0,5)),
         ('CR6',  'c12ccccc1OCO2',  (0,5)),   # mouse, fused atoms in 6-ring not non-arom 5-ring
-        ('CR66', 'c12aaaac1AAAA2', (0,5)),   # one 6-ring aromatic, other not.
+        ('CR66', 'c12aaaac1AAAA2', (0,5)),   # one 6-ring aromatic, other not. Needed for XXX?
+                                             # but makes a fail on 113.
         ('CR6',  'c12caccc1***2',  (0,5)),  # aromatic 6, (non-)aromatic 5, maybe this should be CR56?
 
         ('CR16', '[cr6;H1]',  0),
@@ -192,7 +200,7 @@ def set_atom_types(mol):
 
         # Carbon SP3
         ('CT',   '[CX4H0]', 0), # single bonded to 4 things not hydrogen
-        ('CH3',  '*[CH3^3]',    0), # bonded to 3 Hs
+        ('CH3',  '[C;H3;^3]',   0), # bonded to something via single bond and 3 Hs
         ('CH2',  '[C;^3;H2]',   0), # standard aliphatic C.
         ('CH1',  '*[C](*)*',    1), # bonded to H and 3 things --- ??? mistake?
 
@@ -207,36 +215,48 @@ def set_atom_types(mol):
         ('HCH2', '[H][C;H2^3]', 0),
         ('HCH3', '[H][CH3]',    0),
         ('HNC1', '[H][NX2;H1;^2]', 0), # H of N of N=C ? 
+        ('HNT1', '[H][NX4;H1;^3]', 0),
+        ('HNT1', '[H][NX3;H1;^3]', 0),
         ('HNT2', '[H][NX3;H2;^3]', 0), # H connected to type NT2
         ('HNH2', '[H][NH2;^2]', 0), # NH2 is sp2
-        ('HNH1', '[H][NH1]',    0),
+        ('HNH1', '[H][NX3;H1;^2]',    0),
         ('HCR6', '[H][cr6;H1]', 0),
+        ('HCR5', '[H][cr5;H1]', 0), # connected to aromatic ring C with 1 H
+        ('HNR5', '[H][nr5;H1]', 0), # connected to aromatic ring C with 1 H
+        ('HNR5', '[H][Nr5;H1]', 0), # guess based on above
+
+
         ('HCR1', '[H]c',        0),
         ('HNH1', '[H][NH1]',    0),
         ('HOH1', '[H][OH1]',    0),
         ('HCH',  '[H]',         0),
         
         # Nitrogen, SP3
-        ('NH2', '[NX3][CX3]=[NX3+]', (0,2)), # amidinium (charged)
+
         ('NT1', '[NX4;H1;^3]',  0),
         ('NT1', '[NX3;H1;^3]',  0),
         ('NT2', '[NX3;H2;^3]',  0), # different to mon-lib!
+        ('NT3', '[NX4;H3;^3]',  0),
         ('NT',  '[NX3;H0;^3]',  0),
         
         # Nitrogen, SP2
+        ('NR56', 'c12aaaan1aaa2',  5), # (second) 56 atom is an N.
+        ('NH2',  '[NX3^2][CX3^2]=[N^2;X3+]', (0,2)), # amidinium (charged)... 
         ('NR15', '[nr5;X3;H1]',    0),
         ('NR5',  '[nr5;X3;H0]',    0),
+        ('NR5',  '[NR;X3;H0;^2]',  0), # [NR5;X3;H0;^2] fails on 14C (also at daylight)
         ('NRD5', '[nr5;X2;H0]',    0), # guess from 071
         ('NRD5', 'C1(=O)[C,c][C,c]C=N1', 5), # N bonded to carbonyl C in a (non-percieved?) 5 ring, 0CE (a)
         ('NR16', '[nr6;H1]',    0),
-        ('NRD6', '[nr6;H0]',  0), # guess from 084
+        ('NRD6', 'a:[nr6;X2;H0]:a',  1), # aromatic N with no H, i.e. one double one single
         ('NR6',  '[nr6]',    0),
         ('NC1',  '[NX2;H1;^2]', 0),  # N of N=C ? 
         ('NH1',  '[NX3;H1;^2]', 0),
         ('NH2',  '[NX3;H2;^2]', 0),  # sp2, e.g. ND2 of an ASP
+        ('NT',   '*n1~[o]~[o]1', 1), # guess from 16X dioxaziridine (bleugh)
 
         # fall-back nitrogen
-        ('N',    '[N]',      0),  # how to say n or N?
+        ('N',    '[N,n]',      0),  
 
         # Phosphorus
         ('P',    'P', 0),
@@ -253,6 +273,7 @@ def set_atom_types(mol):
 #         ('ST',   'C[S](=O)N', 1), # guess based on 059
 #         ('ST',   'c[S](=O)N', 1), # guess based on 059
         ('ST',   '[SX4]', 0), # tetrahedral (2 single bonds, 2 double)
+        ('S1',   '[S]=*', 0),
         ('S2',   '[SX2,sX2]', 0),
         ('S3',   '[SX3,sX3]', 0),
         ('S',    '[S,s]', 0)
@@ -277,6 +298,18 @@ def set_atom_types(mol):
             # print "SMARTS ", smarts, " --- No hits  "
             pass
 
+    # do we return success (everything has a type) or not?
+    #
+    for atom in mol.GetAtoms():
+       try:
+          atom_type = atom.GetProp('atom_type')
+       except KeyError:
+          is_aromatic = atom.GetIsAromatic()
+          hybrid      = atom.GetHybridization()
+          print "Error:: Missing type for atom \"", atom.GetProp('name'), "\" is_aromatic: ", is_aromatic, " hybridization: ", hybrid
+          return False
+    # we got to the end, good
+    return True
 
 
 def make_restraints(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
@@ -296,37 +329,42 @@ def make_restraints(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mm
    atom_names = add_atom_names(m_H)
    m_H.SetProp('comp_id', comp_id)
    m_H.SetProp('name', compound_name)
-   set_atom_types(m_H)
-   Chem.AllChem.ComputeGasteigerCharges(m_H)
+   all_set = set_atom_types(m_H)
+   if (all_set != True):
+      return False
+   else:
+      Chem.AllChem.ComputeGasteigerCharges(m_H)
 
-   mb = Chem.MolToMolBlock(m_H)
-   print >> file(sdf_file_name,'w'), mb
-   coot.write_pdb_from_mol(m_H, comp_id, pdb_out_file_name)
-   mogul_ins_file_name = 'mogul.ins'
-   mogul_out_file_name = 'mogul.out'
-   bor = make_restraints_for_bond_orders(m_H)
-   # print "we got this bor: ", bor
-   # coot.write_restraints(bor, comp_id, 'bond-orders.cif')
+      mb = Chem.MolToMolBlock(m_H)
+      print >> file(sdf_file_name,'w'), mb
+      coot.write_pdb_from_mol(m_H, comp_id, pdb_out_file_name)
+      mogul_ins_file_name = 'mogul.ins'
+      mogul_out_file_name = 'mogul.out'
+      bor = make_restraints_for_bond_orders(m_H)
+      # print "we got this bor: ", bor
+      # coot.write_restraints(bor, comp_id, 'bond-orders.cif')
+      
+      # print out the set types:
+      for atom in m_H.GetAtoms():
+         charge = atom.GetProp('_GasteigerCharge')
+         name   = atom.GetProp('name')
+         try:
+            atom_type   = atom.GetProp('atom_type')
+            is_aromatic = atom.GetIsAromatic()
+            hybrid      = atom.GetHybridization()
+            print "   atom: ", name, atom.GetSymbol(), " ", is_aromatic, " ", hybrid, "   ", atom_type, "    ", charge
+         except KeyError:
+            print "miss", name, atom.GetSymbol(), charge
 
-   # print out the set types:
-   for atom in m_H.GetAtoms():
-      charge = atom.GetProp('_GasteigerCharge')
-      name   = atom.GetProp('name')
-      try:
-         atom_type   = atom.GetProp('atom_type')
-         is_aromatic = atom.GetIsAromatic()
-         hybrid      = atom.GetHybridization()
-         print "   atom: ", name, atom.GetSymbol(), " ", is_aromatic, " ", hybrid, "   ", atom_type, "    ", charge
-      except KeyError:
-         print "miss", name, atom.GetSymbol(), charge
+         mogul_state = execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
+         if mogul_state:
+            coot.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
+                                                compound_name, m_H, bor, mmcif_dict_name)
+         else:
+            coot.mmcif_dict_from_mol(comp_id, compound_name, m_H, mmcif_dict_name)
+            return True # hacked in value
+         return mogul_state
 
-   mogul_state = execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
-
-   if mogul_state:
-      coot.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
-                                          compound_name, m_H, bor, mmcif_dict_name)
-      return True
-   return mogul_state
 
 
 
@@ -358,5 +396,8 @@ if __name__ == "__main__":
         pdb_out_file_name = file_stub + ".pdb"
         comp_id = file_stub
     
-    make_restraints(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, cif_restraints_file_name)
+    status = make_restraints(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, cif_restraints_file_name)
+    if (status == False):
+       exit(1)
+
 
