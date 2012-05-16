@@ -968,6 +968,7 @@ echo update_config_guess_sub: $update_config_guess_sub
 # check dependencies for Ubuntu.
 case $systype in 
    *ubuntu*)
+ 
       dep_list='
        patch
        m4
@@ -2785,8 +2786,13 @@ cd guile-${guile_version}
 # ncurses-dev needs to be installed (that is on this Fed 15 machine,
 # at least - I presume others also).
 
+if [ "$need_guile_unused_values_patch" = true ] ; then 
+   additional_unused_arg=-Wno-unused-but-set-variable
+else
+   additional_unused_arg=
+fi
 # arg to guile's configure
-./configure $generic_prefix CFLAGS="-I$install_top_dir/include -O" LDFLAGS=-L$install_top_dir/lib CPPFLAGS=-P
+./configure $generic_prefix CFLAGS="-I$install_top_dir/include $additional_unused_arg-O" LDFLAGS=-L$install_top_dir/lib CPPFLAGS=-P
 # Multilib fix for procedures.txt
 echo =========== post-configure patching threads.doc ====================
 perl -pi -e 's|threads.doc||' `find . -name Makefile`
@@ -2989,7 +2995,8 @@ if test -n "$build_curl" ; then
    echo BUILDING curl:
 (
    # get libcurl from here: 
-   libcurl_version=7.19.7
+   # libcurl_version=7.19.7
+   libcurl_version=7.25.0
    ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
 
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
