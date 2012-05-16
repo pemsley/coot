@@ -100,6 +100,29 @@ if test x$with_python != x; then
 	;;
    esac	
 
+   # 20120516-PE
+   # this is needed on Ubuntu - (or should that be gcc-4.6+?).  Not
+   # needed on Ubuntu 10.04 (4.4.3) or (Fed 16 (4.6.3) without
+   # --disable-shared)
+   # 
+   extra_dl_lib=
+   #
+   coot_gcc_version=$(gcc -dumpversion)
+   case "$coot_gcc_version" in 
+      *.*.*)
+       gcc_major_minor=${coot_gcc_version%.*}
+        ;;  
+      *.*)
+        gcc_major_minor=$coot_gcc_version
+        ;;
+   esac
+   if [ "$gcc_major_minor" = 4.6 ] ; then extra_dl_lib=-ldl ; fi
+   if [ "$gcc_major_minor" = 4.7 ] ; then extra_dl_lib=-ldl ; fi
+   if [ "$gcc_major_minor" = 4.8 ] ; then extra_dl_lib=-ldl ; fi
+   if [ "$gcc_major_minor" = 4.9 ] ; then extra_dl_lib=-ldl ; fi
+
+   # extra_dl_lib should now be set correctly   
+
    save_CPPFLAGS="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS $PYTHON_CFLAGS"
    AC_CHECK_HEADER(Python.h, found_python_include_file=true, found_python_include_file=false)
@@ -109,7 +132,7 @@ if test x$with_python != x; then
 
    if test "$found_python_include_file" = true ; then 
 
-      PYTHON_LIBS="$PYTHON_LIBS_PRE $UTIL_LIB"
+      PYTHON_LIBS="$PYTHON_LIBS_PRE $UTIL_LIB $extra_dl_lib"
 
 dnl    this results in a random yes on its own line.  Commenting it out.
 dnl    echo Bmessage
