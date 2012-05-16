@@ -116,10 +116,10 @@ if test x$with_python != x; then
         gcc_major_minor=$coot_gcc_version
         ;;
    esac
-   if [ "$gcc_major_minor" = 4.6 ] ; then extra_dl_lib=-ldl ; fi
-   if [ "$gcc_major_minor" = 4.7 ] ; then extra_dl_lib=-ldl ; fi
-   if [ "$gcc_major_minor" = 4.8 ] ; then extra_dl_lib=-ldl ; fi
-   if [ "$gcc_major_minor" = 4.9 ] ; then extra_dl_lib=-ldl ; fi
+   if test "$gcc_major_minor" = 4.6 ; then extra_dl_lib=-ldl ; fi
+   if test "$gcc_major_minor" = 4.7 ; then extra_dl_lib=-ldl ; fi
+   if test "$gcc_major_minor" = 4.8 ; then extra_dl_lib=-ldl ; fi
+   if test "$gcc_major_minor" = 4.9 ; then extra_dl_lib=-ldl ; fi
 
    # extra_dl_lib should now be set correctly   
 
