@@ -381,6 +381,15 @@ graphics_info_t::info_dialog(const std::string &s) {
    return w;
 }
 
+void
+graphics_info_t::info_dialog_and_text(const std::string &s) {
+   
+  if (graphics_info_t::use_graphics_interface_flag) { 
+     info_dialog(s);
+   }
+   std::cout<< s <<std::endl;
+}
+
 // This uses an info_dialog but uses gtk_label_set_markup() to display
 // in a monospace font.
 void

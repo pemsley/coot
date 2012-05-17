@@ -5780,8 +5780,10 @@ molecule_class_info_t::make_backup() { // changes history details
 	       istat = write_atom_selection_file(atom_sel, backup_file_name, gz);
 	       // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
 	       if (istat) { 
-		  std::cout<< "WARNING:: WritePDBASCII failed! Return status "
-			   << istat << std::endl;
+             std::string warn;
+             warn = "WARNING:: WritePDBASCII failed! Return status ";
+             warn += istat;
+             g.info_dialog_and_text(warn);
 	       }
 	    } else { 
 	       std::pair<int, std::string> p = write_shelx_ins_file(backup_file_name);

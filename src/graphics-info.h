@@ -2487,6 +2487,7 @@ public:
    // around with having lots of these, life is too short to sort out
    // that mess.
    static GtkWidget *residue_info_dialog;
+
    
 
    // geometry:
@@ -2840,6 +2841,8 @@ public:
    static short int show_citation_notice; 
 
    static GtkWidget *info_dialog(const std::string &s);
+   // makes an info_dialog and writes text
+   void info_dialog_and_text(const std::string &s);
    
    // Return success status.
    // 

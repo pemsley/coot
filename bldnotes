@@ -10,6 +10,7 @@ build-it-win rev 4031
 
 * auto-weight in scm (Paul?!)
 
+
 ---- FINISH URGENT ----
 
 CCP4 SW:
@@ -594,6 +595,11 @@ Osaka 2010
 
 
    o full screen mode? maximize screen function!?
+
+* Done
+
+
+   o (better?!) warning if backup-dir is not writable
 
 * Done
 
