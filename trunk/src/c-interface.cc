@@ -1290,6 +1290,19 @@ void info_dialog(const char *txt) {
    add_to_history_typed(cmd, args);
 }
 
+// As info_dialog, but print to console too. Usefull for error and 
+// warning messages.
+// 
+void info_dialog_and_text(const char *txt) {
+
+   graphics_info_t g;
+   g.info_dialog_and_text(txt);
+   std::string cmd = "info-dialog-and-text";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote(txt));
+   add_to_history_typed(cmd, args);
+}
+
 
 GtkWidget *main_menubar() {
 
