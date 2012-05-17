@@ -659,7 +659,8 @@
 ;;
 (let* ((html-file-name (string-append (getenv "HOME") 
 				      "/public_html/coot/devel/build-info.html"))
-       (york-ubuntu-version "8.04.4")
+       ;; (york-ubuntu-version "8.04.4")
+       (york-ubuntu-version "10.04.4")
        (build-list
 	(list 
 	 
@@ -727,10 +728,10 @@
 	       ;"http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
 	       ;#t #t)
 
-	 ;(list (string-append "binary-Linux-i686-ubuntu-" york-ubuntu-version "-gtk2")
-	       ;"http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk2"
-	       ;"http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
-	       ;#f #t)
+	 (list (string-append "binary-Linux-i686-ubuntu-" york-ubuntu-version "-python-gtk2")
+	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg1/gtk2"
+	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	       #t #t)
 
 	 (list (string-append "binary-Linux-i386-rhel-5-python-gtk2")
 	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-krosp.chem.york.ac.uk/gtk2"
@@ -742,10 +743,10 @@
 	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
 	       #t #t)
 
-; 	 (list "binary-Linux-x86_64-ubuntu-9.04-gtk2"
-; 	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-scylla/gtk2" 
-; 	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
-; 	       #f #t)
+ 	 (list "binary-Linux-i386-ubuntu-11.10-python-gtk2"
+ 	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-nestor/gtk2" 
+ 	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
+ 	       #t #t)
 
 	 (list "WinCoot" 
 	       "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-5.1-sarabellum/gtk2" 
