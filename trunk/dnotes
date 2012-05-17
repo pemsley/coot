@@ -6476,11 +6476,31 @@ valgrind:
 
  valgrind --leak-check=full --suppressions=../../coot/guile.supp --suppressions=../../coot/valgrind-python.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-real 
 
+  Where are the python suppressions?
+
 ----
 Mon Apr  9 16:45:32 BST 2012
 
    COOT_CHEMICAL_FEATURES_DEF file needs to be put in place (or the
    env var to be defined in coot script).  See sdf-interface.cc:get_feature_factory().
+
+---
+Tue May  1 12:29:50 BST 2012
+
+   To get and set string on widgets use
+   g_object_set_data()
+   and 
+   g_object_get_data()
+
+   coot::dictionary_residue_restraints_t *t =
+      (coot::dictionary_residue_restraints_t *) g_object_get_data (G_OBJECT (chooser), "restraints");
+
+
+----
+Tue May  1 15:37:30 BST 2012
+
+  RDKit UFF atom types? UFFGetMoleculeForceField()
+
 
 ---
 Thu May  3 18:45:01 BST 2012
@@ -6491,5 +6511,6 @@ Thu May  3 18:45:01 BST 2012
 	 if (0)
 	    std::cout << "WARNING reject energy lib bond \"" << atom_type_1
 		      << "\" \"" << atom_type_2 << "\" \"" << type << "\"" << std::endl;
+
 
 ------
