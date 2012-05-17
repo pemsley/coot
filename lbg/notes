@@ -31,6 +31,11 @@ test_refmac1.pdb from David Banner. LIG, get it from the PDB.  Donor
 1xxb: fit the ligand using normal tools (with Flexible).  Fails
 
 
+test for multi-ligand:
+same protein, different ligands: 2hyy, 3cs9, 1m52, 1hzi
+same ligand, different proteins: 2hyy, 1t46
+
+
 
 ----
 Fri Apr 15 13:00:04 BST 2011
