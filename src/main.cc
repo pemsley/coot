@@ -713,6 +713,8 @@ get_max_effective_screen_height() {
     int max_height;
     max_height = -1;
 #if (GTK_MAJOR_VERSION >1)
+// no gdk_property get on windows (at the moment)
+#if !defined WINDOWS_MINGW && !defined _MSC_VER 
     ok = gdk_property_get(gdk_get_default_root_window(),  // a gdk window
                           gdk_atom_intern("_NET_WORKAREA", FALSE),  // property
                           gdk_atom_intern("CARDINAL", FALSE),  // property type
@@ -737,6 +739,7 @@ get_max_effective_screen_height() {
         }
         g_free(raw_data);
     } 
+#endif // MINGW
     if (max_height < 0) {
         GdkScreen *screen;
         screen = gdk_screen_get_default();
@@ -763,14 +766,17 @@ setup_screen_size_settings() {
    int ret = 0;
    int max_height;
    max_height = get_max_effective_screen_height();
+
    // adjust the icons size of the refinement toolbar icons
    if (max_height <= 620) {
+     std::cout << "BL INFO:: screen has " << max_height << " height, will make small icons and small font" << std::endl;
        max_height = 620;
        gtk_rc_parse_string("gtk-icon-sizes=\"gtk-large-toolbar=10,10:gtk-button=10,10\"");
        gtk_rc_parse_string("class \"GtkLabel\" style \"small-font\"");
        ret = 1;
    } else if (max_height <= 720) {
        int icon_size = 12 + (max_height - 620) / 25;
+       std::cout << "BL INFO:: screen has " << max_height << " height, will make icons to " <<  icon_size <<std::endl;
        std::string toolbar_txt = "gtk-icon-sizes = \"gtk-large-toolbar=";
        toolbar_txt += coot::util::int_to_string(icon_size);
        toolbar_txt += ",";
