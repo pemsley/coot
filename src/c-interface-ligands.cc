@@ -290,8 +290,12 @@ compare_ligand_atom_types_scm(int imol_ligand, int imol_ref, const char *chain_i
    bool match_hydrogens_also = false;
    bool apply_rtop_flag = true;
 
-   if (is_valid_model_molecule(imol_ligand)) { 
-      if (is_valid_model_molecule(resno_ref)) {
+   if (! is_valid_model_molecule(imol_ligand)) {
+      std::cout << "WARNING:: not a valid model molecule (ligand) " << imol_ligand << std::endl;
+   } else { 
+      if (! is_valid_model_molecule(imol_ref)) {
+	 std::cout << "WARNING:: not a valid model molecule (ref) " << imol_ligand << std::endl;
+      } else { 
 
 	 graphics_info_t g;
 	 CResidue *res_ref = g.molecules[imol_ref].get_residue(chain_id_ref, resno_ref, "");
