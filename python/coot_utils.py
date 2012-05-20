@@ -95,13 +95,26 @@ def using_active_atom(*funcs):
     if (not active_atom):
         add_status_bar_text("No residue found")
     else:
-        aa_dict = {"aa_imol":      active_atom[0],
-                   "aa_chain_id":  active_atom[1],
-                   "aa_res_no":    active_atom[2],
-                   "aa_ins_code":  active_atom[3],
-                   "aa_atom_name": active_atom[4],
-                   "aa_alt_conf":  active_atom[5]}
-
+        
+        def arg_to_append(item):
+            aa_dict = {"aa_imol":      active_atom[0],
+                       "aa_chain_id":  active_atom[1],
+                       "aa_res_no":    active_atom[2],
+                       "aa_ins_code":  active_atom[3],
+                       "aa_atom_name": active_atom[4],
+                       "aa_alt_conf":  active_atom[5]}
+            
+            if isinstance(item, list):
+                arg_ls = []
+                for ele in item:
+                    arg_ls.append(arg_to_append(ele))
+                return arg_ls
+            else:
+                if aa_dict.has_key(item):
+                    return aa_dict[item]
+                else:
+                    return item
+        
         if (len(funcs) == 1):
             # we have a list of functions
             # so use
@@ -114,15 +127,14 @@ def using_active_atom(*funcs):
             # we have a single function with args
             # make into list
             ls_funcs = [funcs]
+
         for ele in ls_funcs:
             func = ele[0]
             func_args = ele[1:]
             args = []
             for arg in func_args:
-                if aa_dict.has_key(arg):
-                    args.append(aa_dict[arg])
-                else:
-                    args.append(arg)
+                ins = arg_to_append(arg)
+                args.append(ins)
             ret = func(*args)
         return ret
 
