@@ -460,6 +460,21 @@ coot::residue_spec_t residue_spec_from_scm(SCM residue_in);
 coot::residue_spec_t residue_spec_from_py(PyObject *residue_in);
 #endif
 
+// return a spec for the first residue with the given type.
+// test the returned spec for unset_p().
+// 
+coot::residue_spec_t get_residue_by_type(int imol, const std::string &residue_type);
+
+#ifdef USE_GUILE
+// return a residue spec or scheme false
+SCM get_residue_by_type_scm(int, const std::string &residue_type);
+#endif
+#ifdef USE_PYTHON
+// return a residue spec or Python False.
+PyObject *get_residue_by_type_py(int, const std::string &residue_type);
+#endif
+
+
 /*  ----------------------------------------------------------------------- */
 /*               Atom info                                                  */
 /*  ----------------------------------------------------------------------- */

@@ -1190,3 +1190,31 @@ molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue
 }
 
 
+
+coot::residue_spec_t
+molecule_class_info_t::get_residue_by_type(const std::string &residue_type) const {
+
+   coot::residue_spec_t spec;
+
+   int imod = 1;
+   CModel *model_p = atom_sel.mol->GetModel(imod);
+   CChain *chain_p;
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      CResidue *residue_p;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 std::string residue_name(residue_p->GetResName());
+	 if (residue_name == residue_type) {
+	    spec = coot::residue_spec_t(residue_p);
+	    break;
+	 }
+      }
+      if (! spec.unset_p())
+	 break;
+   }
+
+   return spec;
+}

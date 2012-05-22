@@ -1980,3 +1980,43 @@ void sbase_import_function(std::string comp_id) {
    std::cout << "get SBase comp_id here " << comp_id << std::endl;
    get_sbase_monomer(comp_id.c_str());
 }
+
+
+// return a spec for the first residue with the given type.
+// test the returned spec for unset_p().
+// 
+coot::residue_spec_t
+get_residue_by_type(int imol, const std::string &residue_type) {
+
+   coot::residue_spec_t spec;
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      spec = g.molecules[imol].get_residue_by_type(residue_type);
+   } 
+   return spec;
+} 
+
+
+#ifdef USE_GUILE
+SCM get_residue_by_type_scm(int imol, const std::string &residue_type) {
+
+   SCM r = SCM_BOOL_F;
+   coot::residue_spec_t spec = get_residue_by_type(imol, residue_type);
+   if (! spec.unset_p())
+      r = scm_residue(spec);
+   return r;
+}
+#endif
+
+
+#ifdef USE_PYTHON
+PyObject *get_residue_by_type_py(int imol, const std::string &residue_type) {
+
+   PyObject *r = Py_False;
+   coot::residue_spec_t spec = get_residue_by_type(imol, residue_type);
+   if (! spec.unset_p())
+      r = py_residue(spec);
+   return r;
+} 
+#endif
