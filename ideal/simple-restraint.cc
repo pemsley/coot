@@ -2705,8 +2705,9 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
 			       <<  " and target is " << (*restraints)[i].target_value 
 			       << " and diff is " << diff 
 			       << " and periodicity: " << (*restraints)[i].periodicity <<  endl;
-		  
-		  double torsion_scale = (1.0/(1+pow(tan(clipper::Util::d2rad(dtg.theta)),2))) *
+
+		  double tt = tan(clipper::Util::d2rad(dtg.theta));
+		  double torsion_scale = (1.0/(1+tt*tt)) *
 		     clipper::Util::rad2d(1.0);
 
 		  double weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
