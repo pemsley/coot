@@ -3081,6 +3081,8 @@ public:        //                      public
    void export_map_fragment(float radius,
 			    clipper::Coord_orth centre,
 			    const std::string &file_name) const;
+
+   coot::residue_spec_t get_residue_by_type(const std::string &residue_type) const;
    
 };
 
