@@ -2017,6 +2017,10 @@ PyObject *get_residue_by_type_py(int imol, const std::string &residue_type) {
    coot::residue_spec_t spec = get_residue_by_type(imol, residue_type);
    if (! spec.unset_p())
       r = py_residue(spec);
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+
    return r;
 } 
 #endif
