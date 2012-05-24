@@ -882,7 +882,7 @@ define (for example in you @t{$HOME/.coot} file) the variable
 Cntl Left-mouse-click over an intermediate (white) atom. Drag and
 drop. Make sure that you have focus in the graphics window when you
 press Ctrl (which, in Windows, that the graphics window has a blue
-title bar rather than a grey one). (You need to means be precise with
+title bar rather than a grey one). (You need to be precise with
 the clicking - if the view rotates instead of the atom moving then you
 know that you have been insufficiently precise.)
 
