@@ -138,6 +138,104 @@ def using_active_atom(*funcs):
             ret = func(*args)
         return ret
 
+# here some truely pythonic version of the macros. Should replace
+# them in usage too:
+
+# Pythonic 'Macro' to tidy up a a setup of functions to be run with no backup
+# for a particular molecule.
+#
+# use with 'with', e.g.:
+#
+# > with WithNoBackups(imol=0):
+#      refine_zone(imol, "A", 43, 45, "")
+#      accept_regularizement()
+#
+class NoBackups:
+    """'Macro' to tidy up a a setup of functions to be run with no backup
+    for a particular molecule.
+
+    use with 'with', e.g.:
+    
+    > with WithNoBackups(imol=0):
+        refine_zone(imol, "A", 43, 45, "")
+        accept_regularizement()
+    """
+    
+    def __init__(self, imol):
+        self.imol = imol
+    def __enter__(self):
+        self.b_state = backup_state(self.imol)
+        turn_off_backup(self.imol)
+    def __exit__(self, type, value, traceback):
+        if (self.b_state == 1):
+            turn_on_backup(self.imol)
+
+# Pythonic 'Macro' to tidy up a set of functions to be run with automatic
+# accepting of the refinement.
+# 
+#    use with 'with', e.g.:
+#    
+#    >with WithAutoAccept():
+#        refine_zone(0, "A", 43, 45, "")
+#
+class AutoAccept:
+    """
+    Pythonic 'Macro' to tidy up a set of functions to be run with automatic
+    accepting of the refinement.
+ 
+    use with 'with', e.g.:
+    
+    > with WithAutoAccept():
+         refine_zone(0, "A", 43, 45, "")
+
+    """
+   
+    def __init__(self):
+        self.replace_state = -1
+        pass
+    def __enter__(self):
+        self.replace_state = refinement_immediate_replacement_state()
+        set_refinement_immediate_replacement(1)
+    def __exit__(self, type, value, traceback):
+        accept_regularizement()
+        if (self.replace_state == 0):
+            set_refinement_immediate_replacement(0)
+
+
+class UsingActiveAtom:
+    """
+    Run functions on the active atom.
+
+    use with 'with', e.g.:
+    
+    > with UsingActiveAtom() as [imol, chain_id, res_no, ins_code, atom_name, alt_conf]:
+          refine_zone(imol, chain_id, res_no-2, res_no+2, ins_code)
+    """
+    
+    def __init__(self):
+        self.no_residue = False
+        pass
+    def __enter__(self):
+        self.active_atom = active_residue()
+        if (not self.active_atom):
+            add_status_bar_text("No (active) residue found")
+            self.no_residue = True
+            #self.__exit__(None, "dummy", None)
+        else:
+            imol      = self.active_atom[0]
+            chain_id  = self.active_atom[1]
+            res_no    = self.active_atom[2]
+            ins_code  = self.active_atom[3]
+            atom_name = self.active_atom[4]
+            alt_conf  = self.active_atom[5]
+            return [imol, chain_id, res_no, ins_code, atom_name, alt_conf]
+    def __exit__(self, type, value, traceback):
+        if (self.no_residue):
+            # internal calling of exit, ignore errors
+            return True
+        pass
+
+
 # Pythonize function: return a python boolean.
 #
 def molecule_has_hydrogens(imol):
