@@ -706,7 +706,7 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       glDisable(GL_COLOR_MATERIAL);
 
       GLfloat  mat_specular[]  = {0.4,  0.4,  0.4,  opacity}; // makes a difference
-      GLfloat  mat_ambient[]   = {.05*map_colour[0][0], 0.5*map_colour[0][1], 0.5*map_colour[0][2], opacity};
+      GLfloat  mat_ambient[]   = {.3*map_colour[0][0], 0.3*map_colour[0][1], 0.3*map_colour[0][2], opacity};
       GLfloat  mat_diffuse[]   = {map_colour[0][0], map_colour[0][1], map_colour[0][2], opacity};
       GLfloat  mat_shininess[] = {100}; // makes a difference
 	 
@@ -717,10 +717,10 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
 
       if (is_neg) {
 	 // override
-	 GLfloat  mat_specular[]  = {0.58,  0.58,  0.58,  opacity};
-	 GLfloat  mat_ambient[]   = {.05*map_colour[1][0], 0.5*map_colour[1][1], 0.5*map_colour[1][2], opacity};
+	 GLfloat  mat_specular[]  = {0.4,  0.4,  0.4,  opacity};
+	 GLfloat  mat_ambient[]   = {.3*map_colour[1][0], 0.3*map_colour[1][1], 0.3*map_colour[1][2], opacity};
 	 GLfloat  mat_diffuse[]   = {map_colour[1][0], map_colour[1][1], map_colour[1][2], opacity};
-	 GLfloat  mat_shininess[] = {15};
+	 GLfloat  mat_shininess[] = {100};
 
 // 	 std::cout << " is_neg with map_colour: "
 // 		   << map_colour[1][0] << " "
