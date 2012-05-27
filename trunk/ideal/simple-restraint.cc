@@ -2038,7 +2038,7 @@ void coot::my_df_bonds (const gsl_vector *v,
    if (restraints->restraints_usage_flag & coot::BONDS_MASK) {
 
       double target_val;
-      double b_i;
+      double b_i_sqrd;
       double weight;
       double x_k_contrib;
       double y_k_contrib;
@@ -2083,8 +2083,11 @@ void coot::my_df_bonds (const gsl_vector *v,
 				   gsl_vector_get(v,idx+2));
 
 	    // what is b_i?
-	    b_i = clipper::Coord_orth::length(a1,a2); 
-	    b_i = b_i > 0.1 ? b_i : 0.1;  // Garib's stabilization
+	    b_i_sqrd = (a1-a2).lengthsq();
+	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
+	    
+	    // b_i = clipper::Coord_orth::length(a1,a2); 
+	    // b_i = b_i > 0.1 ? b_i : 0.1;  // Garib's stabilization
 
 	    weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
 	    
@@ -2092,7 +2095,8 @@ void coot::my_df_bonds (const gsl_vector *v,
 	    // weight = pow(0.021, -2.0);
 	    // std::cout << "df weight is " << weight << std::endl;
 
-	    double constant_part = 2.0*weight*(b_i - target_val)/b_i;
+	    // double constant_part = 2.0*weight*(b_i - target_val)/b_i;
+	    double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
 	    
 	    x_k_contrib = constant_part*(a1.x()-a2.x());
 	    y_k_contrib = constant_part*(a1.y()-a2.y());
@@ -2173,7 +2177,7 @@ coot::my_df_non_bonded(const  gsl_vector *v,
    if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { 
 
       double target_val;
-      double b_i;
+      double b_i_sqrd;
       double weight;
       double x_k_contrib;
       double y_k_contrib;
@@ -2203,22 +2207,19 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 				   gsl_vector_get(v,idx+2));
 
 	    // what is b_i?
-	    b_i = clipper::Coord_orth::length(a1,a2);
+	    // b_i = clipper::Coord_orth::length(a1,a2);
+	    b_i_sqrd = (a1-a2).lengthsq();
 
-	    // Just a bit of debugging	    
-// 	    if (b_i > 0.1 ) 
-// 	       // nothing
-// 	       float jj=0;
-// 	    else
-// 	       std::cout << "Garib stabilization in play!" << std::endl;
-	    
-	    b_i = b_i > 0.1 ? b_i : 0.1;  // Garib's stabilization
+	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
 
 	    weight = 1/( (*restraints)[i].sigma * (*restraints)[i].sigma );
 
-	    if (b_i < (*restraints)[i].target_value) {
+	    if (b_i_sqrd < (*restraints)[i].target_value * (*restraints)[i].target_value) {
 
-	       double constant_part = 2.0*weight*(b_i - target_val)/b_i;
+	       double b_i = sqrt(b_i_sqrd);
+	       // double constant_part = 2.0*weight*(b_i - target_val)/b_i;
+	       double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
+	       
 	       x_k_contrib = constant_part*(a1.x()-a2.x());
 	       y_k_contrib = constant_part*(a1.y()-a2.y());
 	       z_k_contrib = constant_part*(a1.z()-a2.z());

@@ -626,7 +626,15 @@ namespace coot {
    //  the deviation from starting point terms:
    void my_df_start_pos(const gsl_vector *v, void *params, gsl_vector *df); 
    // Compute both f and df together.
-   void my_fdf (const gsl_vector *x, void *params, double *f, gsl_vector *df); 
+   void my_fdf (const gsl_vector *x, void *params, double *f, gsl_vector *df);
+
+   // replace this function, to test if things go faster with
+   // alternative implementations?
+   // 
+   inline double f_inv_fsqrt(double v) {
+      //
+      return 1.0/sqrt(v);
+   } 
    
    // debugging function
    void 
