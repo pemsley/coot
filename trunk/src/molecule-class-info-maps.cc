@@ -695,20 +695,20 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
    
       GLfloat  ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
       GLfloat  diffuseLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
-      GLfloat specularLight[] = { 0.8f, 0.8f, 0.8f, 1.0f };
+      GLfloat specularLight[] = { 0.1f, 0.1f, 0.1f, 1.0f };
    
       // Assign created components to GL_LIGHT2
       glLightfv(GL_LIGHT2, GL_AMBIENT, ambientLight);
       glLightfv(GL_LIGHT2, GL_DIFFUSE, diffuseLight);
       glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
 
-      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 50);
+      glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100); // makes a difference.
       glDisable(GL_COLOR_MATERIAL);
 
-      GLfloat  mat_specular[]  = {0.58,  0.58,  0.58,  opacity};
+      GLfloat  mat_specular[]  = {0.4,  0.4,  0.4,  opacity}; // makes a difference
       GLfloat  mat_ambient[]   = {.05*map_colour[0][0], 0.5*map_colour[0][1], 0.5*map_colour[0][2], opacity};
       GLfloat  mat_diffuse[]   = {map_colour[0][0], map_colour[0][1], map_colour[0][2], opacity};
-      GLfloat  mat_shininess[] = {15};
+      GLfloat  mat_shininess[] = {100}; // makes a difference
 	 
       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
       glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
