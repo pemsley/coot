@@ -347,7 +347,7 @@ coot::residues_near_residue(CResidue *res_ref,
 			    CMMDBManager *mol,
 			    float radius) {
 
-   PPCAtom atom_selection;
+   PPCAtom atom_selection = NULL;
    int n_selected_atoms;
    std::vector<CResidue *> close_residues;
 
@@ -6087,7 +6087,7 @@ coot::close_residues_from_different_molecules_t::close_residues(CMMDBManager *mo
       } 
 
       int SelectionHandle_1 = combined_mol->NewSelection();
-      PPCAtom atom_selection_1;
+      PPCAtom atom_selection_1 = NULL;
       combined_mol->SelectAtoms (SelectionHandle_1, 1, "*",
 				 ANY_RES, // starting resno, an int
 				 "*", // any insertion code

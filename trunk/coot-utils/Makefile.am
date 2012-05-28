@@ -31,7 +31,7 @@ include_HEADERS = peak-search.hh coot-trim.hh \
 	coot-coord-utils.hh coot-map-utils.hh coot-coord-extras.hh \
 	coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh \
 	coot-rama.hh xmap-stats.hh coot-h-bonds.hh lsq-improve.hh coot-hole.hh \
-	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh
+	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh
 
 INCLUDES = \
 	-I$(top_srcdir)/utils	        \
@@ -51,7 +51,7 @@ AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(COOT_WINDOWS_CFLAGS) \
 # for pure coordinates (mmdb) things
 libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc hole.cc read-sm-cif.cc \
-	bonded-pairs.cc helix-analysis.cc
+	bonded-pairs.cc helix-analysis.cc elastic.cc
 
 # clean
 libcoot_coord_utils_la_LIBADD = \
@@ -96,7 +96,7 @@ libcoot_map_heavy_la_LIBADD = \
    $(GSL_LIBS)
 
 
-noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole 
+noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic
 
 check_PROGRAMS = test-tt-morph
 
@@ -137,6 +137,10 @@ test_hole_LDADD = ./libcoot-coord-utils.la \
 test_tt_morph_SOURCES = test-morph.cc
 
 test_tt_morph_LDADD = 	./libcoot-map-heavy.la
+
+test_elastic_SOURCES = test-elastic.cc
+test_elastic_LDADD   = ./libcoot-coord-utils.la
+
 
 
 #    $(MMDB_LIBS)
