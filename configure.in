@@ -296,6 +296,7 @@ analysis/Makefile
 high-res/Makefile
 tw/Makefile
 cootaneer/Makefile
+cootilus/Makefile
 greg-tests/Makefile
 python-tests/Makefile
 lidia-core/Makefile
