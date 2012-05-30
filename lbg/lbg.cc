@@ -2592,6 +2592,8 @@ lbg_info_t::get_stroke_colour(int i, int n) const {
 void
 lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
+   std::cout << "render_from_molecule... " << std::endl;
+
    make_saves_mutex = 0; // stop saving changes (restored at end)
    clear();
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
@@ -2626,10 +2628,10 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 	    std::cout << " in render_from_molecule: old sa: "
 		      << mol_in.atoms[iat].get_solvent_accessibility() << " new: "
 		      << mol.atoms[re_index[iat]].get_solvent_accessibility() << std::endl;
-	 if (sa > 0) {
-	    // std::cout << "draw solvent accessibility " << sa << " at " << pos << std::endl;
-	    draw_solvent_accessibility_of_atom(pos, sa, root);
-	 }
+// 	 if (sa > 0) {
+// 	    std::cout << "draw solvent accessibility " << sa << " at " << pos << std::endl;
+// 	    draw_solvent_accessibility_of_atom(pos, sa, root);
+// 	 }
       }
    }
 
@@ -3082,6 +3084,7 @@ lbg_info_t::draw_all_flev_ligand_annotations() {
 
    if (draw_flev_annotations_flag) {
       draw_substitution_contour();
+      draw_solvent_accessibility_of_atoms();
    } 
 } 
 
@@ -4834,6 +4837,19 @@ lbg_info_t::read_solvent_accessibilities(const std::string &file_name) const {
 }
 
 void
+lbg_info_t::draw_solvent_accessibility_of_atoms() {
+
+   GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+   
+   for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
+      lig_build::pos_t pos = mol.atoms[iat].atom_position;
+      double sa = mol.atoms[iat].get_solvent_accessibility();
+      if (sa  > 0) 
+	 draw_solvent_accessibility_of_atom(pos, sa, root);
+   }
+}
+
+void
 lbg_info_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa,
 					       GooCanvasItem *root) {
 
@@ -4843,12 +4859,12 @@ lbg_info_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, doub
       
       for (unsigned int i=0; i<n_circles; i++) { 
 	 double rad =  LIGAND_TO_CANVAS_SCALE_FACTOR/23.0 * 3.0 * double(i+1); // needs fiddling?
-	 GooCanvasItem *cirle = goo_canvas_ellipse_new(root,
-						       pos.x, pos.y,
-						       rad, rad,
-						       "line_width", 0.0,
-						       "fill-color-rgba", 0x5555cc30,
-						       NULL);
+	 GooCanvasItem *circle = goo_canvas_ellipse_new(root,
+							pos.x, pos.y,
+							rad, rad,
+							"line_width", 0.0,
+							"fill-color-rgba", 0x5555cc30,
+							NULL);
       }
    }
 }
