@@ -817,6 +817,8 @@ private:
 
    void draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa,
 					   GooCanvasItem *root);
+   void draw_solvent_accessibility_of_atoms();
+   
    void draw_substitution_contour();
    void draw_bonds_to_ligand();
    void draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
