@@ -502,6 +502,10 @@ namespace coot {
       void conservatively_replace_with(const dictionary_residue_restraints_t &new_restraints);
       void conservatively_replace_with_bonds (const dictionary_residue_restraints_t &new_restraints);
       void conservatively_replace_with_angles(const dictionary_residue_restraints_t &new_restraints);
+
+      //
+      void remove_redundant_plane_resetraints();
+      bool is_redundant_plane_resetraints(std::vector<dict_plane_restraint_t>::iterator it);
       
    };
 
