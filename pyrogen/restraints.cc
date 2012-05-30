@@ -169,7 +169,7 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	       std::string bt = convert_to_energy_lib_bond_type(bond_p->getBondType());
 	       energy_lib_bond bond =
 		  energy_lib.get_bond(atom_type_1, atom_type_2, bt); // add bond type as arg
-	       if (0)
+	       if (1)
 		  std::cout << "....... " << atom_name_1 << " " << atom_name_2 << " types \""
 			    << atom_type_1 << "\" \"" << atom_type_2
 			    << "\" got bond " << bond << std::endl;
@@ -497,6 +497,7 @@ coot::add_chem_comp_planes(const RDKit::ROMol &mol, coot::dictionary_residue_res
 
    add_chem_comp_aromatic_planes(mol, restraints);
    add_chem_comp_deloc_planes(mol, restraints);
+   restraints->remove_redundant_plane_resetraints();
 
 }
 
@@ -548,6 +549,13 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_re
 			add_atom_to_plane = false;
 		  }
 		  catch (KeyErrorException kee) {
+		     add_atom_to_plane = true;
+		  }
+		  // the following exception is needed for my Ubuntu 10.04 machine, don't know why:
+		  // fixes:
+		  // terminate called after throwing an instance of 'KeyErrorException'
+                  //   what():  std::exception
+		  catch (std::exception stde) {
 		     add_atom_to_plane = true;
 		  }
 
@@ -603,10 +611,8 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_re
 	       // make a plane restraint with those atoms in then
 	       if (plane_restraint_atoms.size() > 3) {
 		  realtype dist_esd = 0.02;
-		  for (unsigned int iat=0; iat<plane_restraint_atoms.size(); iat++) { 
-		     coot::dict_plane_restraint_t rest(plane_id, plane_restraint_atoms[iat], dist_esd);
-		     restraints->plane_restraint.push_back(rest);
-		  }
+		  coot::dict_plane_restraint_t rest(plane_id, plane_restraint_atoms, dist_esd);
+		  restraints->plane_restraint.push_back(rest);
 	       } 
 	       // maybe this should be in above clause for aesthetic reasons?
 	       n_planes++;
@@ -624,16 +630,23 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_re
 void
 coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
 
-   std::vector<std::string> patterns;
-   patterns.push_back("*C(=O)[O;H]");     // ASP
-   patterns.push_back("AC(=O)[N^2;H2,H1]([H])[A,H]");  // ASN
-   patterns.push_back("*C(=N)[N^2;H2]([H])[A,H]");  // amidine
-   patterns.push_back("CNC(=[NH])N([H])[H]");  // guanidinium with H - testing
-   patterns.push_back("CNC(=[NH])N");  // guanidinium sans Hs
+   typedef std::pair<std::string, double> d_pat;
+
+   std::vector<d_pat> patterns;
+   patterns.push_back(d_pat("*C(=O)[O;H]",                 0.02));  // ASP
+   patterns.push_back(d_pat("AC(=O)[N^2;H2,H1]([H])[A,H]", 0.02));  // ASN
+   patterns.push_back(d_pat("*C(=N)[N^2;H2]([H])[A,H]",    0.02));  // amidine
+   patterns.push_back(d_pat("CNC(=[NH])N([H])[H]",         0.02));  // guanidinium with H - testing
+   patterns.push_back(d_pat("CNC(=[NH])N",                 0.02));  // guanidinium sans Hs
+
+   // Martin's pattern, these should be weaker though, I think
+   patterns.push_back(d_pat("[*^2]=[*^2]-[*^2]=[*^2]", 0.05));
+   patterns.push_back(d_pat("[*^2]:[*^2]-[*^2]=[*^2]", 0.05));
+   
    
    int n_planes = 1; 
    for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
-      RDKit::ROMol *query = RDKit::SmartsToMol(patterns[ipat]);
+      RDKit::ROMol *query = RDKit::SmartsToMol(patterns[ipat].first);
       std::vector<RDKit::MatchVectType>  matches;
       bool recursionPossible = true;
       bool useChirality = true;
@@ -641,7 +654,7 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
       int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
-	    std::cout << "matched deloc pattern: " << patterns[ipat] << std::endl;
+	    std::cout << "matched deloc pattern: " << patterns[ipat].first << std::endl;
 	    std::vector<std::string> atom_names;
 	    std::string plane_id = "plane-deloc-";
 	    char s[100];
@@ -657,7 +670,7 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 		  std::string name = "";
 		  at_p->getProp("name", name);
 		  atom_names.push_back(name);
-		  realtype dist_esd = 0.02;
+		  realtype dist_esd = patterns[ipat].second;
 		  coot::dict_plane_restraint_t res(plane_id, name, dist_esd);
 		  restraints->plane_restraint.push_back(res);
 		  at_p->setProp("plane_id", plane_id);
