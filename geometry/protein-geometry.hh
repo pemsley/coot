@@ -1079,26 +1079,10 @@ namespace coot {
       // Order-dependent.  Call twice - or more.
       bool matches(const std::string &type_1, const std::string &type_2,
 		   const std::string &bond_type_in,
-		   bool permissive_type,
-		   bool permissive_bond_order) const {
+		   bool permissive_type) const {
 	 
 	 bool r = false;
-
-	 if (! permissive_bond_order) {
-
-	    if (type == bond_type_in) { 
-	       if (atom_type_1 == type_1) {
-		  if (atom_type_2 == "") { 
-		     if (permissive_type) 
-			r = true;
-		  } else {
-		     if (atom_type_2 == type_2)
-			r = true;
-		  }
-	       }
-	    }
-	    
-	 } else { 
+	 if (type == bond_type_in) { 
 	    if (atom_type_1 == type_1) {
 	       if (atom_type_2 == "") { 
 		  if (permissive_type) 

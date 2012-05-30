@@ -565,8 +565,7 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
       for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
 	 if (bonds[ibond].matches(energy_type_1, energy_type_2,
 				  bond_type, 
-				  permissive_atom_type,
-				  permissive_bond_order)) {
+				  permissive_atom_type)) {
 	    bond = bonds[ibond];
 	    found = true;
 	    break;
@@ -578,8 +577,7 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
 	 for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
 	    if (bonds[ibond].matches(energy_type_1, energy_type_2,
 				     bond_type, 
-				     permissive_atom_type,
-				     permissive_bond_order)) {
+				     permissive_atom_type)) {
 	       bond = bonds[ibond];
 	       found = true;
 	       break;
