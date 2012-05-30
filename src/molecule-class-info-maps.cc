@@ -1796,7 +1796,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 bool
 molecule_class_info_t::is_em_map(const clipper::CCP4MAPfile &file) const {
 
-   bool is_em = 0;
+   bool is_em = false;
    
    if (file.spacegroup().num_symops() == 1) { // P1
       if (((file.cell().descr().alpha() - M_PI/2) <  0.0001) && 
@@ -1805,7 +1805,7 @@ molecule_class_info_t::is_em_map(const clipper::CCP4MAPfile &file) const {
 	  ((file.cell().descr().beta()  - M_PI/2) <  0.0001) &&
 	  ((file.cell().descr().gamma() - M_PI/2) > -0.0001) &&
 	  ((file.cell().descr().gamma() - M_PI/2) <  0.0001)) {
-	 is_em = 1;
+	 is_em = true;
       }
    }
    return is_em;

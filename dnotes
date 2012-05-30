@@ -6513,4 +6513,26 @@ Thu May  3 18:45:01 BST 2012
 		      << "\" \"" << atom_type_2 << "\" \"" << type << "\"" << std::endl;
 
 
+----
+Fri May 25 14:46:38 BST 2012
+
+	alt conf ligands 3ljj
+
+* Done.
+
+
+----
+Sun May 27 22:55:54 BST 2012
+
+    Here's an interesting function:
+
+    given a molecule (model) (and an optional atom selection?) implement
+    get_distances(min_dist, max_dist, max_n_distances) 
+ 
+
+    which finds all atom-atom distances in the atom selection and
+    makes a random selection of them and returns max_n_distances
+
+* Done.
+
 ------

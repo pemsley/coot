@@ -6,12 +6,8 @@
    o run get pdbe structure for 2 different ligands (running refmac twice).
      ::: 2
 
-   o Fix scheme remote control. ::: 1
-
- * Needs testing.
-
-   o incorporate RCrane ::: 3
-
+   o read in components-PH2.cif and use Display mananger to delete the
+   molecule.
 
 
 ------
@@ -405,4 +401,4 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
        no longer shown as bonded, they just show up as three
        crosses. 
 
-* Done.  Check with 3ins.  Hmm.. bonds to Ds are now thick.
+* Done.  Check with 3ins.  Hmm.. bonds to Ds are now thick
