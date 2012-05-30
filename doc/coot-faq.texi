@@ -886,6 +886,15 @@ title bar rather than a grey one). (You need to be precise with
 the clicking - if the view rotates instead of the atom moving then you
 know that you have been insufficiently precise.)
 
+
+If you don't want regularization/refinement, use the Rotate/Translate
+tool and Ctrl-click the atom(s) to move them one at a time.
+
+If you want "on the fly" regularization/refinement of fragments that
+include atoms that don't move when you "drop" them you need to fix
+them with the Fix Atom tool before regularization/refinement.
+
+
 @node    My sidechains are being sucked into the density for metal - how do I stop that?
 @section My sidechains are being sucked into the density for metal - how do I stop that?
 
