@@ -40,7 +40,8 @@ public:
      alternate_splash_screen_file_name = ""; // unset, tested vs blank.
      run_internal_tests_and_exit = 0;
    }
-   void handle_immediate_settings(); 
+   void handle_immediate_settings();
+   void roberto_pdbs(int argc, char **argv); // add any pdb files not alread added with --pdb/coords/xyzin
 };
 
 

@@ -733,6 +733,18 @@ coot::util::extension_is_for_mdl_mol_or_mol2_coords(const std::string &ext) {
 }
 
 
+bool
+coot::util::extension_is_for_coords(const std::string &ext) {
+
+   bool r = false;
+   if ((ext == ".pdb") ||
+       (ext == ".ent") ||
+       (ext == ".PDB"))
+      r = true;
+   return r; 
+} 
+
+
 
 short int
 coot::is_mmcif_filename(const std::string &filename) {

@@ -3398,8 +3398,9 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
 	       mv $holding_tar_file.md5sum $bin_tar_file.md5sum
                # copy file to pre-release dir if needed
                ssh_copy $bin_tar_file
+	       echo copying over $bin_tar_file to biop
                ssh_copy_to_biop $bin_tar_file
-               ssh_copy_to_biop $bin_tar_file
+	       echo copying over logs to biop
                ssh_copy_logs_to_biop $HOME/public_html/build-logs/$OS-$HOST/ public_html/emsley/build-logs
 
                # update the description of the latest binary tar file for
