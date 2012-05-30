@@ -5137,6 +5137,55 @@ coot::protein_geometry::matching_names(const std::string &test_string,
    return v;
 }
 
+void
+coot::dictionary_residue_restraints_t::remove_redundant_plane_resetraints() {
+
+
+   bool match = true; // synthetic first value
+   while (match) {
+      match = false;
+      std::vector<dict_plane_restraint_t>::iterator it;
+      for (it=plane_restraint.begin(); it!=plane_restraint.end(); it++) { 
+	 if (is_redundant_plane_resetraints(it)) {
+	    plane_restraint.erase(it);
+	    match = true;
+	    break;
+	 }
+      }
+   }
+} 
+
+// it the plane restraint of it_ref redundant?
+bool
+coot::dictionary_residue_restraints_t::is_redundant_plane_resetraints(std::vector<dict_plane_restraint_t>::iterator it_ref) {
+
+   bool match = false;
+   std::vector<dict_plane_restraint_t>::iterator it_this;
+   for (it_this=plane_restraint.begin(); it_this!=plane_restraint.end(); it_this++) {
+      
+      if (it_this != it_ref) {
+	 if (it_this->n_atoms() >= it_ref->n_atoms()) {
+	 
+	    // do all of the atoms in this_rest have matchers in ref_rest?
+	    //
+	    int n_match = 0;
+	    for (unsigned int j=0; j<it_this->n_atoms(); j++) {
+	       for (unsigned int i=0; i<it_ref->n_atoms(); i++) {
+		  if (it_this->atom_id(j) == it_ref->atom_id(i)) {
+		     n_match++;
+		     break;
+		  }
+	       }
+	    }
+	    if (n_match == it_ref->n_atoms())
+	       match = true;
+	 }
+      }
+   }
+   return match;
+} 
+
+
 
 void
 coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) const {
