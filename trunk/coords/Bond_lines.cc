@@ -851,7 +851,9 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 			for (int jat=0; jat<n_atoms; jat++) {
 			   std::string residue_atom_name_2(residue_atoms[jat]->name);
 			   if (atom_name_2 == residue_atom_name_2) {
-			      if (std::string(residue_atoms[iat]->altLoc) == std::string(residue_atoms[jat]->altLoc)) {
+			      std::string aloc_1 = residue_atoms[iat]->altLoc;
+			      std::string aloc_2 = residue_atoms[jat]->altLoc;
+			      if (aloc_1 == aloc_2 || aloc_1.empty() || aloc_2.empty()) {
 				 coot::Cartesian p1(residue_atoms[iat]->x,
 						    residue_atoms[iat]->y,
 						    residue_atoms[iat]->z);
