@@ -81,6 +81,7 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/analysis/libcoot-analysis.la 		\
 	$(top_builddir)/protein_db/libcoot-protein-db.la      	\
+	$(top_builddir)/cootilus/libcootilus.la 		\
 	$(top_builddir)/cootaneer/libcootaneer.la 		\
 	$(top_builddir)/compat/libcoot-compat.la  		
 
