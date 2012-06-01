@@ -147,6 +147,7 @@ protein_db_loops       = protein_db_loops_py
 make_link              = make_link_py
 key_sym_code           = key_sym_code_py
 screen_vectors         = screen_vectors_py
+get_residue_by_type    = get_residue_by_type_py
 
 # curl and hence coot_get_url_as_string are conditionally compiled.
 try:
@@ -161,3 +162,4 @@ de_chainsaw                    = fill_partial_residues
 
 # fix typo of set_find_hydrogen_torsions (for backwards compatibility?!)
 set_find_hydrogen_torsion = set_find_hydrogen_torsions
+
