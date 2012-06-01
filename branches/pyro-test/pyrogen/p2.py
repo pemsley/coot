@@ -27,7 +27,8 @@ def make_mogul_ins_file(mogul_ins_file_name, mogul_out_file_name, sdf_file_name)
      f.close()
    return f
 
-
+# return True for good, False for bad/not-run
+#
 def execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name):
    f = make_mogul_ins_file(mogul_ins_file_name, mogul_out_file_name, sdf_file_name)
    if f: 
@@ -358,8 +359,9 @@ def make_restraints(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mm
 
          mogul_state = execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
          if mogul_state:
-            coot.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
-                                                compound_name, m_H, bor, mmcif_dict_name)
+            restraints = coot.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
+                                                    compound_name, m_H, bor, mmcif_dict_name)
+            coot.regularize(m_H, restraints, comp_id)
          else:
             coot.mmcif_dict_from_mol(comp_id, compound_name, m_H, mmcif_dict_name)
             return True # hacked in value
