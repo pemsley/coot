@@ -36,5 +36,16 @@ coot::test_elastic() {
 int main(int argc, char **argv) {
 
    coot::test_elastic();
+
+   if (0) {
+      int n = 100000000; // ~100 million sqrt()s/second
+      double v = 0.9; 
+      for (unsigned int i=0; i<n; i++) { 
+	 // v = sqrt(v + 65.7);
+	 v = acos(v * 0.01);
+      }
+      std::cout << "   " << v << std::endl;
+   }
+
    return 0;
 } 
