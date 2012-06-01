@@ -4,10 +4,11 @@ install_top_dir=$(HOME)/autobuild/build-coot+rdkit-pre-release-gtk2-python
 
 
 prfx = $(install_top_dir)
-CXX = g++
+CXX = g++ -Wreturn-type
 HACK_INCLUDES = -I../coot/analysis
 INCLUDES = -I$(prfx)/include/python2.7 -I$(prfx)/include $(HACK_INCLUDES) -I$(prfx)/include/rdkit
-LIBS=$(prfx)/lib/libcoot-coord-utils.la \
+LIBS=$(prfx)/lib/libcoot-ideal.la \
+     $(prfx)/lib/libcoot-coord-utils.la \
      $(prfx)/lib/libcoot-geometry.la \
      $(prfx)/lib/libcoot-analysis.la \
      $(prfx)/lib/libcoot-lidia-core.la \
@@ -15,20 +16,24 @@ LIBS=$(prfx)/lib/libcoot-coord-utils.la \
 
 libs: _coot_libs.so
 
-_coot_libs.so: wrap-coot-libs.o restraints.o
+_coot_libs.so: wrap-coot-libs.o restraints.o py-restraints.o
 	libtool --mode=link g++ -shared -fPIC $^ -o $@ $(LIBS)
 
 wrap-coot-libs.o: wrap-coot-libs.cc
 	libtool --mode=compile $(CXX) -fPIC  $(INCLUDES) -c $^ -o $@
 
-restraints.o: restraints.cc
-	libtool --mode=compile $(CXX) -fPIC $(INCLUDES) -c $^ -o $@
+restraints.o: restraints.cc restraints.hh py-restraints.hh
+	libtool --mode=compile $(CXX) -fPIC $(INCLUDES) -c $< -o $@
+
+py-restraints.o: py-restraints.cc py-restraints.hh
+	libtool --mode=compile $(CXX) -fPIC $(INCLUDES) -c $< -o $@
 
 wrap-coot-libs.cc: wrap-coot-libs.i restraints.hh
 	swig  $(INCLUDES) -o wrap-coot-libs.cc -python -shadow -c++ wrap-coot-libs.i
 
 clean:
-	rm -f restraints.lo restraints.o example.o _example.so example_wrap.o \
+	rm -f _coot_libs.so coot_libs.py \
+              restraints.lo restraints.o example.o _example.so example_wrap.o \
 	      wrap-coot-libs.cc wrap-coot-libs.lo wrap-coot-libs.o example-wrap.o
 
 test:
