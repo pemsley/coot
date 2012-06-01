@@ -176,6 +176,7 @@ def set_atom_types(mol):
         ('O',   'O',   0),
 
         # Carbon SP
+        ("CSP1", '[H][C]#*',  1), # e.g. in 2GT
         ("CSP",  '[C]#[C]',   (0,1)),
         ("CSP",  '[C]#*',     0),
         
@@ -188,6 +189,9 @@ def set_atom_types(mol):
                                              # but makes a fail on 113.
         ('CR6',  'c12caccc1***2',  (0,5)),  # aromatic 6, (non-)aromatic 5, maybe this should be CR56?
 
+        # note CR1  missing - can't find example
+        #      CR1H missing - can't find example
+
         ('CR16', '[cr6;H1]',  0),
         ('CR6',  '[cr6;H0]',  0),
         ('CR15', '[cr5;H1]',  0),
@@ -195,6 +199,7 @@ def set_atom_types(mol):
         ('CR5',  '[cr5;H0]',  0),
         ('CR5',  '[CR5;H0]',  0),
         ('C1',   '[CX3;H1]',    0),  # double bond, single bond and one H
+        ('C2',   '[CX3;H2]=*',  0),  # double bond, and 2 H
         ('C',    '[CX3;H0;^2]', 0),
         ('C',    '[CX3]=[OX1]', 0),  # carbonyl carbon
         ('C',    '[$([CX2](=C)=C)]',   0), # bonded to 3 things not hydrogen
@@ -203,7 +208,7 @@ def set_atom_types(mol):
         ('CT',   '[CX4H0]', 0), # single bonded to 4 things not hydrogen
         ('CH3',  '[C;H3;^3]',   0), # bonded to something via single bond and 3 Hs
         ('CH2',  '[C;^3;H2]',   0), # standard aliphatic C.
-        ('CH1',  '*[C](*)*',    1), # bonded to H and 3 things --- ??? mistake?
+        ('CH1',  '*[C;H1](*)*', 1), # bonded to H and 3 things 
 
         # sp??? needs sorting 
         ('CH2',  '[CH2]',   0), # bonded to 2 hydrogens
@@ -216,6 +221,8 @@ def set_atom_types(mol):
         ('HCH2', '[H][C;H2^3]', 0),
         ('HCH3', '[H][CH3]',    0),
         ('HNC1', '[H][NX2;H1;^2]', 0), # H of N of N=C ? 
+        ('HNC2', '[H][NX3;H2;^2]', 0), # H on a NC2 (NH1 and NH2 of ARG)
+        ('HNC3', '[H][NX3;H3;^2]', 0), # guess - no examples
         ('HNT1', '[H][NX4;H1;^3]', 0),
         ('HNT1', '[H][NX3;H1;^3]', 0),
         ('HNT2', '[H][NX3;H2;^3]', 0), # H connected to type NT2
@@ -225,11 +232,14 @@ def set_atom_types(mol):
         ('HCR5', '[H][cr5;H1]', 0), # connected to aromatic ring C with 1 H
         ('HNR5', '[H][nr5;H1]', 0), # connected to aromatic ring C with 1 H
         ('HNR5', '[H][Nr5;H1]', 0), # guess based on above
+        ('HNR6', '[H][Nr6;H1]', 0), # connected to aromatic ring C with 1 H
+        ('HNR6', '[H][NR6;H1]', 0), # guess based on above
 
-
+        # HCR missing - no examples (and how is it different to HCR1?)
         ('HCR1', '[H]c',        0),
         ('HNH1', '[H][NH1]',    0),
         ('HOH1', '[H][OH1]',    0),
+        ('HOH2', '[H][OH2][H]', (0,2)), # H of HOH - water
         ('HCH',  '[H]',         0),
         
         # Nitrogen, SP3
@@ -270,14 +280,13 @@ def set_atom_types(mol):
 
         # Sulfur
         ('SH1',  '[SH1]', 0),  # SG of CYS
-#       ('S1',   'S=a',   0), # don't know how to specify exactly one double bond
-#         ('ST',   'C[S](=O)N', 1), # guess based on 059
-#         ('ST',   'c[S](=O)N', 1), # guess based on 059
         ('ST',   '[SX4]', 0), # tetrahedral (2 single bonds, 2 double)
         ('S1',   '[S]=*', 0),
         ('S2',   '[SX2,sX2]', 0),
         ('S3',   '[SX3,sX3]', 0),
-        ('S',    '[S,s]', 0)
+        ('S',    '[S,s]', 0),
+
+        ('SI1',  '[Si;X4]', 0) # tetragonal Si
 
         ]
 
