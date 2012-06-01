@@ -40,13 +40,13 @@ undefined_function_markup(int imol, const char *chain_id, int res_no, const char
 			CAtom *at_1 = residue_atoms[idx_1];
 			CAtom *at_2 = residue_atoms[idx_2];
 			std::string hex_colour = m[i].colour();
-			if (1)
-			   to_generic_object_add_line(new_obj, hex_colour.c_str(), 5,
-						      at_1->x, at_1->y, at_1->z,
-						      at_2->x, at_2->y, at_2->z);
+			to_generic_object_add_line(new_obj, hex_colour.c_str(), 5,
+						   at_1->x, at_1->y, at_1->z,
+						   at_2->x, at_2->y, at_2->z);
 		     }
 		  }
 	       }
+	       
 	       if (m[i].type == coot::mogul_item::ANGLE) {
 		  // mogul indexes (from sdf-indices) are 1-based, atoms in residue are 0-based.
 		  int idx_1 = m[i].idx_1 - 1;
