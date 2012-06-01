@@ -6514,6 +6514,58 @@ Thu May  3 18:45:01 BST 2012
 
 
 ----
+Fri May 18 12:34:38 BST 2012
+
+// I think that graphics_info_t::Geom_p() should be passed to this function.
+// 
+void
+molecule_class_info_t::makebonds() {
+
+
+----
+Sun May 20 22:34:54 BST 2012
+
+can redefine functions be done with a macro? using symbol->string and string->symbol?
+
+
+----
+Tue May 22 06:34:20 BST 2012
+	
+   Burrow-owl:
+
+   Needed starparse, g-wrap-1.9.14, guile-cairo-1.9.91, guile-gnome-platform-2.16.2   
+   and guile-1.8.8.  Becuase guile does not have the same prefix as
+   target, we need to set PKG_CONFIG_PATH.  guile-cairo is needed to
+   get gtk parts of guile-gnome-platform to compile and install.
+
+   guile-gnome-platform needs indent.
+
+prfx=$HOME/burrow-owl
+export PATH=$prfx/bin:$PATH
+export STARTPARSE_LIBS=$prfx/lib
+export STARTPARSE_CFLAGS=$prfx/include
+export PKG_CONFIG_PATH=$prfx/lib/pkgconfig:/usr/lib64/pkgconfig
+./configure --prefix=$prfx
+
+----
+Tue May 22 11:07:38 BST 2012
+
+	fast lennard jones, fast double sqrt.
+
+----
+Thu May 24 10:58:11 BST 2012
+
+   get rid of "Won't read preferences" output.
+
+---
+Sat May 26 10:36:23 BST 2012
+
+   Newcastle: add a slide or 2 on restraints: planes and torsions
+   (different from molecular mechanics - c.f. antechamber).
+   43 non-elemental atom types in GAFF, 93 in refmac
+
+
+----
 Fri May 25 14:46:38 BST 2012
 
 	alt conf ligands 3ljj
@@ -6534,5 +6586,6 @@ Sun May 27 22:55:54 BST 2012
     makes a random selection of them and returns max_n_distances
 
 * Done.
+
 
 ------

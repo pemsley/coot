@@ -2032,7 +2032,7 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
    //
 
    // end_angle is less than start angle.
-   double angle_step = -10.0; // degrees
+   double angle_step = -6.0; // degrees
    double r = 0.6;
    double radius_inner = 0.14;
    
@@ -2061,7 +2061,7 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
       clipper::Coord_orth pt_ring_this = pt_this + radius_inner * pt_this_unit;
       clipper::Coord_orth pt_ring_next = pt_next + radius_inner * pt_next_unit;
 
-      float inner_angle_step = 10;
+      float inner_angle_step = 6;
       for (float iangle=0; iangle<=360.1; iangle+=inner_angle_step) {
 
 	 // rotate_round_vector() args: direction position origin_shift angle
@@ -4253,12 +4253,29 @@ graphics_info_t::draw_generic_objects_solid() {
 
       if ((*generic_objects_p)[i].is_displayed_flag) {
 
+	 // needed for correct tube colours
+	 glEnable(GL_COLOR_MATERIAL);
+	 GLfloat  mat_specular[]  = {0.9, 0.9, 0.9, 1};
+	 GLfloat  mat_shininess[] = {80};
+	 
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+	    
 	 // Lines
 	 for (unsigned int ils=0; ils< (*generic_objects_p)[i].lines_set.size(); ils++) {
+	    
 	    glLineWidth((*generic_objects_p)[i].lines_set[ils].width);
-	    glColor3f((*generic_objects_p)[i].lines_set[ils].colour.red,
-		      (*generic_objects_p)[i].lines_set[ils].colour.green,
-		      (*generic_objects_p)[i].lines_set[ils].colour.blue);
+// 	    glColor3f((*generic_objects_p)[i].lines_set[ils].colour.red,
+// 		      (*generic_objects_p)[i].lines_set[ils].colour.green,
+// 		      (*generic_objects_p)[i].lines_set[ils].colour.blue);
+
+	    GLfloat  mat_diffuse[]  = {(*generic_objects_p)[i].lines_set[ils].colour.red   * 0.8,
+				       (*generic_objects_p)[i].lines_set[ils].colour.green * 0.8,
+				       (*generic_objects_p)[i].lines_set[ils].colour.blue  * 0.8, 
+				       1.0};
+	    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
+	    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+	    
 	    unsigned int s = (*generic_objects_p)[i].lines_set[ils].lines.size();
 	    for (unsigned int iline=0; iline<s; iline++) {
 
@@ -4389,7 +4406,6 @@ graphics_info_t::draw_generic_objects_solid() {
 
 	 // arcs
 	 if ((*generic_objects_p)[i].arcs.size()) {
-	    // needed?
 	    
 	    for (unsigned int iarc=0; iarc<(*generic_objects_p)[i].arcs.size(); iarc++) {
 	       const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
