@@ -338,7 +338,9 @@ def make_restraints(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mm
 
       mb = Chem.MolToMolBlock(m_H)
       print >> file(sdf_file_name,'w'), mb
-      coot.write_pdb_from_mol(m_H, comp_id, pdb_out_file_name)
+      # we don't want to do this now - we will write out results
+      # post-mogul regularizement usually.
+      # coot.write_pdb_from_mol(m_H, comp_id, pdb_out_file_name)
       mogul_ins_file_name = 'mogul.ins'
       mogul_out_file_name = 'mogul.out'
       bor = make_restraints_for_bond_orders(m_H)
@@ -357,15 +359,18 @@ def make_restraints(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mm
          except KeyError:
             print "miss", name, atom.GetSymbol(), charge
 
-         mogul_state = execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
-         if mogul_state:
-            restraints = coot.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
-                                                    compound_name, m_H, bor, mmcif_dict_name)
-            coot.regularize(m_H, restraints, comp_id)
-         else:
-            coot.mmcif_dict_from_mol(comp_id, compound_name, m_H, mmcif_dict_name)
-            return True # hacked in value
-         return mogul_state
+      mogul_state = execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
+      if mogul_state:
+         restraints = coot.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
+                                                          compound_name, m_H, bor, mmcif_dict_name)
+         m_H_copy = m_H;
+         # coot.regularize(m_H_copy, restraints, comp_id)
+         coot.regularize_and_write_pdb(m_H_copy, restraints, comp_id, pdb_out_file_name)
+      else:
+         coot.mmcif_dict_from_mol(comp_id, compound_name, m_H, mmcif_dict_name)
+         coot.write_pdb_from_mol(m_H, comp_id, pdb_out_file_name)
+         return True # hacked in value
+      return mogul_state
 
 
 

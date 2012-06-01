@@ -11,6 +11,8 @@
 #include "protein-geometry.hh"
 #include "mogul-interface.hh"
 
+#include "restraints-private.hh"
+
 
 namespace coot { 
 
@@ -50,6 +52,10 @@ namespace coot {
    PyObject *regularize(PyObject *rdkit_mol, PyObject *restraints_py,
 			const std::string &res_name);
 
+   //
+   void regularize_and_write_pdb(PyObject *rdkit_mol, PyObject *restraints_py,
+				 const std::string &res_name,
+				 const std::string &pdb_file_name);
 
    // alter restraints
    int assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
@@ -87,6 +93,12 @@ namespace coot {
    bool is_const_torsion(const RDKit::ROMol &mol,
 			 const RDKit::Atom *at_2,
 			 const RDKit::Atom *at_3);
+   // also private (no interface)
+   // 
+   // now update the atom positions of the rdkit_molecule from residue_p
+   // (perhaps this should be in rdkit-interface.hh?)
+   // 
+   void update_coords(RDKit::RWMol *mol, int iconf, CResidue *residue_p);
 
 
 }

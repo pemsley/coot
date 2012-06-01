@@ -766,12 +766,44 @@ coot::write_pdb_from_mol(PyObject *rdkit_mol_py,
 
 
 
+void
+coot::regularize_and_write_pdb(PyObject *rdkit_mol, PyObject *restraints_py,
+			       const std::string &res_name,
+			       const std::string &pdb_file_name) {
+
+   std::pair<CMMDBManager *, CResidue *> mol_res = regularize_inner(rdkit_mol, restraints_py, res_name);
+   mol_res.first->WritePDBASCII(pdb_file_name.c_str());
+   
+} 
 
 // return a new rdkit molecule
 PyObject *coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
 			   const std::string &res_name) {
 
+   RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
    PyObject *r = Py_False;
+   std::pair<CMMDBManager *, CResidue *> regular =
+      regularize_inner(rdkit_mol_py, restraints_py, res_name);
+
+   if (regular.second) { 
+
+      // now create a new molecule, because the one we are given is a ROMol.
+      RDKit::RWMol *refined_mol = new RDKit::RWMol(mol);
+      int iconf = 0; 
+      update_coords(refined_mol, iconf, regular.second);
+   }
+
+   if (PyBool_Check(r))
+      Py_INCREF(r);
+
+   //    r = RDKit::Wrap(refined_mol);
+   return r;
+} 
+
+std::pair<CMMDBManager *, CResidue *>
+coot::regularize_inner(PyObject *rdkit_mol_py,
+		       PyObject *restraints_py,
+		       const std::string &res_name) {
 
    RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
    coot::dictionary_residue_restraints_t dict_restraints = 
@@ -787,6 +819,7 @@ PyObject *coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
    std::vector<coot::atom_spec_t> fixed_atom_specs;
 
    CResidue *residue_p = coot::make_residue(mol, 0, res_name);
+
 
    // remove this NULL at some stage (soon)
    CMMDBManager *cmmdbmanager = coot::util::create_mmdbmanager_from_residue(NULL, residue_p);
@@ -809,10 +842,40 @@ PyObject *coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
    restraints.make_restraints(geom, flags, 0, 0, 0, pseudos);
    restraints.minimize(flags);
 
-   // now make a new r which is a pythonic new rdkit molecule based on residue_p
-
-   if (PyBool_Check(r))
-     Py_INCREF(r);
-   return r;
+   return std::pair<CMMDBManager *, CResidue *> (cmmdbmanager, residue_p);
 } 
+
+
+// now update the atom positions of the conformer iconf in
+// rdkit_molecule using the atom positions in residue_p (perhaps this
+// should be in rdkit-interface.hh/cc?)
+// 
+// ignore alt confs.
+void coot::update_coords(RDKit::RWMol *mol_p, int iconf, CResidue *residue_p) {
+
+   int n_atoms;
+   PPCAtom residue_atoms = NULL;
+   residue_p->GetAtomTable(residue_atoms, n_atoms);
+   RDKit::Conformer conf = mol_p->getConformer(iconf);
+   for (unsigned int iat=0; iat<n_atoms; iat++) {
+      std::string residue_atom_name(residue_atoms[iat]->name);
+      CAtom *r_at = residue_atoms[iat];
+      for (unsigned int iat=0; iat<n_atoms; iat++) { 
+	 RDKit::ATOM_SPTR at_p = (*mol_p)[iat];
+	 try {
+	    std::string rdkit_atom_name;
+	    at_p->getProp("name", rdkit_atom_name);
+
+	    if (rdkit_atom_name == residue_atom_name) {
+	       RDGeom::Point3D r_pos(r_at->x, r_at->y, r_at->z);
+	       conf.setAtomPos(iat, r_pos);
+	    }
+	 }
+	 catch (KeyErrorException kee) {
+	    std::cout << "caught no-name for atom exception in update_coords(): "
+		      <<  kee.what() << std::endl;
+	 }
+      }
+   }
+}
 
