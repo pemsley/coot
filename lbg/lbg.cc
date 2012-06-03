@@ -41,6 +41,7 @@
 #endif
 #include "lbg.hh"
 #include "lbg-drag-and-drop.hh"
+#include "qed-interface.hh" // interface to silicos-it biscu-it python function
 
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
 // 
@@ -895,7 +896,9 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
    if (changed_status) {
       save_molecule();
 #ifdef MAKE_ENTERPRISE_TOOLS
+      // make rdkit mol here and pass it to the following functions
       update_statusbar_smiles_string();
+      // update_qed();
 #endif      
    } 
 }
@@ -2426,6 +2429,19 @@ lbg_info_t::get_smiles_string_from_mol_openbabel() const {
       }
    }
    return s;
+}
+
+void
+lbg_info_t::update_qed() {
+
+#ifdef MAKE_ENTERPRISE_TOOLS
+   RDKit::RWMol rdkm = rdkit_mol(mol);
+
+   double qed = get_qed(rdkm);
+   std::cout << "got qed: " << qed << std::endl;
+
+
+#endif
 } 
 
 

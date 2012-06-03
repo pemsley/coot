@@ -979,6 +979,7 @@ public:
    void show_key();
    void hide_key();
    void update_statusbar_smiles_string() const;
+   void update_qed();
    // can throw an exception
    std::string get_smiles_string_from_mol() const;
    void set_stand_alone() { stand_alone_flag = 1; }

@@ -4004,7 +4004,7 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
       std::cout << "debug -------- in make_link_restraints_by_linear() "
 		<< bonded_residue_pairs.size() << " bonded residue pairs "
 		<< std::endl;
-   std::cout << "  " << bonded_residue_pairs << std::endl;
+   // std::cout << "  " << bonded_residue_pairs << std::endl;
 
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, "Link");
 
