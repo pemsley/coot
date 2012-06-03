@@ -49,8 +49,13 @@ namespace coot {
 			 const std::string &file_name);
 
    // return a new rdkit molecule
-   PyObject *regularize(PyObject *rdkit_mol, PyObject *restraints_py,
-			const std::string &res_name);
+   // PyObject *
+   RDKit::ROMol *
+   regularize(PyObject *rdkit_mol, PyObject *restraints_py,
+	      const std::string &res_name);
+
+    RDKit::ROMol *
+    new_regularize(RDKit::ROMol &mol_in);
 
    //
    void regularize_and_write_pdb(PyObject *rdkit_mol, PyObject *restraints_py,

@@ -16,8 +16,9 @@ LIBS=$(prfx)/lib/libcoot-ideal.la \
 
 libs: _coot_libs.so
 
-_coot_libs.so: wrap-coot-libs.o restraints.o py-restraints.o
-	libtool --mode=link g++ -shared -fPIC $^ -o $@ $(LIBS)
+# restraints-boost.o
+_coot_libs.so: wrap-coot-libs.o restraints.o py-restraints.o restraints-boost.o
+	libtool --mode=link g++ -shared -fPIC $^ -o $@ $(LIBS) 
 
 wrap-coot-libs.o: wrap-coot-libs.cc
 	libtool --mode=compile $(CXX) -fPIC  $(INCLUDES) -c $^ -o $@
@@ -28,8 +29,14 @@ restraints.o: restraints.cc restraints.hh py-restraints.hh
 py-restraints.o: py-restraints.cc py-restraints.hh
 	libtool --mode=compile $(CXX) -fPIC $(INCLUDES) -c $< -o $@
 
+restraints-boost.o: restraints-boost.cc restraints.hh
+	libtool --mode=compile $(CXX) -fPIC $(INCLUDES) -c $< -o $@
+
 wrap-coot-libs.cc: wrap-coot-libs.i restraints.hh
 	swig  $(INCLUDES) -o wrap-coot-libs.cc -python -shadow -c++ wrap-coot-libs.i
+
+test-call-python: test-call-python.cc
+	libtool --mode=link $(CXX) -fPIC $(INCLUDES) $< -o $@ $(LIBS)
 
 clean:
 	rm -f _coot_libs.so coot_libs.py \
@@ -40,3 +47,11 @@ test:
 	# python test-coot-libs.py
 	python p2.py
 
+boost-example.o: boost-example.cc
+	libtool --mode=compile $(CXX) -fPIC $(INCLUDES) -c $< -o $@
+
+boost-example-defs.o: boost-example-defs.cc
+	libtool --mode=compile $(CXX) -fPIC $(INCLUDES) -c $< -o $@
+
+mytest.so: boost-example.o boost-example-defs.o
+	libtool --mode=link g++ -shared -fPIC $^ -o $@ $(LIBS)
