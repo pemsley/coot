@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <map>
-#include <stdlib.h> // for random()
+#include "coot-utils.hh" // for random()
 #include "elastic.hh"
 
 coot::elastic_network_model_t::elastic_network_model_t(CMMDBManager *mol,
@@ -52,7 +52,7 @@ coot::elastic_network_model_t::elastic_network_model_t(CMMDBManager *mol,
 	       double inv_rand_max = 1.0/double(RAND_MAX);
 	       std::map<int, elastic_network_item_t> contact_indices;
 	       while (contact_indices.size() < max_n_distances) {
-		  int random_index = int(double(random()) * inv_rand_max * double(n_contacts));
+		  int random_index = int(double(coot::util::random()) * inv_rand_max * double(n_contacts));
 		  elastic_network_item_t item(atom_selection[pscontact[random_index].id1],
 					      atom_selection[pscontact[random_index].id2],
 					      0.1);
