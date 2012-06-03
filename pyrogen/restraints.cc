@@ -774,30 +774,38 @@ coot::regularize_and_write_pdb(PyObject *rdkit_mol, PyObject *restraints_py,
    std::pair<CMMDBManager *, CResidue *> mol_res = regularize_inner(rdkit_mol, restraints_py, res_name);
    mol_res.first->WritePDBASCII(pdb_file_name.c_str());
    
-} 
+}
+
+RDKit::ROMol *
+coot::new_regularize(RDKit::ROMol &mol_in) {
+
+   RDKit::ROMol *m = new RDKit::ROMol(mol_in);
+    return m;
+}
 
 // return a new rdkit molecule
-PyObject *coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
+RDKit::ROMol *
+coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
 			   const std::string &res_name) {
 
+   
+   RDKit::ROMol *refined_mol = NULL; // return value
+
    RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
-   PyObject *r = Py_False;
+   
    std::pair<CMMDBManager *, CResidue *> regular =
       regularize_inner(rdkit_mol_py, restraints_py, res_name);
 
    if (regular.second) { 
 
       // now create a new molecule, because the one we are given is a ROMol.
-      RDKit::RWMol *refined_mol = new RDKit::RWMol(mol);
+      RDKit::RWMol *rw_mol = new RDKit::RWMol(mol);
       int iconf = 0; 
-      update_coords(refined_mol, iconf, regular.second);
+      update_coords(rw_mol, iconf, regular.second);
+      refined_mol = static_cast<RDKit::ROMol *>(rw_mol);
    }
 
-   if (PyBool_Check(r))
-      Py_INCREF(r);
-
-   //    r = RDKit::Wrap(refined_mol);
-   return r;
+   return refined_mol;
 } 
 
 std::pair<CMMDBManager *, CResidue *>

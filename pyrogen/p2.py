@@ -373,8 +373,13 @@ def make_restraints(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mm
          restraints = coot.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
                                                           compound_name, m_H, bor, mmcif_dict_name)
          m_H_copy = m_H;
-         # coot.regularize(m_H_copy, restraints, comp_id)
-         coot.regularize_and_write_pdb(m_H_copy, restraints, comp_id, pdb_out_file_name)
+         thing = coot.regularize(m_H_copy, restraints, comp_id)
+
+
+         # coot.regularize_and_write_pdb(m_H_copy, restraints, comp_id, pdb_out_file_name)
+         # print "returned thing: ", thing, " which has ", thing.GetNumAtoms(), " atoms"
+         coot.new_regularize(m_H_copy);
+
       else:
          coot.mmcif_dict_from_mol(comp_id, compound_name, m_H, mmcif_dict_name)
          coot.write_pdb_from_mol(m_H, comp_id, pdb_out_file_name)
