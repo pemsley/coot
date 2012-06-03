@@ -1,0 +1,33 @@
+libtool --mode=compile g++ -Wreturn-type -fPIC -I/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/python2.7 -I/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include -I../coot/analysis -I/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/rdkit -c restraints-boost.cc -o restraints-boost.o
+ g++ -Wreturn-type -fPIC -I/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/python2.7 -I/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include -I../coot/analysis -I/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/rdkit -c restraints-boost.cc  -fPIC -DPIC -o .libs/restraints-boost.o
+In file included from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/preprocessor/iteration/detail/iter/forward1.hpp:52:0,
+                 from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/detail/invoke.hpp:63,
+                 from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/detail/caller.hpp:16,
+                 from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/object/function_handle.hpp:8,
+                 from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/converter/arg_to_python.hpp:19,
+                 from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/call.hpp:15,
+                 from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/object_core.hpp:14,
+                 from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/args.hpp:25,
+                 from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python.hpp:11,
+                 from restraints-boost.cc:2:
+/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/detail/invoke.hpp: In function 'PyObject* boost::python::detail::invoke(boost::python::detail::invoke_tag_<false, false>, const RC&, F&, AC0&) [with RC = boost::python::detail::specify_a_return_value_policy_to_wrap_functions_returning<RDKit::ROMol*>, F = RDKit::ROMol* (*)(RDKit::ROMol&), AC0 = boost::python::arg_from_python<RDKit::ROMol&>, PyObject = _object]':
+/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/detail/caller.hpp:223:13:   instantiated from 'PyObject* boost::python::detail::caller_arity<1u>::impl<F, Policies, Sig>::operator()(PyObject*, PyObject*) [with F = RDKit::ROMol* (*)(RDKit::ROMol&), Policies = boost::python::default_call_policies, Sig = boost::mpl::vector2<RDKit::ROMol*, RDKit::ROMol&>, PyObject = _object]'
+/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/object/py_function.hpp:38:33:   instantiated from 'PyObject* boost::python::objects::caller_py_function_impl<Caller>::operator()(PyObject*, PyObject*) [with Caller = boost::python::detail::caller<RDKit::ROMol* (*)(RDKit::ROMol&), boost::python::default_call_policies, boost::mpl::vector2<RDKit::ROMol*, RDKit::ROMol&> >, PyObject = _object]'
+restraints-boost.cc:16:1:   instantiated from here
+/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/detail/invoke.hpp:75:82: error: no match for call to '(const boost::python::detail::specify_a_return_value_policy_to_wrap_functions_returning<RDKit::ROMol*>) (RDKit::ROMol*)'
+In file included from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/object/function_handle.hpp:8:0,
+                 from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/converter/arg_to_python.hpp:19,
+                 from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/call.hpp:15,
+                 from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/object_core.hpp:14,
+                 from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/args.hpp:25,
+                 from /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python.hpp:11,
+                 from restraints-boost.cc:2:
+/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/detail/caller.hpp: In static member function 'static const PyTypeObject* boost::python::detail::converter_target_type<ResultConverter>::get_pytype() [with ResultConverter = boost::python::detail::specify_a_return_value_policy_to_wrap_functions_returning<RDKit::ROMol*>, PyTypeObject = _typeobject]':
+/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/detail/caller.hpp:242:13:   instantiated from 'static boost::python::detail::py_func_sig_info boost::python::detail::caller_arity<1u>::impl<F, Policies, Sig>::signature() [with F = RDKit::ROMol* (*)(RDKit::ROMol&), Policies = boost::python::default_call_policies, Sig = boost::mpl::vector2<RDKit::ROMol*, RDKit::ROMol&>]'
+/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/object/py_function.hpp:48:35:   instantiated from 'boost::python::detail::py_func_sig_info boost::python::objects::caller_py_function_impl<Caller>::signature() const [with Caller = boost::python::detail::caller<RDKit::ROMol* (*)(RDKit::ROMol&), boost::python::default_call_policies, boost::mpl::vector2<RDKit::ROMol*, RDKit::ROMol&> >]'
+restraints-boost.cc:16:1:   instantiated from here
+/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/detail/caller.hpp:102:109: error: 'struct boost::python::detail::specify_a_return_value_policy_to_wrap_functions_returning<RDKit::ROMol*>' has no member named 'get_pytype'
+/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/detail/caller.hpp:103:5: warning: control reaches end of non-void function [-Wreturn-type]
+/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/detail/invoke.hpp: In function 'PyObject* boost::python::detail::invoke(boost::python::detail::invoke_tag_<false, false>, const RC&, F&, AC0&) [with RC = boost::python::detail::specify_a_return_value_policy_to_wrap_functions_returning<RDKit::ROMol*>, F = RDKit::ROMol* (*)(RDKit::ROMol&), AC0 = boost::python::arg_from_python<RDKit::ROMol&>, PyObject = _object]':
+/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/boost/python/detail/invoke.hpp:76:1: warning: control reaches end of non-void function [-Wreturn-type]
+make: *** [restraints-boost.o] Error 1
