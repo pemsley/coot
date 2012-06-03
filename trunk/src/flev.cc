@@ -2807,6 +2807,17 @@ coot::flev_attached_hydrogens_t::find_bash_distance(const clipper::Coord_orth &l
 						    const clipper::Coord_orth &hydrogen_pos,
 						    const std::vector<CAtom *> &close_residue_atoms) const {
 
+   // find the residue from the close residue atoms and cache the
+   // dictionaries here so that we can then call
+   // dictionary_map[residue_p].type_energy(atom_name) and use that
+   // type energy (checking for not "") to find if the atom is a
+   // hydrogen bond accetor (or both) to use
+   // energy_lib_t::some_new_accessor_function_hb_type(type_energy).
+   // If hb_type is acceptor, then decrease bash distance,
+   // atom_radius_plus_cbr by 0.8A or so.
+   // 
+   std::map<CResidue *, coot::dictionary_residue_restraints_t> dictionary_map;
+
    double cannonball_radius = 0.8; // radius of the cannonball, c.f. at least a hydrogen.
    
    double max_dist = 4.05; // if we have travelled 4A without bashing

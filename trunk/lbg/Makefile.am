@@ -14,7 +14,8 @@ INCLUDES = \
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) \
 	$(COOT_WINDOWS_CFLAGS) \
 	$(ENTERPRISE_TOOLS_CFLAGS)      \
-	$(RDKIT_CXXFLAGS)
+	$(RDKIT_CXXFLAGS) \
+        $(PYTHON_CFLAGS)  
 
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"'
@@ -24,7 +25,7 @@ bin_PROGRAMS = lidia
 
 libcoot_lidia_la_SOURCES = lbg.cc wmolecule.cc  \
     lbg-search.cc  residue-circles.cc \
-    flev-annotations.cc lbg-drag-and-drop.cc
+    flev-annotations.cc lbg-drag-and-drop.cc qed-interface.cc
 
 libcoot_lidia_la_LIBADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
@@ -37,7 +38,7 @@ libcoot_lidia_la_LIBADD = \
 lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc 
 
 include_HEADERS = lbg.hh wmolecule.hh  flev-annotations.hh graphics-c-interface-functions.hh \
-	lbg-drag-and-drop.hh
+	lbg-drag-and-drop.hh qed-interface.hh
 
 
 # res spec output operator means we include libcoot-coord-utils
@@ -50,7 +51,7 @@ lidia_LDADD = \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
-	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS) $(PYTHON_LIBS)
 
 EXTRA_DIST=lbg.glade $(appicon_DATA) lbg-callbacks.cc
 
