@@ -1391,5 +1391,38 @@ coot::deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
 
 
 
+// now update the atom positions of the conformer iconf in
+// rdkit_molecule using the atom positions in residue_p (perhaps this
+// should be in rdkit-interface.hh/cc?)
+// 
+// ignore alt confs.
+void coot::update_coords(RDKit::RWMol *mol_p, int iconf, CResidue *residue_p) {
+
+   int n_atoms;
+   PPCAtom residue_atoms = NULL;
+   residue_p->GetAtomTable(residue_atoms, n_atoms);
+   RDKit::Conformer &conf = mol_p->getConformer(iconf);
+   for (unsigned int iat=0; iat<n_atoms; iat++) {
+      std::string residue_atom_name(residue_atoms[iat]->name);
+      CAtom *r_at = residue_atoms[iat];
+      for (unsigned int jat=0; jat<n_atoms; jat++) { 
+	 RDKit::ATOM_SPTR at_p = (*mol_p)[jat];
+	 try {
+	    std::string rdkit_atom_name;
+	    at_p->getProp("name", rdkit_atom_name);
+	    if (rdkit_atom_name == residue_atom_name) {
+	       RDGeom::Point3D r_pos(r_at->x, r_at->y, r_at->z);
+	       conf.setAtomPos(jat, r_pos);
+	    }
+	 }
+	 catch (KeyErrorException kee) {
+	    std::cout << "caught no-name for atom exception in update_coords(): "
+		      <<  kee.what() << std::endl;
+	 }
+      }
+   }
+}
+
+
 
 #endif // MAKE_ENTERPRISE_TOOLS   
