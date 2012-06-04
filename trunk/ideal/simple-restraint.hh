@@ -1740,8 +1740,12 @@ namespace coot {
    void multi_residue_torsion_fit_map(CMMDBManager *mol,
 				      const clipper::Xmap<float> &xmap,
 				      coot::protein_geometry *geom_p); 
-  // which calls 
-  double get_rand_angle(double current_angle, const torsion_atom_quad &quad, int itrial, int n_trials); 
+   // which calls 
+   double get_rand_angle(double current_angle, const torsion_atom_quad &quad, int itrial, int n_trials);
+   
+   void simple_refine(CResidue *residue_p,
+		      CMMDBManager *mol,
+		      const dictionary_residue_restraints_t &dict_restraints);
 
 } // namespace coot
 

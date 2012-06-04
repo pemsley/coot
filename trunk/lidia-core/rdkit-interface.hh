@@ -107,6 +107,9 @@ namespace coot {
 					  const dictionary_residue_restraints_t &restraints,
 					  CAtom *atom_p);
 
+   // update the atom positions of the rdkit_molecule from residue_p
+   // 
+   void update_coords(RDKit::RWMol *mol, int iconf, CResidue *residue_p);
    
 } 
 

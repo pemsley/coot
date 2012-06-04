@@ -659,8 +659,8 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    do
       {
 	 iter++;
-	 // std::cout << "debug:: iteration number " << iter << std::endl;
 	 status = gsl_multimin_fdfminimizer_iterate (s);
+	 // std::cout << "debug:: iteration number " << iter << " status " << status << std::endl;
 
 	 if (status) { 
 	    cout << "unexpected error from gsl_multimin_fdfminimizer_iterate"
@@ -7359,7 +7359,47 @@ coot::restraints_container_t::info() const {
    }
 } 
 
+void
+coot::simple_refine(CResidue *residue_p,
+		    CMMDBManager *mol,
+		    const coot::dictionary_residue_restraints_t &dict_restraints) {
+
+   if (residue_p) {
+      if (mol) {
+   
+	 coot::protein_geometry geom;
+	 geom.replace_monomer_restraints("LIG", dict_restraints);
+   
+	 short int have_flanking_residue_at_start = 0;
+	 short int have_flanking_residue_at_end = 0;
+	 short int have_disulfide_residues = 0;
+	 std::string altloc("");
+	 std::vector<coot::atom_spec_t> fixed_atom_specs;
+
+	 char *chain_id = residue_p->GetChainID();
+	 int istart_res = residue_p->GetSeqNum();
+	 int iend_res   = istart_res;
+
+	 coot::restraints_container_t restraints(istart_res,
+						 iend_res,
+						 have_flanking_residue_at_start,
+						 have_flanking_residue_at_end,
+						 have_disulfide_residues,
+						 altloc,
+						 chain_id,
+						 mol,
+						 fixed_atom_specs);
+   
+	 coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+	 coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+	 restraints.make_restraints(geom, flags, 0, 0, 0, pseudos);
+	 restraints.minimize(flags, 3000, 1);
+      }
+   }
+}
+
 
 #endif // HAVE_GSL
+
 
 
