@@ -4,7 +4,9 @@ from subprocess import call
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
-import coot_libs as coot
+# import coot_libs as coot
+import restraints_boost as coot_boost
+
 from jay_util import *
 
 global run_mogul
@@ -150,7 +152,7 @@ def ele_to_smart(v):
 # those not handled by hand-coding
 def smarts_by_element():
    eles = [
-      "He", "Li", "Be", "B",  "Ne", "Na", "Mg", "Al", "Si",
+      "He", "Li", "Be", "B",  "Ne", "Na", "Mg", "Al", 
       "Ar", "K", "Ca",  "Sc", "Ti", "V", "Cr", "Mn", "Fe", "Co", "Ni", "Cu",
       "Zn", "Ga", "Ge", "As", "Se",      "Kr", "Rb", "Sr", "Y", "Zr", "Nb", "Mo", "Tc",
       "Ru", "Rh", "Pd", "Ag", "Cd", "In", "Sn", "Sb", "Te", "I", "Xe", "Cs", "Ba", "La",
@@ -286,7 +288,8 @@ def set_atom_types(mol):
         ('S3',   '[SX3,sX3]', 0),
         ('S',    '[S,s]', 0),
 
-        ('SI1',  '[Si;X4]', 0) # tetragonal Si
+        ('SI1',  '[Si;X4]', 0), # tetragonal Si
+        ('SI',   '[Si]',    0)  # Si any other
 
         ]
 
@@ -372,13 +375,11 @@ def make_restraints(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mm
       if mogul_state:
          restraints = coot.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
                                                           compound_name, m_H, bor, mmcif_dict_name)
-         m_H_copy = m_H;
-         thing = coot.regularize(m_H_copy, restraints, comp_id)
-
-
-         # coot.regularize_and_write_pdb(m_H_copy, restraints, comp_id, pdb_out_file_name)
-         # print "returned thing: ", thing, " which has ", thing.GetNumAtoms(), " atoms"
-         coot.new_regularize(m_H_copy);
+         coot.regularize_and_write_pdb(m_H, restraints, comp_id, pdb_out_file_name)
+         # new_mol = coot_boost.regularize(m_H)
+         new_mol = coot_boost.regularize_with_dict(m_H, restraints, comp_id)
+         coot.write_pdb_from_mol(new_mol, comp_id, "test-LIG.pdb")
+         print "returned new_mol: ", new_mol, " which has ", new_mol.GetNumAtoms(), " atoms"
 
       else:
          coot.mmcif_dict_from_mol(comp_id, compound_name, m_H, mmcif_dict_name)
