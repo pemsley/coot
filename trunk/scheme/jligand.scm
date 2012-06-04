@@ -26,18 +26,40 @@
 
 (define (jligand-code-file-maybe comp-id port)
 
+  (define (jligand-standard-amino-acid? comp-id)
+    (or (string=? comp-id "ALA")
+	(string=? comp-id "ARG")
+	(string=? comp-id "ASN")
+	(string=? comp-id "ASP")
+	(string=? comp-id "CYS")
+	(string=? comp-id "GLY")
+	(string=? comp-id "GLU")
+	(string=? comp-id "GLN")
+	(string=? comp-id "PHE")
+	(string=? comp-id "HIS")
+	(string=? comp-id "ILE")
+	(string=? comp-id "LYS")
+	(string=? comp-id "MET")
+	(string=? comp-id "PRO")
+	(string=? comp-id "SER")
+	(string=? comp-id "TYR")
+	(string=? comp-id "THR")
+	(string=? comp-id "VAL")
+	(string=? comp-id "TRP")))
+
   ;; if code was read from a cif file then write a line to port like
   ;; "CODE TLC FILE file.cif" (with a newline).
   ;; 
-  (let ((cif-file (cif-file-for-comp-id comp-id)))
-    (if (> (string-length cif-file) 0)
-	(begin
-	  (display "CODE " port)
-	  (display comp-id port)
-	  (display " " port)
-	  (display "FILE " port)
-	  (display cif-file port)
-	  (newline port)))))
+  (if (not (jligand-standard-amino-acid? comp-id))
+      (let ((cif-file (cif-file-for-comp-id comp-id)))
+	(if (> (string-length cif-file) 0)
+	    (begin
+	      (display "CODE " port)
+	      (display comp-id port)
+	      (display " " port)
+	      (display "FILE " port)
+	      (display cif-file port)
+	      (newline port))))))
 
 
 (define (write-file-for-jligand res-spec-1 resname-1 res-spec-2 resname-2)
