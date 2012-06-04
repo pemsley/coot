@@ -4,7 +4,7 @@ from subprocess import call
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
-# import coot_libs as coot
+import coot_libs as coot
 import restraints_boost as coot_boost
 
 from jay_util import *
