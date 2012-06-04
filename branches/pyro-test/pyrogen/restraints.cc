@@ -776,15 +776,9 @@ coot::regularize_and_write_pdb(PyObject *rdkit_mol, PyObject *restraints_py,
    
 }
 
-RDKit::ROMol *
-coot::new_regularize(RDKit::ROMol &mol_in) {
-
-   RDKit::ROMol *m = new RDKit::ROMol(mol_in);
-    return m;
-}
 
 // return a new rdkit molecule
-RDKit::ROMol *
+void
 coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
 			   const std::string &res_name) {
 
@@ -805,7 +799,7 @@ coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
       refined_mol = static_cast<RDKit::ROMol *>(rw_mol);
    }
 
-   return refined_mol;
+   // return refined_mol;
 } 
 
 std::pair<CMMDBManager *, CResidue *>
@@ -814,76 +808,21 @@ coot::regularize_inner(PyObject *rdkit_mol_py,
 		       const std::string &res_name) {
 
    RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
+   return regularize_inner(mol, restraints_py, res_name);
+}
+
+
+std::pair<CMMDBManager *, CResidue *>
+coot::regularize_inner(RDKit::ROMol &mol,
+		       PyObject *restraints_py,
+		       const std::string &res_name) {
+   
    coot::dictionary_residue_restraints_t dict_restraints = 
       monomer_restraints_from_python(restraints_py);
-
-   coot::protein_geometry geom;
-   geom.replace_monomer_restraints(res_name, dict_restraints);
-   
-   short int have_flanking_residue_at_start = 0;
-   short int have_flanking_residue_at_end = 0;
-   short int have_disulfide_residues = 0;
-   std::string altloc("");
-   std::vector<coot::atom_spec_t> fixed_atom_specs;
-
    CResidue *residue_p = coot::make_residue(mol, 0, res_name);
-
-
    // remove this NULL at some stage (soon)
    CMMDBManager *cmmdbmanager = coot::util::create_mmdbmanager_from_residue(NULL, residue_p);
-   char *chain_id   = residue_p->GetChainID();
-   int istart_res = residue_p->GetSeqNum();
-   int iend_res = istart_res;
-
-   coot::restraints_container_t restraints(istart_res,
-					   iend_res,
-					   have_flanking_residue_at_start,
-					   have_flanking_residue_at_end,
-					   have_disulfide_residues,
-					   altloc,
-					   chain_id,
-					   cmmdbmanager,
-					   fixed_atom_specs);
-   
-   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-   coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
-   restraints.make_restraints(geom, flags, 0, 0, 0, pseudos);
-   restraints.minimize(flags);
-
+   simple_refine(residue_p, cmmdbmanager, dict_restraints);
    return std::pair<CMMDBManager *, CResidue *> (cmmdbmanager, residue_p);
 } 
-
-
-// now update the atom positions of the conformer iconf in
-// rdkit_molecule using the atom positions in residue_p (perhaps this
-// should be in rdkit-interface.hh/cc?)
-// 
-// ignore alt confs.
-void coot::update_coords(RDKit::RWMol *mol_p, int iconf, CResidue *residue_p) {
-
-   int n_atoms;
-   PPCAtom residue_atoms = NULL;
-   residue_p->GetAtomTable(residue_atoms, n_atoms);
-   RDKit::Conformer conf = mol_p->getConformer(iconf);
-   for (unsigned int iat=0; iat<n_atoms; iat++) {
-      std::string residue_atom_name(residue_atoms[iat]->name);
-      CAtom *r_at = residue_atoms[iat];
-      for (unsigned int iat=0; iat<n_atoms; iat++) { 
-	 RDKit::ATOM_SPTR at_p = (*mol_p)[iat];
-	 try {
-	    std::string rdkit_atom_name;
-	    at_p->getProp("name", rdkit_atom_name);
-
-	    if (rdkit_atom_name == residue_atom_name) {
-	       RDGeom::Point3D r_pos(r_at->x, r_at->y, r_at->z);
-	       conf.setAtomPos(iat, r_pos);
-	    }
-	 }
-	 catch (KeyErrorException kee) {
-	    std::cout << "caught no-name for atom exception in update_coords(): "
-		      <<  kee.what() << std::endl;
-	 }
-      }
-   }
-}
 

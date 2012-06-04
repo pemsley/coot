@@ -1,4 +1,7 @@
 
+# It seems that we need to setup PYTHONPATH correctly to properly link
+# _coot_libs.so?
+
 
 install_top_dir=$(HOME)/autobuild/build-coot+rdkit-pre-release-gtk2-python
 
@@ -14,10 +17,13 @@ LIBS=$(prfx)/lib/libcoot-ideal.la \
      $(prfx)/lib/libcoot-lidia-core.la \
 	 -L$(prfx)/lib -lGraphMol -lboost_python -lpython2.7
 
-libs: _coot_libs.so
+libs: _coot_libs.so restraints_boost.so
 
 # restraints-boost.o
-_coot_libs.so: wrap-coot-libs.o restraints.o py-restraints.o restraints-boost.o
+_coot_libs.so: wrap-coot-libs.o restraints.o py-restraints.o 
+	libtool --mode=link g++ -shared -fPIC $^ -o $@ $(LIBS) 
+
+restraints_boost.so: restraints-boost.o py-restraints.o
 	libtool --mode=link g++ -shared -fPIC $^ -o $@ $(LIBS) 
 
 wrap-coot-libs.o: wrap-coot-libs.cc
