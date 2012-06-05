@@ -745,6 +745,26 @@ coot::util::extension_is_for_coords(const std::string &ext) {
 } 
 
 
+// mtz only I think?!
+bool
+coot::util::extension_is_for_auto_datasets(const std::string &ext) {
+
+   bool r = false;
+   if (ext == ".mtz")
+      r = true;
+   return r; 
+} 
+
+bool
+coot::util::extension_is_for_scripts(const std::string &ext) {
+
+   bool r = false;
+   if ((ext == ".py") ||
+       (ext == ".scm"))
+      r = true;
+   return r; 
+} 
+
 
 short int
 coot::is_mmcif_filename(const std::string &filename) {
