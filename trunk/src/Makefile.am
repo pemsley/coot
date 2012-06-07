@@ -204,6 +204,7 @@ INCLUDES = \
 	-I$(top_srcdir)/build		\
 	-I$(top_srcdir)/high-res	\
 	-I$(top_srcdir)/analysis	\
+	-I$(top_srcdir)/cootilus	\
 	-I$(top_srcdir)/cootaneer	\
 	-I$(top_srcdir)/lidia-core      \
 	-I$(top_srcdir)/libgtkgraph     \
