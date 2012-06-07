@@ -38,6 +38,7 @@
 	(string=? comp-id "PHE")
 	(string=? comp-id "HIS")
 	(string=? comp-id "ILE")
+	(string=? comp-id "LEU")
 	(string=? comp-id "LYS")
 	(string=? comp-id "MET")
 	(string=? comp-id "PRO")

@@ -36,14 +36,21 @@ imol_jligand_link = False
 
 def jligand_code_file_maybe(comp_id, port):
 
+    def jligand_standard_amino_acid_qm(comp_id):
+        aa_ls = ["ALA", "ARG", "ASN", "ASP", "CYS", "GLN",
+                 "GLU", "GLY", "HIS", "ILE", "LEU", "LYS", "MET",
+                 "PHE", "PRO", "SER", "THR", "TRP", "TYR", "VAL"]
+        return comp_id in aa_ls
+
     # if code was read from a cif file then write a line to port like
     # "CODE TLC FILE file.cif" (with a newline).
     #
-    cif_file = cif_file_for_comp_id(comp_id)
-    if (len(cif_file) > 0):
-        port.write("CODE " + comp_id + " " + \
-                   "FILE " + os.path.normpath(cif_file))
-        port.write("\n")
+    if not jligand_standard_amino_acid_qm(comp_id):
+        cif_file = cif_file_for_comp_id(comp_id)
+        if (len(cif_file) > 0):
+            port.write("CODE " + comp_id + " " + \
+                       "FILE " + os.path.normpath(cif_file))
+            port.write("\n")
 
 def write_file_for_jligand(res_spec_1, resname_1, res_spec_2, resname_2):
 
