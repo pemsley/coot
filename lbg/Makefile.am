@@ -38,7 +38,7 @@ libcoot_lidia_la_LIBADD = \
 lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc 
 
 include_HEADERS = lbg.hh wmolecule.hh  flev-annotations.hh graphics-c-interface-functions.hh \
-	lbg-drag-and-drop.hh qed-interface.hh
+	lbg-drag-and-drop.hh qed-interface.hh alerts.hh
 
 
 # res spec output operator means we include libcoot-coord-utils
