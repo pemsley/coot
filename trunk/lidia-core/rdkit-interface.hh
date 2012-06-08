@@ -34,6 +34,8 @@ namespace coot {
    RDKit::RWMol rdkit_mol_sanitized(CResidue *residue_p, const protein_geometry &geom);
    RDKit::RWMol rdkit_mol(CResidue *residue_p, const protein_geometry &geom);
    RDKit::RWMol rdkit_mol(CResidue *residue_p, const coot::dictionary_residue_restraints_t &restraints);
+   // tinker with mol
+   void rdkit_mol_sanitize(RDKit::RWMol &mol);
 
    // tweaking function used by above (change mol maybe).
    // @return the added hydrogen name - or "" if nothing was added.

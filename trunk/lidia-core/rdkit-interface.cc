@@ -372,7 +372,13 @@ RDKit::RWMol
 coot::rdkit_mol_sanitized(CResidue *residue_p, const protein_geometry &geom) {
 
    RDKit::RWMol mol = coot::rdkit_mol(residue_p, geom);
+   rdkit_mol_sanitize(mol);
+   return mol;
+}
 
+void
+coot::rdkit_mol_sanitize(RDKit::RWMol &mol) {
+   
    // clear out any cached properties
    mol.clearComputedProps();
    // clean up things like nitro groups
@@ -393,7 +399,7 @@ coot::rdkit_mol_sanitized(CResidue *residue_p, const protein_geometry &geom) {
 
    // remove bogus chirality specs:
    RDKit::MolOps::cleanupChirality(mol);
-   return mol;
+
 }
 
 
@@ -880,8 +886,8 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 	 
 	 RDKit::RWMol m_no_Hs = rdkit_mol(residue_p, restraints);
 	 int n_mol_atoms = m_no_Hs.getNumAtoms();
-	 std::cout << ".......  pre H addition mol has " << n_mol_atoms
-		   << " atoms" << std::endl;
+	 // std::cout << ".......  pre H addition mol has " << n_mol_atoms
+	 // << " atoms" << std::endl;
 
 	 coot::undelocalise(&m_no_Hs);
 	 
@@ -890,11 +896,11 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 	    at_p->calcImplicitValence(true);
 	 }
 
-	 std::cout << "MolOps:: adding hydrogens " << std::endl;
+	 // std::cout << "MolOps:: adding hydrogens " << std::endl;
 	 RDKit::ROMol *m_pre = RDKit::MolOps::addHs(m_no_Hs, 0, 1);
 	 RDKit::RWMol m(*m_pre);
-	 std::cout << "....... post H addition mol has " << m_pre->getNumAtoms()
-		   << std::endl;
+	 // std::cout << "....... post H addition mol has " << m_pre->getNumAtoms()
+	 // << std::endl;
 	 int n_atoms_new = m_pre->getNumAtoms();
 	 int n_conf = m_pre->getNumConformers();
 
@@ -903,7 +909,7 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 	 bool ignoreInterfragInteractions=true;
 	 int maxIters = 500;
 
-	 std::cout << "==== constructForceField()......" << std::endl;
+	 // std::cout << "==== constructForceField()......" << std::endl;
 	 
  	 ForceFields::ForceField *ff =
  	    RDKit::UFF::constructForceField(m, vdwThresh, confId,
@@ -912,11 +918,11 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
  	 for (unsigned int iat=0; iat<n_mol_atoms; iat++)
  	    ff->fixedPoints().push_back(iat);
 
-	 std::cout << "==== ff->initialize() ......" << std::endl;
+	 // std::cout << "==== ff->initialize() ......" << std::endl;
  	 ff->initialize();
-	 std::cout << "==== ff->minimize() ......" << std::endl;
+	 // std::cout << "==== ff->minimize() ......" << std::endl;
  	 int res=ff->minimize(maxIters);
-	 std::cout << "rdkit minimize() returns " << res << std::endl;
+	 // std::cout << "rdkit minimize() returns " << res << std::endl;
  	 delete ff;
 	 
 
