@@ -5700,18 +5700,13 @@ int find_nucleic_acids_local( float radius )
    if ( imol < 0 ) {
      imol = g.create_molecule();
      mol = new CMMDBManager;
-     //graphics_info_t::molecules[imol].install_model( imol, mol, "NuclAcid", 1 );
+     graphics_info_t::molecules[imol].install_model( imol, mol, "NuclAcid", 1 );
    }
 
    // build the model
    Coot_nucleic_acid_build nafind( nafile );
    bool success = nafind.build( mol, graphics_info_t::molecules[imol_map].xmap_list[0], pt, radius );
-   mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
-   graphics_info_t::molecules[imol].install_model( imol, mol, "NuclAcid", 1 );
-   //graphics_info_t::molecules[imol].atom_sel = make_asc( mol );
-   //graphics_info_t::molecules[imol].have_unsaved_changes_flag = 1;
-   //graphics_info_t::molecules[imol].make_bonds_type_checked();
-   //graphics_info_t::molecules[imol].update_molecule_after_additions();
+   graphics_info_t::molecules[imol].update_molecule_after_additions();
 
    if (success) {
    	 if (g.go_to_atom_window) {
