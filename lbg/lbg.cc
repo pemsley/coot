@@ -898,7 +898,7 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
 #ifdef MAKE_ENTERPRISE_TOOLS
       // make rdkit mol here and pass it to the following functions
       update_statusbar_smiles_string();
-      // update_qed();
+       update_qed();
 #endif      
    } 
 }
@@ -2437,6 +2437,7 @@ lbg_info_t::update_qed() {
 #ifdef MAKE_ENTERPRISE_TOOLS
    RDKit::RWMol rdkm = rdkit_mol(mol);
 
+   coot::rdkit_mol_sanitize(rdkm);
    double qed = get_qed(rdkm);
    std::cout << "got qed: " << qed << std::endl;
 
@@ -2608,7 +2609,7 @@ lbg_info_t::get_stroke_colour(int i, int n) const {
 void
 lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
-   std::cout << "render_from_molecule... " << std::endl;
+   // std::cout << "render_from_molecule... " << std::endl;
 
    make_saves_mutex = 0; // stop saving changes (restored at end)
    clear();
