@@ -5864,6 +5864,24 @@ int find_secondary_structure_local(
 /* \} */
 
 
+/*  ----------------------------------------------------------------------- */
+/*                  Autobuild nucleotides                                   */
+/*  ----------------------------------------------------------------------- */
+
+/*! \name Nucleotides*/
+/*! \{ */
+
+/*! \brief autobuild nucleic acid chains
+
+   Find secondary structure local to current view in the current map.
+   Add to a molecule called "NuclAcid", create it if needed.
+
+   @return the index of the new molecule.*/
+
+int find_nucleic_acids_local( float radius );
+
+/* \} */
+
 
 /*  ----------------------------------------------------------------------- */
 /*             New Molecule by Various Selection                            */
