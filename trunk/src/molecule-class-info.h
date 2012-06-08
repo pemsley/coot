@@ -653,12 +653,6 @@ class molecule_class_info_t {
 				     // Must be called after sigma_
 				     // and is_diff_map has been set
 
-   //
-   void update_molecule_after_additions(); // cleanup, new
-					   // atom_selection, sets
-					   // unsaved changes flag,
-					   // makes bonds.
-
    // fourier
    std::string fourier_f_label;   
    std::string fourier_phi_label;
@@ -1364,6 +1358,12 @@ public:        //                      public
 
    void label_atoms(int brief_atom_labels_flag);
    
+   //
+   void update_molecule_after_additions(); // cleanup, new
+					   // atom_selection, sets
+					   // unsaved changes flag,
+					   // makes bonds.
+
    void update_symmetry();
    void update_strict_ncs_symmetry(const coot::Cartesian &centre_point,
 				   const molecule_extents_t &extents); // in m-c-i-ncs.cc
