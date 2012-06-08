@@ -26,7 +26,6 @@ bool Coot_nucleic_acid_build::build( CMMDBManager* mmdb, const clipper::Xmap<flo
   // read existing model
   clipper::MiniMol mol_wrk;
   mmdbfile->import_minimol( mol_wrk );
-  mmdbfile->DeleteAllModels();
 
   // force spacegroup/cell to match map
   mol_wrk.init( xmap.spacegroup(), xmap.cell() );
@@ -49,8 +48,40 @@ bool Coot_nucleic_acid_build::build( CMMDBManager* mmdb, const clipper::Xmap<flo
   // rebuild bases
   mol_wrk = natools.rebuild_bases( xmap, mol_wrk );
 
+  // move all chains to view centre
+  const clipper::Spacegroup& spgr = xmap.spacegroup();
+  const clipper::Cell&       cell = xmap.cell();
+  clipper::Coord_frac cf0, cf1, cf2, df;
+  cf0 = centre.coord_frac(cell);
+  for ( int c = 0; c < mol_wrk.size(); c++ ) {
+    double d2min = 1.0e30;
+    int smin = -1;
+    for ( int r = 0; r < mol_wrk[c].size(); r++ ) {
+      for ( int a = 0; a < mol_wrk[c][r].size(); a++ ) {
+	cf1 = mol_wrk[c][r][a].coord_orth().coord_frac(cell);
+	for ( int s = 0; s < spgr.num_symops(); s++ ) {
+	  cf2 = spgr.symop(s) * cf1;
+	  double d2 = (cf2.lattice_copy_near(cf0)-cf0).lengthsq(cell);
+	  if ( d2 < d2min ) {
+	    d2min = d2;
+	    smin = s;
+	    df = cf2.lattice_copy_near(cf0) - cf2;
+	  }
+	}
+      }
+    }
+    if ( smin >= 0 ) {
+      clipper::RTop_frac rtf( spgr.symop(smin).rot(),
+			      spgr.symop(smin).trn()+df );
+      clipper::RTop_orth rto = rtf.rtop_orth( cell );
+      mol_wrk[c].transform( rto );
+    }
+  }
+
+
+  // label chains
   const clipper::String chainid = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-  for ( int i = 0; i < std::min(mol_wrk.size(),51); i++ ) {
+  for ( int i = 0; i < std::min(mol_wrk.size(),52); i++ ) {
     mol_wrk[i].set_id( chainid.substr( i, 1 ) );
     for ( int j = 0; j < mol_wrk[i].size(); j++ ) {
       mol_wrk[i][j].set_seqnum( j+1 );
@@ -62,6 +93,7 @@ bool Coot_nucleic_acid_build::build( CMMDBManager* mmdb, const clipper::Xmap<flo
   for ( int c = 0; c < mol_wrk.size(); c++ ) n2 += mol_wrk[c].size();
 
   // update model
+  mmdbfile->DeleteAllModels();
   mmdbfile->export_minimol( mol_wrk );
 
   return ( n2 > n1 );
