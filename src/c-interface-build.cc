@@ -112,6 +112,8 @@
 #include "protein_db_utils.h"
 #include "protein_db-interface.hh"
 
+#include "cootilus-build.h"
+
 /*  ------------------------------------------------------------------------ */
 /*                   Maps - (somewhere else?):                               */
 /*  ------------------------------------------------------------------------ */
@@ -5652,6 +5654,66 @@ int find_secondary_structure_local(
       g.show_select_map_dialog();
       return -1;
    }
+}
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  Autofind Nucleic acid chains                            */
+/*  ----------------------------------------------------------------------- */
+/* Find secondary structure local to current view in the current map.
+   Add to a molecule called "NuclAcid", create it if needed. */
+int find_nucleic_acids_local( float radius )
+{
+   // check for data file
+   std::string nafile;
+   const char *cp = getenv("COOT_PREFIX");
+   if (cp) nafile = std::string(cp) + "/share/coot/nautilus_lib.pdb";
+   else    nafile = std::string(PKGDATADIR) + "/nautilus_lib.pdb";
+   if (!coot::file_exists(nafile)) {
+      std::cout << "Ooops! Can't find nautilus data! - fail" << std::endl;
+      return -1;
+   }
+
+   // check for map
+   graphics_info_t g;
+   clipper::Coord_orth pt(g.RotationCentre_x(),
+			  g.RotationCentre_y(),
+			  g.RotationCentre_z());
+   int imol_map = g.Imol_Refinement_Map();
+   if (imol_map == -1) {
+      std::cout << " You need to set the map to fit against\n";
+      g.add_status_bar_text("You need to set the map to fit against");
+      g.show_select_map_dialog();
+      return -1;
+   }
+
+   // find NAs
+   int imol = g.create_molecule();
+   CMMDBManager *mol = new CMMDBManager;
+   Coot_nucleic_acid_build nafind( nafile );
+   bool success = nafind.build( mol, graphics_info_t::molecules[imol_map].xmap_list[0], pt, radius );
+   atom_selection_container_t asc = make_asc(mol);
+   graphics_info_t::molecules[imol].install_model(imol,asc,"NuclAcid",1);
+
+   if (success) {
+   	 if (g.go_to_atom_window) {
+   	    g.set_go_to_atom_molecule(imol);
+   	    g.update_go_to_atom_window_on_new_mol();
+   	 } else {
+   	    g.set_go_to_atom_molecule(imol);
+   	 }
+   	 std::cout << "Nucleic acids found\n";
+   	 g.add_status_bar_text("Nucleic acids added");
+   } else {
+   	 std::cout << "No nucleic acids found\n";
+   	 g.add_status_bar_text("No nucleic acids found" );
+   }
+   std::vector<std::string> command_strings;
+   command_strings.resize(0);
+   command_strings.push_back("find-nucleic-acids-local");
+   add_to_history(command_strings);
+   graphics_draw();
+   return imol;
 }
 
 
