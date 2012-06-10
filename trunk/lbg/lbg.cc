@@ -123,6 +123,7 @@ lbg(lig_build::molfile_molecule_t mm,
 	       
 	       widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
 	       lbg->render_from_molecule(wmol);
+	       lbg->update_descriptor_attributes();
 	    }
 	 }
       }
@@ -185,6 +186,11 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	 // 
 	 try {
 	    at->setProp("name", std::string(mol.atoms[iat].get_atom_name()));
+	    std::string ele_capped =
+	       coot::util::capitalise(coot::util::remove_leading_spaces(mol.atoms[iat].element));
+	    int atomic_number = tbl->getAtomicNumber(ele_capped);
+	    at->setAtomicNum(atomic_number);
+	    at->setMass(tbl->getAtomicWeight(atomic_number));
 	 }
 	 catch (std::exception rte) {
 	    std::cout << rte.what() << std::endl;
@@ -215,7 +221,7 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	    m.addBond(bond);
 	 }
       } else {
-	 std::cout << "debug:: bond " << ib << " is closed " << std::endl;
+	 // std::cout << "debug:: bond " << ib << " is closed " << std::endl;
       } 
    }
    return m;
@@ -322,20 +328,17 @@ on_canvas_button_press_new(GooCanvasItem  *item,
    }
 
    if (! target_item) { 
-      std::cout << "on_canvas_button_press_new() NULL target item ... trying item"
-		<< std::endl;
       lbg_info_t *l =
 	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
-      std::cout << "debug got l: " << l << std::endl;
       if (!l) {
 	 std::cout << "on button-click: NULL lbg-info from item" << std::endl;
       } else {
-	 std::cout << "debug:: handle item add " << event << std::endl;
+	 // std::cout << "debug:: handle item add " << event << std::endl;
 	 if (l->in_delete_mode_p()) {
-	    std::cout << "calling handle_item_delete() " << event << std::endl;
+	    // std::cout << "calling handle_item_delete() " << event << std::endl;
 	    l->handle_item_delete(event);
 	 } else { 
-	    std::cout << "calling handle_item_add() " << event << std::endl;
+	    // std::cout << "calling handle_item_add() " << event << std::endl;
 	    l->handle_item_add(event);
 	 }
       }
@@ -753,7 +756,7 @@ lbg_info_t::extend_latest_bond() {
 	       if (atom_index != penultimate_atom_index) { 
 		  if (atom_index != ultimate_atom_index) {
 		     
-		     std::cout << "extend_latest_bond() " << std::endl;
+		     // std::cout << "extend_latest_bond() " << std::endl;
    
 		     GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 
@@ -767,11 +770,11 @@ lbg_info_t::extend_latest_bond() {
 				       mol.atoms[penultimate_atom_index],
 				       mol.atoms[atom_index],
 				       bt, root);
-		     std::cout << "adding bond! " << b << std::endl;
+		     // std::cout << "adding bond! " << b << std::endl;
 		     mol.add_bond(b); // can reject addition if bond
 				      // between the given atom
 				      // indices already exists.
-		     std::cout << "Now we have " << mol.n_open_bonds() << " bonds" << std::endl;
+		     // std::cout << "Now we have " << mol.n_open_bonds() << " bonds" << std::endl;
 		  }
 	       }
 	    }
@@ -895,13 +898,27 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
 
    if (changed_status) {
       save_molecule();
-#ifdef MAKE_ENTERPRISE_TOOLS
-      // make rdkit mol here and pass it to the following functions
-      update_statusbar_smiles_string();
-       update_qed();
-#endif      
-   } 
+      update_descriptor_attributes();
+   }
 }
+
+void
+lbg_info_t::update_descriptor_attributes() {
+#ifdef MAKE_ENTERPRISE_TOOLS
+   // make rdkit mol here and pass it to the following functions
+
+   try {
+      RDKit::RWMol rdkm = rdkit_mol(mol);
+      coot::rdkit_mol_sanitize(rdkm);
+      update_statusbar_smiles_string(rdkm);
+      update_qed(rdkm);
+      update_alerts(rdkm);
+   }
+   catch (std::exception e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+#endif      
+} 
 
 void
 lbg_info_t::handle_item_delete(GdkEventButton *event) {
@@ -921,7 +938,7 @@ lbg_info_t::handle_item_delete(GdkEventButton *event) {
 	 mol.close_bond(bond_index, root, 1);
       }
       save_molecule();
-      update_statusbar_smiles_string();
+      update_descriptor_attributes();
    }
 }
 
@@ -2298,8 +2315,14 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_toolbar_layout_info_label = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_toolbar_layout_info_label"));
 	 lbg_atom_x_dialog =             GTK_WIDGET(gtk_builder_get_object(builder, "lbg_atom_x_dialog"));
 	 lbg_atom_x_entry =              GTK_WIDGET(gtk_builder_get_object(builder, "lbg_atom_x_entry"));
+	 lbg_qed_hbox =                  GTK_WIDGET(gtk_builder_get_object(builder, "lbg_qed_hbox"));
+	 lbg_qed_progressbar =           GTK_WIDGET(gtk_builder_get_object(builder, "lbg_qed_progressbar"));
+	 lbg_qed_text_label =            GTK_WIDGET(gtk_builder_get_object(builder, "lbg_qed_text_label"));
+	 lbg_alert_hbox =                GTK_WIDGET(gtk_builder_get_object(builder, "lbg_alert_hbox"));
 
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
+
+	 std::cout << "saving lbg_qed_text_label " << lbg_qed_text_label << std::endl;
 
       }
    } 
@@ -2368,6 +2391,12 @@ lbg_info_t::init(GtkBuilder *builder) {
    if (is_stand_alone()) 
       int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
 
+#ifdef MAKE_ENTERPRISE_TOOLS
+   // all, with QED
+#else
+   gtk_widget_hide(lbg_qed_hbox);
+#endif    
+
    return true;
 
 }
@@ -2431,19 +2460,46 @@ lbg_info_t::get_smiles_string_from_mol_openbabel() const {
    return s;
 }
 
+#ifdef MAKE_ENTERPRISE_TOOLS
+
 void
-lbg_info_t::update_qed() {
+lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
+
+
+   if (rdkm.getNumAtoms() == 0) {
+      // non-interesting case first
+      gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
+      gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), "");
+   } else { 
+      double qed = get_qed(rdkm);
+      if (qed > 0) {
+	 std::string s = coot::util::float_to_string_using_dec_pl(qed, 3);
+	 gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), s.c_str());
+	 gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), qed);
+      } else {
+	 gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), "");
+	 gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
+      }
+   }
+}
+#endif
 
 #ifdef MAKE_ENTERPRISE_TOOLS
-   RDKit::RWMol rdkm = rdkit_mol(mol);
+void
+lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 
-   coot::rdkit_mol_sanitize(rdkm);
-   double qed = get_qed(rdkm);
-   std::cout << "got qed: " << qed << std::endl;
+   std::vector<std::pair<std::string,RDKit::MatchVectType> > v = alerts(rdkm);
 
-
+   if (v.size()) {
+      gtk_widget_show(lbg_alert_hbox);
+      for (unsigned int i=0; i<v.size(); i++) 
+	 std::cout << "ALERT: " << v[i].first << std::endl;
+   } else {
+      gtk_widget_hide(lbg_alert_hbox);
+   } 
+}
 #endif
-} 
+
 
 
 // static
@@ -2707,6 +2763,7 @@ lbg_info_t::undo() {
       widgeted_molecule_t saved_mol = previous_molecules[save_molecule_index];
       // std::cout << "undo... reverting to save molecule number " << save_molecule_index << std::endl;
       render_from_molecule(saved_mol);
+      update_descriptor_attributes();
    } else {
       clear();
    } 
@@ -2827,7 +2884,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 	 CMMDBManager *mol = NULL; // no atom names to transfer
 	 widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
 	 render_from_molecule(wmol);
-	 update_statusbar_smiles_string();
+	 update_descriptor_attributes();
 
       } else {
 	 // should throw an exception before getting here, I think.
@@ -2861,7 +2918,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       mm.read(file_name);
       widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
       render_from_molecule(wmol);
-      update_statusbar_smiles_string();
+      update_descriptor_attributes();
    }
    
 }
@@ -5572,20 +5629,12 @@ lbg_info_t::convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a
 
 
 void
-lbg_info_t::update_statusbar_smiles_string() const {
+lbg_info_t::update_statusbar_smiles_string(const std::string &smiles_string) const {
 
    std::string status_string;
-   try {
-      std::string s = get_smiles_string_from_mol();
-      // std::cout << "SMILES string: " << s << std::endl;
-      status_string = " SMILES:  ";
-      status_string += s;
-
-   }
-   catch (std::exception rte) {
-      std::cout << rte.what() << std::endl;
-   }
    if (lbg_statusbar) { 
+      status_string = " SMILES:  ";
+      status_string += smiles_string;
       guint statusbar_context_id =
 	 gtk_statusbar_get_context_id(GTK_STATUSBAR(lbg_statusbar), status_string.c_str());
       gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
@@ -5593,6 +5642,38 @@ lbg_info_t::update_statusbar_smiles_string() const {
 			 status_string.c_str());
    }
 }
+
+void
+lbg_info_t::update_statusbar_smiles_string() const {
+
+   std::string status_string;
+   try {
+      std::string s = get_smiles_string_from_mol();
+      update_statusbar_smiles_string(s);
+
+   }
+   catch (std::exception rte) {
+      std::cout << rte.what() << std::endl;
+   }
+}
+
+#ifdef MAKE_ENTERPRISE_TOOLS
+void
+lbg_info_t::update_statusbar_smiles_string(const RDKit::RWMol &mol) const {
+
+   std::string s;
+
+   if (mol.getNumAtoms() == 0) { 
+      // new
+      RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(mol);
+      s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs);
+
+      // old
+      // std::string s = get_smiles_string_from_mol_rdkit();
+   } 
+   update_statusbar_smiles_string(s);
+}
+#endif
 
 void
 lbg_info_t::show_atom_x_dialog() {
