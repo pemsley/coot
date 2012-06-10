@@ -31,7 +31,7 @@ include_HEADERS = peak-search.hh coot-trim.hh \
 	coot-coord-utils.hh coot-map-utils.hh coot-coord-extras.hh \
 	coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh \
 	coot-rama.hh xmap-stats.hh coot-h-bonds.hh lsq-improve.hh coot-hole.hh \
-	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh
+	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh 
 
 INCLUDES = \
 	-I$(top_srcdir)/utils	        \
@@ -96,12 +96,19 @@ libcoot_map_heavy_la_LIBADD = \
    $(GSL_LIBS)
 
 
-noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic
+# test-agg-clust
+noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic 
 
 check_PROGRAMS = test-tt-morph
 
 # testshelxreader fails to link for some reason! coot::protein_geometry::get_h_bond_type 
 # testcootutils also.  20100812 Fixed now - added libcoot-geometry.la
+
+# test_zo_chi_table_SOURCES = test-zo-chi-table.cc
+
+# test_agg_clust_SOURCES = test-agg-clust.cc
+# test_agg_clust_LDADD =     $(top_builddir)/utils/libcoot-utils.la $(CLIPPER_LIBS)
+
 
 
 testshelxreader_SOURCES = test-shelx-reader.cc

@@ -562,7 +562,7 @@ coot::add_animated_ligand_interactions(int imol,
 				       const std::vector<coot::fle_ligand_bond_t> &ligand_bonds) {
 
    for (unsigned int i=0; i<ligand_bonds.size(); i++) {
-      std::cout << "Here....  adding animated ligand interaction " << i << std::endl;
+      // std::cout << "Here....  adding animated ligand interaction " << i << std::endl;
       add_animated_ligand_interaction(imol, ligand_bonds[i]);
    }
 }

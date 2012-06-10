@@ -5272,37 +5272,40 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 	if (! PyDict_Check(globals)) {
 	  std::cout<<"ERROR:: could not get globals when running " << python_cmd <<std::endl;
 	} else {
-	  pValue = PyRun_String((char *)python_cmd.c_str(), Py_eval_input, globals, globals);
+	   char *py_command_str = new char[python_cmd.length() + 2];
+	   strncpy(py_command_str, python_cmd.c_str(), python_cmd.length()+1);
+	   // std::cout << "running PyRun_String() on :" << py_command_str << ":" << std::endl;
+	   pValue = PyRun_String(py_command_str, Py_eval_input, globals, globals);
 
-	  if (0) // debugging
-	     std::cout << "DEBUG:: in safe_python_command_with_return() pValue is "
-		       << pValue << std::endl;
-
-	  if (pValue != NULL)
-	    {
+	   if (0) // debugging
+	      std::cout << "DEBUG:: in safe_python_command_with_return() pValue is "
+			<< pValue << std::endl;
+	   
+	   if (pValue != NULL) {
 	      if (pValue != Py_None) {
-		ret = py_clean_internal(pValue);
-		if (! ret)
-		  ret = Py_None;
+		 ret = py_clean_internal(pValue);
+		 if (! ret)
+		    ret = Py_None;
 	      } else {
-		ret = Py_None;
+		 ret = Py_None;
 	      }
-	    } else {
-	    // there is an Error. Could be a syntax error whilst trying to evaluate a statement
-	    // so let's try to run it as a statement
-	    if (PyErr_ExceptionMatches(PyExc_SyntaxError)) {
-	      std::cout << "error (syntax error)" << std::endl;
-	      PyErr_Clear();
-	      pValue = PyRun_String((char *)python_cmd.c_str(), Py_single_input, globals, globals);
-	      if (pValue != NULL) {
-		ret = pValue;
+	   } else {
+	      // there is an Error. Could be a syntax error whilst trying to evaluate a statement
+	      // so let's try to run it as a statement
+	      if (PyErr_ExceptionMatches(PyExc_SyntaxError)) {
+		 std::cout << "error (syntax error)" << std::endl;
+		 PyErr_Clear();
+		 pValue = PyRun_String((char *)python_cmd.c_str(), Py_single_input, globals, globals);
+		 if (pValue != NULL) {
+		    ret = pValue;
+		 }
+	      } else {
+		 std::cout << "error (not syntax error)" << std::endl;
+		 PyErr_Print();
 	      }
-	    } else {
-	      std::cout << "error (not syntax error)" << std::endl;
-	      PyErr_Print();
-	    }
-	  }
-	  Py_XDECREF(pValue);
+	   }
+	   delete py_command_str;
+	   Py_XDECREF(pValue);
 	}
       }
       // Clean up

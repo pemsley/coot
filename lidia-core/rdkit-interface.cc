@@ -327,8 +327,6 @@ coot::rdkit_mol(CResidue *residue_p,
 	 std::cout << " " << iat << " " << name << " formal charge: "
 		   << formal_charge << std::endl;
       }
-      std::cout << "::::::::::::::::::::::::: done clean up :::::::::::::::::::::::::::::"
-		<< std::endl;
    }
 
    if (debug)
@@ -358,7 +356,7 @@ coot::rdkit_mol(CResidue *residue_p,
       } 
    }
    m.addConformer(conf);
-   if (0) 
+   if (debug) 
       std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms()
 		<< std::endl;
    return m;
@@ -1422,8 +1420,8 @@ void coot::update_coords(RDKit::RWMol *mol_p, int iconf, CResidue *residue_p) {
 	    }
 	 }
 	 catch (KeyErrorException kee) {
-	    std::cout << "caught no-name for atom exception in update_coords(): "
-		      <<  kee.what() << std::endl;
+// 	    std::cout << "caught no-name for atom exception in update_coords(): "
+// 		      <<  kee.what() << std::endl;
 	 }
       }
    }

@@ -873,7 +873,11 @@ private:
    // similarity combox box text.
    double get_search_similarity() const;
    std::string atom_X; // initially "H"
-
+   
+   std::vector<std::string> alert_smarts() const;
+#ifdef MAKE_ENTERPRISE_TOOLS   
+   std::vector<std::pair<std::string,RDKit::MatchVectType> > alerts(const RDKit::ROMol &mol) const;
+#endif
 
 public:
    lbg_info_t(GtkWidget *canvas_in) {
@@ -915,6 +919,10 @@ public:
    GtkWidget *lbg_toolbar_layout_info_label;
    GtkWidget *lbg_atom_x_dialog;
    GtkWidget *lbg_atom_x_entry;
+   GtkWidget *lbg_qed_hbox;
+   GtkWidget *lbg_qed_text_label;
+   GtkWidget *lbg_qed_progressbar;
+   GtkWidget *lbg_alert_hbox;
    GtkWidget *canvas;
    std::map<std::string, GtkToggleToolButton *> widget_names;
    widgeted_molecule_t mol;
@@ -949,6 +957,7 @@ public:
       mouse_at_click = lig_build::pos_t(double(xpos), double(ypos));
    }
    void render_from_molecule(const widgeted_molecule_t &mol_in);
+   void update_descriptor_attributes(); // this is not in render_from_molecule() because it can/might be slow.
    void delete_hydrogens();
    void undo();
    void search() const;
@@ -978,8 +987,18 @@ public:
    std::string get_flev_analysis_files_dir() const;
    void show_key();
    void hide_key();
+
+   // non-enterprise path
    void update_statusbar_smiles_string() const;
-   void update_qed();
+   void update_statusbar_smiles_string(const std::string &smiles_string) const;
+#ifdef MAKE_ENTERPRISE_TOOLS
+   // do these need to be RWMols?
+   void update_statusbar_smiles_string(const RDKit::RWMol &rdkm) const;
+   void update_qed(const RDKit::RWMol &rdkm);
+   void update_alerts(const RDKit::RWMol &rdkm);
+   std::string get_smiles_string_from_mol(const RDKit::RWMol &mol) const;
+#endif
+   
    // can throw an exception
    std::string get_smiles_string_from_mol() const;
    void set_stand_alone() { stand_alone_flag = 1; }

@@ -1176,7 +1176,7 @@
 				      "Atom Selection:"
 				      "//A/1-2"
 				      (lambda (imol text)
-					(let ((dots-handle (dots imol text text 1 1)))
+					(let ((dots-handle (dots imol text text 2 1)))
 					  (format #t "dots handle: ~s~%" dots-handle))))))
 
 	(add-simple-coot-menu-menuitem

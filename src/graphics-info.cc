@@ -4937,7 +4937,7 @@ graphics_info_t::safe_scheme_command(const std::string &scheme_command) {
    SCM handler = scm_c_eval_string ("(lambda (key . args) (display (list \"(safe_scheme_command) Error in proc: key: \" key \" args: \" args)) (newline))"); 
 
    // I am undecided if I want this or not:
-   std::cout << "debug:: safe running :" << scheme_command << ":" << std::endl; 
+   // std::cout << "debug:: safe running :" << scheme_command << ":" << std::endl; 
    std::string thunk("(lambda() "); 
    thunk += scheme_command; 
    thunk += " )";
