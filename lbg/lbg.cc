@@ -345,8 +345,8 @@ on_canvas_button_press_new(GooCanvasItem  *item,
       
    } else {
 
-      std::cout << "on_canvas_button_press_new() non-NULL target_item " << target_item
-		<< std::endl;
+      // std::cout << "on_canvas_button_press_new() non-NULL target_item " << target_item
+      // << std::endl;
       
       coot::residue_spec_t *spec_p =
 	 (coot::residue_spec_t *) g_object_get_data (G_OBJECT (target_item), "spec");
@@ -373,7 +373,7 @@ on_canvas_button_press_new(GooCanvasItem  *item,
 	    }
 	 } 
       } else {
-	 std::cout << "null spec" << std::endl;
+	 // std::cout << "null spec" << std::endl;
       }
 #endif       
 
@@ -742,7 +742,7 @@ lbg_info_t::extend_latest_bond() {
 
    // use highlight_data
 
-   std::cout << "in extend_latest_bond() " << std::endl;
+   // std::cout << "in extend_latest_bond() " << std::endl;
 
    if (mol.bonds.size() > 0) {
       if (mol.atoms.size() > 0) {
@@ -905,8 +905,6 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
 void
 lbg_info_t::update_descriptor_attributes() {
 #ifdef MAKE_ENTERPRISE_TOOLS
-   // make rdkit mol here and pass it to the following functions
-
    try {
       RDKit::RWMol rdkm = rdkit_mol(mol);
       coot::rdkit_mol_sanitize(rdkm);
@@ -2251,10 +2249,9 @@ void
 lbg_info_t::clear() {
 
    clear_canvas();
-
    // clear the molecule
    mol.clear();
-
+   update_descriptor_attributes();
 }
 
 void
