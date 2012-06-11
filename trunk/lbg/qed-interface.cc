@@ -30,52 +30,56 @@ get_qed(const RDKit::ROMol &rdkm) {
       // pFunc is also a borrowed reference 
       pFunc = PyDict_GetItemString(pDict, "default");
 
-      if (PyCallable_Check(pFunc)) {
-	 try { 
-	    PyObject *arg_list = PyTuple_New(1);
-	    PyObject *rdkit_mol_py; // = PyInt_FromLong(6);
+      if (! pFunc) {
+	 // std::cout << "pFunc is NULL" << std::endl;
+      } else { 
+	 if (PyCallable_Check(pFunc)) {
+	    try { 
+	       PyObject *arg_list = PyTuple_New(1);
+	       PyObject *rdkit_mol_py; // = PyInt_FromLong(6);
 	    
-	    RDKit::ROMol *mol_copy_p = new RDKit::ROMol(rdkm);
-	    boost::shared_ptr<RDKit::ROMol> xx(mol_copy_p);
-	    boost::python::object obj(xx);
-	    rdkit_mol_py = obj.ptr();
-	    PyTuple_SetItem(arg_list, 0, rdkit_mol_py);
-	    PyObject *result = PyEval_CallObject(pFunc, arg_list);
-	    if (! result) {
-	       std::cout << "Null result" << std::endl;
-	    } else { 
-	       if (PyFloat_Check(result)) { 
-		  r = PyFloat_AsDouble(result);
+	       RDKit::ROMol *mol_copy_p = new RDKit::ROMol(rdkm);
+	       boost::shared_ptr<RDKit::ROMol> xx(mol_copy_p);
+	       boost::python::object obj(xx);
+	       rdkit_mol_py = obj.ptr();
+	       PyTuple_SetItem(arg_list, 0, rdkit_mol_py);
+	       PyObject *result = PyEval_CallObject(pFunc, arg_list);
+	       if (! result) {
+		  std::cout << "Null result" << std::endl;
+	       } else { 
+		  if (PyFloat_Check(result)) { 
+		     r = PyFloat_AsDouble(result);
+		  }
 	       }
+
+	       // OK, I'm finished with mol_copy_p and obj now.  How do I
+	       // get rid of them?  (Does that happen automatically?)
+	    
 	    }
+	    catch (boost::python::error_already_set e) {
+	       std::cout << "catch error_already_set exception "
+			 << std::endl;
+	       PyObject *type_ptr = NULL, *value_ptr = NULL, *traceback_ptr = NULL;
+	       PyErr_Fetch(&type_ptr, &value_ptr, &traceback_ptr);
 
-	    // OK, I'm finished with mol_copy_p and obj now.  How do I
-	    // get rid of them?  (Does that happen automatically?)
+	       PyObject *dest = PyString_FromString("object: %s\n");
+	       if (type_ptr)
+		  std::cout << "error: type "
+			    << PyString_AsString(PyString_Format(dest, type_ptr)) << std::endl;
+	       if (value_ptr)
+		  std::cout << "error: value "
+			    << PyString_AsString(PyString_Format(dest, value_ptr)) << std::endl;
+	       if (traceback_ptr)
+		  std::cout << "error: traceback_ptr "
+			    << PyString_AsString(PyString_Format(dest, traceback_ptr)) << std::endl;
 	    
+	    } 
+	    catch (...) {
+	       std::cout << "catch all exception" << std::endl;
+	    }
+	 } else {
+	    std::cout << "function is not callable"  << std::endl;
 	 }
-	 catch (boost::python::error_already_set e) {
-	    std::cout << "catch error_already_set exception "
-		      << std::endl;
-	    PyObject *type_ptr = NULL, *value_ptr = NULL, *traceback_ptr = NULL;
-	    PyErr_Fetch(&type_ptr, &value_ptr, &traceback_ptr);
-
-	    PyObject *dest = PyString_FromString("object: %s\n");
-	    if (type_ptr)
-	       std::cout << "error: type "
-			 << PyString_AsString(PyString_Format(dest, type_ptr)) << std::endl;
-	    if (value_ptr)
-	       std::cout << "error: value "
-			 << PyString_AsString(PyString_Format(dest, value_ptr)) << std::endl;
-	    if (traceback_ptr)
-	       std::cout << "error: traceback_ptr "
-			 << PyString_AsString(PyString_Format(dest, traceback_ptr)) << std::endl;
-	    
-	 } 
-	 catch (...) {
-	    std::cout << "catch all exception" << std::endl;
-	 } 
-      } else {
-	 std::cout << "function is not callable"  << std::endl;
       }
    }
    return r;
