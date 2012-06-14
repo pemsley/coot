@@ -145,7 +145,6 @@ molecule_class_info_t::assign_hetatms() {
 
    int r = 0;
    for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
-      int imod = 1;
       CModel *model_p = atom_sel.mol->GetModel(imod);
       CChain *chain_p;
       // run over chains of the existing mol
