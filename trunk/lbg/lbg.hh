@@ -894,8 +894,8 @@ private:
    std::vector<std::pair<std::string, std::string> > alert_smarts() const;
 #ifdef MAKE_ENTERPRISE_TOOLS   
    std::vector<alert_info_t> alerts(const RDKit::ROMol &mol) const;
-   GooCanvasItem *alert_group;   
 #endif
+   GooCanvasItem *alert_group;   
 
 public:
    lbg_info_t(GtkWidget *canvas_in) {
