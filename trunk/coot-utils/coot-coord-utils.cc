@@ -238,10 +238,8 @@ coot::sort_chains(CMMDBManager *mol) {
 #endif   
 #else
    
-   // for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
-   int imod = 1;
+   for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
 
-   {
       CModel *model_p = mol->GetModel(imod);
       CChain *chain_p;
       // run over chains of the existing mol
@@ -2778,7 +2776,6 @@ coot::util::create_mmdbmanager_from_mmdbmanager(CMMDBManager *mol_in) {
    short int whole_res_flag = 1;
 
    for(int imod = 1; imod<=mol_in->GetNumberOfModels(); imod++) {
-     int imod = 1;
      CModel *model_p = mol_in->GetModel(imod);
      CModel *new_model_p = new CModel;
      int nchains = model_p->GetNumberOfChains();
