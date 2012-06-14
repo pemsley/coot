@@ -593,6 +593,21 @@ public:
                                          // of the primary residues.
    };
 
+#ifdef MAKE_ENTERPRISE_TOOLS   
+   class alert_info_t {
+   public:
+      std::string smarts;
+      std::string smarts_name;
+      RDKit::MatchVectType matches;
+      alert_info_t(const std::string &smarts_in,
+		   const std::string &smarts_name_in,
+		   const RDKit::MatchVectType &matches_in) {
+	 smarts = smarts_in;
+	 smarts_name = smarts_name_in;
+	 matches = matches_in;
+      } 
+   };
+#endif
 
 private:
    bool stand_alone_flag;
@@ -696,6 +711,8 @@ private:
       get_url_func_ptr_flag = false;
       prodrg_import_func_ptr = NULL;
       sbase_import_func_ptr = NULL;
+      draw_flev_annotations_flag = false;
+      alert_group = NULL; // group for alert annotations
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
@@ -874,9 +891,10 @@ private:
    double get_search_similarity() const;
    std::string atom_X; // initially "H"
    
-   std::vector<std::string> alert_smarts() const;
+   std::vector<std::pair<std::string, std::string> > alert_smarts() const;
 #ifdef MAKE_ENTERPRISE_TOOLS   
-   std::vector<std::pair<std::string,RDKit::MatchVectType> > alerts(const RDKit::ROMol &mol) const;
+   std::vector<alert_info_t> alerts(const RDKit::ROMol &mol) const;
+   GooCanvasItem *alert_group;   
 #endif
 
 public:
@@ -923,6 +941,7 @@ public:
    GtkWidget *lbg_qed_text_label;
    GtkWidget *lbg_qed_progressbar;
    GtkWidget *lbg_alert_hbox;
+   GtkWidget *lbg_alert_name_label;
    GtkWidget *canvas;
    std::map<std::string, GtkToggleToolButton *> widget_names;
    widgeted_molecule_t mol;

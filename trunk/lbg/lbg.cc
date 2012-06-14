@@ -137,6 +137,7 @@ lbg(lig_build::molfile_molecule_t mm,
 	 
 	 widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
 	 lbg->render_from_molecule(wmol);
+	 lbg->update_descriptor_attributes();
       }
       
       if (get_url_func_pointer_in != NULL) {
@@ -161,7 +162,6 @@ GtkWidget *get_canvas_from_scrolled_win(GtkWidget *canvas) {
 }
 
 #ifdef MAKE_ENTERPRISE_TOOLS
-// Caller deletes
 // 
 RDKit::RWMol
 lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
@@ -182,7 +182,7 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	 RDKit::Atom *at = new RDKit::Atom;
 	 at->setAtomicNum(tbl->getAtomicNumber(mol.atoms[iat].element));
 
-	 // add the name to at too here (if you can).
+	 // add the name to "at" too here (if you can).
 	 // 
 	 try {
 	    at->setProp("name", std::string(mol.atoms[iat].get_atom_name()));
@@ -191,12 +191,25 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	    int atomic_number = tbl->getAtomicNumber(ele_capped);
 	    at->setAtomicNum(atomic_number);
 	    at->setMass(tbl->getAtomicWeight(atomic_number));
+	    m.addAtom(at, false, true); // take ownership
+	    std::string dum;
+	    at->setProp("lbg_atom_index", coot::util::int_to_string(iat));
+	    if (at->hasProp("lbg_atom_index")) {
+	       // std::cout << "atom has lbg_atom_index property " << std::endl;
+	       at->getProp("lbg_atom_index", dum);
+	       // std::cout << "   lbg_atom_index value is " << dum << std::endl;
+	    } else {
+	       // std::cout << "atom does not have lbg_atom_index property " << std::endl;
+	    } 
+	    atom_index[iat] = at_no++;
+	 }
+	 catch (boost::bad_lexical_cast blc) {
+	    std::cout << "on making atom bad_lexical_cast " << iat << " "
+		      << blc.what() << std::endl;
 	 }
 	 catch (std::exception rte) {
-	    std::cout << rte.what() << std::endl;
+	    std::cout << "on making atom " << iat << " " << rte.what() << std::endl;
 	 }
-	 m.addAtom(at);
-	 atom_index[iat] = at_no++;
       } else {
 	 // std::cout << "debug:: atom " << iat << " is closed " << std::endl;
       } 
@@ -218,7 +231,7 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	       m[idx_1_rdkit]->setIsAromatic(true);
 	       m[idx_2_rdkit]->setIsAromatic(true);
 	    } 
-	    m.addBond(bond);
+	    m.addBond(bond, true); // take ownership
 	 }
       } else {
 	 // std::cout << "debug:: bond " << ib << " is closed " << std::endl;
@@ -619,14 +632,14 @@ lbg_info_t::clear_and_redraw(const lig_build::pos_t &delta) {
       widgeted_molecule_t new_mol = translate_molecule(delta); // and do a canvas update
       translate_residue_circles(delta);
       render_from_molecule(new_mol);
+      update_descriptor_attributes();
    } else {
       std::cout << "==== delta is zero path ==== " << std::endl;
       widgeted_molecule_t saved_mol = mol;
       render_from_molecule(saved_mol);
+      update_descriptor_attributes();
    }
    draw_all_flev_annotations();
-
-   
 }
 
 
@@ -936,6 +949,8 @@ lbg_info_t::handle_item_delete(GdkEventButton *event) {
 	 mol.close_bond(bond_index, root, 1);
       }
       save_molecule();
+      std::cout << "in handle_item_delete() calling update_descriptor_attributes() "
+		<< std::endl;
       update_descriptor_attributes();
    }
 }
@@ -1750,9 +1765,6 @@ lbg_info_t::orthogonalise_2_bonds(int atom_index,
    lig_build::pos_t ebd_uv = existing_bond_dir.unit_vector();
    lig_build::pos_t ebd_uv_90 = ebd_uv.rotate(90);
 
-   std::cout << "DEBUG:: existing_bond_dir uv: " << ebd_uv << " and rotated: " << ebd_uv_90
-	     << std::endl;
-      
    lig_build::pos_t new_atom_pos_1 = central_atom_pos + ebd_uv_90 * SINGLE_BOND_CANVAS_LENGTH;
    lig_build::pos_t new_atom_pos_2 = central_atom_pos - ebd_uv_90 * SINGLE_BOND_CANVAS_LENGTH;
    widgeted_atom_t atom_1(new_atom_pos_1, ele_1, 0, NULL);
@@ -1850,7 +1862,7 @@ lbg_info_t::try_stamp_polygon(int n_edges, int x_cen, int y_cen, bool is_spiro, 
 
 		  int highlighted_atom_index  = highlight_data.get_atom_index();
 		  if (highlighted_atom_index != new_atoms[0]) { 
-		     std::cout << "adding spur bond...!" << std::endl;
+		     // std::cout << "adding spur bond...!" << std::endl;
 		     
 		     if (highlighted_atom_index != UNASSIGNED_INDEX) {
 			lig_build::bond_t::bond_type_t bt = lig_build::bond_t::SINGLE_BOND;
@@ -2144,7 +2156,8 @@ lbg_info_t::highlight_data_t::get_new_polygon_centre_using_1_atom(int n_edges,
    int atom_index = get_atom_index();
    std::vector<int> bv = mol.bonds_having_atom_with_atom_index(atom_index);
 
-   std::cout << "in get_new_polygon_centre_using_1_atom() bv size is " << bv.size() << std::endl;
+   // std::cout << "in get_new_polygon_centre_using_1_atom() bv size is " << bv.size()
+   // << std::endl;
 
    if (bv.size() == 2) {
       std::vector<lig_build::pos_t> neighbours;
@@ -2244,13 +2257,21 @@ lbg_info_t::save_togglebutton_widgets(GtkBuilder *builder) {
 #endif // GTK_VERSION
 
 
-
+// perhaps we shouldn't use this function for both the user-click
+// clear and the canvas-drag clear...  Hmm... (because in the latter
+// case, we don't need to regnerate the SMILES string and the QED
+// score.
+// 
 void
 lbg_info_t::clear() {
 
    clear_canvas();
+   // and that clears the alerts group
+   alert_group = NULL;
+   
    // clear the molecule
    mol.clear();
+
    update_descriptor_attributes();
 }
 
@@ -2316,11 +2337,9 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_qed_progressbar =           GTK_WIDGET(gtk_builder_get_object(builder, "lbg_qed_progressbar"));
 	 lbg_qed_text_label =            GTK_WIDGET(gtk_builder_get_object(builder, "lbg_qed_text_label"));
 	 lbg_alert_hbox =                GTK_WIDGET(gtk_builder_get_object(builder, "lbg_alert_hbox"));
+	 lbg_alert_name_label =                GTK_WIDGET(gtk_builder_get_object(builder, "lbg_alert_name_label"));
 
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
-
-	 std::cout << "saving lbg_qed_text_label " << lbg_qed_text_label << std::endl;
-
       }
    } 
 
@@ -2462,7 +2481,6 @@ lbg_info_t::get_smiles_string_from_mol_openbabel() const {
 void
 lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 
-
    if (rdkm.getNumAtoms() == 0) {
       // non-interesting case first
       gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
@@ -2485,14 +2503,72 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 void
 lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 
-   std::vector<std::pair<std::string,RDKit::MatchVectType> > v = alerts(rdkm);
+   // std::vector<std::pair<std::string,RDKit::MatchVectType> > v = alerts(rdkm);
+   std::vector<alert_info_t> v = alerts(rdkm);
 
    if (v.size()) {
+      GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
+      gtk_label_set_text(GTK_LABEL(lbg_alert_name_label), v[0].smarts_name.c_str());
       gtk_widget_show(lbg_alert_hbox);
-      for (unsigned int i=0; i<v.size(); i++) 
-	 std::cout << "ALERT: " << v[i].first << std::endl;
+
+      if (0) // debugging
+	 for (unsigned int i=0; i<v.size(); i++) 
+	    std::cout << "ALERT: " << v[i].smarts << std::endl;
+
+      // if root gets renewed then this needs to be renewed too (so
+      // clear the alert group (and set it to null) when you clear the
+      // root.
+      //
+      if (alert_group == NULL) {
+	 alert_group = goo_canvas_group_new (root, NULL);
+      } else {
+ 	 gint n_children = goo_canvas_item_get_n_children (alert_group);
+ 	 std::cout << "removing " << n_children << " children " << std::endl;
+ 	 for (int i=0; i<n_children; i++)
+ 	    goo_canvas_item_remove_child(alert_group, 0);
+      } 
+      
+      
+      for (unsigned int imatch=0; imatch<v.size(); imatch++) {
+	 for (unsigned int imatch_atom=0; imatch_atom<v[imatch].matches.size(); imatch_atom++) {
+	    unsigned int rdkmol_idx = v[imatch].matches[imatch_atom].second;
+	    // std::cout << "   " << rdkmol_idx;
+	    // idx is some function of rdkmol_idx - look it up
+	    std::string lbg_atom_index_str;
+	    int lbg_atom_index = rdkmol_idx;
+	    try { 
+	       RDKit::ATOM_SPTR at_p = rdkm[rdkmol_idx];
+	       at_p->getProp("lbg_atom_index", lbg_atom_index_str);
+	       int lbg_atom_index = coot::util::string_to_int(lbg_atom_index_str);
+	       lig_build::pos_t pos = mol.atoms[lbg_atom_index].atom_position;
+	       double radius = 14;
+	       double line_width = 0;
+	       std::string col = "";
+	       GooCanvasItem *circle = 
+		  goo_canvas_ellipse_new(alert_group,
+					 pos.x, pos.y, radius, radius,
+					 "line_width", line_width,
+					 "fill-color-rgba", 0xffaa0050,
+					 NULL);
+	       goo_canvas_item_lower(circle, NULL); // to the bottom
+	    }
+	    catch (KeyErrorException kee) {
+	       // actually, perhaps we don't get this we should fail, else we risk a crash?
+	       // lbg_atom_index = rdkmol_idx;
+	       std::cout << "ERROR:: in update_alerts() failed to get atom name " 
+			 << kee.what() << std::endl;
+	    }
+	 }
+      }
    } else {
       gtk_widget_hide(lbg_alert_hbox);
+      
+      if (alert_group) { 
+	 gint n_children = goo_canvas_item_get_n_children (alert_group);
+	 std::cout << "no alerts - removing " << n_children << " children " << std::endl;
+	 for (int i=0; i<n_children; i++)
+	    goo_canvas_item_remove_child(alert_group, 0);
+      }
    } 
 }
 #endif
@@ -2881,6 +2957,8 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 	 CMMDBManager *mol = NULL; // no atom names to transfer
 	 widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
 	 render_from_molecule(wmol);
+	 std::cout << "in import_mol_from_file() calling update_descriptor_attributes() "
+		   << std::endl;
 	 update_descriptor_attributes();
 
       } else {
@@ -2915,6 +2993,8 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       mm.read(file_name);
       widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
       render_from_molecule(wmol);
+      std::cout << "in import_mol_from_file() 2 calling update_descriptor_attributes() "
+		<< std::endl;
       update_descriptor_attributes();
    }
    
@@ -5628,6 +5708,9 @@ lbg_info_t::convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a
 void
 lbg_info_t::update_statusbar_smiles_string(const std::string &smiles_string) const {
 
+   // "memory leak" here because we don't dispose of
+   // (gtk_statusbar_pop()) the previous label.
+   //
    std::string status_string;
    if (lbg_statusbar) { 
       status_string = " SMILES:  ";
@@ -5660,7 +5743,7 @@ lbg_info_t::update_statusbar_smiles_string(const RDKit::RWMol &mol) const {
 
    std::string s;
 
-   if (mol.getNumAtoms() == 0) { 
+   if (mol.getNumAtoms() > 0) {
       // new
       RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(mol);
       s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs);

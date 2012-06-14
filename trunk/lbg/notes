@@ -837,3 +837,74 @@ Mon Oct 24 19:59:53 EDT 2011
 
 
 -----
+
+Loading ~/.coot...done.
+saving lbg_qed_text_label 0x18d6ac40
+sbase monomer dir: /home/paule/ccp4/ccp4-6.2.0/share/sbase
+==23086== Conditional jump or move depends on uninitialised value(s)
+==23086==    at 0x4C3C398: lbg_info_t::draw_substitution_contour() (lbg.cc:5004)
+==23086==    by 0x4C3F414: lbg_info_t::render_from_molecule(widgeted_molecule_t const&) (lbg.cc:2795)
+==23086==    by 0x4C41E4C: lbg(lig_build::molfile_molecule_t, std::pair<bool, coot::residue_spec_t>, CMMDBManager*, std::string const&, std::string const&, int, bool, bool, int (*)(char const*, char const*), void (*)(std::string), void (*)(std::string)) (lbg.cc:125)
+==23086==    by 0x4C5F80: start_ligand_builder_gui (main.cc:948)
+==23086==    by 0x391C40EA43: g_closure_invoke (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0x391C420D36: ??? (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0x391C42A160: g_signal_emit_valist (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0x391C42A301: g_signal_emit (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0x3924A82F7D: gtk_widget_activate (in /usr/lib64/libgtk-x11-2.0.so.0.2400.8)
+==23086==    by 0x3924965F8C: gtk_menu_shell_activate_item (in /usr/lib64/libgtk-x11-2.0.so.0.2400.8)
+==23086==    by 0x3924966371: ??? (in /usr/lib64/libgtk-x11-2.0.so.0.2400.8)
+==23086==    by 0x392494ED02: ??? (in /usr/lib64/libgtk-x11-2.0.so.0.2400.8)
+==23086== 
+
+
+
+Loading ~/.coot...done.
+saving lbg_qed_text_label 0x18d6ac40
+sbase monomer dir: /home/paule/ccp4/ccp4-6.2.0/share/sbase
+==23086== Conditional jump or move depends on uninitialised value(s)
+==23086==    at 0x4C3C398: lbg_info_t::draw_substitution_contour() (lbg.cc:5004)
+==23086==    by 0x4C3F414: lbg_info_t::render_from_molecule(widgeted_molecule_t const&) (lbg.cc:2795)
+==23086==    by 0x4C41E4C: lbg(lig_build::molfile_molecule_t, std::pair<bool, coot::residue_spec_t>, CMMDBManager*, std::string const&, std::string const&, int, bool, bool, int (*)(char const*, char const*), void (*)(std::string), void (*)(std::string)) (lbg.cc:125)
+==23086==    by 0x4C5F80: start_ligand_builder_gui (main.cc:948)
+==23086==    by 0x391C40EA43: g_closure_invoke (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0x391C420D36: ??? (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0x391C42A160: g_signal_emit_valist (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0x391C42A301: g_signal_emit (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0x3924A82F7D: gtk_widget_activate (in /usr/lib64/libgtk-x11-2.0.so.0.2400.8)
+==23086==    by 0x3924965F8C: gtk_menu_shell_activate_item (in /usr/lib64/libgtk-x11-2.0.so.0.2400.8)
+==23086==    by 0x3924966371: ??? (in /usr/lib64/libgtk-x11-2.0.so.0.2400.8)
+==23086==    by 0x392494ED02: ??? (in /usr/lib64/libgtk-x11-2.0.so.0.2400.8)
+==23086== 
+==23086== Conditional jump or move depends on uninitialised value(s)
+==23086==    at 0x4C30291: lbg_info_t::draw_all_flev_residue_attribs() (lbg.cc:3202)
+==23086==    by 0x4C3C964: lbg_info_t::draw_all_flev_annotations() (lbg.cc:3195)
+==23086==    by 0x4C41926: lbg_info_t::clear_and_redraw(lig_build::pos_t const&) (lbg.cc:642)
+==23086==    by 0x4C419D1: lbg_info_t::drag_canvas(int, int) (lbg.cc:623)
+==23086==    by 0x4C41A37: lbg_info_t::handle_drag(GdkModifierType, int, int) (lbg.cc:590)
+==23086==    by 0x4C41B75: on_canvas_motion_new(_GooCanvasItem*, _GooCanvasItem*, _GdkEventMotion*, void*) (lbg.cc:574)
+==23086==    by 0xF51FA1B: goo_canvas_marshal_BOOLEAN__OBJECT_BOXED (goocanvasmarshal.c:203)
+==23086==    by 0x391C40EA43: g_closure_invoke (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0x391C420D36: ??? (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0x391C429F32: g_signal_emit_valist (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0x391C42A4EC: g_signal_emit_by_name (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0xF52E7C5: propagate_event (goocanvas.c:2961)
+==23086== 
+==23086== Conditional jump or move depends on uninitialised value(s)
+==23086==    at 0x4C3C94A: lbg_info_t::draw_all_flev_ligand_annotations() (lbg.cc:3212)
+==23086==    by 0x4C3C96C: lbg_info_t::draw_all_flev_annotations() (lbg.cc:3196)
+==23086==    by 0x4C41926: lbg_info_t::clear_and_redraw(lig_build::pos_t const&) (lbg.cc:642)
+==23086==    by 0x4C419D1: lbg_info_t::drag_canvas(int, int) (lbg.cc:623)
+==23086==    by 0x4C41A37: lbg_info_t::handle_drag(GdkModifierType, int, int) (lbg.cc:590)
+==23086==    by 0x4C41B75: on_canvas_motion_new(_GooCanvasItem*, _GooCanvasItem*, _GdkEventMotion*, void*) (lbg.cc:574)
+==23086==    by 0xF51FA1B: goo_canvas_marshal_BOOLEAN__OBJECT_BOXED (goocanvasmarshal.c:203)
+==23086==    by 0x391C40EA43: g_closure_invoke (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0x391C420D36: ??? (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0x391C429F32: g_signal_emit_valist (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0x391C42A4EC: g_signal_emit_by_name (in /lib64/libgobject-2.0.so.0.3000.3)
+==23086==    by 0xF52E7C5: propagate_event (goocanvas.c:2961)
+==23086== 
+
+
+
+
+-----
