@@ -196,7 +196,6 @@ coot::util::translate_close_to_origin(CMMDBManager *mol) {
       clipper::Coord_frac cf = coot::util::shift_to_origin(mol);
       clipper::Coord_orth co = cf.coord_orth(csp.first);
       for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-	 int imod = 1;
 	 CModel *model_p = mol->GetModel(imod);
 	 CChain *chain_p;
 	 int nchains = model_p->GetNumberOfChains();
