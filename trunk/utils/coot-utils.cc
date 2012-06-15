@@ -36,6 +36,7 @@
 #include <lm.h>
 #else
 #if !defined(WINDOWS_MINGW)
+#include <unistd.h>
 #include <pwd.h>
 #endif // MINGW
 #endif
