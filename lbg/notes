@@ -835,6 +835,30 @@ Mon Oct 24 19:59:53 EDT 2011
 
    the BCL in 3eoj fails to flev.  Formal charge on Mg is 0?
 
+----
+Tue May 29 19:12:00 BST 2012
+
+    projects:  
+
+     yafaray
+     H-bonds in substitution contour calculation
+     thing for krysta.
+
+     equal-radius ball-and-stick mode
+
+     when making ball-and-stick renderings, add an atom attribute that
+     says that this has a ball-and-stick rendering (perhaps the
+     add-rep number), so that when rendering normal line bonds, check
+     the ball-and-stick rendering (now) attached to a particular bond
+     line to see if it is already being drawn in ball-and-stick mode,
+     if it is, don't draw it as a line bond.
+
+     clustering of chemical features.
+
+     fix batch-mode centering of fleving.
+
+     "clean-up" button in lbg to re-draw molecule in conventional geometry.
+
 
 -----
 

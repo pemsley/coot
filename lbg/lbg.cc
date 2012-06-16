@@ -265,10 +265,7 @@ lbg_info_t::convert_bond_type(const lig_build::bond_t::bond_type_t &t) const {
 std::string
 lbg_info_t::get_smiles_string_from_mol_rdkit() const {
 
-   RDKit::RWMol rdkm = rdkit_mol(mol);
-   RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(rdkm);
-   std::string s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs);
-   delete rdk_mol_with_no_Hs;
+   std::string s;
    return s;
 }
 #endif
@@ -2485,9 +2482,16 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
       // non-interesting case first
       gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
       gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), "");
-   } else { 
-      double qed = get_qed(rdkm);
-      if (qed > 0) {
+   } else {
+      bool all_set = false;
+      double qed = 0.0;
+      if (silicos_it_qed_default_func) { 
+	 qed = get_qed(silicos_it_qed_default_func, rdkm);
+	 if (qed > 0)
+	    all_set = true;
+      }
+
+      if (all_set) { 
 	 std::string s = coot::util::float_to_string_using_dec_pl(qed, 3);
 	 gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), s.c_str());
 	 gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), qed);
@@ -2503,73 +2507,76 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 void
 lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 
-   // std::vector<std::pair<std::string,RDKit::MatchVectType> > v = alerts(rdkm);
-   std::vector<alert_info_t> v = alerts(rdkm);
+   if (rdkm.getNumAtoms() == 0) {
+	 gtk_widget_hide(lbg_alert_hbox);
+   } else { 
+      
+      std::vector<alert_info_t> v = alerts(rdkm);
 
-   if (v.size()) {
-      GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
-      gtk_label_set_text(GTK_LABEL(lbg_alert_name_label), v[0].smarts_name.c_str());
-      gtk_widget_show(lbg_alert_hbox);
+      if (v.size()) {
+	 GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
+	 gtk_label_set_text(GTK_LABEL(lbg_alert_name_label), v[0].smarts_name.c_str());
+	 gtk_widget_show(lbg_alert_hbox);
 
-      if (0) // debugging
-	 for (unsigned int i=0; i<v.size(); i++) 
-	    std::cout << "ALERT: " << v[i].smarts << std::endl;
+	 if (0) // debugging
+	    for (unsigned int i=0; i<v.size(); i++) 
+	       std::cout << "ALERT: " << v[i].smarts << std::endl;
 
-      // if root gets renewed then this needs to be renewed too (so
-      // clear the alert group (and set it to null) when you clear the
-      // root.
-      //
-      if (alert_group == NULL) {
-	 alert_group = goo_canvas_group_new (root, NULL);
-      } else {
- 	 gint n_children = goo_canvas_item_get_n_children (alert_group);
- 	 std::cout << "removing " << n_children << " children " << std::endl;
- 	 for (int i=0; i<n_children; i++)
- 	    goo_canvas_item_remove_child(alert_group, 0);
-      } 
+	 // if root gets renewed then this needs to be renewed too (so
+	 // clear the alert group (and set it to null) when you clear the
+	 // root.
+	 //
+	 if (alert_group == NULL) {
+	    alert_group = goo_canvas_group_new (root, NULL);
+	 } else {
+	    gint n_children = goo_canvas_item_get_n_children (alert_group);
+	    std::cout << "removing " << n_children << " children " << std::endl;
+	    for (int i=0; i<n_children; i++)
+	       goo_canvas_item_remove_child(alert_group, 0);
+	 } 
       
       
-      for (unsigned int imatch=0; imatch<v.size(); imatch++) {
-	 for (unsigned int imatch_atom=0; imatch_atom<v[imatch].matches.size(); imatch_atom++) {
-	    unsigned int rdkmol_idx = v[imatch].matches[imatch_atom].second;
-	    // std::cout << "   " << rdkmol_idx;
-	    // idx is some function of rdkmol_idx - look it up
-	    std::string lbg_atom_index_str;
-	    int lbg_atom_index = rdkmol_idx;
-	    try { 
-	       RDKit::ATOM_SPTR at_p = rdkm[rdkmol_idx];
-	       at_p->getProp("lbg_atom_index", lbg_atom_index_str);
-	       int lbg_atom_index = coot::util::string_to_int(lbg_atom_index_str);
-	       lig_build::pos_t pos = mol.atoms[lbg_atom_index].atom_position;
-	       double radius = 14;
-	       double line_width = 0;
-	       std::string col = "";
-	       GooCanvasItem *circle = 
-		  goo_canvas_ellipse_new(alert_group,
-					 pos.x, pos.y, radius, radius,
-					 "line_width", line_width,
-					 "fill-color-rgba", 0xffaa0050,
-					 NULL);
-	       goo_canvas_item_lower(circle, NULL); // to the bottom
-	    }
-	    catch (KeyErrorException kee) {
-	       // actually, perhaps we don't get this we should fail, else we risk a crash?
-	       // lbg_atom_index = rdkmol_idx;
-	       std::cout << "ERROR:: in update_alerts() failed to get atom name " 
-			 << kee.what() << std::endl;
+	 for (unsigned int imatch=0; imatch<v.size(); imatch++) {
+	    for (unsigned int imatch_atom=0; imatch_atom<v[imatch].matches.size(); imatch_atom++) {
+	       unsigned int rdkmol_idx = v[imatch].matches[imatch_atom].second;
+	       // std::cout << "   " << rdkmol_idx;
+	       // idx is some function of rdkmol_idx - look it up
+	       std::string lbg_atom_index_str;
+	       int lbg_atom_index = rdkmol_idx;
+	       try { 
+		  RDKit::ATOM_SPTR at_p = rdkm[rdkmol_idx];
+		  at_p->getProp("lbg_atom_index", lbg_atom_index_str);
+		  int lbg_atom_index = coot::util::string_to_int(lbg_atom_index_str);
+		  lig_build::pos_t pos = mol.atoms[lbg_atom_index].atom_position;
+		  double radius = 14;
+		  double line_width = 0;
+		  std::string col = "";
+		  GooCanvasItem *circle = 
+		     goo_canvas_ellipse_new(alert_group,
+					    pos.x, pos.y, radius, radius,
+					    "line_width", line_width,
+					    "fill-color-rgba", 0xffaa0050,
+					    NULL);
+		  goo_canvas_item_lower(circle, NULL); // to the bottom
+	       }
+	       catch (KeyErrorException kee) {
+		  // actually, perhaps we don't get this we should fail, else we risk a crash?
+		  // lbg_atom_index = rdkmol_idx;
+		  std::cout << "ERROR:: in update_alerts() failed to get atom name " 
+			    << kee.what() << std::endl;
+	       }
 	    }
 	 }
-      }
-   } else {
-      gtk_widget_hide(lbg_alert_hbox);
+      } else {
+	 gtk_widget_hide(lbg_alert_hbox);
       
-      if (alert_group) { 
-	 gint n_children = goo_canvas_item_get_n_children (alert_group);
-	 std::cout << "no alerts - removing " << n_children << " children " << std::endl;
-	 for (int i=0; i<n_children; i++)
-	    goo_canvas_item_remove_child(alert_group, 0);
+	 if (alert_group) { 
+	    gint n_children = goo_canvas_item_get_n_children (alert_group);
+	    for (int i=0; i<n_children; i++)
+	       goo_canvas_item_remove_child(alert_group, 0);
+	 }
       }
-   } 
+   }
 }
 #endif
 
@@ -5746,10 +5753,9 @@ lbg_info_t::update_statusbar_smiles_string(const RDKit::RWMol &mol) const {
    if (mol.getNumAtoms() > 0) {
       // new
       RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(mol);
+
       s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs);
 
-      // old
-      // std::string s = get_smiles_string_from_mol_rdkit();
    } 
    update_statusbar_smiles_string(s);
 }
