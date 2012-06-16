@@ -2,10 +2,9 @@
 
 #ifdef MAKE_ENTERPRISE_TOOLS
 
-#include <Python.h>
 #include "lbg.hh"
 
-double get_qed(const RDKit::ROMol &rdkm);
+double get_qed(PyObject *silicos_it_qed_default_func, const RDKit::ROMol &rdkm);
 
 #endif
 

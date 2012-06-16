@@ -31,6 +31,10 @@
 
 #ifdef MAKE_ENTERPRISE_TOOLS
 #include "rdkit-interface.hh"
+#ifndef HAVE_PYTHON_H
+#define HAVE_PYTHON_H
+#include <Python.h> // for storing silicos_it_qed_default_func
+#endif
 #endif 
 
 #include <gtk/gtk.h>
@@ -713,6 +717,7 @@ private:
       sbase_import_func_ptr = NULL;
       draw_flev_annotations_flag = false;
       alert_group = NULL; // group for alert annotations
+      setup_silicos_it_qed_default_func();
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
@@ -878,6 +883,9 @@ private:
    RDKit::RWMol rdkit_mol(const widgeted_molecule_t &mol) const;
    RDKit::Bond::BondType convert_bond_type(const lig_build::bond_t::bond_type_t &t) const;
    std::string get_smiles_string_from_mol_rdkit() const;
+   std::vector<alert_info_t> alerts(const RDKit::ROMol &mol) const;
+   PyObject *silicos_it_qed_default_func; 
+   void setup_silicos_it_qed_default_func(); // try to get the python function, or set it to null.
 #endif
    std::string get_smiles_string_from_mol_openbabel() const;
 
@@ -892,9 +900,6 @@ private:
    std::string atom_X; // initially "H"
    
    std::vector<std::pair<std::string, std::string> > alert_smarts() const;
-#ifdef MAKE_ENTERPRISE_TOOLS   
-   std::vector<alert_info_t> alerts(const RDKit::ROMol &mol) const;
-#endif
    GooCanvasItem *alert_group;   
 
 public:
