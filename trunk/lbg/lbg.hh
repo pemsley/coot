@@ -720,8 +720,10 @@ private:
       sbase_import_func_ptr = NULL;
       draw_flev_annotations_flag = false;
       alert_group = NULL; // group for alert annotations
+#ifdef MAKE_ENTERPRISE_TOOLS   
 #ifdef USE_PYTHON      
       setup_silicos_it_qed_default_func();
+#endif      
 #endif      
    }
    
