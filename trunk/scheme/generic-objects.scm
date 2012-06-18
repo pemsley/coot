@@ -322,7 +322,7 @@
 
       ;; if unset, then set it.
       (if (eq? *interactive-probe-is-OK?* 'unset)
-	  (if (command-in-path? *probe-command*)
+	  (if (command-in-path-or-absolute? *probe-command*)
 	      (set! *interactive-probe-is-OK?* 'yes)
 	      (set! *interactive-probe-is-OK?* 'no)))
 
