@@ -129,8 +129,8 @@
     
     ;; e.g. remove -2007-04-27_1326.24 from 03srv164-2007-04-27_1326.24
 
-    ;; shelx and coot will retire before the 22nd century, won't they?
-    (let ((pattern "-20[0-9][0-9]-[01][0-9]-[0-2][0-9]_[0-2][0-9][0-5][-0-9].[0-5][-0-9]"))
+    ;; shelx and coot will retire before the 22nd century, won't they? (thank you Gabriele Balducci)
+    (let ((pattern "-20[0-9][0-9]-[01][0-9]-[0-3][0-9]_[0-2][0-9][0-5][-0-9].[0-5][-0-9]"))
       (let ((result (string-match pattern str)))
 	(if result
 	    (substring str 0 (car (vector-ref result 1)))
