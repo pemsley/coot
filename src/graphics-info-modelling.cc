@@ -1791,13 +1791,15 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
 				int imol_ref_map,
 				bool mask_water_flag) {
 
-   bool success = 0; // fail initially
-   bool debug = 0;
+   bool success = false; // fail initially
+   bool debug = false;
    
+   if (! is_valid_map_molecule(imol_ref_map)) {
+      std::cout << "WARNING:: not a valid map: " << imol_ref_map << std::endl;
+      return success;// false
+   } 
+      
    std::vector<coot::minimol::atom *> range_atoms = range_mol.select_atoms_serial();
-   //       std::cout << "There are " << range_atoms.size() << " atoms from initial ligand "
-   // 		<< std::endl;
-
 
    // debugging
    if (debug) {
