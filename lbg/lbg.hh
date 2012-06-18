@@ -25,17 +25,20 @@
 
 #ifdef HAVE_GOOCANVAS
 
-#include <iostream>
-#include <map>
-#include <queue>
+#ifdef USE_PYTHON
+#ifndef HAVE_PYTHON_H
+#define HAVE_PYTHON_H
+#include <Python.h> // this is here get round header warnings
+#endif
+#endif
 
 #ifdef MAKE_ENTERPRISE_TOOLS
 #include "rdkit-interface.hh"
-#ifndef HAVE_PYTHON_H
-#define HAVE_PYTHON_H
-#include <Python.h> // for storing silicos_it_qed_default_func
-#endif
 #endif 
+
+#include <iostream>
+#include <map>
+#include <queue>
 
 #include <gtk/gtk.h>
 #include <goocanvas.h>
@@ -717,7 +720,9 @@ private:
       sbase_import_func_ptr = NULL;
       draw_flev_annotations_flag = false;
       alert_group = NULL; // group for alert annotations
+#ifdef USE_PYTHON      
       setup_silicos_it_qed_default_func();
+#endif      
    }
    
    // return a status and a vector of atoms (bonded to atom_index) having
@@ -884,7 +889,9 @@ private:
    RDKit::Bond::BondType convert_bond_type(const lig_build::bond_t::bond_type_t &t) const;
    std::string get_smiles_string_from_mol_rdkit() const;
    std::vector<alert_info_t> alerts(const RDKit::ROMol &mol) const;
-   PyObject *silicos_it_qed_default_func; 
+#ifdef USE_PYTHON   
+   PyObject *silicos_it_qed_default_func;
+#endif    
    void setup_silicos_it_qed_default_func(); // try to get the python function, or set it to null.
 #endif
    std::string get_smiles_string_from_mol_openbabel() const;

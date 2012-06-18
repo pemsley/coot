@@ -20,6 +20,13 @@
 
 #ifdef HAVE_GOOCANVAS
 
+#ifdef USE_PYTHON
+#ifndef HAVE_PYTHON_H
+#define HAVE_PYTHON_H
+#include <Python.h> // this is here get round header warnings
+#endif
+#endif
+
 #include <sys/types.h>  // for stating
 #include <sys/stat.h>
 #include <unistd.h>
@@ -2478,6 +2485,7 @@ lbg_info_t::get_smiles_string_from_mol_openbabel() const {
 void
 lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 
+#ifdef USE_PYTHON   
    if (rdkm.getNumAtoms() == 0) {
       // non-interesting case first
       gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
@@ -2500,6 +2508,7 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 	 gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
       }
    }
+#endif
 }
 #endif
 
