@@ -547,16 +547,17 @@ function make_tar {
 
 function ssh_copy { 
 
-    bin_tar_file=$1
-    if [ "$domainname" = "biop" ] ; then
-       do_ssh_copy=true
-    fi
+#     bin_tar_file=$1
+#     if [ "$domainname" = "biop" ] ; then
+#        do_ssh_copy=true
+#     fi
 
     if [ "$do_ssh_copy" = true ] ; then 
-       echo copying over files...
-       $HOME/bin/sput-with-dir $bin_tar_file        public_html/software/binaries/nightlies/pre-release/
+       dir=public_html/software/binaries/nightlies/pre-release/
+       echo ssh_copy copying over files using $HOME/bin/sput-with-dir $bin_tar_file $dir
+       $HOME/bin/sput-with-dir $bin_tar_file $dir
        if [ -e $bin_tar_file.md5sum ] ; then 
-          $HOME/bin/sput-with-dir $bin_tar_file.md5sum public_html/software/binaries/nightlies/pre-release/
+          $HOME/bin/sput-with-dir $bin_tar_file.md5sum dir
        fi
     else 
        echo Not ssh copying file to York, $domainname
@@ -568,10 +569,11 @@ function ssh_copy_to_biop {
     bin_tar_file=$1
 
     if [ "$do_ssh_biop_copy" = true ] ; then 
-       echo copying over files to Biop...
        target_dir=public_html/coot/software/binaries/pre-releases/
+       echo copying over files to Biop: $HOME/bin/sput-with-dir $bin_tar_file $target_dir
        $HOME/bin/sput-with-dir $bin_tar_file $target_dir
        if [ -e $bin_tar_file.md5sum ] ; then 
+          echo and also: $HOME/bin/sput-with-dir $bin_tar_file.md5sum $target_dir
           $HOME/bin/sput-with-dir $bin_tar_file.md5sum $target_dir
        fi
     else 
