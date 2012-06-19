@@ -1033,7 +1033,6 @@
 	;; ---------------------------------------------------------------------
 	;;     RCrane
 	;; ---------------------------------------------------------------------
-	;;  hack out until the python wrapper is committed.
 	;; 
 	(if (coot-has-pygtk?)
 	    (run-python-command "import_rcrane_wrapper()"))

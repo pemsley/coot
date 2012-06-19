@@ -101,7 +101,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	       int atomic_number = tbl->getAtomicNumber(ele_capped);
 	       at->setAtomicNum(atomic_number);
 	       at->setMass(tbl->getAtomicWeight(atomic_number));
-	       at->setProp("name", std::string(residue_atoms[iat]->name));
+	       at->setProp("name", atom_name);
 
 	       // set the valence from they type energy.  Abstract?
 	       //

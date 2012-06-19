@@ -6513,6 +6513,30 @@ Thu May  3 18:45:01 BST 2012
 		      << "\" \"" << atom_type_2 << "\" \"" << type << "\"" << std::endl;
 
 
+
+----
+Fri May 18 12:34:38 BST 2012
+
+// I think that graphics_info_t::Geom_p() should be passed to this function.
+// 
+void
+molecule_class_info_t::makebonds() {
+
+
+----
+Tue May 29 19:35:49 BST 2012
+
+    projects: 
+
+    make graphics look nice on white background
+
+    Add data analysis graphs sigF vs F etc.
+
+    Learn Qt.  Make ramachandran widget - with atom selections
+
+    Transparent surfaces via z-sorting
+
+
 ----
 Fri May 18 12:34:38 BST 2012
 
