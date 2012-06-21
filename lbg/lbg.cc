@@ -2411,8 +2411,13 @@ lbg_info_t::init(GtkBuilder *builder) {
    if (is_stand_alone()) 
       int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
 
+   // if we don't have rdkit or python then we don't want to see qed progress bar
 #ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef USE_PYTHON   
    // all, with QED
+#else   
+   gtk_widget_hide(lbg_qed_hbox);
+#endif    
 #else
    gtk_widget_hide(lbg_qed_hbox);
 #endif    
@@ -2517,7 +2522,7 @@ void
 lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 
    if (rdkm.getNumAtoms() == 0) {
-	 gtk_widget_hide(lbg_alert_hbox);
+      gtk_widget_hide(lbg_alert_hbox);
    } else { 
       
       std::vector<alert_info_t> v = alerts(rdkm);
@@ -2525,11 +2530,12 @@ lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
       if (v.size()) {
 	 GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 	 gtk_label_set_text(GTK_LABEL(lbg_alert_name_label), v[0].smarts_name.c_str());
+
 	 gtk_widget_show(lbg_alert_hbox);
 
-	 if (0) // debugging
+	 if (false) // debugging
 	    for (unsigned int i=0; i<v.size(); i++) 
-	       std::cout << "ALERT: " << v[i].smarts << std::endl;
+	       std::cout << "ALERT: " << v[i].smarts << " " << v[i].smarts_name << std::endl;
 
 	 // if root gets renewed then this needs to be renewed too (so
 	 // clear the alert group (and set it to null) when you clear the
@@ -2539,7 +2545,7 @@ lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 	    alert_group = goo_canvas_group_new (root, NULL);
 	 } else {
 	    gint n_children = goo_canvas_item_get_n_children (alert_group);
-	    std::cout << "removing " << n_children << " children " << std::endl;
+	    // std::cout << "removing " << n_children << " children " << std::endl;
 	    for (int i=0; i<n_children; i++)
 	       goo_canvas_item_remove_child(alert_group, 0);
 	 } 
