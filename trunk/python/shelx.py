@@ -172,7 +172,7 @@ def remove_time_extensions(str):
 
 	# e.g. remove -2007-04-27_1326.24 from 03srv164-2007-04-27_1326.24
 	import re
-	pattern = "-20[0-9][0-9]-[01][0-9]-[0-2][0-9]_[0-2][0-9][0-5][-0-9].[0-5][-0-9]"
+	pattern = "-20[0-9][0-9]-[01][0-9]-[0-3][0-9]_[0-2][0-9][0-5][-0-9].[0-5][-0-9]"
 	# we replace pattern with ''
 	result = re.sub(pattern,"",str)
 	return result
