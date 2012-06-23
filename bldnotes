@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 4122 (some prodrg stuff needs testing) generic objects
+scripts      rev 4247 (some prodrg stuff needs testing) generic objects, check new defs
 tests        rev 3991 update
 build-it-win rev 4031
 
@@ -12,6 +12,9 @@ build-it-win rev 4031
 
 
 ---- FINISH URGENT ----
+
+CCP4 APS 2012:
+- GUI for patterson (Garib)
 
 CCP4 SW:
 - seq vs PIR have extra button to insert, delete, mutate

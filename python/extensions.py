@@ -1261,7 +1261,7 @@ if (have_coot_python):
      
 
      def make_dot_surf_func(imol,text):
-	dots_handle = dots(imol, text, text, 1, 1)
+	dots_handle = dots(imol, text, text, 2, 1)
 	print "dots handle: ", dots_handle
 
      add_simple_coot_menu_menuitem(
