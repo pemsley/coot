@@ -63,8 +63,8 @@ lbg(lig_build::molfile_molecule_t mm,
     bool stand_alone_flag_in,
     int (*get_url_func_pointer_in) (const char *s1, const char *s2),
     void (*prodrg_import_function_pointer) (std::string file_name),
-    void (*sbase_import_function_pointer) (std::string comp_id)) {
-
+    void (*sbase_import_function_pointer) (std::string comp_id),
+    std::string (*get_drug_mdl_file_function_pointer_in) (std::string drug_name)) {
    
    lbg_info_t *lbg = NULL; // failure return value.
    std::string glade_file = "lbg.glade";
@@ -155,6 +155,9 @@ lbg(lig_build::molfile_molecule_t mm,
       }
       if (sbase_import_function_pointer) {
 	 lbg->set_sbase_import_function(sbase_import_function_pointer);
+      }
+      if (get_drug_mdl_file_function_pointer_in) {
+	 lbg->set_get_drug_mdl_file_function(get_drug_mdl_file_function_pointer_in);
       } 
    }
    return lbg;
@@ -2341,7 +2344,9 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_qed_progressbar =           GTK_WIDGET(gtk_builder_get_object(builder, "lbg_qed_progressbar"));
 	 lbg_qed_text_label =            GTK_WIDGET(gtk_builder_get_object(builder, "lbg_qed_text_label"));
 	 lbg_alert_hbox =                GTK_WIDGET(gtk_builder_get_object(builder, "lbg_alert_hbox"));
-	 lbg_alert_name_label =                GTK_WIDGET(gtk_builder_get_object(builder, "lbg_alert_name_label"));
+	 lbg_alert_name_label =          GTK_WIDGET(gtk_builder_get_object(builder, "lbg_alert_name_label"));
+	 lbg_get_drug_dialog =           GTK_WIDGET(gtk_builder_get_object(builder, "lbg_get_drug_dialog"));
+	 lbg_get_drug_entry =            GTK_WIDGET(gtk_builder_get_object(builder, "lbg_get_drug_entry"));
 
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
       }
@@ -5791,6 +5796,33 @@ lbg_info_t::show_atom_x_dialog() {
 void
 lbg_info_t::set_atom_x_string(const std::string &s) {
    atom_X = s;
+}
+
+
+// uses lbg_get_drug_entry
+void
+lbg_info_t::get_drug_using_entry_text() {
+
+   const char *txt = gtk_entry_get_text(GTK_ENTRY(lbg_get_drug_entry));
+   get_drug(txt);
 } 
+
+// get mol file and load it
+void
+lbg_info_t::get_drug(const std::string &drug_name) {
+
+   if (get_drug_mdl_file_function_pointer) {
+      try {
+	 std::string file_name = get_drug_mdl_file_function_pointer(drug_name);
+	 import_mol_from_file(file_name);
+      }
+      catch (std::runtime_error rte) {
+	 std::cout << "WARNING:: " << rte.what() << std::endl;
+      } 
+   } else {
+      std::cout << "Null get-drug function" << std::endl;
+   } 
+}
+
 
 #endif // HAVE_GOOCANVAS

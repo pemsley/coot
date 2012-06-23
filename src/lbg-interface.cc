@@ -113,7 +113,11 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
 	       get_url_func_ptr = coot_get_url;
 #endif      
 	       lbg(m, p, mol, view_name, "", imol, use_graphics_flag, stand_alone_flag,
-		   get_url_func_ptr, prodrg_import_function, sbase_import_function);
+		   get_url_func_ptr,
+		   prodrg_import_function,
+		   sbase_import_function,
+		   get_drug_mdl_via_wikipedia_and_drugbank
+		   );
 	    }
 	    delete mol;
 	 }
@@ -179,7 +183,10 @@ void smiles_to_ligand_builder(const char *smiles_string) {
 #endif
 
 	 lbg(m, dummy_spec, mol, "", "", -1, use_graphics_flag, stand_alone_flag,
-	     get_url_func_ptr, prodrg_import_function, sbase_import_function);
+	     get_url_func_ptr,
+	     prodrg_import_function,
+	     sbase_import_function,
+	     get_drug_mdl_via_wikipedia_and_drugbank);
       }
    }
    catch (std::exception e) {

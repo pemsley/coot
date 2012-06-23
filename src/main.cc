@@ -945,7 +945,10 @@ start_ligand_builder_gui(GtkMenuItem     *menuitem,
    lbg(mm, dummy_pair, mol, view_name, molecule_file_name, imol_dummy,
        use_graphics_interface_flag, stand_alone_flag,
        get_url_func_pointer,
-       prodrg_import_function, sbase_import_function);
+       prodrg_import_function,
+       sbase_import_function,
+       get_drug_mdl_via_wikipedia_and_drugbank
+       );
 #else
    std::cout << "No goocanvas" << std::endl;
 #endif // HAVE_GOOCANVAS

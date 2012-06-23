@@ -903,6 +903,9 @@ size_t write_coot_curl_data_to_file(void *buffer, size_t size, size_t nmemb, voi
 std::string coot_get_url_as_string_internal(const char *url);
 void *wrapped_curl_easy_perform(void *data);
 void stop_curl_download(const char *file_name); // stop curling the to file_name;
+
+std::string get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname);
+
 #endif /* USE_LIBCURL */
 
 

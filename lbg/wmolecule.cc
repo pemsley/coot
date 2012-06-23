@@ -108,9 +108,10 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 		  std::cout << "Hoorah setting atom at " << pt.format() << " with name :"
 			    << atom_name << ":" << std::endl;
 	       at.set_atom_name(atom_name);
-	    } else { 
-	       std::cout << "Boo!! atom at " << pt.format() << " with no name"
-			 << std::endl;
+	    } else {
+	       if (0) 
+		  std::cout << "Boo!! atom at " << pt.format() << " with no name"
+			    << std::endl;
 	    }
 	 } else {
 	    at.set_atom_name(current_atom_name);

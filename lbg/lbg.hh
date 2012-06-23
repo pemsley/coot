@@ -718,6 +718,7 @@ private:
       get_url_func_ptr_flag = false;
       prodrg_import_func_ptr = NULL;
       sbase_import_func_ptr = NULL;
+      get_drug_mdl_file_function_pointer = NULL;
       draw_flev_annotations_flag = false;
       alert_group = NULL; // group for alert annotations
 #ifdef MAKE_ENTERPRISE_TOOLS   
@@ -956,6 +957,8 @@ public:
    GtkWidget *lbg_qed_progressbar;
    GtkWidget *lbg_alert_hbox;
    GtkWidget *lbg_alert_name_label;
+   GtkWidget *lbg_get_drug_dialog;
+   GtkWidget *lbg_get_drug_entry;
    GtkWidget *canvas;
    std::map<std::string, GtkToggleToolButton *> widget_names;
    widgeted_molecule_t mol;
@@ -1107,8 +1110,18 @@ public:
       } else {
 	 std::cout << "WARNING:: No prodrg_import_func_ptr set" << std::endl;
       } 
-   } 
-   
+   }
+
+   // handle the net transfer of drug (to mdl file)
+   //
+   std::string (*get_drug_mdl_file_function_pointer) (std::string drug_name);
+   void set_get_drug_mdl_file_function(std::string (*get_drug_mdl_file_function_pointer_in) (std::string drug_name)) {
+      get_drug_mdl_file_function_pointer = get_drug_mdl_file_function_pointer_in;
+   }
+
+   void get_drug_using_entry_text(); // uses lbg_get_drug_entry
+   void get_drug(const std::string &drug_name); // get mol file and load it
+
 };
 
 // return pointer to an lbg_info_t.  Caller deletes.
@@ -1127,7 +1140,9 @@ lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 		bool stand_alone_flag_in,
 		int (*get_url_func_pointer) (const char *s1, const char *s2),
 		void (*prodrg_import_function_pointer) (std::string file_name),
-		void (*sbase_import_function_pointer) (std::string comp_id));
+		void (*sbase_import_function_pointer) (std::string comp_id),
+		std::string (*get_drug_mdl_file_function_pointer) (std::string drug_name)
+		);
 
 #endif // HAVE_GOOCANVAS
 

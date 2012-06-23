@@ -333,7 +333,8 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 						   use_graphics_flag, stand_alone_flag,
 						   coot_get_url,
 						   prodrg_import_function,
-						   sbase_import_function);
+						   sbase_import_function,
+						   get_drug_mdl_via_wikipedia_and_drugbank);
 		     lbg_local_p->annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand, sed,
 					   ah, pi_stack_info, p.second);
 		     
@@ -467,7 +468,8 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 						use_graphics_flag, stand_alone_flag,
 						coot_get_url,
 						prodrg_import_function,
-						sbase_import_function);
+						sbase_import_function,
+						get_drug_mdl_via_wikipedia_and_drugbank);
 
  		  std::map<std::string, std::string> name_map =
  		     coot::make_flat_ligand_name_map(res_ref);

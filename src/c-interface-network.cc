@@ -1,7 +1,6 @@
-/* src/main.cc
+/* src/c-interface-network.cc
  * 
- * Copyright 2009 by The University of Oxford
- * Author: Paul Emsley
+ * Copyright 2009, 2012 by The University of Oxford
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +39,7 @@
 
 #include "guile-fixups.h"
 #include "cc-interface.hh"
+#include "cc-interface-network.hh"
 
 #include "graphics-info.h" // because that is where the curl handlers and filenames vector is stored
 
@@ -122,8 +122,15 @@ void *wrapped_curl_easy_perform(void *data) {
 #ifdef USE_LIBCURL
 std::string coot_get_url_as_string_internal(const char *url) {
    std::string s;
+
+   std::string user_agent = PACKAGE;
+   user_agent += " ";
+   user_agent += VERSION;
+   user_agent += " http://wwwlmb.ox.ac.uk/coot";
+   
    CURL *c = curl_easy_init();
    curl_easy_setopt(c, CURLOPT_URL, url);
+   curl_easy_setopt(c, CURLOPT_USERAGENT, user_agent.c_str());
    curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data);
    curl_easy_setopt(c, CURLOPT_WRITEDATA, &s);
    CURLcode success = curl_easy_perform(c);
@@ -205,6 +212,58 @@ write_coot_curl_data_to_file(void *buffer, size_t size, size_t nmemb, void *user
    }
 }
 #endif /* USE_LIBCURL */
+
+// Return the file name of the mdl mol file.
+// 
+// can throw a std::runtime_error
+//
+std::string
+get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname) {
+
+   if (graphics_info_t::prefer_python) { 
+#ifdef USE_PYTHON
+      return get_drug_via_wikipedia_and_drugbank_py(drugname);
+#endif
+   } else {
+#ifdef USE_GUILE
+      return get_drug_via_wikipedia_and_drugbank_scm(drugname);
+#endif
+   }
+   throw std::runtime_error("no scripting");
+}
+
+#ifdef USE_GUILE
+// Return the file name of the mdl mol file.
+// 
+// can throw a std::runtime_error
+//
+std::string
+get_drug_via_wikipedia_and_drugbank_scm(const std::string &drugname) {
+
+   std::string s;
+   std::string command = "(get-drug-via-wikipedia ";
+   command += single_quote(drugname);
+   command += ")";
+   SCM r = safe_scheme_command(command);
+   if (scm_is_true(scm_string_p(r))) {
+      s = scm_to_locale_string(r);
+   } else {
+      std::runtime_error rte("get-drug-via-wikipedia result-not-a-string");
+      throw(rte);
+   } 
+   return s;
+}
+#endif
+
+#ifdef USE_PYTHON
+std::string
+get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname) {
+
+   std::string s;
+   throw std::runtime_error("no python function yet");
+   return s;
+}
+#endif
 
 
 
