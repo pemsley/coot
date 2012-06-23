@@ -292,6 +292,7 @@ coot_real_SOURCES = \
 	c-interface.cc		 \
 	c-interface-test.cc      \
 	cc-interface.hh		 \
+	cc-interface-network.hh  \
 	cc-interface-mogul.hh    \
 	callbacks.c callbacks.h	 \
         canvas-fixes.hh          \

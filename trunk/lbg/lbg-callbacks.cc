@@ -143,7 +143,6 @@ on_about_menuitem_activate(GtkMenuItem *button, gpointer user_data) {
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (l) {
       GtkWidget *w = l->about_dialog;
-      std::cout << "about_dialog widget is " << w << std::endl;
       gtk_widget_show(w);
    } else {
       std::cout << "failed to get lbg_info_t from canvas " << canvas << " "
@@ -661,6 +660,60 @@ on_lbg_atom_x_entry_changed (GtkEditable *editable,
       l->set_atom_x_string(gtk_entry_get_text(GTK_ENTRY(editable)));
    }
 } 
+
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_get_drug_entry_changed (GtkEditable *editable,
+			       gpointer     user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (!l) {
+      std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
+   } else {
+      // look for 
+      // if (event->keyval == GDK_Return || event->keyval == GDK_KP_Enter)...
+      // what is event?
+   }
+}
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_get_drug_ok_button_clicked(GtkButton *button, gpointer user_data) {
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (!l) {
+      std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
+   } else {
+      l->get_drug_using_entry_text();
+      gtk_widget_hide(l->lbg_get_drug_dialog);
+   } 
+}
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_get_drug_cancel_button_clicked(GtkButton *button, gpointer user_data) {
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (!l) {
+      std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
+   } else {
+      gtk_widget_hide(l->lbg_get_drug_dialog);
+   }
+}
+
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_get_drug_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
+   
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l) {
+      GtkWidget *w = l->lbg_get_drug_dialog;
+      gtk_widget_show(w);
+   } else {
+      std::cout << "failed to get lbg_info_t from canvas " << canvas << " "
+		<< user_data << std::endl;
+   } 
+}
 
 
 

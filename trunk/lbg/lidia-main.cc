@@ -73,9 +73,13 @@ main(int argc, char *argv[]) {
    int (*func) (const char *s1, const char *s2) = NULL;
    void (*prodrg_import_func_ptr) (std::string file_name) = NULL;
    void (*sbase_import_func_ptr)  (std::string file_name) = NULL;
+   std::string (*get_drug_mdl_via_wikipedia_and_drugbank) (std::string drug_name) = NULL;
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
    if (lbg(mm, p, mol, view_name, molecule_file_name, imol, use_graphics, stand_alone_flag,
-	   func, prodrg_import_func_ptr, sbase_import_func_ptr)) {
+	   func,
+	   prodrg_import_func_ptr,
+	   sbase_import_func_ptr,
+	   get_drug_mdl_via_wikipedia_and_drugbank)) {
        gtk_main ();
    } 
 #endif // GTK_VERSION

@@ -3144,6 +3144,211 @@
 	(let ((sc (rotation-centre)))
 	  (let ((dist-sum-sq (apply + (map square (map - rc sc)))))
 	    (< dist-sum-sq 25))))))
+
+
+ 
+;; return a string "DB00xxxx.mol" or some such - this is the file name
+;; of the mdl mol file from drugbank. Or #f/undefined on fail.  
+;; Test result with string?.
+;; 
+(define (get-drug-via-wikipedia drug-name)
+
+  ;; To Bernie: I imagine that this would be confusing.  I don't think
+  ;; that this is the way a clever scheme xml programmer would do
+  ;; it... My advice is to ignore the code here for the most part and
+  ;; make a function that (only) externally acts as this does.
+  ;; i.e. goes to wikipedia, downloads the xml file - following the
+  ;; redirect if needed and then construct the url for the mol file
+  ;; from drugbank and get that.
+
+
+  (define (drugbox->drugbank s) 
+    (let ((n (string-length s)))
+      (let ((ls (string-split s #\newline)))
+	(let loop ((ls ls))
+	  (cond
+	   ((null? ls) #f) ;; no drugbank reference found
+	   ((string-match "DrugBank =" (car ls))
+	    (let ((sls (string-split (car ls) #\space)))
+	      (let ((n-sls (length sls)))
+		(list-ref sls (- n-sls 1)))))
+	   (else 
+	    (loop (cdr ls))))))))
+	
+
+  ;; With some clever coding, these handle-***-value functions could
+  ;; be consolidated.  There is likely something clever in Python to
+  ;; process XML files. 
+  ;; 
+  ;; In fact, now that I read the returned XML file more carefully,
+  ;; you probably don't need to process XML at all! Just split to
+  ;; strings and look for "DrugBank = " and take the last of the words
+  ;; on that line.
+
+  (define (handle-rev-string rev-string)
+
+    (let ((open-match (string-match "#[Rr][Ee][Dd][Ii][Rr][Ee][Cc][Tt] \\[\\[" rev-string))
+	  (close-match (string-match "\\]\\]" rev-string))
+	  (re (make-regexp "[{][{][Dd]rugbox|[{][{][Cc]hembox")))
+
+      (cond 
+       ((and open-match close-match)
+	(let ((s (substring rev-string 12 (car (vector-ref close-match 1)))))
+	  (get-drug-via-wikipedia s)))
+      
+       ((let ((re-result (regexp-exec re rev-string)))
+	  (if re-result
+	      (begin
+		;; (format #t "matched a Drugbox~%")
+		(let ((dbi (drugbox->drugbank rev-string)))
+		  (if (not (string? dbi))
+		      (begin 
+			(format #t "DEBUG:: dbi not a string: ~s~%" dbi))
+		      (let ((db-mol-uri (string-append "http://www.drugbank.ca/drugs/" dbi ".mol"))
+			    (file-name (string-append dbi ".mol")))
+			;; (format #t "getting url: ~s~%" db-mol-uri)
+			(coot-get-url db-mol-uri file-name)
+			file-name)))))))
+
+       (else 
+	(format #t "handle-rev-string none of the above~%")
+	#f))))
+
+
+  (define (handle-sxml-rev-value sxml)
+    (let loop ((ls sxml))
+      (cond 
+       ((null? ls) #f)
+       ((not (list? ls)) #f) ;; shouldn't happen
+       (else 
+	(let ((entity (car ls)))
+	  (if (string? entity)
+	      (handle-rev-string entity)
+	      (loop (cdr ls))))))))
+
+  (define (handle-sxml-revisions-value sxml)
+    (let loop ((ls sxml))
+      (cond
+       ((null? ls) #f)
+       ((let ((entity (car ls)))
+	  (if (not (list? entity))
+	      #f
+	      (let ((l (length entity)))
+		(if (= l 0)
+		    #f
+		    (let ((first (car entity)))
+		      (if (not (eq? first 'rev))
+			  #f
+			  (let ((rev (cdr entity)))
+			    (handle-sxml-rev-value rev))))))))))))
+
+  (define (handle-sxml-page-value sxml)
+    (let loop ((ls sxml))
+      (cond
+       ((null? ls) #f)
+       ((let ((entity (car ls)))
+	  (if (not (list? entity))
+	      (loop (cdr ls))
+	      (let ((l (length entity)))
+		(if (not (> l 0))
+		    (loop (cdr ls))
+		    (let ((first (car entity)))
+		      (if (not (eq? first 'revisions))
+			  (loop (cdr ls))
+			  (let ((revisions (cdr entity)))
+			    (handle-sxml-revisions-value revisions))))))))))))
+	      
+  (define (handle-sxml-pages-value sxml)
+    (let loop ((ls sxml))
+      (cond
+       ((null? ls) #f)
+       ((let ((entity (car ls)))
+	  (if (not (list? entity))
+	      (loop (cdr ls))
+	      (let ((l (length entity)))
+		(if (not (> l 0))
+		    (loop (cdr ls))
+		    (let ((first (car entity)))
+		      (if (not (eq? first 'page))
+			  (loop (cdr ls))
+			  (let ((page (cdr entity)))
+			    (handle-sxml-page-value page))))))))))))
+
+
+  (define (handle-sxml-query-value sxml)
+    (let loop ((ls sxml))
+      (cond
+       ((null? ls) #f)
+       ((let ((entity (car ls)))
+	  (if (not (list? entity))
+	      (loop (cdr ls))
+	      (let ((l (length entity)))
+		(if (not (> l 0))
+		    (loop (cdr ls))
+		    (let ((first (car entity)))
+		      (if (not (eq? first 'pages))
+			  (loop (cdr ls))
+			  (let ((pages (cdr entity)))
+			    (handle-sxml-pages-value pages))))))))))))
+			      
+
+  (define (handle-sxml-api-value sxml)
+    (let loop ((ls sxml))
+      (cond
+       ((null? ls) #f)
+       ((let ((entity (car ls)))
+	  (if (not (list? entity))
+	      (loop (cdr ls))
+	      (let ((l (length entity)))
+		(if (not (> l 0))
+		    (loop (cdr ls))
+		    (let ((first (car entity)))
+		      (if (not (eq? first 'query))
+			  (loop (cdr ls))
+			  (let ((query-value (cdr entity)))
+			    (handle-sxml-query-value query-value))))))))))))
+
+  (define (handle-sxml sxml)
+    (let loop ((ls sxml))
+      (cond
+       ((null? ls) #f)
+       ((not (list? ls)) #f)
+       ((let ((entity (car ls)))
+	  (if (not (list? entity))
+	      (loop (cdr ls))
+	      (let ((l (length entity)))
+		(if (not (> l 0))
+		    (loop (cdr ls))
+		    (let ((first (car entity)))
+		      (if (not (eq? first 'api))
+			  (loop (cdr ls))
+			  (let ((value (cdr entity)))
+			    (handle-sxml-api-value value))))))))))))
+
+
+  ;; main line
+
+  (if (string? drug-name)
+      (if (> (string-length drug-name) 0)
+	  (let* ((url (string-append 
+		       ;; "http://en.wikipedia.org/wiki/" 
+		       "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles="
+		       drug-name
+		       "&prop=revisions&rvprop=content"
+		       ;; "http://scylla/"
+		       ))
+		 (xml (coot-get-url-as-string url)))
+
+	    (call-with-output-file (string-append drug-name ".xml")
+	      (lambda (port)
+		(display xml port)))
+
+	    (call-with-input-string
+	     xml (lambda (string-port)
+		   (let ((sxml (xml->sxml string-port)))
+		     (handle-sxml sxml))))))))
+
+
 	
 
 ;; Americans...
