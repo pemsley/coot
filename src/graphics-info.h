@@ -3848,11 +3848,15 @@ string   static std::string sessionid;
    // bottom left ligand view 
    void setup_graphics_ligand_view_aa();
    void setup_graphics_ligand_view_aa(int imol); // only allow imol to be potential active residue.
-   void setup_graphics_ligand_view(CResidue *residue);
+   void setup_graphics_ligand_view(int imol, CResidue *residue);
    // which stores in:
    static graphics_ligand_molecule graphics_ligand_mol;
 
    static int show_graphics_ligand_view_flag; // user control, default 1 (on).
+   void close_graphics_ligand_view_for_mol(int imol_in) { 
+     if (graphics_ligand_mol.imol == imol_in)
+       graphics_ligand_view_flag = false;
+   } 
    static void graphics_ligand_view();  // actually draw it 
 
    // don't redraw everything, just those that have a residue with name res_name

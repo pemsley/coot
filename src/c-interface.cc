@@ -7072,7 +7072,15 @@ void do_surface(int imol, int state) {
    }
 }
 
-   
+int molecule_is_drawn_as_surface_int(int imol) {
+
+   int r = 0;
+   if (is_valid_model_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].molecule_is_drawn_as_surface();
+   }
+   return r;
+} 
+
 
 #ifdef USE_GUILE
 void do_clipped_surface_scm(int imol, SCM residues_specs) {

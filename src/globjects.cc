@@ -3190,7 +3190,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 								  cl_at.second);
 	    g.add_status_bar_text(at_info);
 	    CResidue *r = g.molecules[cl_at.second].atom_sel.atom_selection[cl_at.first]->residue;
-	    g.setup_graphics_ligand_view(r);
+	    g.setup_graphics_ligand_view(cl_at.second, r);
 	 }
 	 graphics_info_t::graphics_draw();
       }
@@ -3927,7 +3927,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	    int im = nearest_atom_index_info.imol;
 	    info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
 	    CResidue *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
-	    info.setup_graphics_ligand_view(r);
+	    info.setup_graphics_ligand_view(im, r);
 	 } else {
 	    if (graphics_info_t::show_symmetry) {
 	       coot::Symm_Atom_Pick_Info_t symm_atom_info = info.symmetry_atom_pick();
@@ -3961,7 +3961,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	    int im = nearest_atom_index_info.imol; 
 	    info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
 	    CResidue *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
-	    info.setup_graphics_ligand_view(r);
+	    info.setup_graphics_ligand_view(im, r);
 	    info.graphics_draw();
 
 	 } else {

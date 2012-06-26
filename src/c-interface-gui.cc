@@ -3882,7 +3882,9 @@ void close_molecule(int imol) {
    int old_go_to_atom_molecule = g.go_to_atom_molecule();
    if (is_valid_model_molecule(imol) ||
        is_valid_map_molecule(imol)) {
-      graphics_info_t::molecules[imol].close_yourself();
+      g.molecules[imol].close_yourself();
+      // and close the graphics ligand view if it was a residue of this molecule
+      g.close_graphics_ligand_view_for_mol(imol);
    }
    int go_to_atom_imol_new = g.update_go_to_atom_molecule_on_go_to_atom_molecule_deleted();
    if (graphics_info_t::go_to_atom_window) {
