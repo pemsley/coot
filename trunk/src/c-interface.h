@@ -6062,6 +6062,7 @@ if state = 1 draw the surface (normal representation goes away)
 
 if state = 0 don't draw surface */
 void do_surface(int imol, int istate);
+int molecule_is_drawn_as_surface_int(int imol); /* predicate */
 #ifdef __cplusplus
 #ifdef USE_GUILE
 /*! \brief draw the surface of the imolth molecule clipped to the

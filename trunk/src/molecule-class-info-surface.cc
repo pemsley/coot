@@ -90,8 +90,11 @@ molecule_class_info_t::make_surface(int on_off_flag,
 	 if (charges_applied_flag)
 	    need_charges_assigned = 0;
 
-	 std::cout << "in molecule_class_info_t::make_surface() charges_applied_flag " << charges_applied_flag
-		   << " need_charges_assigned " << need_charges_assigned << std::endl;
+	 if (0) 
+	    std::cout << "in molecule_class_info_t::make_surface() charges_applied_flag "
+		      << charges_applied_flag
+		      << " need_charges_assigned " << need_charges_assigned << std::endl;
+	 
 	 cootsurface->fill_from(atom_sel.mol, atom_sel.SelectionHandle, col_scale,
 				need_charges_assigned);
 	 if (cootsurface) 

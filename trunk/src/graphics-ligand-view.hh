@@ -64,9 +64,11 @@ class graphics_ligand_molecule : public lig_build::molecule_t<graphics_ligand_at
 public:
    graphics_ligand_molecule() {
       display_list_tag = 0;
+      imol = -1; // unset
    } 
    // some OpenGL stuff.
    void render();
    void generate_display_list(bool against_a_dark_background);
    bool setup_from(CResidue *r, coot::protein_geometry *geom_p, bool against_a_dark_background);
+   int imol;
 };

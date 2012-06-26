@@ -5811,10 +5811,9 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       asc.atom_selection = atom_selection;
       asc.n_selected_atoms = n_selected_atoms;
       asc.SelectionHandle = SelHnd;
-      std::cout << "INFO:: " << n_selected_atoms
+      std::cout << "INFO:: mol: make_ball_and_stick() " << n_selected_atoms
 		<< " atoms selected for ball & stick" << std::endl;
-      float min_dist = 0.1;
-      float max_dist = 1.9; // prevent ambiguity in constructor def.
+
       Bond_lines_container bonds(asc, geom);
       graphical_bonds_container bonds_box_local = bonds.make_graphical_bonds();
       Lines_list ll;

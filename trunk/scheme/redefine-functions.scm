@@ -87,3 +87,5 @@
 (define coot-can-do-lidia? coot-can-do-lidia-p) ;; a c++ bool, which SWIG translates
 (define dictionary-entries dictionary-entries-scm)
 (define SMILES-for-comp-id SMILES-for-comp-id-scm)
+(define (molecule-is-drawn-as-surface? imol) (= (molecule-is-drawn-as-surface-int imol) 1))
+

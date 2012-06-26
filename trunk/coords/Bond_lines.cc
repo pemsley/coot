@@ -2739,13 +2739,13 @@ void Bond_lines_container::check_static() const {
 
 graphical_bonds_container 
 Bond_lines_container::make_graphical_bonds() const {
-   return make_graphical_bonds(1); // allow simple-minded thinning
+   return make_graphical_bonds(true); // allow simple-minded thinning
 }
 
 
 graphical_bonds_container 
 Bond_lines_container::make_graphical_bonds_no_thinning() const {
-   return make_graphical_bonds(0); // no thinning
+   return make_graphical_bonds(false); // no thinning
 } 
 
 graphical_bonds_container 
@@ -2753,21 +2753,21 @@ Bond_lines_container::make_graphical_bonds(bool thinning_flag) const {
 
    graphical_bonds_container box;
 
+   int ibs = bonds.size();
    box.num_colours = bonds.size();
-   box.bonds_ = new Lines_list[bonds.size()];
+   box.bonds_ = new Lines_list[ibs];
 
    // i is the colour index
-   int ibs = bonds.size();
    for (int i=0; i<ibs; i++) {
 
       box.bonds_[i].num_lines = bonds[i].size();
       box.bonds_[i].pair_list = new coot::CartesianPair[bonds[i].size()];
-      for (int j=0; j<bonds[i].size(); j++) { 
+      for (int j=0; j<bonds[i].size(); j++) 
 	 box.bonds_[i].pair_list[j] = bonds[i][j];
-	 if (thinning_flag)
-	    if (j == HYDROGEN_GREY_BOND)
-	       box.bonds_[j].thin_lines_flag = 1;
-      }
+      if (thinning_flag)
+	 if (i == HYDROGEN_GREY_BOND) { 
+	    box.bonds_[i].thin_lines_flag = 1;
+	 } 
    }
    box.add_zero_occ_spots(zero_occ_spot);
    box.add_atom_centres(atom_centres, atom_centres_colour);

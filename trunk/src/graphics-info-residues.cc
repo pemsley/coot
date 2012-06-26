@@ -107,7 +107,7 @@ graphics_info_t::setup_graphics_ligand_view_aa() {
 	    std::cout << "-------------------------- setup_graphics_ligand_view_aa() imol: "
 		      << active_atom.second.first
 		      << " residue: " << coot::residue_spec_t(residue_p) << std::endl;
-	 setup_graphics_ligand_view(residue_p);
+	 setup_graphics_ligand_view(active_atom.second.first, residue_p);
       }
    }
 }
@@ -125,13 +125,13 @@ graphics_info_t::setup_graphics_ligand_view_aa(int imol) {
 	    std::cout << "-------------------------- setup_graphics_ligand_view_aa() imol: "
 		      << active_atom.second.first
 		      << " residue: " << coot::residue_spec_t(residue_p) << std::endl;
-	 setup_graphics_ligand_view(residue_p);
+	 setup_graphics_ligand_view(active_atom.second.first, residue_p);
       }
    }
 }
 
 void
-graphics_info_t::setup_graphics_ligand_view(CResidue *residue_p) {
+graphics_info_t::setup_graphics_ligand_view(int imol, CResidue *residue_p) {
 
    if (show_graphics_ligand_view_flag) { // user control
       if (!use_graphics_interface_flag) {
@@ -148,6 +148,7 @@ graphics_info_t::setup_graphics_ligand_view(CResidue *residue_p) {
 			    << coot::residue_spec_t(residue_p) << std::endl;
 	       graphics_ligand_view_flag =
 		  graphics_ligand_mol.setup_from(residue_p, Geom_p(), background_is_black_p());
+	       graphics_ligand_mol.imol = imol;
 	    }
 	 }
       }
@@ -171,7 +172,7 @@ graphics_info_t::graphics_ligand_view() {
 	    g.graphics_ligand_mol.ligand_extents();
 
 	 float sc = 28;
-	 float h =  float(glarea->allocation.height);
+	 float h = float(glarea->allocation.height);
 	 float w = float(glarea->allocation.width);
 	 float ar = h/w;
 	 glPushMatrix();

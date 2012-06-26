@@ -1563,6 +1563,12 @@ public:        //                      public
    // chain).
    void make_surface(int SelHnd_selection, int SelHnd_all, const coot::protein_geometry &geom,
 		     float col_scale);
+   bool molecule_is_drawn_as_surface() const {
+      if (cootsurface)
+	 return true;
+      else
+	 return false;
+   }
    //
 
    // a generic function to convert from a residue_spec_vec to a
