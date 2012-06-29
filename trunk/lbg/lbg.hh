@@ -720,7 +720,10 @@ private:
       sbase_import_func_ptr = NULL;
       get_drug_mdl_file_function_pointer = NULL;
       draw_flev_annotations_flag = false;
+      lbg_show_alerts_checkbutton = NULL;
+      lbg_alert_hbox_outer = NULL;
       alert_group = NULL; // group for alert annotations
+      show_alerts_user_control = true;
 #ifdef MAKE_ENTERPRISE_TOOLS   
 #ifdef USE_PYTHON      
       setup_silicos_it_qed_default_func();
@@ -910,7 +913,8 @@ private:
    std::string atom_X; // initially "H"
    
    std::vector<std::pair<std::string, std::string> > alert_smarts() const;
-   GooCanvasItem *alert_group;   
+   GooCanvasItem *alert_group;
+
 
 public:
    lbg_info_t(GtkWidget *canvas_in) {
@@ -955,8 +959,10 @@ public:
    GtkWidget *lbg_qed_hbox;
    GtkWidget *lbg_qed_text_label;
    GtkWidget *lbg_qed_progressbar;
-   GtkWidget *lbg_alert_hbox;
+   GtkWidget *lbg_alert_hbox; // controlled by alerts in structure
+   GtkWidget *lbg_alert_hbox_outer; // controled by user wanting to see alerts in structure
    GtkWidget *lbg_alert_name_label;
+   GtkWidget *lbg_show_alerts_checkbutton; 
    GtkWidget *lbg_get_drug_dialog;
    GtkWidget *lbg_get_drug_entry;
    GtkWidget *canvas;
@@ -1034,6 +1040,13 @@ public:
    void update_alerts(const RDKit::RWMol &rdkm);
    std::string get_smiles_string_from_mol(const RDKit::RWMol &mol) const;
 #endif
+   // although these depend on/manipulate rdkit-based entities - they
+   // only clear them up, not generate them, so, in order that we
+   // don't complicated lbg-callbacks.cc with MAKE_ENTERPRISE_TOOLS
+   // dependencies, let's put those functions outside the
+   // MAKE_ENTERPRISE_TOOLS dependency here.
+   void clear_canvas_alerts();
+   bool show_alerts_user_control; 
    
    // can throw an exception
    std::string get_smiles_string_from_mol() const;

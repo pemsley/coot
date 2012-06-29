@@ -35,6 +35,10 @@ test for multi-ligand:
 same protein, different ligands: 2hyy, 3cs9, 1m52, 1hzi
 same ligand, different proteins: 2hyy, 1t46
 
+problem 3d -> 2d UHF from 3u7n
+                 ligand from 4fl6
+
+
 
 
 ----
@@ -929,6 +933,13 @@ sbase monomer dir: /home/paule/ccp4/ccp4-6.2.0/share/sbase
 ==23086== 
 
 
+----
+Wed Jun 27 17:25:18 BST 2012
+
+	Stephen Graham:
+
+	A1667 of 3zr6 with non-enterprise coot.
+	I think 1xb9 fails similar.
 
 
 -----
