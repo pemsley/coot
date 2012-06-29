@@ -715,6 +715,25 @@ on_lbg_get_drug_menuitem_activate (GtkMenuItem *item, gpointer         user_data
    } 
 }
 
+extern "C" G_MODULE_EXPORT void
+on_lbg_show_alerts_checkbutton_toggled(GtkToggleButton *togglebutton,
+				       gpointer         user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l) {
+      if (togglebutton->active) {
+	 gtk_widget_show(l->lbg_alert_hbox_outer);
+	 l->show_alerts_user_control = true;
+	 l->update_descriptor_attributes();
+      } else {
+	 gtk_widget_hide(l->lbg_alert_hbox_outer);
+	 l->show_alerts_user_control = false;
+	 l->clear_canvas_alerts();
+      }
+   }
+}
+
 
 
 #endif // HAVE_GOOCANVAS
