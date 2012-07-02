@@ -1042,6 +1042,7 @@ public:
       data_glob_extensions->push_back(".hkl");
       data_glob_extensions->push_back(".data");
       data_glob_extensions->push_back(".phs");
+      data_glob_extensions->push_back(".pha");
       data_glob_extensions->push_back(".cif");
       data_glob_extensions->push_back(".fcf"); // SHELXL
       data_glob_extensions->push_back(".mmcif");
