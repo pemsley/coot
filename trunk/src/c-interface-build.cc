@@ -6666,6 +6666,9 @@ int get_monomer(const char *three_letter_code) {
 
    int imol = -1;
 
+   // first check if three_letter_code is valid, i.e. not empty
+   if (std::string(three_letter_code) == "")
+     return imol;
    // fast
    imol = get_monomer_from_dictionary(three_letter_code, 1); // idealized
    if (is_valid_model_molecule(imol)) { 
