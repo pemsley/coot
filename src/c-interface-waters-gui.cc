@@ -386,8 +386,8 @@ execute_find_waters(GtkWidget *dialog_ok_button) {
       float f2 = atof(t2);
       // slam in the distances to the static vars directly (not as
       // arguments to find_waters_real()).
-      g.ligand_water_to_protein_distance_lim_min = f1;      
-      g.ligand_water_to_protein_distance_lim_max = f2;
+      g.ligand_water_to_protein_distance_lim_max = f1;      
+      g.ligand_water_to_protein_distance_lim_min = f2;
    } 
 
 
