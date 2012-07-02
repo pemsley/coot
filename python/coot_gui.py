@@ -3534,10 +3534,11 @@ def cootaneer_gui_bl():
             # first check if chain_id is already in mol
             # if so delete it so that it can be replaced by the new sequence
             seq_info = sequence_info(imol)
-            for info in seq_info:
-               chain_id_old = info[0]
-               if (chain_id_new == chain_id_old):
-                  delete_sequence_by_chain_id(imol, chain_id_old)
+            if seq_info:
+               for info in seq_info:
+                  chain_id_old = info[0]
+                  if (chain_id_new == chain_id_old):
+                     delete_sequence_by_chain_id(imol, chain_id_old)
 
             # replace space, eol etc in sequence first
             seq = seq.replace(" ", "")

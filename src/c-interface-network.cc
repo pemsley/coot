@@ -261,7 +261,17 @@ std::string
 get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname) {
 
    std::string s;
-   throw std::runtime_error("no python function yet");
+   std::string command = "get_drug_via_wikipedia(";
+   command += single_quote(drugname);
+   command += ")";
+   PyObject *r = safe_python_command_with_return(command);
+   if (PyString_Check(r)) {
+      s = PyString_AsString(r);
+   } else {
+      std::runtime_error rte("get_drug_via_wikipedia result-not-a-string");
+      throw(rte);
+   } 
+   Py_XDECREF(r);
    return s;
 }
 #endif
