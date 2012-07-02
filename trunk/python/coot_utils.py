@@ -2956,6 +2956,54 @@ def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
         dist_sum_sq = sum(square(rcx-scx) for rcx, scx in zip(rc, sc))
         return dist_sum_sq < 25.
 
+# return a string "DB00xxxx.mol" or some such - this is the file name
+# of the mdl mol file from drugbank. Or False/undefined on fail.  
+# Test result with string?.
+# 
+def get_drug_via_wikipedia(drug_name):
+
+    import urllib2
+    def parse_wiki_drug_xml(xml):
+        from xml.etree import ElementTree
+        drug_bank_id = False
+        tree = ElementTree.parse(xml)
+        #tree.parse(xml)
+        query_ele = tree.find("query")
+        rev_iter = query_ele.getiterator("rev")
+        rev_text = rev_iter[0].text
+        # seems to be in some strange format!?
+        decode_text = rev_text.encode('ascii', 'ignore')
+        for line in decode_text.split("\n"):
+            if "DrugBank = " in line:
+                drug_bank_id = line.split(" ")[-1]
+                print drug_bank_id
+        return drug_bank_id
+        
+    # main line
+    file_name = False
+    if isinstance(drug_name, str):
+        if len(drug_name) > 0:
+            url = "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles=" + \
+                  drug_name + \
+                  "&prop=revisions&rvprop=content"
+            #xml = coot_get_url_as_string(url)
+
+            #xml_file_name = drug_name + ".xml"
+            #with open(xml_file_name, 'w') as fileout:
+            #    fileout.write(xml)
+            xml = urllib2.urlopen(url)
+            mol_name = parse_wiki_drug_xml(xml)
+            if mol_name:
+                if not isinstance(mol_name, str):
+                    # shouldnt happen
+                    print "BL WARNING:: mol_name not a string", mol_name
+                else:
+                    db_mol_uri = "http://www.drugbank.ca/drugs/" + \
+                                 mol_name + ".mol"
+                    file_name = mol_name + ".mol"
+                    coot_get_url(db_mol_uri, file_name)
+    return file_name
+                    
 
 # load the redefining functions
 try:

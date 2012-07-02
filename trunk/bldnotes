@@ -15,6 +15,7 @@ build-it-win rev 4031
 
 CCP4 APS 2012:
 - GUI for patterson (Garib)
+- C7 not deleted when mutating DT
 
 CCP4 SW:
 - seq vs PIR have extra button to insert, delete, mutate
@@ -191,6 +192,7 @@ from Osaka 2010
      (maybe not now, as it may be fixed with MODRES etc... certainly already better)
 
    o density histogram graph?!
+   o calculate/display skew of map
 
    o additional representations: hide parts of model (use bond thickness 0?!?
 	bond thickness 0 doesnt work. hiding seems tricky!?
@@ -603,6 +605,21 @@ Osaka 2010
 
 
    o (better?!) warning if backup-dir is not writable
+
+* Done
+
+
+   o add pha to map list (as phs)
+
+* Done
+
+
+   o water distance entries swapped after 1st use
+
+* Done
+
+
+   o get monomer dialog hangs when empty strign given
 
 * Done
 
