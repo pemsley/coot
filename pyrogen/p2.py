@@ -93,10 +93,23 @@ def pad_atom_name(name, element):
             padded = name + ' '
     return padded
 
-def is_smiles_files(file_name):
+def is_smiles_file(file_name):
     bits = file_name.rsplit(".")
     if len(bits) > 1:
         return bits[1] == 'smi'
+    else:
+        return False
+
+def is_mdl_file(file_name):
+    bits = file_name.rsplit(".")
+    if len(bits) > 1:
+       if (bits[1] == 'mol'):
+          return True
+       else:
+          if (bits[1] == 'mdl'):
+             return True
+          else:
+             return False
     else:
         return False
         
@@ -164,6 +177,8 @@ def smarts_by_element():
 
 def set_atom_types(mol):
     smarts_list = [
+
+        # Full coverage for C, H.
 
         # Oxygen
         ('O2',  "[OX2;H0]", 0), # ester, Os between P and C are O2, not OP
@@ -325,7 +340,19 @@ def set_atom_types(mol):
     return True
 
 
-def make_restraints(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
+def make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
+
+   mogol_exe = which('mogul')
+
+   if (run_mogul):
+      if (mogol_exe == None):
+         print "mogul not found in path"
+         return False
+
+   m = Chem.MolFromSmiles(smiles_string)
+   return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name)
+
+def make_restraints_from_mdl(mol_file_name, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
 
    mogol_exe = which('mogul')
 
@@ -335,7 +362,13 @@ def make_restraints(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mm
          return False
 
    compound_name = 'some-compound'
-   m = Chem.MolFromSmiles(smiles_string)
+   m = Chem.MolFromMolFile(mol_file_name)
+   return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name)
+
+   
+def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
+   
+   compound_name = 'some-compound'
    m_H = AllChem.AddHs(m)
    AllChem.EmbedMolecule(m_H)
    AllChem.UFFOptimizeMolecule(m_H)
@@ -402,11 +435,14 @@ if __name__ == "__main__":
     smiles_string = 'O=C(O)c1ccc(O)cc1'
     
     if len(sys.argv) > 2:
-        smiles_string = sys.argv[1]
+        smiles_or_mdl_string = sys.argv[1]
+        smiles_string = ''
+        is_mdl_file_flag = False
         # if smiles_string ends in .smi, read it as if it was a file
-        if is_smiles_files(smiles_string):
-            smiles_string = read_file(smiles_string)
-        file_stub = sys.argv[2]
+        if is_mdl_file(smiles_or_mdl_string):
+           is_mdl_file_flag = True
+            
+        file_stub = sys.argv[2] # e.g. "LIG"
 
         # mogul handling
         if len(sys.argv) == 4:
@@ -417,8 +453,17 @@ if __name__ == "__main__":
         cif_restraints_file_name = file_stub + ".cif"
         pdb_out_file_name = file_stub + ".pdb"
         comp_id = file_stub
-    
-    status = make_restraints(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, cif_restraints_file_name)
+
+        if is_mdl_file(smiles_or_mdl_string):
+           status = make_restraints_from_mdl(smiles_or_mdl_string, comp_id, sdf_file_name,
+                                             pdb_out_file_name, cif_restraints_file_name)
+        else:
+           smiles_string = smiles_or_mdl_string
+           if is_smiles_file(smiles_or_mdl_string):
+              smiles_string = read_file(smiles_or_mdl_string)
+           status = make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name,
+                                                pdb_out_file_name, cif_restraints_file_name)
+              
     if (status == False):
        exit(1)
 
