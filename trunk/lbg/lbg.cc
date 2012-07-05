@@ -275,7 +275,11 @@ lbg_info_t::convert_bond_type(const lig_build::bond_t::bond_type_t &t) const {
 std::string
 lbg_info_t::get_smiles_string_from_mol_rdkit() const {
 
-   std::string s;
+   RDKit::RWMol rdkm = rdkit_mol(mol);
+   coot::rdkit_mol_sanitize(rdkm);
+   RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(rdkm);
+   std::string s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs);
+   delete rdk_mol_with_no_Hs;
    return s;
 }
 #endif
@@ -5780,9 +5784,8 @@ lbg_info_t::update_statusbar_smiles_string(const RDKit::RWMol &mol) const {
    if (mol.getNumAtoms() > 0) {
       // new
       RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(mol);
-
       s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs);
-
+      delete rdk_mol_with_no_Hs;
    } 
    update_statusbar_smiles_string(s);
 }
