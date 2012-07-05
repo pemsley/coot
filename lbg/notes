@@ -35,7 +35,10 @@ test for multi-ligand:
 same protein, different ligands: 2hyy, 3cs9, 1m52, 1hzi
 same ligand, different proteins: 2hyy, 1t46
 
-problem 3d -> 2d UHF from 3u7n
+----
+Fri Jun 29 13:34:58 BST 2012
+
+   problem 3d -> 2d UHF from 3u7n
                  ligand from 4fl6
 
 
