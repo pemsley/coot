@@ -43,6 +43,7 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
 				     PyObject *bond_order_restraints_py,
 				     const std::string &mmcif_out_file_name) {
 
+   // Thanks Uwe H.
    RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
    coot::dictionary_residue_restraints_t bond_order_restraints = 
       monomer_restraints_from_python(bond_order_restraints_py);
@@ -646,9 +647,8 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
    patterns.push_back(d_pat("CNC(=[NH])N",                 0.02));  // guanidinium sans Hs
 
    // Martin's pattern, these should be weaker though, I think
-   patterns.push_back(d_pat("[*^2]=[*^2]-[*^2]=[*^2]", 0.05));
-   patterns.push_back(d_pat("[*^2]:[*^2]-[*^2]=[*^2]", 0.05));
-   
+   patterns.push_back(d_pat("[*^2]=[*^2]-[*^2]=[*;X1;^2]", 0.04));
+   patterns.push_back(d_pat("[a^2]:[a^2]-[*^2]=[*;X1;^2]", 0.04));
    
    int n_planes = 1; 
    for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
@@ -667,6 +667,7 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 	    snprintf(s,99,"%d", n_planes);
 	    plane_id += std::string(s);
 	    try {
+	       std::vector<std::string> atom_names;
 	       for (unsigned int ii=0; ii<matches[imatch].size(); ii++) {
 		  RDKit::ATOM_SPTR at_p = mol[matches[imatch][ii].second];
 
@@ -675,11 +676,14 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 
 		  std::string name = "";
 		  at_p->getProp("name", name);
-		  atom_names.push_back(name);
-		  realtype dist_esd = patterns[ipat].second;
-		  coot::dict_plane_restraint_t res(plane_id, name, dist_esd);
-		  restraints->plane_restraint.push_back(res);
 		  at_p->setProp("plane_id", plane_id);
+		  // std::cout << "... marking " << name << " as in " << plane_id << std::endl;
+		  atom_names.push_back(name);
+	       }
+	       if (atom_names.size() > 3) { 
+		  realtype dist_esd = patterns[ipat].second;
+		  coot::dict_plane_restraint_t res(plane_id, atom_names, dist_esd);
+		  restraints->plane_restraint.push_back(res);
 	       }
 	    }
 
