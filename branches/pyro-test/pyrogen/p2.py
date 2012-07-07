@@ -178,7 +178,7 @@ def smarts_by_element():
 def set_atom_types(mol):
     smarts_list = [
 
-        # Full coverage for C, H.
+        # Full coverage for C, H, O.
 
         # Oxygen
         ('O2',  "[OX2;H0]", 0), # ester, Os between P and C are O2, not OP
@@ -189,6 +189,13 @@ def set_atom_types(mol):
         ('OH1', '[OH1]', 0), # alcohol
         ('O2',  "[oX2;H0]", 0), # ring oxygen
         ('O',   'O=*',   0), # carbonyl oxygen
+
+        # OH2 no examples
+        # OHA no examples
+        # OHB no examples
+        # OHC no examples
+        # OC2 no exmampes
+        
         # Fallback oxygen
         ('O',   'O',   0),
 
@@ -268,7 +275,9 @@ def set_atom_types(mol):
         ('NT',  '[NX3;H0;^3]',  0),
         
         # Nitrogen, SP2
+        ('NR66', 'c12aaaan1aaaa2', 5), # (second) 66 atom is an N.
         ('NR56', 'c12aaaan1aaa2',  5), # (second) 56 atom is an N.
+        ('NR55', 'c12aaan1aaa2',   4), # (second) 55 atom is an N.
         ('NH2',  '[NX3^2][CX3^2]=[N^2;X3+]', (0,2)), # amidinium (charged)... 
         ('NR15', '[nr5;X3;H1]',    0),
         ('NR5',  '[nr5;X3;H0]',    0),
@@ -282,6 +291,17 @@ def set_atom_types(mol):
         ('NH1',  '[NX3;H1;^2]', 0),
         ('NH2',  '[NX3;H2;^2]', 0),  # sp2, e.g. ND2 of an ASP
         ('NT',   '*n1~[o]~[o]1', 1), # guess from 16X dioxaziridine (bleugh)
+        # (NT needs checking?)
+        # NC2 no examples
+        # NC3 no examples
+        # NPA no examples
+        # NPB no examples
+        
+
+        # Nitrogen SP1
+        ('NS',   '[N^1]', 0),
+        # NS1 no examples
+        
 
         # fall-back nitrogen
         ('N',    '[N,n]',      0),  
@@ -339,27 +359,29 @@ def set_atom_types(mol):
     # we got to the end, good
     return True
 
-
-def make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
-
-   mogol_exe = which('mogul')
-
+# return True if mogul is not run or mogul exe is in place.
+# return False if mogul is expected but not found.
+def test_for_mogul():
    if (run_mogul):
+      mogol_exe = which('mogul')
       if (mogol_exe == None):
          print "mogul not found in path"
          return False
+      else:
+         return True
+   else:
+      return True # OK, really
 
+
+def make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
+
+   if (not (test_for_mogul())): return False
    m = Chem.MolFromSmiles(smiles_string)
    return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name)
 
 def make_restraints_from_mdl(mol_file_name, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
 
-   mogol_exe = which('mogul')
-
-   if (run_mogul):
-      if (mogol_exe == None):
-         print "mogul not found in path"
-         return False
+   if (not (test_for_mogul())): return False
 
    compound_name = 'some-compound'
    m = Chem.MolFromMolFile(mol_file_name)
