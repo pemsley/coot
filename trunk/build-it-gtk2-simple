@@ -602,17 +602,23 @@ function setup_ccp4 {
       setup_file=/y/programs/xtal/ccp4-6.0.2/ccp4-6.0.2/include/ccp4.setup-sh
       if test -e $setup_file ; then
          . $setup_file
-      fi
-      setup_file=/lmb/dorset/linux_software/ccp4-6.0/include/ccp4.setup-sh
-      if test -e $setup_file ; then
-         . $setup_file
+      else 
+         if [ "$systype" = x86_64-centos-6 ] ; then 
+	    setup_file=/home/emsley/ccp4/setup-scripts/sh/ccp4.setup
+         else 
+            setup_file=/lmb/dorset/linux_software/ccp4-6.0/include/ccp4.setup-sh
+         fi
+         if test -e $setup_file ; then
+            echo evaluating $setup_file
+            . $setup_file
+         fi
       fi
    fi
    if test "$OS" = Darwin ; then
       . /usr/local/ccp4-6.0.2/bin/ccp4.setup-sh
    fi
-
 }
+
 
 # exit 
 function my_exit {
@@ -935,8 +941,8 @@ if test $OS = Linux ; then
 
     * )
       if test -r /etc/issue; then
-        dist_name=`awk 'NR==1{print tolower($1)}' /etc/issue`
-        dist_ver=`awk 'NR==1{print tolower($2)}' /etc/issue`
+        dist_name=$(awk 'NR==1{print tolower($1)}' /etc/issue)
+        dist_ver=$(awk  'NR==1{x=tolower($2); gsub("/","-",x); print x}' /etc/issue)
         systype=${architecture}-${dist_name}-${dist_ver}
       else
         systype=${architecture}-unknown-Linux
@@ -1233,10 +1239,12 @@ echo which wget
 which wget
 wget  "http://www.ysbl.york.ac.uk/~emsley/build-logs/build-notes"
 if [ $? -ne 0 ] ; then
-	echo wget failed for some reason
+	echo wget from york failed for some reason
 	echo exiting now.
 	df
-	my_exit 1
+	# temporary hack
+        WGET="wget -N -P ${AUTOBUILD_SOURCES}"
+	# my_exit 1
 else
 	echo Done wget check.
 	WGET="wget -N -P ${AUTOBUILD_SOURCES}"
@@ -2191,8 +2199,10 @@ fi
 if test -n "$build_ccp4c" ; then 
     echo BUILDING: libccp4c
     # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
-    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
-    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
+    # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
+    #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
+    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
+    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/martyn-extras.tar.gz
     ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/ccp4-libs-underlay-2.tar.gz
     ( 
     date
@@ -2228,7 +2238,8 @@ mmdb_version=1.22
 mmdb_version=1.23
 mmdb_version=1.23.2
 mmdb_version=1.24
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
+echo ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/mmdb-$mmdb_version.tar.gz
+${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/mmdb-$mmdb_version.tar.gz
 # ${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
 # for now get mmdb-1.21 from york, the ebi one has out of date files causing 
 # problems on make 
@@ -2263,9 +2274,8 @@ if test -n "$build_ssmlib" ; then
 
    echo BUILDING SSMlib:
 #
-# wget  http://www.ysbl.york.ac.uk/~emsley/software/extras/SSMlib-0.0-pre-1-ysbl.tar.gz
 ssmlib_version=0.0-pre-2-ysbl
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/SSMlib-$ssmlib_version.tar.gz
+${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/SSMlib-$ssmlib_version.tar.gz | tar xf -
@@ -2283,8 +2293,10 @@ fi
 if test -n "$build_fftw" ; then
     echo BUILDING fftw:
 #
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/fftw-2.1.5.tar.gz
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/fftw-configure-stuff.tar.gz
+# ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/fftw-2.1.5.tar.gz
+# ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/fftw-configure-stuff.tar.gz
+${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/fftw-2.1.5.tar.gz
+${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/fftw-configure-stuff.tar.gz
 (
 date
 pwd
@@ -2319,14 +2331,14 @@ if test -n "$build_clipper" ; then
     clipper_version=2.1-091215-ac
     clipper_version=2.1-100511-ac
     clipper_dir_version=2.1
-    ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
+    # ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
 
     # 20110921 hack in a temporary solution, while Kevin's new clipper
     # is not available yet from his site.
     ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-2.1-110915-fixup.tar.gz
 
     if [ "$need_clipper_contrib_patch" = true ] ; then
-       ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
+       ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper_test_contrib.cpp.patch
     fi
     (
     
@@ -2389,7 +2401,7 @@ fi
 # freeglut
 if test -n "$build_freeglut" ; then
     echo BUILDING freeglut:
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/freeglut-2.4.0.tar.gz
+${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/freeglut-2.4.0.tar.gz
 (
 date
 pwd
@@ -2440,7 +2452,7 @@ if [ "$build_gtkglext" = 1 ] ; then
     gtkglext_version=1.2.0
     # this host? disappeared.
     # ${WGET} http://surfnet.dl.sourceforge.net/sourceforge/gtkglext/gtkglext-$gtkglext_version.tar.gz
-    ${WGET}   http://www.ysbl.york.ac.uk/~emsley/software/extras/gtkglext-$gtkglext_version.tar.gz
+    ${WGET}   http://lmb.bioch.ox.ac.uk/coot/software/extras/gtkglext-$gtkglext_version.tar.gz
     (date
      pwd
      gzip -dc ${AUTOBUILD_SOURCES}/gtkglext-$gtkglext_version.tar.gz | tar xf -
@@ -2533,7 +2545,7 @@ if test -n "$build_python" ; then
 #
 
    ${WGET} http://www.python.org/ftp/python/$pver/Python-$pver.tgz
-   ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/python251_cci_patches_critical
+   ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/python251_cci_patches_critical
    (
    date
    gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
@@ -2742,7 +2754,7 @@ if test -n "$build_readline" ; then
     readline_version=6.2
     # ${WGET} ftp://ftp.cwru.edu/pub/bash/readline-$readline_version.tar.gz
     ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
-    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/readline-5.1.patch
+    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/readline-5.1.patch
     (
     date
     pwd
@@ -2831,7 +2843,7 @@ fi
 
 if test -n "$build_greg" ; then 
     echo building greg:
-    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/greg-2.0.0-pe.tar.gz
+    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/greg-2.0.0-pe.tar.gz
     (
     date 
     gzip -dc ${AUTOBUILD_SOURCES}/greg-2.0.0-pe.tar.gz | tar xf -
@@ -2857,7 +2869,7 @@ gtk_minor_version=`awk -F '[()]' '/define GTK_MINOR_VERSION/ {print $(NF-1)} ' /
 if [ "$gtk_minor_version" = "4" ] ; then
     echo guile-gtk needs to be patched, gtk MINOR version is 4.
     apply_guile_gtk_patches=1
-    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gtk-2.1-for-gtk-2.4.patch
+    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/guile-gtk-2.1-for-gtk-2.4.patch
 else 
     echo GTK minor version is good enough, $gtk_minor_version
 fi
@@ -3081,7 +3093,7 @@ if [ "$build_coot_prerelease" != 1 ] ; then
    # normal release coot
    ${WGET} $release_server_dir/$coot_version.tar.gz 
    if [ ! $? = 0 ] ; then
-      echo failed to wget http://www.ysbl.york.ac.uk/~emsley/software/$coot_version.tar.gz   
+      echo failed to wget $coot_version.tar.gz   
       my_exit 2 wget-fail-coot-source
    fi 
    # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/coot-static.patch
@@ -3293,9 +3305,11 @@ extra_dir=http://lmb.bioch.ox.ac.uk/coot/software/dependencies
 # 20110505 we change to Garib's new dictionary
 #refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
 #refmac_mon_lib=refmac-monomer-library-20091203.tar.gz
-mon_lib_dir=http://www.ysbl.york.ac.uk/~garib/refmac/data/refmac_experimental
+# mon_lib_dir=http://www.ysbl.york.ac.uk/~garib/refmac/data/refmac_experimental
+mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/content/refmac/Dictionary
 refmac_mon_lib=refmac_dictionary_v5.28.tar.gz
 refmac_mon_lib=refmac_dictionary_v5.29.tar.gz
+refmac_mon_lib=refmac_dictionary_v5.37.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
@@ -3442,7 +3456,16 @@ else
    echo ========================
    echo greg test status: $r
    echo python test status: $rp
-   echo fail-test $date > $LOGS/$build_type-test-status
+   if [ $r = 0 ] ; then 
+      echo fail-test greg $date > $LOGS/$build_type-test-status
+   else 
+      if [ $rp = 0 ] ; then 
+         echo fail-test python $date > $LOGS/$build_type-test-status
+      else 
+         # this should not happen, AFAICS.
+         echo fail-test $date > $LOGS/$build_type-test-status
+      fi
+   fi
 fi
 
 
