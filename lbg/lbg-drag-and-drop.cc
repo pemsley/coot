@@ -1,6 +1,10 @@
 
 #ifdef HAVE_GOOCANVAS
 
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif
+
 #include <iostream>
 #include "lbg-drag-and-drop.hh"
 

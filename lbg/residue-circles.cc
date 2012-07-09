@@ -21,6 +21,10 @@
 
 #ifdef HAVE_GOOCANVAS
 
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif
+
 #include "lbg.hh"
 bool lbg_info_t::optimise_residue_circles::score_vs_ligand_atoms       = 1;
 bool lbg_info_t::optimise_residue_circles::score_vs_ring_centres       = 1;

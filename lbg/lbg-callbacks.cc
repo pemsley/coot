@@ -21,6 +21,10 @@
 
 #ifdef HAVE_GOOCANVAS
 
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif
+
 #include <gtk/gtk.h>
 #include <stdlib.h> // for system()
 
