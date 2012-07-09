@@ -20,6 +20,10 @@
 
 #ifdef HAVE_GOOCANVAS
 
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif
+
 #include <fstream>
 
 #include <stdlib.h> // for getenv()

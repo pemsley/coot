@@ -1,6 +1,10 @@
 
 #ifdef MAKE_ENTERPRISE_TOOLS
 
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif
+
 #include "lbg.hh"
 
 // return a vector of alert matches

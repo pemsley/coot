@@ -3,6 +3,10 @@
 // alerts from SilOS-it's biscu-it.
 //
 
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif
+
 #include "lbg.hh"
 
 typedef std::pair<std::string, std::string> p;

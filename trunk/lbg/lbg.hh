@@ -25,13 +25,6 @@
 
 #ifdef HAVE_GOOCANVAS
 
-#ifdef USE_PYTHON
-#ifndef HAVE_PYTHON_H
-#define HAVE_PYTHON_H
-#include <Python.h> // this is here get round header warnings
-#endif
-#endif
-
 #ifdef MAKE_ENTERPRISE_TOOLS
 #include "rdkit-interface.hh"
 #endif 
