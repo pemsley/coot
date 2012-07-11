@@ -10,7 +10,9 @@ import restraints_boost as coot_boost
 from jay_util import *
 
 global run_mogul
+global smiles_dict
 run_mogul = True
+smiles_dict = False
 
 def make_mogul_ins_file(mogul_ins_file_name, mogul_out_file_name, sdf_file_name):
    f = open(mogul_ins_file_name, 'w')
@@ -99,6 +101,9 @@ def is_smiles_file(file_name):
         return bits[1] == 'smi'
     else:
         return False
+
+def is_comp_id(comp_id):
+   return len(comp_id) == 3
 
 def is_mdl_file(file_name):
     bits = file_name.rsplit(".")
@@ -372,6 +377,30 @@ def test_for_mogul():
    else:
       return True # OK, really
 
+# this can throw a TypeError
+def get_smiles_from_comp_id(comp_id):
+   global smiles_dict
+   if (not smiles_dict):
+      read_smiles_tab('smiles.tab')
+   return smiles_dict[comp_id]
+
+# return a dictionary or False (if the file does not exist)
+# (can this go inside get_smiles_from_comp_id?)
+#
+def read_smiles_tab(file_name):
+    global smiles_dict
+    try:
+       smiles_dict = {}
+       f = open(file_name)
+       lines = f.readlines()
+       for line in lines:
+           bits = line.rstrip().rsplit()
+           smiles_dict[bits[0]] = bits[2]
+       return True
+    except IOError as e:
+       smiles_dict = True # we've tested for it
+       return False
+   
 
 def make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
 
@@ -480,11 +509,19 @@ if __name__ == "__main__":
            status = make_restraints_from_mdl(smiles_or_mdl_string, comp_id, sdf_file_name,
                                              pdb_out_file_name, cif_restraints_file_name)
         else:
-           smiles_string = smiles_or_mdl_string
-           if is_smiles_file(smiles_or_mdl_string):
-              smiles_string = read_file(smiles_or_mdl_string)
-           status = make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name,
-                                                pdb_out_file_name, cif_restraints_file_name)
+           if is_comp_id(smiles_or_mdl_string):
+              try:
+                 smiles_string = get_smiles_from_comp_id(smiles_or_mdl_string)
+                 status = make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name,
+                                                      pdb_out_file_name, cif_restraints_file_name)
+              except TypeError:
+                 pass
+           else:
+              smiles_string = smiles_or_mdl_string
+              if is_smiles_file(smiles_or_mdl_string):
+                 smiles_string = read_file(smiles_or_mdl_string)
+                 status = make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name,
+                                                      pdb_out_file_name, cif_restraints_file_name)
               
     if (status == False):
        exit(1)
