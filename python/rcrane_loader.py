@@ -68,7 +68,7 @@ def import_rcrane_wrapper():
 
 # do this now if we load stuff from guile-gtk
 
-print '===== in rcrane loader: use_gui_qm is ', use_gui_qm
+# print '===== in rcrane loader: use_gui_qm is ', use_gui_qm
 
 if (use_gui_qm != 2):
     import_rcrane_wrapper()
