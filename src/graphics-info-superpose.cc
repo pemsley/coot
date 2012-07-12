@@ -404,7 +404,7 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
    std::string t;
    int previous_t_index = -1;
    int previous_s_index = -1;
-   bool debug = 0;
+   bool debug = false;
 
    // Talk to Eugene about this: turn on debugging and run Alice
    // Dawson test.
@@ -423,8 +423,11 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
    }
 
    for (unsigned int i1=0; i1<SSMAlign->nsel1; i1++) {
+      if (debug)
+	 std::cout << "getting t_indexes from Ca1 index i1 " << i1 << " range " << SSMAlign->nsel1
+		   << std::endl;
       int t_index = SSMAlign->Ca1[i1];
-      if (0)
+      if (debug)
 	 std::cout << "debug i1: " << i1 << " t_index is " << t_index << " and range is "
 		   << SSMAlign->nsel2 << std::endl;
       if (t_index == -1) {
@@ -432,30 +435,34 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 	 t += "-";
       } else {
 	 // was t_index sensible?
-	 if (t_index < SSMAlign->nsel2) {
+	 if (t_index < SSMAlign->nsel2 && t_index >= 0) {
 	    int s_index = SSMAlign->Ca2[t_index];
-	    if (t_index != (previous_t_index + 1)) {
-	       // this path rarely happens?
-	       int atom_sel2_index = previous_t_index + 1;
-	       if (atom_sel2_index < SSMAlign->nsel2) { 
-		  CAtom *at = atom_selection2[t_index];
-		  CAtom *ti_at = atom_selection2[atom_sel2_index];
-		  if (debug) { 
-		     std::cout << "t_index: " << t_index << std::endl;
-		     std::cout << "atom_sel2_index: " << atom_sel2_index << std::endl;
-		     std::cout << "at:    " << at << std::endl;
-		     std::cout << "ti_at: " << ti_at << std::endl;
-		  }
-		  t += coot::util::three_letter_to_one_letter(ti_at->GetResName());
-		  s += "."; // there was (at least) one extra residue in t sequence
-	       } else {
-		  // 20091221 confusion over what to do here
-		  // atom_sel2_index is out of bounds (adding the test
-		  // for it fixes a crash). Let's add nothing.
-		  t += "";
-		  s += ""; // there was (at least) one extra residue in t sequence
-	       } 
-	    }
+
+// causes a crash with strange values for t_index.
+// get rid of this for now.
+// 	    if (t_index != (previous_t_index + 1)) {
+// 	       // this path rarely happens?
+// 	       int atom_sel2_index = previous_t_index + 1;
+// 	       if (atom_sel2_index < SSMAlign->nsel2) { 
+// 		  CAtom *at    = atom_selection2[t_index];
+// 		  CAtom *ti_at = atom_selection2[atom_sel2_index];
+// 		  if (debug) { 
+// 		     std::cout << "t_index: " << t_index << std::endl;
+// 		     std::cout << "atom_sel2_index: " << atom_sel2_index << std::endl;
+// 		     std::cout << "at:    " << at << std::endl;
+// 		     std::cout << "ti_at: " << ti_at << std::endl;
+// 		  }
+// 		  t += coot::util::three_letter_to_one_letter(ti_at->GetResName());
+// 		  s += "."; // there was (at least) one extra residue in t sequence
+// 	       } else {
+// 		  // 20091221 confusion over what to do here
+// 		  // atom_sel2_index is out of bounds (adding the test
+// 		  // for it fixes a crash). Let's add nothing.
+// 		  t += "";
+// 		  s += ""; // there was (at least) one extra residue in t sequence
+// 	       } 
+// 	    }
+	    
 	    if (s_index == i1) { 
 	       s += coot::util::three_letter_to_one_letter(atom_selection1[i1]->GetResName());
 	       t += coot::util::three_letter_to_one_letter(atom_selection2[t_index]->GetResName());
