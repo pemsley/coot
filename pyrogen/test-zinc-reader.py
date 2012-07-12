@@ -6,12 +6,17 @@ global fragment_dict
 
 fragment_dict = {}
 
-class fragment_mol_info_t:
-    mol = False
+class fragment_mol_info_t():
 
-    def __init__(self, mol_in):
-        self.mol = mol_in
+    # fragment_in is the key
+    def __init__(self, fragment_in):
+        self.mol = Chem.MolFromSmiles(fragment_in)
+        self.n_atoms = self.mol.GetNumAtoms()
+        self.orig_mol_list = []
         
+
+    def add_mol(self, mol_in):
+        self.orig_mol_list.append(mol_in)
 
 def read_zinc_sdf(gzip_file_name):
     suppl = Chem.SDMolSupplier(gzip_file_name)
@@ -21,30 +26,27 @@ def read_zinc_sdf(gzip_file_name):
             # print mol.GetNumAtoms()
             hierarch = Recap.RecapDecompose(mol)
             keys = hierarch.GetLeaves().keys()
+            mol_info = False
             for key in keys:
                 try:
-                    leaf_mol = hierarch.GetLeaves()[key].mol
-                    try:
-                        fragment_dict[key].append(mol)
-                    except KeyError:
-                        new_list = []
-                        mol_info = fragment_mol_info_t(mol)
-                        new_list.append(mol_info)
-                        fragment_dict[key] = new_list
-                    
+                    fragment_dict[key].add_mol(mol)
                 except KeyError:
-                    print "type error in leave from decomposition"
-
-                
+                    mol_info = fragment_mol_info_t(key)
+                    mol_info.add_mol(mol)
+                    fragment_dict[key] = mol_info
+                    
         except TypeError as e:
             print "outer attribute error", e.what()
             pass
 
-    print " ================================== result ================================= "
     print "n items in fragment_dict:", len(fragment_dict), " from", len(suppl), "molecules."
-    l = fragment_dict.items()
     for i in fragment_dict:
-        print "dict item ", i, "from",Chem.MolToSmiles(fragment_dict[i][0].mol)
+        if (fragment_dict[i].n_atoms < 5):
+            frag_info = fragment_dict[i]
+            mol_smiles = Chem.MolToSmiles(frag_info.orig_mol_list[0])
+            print "   ", frag_info.n_atoms, i, "    from   ", mol_smiles
+
+        
 
 f = '/extra/paule/zinc/23_p0.0.sdf.gz'
 # f = 'LIG.sdf'
