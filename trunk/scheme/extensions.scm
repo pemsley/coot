@@ -1042,7 +1042,7 @@
 	;;     LIDIA
 	;; ---------------------------------------------------------------------
 	;; 
-	(if (coot-can-do-lidia-p)
+	(if (coot-can-do-lidia?)
 	    (let ((submenu-lidia (gtk-menu-new))
 		  (menuitem-lidia (gtk-menu-item-new-with-label "Lidia...")))
 
