@@ -6636,6 +6636,15 @@ Sat Jun  9 17:15:40 CEST 2012
 ---
 Wed Jun 27 10:29:54 BST 2012
 
+<<<<<<< .mine
+---
+Wed Jun 27 22:48:01 BST 2012
+
+   a structure with interesting carbohydrate to build:  3zr6
+
+
+
+=======
    INFO:: format in scheme/guile
 
 
@@ -6645,4 +6654,5 @@ Wed Jun 27 10:29:54 BST 2012
 http://www.gnu.org/software/guile/manual/html_node/Formatted-Output.html#Formatted-Output
 
 
+>>>>>>> .r4258
 ------

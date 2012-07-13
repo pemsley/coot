@@ -41,8 +41,13 @@ Fri Jun 29 13:34:58 BST 2012
    problem 3d -> 2d UHF from 3u7n
                  ligand from 4fl6
 
+---
+Tue Jun 26 00:51:13 BST 2012
 
 
+lbg SMILES button doesn't work on scylla
+
+* done.
 
 ----
 Fri Apr 15 13:00:04 BST 2011
@@ -935,6 +940,11 @@ sbase monomer dir: /home/paule/ccp4/ccp4-6.2.0/share/sbase
 ==23086==    by 0xF52E7C5: propagate_event (goocanvas.c:2961)
 ==23086== 
 
+----
+Wed Jun 27 22:34:08 BST 2012
+
+
+    Ge is mis-set in lbg in spiro-ge
 
 ----
 Wed Jun 27 17:25:18 BST 2012
@@ -943,6 +953,5 @@ Wed Jun 27 17:25:18 BST 2012
 
 	A1667 of 3zr6 with non-enterprise coot.
 	I think 1xb9 fails similar.
-
 
 -----

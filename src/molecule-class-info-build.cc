@@ -150,7 +150,7 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
 		  const char *ins_code  = new_at->GetInsCode();
 
 	       
-		  int selHnd = atom_sel.mol->NewSelection();
+		  int selHnd = atom_sel.mol->NewSelection(); // d 
 		  int nSelResidues;
 		  PPCResidue SelResidues;
 		  atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 1,
