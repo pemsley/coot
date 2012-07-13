@@ -321,7 +321,8 @@
 # 4.87 20120108 Use make not MAKE for guile-gtk.
 # 4.88 20120120 Don't use -j $nproc for make if we don't have memory.
 # 4.89 20120223 Use libccp4c-5.0.2-ysbl-3.tar.gz, that has libccp4c_la_LIBADD.
-script_version=4.89
+# 4.90 20120713 debug $coot_dir_name link usage.
+script_version=4.90
 
 
 # :: NOTE:: 
@@ -675,7 +676,8 @@ if test "$run_tests" = true ; then
    # the greg tests are where the coot source code was untarred.
    # 
    if [ ! -d greg-tests ] ; then 
-      echo greg-tests dir missing 
+      echo greg-tests dir missing in this directory:
+      pwd
       return 1
    fi
 
@@ -3399,6 +3401,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
 	    tar xzf $holding_tar_file
 	    echo cding into `basename $slim_dir`  from `pwd`
             cd `basename $slim_dir` 
+	    echo ln -s ../../$coot_dir_name/greg-tests .
 	    ln -s ../../$coot_dir_name/greg-tests .
             echo second coot test...
 	    test_coot bin/coot > $LOGS/$build_type-test-2.log 2>&1
