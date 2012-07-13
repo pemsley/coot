@@ -428,23 +428,6 @@ on_canvas_button_press_new(GooCanvasItem  *item,
    
    
 
-
-static gboolean
-on_canvas_button_release(GtkWidget *widget, GdkEventButton *event) {
-
-   // not used, I think. Delete.
-
-   GtkObject *obj = GTK_OBJECT(widget);
-   if (obj) {
-      gpointer gp = gtk_object_get_user_data(obj);
-      if (gp) {
-	 lbg_info_t *l = static_cast<lbg_info_t *> (gp);
-	 l->clear_button_down_bond_addition();
-      } 
-   } 
-   return TRUE;
-}
-
 static bool
 on_canvas_button_release_new(GooCanvasItem  *item,
 			     GooCanvasItem  *target_item,
@@ -452,9 +435,6 @@ on_canvas_button_release_new(GooCanvasItem  *item,
 			     gpointer        user_data) {
 
    // target_item is null (usually?)
-   
-   // std::cout << "on_canvas_button_release_new() button release item:  " << item
-   // << " target_item: " << target_item << std::endl;
    
    if (item) { 
       lbg_info_t *l =
@@ -697,7 +677,7 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 	 
 	 widgeted_bond_t &bond = mol.bonds.back();
 	 widgeted_atom_t &atom = mol.atoms.back();
-	 
+
 	 double x_cen = penultimate_atom_pos.x;
 	 double y_cen = penultimate_atom_pos.y;
 	 double x_at = atom.atom_position.x;
@@ -717,21 +697,11 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 
 	    std::cout << " rotate prevented -- too close to atom " << std::endl;
 
-	 }  else { 
+	 }  else {
 
-	    mol.close_atom(ultimate_atom_index, root);
+	    // move ultimate_atom_index atom to new_atom_pos
+	    atom.atom_position = new_atom_pos;
 
-	    // now create new atom and new bond
-	    //
-	    widgeted_atom_t new_atom(new_atom_pos, "C", 0, NULL);
-
-	    int new_index = mol.add_atom(new_atom).second;
-	    lig_build::bond_t::bond_type_t bt =
-	       addition_mode_to_bond_type(canvas_addition_mode);
-
-	    // std::cout << "::::::::::::::::: widgeted_bond_t atom indcies "
-	    // << penultimate_atom_index
-	    // << " " << new_index << std::endl;
 
 	    if (penultimate_atom_index == UNASSIGNED_INDEX) {
 
@@ -739,13 +709,9 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 			 << "rotate_latest_bond()" << std::endl;
 	       
 	    } else {
+
+	       bond.rotate_canvas_item(x_cen, y_cen, -degrees);
 	       
-	       widgeted_bond_t b(penultimate_atom_index, new_index,
-				 mol.atoms[penultimate_atom_index],
-				 new_atom,
-				 bt, root);
-	       ultimate_atom_index = new_index;
-	       mol.add_bond(b);
 	    }
 	 }
       }
@@ -1066,7 +1032,6 @@ lbg_info_t::change_atom_id_maybe(int atom_index) {
 bool
 lbg_info_t::change_atom_element(int atom_index, std::string new_ele, std::string fc) {
 
-   
    bool changed_status = 0;
    std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(atom_index);
    lig_build::pos_t pos = mol.atoms[atom_index].atom_position;
@@ -1375,7 +1340,6 @@ void
 lbg_info_t::add_bond_to_atom_with_2_neighbours(int atom_index, int canvas_addition_mode,
 					       const std::vector<int> &bond_indices) {
 
-
    widgeted_atom_t atom = mol.atoms[atom_index];
    int atom_index_1 = mol.bonds[bond_indices[0]].get_atom_1_index();
    int atom_index_2 = mol.bonds[bond_indices[0]].get_atom_2_index();
@@ -1413,15 +1377,11 @@ lbg_info_t::add_bond_to_atom_with_2_neighbours(int atom_index, int canvas_additi
    // have a extra bond, that atoms name could go from NH -> N (or C
    // -> C+ for 5 bonds).
    //
-   // std::cout << "calling change_atom_id_maybe(" << atom_index << ") " << std::endl;
    change_atom_id_maybe(atom_index); 
-   // std::cout << "calling change_atom_id_maybe(" << new_index << ") " << std::endl;
    change_atom_id_maybe(new_index);
-
    penultimate_atom_pos = atom.atom_position;
    penultimate_atom_index = atom_index;
    ultimate_atom_index    = new_index;
-
 }
 
 
@@ -3069,9 +3029,6 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
 					   max_dist_water_to_ligand_atom,
 					   max_dist_water_to_protein_atom);
 
-   std::cout << " debug:: input " << file_residue_circles.size() << ", " << residue_circles.size()
-	     << " remaining after filter" << std::endl;
-   
    std::vector<int> primary_indices = get_primary_indices();
 
    initial_residues_circles_layout(); // twiddle residue_circles

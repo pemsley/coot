@@ -152,7 +152,7 @@ public:
       return item;
    } 
    
-   void wrap_wrap_goo_canvas_item_rotate(GooCanvasItem *ci,
+   void wrap_goo_canvas_item_rotate(GooCanvasItem *ci,
 					 double degrees, double cx, double cy) const {
       goo_canvas_item_rotate(ci, degrees, cx, cy);
    } 
@@ -173,6 +173,16 @@ class widgeted_atom_t : public lig_build::atom_t , ligand_layout_graphic_primiti
 	 goo_canvas_item_remove_child(root, child_index);
       }
       ci = NULL;
+   }
+   void blank_text(GooCanvasItem *root) {
+      gint child_index = goo_canvas_item_find_child(root, ci);
+      if (child_index != -1) {
+	 // set text to ""
+	 g_object_set(ci, "visibility", GOO_CANVAS_ITEM_INVISIBLE, NULL);
+	 // gtk_widget_hide(GTK_WIDGET(ci)); invalid cast
+      } else {
+	 // std::cout << "debug::       blank_text() ci not found in children of root "<< std::endl;
+      } 
    }
 
    // then general form, use this not the below 2 (which are used by
@@ -200,7 +210,7 @@ public:
    }
    GooCanvasItem *get_canvas_item() const { return ci; }
    void update_canvas_item(GooCanvasItem *new_item, GooCanvasItem *root) {
-      clear(root);
+      blank_text(root);
       ci = new_item;
    }
    bool update_atom_id_maybe(const lig_build::atom_id_info_t &atom_id_info_in,
@@ -213,7 +223,7 @@ public:
       bool changed_status = 0;
       font_colour = fc;
       GooCanvasItem *text_item = NULL;
-      if (! is_closed()) { 
+      if (! is_closed()) {
 	 if (atom_id_info_in.atom_id != get_atom_id()) {
 	    changed_status = set_atom_id(atom_id_info_in.atom_id);
 	    if (changed_status) {
@@ -370,7 +380,7 @@ public:
    }
 
    void rotate_canvas_item(gdouble cx, gdouble cy, gdouble degrees) {
-      wrap_wrap_goo_canvas_item_rotate(ci, degrees, cx, cy);
+      wrap_goo_canvas_item_rotate(ci, degrees, cx, cy);
    }
 
    // We need to make a shorter bond canvas line because we have (say)

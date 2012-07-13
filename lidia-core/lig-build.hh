@@ -1176,7 +1176,7 @@ namespace lig_build {
 	 }
 
 	 if (0) 
-	    std::cout << "  in make_atom_id_by_using_bonds() "<< ele << " sum: "
+	    std::cout << "debug::       in make_atom_id_by_using_bonds() "<< ele << " sum_neigb_bond_order: "
 		      << sum_neigb_bond_order << " " << std::endl;
 
 	 if (ele == "N") {
