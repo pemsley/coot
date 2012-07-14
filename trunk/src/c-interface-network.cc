@@ -223,11 +223,21 @@ get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname) {
 
    if (graphics_info_t::prefer_python) { 
 #ifdef USE_PYTHON
-      return get_drug_via_wikipedia_and_drugbank_py(drugname);
+      std::string s = get_drug_via_wikipedia_and_drugbank_py(drugname);
+      if (s.empty()) {
+	 std::runtime_error rte("get_drug_via_wikipedia result-not-a-string");
+	 throw(rte);
+      }
+      return s;
 #endif
    } else {
 #ifdef USE_GUILE
-      return get_drug_via_wikipedia_and_drugbank_scm(drugname);
+      std::string s = get_drug_via_wikipedia_and_drugbank_scm(drugname);
+      if (s.empty()) {
+	 std::runtime_error rte("get_drug_via_wikipedia result-not-a-string");
+	 throw(rte);
+      }
+      return s;
 #endif
    }
    throw std::runtime_error("no scripting");
@@ -236,7 +246,7 @@ get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname) {
 #ifdef USE_GUILE
 // Return the file name of the mdl mol file.
 // 
-// can throw a std::runtime_error
+// Return empty string on error
 //
 std::string
 get_drug_via_wikipedia_and_drugbank_scm(const std::string &drugname) {
@@ -246,17 +256,17 @@ get_drug_via_wikipedia_and_drugbank_scm(const std::string &drugname) {
    command += single_quote(drugname);
    command += ")";
    SCM r = safe_scheme_command(command);
-   if (scm_is_true(scm_string_p(r))) {
+   if (scm_is_true(scm_string_p(r)))
       s = scm_to_locale_string(r);
-   } else {
-      std::runtime_error rte("get-drug-via-wikipedia result-not-a-string");
-      throw(rte);
-   } 
    return s;
 }
 #endif
 
 #ifdef USE_PYTHON
+// Return the file name of the mdl mol file.
+// 
+// Return empty string on error
+//
 std::string
 get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname) {
 
@@ -265,12 +275,8 @@ get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname) {
    command += single_quote(drugname);
    command += ")";
    PyObject *r = safe_python_command_with_return(command);
-   if (PyString_Check(r)) {
+   if (PyString_Check(r))
       s = PyString_AsString(r);
-   } else {
-      std::runtime_error rte("get_drug_via_wikipedia result-not-a-string");
-      throw(rte);
-   } 
    Py_XDECREF(r);
    return s;
 }
