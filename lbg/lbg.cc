@@ -2380,6 +2380,8 @@ lbg_info_t::init(GtkBuilder *builder) {
       int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
 
    // if we don't have rdkit or python then we don't want to see qed progress bar
+   // or the "show alerts" (because we can't match to the alert patterns).
+   
 #ifdef MAKE_ENTERPRISE_TOOLS
 #ifdef USE_PYTHON   
    // all, with QED
@@ -2388,6 +2390,8 @@ lbg_info_t::init(GtkBuilder *builder) {
 #endif    
 #else
    gtk_widget_hide(lbg_qed_hbox);
+   gtk_widget_hide(lbg_alert_hbox_outer);
+   gtk_widget_hide(lbg_show_alerts_checkbutton); // perhaps this should be in the lbg_alert_hbox_outer?
 #endif    
 
    return true;

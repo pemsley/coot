@@ -716,8 +716,9 @@ private:
       lbg_show_alerts_checkbutton = NULL;
       lbg_alert_hbox_outer = NULL;
       alert_group = NULL; // group for alert annotations
-      show_alerts_user_control = true;
+      show_alerts_user_control = false; // no pattern matching available
 #ifdef MAKE_ENTERPRISE_TOOLS   
+      show_alerts_user_control = false;
 #ifdef USE_PYTHON      
       setup_silicos_it_qed_default_func();
 #endif      
