@@ -739,6 +739,16 @@ on_lbg_show_alerts_checkbutton_toggled(GtkToggleButton *togglebutton,
 }
 
 
+extern "C" G_MODULE_EXPORT void
+on_pe_test_function_button_clicked(GtkButton *button, gpointer user_data) {
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (!l) {
+      std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
+   } else {
+      l->pe_test_function();
+   } 
+}
 
 #endif // HAVE_GOOCANVAS
 

@@ -891,6 +891,8 @@ private:
    std::vector<alert_info_t> alerts(const RDKit::ROMol &mol) const;
 #ifdef USE_PYTHON   
    PyObject *silicos_it_qed_default_func;
+   PyObject * get_callable_python_func(const std::string &module_name,
+				       const std::string &function_name) const;
 #endif    
    void setup_silicos_it_qed_default_func(); // try to get the python function, or set it to null.
 #endif
@@ -908,7 +910,6 @@ private:
    
    std::vector<std::pair<std::string, std::string> > alert_smarts() const;
    GooCanvasItem *alert_group;
-
 
 public:
    lbg_info_t(GtkWidget *canvas_in) {
@@ -1129,6 +1130,7 @@ public:
    void get_drug_using_entry_text(); // uses lbg_get_drug_entry
    void get_drug(const std::string &drug_name); // get mol file and load it
 
+   void pe_test_function();
 };
 
 // return pointer to an lbg_info_t.  Caller deletes.

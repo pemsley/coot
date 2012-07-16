@@ -9,7 +9,18 @@
    o read in components-PH2.cif and use Display mananger to delete the
    molecule.
 
+   o JED: 
 
+     1. go to find waters
+     2. set min 2.4, max 12
+     3. find some waters
+     4. open find waters window again
+     -> min and max values are swapped.
+
+    Bug?
+
+   o Does crash catcher work - on RH5 say?
+   
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
