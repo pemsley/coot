@@ -13,6 +13,8 @@ using namespace boost::python;
 void
 lbg_info_t::setup_silicos_it_qed_default_func() {
 
+   silicos_it_qed_default_func = NULL;
+
    // Build the name object
    PyObject *pName = PyString_FromString("silicos_it.descriptors.qed");
    // Load the module object
@@ -52,7 +54,7 @@ get_qed(PyObject *silicos_it_qed_default_func, const RDKit::ROMol &rdkm) {
    if (silicos_it_qed_default_func) { 
       try { 
 	 PyObject *arg_list = PyTuple_New(1);
-	 PyObject *rdkit_mol_py; // = PyInt_FromLong(6);
+	 PyObject *rdkit_mol_py;
 	    
 	 RDKit::ROMol *mol_copy_p = new RDKit::ROMol(rdkm);
 	 boost::shared_ptr<RDKit::ROMol> xx(mol_copy_p);

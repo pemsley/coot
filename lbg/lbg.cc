@@ -37,6 +37,7 @@
 #include <RDGeneral/FileParseException.h>
 #include <RDGeneral/BadFileException.h>
 #include <GraphMol/FileParsers/FileParsers.h>
+#include <boost/python.hpp>
 #endif
 
 #include <cairo.h>
@@ -2261,6 +2262,8 @@ lbg_info_t::clear_canvas() {
 bool
 lbg_info_t::init(GtkBuilder *builder) {
 
+   GtkWidget *pe_test_function_button = NULL;
+
    if (use_graphics_interface_flag) {
       
       lbg_window = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_window"));
@@ -2310,6 +2313,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_alert_name_label =          GTK_WIDGET(gtk_builder_get_object(builder, "lbg_alert_name_label"));
 	 lbg_get_drug_dialog =           GTK_WIDGET(gtk_builder_get_object(builder, "lbg_get_drug_dialog"));
 	 lbg_get_drug_entry =            GTK_WIDGET(gtk_builder_get_object(builder, "lbg_get_drug_entry"));
+	 pe_test_function_button =       GTK_WIDGET(gtk_builder_get_object(builder, "pe_test_function_button"));
 
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
       }
@@ -2378,6 +2382,10 @@ lbg_info_t::init(GtkBuilder *builder) {
    //
    if (is_stand_alone()) 
       int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
+
+   // Hack in a button for PE to test stuff
+   if (getenv("COOT_LBG_TEST_FUNCTION") != NULL)
+      gtk_widget_show(pe_test_function_button);
 
    // if we don't have rdkit or python then we don't want to see qed progress bar
    // or the "show alerts" (because we can't match to the alert patterns).
@@ -5791,6 +5799,84 @@ lbg_info_t::get_drug(const std::string &drug_name) {
       std::cout << "Null get-drug function" << std::endl;
    } 
 }
+
+
+#ifdef MAKE_ENTERPRISE_TOOLS   
+#ifdef USE_PYTHON   
+PyObject *
+lbg_info_t::get_callable_python_func(const std::string &module_name,
+				     const std::string &function_name) const {
+
+   PyObject *extracted_func = NULL;
+
+   //
+   // Build the name object
+   PyObject *pName = PyString_FromString(module_name.c_str());
+   // Load the module object
+   PyObject *pModule = PyImport_Import(pName);
+   if (pModule == NULL) {
+      // This happens, for example, when we can't pick up the rdkit installation properly
+      // 
+      std::cout << "Null pModule" << std::endl;
+   } else { 
+      // pDict is a borrowed reference 
+      PyObject *pDict = PyModule_GetDict(pModule);
+      if (! PyDict_Check(pDict)) {
+	 std::cout << "pDict is not a dict"<< std::endl;
+      } else {
+	 // pFunc is also a borrowed reference 
+	 PyObject *pFunc = PyDict_GetItemString(pDict, function_name.c_str());
+	 if (! pFunc) {
+	    std::cout << "pFunc is NULL" << std::endl;
+	 } else { 
+	    if (PyCallable_Check(pFunc)) {
+	       extracted_func = pFunc;
+	       if (1)
+		  std::cout << "found " << module_name << " " << function_name << " function"
+			    << std::endl;
+	    }
+	 }
+      }
+   }
+   return extracted_func;
+}
+#endif
+#endif
+
+
+void
+lbg_info_t::pe_test_function() {
+
+#ifdef MAKE_ENTERPRISE_TOOLS   
+   std::cout << "PE test function" << std::endl;
+
+   // RECAP mol
+
+   // first get the function:
+   // 
+   // PyObject *recap_func = get_callable_python_func("rdkit.Chem.Recap", "RecapDecompose");
+   PyObject *recap_func = get_callable_python_func("recap_wrapper", "wrap_recap");
+
+   if (PyCallable_Check(recap_func)) {
+      PyObject *arg_list = PyTuple_New(1);
+      RDKit::RWMol rdkm = rdkit_mol(mol);
+      coot::rdkit_mol_sanitize(rdkm);
+      
+      RDKit::ROMol *mol_copy_p = new RDKit::ROMol(rdkm);
+      boost::shared_ptr<RDKit::ROMol> xx(mol_copy_p);
+      boost::python::object obj(xx);
+      PyObject *rdkit_mol_py = obj.ptr();
+      PyTuple_SetItem(arg_list, 0, rdkit_mol_py);
+      PyObject *result = PyEval_CallObject(recap_func, arg_list);
+      if (! result) {
+	 std::cout << "Null result" << std::endl;
+      } else {
+	 std::cout << "Result: " << result << std::endl;
+      }
+   } 
+#endif 
+} 
+
 
 
 #endif // HAVE_GOOCANVAS
