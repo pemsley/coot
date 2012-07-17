@@ -696,7 +696,7 @@ private:
       canvas_drag_offset =  lig_build::pos_t(0,0);
       top_left_correction = lig_build::pos_t(0,0);
       standard_residue_circle_radius = 19;
-      button_down_bond_addition = 0;
+      button_down_bond_addition = false;
       latest_bond_canvas_item = 0;
       penultimate_atom_index = UNASSIGNED_INDEX;
       ultimate_atom_index = UNASSIGNED_INDEX;
