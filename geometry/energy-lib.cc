@@ -705,18 +705,20 @@ coot::energy_lib_t::get_angle(const std::string &energy_type_1,
 } 
 
 
+// Pass teh types of the 2 middle atoms
+// Will throw an std::runtime_error if not found.
+// 
 coot::energy_lib_torsion
 coot::energy_lib_t::get_torsion(const std::string &energy_type_2,
 				const std::string &energy_type_3) const {
 
-   energy_lib_torsion default_torsion;
    std::map<std::string, energy_lib_atom>::const_iterator it_1 = atom_map.find(energy_type_2);
    std::map<std::string, energy_lib_atom>::const_iterator it_2 = atom_map.find(energy_type_3);
 
    if (it_1 == atom_map.end() || it_2 == atom_map.end()) {
-      std::cout << "providing default torsion - bad types! "
-		<< energy_type_2 << " " << energy_type_3 << std::endl;
-      return default_torsion;
+      // std::cout << "providing default torsion - bad types! "
+      // << energy_type_2 << " " << energy_type_3 << std::endl;
+      throw std::runtime_error("bad types");
    } else {
       for (unsigned int itor=0; itor<torsions.size(); itor++) { 
 	 if (torsions[itor].matches(energy_type_2, energy_type_3)) {
@@ -727,5 +729,5 @@ coot::energy_lib_t::get_torsion(const std::string &energy_type_2,
 	 }
       }
    }
-   return default_torsion;
+   throw std::runtime_error("torsion for types not found in dictionary");
 }
