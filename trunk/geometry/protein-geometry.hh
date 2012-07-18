@@ -1284,6 +1284,7 @@ namespace coot {
 				 const std::string &atom_type_3) const;
 
       // types of the 2 middle atoms
+      // Will throw an std::runtime_error if not found.
       energy_lib_torsion get_torsion(const std::string &atom_type_2,
 				     const std::string &atom_type_3) const;
       
