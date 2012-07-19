@@ -18,7 +18,6 @@ def import_rcrane_wrapper():
    #check to see if the user has an old version of RCrane installed
    #if they do, stop it from running
    def checkForOldRCraneVersions():
-       print "checkForOldRCraneVersions() called.... "
        from rcrane.settings import settingsFilename
        rcraneSettingsFilename = settingsFilename()
 
