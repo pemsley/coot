@@ -23,8 +23,136 @@
 // we don't want to compile anything if we don't have gsl
 #ifdef HAVE_GSL
 #include <stdexcept>
+#include <algorithm>
+#include <fstream>
 
 #include "simple-restraint.hh"
+
+void
+coot::extra_restraints_t::read_refmac_distance_restraints(const std::string &file_name) {
+
+   if (coot::file_exists(file_name)) {
+      std::string line;
+      std::vector<std::string> lines;
+      std::ifstream f(file_name.c_str());
+      while (std::getline(f, line)) {
+	 lines.push_back(line);
+      }
+
+      for (unsigned int i=0; i<lines.size(); i++) { 
+	 std::vector<std::string> words = coot::util::split_string_no_blanks(lines[i], " ");
+	 if (matches_template_p(words)) {
+	    try { 
+	       std::string chain_id_1 = words[4];
+	       std::string ins_code_1 = words[8];
+	       std::string atm_name_1 = words[10];
+	       int res_no_1 = coot::util::string_to_int(words[6]);
+	       
+	       std::string chain_id_2 = words[13];
+	       std::string ins_code_2 = words[17];
+	       std::string atm_name_2 = words[19];
+	       int res_no_2 = coot::util::string_to_int(words[15]);
+
+	       if (ins_code_1 == ".") ins_code_1 = "";
+	       if (ins_code_2 == ".") ins_code_2 = "";
+
+	       double d = coot::util::string_to_float(words[21]);
+	       double e = coot::util::string_to_float(words[23]);
+
+	       std::string n1 = coot::atom_id_mmdb_expand(atm_name_1);
+	       std::string n2 = coot::atom_id_mmdb_expand(atm_name_2);
+
+	       coot::atom_spec_t spec_1(chain_id_1, res_no_1, ins_code_1, n1, "");
+	       coot::atom_spec_t spec_2(chain_id_2, res_no_2, ins_code_2, n2, "");
+	       extra_bond_restraint_t br(spec_1, spec_2, d, e);
+	       bond_restraints.push_back(br);
+	    }
+	    catch (std::runtime_error rte) {
+	       // silently ignore
+	    }
+	 }
+      }
+   }
+}
+
+void
+coot::extra_restraints_t::delete_restraints_for_residue(const residue_spec_t &rs) {
+
+   bond_restraints.erase(std::remove(bond_restraints.begin(), bond_restraints.end(), rs), bond_restraints.end());
+}
+
+
+
+bool
+coot::extra_restraints_t::matches_template_p(const std::vector<std::string> &words) const {
+
+   bool status = false;
+   if (words.size() == 24) {
+      std::vector<std::string> u(24);
+      for (unsigned int i=0; i<words.size(); i++)
+	 u[i] = coot::util::upcase(words[i]);
+      if (u[0].length() > 3) {
+	 if (u[0].substr(0,4) == "EXTE") {
+	    if (u[1].length() > 3) {
+	       if (u[1].substr(0,4) == "DIST") {
+		  if (u[2].length() > 3) {
+		     if (u[2].substr(0,4) == "FIRS") {
+			if (u[3].length() > 3) {
+			   if (u[3].substr(0,4) == "CHAI") {
+			      if (u[5].length() > 3) {
+				 if (u[5].substr(0,4) == "RESI") {
+				    if (u[7].length() > 2) {
+				       if (u[7].substr(0,3) == "INS") {
+					  if (u[9].length() > 3) {
+					     if (u[9].substr(0,4) == "ATOM") {
+						if (u[11].length() > 3) {
+						   if (u[11].substr(0,4) == "SECO") {
+						      if (u[12].length() > 3) {
+							 if (u[12].substr(0,4) == "CHAI") {
+							    if (u[14].length() > 3) {
+							       if (u[14].substr(0,4) == "RESI") {
+								  if (u[16].length() > 2) {
+								     if (u[16].substr(0,3) == "INS") {
+									if (u[18].length() > 3) {
+									   if (u[18].substr(0,4) == "ATOM") {
+									      if (u[20].length() > 3) {
+										 if (u[20].substr(0,4) == "VALU") {
+										    if (u[22].length() > 3) {
+										       if (u[22].substr(0,4) == "SIGM") {
+											  status = true;
+										       }
+										    }
+										 }
+									      }
+									   }
+									}
+								     }
+								  }
+							       }
+							    }
+							 }
+						      }
+						   }
+						}
+					     }
+					  }
+				       }
+				    }
+				 }
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return status;
+} 
+
+
 
 void
 coot::restraints_container_t::add_extra_restraints(const extra_restraints_t &extra_restraints) {
@@ -63,7 +191,7 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
       } else {
 
 	 // bleugh.
-	 int selHnd = mol->NewSelection();
+	 int selHnd = mol->NewSelection();  // d
 	 mol->Select (selHnd, STYPE_RESIDUE, 1,       // .. TYPE, iModel
 		      chain_id_save.c_str(), // Chain(s)
 		      istart_res, "*", // starting res
@@ -295,6 +423,7 @@ coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraint
       }
    } 
 }
+
 
 
 #endif // HAVE_GSL

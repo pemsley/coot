@@ -667,6 +667,8 @@ namespace coot {
    
    class extra_restraints_t {
 
+      bool matches_template_p(const std::vector<std::string> &words) const;
+
    public:
 
       class extra_bond_restraint_t {
@@ -680,6 +682,36 @@ namespace coot {
 	    atom_2 = a2;
 	    bond_dist = d;
 	    esd = e;
+	 }
+	 bool operator==(const residue_spec_t &rs) const {
+	    if (residue_spec_t(atom_1) == rs)
+	       return true;
+	    if (residue_spec_t(atom_2) == rs)
+	       return true;
+	    return false;
+	 }
+	 bool is_deviant(const double &real_dist, const double &n_sigma) const {
+	    return (fabs(real_dist-bond_dist)/esd > n_sigma);
+	 }
+      };
+
+      class bond_erasor {
+      public:
+	 double n_sigma_lim;
+	 std::map<std::pair<atom_spec_t, atom_spec_t>, double> dist_map;
+	 bond_erasor(const std::map<std::pair<atom_spec_t, atom_spec_t>, double> &dist_map_in, double nsi) {
+	    n_sigma_lim = nsi;
+	    dist_map = dist_map_in;
+	 } 
+	 bool operator()(const extra_bond_restraint_t &br) {
+	    std::pair<atom_spec_t, atom_spec_t> p(br.atom_1, br.atom_2);
+	    std::map<std::pair<atom_spec_t, atom_spec_t>, double>::const_iterator it =
+	       dist_map.find(p);
+	    if (it != dist_map.end()) {
+	       return (fabs(br.bond_dist -it->second)/br.esd > n_sigma_lim);
+	    } else {
+	       return false;
+	    } 
 	 } 
       };
         
@@ -738,6 +770,8 @@ namespace coot {
       std::vector<extra_torsion_restraint_t> torsion_restraints;
       std::vector<extra_start_pos_restraint_t> start_pos_restraints;
 
+      void read_refmac_distance_restraints(const std::string &file_name);
+
       bool has_restraints() const {
 
 	 if (bond_restraints.size() > 0)
@@ -757,7 +791,17 @@ namespace coot {
 	 torsion_restraints.clear();
 	 start_pos_restraints.clear();
       }
-      
+      void add_restraints(const extra_restraints_t &r) {
+	 for (unsigned int i=0; i<r.bond_restraints.size(); i++)
+	    bond_restraints.push_back(r.bond_restraints[i]);
+	 for (unsigned int i=0; i<r.angle_restraints.size(); i++)
+	    angle_restraints.push_back(r.angle_restraints[i]);
+	 for (unsigned int i=0; i<r.torsion_restraints.size(); i++)
+	    torsion_restraints.push_back(r.torsion_restraints[i]);
+	 for (unsigned int i=0; i<r.start_pos_restraints.size(); i++)
+	    start_pos_restraints.push_back(r.start_pos_restraints[i]);
+      }
+      void delete_restraints_for_residue(const residue_spec_t &rs);
    };
 
 

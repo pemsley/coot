@@ -66,6 +66,8 @@
 
 #include "c-interface-ligands.hh"
 
+#include "c-interface.h"
+
 #include "coot-h-bonds.hh"
 
 bool close_float_p(float f1, float f2) {
@@ -291,8 +293,9 @@ int test_internal_single() {
       // status = test_COO_mod();
       // status = test_remove_whitespace();
       // status = test_beam_in_residue();
-      status = test_multi_residue_torsion();
+      // status = test_multi_residue_torsion();
       // status = test_torsions_from_residue_selection();
+      status = test_read_prosmart_distance_restraints();
       
    }
    catch (std::runtime_error mess) {
@@ -2799,7 +2802,20 @@ test_torsions_from_residue_selection() {
    delete mol;
 
    return status;
+}
+
+int
+test_read_prosmart_distance_restraints() {
+
+   int status = 1;
+   std::string file_name("ProSMART_Output/tutorial-modern.txt");
+
+   int imol = read_pdb("test.pdb");
+   add_refmac_extra_restraints(imol, file_name.c_str());
+
+   return status;
 } 
+
 
 #endif // BUILT_IN_TESTING
 
