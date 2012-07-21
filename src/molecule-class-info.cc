@@ -872,19 +872,38 @@ void
 molecule_class_info_t::draw_extra_restraints_representation() {
 
    if (drawit) {
-      if (extra_restraints_representation.bonds.size() > 0) { 
-	 glLineWidth(2.0);
-	 glColor3f(0.6, 0.6, 0.8);
-	 glBegin(GL_LINES);
-	 for (unsigned int ib=0; ib<extra_restraints_representation.bonds.size(); ib++) {
-	    glVertex3f(extra_restraints_representation.bonds[ib].first.x(),
-		       extra_restraints_representation.bonds[ib].first.y(),
-		       extra_restraints_representation.bonds[ib].first.z());
-	    glVertex3f(extra_restraints_representation.bonds[ib].second.x(),
-		       extra_restraints_representation.bonds[ib].second.y(),
-		       extra_restraints_representation.bonds[ib].second.z());
+      if (drawit_for_extra_restraints) { 
+	 if (extra_restraints_representation.bonds.size() > 0) { 
+	    glLineWidth(2.0);
+	    glColor3f(0.6, 0.6, 0.8);
+	    
+	    glBegin(GL_LINES);
+	    for (unsigned int ib=0; ib<extra_restraints_representation.bonds.size(); ib++) {
+	       
+	       const coot::extra_restraints_representation_t::extra_bond_restraints_respresentation_t &res =
+		  extra_restraints_representation.bonds[ib];
+
+	       // red if actual distance is greater than target
+	       // 
+	       double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
+
+	       if (res.esd > 0) {
+		  double b = (res.target_dist*res.target_dist - d_sqd)/res.esd * 0.005;
+		  if (b >  0.4999) b =  0.4999;
+		  if (b < -0.4999) b = -0.4999;
+		  double b_green = b;
+		  if (b > 0) b_green *= 0.2;
+		  glColor3f(0.5-b, 0.5+b_green*0.9, 0.5+b);
+	       }
+	       glVertex3f(extra_restraints_representation.bonds[ib].first.x(),
+			  extra_restraints_representation.bonds[ib].first.y(),
+			  extra_restraints_representation.bonds[ib].first.z());
+	       glVertex3f(extra_restraints_representation.bonds[ib].second.x(),
+			  extra_restraints_representation.bonds[ib].second.y(),
+			  extra_restraints_representation.bonds[ib].second.z());
+	    }
+	    glEnd();
 	 }
-	 glEnd();
       }
    }
 } 
@@ -2943,6 +2962,8 @@ molecule_class_info_t::update_extra_restraints_representation() {
       bool ifound_2 = 0;
       int ifast_index_1 = extra_restraints.bond_restraints[i].atom_1.int_user_data;
       int ifast_index_2 = extra_restraints.bond_restraints[i].atom_2.int_user_data;
+      const coot::extra_restraints_t::extra_bond_restraint_t &res =
+	 extra_restraints.bond_restraints[i];
 
       // set p1 from ifast_index_1 (if possible)
       // 
@@ -2988,8 +3009,12 @@ molecule_class_info_t::update_extra_restraints_representation() {
 	 }
       }
 
+      if (! ifound_1) {
+	 std::cout << "no spec for " << extra_restraints.bond_restraints[i].atom_1 << std::endl;
+      } 
+
       if (ifound_1 && ifound_2) {
-	 extra_restraints_representation.add_bond(p1, p2);
+	 extra_restraints_representation.add_bond(p1, p2, res.bond_dist, res.esd);
       } 
    }
 } 

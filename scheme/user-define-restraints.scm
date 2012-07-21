@@ -252,6 +252,17 @@
        user-defined-delete-restraint)
 
       (add-simple-coot-menu-menuitem
+       menu "Delete Deviant Extra Restraints..."
+       (lambda ()
+	 (generic-single-entry "Delete Restraints worse than " "4.0" " Delete Outlying Restraints "
+			       (lambda (text)
+				 (let ((n (string->number text)))
+				   (if (number? n)
+				       (using-active-atom
+					(delete-extra-restraints-worse-than aa-imol n))))))))
+
+
+      (add-simple-coot-menu-menuitem
        menu "Save as REFMAC restraints..."
        (lambda ()
 	 (generic-chooser-and-file-selector "Save REFMAC restraints for molecule " 

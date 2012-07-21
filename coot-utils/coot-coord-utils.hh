@@ -105,7 +105,8 @@ namespace coot {
 	 insertion_code = insertion_code_in;
 	 atom_name = atom_name_in;
 	 alt_conf = alt_conf_in;
-	 model_number = 1; 
+	 model_number = 1;
+	 int_user_data = -1;
       }
       // This presumes at is a member of a coordinate hierarchy.
       atom_spec_t(CAtom *at) {
@@ -150,22 +151,50 @@ namespace coot {
       bool matches_spec(CAtom *atom) const;
 
       bool operator==(const atom_spec_t &matcher) const {
+	 bool r = false;
 	 if (matcher.model_number == model_number) { 
 	    if (matcher.chain == chain) {
 	       if (matcher.resno == resno) {
 		  if (matcher.insertion_code == insertion_code) {
 		     if (matcher.atom_name == atom_name) {
 			if (matcher.alt_conf == alt_conf) {
-			   return 1; 
+			   r = true;
 			}
 		     }
 		  }
 	       }
 	    }
 	 }
-	 return 0;
+	 return r;
       }
 
+      // we need this if atom_spec_t are used in a std::map.
+      bool operator<(const atom_spec_t &matcher) const {
+	 if (matcher.model_number < model_number) {
+	    return true;
+	 } else { 
+	    if (matcher.chain < chain) {
+	       return true;
+	    } else { 
+	       if (matcher.resno < resno) {
+		  return true;
+	       } else { 
+		  if (matcher.insertion_code < insertion_code) {
+		     return true;
+		  } else { 
+		     if (matcher.atom_name < atom_name) {
+			return true;
+		     } else { 
+			if (matcher.alt_conf < alt_conf) {
+			   return true; 
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+	 return false;
+      }
       friend std::ostream& operator<< (std::ostream& s, const atom_spec_t &spec);
    };
    

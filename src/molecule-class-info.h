@@ -516,14 +516,38 @@ namespace coot {
 
    // ------------ extra restraints (e.g. user-defined) ------------
    //
-   class extra_extraints_representation_t {
+   class extra_restraints_representation_t {
    public:
-      std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > bonds;
+
+      class extra_bond_restraints_respresentation_t {
+      public:
+	 clipper::Coord_orth first;
+	 clipper::Coord_orth second;
+	 double target_dist;
+	 double esd;
+	 extra_bond_restraints_respresentation_t(const clipper::Coord_orth &f,
+						 const clipper::Coord_orth &s,
+						 double d,
+						 double e) {
+	    first = f;
+	    second = s;
+	    target_dist = d;
+	    esd = e;
+	 }
+      };
+      std::vector<extra_bond_restraints_respresentation_t> bonds;
       void clear() {
 	 bonds.clear();
       }
       void add_bond(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2) {
-	 bonds.push_back(std::pair<clipper::Coord_orth, clipper::Coord_orth>(pt1, pt2));
+	 extra_bond_restraints_respresentation_t br(pt1, pt2, -1, -1);
+	 bonds.push_back(br);
+
+      }
+      void add_bond(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2,
+		    const double &d, const double &e) {
+	 extra_bond_restraints_respresentation_t br(pt1, pt2, d, e);
+	 bonds.push_back(br);
       }
    };
 
@@ -962,6 +986,7 @@ public:        //                      public
       // give back the memory from the map, so that we don't get
       // clipper leak message?
       drawit = 0;
+      drawit_for_extra_restraints = false;
       draw_it_for_map = 0;  // don't display this thing on a redraw!
       draw_it_for_map_standard_lines = 0;
 
@@ -1023,6 +1048,7 @@ public:        //                      public
       drawit = 0;
       draw_it_for_map = 0;
       draw_it_for_map_standard_lines = 1;
+      drawit_for_extra_restraints = true;
 
       // backup on by default, turned off for dummy atoms (baton building)
       backup_this_molecule = 1;
@@ -1237,6 +1263,14 @@ public:        //                      public
    void set_show_symmetry(short int istate) {
       show_symmetry = istate;
    }
+
+   // pass 0 or 1
+   void set_extra_restraints_are_displayed(int state) {
+      drawit_for_extra_restraints = state; 
+   }
+
+   void delete_extra_restraints_for_residue(const coot::residue_spec_t &rs);
+   void delete_extra_restraints_worse_than(const double &n_sigma);
 
    // Unit Cell (should be one for each molecule)
    // 
@@ -2919,8 +2953,9 @@ public:        //                      public
 
    // ---- extra restraints (currently only bonds) -----------
    //
+   bool drawit_for_extra_restraints;
    coot::extra_restraints_t extra_restraints;
-   coot::extra_extraints_representation_t extra_restraints_representation;
+   coot::extra_restraints_representation_t extra_restraints_representation;
    void draw_extra_restraints_representation();
    
    // return an index of the new restraint
@@ -2946,6 +2981,7 @@ public:        //                      public
    void remove_extra_torsion_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2,
                                       coot::atom_spec_t atom_3, coot::atom_spec_t atom_4);
    void update_extra_restraints_representation(); // called from make_bonds_type_checked()
+   void add_refmac_extra_restraints(const std::string &file_name);
    void clear_extra_restraints();
 
    // --------- (transparent) solid rendering of density ------------------

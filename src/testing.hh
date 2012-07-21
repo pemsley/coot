@@ -89,6 +89,7 @@ int test_position_residue_by_internal_coords();
 int test_beam_in_residue();
 int test_multi_residue_torsion();
 int test_torsions_from_residue_selection();
+int test_read_prosmart_distance_restraints();
 
 // uses greg data test data
 int test_phi_psi_values();

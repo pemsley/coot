@@ -560,13 +560,17 @@ ostream& operator<<(ostream& s, CAtom &atom) {
 ostream& operator<<(ostream& s, PCAtom atom) {
 
    //
-   s << atom->GetModelNum() << "/" << atom->GetChainID() << "/"
-     << atom->GetSeqNum()   << atom->GetInsCode() << "/"
+   if (atom) { 
+      s << atom->GetModelNum() << "/" << atom->GetChainID() << "/"
+	<< atom->GetSeqNum()   << atom->GetInsCode() << "/"
      << atom->GetResName() << "/"
-     << atom->name << " altLoc :" << atom->altLoc << ": segid :"
-     << atom->segID << ":" << " pos: ("
-     << atom->x << "," << atom->y << "," << atom->z
-     << ") B-factor: " << atom->tempFactor;
+	<< atom->name << " altLoc :" << atom->altLoc << ": segid :"
+	<< atom->segID << ":" << " pos: ("
+	<< atom->x << "," << atom->y << "," << atom->z
+	<< ") B-factor: " << atom->tempFactor;
+   } else {
+      s << "NULL";
+   } 
 
    return s;
 

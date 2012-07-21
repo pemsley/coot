@@ -344,6 +344,30 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 }
 #endif // USE_PYTHON
 
+/*! read in prosmart (typically) extra restraints */
+void add_refmac_extra_restraints(int imol, const char *file_name) {
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].add_refmac_extra_restraints(file_name);
+   }
+}
+
+void set_show_extra_restraints(int imol, int state) {
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_extra_restraints_are_displayed(state);
+   }
+   graphics_draw();
+}
+
+int extra_restraints_are_shown(int imol) {
+   int r = 0;
+   if (is_valid_model_molecule(imol))
+      r = graphics_info_t::molecules[imol].drawit_for_extra_restraints;
+   return r;
+} 
+
+
+
+
 /* ! \brief delete the restraints for the given comp_id (i.e. residue name)  */
 // return 0 or 1
 // 
@@ -691,8 +715,28 @@ delete_all_extra_restraints(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].extra_restraints.clear();
+   }
+   graphics_draw();
+}
+
+
+void delete_extra_restraints_for_residue(int imol, const char *chain_id, int res_no, const char *ins_code) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t rs(chain_id, res_no, ins_code);
+      graphics_info_t::molecules[imol].delete_extra_restraints_for_residue(rs);
    } 
+   graphics_draw();
+}
+
+void delete_extra_restraints_worse_than(int imol, float n_sigma) { 
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].delete_extra_restraints_worse_than(n_sigma);
+   }
+   graphics_draw();
 } 
+
 
 void
 set_use_only_extra_torsion_restraints_for_torsions(short int state) {

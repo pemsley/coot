@@ -3537,6 +3537,17 @@ int add_extra_start_pos_restraint(int imol, const char *chain_id_1, int res_no_1
 /*! \brief clear out all the extra/user-defined restraints for molecule number imol  */
 void delete_all_extra_restraints(int imol); 
 
+/*! \brief clear out all the extra/user-defined restraints for this residue in molecule number imol  */
+void delete_extra_restraints_for_residue(int imol, const char *chain_id, int res_no, const char *ins_code);
+
+void delete_extra_restraints_worse_than(int imol, float n_sigma);
+
+/*! read in prosmart (typically) extra restraints */
+void add_refmac_extra_restraints(int imol, const char *file_name);
+
+void set_show_extra_restraints(int imol, int state);
+int extra_restraints_are_shown(int imol);
+
 #ifdef __cplusplus
 #ifdef USE_GUILE		
 /* restraint_spec is something like (list 'bond spec-1 spec-2)

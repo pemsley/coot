@@ -6636,15 +6636,6 @@ Sat Jun  9 17:15:40 CEST 2012
 ---
 Wed Jun 27 10:29:54 BST 2012
 
-<<<<<<< .mine
----
-Wed Jun 27 22:48:01 BST 2012
-
-   a structure with interesting carbohydrate to build:  3zr6
-
-
-
-=======
    INFO:: format in scheme/guile
 
 
@@ -6654,5 +6645,57 @@ Wed Jun 27 22:48:01 BST 2012
 http://www.gnu.org/software/guile/manual/html_node/Formatted-Output.html#Formatted-Output
 
 
->>>>>>> .r4258
+---
+Wed Jun 27 22:48:01 BST 2012
+
+   a structure with interesting carbohydrate to build:  3zr6
+
+---
+Sat Jul 21 11:02:12 BST 2012
+
+   INFO:: example of remove and remove_if
+
+#include <vector>
+#include <string>
+#include <algorithm>
+#include <iostream>
+#include <functional>
+
+class erasor {
+public:
+   std::string s;
+   // the constructor, can be information that needs to be used
+   // internally in the operator() function.
+   // 
+   erasor(const std::string &s_in) {
+      s = s_in;
+   }
+   bool operator()(const std::string &x) const {
+      std::cout << "comparing " << s << " vs " << x << std::endl;
+      return (x == s);
+   }
+};
+
+int main(int argc, char **argv) {
+
+   std::vector<std::string> v;
+
+   v.push_back("One");
+   v.push_back("Two");
+   v.push_back("Three");
+   v.push_back("Four");
+   v.push_back("Five");
+
+   std::string bad_boy = "Three";
+
+   // remove() and remove_if() generate a useful pointer used by erase()
+   v.erase(std::remove(v.begin(), v.end(), "Two"), v.end());
+   v.erase(std::remove_if(v.begin(), v.end(), erasor(bad_boy)));
+   
+   for (unsigned int i=0; i<v.size(); i++)
+      std::cout << "   " << i << " " << v[i] << std::endl;
+   return 0;
+}
+
+
 ------

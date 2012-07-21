@@ -3449,7 +3449,6 @@ coot::restraints_container_t::fixed_check(int index_1) const {
       }
    }
    return r;
-	 
 } 
 
 std::vector<bool>
