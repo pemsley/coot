@@ -1084,6 +1084,8 @@ Sat Dec 15 12:18:46 GMT 2007
 
    79, 137
 
+   as is 3vhn 3fold with some sugar
+
 -----
 Sat Dec 15 13:12:08 GMT 2007
 
@@ -6638,10 +6640,9 @@ Wed Jun 27 10:29:54 BST 2012
 
    INFO:: format in scheme/guile
 
-
 (format #t "~3,'0d~%" 5)
 -> 
-005
+005 
 http://www.gnu.org/software/guile/manual/html_node/Formatted-Output.html#Formatted-Output
 
 
@@ -6650,8 +6651,9 @@ Wed Jun 27 22:48:01 BST 2012
 
    a structure with interesting carbohydrate to build:  3zr6
 
+
 ---
-Sat Jul 21 11:02:12 BST 2012
+Wed Jun 27 10:29:54 BST 2012
 
    INFO:: example of remove and remove_if
 
@@ -6661,15 +6663,18 @@ Sat Jul 21 11:02:12 BST 2012
 #include <iostream>
 #include <functional>
 
+// for erase_if()
 class erasor {
 public:
    std::string s;
    // the constructor, can be information that needs to be used
-   // internally in the operator() function.
+   // internally in the operator() function.  This is run once
    // 
    erasor(const std::string &s_in) {
       s = s_in;
    }
+   // The passed object type is the <type> of the vector.
+   // Run for each an item in the vector to see if it is deletable.
    bool operator()(const std::string &x) const {
       std::cout << "comparing " << s << " vs " << x << std::endl;
       return (x == s);
@@ -6679,7 +6684,6 @@ public:
 int main(int argc, char **argv) {
 
    std::vector<std::string> v;
-
    v.push_back("One");
    v.push_back("Two");
    v.push_back("Three");
@@ -6690,7 +6694,7 @@ int main(int argc, char **argv) {
 
    // remove() and remove_if() generate a useful pointer used by erase()
    v.erase(std::remove(v.begin(), v.end(), "Two"), v.end());
-   v.erase(std::remove_if(v.begin(), v.end(), erasor(bad_boy)));
+   v.erase(std::remove_if(v.begin(), v.end(), erasor(bad_boy)), v.end());
    
    for (unsigned int i=0; i<v.size(); i++)
       std::cout << "   " << i << " " << v[i] << std::endl;

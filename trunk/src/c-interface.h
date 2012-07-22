@@ -558,6 +558,16 @@ int svn_revision();
  @return 0 if not a valid name ( -> False in scheme) 
  e.g. "/a/b/c.pdb" for "d/e/f.mtz FWT PHWT" */ 
 const char *molecule_name(int imol);
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief return the molecule name without file extension */
+SCM molecule_name_stub_scm(int imol, int include_path_flag);
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+/*! \brief return the molecule name without file extension */
+PyObject *molecule_name_stub_py(int imol, int include_path_flag);
+#endif // USE_PYTHON
+#endif	/* __cplusplus */
 /*! \brief set the molecule name of the imol-th molecule */
 void set_molecule_name(int imol, const char *new_name);
 GtkWidget *main_window(); 

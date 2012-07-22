@@ -88,4 +88,5 @@
 (define dictionary-entries dictionary-entries-scm)
 (define SMILES-for-comp-id SMILES-for-comp-id-scm)
 (define (molecule-is-drawn-as-surface? imol) (= (molecule-is-drawn-as-surface-int imol) 1))
+(define molecule-name-stub molecule-name-stub-scm)
 

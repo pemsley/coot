@@ -226,6 +226,34 @@
 			      (format port "VALUE ~s SIGMA ~s~%" value esd)))))
 		      restraints))))))
 
+;; target is my molecule, ref is the homologous (high-res) model
+;; 
+(define (run-prosmart imol-target imol-ref)
+  (let ((dir-stub "coot-ccp4"))
+    (make-directory-maybe dir-stub)
+    (let ((target-pdb-file-name (append-dir-file dir-stub 
+						 (string-append (molecule-name-stub imol-target 0)
+								"-prosmart.pdb")))
+	  (reference-pdb-file-name (append-dir-file dir-stub
+						    (string-append (molecule-name-stub imol-ref 0)
+								   "-prosmart-ref.pdb")))
+	  (prosmart-out (append-dir-file "ProSMART_Output"
+					 (string-append (molecule-name-stub imol-target 0) 
+							"-prosmart.txt"))))
+			 
+      (write-pdb-file imol-target target-pdb-file-name)
+      (write-pdb-file imol-ref reference-pdb-file-name)
+      (goosh-command "prosmart" 
+		     (list "-p1" target-pdb-file-name
+			   "-p2" reference-pdb-file-name)
+		     '()
+		     (append-dir-file dir-stub "prosmart.log")
+		     #f)
+      (if (not (file-exists? prosmart-out))
+	  (begin
+	    (format #t "file not found ~s~%" prosmart-out))
+	  (add-refmac-extra-restraints imol-target prosmart-out)))))
+
 
 (if (defined? 'coot-main-menubar)
 
@@ -248,8 +276,54 @@
        user-defined-RNA-A-form)
 
       (add-simple-coot-menu-menuitem
+       menu "ProSMART..."
+       (lambda ()
+	 (let ((window (gtk-window-new 'toplevel))
+	       (hbox (gtk-hbox-new #f 0))
+	       (vbox (gtk-vbox-new #f 0))
+	       (h-sep (gtk-hseparator-new))
+	       (chooser-hint-text-1 " Target molecule ")
+	       (chooser-hint-text-2 " Reference (high-res) molecule ")
+	       (go-button (gtk-button-new-with-label " ProSMART "))
+	       (cancel-button (gtk-button-new-with-label " Cancel ")))
+			  
+	   (let ((option-menu-mol-list-pair-tar (generic-molecule-chooser 
+						 vbox chooser-hint-text-1))
+		 (option-menu-mol-list-pair-ref (generic-molecule-chooser 
+						 vbox chooser-hint-text-2)))
+
+	     (gtk-box-pack-start vbox h-sep #f #f 2)
+	     (gtk-box-pack-start vbox hbox #f #f 2)
+	     (gtk-box-pack-start hbox go-button #f #f 6)
+	     (gtk-box-pack-start hbox cancel-button #f #f 6)
+	     (gtk-container-add window vbox)
+
+	     (gtk-signal-connect cancel-button "clicked"
+				 (lambda ()
+				   (gtk-widget-destroy window)))
+
+	     (gtk-signal-connect go-button "clicked"
+				 (lambda ()
+				   (let ((imol-tar 
+					  (apply get-option-menu-active-molecule
+						 option-menu-mol-list-pair-tar))
+					 (imol-ref
+					  (apply get-option-menu-active-molecule
+						 option-menu-mol-list-pair-ref)))
+				     (run-prosmart imol-tar imol-ref)
+				     (gtk-widget-destroy window))))
+	     (gtk-widget-show-all window)))))
+	 
+
+      (add-simple-coot-menu-menuitem
        menu "Delete an Extra Restraint..."
        user-defined-delete-restraint)
+
+      (add-simple-coot-menu-menuitem
+       menu "Delete Restraints for this residue"
+       (lambda()
+	 (using-active-atom
+	  (delete-extra-restraints-for-residue aa-imol aa-chain-id aa-res-no aa-ins-code))))
 
       (add-simple-coot-menu-menuitem
        menu "Delete Deviant Extra Restraints..."
