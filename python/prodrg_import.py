@@ -469,3 +469,11 @@ def fle_view_to_png(imol, chain_id, res_no, ins_code, neighb_radius,
                                  prodrg_output_cif_file_name, 1,
                                  png_file_name)
                 
+
+
+def get_sbase_monomer_and_overlay(comp_id):
+
+    # should do something with active atom to get the reference residue
+    # for overlap_ligands
+    #
+    get_sbase_monomer(comp_id)

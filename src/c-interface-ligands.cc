@@ -1977,8 +1977,26 @@ void prodrg_import_function(std::string file_name) {
 // 
 void sbase_import_function(std::string comp_id) {
 
-   std::cout << "get SBase comp_id here " << comp_id << std::endl;
-   get_sbase_monomer(comp_id.c_str());
+   bool done = false; 
+#ifdef USE_PYTHON
+   if (graphics_info_t::prefer_python) {
+      std::string s = "get_sbase_monomer_and_overlay(";
+      s += single_quote(comp_id);
+      s += ")";
+      safe_python_command(s);
+      done = true;
+   }
+#endif
+
+#ifdef USE_GUILE
+   if (! done) { 
+      std::string s = "(get-sbase-monomer-and-overlay ";
+      s += single_quote(comp_id);
+      s += ")";
+      safe_scheme_command(s);
+   }
+#endif
+   
 }
 
 
