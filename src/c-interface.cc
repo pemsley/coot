@@ -316,6 +316,24 @@ const char *molecule_name(int imol) {
    return r;
 }
 
+#ifdef USE_GUILE
+SCM molecule_name_stub_scm(int imol, int include_path_flag) {
+   std::string r;
+   if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol))
+      r = graphics_info_t::molecules[imol].name_sans_extension(include_path_flag);
+   return scm_makfrom0str(r.c_str());
+}
+#endif 
+
+#ifdef USE_GUILE
+PyObject *molecule_name_stub_py(int imol, int include_path_flag) {
+   std::string r;
+   if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol))
+      r = graphics_info_t::molecules[imol].name_sans_extension(include_path_flag);
+   return PyString_FromString(r.c_str());
+}
+#endif 
+
 void set_molecule_name(int imol, const char *new_name) {
 
    if (is_valid_model_molecule(imol) ||

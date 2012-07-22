@@ -102,6 +102,7 @@ multi_residue_torsion_fit  = multi_residue_torsion_fit_py
 test_function          = test_function_py
 display_maps           = display_maps_py
 space_group            = space_group_py
+molecule_name_stub     = molecule_name_stub_py
 
 # graphics_info.h:
 #run_post_manipulation_hook = run_post_manipulation_hook_py

@@ -3598,11 +3598,8 @@ molecule_class_info_t::delete_all_sequences_from_molecule() {
   
   std::vector<std::pair<std::string, std::string> > seq =
     graphics_info_t::molecules[imol_no].sequence_info();
-  std::cout<<"BL DEBUG:: seq len before delete all " << seq.size() <<std::endl;
   input_sequence.clear();
   seq = graphics_info_t::molecules[imol_no].sequence_info();
-  std::cout<<"BL DEBUG:: seq len after delete all " << seq.size() <<std::endl;
-
 }
 
 // Delete the to chain_id associated sequence from the molecule
@@ -3611,20 +3608,16 @@ molecule_class_info_t::delete_sequence_by_chain_id(const std::string &chain_id_i
   
   std::vector<std::pair<std::string, std::string> > seq =
     graphics_info_t::molecules[imol_no].sequence_info();
-  std::cout<<"BL DEBUG:: seq len before delete chain " << seq.size() <<std::endl;
   std::vector<std::pair<std::string, std::string> >::iterator iter;
   for (iter = input_sequence.begin(); iter != input_sequence.end(); iter++) {
     std::string chain_id = (*(iter)).first;
     if (chain_id == chain_id_in) {
       // delete the seq for this chain
-      std::cout<<"BL DEBUG:: chain id and positions " << chain_id  <<std::endl; 
       input_sequence.erase(iter);
       break;
     }
   }
   seq = graphics_info_t::molecules[imol_no].sequence_info();
-  std::cout<<"BL DEBUG:: seq len after delete chain " << seq.size() <<std::endl;
-
 }
 
 

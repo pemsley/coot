@@ -1469,11 +1469,15 @@ public:        //                      public
    void display_ghost_bonds(int ighost);
 
 
-   // old style
-   // int* labelled_atom_index_list;
-   // int  n_labelled_atoms; 
-   // new style
    std::vector<int> labelled_atom_index_list;
+   // a functor to remove them
+   class labelled_atom_remover {
+   public:
+      int max_idx;
+      labelled_atom_remover(int max_idx_in) { max_idx = max_idx_in; }
+      bool operator()(int idx) const { return (idx >= max_idx); }
+   };
+   
    //
    // Symmetery atom labels.
    //
