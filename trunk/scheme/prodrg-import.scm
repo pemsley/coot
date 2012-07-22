@@ -390,3 +390,13 @@
 	      prodrg-output-3d-pdb-file-name
 	      prodrg-output-cif-file-name 1 png-file-name)
 	     ))))))
+
+;; import from SBASE, callback using sbase_import_function
+;; 
+(define (get-sbase-monomer-and-overlay comp-id)
+
+  (if (active-residue)
+      (using-active-atom
+       (let ((imol (get-sbase-monomer comp-id)))
+	 (overlap-ligands imol aa-imol aa-chain-id aa-res-no)))
+      (get-sbase-monomer comp-id)))
