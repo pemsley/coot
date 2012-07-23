@@ -348,6 +348,7 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 void add_refmac_extra_restraints(int imol, const char *file_name) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].add_refmac_extra_restraints(file_name);
+      graphics_draw();
    }
 }
 

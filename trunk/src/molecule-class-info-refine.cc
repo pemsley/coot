@@ -77,7 +77,6 @@ void
 molecule_class_info_t::delete_extra_restraints_worse_than(const double &n_sigma) {
 
    unsigned int pre_n = extra_restraints.bond_restraints.size();
-   std::cout << "pre_n: " << pre_n << std::endl;
 
    // the real dist, with atom specs for keys
    // (to be used by the erasor)
@@ -116,12 +115,12 @@ molecule_class_info_t::delete_extra_restraints_worse_than(const double &n_sigma)
       }
    }
 
-   extra_restraints.bond_restraints.erase(std::remove_if(extra_restraints.bond_restraints.begin(), extra_restraints.bond_restraints.end(), coot::extra_restraints_t::bond_erasor(dist_map, n_sigma)));
+   extra_restraints.bond_restraints.erase(std::remove_if(extra_restraints.bond_restraints.begin(), extra_restraints.bond_restraints.end(), coot::extra_restraints_t::bond_erasor(dist_map, n_sigma)), extra_restraints.bond_restraints.end());
 
    unsigned int post_n = extra_restraints.bond_restraints.size();
    if (post_n != pre_n)
       update_extra_restraints_representation();
-   std::cout << "post_n: " << post_n << std::endl;
+   std::cout << "INFO deleted : " << pre_n - post_n << " extra bond restraints" << std::endl;
 } 
 
 
