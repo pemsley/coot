@@ -173,10 +173,21 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
 		  } else {
 
 		     // normal case
-		     CAtom *at_copy = new CAtom;
-		     at_copy->Copy(new_at);
-		     SelResidues[0]->AddAtom(at_copy);
-		     added = 1;
+
+		     // if the atom exists, update the coordinates, else, add an atom.
+		     CAtom *at_in_residue = SelResidues[0]->GetAtom(atom_name);
+		     
+		     if (at_in_residue) {
+			at_in_residue->x = new_at->x;
+			at_in_residue->y = new_at->y;
+			at_in_residue->z = new_at->z;
+		     } else { 
+		     
+			CAtom *at_copy = new CAtom;
+			at_copy->Copy(new_at);
+			SelResidues[0]->AddAtom(at_copy);
+			added = 1;
+		     }
 		  }
 		  atom_sel.mol->DeleteSelection(selHnd);
 	       } 
