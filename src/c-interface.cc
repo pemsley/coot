@@ -325,7 +325,7 @@ SCM molecule_name_stub_scm(int imol, int include_path_flag) {
 }
 #endif 
 
-#ifdef USE_GUILE
+#ifdef USE_PYTHON
 PyObject *molecule_name_stub_py(int imol, int include_path_flag) {
    std::string r;
    if (is_valid_map_molecule(imol) || is_valid_model_molecule(imol))
