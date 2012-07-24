@@ -718,7 +718,7 @@ private:
       alert_group = NULL; // group for alert annotations
       show_alerts_user_control = false; // no pattern matching available
 #ifdef MAKE_ENTERPRISE_TOOLS   
-      show_alerts_user_control = false;
+      show_alerts_user_control = true;
 #ifdef USE_PYTHON      
       setup_silicos_it_qed_default_func();
 #endif      

@@ -902,6 +902,23 @@ lbg_info_t::update_descriptor_attributes() {
    }
    catch (std::exception e) {
       std::cout << "WARNING::" << e.what() << std::endl;
+
+      // SMILES string
+      if (lbg_statusbar) { 
+	 std::string status_string;
+	 guint statusbar_context_id =
+	    gtk_statusbar_get_context_id(GTK_STATUSBAR(lbg_statusbar), status_string.c_str());
+	 gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
+			    statusbar_context_id,
+			    status_string.c_str());
+#ifdef MAKE_ENTERPRISE_TOOLS
+	 // QED progress bar
+	 gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), "");
+	 gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
+	 // alerts
+	 clear_canvas_alerts();
+#endif	 
+      }
    }
 #endif      
 } 
@@ -5746,12 +5763,10 @@ void
 lbg_info_t::update_statusbar_smiles_string(const RDKit::RWMol &mol) const {
 
    std::string s;
-
    if (mol.getNumAtoms() > 0) {
       // new
-      RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(mol);
-      s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs);
-      delete rdk_mol_with_no_Hs;
+      RDKit::ROMol mol_copy(mol);
+      s = RDKit::MolToSmiles(mol_copy);
    } 
    update_statusbar_smiles_string(s);
 }
