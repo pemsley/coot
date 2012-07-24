@@ -562,6 +562,8 @@ public:
       std::vector<residue_circle_t> starting_circles;
       std::vector<residue_circle_t>  current_circles;
       widgeted_molecule_t mol;
+      RDKit::RWMol rdkit_mol(const widgeted_molecule_t &mol) const;
+      
       void numerical_gradients(gsl_vector *x, gsl_vector *df, void *params) const;
       std::vector<angle> angles;
       void setup_angles(); // uses current_circles and mol and fills angles
