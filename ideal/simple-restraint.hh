@@ -802,6 +802,21 @@ namespace coot {
 	    start_pos_restraints.push_back(r.start_pos_restraints[i]);
       }
       void delete_restraints_for_residue(const residue_spec_t &rs);
+      // updates restraint on atom if it can, else adds
+      void add_start_pos_restraint(const coot::atom_spec_t &atom_1_in, double esd_in) {
+	 bool already_exists = false;
+	 for (unsigned int i=0; i<start_pos_restraints.size(); i++) {
+	    if (start_pos_restraints[i].atom_1 == atom_1_in) {
+	       start_pos_restraints[i].esd = esd_in;
+	       already_exists = true;
+	       break;
+	    } 
+	 }
+	 if (! already_exists) {
+	    extra_start_pos_restraint_t e(atom_1_in, esd_in);
+	    start_pos_restraints.push_back(e);
+	 }
+      }
    };
 
 
