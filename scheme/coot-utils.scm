@@ -3195,18 +3195,24 @@
   ;; from drugbank and get that.
 
 
-  (define (drugbox->drugbank s) 
+  (define (drugbox->drugitem key s) 
     (let ((n (string-length s)))
       (let ((ls (string-split s #\newline)))
 	(let loop ((ls ls))
 	  (cond
 	   ((null? ls) #f) ;; no drugbank reference found
-	   ((string-match "DrugBank =" (car ls))
+	   ((string-match key (car ls))
 	    (let ((sls (string-split (car ls) #\space)))
 	      (let ((n-sls (length sls)))
 		(list-ref sls (- n-sls 1)))))
 	   (else 
 	    (loop (cdr ls))))))))
+
+  (define (drugbox->drugbank s)
+    (drugbox->drugitem "DrugBank =" s))
+
+  (define (drugbox->pubchem s)
+    (drugbox->drugitem "PubChem =" s))
 	
 
   ;; With some clever coding, these handle-***-value functions could
@@ -3230,13 +3236,30 @@
 	  (get-drug-via-wikipedia s)))
       
        ((let ((re-result (regexp-exec re rev-string)))
+	  ;; (format #t "===== re-result: ~s~%" re-result)
 	  (if re-result
 	      (begin
 		;; (format #t "matched a Drugbox~%")
 		(let ((dbi (drugbox->drugbank rev-string)))
 		  (if (not (string? dbi))
 		      (begin 
-			(format #t "DEBUG:: dbi not a string: ~s~%" dbi))
+
+			(format #t "DEBUG:: dbi not a string: ~s~%" dbi)
+			;; try pubchem as a fallback
+			(let ((pc (drugbox->pubchem rev-string)))
+			  (if (not (string? pc))
+			      #f
+			      (let ((pc-mol-url
+				     (string-append "http://pubchem.ncbi.nlm.nih.gov"
+						    "/summary/summary.cgi?cid=" 
+						    pc 
+						    "&disopt=DisplaySDF"))
+				    (file-name (string-append "pc-" pc ".mol")))
+				(coot-get-url pc-mol-url file-name)
+				file-name))))
+
+		      ;; normal path hopefully
+		      ;; 
 		      (let ((db-mol-uri (string-append "http://www.drugbank.ca/drugs/" dbi ".mol"))
 			    (file-name (string-append dbi ".mol")))
 			;; (format #t "getting url: ~s~%" db-mol-uri)
