@@ -621,7 +621,6 @@ def list_of_toolbar_functions():
          ["Sphere Regularization +", "sphere_regularize_plus()", "Regularize around active residue +/- 1 residue", "reset-view.svg"],
          ["Refine residue", "refine_active_residue()", "RSR active residue"],
          ["Reset B", "reset_b_factor_active_residue()", "Reset the B-Factor of active Residue"],
-         ["Find Waters", "wrapped_create_find_waters_dialog()", "Find water molecules in map", "add-water.svg"],
          ["Add Alt Conf", "altconf()", "Add alternative conformation", "add-alt-conf.svg"],
          ["Change Alt Conf Occ", "select_atom_alt_conf_occ_gui()", "Change occupancies for alternative conformations", "add-alt-conf.svg"],
          ["Edit BB", "setup_backbone_torsion_edit(1)", "Edit Backbone Torsion Angle", "flip-peptide.svg"],
@@ -631,6 +630,10 @@ def list_of_toolbar_functions():
          ["Interactive dots", toggle_interactive_probe_dots,
           "Show dots after refinement and for chi/rotamer changes",
           "probe-clash.svg", True, True]
+         ],
+        ["Building",
+         ["Find Waters", "wrapped_create_find_waters_dialog()", "Find water molecules in map", "add-water.svg"],
+         ["Build NA", "find_nucleic_acids_local(6.0)", "Find nucleic acids locally using Cootilus", "dna.svg"]
          ],
         ["NMR",[]],
         ["EM",[]],
