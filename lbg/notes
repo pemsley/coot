@@ -963,4 +963,12 @@ Wed Jun 27 17:25:18 BST 2012
 	A1667 of 3zr6 with non-enterprise coot.
 	I think 1xb9 fails similar.
 
+	????
+
+-----
+Mon Jul 23 12:29:37 BST 2012
+
+   add initial position restraints on protein atoms when doing a sphere regularization.
+
+
 -----
