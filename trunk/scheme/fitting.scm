@@ -708,4 +708,25 @@
 
 	    (number-list resno-range-start resno-range-end)))
 
+
+
+(define (add-extra-start-pos-restraints imol residue-spec esd)
+
+  (print-var imol)
+  (print-var residue-spec)
+  (print-var esd)
   
+  (let ((ri (residue-info imol 
+			  (residue-spec->chain-id residue-spec)
+			  (residue-spec->res-no residue-spec)
+			  (residue-spec->ins-code residue-spec))))
+    (for-each (lambda (atom-info)
+		(let ((atom-name (residue-atom->atom-name atom-info))
+		      (alt-conf  (residue-atom->alt-conf atom-info)))
+		  (add-extra-start-pos-restraint imol
+						 (residue-spec->chain-id residue-spec)
+						 (residue-spec->res-no  residue-spec)
+						 (residue-spec->ins-code residue-spec)
+						 atom-name alt-conf esd)))
+	      ri)))
+

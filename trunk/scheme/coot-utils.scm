@@ -268,6 +268,39 @@
 		 "/" (number->string 
 		      (car (cdr centre-residue-spec)))))
 
+;; residue-info atom
+(define (residue-atom->atom-name ra)
+  (if (not (list? ra))
+      #f
+      (car (car ra))))
+
+;; residue-info atom
+(define (residue-atom->alt-conf ra)
+  (if (not (list? ra))
+      #f
+      (cadr (car ra))))
+
+;; residue spec (e.g. from residue-near-residue)
+(define (residue-spec->chain-id rs)
+  (if (not (list? rs))
+      #f
+      (if (not (= (length rs) 3))
+	  #f
+	  (car rs))))
+
+(define (residue-spec->res-no rs)
+  (if (not (list? rs))
+      #f
+      (if (not (= (length rs) 3))
+	  #f
+	  (list-ref rs 1))))
+
+(define (residue-spec->ins-code rs)
+  (if (not (list? rs))
+      #f
+      (if (not (= (length rs) 3))
+	  #f
+	  (list-ref rs 2))))
 
 (define (atom-spec->imol atom-spec)
   (if (not (list? atom-spec))

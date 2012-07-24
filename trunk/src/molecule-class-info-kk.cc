@@ -121,8 +121,8 @@ molecule_class_info_t::add_extra_start_pos_restraint(coot::atom_spec_t atom_1,
       at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
       atom_1.int_user_data = atom_index;
    
-      coot::extra_restraints_t::extra_start_pos_restraint_t start_pos(atom_1, esd);
-      extra_restraints.start_pos_restraints.push_back(start_pos);
+      // updates restraint on atom if it can, else adds
+      extra_restraints.add_start_pos_restraint(coot::atom_spec_t(atom_1), esd); 
       update_extra_restraints_representation();
       r = extra_restraints.start_pos_restraints.size() -1;
    }
