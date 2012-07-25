@@ -963,7 +963,23 @@ Wed Jun 27 17:25:18 BST 2012
 	A1667 of 3zr6 with non-enterprise coot.
 	I think 1xb9 fails similar.
 
-	????
+
+----
+Wed Jul 18 17:03:03 BST 2012
+
+   JED notes:
+
+      Hydrogenate region twice -> problems
+
+      lbg SMILES, close window, open, does it work OK (to me it does so far).
+
+      Post-SBASE overlaying? Does it work?
+
+      FLEV without adding Hs.  On lots of different things.  Badness.  
+      Trap no hydrogens.
+
+      Allow user-defined alerts
+
 
 -----
 Mon Jul 23 12:29:37 BST 2012
