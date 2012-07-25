@@ -5529,6 +5529,268 @@ lbg_info_t::file_to_string(const std::string &file_name) const {
 void
 lbg_info_t::show_key() {
 
+   GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+
+   // class variable.
+   GooCanvasItem *key_group = goo_canvas_group_new (root, NULL);
+
+   GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 2.5, 2.5);
+
+   double dy  =  30.0;
+   double dxc = 250.0; // column offset
+   lig_build::pos_t co(dxc, 0);
+   lig_build::pos_t ro(0, dy);
+   
+   lig_build::pos_t tl(100, 100); // top left
+   lig_build::pos_t A       = tl;
+   lig_build::pos_t B       = tl + lig_build::pos_t(40,  0);
+   lig_build::pos_t AB_txt  = tl + lig_build::pos_t(50,  0);
+   lig_build::pos_t Ad      = A +  ro;
+   lig_build::pos_t Bd      = B +  ro;
+   lig_build::pos_t ABd_txt = AB_txt + ro;
+   lig_build::pos_t C       = tl + lig_build::pos_t(0,  2*dy);
+   lig_build::pos_t D       = tl + lig_build::pos_t(40, 2*dy);
+   lig_build::pos_t CD_txt  = tl + lig_build::pos_t(50, 2*dy);
+   lig_build::pos_t Cd      = C +  lig_build::pos_t(0,  dy);
+   lig_build::pos_t Dd      = D +  lig_build::pos_t(0,  dy);
+   lig_build::pos_t CDd_txt = CD_txt + lig_build::pos_t(0,  dy);
+
+   lig_build::pos_t WatA    = tl + ro * 4;
+   lig_build::pos_t WatB    = WatA + lig_build::pos_t(40,  0);
+   lig_build::pos_t Wat_txt = WatA + lig_build::pos_t(50,  0);
+   
+   lig_build::pos_t MetalA    = tl + ro * 5;
+   lig_build::pos_t MetalB    = MetalA + lig_build::pos_t(40,  0);
+   lig_build::pos_t Metal_txt = MetalA + lig_build::pos_t(50,  0);
+   // circles
+   lig_build::pos_t E       = tl + co;
+   lig_build::pos_t F       = E + ro;
+   lig_build::pos_t G       = E + ro * 2;
+   lig_build::pos_t H       = E + ro * 3;
+   lig_build::pos_t I       = E + ro * 4;
+   lig_build::pos_t J       = E + ro * 5;
+   lig_build::pos_t Et      = E + lig_build::pos_t(25, 0);
+   lig_build::pos_t Ft      = F + lig_build::pos_t(25, 0);
+   lig_build::pos_t Gt      = G + lig_build::pos_t(25, 0);
+   lig_build::pos_t Ht      = H + lig_build::pos_t(25, 0);
+   lig_build::pos_t It      = I + lig_build::pos_t(25, 0);
+   lig_build::pos_t Jt      = J + lig_build::pos_t(25, 0);
+   
+   std::string stroke_colour = "#008000";
+   stroke_colour = "#0000cc"; // blue
+   gboolean end_arrow = 1;
+   GooCanvasItem *item_1 =
+      goo_canvas_polyline_new_line(key_group,
+				   A.x, A.y,
+				   B.x, B.y,
+				   "line-width", 2.5,
+				   "line-dash", dash,
+				   "stroke-color", stroke_colour.c_str(),
+				   "end_arrow",   end_arrow,
+				   NULL);
+   GooCanvasItem *text_1 = goo_canvas_text_new(key_group,
+					       "Main-chain acceptor",
+					       AB_txt.x, AB_txt.y,
+					       -1,
+					       GTK_ANCHOR_WEST,
+					       "font", "Sans 10",
+					       "fill_color", "#111111",
+					       NULL);
+
+   GooCanvasItem *item_2 =
+      goo_canvas_polyline_new_line(key_group,
+				   Ad.x, Ad.y,
+				   Bd.x, Bd.y,
+				   "line-width", 2.5,
+				   "line-dash", dash,
+				   "stroke-color", stroke_colour.c_str(),
+				   "start_arrow",   end_arrow,
+				   NULL);
+   
+   GooCanvasItem *text_2 = goo_canvas_text_new(key_group,
+					       "Main-chain donor",
+					       ABd_txt.x, ABd_txt.y,
+					       -1,
+					       GTK_ANCHOR_WEST,
+					       "font", "Sans 10",
+					       "fill_color", "#111111",
+					       NULL);
+   
+   stroke_colour = "#008000"; // green
+   GooCanvasItem *item_3 =
+      goo_canvas_polyline_new_line(key_group,
+				   C.x, C.y,
+				   D.x, D.y,
+				   "line-width", 2.5,
+				   "line-dash", dash,
+				   "stroke-color", stroke_colour.c_str(),
+				   "end_arrow",   end_arrow,
+				   NULL);
+
+   GooCanvasItem *text_3 = goo_canvas_text_new(key_group,
+					       "Side-chain acceptor",
+					       CD_txt.x, CD_txt.y,
+					       -1,
+					       GTK_ANCHOR_WEST,
+					       "font", "Sans 10",
+					       "fill_color", "#111111",
+					       NULL);
+   
+   GooCanvasItem *item_4 =
+      goo_canvas_polyline_new_line(key_group,
+				   Cd.x, Cd.y,
+				   Dd.x, Dd.y,
+				   "line-width", 2.5,
+				   "line-dash", dash,
+				   "stroke-color", stroke_colour.c_str(),
+				   "start_arrow",   end_arrow,
+				   NULL);
+
+   GooCanvasItem *text_4 = goo_canvas_text_new(key_group,
+					       "Side-chain donor",
+					       CDd_txt.x, CDd_txt.y,
+					       -1,
+					       GTK_ANCHOR_WEST,
+					       "font", "Sans 10",
+					       "fill_color", "#111111",
+					       NULL);
+
+   std::string lime = "#888820";
+   GooCanvasItem *item_5 =
+      goo_canvas_polyline_new_line(key_group,
+				   WatA.x, WatA.y,
+				   WatB.x, WatB.y,
+				   "line-width", 2.5,
+				   "line-dash", dash,
+				   "stroke-color", lime.c_str(),
+				   NULL);
+
+   GooCanvasItem *text_5 = goo_canvas_text_new(key_group,
+					       "H-bond to Water",
+					       Wat_txt.x, Wat_txt.y,
+					       -1,
+					       GTK_ANCHOR_WEST,
+					       "font", "Sans 10",
+					       "fill_color", "#111111",
+					       NULL);
+   GooCanvasItem *item_6 =
+      goo_canvas_polyline_new_line(key_group,
+				   MetalA.x, MetalA.y,
+				   MetalB.x, MetalB.y,
+				   "line-width", 2.5,
+				   "line-dash", dash,
+				   "stroke-color",  "#990099",
+				   NULL);
+
+   GooCanvasItem *text_6 = goo_canvas_text_new(key_group,
+					       "Metal Bond",
+					       Metal_txt.x, Metal_txt.y,
+					       -1,
+					       GTK_ANCHOR_WEST,
+					       "font", "Sans 10",
+					       "fill_color", "#111111",
+					       NULL);
+
+   
+   // circles
+   double key_residue_radius = 13;
+   double line_width = 1.0;
+   std::string grease = "#ccffbb";
+   std::string purple = "#eeccee";
+   std::string red    = "#cc0000";
+   std::string blue   = "#0000cc";
+   std::string metalic_grey = "#d9d9d9";
+
+   GooCanvasItem *circle_grease = 
+      goo_canvas_ellipse_new(key_group,
+			     E.x, E.y, key_residue_radius, key_residue_radius,
+			     "line_width", line_width,
+			     "fill-color", grease.c_str(),
+			     NULL);
+   GooCanvasItem *circle_polar = 
+      goo_canvas_ellipse_new(key_group,
+			     F.x, F.y, key_residue_radius, key_residue_radius,
+			     "line_width", line_width,
+			     "fill-color", purple.c_str(),
+			     NULL);
+   GooCanvasItem *circle_acidic = 
+      goo_canvas_ellipse_new(key_group,
+			     G.x, G.y, key_residue_radius, key_residue_radius,
+			     "stroke-color", red.c_str(),
+			     "fill-color", purple.c_str(),
+			     "line_width", 2.0,
+			     NULL);
+   GooCanvasItem *circle_basic = 
+      goo_canvas_ellipse_new(key_group,
+			     H.x, H.y, key_residue_radius, key_residue_radius,
+			     "fill-color", purple.c_str(),
+			     "stroke-color", blue.c_str(),
+			     "line_width", 2.0,
+			     NULL);
+   GooCanvasItem *circle_water = 
+      goo_canvas_ellipse_new(key_group,
+			     I.x, I.y, key_residue_radius, key_residue_radius,
+			     "line_width", line_width,
+			     "fill-color", "white",
+			     NULL);
+   GooCanvasItem *circle_metal = 
+      goo_canvas_ellipse_new(key_group,
+			     J.x, J.y, key_residue_radius, key_residue_radius,
+			     "line_width", line_width,
+			     "fill-color", metalic_grey.c_str(),
+			     NULL);
+
+   GooCanvasItem *text_grease = goo_canvas_text_new(key_group,
+						    "Grease",
+						    Et.x, Et.y,
+						    -1,
+						    GTK_ANCHOR_WEST,
+						    "font", "Sans 10",
+						    "fill_color", "#111111",
+						    NULL);
+   GooCanvasItem *text_polar = goo_canvas_text_new(key_group,
+						   "Polar",
+						   Ft.x, Ft.y,
+						   -1,
+						   GTK_ANCHOR_WEST,
+						   "font", "Sans 10",
+						   "fill_color", "#111111",
+						   NULL);
+   GooCanvasItem *text_acidic = goo_canvas_text_new(key_group,
+						   "Acidic",
+						   Gt.x, Gt.y,
+						   -1,
+						   GTK_ANCHOR_WEST,
+						   "font", "Sans 10",
+						   "fill_color", "#111111",
+						   NULL);
+   GooCanvasItem *text_basic = goo_canvas_text_new(key_group,
+						   "Basic",
+						   Ht.x, Ht.y,
+						   -1,
+						   GTK_ANCHOR_WEST,
+						   "font", "Sans 10",
+						   "fill_color", "#111111",
+						   NULL);
+   GooCanvasItem *text_water = goo_canvas_text_new(key_group,
+						   "Water",
+						   It.x, It.y,
+						   -1,
+						   GTK_ANCHOR_WEST,
+						   "font", "Sans 10",
+						   "fill_color", "#111111",
+						   NULL);
+   
+   GooCanvasItem *text_metal = goo_canvas_text_new(key_group,
+						   "Metal",
+						   Jt.x, Jt.y,
+						   -1,
+						   GTK_ANCHOR_WEST,
+						   "font", "Sans 10",
+						   "fill_color", "#111111",
+						   NULL);
+   
+   
 }
 
 
