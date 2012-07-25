@@ -908,8 +908,9 @@ private:
    // similarity combox box text.
    double get_search_similarity() const;
    std::string atom_X; // initially "H"
-   
+
    std::vector<std::pair<std::string, std::string> > alert_smarts() const;
+   std::vector<std::pair<std::string, std::string> > user_defined_alert_smarts() const;
    GooCanvasItem *alert_group;
 
 public:
