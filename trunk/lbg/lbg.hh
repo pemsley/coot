@@ -376,7 +376,6 @@ public:
       std::pair<int, int> canvas_pos_to_grid_pos(const lig_build::pos_t &atom_pos) const;
       int square_type(int ii, int jj, float contour_level) const;
       std::vector<std::vector<lig_build::pos_t> > make_contour_lines(const std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> > &line_fragments) const;
-      void plot_contour_lines(const std::vector<std::vector<lig_build::pos_t> > &contour_lines, GooCanvasItem *root) const;
       double substitution_value(double r_squared, double bash_dist) const;
       // can throw a std::runtime_error (if result is out of grid)
       grid_index_t grid_pos_nearest(const lig_build::pos_t &pos) const;
@@ -388,6 +387,7 @@ public:
       ligand_grid(const lig_build::pos_t &low_x_and_y,
 		  const lig_build::pos_t &high_x_and_y);
 
+      void plot_contour_lines(const std::vector<std::vector<lig_build::pos_t> > &contour_lines, GooCanvasItem *root) const;
       enum { MS_NO_CROSSING = -2,
 	     MS_NO_SQUARE = -1, 
 	     MS_UP_0_0,
@@ -689,6 +689,7 @@ private:
    bool use_graphics_interface_flag;
    void init_internal() {
       in_delete_mode_ = 0;
+      key_group = NULL;      
       save_molecule_index = UNASSIGNED_INDEX;
       make_saves_mutex = 1; // allow saves initially
       search_similarity = 0.95;
@@ -963,6 +964,7 @@ public:
    GtkWidget *lbg_get_drug_dialog;
    GtkWidget *lbg_get_drug_entry;
    GtkWidget *canvas;
+   GooCanvasItem *key_group;
    std::map<std::string, GtkToggleToolButton *> widget_names;
    widgeted_molecule_t mol;
    int canvas_addition_mode;

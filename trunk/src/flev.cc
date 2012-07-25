@@ -78,6 +78,57 @@ sprout_hydrogens(int imol,
    return r;
 }
 
+//  return true if both ligand_res and env_res have hydrogens in the
+//  dictionary and (at least one) hydrogen in the model
+// (if ligand_res is a SO4 (no hydrogens) that should not cause a fail).
+// 
+bool flev_check_for_hydrogens(CResidue *ligand_res,
+			      const std::vector<CResidue *> &env_residues,
+			      coot::protein_geometry *geom_p) {
+
+   bool status = false;
+   int n_hydrogens_ligand = 0;
+   int n_hydrogens_others = 0;
+
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   ligand_res->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (unsigned int i=0; i<n_residue_atoms; i++) { 
+      std::string ele = residue_atoms[i]->element;
+      if (ele == " H") { // needs PDBv3 update
+	 n_hydrogens_ligand++;
+      } 
+   }
+   for (unsigned int ires=0; ires<env_residues.size(); ires++) { 
+      residue_atoms = 0;
+      n_residue_atoms = 0;
+      env_residues[ires]->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	 std::string ele = residue_atoms[iat]->element;
+	 if (ele == " H") { // needs PDBv3 update
+	    n_hydrogens_others++;
+	 }
+      }
+   }
+   if (n_hydrogens_others > 0)
+      if (n_hydrogens_ligand > 0)
+	 return true;
+
+
+   if (n_hydrogens_ligand > 0) {
+      // perhaps the ligand was not supposed to have any ligands
+      std::string residue_type = ligand_res->GetResName();
+      if (geom_p->have_dictionary_for_residue_type(residue_type, graphics_info_t::cif_dictionary_read_number++)) {
+	 int n_hydrogens_ligand_dict = geom_p->n_hydrogens(residue_type);
+	 if (n_hydrogens_ligand_dict > 0)
+	    status = false;
+	 else
+	    status = true;
+      }
+   }
+   return status;
+} 
+
 
 void fle_view_internal(int imol, const char *chain_id, int res_no, const char *ins_code, 
 		       int imol_ligand_fragment, 

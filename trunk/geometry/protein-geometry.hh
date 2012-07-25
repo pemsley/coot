@@ -2031,6 +2031,14 @@ namespace coot {
       std::pair<bool, double> get_nbc_dist(const std::string &energy_type_1,
 					   const std::string &energy_type_2) const;
 
+
+      // This uses have_dictionary_for_residue_type() (and thus
+      // try_dynamic_add() if needed).
+      // 
+      // Return -1 if residue type not found.
+      // 
+      int n_hydrogens(const std::string &residue_type);
+
       // Add XXX or whatever to non-auto residue names
       // 
       void add_non_auto_load_residue_name(const std::string &res_name);
