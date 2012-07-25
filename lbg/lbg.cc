@@ -2254,6 +2254,8 @@ lbg_info_t::clear() {
    clear_canvas();
    // and that clears the alerts group
    alert_group = NULL;
+
+   key_group = NULL;
    
    // clear the molecule
    mol.clear();
@@ -5069,7 +5071,7 @@ lbg_info_t::draw_substitution_contour() {
 
 	       std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair =
 		  mol.ligand_extents();
-	       lbg_info_t::ligand_grid grid(l_e_pair.first, l_e_pair.second);
+	       ligand_grid grid(l_e_pair.first, l_e_pair.second);
    
 	       if (0) { // debug
 		  for (unsigned int i=0; i<mol.atoms.size(); i++) { 
@@ -5532,7 +5534,8 @@ lbg_info_t::show_key() {
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
    // class variable.
-   GooCanvasItem *key_group = goo_canvas_group_new (root, NULL);
+   if (! key_group)
+      key_group = goo_canvas_group_new (root, NULL);
 
    GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 2.5, 2.5);
 
@@ -5540,8 +5543,9 @@ lbg_info_t::show_key() {
    double dxc = 250.0; // column offset
    lig_build::pos_t co(dxc, 0);
    lig_build::pos_t ro(0, dy);
-   
-   lig_build::pos_t tl(100, 100); // top left
+   lig_build::pos_t tl(100, 500); // top left of key
+
+   // Lines
    lig_build::pos_t A       = tl;
    lig_build::pos_t B       = tl + lig_build::pos_t(40,  0);
    lig_build::pos_t AB_txt  = tl + lig_build::pos_t(50,  0);
@@ -5562,7 +5566,7 @@ lbg_info_t::show_key() {
    lig_build::pos_t MetalA    = tl + ro * 5;
    lig_build::pos_t MetalB    = MetalA + lig_build::pos_t(40,  0);
    lig_build::pos_t Metal_txt = MetalA + lig_build::pos_t(50,  0);
-   // circles
+   // Circles
    lig_build::pos_t E       = tl + co;
    lig_build::pos_t F       = E + ro;
    lig_build::pos_t G       = E + ro * 2;
@@ -5575,6 +5579,13 @@ lbg_info_t::show_key() {
    lig_build::pos_t Ht      = H + lig_build::pos_t(25, 0);
    lig_build::pos_t It      = I + lig_build::pos_t(25, 0);
    lig_build::pos_t Jt      = J + lig_build::pos_t(25, 0);
+   // Rest
+   lig_build::pos_t K       = tl + co + lig_build::pos_t(150, 0);
+   lig_build::pos_t L       = K + ro * 1.5;
+   lig_build::pos_t M       = K + ro * 3;
+   lig_build::pos_t Kt      = K + lig_build::pos_t(25, 0);
+   lig_build::pos_t Lt      = L + lig_build::pos_t(25, 0);
+   lig_build::pos_t Mt      = M + lig_build::pos_t(25, 0);
    
    std::string stroke_colour = "#008000";
    stroke_colour = "#0000cc"; // blue
@@ -5789,14 +5800,78 @@ lbg_info_t::show_key() {
 						   "font", "Sans 10",
 						   "fill_color", "#111111",
 						   NULL);
+
+   // Solvent accessibility of atoms
+   bool save_state = draw_flev_annotations_flag;
+   draw_flev_annotations_flag = true;
+   lig_build::pos_t K_dx = K + lig_build::pos_t(-4, 0); // K + delta x to make objects line up...
+   draw_solvent_accessibility_of_atom(K_dx, 0.15, key_group);
+   draw_flev_annotations_flag = save_state;
+   GooCanvasItem *text_solvent_atom = goo_canvas_text_new(key_group,
+							  "Solvent exposure",
+							  Kt.x, Kt.y,
+							  -1,
+							  GTK_ANCHOR_WEST,
+							  "font", "Sans 10",
+							  "fill_color", "#111111",
+							  NULL);
    
-   
+   // solvent exposue ligand difference on environment/receptor residue
+   GooCanvasItem *circle_residue_exposure_1 = 
+      goo_canvas_ellipse_new(key_group,
+			     L.x-5.0, L.y-5.0, key_residue_radius * 1.3 , key_residue_radius * 1.3,
+			     "line_width", 0.0,
+			     "fill-color", "#bbbbff",
+			     NULL);
+   GooCanvasItem *circle_residue_exposure_2 = 
+      goo_canvas_ellipse_new(key_group,
+			     L.x, L.y, key_residue_radius * 0.9, key_residue_radius * 0.9,
+			     "line_width", line_width,
+			     "fill-color", "white",
+			     NULL);
+   GooCanvasItem *text_solvent_residue = goo_canvas_text_new(key_group,
+							     "Residue protection",
+							     Lt.x, Lt.y,
+							     -1,
+							     GTK_ANCHOR_WEST,
+							     "font", "Sans 10",
+							     "fill_color", "#111111",
+							     NULL);
+
+   std::vector<std::vector<lig_build::pos_t> > contour_lines;
+   std::vector<lig_build::pos_t> contour_set;
+
+   for (unsigned int i=0; i<11; i++) {
+      double delta_x = 15 * sin(i * 2 * M_PI * 0.1);
+      double delta_y = 12 * cos(i * 2 * M_PI * 0.1);
+      lig_build::pos_t p = M + lig_build::pos_t(delta_x-3, delta_y);
+      contour_set.push_back(p);
+   }
+   contour_lines.push_back(contour_set);
+   lig_build::pos_t dummy_pos;
+   ligand_grid grid(dummy_pos, dummy_pos);
+   grid.plot_contour_lines(contour_lines, key_group);
+
+   GooCanvasItem *text_substitution_contour = goo_canvas_text_new(key_group,
+								  "Substitution Contour",
+								  Mt.x, Mt.y,
+								  -1,
+								  GTK_ANCHOR_WEST,
+								  "font", "Sans 10",
+								  "fill_color", "#111111",
+								  NULL);
 }
 
 
 void
 lbg_info_t::hide_key() {
 
+   if (key_group) { 
+      gint n_children = goo_canvas_item_get_n_children (key_group);
+      for (int i=0; i<n_children; i++)
+	 goo_canvas_item_remove_child(key_group, 0);
+      key_group = NULL;
+   }
 }
 
 bool
