@@ -5806,6 +5806,7 @@ lbg_info_t::get_drug(const std::string &drug_name) {
       try {
 	 std::string file_name = get_drug_mdl_file_function_pointer(drug_name);
 	 import_mol_from_file(file_name);
+	 save_molecule();
       }
       catch (std::runtime_error rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
