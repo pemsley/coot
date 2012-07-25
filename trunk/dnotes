@@ -6702,4 +6702,32 @@ int main(int argc, char **argv) {
 }
 
 
+---
+Tue Jul  3 17:14:08 BST 2012
+
+CentOS 6 extras
+
+glib2-devel zlib-devel  (coot config)
+gtk2-devel
+
+(for coot clipper config)
+
+libXt-devel (for gtkglext)
+libgnomecanvas-devel for coot configure 
+
+for mosflm (ccp4)
+ncurses-devel
+
+for xemacs: 
+yum install Xaw3d-devel libXp-devel xorg-x11-xbitmaps libXaw-devel
+
+bison for rdkit.
+
+---
+Wed Jun 27 22:48:01 BST 2012
+
+   a structure with interesting carbohydrate to build:  3zr6
+
+
 ------
+
