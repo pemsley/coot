@@ -719,10 +719,12 @@ private:
       lbg_alert_hbox_outer = NULL;
       alert_group = NULL; // group for alert annotations
       show_alerts_user_control = false; // no pattern matching available
+      user_defined_alerts_smarts_py = NULL;
 #ifdef MAKE_ENTERPRISE_TOOLS   
       show_alerts_user_control = true;
-#ifdef USE_PYTHON      
+#ifdef USE_PYTHON
       setup_silicos_it_qed_default_func();
+      setup_user_defined_alert_smarts();
 #endif      
 #endif      
    }
@@ -895,8 +897,10 @@ private:
    PyObject *silicos_it_qed_default_func;
    PyObject * get_callable_python_func(const std::string &module_name,
 				       const std::string &function_name) const;
-#endif    
+   PyObject *user_defined_alerts_smarts_py;
+   void setup_user_defined_alert_smarts();
    void setup_silicos_it_qed_default_func(); // try to get the python function, or set it to null.
+#endif    
 #endif
    std::string get_smiles_string_from_mol_openbabel() const;
 
