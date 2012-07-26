@@ -44,8 +44,6 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
    }
 }
 
-
-
 // needs a properly initialized (say, via rdkit_mol_sanitize()) molecule.
 double
 get_qed(PyObject *silicos_it_qed_default_func, const RDKit::ROMol &rdkm) {

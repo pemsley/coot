@@ -6222,7 +6222,7 @@ lbg_info_t::pe_test_function() {
       PyTuple_SetItem(arg_list, 0, rdkit_mol_py);
       PyObject *result = PyEval_CallObject(recap_func, arg_list);
       if (! result) {
-	 std::cout << "Null result" << std::endl;
+	 std::cout << "Null result in pe test function" << std::endl;
       } else {
 	 std::cout << "Result: " << result << std::endl;
       }

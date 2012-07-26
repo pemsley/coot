@@ -7,6 +7,16 @@
 
 #include "lbg.hh"
 
+
+void
+lbg_info_t::setup_user_defined_alert_smarts() {
+
+   PyObject *m = PyImport_AddModule("__main__");
+   user_defined_alerts_smarts_py = PyObject_GetAttrString(m,"user_defined_alert_smarts");
+
+}
+
+
 // return a vector of alert matches
 // 
 std::vector<lbg_info_t::alert_info_t>
@@ -50,14 +60,11 @@ lbg_info_t::user_defined_alert_smarts() const {
 
 #ifdef USE_PYTHON
 
-   PyObject *m = PyImport_AddModule("__main__");
-   PyObject *ls = PyObject_GetAttrString(m,"user_defined_alert_smarts");
-
-   if (ls) { 
-      if (PyList_Check(ls)) {
-	 int len = PyList_Size(ls);
+   if (user_defined_alerts_smarts_py) { 
+      if (PyList_Check(user_defined_alerts_smarts_py)) {
+	 int len = PyList_Size(user_defined_alerts_smarts_py);
 	 for (unsigned int i=0; i<len; i++) { 
-	    PyObject *item_pair = PyList_GetItem(ls, i);
+	    PyObject *item_pair = PyList_GetItem(user_defined_alerts_smarts_py, i);
 	    if (PyList_Check(item_pair)) {
 	       int item_len = PyList_Size(item_pair);
 	       if (item_len == 2) {
