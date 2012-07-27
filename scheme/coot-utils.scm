@@ -380,6 +380,21 @@
 	 ((string? (car ls))
 	  (f (cdr ls)))
 	 (else #f)))))
+
+
+;; (coot-replace-string "one two three" " " "_") -> "one_two_three"
+;; 
+(define (coot-replace-string string-in target replacing-str)
+
+  (let ((sm (string-match target string-in)))
+    (if (not sm)
+	string-in
+	(let ((new-string (string-replace string-in
+					  replacing-str 
+					  (car (vector-ref sm 1))
+					  (cdr (vector-ref sm 1)))))
+	  (coot-replace-string new-string target replacing-str)))))
+
 		    
 
 ;; string concat with spaces, @var{ls} must be a list of strings.
@@ -1408,8 +1423,8 @@
     
     (if (not (and space-group cell-params))
 	(let ((message (format #f "Bad cell or symmetry for molecule ~s~%"
-			       cell space-group imol-ref))))
-
+			       cell space-group imol-ref)))
+	  mesage) ;; fix syntax
 	(let ((rtop (apply-lsq-matches imol-ref imol-mov)))
 	  (transform-map imol-map (car rtop) (car (cdr rtop)) about-pt radius space-group cell-params)))))
 

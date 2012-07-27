@@ -238,8 +238,10 @@
 						    (string-append (molecule-name-stub imol-ref 0)
 								   "-prosmart-ref.pdb")))
 	  (prosmart-out (append-dir-file "ProSMART_Output"
-					 (string-append (molecule-name-stub imol-target 0) 
-							"-prosmart.txt"))))
+					 (string-append
+					  (coot-replace-string (molecule-name-stub imol-target 0) 
+							       " " "_" )
+					  "-prosmart.txt"))))
 			 
       (write-pdb-file imol-target target-pdb-file-name)
       (write-pdb-file imol-ref reference-pdb-file-name)
@@ -252,7 +254,9 @@
       (if (not (file-exists? prosmart-out))
 	  (begin
 	    (format #t "file not found ~s~%" prosmart-out))
-	  (add-refmac-extra-restraints imol-target prosmart-out)))))
+	  (begin 
+	    (format #t "Reading ProSMART restraints from ~s~%" prosmart-out)
+	    (add-refmac-extra-restraints imol-target prosmart-out))))))
 
 
 (if (defined? 'coot-main-menubar)
