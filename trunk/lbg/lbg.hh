@@ -719,10 +719,10 @@ private:
       lbg_alert_hbox_outer = NULL;
       alert_group = NULL; // group for alert annotations
       show_alerts_user_control = false; // no pattern matching available
-      user_defined_alerts_smarts_py = NULL;
 #ifdef MAKE_ENTERPRISE_TOOLS   
       show_alerts_user_control = true;
 #ifdef USE_PYTHON
+      user_defined_alerts_smarts_py = NULL;
       setup_silicos_it_qed_default_func();
       setup_user_defined_alert_smarts();
 #endif      
