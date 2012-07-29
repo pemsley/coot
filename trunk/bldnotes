@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 4247 (some prodrg stuff needs testing) generic objects, check new defs
+scripts      rev 4303 (some prodrg stuff needs testing) generic objects, check new defs
 tests        rev 3991 update
 build-it-win rev 4031
 
@@ -32,13 +32,19 @@ OIST-CCP4
 - indicate rotamer option somewhere/how [PhilE]
 - delete/hide DB loop candidates after accepting?!
 - stereo: shift/shear rather than rotate [PhilE]
-- Mac: enable goocanvas!
 - brightness warning dialog behind other dialog-> move forward?!
-- alt conf slider adjustment
 - change occ for master (accept return or just tick button)
 - after change the canvas (geometry) doesnt work for non-aa any more
 - improve seq assignment interface (take all seq, assign to all prot chains etc)
 - seq alignment produces N-term gaps which are not there... (gap to -2.5?)
+
+APS 2011(?)
+- include user defined restraints in distro
+- copy NCS (chain and residue range) to specific chains (not just all)
+- wider range for B sharpening (est. from Wilson?! determine cf Bruenger?) - needed?
+- automatically adjust NCS matrix type (i.e. fast for larger mols/more ncs)
+- backrub selection in refinement selection dialog
+- 
 
 
 UPDATE CCP4 on build machine! Use new dictionary!!!
@@ -56,7 +62,6 @@ notes from BioCrys
  
 notes APS CCP4 workshop
 - document refmac extra params + lib files location (note to self ?!)
-- SF4 library file (for Garib at some point)
 
 scripting exercise
 - shortcut for setting 0, 1, 0.5 occupancy
@@ -65,14 +70,16 @@ scripting exercise
 - variance test for aa
 - doublicate residue range with alt conf
 
-notes from Shanghai:
-- on iconcs: replace the smilie in ligand editor, as it is theme specific
 
 ----------------
 * TO DO THINGS *
 ----------------
 
 **** General ****
+
+   o ^G doesnt update environment distances
+
+   o print Ramachandran outliers
 
    o set_go_to_atom_chain_residue_atom_name (and maybe others, for sure 'space')
 	do not update environment distances
@@ -251,6 +258,8 @@ low importance
 
 
 **** Python ****
+
+   o find close atoms (on top waters)
 
    o residues with missing atoms gives empty dialog, better give info_dialog
 
