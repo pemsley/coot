@@ -6743,10 +6743,15 @@ molecule_class_info_t::name_sans_extension(short int include_path_flag) const {
    std::string::size_type ipdb = name_.rfind(".pdb");
    if (ipdb != std::string::npos)
       outstring = name_.substr(0, ipdb);
+   if (include_path_flag != 1) {
+#ifdef WINDOWS_MINGW
+     outstring = coot::util::intelligent_debackslash(outstring);
+#endif // MINGW
 
-   std::string::size_type islash = outstring.rfind("/");
-   if (islash != std::string::npos)
-      outstring = outstring.substr(islash+1);
+     std::string::size_type islash = outstring.rfind("/");
+     if (islash != std::string::npos)
+       outstring = outstring.substr(islash+1);
+   }
       
    return outstring;
 }
