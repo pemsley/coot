@@ -1000,21 +1000,48 @@ void
 graphics_info_t::apply_go_to_residue_keyboading_string_inner(int imol, CAtom *new_centre_atom) {
 
    if (new_centre_atom) {
+      int index;
       coot::Cartesian new_pt(new_centre_atom->x,
-			     new_centre_atom->y,
-			     new_centre_atom->z);
+                             new_centre_atom->y,
+                             new_centre_atom->z);
       setRotationCentre(new_pt);
-      for (int ii=0; ii<graphics_info_t::n_molecules(); ii++) { 
-	 graphics_info_t::molecules[ii].update_map();
-	 graphics_info_t::molecules[ii].update_clipper_skeleton(); 
-      }
-      graphics_draw();
+      //for (int ii=0; ii<graphics_info_t::n_molecules(); ii++) { 
+      //	 graphics_info_t::molecules[ii].update_map();
+      //	 graphics_info_t::molecules[ii].update_clipper_skeleton(); 
+      //     }
+      //    graphics_draw();
+      update_things_on_move_and_redraw();
       set_go_to_atom_molecule(imol);
       set_go_to_atom_chain_residue_atom_name(new_centre_atom->GetChainID(),
-					     new_centre_atom->GetSeqNum(),
-					     new_centre_atom->GetAtomName());
+                                             new_centre_atom->GetSeqNum(),
+                                             new_centre_atom->GetAtomName());
+      update_go_to_atom_window_on_other_molecule_chosen(imol);
+
+      // from setRotationCentre (if used with atom index)
+      // to get update on distances, labels etc.
+      if (new_centre_atom->GetUDData(molecules[imol].atom_sel.UDDAtomIndexHandle, index) == UDDATA_Ok) {
+        if (environment_show_distances) {
+          mol_no_for_environment_distances = imol;
+          update_environment_graphics_object(index, imol);
+          // label new centre
+          if (environment_distance_label_atom) {
+            molecules[imol].unlabel_last_atom();
+            molecules[imol].add_to_labelled_atom_list(index);
+          }
+          if (show_symmetry)
+            update_symmetry_environment_graphics_object(index, imol);
+        } else { 
+        
+          if (label_atom_on_recentre_flag) { 
+            molecules[imol].unlabel_last_atom();
+            molecules[imol].add_to_labelled_atom_list(index);
+          }
+        } 
+      } else {
+        std::cout << "WARNING:: failed to find index. No updating of labels and distanced" << std::endl;
+      }
    } else {
-      std::cout << "WARNING:: failed to find that residue - no new centre atom " << std::endl;
+     std::cout << "WARNING:: failed to find that residue - no new centre atom " << std::endl;
    }
 } 
 
