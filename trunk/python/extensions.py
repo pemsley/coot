@@ -513,8 +513,8 @@ if (have_coot_python):
      def make_link_ext_func(*args):
        m_spec_1 = args[0]
        m_spec_2 = args[1]
-       imol_1 = spec2imol(m_spec_1)
-       imol_2 = spec2imol(m_spec_2)
+       imol_1 = atom_spec2imol(m_spec_1)
+       imol_2 = atom_spec2imol(m_spec_2)
        spec_1 = m_spec_1[2:]
        spec_2 = m_spec_2[2:]
        if not (imol_1 == imol_2):

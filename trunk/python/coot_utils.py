@@ -208,8 +208,8 @@ class UsingActiveAtom:
 
     use with 'with', e.g.:
     
-    > with UsingActiveAtom() as [imol, chain_id, res_no, ins_code, atom_name, alt_conf]:
-          refine_zone(imol, chain_id, res_no-2, res_no+2, ins_code)
+    > with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
+          refine_zone(aa_imol, aa_chain_id, aa_res_no-2, aa_res_no+2, aa_ins_code)
     """
     
     def __init__(self):
@@ -340,7 +340,46 @@ def residue_spec2atom_selection_string(centre_residue_spec):
           "/" + str(centre_residue_spec[1])
     return ret
 
-def spec2imol(atom_spec):
+def residue_atom2atom_name(ra):
+    if not isinstance(ra, list):
+        return False
+    else:
+        return ra[0][0]
+
+def residue_atom2alt_conf(ra):
+    if not isinstance(ra, list):
+        return False
+    else:
+        return ra[0][1]
+
+def residue_spec2chain_id(rs):
+    if not isinstance(rs, list):
+        return False
+    else:
+        if not (len(rs) == 3):
+            return False
+        else:
+            return rs[0]
+
+def residue_spec2res_no(rs):
+    if not isinstance(rs, list):
+        return False
+    else:
+        if not (len(rs) == 3):
+            return False
+        else:
+            return rs[1]
+
+def residue_spec2ins_code(rs):
+    if not isinstance(rs, list):
+        return False
+    else:
+        if not (len(rs) == 3):
+            return False
+        else:
+            return rs[2]
+
+def atom_spec2imol(atom_spec):
     import types
     if not (isinstance(atom_spec, types.ListType)):
         return False
@@ -529,8 +568,8 @@ global gtk_thread_return_value
 gtk_thread_return_value = None
 # Where cmd is e.g. "refmac" 
 #       args is ["HKLIN","thing.mtz"]
-#       log_file_name is "refmac.log"      
 #       data_list is ["HEAD","END"]
+#       log_file_name is "refmac.log"      
 #       screen_flag True/False to display or not in shell window
 # 
 # Return the exist status e.g. 0 or 1. Or False if cmd not found.
@@ -2963,7 +3002,7 @@ def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
 def get_drug_via_wikipedia(drug_name):
 
     import urllib2
-    def parse_wiki_drug_xml(xml):
+    def parse_wiki_drug_xml(xml, key):
         from xml.etree import ElementTree
         drug_bank_id = False
         tree = ElementTree.parse(xml)
@@ -2974,12 +3013,21 @@ def get_drug_via_wikipedia(drug_name):
         # seems to be in some strange format!?
         decode_text = rev_text.encode('ascii', 'ignore')
         for line in decode_text.split("\n"):
-            if "DrugBank = " in line:
+            #if "DrugBank = " in line:
+            if key in line:
                 drug_bank_id = line.split(" ")[-1]
-                print drug_bank_id
+                if not drug_bank_id:
+                    # we can get an empty string
+                    drug_bank_id = False
+        print "BL DEBUG:: returning from xml parse", drug_bank_id
         return drug_bank_id
         
     # main line
+    def drugbox2drugbank():
+        return "DrugBank = "
+    def drugbox2pubchem():
+        return "PubChem = "
+
     file_name = False
     if isinstance(drug_name, str):
         if len(drug_name) > 0:
@@ -2992,16 +3040,26 @@ def get_drug_via_wikipedia(drug_name):
             #with open(xml_file_name, 'w') as fileout:
             #    fileout.write(xml)
             xml = urllib2.urlopen(url)
-            mol_name = parse_wiki_drug_xml(xml)
-            if mol_name:
+            mol_name = parse_wiki_drug_xml(xml, drugbox2drugbank())
+            if not isinstance(mol_name, str):
+                print "BL WARNING:: mol_name not a string (from drugbank)", mol_name
+                # try pubchem as fallback
+                xml = urllib2.urlopen(url)
+                mol_name = parse_wiki_drug_xml(xml, drugbox2pubchem())
                 if not isinstance(mol_name, str):
-                    # shouldnt happen
-                    print "BL WARNING:: mol_name not a string", mol_name
+                    print "BL WARNING:: mol_name not a string (from pubchem)", mol_name
                 else:
-                    db_mol_uri = "http://www.drugbank.ca/drugs/" + \
-                                 mol_name + ".mol"
-                    file_name = mol_name + ".mol"
-                    coot_get_url(db_mol_uri, file_name)
+                    pc_mol_uri = "http://pubchem.ncbi.nlm.nih.gov" + \
+                                 "/summary/summary.cgi?cid=" + \
+                                 mol_name + "&disopt=DisplaySDF"
+                    file_name = "pc-" + mol_name + ".mol"
+                    coot_get_url(pc_mol_uri, file_name)
+                    
+            else:
+                db_mol_uri = "http://www.drugbank.ca/drugs/" + \
+                             mol_name + ".mol"
+                file_name = mol_name + ".mol"
+                coot_get_url(db_mol_uri, file_name)
     return file_name
                     
 
