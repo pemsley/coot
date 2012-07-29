@@ -470,10 +470,18 @@ def fle_view_to_png(imol, chain_id, res_no, ins_code, neighb_radius,
                                  png_file_name)
                 
 
-
+# import from SBASE, callback using sbase_import_function
+#
 def get_sbase_monomer_and_overlay(comp_id):
 
-    # should do something with active atom to get the reference residue
-    # for overlap_ligands
-    #
-    get_sbase_monomer(comp_id)
+    """
+    import from SBASE, callback using sbase_import_function
+    """
+
+    if (active_residue()):
+        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                   aa_ins_code, aa_atom_name, aa_alt_conf]:
+            imol = get_sbase_monomer(comp_id)
+            overlap_ligands(imol, aa_imol, aa_chain_id, aa_res_no)
+            # BL:: again? I dont think so
+            #get_sbase_monomer(comp_id)
