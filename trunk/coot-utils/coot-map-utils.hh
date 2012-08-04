@@ -149,6 +149,14 @@ namespace coot {
 
       clipper::Xmap<float> laplacian_transform(const clipper::Xmap<float> &xmap_in);
 
+      // pass a negative atom_selection to build an atom map for the whole molecule
+      // 
+      clipper::Xmap<float> calc_atom_map(CMMDBManager *mol,
+					 int atom_selection_handle, 
+					 const clipper::Cell &cell,
+					 const clipper::Spacegroup &space_group,
+					 const clipper::Grid_sampling &sampling);
+
       // return a map and its standard deviation.  scale is applied to
       // map_in_2 before substraction.
       std::pair<clipper::Xmap<float>, float>

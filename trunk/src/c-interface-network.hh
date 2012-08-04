@@ -23,9 +23,11 @@ std::string
 get_drug_via_wikipedia_and_drugbank(const std::string &drugname);
 
 #ifdef USE_GUILE
-std::string get_drug_via_wikipedia_and_drugbank_scm(const std::string &drugname);}
+std::string get_drug_via_wikipedia_and_drugbank_scm(const std::string &drugname);
 #endif
 
 #ifdef USE_PYTHON
 std::string get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname);
 #endif
+
+void curl_make_a_post();

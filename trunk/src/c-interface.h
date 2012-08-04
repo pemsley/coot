@@ -3663,7 +3663,7 @@ output_atom_info_as_text(int imol, const char *chain_id, int resno,
 /* \{ */
 /* Similar to above, we need only one click though. */
 void do_residue_info_dialog();
-void output_residue_info_dialog    (int atom_index, int imol); /* widget version */
+void output_residue_info_dialog    (int imol, int atom_index); /* widget version */
 /* scripting version */
 void residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_code); 
 int residue_info_dialog_is_displayed();
@@ -3836,6 +3836,8 @@ PyObject *non_standard_residue_names_py(int imol);
 void import_all_refmac_cifs(); 
 
 int read_small_molecule_cif(const char *file_name);
+
+int read_small_molecule_data_cif(const char *file_name);
 
 /* \} */
 
@@ -4519,6 +4521,16 @@ void execute_find_blobs_from_widget(GtkWidget *dialog);
 
 GtkWidget *wrapped_create_unmodelled_blobs_dialog();
 
+/*! \begin split the given water and fit to map.
+
+If refinement map is not defined, don't do anything.
+
+If there is more than one atom in the specified resiue, don't do
+anything.
+
+If the given atom does not have an alt conf of "", don't do anything.
+ */
+void split_water(int imol, const char *chain_id, int res_no, const char *ins_code); 
 
 
 /* \} */

@@ -297,7 +297,7 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
    try { 
       PPCAtom atom_selection = 0;
       int n_selected_atoms;
-      int selhnd = mol->NewSelection();
+      int selhnd = mol->NewSelection(); // d
       mol->SelectAtoms(selhnd, 0, "*",
 		       ANY_RES, "*",
 		       ANY_RES, "*",
@@ -363,9 +363,9 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
 	    }
 	    tree.set_dihedral_multi(torsion_quads);
 	    double this_score = coot::util::z_weighted_density_score_new(atoms, xmap);
-	    // std::cout << "this_score: " << this_score << std::endl;
+	    std::cout << "this_score: " << this_score << std::endl;
 	    if (this_score > best_score) {
-	       // std::cout << "----------------- updating best quads!" << std::endl;
+	       std::cout << "----------------- updating best quads!" << std::endl;
 	       best_score = this_score;
 
 	       // save best torsion angles

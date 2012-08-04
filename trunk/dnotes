@@ -6729,5 +6729,63 @@ Wed Jun 27 22:48:01 BST 2012
    a structure with interesting carbohydrate to build:  3zr6
 
 
+---
+Thu Jul 26 19:47:52 EDT 2012
+
+    INFO:: other projects
+
+    Mac Coot, 
+    Native Mac Coot
+    All-molecule scoring modifications, 2011 presentation follow-up
+    cif-merge
+    cif-grep
+    cif2mtz (clipper)
+    understand what's in COD
+    look at pi-pi stacking in ligand protein complexes. 
+        get statistics for plane distances and angle offsets, 
+        so that I can model that distribution to generate a penalty function 
+        in the regularizer
+    zernike-like moments for ligand fitting
+
+    b value distribution histogram
+
+
+    --comp_id x 
+
+
+----
+Sun Jul 29 16:31:40 EDT 2012
+
+    Roberto:  
+
+    I want a button that splits a water into A and B conformers 50 50
+    occs, 0.7A appart and jiggle-fitted
+    
+    Call it WASP.
+
+
+----
+Tue Jul 31 08:56:41 EDT 2012
+
+    Contact Alex for LH protein?
+
+
+----
+Tue Jul 31 11:16:57 EDT 2012
+
+   Howard: 
+   given an mtz file with anomalous data (deltas) and a pdb file, show
+   the anomalous map
+
+
+----
+Tue Jul 31 11:17:55 EDT 2012
+
+   Why is refmac not run after libcheck SMILES?
+
+   4th spears lecture 
+
+   William asbury
+
 ------
 

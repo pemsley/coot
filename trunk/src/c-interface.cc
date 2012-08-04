@@ -521,8 +521,9 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 		   << "with no dictionary " << std::endl;
 
 	 for (unsigned int i=0; i<types_with_no_dictionary.size(); i++) {
-	    std::cout << "DEBUG:: calling try_dynamic_add: " << types_with_no_dictionary[i]
-		      << " with read number " << g.cif_dictionary_read_number << std::endl;
+	    if (0)
+	       std::cout << "DEBUG:: calling try_dynamic_add: " << types_with_no_dictionary[i]
+			 << " with read number " << g.cif_dictionary_read_number << std::endl;
 	    int n_bonds = g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i],
 						      g.cif_dictionary_read_number);
 	    g.cif_dictionary_read_number++;
@@ -6442,17 +6443,20 @@ int handle_shelx_fcf_file_internal(const char *filename) {
    cmd.push_back("handle-shelx-fcf-file");
    cmd.push_back(single_quote(coot::util::intelligent_debackslash(filename)));
 
-#ifdef USE_GUILE   
-   std::string s = g.state_command(cmd, coot::STATE_SCM);
-   safe_scheme_command(s);
-#endif
+// #ifdef USE_GUILE   
+//    std::string s = g.state_command(cmd, coot::STATE_SCM);
+//    safe_scheme_command(s);
+// #endif
 
-#ifdef USE_PYTHON
-#ifndef USE_GUILE
-   std::string s = g.state_command(cmd, coot::STATE_PYTHON);
-   safe_python_command(s);
-#endif    
-#endif    
+// #ifdef USE_PYTHON
+// #ifndef USE_GUILE
+//    std::string s = g.state_command(cmd, coot::STATE_PYTHON);
+//    safe_python_command(s);
+// #endif    
+// #endif
+
+   read_small_molecule_data_cif(filename);
+   
    return 1; // needed so that try_read_cif_file succeeds, so that we
 	     // don't try to read this file as CNS data.
 }

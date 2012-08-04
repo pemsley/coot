@@ -1244,10 +1244,13 @@ graphics_info_t::add_drag_refine_idle_function() {
 
 
 void
-graphics_info_t::fill_output_residue_info_widget(GtkWidget *widget, int imol, PPCAtom atoms, int n_atoms) {
+graphics_info_t::fill_output_residue_info_widget(GtkWidget *widget, int imol,
+						 const std::string residue_name,
+						 PPCAtom atoms, int n_atoms) {
 
    // first do the label of the dialog
    GtkWidget *label_widget = lookup_widget(widget, "residue_info_residue_label");
+   GtkWidget *residue_name_widget = lookup_widget(widget, "residue_info_residue_name_label");
 
    std::string label = "Molecule: ";
    label += int_to_string(imol);
@@ -1256,6 +1259,14 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *widget, int imol, PP
 
    gtk_label_set_text(GTK_LABEL(label_widget), label.c_str());
    GtkWidget *table = lookup_widget(widget, "residue_info_atom_table");
+
+   // name
+   graphics_info_t g;
+   std::pair<bool, std::string> p = g.Geom_p()->get_monomer_name(residue_name);
+   if (p.first) {
+      gtk_label_set_text(GTK_LABEL(residue_name_widget), p.second.c_str());
+   } 
+   
    
    residue_info_n_atoms = n_atoms; 
    for (int i=0; i<n_atoms; i++)
@@ -1493,32 +1504,57 @@ graphics_info_t::residue_info_edit_b_factor_apply_to_other_entries_maybe(GtkWidg
 
 //static 
 void
-graphics_info_t::residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *start_entry) {
+graphics_info_t::residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *master_occ_entry) {
 
    // first find the checkbox:
-   GtkWidget *dialog = lookup_widget(start_entry, "residue_info_dialog"); 
-   GtkWidget *checkbutton = lookup_widget(dialog, "residue_info_occ_apply_all_checkbutton");
+   GtkWidget *dialog = lookup_widget(master_occ_entry, "residue_info_dialog"); 
+   GtkWidget *occ_checkbutton = lookup_widget(dialog, "residue_info_occ_apply_all_checkbutton");
+   GtkWidget *alt_checkbutton = lookup_widget(dialog, "residue_info_occ_apply_to_altconf_checkbutton");
+   GtkWidget *alt_entry       = lookup_widget(dialog, "residue_info_occ_apply_to_alt_conf_entry");
    std::string widget_name;
-   GtkWidget *entry;
+   GtkWidget *atom_occ_entry;
+   GtkWidget *atom_alt_conf_entry;
 
-   if (! checkbutton) { 
-      std::cout << "ERROR:: could not find checkbutton" << std::endl; 
+   if (! occ_checkbutton) { 
+      std::cout << "ERROR:: could not find checkbutton" << std::endl;
    } else { 
-      if (GTK_TOGGLE_BUTTON(checkbutton)->active) { 
+      if (GTK_TOGGLE_BUTTON(occ_checkbutton)->active) { 
 	 
 	 // propogate the change to the other b-factor widgets
-	 std::string entry_text(gtk_entry_get_text(GTK_ENTRY(start_entry)));
+	 std::string entry_text(gtk_entry_get_text(GTK_ENTRY(master_occ_entry)));
 	 for (int i=0; i<graphics_info_t::residue_info_n_atoms; i++) {
 	    widget_name = "residue_info_occ_entry_";
 	    widget_name += int_to_string(i);
-	    entry = lookup_widget(dialog, widget_name.c_str());
-	    if (entry) { 
-	       gtk_entry_set_text(GTK_ENTRY(entry), entry_text.c_str());
-	    } else { 
+	    atom_occ_entry = lookup_widget(dialog, widget_name.c_str());
+	    if (atom_occ_entry) { 
+	       gtk_entry_set_text(GTK_ENTRY(atom_occ_entry), entry_text.c_str());
+	    } else {
 	       std::cout << "ERROR: no entry\n";
-	    } 
+	    }
 	 }
-      } 
+      } else {
+
+	 // How about changing the occ of atoms give given alt conf then?
+	 //
+	 if (GTK_TOGGLE_BUTTON(alt_checkbutton)->active) {
+	    std::string entry_text(gtk_entry_get_text(GTK_ENTRY(master_occ_entry)));
+	    std::string target_alt_conf(gtk_entry_get_text(GTK_ENTRY(alt_entry)));
+	    for (int i=0; i<graphics_info_t::residue_info_n_atoms; i++) {
+	       widget_name = "residue_info_occ_entry_";
+	       widget_name += int_to_string(i);
+	       atom_occ_entry = lookup_widget(dialog, widget_name.c_str());
+	       widget_name = "residue_info_altloc_entry_";
+	       widget_name += int_to_string(i);
+	       atom_alt_conf_entry = lookup_widget(dialog, widget_name.c_str());
+	       if (atom_occ_entry && atom_alt_conf_entry) {
+		  std::string alt_conf_text = gtk_entry_get_text(GTK_ENTRY(atom_alt_conf_entry));
+		  if (alt_conf_text == target_alt_conf) {
+		     gtk_entry_set_text(GTK_ENTRY(atom_occ_entry), entry_text.c_str());
+		  }
+	       }
+	    }
+	 }
+      }
    }
 }
 

@@ -1857,8 +1857,8 @@ molecule_class_info_t::make_map_from_phs(std::string pdb_filename,
 
    int iret = -1; // default error return status
    //
-   std::cout << "Make a map from " << phs_filename << " using "
-	     << pdb_filename << " for the cell and symmetry " << std::endl; 
+   std::cout << "INFO:: Make a map from " << phs_filename << " using "
+	     << pdb_filename << " for the cell and symmetry information " << std::endl; 
 
    atom_selection_container_t SelAtom = get_atom_selection(pdb_filename, 1);
 
@@ -1866,8 +1866,6 @@ molecule_class_info_t::make_map_from_phs(std::string pdb_filename,
       try {
 	 std::pair<clipper::Cell,clipper::Spacegroup> xtal =
 	    coot::util::get_cell_symm( SelAtom.mol );
-	 cout << "get_cell_symm() is good in make_map_from_phs"
-	      << endl;
 	 iret = make_map_from_phs(xtal.second, xtal.first, phs_filename);
       } catch ( std::runtime_error except ) {
 	 cout << "!! get_cell_symm() fails in make_map_from_phs"
@@ -3102,7 +3100,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
 }
 
 
-// called by above
+// called by above and split_water.
 float
 molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
 						   int n_atoms,
@@ -3121,7 +3119,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
 
    // We have to make a copy because direct_initial_atoms goes out of
    // scope and destroys the CAtoms (we don't want to take the
-   // contects of the atom_selection out when we do that).
+   // contents of the atom_selection out when we do that).
    // 
    for (int iat=0; iat<n_atoms; iat++)
       direct_initial_atoms[iat].Copy(atom_selection[iat]);
@@ -3147,9 +3145,6 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
    if (n_atoms)
       fact = 1.0/float(n_atoms);
    clipper::Coord_orth centre_pt(p[0]*fact, p[1]*fact, p[2]*fact);
-   std::cout << "DEUBG:: centre_pt: " << centre_pt.format() << std::endl;
-   std::cout << "DEUBG:: initial score: " << initial_score << std::endl;
-
    
    for (int itrial=0; itrial<n_trials; itrial++) {
 
@@ -3173,7 +3168,8 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
    //
    if (bested) {
       make_backup();
-      std::cout << "INFO:: Improved fit from " << initial_score << " to " << best_score << std::endl;
+      std::cout << "INFO:: Improved fit from " << initial_score << " to "
+		<< best_score << std::endl;
       if (! best_molecule.is_empty()) {
 	 CMMDBManager *mol = best_molecule.pcmmdbmanager();
 	 if (mol) {

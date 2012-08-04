@@ -858,7 +858,7 @@ void
 molecule_class_info_t::draw_extra_restraints_representation() {
 
    if (drawit) {
-      if (drawit_for_extra_restraints) { 
+      if (drawit_for_extra_restraints) {
 	 if (extra_restraints_representation.bonds.size() > 0) { 
 	    glLineWidth(2.0);
 	    glColor3f(0.6, 0.6, 0.8);
@@ -2282,7 +2282,7 @@ molecule_class_info_t::add_additional_representation(int representation_type,
 					  bonds_width, draw_hydrogens_flag, info);
 
    float ball_radius = 0.28;
-   // float ball_radius = 0.11;
+   ball_radius = 0.11;
 
    add_reps.push_back(rep);
    int n_rep = add_reps.size() -1;
@@ -2939,6 +2939,7 @@ void
 molecule_class_info_t::update_extra_restraints_representation() {
 
    extra_restraints_representation.clear();
+   
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
       CAtom *at_1 = NULL;
       CAtom *at_2 = NULL;
@@ -3251,7 +3252,7 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
    int selHnd = atom_sel.mol->NewSelection();
    int idx = 0;
 
-   atom_sel.mol->SelectAtoms(selHnd, 0, (char *) chain.c_str(), 
+   atom_sel.mol->SelectAtoms(selHnd, 0, chain.c_str(), 
 			    resno, insertion_code.c_str(), // start, insertion code
 			    resno, insertion_code.c_str(), // end, insertion code
 			    "*", // residue name
@@ -3263,9 +3264,10 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
    PPCAtom local_SelAtom; 
    atom_sel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms);
 
-//    std::cout << "DEBUG:: full_atom_spec_to_atom_index for :" << chain << ": "
-// 	     << resno << " :" << insertion_code << ": :" 
-//  	     << atom_name << ": :" << alt_conf << ": finds " << nSelAtoms <<  " atoms\n";
+   if (false)
+      std::cout << "DEBUG:: full_atom_spec_to_atom_index() for :" << chain << ": "
+		<< resno << " :" << insertion_code << ": :" 
+		<< atom_name << ": :" << alt_conf << ": finds " << nSelAtoms <<  " atoms\n";
 
    if (nSelAtoms == 0) { 
 
@@ -3273,8 +3275,9 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
 		<< atom_name << "," << "\"" << alt_conf  << "\"" << "/"
 		<< resno << insertion_code << "/" << chain << " in this molecule: ("
 		<<  imol_no << ") " << name_ << std::endl; 
-      // debug:
-      int selHnd2 = atom_sel.mol->NewSelection();
+
+      
+      int selHnd2 = atom_sel.mol->NewSelection(); // d
       
       atom_sel.mol->SelectAtoms(selHnd2, 0, 
 				chain.c_str(),
@@ -3485,7 +3488,7 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
    make_backup();
 
    // debug::
-   if (0) { 
+   if (false) { 
       std::cout << "DEBUG:: --------------- replace_coords replacing "
 		<< asc.n_selected_atoms << " atoms " << std::endl;
       for (int i=0; i<asc.n_selected_atoms; i++) {
@@ -3552,8 +3555,8 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 					       std::string(atom->altLoc));
 	    if (idx == -1) {
 	       std::cout << "DEBUG:: idx: " << idx << "\n";
-	       std::cout << "ERROR:: failed to find spec for chain-id :"
-			 << std::string(atom->residue->GetChainID()) <<  ": "
+	       std::cout << "ERROR:: failed to find atom in molecule: chain-id :"
+			 << std::string(atom->residue->GetChainID()) <<  ": res_no "
 			 << atom->residue->seqNum << " inscode :" 
 			 << std::string(atom->GetInsCode()) << ": name :" 
 			 << std::string(atom->name) << ": altloc :"

@@ -40,6 +40,7 @@ molecule_class_info_t::add_extra_bond_restraint(coot::atom_spec_t atom_1,
 
 void molecule_class_info_t::remove_extra_bond_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2) {
 
+   int n_bonds_pre = extra_restraints.bond_restraints.size();
    std::vector<coot::extra_restraints_t::extra_bond_restraint_t>::iterator it;
    for (it=extra_restraints.bond_restraints.begin(); it != extra_restraints.bond_restraints.end(); it++) { 
       if (((it->atom_1 == atom_1) &&
@@ -48,9 +49,11 @@ void molecule_class_info_t::remove_extra_bond_restraint(coot::atom_spec_t atom_1
 	   (it->atom_1 == atom_2))) {
 	 extra_restraints.bond_restraints.erase(it);
 	 std::cout << "deleted extra bond restraint " << atom_1 << " to " << atom_2 << std::endl;
-	 break;
+	 // break;
       }
    }
+   int n_bonds_post = extra_restraints.bond_restraints.size();
+   std::cout << "DEBUG:: pre: " << n_bonds_pre << " post " << n_bonds_post << std::endl;
    update_extra_restraints_representation();
 }
 
@@ -60,6 +63,8 @@ molecule_class_info_t::add_refmac_extra_restraints(const std::string &file_name)
    coot::extra_restraints_t r;
    r.read_refmac_distance_restraints(file_name);
    extra_restraints.add_restraints(r);
+   std::cout << "in add_refmac_extra_restraints we have " << extra_restraints.bond_restraints.size()
+	     << " bond restraints " << std::endl;
    update_extra_restraints_representation();
 }
 

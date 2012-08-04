@@ -135,9 +135,11 @@ coot::rdkit_mol(CResidue *residue_p,
 	       }
 	    
 	       m.addAtom(at);
+	       
 	       if (0) 
 		  std::cout << "adding atom with name " << atom_name << " to added_atom_names"
 			    << " which is now size " << added_atom_names.size() << std::endl;
+	       
 	       added_atom_names.push_back(atom_name);
 	       added_atoms.push_back(residue_atoms[iat]);
 	       atom_index[atom_name] = current_atom_id;
@@ -145,7 +147,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	    }
 	    catch (std::exception rte) {
 	       std::cout << rte.what() << std::endl;
-	    } 
+	    }
 	 }
       }
    }
@@ -246,19 +248,46 @@ coot::rdkit_mol(CResidue *residue_p,
       std::string ele_2 = restraints.element(atom_name_2);
       int idx_1 = -1; // unset
       int idx_2 = -1; // unset
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	 if (! residue_atoms[iat]->Ter) { 
-	    std::string atom_name(residue_atoms[iat]->name);
-	    if (atom_name == atom_name_1)
-	       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
-		   != added_atom_names.end())
-		  idx_1 = iat;
-	    if (atom_name == atom_name_2)
-	       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
-		   != added_atom_names.end())
-		  idx_2 = iat;
+
+
+      // we can't run through n_residue_atoms because the atom in the CResidue may not have been added to
+      // the atom in the rdkit molecule (as is the case for an alt conf).
+      
+//       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+// 	 if (! residue_atoms[iat]->Ter) { 
+// 	    std::string atom_name(residue_atoms[iat]->name);
+// 	    if (atom_name == atom_name_1)
+// 	       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
+// 		   != added_atom_names.end())
+// 		  idx_1 = iat;
+// 	    if (atom_name == atom_name_2)
+// 	       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
+// 		   != added_atom_names.end())
+// 		  idx_2 = iat;
+// 	 }
+//       }
+
+      for (unsigned int iat=0; iat<m.getNumAtoms(); iat++) {
+	 try {
+	    std::string name;
+	    RDKit::ATOM_SPTR at_p = m[iat];
+	    at_p->getProp("name", name);
+	    if (name == atom_name_1)
+	       idx_1 = iat;
+	    if (name == atom_name_2)
+	       idx_2 = iat;
 	 }
+	 catch (KeyErrorException &err) {
+	    // this happens for alt conf
+	    // std::cout << "caught no-name exception in rdkit_mol H-block" << std::endl;
+	 } 
       }
+
+      if (0) { 
+	 std::cout << "idx_1 " << idx_1 << " " << n_residue_atoms << std::endl;
+	 std::cout << "idx_2 " << idx_2 << " " << n_residue_atoms << std::endl;
+      }
+      
       if (idx_1 != -1) { 
 	 if (idx_2 != -1) {	 
 	    if (type == RDKit::Bond::AROMATIC) { 

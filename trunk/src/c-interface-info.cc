@@ -270,7 +270,7 @@ PyObject *sequence_info_py(int imol) {
 //
 // The reader is graphics_info_t::apply_residue_info_changes(GtkWidget *dialog);
 // 
-void output_residue_info_dialog(int atom_index, int imol) {
+void output_residue_info_dialog(int imol, int atom_index) {
 
    if (graphics_info_t::residue_info_edits->size() > 0) {
 
@@ -288,6 +288,8 @@ void output_residue_info_dialog(int atom_index, int imol) {
 	       graphics_info_t g;
 	       output_residue_info_as_text(atom_index, imol);
 	       PCAtom picked_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
+
+	       std::string residue_name = picked_atom->GetResName();
    
 	       PPCAtom atoms;
 	       int n_atoms;
@@ -321,7 +323,7 @@ void output_residue_info_dialog(int atom_index, int imol) {
 				  graphics_info_t::float_to_string(graphics_info_t::default_new_atoms_b_factor).c_str());
 					   
 	       gtk_object_set_user_data(GTK_OBJECT(widget), res_spec_p);
-	       g.fill_output_residue_info_widget(widget, imol, atoms, n_atoms);
+	       g.fill_output_residue_info_widget(widget, imol, residue_name, atoms, n_atoms);
 	       gtk_widget_show(widget);
 	       g.reset_residue_info_edits();
 
@@ -373,8 +375,9 @@ void output_residue_info_dialog(int atom_index, int imol) {
    add_to_history_typed(cmd, args);
 }
 
-void residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_code) {
-
+void
+residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_code) {
+   
    if (is_valid_model_molecule(imol)) {
       int atom_index = -1;
       CResidue *res = graphics_info_t::molecules[imol].residue_from_external(resno, ins_code, chain_id);
@@ -385,9 +388,11 @@ void residue_info_dialog(int imol, const char *chain_id, int resno, const char *
 	 CAtom *at = residue_atoms[0];
 	 int handle = graphics_info_t::molecules[imol].atom_sel.UDDAtomIndexHandle;
 	 int ierr = at->GetUDData(handle, atom_index);
-	 if (ierr == UDDATA_Ok)
-	    if (atom_index != -1) 
-	       output_residue_info_dialog(atom_index, imol);
+	 if (ierr == UDDATA_Ok) { 
+	    if (atom_index != -1) { 
+	       output_residue_info_dialog(imol, atom_index);
+	    }
+	 }
       }
    }
 }

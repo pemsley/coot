@@ -162,6 +162,23 @@ public:
 	    std::cout << "in clear() NULL highlight_widget" << std::endl;
 	 }
       }
+      
+      // The old way was to use clear() where we lose the button up if
+      // the button up happens on the highlight item. So instead, we
+      // simply undisplay the widget.
+      //
+      // Memory loss, I think but better than missing a button
+      // release.
+      //
+      void undisplay() {
+	 n_atoms_ = 0;
+	 if (highlight_widget) {
+	    g_object_set(highlight_widget, "visibility", GOO_CANVAS_ITEM_INVISIBLE, NULL);
+	    highlight_widget = NULL; // eek.
+	 } else {
+	    std::cout << "in undisplay() NULL highlight_widget" << std::endl;
+	 }
+      }
       lig_build::polygon_position_info_t
       get_new_polygon_centre(int n_edges,
 			     bool spiro_flag,
@@ -681,7 +698,6 @@ private:
    bool change_atom_element(int atom_index, std::string new_element, std::string fc);
    void change_atom_id_maybe(int atom_index);
    lig_build::pos_t mouse_at_click;
-   void save_molecule();
    std::string mdl_file_name; // for save function.
    void add_search_combobox_text() const;
    bool make_saves_mutex;
@@ -967,11 +983,13 @@ public:
    GtkWidget *lbg_show_alerts_checkbutton; 
    GtkWidget *lbg_get_drug_dialog;
    GtkWidget *lbg_get_drug_entry;
+   GtkWidget *lbg_flip_rotate_hbox;
    GtkWidget *canvas;
    GooCanvasItem *key_group;
    std::map<std::string, GtkToggleToolButton *> widget_names;
    widgeted_molecule_t mol;
    int canvas_addition_mode;
+   void save_molecule(); // moved so that function lbg() can save on start.
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
    bool save_togglebutton_widgets(GtkBuilder *builder);
 #endif // GTK_VERSION

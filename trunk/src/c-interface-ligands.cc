@@ -1810,7 +1810,38 @@ int read_small_molecule_cif(const char *file_name) {
    } 
 
    return imol;
-} 
+}
+
+
+
+// This doesn't reset the view, perhaps it should (normally, we do not
+// reset the view when using install_model).
+// 
+int read_small_molecule_data_cif(const char *file_name) {
+
+   int imol = -1;
+   coot::smcif smcif;
+   bool state = smcif.read_data_sm_cif(file_name);
+   if (state) {
+      graphics_info_t g;
+      imol = g.create_molecule();
+
+      std::pair<clipper::Xmap<float>, clipper::Xmap<float> > maps = smcif.sigmaa_maps();
+      if (not (maps.first.is_null())) {
+	 g.molecules[imol].new_map(maps.first, file_name);
+	 int imol_diff = g.create_molecule();
+	 g.molecules[imol_diff].new_map(maps.second, file_name);
+	 g.molecules[imol_diff].set_map_is_difference_map();
+      } else { 
+	 clipper::Xmap<float> xmap = smcif.map();
+	 g.molecules[imol].new_map(xmap, file_name);
+      }
+      graphics_draw();
+   } 
+   return imol;
+}
+
+
 
 #ifdef USE_GUILE
 void

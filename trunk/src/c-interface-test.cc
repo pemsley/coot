@@ -95,6 +95,8 @@
 #include "mmdb.h"
 #include "mmdb-crystal.h"
 
+#include "read-sm-cif.hh"
+
 #include "Cartesian.h"
 #include "Bond_lines.h"
 #include "coot-utils.hh"
@@ -140,6 +142,7 @@
 
 #include "simple-restraint.hh"  // for multi-residue torsion map fitting.
 
+#include "c-interface-network.hh"
 
 int test_function(int i, int j) {
 
@@ -148,6 +151,7 @@ int test_function(int i, int j) {
    // Is this the function you are really looking for (these days)?
 
    if (1) {
+      curl_make_a_post();
    } 
    
 
@@ -376,7 +380,20 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
 
+#ifdef USE_LIBCURL
+
    if (1) {
+      curl_make_a_post();
+   } 
+
+#endif    
+
+   if (0) {
+      coot::smcif s;
+      s.read_data_sm_cif("hof.fcf");
+   } 
+
+   if (0) {
       std::cout << "======== n monomers in dictionary: " << g.Geom_p()->size() << std::endl;
       for (unsigned int irest=0; irest<g.Geom_p()->size(); irest++) { 
 	 std::cout << "   " << irest << "  " << (*g.Geom_p())[irest].residue_info.comp_id << std::endl;

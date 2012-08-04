@@ -28,6 +28,7 @@
 #include "clipper/core/map_interp.h"
 #include "clipper/core/hkl_compute.h"
 #include "clipper/contrib/skeleton.h"
+#include "clipper/mmdb/clipper_mmdb.h"
 
 #include "coot-utils.hh"
 #include "coot-map-utils.hh"
@@ -1380,3 +1381,41 @@ coot::util::segment_map::path_to_peak(const clipper::Coord_grid &start_point,
    }
    return v;
 } 
+
+
+#include <clipper/contrib/edcalc.h>
+
+// pass a negative atom_selection to build an atom map for the whole molecule
+// 
+clipper::Xmap<float>
+coot::util::calc_atom_map(CMMDBManager *mol,
+			  int atom_selection_handle, 
+			  const clipper::Cell &cell,
+			  const clipper::Spacegroup &space_group,
+			  const clipper::Grid_sampling &sampling) {
+
+   clipper::Xmap<float> xmap;
+   xmap.init(space_group, cell, sampling);
+
+   // get a list of all the atoms
+   // clipper::MMDBAtom_list atoms(SelAtom.atom_selection, SelAtom.n_selected_atoms);
+
+   std::vector<clipper::Atom> l;
+
+   PPCAtom sel_atoms = 0;
+   int n_atoms;
+   mol->GetSelIndex(atom_selection_handle, sel_atoms, n_atoms);
+   for (unsigned int i=0; i<n_atoms; i++) {
+      CAtom mmdb_atom; // (sel_atoms[i]);
+      mmdb_atom.Copy(sel_atoms[i]);
+      clipper::MMDBAtom clipper_mmdb_at(mmdb_atom);
+      clipper::Atom atom(clipper_mmdb_at);
+      l.push_back(atom);
+   }
+
+   clipper::Atom_list al(l);
+   clipper::EDcalc_iso<float> e;
+   e(xmap, al);
+
+   return xmap;
+}

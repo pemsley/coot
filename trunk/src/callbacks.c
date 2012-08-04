@@ -309,8 +309,6 @@ on_ok_button_dataset_clicked           (GtkButton       *button,
    filename = gtk_file_selection_get_filename 
      (GTK_FILE_SELECTION(dataset_fileselection1));
    
-/*    printf("dataset filename: %s\n", filename); */
-
    copied_filename = (char *) malloc(strlen(filename) + 1);
    strcpy(copied_filename, filename);
 
@@ -319,23 +317,26 @@ on_ok_button_dataset_clicked           (GtkButton       *button,
    if (ismtz) ismtzauto = mtz_file_has_phases_p(filename);
    else       iscnsauto = cns_file_has_phases_p(filename);
 
-   if ( ismtzauto || iscnsauto ) {
+   if (ismtzauto || iscnsauto) {
 
-     if (auto_read_flag) 
+     if (auto_read_flag) { 
        auto_read_make_and_draw_maps(filename);
-     else 
+     } else {
        /* this does a create_column_label_window, fills and displays it. */
        manage_column_selector(copied_filename);
+     }
+
    } else { 
 
      /* no phases path */
      if (auto_read_flag) printf ("INFO:: This file is not a map coefficient file. Coot can auto-read\nINFO::  - MTZ files from refmac, phenix.refine, phaser, parrot, dm.\nINFO::  - CNS files (new 2009 format only) with cell, symops, F1, F2.\n");
-     if ( ismtz )
+     if (ismtz) { 
        calc_phases_generic(filename);
-     else 
-       /* try to read as a phs, cif etc... */
+     } else { 
+       /* try to read as a phs, cif, fcf etc... */
        manage_column_selector(copied_filename);
-   } 
+     } 
+   }
    gtk_widget_destroy(dataset_fileselection1); 
 }
 
@@ -8622,6 +8623,29 @@ on_residue_info_occ_apply_all_checkbutton_toggled
   else 
     gtk_widget_set_sensitive(entry, FALSE);
 }
+
+
+void
+on_residue_info_occ_apply_to_altconf_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *occ_entry = lookup_widget(GTK_WIDGET(togglebutton), 
+				       "residue_info_master_atom_occ_entry");
+  GtkWidget *alt_conf_entry = lookup_widget(GTK_WIDGET(togglebutton), 
+					    "residue_info_occ_apply_to_alt_conf_entry");
+  if (togglebutton->active) { 
+    gtk_widget_set_sensitive(occ_entry,      TRUE);
+    gtk_widget_set_sensitive(alt_conf_entry, TRUE);
+  } else {
+    gtk_widget_set_sensitive(occ_entry,      FALSE);
+    gtk_widget_set_sensitive(alt_conf_entry, FALSE);
+  }
+
+}
+
+
 
 
 void
