@@ -3748,6 +3748,7 @@ graphics_info_t::split_residue(int imol, const std::string &chain_id,
 			       const std::string &altconf) {
 
    std::pair<bool, std::string> p(0, "");
+   std::cout << "here in split_residue() " << std::endl;
    
    CResidue *r = molecules[imol].get_residue(chain_id, resno, ins_code);
    if (!r) {
@@ -3758,6 +3759,7 @@ graphics_info_t::split_residue(int imol, const std::string &chain_id,
       int n_residue_atoms;
       int at_index = -1;
       r->GetAtomTable(residue_atoms, n_residue_atoms);
+      std::cout << "DEBUG:: split_residue table " << std::endl;
       for (int i=0; i<n_residue_atoms; i++) {
 	 std::string atom_name(residue_atoms[i]->name);
 	 std::string atom_alt_conf(residue_atoms[i]->altLoc);
@@ -3779,6 +3781,7 @@ graphics_info_t::split_residue(int imol, const std::string &chain_id,
 	 std::cout << "WARNING:: atom without atom index in molecule: "
 		   << imol << " chain-id :" << chain_id << ":  resno: " << resno << " inscode :"
 		   << ins_code << ": altconf :" << altconf << ":"
+		   << " split_residue() abandoned."
 		   << std::endl;
       }
    }

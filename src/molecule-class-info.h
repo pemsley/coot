@@ -2588,6 +2588,10 @@ public:        //                      public
 			  // their waters start at residue 1 and
 			  // continue monotonically.
 
+   void split_water(std::string chain_id, int res_no, std::string ins_code,
+		    const clipper::Xmap<float> &xmap,
+		    float sigma);
+
    void mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bool state);
 
    // validation

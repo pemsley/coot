@@ -105,6 +105,8 @@ parse_command_line(int argc, char ** argv ) {
       {"ccp4-project", 1, 0, 0},
       {"dictionary", 1, 0, 0},
       {"code",       1, 0, 0},
+      {"comp_id",    1, 0, 0},
+      {"comp-id",    1, 0, 0},
       {"port",       1, 0, 0},
       {"host",       1, 0, 0},
       {"hostname",   1, 0, 0}, // alternate for host
@@ -183,6 +185,12 @@ parse_command_line(int argc, char ** argv ) {
 	    }
 	    if (arg_str == "code") {
 	       cld.accession_codes.push_back(optarg);
+	    }
+	    if (arg_str == "comp_id") {
+	       cld.comp_ids.push_back(optarg);
+	    }
+	    if (arg_str == "comp-id") {
+	       cld.comp_ids.push_back(optarg);
 	    }
 	    if (arg_str == "splash-screen") {
 	       cld.alternate_splash_screen_file_name = optarg;
@@ -437,6 +445,10 @@ handle_command_line_data(command_line_data cld) {
    
    for (unsigned int i=0; i< cld.dictionaries.size(); i++) {
       read_cif_dictionary(cld.dictionaries[i].c_str());
+   }
+
+   for (unsigned int i=0; i<cld.comp_ids.size(); i++) { 
+      get_monomer(cld.comp_ids[i].c_str());
    }
 
    // ccp4 project directory given?

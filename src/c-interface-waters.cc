@@ -446,3 +446,21 @@ PyObject *highly_coordinated_waters_py(int imol, int coordination_number, float 
    return ret;
 } 
 #endif
+
+
+void split_water(int imol, const char *chain_id, int res_no, const char *ins_code) {
+
+   if (is_valid_model_molecule(imol)) {
+      int imol_map = imol_refinement_map();
+      if (is_valid_map_molecule(imol_map)) {
+	 const clipper::Xmap<float> xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+	 float sigma = graphics_info_t::molecules[imol_map].map_sigma();
+	 graphics_info_t::molecules[imol].split_water(chain_id, res_no, ins_code, xmap, sigma);
+      } else {
+	 std::cout << "Not valid refinement map set" << std::endl;
+      } 
+   } else {
+      std::cout << "Molecule " << imol << " is not a valid model molecule" << std::endl;
+   } 
+   graphics_draw();
+} 

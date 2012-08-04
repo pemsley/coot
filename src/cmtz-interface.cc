@@ -1110,7 +1110,6 @@ coot::column_selector_using_cmtz(const std::string &filename) {
 
    /* New addition: the refmac buttons  */
    coot::setup_refmac_parameters(column_label_window, *f_phi_columns);
-
    return column_label_window;
 }
 

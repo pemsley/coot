@@ -461,6 +461,7 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
 	 << std::endl;
 
    if (comp_id.first && three_letter_code.first && name.first) {
+
       mon_lib_add_chem_comp(comp_id.second, three_letter_code.second,
 			    name.second, type.second,
 			    number_of_atoms_all, number_of_atoms_nh,
@@ -718,7 +719,8 @@ coot::protein_geometry::mon_lib_add_chem_comp(const std::string &comp_id,
 		<< description_level << ": :" << number_atoms_all << ": :"
 		<< number_atoms_nh << std::endl;
    
-   coot::dict_chem_comp_t ri(comp_id, three_letter_code, name, group, number_atoms_all, number_atoms_nh,
+   coot::dict_chem_comp_t ri(comp_id, three_letter_code, name, group,
+			     number_atoms_all, number_atoms_nh,
 			     description_level);
    bool ifound = false;
 
@@ -1426,6 +1428,15 @@ coot::protein_geometry::mon_lib_add_plane(const std::string &comp_id,
       coot::dict_plane_restraint_t res(plane_id, atom_id, dist_esd);
       dict_res_restraints[dict_res_restraints.size()-1].plane_restraint.push_back(res);
    }
+}
+
+std::ostream& coot::operator<<(std::ostream &s, const coot::dict_chem_comp_t &rest) {
+
+   s << "[dict_chem_comp comp_id: \"" << rest.comp_id << "\" 3-letter-code: \""
+     << rest.three_letter_code << "\" name: \"" << rest.name << "\" group: \"" << rest.group
+     << "\" descr-level: \"" << rest.description_level << " "  << rest.number_atoms_all
+     << " " << rest.number_atoms_nh << "]";
+   return s;
 }
 
 std::ostream& coot::operator<<(std::ostream&s, coot::dict_plane_restraint_t rest) {
@@ -4497,17 +4508,17 @@ coot::protein_geometry::atoms_match_dictionary(const std::vector<CResidue *> res
 std::pair<bool, std::string>
 coot::protein_geometry::get_monomer_name(const std::string &comp_id) const {
 
-   std::pair<bool, std::string> r(0,"");
+   std::pair<bool, std::string> r(false,"");
 
-   std::map<std::string,coot::dictionary_residue_restraints_t>::const_iterator it = 
-      simple_monomer_descriptions.find(comp_id);
+   bool allow_minimal_flag = true;
+   std::pair<bool, dictionary_residue_restraints_t> rest =
+      get_monomer_restraints_internal(comp_id, allow_minimal_flag);
 
-   if (it != simple_monomer_descriptions.end()) {
-      r.first = 1;
-      std::string s = it->second.residue_info.name;
+   if (rest.first) { 
+      r.first = true;
+      std::string s = rest.second.residue_info.name;
       r.second = coot::util::remove_trailing_whitespace(s);
-   } 
-
+   }
    return r;
 } 
 

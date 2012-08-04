@@ -129,6 +129,7 @@ lbg(lig_build::molfile_molecule_t mm,
 	       widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
 	       lbg->render_from_molecule(wmol);
 	       lbg->update_descriptor_attributes();
+	       lbg->save_molecule();
 	    }
 	 }
       }
@@ -305,7 +306,7 @@ lbg_info_t::untoggle_others_except(GtkToggleToolButton *button_toggled_on) {
 /* This handles button presses on the canvas */
 static
 gboolean
-on_canvas_button_press (GtkWidget *widget, GdkEventButton *event)
+on_canvas_button_press_old (GtkWidget *widget, GdkEventButton *event)
 {
    int x_as_int, y_as_int;
    GdkModifierType state;
@@ -335,10 +336,10 @@ on_canvas_button_press (GtkWidget *widget, GdkEventButton *event)
 }
 
 static bool
-on_canvas_button_press_new(GooCanvasItem  *item,
-			   GooCanvasItem  *target_item,
-			   GdkEventButton *event,
-			   gpointer        user_data) {
+on_canvas_button_press(GooCanvasItem  *item,
+		       GooCanvasItem  *target_item,
+		       GdkEventButton *event,
+		       gpointer        user_data) {
 
    int x_as_int = -1, y_as_int = -1;
    GdkModifierType state;
@@ -430,7 +431,7 @@ on_canvas_button_press_new(GooCanvasItem  *item,
    
 
 static bool
-on_canvas_button_release_new(GooCanvasItem  *item,
+on_canvas_button_release(GooCanvasItem  *item,
 			     GooCanvasItem  *target_item,
 			     GdkEventButton *event,
 			     gpointer        user_data) {
@@ -796,7 +797,7 @@ lbg_info_t::remove_bond_and_atom_highlighting() {
 
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
    if (highlight_data.has_contents())
-      highlight_data.clear(root);
+      highlight_data.undisplay();
 }
 
 // set highlight_data
@@ -2333,12 +2334,20 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_get_drug_dialog =           GTK_WIDGET(gtk_builder_get_object(builder, "lbg_get_drug_dialog"));
 	 lbg_get_drug_entry =            GTK_WIDGET(gtk_builder_get_object(builder, "lbg_get_drug_entry"));
 	 pe_test_function_button =       GTK_WIDGET(gtk_builder_get_object(builder, "pe_test_function_button"));
+	 lbg_flip_rotate_hbox =          GTK_WIDGET(gtk_builder_get_object(builder, "lbg_flip_rotate_hbox"));
 
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
       }
    } 
 
    canvas = goo_canvas_new();
+
+   if (0) {  // hide rdkit stuff
+      GtkWidget *ww = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_qed_and_alert_hbox"));
+      gtk_widget_hide(lbg_flip_rotate_hbox);
+      gtk_widget_hide(lbg_alert_hbox_outer);
+      gtk_widget_hide(ww);
+   }
 
    if (use_graphics_interface_flag) { 
       gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
@@ -2372,11 +2381,11 @@ lbg_info_t::init(GtkBuilder *builder) {
 
       g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
 		       "button_press_event",
-		       G_CALLBACK(on_canvas_button_press_new), NULL);
+		       G_CALLBACK(on_canvas_button_press), NULL);
 
       g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
 		       "button_release_event",
-		       G_CALLBACK(on_canvas_button_release_new), NULL);
+		       G_CALLBACK(on_canvas_button_release), NULL);
 
       g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
 		       "motion_notify_event",

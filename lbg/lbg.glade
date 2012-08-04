@@ -1,44 +1,49 @@
-<?xml version="1.0"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy project-wide -->
   <object class="GtkIconFactory" id="iconfactory1">
     <sources>
-      <source stock-id="generated-icon-charge-svg" filename="pixmaps/charge.svg"/>
-      <source stock-id="generated-icon-delete-hydrogens-svg" filename="pixmaps/Trash-hydrogens-Andy_Trash_Can.svg"/>
-      <source stock-id="generated-icon-stereo-out-svg" filename="pixmaps/stereo-out.svg"/>
       <source stock-id="generated-icon-double-svg" filename="pixmaps/double.svg"/>
+      <source stock-id="generated-icon-charge-svg" filename="pixmaps/charge.svg"/>
+      <source stock-id="generated-icon-single-svg" filename="pixmaps/single.svg"/>
+      <source stock-id="generated-icon-6-c-exp-2-svg" filename="pixmaps/6-c-exp-2.svg"/>
+      <source stock-id="generated-icon-sp3-svg" filename="pixmaps/sp3.svg"/>
       <source stock-id="lbg-key-icon-svg" filename="pixmaps/Anonymous_Architetto_--_Chiave.svg"/>
-      <source stock-id="generated-icon-6-c-arom-svg" filename="pixmaps/6-c-arom.svg"/>
-      <source stock-id="generated-icon-8-c-svg" filename="pixmaps/8-c.svg"/>
       <source stock-id="generated-icon-3-c-svg" filename="pixmaps/3-c.svg"/>
+      <source stock-id="generated-icon-triple-svg" filename="pixmaps/triple.svg"/>
       <source stock-id="generated-icon-4-c-svg" filename="pixmaps/4-c.svg"/>
       <source stock-id="generated-icon-7-c-svg" filename="pixmaps/7-c.svg"/>
       <source stock-id="generated-icon-5-c-svg" filename="pixmaps/5-c.svg"/>
+      <source stock-id="generated-icon-delete-hydrogens-svg" filename="pixmaps/Trash-hydrogens-Andy_Trash_Can.svg"/>
+      <source stock-id="generated-icon-8-c-svg" filename="pixmaps/8-c.svg"/>
       <source stock-id="generated-icon-face-smile-svg" filename="pixmaps/face-smile.svg"/>
-      <source stock-id="generated-icon-sp3-svg" filename="pixmaps/sp3.svg"/>
-      <source stock-id="generated-icon-6-c-exp-2-svg" filename="pixmaps/6-c-exp-2.svg"/>
-      <source stock-id="generated-icon-triple-svg" filename="pixmaps/triple.svg"/>
-      <source stock-id="generated-icon-single-svg" filename="pixmaps/single.svg"/>
+      <source stock-id="generated-icon-stereo-out-svg" filename="pixmaps/stereo-out.svg"/>
+      <source stock-id="generated-icon-6-c-arom-svg" filename="pixmaps/6-c-arom.svg"/>
     </sources>
   </object>
   <object class="GtkImage" id="image1">
     <property name="visible">True</property>
+    <property name="can_focus">False</property>
     <property name="pixbuf">pixmaps/TheStructorr_magnifying_glass-32.svg</property>
   </object>
   <object class="GtkImage" id="image2">
     <property name="visible">True</property>
+    <property name="can_focus">False</property>
     <property name="stock">gtk-print</property>
   </object>
   <object class="GtkImage" id="image3">
     <property name="visible">True</property>
+    <property name="can_focus">False</property>
     <property name="stock">gtk-save-as</property>
   </object>
   <object class="GtkImage" id="image4">
     <property name="visible">True</property>
+    <property name="can_focus">False</property>
     <property name="stock">gtk-missing-image</property>
   </object>
   <object class="GtkAboutDialog" id="lbg_aboutdialog">
+    <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
     <property name="program_name">Coot LIDIA</property>
@@ -48,71 +53,45 @@
     <property name="license" translatable="yes">GNU GPL v3</property>
     <property name="authors">Paul Emsley</property>
     <property name="logo">pixmaps/coot-icon.png</property>
-    <signal name="close" handler="on_lbg_aboutdialog_close"/>
-    <signal name="response" handler="on_lbg_aboutdialog_response"/>
+    <signal name="close" handler="on_lbg_aboutdialog_close" swapped="no"/>
+    <signal name="response" handler="on_lbg_aboutdialog_response" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="spacing">2</property>
-        <child>
-          <placeholder/>
-        </child>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="dialog-action_area1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="layout_style">end</property>
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="pack_type">end</property>
             <property name="position">0</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
     </child>
   </object>
   <object class="GtkDialog" id="lbg_atom_x_dialog">
+    <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox12">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="spacing">2</property>
-        <child>
-          <object class="GtkVBox" id="vbox5">
-            <property name="visible">True</property>
-            <child>
-              <object class="GtkLabel" id="lbg_atom_x_label">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Atom Element</property>
-              </object>
-              <packing>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="lbg_atom_x_entry">
-                <property name="width_request">49</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
-                <signal name="changed" handler="on_lbg_atom_x_entry_changed"/>
-                <signal name="insert_at_cursor" handler="on_lbg_atom_x_entry_insert_at_cursor"/>
-              </object>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="position">1</property>
-          </packing>
-        </child>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="dialog-action_area12">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
               <placeholder/>
@@ -120,11 +99,12 @@
             <child>
               <object class="GtkButton" id="lbg_atom_x_dialog_close_button">
                 <property name="label">gtk-close</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_lbg_atom_x_dialog_close_button_clicked"/>
+                <signal name="clicked" handler="on_lbg_atom_x_dialog_close_button_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -135,8 +115,51 @@
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="pack_type">end</property>
             <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkVBox" id="vbox5">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="lbg_atom_x_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Atom Element</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="lbg_atom_x_entry">
+                <property name="width_request">49</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="invisible_char">●</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
+                <signal name="changed" handler="on_lbg_atom_x_entry_changed" swapped="no"/>
+                <signal name="insert-at-cursor" handler="on_lbg_atom_x_entry_insert_at_cursor" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
           </packing>
         </child>
       </object>
@@ -150,24 +173,24 @@
     <property name="border_width">5</property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
-    <property name="do_overwrite_confirmation">True</property>
     <property name="action">save</property>
-    <signal name="close" handler="on_lbg_export_as_pdf_filechooserdialog_close"/>
-    <signal name="response" handler="on_lbg_export_as_pdf_filechooserdialog_response"/>
+    <property name="do_overwrite_confirmation">True</property>
+    <signal name="close" handler="on_lbg_export_as_pdf_filechooserdialog_close" swapped="no"/>
+    <signal name="response" handler="on_lbg_export_as_pdf_filechooserdialog_response" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox7">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="spacing">2</property>
-        <child>
-          <placeholder/>
-        </child>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="dialog-action_area7">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="button6">
                 <property name="label">gtk-cancel</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -182,6 +205,7 @@
             <child>
               <object class="GtkButton" id="button7">
                 <property name="label">gtk-save</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
@@ -198,9 +222,13 @@
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="pack_type">end</property>
             <property name="position">0</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
     </child>
@@ -214,24 +242,24 @@
     <property name="border_width">5</property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
-    <property name="do_overwrite_confirmation">True</property>
     <property name="action">save</property>
-    <signal name="close" handler="on_lbg_export_as_png_filechooserdialog_close"/>
-    <signal name="response" handler="on_lbg_export_as_png_filechooserdialog_response"/>
+    <property name="do_overwrite_confirmation">True</property>
+    <signal name="close" handler="on_lbg_export_as_png_filechooserdialog_close" swapped="no"/>
+    <signal name="response" handler="on_lbg_export_as_png_filechooserdialog_response" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox9">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="spacing">2</property>
-        <child>
-          <placeholder/>
-        </child>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="dialog-action_area9">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="button8">
                 <property name="label">gtk-cancel</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -246,6 +274,7 @@
             <child>
               <object class="GtkButton" id="button9">
                 <property name="label">gtk-save</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
@@ -262,9 +291,13 @@
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="pack_type">end</property>
             <property name="position">0</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
     </child>
@@ -274,59 +307,29 @@
     </action-widgets>
   </object>
   <object class="GtkDialog" id="lbg_get_drug_dialog">
+    <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox16">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="spacing">2</property>
-        <child>
-          <object class="GtkVBox" id="vbox6">
-            <property name="visible">True</property>
-            <child>
-              <object class="GtkLabel" id="label7">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Get Drug:</property>
-              </object>
-              <packing>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="lbg_get_drug_entry">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
-                <signal name="changed" handler="on_lbg_get_drug_entry_changed"/>
-              </object>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="padding">4</property>
-            <property name="position">1</property>
-          </packing>
-        </child>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="dialog-action_area16">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="lbg_get_drug_ok_button">
                 <property name="label">gtk-apply</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_lbg_get_drug_ok_button_clicked"/>
+                <signal name="clicked" handler="on_lbg_get_drug_ok_button_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -337,11 +340,12 @@
             <child>
               <object class="GtkButton" id="lbg_get_drug_cancel_button">
                 <property name="label">gtk-cancel</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_lbg_get_drug_cancel_button_clicked"/>
+                <signal name="clicked" handler="on_lbg_get_drug_cancel_button_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -352,8 +356,53 @@
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="pack_type">end</property>
             <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkVBox" id="vbox6">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkLabel" id="label7">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Get Drug:</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="lbg_get_drug_entry">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="invisible_char">●</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
+                <signal name="changed" handler="on_lbg_get_drug_entry_changed" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="padding">4</property>
+            <property name="position">1</property>
           </packing>
         </child>
       </object>
@@ -368,22 +417,22 @@
     <property name="border_width">5</property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
-    <signal name="close" handler="on_lbg_open_filechooserdialog_close"/>
-    <signal name="response" handler="on_lbg_open_filechooserdialog_response"/>
+    <signal name="close" handler="on_lbg_open_filechooserdialog_close" swapped="no"/>
+    <signal name="response" handler="on_lbg_open_filechooserdialog_response" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox2">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="spacing">2</property>
-        <child>
-          <placeholder/>
-        </child>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="dialog-action_area2">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="button1">
                 <property name="label">gtk-cancel</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -398,6 +447,7 @@
             <child>
               <object class="GtkButton" id="button2">
                 <property name="label">gtk-open</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
@@ -414,9 +464,13 @@
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="pack_type">end</property>
             <property name="position">0</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
     </child>
@@ -431,24 +485,24 @@
     <property name="title" translatable="yes">Save As MDL Molfile...</property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
-    <property name="do_overwrite_confirmation">True</property>
     <property name="action">save</property>
-    <signal name="close" handler="on_lbg_save_as_filechooserdialog_close"/>
-    <signal name="response" handler="on_lbg_save_as_filechooserdialog_response"/>
+    <property name="do_overwrite_confirmation">True</property>
+    <signal name="close" handler="on_lbg_save_as_filechooserdialog_close" swapped="no"/>
+    <signal name="response" handler="on_lbg_save_as_filechooserdialog_response" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox5">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="spacing">2</property>
-        <child>
-          <placeholder/>
-        </child>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="dialog-action_area5">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="button4">
                 <property name="label">gtk-cancel</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -463,6 +517,7 @@
             <child>
               <object class="GtkButton" id="button5">
                 <property name="label">gtk-save</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
@@ -479,9 +534,13 @@
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="pack_type">end</property>
             <property name="position">0</property>
           </packing>
+        </child>
+        <child>
+          <placeholder/>
         </child>
       </object>
     </child>
@@ -491,17 +550,51 @@
     </action-widgets>
   </object>
   <object class="GtkDialog" id="lbg_sbase_search_results_dialog">
+    <property name="can_focus">False</property>
     <property name="border_width">5</property>
     <property name="title" translatable="yes">Coot Lidia Search Results</property>
     <property name="type_hint">normal</property>
-    <signal name="response" handler="on_lbg_sbase_search_results_dialog_response"/>
+    <signal name="response" handler="on_lbg_sbase_search_results_dialog_response" swapped="no"/>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox4">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area4">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkButton" id="button3">
+                <property name="label">gtk-close</property>
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
         <child>
           <object class="GtkVBox" id="vbox2">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
               <object class="GtkScrolledWindow" id="scrolledwindow1">
                 <property name="width_request">350</property>
@@ -513,10 +606,12 @@
                 <child>
                   <object class="GtkViewport" id="viewport1">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="resize_mode">queue</property>
                     <child>
                       <object class="GtkVBox" id="lbg_sbase_search_results_vbox">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <child>
                           <placeholder/>
                         </child>
@@ -532,28 +627,51 @@
                 </child>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
           </object>
           <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
         </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-7">button3</action-widget>
+    </action-widgets>
+  </object>
+  <object class="GtkDialog" id="lbg_smiles_dialog">
+    <property name="can_focus">False</property>
+    <property name="border_width">5</property>
+    <property name="type_hint">normal</property>
+    <signal name="close" handler="on_lbg_smiles_dialog_close" swapped="no"/>
+    <child internal-child="vbox">
+      <object class="GtkVBox" id="dialog-vbox11">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="spacing">2</property>
         <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area4">
+          <object class="GtkHButtonBox" id="dialog-action_area11">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="layout_style">end</property>
             <child>
               <placeholder/>
             </child>
             <child>
-              <object class="GtkButton" id="button3">
-                <property name="label">gtk-close</property>
+              <object class="GtkButton" id="lbg_smiles_dialog_ok_button">
+                <property name="label">gtk-ok</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
+                <signal name="clicked" handler="on_lbg_smiles_dialog_ok_button_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -564,33 +682,23 @@
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="pack_type">end</property>
             <property name="position">0</property>
           </packing>
         </child>
-      </object>
-    </child>
-    <action-widgets>
-      <action-widget response="-7">button3</action-widget>
-    </action-widgets>
-  </object>
-  <object class="GtkDialog" id="lbg_smiles_dialog">
-    <property name="border_width">5</property>
-    <property name="type_hint">normal</property>
-    <signal name="close" handler="on_lbg_smiles_dialog_close"/>
-    <child internal-child="vbox">
-      <object class="GtkVBox" id="dialog-vbox11">
-        <property name="visible">True</property>
-        <property name="spacing">2</property>
         <child>
           <object class="GtkVBox" id="vbox4">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
               <object class="GtkHBox" id="hbox3">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <child>
                   <object class="GtkLabel" id="label4">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">SMILES: </property>
                   </object>
                   <packing>
@@ -604,16 +712,22 @@
                     <property name="width_request">290</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="invisible_char">&#x25CF;</property>
+                    <property name="invisible_char">●</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
                     <property name="primary_icon_sensitive">True</property>
                     <property name="secondary_icon_sensitive">True</property>
                   </object>
                   <packing>
+                    <property name="expand">True</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -625,36 +739,9 @@
             </child>
           </object>
           <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
             <property name="position">1</property>
-          </packing>
-        </child>
-        <child internal-child="action_area">
-          <object class="GtkHButtonBox" id="dialog-action_area11">
-            <property name="visible">True</property>
-            <property name="layout_style">end</property>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <object class="GtkButton" id="lbg_smiles_dialog_ok_button">
-                <property name="label">gtk-ok</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_lbg_smiles_dialog_ok_button_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="pack_type">end</property>
-            <property name="position">0</property>
           </packing>
         </child>
       </object>
@@ -666,99 +753,122 @@
   <object class="GtkWindow" id="lbg_window">
     <property name="width_request">600</property>
     <property name="height_request">420</property>
+    <property name="can_focus">False</property>
     <property name="title" translatable="yes">Coot Ligand Builder</property>
     <property name="icon">pixmaps/coot-icon.png</property>
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
+        <property name="can_focus">False</property>
         <child>
           <object class="GtkMenuBar" id="menubar1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
               <object class="GtkMenuItem" id="menuitem1">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">_File</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
                   <object class="GtkMenu" id="menu1">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <child>
                       <object class="GtkImageMenuItem" id="lbg_new_menuitem">
                         <property name="label">gtk-new</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_lbg_new_menuitem_activate"/>
+                        <signal name="activate" handler="on_lbg_new_menuitem_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="lbg_open_menuitem">
                         <property name="label">gtk-open</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
                         <property name="always_show_image">True</property>
-                        <signal name="activate" handler="on_lbg_open_menuitem_activate"/>
+                        <signal name="activate" handler="on_lbg_open_menuitem_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
                       <object class="GtkMenuItem" id="lbg_get_drug_menuitem">
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Get Drug...</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_lbg_get_drug_menuitem_activate"/>
+                        <signal name="activate" handler="on_lbg_get_drug_menuitem_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="lbg_save_menuitem">
                         <property name="label">gtk-save</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_lbg_save_menuitem_activate"/>
+                        <signal name="activate" handler="on_lbg_save_menuitem_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="lbg_save_as_menuitem">
                         <property name="label">gtk-save-as</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_lbg_save_as_menuitem_activate"/>
+                        <signal name="activate" handler="on_lbg_save_as_menuitem_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="print_menuitem">
                         <property name="label">Export as PDF...</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Export to PDF file</property>
                         <property name="image">image2</property>
                         <property name="use_stock">False</property>
-                        <signal name="activate" handler="on_print_menuitem_activate"/>
+                        <signal name="activate" handler="on_print_menuitem_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="export_as_png_menuitem">
                         <property name="label" translatable="yes">Export as PNG...</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="tooltip_text" translatable="yes">Export as a PNG image</property>
                         <property name="image">image3</property>
                         <property name="use_stock">False</property>
-                        <signal name="activate" handler="on_export_as_png_menuitem_activate"/>
+                        <signal name="activate" handler="on_export_as_png_menuitem_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
                       <object class="GtkSeparatorMenuItem" id="separatormenuitem1">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                       </object>
                     </child>
                     <child>
                       <object class="GtkImageMenuItem" id="lbg_close_menuitem">
                         <property name="label">gtk-close</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_lbg_close_menuitem_activate"/>
+                        <signal name="activate" handler="on_lbg_close_menuitem_activate" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -767,19 +877,24 @@
             </child>
             <child>
               <object class="GtkMenuItem" id="menuitem4">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">_Help</property>
                 <property name="use_underline">True</property>
                 <child type="submenu">
                   <object class="GtkMenu" id="menu3">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <child>
                       <object class="GtkImageMenuItem" id="about_menuitem">
                         <property name="label">gtk-about</property>
+                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="use_underline">True</property>
                         <property name="use_stock">True</property>
-                        <signal name="activate" handler="on_about_menuitem_activate"/>
+                        <signal name="activate" handler="on_about_menuitem_activate" swapped="no"/>
                       </object>
                     </child>
                   </object>
@@ -789,19 +904,23 @@
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">0</property>
           </packing>
         </child>
         <child>
           <object class="GtkToolbar" id="toolbar1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
               <object class="GtkToolButton" id="clear_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Clear</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-clear</property>
-                <signal name="clicked" handler="on_clear_toolbutton_clicked"/>
+                <signal name="clicked" handler="on_clear_toolbutton_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -810,11 +929,13 @@
             </child>
             <child>
               <object class="GtkToolButton" id="undo_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Undo</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-undo</property>
-                <signal name="clicked" handler="on_undo_toolbutton_clicked"/>
+                <signal name="clicked" handler="on_undo_toolbutton_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -823,11 +944,13 @@
             </child>
             <child>
               <object class="GtkToggleToolButton" id="single_toggle_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Single</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-single-svg</property>
-                <signal name="toggled" handler="on_single_toggle_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_single_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -836,11 +959,13 @@
             </child>
             <child>
               <object class="GtkToggleToolButton" id="double_toggle_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Double</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-double-svg</property>
-                <signal name="toggled" handler="on_double_toggle_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_double_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -849,11 +974,13 @@
             </child>
             <child>
               <object class="GtkToggleToolButton" id="triple_toggle_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Triple</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-triple-svg</property>
-                <signal name="toggled" handler="on_triple_toggle_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_triple_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -862,11 +989,13 @@
             </child>
             <child>
               <object class="GtkToggleToolButton" id="stereo_out_toggle_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Stereo</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-stereo-out-svg</property>
-                <signal name="toggled" handler="on_stereo_out_toggle_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_stereo_out_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -875,11 +1004,13 @@
             </child>
             <child>
               <object class="GtkToggleToolButton" id="lbg_charge_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Charge</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-charge-svg</property>
-                <signal name="toggled" handler="on_lbg_charge_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_lbg_charge_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -888,11 +1019,13 @@
             </child>
             <child>
               <object class="GtkToggleToolButton" id="delete_item_toggle_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Cut</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-cut</property>
-                <signal name="toggled" handler="on_delete_item_toggle_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_delete_item_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -901,11 +1034,13 @@
             </child>
             <child>
               <object class="GtkToolButton" id="lbg_delete_hydrogens_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Delete Hydrogens</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-delete-hydrogens-svg</property>
-                <signal name="clicked" handler="on_lbg_delete_hydrogens_toolbutton_clicked"/>
+                <signal name="clicked" handler="on_lbg_delete_hydrogens_toolbutton_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -914,11 +1049,13 @@
             </child>
             <child>
               <object class="GtkToolButton" id="lbg_smiles_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">SMILES</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-face-smile-svg</property>
-                <signal name="clicked" handler="on_lbg_smiles_toolbutton_clicked"/>
+                <signal name="clicked" handler="on_lbg_smiles_toolbutton_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -927,10 +1064,12 @@
             </child>
             <child>
               <object class="GtkToolButton" id="pe_test_function_button">
+                <property name="use_action_appearance">False</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">test function</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-dialog-warning</property>
-                <signal name="clicked" handler="on_pe_test_function_button_clicked"/>
+                <signal name="clicked" handler="on_pe_test_function_button_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -939,10 +1078,13 @@
             </child>
             <child>
               <object class="GtkToolItem" id="toolbar_custom_item">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <child>
                   <object class="GtkLabel" id="lbg_toolbar_layout_info_label">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Layout-Info</property>
                   </object>
                 </child>
@@ -953,11 +1095,13 @@
             </child>
             <child>
               <object class="GtkToolButton" id="info_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Info</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-info</property>
-                <signal name="clicked" handler="on_info_toolbutton_clicked"/>
+                <signal name="clicked" handler="on_info_toolbutton_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -967,19 +1111,23 @@
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">1</property>
           </packing>
         </child>
         <child>
           <object class="GtkToolbar" id="toolbar3">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
               <object class="GtkToggleToolButton" id="c3_toggle_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">3-C</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-3-c-svg</property>
-                <signal name="toggled" handler="on_c3_toggle_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_c3_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -988,11 +1136,13 @@
             </child>
             <child>
               <object class="GtkToggleToolButton" id="c4_toggle_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">4-C</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-4-c-svg</property>
-                <signal name="toggled" handler="on_c4_toggle_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_c4_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1001,11 +1151,13 @@
             </child>
             <child>
               <object class="GtkToggleToolButton" id="c5_toggle_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">5-C</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-5-c-svg</property>
-                <signal name="toggled" handler="on_c5_toggle_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_c5_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1014,11 +1166,13 @@
             </child>
             <child>
               <object class="GtkToggleToolButton" id="c6_toggle_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">6-C</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-6-c-exp-2-svg</property>
-                <signal name="toggled" handler="on_c6_toggle_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_c6_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1027,11 +1181,13 @@
             </child>
             <child>
               <object class="GtkToggleToolButton" id="c6_arom_toggle_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">6-Arom</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-6-c-arom-svg</property>
-                <signal name="toggled" handler="on_c6_arom_toggle_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_c6_arom_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1040,11 +1196,13 @@
             </child>
             <child>
               <object class="GtkToggleToolButton" id="c7_toggle_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">7-C</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-7-c-svg</property>
-                <signal name="toggled" handler="on_c7_toggle_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_c7_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1053,11 +1211,13 @@
             </child>
             <child>
               <object class="GtkToggleToolButton" id="c8_toggle_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">8-C</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-8-c-svg</property>
-                <signal name="toggled" handler="on_c8_toggle_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_c8_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1066,11 +1226,13 @@
             </child>
             <child>
               <object class="GtkToggleToolButton" id="residue_circles_toggletoolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Env. Residues</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-add</property>
-                <signal name="toggled" handler="on_residue_circles_toggle_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_residue_circles_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1079,11 +1241,13 @@
             </child>
             <child>
               <object class="GtkToggleToolButton" id="lbg_key_toggle_toolbutton">
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Key</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">lbg-key-icon-svg</property>
-                <signal name="toggled" handler="on_lbg_key_toggle_toolbutton_toggled"/>
+                <signal name="toggled" handler="on_lbg_key_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1093,22 +1257,27 @@
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">2</property>
           </packing>
         </child>
         <child>
           <object class="GtkHBox" id="hbox1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
               <object class="GtkToolbar" id="toolbar2">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkToggleToolButton" id="carbon_toggle_toolbutton">
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">C</property>
                     <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_carbon_toggle_toolbutton_toggled"/>
+                    <signal name="toggled" handler="on_carbon_toggle_toolbutton_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1117,10 +1286,12 @@
                 </child>
                 <child>
                   <object class="GtkToggleToolButton" id="nitrogen_toggle_toolbutton">
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">N</property>
                     <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_nitrogen_toggle_toolbutton_toggled"/>
+                    <signal name="toggled" handler="on_nitrogen_toggle_toolbutton_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1129,10 +1300,12 @@
                 </child>
                 <child>
                   <object class="GtkToggleToolButton" id="oxygen_toggle_toolbutton">
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">O</property>
                     <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_oxygen_toggle_toolbutton_toggled"/>
+                    <signal name="toggled" handler="on_oxygen_toggle_toolbutton_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1141,10 +1314,12 @@
                 </child>
                 <child>
                   <object class="GtkToggleToolButton" id="sulfur_toggle_toolbutton">
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">S</property>
                     <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_sulfur_toggle_toolbutton_toggled"/>
+                    <signal name="toggled" handler="on_sulfur_toggle_toolbutton_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1153,10 +1328,12 @@
                 </child>
                 <child>
                   <object class="GtkToggleToolButton" id="phos_toggle_toolbutton">
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">P</property>
                     <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_phos_toggle_toolbutton_toggled"/>
+                    <signal name="toggled" handler="on_phos_toggle_toolbutton_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1165,10 +1342,12 @@
                 </child>
                 <child>
                   <object class="GtkToggleToolButton" id="fluorine_toggle_toolbutton">
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">F</property>
                     <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_fluorine_toggle_toolbutton_toggled"/>
+                    <signal name="toggled" handler="on_fluorine_toggle_toolbutton_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1177,10 +1356,12 @@
                 </child>
                 <child>
                   <object class="GtkToggleToolButton" id="chlorine_toggle_toolbutton">
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Cl</property>
                     <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_chlorine_toggle_toolbutton_toggled"/>
+                    <signal name="toggled" handler="on_chlorine_toggle_toolbutton_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1189,10 +1370,12 @@
                 </child>
                 <child>
                   <object class="GtkToggleToolButton" id="bromine_toggle_toolbutton">
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">Br</property>
                     <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_bromine_toggle_toolbutton_toggled"/>
+                    <signal name="toggled" handler="on_bromine_toggle_toolbutton_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1201,10 +1384,12 @@
                 </child>
                 <child>
                   <object class="GtkToggleToolButton" id="iodine_toggle_toolbutton">
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">I</property>
                     <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_iodine_toggle_toolbutton_toggled"/>
+                    <signal name="toggled" handler="on_iodine_toggle_toolbutton_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1213,10 +1398,12 @@
                 </child>
                 <child>
                   <object class="GtkToggleToolButton" id="other_element_toggle_toolbutton">
+                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">X</property>
                     <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_other_element_toggle_toolbutton_toggled"/>
+                    <signal name="toggled" handler="on_other_element_toggle_toolbutton_toggled" swapped="no"/>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1226,6 +1413,7 @@
               </object>
               <packing>
                 <property name="expand">False</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -1241,42 +1429,53 @@
                 </child>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
           </object>
           <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
             <property name="position">3</property>
           </packing>
         </child>
         <child>
           <object class="GtkStatusbar" id="lbg_statusbar">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <property name="spacing">2</property>
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">4</property>
           </packing>
         </child>
         <child>
           <object class="GtkHSeparator" id="hseparator1">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">True</property>
             <property name="position">5</property>
           </packing>
         </child>
         <child>
           <object class="GtkHBox" id="lbg_qed_and_alert_hbox">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
               <object class="GtkHBox" id="lbg_qed_hbox">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <child>
                   <object class="GtkLabel" id="label5">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes"> QED: </property>
                   </object>
                   <packing>
@@ -1289,15 +1488,18 @@
                   <object class="GtkProgressBar" id="lbg_qed_progressbar">
                     <property name="width_request">140</property>
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
+                    <property name="fill">True</property>
                     <property name="position">1</property>
                   </packing>
                 </child>
                 <child>
                   <object class="GtkLabel" id="lbg_qed_text_label">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">qed_text</property>
                   </object>
                   <packing>
@@ -1308,47 +1510,63 @@
                 </child>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
             </child>
             <child>
               <object class="GtkHBox" id="lbg_alert_hbox_outer">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <child>
                   <object class="GtkHBox" id="lbg_alert_hbox">
+                    <property name="can_focus">False</property>
                     <child>
                       <object class="GtkImage" id="lbg_alert_image">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="stock">gtk-dialog-warning</property>
                       </object>
                       <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="lbg_alert_label">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="label" translatable="yes"> ALERT!  </property>
                       </object>
                       <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
                         <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="lbg_alert_name_label">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="label" translatable="yes">alert-name</property>
                       </object>
                       <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
                         <property name="position">2</property>
                       </packing>
                     </child>
                     <child>
                       <object class="GtkLabel" id="label6">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <property name="label" translatable="yes">  </property>
                       </object>
                       <packing>
+                        <property name="expand">True</property>
+                        <property name="fill">True</property>
                         <property name="position">3</property>
                       </packing>
                     </child>
@@ -1361,21 +1579,21 @@
                 </child>
               </object>
               <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
                 <property name="position">1</property>
               </packing>
             </child>
             <child>
-              <placeholder/>
-            </child>
-            <child>
               <object class="GtkCheckButton" id="lbg_show_alerts_checkbutton">
                 <property name="label" translatable="yes">Show Alerts</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
                 <property name="active">True</property>
                 <property name="draw_indicator">True</property>
-                <signal name="toggled" handler="on_lbg_show_alerts_checkbutton_toggled"/>
+                <signal name="toggled" handler="on_lbg_show_alerts_checkbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1383,6 +1601,9 @@
                 <property name="pack_type">end</property>
                 <property name="position">2</property>
               </packing>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -1392,52 +1613,153 @@
           </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="lbg_buttons_hbox">
+          <object class="GtkHBox" id="lbg_flip_rotate_hbox">
             <property name="visible">True</property>
+            <property name="can_focus">False</property>
             <child>
-              <placeholder/>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <object class="GtkButton" id="lbg_apply_button">
-                <property name="label">gtk-apply</property>
+              <object class="GtkButton" id="lbg_view_flip_around_x_button">
+                <property name="label" translatable="yes">Flip Around X</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="tooltip_text" translatable="yes">Send to Coot</property>
-                <property name="border_width">14</property>
-                <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_lbg_apply_button_clicked"/>
+                <property name="border_width">6</property>
+                <signal name="clicked" handler="on_lbg_view_flip_around_x_button_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="pack_type">end</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="lbg_view_flip_around_y_button">
+                <property name="label" translatable="yes">Flip Around Y</property>
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="border_width">6</property>
+                <signal name="clicked" handler="on_lbg_view_flip_around_y_button_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label8">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">   Rotate Z </property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="lbg_view_rotate_entry">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="invisible_char">●</property>
+                <property name="width_chars">6</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
                 <property name="position">3</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label9">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes"> degrees</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">4</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="lbg_view_rotate_apply_button">
+                <property name="label">gtk-apply</property>
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="use_stock">True</property>
+                <signal name="clicked" handler="on_lbg_view_rotate_apply_button_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">5</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">7</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkHBox" id="lbg_buttons_hbox">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <child>
+              <object class="GtkButton" id="lbg_close_button">
+                <property name="label">gtk-close</property>
+                <property name="use_action_appearance">False</property>
+                <property name="height_request">20</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="border_width">14</property>
+                <property name="use_stock">True</property>
+                <signal name="clicked" handler="on_lbg_close_button_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="padding">6</property>
+                <property name="pack_type">end</property>
+                <property name="position">0</property>
               </packing>
             </child>
             <child>
               <object class="GtkFrame" id="frame1">
                 <property name="visible">True</property>
+                <property name="can_focus">False</property>
                 <property name="label_xalign">0</property>
                 <child>
                   <object class="GtkAlignment" id="alignment1">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="left_padding">12</property>
                     <child>
                       <object class="GtkHBox" id="hbox2">
                         <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <child>
                           <object class="GtkButton" id="lbg_search_button">
                             <property name="label" translatable="yes">Search</property>
+                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
                             <property name="border_width">6</property>
                             <property name="image">image1</property>
-                            <signal name="clicked" handler="on_lbg_search_button_clicked"/>
+                            <signal name="clicked" handler="on_lbg_search_button_clicked" swapped="no"/>
                           </object>
                           <packing>
                             <property name="expand">False</property>
@@ -1448,6 +1770,7 @@
                         <child>
                           <object class="GtkLabel" id="search_label">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <property name="label" translatable="yes">  Similarity:</property>
                           </object>
                           <packing>
@@ -1459,17 +1782,22 @@
                         <child>
                           <object class="GtkVBox" id="vbox3">
                             <property name="visible">True</property>
+                            <property name="can_focus">False</property>
                             <child>
                               <object class="GtkLabel" id="label2">
                                 <property name="visible">True</property>
+                                <property name="can_focus">False</property>
                               </object>
                               <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
                                 <property name="position">0</property>
                               </packing>
                             </child>
                             <child>
                               <object class="GtkComboBox" id="lbg_search_combobox">
                                 <property name="visible">True</property>
+                                <property name="can_focus">False</property>
                                 <property name="has_frame">False</property>
                                 <property name="focus_on_click">False</property>
                               </object>
@@ -1483,13 +1811,18 @@
                             <child>
                               <object class="GtkLabel" id="label3">
                                 <property name="visible">True</property>
+                                <property name="can_focus">False</property>
                               </object>
                               <packing>
+                                <property name="expand">True</property>
+                                <property name="fill">True</property>
                                 <property name="position">2</property>
                               </packing>
                             </child>
                           </object>
                           <packing>
+                            <property name="expand">True</property>
+                            <property name="fill">True</property>
                             <property name="padding">5</property>
                             <property name="position">2</property>
                           </packing>
@@ -1501,6 +1834,7 @@
                 <child type="label">
                   <object class="GtkLabel" id="label1">
                     <property name="visible">True</property>
+                    <property name="can_focus">False</property>
                     <property name="label" translatable="yes">&lt;b&gt;Search Database&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
                   </object>
@@ -1514,29 +1848,35 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="lbg_close_button">
-                <property name="label">gtk-close</property>
-                <property name="height_request">20</property>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkButton" id="lbg_apply_button">
+                <property name="label">gtk-apply</property>
+                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
+                <property name="tooltip_text" translatable="yes">Send to Coot</property>
                 <property name="border_width">14</property>
                 <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_lbg_close_button_clicked"/>
+                <signal name="clicked" handler="on_lbg_apply_button_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="padding">6</property>
                 <property name="pack_type">end</property>
-                <property name="position">0</property>
+                <property name="position">3</property>
               </packing>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
-            <property name="position">7</property>
+            <property name="position">8</property>
           </packing>
         </child>
       </object>

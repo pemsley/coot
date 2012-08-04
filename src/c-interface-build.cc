@@ -6794,6 +6794,7 @@ SCM add_alt_conf_scm(int imol, const char*chain_id, int res_no, const char *ins_
       std::pair<bool, std::string> p =
 	 g.split_residue(imol, std::string(chain_id), res_no,
 			 std::string(ins_code), std::string(alt_conf));
+      std::cout << "debug:: split_residue() returned " << p.first << " \"" << p.second << "\"" << std::endl;
       if (p.first) {
 	 r = scm_makfrom0str(p.second.c_str());
       }

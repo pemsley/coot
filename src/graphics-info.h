@@ -2630,6 +2630,7 @@ public:
    // c-info functions really, but we cant have mmdb_manager there, so the are moved here.
    // 
    static void fill_output_residue_info_widget(GtkWidget *widget, int imol,
+					       std::string residue_name,
 					       PPCAtom atoms, int n_atoms);
    static void fill_output_residue_info_widget_atom(GtkWidget *widget,
 						    int imol, PCAtom atom, int iat);

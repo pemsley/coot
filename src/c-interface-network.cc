@@ -41,6 +41,8 @@
 #include "cc-interface.hh"
 #include "cc-interface-network.hh"
 
+#include "c-interface.h" // for coot_version().  Do we really need all of that..?
+
 #include "graphics-info.h" // because that is where the curl handlers and filenames vector is stored
 
 // return 0 on success
@@ -374,3 +376,33 @@ void stop_curl_download(const char *file_name) {  // stop curling the to file_na
 
 
 
+#ifdef USE_LIBCURL
+void curl_make_a_post() {
+
+#ifdef NO_ANOMYMOUS_DATA
+   // don't do anything
+#else
+   
+   CURL *c = curl_easy_init();
+
+   std::string url = "http://localhost/test/cootpost.py/slurp";
+   std::string post_string = "name=";
+   post_string += "#1234";
+   post_string += "&version=";
+   post_string += coot_version();
+   post_string += "&sys_build_type=";
+   post_string += COOT_SYS_BUILD_TYPE;
+
+   std::cout << "posting " << post_string << std::endl;
+   std::cout << "posting to  " << url << std::endl;
+   curl_easy_setopt(c, CURLOPT_URL, url.c_str());
+   curl_easy_setopt(c, CURLOPT_POSTFIELDS, post_string.c_str());
+
+   CURLcode status = curl_easy_perform(c);
+   if (status != CURLE_OK)
+      std::cout << "curl_make_a_post() failed " << curl_easy_strerror(status)
+		<< std::endl;
+   curl_easy_cleanup(c);
+#endif
+} 
+#endif // USE_LIBCURL

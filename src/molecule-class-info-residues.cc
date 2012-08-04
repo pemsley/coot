@@ -27,6 +27,7 @@
 #include <algorithm>
 #include <stdexcept>
 
+#include <string.h>
 #include <GL/glut.h>
 
 // #ifdef MAKE_ENTERPRISE_TOOLS
@@ -1217,3 +1218,47 @@ molecule_class_info_t::get_residue_by_type(const std::string &residue_type) cons
 
    return spec;
 }
+
+
+void
+molecule_class_info_t::split_water(std::string chain_id, int res_no, std::string ins_code,
+				   const clipper::Xmap<float> &xmap,
+				   float map_sigma) {
+
+   bool modified = false;
+   coot::residue_spec_t rs(chain_id, res_no, ins_code);
+   CResidue *residue_p = get_residue(rs);
+   if (residue_p) {
+      int n_atoms = residue_p->GetNumberOfAtoms();
+      if (n_atoms == 1) {
+	 CAtom *at = residue_p->GetAtom(" O  "); // PDBv3
+	 if (at) {
+	    make_backup();
+	    CAtom *new_at = new CAtom;
+	    new_at->Copy(at);
+	    // force down a new altconf
+	    residue_p->AddAtom(new_at);
+	    strncpy(    at->altLoc, "A", 2);
+	    strncpy(new_at->altLoc, "B", 2);
+	    at->x     -= 0.5;
+	    new_at->x += 0.5;
+	    modified = true;
+	    atom_sel.mol->FinishStructEdit();
+	    update_molecule_after_additions(); // needed to update the atom_index user data
+	                                       // (used in full_atom_spec_to_atom_index()
+	                                       // in fit_to_map_by_random_jiggle().
+	 }
+      }
+   }
+
+   if (modified) {
+
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      fit_to_map_by_random_jiggle(residue_atoms, n_residue_atoms, xmap, map_sigma, 10, 1);
+      
+      atom_sel.mol->FinishStructEdit();
+      update_molecule_after_additions();
+   } 
+} 

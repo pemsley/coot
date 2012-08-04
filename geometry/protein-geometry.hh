@@ -119,8 +119,10 @@ namespace coot {
 	 setup_internal(din.comp_id, din.three_letter_code, din.name,
 			din.group, din.number_atoms_all, din.number_atoms_nh,
 			din.description_level);
-      } 
+      }
+      friend std::ostream& operator<<(std::ostream &s, const dict_chem_comp_t &rest);
    };
+   std::ostream& operator<<(std::ostream &s, const dict_chem_comp_t &rest);
 
 
    class basic_dict_restraint_t {

@@ -250,6 +250,7 @@ manage_column_selector(const char *filename) {
    if (graphics_info_t::use_graphics_interface_flag) {
       // try to read as phs, cif etc, if not, return a selection
       // widget
+      
       GtkWidget *w = coot::column_selector_using_cmtz(filename);
       
       if (w) {
@@ -263,6 +264,7 @@ manage_column_selector(const char *filename) {
    std::vector<coot::command_arg_t> args;
    args.push_back(filename);
    add_to_history_typed(cmd, args);
+
 }
 
 void
@@ -3575,7 +3577,6 @@ int is_mtz_file_p(const char *mtz_file_name) {
 int cns_file_has_phases_p(const char *cns_file_name) {
 
    int r = 0; 
-   std::cout << "cns_file_has_phases_p called " << std::endl;
    if (coot::file_exists(cns_file_name)) { 
       FILE* file = fopen( cns_file_name, "r" );
       char buf[4096];
@@ -3591,7 +3592,6 @@ int cns_file_has_phases_p(const char *cns_file_name) {
    } else {
       r = 0;
    }
-   std::cout << "cns_file_has_phases_p returns " << r << std::endl;
    return r;
 }
 

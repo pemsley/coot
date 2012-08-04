@@ -3606,8 +3606,16 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       
    case GDK_i:
    case GDK_I:
-      if (! graphics_info_t::control_is_pressed) 
+      if (! graphics_info_t::control_is_pressed) { 
 	 toggle_idle_spin_function();
+      } else {
+	 std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+	 if (pp.first) {
+	    const coot::atom_spec_t &spec = pp.second.second;
+	    residue_info_dialog(pp.second.first, spec.chain.c_str(), spec.resno,
+				spec.insertion_code.c_str());
+	 }
+      } 
       break; 
       
    case GDK_l:
