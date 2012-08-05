@@ -93,6 +93,7 @@ matching_compound_names_from_sbase = matching_compound_names_from_sbase_py
 add_linked_residue     = add_linked_residue_py
 all_molecule_rotamer_score = all_molecule_rotamer_score_py
 all_molecule_ramachandran_score = all_molecule_ramachandran_score_py
+all_molecule_ramachandran_region = all_molecule_ramachandran_region_py
 user_defined_click     = user_defined_click_py
 
 get_torsion            = get_torsion_py

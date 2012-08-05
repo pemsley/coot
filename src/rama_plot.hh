@@ -181,7 +181,6 @@ namespace coot {
 
 class rama_plot {
 
-   enum {RAMA_OUTLIER, RAMA_ALLOWED, RAMA_PREFERRED, RAMA_UNKNOWN};
    int imol;  // which molecule in mapview did this come from?
    clipper::Ramachandran rama;
    clipper::Ramachandran r_gly, r_pro, r_non_gly_pro;
@@ -269,6 +268,7 @@ class rama_plot {
    
 public:
 
+   enum {RAMA_OUTLIER, RAMA_ALLOWED, RAMA_PREFERRED, RAMA_UNKNOWN};
    rama_plot() {
       big_box_item = 0; dialog = 0;
       dialog_position_x = -100; dialog_position_y = -100; };

@@ -2153,6 +2153,34 @@ PyObject *all_molecule_ramachandran_score_py(int imol) {
    }
    return r;
 } 
+
+PyObject *all_molecule_ramachandran_region_py(int imol) {
+
+   PyObject *r = Py_False;
+   PyObject *pair;
+   if (is_valid_model_molecule(imol)) {
+      coot::rama_score_t rs = graphics_info_t::molecules[imol].get_all_molecule_rama_score();
+      std::vector<std::pair<coot::residue_spec_t, int> > rama_region = rs.region;
+      int region_size = rama_region.size();
+      if (region_size > 0) {
+        r = PyList_New(region_size);
+        for (unsigned int i=0; i<rama_region.size(); i++) { 
+          pair = PyTuple_New(2);
+          PyTuple_SetItem(pair, 0, py_residue(rama_region[i].first));
+          PyTuple_SetItem(pair, 1, PyInt_FromLong(rama_region[i].second));
+          PyList_SetItem(r, i, pair);
+        }
+      } else {
+        std::cout << "INFO:: empty ramachandran region list" << std::endl;
+      }
+   }
+
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+} 
+
 #endif // USE_PYTHON
 
 // SWIG testing.

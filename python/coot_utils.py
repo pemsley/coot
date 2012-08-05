@@ -3424,7 +3424,7 @@ def kill_process(pid):
 
 
 # some example function for the toolbutton
-# maybe shoudl go in coot_gui!?
+# maybe should go in coot_gui!?
 def stereo_mono_toggle():
     display_state = stereo_mode_state()
     if (display_state == 0):
@@ -3467,13 +3467,19 @@ def toggle_full_screen(widget=None):
         # no alternative for now (could just go by state and change back and forth)
         print "BL WARNING:: no widget"
 
-    
+def split_active_water():
+    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
+        split_water(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
 
 # helper function to test for a number
 # returns True if number, otherwise False
+#
 def isNumber(num):
-    from types import IntType, FloatType
-    if ((type(num) is IntType) or (type(num) is FloatType)):
+    """
+    helper function to test for a number
+    returns True if number, otherwise False
+    """
+    if (isinstance(num, int) or isinstance(num, float)):
         return True
     else:
         return False

@@ -23,6 +23,10 @@
 // Must include these headers to get molecule_class_info_t.h to parse.
 //
 
+#ifdef USE_PYTHON
+#include "Python.h"
+#endif
+
 #include <string>
 #include <algorithm>
 #include <stdexcept>
@@ -34,6 +38,7 @@
 // // includes order important, otherwise we get dcgettext() problems.
 // #include "rdkit-interface.hh" // needed for add_hydrogens()
 // #endif
+#include "graphics-info.h"  // for rama probablity definitions
 
 #include <mmdb/mmdb_manager.h>
 #include "mmdb-extras.h"
@@ -49,6 +54,7 @@
 #include "coot-hydrogens.hh"
 
 #include "rama_plot.hh"
+
 
 // 1: success
 // 0: failure
@@ -442,11 +448,15 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
 
    unsigned int n = rp.n_phi_psi_model_sets();
 
-   clipper::Ramachandran r_gly, r_pro, r_non_gly_pro;
+   clipper::Ramachandran r_gly, r_pro, r_non_gly_pro, r_all;
 
    // Lovell et al. 2003, 50, 437 Protein Structure, Function and Genetics values:
-   ftype level_prefered = 0.02; 
-   ftype level_allowed = 0.002;
+   // BL says:: should these be the one set?!
+   //ftype level_prefered = 0.02; 
+   //ftype level_allowed = 0.002;
+
+   ftype level_prefered = graphics_info_t::rama_level_prefered;
+   ftype level_allowed = graphics_info_t::rama_level_allowed;
    
    //clipper defaults: 0.01 0.0005
 
@@ -459,6 +469,9 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
    r_non_gly_pro.init(clipper::Ramachandran::NonGlyPro);
    r_non_gly_pro.set_thresholds(level_prefered, level_allowed);
 
+   r_all.init(clipper::Ramachandran::All);
+   r_all.set_thresholds(level_prefered, level_allowed);
+
    double zero_cut_off = 1e-6;
 
    double log_p_sum = 0.0;
@@ -467,46 +480,63 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
    for (unsigned int imod=1; imod<n; imod++) {
       if (imod<=atom_sel.mol->GetNumberOfModels()) {
 	 
-	 coot::phi_psis_for_model_t pp = rp.get_phi_psis_for_model(imod);
-	 atom_sel.mol->GetModel(pp.model_number)->CalcSecStructure();
-	 std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
-	 for (it=pp.phi_psi.begin(); it!=pp.phi_psi.end(); it++) {
-	    CResidue *residue_p = get_residue(it->first);
-	    if (residue_p) { 
-	       bool do_it = true; // unset for secondary structure
-	       int sse = residue_p->SSE;
-	       // std::cout << "residue->SSE is " << sse << " vs " << SSE_Strand << " and " << SSE_Helix
-	       // << std::endl;
-	       switch (residue_p->SSE)  {
-	       case SSE_Strand:
-		  do_it = 0;
-		  break;
-	       case SSE_Helix:
-		  do_it = 0;
-		  break;
-	       }
+         coot::phi_psis_for_model_t pp = rp.get_phi_psis_for_model(imod);
+         atom_sel.mol->GetModel(pp.model_number)->CalcSecStructure();
+         std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
+         for (it=pp.phi_psi.begin(); it!=pp.phi_psi.end(); it++) {
+            CResidue *residue_p = get_residue(it->first);
+            if (residue_p) { 
+               bool do_it = true; // unset for secondary structure
+               int sse = residue_p->SSE;
+               // std::cout << "residue->SSE is " << sse << " vs " << SSE_Strand << " and " << SSE_Helix
+               // << std::endl;
+               switch (residue_p->SSE)  {
+               case SSE_Strand:
+                  do_it = 0;
+                  break;
+               case SSE_Helix:
+                  do_it = 0;
+                  break;
+               }
 	    
-	       clipper::Ramachandran &rama = r_non_gly_pro;
-	       if (it->second.residue_name() == "GLY")
-		  rama = r_gly;
-	       if (it->second.residue_name() == "PRO")
-		  rama = r_pro;
-	       ftype p = rama.probability(clipper::Util::d2rad(it->second.phi()),
-					  clipper::Util::d2rad(it->second.psi()));
-	       if (p < zero_cut_off) {
-		  // std::cout << "........ was a zero" << std::endl;
-		  rs.n_zeros++;
-	       } else {
-		  std::pair<coot::residue_spec_t, double> pair(it->first, p);
-		  rs.scores.push_back(pair);
-		  log_p_sum += log(p);
-		  if (do_it) {
-		     rs.scores_non_sec_str.push_back(pair);
-		     log_p_non_sec_str_sum += log(p);
-		  } 
-	       }
-	    }
-	 }
+               clipper::Ramachandran &rama = r_non_gly_pro;
+               if (it->second.residue_name() == "GLY")
+                  rama = r_gly;
+               if (it->second.residue_name() == "PRO")
+                  rama = r_pro;
+               double phi;
+               double psi;
+               phi = it->second.phi();
+               psi = it->second.psi();
+               ftype p = rama.probability(clipper::Util::d2rad(phi),
+                                          clipper::Util::d2rad(psi));
+               std::pair<coot::residue_spec_t, int> rama_pair;
+               if (rama.allowed(clipper::Util::d2rad(phi),
+                                clipper::Util::d2rad(psi))) {
+                  rama_pair = make_pair(it->first, coot::rama_plot::RAMA_ALLOWED);
+                  if (rama.favored(clipper::Util::d2rad(phi),
+                                   clipper::Util::d2rad(psi))) {
+                     rama_pair = make_pair(it->first, coot::rama_plot::RAMA_PREFERRED);
+                  }
+               } else {
+                  rama_pair = make_pair(it->first, coot::rama_plot::RAMA_OUTLIER);
+               }
+               rs.region.push_back(rama_pair);
+
+               if (p < zero_cut_off) {
+                  // std::cout << "........ was a zero" << std::endl;
+                  rs.n_zeros++;
+               } else {
+                  std::pair<coot::residue_spec_t, double> pair(it->first, p);
+                  rs.scores.push_back(pair);
+                  log_p_sum += log(p);
+                  if (do_it) {
+                     rs.scores_non_sec_str.push_back(pair);
+                     log_p_non_sec_str_sum += log(p);
+                  } 
+               }
+            }
+         }
       }
    }
 
