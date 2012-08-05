@@ -6927,6 +6927,7 @@ SCM all_molecule_ramachandran_score(int imol); /* a stub currently */
 #ifdef USE_PYTHON
 PyObject *all_molecule_rotamer_score_py(int imol);
 PyObject *all_molecule_ramachandran_score_py(int imol); /* a stub currently */
+PyObject *all_molecule_ramachandran_region_py(int imol); 
 #endif // USE_PYTHON
 #endif /* __cplusplus */
 

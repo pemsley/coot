@@ -568,6 +568,7 @@ namespace coot {
       int n_residues() const { return scores.size(); }
       int n_residues_non_sec_str() const { return scores_non_sec_str.size(); }
       int n_zeros;
+      std::vector<std::pair<residue_spec_t, int> > region;
    };
 
    // ==-------------- all molecule rotamer scoring --------------
