@@ -142,7 +142,7 @@
 
 #include "simple-restraint.hh"  // for multi-residue torsion map fitting.
 
-#include "c-interface-network.hh"
+#include "cc-interface-network.hh"
 
 int test_function(int i, int j) {
 
