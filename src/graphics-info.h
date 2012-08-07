@@ -3864,6 +3864,10 @@ string   static std::string sessionid;
    // don't redraw everything, just those that have a residue with name res_name
    // 
    void redraw_molecules_with_residue(const std::string &res_name);
+
+   // use-defined flev params
+   static float fle_water_dist_max;   // 3.25
+   static float fle_h_bond_dist_max;  // 3.9
 };
 
 

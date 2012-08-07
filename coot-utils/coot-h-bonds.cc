@@ -298,14 +298,14 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 // 
 std::vector<coot::h_bond>
 coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManager *mol,
-					 const protein_geometry &geom) {
+					 const protein_geometry &geom,
+					 realtype max_dist) {
    std::vector<coot::h_bond> v;
    // (and mark HB hydrogens too)
    int hb_type_udd_handle = mark_donors_and_acceptors(selHnd_1, selHnd_2, mol, geom); // using UDD data
 
    // These distance are from the acceptor to the H - not the donor
    realtype min_dist = 0.1; // H-bonds are longer than this
-   realtype max_dist = 3.9; // H-bonds are shorter than this
    
    PPCAtom sel_1_atoms = 0;
    PPCAtom sel_2_atoms = 0;

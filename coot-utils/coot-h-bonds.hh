@@ -123,7 +123,8 @@ namespace coot {
 
       std::vector<h_bond>
       get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManager *mol,
-				const protein_geometry &geom);
+				const protein_geometry &geom,
+				realtype max_dist =3.9);
       
       class atom_sorter {
 	 CAtom *at;

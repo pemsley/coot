@@ -70,7 +70,8 @@ namespace coot {
 						       CMMDBManager *mol,
 						       const std::map<std::string, std::string> &name_map,
 						       const protein_geometry &geom,
-						       float water_dist_max);
+						       float water_dist_max,
+						       float h_bond_dist_max);
    
    void write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 			  const std::vector<coot::fle_ligand_bond_t> &bonds_to_ligand,

@@ -1240,6 +1240,11 @@ int graphics_info_t::gtk2_chooser_overwrite_flag = coot::CHOOSER_OVERWRITE_PROTE
 graphics_ligand_molecule graphics_info_t::graphics_ligand_mol;
 int                      graphics_info_t::show_graphics_ligand_view_flag = 1; // user control
 
+// FLEV
+// use-defined flev params
+float graphics_info_t::fle_water_dist_max;   // 3.25
+float graphics_info_t::fle_h_bond_dist_max;  // 3.9
+
 
 // GTK2 code
 // 
