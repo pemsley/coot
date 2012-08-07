@@ -251,7 +251,7 @@ if [ $status != 0 ] ; then
     unset PYTHONHOME
     unset PYTHONPATH
     # only run the crash catcher if coot was compiled with guile
-    if [ "$COOT_USE_GUILE" = "-DUSE_GUILE" ] ; then 
+    if [ "@COOT_USE_GUILE@" = "-DUSE_GUILE" ] ; then 
        $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real $*
     fi
 fi 
