@@ -441,8 +441,11 @@
 
 ;; 
 (define (svn-details) 
-  `(p ("SVN " (a (@ href "http://coot.googlecode.com/svn/") "Repository") " Revision: " 
-       ,(get-svn-revision) 
+  `(p ("SVN " 
+       (a (@ href "http://coot.googlecode.com/svn/") "Repository")
+       " "
+       (a (@ href "https://code.google.com/p/coot/source/list") "Source list")
+       " Revision: " ,(get-svn-revision) 
        " "
        (a (@ href ,svn-log-page) "svn log"))))
 
