@@ -991,63 +991,74 @@ Bond_lines_container::add_aromatic_ring_bond_lines(const std::vector<std::string
 
    PPCAtom residue_atoms = 0;
    int n_residue_atoms;
-   std::vector<CAtom *> found_atoms;
+
+   std::vector<std::string> alt_confs = coot::util::get_residue_alt_confs(residue_p);
+
+   for (unsigned int i_alt_conf=0; i_alt_conf<alt_confs.size(); i_alt_conf++) { 
+      std::vector<CAtom *> found_atoms;
    
-   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-   for (unsigned int i=0; i<ring_atom_names.size(); i++) {
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	 std::string atom_name(residue_atoms[iat]->name);
-	 if (atom_name == ring_atom_names[i]) {
-	    found_atoms.push_back(residue_atoms[iat]);
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int i=0; i<ring_atom_names.size(); i++) {
+	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	    std::string atom_name(residue_atoms[iat]->name);
+	    std::string atom_alt_conf(residue_atoms[iat]->altLoc);
+	    if (atom_alt_conf == alt_confs[i_alt_conf]) {
+	       if (atom_name == ring_atom_names[i]) {
+		  found_atoms.push_back(residue_atoms[iat]);
+	       }
+	    }
 	 }
       }
-   }
-
-   if (found_atoms.size() == ring_atom_names.size()) {
-
-      std::vector<clipper::Coord_orth> pts(ring_atom_names.size());
-      for (unsigned int iat=0; iat<found_atoms.size(); iat++)
-	 pts[iat] = clipper::Coord_orth(found_atoms[iat]->x,
-					found_atoms[iat]->y,
-					found_atoms[iat]->z);
-      coot::lsq_plane_info_t lp(pts);
-      clipper::Coord_orth n = lp.normal();
-      clipper::Coord_orth c = lp.centre();
-      double radius = 0.8;
-      if (ring_atom_names.size() == 5)
-	 radius = 0.6;
-
-      int n_steps = 40;
-      double step_frac = double(1.0/n_steps);
       
-      // we want a point in the lsq plane that is radius A away from
-      // centre.
-      clipper::Coord_orth arb(0.2, 0.8, 0.1);
-      clipper::Coord_orth cr(clipper::Coord_orth::cross(n, arb).unit());
-      clipper::Coord_orth first_pt = c + radius * cr;
+      if (found_atoms.size() == ring_atom_names.size()) {
+	 
+	 std::vector<clipper::Coord_orth> pts(ring_atom_names.size());
+	 for (unsigned int iat=0; iat<found_atoms.size(); iat++)
+	    pts[iat] = clipper::Coord_orth(found_atoms[iat]->x,
+					   found_atoms[iat]->y,
+					   found_atoms[iat]->z);
+	 coot::lsq_plane_info_t lp(pts);
+	 clipper::Coord_orth n = lp.normal();
+	 clipper::Coord_orth c = lp.centre();
+	 double radius = 0.8;
+	 if (ring_atom_names.size() == 5)
+	    radius = 0.6;
 
-      if (! for_GL_solid_model_rendering) { 
-	 for (unsigned int istep=0; istep<n_steps; istep++) {
-	    double angle_1 = step_frac * 2.0 * M_PI * istep;
-	    double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
-	    clipper::Coord_orth pt_1 = coot::util::rotate_round_vector(n, first_pt, c, angle_1);
-	    clipper::Coord_orth pt_2 = coot::util::rotate_round_vector(n, first_pt, c, angle_2);
-	    addBond(col, pt_1, pt_2);
+	 int n_steps = 40;
+	 double step_frac = double(1.0/n_steps);
+      
+	 // we want a point in the lsq plane that is radius A away from
+	 // centre.
+	 clipper::Coord_orth arb(0.2, 0.8, 0.1);
+	 clipper::Coord_orth cr(clipper::Coord_orth::cross(n, arb).unit());
+	 clipper::Coord_orth first_pt = c + radius * cr;
+
+	 if (! for_GL_solid_model_rendering) { 
+	    for (unsigned int istep=0; istep<n_steps; istep++) {
+	       double angle_1 = step_frac * 2.0 * M_PI * istep;
+	       double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
+	       clipper::Coord_orth pt_1 = coot::util::rotate_round_vector(n, first_pt, c, angle_1);
+	       clipper::Coord_orth pt_2 = coot::util::rotate_round_vector(n, first_pt, c, angle_2);
+	       addBond(col, pt_1, pt_2);
+	    }
+	 } else { 
+      
+	    // for openGL rendering
+	 
+	    coot::torus_description_t ring(c, n, 0.07, radius, 14, 40);
+	    rings.push_back(ring);
 	 }
-      } else { 
-      
-	 // for openGL rendering
 	 
-	 coot::torus_description_t ring(c, n, 0.07, radius, 14, 40);
-	 rings.push_back(ring);
+      } else {
+	 std::cout << "Not all ring atoms found in residue, for alt conf \""
+		   << alt_confs[i_alt_conf] << "\", needed to draw aromatic ring: \n    ";
+	 std::cout << "    found " << found_atoms.size() << " but need " << ring_atom_names.size()
+		   << std::endl;
+	 for (unsigned int i=0; i<ring_atom_names.size(); i++)
+	    std::cout << ":" << ring_atom_names[i] << ":  ";
+	 std::cout << std::endl;
       }
-	 
-   } else {
-      std::cout << "Not all ring atoms found in residue needed to draw aromatic ring: \n    ";
-      for (unsigned int i=0; i<ring_atom_names.size(); i++)
-	 std::cout << ":" << ring_atom_names[i] << ":  ";
-      std::cout << std::endl;
-   }
+}
 } 
 
 
