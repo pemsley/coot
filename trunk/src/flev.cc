@@ -115,15 +115,23 @@ bool flev_check_for_hydrogens(CResidue *ligand_res,
 	 return true;
 
 
-   if (n_hydrogens_ligand > 0) {
+   if (n_hydrogens_ligand == 0) {
       // perhaps the ligand was not supposed to have any ligands
       std::string residue_type = ligand_res->GetResName();
-      if (geom_p->have_dictionary_for_residue_type(residue_type, graphics_info_t::cif_dictionary_read_number++)) {
+      if (geom_p->have_dictionary_for_residue_type(residue_type,
+						   graphics_info_t::cif_dictionary_read_number++)) {
 	 int n_hydrogens_ligand_dict = geom_p->n_hydrogens(residue_type);
 	 if (n_hydrogens_ligand_dict > 0)
 	    status = false;
 	 else
-	    status = true;
+	    if (n_hydrogens_others > 0)
+	       // environment has hydrogens, ligand does not (and is
+	       // not supposed to have)
+	       status = true;
+	    else
+	       // environment does not have hydrogens (and is supposed
+	       // to have (we presume))
+	       status = false;
       }
    }
    return status;
@@ -292,7 +300,9 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 	       //
  	       std::vector<coot::fle_ligand_bond_t> bonds_to_ligand = 
  		  coot::get_fle_ligand_bonds(res_ref, filtered_residues, mol,
- 					     name_map, *geom_p, water_dist_max);
+ 					     name_map, *geom_p,
+					     graphics_info_t::fle_water_dist_max,
+					     graphics_info_t::fle_h_bond_dist_max);
 
 	       add_animated_ligand_interactions(imol, bonds_to_ligand);
 
@@ -527,7 +537,9 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 	       
  		  std::vector<coot::fle_ligand_bond_t> bonds_to_ligand =
  		     coot::get_fle_ligand_bonds(res_ref, filtered_residues,
-						mol_for_res_ref, name_map, *geom_p, water_dist_max);
+						mol_for_res_ref, name_map, *geom_p, 
+						graphics_info_t::fle_water_dist_max,
+						graphics_info_t::fle_h_bond_dist_max);
 
 		  if (graphics_info_t::use_graphics_interface_flag)
 		     add_animated_ligand_interactions(imol, bonds_to_ligand);
@@ -1493,7 +1505,8 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 			   CMMDBManager *mol, 
 			   const std::map<std::string, std::string> &name_map,
 			   const coot::protein_geometry &geom,
-			   float water_dist_max) {
+			   float water_dist_max,
+			   float h_bond_dist_max) {
    
    std::vector<coot::fle_ligand_bond_t> v; // returned value
 
@@ -1519,7 +1532,8 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
       
       coot::h_bonds hb;
       // std::vector<coot::h_bond> hbonds = hb.get(SelHnd_lig, SelHnd_all, m.second, geom);
-      std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, m.second, geom);
+      std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, m.second, geom,
+								      h_bond_dist_max);
 
       if (debug)
 	 std::cout << "DEBUG:: get_fle_ligand_bonds from h_bonds class found "

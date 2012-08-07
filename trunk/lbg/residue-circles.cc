@@ -125,7 +125,7 @@ lbg_info_t::optimise_residue_circles::optimise_residue_circles(const std::vector
 
 
 void
-lbg_info_t::refine_residue_circle_positions() { // changes the positions of in residue_circles
+lbg_info_t::refine_residue_circle_positions() { // changes the positions of residue_circles
 
    std::vector<int> primary_indices = get_primary_indices();
    initial_residues_circles_layout(); // twiddle residue_circles
