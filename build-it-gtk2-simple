@@ -322,7 +322,8 @@
 # 4.88 20120120 Don't use -j $nproc for make if we don't have memory.
 # 4.89 20120223 Use libccp4c-5.0.2-ysbl-3.tar.gz, that has libccp4c_la_LIBADD.
 # 4.90 20120713 debug $coot_dir_name link usage.
-script_version=4.90
+# 4.91 20120808 update to handle version of debian in /etc/issue.
+script_version=4.91
 
 
 # :: NOTE:: 
@@ -944,7 +945,11 @@ if test $OS = Linux ; then
     * )
       if test -r /etc/issue; then
         dist_name=$(awk 'NR==1{print tolower($1)}' /etc/issue)
-        dist_ver=$(awk  'NR==1{x=tolower($2); gsub("/","-",x); print x}' /etc/issue)
+        if [ "$dist_name" = "debian" ] ; then
+           dist_ver=$(awk  'NR==1{x=tolower($2); gsub("/","-",x); print x "-" $3}' /etc/issue)
+        else
+           dist_ver=$(awk  'NR==1{x=tolower($2); gsub("/","-",x); print x}' /etc/issue)
+        fi
         systype=${architecture}-${dist_name}-${dist_ver}
       else
         systype=${architecture}-unknown-Linux
