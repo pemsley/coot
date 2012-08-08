@@ -180,7 +180,7 @@
     (gtk-box-pack-start hbox3 go-button #t #t 6)
     (gtk-box-pack-start hbox3 cancel-button #t #t 6)
     (gtk-box-pack-start hbox1 function-label #f #f 0)
-    (gtk-box-pack-start hbox2 smiles-entry #f #f 0)
+    (gtk-box-pack-start hbox2 smiles-entry #t #t 0)
     (gtk-container-add window vbox)
     (gtk-container-border-width vbox 6)
 
