@@ -1,42 +1,47 @@
 CHANGELOG
 Notable changes are listed
 
-Version 1.0.1 - May 4, 2012
+Version 1.0.2 - August 9, 2012
+- Bug fix: RCrane now preserves segids when rotamerizing.  This bug was causing
+    issues when structures were rotamerized with RCrane and then refined with
+    Phenix. (reported by Nat Echols)
+
+Version 1.0.1 - May 4, 2012 (internal release)
 - Minor update to ensure compatability with future releases of Coot
 
 Version 1.0 - April 16, 2012
 - RCrane is now distributed with Coot (accessed via Extensions -> RCrane
-	launch).  RCrane 1.0 is included with Coot 0.7.
+    launch).  RCrane 1.0 is included with Coot 0.7.
 - The first time RCrane is run, a pop-up now appears informing the user of the
-	appropriate citation for RCrane.  This pop-up contains a Don't show
-	again checkbox that will prevent it from re-appearing.
+    appropriate citation for RCrane.  This pop-up contains a Don't show
+    again checkbox that will prevent it from re-appearing.
 - A number of behind the scenes changes to make RCrane easier to distribute
-	with Coot
+    with Coot
 
 Version 0.10 - April 3, 2012
 - Rotamerize without density... option now available.  This option performs a
-	rotamerization, but completely ignored the electron density.  This is
-	primarily intended to be used when building theoretical models (i.e.
-	building without any electron density present).
+    rotamerization, but completely ignored the electron density.  This is
+    primarily intended to be used when building theoretical models (i.e.
+    building without any electron density present).
 - RCrane molecules are now named "RCrane-molecule-#" instead of "RCrane
-	molecule #" (i.e. dashes in place of spaces).  Now, when the molecules
-	are saved, the filename will not have spaces, as filenames with spaces
-	can cause problems for a few other crystallography programs.
-	(Requested by Maco Marcia)
+    molecule #" (i.e. dashes in place of spaces).  Now, when the molecules
+    are saved, the filename will not have spaces, as filenames with spaces
+    can cause problems for a few other crystallography programs.
+    (Requested by Maco Marcia)
 - RCrane can now optionally use the new Phenix/MolProbity pucker-specific
-	restraint parameters.  Enabled with rcrane.enablePhenixRestraints()
-	(Requested by Sri Somarowthu)
+    restraint parameters.  Enabled with rcrane.enablePhenixRestraints()
+    (Requested by Sri Somarowthu)
 - Nucleotides created using RCrane now follow the standard atom ordering when
-	saved as a PDB file (requested by Hasan Demirci)
+    saved as a PDB file (requested by Hasan Demirci)
 - Bug fix: During backbone tracing, mutating or flipping a base while a
-	Manually Adjust window is open no longer causes incorrect behavior.
+    Manually Adjust window is open no longer causes incorrect behavior.
 - Bug fix: A progress bar is now displayed when calculating coordinates for a
-	single nucleotide.
-- Bug fix: when rotamerizing, selecting alternate conformers for the first (or
-	last) nucleotide will properly retain the torsions for the preceeding
-	(or following) heminucleotide.
+    single nucleotide.
+- Bug fix: When rotamerizing, selecting alternate conformers for the first (or
+    last) nucleotide will properly retain the torsions for the preceeding
+    (or following) heminucleotide.
 - Bug fix: When rotamerizing, changing the starting pucker of the first
-	nucleotide no longer results in an error message.
+    nucleotide no longer results in an error message.
 
 Version 0.9 - October 26, 2011
 - Rotamerization now functions properly when hydrogen atoms are present.

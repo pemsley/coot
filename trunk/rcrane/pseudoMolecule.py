@@ -680,7 +680,7 @@ class PseudoMolecule:
             else:
                 continue
             
-            atomList.append([[atomName,""], [1.0, DEFAULT_B_FACTOR, " O"], coords])
+            atomList.append([[atomName,""], [1.0, DEFAULT_B_FACTOR, " O", ""], coords])
         
         self.__molecule[0][self.__chainIndex][1][resIndex][3].extend(atomList)
         clear_and_update_molecule(self.__moleculeNumber, self.__molecule)
@@ -941,7 +941,7 @@ class PseudoMolecule:
             #pprint(curResCoords)
             
             for (atom1, atom2, distCutoff) in BOND_LIST:
-                if dist(curResCoords[atom1], curResCoords[atom2]) > distCutoff:
+                if curResCoords.has_key(atom1) and curResCoords.has_key(atom2) and dist(curResCoords[atom1], curResCoords[atom2]) > distCutoff:
                     lineList.append([BATONCOLOR, 6, curResCoords[atom1][0], curResCoords[atom1][1], curResCoords[atom1][2], curResCoords[atom2][0], curResCoords[atom2][1], curResCoords[atom2][2]])
             
             #draw the O3'-1 - P bond if necessary
@@ -1502,16 +1502,23 @@ class PseudoMolecule:
     __reorderAtomsOrder["C"] = dict(zip("P OP1 OP2 O5' C5' C4' O4' C3' O3' C2' O2' C1' N1 C2 O2 N3 C4 N4 C5 C6".split(" "), range(40)))
     __reorderAtomsOrder["U"] = dict(zip("P OP1 OP2 O5' C5' C4' O4' C3' O3' C2' O2' C1' N1 C2 O2 N3 C4 O4 C5 C6".split(" "), range(40)))
     
-    def reorderAtoms(self):
-        """Reorder the newly created atoms so that they follow the standard ordering for RNA residues
+    def finalMoleculeCleanup(self, fixSegids = False):
+        """Perform a final cleanup on the coot molecule, consisting of:
+            Reordering the newly created atoms so that they follow the standard ordering for RNA residues
+            Restoring the segid for all newly created atoms (if requested)
         
         ARGUMENTS:
             None
+        OPTIONAL ARGUMENTS:
+            fixSegids - whether to properly set segid (segment ID, such as used in CNS) for all newly created atoms
+                Defaults to False
+                Note that this is only required when doing a rotamerize, not when creating a new trace,
+                since new molecules created by RCrane always have a blank segid
         RETURNS:
             None
         NOTE:
             If the extra bond range has been set via setExtraBondRange, then only nucleotides in that range will
-            have their atoms reordered.
+            be cleaned up.
         """
         
         startIndex = None
@@ -1523,6 +1530,18 @@ class PseudoMolecule:
         for curRes in self.__molecule[0][self.__chainIndex][1][startIndex:endIndex]:
             #sort all the atoms by name, using the ordering in __reorderAtomsOrder for the current residue type
             curRes[3].sort(key = lambda x: self.__reorderAtomsOrder[str(curRes[2])][x[0][0].strip()])
+        
+        #if this residue previously had a segid, apply it to all the new atoms
+        for curRes in self.__molecule[0][self.__chainIndex][1][startIndex:endIndex]:
+            #figure out the segid of the phosphate
+            #if we've done anything to this nucleotide, it must have had a phosphate.
+            #We just sorted the atoms, so there must be a phosphate as the first atom
+            desiredSegid = curRes[3][0][1][3]
+            
+            #if there is a segid, apply it to all the atoms
+            if desiredSegid != '':
+                for curAtom in curRes[3]:
+                    curAtom[1][3] = desiredSegid
         
         clear_and_update_molecule(self.__moleculeNumber, self.__molecule)
 
