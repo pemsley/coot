@@ -1019,7 +1019,8 @@ class ReviewSuitesGui:
             This function re-orders atoms in the pseudomolecule (that's the "accept" part) and then calls __close
         """
         
-        self.__pseudoMolecule.reorderAtoms()
+        #perform the final molecule cleanup (reorder atoms and, if we just did a rotamerize, fix segids)
+        self.__pseudoMolecule.finalMoleculeCleanup(fixSegids = bool(self.__pseudoMolecule.hasSavedCoordinates()))
         self.__close(widget)
     
     

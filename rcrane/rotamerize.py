@@ -164,6 +164,8 @@ def rotamerizeFromAtomSpecs(atomSpec1, atomSpec2, ignoreDensity = False):
         (startAtom,    endAtom)    = (startAtom,  endAtom)
     
     #make sure that the molecule using PDB3 naming (as oppsed to PDB2)
+    #TODO: check all residues for PDB3 naming instead of just the first one in case the molecule uses a mix of PDB2 and PDB3 naming
+    #   this seems like an unlikely problem, but it can't hurt to double check
     if pseudoMol.checkPDB2FromIndex(startIndex):
         errorMsg = ["This molecule appears to use PDB2 naming (nucleotide " + str(startResFull) + " contains a C1* atom).",
                     "RCrane requires PDB3 naming (e.g. C1' instead of C1*).",

@@ -1,4 +1,4 @@
-RCrane, version 1.0.1
+RCrane, version 1.0.2
 
 OVERVIEW
 
