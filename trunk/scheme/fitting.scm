@@ -155,16 +155,17 @@
 		     
 		     (let ((res-atoms (residue-info imol chain-id res-no ins-code)))
 		       (if (> (length res-atoms) 3)
-			   (if (string=? alt-conf "")
-			       (with-no-backups imol
-						(auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol 
-								       imol-map 1 0.1)))
-			   (if (valid-map-molecule? imol-map)
-			       (begin
+			   (begin
+			     (if (string=? alt-conf "")
 				 (with-no-backups imol
-						  (with-auto-accept
-						   (refine-zone imol chain-id res-no res-no alt-conf)))
-				 (rotate-y-scene 10 0.3))))))
+						  (auto-fit-best-rotamer res-no alt-conf ins-code chain-id imol 
+									 imol-map 1 0.1)))
+			     (if (valid-map-molecule? imol-map)
+				 (begin
+				   (with-no-backups imol
+						    (with-auto-accept
+						     (refine-zone imol chain-id res-no res-no alt-conf)))
+				   (rotate-y-scene 10 0.3)))))))
 		   (residue-alt-confs imol chain-id res-no ins-code)))))))
 
 
