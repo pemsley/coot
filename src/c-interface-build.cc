@@ -4810,6 +4810,27 @@ CMMDBManager *new_molecule_by_symmetry_matrix_from_molecule(CMMDBManager *mol,
    return new_mol;
 }
 
+/*! \brief return the number of symmetry operators for the given molecule
+
+return -1 on no-symmetry for molecule or inappropriate imol molecule number */
+int n_symops(int imol) {
+
+   int r = -1;
+
+   if (is_valid_model_molecule(imol)) {
+      std::pair<std::vector<float>, std::string> cs =
+	 graphics_info_t::molecules[imol].get_cell_and_symm();
+      if (cs.second.length() >0) { 
+	 r = graphics_info_t::molecules[imol].atom_sel.mol->GetNumberOfSymOps();
+      }
+   };
+
+   if (is_valid_map_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].xmap_list[0].spacegroup().num_symops();
+   } 
+   return r;
+} 
+
 
 
 
