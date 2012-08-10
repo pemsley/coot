@@ -1914,6 +1914,11 @@ int new_molecule_by_symop(int imol, const char *symop_string,
 			  int pre_shift_to_origin_nb,
 			  int pre_shift_to_origin_nc);
 
+/*! \brief return the number of symmetry operators for the given molecule
+
+return -1 on no-symmetry for molecule or inappropriate imol number */
+int n_symops(int imol);
+
 #ifdef __cplusplus
 #ifdef USE_GUILE
 /*! \brief return the pre-shift (the shift that translates the centre
