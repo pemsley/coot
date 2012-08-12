@@ -476,6 +476,7 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
 
    double log_p_sum = 0.0;
    double log_p_non_sec_str_sum = 0.0;
+   int region;
 
    for (unsigned int imod=1; imod<n; imod++) {
       if (imod<=atom_sel.mol->GetNumberOfModels()) {
@@ -499,11 +500,11 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
                   break;
                }
 	    
-               clipper::Ramachandran &rama = r_non_gly_pro;
+               clipper::Ramachandran rama = r_non_gly_pro;
                if (it->second.residue_name() == "GLY")
-                  rama = r_gly;
+                   rama = r_gly;
                if (it->second.residue_name() == "PRO")
-                  rama = r_pro;
+                 rama = r_pro;
                double phi;
                double psi;
                phi = it->second.phi();
@@ -513,14 +514,15 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
                std::pair<coot::residue_spec_t, int> rama_pair;
                if (rama.allowed(clipper::Util::d2rad(phi),
                                 clipper::Util::d2rad(psi))) {
-                  rama_pair = make_pair(it->first, coot::rama_plot::RAMA_ALLOWED);
+                  region = coot::rama_plot::RAMA_ALLOWED;
                   if (rama.favored(clipper::Util::d2rad(phi),
                                    clipper::Util::d2rad(psi))) {
-                     rama_pair = make_pair(it->first, coot::rama_plot::RAMA_PREFERRED);
+                     region = coot::rama_plot::RAMA_PREFERRED;
                   }
                } else {
-                  rama_pair = make_pair(it->first, coot::rama_plot::RAMA_OUTLIER);
+                  region = coot::rama_plot::RAMA_OUTLIER;
                }
+               rama_pair = make_pair(it->first, region);
                rs.region.push_back(rama_pair);
 
                if (p < zero_cut_off) {
