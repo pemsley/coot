@@ -292,15 +292,12 @@ main (int argc, char *argv[]) {
      
      std::string version_string = VERSION;
      gchar *main_title;
-     gchar *title;
 #ifdef WINDOWS_MINGW
-     title = "WinCoot";
+     main_title = g_strconcat("WinCoot ", version_string.c_str(), NULL);
 #else
-     title = "Coot";
+     main_title = g_strconcat("Coot ", version_string.c_str(), NULL);
 #endif
-     main_title = g_strconcat(title, " ", version_string.c_str(), NULL);
      gtk_window_set_title (GTK_WINDOW (window1), _(main_title));
-     g_free(title);
      g_free(main_title);
 
      // Trying to put a pixmap into the menu bar...

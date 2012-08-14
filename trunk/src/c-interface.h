@@ -4063,6 +4063,8 @@ GtkWidget *dynarama_is_displayed_state(int imol);
 /*  return -1 on error. */
 int get_mol_from_dynarama(GtkWidget *window);
 
+void resize_rama_canvas(GtkWidget *widget, GdkEvent *event);
+
 void set_moving_atoms(double phi, double psi);
 
 void accept_phi_psi_moving_atoms();
