@@ -290,9 +290,18 @@ main (int argc, char *argv[]) {
      window1 = create_window1 ();
 #endif // USE_LIBGLADE
      
+     std::string version_string = VERSION;
+     gchar *main_title;
+     gchar *title;
 #ifdef WINDOWS_MINGW
-     gtk_window_set_title (GTK_WINDOW (window1), _("WinCoot"));
+     title = "WinCoot";
+#else
+     title = "Coot";
 #endif
+     main_title = g_strconcat(title, " ", version_string.c_str(), NULL);
+     gtk_window_set_title (GTK_WINDOW (window1), _(main_title));
+     g_free(title);
+     g_free(main_title);
 
      // Trying to put a pixmap into the menu bar...
      GtkWidget *reset_view1 = lookup_widget(window1, "reset_view1");
