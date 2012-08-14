@@ -77,7 +77,15 @@ scripting exercise
 
 **** General ****
 
-   o ^G doesnt update environment distances
+   o green marker doesnt move when changing chi alngle edit via keyboard
+
+   o add .res and .fcf to command line (without specifier)
+
+   o Show version in title
+
+   o Ramachandran resize (automate & and use mouse wheel)
+
+   o change kleywegt chains in plot
 
    o print Ramachandran outliers
 
@@ -629,6 +637,11 @@ Osaka 2010
 
 
    o get monomer dialog hangs when empty strign given
+
+* Done
+
+
+   o ^G doesnt update environment distances
 
 * Done
 

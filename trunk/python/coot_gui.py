@@ -426,7 +426,7 @@ def generic_single_entry(function_label, entry_1_default_text, go_button_label, 
     hbox3.pack_start(go_button, True, True, 6)
     hbox3.pack_start(cancel_button, True, True, 6)
     hbox1.pack_start(function_label, False, False, 0)
-    hbox2.pack_start(smiles_entry, False, False, 0)
+    hbox2.pack_start(smiles_entry, True, True, 0)
     window.add(vbox)
     vbox.set_border_width(6)
  
