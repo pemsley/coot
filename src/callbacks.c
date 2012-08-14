@@ -9679,6 +9679,7 @@ on_dynarama_window_configure_event     (GtkWidget       *widget,
                                         GdkEventConfigure *event,
                                         gpointer         user_data)
 {
+   resize_rama_canvas(widget, event);
    store_window_position(COOT_RAMACHANDRAN_PLOT_WINDOW, widget);
    return FALSE;
 }

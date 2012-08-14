@@ -124,6 +124,16 @@ coot::rama_plot::init(const std::string &type) {
    big_box_item = 0;
 }
 
+void
+coot::rama_plot::resize_rama_canvas_internal(GtkWidget *widget, GdkEvent *event) {
+    GtkWidget *canvas = lookup_widget(widget, "canvas");
+    float wf = GTK_WIDGET(canvas)->allocation.width;
+    float hf = GTK_WIDGET(canvas)->allocation.height;
+    float mini = std::min(wf, hf);
+    float zoomey = mini/400.0*0.8;
+    // FIXME Bernie:: should change zoom value in rama!!!
+    gtk_canvas_set_pixels_per_unit(GNOME_CANVAS(canvas), zoomey);
+}
 
 //  The mapview entry point
 //
@@ -189,6 +199,9 @@ coot::rama_plot::init_internal(const std::string &mol_name,
 			 GDK_POINTER_MOTION_MASK|
 			 GDK_KEY_RELEASE_MASK   |
 			 GDK_POINTER_MOTION_HINT_MASK);
+
+   // g_signal_connect(canvas, "configure-event", 
+   //               G_CALLBACK(resize_rama_canvas), NULL);
 
    if (dialog_position_x > -1)
       gtk_widget_set_uposition(app1, dialog_position_x, dialog_position_y);

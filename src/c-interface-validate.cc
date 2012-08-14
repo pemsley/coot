@@ -1575,6 +1575,14 @@ int get_mol_from_dynarama(GtkWidget *window) {
    return imol; 
 }
 
+// resize
+void
+resize_rama_canvas(GtkWidget *widget, GdkEvent *event) {
+
+    coot::rama_plot rp;
+    rp.resize_rama_canvas_internal(widget, event);
+
+}
 
 // ----------------------------------------------------------------------------------
 //                            Alignment
