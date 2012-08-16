@@ -77,13 +77,15 @@ scripting exercise
 
 **** General ****
 
+   o reset (cap) ANISO 
+
    o green marker doesnt move when changing chi alngle edit via keyboard
 
    o add .res and .fcf to command line (without specifier)
 
    o Show version in title
 
-   o Ramachandran resize (automate & and use mouse wheel)
+   o Ramachandran resize (automate & and use mouse wheel?!)
 
    o change kleywegt chains in plot
 
