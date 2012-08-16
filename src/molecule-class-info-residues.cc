@@ -1266,6 +1266,7 @@ molecule_class_info_t::split_water(std::string chain_id, int res_no, std::string
 	 CAtom *at = residue_p->GetAtom(" O  "); // PDBv3
 	 if (at) {
 	    make_backup();
+        float old_occ = at->occupancy;
 	    CAtom *new_at = new CAtom;
 	    new_at->Copy(at);
 	    // force down a new altconf
@@ -1274,6 +1275,8 @@ molecule_class_info_t::split_water(std::string chain_id, int res_no, std::string
 	    strncpy(new_at->altLoc, "B", 2);
 	    at->x     -= 0.5;
 	    new_at->x += 0.5;
+	    at->occupancy     = old_occ * 0.5;
+	    new_at->occupancy = old_occ * 0.5;
 	    modified = true;
 	    atom_sel.mol->FinishStructEdit();
 	    update_molecule_after_additions(); // needed to update the atom_index user data

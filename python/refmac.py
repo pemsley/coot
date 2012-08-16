@@ -1038,15 +1038,16 @@ def read_refmac_log(imol, refmac_log_file):
     def get_sphericity(i):
         i += 3      # jump to interesting lines (only 3 here....)
         while (len(lines[i]) > 5):
-            # e.g. "A  26 CYS SG  B U-value= 0.2014 0.2329 0.2399 0.0179 0.0227-0.0064 Delta= 0.051 Sigma=  0.025"
+            # e.g.          "A  26 CYS SG  B U-value= 0.2014 0.2329 0.2399 0.0179 0.0227-0.0064 Delta= 0.051 Sigma=  0.025"
+            # new, e.g.  "A     19 GLU OE1 B U value= 0.6897 1.3874 0.6117-0.2763-0.0869 0.2513 Delta= 0.812 Sigma=  0.063"
             line = lines[i]
-            split_clean(line)
+            item_ls = split_clean(line)
             chain_id  = item_ls[0]
             res_no1   = int(item_ls[1])
             res_name1 = item_ls[2]
             atom1     = item_ls[3]
             alt_conf1 = item_ls[4]
-            if ('value' in alt_conf1):
+            if ('U' in alt_conf1):
                 alt_conf1 = "."
                 item_ls.insert(4, alt_conf1)
 
@@ -1067,7 +1068,8 @@ def read_refmac_log(imol, refmac_log_file):
     def get_rigid(i):
         i += 3      # jump to interesting lines, again only 3
         while (len(lines[i]) > 5):
-            # e.g. "A  12 LEU N     - A  11 ASN C      Delta  =  4.625 Sigma=  2.000"
+            # e.g.    "A  12 LEU N     - A  11 ASN C      Delta  =  4.625 Sigma=  2.000"
+            # new  "A     19 GLU OE2 B - A     19 GLU CD  B  Delta  = 70.167 Sigma=  3.000 Dist=  1.270"
             line = lines[i]
             item_ls = split_clean(line)
             chain_id  = item_ls[0]
@@ -1143,7 +1145,7 @@ def read_refmac_log(imol, refmac_log_file):
                 ret.append(item)
             last_item = item
 
-        #print "BL DEBUG:: return", ret
+        #print "BL DEBUG:: split clean returns", ret
         return ret
 
     # this sorts the initial list to look like the above mentioned extracted list
