@@ -323,7 +323,8 @@
 # 4.89 20120223 Use libccp4c-5.0.2-ysbl-3.tar.gz, that has libccp4c_la_LIBADD.
 # 4.90 20120713 debug $coot_dir_name link usage.
 # 4.91 20120808 update to handle version of debian in /etc/issue.
-script_version=4.91
+# 4.92 20120820 Debian /etc/issue handling for wheezy.
+script_version=4.92
 
 
 # :: NOTE:: 
@@ -946,7 +947,7 @@ if test $OS = Linux ; then
       if test -r /etc/issue; then
         dist_name=$(awk 'NR==1{print tolower($1)}' /etc/issue)
         if [ "$dist_name" = "debian" ] ; then
-           dist_ver=$(awk  'NR==1{x=tolower($2); gsub("/","-",x); print x "-" $3}' /etc/issue)
+           dist_ver=$(awk  'NR==1{x=tolower($2); y=tolower($3); gsub("/","-",x); gsub("/","-",y); print x "-" y}' /etc/issue)
         else
            dist_ver=$(awk  'NR==1{x=tolower($2); gsub("/","-",x); print x}' /etc/issue)
         fi
