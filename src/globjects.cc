@@ -3113,6 +3113,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_1:
    case GDK_KP_1:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
+         graphics_info_t g;
+         g.setup_flash_bond_internal(0);
 	 graphics_info_t::edit_chi_current_chi = 1;
 	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }
@@ -3121,6 +3123,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_2:
    case GDK_KP_2:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
+         graphics_info_t g;
+         g.setup_flash_bond_internal(1);
 	 graphics_info_t::edit_chi_current_chi = 2;
 	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }
@@ -3129,6 +3133,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_3:
    case GDK_KP_3:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
+         graphics_info_t g;
+         g.setup_flash_bond_internal(2);
 	 graphics_info_t::edit_chi_current_chi = 3;
 	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       } else { 
@@ -3139,6 +3145,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_4:
    case GDK_KP_4:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
+         graphics_info_t g;
+         g.setup_flash_bond_internal(3);
 	 graphics_info_t::edit_chi_current_chi = 4;
 	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }
@@ -3147,6 +3155,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_5:
    case GDK_KP_5:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
+         graphics_info_t g;
+         g.setup_flash_bond_internal(4);
 	 graphics_info_t::edit_chi_current_chi = 5;
 	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }
@@ -3155,6 +3165,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_6:
    case GDK_KP_6:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
+         graphics_info_t g;
+         g.setup_flash_bond_internal(5);
 	 graphics_info_t::edit_chi_current_chi = 6;
 	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }
