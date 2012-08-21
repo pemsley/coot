@@ -614,6 +614,8 @@ function setup_ccp4 {
          if test -e $setup_file ; then
             echo evaluating $setup_file
             . $setup_file
+         else 
+            echo WARNING:: ccp4 setup file $setup_file does not exist.
          fi
       fi
    fi
