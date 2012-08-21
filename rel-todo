@@ -7,15 +7,22 @@
      ::: 2
 
    o read in components-PH2.cif and use Display mananger to delete the
-   molecule.
+     molecule. ::: 2
 
+   o are the charges correct on 4fl6?  The surface looks too red... ::: 1
 
-   o Does crash catcher work - on RH5 say?
+   o Fix PISA interfaces. ::: 2
+ 
+   o Test (and add?) SMILES -> 2d via prodrg ::: 2
 
-   o are the charges correct on 4fl6?  The surface looks too red...
-
-   o 1x8b alt conf makes bond orders disappeared.
+   o Test "View in Lidia" via prodrg ::: 2
    
+   o Steven Sheriff distances ::: 2
+
+   o FUN: Use net/pdbe to get SMILES string for given comp_id
+
+   o Make non-guile build and check fit protein and rama fit functions.
+
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
@@ -420,3 +427,11 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
     Bug?
 
 * Can't reproduce - ignore
+
+   o Does crash catcher work - on RH5 say?  ::: 0.5
+
+* Fixed
+
+   o 1x8b alt conf makes bond orders disappeared.  ::: 1
+
+* Done
