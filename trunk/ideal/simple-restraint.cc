@@ -5918,8 +5918,6 @@ coot::restraints_container_t::apply_mods(int idr, PPCAtom res_selection,
       if (std::find(residues_with_OXTs.begin(),
 		    residues_with_OXTs.end(),
 		    residue_p) != residues_with_OXTs.end()) {
-	 std::cout << "============================ apply_mod COO ================="
-		   << std::endl;
 	 apply_mod("COO", geom, idr, residue_p);
       }
    }
