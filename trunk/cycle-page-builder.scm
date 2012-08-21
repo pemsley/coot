@@ -116,11 +116,12 @@
 ;; 
 (define (get-revision-from-tar binary-tar-file-name)
   (let ((bits (string-split binary-tar-file-name #\-)))
-    ;; (format #t "bits in get-revision-from-binary-tar: ~s~%" bits)
+    (format #t "bits in get-revision-from-binary-tar: ~s~%" bits)
     (let loop ((bits bits))
       (cond
        ((null? bits) (values #f #f))
        ((string-match "revision" (car bits))
+        (format #t "matched on revision: ~s~%" bits)
 	(if (> (length bits) 1)
 	    (let ((revision+exe (car (cdr bits)))) ;; e.g. "1234.exe" for WinCoot
 	      (let ((rev-bits (string-split revision+exe #\.)))
@@ -159,7 +160,75 @@
 ;; 
 ;;
 ;;
-(define (get-latest-binary-url-info build-info) 
+(define (get-latest-binary-url-info build-info)
+
+  (define (oxford-string->binary-tar-file binary-file-name-bit binary-match python? gtk2?)
+    (if (or (string-match "coot" binary-file-name-bit)
+	    (string-match "WinCoot" binary-file-name-bit))
+	(let ((bits-2 (string-split binary-file-name-bit #\>)))
+	  (format #t "==== Here 2, bits-2 ~s ~%" bits-2)
+	  (if (> (length bits-2) 1)
+	      (let ((bits-3 (string-split (list-ref bits-2 1) #\<)))
+		(format #t "==== Here 3 bit-3: ~s~%" bits-3)
+		(if (> (length bits-3) 1)
+		    (let ((a-file-name (car bits-3)))
+		      
+		      (cond 
+		      ;; WinCoot
+		      ((string-match ".exe" a-file-name)
+		       a-file-name)
+			  
+		      ;; not WinCoot, e.g. Ubuntu
+		      ((string-match ".tar.gz" a-file-name)
+		       (if (not (string-match binary-match a-file-name))
+			   #f
+			   (if (or (and (string-match "python" a-file-name)
+					python?)
+				   (and (not (string-match "python" a-file-name))
+					(not python?)))
+			       (if (or (and (string-match "gtk2" a-file-name)
+					    gtk2?)
+				       (and (not (string-match "gtk2" a-file-name))
+					    (not gtk2?)))
+				   a-file-name)
+			       #f)))
+		      (else
+		       #f)))
+		    #f))
+	      #f))
+	#f))
+  
+  ;; return a string or #f
+  (define (line->binary-tar-file line binary-match python? gtk2?)
+
+    (let ((line-bits (string-split line #\")))
+      ;; (format #t "line-bits: ~s~%" line-bits)
+      (if (> (length line-bits) 6)
+	  (let* ((tim-server (string-match "top" (list-ref line-bits 1)))
+		 (tar-file-idx (if tim-server 7 6))
+		 (binary-file-name-bit (list-ref line-bits tar-file-idx)))
+	    (format #t "binary-file-name-bit: idx: ~s string: ~s~%" tar-file-idx binary-file-name-bit)
+	    (if tim-server
+
+		;; tim server
+		(let ((smr-1 (string-match "debian-gnu-linux-" binary-file-name-bit)))
+		  (format #t "tim-server smr-1 ~s~%" smr-1)
+		  (if (not smr-1)
+		      #f 
+		      (begin
+			(format #t "tim-server ===== pass 1! ~s ~s~%" 
+				binary-file-name-bit smr-1)
+			(let ((smr-2 (string-match ".tar.gz" binary-file-name-bit)))
+			  (if (not smr-2)
+			      #f 
+			      binary-file-name-bit)))))
+
+		;; oxford/york (-like) then
+		(oxford-string->binary-tar-file binary-file-name-bit binary-match python? gtk2?)))
+
+	  #f)))
+		      
+
   
   ;; In future, cache the result (the list of
   ;; coot-xxx-binary-xxx-xxx-tar.gz file names)
@@ -170,61 +239,19 @@
   ;; xx-python.tar.gz files matching the non-python build tar files.
   ;; 
   (define (get-binary-tar-file-names s-lines binary-match python? gtk2?)
-
+  
     (let loop ((s-lines s-lines)
 	       (binary-tar-file-names '()))
-      
       (cond 
        ((null? s-lines) ;; (format #t "returning ~s~%" (reverse binary-tar-file-names))
                        	(reverse binary-tar-file-names))
        (else 
-	(let ((line (car s-lines)))
-	  (let ((line-bits (string-split line #\")))
-	    ;; (format #t "line-bits: ~s~%" line-bits)
-	    (if (> (length line-bits) 6)
-		(let ((binary-file-name-bit (list-ref line-bits 6)))
-		  ;; (format #t "binary-file-name-bit: ~s~%" binary-file-name-bit)
-		  (if (or (string-match "coot" binary-file-name-bit)
-			  (string-match "WinCoot" binary-file-name-bit))
-		      (let ((bits-2 (string-split binary-file-name-bit #\>)))
-			(if (> (length bits-2) 1)
-			    (let ((bits-3 (string-split (list-ref bits-2 1) #\<)))
-			      ;; (format #t "bit-3: ~s~%" bits-3)
-			      (if (> (length bits-3) 1)
-				  (let ((a-file-name (car bits-3)))
-				    ;; (format #t "a-file-name: ~s~%" a-file-name)
-				    ;; (format #t "::::: ~s~%" (string-match ".md5sum" a-file-name))
-				    (if (not (string-match ".md5sum" a-file-name))
-					(if (string=? "WinCoot" binary-match)
-
-					    ;; WinCoot
-					    (if (string-match ".exe" a-file-name)
-						(loop (cdr s-lines) (cons a-file-name
-									  binary-tar-file-names))
-						(loop (cdr s-lines) binary-tar-file-names))
-					    
-					    ;; not WinCoot, e.g. Ubuntu
-					    (if (string-match ".tar.gz" a-file-name)
-						(if (string-match binary-match a-file-name)
-						    (if (or (and (string-match "python" a-file-name)
-								 python?)
-							    (and (not (string-match "python" a-file-name))
-								 (not python?)))
-							(if (or (and (string-match "gtk2" a-file-name)
-								     gtk2?)
-								(and (not (string-match "gtk2" a-file-name))
-								     (not gtk2?)))
-							    (loop (cdr s-lines)
-								  (cons a-file-name binary-tar-file-names))
-							    (loop (cdr s-lines) binary-tar-file-names))
-							(loop (cdr s-lines) binary-tar-file-names))
-						    (loop (cdr s-lines) binary-tar-file-names))
-						(loop (cdr s-lines) binary-tar-file-names)))
-					(loop (cdr s-lines) binary-tar-file-names)))
-				  (loop (cdr s-lines) binary-tar-file-names)))
-			    (loop (cdr s-lines) binary-tar-file-names)))
-		      (loop (cdr s-lines) binary-tar-file-names)))
-		(loop (cdr s-lines) binary-tar-file-names))))))))
+	(let ((binary-file-name (line->binary-tar-file (car s-lines) binary-match python? gtk2?)))
+	  (if (string? binary-file-name)
+	      (loop (cdr s-lines)
+		    (cons binary-file-name binary-tar-file-names))
+	      (loop (cdr s-lines) binary-tar-file-names)))))))
+		    
 
 
   ;; main line of get-latest-binary-url-info
@@ -234,9 +261,9 @@
 	(python? (list-ref build-info 3))
 	(gtk2?   (list-ref build-info 4)))
     
-    ;; (format #t "s-lines: ~s ~s lines~%" s-lines (length s-lines))
+    (format #t "s-lines: ~s ~s lines~%" s-lines (length s-lines))
     (let ((file-ls (get-binary-tar-file-names s-lines binary-match python? gtk2?)))
-      ;; (format #t "file-ls: ~s ~%" file-ls)
+      (format #t "file-ls: ~s ~%" file-ls)
       
       (let loop ((file-ls file-ls)
 		 (latest-revision #f)
@@ -573,28 +600,39 @@
 		  (test-status-link (string-append build-log-prefix 
 						   python-status-extra
 						   "-test-status")))
+
+	     (format #t "debug:: test-status-link: ~s~%"  test-status-link)
+	     (format #t "debug:: build-status-link: ~s~%" build-status-link)
+	     (format #t "debug:: tar-file ~s revision-number: ~s~%" tar-file revision-number)
+
+
+	     (let ((build-status (www:get build-status-link))
+		   ( test-status (www:get  test-status-link)))
+
   
-	     (if (not (and (string? tar-file)
-			   (number? revision-number)))
-		 ;; make a dummy record then
-		 (apply make-build-record (append build-info (list #f #f #f #f)))
-		 (let ((binary-url (string-append 
-				    (list-ref build-info 2) ;; "/" is included in pre-release dir, right?
-				    tar-file))
-		       (build-status (www:get build-status-link))
-		       ( test-status (www:get  test-status-link)))
+	       (format #t "============== test-status  for ~s is ~s~%" test-status-link test-status)
+	       (format #t "============== build-status for ~s is ~s~%" build-status-link build-status)
+		     
+	       (if (not (and (string? tar-file)
+			     (number? revision-number)))
 
-		   (format #t "============== test-status  for ~s is ~s~%" test-status-link test-status)
-		   (format #t "============== build-status for ~s is ~s~%" build-status-link build-status)
-
-		   ;; build-status is e.g. "passed build" or #f
-		   ;;  test-status is e.g. "passed test" or #f
-		   ;; 
-		   (apply make-build-record (append build-info
-						    (list revision-number
-							  binary-url
-							  build-status
-							  test-status))))))))
+		   ;; make a dummy record then
+		   (begin
+		     (format #t "a dummy record created~%")
+		     (apply make-build-record (append build-info (list #f #f build-status test-status))))
+		   
+		   
+		   (let ((binary-url (string-append 
+				      (list-ref build-info 2) ;; "/" is included in pre-release dir, right?
+				      tar-file)))
+		     ;; build-status is e.g. "passed build" or #f
+		     ;;  test-status is e.g. "passed test" or #f
+		     ;; 
+		     (apply make-build-record (append build-info
+						      (list revision-number
+							    binary-url
+							    build-status
+							    test-status)))))))))
       
 
 
@@ -709,6 +747,11 @@
 	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
 	       #t #t)
 
+	 (list "binary-Linux-x86_64-centos-6-python-gtk2"
+	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-newt/gtk2" 
+	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       #t #t)
+
 	 ; (list "binary-Linux-x86_64-rhel-4-gtk2"
 	       ; "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-lemur/gtk2" 
 	       ; "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
@@ -725,7 +768,7 @@
 	       ;"http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
 	       ;#t #t)
 
-;; bragg3 has been updated and not setup for building coot.
+	 ;; bragg3 has been updated and not setup for building coot.
 	 ;(list (string-append "binary-Linux-i686-ubuntu-" york-ubuntu-version "-python-gtk2")
 	       ;"http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk2" 
 	       ;"http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
@@ -749,6 +792,11 @@
  	 (list "binary-Linux-i386-ubuntu-11.10-python-gtk2"
  	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-nestor/gtk2" 
  	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
+ 	       #t #t)
+
+ 	 (list "binary-Linux-x86_64-debian-gnu-linux-6.0-python-gtk2"
+               "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/squeeze/build-logs/Linux-shelx10/gtk2"
+	       "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/squeeze/binaries/nightlies/pre-release/"
  	       #t #t)
 
 	 (list "WinCoot" 
