@@ -19,8 +19,8 @@
 	       (prep-for-pisa 'assemblies imol)
 	       
 	       (begin
-		 (format #t "DEBUG:: ========= pisa with args ~s~%" 
-			 (list *pisa-command* "-analyse" pdb-file-name pisa-config))
+;		 (format #t "DEBUG:: ========= pisa with args ~s~%" 
+;			 (list *pisa-command* "-analyse" pdb-file-name pisa-config))
 		 (let ((status (goosh-command "pisa" (list "pisa" "-analyse" pdb-file-name pisa-config) 
 					      '() "pisa.log" #f)))
 		   (if (not (number? status))
@@ -110,6 +110,11 @@
   ;; 
   (define (handle-residues residues make-residue-record)
 
+;    (format #t "starting handle-residues:....~%")
+;    (for-each (lambda (residue)
+;		(format #t "here is the residue....~s  ~s ~%" residue (string? residue)))
+;	      residues)
+
     (map (lambda (residue)
 
 	   (let ((ser-no #f)
@@ -120,39 +125,51 @@
 		 (bsa #f)
 		 (bonds #f)
 		 (solv-en #f))
-	     (for-each (lambda (residue-part)
-			 (cond
-			  ((eq? (car residue-part) 'ser_no)
-			   (set! ser-no (cadr residue-part)))
-			  ((eq? (car residue-part) 'name)
-			   (set! name (cadr residue-part)))
-			  ((eq? (car residue-part) 'seq_num)
-			   (set! seq-num (cadr residue-part)))
-			  ((eq? (car residue-part) 'ins_code)
-			   (if (> (length residue-part) 1)
-			       (set! ins-code (cadr residue-part))))
-			  ((eq? (car residue-part) 'bonds)
-			   (if (> (length residue-part) 1)
-			       (set! bonds (cadr residue-part))))
-			  ((eq? (car residue-part) 'asa)
-			   (if (> (length residue-part) 1)
-			       (set! asa (cadr residue-part))))
-			  ((eq? (car residue-part) 'bsa)
-			   (if (> (length residue-part) 1)
-			       (set! bsa (cadr residue-part))))
-			  ((eq? (car residue-part) 'solv_en)
-			   (if (> (length residue-part) 1)
-			       (set! solv-en (cadr residue-part))))))
-		       (cdr residue)) ;; strip of the initial 'residue
-	     (if (not (and ser-no seq-num))
-		 #f ;; badness!
-		 (if (not (string? bsa))
-		     #f
-		     (let ((bsa-number (string->number bsa)))
-		       (if (< bsa-number 0.1)
+	     (if (not (list? residue))
+
+		 (begin
+		   ;; skip
+		   ;; (format #t "skipping residue ~s~%" residue)
+		   #f)
+
+		 (begin
+		   (for-each (lambda (residue-part)
+
+			       ;; (format #t "-------  residue-part: ~s~%" residue-part)
+			       
+			       (cond
+				((string? residue-part) #f)
+				((eq? (car residue-part) 'ser_no)
+				 (set! ser-no (cadr residue-part)))
+				((eq? (car residue-part) 'name)
+				 (set! name (cadr residue-part)))
+				((eq? (car residue-part) 'seq_num)
+				 (set! seq-num (cadr residue-part)))
+				((eq? (car residue-part) 'ins_code)
+				 (if (> (length residue-part) 1)
+				     (set! ins-code (cadr residue-part))))
+				((eq? (car residue-part) 'bonds)
+				 (if (> (length residue-part) 1)
+				     (set! bonds (cadr residue-part))))
+				((eq? (car residue-part) 'asa)
+				 (if (> (length residue-part) 1)
+				     (set! asa (cadr residue-part))))
+				((eq? (car residue-part) 'bsa)
+				 (if (> (length residue-part) 1)
+				     (set! bsa (cadr residue-part))))
+				((eq? (car residue-part) 'solv_en)
+				 (if (> (length residue-part) 1)
+				     (set! solv-en (cadr residue-part))))))
+			     (cdr residue)) ;; strip of the initial 'residue
+		   (if (not (and ser-no seq-num))
+		       #f ;; badness!
+		       (if (not (string? bsa))
 			   #f
-			   (make-residue-record ser-no name seq-num (if ins-code ins-code "") 
-						asa bsa solv-en)))))))
+			   (let ((bsa-number (string->number bsa)))
+			     (if (< bsa-number 0.1)
+				 #f
+				 (make-residue-record ser-no name seq-num (if ins-code ins-code "") 
+						      asa bsa solv-en)))))))))
 	 (cdr residues))) ;; just the residue list (strip off initial 'residues)
   
   ;; remove #fs from the residue list
@@ -160,6 +177,7 @@
     (let ((result '()))
       (cond
        ((null? residue-list) '())
+       ((string? (car residue-list)) (filter-residues (cdr residue-list)))
        ((car residue-list) (cons (car residue-list) (filter-residues (cdr residue-list))))
        (else 
 	(filter-residues (cdr residue-list))))))
@@ -197,6 +215,19 @@
   ;; 
   (define (make-pisa-residue-record-type print-residue)
     (make-record-type "residue" '(ser-no name seq-num ins-code asa bsa solv-en) print-residue))
+
+  (define (clear-blanks residues)
+
+;    (for-each (lambda (residue)
+;		(format #t "clear-blanks: testing residue ~s~%" residue))
+;	      residues)
+
+    (let f ((passed-residues '()))
+      (cond 
+       ((null? residues) '())
+       ((string? (car residues)) (f (cdr residues)))
+       (else
+	(cond (car residues) (f (cdr residues)))))))
 
 
   ;; 
@@ -236,7 +267,7 @@
 	;; name in the display manager.
 	(for-each
 	 (lambda (mol-ele)
-	   ;; (format #t "mol-ele: ~s~%" mol-ele)
+	   ;; (format #t "=========== mol-ele: ~s~%" mol-ele)
 	   (if (list? mol-ele)
 	       (begin
 		 
@@ -275,7 +306,10 @@
 		     ((eq? (car mol-ele) 'int_solv_en) (if (> (length mol-ele) 1) (set! solv-en  (cadr mol-ele))))
 		     ((eq? (car mol-ele) 'chain_id)    (if (> (length mol-ele) 1) (set! chain-id (cadr mol-ele))))
 		     ((eq? (car mol-ele) 'residues) 
-		      (let ((filtered-residues (filter-residues (handle-residues mol-ele make-residue-record))))
+		      ;; (format #t "DEBUG:: calling handle-residues with residues: ~s ~%" mol-ele)
+		      (let* ((nb-residues (clear-blanks mol-ele))
+			     ;; (nov (format #t "Here is nb-residues: ~s~%" nb-residues))
+			     (filtered-residues (filter-residues (handle-residues nb-residues make-residue-record))))
 			(set! residues filtered-residues)))))
 		  extra-symbols))))
 	 molecule) ;; passed to (at the main level) to pisa-handle-sxml-molecule.
@@ -438,7 +472,7 @@
 	 (lambda (ele)
 	   ;; (format #t "ele: ~s~%" ele)
 	   (if (not (list? ele))
-	       (format #t "ele not list: ~s~%" ele) ; caution when deleting
+	       ;; (format #t "ele not list: ~s~%" ele) ; caution when deleting
 	       (cond 
 		((eq? (car ele) 'molecule)
 		 (let ((mol-no (pisa-handle-sxml-molecule imol ele 'assemblies)))
@@ -905,8 +939,10 @@
 	  (reverse interfaces)) ;; return this
 	 ((not (pair? (car entity))) (loop (cdr entity)))
 	 ((eq? (car (car entity)) 'interface)
-	  (set! interfaces (cons (pisa-handle-sxml-interface (car entity)) interfaces))
-	  (loop (cdr entity)))
+	  (let ((interface-local (pisa-handle-sxml-interface (car entity))))
+	    ;; (format #t "Got this interface-local: ~s~%" interface-local)
+	    (set! interfaces (cons interface-local interfaces))
+	    (loop (cdr entity))))
 	  ;; (format #t "interfaces now: ~s~%" interfaces)
 	 (else 
 	  (loop (cdr entity)))))))
