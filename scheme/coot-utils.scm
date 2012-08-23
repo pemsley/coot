@@ -309,7 +309,12 @@
 	  (car atom-spec)
 	  (if (= (length atom-spec) 7)
 	      (cadr atom-spec)))))
-	  
+
+(define (residue-spec->residue-name imol spec)
+  (residue-name imol 
+		(list-ref spec 1)
+		(list-ref spec 2)
+		(list-ref spec 3)))
 
 
 ;; Return a list of molecules that are maps

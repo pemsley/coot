@@ -779,7 +779,7 @@
 	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
 	       #t #t)
 
-	 (list (string-append "binary-Linux-i386-rhel-5-python-gtk2")
+	 (list "binary-Linux-i386-rhel-5-python-gtk2"
 	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-krosp.chem.york.ac.uk/gtk2"
 	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
 	       #t #t)

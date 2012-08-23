@@ -117,7 +117,7 @@ namespace coot {
       //
       // return the maximum Angstrom/grid of the given map.
       // 
-      float max_gridding(const clipper::Xmap<float> &xmap); 
+      float max_gridding(const clipper::Xmap<float> &xmap);
 
 
       // The sum of the density at the atom centres, optionally
@@ -156,6 +156,16 @@ namespace coot {
 					 const clipper::Cell &cell,
 					 const clipper::Spacegroup &space_group,
 					 const clipper::Grid_sampling &sampling);
+
+      // return a number less than -1 on badness
+      // (perhaps this should return the atom map and the mask map)
+      //
+      float map_to_model_correlation(CMMDBManager *mol,
+				     const std::vector<residue_spec_t> &specs,
+				     float atom_radius, // for masking 
+				     const clipper::Xmap<float> &xmap_from_sfs);
+
+
 
       // return a map and its standard deviation.  scale is applied to
       // map_in_2 before substraction.

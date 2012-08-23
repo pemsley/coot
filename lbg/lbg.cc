@@ -2411,9 +2411,13 @@ lbg_info_t::init(GtkBuilder *builder) {
    if (is_stand_alone()) 
       int timeout_handle = gtk_timeout_add(500, watch_for_mdl_from_coot, this);
 
-   // Hack in a button for PE to test stuff
-   if (getenv("COOT_LBG_TEST_FUNCTION") != NULL)
+   // Hack in a button (or hide the hbox) for PE to test stuff
+   // 
+   if (getenv("COOT_LBG_TEST_FUNCTION") != NULL) { 
       gtk_widget_show(pe_test_function_button);
+   } else {
+      gtk_widget_hide(lbg_flip_rotate_hbox);
+   }
 
    // if we don't have rdkit or python then we don't want to see qed progress bar
    // or the "show alerts" (because we can't match to the alert patterns).

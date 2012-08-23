@@ -1297,3 +1297,35 @@ molecule_class_info_t::split_water(std::string chain_id, int res_no, std::string
       update_molecule_after_additions();
    } 
 } 
+
+
+std::vector<coot::residue_spec_t>
+molecule_class_info_t::het_groups() const {
+
+   std::vector<coot::residue_spec_t> r;
+
+   int imod = 1;
+   CModel *model_p = atom_sel.mol->GetModel(imod);
+   CChain *chain_p;
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      CResidue *residue_p;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 std::string rn = residue_p->GetResName();
+	 int n_atoms = residue_p->GetNumberOfAtoms();
+	 for (int iat=0; iat<n_atoms; iat++) {
+	    CAtom *at = residue_p->GetAtom(iat);
+	    if (at->Het) {
+	       if (rn != "HOH") { 
+		  r.push_back(residue_p);
+		  break;
+	       }
+	    }
+	 }
+      }
+   }
+   return r;
+} 

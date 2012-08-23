@@ -529,7 +529,7 @@ coot::sequence::fasta::fasta(const std::string &seq_in) {
    }
    
    if (seq.length() > 0) { 
-      std::cout << "storing sequence: " << seq << std::endl;
+      // std::cout << "storing sequence: " << seq << std::endl;
    } else { 
       std::cout << "WARNING:: no sequence found or improper fasta sequence format\n";
    }

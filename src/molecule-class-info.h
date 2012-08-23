@@ -3134,6 +3134,8 @@ public:        //                      public
 			    const std::string &file_name) const;
 
    coot::residue_spec_t get_residue_by_type(const std::string &residue_type) const;
+
+   std::vector<coot::residue_spec_t> het_groups() const;
    
 };
 

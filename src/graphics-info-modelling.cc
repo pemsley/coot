@@ -692,10 +692,12 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  restraints.add_map(xmap, weight);
 	       }
 
-	       std::cout << "---------- debug:: in generate_molecule_and_refine() "
-			 << molecules[imol].extra_restraints.has_restraints()
-			 <<  " " << molecules[imol].extra_restraints.bond_restraints.size()
-			 << std::endl;
+	       if (0)
+		  std::cout << "---------- debug:: in generate_molecule_and_refine() "
+			    << molecules[imol].extra_restraints.has_restraints()
+			    <<  " " << molecules[imol].extra_restraints.bond_restraints.size()
+			    << std::endl;
+	       
 	       if (molecules[imol].extra_restraints.has_restraints())
 		  restraints.add_extra_restraints(molecules[imol].extra_restraints);
 	       

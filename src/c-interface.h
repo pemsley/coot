@@ -751,6 +751,19 @@ return 1 if all atoms of the specified residue are HETATMs, else,
 return 0.  If residue not found, return -1. */
 int residue_has_hetatms(int imol, const char * chain_id, int resno, const char *ins_code);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief - get the specs for hetgroups - waters are not counted as het-groups. */
+SCM het_group_residues_scm(int imol);
+#endif
+#endif
+
+/*! \brief return the number of non-hydrogen atoms in the given
+  het-group (comp-id). 
+
+Return -1 on comp-id not found in dictionary.  */
+int het_group_n_atoms(const char *comp_id);
+
 /*! \brief replace the parts of molecule number imol that are
   duplicated in molecule number imol_frag */
 int replace_fragment(int imol_target, int imol_fragment, const char *atom_selection);
@@ -6805,6 +6818,15 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char 
 void fle_view_with_rdkit_to_png(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *png_file_name);
 
 void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *file_format, const char *file_name);
+
+/*! \brief set the maximum considered distance to water 
+
+default 3.25 A.  */
+void fle_view_set_water_dist_max(float dist_max);
+/*! \brief set the maximum considered hydrogen bond distance
+
+default 3.9 A.  */
+void fle_view_set_h_bond_dist_max(float h_bond_dist_max);
 
 /* Add hydrogens to specificied residue
 

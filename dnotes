@@ -6788,6 +6788,32 @@ Tue Jul 31 11:17:55 EDT 2012
    William asbury
 
 
+---
+Tue Aug  7 00:13:03 BST 2012
+
+make coot-user-manual.html
+texi2html ../../coot-read-only/trunk/doc/coot-user-manual.texi
+*** Duplicate node found: Sectionless functions (in ../../coot-read-only/trunk/doc/cc-interface.hh.texi l. 411)
+** Node following `Drag and Drop Functions' in menu `Sectionless functions' and in sectionning `Sectionless functions' differ 
+** `Sectionless functions' is up for `ligand-search-make-conformers-scm', but has no menu entry for this node
+splitstr='-split_chapter' ; \
+	texi2html --version ; \
+	if [ $? = 0 ] ; then splitstr='-split=chapter' ; fi ; \
+	texi2html $splitstr ../../coot-read-only/trunk/doc/coot-user-manual.texi ; \
+	cd ..
+1.82
+*** Duplicate node found: Sectionless functions (in ../../coot-read-only/trunk/doc/cc-interface.hh.texi l. 411)
+** Node following `Drag and Drop Functions' in menu `Sectionless functions' and in sectionning `Sectionless functions' differ 
+** `Sectionless functions' is up for `ligand-search-make-conformers-scm', but has no menu entry for this node
+make coot-user-manual.html done
+dvips -o coot-user-manual.ps coot-user-manual.dvi
+This is dvips(k) 5.96.1 Copyright 2007 Radical Eye Software (www.radicaleye.com)
+' TeX output 2012.03.09:1647' -> coot-user-manual.ps
+</usr/share/texmf/dvips/base/tex.pro></usr/share/texmf/dvips/base/texps.pro>
+</usr/share/texmf/dvips/base/special.pro>. 
+
+
+
 ----
 Mon Aug  6 15:00:07 BST 2012
 
@@ -6795,9 +6821,7 @@ Mon Aug  6 15:00:07 BST 2012
 
 Fatal error in ccp4spg_register_by_symops
 
-
    4e6n fails with label error
-
 
 ------
 

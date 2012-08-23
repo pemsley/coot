@@ -90,16 +90,22 @@ make_residue_spec(SCM spec) {
    coot::residue_spec_t rs("A", 1);
    SCM spec_length_scm = scm_length(spec);
    int spec_length = scm_to_int(spec_length_scm);
-   if (spec_length == 3) {
-      SCM chain_id_scm = scm_list_ref(spec, SCM_MAKINUM(0));
-      SCM resno_scm    = scm_list_ref(spec, SCM_MAKINUM(1));
-      SCM ins_code_scm = scm_list_ref(spec, SCM_MAKINUM(2));
+   // we can now allow specs that are of length 4.  specs of length
+   // are created by het-groups (amongst other things) and have a
+   // state in the first position, which we skip (using offset = 1).
+   int offset = 0;
+   if (spec_length == 4) offset = 1;
+   if (spec_length >= 3) {
+      SCM chain_id_scm = scm_list_ref(spec, SCM_MAKINUM(0+offset));
+      SCM resno_scm    = scm_list_ref(spec, SCM_MAKINUM(1+offset));
+      SCM ins_code_scm = scm_list_ref(spec, SCM_MAKINUM(2+offset));
       std::string chain_id = scm_to_locale_string(chain_id_scm);
       int resno = scm_to_int(resno_scm);
       std::string ins_code  = scm_to_locale_string(ins_code_scm);
       rs = coot::residue_spec_t(chain_id, resno, ins_code);
       good_spec = 1;
    }
+   
    return std::pair<bool, coot::residue_spec_t>(good_spec, rs);
 } 
 
