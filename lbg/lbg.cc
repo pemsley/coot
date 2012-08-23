@@ -3215,19 +3215,13 @@ void
 lbg_info_t::recentre_considering_residue_centres() {
 
    std::pair<bool,lig_build::pos_t> tl = get_residue_circles_top_left();
-   
-//    if (tl.first) { 
-//       top_left_correction = tl.second; 
-//       for (unsigned int i=0; i<residue_circles.size(); i++) { 
-// 	 residue_circles[i].pos -= tl.second;
-//       }
 
-//       for (unsigned int iat=0; iat<mol.atoms.size(); iat++) { 
-// 	 mol.atoms[iat].atom_position -= tl.second;
-//       }
-
-//       // now redraw mol... hmmm
-//    }
+   std::cout << "----------------------- top left correction " << tl.first << " " << tl.second << std::endl;
+  
+    if (tl.first) { 
+       top_left_correction = lig_build::pos_t(-tl.second.x+40, -tl.second.y+30);
+       clear_and_redraw(top_left_correction);
+    }
 } 
 
 
