@@ -1222,7 +1222,7 @@ void toggle_idle_rock_function() {
    if (g.idle_function_spin_rock_token == 0) { 
       g.idle_function_spin_rock_token =
 	 // gtk_idle_add((GtkFunction)animate_idle_rock, g.glarea);
-	 gtk_timeout_add(10, // 100 fps
+	 gtk_timeout_add(25, // 40 fps
 			 (GtkFunction) animate_idle_rock,
 			 g.glarea);
       g.time_holder_for_rocking = glutGet(GLUT_ELAPSED_TIME);
@@ -1252,8 +1252,6 @@ void toggle_idle_ligand_interactions() {
    graphics_info_t g;
    if (g.idle_function_ligand_interactions_token == 0) {
       g.idle_function_ligand_interactions_token =
-// 	 gtk_idle_add((GtkFunction) animate_idle_ligand_interactions,
-// 		      g.glarea);
 	 gtk_timeout_add(100,
 			 (GtkFunction) animate_idle_ligand_interactions,
 			 NULL);
