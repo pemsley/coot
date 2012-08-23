@@ -1034,6 +1034,13 @@ void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2, const std::strin
 int handle_drag_and_drop_string(const std::string &uri);
 // \}
 
+/* ------------------------------------------------------------------------- */
+/*                      correllation maps                                    */
+/* ------------------------------------------------------------------------- */
+
+SCM map_to_model_correlation_scm(int imol, SCM residue_specs, int imol_map);
+PyObject *map_to_model_correlation_py(int imol, PyObject *residue_specs, int imol_map);
+float map_to_model_correlation(int imol, const std::vector<coot::residue_spec_t> &specs, int imol_map);
 
 
 /* ------------------------------------------------------------------------- */
@@ -1079,6 +1086,7 @@ std::pair<int, int> decode_ints(int i);
 
 #ifdef USE_GUILE
 std::vector<coot::residue_spec_t> scm_to_residue_specs(SCM s);
+// and that backwards is scm_residue() above.
 int key_sym_code_scm(SCM s_scm);
 #endif // USE_GUILE
 #ifdef USE_PYTHON

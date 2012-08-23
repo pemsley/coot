@@ -3219,7 +3219,7 @@ molecule_class_info_t::rigid_body_fit(const coot::minimol::molecule &mol_in,
    lig.fit_ligands_to_clusters(1);
    coot::minimol::molecule moved_mol = lig.get_solution(0);
    return moved_mol;
-} 
+}
 
 bool
 molecule_class_info_t::map_is_too_blue_p() const {

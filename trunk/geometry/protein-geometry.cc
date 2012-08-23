@@ -6312,3 +6312,26 @@ coot::protein_geometry::n_hydrogens(const std::string &residue_type) {
    }
    return n_hydrogens;
 } 
+
+// This uses have_dictionary_for_residue_type() (and thus
+// try_dynamic_add() if needed).
+// 
+// Return -1 if residue type not found.
+// 
+int
+coot::protein_geometry::n_non_hydrogen_atoms(const std::string &residue_type) {
+
+   int n_atoms = -1;
+   
+   std::pair<bool, dictionary_residue_restraints_t> r = get_monomer_restraints(residue_type);
+
+   if (r.first) {
+      n_atoms = 0; // not not-found
+      for (unsigned int iat=0; iat<r.second.atom_info.size(); iat++) { 
+	 if (r.second.atom_info[iat].type_symbol != " H")
+	    if (r.second.atom_info[iat].type_symbol != "H")
+	       n_atoms++;
+      }
+   }
+   return n_atoms;
+} 

@@ -599,6 +599,15 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 #endif // MAKE_ENTERPRISE_TOOLS   
 }
 
+void fle_view_set_water_dist_max(float dist_max) { 
+   graphics_info_t::fle_water_dist_max = dist_max;   // default 3.25
+} 
+
+void fle_view_set_h_bond_dist_max(float h_bond_dist_max) {
+   graphics_info_t::fle_h_bond_dist_max = h_bond_dist_max;   // default 3.9
+} 
+
+
 std::vector<int>
 coot::make_add_reps_for_near_residues(std::vector<CResidue *> filtered_residues,
 				      int imol) {
@@ -1509,8 +1518,25 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 			   float h_bond_dist_max) {
    
    std::vector<coot::fle_ligand_bond_t> v; // returned value
+   bool debug = true;
 
-   bool debug = 0;
+   if (debug) {
+      std::cout << "::::::::::::::::::::: get_fle_ligand_bonds() inputs: " << std::endl;
+      std::cout << "::::::::: ligand_res: " << ligand_res << " " << residue_spec_t(ligand_res) <<
+	 std::endl;
+      std::cout << "::::::::: n residues: " << residues.size() << std::endl;
+      for (unsigned int ires=0; ires<residues.size(); ires++)
+	 std::cout << ":::::::::      residue: " << ires << " " << residue_spec_t(residues[ires])
+		   << std::endl;
+      std::cout << "::::::::: mol: " << mol << std::endl;
+      std::cout << "::::::::: name map size: " << name_map.size() << std::endl;
+      std::map<std::string, std::string>::const_iterator it;
+      for (it=name_map.begin(); it!=name_map.end(); it++)
+	 std::cout << ":::::::::    name map: " << it->first << "->" << it->second << std::endl;
+      std::cout << "::::::::: water_dist_max: " << water_dist_max << std::endl;
+      std::cout << "::::::::: h_bond_dist_max: " << h_bond_dist_max << std::endl;
+   }
+   
    std::vector<CResidue *> rv = residues;
    rv.push_back(ligand_res);
 
@@ -1518,8 +1544,8 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
    coot::residue_spec_t ligand_spec(ligand_res);
 
    if (m.first) { 
-      int SelHnd_all = m.second->NewSelection();
-      int SelHnd_lig = m.second->NewSelection();
+      int SelHnd_all = m.second->NewSelection(); // d
+      int SelHnd_lig = m.second->NewSelection(); // d
       m.second->SelectAtoms(SelHnd_all, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
       m.second->SelectAtoms(SelHnd_lig, 0, ligand_spec.chain.c_str(),
 			    ligand_spec.resno, ligand_spec.insertion_code.c_str(),

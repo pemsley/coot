@@ -2073,3 +2073,35 @@ PyObject *get_residue_by_type_py(int imol, const std::string &residue_type) {
    return r;
 } 
 #endif
+
+
+#ifdef USE_GUILE
+SCM het_group_residues_scm(int imol) {
+
+   SCM r = SCM_EOL;
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> specs = graphics_info_t::molecules[imol].het_groups();
+      for (unsigned int i=0; i<specs.size(); i++) { 
+	 SCM s = scm_residue(specs[i]);
+	 r = scm_cons(s, r);
+      }
+      r = scm_reverse(r);
+   } 
+   return r;
+}
+#endif
+
+/*! \brief return the number of non-hydrogen atoms in the given
+  het-group (comp-id). 
+
+Return -1 on comp-id not found in dictionary.  */
+int het_group_n_atoms(const char *comp_id) {
+
+   graphics_info_t g;
+   int r = g.Geom_p()->n_non_hydrogen_atoms(comp_id);
+   return r;
+}
+
+
+
+					      

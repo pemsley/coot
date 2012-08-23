@@ -2596,7 +2596,7 @@
 ;; Call this when the associated sequence(s) have been read in already.
 ;; 
 (define (alignment-mismatches-gui imol)
-  
+
   ;; Return CA if there is such an atom in the residue, else return
   ;; the first atom in the residue.
   ;; 
@@ -2613,7 +2613,10 @@
 	       ((string=? (car (car (car atoms))) " CA ")
 		       " CA ")
 	       (else (loop (cdr atoms)))))))))
+
+
 	   
+  (format #t "------------- alignment-mismatches-gui called with imol ~s~%" imol)
 
   ;; main line
   (let ((am (alignment-mismatches imol)))

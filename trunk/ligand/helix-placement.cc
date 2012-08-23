@@ -265,6 +265,8 @@ coot::helix_placement::place_alpha_helix_near(const clipper::Coord_orth &pt,
 }
 
 // The Engine here is Kevin Cowtan's MR-style search.
+//
+// min_density_limit is typically 1 sigma
 // 
 coot::helix_placement_info_t
 coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_orth &pt,
@@ -274,11 +276,29 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 
    clipper::Coord_orth ptc = pt;
    for (int i=0; i<10; i++) {
-      // std::cout << "move point round number " << i << std::endl;
       float max_density_lim = min_density_limit * 2.0; // min_density_limit is the 
 						       // wrong name, I think.
       ptc = move_helix_centre_point_guess(ptc, max_density_lim);
    }
+
+   // OK, let's limit the movement of the centre position to 1.5A.
+   //
+   double centre_moved_dist = sqrt((pt-ptc).lengthsq());
+   double max_allowed_move = 1.0;
+   if (centre_moved_dist > max_allowed_move) {
+      clipper::Coord_orth v(max_allowed_move * (ptc.x()-pt.x())/centre_moved_dist,
+			    max_allowed_move * (ptc.y()-pt.y())/centre_moved_dist,
+			    max_allowed_move * (ptc.z()-pt.z())/centre_moved_dist);
+      ptc = pt + v;
+   }
+
+   if (0) { // debugging initial moving
+      std::cout << "=================== called with pt " <<  pt.format() << std::endl;
+      std::cout << "=================== ptc now        " << ptc.format() << std::endl;
+      std::cout << "=================== difference     " << clipper::Coord_orth(ptc-pt).format()
+		<< std::endl;
+   }
+   
 
    float acell[6];
    acell[0] = xmap.cell().descr().a();
@@ -309,7 +329,7 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 
       // search model params
       double cyl_len = 6.0;  // half length
-      double cyl_rad = 2.5;  // half diameter (radius)
+      double cyl_rad = 2.8;  // half diameter (radius)
       cyl_len = double(n_residues)/2.0; // PE parameter (for helices)
 
       // ------------- elided ----------------
@@ -441,8 +461,17 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
    return coot::helix_placement_info_t(mr, success, failure_message);
 }
 
+// when density is above max_density_limit, reduce the score
+// 
 clipper::RTop_orth 
-coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, double cyl_len, double cyl_rad, float max_density_limit) const {
+coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, double cyl_len,
+						  double cyl_rad, float max_density_limit) const {
+
+   // density map score for density d:
+   //     below mdl: d
+   //
+   //     above mdl:
+   //               2*mdl - d
 
    // make the search angles
    std::vector<clipper::RTop_orth> ops;
@@ -472,14 +501,17 @@ coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, doubl
    typedef clipper::Xmap<float>::Map_reference_coord MRC;
    MRC i0, iu, iv, iw;
    std::vector<double> scores( ops.size() );
+   std::vector<unsigned int> n_cyl_points( ops.size() );
    clipper::Cell cell          = xmap.cell();
    clipper::Grid_sampling grid = xmap.grid_sampling();
    clipper::Grid_range gr( cell, grid, sqrt(cyl_len*cyl_len+cyl_rad*cyl_rad) );
    clipper::Coord_grid g, g0, g1;
    clipper::Coord_orth c0, c1;
    float d; 
-   for (unsigned int j = 0; j < ops.size(); j++ )
+   for (unsigned int j = 0; j < ops.size(); j++ ) { 
       scores[j] = 0.0;
+      n_cyl_points[j] = 0;
+   }
 
    g = ptc.coord_frac(cell).coord_grid(grid);
    g0 = g + gr.min();
@@ -494,18 +526,24 @@ coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, doubl
 	       if ( fabs(c1.z()) < cyl_len &&
 		    c1.x()*c1.x()+c1.y()*c1.y() < cyl_rad*cyl_rad ) {
 		  d = xmap[iw];
-		  scores[j] += (d > max_density_limit ? max_density_limit : d);
+		  scores[j] += (d > max_density_limit ? 2*max_density_limit-d : d);
+		  n_cyl_points[j]++;
 	       }
 	    }
 	 }
    }
-   int jmax = 0;
-   for (unsigned int j = 0; j < ops.size(); j++ )
-      if ( scores[j] > scores[jmax] ) jmax = j;
+   
+   if (0) // debug
+      for (unsigned int j = 0; j < ops.size(); j++)
+	 std::cout << "orientation " << j << " score " << scores[j] << " " << n_cyl_points[j]
+		   << " points" << std::endl;
+   
+   unsigned int jmax = 0;
+   for (unsigned int j = 0; j < ops.size(); j++)
+      if (scores[j] > scores[jmax])
+	 jmax = j;
    resultops = jmax;
-
    return ops[resultops];
-
 }
 
 
@@ -660,13 +698,18 @@ coot::helix_placement::move_helix_centre_point_guess(const clipper::Coord_orth &
       // double one_over = 1/(double(n_samples));
 
       new_pt = (one_over * sum);
+
+      if (0) { 
+	 std::cout << "DEBUG:: starting point: " << pt.format() << std::endl;
+	 std::cout << "DEBUG::     mean point: " << new_pt.format() << std::endl;
+	 std::cout << "DEBUG:: moved... " << sqrt((pt - new_pt).lengthsq()) << std::endl;
+	 std::cout << "DEBUG:: nsamples: " << n_samples << std::endl;
+      }
       
-//       std::cout << "starting point: " << pt.format() << std::endl;
-//       std::cout << "    mean point: " << new_pt.format() << std::endl;
-      //       std::cout << "nsamples: " << n_samples << std::endl;
       i = 1; // a good thing
    } 
-   
+
+   // std::cout << "DEBUG:: total moved " << sqrt((pt-new_pt).lengthsq()) << std::endl;
    return new_pt;
 }
 
@@ -1241,7 +1284,7 @@ coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_le
    double cyl_len = 10.0;
    double cyl_rad = 1.0;
 
-   float dd = 2.0 * sigma_level;
+   float dd = 2.5 * sigma_level;
    clipper::RTop_orth best_op = find_best_tube_orientation(pt, cyl_len, cyl_rad, dd);
 
    clipper::RTop_orth op_plus_trans(best_op.rot(), pt);

@@ -1567,3 +1567,44 @@ int make_variance_map_py(PyObject *map_molecule_number_list) {
    return make_variance_map(v);
 } 
 #endif // USE_PYTHON
+
+
+/* ------------------------------------------------------------------------- */
+/*                      correllation maps                                    */
+/* ------------------------------------------------------------------------- */
+
+float map_to_model_correlation(int imol, const std::vector<coot::residue_spec_t> &specs, int imol_map) {
+
+   float ret_val = -2;
+   float atom_radius = 1.2;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 clipper::Xmap<float> xmap_reference = graphics_info_t::molecules[imol_map].xmap_list[0];
+	 ret_val = coot::util::map_to_model_correlation(mol, specs, atom_radius, xmap_reference);
+      }
+   }
+   return ret_val;
+}
+   
+
+#ifdef USE_GUILE
+SCM map_to_model_correlation_scm(int imol, SCM residue_specs, int imol_map) {
+
+   SCM ret_val = SCM_BOOL_F;
+   std::vector<coot::residue_spec_t> residues = scm_to_residue_specs(residue_specs);
+   float c = map_to_model_correlation(imol, residues, imol_map);
+   ret_val = scm_double2num(c);
+   return ret_val;
+}
+#endif 
+
+#ifdef USE_PYTHON
+PyObject *map_to_model_correlation_py(int imol, PyObject *residue_specs, int imol_map) {
+
+   std::vector<coot::residue_spec_t> residues = py_to_residue_specs(residue_specs);
+   double c = map_to_model_correlation(imol, residues, imol_map);
+   return PyFloat_FromDouble(c);
+}
+#endif 
+

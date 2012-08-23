@@ -1242,8 +1242,8 @@ int                      graphics_info_t::show_graphics_ligand_view_flag = 1; //
 
 // FLEV
 // use-defined flev params
-float graphics_info_t::fle_water_dist_max;   // 3.25
-float graphics_info_t::fle_h_bond_dist_max;  // 3.9
+float graphics_info_t::fle_water_dist_max = 3.25;   // 3.25
+float graphics_info_t::fle_h_bond_dist_max = 3.9;   // 3.9
 
 
 // GTK2 code

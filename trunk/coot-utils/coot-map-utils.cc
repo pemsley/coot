@@ -1413,9 +1413,131 @@ coot::util::calc_atom_map(CMMDBManager *mol,
       l.push_back(atom);
    }
 
-   clipper::Atom_list al(l);
-   clipper::EDcalc_iso<float> e;
-   e(xmap, al);
-
+   try { 
+      clipper::Atom_list al(l);
+      clipper::EDcalc_iso<float> e;
+      e(xmap, al);
+   }
+   catch (clipper::Message_base &e) {
+      std::cout << "e.what()" << std::endl;
+   }
    return xmap;
 }
+
+float
+coot::util::map_to_model_correlation(CMMDBManager *mol,
+				     const std::vector<residue_spec_t> &specs,
+				     float atom_radius,
+				     const clipper::Xmap<float> &reference_map) {
+
+   float ret_val = -2;
+   int SelHnd = mol->NewSelection();
+
+   // std::cout << "There are " << specs.size() << " residues " << std::endl;
+   for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++)
+      std::cout << "   " << specs[ilocal] << std::endl;
+
+   for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++) { 
+      mol->SelectAtoms(SelHnd, 1,
+		       specs[ilocal].chain.c_str(),
+		       specs[ilocal].resno,
+		       specs[ilocal].insertion_code.c_str(),
+		       specs[ilocal].resno,
+		       specs[ilocal].insertion_code.c_str(),
+		       "*", // any residue name
+		       "*", // atom name
+		       "*", // elements
+		       "*",  // alt loc.
+		       SKEY_OR
+		       );
+   }
+
+   clipper::Xmap_base::Map_reference_index ix;
+   clipper::Xmap<float> calc_map =
+      coot::util::calc_atom_map(mol, SelHnd,
+				reference_map.cell(),
+				reference_map.spacegroup(),
+				reference_map.grid_sampling());
+
+   if (not (calc_map.is_null())) { 
+      clipper::Xmap<float> masked_map(reference_map.spacegroup(),
+				      reference_map.cell(),
+				      reference_map.grid_sampling());
+      for (ix = masked_map.first(); !ix.last(); ix.next())
+	 masked_map[ix] = 0;
+      PPCAtom atom_selection = 0;
+      int n_atoms;
+      mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+      for (unsigned int iat=0; iat<n_atoms; iat++) {
+	 clipper::Coord_orth co(atom_selection[iat]->x,
+				atom_selection[iat]->y,
+				atom_selection[iat]->z);
+	 clipper::Coord_frac cf = co.coord_frac(masked_map.cell());
+	 clipper::Coord_frac box0(
+				  cf.u() - atom_radius/masked_map.cell().descr().a(),
+				  cf.v() - atom_radius/masked_map.cell().descr().b(),
+				  cf.w() - atom_radius/masked_map.cell().descr().c());
+
+	 clipper::Coord_frac box1(
+				  cf.u() + atom_radius/masked_map.cell().descr().a(),
+				  cf.v() + atom_radius/masked_map.cell().descr().b(),
+				  cf.w() + atom_radius/masked_map.cell().descr().c());
+
+	 clipper::Grid_map grid(box0.coord_grid(masked_map.grid_sampling()),
+				box1.coord_grid(masked_map.grid_sampling()));
+
+	 float atom_radius_sq = atom_radius * atom_radius;
+
+	 clipper::Xmap_base::Map_reference_coord ix(masked_map, grid.min() ), iu, iv, iw;
+	 for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) { 
+	    for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
+	       for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+		  if ( (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - co).lengthsq() < atom_radius_sq) {
+		     if (0) 
+			std::cout << "masked point at " 
+				  << iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()).format()
+				  << " centre point: " << co.format() << " " 
+				  << (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - co).lengthsq() 
+				  << std::endl;
+		     masked_map[iw] = 1;
+		  }
+	       }
+	    }
+	 }
+      }
+      mol->DeleteSelection(SelHnd);
+
+      double sum_x  = 0;
+      double sum_y  = 0;
+      double sum_x_sqd  = 0;
+      double sum_y_sqd  = 0;
+      double sum_xy = 0;
+      int n = 0;
+      for (ix = reference_map.first(); !ix.last(); ix.next()) {
+	 double x = calc_map[ix];
+	 double y = reference_map[ix];
+	 if (masked_map[ix]) {
+	    sum_x  += x;
+	    sum_y  += y;
+	    sum_xy += x * y;
+	    sum_x_sqd += x*x;
+	    sum_y_sqd += y*y;
+	    n++;
+	 }
+      }
+
+      double top = double(n) * sum_xy - sum_x * sum_y;
+      double b_1 = double(n) * sum_x_sqd - sum_x * sum_x;
+      double b_2 = double(n) * sum_y_sqd - sum_y * sum_y;
+
+      if (b_1 < 0) b_1 = 0;
+      if (b_2 < 0) b_2 = 0;
+
+      double c = top/(sqrt(b_1) * sqrt(b_2));
+      std::cout << "   correlation: " << c << std::endl;
+      ret_val = c;
+   }
+   return ret_val;
+}
+
+
