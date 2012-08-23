@@ -193,65 +193,68 @@ coot::minimol::molecule::setup(CMMDBManager *mol) {
       if (fragments.size() > 0) {
 	 delete_molecule();
       }
-      InitMatType();
 
       int imod = 1;
       // for (int imod=1; imod<=n_models; imod++) {
       if (imod == 1) { 
       
 	 CModel *model_p = mol->GetModel(imod);
-	 CChain *chain_p;
-	 // run over chains of the existing mol 
-	 int nchains = model_p->GetNumberOfChains();
-	 if (nchains <= 0) { 
-	    std::cout << "bad nchains in molecule " << nchains
-		      << std::endl;
+	 if (! model_p) {
+	    // std::cout << "NULL model_p in ::setup() " << std::endl;
 	 } else { 
-	    for (int ichain=0; ichain<nchains; ichain++) {
-	       chain_p = model_p->GetChain(ichain);
+	    CChain *chain_p;
+	    // run over chains of the existing mol 
+	    int nchains = model_p->GetNumberOfChains();
+	    if (nchains <= 0) { 
+	       std::cout << "bad nchains in molecule " << nchains
+			 << std::endl;
+	    } else { 
+	       for (int ichain=0; ichain<nchains; ichain++) {
+		  chain_p = model_p->GetChain(ichain);
 
-	       // int ifrag = fragment_for_chain(chain_p->GetChainID()); old
-	       int ifrag = ichain;
-	       std::string fragment_id = chain_p->GetChainID();
-	       fragments.push_back(coot::minimol::fragment(fragment_id));
-	       ifrag = fragments.size() -1;
+		  // int ifrag = fragment_for_chain(chain_p->GetChainID()); old
+		  int ifrag = ichain;
+		  std::string fragment_id = chain_p->GetChainID();
+		  fragments.push_back(coot::minimol::fragment(fragment_id));
+		  ifrag = fragments.size() -1;
 	       
-	       if (chain_p == NULL) {  
-		  // This should not be necessary. It seem to be a
-		  // result of mmdb corruption elsewhere - possibly
-		  // DeleteChain in update_molecule_to().
-		  std::cout << "NULL chain in ... minimol setup" << std::endl;
-	       } else { 
-		  int nres = chain_p->GetNumberOfResidues();
-		  std::pair<short int, int> min_info = min_resno_in_chain(chain_p);
-		  if (min_info.first) { 
-		     fragments[ifrag].resize_for(nres, min_info.second);
-		     PCResidue residue_p;
-		     CAtom *at;
-		     for (int ires=0; ires<nres; ires++) { 
-			residue_p = chain_p->GetResidue(ires);
-			coot::minimol::residue r(residue_p->seqNum); 
-			int n_atoms = residue_p->GetNumberOfAtoms();
-			r.name = residue_p->name;
+		  if (chain_p == NULL) {  
+		     // This should not be necessary. It seem to be a
+		     // result of mmdb corruption elsewhere - possibly
+		     // DeleteChain in update_molecule_to().
+		     std::cout << "NULL chain in ... minimol setup" << std::endl;
+		  } else { 
+		     int nres = chain_p->GetNumberOfResidues();
+		     std::pair<short int, int> min_info = min_resno_in_chain(chain_p);
+		     if (min_info.first) { 
+			fragments[ifrag].resize_for(nres, min_info.second);
+			PCResidue residue_p;
+			CAtom *at;
+			for (int ires=0; ires<nres; ires++) { 
+			   residue_p = chain_p->GetResidue(ires);
+			   coot::minimol::residue r(residue_p->seqNum); 
+			   int n_atoms = residue_p->GetNumberOfAtoms();
+			   r.name = residue_p->name;
 
-			for (int iat=0; iat<n_atoms; iat++) {
-			   at = residue_p->GetAtom(iat);
-			   if (! at->isTer()) { 
-			      clipper::Coord_orth p(at->x, at->y, at->z);
-			      coot::minimol::atom mat(std::string(at->name),
-						      std::string(at->element),
-						      p,
-						      std::string(at->altLoc),
-						      at->occupancy,
-						      at->tempFactor);
-			      r.addatom(mat);
+			   for (int iat=0; iat<n_atoms; iat++) {
+			      at = residue_p->GetAtom(iat);
+			      if (! at->isTer()) { 
+				 clipper::Coord_orth p(at->x, at->y, at->z);
+				 coot::minimol::atom mat(std::string(at->name),
+							 std::string(at->element),
+							 p,
+							 std::string(at->altLoc),
+							 at->occupancy,
+							 at->tempFactor);
+				 r.addatom(mat);
+			      }
 			   }
-			}
-			try { 
-			   fragments[ifrag].addresidue(r, 0);
-			} 
-			catch (std::runtime_error rte) {
-			   std::cout << "ERROR:: minimol molecule setup() " << rte.what() << std::endl;
+			   try { 
+			      fragments[ifrag].addresidue(r, 0);
+			   } 
+			   catch (std::runtime_error rte) {
+			      std::cout << "ERROR:: minimol molecule setup() " << rte.what() << std::endl;
+			   }
 			}
 		     }
 		  }
