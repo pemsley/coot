@@ -36,6 +36,8 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
 	 } else { 
 	    if (PyCallable_Check(pFunc)) {
 	       silicos_it_qed_default_func = pFunc;
+	       std::cout << "DEUBG:: saved silicos_it_qed_default_func " << silicos_it_qed_default_func
+			 << std::endl;
 	    } else {
 	       std::cout << "function is not callable"  << std::endl;
 	    }
@@ -60,8 +62,10 @@ get_qed(PyObject *silicos_it_qed_default_func, const RDKit::ROMol &rdkm) {
 	 rdkit_mol_py = obj.ptr();
 	 PyTuple_SetItem(arg_list, 0, rdkit_mol_py);
 	 PyObject *result = PyEval_CallObject(silicos_it_qed_default_func, arg_list);
+	 std::cout << "DEBUG:: in get_qed() silicos_it_qed_default_func is "
+		   << silicos_it_qed_default_func << std::endl;
 	 if (! result) {
-	    std::cout << "Null result" << std::endl;
+	    std::cout << "Null result from silicos_it_qed_default_func" << std::endl;
 	 } else { 
 	    if (PyFloat_Check(result)) { 
 	       r = PyFloat_AsDouble(result);
