@@ -109,7 +109,7 @@ if test x$glut_prefix != x ; then
 	#
         case "$ac_cv_build" in 
            x86_64-unknown-linux-gnu)
-  	   GLUT_LDOPTS="-L$glut_prefix/lib -lglut -L/usr/X11R6/lib $GL_LIBS"
+  	   GLUT_LDOPTS="-L$glut_prefix/$acl_libdirstem -lglut -L/usr/X11R6/$acl_libdirstem $GL_LIBS"
 	   break;;
         esac
 
