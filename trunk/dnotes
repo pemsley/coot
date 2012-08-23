@@ -6787,5 +6787,17 @@ Tue Jul 31 11:17:55 EDT 2012
 
    William asbury
 
+
+----
+Mon Aug  6 15:00:07 BST 2012
+
+   try to pdbe get 4fts: refmac says:
+
+Fatal error in ccp4spg_register_by_symops
+
+
+   4e6n fails with label error
+
+
 ------
 
