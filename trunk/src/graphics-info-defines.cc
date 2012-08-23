@@ -1612,7 +1612,7 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
 // 	 filename += int_to_string(naii.imol);
 	 int imol = naii.imol;
 	 std::string filename = molecules[imol].name_sans_extension(0);
-	 filename += "-symmetry-";
+	 filename += "_symmetry_";
 	 // 20111117 - previously we had just the symmetry number.
 	 // Now let's add the translation too.
 	 std::string fill_char = "0";
@@ -1620,7 +1620,7 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
              	                                              // zero indexing -> real-world/dictionary indexing.
 	 // x
 	 if (naii.symm_trans.x() < 0)
-	    fill_char = "-";
+	    fill_char = "";
 	 else
 	    fill_char = "0";
 	 filename += fill_char;
@@ -1643,7 +1643,6 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
 	 // 
 	 filename += ".pdb";
 
-#if (GTK_MAJOR_VERSION > 1)
 	 if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
 		gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(w),
                                          filename.c_str());
@@ -1651,10 +1650,6 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
 	 	gtk_file_selection_set_filename(GTK_FILE_SELECTION(w),
 					 filename.c_str());
 	 }
-#else
-	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(w),
-					 filename.c_str());
-#endif // GTK_MAJOR_VERSION
 	 
 	 normal_cursor();
 	 gtk_widget_show(w);
