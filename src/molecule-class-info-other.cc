@@ -4207,7 +4207,6 @@ molecule_class_info_t::split_residue(int atom_index, int alt_conf_split_type) {
 	 
 	 res_copy->TrimAtomTable();
 	 atom_selection_container_t asc_dummy;
-	 std::cout << "Calling  -------- split_residue_internal ---------------------\n";
 	 pr = split_residue_internal(res_copy, altconf, residue_alt_confs, p.second, 1);
       }
    } else {
