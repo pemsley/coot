@@ -4094,6 +4094,15 @@ graphics_info_t::clear_pointer_distances() {
 
 }
 
+std::ostream&
+coot::operator<<(std::ostream &s, simple_distance_object_t o) {
+
+   s << "simple-distance: start-mol " << o.imol_start << " end-mol " << o.imol_end << " " 
+     << o.start_pos.format() << " " << o.end_pos.format();
+   return s;
+} 
+
+
 void
 graphics_info_t::clear_simple_distances() {
 
@@ -4108,9 +4117,9 @@ graphics_info_t::clear_last_simple_distance() {
    if (n > 0) {
       // distance_object_vec->resize(n-1); old style.  Can't do with
       // with new simple_distance_object_t
-      std::vector<coot::simple_distance_object_t>::iterator it =
-	 distance_object_vec->end();
-	 distance_object_vec->erase(it);
+      std::vector<coot::simple_distance_object_t>::iterator it;
+      it = distance_object_vec->end();
+      distance_object_vec->erase(it);
       graphics_draw();
    }
 }

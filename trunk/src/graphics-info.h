@@ -242,8 +242,10 @@ namespace coot {
        end_pos = end;
        imol_start = imol1;
        imol_end = imol2;
-     } 
+     }
+     friend std::ostream& operator<<(std::ostream &s, simple_distance_object_t o);
    };
+   std::ostream& operator<<(std::ostream &s, simple_distance_object_t o);
 
 
    class intermediate_atom_distance_t {

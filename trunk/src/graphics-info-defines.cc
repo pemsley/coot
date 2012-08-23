@@ -487,6 +487,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 
 	    if (in_distance_define == 1) {
 	       distance_pos_1 = symm_nearest_atom_index_info.hybrid_atom.pos;
+	       geometry_atom_index_1_mol_no = symm_nearest_atom_index_info.imol;
 	       in_distance_define = 2;
 	       std::cout << "click on a second atom" << std::endl;
 	       graphics_draw();
@@ -495,6 +496,7 @@ graphics_info_t::check_if_in_geometry_range_defines(GdkEventButton *event) {
 
 	       // in_distance_define == 2
 	       coot::Cartesian pos2 = symm_nearest_atom_index_info.hybrid_atom.pos;
+	       geometry_atom_index_2_mol_no = symm_nearest_atom_index_info.imol;
 	       display_geometry_distance_symm(geometry_atom_index_1_mol_no, distance_pos_1,
 					      geometry_atom_index_2_mol_no, pos2);
 	       unset_geometry_dialog_distance_togglebutton();
