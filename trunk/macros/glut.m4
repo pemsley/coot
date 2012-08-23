@@ -97,8 +97,9 @@ if test x$glut_prefix != x ; then
 	   break;;
 
        x86_64-*-linux-gnu)
-	   # e.g. our 64-bit Suse 9.x machine (hkl101) [no Xmu]
-  	   GLUT_LDOPTS="-L$glut_prefix/lib -lglut -L/usr/X11R6/lib $GL_LIBS"
+	   # e.g. 64-bit Suse 9.x machine (hkl101) [no Xmu]
+	   # AS: use libdirstem here too.
+  	   GLUT_LDOPTS="-L$glut_prefix/$acl_libdirstem -lglut -L/usr/X11R6/$acl_libdirstem $GL_LIBS"
 	   break;;
 
 	esac
