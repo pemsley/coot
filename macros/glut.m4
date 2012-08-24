@@ -99,7 +99,7 @@ if test x$glut_prefix != x ; then
        x86_64-*-linux-gnu)
 	   # e.g. 64-bit Suse 9.x machine (hkl101) [no Xmu]
 	   # AS: use libdirstem here too.
-  	   GLUT_LDOPTS="-L$glut_prefix/$acl_libdirstem -lglut -L/usr/X11R6/$acl_libdirstem $GL_LIBS"
+  	   GLUT_LDOPTS="-L$glut_prefix/lib -lglut -L/usr/X11R6/$acl_libdirstem $GL_LIBS"
 	   break;;
 
 	esac
@@ -109,25 +109,10 @@ if test x$glut_prefix != x ; then
 	#
         case "$ac_cv_build" in 
            x86_64-unknown-linux-gnu)
-  	   GLUT_LDOPTS="-L$glut_prefix/$acl_libdirstem -lglut -L/usr/X11R6/$acl_libdirstem $GL_LIBS"
+  	   GLUT_LDOPTS="-L$glut_prefix/lib -lglut -L/usr/X11R6/$acl_libdirstem $GL_LIBS"
 	   break;;
         esac
 
-
-dnl Recall that on cygwin we need 
-dnl GLUT_LDOPTS="-L$glut_prefix/lib" -lglut -L/usr/X11R6/lib $GL_LIBS -lXxf86vm -lXext -lX11" 
-dnl it seems to me that -L/usr/X11R6/lib should be part of GL_LIBS, it is not clear to 
-dnl me why it isn't. 
-
-dnl	# now tinker for the special case additions:
-dnl Actually, I no longer think that this is a special case
-dnl redhat 9 needs it too... 
-dnl	case $ac_cv_build_alias in
-
-dnl	mips*)
-dnl      	   GLUT_LDOPTS="$GLUT_LDOPTS -lXmu $GTK_LIBS"
-dnl	   break ;;
-dnl	esac
 
 else
 
