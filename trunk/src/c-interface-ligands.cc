@@ -2091,6 +2091,25 @@ SCM het_group_residues_scm(int imol) {
 }
 #endif
 
+#ifdef USE_PYTHON
+PyObject *het_group_residues_py(int imol) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> specs = graphics_info_t::molecules[imol].het_groups();
+      r = PyList_New(specs.size());
+      for (unsigned int i=0; i<specs.size(); i++) { 
+         PyList_SetItem(r, i, py_residue(specs[i]));
+      }
+   } 
+   if (PyBool_Check(r)) {
+      Py_INCREF(r);
+   }
+      
+   return r;
+}
+#endif
+
 /*! \brief return the number of non-hydrogen atoms in the given
   het-group (comp-id). 
 

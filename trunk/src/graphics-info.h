@@ -1039,6 +1039,7 @@ public:
       coordinates_glob_extensions->push_back(".mmCIF.gz");
       coordinates_glob_extensions->push_back(".res");  // SHELX
       coordinates_glob_extensions->push_back(".ins");  // SHELX
+      coordinates_glob_extensions->push_back(".pda");  // SHELX
 
       data_glob_extensions->push_back(".mtz");
       data_glob_extensions->push_back(".hkl");

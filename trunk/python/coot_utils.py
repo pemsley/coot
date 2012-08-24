@@ -390,6 +390,12 @@ def atom_spec2imol(atom_spec):
             return atom_spec[1]
         return False
 
+def residue_spec2residue_name(imol, spec):
+    return residue_name(imol,
+                        spec[1],
+                        spec[2],
+                        spec[3])
+
 # Return a list of molecules that are maps
 # 
 def map_molecule_list():
