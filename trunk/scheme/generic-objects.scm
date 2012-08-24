@@ -119,6 +119,8 @@
       (format #t "command for reduce (~s) is not in path~%" *reduce-command*)
       (begin
 	(let ((reduce-het-dict-file-name "coot-molprobity/reduce-het-dict.txt"))
+
+
 	  (write-reduce-het-dict imol reduce-het-dict-file-name)
 
 	  ;; As Bernie, let's try to set REDUCE_HET_DICT if
@@ -133,13 +135,23 @@
 		      (let ((f (append-dir-file d "reduce_wwPDB_het_dict.txt")))
 			(if (file-exists? f)
 			    (let ((env-string (string-append "REDUCE_HET_DICT=" f)))
+			      (format #t "puting env ~s~%" env-string)
 			      (putenv env-string))))))))
 
+	  (format #t "======= reduce-on-pdb-file: command ~s args ~s with pdb-out: ~s~%"
+		  *reduce-command*
+		  (list "-build"  pdb-in
+			"-DB" reduce-het-dict-file-name)		  
+		  pdb-out)
+	  
 	  (let ((status (goosh-command *reduce-command* 
 				       (list "-build"  pdb-in
 					     "-DB" reduce-het-dict-file-name)
 				       '() pdb-out #f)))
+	    
+	    (format #t "======== status ~s~%" status)
 	    status)))))
+
 
 
 (define *old-pdb-style* #f)

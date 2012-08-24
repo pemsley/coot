@@ -3128,7 +3128,7 @@ int quick_save() {
    il = coot::SCHEME_SCRIPT;
    g.save_state_file(g.save_state_file_name.c_str(), il);
 #endif    
-#ifdef USE_GUILE   
+#ifdef USE_PYTHON
    il = coot::PYTHON_SCRIPT;
    g.save_state_file("0-coot.state.py", il);
 #endif    

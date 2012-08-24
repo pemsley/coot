@@ -6,10 +6,6 @@
    o run get pdbe structure for 2 different ligands (running refmac twice).
      ::: 2
 
-   o Fix PISA interfaces. ::: 2
-
-* Scheme version done - python needs checking
- 
 
 ------
 
@@ -465,3 +461,7 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
 
 * Done.
 
+   o Fix PISA interfaces. ::: 3
+
+* Done - python too.
+ 
