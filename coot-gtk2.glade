@@ -32068,7 +32068,8 @@ search (this may not work well)</property>
 
 	      <child>
 		<widget class="GtkScrolledWindow" id="scrolledwindow12">
-		  <property name="border_width">4</property>
+		  <property name="border_width">6</property>
+		  <property name="height_request">70</property>
 		  <property name="visible">True</property>
 		  <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
 		  <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>
@@ -32077,6 +32078,7 @@ search (this may not work well)</property>
 
 		  <child>
 		    <widget class="GtkTextView" id="mutate_molecule_sequence_text">
+		      <property name="height_request">70</property>
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="editable">True</property>
@@ -32097,8 +32099,8 @@ search (this may not work well)</property>
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
-		  <property name="expand">False</property>
-		  <property name="fill">False</property>
+		  <property name="expand">True</property>
+		  <property name="fill">True</property>
 		</packing>
 	      </child>
 

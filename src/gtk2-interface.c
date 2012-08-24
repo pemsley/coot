@@ -15852,8 +15852,9 @@ create_mutate_sequence_dialog (void)
 
   scrolledwindow12 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow12);
-  gtk_box_pack_start (GTK_BOX (vbox116), scrolledwindow12, FALSE, FALSE, 0);
-  gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow12), 4);
+  gtk_box_pack_start (GTK_BOX (vbox116), scrolledwindow12, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (scrolledwindow12, -1, 70);
+  gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow12), 6);
   GTK_WIDGET_UNSET_FLAGS (scrolledwindow12, GTK_CAN_FOCUS);
   gtk_scrolled_window_set_policy (GTK_SCROLLED_WINDOW (scrolledwindow12), GTK_POLICY_NEVER, GTK_POLICY_ALWAYS);
   gtk_scrolled_window_set_shadow_type (GTK_SCROLLED_WINDOW (scrolledwindow12), GTK_SHADOW_IN);
@@ -15861,6 +15862,7 @@ create_mutate_sequence_dialog (void)
   mutate_molecule_sequence_text = gtk_text_view_new ();
   gtk_widget_show (mutate_molecule_sequence_text);
   gtk_container_add (GTK_CONTAINER (scrolledwindow12), mutate_molecule_sequence_text);
+  gtk_widget_set_size_request (mutate_molecule_sequence_text, -1, 70);
   gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (mutate_molecule_sequence_text), GTK_WRAP_WORD);
 
   label187 = gtk_label_new ("");
