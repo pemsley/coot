@@ -756,6 +756,10 @@ int residue_has_hetatms(int imol, const char * chain_id, int resno, const char *
 /*! \brief - get the specs for hetgroups - waters are not counted as het-groups. */
 SCM het_group_residues_scm(int imol);
 #endif
+#ifdef USE_PYTHON
+/*! \brief - get the specs for hetgroups - waters are not counted as het-groups. */
+PyObject *het_group_residues_py(int imol);
+#endif
 #endif
 
 /*! \brief return the number of non-hydrogen atoms in the given

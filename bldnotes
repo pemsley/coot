@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 4303 (some prodrg stuff needs testing) generic objects, check new defs
+scripts      rev 4341 (some prodrg stuff needs testing) generic objects, check new defs
 tests        rev 3991 update
 build-it-win rev 4031
 
@@ -39,15 +39,11 @@ OIST-CCP4
 - seq alignment produces N-term gaps which are not there... (gap to -2.5?)
 
 APS 2011(?)
-- include user defined restraints in distro
 - copy NCS (chain and residue range) to specific chains (not just all)
 - wider range for B sharpening (est. from Wilson?! determine cf Bruenger?) - needed?
 - automatically adjust NCS matrix type (i.e. fast for larger mols/more ncs)
 - backrub selection in refinement selection dialog
 - 
-
-
-UPDATE CCP4 on build machine! Use new dictionary!!!
 
 CCP4
 - baton build no chainid (?)
@@ -77,13 +73,9 @@ scripting exercise
 
 **** General ****
 
+   o give sequence view window a title (and maybe many more...).
+
    o reset (cap) ANISO 
-
-   o green marker doesnt move when changing chi alngle edit via keyboard
-
-   o add .res and .fcf to command line (without specifier)
-
-   o Show version in title
 
    o Ramachandran resize (automate & and use mouse wheel?!)
 
@@ -644,6 +636,20 @@ Osaka 2010
 
 
    o ^G doesnt update environment distances
+
+* Done
+
+
+   o green marker doesnt move when changing chi angles edit via keyboard
+
+* Done
+
+
+   o add .res to command line (without specifier)
+
+* Done
+
+   o Show version in title
 
 * Done
 

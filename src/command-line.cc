@@ -490,7 +490,8 @@ command_line_data::roberto_pdbs(int argc, char **argv) {
 
    for (unsigned int i=1; i<argc; i++) {
      std::string file = argv[i];
-     if (coot::util::extension_is_for_coords(coot::util::file_name_extension(file)))
+     if (coot::util::extension_is_for_coords(coot::util::file_name_extension(file)) ||
+         coot::util::extension_is_for_shelx_coords(coot::util::file_name_extension(file)))
        if (std::find(coords.begin(), coords.end(), file) == coords.end())
          coords.push_back(file);
 

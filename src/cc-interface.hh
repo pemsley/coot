@@ -1038,8 +1038,12 @@ int handle_drag_and_drop_string(const std::string &uri);
 /*                      correllation maps                                    */
 /* ------------------------------------------------------------------------- */
 
+#ifdef USE_GUILE   
 SCM map_to_model_correlation_scm(int imol, SCM residue_specs, int imol_map);
+#endif
+#ifdef USE_PYTHON
 PyObject *map_to_model_correlation_py(int imol, PyObject *residue_specs, int imol_map);
+#endif
 float map_to_model_correlation(int imol, const std::vector<coot::residue_spec_t> &specs, int imol_map);
 
 

@@ -83,11 +83,15 @@ make_residue_spec_py(PyObject *spec) {
    bool good_spec = 0;
    coot::residue_spec_t rs("A", 1);
    int spec_length = PyObject_Length(spec);
-
+   // we can now allow specs that are of length 4.  specs of length
+   // are created by het-groups (amongst other things) and have a
+   // state in the first position, which we skip (using offset = 1).
+   int offset = 0;
+   if (spec_length == 4) offset = 1;
    if (spec_length == 3) {
-      PyObject  *chain_id_py = PyList_GetItem(spec, 0);
-      PyObject     *resno_py = PyList_GetItem(spec, 1);
-      PyObject  *ins_code_py = PyList_GetItem(spec, 2);
+      PyObject  *chain_id_py = PyList_GetItem(spec, 0+offset);
+      PyObject     *resno_py = PyList_GetItem(spec, 1+offset);
+      PyObject  *ins_code_py = PyList_GetItem(spec, 2+offset);
       std::string chain_id = PyString_AsString(chain_id_py);
       int resno = PyInt_AsLong(resno_py);
       std::string ins_code  = PyString_AsString(ins_code_py);
