@@ -1,7 +1,5 @@
 global pisa_command
-pisa_command = "/home/bernhard/compile/pisa_1.06/obj/pisa"
-#pisa_command = "pisa"
-
+pisa_command = "pisa"
 
 def pisa_assemblies(imol):
 
