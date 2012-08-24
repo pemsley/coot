@@ -76,7 +76,7 @@
 	    (submenu-settings (gtk-menu-new))
 	    (menuitem-7 (gtk-menu-item-new-with-label "Settings..."))
 	    (submenu-pisa (gtk-menu-new))
-	    (menuitem-pisa (gtk-menu-item-new-with-label "PISA Assemblies..."))
+	    (menuitem-pisa (gtk-menu-item-new-with-label "PISA..."))
 	    (submenu-plugins (gtk-menu-new))
 	    (menuitem-plugins (gtk-menu-item-new-with-label "Plug-ins..."))
 	    (submenu-ncs (gtk-menu-new))
@@ -1310,7 +1310,7 @@
 
 
 	;; ---------------------------------------------------------------------
-	;;     PISA Interface
+	;;     PISA Interface and Assemblies
 	;; ---------------------------------------------------------------------
 
 
@@ -1321,6 +1321,13 @@
 	   (molecule-chooser-gui "Choose molecule for PISA assembly analysis"
 				 (lambda (imol)
 				   (pisa-assemblies imol)))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-pisa "PISA interfaces..." 
+	 (lambda ()
+	   (molecule-chooser-gui "Choose molecule for PISA interface analysis"
+				 (lambda (imol)
+				   (pisa-interfaces imol)))))
 
 
 	;; ---------------------------------------------------------------------

@@ -1038,7 +1038,7 @@ int handle_drag_and_drop_string(const std::string &uri);
 /*                      correllation maps                                    */
 /* ------------------------------------------------------------------------- */
 
-#ifdef USE_GUILE   
+#ifdef USE_GUILE
 SCM map_to_model_correlation_scm(int imol, SCM residue_specs, int imol_map);
 #endif
 #ifdef USE_PYTHON
