@@ -78,6 +78,8 @@
 	    (submenu-pisa (gtk-menu-new))
 	    (menuitem-pisa (gtk-menu-item-new-with-label "PISA..."))
 	    (submenu-plugins (gtk-menu-new))
+	    (menuitem-pdbe (gtk-menu-item-new-with-label "PDBe..."))
+	    (submenu-pdbe (gtk-menu-new))
 	    (menuitem-plugins (gtk-menu-item-new-with-label "Plug-ins..."))
 	    (submenu-ncs (gtk-menu-new))
 	    (menuitem-ncs (gtk-menu-item-new-with-label "NCS...")))
@@ -118,7 +120,9 @@
 	(gtk-menu-append menu menuitem-plugins)
 	(gtk-widget-show menuitem-plugins)
 
-
+	(gtk-menu-item-set-submenu menuitem-pdbe submenu-pdbe)
+	(gtk-menu-append menu menuitem-pdbe)
+	(gtk-widget-show menuitem-pdbe)
 
 	
 	;; ---------------------------------------------------------------------
@@ -995,11 +999,11 @@
 	;; 20110921 too crashy at the moment (something to do with lots of threads?)
 	;; 
 	(add-simple-coot-menu-menuitem
-	 menu "PDBe recent structures"
+	 submenu-pdbe "PDBe recent structures..."
 	 pdbe-latest-releases-gui)
 
 	(add-simple-coot-menu-menuitem
-	 menu "Get from PDBe"
+	 submenu-pdbe "Get from PDBe..."
 	 (lambda () 
 	   (generic-single-entry "Get PDBe accession code"
 				 "" " Get it "
