@@ -77,6 +77,8 @@ if (have_coot_python):
      menuitem_7 = gtk.MenuItem("Settings...")
      submenu_pisa = gtk.Menu()
      menuitem_pisa = gtk.MenuItem("PISA...")
+     submenu_pdbe = gtk.Menu()
+     menuitem_pdbe = gtk.MenuItem("PDBe...")
      submenu_plugins = gtk.Menu()
      menuitem_plugins = gtk.MenuItem("Plug-ins...")
      submenu_ncs = gtk.Menu()
@@ -117,6 +119,11 @@ if (have_coot_python):
      menuitem_plugins.set_submenu(submenu_plugins)
      menu.append(menuitem_plugins)
      menuitem_plugins.show()
+
+     menuitem_pdbe.set_submenu(submenu_pdbe)
+     menu.append(menuitem_pdbe)
+     menuitem_pdbe.show()
+     
      
 
      #---------------------------------------------------------------------
@@ -1061,11 +1068,11 @@ if (have_coot_python):
      # ---------------------------------------------------------------------
      #
      add_simple_coot_menu_menuitem(
-       menu, "PDBe recent structures",
+       submenu_pdbe, "PDBe recent structures...",
        lambda func: pdbe_latest_releases_gui())
 
      add_simple_coot_menu_menuitem(
-       menu, "Get from PDBe",
+       submenu_pdbe, "Get from PDBe...",
        lambda func: generic_single_entry("Get PDBe accession code",
                                          "", " Get it ",
                                          lambda text:
@@ -1407,7 +1414,7 @@ if (have_coot_python):
 
 
      # ---------------------------------------------------------------------
-     #     PISA Interface
+     #     PISA Interface and Assemblies
      # ---------------------------------------------------------------------
 
      add_simple_coot_menu_menuitem(

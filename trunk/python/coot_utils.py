@@ -1152,7 +1152,7 @@ def transform_map_using_lsq_matrix(imol_ref, ref_chain, ref_resno_start, ref_res
     if not (space_group and cell):
         message = "Bad cell or symmetry for molecule" + str(cell) + str(space_group) + str(imol_ref)
         print "Bad cell or symmetry for molecule", message
-        ret = -1           # invalid mol!
+        ret = -1           # invalid mol! or return message!?
         
     else:
         rtop = apply_lsq_matches(imol_ref, imol_mov)

@@ -189,12 +189,19 @@ def reduce_on_pdb_file(imol, pdb_in, pdb_out):
         # now should use the and build the het dic!?
         dict_args = ["-DB", reduce_het_dict_file_name]
 
+    print "======= reduce_on_pdb_file: command %s args %s with pdb_out: %s" \
+          %(reduce_command,
+            ["-build", pdb_in] + dict_args,
+            pdb_out)
     status = popen_command(reduce_command,
                            ["-build", pdb_in] + dict_args,
                            [],
                            pdb_out)
+
+    print "======== status", status
     return status == 0
 
+  
 global old_pdb_style
 old_pdb_style = False
   
