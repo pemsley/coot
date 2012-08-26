@@ -83,7 +83,7 @@
 				       ;; on some partially transfered images, when we have 24 threads.
 				       ;; Hmm... Perhaps even 20 is too many...
 				       ;; 
-				       (while (and (< n-threads 17)
+				       (while (and (< n-threads 14)
 						   (not (= (q-length q) 0)))
 					      
 					      (begin
