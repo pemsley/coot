@@ -5,12 +5,18 @@
 
   o FEATURE: Ligand Builder - working in conjunction with cprodrg.
 
+  o FEATURE: RCrane [RNA builder]
+
+  o FEATURE: Cootaneer [RNA builder]
+
   o FEATURE: PDBe Recent structure browser.
+
+  o FEATURE: JLigand interface.
 
   o CHANGE: symmetry operator number are no longer zero indexed.  Add
     trans component to symmetry file names. [Steven Sheriff].
 
-  o CHANGE: Dotted surfaces now are colour by atom type and are at
+  o CHANGE: Dotted surfaces now are coloured by atom type and are at
     atomic radii rather than 1A.
 
   o CHANGE: map transformation no longer has symmetry overwrite
@@ -23,6 +29,9 @@
   o BUG-FIX: DNA in sequence view [Miguel Ortiz Lombardia].
  
   o BUG-FIX: Update Go To Atom dialog after water merging [Bob Nolte].
+
+  o BUG-FIX: fix memory leak in fit-protein function [Ed Pozharski].
+
 
 ------
 

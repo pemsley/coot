@@ -3021,7 +3021,8 @@ if test -n "$build_curl" ; then
 (
    # get libcurl from here: 
    # libcurl_version=7.19.7
-   libcurl_version=7.25.0
+   # libcurl_version=7.25.0
+   libcurl_version=7.27.0
    ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
 
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
