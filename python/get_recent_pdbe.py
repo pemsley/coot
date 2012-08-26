@@ -393,7 +393,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                                                               window))
                         while download_thread_status == "downloading-sfs":
                             gtk.main_iteration(False)
-                        print "BL DEBUG:: done with cif thread?!"
+                        #print "BL DEBUG:: done with cif thread?!"
                     if (download_thread_status == "done-download"):
                         # threaded!?
                         convert_to_mtz_and_refmac(sfs_cif_file_name,
@@ -560,7 +560,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                 else:
                     return False
             try:
-                print "BL DEBUG:: start download", url
+                #print "BL DEBUG:: start download", url
                 gobject.idle_add(sleeper)
                 file_name_local, url_info = urllib.urlretrieve(url, file_name,
                                                                lambda nb, bs, fs, progress_bar=progress_bar:
@@ -659,7 +659,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                                                   window))
             while download_thread_status == "downloading-pdb":
                 gtk.main_iteration(False)
-            print "BL DEBUG:: done with pdb thread?!"
+            #print "BL DEBUG:: done with pdb thread?!"
         if (download_thread_status == "done-download"):
             # read the pdb
             imol = read_pdb(pdb_file_name)
@@ -672,7 +672,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                 # FIXME:: better later as timeout_add
                 # read_pdb(pdb_file_name)
                 download_thread_status = "done"  #?
-                print "BL DEBUG:: NMR structure!?"
+                #print "BL DEBUG:: NMR structure!?"
             else:
                 # An X-ray structure
                 #
@@ -829,7 +829,7 @@ def recent_structure_browser(t):
         method_label = method_item if method_item else "Unknown method"  # should not happen, the latter!?
         title_label = truncate_name(title_item) if title_item else ""
         authors_label = pad_and_truncate_name(authors_string) \
-                        if (len(authors_string) > 0)  else ""
+                        if (isinstance(authors_string, str))  else ""
         ligands = dic["ContainsLigands"]
         ligands_string = make_ligands_string(ligands)
         ligand_tlc_list = make_ligands_tlc_list(ligands)
