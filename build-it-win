@@ -222,7 +222,9 @@
 # 1.2 25/06/11 apply clipper thread patch
 # 1.3 31/07/11 add proper goocanvas.
 # 1.4 25/02/12 Use libccp4c-5.0.2-ysbl-3.tar.gz, that has libccp4c_la_LIBADD.
-script_version=1.4 
+# 1.5 26/08/12 Update curl to libcurl_version=7.27.0
+# 1.6 27/08/12 Remove old stable installed files before making new stable.
+script_version=1.6 
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1184,6 +1186,14 @@ if [ "$check_dependencies_in_install_only" = 1 ] ; then
    installed_check_maybe_prefix=$install_top_dir/bin/
 fi
 
+# Stable release only! (Windows!)
+# Remove install_top_dir if exists and we make a stable release, i.e.
+# start from scratch
+if [ "$build_coot_prerelease" != 1 ] ; then 
+    if [ -e "$install_top_dir" ] ; then
+        rm -r $install_top_dir
+    fi
+fi
 
 # we need to export this for net-http, because it doesn't set
 # variables from configure, we rely on a shell (environment) variable.
@@ -3072,7 +3082,8 @@ if test -n "$build_curl" ; then
    echo BUILDING curl:
 (
    # get libcurl from here: 
-   libcurl_version=7.19.7
+   #libcurl_version=7.19.7
+   libcurl_version=7.27.0
    ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
 
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
