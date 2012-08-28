@@ -4727,10 +4727,12 @@ int dots(int imol,
 	 float dot_density, float sphere_size_scale);
 
 
-/*! \brief set the colour of the surface of the imol-th molecule
+/*! \brief set the colour of the surface dots of the imol-th molecule
+  to be the given single colour
 
   r,g,b are values between 0.0 and 1.0 */
 void set_dots_colour(int imol, float r, float g, float b);
+
 /*! \brief no longer set the dots of molecule imol to a single colour
 
 i.e. go back to element-based colours. */
