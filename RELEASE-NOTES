@@ -32,6 +32,8 @@
 
   o BUG-FIX: fix memory leak in fit-protein function [Ed Pozharski].
 
+  o BUG-FIX: Improved "Place Helix Here".
+
 
 ------
 

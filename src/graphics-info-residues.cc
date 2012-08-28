@@ -143,12 +143,14 @@ graphics_info_t::setup_graphics_ligand_view(int imol, CResidue *residue_p) {
 	    if (coot::util::residue_has_hetatms(residue_p) != 1) {
 	       graphics_ligand_view_flag = false;
 	    } else {
-	       if (0)
-		  std::cout << "   setup_graphics_ligand() on residue "
-			    << coot::residue_spec_t(residue_p) << std::endl;
-	       graphics_ligand_view_flag =
-		  graphics_ligand_mol.setup_from(residue_p, Geom_p(), background_is_black_p());
-	       graphics_ligand_mol.imol = imol;
+	       if (residue_p->GetNumberOfAtoms() > 1) { 
+		  if (0)
+		     std::cout << "   setup_graphics_ligand() on residue "
+			       << coot::residue_spec_t(residue_p) << std::endl;
+		  graphics_ligand_view_flag =
+		     graphics_ligand_mol.setup_from(residue_p, Geom_p(), background_is_black_p());
+		  graphics_ligand_mol.imol = imol;
+	       }
 	    }
 	 }
       }

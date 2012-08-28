@@ -1268,6 +1268,8 @@ if (have_coot_python):
      
 
      def make_dot_surf_func(imol,text):
+        # I think a single colour is better than colour by atom :)
+        set_dots_colour(imol, 0.5, 0.5, 0.5)
 	dots_handle = dots(imol, text, text, 2, 1)
 	print "dots handle: ", dots_handle
 
