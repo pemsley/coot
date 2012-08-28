@@ -73,8 +73,10 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
 
    if (f) { 
       CURL *c = curl_easy_init();
+      long int no_signal = 1;
       std::pair<FILE *, CURL *> p_for_write(f,c);
       curl_easy_setopt(c, CURLOPT_URL, url);
+      curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
       curl_easy_setopt(c, CURLOPT_USERAGENT, "Coot-0.7 http://wwwlmb.ox.ac.uk/coot");
       curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data_to_file);
       curl_easy_setopt(c, CURLOPT_WRITEDATA, &p_for_write);
@@ -126,13 +128,17 @@ void *wrapped_curl_easy_perform(void *data) {
 std::string coot_get_url_as_string_internal(const char *url) {
    std::string s;
 
+   // Wikipedia wants a user-agent
+   // 
    std::string user_agent = PACKAGE;
    user_agent += " ";
    user_agent += VERSION;
    user_agent += " http://wwwlmb.ox.ac.uk/coot";
-   
+
+   long int no_signal = 1; 
    CURL *c = curl_easy_init();
    curl_easy_setopt(c, CURLOPT_URL, url);
+   curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
    curl_easy_setopt(c, CURLOPT_USERAGENT, user_agent.c_str());
    curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data);
    curl_easy_setopt(c, CURLOPT_WRITEDATA, &s);
@@ -384,6 +390,7 @@ void curl_make_a_post() {
 #else
    
    CURL *c = curl_easy_init();
+   long int no_signal = 1; // for multi-threading
 
    std::string url = "http://localhost/test/cootpost.py/slurp";
    std::string post_string = "name=";
@@ -395,6 +402,7 @@ void curl_make_a_post() {
 
    std::cout << "posting " << post_string << std::endl;
    std::cout << "posting to  " << url << std::endl;
+   curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
    curl_easy_setopt(c, CURLOPT_URL, url.c_str());
    curl_easy_setopt(c, CURLOPT_POSTFIELDS, post_string.c_str());
 
