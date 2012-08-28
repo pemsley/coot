@@ -84,37 +84,88 @@ coot::rdkit_mol(CResidue *residue_p,
    std::vector<CAtom *>     added_atoms; // gets added to as added_atom_names gets added to.
    std::map<std::string, int> atom_index;
    int current_atom_id = 0;
+   std::vector<int> bonded_atoms; // vector of the atoms that we will
+				  // add to the rdkit molecule.  We
+				  // don't want to add atoms that are
+				  // not bonded to anything
+				  // (e.g. hydrogens with mismatching names)
+   
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-   for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-      if (! residue_atoms[iat]->Ter) { 
-	 std::string atom_name(residue_atoms[iat]->name);
-	 if (0)
+   for (unsigned int iat_1=0; iat_1<n_residue_atoms; iat_1++) {
+      if (! residue_atoms[iat_1]->Ter) {
+	 CAtom *at_1 = residue_atoms[iat_1];
+	 std::string atom_name_1(at_1->name);
+	 bool found_a_bonded_atom = false;
+	 for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
+	    if (restraints.bond_restraint[ib].atom_id_1_4c() == atom_name_1) {
+	       // is the atom to wich atom_name_1 is bonded in the
+	       // atoms of the residue?
+	       for (unsigned int iat_2=0; iat_2<n_residue_atoms; iat_2++) {
+		  CAtom *at_2 = residue_atoms[iat_2];
+		  std::string atom_name_2 = at_2->name;
+		  if (atom_name_2 == restraints.bond_restraint[ib].atom_id_2_4c()) {
+		     found_a_bonded_atom = true;
+		     break;
+		  } 
+	       }
+	    } 
+	    if (restraints.bond_restraint[ib].atom_id_2_4c() == atom_name_1) {
+	       // is the atom to wich atom_name_1 is bonded in the
+	       // atoms of the residue?
+	       for (unsigned int iat_2=0; iat_2<n_residue_atoms; iat_2++) {
+		  CAtom *at_2 = residue_atoms[iat_2];
+		  std::string atom_name_2 = at_2->name;
+		  if (atom_name_2 == restraints.bond_restraint[ib].atom_id_1_4c()) {
+		     found_a_bonded_atom = true;
+		     break;
+		  } 
+	       }
+	    }
+	 }
+
+	 if (found_a_bonded_atom)
+	    bonded_atoms.push_back(iat_1);
+      }
+   }
+
+
+   for (unsigned int iat=0; iat<bonded_atoms.size(); iat++) {
+
+      if (1) { 
+
+	 CAtom *at = residue_atoms[bonded_atoms[iat]];
+	 std::string atom_name(at->name);
+	 if (debug)
 	    std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " " 
 		      << atom_name << std::endl;
 	 // only add the atom if the atom_name is not in the list of
 	 // already-added atom names.
-	 if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name) == added_atom_names.end()) {
-	    RDKit::Atom *at = new RDKit::Atom;
+	 if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name) != added_atom_names.end()) {
+	    std::cout << "!!!! Problem? atom name \"" << atom_name
+		      << "\" was already added" << std::endl;
+	    
+	 } else { 
+	    RDKit::Atom *rdkit_at = new RDKit::Atom;
 	    try {
 	       std::string ele_capped =
-		  coot::util::capitalise(coot::util::remove_leading_spaces(residue_atoms[iat]->element));
+		  coot::util::capitalise(coot::util::remove_leading_spaces(at->element));
 	       int atomic_number = tbl->getAtomicNumber(ele_capped);
-	       at->setAtomicNum(atomic_number);
-	       at->setMass(tbl->getAtomicWeight(atomic_number));
-	       at->setProp("name", atom_name);
+	       rdkit_at->setAtomicNum(atomic_number);
+	       rdkit_at->setMass(tbl->getAtomicWeight(atomic_number));
+	       rdkit_at->setProp("name", atom_name);
 
 	       // set the valence from they type energy.  Abstract?
 	       //
-	       std::string type_energy = restraints.type_energy(residue_atoms[iat]->name);
+	       std::string type_energy = restraints.type_energy(at->name);
 	       if (type_energy != "") {
 		  if (type_energy == "NT") {
-		     at->setFormalCharge(1);
+		     rdkit_at->setFormalCharge(1);
 		  }
 		  // other NT*s will drop hydrogens in RDKit, no need to
 		  // fix up formal charge (unless there is a hydrogen! Hmm).
 
 		  if (type_energy == "P") {
-		     at->setFormalCharge(1);
+		     rdkit_at->setFormalCharge(1);
 		  } 
 	       }
 
@@ -128,17 +179,18 @@ coot::rdkit_mol(CResidue *residue_p,
 			   // e.g. RDKit::Atom::CHI_TETRAHEDRAL_CCW;
 			   RDKit::Atom::ChiralType chiral_tag =
 			      get_chiral_tag(residue_p, restraints, residue_atoms[iat]);
-			   at->setChiralTag(chiral_tag);
+			   rdkit_at->setChiralTag(chiral_tag);
 			} 
 		     } 
 		  } 
 	       }
 	    
-	       m.addAtom(at);
+	       m.addAtom(rdkit_at);
 	       
-	       if (0) 
-		  std::cout << "adding atom with name " << atom_name << " to added_atom_names"
-			    << " which is now size " << added_atom_names.size() << std::endl;
+	       if (debug) 
+		  std::cout << "      about to add atom with name \"" << atom_name
+			    << "\" to added_atom_names which is currently of size "
+			    << added_atom_names.size() << std::endl;
 	       
 	       added_atom_names.push_back(atom_name);
 	       added_atoms.push_back(residue_atoms[iat]);
@@ -152,10 +204,11 @@ coot::rdkit_mol(CResidue *residue_p,
       }
    }
 
-   if (0) 
+   if (debug) 
       std::cout << "number of bond restraints: " << restraints.bond_restraint.size() << std::endl;
+   
    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
-      if (0)
+      if (debug)
 	 std::cout << "   handling bond " << ib << " of " << restraints.bond_restraint.size()
 		   << " :" << restraints.bond_restraint[ib].atom_id_1_4c() << ": " 
 		   << " :" << restraints.bond_restraint[ib].atom_id_2_4c() << ": " 
@@ -173,11 +226,6 @@ coot::rdkit_mol(CResidue *residue_p,
       // this block sets idx_1 and idx_2
       //
       for (unsigned int iat=0; iat<added_atom_names.size(); iat++) {
-
-	 if (0) // debugging mismatching atom names - because
-		// restraints atom names don't match model atom names.
-	    std::cout << iat << " comparing \"" << added_atom_names[iat] << "\" and \""
-		      << atom_name_1 << "\"" << std::endl;
 	 if (added_atom_names[iat] == atom_name_1) { 
 	    idx_1 = iat;
 	    break;
@@ -189,8 +237,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	    break;
 	 }
       }
-      
-      
+
       if (idx_1 != -1) { 
 	 if (idx_2 != -1) {	 
 	    bond->setBeginAtomIdx(idx_1);
@@ -239,58 +286,43 @@ coot::rdkit_mol(CResidue *residue_p,
 				      // not good.
 
    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) { 
+
       RDKit::Bond::BondType type = convert_bond_type(restraints.bond_restraint[ib].type());
-      RDKit::Bond *bond = new RDKit::Bond(type);
-	    
-      std::string atom_name_1 = restraints.bond_restraint[ib].atom_id_1_4c();
-      std::string atom_name_2 = restraints.bond_restraint[ib].atom_id_2_4c();
-      std::string ele_1 = restraints.element(atom_name_1);
-      std::string ele_2 = restraints.element(atom_name_2);
-      int idx_1 = -1; // unset
-      int idx_2 = -1; // unset
+      if (type == RDKit::Bond::AROMATIC) { 
+	 std::string atom_name_1 = restraints.bond_restraint[ib].atom_id_1_4c();
+	 std::string atom_name_2 = restraints.bond_restraint[ib].atom_id_2_4c();
+	 std::string ele_1 = restraints.element(atom_name_1);
+	 std::string ele_2 = restraints.element(atom_name_2);
+	 int idx_1 = -1; // unset
+	 int idx_2 = -1; // unset
 
+	 // we can't run through n_residue_atoms because the atom in the
+	 // CResidue may not have been added to the atom in the rdkit
+	 // molecule (as is the case for an alt conf).
 
-      // we can't run through n_residue_atoms because the atom in the CResidue may not have been added to
-      // the atom in the rdkit molecule (as is the case for an alt conf).
-      
-//       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-// 	 if (! residue_atoms[iat]->Ter) { 
-// 	    std::string atom_name(residue_atoms[iat]->name);
-// 	    if (atom_name == atom_name_1)
-// 	       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
-// 		   != added_atom_names.end())
-// 		  idx_1 = iat;
-// 	    if (atom_name == atom_name_2)
-// 	       if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name)
-// 		   != added_atom_names.end())
-// 		  idx_2 = iat;
-// 	 }
-//       }
-
-      for (unsigned int iat=0; iat<m.getNumAtoms(); iat++) {
-	 try {
-	    std::string name;
-	    RDKit::ATOM_SPTR at_p = m[iat];
-	    at_p->getProp("name", name);
-	    if (name == atom_name_1)
-	       idx_1 = iat;
-	    if (name == atom_name_2)
-	       idx_2 = iat;
+	 for (unsigned int iat=0; iat<m.getNumAtoms(); iat++) {
+	    try {
+	       std::string name;
+	       RDKit::ATOM_SPTR at_p = m[iat];
+	       at_p->getProp("name", name);
+	       if (name == atom_name_1)
+		  idx_1 = iat;
+	       if (name == atom_name_2)
+		  idx_2 = iat;
+	    }
+	    catch (KeyErrorException &err) {
+	       // this happens for alt conf
+	       // std::cout << "caught no-name exception in rdkit_mol H-block" << std::endl;
+	    } 
 	 }
-	 catch (KeyErrorException &err) {
-	    // this happens for alt conf
-	    // std::cout << "caught no-name exception in rdkit_mol H-block" << std::endl;
-	 } 
-      }
 
-      if (0) { 
-	 std::cout << "idx_1 " << idx_1 << " " << n_residue_atoms << std::endl;
-	 std::cout << "idx_2 " << idx_2 << " " << n_residue_atoms << std::endl;
-      }
+	 if (debug) { 
+	    std::cout << "idx_1 " << idx_1 << " " << n_residue_atoms << std::endl;
+	    std::cout << "idx_2 " << idx_2 << " " << n_residue_atoms << std::endl;
+	 }
       
-      if (idx_1 != -1) { 
-	 if (idx_2 != -1) {	 
-	    if (type == RDKit::Bond::AROMATIC) { 
+	 if (idx_1 != -1) { 
+	    if (idx_2 != -1) {	 
    
 	       // special edge case for aromatic ring N that may need an H attached for
 	       // kekulization (depending on energy type).
@@ -322,18 +354,17 @@ coot::rdkit_mol(CResidue *residue_p,
    }
 
 
-   if (debug)
-      std::cout << "=============== calling undelocalise() " << &m << std::endl;
-   coot::undelocalise(&m);
+    if (debug)
+       std::cout << "=============== calling undelocalise() " << &m << std::endl;
+    coot::undelocalise(&m);
 
-   if (debug)
-      std::cout << "---------------------- calling assign_formal_charges() -----------" << std::endl;
-
-   coot::assign_formal_charges(&m);
+    if (debug)
+       std::cout << "---------------------- calling assign_formal_charges() -----------" << std::endl;
+    coot::assign_formal_charges(&m);
    
-   if (debug)
-      std::cout << "---------------------- calling cleanUp() -----------" << std::endl;
-   RDKit::MolOps::cleanUp(m);
+    if (debug)
+       std::cout << "---------------------- calling cleanUp() -----------" << std::endl;
+    RDKit::MolOps::cleanUp(m);
 
    
    // OK, so cleanUp() doesn't fix the N charge problem our prodrg molecule
