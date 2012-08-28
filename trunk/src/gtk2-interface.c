@@ -15605,6 +15605,7 @@ create_merge_molecules_dialog (void)
   merge_molecuoes_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (merge_molecuoes_scrolledwindow);
   gtk_box_pack_start (GTK_BOX (vbox114), merge_molecuoes_scrolledwindow, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (merge_molecuoes_scrolledwindow, -1, 120);
   GTK_WIDGET_UNSET_FLAGS (merge_molecuoes_scrolledwindow, GTK_CAN_FOCUS);
 
   viewport7 = gtk_viewport_new (NULL, NULL);

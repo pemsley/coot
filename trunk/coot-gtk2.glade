@@ -31326,6 +31326,7 @@ Append/Insert Molecule(s):
 
 	      <child>
 		<widget class="GtkScrolledWindow" id="merge_molecuoes_scrolledwindow">
+		  <property name="height_request">120</property>
 		  <property name="visible">True</property>
 		  <property name="hscrollbar_policy">GTK_POLICY_ALWAYS</property>
 		  <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>
