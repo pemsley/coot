@@ -341,6 +341,11 @@ graphics_ligand_molecule::setup_from(CResidue *residue_p,
 	    RDKit::ROMol *rdk_mol_with_no_Hs_ro = RDKit::MolOps::removeHs(rdkm);
 	    RDKit::RWMol rdk_mol_with_no_Hs = *rdk_mol_with_no_Hs_ro;
 
+	    if (0) { // debug
+	       RDKit::MolToMolFile(rdkm, "pre-mol.mol");
+	       RDKit::MolToMolFile(*rdk_mol_with_no_Hs_ro, "mol-no-H.mol");
+	    }
+
 	    // clear out any cached properties
 	    rdk_mol_with_no_Hs.clearComputedProps();
 	    // clean up things like nitro groups
@@ -350,14 +355,15 @@ graphics_ligand_molecule::setup_from(CResidue *residue_p,
 	    RDKit::MolOps::Kekulize(rdk_mol_with_no_Hs);
 	    RDKit::MolOps::assignRadicals(rdk_mol_with_no_Hs);
 	    
-	    // then do aromaticity perception
+	    // then do aromaticity perception...
+	    // (why is this commented out?)
 	    // RDKit::MolOps::setAromaticity(rdkm);
     
 	    // set conjugation
 	    RDKit::MolOps::setConjugation(rdk_mol_with_no_Hs);
 	       
 	    // set hybridization
-	    RDKit::MolOps::setHybridization(rdk_mol_with_no_Hs); // non-linear ester bonds.
+	    RDKit::MolOps::setHybridization(rdk_mol_with_no_Hs); 
 
 	    // remove bogus chirality specs:
 	    RDKit::MolOps::cleanupChirality(rdk_mol_with_no_Hs);
