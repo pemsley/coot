@@ -737,6 +737,7 @@ private:
       show_alerts_user_control = false; // no pattern matching available
 #ifdef MAKE_ENTERPRISE_TOOLS   
       show_alerts_user_control = true;
+      bond_pick_pending = false;
 #ifdef USE_PYTHON
       user_defined_alerts_smarts_py = NULL;
       setup_silicos_it_qed_default_func();
@@ -1060,6 +1061,8 @@ public:
    void update_qed(const RDKit::RWMol &rdkm);
    void update_alerts(const RDKit::RWMol &rdkm);
    std::string get_smiles_string_from_mol(const RDKit::RWMol &mol) const;
+   bool bond_pick_pending;
+   bool handle_bond_picking_maybe();
 #endif
    // although these depend on/manipulate rdkit-based entities - they
    // only clear them up, not generate them, so, in order that we

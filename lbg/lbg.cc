@@ -37,7 +37,9 @@
 #include <RDGeneral/FileParseException.h>
 #include <RDGeneral/BadFileException.h>
 #include <GraphMol/FileParsers/FileParsers.h>
+#ifdef USE_PYTHON
 #include <boost/python.hpp>
+#endif
 #endif
 
 #include <cairo.h>
@@ -356,9 +358,7 @@ on_canvas_button_press(GooCanvasItem  *item,
       if (!l) {
 	 std::cout << "on button-click: NULL lbg-info from item" << std::endl;
       } else {
-	 // std::cout << "debug:: handle item add " << event << std::endl;
 	 if (l->in_delete_mode_p()) {
-	    // std::cout << "calling handle_item_delete() " << event << std::endl;
 	    l->handle_item_delete(event);
 	 } else { 
 	    // std::cout << "calling handle_item_add() " << event << std::endl;
@@ -404,29 +404,35 @@ on_canvas_button_press(GooCanvasItem  *item,
 	 // std::cout << "null lbg-info from target_item" << std::endl;
       } else {
 
-	 // note: it is not an error if l is null, that can happen
-	 // when clicking on the atom names for example - they don't
-	 // have a lbg-info attached (at the moment).
+	 bool handled = false;
+#ifdef MAKE_ENTERPRISE_TOOLS
+	 handled = l->handle_bond_picking_maybe();
+#endif
+
+	 if (! handled) { 
+
+	    // note: it is not an error if l is null, that can happen
+	    // when clicking on the atom names for example - they don't
+	    // have a lbg-info attached (at the moment).
 	 
-	 l->set_mouse_pos_at_click(x_as_int, y_as_int); // save for dragging
+	    l->set_mouse_pos_at_click(x_as_int, y_as_int); // save for dragging
 	 
-	 if (0) 
-	    std::cout << "   on click: scale_correction  " << l->mol.scale_correction.first
-		      << " " << l->mol.scale_correction.second
-		      << " centre_correction " << l->mol.centre_correction << std::endl;
+	    if (0) 
+	       std::cout << "   on click: scale_correction  " << l->mol.scale_correction.first
+			 << " " << l->mol.scale_correction.second
+			 << " centre_correction " << l->mol.centre_correction << std::endl;
       
-      
-	 if (l->in_delete_mode_p()) { 
-	    l->handle_item_delete(event);
-	 } else {
-	    l->handle_item_add(event);
+	    if (l->in_delete_mode_p()) { 
+	       l->handle_item_delete(event);
+	    } else {
+	       l->handle_item_add(event);
+	    }
 	 }
       }
-      
    } 
-   
    return TRUE;
 }
+
    
    
 
@@ -947,6 +953,25 @@ lbg_info_t::handle_item_delete(GdkEventButton *event) {
       update_descriptor_attributes();
    }
 }
+
+bool
+lbg_info_t::handle_bond_picking_maybe() {
+
+   bool handled = false;
+   if (bond_pick_pending) {
+      if (highlight_data.has_contents()) {
+	 if (!highlight_data.single_atom()) {
+	    int ind_1 = highlight_data.get_bond_indices().first;
+	    int ind_2 = highlight_data.get_bond_indices().second;
+	    int bond_index = mol.get_bond_index(ind_1, ind_2);
+	    std::cout << "picked bond index: " << bond_index << std::endl;
+	    bond_pick_pending = false;
+	 }
+      }
+   }
+   return handled; 
+}
+
 
 
 // that's canvas_addition_mode (from the button press).
@@ -6210,8 +6235,15 @@ lbg_info_t::pe_test_function() {
 #ifdef MAKE_ENTERPRISE_TOOLS   
    std::cout << "PE test function" << std::endl;
 
-   // RECAP mol
 
+
+   std::cout << "identify bond..." << std::endl;
+   bond_pick_pending = true;
+
+
+#ifdef USE_PYTHON   
+   // RECAP mol
+   
    // first get the function:
    // 
    // PyObject *recap_func = get_callable_python_func("rdkit.Chem.Recap", "RecapDecompose");
@@ -6233,8 +6265,12 @@ lbg_info_t::pe_test_function() {
       } else {
 	 std::cout << "Result: " << result << std::endl;
       }
-   } 
-#endif 
+   }
+#endif
+
+
+   
+#endif
 } 
 
 
