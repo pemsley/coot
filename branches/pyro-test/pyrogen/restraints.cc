@@ -377,41 +377,54 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 					<< atom_name_3 << " " 
 					<< atom_name_4 << " " 
 					<< std::endl;
-		     
-			   energy_lib_torsion tors =
-			      energy_lib.get_torsion(atom_type_2, atom_type_3);
 
-			   bool is_const = is_const_torsion(mol, at_2.get(), at_3.get());
+			   // some of the time we may try to get a torsion that does not
+			   // correspond to anything in the dictionary (with the given
+			   // atom types).  In that case, we will catch a runtime_error.
+			   // What to do then is not clear to me yet.
+			   // 
+			   try { 
+			      energy_lib_torsion tors =
+				 energy_lib.get_torsion(atom_type_2, atom_type_3);
 
-			   if (0)
-			      std::cout << "       got torsion " << tors << "  is_const: "
-					<< is_const << std::endl;
+			      bool is_const = is_const_torsion(mol, at_2.get(), at_3.get());
 
-			   if (tors.period != 0) { 
-			      double esd = 20.0;
-			      std::string tors_id;
-			      if (! is_const) { 
-				 tors_id = "var_";
-				 char s[100];
-				 snprintf(s,99,"%d", tors_no);
-				 tors_id += std::string(s);
-				 tors_no++;
-			      } else {
-				 tors_id = "CONST_";
-				 char s[100];
-				 snprintf(s,99,"%d", const_no);
-				 tors_id += std::string(s);
-				 const_no++;
-			      } 
-			      dict_torsion_restraint_t torsionr(tors_id,
-								atom_name_1, atom_name_2,
-								atom_name_3, atom_name_4,
-								tors.angle, esd, tors.period);
-			      restraints->torsion_restraint.push_back(torsionr);
-			      done_torsion[torsion_key_name_1] = true;
-			      done_torsion[torsion_key_name_2] = true;
-			   
+			      if (0)
+				 std::cout << "       got torsion " << tors << "  is_const: "
+					   << is_const << std::endl;
+
+			      if (tors.period != 0) { 
+				 double esd = 20.0;
+				 std::string tors_id;
+				 if (! is_const) { 
+				    tors_id = "var_";
+				    char s[100];
+				    snprintf(s,99,"%d", tors_no);
+				    tors_id += std::string(s);
+				    tors_no++;
+				 } else {
+				    tors_id = "CONST_";
+				    char s[100];
+				    snprintf(s,99,"%d", const_no);
+				    tors_id += std::string(s);
+				    const_no++;
+				 }
+				 dict_torsion_restraint_t torsionr(tors_id,
+								   atom_name_1, atom_name_2,
+								   atom_name_3, atom_name_4,
+								   tors.angle, esd, tors.period);
+				 restraints->torsion_restraint.push_back(torsionr);
+			      }
 			   }
+			   catch (std::runtime_error rte) {
+			      energy_lib_torsion tors; // default torsion.
+			      // what are the hybridization states of at_2 and at_3?
+			      RDKit::Atom::HybridizationType ht_2 = at_2->getHybridization();
+			      RDKit::Atom::HybridizationType ht_3 = at_2->getHybridization();
+			      
+			   } 
+			   done_torsion[torsion_key_name_1] = true;
+			   done_torsion[torsion_key_name_2] = true;
 			}
 		     }
 		     catch (KeyErrorException kee) {
