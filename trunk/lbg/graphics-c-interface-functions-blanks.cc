@@ -1,4 +1,6 @@
 
+#include "coot-coord-utils.hh"
+
 extern "C" {
    
    /* \brief display/undisplay the given additional representation  */
@@ -14,5 +16,5 @@ extern "C" {
 
 
 void orient_view(int imol,
-		 const coot::residue_spec_t &central_residue_spec,
-		 const coot::residue_spec_t &neighbour_residue_spec) {}
+ 		 const coot::residue_spec_t &central_residue_spec,
+ 		 const coot::residue_spec_t &neighbour_residue_spec) {}

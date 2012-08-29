@@ -7,7 +7,8 @@ INCLUDES = -I$(top_srcdir)/auxil/sec-str \
 	$(CLIPPER_CXXFLAGS) 		
 
 
-check_PROGRAMS = strand-analysis
+check_PROGRAMS = 
+
 
 strand_analysis_LDADD = \
     $(CLIPPER_LIBS) 	\

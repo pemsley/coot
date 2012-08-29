@@ -25,6 +25,14 @@
 
 #ifdef HAVE_GOOCANVAS
 
+#ifdef USE_PYTHON
+#ifndef HAVE_PYTHON
+#define HAVE_PYTHON
+#include <Python.h>
+#endif
+#endif 
+
+
 #ifdef MAKE_ENTERPRISE_TOOLS
 #include "rdkit-interface.hh"
 #endif 
