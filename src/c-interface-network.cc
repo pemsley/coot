@@ -77,6 +77,7 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
       std::pair<FILE *, CURL *> p_for_write(f,c);
       curl_easy_setopt(c, CURLOPT_URL, url);
       curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
+      curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 10);
       curl_easy_setopt(c, CURLOPT_USERAGENT, "Coot-0.7 http://wwwlmb.ox.ac.uk/coot");
       curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data_to_file);
       curl_easy_setopt(c, CURLOPT_WRITEDATA, &p_for_write);
@@ -139,6 +140,7 @@ std::string coot_get_url_as_string_internal(const char *url) {
    CURL *c = curl_easy_init();
    curl_easy_setopt(c, CURLOPT_URL, url);
    curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
+   curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 10);
    curl_easy_setopt(c, CURLOPT_USERAGENT, user_agent.c_str());
    curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data);
    curl_easy_setopt(c, CURLOPT_WRITEDATA, &s);
@@ -403,6 +405,7 @@ void curl_make_a_post() {
    std::cout << "posting " << post_string << std::endl;
    std::cout << "posting to  " << url << std::endl;
    curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
+   curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 10);
    curl_easy_setopt(c, CURLOPT_URL, url.c_str());
    curl_easy_setopt(c, CURLOPT_POSTFIELDS, post_string.c_str());
 

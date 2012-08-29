@@ -56,6 +56,7 @@ void show_usage(std::string pname) {
 	     << " --pdbout waters-filename"
 	     << " --sigma sigma-level"
 	     << " --flood"
+	     << " --flood-atom-radius"
 	     << " --chop"
 	     << "\n"
 	     << "        --mapin ccp4-map-name can be used"
@@ -65,7 +66,7 @@ void show_usage(std::string pname) {
 	     << "        The default sigma level is 2.0\n"
 	     << "        Use --chop to remove waters below given sigma-level\n"
 	     << "            In this case, pdbout is the modified input coordinates\n"
-	     << "        Use ---flood to fill everything with waters "
+	     << "        Use --flood to fill everything with waters "
  	     << "(not just water peaks)\n"
 	     << "        and --flood-atom-radius to adjust contact distance\n"
 	     << "           (default 1.4A).\n";
