@@ -5407,8 +5407,8 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 			if (mol_base_atoms[i]) { 
 			
 			   if (mol_base_atom_names[iat] == mol_base_atoms[i]->name) {
- 			      std::cout << ".... Deleting Atom " << mol_base_atoms[i]->name
- 					<< " i = " << i << std::endl;
+ 			      //std::cout << ".... Deleting Atom " << mol_base_atoms[i]->name
+			      // << " i = " << i << std::endl;
 			      residue->DeleteAtom(i);
 			      mol_base_atoms[i] = NULL;
 			      have_deleted = 1;

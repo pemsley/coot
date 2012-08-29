@@ -526,15 +526,16 @@ SCM ncs_chain_differences_scm(int imol, const char *master_chain_id) {
 			 << " peers." << std::endl;
 	       //	       for (int iresinf=0; iresinf<cd.residue_info.size(); iresinf++) {
 	       for (int iresinf=(int(cd.residue_info.size())-1); iresinf>=0; iresinf--) {
-		  std::cout << "resinfo: "
-			    << cd.residue_info[iresinf].resno << " "
-			    << cd.residue_info[iresinf].inscode << " "
-			    << cd.residue_info[iresinf].serial_number << " to "
-			    << cd.residue_info[iresinf].target_resno << " "
-			    << cd.residue_info[iresinf].target_inscode << " "
-			    << cd.residue_info[iresinf].target_serial_number << " diff: "
-			    << cd.residue_info[iresinf].mean_diff
-			    << std::endl;
+		  if (0)
+		     std::cout << "resinfo: "
+			       << cd.residue_info[iresinf].resno << " "
+			       << cd.residue_info[iresinf].inscode << " "
+			       << cd.residue_info[iresinf].serial_number << " to "
+			       << cd.residue_info[iresinf].target_resno << " "
+			       << cd.residue_info[iresinf].target_inscode << " "
+			       << cd.residue_info[iresinf].target_serial_number << " diff: "
+			       << cd.residue_info[iresinf].mean_diff
+			       << std::endl;
 		  coot::residue_spec_t this_res(cd.peer_chain_id,
 						cd.residue_info[iresinf].resno,
 						cd.residue_info[iresinf].inscode);
@@ -576,15 +577,16 @@ PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id) {
 			 << " peers." << std::endl;
 	       //	       for (int iresinf=0; iresinf<cd.residue_info.size(); iresinf++) {
 	       for (unsigned int iresinf=0; iresinf<cd.residue_info.size(); iresinf++) {
-		  std::cout << "resinfo: "
-			    << cd.residue_info[iresinf].resno << " "
-			    << cd.residue_info[iresinf].inscode << " "
-			    << cd.residue_info[iresinf].serial_number << " to "
-			    << cd.residue_info[iresinf].target_resno << " "
-			    << cd.residue_info[iresinf].target_inscode << " "
-			    << cd.residue_info[iresinf].target_serial_number << " diff: "
-			    << cd.residue_info[iresinf].mean_diff
-			    << std::endl;
+		  if (0)
+		     std::cout << "resinfo: "
+			       << cd.residue_info[iresinf].resno << " "
+			       << cd.residue_info[iresinf].inscode << " "
+			       << cd.residue_info[iresinf].serial_number << " to "
+			       << cd.residue_info[iresinf].target_resno << " "
+			       << cd.residue_info[iresinf].target_inscode << " "
+			       << cd.residue_info[iresinf].target_serial_number << " diff: "
+			       << cd.residue_info[iresinf].mean_diff
+			       << std::endl;
 		  coot::residue_spec_t this_res(cd.peer_chain_id,
 						cd.residue_info[iresinf].resno,
 						cd.residue_info[iresinf].inscode);

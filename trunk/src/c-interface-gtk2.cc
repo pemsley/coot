@@ -81,7 +81,7 @@ gboolean filename_passed_filter(const std::string &file_name, int filter_type) {
 
    std::string extension = coot::util::file_name_extension(file_name);
    for (unsigned int i=0; i<globs.size(); i++) {
-      std::cout << "comparing " << extension << " with " << globs[i] << std::endl;
+      // std::cout << "comparing " << extension << " with " << globs[i] << std::endl;
       if (extension == globs[i]) {
 	 r = 1;
 	 break;

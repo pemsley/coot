@@ -4955,7 +4955,7 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
 	    }
 	 }
 
-	 std::cout << "iser: " << iser << " for new residue seqnum " << rr_seq_num << std::endl;
+	 // std::cout << "iser: " << iser << " for new residue seqnum " << rr_seq_num << std::endl;
 
 	 // now use iser if it was set.
 	 if (iser >= 0) {
@@ -4965,7 +4965,7 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
 	    // immediately after the residue to be inserted.
 	    // Therefore, insert the residue at the end -
 	    // i.e. AddResidue.
-	    std::cout << "Adding Residue to active chain " << std::endl;
+	    // std::cout << "Adding Residue to active chain " << std::endl;
 	    chain_p_active->AddResidue(res_p);
 	 } 
       }      
