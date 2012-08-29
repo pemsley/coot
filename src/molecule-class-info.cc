@@ -3756,7 +3756,7 @@ molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &
 		     inserted = 1;
 		  } else { 
 
-		     std::cout << "DEBUG:: insert_coords_internal() add residue\n";
+		     // std::cout << "DEBUG:: insert_coords_internal() add residue\n";
 		     CResidue *last_residue = last_residue_in_chain(chain);
 		     if (last_residue) { 
 

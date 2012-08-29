@@ -5976,8 +5976,8 @@ coot::restraints_container_t::mod_bond_add(const coot::chem_mod_bond &mod_bond,
    int index_1 = -1, index_2 = -1;
    for (int iat_1=0; iat_1<n_residue_atoms; iat_1++) {
       std::string pdb_atom_name_1(residue_atoms[iat_1]->name);
-      std::cout << "comparing :" << pdb_atom_name_1 << ": with :" << mod_bond.atom_id_1
-		<< ":" << std::endl;
+      // std::cout << "comparing :" << pdb_atom_name_1 << ": with :" << mod_bond.atom_id_1
+      // << ":" << std::endl;
       if (pdb_atom_name_1 == mod_bond.atom_id_1) {
 	 for (int iat_2=0; iat_2<n_residue_atoms; iat_2++) {
 	    std::string pdb_atom_name_2(residue_atoms[iat_2]->name);
