@@ -750,5 +750,40 @@ on_pe_test_function_button_clicked(GtkButton *button, gpointer user_data) {
    } 
 }
 
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_view_rotate_apply_button_clicked(GtkButton *button, gpointer user_data) {
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (!l) {
+      std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
+   } else {
+      // something
+   } 
+}
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_view_flip_around_x_button_clicked(GtkButton *button, gpointer user_data) {
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (!l) {
+      std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
+   } else {
+      // something
+   } 
+}
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_view_flip_around_y_button_clicked(GtkButton *button, gpointer user_data) {
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (!l) {
+      std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
+   } else {
+      // something
+   } 
+}
+
+
 #endif // HAVE_GOOCANVAS
 
