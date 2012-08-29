@@ -794,9 +794,19 @@
  	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
  	       #t #t)
 
+ 	 (list "binary-Linux-x86_64-ubuntu-10.04.4-python-gtk2"
+ 	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-scylla/gtk2" 
+ 	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
+ 	       #t #t)
+
  	 (list "binary-Linux-x86_64-debian-gnu-linux-6.0-python-gtk2"
                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/squeeze/build-logs/Linux-shelx10/gtk2"
 	       "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/squeeze/binaries/nightlies/pre-release/"
+ 	       #t #t)
+
+ 	 (list "binary-Linux-x86_64-debian-gnu-linux-wheezy-sid-python-gtk2"
+               "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/wheezy/build-logs/Linux-shelx11/gtk2"
+	       "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/wheezy/binaries/nightlies/pre-release/"
  	       #t #t)
 
 	 (list "WinCoot" 
