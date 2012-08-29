@@ -12299,10 +12299,11 @@ create_skeleton_dialog (void)
   skeleton_on_radiobutton_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (skeleton_off_radiobutton));
   gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (skeleton_off_radiobutton), TRUE);
 
-  skeleton_prune_and_colour_checkbutton = gtk_check_button_new_with_mnemonic (_("Prune & Colour"));
+  skeleton_prune_and_colour_checkbutton = gtk_check_button_new_with_mnemonic (_("Prune sidechains"));
+  gtk_widget_show (skeleton_prune_and_colour_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox84), skeleton_prune_and_colour_checkbutton, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (skeleton_prune_and_colour_checkbutton), 4);
-  gtk_tooltips_set_tip (tooltips, skeleton_prune_and_colour_checkbutton, _("Remove sidechains from the skeleton and colour by domain"), NULL);
+  gtk_tooltips_set_tip (tooltips, skeleton_prune_and_colour_checkbutton, _("Remove sidechains from the skeleton"), NULL);
 
   dialog_action_area25 = GTK_DIALOG (skeleton_dialog)->action_area;
   gtk_widget_show (dialog_action_area25);
