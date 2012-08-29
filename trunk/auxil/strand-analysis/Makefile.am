@@ -1,5 +1,5 @@
 
-EXTRA_DIST = Makefile.simple 
+EXTRA_DIST = Makefile.simple strand-analysis.cc
 
 
 INCLUDES = -I$(top_srcdir)/auxil/sec-str \
@@ -10,9 +10,9 @@ INCLUDES = -I$(top_srcdir)/auxil/sec-str \
 check_PROGRAMS = 
 
 
-strand_analysis_LDADD = \
-    $(CLIPPER_LIBS) 	\
-    $(MMDB_LIBS)
+#strand_analysis_LDADD = \
+#    $(CLIPPER_LIBS) 	\
+#    $(MMDB_LIBS)
 
 
-strand_analysis_SOURCES = strand-analysis.cc
+# strand_analysis_SOURCES = strand-analysis.cc
