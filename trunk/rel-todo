@@ -3,10 +3,6 @@
 
 ----
 
-   o run get pdbe structure for 2 different ligands (running refmac twice).
-     ::: 2
-
-
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
@@ -465,3 +461,12 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
 
 * Done - python too.
  
+
+   o run get pdbe structure for 2 different ligands (running refmac twice).
+     ::: 2
+
+* Done.
+
+   o citing coot needs to be udated in the manual
+
+* Done.

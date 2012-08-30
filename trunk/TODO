@@ -1004,6 +1004,10 @@ Punted from 0.6:
 
   o dot molecule-info-class dots functions in their own file.
 
+  o when using link chirals in refinement, do check that the correct
+    LINK anomer is being used when linking carboydrate monomers.  Write
+    a test.
+
   * Split out graphics functions from c-interface.h. ::: 4
 
   * replace guile-gtk with guile-gnome ::: 15
