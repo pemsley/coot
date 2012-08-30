@@ -1328,30 +1328,22 @@ coot_real_exit(int retval) {
    if (! g.disable_state_script_writing)
       g.save_history();
 
-   // std::cout << "mapview_real_exit" << std::endl;
-
 #ifdef USE_MYSQL_DATABASE
-
    db_finish_up();
-
 #endif // USE_MYSQL_DATABASE   
 
-#ifdef USE_PYTHON
+   // #ifdef USE_PYTHON
    // Py_Finalize();
-#endif
+   // #endif
 
 
-#if (GTK_MAJOR_VERSION > 1)
-// or is this a general thing?!
+   for (unsigned int imol=0; imol<graphics_n_molecules(); imol++)
+      graphics_info_t::molecules[imol].close_yourself();
+
 #ifdef WINDOWS_MINGW
    clipper::ClipperInstantiator::instance().destroy();
 #endif
-   exit(retval); 
-#else
-   clipper::ClipperInstantiator::instance().destroy();
-   gtk_exit(retval); 
-#endif
-
+   exit(retval);
 }
 
 // This is called by when the save coordinates menu item is pressed,

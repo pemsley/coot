@@ -6964,12 +6964,12 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
    return status;
 }
 
-/* add a linked residue based purely on dictionary templete. 
+/* add a linked residue based purely on dictionary template. 
    For addition of NAG to ASNs typically.
 
    This doesn't work with residues with alt confs.
    
-   return success status (0 = fail).
+   return status is #f for fail and the spec of the added residue on success.
 */
 #ifdef USE_GUILE
 SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char *ins_code, 

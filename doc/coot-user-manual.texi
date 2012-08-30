@@ -322,22 +322,29 @@ the source code.
 If have found this software to be useful, you are requested
 (if appropriate) to cite:
 
+@c @quotation
+@c  "Coot: model-building tools for molecular graphics"
+@c         Emsley P, Cowtan K
+@c    @emph{Acta Crystallographica Section D-Biological Crystallography}
+@c    @strong{60}: 2126-2132 Part 12 Sp. Iss. 1 DEC 2004
+
 @quotation
- "Coot: model-building tools for molecular graphics"
-        Emsley P, Cowtan K
+  "Features and Development of Coot"
+   P Emsley, B Lohkamp, W Scott, and K Cowtan
+   Acta Cryst. (2010).  D66, 486-501
    @emph{Acta Crystallographica Section D-Biological Crystallography}
-   @strong{60}: 2126-2132 Part 12 Sp. Iss. 1 DEC 2004
+   @strong{66}: 486-501
 @end quotation
 
 
 The reference for the REFMAC5 Dictionary is:
 
 @quotation
-REFMAC5 dictionary: "Organization of Prior Chemical Knowledge and
-Guidelines for its Use" Vagin AA, Steiner RA, Lebedev AA, Potterton L,
-McNicholas S Long F, Murshudov GN @emph{Acta Crystallographica Section
-D-Biological Crystallography} @strong{60}: 2184-2195 Part 12 Sp. Iss. 1
-DEC 2004"
+   REFMAC5 dictionary: "Organization of Prior Chemical Knowledge and
+   Guidelines for its Use" Vagin AA, Steiner RA, Lebedev AA, Potterton L,
+   McNicholas S Long F, Murshudov GN @emph{Acta Crystallographica Section
+   D-Biological Crystallography} @strong{60}: 2184-2195 Part 12 Sp. Iss. 1
+   DEC 2004"
 @end quotation
 
 
