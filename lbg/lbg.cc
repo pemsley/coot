@@ -954,6 +954,7 @@ lbg_info_t::handle_item_delete(GdkEventButton *event) {
    }
 }
 
+#ifdef MAKE_ENTERPRISE_TOOLS
 bool
 lbg_info_t::handle_bond_picking_maybe() {
 
@@ -971,6 +972,7 @@ lbg_info_t::handle_bond_picking_maybe() {
    }
    return handled; 
 }
+#endif 
 
 
 
