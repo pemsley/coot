@@ -3670,6 +3670,14 @@ is a function to fill such partially-filled residues:
 This identifies residues with missing atoms, then fills them and does a
 rotamer fit and real-space refinement.
 
+If you want to fill the side chain of just one residue
+
+@code{(fill-partial-residue @emph{imol chain-id res-no ins-code})}
+
+this does a auto-fit-best-rotamer and a refinement on the resulting
+side-chain position.
+
+
 @node Changing Chain IDs
 @section Changing Chain IDs
 @cindex chain id
