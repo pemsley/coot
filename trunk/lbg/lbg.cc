@@ -900,31 +900,34 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
 void
 lbg_info_t::update_descriptor_attributes() {
 #ifdef MAKE_ENTERPRISE_TOOLS
-   try {
-      RDKit::RWMol rdkm = rdkit_mol(mol);
-      coot::rdkit_mol_sanitize(rdkm);
-      update_statusbar_smiles_string(rdkm);
-      update_qed(rdkm);
-      update_alerts(rdkm);
-   }
-   catch (std::exception e) {
-      std::cout << "WARNING::" << e.what() << std::endl;
 
-      // SMILES string
-      if (lbg_statusbar) { 
-	 std::string status_string;
-	 guint statusbar_context_id =
-	    gtk_statusbar_get_context_id(GTK_STATUSBAR(lbg_statusbar), status_string.c_str());
-	 gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
-			    statusbar_context_id,
-			    status_string.c_str());
+   if (use_graphics_interface_flag) { 
+      try {
+	 RDKit::RWMol rdkm = rdkit_mol(mol);
+	 coot::rdkit_mol_sanitize(rdkm);
+	 update_statusbar_smiles_string(rdkm);
+	 update_qed(rdkm);
+	 update_alerts(rdkm);
+      }
+      catch (std::exception e) {
+	 std::cout << "WARNING::" << e.what() << std::endl;
+
+	 // SMILES string
+	 if (lbg_statusbar) { 
+	    std::string status_string;
+	    guint statusbar_context_id =
+	       gtk_statusbar_get_context_id(GTK_STATUSBAR(lbg_statusbar), status_string.c_str());
+	    gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
+			       statusbar_context_id,
+			       status_string.c_str());
 #ifdef MAKE_ENTERPRISE_TOOLS
-	 // QED progress bar
-	 gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), "");
-	 gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
-	 // alerts
-	 clear_canvas_alerts();
+	    // QED progress bar
+	    gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), "");
+	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
+	    // alerts
+	    clear_canvas_alerts();
 #endif	 
+	 }
       }
    }
 #endif      
@@ -2440,10 +2443,12 @@ lbg_info_t::init(GtkBuilder *builder) {
 
    // Hack in a button (or hide the hbox) for PE to test stuff
    // 
-   if (getenv("COOT_LBG_TEST_FUNCTION") != NULL) { 
-      gtk_widget_show(pe_test_function_button);
-   } else {
-      gtk_widget_hide(lbg_flip_rotate_hbox);
+   if (use_graphics_interface_flag) {
+      if (getenv("COOT_LBG_TEST_FUNCTION") != NULL) { 
+	 gtk_widget_show(pe_test_function_button);
+      } else {
+	 gtk_widget_hide(lbg_flip_rotate_hbox);
+      }
    }
 
    // if we don't have rdkit or python then we don't want to see qed progress bar
