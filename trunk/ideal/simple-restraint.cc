@@ -58,6 +58,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
    from_residue_vector = 0;
    lograma.init(LogRamachandran::All, 2.0, true);
    include_map_terms_flag = 0;
+   are_all_one_atom_residues = false;
    init_from_mol(istart_res_in, iend_res_in, 
 		 have_flanking_residue_at_start, 
 		 have_flanking_residue_at_end,
@@ -77,6 +78,7 @@ coot::restraints_container_t::restraints_container_t(atom_selection_container_t 
    mol = asc_in.mol;
    have_oxt_flag = 0;
    do_numerical_gradients_flag = 0;
+   are_all_one_atom_residues = false;
 
    istart_res = 999999;
    iend_res = -9999999;
@@ -146,6 +148,7 @@ coot::restraints_container_t::restraints_container_t(PCResidue *SelResidues, int
    
    include_map_terms_flag = 0;
    from_residue_vector = 0;
+   are_all_one_atom_residues = false;
    lograma.init(LogRamachandran::All, 2.0, true);
    std::vector<coot::atom_spec_t> fixed_atoms_dummy;
    int istart_res = 999999;
@@ -195,6 +198,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 		 have_disulfide_residues,
 		 altloc,
 		 chain_id, mol, fixed_atom_specs);
+   are_all_one_atom_residues = false;
    map = map_in;
    map_weight = map_weight_in;
    include_map_terms_flag = 1;
@@ -211,6 +215,7 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 						     const std::vector<atom_spec_t> &fixed_atom_specs) {
    from_residue_vector = 1;
    lograma.init(LogRamachandran::All, 2.0, true);
+   are_all_one_atom_residues = false;
    init_from_residue_vec(residues, geom, mol, fixed_atom_specs);
    include_map_terms_flag = 0;
 }
@@ -496,13 +501,34 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 // 	     << std::endl;
 
    n_atoms = 0;
+
+   // usualy this is reset in the following loop
+   are_all_one_atom_residues = true;  // all refining residue (in residues) that is - do
+                                      // not consider flanking residues here.
+   // Now, is everything to be refined a water or MG or some such?  If
+   // not (as is most often the case) are_all_one_atom_residues is
+   // false.
+   //
+   // Something of a kludge because this will fail for residues with
+   // alt-conf waters (but perhaps not, because before we get here,
+   // we have done an atom selection so that there is only one alt
+   // conf in each residue).
+   // 
+   for (unsigned int ires=0; ires<residues.size(); ires++) { 
+      if (residues[ires].second->GetNumberOfAtoms() > 1) {
+	 are_all_one_atom_residues = false;
+	 break;
+      } 
+   }
+   
+   
    for (unsigned int i=0; i<all_residues.size(); i++) {
       n_atoms += all_residues[i]->GetNumberOfAtoms();
    }
 
-   // std::cout << "   DEUBG:: There are " << n_atoms
-   // << " atoms total (including flankers)"
-   // << std::endl;
+//    std::cout << "   DEUBG:: --- There are " << n_atoms
+// 	     << " atoms total (including flankers)"
+// 	     << std::endl;
 
    atom = new PCAtom[n_atoms];
    int atom_index = 0;
@@ -3394,9 +3420,9 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
       }
 
       if (restraints_usage_flag & coot::NON_BONDED_MASK) {
-	 if (iret_prev > 0) {
+	 if ((iret_prev > 0) || are_all_one_atom_residues) {
 	    int n_nbcr = make_non_bonded_contact_restraints(bpc, geom);
-	    std::cout << "INFO:: made " << n_nbcr << " non-bonded restraints\n";
+	    // std::cout << "INFO:: made " << n_nbcr << " non-bonded restraints\n";
 	 }
       }
    }

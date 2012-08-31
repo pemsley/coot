@@ -872,8 +872,9 @@ namespace coot {
 		       // mol->DeleteSelection(SelHnd_atom).
       // atom_selection_container_t asc;
       double *par; 
-      int n_atoms; 
+      int n_atoms;
       gsl_vector *x; // these are the variables, x_k, y_k, z_k, x_l etc.
+      bool are_all_one_atom_residues; 
       CMMDBManager *mol;
       
       // The bool is the "atoms of this residue are fixed" flag.

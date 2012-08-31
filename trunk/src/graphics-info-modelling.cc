@@ -683,6 +683,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       std::vector<std::pair<bool,CResidue *> > local_residues;  // not fixed.
 	       for (unsigned int i=0; i<residues_mol_and_res_vec.second.size(); i++)
 		  local_residues.push_back(std::pair<bool, CResidue *>(0, residues_mol_and_res_vec.second[i]));
+
+
 	       coot::restraints_container_t restraints(local_residues, *Geom_p(),
 						       residues_mol_and_res_vec.first,
 						       fixed_atom_specs);
@@ -700,15 +702,15 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       
 	       if (molecules[imol].extra_restraints.has_restraints())
 		  restraints.add_extra_restraints(molecules[imol].extra_restraints);
-	       
+
 	       int n_restraints = restraints.make_restraints(*Geom_p(), flags,
 							     do_residue_internal_torsions,
 							     rama_plot_restraint_weight,
 							     do_rama_restraints,
 							     pseudo_bonds_type);
 	       
-	 
 	       std::string dummy_chain = ""; // not used
+		   
 	       rr = update_refinement_atoms(n_restraints, restraints, rr, local_moving_atoms_asc,
 					    0, imol, dummy_chain);
 	    }
@@ -1651,8 +1653,9 @@ graphics_info_t::refine_residue_range(int imol,
 // They should be.
 // 
 void
-graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) { /* atom picking has happened.
-						Actually do it */
+graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
+
+   /* Atom picking has happened. Actually do it */
 
    CAtom *atom1;
    CAtom *atom2;
