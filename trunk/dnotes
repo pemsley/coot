@@ -6835,5 +6835,19 @@ Thu Aug 30 12:17:31 BST 2012
  
    from the refmac monomer library paper
 
+
+----
+Sat Sep  1 11:38:51 BST 2012
+
+	add hydrogen bond analysis (understand output of reduce) into
+	tutorials (validation?)
+
+
+----
+Sat Sep  1 11:58:18 BST 2012
+
+   verify3d for membrane proteins?
+
+
 ------
 

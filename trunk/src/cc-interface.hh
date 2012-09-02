@@ -31,7 +31,7 @@
 #include "sequence-assignment.hh" // for residue_range_t
 
 #include "flev-annotations.hh" // animated ligand interactions
-
+#include "named-rotamer-score.hh"
 
 namespace coot {
 
@@ -960,6 +960,35 @@ std::string untangle_mmdb_chain_id_string(const std::string &mmdb_chain_id_in);
 
 
 /*  ----------------------------------------------------------------------- */
+/*               Return Rotamer score (don't touch the model)               */
+/*  ----------------------------------------------------------------------- */
+
+std::vector<coot::named_rotamer_score> score_rotamers(int imol, 
+						      const char *chain_id, 
+						      int res_no, 
+						      const char *ins_code, 
+						      const char *alt_conf, 
+						      int imol_map, 
+						      int clash_flag, 
+						      float lowest_probability);
+
+#ifdef USE_GUILE
+//! \brief return the scores of the rotamers for this residue.
+//
+// The density fit score is for side-chain atoms.
+// 
+SCM score_rotamers_scm(int imol, 
+		       const char *chain_id, 
+		       int res_no, 
+		       const char *ins_code, 
+		       const char *alt_conf, 
+		       int imol_map, 
+		       int clash_flag, 
+		       float lowest_probability);
+#endif
+
+
+/*  ----------------------------------------------------------------------- */
 /*               Use Cowtan's protein_db to discover loops                  */
 /*  ----------------------------------------------------------------------- */
 /*! \name protein-db */
@@ -1035,7 +1064,7 @@ int handle_drag_and_drop_string(const std::string &uri);
 // \}
 
 /* ------------------------------------------------------------------------- */
-/*                      correllation maps                                    */
+/*                      correlation maps                                     */
 /* ------------------------------------------------------------------------- */
 
 #ifdef USE_GUILE

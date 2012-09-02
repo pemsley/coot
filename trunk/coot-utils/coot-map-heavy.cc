@@ -303,7 +303,22 @@ coot::util::biased_z_weighted_density_score(const minimol::molecule &mol,
       sum_d += d_v;
    }
    return sum_d;
+}
+
+std::vector<std::pair<std::string, float> >
+coot::util::score_atoms(const minimol::residue &residue,
+			const clipper::Xmap<float> &xmap) {
+
+   std::vector<std::pair<std::string, float> > v;
+   for (unsigned int i=0; i<residue.n_atoms(); i++) { 
+      const clipper::Coord_orth &pt = residue[i].pos;
+      float d = density_at_point(xmap, pt);
+      std::pair<std::string, float> p(residue[i].name, d);
+      v.push_back(p);
+   }
+   return v;
 } 
+
 
 
 

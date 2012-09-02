@@ -3,6 +3,16 @@
 
 ----
 
+   o for density figure, white background, dark density, screenshot complains?
+
+   o seth harris: low res add-terminal residue with settings new residue still wanders?
+
+   o extend map to model correlation by addeding a parameter of atom selection:
+     main-chain
+     side-chain
+     all-atoms
+     side-chain-excluding-CB
+
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1

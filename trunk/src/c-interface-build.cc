@@ -2167,18 +2167,34 @@ int n_rotamers(int imol, const char *chain_id, int resno, const char *ins_code) 
 } 
 
 /*! \brief set the residue specified to the rotamer number specifed. */
-int set_residue_to_rotamer_number(int imol, const char *chain_id, int resno, const char *ins_code, int rotamer_number) {
+int set_residue_to_rotamer_number(int imol, const char *chain_id, int resno, const char *ins_code,
+				  const char *alt_conf, int rotamer_number) {
 
    int i_done = 0;
    if (is_valid_model_molecule(imol)) {
       int n = rotamer_number;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
       graphics_info_t g;
-      i_done = g.molecules[imol].set_residue_to_rotamer_number(res_spec, n, *g.Geom_p());
+      i_done = g.molecules[imol].set_residue_to_rotamer_number(res_spec, alt_conf, n, *g.Geom_p());
       graphics_draw();
    }
    return i_done; 
 }
+
+int set_residue_to_rotamer_name(int imol, const char *chain_id, int resno, const char *ins_code,
+				const char *alt_conf,
+				const char *rotamer_name) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec(chain_id, resno, ins_code);
+      graphics_info_t g;
+      status = g.molecules[imol].set_residue_to_rotamer_name(res_spec, alt_conf, rotamer_name, *g.Geom_p());
+      graphics_draw();
+   } 
+   return status;
+} 
+
 
 #ifdef USE_GUILE
 SCM get_rotamer_name_scm(int imol, const char *chain_id, int resno, const char *ins_code) {
@@ -2192,9 +2208,10 @@ SCM get_rotamer_name_scm(int imol, const char *chain_id, int resno, const char *
 #else
 	 // we are not passed an alt conf.  We should be, shouldn't we?
 	 std::string alt_conf = "";
-	 coot::richardson_rotamer d(res, alt_conf, graphics_info_t::molecules[imol].atom_sel.mol,
-				    0.0, 1);
+	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 coot::richardson_rotamer d(res, alt_conf, mol, 0.0, 1);
 	 coot::rotamer_probability_info_t prob = d.probability_of_this_rotamer();
+	 std::cout << "INFO:: " << coot::residue_spec_t(res) << " " << prob << std::endl;
 	 r = scm_makfrom0str(prob.rotamer_name.c_str());
 #endif      
       }

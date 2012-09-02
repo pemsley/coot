@@ -5074,7 +5074,17 @@ void setup_auto_fit_rotamer(short int state);	/* called by the Auto Fit button c
   on no residue found.*/
 int n_rotamers(int imol, const char *chain_id, int resno, const char *ins_code);
 /*! \brief set the residue specified to the rotamer number specifed. */
-int set_residue_to_rotamer_number(int imol, const char *chain_id, int resno, const char *ins_code, int rotamer_number);
+int set_residue_to_rotamer_number(int imol, const char *chain_id, int resno, const char *ins_code, 
+				  const char *alt_conf, int rotamer_number);
+
+/*! \brief set the residue specified to the rotamer name specified.
+
+(rotamer names are the Richardson rotamer names.)
+
+return value is 0 if atoms were not moved (e.g. because rotamer-name was not know) 
+*/
+int set_residue_to_rotamer_name(int imol, const char *chain_id, int resno, const char *ins_code, 
+				const char *alt_conf, const char *rotamer_name);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE

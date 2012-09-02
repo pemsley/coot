@@ -53,7 +53,9 @@ namespace coot {
 	 rotamer_name = name;
 	 alt_conf = alt_conf_in;
       }
+      friend std::ostream &operator<<(std::ostream &s, const rotamer_probability_info_t &rpi);
    }; 
+   std::ostream &operator<<(std::ostream &s, const rotamer_probability_info_t &rpi);
 
    class a_rotamer_table {
       void fill_chi_1(const std::string &file_name);
@@ -139,6 +141,11 @@ namespace coot {
       get_all_rotamers(const std::string &res_type) const;
       std::vector<CAtom *> ordered_residue_atoms(CResidue *residue_p) const;
 
+      // move the atoms of rres
+      void set_dihedrals(CResidue *rres,
+			 const coot::dictionary_residue_restraints_t &rest,
+			 const simple_rotamer &this_rot) const;
+
       short int similar_rotamer_chi(const double &target, const double &model) const {
 	 short int is = 0;
 	 double diff = target - model;
@@ -189,6 +196,13 @@ namespace coot {
       // 
       CResidue *GetResidue(const dictionary_residue_restraints_t &rest,
 			   int i_rot) const; // rotamer/button number
+      
+      // Return a manipulated deep copy of input residue.
+      // 
+      // caller needs to delete returned residue and its chain.
+      // 
+      CResidue *GetResidue(const dictionary_residue_restraints_t &rest,
+			   const std::string &rotamer_name) const;
       
       CResidue *GetResidue_old(int i_rot) const; // for transitioning.  Delete later
       std::vector<coot::simple_rotamer> rotamers(const std::string &res_type, float prob_cut) const; 

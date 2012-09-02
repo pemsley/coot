@@ -280,6 +280,7 @@ coot_real_SOURCES = \
 	c-interface-preferences.cc \
 	c-interface-python.hh	 \
 	c-interface-refine.cc	 \
+	c-interface-residues.cc	 \
 	c-interface-scm.hh	 \
 	c-interface-scm.cc	 \
 	c-interface-sfs.cc	 \
