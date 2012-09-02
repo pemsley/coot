@@ -976,6 +976,7 @@ std::vector<coot::named_rotamer_score> score_rotamers(int imol,
 //! \brief return the scores of the rotamers for this residue.
 //
 // The density fit score is for side-chain atoms.
+// return a list (possibly empty).
 // 
 SCM score_rotamers_scm(int imol, 
 		       const char *chain_id, 
@@ -985,6 +986,18 @@ SCM score_rotamers_scm(int imol,
 		       int imol_map, 
 		       int clash_flag, 
 		       float lowest_probability);
+#endif
+
+#ifdef USE_PYTHON
+// return a list (possibly empty)
+PyObject *score_rotamers_py(int imol, 
+			    const char *chain_id, 
+			    int res_no, 
+			    const char *ins_code, 
+			    const char *alt_conf, 
+			    int imol_map, 
+			    int clash_flag, 
+			    float lowest_probability);
 #endif
 
 

@@ -152,6 +152,7 @@ map_to_model_correlation = map_to_model_correlation_py
 key_sym_code           = key_sym_code_py
 screen_vectors         = screen_vectors_py
 get_residue_by_type    = get_residue_by_type_py
+score_rotamers         = score_rotamers_py
 
 # curl and hence coot_get_url_as_string are conditionally compiled.
 try:

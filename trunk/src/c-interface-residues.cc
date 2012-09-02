@@ -34,6 +34,7 @@
 
 #include "c-interface.h" // for is_valid_model_molecule()
 
+#include "c-interface-python.hh"
 
 std::vector<coot::named_rotamer_score>
 score_rotamers(int imol, 
@@ -96,3 +97,45 @@ SCM score_rotamers_scm(int imol,
 } 
 #endif
 
+
+
+#ifdef USE_PYTHON
+// return a list (possibly empty)
+PyObject *score_rotamers_py(int imol, 
+			    const char *chain_id, 
+			    int res_no, 
+			    const char *ins_code, 
+			    const char *alt_conf, 
+			    int imol_map, 
+			    int clash_flag, 
+			    float lowest_probability) {
+   
+   std::vector<coot::named_rotamer_score> v =
+      score_rotamers(imol, chain_id, res_no, ins_code, alt_conf,
+		     imol_map, clash_flag, lowest_probability);
+   PyObject *r = PyList_New(v.size());
+   for (unsigned int i=0; i<v.size(); i++) { 
+      PyObject *item = PyList_New(5);
+      PyObject *name_py  = PyString_FromString(v[i].name.c_str());
+      PyObject *prob_py  = PyFloat_FromDouble(v[i].rotamer_probability_score);;
+      PyObject *fit_py   = PyFloat_FromDouble(v[i].density_fit_score);;
+      PyObject *clash_py = PyFloat_FromDouble(v[i].clash_score);;
+      PyObject *atom_list_py = PyList_New(v[i].density_score_for_atoms.size());
+      for (unsigned int iat=0; iat<v[i].density_score_for_atoms.size(); iat++) {
+	 PyObject *atom_item = PyList_New(2);
+	 PyObject *p0 = PyString_FromString(v[i].density_score_for_atoms[iat].first.c_str());
+	 PyObject *p1 = PyFloat_FromDouble(v[i].density_score_for_atoms[iat].second);
+	 PyList_SetItem(atom_item, 0, p0);
+	 PyList_SetItem(atom_item, 1, p1);
+	 PyList_SetItem(atom_list_py, iat, atom_item);
+      }
+      PyList_SetItem(item, 0, name_py);
+      PyList_SetItem(item, 1, prob_py);
+      PyList_SetItem(item, 2, fit_py);
+      PyList_SetItem(item, 3, atom_list_py);
+      PyList_SetItem(item, 4, clash_py);
+      PyList_SetItem(r, i, item);
+   }
+   return r;
+} 
+#endif
