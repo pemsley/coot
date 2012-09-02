@@ -1081,12 +1081,27 @@ int handle_drag_and_drop_string(const std::string &uri);
 /* ------------------------------------------------------------------------- */
 
 #ifdef USE_GUILE
-SCM map_to_model_correlation_scm(int imol, SCM residue_specs, int imol_map);
+SCM map_to_model_correlation_scm(int imol, SCM residue_specs,
+				 unsigned short int atom_mask_mode,
+				 int imol_map);
 #endif
 #ifdef USE_PYTHON
-PyObject *map_to_model_correlation_py(int imol, PyObject *residue_specs, int imol_map);
+PyObject *map_to_model_correlation_py(int imol, PyObject *residue_specs,
+				      unsigned short int atom_mask_mode,
+				      int imol_map);
 #endif
-float map_to_model_correlation(int imol, const std::vector<coot::residue_spec_t> &specs, int imol_map);
+
+//! \brief atom-mask-mode is as follows:
+// 0: all-atoms
+// 1: main-chain atoms if is standard amino-acid, else all atoms
+// 2: side-chain atoms if is standard amino-acid, else all atoms
+// 3: side-chain atoms-exclusing CB if is standard amino-acid, else all atoms
+// 4: main-chain atoms if is standard amino-acid, else nothing
+// 5: side-chain atoms if is standard amino-acid, else nothing
+// 
+float map_to_model_correlation(int imol, const std::vector<coot::residue_spec_t> &specs,
+			       unsigned short int atom_mask_mode,
+			       int imol_map);
 
 
 /* ------------------------------------------------------------------------- */
