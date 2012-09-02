@@ -85,6 +85,7 @@ using namespace std; // Hmmm.. I don't approve, FIXME
 #include "flev-annotations.hh" // animated ligand interactions
 
 #include "dots-representation.hh"
+#include "named-rotamer-score.hh"
 
 namespace molecule_map_type {
    enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3,
@@ -2305,6 +2306,7 @@ public:        //                      public
 			       const std::string &chain_id, int imol_map, int clash_flag,
 			       float lowest_probability,
 			       const coot::protein_geometry &pg);
+   
    // interface from atom picking (which simply gets the resno, altloc
    // etc form the atom_index and calls the above function.
    float auto_fit_best_rotamer(int rotamer_search_mode,
@@ -2322,8 +2324,28 @@ public:        //                      public
 					 const coot::protein_geometry &pg);
 
 
-   int set_residue_to_rotamer_number(coot::residue_spec_t res_spec, int rotamer_number,
+   int set_residue_to_rotamer_number(coot::residue_spec_t res_spec, 
+				     const std::string &alt_conf,
+				     int rotamer_number,
 				     const coot::protein_geometry &pg);
+
+   int set_residue_to_rotamer_name(coot::residue_spec_t res_spec, 
+				   const std::string &alt_conf,
+				   const std::string &rotamer_name,
+				   const coot::protein_geometry &pg);
+
+   // internal function for above two functions
+   int set_residue_to_rotamer_move_atoms(CResidue *res, CResidue *moving_res);
+
+   std::vector<coot::named_rotamer_score> score_rotamers(const std::string &chain_id,
+							 int res_no,
+							 const std::string &ins_code,
+							 const std::string &alt_conf,
+							 int clash_flag,
+							 float lowest_probability,
+							 const clipper::Xmap<float> &xmap,
+							 const coot::protein_geometry &pg);
+
 
    // Add OXT atom:  Return status, 0 = fail, 1 = worked.
    // (use get_residue() to get the residue for this);

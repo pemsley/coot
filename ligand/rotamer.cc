@@ -34,6 +34,16 @@
 #include "coot-sysdep.h"
 
 
+std::ostream &
+coot::operator<<(std::ostream &s, const coot::rotamer_probability_info_t &rpi) {
+
+   s << "[state: " << rpi.state << " name: \"" << rpi.rotamer_name << "\" prob: "
+     << rpi.probability << "%]";
+
+   return s;
+} 
+
+
 // Return a flag saying whether we did this or not.
 //
 // LEU, VAL, THR have "nomenclature" or real chiral centres - they are
@@ -241,7 +251,7 @@ coot::rotamer::probability_of_this_rotamer() {
 
    if (rotamer_ats.size() == 0)
       return coot::rotamer_probability_info_t(-2, 0.0, "none"); // no chi-squared value for 
-                                                             // residues with no side chain
+                                                                // residues with no side chain
    
    std::vector<std::vector<int> > atom_indices =
       rotamer_atom_names_to_indices(rotamer_ats, residue_atoms, n_residue_atoms);
@@ -262,10 +272,15 @@ coot::rotamer::probability_of_this_rotamer() {
    // So, which rotamer are we in?
    
    std::vector<coot::simple_rotamer> rots = get_all_rotamers(residue_name);
-   if (0)
+
+   if (0) { // debug
+      for (unsigned int ichi=0; ichi<chi_angles.size(); ichi++)
+	 std::cout << "   " << chi_angles[ichi];
+      std::cout << std::endl;
       std::cout << "calling probability_of_this_rotamer(chi_angles, rots)" << std::endl;
+   } 
    coot::rotamer_probability_info_t d = probability_of_this_rotamer(chi_angles, rots);
-   
+
    return d;
 }
 
@@ -590,9 +605,42 @@ coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
       return rres; // or should this be null? 
    }
    coot::simple_rotamer this_rot = rots[i_rot];
-   std::vector<coot::atom_name_quad> atom_name_quads = atom_name_quad_list(rt);
+   set_dihedrals(rres, rest, this_rot);
+   
+   return rres;
+}
 
-   if (0) { 
+CResidue *
+coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
+			  const std::string &rotamer_name) const {
+
+   CResidue *r = NULL; // returned value
+   CResidue *rres = deep_copy_residue(Residue());
+   if (rres) { 
+      std::string rt = Residue_Type();
+      std::vector<coot::simple_rotamer> rots = rotamers(rt, probability_limit);
+      for (unsigned int i=0; i<rots.size(); i++) { 
+	 if (rots[i].rotamer_name() == rotamer_name) {
+	    const simple_rotamer &this_rot = rots[i];
+	    set_dihedrals(rres, rest, this_rot);
+	    r = rres;
+	    break;
+	 } 
+      }
+   }
+   return r;
+}
+
+// move the atoms of rres
+void
+coot::rotamer::set_dihedrals(CResidue *rres,
+			     const coot::dictionary_residue_restraints_t &rest,
+			     const simple_rotamer &this_rot) const {
+
+   bool debug = false;
+   std::vector<coot::atom_name_quad> atom_name_quads = atom_name_quad_list(Residue_Type());
+
+   if (debug) { 
       for (unsigned int ichi=0; ichi<atom_name_quads.size(); ichi++) {
 	 std::cout << "Quad " << ichi << " "
 		   << atom_name_quads[ichi].atom_name(0) << " "
@@ -623,9 +671,8 @@ coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
 	 std::cout << "oops! in rotamer::GetResidue() " << rte.what() << std::endl;
       } 
    }
-   
-   return rres;
-}
+} 
+
 
 // Return NULL if no residues available for this residue type
 // 

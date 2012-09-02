@@ -1848,12 +1848,12 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 			lig.import_map_from(graphics_info_t::molecules[imol_map].xmap_list[0]);
 			// short int mask_water_flag = 0;
 			lig.set_acceptable_fit_fraction(0.5);  // at least half of the atoms
-			// have to be fitted into
-			// positive density, otherwise
-			// the fit failed, and we leave
-			// the atom positions as they
-			// are (presumably in an even
-			// worse position?)
+                                 			       // have to be fitted into
+			                                       // positive density, otherwise
+			                                       // the fit failed, and we leave
+			                                       // the atom positions as they
+			                                       // are (presumably in an even
+			                                       // worse position?)
 			lig.install_ligand(residue_mol);
 			lig.set_dont_write_solutions();
 			lig.find_centre_by_ligand(0);
@@ -1883,7 +1883,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 			}
 		     }
 
-		     catch (std::runtime_error rte) {
+		     catch (const std::runtime_error &rte) {
 			std::cout << "ERROR:: auto_fit_best_rotamer() " << rte.what() << std::endl;
 		     }
 
@@ -1980,6 +1980,79 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
 
 }
 
+std::vector<coot::named_rotamer_score>
+molecule_class_info_t::score_rotamers(const std::string &chain_id,
+				      int res_no,
+				      const std::string &ins_code,
+				      const std::string &alt_conf,
+				      int clash_flag,
+				      float lowest_probability,
+				      const clipper::Xmap<float> &xmap,
+				      const coot::protein_geometry &pg) {
+
+   std::vector<coot::named_rotamer_score> v;
+   CResidue *res = get_residue(std::string(chain_id), res_no, std::string(ins_code));
+   if (res) {
+      std::string res_type(res->name);
+      CResidue *copied_res = coot::deep_copy_this_residue(res, alt_conf, 0,
+							  atom_sel.UDDAtomIndexHandle);
+      if (!copied_res) {
+	 std::cout << "WARNING:: residue copied - no atoms" << std::endl;
+      } else { 
+	 coot::richardson_rotamer d(copied_res, alt_conf, atom_sel.mol, lowest_probability, 0);
+	 std::vector<float> probabilities = d.probabilities();
+	 if (probabilities.size() == 0) {
+	    std::cout << "WARNING:: no rotamers probabilities for residue type "
+		      << res_type << std::endl;
+	 } else {
+	    std::pair<short int, coot::dictionary_residue_restraints_t> p =
+	       pg.get_monomer_restraints(res_type);
+
+	    if (p.first) { 
+	       coot::dictionary_residue_restraints_t rest = p.second;
+	       for (unsigned int i=0; i<probabilities.size(); i++) {
+		  CResidue *rotamer_res = d.GetResidue(rest, i); // does a deep copy, deleted
+		  std::string rotamer_name = d.rotamer_name(i);
+		  float clash_score = -1; // unset
+		  
+		  coot::rotamer rotamer_for_residue(rotamer_res);
+		  coot::rotamer_probability_info_t rpi =
+		     rotamer_for_residue.probability_of_this_rotamer();
+		  
+		  coot::minimol::residue residue_res(rotamer_res);
+		  if (clash_flag) { 
+		     // to get the clash score, we need a minimol molecule
+		     coot::minimol::fragment frag(chain_id);
+		     frag.addresidue(residue_res, 0);
+		     coot::minimol::molecule mm(frag);
+		     float cs = get_clash_score(mm);
+		     clash_score = cs;
+		  }
+		  
+		  std::vector<std::pair<std::string, float> > atom_densities =
+		     coot::util::score_atoms(residue_res, xmap);
+		  float rot_prob = rpi.probability;
+		  float total_atom_density_score = 0.0;
+		  for (unsigned int iat=0; iat<atom_densities.size(); iat++)
+		     if (! coot::is_main_chain_or_cb_p(atom_densities[iat].first))
+			 total_atom_density_score += atom_densities[iat].second;
+
+		  coot::named_rotamer_score rot(rotamer_name,
+						rot_prob,
+						clash_score,
+						atom_densities,
+						total_atom_density_score);
+		  v.push_back(rot);
+		  delete rotamer_res->chain; // strange (perhaps?) - deletes rotamer_res too.
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
+}
+
+
 // internal.
 std::pair<bool,float>
 molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no, 
@@ -2039,6 +2112,7 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 
 int
 molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_spec,
+						     const std::string &alt_conf_in,
 						     int rotamer_number,
 						     const coot::protein_geometry &pg) {
 
@@ -2060,45 +2134,82 @@ molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_sp
       if (p.first) { 
 	 coot::dictionary_residue_restraints_t rest = p.second;
 	 CResidue *moving_res = d.GetResidue(rest, rotamer_number);
+	 if (moving_res) { 
+	    i_done = set_residue_to_rotamer_move_atoms(res, moving_res);
+	    delete moving_res; // or moving_res->chain?
+	 }
+      }
+   }
+   if (! i_done) 
+      std::cout << "WARNING:: set to rotamer number failed" << std::endl;
+   return i_done;
+}
 
-	 int n_ref_atoms;
-	 PPCAtom ref_residue_atoms = 0;
-	 int n_mov_atoms;
-	 PPCAtom mov_residue_atoms= 0;
+int
+molecule_class_info_t::set_residue_to_rotamer_name(coot::residue_spec_t res_spec,
+						   const std::string &alt_conf_in,
+						   const std::string &rotamer_name,
+						   const coot::protein_geometry &pg) {
 
-	 res->GetAtomTable(ref_residue_atoms, n_ref_atoms);
-	 moving_res->GetAtomTable(mov_residue_atoms, n_mov_atoms);
+   int status = 0;
+   CResidue *res = get_residue(res_spec);
+   if (res) {
+      make_backup();
+      coot::richardson_rotamer rr(res, alt_conf_in, atom_sel.mol, 0.01, 0);
+      std::string monomer_type = res->GetResName();
+      std::pair<short int, coot::dictionary_residue_restraints_t> p =
+	 pg.get_monomer_restraints(monomer_type);
+      
+      if (p.first) { 
+	 coot::dictionary_residue_restraints_t rest = p.second;
+	 CResidue *moving_res = rr.GetResidue(rest, rotamer_name);
+	 if (moving_res) { 
+	    status = set_residue_to_rotamer_move_atoms(res, moving_res);
+	    delete moving_res; // or delete moving_res->chain ??
+	 }
+      }
+   }
+   return status;
+}
 
-	 int n_atoms = 0; 
-	 for (int imov=0; imov<n_mov_atoms; imov++) {
-	    std::string atom_name_mov(mov_residue_atoms[imov]->name);
-	    std::string alt_loc_mov(mov_residue_atoms[imov]->altLoc);
-	    for (int iref=0; iref<n_ref_atoms; iref++) {
-	       std::string atom_name_ref(ref_residue_atoms[iref]->name);
-	       std::string alt_loc_ref(ref_residue_atoms[iref]->altLoc);
-	       if (atom_name_mov == atom_name_ref) {
-		  if (alt_loc_mov == alt_loc_ref) {
-		     ref_residue_atoms[iref]->x = mov_residue_atoms[imov]->x;
-		     ref_residue_atoms[iref]->y = mov_residue_atoms[imov]->y;
-		     ref_residue_atoms[iref]->z = mov_residue_atoms[imov]->z;
-		     n_atoms++;
-		     i_done = 1;
-		  }
-	       }
+int
+molecule_class_info_t::set_residue_to_rotamer_move_atoms(CResidue *res, CResidue *moving_res) {
+
+   int i_done = 0;
+   int n_ref_atoms;
+   PPCAtom ref_residue_atoms = 0;
+   int n_mov_atoms;
+   PPCAtom mov_residue_atoms= 0;
+
+   res->GetAtomTable(ref_residue_atoms, n_ref_atoms);
+   moving_res->GetAtomTable(mov_residue_atoms, n_mov_atoms);
+
+   int n_atoms = 0; 
+   for (int imov=0; imov<n_mov_atoms; imov++) {
+      std::string atom_name_mov(mov_residue_atoms[imov]->name);
+      std::string alt_loc_mov(mov_residue_atoms[imov]->altLoc);
+      for (int iref=0; iref<n_ref_atoms; iref++) {
+	 std::string atom_name_ref(ref_residue_atoms[iref]->name);
+	 std::string alt_loc_ref(ref_residue_atoms[iref]->altLoc);
+	 if (atom_name_mov == atom_name_ref) {
+	    if (alt_loc_mov == alt_loc_ref) {
+	       ref_residue_atoms[iref]->x = mov_residue_atoms[imov]->x;
+	       ref_residue_atoms[iref]->y = mov_residue_atoms[imov]->y;
+	       ref_residue_atoms[iref]->z = mov_residue_atoms[imov]->z;
+	       n_atoms++;
+	       i_done = 1;
 	    }
 	 }
       }
-      
+   }
+
+   if (i_done) { 
       atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();
-   } else {
-      std::cout << "WARNING:: failed to find residue " << res_spec << std::endl;
    }
-   if (! i_done) 
-      std::cout << "WARNING:: set to rotamer number failed" << std::endl;
    return i_done;
 } 
 

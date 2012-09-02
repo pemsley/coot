@@ -1900,8 +1900,8 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
 	    if (best_ori_scorecard.score > 0) {
 	       if (best_ori_scorecard.many_atoms_fit == 0) {
 		  std::cout << "WARNING: many badly fitting atoms for best ligand "
-			    << "in cluster " << iclust << "." << std::endl
-			    << "         Coordinates not written." << std::endl;
+			    << "in cluster " << iclust << "." << std::endl;
+		  // << "         Coordinates not written." << std::endl;
 	       } else {
 		  if (write_solutions) { 
 		     if (write_orientation_solutions) { 

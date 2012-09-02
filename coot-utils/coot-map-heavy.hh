@@ -82,6 +82,9 @@ namespace coot {
 					    const std::vector<std::pair<std::string, int> > &atom_number_list,
 					    const clipper::Xmap<float> &map);
 
+      std::vector<std::pair<std::string, float> > score_atoms(const minimol::residue &residue_res,
+							      const clipper::Xmap<float> &xmap);
+
       std::vector<CAtom> jiggle_atoms(const std::vector<CAtom *> &atoms,
 				      const clipper::Coord_orth &centre_pt,
 				      float jiggle_scale_factor);
