@@ -160,8 +160,14 @@ namespace coot {
       // return a number less than -1 on badness
       // (perhaps this should return the atom map and the mask map)
       //
+      // 0: all-atoms
+      // 1: main-chain atoms if is standard amino-acid, else all atoms
+      // 2: side-chain atoms if is standard amino-acid, else all atoms
+      // 3: side-chain atoms-exclusing CB if is standard amino-acid, else all atoms
+      // 
       float map_to_model_correlation(CMMDBManager *mol,
 				     const std::vector<residue_spec_t> &specs,
+				     unsigned short int atom_mask_mode,
 				     float atom_radius, // for masking 
 				     const clipper::Xmap<float> &xmap_from_sfs);
 

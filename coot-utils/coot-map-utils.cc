@@ -1389,16 +1389,13 @@ coot::util::segment_map::path_to_peak(const clipper::Coord_grid &start_point,
 // 
 clipper::Xmap<float>
 coot::util::calc_atom_map(CMMDBManager *mol,
-			  int atom_selection_handle, 
+			  int atom_selection_handle,
 			  const clipper::Cell &cell,
 			  const clipper::Spacegroup &space_group,
 			  const clipper::Grid_sampling &sampling) {
 
    clipper::Xmap<float> xmap;
    xmap.init(space_group, cell, sampling);
-
-   // get a list of all the atoms
-   // clipper::MMDBAtom_list atoms(SelAtom.atom_selection, SelAtom.n_selected_atoms);
 
    std::vector<clipper::Atom> l;
 
@@ -1424,9 +1421,19 @@ coot::util::calc_atom_map(CMMDBManager *mol,
    return xmap;
 }
 
+#include "clipper/ccp4/ccp4_map_io.h"
+
+// 0: all-atoms
+// 1: main-chain atoms if is standard amino-acid, else all atoms
+// 2: side-chain atoms if is standard amino-acid, else all atoms
+// 3: side-chain atoms-exclusing CB if is standard amino-acid, else all atoms
+// 4: main-chain atoms if is standard amino-acid, else nothing
+// 5: side-chain atoms if is standard amino-acid, else nothing
+// 
 float
 coot::util::map_to_model_correlation(CMMDBManager *mol,
 				     const std::vector<residue_spec_t> &specs,
+				     unsigned short int atom_mask_mode,
 				     float atom_radius,
 				     const clipper::Xmap<float> &reference_map) {
 
@@ -1434,20 +1441,47 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
    int SelHnd = mol->NewSelection();
 
    // std::cout << "There are " << specs.size() << " residues " << std::endl;
-   for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++)
-      std::cout << "   " << specs[ilocal] << std::endl;
+   // for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++)
+   // std::cout << "   " << specs[ilocal] << std::endl;
 
-   for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++) { 
+   for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++) {
+      
+      std::string res_name_selection  = "*";
+      std::string atom_name_selection = "*";
+
+      if (atom_mask_mode != 0) { // main chain for standard amino acids
+	 CResidue *res = get_residue(specs[ilocal], mol);
+	 if (res) {
+	    std::string residue_name(res->GetResName());
+	    if (is_standard_residue_name(residue_name)) { 
+
+	       // PDBv3 FIXME
+	       // 
+	       if (atom_mask_mode == 1)
+		  atom_name_selection = " N  , H  , HA , CA , C  , O  ";
+	       if (atom_mask_mode == 2)
+		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
+	       if (atom_mask_mode == 3)
+		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
+	    } else {
+	       if (atom_mask_mode == 4)
+		  atom_name_selection = "%%%%%%"; // nothing (perhaps use "")
+	       if (atom_mask_mode == 5)
+		  atom_name_selection = "%%%%%%"; // nothing
+	    } 
+	 }
+      }
+      
       mol->SelectAtoms(SelHnd, 1,
 		       specs[ilocal].chain.c_str(),
 		       specs[ilocal].resno,
 		       specs[ilocal].insertion_code.c_str(),
 		       specs[ilocal].resno,
 		       specs[ilocal].insertion_code.c_str(),
-		       "*", // any residue name
-		       "*", // atom name
+		       res_name_selection.c_str(),
+		       atom_name_selection.c_str(), 
 		       "*", // elements
-		       "*",  // alt loc.
+		       "*", // alt loc.
 		       SKEY_OR
 		       );
    }
@@ -1468,6 +1502,12 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       PPCAtom atom_selection = 0;
       int n_atoms;
       mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+
+      // debugging atom selection
+      // std::cout << "debug:: selected " << n_atoms << " atoms " << std::endl;
+      // for (unsigned int iat=0; iat<n_atoms; iat++)
+      //    std::cout << "    " << atom_selection[iat]->name << std::endl;
+      
       for (unsigned int iat=0; iat<n_atoms; iat++) {
 	 clipper::Coord_orth co(atom_selection[iat]->x,
 				atom_selection[iat]->y,
@@ -1526,6 +1566,20 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 	 }
       }
 
+
+      if (0) { 
+	 // just checking that the maps are we expect them to be...
+	 clipper::CCP4MAPfile mapout;
+	 mapout.open_write("calc.map");
+	 mapout.export_xmap(calc_map);
+	 mapout.close_write();
+	 
+	 clipper::CCP4MAPfile mapout_mask;
+	 mapout_mask.open_write("masked.map");
+	 mapout_mask.export_xmap(masked_map);
+	 mapout_mask.close_write();
+      }
+      
       double top = double(n) * sum_xy - sum_x * sum_y;
       double b_1 = double(n) * sum_x_sqd - sum_x * sum_x;
       double b_2 = double(n) * sum_y_sqd - sum_y * sum_y;
@@ -1534,7 +1588,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       if (b_2 < 0) b_2 = 0;
 
       double c = top/(sqrt(b_1) * sqrt(b_2));
-      std::cout << "   correlation: " << c << std::endl;
+      std::cout << "INFO:: map vs model correlation: " << c << std::endl;
       ret_val = c;
    }
    return ret_val;
