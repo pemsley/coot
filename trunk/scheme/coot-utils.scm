@@ -3425,7 +3425,33 @@
 		     (handle-sxml sxml))))))))
 
 
-	
+(define (get-SMILES-for-comp-id-from-pdbe comp-id)
+
+  (if (not (string? comp-id))
+      #f
+      (let ((s (SMILES-for-comp-id comp-id)))
+	(if (string? s)
+	    s
+	    (let ((cif-file-name (append-dir-file "coot-download"
+						  (string-append "PDBe-" comp-id ".cif")))
+		  (url (string-append 
+			"ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/"
+			comp-id
+			".cif")))
+	      (make-directory-maybe "coot-download")
+	      (if (file-exists? cif-file-name)
+		  ;; try the file system cache
+		  (begin
+		    (read-cif-dictionary cif-file-name)
+		    (let ((s2 (SMILES-for-comp-id comp-id)))
+		      (if (string? s2)
+			  s2)))
+		  ;; use the network then
+		  (let ((state (coot-get-url url cif-file-name)))
+		    (read-cif-dictionary cif-file-name)
+		    (let ((s (SMILES-for-comp-id comp-id)))
+		      s))))))))
+
 
 ;; Americans...
 (define chiral-center-inverter chiral-centre-inverter)
