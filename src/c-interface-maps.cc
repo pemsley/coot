@@ -1151,11 +1151,13 @@ void check_for_dark_blue_density() {
       for (int i=0; i<graphics_info_t::n_molecules(); i++) { 
 	 if (graphics_info_t::molecules[i].has_map()) { 
 	    if (graphics_info_t::molecules[i].is_displayed_p()) {
-	       if (graphics_info_t::molecules[i].map_is_too_blue_p()) {
-		  std::string s = "I suggest that you increase the brightness of the map\n";
-		  s += " if this is for a presentation (blue projects badly).";
-		  info_dialog(s.c_str());
-		  break; // only make the dialog once
+	       if (background_is_black_p()) { 
+		  if (graphics_info_t::molecules[i].map_is_too_blue_p()) {
+		     std::string s = "I suggest that you increase the brightness of the map\n";
+		     s += " if this is for a presentation (blue projects badly).";
+		     info_dialog(s.c_str());
+		     break; // only make the dialog once
+		  }
 	       }
 	    }
 	 }

@@ -3,7 +3,6 @@
 
 ----
 
-   o for density figure, white background, dark density, screenshot complains?
 
    o seth harris: low res add-terminal residue with settings new residue still wanders?
 
@@ -478,5 +477,9 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
 * Done.
 
    o citing coot needs to be udated in the manual
+
+* Done.
+
+   o for density figure, white background, dark density, screenshot complains? Yes ::: 1
 
 * Done.
