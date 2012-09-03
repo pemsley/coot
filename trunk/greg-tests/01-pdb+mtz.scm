@@ -606,7 +606,7 @@
 
        (let ((se-1 (get-atom imol "A" 89 "" "SE  ")))
 
-	 (set-residue-to-rotamer-number imol "A" 89 "" 3)
+	 (set-residue-to-rotamer-number imol "A" 89 "" "" 3)
 
 	 (let ((se-2 (get-atom imol "A" 89 "" "SE  ")))
 
@@ -1965,7 +1965,7 @@
 
 	 ;; note that the rotamer number is 0-indexed (unlike the rotamer
 	 ;; number dialog)
-	 (set-residue-to-rotamer-number imol-rnase chain-id resno "" 1)
+	 (set-residue-to-rotamer-number imol-rnase chain-id resno "" "" 1)
 	 
 	 (let ((residue-post (residue-info imol-rnase chain-id resno "")))
 	   
@@ -2005,7 +2005,7 @@
 		(map
 		 (lambda (rotamer-number correct-name correct-prob)
 		   (apply set-residue-to-rotamer-number imol 
-			  (append residue-attributes (list rotamer-number)))
+			  (append residue-attributes (list "" rotamer-number)))
 		   (let ((rotamer-name (apply get-rotamer-name imol residue-attributes))
 			 (rotamer-prob (apply rotamer-score imol residue-attributes-with-alt-conf)))
 		     (format #t "   Rotamer ~s : ~s ~s ~%" 
@@ -2179,7 +2179,7 @@
 			 (throw 'fail)))
 		   
 		   ;; rotamer 4 is out of range.
-		   (set-residue-to-rotamer-number imol "H" 52 "A" 4) ;; crash
+		   (set-residue-to-rotamer-number imol "H" 52 "A" "" 4) ;; crash
 		   #t
 		   )))))))))
 
