@@ -523,7 +523,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         from types import ListType
         imol = unittest_pdb("pdb3knw.ent")
         se_1 = get_atom(imol, "A", 89, "", "SE  ")
-        set_residue_to_rotamer_number(imol, "A", 89, "", 3)
+        set_residue_to_rotamer_number(imol, "A", 89, "", "", 3)
         se_2 = get_atom(imol, "A", 89, "", "SE  ")
 
         print "    se_1:", se_1
@@ -1559,7 +1559,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         # note that the rotamer number is 0-indexed (unlike the rotamer
         # number dialog)
-        set_residue_to_rotamer_number(imol_rnase, chain_id, resno, "", 1)
+        set_residue_to_rotamer_number(imol_rnase, chain_id, resno, "", "", 1)
 
         residue_post = residue_info(imol_rnase, chain_id, resno, "")
 
@@ -1585,7 +1585,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
                    # and hence in richardson-rotamers.cc.  C'est la vie.
                    ["m-85", "t80", "p90", "m -30 ", "m -30 "],
                    [100, 90.16684, 50.707787, 21.423154, 21.423154]):
-            set_residue_to_rotamer_number(imol, *(residue_attributes + [rotamer_number]))
+            set_residue_to_rotamer_number(imol, *(residue_attributes + "" + [rotamer_number]))
             rotamer_name = get_rotamer_name(imol, *residue_attributes)
             rotamer_prob = rotamer_score(imol, *(residue_attributes + [""]))
             print "   Rotamer %s : %s %s" %(rotamer_number, rotamer_name, rotamer_prob)
@@ -1728,7 +1728,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
         # in pro-x
 
         # rotamer 4 is out of range.
-        set_residue_to_rotamer_number(imol, "H", 52, "A", 4) # crash!!?
+        set_residue_to_rotamer_number(imol, "H", 52, "A", "", 4) # crash!!?
 
 
     # new version of tests
