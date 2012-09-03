@@ -1585,7 +1585,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
                    # and hence in richardson-rotamers.cc.  C'est la vie.
                    ["m-85", "t80", "p90", "m -30 ", "m -30 "],
                    [100, 90.16684, 50.707787, 21.423154, 21.423154]):
-            set_residue_to_rotamer_number(imol, *(residue_attributes + "" + [rotamer_number]))
+            set_residue_to_rotamer_number(imol, *(residue_attributes + ["", rotamer_number]))
             rotamer_name = get_rotamer_name(imol, *residue_attributes)
             rotamer_prob = rotamer_score(imol, *(residue_attributes + [""]))
             print "   Rotamer %s : %s %s" %(rotamer_number, rotamer_name, rotamer_prob)
