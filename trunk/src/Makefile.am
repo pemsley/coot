@@ -386,6 +386,7 @@ coot_real_SOURCES = \
 	molecule-class-info-surface.cc 	\
 	molecule-class-info-ncs.cc 	\
 	molecule-class-info-widget-work.cc \
+	named-rotamer-score.hh   \
 	nsv.cc nsv.hh    	 \
 	pisa-interface.hh	 \
         pick.h pick.cc		 \
