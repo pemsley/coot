@@ -4262,8 +4262,18 @@ graphics_info_t::draw_generic_objects_solid() {
 
       if ((*generic_objects_p)[i].is_displayed_flag) {
 
-	 // needed for correct tube colours
-	 glEnable(GL_COLOR_MATERIAL);
+	 // Previously (r4209) I had noted that
+	 // glEnable(GL_COLOR_MATERIAL) needed for correct tube
+	 // colours.
+	 // 
+	 // 20120903 but this creates problems when displaying
+	 // chemical features (they become solid yellow (with nvidia
+	 // drivers?)).  I currently don't understand what problems
+	 // result if we do not enable GL_COLOR_MATERIAL here. (Mogul
+	 // output markup seems OK?).  So comment out.
+	 // 
+	 // glEnable(GL_COLOR_MATERIAL);
+	 
 	 GLfloat  mat_specular[]  = {0.9, 0.9, 0.9, 1};
 	 GLfloat  mat_shininess[] = {80};
 	 
