@@ -4,13 +4,6 @@
 ----
 
 
-   o seth harris: low res add-terminal residue with settings new residue still wanders?
-
-   o extend map to model correlation by addeding a parameter of atom selection:
-     main-chain
-     side-chain
-     all-atoms
-     side-chain-excluding-CB
 
 ------
 
@@ -483,3 +476,18 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
    o for density figure, white background, dark density, screenshot complains? Yes ::: 1
 
 * Done.
+
+   o extend map to model correlation by addeding a parameter of atom selection:
+     main-chain
+     side-chain
+     all-atoms
+     side-chain-excluding-CB   
+     ::: 2
+
+* Done.
+
+   o seth harris: low res add-terminal residue with settings new residue still wanders?
+
+
+* No.  It's fine
+
