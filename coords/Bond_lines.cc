@@ -284,11 +284,6 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
  	 if (are_different_atom_selections ||
  	      (contact[i].id2 > contact[i].id1) ) {
 
-	    // 	 if (1) {
-
-// 	    found_contact[contact[i].id1] = 1;  // true
-// 	    found_contact[contact[i].id2] = 1;
-
 	    CAtom *atom_p_1 = atom_selection_1[ contact[i].id1 ];
 	    CAtom *atom_p_2 = atom_selection_2[ contact[i].id2 ];
 
@@ -308,10 +303,6 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 
 	       // alternate location test
 	       // 
-	       // 
-	       // 	    short int v =  (aloc_1=="") || (aloc_2=="") || (aloc_1==aloc_2);
-	       // 	    std::cout << "alt loc test result is " << v << "  comparing :" 
-	       // 		      << aloc_1 << ": and :"<< aloc_2 << ":" << std::endl;
 	       if ( (aloc_1=="") || (aloc_2=="") || (aloc_1==aloc_2) ) {
 
 		  int res_1 = atom_p_1->GetSeqNum();
@@ -805,7 +796,6 @@ Bond_lines_container::invert_deloc_bond_displacement_vector(const clipper::Coord
 	    }
 	 }
       }
-      
    }
 
    // std::cout << ":::::::::: invert_deloc_bond_displacement_vector() returns " << r << std::endl;
@@ -819,23 +809,24 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 					     short int have_udd_handle,
 					     int udd_handle) {
 
-
    if (het_residues.size()) {
       for (unsigned int ires=0; ires<het_residues.size(); ires++) {
 	 if (het_residues[ires].first) {
 	    std::string res_name = het_residues[ires].second->GetResName();
 	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints = 
 	       geom->get_monomer_restraints_at_least_minimal(res_name);
-   	    // if (res_name != "HOH")
-	    // std::cout << "          ============== Considering bonding HET residue: "
-	    // << coot::residue_spec_t(het_residues[ires].second) << " "
-	    // << res_name << " " << std::endl;
+	    
+   	    if (res_name != "HOH")
+	       std::cout << "          ============== Considering bonding HET residue: "
+			 << coot::residue_spec_t(het_residues[ires].second) << " "
+			 << res_name << " " << std::endl;
 
 	    if (! restraints.first) {
 	       std::cout << "Oooppps!  No bonding rules for residue type :" << res_name
 			 << ": missing bonds! " << std::endl;
 	    } else {
 
+	       std::cout << "   add_bonds_het_residues() we have rules "<< res_name << std::endl;
 	       PPCAtom residue_atoms;
 	       int n_atoms;
 	       het_residues[ires].second->GetAtomTable(residue_atoms, n_atoms);
@@ -981,7 +972,7 @@ Bond_lines_container::het_residue_aromatic_rings(CResidue *res,
       for (unsigned int i=0; i<rings.size(); i++) { 
 	 add_aromatic_ring_bond_lines(rings[i], res, col);
       }
-   } 
+   }
 }
 
 // pass a list of atom name that are part of the aromatic ring system.

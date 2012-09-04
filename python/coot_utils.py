@@ -1538,7 +1538,7 @@ def add_key_binding(name, key, thunk):
 #
 def graphics_general_key_press_hook(key, control_flag = 0):
     global key_bindings
-    #print "Key %s was pressed" %key
+    # print "graphics_general_key_press_hook(): Key %s was pressed" %key
     if control_flag:
         codes = [elem[0] for elem in key_bindings if "Control_" in elem[1]]
         funcs = [elem[3] for elem in key_bindings if "Control_" in elem[1]]
@@ -1548,7 +1548,7 @@ def graphics_general_key_press_hook(key, control_flag = 0):
     if (key in codes):
         index = codes.index(key)
         func  = funcs[index]
-        #print "BL DEBUG:: index and executing:", index, func
+        # print "BL DEBUG:: index and executing:", index, func
         apply(func)
     else:
         if coot_has_guile() and is_windows():
