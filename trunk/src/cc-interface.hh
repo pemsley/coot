@@ -1103,6 +1103,23 @@ float map_to_model_correlation(int imol, const std::vector<coot::residue_spec_t>
 			       unsigned short int atom_mask_mode,
 			       int imol_map);
 
+std::vector<std::pair<coot::residue_spec_t,float> >
+map_to_model_correlation_per_residue(int imol, const std::vector<coot::residue_spec_t> &specs,
+				     unsigned short int atom_mask_mode,
+				     int imol_map);
+
+#ifdef USE_GUILE
+SCM
+map_to_model_correlation_per_residue_scm(int imol, SCM residue_specs,
+					 unsigned short int atom_mask_mode,
+					 int imol_map);
+#endif
+
+#ifdef USE_PYTHON
+PyObject *map_to_model_correlation_per_residue_py(int imol, PyObject *residue_specs,
+						  unsigned short int atom_mask_mode,
+						  int imol_map);
+#endif
 
 /* ------------------------------------------------------------------------- */
 /*                      prodrg import function                               */

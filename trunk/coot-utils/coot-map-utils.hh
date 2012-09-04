@@ -172,6 +172,42 @@ namespace coot {
 				     const clipper::Xmap<float> &xmap_from_sfs);
 
 
+      // the first of the pair contains the correlation for the given residue spec.
+      // 
+      std::vector<std::pair<residue_spec_t, float> >
+      map_to_model_correlation_per_residue(CMMDBManager *mol,
+					   const std::vector<residue_spec_t> &specs,
+					   unsigned short int atom_mask_mode,
+					   float atom_radius, // for masking 
+					   const clipper::Xmap<float> &xmap_from_sfs);
+      // which uses these for map statistics aggregation
+      class map_stats_holder_helper_t {
+      public:
+	 double sum_x;
+	 double sum_x_squared;
+	 double sum_y;
+	 double sum_y_squared;
+	 double sum_xy;
+	 int n;
+	 map_stats_holder_helper_t() {
+	    sum_x = 0;
+	    sum_x_squared = 0;
+	    sum_y = 0;
+	    sum_y_squared = 0;
+	    sum_xy = 0;
+	    n = 0;
+	 }
+	 void add_xy(const double &x, const double &y) {
+	    sum_x += x;
+	    sum_y += y;
+	    sum_x_squared += x*x;
+	    sum_y_squared += y*y;
+	    sum_xy += x*y;
+	    n++;
+	 } 
+      };
+
+
 
       // return a map and its standard deviation.  scale is applied to
       // map_in_2 before substraction.

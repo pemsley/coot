@@ -1594,6 +1594,7 @@ float map_to_model_correlation(int imol, const std::vector<coot::residue_spec_t>
 							atom_radius, xmap_reference);
       }
    }
+
    return ret_val;
 }
    
@@ -1620,4 +1621,65 @@ PyObject *map_to_model_correlation_py(int imol, PyObject *residue_specs,
    return PyFloat_FromDouble(c);
 }
 #endif 
+
+
+std::vector<std::pair<coot::residue_spec_t,float> >
+map_to_model_correlation_per_residue(int imol, const std::vector<coot::residue_spec_t> &specs,
+				     unsigned short int atom_mask_mode,
+				     int imol_map) {
+
+   float atom_radius = 1.5; // user variable?
+   std::vector<std::pair<coot::residue_spec_t,float> > v;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 clipper::Xmap<float> xmap_reference = graphics_info_t::molecules[imol_map].xmap_list[0];
+	 v = coot::util::map_to_model_correlation_per_residue(mol, specs, atom_mask_mode, atom_radius, xmap_reference);
+      }
+   }
+   return v;
+}
+
+						   
+
+
+#ifdef USE_GUILE
+SCM
+map_to_model_correlation_per_residue_scm(int imol, SCM specs_scm, unsigned short int atom_mask_mode, int imol_map) {
+
+   SCM r = SCM_EOL;
+   std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(specs_scm);
+   std::vector<std::pair<coot::residue_spec_t,float> >
+      v = map_to_model_correlation_per_residue(imol, specs, atom_mask_mode, imol_map);
+   for (unsigned int i=0; i<v.size(); i++) {
+      SCM p1 = scm_residue(v[i].first);
+      SCM p2 = scm_double2num(v[i].second);
+      SCM item = scm_list_2(p1, p2);
+      r = scm_cons(item, r);
+   }
+   r = scm_reverse(r);
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *
+map_to_model_correlation_per_residue_py(int imol, PyObject *specs_py, unsigned short int atom_mask_mode, int imol_map) {
+
+   std::vector<coot::residue_spec_t> specs = py_to_residue_specs(specs_py);
+   std::vector<std::pair<coot::residue_spec_t,float> >
+      v = map_to_model_correlation_per_residue(imol, specs, atom_mask_mode, imol_map);
+
+   PyObject *r = PyList_New(v.size());
+   for (unsigned int i=0; i<v.size(); i++) {
+      PyObject *p0 = py_residue(v[i].first);
+      PyObject *p1 = PyFloat_FromDouble(v[i].second);
+      PyObject *item = PyList_New(2);
+      PyList_SetItem(item, 0, p0);
+      PyList_SetItem(item, 1, p1);
+      PyList_SetItem(r, i, item);
+   }
+   return r;
+}
+#endif
 

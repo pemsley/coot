@@ -4409,7 +4409,7 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
 					       const coot::dictionary_residue_restraints_t &restraints) const {
 
    std::vector<std::string> atom_name_vec;
-   bool status = 1;
+   bool status = 1; // nothing fails to match (so far).
 
    PPCAtom residue_atoms = 0;
    int n_residue_atoms;
@@ -4435,11 +4435,12 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
 	 std::string ele(residue_atoms[i]->element);
 
 	 bool found = 0;
+	 // PDBv3 FIXME
 	 if (ele == " H")
 	    if (check_hydrogens_too_flag == 0)
 	       found = 1;
 
-	 if (! found) { 
+	 if (! found) {
 	    for (unsigned int irestraint_atom_name=0; irestraint_atom_name<restraints.atom_info.size(); irestraint_atom_name++) {
 	       if (restraints.atom_info[irestraint_atom_name].atom_id_4c == residue_atom_name) {
 		  found = 1;
@@ -4478,8 +4479,8 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p, bool check_h
 // atom names that dont't match.
 //
 std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
-coot::protein_geometry::atoms_match_dictionary(const std::vector<CResidue *> residues,
-		       bool check_hydrogens_too_flag) const {
+coot::protein_geometry::atoms_match_dictionary(const std::vector<CResidue *> &residues,
+					       bool check_hydrogens_too_flag) const {
 
    bool status = 1;
    std::vector<std::pair<std::string, std::vector<std::string> > > p;

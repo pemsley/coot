@@ -1885,7 +1885,7 @@ namespace coot {
       // atom names that dont't match.
       //
       std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
-      atoms_match_dictionary(const std::vector<CResidue *> residues,
+      atoms_match_dictionary(const std::vector<CResidue *> &residues,
 			     bool check_hydrogens_too_flag) const;
 
       std::pair<bool, std::vector<std::string> >

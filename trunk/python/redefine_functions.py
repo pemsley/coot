@@ -149,6 +149,7 @@ inverse_rtop           = inverse_rtop_py
 protein_db_loops       = protein_db_loops_py
 make_link              = make_link_py
 map_to_model_correlation = map_to_model_correlation_py
+map_to_model_correlation_per_residue = map_to_model_correlation_per_residue_py
 key_sym_code           = key_sym_code_py
 screen_vectors         = screen_vectors_py
 get_residue_by_type    = get_residue_by_type_py
