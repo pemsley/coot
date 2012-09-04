@@ -5395,7 +5395,8 @@ PyObject *run_scheme_command(const char *cmd) {
 
 #ifdef USE_GUILE
 SCM run_python_command(const char *python_cmd) {
-  
+
+   // SCM_UNSPECIFIED corresponds to Py_None
    SCM ret_scm = SCM_UNSPECIFIED; // not SCM_UNDEFINED; :)
 
 #ifdef USE_PYTHON
@@ -5403,7 +5404,16 @@ SCM run_python_command(const char *python_cmd) {
    if (ret != Py_None) {
      ret_scm = py_to_scm(ret);
    }
-   Py_XDECREF(ret);
+
+   // 20120904 comment this out
+   // Py_XDECREF(ret);
+   // as it causes a crash
+   // e.g. open Extensions->Settings->Keybindings invokes this function
+   // then running a python function (e.g. a key-binding) causes a crash.
+   // I believe that Py_XDECREF(ret) is wrong here because we have never
+   // called Py_INCREF(ref).  So perhaps we should be using both Py_INCREF()
+   // and Py_XDECREF(). 
+   
 #endif // USE_PYTHON
   
   return ret_scm;
