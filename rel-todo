@@ -3,8 +3,6 @@
 
 ----
 
-
-
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
@@ -489,5 +487,10 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
    o seth harris: low res add-terminal residue with settings new residue still wanders?
 
 
-* No.  It's fine
+* No.  It's fine.
 
+
+   * is SCM run_python_command(const char *python_cmd) working properly?
+     Py_XDECREF() call causes a crash. ::: 0.5
+
+* I think not.  Commented.
