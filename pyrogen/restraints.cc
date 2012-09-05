@@ -800,8 +800,6 @@ coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
 			   const std::string &res_name) {
 
    
-   RDKit::ROMol *refined_mol = NULL; // return value
-
    RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
    
    std::pair<CMMDBManager *, CResidue *> regular =
@@ -813,10 +811,7 @@ coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
       RDKit::RWMol *rw_mol = new RDKit::RWMol(mol);
       int iconf = 0; 
       update_coords(rw_mol, iconf, regular.second);
-      refined_mol = static_cast<RDKit::ROMol *>(rw_mol);
    }
-
-   // return refined_mol;
 } 
 
 std::pair<CMMDBManager *, CResidue *>
