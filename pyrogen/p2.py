@@ -484,6 +484,8 @@ if __name__ == "__main__":
     smiles_string = 'Cc1ccccc1'
     smiles_string = 'Oc1ccccc1'
     smiles_string = 'O=C(O)c1ccc(O)cc1'
+
+    # python p2.py "O=C(C1=CC=CN(C1=O)Cc2ccccc2)N" LIG --no-mogul
     
     if len(sys.argv) > 2:
         smiles_or_mdl_string = sys.argv[1]
@@ -514,16 +516,15 @@ if __name__ == "__main__":
                  smiles_string = get_smiles_from_comp_id(smiles_or_mdl_string)
                  status = make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name,
                                                       pdb_out_file_name, cif_restraints_file_name)
-              except TypeError:
+              except TypeError, ex:
+                 print "Type Error", ex
                  pass
            else:
               smiles_string = smiles_or_mdl_string
               if is_smiles_file(smiles_or_mdl_string):
                  smiles_string = read_file(smiles_or_mdl_string)
-                 status = make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name,
-                                                      pdb_out_file_name, cif_restraints_file_name)
+              status = make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name,
+                                                   pdb_out_file_name, cif_restraints_file_name)
               
-    if (status == False):
-       exit(1)
 
 
