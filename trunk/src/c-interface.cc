@@ -2020,6 +2020,8 @@ void
 set_clipping_front(float v) {
 
    graphics_info_t::clipping_front = v;
+   if (graphics_info_t::clipping_front > 10)
+      graphics_info_t::clipping_front = 10;
    graphics_draw();
    std::string cmd = "set-clipping-front";
    std::vector<coot::command_arg_t> args;
@@ -2033,6 +2035,8 @@ void
 set_clipping_back(float v) {
 
    graphics_info_t::clipping_back = v;
+   if (graphics_info_t::clipping_back > 10)
+      graphics_info_t::clipping_back = 10;
    graphics_draw();
    std::string cmd = "set-clipping-back";
    std::vector<coot::command_arg_t> args;
