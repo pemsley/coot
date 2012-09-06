@@ -313,7 +313,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	    catch (KeyErrorException &err) {
 	       // this happens for alt conf
 	       // std::cout << "caught no-name exception in rdkit_mol H-block" << std::endl;
-	    } 
+	    }
 	 }
 
 	 if (debug) { 
@@ -1487,6 +1487,213 @@ void coot::update_coords(RDKit::RWMol *mol_p, int iconf, CResidue *residue_p) {
    }
 }
 
+
+// return something interesting in due course
+//
+// bond_index is the index of the bond to be replace.  atom_index
+// is the index of the atom (i.e. one of the atoms in bond of
+// bond_index), the R-group of which the atoms are marked for
+// deletion and the atom_index atom is changed to "*" for later
+// modification with various R-groups.
+// 
+RDKit::ROMol *
+coot::split_molecule(const RDKit::ROMol &mol, int bond_index, int atom_index) {
+
+   RDKit::ROMol *ret_mol = NULL;
+   RDKit::RWMol *working_mol = new RDKit::RWMol(mol);
+
+   if (bond_index < 0 || bond_index >= working_mol->getNumBonds()) {
+      std::cout << "split_molecule() bad bond index " << bond_index << " vs " << working_mol->getNumBonds()
+		<< "  in split_molecule()" << std::endl;
+   } else {
+      // happy path
+      const RDKit::Bond *bond_p = working_mol->getBondWithIdx(bond_index);
+      if (bond_p) {
+	 int idx_1 = bond_p->getBeginAtomIdx();
+	 int idx_2 = bond_p->getEndAtomIdx();
+	 if (atom_index == idx_2)
+	    std::swap(idx_1, idx_2);
+	 if (atom_index != idx_1) {
+	    std::cout << "bond index and atom index inconsistent - fail" << std::endl;
+	 } else {
+	    // OK, so far so good
+	    std::queue<int> q;
+	    std::vector<int> considered;
+	    std::vector<int> R_group_atoms;
+	    considered.push_back(idx_1); // not the picked atom;
+	    considered.push_back(idx_2); // not the first neighbour of idx_1.
+	    // what are the neighbours of idx_1 that is not idx_2?
+	    RDKit::ATOM_SPTR at_p = (*working_mol)[idx_1];
+	    RDKit::ROMol::OEDGE_ITER current, end;
+	    boost::tie(current, end) = working_mol->getAtomBonds(at_p.get());
+
+	    // add some atoms to the queue
+	    while (current != end) {
+	       RDKit::BOND_SPTR bond= (*working_mol)[*current];
+	       int idx = bond->getOtherAtomIdx(idx_1);
+	       if (idx != idx_2) {
+		  q.push(idx);
+		  considered.push_back(idx);
+		  R_group_atoms.push_back(idx);
+	       }
+	       current++;
+	    }
+
+	    while (q.size()) {
+	       int current_atom_idx = q.front();
+	       q.pop();
+	       RDKit::ATOM_SPTR at_p = (*working_mol)[current_atom_idx];
+	       boost::tie(current, end) = working_mol->getAtomBonds(at_p.get());
+	       // std::cout << "current and end: " << current << " " << end << std::endl;
+	       while (current != end) {
+		  RDKit::BOND_SPTR bond=(*working_mol)[*current];
+		  int idx = bond->getOtherAtomIdx(current_atom_idx);
+		  if (std::find(considered.begin(),
+				considered.end(),
+				idx) == considered.end()) {
+		     q.push(idx);
+		     considered.push_back(idx);
+		     R_group_atoms.push_back(idx);
+		  }
+		  current++;
+	       }
+	    }
+
+	    std::cout << "R-group atoms has " << R_group_atoms.size() << " atoms"
+		      << std::endl;
+	    if (1)
+	       for (unsigned int iat=0; iat<R_group_atoms.size(); iat++)
+		  std::cout << "    " << R_group_atoms[iat] << std::endl;
+
+	    if (R_group_atoms.size()) { 
+
+	       // make a list of atoms to deleted, then delete them
+	       // and set the returned molecule pointer to non-null
+	       // 
+	       std::vector<RDKit::Atom *> atoms_to_be_deleted;
+	       for (unsigned int iat=0; iat<R_group_atoms.size(); iat++) {
+		  std::cout << "... deleting atom " << R_group_atoms[iat] << std::endl;
+		  RDKit::ATOM_SPTR at_p = (*working_mol)[R_group_atoms[iat]];
+		  atoms_to_be_deleted.push_back(at_p.get());
+	       }
+	       for (unsigned int iat=0; iat<R_group_atoms.size(); iat++)
+		  working_mol->removeAtom(atoms_to_be_deleted[iat]);
+
+	       ret_mol = working_mol;
+	    }
+	 }
+      }
+   }
+   
+   return ret_mol;
+}
+
+
+// atom_index is the atom in mol that is the "any" atom that is part of the fragment.
+//
+// This atoms is/becomes the '*' atom of the trial fragment (having atomic number of 0)
+//
+// Caller deletes the molecules of the vector.
+// 
+std::vector<RDKit::ROMol *>
+coot::join_molecules(const RDKit::ROMol &mol, int atom_index, const RDKit::ROMol &trial_fragment) {
+
+   std::vector<RDKit::ROMol *> v;
+
+   bool i_joining_atom_found = false;
+   for (unsigned int iat=0; iat<trial_fragment.getNumAtoms(); iat++) {
+      RDKit::ATOM_SPTR at_p = trial_fragment[iat];
+
+      // Was it the '*' atom of the trial_fragment?
+      //
+      if (at_p->getAtomicNum() == 0) {
+	 i_joining_atom_found = true;
+	 std::cout << "in join_molecules() found '*' atom " << iat << std::endl;
+	 RDKit::RWMol working_mol = mol;
+	 // make a coordMap of the working mol atoms for later use in 2d coords generation
+	 //
+	 RDGeom::INT_POINT2D_MAP coordMap;
+	 try {
+	    int iconf = 0;
+	    int n_conf = working_mol.getNumConformers();
+	    std::cout << "------------ working mol has " << n_conf << " conformers" << std::endl;
+	    RDKit::Conformer conf = working_mol.getConformer(0);
+	    for (unsigned int iwk_at=0; iwk_at<working_mol.getNumAtoms(); iwk_at++) {
+	       RDGeom::Point3D p = conf.getAtomPos(iwk_at);
+	       coordMap[iwk_at] = RDGeom::Point2D(p.x, p.y);
+	    }
+	 }
+	 catch (...) {
+	    std::cout << "caught something on working mol conformer details" << std::endl;
+	 } 
+	 
+	 std::map<unsigned int, unsigned int> atom_idx_map;
+	 std::cout << "working_mol has " << working_mol.getNumAtoms() << " atoms." << std::endl;
+
+	 //make copies of the atoms of trial_fragment and add them to working_mol
+	 for (unsigned int iat_inner=0; iat_inner<trial_fragment.getNumAtoms(); iat_inner++) {
+	    // we don't want to add the '*' atom of the trial_fragment
+	    if (iat_inner != iat) { 
+	       at_p = trial_fragment[iat_inner];
+	       unsigned int new_n_atoms = working_mol.addAtom(at_p); // copies
+	       unsigned int working_idx = new_n_atoms; // I think
+	       atom_idx_map[iat_inner] = working_idx;
+	    }
+	 }
+
+	 if (0) { 
+	    std::cout << "in join_molecules() iterating over " << trial_fragment.getNumBonds()
+		      << " trial_fragment bonds " << std::endl;
+	    
+	    std::cout << "------ atom idx map ---------" << std::endl;
+	    std::map<unsigned int, unsigned int>::const_iterator it;
+	    for (it=atom_idx_map.begin(); it!=atom_idx_map.end(); it++) {
+	       std::cout << "    atom_name " << it->first << " -> " << it->second << std::endl;
+	    } 
+	    std::cout << "------ end of atom idx map ---------" << std::endl;
+	 }
+
+	 
+	 for (unsigned int ibond=0; ibond<trial_fragment.getNumBonds(); ibond++) {
+	    const RDKit::Bond *bond = trial_fragment.getBondWithIdx(ibond);
+	    unsigned int itb = bond->getBeginAtomIdx();
+	    unsigned int ite = bond->getEndAtomIdx();
+	    std::map<unsigned int, unsigned int>::const_iterator it_b = atom_idx_map.find(itb);
+	    std::map<unsigned int, unsigned int>::const_iterator it_e = atom_idx_map.find(ite);
+	    if (it_b != atom_idx_map.end()) {
+	       if (it_e != atom_idx_map.end()) {
+		  unsigned int iwb = it_b->second;
+		  unsigned int iwe = it_e->second;
+		  working_mol.addBond(iwb, iwe, bond->getBondType());
+	       } else {
+		  // OK, so ite could have been the '*' atom
+		  if (ite == iat) {
+		     unsigned int iwb = it_b->second;
+		     working_mol.addBond(iwb, atom_index, bond->getBondType());
+		  }
+	       }
+	    } else { 
+	       // OK, so itb could have been the '*' atom
+	       if (itb == iat) {
+		  if (it_e != atom_idx_map.end()) { // just for safety sake
+		     unsigned int iwe = it_e->second;
+		     working_mol.addBond(atom_index, iwe, bond->getBondType());
+		  }
+	       }
+	    }
+	 }
+
+	 rdkit_mol_sanitize(working_mol);
+	    
+	 RDDepict::compute2DCoords(working_mol, &coordMap);
+	 RDKit::ROMol *romol = new RDKit::ROMol(working_mol);
+	 v.push_back(romol);
+      }
+
+      
+   }
+   return v;
+}
 
 
 #endif // MAKE_ENTERPRISE_TOOLS   

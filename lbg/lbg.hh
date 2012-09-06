@@ -746,6 +746,7 @@ private:
 #ifdef MAKE_ENTERPRISE_TOOLS   
       show_alerts_user_control = true;
       bond_pick_pending = false;
+      atom_pick_pending = false;
 #ifdef USE_PYTHON
       user_defined_alerts_smarts_py = NULL;
       setup_silicos_it_qed_default_func();
@@ -914,7 +915,6 @@ private:
 	   const coot::flev_attached_hydrogens_t &ah) const;
    
 #ifdef MAKE_ENTERPRISE_TOOLS
-   RDKit::RWMol rdkit_mol(const widgeted_molecule_t &mol) const;
    RDKit::Bond::BondType convert_bond_type(const lig_build::bond_t::bond_type_t &t) const;
    std::string get_smiles_string_from_mol_rdkit() const;
    std::vector<alert_info_t> alerts(const RDKit::ROMol &mol) const;
@@ -1064,12 +1064,16 @@ public:
    void update_statusbar_smiles_string() const;
    void update_statusbar_smiles_string(const std::string &smiles_string) const;
 #ifdef MAKE_ENTERPRISE_TOOLS
+   RDKit::RWMol rdkit_mol(const widgeted_molecule_t &mol) const;
    // do these need to be RWMols?
    void update_statusbar_smiles_string(const RDKit::RWMol &rdkm) const;
    void update_qed(const RDKit::RWMol &rdkm);
    void update_alerts(const RDKit::RWMol &rdkm);
    std::string get_smiles_string_from_mol(const RDKit::RWMol &mol) const;
    bool bond_pick_pending;
+   bool atom_pick_pending;
+   // and bond pick is stored here:
+   int pending_action_data_picked_bond_index;
    bool handle_bond_picking_maybe();
 #endif
    // although these depend on/manipulate rdkit-based entities - they

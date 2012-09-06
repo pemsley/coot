@@ -570,6 +570,18 @@ public:
    double mol_in_min_y;
    double mol_in_max_y;
 
+   // how much are the atoms of this moleclue scaled up (c.f. vs 1.5
+   // units for a bond length) and what is the centre (in atom coords)
+   // of the atom.
+   // 
+   // return a number greater than 0 when we have enough bonds and
+   // atoms to determine this (we need this function because a
+   // widgeted molecule has atoms in canvas coords and when we make
+   // and rdkit molecule from a widgeted_molecule, we should put the
+   // atoms back on sensible molecule scale. see lbg_info_t::rdkit_mol()).
+   // 
+   std::pair<double, lig_build::pos_t> current_scale_and_centre() const;
+
    void map_solvent_accessibilities_to_atoms(std::vector<solvent_accessible_atom_t> solvent_accessible_atoms);
 
    // can throw an exception

@@ -26,7 +26,7 @@
 
 #include "clipper/core/coords.h"
 
-#include <mmdb/mmdb_manager.h> // 20110408 for the construtor using restraints and CResidue
+#include <mmdb/mmdb_manager.h> // 20110408 for the constructor using restraints and CResidue
 #include "protein-geometry.hh"
 
 #include "lig-build.hh"

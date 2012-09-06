@@ -112,7 +112,21 @@ namespace coot {
    // update the atom positions of the rdkit_molecule from residue_p
    // 
    void update_coords(RDKit::RWMol *mol, int iconf, CResidue *residue_p);
-   
-} 
+
+   // return a copy of the input molecule having deleted the atoms of the R-group
+   //
+   // bond_index is the index of the bond to be replace.  atom_index
+   // is the index of the atom (i.e. one of the atoms in bond of
+   // bond_index), the R-group of which the atoms are marked for
+   // deletion and the atom_index atom is changed to "*" for later
+   // modification with various R-groups.
+   // 
+   RDKit::ROMol *split_molecule(const RDKit::ROMol &mol_in, int bond_index, int atom_index); 
+
+   // Caller deletes the molecules of the vector.
+   // 
+   std::vector<RDKit::ROMol *> join_molecules(const RDKit::ROMol &mol, int atom_index,
+					      const RDKit::ROMol &trial_fragment);
+}
 
 #endif // RDKIT_INTERFACE_HH
