@@ -3190,19 +3190,22 @@ molecule_class_info_t::get_clash_score(const coot::minimol::molecule &a_rotamer)
 	    if (d < (max_dev_residue_pos + dist_crit)) {
 	       for (unsigned int ifrag=0; ifrag<a_rotamer.fragments.size(); ifrag++) {
 		  for (int ires=a_rotamer[ifrag].min_res_no(); ires<=a_rotamer[ifrag].max_residue_number(); ires++) {
+		     std::string residue_name = a_rotamer[ifrag][ires].name;
+		     bool is_standard_aa = false;
+		     if (coot::util::is_standard_residue_name(residue_name))
+			is_standard_aa = true;
 		     for (int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
 			d_atom = clipper::Coord_orth::length(a_rotamer[ifrag][ires][iat].pos, atom_sel_atom);
 			if (d_atom < dist_crit) {
 			   int atom_sel_atom_resno = atom_sel.atom_selection[i]->GetSeqNum();
 			   std::string atom_sel_atom_chain(atom_sel.atom_selection[i]->GetChainID());
 
+			   // we should test residue specs here
 			   if (! ((ires == atom_sel_atom_resno) &&
 				  (a_rotamer[ifrag].fragment_id == atom_sel_atom_chain)) ) {
-			      if ( (a_rotamer[ifrag][ires][iat].name != " N  ") &&
-				   (a_rotamer[ifrag][ires][iat].name != " C  ") &&
-				   (a_rotamer[ifrag][ires][iat].name != " CA ") &&
-				   (a_rotamer[ifrag][ires][iat].name != " O  ") &&
-				   (a_rotamer[ifrag][ires][iat].name != " H  ") ) { 
+			      
+			      if ( (!is_standard_aa) ||
+				   (is_standard_aa && ! coot::is_main_chain_p(a_rotamer[ifrag][ires][iat].name))) { 
 				 badness = 100.0 * (1.0/d_atom - 1.0/dist_crit);
 				 if (badness > 100.0)
 				    badness = 100.0;

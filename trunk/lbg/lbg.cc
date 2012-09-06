@@ -179,6 +179,24 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 
    RDKit::RWMol m;
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
+   std::pair<double, lig_build::pos_t> scale_and_correction = mol.current_scale_and_centre();
+
+   if (0) { 
+      std::cout << ":::::::; in lbg_info_t::rdkit_mol() mol's scale correction is "
+		<< mol.scale_correction.first << " " << mol.scale_correction.second
+		<< std::endl;
+      std::cout << ":::::::; in lbg_info_t::rdkit_mol() mol's centre correction is "
+		<< mol.centre_correction << std::endl;
+      std::cout << ":::::::; in lbg_info_t::rdkit_mol() mol's current scale and correction is "
+		<< scale_and_correction.first << " " << scale_and_correction.second << std::endl;
+   }
+
+   double local_scale = 1.0;
+   lig_build::pos_t local_offset(0,0);
+   if (scale_and_correction.first > 0) {
+      local_scale  = 1.0/scale_and_correction.first;
+      local_offset = scale_and_correction.second;
+   }
 
    // we need to account for atoms that are closed.  So we make
    // atom_index[idx] to return the index of the atom in the rdkit
@@ -187,6 +205,8 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
    // 
    std::vector<int> atom_index(mol.atoms.size());
    int at_no = 0;
+
+   RDKit::Conformer *conf = new RDKit::Conformer(mol.atoms.size());
 
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
       if (! mol.atoms[iat].is_closed()) { 
@@ -211,7 +231,10 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	       // std::cout << "   lbg_atom_index value is " << dum << std::endl;
 	    } else {
 	       // std::cout << "atom does not have lbg_atom_index property " << std::endl;
-	    } 
+	    }
+	    RDGeom::Point3D pos(local_scale * (mol.atoms[iat].atom_position.x - local_offset.x),
+				local_scale * (mol.atoms[iat].atom_position.y - local_offset.y), 0);
+	    conf->setAtomPos(at_no, pos);
 	    atom_index[iat] = at_no++;
 	 }
 	 catch (boost::bad_lexical_cast blc) {
@@ -248,6 +271,7 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	 // std::cout << "debug:: bond " << ib << " is closed " << std::endl;
       } 
    }
+   m.addConformer(conf, true);
    return m;
 }
 #endif
@@ -969,10 +993,30 @@ lbg_info_t::handle_bond_picking_maybe() {
 	    int ind_2 = highlight_data.get_bond_indices().second;
 	    int bond_index = mol.get_bond_index(ind_1, ind_2);
 	    std::cout << "picked bond index: " << bond_index << std::endl;
+	    pending_action_data_picked_bond_index = bond_index;
+	    handled = true;
 	    bond_pick_pending = false;
+	    atom_pick_pending = true;
 	 }
       }
    }
+
+   if (atom_pick_pending) {
+      if (highlight_data.has_contents()) {
+	 if (highlight_data.single_atom()) {
+	    int idx = highlight_data.get_atom_index();
+
+	    std::cout << "#### now do something with bond_index " << pending_action_data_picked_bond_index
+		      << " and atom index " << idx << std::endl;
+
+	    RDKit::RWMol rdkm = rdkit_mol(mol);
+	    coot::split_molecule(rdkm, pending_action_data_picked_bond_index, idx);
+	    
+	    handled = true;
+	 }
+      }
+   } 
+   std::cout << "handle_bond_picking_maybe() returning " << handled << std::endl;
    return handled; 
 }
 #endif 
@@ -2884,11 +2928,10 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 	 mol.atoms[iat].update_atom_id_forced(atom_id_info, fc, root);
    }
 
-   // for input_coords_to_canvas_coords() to work:
-   //
-
    draw_substitution_contour();
    
+   // for input_coords_to_canvas_coords() to work:
+   //
    mol.centre_correction = mol_in.centre_correction;
    mol.scale_correction  = mol_in.scale_correction;
    mol.mol_in_min_y = mol_in.mol_in_min_y;
@@ -6241,8 +6284,6 @@ lbg_info_t::pe_test_function() {
 
 #ifdef MAKE_ENTERPRISE_TOOLS   
    std::cout << "PE test function" << std::endl;
-
-
 
    std::cout << "identify bond..." << std::endl;
    bond_pick_pending = true;

@@ -6835,6 +6835,7 @@ Thu Aug 30 12:17:31 BST 2012
  
    from the refmac monomer library paper
 
+   It's (from) a book.
 
 ----
 Sat Sep  1 11:38:51 BST 2012
@@ -6842,6 +6843,15 @@ Sat Sep  1 11:38:51 BST 2012
 	add hydrogen bond analysis (understand output of reduce) into
 	tutorials (validation?)
 
+----
+
+    things for MRC: 
+        carbohydrate building paper
+        glsl
+        build on a mac
+        cif2mtz
+        ffearing in low res maps - test
+        new structures ligand analysis 
 
 ----
 Sat Sep  1 11:58:18 BST 2012

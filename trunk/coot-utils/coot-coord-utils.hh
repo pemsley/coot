@@ -506,6 +506,9 @@ namespace coot {
    bool is_main_chain_or_cb_p(CAtom *at);
 
    // return 0 or 1
+   bool is_main_chain_p(const std::string &atom_name);
+
+   // return 0 or 1
    bool is_main_chain_or_cb_p(const std::string &atom_name);
 
    bool is_member_p(const std::vector<CResidue *> &v, CResidue *a);

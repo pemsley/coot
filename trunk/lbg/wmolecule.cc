@@ -262,6 +262,53 @@ widgeted_molecule_t::input_coords_to_canvas_coords(const clipper::Coord_orth &po
 }
 
 
+// how much are the atoms of this moleclue scaled up (c.f. vs 1.3
+// units for a bond length) and what is the centre (in atom coords)
+// of the atom.
+// 
+std::pair<double, lig_build::pos_t>
+widgeted_molecule_t::current_scale_and_centre() const {
+
+   double scale = -1;
+   lig_build::pos_t centre;
+   
+   int n_atoms = 0;
+   double sum_x = 0.0;
+   double sum_y = 0.0;
+   for (unsigned int iat=0; iat<atoms.size(); iat++) { 
+      if (! atoms[iat].is_closed()) {
+	 sum_x += atoms[iat].atom_position.x;
+	 sum_y += atoms[iat].atom_position.y;
+	 n_atoms++;
+      } 
+   }
+
+   if (n_atoms > 0) {
+      double inv_n = 1.0/double(n_atoms);
+      centre = lig_build::pos_t(sum_x * inv_n, sum_y * inv_n);
+
+      double sum_bond_lengths = 0.0;
+      int n_bond_lengths = 0; 
+      for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+	 if (! bonds[ibond].is_closed()) {
+	    lig_build::pos_t p1 = atoms[bonds[ibond].get_atom_1_index()].atom_position;
+	    lig_build::pos_t p2 = atoms[bonds[ibond].get_atom_2_index()].atom_position;
+	    double b = lig_build::pos_t::length(p2,p1);
+	    sum_bond_lengths += b;
+	    n_bond_lengths++;
+	 }
+      }
+
+      if (n_bond_lengths) {
+	 scale = sum_bond_lengths/(1.5*double(n_bond_lengths));
+      }
+   }
+
+   return std::pair<double, lig_build::pos_t> (scale, centre);
+} 
+
+
+
 // void
 // widgeted_molecule_t::translate(const lig_build::pos_t &delta) {
 
