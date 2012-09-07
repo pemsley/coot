@@ -1171,6 +1171,8 @@ public:
    void get_drug_using_entry_text(); // uses lbg_get_drug_entry
    void get_drug(const std::string &drug_name); // get mol file and load it
 
+   void new_lbg_window();
+
    void pe_test_function();
 };
 
