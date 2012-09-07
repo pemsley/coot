@@ -815,18 +815,18 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 	    std::string res_name = het_residues[ires].second->GetResName();
 	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints = 
 	       geom->get_monomer_restraints_at_least_minimal(res_name);
-	    
-   	    if (res_name != "HOH")
-	       std::cout << "          ============== Considering bonding HET residue: "
-			 << coot::residue_spec_t(het_residues[ires].second) << " "
-			 << res_name << " " << std::endl;
+
+	    if (0)
+	       if (res_name != "HOH")
+		  std::cout << "          ============== Considering bonding HET residue: "
+			    << coot::residue_spec_t(het_residues[ires].second) << " "
+			    << res_name << " " << std::endl;
 
 	    if (! restraints.first) {
 	       std::cout << "Oooppps!  No bonding rules for residue type :" << res_name
 			 << ": missing bonds! " << std::endl;
 	    } else {
 
-	       std::cout << "   add_bonds_het_residues() we have rules "<< res_name << std::endl;
 	       PPCAtom residue_atoms;
 	       int n_atoms;
 	       het_residues[ires].second->GetAtomTable(residue_atoms, n_atoms);
