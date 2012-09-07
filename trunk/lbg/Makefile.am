@@ -41,6 +41,8 @@ include_HEADERS = lbg.hh wmolecule.hh  flev-annotations.hh graphics-c-interface-
 	lbg-drag-and-drop.hh qed-interface.hh alerts.hh
 
 
+lidia_LDFLAGS = -Wl,--export-dynamic
+
 # res spec output operator means we include libcoot-coord-utils
 # (if that is annoying, then remove it and expand it by hand)
 #
@@ -51,7 +53,8 @@ lidia_LDADD = \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
-	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS) $(PYTHON_LIBS)
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) \
+	$(GOOCANVAS_LIBS) $(GTK_LIBS) $(PYTHON_LIBS)
 
 EXTRA_DIST=lbg.glade $(appicon_DATA) lbg-callbacks.cc
 
