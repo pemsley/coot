@@ -165,6 +165,29 @@ lbg(lig_build::molfile_molecule_t mm,
 }
 #endif // GTK_VERSION
 
+void
+lbg_info_t::new_lbg_window() {
+   
+   std::cout << "new lbg window" << std::endl;
+   lig_build::molfile_molecule_t blank_mol;
+   std::pair<bool, coot::residue_spec_t> ligand_spec_pair(0, 0);
+   CMMDBManager *mol = NULL;
+   std::string view_name;
+   std::string molecule_file_name;
+   int imol = -1;
+   bool use_graphics_interface_flag = true;
+
+   lbg(blank_mol, ligand_spec_pair, mol, view_name, molecule_file_name,
+       imol, use_graphics_interface_flag,
+       is_stand_alone(),
+       get_url_func_ptr,
+       prodrg_import_func_ptr,
+       sbase_import_func_ptr,
+       get_drug_mdl_file_function_pointer);
+       
+} 
+
+
 	     
 
 GtkWidget *get_canvas_from_scrolled_win(GtkWidget *canvas) {

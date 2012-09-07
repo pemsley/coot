@@ -434,7 +434,7 @@ on_lbg_new_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (l) {
-      l->clear();
+      l->new_lbg_window();
    }
 }
 
