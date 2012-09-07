@@ -2659,8 +2659,7 @@ lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 	    } else {
 	       clear_canvas_alerts();
 	    } 
-      
-      
+
 	    for (unsigned int imatch=0; imatch<v.size(); imatch++) {
 	       for (unsigned int imatch_atom=0; imatch_atom<v[imatch].matches.size(); imatch_atom++) {
 		  unsigned int rdkmol_idx = v[imatch].matches[imatch_atom].second;
@@ -2680,9 +2679,9 @@ lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 			goo_canvas_ellipse_new(alert_group,
 					       pos.x, pos.y, radius, radius,
 					       "line_width", line_width,
-					       "fill-color-rgba", 0xffaa0050,
+					       "fill-color-rgba", 0xffbb3350,
 					       NULL);
-		     goo_canvas_item_lower(circle, NULL); // to the bottom
+
 		  }
 		  catch (KeyErrorException kee) {
 		     // actually, perhaps we don't get this we should fail, else we risk a crash?
@@ -2692,6 +2691,7 @@ lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 		  }
 	       }
 	    }
+	    goo_canvas_item_lower(alert_group, NULL); // to the bottom
 	 } else {
 	    gtk_widget_hide(lbg_alert_hbox);
 	    clear_canvas_alerts();
