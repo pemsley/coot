@@ -1072,6 +1072,15 @@ namespace lig_build {
 	 return stray_atoms().size();
       }
 
+      int num_atoms() const {
+	 int n = 0;
+	 for (unsigned int i=0; i<atoms.size(); i++) {
+	    if (!atoms[i].is_closed())
+	       n++;
+	 }
+	 return n;
+      } 
+
       std::vector<int> stray_atoms() const {
 	 std::vector<int> strays;
 	 bool found[atoms.size()];
