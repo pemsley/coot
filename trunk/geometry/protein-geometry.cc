@@ -4406,6 +4406,7 @@ coot::protein_geometry::have_at_least_minimal_dictionary_for_residue_type(const 
 std::pair<bool, std::vector<std::string> >
 coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
 					       bool check_hydrogens_too_flag,
+					       bool apply_bond_distance_check,
 					       const coot::dictionary_residue_restraints_t &restraints) const {
 
    std::vector<std::string> atom_name_vec;
@@ -4456,18 +4457,27 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
 	 }
       }
    }
+
+   // We can finally fail to match because we have some very long
+   // bonds (but no aton name mismatches, of course)
+   // 
+   if (status && apply_bond_distance_check)
+      status = atoms_match_dictionary_bond_distance_check(residue_p, check_hydrogens_too_flag, restraints);
+
    return std::pair<bool, std::vector<std::string> > (status, atom_name_vec);
 }
 
 
 std::pair<bool, std::vector<std::string> >
-coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p, bool check_hydrogens_too_flag) const {
+coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
+					       bool check_hydrogens_too_flag,
+					       bool apply_bond_distance_check) const {
 
    std::string res_name(residue_p->GetResName());
    std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
       get_monomer_restraints(res_name);
    if (restraints.first) {
-      return atoms_match_dictionary(residue_p, check_hydrogens_too_flag, restraints.second);
+      return atoms_match_dictionary(residue_p, check_hydrogens_too_flag, apply_bond_distance_check, restraints.second);
    } else { 
       std::vector<std::string> atom_name_vec;
       return std::pair<bool, std::vector<std::string> > (false, atom_name_vec);
@@ -4475,12 +4485,13 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p, bool check_h
 } 
 
 
-// return a pair, overall status, and pair of residue names and
+// return a pair, overall status, and vector of pairs of residue names and
 // atom names that dont't match.
 //
 std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
 coot::protein_geometry::atoms_match_dictionary(const std::vector<CResidue *> &residues,
-					       bool check_hydrogens_too_flag) const {
+					       bool check_hydrogens_too_flag,
+					       bool apply_bond_distance_check) const {
 
    bool status = 1;
    std::vector<std::pair<std::string, std::vector<std::string> > > p;
@@ -4491,7 +4502,9 @@ coot::protein_geometry::atoms_match_dictionary(const std::vector<CResidue *> &re
 	 get_monomer_restraints(res_name);
       if (restraints.first) { 
 	 std::pair<bool, std::vector<std::string> > r =
-	    atoms_match_dictionary(residues[ires], check_hydrogens_too_flag,
+	    atoms_match_dictionary(residues[ires],
+				   check_hydrogens_too_flag,
+				   apply_bond_distance_check,
 				   restraints.second);
 	 if (r.first == 0) {
 	    std::pair<std::string, std::vector<std::string> > p_bad(res_name, r.second);
@@ -4503,6 +4516,50 @@ coot::protein_geometry::atoms_match_dictionary(const std::vector<CResidue *> &re
    return std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > > (status, p);
 }
 
+bool
+coot::protein_geometry::atoms_match_dictionary_bond_distance_check(CResidue *residue_p,
+								   bool check_hydrogens_too_flag,
+								   const coot::dictionary_residue_restraints_t &restraints) const { 
+
+   bool status = true; // good
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   if (n_residue_atoms > 2) { 
+      for (unsigned int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
+	 for (unsigned int iat=0; iat<(n_residue_atoms-1); iat++) {
+	    const CAtom *at_1 = residue_atoms[iat];
+	    std::string atom_name_1(at_1->name);
+	    if (restraints.bond_restraint[ibond].atom_id_1_4c() == atom_name_1) { 
+	       for (unsigned int jat=iat+1; jat<n_residue_atoms; jat++) {
+		  const CAtom *at_2 = residue_atoms[jat];
+		  std::string atom_name_2(at_2->name);
+		  if (restraints.bond_restraint[ibond].atom_id_2_4c() == atom_name_2) {
+		     std::string alt_conf_1(at_1->altLoc);
+		     std::string alt_conf_2(at_2->altLoc);
+		     if (alt_conf_1 == alt_conf_2) {
+			clipper::Coord_orth pt1(at_1->x, at_1->y, at_1->z);
+			clipper::Coord_orth pt2(at_2->x, at_2->y, at_2->z);
+			double d = (pt1-pt2).lengthsq();
+			if (d > 10) {
+			   status = false;
+			   break;
+			}
+		     }
+		  }
+		  if (status == false)
+		     break;
+	       }
+	    }
+	    if (status == false)
+	       break;
+	 }
+	 if (status == false)
+	    break;
+      }
+   }
+   return status;
+}
 
 // return a pair, the first is status (1 if the name was found, 0 if not)
 // 

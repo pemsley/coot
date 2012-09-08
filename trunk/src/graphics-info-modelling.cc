@@ -295,7 +295,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
       for (int ires=0; ires<nSelResidues; ires++)
 	 residues.push_back(SelResidues[ires]);
       std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
-	 icheck_atoms = Geom_p()->atoms_match_dictionary(residues, check_hydrogens_too_flag);
+	 icheck_atoms = Geom_p()->atoms_match_dictionary(residues, check_hydrogens_too_flag, false);
 
       if (! icheck_atoms.first) {
 	 std::cout << "Fail atom check" << std::endl;
@@ -670,7 +670,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	    //
 	    bool check_hydrogens_too_flag = 0;
 	    std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
-	       icheck_atoms = Geom_p()->atoms_match_dictionary(residues, check_hydrogens_too_flag); 
+	       icheck_atoms = Geom_p()->atoms_match_dictionary(residues, check_hydrogens_too_flag, false); 
 	    
 	    if (! icheck_atoms.first) {
 	       // Oops. Just give us a dialog and don't start the refinement

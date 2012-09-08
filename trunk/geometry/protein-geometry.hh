@@ -1886,10 +1886,13 @@ namespace coot {
       //
       std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
       atoms_match_dictionary(const std::vector<CResidue *> &residues,
-			     bool check_hydrogens_too_flag) const;
+			     bool check_hydrogens_too_flag,
+			     bool apply_bond_distance_check) const;
 
       std::pair<bool, std::vector<std::string> >
-      atoms_match_dictionary(CResidue *res, bool check_hydrogens_too_flag) const;
+      atoms_match_dictionary(CResidue *res,
+			     bool check_hydrogens_too_flag,
+			     bool apply_bond_distance_check) const;
 
       // return a pair: a status, yes/no atoms match and a vector of
       // atoms whose names do not match.
@@ -1897,7 +1900,13 @@ namespace coot {
       std::pair<bool, std::vector<std::string> >
       atoms_match_dictionary(CResidue *res,
 			     bool check_hydrogens_too_flag,
+			     bool apply_bond_distance_check,
 			     const dictionary_residue_restraints_t &restraints) const;
+
+      bool
+      atoms_match_dictionary_bond_distance_check(CResidue *residue_p,
+						 bool check_hydrogens_too_flag,
+						 const dictionary_residue_restraints_t &restraints) const;
 
       // add "synthetic" 5 atom planar peptide restraint
       void add_planar_peptide_restraint();
