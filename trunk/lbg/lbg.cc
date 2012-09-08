@@ -231,7 +231,7 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
    std::vector<int> atom_index(mol.atoms.size());
    int at_no = 0;
 
-   RDKit::Conformer *conf = new RDKit::Conformer(mol.atoms.size());
+   RDKit::Conformer *conf = new RDKit::Conformer(mol.num_atoms());
 
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
       if (! mol.atoms[iat].is_closed()) { 
@@ -930,7 +930,7 @@ lbg_info_t::update_descriptor_attributes() {
 	 update_alerts(rdkm);
       }
       catch (std::exception e) {
-	 std::cout << "WARNING::" << e.what() << std::endl;
+	 std::cout << "WARNING:: from update_descriptor_attributes() " << e.what() << std::endl;
 
 	 // SMILES string
 	 if (lbg_statusbar) { 
@@ -945,6 +945,7 @@ lbg_info_t::update_descriptor_attributes() {
 	    gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), "");
 	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
 	    // alerts
+	    gtk_widget_hide(lbg_alert_hbox);
 	    clear_canvas_alerts();
 #endif	 
 	 }
@@ -2648,7 +2649,7 @@ lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 	       alert_group = goo_canvas_group_new (root, NULL);
 	    } else {
 	       clear_canvas_alerts();
-	    } 
+	    }
 
 	    for (unsigned int imatch=0; imatch<v.size(); imatch++) {
 	       for (unsigned int imatch_atom=0; imatch_atom<v[imatch].matches.size(); imatch_atom++) {
@@ -2922,17 +2923,19 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
    // add in bonds
    for (unsigned int ib=0; ib<mol_in.bonds.size(); ib++) {
-      int idx_1 = re_index[mol_in.bonds[ib].get_atom_1_index()];
-      int idx_2 = re_index[mol_in.bonds[ib].get_atom_2_index()];
-      if ((idx_1 != UNASSIGNED_INDEX) && (idx_2 != UNASSIGNED_INDEX)) { 
-	 lig_build::bond_t::bond_type_t bt = mol_in.bonds[ib].get_bond_type();
-	 if (mol_in.bonds[ib].have_centre_pos()) {
-	    lig_build::pos_t centre_pos = mol_in.bonds[ib].centre_pos();
-	    widgeted_bond_t bond(idx_1, idx_2, mol.atoms[idx_1], mol.atoms[idx_2], centre_pos, bt, root);
-	    mol.add_bond(bond);
-	 } else {
-	    widgeted_bond_t bond(idx_1, idx_2, mol.atoms[idx_1], mol.atoms[idx_2], bt, root);
-	    mol.add_bond(bond);
+      if (! mol_in.bonds[ib].is_closed()) { 
+	 int idx_1 = re_index[mol_in.bonds[ib].get_atom_1_index()];
+	 int idx_2 = re_index[mol_in.bonds[ib].get_atom_2_index()];
+	 if ((idx_1 != UNASSIGNED_INDEX) && (idx_2 != UNASSIGNED_INDEX)) { 
+	    lig_build::bond_t::bond_type_t bt = mol_in.bonds[ib].get_bond_type();
+	    if (mol_in.bonds[ib].have_centre_pos()) {
+	       lig_build::pos_t centre_pos = mol_in.bonds[ib].centre_pos();
+	       widgeted_bond_t bond(idx_1, idx_2, mol.atoms[idx_1], mol.atoms[idx_2], centre_pos, bt, root);
+	       mol.add_bond(bond);
+	    } else {
+	       widgeted_bond_t bond(idx_1, idx_2, mol.atoms[idx_1], mol.atoms[idx_2], bt, root);
+	       mol.add_bond(bond);
+	    }
 	 }
       }
    }
