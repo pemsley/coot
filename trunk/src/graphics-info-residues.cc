@@ -164,6 +164,12 @@ graphics_info_t::graphics_ligand_view() {
 
    if (! show_graphics_ligand_view_flag)  // user control
       return;
+
+   if (! is_valid_model_molecule(graphics_ligand_mol.imol))
+      return;
+
+   if (! molecules[graphics_ligand_mol.imol].is_displayed_p())
+      return;
    
    if (graphics_ligand_view_flag) { 
 
