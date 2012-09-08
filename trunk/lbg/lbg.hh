@@ -689,7 +689,8 @@ private:
 				  // simply rotate the bond, that would be bad. OK,
    
    bool try_change_to_element(int addition_element_mode); // check for highlighted atom;
-   bool try_add_or_modify_bond(int canvas_addition_mode, int x, int y); //  ditto.
+   bool try_add_or_modify_bond(int canvas_addition_mode, int x, int y,
+			       bool button_1_is_pressed); //  ditto.
    bool add_bond_to_atom(int atom_index, int canvas_addition_mode);
    void add_bond_to_atom_with_0_neighbours(int atom_index, int canvas_addition_mode);
    void add_bond_to_atom_with_1_neighbour(int atom_index, int canvas_addition_mode,

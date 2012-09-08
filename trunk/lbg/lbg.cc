@@ -50,6 +50,8 @@
 #include "lbg-drag-and-drop.hh"
 #include "qed-interface.hh" // interface to silicos-it biscu-it python function
 
+#include <gdk/gdkkeysyms.h> // for keyboarding.
+
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
 // 
 lbg_info_t *
@@ -352,37 +354,6 @@ lbg_info_t::untoggle_others_except(GtkToggleToolButton *button_toggled_on) {
    }
 }
 
-/* This handles button presses on the canvas */
-static
-gboolean
-on_canvas_button_press_old (GtkWidget *widget, GdkEventButton *event)
-{
-   int x_as_int, y_as_int;
-   GdkModifierType state;
-   gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
-   GtkObject *obj = GTK_OBJECT(widget);
-   if (obj) {
-      gpointer gp = gtk_object_get_user_data(obj);
-      if (gp) {
-	 lbg_info_t *l = static_cast<lbg_info_t *> (gp);
-	 l->set_mouse_pos_at_click(x_as_int, y_as_int); // save for dragging
-	 // std::cout << "mouse_at_click: " << x_as_int << " " << y_as_int << std::endl;
-	 
-	 if (0)
-	    std::cout << "   on click: scale_correction  " << l->mol.scale_correction.first
-		      << " " << l->mol.scale_correction.second
-		      << " centre_correction " << l->mol.centre_correction << std::endl;
-
-	    
-	 if (l->in_delete_mode_p()) { 
-	    l->handle_item_delete(event);
-	 } else {
-	    l->handle_item_add(event);
-	 }
-      }
-   }
-   return TRUE;
-}
 
 static bool
 on_canvas_button_press(GooCanvasItem  *item,
@@ -392,6 +363,11 @@ on_canvas_button_press(GooCanvasItem  *item,
 
    int x_as_int = -1, y_as_int = -1;
    GdkModifierType state;
+   gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+   bool button_1_is_pressed = false;
+   if (state & GDK_BUTTON1_MASK)
+      button_1_is_pressed = true;
+
    if (! event) {
       std::cout << "on_canvas_button_press_new() error NULL event!" << std::endl;
    } else { 
@@ -403,21 +379,17 @@ on_canvas_button_press(GooCanvasItem  *item,
       lbg_info_t *l =
 	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
       if (!l) {
-	 std::cout << "on button-click: NULL lbg-info from item" << std::endl;
+	 // std::cout << "on button-click: NULL lbg-info from item" << std::endl;
       } else {
 	 if (l->in_delete_mode_p()) {
 	    l->handle_item_delete(event);
 	 } else { 
-	    // std::cout << "calling handle_item_add() " << event << std::endl;
 	    l->handle_item_add(event);
 	 }
       }
       
    } else {
 
-      // std::cout << "on_canvas_button_press_new() non-NULL target_item " << target_item
-      // << std::endl;
-      
       coot::residue_spec_t *spec_p =
 	 (coot::residue_spec_t *) g_object_get_data (G_OBJECT (target_item), "spec");
       lbg_info_t *l = NULL;
@@ -429,15 +401,14 @@ on_canvas_button_press(GooCanvasItem  *item,
 	 std::cout << "clicked on " << *spec_p << std::endl;
 	 if (event->type==GDK_2BUTTON_PRESS) { // double click
 	    int imol = spec_p->int_user_data;
-	    std::cout << "imol: " << imol << std::endl;
 	    if (! l) {
-	       std::cout << "oops failed to get lbg_info_t pointer" << std::endl;
+	       // std::cout << "oops failed to get lbg_info_t pointer" << std::endl;
 	    } else {
 	       std::pair<bool, coot::residue_spec_t> ligand_spec_pair = l->get_ligand_spec();
-	       std::cout << "ligand pair first: " << ligand_spec_pair.first << std::endl;
+	       // std::cout << "ligand pair first: " << ligand_spec_pair.first << std::endl;
 	       if (ligand_spec_pair.first) {
-		  std::cout << " ligand_spec: " << ligand_spec_pair.second << std::endl;
-		  std::cout << "residue_spec: " << *spec_p << std::endl;
+		  // std::cout << " ligand_spec: " << ligand_spec_pair.second << std::endl;
+		  // std::cout << "residue_spec: " << *spec_p << std::endl;
 		  orient_view(imol,  ligand_spec_pair.second, *spec_p);
 	       }
 	    }
@@ -481,13 +452,12 @@ on_canvas_button_press(GooCanvasItem  *item,
 }
 
    
-   
 
 static bool
 on_canvas_button_release(GooCanvasItem  *item,
-			     GooCanvasItem  *target_item,
-			     GdkEventButton *event,
-			     gpointer        user_data) {
+			 GooCanvasItem  *target_item,
+			 GdkEventButton *event,
+			 gpointer        user_data) {
 
    // target_item is null (usually?)
    
@@ -495,6 +465,12 @@ on_canvas_button_release(GooCanvasItem  *item,
       lbg_info_t *l =
 	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
       if (l) {
+
+	 // missing button up from a recently deleted canvas item?
+	 if (0)
+	    std::cout << "      here in on_canvas_button_release() clear button down "
+		      << std::endl;
+	 
 	 l->clear_button_down_bond_addition();
       } else {
 	 // this should not happen
@@ -518,35 +494,7 @@ lbg_info_t::clear_button_down_bond_addition() {
    // 
    // std::cout << "save_molecule() from clear_button_down_bond_addition() " << std::endl;
    // save_molecule();
-} 
-   
-
-static gboolean
-on_canvas_motion (GtkWidget *widget, GdkEventMotion *event) {
-   int x_as_int=0, y_as_int=0;
-   //   if (event->is_hint) {
-   if (1) {
-      GdkModifierType state;
-      gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
-      GtkObject *obj = GTK_OBJECT(widget);
-      if (obj) {
-	 gpointer gp = gtk_object_get_user_data(obj);
-	 // std::cout << "got gp: " << gp << std::endl;
-	 if (gp) { 
-	    lbg_info_t *l = static_cast<lbg_info_t *> (gp);
-	    l->handle_drag(state, x_as_int, y_as_int);
-	 } else {
-	    std::cout << "Failed to get gpointer from object on canvas motion"
-		      << std::endl;
-	 } 
-      } else {
-	 std::cout << "Failed to get GtkObject from widget on canvas motion"
-		   << std::endl;
-      }
-   }
-   return TRUE;
 }
-
 
 
 static bool
@@ -554,7 +502,7 @@ on_canvas_motion_new(GooCanvasItem  *item,
 		     GooCanvasItem  *target_item,
 		     GdkEventMotion *event,
 		     gpointer        user_data) {
-   
+
    int x_as_int = -1, y_as_int = -1;
    GdkModifierType state;
    if (! event) {
@@ -591,13 +539,13 @@ on_canvas_motion_new(GooCanvasItem  *item,
 	 } 
       }
 #endif      
-      
    }
 
+   
    if (! item) {
-      // std::cout << "canvas_motion: NULL item!" << std::endl;
+      // std::cout << "on_canvas_motion_new(): NULL item!" << std::endl;
    } else {
-      // std::cout << "canvas_motion:  item:" << item << std::endl;
+      // std::cout << "on_canvas_motion_new():  item:" << item << std::endl;
       lbg_info_t *l =
 	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
       if (!l) {
@@ -609,10 +557,11 @@ on_canvas_motion_new(GooCanvasItem  *item,
 	 int x_as_int = int(event->x);
 	 int y_as_int = int(event->y);
 
-//  	 std::cout << ":::::::::::: state: " << state 
-//  		   << " " << (state & GDK_BUTTON1_MASK)
-// 		   << " button_down_bond_addition " << l->button_down_bond_addition_state()
-//  		   << std::endl;
+	 if (0) 
+	    std::cout << ":::::::::::: on_canvas_motion_new() state: " << state 
+		      << " " << (state & GDK_BUTTON1_MASK)
+		      << " button_down_bond_addition " << l->button_down_bond_addition_state()
+		      << std::endl;
 	 
 	 l->handle_drag(g_state, x_as_int, y_as_int);
       }
@@ -640,6 +589,26 @@ lbg_info_t::handle_drag(GdkModifierType state, int x_as_int, int y_as_int) {
       }
    }
 }
+
+
+static bool
+on_lbg_key_press_event(GooCanvasItem  *item,
+		       GooCanvasItem  *target_item,
+		       GdkEventKey    *event,
+		       gpointer        user_data) {
+
+
+   // this doesn't do anything?  event mask on item?
+   
+   switch (event->keyval) {
+   case GDK_space:
+      std::cout << "space was pressed " << std::endl;
+   default:
+      std::cout << "something was pressed " << std::endl;
+   }
+   return TRUE;
+} 
+
 
 void
 lbg_info_t::drag_canvas(int mouse_x, int mouse_y) {
@@ -750,7 +719,7 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 
 	 if (is_close_to_atom) {
 
-	    std::cout << " rotate prevented -- too close to atom " << std::endl;
+	    // std::cout << " rotate prevented -- too close to atom " << std::endl;
 
 	 }  else {
 
@@ -781,10 +750,6 @@ lbg_info_t::extend_latest_bond() {
    // case just after the button down and the mouse moves with the
    // button down and (2) we don't want to draw a bond back to the
    // atom we just added a bond to.
-
-   // use highlight_data
-
-   // std::cout << "in extend_latest_bond() " << std::endl;
 
    if (mol.bonds.size() > 0) {
       if (mol.atoms.size() > 0) {
@@ -910,9 +875,16 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
 
    int x_as_int, y_as_int;
    GdkModifierType state;
-   bool shift_is_pressed = 0;
+   bool shift_is_pressed = false;
    if (event->state & GDK_SHIFT_MASK)
-      shift_is_pressed = 1;
+      shift_is_pressed = true;
+
+   // set button_1_is_pressed:
+   bool button_1_is_pressed = false;
+   gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
+   if (state & GDK_BUTTON1_MASK)
+      button_1_is_pressed = true;
+   
 
    gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
    if (canvas_addition_mode == lbg_info_t::PENTAGON)
@@ -935,7 +907,8 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
    }
 
    if (is_bond(canvas_addition_mode)) {
-      changed_status = try_add_or_modify_bond(canvas_addition_mode, x_as_int, y_as_int);
+      changed_status = try_add_or_modify_bond(canvas_addition_mode, x_as_int, y_as_int,
+					      button_1_is_pressed);
    }
 
    if (changed_status) {
@@ -1029,17 +1002,20 @@ lbg_info_t::handle_bond_picking_maybe() {
 	 if (highlight_data.single_atom()) {
 	    int idx = highlight_data.get_atom_index();
 
-	    std::cout << "#### now do something with bond_index " << pending_action_data_picked_bond_index
-		      << " and atom index " << idx << std::endl;
-
 	    RDKit::RWMol rdkm = rdkit_mol(mol);
-	    coot::split_molecule(rdkm, pending_action_data_picked_bond_index, idx);
+
+	    RDKit::ROMol *main_sans_R
+	       = coot::split_molecule(rdkm, pending_action_data_picked_bond_index, idx);
+
+	    if (main_sans_R) {
+
+	    }
+	    delete main_sans_R;
 	    
 	    handled = true;
 	 }
       }
    } 
-   std::cout << "handle_bond_picking_maybe() returning " << handled << std::endl;
    return handled; 
 }
 #endif 
@@ -1179,7 +1155,8 @@ lbg_info_t::change_atom_element(int atom_index, std::string new_ele, std::string
 
 
 bool
-lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_mouse) {
+lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_mouse,
+				   bool button_1_is_pressed) {
 
    // button_down_bond_addition is check later so that we can
    // distinguish between canvas dragging and new bond rotation.
@@ -1190,7 +1167,8 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_
 	 // calling this sets penultimate_atom_pos and latest_bond_canvas_item
 	 try_stamp_bond_anywhere(canvas_addition_mode, x_mouse, y_mouse);
 	 changed_status = 1; // try_stamp_bond_anywhere always modifies
-	 button_down_bond_addition = 1;
+	 if (button_1_is_pressed)
+	    button_down_bond_addition = 1;
       }
    } else {
       if (highlight_data.single_atom()) {
@@ -1198,7 +1176,15 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_
 	 if (atom_index != UNASSIGNED_INDEX) {
 	    // add_bond_to_atom() sets latest_bond_canvas_item
 	    changed_status = add_bond_to_atom(atom_index, canvas_addition_mode);
-	    button_down_bond_addition = changed_status;
+	    if (0)
+	       std::cout << "in try_add_or_modify_bond() 2  setting button_down_bond_addition"
+			 << " to " << changed_status << " with button1pressed: "
+			 << button_1_is_pressed << std::endl;
+	    // we set button_down_bond_addition so that we can rotate
+	    // the bond.  But we only want to (be able to) rotate the
+	    // bond if button_1 is being pressed.
+	    if (button_1_is_pressed)
+	       button_down_bond_addition = changed_status;
 	 }
       } else {
 	 // highlighted item was a bond then.
@@ -2471,7 +2457,11 @@ lbg_info_t::init(GtkBuilder *builder) {
 		<< gc->hadjustment->page_size  << " "
 		<< gc->vadjustment->page_size << std::endl;
 
-   if (use_graphics_interface_flag) { 
+   if (use_graphics_interface_flag) {
+
+      gtk_widget_add_events(GTK_WIDGET(canvas),
+ 			    GDK_KEY_PRESS_MASK     |
+ 			    GDK_KEY_RELEASE_MASK);
    
       g_object_set_data_full(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
 			     "lbg-info", this, NULL);
@@ -2488,9 +2478,9 @@ lbg_info_t::init(GtkBuilder *builder) {
 		       "motion_notify_event",
 		       G_CALLBACK(on_canvas_motion_new), NULL);
       
-      //    g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
-      // 		    "key_press_event",
-      // 		    G_CALLBACK(on_key_press_event), NULL);
+      g_signal_connect(G_OBJECT(canvas),
+		       "key_press_event",
+		       G_CALLBACK(on_lbg_key_press_event), NULL);
 
       // setup_lbg_drag_and_drop(lbg_window); // this lbg_info_t is not attached to this object.
       setup_lbg_drag_and_drop(canvas);
@@ -2703,11 +2693,21 @@ lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 
 void
 lbg_info_t::clear_canvas_alerts() {
+
    if (alert_group) {
+
+      // g_object_set(alert_group, "visibility", GOO_CANVAS_ITEM_INVISIBLE, NULL);
+      
       gint n_children = goo_canvas_item_get_n_children (alert_group);
       // std::cout << "removing " << n_children << " children " << std::endl;
-      for (int i=0; i<n_children; i++)
-	 goo_canvas_item_remove_child(alert_group, 0);
+      for (int i=0; i<n_children; i++) {
+	 // no, don't delete it because if we delete it then we don't
+	 // get a button up signal when button-1 is released
+	 // 
+         // goo_canvas_item_remove_child(alert_group, 0);
+	 GooCanvasItem *child = goo_canvas_item_get_child(alert_group, i);
+	 g_object_set(child, "visibility", GOO_CANVAS_ITEM_INVISIBLE, NULL);
+      } 
    }
 } 
 

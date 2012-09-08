@@ -62,8 +62,11 @@ get_qed(PyObject *silicos_it_qed_default_func, const RDKit::ROMol &rdkm) {
 	 rdkit_mol_py = obj.ptr();
 	 PyTuple_SetItem(arg_list, 0, rdkit_mol_py);
 	 PyObject *result = PyEval_CallObject(silicos_it_qed_default_func, arg_list);
-	 std::cout << "DEBUG:: in get_qed() silicos_it_qed_default_func is "
-		   << silicos_it_qed_default_func << std::endl;
+
+	 if (0)
+	    std::cout << "DEBUG:: in get_qed() silicos_it_qed_default_func is "
+		      << silicos_it_qed_default_func << std::endl;
+	 
 	 if (! result) {
 	    std::cout << "Null result from silicos_it_qed_default_func" << std::endl;
 	 } else { 
