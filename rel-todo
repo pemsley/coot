@@ -3,7 +3,28 @@
 
 ----
 
-   * lidia should work
+   * lidia should work ::: 0.5 
+
+* Done.
+
+   o try adding many GOLs (for example).  Do they go to different chains?
+     Maybe we need to start and stop again to activate that problem?
+
+   o python extensions -> all molecule -> fit protein is not 
+     accepting the refined coordinates correctly
+
+   o HJ:
+
+    I've tested and build ideal DNA with Ts followed by simple mutate
+    one of those to something else now doesn't remove C7 (i.e the
+    opposite issue to that reported on the list). Of course this will
+    be a much less common scenario than mutating from C to T and
+    wondering where the C7 is but it should probably be on the todo
+    list.
+
+    ::: write a failing test.
+
+   o flev some ligands with standard build
 
 ------
 
