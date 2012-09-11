@@ -929,7 +929,7 @@ lbg_info_t::update_descriptor_attributes() {
 	 update_qed(rdkm);
 	 update_alerts(rdkm);
       }
-      catch (std::exception e) {
+      catch (const std::exception &e) {
 	 std::cout << "WARNING:: from update_descriptor_attributes() " << e.what() << std::endl;
 
 	 // SMILES string
@@ -2563,7 +2563,14 @@ std::string
 lbg_info_t::get_smiles_string_from_mol() const {
 
 #ifdef MAKE_ENTERPRISE_TOOLS
-   return get_smiles_string_from_mol_rdkit();
+   std::string s;
+   try { 
+      s = get_smiles_string_from_mol_rdkit();
+   }
+   catch (const std::exception &e) {
+      std::cout << "get_smiles_string_from_mol() " << e.what() << std::endl;
+   }
+   return s;
 #else
    return get_smiles_string_from_mol_openbabel();
 #endif
