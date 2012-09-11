@@ -10327,7 +10327,7 @@ create_rotamer_selection_dialog (void)
 
   new_alt_conf_occ_frame = gtk_frame_new (NULL);
   gtk_widget_show (new_alt_conf_occ_frame);
-  gtk_box_pack_start (GTK_BOX (vbox158), new_alt_conf_occ_frame, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox158), new_alt_conf_occ_frame, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (new_alt_conf_occ_frame), 6);
 
   new_alt_conf_occ_hscale = gtk_hscale_new (GTK_ADJUSTMENT (gtk_adjustment_new (0, 0, 0, 0, 0, 0)));
