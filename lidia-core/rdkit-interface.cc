@@ -247,7 +247,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	       m[idx_1]->setIsAromatic(true);
 	       m[idx_2]->setIsAromatic(true);
 	    }
-	    m.addBond(bond);
+	    m.addBond(bond); // worry about ownership or memory leak.
 	 } else {
 	    if (ele_2 != " H") { 
 	       std::cout << "WARNING:: oops, bonding in making rdkit mol "
@@ -409,9 +409,9 @@ coot::rdkit_mol(CResidue *residue_p,
 			     residue_atoms[iat]->y,
 			     residue_atoms[iat]->z);
 	 conf->setAtomPos(it->second, pos);
-	 if (0) 
-	    std::cout << "in construction of rdkit mol: making a conformer "
-		      << iat << " " << it->second << " " << atom_name << " "
+	 if (debug) 
+	    std::cout << "in construction of rdkit mol: making a conformer atom "
+		      << iat << " " << it->second << " " << atom_name << " at pos "
 		      << pos << std::endl;
       } 
    }
@@ -1110,6 +1110,8 @@ coot::infer_H_name(int iat,
 int
 coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 
+   bool debug = false;
+
    int icurrent_conf = 0; // the conformer number from which the
                           // distance matrix is generated.  Should this
 			  // be passed?
@@ -1122,7 +1124,7 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 
    int n_mol_atoms = rdk_mol->getNumAtoms();   
 
-   if (0) 
+   if (debug) 
       std::cout << "::::: add_2d_conformer before compute2DCoords n_atoms: "
 		<< rdk_mol->getConformer(0).getNumAtoms()
 		<< " n_bonds " << rdk_mol->getNumBonds() << std::endl;
@@ -1138,7 +1140,7 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 
    int n_items = n_mol_atoms * (n_mol_atoms - 1)/2;
 
-   double *cData = new double[n_items];
+   double *cData = new double[n_items]; // handled by smart pointer, I think.
    for (unsigned int i=0; i<n_items; i++)
       cData[i] = -1;
 
@@ -1151,6 +1153,7 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
       RDKit::ATOM_SPTR iat_p = (*rdk_mol)[iat];
       if (iat_p->getAtomicNum() != 1) { 
 	 RDGeom::Point3D &pos_1 = conf.getAtomPos(iat);
+	 // std::cout << "   in 3d conformer: pos " << iat << " is " << pos_1 << std::endl;
 	 for (unsigned int jat=0; jat<iat; jat++) {
 	    RDKit::ATOM_SPTR jat_p = (*rdk_mol)[jat];
 	    if (jat_p->getAtomicNum() != 1) { 
@@ -1159,13 +1162,14 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 
 	       // (thanks to JED for useful discussions)
 	       ic_index = iat*(iat - 1)/2 + jat;
-	       if (iat < jat)
-		  ic_index = jat*(jat -1)/2 + iat;
+
+ 	       if (iat < jat)
+ 		  ic_index = jat*(jat -1)/2 + iat;
 
 	       if (ic_index >= n_items)
 		  std::cout << "indexing problem! " << ic_index << " but limit "
 			    << n_items << std::endl;
-	       if (0) 
+	       if (debug) 
 		  std::cout << "mimic: atoms " << iat << " " << jat
 			    << " ic_index " << ic_index << " for max " << n_items
 			    << " dist " << diff.length() << std::endl;
@@ -1188,13 +1192,18 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
    //
 
    int nRB = RDKit::Descriptors::calcNumRotatableBonds(*rdk_mol);
-   int iconf =
-      RDDepict::compute2DCoordsMimicDistMat(*rdk_mol, &dmat, 1, 1, weight_for_3d_distances, nRB, 200);
+
+   // The can screw up the coordinates of rdk_mol.  I don't know
+   // why. It is not due to distance matrix (dmat) I am pretty sure of
+   // that.
+    int iconf =
+       RDDepict::compute2DCoordsMimicDistMat(*rdk_mol, &dmat, 1, 1,
+					     weight_for_3d_distances, nRB, 200);
 
    conf = rdk_mol->getConformer(iconf);
    RDKit::WedgeMolBonds(*rdk_mol, &conf);
 
-   if (0) { // .................... debug ...................
+   if (debug) { // .................... debug ...................
       std::cout << "::::: add_2d_conformer after  compute2DCoords n_atoms: "
 		<< rdk_mol->getConformer(0).getNumAtoms()
 		<< " n_bonds " << rdk_mol->getNumBonds() << std::endl;
@@ -1209,7 +1218,7 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 	 try {
 	    at_p->getProp("name", name);
 	 }
-	 catch (KeyErrorException kee) {
+	 catch (const KeyErrorException &kee) {
 	 }
 	 std::cout << "   " << iat << " " << name << "  " << r_pos << std::endl;
       }
