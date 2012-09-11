@@ -425,11 +425,7 @@ coot_real_SOURCES = \
 	xmap-utils.h		 
 
 if COOT_USE_PYTHON
-if USING_GTK2_VERSION
    coot_real_SOURCES += coot_wrap_python_gtk2.cc
-else
-   coot_real_SOURCES += coot_wrap_python_gtk1.cc
-endif
 endif
 
 
