@@ -1283,7 +1283,7 @@
 
 
 	  (add-simple-coot-menu-menuitem
-	   submenu "Save Annotations......"
+	   submenu "Save Annotations..."
 	   (lambda ()
 	     (generic-single-entry "Save Annotations" "coot-annotations.scm" " Save "
 				   (lambda (file-name)
