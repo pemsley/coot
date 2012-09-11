@@ -6033,6 +6033,8 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	    float local_sphere_size = sphere_size;
 	    if (bonds_box_local.atom_centres_[i].first)
 	       local_sphere_size = 0.11; // small (and cute)
+	    if (bonds_box_local.atom_centres_colour_[i] == HYDROGEN_GREY_BOND)
+	       local_sphere_size *= 0.5;
 	    set_bond_colour_by_mol_no(bonds_box_local.atom_centres_colour_[i]);
 	    glPushMatrix();
 	    GLfloat bgcolor[4]={bond_colour_internal[0],
