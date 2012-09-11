@@ -24,13 +24,25 @@
   (import-from-prodrg "mini-no"))
 
 
-(define (import-from-prodrg minimize-mode)
+(define (import-ligand-with-overlay prodrg-xyzout prodrg-cif)
 
-  ;; return #t or #f
-  ;; 
-  (define (have-restraints-for? res-name)
-    (let ((restraints (monomer-restraints res-name)))
-      (if restraints #t #f)))
+  ;; OK, so here we read the PRODRG files and
+  ;; manipulate them.  We presume that the active
+  ;; residue is quite like the input ligand from
+  ;; prodrg.
+  ;;
+  ;; Read in the lib and coord output of PRODRG.  Then
+  ;; overalay the new ligand onto the active residue
+  ;; (just so that we can see it approximately
+  ;; oriented). Then match the torsions from the new
+  ;; ligand to the those of the active residue.  Then
+  ;; overlay again so that we have the best match.
+  ;;
+  ;; We want to see just one molecule with the protein
+  ;; and the new ligand.
+  ;; add-ligand-delete-residue-copy-molecule provides
+  ;; that for us.  We just colour it and undisplay the
+  ;; other molecules.
 
 
   ;; overlap the imol-ligand residue if there are restraints for the
@@ -70,7 +82,7 @@
 	 (set-dragged-refinement-steps-per-frame 500)
 	 (regularize-residues imol (list (list "" 1 "")))
 	 (set-dragged-refinement-steps-per-frame s)))
-      imol)) 
+      imol))
 
   ;; return the new molecule number
   ;; (only works with aa-ins-code of "")
@@ -94,6 +106,76 @@
 		  (match-ligand-torsions imol imol-ref chain-id-ref res-no-ref)))))
       imol))
 
+  ;; return #t or #f
+  ;; 
+  (define (have-restraints-for? res-name)
+    (let ((restraints (monomer-restraints res-name)))
+      (if restraints #t #f)))
+
+
+  ;; main line
+
+  (read-cif-dictionary prodrg-cif)
+
+  ;; we do different things depending on whether or
+  ;; not there is an active residue.  We need to test
+  ;; for having an active residue here (currently we
+  ;; presume that there is).
+  ;; 
+  ;; Similarly, if the aa-ins-code is non-null, let's
+  ;; presume that we do not have an active residue.
+
+  (let ((active-atom (active-residue)))
+
+    (if (or (not active-atom)
+	    (not (string=? (list-ref active-atom 3) ""))) ;; aa-ins-code
+	
+	;; then there is no active residue to match to 
+	(begin 
+	  (read-and-regularize prodrg-xyzout))
+	
+	;; we have an active residue to match to 
+	(using-active-atom
+	 (if (not (residue-is-close-to-screen-centre? 
+		   aa-imol aa-chain-id aa-res-no ""))
+
+	     ;; not close, no overlap
+	     ;; 
+	     (begin 
+	       (read-and-regularize prodrg-xyzout))
+
+
+	     ;; try overlap
+	     ;;
+	     (let ((imol (read-regularize-and-match-torsions-maybe
+			  prodrg-xyzout aa-imol aa-chain-id aa-res-no )))
+
+	       (let ((overlapped-flag 
+		      (overlap-ligands-maybe imol aa-imol aa-chain-id aa-res-no)))
+		 
+		 (if overlapped-flag
+		     (begin
+		       (format #t "------ overlapped-flag was true!!!!!~%")
+		       (set-mol-displayed aa-imol 0)
+		       (set-mol-active    aa-imol 0)
+		       (let* ((col (get-molecule-bonds-colour-map-rotation aa-imol))
+			      (new-col (+ col 5)) ;; a tiny amount.
+			      (imol-replaced 
+			       ;; new ligand specs, then "reference" ligand (to be deleted)
+			       (add-ligand-delete-residue-copy-molecule imol "" 1 
+									aa-imol aa-chain-id aa-res-no)))
+			 (set-molecule-bonds-colour-map-rotation imol-replaced new-col)
+			 (set-mol-displayed imol 0)
+			 (set-mol-active    imol 0)
+			 (graphics-draw)))))))
+	 #t
+	 ))))
+
+
+
+
+
+(define (import-from-prodrg minimize-mode)
 
   ;; main line of import-from-prodrg
   ;; 
@@ -122,82 +204,7 @@
 	    (if (= status 0)
 		(begin
 
-		  ;; OK, so here we read the PRODRG files and
-		  ;; manipulate them.  We presume that the active
-		  ;; residue is quite like the input ligand from
-		  ;; prodrg.
-		  ;;
-		  ;; Read in the lib and coord output of PRODRG.  Then
-		  ;; overalay the new ligand onto the active residue
-		  ;; (just so that we can see it approximately
-		  ;; oriented). Then match the torsions from the new
-		  ;; ligand to the those of the active residue.  Then
-		  ;; overlay again so that we have the best match.
-		  ;;
-		  ;; We want to see just one molecule with the protein
-		  ;; and the new ligand.
-		  ;; add-ligand-delete-residue-copy-molecule provides
-		  ;; that for us.  We just colour it and undisplay the
-		  ;; other molecules.
-
-		  (read-cif-dictionary prodrg-cif)
-
-		  ;; we do different things depending on whether or
-		  ;; not there is an active residue.  We need to test
-		  ;; for having an active residue here (currently we
-		  ;; presume that there is).
-		  ;; 
-		  ;; Similarly, if the aa-ins-code is non-null, let's
-		  ;; presume that we do not have an active residue.
-
-		  (let ((active-atom (active-residue)))
-
-		    (if (or (not active-atom)
-			    (not (string=? (list-ref active-atom 3) ""))) ;; aa-ins-code
-			
-			;; then there is no active residue to match to 
-			(begin 
-			  (read-and-regularize prodrg-xyzout))
-			
-			;; we have an active residue to match to 
-			(using-active-atom
-			 (if (not (residue-is-close-to-screen-centre? 
-				   aa-imol aa-chain-id aa-res-no ""))
-
-			     ;; not close, no overlap
-			     ;; 
-			     (begin 
-			       (read-and-regularize prodrg-xyzout))
-
-
-			     ;; try overlap
-			     ;;
-			     (let ((imol (read-regularize-and-match-torsions-maybe
-					  prodrg-xyzout aa-imol aa-chain-id aa-res-no )))
-
-			       (let ((overlapped-flag 
-				      (overlap-ligands-maybe imol aa-imol aa-chain-id aa-res-no)))
-			   
-				 (if overlapped-flag
-				     (begin
-				       (format #t "------ overlapped-flag was true!!!!!~%")
-				       (set-mol-displayed aa-imol 0)
-				       (set-mol-active    aa-imol 0)
-				       (let* ((col (get-molecule-bonds-colour-map-rotation aa-imol))
-					      (new-col (+ col 5)) ;; a tiny amount.
-					      (imol-replaced 
-					       ;; new ligand specs, then "reference" ligand (to be deleted)
-					       (add-ligand-delete-residue-copy-molecule imol "" 1 
-											aa-imol aa-chain-id aa-res-no)))
-					 (set-molecule-bonds-colour-map-rotation imol-replaced new-col)
-					 (set-mol-displayed imol 0)
-					 (set-mol-active    imol 0)
-					 (graphics-draw)))))))
-			 #t
-			 ))))))))))
-
-
-
+		  (import-ligand-with-overlay prodrg-xyzout prodrg-cif))))))))
 
 		  
 			   
