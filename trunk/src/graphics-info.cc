@@ -4466,7 +4466,8 @@ graphics_info_t::draw_generic_text() {
    // should be const, I think.
 
    if (generic_texts_p->size() > 0 ) { 
-      GLfloat pink[3] =  { 1.0, 0.8, 0.8 };
+      // GLfloat pink[3] =  { 1.0, 0.8, 0.8 };
+      GLfloat pink[3] =  { font_colour.red, font_colour.green, font_colour.blue };
       glColor3fv(pink);
       glPushAttrib (GL_LIST_BIT);
       void *font = graphics_info_t::atom_label_font;
@@ -4479,7 +4480,7 @@ graphics_info_t::draw_generic_text() {
       }
       glPopAttrib ();
    }
-} 
+}
 
 // static
 coot::colour_holder
