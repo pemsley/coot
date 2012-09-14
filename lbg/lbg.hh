@@ -1173,6 +1173,7 @@ public:
    void get_drug(const std::string &drug_name); // get mol file and load it
 
    void new_lbg_window();
+   void clean_up_2d_representation(); // using rdkit
 
    void pe_test_function();
 };

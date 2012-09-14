@@ -3869,9 +3869,22 @@ close_molecule_by_widget(GtkWidget *optionmenu) {
 
 void close_molecule(int imol) {
 
-
    graphics_info_t g;
    int old_go_to_atom_molecule = g.go_to_atom_molecule();
+   bool was_map = false;
+   if (is_valid_map_molecule(imol))
+      was_map = true;
+
+   // we put this here so that this deletes display manager
+   // frames/molecules that are not valid models. For example:
+   // 1) open display manager
+   // 2) add an MG,
+   // 3) delete an MG
+   // 4) Try to use the "Delete model" button in the display manager
+   //    -> Fail (i.e. nothing happens) without this line
+   // 
+   g.delete_molecule_from_from_display_manager(imol, was_map);
+   
    if (is_valid_model_molecule(imol) ||
        is_valid_map_molecule(imol)) {
       g.molecules[imol].close_yourself();
@@ -3893,6 +3906,8 @@ void close_molecule(int imol) {
    add_to_history_typed(cmd, args);
 
 }
+
+
 
 void fill_close_option_menu_with_all_molecule_options(GtkWidget *optionmenu) {
 

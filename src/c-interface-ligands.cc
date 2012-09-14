@@ -561,16 +561,16 @@ execute_ligand_search_internal() {
 	 // argh (i).
 	 coot::minimol::molecule mmol(g.molecules[ligands[i].first].atom_sel.mol);
 
-	 for(unsigned int ifrag=0; ifrag<mmol.fragments.size(); ifrag++) {
-	    for (int ires=mmol[ifrag].min_res_no(); ires<=mmol[ifrag].max_residue_number();
-		 ires++) {
+//	 for(unsigned int ifrag=0; ifrag<mmol.fragments.size(); ifrag++) {
+// 	    for (int ires=mmol[ifrag].min_res_no(); ires<=mmol[ifrag].max_residue_number();
+//		 ires++) {
 // 	       if (mmol[ifrag][ires].n_atoms() > 0) {
 // 		  std::cout << "DEBUG:: in execute_ligand_search:  mmol["
 // 			    << ifrag << "][" << ires << "].name :"
 // 			    <<  mmol[ifrag][ires].name << ":" << std::endl;
 // 	       }
-	    }
-	 }
+//	    }
+//	 }
 
 	 // std::pair<short int, std::string> istat_pair =
 	 try { 
@@ -635,31 +635,54 @@ execute_ligand_search_internal() {
       wlig.cluster_from_point(pt, n_sigma);
       wlig.fit_ligands_to_clusters(1); // just this cluster.
       
-   } 
+   }
    wlig.make_pseudo_atoms(); // put anisotropic atoms at the ligand sites
 
    // now add in the solution ligands:
-   int n_final_ligands = wlig.n_final_ligands();
+   int n_clusters = wlig.n_clusters_final();
 
    int n_new_ligand = 0;
    coot::minimol::molecule m;
-   for (int ilig=0; ilig<n_final_ligands; ilig++) { 
-      m = wlig.get_solution(ilig);
-      if (! m.is_empty()) {
-	 float bf = graphics_info_t::default_new_atoms_b_factor;
-	 CMMDBManager *ligand_mol = m.pcmmdbmanager();
-	 coot::hetify_residues_as_needed(ligand_mol);
-	 atom_selection_container_t asc = make_asc(ligand_mol);
-	 int g_mol = graphics_info_t::create_molecule();
-	 std::string label = "Fitted ligand #";
-	 label += g.int_to_string(ilig);
-	 g.molecules[g_mol].install_model(g_mol, asc, label, 1);
-	 g.molecules[g_mol].assign_hetatms();
-	 solutions.push_back(g_mol);
-	 n_new_ligand++;
-	 if (g.go_to_atom_window){
-	    g.update_go_to_atom_window_on_new_mol();
-	    g.update_go_to_atom_window_on_changed_mol(g_mol);
+   for (unsigned int iclust=0; iclust<n_clusters; iclust++) {
+
+      // frac_lim is the fraction of the score of the best solutions
+      // that we should consider as solutions. 0.5 is generous, I
+      // think.
+      float frac_lim = g.find_ligand_score_by_correl_frac_limit; // 0.7;
+      float correl_frac_lim = 0.9;
+      // nino-mode
+      unsigned int nlc = wlig.n_ligands_for_cluster(iclust, frac_lim);
+
+      // false is the default case
+      if (g.find_ligand_multiple_solutions_per_cluster_flag == false) {
+	 nlc = 1;
+	 correl_frac_lim = 0.975;
+      }
+
+      wlig.score_and_resort_using_correlation(iclust, nlc);
+      wlig.limit_solutions(iclust, correl_frac_lim, 12);
+			   
+      for (unsigned int isol=0; isol<nlc; isol++) { 
+      
+	 m = wlig.get_solution(isol, iclust);
+	 if (! m.is_empty()) {
+	    float bf = graphics_info_t::default_new_atoms_b_factor;
+	    CMMDBManager *ligand_mol = m.pcmmdbmanager();
+	    coot::hetify_residues_as_needed(ligand_mol);
+	    atom_selection_container_t asc = make_asc(ligand_mol);
+	    int g_mol = graphics_info_t::create_molecule();
+	    std::string label = "Fitted ligand #";
+	    label += g.int_to_string(iclust);
+	    label += "-";
+	    label += g.int_to_string(isol);
+	    g.molecules[g_mol].install_model(g_mol, asc, label, 1);
+	    g.molecules[g_mol].assign_hetatms();
+	    solutions.push_back(g_mol);
+	    n_new_ligand++;
+	    if (g.go_to_atom_window){
+	       g.update_go_to_atom_window_on_new_mol();
+	       g.update_go_to_atom_window_on_changed_mol(g_mol);
+	    }
 	 }
       }
    }
@@ -803,6 +826,14 @@ void set_find_ligand_n_top_ligands(int n) { /* fit the top n ligands,
    g.find_ligand_n_top_ligands = n;
 
 }
+
+void set_find_ligand_multi_solutions_per_cluster(float lim_1, float lim_2) {
+   graphics_info_t g;
+   g.find_ligand_multiple_solutions_per_cluster_flag = true;
+   g.find_ligand_score_by_correl_frac_limit = lim_1;
+   g.find_ligand_score_correl_frac_interersting_limit = lim_2;
+}
+
 
 /* flip the ligand (usually active residue) around its eigen vectoros
    to the next flip number.  Immediate replacement (like flip

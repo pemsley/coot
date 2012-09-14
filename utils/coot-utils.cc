@@ -721,13 +721,14 @@ bool
 coot::util::extension_is_for_mdl_mol_or_mol2_coords(const std::string &ext) {
 
    bool r = 0;
-   if ((ext == ".mdl") ||
-       (ext == ".MDL") ||
-       (ext == ".mol") ||
-       (ext == ".mol2") ||
-       (ext == ".MOL") ||
-       (ext == ".MOL2") ||
-       (ext == ".sdf") ||
+   if ((ext == ".mdl")   ||
+       (ext == ".MDL")   ||
+       (ext == ".mol")   ||
+       (ext == ".mol2")  || // tripos mol2 
+       (ext == ".mol3d") || // tripos mol2 
+       (ext == ".MOL2")  || // tripos mol2 
+       (ext == ".MOL")   ||
+       (ext == ".sdf")   ||
        (ext == ".SDF"))
       r = 1;
    return r;

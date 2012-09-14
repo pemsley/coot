@@ -200,5 +200,4 @@ void smiles_to_ligand_builder(const char *smiles_string) {
 } 
 
 
-
 #endif // MAKE_ENTERPRISE_TOOLS

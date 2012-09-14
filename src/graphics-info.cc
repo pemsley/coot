@@ -1467,6 +1467,28 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 #endif // HAVE_GTK_CANVAS   
 }
 
+void
+graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_map) {
+
+   // delete from display manager combo box
+   // 
+   GtkWidget *dc_window = display_control_window();
+   // 
+   if (dc_window) { // is being displayed
+      std::string display_frame_name = "display_mol_frame_";
+      if (was_map)
+	 display_frame_name = "display_map_frame_";
+      display_frame_name += int_to_string(imol);
+      GtkWidget *display_frame = lookup_widget(dc_window, display_frame_name.c_str());
+      if (display_frame) {
+	 gtk_widget_destroy(display_frame);
+      }
+   } else {
+      // std::cout << "close: display_control_window is not active" << std::endl;
+   }
+}
+
+
 
 
 // As these are moving atoms, they cannot point to atoms of a real

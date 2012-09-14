@@ -578,8 +578,6 @@ class graphics_info_t {
    static int find_ligand_map_mol_;
    static std::vector<std::pair<int, bool> > *find_ligand_ligand_mols_; // contain a molecule number 
                                                                         // and flag for is_wiggly?
-   // static std::vector<short int> *find_ligand_wiggly_ligands_; // incorporporated above.
-
    static coot::protein_geometry* geom_p;
 
    static coot::rotamer_probability_tables rot_prob_tables;
@@ -2425,6 +2423,9 @@ public:
    static short int ligand_expert_flag;
    static bool find_ligand_here_cluster_flag;
    static float map_mask_atom_radius;
+   static bool find_ligand_multiple_solutions_per_cluster_flag; // default is false 
+   static float find_ligand_score_by_correl_frac_limit; // 0.7
+   static float find_ligand_score_correl_frac_interersting_limit; // 0.9;
 
    // Geometry issues:
    
@@ -3581,6 +3582,8 @@ public:
 
    // -------- some people dont want restype and slashes in atom label:
    static short int brief_atom_labels_flag;
+
+   void delete_molecule_from_from_display_manager(int imol, bool was_map_flag);
 
    // -------- undo move: suggested by Frank von Delft -----
    void undo_last_move(); 

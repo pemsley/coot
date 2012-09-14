@@ -1861,8 +1861,10 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 			lig.fit_ligands_to_clusters(1);
 			// so we have the solution from lig, what was its score?
 			//
-			coot::ligand_score_card score_card = lig.get_solution_score(0);
-			coot::minimol::molecule moved_mol  = lig.get_solution(0);
+			unsigned int iclust = 0;
+			unsigned int isol   = 0;
+			coot::ligand_score_card score_card = lig.get_solution_score(0, isol);
+			coot::minimol::molecule moved_mol  = lig.get_solution(isol, iclust);
 
 			float clash_score = 0.0;
 			// std::cout << "debug INFO:: density score: " << score_card.score << "\n";

@@ -58,6 +58,7 @@ namespace coot {
       short int many_atoms_fit;
       double score;
       double score_per_atom;
+      std::pair<bool, double> correlation;
       
       ligand_score_card() {
 	 ligand_no = -1; // unset
@@ -65,6 +66,8 @@ namespace coot {
 	 many_atoms_fit = 0;
 	 n_ligand_atoms = 0;
 	 score_per_atom = 0.0;
+	 correlation.first = false;
+	 correlation.second = -1;
       }
       void set_ligand_number(int ilig) {
 	 ligand_no = ilig;
@@ -72,9 +75,25 @@ namespace coot {
       void set_n_ligand_atoms(int n) {
 	 n_ligand_atoms = n;
       }
-      friend std::ostream& operator<<(std::ostream &s, ligand_score_card lsc);
+      friend std::ostream& operator<<(std::ostream &s, const ligand_score_card &lsc);
    };
-   std::ostream& operator<<(std::ostream &s, ligand_score_card lsc);
+   std::ostream& operator<<(std::ostream &s, const ligand_score_card &lsc);
+
+   class scored_ligand_eraser {
+   public:
+      float max_correl;
+      scored_ligand_eraser(float max_correl_in) {
+	 max_correl = max_correl_in;
+      }
+      // return shall-we-delete? status
+      bool operator() (const std::pair<minimol::molecule, ligand_score_card> &sl) {
+	 if (! sl.second.correlation.first) 
+	    return true;
+	 if (sl.second.correlation.second < max_correl)
+	    return true;
+	 return false;
+      }
+   };
 
    // Trivial class so that we can pass the (best orientation) ligand
    // back to fit_ligands_to_clusters()
@@ -263,7 +282,8 @@ namespace coot {
       // return the score (of rigid body fitting - you may want to
       // expand this to each cluster in future):
       //
-      std::vector<ligand_score_card> save_ligand_score;
+      std::vector<ligand_score_card> save_ligand_score; // a vector over n-clusters,
+                                                        // indexed with iclust
 
       // tinker with mmmol (minimol molecule)
       void set_cell_and_symm(coot::minimol::molecule *mmmol) const; 
@@ -303,8 +323,31 @@ namespace coot {
 					      // cluster iclust.
 
       // we want these available to a derived class
-      std::vector<coot::minimol::molecule> initial_ligand;
-      std::vector<coot::minimol::molecule>   final_ligand;
+      std::vector<minimol::molecule> initial_ligand;
+
+      // We used to have a final_ligand for every iclust.  Now we have
+      // a vector of solutions for every iclust (so that we can pass
+      // back the top 10 (say) solutions for a given position and
+      // allow the user to examine).
+      // std::vector<coot::minimol::molecule>   final_ligand;
+      std::vector<std::vector<std::pair<coot::minimol::molecule, ligand_score_card> > > final_ligand;
+      void sort_final_ligand(unsigned int iclust);
+      // which uses comparison function
+      // return "is first less than second?" status
+      static bool compare_scored_ligands(const std::pair<minimol::molecule, ligand_score_card> &sl_1,
+					 const std::pair<minimol::molecule, ligand_score_card> &sl_2);
+      static bool
+      compare_scored_ligands_using_correlation(const std::pair<minimol::molecule, ligand_score_card> &sl_1,
+					       const std::pair<minimol::molecule, ligand_score_card> &sl_2);
+
+      double get_correl(const minimol::molecule &mol) const;
+      void write_orientation_solution(unsigned int iclust,
+				      unsigned int ilig,
+				      unsigned int i_eigen_ori,
+				      unsigned int ior,
+				      const minimol::molecule &mol) const;
+				      
+
 
       // Consider doing away with this sort of manipulation.  It is
       // not very elegant, and instead we could (should) make the
@@ -489,14 +532,31 @@ namespace coot {
       // 
       void set_dont_write_solutions() { write_solutions = 0;}
       //
-      int n_final_ligands() const { return final_ligand.size(); }
-      coot::minimol::molecule get_solution(int ifl) const;
+      // this is the number of clusters, not the number of solutions
+      // for a given cluster. 
+      // 
+      unsigned int n_clusters_final() const { return final_ligand.size(); }
+
+      // return the number of scored solutions with score of more than
+      // frac_limit_of_peak_score (say, 0.5)
+      // 
+      unsigned int n_ligands_for_cluster(unsigned int iclust,
+					 float frac_limit_of_peak_score) const;
+
+      // generate correlation scores for the top n_sol solutions and
+      // re-sort.
       //
-      ligand_score_card get_solution_score(int iclust) const {
-// 	 std::cout << "save_ligand_score.size() is "
-// 		   << save_ligand_score.size() << " iclust = "
-// 		   << iclust << std::endl;
-	 return save_ligand_score[iclust];
+      // clusters should already be in "score" order by now (biggest
+      // score at the top (0th position)).
+      //
+      void score_and_resort_using_correlation(unsigned int iclust, unsigned int n_sol);
+
+      // get the ith solution for the iclust cluster
+      coot::minimol::molecule get_solution(unsigned int isolution,
+					   unsigned int iclust) const;
+      //
+      ligand_score_card get_solution_score(int iclust, int isolution) const {
+	 return final_ligand[iclust][isolution].second;
       }
 
       // People like to tweak the water finding parameters:
@@ -536,6 +596,11 @@ namespace coot {
       std::vector<clipper::Coord_orth> big_blobs() const { 
 	 return keep_blobs;
       }
+
+      // this should only be run post-sort (post-correlation sort)
+      void limit_solutions(unsigned int iclust,
+			   float frac_max_correl_lim,
+			   int max_n_solutions);
 
       // This list of peaks above a particular level (and one day
       // optionally below the same but negative level):

@@ -3835,7 +3835,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 strcpy(s, tmp_string.c_str());
       } else {
 	 std::cout << "INFO:: using standard CCP4 Refmac dictionary"
-		   << " to search for " << resname << std::endl; 
+		   << " to search for \"" << resname << "\"" << std::endl; 
       } 
    }
 
