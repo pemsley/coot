@@ -2004,26 +2004,21 @@ coot::ligand::limit_solutions(unsigned int iclust,
 			      int max_n_solutions) {
 
    unsigned int pre_erase_size = final_ligand[iclust].size();
-   // std::vector<std::pair<coot::minimol::molecule, ligand_score_card> > &v =
-      final_ligand[iclust];
    if (final_ligand[iclust].size()) {
       float min_correl = final_ligand[iclust][0].second.correlation.second * frac_max_correl_lim;
-      std::cout << "..... in limit_solutions() min_correl is " << min_correl << std::endl;
+      if (0)
+	 std::cout << "..... in limit_solutions() min_correl is " << min_correl << std::endl;
       final_ligand[iclust].erase(std::remove_if(final_ligand[iclust].begin(),
 						final_ligand[iclust].end(),
 						scored_ligand_eraser(min_correl)),
 				 final_ligand[iclust].end());
    }
-   unsigned int post_erase_size = final_ligand[iclust].size();
-   std::cout << "--- pre and post sizes: " << pre_erase_size << " " << post_erase_size
-	     << std::endl;
 
-   if (1)
+   if (0)
       for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
 	 std::cout << "limit solutions: " << isol << " of "
 		   << final_ligand[iclust].size() << " "
 		   << final_ligand[iclust][isol].second << std::endl;
-   
 }
 
 
