@@ -1328,11 +1328,13 @@ int test_ligand_fit_from_given_point() {
    float n_sigma = 1.0; // cluster points must be more than this.
    wlig.cluster_from_point(pt, n_sigma);
    wlig.fit_ligands_to_clusters(1);
-   int n_final_ligands = wlig.n_final_ligands();
+   int n_final_ligands = wlig.n_clusters_final();
    if (n_final_ligands == 0) {
       return 0;
-   } else { 
-      coot::minimol::molecule m = wlig.get_solution(0);
+   } else {
+      unsigned int iclust = 0;
+      unsigned int isol   = 0;
+      coot::minimol::molecule m = wlig.get_solution(isol, iclust);
       clipper::Coord_orth centre = m.centre();
       clipper::Coord_orth ref_pt(55.5, 9.36, 20.7); // coords of centred
                                                     // correct solution

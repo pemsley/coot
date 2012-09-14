@@ -26,6 +26,8 @@
 
    o flev some ligands with standard build
 
+   o should UNL be on the list of things to not autoload?
+
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
@@ -517,3 +519,9 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
      Py_XDECREF() call causes a crash. ::: 0.5
 
 * I think not.  Commented.
+
+
+   select rotamer alt conf window
+      new alt conf occupancy frame auto expands - it should not.
+
+* Done

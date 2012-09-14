@@ -4080,6 +4080,12 @@ GtkWidget *dynarama_is_displayed_state(int imol);
 /*  return -1 on error. */
 int get_mol_from_dynarama(GtkWidget *window);
 
+
+/* FIXME before release! */
+/* gcc ... -O2 -MT callbacks.o -MD -MP -MF .deps/callbacks.Tpo -c -o callbacks.o ../../coot/src/callbacks.c */
+/* ../../coot/src/callbacks.c: In function ‘on_dynarama_window_configure_event’: */
+/* ../../coot/src/callbacks.c:9682:4: warning: passing argument 2 of ‘resize_rama_canvas’ from incompatible pointer type [enabled by default] */
+/* ../../coot/src/c-interface.h:4083:6: note: expected ‘union GdkEvent *’ but argument is of type ‘struct GdkEventConfigure *’ */
 void resize_rama_canvas(GtkWidget *widget, GdkEvent *event);
 
 void set_moving_atoms(double phi, double psi);
@@ -4325,6 +4331,25 @@ void set_ligand_verbose_reporting(int i); /* 0 off (default), 1 on */
 void set_find_ligand_n_top_ligands(int n); /* fit the top n ligands,
 					      not all of them, default
 					      10. */
+
+/*! \brief allow multiple ligand solutions per cluster. 
+
+The first limit is the fraction of the top scored positions that go on
+to correlation scoring (closer to 1 means less and faster - default
+0.7).
+
+The second limit is the fraction of the top correlation score that is
+considered interesting.  Limits the number of solutions displayed to
+user.
+
+There is currently no chi-angle set redundancy filtering - I suspect
+that there should be.
+
+Nino-mode.
+
+*/
+void set_find_ligand_multi_solutions_per_cluster(float lim_1, float lim_2);
+
 /*! \brief how shall we treat the waters during ligand fitting? 
 
    pass with istate=1 for waters to mask the map in the same way that

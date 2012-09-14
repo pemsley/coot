@@ -64,6 +64,7 @@
 #include "mmdb.h"
 
 #include "coot-coord-utils.hh"
+#include "coot-map-utils.hh"
 
 
 std::pair<coot::minimol::molecule, coot::minimol::molecule>
@@ -1758,7 +1759,7 @@ coot::ligand::install_ligand(const coot::minimol::molecule &ligand) {
 
 
 std::ostream&
-coot::operator<<(std::ostream &s, coot::ligand_score_card lsc) {
+coot::operator<<(std::ostream &s, const coot::ligand_score_card &lsc) {
 
    int n_ligand_atoms; // non-H.
    int ligand_no;
@@ -1766,7 +1767,13 @@ coot::operator<<(std::ostream &s, coot::ligand_score_card lsc) {
    double score;
    double score_per_atom;
 
-   s << "[ligand-score: " << lsc.ligand_no << " score: " <<  lsc.score << " ("
+   s << "[ligand-score: #" << lsc.ligand_no << " score: " <<  lsc.score
+     << " r-state: [" << lsc.correlation.first;
+
+   if (lsc.correlation.first)
+      s << " " << lsc.correlation.second << "]";
+
+   s << " (score: "
      << lsc.score_per_atom << ") many-atoms-fit: " << lsc.many_atoms_fit
      << " n-atoms: " << lsc.n_ligand_atoms << "]";
    return s;
@@ -1777,22 +1784,15 @@ coot::operator<<(std::ostream &s, coot::ligand_score_card lsc) {
 // Externally accessible routine.
 //
 // Go down the cluster list, starting at biggest cluster fitting ligands
-// until the cluter number is max_placements
+// until the cluter number is max_placements.
 // 
 void
-coot::ligand::fit_ligands_to_clusters(int max_placements) {
+coot::ligand::fit_ligands_to_clusters(int max_n_clusters) {
 
-   final_ligand.resize(max_placements);
-//    std::cout << " DEBUG:: resized final_ligand to " << final_ligand.size()
-// 	     << std::endl;
-   save_ligand_score.resize(max_placements);
+   final_ligand.resize(max_n_clusters);
+   save_ligand_score.resize(max_n_clusters);
 
-//    std::cout << "in ligand::fit_ligands_to_clusters there are " 
-// 	     << cluster.size() << " clusters to which will be fitted "
-// 	     << initial_ligand.size() << " ligands" << std::endl;
-   // std::cout << "Testing top " << max_placements << " clusters" << std::endl;
-
-   for (int iclust=0; iclust<int(cluster.size()) && iclust<max_placements; iclust++) {
+   for (int iclust=0; iclust<int(cluster.size()) && iclust<max_n_clusters; iclust++) {
      fit_ligands_to_cluster(iclust);
    }
 }
@@ -1811,11 +1811,8 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
    bool debug = 0;
 
    minimol::molecule ior_holder;
-   minimol::molecule overall_best_mol;  // over all ligands types
    
    coot::ligand_score_card this_scorecard;
-   coot::ligand_score_card best_ori_scorecard;
-   coot::ligand_score_card best_overall_scorecard; // over all ligand types
 
    // Just like the helix algorithm, we search all eigenvectors.
    clipper::Mat33<double> no_rotation    (1, 0,  0, 0, 1,  0, 0, 0, 1);
@@ -1824,156 +1821,214 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
    clipper::RTop_orth no_rotation_op(no_rotation, clipper::Coord_orth(0,0,0));
    clipper::RTop_orth  y_axis_op(y_axis_rotation, clipper::Coord_orth(0,0,0));
    clipper::RTop_orth  x_axis_op(x_axis_rotation, clipper::Coord_orth(0,0,0));
-   
+
    std::vector<clipper::RTop_orth> eigen_orientations;
    eigen_orientations.push_back(no_rotation_op);
    eigen_orientations.push_back(y_axis_op);
    eigen_orientations.push_back(x_axis_op);
    
-   
    for (unsigned int ilig=0; ilig<initial_ligand.size(); ilig++) {
 
       // fitted_ligand_vec is added to when we install_ligand
-      // fitted_ligand_vec[ilig].resize(n_lig_max); // what is this!?
 
-      // if (similar_eigen_values(iclust, ilig)) { 
-	 if (!do_size_match_test ||
-	     (do_size_match_test && cluster_ligand_size_match(iclust, ilig))) {
+      if (!do_size_match_test ||
+	  (do_size_match_test && cluster_ligand_size_match(iclust, ilig))) {
 
-	    if (debug) 
-	       std::cout << "ligand " << ilig << " passes the size match test "
-			 << "for cluster number " << iclust << std::endl;
-	    
-	    int n_rot = origin_rotations.size();
-	    if (dont_test_rotations)
-	       n_rot = 1;  // the first one is the identity matrix
-
-	    int n_eigen_oris = 3;
-	    if (dont_test_rotations)
-	       n_eigen_oris = 1;
-
-	    for (int i_eigen_ori=0; i_eigen_ori<n_eigen_oris; i_eigen_ori++) { 
-	 
-	       for (int ior=0; ior<n_rot; ior++) {
-		  // Copy from initial_ligand into an element of the
-		  // fitted_ligand_vec vector:
-		  // 
-		  // fiddle with fitted_ligand_vec[i]
-		  this_scorecard = fit_ligand_copy(iclust, ilig, ior, eigen_orientations[i_eigen_ori]);
-
-		  if (debug)
-		     std::cout << "Post-fitting score_card is\n"
-			       << this_scorecard << std::endl;
-
-		  if (this_scorecard.score > best_ori_scorecard.score) {
-		     best_ori_scorecard = this_scorecard; 
-		     ior_holder = fitted_ligand_vec[ilig][iclust];
-		  }
-
-		  if (debug)
-		     std::cout << "DEBUG:: this_scorecard.score " <<
-			this_scorecard.score << std::endl;
-	       
-		  if ((this_scorecard.score > best_overall_scorecard.score) &&
-		      (this_scorecard.many_atoms_fit == 1)) {
-		     best_overall_scorecard = this_scorecard;
-		     overall_best_mol = fitted_ligand_vec[ilig][iclust];
-		  }
-
-		  if (write_orientation_solutions) { 
-		     std::string ori_sol_file_name = "ori-sol-cluster:_";
-		     ori_sol_file_name += int_to_string(iclust);
-		     ori_sol_file_name += "-ligno:_";
-		     ori_sol_file_name += int_to_string(ilig);
-		     ori_sol_file_name += "-eigen:_";
-		     ori_sol_file_name += int_to_string(i_eigen_ori);
-		     ori_sol_file_name += "-ori:_";
-		     ori_sol_file_name += int_to_string(ior);
-		     ori_sol_file_name += ".pdb";
-		     fitted_ligand_vec[ilig][iclust].write_file(ori_sol_file_name, default_b_factor);
-		  } 
-	       }
-	    }
-
-	    // write out the best orientation for this ligand (if we got a
-	    // score that was better than zero):
-	    if (best_ori_scorecard.score > 0) {
-	       if (best_ori_scorecard.many_atoms_fit == 0) {
-		  std::cout << "WARNING: many badly fitting atoms for best ligand "
-			    << "in cluster " << iclust << "." << std::endl;
-		  // << "         Coordinates not written." << std::endl;
-	       } else {
-		  if (write_solutions) { 
-		     if (write_orientation_solutions) { 
-			std::string outfile = "best-orientation-" + int_to_string(ilig);
-			outfile += "-";
-			outfile += int_to_string(iclust);
-			outfile += ".pdb";
-			std::cout << "writing ligand to file: " << outfile << std::endl;
-			ior_holder.write_file(outfile, default_b_factor);
-		     }
-		  }
-	       }
-	    }
-	 } else {
-	    std::cout << "ligand " << ilig << "  fails the size match test "
+	 if (debug) 
+	    std::cout << "ligand " << ilig << " passes the size match test "
 		      << "for cluster number " << iclust << std::endl;
-	 }
-//       } // similar eigens
-//       else {
-// 	 std::cout << "ligand " << ilig << " rejected on eigens for cluster "
-// 		   << iclust << std::endl;
-//       }
-   }
-   
-   if (best_overall_scorecard.score > 0) {
-      if (best_overall_scorecard.many_atoms_fit == 0) {
-	 std::cout << "WARNING: many badly fitting atoms in this best overall fit "
-		   << "for this ligand site. "
-		   << " Coordinates not written" << std::endl;
+	    
+	 int n_rot = origin_rotations.size();
+	 if (dont_test_rotations)
+	    n_rot = 1;  // the first one is the identity matrix
+
+	 int n_eigen_oris = 3;
+	 if (dont_test_rotations)
+	    n_eigen_oris = 1;
+
+	 for (int i_eigen_ori=0; i_eigen_ori<n_eigen_oris; i_eigen_ori++) { 
 	 
+	    for (int ior=0; ior<n_rot; ior++) {
+	       // Copy from initial_ligand into an element of the
+	       // fitted_ligand_vec vector:
+	       // 
+	       // fiddle with fitted_ligand_vec[i]
+	       this_scorecard = fit_ligand_copy(iclust, ilig, ior, eigen_orientations[i_eigen_ori]);
+
+	       std::pair<minimol::molecule, ligand_score_card> p(fitted_ligand_vec[ilig][iclust],
+								 this_scorecard);
+	       final_ligand[iclust].push_back(p);
+
+	       if (debug)
+		  std::cout << "Post-fitting score_card is\n" << this_scorecard << std::endl;
+	       if (write_orientation_solutions)
+		  write_orientation_solution(iclust, ilig, i_eigen_ori, ior,
+					     fitted_ligand_vec[ilig][iclust]);
+	    }
+	 }
       } else {
-	 save_ligand_score[iclust] = best_overall_scorecard; 
-// 	 std::cout << " score for best_overall for cluster " << iclust
-// 		   << " is " << best_overall_scorecard.score << std::endl; 
-	 
-	 if (write_solutions) {
-	    
-	    // get the residue name:
-	    std::string resname = get_first_residue_name(overall_best_mol);
-	    
-	    std::string outfile = "best-overall-" + resname;
-	    outfile += "-";
-	    outfile += int_to_string(iclust);
-	    outfile += ".pdb";
-	    // but first set the cell and symmetry:
-	    //
-	    set_cell_and_symm(&overall_best_mol); // tinker with overall_best_mol
-// 	    std::cout << "DEBUG:: cell and symm set to "
-// 		      << overall_best_mol.mmdb_spacegroup << " "
-// 		      << overall_best_mol.mmdb_cell[0] << " "
-// 		      << overall_best_mol.mmdb_cell[1] << " "
-// 		      << overall_best_mol.mmdb_cell[2] << " "
-// 		      << overall_best_mol.mmdb_cell[3] << " "
-// 		      << overall_best_mol.mmdb_cell[4] << " "
-// 		      << overall_best_mol.mmdb_cell[5] << "\n";
-	    overall_best_mol.write_file(outfile, default_b_factor);
-	    if (verbose_reporting)
-	       std::cout << "INFO:: " << outfile << " written fitting cluster "
-			 << "number " << iclust << std::endl;
-	 }
+	 std::cout << "ligand " << ilig << "  fails the size match test "
+		   << "for cluster number " << iclust << std::endl;
       }
    }
-   
-   if (iclust < int(final_ligand.size())) {
-      // std::cout << "fit_ligands_to_cluster assigning final_ligand " << iclust << std::endl;
-      final_ligand[iclust] = overall_best_mol;
-      // final_ligand[iclust].write_file("b-fit-test.pdb");
-   } else {
-      std::cout << "not assigning final ligand because iclust: " << iclust
-		<< " final_ligand.size(): " << final_ligand.size() << std::endl;
-   }
+   sort_final_ligand(iclust);
 }
+
+void
+coot::ligand::write_orientation_solution(unsigned int iclust,
+					 unsigned int ilig,
+					 unsigned int i_eigen_ori,
+					 unsigned int ior,
+					 const coot::minimol::molecule &mol) const {
+   
+   std::string ori_sol_file_name = "ori-sol-cluster:_";
+   ori_sol_file_name += int_to_string(iclust);
+   ori_sol_file_name += "-ligno:_";
+   ori_sol_file_name += int_to_string(ilig);
+   ori_sol_file_name += "-eigen:_";
+   ori_sol_file_name += int_to_string(i_eigen_ori);
+   ori_sol_file_name += "-ori:_";
+   ori_sol_file_name += int_to_string(ior);
+   ori_sol_file_name += ".pdb";
+   fitted_ligand_vec[ilig][iclust].write_file(ori_sol_file_name, default_b_factor);
+
+} 
+
+
+
+// sort the final_ligand for a given cluster, so that the best-scoring
+// solution is in position 0.
+//
+// changes final_ligand vector
+// 
+void
+coot::ligand::sort_final_ligand(unsigned int iclust) {
+
+   std::sort(final_ligand[iclust].begin(),
+	     final_ligand[iclust].end(),
+	     compare_scored_ligands);
+   // lowest score is now in 0th position
+   std::reverse(final_ligand[iclust].begin(),
+		final_ligand[iclust].end());
+
+   if (0) 
+      for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
+	 std::cout << "post reverse: solution " << isol << " of " << final_ligand[iclust].size()
+		   << " " << final_ligand[iclust][isol].second << std::endl;
+}
+
+// static
+bool
+coot::ligand::compare_scored_ligands(const std::pair<coot::minimol::molecule, ligand_score_card> &sl_1,
+				     const std::pair<coot::minimol::molecule, ligand_score_card> &sl_2) {
+   return (sl_1.second.score < sl_2.second.score);
+}
+// static
+bool
+coot::ligand::compare_scored_ligands_using_correlation(const std::pair<coot::minimol::molecule, ligand_score_card> &sl_1,
+						       const std::pair<coot::minimol::molecule, ligand_score_card> &sl_2) {
+
+
+   if (sl_1.second.correlation.first && sl_2.second.correlation.first)
+      return (sl_1.second.correlation < sl_2.second.correlation);
+   return (sl_1.second.score < sl_2.second.score);
+}
+
+unsigned int
+coot::ligand::n_ligands_for_cluster(unsigned int iclust,
+				    float frac_limit_of_peak_score) const {
+
+   unsigned int n = 0;
+   float top_score = -1;
+   
+   if (final_ligand[iclust].size() > 0) {
+      top_score = final_ligand[iclust][0].second.score;
+      for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
+	 if (final_ligand[iclust][i].second.score > frac_limit_of_peak_score * top_score)
+	    n++;
+      }
+   }
+   std::cout << "debug:: n_ligands_for_cluster() top_score " << top_score << " and " 
+	     << n << " are decent out of " << final_ligand[iclust].size()
+	     << std::endl;
+   return n;
+}
+
+
+// generate correlation scores for the top n_sol solutions and re-sort
+//
+void
+coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned int n_sol) {
+
+   for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
+      if (i < n_sol) {
+	 double correl = get_correl(final_ligand[iclust][i].first);
+	 std::pair<bool, double> p(true, correl);
+	 final_ligand[iclust][i].second.correlation = p;
+      }
+   }
+   std::sort(final_ligand[iclust].begin(),
+	     final_ligand[iclust].end(),
+	     compare_scored_ligands_using_correlation);
+   std::reverse(final_ligand[iclust].begin(),
+		final_ligand[iclust].end());
+
+   if (0)
+      for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
+	 std::cout << "post correl " << isol << " of "
+		   << final_ligand[iclust].size() << " "
+		   << final_ligand[iclust][isol].second << std::endl;
+   
+}
+
+double
+coot::ligand::get_correl(const minimol::molecule &lig_mol) const {
+
+   CMMDBManager *mol = lig_mol.pcmmdbmanager();
+   std::vector<residue_spec_t> specs;
+   residue_spec_t spec(lig_mol[0].fragment_id,
+		       lig_mol[0].min_res_no(), "");
+   specs.push_back(spec);
+   short int mode = 0; // all atoms 
+   double c = util::map_to_model_correlation(mol, specs, mode, 1.5, xmap_pristine);
+   std::cout << "----- in get_correl() constructed spec " << spec
+	     << " which has correlation " << c << std::endl;
+   delete mol;
+   return c;
+}
+
+// this should only be run post-sort (post-correlation sort)
+void
+coot::ligand::limit_solutions(unsigned int iclust,
+			      float frac_max_correl_lim,
+			      int max_n_solutions) {
+
+   unsigned int pre_erase_size = final_ligand[iclust].size();
+   // std::vector<std::pair<coot::minimol::molecule, ligand_score_card> > &v =
+      final_ligand[iclust];
+   if (final_ligand[iclust].size()) {
+      float min_correl = final_ligand[iclust][0].second.correlation.second * frac_max_correl_lim;
+      std::cout << "..... in limit_solutions() min_correl is " << min_correl << std::endl;
+      final_ligand[iclust].erase(std::remove_if(final_ligand[iclust].begin(),
+						final_ligand[iclust].end(),
+						scored_ligand_eraser(min_correl)),
+				 final_ligand[iclust].end());
+   }
+   unsigned int post_erase_size = final_ligand[iclust].size();
+   std::cout << "--- pre and post sizes: " << pre_erase_size << " " << post_erase_size
+	     << std::endl;
+
+   if (1)
+      for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
+	 std::cout << "limit solutions: " << isol << " of "
+		   << final_ligand[iclust].size() << " "
+		   << final_ligand[iclust][isol].second << std::endl;
+   
+}
+
+
+
+
 
 // tinker with mmmol
 void

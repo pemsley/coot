@@ -3217,7 +3217,9 @@ molecule_class_info_t::rigid_body_fit(const coot::minimol::molecule &mol_in,
    lig.set_dont_test_rotations();
    lig.set_acceptable_fit_fraction(0.1);
    lig.fit_ligands_to_clusters(1);
-   coot::minimol::molecule moved_mol = lig.get_solution(0);
+   unsigned int iclust = 0;
+   unsigned int isol   = 0;
+   coot::minimol::molecule moved_mol = lig.get_solution(isol, iclust);
    return moved_mol;
 }
 

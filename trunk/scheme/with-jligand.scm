@@ -83,7 +83,7 @@
 (let ((startup-mtime (get-file-mtime *from-jligand-secret-file-name*)))
   (gtk-timeout-add 500 (lambda ()
 			 (let ((now-time (get-file-mtime *from-jligand-secret-file-name*)))
-			   (format  #t "startup-mtime: ~s   now-time: ~s~%" startup-mtime now-time)
+			   ;; (format  #t "startup-mtime: ~s   now-time: ~s~%" startup-mtime now-time)
 			   (if (number? now-time)
 			       (if (not (number? startup-mtime))
 				   (begin

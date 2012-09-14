@@ -1587,7 +1587,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       if (b_2 < 0) b_2 = 0;
 
       double c = top/(sqrt(b_1) * sqrt(b_2));
-      std::cout << "INFO:: map vs model correlation: " << c << std::endl;
+      // std::cout << "INFO:: map vs model correlation: " << c << std::endl;
       ret_val = c;
    }
    mol->DeleteSelection(SelHnd);

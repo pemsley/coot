@@ -3164,6 +3164,30 @@ lbg_info_t::import_mol_file(const lig_build::molfile_molecule_t &mol_in,
 
 
 void
+lbg_info_t::clean_up_2d_representation() {
+
+#ifdef MAKE_ENTERPRISE_TOOLS
+   
+   if (use_graphics_interface_flag) { 
+      try {
+	 RDKit::RWMol rdkm = rdkit_mol(mol);
+	 int iconf = 0;
+	 lig_build::molfile_molecule_t mm = coot::make_molfile_molecule(rdkm, iconf);
+	 CMMDBManager *mol = NULL; // no atom names to transfer
+	 widgeted_molecule_t wmol(mm, mol);
+	 render_from_molecule(wmol);
+      }
+      catch (const std::exception &e) {
+	 std::cout << "WARNING:: clean_up_2d_representation() " << e.what() << std::endl;
+      }
+   }
+   
+#endif // MAKE_ENTERPRISE_TOOLS
+}
+
+
+
+void
 lbg_info_t::read_draw_residues(const std::string &file_name) {
 
    bool show_dynamics = 0;
