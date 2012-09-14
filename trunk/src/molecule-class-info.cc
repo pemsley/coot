@@ -5015,31 +5015,31 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	    if (type == "Br") { 
 	       atom_p->SetAtomName("BR  ");
 	       atom_p->SetElementName("BR");
-	       res_p->SetResName(" BR");
+	       res_p->SetResName("BR");
 	       element = "BR";
 	    } else { 
 	       if (type == "Ca") { 
 		  atom_p->SetAtomName("CA  ");
 		  atom_p->SetElementName("CA");
-		  res_p->SetResName(" CA");
+		  res_p->SetResName("CA");
 		  element = "CA";
 	       } else { 
 		  if (type == "Na") { 
 		     atom_p->SetAtomName("NA  ");
 		     atom_p->SetElementName("NA");
-		     res_p->SetResName(" NA");
+		     res_p->SetResName("NA");
 		     element = "NA";
 		  } else { 
 		     if (type == "Cl") { 
 			atom_p->SetAtomName("CL  ");
 			atom_p->SetElementName("CL");
-			res_p->SetResName(" CL");
+			res_p->SetResName("CL");
 			element = "CL";
 		     } else { 
 			if (type == "Mg") { 
 			   atom_p->SetAtomName("MG  ");
 			   atom_p->SetElementName("MG");
-			   res_p->SetResName(" MG");
+			   res_p->SetResName("MG");
 			   element = "MG";
 			} else { 
 
