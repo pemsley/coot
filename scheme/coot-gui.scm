@@ -2943,8 +2943,9 @@
 (define *additional-solvent-ligands* '())
 
 (define *solvent-ligand-list* 
-  (append (list "EDO" "GOL" "DMS" "ACT" "MPD" "CIT" "SO4" "PO4" "TRS" "TAM")
-	  *additional-solvent-ligands*))
+  (append
+   *additional-solvent-ligands*
+   (list "EDO" "GOL" "DMS" "ACT" "MPD" "CIT" "SO4" "PO4" "TRS" "TAM")))
 
 (define *random-jiggle-n-trials* 50)
 
@@ -2996,6 +2997,7 @@
 			      (add-ligand-func imol comp-id))))))
 
   (define (comp-id->button-label comp-id)
+    (auto-load-dictionary comp-id)
     (let* ((comp-id-name (comp-id->name comp-id)))
       (if comp-id-name 
 	  (string-append comp-id ": " comp-id-name)
