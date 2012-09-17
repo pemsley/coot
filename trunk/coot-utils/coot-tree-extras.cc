@@ -789,6 +789,17 @@ coot::atom_tree_t::rotate_about(int index2, int index3, double angle, bool rever
    bool debug = 0;
    double new_torsion = 0.0;
 
+   // throw exception if not sane passed indices
+   // 
+   if (index2 == -1) {
+      std::string s = "Ooops! rotate_about() Bad atom index: index-2";
+      throw std::runtime_error(s);
+   } 
+   if (index3 == -1) {
+      std::string s = "Ooops! rotate_about() Bad atom index: index-3";
+      throw std::runtime_error(s);
+   } 
+
    if ((atom_vertex_vec[index2].forward.size() == 0) && 
        (atom_vertex_vec[index3].forward.size() == 0)) {
       std::string s = "Neither index2 ";
