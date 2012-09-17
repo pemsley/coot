@@ -256,6 +256,15 @@ else
    build_type=
 fi
 
+# better do with argv/case or similar
+make_clean_coot=
+if [ "$1" = "clean" ] ; then 
+    make_clean_coot=yes
+fi
+if [ "$2" = "clean" ] ; then 
+    make_clean_coot=yes
+fi
+
 
 # Set the host and the OS.
 # Fairly fundamental.
@@ -3341,6 +3350,11 @@ rm src/coot_wrap_guile_pre_gtk1.cc
 rm src/coot_wrap_guile_pre_gtk2.cc
 rm src/coot_wrap_python_pre_gtk1.cc
 rm src/coot_wrap_python_pre_gtk2.cc
+
+# make a clean version?!
+if [ "$make_clean_coot" = "yes" ] ; then
+    $MAKE clean
+fi
 
 $MAKE
 status=$?

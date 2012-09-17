@@ -69,7 +69,13 @@ do
   echo build-in-progress @`date +"%a_%d_%b_%H:%M"`> $PUBLIC_HTML_LOGS/gtk2-build-status
   echo waiting for build       > $PUBLIC_HTML_LOGS/gtk2-test-status
   echo BUILDING:: python WinCoot
-  $build_it
+  # make a clean build of failed 3 times previously (last resort)
+  # shall we reset the counter? not yet
+  if [ "$build_cycle" = "3" ] ; then
+      $build_it clean
+  else
+      $build_it
+  fi
   python_build_status=$?
   echo python build status $python_build_status
   # read in variables from install run
@@ -96,7 +102,11 @@ do
   if [ "$coot_build_status" = "0" ] ; then
     echo waiting for guile build       > $PUBLIC_HTML_LOGS/gtk2-test-status
     echo BUILDING:: python+guile WinCoot
-    $build_it guile
+    if [ "$build_cycle" = "3" ] ; then
+        $build_it guile clean
+    else
+        $build_it guile
+    fi
 
     # copy log files from local to public html
     cp $LOCAL_HTML_LOGS/gtk2-guile-build.log $PUBLIC_HTML_LOGS
