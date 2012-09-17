@@ -49,8 +49,7 @@ cp -ur /h/data/greg-data/* ~/data/greg-data
 # before we really start building, lets do and svn update to get the
 # latest build script
 cd ~/Projects/coot
-svn cleanup
-svn update
+cmd /c windows\\update_svn.bat
 cd -
 
 # we build both, python and guile+python, coot versions until we have 
@@ -61,6 +60,7 @@ build_cycle=0
 minor_build_cycle=0
 build_installer=0
 (
+echo starting in brackets
 while [ $coot_version_status != 0 ]
 do
   # build a python version
@@ -71,7 +71,7 @@ do
   echo BUILDING:: python WinCoot
   # make a clean build of failed 3 times previously (last resort)
   # shall we reset the counter? not yet
-  if [ "$build_cycle" = "3" ] ; then
+  if [ "$minor_build_cycle" = "2" ] ; then
       $build_it clean
   else
       $build_it
@@ -100,9 +100,9 @@ do
   # build a guile version but only if python build ok
   # dont build for now at all
   if [ "$coot_build_status" = "0" ] ; then
-    echo waiting for guile build       > $PUBLIC_HTML_LOGS/gtk2-test-status
+    echo 'waiting for guile build      ' > $PUBLIC_HTML_LOGS/gtk2-test-status
     echo BUILDING:: python+guile WinCoot
-    if [ "$build_cycle" = "3" ] ; then
+    if [ "$minor_build_cycle" = "2" ] ; then
         $build_it guile clean
     else
         $build_it guile
@@ -116,7 +116,7 @@ do
     diff ${COOT_PYTHON_VERSION} ${COOT_GUILE_VERSION} 
     coot_version_status=$?
     if [ "$coot_version_status" = "1" ] ; then
-       echo python and python+guile build differ '=>' build again
+       echo 'python and python+guile build differ => build again'
        build_cycle=$(($build_cycle+1))
        echo tried $build_cycle times so far
        if [ "$build_cycle" = "3" ] ; then
@@ -180,7 +180,7 @@ else
       # test results differ, i.e. guile&python build test failed
       # dont build installer
       echo fail-test       > $PUBLIC_HTML_LOGS/gtk2-test-status
-      echo python test on python&guile build failed, so not building installer
+      echo 'python test on python&guile build failed, so not building installer'
       build_installer=1
    fi
 fi
