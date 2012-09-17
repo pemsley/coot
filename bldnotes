@@ -73,6 +73,8 @@ scripting exercise
 
 **** General ****
 
+   o add term residue in radius around?
+
    o give sequence view window a title (and maybe many more...).
 
    o reset (cap) ANISO 
@@ -323,6 +325,8 @@ low importance
 
 
 **** Windows ****
+
+   o pop up dialog if disk space is limited!!
 
    o installer: show/hide details
 
