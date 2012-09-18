@@ -104,6 +104,8 @@ if test x$with_python != x; then
    # this is needed on Ubuntu - (or should that be gcc-4.6+?).  Not
    # needed on Ubuntu 10.04 (4.4.3) or (Fed 16 (4.6.3) without
    # --disable-shared)
+   #
+   # Now that lidia can dynamically add python modules, we need -ldl for Fed 14 (gcc 4.5.1)
    # 
    extra_dl_lib=
    #
@@ -116,7 +118,7 @@ if test x$with_python != x; then
         gcc_major_minor=$coot_gcc_version
         ;;
    esac
-   if test "$gcc_major_minor" \> 4.5 ; then extra_dl_lib=-ldl ; fi
+   if test "$gcc_major_minor" \> 4.4 ; then extra_dl_lib=-ldl ; fi
 
    # unset for windows
    case	$ac_cv_build_alias in
