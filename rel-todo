@@ -41,6 +41,8 @@
      tooltip "This is the peptide bond")) but phi and psi, CA-N
      and CA-C are not.
 
+   o double bonds stick should have end-caps 
+
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
