@@ -6883,6 +6883,15 @@ Thu Sep 13 04:55:20 EDT 2012
 	discovery." Mini reviews in medicinal chemistry 4.7 (2004):
 	779-791.
 
+----
+Tue Sep 18 12:47:57 BST 2012
+
+simplify_numbering() needs a scripting interface - and to work over
+all chains.  
+
+   That will give us a function to remove insertion codes
+
+
 
 ------
 

@@ -4794,12 +4794,12 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 
 	 // we need to set add_by_chain_flag appropriately.
 
-	 short int add_by_chain_flag = 1;
+	 bool add_by_chain_flag = true;
 	 std::vector<std::string> adding_model_chains
 	    = coot::util::chains_in_molecule(add_molecules[imol].mol);
+
 	 if (nresidues == 1) {
 
-	    std::cout << "Doing single residue merge..." << std::endl;
 	    // If there is a chain that has only residues of the same
 	    // type as is the (single) residue in the new adding
 	    // molecule then we add by residue addition to chain
@@ -4807,7 +4807,7 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 
 	    // Are there chains in this model that only consist of
 	    // residues of type adding_model_chains[0]?
-	    short int has_single_residue_type_chain_flag = 0;
+	    bool has_single_residue_type_chain_flag = false;
 
 	    int i_this_model = 1;
 
@@ -4822,10 +4822,12 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	    for (int ithischain=0; ithischain<n_this_mol_chains; ithischain++) { 
 	       this_chain_p = this_model_p->GetChain(ithischain);
 	       std::vector<std::string> r = coot::util::residue_types_in_chain(this_chain_p);
+	       
 	       if (r.size() == 1) {
-		  if (r[0] == adding_model_chains[0]) {
+		  std::string adding_model_resname(add_molecules[imol].atom_selection[0]->residue->GetResName());
+		  if (r[0] == adding_model_resname) {
 		     add_residue_to_this_chain = this_chain_p;
-		     has_single_residue_type_chain_flag = 1;
+		     has_single_residue_type_chain_flag = true;
 		     break;
 		  }
 	       } 
@@ -4835,7 +4837,9 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	       if (add_molecules[imol].n_selected_atoms > 0) {
 		  CResidue *add_model_residue = add_molecules[imol].atom_selection[0]->residue;
 		  copy_and_add_residue_to_chain(add_residue_to_this_chain, add_model_residue);
-		  add_by_chain_flag = 0;
+		  add_by_chain_flag = false;
+		  atom_sel.mol->FinishStructEdit();
+		  update_molecule_after_additions();
 	       }
 	    } else {
 	       add_by_chain_flag = 1;
@@ -4966,9 +4970,7 @@ molecule_class_info_t::copy_and_add_residue_to_chain(CChain *this_model_chain,
 							    "",
 							    whole_res_flag,
 							    udd_atom_index_handle);
-
       if (residue_copy) { 
-
 	 std::pair<short int, int> max_res_info = next_residue_in_chain(this_model_chain);
 	 int new_res_resno = 9999;
 	 if (max_res_info.first)
