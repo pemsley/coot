@@ -36,6 +36,11 @@
    o Cancel on add alt conf should delete the alt conf that was just
      added.
 
+   o in multi-residue torsion for normal protein chain, , N->C is
+     present (should it be? (I think yes, but with warning icon (and
+     tooltip "This is the peptide bond")) but phi and psi, CA-N
+     and CA-C are not.
+
 ------
 
   o "Mutate DA to DT and C7 is missing" - Sabine Schneider ::: 1
