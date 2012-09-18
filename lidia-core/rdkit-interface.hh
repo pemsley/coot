@@ -82,12 +82,14 @@ namespace coot {
 
    //
    void undelocalise(RDKit::RWMol *rdkm); // fiddle with rdkm
+   void undelocalise_phosphates(RDKit::ROMol *rdkm);
+   void undelocalise_aminos(RDKit::RWMol *rdkm);
+   void undelocalise_methyl_carboxylates(RDKit::RWMol *rdkm);
    // which calls (not for public use)
    // fiddle with the bonds in rdkm as needed.
    void deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
 			    RDKit::Atom *O1, RDKit::Atom *O2,
 			    RDKit::Bond *b1, RDKit::Bond *b2);
-   void undelocalize_phosphates(RDKit::ROMol *rdkm);
 
 
 

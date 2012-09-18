@@ -1243,6 +1243,15 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 void
 coot::undelocalise(RDKit::RWMol *rdkm) {
 
+   undelocalise_aminos(rdkm);
+   undelocalise_methyl_carboxylates(rdkm);
+   undelocalise_phosphates(rdkm); 
+}
+
+void
+coot::undelocalise_aminos(RDKit::RWMol *rdkm) {
+
+
    // Plan:
    //
    // 1) Identify a bond with ONEANDAHALF bond order (bond_1)
@@ -1252,11 +1261,7 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
    //            is deloc (bond_2)
    // 5)         if found, then make bond_1 single, bond_2 double
 
-
    bool debug = false;
-   if (debug)
-      std::cout << "======================= undelocalise ==========" << std::endl;
-    
 
    int n_bonds = rdkm->getNumBonds();
    RDKit::ROMol::BondIterator bondIt;
@@ -1319,9 +1324,15 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 	 }
       }
    }
+}
+
+void
+coot::undelocalise_methyl_carboxylates(RDKit::RWMol *rdkm) {
 
    // The valence of 2 1/2 on a methyl on one of the oxygens of a carboxylate
    // 
+   RDKit::ROMol::BondIterator bondIt;
+   RDKit::ROMol::BondIterator bondIt_inner;
    for(bondIt=rdkm->beginBonds(); bondIt!=rdkm->endBonds(); ++bondIt) {
       if ((*bondIt)->getBondType() == RDKit::Bond::ONEANDAHALF) {
 	 RDKit::Atom *atom_1 = (*bondIt)->getBeginAtom();
@@ -1413,9 +1424,8 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 	 }
       }
    }
-
-   undelocalize_phosphates(rdkm); 
 }
+
 
 
 // fiddle with the bonds in rdkm as needed.
@@ -1477,7 +1487,7 @@ coot::deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
 }
 
 void
-coot::undelocalize_phosphates(RDKit::ROMol *rdkm) {
+coot::undelocalise_phosphates(RDKit::ROMol *rdkm) {
 
    RDKit::ROMol::AtomIterator ai;
    for(ai=rdkm->beginAtoms(); ai!=rdkm->endAtoms(); ai++) {
