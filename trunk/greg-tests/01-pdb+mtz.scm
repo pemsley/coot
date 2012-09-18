@@ -2557,6 +2557,41 @@
 				 (throw 'fail))
 			       #t))))))))))) ;; passes test
 
+;; tested merge by consolidation
+;; 
+(greg-testcase "Consolidated merge" #t
+   (lambda () 
+
+     (let ((imol (greg-pdb "pdb1hvv.ent"))
+	   (imol-lig-1 (greg-pdb "monomer-ACT.pdb"))	   
+	   (imol-lig-2 (greg-pdb "monomer-NPO.pdb")))
+
+
+       (format #t "-------- starting chain list ----------- ~%")
+       (print-var (chain-ids imol))
+
+
+       (merge-molecules (list imol-lig-1 imol-lig-2) imol)
+
+       (let ((imol-symm-copy (new-molecule-by-symop imol "-X,-X+Y,-Z+1/3" 0 0 0)))
+	 
+	 (if (not (valid-model-molecule? imol-symm-copy))
+	     (throw 'symm-molecule-problem))
+	 
+	 (merge-molecules (list imol-symm-copy) imol)
+
+	 (let ((chain-list (chain-ids imol)))
+
+	   (print-var chain-list)
+
+	   (write-pdb-file imol "sym-merged.pdb")
+	   
+	   (equal? chain-list (list "A" "B" "C" "D" ""  ;; original
+				    "E" "F"  ;; merged ligs
+				    "G" "H" "I" "J" "K" ;; protein chain copies
+				    )))))))
+
+
 	
 (greg-testcase "LSQ by atom" #t
    (lambda ()

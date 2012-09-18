@@ -774,8 +774,13 @@ class molecule_class_info_t {
    // merge molecules helper function
    std::vector<std::string> map_chains_to_new_chains(const std::vector<std::string> &adding_model_chains,
 						     const std::vector<std::string> &this_model_chains) const;
+   // that's too complicated for try_add_by_consolidation(), we just want this:
+   std::string suggest_new_chain_id() const;
+
    // returned the copied residue (possibly can return NULL on failure).
    CResidue* copy_and_add_residue_to_chain(CChain *this_model_chain, CResidue *add_model_residue);
+   void copy_and_add_chain_residues_to_chain(CChain *new_chain, CChain *this_molecule_chain);
+
 
    short int ligand_flip_number;
 
@@ -2598,6 +2603,8 @@ public:        //                      public
    // merge molecules
    
    std::pair<int, std::vector<std::string> > merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
+   std::pair<bool, std::vector<std::string> > try_add_by_consolidation(CMMDBManager *adding_mol);
+
    int renumber_residue_range(const std::string &chain_id,
 			      int start_resno, int last_resno, int offset);
 

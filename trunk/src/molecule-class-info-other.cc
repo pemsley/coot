@@ -4792,9 +4792,11 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
       if (add_molecules[imol].n_selected_atoms > 0) {
 	 int nresidues = coot::util::number_of_residues_in_molecule(add_molecules[imol].mol);
 
-	 // we need to set add_by_chain_flag appropriately.
+	 // We need to set multi_residue_add_flag appropriately.  We
+	 // unset it if the molecule to be added has only one residue
+	 // 
+	 bool multi_residue_add_flag = true;
 
-	 bool add_by_chain_flag = true;
 	 std::vector<std::string> adding_model_chains
 	    = coot::util::chains_in_molecule(add_molecules[imol].mol);
 
@@ -4807,6 +4809,7 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 
 	    // Are there chains in this model that only consist of
 	    // residues of type adding_model_chains[0]?
+	    // 
 	    bool has_single_residue_type_chain_flag = false;
 
 	    int i_this_model = 1;
@@ -4837,21 +4840,31 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	       if (add_molecules[imol].n_selected_atoms > 0) {
 		  CResidue *add_model_residue = add_molecules[imol].atom_selection[0]->residue;
 		  copy_and_add_residue_to_chain(add_residue_to_this_chain, add_model_residue);
-		  add_by_chain_flag = false;
+		  multi_residue_add_flag = false;
 		  atom_sel.mol->FinishStructEdit();
 		  update_molecule_after_additions();
 	       }
 	    } else {
-	       add_by_chain_flag = 1;
+	       multi_residue_add_flag = 1;
 	    } 
 	    
 	 } else {
-	    add_by_chain_flag = 1;
+	    multi_residue_add_flag = 1;
 	 }
 
-	 // Now that add_by_chain_flag has been set properly, we use it...
-	 
-	 if (add_by_chain_flag) { 
+	 // Now that multi_residue_add_flag has been set properly, we use it...
+	 if (multi_residue_add_flag) {
+	    CMMDBManager *adding_mol = add_molecules[imol].mol;
+	    // return state 
+	    std::pair<bool, std::vector<std::string> > add_state = try_add_by_consolidation(adding_mol);
+
+	    if (add_state.first)
+	       multi_residue_add_flag = false; // we've added everything for this mol.
+	 }
+
+	 // this should happen rarely these days...
+	 // 
+	 if (multi_residue_add_flag) { 
 
 	    std::vector<std::string> mapped_chains =
 	       map_chains_to_new_chains(adding_model_chains, this_model_chains);
@@ -4904,7 +4917,108 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
       } 
    }
    return std::pair<int, std::vector<std::string> > (istat, resulting_chain_ids);
-} 
+}
+
+
+// return status and vector of resulting chain ids.
+//
+std::pair<bool, std::vector<std::string> >
+molecule_class_info_t::try_add_by_consolidation(CMMDBManager *adding_mol) {
+
+   bool status = false;
+   std::vector<std::string> chain_ids;
+
+   // for this molecule molecule, make a map of chains that have one
+   // residue type.  Could well be empty (or perhaps consist of just a
+   // water chain)
+   // 
+   std::map<std::string, std::pair<int, CChain *> > single_res_type_map;
+   for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+      CModel *model_p = atom_sel.mol->GetModel(imod);
+      CChain *chain_p;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 std::vector<std::string> residue_types;
+	 CResidue *residue_p;
+	 for (int ires=0; ires<nres; ires++) {
+	    residue_p = chain_p->GetResidue(ires);
+	    std::string res_name(residue_p->GetResName());
+	    if (std::find(residue_types.begin(), residue_types.end(), res_name) == residue_types.end())
+	       residue_types.push_back(res_name);
+	    if (residue_types.size() > 1)
+	       break;
+	 }
+	 if (residue_types.size() == 1)
+	    single_res_type_map[residue_types[0]] = std::pair<int, CChain *> (imod, chain_p);
+      }
+   }
+
+   for(int imod = 1; imod<=adding_mol->GetNumberOfModels(); imod++) {
+      CModel *model_p = adding_mol->GetModel(imod);
+      CChain *chain_p;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 bool done_this_chain = false; 
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 std::vector<std::string> residue_types;
+	 CResidue *residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    std::string res_name(residue_p->GetResName());
+	    if (std::find(residue_types.begin(), residue_types.end(), res_name) == residue_types.end())
+	       residue_types.push_back(res_name);
+	 }
+
+	 if (residue_types.size() == 1) {
+	    std::map<std::string, std::pair<int, CChain *> >::const_iterator it =
+	       single_res_type_map.find(residue_types[0]);
+	    if (it != single_res_type_map.end()) {
+	       if (it->second.first == imod) {
+
+		  // We got a match, now add all of adding_mol chain_p
+		  // to this molecule's chain
+
+		  copy_and_add_chain_residues_to_chain(chain_p, it->second.second);
+		  done_this_chain = true;
+		  std::string cid = it->second.second->GetChainID();
+		  if (std::find(chain_ids.begin(), chain_ids.end(), cid) == chain_ids.end())
+		     chain_ids.push_back(cid);
+	       }
+	    }
+	 }
+
+	 if (! done_this_chain) {
+	    // copy whole chain to a new chain
+	    CModel *this_model_p = atom_sel.mol->GetModel(imod);
+	    if (this_model_p) {
+	       std::string new_chain_id = suggest_new_chain_id();
+	       CChain *copy_chain_p = new CChain;
+	       copy_chain_p->Copy(chain_p);
+	       copy_chain_p->SetChainID(new_chain_id.c_str());
+	       this_model_p->AddChain(copy_chain_p);
+	       if (std::find(chain_ids.begin(), chain_ids.end(), new_chain_id) == chain_ids.end())
+		  chain_ids.push_back(new_chain_id);
+	    }
+	 }
+	 atom_sel.mol->FinishStructEdit();
+	 status = true;
+      }
+   }
+   return std::pair<bool, std::vector<std::string> > (status, chain_ids);
+}
+
+// Copy residues of new_chain into this_model_chain
+void
+molecule_class_info_t::copy_and_add_chain_residues_to_chain(CChain *new_chain, CChain *this_molecule_chain) {
+
+   int nres = new_chain->GetNumberOfResidues();
+   for (int ires=0; ires<nres; ires++) {
+      copy_and_add_residue_to_chain(this_molecule_chain, new_chain->GetResidue(ires));
+   }
+}
 
 
 // Merge molecules helper function.
@@ -4956,6 +5070,35 @@ molecule_class_info_t::map_chains_to_new_chains(const std::vector<std::string> &
    }
    return rv;
 }
+
+// return "" on failure
+std::string
+molecule_class_info_t::suggest_new_chain_id() const {
+
+   std::string new_chain_id;
+   
+   std::string r("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz#$%^&@?/~|-+=(){}:;.,'");
+   std::vector<std::string> existing;
+   int imod = 1;
+   CModel *model_p = atom_sel.mol->GetModel(imod);
+   CChain *chain_p;
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      existing.push_back(chain_p->GetChainID());
+   }
+   unsigned int l = r.length();
+   std::vector<std::string> candidates(l);
+   for (unsigned int i=0; i<l; i++)
+      candidates[i] = r[i];
+
+   for (unsigned int i=0; i<existing.size(); i++)
+      candidates.erase(std::remove(candidates.begin(), candidates.end(), existing[i]), candidates.end());
+
+   if (candidates.size())
+      new_chain_id = candidates[0];
+   return new_chain_id;
+} 
 
 // This doesn't do a backup or finalise model.
 CResidue *
