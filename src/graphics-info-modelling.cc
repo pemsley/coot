@@ -3641,31 +3641,37 @@ graphics_info_t::rotate_multi_residue_torsion(double x, double y) {
    diff += mouse_current_y - GetMouseBeginY();
    diff *= 0.5; // angle (in degrees).
 
-   std::vector<CResidue *> residues;
-   for (unsigned int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
-      CResidue *r = moving_atoms_asc->atom_selection[i]->residue;
-      if (std::find(residues.begin(), residues.end(), r) == residues.end())
-	 residues.push_back(r);
-   }
+   if (! moving_atoms_asc->mol) {
+      std::cout << "ERROR:: called rotate_multi_residue_torsion() but no moving mol"
+		<< std::endl;
+   } else { 
 
-   std::vector<std::pair<CAtom *, CAtom *> > link_bond_atom_pairs = 
-      coot::torsionable_link_bonds(residues, moving_atoms_asc->mol, Geom_p());
-   coot::contact_info contacts(*moving_atoms_asc, geom_p, link_bond_atom_pairs);
-   std::vector<std::vector<int> > contact_indices =
-      contacts.get_contact_indices_with_reverse_contacts();
-   try { 
-      coot::atom_tree_t tree(contact_indices, 0,
-			     moving_atoms_asc->mol,
-			     moving_atoms_asc->SelectionHandle);
+      std::vector<CResidue *> residues;
+      for (unsigned int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+	 CResidue *r = moving_atoms_asc->atom_selection[i]->residue;
+	 if (std::find(residues.begin(), residues.end(), r) == residues.end())
+	    residues.push_back(r);
+      }
 
-      int index_1 = multi_residue_torsion_rotating_atom_index_pair.first;
-      int index_2 = multi_residue_torsion_rotating_atom_index_pair.second;
-      tree.rotate_about(index_1, index_2, diff, multi_residue_torsion_reverse_fragment_mode);
-      make_moving_atoms_graphics_object(*moving_atoms_asc);
-      graphics_draw();
-   }
-   catch (const std::runtime_error &rte) {
-      std::cout << "WARNING:: " << rte.what() << std::endl;
+      std::vector<std::pair<CAtom *, CAtom *> > link_bond_atom_pairs = 
+	 coot::torsionable_link_bonds(residues, moving_atoms_asc->mol, Geom_p());
+      coot::contact_info contacts(*moving_atoms_asc, geom_p, link_bond_atom_pairs);
+      std::vector<std::vector<int> > contact_indices =
+	 contacts.get_contact_indices_with_reverse_contacts();
+      try { 
+	 coot::atom_tree_t tree(contact_indices, 0,
+				moving_atoms_asc->mol,
+				moving_atoms_asc->SelectionHandle);
+
+	 int index_1 = multi_residue_torsion_rotating_atom_index_pair.first;
+	 int index_2 = multi_residue_torsion_rotating_atom_index_pair.second;
+	 tree.rotate_about(index_1, index_2, diff, multi_residue_torsion_reverse_fragment_mode);
+	 make_moving_atoms_graphics_object(*moving_atoms_asc);
+	 graphics_draw();
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "WARNING:: " << rte.what() << std::endl;
+      }
    }
 }
 

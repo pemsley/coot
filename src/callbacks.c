@@ -12031,6 +12031,9 @@ on_multi_residue_torsion_cancel_button_clicked
 {
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "multi_residue_torsion_dialog");
   clear_up_moving_atoms();
+  clear_pending_picks(); /* emcompasses in_multi_residue_torsion_define (but not mode) */
+  clear_multi_residue_torsion_mode();
+  normal_cursor();
   gtk_widget_destroy(w);
 }
 
@@ -12070,6 +12073,7 @@ on_multi_residue_torsion_pick_apply_button_clicked
 
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "multi_residue_torsion_pick_dialog");
   gtk_widget_destroy(w);
+  clear_pending_picks(); /* emcompasses in_multi_residue_torsion_mode */
   normal_cursor();
   show_multi_residue_torsion_dialog();
 }
@@ -12080,10 +12084,22 @@ on_multi_residue_torsion_pick_cancel_button_activate
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
+}
+
+
+void
+on_multi_residue_torsion_pick_cancel_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "multi_residue_torsion_pick_dialog");
   gtk_widget_destroy(w);
+  clear_pending_picks(); /* emcompasses in_multi_residue_torsion_define (but not mode) */
+  clear_multi_residue_torsion_mode();
   normal_cursor();
 }
+
+
 
 /* This is the call-back for the button on the Other Modelling Tools dialog. */
 void

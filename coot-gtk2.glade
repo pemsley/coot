@@ -57353,6 +57353,7 @@ Look out for information in the console output.</property>
 	      <property name="focus_on_click">True</property>
 	      <property name="response_id">-6</property>
 	      <signal name="activate" handler="on_multi_residue_torsion_pick_cancel_button_activate" last_modification_time="Sun, 30 Oct 2011 01:37:22 GMT"/>
+	      <signal name="clicked" handler="on_multi_residue_torsion_pick_cancel_button_clicked" last_modification_time="Tue, 18 Sep 2012 06:43:21 GMT"/>
 	    </widget>
 	  </child>
 	</widget>
