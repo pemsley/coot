@@ -1162,6 +1162,8 @@ void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
 int encode_ints(int i1, int i2);
 std::pair<int, int> decode_ints(int i);
 
+void store_keyed_user_name(std::string key, std::string user_name, std::string passwd);
+
 #ifdef USE_GUILE
 std::vector<coot::residue_spec_t> scm_to_residue_specs(SCM s);
 // and that backwards is scm_residue() above.

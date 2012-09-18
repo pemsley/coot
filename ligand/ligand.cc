@@ -1955,16 +1955,46 @@ coot::ligand::n_ligands_for_cluster(unsigned int iclust,
 }
 
 
+#include "coot-utils.hh"
+
 // generate correlation scores for the top n_sol solutions and re-sort
 //
 void
 coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned int n_sol) {
 
-   for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
+//    #pragma openmp parallel for 
+//    for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
+//       usleep(int(100000 * float(util::random())/float(RAND_MAX)));
+//       std::cout << "   parallel i " << i << std::endl;
+//    }
+   
+   int n_ligs = final_ligand[iclust].size();
+   // #pragma openmp parallel for
+   for (unsigned int i=0; i<n_ligs; i++) {
       if (i < n_sol) {
-	 double correl = get_correl(final_ligand[iclust][i].first);
-	 std::pair<bool, double> p(true, correl);
-	 final_ligand[iclust][i].second.correlation = p;
+
+	 // double correl = get_correl(final_ligand[iclust][i].first);
+
+	 {
+	    const minimol::molecule &lig_mol = final_ligand[iclust][i].first;
+	    CMMDBManager *mol = lig_mol.pcmmdbmanager();
+	    std::vector<residue_spec_t> specs;
+	    residue_spec_t spec(lig_mol[0].fragment_id,
+				lig_mol[0].min_res_no(), "");
+	    specs.push_back(spec);
+	    short int mode = 0; // all atoms 
+	    double c = util::map_to_model_correlation(mol, specs, mode, 1.5,
+						      xmap_pristine);
+
+	    std::cout << "----- in get_correl() constructed spec for i "
+		      << i << " " << spec
+		      << " which has correlation " << c << std::endl;
+	    delete mol;
+	 }
+
+	 // std::pair<bool, double> p(true, correl);
+	 // final_ligand[iclust][i].second.correlation = p;
+	 // std::cout << "   " << p.first << " " << p.second << std::endl;
       }
    }
    std::sort(final_ligand[iclust].begin(),
@@ -1991,8 +2021,9 @@ coot::ligand::get_correl(const minimol::molecule &lig_mol) const {
    specs.push_back(spec);
    short int mode = 0; // all atoms 
    double c = util::map_to_model_correlation(mol, specs, mode, 1.5, xmap_pristine);
-   std::cout << "----- in get_correl() constructed spec " << spec
-	     << " which has correlation " << c << std::endl;
+   if (0)
+      std::cout << "----- in get_correl() constructed spec " << spec
+		<< " which has correlation " << c << std::endl;
    delete mol;
    return c;
 }

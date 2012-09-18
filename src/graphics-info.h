@@ -3874,6 +3874,9 @@ string   static std::string sessionid;
    // use-defined flev params
    static float fle_water_dist_max;   // 3.25
    static float fle_h_bond_dist_max;  // 3.9
+
+   // e.g. user_name_passwd_map["proxy"] -> "fred", "bill3"
+   static std::map<std::string, std::pair<std::string, std::string> > user_name_passwd_map;
 };
 
 

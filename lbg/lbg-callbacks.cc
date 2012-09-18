@@ -785,5 +785,13 @@ on_lbg_view_flip_around_y_button_clicked(GtkButton *button, gpointer user_data) 
 }
 
 
+extern "C" G_MODULE_EXPORT void
+on_lbg_clean_up_2d_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l)
+      l->clean_up_2d_representation();
+}
+
 #endif // HAVE_GOOCANVAS
 

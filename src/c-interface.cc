@@ -4635,6 +4635,16 @@ std::pair<int, int> decode_ints(int i) {
    return std::pair<int, int>(j,k);
 }
 
+void store_keyed_user_name(std::string key, std::string user_name, std::string passwd) {
+
+   std::pair<std::string, std::string> p(user_name, passwd);
+   graphics_info_t::user_name_passwd_map[key] = p;
+
+}
+
+											 
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  map and molecule control                                */
 /*  ----------------------------------------------------------------------- */

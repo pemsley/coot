@@ -1249,6 +1249,9 @@ int                      graphics_info_t::show_graphics_ligand_view_flag = 1; //
 float graphics_info_t::fle_water_dist_max = 3.25;   // 3.25
 float graphics_info_t::fle_h_bond_dist_max = 3.9;   // 3.9
 
+// 
+std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::user_name_passwd_map;
+
 
 // GTK2 code
 // 

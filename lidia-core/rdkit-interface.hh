@@ -60,7 +60,6 @@ namespace coot {
    //
    CResidue *make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name);
    
-   // lig_build::molfile_molecule_t make_molfile_molecule(const RDKit::RWMol &rdkm);
    lig_build::bond_t::bond_type_t convert_bond_type(const RDKit::Bond::BondType &type);
    
    // This can throw a std::exception
@@ -88,6 +87,8 @@ namespace coot {
    void deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
 			    RDKit::Atom *O1, RDKit::Atom *O2,
 			    RDKit::Bond *b1, RDKit::Bond *b2);
+   void undelocalize_phosphates(RDKit::ROMol *rdkm);
+
 
 
    // try to add (for instance) a +1 to Ns with 4 bonds.
