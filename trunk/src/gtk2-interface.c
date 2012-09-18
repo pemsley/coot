@@ -27791,6 +27791,9 @@ create_multi_residue_torsion_pick_dialog (void)
   g_signal_connect ((gpointer) multi_residue_torsion_pick_cancel_button, "activate",
                     G_CALLBACK (on_multi_residue_torsion_pick_cancel_button_activate),
                     NULL);
+  g_signal_connect ((gpointer) multi_residue_torsion_pick_cancel_button, "clicked",
+                    G_CALLBACK (on_multi_residue_torsion_pick_cancel_button_clicked),
+                    NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (multi_residue_torsion_pick_dialog, multi_residue_torsion_pick_dialog, "multi_residue_torsion_pick_dialog");

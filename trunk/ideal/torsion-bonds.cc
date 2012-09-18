@@ -69,6 +69,9 @@ coot::torsionable_link_bonds(std::vector<CResidue *> residues_in,
 			     CMMDBManager *mol, coot::protein_geometry *geom_p) {
 
    std::vector<std::pair<CAtom *, CAtom *> > v;
+
+   if (! mol)
+      return v;
    
    std::vector<std::pair<bool, CResidue *> > residues(residues_in.size());
    for (unsigned int i=0; i<residues_in.size(); i++)

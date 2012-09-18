@@ -4355,6 +4355,11 @@ on_multi_residue_torsion_pick_apply_button_clicked
 void
 on_multi_residue_torsion_pick_cancel_button_activate
                                         (GtkButton       *button,
+					 gpointer         user_data); /* needed? No. */
+
+void
+on_multi_residue_torsion_pick_cancel_button_clicked
+                                        (GtkButton       *button,
 					 gpointer         user_data);
 
 
