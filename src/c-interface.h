@@ -431,6 +431,8 @@ int n_chains(int imol);
    @return -1 on error, 0 for no, 1 for is "a solvent chain".  We
    wouldn't want to be doing rotamer searches and the like on such a
    chain.
+
+   This wraps the mmdb function isSolventChain().
  */
 int is_solvent_chain_p(int imol, const char *chain_id);
 

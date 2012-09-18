@@ -974,7 +974,6 @@ coot::copy_segid(CResidue *provider, CResidue *receiver) {
 std::string
 coot::chain_atoms_segid(CChain *chain_p) {
 
- 
    int n_residue_atoms;
    PPCAtom residue_atoms;
 
@@ -1681,7 +1680,7 @@ coot::util::max_resno_in_molecule(CMMDBManager *mol) {
 int
 coot::util::number_of_residues_in_molecule(CMMDBManager *mol) {
 
-   int nres = 0;
+   int number_of_residues = 0;
    if (mol) { 
 
       int n_models = mol->GetNumberOfModels();
@@ -1695,7 +1694,7 @@ coot::util::number_of_residues_in_molecule(CMMDBManager *mol) {
 	 // run over chains of the existing mol
 	 int nchains = model_p->GetNumberOfChains();
 	 if (nchains <= 0) { 
-	    std::cout << "bad nchains in trim molecule " << nchains
+	    std::cout << "bad nchains in number_of_residues_in_molecule() " << nchains
 		      << std::endl;
 	 } else { 
 	    for (int ichain=0; ichain<nchains; ichain++) {
@@ -1711,7 +1710,7 @@ coot::util::number_of_residues_in_molecule(CMMDBManager *mol) {
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);
 		     if (residue_p != NULL) {
-			nres++;
+			number_of_residues++;
 		     }
 		  }
 	       }
@@ -1719,7 +1718,7 @@ coot::util::number_of_residues_in_molecule(CMMDBManager *mol) {
 	 }
       }
    }
-   return nres;
+   return number_of_residues;
 }
 
 
