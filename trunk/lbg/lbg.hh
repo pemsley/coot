@@ -994,6 +994,7 @@ public:
    GtkWidget *lbg_get_drug_dialog;
    GtkWidget *lbg_get_drug_entry;
    GtkWidget *lbg_flip_rotate_hbox;
+   GtkWidget *lbg_clean_up_2d_toolbutton;
    GtkWidget *canvas;
    GooCanvasItem *key_group;
    std::map<std::string, GtkToggleToolButton *> widget_names;

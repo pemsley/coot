@@ -341,7 +341,7 @@ graphics_ligand_molecule::setup_from(CResidue *residue_p,
 	    RDKit::ROMol *rdk_mol_with_no_Hs_ro = RDKit::MolOps::removeHs(rdkm);
 	    RDKit::RWMol rdk_mol_with_no_Hs = *rdk_mol_with_no_Hs_ro;
 
-	    if (0) { // debug
+	    if (1) { // debug
 	       RDKit::MolToMolFile(rdkm, "pre-mol.mol");
 	       RDKit::MolToMolFile(*rdk_mol_with_no_Hs_ro, "mol-no-H.mol");
 	    }

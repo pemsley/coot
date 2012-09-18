@@ -257,8 +257,10 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	    } else {
 	       // std::cout << "atom does not have lbg_atom_index property " << std::endl;
 	    }
-	    RDGeom::Point3D pos(local_scale * (mol.atoms[iat].atom_position.x - local_offset.x),
-				local_scale * (mol.atoms[iat].atom_position.y - local_offset.y), 0);
+
+	    // canvas positions are upsidedown in y
+	    RDGeom::Point3D pos(+local_scale * (mol.atoms[iat].atom_position.x - local_offset.x),
+				-local_scale * (mol.atoms[iat].atom_position.y - local_offset.y), 0);
 	    conf->setAtomPos(at_no, pos);
 	    atom_index[iat] = at_no++;
 	 }
@@ -280,6 +282,11 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	 RDKit::Bond *bond = new RDKit::Bond(type);
 	 int idx_1 = mol.bonds[ib].get_atom_1_index();
 	 int idx_2 = mol.bonds[ib].get_atom_2_index();
+	 if (0)
+	    std::cout << "   rdkit_mol(wmol) convert bond for atoms "
+		      << idx_1 << " " << idx_2
+		      << " from type " << mol.bonds[ib].get_bond_type()
+		      << " to type " << type << std::endl;
 	 if (!mol.atoms[idx_1].is_closed() && !mol.atoms[idx_2].is_closed()) {
 	    int idx_1_rdkit = atom_index[idx_1];
 	    int idx_2_rdkit = atom_index[idx_2];
@@ -307,15 +314,27 @@ lbg_info_t::convert_bond_type(const lig_build::bond_t::bond_type_t &t) const {
 
    // There are lots more in RDKit::Bond::BondType!
    // 
-   RDKit::Bond::BondType bt = RDKit::Bond::UNSPECIFIED;
+   RDKit::Bond::BondType bt = RDKit::Bond::UNSPECIFIED; // lig_build::bond_t::BOND_UNDEFINED
    if (t == lig_build::bond_t::SINGLE_BOND)
+      bt = RDKit::Bond::SINGLE;
+   if (t == lig_build::bond_t::IN_BOND)
+      bt = RDKit::Bond::SINGLE;
+   if (t == lig_build::bond_t::OUT_BOND)
       bt = RDKit::Bond::SINGLE;
    if (t == lig_build::bond_t::DOUBLE_BOND)
       bt = RDKit::Bond::DOUBLE;
    if (t == lig_build::bond_t::TRIPLE_BOND)
       bt = RDKit::Bond::TRIPLE;
+
+   // PUTS_IT_BACK?
+   if (t == lig_build::bond_t::AROMATIC_BOND)
+       bt = RDKit::Bond::AROMATIC;
+
+   if (t == lig_build::bond_t::DELOC_ONE_AND_A_HALF)
+      bt = RDKit::Bond::ONEANDAHALF;
+   
    return bt;
-}
+} 
 #endif
 
 
@@ -328,7 +347,8 @@ lbg_info_t::get_smiles_string_from_mol_rdkit() const {
    RDKit::RWMol rdkm = rdkit_mol(mol);
    coot::rdkit_mol_sanitize(rdkm);
    RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(rdkm);
-   std::string s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs);
+   bool doIsomericSmiles = true;
+   std::string s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs, doIsomericSmiles);
    delete rdk_mol_with_no_Hs;
    return s;
 }
@@ -2388,6 +2408,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_toolbar_layout_info_label = NULL;
 	 lbg_atom_x_dialog = NULL;
 	 lbg_atom_x_entry = NULL;
+	 lbg_clean_up_2d_toolbutton = NULL;
 	 canvas = NULL;
 	 return false; // boo.
 
@@ -2419,6 +2440,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_get_drug_entry =            GTK_WIDGET(gtk_builder_get_object(builder, "lbg_get_drug_entry"));
 	 pe_test_function_button =       GTK_WIDGET(gtk_builder_get_object(builder, "pe_test_function_button"));
 	 lbg_flip_rotate_hbox =          GTK_WIDGET(gtk_builder_get_object(builder, "lbg_flip_rotate_hbox"));
+	 lbg_clean_up_2d_toolbutton =    GTK_WIDGET(gtk_builder_get_object(builder, "lbg_clean_up_2d_toolbutton"));
 
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
       }
@@ -2521,7 +2543,9 @@ lbg_info_t::init(GtkBuilder *builder) {
 #else
    gtk_widget_hide(lbg_qed_hbox);
    gtk_widget_hide(lbg_alert_hbox_outer);
-   gtk_widget_hide(lbg_show_alerts_checkbutton); // perhaps this should be in the lbg_alert_hbox_outer?
+   gtk_widget_hide(lbg_show_alerts_checkbutton); // perhaps this should be in the
+                                                 // lbg_alert_hbox_outer?
+   gtk_widget_hide(lbg_clean_up_2d_toolbutton);
 #endif    
 
    return true;
@@ -3171,8 +3195,25 @@ lbg_info_t::clean_up_2d_representation() {
    if (use_graphics_interface_flag) { 
       try {
 	 RDKit::RWMol rdkm = rdkit_mol(mol);
+	 coot::rdkit_mol_sanitize(rdkm);
+	 RDKit::MolOps::Kekulize(rdkm); // non-const reference?
+	 bool canonOrient=true;
+	 bool clearConfs=true;
+	 unsigned int nFlipsPerSample=3;
+	 unsigned int nSamples=200;
+	 int sampleSeed=10;
+	 bool permuteDeg4Nodes=true;
+	 RDDepict::compute2DCoords(rdkm, NULL,
+				   canonOrient,
+				   clearConfs,
+				   nFlipsPerSample,
+				   nSamples,
+				   sampleSeed,
+				   permuteDeg4Nodes);
+
 	 int iconf = 0;
-	 lig_build::molfile_molecule_t mm = coot::make_molfile_molecule(rdkm, iconf);
+	 lig_build::molfile_molecule_t mm =
+	    coot::make_molfile_molecule(rdkm, iconf);
 	 CMMDBManager *mol = NULL; // no atom names to transfer
 	 widgeted_molecule_t wmol(mm, mol);
 	 render_from_molecule(wmol);
@@ -3181,7 +3222,6 @@ lbg_info_t::clean_up_2d_representation() {
 	 std::cout << "WARNING:: clean_up_2d_representation() " << e.what() << std::endl;
       }
    }
-   
 #endif // MAKE_ENTERPRISE_TOOLS
 }
 

@@ -3664,7 +3664,7 @@ graphics_info_t::rotate_multi_residue_torsion(double x, double y) {
       make_moving_atoms_graphics_object(*moving_atoms_asc);
       graphics_draw();
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
    }
 }

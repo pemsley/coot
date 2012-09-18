@@ -180,7 +180,9 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 
    // This should be inside the else (then we can remove the above
    // return) , it's just a mess to do.
-   // 
+   //
+
+   // #pragma omp parallel for
    for (int isample=0; isample<n_samples; isample++) {
 
       coot::minimol::molecule ligand = ligand_in; // local changable copy

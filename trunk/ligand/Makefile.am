@@ -67,6 +67,7 @@ libcoot_ligand_la_LIBADD = \
    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 AM_CXXFLAGS = \
+         $(OPENMP_CFLAGS) \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	$(COOT_WINDOWS_CFLAGS)
 

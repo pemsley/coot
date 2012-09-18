@@ -18,6 +18,7 @@
       <source stock-id="generated-icon-delete-hydrogens-svg" filename="pixmaps/Trash-hydrogens-Andy_Trash_Can.svg"/>
       <source stock-id="generated-icon-8-c-svg" filename="pixmaps/8-c.svg"/>
       <source stock-id="generated-icon-face-smile-svg" filename="pixmaps/face-smile.svg"/>
+      <source stock-id="generated-icon-clean-up-2d" filename="pixmaps/05_Hotel_Icon_Hair_Salon.svg"/>
       <source stock-id="generated-icon-stereo-out-svg" filename="pixmaps/stereo-out.svg"/>
       <source stock-id="generated-icon-6-c-arom-svg" filename="pixmaps/6-c-arom.svg"/>
     </sources>
@@ -1077,6 +1078,21 @@
               </packing>
             </child>
             <child>
+              <object class="GtkToolButton" id="lbg_clean_up_2d_toolbutton">
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Tidy Up</property>
+                <property name="use_underline">True</property>
+                <property name="stock_id">generated-icon-clean-up-2d</property>
+                <signal name="clicked" handler="on_lbg_clean_up_2d_toolbutton_clicked" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="homogeneous">True</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkToolItem" id="toolbar_custom_item">
                 <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
@@ -1102,21 +1118,6 @@
                 <property name="use_underline">True</property>
                 <property name="stock_id">gtk-info</property>
                 <signal name="clicked" handler="on_info_toolbutton_clicked" swapped="no"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="clean_up_2d_toolbutton">
-                <property name="use_action_appearance">False</property>
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">Clean Up</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-orientation-portrait</property>
-                <signal name="clicked" handler="on_clean_up_2d_toolbutton_clicked" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>

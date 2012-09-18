@@ -138,6 +138,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	 if (debug)
 	    std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " " 
 		      << atom_name << std::endl;
+	 
 	 // only add the atom if the atom_name is not in the list of
 	 // already-added atom names.
 	 if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name) != added_atom_names.end()) {
@@ -205,7 +206,8 @@ coot::rdkit_mol(CResidue *residue_p,
    }
 
    if (debug) 
-      std::cout << "number of bond restraints: " << restraints.bond_restraint.size() << std::endl;
+      std::cout << "number of bond restraints: " << restraints.bond_restraint.size()
+		<< std::endl;
    
    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
       if (debug)
@@ -248,6 +250,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	       m[idx_2]->setIsAromatic(true);
 	    }
 	    m.addBond(bond); // worry about ownership or memory leak.
+	    
 	 } else {
 	    if (ele_2 != " H") { 
 	       std::cout << "WARNING:: oops, bonding in making rdkit mol "
@@ -258,7 +261,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	       message += atom_name_2;
 	       message += "\"";
 	       throw std::runtime_error(message);
-	    } 
+	    }
 	 }
       } else {
 	 if (ele_1 != " H") { 
@@ -413,7 +416,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	    std::cout << "in construction of rdkit mol: making a conformer atom "
 		      << iat << " " << it->second << " " << atom_name << " at pos "
 		      << pos << std::endl;
-      } 
+      }
    }
    m.addConformer(conf);
    if (debug) 
@@ -741,9 +744,6 @@ coot::make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_n
 }
 
 
-// This will fail to do the right thing when the passed bond type is
-// aromatic.
-// 
 lig_build::bond_t::bond_type_t
 coot::convert_bond_type(const RDKit::Bond::BondType &type) {
 
@@ -755,6 +755,15 @@ coot::convert_bond_type(const RDKit::Bond::BondType &type) {
       t = lig_build::bond_t::DOUBLE_BOND;
    if (type == RDKit::Bond::TRIPLE)
       t = lig_build::bond_t::TRIPLE_BOND;
+   if (type == RDKit::Bond::AROMATIC)
+      t = lig_build::bond_t::AROMATIC_BOND;
+    
+    // PUTS_IT_BACK?
+    // enabling this makes phosphate bonds disconnected in the
+    // thumbnail and Residue->2D
+    // 
+    //     if (type == RDKit::Bond::ONEANDAHALF)
+    //        t = lig_build::bond_t::DELOC_ONE_AND_A_HALF;
 
    return t;
 }
@@ -1197,7 +1206,7 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
    // why. It is not due to distance matrix (dmat) I am pretty sure of
    // that.
     int iconf =
-       RDDepict::compute2DCoordsMimicDistMat(*rdk_mol, &dmat, 1, 1,
+       RDDepict::compute2DCoordsMimicDistMat(*rdk_mol, &dmat, true, true,
 					     weight_for_3d_distances, nRB, 200);
 
    conf = rdk_mol->getConformer(iconf);
@@ -1404,7 +1413,10 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 	 }
       }
    }
+
+   undelocalize_phosphates(rdkm); 
 }
+
 
 // fiddle with the bonds in rdkm as needed.
 void
@@ -1440,6 +1452,8 @@ coot::deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
 	    }
 	 }
 
+	 
+
 	 // check atom_2_in_in vs the first oxygen
 	 if (atom_2_in_in == O1) {
 	    if (atom_1_in_in != central_C) {
@@ -1461,6 +1475,46 @@ coot::deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
       }
    }
 }
+
+void
+coot::undelocalize_phosphates(RDKit::ROMol *rdkm) {
+
+   RDKit::ROMol::AtomIterator ai;
+   for(ai=rdkm->beginAtoms(); ai!=rdkm->endAtoms(); ai++) {
+
+      if ((*ai)->getAtomicNum() == 15) {
+	 RDKit::Atom *P_at = *ai;
+	 int idx_1 = P_at->getIdx();
+	 std::vector<RDKit::Bond *> deloc_O_bonds;
+	 
+	 RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
+	 boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(P_at);
+	 while(nbrIdx != endNbrs) {
+	    const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
+	    RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_1, *nbrIdx);
+	    if (bond) {
+	       if (bond->getBondType() == RDKit::Bond::ONEANDAHALF)
+		  deloc_O_bonds.push_back(bond);
+	    } 
+	    ++nbrIdx;
+	 }
+	 
+	 if (deloc_O_bonds.size() == 3) {
+	    // make 2 single and one double.  Handle formal charge too?
+	    deloc_O_bonds[0]->setBondType(RDKit::Bond::SINGLE);
+	    deloc_O_bonds[1]->setBondType(RDKit::Bond::SINGLE);
+	    deloc_O_bonds[2]->setBondType(RDKit::Bond::DOUBLE);
+	 }
+
+	 if (deloc_O_bonds.size() == 2) {
+	    // make 1 single, one double. Handle formal charge too?
+	    deloc_O_bonds[0]->setBondType(RDKit::Bond::SINGLE);
+	    deloc_O_bonds[1]->setBondType(RDKit::Bond::DOUBLE);
+	 } 
+      }
+   }
+}
+
 
 
 

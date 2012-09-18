@@ -26,7 +26,15 @@
 
    o flev some ligands with standard build
 
-   o should UNL be on the list of things to not autoload?
+   o should UNL be on the list of things to not autoload? No.  There
+     should not be a dictionary for such a thing.
+
+   o select rotamer should not pop up over the middle. 
+
+   o Old backups dialog should be a transient.
+
+   o Cancel on add alt conf should delete the alt conf that was just
+     added.
 
 ------
 

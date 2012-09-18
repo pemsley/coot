@@ -82,7 +82,7 @@ appicon_DATA = \
 	5-c.svg        Anonymous_Architetto_--_Chiave.svg  TheStructorr_magnifying_glass.svg    \
 	6-c-arom.svg   charge.svg			   triple.svg                           \
 	6-c-exp-2.svg  double.svg 			   Trash-hydrogens-Andy_Trash_Can.svg   \
-	face-smile.svg
+	face-smile.svg 05_Hotel_Icon_Hair_Salon.svg
 
 ## #else 
 
