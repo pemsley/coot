@@ -3,16 +3,6 @@
 
 ----
 
-   * lidia should work ::: 0.5 
-
-* Done.
-
-   o try adding many GOLs (for example).  Do they go to different chains?
-     Maybe we need to start and stop again to activate that problem?
-
-   o python extensions -> all molecule -> fit protein is not 
-     accepting the refined coordinates correctly
-
    o HJ:
 
     I've tested and build ideal DNA with Ts followed by simple mutate
@@ -24,24 +14,28 @@
 
     ::: write a failing test.
 
-   o flev some ligands with standard build
-
-   o should UNL be on the list of things to not autoload? No.  There
-     should not be a dictionary for such a thing.
-
-   o select rotamer should not pop up over the middle. 
-
-   o Old backups dialog should be a transient.
+   o python extensions -> all molecule -> fit protein is not 
+     accepting the refined coordinates correctly
 
    o Cancel on add alt conf should delete the alt conf that was just
-     added.
+     added.  It's an undo, I think. ::: 1
+
+   o flev some ligands with standard build ::: 1
+
+   o select rotamer should not pop up over the middle.  ::: 1
+
+   o Old backups dialog should be a transient. Could be tricky.
+     Puntable ::: 0.5
 
    o in multi-residue torsion for normal protein chain, , N->C is
      present (should it be? (I think yes, but with warning icon (and
      tooltip "This is the peptide bond")) but phi and psi, CA-N
-     and CA-C are not.
+     and CA-C are not. ::: 1
 
-   o double bonds stick should have end-caps 
+   o double bonds stick should have end-caps.
+
+   o check that pisa assemblies and interfaces work - laptop and
+   desktop.
 
 ------
 
@@ -540,3 +534,13 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
       new alt conf occupancy frame auto expands - it should not.
 
 * Done
+
+   * lidia should work ::: 0.5 
+
+* Done.
+
+   o try adding many GOLs (for example).  Do they go to different chains?
+     Maybe we need to start and stop again to activate that problem? ::: 1
+
+* Done.
+

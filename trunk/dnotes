@@ -6892,6 +6892,16 @@ all chains.
    That will give us a function to remove insertion codes
 
 
+----
+Tue Sep 18 20:55:39 BST 2012
+
+  How about a ring flip function where you identify an atom in a ring,
+  it checks that there are less than 3 connections to the ring, then
+  rotates 180 about one of the connecting bonds (the one with the
+  largest number of atoms in the fragment) and back-rotates the
+  other torsion (if exists), choosing and torsion that minimizes the
+  movement of the atoms.
+
 
 ------
 
