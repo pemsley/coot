@@ -1387,7 +1387,9 @@ namespace coot {
 			   const std::string &alt_conf,
 			   short int is_from_shelx_ins_flag);
       
-      void mutate_base(CResidue *residue, CResidue *std_base, bool use_old_style_naming);
+      void mutate_base(CResidue *residue, CResidue *std_base,
+		       bool use_old_style_naming,
+		       bool print_match_stats=false);
       // which calls
       std::string convert_base_name(const std::string &std_base_name, bool use_old_style_naming);
       

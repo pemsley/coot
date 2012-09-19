@@ -1356,6 +1356,62 @@
 		 (loop (read-line port) ter-status))))))))))
 
 
+(greg-testcase "C7 is removed on mutation from a DC" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "4f8g.pdb")))
+
+       (if (not (valid-model-molecule? imol))
+	   (throw 'missing-4fg8-pdb))
+
+       (let ((status (mutate-base imol "A" 19 "" "DC")))
+	 (if (not (= status 1))
+	   (begin
+	     (format #t "failed to mutate 4f8g.pdb~%")
+	     (throw 'fail-mutate-1)))
+
+	 (let ((atom-list (residue-info imol "A" 19 "")))
+	   (if (not (list? atom-list))
+	       (throw 'bad-atom-list-1))
+	   
+	   (if (not (> (length atom-list) 10))
+	       (throw 'bad-atom-list-need-more-atoms-1))
+
+	   (let ((atoms (map residue-atom->atom-name atom-list)))
+	     (if (member? " C7 " atoms)
+		 (throw 'C7-still-present))
+
+	     (write-pdb-file imol "test-1.pdb")
+
+	     #t))))))
+
+
+(greg-testcase "C7 is added on mutation to a DC" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "4f8g.pdb")))
+       ;; now try mutate 10 to a T
+		 
+       (let ((status (mutate-base imol "A" 10 "" "DT")))
+	 (if (not (= status 1))
+	   (begin
+	     (format #t "failed to mutate back 4f8g.pdb~%")
+	     (throw 'fail-mutate-2)))
+	 (let ((atom-list (residue-info imol "A" 10 "")))
+	   (if (not (list? atom-list))
+	       (throw 'bad-atom-list-2))
+
+	   (let ((atoms (map residue-atom->atom-name atom-list)))
+	     (print-var atoms)
+	     (if (not (member? " C7 " atoms))
+		 (throw 'C7-not-present-in-T)))))
+
+       (write-pdb-file imol "test-2.pdb")
+
+       #t)))
+
+
+
 
 ;; Restore this when the delete-residue-with-full-spec makes it to trunk.
 ;; 

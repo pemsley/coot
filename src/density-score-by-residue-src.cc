@@ -148,7 +148,7 @@ void cut_residues(atom_selection_container_t asc, const std::vector<scored_chain
 	 asc.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
          asc.mol->FinishStructEdit();
    }
-   asc.mol->WritePDBASCII((char *) pdb_out_filename.c_str());
+   asc.mol->WritePDBASCII(pdb_out_filename.c_str());
 } 
 
 void density_score_molecule(std::string pdb_filename,

@@ -1941,6 +1941,7 @@ coot::graph_match(CResidue *res_moving,
 void
 coot::graph_match_info_t::match_names(CResidue *res_with_moving_names) {
 
+   bool debug = false;
    if (!success) {
       std::cout << "Can't do name remapping, graph match failed" << std::endl;
    } else { 
@@ -1996,7 +1997,7 @@ coot::graph_match_info_t::match_names(CResidue *res_with_moving_names) {
 	 } 
       }
 
-      if (1) {
+      if (debug) {
 	 std::cout << "Mapped atom names: " << matching_atom_names.size() << std::endl;
 	 // according to header ref is first, work is second.
 	 for (unsigned int i=0; i<matching_atom_names.size(); i++) { 
@@ -4391,256 +4392,6 @@ coot::util::interesting_things_list_with_fix_py(const std::vector<coot::util::at
 }
 
 
-// Return the RTop that matches moving to reference.  Don't move
-// moving though.
-//
-// reference is residue
-// moving is std_base
-//
-// 20110505 This function is not used anywhere.
-// 
-std::pair<bool, clipper::RTop_orth> coot::util::base_to_base(CResidue *residue,
-							     CResidue *std_base) {
-
-   bool good_rtop_flag = 0;
-
-   clipper::Mat33<double> m_dum(1,0,0,0,1,0,0,0,1);
-   clipper::Coord_orth pt_dum(0,0,0);
-   clipper::RTop_orth rtop(m_dum, pt_dum);
-   
-   std::vector<std::string> adenine;  // Pirimidine
-   adenine.push_back(" N9 ");
-   adenine.push_back(" C8 ");
-   adenine.push_back(" N7 ");
-   adenine.push_back(" C5 ");
-   adenine.push_back(" C4 ");
-   // 
-   adenine.push_back(" N1 ");
-   adenine.push_back(" C2 ");
-   adenine.push_back(" N3 ");
-   adenine.push_back(" C6 ");
-   adenine.push_back(" N6 ");
-
-   std::vector<std::string> guanine; // Pirimidine
-   guanine.push_back(" N9 ");
-   guanine.push_back(" C8 ");
-   guanine.push_back(" N7 ");
-   guanine.push_back(" C5 ");
-   guanine.push_back(" C4 ");
-   //
-   guanine.push_back(" N1 ");
-   guanine.push_back(" C2 ");
-   guanine.push_back(" N3 ");
-   guanine.push_back(" C6 ");
-   guanine.push_back(" O6 ");
-   guanine.push_back(" N2 "); // No matcher for this in adenine
-
-   std::vector<std::string> thymine;  // Purine
-   thymine.push_back(" N1 ");
-   thymine.push_back(" C2 ");
-   thymine.push_back(" N3 ");
-   thymine.push_back(" C4 ");
-   thymine.push_back(" C5 ");
-   thymine.push_back(" C6 ");
-   // 
-   thymine.push_back(" O2 ");
-   thymine.push_back(" O4 ");
-   thymine.push_back(" C5M");
-   
-   std::vector<std::string> cytosine;  // Purine
-   cytosine.push_back(" N1 ");
-   cytosine.push_back(" C2 ");
-   cytosine.push_back(" N3 ");
-   cytosine.push_back(" C4 ");
-   cytosine.push_back(" C5 ");
-   cytosine.push_back(" C6 ");
-   // 
-   cytosine.push_back(" O2 ");
-   cytosine.push_back(" N4 ");
-   
-   std::vector<std::string> uracil;  // Purine
-   uracil.push_back(" N1 ");
-   uracil.push_back(" C2 ");
-   uracil.push_back(" N3 ");
-   uracil.push_back(" C4 ");
-   uracil.push_back(" C5 ");
-   uracil.push_back(" C6 ");
-   // 
-   uracil.push_back(" O2 ");
-   uracil.push_back(" O4 ");
-   
-
-   // These next 2 are in match order, don't change it.
-   std::vector<std::string> purine; // A and G
-   purine.push_back(" N9 ");
-   purine.push_back(" C4 ");
-   purine.push_back(" C5 ");
-   purine.push_back(" N7 ");
-   purine.push_back(" C8 ");
-
-   std::vector<std::string> pyrimidine; // T, U and C
-   pyrimidine.push_back(" N1 ");
-   pyrimidine.push_back(" C2 ");
-   pyrimidine.push_back(" N3 ");
-   pyrimidine.push_back(" C5 ");
-   pyrimidine.push_back(" C6 ");
-   pyrimidine.push_back(" C4 ");
-
-   // We need to know whether we have purine or pyrimidine for both
-   // the molecule base and the std_base.
-   //
-   // We need to get all (5 for pyrimidine, 6 for purine) the
-   // coordinates for both bases.
-   // 
-   // If they are either or both are pyrimidine we match 5 atoms,
-   // If they are both purine we match 6 atoms.
-
-
-   // So what are the input base types?
-   //
-   // These for flags should be set to something after our test
-   short int mol_base_is_pyrimidine = -1;
-   short int mol_base_is_purine     = -1;
-   short int std_base_is_pyrimidine = -1;
-   short int std_base_is_purine     = -1;
-
-   std::string mol_base_name = residue->GetResName();
-   std::string std_base_name = std_base->GetResName();
-
-   if (mol_base_name == "Ar" || mol_base_name == "Ad" ||
-       mol_base_name == "Gr" || mol_base_name == "Gd") {
-      mol_base_is_purine = 1;
-      mol_base_is_pyrimidine = 0;
-   }
-
-   if (mol_base_name == "Cr" || mol_base_name == "Cd" ||
-       mol_base_name == "Ur" || mol_base_name == "Ud" ||
-       mol_base_name == "Tr" || mol_base_name == "Td") {
-      mol_base_is_pyrimidine = 1;
-      mol_base_is_purine = 0;
-   }
-
-   if (std_base_name == "Ar" || std_base_name == "Ad" ||
-       std_base_name == "Gr" || std_base_name == "Gd") {
-      std_base_is_purine = 1;
-      std_base_is_pyrimidine = 0;
-   }
-
-   if (std_base_name == "Cr" || std_base_name == "Cd" ||
-       std_base_name == "Tr" || std_base_name == "Td" ||
-       std_base_name == "Ur" || std_base_name == "Ud") {
-      std_base_is_pyrimidine = 1;
-      std_base_is_purine = 0;
-   }
-
-   if ((mol_base_is_pyrimidine == -1) || (mol_base_is_purine == -1) || 
-       (std_base_is_pyrimidine == -1) || (std_base_is_purine == -1) ) {
-
-      std::cout << "ERROR:: base_to_base() unassigned type "
-		<< "mol_base_is_pyrimidine:" << " "
-		<< mol_base_is_pyrimidine << " "
-		<< "mol_base_is_purine: " << " "
-		<< mol_base_is_purine << " "
-		<< "std_base_is_pyrimidine: " << " "
-		<< std_base_is_pyrimidine << " "
-		<< "std_base_is_purine: " << " "
-		<< std_base_is_purine << " "
-		<< residue->GetResName() << " " << std_base->GetResName()
-		<< std::endl;
-
-      
-   } else {
-   
-//       std::cout << "DEBUG:: assigned types "
-// 		<< "mol_base_is_pyrimidine:" << " "
-// 		<< mol_base_is_pyrimidine << " "
-// 		<< "mol_base_is_purine: " << " "
-// 		<< mol_base_is_purine << " "
-// 		<< "std_base_is_pyrimidine: " << " "
-// 		<< std_base_is_pyrimidine << " "
-// 		<< "std_base_is_purine: " << " "
-// 		<< std_base_is_purine << " "
-// 		<< residue->GetResName() << " " << std_base->GetResName()
-// 		<< std::endl;
-
-      int n_match_atoms = 5;
-      if (mol_base_is_pyrimidine && std_base_is_pyrimidine)
-	 n_match_atoms = 6;
-
-      std::vector<std::string> moving_name_vector;
-      std::vector<std::string> refrce_name_vector;
-
-      if (std_base_is_purine)
-	 moving_name_vector = purine;
-      else
-	 moving_name_vector = pyrimidine;
-
-      if (mol_base_is_purine)
-	 refrce_name_vector = purine;
-      else
-	 refrce_name_vector = pyrimidine;
-      
-      PCAtom *std_base_atoms;
-      int n_std_base_atoms;
-
-      PCAtom *mol_base_atoms;
-      int n_mol_base_atoms;
-      
-      residue->GetAtomTable( mol_base_atoms, n_mol_base_atoms);
-      std_base->GetAtomTable(std_base_atoms, n_std_base_atoms);
-
-      std::vector<clipper::Coord_orth> refrce_atom_positions;
-      std::vector<clipper::Coord_orth> moving_atom_positions;
-
-//       for (unsigned int i=0; i<refrce_name_vector.size(); i++)
-// 	 std::cout << "ref base search atom :" << refrce_name_vector[i]
-// 		   << ":" << std::endl;
-//       for (unsigned int i=0; i<moving_name_vector.size(); i++)
-// 	 std::cout << "mov base search atom :" << moving_name_vector[i]
-// 		   << ":" << std::endl;
-      
-      for (int j=0; j<n_match_atoms; j++) {
-	 for (int i=0; i<n_mol_base_atoms; i++) {
-	    std::string atom_name = mol_base_atoms[i]->name;
-	    if (refrce_name_vector[j] == atom_name) {
-	       refrce_atom_positions.push_back(clipper::Coord_orth(mol_base_atoms[i]->x,
-								   mol_base_atoms[i]->y,
-								   mol_base_atoms[i]->z));
-	       // std::cout << "Found " << atom_name << " in reference " << std::endl;
-	    }
-	 }
-      }
-
-      for (int j=0; j<n_match_atoms; j++) {
-	 for (int i=0; i<n_std_base_atoms; i++) {
-	 std::string atom_name = std_base_atoms[i]->name;
-	    if (moving_name_vector[j] == atom_name) {
-	       moving_atom_positions.push_back(clipper::Coord_orth(std_base_atoms[i]->x,
-								   std_base_atoms[i]->y,
-								   std_base_atoms[i]->z));
-	       // std::cout << "Found " << atom_name << " in moving (std) base " << std::endl;
-	    }
-	 }
-      }
-
-      if (int(refrce_atom_positions.size()) != n_match_atoms) {
-	 std::cout << "ERROR:: wrong number of reference atoms found! "
-		   << refrce_atom_positions.size() << std::endl;
-      } else {
-
-	 if (int(moving_atom_positions.size()) != n_match_atoms) {
-	    std::cout << "ERROR:: wrong number of moving atoms found! "
-		   << moving_atom_positions.size() << std::endl;
-
-	 } else {
-
-	    rtop = clipper::RTop_orth (moving_atom_positions, refrce_atom_positions);
-	    good_rtop_flag = 1;
-	 }
-      }
-   }
-   return std::pair<bool, clipper::RTop_orth> (good_rtop_flag, rtop);
-}
 
 // Return the RTop that matches moving to reference.  Include the base
 // atoms, *AND* the furanose and phosphate atoms.
@@ -4854,12 +4605,12 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
       std::vector<clipper::Coord_orth> refrce_atom_positions;
       std::vector<clipper::Coord_orth> moving_atom_positions;
 
-//       for (unsigned int i=0; i<refrce_name_vector.size(); i++)
-// 	 std::cout << "ref base search atom :" << refrce_name_vector[i]
-// 		   << ":" << std::endl;
-//       for (unsigned int i=0; i<moving_name_vector.size(); i++)
-// 	 std::cout << "mov base search atom :" << moving_name_vector[i]
-// 		   << ":" << std::endl;
+      for (unsigned int i=0; i<refrce_name_vector.size(); i++)
+ 	 std::cout << "ref base search atom :" << refrce_name_vector[i]
+		   << ":" << std::endl;
+      for (unsigned int i=0; i<moving_name_vector.size(); i++)
+	 std::cout << "mov base search atom :" << moving_name_vector[i]
+ 		   << ":" << std::endl;
       
       for (int j=0; j<n_match_atoms; j++) {
 	 for (int i=0; i<n_mol_base_atoms; i++) {
@@ -4868,7 +4619,7 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
 	       refrce_atom_positions.push_back(clipper::Coord_orth(mol_base_atoms[i]->x,
 								   mol_base_atoms[i]->y,
 								   mol_base_atoms[i]->z));
-	       // std::cout << "Found " << atom_name << " in reference " << std::endl;
+	       std::cout << "Found " << atom_name << " in reference " << std::endl;
 	    }
 	 }
       }
@@ -4880,7 +4631,7 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
 	       moving_atom_positions.push_back(clipper::Coord_orth(std_base_atoms[i]->x,
 								   std_base_atoms[i]->y,
 								   std_base_atoms[i]->z));
-	       // std::cout << "Found " << atom_name << " in moving (std) base " << std::endl;
+	       std::cout << "Found " << atom_name << " in moving (std) base " << std::endl;
 	    }
 	 }
       }
@@ -5081,11 +4832,18 @@ coot::util::mutate(CResidue *res, CResidue *std_res_unoriented, const std::strin
 // use_old_style_naming means use pdb v2 atom names.
 //
 // You need to call mol->FinishStructEdit() after using this function.
+//
+// LSQ fit std_base onto residue, then change the atoms of residue to
+// be those of std_base.
 // 
 void
-coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_style_naming) {
+coot::util::mutate_base(CResidue *residue, CResidue *std_base,
+			bool use_old_style_naming,
+			bool print_match_stats_flag) {
 
 
+   bool debug = false;
+   
    std::vector<std::string> adenine;  // Pyrimidine
    adenine.push_back(" N9 ");
    adenine.push_back(" C8 ");
@@ -5123,6 +4881,7 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
    // 
    thymine.push_back(" O2 ");
    thymine.push_back(" O4 ");
+   thymine.push_back(" C7 "); // was C5M
    thymine.push_back(" C5M");
    
    std::vector<std::string> cytosine;  // Purine
@@ -5247,18 +5006,20 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 		<< std::endl;
 
    } else {
-   
-//       std::cout << "DEBUG:: assigned types "
-// 		<< "mol_base_is_pyrimidine:" << " "
-// 		<< mol_base_is_pyrimidine << " "
-// 		<< "mol_base_is_purine: " << " "
-// 		<< mol_base_is_purine << " "
-// 		<< "std_base_is_pyrimidine: " << " "
-// 		<< std_base_is_pyrimidine << " "
-// 		<< "std_base_is_purine: " << " "
-// 		<< std_base_is_purine << " "
-// 		<< residue->GetResName() << " " << std_base->GetResName()
-// 		<< std::endl;
+
+      if (debug)
+	 std::cout << "DEBUG:: assigned types \n      "
+		   << "mol_base_is_pyrimidine:"  << " "
+		   << mol_base_is_pyrimidine     << "\n      "
+		   << "mol_base_is_purine:    "  << " "
+		   << mol_base_is_purine         << "\n      "
+		   << "std_base_is_pyrimidine:" << " "
+		   << std_base_is_pyrimidine     << "\n      "
+		   << "std_base_is_purine:    " << " "
+		   << std_base_is_purine         << "\n      res_name: "
+		   << residue->GetResName()      << "    std_base name:"
+		   << std_base->GetResName()
+		   << std::endl;
 
       int n_match_atoms = 5;
       if (mol_base_is_pyrimidine && std_base_is_pyrimidine)
@@ -5289,13 +5050,15 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
       std::vector<clipper::Coord_orth> refrce_atom_positions;
       std::vector<clipper::Coord_orth> moving_atom_positions;
 
-//       for (unsigned int i=0; i<refrce_name_vector.size(); i++)
-// 	 std::cout << "ref base search atom :" << refrce_name_vector[i]
-// 		   << ":" << std::endl;
-//       for (unsigned int i=0; i<moving_name_vector.size(); i++)
-// 	 std::cout << "mov base search atom :" << moving_name_vector[i]
-// 		   << ":" << std::endl;
-      
+      if (debug) { 
+	 for (unsigned int i=0; i<refrce_name_vector.size(); i++)
+	    std::cout << "ref base search atom :" << refrce_name_vector[i]
+		      << ":" << std::endl;
+	 for (unsigned int i=0; i<moving_name_vector.size(); i++)
+	    std::cout << "mov base search atom :" << moving_name_vector[i]
+		      << ":" << std::endl;
+      }
+	 
       for (int j=0; j<n_match_atoms; j++) {
 	 for (int i=0; i<n_mol_base_atoms; i++) {
 	    std::string atom_name = mol_base_atoms[i]->name;
@@ -5303,7 +5066,8 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 	       refrce_atom_positions.push_back(clipper::Coord_orth(mol_base_atoms[i]->x,
 								   mol_base_atoms[i]->y,
 								   mol_base_atoms[i]->z));
-	       // std::cout << "Found " << atom_name << " in reference " << std::endl;
+	       if (debug)
+		  std::cout << "Found " << atom_name << " in reference " << std::endl;
 	    }
 	 }
       }
@@ -5315,7 +5079,8 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 	       moving_atom_positions.push_back(clipper::Coord_orth(std_base_atoms[i]->x,
 								   std_base_atoms[i]->y,
 								   std_base_atoms[i]->z));
-	       // std::cout << "Found " << atom_name << " in moving (std) base " << std::endl;
+	       if (debug)
+		  std::cout << "Found " << atom_name << " in moving (std) base " << std::endl;
 	    }
 	 }
       }
@@ -5423,6 +5188,7 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 
 		  // now find the atoms of the given residue and apply
 		  // the transformation and add them to the residue;
+		  
 		  bool have_deleted = 0;
 		  bool need_a_ter = 0;
 		  for (unsigned int iat=0; iat<mol_base_atom_names.size(); iat++) {
@@ -5430,8 +5196,11 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 			if (mol_base_atoms[i]) { 
 			
 			   if (mol_base_atom_names[iat] == mol_base_atoms[i]->name) {
- 			      //std::cout << ".... Deleting Atom " << mol_base_atoms[i]->name
-			      // << " i = " << i << std::endl;
+
+			      if (debug)
+				 std::cout << ".... Deleting Atom " << mol_base_atoms[i]->name
+					   << " i = " << i << std::endl;
+			      
 			      residue->DeleteAtom(i);
 			      mol_base_atoms[i] = NULL;
 			      have_deleted = 1;
@@ -5451,7 +5220,8 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 
 		  for (unsigned int i=0; i<n_residue_atoms; i++) { 
 		     if (residue_atoms[i]->isTer()) {
-			std::cout << "..... atom " << i << " is a Ter" << std::endl;
+			if (debug)
+			   std::cout << "..... atom " << i << " is a Ter" << std::endl;
 			residue->DeleteAtom(i);
 			need_a_ter = 1;
 			have_deleted = 1;
@@ -5470,8 +5240,9 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 			   clipper::Coord_orth pt = p.transform(rtop);
 			   std::string ele = std_base_atom_names[iat].substr(0,2);
 			   at = new CAtom;
-// 			   std::cout << ".... Adding Atom " << std_base_atoms[i]->name
-// 				     << std::endl;
+			   if (debug)
+			      std::cout << ".... Adding Atom " << std_base_atoms[i]->name
+					<< std::endl;
 			   at->SetCoordinates(pt.x(), pt.y(), pt.z(), 1.0, 20.0);
 			   std::string new_atom_name = std_base_atoms[i]->name;
 			   if (std_base_name == "Td")
@@ -5504,14 +5275,10 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base, bool use_old_styl
 
 
 		  if (need_a_ter) {
-		     std::cout << ".................... adding in a new Ter" << std::endl;
-		     std::cout << " GetNumberOfAtoms() 1 " << residue->GetNumberOfAtoms(1) << std::endl;
 		     CAtom *at = new CAtom;
 		     at->MakeTer();
 		     int n_atoms_new = residue->AddAtom(at);
-		     std::cout << " GetNumberOfAtoms() 2 " << residue->GetNumberOfAtoms(1) << std::endl;
 		     residue->TrimAtomTable();
-		     std::cout << " GetNumberOfAtoms() 3 " << residue->GetNumberOfAtoms(1) << std::endl;
 		  }
 	       }
 	    }
