@@ -530,17 +530,26 @@ graphics_info_t::set_transient_and_position(int widget_type, GtkWidget *window) 
       }
    }
 
+
+   // perhaps we should do something like this for all transient dialogs, hmmm...
+   // 
    if (widget_type == COOT_ROTAMER_SELECTION_DIALOG) {
+      bool done_set_pos = false;
       if (graphics_info_t::rotamer_selection_dialog_x_position > -100) {
 	 if (graphics_info_t::rotamer_selection_dialog_y_position > -100) {
 	    gtk_widget_set_uposition(window,
 				     graphics_info_t::rotamer_selection_dialog_x_position,
 				     graphics_info_t::rotamer_selection_dialog_y_position);
+	    done_set_pos = true;
 	 }
       }
+      if (! done_set_pos) {
+	 int x_pos = graphics_info_t::graphics_x_position - 100;
+	 int y_pos = graphics_info_t::graphics_y_position + 100;
+	 if (x_pos < 5) x_pos = 5;
+	 gtk_widget_set_uposition(window, x_pos, y_pos);
+      }
    }
-
-
 }
 
 
