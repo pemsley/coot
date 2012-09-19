@@ -282,8 +282,8 @@ clipper::Coord_orth graphics_info_t::intermediate_flash_point;
 int graphics_info_t::default_bond_width = 5;
 
    
-int graphics_info_t::rotamer_selection_dialog_x_position = -1;
-int graphics_info_t::rotamer_selection_dialog_y_position = -1;
+int graphics_info_t::rotamer_selection_dialog_x_position = -100;
+int graphics_info_t::rotamer_selection_dialog_y_position = -100;
 
 int graphics_info_t::model_fit_refine_x_position = -100;  // initially unset
 int graphics_info_t::model_fit_refine_y_position = -100;

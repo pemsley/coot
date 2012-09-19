@@ -2161,21 +2161,37 @@ void set_transient_and_position(int widget_type, GtkWidget *window) {
 	 GTK_WINDOW(lookup_widget(graphics_info_t::glarea, "window1"));
       gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
       if (widget_type == COOT_DELETE_WINDOW) {
+	 bool done_set_pos = false;
 	 if (graphics_info_t::delete_item_widget_x_position > -100) {
 	    if (graphics_info_t::delete_item_widget_y_position > -100) {
 	       gtk_widget_set_uposition(window,
 					graphics_info_t::delete_item_widget_x_position,
 					graphics_info_t::delete_item_widget_y_position);
+	       done_set_pos = true;
 	    }
+	 }
+	 if (! done_set_pos) {
+	    int x_pos = graphics_info_t::graphics_x_position - 100;
+	    int y_pos = graphics_info_t::graphics_y_position + 100;
+	    if (x_pos < 5) x_pos = 5;
+	    gtk_widget_set_uposition(window, x_pos, y_pos);
 	 }
       }
       if (widget_type == COOT_DISTANCES_ANGLES_WINDOW) {
+	 bool done_set_pos = false;
 	 if (graphics_info_t::distances_and_angles_dialog_x_position > -100) {
 	    if (graphics_info_t::distances_and_angles_dialog_y_position > -100) {
 	       gtk_widget_set_uposition(window,
 					graphics_info_t::distances_and_angles_dialog_x_position,
 					graphics_info_t::distances_and_angles_dialog_y_position);
+	       done_set_pos = true;
 	    }
+	 }
+	 if (! done_set_pos) {
+	    int x_pos = graphics_info_t::graphics_x_position - 100;
+	    int y_pos = graphics_info_t::graphics_y_position + 100;
+	    if (x_pos < 5) x_pos = 5;
+	    gtk_widget_set_uposition(window, x_pos, y_pos);
 	 }
       }
    }
