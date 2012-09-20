@@ -3469,11 +3469,24 @@ on_rotamer_selection_cancel_button_clicked
 {
    GtkWidget *dialog = lookup_widget(GTK_WIDGET(button),
 				    "rotamer_selection_dialog");
-   // clear_moving_atoms_object();
+   int type; 
+   int imol;
+
    clear_up_moving_atoms();
+   type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "type"));
+
+   /* if this is a add-alt conf dialog, undo (the addition of the alt
+      conf) on Cancel click */
+   if (type == 1) { 
+     imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol"));
+     if (is_valid_model_molecule(imol)) { 
+       set_undo_molecule(imol);
+       apply_undo();
+     } 
+   } 
+
    store_window_position(COOT_ROTAMER_SELECTION_DIALOG, dialog);
    gtk_widget_destroy(dialog);
-
 }
 
 
@@ -9679,7 +9692,7 @@ on_dynarama_window_configure_event     (GtkWidget       *widget,
                                         GdkEventConfigure *event,
                                         gpointer         user_data)
 {
-   resize_rama_canvas(widget, event);
+  resize_rama_canvas(widget, event);
    store_window_position(COOT_RAMACHANDRAN_PLOT_WINDOW, widget);
    return FALSE;
 }

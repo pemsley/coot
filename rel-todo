@@ -3,26 +3,10 @@
 
 ----
 
-   o HJ:
-
-    I've tested and build ideal DNA with Ts followed by simple mutate
-    one of those to something else now doesn't remove C7 (i.e the
-    opposite issue to that reported on the list). Of course this will
-    be a much less common scenario than mutating from C to T and
-    wondering where the C7 is but it should probably be on the todo
-    list.
-
-    ::: write a failing test.
-
    o python extensions -> all molecule -> fit protein is not 
      accepting the refined coordinates correctly
 
-   o Cancel on add alt conf should delete the alt conf that was just
-     added.  It's an undo, I think. ::: 1
-
    o flev some ligands with standard build ::: 1
-
-   o select rotamer should not pop up over the middle.  ::: 1
 
    o Old backups dialog should be a transient. Could be tricky.
      Puntable ::: 0.5
@@ -32,10 +16,17 @@
      tooltip "This is the peptide bond")) but phi and psi, CA-N
      and CA-C are not. ::: 1
 
-   o double bonds stick should have end-caps.
+   o double bonds stick should have end-caps. ::: 1
 
    o check that pisa assemblies and interfaces work - laptop and
-   desktop.
+     desktop ::: 1
+
+   o  -I/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/include/python2.7 -DUSE_PYGTK -g -O2 -MT callbacks.o -MD -MP -MF .deps/callbacks.Tpo -c -o callbacks.o ../../coot/src/callbacks.c
+../../coot/src/callbacks.c: In function ‘on_dynarama_window_configure_event’:
+../../coot/src/callbacks.c:9690:3: warning: passing argument 2 of ‘resize_rama_canvas’ from incompatible pointer type [enabled by default]
+../../coot/src/c-interface.h:4092:6: note: expected ‘union GdkEvent *’ but argument is of type ‘struct GdkEventConfigure *’
+mv -f .deps/callbacks.Tpo .deps/callbacks.Po
+/bin/sh ../libtool --tag=CXX   --mode=link g++ -DPKGDATADIR='"/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot"' -DPACKAGE_LOCALE_DIR='"/home/paule/autobuild/build-coot+rdkit-pre-re
 
 ------
 
@@ -544,3 +535,31 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
 
 * Done.
 
+
+   o HJ:
+
+    I've tested and build ideal DNA with Ts followed by simple mutate
+    one of those to something else now doesn't remove C7 (i.e the
+    opposite issue to that reported on the list). Of course this will
+    be a much less common scenario than mutating from C to T and
+    wondering where the C7 is but it should probably be on the todo
+    list. 
+
+   Write a failing test.
+
+    ::: 2 
+
+* Done
+
+   o select rotamer should not pop up over the middle.  ::: 1
+
+* Done.
+
+
+
+   o Cancel on add alt conf should delete the alt conf that was just
+     added.  It's an undo, I think. ::: 1
+
+     g_object_set_data() and g_object_get_data()
+
+* Done.
