@@ -3016,19 +3016,25 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
       // can get the residue.
       rotamer_residue_imol = imol;
       std::string altconf = molecules[imol].atom_sel.atom_selection[atom_index]->altLoc;
+      bool is_alt_conf_dialog = false;
+      if (altconf.length())
+	 is_alt_conf_dialog = true;
 
 //       std::cout << "DEBUG:: in do_rotamers() atom_index is " << atom_index
 // 		<< " and alconf is :" <<  altconf << ":" << std::endl;
    
-      GtkWidget *window = create_rotamer_selection_dialog();
-      set_transient_and_position(COOT_ROTAMER_SELECTION_DIALOG, window);
-      rotamer_dialog = window;
+      GtkWidget *dialog = create_rotamer_selection_dialog();
+      set_transient_and_position(COOT_ROTAMER_SELECTION_DIALOG, dialog);
+      rotamer_dialog = dialog;
+      g_object_set_data(G_OBJECT(dialog), "imol", GINT_TO_POINTER(imol));
+
 
       // Test if this was an alt confed atom.
       // If it was, then we should set up the hscale.
-      // It it was not, then we should destroy the hscale
-      if (altconf.length() > 0) {
-	 GtkWidget *hscale = lookup_widget(window, "new_alt_conf_occ_hscale");
+      // It it was not, then we should hide the hscale
+      // 
+      if (is_alt_conf_dialog) {
+	 GtkWidget *hscale = lookup_widget(dialog, "new_alt_conf_occ_hscale");
 	 float v = add_alt_conf_new_atoms_occupancy;
 	 // The max value is 3rd arg - 6th arg (here 2 and 1 is the same as 1 and 0)
 	 GtkAdjustment *adj = GTK_ADJUSTMENT(gtk_adjustment_new(v, 0.0, 2.0, 0.01, 0.1, 1.0));
@@ -3037,31 +3043,33 @@ graphics_info_t::do_rotamers(int atom_index, int imol) {
 			    "value_changed",
 			    GTK_SIGNAL_FUNC(graphics_info_t::new_alt_conf_occ_adjustment_changed), 
 			    NULL);
+	 g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(1));
       
       } else {
-	 GtkWidget *frame = lookup_widget(window, "new_alt_conf_occ_frame");
-	 gtk_widget_destroy(frame);
+	 GtkWidget *frame = lookup_widget(dialog, "new_alt_conf_occ_frame");
+	 gtk_widget_hide(frame);
+	 g_object_set_data(G_OBJECT(dialog), "type", GINT_TO_POINTER(0));
       }
 
    
       /* Events for widget must be set before X Window is created */
-      gtk_widget_set_events(GTK_WIDGET(window),
+      gtk_widget_set_events(GTK_WIDGET(dialog),
 			    GDK_KEY_PRESS_MASK);
       /* Capture keypress events */
       //    rotamer_key_press_event is not defined (yet)
       //    gtk_signal_connect(GTK_OBJECT(window), "key_press_event",
       // 		      GTK_SIGNAL_FUNC(rotamer_key_press_event), NULL);
       /* set focus to glarea widget - we need this to get key presses. */
-      GTK_WIDGET_SET_FLAGS(window, GTK_CAN_FOCUS);
+      GTK_WIDGET_SET_FLAGS(dialog, GTK_CAN_FOCUS);
       gtk_widget_grab_focus(GTK_WIDGET(glarea)); // but set focus to the graphics.
    
-      fill_rotamer_selection_buttons(window, atom_index, imol);
+      fill_rotamer_selection_buttons(dialog, atom_index, imol);
 
       // act as if the button for the first rotamer was pressed
       short int stat = generate_moving_atoms_from_rotamer(0);
 
       if (stat)
-	 gtk_widget_show(window);
+	 gtk_widget_show(dialog);
    }
 }
 
@@ -3155,8 +3163,6 @@ graphics_info_t::fill_rotamer_selection_buttons(GtkWidget *window, int atom_inde
 #ifdef USE_DUNBRACK_ROTAMERS			
       coot::dunbrack d(residue, g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
 #else
-      std::cout << " in fill_rotamer_selection_buttons altconf is :" << alt_conf << ":"
-		<< std::endl;
       coot::richardson_rotamer d(residue, alt_conf,
 				 g.molecules[imol].atom_sel.mol, g.rotamer_lowest_probability, 0);
 #endif // USE_DUNBRACK_ROTAMERS
