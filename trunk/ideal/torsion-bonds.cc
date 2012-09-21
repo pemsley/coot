@@ -54,13 +54,15 @@ coot::torsionable_bonds(CMMDBManager *mol, PPCAtom atom_selection,
       coot::torsionable_link_bonds(residues, mol, geom_p);
    for (unsigned int il=0; il<v_link.size(); il++)
       v.push_back(v_link[il]);
+
+   if (0) // debug
+      for (unsigned int ipair=0; ipair<v.size(); ipair++) { 
+	 std::cout << "   torsionable bond: "
+		   << coot::atom_spec_t(v[ipair].first) << "  "
+		   << coot::atom_spec_t(v[ipair].second)
+		   << std::endl;
+      }
    
-   for (unsigned int ipair=0; ipair<v.size(); ipair++) { 
-      std::cout << "   torsionable bond: "
-		<< coot::atom_spec_t(v[ipair].first) << "  "
-		<< coot::atom_spec_t(v[ipair].second)
-		<< std::endl;
-   }
    return v;
 }
 
@@ -91,10 +93,11 @@ coot::torsionable_link_bonds(std::vector<CResidue *> residues_in,
    for (unsigned int i=0; i<bpc.bonded_residues.size(); i++) { 
       coot::dictionary_residue_link_restraints_t link = geom_p->link(bpc[i].link_type);
       if (link.link_id != "") {
-	 if (0) 
+	 if (0)
 	    std::cout << "   dictionary link found " << link.link_id << " with "
 		      << link.link_bond_restraint.size() << " bond restraints and "
 		      << link.link_torsion_restraint.size() << " link torsions " << std::endl;
+	 
 	 for (unsigned int ib=0; ib<link.link_bond_restraint.size(); ib++) { 
 	    // we need to get the atoms and add them to "pairs".
 
@@ -108,6 +111,7 @@ coot::torsionable_link_bonds(std::vector<CResidue *> residues_in,
 			 << bpc[i].res_1->GetResName() << " to "
 			 << bpc[i].res_2->GetResName()
 			 << std::endl;
+	    
 	    CAtom *link_atom_1 = bpc[i].res_1->GetAtom(link.link_bond_restraint[ib].atom_id_1_4c().c_str());
 	    CAtom *link_atom_2 = bpc[i].res_2->GetAtom(link.link_bond_restraint[ib].atom_id_2_4c().c_str());
 	    if (link_atom_1 && link_atom_2) { 
@@ -115,8 +119,42 @@ coot::torsionable_link_bonds(std::vector<CResidue *> residues_in,
 	       v.push_back(pair);
 	    }
 	 }
+
+
+	 // Add in link torsion atoms if they were not already added
+	 // above (because they were link bond restraints)
+	 // 
+	 for (unsigned int it=0; it<link.link_torsion_restraint.size(); it++) {
+	    CResidue *res_for_at_2 = bpc[i].res_1;
+	    CResidue *res_for_at_3 = bpc[i].res_1;
+	    if (link.link_torsion_restraint[it].atom_2_comp_id == 1) res_for_at_2 = bpc[i].res_1;
+	    if (link.link_torsion_restraint[it].atom_2_comp_id == 2) res_for_at_2 = bpc[i].res_2;
+	    if (link.link_torsion_restraint[it].atom_3_comp_id == 1) res_for_at_3 = bpc[i].res_1;
+	    if (link.link_torsion_restraint[it].atom_3_comp_id == 2) res_for_at_3 = bpc[i].res_2;
+
+	    if (res_for_at_2 && res_for_at_3) {
+	       CAtom *link_atom_1 = res_for_at_2->GetAtom(link.link_torsion_restraint[it].atom_id_2_4c().c_str());
+	       CAtom *link_atom_2 = res_for_at_3->GetAtom(link.link_torsion_restraint[it].atom_id_3_4c().c_str());
+
+	       if (link_atom_1 && link_atom_2) {
+		  std::pair<CAtom *, CAtom *> pair(link_atom_1, link_atom_2);
+		  if (std::find(v.begin(), v.end(), pair) == v.end())
+		     v.push_back(pair);
+	       }
+	    }
+	 }
       }
    }
+
+
+   if (0) {
+      std::cout << "---------------- torsionable_link_bonds() returns: " << std::endl;
+      for (unsigned int i=0; i<v.size(); i++) { 
+	 std::cout << "    " << i << " " << coot::atom_spec_t(v[i].first) << " - "
+		   << coot::atom_spec_t(v[i].second) << std::endl;
+      }
+   }
+   
    return v;
 }
 
