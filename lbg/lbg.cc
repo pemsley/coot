@@ -170,7 +170,6 @@ lbg(lig_build::molfile_molecule_t mm,
 void
 lbg_info_t::new_lbg_window() {
    
-   std::cout << "new lbg window" << std::endl;
    lig_build::molfile_molecule_t blank_mol;
    std::pair<bool, coot::residue_spec_t> ligand_spec_pair(0, 0);
    CMMDBManager *mol = NULL;
@@ -186,8 +185,7 @@ lbg_info_t::new_lbg_window() {
        prodrg_import_func_ptr,
        sbase_import_func_ptr,
        get_drug_mdl_file_function_pointer);
-       
-} 
+}
 
 
 	     
@@ -3705,7 +3703,7 @@ lbg_info_t::ligand_grid::grid_pos_nearest(const lig_build::pos_t &pos) const {
        throw std::runtime_error("out of grid index");
    
    return lbg_info_t::grid_index_t(idx_x, idx_y);
-} 
+}
 
  
 
@@ -3829,7 +3827,7 @@ lbg_info_t::ligand_grid::square_type(int ii, int jj, float contour_level) const 
       }
    }
    return square_type;
-} 
+}
 
 lbg_info_t::contour_fragment::contour_fragment(int ms_type,
 					       const float &contour_level, 
@@ -3937,7 +3935,7 @@ lbg_info_t::contour_fragment::contour_fragment(int ms_type,
 
    } 
 
-} 
+}
 
 std::vector<std::pair<lig_build::pos_t, double> >
 lbg_info_t::residue_circle_t::get_attachment_points(const widgeted_molecule_t &mol) const {
@@ -4107,8 +4105,13 @@ lbg_info_t::ligand_grid::avoid_ring_centres(std::vector<std::vector<std::string>
    for (unsigned int iring=0; iring<ring_atoms_list.size(); iring++) {
       try { 
 	 lig_build::pos_t centre = mol.get_ring_centre(ring_atoms_list[iring]);
-	 int n_atoms = ring_atoms_list.size();
+	 int n_atoms = ring_atoms_list[iring].size();
+	 // just in case we get here with n_atoms = 1 for some reason...
+	 if (n_atoms < 3) n_atoms = 3;
+	 
 	 double radius = 1/(2*sin(M_PI/double(n_atoms))) * 1.5; // in "A" or close
+	 std::cout << "avoid_ring_centres() adding ring centre at " << centre
+		   << " n_atoms: " << n_atoms << " radius " << radius << std::endl;
 	 add_for_accessibility(radius, centre);
       }
       catch (std::runtime_error rte) {
@@ -5267,6 +5270,8 @@ lbg_info_t::draw_substitution_contour() {
 		  }
 	       }
 
+	          
+
 	       std::vector<widgeted_atom_ring_centre_info_t> unlimited_atoms;
 	       for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
 		  int n_bash_distances = 0;
@@ -5338,7 +5343,7 @@ lbg_info_t::draw_substitution_contour() {
 		     // outer test for having bash distances. Current way
 		     // is OK, I think.
 		  
-		     // there were no bash distances - what do we do?  Leaving out
+		     // there were no bash distancs - what do we do?  Leaving out
 		     // atoms means gaps over the ligand - bleugh.  Shove some
 		     // value in?  1.0?  if they are not hydrogens, of course.
 		     // 
@@ -5351,6 +5356,7 @@ lbg_info_t::draw_substitution_contour() {
 	       // 
 	       grid.avoid_ring_centres(ring_atoms_list, mol);
 
+	       // for debugging
 	       // show_grid(grid);
 
 	       // std::vector<widgeted_atom_ring_centre_info_t> dummy_unlimited_atoms;
@@ -6185,16 +6191,17 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
    // sets the object variable
    ring_atoms_list = restraints.get_ligand_ring_list();
    
-// just checking that it was passed correctly - it is, for the
-// moment, but do check 1x8b ligand.
-//    
-//    for (unsigned int i=0; i<ring_atoms_list.size(); i++) {
-//       std::cout << "ring list " << i << "   ";
-//       for (unsigned int j=0; j<ring_atoms_list[i].size(); j++) { 
-// 	 std::cout << ring_atoms_list[i][j] << "  ";
-//       }
-//       std::cout << std::endl;
-//    }
+   // just checking that it was passed correctly - 
+   //
+   std::cout << "------------------- ring list ------------" << std::endl;
+   for (unsigned int i=0; i<ring_atoms_list.size(); i++) {
+      std::cout << "ring list " << i << "   ";
+      for (unsigned int j=0; j<ring_atoms_list[i].size(); j++) { 
+	 std::cout << ring_atoms_list[i][j] << "  ";
+      }
+      std::cout << std::endl;
+   }
+   
 
    render_from_molecule(new_mol);
    refine_residue_circle_positions();
