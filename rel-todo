@@ -13,10 +13,6 @@
    o Old backups dialog should be a transient. Could be tricky.
      Puntable ::: 0.5
 
-   o in multi-residue torsion for normal protein chain, , N->C is
-     present (should it be? (I think yes, but with warning icon (and
-     tooltip "This is the peptide bond")) but phi and psi, CA-N
-     and CA-C are not. ::: 1
 
    o double bonds stick should have end-caps. ::: 1
 
@@ -598,5 +594,12 @@ INFO:: using standard CCP4 Refmac dictionary to search for FOR
      added.  It's an undo, I think. ::: 1
 
      g_object_set_data() and g_object_get_data()
+
+* Done.
+
+   o in multi-residue torsion for normal protein chain, , N->C is
+     present (should it be? (I think yes, but with warning icon (and
+     tooltip "This is the peptide bond")) but phi and psi, CA-N
+     and CA-C are not. ::: 1
 
 * Done.
