@@ -324,7 +324,8 @@
 # 4.90 20120713 debug $coot_dir_name link usage.
 # 4.91 20120808 update to handle version of debian in /etc/issue.
 # 4.92 20120820 Debian /etc/issue handling for wheezy.
-script_version=4.92
+# 4.93 20120921 Update mmdb to version 1.24.2
+script_version=4.93
 
 
 # :: NOTE:: 
@@ -2248,6 +2249,7 @@ mmdb_version=1.22
 mmdb_version=1.23
 mmdb_version=1.23.2
 mmdb_version=1.24
+mmdb_version=1.24.2
 echo ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/mmdb-$mmdb_version.tar.gz
 ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/mmdb-$mmdb_version.tar.gz
 # ${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
