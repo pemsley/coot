@@ -4089,7 +4089,7 @@ int get_mol_from_dynarama(GtkWidget *window);
 /* ../../coot/src/callbacks.c: In function ‘on_dynarama_window_configure_event’: */
 /* ../../coot/src/callbacks.c:9682:4: warning: passing argument 2 of ‘resize_rama_canvas’ from incompatible pointer type [enabled by default] */
 /* ../../coot/src/c-interface.h:4083:6: note: expected ‘union GdkEvent *’ but argument is of type ‘struct GdkEventConfigure *’ */
-void resize_rama_canvas(GtkWidget *widget, GdkEvent *event);
+void resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event);
 
 void set_moving_atoms(double phi, double psi);
 

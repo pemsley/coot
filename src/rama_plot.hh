@@ -269,7 +269,7 @@ class rama_plot {
 public:
 
    enum rama_position_t {RAMA_OUTLIER, RAMA_ALLOWED, RAMA_PREFERRED, RAMA_UNKNOWN};
-   void resize_rama_canvas_internal(GtkWidget *widget, GdkEvent *event);
+   void resize_rama_canvas_internal(GtkWidget *widget, GdkEventConfigure *event);
    rama_plot() {
       big_box_item = 0; dialog = 0;
       dialog_position_x = -100; dialog_position_y = -100; };

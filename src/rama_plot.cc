@@ -126,7 +126,7 @@ coot::rama_plot::init(const std::string &type) {
 
 void
 coot::rama_plot::resize_rama_canvas_internal(GtkWidget *widget, 
-                                             GdkEvent *even) {
+                                             GdkEventConfigure *even) {
     GtkWidget *canvas = lookup_widget(widget, "canvas");
     float wf = GTK_WIDGET(canvas)->allocation.width;
     float hf = GTK_WIDGET(canvas)->allocation.height;
