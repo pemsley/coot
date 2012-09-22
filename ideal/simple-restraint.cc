@@ -5577,53 +5577,57 @@ coot::restraints_container_t::add_bonds(int idr, PPCAtom res_selection,
 		     //  					     SelRes->seqNum,
 		     //  					     SelRes->GetChainID());
 
-		     res_selection[iat ]->GetUDData(udd_atom_index_handle, index1);
-		     res_selection[iat2]->GetUDData(udd_atom_index_handle, index2);
+		     int udd_get_data_status_1 = res_selection[iat ]->GetUDData(udd_atom_index_handle, index1);
+		     int udd_get_data_status_2 = res_selection[iat2]->GetUDData(udd_atom_index_handle, index2);
 
 		     // set the UDD flag for this residue being bonded/angle with 
 		     // the other
+
+		     if (udd_get_data_status_1 == UDDATA_Ok &&
+			 udd_get_data_status_2 == UDDATA_Ok) { 
 		  
-		     bonded_atom_indices[index1].push_back(index2);
-		     bonded_atom_indices[index2].push_back(index1);
+			bonded_atom_indices[index1].push_back(index2);
+			bonded_atom_indices[index2].push_back(index1);
 
-		     // 		  std::cout << "add_bond: " << index1_old << " " << index1 << std::endl;
-		     // 		  std::cout << "add_bond: " << index2_old << " " << index2 << std::endl;
+			// 		  std::cout << "add_bond: " << index1_old << " " << index1 << std::endl;
+			// 		  std::cout << "add_bond: " << index2_old << " " << index2 << std::endl;
 
-		     // this needs to be fixed for fixed atom (rather
-		     // than just knowing that these are not flanking
-		     // atoms).
-		     // 
-		     std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
-// 		     std::cout << "creating (monomer) bond restraint with fixed flags "
-// 			       << fixed_flags[0] << " " << fixed_flags[1] << " "
-// 			       << atom[index1]->GetSeqNum() << " "
-// 			       << atom[index1]->name << " to "
-// 			       << atom[index2]->GetSeqNum() << " "
-// 			       << atom[index2]->name
-// 			       << " restraint index " << n_bond_restr << "\n";
-		     try { 
-			add(BOND_RESTRAINT, index1, index2,
-			    fixed_flags,
-			    geom[idr].bond_restraint[ib].value_dist(),
-			    geom[idr].bond_restraint[ib].value_esd(),
-			    1.2);  // junk value
-			n_bond_restr++;
+			// this needs to be fixed for fixed atom (rather
+			// than just knowing that these are not flanking
+			// atoms).
+			// 
+			std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
+			// 		     std::cout << "creating (monomer) bond restraint with fixed flags "
+			// 			       << fixed_flags[0] << " " << fixed_flags[1] << " "
+			// 			       << atom[index1]->GetSeqNum() << " "
+			// 			       << atom[index1]->name << " to "
+			// 			       << atom[index2]->GetSeqNum() << " "
+			// 			       << atom[index2]->name
+			// 			       << " restraint index " << n_bond_restr << "\n";
+			try { 
+			   add(BOND_RESTRAINT, index1, index2,
+			       fixed_flags,
+			       geom[idr].bond_restraint[ib].value_dist(),
+			       geom[idr].bond_restraint[ib].value_esd(),
+			       1.2);  // junk value
+			   n_bond_restr++;
+			}
+
+			catch (std::runtime_error rte) {
+			   // do nothing, it's not really an error if the dictionary
+			   // doesn't have target geometry (the bonding description came
+			   // from a Chemical Component Dictionary entry for example).
+			} 
+		     } else {
+			std::cout << "ERROR:: Caught Enrico Stura bug.  How did it happen?" << std::endl;
 		     }
-
-		     catch (std::runtime_error rte) {
-			// do nothing, it's not really an error if the dictionary
-			// doesn't have target geometry (the bonding description came
-			// from a Chemical Component Dictionary entry for example).
-		     } 
 		  }
 	       }
 	    }
 	 }
       }
    }
-
    return n_bond_restr;
-
 }
 
 int
