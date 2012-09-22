@@ -4822,7 +4822,7 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	    this_model_p = atom_sel.mol->GetModel(i_this_model);
 	    
 	    int n_this_mol_chains = this_model_p->GetNumberOfChains();
-	    
+
 	    for (int ithischain=0; ithischain<n_this_mol_chains; ithischain++) { 
 	       this_chain_p = this_model_p->GetChain(ithischain);
 	       std::vector<std::string> r = coot::util::residue_types_in_chain(this_chain_p);
@@ -4859,8 +4859,11 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	    // return state 
 	    std::pair<bool, std::vector<std::string> > add_state = try_add_by_consolidation(adding_mol);
 
-	    if (add_state.first)
+	    if (add_state.first) { 
+	       update_molecule_after_additions();
 	       multi_residue_add_flag = false; // we've added everything for this mol.
+	    }
+	    
 	 }
 
 	 // this should happen rarely these days...

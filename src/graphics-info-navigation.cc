@@ -178,12 +178,12 @@ graphics_info_t::try_centre_from_new_go_to_atom() {
       setRotationCentre(pi.atom_index, go_to_atom_molecule()); 
 
    } else { 
-      cout << "Sorry atom " << go_to_atom_atom_name() 
-	   << " \"" << go_to_atom_atom_altLoc_ << "\""
-	   << "/" << go_to_atom_residue()
-	   << "\"" << go_to_atom_inscode_ << "\"" 
-	   << "/" << go_to_atom_chain()
-	   << " not found in molecule " << go_to_atom_molecule() << endl;
+      cout << "Sorry atom with name \"" << go_to_atom_atom_name() 
+	   << "\" alt-loc \"" << go_to_atom_atom_altLoc_ << "\","
+	   << " res-no: " << go_to_atom_residue()
+	   << ", ins-code \"" << go_to_atom_inscode_ << "\"," 
+	   << " chain: \"" << go_to_atom_chain()
+	   << "\" not found in molecule " << go_to_atom_molecule() << endl;
    }
    return pi.success; 
 }
@@ -489,7 +489,7 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 	    atom_selection_container_t AtomSel = 
 	       graphics_info_t::molecules[imol].atom_sel; 
 
-	    int selHnd = AtomSel.mol->NewSelection(); 
+	    int selHnd = AtomSel.mol->NewSelection(); // d
 
 	    // 0 -> any (mmdb) model
 	    // 
@@ -527,7 +527,7 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 
 	    // modify nSelAtoms
 	    // 
-	    AtomSel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms); 
+	    AtomSel.mol->GetSelIndex(selHnd, local_SelAtom, nSelAtoms);
 
 	    if (nSelAtoms > 0) {
 
@@ -550,8 +550,6 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 		     if (local_SelAtom[iat]->GetUDData(AtomSel.UDDAtomIndexHandle, ic) == UDDATA_Ok) {
 			pi.success = GL_TRUE; 
 			pi.atom_index = ic;
-// 			std::cout << "DEBUG:: matched altconf gives udd index "
-// 				  << pi.atom_index << std::endl;
 			break;
 		     } else {
 	 
@@ -561,8 +559,6 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 			   if (AtomSel.atom_selection[i] == local_SelAtom[0]) { 
 			      pi.success = GL_TRUE; 
 			      pi.atom_index = i;
-// 			      std::cout << "DEBUG:: pointer comparison 1 hit "
-// 					<< pi.atom_index << std::endl;
 			      break; 
 			   }
 			}
@@ -576,10 +572,6 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 		  if (local_SelAtom[0]->GetUDData(AtomSel.UDDAtomIndexHandle, ic) == UDDATA_Ok) {
 		     pi.success = GL_TRUE; 
 		     pi.atom_index = ic;
-// 		     std::cout << "DEBUG:: non-matched altconf gives udd index "
-// 			       << pi.atom_index << std::endl;
-// 		     std::cout << "Atom at that index: "
-// 			       << molecules[imol].atom_sel.atom_selection[pi.atom_index] << std::endl;
 		  } else {
 		     
 		     // Fall back to comparing pointers.
@@ -588,20 +580,21 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 			if (AtomSel.atom_selection[i] == local_SelAtom[0]) { 
 			   pi.success = GL_TRUE; 
 			   pi.atom_index = i;
-// 			   std::cout << "DEBUG:: pointer comparison 2 hit "
-// 				     << pi.atom_index << std::endl;
 			   break; 
 			}
 		     }
 		  }
 	       }
-	       if (pi.success == GL_TRUE)
+
+	       if (pi.success == GL_TRUE) {
 		  go_to_atom_atom_altLoc_ = AtomSel.atom_selection[pi.atom_index]->altLoc;
+	       }
 
 	       // should we update the go to atom widget's atom name entry now? (it
 	       // is not updated elsewhere)
 		  
 	    } else {
+	       
 	       // this happens when the search atom is not in the molecule
 
 	       int selHnd_check = AtomSel.mol->NewSelection(); 
