@@ -25,7 +25,7 @@
 ;;; fcf handler and the handler does the conversion, writes a new
 ;;; mmCIF file and then reads it.
 ;;; 
-(define handle-shelx-fcf-file
+(define handle-shelx-fcf-file-old
   (lambda (filename)
 
     ;; OK, so we have been passed a shelx fcf file.
@@ -43,6 +43,8 @@
 	(goosh-command "awk" args '() output-mmCIF-file-name #f)
       
 	(auto-read-cif-data-with-phases output-mmCIF-file-name)))))
+
+(define handle-shelx-fcf-file handle-shelx-fcf-file-internal)
 
 
 (define convert-shelx-fcf-to-cif-awk-strings
