@@ -20,9 +20,9 @@ GraphicalSkel::make_graphical_bonds(const clipper::Xmap<float> &map,
 				    float box_radius,
 				    float cut_off) const {
       
-   std::vector<vector<coot::CartesianPair> > cp_vec; // build them up in
-					       // vector, convert on
-					       // return
+   std::vector<vector<graphics_line_t> > cp_vec; // build them up in
+					         // vector, convert on
+					         // return
 
    
    clipper::Skeleton_fast<int,float>::Neighbours neigh( map );
@@ -90,7 +90,7 @@ GraphicalSkel::make_graphical_bonds(const clipper::Xmap<float> &map,
 		       coot::CartesianPair line(f, s); 
 			  
 		       level = clipper::Util::max( l1[iy], l1[iw] ); // -1
-		       cp_vec[level].push_back(line);
+		       cp_vec[level].push_back(graphics_line_t(line, false, false));
 		       //cp_vec[0].push_back(line);
 		     }
 		   }
@@ -118,7 +118,7 @@ graphical_bonds_container
 GraphicalSkel::make_graphical_bonds( const clipper::Xmap<float> &map,
 				     const clipper::Xmap<int>   &l1 ) const {
 
-   vector<coot::CartesianPair> cp_vec; 
+   vector<graphics_line_t> cp_vec; 
 
    int n_lines = 0;
    float cut_off = 0.15;
@@ -156,7 +156,7 @@ GraphicalSkel::make_graphical_bonds( const clipper::Xmap<float> &map,
 		  
 		     coot::CartesianPair line(f, s); 
 		  
-		     cp_vec.push_back(line);
+		     cp_vec.push_back(graphics_line_t(line, false, false));
 		  }
 	       }
 	    }

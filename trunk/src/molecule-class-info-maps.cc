@@ -1430,12 +1430,12 @@ molecule_class_info_t::draw_skeleton() {
 	 glBegin(GL_LINES);
 	 for (int j=0; j<greer_skel_box.bonds_[0].num_lines; j++) {
 
-            glVertex3f(greer_skel_box.bonds_[0].pair_list[j].getStart().get_x(),
-		       greer_skel_box.bonds_[0].pair_list[j].getStart().get_y(),
-		       greer_skel_box.bonds_[0].pair_list[j].getStart().get_z());
-            glVertex3f(greer_skel_box.bonds_[0].pair_list[j].getFinish().get_x(),
-		       greer_skel_box.bonds_[0].pair_list[j].getFinish().get_y(),
-		       greer_skel_box.bonds_[0].pair_list[j].getFinish().get_z());
+            glVertex3f(greer_skel_box.bonds_[0].pair_list[j].positions.getStart().get_x(),
+		       greer_skel_box.bonds_[0].pair_list[j].positions.getStart().get_y(),
+		       greer_skel_box.bonds_[0].pair_list[j].positions.getStart().get_z());
+            glVertex3f(greer_skel_box.bonds_[0].pair_list[j].positions.getFinish().get_x(),
+		       greer_skel_box.bonds_[0].pair_list[j].positions.getFinish().get_y(),
+		       greer_skel_box.bonds_[0].pair_list[j].positions.getFinish().get_z());
 	 }
 	 glEnd();
       }
@@ -1458,12 +1458,12 @@ molecule_class_info_t::draw_skeleton() {
 	    glBegin(GL_LINES);
 	    for (int j=0; j<fc_skel_box.bonds_[l].num_lines; j++) {
 
-	       glVertex3f(fc_skel_box.bonds_[l].pair_list[j].getStart().get_x(),
-			  fc_skel_box.bonds_[l].pair_list[j].getStart().get_y(),
-			  fc_skel_box.bonds_[l].pair_list[j].getStart().get_z());
-	       glVertex3f(fc_skel_box.bonds_[l].pair_list[j].getFinish().get_x(),
-			  fc_skel_box.bonds_[l].pair_list[j].getFinish().get_y(),
-			  fc_skel_box.bonds_[l].pair_list[j].getFinish().get_z());
+	       glVertex3f(fc_skel_box.bonds_[l].pair_list[j].positions.getStart().get_x(),
+			  fc_skel_box.bonds_[l].pair_list[j].positions.getStart().get_y(),
+			  fc_skel_box.bonds_[l].pair_list[j].positions.getStart().get_z());
+	       glVertex3f(fc_skel_box.bonds_[l].pair_list[j].positions.getFinish().get_x(),
+			  fc_skel_box.bonds_[l].pair_list[j].positions.getFinish().get_y(),
+			  fc_skel_box.bonds_[l].pair_list[j].positions.getFinish().get_z());
 	    }
 	    glEnd();
 	 }

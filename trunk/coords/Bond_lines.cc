@@ -42,9 +42,9 @@
 
 static std::string b_factor_bonds_scale_handle_name = "B-factor-bonds-scale";
 
-Bond_lines::Bond_lines(const coot::CartesianPair &pair) {
+Bond_lines::Bond_lines(const graphics_line_t &line) {
 
-   points.push_back(pair);
+   points.push_back(line);
 }
 
 // We arrange things like this because the other constructor now uses
@@ -554,9 +554,9 @@ Bond_lines_container::add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n
 
       if (ele_1 == ele_2) {
 	 // simple double bond (e.g. C=C)
-	 addBond(col, pt_1_1, pt_2_1);
+	 addBond(col, pt_1_1, pt_2_1, true, true);
 	 if (! is_deloc) 
-	    addBond(col, pt_1_2, pt_2_2);
+	    addBond(col, pt_1_2, pt_2_2, true, true);
 	 else
 	    add_dashed_bond(col, pt_1_2, pt_2_2, NOT_HALF_BOND);
       } else { 
@@ -565,17 +565,17 @@ Bond_lines_container::add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n
 	 clipper::Coord_orth bond_mid_point = 0.5 * clipper::Coord_orth(pos_at_1 + pos_at_2);
 	 clipper::Coord_orth mp_1 = bond_mid_point - offset * perp_n;
 	 clipper::Coord_orth mp_2 = bond_mid_point + offset * perp_n;
-	 if (! is_deloc) { 
-	    addBond(col, pt_1_1, mp_1);
-	    addBond(col, pt_1_2, mp_2);
+	 if (! is_deloc) {
+	    addBond(col, pt_1_1, mp_1, true, false);
+	    addBond(col, pt_1_2, mp_2, true, false);
 	    col = atom_colour(atoms[iat_2], atom_colour_type);
-	    addBond(col, pt_2_1, mp_1);
-	    addBond(col, pt_2_2, mp_2);
+	    addBond(col, pt_2_1, mp_1, true, false);
+	    addBond(col, pt_2_2, mp_2, true, false);
 	 } else {
-	    addBond(col, pt_1_1, mp_1);
+	    addBond(col, pt_1_1, mp_1, true, false);
 	    add_dashed_bond(col, pt_1_2, mp_2, HALF_BOND_FIRST_ATOM);
 	    col = atom_colour(atoms[iat_2], atom_colour_type);
-	    addBond(col, pt_2_1, mp_1);
+	    addBond(col, pt_2_1, mp_1, true, false);
 	    add_dashed_bond(col, pt_2_2, mp_2, HALF_BOND_SECOND_ATOM);
 	 } 
       }
@@ -2763,7 +2763,8 @@ Bond_lines_container::make_graphical_bonds(bool thinning_flag) const {
    for (int i=0; i<ibs; i++) {
 
       box.bonds_[i].num_lines = bonds[i].size();
-      box.bonds_[i].pair_list = new coot::CartesianPair[bonds[i].size()];
+      // box.bonds_[i].pair_list = new coot::CartesianPair[bonds[i].size()];
+      box.bonds_[i].pair_list = new graphics_line_t[bonds[i].size()];
       for (int j=0; j<bonds[i].size(); j++) 
 	 box.bonds_[i].pair_list[j] = bonds[i][j];
       if (thinning_flag)
@@ -2818,7 +2819,8 @@ Bond_lines_container::make_graphical_symmetry_bonds() const {
 
       if (num_lines > 0 ){ 
       
-	 box.symmetry_bonds_[i].pair_list = new coot::CartesianPair[bonds[i].size()];
+	 // box.symmetry_bonds_[i].pair_list = new coot::CartesianPair[bonds[i].size()];
+	 box.symmetry_bonds_[i].pair_list = new graphics_line_t[bonds[i].size()];
 
 	 int bis = bonds[i].size();
 	 for (int j=0; j<bis; j++) {
@@ -2876,7 +2878,7 @@ Bond_lines_container::write(std::string filename) const {
    }
 }
 
-coot::CartesianPair
+graphics_line_t
 Bond_lines::operator[](int i) const {
 
    return points[i];
@@ -2886,13 +2888,13 @@ Bond_lines::operator[](int i) const {
 coot::Cartesian
 Bond_lines::GetStart(int i) const {
 
-   return points[i].getStart();
+   return points[i].positions.getStart();
 }
 
 coot::Cartesian
 Bond_lines::GetFinish(int i) const {
 
-   return points[i].getFinish();
+   return points[i].positions.getFinish();
 } 
 
 Bond_lines_container::Bond_lines_container(int col) {
@@ -2910,10 +2912,12 @@ Bond_lines_container::Bond_lines_container(int col) {
 void
 Bond_lines_container::addBond(int col,
 			      const coot::Cartesian &start,
-			      const coot::Cartesian &end) {
+			      const coot::Cartesian &end,
+			      bool add_begin_end_cap,
+			      bool add_end_end_cap) {
 
    coot::CartesianPair pair(start,end);
-   bonds[col].add_bond(pair);
+   bonds[col].add_bond(pair, add_begin_end_cap, add_end_end_cap);
 }
 
 
@@ -2937,14 +2941,17 @@ Bond_lines_container::add_dashed_bond(int col,
       coot::Cartesian this_start(start + (end-start).by_scalar(frac_1));
       coot::Cartesian this_end(  start + (end-start).by_scalar(frac_2));
       coot::CartesianPair pair(this_start,this_end);
-      bonds[col].add_bond(pair);
-   } 
+      bonds[col].add_bond(pair, false, false);
+   }
 }
 
 //
 void
-Bond_lines::add_bond(const coot::CartesianPair &pair) {
-   points.push_back(pair);
+Bond_lines::add_bond(const coot::CartesianPair &p,
+		     bool begin_end_cap,
+		     bool end_end_cap) {
+   graphics_line_t gl(p, begin_end_cap, end_end_cap);
+   points.push_back(gl);
 } 
 
 //
