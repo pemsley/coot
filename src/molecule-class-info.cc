@@ -1747,12 +1747,12 @@ molecule_class_info_t::display_ghost_bonds(int ighost) {
 	       set_bond_colour_by_mol_no(ighost);
 	    glBegin(GL_LINES);
 	    for (int j=0; j< ncs_ghosts[ighost].bonds_box.bonds_[i].num_lines; j++) {
-	       glVertex3f(ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].getStart().get_x(),
-			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].getStart().get_y(),
-			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].getStart().get_z());
-	       glVertex3f(ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].getFinish().get_x(),
-			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].getFinish().get_y(),
-			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].getFinish().get_z());
+	       glVertex3f(ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_x(),
+			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_y(),
+			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getStart().get_z());
+	       glVertex3f(ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_x(),
+			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_y(),
+			  ncs_ghosts[ighost].bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_z());
 	    }
 	    glEnd();
 	 }
@@ -1819,12 +1819,12 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 	    // 	    exit(1);
 	    // 	 }
 	    
-	    glVertex3f(ll.pair_list[j].getStart().get_x(),
-		       ll.pair_list[j].getStart().get_y(),
-		       ll.pair_list[j].getStart().get_z());
-	    glVertex3f(ll.pair_list[j].getFinish().get_x(),
-		       ll.pair_list[j].getFinish().get_y(),
-		       ll.pair_list[j].getFinish().get_z());
+	    glVertex3f(ll.pair_list[j].positions.getStart().get_x(),
+		       ll.pair_list[j].positions.getStart().get_y(),
+		       ll.pair_list[j].positions.getStart().get_z());
+	    glVertex3f(ll.pair_list[j].positions.getFinish().get_x(),
+		       ll.pair_list[j].positions.getFinish().get_y(),
+		       ll.pair_list[j].positions.getFinish().get_z());
 	 }
 	 glEnd();
       }
@@ -1841,23 +1841,23 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 	    
 	    coot::Cartesian vec_perp_to_screen_z =
 	       get_vector_pependicular_to_screen_z(front, back,
-						   ll.pair_list[j].getFinish() -
-						   ll.pair_list[j].getStart(),
+						   ll.pair_list[j].positions.getFinish() -
+						   ll.pair_list[j].positions.getStart(),
 						   zsc, p_bond_width);
 
-	    glVertex3f(ll.pair_list[j].getStart().get_x()+vec_perp_to_screen_z.get_x(),
-		       ll.pair_list[j].getStart().get_y()+vec_perp_to_screen_z.get_y(),
-		       ll.pair_list[j].getStart().get_z()+vec_perp_to_screen_z.get_z());
-	    glVertex3f(ll.pair_list[j].getStart().get_x()-vec_perp_to_screen_z.get_x(),
-		       ll.pair_list[j].getStart().get_y()-vec_perp_to_screen_z.get_y(),
-		       ll.pair_list[j].getStart().get_z()-vec_perp_to_screen_z.get_z());
+	    glVertex3f(ll.pair_list[j].positions.getStart().get_x()+vec_perp_to_screen_z.get_x(),
+		       ll.pair_list[j].positions.getStart().get_y()+vec_perp_to_screen_z.get_y(),
+		       ll.pair_list[j].positions.getStart().get_z()+vec_perp_to_screen_z.get_z());
+	    glVertex3f(ll.pair_list[j].positions.getStart().get_x()-vec_perp_to_screen_z.get_x(),
+		       ll.pair_list[j].positions.getStart().get_y()-vec_perp_to_screen_z.get_y(),
+		       ll.pair_list[j].positions.getStart().get_z()-vec_perp_to_screen_z.get_z());
 
-	    glVertex3f(ll.pair_list[j].getFinish().get_x()-vec_perp_to_screen_z.get_x(),
-		       ll.pair_list[j].getFinish().get_y()-vec_perp_to_screen_z.get_y(),
-		       ll.pair_list[j].getFinish().get_z()-vec_perp_to_screen_z.get_z());
-	    glVertex3f(ll.pair_list[j].getFinish().get_x()+vec_perp_to_screen_z.get_x(),
-		       ll.pair_list[j].getFinish().get_y()+vec_perp_to_screen_z.get_y(),
-		       ll.pair_list[j].getFinish().get_z()+vec_perp_to_screen_z.get_z());
+	    glVertex3f(ll.pair_list[j].positions.getFinish().get_x()-vec_perp_to_screen_z.get_x(),
+		       ll.pair_list[j].positions.getFinish().get_y()-vec_perp_to_screen_z.get_y(),
+		       ll.pair_list[j].positions.getFinish().get_z()-vec_perp_to_screen_z.get_z());
+	    glVertex3f(ll.pair_list[j].positions.getFinish().get_x()+vec_perp_to_screen_z.get_x(),
+		       ll.pair_list[j].positions.getFinish().get_y()+vec_perp_to_screen_z.get_y(),
+		       ll.pair_list[j].positions.getFinish().get_z()+vec_perp_to_screen_z.get_z());
 	    
 	 }
 	 glEnd();
@@ -1916,12 +1916,12 @@ molecule_class_info_t::display_symmetry_bonds() {
 
 		  // pair = ll.pair_list[j];
 	    
-		  glVertex3f(ll.pair_list[j].getStart().get_x(),
-			     ll.pair_list[j].getStart().get_y(),
-			     ll.pair_list[j].getStart().get_z());
-		  glVertex3f(ll.pair_list[j].getFinish().get_x(),
-			     ll.pair_list[j].getFinish().get_y(),
-			     ll.pair_list[j].getFinish().get_z());
+		  glVertex3f(ll.pair_list[j].positions.getStart().get_x(),
+			     ll.pair_list[j].positions.getStart().get_y(),
+			     ll.pair_list[j].positions.getStart().get_z());
+		  glVertex3f(ll.pair_list[j].positions.getFinish().get_x(),
+			     ll.pair_list[j].positions.getFinish().get_y(),
+			     ll.pair_list[j].positions.getFinish().get_z());
 		  if ( (++linesdrawn & 1023) == 0) {
 		     glEnd();
 		     glBegin(GL_LINES);
@@ -1961,12 +1961,12 @@ molecule_class_info_t::display_symmetry_bonds() {
 
 		     // pair = ll.pair_list[j];
 	    
-		     glVertex3f(ll.pair_list[j].getStart().get_x(),
-				ll.pair_list[j].getStart().get_y(),
-				ll.pair_list[j].getStart().get_z());
-		     glVertex3f(ll.pair_list[j].getFinish().get_x(),
-				ll.pair_list[j].getFinish().get_y(),
-				ll.pair_list[j].getFinish().get_z());
+		     glVertex3f(ll.pair_list[j].positions.getStart().get_x(),
+				ll.pair_list[j].positions.getStart().get_y(),
+				ll.pair_list[j].positions.getStart().get_z());
+		     glVertex3f(ll.pair_list[j].positions.getFinish().get_x(),
+				ll.pair_list[j].positions.getFinish().get_y(),
+				ll.pair_list[j].positions.getFinish().get_z());
 		     if ( (++linesdrawn & 1023) == 0) {
 			glEnd();
 			glBegin(GL_LINES);

@@ -1595,7 +1595,7 @@ graphics_info_t::moving_atoms_graphics_object() {
 	 glBegin(GL_LINES); 
 	 for (int j=0; j< graphics_info_t::regularize_object_bonds_box.bonds_[i].num_lines; j++) {
 	   
-	    pair = ll.pair_list[j];
+	    pair = ll.pair_list[j].positions;
 	    
 	    glVertex3f(pair.getStart().get_x(),
 		       pair.getStart().get_y(),
@@ -1703,7 +1703,7 @@ graphics_info_t::environment_graphics_object_internal_lines(const graphical_bond
 	    
 	       for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
 	   
-		  const coot::CartesianPair &pair = ll.pair_list[j];
+		  const coot::CartesianPair &pair = ll.pair_list[j].positions;
 	    
 		  glBegin(GL_LINES);
 		  glVertex3f(pair.getStart().get_x(),
@@ -1766,7 +1766,7 @@ graphics_info_t::environment_graphics_object_internal_tubes(const graphical_bond
 	       glColor3f (0.8-dark_bg_cor, 0.8-0.4*it-dark_bg_cor, 0.4+0.5*it-dark_bg_cor);
 	    
 	       for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
-		  const coot::CartesianPair &pair = ll.pair_list[j];
+		  const coot::CartesianPair &pair = ll.pair_list[j].positions;
 
 		  int n_parts = 15;
 		  for (unsigned int ipart=0; ipart<n_parts; ipart++) {

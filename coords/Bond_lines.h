@@ -121,6 +121,19 @@ namespace coot {
       }
    };
 }
+
+class graphics_line_t {
+public:
+   coot::CartesianPair positions;
+   bool has_begin_cap;
+   bool has_end_cap;
+   graphics_line_t(const coot::CartesianPair &p, bool b, bool e) {
+      positions = p;
+      has_begin_cap = b;
+      has_end_cap = e;
+   }
+   graphics_line_t() { }
+};
  
 // A poor man's vector.  For use when we can't use vectors
 // 
@@ -128,15 +141,15 @@ class Lines_list {
 
  public:   
    // contain a number of elements
-   int num_lines; 
-   coot::CartesianPair *pair_list;
+   int num_lines;
+   // coot::CartesianPair *pair_list;
+   graphics_line_t *pair_list;
    bool thin_lines_flag;
    
    Lines_list() { 
       pair_list = NULL;
       thin_lines_flag = 0;
    }
-   
 };
 
 // Uses Lines_list
@@ -202,7 +215,7 @@ class graphical_bonds_container {
       n_atom_centres_ = 0;
    }
 
-   graphical_bonds_container(std::vector<coot::CartesianPair> &a) { 
+   graphical_bonds_container(const std::vector<graphics_line_t> &a) { 
 
       std::cout << "constructing a graphical_bonds_container from a vector " 
 		<< "of size " << a.size() << std::endl;
@@ -210,14 +223,13 @@ class graphical_bonds_container {
       num_colours = 1;
       
       bonds_ = new Lines_list[1]; // only 1 Lines_list needed
-      bonds_[0].pair_list = new coot::CartesianPair[(a.size())];
-
+      bonds_[0].pair_list = new graphics_line_t[(a.size())];
       bonds_[0].num_lines = a.size();
 
       // copy over
-      for(int i=0; i<bonds_[0].num_lines; i++) { 
-	bonds_[0].pair_list[i] = a[i]; 
-      }
+      for(int i=0; i<bonds_[0].num_lines; i++)
+	 bonds_[0].pair_list[i] = a[i];
+
       symmetry_bonds_ = NULL; 
       symmetry_has_been_created = 0; 
       zero_occ_spot = NULL;
@@ -227,7 +239,8 @@ class graphical_bonds_container {
       n_atom_centres_ = 0;
    }
       
-   void add_colour( std::vector<coot::CartesianPair> &a ) {
+   void add_colour(const  std::vector<graphics_line_t> &a ) {
+      
  /*       cout << "filling a graphical_bonds_container from a vector "  */
 /* 	   << "of size " << a.size() << endl; */
 
@@ -237,12 +250,13 @@ class graphical_bonds_container {
        delete[] bonds_;
      }
      bonds_ = new_bonds_;
-     bonds_[num_colours].pair_list = new coot::CartesianPair[(a.size())];
+     // bonds_[num_colours].pair_list = new coot::CartesianPair[(a.size())];
+     bonds_[num_colours].pair_list = new graphics_line_t[(a.size())];
      bonds_[num_colours].num_lines = a.size();
 
      // copy over
      for(unsigned int i=0; i<a.size(); i++) { 
-       bonds_[num_colours].pair_list[i] = a[i]; 
+	bonds_[num_colours].pair_list[i] = a[i];
      }
      num_colours++;
 
@@ -265,21 +279,23 @@ class graphical_bonds_container {
 //
 class Bond_lines { 
    int colour;
-   std::vector<coot::CartesianPair> points;
+   std::vector<graphics_line_t> points;
 
  public:
-   Bond_lines(const coot::CartesianPair &pts);
+   Bond_lines(const graphics_line_t &pts);
    Bond_lines(); 
    Bond_lines(int col);
 
-   void add_bond(const coot::CartesianPair &p);
+   void add_bond(const coot::CartesianPair &p,
+		 bool begin_end_cap,
+		 bool end_end_cap);
    int size() const; 
 
    // return the coordinates of the start and finish points of the i'th bond.
    //
    coot::Cartesian GetStart(int i) const;
    coot::Cartesian GetFinish(int i) const;
-   coot::CartesianPair operator[](int i) const;
+   graphics_line_t operator[](int i) const;
 };
 
 // 
@@ -390,7 +406,9 @@ class Bond_lines_container {
    std::vector<coot::Cartesian>  zero_occ_spot;
    std::vector<std::pair<bool, coot::Cartesian> >  atom_centres;
    std::vector<int>        atom_centres_colour;
-   void addBond(int colour, const coot::Cartesian &first, const coot::Cartesian &second);
+   void addBond(int colour, const coot::Cartesian &first, const coot::Cartesian &second,
+		bool add_begin_end_cap = false,
+		bool add_end_end_cap = false);
    void addBondtoHydrogen(const coot::Cartesian &first, const coot::Cartesian &second);
    // void add_deloc_bond_lines(int colour, const coot::Cartesian &first, const coot::Cartesian &second,
    // int deloc_half_flag);

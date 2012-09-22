@@ -179,20 +179,20 @@ coot::ghost_molecule_display_t::update_bonds(CMMDBManager *mol) {
    for (int i=0; i<bonds_box.num_colours; i++) {
       for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 
-	 clipper::Coord_orth a(bonds_box.bonds_[i].pair_list[j].getStart().get_x(),
-			       bonds_box.bonds_[i].pair_list[j].getStart().get_y(),
-			       bonds_box.bonds_[i].pair_list[j].getStart().get_z());
+	 clipper::Coord_orth a(bonds_box.bonds_[i].pair_list[j].positions.getStart().get_x(),
+			       bonds_box.bonds_[i].pair_list[j].positions.getStart().get_y(),
+			       bonds_box.bonds_[i].pair_list[j].positions.getStart().get_z());
 	 
-	 clipper::Coord_orth b(bonds_box.bonds_[i].pair_list[j].getFinish().get_x(),
-			       bonds_box.bonds_[i].pair_list[j].getFinish().get_y(),
-			       bonds_box.bonds_[i].pair_list[j].getFinish().get_z());
+	 clipper::Coord_orth b(bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_x(),
+			       bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_y(),
+			       bonds_box.bonds_[i].pair_list[j].positions.getFinish().get_z());
 
 	 clipper::Coord_orth at = a.transform(rtop);
 	 clipper::Coord_orth bt = b.transform(rtop);
 
-	 bonds_box.bonds_[i].pair_list[j] =
-	    coot::CartesianPair(Cartesian(at.x(), at.y(), at.z()),
-				Cartesian(bt.x(), bt.y(), bt.z()));
+	 coot::CartesianPair p(Cartesian(at.x(), at.y(), at.z()),
+			       Cartesian(bt.x(), bt.y(), bt.z()));
+	 bonds_box.bonds_[i].pair_list[j] = graphics_line_t(p, false, false);
       }
    }
 }

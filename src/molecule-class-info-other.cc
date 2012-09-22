@@ -3888,7 +3888,7 @@ molecule_class_info_t::fill_raster_model_info() {
       for (int i=0; i<bonds_box.num_colours; i++) {
 	 set_bond_colour_by_mol_no(i); //sets bond_colour_internal
 	 for (int j=0; j<bonds_box.bonds_[i].num_lines; j++) {
-	    rtmi.bond_lines.push_back(std::pair<coot::Cartesian, coot::Cartesian>(bonds_box.bonds_[i].pair_list[j].getStart(), bonds_box.bonds_[i].pair_list[j].getFinish()));
+	    rtmi.bond_lines.push_back(std::pair<coot::Cartesian, coot::Cartesian>(bonds_box.bonds_[i].pair_list[j].positions.getStart(), bonds_box.bonds_[i].pair_list[j].positions.getFinish()));
 	    coot::colour_t c;
 	    c.col.resize(3);
 	    c.col[0] = bond_colour_internal[0];
@@ -3973,8 +3973,9 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
 	    rtmi.bones_colour.col[i] = graphics_info_t::skeleton_colour[i];
 	 for (int l=0; l<fc_skel_box.num_colours; l++) {
 	    for (int j=0; j<fc_skel_box.bonds_[l].num_lines; j++) {
-	       std::pair<coot::Cartesian, coot::Cartesian> p(fc_skel_box.bonds_[l].pair_list[j].getStart(),
-							     fc_skel_box.bonds_[l].pair_list[j].getFinish());
+	       std::pair<coot::Cartesian, coot::Cartesian>
+		  p(fc_skel_box.bonds_[l].pair_list[j].positions.getStart(),
+		    fc_skel_box.bonds_[l].pair_list[j].positions.getFinish());
 	       rtmi.bone_lines.push_back(p);
 	    }
 	 }
@@ -6119,17 +6120,17 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 
 	 for (int j=0; j< bonds_box_local.bonds_[ii].num_lines; j++) {
 	    glPushMatrix();
-	    glTranslatef(ll.pair_list[j].getFinish().get_x(),
-			 ll.pair_list[j].getFinish().get_y(),
-			 ll.pair_list[j].getFinish().get_z());
+	    glTranslatef(ll.pair_list[j].positions.getFinish().get_x(),
+			 ll.pair_list[j].positions.getFinish().get_y(),
+			 ll.pair_list[j].positions.getFinish().get_z());
 	    double base = bond_thickness;
 	    double top = bond_thickness;
 	    if (ll.thin_lines_flag) { 
 	       base *= 0.55;
-	       top *= 0.55;
+	       top  *= 0.55;
 	    }
 	    coot::Cartesian bond_height =
-	       ll.pair_list[j].getFinish() - ll.pair_list[j].getStart();
+	       ll.pair_list[j].positions.getFinish() - ll.pair_list[j].positions.getStart();
 	    double height = bond_height.amplitude();
 	    int slices = 10;
 	    int stacks = 2;
@@ -6168,6 +6169,25 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	    glScalef(1.0, 1.0, -1.0); // account for mg maths :-)
 	    gluCylinder(quad, base, top, height, slices, stacks);
 	    // gluQuadricNormals(quad, GL_SMOOTH);
+
+	    if (0) // debugging end-caps
+	       std::cout << j << " begin_end_cap: " << ll.pair_list[j].has_begin_cap
+			 << " end_cap: " << ll.pair_list[j].has_end_cap
+			 << std::endl;
+
+	    if (ll.pair_list[j].has_end_cap) {
+	       glPushMatrix();
+	       glScalef(1.0, 1.0, -1.0);
+	       gluDisk(quad, 0, base, slices, 2);
+	       glPopMatrix();
+	    }
+	    if (ll.pair_list[j].has_begin_cap) { 
+	       glPushMatrix();
+	       glTranslated(0,0,height);
+	       gluDisk(quad, 0, base, slices, 2);
+	       glPopMatrix();
+	    }
+
 	    gluDeleteQuadric(quad);
 	    glPopMatrix();
 	 }
