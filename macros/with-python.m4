@@ -65,11 +65,11 @@ if test x$with_python != x; then
      PYTHON_LIBS_PRE="-L`$PYTHON -c "$py_cmd"`"
    else 
      # normal execution proceeds..
-     PYTHON_CFLAGS="-DUSE_PYTHON -I`$PYTHON -c 'import sys; print sys.prefix + "/include/python" + sys.version[[:3]]'`"
+     PYTHON_CFLAGS="-DUSE_PYTHON `python-config --include`"
    # PYTHON_LIBS="-L/h/paule/build/lib/python2.2/config -lpython2.2 -lutil"
      config_dir=`$PYTHON -c "import sys; print sys.prefix + '/$acl_libdirstem/python' + sys.version[[:3]] + '/config'"`
      # echo  ======== config_dir: $config_dir
-     PYTHON_LIBS_PRE="-L$config_dir -lpython`$PYTHON -c 'import sys; print sys.version[[:3]]'`"
+     PYTHON_LIBS_PRE="`python-config --ldflags`"
    fi
 	
    # now we have to deal with the -lutil issue.  On GNU/Linux, we need
@@ -107,7 +107,6 @@ if test x$with_python != x; then
    #
    # Now that lidia can dynamically add python modules, we need -ldl for Fed 14 (gcc 4.5.1)
    # 
-   extra_dl_lib=
    #
    coot_gcc_version=$(gcc -dumpversion)
    case "$coot_gcc_version" in 
@@ -118,16 +117,7 @@ if test x$with_python != x; then
         gcc_major_minor=$coot_gcc_version
         ;;
    esac
-   if test "$gcc_major_minor" \> 4.4 ; then extra_dl_lib=-ldl ; fi
 
-   # unset for windows
-   case	$ac_cv_build_alias in
-    *-mingw*)
-       extra_dl_lib=
-    ;;
-   esac
-
-   # extra_dl_lib should now be set correctly   
 
    save_CPPFLAGS="$CPPFLAGS"
    CPPFLAGS="$CPPFLAGS $PYTHON_CFLAGS"
@@ -138,7 +128,7 @@ if test x$with_python != x; then
 
    if test "$found_python_include_file" = true ; then 
 
-      PYTHON_LIBS="$PYTHON_LIBS_PRE $UTIL_LIB $extra_dl_lib"
+      PYTHON_LIBS="$PYTHON_LIBS_PRE $UTIL_LIB"
 
 dnl    this results in a random yes on its own line.  Commenting it out.
 dnl    echo Bmessage
