@@ -87,12 +87,11 @@ class ShelxTestFunctions(unittest.TestCase):
         imol = handle_shelx_fcf_file(insulin_fcf)
         self.failUnless(valid_map_molecule_qm(imol),
                         "    Bad read of %s %s" %(insulin_fcf, imol))
-        name = molecule_name(imol)
-        cif_name = insulin_fcf + ".cif SigmaA"
-        self.failUnlessEqual(name, cif_name,
-                             "   Bad name match %s != %s" %(name, cif_name))
 
-        self.failUnlessEqual(show_spacegroup(imol), show_spacegroup(imol_insulin_res_local),
+        # remove the name test for Sigmaa now that we use read_small_molecule_data_cif
+
+        self.failUnlessEqual(show_spacegroup(imol),
+                             show_spacegroup(imol_insulin_res_local),
                              "   Mismatch spacegroups %s %s" %(show_spacegroup(imol),
                                                                show_spacegroup(imol_insulin_res_local)))
 

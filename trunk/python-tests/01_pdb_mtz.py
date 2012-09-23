@@ -1119,6 +1119,51 @@ class PdbMtzTestFunctions(unittest.TestCase):
                 self.failIf(ter_line, "TER before ATOM")  # fail because TER has already happened
 
 
+    def test27_2(self):
+        """C7 is removed on mutation from a DC"""
+
+        imol = unittest_pdb("4f8g.pdb")
+        self.failUnless(valid_model_molecule_qm(imol),
+                        "Missing 4fg8.pdb")
+
+        status = mutate_base(imol, "A", 19, "", "DC")
+        self.failUnlessEqual(status, 1,
+                             "failed to mutate 1")
+
+        atom_list = residue_info(imol, "A", 19, "")
+        self.failUnless(isinstance(atom_list, list),
+                        "Bad atom list 1")
+
+        self.failUnless(len(atom_list) > 10,
+                        "Bad atom list, need more atoms 1")
+
+        atoms = map(residue_atom2atom_name, atom_list)
+        self.failIf(" C7 " in atoms,
+                    "C7 still present")
+
+        write_pdb_file(imol, "test-1.pdb")  # why?
+
+
+    def test27_3(self):
+        """C7 is added on mutation to a DC"""
+
+        imol = unittest_pdb("4f8g.pdb")
+        # now try mutate 10 to a T
+
+        status = mutate_base(imol, "A", 10, "" , "DT")
+        self.failUnlessEqual(status, 1,
+                             "failed to mutate back 4f8g.pdb")
+        atom_list = residue_info(imol, "A", 10, "")
+        self.failUnless(isinstance(atom_list, list),
+                        "Bad atom list 2")
+
+        atoms = map(residue_atom2atom_name, atom_list)
+        self.failUnless(" C7 " in atoms,
+                        "C7 not present in T")
+
+        write_pdb_file(imol, "test-2.pdb")  # why?
+        
+    
     def test28_0(self):
         """Deleting (non-existing) Alt conf and Go To Atom [JED]"""
 
@@ -2005,6 +2050,38 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnless(r15 == 15,
                         "  wrong residue number r15 %s" %r15)
 
+
+    def test52_1(self):
+        """Consolidated merge"""
+
+        imol = unittest_pdb("pdb1hvv.ent")
+        imol_lig_1 = unittest_pdb("monomer-ACT.pdb")
+        imol_lig_2 = unittest_pdb("monomer-NPO.pdb")
+
+        print "-------- starting chain list -----------"
+        print chain_ids(imol)
+
+        merge_molecules([imol_lig_1, imol_lig_2], imol)
+
+        imol_symm_copy = new_molecule_by_symop(imol, "-X,-X+Y,-Z+1/3", 0, 0, 0)
+
+        self.failUnless(valid_model_molecule_qm(imol_symm_copy),
+                        "Symm molecule problem")
+
+        merge_molecules([imol_symm_copy], imol)
+
+        chain_list = chain_ids(imol)
+
+        print chain_list
+
+        write_pdb_file(imol, "sym-merged.pdb")  # why?
+
+        self.failUnlessEqual(chain_list,
+                             ["A", "B", "C", "D", "",  # original
+                              "E", "F",                # merged ligs
+                              "G", "H", "I", "J", "K"],  # protein chain copies
+                             "List did not match")
+        
 
     def test53_0(self):
         """LSQ by atom"""
