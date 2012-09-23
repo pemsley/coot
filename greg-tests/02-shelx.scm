@@ -69,37 +69,32 @@
 	 (if (not (valid-map-molecule? imol))
 	     (begin
 	       (format #t "   Bad read of ~s ~s~%" insulin-fcf imol)
-	       (throw 'fail))
+	       (throw 'fail)))
+
+	 ;; remove the name test for Sigmaa now that we use read-small-molecule-data-cif
+
+	 (if (not (string=? (show-spacegroup imol)
+			    (show-spacegroup imol-insulin-res-local)))
 	     (begin
-	       (let ((name (molecule-name imol))
-		     (cif-name (string-append insulin-fcf ".cif SigmaA")))
-		 (if (not (string=? name cif-name))
-		     (begin
-		       (format #t "   Bad name match ~s != ~s~%" name cif-name)
-		       (throw 'fail))))
+	       (format #t "   Mismatch spacegroups ~s ~s~%" 
+		       (show-spacegroup imol)
+		       (show-spacegroup imol-insulin-res-local))
+	       (throw 'fail))
+	     
+	     (if (not (string=? (show-spacegroup imol)
+				"I 21 3"))
+		 (begin
+		   (format #t "   Bad spacegroups ~s~%" 
+			   (show-spacegroup imol))
+		   (throw 'fail))
 
-	       (if (not (string=? (show-spacegroup imol)
-				  (show-spacegroup imol-insulin-res-local)))
-		   (begin
-		     (format #t "   Mismatch spacegroups ~s ~s~%" 
-			     (show-spacegroup imol)
-			     (show-spacegroup imol-insulin-res-local))
-		     (throw 'fail))
-		   
-		   (if (not (string=? (show-spacegroup imol)
-				      "I 21 3"))
-		       (begin
-			 (format #t "   Bad spacegroups ~s~%" 
-				 (show-spacegroup imol))
-			 (throw 'fail))
-
-		       ;; good then:
-		       (begin
-			 (set! imol-insulin-map imol)
-			 (rotate-y-scene (rotate-n-frames 200) 0.1)
-			 ;; (close-molecule imol) ; needed later
-			 ;; (close-molecule imol-insulin-res-local) ; needed later
-			 #t)))))))))
+		 ;; good then:
+		 (begin
+		   (set! imol-insulin-map imol)
+		   (rotate-y-scene (rotate-n-frames 200) 0.1)
+		   ;; (close-molecule imol) ; needed later
+		   ;; (close-molecule imol-insulin-res-local) ; needed later
+		   #t)))))))
 
 
 ;; The "SHELX Woe" problem

@@ -14,13 +14,15 @@ int
 try_read_cif_file(const char *filename) { 
 
    char *f_pt; 
+   int imol_cif; 
 
 /*    printf("DEBUG::: ========= in try_read_cif_file() ===============\n"); */
    f_pt = strrchr(filename, '.');
    if (f_pt != NULL) { 
       if (! (strncmp(f_pt, ".fcf", 4))) { 
 	 printf ("INFO trying to read %s as a SHELX fcf file\n", filename);
-	 return handle_shelx_fcf_file_internal(filename);
+	 imol_cif = handle_shelx_fcf_file_internal(filename);
+	 return is_valid_map_molecule(imol_cif);
       }
       if (! (strncmp(f_pt, ".cif", 4))) { 
 	 printf ("%s is a mmCIF file\n", filename); 

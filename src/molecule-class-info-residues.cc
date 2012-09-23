@@ -219,9 +219,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 						       atom_sel.mol, fixed_atoms);
 	       bool do_torsions = 0;
 
-	       // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED; // fail
 	       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
-	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES; // test
 	       
 	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES; // pass
 	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES; // pass
