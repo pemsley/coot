@@ -5417,8 +5417,17 @@ SCM run_python_command(const char *python_cmd) {
    PyObject *ret = safe_python_command_with_return(python_cmd);
    if (ret != Py_None) {
      ret_scm = py_to_scm(ret);
+   } else {
+       Py_XDECREF(ret);
    }
-
+   // 15092012 correct this (I think)
+   // need to decref if Py_None I (strongly) believe. (increfed in 
+   // safe_python_command_with_return.
+   // This does not crash. No idea why previous was...
+   // Note: not all decrefs have increfs! Some increfs happens with python 
+   // API. There may be some more fixing required with respect to ref counting.
+   // FIXME!
+   
    // 20120904 comment this out
    // Py_XDECREF(ret);
    // as it causes a crash
