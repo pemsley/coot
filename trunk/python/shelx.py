@@ -26,14 +26,9 @@
 # mmCIF file and then reads it.
 # 
 
-# BL says: Where do we get SG from? Otherwise clipper can't cif file!
-# what shall we do???
-# otherwise fine, if we include SG manually, e.g
-# _symmetry.space_group_name_H-M  'C 2 2 21'
-
 from types import *
 
-def handle_shelx_fcf_file(filename):
+def handle_shelx_fcf_file_old(filename):
     import os
 
     filename = os.path.normpath(filename)
@@ -51,8 +46,9 @@ def handle_shelx_fcf_file(filename):
 #    read_cif_data_with_phases(output_mmCIF_file_name)
 #    read_cif_data_with_phases_fo_fc(output_mmCIF_file_name)
 
-
-
+def handle_shelx_fcf_file(filename):
+    return read_small_molecule_data_cif(filename)
+    
 def convert_shelx_fcf_to_cif(fcf_filename,cif_filename):
 
    import string, math
