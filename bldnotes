@@ -1,8 +1,8 @@
  -*-text-*-
 
-scripts      rev 4349 (some prodrg stuff needs testing) generic objects, check new defs
-tests        rev 3991 update
-build-it-win rev 4031
+scripts      rev 4437 (some prodrg stuff needs testing) generic objects, check new defs
+tests        rev 4437 update
+build-it-win rev 4437
 
 -------------------------------------------------------
 * THINGS TO DO BEFORE 0.7.0 RELEASE * ONLY URGENT THING
