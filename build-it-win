@@ -224,7 +224,8 @@
 # 1.4 25/02/12 Use libccp4c-5.0.2-ysbl-3.tar.gz, that has libccp4c_la_LIBADD.
 # 1.5 26/08/12 Update curl to libcurl_version=7.27.0
 # 1.6 27/08/12 Remove old stable installed files before making new stable.
-script_version=1.6 
+# 1.7 22/09/12 update to mmdb 1.24.2
+script_version=1.7 
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -2000,30 +2001,20 @@ mmdb_version=1.21
 mmdb_version=1.22
 mmdb_version=1.23.2
 mmdb_version=1.24
+mmdb_version=1.24.2
 # only configure, make required?!
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/mmdb-$mmdb_version.tar.gz
+${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/mmdb-$mmdb_version.tar.gz
 # now we need to patch to not play with string definitions  
-#${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.23.2-mattype_.h.patch
-#${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.23.2-file_.cpp.patch
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.24-mattype_.h.patch
+#${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/mmdb-1.24-mattype_.h.patch
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
 echo gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz
 cd  mmdb-$mmdb_version
 pwd
-# str stuff and newline
-patch -p0 < ${AUTOBUILD_SOURCES}/mmdb-1.24-mattype_.h.patch
-# patch to read long lines in a cif file
-#patch -p0 < ../mmdb-mmcif-long-line.patch
 ./configure $generic_prefix
 $MAKE
 $MAKE install
-# now remove the mmdb binaries!
-# not needed any more? FIXME
-rm $install_top_dir/bin/mwater
-rm $install_top_dir/bin/ncont
-rm $install_top_dir/bin/pdbcur
 ) > $HOSTLOGDIR/02-mmdb.txt 2>&1
 else
    echo not building mmdb:
@@ -2094,6 +2085,10 @@ if test -n "$build_clipper" ; then
     ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-2.1-110915-fixup.tar.gz
     # fix threading on windows, i.e. disable
     ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper-2.1.thread.patch
+    # PE 20110921 hack in a temporary solution, while Kevin's new clipper
+    # is not available yet from his site.
+    clipper_hack_version=2.1-110915-fixup-2
+    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-$clipper_hack_version.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
        ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
     fi 
@@ -2102,7 +2097,7 @@ if test -n "$build_clipper" ; then
     # echo Unzipping ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz
     # gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
     #
-    gzip -dc ${AUTOBUILD_SOURCES}/clipper-2.1-110915-fixup.tar.gz | tar xf -
+    gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_hack_version.tar.gz | tar xf -
     cd clipper-$clipper_dir_version
     pwd
     date
