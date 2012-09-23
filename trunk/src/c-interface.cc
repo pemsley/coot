@@ -6477,10 +6477,7 @@ int handle_shelx_fcf_file_internal(const char *filename) {
 // #endif    
 // #endif
 
-   read_small_molecule_data_cif(filename);
-   
-   return 1; // needed so that try_read_cif_file succeeds, so that we
-	     // don't try to read this file as CNS data.
+   return read_small_molecule_data_cif(filename);
 }
 
 

@@ -44,7 +44,7 @@
       
 	(auto-read-cif-data-with-phases output-mmCIF-file-name)))))
 
-(define handle-shelx-fcf-file handle-shelx-fcf-file-internal)
+(define handle-shelx-fcf-file read-small-molecule-data-cif)
 
 
 (define convert-shelx-fcf-to-cif-awk-strings

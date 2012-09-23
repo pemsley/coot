@@ -564,11 +564,9 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 					       ""};
       
 	       PCMMCIFLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag_data);
-	       std::cout << "loop " << loop << std::endl;
 	       if (loop) {
 		  clipper::HKL_data_base* f_sigf_input;
 		  int ll = loop->GetLoopLength();
-		  std::cout << "ll: " << ll << std::endl;
 		  int h,k,l;
 		  realtype F, sigF, A, B;
 		  realtype Fsqm, Fsqs;
@@ -820,8 +818,6 @@ coot::smcif::sigmaa_maps() const {
 
 	    xmap.init(data_spacegroup, data_cell, gs);
 	    xmap_diff.init(data_spacegroup, data_cell, gs);
-
-	    std::cout << "here in sigmaa_maps() " << std::endl;
 
 	    xmap.fft_from(fb);
 	    xmap_diff.fft_from(fd);
