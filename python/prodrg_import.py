@@ -52,18 +52,27 @@ sbase_to_coot_tlc = ".sbase-to-coot-comp-id"
 def import_from_3d_generator_from_mdl(file_name):
     import_from_prodrg("mini-no")
 
-print "new prodrg_import.py"
-def import_from_prodrg(minimize_mode):
 
-    import operator
-    global prodrg_xyzin
-
-    # return True or False
+def import_ligand_with_overlay(prodrg_xyzout, prodrg_cif):
+    
+    # OK, so here we read the PRODRG files and
+    # manipulate them.  We presume that the active
+    # residue is quite like the input ligand from
+    # prodrg.
     #
-    def have_restraints_for_qm(res_name):
-        restraints = monomer_restraints(res_name)
-        return not restraints == False   # twisted but short
-
+    # Read in the lib and coord output of PRODRG.  Then
+    # overalay the new ligand onto the active residue
+    # (just so that we can see it approximately
+    # oriented). Then match the torsions from the new
+    # ligand to the those of the active residue.  Then
+    # overlay again so that we have the best match.
+    #
+    # We want to see just one molecule with the protein
+    # and the new ligand.
+    # add_ligand_delete_residue_copy_molecule provides
+    # that for us.  We just colour it and undisplay the
+    # other molecules.
+    
     # overlap the imol_ligand residue if there are restraints for the
     # reference residue/ligand.
     #
@@ -85,9 +94,9 @@ def import_from_prodrg(minimize_mode):
             else:
                 print "----------- overlap-ligands %s %s %s %s ------------" \
                       %(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
-                # this can return the rtop operator or the #f (for fail of course).
+                # this can return the rtop operator or False (for fail of course).
                 return overlap_ligands(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
-
+            
     # return the new molecule number.
     #
     def read_and_regularize(prodrg_xyzout):
@@ -96,7 +105,8 @@ def import_from_prodrg(minimize_mode):
         # No need to put the refinement step stuff in auto accept!?
         s = dragged_refinement_steps_per_frame()
         set_dragged_refinement_steps_per_frame(500)
-        with_auto_accept([regularize_residues, imol, [["", 1, ""]]])
+        with AutoAccept():
+            regularize_residues( imol, [["", 1, ""]])
         set_dragged_refinement_steps_per_frame(s)
         return imol
 
@@ -118,13 +128,86 @@ def import_from_prodrg(minimize_mode):
             # No need to put refinement steps in auto accept!?
             s = dragged_refinement_steps_per_frame()
             set_dragged_refinement_steps_per_frame(600)
-            with_auto_accept([regularize_residues, imol, [["", 1, ""]]])
+            with AutoAccept():
+                regularize_residues(imol, [["", 1, ""]])
             set_dragged_refinement_steps_per_frame(s)
             if overlap_status:
                 match_ligand_torsions(imol, imol_ref, chain_id_ref, res_no_ref)
         return imol
 
+    # return True or False
+    #
+    def have_restraints_for_qm(res_name):
+        restraints = monomer_restraints(res_name)
+        return not restraints == False   # twisted but short
+
     # main line
+
+    read_cif_dictionary(prodrg_cif)
+
+    # we do different things depending on whether or
+    # not there is an active residue.  We need to test
+    # for having an active residue here (currently we
+    # presume that there is).
+    # 
+    # Similarly, if the aa_ins_code is non-null, let's
+    # presume that we do not have an active residue.
+
+    active_atom = active_residue()
+    if ((not active_atom) or
+        (not active_atom[3] == "")):  # aa_ins_code
+
+        # then there is no active residue to match to
+        read_and_regularize(prodrg_xyzout)
+        # BL says:: maybe we should merge the ligand into
+        # the protein molecule?! But what is the protein?
+        # merge_molecules([active_atom[0]], imol)
+    else:
+        # we have an active residue to match to
+        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+                                   aa_atom_name, aa_alt_conf]:
+            if not residue_is_close_to_screen_centre_qm(
+                aa_imol, aa_chain_id, aa_res_no, ""):
+
+                # not close, no overlap
+                #
+                read_and_regularize(prodrg_xyzout)
+            else:
+                # try overlap
+                # BL says:: this overwrites 
+                imol = read_regularize_and_match_torsions_maybe(prodrg_xyzout,
+                                                                aa_imol, aa_chain_id, aa_res_no)
+
+                overlapped_flag = overlap_ligands_maybe(imol, aa_imol,
+                                                        aa_chain_id, aa_res_no)
+
+                if overlapped_flag:
+                    print "------ overlapped-flag was true!!!!!"
+                    set_mol_displayed(aa_imol, 0)
+                    set_mol_active(aa_imol, 0)
+                    col = get_molecule_bonds_colour_map_rotation(aa_imol)
+                    new_col = col + 5 # a tiny amount
+                    # new ligand specs, then "reference" ligand (to be deleted)
+                    imol_replaced = add_ligand_delete_residue_copy_molecule(
+                        imol, "", 1,
+                        aa_imol, aa_chain_id, aa_res_no)
+
+
+                    set_molecule_bonds_colour_map_rotation(imol_replaced, new_col)
+                    set_mol_displayed(imol, 0)
+                    set_mol_active(imol, 0)
+                    graphics_draw()
+
+    return True
+    # return False otherwise? When? FIXME
+
+    
+def import_from_prodrg(minimize_mode):
+
+    import operator
+    global prodrg_xyzin
+
+    # main line of import_from_prodrg
     #
     prodrg_dir = "coot-ccp4"
     res_name = "DRG"
@@ -151,87 +234,7 @@ def import_from_prodrg(minimize_mode):
                                prodrg_log, True)
         if isinstance(status, int):
             if (status == 0):
-                
-                # OK, so here we read the PRODRG files and
-                # manipulate them.  We presume that the active
-                # residue is quite like the input ligand from
-                # prodrg.
-                #
-                # Read in the lib and coord output of PRODRG.  Then
-                # overlay the new ligand onto the active residue
-                # (just so that we can see it approximately
-                # oriented). Then match the torsions from the new
-                # ligand to the those of the active residue.  Then
-                # overlay again so that we have the best match.
-                #
-                # We want to see just one molecule with the protein
-                # and the new ligand.
-                # add_ligand_delete_residue_copy_molecule provides
-                # that for us.  We just colour it and undisplay the
-                # other molecules.
-            
-                read_cif_dictionary(prodrg_cif)
-
-                # we do different things depending on whether or
-                # not there is an active residue.  We need to test
-                # for having an active residue here (currently we
-                # presume that there is).
-                # 
-                # Similarly, if the aa_ins_code is non-null, let's
-                # presume that we do not have an active residue.
-
-                active_atom = active_residue()
-                if ((not active_atom) or
-                    (not active_atom[3] == "")):  # aa_ins_code
-
-                    # then there is no active residue to match to
-                    read_and_regularize(prodrg_xyzout)
-                    # BL says:: maybe we should merge the ligand into
-                    # the protein molecule?! But what is the protein?
-                    # merge_molecules([active_atom[0]], imol)
-                else:
-                    # we have an active residue to match to
-                    # BL says: not using active_atom!? Too confusing
-                    aa_imol      = active_atom[0]
-                    aa_chain_id  = active_atom[1]
-                    aa_res_no    = active_atom[2]
-                    aa_ins_code  = active_atom[3]
-                    aa_atom_name = active_atom[4]
-                    aa_alt_conf  = active_atom[5]
-
-                    if not residue_is_close_to_screen_centre_qm(
-                        aa_imol, aa_chain_id, aa_res_no, ""):
-
-                        # not close, no overlap
-                        #
-                        read_and_regularize(prodrg_xyzout)
-                    else:
-                        # try overlap
-                        # BL says:: this overwrites 
-                        imol = read_regularize_and_match_torsions_maybe(prodrg_xyzout,
-                                                                        aa_imol, aa_chain_id, aa_res_no)
-                        
-                        overlapped_flag = overlap_ligands_maybe(imol, aa_imol,
-                                                                aa_chain_id, aa_res_no)
-            
-                        if overlapped_flag:
-                            print "------ overlapped-flag was true!!!!!"
-                            set_mol_displayed(aa_imol, 0)
-                            set_mol_active(aa_imol, 0)
-                            col = get_molecule_bonds_colour_map_rotation(aa_imol)
-                            new_col = col + 5 # a tiny amount
-                            # new ligand specs, then "reference" ligand (to be deleted)
-                            imol_replaced = add_ligand_delete_residue_copy_molecule(
-                                imol, "", 1,
-                                aa_imol, aa_chain_id, aa_res_no)
-
-
-                            set_molecule_bonds_colour_map_rotation(imol_replaced, new_col)
-                            set_mol_displayed(imol, 0)
-                            set_mol_active(imol, 0)
-                            graphics_draw()
-                    return True
-        # return False otherwise? FIXME            
+                import_ligand_with_overlay(prodrg_xyzout, prodrg_cif)
 
 
 def get_file_latest_time(file_name):

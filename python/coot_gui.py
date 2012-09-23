@@ -4244,9 +4244,9 @@ random_jiggle_n_trials = 50
 
 def solvent_ligand_list():
    global additional_solvent_ligands
-   return (["EDO", "GOL", "DMS", "ACT", "MPD", "CIT", "SO4", "PO4", "TRS",
-            "TAM"] +
-           additional_solvent_ligands)
+   return (additional_solvent_ligands +
+           ["EDO", "GOL", "DMS", "ACT", "MPD", "CIT", "SO4", "PO4", "TRS",
+            "TAM"])
 
 # add solvent molecules
 #
@@ -4314,6 +4314,7 @@ def solvent_ligands_gui():
                               add_button_func(txt))
 
    def comp_id2button_label(comp_id):
+      auto_load_dictionary(comp_id)
       comp_id_name = comp_id2name(comp_id)
       ret = (comp_id + ": " + comp_id_name) if comp_id_name else comp_id
       return ret

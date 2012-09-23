@@ -175,7 +175,7 @@ class NoBackups:
 # 
 #    use with 'with', e.g.:
 #    
-#    >with WithAutoAccept():
+#    >with AutoAccept():
 #        refine_zone(0, "A", 43, 45, "")
 #
 class AutoAccept:
@@ -185,7 +185,7 @@ class AutoAccept:
  
     use with 'with', e.g.:
     
-    > with WithAutoAccept():
+    > with AutoAccept():
          refine_zone(0, "A", 43, 45, "")
 
     """
@@ -3068,6 +3068,35 @@ def get_drug_via_wikipedia(drug_name):
                 coot_get_url(db_mol_uri, file_name)
     return file_name
                     
+
+def get_SMILES_for_comp_id_from_pdbe(comp_id):
+
+    if not isinstance(comp_id, str):
+        return False
+    else:
+        s = SMILES_for_comp_id(comp_id)
+        if isinstance(s, str):
+            cif_file_name = os.path.join("coot-download",
+                                         "PDBe-" + comp_id + ".cif")
+            url = "ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/" + \
+                  comp_id + \
+                  ".cif"
+            make_directory_maybe("coot-download")
+            if os.path.isfile(cif_file_name):
+                # try the filesystem cache
+                read_cif_dictionary(cif_file_name)
+                s2 = SMILES_for_comp_id(comp_id)
+                if isinstance(s2, str):
+                    return s2
+            # use network then
+            state = coot_get_url(url, cif_file_name)
+            # check for state?
+            read_cif_dictionary(cif_file_name)
+            s = SMILES_for_comp_id(comp_id)
+            if isinstance(s, str):
+                    return s
+        # something probably went wrong if we got to here
+        return False
 
 # load the redefining functions
 try:
