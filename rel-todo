@@ -3,24 +3,27 @@
 
 ----
 
-   o python extensions -> all molecule -> fit protein is not 
-     accepting the refined coordinates correctly ::: 1
-
-   o Sphere refine on an alt conf (say the 72 CYS of tutorial).  Check
-     back-bone geometry. (JED).  ::: 2
-
-   o Add hydrogens (with sprout hydrogens) to an alt-confed
-     ligand. (Bob) ::: 2
-
-   o check that pisa assemblies and interfaces work - laptop and
-     desktop ::: 1
-
    o The set occupancy tool does not seem to be setting hydrogen
      occupancy ligands (with alternate conformer). 
    
      In fact, this whole thing needs more rigourous testing.
 
      Bob ::: 1
+
+   o Add hydrogens (with sprout hydrogens) to an alt-confed
+     ligand. (Bob) ::: 2
+
+   o python extensions -> all molecule -> fit protein is not 
+     accepting the refined coordinates correctly ::: 1
+
+   o Sphere refine on an alt conf (say the 72 CYS of tutorial).  Check
+     back-bone geometry. (JED).  refine-residues-with-alt-conf ::: 2
+
+   o check that pisa assemblies and interfaces work - laptop and
+     desktop ::: 1
+
+   o check formal_charge manipulation of P now that PO4s are
+     undelocalized. 
 
    o Old backups dialog should be a transient. Could be tricky.
      Puntable ::: 0.5
