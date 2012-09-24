@@ -165,9 +165,13 @@ coot::rdkit_mol(CResidue *residue_p,
 		  // other NT*s will drop hydrogens in RDKit, no need to
 		  // fix up formal charge (unless there is a hydrogen! Hmm).
 
-		  if (type_energy == "P") {
-		     rdkit_at->setFormalCharge(1);
-		  } 
+		  // now that phosphates are undelocalized, we don't
+		  // need to make this hack:
+		  // 
+		  // if (type_energy == "P") {
+		  //    rdkit_at->setFormalCharge(1);
+		  // }
+		  
 	       }
 
 	       // set the chirality
