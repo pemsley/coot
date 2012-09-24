@@ -8630,11 +8630,15 @@ on_residue_info_occ_apply_all_checkbutton_toggled
 {
   GtkWidget *entry = lookup_widget(GTK_WIDGET(togglebutton), 
 				   "residue_info_master_atom_occ_entry");
+  GtkWidget *alt_conf_checkbutton = lookup_widget(GTK_WIDGET(togglebutton),
+						  "residue_info_occ_apply_to_altconf_checkbutton");
   
-  if (togglebutton->active) 
+  if (togglebutton->active) { 
     gtk_widget_set_sensitive(entry, TRUE);
-  else 
-    gtk_widget_set_sensitive(entry, FALSE);
+  } else { 
+    if (! GTK_TOGGLE_BUTTON(alt_conf_checkbutton)->active)
+      gtk_widget_set_sensitive(entry, FALSE);
+  } 
 }
 
 
