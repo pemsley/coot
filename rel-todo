@@ -22,9 +22,6 @@
    o check that pisa assemblies and interfaces work - laptop and
      desktop ::: 1
 
-   o check formal_charge manipulation of P now that PO4s are
-     undelocalized. 
-
    o Old backups dialog should be a transient. Could be tricky.
      Puntable ::: 0.5
 
@@ -621,3 +618,7 @@ Program terminated with signal 11, Segmentation fault.
 mv -f .deps/callbacks.Tpo .deps/callbacks.Po
 /bin/sh ../libtool --tag=CXX   --mode=link g++ -DPKGDATADIR='"/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot"' -DPACKAGE_LOCALE_DIR='"/home/paule/autobuild/build-coot+rdkit-pre-re
 
+   o check formal_charge manipulation of P now that PO4s are
+     undelocalized. 
+
+* Done.

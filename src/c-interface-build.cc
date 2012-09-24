@@ -4812,13 +4812,15 @@ CMMDBManager *new_molecule_by_symmetry_matrix_from_molecule(CMMDBManager *mol,
       clipper::Vec3<double> vec(tx, ty, tz);
       clipper::RTop_orth rtop_orth(mat, vec);
       clipper::RTop_frac rtop_frac = rtop_orth.rtop_frac(cell_info.first);
-      std::cout << "DEBUG:: tx,ty,tz:  " << tx << " " << ty << " " << tz << std::endl;
-      std::cout << "DEBUG:: mol_by_symmetry() passed args:\n" << cell_info.first.format()
-		<< std::endl << rtop_frac.format() << "     "
-		<< pre_shift_to_origin_na << " "
-		<< pre_shift_to_origin_nb << " "
-		<< pre_shift_to_origin_nc << " "
-		<< std::endl;
+      if (0) { 
+	 std::cout << "DEBUG:: tx,ty,tz:  " << tx << " " << ty << " " << tz << std::endl;
+	 std::cout << "DEBUG:: mol_by_symmetry() passed args:\n" << cell_info.first.format()
+		   << std::endl << rtop_frac.format() << "     "
+		   << pre_shift_to_origin_na << " "
+		   << pre_shift_to_origin_nb << " "
+		   << pre_shift_to_origin_nc << " "
+		   << std::endl;
+      }
       new_mol = coot::mol_by_symmetry(mol, cell_info.first, rtop_frac, pre_shift);
    }
    catch (std::runtime_error rte) {

@@ -19,20 +19,16 @@
 	       (prep-for-pisa 'assemblies imol)
 	       
 	       (begin
-;		 (format #t "DEBUG:: ========= pisa with args ~s~%" 
-;			 (list *pisa-command* "-analyse" pdb-file-name pisa-config))
-		 (let ((status (goosh-command "pisa" (list "pisa" "-analyse" pdb-file-name pisa-config) 
-					      '() "pisa.log" #f)))
-		   (if (not (number? status))
-		       (info-dialog "Ooops PISA failed to deliver the goods!\n\n(Go for a curry instead?)")
-		       (if (= status 0) ;; good
-			   (begin
-			     (let ((status-2 (goosh-command *pisa-command* (list "pisa" "-xml" 
-										 "assemblies" pisa-config)
-							    '() 
-							    pisa-xml-file-name #f)))
-			       (if (= status 0)
-				   (pisa-assemblies-xml imol pisa-xml-file-name)))))))))))
+		 (let ((status-1 (goosh-command "pisa" (list "pisa" "-analyse" pdb-file-name)
+						'() "pisa.log" #f)))
+		   
+		   (if (ok-goosh-status? status-1)
+		       (let ((status-2 (goosh-command *pisa-command* (list "pisa" "-xml" "assemblies")
+						      '() 
+						      pisa-xml-file-name #f)))
+			       (if (ok-goosh-status? status-2)
+				   (pisa-assemblies-xml imol pisa-xml-file-name)))))))))
+
 
 
 ;; called by pisa-assemblies, which is the entry point from the main
@@ -96,8 +92,8 @@
 			   (if (string=? chain-string "-")
 			       (string-append "// /" residue-string "/" element-string)
 			       (string-append "//" chain-string "/" residue-string))))
-		      (format #t "debug:: atom-selection-string: ~s from ~s~%"
-			      atom-selection-string chain-id-raw)
+		      ;;(format #t "debug:: atom-selection-string: ~s from ~s~%"
+		      ;; atom-selection-string chain-id-raw)
 		      atom-selection-string))
 		  s)))
 	  (begin
@@ -470,9 +466,14 @@
 	
 	(for-each
 	 (lambda (ele)
-	   ;; (format #t "ele: ~s~%" ele)
+	   ;; (format #t "in handle-assembly: ele: ~s~%" ele)
 	   (if (not (list? ele))
-	       ;; (format #t "ele not list: ~s~%" ele) ; caution when deleting
+
+	       (begin
+;; 		 (format #t "ele not list: ~s~%" ele) ; caution when deleting
+		 'not-list)
+
+	       ;; ok, it was a list...
 	       (cond 
 		((eq? (car ele) 'molecule)
 		 (let ((mol-no (pisa-handle-sxml-molecule imol ele 'assemblies)))
@@ -503,7 +504,7 @@
 		((eq? (car ele) 'n_uc)
 		 (set! assembly-n-diss (string->number (cadr ele))))
 		(else 
-		 (format #t "unhandled ele: ~s~%" ele)))))
+		 (format #t "WARNING:: unhandled ele: ~s~%" ele)))))
 	 
 	 assembly)
 
@@ -680,20 +681,20 @@
 		   (begin
 		     (if (not (cached-pisa-analysis pisa-config))
 			 ;; pisa analysis
-			 (let ((status (goosh-command *pisa-command*
-						      (list "pisa"  "-analyse" pdb-file-name pisa-config)
-						      '()
-						      "pisa-analysis.log" #f)))
-					; check status?
-			   status))
+			 (let ((status-1 (goosh-command *pisa-command*
+							;; (list "pisa"  "-analyse" pdb-file-name pisa-config)
+							(list "pisa"  "-analyse" pdb-file-name)
+							'()
+							"pisa-analysis.log" #f)))
+			   (if (ok-goosh-status? status-1)
 
-		     ;; OK, let's do interfaces
-		     ;; 
-		     (let ((status (goosh-command *pisa-command*
-						  (list "pisa" "-xml" "interfaces" pisa-config) '()
-						  pisa-xml-file-name #f)))
-		       (if (= status 0) ; good
-			   (pisa-interfaces-xml imol pisa-xml-file-name))))))))
+			       (let ((status-2 (goosh-command *pisa-command*
+							      ;; (list "pisa" "-xml" "interfaces" pisa-config) '()
+							      (list "pisa" "-xml" "interfaces")
+							      '()
+							      pisa-xml-file-name #f)))
+				 (if (ok-goosh-status? status-2)
+				     (pisa-interfaces-xml imol pisa-xml-file-name)))))))))))
 		     
 			 
 (define (pisa-interfaces-xml imol file-name)
