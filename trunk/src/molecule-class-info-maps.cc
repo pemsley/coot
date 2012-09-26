@@ -1772,7 +1772,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       set_initial_contour_level();
 
       std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
-      std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
+      std::cout << "      Map rmsd: ........ " << map_sigma_ << std::endl;
       std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
       std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
 
