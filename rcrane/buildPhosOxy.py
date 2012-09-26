@@ -32,11 +32,15 @@ def buildPhosOxy(curResAtoms, prevResAtoms):
         prevResAtoms - a dictionary of the previous nucleotide coordinates in the format atomName: [x, y, z]
     RETURNS:
         phosOxyCoords - a dictionary of the phosphoryl oxygen coordinates in the format atomName: [x, y, z]
+        or None if the residue is missing the P, O5', or O3' atoms
     """
     
-    P  = curResAtoms ["P"]
-    O5 = curResAtoms ["O5'"]
-    O3 = prevResAtoms["O3'"]
+    try:
+        P  = curResAtoms ["P"]
+        O5 = curResAtoms ["O5'"]
+        O3 = prevResAtoms["O3'"]
+    except KeyError:
+        return None
     
     #calculate a line from O5' to O3'
     norm = minus(O5, O3)
@@ -97,16 +101,20 @@ def buildInitOrTerminalPhosOxy(curResAtoms, prevResAtoms = None):
                        if not provided, the curResAtoms["P"] and curResAtoms["O5'"]
     RETURNS:
         phosOxyCoords - a dictionary of the phosphoryl oxygen coordinates in the format atomName: [x, y, z]
+        or None if the residue is missing the necessary atoms
     """
     
-    P  = curResAtoms ["P"]
-    if prevResAtoms is not None:
-        O = prevResAtoms["O3'"]
-        C = prevResAtoms["C3'"]
-    else:
-        O = curResAtoms["O5'"]
-        C = curResAtoms["C5'"]
-        
+    try:
+        P  = curResAtoms ["P"]
+        if prevResAtoms is not None:
+            O = prevResAtoms["O3'"]
+            C = prevResAtoms["C3'"]
+        else:
+            O = curResAtoms["O5'"]
+            C = curResAtoms["C5'"]
+    except KeyError:
+        return None
+    
     #place atom along the P-O5' bond that is the appropriate distance from P
     phosOxy = minus(O, P)
     phosOxy = normalize(phosOxy, PHOSBONDLENGTH)

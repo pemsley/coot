@@ -24,6 +24,8 @@ from citationPopup import dontShowPopup as dontShowCitationPopup
 from calcCoords import disablePhenixRestraints, enablePhenixRestraints, usingPhenixRestraints
 from menu import createRCraneMenu
 from preLaunchCheck import checkCootAndReportErrors
+from extendChain import pickAtoms as newExtendChain
+from extendChain import storeMenuItem as storeExtendChainMenuItem
 
 try:
     from debug import enableDebugging
@@ -32,9 +34,9 @@ except ImportError:
     #(the debug module isn't included in the distributable)
     def enableDebugging(): return False
 
-newTrace5to3 = lambda: newTrace(direction = 5)
+newTrace5to3 = lambda: newTrace(direction = 3)
     #a convenience function for users who are setting keyboard shortcuts
-newTrace3to5 = newTrace
+newTrace3to5 = lambda: newTrace(direction = 5)
     #a convenience function to allow for consistant naming between different trace directions
 newRotamerizeWithoutDensity = lambda: newRotamerize(ignoreDensity = True)
     #a convenience function to rotamerize without density

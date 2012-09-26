@@ -281,6 +281,7 @@ def recalcCoords(startingRes, endingRes, rots, origCoords, pseudoMol, window, ig
     builtChain = deepcopy(origCoords) #we don't want to modify this object
     
     print "Recalculating ", startingRes, "-", endingRes
+    #from time import sleep; sleep(3)
     
     #initialize intermediateAtomLocs (the first nucleotide doesn't have an intermediate location)
     intermediateAtomLocs = [None]
@@ -325,7 +326,7 @@ def recalcCoords(startingRes, endingRes, rots, origCoords, pseudoMol, window, ig
             
             #minimize the structure
             (newCoords, score) = __minCoords(pseudoMol,                                                                                         #pseudoMolecule object
-                                    builtChain.nucs[rotsIndex-2].resNum if rotsIndex > 1 else None, builtChain.nucs[resIndex-1].resNum, builtChain.nucs[resIndex].resNum, builtChain.nucs[resIndex+1].resNum,   #residue numbers
+                                    builtChain.nucs[resIndex-2].resNum if resIndex > 1 else None, builtChain.nucs[resIndex-1].resNum, builtChain.nucs[resIndex].resNum, builtChain.nucs[resIndex+1].resNum,   #residue numbers
                                     rots[rotsIndex-1], rots[rotsIndex],                                                                         #rotamers
                                     builtChain.nucs[resIndex-1].type, builtChain.nucs[resIndex].type, builtChain.nucs[resIndex+1].type,         #residue types
                                     builtChain.nucs[resIndex].atoms,                                                                            #atomic coordinates
@@ -347,18 +348,22 @@ def recalcCoords(startingRes, endingRes, rots, origCoords, pseudoMol, window, ig
         
         #for the last rebuilt nucleotide, we have to call __minCoords with nextResAlreadyBuilt=True
         #we don't need to worry about doing anything special if this is the last suite of the chain, though, since the 3' phosphoryl oxygens are already built
+        #only do this if we have a final 3' phosphate
         
         #minimize the structure
-        (newCoords, score) = __minCoords(pseudoMol,                                                                                         #pseudoMolecule obj
-                                builtChain.nucs[rotsIndex-2].resNum if rotsIndex > 1 else None, builtChain.nucs[resIndex-1].resNum, builtChain.nucs[resIndex].resNum, builtChain.nucs[resIndex+1].resNum,   #residue numbers
-                                rots[rotsIndex-1], rots[rotsIndex],                                                                         #rotamers
-                                builtChain.nucs[resIndex-1].type, builtChain.nucs[resIndex].type, builtChain.nucs[resIndex+1].type,         #residue types
-                                builtChain.nucs[resIndex].atoms,                                                                            #atomic coordinates
-                                nextResAlreadyBuilt=True, fixPrevPhosOxy = fixPrevPhosOxy, ignoreDensity = ignoreDensity)
-        #update the builtChain object with the new coordinates
-        (builtChain.nucleotides[resIndex-1].atoms, builtChain.nucleotides[resIndex].atoms, builtChain.nucleotides[resIndex+1].atoms) = newCoords
-        minimizationScores.append(score)
-        #increment the progress bar (even though the user probably won't actually see this, since it will be replaced almost immediately by the review suites GUI))
+        if (resIndex + 1) < len(builtChain.nucs):
+            #print "*****Minimizing last nt*****"
+            #from time import sleep; sleep(3)
+            (newCoords, score) = __minCoords(pseudoMol,                                                                                         #pseudoMolecule obj
+                                    builtChain.nucs[resIndex-2].resNum if resIndex > 1 else None, builtChain.nucs[resIndex-1].resNum, builtChain.nucs[resIndex].resNum, builtChain.nucs[resIndex+1].resNum,   #residue numbers
+                                    rots[rotsIndex-1], rots[rotsIndex],                                                                         #rotamers
+                                    builtChain.nucs[resIndex-1].type, builtChain.nucs[resIndex].type, builtChain.nucs[resIndex+1].type,         #residue types
+                                    builtChain.nucs[resIndex].atoms,                                                                            #atomic coordinates
+                                    nextResAlreadyBuilt=True, fixPrevPhosOxy = fixPrevPhosOxy, ignoreDensity = ignoreDensity)
+            #update the builtChain object with the new coordinates
+            (builtChain.nucleotides[resIndex-1].atoms, builtChain.nucleotides[resIndex].atoms, builtChain.nucleotides[resIndex+1].atoms) = newCoords
+            minimizationScores.append(score)
+            #increment the progress bar (even though the user probably won't actually see this, since it will be replaced almost immediately by the review suites GUI))
         progressDialog.progress()
         
         #don't bother to do a separate minimization run for the phosphoryl oxygens of the final nucleotide.  They should be good enough
@@ -561,27 +566,34 @@ def __minCoords(pseudoMol, prevPrevResNum, prevResNum, curResNum, nextResNum, cu
     #if we haven't already, build the non-bridging oxygens
     if nextResAtoms is None:
         curResIndex = pseudoMol.resIndex(curResNum)
+        #print "curResIndex =", curResIndex
+        #print "curResNum =", curResNum
         
         #if curResIndex == 0:
         if prevResNum is None:
             #if this is the first (but not only) nucleotide
             (newCurResAtoms, newNextResAtoms) = newCoords
             phosOxyCoords = buildInitOrTerminalPhosOxy(newCurResAtoms)
-            pseudoMol.addPhosOxy(curResNum, phosOxyCoords)
+            if phosOxyCoords is not None:
+                pseudoMol.addPhosOxy(curResNum, phosOxyCoords)
             
         elif pseudoMol.numAtomsFromIndex(curResIndex+1) == 1 and not pseudoMol.connectedToNextFromIndex(curResIndex+1):
             #if the next residue is just a terminal 3' phosphate, then we need to add non-bridging oxygens
             (newPrevResAtoms, newCurResAtoms, newNextResAtoms) = newCoords
             phosOxyCoords5 = buildPhosOxy(newCurResAtoms, newPrevResAtoms)
-            pseudoMol.addPhosOxy(curResNum, phosOxyCoords5)
+            if phosOxyCoords5 is not None:
+                pseudoMol.addPhosOxy(curResNum, phosOxyCoords5)
             phosOxyCoords3 = buildInitOrTerminalPhosOxy(newNextResAtoms, newCurResAtoms)
-            pseudoMol.addPhosOxy(nextResNum, phosOxyCoords3)
+            if phosOxyCoords3 is not None:
+                pseudoMol.addPhosOxy(nextResNum, phosOxyCoords3)
             
         else:
             #if this is a middle nucleotide of a chain
+            #from pprint import pprint; pprint(newCoords)
             (newPrevResAtoms, newCurResAtoms, newNextResAtoms) = newCoords
             phosOxyCoords = buildPhosOxy(newCurResAtoms, newPrevResAtoms)
-            pseudoMol.addPhosOxy(curResNum, phosOxyCoords)
+            if phosOxyCoords is not None:
+                pseudoMol.addPhosOxy(curResNum, phosOxyCoords)
     
     #clear the fixed atoms and torsional restraints
     __clearResRestraints(molNum)
@@ -1300,6 +1312,38 @@ def __fixEntireResidue(molNum, chain, resNumFull, atomList):
     (resNum,  insCode) = __splitResNum(resNumFull)
     fixList = [[chain, resNum, "", curAtom, ""] for curAtom in atomList]
     mark_multiple_atoms_as_fixed(molNum, fixList, 1)
+
+
+def buildOnlyPhosOxy(pseudoMol, resIndex, direction = 3):
+    """Build the non-bridging oxygens onto a terminal nucleotide
+    
+    ARGUMENTS:
+        resIndex - the index of the residue to build the phosphates onto
+    OPTIONAL ARGUMENTS:
+        direction - which side of the residue to add the phosphoryl oxygens to
+    RETURNS:
+        NONE
+    """
+    #print "In buildOnlyPhosOxy with resIndex =", resIndex
+    
+    if direction == 3:
+        chain = pseudoMol.createPartialChainObjectFromIndex(resIndex-1, resIndex)
+        
+        prevResAtoms = chain.nucleotides[0].atoms
+        curResAtoms  = chain.nucleotides[1].atoms
+        
+    else:
+        chain = pseudoMol.createPartialChainObjectFromIndex(resIndex, resIndex)
+        
+        curResAtoms = chain.nucleotides[0].atoms
+        prevResAtoms = None
+    
+    #from pprint import pprint
+    #pprint(prevResAtoms)
+    #pprint(curResAtoms)
+    
+    phosOxyCoords = buildInitOrTerminalPhosOxy(curResAtoms, prevResAtoms)
+    pseudoMol.addPhosOxyFromIndex(resIndex, phosOxyCoords)
 
 
 class ProgressDialogObject:

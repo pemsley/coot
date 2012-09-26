@@ -20,7 +20,6 @@ import gtk
 import os.path
 from coot import add_status_bar_text, new_generic_object_number, set_display_generic_object, to_generic_object_add_line, graphics_draw, clear_pending_picks, imol_refinement_map
 from coot import user_defined_click_py as user_defined_click
-from coot import monomer_restraints_py as monomer_restraints #used to ensure that the monomer library is up-to-date
 
 from pseudoMolecule import PseudoMolecule, PseudoMoleculeError
 from rotamerSeq import determineRotamerSeq
@@ -30,12 +29,14 @@ from reviewSuitesGui import ReviewSuitesGui
 from bondLength import BOND_LIST_FULL
 from selectMapDialog import selectMapDialog
 from citationPopup import createCitationPopup
+import extendChain #we only need clearPendingExtendChain, but if we import that function directly into this namespace
+    #we'll wind up with circular dependencies
+from reportInputErrors import reportPDB2Error, reportInsCodeError, STANDARD_BASES, reportModifiedNucError
 
 #from pprint import pprint
 
 ORIG_COORDS_COLOR = "yellowtint" #the color to use when drawing the original coordinates
-STANDARD_BASES = frozenset(["A", "G", "C", "U"]) #the names of the four standard RNA bases
-    #used to make sure that the user isn't trying to rotamerize a modified nucleotide
+
 
 #These two variables allow the user to cancel a rotamerize before selecting atoms
 #We could have turned this module into a class and made these class variables, but we'll never, ever
@@ -71,6 +72,9 @@ def pickAtoms(ignoreDensity = False):
     
     global waitingForClicks
     
+    #make sure that we're not waiting on a pending extendChain call
+    extendChain.clearPendingExtendChain()
+    
     if waitingForClicks:
         #if we're already in the middle of a rotamerize call, then cancel the pending rotamerize
         print "Rotamerize cancelled"
@@ -92,7 +96,7 @@ def pickAtoms(ignoreDensity = False):
         add_status_bar_text("Pick 2 atoms [Ctrl Left-mouse rotates the view]...")
         __setMenuToCancel()
         waitingForClicks = True
-        atoms = user_defined_click(2, lambda atomSpec1, atomSpec2: rotamerizeFromAtomSpecs(atomSpec1, atomSpec2, ignoreDensity))
+        user_defined_click(2, lambda atomSpec1, atomSpec2: rotamerizeFromAtomSpecs(atomSpec1, atomSpec2, ignoreDensity))
 
 
 def rotamerizeFromAtomSpecs(atomSpec1, atomSpec2, ignoreDensity = False):
@@ -138,7 +142,7 @@ def rotamerizeFromAtomSpecs(atomSpec1, atomSpec2, ignoreDensity = False):
     endResFull   = str(endResNum)   + str(endInsCode)
     
     try:
-        pseudoMol = PseudoMolecule(createFromMolecule = molNum, chain = chain)
+        pseudoMol = PseudoMolecule(createFromMolecule = molNum, chain = chain, batons = False)
     except PseudoMoleculeError, err:
         #if creating the PseudoMolecule raises an error, then it means that molecule we clicked on contains
         #anisotropic temperature records and we're using a version of Coot that's older than rev 3631
@@ -167,20 +171,7 @@ def rotamerizeFromAtomSpecs(atomSpec1, atomSpec2, ignoreDensity = False):
     #TODO: check all residues for PDB3 naming instead of just the first one in case the molecule uses a mix of PDB2 and PDB3 naming
     #   this seems like an unlikely problem, but it can't hurt to double check
     if pseudoMol.checkPDB2FromIndex(startIndex):
-        errorMsg = ["This molecule appears to use PDB2 naming (nucleotide " + str(startResFull) + " contains a C1* atom).",
-                    "RCrane requires PDB3 naming (e.g. C1' instead of C1*).",
-                    "This PDB file can be updated using Remediator",
-                    "(http://kinemage.biochem.duke.edu/software/remediator.php)."]
-        for curline in errorMsg:
-            print curline
-        #add_status_bar_text("This molecule appears to use PDB2 naming.  RCrane requires PDB3 naming.  Cannot rotamerize.")
-        
-        #Since this isn't an intuitive problem (i.e. it's far less obvious for the user than "you clicked on
-        #two different chains"), we create a dialog box instead of a status bar message
-        errorMsg[0] += " " #we want two spaces between sentences
-        errorMsg[1] += " "
-        createRCraneErrorDialog(" ".join(errorMsg) + "\n\nRotamerization canceled.")
-        
+        reportPDB2Error(startResFull)
         return False
     
     if (startIndex > 0 
@@ -219,8 +210,7 @@ def rotamerizeFromAtomSpecs(atomSpec1, atomSpec2, ignoreDensity = False):
         #make sure that the selected residues aren't modified nucleotides
         curResType = pseudoMol.resTypeFromIndex(curIndex)
         if curResType not in STANDARD_BASES:
-            print "Nucleotide " + pseudoMol.resNumFull(curIndex) + " is a modified nucleotide (" + curResType + ").  RCrane does not currently support rotamerizing modified nucleotides."
-            add_status_bar_text("Nucleotide " + pseudoMol.resNumFull(curIndex) + " is a modified nucleotide (" + curResType + ").  RCrane does not currently support rotamerizing modified nucleotides.")
+            reportModifiedNucError(pseudoMol.resNumFull(curIndex), curResType)
             return False
         
         #make sure that all selected residues have phosphates and glycosidic bonds
@@ -249,8 +239,7 @@ def rotamerizeFromAtomSpecs(atomSpec1, atomSpec2, ignoreDensity = False):
     for curIndex in range(startIndex, endIndex+2):
         #we need to check the last residue and the one after that, since createPartialChainObject will add on the 3' phosphate
         if pseudoMol.resNum(curIndex)[1] != "":
-            print "Residue " + pseudoMol.resNumFull(curIndex) + " contains an insertion code.  RCrane currently cannot rotamerize nucleotides with insertion codes."
-            add_status_bar_text("Residue " + pseudoMol.resNumFull(curIndex) + " contains an insertion code.  RCrane currently cannot rotamerize nucleotides with insertion codes.")
+            reportInsCodeError(pseudoMol.resNumFull(curIndex))
             return False
     
     #make sure that the user hasn't tried to rotamerize too many nucleotides
@@ -410,6 +399,7 @@ def storeMenuItem(menuItem, resetLabel = False, ignoreDensity = False):
         __menuItem = menuItem
     
     #if we're being called during an RCrane reload, then reset everything back to the appropriate starting position
+    global waitingForClicks
     if resetLabel:
         waitingForClicks = False #this is redundant with module initialization, but can't hurt to do
                                  #in case this function is called in an unexpected way
@@ -474,3 +464,26 @@ def getRotamerizeMaxNucleotides():
     """
     
     return MAX_NUCLEOTIDES_TO_ROTAMERIZE
+
+
+def clearPendingRotamerize():
+    """Cancel any pending rotamerize call (intended to be called by extendChain)
+    
+    ARGUMENTS:
+        None
+    RETURNS:
+        True if there was a pending rotamerize call
+        False otherwise
+    """
+    
+    global waitingForClicks
+    
+    if waitingForClicks:
+        #if we're already in the middle of a rotamerize call, then cancel the pending rotamerize
+        print "Rotamerize cancelled"
+        clear_pending_picks() #tell Coot to stop waiting for the user to click on atoms
+        __setMenuToRotamerize()
+        waitingForClicks = False
+        return True
+    else:
+        return False

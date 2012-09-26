@@ -28,14 +28,16 @@ from copy import deepcopy
 #from time import sleep      #for debugging
 
 from nextPhos import NextPhos
-from strucCalc import plus, minus, rotateAtoms
+from strucCalc import plus, minus, rotateAtoms, dist
 from rotamerSeq import determineRotamerSeq, determinePucker
-from calcCoords import calcCoords
+from calcCoords import calcCoords, recalcCoords, buildOnlyPhosOxy
 from reviewSuitesGui import ReviewSuitesGui
 from guiUtils import buttonWithIcon, HBOX_SPACING, VBOX_SPACING, BUTTON_SPACING, createRCraneWindowObject
 from pseudoMolecule import PseudoMolecule
 from selectMapDialog import selectMapDialog
 from citationPopup import createCitationPopup
+from pseudoMolecule import CONNECTED_DISTANCE_CUTOFF
+from reportInputErrors import STANDARD_BASES
 
 srcPath = os.path.dirname(os.path.abspath(__file__))
 
@@ -49,11 +51,14 @@ BOX_LENGTH = 0.3
 BATON_COLOR = "orange"
 BATON_TITLE = "Currently Selected Peak"
 ADJUST_PHOS_TITLE = "Manually adjusted phosphate position"
+CONNECTED_DISTANCE_CUTOFF_PHOS = 1.5
+    #how close do two phosphates have to be before we consider them the "same" phosphate and join them
+    #when doing an extend chain
 
 class TraceGui:
     """A class for the graphical interface used to trace the RNA backbone."""
     
-    def __init__(self, direction = 3, curCoords = None):
+    def __init__(self, direction = 3, curCoords = None, existingMolecule = None, resIndexToExtend = None):
         """Initialize a TraceGui object and create a GUI for tracing a molecule        
         
         OPTIONAL ARGUMENTS:
@@ -62,6 +67,10 @@ class TraceGui:
                              defaults to 3 (5'->3')
             curCoords      - the current (x,y,z) coordinates for where to start building
                              if not given, the screen center is used
+            existingMolecule - an existing molecule to extend
+                               if given, must also give resToExtend
+            resIndexToExtend - the residue of existingMolecule to extend from
+                               if given, must also give existingMolecule
         RETURNS:
             an initialized gui object
         EFFECTS:
@@ -69,13 +78,21 @@ class TraceGui:
         """
         
         #create the citation pop-up if necessary
-        createCitationPopup()
+        if existingMolecule is not None:
+            #if this is an extendChain call, then the user has already been shown the citation pop-up
+            createCitationPopup()
         
         if curCoords is None:
             curCoords = rotation_centre()
 
         #initialize the object
-        self.__pseudoMolecule = PseudoMolecule()
+        if existingMolecule:
+            self.__pseudoMolecule = existingMolecule
+            self.__resIndexToExtend = resIndexToExtend
+        else:
+            self.__pseudoMolecule = PseudoMolecule()
+            self.__resIndexToExtend = None
+        
         self.__direction = direction
         self.__nextPhos = NextPhos(phosDistFilename  = os.path.join(srcPath, "data/phosDistSmoothed.csv"),
                                    phosAngleFilename = os.path.join(srcPath, "data/phosAngleSmoothed.csv"),
@@ -126,8 +143,13 @@ class TraceGui:
         
         self.__deleteHandlerID = None
         
-        #create GUI for selecting the initial atom (using nextPhos.firstPhos)
-        self.selectInitialPhos(curCoords)
+        self.__tracedInitialPhos = False
+        
+        if existingMolecule is None:
+            #create GUI for selecting the initial atom (using nextPhos.firstPhos)
+            self.selectInitialPhos(curCoords)
+        else:
+            self.__extendChainSetup()
     
     
     def selectInitialPhos(self, curCoords):
@@ -232,11 +254,9 @@ class TraceGui:
         window.show_all()
     
     
-    def selectNextNt(self, prevPhos, window = None, initialNtCoords = None, initialNtType = None, initialPhos = None):
+    def selectNextNt(self, window = None, initialNtCoords = None, initialNtType = None, initialPhos = None):
         """Create a GUI for building the next nucleotide
         
-        ARGUMENTS:
-           prevPhos - the (x,y,z) coordinates of the 5' phosphate
         OPTIONAL ARGUMENTS:
            window          - a pyGTK+ window object (from the previous iteration of selectNextNt, if there was one)
            initialNtCoords - a dictionary of atom coordinates indicating what the initially selected nucleotide should be
@@ -282,14 +302,52 @@ class TraceGui:
             gtk.main_iteration(False)
         
         
-        #find candidate phosphate positions
-        if self.__pseudoMolecule.getNumNts() == 1:
-            #if this is the second nucleotide, then we can't factor in phosphate angles
-            (self.__candidatePhosphates, self.__candidateC1s) = self.__nextPhos.secondPhos(mapNum, prevPhos, self.__direction)
-        elif self.__direction == 3:
-            (self.__candidatePhosphates, self.__candidateC1s) = self.__nextPhos.nextPhos  (mapNum, prevPhos, self.__pseudoMolecule.getPhosCoords(-2), self.__pseudoMolecule.getSugarCoords(-2), self.__direction)
+        #figure out the coordinates needed to predict the next phosphate locations
+        if self.__resIndexToExtend is None:
+            if self.__direction == 3:
+                resIndexToExtend = self.__pseudoMolecule.getNumNts() - 1
+            else: #self.__direction == 5
+                resIndexToExtend = 0
+        else:
+            resIndexToExtend = self.__pseudoMolecule.resInsertionPoint
+        
+        prevPhos = None
+        prevSugar = None
+        prevPrevPhos = None
+        
+        if self.__direction == 3:
+            prevPhos = self.__pseudoMolecule.getPhosCoordsFromIndex(resIndexToExtend)
+            
+            if self.__pseudoMolecule.connectedToPrevFromIndex(resIndexToExtend) or self.__numNtsTraced() > 1:
+                prevSugar    = self.__pseudoMolecule.getSugarCoordsFromIndex(resIndexToExtend - 1)
+                prevPrevPhos = self.__pseudoMolecule.getPhosCoordsFromIndex(resIndexToExtend - 1)
+                
         else: #self.__direction == 5
-            (self.__candidatePhosphates, self.__candidateC1s) = self.__nextPhos.nextPhos  (mapNum, prevPhos, self.__pseudoMolecule.getPhosCoords(2), self.__pseudoMolecule.getSugarCoords(0), self.__direction)
+            prevPhos = self.__pseudoMolecule.getPhosCoordsFromIndex(resIndexToExtend)
+            
+            if self.__pseudoMolecule.connectedToNextFromIndex(resIndexToExtend) or self.__numNtsTraced() > 1:
+                prevSugar    = self.__pseudoMolecule.getSugarCoordsFromIndex(resIndexToExtend)
+                    #we can calculate prevSugar even if this nucleotide isn't connected to the next one, but it won't do us any good since we won't have
+                    #coordinates for prevPrevPhos 
+                prevPrevPhos = self.__pseudoMolecule.getPhosCoordsFromIndex(resIndexToExtend + 1)
+        
+        #print "prevPhos     = ", prevPhos    
+        #print "prevSugar    = ", prevSugar   
+        #print "prevPrevPhos = ", prevPrevPhos
+        
+        if prevPrevPhos is None:
+            (self.__candidatePhosphates, self.__candidateC1s) = self.__nextPhos.secondPhos(mapNum, prevPhos, self.__direction)
+        else:
+            (self.__candidatePhosphates, self.__candidateC1s) = self.__nextPhos.nextPhos  (mapNum, prevPhos, prevPrevPhos, prevSugar, self.__direction)
+        
+        ##find candidate phosphate positions
+        #if self.__pseudoMolecule.getNumNts() == 1:
+        #    #if this is the second nucleotide, then we can't factor in phosphate angles
+        #    (self.__candidatePhosphates, self.__candidateC1s) = self.__nextPhos.secondPhos(mapNum, prevPhos, self.__direction)
+        #elif self.__direction == 3:
+        #    (self.__candidatePhosphates, self.__candidateC1s) = self.__nextPhos.nextPhos  (mapNum, prevPhos, self.__pseudoMolecule.getPhosCoords(-2), self.__pseudoMolecule.getSugarCoords(-2), self.__direction)
+        #else: #self.__direction == 5
+        #    (self.__candidatePhosphates, self.__candidateC1s) = self.__nextPhos.nextPhos  (mapNum, prevPhos, self.__pseudoMolecule.getPhosCoords(2), self.__pseudoMolecule.getSugarCoords(0), self.__direction)
         
         #initialize the __currentC1Index array
         self.__currentC1Index = [0] * len(self.__candidatePhosphates)
@@ -457,8 +515,9 @@ class TraceGui:
         else:
             directionString = "3' -> 5'"
         
-        numNts = self.__pseudoMolecule.getNumNts()
-        if numNts == 1:
+        numNts = self.__numNtsTraced()
+        if numNts == 1 and self.__resIndexToExtend is None:
+            #only display a switch direction button if this is the first nucleotide being traced and we're not extending a chain
             directionLabel = gtk.Label("Tracing " + directionString)
             switchDirectionButton = buttonWithIcon("  Switch  ", "gtk-refresh")
             switchDirectionButton.connect("clicked", self.__switchDirection, prevPhos, window)
@@ -495,7 +554,13 @@ class TraceGui:
             #We don't want to resize the window in between the first and second nucleotide, since that can
             #move buttons out from underneath the user's cursor.  To avoid this, we make sure that
             #directionBox is the same height regardless of whether or not the switch direction button is present.
-            directionBox.set_size_request(-1, self.__directionBoxHeight)
+            try:
+                directionBox.set_size_request(-1, self.__directionBoxHeight)
+            except AttributeError:
+                #if we're doing an extendChain, then __directionBoxHeight won't be defined and will raise an AttributeError
+                #However, window will never have contained a switch direction button, so we don't need to worry about
+                #preserving the height of the direction box
+                pass
         
         
         #the phosphate frame
@@ -1465,11 +1530,27 @@ class TraceGui:
             acceptedPoint = self.__customPhosphate
         
         #add the atom to the pseudoMolecule
-        self.__pseudoMolecule.addPhos(acceptedPoint)
+        if self.__resIndexToExtend is None or self.__direction == 3:
+            self.__pseudoMolecule.addPhos(acceptedPoint)
+        else:
+            self.__pseudoMolecule.addPhos5p(acceptedPoint)
         
         set_rotation_centre(acceptedPoint[0], acceptedPoint[1], acceptedPoint[2])
         
-        self.selectNextNt(acceptedPoint, window)
+        self.__tracedInitialPhos = True #if this is an extend chain, we need to remember that we've added an initial phosphate
+            #in case the user wants to build just the phosphate (since we don't want to allow the user to build nothing)
+        
+        #if we're doing an extend chain in the 3' direction, lie about where we started the extend chain
+        #so we don't have to set up minimizations differently depending on if we starting by adding
+        #a phosphate or not
+        if self.__direction == 3 and self.__resIndexToExtend is not None:
+            self.__resIndexToExtend += 1
+            self.__pseudoMolecule.origResInsertionPoint += 1
+            #self.__pseudoMolecule.resInsertionPoint was already incremented in addPhos()
+            #print "self.__pseudoMolecule.origResInsertionPoint =", self.__pseudoMolecule.origResInsertionPoint
+            #print "self.__pseudoMolecule.resInsertionPoint =", self.__pseudoMolecule.resInsertionPoint
+            
+        self.selectNextNt(window)
     
     ##########################################################################################
     #   Functions for buttons in the next nucleotide GUI (generated by selectNextNt)
@@ -1732,7 +1813,7 @@ class TraceGui:
         self.__customPhosphate = None
         self.__customBase      = None
         
-        self.selectNextNt(phosCoords[0:3], window)
+        self.selectNextNt(window)
     
     def __nextNtClose(self, widget, window):
         """Close the next nucleotide dialog and delete the molecule
@@ -1746,7 +1827,10 @@ class TraceGui:
             Destroys the next nucleotide dialog and the Coot molecule
         """
         
-        self.__pseudoMolecule.deleteMolecule()
+        if self.__pseudoMolecule.hasSavedMoleculeState():
+            self.__pseudoMolecule.restoreMoleculeState()
+        else:
+            self.__pseudoMolecule.deleteMolecule()
         self.__nextNtFinished(window)
         
 
@@ -1794,6 +1878,9 @@ class TraceGui:
             Calculates an initial set of backbone coordinates and creates a review suites GUI dialog
         """
         
+        #pre-declare prevTorsions
+        prevTorsions = None
+        
         #if there is still a Manually Adjust Phosphate window open, close it
         if self.__adjustPhosWindow is not None:
             self.__adjustPhosWindow.destroy()
@@ -1803,12 +1890,27 @@ class TraceGui:
             self.__adjustBaseWindow.destroy()
         
         
-        if self.__pseudoMolecule.getNumNts() < 2:
-            #if the user has only built a phosphate, then we can't build any backbone
-            #so just close the window and leave the phosphate atom
-            self.__nextNtFinished(window)
+        #print "self.__numNtsTraced() =", self.__numNtsTraced()
+        
+        if self.__numNtsTraced() < 2:
+            if self.__resIndexToExtend is None:
+                #if the user has only built a phosphate, then we can't build any backbone
+                #so just close the window and leave the phosphate atom
+                self.__nextNtFinished(window)
+                
+            elif self.__tracedInitialPhos:
+                #if we're doing an extend chain and have only traced a phosphate, then build the non-bridging oxygens
+                buildOnlyPhosOxy(self.__pseudoMolecule, self.__resIndexToExtend, self.__direction)
+                self.__nextNtFinished(window)
+                
+            else:
+                #if we're doing an extend chain and we haven't even traced a phosphate, then the user probably clicked by accident
+                #so don't do anything
+                print "No nucleotides traced, so there is nothing to build."
+                add_status_bar_text("No nucleotides traced, so there is nothing to build.")
+                return False
             
-        elif self.__pseudoMolecule.getNumNts() == 2:
+        elif self.__numNtsTraced() == 2 and self.__resIndexToExtend is None:
             #close the graphics for the nucleotide that we haven't built yet
             close_generic_object(self.__candidatePhosObject)
             close_generic_object(self.__candidateC1Object)
@@ -1828,7 +1930,42 @@ class TraceGui:
             close_generic_object(self.__candidateC1Object)
             close_generic_object(self.__batonObject)
             
-            builtChain = self.__pseudoMolecule.createChainObject()
+            if self.__resIndexToExtend is None:
+                builtChain = self.__pseudoMolecule.createChainObject()
+            else:
+                
+                #figure out the starting and ending residues
+                #the +/- 1 is because we want to rebuild the nucleotide right before the extension
+                #since we now have enough information to do a proper rotamer prediction for it
+                if self.__direction == 3:
+                    startingResIndex = self.__resIndexToExtend - 1
+                    endingResIndex   = self.__pseudoMolecule.resInsertionPoint
+                    #print "startingResIndex, endingResIndex =", startingResIndex, endingResIndex
+                    
+                    joined = self.__extendChainJoined(endingResIndex)
+                    if joined == 2:
+                        endingResIndex += 1
+                    
+                else:
+                    startingResIndex = self.__pseudoMolecule.resInsertionPoint
+                    endingResIndex   = self.__pseudoMolecule.origResInsertionPoint
+                    #print "startingResIndex, endingResIndex =", startingResIndex, endingResIndex
+                    
+                    joined = self.__extendChainJoined(startingResIndex)
+                    if joined == 1:
+                        endingResIndex -= 1
+                        startingResIndex -= 2
+                    elif joined == 2:
+                        startingResIndex -= 1
+                    
+                #print "self.__extendChainJoined(startingResIndex) returned", joined
+                #print "startingResIndex, endingResIndex =", startingResIndex, endingResIndex
+                #print "startingRes fullNum =", self.__pseudoMolecule.resNumFull(startingResIndex)
+                #print "endingRes fullNum =", self.__pseudoMolecule.resNumFull(endingResIndex)
+                #from time import sleep; sleep(5)
+                
+                (builtChain, resNum5p, resNum3p) = self.__pseudoMolecule.createPartialChainObjectFromIndex(startingResIndex, endingResIndex, addFlankingAtoms = True)
+            
             builtChainOrig = deepcopy(builtChain)
             #for curNuc in builtChain.nucleotides: pprint(curNuc.atoms)
             (bestPath, predictedProbs) = determineRotamerSeq(builtChain)
@@ -1842,12 +1979,62 @@ class TraceGui:
             #output.close()
             #sleep(3)
             
-            (intermediateAtomLocs, minimizationScores) = calcCoords(builtChain, bestPath, self.__pseudoMolecule, window)
+            if self.__resIndexToExtend is None:
+                (intermediateAtomLocs, minimizationScores) = calcCoords(builtChain, bestPath, self.__pseudoMolecule, window)
+            else:
+                
+                if resNum5p is None:
+                    #if we're at the start of the chain, add in a None rotamer as the previous suite
+                    rebuildRots = [None]+bestPath
+                    prevTorsions = None
+                else:
+                    #if we're not at the start of the chain, record the current 5' torsions so they can be used as restraints in minimization
+                    prevTorsions = self.__pseudoMolecule.calcSuiteTorsionsFromIndex(startingResIndex)
+                    rebuildRots = [prevTorsions]+bestPath
+                
+                #if we're not at the end of the chain, record the current 3' torsions so that they can be used as restraints in minimization
+                if resNum3p is None:
+                    rebuildRots = rebuildRots+[None]
+                    nextTorsions = None
+                else:
+                    #print "resNum3p =", resNum3p
+                    nextTorsions = self.__pseudoMolecule.calcSuiteTorsions(resNum3p)
+                    rebuildRots = rebuildRots+[nextTorsions]
+                
+                startResNum = self.__pseudoMolecule.resNumFull(startingResIndex)
+                #endResNum   = self.__pseudoMolecule.resNumFull(endingResIndex-1) #we subtract 1 because the final residue is just a phosphate group
+                #endResNum   = self.__pseudoMolecule.resNumFull(endingResIndex)
+                
+                #determine the final residue to minimize, excluding any 3' phosphate group
+                if self.__pseudoMolecule.isOnlyPhosGroupFromIndex(endingResIndex):
+                    endResNum   = self.__pseudoMolecule.resNumFull(endingResIndex-1)
+                else:
+                    endResNum   = self.__pseudoMolecule.resNumFull(endingResIndex)
+                
+                self.__pseudoMolecule.setExtraBondRange(resNum5p or startResNum, resNum3p or endResNum)
+                
+                #reset the nucleotide just before the extend chain so that we can rebuild it
+                if self.__direction == 3:
+                    self.__pseudoMolecule.resetNucs(startResNum, self.__pseudoMolecule.resNumFull(self.__resIndexToExtend))
+                else:
+                    self.__pseudoMolecule.resetNucs(self.__pseudoMolecule.resNumFull(self.__resIndexToExtend), endResNum)
+                    
+                #if the newly traced segment has joined an existing segment, then
+                #reset the nucleotide at the end as well so we can rebuild that
+                if joined:
+                    if self.__direction == 3:
+                        self.__pseudoMolecule.resetNucs(self.__pseudoMolecule.resNumFull(self.__resIndexToExtend), endResNum)
+                    else:
+                        self.__pseudoMolecule.resetNucs(startResNum, self.__pseudoMolecule.resNumFull(self.__resIndexToExtend))
+                
+                (intermediateAtomLocs, minimizationScores) = recalcCoords(startResNum, endResNum, rebuildRots, builtChain, self.__pseudoMolecule, window)
+            
             #print "minimizationScores =", minimizationScores
             #for curNuc in builtChain.nucleotides: pprint(curNuc.atoms)
+            
             self.__pseudoMolecule.closeBatonObject()
             window.disconnect(self.__deleteHandlerID)
-            ReviewSuitesGui(predictedProbs, bestPath, self.__pseudoMolecule, builtChainOrig, intermediateAtomLocs, minimizationScores, window)
+            ReviewSuitesGui(predictedProbs, bestPath, self.__pseudoMolecule, builtChainOrig, intermediateAtomLocs, minimizationScores, window, prevTorsions = prevTorsions)
             #self.__nextNtFinished(window)
         
         
@@ -1895,6 +2082,13 @@ class TraceGui:
             Undraws the current nucleotide and prompts the user to rebuild the previous nucleotide
         """
         
+        #make sure we're not at the start of an extend chain
+        if self.__resIndexToExtend is not None and self.__pseudoMolecule.origResInsertionPoint == self.__pseudoMolecule.resInsertionPoint:
+            #if we are, then don't do anything
+            print "Can't go back any further."
+            add_status_bar_text("Can't go back any further.")
+            return
+        
         #remove the last nucleotide from the pseudoMolecule object
         if self.__direction == 3:
             (prevNtType, prevNtCoords) = self.__pseudoMolecule.removeLastBaseAndPhos()
@@ -1925,7 +2119,7 @@ class TraceGui:
         prevPhos = self.__getPrevPhosCoords()
         set_rotation_centre(prevPhos[0], prevPhos[1], prevPhos[2])
         
-        self.selectNextNt(prevPhos, window, prevNtCoords, prevNtType)
+        self.selectNextNt(window, prevNtCoords, prevNtType)
         
         
     
@@ -2175,7 +2369,7 @@ class TraceGui:
         graphics_draw()
         
         
-        self.selectNextNt(prevPhos, window, initialPhos = phosCoords)
+        self.selectNextNt(window, initialPhos = phosCoords)
     
     
     def __getPrevPhosCoords(self):
@@ -2187,8 +2381,208 @@ class TraceGui:
             the coordinates of the previous phosphate (phosphate -1 if tracing 5'->3', phosphate 1 if tracing 3'->5')
         """
         
-        
-        if self.__direction == 3:
-            return self.__pseudoMolecule.getPhosCoords(-1)
+        if self.__resIndexToExtend is None:
+            if self.__direction == 3:
+                prevResIndex = -1
+            else:
+                prevResIndex = 0
         else:
-            return self.__pseudoMolecule.getPhosCoords(1)
+            if self.__direction == 3:
+                prevResIndex = self.__pseudoMolecule.resInsertionPoint
+            else:
+                prevResIndex = self.__resIndexToExtend
+        
+        return self.__pseudoMolecule.getPhosCoordsFromIndex(prevResIndex)
+    
+    
+    def __extendChainSetup(self):
+        """Start an extend chain call
+        
+        ARGUMENTS:
+            None
+        RETURNS:
+            False if we could not find any atoms to use for starting coordinates (if this happens, something has gone very wrong)
+        """
+        
+        if ((self.__direction == 5 and self.__pseudoMolecule.getPhosCoordsFromIndex(self.__resIndexToExtend) is not None) or
+            (self.__direction == 3 and self.__pseudoMolecule.isOnlyPhosGroupFromIndex(self.__resIndexToExtend))):
+            #if we have a phosphate, then skip the phosphate selecting step
+            self.selectNextNt()
+        
+        else:
+            
+            #if we don't have a phosphate, then figure out what the 3'- or 5'-most atom is
+            if self.__direction == 3:
+                atomOrder = ["O3'", "C3'", "C2'", "O2'", "C1'"]
+            else:
+                atomOrder = ["O5'", "C5'", "C4'", "O4'", "C1'"]
+            
+            startCoords = None
+            for curAtom in atomOrder:
+                #this is certainly not the most efficient way to get atomic coordinates, but it's a very quick search regardless, so it doesn't really matter
+                startCoords = self.__pseudoMolecule.getAtomCoordsFromIndex(curAtom, self.__resIndexToExtend)
+                if startCoords is not None:
+                    #print "Using", curAtom, "for phosphate search start coordinates:", startCoords
+                    break
+            else:
+                #this should never happen, since we should always have at least a C1' atom, but handle it anyways
+                print "No suitable atoms found to start phosphate search."
+                return False
+            
+            self.selectInitialPhos(startCoords)
+    
+    
+    def __numNtsTraced(self):
+        """Calculate the number of nucleotides that have been traced thus far
+        
+        ARGUMENTS:
+            None
+        RETURNS:
+            The number of nucleotides traced
+        """
+        
+        if self.__resIndexToExtend is None:
+            return self.__pseudoMolecule.getNumNts()
+        else:
+            return (abs(self.__pseudoMolecule.resInsertionPoint - self.__pseudoMolecule.origResInsertionPoint) + 1)
+    
+    
+    def __extendChainJoined(self, endingResIndex):
+        """If we're doing an extend chain, figure out if we've joined up to the next segment of the molecule.
+        (i.e. if we're tracing 5'->3', has the 3' end of the newly traced segment met up with the next residue)
+        If we are, then set up the molecule to prepare for the join (i.e. remove redundant phosphates)
+        
+        ARGUMENTS:
+            endingResIndex - the residue index of the last residue of the newly traced segment
+                we could determine this ourselves, but __nextNtBuildBackbone will have just finished determining
+                it when this function is called
+        RETURNS:
+            False if the new segment was not joined
+            1 if the segment was joined and a residue containing only a phosphate was deleted or merged into another residue
+                (i.e. the residue numbering has changed by 1
+            2 if the segment was joined no residues were deleted
+        """
+        
+        newSegmentPhosCoord = self.__pseudoMolecule.getPhosCoordsFromIndex(endingResIndex)
+        #print "newSegmentPhosCoord =", newSegmentPhosCoord
+        
+        #figure out the coordinates of the next phosphate or next O3'/O5' atom
+        nextPhos = None
+        nextOxy  = None
+        if self.__direction == 3:
+
+            #print "endingResIndex =", endingResIndex
+            #print "self.__pseudoMolecule.getNumNts() =", self.__pseudoMolecule.getNumNts()
+            if endingResIndex + 1 >= self.__pseudoMolecule.getNumNts():
+                #if there is no next nucleotide, then we certainly can't join up with it
+                #print "There is no next 3' nucleotide"
+                return False
+            else:
+                nextPhos = self.__pseudoMolecule.getPhosCoordsFromIndex(endingResIndex + 1)
+                nextOxy = self.__pseudoMolecule.getAtomCoordsFromIndex("O5'", endingResIndex + 1)
+        
+        else: #self.__direction == 5
+            if endingResIndex == 0:
+                #print "There is no next 5'nucleotide"
+                return False
+            else:
+                nextPhos = self.__pseudoMolecule.getPhosCoordsFromIndex(endingResIndex - 1)
+                nextOxy = self.__pseudoMolecule.getAtomCoordsFromIndex("O3'", endingResIndex - 1)
+        
+        #print "nextPhos =", nextPhos
+        #print "nextOxy  =", nextOxy
+        
+        #figure out if the phosphates are close
+        if nextPhos is not None and dist(newSegmentPhosCoord, nextPhos) <= CONNECTED_DISTANCE_CUTOFF_PHOS:
+            nextPhosIsClose = True
+        else:
+            nextPhosIsClose = False
+        
+        #figure out if the phosphate and bridging oxygen are close
+        if nextOxy is not None and dist(newSegmentPhosCoord, nextOxy) <= CONNECTED_DISTANCE_CUTOFF:
+            nextOxyIsClose = True
+        else:
+            nextOxyIsClose = False
+        
+        #if we've joined up to a new segment, then make sure that the nucleotide we're joining to passes a sanity check
+        #if it doesn't, then we can't join
+        cantCalcPseudoTors = None
+        if nextPhosIsClose or nextOxyIsClose:
+            #print "In __extendChainJoined, nextPhosIsClose or nextOxyIsClose"
+            if self.__direction == 3:
+                nextResIndex = endingResIndex + 1
+            else:
+                nextResIndex = endingResIndex - 1
+            #print "nextResIndex =", nextResIndex
+            #print "self.__pseudoMolecule.resNumFull(nextResIndex) =", self.__pseudoMolecule.resNumFull(nextResIndex)            
+            
+            #if the next nt is more than just a phosphate group
+            if not self.__pseudoMolecule.isOnlyPhosGroupFromIndex(nextResIndex):
+                #make sure it has a C1' or is just a phosphate group
+                if self.__pseudoMolecule.getSugarCoordsFromIndex(nextResIndex) is None:
+                    #print "next residue has no C1'"
+                    cantCalcPseudoTors = True
+                
+                #make sure it isn't a modified nucleotide
+                nextResType = self.__pseudoMolecule.resTypeFromIndex(nextResIndex)
+                if nextResType not in STANDARD_BASES:
+                    #print "next residue is non-standard base"
+                    cantCalcPseudoTors = True
+            
+            #make sure it doesn't have an insertion code
+            if self.__pseudoMolecule.resNum(nextResIndex)[1] != "":
+                #print "next residue has insertion code:", self.__pseudoMolecule.resNum(nextResIndex)[1]
+                return False
+            
+            #make sure that the next residue has a phosphate (otherwise, we can't calculate pseudotorsions)
+            if self.__direction == 5 and self.__pseudoMolecule.getPhosCoordsFromIndex(nextResIndex) is None:
+                #print "next 5' residue has no phos"
+                #from time import sleep; sleep(3)
+                cantCalcPseudoTors = True
+            elif self.__direction == 3 and not self.__pseudoMolecule.connectedToNextFromIndex(nextResIndex):
+                #print "next 3' residue has no phos"
+                #from time import sleep; sleep(3)
+                cantCalcPseudoTors = True
+                
+            #if the next residue doesn't have a sugar or a phosphate, we may still need to merge residues, so don't return False yet
+            #wait until after we've deleted or merged residues
+            #hence, we set cantCalcPseudoTors to True
+        
+        #print "In __extendChainJoined, nucleotide to be joined passes sanity check"
+        
+        if nextPhosIsClose:
+            #if we have duplicate phosphates that we need to worry about,
+            #then delete the residue that contains only the phosphate group
+            
+            if self.__direction == 3:
+                #delete the phosphate group from the new trace
+                self.__pseudoMolecule.deleteResFromIndex(endingResIndex)
+            else:
+                #delete the phosphate group from the existing molecule
+                self.__pseudoMolecule.deleteResFromIndex(endingResIndex - 1)
+            
+            if cantCalcPseudoTors:
+                return False
+            else:
+                return 1
+        
+        elif nextOxyIsClose and self.__direction == 3:
+            #we don't have duplicate phosphates, but the newly created 3' phosphate should be part of the
+            #next residue (which contains the O5')
+            self.__pseudoMolecule.mergeRes(endingResIndex, endingResIndex + 1)
+            
+            if cantCalcPseudoTors:
+                return False
+            else:
+                return 1
+        
+        elif nextOxyIsClose:
+            #we want to join to the next segment, but we don't have to erase any atoms to do so
+            if cantCalcPseudoTors:
+                return False
+            else:
+                return 2
+        
+        else:
+            return False
+        

@@ -33,7 +33,7 @@ def createAboutDialog():
     
     aboutDialog = gtk.AboutDialog()
     aboutDialog.set_name("RCrane")
-    aboutDialog.set_version("1.0.2")
+    aboutDialog.set_version("1.1")
     aboutDialog.set_copyright("Copyright 2010-2012 by Kevin Keating")
     aboutDialog.set_website("http://www.pylelab.org/software/index.html")
     aboutDialog.set_license(license)
@@ -117,6 +117,11 @@ RCrane allows for accurate and semi-automated building of RNA structure into ele
 
 references =\
 """All publications resulting from the use of RCrane should acknowledge:
+
+Keating KS and Pyle AM.  RCrane: Semi-automated RNA model building.  Acta Cryst D68 (2012) 958-995.
+
+
+Additional information about the RCrane methodology may be found in:
 
 Keating KS and Pyle AM. Semiautomated model building for RNA crystallography using a directed rotameric approach. Proc Natl Acad USA, 107 (2010) 8177-8182.
 

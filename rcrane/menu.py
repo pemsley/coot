@@ -39,7 +39,13 @@ def createRCraneMenu():
 
     add_simple_coot_menu_menuitem(menu, "New trace 5'->3'...", lambda x: rcrane.newTrace(direction=3))
     add_simple_coot_menu_menuitem(menu, "New trace 3'->5'...", lambda x: rcrane.newTrace(direction=5))
-
+    
+    #create and store the extend chain... option
+    extendChain = gtk.MenuItem("Extend chain...")
+    extendChain.connect("activate", lambda x: rcrane.newExtendChain())
+    extendChain.show()
+    menu.append(extendChain)
+    rcrane.storeExtendChainMenuItem(extendChain)
     
     #add_simple_coot_menu_menuitem(menu, "Rotamerize existing structure...", lambda x: rcrane.rotamerize())
     rotamerize = gtk.MenuItem("Rotamerize existing structure...")

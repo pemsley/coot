@@ -53,7 +53,7 @@ def import_rcrane_wrapper():
        noticeDialog = gtk.MessageDialog(type = gtk.MESSAGE_WARNING, buttons = gtk.BUTTONS_OK)
        noticeDialog.set_title("Old version of RCrane detected")
        noticeDialog.set_markup("An old version of RCrane was detected.  Coot now includes "
-           + "RCrane 1.0, which may be accessed via Extensions -> RCrane launch.  To prevent the "
+           + "RCrane 1.1, which may be accessed via Extensions -> RCrane launch.  To prevent the "
            + "old version of RCrane from running, your "
            + "~/.coot-preferences/rcrane.py file was moved to ~/.coot-preferences/rcrane.py.bak.")
        noticeDialog.run()
