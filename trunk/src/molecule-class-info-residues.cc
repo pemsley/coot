@@ -204,90 +204,70 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 	 if (r.first) {
 
 	    std::string residue_name = residue_p->GetResName();
-
+	    
 	    std::pair<bool, coot::dictionary_residue_restraints_t> rp = 
 	       geom.get_monomer_restraints(residue_name);
-
+	    
 	    if (rp.first) { 
 	    
-	       // those Hs were just attached with non-good geometry, we
-	       // need to minimise.  Keep all atoms fixed except all hydrogens.
-	       std::vector<std::pair<bool,CResidue *> > residues;
-	       std::pair<bool, CResidue *> p(0, residue_p);
-	       residues.push_back(p);
-	       coot::restraints_container_t restraints(residues, geom,
-						       atom_sel.mol, fixed_atoms);
-	       bool do_torsions = 0;
+	       std::vector<std::string> alt_confs = coot::util::get_residue_alt_confs(residue_p);
+	       for (unsigned int iac=0; iac<alt_confs.size(); iac++) {
+		  const std::string &alt_conf = alt_confs[iac];
 
-	       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
-	       
-	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES; // pass
-	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES; // pass
-	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_NON_BONDED; // fail
-	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES; // pass
-	       // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES; // pass
-	       // coot::restraint_usage_Flags flags = coot::BONDS_AND_NON_BONDED;
-	       
-	       int n_restraints = restraints.make_restraints(geom, flags, do_torsions,
-							     0, 0, coot::NO_PSEUDO_BONDS);
-	       restraints.minimize(flags);
 
-	       // analyse results
-	       PPCAtom residue_atoms = 0;
-	       int n_residue_atoms;
-	       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-	       
-	       // 
-	       std::vector<coot::dict_chiral_restraint_t> cr = rp.second.chiral_restraint;
+		  CMMDBManager *residue_mol = coot::util::create_mmdbmanager_from_residue(NULL, residue_p);
+		  CResidue *residue_cp_p = coot::util::get_first_residue(residue_mol);
 
-	       for (unsigned int icr=0; icr<cr.size(); icr++) {
-		  std::string centre_atom = cr[icr].atom_id_c_4c();
-		  std::vector<std::pair<short int, coot::atom_spec_t> > v = 
-		     coot::is_inverted_chiral_atom_p(cr[icr], residue_p);
-		  if (v.size() ) {
-		     for (unsigned int i=0; i<v.size(); i++) {
-			if (v[i].first) {
-			   std::cout << "fix this bad chiral centre "
-				     << v[i].first << " "
-				     << v[i].second << std::endl;
-			   std::vector<std::string> attached_Hs =
-			      rp.second.get_attached_H_names(v[i].second.atom_name);
-			   if (attached_Hs.size() > 1) {
+		  coot::util::delete_alt_confs_except(residue_cp_p, alt_conf);
+		  residue_mol->FinishStructEdit();
 
-			      coot::atom_spec_t spec_1 = v[i].second;
-			      coot::atom_spec_t spec_2 = v[i].second;
-			      spec_1.atom_name = attached_Hs[0];
-			      spec_2.atom_name = attached_Hs[1];
-			      CAtom *at_1 = get_atom(spec_1);
-			      CAtom *at_2 = get_atom(spec_2);
-
-			      if (! at_1) {
-				 std::cout << " failed to get atom with spec " << spec_1
-					   << std::endl;
-			      } else {
-				 if (! at_2) {
-				    std::cout << " failed to get atom with spec " << spec_2
-					      << std::endl;
-				 } else {
-				    clipper::Coord_orth t(at_1->x, at_1->y, at_1->z);
-				    at_1->x = at_2->x;
-				    at_1->y = at_2->y;
-				    at_1->z = at_2->z;
-				    at_2->x = t.x();
-				    at_2->y = t.y();
-				    at_2->z = t.z();
-				 }
-			      }
-			   }
+		  if (0) { // -------- debug ----------
+		     int imod = 1;
+		     CModel *model_p = atom_sel.mol->GetModel(imod);
+		     CChain *chain_p;
+		     int n_chains = model_p->GetNumberOfChains();
+		     for (int ichain=0; ichain<n_chains; ichain++) {
+			chain_p = model_p->GetChain(ichain);
+			int nres = chain_p->GetNumberOfResidues();
+			CResidue *residue_inner_p;
+			for (int ires=0; ires<nres; ires++) { 
+			   residue_inner_p = chain_p->GetResidue(ires);
+			   std::cout << "copied mol residue " << coot::residue_spec_t(residue_inner_p)
+				     << " " << residue_inner_p << " vs " << residue_cp_p 
+				     << std::endl;
 			}
 		     }
-		  }
-	       }
+		  } // ------ end debug ----------
 
-	       flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-	       n_restraints = restraints.make_restraints(geom, flags, do_torsions,
-							 0, 0, coot::NO_PSEUDO_BONDS);
-	       restraints.minimize(flags);
+		  // those Hs were just attached with non-good geometry, we
+		  // need to minimise.  Keep all atoms fixed except all hydrogens.
+		  std::vector<std::pair<bool,CResidue *> > residues;
+		  std::pair<bool, CResidue *> p(0, residue_cp_p);
+		  residues.push_back(p);
+		  coot::restraints_container_t restraints(residues, geom, residue_mol, fixed_atoms);
+		  bool do_torsions = 0;
+
+		  coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
+		  int n_restraints = restraints.make_restraints(geom, flags, do_torsions,
+								0, 0, coot::NO_PSEUDO_BONDS);
+		  restraints.minimize(flags);
+		  residue_mol->FinishStructEdit();
+
+		  // do we need to optimize some more because the atom names have been swapped?
+		  bool needs_more = sprout_hydrogens_correct_chirals_maybe(residue_cp_p, alt_conf, rp.second);
+
+		  if (needs_more) {
+		     coot::restraints_container_t restraints_2(residues, geom, residue_mol, fixed_atoms);
+		     flags = coot::CHIRAL_VOLUMES;
+		     flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+		     n_restraints = restraints_2.make_restraints(geom, flags, do_torsions,
+								 0, 0, coot::NO_PSEUDO_BONDS);
+		     restraints_2.minimize(flags);
+		  }
+
+		  // from_res, to_res
+		  sprout_hydrogens_transfer_hydrogen_positions(residue_cp_p, residue_p, alt_conf);
+	       }
 	    }
 	 }
       }
@@ -300,6 +280,112 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
    }
    return r;
 }
+
+// if the original residue has alt confs, residue_cp_p should have
+// only one alt conf when this is called (e.g. only "A"s).
+//
+bool
+molecule_class_info_t::sprout_hydrogens_correct_chirals_maybe(CResidue *residue_cp_p,
+							      const std::string &alt_conf,
+							      const coot::dictionary_residue_restraints_t &rp) {
+
+   bool correct_chiral = false;
+   
+   // analyse results
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue_cp_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	       
+   // 
+   std::vector<coot::dict_chiral_restraint_t> cr = rp.chiral_restraint;
+
+   for (unsigned int icr=0; icr<cr.size(); icr++) {
+      std::string centre_atom = cr[icr].atom_id_c_4c();
+      std::vector<std::pair<short int, coot::atom_spec_t> > v = 
+	 coot::is_inverted_chiral_atom_p(cr[icr], residue_cp_p);
+      if (v.size() ) {
+	 for (unsigned int i=0; i<v.size(); i++) {
+	    if (v[i].first) {
+	       std::cout << "fix this bad chiral centre "
+			 << v[i].first << " "
+			 << v[i].second << std::endl;
+	       std::vector<std::string> attached_Hs =
+		  rp.get_attached_H_names(v[i].second.atom_name);
+	       if (attached_Hs.size() > 1) {
+
+		  coot::atom_spec_t spec_1 = v[i].second;
+		  coot::atom_spec_t spec_2 = v[i].second;
+		  spec_1.atom_name = attached_Hs[0];
+		  spec_2.atom_name = attached_Hs[1];
+		  CAtom *at_1 = get_atom(spec_1);
+		  CAtom *at_2 = get_atom(spec_2);
+
+		  if (! at_1) {
+		     std::cout << " failed to get atom with spec " << spec_1
+			       << std::endl;
+		  } else {
+		     if (! at_2) {
+			std::cout << " failed to get atom with spec " << spec_2
+				  << std::endl;
+		     } else {
+			clipper::Coord_orth t(at_1->x, at_1->y, at_1->z);
+			at_1->x = at_2->x;
+			at_1->y = at_2->y;
+			at_1->z = at_2->z;
+			at_2->x = t.x();
+			at_2->y = t.y();
+			at_2->z = t.z();
+			correct_chiral = true;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return correct_chiral;
+}
+
+void
+molecule_class_info_t::sprout_hydrogens_transfer_hydrogen_positions(CResidue *from_res_p, CResidue *to_res_p,
+								    const std::string &alt_conf) {
+
+   PPCAtom residue_atoms_1 = 0;
+   PPCAtom residue_atoms_2 = 0;
+   int n_residue_atoms_1;
+   int n_residue_atoms_2;
+   from_res_p->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
+   to_res_p->GetAtomTable  (residue_atoms_2, n_residue_atoms_2);
+
+   for (unsigned int iat_1=0; iat_1<n_residue_atoms_1; iat_1++) {
+      CAtom *at_1 = residue_atoms_1[iat_1];
+      std::string ele_1 = at_1->element;
+      if (ele_1 == " H") {                // PDBv3 FIXME
+	 std::string name_1(at_1->name);
+	 std::string altc_1(at_1->altLoc);
+	 if (altc_1 == alt_conf) { 
+	    for (unsigned int iat_2=0; iat_2<n_residue_atoms_2; iat_2++) {
+	       CAtom *at_2 = residue_atoms_2[iat_2];
+	       std::string ele_2 = at_2->element;
+	       if (ele_2 == " H") {       // PDBv3 FIXME
+		  std::string name_2(at_2->name);
+		  std::string altc_2(at_2->altLoc);
+		  
+		  if (name_1 == name_2) {
+		     if (altc_1 == altc_2) {
+			at_2->x = at_1->x;
+			at_2->y = at_1->y;
+			at_2->z = at_1->z;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
+
 
 std::vector<std::string>
 molecule_class_info_t::no_dictionary_for_residue_type_as_yet(const coot::protein_geometry &geom) const {

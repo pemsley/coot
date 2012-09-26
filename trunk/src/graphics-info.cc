@@ -503,7 +503,7 @@ graphics_info_t::setRotationCentre(int index, int imol) {
    
 
    update_ramachandran_plot_point_maybe(imol, atom);
-   setup_graphics_ligand_view(imol, atom->residue);
+   setup_graphics_ligand_view(imol, atom->residue, atom->altLoc);
 
    if (environment_show_distances) {
       mol_no_for_environment_distances = imol;

@@ -1362,7 +1362,7 @@
      (let ((imol (greg-pdb "4f8g.pdb")))
 
        (if (not (valid-model-molecule? imol))
-	   (throw 'missing-4fg8-pdb))
+	   (throw 'missing-4f8g-pdb))
 
        (let ((status (mutate-base imol "A" 19 "" "DC")))
 	 (if (not (= status 1))

@@ -355,7 +355,8 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::pos_t &pos_1_raw,
       // Add new cases, a bit of a hack of course.
    case SINGLE_OR_DOUBLE:
    case SINGLE_OR_AROMATIC:
-   case AROMATIC_BOND:
+   case AROMATIC_BOND:        // this should not happen 
+   case DELOC_ONE_AND_A_HALF: // this should not happen either
    case BOND_ANY:
       ci = wrap_goo_canvas_polyline_new_line(root,
 					     pos_1.x, pos_1.y,

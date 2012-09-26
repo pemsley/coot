@@ -461,6 +461,7 @@ public:
 	 mmdb_bt = 3;
 	 break;
       case AROMATIC_BOND:
+      case DELOC_ONE_AND_A_HALF:
       case SINGLE_OR_DOUBLE:
       case SINGLE_OR_AROMATIC:
       case DOUBLE_OR_AROMATIC:

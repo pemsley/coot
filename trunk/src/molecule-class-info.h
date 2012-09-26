@@ -3041,6 +3041,15 @@ public:        //                      public
 		    int res_no,
 		    const std::string &ins_code,
 		    const coot::protein_geometry &geom);
+   // which uses:
+   // (and this returns a status: 0 if we did not correct a chiral, 1 if we did)
+   bool sprout_hydrogens_correct_chirals_maybe(CResidue *residue_cp_p,
+					       const std::string &alt_conf,
+					       const coot::dictionary_residue_restraints_t &rp);
+   void sprout_hydrogens_transfer_hydrogen_positions(CResidue *from_res, CResidue *to_res,
+						     const std::string &alt_conf);
+
+
 
    std::vector<std::string> no_dictionary_for_residue_type_as_yet(const coot::protein_geometry &geom) const;
 

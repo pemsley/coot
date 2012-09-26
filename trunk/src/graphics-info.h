@@ -3856,7 +3856,7 @@ string   static std::string sessionid;
    // bottom left ligand view 
    void setup_graphics_ligand_view_aa();
    void setup_graphics_ligand_view_aa(int imol); // only allow imol to be potential active residue.
-   void setup_graphics_ligand_view(int imol, CResidue *residue);
+   void setup_graphics_ligand_view(int imol, CResidue *residue, const std::string &alt_conf);
    // which stores in:
    static graphics_ligand_molecule graphics_ligand_mol;
 

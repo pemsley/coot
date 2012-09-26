@@ -22,6 +22,7 @@
 
 #include "coot-utils.hh"
 #include "rdkit-interface.hh"
+#include "coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
 
 
 // This can throw an runtime_error exception (residue not in
@@ -29,6 +30,8 @@
 //
 // Return an RDKit::RWMol with one conformer (perhaps we should do a
 // conformer for each alt conf).
+//
+// alt_conf is an optional arg.
 // 
 RDKit::RWMol
 coot::rdkit_mol(CResidue *residue_p, const coot::protein_geometry &geom) {
@@ -58,7 +61,8 @@ coot::rdkit_mol(CResidue *residue_p, const coot::protein_geometry &geom) {
 
 RDKit::RWMol
 coot::rdkit_mol(CResidue *residue_p,
-		const coot::dictionary_residue_restraints_t &restraints) {
+		const coot::dictionary_residue_restraints_t &restraints,
+		const std::string &alt_conf) {
 
    bool debug = false;
    
@@ -92,126 +96,134 @@ coot::rdkit_mol(CResidue *residue_p,
    
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (unsigned int iat_1=0; iat_1<n_residue_atoms; iat_1++) {
-      if (! residue_atoms[iat_1]->Ter) {
-	 CAtom *at_1 = residue_atoms[iat_1];
+      CAtom *at_1 = residue_atoms[iat_1];
+      if (! at_1->Ter) {
 	 std::string atom_name_1(at_1->name);
-	 bool found_a_bonded_atom = false;
-	 for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
-	    if (restraints.bond_restraint[ib].atom_id_1_4c() == atom_name_1) {
-	       // is the atom to wich atom_name_1 is bonded in the
-	       // atoms of the residue?
-	       for (unsigned int iat_2=0; iat_2<n_residue_atoms; iat_2++) {
-		  CAtom *at_2 = residue_atoms[iat_2];
-		  std::string atom_name_2 = at_2->name;
-		  if (atom_name_2 == restraints.bond_restraint[ib].atom_id_2_4c()) {
-		     found_a_bonded_atom = true;
-		     break;
-		  } 
-	       }
-	    } 
-	    if (restraints.bond_restraint[ib].atom_id_2_4c() == atom_name_1) {
-	       // is the atom to wich atom_name_1 is bonded in the
-	       // atoms of the residue?
-	       for (unsigned int iat_2=0; iat_2<n_residue_atoms; iat_2++) {
-		  CAtom *at_2 = residue_atoms[iat_2];
-		  std::string atom_name_2 = at_2->name;
-		  if (atom_name_2 == restraints.bond_restraint[ib].atom_id_1_4c()) {
-		     found_a_bonded_atom = true;
-		     break;
-		  } 
+	 std::string atom_alt_conf(at_1->altLoc);
+	 if (atom_alt_conf == alt_conf) { 
+	    bool found_a_bonded_atom = false;
+	    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
+	       if (restraints.bond_restraint[ib].atom_id_1_4c() == atom_name_1) {
+		  // is the atom to wich atom_name_1 is bonded in the
+		  // atoms of the residue?
+		  for (unsigned int iat_2=0; iat_2<n_residue_atoms; iat_2++) {
+		     CAtom *at_2 = residue_atoms[iat_2];
+		     std::string atom_name_2 = at_2->name;
+		     if (atom_name_2 == restraints.bond_restraint[ib].atom_id_2_4c()) {
+			found_a_bonded_atom = true;
+			break;
+		     } 
+		  }
+	       } 
+	       if (restraints.bond_restraint[ib].atom_id_2_4c() == atom_name_1) {
+		  // is the atom to wich atom_name_1 is bonded in the
+		  // atoms of the residue?
+		  for (unsigned int iat_2=0; iat_2<n_residue_atoms; iat_2++) {
+		     CAtom *at_2 = residue_atoms[iat_2];
+		     std::string atom_name_2 = at_2->name;
+		     if (atom_name_2 == restraints.bond_restraint[ib].atom_id_1_4c()) {
+			found_a_bonded_atom = true;
+			break;
+		     } 
+		  }
 	       }
 	    }
-	 }
 
-	 if (found_a_bonded_atom)
-	    bonded_atoms.push_back(iat_1);
+	    if (found_a_bonded_atom)
+	       bonded_atoms.push_back(iat_1);
+	 }
       }
    }
+
+   if (debug)
+      std::cout << "DEBUG:: number of bonded atoms with alt conf \"" << alt_conf << "\" found: "
+		<< bonded_atoms.size() << std::endl;
 
 
    for (unsigned int iat=0; iat<bonded_atoms.size(); iat++) {
 
-      if (1) { 
-
-	 CAtom *at = residue_atoms[bonded_atoms[iat]];
-	 std::string atom_name(at->name);
-	 if (debug)
-	    std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " " 
-		      << atom_name << std::endl;
+      CAtom *at = residue_atoms[bonded_atoms[iat]];
+      std::string atom_name(at->name);
+      if (debug)
+	 std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " " 
+		   << atom_name << std::endl;
 	 
-	 // only add the atom if the atom_name is not in the list of
-	 // already-added atom names.
-	 if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name) != added_atom_names.end()) {
-	    std::cout << "!!!! Problem? atom name \"" << atom_name
-		      << "\" was already added" << std::endl;
+      // only add the atom if the atom_name is not in the list of
+      // already-added atom names.
+      if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name) != added_atom_names.end()) {
+	 std::cout << "!!!! Problem? atom name \"" << atom_name
+		   << "\" was already added" << std::endl;
 	    
-	 } else { 
-	    RDKit::Atom *rdkit_at = new RDKit::Atom;
-	    try {
-	       std::string ele_capped =
-		  coot::util::capitalise(coot::util::remove_leading_spaces(at->element));
-	       int atomic_number = tbl->getAtomicNumber(ele_capped);
-	       rdkit_at->setAtomicNum(atomic_number);
-	       rdkit_at->setMass(tbl->getAtomicWeight(atomic_number));
-	       rdkit_at->setProp("name", atom_name);
+      } else { 
+	 RDKit::Atom *rdkit_at = new RDKit::Atom;
+	 try {
+	    std::string ele_capped =
+	       coot::util::capitalise(coot::util::remove_leading_spaces(at->element));
+	    int atomic_number = tbl->getAtomicNumber(ele_capped);
+	    rdkit_at->setAtomicNum(atomic_number);
+	    rdkit_at->setMass(tbl->getAtomicWeight(atomic_number));
+	    rdkit_at->setProp("name", atom_name);
 
-	       // set the valence from they type energy.  Abstract?
-	       //
-	       std::string type_energy = restraints.type_energy(at->name);
-	       if (type_energy != "") {
-		  if (type_energy == "NT") {
-		     rdkit_at->setFormalCharge(1);
-		  }
-		  // other NT*s will drop hydrogens in RDKit, no need to
-		  // fix up formal charge (unless there is a hydrogen! Hmm).
 
-		  // now that phosphates are undelocalized, we don't
-		  // need to make this hack:
-		  // 
-		  // if (type_energy == "P") {
-		  //    rdkit_at->setFormalCharge(1);
-		  // }
-		  
+	    // set the valence from they type energy.  Abstract?
+	    //
+	    std::string type_energy = restraints.type_energy(at->name);
+	    if (type_energy != "") {
+	       if (type_energy == "NT") {
+		  rdkit_at->setFormalCharge(1);
 	       }
+		  
+	       // other NT*s will drop hydrogens in RDKit, no need to
+	       // fix up formal charge (unless there is a hydrogen! Hmm).
+	       
+	       // now that phosphates are undelocalized, we don't
+	       // need to make this hack:
+	       // 
+	       // if (type_energy == "P") {
+	       //    rdkit_at->setFormalCharge(1);
+	       // }
+		  
+	    }
 
-	       // set the chirality
-	       // (if this atom is chiral)
-	       //
-	       for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) { 
-		  if (restraints.chiral_restraint[ichi].atom_id_c_4c() == atom_name) {
-		     if (!restraints.chiral_restraint[ichi].has_unassigned_chiral_volume()) {
-			if (!restraints.chiral_restraint[ichi].is_a_both_restraint()) {
-			   // e.g. RDKit::Atom::CHI_TETRAHEDRAL_CCW;
-			   RDKit::Atom::ChiralType chiral_tag =
-			      get_chiral_tag(residue_p, restraints, residue_atoms[iat]);
-			   rdkit_at->setChiralTag(chiral_tag);
-			} 
+	    // set the chirality
+	    // (if this atom is chiral)
+	    //
+	    for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) { 
+	       if (restraints.chiral_restraint[ichi].atom_id_c_4c() == atom_name) {
+		  if (!restraints.chiral_restraint[ichi].has_unassigned_chiral_volume()) {
+		     if (!restraints.chiral_restraint[ichi].is_a_both_restraint()) {
+			// e.g. RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+			RDKit::Atom::ChiralType chiral_tag =
+			   get_chiral_tag(residue_p, restraints, residue_atoms[iat]);
+			rdkit_at->setChiralTag(chiral_tag);
 		     } 
 		  } 
-	       }
+	       } 
+	    }
 	    
-	       m.addAtom(rdkit_at);
+	    m.addAtom(rdkit_at);
 	       
-	       if (debug) 
-		  std::cout << "      about to add atom with name \"" << atom_name
-			    << "\" to added_atom_names which is currently of size "
-			    << added_atom_names.size() << std::endl;
+	    if (debug) 
+	       std::cout << "      about to add atom with name \"" << atom_name
+			 << "\" to added_atom_names which is currently of size "
+			 << added_atom_names.size() << std::endl;
 	       
-	       added_atom_names.push_back(atom_name);
-	       added_atoms.push_back(residue_atoms[iat]);
-	       atom_index[atom_name] = current_atom_id;
-	       current_atom_id++; // for next round
-	    }
-	    catch (std::exception rte) {
-	       std::cout << rte.what() << std::endl;
-	    }
+	    added_atom_names.push_back(atom_name);
+	    added_atoms.push_back(residue_atoms[iat]);
+	    atom_index[atom_name] = current_atom_id;
+	    current_atom_id++; // for next round
+	 }
+	 catch (std::exception rte) {
+	    std::cout << rte.what() << std::endl;
 	 }
       }
    }
 
-   if (debug) 
-      std::cout << "number of bond restraints: " << restraints.bond_restraint.size()
+   if (debug) {
+      std::cout << "DEBUG::number of atoms in rdkit mol: " << m.getNumAtoms() << std::endl;
+      std::cout << "DEBG:: number of bond restraints: " << restraints.bond_restraint.size()
 		<< std::endl;
+   } 
    
    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
       if (debug)
@@ -257,7 +269,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	    
 	 } else {
 	    if (ele_2 != " H") { 
-	       std::cout << "WARNING:: oops, bonding in making rdkit mol "
+	       std::cout << "WARNING:: oops, bonding in rdkit_mol() "
 			 << "failed to get atom index idx_2 for atom name: "
 			 << atom_name_2 << " ele :" << ele_2 << ":" << std::endl;
 	       // give up trying to construct this thing then.
@@ -269,7 +281,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	 }
       } else {
 	 if (ele_1 != " H") { 
-	    std::cout << "WARNING:: oops, bonding in making rdkit mol "
+	    std::cout << "WARNING:: oops, bonding in rdkit_mol() "
 		      << "failed to get atom index idx_1 for atom name: \""
 		      << atom_name_1 << "\" ele :" << ele_1 << ":" << std::endl;
 	    // give up trying to construct this thing then.
@@ -410,16 +422,19 @@ coot::rdkit_mol(CResidue *residue_p,
    // 
    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
       std::string atom_name(residue_atoms[iat]->name);
-      std::map<std::string, int>::const_iterator it = atom_index.find(atom_name);
-      if (it != atom_index.end()) {
-	 RDGeom::Point3D pos(residue_atoms[iat]->x,
-			     residue_atoms[iat]->y,
-			     residue_atoms[iat]->z);
-	 conf->setAtomPos(it->second, pos);
-	 if (debug) 
-	    std::cout << "in construction of rdkit mol: making a conformer atom "
-		      << iat << " " << it->second << " " << atom_name << " at pos "
-		      << pos << std::endl;
+      std::string atom_alt_conf(residue_atoms[iat]->altLoc);
+      if (atom_alt_conf == alt_conf) { 
+	 std::map<std::string, int>::const_iterator it = atom_index.find(atom_name);
+	 if (it != atom_index.end()) {
+	    RDGeom::Point3D pos(residue_atoms[iat]->x,
+				residue_atoms[iat]->y,
+				residue_atoms[iat]->z);
+	    conf->setAtomPos(it->second, pos);
+	    if (debug) 
+	       std::cout << "in construction of rdkit mol: making a conformer atom "
+			 << iat << " " << it->second << " " << atom_name << " at pos "
+			 << pos << std::endl;
+	 }
       }
    }
    m.addConformer(conf);
@@ -954,101 +969,111 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 	 if (existing_H_names.size()) {
 	    return std::pair<bool, std::string> (0, "Ligand contains (some) hydrogens already");
 	 }
+
+
+	 std::vector<std::string> residue_alt_confs = util::get_residue_alt_confs(residue_p);
+
+	 for (unsigned int i_alt_conf=0; i_alt_conf<residue_alt_confs.size(); i_alt_conf++) { 
+
+	    std::string alt_conf = residue_alt_confs[i_alt_conf];
+	    RDKit::RWMol m_no_Hs = rdkit_mol(residue_p, restraints, residue_alt_confs[i_alt_conf]);
+	    int n_mol_atoms = m_no_Hs.getNumAtoms();
+	    // std::cout << ".......  pre H addition mol has " << n_mol_atoms
+	    // << " atoms" << std::endl;
+
+	    coot::undelocalise(&m_no_Hs);
 	 
-	 RDKit::RWMol m_no_Hs = rdkit_mol(residue_p, restraints);
-	 int n_mol_atoms = m_no_Hs.getNumAtoms();
-	 // std::cout << ".......  pre H addition mol has " << n_mol_atoms
-	 // << " atoms" << std::endl;
+	    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
+	       RDKit::ATOM_SPTR at_p = m_no_Hs[iat];
+	       at_p->calcImplicitValence(true);
+	    }
 
-	 coot::undelocalise(&m_no_Hs);
+	    // std::cout << "MolOps:: adding hydrogens " << std::endl;
+	    RDKit::ROMol *m_pre = RDKit::MolOps::addHs(m_no_Hs, 0, 1);
+	    RDKit::RWMol m(*m_pre);
+	    // std::cout << "....... post H addition mol has " << m_pre->getNumAtoms()
+	    // << std::endl;
+	    int n_atoms_new = m_pre->getNumAtoms();
+	    int n_conf = m_pre->getNumConformers();
+
+	    double vdwThresh=10.0;
+	    int confId = 0;
+	    bool ignoreInterfragInteractions=true;
+	    int maxIters = 500;
+
+	    // std::cout << "==== constructForceField()......" << std::endl;
 	 
-	 for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
-	    RDKit::ATOM_SPTR at_p = m_no_Hs[iat];
-	    at_p->calcImplicitValence(true);
-	 }
+	    ForceFields::ForceField *ff =
+	       RDKit::UFF::constructForceField(m, vdwThresh, confId,
+					       ignoreInterfragInteractions);
 
-	 // std::cout << "MolOps:: adding hydrogens " << std::endl;
-	 RDKit::ROMol *m_pre = RDKit::MolOps::addHs(m_no_Hs, 0, 1);
-	 RDKit::RWMol m(*m_pre);
-	 // std::cout << "....... post H addition mol has " << m_pre->getNumAtoms()
-	 // << std::endl;
-	 int n_atoms_new = m_pre->getNumAtoms();
-	 int n_conf = m_pre->getNumConformers();
+	    for (unsigned int iat=0; iat<n_mol_atoms; iat++)
+	       ff->fixedPoints().push_back(iat);
 
-	 double vdwThresh=10.0;
-	 int confId = 0;
-	 bool ignoreInterfragInteractions=true;
-	 int maxIters = 500;
-
-	 // std::cout << "==== constructForceField()......" << std::endl;
-	 
- 	 ForceFields::ForceField *ff =
- 	    RDKit::UFF::constructForceField(m, vdwThresh, confId,
- 					    ignoreInterfragInteractions);
-
- 	 for (unsigned int iat=0; iat<n_mol_atoms; iat++)
- 	    ff->fixedPoints().push_back(iat);
-
-	 // std::cout << "==== ff->initialize() ......" << std::endl;
- 	 ff->initialize();
-	 // std::cout << "==== ff->minimize() ......" << std::endl;
- 	 int res=ff->minimize(maxIters);
-	 // std::cout << "rdkit minimize() returns " << res << std::endl;
- 	 delete ff;
+	    // std::cout << "==== ff->initialize() ......" << std::endl;
+	    ff->initialize();
+	    // std::cout << "==== ff->minimize() ......" << std::endl;
+	    int res=ff->minimize(maxIters);
+	    // std::cout << "rdkit minimize() returns " << res << std::endl;
+	    delete ff;
 	 
 
-	 if (! n_conf) {
-	    std::cout << "ERROR:: mol with Hs: no conformers" << std::endl;
-	 } else { 
-	    RDKit::Conformer conf = m_pre->getConformer(0);
-	    std::vector<std::string> H_names_already_added;
+	    if (! n_conf) {
+	       std::cout << "ERROR:: mol with Hs: no conformers" << std::endl;
+	    } else { 
+	       RDKit::Conformer conf = m_pre->getConformer(0);
+	       std::vector<std::string> H_names_already_added;
 	 
-	    for (unsigned int iat=0; iat<n_atoms_new; iat++) {
-	       RDKit::ATOM_SPTR at_p = (*m_pre)[iat];
-	       RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
-	       std::string name = "";
-	       try {
-		  at_p->getProp("name", name);
-		  CAtom *res_atom = residue_p->GetAtom(name.c_str());
-		  if (res_atom) {
-		     std::cout << "setting heavy atom " << name << " to "
-			       << r_pos << std::endl;
-		     res_atom->x = r_pos.x;
-		     res_atom->y = r_pos.y;
-		     res_atom->z = r_pos.z;
-		  }
+	       for (unsigned int iat=0; iat<n_atoms_new; iat++) {
+		  RDKit::ATOM_SPTR at_p = (*m_pre)[iat];
+		  RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
+		  std::string name = "";
+		  try {
+		     at_p->getProp("name", name);
+		     CAtom *res_atom = residue_p->GetAtom(name.c_str());
+		     if (res_atom) {
+			std::cout << "setting heavy atom " << name << " to "
+				  << r_pos << std::endl;
+			res_atom->x = r_pos.x;
+			res_atom->y = r_pos.y;
+			res_atom->z = r_pos.z;
+		     }
 		     
-	       }
-	       catch (KeyErrorException kee) {
+		  }
+		  catch (KeyErrorException kee) {
 
-		  // OK...
-		  //
-		  // typically when we get here, that's because the
-		  // atom is a new one, generated by RDKit.
+		     // OK...
+		     //
+		     // typically when we get here, that's because the
+		     // atom is a new one, generated by RDKit.
 		  
-		  std::string name = coot::infer_H_name(iat, at_p, &m, restraints,
-							H_names_already_added);
-		  if (name != "") {
+		     std::string name = coot::infer_H_name(iat, at_p, &m, restraints,
+							   H_names_already_added);
+		     if (name != "") {
 
-		     // add atom if the name is not already there:
-		     // 
-		     if (std::find(existing_H_names.begin(),
-				   existing_H_names.end(),
-				   name) == existing_H_names.end()) {
+			// add atom if the name is not already there:
+			// 
+			if (std::find(existing_H_names.begin(),
+				      existing_H_names.end(),
+				      name) == existing_H_names.end()) {
 			
-			H_names_already_added.push_back(name);
+			   H_names_already_added.push_back(name);
 			
-			int n = at_p->getAtomicNum();
-			std::string element = tbl->getElementSymbol(n);
+			   int n = at_p->getAtomicNum();
+			   std::string element = tbl->getElementSymbol(n);
 			
-			CAtom *at = new CAtom;
-			at->SetAtomName(name.c_str());
-			// at->SetElementName(element.c_str()); // FIXME?
-			at->SetElementName(" H");
-			at->SetCoordinates(r_pos.x, r_pos.y, r_pos.z, 1.0, 30.0);
-			at->Het = 1;
-			residue_p->AddAtom(at);
-			r = 1;
+			   CAtom *at = new CAtom;
+			   at->SetAtomName(name.c_str());
+			   // at->SetElementName(element.c_str()); // FIXME?
+			   at->SetElementName(" H");  // PDBv3 FIXME
+			   at->SetCoordinates(r_pos.x, r_pos.y, r_pos.z, 1.0, 30.0);
+			   at->Het = 1;
+			   if (alt_conf != "") {
+			      strncpy(at->altLoc, alt_conf.c_str(), alt_conf.length()+1);
+			   }
+			   residue_p->AddAtom(at);
+			   r = 1;
+			}
 		     }
 		  }
 	       }

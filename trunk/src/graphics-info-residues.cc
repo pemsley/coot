@@ -107,7 +107,7 @@ graphics_info_t::setup_graphics_ligand_view_aa() {
 	    std::cout << "-------------------------- setup_graphics_ligand_view_aa() imol: "
 		      << active_atom.second.first
 		      << " residue: " << coot::residue_spec_t(residue_p) << std::endl;
-	 setup_graphics_ligand_view(active_atom.second.first, residue_p);
+	 setup_graphics_ligand_view(active_atom.second.first, residue_p, active_atom.second.second.alt_conf);
       }
    }
 }
@@ -125,13 +125,13 @@ graphics_info_t::setup_graphics_ligand_view_aa(int imol) {
 	    std::cout << "-------------------------- setup_graphics_ligand_view_aa() imol: "
 		      << active_atom.second.first
 		      << " residue: " << coot::residue_spec_t(residue_p) << std::endl;
-	 setup_graphics_ligand_view(active_atom.second.first, residue_p);
+	 setup_graphics_ligand_view(active_atom.second.first, residue_p, active_atom.second.second.alt_conf);
       }
    }
 }
 
 void
-graphics_info_t::setup_graphics_ligand_view(int imol, CResidue *residue_p) {
+graphics_info_t::setup_graphics_ligand_view(int imol, CResidue *residue_p, const std::string &alt_conf) {
 
    if (show_graphics_ligand_view_flag) { // user control
       if (!use_graphics_interface_flag) {
@@ -148,7 +148,7 @@ graphics_info_t::setup_graphics_ligand_view(int imol, CResidue *residue_p) {
 		     std::cout << "   setup_graphics_ligand() on residue "
 			       << coot::residue_spec_t(residue_p) << std::endl;
 		  graphics_ligand_view_flag =
-		     graphics_ligand_mol.setup_from(residue_p, Geom_p(), background_is_black_p());
+		     graphics_ligand_mol.setup_from(residue_p, alt_conf, Geom_p(), background_is_black_p());
 		  graphics_ligand_mol.imol = imol;
 	       }
 	    }
