@@ -321,6 +321,7 @@ graphics_ligand_molecule::render() {
 
 bool
 graphics_ligand_molecule::setup_from(CResidue *residue_p,
+				     const std::string &alt_conf,
 				     coot::protein_geometry *geom_p,
 				     bool against_a_dark_background) {
 
@@ -337,7 +338,7 @@ graphics_ligand_molecule::setup_from(CResidue *residue_p,
 	    std::cout << "DEBUG:: No restraints for \"" << res_name << "\"" << std::endl;
 	 } else {
 	    const coot::dictionary_residue_restraints_t &restraints = p.second;
-	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints);
+	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints, alt_conf);
 	    RDKit::ROMol *rdk_mol_with_no_Hs_ro = RDKit::MolOps::removeHs(rdkm);
 	    RDKit::RWMol rdk_mol_with_no_Hs = *rdk_mol_with_no_Hs_ro;
 

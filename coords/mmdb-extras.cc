@@ -283,7 +283,7 @@ coot::deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
    
    PPCAtom residue_atoms;
    int nResidueAtoms;
-   ((CResidue *)residue)->GetAtomTable(residue_atoms, nResidueAtoms);
+   residue->GetAtomTable(residue_atoms, nResidueAtoms);
    CAtom *atom_p;
    short int do_shelx_afix_data_flag = 0;
    if (udd_afix_handle >= 0)

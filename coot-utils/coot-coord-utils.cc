@@ -323,18 +323,19 @@ coot::residues_near_residue(const coot::residue_spec_t &rs,
 
    std::vector<coot::residue_spec_t> r;
 
-   CResidue *res_p = coot::util::get_residue(rs.chain, rs.resno, rs.insertion_code, mol);
-   if (!res_p) {
-      std::cout << "OOps failed to find " << rs << " in molecule\n";
-   } else {
-
-      // std::cout << "  Finding contacts of " << rs << " in molecule\n";
-
-      std::vector<CResidue *> close_residues = residues_near_residue(res_p, mol, radius);
-      
-      for (unsigned int i=0; i<close_residues.size(); i++)
-	 r.push_back(close_residues[i]);
-
+   if (mol) { 
+      CResidue *res_p = coot::util::get_residue(rs.chain, rs.resno, rs.insertion_code, mol);
+      if (!res_p) {
+	 std::cout << "OOps failed to find " << rs << " in molecule\n";
+      } else {
+	 
+	 // std::cout << "  Finding contacts of " << rs << " in molecule\n";
+	 
+	 std::vector<CResidue *> close_residues = residues_near_residue(res_p, mol, radius);
+	 
+	 for (unsigned int i=0; i<close_residues.size(); i++)
+	    r.push_back(close_residues[i]);
+      }
    }
    return r;
 }
@@ -348,89 +349,92 @@ coot::residues_near_residue(CResidue *res_ref,
    int n_selected_atoms;
    std::vector<CResidue *> close_residues;
 
-   int SelectionHandle = mol->NewSelection();
-   mol->SelectAtoms (SelectionHandle, 0, "*",
-		     ANY_RES, // starting resno, an int
-		     "*", // any insertion code
-		     ANY_RES, // ending resno
-		     "*", // ending insertion code
-		     "*", // any residue name
-		     "*", // atom name
-		     "*", // elements
-		     "*"  // alt loc.
-		     );
-      
-   mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
+   if (mol) {
 
-   if (! res_ref)
-      return close_residues;
+      int SelectionHandle = mol->NewSelection(); // d
+      mol->SelectAtoms (SelectionHandle, 0, "*",
+			ANY_RES, // starting resno, an int
+			"*", // any insertion code
+			ANY_RES, // ending resno
+			"*", // ending insertion code
+			"*", // any residue name
+			"*", // atom name
+			"*", // elements
+			"*"  // alt loc.
+			);
+      
+      mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
+
+      if (! res_ref)
+	 return close_residues;
    
 	 
-   PPCAtom res_atom_selection = 0;
-   int n_res_atoms = 0;
-   res_ref->GetAtomTable(res_atom_selection, n_res_atoms);
+      PPCAtom res_atom_selection = 0;
+      int n_res_atoms = 0;
+      res_ref->GetAtomTable(res_atom_selection, n_res_atoms);
 
 
-   if (n_res_atoms > 0) {
+      if (n_res_atoms > 0) {
 
-      PSContact pscontact = NULL;
-      int n_contacts;
-      float min_dist = 0.01;
-      long i_contact_group = 1;
-      mat44 my_matt;
-      CSymOps symm;
-      for (int i=0; i<4; i++) 
-	 for (int j=0; j<4; j++) 
-	    my_matt[i][j] = 0.0;      
-      for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+	 PSContact pscontact = NULL;
+	 int n_contacts;
+	 float min_dist = 0.01;
+	 long i_contact_group = 1;
+	 mat44 my_matt;
+	 CSymOps symm;
+	 for (int i=0; i<4; i++) 
+	    for (int j=0; j<4; j++) 
+	       my_matt[i][j] = 0.0;      
+	 for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
-      // by-pass bug noted below (?)
-      if (min_dist < radius)
-	 min_dist = 0.0;
-      // bypass a bug when the n_contacts is 11m or so, but
-      // pscontact[0] is NULL.  hence crash when we try to get the
-      // residue from that atom index.
-      // 
-      if (radius > 0.0) {
+	 // by-pass bug noted below (?)
+	 if (min_dist < radius)
+	    min_dist = 0.0;
+	 // bypass a bug when the n_contacts is 11m or so, but
+	 // pscontact[0] is NULL.  hence crash when we try to get the
+	 // residue from that atom index.
+	 // 
+	 if (radius > 0.0) {
 
-	 mol->SeekContacts(res_atom_selection, n_res_atoms, 
-			   atom_selection, n_selected_atoms,
-			   min_dist, radius, // min, max distances
-			   0,        // seqDist 0 -> in same res also
-			   pscontact, n_contacts,
-			   0, &my_matt, i_contact_group);
+	    mol->SeekContacts(res_atom_selection, n_res_atoms, 
+			      atom_selection, n_selected_atoms,
+			      min_dist, radius, // min, max distances
+			      0,        // seqDist 0 -> in same res also
+			      pscontact, n_contacts,
+			      0, &my_matt, i_contact_group);
 	 
-	 //       std::cout << " Found " << n_contacts  << " contacts " << std::endl;
+	    //       std::cout << " Found " << n_contacts  << " contacts " << std::endl;
 	 
-	 if (n_contacts > 0) {
-	    if (pscontact) { 
-	       int n_cont_diff = 0; 
-	       int n_cont_same = 0; 
-	       for (int i=0; i<n_contacts; i++) {
-		  // 	    std::cout << "   comparing " << atom_selection[pscontact[i].id2]
-		  // 		      << " " << coot::atom_spec_t(atom_selection[pscontact[i].id2])
-		  // 		      << " " << " to " << rs << " " << res_p << std::endl;
-		  if (atom_selection[pscontact[i].id2]->residue != res_ref) {
-		     n_cont_diff++;
-		     std::vector<CResidue *>::iterator result =
-			std::find(close_residues.begin(),
-				  close_residues.end(),
-				  atom_selection[pscontact[i].id2]->residue);
+	    if (n_contacts > 0) {
+	       if (pscontact) { 
+		  int n_cont_diff = 0; 
+		  int n_cont_same = 0; 
+		  for (int i=0; i<n_contacts; i++) {
+		     // 	    std::cout << "   comparing " << atom_selection[pscontact[i].id2]
+		     // 		      << " " << coot::atom_spec_t(atom_selection[pscontact[i].id2])
+		     // 		      << " " << " to " << rs << " " << res_p << std::endl;
+		     if (atom_selection[pscontact[i].id2]->residue != res_ref) {
+			n_cont_diff++;
+			std::vector<CResidue *>::iterator result =
+			   std::find(close_residues.begin(),
+				     close_residues.end(),
+				     atom_selection[pscontact[i].id2]->residue);
 		  
-		     if (result == close_residues.end()) { 
-			close_residues.push_back(atom_selection[pscontact[i].id2]->residue);
+			if (result == close_residues.end()) { 
+			   close_residues.push_back(atom_selection[pscontact[i].id2]->residue);
+			}
+		     } else {
+			n_cont_same++;
 		     }
-		  } else {
-		     n_cont_same++;
 		  }
-	       }
-	    } else {
-	       std::cout << "ERROR:: trapped null pscontact in residues_near_residue"
-			 << std::endl;
-	    } 
+	       } else {
+		  std::cout << "ERROR:: trapped null pscontact in residues_near_residue"
+			    << std::endl;
+	       } 
+	    }
 	 }
+	 mol->DeleteSelection(SelectionHandle);
       }
-      mol->DeleteSelection(SelectionHandle);
    }
    return close_residues;
 }
@@ -2217,7 +2221,33 @@ coot::util::standard_deviation_temperature_factor(PPCAtom atom_selection,
       sd = sqrt(var);
    } 
    return sd;
+}
+
+
+// adjust the atoms of residue_p
+void
+coot::util::delete_alt_confs_except(CResidue *residue_p, const std::string &alt_conf) {
+
+   // we make a big list and then delete them all at once.  Deleting
+   // them in place (inside the residue block crashes?).
+   // 
+   std::vector<CAtom *> atoms_to_be_deleted;
+   
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (unsigned int i=0; i<n_residue_atoms; i++) { 
+      std::string atom_alt_conf(residue_atoms[i]->altLoc);
+      if (atom_alt_conf != alt_conf) {
+	 atoms_to_be_deleted.push_back(residue_atoms[i]);
+      }
+   }
+   for (unsigned int iat=0; iat<atoms_to_be_deleted.size(); iat++) { 
+      delete atoms_to_be_deleted[iat];
+      atoms_to_be_deleted[iat] = NULL;
+   }
 } 
+
 
 // Return NULL on residue not found in this molecule. Only look in
 // MODEL 1.

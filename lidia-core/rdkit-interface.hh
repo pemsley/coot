@@ -33,7 +33,8 @@ namespace coot {
    //
    RDKit::RWMol rdkit_mol_sanitized(CResidue *residue_p, const protein_geometry &geom);
    RDKit::RWMol rdkit_mol(CResidue *residue_p, const protein_geometry &geom);
-   RDKit::RWMol rdkit_mol(CResidue *residue_p, const coot::dictionary_residue_restraints_t &restraints);
+   RDKit::RWMol rdkit_mol(CResidue *residue_p, const coot::dictionary_residue_restraints_t &restraints,
+			  const std::string &alt_conf="");
    // tinker with mol
    void rdkit_mol_sanitize(RDKit::RWMol &mol);
 

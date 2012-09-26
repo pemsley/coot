@@ -1145,6 +1145,9 @@ namespace coot {
       // copy cell, symm, origin and scale cards from m1 to m2 (if possible)
       // return success status.
       bool copy_cell_and_symm_headers(CMMDBManager *m1, CMMDBManager *m2);
+
+      // adjust the atoms of residue_p
+      void delete_alt_confs_except(CResidue *residue_p, const std::string &alt_conf);
       
 
       // The flanking residues (if any) are in the residue selection (SelResidues).
