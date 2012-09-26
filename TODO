@@ -1149,6 +1149,9 @@ Punted from 0.6:
 
    o FUN: Use net/pdbe to get SMILES string for given comp_id
 
+   o Old backups dialog should be a transient. Could be tricky.
+     Punted.
+
 
 
 ------
