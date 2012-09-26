@@ -312,14 +312,23 @@ class ReviewSuitesGui:
         #print "hasPrevSuite =", hasPrevSuite        
         #print "startingNucNum =", startingNucNum
         #print "endingNucNum   =", endingNucNum
+        #print "self.__prevTorsions = ", self.__prevTorsions
         #from time import sleep; sleep(3)
         
         previousConf = self.__selectedConf
         
+        #determine if we need to store the previous nucleotide when cacheing the structure so that we can store its O3' position
+        #(the O3' generally doesn't move much, but if a minimization fails horribly (i.e. we don't get anything chemically reasonable),
+        #then the O3' will often be far out of position)
+        if startingNucIndex >= 2:
+            cacheStartingNucNum = self.__origCoords.nucs[startingNucIndex-1].resNum
+        else:
+            cacheStartingNucNum  = startingNucNum
+        
         #if need be, cache the existing structure
         if not(self.__structureCache.has_key(previousConf)):
             #print "Storing structure for", previousConf
-            self.__structureCache[previousConf] = self.__pseudoMolecule.getCootNucs(startingNucNum, endingNucNum)
+            self.__structureCache[previousConf] = self.__pseudoMolecule.getCootNucs(cacheStartingNucNum, endingNucNum)
         
         
         #figure out what the newly selected conformer is
@@ -332,6 +341,11 @@ class ReviewSuitesGui:
         if hasPrevSuite and puckerList[previousConf][0] != puckerList[selectedConf][0] and not (startingNucIndex == 1 and self.__prevTorsions):
             
             preStartingNucNum = self.__origCoords.nucs[startingNucIndex-1].resNum
+            if startingNucIndex >= 2:
+                #if there's a nucleotide before the pre-starting nucleotide, then cache that too
+                #since we may wind up changing the O3' atom
+                preStartingNucNum = self.__origCoords.nucs[startingNucIndex-2].resNum
+                #print "preStartingNucNum now includes previous previous suite"
             #print "preStartingNucNum =", startingNucNum
             
             #if we are, then see if we need to cache the current structure
@@ -448,7 +462,11 @@ class ReviewSuitesGui:
         if self.__structureCache.has_key(selectedConf):
             #if we do, then just use that structure
             #print "Restoring structure for", selectedConf
-            self.__pseudoMolecule.setCootNucs(startingNucNum, endingNucNum, self.__structureCache[selectedConf])
+            #print "startingNucNum =", startingNucNum
+            #print "cacheStartingNucNum =", cacheStartingNucNum            
+            #print "endingNucNum   =", endingNucNum
+        
+            self.__pseudoMolecule.setCootNucs(cacheStartingNucNum, endingNucNum, self.__structureCache[selectedConf])
             self.__pseudoMolecule.drawExtraBonds()
         else:
             #if we don't, then we have to calculate one

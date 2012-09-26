@@ -44,6 +44,7 @@ DEFAULT_B_FACTOR = 20.00
 
 ATOMS_TO_ERASE_FOR_REBUILDING_MOLECULE = frozenset("C2' O2' C3' O3' C4' O4' C5' O5' OP1 OP2".split(" "))
 BASE_ATOMS = frozenset("N6 O6 N2 N7 N3 C5 C4 N1 C8 C6 O4 O2 N9 N4 C2".split(" "))
+PHOS_GROUP_ATOMS = frozenset(["P", "OP1", "OP2", "OP3"])
 
 CONNECTED_DISTANCE_CUTOFF = 2.5 #how long can the O3'-P bond be before two nucleotides are considered not connected
 
@@ -71,9 +72,6 @@ class PseudoMolecule:
             or if molecule createFromMolecule contains anisotropic temperature records and we're using Coot older than rev 3631
         """
         
-        if createFromMolecule is not None:
-            batons = False
-        
         if batons:
             #create an object for the batons and set it to display
             self.__batonObject = new_generic_object_number("Accepted Batons")
@@ -91,6 +89,9 @@ class PseudoMolecule:
         self.__savedBfacs             = None
         self.chain                    = "A"
         self.__chainIndex             = 0
+        self.resInsertionPoint      = None
+        self.origResInsertionPoint  = None
+        self.__savedMoleculeState     = None
         
         if createFromMolecule is not None:
             self.__moleculeNumber = createFromMolecule
@@ -138,11 +139,15 @@ class PseudoMolecule:
             The phosphate will be added to the Coot molecule.
             If this is the first phosphate to be added, a new Coot molecule object will be
                 created and displayed.
-        NOTE:
-            This function is intended to add the first (5'-most) phosphate onto a chain.
         """
         
         resList = self.__molecule[0][self.__chainIndex][1]
+        
+        if self.resInsertionPoint is None:
+            resInsertionPoint = len(resList)
+        else:
+            resInsertionPoint = self.resInsertionPoint + 1
+            self.resInsertionPoint += 1
         
         #determine the residue number for the next residue
         nextResNum = None
@@ -151,12 +156,17 @@ class PseudoMolecule:
             nextResNum = 1
         else:
             #if this isn't the first residue, then increment the previous residue's number
-            nextResNum = resList[-1][0] + 1
-        self.__resNumDict[str(nextResNum)] = len(resList) #add this residue number to the lookup dictionary
+            nextResNum = resList[resInsertionPoint-1][0] + 1
+        
+        #update the residue number lookup dictionary
+        if self.resInsertionPoint is None:
+            self.__resNumDict[str(nextResNum)] = len(resList)
+        else:
+            self.__initializeResNumDict()
         
         #create a new residue containing the specified atom and add it to self.__molecule
         newRes = [nextResNum, "", "G", [[[" P  ",""], [1.0, DEFAULT_B_FACTOR, " P"], coords[0:3]]]]
-        resList.append(newRes)
+        resList.insert(resInsertionPoint, newRes)
         self.__molecule[0][self.__chainIndex][1] = resList
         
         #create or update Coot's representation of the molecule
@@ -166,11 +176,26 @@ class PseudoMolecule:
             clear_and_update_molecule(self.__moleculeNumber, self.__molecule)
         
         #if this isn't the first atom, then draw a baton to it
-        if len(resList) > 1:
-            prevPhosCoords = self.getPhosCoords(-1)
-            to_generic_object_add_line(self.__batonObject, BATONCOLOR, 6, prevPhosCoords[0], prevPhosCoords[1], prevPhosCoords[2], coords[0], coords[1], coords[2])
-            graphics_draw()
+        #if len(resList) > 1:
+        #    prevPhosCoords = self.getPhosCoords(-1)
+        #    to_generic_object_add_line(self.__batonObject, BATONCOLOR, 6, prevPhosCoords[0], prevPhosCoords[1], prevPhosCoords[2], coords[0], coords[1], coords[2])
+        #    graphics_draw()
     
+    
+    def addPhos5p(self, coords):
+        """Add a new 5' phosphate atom to the pseudoMolecule object.
+        
+        ARGUMENTS:
+            coords - the coordinates of the phosphate to add
+        RETURNS:
+            None
+        NOTE:
+            This function should only be used during an extendChain, not when tracing a new molecule
+        """
+        
+        self.__molecule[0][self.__chainIndex][1][self.resInsertionPoint][3].insert(0, [[" P  ",""], [1.0, DEFAULT_B_FACTOR, " P"], coords[0:3]])
+        clear_and_update_molecule(self.__moleculeNumber, self.__molecule)
+        
     
     def addBaseAndPhos(self, baseType, baseCoords, phosCoords):
         """Add a base and the 3' phosphate (i.e. the next phosphate) to the pseudoMolecule object
@@ -186,13 +211,20 @@ class PseudoMolecule:
             The base and phosphate will be added to the Coot molecule and batons will be drawn connecting
             the phosphates and the C1' atom.
         """
+        
         resList = self.__molecule[0][self.__chainIndex][1]
+        
+        if self.resInsertionPoint is None:
+            resInsertionPoint = len(resList)
+        else:
+            self.resInsertionPoint += 1
+            resInsertionPoint = self.resInsertionPoint
         
         #pprint(resList)
         #print "Adding %s base" % baseType
         
         #modify the base type of the last residue (since we didn't know what type of base it was when we were adding the phosphate)
-        resList[-1][2] = baseType
+        resList[resInsertionPoint-1][2] = baseType
         
         #start the list of base atoms with the C1' atom so we can easily find it later (for getSugarCoords)
         baseAtomList = [[[" C1'",""], [1.0, DEFAULT_B_FACTOR, " C"], baseCoords["C1'"][0:3]]]
@@ -203,7 +235,7 @@ class PseudoMolecule:
             
             baseAtomList.append([[curAtom.center(4),""], [1.0, DEFAULT_B_FACTOR, " %s" % curAtom[0:1]], baseCoords[curAtom][0:3]])
         
-        resList[-1][3].extend(baseAtomList)
+        resList[resInsertionPoint-1][3].extend(baseAtomList)
         
         
         #determine the residue number for the next residue
@@ -213,13 +245,25 @@ class PseudoMolecule:
             nextResNum = 1
         else:
             #if this isn't the first residue, then increment the previous residue's number
-            nextResNum = resList[-1][0] + 1
-        self.__resNumDict[str(nextResNum)] = len(resList) #add this residue number to the lookup dictionary
+            nextResNum = resList[resInsertionPoint-1][0] + 1
+            if nextResNum == 0: nextResNum = 1 #go from -1 to 1
         
         #create a new residue containing the specified atom and add it to self.__molecule
         newRes = [nextResNum, "", baseType, [[[" P  ",""], [1.0, DEFAULT_B_FACTOR, " P"], phosCoords[0:3]]]]
-        resList.append(newRes)
+        resList.insert(resInsertionPoint, newRes)
         self.__molecule[0][self.__chainIndex][1] = resList
+        
+        #update the residue number lookup dictionary
+        if self.resInsertionPoint is None:
+            #if we're building a new chain, then we just have to add the new residue number
+            self.__resNumDict[str(nextResNum)] = resInsertionPoint
+        else:
+            #if we're extending a chain, then we may be inserting a residue into the middle of the molecule
+            #so we just regenerate the entire residue number dictionary
+            self.__initializeResNumDict()
+            #we could try to be clever and update only the dictionary elements that actually change
+            #but I suspect that the cleverness would take longer than just regenerating the entire dictionary
+            #(not to mention be far more bug-prone)
         
         #create or update Coot's representation of the molecule
         if self.__moleculeNumber is None:
@@ -229,7 +273,7 @@ class PseudoMolecule:
         
         #if this isn't the first atom, then draw a baton to it
         #if len(resList) > 1:
-        prevPhosCoords = self.getPhosCoords(-2)
+        prevPhosCoords = self.getPhosCoordsFromIndex(resInsertionPoint - 1)
         c1coords = baseCoords["C1'"]
         #pprint(prevPhosCoords)
         to_generic_object_add_line(self.__batonObject, BATONCOLOR, 6, prevPhosCoords[0], prevPhosCoords[1], prevPhosCoords[2], c1coords[0], c1coords[1], c1coords[2])
@@ -252,6 +296,18 @@ class PseudoMolecule:
             the phosphates and the C1' atom.
         """
         
+        resList = self.__molecule[0][self.__chainIndex][1]
+        
+        if self.resInsertionPoint is None:
+            resInsertionPoint = 0
+            newResNum = 1
+        else:
+            newResNum = resList[self.resInsertionPoint][0] - 1
+            if newResNum == 0:
+                newResNum = -1
+            self.origResInsertionPoint += 1
+            resInsertionPoint = self.resInsertionPoint
+        
         #create the atom list for the new residue, starting with the phosphate and the C1'
         atomList = [[[" P  ",""], [1.0, DEFAULT_B_FACTOR, " P"], phosCoords[0:3]],
                     [[" C1'",""], [1.0, DEFAULT_B_FACTOR, " C"], baseCoords["C1'"][0:3]]]
@@ -263,22 +319,31 @@ class PseudoMolecule:
             atomList.append([[curAtom.center(4),""], [1.0, DEFAULT_B_FACTOR, " %s" % curAtom[0:1]], baseCoords[curAtom][0:3]])
         
         #create a new residue (numbered 1) containing the atomList
-        newRes = [1, "", baseType, atomList]
+        newRes = [newResNum, "", baseType, atomList]
         
+        #if we're building a new chain (as opposed to extending an existing chain), increment the residue number of all other residues in the chain
+        if self.resInsertionPoint is None:
+            for curRes in resList:
+                curRes[0] += 1
         
-        resList = self.__molecule[0][self.__chainIndex][1]
-        #increment the residue number of all other residues in the chain
-        for curRes in resList:
-            curRes[0] += 1
-        
-        #prepend the new residue at the beginning of the residue list
-        resList.insert(0, newRes)
+        #prepend the new residue at the beginning of the residue list (or the appropriate spot in the residue list if we're doing an extend chain)
+        resList.insert(resInsertionPoint, newRes)
         
         self.__molecule[0][self.__chainIndex][1] = resList
         
-        #now that we've modified residue numbers, we need to update the resNumDict
-        new5pResNum = resList[-1][0]
-        self.__resNumDict[str(new5pResNum)] = len(resList) - 1
+        #update the resNumDict
+        if self.resInsertionPoint is None:
+            new5pResNum = resList[-1][0] #this is the new 5' residue number, since we're incrementing all the existing residues
+            self.__resNumDict[str(new5pResNum)] = len(resList) - 1
+        else:
+            #self.__resNumDict[str(newResNum)] = resInsertionPoint
+            
+            #if we're extending a chain, then we may be inserting a residue into the middle of the molecule
+            #so we just regenerate the entire residue number dictionary
+            self.__initializeResNumDict()
+            #we could try to be clever and update only the dictionary elements that actually change
+            #but I suspect that the cleverness would take longer than just regenerating the entire dictionary
+            #(not to mention be far more bug-prone)
         
         #create or update Coot's representation of the molecule
         if self.__moleculeNumber is None:
@@ -287,7 +352,7 @@ class PseudoMolecule:
             clear_and_update_molecule(self.__moleculeNumber, self.__molecule)
         
         #draw batons to it
-        prevPhosCoords = self.getPhosCoords(2)
+        prevPhosCoords = self.getPhosCoordsFromIndex(resInsertionPoint+1)
         c1coords = baseCoords["C1'"]
         #pprint(prevPhosCoords)
         to_generic_object_add_line(self.__batonObject, BATONCOLOR, 6, prevPhosCoords[0], prevPhosCoords[1], prevPhosCoords[2], c1coords[0], c1coords[1], c1coords[2])
@@ -321,21 +386,61 @@ class PseudoMolecule:
         return None
     
     
-    def getSugarCoords(self, resNum):
+    def getPhosCoordsFromIndex(self, resNum):
+        """Get the coordinates of a specified phosphate.
+        
+        ARGUMENTS:
+            resIndex - the residue index
+        RETURNS:
+            the coordinates of the phoshate from residue resIndex
+        """
+        
+        for curAtom in self.__molecule[0][self.__chainIndex][1][resIndex][3]:
+            if curAtom[0][0].strip() == "P":
+                return curAtom[2]
+        
+        #if we haven't found a phosphate atom
+        return None
+    
+    
+    def getSugarCoordsFromIndex(self, resIndex):
         """Get the coordinates of a specified C1' atom (NOT the entire sugar).
         
         ARGUMENTS:
-            resNum - the residue number
+            resIndex - the residue index
         RETURNS:
-            the coordinates of the C1' from residue resNum (where resNum = 0 returns the first C1' of the chain)
+            the coordinates of the C1' from the specified residue
         NOTE:
             Negative numbers can be used to refer to C1' atoms at the end of the chain (i.e. resNum = -1 will return the coordinates of the last C1')
         """
         
-        return self.__molecule[0][self.__chainIndex][1][resNum][3][1][2]
+        #if the specified residue was created/processed by RCrane, then the C1' atom will be the 2nd atom in the resideu
+        #but this isn't necessarily true (and probably isn't) for other RNA nts
+        #so we search through all the atoms in the nucleotide
+        
+        for curAtom in self.__molecule[0][self.__chainIndex][1][resIndex][3]:
+            if curAtom[0][0].strip() == "C1'":
+                return curAtom[2]
     
     #def getCootRes(self, resNum):
     #    return deepcopy(self.__molecule[0][self.__chainIndex[1][resNum])
+    
+    def getAtomCoordsFromIndex(self, atomName, resIndex):
+        """Get the coordinates of a specified atom
+        
+        ARGUMENTS:
+            atomName - the name of the atom to get coordinates for
+            resIndex - the residue index
+        RETURNS:
+            the coordinates of the specified atom
+        """
+        
+        for curAtom in self.__molecule[0][self.__chainIndex][1][resIndex][3]:
+            if curAtom[0][0].strip() == atomName:
+                return curAtom[2]
+        
+        #if we haven't found the desired atom
+        return None
     
     def closeBatonObject(self):
         """close the Coot generic object for the batons connecting the phosphate and C1' atoms.
@@ -383,12 +488,15 @@ class PseudoMolecule:
             #Coot doesn't like displaying empty molecules, so never shrink beyond the initial phosphate
             return (None, None)
         
-        #update resNumDict
-        del self.__resNumDict[str(self.__molecule[0][self.__chainIndex][1][-1][0])]
+        if self.resInsertionPoint is None:
+            lastPhosNtIndex = len(self.__molecule[0][self.__chainIndex][1])
+        else:
+            lastPhosNtIndex = self.resInsertionPoint
+        lastFullNtIndex =  lastPhosNtIndex - 1
         
         #retrieve the 5' phosphate and the last full nucleotide from the __molecule object
-        lastPhosNt = self.__molecule[0][self.__chainIndex][1].pop()
-        lastFullNt = self.__molecule[0][self.__chainIndex][1][-1]
+        lastPhosNt = self.__molecule[0][self.__chainIndex][1][lastPhosNtIndex]
+        lastFullNt = self.__molecule[0][self.__chainIndex][1][lastFullNtIndex]
         
         #get the nucleotide type
         nucType = lastFullNt[2]
@@ -402,21 +510,39 @@ class PseudoMolecule:
         coords["P"] = lastPhosNt[3][0][2]
         #Note that coords has a base and it's 5' phosphate, so it's not a proper nucleotide
         
-        #truncate the atom list of last nucleotide to just the phosphate
-        self.__molecule[0][self.__chainIndex][1][-1][3] = self.__molecule[0][self.__chainIndex][1][-1][3][0:1]
+        #remove the last phosphate nt
+        del self.__molecule[0][self.__chainIndex][1][lastPhosNtIndex]
         
+        #truncate the atom list of last nucleotide to just the phosphate
+        self.__molecule[0][self.__chainIndex][1][lastFullNtIndex][3] = self.__molecule[0][self.__chainIndex][1][lastFullNtIndex][3][0:1]
+        
+        #update the resNumDict
+        if self.resInsertionPoint is None:
+            del self.__resNumDict[str(self.__molecule[0][self.__chainIndex][1][-1][0])]
+        else:
+            self.__initializeResNumDict()
+            
+            #also, decrement resInsertionPoint
+            self.resInsertionPoint -= 1
         
         #there's no way to selectively remove lines from a drawing object, so we have to destroy the Accepted Batons object
         close_generic_object(self.__batonObject)
         self.__batonObject = new_generic_object_number("Accepted Batons")
         set_display_generic_object(self.__batonObject, 1)
         
-        #redraw the entire molecule
+        #redraw the entire molecule (or the new portion of the molecule if we're doing an extendChain)
+        if self.resInsertionPoint is None:
+            nucsToDraw = xrange(len(self.__molecule[0][self.__chainIndex][1])-1)
+        else:
+            nucsToDraw = xrange(self.origResInsertionPoint, self.resInsertionPoint)
+        #print list(nucsToDraw)
+        
         prevPhosCoords = self.__molecule[0][self.__chainIndex][1][0][3][0][2]
-        for i in xrange(len(self.__molecule[0][self.__chainIndex][1])-1):
-            phosCoords     = self.__molecule[0][self.__chainIndex][1][i][3][0][2]
-            c1Coords       = self.__molecule[0][self.__chainIndex][1][i][3][1][2]
-            nextPhosCoords = self.__molecule[0][self.__chainIndex][1][i+1][3][0][2]
+        for i in nucsToDraw:
+            
+            phosCoords     = self.getPhosCoordsFromIndex(i)
+            c1Coords       = self.getSugarCoordsFromIndex(i)
+            nextPhosCoords = self.getPhosCoordsFromIndex(i+1)
             
             to_generic_object_add_line(self.__batonObject, BATONCOLOR, 6, phosCoords[0], phosCoords[1], phosCoords[2], c1Coords[0], c1Coords[1], c1Coords[2])
             to_generic_object_add_line(self.__batonObject, BATONCOLOR, 6, c1Coords[0], c1Coords[1], c1Coords[2], nextPhosCoords[0], nextPhosCoords[1], nextPhosCoords[2])
@@ -451,6 +577,10 @@ class PseudoMolecule:
             #Coot doesn't like displaying empty molecules, so never shrink beyond the initial phosphate
             return (None, None)
         
+        #if we're doing an extendChain, update resInsertionPoint
+        if self.origResInsertionPoint is not None:
+            self.origResInsertionPoint -= 1
+        
         #remove the 3' nucleotide from __molecule
         firstNt = self.__molecule[0][self.__chainIndex][1].pop(0)
         
@@ -464,25 +594,35 @@ class PseudoMolecule:
             curCoords = curAtomData[2]
             coords[atomName] = curCoords
         
-        #update resNumDict
-        del self.__resNumDict[str(self.__molecule[0][self.__chainIndex][1][-1][0])]
-        
-        #decrement the residue number of all other residues in the chain
-        for curRes in self.__molecule[0][self.__chainIndex][1]:
-            curRes[0] -= 1
-        
+        if self.resInsertionPoint is None:
+            #update resNumDict
+            del self.__resNumDict[str(self.__molecule[0][self.__chainIndex][1][-1][0])]
+            
+            #decrement the residue number of all other residues in the chain
+            for curRes in self.__molecule[0][self.__chainIndex][1]:
+                curRes[0] -= 1
+        else:
+            #if we're doing an extend chain, then regenerate the entire resNumDict
+            self.__initializeResNumDict()
+            
+            #and don't renumber any residues
         
         #there's no way to selectively remove lines from a drawing object, so we have to destroy the Accepted Batons object
         close_generic_object(self.__batonObject)
         self.__batonObject = new_generic_object_number("Accepted Batons")
         set_display_generic_object(self.__batonObject, 1)
         
-        #redraw the entire molecule
+        #redraw the entire molecule (or the new portion of the molecule if we're doing an extendChain)
+        if self.resInsertionPoint is None:
+            nucsToDraw = xrange(len(self.__molecule[0][self.__chainIndex][1])-1)
+        else:
+            nucsToDraw = xrange(self.resInsertionPoint, self.origResInsertionPoint)
         prevPhosCoords = self.__molecule[0][self.__chainIndex][1][0][3][0][2]
-        for i in xrange(len(self.__molecule[0][self.__chainIndex][1])-1):
-            phosCoords     = self.__molecule[0][self.__chainIndex][1][i][3][0][2]
-            c1Coords       = self.__molecule[0][self.__chainIndex][1][i][3][1][2]
-            nextPhosCoords = self.__molecule[0][self.__chainIndex][1][i+1][3][0][2]
+        for i in nucsToDraw:
+            
+            phosCoords     = self.getPhosCoordsFromIndex(i)
+            c1Coords       = self.getSugarCoordsFromIndex(i)
+            nextPhosCoords = self.getPhosCoordsFromIndex(i+1)
             
             to_generic_object_add_line(self.__batonObject, BATONCOLOR, 6, phosCoords[0], phosCoords[1], phosCoords[2], c1Coords[0], c1Coords[1], c1Coords[2])
             to_generic_object_add_line(self.__batonObject, BATONCOLOR, 6, c1Coords[0], c1Coords[1], c1Coords[2], nextPhosCoords[0], nextPhosCoords[1], nextPhosCoords[2])
@@ -550,6 +690,32 @@ class PseudoMolecule:
         #convert the residue numbers to indices
         startIndex = self.resIndex(startRes)
         endIndex = self.resIndex(endRes)
+        
+        return self.createPartialChainObjectFromIndex(startIndex, endIndex, addFlankingAtoms)
+    
+    
+    def createPartialChainObjectFromIndex(self, startIndex, endIndex, addFlankingAtoms = False):
+        """Create a chain object containing coordinates for some nucleotides
+        
+        ARGUMENTS:
+            startIndex - the starting residue index
+            endIndex   - the ending residue index
+        OPTIONAL ARGUMENTS:
+            addFlankingAtoms - if True, add the 5' and 3' atoms that will move during minimization
+                               Note that these atoms are only added if the 5' and 3' nucleotides are connected
+                               to startRes and endRes, respectively.
+                               In particular, the 3' phosphate, non-bridging oxygens, O5', and C5' will be added
+                               and the 5' O3', and C3'.
+                               (The 3' C5' and 5' C3' don't actually move during the minimization, but the C5'-O5' and
+                               C3'-O3' bond can move due to movement in the O5' and O3' atoms, so we include the carbons
+                               in the chain object so that the bonds can be drawn.)
+                               Defaults to False
+        RETURNS:
+            a list of coordinates for each nucleotide, where the coordinates are formatted as atomName: [x, y, z]
+            if addFlankingAtoms is True, then the following are also returned:
+                resNum5p - the number of the 5' nucleotide, or None if the 5' nucleotide is not connected (or non-existant)
+                resNum3p - the number of the 3' nucleotide, or None if the 3' nucleotide is not connected (or non-existant)
+        """
         
         #make sure that the start is before the end, and swap if its not
         if startIndex > endIndex:
@@ -671,6 +837,20 @@ class PseudoMolecule:
         """
         
         resIndex = self.resIndex(resNum)
+        self.addPhosOxyFromIndex(resIndex, phosOxyCoords)
+    
+    
+    def addPhosOxyFromIndex(self, resIndex, phosOxyCoords):
+        """Add non-bridging phosphoryl oxygens to an already existing residue
+        
+        ARGUMENTS:
+            resIndex      - the residue to add the coordinates to
+            phosOxyCoords - the non-bridging oxygen coordinates in the form atomName: [x, y, z]
+        RETURNS:
+            None
+        EFFECTS:
+            The new oxygen atoms will be added to the Coot molecule
+        """
         
         atomList = []
         for (atomName, coords) in phosOxyCoords.iteritems():
@@ -684,7 +864,7 @@ class PseudoMolecule:
         
         self.__molecule[0][self.__chainIndex][1][resIndex][3].extend(atomList)
         clear_and_update_molecule(self.__moleculeNumber, self.__molecule)
-        
+    
     
     def getPhosOxy(self, resNum):
         """Get the non-bridging phosphoryl oxygen coordinates for the specified residue.
@@ -740,7 +920,13 @@ class PseudoMolecule:
         # if it does, this function needs to be more complicated
         
         startingResIndex = self.resIndex(startingResNum)
-        endingResIndex   = self.resIndex(endingResNum)        
+        endingResIndex   = self.resIndex(endingResNum)
+        
+        #print "in pseudoMol.updateRes"
+        #print "  startingResIndex =", startingResIndex
+        #print "  endingResIndex =", endingResIndex
+        #print "  startingResNum =", startingResNum
+        #print "  endingResNum =", endingResNum
         
         newCoordDicts = []
         for curResIndex in xrange(startingResIndex, endingResIndex+1):
@@ -898,7 +1084,8 @@ class PseudoMolecule:
         
         #if the endingRes is the last residue of a segment, then get rid of the 3' non-bridging oxygens
         curResIndex = endingIndex+1
-        if (len(resList[curResIndex][3]) <= 4) and not self.connectedToNextFromIndex(curResIndex):
+        
+        if self.connectedToNextFromIndex(endingIndex) and (len(resList[curResIndex][3]) <= 4) and not self.connectedToNextFromIndex(curResIndex):
             #if the next residue has more than four atoms, then it must be more than just a phosphate
             #(remember that terminal phosphates can have a third non-bridging oxygen)
             for curAtomIndex in xrange(len(resList[curResIndex][3])-1, -1, -1):
@@ -1261,6 +1448,10 @@ class PseudoMolecule:
             #if we didn't find the phosphate coordinates, then assume that the nucleotides aren't connected
             return False
         
+        #make sure that the next residue doesn't have an insertion code (since we can't pass insertion codes to the minimizer)
+        if self.__molecule[0][self.__chainIndex][1][resIndex+1][1] != "":
+            return False
+        
         if dist(o3Coords, phosCoords) > distanceCutoff:
             return False
         else:
@@ -1389,12 +1580,24 @@ class PseudoMolecule:
         """
         
         resIndex = self.resIndex(resNum)
+        return self.calcSuiteTorsionsFromIndex(resIndex)
+    
+    
+    def calcSuiteTorsionsFromIndex(self, resIndex):
+        """Calculate all torsions for the specified suite.
+        
+        ARGUMENTS:
+            resIndex - the suite index to calculate torsions for
+        RETURNS
+            a list containing the seven suite torsions
+            note that missing suite atoms will result in None entries for the undefined torsions
+        """
         
         #make sure that there actually is a previous residue to measure torsions in
         if resIndex == 0 or not self.connectedToPrevFromIndex(resIndex):
             return None
         
-        chainObj = self.createPartialChainObject(self.resNumFull(resIndex-1), resNum)
+        chainObj = self.createPartialChainObjectFromIndex(resIndex-1, resIndex)
         
         return [chainObj.nucs[0].delta(),
                 chainObj.nucs[0].epsilon(),
@@ -1544,6 +1747,182 @@ class PseudoMolecule:
                     curAtom[1][3] = desiredSegid
         
         clear_and_update_molecule(self.__moleculeNumber, self.__molecule)
+        
+    
+    def isOnlyPhosGroupFromIndex(self, resIndex):
+        """Determine if the specified residue contains no more than a phosphate group (i.e. P, OP1, OP2, and/or OP3)
+        
+        ARGUMENTS:
+            resIndex - the residue index
+        RETURNS:
+            True if the specified residue is only a phosphate group (or a subset of a phosphate group)
+            False otherwise
+        """
+        
+        atomList = self.__molecule[0][self.__chainIndex][1][resIndex][3]
+        #from pprint import pprint; pprint(atomList)
+        
+        #if we have more than four atoms, then it must not be a phosphate group
+        if len(atomList) > 4:
+            #print "not phosphate group because atomList too long"
+            return False
+        
+        #if we have four or fewer atoms, check their names
+        for curAtom in self.__molecule[0][self.__chainIndex][1][resIndex][3]:
+            atomName = curAtom[0][0].strip()
+            if atomName not in PHOS_GROUP_ATOMS:
+                #print "not phosphate group because of", atomName
+                return False
+        else:
+            #print "is phosphate group"
+            return True
+    
+    
+    def isOnlyPhosGroup(self, resNum):
+        """Determine if the specified residue contains no more than a phosphate group (i.e. P, OP1, OP2, and/or OP3)
+        
+        ARGUMENTS:
+            resNum - the residue number
+        RETURNS:
+            True if the specified residue is only a phosphate group (or a subset of a phosphate group)
+            False otherwise
+        """
+        
+        resIndex = self.resIndex(resNum)
+        return self.isOnlyPhosGroupFromIndex(resIndex)
+    
+    
+    def getPhosCoordsFromIndex(self, resIndex):
+        """Get the coordinates of a specified phosphate.
+        
+        ARGUMENTS:
+            resIndex - the residue index
+        RETURNS:
+            the coordinates of the phoshate from the specified residue
+        """
+        
+        for curAtom in self.__molecule[0][self.__chainIndex][1][resIndex][3]:
+            if curAtom[0][0].strip() == "P":
+                return curAtom[2]
+        
+        #if we haven't found a phosphate atom
+        return None
+    
+    
+    def setResInsertionPoint(self, resIndex):
+        """Set the residue insertion point (i.e. where in the chain new nucleotides should be added).
+        This is only necessary when doing an extend chain.
+        
+        ARGUMENTS:
+            resIndex - the residue index to use as the residue insertion point
+        RETURNS:
+            None
+        NOTE:
+            This sets both resInsertionPoint and origResInsertionPoint
+        """
+        
+        self.resInsertionPoint = resIndex
+        self.origResInsertionPoint = resIndex
+    
+    
+    def saveMoleculeState(self):
+        """Store the state of the entire molecule (can be restored via restoreMoleculeState)
+        
+        ARGUMENTS:
+            None
+        RETURNS:
+            None
+        """
+        
+        #TODO: replace this with saveCoordinates and removing elements from the residue list so that we don't waste memory storing an entire extra copy of
+        #the molecule (which could be large if it's a ribosome)
+        
+        self.__savedMoleculeState = deepcopy(self.__molecule[0][self.__chainIndex][1])
+    
+    
+    def restoreMoleculeState(self):
+        """Restore the molecule state that was previously saved using saveMoleculeState()
+        
+        ARGUMENTS:
+            None
+        RETURNS:
+            None
+        """
+        
+        if self.__savedMoleculeState is not None:
+            self.__molecule[0][self.__chainIndex][1] = self.__savedMoleculeState
+            clear_and_update_molecule(self.__moleculeNumber, self.__molecule)
+            return True
+        else:
+            return False
+    
+    
+    def hasSavedMoleculeState(self):
+        """Determine if this object has a saved molecule state (stored via saveMoleculeState())
+        
+        ARGUMENTS:
+            None
+        RETURNS:
+            True if there is a saved molecule state
+            False otherwise
+        """
+        
+        if self.__savedMoleculeState is None:
+            return False
+        else:
+            return True
+    
+    
+    def clearNonBridgingOxysFromIndex(self, resIndex):
+        """Delete non-bridging oxygens from the specified residue
+        
+        ARGUMENTS:
+            resIndex - the residue index to clear non-bridging oxygens from
+        RETURNS:
+            None
+        """
+        
+        atomList = self.__molecule[0][self.__chainIndex][1][resIndex][3]
+        newAtomList = [curAtom for curAtom in atomList if curAtom[0][0].strip() == "P"]
+        self.__molecule[0][self.__chainIndex][1][resIndex][3] = newAtomList
+        clear_and_update_molecule(self.__moleculeNumber, self.__molecule)
+     
+    
+    def deleteResFromIndex(self, resIndex):
+        """Delete an entire residue
+        
+        ARGUMENTS:
+            resIndex - the index number of the residue to delete
+        RETURNS:
+            None
+        NOTES:
+            No redraw will be done
+        """
+        
+        del self.__molecule[0][self.__chainIndex][1][resIndex]
+        self.__initializeResNumDict()
+        clear_and_update_molecule(self.__moleculeNumber, self.__molecule)
+    
+    
+    def mergeRes(self, phosGroupIndex, res2Index):
+        """Merge the atom lists of two residues
+        
+        ARGUMENTS:
+            phosGroupIndex - the first residue to merge.  Presumably, this contains only a phosphate group
+            res2Index      - the second residue to merge
+        RETURNS:
+            None
+        NOTES:
+            The atoms from phosGroup will be put before the atoms of res2, but the residue information
+            (i.e. residue type) from res2 will be kept.
+        """
+        
+        #prepend the phosGroup atoms onto res2
+        phosGroupAtoms = self.__molecule[0][self.__chainIndex][1][phosGroupIndex][3]
+        #res2Atoms      = self.__molecule[0][self.__chainIndex][1][res2Index][3]
+        self.__molecule[0][self.__chainIndex][1][res2Index][3][0:0] = phosGroupAtoms
+        
+        self.deleteResFromIndex(phosGroupIndex)
 
 
 #moleculeNameCount stores the number that we should append to the molecule name, i.e., RCrane Molecule 1, RCrane Molecule 2, RCrane Molecule 3...

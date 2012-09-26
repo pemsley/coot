@@ -1,4 +1,4 @@
-RCrane, version 1.0.2
+RCrane, version 1.1
 
 OVERVIEW
 
@@ -7,8 +7,12 @@ is done using the methodology described in:
     Keating KS and Pyle AM.  Semiautomated model building for RNA
       crystallography using a directed rotameric approach.  Proc Natl Acad
       Sci USA, 107: 8177-8182 (2010).
+and
+  Keating KS and Pyle AM.  RCrane: Semi-automated RNA model building.  Acta
+    Cryst D68: 958-995 (2012).
+
 Please note that all publications resulting from the use of RCrane must
-acknowledge this manuscript.
+acknowledge the Acta Cryst manuscript.
 
 RCrane is copyright 2010-2012, Kevin Keating, and is licensed under the
 Educational Community License, Version 2.0.
@@ -83,7 +87,7 @@ After coordinate calculation is complete, you will be able to review each suite
 and select alternate conformers where appropriate.
 
 
-USING RCRANE – ROTAMERIZING AN EXISTING STRUCTURE
+USING RCRANE - ROTAMERIZING AN EXISTING STRUCTURE
 
 To rebuild a portion of an existing structure, select Rotamerize Existing
 Structure... from the RCrane menu, then click on atoms in the first and last
@@ -106,6 +110,16 @@ density into account, select Rotamerize Without Density... instead.  This is
 primarily intended for use when building theoretical models (i.e. when no
 electron density is available).  Note that Rotamerize Without Density... is
 only available when running a version of Coot newer than r3728 (0.7-pre).
+
+
+USING RCRANE – EXTENDING AN EXISTING CHAIN
+
+To extend an existing chain, select Extend Chain… from the RCrane menu, then
+click on an atom in the nucleotide you wish to extend.  RCrane will allow you
+to trace and build new nucleotides that extend the chain in either the 3' or 5'
+direction.  If the new trace connects to an existing 5' or 3' terminus,
+clicking on Build Backbone will connect the new trace with the existing
+terminus.
 
 
 KEYBOARD SHORTCUTS
@@ -169,7 +183,7 @@ refinement or regularizement.  To instead use the Phenix/MolProbity pucker-
 specific parameters in RCrane, add the line
 rcrane.enablePhenixRestraints()
 Note that this requires Coot 0.7-pre r3926 or later.  To enable the
-Phenix/MolProbity restraints for the current session only, open Coot’s Python
+Phenix/MolProbity restraints for the current session only, open Coot's Python
 scripting window (Calculate -> Scripting... -> Python...) and type the command
 rcrane.enablePhenixRestraints()
 To revert to the REFMAC5 parameters, type the command
