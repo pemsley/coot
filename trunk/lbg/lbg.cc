@@ -990,8 +990,6 @@ lbg_info_t::handle_item_delete(GdkEventButton *event) {
 	 mol.close_bond(bond_index, root, 1);
       }
       save_molecule();
-      std::cout << "in handle_item_delete() calling update_descriptor_attributes() "
-		<< std::endl;
       update_descriptor_attributes();
    }
 }
@@ -2245,9 +2243,6 @@ lbg_info_t::highlight_data_t::get_new_polygon_centre_using_1_atom(int n_edges,
    int atom_index = get_atom_index();
    std::vector<int> bv = mol.bonds_having_atom_with_atom_index(atom_index);
 
-   // std::cout << "in get_new_polygon_centre_using_1_atom() bv size is " << bv.size()
-   // << std::endl;
-
    if (bv.size() == 2) {
       std::vector<lig_build::pos_t> neighbours;
       lig_build::pos_t test_pos = mol.atoms[mol.bonds[bv[0]].get_atom_1_index()].atom_position;
@@ -3126,8 +3121,6 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 	 CMMDBManager *mol = NULL; // no atom names to transfer
 	 widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
 	 render_from_molecule(wmol);
-	 std::cout << "in import_mol_from_file() calling update_descriptor_attributes() "
-		   << std::endl;
 	 update_descriptor_attributes();
 
       } else {
@@ -3162,8 +3155,6 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       mm.read(file_name);
       widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
       render_from_molecule(wmol);
-      std::cout << "in import_mol_from_file() 2 calling update_descriptor_attributes() "
-		<< std::endl;
       update_descriptor_attributes();
    }
    
