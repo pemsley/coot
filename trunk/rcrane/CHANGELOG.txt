@@ -1,6 +1,9 @@
 CHANGELOG
 Notable changes are listed
 
+Version 1.1 - September 26, 2012
+- Extend chain... option now available
+
 Version 1.0.2 - August 9, 2012
 - Bug fix: RCrane now preserves segids when rotamerizing.  This bug was causing
     issues when structures were rotamerized with RCrane and then refined with
