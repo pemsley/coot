@@ -1588,7 +1588,9 @@
 ;; Ian Tickle says (as far as I can understand) that the target rmsd
 ;; should be 0.25 or thereabouts.  You can over-ride it now.
 ;; 
-(define target-auto-weighting-value 0.25)
+(define target-auto-weighting-value 1.0) ;; set to 1.0 so that it
+					 ;; converges.  More thought
+					 ;; needed.
 
 
 ;; Set the refinement weight (matrix) by iterating the refinement and
