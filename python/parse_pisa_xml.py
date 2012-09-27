@@ -1,11 +1,16 @@
 global pisa_command
 pisa_command = "pisa"
+global pisa_min_version
+pisa_min_version = "v1.13"
 
 def pisa_assemblies(imol):
 
+    global pisa_min_version
     pisa_exe = pisa_new_enough_qm()
     if not pisa_exe:
-        info_dialog("Your pisa version it too old.  Need at least v1.06")
+        msg = "Your pisa version it too old.  Need at least " + \
+              pisa_min_version + "."
+        info_dialog(msg)
     else:
         #
         # main line
@@ -52,7 +57,7 @@ def pisa_assemblies_xml(imol, file_name):
             # rm xml_file ?!
 
 # return a filename which is clean (pisa) xml or False if there was problems
-# not sure if needed any more if v1.06
+# not sure if needed any more if v1.13
 def clean_xml_file(filename):
 
     if (os.path.isfile(filename)):
@@ -463,14 +468,14 @@ def make_pisa_config(pisa_coot_dir, config_file_name):
     s = os.getenv("CCP4")
     if (os.path.isdir(s)):
         ls = [["DATA_ROOT", os.path.join(s, "share", "pisa")],
-              ["PISTORE_DIR", os.path.join(s, "share", "pisa", "pisastore")],
+              ["SRS_DIR", os.path.join(s, "share", "ccp4srs")],
+              ["PISTORE_DIR", os.path.join(s, "share", "pisa")],
               ["PISA_WORK_ROOT", pisa_coot_dir],
-              ["SBASE_DIR", os.path.join(s, "share", "sbase")],
               # according to Paule (and I agree):
               # that we need these next 3 is ridiculous
               # BL:: hope not really needed (as for Win exe is missing)
               # maybe already fixed!?
-              ["MOLREF_DIR", os.path.join(s, "share", "pisa", "molref")],
+              ["MOLREF_DIR", os.path.join(s, "share", "pisa")],
               ["RASMOL_COM", os.path.join(s, "bin", "rasmol")],
               ["CCP4MG_COM", os.path.join(s, "bin", "ccp4mg")],
               # the parent dir of this needs to be writable, usually isnt
@@ -523,8 +528,10 @@ def cached_pisa_analysis(dir):
     
 #
 # return pisa_command_exe or False
+#
 def pisa_new_enough_qm():
     global pisa_command
+    global pisa_min_version
     if not pisa_command:
         pisa_command="pisa"
     pisa_exe = find_exe(pisa_command, "CCP4_BIN", "PATH")
@@ -537,7 +544,7 @@ def pisa_new_enough_qm():
         os.remove(tmp_file)
         for line in lines:
             if " v" in line:
-                if line.split()[0] >= "v1.06":
+                if line.split()[0] >= pisa_min_version:
                     return pisa_exe
                 else:
                     return False
@@ -552,9 +559,12 @@ def pisa_new_enough_qm():
 # -----------------------------------------------------------------------------------
 
 def pisa_interfaces(imol):
+    global pisa_min_version
     pisa_exe = pisa_new_enough_qm()
     if not pisa_exe:
-        info_dialog("Your pisa version it too old.  Need at least v1.06")
+        msg = "Your pisa version it too old.  Need at least" \
+              + pisa_min_version + "."
+        info_dialog(msg)
     else:
         pdb_file_name, pisa_config, pisa_xml_file_name = prep_for_pisa("interfaces", imol)
 

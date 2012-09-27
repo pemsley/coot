@@ -73,6 +73,10 @@ scripting exercise
 
 **** General ****
 
+   o pisa: - H-bonds always displayed 
+	   - ignores alt-conf for H-bonds (gives warning in get atom spec)
+ 	   - works only for v 1.13 and above (python)
+
    o accept_regularizement does not effect the gui(s ?)
 
    o add term residue in radius around?
