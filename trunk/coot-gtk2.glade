@@ -19343,7 +19343,7 @@ that you wish to delete.               </property>
 	  <child>
 	    <widget class="GtkHBox" id="hbox49">
 	      <property name="visible">True</property>
-	      <property name="homogeneous">False</property>
+	      <property name="homogeneous">True</property>
 	      <property name="spacing">0</property>
 
 	      <child>
@@ -19395,7 +19395,7 @@ that you wish to delete.               </property>
 			  <child>
 			    <widget class="GtkLabel" id="label378">
 			      <property name="visible">True</property>
-			      <property name="label" translatable="yes"> Apply  </property>
+			      <property name="label" translatable="yes"> Apply Occ and B Edits</property>
 			      <property name="use_underline">True</property>
 			      <property name="use_markup">False</property>
 			      <property name="justify">GTK_JUSTIFY_LEFT</property>

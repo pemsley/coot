@@ -10114,7 +10114,7 @@ create_residue_info_dialog (void)
   gtk_widget_show (dialog_action_area14);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area14), GTK_BUTTONBOX_END);
 
-  hbox49 = gtk_hbox_new (FALSE, 0);
+  hbox49 = gtk_hbox_new (TRUE, 0);
   gtk_widget_show (hbox49);
   gtk_container_add (GTK_CONTAINER (dialog_action_area14), hbox49);
 
@@ -10136,7 +10136,7 @@ create_residue_info_dialog (void)
   gtk_widget_show (image1522);
   gtk_box_pack_start (GTK_BOX (hbox204), image1522, FALSE, FALSE, 0);
 
-  label378 = gtk_label_new_with_mnemonic (_(" Apply  "));
+  label378 = gtk_label_new_with_mnemonic (_(" Apply Occ and B Edits"));
   gtk_widget_show (label378);
   gtk_box_pack_start (GTK_BOX (hbox204), label378, FALSE, FALSE, 0);
 
