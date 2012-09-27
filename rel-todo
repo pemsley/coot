@@ -10,22 +10,7 @@
 
      Bob ::: 1
 
-   o Add hydrogens (with sprout hydrogens) to an alt-confed
-     ligand. (Bob) ::: 2
-
 * Seems OK to me.  Needs tester.
-
-   o python extensions -> all molecule -> fit protein is not 
-     accepting the refined coordinates correctly ::: 1
-
-
-   o Sphere refine on an alt conf (say the 72 CYS of tutorial).  Check
-     back-bone geometry. (JED).  refine-residues-with-alt-conf ::: 2
-
-* Can't reproduce.
-
-   o check that pisa assemblies and interfaces work - laptop and
-     desktop.  Python version too. ::: 1
 
 
 ------
@@ -624,3 +609,18 @@ mv -f .deps/callbacks.Tpo .deps/callbacks.Po
      undelocalized. 
 
 * Done.
+
+   o Add hydrogens (with sprout hydrogens) to an alt-confed
+     ligand. (Bob) ::: 2
+
+* Done.  Complicated. 
+
+   o python extensions -> all molecule -> fit protein is not 
+     accepting the refined coordinates correctly ::: 1
+
+* Bernhard fixed.
+
+   o check that pisa assemblies and interfaces work - laptop and
+     desktop.  Python version too. ::: 1
+
+* Bernhard fixed.

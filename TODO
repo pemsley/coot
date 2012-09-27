@@ -1152,6 +1152,12 @@ Punted from 0.6:
    o Old backups dialog should be a transient. Could be tricky.
      Punted.
 
+   o Sphere refine on an alt conf (say the 72 CYS of tutorial).  Check
+     back-bone geometry. (JED).  refine-residues-with-alt-conf ::: 2
+
+* Can't reproduce.
+
+
 
 
 ------

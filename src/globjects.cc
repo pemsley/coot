@@ -3206,19 +3206,26 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_l:
       {
 	 graphics_info_t g;
-	 std::pair<int, int> cl_at = g.get_closest_atom();
-	 if (is_valid_model_molecule(cl_at.second)) {
-	    g.molecules[cl_at.second].add_to_labelled_atom_list(cl_at.first);
-	    // shall add to status_bar ? maybe this should be a function?
-	    // it is now
-	    std::string at_info = atom_info_as_text_for_statusbar(cl_at.first,
-								  cl_at.second);
-	    g.add_status_bar_text(at_info);
-	    CResidue *r          = g.molecules[cl_at.second].atom_sel.atom_selection[cl_at.first]->residue;
-	    std::string alt_conf =  g.molecules[cl_at.second].atom_sel.atom_selection[cl_at.first]->altLoc;
-	    g.setup_graphics_ligand_view(cl_at.second, r, alt_conf);
+
+	 if (graphics_info_t::control_is_pressed) {
+	    go_to_ligand();
+	 } else { 
+
+	    std::pair<int, int> cl_at = g.get_closest_atom();
+	    if (is_valid_model_molecule(cl_at.second)) {
+	       g.molecules[cl_at.second].add_to_labelled_atom_list(cl_at.first);
+	       // shall add to status_bar ? maybe this should be a function?
+	       // it is now
+	       std::string at_info = atom_info_as_text_for_statusbar(cl_at.first,
+								     cl_at.second);
+	       g.add_status_bar_text(at_info);
+	       CAtom *at = g.molecules[cl_at.second].atom_sel.atom_selection[cl_at.first];
+	       CResidue *residue_p  = at->residue;
+	       std::string alt_conf = at->altLoc;
+	       g.setup_graphics_ligand_view(cl_at.second, residue_p, alt_conf);
+	    }
+	    graphics_info_t::graphics_draw();
 	 }
-	 graphics_info_t::graphics_draw();
       }
       handled = TRUE; 
       break;

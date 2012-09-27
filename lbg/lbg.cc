@@ -3206,6 +3206,8 @@ lbg_info_t::clean_up_2d_representation() {
 	 CMMDBManager *mol = NULL; // no atom names to transfer
 	 widgeted_molecule_t wmol(mm, mol);
 	 render_from_molecule(wmol);
+	 update_descriptor_attributes();
+	 save_molecule();
       }
       catch (const std::exception &e) {
 	 std::cout << "WARNING:: clean_up_2d_representation() " << e.what() << std::endl;
