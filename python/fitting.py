@@ -164,12 +164,11 @@ def fit_protein_fit_function(res_spec, imol_map):
                     # if (not res_name == "HOH"):
                     # not needed as we only refine more than 3 atom res
                     if (alt_conf == ""):
-                        # with_auto_accept ?
                         auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
                                               imol_map, 1, 0.1)
                     if (valid_map_molecule_qm(imol_map)):
-                        # with_auto_accept ?
-                        refine_zone(imol, chain_id, res_no, res_no, alt_conf)
+                        with AutoAccept():
+                            refine_zone(imol, chain_id, res_no, res_no, alt_conf)
                     rotate_y_scene(10, 0.3)
 
     if (replace_state == 0):

@@ -73,6 +73,8 @@ scripting exercise
 
 **** General ****
 
+   o accept_regularizement does not effect the gui(s ?)
+
    o add term residue in radius around?
 
    o give sequence view window a title (and maybe many more...).
