@@ -29,7 +29,8 @@ dist_rcrane_DATA = \
    __init__.py        coot_utils_adapter.py  nextPhos.py          rotData.py          suite.py              \
    about.py           nucleotide.py          rotamerSeq.py        thetaEtaPredictor.py                      \
    bondLength.py      guiUtils.py            phenixRestraints.py  rotamerize.py       traceGui.py           \
-   buildInitSugar.py  icon.svg               preLaunchCheck.py    safelog.py
+   buildInitSugar.py  icon.svg               preLaunchCheck.py    safelog.py          extendChain.py        \
+   reportInputErrors.py
 
 dist_rcranedata_DATA = \
    data/bases.pdb         data/phosAngleSmoothed.csv   data/sugarDists.csv                  \
