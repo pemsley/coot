@@ -6617,7 +6617,6 @@
 					  <property name="visible">True</property>
 					  <property name="can_focus">True</property>
 					  <property name="use_alpha">False</property>
-					  <property name="title" translatable="yes">Pick a Colour</property>
 					  <property name="focus_on_click">True</property>
 					  <signal name="color_set" handler="on_symmetry_colorbutton_color_set"/>
 					</widget>
@@ -24647,7 +24646,7 @@ programs to which you may be more accustomed.
   <child>
     <widget class="GtkImage" id="image7052">
       <property name="visible">True</property>
-      <property name="pixbuf">coot-0.7-pre-1.png</property>
+      <property name="pixbuf">coot-0.7.png</property>
       <property name="xalign">0.5</property>
       <property name="yalign">0.5</property>
       <property name="xpad">0</property>
@@ -50107,10 +50106,10 @@ Move Molecule Here:</property>
   <property name="visible">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="name" translatable="yes">Coot</property>
-  <property name="copyright" translatable="yes">Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011 by The University of York
-Copyright 2007, 2008, 2009, 2010, 2011 by The University of Oxford
+  <property name="copyright" translatable="yes">Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 by The University of York
+Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The University of Oxford
 Copyright 2001, 2007 by Paul Emsley</property>
-  <property name="comments" translatable="yes">Durham</property>
+  <property name="comments" translatable="yes">Clayton</property>
   <property name="license" translatable="yes">                    GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
@@ -50814,8 +50813,7 @@ Windows 2000 Binaries
   Macintosh Binaries
    William Scott</property>
   <property name="documenters">Paul Emsley</property>
-  <property name="artists">Splash screen backdrop photo: Noam Adir
-
+  <property name="artists">
 &quot;radacina&quot; make the &quot;edit restraints&quot; icon.
 
 &quot;lunanaut&quot; made the connect-to-world globe icon.

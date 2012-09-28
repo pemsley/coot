@@ -3978,12 +3978,13 @@ INFO::
    o change the version in configure.in
    o artists acknowledged in glade/aboutdialog?
    o change the splash screen
+        Use glade-2
         To correct the transparency, duplicate layer, bucket fill with white 
         the bottom layer, merge and bevel 6.
-        Do Gtk1 and gtk2 versions.
    o svn add the new splash screen pixmap
    o Fix the old-coot timer in scheme/coot-gui.scm
-   o Fix the release name in the About dialog.
+   o Fix the release name in the About dialog (aboutdialog)
+         and copyright years.
    o commit
    o Passes build (build-latest) on cycle? 
         OK, disable the build-latest cron-job 
