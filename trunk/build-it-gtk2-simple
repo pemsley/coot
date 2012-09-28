@@ -2273,7 +2273,7 @@ pwd
 touch aclocal.m4
 sleep 2
 touch Makefile.in
-./configure $generic_prefix
+./configure $generic_prefix --enable-shared
 $MAKE
 $MAKE install
 ) > $HOSTLOGDIR/02-mmdb.txt 2>&1
