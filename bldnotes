@@ -8,8 +8,6 @@ build-it-win rev 4437
 * THINGS TO DO BEFORE 0.7.0 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
-* auto-weight in scm (Paul?!)
-
 
 ---- FINISH URGENT ----
 
@@ -663,4 +661,8 @@ Osaka 2010
 
 * Done
 
+
+   o  auto-weight in scm (Paul?!)
+
+* Done
 
