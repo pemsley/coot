@@ -1626,6 +1626,8 @@ setup_lighting(short int do_lighting_flag) {
    if (do_lighting_flag) { // set this to 1 to light a surface currently.
 
       // w = 0.0 means directional light
+      //
+      // GL_LIGHT2 is for cut-glass mode
       // 
       GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
       GLfloat  light_1_position[] = { 1.0, -1.0, 1.0, 0.0};
@@ -1637,13 +1639,16 @@ setup_lighting(short int do_lighting_flag) {
       glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
       glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
       glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
-      
-      // glLightfv(GL_LIGHT2,   GL_POSITION, light_position);
 
       glEnable(GL_LIGHT0);
+      glEnable(GL_LIGHT1);
+      glEnable(GL_LIGHTING);
       glEnable(GL_DEPTH_TEST);
    } else {
+      glDisable(GL_LIGHTING);
       glDisable(GL_LIGHT0);
+      glDisable(GL_LIGHT1);
+      glDisable(GL_LIGHT2);
    }
 }
 
@@ -2056,10 +2061,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	    glEnable(GL_LIGHTING);
 	    glEnable(GL_LIGHT0);
 	    glEnable(GL_LIGHT1);
+	    glDisable(GL_LIGHT2);
  	    n_display_list_objects +=
  	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
 
 	    glDisable(GL_LIGHT0);
+	    glDisable(GL_LIGHT1);
 	    glDisable(GL_LIGHTING);
 	 }
 
@@ -2067,7 +2074,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	    glEnable(GL_LIGHTING);
 	    glEnable(GL_LIGHT0);
 	    glEnable(GL_LIGHT1);
-	    // glEnable(GL_LIGHT2);
+	    glDisable(GL_LIGHT2);
 	    graphics_info_t::molecules[ii].draw_animated_ligand_interactions(gl_info,
 									     graphics_info_t::time_holder_for_ligand_interactions);
 	    glDisable(GL_LIGHTING);
