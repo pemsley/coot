@@ -725,8 +725,8 @@ def old_coot_qm():
             s = "You've got an Old Coot!\n\nIt's time to upgrade."
       info_dialog(s)
 
-if (not coot_has_guile()):
-   old_coot_qm()
+#if (not coot_has_guile()):
+#   old_coot_qm()
 
 # We can either go to a place (in which case the element is a list of
 # button label (string) and 3 numbers that represent the x y z
