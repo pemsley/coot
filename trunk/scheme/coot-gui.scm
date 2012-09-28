@@ -463,7 +463,7 @@
 			     "You've got an Old Coot!\n\nIt's time to upgrade."))))
 	      (info-dialog s))))))
 
-(old-coot?)
+;; (old-coot?)
 
 ;; We can either go to a place (in which case the element is a list of
 ;; button label (string) and 3 numbers that represent the x y z
