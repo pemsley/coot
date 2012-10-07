@@ -225,7 +225,9 @@
 # 1.5 26/08/12 Update curl to libcurl_version=7.27.0
 # 1.6 27/08/12 Remove old stable installed files before making new stable.
 # 1.7 22/09/12 update to mmdb 1.24.2
-script_version=1.7 
+# 1.8 01/10/12 use mkdir_maybe, make sure glut things are copied in dirs,
+#              use make -r flag for coot (speed up)
+script_version=1.8 
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -969,7 +971,7 @@ fi
 
 
 if [ ! -e "$AUTOBUILD_BUILD" ] ; then
-   mkdir "$AUTOBUILD_BUILD" 
+   mkdir_maybe "$AUTOBUILD_BUILD" 
    if [ $? -ne 0 ] ; then
 	echo mkdir of the AUTOBUILD_DIR "$AUTOBUILD_BUILD" failed.
         my_exit 2
@@ -988,7 +990,7 @@ echo Date: $date
 # now in $AUTOBUILD_BUILD
 # we dont want to have the 'stupid' date and time in there...
 # I dont like it
-mkdir ${HOST}${build_type}
+mkdir_maybe ${HOST}${build_type}
 if [ $? -ne 0 ] ; then
 	echo mkdir  ${HOST}${build_type} failed for some reason. Now in `pwd`
 fi
@@ -1199,11 +1201,12 @@ fi
 # Stable release only! (Windows!)
 # Remove install_top_dir if exists and we make a stable release, i.e.
 # start from scratch
-if [ "$build_coot_prerelease" != 1 ] ; then 
-    if [ -e "$install_top_dir" ] ; then
-        rm -r $install_top_dir
-    fi
-fi
+# not always....
+#if [ "$build_coot_prerelease" != 1 ] ; then 
+#    if [ -e "$install_top_dir" ] ; then
+#        rm -fr $install_top_dir
+#    fi
+#fi
 
 # we need to export this for net-http, because it doesn't set
 # variables from configure, we rely on a shell (environment) variable.
@@ -1792,18 +1795,22 @@ fi
 # ##############################################################
 
 # guile-gtk, only look in installation, not system.
-if [ "$build_gtk" = "" ] ; then 
-   for dir in ${install_top_dir} ; do
-      if test -e "${dir}/include/guile-gtk.h" ; then
-         echo installation has guile-gtk
-         if [ "$build_guile" != 1 ] ; then
-            build_guile_gtk=
-         else
-            build_guile_gtk=1
-         fi
-      fi
-   done
+
+# if we are not building gtk, perhaps we should not build 
+# guile-gtk also?
+if test -e "${install_top_dir}/include/guile-gtk.h" ; then
+   echo installation has guile-gtk
+   if [ "$build_guile" != 1 ] ; then
+      build_guile_gtk=
+   else
+      echo guile needs building, so guile-gtk needs building.
+      build_guile_gtk=1
+   fi
+else
+   echo installation does not have guile-gtk
+   build_guile_gtk=1
 fi
+
 if test -n "${build_guile_gtk}" ; then
    echo guile-gtk should be built
    build_guile_gtk=1
@@ -1843,7 +1850,7 @@ if [ "$build_goocanvas" = "" ] ; then
 
     # has it been installed?
     #
-    if [ -e "${install_top_dir}/include/goocanvas-1.0.0/goocanvaswidget.h" ] ; then
+    if [ -e "${install_top_dir}/include/goocanvas-1.0.0/goocanvas/goocanvaswidget.h" ] ; then
         build_goocanvas=no
         goocanvas_args="--with-goocanvas-prefix=$install_top_dir"
     fi
@@ -2171,9 +2178,11 @@ glut_prefix="--with-glut-prefix=$install_top_dir"
 echo INFO:: setting glut_prefix to $glut_prefix
 # now move the files to the right place
 cd GLUT
-mkdir		$install_top_dir/include/GL
+mkdir_maybe	$install_top_dir/include/GL
 cp glut.h 	$install_top_dir/include/GL
+mkdir_maybe	$install_top_dir/bin
 cp glut32.dll	$install_top_dir/bin
+mkdir_maybe	$install_top_dir/lib
 cp libglut32.a	$install_top_dir/lib
 # and whilst we are here let's get the openGL extensions as well
 ${WGET} http://www.opengl.org/registry/api/glext.h
@@ -2658,6 +2667,8 @@ ${WGET} http://www.python.org/ftp/python/$pver/python-$pver.msi
 (
 date
 pwd
+# FIXME only works if not installed before. //fa may do reinstall/repair
+# better uninstall?!
 echo msiexec /i python-$pver.msi TARGETDIR=$py_inst_dir DLLDIR=$py_dll_dir ALLUSERS=1 /qn
 msiexec //i python-$pver.msi TARGETDIR=$py_inst_dir DLLDIR=$py_dll_dir ALLUSERS=1 //qn
 status=$?
@@ -2680,7 +2691,7 @@ fi
 
 if test -n "$copy_python" ; then
    # in a simple minded approach we say we install a guile version 
-   # and have python already install earlier in the non-guile version
+   # and have python already installed earlier in the non-guile version
    if [ "$ENABLE_GUILE_COOT" = "yes" ] ; then
      dll_location=${install_top_dir%$build_type}/bin/python${pver_short/./}.dll
      echo dll to search for is $dll_location
@@ -2766,10 +2777,11 @@ if test -n "$build_pygobject" ; then
    (
    date
    cd ${AUTOBUILD_SOURCES}
+   # FIXME may need uninstall too!!!
    msiexec //i pygobject-$pygobject_version.win32-py$pver_short.msi TARGETDIR=$py_inst_dir ALLUSERS=1 //qn
    cd -
    # copy pkgconfig and include files
-   mkdir $install_top_dir/include/pygtk-2.0
+   mkdir_maybe $install_top_dir/include/pygtk-2.0
    cp    $install_top_dir/$python_version/include/pygtk-2.0/pygobject.h $install_top_dir/include/pygtk-2.0/
    cp    $install_top_dir/$python_version/Lib/pkgconfig/pygobject-2.0.pc $install_top_dir/lib/pkgconfig/
 ) > $HOSTLOGDIR/07-pygobject.txt 2>&1
@@ -3304,11 +3316,9 @@ coot_optim_args="-build=i686-pc-mingw32"
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
 echo ./configure $coot_prefix \
-   --with-gtkcanvas-prefix=$install_top_dir \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
-      --with-gtkgl-prefix=$install_top_dir  \
       --with-gtk2         \
        $glut_prefix       \
       $scripting          \
@@ -3318,11 +3328,9 @@ echo ./configure $coot_prefix \
       $coot_extra_args   
 
 ./configure $coot_prefix \
-   --with-gtkcanvas-prefix=$install_top_dir \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
-      --with-gtkgl-prefix=$install_top_dir  \
       --with-gtk2         \
        $glut_prefix       \
       $scripting          \
@@ -3351,7 +3359,10 @@ if [ "$make_clean_coot" = "yes" ] ; then
     $MAKE clean
 fi
 
+#$MAKE
+MAKE=$MAKE" -r"
 $MAKE
+
 status=$?
 if [ "$status" != 0 ] ; then 
     echo make failed.
