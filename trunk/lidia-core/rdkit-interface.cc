@@ -628,6 +628,11 @@ coot::add_H_to_ring_N_as_needed(RDKit::RWMol *mol,
       if (! already_there) { 
       
 	 // -------------  add an H atom --------------------------
+
+	 //
+	 // Probably is better if we do as Greg Landrum suggests: just
+	 // N_at->setNumExplicitHs(1), then we don't need to make an H
+	 // and a bond.
 	 // 
 	 RDKit::Atom *at = new RDKit::Atom;
 	 at->setAtomicNum(1);
@@ -649,7 +654,7 @@ coot::add_H_to_ring_N_as_needed(RDKit::RWMol *mol,
 		  name_H = restraints.bond_restraint[ib].atom_id_1_4c();
 		  break;
 	       }
-	    } 
+	    }
 	 }
       
       
@@ -823,30 +828,30 @@ coot::remove_non_polar_Hs(RDKit::RWMol *rdkm) {
       rdkm->removeAtom(atoms_to_be_deleted[i]);
    }
 
-   std::cout << "DEBUG:: remove_non_polar_Hs() clearComputedProps() " << std::endl;
+   /// std::cout << "DEBUG:: remove_non_polar_Hs() clearComputedProps() " << std::endl;
    rdkm->clearComputedProps();
    // clean up things like nitro groups
-   std::cout << "DEBUG:: remove_non_polar_Hs() cleanUp() " << std::endl;
+   // std::cout << "DEBUG:: remove_non_polar_Hs() cleanUp() " << std::endl;
    RDKit::MolOps::cleanUp(*rdkm);
    // update computed properties on atoms and bonds:
 
    coot::assign_formal_charges(rdkm);
 
-   std::cout << "DEBUG:: remove_non_polar_Hs() updatePropertyCache() " << std::endl;
+   // std::cout << "DEBUG:: remove_non_polar_Hs() updatePropertyCache() " << std::endl;
    rdkm->updatePropertyCache();
    
-   std::cout << "DEBUG:: remove_non_polar_Hs() kekulize() " << std::endl;
+   // std::cout << "DEBUG:: remove_non_polar_Hs() kekulize() " << std::endl;
    RDKit::MolOps::Kekulize(*rdkm);
-   std::cout << "DEBUG:: remove_non_polar_Hs() assignRadicals() " << std::endl;
+   // std::cout << "DEBUG:: remove_non_polar_Hs() assignRadicals() " << std::endl;
    RDKit::MolOps::assignRadicals(*rdkm);
    // set conjugation
-   std::cout << "DEBUG:: remove_non_polar_Hs() setConjugation() " << std::endl;
+   // std::cout << "DEBUG:: remove_non_polar_Hs() setConjugation() " << std::endl;
    RDKit::MolOps::setConjugation(*rdkm);
    // set hybridization
-   std::cout << "DEBUG:: remove_non_polar_Hs() setHybridization() " << std::endl;
+   // std::cout << "DEBUG:: remove_non_polar_Hs() setHybridization() " << std::endl;
    RDKit::MolOps::setHybridization(*rdkm); 
    // remove bogus chirality specs:
-   std::cout << "DEBUG:: remove_non_polar_Hs() cleanupChirality() " << std::endl;
+   // std::cout << "DEBUG:: remove_non_polar_Hs() cleanupChirality() " << std::endl;
    RDKit::MolOps::cleanupChirality(*rdkm);
    
 }
