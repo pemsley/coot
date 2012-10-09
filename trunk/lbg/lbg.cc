@@ -3271,7 +3271,7 @@ lbg_info_t::read_draw_residues(const std::string &file_name) {
 
    // has the current solution problems due to residues too close to the ligand?
    std::pair<bool, std::vector<int> > problem_status = solution_has_problems_p();
-   std::cout << "::::::::: problem status: " << problem_status.first << std::endl;
+   // std::cout << "::::::::: problem status: " << problem_status.first << std::endl;
    for (unsigned int ip=0; ip<problem_status.second.size(); ip++) {
       std::cout << ":::::::::::: "
 		<< residue_circles[problem_status.second[ip]].residue_label << " "
