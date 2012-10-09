@@ -1518,7 +1518,7 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 			   float h_bond_dist_max) {
    
    std::vector<coot::fle_ligand_bond_t> v; // returned value
-   bool debug = true;
+   bool debug = false;
 
    if (debug) {
       std::cout << "::::::::::::::::::::: get_fle_ligand_bonds() inputs: " << std::endl;
@@ -1830,7 +1830,6 @@ coot::get_covalent_bonds_by_links(CResidue *residue_ligand_p,
 	       if (residue_ligand_chain_id == link->chainID1) {
 		  if (residue_ligand_res_no == link->seqNum1) {
 		     if (residue_ligand_ins_code == link->insCode1) {
-			std::cout << "Here 1 " << std::endl;
 			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link);
 			CAtom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
 			CAtom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
