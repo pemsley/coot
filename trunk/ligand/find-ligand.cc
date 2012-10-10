@@ -93,6 +93,7 @@ main(int argc, char **argv) {
       bool set_absolute = 0;
       float absolute_level = 0.0;
       std::string absolute_string = "";
+      bool blobs_mode = false;
 
       // These hold the coordinates of a particular position.  The
       // bool is whether they were set in the input or not.  Only of
@@ -115,6 +116,7 @@ main(int argc, char **argv) {
 	 {"fit-fraction", 1, 0, 0},
 	 {"flexible",     0, 0, 0},
 	 {"script",       0, 0, 0},
+	 {"blobs",        0, 0, 0},
 	 {"pos-x",        1, 0, 0},
 	 {"pos-y",        1, 0, 0},
 	 {"pos-z",        1, 0, 0},
@@ -136,6 +138,8 @@ main(int argc, char **argv) {
 // 	       std::cout << "   ch:: " << ch << std::endl;
 	 
 	       std::string arg_str = long_options[option_index].name;
+
+	       std::cout << " considering arg_str :" << arg_str << ":\n";
 
 	       if (arg_str == "pdbin") { 
 		  pdb_file_name = optarg;
@@ -219,7 +223,13 @@ main(int argc, char **argv) {
 		  use_wiggly_ligand = 1;
 		  n_used_args += 1;
 	       }
-	       
+
+	       if (arg_str == "blobs") { 
+		 blobs_mode = true;
+		 std::cout << "set blobs mode " << std::endl;
+		 n_used_args++;
+	       } 
+
 	    }
 	    break;
 
@@ -259,7 +269,7 @@ main(int argc, char **argv) {
 	 }
       }
 
-      short int do_it = 0;
+      bool do_it = false;
       if (pdb_file_name.length() == 0) { 
 	 std::cout << "Missing input PDB file\n";
 	 exit(1);
@@ -282,11 +292,16 @@ main(int argc, char **argv) {
 		  if (n_cluster_string.length() == 0) { 
 		     n_cluster_string = "10";
 		  }
-// 		  std::cout << "argc: " << argc << " n_used_args: " 
-// 			    << n_used_args << std::endl;
-		  for (int i=n_used_args; i<argc; i++) 
-		     lig_files.push_back(argv[i]);
-		  do_it = 1;
+
+ 		  // std::cout << "------------ argc: " << argc << " n_used_args: " 
+		  // << n_used_args << std::endl;
+
+		  for (int i=n_used_args; i<(argc-1); i++) {
+		    // std::cout << "----- pushing back ligand file name :" << argv[i] << ":" 
+		    // << std::endl;
+		    lig_files.push_back(argv[i]);
+		  }
+		  do_it = true;
 	       }
 	    }
 	 }
@@ -294,9 +309,10 @@ main(int argc, char **argv) {
       
       if (do_it) { 
 
-	 if (lig_files.size() == 0) { 
-	    std::cout << "No ligand pdb files specified\n";
-	    exit(1);
+	if ((lig_files.size() == 0) && ! blobs_mode) { 
+	     std::cout << "No ligand pdb files specified\n";
+	     exit(1);
+
 	 } else {
 
 	    if (fit_frac_str != "") { // it was set
@@ -344,7 +360,7 @@ main(int argc, char **argv) {
 
 	       if (map_stat == 0) { 
 		     std::cout << "Map making failure." << std::endl;
-	       } else { 
+	       } else {
 		  lig.mask_by_atoms(pdb_file_name);
 		  if (lig.masking_molecule_has_atoms()) {
 		     lig.set_acceptable_fit_fraction(fit_frac); 
@@ -358,7 +374,21 @@ main(int argc, char **argv) {
 			
 		     } else { 
 			
-			lig.find_clusters(input_sigma_level);
+		       if (blobs_mode) { 
+			 int n_cycles = 1;
+			 lig.water_fit(input_sigma_level, n_cycles);
+			 unsigned int n_big_blobs = lig.big_blobs().size();
+			 if (n_big_blobs) { 
+			   std::cout << "=============== start blob-table ==========\n";
+			   for (unsigned int i=0; i<n_big_blobs; i++) { 
+			     std::cout << "  blob " << i << " " << lig.big_blobs()[i].format()
+				       << std::endl;
+			   } 
+			   std::cout << "=============== end blob-table ==========\n";
+			 } 
+		       } else { 
+			 lig.find_clusters(input_sigma_level);
+		       }
 		     }
 		     // install ligands:
 		     for (unsigned int ilig=0; ilig<lig_files.size(); ilig++)
