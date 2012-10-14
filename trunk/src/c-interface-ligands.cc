@@ -652,6 +652,7 @@ execute_ligand_search_internal() {
       float correl_frac_lim = 0.9;
       // nino-mode
       unsigned int nlc = wlig.n_ligands_for_cluster(iclust, frac_lim);
+      wlig.score_and_resort_using_correlation(iclust, nlc);
 
       // false is the default case
       if (g.find_ligand_multiple_solutions_per_cluster_flag == false) {
@@ -659,11 +660,11 @@ execute_ligand_search_internal() {
 	 correl_frac_lim = 0.975;
       }
 
-      wlig.score_and_resort_using_correlation(iclust, nlc);
-      wlig.limit_solutions(iclust, correl_frac_lim, 12);
+      if (nlc > 12) nlc = 12; // arbitrary limit of max 12 solutions per cluster
+      wlig.limit_solutions(iclust, correl_frac_lim, nlc);
 			   
       for (unsigned int isol=0; isol<nlc; isol++) { 
-      
+
 	 m = wlig.get_solution(isol, iclust);
 	 if (! m.is_empty()) {
 	    float bf = graphics_info_t::default_new_atoms_b_factor;
@@ -831,7 +832,7 @@ void set_find_ligand_multi_solutions_per_cluster(float lim_1, float lim_2) {
    graphics_info_t g;
    g.find_ligand_multiple_solutions_per_cluster_flag = true;
    g.find_ligand_score_by_correl_frac_limit = lim_1;
-   g.find_ligand_score_correl_frac_interersting_limit = lim_2;
+   g.find_ligand_score_correl_frac_interesting_limit = lim_2;
 }
 
 

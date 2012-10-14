@@ -1876,8 +1876,8 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 			   // need to be
 			   // exported to the
 			   // user interface
-			   if (score_card.score > best_score) {
-			      best_score = score_card.score;
+			   if (score_card.atom_point_score > best_score) {
+			      best_score = score_card.atom_point_score;
 			      // 20081120 best_rotamer_mol loses the insertion
 			      // code for the residue.  Must fix.
 			      best_rotamer_mol = moved_mol;
@@ -5984,6 +5984,9 @@ molecule_class_info_t::has_display_list_objects() {
 int 
 molecule_class_info_t::draw_display_list_objects(int GL_context) {
 
+//    std::cout << "draw_display_list_objects() display_list_tags.size() " << display_list_tags.size() << std::endl;
+//    std::cout << "draw_display_list_objects() add_reps.size() " << add_reps.size() << std::endl;
+   
    int n_objects = 0;
    if (drawit) { 
       if (display_list_tags.size() > 0) { 
@@ -6041,6 +6044,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       display_list_tags.push_back(dloi_1);
    }
 
+   // std::cout << ".... make_ball_and_stick(A) add_reps.size() " << add_reps.size() << std::endl;
    return (display_list_tags.size() - 1);
 }
 

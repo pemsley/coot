@@ -3324,6 +3324,7 @@ mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/content/refmac/Dictio
 refmac_mon_lib=refmac_dictionary_v5.28.tar.gz
 refmac_mon_lib=refmac_dictionary_v5.29.tar.gz
 refmac_mon_lib=refmac_dictionary_v5.37.tar.gz
+refmac_mon_lib=refmac_dictionary_v5.38.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library

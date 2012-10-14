@@ -2425,7 +2425,7 @@ public:
    static float map_mask_atom_radius;
    static bool find_ligand_multiple_solutions_per_cluster_flag; // default is false 
    static float find_ligand_score_by_correl_frac_limit; // 0.7
-   static float find_ligand_score_correl_frac_interersting_limit; // 0.9;
+   static float find_ligand_score_correl_frac_interesting_limit; // 0.9;
 
    // Geometry issues:
    
