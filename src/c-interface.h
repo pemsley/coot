@@ -4343,7 +4343,7 @@ to correlation scoring (closer to 1 means less and faster - default
 
 The second limit is the fraction of the top correlation score that is
 considered interesting.  Limits the number of solutions displayed to
-user.
+user. Default 0.9.
 
 There is currently no chi-angle set redundancy filtering - I suspect
 that there should be.

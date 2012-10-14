@@ -737,7 +737,7 @@ bool  graphics_info_t::find_ligand_here_cluster_flag = 0;
 int   graphics_info_t::find_ligand_n_top_ligands = 10;
 bool  graphics_info_t::find_ligand_multiple_solutions_per_cluster_flag = false;
 float graphics_info_t::find_ligand_score_by_correl_frac_limit = 0.7;
-float graphics_info_t::find_ligand_score_correl_frac_interersting_limit = 0.9;
+float graphics_info_t::find_ligand_score_correl_frac_interesting_limit = 0.9;
 
 short int graphics_info_t::find_ligand_mask_waters_flag = 0;
 float graphics_info_t::map_mask_atom_radius = -99; // unset
@@ -1926,7 +1926,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 
       // From Bernhard
-#if (GTK_MAJOR_VERSION > 1) 
+
+      // do these need to be here every frame?
       glEnable (GL_FOG);
       glFogi(GL_FOG_MODE, GL_LINEAR);
       glFogf(GL_FOG_START, -20.0);
@@ -1934,10 +1935,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       glDepthFunc (GL_LESS);
       glFogfv(GL_FOG_COLOR, graphics_info_t::background_colour);
       glEnable(GL_DEPTH_TEST);
-#endif
-
-
-      // glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
 
       // BL:: this is code for Zalman monitor. Maybe can be somewhere else!?
       // Zalman works here?! but crap lighting!?

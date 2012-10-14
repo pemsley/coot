@@ -235,10 +235,10 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	 s = score_orientation(atoms_p, Xmap());
 
 	 // 	 std::cout << "post-fit score: " << s.score << std::endl;
-	 if (s.score > best_score) {
-	    std::cout << "INFO:: found better residue, score: " << s.score
-		      << std::endl;
-	    best_score = s.score;
+	 if (s.atom_point_score > best_score) {
+	    if (0)
+	       std::cout << "INFO:: found better residue, score: " << s.atom_point_score << std::endl;
+	    best_score = s.atom_point_score;
 	    best_fragment = frag;
 	 }
 

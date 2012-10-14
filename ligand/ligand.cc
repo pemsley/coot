@@ -1767,13 +1767,14 @@ coot::operator<<(std::ostream &s, const coot::ligand_score_card &lsc) {
    double score;
    double score_per_atom;
 
-   s << "[ligand-score: #" << lsc.ligand_no << " score: " <<  lsc.score
+   s << "[ligand-score: #" << lsc.ligand_no << " at-score: " <<  lsc.atom_point_score
      << " r-state: [" << lsc.correlation.first;
 
    if (lsc.correlation.first)
-      s << " " << lsc.correlation.second << "]";
+      s << " correl-score " << lsc.correlation.second;
+   s << "]";
 
-   s << " (score: "
+   s << " (atom-score: "
      << lsc.score_per_atom << ") many-atoms-fit: " << lsc.many_atoms_fit
      << " n-atoms: " << lsc.n_ligand_atoms << "]";
    return s;
@@ -1921,7 +1922,7 @@ coot::ligand::sort_final_ligand(unsigned int iclust) {
 bool
 coot::ligand::compare_scored_ligands(const std::pair<coot::minimol::molecule, ligand_score_card> &sl_1,
 				     const std::pair<coot::minimol::molecule, ligand_score_card> &sl_2) {
-   return (sl_1.second.score < sl_2.second.score);
+   return (sl_1.second.atom_point_score < sl_2.second.atom_point_score);
 }
 // static
 bool
@@ -1931,7 +1932,7 @@ coot::ligand::compare_scored_ligands_using_correlation(const std::pair<coot::min
 
    if (sl_1.second.correlation.first && sl_2.second.correlation.first)
       return (sl_1.second.correlation < sl_2.second.correlation);
-   return (sl_1.second.score < sl_2.second.score);
+   return (sl_1.second.atom_point_score < sl_2.second.atom_point_score);
 }
 
 unsigned int
@@ -1942,9 +1943,9 @@ coot::ligand::n_ligands_for_cluster(unsigned int iclust,
    float top_score = -1;
    
    if (final_ligand[iclust].size() > 0) {
-      top_score = final_ligand[iclust][0].second.score;
+      top_score = final_ligand[iclust][0].second.atom_point_score;
       for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
-	 if (final_ligand[iclust][i].second.score > frac_limit_of_peak_score * top_score)
+	 if (final_ligand[iclust][i].second.atom_point_score > frac_limit_of_peak_score * top_score)
 	    n++;
       }
    }
@@ -1970,31 +1971,29 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
    
    int n_ligs = final_ligand[iclust].size();
    // #pragma openmp parallel for
+
+   std::cout << "score_and_resort_using_correlation iclust: " << iclust << " n_ligs " << n_ligs
+	     << " n_sol " << n_sol << std::endl;
+   
    for (unsigned int i=0; i<n_ligs; i++) {
       if (i < n_sol) {
 
-	 // double correl = get_correl(final_ligand[iclust][i].first);
+	 const minimol::molecule &lig_mol = final_ligand[iclust][i].first;
+	 CMMDBManager *mol = lig_mol.pcmmdbmanager(); // d
+	 std::vector<residue_spec_t> specs;
+	 residue_spec_t spec(lig_mol[0].fragment_id,
+			     lig_mol[0].min_res_no(), "");
+	 specs.push_back(spec);
+	 short int mode = 0; // all atoms 
+	 double c = util::map_to_model_correlation(mol, specs, mode, 1.5,
+						   xmap_pristine);
 
-	 {
-	    const minimol::molecule &lig_mol = final_ligand[iclust][i].first;
-	    CMMDBManager *mol = lig_mol.pcmmdbmanager();
-	    std::vector<residue_spec_t> specs;
-	    residue_spec_t spec(lig_mol[0].fragment_id,
-				lig_mol[0].min_res_no(), "");
-	    specs.push_back(spec);
-	    short int mode = 0; // all atoms 
-	    double c = util::map_to_model_correlation(mol, specs, mode, 1.5,
-						      xmap_pristine);
-
-	    std::cout << "----- in get_correl() constructed spec for i "
-		      << i << " " << spec
-		      << " which has correlation " << c << std::endl;
-	    delete mol;
-	 }
-
-	 // std::pair<bool, double> p(true, correl);
-	 // final_ligand[iclust][i].second.correlation = p;
-	 // std::cout << "   " << p.first << " " << p.second << std::endl;
+	 std::cout << "----- in get_correl() constructed spec for i "
+		   << i << " " << spec
+		   << " which has correlation " << c << std::endl;
+	 std::pair<bool, double> p(true, c);
+	 final_ligand[iclust][i].second.correlation = p;
+	 delete mol;
       }
    }
    std::sort(final_ligand[iclust].begin(),
@@ -2003,11 +2002,15 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
    std::reverse(final_ligand[iclust].begin(),
 		final_ligand[iclust].end());
 
-   if (0)
+   
+   if (1) {
+      std::cout << "------------------ " << final_ligand[iclust].size() << " solutions for cluster "
+		<< iclust << " ------------- " << std::endl;
       for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
 	 std::cout << "post correl " << isol << " of "
 		   << final_ligand[iclust].size() << " "
 		   << final_ligand[iclust][isol].second << std::endl;
+   }
    
 }
 
@@ -2639,7 +2642,7 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
       clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap_pristine.cell());
       if (!atoms[ii]->is_hydrogen_p()) {
 	 dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
-	 score_card.score += dv;
+	 score_card.atom_point_score += dv;
 	 n_non_hydrogens++; 
 	 if (dv > 0)
 	    n_positive_atoms++; 
@@ -2658,7 +2661,7 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
 		      << ") < " << fit_fraction << std::endl;
 	 if ( float(n_positive_atoms)/float(n_non_hydrogens) >= fit_fraction ) { // arbitary
 	    score_card.many_atoms_fit = 1; // consider using a member function
-	    score_card.score_per_atom = score_card.score/float(n_non_hydrogens);
+	    score_card.score_per_atom = score_card.atom_point_score/float(n_non_hydrogens);
 	 } else {
 	    // std::cout << "badly fitting atoms, failing fit_fraction test " << std::endl;
 	 }

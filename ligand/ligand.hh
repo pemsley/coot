@@ -56,13 +56,13 @@ namespace coot {
    public:
       // consider using a member function here:
       short int many_atoms_fit;
-      double score;
+      double atom_point_score;
       double score_per_atom;
       std::pair<bool, double> correlation;
       
       ligand_score_card() {
 	 ligand_no = -1; // unset
-	 score = 0.0;
+	 atom_point_score = 0.0;
 	 many_atoms_fit = 0;
 	 n_ligand_atoms = 0;
 	 score_per_atom = 0.0;
