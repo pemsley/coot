@@ -399,7 +399,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	    at_p->getProp("name", name);
 	 }
 	 catch (KeyErrorException kee) {
-	    std::cout << "caught no-name for atom exception in make_molfile_molecule(): "
+	    std::cout << "caught no-name for atom exception in rdkit_mol(): "
 		      <<  kee.what() << std::endl;
 	 }
 	 int formal_charge = at_p->getFormalCharge();
@@ -703,6 +703,7 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 	 std::string element = tbl->getElementSymbol(n);
 	 int charge = at_p->getFormalCharge();
 	 lig_build::molfile_atom_t mol_atom(pos, element, name);
+	 mol_atom.formal_charge = charge;
 	 mol.add_atom(mol_atom);
       }
 
@@ -1280,6 +1281,7 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
    undelocalise_aminos(rdkm);
    undelocalise_methyl_carboxylates(rdkm);
    undelocalise_phosphates(rdkm); 
+   undelocalise_sulphates(rdkm); 
 }
 
 void
@@ -1543,21 +1545,91 @@ coot::undelocalise_phosphates(RDKit::ROMol *rdkm) {
 	    ++nbrIdx;
 	 }
 	 
+	 if (deloc_O_bonds.size() == 4) {
+	    // PO4 monomer, PO4(-3)
+	    // make 1 single, one double. 
+	    deloc_O_bonds[0]->setBondType(RDKit::Bond::DOUBLE);
+	    deloc_O_bonds[1]->setBondType(RDKit::Bond::SINGLE);
+	    deloc_O_bonds[2]->setBondType(RDKit::Bond::SINGLE);
+	    deloc_O_bonds[3]->setBondType(RDKit::Bond::SINGLE);
+	    // Handle formal charge too.
+	    int idx_o_1 = deloc_O_bonds[1]->getOtherAtomIdx(idx_1);
+	    int idx_o_2 = deloc_O_bonds[2]->getOtherAtomIdx(idx_1);
+	    int idx_o_3 = deloc_O_bonds[3]->getOtherAtomIdx(idx_1);
+	    RDKit::ATOM_SPTR at_p_1 = (*rdkm)[idx_o_1];
+	    RDKit::ATOM_SPTR at_p_2 = (*rdkm)[idx_o_2];
+	    RDKit::ATOM_SPTR at_p_3 = (*rdkm)[idx_o_3];
+	    at_p_1->setFormalCharge(-1);
+	    at_p_2->setFormalCharge(-1);
+	    at_p_3->setFormalCharge(-1);
+	 }
+	 
 	 if (deloc_O_bonds.size() == 3) {
-	    // make 2 single and one double.  Handle formal charge too?
+	    // make 2 single and one double.  Handle formal charge too.
 	    deloc_O_bonds[0]->setBondType(RDKit::Bond::SINGLE);
 	    deloc_O_bonds[1]->setBondType(RDKit::Bond::SINGLE);
 	    deloc_O_bonds[2]->setBondType(RDKit::Bond::DOUBLE);
+	    int idx_o_0 = deloc_O_bonds[0]->getOtherAtomIdx(idx_1);
+	    RDKit::ATOM_SPTR at_p_0 = (*rdkm)[idx_o_0];
+	    at_p_0->setFormalCharge(-1);
 	 }
 
 	 if (deloc_O_bonds.size() == 2) {
-	    // make 1 single, one double. Handle formal charge too?
+	    // make 1 single, one double. Handle formal charge too.
 	    deloc_O_bonds[0]->setBondType(RDKit::Bond::SINGLE);
 	    deloc_O_bonds[1]->setBondType(RDKit::Bond::DOUBLE);
+	    int idx_o_0 = deloc_O_bonds[0]->getOtherAtomIdx(idx_1);
+	    RDKit::ATOM_SPTR at_p_0 = (*rdkm)[idx_o_0];
+	    at_p_0->setFormalCharge(-1);
 	 } 
+
       }
    }
 }
+
+
+void
+coot::undelocalise_sulphates(RDKit::ROMol *rdkm) {
+
+   RDKit::ROMol::AtomIterator ai;
+   for(ai=rdkm->beginAtoms(); ai!=rdkm->endAtoms(); ai++) {
+
+      if ((*ai)->getAtomicNum() == 16) {
+	 RDKit::Atom *S_at = *ai;
+	 int idx_1 = S_at->getIdx();
+	 std::vector<RDKit::Bond *> deloc_O_bonds;
+	 
+	 RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
+	 boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(S_at);
+	 while(nbrIdx != endNbrs) {
+	    const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
+	    RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_1, *nbrIdx);
+	    if (bond) {
+	       if (bond->getBondType() == RDKit::Bond::ONEANDAHALF)
+		  deloc_O_bonds.push_back(bond);
+	    } 
+	    ++nbrIdx;
+	 }
+	 
+	 if (deloc_O_bonds.size() == 4) {
+	    // SO4 monomer, SO4(-2)
+	    // make 1 single, one double. 
+	    deloc_O_bonds[0]->setBondType(RDKit::Bond::DOUBLE);
+	    deloc_O_bonds[1]->setBondType(RDKit::Bond::DOUBLE);
+	    deloc_O_bonds[2]->setBondType(RDKit::Bond::SINGLE);
+	    deloc_O_bonds[3]->setBondType(RDKit::Bond::SINGLE);
+	    // Handle formal charge too.
+	    int idx_o_2 = deloc_O_bonds[2]->getOtherAtomIdx(idx_1);
+	    int idx_o_3 = deloc_O_bonds[3]->getOtherAtomIdx(idx_1);
+	    RDKit::ATOM_SPTR at_p_2 = (*rdkm)[idx_o_2];
+	    RDKit::ATOM_SPTR at_p_3 = (*rdkm)[idx_o_3];
+	    at_p_2->setFormalCharge(-1);
+	    at_p_3->setFormalCharge(-1);
+	 }
+      }
+   }
+}
+
 
 
 

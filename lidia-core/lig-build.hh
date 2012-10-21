@@ -181,17 +181,20 @@ namespace lig_build {
 	 text_pos_offset = HERE;
 	 tweak = pos_t(0,0);
 	 subscript = false;
+	 superscript = false;
       }
       offset_text_t(const std::string &text_in, text_pos_offset_t text_pos_offset_in) {
 	 text = text_in;
 	 text_pos_offset = text_pos_offset_in;
 	 tweak = pos_t(0,0);
 	 subscript = false;
+	 superscript = false;
       }
       std::string text;
       text_pos_offset_t text_pos_offset;
       pos_t tweak;
       bool subscript;
+      bool superscript;
       friend std::ostream& operator<<(std::ostream &s, offset_text_t a);
    };
    std::ostream& operator<<(std::ostream &s, offset_text_t a);
@@ -203,6 +206,22 @@ namespace lig_build {
       atom_id_info_t(const std::string &atom_id_in) {
 	 atom_id = atom_id_in;
 	 offsets.push_back(offset_text_t(atom_id_in));
+      }
+
+      // make a superscript for the formal charge
+      atom_id_info_t(const std::string &atom_id_in, int formal_charge) {
+	 atom_id = atom_id_in;
+	 offsets.push_back(offset_text_t(atom_id_in));
+	 if (formal_charge != 0) { 
+	    offset_text_t superscript("");
+	    if (formal_charge == -1) superscript=offset_text_t("-");
+	    if (formal_charge == -2) superscript=offset_text_t("-2");
+	    if (formal_charge == +1) superscript=offset_text_t("+");
+	    if (formal_charge == +2) superscript=offset_text_t("+2");
+	    superscript.superscript = true;
+	    superscript.tweak = pos_t(8,0);
+	    offsets.push_back(superscript);
+	 }
       }
 
       // atom_id_info to be filled in by function that knows about
@@ -1186,8 +1205,9 @@ namespace lig_build {
 	       sum_neigb_bond_order += 3;
 	 }
 
-	 if (0) 
-	    std::cout << "debug::       in make_atom_id_by_using_bonds() "<< ele << " sum_neigb_bond_order: "
+	 if (1) 
+	    std::cout << "debug::       in make_atom_id_by_using_bonds() "<< ele
+		      << " sum_neigb_bond_order: "
 		      << sum_neigb_bond_order << " " << std::endl;
 
 	 if (ele == "N") {
@@ -1206,15 +1226,18 @@ namespace lig_build {
 	 }
 							   
 	 if (ele == "O") {
-	    if (sum_neigb_bond_order == 3) { 
-	       atom_id = "0+";
-	    }
+	    int fc = atoms[atom_index].charge; // formal charge
+	    sum_neigb_bond_order -= fc;
+	    if (sum_neigb_bond_order == 3)
+	       atom_id = "O+";
 	    if (sum_neigb_bond_order == 2)
-	       atom_id = "O";
+		  atom_id = "O";
 	    if (sum_neigb_bond_order == 1)
 	       atom_id = "OH";
 	    if (sum_neigb_bond_order == 0)
 	       atom_id = "OH2";
+	    if (fc != 0) 
+	       return atom_id_info_t(atom_id, fc);
 	 }
 
 	 if (ele == "S") {
@@ -1231,7 +1254,7 @@ namespace lig_build {
 	       atom_id = "CH4";
 	    }
 	    if (sum_neigb_bond_order == 5) {
-	       atom_id = "C+";
+	       atom_id = "C+"; // Hmm... carbon can go either way
 	    }
 	 }
 
