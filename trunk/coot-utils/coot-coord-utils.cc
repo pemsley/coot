@@ -2372,6 +2372,50 @@ coot::util::get_first_residue(CMMDBManager *mol) {
    return res;
 }
 
+CResidue *
+coot::util::get_biggest_hetgroup(CMMDBManager *mol) {
+
+   CResidue *res = NULL;
+
+   std::vector<std::pair<CResidue *, int> > het_residues;
+   if (mol) {
+      CModel *model_p = mol->GetModel(1);
+      if (model_p) { 
+	 CChain *chain_p;
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	    chain_p = model_p->GetChain(i_chain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_p;
+	    for (int ires=0; ires<nres; ires++) {
+	       residue_p = chain_p->GetResidue(ires);
+	       if (residue_p) {
+		  CAtom *atom_p;
+		  int n_atoms = residue_p->GetNumberOfAtoms();
+		  for (int iat=0; iat<n_atoms; iat++) {
+		     atom_p = residue_p->GetAtom(iat);
+		     if (atom_p->Het) {
+			std::pair<CResidue *, int> p(residue_p, n_atoms);
+			het_residues.push_back(p);
+			break;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   int biggest_n = 0;
+   for (unsigned int ires=0; ires<het_residues.size(); ires++) { 
+      if (het_residues[ires].second > biggest_n) {
+	 res = het_residues[ires].first;
+	 biggest_n = het_residues[ires].second;
+      }
+   }
+   return res;
+}
+
+
 // Can return NULL.
 // Typically called with nth is 1, 2 or 3.  Will return 0 if called with nth is 0.
 CResidue *

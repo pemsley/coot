@@ -938,6 +938,8 @@ namespace coot {
 
       CResidue *get_first_residue(CMMDBManager *mol);
 
+      CResidue *get_biggest_hetgroup(CMMDBManager *mol);
+
       // Trivial helper function.
       // Can return NULL.
       // 
