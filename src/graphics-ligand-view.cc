@@ -265,7 +265,7 @@ graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_in
 
    if (atom_id_info_in.atom_id != "C") {
       glColor3f(fc.col[0], fc.col[1], fc.col[2]);
-   
+
       for (unsigned int i=0; i<atom_id_info_in.size(); i++) {
 	 double x_o = -0.25; 
 	 double y_o = -0.25;
@@ -283,6 +283,8 @@ graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_in
 
 	 if (atom_id_info_in.offsets[i].subscript)
 	    y_pos -= 0.3;
+	 if (atom_id_info_in.offsets[i].superscript)
+	    y_pos += 0.3;
 	    
 	 glRasterPos3d(x_pos, y_pos, 0);
 
