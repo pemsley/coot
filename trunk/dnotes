@@ -6644,6 +6644,12 @@ Wed Jun 27 10:29:54 BST 2012
 (format #t "~3,'0d~%" 5)
 -> 
 005 
+
+(format #t "~4f%" 6.321567)
+-> 
+6.322
+
+
 http://www.gnu.org/software/guile/manual/html_node/Formatted-Output.html#Formatted-Output
 
 

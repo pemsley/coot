@@ -1008,6 +1008,9 @@ Punted from 0.6:
     LINK anomer is being used when linking carboydrate monomers.  Write
     a test.
 
+  o in lidia, if a residue has more than one bond to the ligand, then
+    the ideal length should be lengthened a bit.
+
   * Split out graphics functions from c-interface.h. ::: 4
 
   * replace guile-gtk with guile-gnome ::: 15
