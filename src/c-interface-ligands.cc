@@ -2150,6 +2150,48 @@ int het_group_n_atoms(const char *comp_id) {
    return r;
 }
 
+#include "c-interface-ligands-swig.hh"
+
+#ifdef USE_GUILE
+SCM new_molecule_sans_biggest_ligand_scm(int imol) {
+
+   SCM r = SCM_BOOL_F;
+   std::pair<CResidue *, int> res = new_molecule_sans_biggest_ligand(imol);
+   if (res.first) {
+      r = scm_list_2(SCM_MAKINUM(res.second), scm_residue(res.first));
+   }
+   return r;
+}
+#endif
+
+
+std::pair<CResidue *, int>
+new_molecule_sans_biggest_ligand(int imol) {
+
+   CResidue *res = NULL;
+   int imol_new = -1;
+   if (is_valid_model_molecule(imol)) {
+
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      CResidue *r = coot::util::get_biggest_hetgroup(mol);
+      if (r) {
+
+	 // copy mol, create a new molecule and delete the residue
+	 // with the spec of r from the new molecule.
+	 //
+	 res = r;
+	 CMMDBManager *new_mol = new CMMDBManager;
+	 new_mol->Copy(mol, MMDBFCM_All);
+	 atom_selection_container_t asc = make_asc(new_mol);
+	 std::string label = "Copy_of_";
+	 label += graphics_info_t::molecules[imol].name_;
+	 imol_new = graphics_info_t::create_molecule();
+	 graphics_info_t::molecules[imol_new].install_model(imol_new, asc, label, 1);
+	 update_go_to_atom_window_on_new_mol();
+      }
+   }
+   return std::pair<CResidue *, int> (res, imol_new);
+}
 
 
 					      
