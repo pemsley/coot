@@ -6186,13 +6186,15 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
    
    // just checking that it was passed correctly - 
    //
-   std::cout << "------------------- ring list ------------" << std::endl;
-   for (unsigned int i=0; i<ring_atoms_list.size(); i++) {
-      std::cout << "ring list " << i << "   ";
-      for (unsigned int j=0; j<ring_atoms_list[i].size(); j++) { 
+   if (0) {
+      std::cout << "------------------- ring list ------------" << std::endl;
+      for (unsigned int i=0; i<ring_atoms_list.size(); i++) {
+	 std::cout << "ring list " << i << "   ";
+	 for (unsigned int j=0; j<ring_atoms_list[i].size(); j++) { 
 	 std::cout << ring_atoms_list[i][j] << "  ";
+	 }
+	 std::cout << std::endl;
       }
-      std::cout << std::endl;
    }
    
 
@@ -6201,7 +6203,7 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
 
    // has the current solution problems due to residues too close to the ligand?
    std::pair<bool, std::vector<int> > problem_status = solution_has_problems_p();
-   std::cout << "::::::::: problem status: " << problem_status.first << std::endl;
+   // std::cout << "::::::::: problem status: " << problem_status.first << std::endl;
    for (unsigned int ip=0; ip<problem_status.second.size(); ip++) {
       std::cout << ":::::::::::: "
 		<< residue_circles[problem_status.second[ip]].residue_label << " "
