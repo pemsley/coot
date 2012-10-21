@@ -284,23 +284,30 @@
 (define (residue-spec->chain-id rs)
   (if (not (list? rs))
       #f
-      (if (not (= (length rs) 3))
-	  #f
-	  (car rs))))
+      (if (= (length rs) 3)
+	  (car rs)
+	  (if (= (length rs) 4)
+	      (list-ref rs 1)
+	      #f))))
 
 (define (residue-spec->res-no rs)
   (if (not (list? rs))
       #f
-      (if (not (= (length rs) 3))
-	  #f
-	  (list-ref rs 1))))
+      (if (= (length rs) 3)
+	  (list-ref rs 1)
+	  (if (= (length rs) 4)
+	      (list-ref rs 2)
+	      #f))))
+	  
 
 (define (residue-spec->ins-code rs)
   (if (not (list? rs))
       #f
-      (if (not (= (length rs) 3))
-	  #f
-	  (list-ref rs 2))))
+      (if (= (length rs) 3)
+	  (list-ref rs 2)
+      (if (= (length rs) 4)
+	  (list-ref rs 3)
+	  #f))))
 
 (define (atom-spec->imol atom-spec)
   (if (not (list? atom-spec))

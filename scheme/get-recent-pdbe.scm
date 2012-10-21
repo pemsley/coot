@@ -215,7 +215,7 @@
       inside-vbox))
 
 
-;; Get image-name (caller doesn't care how) and when it is in place run func.
+;; Get image-name (caller doesn't care how) and when it is in place run thunk func.
 ;; 
 ;; This is a generally useful function, so it has been promoted outside of dig-table.
 ;; 
