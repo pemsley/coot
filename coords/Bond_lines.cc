@@ -540,9 +540,11 @@ Bond_lines_container::add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n
       clipper::Coord_orth b(pos_at_1 - pos_at_2);
       clipper::Coord_orth b_n(b.unit());
       clipper::Coord_orth perp_n(clipper::Coord_orth::cross(n_n, b_n));
+      // std::cout << "    perp_n " << perp_n.format() << " from " << n_n.format() << " x " << b_n.format() << std::endl;
       if (is_deloc) 
 	 if (invert_deloc_bond_displacement_vector(perp_n, iat_1, iat_2, atoms, n_atoms, bond_restraints))
 	    perp_n = -perp_n;
+      // std::cout << "now perp_n " << perp_n.format() << std::endl;
       int col = atom_colour(atoms[iat_1], atom_colour_type);
       double offset = 0.08;
       if (for_GL_solid_model_rendering)
@@ -2941,7 +2943,7 @@ Bond_lines_container::add_dashed_bond(int col,
       coot::Cartesian this_start(start + (end-start).by_scalar(frac_1));
       coot::Cartesian this_end(  start + (end-start).by_scalar(frac_2));
       coot::CartesianPair pair(this_start,this_end);
-      bonds[col].add_bond(pair, false, false);
+      bonds[col].add_bond(pair, true, true);
    }
 }
 
