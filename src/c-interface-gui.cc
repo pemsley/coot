@@ -2251,9 +2251,6 @@ GtkWidget *coot_save_coords_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1)
-   w = create_save_coords_fileselection1 ();
-#else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_save_coords_fileselection1();
    } else {
@@ -2264,7 +2261,6 @@ GtkWidget *coot_save_coords_chooser() {
       gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
 #endif      
    }
-#endif
    return w;
 }
 
