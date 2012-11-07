@@ -2224,6 +2224,8 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
 
      set_file_selection_dialog_size(widget);
 
+     set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
+
      gtk_widget_show(widget);
      gtk_widget_destroy(dialog);
   }
