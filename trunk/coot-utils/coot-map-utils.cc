@@ -1566,7 +1566,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       }
 
 
-      if (1) { 
+      if (0) { 
 	 // just checking that the maps are what we expect them to be...
 	 clipper::CCP4MAPfile mapout;
 	 mapout.open_write("calc.map");
