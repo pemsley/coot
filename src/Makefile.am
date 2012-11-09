@@ -102,10 +102,12 @@ EXTRA_DIST = \
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
 # SWIG_FLAGS is either blank or defines COOT_USE_GTK2_INTERFACE usage
 #
-coot_wrap_guile_pre_gtk1.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
-	swig -o $@ $(WITH_GUILE_CFLAGS) $(USE_LIBCURL) -I$(top_srcdir)/src -guile -c++ $(top_srcdir)/src/coot.i
-
-coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i $(top_srcdir)/src/lbg-interface.hh $(top_srcdir)/src/sdf-interface.hh
+coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h    \
+                             $(top_srcdir)/src/cc-interface.hh  \
+                             $(top_srcdir)/src/coot.i           \
+                             $(top_srcdir)/src/lbg-interface.hh \
+                             $(top_srcdir)/src/c-interface-ligands-swig.hh \
+                             $(top_srcdir)/src/sdf-interface.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENTERPRISE_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -guile -c++  $(top_srcdir)/src/coot.i
 
 # For GOOPS support: -proxy -Linkage module (or passive), however, doing that makes SWIG_init() go away.
@@ -113,24 +115,13 @@ coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/c
 coot_wrap_guile_gtk2.cc: coot_wrap_guile_pre_gtk2.cc
 	$(MAKE_COOT_WRAP_GUILE) gtk2 $^ $@
 
-coot_wrap_guile_gtk1.cc: coot_wrap_guile_pre_gtk1.cc
-	$(MAKE_COOT_WRAP_GUILE) gtk1 $^ $@
-
 # python
-
-coot_wrap_python_pre_gtk1.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i
-	swig -o $@ $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk1.py
 
 coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i $(top_srcdir)/src/lbg-interface.hh  $(top_srcdir)/src/sdf-interface.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk2.py
 
-coot_wrap_python_gtk1.cc: coot_wrap_python_pre_gtk1.cc
-	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk1 $^ $@
-
 coot_wrap_python_gtk2.cc: coot_wrap_python_pre_gtk2.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
-
-coot_gtk1.py: coot_wrap_python_pre_gtk1.cc
 
 coot_gtk2.py: coot_wrap_python_pre_gtk2.cc
 
@@ -139,9 +130,6 @@ coot_gtk2.py: coot_wrap_python_pre_gtk2.cc
 if USING_GTK2_VERSION
 coot.py: coot_gtk2.py
 	cp coot_gtk2.py coot.py
-else
-coot.py: coot_gtk1.py
-	cp coot_gtk1.py coot.py
 endif
 
 
@@ -271,6 +259,7 @@ coot_real_SOURCES = \
 	c-interface-mmdb.cc	 \
 	c-interface-mmdb.hh      \
 	c-interface-mogul.cc     \
+	c-interface-mogul-scripting.cc     \
 	c-interface-mutate.cc    \
 	c-interface-ncs.cc	 \
 	c-interface-network.cc	 \
@@ -320,7 +309,6 @@ coot_real_SOURCES = \
 	coot_pythonmodule.cc     \
 	coot-preferences.h       \
 	coot-references.h        \
-	coot_wrap_guile_gtk1.cc  \
 	coot_wrap_guile_gtk2.cc  \
         dots-representation.hh   \
 	drag-and-drop.hh         \
@@ -392,6 +380,7 @@ coot_real_SOURCES = \
 	pisa-interface.hh	 \
         pick.h pick.cc		 \
 	positioned-widgets.h     \
+	probe-clash-score.cc     \
 	protein_db-interface.hh  \
 	protein_db-interface.cc  \
 	read-phs.h		 \
