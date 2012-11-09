@@ -6018,6 +6018,8 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 					   bool do_spheres_flag, gl_context_info_t gl_info,
 					   const coot::protein_geometry *geom) {
 
+   // std::cout << "molecule make_ball_and_stick(A) called ..." << std::endl;
+
    coot::display_list_object_info dloi;
    // modify a copy of dloi and return it
    graphics_info_t::make_gl_context_current(graphics_info_t::GL_CONTEXT_MAIN);
@@ -6057,6 +6059,8 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 					   coot::display_list_object_info dloi,
 					   const coot::protein_geometry *geom) {
 
+   // std::cout << "molecule make_ball_and_stick(B) called ..." << std::endl;
+   
    // Use draw hydrogens flag that has been set already for this molecule.
    
    int i = -1;

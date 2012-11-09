@@ -104,7 +104,7 @@ namespace coot {
 	  COLOUR_BY_OCCUPANCY_BONDS=11};
 
    // representation_types
-   enum { SIMPLE_LINES, STICKS, BALL_AND_STICK, SURFACE };
+   enum { SIMPLE_LINES, STICKS, BALL_AND_STICK, LIQUORICE, SURFACE };
 
    enum { RESIDUE_NUMBER_UNSET = -1111};
 
@@ -478,7 +478,7 @@ namespace coot {
       CMMDBManager *mol;
       int display_list_handle;
       void update_self() {
-	 if (representation_type != BALL_AND_STICK) {
+	 if (representation_type != BALL_AND_STICK || representation_type != LIQUORICE) {
 	    fill_bonds_box();
 	 }
       }
@@ -500,7 +500,7 @@ namespace coot {
        draw_hydrogens_flag = draw_hydrogens_flag_in;
        atom_sel_info = atom_sel_info_in;
        fill_bonds_box();
-     } 
+     }
      // on changind the outside (molecule_class_info_t's mol) we need
      // to change that of the additional_representations too.
      void change_mol(CMMDBManager *mol_in) { 
