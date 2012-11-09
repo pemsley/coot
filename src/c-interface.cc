@@ -2431,10 +2431,12 @@ int make_ball_and_stick(int imol,
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
+      int dloi = 
       graphics_info_t::molecules[imol].make_ball_and_stick(std::string(atom_selection_str),
 							   bond_thickness,
 							   sphere_size, do_spheres_flag,
 							   glci, g.Geom_p());
+      // std::cout << "dloi: " << dloi << std::endl;
       graphics_draw();
    }
    return i;
