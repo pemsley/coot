@@ -16,6 +16,7 @@
 #include "c-interface-database.hh"
 #include "c-interface-python.hh"
 #include "c-interface-ligands-swig.hh"
+#include "c-interface-mogul.hh"
 #include "manipulation-modes.hh"
 #include "rotamer-search-modes.hh"
 #include "lbg-interface.hh"
@@ -25,6 +26,7 @@
 
 %template(vector_string) std::vector<std::string>;
 %template(vector_atom_spec) std::vector<coot::atom_spec_t>;
+%template(pairbf) std::pair<bool, float>;
 
 
 #include "globjects.h"  //includes gtk/gtk.h
@@ -42,6 +44,7 @@
 %include "c-interface-database.hh"
 %include "c-interface-python.hh"
 %include "c-interface-ligands-swig.hh"
+%include "c-interface-mogul.hh"
 %include "manipulation-modes.hh"
 %include "rotamer-search-modes.hh"
 %include "lbg-interface.hh"

@@ -929,6 +929,8 @@ void hydrogenate_region(float radius) {
    if (pp.first) {
       int imol = pp.second.first;
       coot::residue_spec_t central_residue(pp.second.second);
+      std::cout << "----------- hydrogenating " << central_residue
+		<< " in " << imol << std::endl;
       std::vector<coot::residue_spec_t> v =
 	 graphics_info_t::molecules[imol].residues_near_residue(pp.second.second, radius);
       v.push_back(central_residue);

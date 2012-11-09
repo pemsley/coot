@@ -113,12 +113,39 @@ int update_restraints_using_undefined_function(int imol, const char *chain_id, i
 
 void show_mogul_geometry_dialog(const coot::mogul &m) {
 
-   GtkWidget *w = wrapped_create_mogul_geometry_dialog(m);
-   if (w)
-      gtk_widget_show(w);
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      GtkWidget *w = wrapped_create_mogul_geometry_dialog(m);
+      if (w)
+	 gtk_widget_show(w);
+   }
 }
 
-GtkWidget *wrapped_create_mogul_geometry_dialog(const coot::mogul &m) {
+GtkCellRenderer *
+coot::mogul_results_add_cell_renderer(GtkTreeView *tree_view,
+				      GtkTreeStore *tree_store,
+				      const std::string &column_title,
+				      int pos,
+				      int tree_type) {
+   
+   GtkCellRenderer *cell_renderer = gtk_cell_renderer_text_new();
+   GtkTreeViewColumn *column = gtk_tree_view_column_new();
+   gtk_tree_view_column_set_title(column, column_title.c_str());
+   gtk_tree_view_append_column(tree_view, column);
+   gtk_tree_view_column_pack_start(column, cell_renderer, TRUE);
+   gtk_tree_view_column_add_attribute(column, cell_renderer, "text", pos);
+
+   gtk_tree_view_column_set_sort_column_id(column, pos);
+
+   char *s = new char[column_title.length() + 1];
+   strcpy(s, column_title.c_str());
+   g_object_set_data (G_OBJECT (cell_renderer), "column", GINT_TO_POINTER (pos));
+   g_object_set_data (G_OBJECT (cell_renderer), "tree_type", GINT_TO_POINTER (tree_type));
+   return cell_renderer;
+}
+
+
+GtkWidget
+*wrapped_create_mogul_geometry_dialog(const coot::mogul &m) {
 
    GtkWidget *w = create_mogul_geometry_dialog();
    // fill w here.
@@ -132,9 +159,43 @@ GtkWidget *wrapped_create_mogul_geometry_dialog(const coot::mogul &m) {
 // 							G_TYPE_FLOAT, // value from model
 // 							G_TYPE_FLOAT, // median
 // 							G_TYPE_FLOAT, // std_dev
-
 // 							);
 
+   // We want to see: atom-name-1 atom-name-2 value mean median std-dev z
+   // 
+   GtkTreeStore *tree_store_bonds = gtk_tree_store_new(7, G_TYPE_STRING, G_TYPE_STRING,
+						       G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT,
+						       G_TYPE_FLOAT, G_TYPE_FLOAT);
+   GtkWidget *bonds_treeview = lookup_widget(w, "mogul_bonds_treeview");
+   GtkTreeView *tv_bonds = GTK_TREE_VIEW(bonds_treeview);
+   gtk_tree_view_set_model(tv_bonds, GTK_TREE_MODEL(tree_store_bonds));
+   GtkTreeIter   toplevel;
+   
+   for (unsigned int i=0; i<m.n_items(); i++) { 
+      const coot::mogul_item &item = m[i];
+      if (item.type == coot::mogul_item::BOND) {
+	 gtk_tree_store_append(tree_store_bonds, &toplevel, NULL);
+	 gtk_tree_store_set(tree_store_bonds, &toplevel,
+			    0, "first-atom-name",
+			    1, "second-atom-name",
+			    2, m[i].value,
+			    3, m[i].mean,
+			    4, m[i].median,
+			    4, m[i].std_dev,
+			    4, m[i].z,
+			    -1);
+      }
+   }
+
+   int tree_type = 0; // coot::mogul::TREE_TYPE_BONDS;
+   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Atom Name 1", 0, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Atom Name 2", 1, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Value",       2, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Mean",        3, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Mean",        4, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "ESD",         5, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "z",           6, tree_type);
+   
    return w;
 }
 
