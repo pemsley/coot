@@ -18,7 +18,7 @@
 
 (define *java-command* "java")  ;; what else would it be?
 
-(define *jligand-jar* (append-dir-file *jligand-home* "jligand.jar"))
+(define *jligand-jar* (append-dir-file *jligand-home* "JLigand.jar"))
 (define *jligand-args* (list "-jar" *jligand-jar* "-coot"))  ;; for coot-enable jligand
 
 ;; jligand internal parameter
