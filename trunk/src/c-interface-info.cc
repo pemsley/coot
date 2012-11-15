@@ -939,8 +939,15 @@ void hydrogenate_region(float radius) {
       if (new_mol) {
 
 	 coot::util::create_directory("coot-molprobity"); // exists already maybe? Handled.
-	 std::string pdb_in =  "coot-molprobity/hydrogenate-region-in.pdb";
-	 std::string pdb_out = "coot-molprobity/hydrogenate-region-out.pdb";
+
+	 std::string name_part = graphics_info_t::molecules[imol].Refmac_name_stub() + ".pdb";
+	 
+	 std::string pdb_in_file_name  = "hydrogenate-region-in-"  + name_part;
+	 std::string pdb_out_file_name = "hydrogenate-region-out-" + name_part;
+	 
+	 std::string pdb_in =  coot::util::append_dir_file("coot-molprobity", pdb_in_file_name);
+	 std::string pdb_out = coot::util::append_dir_file("coot-molprobity", pdb_out_file_name);
+	 
 	 new_mol->WritePDBASCII(pdb_in.c_str());
 	 
 	 if (graphics_info_t::prefer_python) {

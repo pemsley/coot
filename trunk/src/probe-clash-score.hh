@@ -28,6 +28,50 @@ namespace coot {
 	    }
 	 }
       }
+      probe_atom_spec_t() : atom_spec_t() {}
+   };
+
+   class one_way_probe_contact_t {
+   public:
+      probe_atom_spec_t from_atom;
+      std::vector<probe_atom_spec_t> to_atoms;
+      one_way_probe_contact_t(const probe_atom_spec_t &spec) {
+	 from_atom = spec;
+      }
+      unsigned int size() const { return to_atoms.size(); }
+      void add(const probe_atom_spec_t &spec) {
+	 std::vector<probe_atom_spec_t>::const_iterator it;
+	 it = std::find(to_atoms.begin(), to_atoms.end(), spec);
+	 if (it == to_atoms.end()) {
+	    to_atoms.push_back(spec);
+	 }
+      }
+   };
+
+   class one_way_probe_contact_container_t {
+   public:
+      std::vector<one_way_probe_contact_t> contacts;
+      void add(const probe_atom_spec_t &from_atom,
+	       const probe_atom_spec_t &to_atom) {
+	 bool found = false;
+	 for (unsigned int i=0; i<contacts.size(); i++) { 
+	    if (contacts[i].from_atom == from_atom) {
+	       contacts[i].add(to_atom);
+	       found = true;
+	    }
+	 }
+	 if (! found) {
+	    one_way_probe_contact_t new_contact(from_atom);
+	    new_contact.add(to_atom);
+	    contacts.push_back(new_contact);
+	 }
+      }
+      unsigned int size() const {
+	 unsigned int s = 0;
+	 for (unsigned int i=0; i<contacts.size(); i++)
+	    s += contacts[i].size();
+	 return s;
+      }
    };
 
    class probe_clash_score_t {
@@ -57,6 +101,10 @@ namespace coot {
       } 
    };
 }
+
+
+SCM probe_clash_score_scm(const std::string &dots_file_name);
+
 
 
 #endif // PROBE_CLASH_SCORE_HH
