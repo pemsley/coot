@@ -21,6 +21,7 @@
 #include "rotamer-search-modes.hh"
 #include "lbg-interface.hh"
 #include "sdf-interface.hh"
+#include "probe-clash-score.hh"
 %}
 
 
@@ -49,3 +50,4 @@
 %include "rotamer-search-modes.hh"
 %include "lbg-interface.hh"
 %include "sdf-interface.hh"
+%include "probe-clash-score.hh"

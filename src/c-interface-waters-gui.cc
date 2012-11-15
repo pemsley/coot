@@ -198,7 +198,7 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 	    lig.import_map_from(g.molecules[imol_for_map].xmap_list[0], 
 				g.molecules[imol_for_map].map_sigma());
 	    // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
-	    lig.set_map_atom_mask_radius(1.9); // Angstroms
+	    lig.set_map_atom_mask_radius(1.9); // Angstrom
 	    lig.mask_map(g.molecules[imol_model].atom_sel.mol, mask_waters_flag);
 	    std::cout << "using sigma cut off " << sigma_cut_off << std::endl;
 
