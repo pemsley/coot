@@ -12,7 +12,7 @@
 #include "interface.h"
 
 void
-undefined_function_markup(int imol, const char *chain_id, int res_no, const char *ins_code, const char *mogul_out_file_name) {
+mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, const char *mogul_out_file_name) {
 
    coot::mogul m;
    m.parse(mogul_out_file_name);
@@ -25,7 +25,7 @@ undefined_function_markup(int imol, const char *chain_id, int res_no, const char
 	 std::cout << "WARNING:: no such residue" << std::endl;
       } else { 
 	 if (m.n_items() > 0) {
-	    show_mogul_geometry_dialog(m);
+	    show_mogul_geometry_dialog(m, residue_p);
 	    int new_obj = new_generic_object_number("Mogul Validation");
 	    PPCAtom residue_atoms = 0;
 	    int n_residue_atoms;
@@ -94,8 +94,8 @@ undefined_function_markup(int imol, const char *chain_id, int res_no, const char
 // residue to get the atom order).  The restraints can then apply to
 // all residues of that type.
 // 
-int update_restraints_using_undefined_function(int imol, const char *chain_id, int res_no, const char *ins_code,
-					       const char *monomer_type, const char *mogul_out_file_name) {
+int update_restraints_using_mogul(int imol, const char *chain_id, int res_no, const char *ins_code,
+				  const char *monomer_type, const char *mogul_out_file_name) {
 
    int s = 0;
    graphics_info_t g;
@@ -111,10 +111,10 @@ int update_restraints_using_undefined_function(int imol, const char *chain_id, i
    return s;
 }
 
-void show_mogul_geometry_dialog(const coot::mogul &m) {
+void show_mogul_geometry_dialog(const coot::mogul &m, CResidue *residue) {
 
    if (graphics_info_t::use_graphics_interface_flag) { 
-      GtkWidget *w = wrapped_create_mogul_geometry_dialog(m);
+      GtkWidget *w = wrapped_create_mogul_geometry_dialog(m, residue);
       if (w)
 	 gtk_widget_show(w);
    }
@@ -145,57 +145,72 @@ coot::mogul_results_add_cell_renderer(GtkTreeView *tree_view,
 
 
 GtkWidget
-*wrapped_create_mogul_geometry_dialog(const coot::mogul &m) {
+*wrapped_create_mogul_geometry_dialog(const coot::mogul &m, CResidue *residue) {
 
    GtkWidget *w = create_mogul_geometry_dialog();
-   // fill w here.
 
-   GtkTreeView *mogul_bonds_treeview    = GTK_TREE_VIEW(lookup_widget(w, "mogul_bonds_treeview"));
-   GtkTreeView *mogul_angles_treeview   = GTK_TREE_VIEW(lookup_widget(w, "mogul_angles_treeview"));
-   GtkTreeView *mogul_torsions_treeview = GTK_TREE_VIEW(lookup_widget(w, "mogul_torsions_treeview"));
+   if (residue) { 
 
-//    GtkTreeStore *tree_store_atoms = gtk_tree_store_new (,
-// 							G_TYPE_STRING, G_TYPE_STRING, // atom names
-// 							G_TYPE_FLOAT, // value from model
-// 							G_TYPE_FLOAT, // median
-// 							G_TYPE_FLOAT, // std_dev
-// 							);
+      // fill w here.
 
-   // We want to see: atom-name-1 atom-name-2 value mean median std-dev z
-   // 
-   GtkTreeStore *tree_store_bonds = gtk_tree_store_new(7, G_TYPE_STRING, G_TYPE_STRING,
-						       G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT,
-						       G_TYPE_FLOAT, G_TYPE_FLOAT);
-   GtkWidget *bonds_treeview = lookup_widget(w, "mogul_bonds_treeview");
-   GtkTreeView *tv_bonds = GTK_TREE_VIEW(bonds_treeview);
-   gtk_tree_view_set_model(tv_bonds, GTK_TREE_MODEL(tree_store_bonds));
-   GtkTreeIter   toplevel;
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue->GetAtomTable(residue_atoms, n_residue_atoms);
+      
+      GtkTreeView *mogul_bonds_treeview    = GTK_TREE_VIEW(lookup_widget(w, "mogul_bonds_treeview"));
+      GtkTreeView *mogul_angles_treeview   = GTK_TREE_VIEW(lookup_widget(w, "mogul_angles_treeview"));
+      GtkTreeView *mogul_torsions_treeview = GTK_TREE_VIEW(lookup_widget(w, "mogul_torsions_treeview"));
+
+      //    GtkTreeStore *tree_store_atoms = gtk_tree_store_new (,
+      // 							G_TYPE_STRING, G_TYPE_STRING, // atom names
+      // 							G_TYPE_FLOAT, // value from model
+      // 							G_TYPE_FLOAT, // median
+      // 							G_TYPE_FLOAT, // std_dev
+      // 							);
+
+      // We want to see: atom-name-1 atom-name-2 value mean median std-dev z
+      // 
+      GtkTreeStore *tree_store_bonds = gtk_tree_store_new(7, G_TYPE_STRING, G_TYPE_STRING,
+							  G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT,
+							  G_TYPE_FLOAT, G_TYPE_FLOAT);
+      GtkWidget *bonds_treeview = lookup_widget(w, "mogul_bonds_treeview");
+      GtkTreeView *tv_bonds = GTK_TREE_VIEW(bonds_treeview);
+      gtk_tree_view_set_model(tv_bonds, GTK_TREE_MODEL(tree_store_bonds));
+      GtkTreeIter   toplevel;
    
-   for (unsigned int i=0; i<m.n_items(); i++) { 
-      const coot::mogul_item &item = m[i];
-      if (item.type == coot::mogul_item::BOND) {
-	 gtk_tree_store_append(tree_store_bonds, &toplevel, NULL);
-	 gtk_tree_store_set(tree_store_bonds, &toplevel,
-			    0, "first-atom-name",
-			    1, "second-atom-name",
-			    2, m[i].value,
-			    3, m[i].mean,
-			    4, m[i].median,
-			    4, m[i].std_dev,
-			    4, m[i].z,
-			    -1);
+      for (unsigned int i=0; i<m.n_items(); i++) {
+	 const coot::mogul_item &item = m[i];
+	 if (item.type == coot::mogul_item::BOND) {
+	    int idx_1 = m[i].idx_1-1;
+	    int idx_2 = m[i].idx_2-1;
+	    CAtom *at_1 = residue_atoms[idx_1];
+	    CAtom *at_2 = residue_atoms[idx_2];
+	    std::string atom_name_1 = at_1->name;
+	    std::string atom_name_2 = at_2->name;
+	 
+	    gtk_tree_store_append(tree_store_bonds, &toplevel, NULL);
+	    gtk_tree_store_set(tree_store_bonds, &toplevel,
+			       0, atom_name_1.c_str(),
+			       1, atom_name_2.c_str(),
+			       2, m[i].value,
+			       3, m[i].mean,
+			       4, m[i].median,
+			       5, m[i].std_dev,
+			       6, m[i].z,
+			       -1);
+	 }
       }
-   }
 
-   int tree_type = 0; // coot::mogul::TREE_TYPE_BONDS;
-   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Atom Name 1", 0, tree_type);
-   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Atom Name 2", 1, tree_type);
-   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Value",       2, tree_type);
-   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Mean",        3, tree_type);
-   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Mean",        4, tree_type);
-   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "ESD",         5, tree_type);
-   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "z",           6, tree_type);
+      int tree_type = 0; // coot::mogul::TREE_TYPE_BONDS;
+      coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Atom Name 1", 0, tree_type);
+      coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Atom Name 2", 1, tree_type);
+      coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Value",       2, tree_type);
+      coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Mean",        3, tree_type);
+      coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Median",      4, tree_type);
+      coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "ESD",         5, tree_type);
+      coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "z",           6, tree_type);
+
+   }
    
    return w;
 }
-

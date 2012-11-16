@@ -54,6 +54,8 @@
 #include "coot-coord-utils.hh"
 #include "peak-search.hh"
 
+// #include "coot-compare-residues.hh"
+
 #include "wligand.hh"
 
 #include "guile-fixups.h"
@@ -661,7 +663,8 @@ execute_ligand_search_internal() {
       }
 
       if (nlc > 12) nlc = 12; // arbitrary limit of max 12 solutions per cluster
-      wlig.limit_solutions(iclust, correl_frac_lim, nlc);
+      float tolerance = 20.0;
+      wlig.limit_solutions(iclust, correl_frac_lim, nlc, tolerance, true);
 			   
       for (unsigned int isol=0; isol<nlc; isol++) { 
 
@@ -2195,3 +2198,67 @@ new_molecule_sans_biggest_ligand(int imol) {
 
 
 					      
+#ifdef USE_GUILE
+bool
+residues_torsions_match_scm(int imol_1, SCM res_1,
+			    int imol_2, SCM res_2,
+			    float tolerance) {
+
+   bool r = false;
+
+   graphics_info_t g;
+   if (is_valid_model_molecule(imol_1)) {
+      if (is_valid_model_molecule(imol_2)) {
+	 coot::residue_spec_t rs1 = residue_spec_from_scm(res_1);
+	 coot::residue_spec_t rs2 = residue_spec_from_scm(res_2);
+	 if (!rs1.unset_p() && !rs2.unset_p()) {
+	    CResidue *r_1 = g.molecules[imol_1].get_residue(rs1);
+	    CResidue *r_2 = g.molecules[imol_2].get_residue(rs2);
+	    if (r_1 && r_2) {
+	       CMMDBManager *mol1 = g.molecules[imol_1].atom_sel.mol;
+	       CMMDBManager *mol2 = g.molecules[imol_2].atom_sel.mol;
+// 	       r = coot::compare_residue_torsions(mol1, r_1,
+// 						  mol2, r_2,
+// 						  tolerance,
+// 						  g.Geom_p());
+	    }
+	 }
+      }
+   }
+   return r;
+}
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+bool
+residues_torsions_match_py(int imol_1, PyObject *res_1,
+			   int imol_2, PyObject *res_2,
+			   float tolerance) {
+
+   bool r = false;
+
+   graphics_info_t g;
+   if (is_valid_model_molecule(imol_1)) {
+      if (is_valid_model_molecule(imol_2)) {
+	 coot::residue_spec_t rs1 = residue_spec_from_py(res_1);
+	 coot::residue_spec_t rs2 = residue_spec_from_py(res_2);
+	 if (!rs1.unset_p() && !rs2.unset_p()) {
+	    CResidue *r_1 = g.molecules[imol_1].get_residue(rs1);
+	    CResidue *r_2 = g.molecules[imol_2].get_residue(rs2);
+	    if (r_1 && r_2) {
+	       CMMDBManager *mol1 = g.molecules[imol_1].atom_sel.mol;
+	       CMMDBManager *mol2 = g.molecules[imol_2].atom_sel.mol;
+// 	       r = coot::compare_residue_torsions(mol1, r_1,
+// 						  mol2, r_2,
+// 						  tolerance,
+// 						  g.Geom_p());
+	    }
+	 }
+      }
+   } 
+   return r;
+}
+#endif // USE_PYTHON
+
+
+

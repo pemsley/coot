@@ -4410,7 +4410,8 @@ handle_map_colour_change(int imol, gdouble* map_col) {
    graphics_draw();
 }
 
-void set_last_map_colour(double f1, double f2, double f3) { 
+void set_last_map_colour(double f1, double f2, double f3) {
+
    graphics_info_t g;
    g.set_last_map_colour(f1, f2, f3);
 }

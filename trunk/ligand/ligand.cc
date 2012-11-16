@@ -2004,7 +2004,8 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
 
    
    if (1) {
-      std::cout << "------------------ " << final_ligand[iclust].size() << " solutions for cluster "
+      std::cout << "------------------ " << final_ligand[iclust].size()
+		<< " solutions for cluster "
 		<< iclust << " ------------- " << std::endl;
       for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
 	 std::cout << "post correl " << isol << " of "
@@ -2035,7 +2036,9 @@ coot::ligand::get_correl(const minimol::molecule &lig_mol) const {
 void
 coot::ligand::limit_solutions(unsigned int iclust,
 			      float frac_max_correl_lim,
-			      int max_n_solutions) {
+			      int max_n_solutions,
+			      float tolerance,
+			      bool filter_by_torsion_match) { // false
 
    unsigned int pre_erase_size = final_ligand[iclust].size();
    if (final_ligand[iclust].size()) {
@@ -2048,7 +2051,26 @@ coot::ligand::limit_solutions(unsigned int iclust,
 				 final_ligand[iclust].end());
    }
 
-   if (0)
+   if (filter_by_torsion_match) {
+      // make a vector of final solution CResidues:
+      std::vector<std::pair<CResidue *, CMMDBManager *>  >
+	 final_solution_residues(final_ligand[iclust].size());
+      for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
+	 CMMDBManager *mol = get_solution(iclust, i).pcmmdbmanager();
+	 if (mol) {
+	    CResidue *r = util::get_first_residue(mol);
+	    if (r) {
+	       std::pair<CResidue *, CMMDBManager *> p(r, mol);
+	       final_solution_residues[i] = p;
+	    }
+	 }
+      }
+
+      // now we have the vector, let's test for similar
+   }
+      
+
+   if (1)
       for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
 	 std::cout << "limit solutions: " << isol << " of "
 		   << final_ligand[iclust].size() << " "

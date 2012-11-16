@@ -170,9 +170,13 @@ namespace coot {
 
       // we need this if atom_spec_t are used in a std::map.
       bool operator<(const atom_spec_t &matcher) const {
+	 if (matcher.empty())
+	    return false; 
+	 if (empty())
+	    return true; 
 	 if (matcher.model_number < model_number) {
 	    return true;
-	 } else { 
+	 } else {
 	    if (matcher.chain < chain) {
 	       return true;
 	    } else { 
