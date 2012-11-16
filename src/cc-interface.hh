@@ -787,6 +787,9 @@ overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref
 
 Don't search the density.
 
+//! \name Extra Ligand Functions
+//! \{
+
 Return a list of new molecule numbers */
 SCM ligand_search_make_conformers_scm();
 #endif 
@@ -796,6 +799,8 @@ PyObject *ligand_search_make_conformers_py();
 #endif
 
 std::vector<int> ligand_search_make_conformers_internal();
+
+//! \}
 
 /*  ----------------------------------------------------------------------- */
 //                  animated ligand interactions
@@ -879,6 +884,7 @@ CMMDBManager *new_molecule_by_symmetry_matrix_from_molecule(CMMDBManager *mol,
 /*                  LIBCURL/Download                                        */
 /*  ----------------------------------------------------------------------- */
 #ifdef USE_LIBCURL
+// return 0 on success.
 int coot_get_url(const char *url, const char *file_name);
 int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name, short int do_hook_flag);
 #ifdef USE_GUILE
@@ -963,6 +969,9 @@ std::string untangle_mmdb_chain_id_string(const std::string &mmdb_chain_id_in);
 /*               Return Rotamer score (don't touch the model)               */
 /*  ----------------------------------------------------------------------- */
 
+//! \name Rotamer Scoring
+//! \{
+
 std::vector<coot::named_rotamer_score> score_rotamers(int imol, 
 						      const char *chain_id, 
 						      int res_no, 
@@ -1000,6 +1009,7 @@ PyObject *score_rotamers_py(int imol,
 			    float lowest_probability);
 #endif
 
+//! \}
 
 /*  ----------------------------------------------------------------------- */
 /*               Use Cowtan's protein_db to discover loops                  */
@@ -1080,6 +1090,9 @@ int handle_drag_and_drop_string(const std::string &uri);
 /*                      correlation maps                                     */
 /* ------------------------------------------------------------------------- */
 
+//! \name Map to Model Correlation
+//! \{
+
 #ifdef USE_GUILE
 SCM map_to_model_correlation_scm(int imol, SCM residue_specs,
 				 unsigned short int atom_mask_mode,
@@ -1120,6 +1133,9 @@ PyObject *map_to_model_correlation_per_residue_py(int imol, PyObject *residue_sp
 						  unsigned short int atom_mask_mode,
 						  int imol_map);
 #endif
+
+//! \}
+
 
 /* ------------------------------------------------------------------------- */
 /*                      prodrg import function                               */

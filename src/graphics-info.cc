@@ -3868,13 +3868,16 @@ graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const {
       colours[0] = f1;
       colours[1] = f2;
       colours[2] = f3;
-      molecules[imap].handle_map_colour_change(colours, swap_difference_map_colours,
-					       GL_CONTEXT_MAIN);
-      if (display_mode_use_secondary_p()) {
-	 make_gl_context_current(GL_CONTEXT_SECONDARY);
+
+      if (use_graphics_interface_flag) { 
 	 molecules[imap].handle_map_colour_change(colours, swap_difference_map_colours,
-					       GL_CONTEXT_SECONDARY);
-	 make_gl_context_current(GL_CONTEXT_MAIN);
+						  GL_CONTEXT_MAIN);
+	 if (display_mode_use_secondary_p()) {
+	    make_gl_context_current(GL_CONTEXT_SECONDARY);
+	    molecules[imap].handle_map_colour_change(colours, swap_difference_map_colours,
+						     GL_CONTEXT_SECONDARY);
+	    make_gl_context_current(GL_CONTEXT_MAIN);
+	 }
       } 
       delete [] colours;
    }

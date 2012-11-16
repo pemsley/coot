@@ -600,7 +600,9 @@ namespace coot {
       // this should only be run post-sort (post-correlation sort)
       void limit_solutions(unsigned int iclust,
 			   float frac_max_correl_lim,
-			   int max_n_solutions);
+			   int max_n_solutions,
+			   float tolerance=0.0,
+			   bool filter_by_torsion_match=false);
 
       // This list of peaks above a particular level (and one day
       // optionally below the same but negative level):

@@ -96,7 +96,13 @@
   ;; the exe and log-file-name (and command-lines-args perhaps)
   ;; relative to dir (not the calling dir)
   ;; 
+  ;; 
+
   (define (run-command-in-dir dir exe-name command-lines-args data-lines log-file-name to-screen-flag)
+
+    (format #t "run-command-in-dir args: ~s ~s ~s ~s ~s ~s~%" 
+	    dir exe-name command-lines-args data-lines log-file-name to-screen-flag)
+
     (let ((current (getcwd)))
       (chdir dir)
       (let ((status 

@@ -15,11 +15,12 @@ namespace coot {
 	    std::string atom_name_local = s.substr(11, 4);
 	    try {
 	       int resno_local = coot::util::string_to_int(res_no_str);
-	       if (chain_local[0] == ' ')
+	       if (chain_local[0] == ' ') { 
 		  if (chain_local.length() > 1)
 		     chain = std::string(chain_local.substr(1));
-	       else 
+	       } else { 
 		  chain = chain_local;
+	       }
 	       resno = resno_local;
 	       atom_name = atom_name_local;
 	    }
@@ -89,7 +90,8 @@ namespace coot {
    }; 
 
    
-   // couldn't get this to work - so I did it long hand.
+   // couldn't get this to work - so I did by another method.
+   // deleteable cruft.
    class spec_eraser {
    public:
       std::map<std::pair<probe_atom_spec_t, probe_atom_spec_t>, bool> ref_specs;
@@ -103,8 +105,11 @@ namespace coot {
 }
 
 
+//! \brief return scheme false on failure or a scheme list
+// (n_bad_overlaps n_hydrogen_bonds n_small_overlaps n_close_contacts
+// n_wide_contacts)
+// 
 SCM probe_clash_score_scm(const std::string &dots_file_name);
-
 
 
 #endif // PROBE_CLASH_SCORE_HH

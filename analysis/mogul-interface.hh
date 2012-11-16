@@ -8,6 +8,8 @@
 
 #include "protein-geometry.hh"
 
+// at some stage check that the coot:: prefixes are needed here.
+
 namespace coot {
 
    // this can throw a std::runtime_error

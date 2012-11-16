@@ -343,7 +343,7 @@ void handle_read_draw_probe_dots(const char *dots_file) {
       if ( dots == NULL ) { 
 	 std::cout << "handle_read_draw_probe_dots  - Could not read: "
 		   << dots_file << std::endl;
-	 fclose(dots);
+	 // fclose(dots);
       } else {
 
 	 // clear up what probe contacts/overlaps we already have:
@@ -363,9 +363,10 @@ void handle_read_draw_probe_dots(const char *dots_file) {
 	 }
 	 
 	 int n_lines = 0;
-	 int n_points = 0;	 std::string current_colour = "blue"; // should be reset.
+	 int n_points = 0;
+	 std::string current_colour = "blue"; // should be reset.
+	 std::string current_name   = "Unassigned";
 	 int obj_no = number_of_generic_objects();
-	 std::string current_name = "Unassigned";
 	 
 	 char line[240];
 	 char s[240];
