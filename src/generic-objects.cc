@@ -446,7 +446,7 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
       if ( dots == NULL ) { 
 	 std::cout << "handle_read_draw_probe_dots  - Could not read: "
 		   << dots_file << std::endl;
-	 fclose(dots);
+	 // fclose(dots);
       } else {
 
 	 // clear up what probe contacts/overlaps we already have:
