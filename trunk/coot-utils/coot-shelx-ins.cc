@@ -494,38 +494,30 @@ coot::ShelxIns::read_file(const std::string &filename) {
 //       if (symm_vec.size() > 0)
 // 	 symmetry_ops = "X,Y,Z ; ";
 
-      for (unsigned int isym=0; isym<symm_vec.size(); isym++) {
-	 // std::cout << symm_vec[isym] << std::endl;
-	 symm_card_composition_t sc(symm_vec[isym]);
-      }
-
 	 
       for (unsigned int isym=0; isym<cs.size(); isym++) { 
  	 symmetry_ops += cs[isym];
 	 symmetry_ops += " ; ";
       }
       if (symmetry_ops != "") {
- 	 // std::cout << "DEBUG:: initing spacegroup with " << symmetry_ops << std::endl;
 
-	 bool spacegroup_ok = 1;
+	 bool spacegroup_ok = true;
 	 try {
 	    space_group.init(clipper::Spgr_descr(symmetry_ops, clipper::Spgr_descr::Symops));
 	 } catch ( clipper::Message_base exc ) {
 	    std::cout << "Oops, trouble.  No such spacegroup\n";
-	    spacegroup_ok = 0;
+	    spacegroup_ok = false;
 	 }
 
 	 if (spacegroup_ok) {
-
-	    std::cout << "INFO:: set space group to :" << space_group.descr().symbol_hm()
-		      << ":" << std::endl;
-	    // mol->SetSpaceGroup((char *)space_group.descr().symbol_hm().c_str());
-	    cpstr sg = space_group.descr().symbol_hm().c_str();
+	    std::cout << "INFO:: set space group to \"" << space_group.descr().symbol_xhm() << "\""
+		      << std::endl;
+	    cpstr sg = space_group.descr().symbol_xhm().c_str();
 	    mol->SetSpaceGroup(sg);
 	    char *spg = mol->GetSpaceGroup();
 	    if (spg) { 
 	       std::string sgrp(spg);
-	       std::cout << "READ-INS:: Spacegroup: " << sgrp << "\n";
+	       std::cout << "READ-INS:: Spacegroup: \"" << sgrp << "\"\n";
 	    } else {
 	       std::cout << "READ-INS:: No Spacegroup found in res file\n";
 	       // Is that because mmdb doesn't know about SYMINFO?
@@ -1781,9 +1773,6 @@ coot::symm_card_composition_t::symm_cards_from_lat(int latt) {
       t.add_centering_frac(latt_additions[i][0],
 			   latt_additions[i][1],
 			   latt_additions[i][2]);
-
-//       std::cout << "centring gives card: "
-// 		<< t.symm_card() << std::endl;
       r.push_back(t.symm_card());
       if (latt>0) {
 	 symm_card_composition_t it = *this;
