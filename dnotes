@@ -6910,13 +6910,6 @@ Tue Sep 18 20:55:39 BST 2012
   movement of the atoms.
 
 
----
-Tue Nov 13 15:46:06 GMT 2012
-
-   2xkm is problematic when reading/converting the data.
-
-
-
 ----
 Fri Oct 26 14:07:13 EDT 2012
 
@@ -6938,6 +6931,31 @@ For presentation next time:
      introduce probability and likelihood 
    
 Does zero-occupancy-residue-range work?
+
+
+---
+Tue Nov 13 15:46:06 GMT 2012
+
+   2xkm is problematic when reading/converting the data.
+
+
+---
+Tue Nov 20 10:27:38 GMT 2012
+
+	
+   Phil Evans:
+
+mutate then refine
+
+INFO:: backup file coot-backup/_Users_PhilStuff_Projects_Varp_InmaVR_VR32_SeMet2_s13.pdb_Mon_Nov_19_13:45:35_2012_modification_123.pdb.gz
+INFO:: replace_coords: 24 atoms updated.
+ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode
+ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode
+ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode
+ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode
+ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode
+ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode
+INFO:: graphics_info_t::clear_up_moving_atoms...
 
 
 ------
