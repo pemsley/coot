@@ -4670,3 +4670,68 @@ PyObject *residue_centre_py(int imol, const char *chain_id, int resno, const cha
 } 
 
 #endif
+
+
+#ifdef USE_GUILE
+SCM link_info_scm(int imol) {
+
+   SCM r = SCM_EOL;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      if (mol) {
+
+	 for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+
+	    CModel *model_p = mol->GetModel(imod);
+	    int n_links = model_p->GetNumberOfLinks();
+	    if (n_links > 0) { 
+	       for (int i_link=1; i_link<=n_links; i_link++) {
+		  PCLink link = model_p->GetLink(i_link);
+
+		  std::pair<coot::atom_spec_t, coot::atom_spec_t> atoms = coot::link_atoms(link);
+		  SCM l = scm_list_3(SCM_MAKINUM(imod),
+				     atom_spec_to_scm(atoms.first),
+				     atom_spec_to_scm(atoms.second));
+		  r = scm_cons(l,r);
+	       }
+	    }
+	 }
+	 r = scm_reverse(r);
+      }
+   }
+   return r;
+}
+
+#endif 
+
+
+
+
+#ifdef USE_PYTHON
+PyObject *link_info_py(int imol) {
+
+   PyObject *r = PyList_New(0);
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      if (mol) {
+	 for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	    CModel *model_p = mol->GetModel(imod);
+	    int n_links = model_p->GetNumberOfLinks();
+	    if (n_links > 0) { 
+	       for (int i_link=1; i_link<=n_links; i_link++) {
+		  PCLink link = model_p->GetLink(i_link);
+		  std::pair<coot::atom_spec_t, coot::atom_spec_t> atoms = coot::link_atoms(link);
+		  PyObject *l = PyList_New(3);
+		  PyList_SetItem(l, 0, PyInt_FromLong(imod));
+		  PyList_SetItem(l, 1, atom_spec_to_py(atoms.first));
+		  PyList_SetItem(l, 2, atom_spec_to_py(atoms.second));
+		  PyList_Append(r, l);
+	       }
+	    }
+	 }
+      }
+   }
+   return r;
+}
+
+#endif 

@@ -2,6 +2,8 @@
 #ifndef PROBE_CLASH_SCORE_HH
 #define PROBE_CLASH_SCORE_HH
 
+#include "coot-coord-utils.hh"
+
 namespace coot {
 
    // " B  72 CYS  HG A: B  53 HIS  H   "
