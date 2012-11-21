@@ -6910,3 +6910,4 @@ coot::arc_info_type::arc_info_type(CAtom *at_1, CAtom *at_2, CAtom *at_3) {
    // start to end needs to go backwards
    
 }
+

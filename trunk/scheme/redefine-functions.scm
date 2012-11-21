@@ -93,4 +93,6 @@
 (define map-to-model-correlation-per-residue map-to-model-correlation-per-residue-scm)
 (define het-group-residues het-group-residues-scm)
 (define score-rotamers score-rotamers-scm)
+(define link-info link-info-scm)
+
 
