@@ -27868,6 +27868,7 @@ create_mogul_geometry_dialog (void)
   GtkWidget *button36;
 
   mogul_geometry_dialog = gtk_dialog_new ();
+  gtk_widget_set_size_request (mogul_geometry_dialog, 700, 400);
   gtk_window_set_title (GTK_WINDOW (mogul_geometry_dialog), _("Mogul Results"));
   gtk_window_set_type_hint (GTK_WINDOW (mogul_geometry_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
   gtk_dialog_set_has_separator (GTK_DIALOG (mogul_geometry_dialog), FALSE);

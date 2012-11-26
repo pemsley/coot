@@ -836,6 +836,19 @@ lbg_info_t::remove_bond_and_atom_highlighting() {
       highlight_data.undisplay();
 }
 
+static gboolean
+on_highlight_key_press_event (GooCanvasItem *item,
+			      GooCanvasItem *target,
+			      GdkEventKey *event,
+			      gpointer data)
+{
+  gchar *id = 0;
+  // id = g_object_get_data (G_OBJECT (item), "id");
+  g_print ("%s received key-press event\n", id ? id : "unknown");
+  return FALSE;
+}
+
+
 // set highlight_data
 void
 lbg_info_t::highlight_bond(const lig_build::bond_t &bond, bool delete_mode) {
@@ -858,6 +871,16 @@ lbg_info_t::highlight_bond(const lig_build::bond_t &bond, bool delete_mode) {
 				   "line-width", 7.0,
 				   "stroke-color", col.c_str(),
 				   NULL);
+
+   // a GooCanvasItem is not a GtkWidget
+   //    gtk_widget_set_events(GTK_WIDGET(h_line),
+   // 			 GDK_KEY_PRESS_MASK     |
+   // 			 GDK_KEY_RELEASE_MASK);
+
+
+   g_signal_connect (h_line, "key_press_event",
+		     G_CALLBACK (on_highlight_key_press_event), NULL);
+   
    highlight_data = highlight_data_t(h_line, bond_indices, A, B);
 }
 
@@ -2330,12 +2353,29 @@ lbg_info_t::save_togglebutton_widgets(GtkBuilder *builder) {
    w_names.push_back("iodine_toggle_toolbutton");
    w_names.push_back("other_element_toggle_toolbutton");
    w_names.push_back("delete_item_toggle_toolbutton");
+   // undo and clear, charge, cut, smiles
 
    for (unsigned int i=0; i<w_names.size(); i++) {
       GtkToggleToolButton *tb =
 	 GTK_TOGGLE_TOOL_BUTTON(gtk_builder_get_object (builder, w_names[i].c_str()));
       widget_names[w_names[i]] = tb;
    }
+
+   // hack in 
+   for (unsigned int i=0; i<w_names.size(); i++) {
+
+      
+      GtkToggleToolButton *tb =
+	 GTK_TOGGLE_TOOL_BUTTON(gtk_builder_get_object (builder, w_names[i].c_str()));
+
+      gtk_widget_set_events(GTK_WIDGET(tb),
+			    GDK_KEY_PRESS_MASK     |
+			    GDK_KEY_RELEASE_MASK);
+      
+      g_signal_connect (GTK_OBJECT(tb), "key_press_event",
+			G_CALLBACK (on_highlight_key_press_event), NULL);
+   }
+   
    return TRUE;
 } 
 #endif // GTK_VERSION
@@ -2440,6 +2480,7 @@ lbg_info_t::init(GtkBuilder *builder) {
    } 
 
    canvas = goo_canvas_new();
+   GTK_WIDGET_SET_FLAGS (canvas, GTK_CAN_FOCUS);
 
    if (0) {  // hide rdkit stuff
       GtkWidget *ww = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_qed_and_alert_hbox"));
@@ -2495,6 +2536,10 @@ lbg_info_t::init(GtkBuilder *builder) {
 		       G_CALLBACK(on_canvas_motion_new), NULL);
       
       g_signal_connect(G_OBJECT(canvas),
+		       "key_press_event",
+		       G_CALLBACK(on_lbg_key_press_event), NULL);
+
+      g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
 		       "key_press_event",
 		       G_CALLBACK(on_lbg_key_press_event), NULL);
 
