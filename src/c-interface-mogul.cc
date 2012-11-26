@@ -161,56 +161,317 @@ GtkWidget
       GtkTreeView *mogul_angles_treeview   = GTK_TREE_VIEW(lookup_widget(w, "mogul_angles_treeview"));
       GtkTreeView *mogul_torsions_treeview = GTK_TREE_VIEW(lookup_widget(w, "mogul_torsions_treeview"));
 
-      //    GtkTreeStore *tree_store_atoms = gtk_tree_store_new (,
-      // 							G_TYPE_STRING, G_TYPE_STRING, // atom names
-      // 							G_TYPE_FLOAT, // value from model
-      // 							G_TYPE_FLOAT, // median
-      // 							G_TYPE_FLOAT, // std_dev
-      // 							);
-
-      // We want to see: atom-name-1 atom-name-2 value mean median std-dev z
-      // 
-      GtkTreeStore *tree_store_bonds = gtk_tree_store_new(7, G_TYPE_STRING, G_TYPE_STRING,
-							  G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT,
-							  G_TYPE_FLOAT, G_TYPE_FLOAT);
-      GtkWidget *bonds_treeview = lookup_widget(w, "mogul_bonds_treeview");
-      GtkTreeView *tv_bonds = GTK_TREE_VIEW(bonds_treeview);
-      gtk_tree_view_set_model(tv_bonds, GTK_TREE_MODEL(tree_store_bonds));
-      GtkTreeIter   toplevel;
-   
-      for (unsigned int i=0; i<m.n_items(); i++) {
-	 const coot::mogul_item &item = m[i];
-	 if (item.type == coot::mogul_item::BOND) {
-	    int idx_1 = m[i].idx_1-1;
-	    int idx_2 = m[i].idx_2-1;
-	    CAtom *at_1 = residue_atoms[idx_1];
-	    CAtom *at_2 = residue_atoms[idx_2];
-	    std::string atom_name_1 = at_1->name;
-	    std::string atom_name_2 = at_2->name;
-	 
-	    gtk_tree_store_append(tree_store_bonds, &toplevel, NULL);
-	    gtk_tree_store_set(tree_store_bonds, &toplevel,
-			       0, atom_name_1.c_str(),
-			       1, atom_name_2.c_str(),
-			       2, m[i].value,
-			       3, m[i].mean,
-			       4, m[i].median,
-			       5, m[i].std_dev,
-			       6, m[i].z,
-			       -1);
-	 }
-      }
-
-      int tree_type = 0; // coot::mogul::TREE_TYPE_BONDS;
-      coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Atom Name 1", 0, tree_type);
-      coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Atom Name 2", 1, tree_type);
-      coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Value",       2, tree_type);
-      coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Mean",        3, tree_type);
-      coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Median",      4, tree_type);
-      coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "ESD",         5, tree_type);
-      coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "z",           6, tree_type);
-
+      coot::fill_mogul_bonds_tab(  mogul_bonds_treeview, m, residue);
+      coot::fill_mogul_angles_tab(mogul_angles_treeview, m, residue);
+      coot::fill_mogul_torsions_tab(mogul_torsions_treeview, m, residue);
    }
-   
    return w;
 }
+
+void
+coot::fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview, const coot::mogul &m, CResidue *r) {
+
+   // We want to see: atom-name-1 atom-name-2 value mean median std-dev z
+   // 
+   GtkTreeStore *tree_store_bonds = gtk_tree_store_new(7, G_TYPE_STRING, G_TYPE_STRING,
+						       G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT,
+						       G_TYPE_FLOAT, G_TYPE_FLOAT);
+
+   GtkTreeView *tv_bonds = GTK_TREE_VIEW(mogul_bonds_treeview);
+   gtk_tree_view_set_model(tv_bonds, GTK_TREE_MODEL(tree_store_bonds));
+   GtkTreeIter   toplevel;
+
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   r->GetAtomTable(residue_atoms, n_residue_atoms);
+
+   for (unsigned int i=0; i<m.n_items(); i++) {
+      const coot::mogul_item &item = m[i];
+      if (item.type == coot::mogul_item::BOND) {
+	 int idx_1 = m[i].idx_1-1;
+	 int idx_2 = m[i].idx_2-1;
+	 CAtom *at_1 = residue_atoms[idx_1];
+	 CAtom *at_2 = residue_atoms[idx_2];
+	 std::string atom_name_1 = at_1->name;
+	 std::string atom_name_2 = at_2->name;
+	 
+	 gtk_tree_store_append(tree_store_bonds, &toplevel, NULL);
+	 gtk_tree_store_set(tree_store_bonds, &toplevel,
+			    0, atom_name_1.c_str(),
+			    1, atom_name_2.c_str(),
+			    2, m[i].value,
+			    3, m[i].mean,
+			    4, m[i].median,
+			    5, m[i].std_dev,
+			    6, m[i].z,
+			    -1);
+      }
+   }
+
+   int tree_type = 0; // coot::mogul::TREE_TYPE_BONDS;
+   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Atom 1", 0, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Atom 2", 1, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Value",  2, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Mean",   3, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "Median", 4, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "ESD",    5, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "z",      6, tree_type);
+
+   GtkTreeSelection *sel_bonds = gtk_tree_view_get_selection(GTK_TREE_VIEW(mogul_bonds_treeview));
+   g_signal_connect(sel_bonds,  "changed", (GCallback) coot::on_mogul_bonds_selection_changed,  NULL);
+   coot::mogul *mcp = new coot::mogul(m);
+   coot::minimol::residue *mmres_p = new coot::minimol::residue(r);
+   g_object_set_data(G_OBJECT(sel_bonds), "mogul", mcp); 
+   g_object_set_data(G_OBJECT(sel_bonds), "residue", mmres_p); 
+} 
+
+void
+coot::on_mogul_bonds_selection_changed(GtkTreeSelection *treeselection,
+				       gpointer          user_data) {
+
+   GtkTreeIter  iter;
+   GtkTreeModel *model; 
+   gboolean r = gtk_tree_selection_get_selected(treeselection, &model, &iter);
+   if (r) {
+      gchar *atom_id_1, *atom_id_2;
+      gchar *value, *mean, *median, *esd, *z;
+      coot::mogul *mogul_p = static_cast<mogul *>(g_object_get_data(G_OBJECT(treeselection), "mogul"));
+      coot::minimol::residue *mmres_p = static_cast<minimol::residue *>(g_object_get_data(G_OBJECT(treeselection), "residue"));
+      gtk_tree_model_get(model, &iter,
+			 0, &atom_id_1,
+			 1, &atom_id_2,
+			 2, &value,
+			 3, &mean,
+			 4, &median,
+			 5, &esd,
+			 6, &z,
+			 -1);
+      bool ifound_1 = false;
+      bool ifound_2 = false;
+      clipper::Coord_orth pos_1(1,0,1);
+      clipper::Coord_orth pos_2(0,0,1);
+      double x, y, zz;
+      for (unsigned int i=0; i<mmres_p->n_atoms(); i++) {
+	 const minimol::atom &at = mmres_p->atoms[i];
+	 if (at.name == atom_id_1) {
+	    pos_1 == at.pos;
+	    x  = at.pos.x();
+	    y  = at.pos.y();
+	    zz = at.pos.z();
+	    pos_1 = clipper::Coord_orth(x, y, zz);
+	    ifound_1 = true;
+	 } 
+	 if (at.name == atom_id_2) {
+	    x  = at.pos.x();
+	    y  = at.pos.y();
+	    zz = at.pos.z();
+	    pos_2 = clipper::Coord_orth(x, y, zz);
+	    ifound_2 = true;
+	 } 
+      }
+      if (ifound_1 && ifound_2) {
+	 clipper::Coord_orth p(0.5*(pos_1.x() + pos_2.x()),
+			       0.5*(pos_1.y() + pos_2.y()),
+			       0.5*(pos_1.z() + pos_2.z()));
+	 set_rotation_centre(p.x(), p.y(), p.z());
+      }
+   }
+}
+
+void
+coot::fill_mogul_angles_tab(GtkTreeView *mogul_angles_treeview, const coot::mogul &m, CResidue *r) {
+
+   // We want to see: atom-name-1 atom-name-2 atom-name-3 value mean median std-dev z
+   // 
+   GtkTreeStore *tree_store_angles = gtk_tree_store_new(8, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+							G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT,
+							G_TYPE_FLOAT, G_TYPE_FLOAT);
+
+   GtkTreeView *tv_angles = GTK_TREE_VIEW(mogul_angles_treeview);
+   gtk_tree_view_set_model(tv_angles, GTK_TREE_MODEL(tree_store_angles));
+   GtkTreeIter   toplevel;
+
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   r->GetAtomTable(residue_atoms, n_residue_atoms);
+
+   for (unsigned int i=0; i<m.n_items(); i++) {
+      const coot::mogul_item &item = m[i];
+      if (item.type == coot::mogul_item::ANGLE) {
+	 int idx_1 = m[i].idx_1-1;
+	 int idx_2 = m[i].idx_2-1;
+	 int idx_3 = m[i].idx_3-1;
+	 CAtom *at_1 = residue_atoms[idx_1];
+	 CAtom *at_2 = residue_atoms[idx_2];
+	 CAtom *at_3 = residue_atoms[idx_3];
+	 std::string atom_name_1 = at_1->name;
+	 std::string atom_name_2 = at_2->name;
+	 std::string atom_name_3 = at_3->name;
+	 
+	 gtk_tree_store_append(tree_store_angles, &toplevel, NULL);
+	 gtk_tree_store_set(tree_store_angles, &toplevel,
+			    0, atom_name_1.c_str(),
+			    1, atom_name_2.c_str(),
+			    2, atom_name_3.c_str(),
+			    3, m[i].value,
+			    4, m[i].mean,
+			    5, m[i].median,
+			    6, m[i].std_dev,
+			    7, m[i].z,
+			    -1);
+      }
+   }
+
+   int tree_type = 1; // coot::mogul::TREE_TYPE_ANGLES
+   coot::mogul_results_add_cell_renderer(tv_angles, tree_store_angles, "Atom 1", 0, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_angles, tree_store_angles, "Atom 2", 1, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_angles, tree_store_angles, "Atom 3", 2, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_angles, tree_store_angles, "Value",       3, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_angles, tree_store_angles, "Mean",        4, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_angles, tree_store_angles, "Median",      5, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_angles, tree_store_angles, "ESD",         6, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_angles, tree_store_angles, "z",           7, tree_type);
+
+   GtkTreeSelection *sel_angles = gtk_tree_view_get_selection(GTK_TREE_VIEW(mogul_angles_treeview));
+   g_signal_connect(sel_angles, "changed", (GCallback) coot::on_mogul_angles_selection_changed, NULL);
+   coot::mogul *mcp = new coot::mogul(m);
+   coot::minimol::residue *mmres_p = new coot::minimol::residue(r);
+   g_object_set_data(G_OBJECT(sel_angles), "mogul", mcp); 
+   g_object_set_data(G_OBJECT(sel_angles), "residue", mmres_p); 
+
+}
+
+void
+coot::on_mogul_angles_selection_changed(GtkTreeSelection *treeselection,
+					gpointer          user_data) {
+
+   GtkTreeIter  iter;
+   GtkTreeModel *model; 
+   gboolean r = gtk_tree_selection_get_selected(treeselection, &model, &iter);
+   if (r) {
+      gchar *atom_id_1, *atom_id_2, *atom_id_3;
+      gchar *value, *mean, *median, *esd, *z;
+      coot::mogul *mogul_p = static_cast<mogul *>(g_object_get_data(G_OBJECT(treeselection), "mogul"));
+      coot::minimol::residue *mmres_p = static_cast<minimol::residue *>(g_object_get_data(G_OBJECT(treeselection), "residue"));
+      gtk_tree_model_get(model, &iter,
+			 0, &atom_id_1,
+			 1, &atom_id_2,
+			 2, &atom_id_3,
+			 3, &value,
+			 4, &mean,
+			 5, &median,
+			 6, &esd,
+			 7, &z,
+			 -1);
+      bool ifound_1 = false;
+      bool ifound_2 = false;
+      bool ifound_3 = false;
+      clipper::Coord_orth pos_1(1,0,1);
+      clipper::Coord_orth pos_2(0,0,1);
+      clipper::Coord_orth pos_3(0,0,1);
+      double x, y, zz;
+      for (unsigned int i=0; i<mmres_p->n_atoms(); i++) {
+	 const minimol::atom &at = mmres_p->atoms[i];
+	 if (at.name == atom_id_1) {
+	    pos_1 == at.pos;
+	    x  = at.pos.x();
+	    y  = at.pos.y();
+	    zz = at.pos.z();
+	    pos_1 = clipper::Coord_orth(x, y, zz);
+	    ifound_1 = true;
+	 } 
+	 if (at.name == atom_id_2) {
+	    x  = at.pos.x();
+	    y  = at.pos.y();
+	    zz = at.pos.z();
+	    pos_2 = clipper::Coord_orth(x, y, zz);
+	    ifound_2 = true;
+	 } 
+	 if (at.name == atom_id_3) {
+	    x  = at.pos.x();
+	    y  = at.pos.y();
+	    zz = at.pos.z();
+	    pos_3 = clipper::Coord_orth(x, y, zz);
+	    ifound_3 = true;
+	 } 
+      }
+      if (ifound_1 && ifound_2 && ifound_3) {
+	 double scale = 0.3333;
+	 double x_ = scale * (pos_3.x() + pos_2.x() + pos_1.x());
+	 double y_ = scale * (pos_3.y() + pos_2.y() + pos_1.y());
+	 double z_ = scale * (pos_3.z() + pos_2.z() + pos_1.z());
+	 if (0) 
+	    std::cout << "atoms: "
+		      << pos_1.format() << "\n       "
+		      << pos_2.format() << "\n       "
+		      << pos_3.format() << " ----> " << x_ << " " << y_ << " " << z_
+		      << "\n";
+	 set_rotation_centre(x_, y_, z_);
+      }
+   }
+}
+
+
+void
+coot::fill_mogul_torsions_tab(GtkTreeView *mogul_torsions_treeview, const coot::mogul &m, CResidue *r) {
+   
+   // We want to see: atom-name-1 atom-name-2 atom-name-3 atom-name-4 value mean median std-dev z
+   // 
+   GtkTreeStore *tree_store_torsions = gtk_tree_store_new(9,
+							G_TYPE_STRING, G_TYPE_STRING,
+							G_TYPE_STRING, G_TYPE_STRING,
+							G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT,
+							G_TYPE_FLOAT, G_TYPE_FLOAT);
+
+   GtkTreeView *tv_torsions = GTK_TREE_VIEW(mogul_torsions_treeview);
+   gtk_tree_view_set_model(tv_torsions, GTK_TREE_MODEL(tree_store_torsions));
+   GtkTreeIter   toplevel;
+
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   r->GetAtomTable(residue_atoms, n_residue_atoms);
+
+   for (unsigned int i=0; i<m.n_items(); i++) {
+      const coot::mogul_item &item = m[i];
+      if (item.type == coot::mogul_item::TORSION) {
+	 int idx_1 = m[i].idx_1-1;
+	 int idx_2 = m[i].idx_2-1;
+	 int idx_3 = m[i].idx_3-1;
+	 int idx_4 = m[i].idx_4-1;
+	 CAtom *at_1 = residue_atoms[idx_1];
+	 CAtom *at_2 = residue_atoms[idx_2];
+	 CAtom *at_3 = residue_atoms[idx_3];
+	 CAtom *at_4 = residue_atoms[idx_4];
+	 std::string atom_name_1 = at_1->name;
+	 std::string atom_name_2 = at_2->name;
+	 std::string atom_name_3 = at_3->name;
+	 std::string atom_name_4 = at_4->name;
+	 
+	 gtk_tree_store_append(tree_store_torsions, &toplevel, NULL);
+	 gtk_tree_store_set(tree_store_torsions, &toplevel,
+			    0, atom_name_1.c_str(),
+			    1, atom_name_2.c_str(),
+			    2, atom_name_3.c_str(),
+			    3, atom_name_4.c_str(),
+			    4, m[i].value,
+			    5, m[i].mean,
+			    6, m[i].median,
+			    7, m[i].std_dev,
+			    8, m[i].z,
+			    -1);
+      }
+   }
+
+   int tree_type = 2; // coot::mogul::TREE_TYPE_TORSION;
+   coot::mogul_results_add_cell_renderer(tv_torsions, tree_store_torsions, "Atom Name 1", 0, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_torsions, tree_store_torsions, "Atom Name 2", 1, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_torsions, tree_store_torsions, "Atom Name 3", 2, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_torsions, tree_store_torsions, "Atom Name 4", 3, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_torsions, tree_store_torsions, "Value",       4, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_torsions, tree_store_torsions, "Mean",        5, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_torsions, tree_store_torsions, "Median",      6, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_torsions, tree_store_torsions, "ESD",         7, tree_type);
+   coot::mogul_results_add_cell_renderer(tv_torsions, tree_store_torsions, "z",           8, tree_type);
+
+}
+
