@@ -180,9 +180,12 @@ coot::fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview, GtkWidget *dialog,
 
    // We want to see: atom-name-1 atom-name-2 value mean median std-dev z
    // 
+//    GtkTreeStore *tree_store_bonds = gtk_tree_store_new(7, G_TYPE_STRING, G_TYPE_STRING,
+// 						       G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT,
+// 						       G_TYPE_FLOAT, G_TYPE_FLOAT);
    GtkTreeStore *tree_store_bonds = gtk_tree_store_new(7, G_TYPE_STRING, G_TYPE_STRING,
-						       G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT,
-						       G_TYPE_FLOAT, G_TYPE_FLOAT);
+						       G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+						       G_TYPE_STRING, G_TYPE_FLOAT);
 
    GtkTreeView *tv_bonds = GTK_TREE_VIEW(mogul_bonds_treeview);
    gtk_tree_view_set_model(tv_bonds, GTK_TREE_MODEL(tree_store_bonds));
@@ -201,15 +204,27 @@ coot::fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview, GtkWidget *dialog,
 	 CAtom *at_2 = residue_atoms[idx_2];
 	 std::string atom_name_1 = at_1->name;
 	 std::string atom_name_2 = at_2->name;
+
+// 			    2, m[i].value,
+// 			    3, m[i].mean,
+// 			    4, m[i].median,
+// 			    5, m[i].std_dev,
+// 			    6, m[i].z,
+
+	 std::string m_value   = coot::util::float_to_string_using_dec_pl(m[i].value,   3);
+	 std::string m_mean    = coot::util::float_to_string_using_dec_pl(m[i].mean,    3);
+	 std::string m_median  = coot::util::float_to_string_using_dec_pl(m[i].median,  3);
+	 std::string m_std_dev = coot::util::float_to_string_using_dec_pl(m[i].std_dev, 3);
+	 std::string m_z       = coot::util::float_to_string_using_dec_pl(m[i].z,       3);
 	 
 	 gtk_tree_store_append(tree_store_bonds, &toplevel, NULL);
 	 gtk_tree_store_set(tree_store_bonds, &toplevel,
 			    0, atom_name_1.c_str(),
 			    1, atom_name_2.c_str(),
-			    2, m[i].value,
-			    3, m[i].mean,
-			    4, m[i].median,
-			    5, m[i].std_dev,
+			    2, m_value.c_str(),
+			    3, m_mean.c_str(),
+			    4, m_median.c_str(),
+			    5, m_std_dev.c_str(),
 			    6, m[i].z,
 			    -1);
       }
@@ -304,8 +319,8 @@ coot::fill_mogul_angles_tab(GtkTreeView *mogul_angles_treeview, GtkWidget *dialo
    // We want to see: atom-name-1 atom-name-2 atom-name-3 value mean median std-dev z
    // 
    GtkTreeStore *tree_store_angles = gtk_tree_store_new(8, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
-							G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_FLOAT,
-							G_TYPE_FLOAT, G_TYPE_FLOAT);
+							G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING,
+							G_TYPE_STRING, G_TYPE_FLOAT);
 
    GtkTreeView *tv_angles = GTK_TREE_VIEW(mogul_angles_treeview);
    gtk_tree_view_set_model(tv_angles, GTK_TREE_MODEL(tree_store_angles));
@@ -327,16 +342,22 @@ coot::fill_mogul_angles_tab(GtkTreeView *mogul_angles_treeview, GtkWidget *dialo
 	 std::string atom_name_1 = at_1->name;
 	 std::string atom_name_2 = at_2->name;
 	 std::string atom_name_3 = at_3->name;
+
+	 std::string m_value   = coot::util::float_to_string_using_dec_pl(m[i].value,   3);
+	 std::string m_mean    = coot::util::float_to_string_using_dec_pl(m[i].mean,    3);
+	 std::string m_median  = coot::util::float_to_string_using_dec_pl(m[i].median,  3);
+	 std::string m_std_dev = coot::util::float_to_string_using_dec_pl(m[i].std_dev, 3);
+	 std::string m_z       = coot::util::float_to_string_using_dec_pl(m[i].z,       3);
 	 
 	 gtk_tree_store_append(tree_store_angles, &toplevel, NULL);
 	 gtk_tree_store_set(tree_store_angles, &toplevel,
 			    0, atom_name_1.c_str(),
 			    1, atom_name_2.c_str(),
 			    2, atom_name_3.c_str(),
-			    3, m[i].value,
-			    4, m[i].mean,
-			    5, m[i].median,
-			    6, m[i].std_dev,
+			    3, m_value.c_str(),
+			    4, m_mean.c_str(),
+			    5, m_median.c_str(),
+			    6, m_std_dev.c_str(),
 			    7, m[i].z,
 			    -1);
       }
