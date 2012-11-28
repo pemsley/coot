@@ -25,55 +25,59 @@ int main (int argc, char **argv) {
 
    gtk_init (&argc, &argv);
    std::vector<std::pair<double, double> > data;
-   data.push_back(std::pair<double, double> (1.0, 0.1));
-   data.push_back(std::pair<double, double> (1.1, 0.2));
-   data.push_back(std::pair<double, double> (1.2, 0.25));
-   data.push_back(std::pair<double, double> (1.3, 0.32));
-   data.push_back(std::pair<double, double> (1.4, 0.37));
-   data.push_back(std::pair<double, double> (1.5, 0.44));
-   data.push_back(std::pair<double, double> (1.6, 0.42));
-   data.push_back(std::pair<double, double> (0.5, 0.01));
-   data.push_back(std::pair<double, double> (0.434, 0.01));
-   data.push_back(std::pair<double, double> (1.7, 0.32));
-   data.push_back(std::pair<double, double> (1.8, 0.3));
-   data.push_back(std::pair<double, double> (1.9, 0.2));
-   data.push_back(std::pair<double, double> (2.0, 0.12));
-   data.push_back(std::pair<double, double> (2.1, 0.1));
-   data.push_back(std::pair<double, double> (2.2, 0.08));
-   data.push_back(std::pair<double, double> (2.3, 0.05));
-   data.push_back(std::pair<double, double> (2.4, 0.01));
-   data.push_back(std::pair<double, double> (2.5, 0.0 ));
-   data.push_back(std::pair<double, double> (2.9, 0.0 ));
-   data.push_back(std::pair<double, double> (3.0, 0.01));
-   data.push_back(std::pair<double, double> (3.1, 0.03));
-   data.push_back(std::pair<double, double> (3.2, 0.06));
-   data.push_back(std::pair<double, double> (3.3, 0.05));
-   data.push_back(std::pair<double, double> (3.4, 0.02));
-   data.push_back(std::pair<double, double> (3.5, 0.01));
 
-    for (unsigned int i=0; i<data.size(); i++) { 
-       data[i].first *= 87;
-       data[i].second *= 83;
-       data[i].second += 0.6;
-    }
+   data.push_back(std::pair<double, double> ( 104.5, 4));
+   data.push_back(std::pair<double, double> ( 104.75, 1));
+   data.push_back(std::pair<double, double> ( 105, 2));
+   data.push_back(std::pair<double, double> ( 105.25, 1));
+   data.push_back(std::pair<double, double> ( 105.5, 0));
+   data.push_back(std::pair<double, double> ( 105.75, 0));
+   data.push_back(std::pair<double, double> ( 106, 0));
+   data.push_back(std::pair<double, double> ( 106.25, 0));
+   data.push_back(std::pair<double, double> ( 106.5, 0));
+   data.push_back(std::pair<double, double> ( 106.75, 0));
+   data.push_back(std::pair<double, double> ( 107, 0));
+   data.push_back(std::pair<double, double> ( 107.25, 0));
+   data.push_back(std::pair<double, double> ( 107.5, 0));
+   data.push_back(std::pair<double, double> ( 107.75, 0));
+   data.push_back(std::pair<double, double> ( 108, 0));
+   data.push_back(std::pair<double, double> ( 108.25, 0));
+   data.push_back(std::pair<double, double> ( 108.5, 0));
+   data.push_back(std::pair<double, double> ( 108.75, 0));
+   data.push_back(std::pair<double, double> ( 109, 0));
+   data.push_back(std::pair<double, double> ( 109.25, 0));
+   data.push_back(std::pair<double, double> ( 109.5, 1));
+   data.push_back(std::pair<double, double> ( 109.75, 1));
+   data.push_back(std::pair<double, double> ( 110, 0));
+   data.push_back(std::pair<double, double> ( 110.25, 1));
+   data.push_back(std::pair<double, double> ( 110.5, 3));
+   data.push_back(std::pair<double, double> ( 110.75, 2));
+
+
+//     for (unsigned int i=0; i<data.size(); i++) { 
+//        data[i].first *= 87;
+//        data[i].second *= 83;
+//        data[i].second += 0.6;
+//     }
    
    coot::goograph g;
    int trace = g.trace_new();
-   g.set_plot_title("Bond length distribution vs. database");
+   g.set_plot_title("Angle distribution");
    g.set_data(trace, data);
    
-   g.set_axis_label(coot::goograph::X_AXIS, "Bond length");
+   g.set_axis_label(coot::goograph::X_AXIS, "Angle");
    g.set_axis_label(coot::goograph::Y_AXIS, "Counts");
    g.set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_BAR);
 
    double f = 1;
    double fy = 1;
 
-   for (unsigned int i=0; i<data.size(); i++) { 
-      data[i].first += 80;
-      data[i].second *= 0.6;
-      data[i].second += 0.5;
-   }
+//    for (unsigned int i=0; i<data.size(); i++) { 
+//       data[i].first += 80;
+//       data[i].second *= 0.6;
+//       data[i].second += 0.5;
+//    }
+   
    bool dashed = true;
    trace = g.trace_new();
    g.set_data(trace, data);

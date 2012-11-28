@@ -96,6 +96,7 @@ coot::mogul::parse_bond_line(const std::vector<std::string> &bond_bits,
 	    r.add_distribution(md);
 	 }
       }
+      r.distribution = mogul_distribution(distribution_bits);
    }
    return r;
 }
@@ -151,6 +152,7 @@ coot::mogul::parse_angle_line(const std::vector<std::string> &bond_bits,
 		      << median << " std: " << std_dev
 		      << "  Z-score:" << z 
 		      << std::endl;
+	 r.distribution = mogul_distribution(distribution_bits);
       }
    }
    return r;
@@ -304,4 +306,61 @@ coot::mogul::get_bond_type(const coot::dictionary_residue_restraints_t &restrain
 			   const std::string &name_2) const {
 
    return restraints.get_bond_type(name_1, name_2);
+} 
+
+
+// can throw a runtime_exception
+coot::mogul_item
+coot::mogul::get_angle_item(const std::vector<int> &indices) const {
+
+   if (indices.size() != 3) {
+      throw(std::runtime_error("wrong size of indices"));
+   } else {
+      for (unsigned int j=0; j<items.size(); j++) { 
+	 const mogul_item &item = items[j];
+	 if (item.matches_indices(indices)) {
+	    return item;
+	 }
+      }
+   }
+   throw(std::runtime_error("no such item"));
+}
+
+// can throw a runtime_exception
+coot::mogul_item
+coot::mogul::get_bond_item(const std::vector<int> &indices) const {
+
+   if (indices.size() != 2) {
+      throw(std::runtime_error("wrong size of indices"));
+   } else {
+      for (unsigned int j=0; j<items.size(); j++) { 
+	 const mogul_item &item = items[j];
+	 if (item.matches_indices(indices)) {
+	    return item;
+	 }
+      }
+   }
+   throw(std::runtime_error("no such item"));
+}
+
+bool
+coot::mogul_item::matches_indices(const std::vector<int> &indices) const {
+
+   if (indices.size() == 3) {
+      if (indices[0] == idx_1) { 
+	 if (indices[1] == idx_2) { 
+	    if (indices[2] == idx_3) {
+	       return true;
+	    }
+	 }
+      }
+   } 
+   if (indices.size() == 2) {
+      if (indices[0] == idx_1) { 
+	 if (indices[1] == idx_2) {
+	    return true;
+	 }
+      }
+   }
+   return false;
 } 

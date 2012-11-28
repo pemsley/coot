@@ -85,6 +85,7 @@ namespace coot {
 	 z = z_in;
 	 max_badness = 5.0; 
       }
+      bool matches_indices(const std::vector<int> &indices) const;
       void set_max_z_badness(float b) { max_badness = b; }
       std::string colour() const; // uses max_badness to return a hex colour string.
       void add_distribution(const mogul_distribution &d) { distribution = d; }
@@ -146,6 +147,12 @@ namespace coot {
 		      const std::vector<std::string> &atom_names,
 		      int n_atom_all, int n_atoms_non_H,
 		      const coot::dictionary_residue_restraints_t &bond_types_dict);
+
+      // can throw a runtime_exception
+      mogul_item get_angle_item(const std::vector<int> &indices) const;
+      // can throw a runtime_exception
+      mogul_item get_bond_item(const std::vector<int> &indices) const;
+
    };
 }
 

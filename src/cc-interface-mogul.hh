@@ -4,7 +4,13 @@
 
 #include "mogul-interface.hh"
 
+#ifdef HAVE_GOOCANVAS
+
+#include "goograph.hh"
+
 void show_mogul_geometry_dialog(const coot::mogul &m, CResidue *residue);
+#endif 
+
 GtkWidget *wrapped_create_mogul_geometry_dialog(const coot::mogul &m, CResidue *residue);
 
 
@@ -15,16 +21,24 @@ namespace coot {
 					 const std::string &column_title,
 					 int pos,
 				   int tree_type);
-   void fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview, const coot::mogul &m, CResidue *r);
-   void fill_mogul_angles_tab(GtkTreeView *mogul_angles_treeview, const coot::mogul &m, CResidue *r);
-   void fill_mogul_torsions_tab(GtkTreeView *mogul_torsions_treeview, const coot::mogul &m, CResidue *r);
+   void fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview, GtkWidget *dialog, const coot::mogul &m, CResidue *r);
+   void fill_mogul_angles_tab(GtkTreeView *mogul_angles_treeview, GtkWidget *dialog, const coot::mogul &m, CResidue *r);
+   void fill_mogul_torsions_tab(GtkTreeView *mogul_torsions_treeview, GtkWidget *dialog, const coot::mogul &m, CResidue *r);
    void on_mogul_bonds_selection_changed(GtkTreeSelection *treeselection,
 					 gpointer          user_data);
    void on_mogul_angles_selection_changed(GtkTreeSelection *treeselection,
 					  gpointer          user_data);
    void on_mogul_torsions_selection_changed(GtkTreeSelection *treeselection,
 					    gpointer          user_data);
+   void update_mogul_histogram_dialog(GtkWidget *histogram_dialog,
+				      const mogul &m, const std::vector<std::string> &atom_ids,
+				      minimol::residue *r, const std::string &altconf);
+#ifdef HAVE_GOOCANVAS   
+   void mogul_histogram_for_item(goograph *gg, const mogul_item &item,
+				 const std::string &x_axis_label, const std::string &title);
+#endif    
 
+   
 }
 
 #endif // CC_INTERFACE_MOGUL_HH
