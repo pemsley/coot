@@ -28,31 +28,34 @@
 void
 coot::goograph::show_dialog() {
 
-   draw_graph();
+   if (! dialog) { 
+
+      draw_graph();
+      dialog = gtk_dialog_new();
    
-   dialog = gtk_dialog_new();
-   gtk_window_set_default_size(GTK_WINDOW(dialog), dialog_width, dialog_height);
-   gtk_window_set_title (GTK_WINDOW(dialog), title_string.c_str());
-   gtk_object_set_data(GTK_OBJECT(dialog), "goograph_dialog", dialog);
-   gtk_object_set_data(GTK_OBJECT(dialog), "goograph", this);
-   GtkWidget *vbox = GTK_DIALOG(dialog)->vbox;
-   GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
-   GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
-   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-					 GTK_WIDGET(vbox_inner));
-   gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
-   gtk_widget_show(scrolled_window);
-   gtk_widget_show(vbox_inner);
-   gtk_container_add(GTK_CONTAINER(vbox_inner), GTK_WIDGET(canvas));
-   gtk_widget_show(GTK_WIDGET(canvas));
-   GtkWidget *close_button = gtk_dialog_add_button(GTK_DIALOG(dialog), "Close", 2);
-   gtk_widget_show(close_button);
-   g_signal_connect(G_OBJECT(close_button), "clicked",
-		    G_CALLBACK(goograph_close_callback),
-		    (gpointer) dialog);
-   g_signal_connect(G_OBJECT(dialog), "configure_event",
-		    G_CALLBACK(reshape),
-		    (gpointer) dialog);
+      gtk_window_set_default_size(GTK_WINDOW(dialog), dialog_width, dialog_height);
+      gtk_window_set_title (GTK_WINDOW(dialog), title_string.c_str());
+      gtk_object_set_data(GTK_OBJECT(dialog), "goograph_dialog", dialog);
+      gtk_object_set_data(GTK_OBJECT(dialog), "goograph", this);
+      GtkWidget *vbox = GTK_DIALOG(dialog)->vbox;
+      GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
+      GtkWidget *scrolled_window = gtk_scrolled_window_new (NULL, NULL);
+      gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
+					    GTK_WIDGET(vbox_inner));
+      gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 2);
+      gtk_widget_show(scrolled_window);
+      gtk_widget_show(vbox_inner);
+      gtk_container_add(GTK_CONTAINER(vbox_inner), GTK_WIDGET(canvas));
+      gtk_widget_show(GTK_WIDGET(canvas));
+      GtkWidget *close_button = gtk_dialog_add_button(GTK_DIALOG(dialog), "Close", 2);
+      gtk_widget_show(close_button);
+      g_signal_connect(G_OBJECT(close_button), "clicked",
+		       G_CALLBACK(goograph_close_callback),
+		       (gpointer) dialog);
+      g_signal_connect(G_OBJECT(dialog), "configure_event",
+		       G_CALLBACK(reshape),
+		       (gpointer) dialog);
+   }
    gtk_widget_show(dialog);
 }
 
@@ -72,6 +75,7 @@ coot::goograph::init() {
 void
 coot::goograph::init_widgets() {
 
+   dialog = NULL;
    if (! canvas)
       canvas = GOO_CANVAS(goo_canvas_new());
    set_bounds(1000, 1000);
@@ -254,16 +258,22 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
    double data_extents_min = 0.0;
    double extents_max = 0.0;
 
+   // extents not set, no data yet.
+   if (extents_min_x > extents_max_x)
+      return; 
+
    if (axis == Y_AXIS) {
       data_extents_min = extents_min_y;
       extents_min = extents_min_y;
       extents_max = extents_max_y * 1.05;
-   } 
+   }
+   
    if (axis == X_AXIS) {
       data_extents_min = extents_min_x;
       extents_min = extents_min_x;
-      extents_max = extents_max_x * 1.05;
-   } 
+      // extents_max = extents_max_x * 1.05;  // why did I have this?
+      extents_max = extents_max_x * 1.005;
+   }
 
    // what is the tick that is a multiple of tick_major_step, that is
    // greater than or equal to extents_min?
@@ -275,7 +285,7 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	 int n = int(extents_min/tick_major_step);
 	 double diff = double(n)*tick_major_step - extents_min;
 	 tick_major_start = extents_min + diff;
-	 if (0) 
+	 if (0)
 	    std::cout << "   extents_min: " << extents_min
 		      << "  tick_major_step " << tick_major_step
 		      << " n " << n
@@ -286,8 +296,10 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	    extents_min = tick_major_start + tick_major_step;
 	 if (tick_type == MINOR_TICK) { 
 	    extents_min -= tick_major_step;
-	    while (extents_min < data_extents_min)
+	    while (extents_min < data_extents_min) { 
+	       // std::cout << "here 1.2 " << extents_min << " " << tick_step << std::endl;
 	       extents_min += tick_step;
+	    }
 	 }
       }
    }
@@ -383,13 +395,18 @@ coot::goograph::set_extents(int axis, double min, double max) {
 	 extents_min_x = min;
       if (max > extents_max_x)
 	 extents_max_x = max;
+      double x_major_tick = calc_tick(x_range());
+      set_ticks(X_AXIS, x_major_tick, x_major_tick*0.2);
    }
    if (axis == Y_AXIS) {
       if (min < extents_min_y) 
 	 extents_min_y = min;
       if (max > extents_max_y)
 	 extents_max_y = max;
+      double y_major_tick = calc_tick(y_range());
+      set_ticks(Y_AXIS, y_major_tick, y_major_tick*0.2);
    }
+   
    set_data_scales();
 }
 
@@ -406,8 +423,9 @@ coot::goograph::set_data_scales() {
    if (delta_y > 0.1)
       data_scale_y = double(dialog_height)/double(dialog_height_orig) * 300.0/delta_y;
 
-   std::cout << "x was " << dsx << " now  " << data_scale_x << " "
-	     << "y was " << dsy << " now  " << data_scale_y << std::endl;
+   if (0)
+      std::cout << "x was " << dsx << " now  " << data_scale_x << " "
+		<< "y was " << dsy << " now  " << data_scale_y << std::endl;
 } 
 
 void
@@ -839,6 +857,18 @@ coot::goograph::draw_annotation_texts() {
    }
 }
 
+void
+coot::goograph::clear_traces_and_annotations() {
+
+   traces.clear();
+   annotation_texts.clear();
+   annotation_lines.clear();
+   extents_min_x =  9999999990.0;
+   extents_min_y =  9999999990.0;
+   extents_max_x = -9999999990.0;
+   extents_max_y = -9999999990.0;
+
+} 
 
 #endif
 

@@ -3,6 +3,7 @@
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "coot-utils.hh"
 #include "mogul-interface.hh"
 
 #include "graphics-info.h"
@@ -114,9 +115,12 @@ int update_restraints_using_mogul(int imol, const char *chain_id, int res_no, co
 void show_mogul_geometry_dialog(const coot::mogul &m, CResidue *residue) {
 
    if (graphics_info_t::use_graphics_interface_flag) { 
+#ifdef HAVE_GOOCANVAS
       GtkWidget *w = wrapped_create_mogul_geometry_dialog(m, residue);
-      if (w)
+      if (w) { 
 	 gtk_widget_show(w);
+      } 
+#endif // HAVE_GOOCANVAS
    }
 }
 
@@ -161,15 +165,18 @@ GtkWidget
       GtkTreeView *mogul_angles_treeview   = GTK_TREE_VIEW(lookup_widget(w, "mogul_angles_treeview"));
       GtkTreeView *mogul_torsions_treeview = GTK_TREE_VIEW(lookup_widget(w, "mogul_torsions_treeview"));
 
-      coot::fill_mogul_bonds_tab(  mogul_bonds_treeview, m, residue);
-      coot::fill_mogul_angles_tab(mogul_angles_treeview, m, residue);
-      coot::fill_mogul_torsions_tab(mogul_torsions_treeview, m, residue);
+      coot::fill_mogul_bonds_tab(      mogul_bonds_treeview, w, m, residue);
+      coot::fill_mogul_angles_tab(    mogul_angles_treeview, w, m, residue);
+      coot::fill_mogul_torsions_tab(mogul_torsions_treeview, w, m, residue);
    }
+   coot::goograph *goograph = new coot::goograph;
+   g_object_set_data(G_OBJECT(w), "goograph", goograph);
    return w;
 }
 
 void
-coot::fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview, const coot::mogul &m, CResidue *r) {
+coot::fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview, GtkWidget *dialog,
+			   const coot::mogul &m, CResidue *r) {
 
    // We want to see: atom-name-1 atom-name-2 value mean median std-dev z
    // 
@@ -218,7 +225,7 @@ coot::fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview, const coot::mogul 
    coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "z",      6, tree_type);
 
    GtkTreeSelection *sel_bonds = gtk_tree_view_get_selection(GTK_TREE_VIEW(mogul_bonds_treeview));
-   g_signal_connect(sel_bonds,  "changed", (GCallback) coot::on_mogul_bonds_selection_changed,  NULL);
+   g_signal_connect(sel_bonds,  "changed", (GCallback) coot::on_mogul_bonds_selection_changed,  dialog);
    coot::mogul *mcp = new coot::mogul(m);
    coot::minimol::residue *mmres_p = new coot::minimol::residue(r);
    g_object_set_data(G_OBJECT(sel_bonds), "mogul", mcp); 
@@ -231,6 +238,7 @@ coot::on_mogul_bonds_selection_changed(GtkTreeSelection *treeselection,
 
    GtkTreeIter  iter;
    GtkTreeModel *model; 
+   std::string altconf = "";
    gboolean r = gtk_tree_selection_get_selected(treeselection, &model, &iter);
    if (r) {
       gchar *atom_id_1, *atom_id_2;
@@ -274,12 +282,24 @@ coot::on_mogul_bonds_selection_changed(GtkTreeSelection *treeselection,
 			       0.5*(pos_1.y() + pos_2.y()),
 			       0.5*(pos_1.z() + pos_2.z()));
 	 set_rotation_centre(p.x(), p.y(), p.z());
+
+	 std::vector<std::string> atom_ids;
+	 atom_ids.push_back(atom_id_1);
+	 atom_ids.push_back(atom_id_2);
+
+	 GtkWidget *mogul_geometry_dialog = static_cast<GtkWidget *> (user_data);
+	 if (mogul_geometry_dialog) {
+	    update_mogul_histogram_dialog(mogul_geometry_dialog, *mogul_p, atom_ids, mmres_p, altconf);
+	 } else {
+	    std::cout << "null mogul_geometry_dialog" << std::endl;
+	 }
       }
    }
 }
 
 void
-coot::fill_mogul_angles_tab(GtkTreeView *mogul_angles_treeview, const coot::mogul &m, CResidue *r) {
+coot::fill_mogul_angles_tab(GtkTreeView *mogul_angles_treeview, GtkWidget *dialog,
+			    const coot::mogul &m, CResidue *r) {
 
    // We want to see: atom-name-1 atom-name-2 atom-name-3 value mean median std-dev z
    // 
@@ -333,7 +353,7 @@ coot::fill_mogul_angles_tab(GtkTreeView *mogul_angles_treeview, const coot::mogu
    coot::mogul_results_add_cell_renderer(tv_angles, tree_store_angles, "z",           7, tree_type);
 
    GtkTreeSelection *sel_angles = gtk_tree_view_get_selection(GTK_TREE_VIEW(mogul_angles_treeview));
-   g_signal_connect(sel_angles, "changed", (GCallback) coot::on_mogul_angles_selection_changed, NULL);
+   g_signal_connect(sel_angles, "changed", (GCallback) coot::on_mogul_angles_selection_changed, dialog);
    coot::mogul *mcp = new coot::mogul(m);
    coot::minimol::residue *mmres_p = new coot::minimol::residue(r);
    g_object_set_data(G_OBJECT(sel_angles), "mogul", mcp); 
@@ -352,7 +372,9 @@ coot::on_mogul_angles_selection_changed(GtkTreeSelection *treeselection,
       gchar *atom_id_1, *atom_id_2, *atom_id_3;
       gchar *value, *mean, *median, *esd, *z;
       coot::mogul *mogul_p = static_cast<mogul *>(g_object_get_data(G_OBJECT(treeselection), "mogul"));
-      coot::minimol::residue *mmres_p = static_cast<minimol::residue *>(g_object_get_data(G_OBJECT(treeselection), "residue"));
+      coot::minimol::residue *mmres_p =
+	 static_cast<minimol::residue *>(g_object_get_data(G_OBJECT(treeselection), "residue"));
+      std::string altconf = "";
       gtk_tree_model_get(model, &iter,
 			 0, &atom_id_1,
 			 1, &atom_id_2,
@@ -407,13 +429,25 @@ coot::on_mogul_angles_selection_changed(GtkTreeSelection *treeselection,
 		      << pos_3.format() << " ----> " << x_ << " " << y_ << " " << z_
 		      << "\n";
 	 set_rotation_centre(x_, y_, z_);
+	 std::vector<std::string> atom_ids;
+	 atom_ids.push_back(atom_id_1);
+	 atom_ids.push_back(atom_id_2);
+	 atom_ids.push_back(atom_id_3);
+	 GtkWidget *mogul_geometry_dialog = static_cast<GtkWidget *> (user_data);
+						
+	 if (mogul_geometry_dialog) {
+	    update_mogul_histogram_dialog(mogul_geometry_dialog, *mogul_p, atom_ids, mmres_p, altconf);
+	 } else {
+	    std::cout << "null mogul_geometry_dialog" << std::endl;
+	 } 
       }
    }
 }
 
 
 void
-coot::fill_mogul_torsions_tab(GtkTreeView *mogul_torsions_treeview, const coot::mogul &m, CResidue *r) {
+coot::fill_mogul_torsions_tab(GtkTreeView *mogul_torsions_treeview, GtkWidget *dialog,
+			      const coot::mogul &m, CResidue *r) {
    
    // We want to see: atom-name-1 atom-name-2 atom-name-3 atom-name-4 value mean median std-dev z
    // 
@@ -475,3 +509,149 @@ coot::fill_mogul_torsions_tab(GtkTreeView *mogul_torsions_treeview, const coot::
 
 }
 
+
+void
+coot::update_mogul_histogram_dialog(GtkWidget *geometry_dialog,
+				    const mogul &m, const std::vector<std::string> &atom_ids,
+				    coot::minimol::residue *r, const std::string &altconf) { 
+
+#ifdef HAVE_GOOCANVAS   
+
+   int ifound = 0;
+      
+   // bonds
+   if (atom_ids.size() == 2) {
+      std::vector<int> indices(2,0);
+      for (unsigned int i=0; i<r->n_atoms(); i++) {
+	 coot::minimol::atom &at = (*r)[i];
+	 std::string atom_name = at.name;
+	 std::string atom_alt_conf = at.altLoc;
+	 for (unsigned int j=0; j<atom_ids.size(); j++) { 
+	    if (atom_name == atom_ids[j]) {
+	       if (altconf == atom_alt_conf) { 
+		  indices[j] = i+1; // the mogul atom index
+		  ifound++;
+	       }
+	    }
+	 }
+      }
+
+      if (ifound == 2) {
+	 try {
+	    coot::mogul_item item = m.get_bond_item(indices);
+	    coot::goograph *gg = static_cast<coot::goograph *> (g_object_get_data(G_OBJECT(geometry_dialog),
+										  "goograph"));
+	    std::string title = "Bond distribution ";
+	    title += atom_ids[0];
+	    title += " - ";
+	    title += atom_ids[1];
+	    mogul_histogram_for_item(gg, item, "Bond length", title);
+	 }
+	 catch (const std::runtime_error &rte) {
+	    std::cout << "WARNING:: " << rte.what() << std::endl;
+	 } 
+      }
+   }
+
+   // angles
+   if (atom_ids.size() == 3) {
+
+      std::vector<int> indices(3,0);
+      for (unsigned int i=0; i<r->n_atoms(); i++) {
+	 coot::minimol::atom &at = (*r)[i];
+	 std::string atom_name = at.name;
+	 std::string atom_alt_conf = at.altLoc;
+	 for (unsigned int j=0; j<atom_ids.size(); j++) { 
+	    if (atom_name == atom_ids[j]) {
+	       if (altconf == atom_alt_conf) { 
+		  indices[j] = i+1; // the mogul atom index
+		  ifound++;
+	       }
+	    }
+	 }
+      }
+
+      if (ifound == 3) {
+	 try {
+	    coot::mogul_item item = m.get_angle_item(indices);
+	    coot::goograph *gg = static_cast<coot::goograph *> (g_object_get_data(G_OBJECT(geometry_dialog),
+										  "goograph"));
+
+	    std::string title = "Angle distribution -";
+	    title += atom_ids[0];
+	    title += " - ";
+	    title += atom_ids[1];
+	    title += " - ";
+	    title += atom_ids[2];
+	    title += " - ";
+	    mogul_histogram_for_item(gg, item, "Angle", title);
+	 }
+	 catch (const std::runtime_error &rte) {
+	    std::cout << "WARNING:: " << rte.what() << std::endl;
+	 } 
+      } 
+   }
+#endif // HAVE_GOOCANVAS   
+}
+
+#ifdef HAVE_GOOCANVAS
+void
+coot::mogul_histogram_for_item(coot::goograph *gg, const coot::mogul_item &item,
+			       const std::string &x_axis_label, const std::string &title) {
+   
+	    
+   if (gg) { 
+      std::vector<std::pair<double, double> > data;
+      for (unsigned int i=0; i<item.distribution.counts.size(); i++) {
+	 std::pair<double, double> p(item.distribution.bin_start + i*item.distribution.bin_width,
+				     item.distribution.counts[i]);
+	 data.push_back(p);
+      }
+
+      if (data.size()) { 
+	 double min_x = +1e20;
+	 double max_x = -1e20;
+	 double min_y = +1e20;
+	 double max_y = -1e20;
+	 for (unsigned int i=0; i<data.size(); i++) { 
+	    if (data[i].first < min_x)
+	       min_x = data[i].first;
+	    if (data[i].first > max_x)
+	       max_x = data[i].first;
+	    if (data[i].second < min_y)
+	       min_y = data[i].second;
+	    if (data[i].second > max_y)
+	       max_y = data[i].second;
+	 }
+
+	 gg->clear_traces_and_annotations();
+	 int trace_id = gg->trace_new();
+
+	 gg->set_data(trace_id, data);
+	 gg->set_trace_type(trace_id, coot::graph_trace_info_t::PLOT_TYPE_BAR);
+	 gg->set_plot_title(title);
+	 gg->set_axis_label(coot::goograph::X_AXIS, x_axis_label);
+	 gg->set_axis_label(coot::goograph::Y_AXIS, "Counts");
+	 gg->set_extents(coot::goograph::Y_AXIS, 0, max_y);
+
+	 if (item.value < min_x)
+	    gg->set_extents(coot::goograph::X_AXIS, 0.99*item.value, max_x);
+	 if (item.value > max_x)
+	    gg->set_extents(coot::goograph::X_AXIS, min_x, 1.01*item.value);
+
+	 bool dashed = true;
+	 double p3x = item.value - 0.01 * (max_x - min_x);
+	 lig_build::pos_t p1(item.value, 0);
+	 lig_build::pos_t p2(item.value, max_y);
+	 lig_build::pos_t p3(p3x, min_y+0.95*(max_y-min_y));
+	 gg->add_annotation_line(p1, p2, "#880000", 2, dashed, true, false);
+	 std::string s = "Value from \nmodel: ";
+	 s += coot::util::float_to_string_using_dec_pl(item.value, 2);
+	 gg->add_annotation_text(s, p3, "#880000", "");
+
+	 gg->draw_graph();
+	 gg->show_dialog();
+      }
+   } 
+} 
+#endif // HAVE_GOOCANVAS

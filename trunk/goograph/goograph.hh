@@ -119,7 +119,6 @@ namespace coot {
       double data_scale_y;
       void init();
       void init_widgets();
-      void clear();
       bool is_valid_trace(int trace_id) {
 	 if (trace_id < 0) { 
 	    return false;
@@ -139,7 +138,6 @@ namespace coot {
       static gint reshape(GtkWidget *widget, GdkEventConfigure *event);
 
       void set_bounds(double right, double bottom);
-      void draw_graph();
       void draw_axes();
       void draw_ticks();
       void draw_data();
@@ -194,6 +192,8 @@ namespace coot {
 	 data_scale_x = 1.0;
 	 data_scale_y = 1.0;
       }
+      void clear();
+      void draw_graph();
       void set_trace_type(int trace_id, int plot_type, bool dashed=false);
       void set_trace_colour(int trace, const std::string colour);
       GtkWidget *get_canvas() const; // for embedding in other windows
@@ -218,7 +218,7 @@ namespace coot {
 			       const lig_build::pos_t &pos_1,
 			       const std::string &colour,
 			       const std::string &font);
-		    
+      void clear_traces_and_annotations();
    };
 }
 
