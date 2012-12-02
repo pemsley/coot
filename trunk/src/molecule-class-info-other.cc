@@ -4859,10 +4859,16 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	    // return state 
 	    std::pair<bool, std::vector<std::string> > add_state = try_add_by_consolidation(adding_mol);
 
+            // BL says:: some  mild hacking, but we need to return a proper state and the added chains
+            istat = 0;
+            for (int i=0; i<add_state.second.size(); i++) {
+               resulting_chain_ids.push_back(add_state.second[i]);
+            }
 	    if (add_state.first) { 
 	       update_molecule_after_additions();
 	       multi_residue_add_flag = false; // we've added everything for this mol.
-	    }
+               istat = add_state.first;
+	    }            
 	    
 	 }
 
