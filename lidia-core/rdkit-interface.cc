@@ -1570,8 +1570,11 @@ coot::undelocalise_phosphates(RDKit::ROMol *rdkm) {
 	    deloc_O_bonds[1]->setBondType(RDKit::Bond::SINGLE);
 	    deloc_O_bonds[2]->setBondType(RDKit::Bond::DOUBLE);
 	    int idx_o_0 = deloc_O_bonds[0]->getOtherAtomIdx(idx_1);
+	    int idx_o_1 = deloc_O_bonds[1]->getOtherAtomIdx(idx_1);
 	    RDKit::ATOM_SPTR at_p_0 = (*rdkm)[idx_o_0];
+	    RDKit::ATOM_SPTR at_p_1 = (*rdkm)[idx_o_1];
 	    at_p_0->setFormalCharge(-1);
+	    at_p_1->setFormalCharge(-1);
 	 }
 
 	 if (deloc_O_bonds.size() == 2) {
@@ -1581,8 +1584,7 @@ coot::undelocalise_phosphates(RDKit::ROMol *rdkm) {
 	    int idx_o_0 = deloc_O_bonds[0]->getOtherAtomIdx(idx_1);
 	    RDKit::ATOM_SPTR at_p_0 = (*rdkm)[idx_o_0];
 	    at_p_0->setFormalCharge(-1);
-	 } 
-
+	 }
       }
    }
 }
