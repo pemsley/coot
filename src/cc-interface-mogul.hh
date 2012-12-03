@@ -36,6 +36,7 @@ namespace coot {
 #ifdef HAVE_GOOCANVAS   
    void mogul_histogram_for_item(goograph *gg, const mogul_item &item,
 				 const std::string &x_axis_label, const std::string &title);
+   static void mogul_histogram_dialog_close_callback(GtkWidget *button, GtkWidget *dialog);
 #endif    
 
    

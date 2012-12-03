@@ -861,15 +861,17 @@ coot::mogul_histogram_for_item(coot::goograph *gg, const coot::mogul_item &item,
 
 	 gg->draw_graph();
 	 GtkWidget *close_button = gg->show_dialog();
-	 if (close_button) { 
-	    g_signal_connect(G_OBJECT(close_button), "clicked",
-			     G_CALLBACK(mogul_histogram_dialog_close_callback),
-			     (gpointer) dialog);
-	 }
+// 	 if (close_button) { 
+// 	    g_signal_connect(G_OBJECT(close_button), "clicked",
+// 			     G_CALLBACK(mogul_histogram_dialog_close_callback),
+// 			     (gpointer) dialog);
+//	 }
       }
    } 
 }
+#endif // HAVE_GOOCANVAS
 
+#ifdef HAVE_GOOCANVAS
 // static
 void
 coot::mogul_histogram_dialog_close_callback(GtkWidget *button,
