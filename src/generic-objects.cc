@@ -143,7 +143,8 @@ void to_generic_object_add_point(int object_number,
 /*! \brief add point to generic object object_number */
 void to_generic_object_add_arc(int object_number, 
 			       const char *colour_name,
-			       int point_width,
+			       float radius,
+			       float radius_inner,
 			       float from_angle,
 			       float to_angle,
 			       float start_point_x,
@@ -166,7 +167,8 @@ void to_generic_object_add_arc(int object_number,
 								    start_dir_z),
 						clipper::Coord_orth(normal_x,
 								    normal_y,
-								    normal_z));
+								    normal_z),
+						radius, radius_inner);
       coot::colour_holder colour =
 	 coot::generic_display_object_t::colour_values_from_colour_name(std::string(colour_name));
       // bleugh!  Make your colour holders consistent!  - use the utils version throughout!

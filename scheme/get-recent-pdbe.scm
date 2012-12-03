@@ -39,6 +39,7 @@
 		       (set! q-locked #t)))
 	 (release-q-lock (lambda () (set! q-locked #f)))
 	 (get-n-threads-lock (lambda () 
+			       ;; what does the argument to while need to be?
 			       (while n-threads-locked 
 				      (begin 
 					(usleep (random 200))))

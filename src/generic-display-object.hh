@@ -107,12 +107,15 @@ namespace coot {
 	 arc_t(float start_angle_in, float end_angle_in,
 	       const clipper::Coord_orth &start_point_in,
 	       const clipper::Coord_orth &start_dir_in,
-	       const clipper::Coord_orth &normal_in) {
+	       const clipper::Coord_orth &normal_in,
+	       float radius_in, float radius_inner_in) {
 	    start_point = start_point_in;
 	    start_angle = start_angle_in;
 	    end_angle = end_angle_in;
 	    normal = normal_in;
 	    start_dir = start_dir_in;
+	    radius = radius_in;
+	    radius_inner = radius_inner_in;
 	 }
 	 clipper::Coord_orth normal;
 	 clipper::Coord_orth start_point;
@@ -120,8 +123,8 @@ namespace coot {
 	 float start_angle;
 	 float end_angle;
 	 coot::colour_t col;
-	 float width;
 	 float radius;
+	 float radius_inner;
       };
       
       bool is_displayed_flag;

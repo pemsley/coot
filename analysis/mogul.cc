@@ -26,16 +26,16 @@ coot::mogul::parse(const std::string &file_name) {
 	 }
 	 std::cout << lines.size() << " lines." << std::endl;
 
-	 for (unsigned int iline=0; iline<lines.size(); iline++) { 
-	    std::vector<std::string> bits = coot::util::split_string_no_blanks(lines[iline], " ");
+	 // 2 from the end because we do a lines+2 to try to read distributions
+	 for (unsigned int iline=0; iline<(lines.size()); iline++) {
+	    std::vector<std::string> bits = coot::util::split_string(lines[iline], ",");
 
+	    std::cout << "considering ----------------------------------------- "
+		      << lines[iline] << std::endl;
+	    
 	    if (bits[0] == "BOND") {
 	       try {
-		  std::vector<std::string> stats_bits =
-		     coot::util::split_string_no_blanks(lines[iline+1], " ");
-		  std::vector<std::string> distribution_bits =
-		     coot::util::split_string_no_blanks(lines[iline+2], " ");
-		  mogul_item item = parse_bond_line(bits, stats_bits, distribution_bits);
+		  mogul_item item = parse_item_line(bits, 2);
 		  items.push_back(item);
 	       }
 	       catch (std::runtime_error rte) {
@@ -44,79 +44,146 @@ coot::mogul::parse(const std::string &file_name) {
 	    }
 	    if (bits[0] == "ANGLE") {
 	       try {
-		  std::vector<std::string> stats_bits =
-		     coot::util::split_string_no_blanks(lines[iline+1], " ");
-		  std::vector<std::string> distribution_bits =
-		     coot::util::split_string_no_blanks(lines[iline+2], " ");
-		  mogul_item item = parse_angle_line(bits, stats_bits, distribution_bits);
+		  mogul_item item = parse_item_line(bits, 3);
 		  items.push_back(item);
 	       }
 	       catch (std::runtime_error rte) {
 		  std::cout << "WARNING:: " << rte.what() << std::endl;
 	       } 
 	    }
+	    if (bits[0] == "TORSION") {
+	       try {
+		  mogul_item item = parse_item_line(bits, 4);
+		  std::cout << "ACCEPTED:::::::::::::::::::: " << lines[iline] << std::endl;
+		  items.push_back(item);
+	       }
+	       catch (std::runtime_error rte) {
+		  std::cout << "WARNING:: " << rte.what() << std::endl;
+		  std::cout << "REJECTED:::::::::::::::::::: " << lines[iline] << std::endl;
+	       } 
+	    }
 	 }
       }
-   } 
-} 
+   }
+}
+
 
 // can throw a runtime_error
 // 
 coot::mogul_item
-coot::mogul::parse_bond_line(const std::vector<std::string> &bond_bits,
-			     const std::vector<std::string> &stats_bits,
-			     const std::vector<std::string> &distribution_bits) const {
-   
-   mogul_item r;
-   bool debug = false;
+coot::mogul::parse_item_line(const std::vector<std::string> &bits, int n_idx) const {
 
-   if (bond_bits.size() > 6) {
-      int atom_idx_1 = coot::util::string_to_int(bond_bits[1]);
-      int atom_idx_2 = coot::util::string_to_int(bond_bits[2]);
-      float model_value = coot::util::string_to_float(bond_bits[3]);
-      if (stats_bits[0] == "STATS") {
-	 int counts    =  coot::util::string_to_int(  stats_bits[1]);
-	 float mean    =  coot::util::string_to_float(stats_bits[2]);
-	 float min     =  coot::util::string_to_float(stats_bits[3]);
-	 float max     =  coot::util::string_to_float(stats_bits[4]);
-	 float median  =  coot::util::string_to_float(stats_bits[5]);
-	 float std_dev =  coot::util::string_to_float(stats_bits[6]);
-	 float z = fabsf((model_value - median)/std_dev);
-	 r = mogul_item(atom_idx_1, atom_idx_2, model_value,
-			counts, mean, median, std_dev, z);
+   // Fragment Type,Atom Indices,Query Value,Hits,Mean,Median,Standard Deviation,|z-score|,d(min),Distribution Minimum,Distribution Maximum,Bin Width,Number of Bins
+
+   mogul_item r;
+   bool debug = true;
+
+   if (bits.size() > 6) {
+      std::string indices_string = bits[1];
+      std::vector<int> indices = get_indices(indices_string);
+
+      float mean    = 0;
+      float median  = 0;
+      float std_dev = 0;
+      float z       = 0;
+      float dmin    = 0;
+      float min     = 0;
+      float max     = 0;
+
+      std::cout << "got " << indices.size() << " indices " << std::endl;
+      if (indices.size() > 1) {
+	 float model_value = coot::util::string_to_float(bits[2]);
+	 int counts    = coot::util::string_to_int(  bits[3]);
+
+	 if (indices.size() == 2 || indices.size() == 3) { 
+	    mean    = coot::util::string_to_float(bits[4]);
+	    median  = coot::util::string_to_float(bits[5]);
+	    std_dev = coot::util::string_to_float(bits[6]);
+	    z       = coot::util::string_to_float(bits[7]);
+	    min     = coot::util::string_to_float(bits[9]);
+	    max     = coot::util::string_to_float(bits[10]);
+	 } else {
+	    dmin    = coot::util::string_to_float(bits[8]);
+	    std::cout << "got dmin " << dmin << " from :" << dmin << ":" << std::endl;
+	 } 
+	 
+	 if (n_idx == 2) {
+	    if (indices.size() == 2) { 
+	       r = mogul_item(indices[0], indices[1], model_value,
+			      counts, mean, median, std_dev, z);
+	    }
+	 }
+	 if (n_idx == 3) {
+	    if (indices.size() == 3) { 
+	       r = mogul_item(indices[0], indices[1], indices[2],
+			      model_value, counts, mean, median, std_dev, z);
+	    }
+	 }
+	 if (n_idx == 4) {
+	    if (indices.size() == 4) { 
+	       r = mogul_item(indices[0], indices[1], indices[2], indices[3],
+			      model_value, counts, dmin);
+	    }
+	 }
 	 r.set_max_z_badness(max_z_badness);
+
+	 if (bits.size() > 11) {
+	    std::vector<std::string> distribution_bits;
+	    for (unsigned int i=9; i<bits.size(); i++)
+	       distribution_bits.push_back(bits[i]);
+	    r.distribution = mogul_distribution(distribution_bits);
+	 }
+
 	 if (debug)
-	    std::cout << " bond " << atom_idx_1 << " " << atom_idx_2 << " mean: " 
+	    std::cout << " item " << indices[0] << " " << indices[1] << " mean: " 
 		      << mean << " min: " << min << " max: " << max << " median: "
 		      << median << " std: " << std_dev
 		      << "  Z-score:" << z << std::endl;
-	 mogul_distribution md(distribution_bits);
-	 // only add distributions if the numbers were sane
-	 if (md.counts.size() == md.n_bins) {
-	    r.add_distribution(md);
-	 }
       }
-      r.distribution = mogul_distribution(distribution_bits);
    }
    return r;
 }
 
+std::vector<int>
+coot::mogul::get_indices(const std::string &indices_string) const { 
+
+   std::vector<int> v;
+   std::vector<std::string> idx_bits = coot::util::split_string_no_blanks(indices_string, " ");
+   for (unsigned int i=0; i<idx_bits.size(); i++)
+      v.push_back(coot::util::string_to_int(idx_bits[i]));
+   return v;
+}
+
 coot::mogul_distribution::mogul_distribution(const std::vector<std::string> &bits) {
    
-   if (bits[0] == "DISTRIBUTION") {
-      if (bits.size() > 6) {
-	 // lower-bottom and upper-top
-	 bin_start  = coot::util::string_to_float(bits[1]);
-	 bin_end    = coot::util::string_to_float(bits[2]);
-	 bin_width  = coot::util::string_to_float(bits[3]);
-	 n_bins     = coot::util::string_to_float(bits[4]);
-	 // 5 is/should be a ":"
-	 for (unsigned int ibin=0; ibin<n_bins; ibin++) {
-	    int ibit = ibin + 6;
-	    if (ibit < bits.size()) {
-	       int v = coot::util::string_to_int(bits[ibit]);
-	       counts.push_back(v);
-	    }
+   if (bits.size() > 6) {
+      // lower-bottom and upper-top
+
+      std::cout << "Geting bin stuff from here "
+		<< bits[0] << "  "
+		<< bits[1] << "  "
+		<< bits[2] << "  "
+		<< bits[3] << "  "
+		<< bits[4] << "  "
+		<< bits[5] << "  "
+		<< std::endl;
+      bin_start  = coot::util::string_to_float(bits[0]);
+      bin_end    = coot::util::string_to_float(bits[1]);
+      bin_width  = coot::util::string_to_float(bits[2]);
+      n_bins     = coot::util::string_to_float(bits[3]);
+
+      if (1) {
+	 std::cout << "bin_start " << bin_start << std::endl;
+	 std::cout << "bin_end   " << bin_end   << std::endl;
+	 std::cout << "bin_width " << bin_width << std::endl;
+	 std::cout << "n_bins    " << n_bins    << std::endl;
+      }
+      
+      for (unsigned int ibin=0; ibin<n_bins; ibin++) {
+	 int ibit = ibin + 5;
+	 if (ibit < bits.size()) {
+	    int v = coot::util::string_to_int(bits[ibit]);
+	    counts.push_back(v);
 	 }
       }
    }
@@ -343,9 +410,39 @@ coot::mogul::get_bond_item(const std::vector<int> &indices) const {
    throw(std::runtime_error("no such item"));
 }
 
+// can throw a runtime_exception
+coot::mogul_item
+coot::mogul::get_torsion_item(const std::vector<int> &indices) const {
+
+   if (indices.size() != 4) {
+      throw(std::runtime_error("wrong size of indices"));
+   } else {
+      for (unsigned int j=0; j<items.size(); j++) { 
+	 const mogul_item &item = items[j];
+	 if (item.matches_indices(indices)) {
+	    return item;
+	 }
+      }
+   }
+   throw(std::runtime_error("no such item"));
+}
+
+
+
 bool
 coot::mogul_item::matches_indices(const std::vector<int> &indices) const {
 
+   if (indices.size() == 4) {
+      if (indices[0] == idx_1) { 
+	 if (indices[1] == idx_2) { 
+	    if (indices[2] == idx_3) {
+	       if (indices[3] == idx_4) {
+		  return true;
+	       }
+	    }
+	 }
+      }
+   } 
    if (indices.size() == 3) {
       if (indices[0] == idx_1) { 
 	 if (indices[1] == idx_2) { 

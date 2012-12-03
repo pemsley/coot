@@ -1983,7 +1983,7 @@ graphics_info_t::graphics_object_internal_torus(const coot::Cartesian &base_poin
 	 glRotated(theta_z, 0, 0, 1); // not negative.  I don't know why.
 	 glRotated(theta_y, 0, 1, 0); //   ditto.
       }
-   
+
       glTranslated(0, 0, 1.3 * height);
       if (n_ring_atoms == 5)
 	 // this makes the ring brighter.  I don't know why.
@@ -2000,7 +2000,8 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
 					      float end_angle,
 					      const coot::Cartesian &start_point,
 					      const coot::Cartesian &start_dir,
-					      const coot::Cartesian &normal) {
+					      const coot::Cartesian &normal,
+					      float r, float radius_inner) {
 
    glPushMatrix();
    
@@ -2055,8 +2056,6 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
 
    // end_angle is less than start angle.
    double angle_step = -6.0; // degrees
-   double r = 0.6;
-   double radius_inner = 0.14;
    
    glBegin(GL_QUADS);
 	       
@@ -4457,7 +4456,7 @@ graphics_info_t::draw_generic_objects_solid() {
 	       for (unsigned int iarc=0; iarc<(*generic_objects_p)[i].arcs.size(); iarc++) {
 		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
 
-		  glEnable(GL_COLOR_MATERIAL);
+		  // glEnable(GL_COLOR_MATERIAL);
 		  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 	       
 		  GLfloat  mat_diffuse[]  = {obj.arcs[iarc].col.col[0] * 0.8,
@@ -4479,7 +4478,9 @@ graphics_info_t::draw_generic_objects_solid() {
 						 obj.arcs[iarc].end_angle,
 						 obj.arcs[iarc].start_point,
 						 obj.arcs[iarc].start_dir,
-						 obj.arcs[iarc].normal);
+						 obj.arcs[iarc].normal,
+						 obj.arcs[iarc].radius,
+						 obj.arcs[iarc].radius_inner);
 	       }
 	    }
 	 }
