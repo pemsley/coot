@@ -24,10 +24,11 @@
 #include "goograph.hh"
 #include "coot-utils.hh"
 
-
-void
+// returns the close button the first time it is called, otherwise returns null.
+GtkWidget *
 coot::goograph::show_dialog() {
 
+   GtkWidget *close_button = NULL;
    if (! dialog) { 
 
       draw_graph();
@@ -47,7 +48,7 @@ coot::goograph::show_dialog() {
       gtk_widget_show(vbox_inner);
       gtk_container_add(GTK_CONTAINER(vbox_inner), GTK_WIDGET(canvas));
       gtk_widget_show(GTK_WIDGET(canvas));
-      GtkWidget *close_button = gtk_dialog_add_button(GTK_DIALOG(dialog), "Close", 2);
+      close_button = gtk_dialog_add_button(GTK_DIALOG(dialog), "Close", 2);
       gtk_widget_show(close_button);
       g_signal_connect(G_OBJECT(close_button), "clicked",
 		       G_CALLBACK(goograph_close_callback),
@@ -57,6 +58,7 @@ coot::goograph::show_dialog() {
 		       (gpointer) dialog);
    }
    gtk_widget_show(dialog);
+   return close_button;
 }
 
 void

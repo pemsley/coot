@@ -197,7 +197,8 @@ namespace coot {
       void set_trace_type(int trace_id, int plot_type, bool dashed=false);
       void set_trace_colour(int trace, const std::string colour);
       GtkWidget *get_canvas() const; // for embedding in other windows
-      void show_dialog();            // for graph in dialog
+      GtkWidget *show_dialog();            // for graph in dialog, return the close button so that we
+                                           // can add a callback that NULLs the pointer to a goograph
       void set_extents(int axis, double min, double max); 
       void set_ticks(int axis, double tick_major, double tick_minor);
       void set_axis_label(int axis, const std::string &label);

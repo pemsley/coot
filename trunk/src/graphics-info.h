@@ -637,7 +637,8 @@ class graphics_info_t {
 				     float end_angle,
 				     const coot::Cartesian &start_point,
 				     const coot::Cartesian &start_dir,
-				     const coot::Cartesian &normal);
+				     const coot::Cartesian &normal, 
+				     float radius, float radius_inner);
 
    void read_standard_residues();   // for mutation, we have
 				    // pre-prepared a pdb file with

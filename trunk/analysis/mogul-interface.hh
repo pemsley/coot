@@ -26,7 +26,7 @@ namespace coot {
 
    class mogul_item {
    public:
-      enum type_t { BOND, ANGLE, TORSION, PLANE };
+      enum type_t { NONE, BOND, ANGLE, TORSION, PLANE };
       // 1-based counting
       int idx_1;
       int idx_2;
@@ -37,9 +37,14 @@ namespace coot {
       float value, mean, median, std_dev, z;
       type_t type;
       float max_badness;
+      float dmin;
       mogul_distribution distribution;
+
    public:
-      mogul_item() { max_badness = 5.0; }
+      mogul_item() {
+	 max_badness = 5.0;
+	 type = NONE;
+      }
       mogul_item(int atom_idx_1_in, int atom_idx_2_in,
 		 float value_in,
 		 int counts_in, float mean_in, float median_in, float std_dev_in, float z_in) {
@@ -70,8 +75,7 @@ namespace coot {
 	 max_badness = 5.0; 
       }
       mogul_item(int atom_idx_1_in, int atom_idx_2_in, int atom_idx_3_in, int atom_idx_4_in,
-		 float value_in,
-		 int counts_in, float mean_in, float median_in, float std_dev_in, float z_in) {
+		 float value_in, int counts_in, float dmin_in) {
 	 type = TORSION;
 	 value = value_in;
 	 idx_1 = atom_idx_1_in;
@@ -79,10 +83,8 @@ namespace coot {
 	 idx_3 = atom_idx_3_in;
 	 idx_4 = atom_idx_4_in;
 	 counts = counts_in;
-	 mean = mean_in;
-	 median = median_in;
-	 std_dev = std_dev_in;
-	 z = z_in;
+	 dmin = dmin_in;
+	 std::cout << "set dmin to " << dmin << std::endl;
 	 max_badness = 5.0; 
       }
       bool matches_indices(const std::vector<int> &indices) const;
@@ -101,6 +103,17 @@ namespace coot {
 
    class mogul {
       std::vector<mogul_item> items;
+
+      
+      // can throw a runtime_exception
+      //
+      // n_idx is the number of expected indices
+      mogul_item parse_item_line(const std::vector<std::string> &bits, int n_idx) const;
+
+
+
+      // ----------------------- old (plain format) --------------------------------
+      // 
       // can throw a runtime_exception
       mogul_item parse_bond_line(const std::vector<std::string> &bits,
 				 const std::vector<std::string> &stats_bits,
@@ -108,11 +121,20 @@ namespace coot {
       mogul_item parse_angle_line(const std::vector<std::string> &bits,
 				  const std::vector<std::string> &stats_bits,
 				  const std::vector<std::string> &distribution_bits) const;
+      mogul_item parse_torsion_line(const std::vector<std::string> &bits,
+				    const std::vector<std::string> &stats_bits,
+				    const std::vector<std::string> &distribution_bits) const;
+
+
+      
       float max_z_badness; // passed to mogul items.
       
       std::string get_bond_type(const coot::dictionary_residue_restraints_t &restraints,
 				const std::string &name_1,
 				const std::string &name_2) const;
+      
+      std::vector<int> get_indices(const std::string &indices_string) const;
+
    public:
       mogul() { max_z_badness = 5.0; }
       mogul(const std::string &file_name) {
@@ -152,6 +174,8 @@ namespace coot {
       mogul_item get_angle_item(const std::vector<int> &indices) const;
       // can throw a runtime_exception
       mogul_item get_bond_item(const std::vector<int> &indices) const;
+      // can throw a runtime_exception
+      mogul_item get_torsion_item(const std::vector<int> &indices) const;
 
    };
 }
