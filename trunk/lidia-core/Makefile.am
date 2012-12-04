@@ -26,6 +26,7 @@ include_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh rdkit-interface.hh u
 INCLUDES = \
 	 -I$(top_srcdir)/geometry \
 	 -I$(top_srcdir)/mini-mol \
+	 -I$(top_srcdir)/coot-utils \
 	 -I$(top_srcdir)/utils \
 	$(ENTERPRISE_TOOLS_CFLAGS)      \
 	$(RDKIT_CXXFLAGS) 		\

@@ -5,15 +5,34 @@ tests        rev 4437 update
 build-it-win rev 4437
 
 -------------------------------------------------------
-* THINGS TO DO BEFORE 0.7.0 RELEASE * ONLY URGENT THING
+* THINGS TO DO BEFORE 0.7.1 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
+FIX cprodg (and interface LIDIA)
+
+-- before 0.8
+
+Windows:
+ o change runwincoot.bat to (win)coot.bat
+ o write things to WINDIR (rather than HOME)
 
 ---- FINISH URGENT ----
 
+ESMAX 2012:
+- add terminal residue (after assos. sequence) does not mutate automatically
+- toolbar disappears when playing around (disable) in preferences
+
+BioCrys 2012:
+- sequencing GUI: give more approriate error messages, e.g. if chain 
+	id is missing 
+- preferences of older Coot versions may not be compatible with newer ones.
+	Maybe only try to import, to avoid crashes!
+- Tutorial 2: 
+  o try to move baton building to later
+  o update position of baton build (other modelling tools or such)
+
 CCP4 APS 2012:
 - GUI for patterson (Garib)
-- C7 not deleted when mutating DT
 
 CCP4 SW:
 - seq vs PIR have extra button to insert, delete, mutate
@@ -70,6 +89,23 @@ scripting exercise
 ----------------
 
 **** General ****
+
+   o List of residues (e.g. alt conf) maybe display res type too
+
+   o extend alt conf from side chain to whole (and vv)
+
+   o EDS needs better error/fail handling!
+
+   o ..same for get from pdbe (when no or bad cif, e.g. 2MBR)
+
+   o Ca->main Chain for whole chain (not just zone)
+
+   o give warning (dialog) when trying to make a main chain from less
+	than 6 CA
+
+   o display python/guile info in about dialog
+
+   o fix icons for CENTOS, Red hat etc. (replace with fixed_icons.tgz?)
 
    o pisa: - H-bonds always displayed 
 	   - ignores alt-conf for H-bonds (gives warning in get atom spec)
@@ -329,6 +365,14 @@ low importance
 
 
 **** Windows ****
+
+   o use CCP4s lib dir rather than REF_DIR!?
+
+   o ccp4 project dir not showing up (with new gtk2 chooser)
+
+   o new gtk/gtkglext disappears with Dexpot
+
+   o include glob.m4 for windows
 
    o pop up dialog if disk space is limited!!
 

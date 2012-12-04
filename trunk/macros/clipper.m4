@@ -112,7 +112,6 @@ ac_cv_build_alias=${ac_cv_build_alias:=$build_alias}
 # we dont want pthreads in windows 
 case $ac_cv_build_alias in
         # BL says:: same as for cygwin in mingw
-        # dunno where else to put the glob at the moment
         MINGW*|Mingw*|*mingw*|Cygwin*|CYGWIN*|*cygwin*)
                 CLIPPER_LDOPTS=$CLIPPER_LDOPTS
 	;; 
