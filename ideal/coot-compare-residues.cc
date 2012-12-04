@@ -5,6 +5,8 @@
 #include "simple-restraint.hh"
 #include "coot-compare-residues.hh"
 
+#include "coot-sysdep.h"
+
 bool
 coot::compare_residue_torsions(CMMDBManager *mol1, CResidue *res_1,
 			       CMMDBManager *mol2, CResidue *res_2,
