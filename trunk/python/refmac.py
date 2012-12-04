@@ -494,7 +494,7 @@ def add_refmac_extra_params(pre_lines, force_no_cycles):
   else:
       # see if there is a refmac parameter file
       extras_file_name = "refmac-extra-params.txt"
-      if os.path.isfile(extra_file_name):
+      if os.path.isfile(extras_file_name):
           try:
               f = open(extras_file_name,'r')
           except IOError:

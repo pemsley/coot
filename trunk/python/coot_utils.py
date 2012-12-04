@@ -3111,7 +3111,7 @@ except:
 find_aligned_residue_type = find_terminal_residue_type
 
 def using_gui():
-    # we shall see if coot_main_mnubar is defined in guile or python
+    # we shall see if coot_main_menubar is defined in guile or python
     ret = False
     if coot_has_guile():
         ret = run_scheme_command("(defined? 'coot-main-menubar)")
