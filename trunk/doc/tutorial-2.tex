@@ -149,11 +149,13 @@ large spikes.
 
 Let's tell Coot that we have a sequence associated with this set
 of CA points.  So, \textsf{Extensions $\rightarrow$ Dock Sequence
-  $\rightarrow$ Assign Sequence}
+  $\rightarrow$ Dock Sequence}. The file to use if \texttt{rnase-A.pir},
+ found in the usual place\footnote{Make sure you select the correct 
+molecule at the top of the GUI.}.
 
-Turn on auto-fit of residues
+Turn on auto-fit of residues.
 
-So when the file is assigned ``Assign Closest fragment''.
+So when the file is assigned ``Sequence closest fragment''.
 
 \textsl{ [Coot thinks for a several seconds while assigning
   sidechains, then goes about mutating and fitting the residues]}
@@ -281,7 +283,7 @@ chain.
     \item Now Use \textsf{Extension $\rightarrow$ Mask Map} to make a
       map that has density only around the ligand.
     \item Now take the residues in the active site, use Copy Fragment
-      and merge molecule to make a single mlecule of them. Display
+      and merge molecule to make a single molecule of them. Display
       this atom selection as an electrostatic surface
   \end{itemize}
 
