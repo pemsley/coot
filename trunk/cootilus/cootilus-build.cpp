@@ -85,7 +85,7 @@ bool Coot_nucleic_acid_build::build( CMMDBManager* mmdb, const clipper::Xmap<flo
     mol_wrk[i].set_id( chainid.substr( i, 1 ) );
     for ( int j = 0; j < mol_wrk[i].size(); j++ ) {
       mol_wrk[i][j].set_seqnum( j+1 );
-      mol_wrk[i][j].set_type( "  U" );
+      mol_wrk[i][j].set_type( "U" );
     }
   }
 
