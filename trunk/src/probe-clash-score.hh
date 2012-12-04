@@ -107,11 +107,21 @@ namespace coot {
 }
 
 
+#ifdef USE_GUILE
 //! \brief return scheme false on failure or a scheme list
 // (n_bad_overlaps n_hydrogen_bonds n_small_overlaps n_close_contacts
 // n_wide_contacts)
 // 
 SCM probe_clash_score_scm(const std::string &dots_file_name);
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+//! \brief return scheme false on failure or a scheme list
+// (n_bad_overlaps n_hydrogen_bonds n_small_overlaps n_close_contacts
+// n_wide_contacts)
+// 
+PyObject *probe_clash_score_py(const std::string &dots_file_name);
+#endif // USE_PYTHON
 
 
 #endif // PROBE_CLASH_SCORE_HH

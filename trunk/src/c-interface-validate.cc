@@ -1579,8 +1579,10 @@ int get_mol_from_dynarama(GtkWidget *window) {
 void
 resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event) {
 
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
     coot::rama_plot rp;
     rp.resize_rama_canvas_internal(widget, event);
+#endif // HAVE_GTK_CANVAS   
 
 }
 

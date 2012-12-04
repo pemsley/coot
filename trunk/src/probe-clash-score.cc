@@ -154,8 +154,6 @@ coot::probe_clash_score_t::probe_clash_score_t(const std::string &dots_file_name
 
 }
 
-#ifdef USE_GUILE
-// SCM
 coot::probe_clash_score_t
 probe_clash_score(const std::string &dots_file_name) {
 
@@ -163,6 +161,8 @@ probe_clash_score(const std::string &dots_file_name) {
    return p;
 }
 
+#ifdef USE_GUILE
+// SCM
 SCM 
 probe_clash_score_scm(const std::string &dots_file_name) { 
 
@@ -179,3 +179,26 @@ probe_clash_score_scm(const std::string &dots_file_name) {
 } 
 
 #endif // USE_GUILE
+
+#ifdef USE_PYTHON
+// Python
+PyObject * 
+probe_clash_score_py(const std::string &dots_file_name) { 
+
+   PyObject *r = Py_False;
+   coot::probe_clash_score_t p(dots_file_name); 
+   if (p.filled) {
+      r = PyList_New(5);
+      PyList_SetItem(r, 0, PyInt_FromLong(p.n_bad_overlaps));
+      PyList_SetItem(r, 1, PyInt_FromLong(p.n_hydrogen_bonds));
+      PyList_SetItem(r, 2, PyInt_FromLong(p.n_small_overlaps));
+      PyList_SetItem(r, 3, PyInt_FromLong(p.n_close_contacts));
+      PyList_SetItem(r, 4, PyInt_FromLong(p.n_wide_contacts));
+   }
+   if (PyBool_Check(r)) {
+      Py_XINCREF(r);
+   }
+   return r;
+} 
+
+#endif // USE_PYTHON
