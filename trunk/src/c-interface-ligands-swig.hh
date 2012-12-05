@@ -3,9 +3,6 @@
 #ifndef C_INTERFACE_LIGANDS_SWIG_HH
 #define C_INTERFACE_LIGANDS_SWIG_HH
 
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif 
 #include "probe-clash-score.hh"
 
 // We don't need to SWIG this one...
