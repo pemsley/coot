@@ -1,4 +1,8 @@
 
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif // USE_PYTHON
+
 #include <stdio.h>
 #include <string.h>
 
