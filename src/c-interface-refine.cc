@@ -123,7 +123,7 @@ void refine_auto_range(int imol, const char *chain_id, int resno1, const char *a
 
    if (is_valid_model_molecule(imol)) { 
       graphics_info_t g;
-      int index1 = atom_index(imol, chain_id, resno1, " CA ");
+      int index1 = atom_index_full(imol, chain_id, resno1, "", " CA ", altconf);
       short int auto_range = 1;
       if (index1 >= 0) { 
 	 g.refine(imol, auto_range, index1, index1);

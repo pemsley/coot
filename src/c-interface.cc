@@ -2961,10 +2961,16 @@ int own_molecule_number(int imol) {
 // return -1 if atom not found.
 int atom_index(int imol, const char *chain_id, int iresno, const char *atom_id) {
 
+   int index;
+   index = atom_index_full(imol, chain_id, iresno, "", atom_id, "");
+
+   return index;
+}
+// return -1 if atom not found.
+int atom_index_full(int imol, const char *chain_id, int iresno, const char *inscode, const char *atom_id, const char *altconf) {
+
    int index = -1;
    graphics_info_t g;
-   std::string altconf("");
-   std::string inscode("");
 
    if (imol >= 0) {
       if (imol < graphics_info_t::n_molecules()) { 
