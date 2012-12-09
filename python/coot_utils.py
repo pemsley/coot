@@ -146,7 +146,7 @@ def using_active_atom(*funcs):
 #
 # use with 'with', e.g.:
 #
-# > with WithNoBackups(imol=0):
+# > with NoBackups(imol=0):
 #      refine_zone(imol, "A", 43, 45, "")
 #      accept_regularizement()
 #
