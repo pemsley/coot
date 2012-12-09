@@ -177,7 +177,7 @@ def fit_protein_fit_function(res_spec, imol_map):
         turn_on_backup(imol)
 
 def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
-    
+
     imol     = res_spec[0]
     chain_id = res_spec[1]
     res_no   = res_spec[2]
@@ -186,35 +186,25 @@ def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
     current_rama_state = refine_ramachandran_angles_state()
     set_dragged_refinement_steps_per_frame(400)
     
-    # BL says: again we dont use with_auto_accept here, get's too messy
-    replace_state = refinement_immediate_replacement_state()
-    set_refinement_immediate_replacement(1)
-    # same goes for backup, and should be faster...
-    make_backup(imol) # do a backup first
-    backup_mode = backup_state(imol)
-    turn_off_backup(imol)
-
     for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
         if use_rama:
             set_refine_ramachandran_angles(1)
         res_name = residue_name(imol, chain_id, res_no, ins_code)
         if (not res_name == "HOH"):
             print "centering on", chain_id, res_no, "CA"
-            set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
+            set_go_to_atom_chain_residue_atom_name_full(chain_id, res_no,
+                                                        ins_code, "CA",
+                                                        alt_conf)
             rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)
-            # with_auto_accept ?
-            refine_auto_range(imol, chain_id, res_no, alt_conf)
-            accept_regularizement()
+            with NoBackups(imol):
+                with AutoAccept():
+                    refine_auto_range(imol, chain_id, res_no, alt_conf)
             rotate_y_scene(10, 0.3)    
 
     set_refine_ramachandran_angles(current_rama_state)
     set_dragged_refinement_steps_per_frame(current_steps_per_frame)
+
     
-    if (replace_state == 0):
-        set_refinement_immediate_replacement(0)
-    if (backup_mode == 1):
-        turn_on_backup(imol)
-        
 def fit_protein_rama_fit_function(res_spec, imol_map):
     # BL says: make it more generic
     fit_protein_stepped_refine_function(res_spec, imol_map, True)
@@ -232,14 +222,20 @@ def interruptible_fit_protein(imol, func):
     global multi_refine_separator
     specs = fit_protein_make_specs(imol, 'all-chains')
     if specs:
+        # lets make a backup before we start
+        make_backup(imol)
+        
         multi_refine_separator = add_coot_toolbar_separator()
-        multi_refine_stop_button = coot_toolbar_button("Stop", "stop_interruptible_fit_protein()", "gtk-stop")
+        multi_refine_stop_button = coot_toolbar_button("Stop",
+                                                       "stop_interruptible_fit_protein()"
+                                                       , "gtk-stop")
         multi_refine_spec_list = specs
         def idle_func():
             global multi_refine_spec_list
             global continue_multi_refine
             global multi_refine_idle_proc
             global multi_refine_stop_button
+            global multi_refine_separator
             if not multi_refine_spec_list:
                 #set_visible_toolbar_multi_refine_stop_button(0)
                 #set_visible_toolbar_multi_refine_continue_button(0)
@@ -324,7 +320,7 @@ def cancel_interruptible_fit_protein():
 # update the graphics while this is happening (which makes it faster
 # than fit-protein, but much less interesting to look at).
 #
-def fit_chain(imol,chain_id):
+def fit_chain(imol, chain_id):
 
     make_backup(imol)
     backup_mode = backup_state(imol)
