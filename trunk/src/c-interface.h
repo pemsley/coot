@@ -2438,6 +2438,9 @@ void set_draw_axes(int i);
 /* does not account for alternative conformations properly */
 /* return -1 if atom not found. */
 int atom_index(int imol, const char *chain_id, int iresno, const char *atom_id); 
+/* using alternative conformations properly ?! */
+/* return -1 if atom not found. */
+int atom_index_full(int imol, const char *chain_id, int iresno, const char *inscode, const char *atom_id, const char *altconf);
 /* Refine zone needs to be passed atom indexes (which it then converts */
 /* to residue numbers - sigh).  So we need a function to get an
    atom. Return -1 on failure */
