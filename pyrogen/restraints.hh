@@ -33,11 +33,12 @@ namespace coot {
 					    PyObject *bond_order_restraints_py,
 					    const std::string &mmcif_out_file_name);
 
-   void 
+   PyObject *
    mmcif_dict_from_mol(const std::string &comp_id,
 		       const std::string &compound_name,
 		       PyObject *rdkit_mol,
 		       const std::string &mmcif_out_file_name);
+   
    // which is a wrapper for:
    coot::dictionary_residue_restraints_t
    mmcif_dict_from_mol_inner(const std::string &comp_id,

@@ -19,7 +19,6 @@ LIBS=$(prfx)/lib/libcoot-ideal.la \
 
 libs: _coot_libs.so restraints_boost.so
 
-# restraints-boost.o
 _coot_libs.so: wrap-coot-libs.o restraints.o py-restraints.o 
 	libtool --mode=link g++ -shared -fPIC $^ -o $@ $(LIBS) 
 
@@ -61,3 +60,17 @@ boost-example-defs.o: boost-example-defs.cc
 
 mytest.so: boost-example.o boost-example-defs.o
 	libtool --mode=link g++ -shared -fPIC $^ -o $@ $(LIBS)
+
+# an example of using boost python in and out of python - i.e. use
+# python function return value in c++
+
+inandout.o: inandout.cc inandout.hh
+	libtool --mode=compile $(CXX) -fPIC $(INCLUDES) -c $< -o $@
+
+inandout-defs.o: inandout-defs.cc inandout.cc inandout.hh
+	libtool --mode=compile $(CXX) -fPIC $(INCLUDES) -c $< -o $@
+
+# the thing we can import into python
+inandout.so: inandout.o inandout-defs.o
+	libtool --mode=link g++ -shared -fPIC $^ -o $@ $(LIBS)
+
