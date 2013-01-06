@@ -3174,6 +3174,12 @@ public:        //                      public
    coot::residue_spec_t get_residue_by_type(const std::string &residue_type) const;
 
    std::vector<coot::residue_spec_t> het_groups() const;
+
+   // return null on failure.  seq_trip is something like "ACE".
+   CAtom *get_centre_atom_from_sequence_triplet(const std::string &seq_trip) const;
+   // which uses (like align's make_model_string).  Ignores waters.
+   // The length of the string is guaranteed to the the length of the vector.
+   std::pair<std::string, std::vector<CResidue *> > sequence_from_chain(CChain *chain_p) const; 
    
 };
 

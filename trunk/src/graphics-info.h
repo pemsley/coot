@@ -3674,6 +3674,11 @@ public:
    // --- keyboarding the Go To Atom (or residue, really)
    static void apply_go_to_residue_keyboading_string(const std::string &text);
    void apply_go_to_residue_keyboading_string_inner(int imol, CAtom *new_centre_atom);
+   // go to the middle residue of the first occurance of the sequence triplet if you can
+   // seq_trip is of course something like "ACE"
+   // return the "found the triplet and moved there" status: 0 for fail.
+   // 
+   int apply_go_to_residue_from_sequence_triplet(int imol, const std::string &seq_trip);
 
    // -- PHENIX support
    static std::string external_refinement_program_button_label;

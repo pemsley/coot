@@ -48,6 +48,8 @@ namespace coot {
 	 bool is_fasta_aa(const std::string &a) const;
       };
 
+      bool is_sequence_triplet(const std::string &s);
+
    }
 
    std::pair<std::string, std::string> get_userid_name_pair();
