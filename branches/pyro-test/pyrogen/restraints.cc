@@ -85,7 +85,7 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
       
 }
 
-void 
+PyObject *
 coot::mmcif_dict_from_mol(const std::string &comp_id,
 			  const std::string &compound_name,
 			  PyObject *rdkit_mol_py,
@@ -94,7 +94,7 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
    coot::dictionary_residue_restraints_t restraints =
       mmcif_dict_from_mol_inner(comp_id, compound_name, rdkit_mol_py);
    restraints.write_cif(mmcif_out_file_name);
-
+   return monomer_restraints_to_python(restraints);
 } 
 
 coot::dictionary_residue_restraints_t
@@ -176,7 +176,7 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	       std::string bt = convert_to_energy_lib_bond_type(bond_p->getBondType());
 	       energy_lib_bond bond =
 		  energy_lib.get_bond(atom_type_1, atom_type_2, bt); // add bond type as arg
-	       if (1)
+	       if (0)
 		  std::cout << "....... " << atom_name_1 << " " << atom_name_2 << " types \""
 			    << atom_type_1 << "\" \"" << atom_type_2
 			    << "\" got bond " << bond << std::endl;
@@ -494,6 +494,8 @@ coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_rest
 	 at_p->getProp("_GasteigerCharge", charge);
 	 std::pair<bool, float> charge_pair(have_charge, charge);
 
+	 std::cout << "in add_chem_comp_atoms() charge of " << iat << " " << charge << std::endl;
+
 	 dict_atom atom(name, name, at_p->getSymbol(), atom_type, charge_pair);
 
  	 RDKit::Conformer conf = mol.getConformer(iconf);
@@ -543,7 +545,7 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_re
       int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
-	    std::cout << "matched plane pattern: " << patterns[ipat] << std::endl;
+	    std::cout << "matched aromatic plane pattern: " << patterns[ipat] << std::endl;
 	    std::string plane_id = "plane-arom-";
 	    char s[100];
 	    snprintf(s,99,"%d", n_planes);
@@ -673,7 +675,7 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
       int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
-	    std::cout << "matched deloc pattern: " << patterns[ipat].first << std::endl;
+	    std::cout << "matched deloc plane pattern: " << patterns[ipat].first << std::endl;
 	    std::vector<std::string> atom_names;
 	    std::string plane_id = "plane-deloc-";
 	    char s[100];

@@ -308,7 +308,7 @@ PyObject *coot::monomer_restraints_to_python(const dictionary_residue_restraints
 	 PyObject *flag = Py_False;
 	 if (atom_info[iat].partial_charge.first)
 	    flag = Py_True;
-     Py_INCREF(flag);
+	 Py_INCREF(flag);
 	 PyList_SetItem(atom_attributes_list, 4, flag);
 	 PyList_SetItem(atom_info_list, iat, atom_attributes_list);
       }
