@@ -1,6 +1,14 @@
 
 # It seems that we need to setup PYTHONPATH correctly to properly link
-# _coot_libs.so?
+# _coot_libs.so? 
+# Note that it may not the have been the setting of PYTHONPATH -
+# perhaps it was the setting of the path, so that libtool 1.5.24 was
+# used - not the "default" 2.4.x).  Today, if 2.4.x is used instead of 
+# 1.5.24, then we get
+# /usr/lib/gcc/x86_64-redhat-linux/4.6.3/../../../../lib64/crt1.o: In function `_start':
+# (.text+0x20): undefined reference to `main'
+# because (it seems to me) that -shared is striped from the command 
+# linked args to gcc!
 
 
 install_top_dir=$(HOME)/autobuild/build-coot+rdkit-pre-release-gtk2-python
