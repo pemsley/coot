@@ -6957,6 +6957,29 @@ ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode
 ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode
 INFO:: graphics_info_t::clear_up_moving_atoms...
 
+----
+Fri Oct 26 14:07:13 EDT 2012
+
+Dave:
+   rotamers buttons should have name, not chi1!
+Jeff
+   tell me about the geometry of this residue, bond angle deviantions
+   etc (as a table sorted on Z?)
+
+   building a loop: I have a number of resdues, I want to see the
+   geometric distrtions of the residues (c.f. how king does it with
+   red springs for bonds, and fan for angles?)
+
+For presentation next time:
+
+   Add "it takes a brain to validate" slide	
+   figure for bond and angle restraints, 
+   Dig out the bayes slide, mention validation
+     introduce probability and likelihood 
+   
+Does zero-occupancy-residue-range work?
+
+
 
 ------
 
