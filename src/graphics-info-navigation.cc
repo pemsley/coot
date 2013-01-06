@@ -976,17 +976,23 @@ graphics_info_t::apply_go_to_residue_keyboading_string(const std::string &ks) {
    coot::Cartesian rc = g.RotationCentre();
 
    if (aas.first) {
-      int imol = aas.second.first;
-      CAtom *new_centre_atom = g.molecules[imol].get_atom(ks, aas.second.second, rc);
-      if (new_centre_atom) {
-	 g.apply_go_to_residue_keyboading_string_inner(imol,new_centre_atom);
+      if (! coot::sequence::is_sequence_triplet(ks)) { 
+	 int imol = aas.second.first;
+	 CAtom *new_centre_atom = g.molecules[imol].get_atom(ks, aas.second.second, rc);
+	 if (new_centre_atom) {
+	    g.apply_go_to_residue_keyboading_string_inner(imol,new_centre_atom);
+	 } else {
+	    new_centre_atom = g.molecules[imol].get_atom(coot::util::upcase(ks), aas.second.second, rc);
+	    g.apply_go_to_residue_keyboading_string_inner(imol, new_centre_atom);
+	 }
       } else {
-	 new_centre_atom = g.molecules[imol].get_atom(coot::util::upcase(ks), aas.second.second, rc);
-	 g.apply_go_to_residue_keyboading_string_inner(imol, new_centre_atom);
-      } 
-   } else {
+	 // handle sequence triplet
+	 int imol = aas.second.first;
+	 g.apply_go_to_residue_from_sequence_triplet(imol, ks);
+      }
+   } else { 
       std::cout << "WARNING:: No active atom " << std::endl;
-   } 
+   }
 }
 
 void
@@ -1036,7 +1042,24 @@ graphics_info_t::apply_go_to_residue_keyboading_string_inner(int imol, CAtom *ne
    } else {
      std::cout << "WARNING:: failed to find that residue - no new centre atom " << std::endl;
    }
-} 
+}
+
+// go to the middle residue of the first occurance of the sequence triplet if you can
+// seq_trip is of course something like "ACE"
+// return the "found the triplet and moved there" status: 0 for fail.
+// 
+int graphics_info_t::apply_go_to_residue_from_sequence_triplet(int imol, const std::string &seq_trip) {
+
+   int status = 0;
+
+   if (is_valid_model_molecule(imol)) { 
+      CAtom *new_centre_atom = graphics_info_t::molecules[imol].get_centre_atom_from_sequence_triplet(seq_trip);
+      std::cout << "INFO:: new centre atom: " << new_centre_atom << std::endl;
+      if (new_centre_atom)
+	 apply_go_to_residue_keyboading_string_inner(imol, new_centre_atom);
+   }
+   return status;
+}
 
 
 

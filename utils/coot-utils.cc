@@ -1129,4 +1129,19 @@ coot::util::is_standard_amino_acid_name(const std::string &residue_name) {
 } 
 
 
+bool
+coot::sequence::is_sequence_triplet(const std::string &s) {
+
+   bool r = false;
+
+   if (s.length() == 3) { 
+      std::string ss = util::upcase(s);
+      // A-Z check
+      if (ss[0] < 91 && ss[0] >= 65) 
+	 if (ss[1] < 91 && ss[1] >= 65) 
+	    if (ss[2] < 91 && ss[2] >= 65) 
+	       r = true;
+   }
+   return r;
+} 
 

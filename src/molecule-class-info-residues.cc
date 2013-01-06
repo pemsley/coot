@@ -41,10 +41,11 @@
 #include "graphics-info.h"  // for rama probablity definitions
 
 #include <mmdb/mmdb_manager.h>
+#include <mmdb/mmdb_tables.h>  // for Get1LetterCode()
 #include "mmdb-extras.h"
 #include "Cartesian.h"
 #include "mmdb-crystal.h"
-// 
+
 #include "rotamer.hh" // in ligand
 
 #include "base-pairing.hh"
@@ -1412,4 +1413,112 @@ molecule_class_info_t::het_groups() const {
       }
    }
    return r;
-} 
+}
+
+// the length of the string is guaranteed to the the length of the vector
+std::pair<std::string, std::vector<CResidue *> >
+molecule_class_info_t::sequence_from_chain(CChain *chain_p) const { 
+
+   PPCResidue residues = 0;
+   int n_residues;
+   chain_p->GetResidueTable(residues, n_residues);
+   std::string s;
+   std::vector<CResidue *> v;
+   char r[10];
+
+   if (residues) { 
+      for (int i=0; i<n_residues; i++) {
+	 std::string this_residue = "X";
+	 pstr rn = residues[i]->GetResName();
+	 std::string residue_name(residues[i]->GetResName());
+	 Get1LetterCode(rn, r); // mmdb
+	 this_residue = r[0];
+	 if (residue_name != "HOH") {
+	    s += this_residue;
+	    v.push_back(residues[i]);
+	 }
+      }
+   }
+   return std::pair<std::string, std::vector<CResidue *> >(s,v);
+}
+
+
+// return null on failure.  seq_trip is something like "ACE".
+CAtom *
+molecule_class_info_t::get_centre_atom_from_sequence_triplet(const std::string &seq_trip) const {
+
+   CAtom *at = 0;
+   std::string useq_trip = coot::util::upcase(seq_trip);
+
+   int imod = 1;
+   CModel *model_p = atom_sel.mol->GetModel(imod);
+   CChain *chain_p;
+   int n_chains = model_p->GetNumberOfChains();
+   int n_same_triplet = 0;
+   std::map<CChain *, std::vector<coot::residue_spec_t> > triplet_map;
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      std::pair<std::string, std::vector<CResidue *> > seq = sequence_from_chain(chain_p);
+      std::string::size_type ifound = 0; // initial non-npos value
+      std::string::size_type ifound_prev = 0; // initial non-npos value
+      std::string::size_type i_offset = 0;
+
+      while (ifound != std::string::npos) {
+	 ifound = seq.first.substr(ifound_prev+i_offset).find(useq_trip);
+	 if (ifound != std::string::npos)
+	    i_offset++;
+	 // 	 std::cout << "finding " << useq_trip << " in " << seq.first.substr(ifound_prev+i_offset)
+	 // 		   << " yields " << ifound << std::endl;
+	 if (ifound != std::string::npos) {
+	    // 	    std::cout << "... which is not npos " << std::endl;
+	    int idx = ifound_prev+ifound+i_offset;  // middle residue
+	    if (idx < seq.second.size()) {
+	       // this should always be so
+	       CResidue *r = seq.second[idx];
+	       int iat = intelligent_this_residue_atom(r);
+	       if (iat != -1) {
+		  // std::cout << "adding spec " << coot::residue_spec_t(atom_sel.atom_selection[iat])
+		  // << std::endl;
+		  triplet_map[chain_p].push_back(coot::residue_spec_t(atom_sel.atom_selection[iat]));
+		  if (at == 0)
+		     at = atom_sel.atom_selection[iat];
+	       }
+	    } else {
+	       std::cout << "ERROR:: !!! .... out of range index " << idx << " not < " << seq.second.size()
+			 << std::endl;
+	    } 
+	 }
+	 ifound_prev += ifound;
+      }
+   }
+   
+   if (at) {
+      coot::residue_spec_t at_rs(at->residue);
+      int n_ncs = 0;
+      std::map<CChain *, std::vector<coot::residue_spec_t> >::const_iterator it;
+      for (it=triplet_map.begin(); it!=triplet_map.end(); it++) {
+	 for (unsigned int i=0; i<it->second.size(); i++) {
+	    const coot::residue_spec_t vi_spec(it->second[i]);
+	    // std::cout << "comparing " << it->second[i] << " and " << vi_spec << std::endl;
+	    if (vi_spec == at_rs) {
+	       // this is the same atom, skip it.
+	    } else {
+	       n_same_triplet++;
+	    }
+	 }
+      }
+      std::cout << "INFO:: " << "centred on first occurance of triplet " << useq_trip << ", there are "
+		<< n_same_triplet+1 << " in total" << std::endl;
+      // if there are triplets that are not NCS related, write out all triplets
+      if ((n_same_triplet) > 0) {
+	 std::cout << "------- (middle) residues matching " << useq_trip << " --------" << std::endl;
+	 for (it=triplet_map.begin(); it!=triplet_map.end(); it++) {
+	    for (unsigned int i=0; i<it->second.size(); i++) {
+	       const coot::residue_spec_t vi_spec(it->second[i]);
+	       std::cout << "   " << vi_spec<< std::endl;
+	    }
+	 }
+      }
+   }
+   return at;
+}
