@@ -2243,6 +2243,7 @@
       (format #t "INFO:: ~s ~%" s)))
 
   (define (box-for-binding item inside-vbox buttonize-flag)
+
     (let ((binding-hbox (gtk-hbox-new #f 2)))
       (let* ((txt (if (string? (car (cdr item)))
 		      (car (cdr item))
@@ -2265,8 +2266,12 @@
 
 	      (gtk-box-pack-start binding-hbox button #t #t 0)
 	      (gtk-box-pack-start inside-vbox binding-hbox #f #f 0)
-	      (gtk-signal-connect button "clicked" 
-				  (list-ref item 3)))
+	      (gtk-signal-connect 
+	       button "clicked" 
+	       (if (procedure? (list-ref item 3))
+		   (list-ref item 3)
+		   (lambda() 
+		     (format #t "WARNING:: placeholder for non-scheme function: ~s~%" )))))
 	
 	    (begin
 	      (gtk-box-pack-start binding-hbox key-label  #f #f 2)
