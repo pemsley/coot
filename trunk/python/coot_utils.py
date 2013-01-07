@@ -35,6 +35,13 @@ have_mingw = False
 if  os.getenv("MSYSTEM"):
     have_mingw = True
 
+
+global user_defined_alert_smarts
+# example: user_defined_alert_smarts = [['C', 'my-user-defined alert for carbon']]
+user_defined_alert_smarts = []
+
+    
+
 # not sure if the implementation of the macros will work
 
 # 'Macro' to tidy up a a setup of functions to be run with no backup
