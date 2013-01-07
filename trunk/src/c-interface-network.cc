@@ -250,9 +250,9 @@ get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname) {
 	    std::cout << "INFO:: get_drug_via_wikipedia result-not-a-string" << std::endl;
 	 }
 	 return s;
-      }
-   } 
 #endif
+      }
+   }
    catch (...) {
       std::cout << "WARNING:: trapped an exception in get_drug_mdl_via_wikipedia_and_drugbank() "
 		<< std::endl;
