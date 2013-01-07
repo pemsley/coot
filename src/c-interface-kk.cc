@@ -81,32 +81,41 @@ PyObject *map_peaks_near_point_from_list_py(int imol_map, PyObject *peak_list, f
 
 #ifdef USE_PYTHON
 PyObject *screen_vectors_py() {
-  PyObject *vecs = PyList_New(3);
+
+   PyObject *vecs = Py_None;
+
+   // we need graphics to create a ScreenVectors
+   // 
+   if (graphics_info_t::use_graphics_interface_flag) { 
+   
+      vecs = PyList_New(3);
   
-  PyObject *x_vecs = PyList_New(3);
-  PyObject *y_vecs = PyList_New(3);
-  PyObject *z_vecs = PyList_New(3);
+      PyObject *x_vecs = PyList_New(3);
+      PyObject *y_vecs = PyList_New(3);
+      PyObject *z_vecs = PyList_New(3);
   
-  //create a new ScreenVectors object
-  coot::ScreenVectors screen_vec_object;
+      //create a new ScreenVectors object
+      coot::ScreenVectors screen_vec_object;
 
-  //copy the ScreenVectors object into a Python list
-  PyList_SetItem(x_vecs, 0, PyFloat_FromDouble(screen_vec_object.screen_x.x()));
-  PyList_SetItem(x_vecs, 1, PyFloat_FromDouble(screen_vec_object.screen_x.y()));
-  PyList_SetItem(x_vecs, 2, PyFloat_FromDouble(screen_vec_object.screen_x.z()));
+      //copy the ScreenVectors object into a Python list
+      PyList_SetItem(x_vecs, 0, PyFloat_FromDouble(screen_vec_object.screen_x.x()));
+      PyList_SetItem(x_vecs, 1, PyFloat_FromDouble(screen_vec_object.screen_x.y()));
+      PyList_SetItem(x_vecs, 2, PyFloat_FromDouble(screen_vec_object.screen_x.z()));
 
-  PyList_SetItem(y_vecs, 0, PyFloat_FromDouble(screen_vec_object.screen_y.x()));
-  PyList_SetItem(y_vecs, 1, PyFloat_FromDouble(screen_vec_object.screen_y.y()));
-  PyList_SetItem(y_vecs, 2, PyFloat_FromDouble(screen_vec_object.screen_y.z()));
+      PyList_SetItem(y_vecs, 0, PyFloat_FromDouble(screen_vec_object.screen_y.x()));
+      PyList_SetItem(y_vecs, 1, PyFloat_FromDouble(screen_vec_object.screen_y.y()));
+      PyList_SetItem(y_vecs, 2, PyFloat_FromDouble(screen_vec_object.screen_y.z()));
 
-  PyList_SetItem(z_vecs, 0, PyFloat_FromDouble(screen_vec_object.screen_z.x()));
-  PyList_SetItem(z_vecs, 1, PyFloat_FromDouble(screen_vec_object.screen_z.y()));
-  PyList_SetItem(z_vecs, 2, PyFloat_FromDouble(screen_vec_object.screen_z.z()));
+      PyList_SetItem(z_vecs, 0, PyFloat_FromDouble(screen_vec_object.screen_z.x()));
+      PyList_SetItem(z_vecs, 1, PyFloat_FromDouble(screen_vec_object.screen_z.y()));
+      PyList_SetItem(z_vecs, 2, PyFloat_FromDouble(screen_vec_object.screen_z.z()));
 
-  PyList_SetItem(vecs, 0, x_vecs);
-  PyList_SetItem(vecs, 1, y_vecs);
-  PyList_SetItem(vecs, 2, z_vecs);
-  
+      PyList_SetItem(vecs, 0, x_vecs);
+      PyList_SetItem(vecs, 1, y_vecs);
+      PyList_SetItem(vecs, 2, z_vecs);
+   } else {
+      Py_INCREF(vecs);
+   }
   return vecs;
 }
 #endif
