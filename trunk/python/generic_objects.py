@@ -199,7 +199,12 @@ def reduce_on_pdb_file(imol, pdb_in, pdb_out):
                            pdb_out)
 
     print "======== status", status
-    return status == 0
+
+    # 20130107 returning (status == 0) is problematic because sometimes/often reduce exits
+    # with status 1 but it has worked OK!
+    #
+    # return status == 0
+    return True
 
   
 global old_pdb_style
