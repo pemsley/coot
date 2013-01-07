@@ -1036,6 +1036,7 @@ coot::column_selector_using_cmtz(const std::string &filename) {
 
    /* Stuff a pointer to mtz info into the dialog: */
    column_label_window = create_column_label_window();
+   set_transient_and_position(COOT_MTZ_COLUMN_SELECTOR_DIALOG, column_label_window);
    gtk_object_set_user_data(GTK_OBJECT(column_label_window), f_phi_columns);
 
    /* The default column labels are at the top of the list.  The
