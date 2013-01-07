@@ -5228,7 +5228,7 @@ PyObject *py_clean_internal(PyObject *o) {
 	   PyErr_Print();
 	 }
 	 PyList_Append(ret, py_item);
-	 Py_XDECREF(py_item);
+	 // Py_XDECREF(py_item); no!
       }
    } else {
       if (PyBool_Check(o)) {
@@ -5242,11 +5242,11 @@ PyObject *py_clean_internal(PyObject *o) {
 	    ret = o;
 	 } else {
 	    if (PyFloat_Check(o)) {
+	       // float is a copy 
 	       double f = PyFloat_AsDouble(o);
 	       ret = PyFloat_FromDouble(f);
 	    } else {
 	       if (PyString_Check(o)) {
-		  std::string str = PyString_AsString(o);
 		  ret = o;
 	       } else {
 		  if (PyFunction_Check(o)) {
@@ -5296,7 +5296,6 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
       //PyRun_SimpleString("import sys, os");
       //PyRun_SimpleString("sys.path.append(os.getenv('COOT_PYTHON_DIR'))");
 
-
       // Build the name object
       const char *modulename = "__main__";
       pName = PyString_FromString(modulename);
@@ -5322,17 +5321,23 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 	   
 	   if (pValue != NULL) {
 	      if (pValue != Py_None) {
-		 ret = py_clean_internal(pValue);
+		 
+		 // ret = py_clean_internal(pValue); // old style 'sometimes-copy'
+		 ret = pValue;
 		 if (! ret)
 		    ret = Py_None;
 	      } else {
 		 ret = Py_None;
 	      }
 	   } else {
+
+	      // deal with pValue = NULL
+	      
 	      // there is an Error. Could be a syntax error whilst trying to evaluate a statement
 	      // so let's try to run it as a statement
 	      if (PyErr_ExceptionMatches(PyExc_SyntaxError)) {
 		 std::cout << "error (syntax error)" << std::endl;
+		 
 		 PyErr_Clear();
 		 pValue = PyRun_String((char *)python_cmd.c_str(), Py_single_input, globals, globals);
 		 if (pValue != NULL) {
@@ -5344,7 +5349,7 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 	      }
 	   }
 	   delete py_command_str;
-	   Py_XDECREF(pValue);
+	   // Py_XDECREF(pValue); // No. We want objects from here to have a refcount of 1.
 	}
       }
       // Clean up

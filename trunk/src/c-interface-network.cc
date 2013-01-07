@@ -231,26 +231,33 @@ write_coot_curl_data_to_file(void *buffer, size_t size, size_t nmemb, void *user
 std::string
 get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname) {
 
-   if (graphics_info_t::prefer_python) { 
+   try {
+      if (graphics_info_t::prefer_python) {
+	 
 #ifdef USE_PYTHON
-      std::string s = get_drug_via_wikipedia_and_drugbank_py(drugname);
-      if (s.empty()) {
-	 std::runtime_error rte("get_drug_via_wikipedia result-not-a-string");
-	 throw(rte);
-      }
-      return s;
+	 std::string s = get_drug_via_wikipedia_and_drugbank_py(drugname);
+	 if (s.empty()) {
+	    std::cout << "INFO:: get_drug_via_wikipedia result-not-a-string" << std::endl;
+	 }
+	 return s;
 #endif
-   } else {
+
+      } else {
+
 #ifdef USE_GUILE
-      std::string s = get_drug_via_wikipedia_and_drugbank_scm(drugname);
-      if (s.empty()) {
-	 std::runtime_error rte("get_drug_via_wikipedia result-not-a-string");
-	 throw(rte);
+	 std::string s = get_drug_via_wikipedia_and_drugbank_scm(drugname);
+	 if (s.empty()) {
+	    std::cout << "INFO:: get_drug_via_wikipedia result-not-a-string" << std::endl;
+	 }
+	 return s;
       }
-      return s;
+   } 
 #endif
+   catch (...) {
+      std::cout << "WARNING:: trapped an exception in get_drug_mdl_via_wikipedia_and_drugbank() "
+		<< std::endl;
    }
-   throw std::runtime_error("no scripting");
+   return std::string("");
 }
 
 #ifdef USE_GUILE
