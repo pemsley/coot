@@ -3014,26 +3014,33 @@ def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
 # 
 def get_drug_via_wikipedia(drug_name):
 
+
     import urllib2
-    def parse_wiki_drug_xml(xml, key):
-        from xml.etree import ElementTree
+    from xml.etree import ElementTree
+
+    def get_redirected_drug_name(xml):
+        return parse_wiki_drug_xml(xml, '#REDIRECT', True)
+    
+    def parse_wiki_drug_xml(tree, key, redirect=False):
         drug_bank_id = False
-        tree = ElementTree.parse(xml)
-        #tree.parse(xml)
         query_ele = tree.find("query")
         rev_iter = query_ele.getiterator("rev")
         rev_text = rev_iter[0].text
         # seems to be in some strange format!?
         decode_text = rev_text.encode('ascii', 'ignore')
         for line in decode_text.split("\n"):
-            #if "DrugBank = " in line:
             if key in line:
-                drug_bank_id = line.split(" ")[-1]
-                if not drug_bank_id:
-                    # we can get an empty string
-                    drug_bank_id = False
-        print "BL DEBUG:: returning from xml parse", drug_bank_id
+                if (redirect == False):
+                   drug_bank_id = line.split(" ")[-1]
+                   if not drug_bank_id:
+                      # we can get an empty string
+                      drug_bank_id = False
+                else:
+                    # a REDIRECT was found
+                    drug_bank_id = line[line.find("[[")+2:line.find("]]")]
+                    
         return drug_bank_id
+            
         
     # main line
     def drugbox2drugbank():
@@ -3047,20 +3054,25 @@ def get_drug_via_wikipedia(drug_name):
             url = "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles=" + \
                   drug_name + \
                   "&prop=revisions&rvprop=content"
-            #xml = coot_get_url_as_string(url)
 
-            #xml_file_name = drug_name + ".xml"
-            #with open(xml_file_name, 'w') as fileout:
-            #    fileout.write(xml)
+            # we want to parse the Etree rather than xml as this is an addurlinfo thingy
             xml = urllib2.urlopen(url)
-            mol_name = parse_wiki_drug_xml(xml, drugbox2drugbank())
+            xml_tree = ElementTree.parse(xml)
+            
+            mol_name = parse_wiki_drug_xml(xml_tree, drugbox2drugbank())
+            
             if not isinstance(mol_name, str):
-                print "BL WARNING:: mol_name not a string (from drugbank)", mol_name
+                print "BL WARNING:: mol_name not a string (from wikipedia)", mol_name
                 # try pubchem as fallback
-                xml = urllib2.urlopen(url)
-                mol_name = parse_wiki_drug_xml(xml, drugbox2pubchem())
+                mol_name = parse_wiki_drug_xml(xml_tree, drugbox2pubchem())
                 if not isinstance(mol_name, str):
-                    print "BL WARNING:: mol_name not a string (from pubchem)", mol_name
+
+                    print "BL WARNING:: mol_name not a string (from pubchem either)", mol_name
+                    # so was there a redirect?
+                    # if so, get the name and call get_drug_via_wikipedia with it
+                    redirected_drug_name = get_redirected_drug_name(xml_tree)
+                    return get_drug_via_wikipedia(redirected_drug_name)
+                    
                 else:
                     pc_mol_uri = "http://pubchem.ncbi.nlm.nih.gov" + \
                                  "/summary/summary.cgi?cid=" + \
