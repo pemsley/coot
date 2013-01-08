@@ -258,6 +258,7 @@ coot_real_SOURCES = \
 	c-interface-mmdb.cc	 \
 	c-interface-mmdb.hh      \
 	c-interface-mogul.cc     \
+	c-interface-mogul.hh     \
 	c-interface-mogul-scripting.cc     \
 	c-interface-mutate.cc    \
 	c-interface-ncs.cc	 \
@@ -380,6 +381,7 @@ coot_real_SOURCES = \
         pick.h pick.cc		 \
 	positioned-widgets.h     \
 	probe-clash-score.cc     \
+	probe-clash-score.hh     \
 	protein_db-interface.hh  \
 	protein_db-interface.cc  \
 	read-phs.h		 \

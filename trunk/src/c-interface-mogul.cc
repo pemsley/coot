@@ -112,7 +112,7 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 				 clipper::Coord_orth(0.001*(at_2->x - at_3->x),
 						     0.001*(at_2->y - at_3->y),
 						     0.001*(at_2->z - at_3->z));
-			      std::cout << "      " << centre.format() << " " << norm_dir.format() << std::endl;
+			      // std::cout << "      " << centre.format() << " " << norm_dir.format() << std::endl;
 			      coot::generic_display_object_t::torus_t torus(centre, norm_dir, 0.07, 0.5);
 			      
 			      std::string hex_colour = m[i].colour();
@@ -158,11 +158,13 @@ int update_restraints_using_mogul(int imol, const char *chain_id, int res_no, co
    return s;
 }
 
-void show_mogul_geometry_dialog(const coot::mogul &m, CResidue *residue) {
+// results tabl
+void
+show_mogul_geometry_dialog(const coot::mogul &m, CResidue *residue) {
 
    if (graphics_info_t::use_graphics_interface_flag) { 
 #ifdef HAVE_GOOCANVAS
-      GtkWidget *w = wrapped_create_mogul_geometry_dialog(m, residue);
+      GtkWidget *w = wrapped_create_mogul_geometry_dialog(m, residue); // results table
       if (w) { 
 	 gtk_widget_show(w);
       } 
@@ -194,10 +196,12 @@ coot::mogul_results_add_cell_renderer(GtkTreeView *tree_view,
 }
 
 
+// results table
+// 
 GtkWidget
 *wrapped_create_mogul_geometry_dialog(const coot::mogul &m, CResidue *residue) {
 
-   GtkWidget *w = create_mogul_geometry_dialog();
+   GtkWidget *w = create_mogul_geometry_results_table_dialog(); // results table
 
    if (residue) { 
 
@@ -221,7 +225,15 @@ GtkWidget
 }
 
 void
-coot::fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview, GtkWidget *dialog,
+set_null_goograph_pointer(GtkWidget *w) {
+
+   std::cout << "!!!!!!!!!!!!!!!!!!!!!!! set_null_goograph_pointer called! () " << std::endl;
+   g_object_set_data(G_OBJECT(w), "goograph", NULL);
+}
+
+void
+coot::fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview,
+			   GtkWidget *mogul_results_dialog,
 			   const coot::mogul &m, CResidue *r) {
 
    // We want to see: atom-name-1 atom-name-2 value mean median std-dev z
@@ -251,12 +263,6 @@ coot::fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview, GtkWidget *dialog,
 	 CAtom *at_2 = residue_atoms[idx_2];
 	 std::string atom_name_1 = at_1->name;
 	 std::string atom_name_2 = at_2->name;
-
-// 			    2, m[i].value,
-// 			    3, m[i].mean,
-// 			    4, m[i].median,
-// 			    5, m[i].std_dev,
-// 			    6, m[i].z,
 
 	 std::string m_value   = coot::util::float_to_string_using_dec_pl(m[i].value,   3);
 	 std::string m_mean    = coot::util::float_to_string_using_dec_pl(m[i].mean,    3);
@@ -289,16 +295,17 @@ coot::fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview, GtkWidget *dialog,
    coot::mogul_results_add_cell_renderer(tv_bonds, tree_store_bonds, "z",      7, tree_type);
 
    GtkTreeSelection *sel_bonds = gtk_tree_view_get_selection(GTK_TREE_VIEW(mogul_bonds_treeview));
-   g_signal_connect(sel_bonds,  "changed", (GCallback) coot::on_mogul_bonds_selection_changed,  dialog);
+   g_signal_connect(sel_bonds,  "changed", (GCallback) coot::on_mogul_bonds_selection_changed,  mogul_results_dialog);
    coot::mogul *mcp = new coot::mogul(m);
    coot::minimol::residue *mmres_p = new coot::minimol::residue(r);
    g_object_set_data(G_OBJECT(sel_bonds), "mogul", mcp); 
-   g_object_set_data(G_OBJECT(sel_bonds), "residue", mmres_p); 
-} 
+   g_object_set_data(G_OBJECT(sel_bonds), "residue", mmres_p);
+}
 
 void
 coot::on_mogul_bonds_selection_changed(GtkTreeSelection *treeselection,
-				       gpointer          user_data) {
+				       gpointer          user_data // the mogul results table dialog
+				       ) {
 
    GtkTreeIter  iter;
    GtkTreeModel *model; 
@@ -351,8 +358,9 @@ coot::on_mogul_bonds_selection_changed(GtkTreeSelection *treeselection,
 	 atom_ids.push_back(atom_id_1);
 	 atom_ids.push_back(atom_id_2);
 
-	 GtkWidget *mogul_geometry_dialog = static_cast<GtkWidget *> (user_data);
+	 GtkWidget *mogul_geometry_dialog = static_cast<GtkWidget *> (user_data); // the results table, I mean.
 	 if (mogul_geometry_dialog) {
+	    std::cout << "in on_mogul_bonds_selection_changed() updating histogram dialog " << std::endl;
 	    update_mogul_histogram_dialog(mogul_geometry_dialog, *mogul_p, atom_ids, mmres_p, altconf);
 	 } else {
 	    std::cout << "null mogul_geometry_dialog" << std::endl;
@@ -671,9 +679,11 @@ coot::on_mogul_torsions_selection_changed(GtkTreeSelection *treeselection,
 
 
 void
-coot::update_mogul_histogram_dialog(GtkWidget *geometry_dialog,
-				    const mogul &m, const std::vector<std::string> &atom_ids,
-				    coot::minimol::residue *r, const std::string &altconf) {
+coot::update_mogul_histogram_dialog(GtkWidget *mogul_geometry_results_table_dialog,
+				    const mogul &m,
+				    const std::vector<std::string> &atom_ids,
+				    coot::minimol::residue *r,
+				    const std::string &altconf) {
 
 #ifdef HAVE_GOOCANVAS   
 
@@ -696,16 +706,19 @@ coot::update_mogul_histogram_dialog(GtkWidget *geometry_dialog,
 	 }
       }
 
+      std::cout << "ifound is " << ifound << std::endl;
       if (ifound == 2) {
 	 try {
 	    coot::mogul_item item = m.get_bond_item(indices);
-	    coot::goograph *gg = static_cast<coot::goograph *> (g_object_get_data(G_OBJECT(geometry_dialog),
-										  "goograph"));
+	    coot::goograph *gg =
+	       static_cast<coot::goograph *> (g_object_get_data(G_OBJECT(mogul_geometry_results_table_dialog),
+								"goograph"));
 	    std::string title = "Bond distribution ";
 	    title += atom_ids[0];
 	    title += " - ";
 	    title += atom_ids[1];
 	    mogul_histogram_for_item(gg, item, "Bond Length", title);
+	    std::cout << "updating histogram for item " << gg << std::endl;
 	 }
 	 catch (const std::runtime_error &rte) {
 	    std::cout << "WARNING:: " << rte.what() << std::endl;
@@ -734,8 +747,9 @@ coot::update_mogul_histogram_dialog(GtkWidget *geometry_dialog,
       if (ifound == 3) {
 	 try {
 	    coot::mogul_item item = m.get_angle_item(indices);
-	    coot::goograph *gg = static_cast<coot::goograph *> (g_object_get_data(G_OBJECT(geometry_dialog),
-										  "goograph"));
+	    coot::goograph *gg =
+	       static_cast<coot::goograph *> (g_object_get_data(G_OBJECT(mogul_geometry_results_table_dialog),
+								"goograph"));
 
 	    std::string title = "Angle distribution -";
 	    title += atom_ids[0];
@@ -773,8 +787,9 @@ coot::update_mogul_histogram_dialog(GtkWidget *geometry_dialog,
       if (ifound == 4) {
 	 try {
 	    coot::mogul_item item = m.get_torsion_item(indices);
-	    coot::goograph *gg = static_cast<coot::goograph *> (g_object_get_data(G_OBJECT(geometry_dialog),
-										  "goograph"));
+	    coot::goograph *gg =
+	       static_cast<coot::goograph *> (g_object_get_data(G_OBJECT(mogul_geometry_results_table_dialog),
+								"goograph"));
 
 	    std::string title = "Torsion distribution -";
 	    title += atom_ids[0];
@@ -860,24 +875,9 @@ coot::mogul_histogram_for_item(coot::goograph *gg, const coot::mogul_item &item,
 	 gg->add_annotation_text(s, p3, "#880000", "");
 
 	 gg->draw_graph();
-	 GtkWidget *close_button = gg->show_dialog();
-// 	 if (close_button) { 
-// 	    g_signal_connect(G_OBJECT(close_button), "clicked",
-// 			     G_CALLBACK(mogul_histogram_dialog_close_callback),
-// 			     (gpointer) dialog);
-//	 }
+	 gg->show_dialog();
       }
-   } 
-}
-#endif // HAVE_GOOCANVAS
-
-#ifdef HAVE_GOOCANVAS
-// static
-void
-coot::mogul_histogram_dialog_close_callback(GtkWidget *button,
-					    GtkWidget *dialog) {
-   gtk_widget_destroy(dialog);
-   dialog = NULL;
+   }
 }
 
 #endif // HAVE_GOOCANVAS

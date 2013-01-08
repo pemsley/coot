@@ -99,9 +99,8 @@ coot::goograph::get_canvas() const {
 // static
 void
 coot::goograph::goograph_close_callback(GtkWidget *button,
-					GtkWidget *dialog) {
-   gtk_widget_destroy(dialog);
-   dialog = NULL;
+					GtkWidget *goograph_dialog) {
+   gtk_widget_hide(goograph_dialog);
 }
 
 // static
@@ -391,6 +390,8 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 
 void
 coot::goograph::set_extents(int axis, double min, double max) {
+
+   std::cout << "set_extents() " << axis << " " << min << " " << max << std::endl;
 
    if (axis == X_AXIS) {
       if (min < extents_min_x)
@@ -870,7 +871,7 @@ coot::goograph::clear_traces_and_annotations() {
    extents_max_x = -9999999990.0;
    extents_max_y = -9999999990.0;
 
-} 
+}
 
 #endif
 

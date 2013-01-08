@@ -95,6 +95,8 @@
 #endif // USE_PYTHON
 
 #include "cc-interface.hh"
+#include "c-interface-python.hh"
+
 
 /*  ----------------------------------------------------------------- */
 /*                         Scripting:                                 */
@@ -962,10 +964,15 @@ void hydrogenate_region(float radius) {
 	    python_command += ")";
 
 	    PyObject *r = safe_python_command_with_return(python_command);
-        if (r == Py_True) {
-          graphics_info_t::molecules[imol].add_hydrogens_from_file(pdb_out);
-        }
-        Py_XDECREF(r);
+	    std::cout << "::: safe_python_command_with_return() returned " << r << std::endl;
+	    std::cout << "::: safe_python_command_with_return() returned "
+		      << PyString_AsString(display_python(r)) << std::endl;
+	    if (r == Py_True) {
+	       std::cout << "........ calling add_hydrogens_from_file() with pdb_out "
+			 << pdb_out << std::endl;
+	       graphics_info_t::molecules[imol].add_hydrogens_from_file(pdb_out);
+	    }
+	    Py_XDECREF(r);
 
 #endif // PYTHON
 	 } else {
