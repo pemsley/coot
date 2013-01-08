@@ -3,6 +3,8 @@ lib_LTLIBRARIES=libcoot-analysis.la
 
 include_HEADERS=bfkurt.hh mogul-interface.hh
 
+# CXXFLAGS = 	$(COOT_GSL_FLAGS)
+
 INCLUDES = \
 	-I$(top_srcdir)/geometry        \
 	-I$(top_srcdir)/coot-utils   	\
@@ -18,7 +20,8 @@ libcoot_analysis_la_LIBADD = \
    $(top_builddir)/geometry/libcoot-geometry.la    	\
    $(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
    $(top_builddir)/utils/libcoot-utils.la 		\
-   $(MMDB_LIBS) 
+   $(MMDB_LIBS)  \
+   $(GSL_LIBS)
 
 bin_PROGRAMS = bfactan
 

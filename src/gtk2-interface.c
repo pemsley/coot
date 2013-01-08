@@ -27850,9 +27850,9 @@ create_keyboard_goto_residue_window (void)
 }
 
 GtkWidget*
-create_mogul_geometry_dialog (void)
+create_mogul_geometry_results_table_dialog (void)
 {
-  GtkWidget *mogul_geometry_dialog;
+  GtkWidget *mogul_geometry_results_table_dialog;
   GtkWidget *dialog_vbox129;
   GtkWidget *mogul_notebook;
   GtkWidget *scrolledwindow36;
@@ -27865,15 +27865,15 @@ create_mogul_geometry_dialog (void)
   GtkWidget *mogul_torsions_treeview;
   GtkWidget *label776;
   GtkWidget *dialog_action_area128;
-  GtkWidget *button36;
+  GtkWidget *mogul_geometry_dialog_close_button;
 
-  mogul_geometry_dialog = gtk_dialog_new ();
-  gtk_widget_set_size_request (mogul_geometry_dialog, 700, 400);
-  gtk_window_set_title (GTK_WINDOW (mogul_geometry_dialog), _("Mogul Results"));
-  gtk_window_set_type_hint (GTK_WINDOW (mogul_geometry_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
-  gtk_dialog_set_has_separator (GTK_DIALOG (mogul_geometry_dialog), FALSE);
+  mogul_geometry_results_table_dialog = gtk_dialog_new ();
+  gtk_widget_set_size_request (mogul_geometry_results_table_dialog, 600, 400);
+  gtk_window_set_title (GTK_WINDOW (mogul_geometry_results_table_dialog), _("Mogul Results"));
+  gtk_window_set_type_hint (GTK_WINDOW (mogul_geometry_results_table_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
+  gtk_dialog_set_has_separator (GTK_DIALOG (mogul_geometry_results_table_dialog), FALSE);
 
-  dialog_vbox129 = GTK_DIALOG (mogul_geometry_dialog)->vbox;
+  dialog_vbox129 = GTK_DIALOG (mogul_geometry_results_table_dialog)->vbox;
   gtk_widget_show (dialog_vbox129);
 
   mogul_notebook = gtk_notebook_new ();
@@ -27919,32 +27919,36 @@ create_mogul_geometry_dialog (void)
   gtk_widget_show (label776);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (mogul_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (mogul_notebook), 2), label776);
 
-  dialog_action_area128 = GTK_DIALOG (mogul_geometry_dialog)->action_area;
+  dialog_action_area128 = GTK_DIALOG (mogul_geometry_results_table_dialog)->action_area;
   gtk_widget_show (dialog_action_area128);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area128), GTK_BUTTONBOX_END);
 
-  button36 = gtk_button_new_from_stock ("gtk-close");
-  gtk_widget_show (button36);
-  gtk_dialog_add_action_widget (GTK_DIALOG (mogul_geometry_dialog), button36, GTK_RESPONSE_CLOSE);
-  GTK_WIDGET_SET_FLAGS (button36, GTK_CAN_DEFAULT);
+  mogul_geometry_dialog_close_button = gtk_button_new_from_stock ("gtk-close");
+  gtk_widget_show (mogul_geometry_dialog_close_button);
+  gtk_dialog_add_action_widget (GTK_DIALOG (mogul_geometry_results_table_dialog), mogul_geometry_dialog_close_button, GTK_RESPONSE_CLOSE);
+  GTK_WIDGET_SET_FLAGS (mogul_geometry_dialog_close_button, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) mogul_geometry_dialog_close_button, "clicked",
+                    G_CALLBACK (on_mogul_geometry_dialog_close_button_clicked),
+                    NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
-  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_dialog, mogul_geometry_dialog, "mogul_geometry_dialog");
-  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_dialog, dialog_vbox129, "dialog_vbox129");
-  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, mogul_notebook, "mogul_notebook");
-  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, scrolledwindow36, "scrolledwindow36");
-  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, mogul_bonds_treeview, "mogul_bonds_treeview");
-  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, label774, "label774");
-  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, scrolledwindow37, "scrolledwindow37");
-  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, mogul_angles_treeview, "mogul_angles_treeview");
-  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, label775, "label775");
-  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, scrolledwindow38, "scrolledwindow38");
-  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, mogul_torsions_treeview, "mogul_torsions_treeview");
-  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, label776, "label776");
-  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_dialog, dialog_action_area128, "dialog_action_area128");
-  GLADE_HOOKUP_OBJECT (mogul_geometry_dialog, button36, "button36");
+  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_results_table_dialog, mogul_geometry_results_table_dialog, "mogul_geometry_results_table_dialog");
+  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_results_table_dialog, dialog_vbox129, "dialog_vbox129");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, mogul_notebook, "mogul_notebook");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, scrolledwindow36, "scrolledwindow36");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, mogul_bonds_treeview, "mogul_bonds_treeview");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, label774, "label774");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, scrolledwindow37, "scrolledwindow37");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, mogul_angles_treeview, "mogul_angles_treeview");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, label775, "label775");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, scrolledwindow38, "scrolledwindow38");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, mogul_torsions_treeview, "mogul_torsions_treeview");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, label776, "label776");
+  GLADE_HOOKUP_OBJECT_NO_REF (mogul_geometry_results_table_dialog, dialog_action_area128, "dialog_action_area128");
+  GLADE_HOOKUP_OBJECT (mogul_geometry_results_table_dialog, mogul_geometry_dialog_close_button, "mogul_geometry_dialog_close_button");
 
-  return mogul_geometry_dialog;
+  return mogul_geometry_results_table_dialog;
 }
 
 #endif /* (GTK_MAJOR_VERSION > 1) */

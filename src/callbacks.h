@@ -4380,3 +4380,7 @@ on_keyboard_go_to_residue_entry_key_press_event
                                         (GtkWidget       *widget,
                                         GdkEventKey     *event,
 					 gpointer         user_data);
+void
+on_mogul_geometry_dialog_close_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);

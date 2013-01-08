@@ -9,6 +9,7 @@
 #include "goograph.hh"
 
 void show_mogul_geometry_dialog(const coot::mogul &m, CResidue *residue);
+void set_null_goograph_pointer(GtkWidget *w);
 #endif 
 
 GtkWidget *wrapped_create_mogul_geometry_dialog(const coot::mogul &m, CResidue *residue);
@@ -37,6 +38,7 @@ namespace coot {
    void mogul_histogram_for_item(goograph *gg, const mogul_item &item,
 				 const std::string &x_axis_label, const std::string &title);
    static void mogul_histogram_dialog_close_callback(GtkWidget *button, GtkWidget *dialog);
+
 #endif    
 
    

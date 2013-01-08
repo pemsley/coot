@@ -2,10 +2,12 @@
 #include <iostream>
 #include <fstream>
 #include <stdexcept>
+#include <complex>
 #include <math.h>
 
 #include "coot-utils.hh"
 #include "mogul-interface.hh"
+#include "lig-build.hh"
 
 void
 coot::mogul::parse(const std::string &file_name) {
@@ -30,9 +32,6 @@ coot::mogul::parse(const std::string &file_name) {
 	 for (unsigned int iline=0; iline<(lines.size()); iline++) {
 	    std::vector<std::string> bits = coot::util::split_string(lines[iline], ",");
 
-	    std::cout << "considering ----------------------------------------- "
-		      << lines[iline] << std::endl;
-	    
 	    if (bits[0] == "BOND") {
 	       try {
 		  mogul_item item = parse_item_line(bits, 2);
@@ -54,12 +53,12 @@ coot::mogul::parse(const std::string &file_name) {
 	    if (bits[0] == "TORSION") {
 	       try {
 		  mogul_item item = parse_item_line(bits, 4);
-		  std::cout << "ACCEPTED:::::::::::::::::::: " << lines[iline] << std::endl;
+		  // std::cout << "ACCEPTED:::::::::::::::::::: " << lines[iline] << std::endl;
 		  items.push_back(item);
 	       }
 	       catch (std::runtime_error rte) {
 		  std::cout << "WARNING:: " << rte.what() << std::endl;
-		  std::cout << "REJECTED:::::::::::::::::::: " << lines[iline] << std::endl;
+		  // std::cout << "REJECTED:::::::::::::::::::: " << lines[iline] << std::endl;
 	       } 
 	    }
 	 }
@@ -76,7 +75,7 @@ coot::mogul::parse_item_line(const std::vector<std::string> &bits, int n_idx) co
    // Fragment Type,Atom Indices,Query Value,Hits,Mean,Median,Standard Deviation,|z-score|,d(min),Distribution Minimum,Distribution Maximum,Bin Width,Number of Bins
 
    mogul_item r;
-   bool debug = true;
+   bool debug = false;
 
    if (bits.size() > 6) {
       std::string indices_string = bits[1];
@@ -90,55 +89,62 @@ coot::mogul::parse_item_line(const std::vector<std::string> &bits, int n_idx) co
       float min     = 0;
       float max     = 0;
 
-      std::cout << "got " << indices.size() << " indices " << std::endl;
+      // std::cout << "got " << indices.size() << " indices and n_idx is  " << n_idx << std::endl;
+      
       if (indices.size() > 1) {
 	 float model_value = coot::util::string_to_float(bits[2]);
 	 int counts    = coot::util::string_to_int(  bits[3]);
 
-	 if (indices.size() == 2 || indices.size() == 3) { 
-	    mean    = coot::util::string_to_float(bits[4]);
-	    median  = coot::util::string_to_float(bits[5]);
-	    std_dev = coot::util::string_to_float(bits[6]);
-	    z       = coot::util::string_to_float(bits[7]);
-	    min     = coot::util::string_to_float(bits[9]);
-	    max     = coot::util::string_to_float(bits[10]);
-	 } else {
-	    dmin    = coot::util::string_to_float(bits[8]);
-	    std::cout << "got dmin " << dmin << " from :" << dmin << ":" << std::endl;
-	 } 
+	 // std::cout << "   model_value: " << model_value << std::endl;
+	 // std::cout << "   counts: " << counts << std::endl;
+
+	 if (counts > 0) { 
+
+	    if (indices.size() == 2 || indices.size() == 3) { 
+	       mean    = coot::util::string_to_float(bits[4]);
+	       median  = coot::util::string_to_float(bits[5]);
+	       std_dev = coot::util::string_to_float(bits[6]);
+	       z       = coot::util::string_to_float(bits[7]);
+	       min     = coot::util::string_to_float(bits[9]);
+	       max     = coot::util::string_to_float(bits[10]);
+	    } else {
+	       dmin    = coot::util::string_to_float(bits[8]);
+	       // std::cout << "got dmin " << dmin << " from :" << dmin << ":" << std::endl;
+	    } 
 	 
-	 if (n_idx == 2) {
-	    if (indices.size() == 2) { 
-	       r = mogul_item(indices[0], indices[1], model_value,
-			      counts, mean, median, std_dev, z);
+	    if (n_idx == 2) {
+	       if (indices.size() == 2) { 
+		  r = mogul_item(indices[0], indices[1], model_value,
+				 counts, mean, median, std_dev, z);
+	       }
 	    }
-	 }
-	 if (n_idx == 3) {
-	    if (indices.size() == 3) { 
-	       r = mogul_item(indices[0], indices[1], indices[2],
-			      model_value, counts, mean, median, std_dev, z);
+	    if (n_idx == 3) {
+	       if (indices.size() == 3) { 
+		  r = mogul_item(indices[0], indices[1], indices[2],
+				 model_value, counts, mean, median, std_dev, z);
+	       }
 	    }
-	 }
-	 if (n_idx == 4) {
-	    if (indices.size() == 4) { 
-	       r = mogul_item(indices[0], indices[1], indices[2], indices[3],
-			      model_value, counts, dmin);
+	    if (n_idx == 4) {
+	       if (indices.size() == 4) { 
+		  r = mogul_item(indices[0], indices[1], indices[2], indices[3],
+				 model_value, counts, dmin);
+	       }
 	    }
-	 }
-	 r.set_max_z_badness(max_z_badness);
+	    r.set_max_z_badness(max_z_badness);
 
-	 if (bits.size() > 11) {
-	    std::vector<std::string> distribution_bits;
-	    for (unsigned int i=9; i<bits.size(); i++)
-	       distribution_bits.push_back(bits[i]);
-	    r.distribution = mogul_distribution(distribution_bits);
-	 }
+	    if (bits.size() > 11) {
+	       std::vector<std::string> distribution_bits;
+	       for (unsigned int i=9; i<bits.size(); i++)
+		  distribution_bits.push_back(bits[i]);
+	       r.add_distribution(mogul_distribution(distribution_bits));
+	    }
 
-	 if (debug)
-	    std::cout << " item " << indices[0] << " " << indices[1] << " mean: " 
-		      << mean << " min: " << min << " max: " << max << " median: "
-		      << median << " std: " << std_dev
-		      << "  Z-score:" << z << std::endl;
+	    if (debug)
+	       std::cout << " item " << indices[0] << " " << indices[1] << " mean: " 
+			 << mean << " min: " << min << " max: " << max << " median: "
+			 << median << " std: " << std_dev
+			 << "  Z-score:" << z << std::endl;
+	 }
       }
    }
    return r;
@@ -159,20 +165,21 @@ coot::mogul_distribution::mogul_distribution(const std::vector<std::string> &bit
    if (bits.size() > 6) {
       // lower-bottom and upper-top
 
-      std::cout << "Geting bin stuff from here "
-		<< bits[0] << "  "
-		<< bits[1] << "  "
-		<< bits[2] << "  "
-		<< bits[3] << "  "
-		<< bits[4] << "  "
-		<< bits[5] << "  "
-		<< std::endl;
+      if (0)
+	 std::cout << "Geting bin stuff from here "
+		   << bits[0] << "  "
+		   << bits[1] << "  "
+		   << bits[2] << "  "
+		   << bits[3] << "  "
+		   << bits[4] << "  "
+		   << bits[5] << "  "
+		   << std::endl;
       bin_start  = coot::util::string_to_float(bits[0]);
       bin_end    = coot::util::string_to_float(bits[1]);
       bin_width  = coot::util::string_to_float(bits[2]);
       n_bins     = coot::util::string_to_float(bits[3]);
 
-      if (1) {
+      if (0) {
 	 std::cout << "bin_start " << bin_start << std::endl;
 	 std::cout << "bin_end   " << bin_end   << std::endl;
 	 std::cout << "bin_width " << bin_width << std::endl;
@@ -180,7 +187,7 @@ coot::mogul_distribution::mogul_distribution(const std::vector<std::string> &bit
       }
       
       for (unsigned int ibin=0; ibin<n_bins; ibin++) {
-	 int ibit = ibin + 5;
+	 int ibit = ibin + 4;
 	 if (ibit < bits.size()) {
 	    int v = coot::util::string_to_int(bits[ibit]);
 	    counts.push_back(v);
@@ -461,3 +468,118 @@ coot::mogul_item::matches_indices(const std::vector<int> &indices) const {
    }
    return false;
 } 
+
+
+#ifdef HAVE_GSL
+#include <stdio.h>
+#include <math.h>
+#include <gsl/gsl_errno.h>
+#include <gsl/gsl_fft_complex.h>
+
+#define REAL(z,i) ((z)[2*(i)])
+#define IMAG(z,i) ((z)[2*(i)+1])
+#endif 
+
+void 
+coot::mogul_item::ft_model_torsion_distribution() {
+
+#ifdef HAVE_GSL
+
+   int i;
+   const int n = 36;
+   double data[2*n];
+     
+   gsl_fft_complex_wavetable *wavetable;
+   gsl_fft_complex_workspace *workspace;
+     
+   for (i = 0; i < n; i++) {
+      REAL(data,i) = 0.0;
+      IMAG(data,i) = 0.0;
+   }
+     
+// data[0] = 1.0;
+     
+//    for (i = 1; i <= 10; i++) {
+//       REAL(data,i) = REAL(data,n-i) = 1.0;
+//    }
+
+
+   std::cout << "c.f. n " << n << " distribution counts: " << distribution.counts.size() << std::endl;
+   
+   for (unsigned int i=0; i<distribution.counts.size(); i++) { 
+      REAL(data, i) = distribution.counts[i];
+      REAL(data, n-i-1) = distribution.counts[i];
+      // std::cout << i << " " << distribution.counts[i] << std::endl;
+   }
+     
+   for (i = 0; i < n; i++) {
+	 printf ("%d: %e %e\n", i, REAL(data,i), IMAG(data,i));
+   }
+   printf ("\n");
+     
+   wavetable = gsl_fft_complex_wavetable_alloc (n);
+   workspace = gsl_fft_complex_workspace_alloc (n);
+     
+   for (i = 0; i < wavetable->nf; i++) {
+      printf ("# factor %d: %ld\n", i, wavetable->factor[i]);
+   }
+     
+   gsl_fft_complex_forward (data, 1, n, wavetable, workspace);
+     
+   for (i = 0; i < n; i++) {
+      printf ("%d: %e %e\n", i, REAL(data,i), IMAG(data,i));
+   }
+
+   double model[2*n];
+   for (i = 0; i < n; i++) {
+      model[i] = 0.0;
+      model[i] = -82;
+   }
+   
+   for (i = 0; i < 14; i++) {
+      std::complex<double> c(REAL(data,i), IMAG(data,i));
+      double r = abs(c);
+      double phi = arg(c);
+      std::cout << "r: " << r << "  phi " << phi << " from " << c << std::endl;
+      for (unsigned int j=0; j<n; j++) { 
+	 model[j] += 2/double(n)*r*cos(phi + 2*M_PI*double(i*j)/double(n));
+      }
+   }
+
+   for (i = 0; i < n; i++) {
+      std::cout << "model: " << i << " " << model[i] << std::endl;
+   }
+   
+   gsl_fft_complex_backward (data, 1, n, wavetable, workspace);
+   for (i = 0; i < n; i++) {
+      printf ("reversed: %d %e %e\n", i, 1/double(n) * REAL(data,i), IMAG(data,i));
+   }
+   printf ("\n");
+     
+   gsl_fft_complex_wavetable_free (wavetable);
+   gsl_fft_complex_workspace_free (workspace);
+
+#endif    
+}
+
+void
+coot::mogul_item::spline_model_torsion_distribution() {
+
+   return; 
+
+   for (unsigned int i=0; i<distribution.counts.size()-3; i+=3) { 
+      lig_build::pos_t p1(i,distribution.counts[i]);
+      lig_build::pos_t p2(i+1,distribution.counts[i+1]);
+      lig_build::pos_t p3(i+2,distribution.counts[i+2]);
+      lig_build::pos_t p4(i+3,distribution.counts[i+3]);
+      for (double t=0; t<1; t+=0.1) {
+	 lig_build::pos_t p12   = lig_build::pos_t::fraction_point(p1,   p2,   t);
+	 lig_build::pos_t p23   = lig_build::pos_t::fraction_point(p2,   p3,   t);
+	 lig_build::pos_t p34   = lig_build::pos_t::fraction_point(p3,   p4,   t);
+	 lig_build::pos_t p123  = lig_build::pos_t::fraction_point(p12,  p23,  t);
+	 lig_build::pos_t p234  = lig_build::pos_t::fraction_point(p23,  p34,  t);
+	 lig_build::pos_t p1234 = lig_build::pos_t::fraction_point(p123, p234, t);
+	 std::cout << p1234.x << " " << p1234.y << std::endl;
+      }
+   }
+}

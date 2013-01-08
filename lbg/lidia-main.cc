@@ -58,8 +58,11 @@ int
 main(int argc, char *argv[]) {
 
    InitMatType(); // mmdb program. 
+
+#ifdef USE_PYTHON
    Py_Initialize();
    PySys_SetArgv(argc, argv);
+#endif
    
    gtk_init (&argc, &argv);
    std::string molecule_file_name = "";

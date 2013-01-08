@@ -12164,3 +12164,14 @@ on_keyboard_go_to_residue_entry_key_press_event
   return FALSE;
 }
 
+void
+on_mogul_geometry_dialog_close_button_clicked
+                                        (GtkButton       *button,
+					 gpointer         user_data) { 
+
+   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "mogul_geometry_results_table_dialog");
+
+   /* And the histogram?  How do I look that up? */
+   gtk_widget_destroy(dialog);
+}
+

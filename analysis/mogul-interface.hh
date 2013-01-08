@@ -84,13 +84,18 @@ namespace coot {
 	 idx_4 = atom_idx_4_in;
 	 counts = counts_in;
 	 dmin = dmin_in;
-	 std::cout << "set dmin to " << dmin << std::endl;
-	 max_badness = 5.0; 
+	 max_badness = 5.0;
       }
       bool matches_indices(const std::vector<int> &indices) const;
       void set_max_z_badness(float b) { max_badness = b; }
       std::string colour() const; // uses max_badness to return a hex colour string.
-      void add_distribution(const mogul_distribution &d) { distribution = d; }
+      void add_distribution(const mogul_distribution &d) {
+	 distribution = d;
+ 	 if (type == TORSION) { 
+	    // ft_model_torsion_distribution();
+	    spline_model_torsion_distribution();
+	 }
+      }
       int max_counts_in_a_bin() const {
 	 int r = 0;
 	 for (unsigned int i=0; i<distribution.counts.size(); i++) { 
@@ -99,6 +104,8 @@ namespace coot {
 	 }
 	 return r;
       }
+      void ft_model_torsion_distribution();
+      void spline_model_torsion_distribution();
    };
 
    class mogul {
