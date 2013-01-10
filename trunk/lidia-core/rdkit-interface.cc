@@ -1280,6 +1280,7 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
 
    undelocalise_aminos(rdkm);
    undelocalise_methyl_carboxylates(rdkm);
+   undelocalise_carboxylates(rdkm); // after above
    undelocalise_phosphates(rdkm); 
    undelocalise_sulphates(rdkm); 
 }
@@ -1361,6 +1362,42 @@ coot::undelocalise_aminos(RDKit::RWMol *rdkm) {
       }
    }
 }
+
+// run this after undelocalise_methyl_carboxylates.
+// 
+void
+coot::undelocalise_carboxylates(RDKit::RWMol *rdkm) {
+
+   RDKit::ROMol::AtomIterator ai;
+   for(ai=rdkm->beginAtoms(); ai!=rdkm->endAtoms(); ai++) {
+
+      // Is there a carbon that is deloc attached to 2 oxygens.  (
+      if ((*ai)->getAtomicNum() == 6) {
+	 RDKit::Atom *C_at = *ai;
+	 int idx_c = C_at->getIdx();
+	 std::vector<RDKit::Bond *> deloc_O_bonds;
+	 RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
+	 boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(C_at);
+	 while(nbrIdx != endNbrs) {
+	    const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
+	    RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_c, *nbrIdx);
+	    if (bond) {
+	       if (bond->getBondType() == RDKit::Bond::ONEANDAHALF)
+		  deloc_O_bonds.push_back(bond);
+	    }
+	    ++nbrIdx;
+	 }
+
+	 if (deloc_O_bonds.size() == 2) {
+	    deloc_O_bonds[0]->setBondType(RDKit::Bond::SINGLE);
+	    deloc_O_bonds[1]->setBondType(RDKit::Bond::DOUBLE);
+	    int idx_o = deloc_O_bonds[0]->getOtherAtomIdx(idx_c);
+	    (*rdkm)[idx_o]->setFormalCharge(-1);
+	 }
+      }
+   }
+}
+
 
 void
 coot::undelocalise_methyl_carboxylates(RDKit::RWMol *rdkm) {
