@@ -308,7 +308,7 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
       lig_build::pos_t pos_2 = atom_second.atom_position;
       ci = canvas_item_for_bond(pos_1, pos_2, shorten_first, shorten_second, bt, root);
 
-      std::cout << "construct_internal() made ci " << ci << std::endl;
+      // std::cout << "construct_internal() made ci " << ci << std::endl;
       
       g_signal_connect (ci, "key_press_event",
 			G_CALLBACK (on_wmolecule_key_press_event), NULL);

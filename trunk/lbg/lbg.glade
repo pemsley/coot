@@ -598,7 +598,7 @@
             <property name="can_focus">False</property>
             <child>
               <object class="GtkScrolledWindow" id="scrolledwindow1">
-                <property name="width_request">350</property>
+                <property name="width_request">450</property>
                 <property name="height_request">200</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -752,7 +752,7 @@
     </action-widgets>
   </object>
   <object class="GtkWindow" id="lbg_window">
-    <property name="width_request">600</property>
+    <property name="width_request">740</property>
     <property name="height_request">530</property>
     <property name="can_focus">False</property>
     <property name="title" translatable="yes">Coot Ligand Builder</property>

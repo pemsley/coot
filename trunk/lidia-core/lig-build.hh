@@ -493,8 +493,14 @@ namespace lig_build {
 	 int new_atom_index = UNASSIGNED_INDEX;
 	 bool is_new = 0;
 	 for (unsigned int iat=0; iat<atoms.size(); iat++) {
-	    if (! atoms[iat].is_closed()) { 
-	       if (atoms[iat].atom_position.near_point(at.atom_position, 2)) {
+	    if (! atoms[iat].is_closed()) {
+
+	       // FIXME (rethink)
+	       // when we import 3D coords, 2 is not a good distance.  This whole
+	       // "checked_add" thing should be reconsidered.  Why did I need it?
+	       // 
+	       // if (atoms[iat].atom_position.near_point(at.atom_position, 2)) {
+	       if (atoms[iat].atom_position.near_point(at.atom_position, 0.01)) {
 		  new_atom_index = iat; // an old atom
 		  break;
 	       } 
