@@ -76,14 +76,7 @@ bool close_float_p(float f1, float f2) {
 
 } 
 
-class testing_data {
-public:
-   static coot::protein_geometry geom;
-   testing_data() {
-      if (geom.size() == 0)
-	 geom.init_standard();
-   }
-};
+#include "testing-data.hh"
 
 coot::protein_geometry testing_data::geom;
 
@@ -295,7 +288,8 @@ int test_internal_single() {
       // status = test_beam_in_residue();
       // status = test_multi_residue_torsion();
       // status = test_torsions_from_residue_selection();
-      status = test_read_prosmart_distance_restraints();
+      // status = test_read_prosmart_distance_restraints();
+      status = test_dreiding_torsion_energy();
       
    }
    catch (std::runtime_error mess) {

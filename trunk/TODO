@@ -1007,7 +1007,16 @@ Punted from 0.6:
  ------
     
 
-    Release 0.8, March 2013
+    Release 0.8, June 2013
+
+   o Given an mtz, pdb, and SMILES.  Apply this ligand over ligand in 
+     pdb and RSR the result (if the mtz file is given).
+
+* Punted.
+
+   o colour-by-molecule hydrogens should be thin.
+
+* Punted.
 
   o dot molecule-info-class dots functions in their own file.
 

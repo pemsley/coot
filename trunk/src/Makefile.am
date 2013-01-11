@@ -402,7 +402,8 @@ coot_real_SOURCES = \
 	sdf-interface.cc         \
 	support.c support.h 	 \
 	support-gtk2-extras.c    \
-	testing.cc testing.hh    \
+	testing.cc testing-2.cc  \
+	testing.hh    \
 	trackball.c trackball.h  \
 	triangle-extras.h 	 \
 	select-atom-info.hh      \

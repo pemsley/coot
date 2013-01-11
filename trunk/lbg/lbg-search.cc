@@ -316,9 +316,6 @@ lbg_info_t::init_sbase(const std::string &sbase_monomer_dir_in) {
 
       std::cout << "sbase monomer dir: " << monomer_dir << std::endl;
       SBase = new CSBase;
-      
-      InitMatType(); // only do this if standalone.
-
       RC = SBase->LoadIndex(monomer_dir);
 
       if (RC != SBASE_Ok) {

@@ -55,9 +55,9 @@ namespace coot {
 
     public:
     std::vector<std::string> atom_colour_map;
-    int index_for_chain(const std::string &chain) { 
+     unsigned int index_for_chain(const std::string &chain) { 
        unsigned int isize = atom_colour_map.size();
-       for(unsigned int i=0; i<isize; i++) { 
+       for (unsigned int i=0; i<isize; i++) { 
 	  if (atom_colour_map[i] == chain) {
 	     return i;
 	  }
@@ -439,6 +439,12 @@ class Bond_lines_container {
 					      int iat_1, int iat_2, PPCAtom residue_atoms, int n_atoms,
 					      const std::vector<coot::dict_bond_restraint_t> &bond_restraints) const;
 
+   // add to het_residues maybe
+   bool add_bond_by_dictionary_maybe(CAtom *atom_p_1,
+				     CAtom *atom_p_2,
+				     std::vector<std::pair<bool, CResidue *> > *het_residues);
+
+
 
 public:
    enum bond_representation_type { COLOUR_BY_OCCUPANCY, COLOUR_BY_B_FACTOR}; 
@@ -508,7 +514,29 @@ public:
    Bond_lines_container(int col);
    Bond_lines_container(symm_keys key);
 
+
+   // Used by make_colour_by_chain_bonds() - and others in the future?
+   //
+   Bond_lines_container(coot::protein_geometry *protein_geom) {
+      do_bonds_to_hydrogens = 1;  // added 20070629
+      b_factor_scale = 1.0;
+      have_dictionary = false;
+      geom = protein_geom;
+      if (protein_geom)
+	 have_dictionary = true;
+      for_GL_solid_model_rendering = 0;
+      if (bonds.size() == 0) { 
+	 for (int i=0; i<10; i++) { 
+	    Bond_lines a(i);
+	    bonds.push_back(a);
+	 }
+      }
+   }
+
+   
+
    // initial constructor, added to by  addSymmetry_vector_symms from update_symmetry()
+   // 
    Bond_lines_container() {
       do_bonds_to_hydrogens = 1;  // added 20070629
       b_factor_scale = 1.0;
@@ -521,7 +549,7 @@ public:
 	 }
       }
    }
-
+   
    // arguments as above.
    // 
    // FYI: there is only one element to symm_trans, the is called from

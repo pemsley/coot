@@ -3,29 +3,44 @@
 
 ----
 
+   o B-factor sharpening correction, Chang Liu
+ 
    o 3tos fails to offset correctly in sequence view
-
-   o Phil: I want bond orders in colour-by-chain mode.
-
-   o Phil: I want colour by chain to be the default.
 
    o Get from PDBe... fails in refmac for 4eh5 (pressing the button on
      the recent structures gui) with 
-
-   o colour-by-molecule hydrogens should be thin.
 
  Refmac_5.7.0029:  Check input coordinates
  Refmac_5.7.0029:  New ligand has been encountered. Stopping now
  
    message.
 
-   Doing it from the entry seems to do nothing.
+     Doing it from the entry seems to do nothing.
 
-   o ligand from 3b6a has lost an OH in the thumbnail.
-     Also, carboxylates drawn wrongly.
-   
-   o B-factor sharpening correction, Chang Liu
- 
+* Seems OK to me...
+
+   o Phil: I want colour by chain to be the default.
+
+     How about a post-read hook?
+
+   o check that refmac can run before starting PDBe (note that you
+     need to handle the cached case)
+
+   o get minimal description for ligand from pdb/rcsb
 
 -----
 
+   o ligand from 3b6a has lost an OH in the thumbnail.
+     Also, carboxylates drawn wrongly.  ::: 0.5
+
+* Done.
+   
+   o Phil: I want bond orders in colour-by-chain mode.
+
+     This is problematic because thinning depends on colour index -
+     independent of where the bonds come from - either bonds to
+     hydrogen or CA bonds.  ::: 0.5
+
+* forget thinning.  Hacked it in for now - colours are a bit strange.
+
+Done.

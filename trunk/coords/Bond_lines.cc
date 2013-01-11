@@ -308,53 +308,8 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 		  int res_1 = atom_p_1->GetSeqNum();
 		  int res_2 = atom_p_2->GetSeqNum();
 
-		  bool bond_het_residue_by_dictionary = 0;
-		  if (have_dictionary) 
-		     if (atom_p_1->residue == atom_p_2->residue)
-			if (atom_p_1->Het)
-			   if (atom_p_2->Het) {
-
-			      // Have we checked this residue type before and failed to find
-			      // a dictionary for it?  If so, add it to the vector.
-			      
-			      std::pair<bool, CResidue *> tp0(0, atom_p_1->residue);
-			      std::pair<bool, CResidue *> tp1(1, atom_p_1->residue);
-			      
-			      // add this residue to the vector if it is not there already)
-			      // 
-			      // We have to check both pairs against
-			      // the cached results (where we have a
-			      // dictionary and where we don't).
-			      // 
-			      std::vector<std::pair<bool, CResidue *> >::const_iterator it_1 =
-				 std::find(het_residues.begin(), het_residues.end(), tp0);
-			      
-			      if (it_1 == het_residues.end()) { 
-				 
-				 std::vector<std::pair<bool, CResidue *> >::const_iterator it_2 =
-				    std::find(het_residues.begin(), het_residues.end(), tp1);
-				 
-				 if (it_2 == het_residues.end()) { 
-				    // if (geom->have_dictionary_for_residue_type_no_dynamic_add(atom_p_1->residue->GetResName())) {
-				    if (geom->have_at_least_minimal_dictionary_for_residue_type(atom_p_1->residue->GetResName())) {
-				       if (geom->atoms_match_dictionary(atom_p_1->residue, true, true).first) {
-					  het_residues.push_back(tp1);
-					  bond_het_residue_by_dictionary = 1;
-				       } else {
-					  het_residues.push_back(tp0);
-				       } 
-				    }  else {
-				       het_residues.push_back(tp0);
-				    } 
-				 } else {
-				    // this HET group is already in the list and was maked as found in the dictionary.
-				    bond_het_residue_by_dictionary = 1;
-				 }
-			      } else {
-				    // this HET group is already in the list but not found
-				    bond_het_residue_by_dictionary = 0;
-			      } 
-			   }
+		  bool bond_het_residue_by_dictionary =
+		     add_bond_by_dictionary_maybe(atom_p_1, atom_p_2, &het_residues); // add to het_residues maybe
 
 		  if (! bond_het_residue_by_dictionary) {
 
@@ -466,6 +421,69 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
       
    }
 }
+
+
+// add to het_residues maybe.
+//
+// to be used in conjunction with
+// add_bonds_het_residues(het_residues, atom_colour_type, have_udd_atoms, udd_handle)
+// 
+bool
+Bond_lines_container::add_bond_by_dictionary_maybe(CAtom *atom_p_1,
+						   CAtom *atom_p_2,
+						   std::vector<std::pair<bool, CResidue *> > *het_residues) {
+   bool bond_het_residue_by_dictionary = false;
+   if (have_dictionary) 
+      if (atom_p_1->residue == atom_p_2->residue)
+	 if (atom_p_1->Het)
+	    if (atom_p_2->Het) {
+
+	       // Have we checked this residue type before and failed to find
+	       // a dictionary for it?  If so, add it to the vector.
+			      
+	       std::pair<bool, CResidue *> tp0(0, atom_p_1->residue);
+	       std::pair<bool, CResidue *> tp1(1, atom_p_1->residue);
+			      
+	       // add this residue to the vector if it is not there already)
+	       // 
+	       // We have to check both pairs against
+	       // the cached results (where we have a
+	       // dictionary and where we don't).
+	       // 
+	       std::vector<std::pair<bool, CResidue *> >::const_iterator it_1 =
+		  std::find(het_residues->begin(), het_residues->end(), tp0);
+			      
+	       if (it_1 == het_residues->end()) {
+
+		  std::vector<std::pair<bool, CResidue *> >::const_iterator it_2 =
+		     std::find(het_residues->begin(), het_residues->end(), tp1);
+				 
+		  if (it_2 == het_residues->end()) {
+		     
+		     // if (geom->have_dictionary_for_residue_type_no_dynamic_add(atom_p_1->residue->GetResName())) {
+		     if (geom->have_at_least_minimal_dictionary_for_residue_type(atom_p_1->residue->GetResName())) {
+			if (geom->atoms_match_dictionary(atom_p_1->residue, true, true).first) {
+			   het_residues->push_back(tp1);
+			   bond_het_residue_by_dictionary = true;
+			} else {
+			   het_residues->push_back(tp0);
+			} 
+		     }  else {
+			het_residues->push_back(tp0);
+		     } 
+		  } else {
+
+		     // this HET group is already in the list and was maked as found in the dictionary.
+		     bond_het_residue_by_dictionary = true;
+		  }
+	       } else {
+		  // this HET group is already in the list but not found
+		  bond_het_residue_by_dictionary = false; // false anyway, I think.
+	       } 
+	    }
+   return bond_het_residue_by_dictionary;
+}
+
 
 void
 Bond_lines_container::mark_atoms_as_bonded(CAtom *atom_p_1, CAtom *atom_p_2,
@@ -810,6 +828,8 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 					     int atom_colour_type,
 					     short int have_udd_handle,
 					     int udd_handle) {
+
+   std::cout << "add_bonds_het_residues() atom_colour_type is " << atom_colour_type << std::endl;
 
    if (het_residues.size()) {
       for (unsigned int ires=0; ires<het_residues.size(); ires++) {
@@ -3352,7 +3372,8 @@ Bond_lines_container::set_rainbow_colours(CMMDBManager *mol) {
 }
 
 
-// atom_colour_map is an optional arg.
+// atom_colour_map is an optional arg.  It is passed in the case of
+// long_bonded atoms or MET/MSE residues.
 // 
 int
 Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type,
@@ -3365,8 +3386,9 @@ Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type,
    if (bond_colour_type == coot::COLOUR_BY_CHAIN) {
       if (atom_colour_map_p) { 
 	 col = atom_colour_map_p->index_for_chain(std::string(at->GetChainID()));
-	 std::cout << " atom_colour_map->index_for_chain(\"" << at->GetChainID()
-		   << "\") returns " << col << std::endl;
+	 if (0)
+	    std::cout << " atom_colour_map->index_for_chain(\"" << at->GetChainID()
+		      << "\") returns " << col << std::endl;
       }
    } else { 
       if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) { 
@@ -3426,13 +3448,13 @@ Bond_lines_container::atom_colour(CAtom *at, int bond_colour_type,
 	    if (bond_colour_type == coot::COLOUR_BY_CHAIN_C_ONLY) {
 	       std::string element = at->element;
 
-	       if (element == " C") {
+	       if (element == " C") {   // PDBv3 FIXME (and below)
 		  if (atom_colour_map_p) {
 		     int l_col = atom_colour_map_p->index_for_chain(std::string(at->GetChainID()));
 		     return l_col;
 		  } else {
-		     std::cout << "ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode"
-			       << std::endl;
+		     // std::cout << "ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode"
+		     // << std::endl;
 		     return col;
 		  } 
 	       } else {
@@ -4009,6 +4031,8 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
    int col = 0; // atom (segment) colour
    coot::my_atom_colour_map_t atom_colour_map;
 
+   std::vector<std::pair<bool, CResidue *> > het_residues; // bond these separately.
+
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;
@@ -4023,7 +4047,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
       contact = NULL;
 
       // make a new atom selection, based on the model.
-      int SelectionHandle = asc.mol->NewSelection();
+      int SelectionHandle = asc.mol->NewSelection(); // d
       asc.mol->SelectAtoms (SelectionHandle, imodel, "*",
 			    ANY_RES, // starting resno, an int
 			    "*", // any insertion code
@@ -4084,7 +4108,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 		     if ( (draw_hydrogens_flag == 1) ||
 			  
 			  // (element1 != " H" && element1 != " D" &&
-			  // element2 != " H" && element2 != " D") ) {
+			  //  element2 != " H" && element2 != " D") ) {
 
 			  (! is_hydrogen(element1) && ! is_hydrogen(element2))) { 
 
@@ -4098,70 +4122,77 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 			// 
 			if (aloc_1 == "" || aloc_2 == "" || aloc_1 == aloc_2) {
 
-			   if (element1 != element2) {
-			   
-			      // Bonded to different atom elements.
-			      //
-			      
-			      coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
-			      
-			      if (element1 != " C") {
-				 
-				 if (element2 != " C") {
-				    // half bonds, e.g. N-O, (not frequent)
-				    int non_c_col = atom_colour(at1, atom_colour_type);
-				    bonds_size_colour_check(non_c_col);
-				    addBond(non_c_col, atom_1, bond_mid_point);
-				    non_c_col = atom_colour(at2, atom_colour_type);
-				    bonds_size_colour_check(non_c_col);
-				    addBond(non_c_col, atom_2, bond_mid_point);
-				 } else {
-				    // frequent
-				    int non_c_col = atom_colour(at1, atom_colour_type);
-				    bonds_size_colour_check(non_c_col);
-				    addBond(non_c_col, atom_1, bond_mid_point);
-				    bonds_size_colour_check(col);
-				    addBond(col, atom_2, bond_mid_point);
-				 }
-				 
-			      } else {
-				 
-				 if (element2 != " C") {
 
-				    // frequent
-				    bonds_size_colour_check(col);
-				    addBond(col, atom_1, bond_mid_point);
-				    int non_c_col = atom_colour(at2, atom_colour_type);
-				    bonds_size_colour_check(non_c_col);
-				    addBond(non_c_col, atom_2, bond_mid_point);
+			   bool bond_het_residue_by_dictionary =
+			      add_bond_by_dictionary_maybe(at1, at2, &het_residues); // add to het_residues maybe
+
+			   if (! bond_het_residue_by_dictionary) { 
+
+			      if (element1 != element2) {
+			   
+				 // Bonded to different atom elements.
+				 //
+			      
+				 coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
+			      
+				 if (element1 != " C") {  // PDBv3 FIXME 
+				 
+				    if (element2 != " C") {
+				       // half bonds, e.g. N-O, (not frequent)
+				       int non_c_col = atom_colour(at1, atom_colour_type);
+				       bonds_size_colour_check(non_c_col);
+				       addBond(non_c_col, atom_1, bond_mid_point);
+				       non_c_col = atom_colour(at2, atom_colour_type);
+				       bonds_size_colour_check(non_c_col);
+				       addBond(non_c_col, atom_2, bond_mid_point);
+				    } else {
+				       // frequent
+				       int non_c_col = atom_colour(at1, atom_colour_type);
+				       bonds_size_colour_check(non_c_col);
+				       addBond(non_c_col, atom_1, bond_mid_point);
+				       bonds_size_colour_check(col);
+				       addBond(col, atom_2, bond_mid_point);
+				    }
+				 
+				 } else {
+				 
+				    if (element2 != " C") {
+
+				       // frequent
+				       bonds_size_colour_check(col);
+				       addBond(col, atom_1, bond_mid_point);
+				       int non_c_col = atom_colour(at2, atom_colour_type);
+				       bonds_size_colour_check(non_c_col);
+				       addBond(non_c_col, atom_2, bond_mid_point);
 				    
-				 } else {
-				    std::cout << "impossible " << std::endl;
-				    bonds_size_colour_check(col);
-				    addBond(col, atom_2, bond_mid_point);
+				    } else {
+				       std::cout << "impossible " << std::endl;
+				       bonds_size_colour_check(col);
+				       addBond(col, atom_2, bond_mid_point);
+				    }
 				 }
-			      }
 
 			   
-			   } else {
-
-			      // same element
-
-			      if (element1 == " C") { 
-				 bonds_size_colour_check(col);
-				 addBond(col, atom_1, atom_2);
 			      } else {
 
-				 // If we are here: same element, not a carbon, and either drawing hydrogens
-				 // or these are not hydrogens, so don't draw bonds between hydrogens
+				 // same element
 
-				 // if (element1 != " H") {
-				 if (! is_hydrogen(element1)) { 
-				    col = atom_colour(atom_selection[ contact[i].id1 ], atom_colour_type);
+				 if (element1 == " C") { 
 				    bonds_size_colour_check(col);
 				    addBond(col, atom_1, atom_2);
-				 }
-			      } 
+				 } else {
+
+				    // If we are here: same element, not a carbon, and either drawing hydrogens
+				    // or these are not hydrogens, so don't draw bonds between hydrogens
+
+				    // if (element1 != " H") {
+				    if (! is_hydrogen(element1)) { 
+				       col = atom_colour(atom_selection[ contact[i].id1 ], atom_colour_type);
+				       bonds_size_colour_check(col);
+				       addBond(col, atom_1, atom_2);
+				    }
+				 } 
+			      }
 			   }
 
 			   // we drew a bond.  Mark it up.
@@ -4269,12 +4300,28 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 	    }
 	 }
 	 construct_from_model_links(asc.mol->GetModel(imodel), atom_colour_type);
+
       }
-      
+
       asc.mol->DeleteSelection(SelectionHandle);
+      
    }
+
+
+   // for ligands in colour-by-chain mode to come out with carbons the
+   // same colour as the main-chain (I think that) we need to pass a
+   // my_atom_colour_map_t to add_bonds_het_residues().  I don't want
+   // to do that (not at the moment, anyway). Have a look at atom_colour()
+   // to see what I mean (c.f. COLOUR_BY_CHAIN and COLOUR_BY_CHAIN_C_ONLY).
+   // 
+   int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY;
+   short int have_udd_atoms = false;
+   int udd_handle = -1;
+   add_bonds_het_residues(het_residues,
+			  atom_colour_type,
+			  have_udd_atoms, udd_handle);
    add_zero_occ_spots(asc);
-   int atom_colour_type = coot::COLOUR_BY_CHAIN;
+   atom_colour_type = coot::COLOUR_BY_CHAIN;
    add_atom_centres(asc, atom_colour_type);
 }
 
@@ -4303,7 +4350,6 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
       
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
    int col = 0; // atom (segment) colour
-
 
    int n_models = asc.mol->GetNumberOfModels();
    
