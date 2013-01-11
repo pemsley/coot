@@ -75,8 +75,10 @@ namespace lig_build {
 	 index_1 = i1;
 	 index_2 = i2;
 	 bond_type = bt;
-      } 
+      }
+      friend std::ostream &operator<<(std::ostream &s, const molfile_bond_t &a);
    };
+   std::ostream &operator<<(std::ostream &s, const molfile_bond_t &a);
 
    class molfile_molecule_t {
       bond_t::bond_type_t get_bond_type(const std::string &restraints_bond_type) const;
@@ -139,6 +141,16 @@ namespace lig_build {
 	 }
 	 return std::pair<bool, double> (status, scale);
       }
+
+      void debug() const {
+	 std::cout << "molfile_molecule_t: " << atoms.size() << " atoms" << std::endl;
+	 std::cout << "molfile_molecule_t: " << bonds.size() << " bonds" << std::endl;
+	 for (unsigned int iat=0; iat<atoms.size(); iat++) 
+	    std::cout << "   " << iat << " " << atoms[iat] << std::endl;
+	 for (unsigned int ib=0; ib<bonds.size(); ib++) 
+	    std::cout << "   bond " << ib << ":  " << bonds[ib] << std::endl;
+
+      } 
    };
 }
 

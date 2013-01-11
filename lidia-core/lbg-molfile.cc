@@ -33,7 +33,15 @@ lig_build::operator<<(std::ostream &s, const molfile_atom_t &at) {
      << at.aromatic << " chiral? " << at.chiral << " charge: " << at.formal_charge
      << " at " << at.atom_position.format();
    return s;
+}
+
+std::ostream&
+lig_build::operator<<(std::ostream &s, const molfile_bond_t &b) {
+
+   s << b.index_1 << " to " << b.index_2 << " type " << b.bond_type;
+   return s;
 } 
+
 
 
 // throw an exception on unable to convert

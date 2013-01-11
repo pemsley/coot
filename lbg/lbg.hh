@@ -943,6 +943,7 @@ private:
    std::vector<std::pair<std::string, std::string> > alert_smarts() const;
    std::vector<std::pair<std::string, std::string> > user_defined_alert_smarts() const;
    GooCanvasItem *alert_group;
+   void rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name);
 
 public:
    lbg_info_t(GtkWidget *canvas_in) {

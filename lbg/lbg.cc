@@ -204,7 +204,9 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
    std::pair<double, lig_build::pos_t> scale_and_correction = mol.current_scale_and_centre();
 
-   if (0) { 
+   if (0) {
+      std::cout << "------ in rdkit_mol(widgeted_molecule_t) atoms.size() " << mol.atoms.size() << std::endl;
+      std::cout << "------ in rdkit_mol(widgeted_molecule_t) bonds.size() " << mol.bonds.size() << std::endl;
       std::cout << ":::::::; in lbg_info_t::rdkit_mol() mol's scale correction is "
 		<< mol.scale_correction.first << " " << mol.scale_correction.second
 		<< std::endl;
@@ -2363,15 +2365,8 @@ lbg_info_t::save_togglebutton_widgets(GtkBuilder *builder) {
 
    // hack in 
    for (unsigned int i=0; i<w_names.size(); i++) {
-
-      
       GtkToggleToolButton *tb =
 	 GTK_TOGGLE_TOOL_BUTTON(gtk_builder_get_object (builder, w_names[i].c_str()));
-
-      gtk_widget_set_events(GTK_WIDGET(tb),
-			    GDK_KEY_PRESS_MASK     |
-			    GDK_KEY_RELEASE_MASK);
-      
       g_signal_connect (GTK_OBJECT(tb), "key_press_event",
 			G_CALLBACK (on_highlight_key_press_event), NULL);
    }
@@ -2960,7 +2955,7 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
    // add in atoms
    for (unsigned int iat=0; iat<mol_in.atoms.size(); iat++) {
-      if (!mol_in.atoms[iat].is_closed()) { 
+      if (!mol_in.atoms[iat].is_closed()) {
 	 GooCanvasItem *ci = NULL;
 	 lig_build::pos_t pos = mol_in.atoms[iat].atom_position;
 	 widgeted_atom_t new_atom = widgeted_atom_t(pos,
@@ -2969,13 +2964,22 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 						    ci);
 	 double sa = mol_in.atoms[iat].get_solvent_accessibility();
 	 new_atom.set_atom_name(mol_in.atoms[iat].get_atom_name());
+
 	 if (0)
 	    std::cout << "in render_from_molecule() atom with name :"
 		      << mol_in.atoms[iat].get_atom_name()
 		      << ": has solvent_accessibility " << sa << std::endl;
+	 
 	 new_atom.add_solvent_accessibility(sa);
 	 new_atom.bash_distances = mol_in.atoms[iat].bash_distances;
-	 re_index[iat] = mol.add_atom(new_atom).second;
+	 std::pair<bool, int> s = mol.add_atom(new_atom);
+	 re_index[iat] = s.second;
+	 
+	 if (0)
+	    if (! s.first)
+	       std::cout << "render_from_molecule() atom " << iat << " was close to atom " << s.second
+			 << " " << mol_in.atoms[iat].atom_position << "  vs.  " << mol.atoms[s.second].atom_position
+			 << std::endl;
 	 
 	 if (0)
 	    // clever c++
@@ -2995,15 +2999,18 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
       if (! mol_in.bonds[ib].is_closed()) { 
 	 int idx_1 = re_index[mol_in.bonds[ib].get_atom_1_index()];
 	 int idx_2 = re_index[mol_in.bonds[ib].get_atom_2_index()];
-	 if ((idx_1 != UNASSIGNED_INDEX) && (idx_2 != UNASSIGNED_INDEX)) { 
-	    lig_build::bond_t::bond_type_t bt = mol_in.bonds[ib].get_bond_type();
-	    if (mol_in.bonds[ib].have_centre_pos()) {
-	       lig_build::pos_t centre_pos = mol_in.bonds[ib].centre_pos();
-	       widgeted_bond_t bond(idx_1, idx_2, mol.atoms[idx_1], mol.atoms[idx_2], centre_pos, bt, root);
-	       mol.add_bond(bond);
-	    } else {
-	       widgeted_bond_t bond(idx_1, idx_2, mol.atoms[idx_1], mol.atoms[idx_2], bt, root);
-	       mol.add_bond(bond);
+	 if ((idx_1 != UNASSIGNED_INDEX) && (idx_2 != UNASSIGNED_INDEX)) {
+	    if (idx_1 != idx_2) { // 20130111 just in case there are problems from re-indexing.
+	                          // better to not have the bond than to have and atom bonded to itself.
+	       lig_build::bond_t::bond_type_t bt = mol_in.bonds[ib].get_bond_type();
+	       if (mol_in.bonds[ib].have_centre_pos()) {
+		  lig_build::pos_t centre_pos = mol_in.bonds[ib].centre_pos();
+		  widgeted_bond_t bond(idx_1, idx_2, mol.atoms[idx_1], mol.atoms[idx_2], centre_pos, bt, root);
+		  mol.add_bond(bond);
+	       } else {
+		  widgeted_bond_t bond(idx_1, idx_2, mol.atoms[idx_1], mol.atoms[idx_2], bt, root);
+		  mol.add_bond(bond);
+	       }
 	    }
 	 }
       }
@@ -3140,34 +3147,20 @@ lbg_info_t::save_molecule() {
 void
 lbg_info_t::import_mol_from_file(const std::string &file_name) {
 
+   // if we have rdkit, try to read as an Mol2 file, if that fails try
+   // to read as a Mol file.  If that fails try to read with my parser.
+   // 
+   // if we don't have rdkit of course, just use my parser.
+
    bool try_as_mdl_mol = false;
 #ifndef MAKE_ENTERPRISE_TOOLS
    // fallback
    try_as_mdl_mol = true; 
 #else    
-   try { 
+   try {
       RDKit::RWMol *m = RDKit::Mol2FileToMol(file_name);
       if (m) {
-	 // molfile molecules don't know about aromatic bonds, we need
-	 // to kekulize now.
-	 RDKit::MolOps::Kekulize(*m); // non-const reference?
-	 double weight_for_3d_distances = 0.4; 
-	 int iconf = 0; // current conformer number
-	 int iconf_new = coot::add_2d_conformer(m, weight_for_3d_distances);
-	 // could we add another conformer (which is 2d), if so, use
-	 // that for layout instead.
-	 if (iconf_new > iconf) {
-	    iconf = iconf_new;
-	 } else {
-	    std::cout << "WARNING:: import_mol_from_file() failed to make 2d conformer "
-		      << std::endl;
-	 }
-	 lig_build::molfile_molecule_t mm = coot::make_molfile_molecule(*m, iconf);
-	 CMMDBManager *mol = NULL; // no atom names to transfer
-	 widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
-	 render_from_molecule(wmol);
-	 update_descriptor_attributes();
-
+	 rdkit_mol_post_read_handling(m, file_name);
       } else {
 	 // should throw an exception before getting here, I think.
 	 std::cout << "Null m in import_mol_from_file() " << std::endl;
@@ -3175,8 +3168,13 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       } 
    }
    catch (RDKit::FileParseException rte) {
-      std::cout << "WARNING:: " << rte.message() << std::endl;
-      try_as_mdl_mol = true;
+      try { 
+	 RDKit::RWMol *m = RDKit::MolFileToMol(file_name);
+	 rdkit_mol_post_read_handling(m, file_name);
+      }
+      catch (RDKit::FileParseException rte) {
+	 try_as_mdl_mol = true;
+      }
    }
    catch (RDKit::BadFileException &e) {
       std::cout << "WARNING:: Bad file " << file_name << " " << e.message() << std::endl;
@@ -3202,7 +3200,30 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       render_from_molecule(wmol);
       update_descriptor_attributes();
    }
-   
+}
+
+void
+lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name) {
+
+   // molfile molecules don't know about aromatic bonds, we need
+   // to kekulize now.
+   RDKit::MolOps::Kekulize(*m); // non-const reference?
+   double weight_for_3d_distances = 0.4; 
+   int iconf = 0; // current conformer number
+   int iconf_new = coot::add_2d_conformer(m, weight_for_3d_distances);
+   // could we add another conformer (which is 2d), if so, use
+   // that for layout instead.
+   if (iconf_new > iconf) {
+      iconf = iconf_new;
+   } else {
+      std::cout << "WARNING:: import_mol_from_file() failed to make 2d conformer "
+		<< std::endl;
+   }
+   lig_build::molfile_molecule_t mm = coot::make_molfile_molecule(*m, iconf);
+   CMMDBManager *mol = NULL; // no atom names to transfer
+   widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
+   render_from_molecule(wmol);
+   update_descriptor_attributes();
 }
 
 // pdb_mol is the pdb representation of the (flat) ligand - and it has

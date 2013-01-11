@@ -42,7 +42,7 @@
 widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mol_in,
 					 CMMDBManager *pdb_mol) { 
 
-   bool debug = 0;
+   bool debug = false;
 
    // the input coordinates are not necessarily centred on (0,0), so
    // let's find the centre of the input molecule first.
@@ -139,7 +139,7 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 	 if (! bonds[ib].have_centre_pos()) { 
 	    int atom_index = bonds[ib].get_atom_1_index();
 	    int atom_index_other = bonds[ib].get_atom_2_index();
-	    if (debug) 
+	    if (false) 
 	       std::cout << "=============== checking ring for atom index "
 			 << atom_index << " ===============" << std::endl;
 	    // path must pass through atom_index_other
