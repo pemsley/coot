@@ -17722,7 +17722,7 @@ create_save_symmetry_coords_fileselection (void)
   GtkWidget *save_symmetry_coords_fileselection_ok_button;
   GtkWidget *save_symmetry_coords_fileselection_cancel_button;
 
-  save_symmetry_coords_fileselection = gtk_file_selection_new (_("Select File"));
+  save_symmetry_coords_fileselection = gtk_file_selection_new (_("Select  Symmetry Coordinates Filename"));
   gtk_container_set_border_width (GTK_CONTAINER (save_symmetry_coords_fileselection), 10);
   gtk_window_set_type_hint (GTK_WINDOW (save_symmetry_coords_fileselection), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -24692,6 +24692,9 @@ create_coords_filechooserdialog1 (void)
 
   coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select Coordinates File"), NULL, GTK_FILE_CHOOSER_ACTION_OPEN, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (coords_filechooserdialog1), 10);
+  g_object_set (coords_filechooserdialog1,
+                "show-hidden", TRUE,
+                NULL);
   gtk_window_set_modal (GTK_WINDOW (coords_filechooserdialog1), TRUE);
   gtk_window_set_type_hint (GTK_WINDOW (coords_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -25122,8 +25125,10 @@ create_save_symmetry_coords_filechooserdialog1 (void)
 
   save_symmetry_coords_filechooserdialog1 = gtk_file_chooser_dialog_new (_("Select File"), NULL, GTK_FILE_CHOOSER_ACTION_SAVE, NULL, NULL);
   gtk_container_set_border_width (GTK_CONTAINER (save_symmetry_coords_filechooserdialog1), 10);
+  g_object_set (save_symmetry_coords_filechooserdialog1,
+                "show-hidden", TRUE,
+                NULL);
   gtk_window_set_modal (GTK_WINDOW (save_symmetry_coords_filechooserdialog1), TRUE);
-  gtk_window_set_resizable (GTK_WINDOW (save_symmetry_coords_filechooserdialog1), FALSE);
   gtk_window_set_type_hint (GTK_WINDOW (save_symmetry_coords_filechooserdialog1), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox107 = GTK_DIALOG (save_symmetry_coords_filechooserdialog1)->vbox;
