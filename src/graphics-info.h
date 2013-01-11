@@ -2431,8 +2431,8 @@ public:
    // Geometry issues:
    
    // debugging:
-   const coot::protein_geometry *Geom_p() const { return geom_p; }
-   coot::protein_geometry *Geom_p() { return geom_p; }
+   // const coot::protein_geometry *Geom_p() const { return geom_p; }
+   static coot::protein_geometry *Geom_p() { return geom_p; }
    //
    std::vector <coot::dict_torsion_restraint_t> get_monomer_torsions_from_geometry(const std::string &monomer_type) const;
    

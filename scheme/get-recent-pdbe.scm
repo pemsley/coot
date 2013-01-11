@@ -331,7 +331,8 @@
 				     extra-cif-lib-filename 
 				     imol-refmac-count
 				     swap-map-colours-post-refmac? 
-				     imol-mtz-molecule show-diff-map-flag
+				     imol-mtz-molecule 
+				     show-diff-map-flag
 				     phase-combine-flag 
 				     phib-fom-pair 
 				     force-n-cycles

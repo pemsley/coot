@@ -718,7 +718,7 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 		}
 	    }
 	 }
+         fclose(dots);
       }
-      fclose(dots);
    }
 }

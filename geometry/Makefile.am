@@ -25,8 +25,8 @@ EXTRA_DIST = notes Makefile.simple
 include_HEADERS =  protein-geometry.hh read-sbase.hh lbg-graph.hh 
 
 INCLUDES = -I$(top_srcdir)/coords     \
-   	   -I$(top_srcdir)/utils      \
-   	   -I$(top_srcdir)/mini-mol   \
+	   -I$(top_srcdir)/utils      \
+	   -I$(top_srcdir)/mini-mol   \
 	   -I$(top_srcdir)/coot-utils \
 	   -I$(top_srcdir)/compat     \
 	 $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
@@ -40,7 +40,7 @@ AM_CXXFLAGS = \
 libcoot_geometry_la_SOURCES = protein-geometry.cc protein-geometry-mmdb.cc \
     read-sbase.cc energy-lib.cc 	 \
     chem_mods.cc \
-    lbg-graph.cc   		
+    lbg-graph.cc  dreiding.cc
 
 
 #libcoot_geometry_la_LIBADD = \

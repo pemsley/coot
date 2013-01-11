@@ -2063,6 +2063,41 @@ namespace coot {
       // can throw a std::runtime_error
       std::string Get_SMILES_for_comp_id(const std::string &comp_id) const;
 
+      class dreiding_torsion_energy_t {
+      public:
+	 double Vjk;
+	 double phi0_jk;
+	 double n_jk;
+	 dreiding_torsion_energy_t(double Vjk_in, double phi0_jk_in, double n_jk_in) {
+	    Vjk = Vjk_in;
+	    phi0_jk = phi0_jk_in;
+	    n_jk = n_jk_in;
+	 }
+	 double E(double phi) const { return 0.5*Vjk*(1.0-cos(n_jk*(phi-phi0_jk))); }
+      };
+
+      // can thow a std::runtime_error
+      double dreiding_torsion_energy(const std::string &comp_id,
+				     CAtom *atom_1,
+				     CAtom *atom_2,
+				     CAtom *atom_3,
+				     CAtom *atom_4) const;
+      double dreiding_torsion_energy(const std::string &comp_id, const atom_quad &quad) const;
+      double dreiding_torsion_energy(double phi, int sp_a1, int sp_a2,
+				     const std::string &bond_order,
+				     bool at_1_deloc_or_arom,
+				     bool at_2_deloc_or_arom) const;
+      double dreiding_torsion_energy(double phi,
+				     double Vjk, double phi0_jk, double n_jk) const;
+      double dreiding_torsion_energy(double phi, dreiding_torsion_energy_t dr) const;
+      dreiding_torsion_energy_t dreiding_torsion_energy_params(const std::string &comp_id,
+							       const atom_quad &quad) const;
+      dreiding_torsion_energy_t dreiding_torsion_energy_params(double phi, int sp_a1, int sp_a2,
+							       const std::string &bond_order,
+							       bool at_1_deloc_or_arom,
+							       bool at_2_deloc_or_arom) const;
+
+	 
    };
 
 } // namespace coot
