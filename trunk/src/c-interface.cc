@@ -7185,7 +7185,7 @@ float get_electrostatic_surface_charge_range() {
 void sharpen(int imol, float b_factor) {
 
    if (is_valid_map_molecule(imol)) {
-      graphics_info_t::molecules[imol].sharpen(b_factor, 0, 0);
+      graphics_info_t::molecules[imol].sharpen(b_factor, false, 0);
       graphics_draw();
    }
 }

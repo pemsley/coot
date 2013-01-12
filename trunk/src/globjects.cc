@@ -386,7 +386,7 @@ float    graphics_info_t::box_radius = 10;
 int      graphics_info_t::debug_atom_picking = 0;
 
 int   graphics_info_t::imol_map_sharpening = -1;
-float graphics_info_t::map_sharpening_scale_limit = 30.0;
+float graphics_info_t::map_sharpening_scale_limit = 200.0;
 
 //
 int graphics_info_t::imol_remarks_browswer = -1;
