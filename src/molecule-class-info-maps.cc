@@ -193,7 +193,9 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
 		  std::cout << "Caught something" << std::endl;
 	       } 
 	    }
-	    fphis[hri].f() *= exp(-b_factor * irs) * gompertz_scale;
+	    fphis[hri].f() *= exp(-b_factor * irs * 0.25) * gompertz_scale; // 0.25 factor noted
+	                                                                    // by Chang Liu.
+	                                                                    // 20130112
 	    n_tweaked++;
 	 } 
       }
