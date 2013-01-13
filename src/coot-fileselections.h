@@ -6,6 +6,7 @@
 #define COOT_SCRIPTS_FILE_SELECTION        4
 #define COOT_PHS_COORDS_FILE_SELECTION     5
 #define COOT_SAVE_COORDS_FILE_SELECTION    6
+#define COOT_IMAGE_FILE_SELECTION          7
 
 
 /* We may need to split COOT_SCRIPTS_FILE_SELECTION into SCM and PY scripts */
