@@ -919,6 +919,7 @@ private:
    RDKit::Bond::BondType convert_bond_type(const lig_build::bond_t::bond_type_t &t) const;
    std::string get_smiles_string_from_mol_rdkit() const;
    std::vector<alert_info_t> alerts(const RDKit::ROMol &mol) const;
+   void rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name);
 #ifdef USE_PYTHON   
    PyObject *silicos_it_qed_default_func;
    PyObject * get_callable_python_func(const std::string &module_name,
@@ -943,7 +944,6 @@ private:
    std::vector<std::pair<std::string, std::string> > alert_smarts() const;
    std::vector<std::pair<std::string, std::string> > user_defined_alert_smarts() const;
    GooCanvasItem *alert_group;
-   void rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name);
 
 public:
    lbg_info_t(GtkWidget *canvas_in) {

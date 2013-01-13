@@ -152,6 +152,7 @@ graphics_ligand_bond::gl_bond(const lig_build::pos_t &pos_1_raw, const lig_build
    case lig_build::bond_t::SINGLE_OR_DOUBLE:
    case lig_build::bond_t::SINGLE_OR_AROMATIC:
    case lig_build::bond_t::AROMATIC_BOND:
+   case lig_build::bond_t::DELOC_ONE_AND_A_HALF:
    case lig_build::bond_t::BOND_ANY:
 
       glBegin(GL_LINES);
