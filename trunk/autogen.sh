@@ -3,6 +3,9 @@ sys=`uname`
 
 OS=`uname`
 hostname=`hostname`
+if [ -z "$HOST" ]; then
+ HOST=$hostname
+fi
 
 
 # Bernie wants libtoolize
@@ -21,7 +24,7 @@ else
 
     aclocal_extras=
     # dir_list="$HOME/libtool/share/aclocal $HOME/gettext/share/aclocal $HOME/glade/share/aclocal $HOME/autobuild/Linux/Coot-0.1/share/aclocal $HOME/autotools/share/aclocal-1.9 $HOME/automake/share/aclocal-1.9 $HOME/autobuild/$OS-$hostname/share/aclocal $HOME/autobuild/$OS-$hostname-pre-release/share/aclocal $HOME/autobuild/$OS-$hostname-pre-release-gtk2/share/aclocal /usr/share/aclocal $HOME/test/gtkglext/share/aclocal $HOME/build/share/aclocal $HOME/autobuild/Linux-$HOST/share/aclocal $HOME/gtk-1.2/share/aclocal $HOME/gtk-1/share/aclocal"
-    dir_list="$HOME/test/gtkglext/share/aclocal $HOME/build/share/aclocal $HOME/autobuild/coot-$OS-x86_64-red-hat-gtk2-python/share/aclocal $HOME/autobuild/$OS-$HOST-gtk2-python/share/aclocal $HOME/autobuild/installed-pre-release-gtk2-python/share/aclocal"
+    dir_list="$HOME/test/gtkglext/share/aclocal $HOME/build/share/aclocal $HOME/autobuild/coot-$OS-x86_64-red-hat-gtk2-python/share/aclocal $HOME/autobuild/$OS-$HOST-gtk2-python/share/aclocal $HOME/autobuild/installed-pre-release-gtk2-python/share/aclocal $HOME/autobuild/$OS-$HOST-pre-release-gtk2/share/aclocal"
 
     for dir in $dir_list
     do 
