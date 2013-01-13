@@ -37,6 +37,8 @@
 #include "rotate-translate-modes.hh"
 #include "manipulation-modes.hh"
 
+#include "coot-fileselections.h"
+
 void
 graphics_info_t::clear_pending_picks() {
    a_is_pressed = 0;
@@ -1650,7 +1652,11 @@ graphics_info_t::check_if_in_save_symmetry_define(GdkEventButton *event) {
 	 	gtk_file_selection_set_filename(GTK_FILE_SELECTION(w),
 					 filename.c_str());
 	 }
-	 
+
+	 add_ccp4i_project_optionmenu(w, COOT_COORDS_FILE_SELECTION);
+         
+         add_filename_filter_button(w, COOT_COORDS_FILE_SELECTION);
+
 	 normal_cursor();
 	 gtk_widget_show(w);
 	 pick_pending_flag = 0;

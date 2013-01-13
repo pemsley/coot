@@ -3222,7 +3222,9 @@ on_run_script1_activate                (GtkMenuItem     *menuitem,
 {
   GtkWidget *widget = coot_run_script_chooser();
   add_sort_button_fileselection(widget);
-  add_filename_filter(widget);
+  add_filename_filter_button(widget, COOT_SCRIPTS_FILE_SELECTION);
+  add_ccp4i_project_optionmenu(widget, 
+                               COOT_SCRIPTS_FILE_SELECTION);
   gtk_widget_show(widget);
 }
 
@@ -4215,6 +4217,7 @@ on_run_refmac_mtz_filechooser_button_clicked
   mtz_file_chooser = create_run_refmac_mtz_filechooserdialog();
   /* add file filter to filechooserbutton */
   add_filechooser_filter_button(mtz_file_chooser, COOT_DATASET_FILE_SELECTION);
+  add_ccp4i_project_optionmenu(mtz_file_chooser, COOT_DATASET_FILE_SELECTION);
   gtk_widget_show(mtz_file_chooser);
 #endif
 
@@ -8267,6 +8270,9 @@ on_save_state1_activate                (GtkMenuItem     *menuitem,
    set_filename_for_filechooserselection(fileselection,
 					 save_state_file_name_raw());
 
+   add_filename_filter_button(fileselection, COOT_SCRIPTS_FILE_SELECTION);
+   add_ccp4i_project_optionmenu(fileselection, 
+                                COOT_SCRIPTS_FILE_SELECTION);
    set_file_selection_dialog_size(fileselection);
    gtk_widget_show(fileselection);
 }
@@ -8783,6 +8789,8 @@ on_simple1_activate                    (GtkMenuItem     *menuitem,
    set_filename_for_filechooserselection(fileselection,
 					 "coot.png");
    set_file_selection_dialog_size(fileselection);
+   add_ccp4i_project_optionmenu(fileselection, 
+                                COOT_IMAGE_FILE_SELECTION);
    gtk_widget_show(fileselection);
 
    check_for_dark_blue_density(); /* give a dialog if density it too dark (blue) */
@@ -8800,6 +8808,8 @@ on_povray1_activate                    (GtkMenuItem     *menuitem,
    set_filename_for_filechooserselection(fileselection,
 				   "coot-povray");
    set_file_selection_dialog_size(fileselection);
+   add_ccp4i_project_optionmenu(fileselection, 
+                                COOT_IMAGE_FILE_SELECTION);
    gtk_widget_show(fileselection);
 }
 
@@ -8814,6 +8824,8 @@ on_raster3d1_activate                  (GtkMenuItem     *menuitem,
    set_filename_for_filechooserselection(fileselection, 
 				   "coot.png");
    set_file_selection_dialog_size(fileselection);
+   add_ccp4i_project_optionmenu(fileselection, 
+                                COOT_IMAGE_FILE_SELECTION);
    gtk_widget_show(fileselection);
 }
 

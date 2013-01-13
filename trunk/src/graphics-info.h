@@ -1066,6 +1066,7 @@ public:
       dictionary_glob_extensions->push_back(".cif.gz");
       dictionary_glob_extensions->push_back(".mmcif.gz");
       dictionary_glob_extensions->push_back(".mmCIF.gz");
+      dictionary_glob_extensions->push_back(".lib");
 
       /* things for preferences */
       //preferences_internal = new std::vector<coot::preference_info_t>;
