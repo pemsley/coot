@@ -3202,6 +3202,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
    }
 }
 
+#ifdef MAKE_ENTERPRISE_TOOLS
 void
 lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name) {
 
@@ -3225,6 +3226,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
    render_from_molecule(wmol);
    update_descriptor_attributes();
 }
+#endif // MAKE_ENTERPRISE_TOOLS
 
 // pdb_mol is the pdb representation of the (flat) ligand - and it has
 // the atom names.  We will add the atom names into mol by matching
