@@ -829,8 +829,6 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 					     short int have_udd_handle,
 					     int udd_handle) {
 
-   std::cout << "add_bonds_het_residues() atom_colour_type is " << atom_colour_type << std::endl;
-
    if (het_residues.size()) {
       for (unsigned int ires=0; ires<het_residues.size(); ires++) {
 	 if (het_residues[ires].first) {
