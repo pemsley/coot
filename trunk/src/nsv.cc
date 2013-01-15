@@ -128,7 +128,7 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
    pixels_per_letter = 10; // 10 for my F10 box
    pixels_per_chain  = 12;
 
-   bool debug = 0;
+   bool debug = true;
 
 #ifdef HAVE_GTK_CANVAS
    gtk_canvas_init();
@@ -183,7 +183,8 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 
 	 int canvas_x_size =  5 + total_res_range * pixels_per_letter + 140;
 	 // 50 is good for 2 chains.
-	 int canvas_y_size =  5 + n_limited_chains * 50; 
+	 // int canvas_y_size =  5 + n_limited_chains * 50; 
+	 int canvas_y_size = 65 + n_limited_chains * 20; 
 
 	 // the size of the widget on the screens
 	 gtk_widget_set_usize(GTK_WIDGET(scrolled_window), 700, 20*(3+n_limited_chains));
@@ -320,12 +321,13 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number, int lowest_res
 }
 
 
-void
+bool
 exptl::nsv::add_text_and_rect(CResidue *residue_p,
 			      int position_number,
 			      int lowest_resno,
 			      double x_offset) {
 
+   bool too_wide = false;
    if (residue_p) { 
       CAtom *at = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
       coot::atom_spec_t at_spec(at);
@@ -389,8 +391,11 @@ exptl::nsv::add_text_and_rect(CResidue *residue_p,
 	 gtk_signal_connect(GTK_OBJECT(text_item), "event",
 			    GTK_SIGNAL_FUNC(letter_event), so);
 	 canvas_item_vec.push_back(text_item);
-      }
+      } else {
+	 too_wide = true;
+      } 
    }
+   return too_wide;
 }
 
 
@@ -563,11 +568,11 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
       canvas_item_vec.push_back(item);
 
       // tick marks and tick labels
-      for (int irn=irn_start; irn<brn; irn+=5) {
+      for (int irn=irn_start; irn<=brn; irn+=5) {
 
 	 points->coords[0] = (irn-lrn+1)*font_scaler - x_offset;
 	 points->coords[1] = y_value;
-	 points->coords[2] = (irn-lrn+1)*font_scaler -x_offset;
+	 points->coords[2] = (irn-lrn+1)*font_scaler - x_offset;
 	 points->coords[3] = double(y_value + tick_length);
 
 	 // Don't draw things that are too wide (i.e. to much x) for X to handle.
@@ -592,7 +597,7 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
 				       "fill_color", "black",
 				       NULL);
 	    canvas_item_vec.push_back(item);
-	 }
+	 } 
       }
    }
 
