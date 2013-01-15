@@ -435,6 +435,14 @@
 	  (gtk-widget-show menuitem2)
 
 	  (add-simple-coot-menu-menuitem
+	   submenu-models "Fetch PDBe ligand description"
+	   (lambda ()
+	     (using-active-atom
+	      (let ((comp-id (residue-name aa-imol aa-chain-id aa-res-no aa-ins-code)))
+		(format #t "here with residue name ~s~%" comp-id)
+		(get-SMILES-for-comp-id-from-pdbe comp-id)))))
+
+	  (add-simple-coot-menu-menuitem
 	   submenu "Find Helices"
 	   (lambda ()
 	     (find-helices)))
