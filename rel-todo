@@ -3,30 +3,6 @@
 
 ----
 
-   o B-factor sharpening correction, Chang Liu
- 
-   o 3tos fails to offset correctly in sequence view
-
-   o Get from PDBe... fails in refmac for 4eh5 (pressing the button on
-     the recent structures gui) with 
-
- Refmac_5.7.0029:  Check input coordinates
- Refmac_5.7.0029:  New ligand has been encountered. Stopping now
- 
-   message.
-
-     Doing it from the entry seems to do nothing.
-
-* Seems OK to me...
-
-   o Phil: I want colour by chain to be the default.
-
-     How about a post-read hook?
-
-   o check that refmac can run before starting PDBe (note that you
-     need to handle the cached case)
-
-   o get minimal description for ligand from pdb/rcsb
 
 -----
 
@@ -44,3 +20,30 @@
 * forget thinning.  Hacked it in for now - colours are a bit strange.
 
 Done.
+
+   o Get from PDBe... fails in refmac for 4eh5 (pressing the button on
+     the recent structures gui) with 
+
+ Refmac_5.7.0029:  Check input coordinates
+ Refmac_5.7.0029:  New ligand has been encountered. Stopping now
+ 
+   message.
+
+     Doing it from the entry seems to do nothing.  
+
+    ::: 0.5
+
+* Seems OK to me...
+
+   o get minimal description for ligand from pdb/rcsb ::: 0.2
+
+* Done.
+
+   o B-factor sharpening correction, Chang Liu ::: 0.5
+ 
+* Done.
+
+   o 3tos fails to offset correctly in sequence view.
+     Punt?  ::: 1
+
+* Done.  Close enough - residues go beyond magic number (canvas max size).

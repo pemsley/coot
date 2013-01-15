@@ -1009,6 +1009,13 @@ Punted from 0.6:
 
     Release 0.8, June 2013
 
+
+   o Phil: I want colour by chain to be the default.
+     How about a post-read hook? ::: 1
+
+* Yes.  Stick it in handle_read_draw_molecule_with_recentre().  But
+  punt for now.
+
    o Given an mtz, pdb, and SMILES.  Apply this ligand over ligand in 
      pdb and RSR the result (if the mtz file is given).
 
@@ -1208,6 +1215,11 @@ Punted from 0.6:
    o read multiple files from shift and ctrl clicking in the file selection.
 
 * Done.
+
+   o check that refmac can run before starting PDBe (note that you
+     need to handle the cached case) ::: 1
+* 
+
 
 -----
  

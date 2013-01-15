@@ -403,7 +403,8 @@ coot_real_SOURCES = \
 	support.c support.h 	 \
 	support-gtk2-extras.c    \
 	testing.cc testing-2.cc  \
-	testing.hh    \
+	testing-data.hh          \
+	testing.hh               \
 	trackball.c trackball.h  \
 	triangle-extras.h 	 \
 	select-atom-info.hh      \
