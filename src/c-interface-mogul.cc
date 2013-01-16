@@ -26,7 +26,9 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 	 std::cout << "WARNING:: no such residue" << std::endl;
       } else { 
 	 if (m.n_items() > 0) {
+#ifdef HAVE_GOOCANVAS
 	    show_mogul_geometry_dialog(m, residue_p);
+#endif	    
 	    int new_obj = new_generic_object_number("Mogul Validation");
 	    PPCAtom residue_atoms = 0;
 	    int n_residue_atoms;
@@ -219,8 +221,10 @@ GtkWidget
       coot::fill_mogul_angles_tab(    mogul_angles_treeview, w, m, residue);
       coot::fill_mogul_torsions_tab(mogul_torsions_treeview, w, m, residue);
    }
+#ifdef HAVE_GOOCANVAS
    coot::goograph *goograph = new coot::goograph;
    g_object_set_data(G_OBJECT(w), "goograph", goograph);
+#endif   
    return w;
 }
 
