@@ -490,6 +490,19 @@ if (have_coot_python):
        lambda func: find_strands())
 
 
+     def get_smiles_pdbe_func():
+       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
+         comp_id = residue_name(aa_imol, aa_chain_id,
+                                aa_res_no, aa_ins_code)
+         print "BL INFO:: here with residue name", comp_id
+         get_SMILES_for_comp_id_from_pdbe(comp_id)
+                         
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Fetch PDBe ligand description",
+       lambda func: get_smiles_pdbe_func())
+
+       
      add_simple_coot_menu_menuitem(
        submenu_models,
        "Fix Nomenclature Errors...",

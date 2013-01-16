@@ -144,14 +144,6 @@ def fit_protein_fit_function(res_spec, imol_map):
     res_no   = res_spec[2]
     ins_code = res_spec[3]
 
-    # BL says: we dont use with_auto_accept here, get's too messy
-    replace_state = refinement_immediate_replacement_state()
-    set_refinement_immediate_replacement(1)
-    # same goes for backup, and should be faster...
-    make_backup(imol) # do a backup first
-    backup_mode = backup_state(imol)
-    turn_off_backup(imol)
-
     res_name = residue_name(imol, chain_id, res_no, ins_code)
     if isinstance(res_name, str):
         if (res_name != "HOH"):
@@ -164,17 +156,15 @@ def fit_protein_fit_function(res_spec, imol_map):
                     # if (not res_name == "HOH"):
                     # not needed as we only refine more than 3 atom res
                     if (alt_conf == ""):
-                        auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
-                                              imol_map, 1, 0.1)
+                        with NoBackups(imol):
+                            auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
+                                                  imol_map, 1, 0.1)
                     if (valid_map_molecule_qm(imol_map)):
-                        with AutoAccept():
-                            refine_zone(imol, chain_id, res_no, res_no, alt_conf)
+                        with NoBackups(imol):
+                            with AutoAccept():
+                                refine_zone(imol, chain_id, res_no, res_no, alt_conf)
                     rotate_y_scene(10, 0.3)
 
-    if (replace_state == 0):
-        set_refinement_immediate_replacement(0)
-    if (backup_mode == 1):
-        turn_on_backup(imol)
 
 def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
 
@@ -733,7 +723,7 @@ def sphere_refine_regularize_generic(use_map=True, radius=3, expand=False):
     if (not active_atom):
         add_status_bar_text("No active residue")
     else:
-        if (not valid_map_molecule_qm(imol_refinement_map())):
+        if (use_map and not valid_map_molecule_qm(imol_refinement_map())):
             show_select_map_dialog()
         else:
             imol      = active_atom[0]
