@@ -2392,7 +2392,13 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 	    std::cout << "WARNING:: No map calculated." << std::endl;
 	    std::cout << "INFO:: if you want to calculate structure factors from a"
 		      << " set of coordinates, " << std::endl
+#ifdef USE_GUILE
 		      << "       consider the function (read-cif-data cif-file imol)"
+#else
+#ifdef USE_PYTHON
+		      << "       consider the function read_cif_data(cif-file, imol)"
+#endif // USE_PYTHON
+#endif // USE_GUILE
 		      << std::endl;
 	 } else {
 
