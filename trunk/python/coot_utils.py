@@ -1146,7 +1146,7 @@ def get_first_ncs_master_chain():
 # Remember, that now the about-pt is the "to" point, i.e. the maps are brought from 
 # somewhere else and generated about the about-pt.
 #
-def transform_map_using_lsq_matrix(imol_ref, ref_chain, ref_resno_start, ref_resno_end,
+def transform_map_using_lsq_matrix(imol_bref, ref_chain, ref_resno_start, ref_resno_end,
                                    imol_mov, mov_chain, mov_resno_start, mov_resno_end,
                                    imol_map, about_pt, radius):
 
@@ -2476,8 +2476,9 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
                 imol_new = handle_read_draw_molecule_with_recentre(prodrg_xyzout, 0)
                 rn = residue_name(imol, chain_id, res_no, ins_code)
                 with_auto_accept([regularize_zone, imol_new, "", 1, 1, ""])
-                overlap_ligands(iml_new, imol, chain_id, res_no)
+                overlap_ligands(imol_new, imol, chain_id, res_no)
                 match_ligand_torsions(imol_new, imol, chain_id, res_no) # broken?
+                overlap_ligands(imol_new, imol, chain_id, res_no)
                 set_residue_name(imol_new, "", 1, "", rn)
                 change_chain_id(imol_new, "", chain_id, 1, 1, 1)
                 renumber_residue_range(imol_new, chain_id, 1, 1, res_no - 1)
@@ -2490,14 +2491,14 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
                 # function because that does not copy across the hydrogen
                 # atoms - and we want those, probably
 
-                replace_fragment(imol, imol_new,
-                                 "//" + chain_id + "/" + str(res_no))
+                #replace_fragment(imol, imol_new,
+                #                 "//" + chain_id + "/" + str(res_no))
 
                 imol_replacing = add_ligand_delete_residue_copy_molecule(
                     imol_new, chain_id, res_no, imol, chain_id, res_no)
                 col = get_molecule_bonds_colour_map_rotation(imol)
                 new_col = col + 5
-                set_molecule_bonds_colour_map_rotation(imol_replacement, new_col)
+                set_molecule_bonds_colour_map_rotation(imol_replacing, new_col)
                 set_mol_displayed(imol_replacing, 0)
                 set_mol_active   (imol_replacing, 0)
                 graphics_draw()
@@ -3095,6 +3096,8 @@ def get_SMILES_for_comp_id_from_pdbe(comp_id):
     else:
         s = SMILES_for_comp_id(comp_id)
         if isinstance(s, str):
+            return s
+        else:
             cif_file_name = os.path.join("coot-download",
                                          "PDBe-" + comp_id + ".cif")
             url = "ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/" + \
@@ -3113,7 +3116,7 @@ def get_SMILES_for_comp_id_from_pdbe(comp_id):
             read_cif_dictionary(cif_file_name)
             s = SMILES_for_comp_id(comp_id)
             if isinstance(s, str):
-                    return s
+                return s
         # something probably went wrong if we got to here
         return False
 
