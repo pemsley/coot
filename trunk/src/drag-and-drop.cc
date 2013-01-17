@@ -54,6 +54,7 @@ on_drag_data_received (GtkWidget *widget,
       if (target_type == TARGET_STRING) {
 	 std::string uri_string = (gchar*)selection_data-> data;
 	 dnd_success = handle_drag_and_drop_string(uri_string);
+     delete_selection_data = TRUE;
       } 
    }
    gtk_drag_finish (context, dnd_success, delete_selection_data, time);
@@ -88,7 +89,7 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
 #else
         file = url.substr(7);
 #endif
-	    handle_drag_and_drop_single_item(file);
+	    handled = handle_drag_and_drop_single_item(file);
 	    tried_already = true;
 	 }
       }
