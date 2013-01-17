@@ -8,7 +8,8 @@ build-it-win rev 4437
 * THINGS TO DO BEFORE 0.7.1 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
-FIX cprodg (and interface LIDIA)
+FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
+
 
 -- before 0.8
 
@@ -90,6 +91,12 @@ scripting exercise
 
 **** General ****
 
+   o turn off backup before phosphorylation
+
+   o include gsl.h (or such) in gsl config test
+
+   o edit charge of ions (atoms)
+
    o List of residues (e.g. alt conf) maybe display res type too
 
    o extend alt conf from side chain to whole (and vv)
@@ -118,8 +125,6 @@ scripting exercise
    o give sequence view window a title (and maybe many more...).
 
    o reset (cap) ANISO 
-
-   o Ramachandran resize (automate & and use mouse wheel?!)
 
    o change kleywegt chains in plot
 
@@ -159,7 +164,7 @@ scripting exercise
 
    o seq view colour by alignment (optional/button)
 
-   o Go to Atom doe not update when open and new molecule gets created
+   o Go to Atom does not update when open and new molecule gets created
 
    o delete chain function (in scripting I guess)
 
@@ -303,6 +308,8 @@ low importance
 
 **** Python ****
 
+   o make a quick test (no 3 x ramachandran)
+
    o find close atoms (on top waters)
 
    o residues with missing atoms gives empty dialog, better give info_dialog
@@ -366,6 +373,12 @@ low importance
 
 **** Windows ****
 
+   o load pdb problem with space and/or umlaut in path!?
+
+   o new gtk chooser sometimes only displaysrecent files rather than all
+	save state
+ 	save symmetry (even small)
+
    o use CCP4s lib dir rather than REF_DIR!?
 
    o ccp4 project dir not showing up (with new gtk2 chooser)
@@ -391,6 +404,8 @@ low importance
    o make installer log
 
    o installer options for guile/windowsy (sections)
+
+* Done (although now vs vs)
 
    o installer option to install (or not) icons/shortcuts
 
@@ -709,4 +724,16 @@ Osaka 2010
    o  auto-weight in scm (Paul?!)
 
 * Done
+
+   o open mtz (not auto open) appears behind main window (not just Mac)
+
+* Done
+
+   o Ramachandran resize (automate & and use mouse wheel?!)
+
+* Done
+
+   o check ref counting for py_clean_internal
+
+* Done (I think)
 
