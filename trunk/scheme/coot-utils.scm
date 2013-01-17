@@ -3451,15 +3451,38 @@
 	      (if (file-exists? cif-file-name)
 		  ;; try the file system cache
 		  (begin
-		    (read-cif-dictionary cif-file-name)
-		    (let ((s2 (SMILES-for-comp-id comp-id)))
-		      (if (string? s2)
-			  s2)))
+		    (let* ((stat-data (stat cif-file-name))
+			   (l (stat:size stat-data)))
+		      (if (> l 0)
+			  (begin
+			    (read-cif-dictionary cif-file-name)
+			    (let ((s2 (SMILES-for-comp-id comp-id)))
+			      (if (string? s2)
+				  s2)))
+			  ;; give a dialog, saying that the file will not be
+			  ;; overwritten
+			  (begin
+			    (let ((s (apply string-append (list cif-file-name
+								" exists but is empty."
+								"\nNot overwriting."))))
+			      (info-dialog s)
+			      #f)))))
 		  ;; use the network then
-		  (let ((state (coot-get-url url cif-file-name)))
-		    (read-cif-dictionary cif-file-name)
-		    (let ((s (SMILES-for-comp-id comp-id)))
-		      s))))))))
+		  (let ((nov (format #t "getting url: ~s~%" url))
+			(state (coot-get-url url cif-file-name)))
+		    (if (not (= state 0))
+			(begin
+			  (let ((s (apply string-append (list "Problem downloading\n"
+							      url "\n to file \n"
+							      cif-file-name
+							      "."
+							      ))))
+			    (info-dialog s)
+			    #f))
+			(begin
+			  (read-cif-dictionary cif-file-name)
+			  (let ((s (SMILES-for-comp-id comp-id)))
+			    s))))))))))
 
 
 ;; Americans...
