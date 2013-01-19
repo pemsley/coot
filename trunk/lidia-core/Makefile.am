@@ -24,15 +24,16 @@ include_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh rdkit-interface.hh u
 #INCLUDES = $(CLIPPER_CXXFLAGS)
 #
 INCLUDES = \
-	 -I$(top_srcdir)/geometry \
-	 -I$(top_srcdir)/mini-mol \
-	 -I$(top_srcdir)/coot-utils \
-	 -I$(top_srcdir)/utils \
+	 -I$(top_srcdir)/geometry       \
+	 -I$(top_srcdir)/mini-mol       \
+	 -I$(top_srcdir)/coot-utils     \
+	 -I$(top_srcdir)/utils          \
 	$(ENTERPRISE_TOOLS_CFLAGS)      \
 	$(RDKIT_CXXFLAGS) 		\
         $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 
-libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc rdkit-interface.cc
+libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc rdkit-interface.cc \
+	cod-types.cc
 
 libcoot_lidia_core_la_LIBADD =                        \
    $(top_builddir)/geometry/libcoot-geometry.la       \
@@ -44,3 +45,10 @@ libcoot_lidia_core_la_LIBADD =                        \
 # test_molfile_SOURCES: test-molfile.cc
 
 # test_molfile_LDADD: libcoot-lidia-core.la
+
+noinst_PROGRAMS = test-cod-atom-types
+test_cod_atom_types_SOURCES = test-cod-atom-types.cc
+
+test_cod_atom_types_LDADD = libcoot-lidia-core.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la 
+
