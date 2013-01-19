@@ -494,7 +494,7 @@ if (have_coot_python):
        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
          comp_id = residue_name(aa_imol, aa_chain_id,
                                 aa_res_no, aa_ins_code)
-         print "BL INFO:: here with residue name", comp_id
+         # print "BL INFO:: here with residue name", comp_id
          get_SMILES_for_comp_id_from_pdbe(comp_id)
                          
      add_simple_coot_menu_menuitem(

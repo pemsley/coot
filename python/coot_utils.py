@@ -3106,17 +3106,35 @@ def get_SMILES_for_comp_id_from_pdbe(comp_id):
             make_directory_maybe("coot-download")
             if os.path.isfile(cif_file_name):
                 # try the filesystem cache
-                read_cif_dictionary(cif_file_name)
-                s2 = SMILES_for_comp_id(comp_id)
-                if isinstance(s2, str):
-                    return s2
+                l = os.stat(cif_file_name).st_size
+                if (l > 0):
+                    read_cif_dictionary(cif_file_name)
+                    s2 = SMILES_for_comp_id(comp_id)
+                    if isinstance(s2, str):
+                        return s2
+                else:
+                    # give a dialog, saying that the file will not be
+                    # overwritten
+                    msg = cif_file_name + \
+                          " exists but is empty." + \
+                          "\nNot overwriting."
+                    info_dialog(msg)
+                    return False
             # use network then
+            print "BL INFO:: getting url:", url
             state = coot_get_url(url, cif_file_name)
-            # check for state?
-            read_cif_dictionary(cif_file_name)
-            s = SMILES_for_comp_id(comp_id)
-            if isinstance(s, str):
-                return s
+            if (state != 0):
+                msg = "Problem downloading\n" + \
+                      url + "\n to file \n" + \
+                      cif_file_name + \
+                      "."
+                info_dialog(msg)
+                return False
+            else:
+                read_cif_dictionary(cif_file_name)
+                s = SMILES_for_comp_id(comp_id)
+                if isinstance(s, str):
+                    return s
         # something probably went wrong if we got to here
         return False
 
