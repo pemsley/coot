@@ -36,27 +36,32 @@
 RDKit::RWMol
 coot::rdkit_mol(CResidue *residue_p, const coot::protein_geometry &geom) {
 
-   std::string res_name = residue_p->GetResName();
-   if (0)
-      std::cout << "====================  here in rdkit_mol() with geometry with res_name \""
-		<< res_name << "\"" << std::endl;
-   
-   std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-      geom.get_monomer_restraints_at_least_minimal(res_name);
-   if (! p.first) {
-
-      std::string m = "rdkit_mol(): residue type ";
-      m += res_name;
-      m += " not in dictionary";
-      throw(std::runtime_error(m));
-
+   if (! residue_p) {
+      throw std::runtime_error("Null residue in coot::rdkit_mol()");
    } else {
+
+      std::string res_name = residue_p->GetResName();
       if (0)
-	 std::cout << "......... calling rdkit_mol() with restraints that have "
-		   << p.second.bond_restraint.size() << " bond restraints"
-		   << std::endl;
-      return rdkit_mol(residue_p, p.second);
-   } 
+	 std::cout << "====================  here in rdkit_mol() with geometry with res_name \""
+		   << res_name << "\"" << std::endl;
+   
+      std::pair<bool, coot::dictionary_residue_restraints_t> p = 
+	 geom.get_monomer_restraints_at_least_minimal(res_name);
+      if (! p.first) {
+
+	 std::string m = "rdkit_mol(): residue type ";
+	 m += res_name;
+	 m += " not in dictionary";
+	 throw(std::runtime_error(m));
+
+      } else {
+	 if (0)
+	    std::cout << "......... calling rdkit_mol() with restraints that have "
+		      << p.second.bond_restraint.size() << " bond restraints"
+		      << std::endl;
+	 return rdkit_mol(residue_p, p.second);
+      }
+   }
 }
 
 RDKit::RWMol
@@ -1281,8 +1286,9 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
    undelocalise_aminos(rdkm);
    undelocalise_methyl_carboxylates(rdkm);
    undelocalise_carboxylates(rdkm); // after above
-   undelocalise_phosphates(rdkm); 
-   undelocalise_sulphates(rdkm); 
+   undelocalise_phosphates(rdkm);
+   undelocalise_sulphates(rdkm);
+   charge_sp3_borons(rdkm);
 }
 
 void
@@ -1670,6 +1676,18 @@ coot::undelocalise_sulphates(RDKit::ROMol *rdkm) {
 }
 
 
+void
+coot::charge_sp3_borons(RDKit::RWMol *rdkm) {
+
+   RDKit::ROMol::AtomIterator ai;
+   for(ai=rdkm->beginAtoms(); ai!=rdkm->endAtoms(); ai++) {
+      if ((*ai)->getAtomicNum() == 5) {
+	 unsigned int degree = rdkm->getAtomDegree(*ai);
+	 if (degree == 4)
+	    (*ai)->setFormalCharge(-1);
+      }
+   }
+}
 
 
 
