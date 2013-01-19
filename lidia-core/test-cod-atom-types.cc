@@ -1,6 +1,6 @@
 
 #ifndef MAKE_ENTERPRISE_TOOLS
-int main(int argv, char **argv) {return 0;}
+int main(int argc, char **argv) {return 0;}
 #else 
 #include "cod-types.hh"
 #include "rdkit-interface.hh"
