@@ -88,6 +88,8 @@ namespace coot {
    void undelocalise_aminos(RDKit::RWMol *rdkm);
    void undelocalise_carboxylates(RDKit::RWMol *rdkm);
    void undelocalise_methyl_carboxylates(RDKit::RWMol *rdkm);
+   void charge_sp3_borons(RDKit::RWMol *rdkm);
+   
    // which calls (not for public use)
    // fiddle with the bonds in rdkm as needed.
    void deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
