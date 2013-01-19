@@ -68,7 +68,7 @@ if __name__ == "__main__":
 
     test_set = ["0AD", "024", "090", "099", "008", "074", "00A", "023", "057", "039", "0CP",
                 "0PJ", "032", "002", "059", "0E4", "047", "055", "064", "033", "01G", "0G6",
-                "094", "0PQ", "066", "098", "003", "061", "0Z6", "096", "088",  "0UN",
+                "094", "0PQ", "066", "098", "003", "061", "0Z6", "096", "088", "0UN",
                 "062", "0PN", "071", "0BD", "0JZ", "084", "0LI", "0CE", "000", "073", "017",
                 "012", "065", "0CO", "0EZ", "0E3", "031", "0BI", "0E2", "0MA", "072", "009",
                 "001", "006", "0AS", "01A", "0CL", "01K", "075", "0A5", "0PY", "0D5", "00C",
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 #    test_set = ['03R']  # coords of ideal are 0, hence null molecule
 #    test_set = ['017']  # bridge atom problem (I think ref types are wrong :)
 #    test_set = ['0CE']  # same as 017
-#    test_set = ['0JZ']  # macrocycle including Se, problem with Se order
+    test_set = ['0JZ']  # macrocycle including Se, problem with Se order
 #    test_set = ['093']  # 
 
     sum_trials = 0
@@ -95,5 +95,5 @@ if __name__ == "__main__":
         stats = diff_for_comp_id(test_id)
         sum_trials += stats[0]
         sum_success += stats[1]
-    print '      overall: {0}/{1} = {2}%'.format(sum_success, sum_trials,
-                                                 float(sum_success*100)/float(sum_trials))
+    print '      overall: {0}/{1} = {2:.2f}%'.format(sum_success, sum_trials,
+                                                     float(sum_success*100)/float(sum_trials))
