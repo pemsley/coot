@@ -36,6 +36,12 @@ int main(int argc, char **argv) {
 	       std::cout << "Null residue from mol from mol_from_dictionary() for "
 			 << comp_id << std::endl;
 	    } else { 
+
+	       std::string s = "COc1ccc(cc1O[C@H]1C[C@@H]2CC[C@H]1C2)C1CNC(=O)NC1";
+	       // s = "CC12CC[C@@]3(C1)CC(=C)CC3C(C2C(C)(C)C)C(C)(C)C"; // bird
+	       // RDKit::RWMol *rdkmp = RDKit::SmilesToMol(s);
+	       // RDKit::RWMol rdkm(*rdkmp);
+	       
 	       RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, geom);
 	       
 	       for (unsigned int iat=0; iat<rdkm.getNumAtoms(); iat++) {

@@ -31,6 +31,21 @@ namespace cod {
 					    int level);
    bool neighbour_sorter(const std::string &a, const std::string &b);
 
+   void handle_bigger_rings_from_fused_rings(RDKit::ROMol &rdkm,
+					     const std::vector<std::vector<int> > &fused_rings);
+   bool is_ring_member(unsigned int iat,   const std::vector<std::vector<int> > &fused_rings);
+
+   std::vector<std::vector<int> > trace_path(unsigned int idx,
+					     const std::map<int, std::vector<int> > &bond_map,
+					     unsigned int n_max_bonds);
+   std::vector<std::vector<int> > 
+   trace_path(unsigned int idx,
+	      std::vector<int> in_path_indices,
+	      unsigned int target_idx,
+	      const std::map<int, std::vector<int> > &bond_map,
+	      unsigned int level);
+   
+
 } 
 
 #endif // COD_TYPES_HH

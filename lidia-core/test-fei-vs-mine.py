@@ -2,7 +2,7 @@
 import subprocess
 
 def get_fei_types(comp_id):
-    file_name = "../src/cod/AtomTypeTests/"
+    file_name = "../src/cod/AtomTypeTests2/"
     file_name += comp_id
     file_name += "_CodAtomType.txt"
 
@@ -86,7 +86,7 @@ if __name__ == "__main__":
 #    test_set = ['03R']  # coords of ideal are 0, hence null molecule
 #    test_set = ['017']  # bridge atom problem (I think ref types are wrong :)
 #    test_set = ['0CE']  # same as 017
-    test_set = ['0JZ']  # macrocycle including Se, problem with Se order
+#    test_set = ['0JZ']  # macrocycle including Se, problem with Se order
 #    test_set = ['093']  # 
 
     sum_trials = 0
