@@ -1281,49 +1281,9 @@ fi
 if [ $build_coot_prerelease = yes ]  ; then 
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
 fi
-coot_version_tmp=`egrep href ${AUTOBUILD_SOURCES}/index.html $pre_release_files_html  | sed -e 's/.*">//' -e 's/<.*//' | awk '
-BEGIN {bmajor = -1; bminor = -1; bmicro = -1; }
-# /^coot-[0-9]\.[0-9]+\.[0-9]+.*\.tar\.gz/ { 
-/^coot-[0-9]\.[0-9]+.*\.tar\.gz$/ { 
-    n = split($1,arr,"[-.]");
-    # print n,"parts";
-    # print arr[1], arr[2], arr[3], arr[4];
-    # print arr[5], arr[6], arr[7], arr[8];
-    major = arr[2] + 0;
-    minor = arr[3] + 0;
-    micro = arr[4] + 0;
-    # print "testing best:",file, bmajor, bminor, bmicro,"vs. this:", major, minor, micro
-    if (major > bmajor) {
-       file = $1;
-       bmajor = major;
-       bminor = minor;
-       bmicro = micro;
-    } else {
-       if (major == bmajor) {
-          if (minor > bminor) {
-             file = $1;
-             bmajor = major;
-             bminor = minor;
-             bmicro = micro;
-          } else {
-             if (minor == bminor) {
-                if (micro >= bmicro) {
-                   file = $1;
-                   bmajor = major;
-                   bminor = minor;
-                   bmicro = micro;
-                }
-             }
-          }
-       }
-    }
-}
 
-END {
-    gsub(".tar.gz.*", "", file);
-    print file;  # which is a version now.
-}
-'`
+coot_version_tmp=$(awk  ' /a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+$pre_release_files_html | tail -1)
 
 if [ -z "$coot_version_tmp" ] ; then
     echo clever coot_version extraction failed, using default.
@@ -1373,12 +1333,9 @@ coot_prerelease_exists=
 if test "$build_coot_prerelease" = 1 ; then 
 
    ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir
-   coot_version_pre=`egrep href ${AUTOBUILD_SOURCES}/index.html | sed -e 's/.*">//' -e 's/<.*//' | awk ' /^coot-[0-9]\.[0-9]+.*-pre.*\.tar\.gz$/ { 
-   last=$0 }
-END {
-   print last
-}
-'`
+   coot_version_pre=$(awk  ' /a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; print file}' \
+       ${AUTOBUILD_SOURCES}/index.html | tail -1)
+
    echo INFO:: building pre-release and coot_version_pre is $coot_version_pre
    if [ -z "$coot_version_pre" ] ; then
       # this path when there are no pre-releases to be built, i.e. build the latest release.
