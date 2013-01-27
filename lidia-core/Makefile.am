@@ -32,7 +32,8 @@ INCLUDES = \
 	$(RDKIT_CXXFLAGS) 		\
         $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 
-libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc rdkit-interface.cc 
+libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc rdkit-interface.cc \
+	cod-types.cc
 
 
 libcoot_lidia_core_la_LIBADD =                        \
@@ -46,9 +47,9 @@ libcoot_lidia_core_la_LIBADD =                        \
 
 # test_molfile_LDADD: libcoot-lidia-core.la
 
-# noinst_PROGRAMS = test-cod-atom-types
-# test_cod_atom_types_SOURCES = test-cod-atom-types.cc
-#
-#test_cod_atom_types_LDADD = libcoot-lidia-core.la \
-#	$(top_builddir)/coot-utils/libcoot-coord-utils.la 
+noinst_PROGRAMS = test-cod-atom-types
+test_cod_atom_types_SOURCES = test-cod-atom-types.cc
+
+test_cod_atom_types_LDADD = libcoot-lidia-core.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la 
 
