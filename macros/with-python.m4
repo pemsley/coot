@@ -79,27 +79,27 @@ if test x$with_python != x; then
         case $lib in
 
            -lpython*)
-             if [ "$lib_hit" = "-ldl" ] ; then
-                lib_hit=python
-             fi
-           ;;
+              if test "$lib_hit" = "-ldl" ; then
+                 lib_hit=python
+              fi
+              ;;
 
            -ldl)
-              if [ "$lib_hit" = python ] ; then
+              if test "$lib_hit" = python ; then
                  # do nothing, libs don't need fixing
                  :
               else 
                  lib_hit=-ldl
               fi
-           ;;
+              ;;
         esac
      done
 
-if [ "$lib_hit" = python ] ; then
-   PYTHON_LIBS_PRE="$PYTHON_LIBS_PRE -ldl"
-fi
+     if test "$lib_hit" = python ; then
+        PYTHON_LIBS_PRE="$PYTHON_LIBS_PRE -ldl"
+     fi
 
-echo PYTHON_LIBS_PRE is $PYTHON_LIBS_PRE
+     echo PYTHON_LIBS_PRE is $PYTHON_LIBS_PRE
      
    fi
 	
