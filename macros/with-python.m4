@@ -70,6 +70,37 @@ if test x$with_python != x; then
      config_dir=`$PYTHON -c "import sys; print sys.prefix + '/$acl_libdirstem/python' + sys.version[[:3]] + '/config'"`
      # echo  ======== config_dir: $config_dir
      PYTHON_LIBS_PRE="`python-config --ldflags`"
+   
+     # extra hacking so that -ldl appears after -lpython2.x (needed
+     # for correct linking on some systems)
+     #
+     for lib in $PYTHON_LIBS_PRE ; 
+     do
+        case $lib in
+
+           -lpython*)
+             if [ "$lib_hit" = "-ldl" ] ; then
+                lib_hit=python
+             fi
+           ;;
+
+           -ldl)
+              if [ "$lib_hit" = python ] ; then
+                 # do nothing, libs don't need fixing
+                 :
+              else 
+                 lib_hit=-ldl
+              fi
+           ;;
+        esac
+     done
+
+if [ "$lib_hit" = python ] ; then
+   PYTHON_LIBS_PRE="$PYTHON_LIBS_PRE -ldl"
+fi
+
+echo PYTHON_LIBS_PRE is $PYTHON_LIBS_PRE
+     
    fi
 	
    # now we have to deal with the -lutil issue.  On GNU/Linux, we need
