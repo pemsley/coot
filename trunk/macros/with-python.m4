@@ -99,7 +99,7 @@ if test x$with_python != x; then
         PYTHON_LIBS_PRE="$PYTHON_LIBS_PRE -ldl"
      fi
 
-     echo PYTHON_LIBS_PRE is $PYTHON_LIBS_PRE
+     # echo PYTHON_LIBS_PRE is $PYTHON_LIBS_PRE
      
    fi
 	
