@@ -133,7 +133,7 @@ if __name__ == "__main__":
                 zinc_name = frag_info.orig_mol_list[0].GetProp('_Name')
             except KeyError:
                 pass
-            print " ", frag_info.n_atoms, "    from   ", mol_smiles, zinc_name
+            print " N=", frag_info.n_atoms, Chem.MolToSmiles(frag_info.mol), "   from ", mol_smiles, zinc_name
             for f in frag_info.feats:
                 print "        ", f.GetFamily(), f.GetType()
             
