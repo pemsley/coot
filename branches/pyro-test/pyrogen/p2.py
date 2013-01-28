@@ -26,10 +26,15 @@ def make_mogul_ins_file(mogul_ins_file_name, mogul_out_file_name, sdf_file_name)
      f.write('mogul output distribution all on\n')
      f.write('bond all\n')
      f.write('angle all\n')
-     f.write('torsion all\n')
-     f.write('ring all\n')
+#      f.write('torsion all\n')
+#      f.write('ring all\n')
+     f.write('config output format CSV\n')
+     f.write('config output items fragment_type atom_indices query_value nhits mean median sd z-score dmin\n')
+     f.write('config search all filter exclude_solvents\n')
+     f.write('config output invalid_fragments exclude\n')
      f.close()
    return f
+
 
 # return True for good, False for bad/not-run
 #
@@ -462,8 +467,7 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
          coot.regularize_and_write_pdb(m_H, restraints, comp_id, pdb_out_file_name)
          # new_mol = coot_boost.regularize(m_H)
          new_mol = coot_boost.regularize_with_dict(m_H, restraints, comp_id)
-         coot.write_pdb_from_mol(new_mol, comp_id, "test-LIG.pdb")
-         print "returned new_mol: ", new_mol, " which has ", new_mol.GetNumAtoms(), " atoms"
+         # coot.write_pdb_from_mol(new_mol, comp_id, "test-LIG.pdb")
 
       else:
          coot.mmcif_dict_from_mol(comp_id, compound_name, m_H, mmcif_dict_name)
