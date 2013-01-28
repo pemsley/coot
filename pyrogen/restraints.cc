@@ -77,7 +77,8 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
 			    bond_order_restraints);
 
 
-   dictionary_residue_restraints_t restraints = mmcif_dict_from_mol_inner(comp_id, compound_name, rdkit_mol_py);
+   dictionary_residue_restraints_t restraints = mmcif_dict_from_mol_inner(comp_id, compound_name,
+									  rdkit_mol_py);
    restraints.conservatively_replace_with(mogul_restraints);
    restraints.write_cif(mmcif_out_file_name);
 
@@ -494,7 +495,7 @@ coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_rest
 	 at_p->getProp("_GasteigerCharge", charge);
 	 std::pair<bool, float> charge_pair(have_charge, charge);
 
-	 std::cout << "in add_chem_comp_atoms() charge of " << iat << " " << charge << std::endl;
+	 // std::cout << "in add_chem_comp_atoms() charge of " << iat << " " << charge << std::endl;
 
 	 dict_atom atom(name, name, at_p->getSymbol(), atom_type, charge_pair);
 
