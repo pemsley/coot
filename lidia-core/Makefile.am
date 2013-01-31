@@ -51,5 +51,6 @@ noinst_PROGRAMS = test-cod-atom-types
 test_cod_atom_types_SOURCES = test-cod-atom-types.cc
 
 test_cod_atom_types_LDADD = libcoot-lidia-core.la \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la 
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+   	$(RDKIT_LIBS)
 

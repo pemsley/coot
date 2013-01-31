@@ -5,6 +5,7 @@
 #include "cod-types.hh"
 #include "GraphMol/Rings.h"
 #include "GraphMol/RingInfo.h"
+#include "boost/dynamic_bitset.hpp"
 
 // can throw a std::runtime_error
 std::vector<std::string>
