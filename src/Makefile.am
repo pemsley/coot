@@ -117,7 +117,7 @@ coot_wrap_guile_gtk2.cc: coot_wrap_guile_pre_gtk2.cc
 # python
 
 coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i $(top_srcdir)/src/lbg-interface.hh  $(top_srcdir)/src/sdf-interface.hh
-	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk2.py
+	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENTERPRISE_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk2.py
 
 coot_wrap_python_gtk2.cc: coot_wrap_python_pre_gtk2.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
