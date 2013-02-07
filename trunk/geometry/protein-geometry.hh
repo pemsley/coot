@@ -189,7 +189,9 @@ namespace coot {
 	 else
 	    throw std::runtime_error("unset target distance geometry");
       }
+      friend std::ostream& operator<<(std::ostream &s, const dict_bond_restraint_t &rest);
    };
+   std::ostream& operator<<(std::ostream &s, const dict_bond_restraint_t &rest);
 
    class dict_angle_restraint_t : public basic_dict_restraint_t {
       std::string atom_id_3_;

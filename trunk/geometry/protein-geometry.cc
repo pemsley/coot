@@ -1430,6 +1430,17 @@ coot::protein_geometry::mon_lib_add_plane(const std::string &comp_id,
    }
 }
 
+std::ostream&
+coot::operator<<(std::ostream &s, const dict_bond_restraint_t &rest) {
+
+   s << "[bond-restraint: " 
+     << rest.atom_id_1_4c() << " "
+     << rest.atom_id_2_4c() << " "
+     << rest.type() << " " << rest.value_dist() << " " << rest.value_esd()
+     <<  "]";
+   return s;
+}
+
 std::ostream& coot::operator<<(std::ostream &s, const coot::dict_chem_comp_t &rest) {
 
    s << "[dict_chem_comp comp_id: \"" << rest.comp_id << "\" 3-letter-code: \""

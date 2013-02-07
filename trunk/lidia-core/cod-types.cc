@@ -151,13 +151,23 @@ cod::handle_bigger_rings_from_fused_rings(RDKit::ROMol &rdkm,
 	 for (unsigned int ii=0; ii<paths.size(); ii++)
 	    path_sizes[ii] = paths[ii].size();
 	 std::sort(path_sizes.begin(), path_sizes.end());
+
 	 // dangerous interger arithmetic?
 	 // we want every other path, not 5(f), 5(b), 6(f), 6(b), so
 	 // sort them (smallest first) and take every other one.
+	 // std::cout << "here are the path sizes: " << std::endl;
+	 // for (unsigned int jj=0; jj<path_sizes.size(); jj++) { 
+	    // std::cout << "   " << jj << " " << path_sizes[jj] << std::endl;
+	 // std::cout << "... about to do dangerous " << std::endl;
+	 
 	 std::vector<int> filtered_path_sizes(path_sizes.size()/2);
-	 for (unsigned int ii=0; ii<path_sizes.size(); ii++) // every other
+	 for (unsigned int ii=0; ii<filtered_path_sizes.size(); ii++) { // every other
 	    filtered_path_sizes[ii] = path_sizes[ii*2];
+	    // std::cout << "set filtered_path_sizes[" << ii << "] to  path_sizes[ii*2] "
+	    // << path_sizes[ii*2] << std::endl;
+	 }
 	 rdkm[it->first]->setProp("ring", filtered_path_sizes);
+	 // std::cout << "..... done dangerous" << std::endl;
       }
    }
 }

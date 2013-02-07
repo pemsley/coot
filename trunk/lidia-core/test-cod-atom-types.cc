@@ -39,6 +39,8 @@ int main(int argc, char **argv) {
 
 	       std::string s = "COc1ccc(cc1O[C@H]1C[C@@H]2CC[C@H]1C2)C1CNC(=O)NC1";
 	       // s = "CC12CC[C@@]3(C1)CC(=C)CC3C(C2C(C)(C)C)C(C)(C)C"; // bird
+	       s = "O[V]1(O)(O)ONC(=[O]1)c1ccccc1";
+	       s = "C#O";
 	       // RDKit::RWMol *rdkmp = RDKit::SmilesToMol(s);
 	       // RDKit::RWMol rdkm(*rdkmp);
 	       

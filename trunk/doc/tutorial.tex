@@ -23,8 +23,9 @@
 %\author{CSHL 2008 Workshop}
 %\author{ChemBioBootCamp 2009 Workshop}
 %\author{CCP4 School APS 2010}
-\author{BCA/CCP4 Summer School Oxford 2010}
-\author{BCA/CCP4 Summer School Oxford 2012}
+%\author{BCA/CCP4 Summer School Oxford 2010}
+%\author{BCA/CCP4 Summer School Oxford 2012}
+\author{Universit\"at Basel Workshop}
 
 \begin{document}
 \maketitle
@@ -50,7 +51,7 @@ First, how do we move around and select things?
   \end{tabular}
 \vspace{0.5cm}
 
-\section{Introductory Tutorial}
+\section{Getting Started}
 
 In this tutorial, we will learn how to do the following:
 \begin{enumerate}
@@ -66,56 +67,10 @@ In this tutorial, we will learn how to do the following:
 % and maybe some other things.
 \end{enumerate}
 
-\subsection{Get the files}
-
-Before we start, let's load the files on which we will be working:
-
-%At the Bristol summer school, these files can be found
-%\texttt{/han/summer/coot}
-
-%\texttt{\small \$ wget http://www.biop.ox.ac.uk/coot/tutorial/tutorial-modern.pdb}
-
-% $\texttt{\small \$ wget http://www.biop.ox.ac.uk/coot/tutorial/rnasa-1.8-all\_refmac1.mtz}
-
-%or copy them from 
-
-%\texttt{/home/emsley/tutorial}
-
-%In York:
-%\texttt{\small /y/people/emsley/tutorial/tutorial.pdb}
-%and 
-%\texttt{\small \$ wget http://www.ysbl.york.ac.uk/{\atilde}emsley/coot/tutorial/rnasa-1.8-all\_refmac1.mtz}
-% \texttt{\small /y/people/emsley/tutorial/rnasa-1.8-all\_refmac1.mtz}
-
-
-From Coot's main menu bar, Select 
-
-\textsf{Extensions $\rightarrow$ Load tutorial model and data}
-
-\subsection{Start Coot}
-
-%% Before you start \texttt{coot}, you need to setup the proper
-%% environment.  This is currently done by ``sourcing'' a setup file.  The
-%% location of this setup file is system dependent, 
-%% here (in York) you need to type:
-
-%% %%\texttt{setup\_coot}\footnote{This is how it works in Bristol.}
-
-%% %%or 
-
-%% %%\texttt{source cootdir/setup/coot.csh}
-%% \begin{trivlist}
-%% \item \texttt{\$ source /y/people/emsley/setup/ccp4}
-%% \item \texttt{\$ source /y/people/emsley/setup/coot}
-%% \end{trivlist}
-
-
-
-%% \texttt{\$ source \atilde/mapview/setup/coot}\footnote{Using the MacOS
-%%   X binary distribution, the directory will be \texttt{crystal}, not
-%%   \texttt{mapview}.}
+\subsection{Load tutorial data}
 
 To use coot, in a terminal window, type:
+
 
 \texttt{\$ coot}
 
@@ -135,29 +90,13 @@ something like Figure \ref{fig:start-coot}.
   \end{center}
 \end{figure}
 
-\subsection{Display Coordinates}
-So let's read in those coordinates:
+So let's read in the coordinates and data (and thus generate a map)
 
-\begin{itemize}
-\item Select \textsf{``File''} from the Coot menu-bar\footnote{Note
-    you can also use ``Alt-F'' instead of clicking on ``File''}
-\item Select the \textsf{``Open Coordinates''} menu item
+To load the files on which we will be working:
 
-\textsl{  [Coot displays a Coordinates File Selection window]}
+From Coot's main menu bar, select
+\textsf{Extensions $\rightarrow$ Load tutorial model and data}
 
-\item Either
-  \begin{itemize}
-  \item Select \texttt{tutorial-modern.pdb} from the ``Files'' list
-  \end{itemize}
-  or
-  \begin{itemize}
-  \item Type \texttt{tutorial-modern.pdb} in the Selection: entry
-  \end{itemize}
-\item Click \textsf{``OK''} in the Coordinates File Selection window
-
-\textsl{  [Coot displays the coordinates in the Graphics Window]}
-
-\end{itemize}
 
 \begin{figure}[htbp]
   \begin{center}

@@ -1,5 +1,7 @@
 
+import os
 import subprocess
+import glob
 
 def get_fei_types(comp_id):
     file_name = "../src/cod/AtomTypeTests2/"
@@ -62,9 +64,8 @@ def diff_for_comp_id(comp_id):
             print '   ', failure[0], " ", failure[1],  '\t', failure[2]
         # return success stats:
         return [len(fei_types), len(fei_types)-len(fail_match)]
-            
 
-if __name__ == "__main__":
+def test_0s():
 
     test_set = ["0AD", "024", "090", "099", "008", "074", "00A", "023", "057", "039", "0CP",
                 "0PJ", "032", "002", "059", "0E4", "047", "055", "064", "033", "01G", "0G6",
@@ -97,3 +98,91 @@ if __name__ == "__main__":
         sum_success += stats[1]
     print '      overall: {0}/{1} = {2:.2f}%'.format(sum_success, sum_trials,
                                                      float(sum_success*100)/float(sum_trials))
+
+def gen_all():
+
+    output_dir = 'pe-types'
+    dict_dir = os.path.expandvars('$HOME/ccp4/ccp4-6.3.0/lib/data/monomers')
+    dirs = glob.glob(dict_dir + '/*')
+    dirs = [ os.path.join(dict_dir, "8"),
+	     os.path.join(dict_dir, "9") ]
+    for dir in dirs:
+	if (os.path.isdir(dir)):
+	    dir_basename = os.path.basename(dir)
+	    # print dir
+	    results_dir = os.path.join(output_dir, dir_basename)
+	    if (not (os.path.isdir(results_dir))):
+		os.makedirs(results_dir)
+	    print dir_basename, results_dir
+	    files = glob.glob(dir + "/*.cif")
+	    for file in files:
+		# print file
+		# get the comp-id from the file name
+		p = os.path.splitext(os.path.basename(file))
+		comp_id = p[0]
+		# A8D is a genuine library error.
+		# Note to self: what are the SMILES strings for these things!?
+		# B1M now passes
+		exclude = [        'BVA', 'B51', 'B13', 'BCB', 'BF4', 'BCL', 'B12', 'BEF', 'BFD',
+			    '7HE', 'ITM', 'ICA', 'JM1', 'AG1', 'A8D', 'AC9', 'APW', 'ALB', 'CN1',
+			    'CHL', 'DVT', 'DW1', 'DWC', 'DAQ', 'DAE', 'DW2', 'CO3', 'CLZ', 'CL7',
+			    'E52', 'C2C', 'CL1', 'FCI', 'FEM', 'FDC', 'FLL', 'FS2', 'FNE', 'CLA',
+			    'HB1', 'HC0', 'HEG', 'HF5', 'HC1', 'HCN', 'CFC', 'CMO', 'CNF', 'KEG',
+			    'KYT', 'KYS', 'LCO', 'MGF', 'NFV', 'NMQ', 'NFC', 'MAP', 'ONP', 'OXX',
+			    'OEC', 'MO7', 'PFC', 'PTE', 'PEJ', 'PNQ', 'PMR', 'PCD', 'PHF', 'ME3',
+			    'MNQ', 'MF4', 'RU7', 'REO', 'REP', 'RUC', 'RTC', 'TBR', 'TL2', 'V7O',
+			    'VEA', 'WO3', 'WO2', 'YBT', 'ZRC', '202', '34B', '39B', '39E' ]
+		do_it = True
+		for c in exclude:
+		    if (comp_id == c):
+			do_it = False
+		if (do_it):
+		    out_file = os.path.join(results_dir, comp_id + '.types')
+		    print "    ", out_file
+		    atom_types = get_pe_types(comp_id)
+		    f = open(out_file, 'w')
+		    for type in atom_types:
+			f.write(type)
+			f.write('\n')
+		    f.close()
+
+def types_hist():
+
+    atom_types = {}
+    output_dir = 'pe-types'
+    dirs = glob.glob(output_dir + '/*')
+    for dir in dirs:
+        files = glob.glob(dir + "/*.types")
+	for file in files:
+	    f = open(file)
+	    for line in f:
+		type = line.rstrip()
+		try:
+		    atom_types[type] += 1
+		except:
+		    atom_types[type] = 1
+		    
+    sum = 0
+
+    if True:
+	for key in atom_types.keys():
+	    sum += atom_types[key]
+	    print atom_types[key], "   ", key
+
+    if False:
+	l = []
+	for value in atom_types:
+	    t = [atom_types[value], value]
+	    l.append(t)
+	for i in l:
+	    print i
+    
+
+if __name__ == "__main__":
+
+    # test_0s()
+    # gen_all()
+
+    types_hist()
+
+    

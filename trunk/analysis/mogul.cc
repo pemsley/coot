@@ -26,11 +26,13 @@ coot::mogul::parse(const std::string &file_name) {
 	 while (std::getline(f, line)) { 
 	    lines.push_back(line);
 	 }
-	 std::cout << lines.size() << " lines." << std::endl;
+	 std::cout << "Read " << lines.size() << " lines." << std::endl;
 
 	 // 2 from the end because we do a lines+2 to try to read distributions
 	 for (unsigned int iline=0; iline<(lines.size()); iline++) {
 	    std::vector<std::string> bits = coot::util::split_string(lines[iline], ",");
+
+	    // mmmmnstd::cout << "parsing line " << lines[iline] << std::endl;
 
 	    if (bits[0] == "BOND") {
 	       try {
@@ -317,6 +319,8 @@ coot::mogul::make_restraints(const std::string &comp_id,
 			     int n_atoms_all, int n_atoms_non_H,
 			     const coot::dictionary_residue_restraints_t &bond_types_dict) {
 
+   std::cout << "................... mogul::make_restraints() " << items.size() << std::endl;
+      
    coot::dictionary_residue_restraints_t r(comp_id, -1);
 
    r.residue_info.comp_id = comp_id;

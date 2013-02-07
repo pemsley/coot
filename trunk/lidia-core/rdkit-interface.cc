@@ -377,6 +377,7 @@ coot::rdkit_mol(CResidue *residue_p,
       }
    }
 
+   debug_rdkit_molecule(&m);
 
     if (debug)
        std::cout << "=============== calling undelocalise() " << &m << std::endl;
@@ -1288,6 +1289,7 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
    undelocalise_carboxylates(rdkm); // after above
    undelocalise_phosphates(rdkm);
    undelocalise_sulphates(rdkm);
+   charge_metals(rdkm);
    charge_sp3_borons(rdkm);
 }
 
@@ -1688,6 +1690,59 @@ coot::charge_sp3_borons(RDKit::RWMol *rdkm) {
       }
    }
 }
+
+
+void
+coot::charge_metals(RDKit::RWMol *rdkm) {
+
+   // hackety hack code.  Needs improvement/thinking about
+   
+   RDKit::ROMol::AtomIterator ai;
+   for(ai=rdkm->beginAtoms(); ai!=rdkm->endAtoms(); ai++) {
+      if ((*ai)->getAtomicNum() == 11) { // Na
+	 (*ai)->setFormalCharge(+1);
+      }
+      if ((*ai)->getAtomicNum() == 12) { // Mg
+	 std::cout << "............................... charging Mg" << std::endl;
+	 (*ai)->setFormalCharge(+2);
+      }
+      if ((*ai)->getAtomicNum() == 20) { // Ca
+	 (*ai)->setFormalCharge(+2);
+      }
+   }
+}
+
+void
+coot::debug_rdkit_molecule(RDKit::ROMol *rdkm) {
+
+   const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
+   std::cout << "---- Atoms: " << rdkm->getNumAtoms() << std::endl;
+   for (unsigned int iat=0; iat<rdkm->getNumAtoms(); iat++) { 
+
+      RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+      std::string name;
+      try {
+	 at_p->getProp("name", name);
+      }
+      catch (KeyErrorException &err) {
+      }
+      int n = at_p->getAtomicNum();
+      std::string element = tbl->getElementSymbol(n);
+      unsigned int degree = rdkm->getAtomDegree(at_p);
+      std::cout << "   " << iat << " " << element << " " << name << " " << degree << std::endl;
+   }
+
+   int n_bonds = rdkm->getNumBonds();
+   std::cout << "---- Bonds: " << n_bonds << std::endl;
+   for (unsigned int ib=0; ib<n_bonds; ib++) {
+      const RDKit::Bond *bond_p = rdkm->getBondWithIdx(ib);
+      int idx_1 = bond_p->getBeginAtomIdx();
+      int idx_2 = bond_p->getEndAtomIdx();
+      std::cout << "   " << ib << "th between " << idx_1 << " " << idx_2 << " type " 
+		<< bond_p->getBondType() << std::endl;
+   }
+}
+
 
 
 
