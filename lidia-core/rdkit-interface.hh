@@ -81,6 +81,8 @@ namespace coot {
 			    const dictionary_residue_restraints_t &restraints,
 			    const std::vector<std::string> &H_names_already_added);
 
+   // print out the atom names RDKit bond types
+   void debug_rdkit_molecule(RDKit::ROMol *rdkm);
    //
    void undelocalise(RDKit::RWMol *rdkm); // fiddle with rdkm
    void undelocalise_phosphates(RDKit::ROMol *rdkm);
@@ -88,6 +90,7 @@ namespace coot {
    void undelocalise_aminos(RDKit::RWMol *rdkm);
    void undelocalise_carboxylates(RDKit::RWMol *rdkm);
    void undelocalise_methyl_carboxylates(RDKit::RWMol *rdkm);
+   void charge_metals(RDKit::RWMol *rdkm);
    void charge_sp3_borons(RDKit::RWMol *rdkm);
    
    // which calls (not for public use)
