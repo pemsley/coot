@@ -377,7 +377,7 @@ coot::rdkit_mol(CResidue *residue_p,
       }
    }
 
-   debug_rdkit_molecule(&m);
+   // debug_rdkit_molecule(&m);
 
     if (debug)
        std::cout << "=============== calling undelocalise() " << &m << std::endl;
