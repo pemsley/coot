@@ -17,7 +17,8 @@
 
 lib_LTLIBRARIES=libcoot-lidia-core.la
 
-include_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh rdkit-interface.hh use-rdkit.hh
+include_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh \
+	rdkit-interface.hh use-rdkit.hh cod-types.hh
 
 #  20110408 I add a CResidue,dictionary_residue_restraints_t constructor to molfile_molecule_t
 # simple
@@ -52,5 +53,5 @@ test_cod_atom_types_SOURCES = test-cod-atom-types.cc
 
 test_cod_atom_types_LDADD = libcoot-lidia-core.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-   	$(RDKIT_LIBS)
+	$(RDKIT_LIBS)
 
