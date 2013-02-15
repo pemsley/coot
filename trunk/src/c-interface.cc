@@ -2230,7 +2230,7 @@ void set_colour_by_molecule(int imol) {
 void set_colour_map_rotation_for_map(float f) {
 
    graphics_info_t::rotate_colour_map_for_map = f;
-   std::string cmd = "set-colour-map-rotation-for-maps";
+   std::string cmd = "set-colour-map-rotation-for-map";
    std::vector<coot::command_arg_t> args;
    args.push_back(f);
    add_to_history_typed(cmd, args);
