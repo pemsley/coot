@@ -1410,10 +1410,16 @@ namespace coot {
       // 
       bool chiral_hydrogen_needs_pushing(const simple_restraint &chiral_restraint, const gsl_vector *v) const;
       bool check_pushable_chiral_hydrogens(gsl_vector *v); // and push them if needed (non-const *v)
+      bool check_through_ring_bonds(gsl_vector *v); // and shorten them if needed (non-const *v)
       void push_chiral_hydrogen(const simple_restraint &chiral_restraint, gsl_vector *v);
       int get_chiral_hydrogen_index(int indexc, int index1, int index2, int index3) const;
       bool has_inverted_chiral_centre(const simple_restraint &chiral_restraint,
 				      const gsl_vector *v) const;
+      bool has_tiny_chiral_centre_volume(const simple_restraint &chiral_restraint,
+					 const gsl_vector *v) const;
+      bool bond_is_very_long(const coot::simple_restraint &bond_restraint,
+			     const gsl_vector *v) const;
+
       bool is_hydrogen(CAtom *at_p) const {
 	 std::string ele = at_p->element;
 	 if ((ele == "H") || (ele == " H"))

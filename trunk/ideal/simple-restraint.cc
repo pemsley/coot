@@ -658,11 +658,9 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 
    float tolerance = 0.035;
    if (! include_map_terms())
-      tolerance = 0.1;
+      tolerance = 0.15;
    
-   gsl_multimin_fdfminimizer_set (s, &multimin_func, x, 0.02, tolerance);
-   // stepsize 0.01, tolerance 1e-4
-
+   gsl_multimin_fdfminimizer_set (s, &multimin_func, x, 0.015, tolerance);
 
    if (print_initial_chi_sq_flag) { 
       double d = coot::distortion_score(x,(double *)this); 
@@ -723,9 +721,6 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	 if (verbose_geometry_reporting)
 	    cout << "iteration number " << iter << " " << s->f << endl;
 
-// 	 if (iter%1000) {
-// 	    check_pushable_chiral_hydrogens(s->x);
-// 	 } 
       }
    while ((status == GSL_CONTINUE) && (int(iter) < nsteps_max));
 
@@ -738,10 +733,13 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    
    // if there were bad Hs at the end of refinement
    if (status != GSL_ENOPROG) {
-      // std::cout << "refine end check and push!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!" << std::endl;
       if (check_pushable_chiral_hydrogens(s->x)) {
 	 update_atoms(s->x);
       }
+      // check and correct them if needed. 
+      if (check_through_ring_bonds(s->x)) {
+	 update_atoms(s->x);
+      } 
    }
 
    gsl_multimin_fdfminimizer_free (s);
@@ -802,8 +800,10 @@ coot::operator<<(std::ostream &s, simple_restraint r) {
       s << "Plane  ";
    if (r.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT)
       s << "NBC    ";
-   if (r.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT)
+   if (r.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) { 
       s << "Chiral ";
+      s << r.atom_index_centre;
+   }
    if (r.restraint_type == coot::RAMACHANDRAN_RESTRAINT)
       s << "Rama   ";
    s << "}";

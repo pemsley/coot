@@ -423,7 +423,7 @@ coot::restraints_container_t::check_pushable_chiral_hydrogens(gsl_vector *v) {
 	       // is the hydrogen on the wrong side of the chiral centre?
 	       // 
 	       bool val = chiral_hydrogen_needs_pushing((*this)[i], v);
-	       // std::cout << "::::  chiral_hydrogen_needs_pushing() returns " << val << std::endl;
+	       std::cout << "::::  chiral_hydrogen_needs_pushing() returned " << val << std::endl;
 	       if (val) {
 		  const coot::simple_restraint &restraint = (*this)[i];
 		  push_chiral_hydrogen(restraint, v);
@@ -469,9 +469,11 @@ coot::restraints_container_t::chiral_hydrogen_needs_pushing(const coot::simple_r
       
    // now check, does this have an inverted chiral centre?
    //
-   bool icc = has_inverted_chiral_centre(chiral_restraint, v);
+   // bool icc = has_inverted_chiral_centre(chiral_restraint, v);
+   
+   bool tiny_cv = has_tiny_chiral_centre_volume(chiral_restraint, v);
 
-   if (icc)
+   if (! tiny_cv)
       return 0; // don't push the chiral hydrogen.
 
 
@@ -497,8 +499,8 @@ coot::restraints_container_t::chiral_hydrogen_needs_pushing(const coot::simple_r
 	    if (flag) { // i.e. angle term for hydrogen
 	       angle_distortion = coot::distortion_score_angle(restraint, v);
 	       if (angle_distortion > angle_distortion_max) { 
-		  // std::cout << "::angle distortion for restraint " << i << ":  "
-		  // << angle_distortion << std::endl;
+		  std::cout << "::angle distortion for restraint " << i << ":  "
+			    << angle_distortion << std::endl;
 		  n_bad_angles++;
 	       }
 	    }
@@ -517,10 +519,14 @@ coot::restraints_container_t::chiral_hydrogen_needs_pushing(const coot::simple_r
    //   We don't want to flip the H in that case.
 
    bool needs_pushing = 0;
-   if ((n_bad_angles > 1) && !icc)
+
+   if ((n_bad_angles > 1) && tiny_cv)
       needs_pushing = 1;
 
-   // std::cout << ":::: chiral_hydrogen_needs_pushing() returns " << needs_pushing << std::endl;
+   if (0)
+      std::cout << ".... chiral_hydrogen_needs_pushing() restraint " << chiral_restraint 
+		<< " returns " << needs_pushing
+		<< " with " << n_bad_angles << " bad angles and tiny_cv " << tiny_cv << std::endl;
    return needs_pushing;
 } 
 
@@ -570,6 +576,48 @@ coot::restraints_container_t::has_inverted_chiral_centre(const coot::simple_rest
 
 }
 
+bool
+coot::restraints_container_t::has_tiny_chiral_centre_volume(const coot::simple_restraint &chiral_restraint,
+							    const gsl_vector *v) const {
+
+   bool r = false;
+   int idx = 3*(chiral_restraint.atom_index_centre);
+   clipper::Coord_orth centre(gsl_vector_get(v, idx),
+			      gsl_vector_get(v, idx+1),
+			      gsl_vector_get(v, idx+2));
+   
+   idx = 3*(chiral_restraint.atom_index_1);
+   clipper::Coord_orth a1(gsl_vector_get(v, idx),
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
+   idx = 3*(chiral_restraint.atom_index_2);
+   clipper::Coord_orth a2(gsl_vector_get(v, idx),
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
+   idx = 3*(chiral_restraint.atom_index_3);
+   clipper::Coord_orth a3(gsl_vector_get(v, idx),
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
+   
+   clipper::Coord_orth a = a1 - centre;
+   clipper::Coord_orth b = a2 - centre;
+   clipper::Coord_orth c = a3 - centre;
+   double cv = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b,c));
+   
+   // double distortion = cv - chiral_restraint.target_chiral_volume;
+   // double distort_2  = distortion * distortion / (chiral_restraint.sigma * chiral_restraint.sigma);
+
+   double chiral_fraction = fabs(cv/chiral_restraint.target_chiral_volume);
+
+   std::cout << "     chiral_fraction " << chiral_fraction << std::endl;
+
+   if (chiral_fraction < 0.4)
+      r = true; 
+   
+   return r;
+
+}
+
 void
 coot::restraints_container_t::push_chiral_hydrogen(const simple_restraint &chiral_restraint, gsl_vector *v) {
    
@@ -593,7 +641,12 @@ coot::restraints_container_t::push_chiral_hydrogen(const simple_restraint &chira
       clipper::Coord_orth a3(gsl_vector_get(v, idx),
 			     gsl_vector_get(v, idx+1),
 			     gsl_vector_get(v, idx+2));
-   
+
+      idx = 3*(chiral_restraint.chiral_hydrogen_index);
+      clipper::Coord_orth h_current_pos(gsl_vector_get(v, idx),
+					gsl_vector_get(v, idx+1),
+					gsl_vector_get(v, idx+2));
+      
       clipper::Coord_orth a = a1 - centre;
       clipper::Coord_orth b = a2 - centre;
       clipper::Coord_orth c = a3 - centre;
@@ -605,9 +658,10 @@ coot::restraints_container_t::push_chiral_hydrogen(const simple_restraint &chira
 
       clipper::Coord_orth new_h_pos = centre + 1.09 * dv_u;
 
-      std::cout << ":::::::::::::::::::: pushing H "
+      std::cout << "::INFO pushing H "
 		<< coot::atom_spec_t(atom[chiral_restraint.chiral_hydrogen_index]) 
 		<< " on " << coot::atom_spec_t(atom[chiral_restraint.atom_index_centre])
+		<< " from " << h_current_pos.format()
 		<< " to " << new_h_pos.format() << std::endl;
       
       idx = 3*chiral_restraint.chiral_hydrogen_index;
@@ -616,6 +670,56 @@ coot::restraints_container_t::push_chiral_hydrogen(const simple_restraint &chira
       gsl_vector_set(v, idx + 2, new_h_pos.z());
    }
    
-} 
+}
+
+bool
+coot::restraints_container_t::check_through_ring_bonds(gsl_vector *v) {
+
+   // actually this only checks for a very long bond (distortion)
+
+   bool status = false;
+   for (int i=0; i<size(); i++) {
+      if (restraints_usage_flag & coot::BONDS_MASK) { 
+	 if ( (*this)[i].restraint_type == coot::BOND_RESTRAINT) {
+	    bool p = bond_is_very_long((*this)[i], v);
+	    if (p) {
+// 	       std::cout << "    restraint " << i << " " << (*this)[i]
+// 			 << " has a very long bond " << std::endl;
+	    }
+	    
+	 }
+      }
+   }
+   return status;
+}
+
+
+bool
+coot::restraints_container_t::bond_is_very_long(const coot::simple_restraint &bond_restraint,
+						const gsl_vector *v) const {
+   bool status = false;
+   int idx = 3*(bond_restraint.atom_index_1);
+   clipper::Coord_orth a1(gsl_vector_get(v, idx),
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
+   idx = 3*(bond_restraint.atom_index_2);
+   clipper::Coord_orth a2(gsl_vector_get(v, idx),
+			  gsl_vector_get(v, idx+1),
+			  gsl_vector_get(v, idx+2));
+   double l = clipper::Coord_orth::length(a1,a2);
+   double bit = l - bond_restraint.target_value;
+
+   if (bit > 1.0) {
+      // std::cout << "long bond  bit: " << bit << std::endl;
+      status = true;
+   }
+   
+
+   return status;
+}
+
+
+
+
 
 #endif // GSL

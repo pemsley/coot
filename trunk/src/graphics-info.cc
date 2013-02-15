@@ -1415,7 +1415,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    // print_initial_chi_squareds_flag is 1 the first time then we turn it off.
    int steps_per_frame = dragged_refinement_steps_per_frame;
    if (! g.last_restraints.include_map_terms())
-      steps_per_frame *= 3;
+      steps_per_frame *= 4;
    // std::cout << "steps_per_frame " << steps_per_frame << std::endl;
    graphics_info_t::saved_dragged_refinement_results = 
       g.last_restraints.minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);

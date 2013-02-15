@@ -62,6 +62,7 @@ main(int argc, char *argv[]) {
 #ifdef USE_PYTHON
    Py_Initialize();
    PySys_SetArgv(argc, argv);
+   PyRun_SimpleString("global user_defined_alert_smarts ; user_defined_alert_smarts = []");
 #endif
    
    gtk_init (&argc, &argv);
