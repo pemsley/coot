@@ -153,7 +153,11 @@ namespace coot {
       const mogul_item &operator[](unsigned int item_no) const {
 	 return items[item_no];
       }
-      void set_max_z_badness(float b) { max_z_badness = b; }
+      void set_max_z_badness(float b) {
+	 max_z_badness = b;
+	 for (unsigned int ii=0; ii<items.size(); ii++)
+	    items[ii].set_max_z_badness(b);
+      }
 
       coot::dictionary_residue_restraints_t make_restraints(CResidue *residue_p,
 						      const std::string &comp_id,

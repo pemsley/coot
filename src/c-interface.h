@@ -6975,15 +6975,6 @@ void    handle_go_to_residue_keyboarding_mode(const gchar *text);
 void set_show_graphics_ligand_view(int state);
 /* \} */
 
-/*  ----------------------------------------------------------------------- */
-/*                    Mogul                                                 */
-/*  ----------------------------------------------------------------------- */
-void mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, const char *mogul_out_file_name);
-int update_restraints_using_mogul(int imol, const char *chain_id, int res_no, const char *ins_code,
-				  const char *residue_type, 
-				  const char *mogul_out_file_name);
-
-
 /* \} */
 
 

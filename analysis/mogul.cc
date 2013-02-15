@@ -12,7 +12,6 @@
 void
 coot::mogul::parse(const std::string &file_name) {
 
-   max_z_badness = 5.0;
    if (! file_exists(file_name)) {
       std::cout << "filename " << file_name << " does not exist " << std::endl;
    } else {
@@ -249,8 +248,9 @@ coot::mogul_item::colour() const {
    if (f < 0.0) f = 0.0;
 
    ch.blue = 0.0;
-   ch.red = f;
-   ch.green = 1 - f; 
+   ch.blue = 0.25 - (f-0.5)*(f-0.5);
+   ch.red = pow(f, 0.2);
+   ch.green = pow(1 - f, 0.2);
 
    return ch.hex();
 } 
