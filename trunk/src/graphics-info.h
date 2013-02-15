@@ -3884,6 +3884,10 @@ string   static std::string sessionid;
 
    // e.g. user_name_passwd_map["proxy"] -> "fred", "bill3"
    static std::map<std::string, std::pair<std::string, std::string> > user_name_passwd_map;
+
+   // Mogul (default is 5.0)
+   static float mogul_max_badness;
+
 };
 
 

@@ -2398,7 +2398,7 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
 
 /* Accession code, and dispatch guile command to download and display
    the model.  Hmmm.  */
-void handle_get_accession_code(GtkWidget *widget) { 
+void handle_get_accession_code(GtkWidget *widget) {
 
    const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
    cout << "PDB Accession Code: " << text << endl;

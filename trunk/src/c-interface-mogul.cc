@@ -17,7 +17,7 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 
    coot::mogul m;
    m.parse(mogul_out_file_name);
-   m.set_max_z_badness(5.0);
+   m.set_max_z_badness(graphics_info_t::mogul_max_badness);
    graphics_info_t g;
 
    if (is_valid_model_molecule(imol)) { 
@@ -88,55 +88,56 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 		     }
 		  }
 	       }
-	       
-	       if (m[i].type == coot::mogul_item::TORSION) {
-		  // mogul indexes (from sdf-indices) are 1-based, atoms in residue are 0-based.
-		  int idx_1 = m[i].idx_1 - 1;
-		  int idx_2 = m[i].idx_2 - 1;
-		  int idx_3 = m[i].idx_3 - 1;
-		  int idx_4 = m[i].idx_4 - 1;
-		  if (idx_1 >= 0 && idx_1 < n_residue_atoms) { 
-		     if (idx_2 >= 0 && idx_2 < n_residue_atoms) {
-			if (idx_3 >= 0 && idx_3 < n_residue_atoms) {
-			   if (idx_4 >= 0 && idx_4 < n_residue_atoms) {
-			      CAtom *at_1 = residue_atoms[idx_1];
-			      CAtom *at_2 = residue_atoms[idx_2];
-			      CAtom *at_3 = residue_atoms[idx_3];
-			      CAtom *at_4 = residue_atoms[idx_4];
-			      clipper::Coord_orth centre(0.5*(at_2->x + at_3->x),
-							 0.5*(at_2->y + at_3->y),
-							 0.5*(at_2->z + at_3->z));
 
-			      // hack hack hacketty hack!  This works around rubbish
-			      // fixed translation in graphics_object_internal_torus().
-			      // 
-			      clipper::Coord_orth norm_dir = centre +
-				 clipper::Coord_orth(0.001*(at_2->x - at_3->x),
-						     0.001*(at_2->y - at_3->y),
-						     0.001*(at_2->z - at_3->z));
-			      // std::cout << "      " << centre.format() << " " << norm_dir.format() << std::endl;
-			      coot::generic_display_object_t::torus_t torus(centre, norm_dir, 0.07, 0.5);
+	       /* dont do torsions yet */
+// 	       if (m[i].type == coot::mogul_item::TORSION) {
+// 		  // mogul indexes (from sdf-indices) are 1-based, atoms in residue are 0-based.
+// 		  int idx_1 = m[i].idx_1 - 1;
+// 		  int idx_2 = m[i].idx_2 - 1;
+// 		  int idx_3 = m[i].idx_3 - 1;
+// 		  int idx_4 = m[i].idx_4 - 1;
+// 		  if (idx_1 >= 0 && idx_1 < n_residue_atoms) { 
+// 		     if (idx_2 >= 0 && idx_2 < n_residue_atoms) {
+// 			if (idx_3 >= 0 && idx_3 < n_residue_atoms) {
+// 			   if (idx_4 >= 0 && idx_4 < n_residue_atoms) {
+// 			      CAtom *at_1 = residue_atoms[idx_1];
+// 			      CAtom *at_2 = residue_atoms[idx_2];
+// 			      CAtom *at_3 = residue_atoms[idx_3];
+// 			      CAtom *at_4 = residue_atoms[idx_4];
+// 			      clipper::Coord_orth centre(0.5*(at_2->x + at_3->x),
+// 							 0.5*(at_2->y + at_3->y),
+// 							 0.5*(at_2->z + at_3->z));
+
+// 			      // hack hack hacketty hack!  This works around rubbish
+// 			      // fixed translation in graphics_object_internal_torus().
+// 			      // 
+// 			      clipper::Coord_orth norm_dir = centre +
+// 				 clipper::Coord_orth(0.001*(at_2->x - at_3->x),
+// 						     0.001*(at_2->y - at_3->y),
+// 						     0.001*(at_2->z - at_3->z));
 			      
-			      std::string hex_colour = m[i].colour();
-			      coot::colour_holder colour =
-				 coot::generic_display_object_t::colour_values_from_colour_name(hex_colour);
-			      // bleugh!
-			      torus.col.col[0] = colour.red;
-			      torus.col.col[1] = colour.green;
-			      torus.col.col[2] = colour.blue;
-			      (*g.generic_objects_p)[new_obj].tori.push_back(torus);
-			   }
-			}
-		     }
-		  }
-	       }
+// 			      coot::generic_display_object_t::torus_t torus(centre, norm_dir, 0.07, 0.5);
+			      
+// 			      std::string hex_colour = m[i].colour();
+// 			      coot::colour_holder colour =
+// 				 coot::generic_display_object_t::colour_values_from_colour_name(hex_colour);
+// 			      // bleugh!
+// 			      torus.col.col[0] = colour.red;
+// 			      torus.col.col[1] = colour.green;
+// 			      torus.col.col[2] = colour.blue;
+// 			      (*g.generic_objects_p)[new_obj].tori.push_back(torus);
+// 			   }
+// 			}
+// 		     }
+
 	    }
+
 	    set_display_generic_object(new_obj, 1);
 	    graphics_draw();
 	 }
       }
    }
-} 
+}
 
 
 // The mogul output file refers to a specific residue (we need the
@@ -885,3 +886,13 @@ coot::mogul_histogram_for_item(coot::goograph *gg, const coot::mogul_item &item,
 }
 
 #endif // HAVE_GOOCANVAS
+
+
+void set_mogul_max_badness(float b) {
+
+   graphics_info_t::mogul_max_badness = b;
+}
+
+float get_mogul_max_badness() {
+   return graphics_info_t::mogul_max_badness;
+} 
