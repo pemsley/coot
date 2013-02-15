@@ -314,7 +314,7 @@ lbg_info_t::init_sbase(const std::string &sbase_monomer_dir_in) {
 
    if (monomer_dir) { 
 
-      std::cout << "sbase monomer dir: " << monomer_dir << std::endl;
+      // std::cout << "sbase monomer dir: " << monomer_dir << std::endl;
       SBase = new CSBase;
       RC = SBase->LoadIndex(monomer_dir);
 

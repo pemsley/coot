@@ -1042,6 +1042,11 @@ public:
    widgeted_molecule_t  import_mol_file(const lig_build::molfile_molecule_t &mol_in,
 					const std::string &filename,
 					CMMDBManager *pdb_mol);
+   // and the version of that not going via an intermediate molfile_molecule_t
+#ifdef MAKE_ENTERPRISE_TOOLS   
+   widgeted_molecule_t import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const;
+#endif // MAKE_ENTERPRISE_TOOLS   
+
    static void on_sbase_search_result_button_clicked(GtkButton *button, gpointer user_data);
    static gboolean watch_for_mdl_from_coot(gpointer user_data);
    time_t coot_mdl_ready_time;

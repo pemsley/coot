@@ -36,8 +36,6 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
 	 } else { 
 	    if (PyCallable_Check(pFunc)) {
 	       silicos_it_qed_default_func = pFunc;
-	       std::cout << "DEUBG:: saved silicos_it_qed_default_func " << silicos_it_qed_default_func
-			 << std::endl;
 	    } else {
 	       std::cout << "function is not callable"  << std::endl;
 	    }
@@ -51,8 +49,8 @@ double
 get_qed(PyObject *silicos_it_qed_default_func, const RDKit::ROMol &rdkm) {
 
    double r = -1.0;
-   if (silicos_it_qed_default_func) { 
-      try { 
+   if (silicos_it_qed_default_func) {
+      try {
 	 PyObject *arg_list = PyTuple_New(1);
 	 PyObject *rdkit_mol_py;
 	    

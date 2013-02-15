@@ -3220,11 +3220,20 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
       std::cout << "WARNING:: import_mol_from_file() failed to make 2d conformer "
 		<< std::endl;
    }
-   lig_build::molfile_molecule_t mm = coot::make_molfile_molecule(*m, iconf);
-   CMMDBManager *mol = NULL; // no atom names to transfer
-   widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
+
+
+//    Old way (Pre-Feb 2013) goving via a molfile_molecule_t
+//    
+//    lig_build::molfile_molecule_t mm = coot::make_molfile_molecule(*m, iconf);
+//    CMMDBManager *mol = NULL; // no atom names to transfer
+//    widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
+
+   widgeted_molecule_t wmol = import_rdkit_mol(m, iconf);
+   mdl_file_name = file_name;
+   
    render_from_molecule(wmol);
    update_descriptor_attributes();
+   
 }
 #endif // MAKE_ENTERPRISE_TOOLS
 
@@ -3243,6 +3252,91 @@ lbg_info_t::import_mol_file(const lig_build::molfile_molecule_t &mol_in,
    return new_mol;
 }
 
+#ifdef MAKE_ENTERPRISE_TOOLS 
+widgeted_molecule_t
+lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
+
+   // transfer atom names if you can.
+   
+   widgeted_molecule_t m;
+
+   int n_conf  = rdkm->getNumConformers();
+   if (n_conf) {
+      const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
+      
+      RDKit::Conformer conf = rdkm->getConformer(iconf);
+      int n_mol_atoms = rdkm->getNumAtoms();
+
+      // determine the centre correction
+      double sum_x = 0;
+      double sum_y = 0;
+      double min_y = 9e9;
+      for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
+	 RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
+	 sum_x += r_pos.x;
+	 sum_y += r_pos.y;
+	 if (r_pos.y < min_y)
+	    min_y = r_pos.y;
+      }
+
+      if (n_mol_atoms > 0) {
+	 double centre_x = sum_x/double(n_mol_atoms);
+	 double centre_y = sum_y/double(n_mol_atoms);
+	 m.centre_correction = lig_build::pos_t(centre_x, centre_y);
+	 m.mol_in_min_y = min_y;
+      }
+
+      for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
+	 RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
+	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
+	 std::string name = "";
+	 try {
+	    at_p->getProp("name", name);
+	 }
+	 catch (KeyErrorException kee) {
+	    // we don't need to see these.  We get them when reading an mdl file
+	    // (for example).
+	    // std::cout << "caught no-name for atom exception in import_rdkit_mol(): "
+	    // <<  kee.what() << std::endl;
+	 }
+	 clipper::Coord_orth cp(r_pos.x , r_pos.y, r_pos.z);
+	 lig_build::pos_t pos = m.input_coords_to_canvas_coords(cp);
+	 int n = at_p->getAtomicNum();
+	 std::string element = tbl->getElementSymbol(n);
+	 int charge = at_p->getFormalCharge();
+	 widgeted_atom_t mol_at(pos, element, charge, NULL);
+
+	 mol_at.charge = charge;
+	 if (! name.empty())
+	    mol_at.atom_name = name;
+	 m.add_atom(mol_at);
+      }
+
+      int n_bonds = rdkm->getNumBonds();
+      for (unsigned int ib=0; ib<n_bonds; ib++) {
+	 const RDKit::Bond *bond_p = rdkm->getBondWithIdx(ib);
+	 int idx_1 = bond_p->getBeginAtomIdx();
+	 int idx_2 = bond_p->getEndAtomIdx();
+	 lig_build::bond_t::bond_type_t bt = coot::convert_bond_type(bond_p->getBondType());
+	 const widgeted_atom_t &wat1 = m.atoms[idx_1];
+	 const widgeted_atom_t &wat2 = m.atoms[idx_2];
+	 widgeted_bond_t bond(idx_1, idx_2, wat1, wat2, bt, NULL);
+	 RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
+	 if (bond_dir != RDKit::Bond::NONE) {
+	    if (bond_dir == RDKit::Bond::BEGINWEDGE)
+	       bond.set_bond_type(lig_build::bond_t::OUT_BOND);
+	    if (bond_dir == RDKit::Bond::BEGINDASH)
+	       bond.set_bond_type(lig_build::bond_t::IN_BOND);
+	 }
+	 m.add_bond(bond);
+      }
+
+      m.assign_ring_centres();
+   }
+   return m;
+}
+#endif // MAKE_ENTERPRISE_TOOLS
 
 void
 lbg_info_t::clean_up_2d_representation() {

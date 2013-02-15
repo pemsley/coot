@@ -132,53 +132,7 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 	 bonds.push_back(bond);
       }
 
-
-      // add ring centres
-      //
-      for (unsigned int ib=0; ib<bonds.size(); ib++) {
-	 if (! bonds[ib].have_centre_pos()) { 
-	    int atom_index = bonds[ib].get_atom_1_index();
-	    int atom_index_other = bonds[ib].get_atom_2_index();
-	    if (false) 
-	       std::cout << "=============== checking ring for atom index "
-			 << atom_index << " ===============" << std::endl;
-	    // path must pass through atom_index_other
-	    std::pair<bool, std::vector<int> > found =
-	       found_self_through_bonds(atom_index, atom_index_other);
-	    if (debug) { 
-	       std::cout << "-- constructor of widgeted_bond_t atom " << atom_index
-			 << " other bond index (not tested) " << bonds[ib].get_atom_2_index()
-			 << ", found status "
-			 << found.first << " (";
-	       for (unsigned int i=0; i<found.second.size(); i++)
-		  std::cout << found.second[i] << " ";
-	       std::cout << ")\n"
-			 << std::endl;
-	    }
-	    if (found.first) {
-	       if (found.second.size() > 0) { 
-		  lig_build::pos_t centre_pos_sum;
-		  std::string centre_pos_atoms_string;
-		  for (unsigned int i_ring_atom_list=0;
-		       i_ring_atom_list<found.second.size();
-		       i_ring_atom_list++) {
-		     centre_pos_sum += atoms[found.second[i_ring_atom_list]].atom_position;
-		     // these for debugging.
-		     centre_pos_atoms_string += coot::util::int_to_string(found.second[i_ring_atom_list]);
-		     centre_pos_atoms_string += " ";
-		  }
-		  lig_build::pos_t centre_pos = centre_pos_sum * (1.0/double(found.second.size()));
-		  bonds[ib].add_centre(centre_pos);
-		  if (debug)
-		     std::cout << "adding centre at " << centre_pos
-			       << " generated from (" << centre_pos_atoms_string << ")" 
-			       << " for bond " << ib
-			       << " connecting " << bonds[ib].get_atom_1_index() << " to "
-			       << bonds[ib].get_atom_2_index() << std::endl;
-	       }
-	    }
-	 }
-      }
+      assign_ring_centres();
    }
 }
 
@@ -250,6 +204,12 @@ widgeted_molecule_t::input_coords_to_canvas_coords(const clipper::Coord_orth &po
 
    // double y_offset = 60 + scale_correction.second * (centre_correction.y - mol_in_min_y) * 20;
    double y_offset = 40 + scale_correction.second * (centre_correction.y - mol_in_min_y) * 30;
+
+   if (0)
+      std::cout << "input_coords_to_canvas_coords()" << pos_in.format()
+		<< " y_offset: " << y_offset << " from " << scale_correction.first << " "
+		<< scale_correction.second << " and mol_in_min_y "
+		<< mol_in_min_y << std::endl;
    
    x += 300;
    y += y_offset;
