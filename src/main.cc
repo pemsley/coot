@@ -935,8 +935,8 @@ start_ligand_builder_gui(GtkMenuItem     *menuitem,
 #ifdef HAVE_GOOCANVAS
    lig_build::molfile_molecule_t mm;
    CMMDBManager *mol = NULL;
-   std::string molecule_file_name = "coot.mol"; // non-null file name passed to lbg, used
-						// in save function
+   std::string molecule_file_name = "coot-lidia.mol"; // non-null file name passed to lbg, used
+					  	      // in save function
    std::string view_name;
    std::pair<bool, coot::residue_spec_t> dummy_pair(0, coot::residue_spec_t());
    bool use_graphics_interface_flag = 1;
@@ -947,7 +947,7 @@ start_ligand_builder_gui(GtkMenuItem     *menuitem,
 #ifdef USE_LIBCURL
    get_url_func_pointer= coot_get_url;
 #endif    
-   
+
    lbg(mm, dummy_pair, mol, view_name, molecule_file_name, imol_dummy,
        use_graphics_interface_flag, stand_alone_flag,
        get_url_func_pointer,

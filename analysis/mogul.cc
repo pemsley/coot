@@ -319,8 +319,6 @@ coot::mogul::make_restraints(const std::string &comp_id,
 			     int n_atoms_all, int n_atoms_non_H,
 			     const coot::dictionary_residue_restraints_t &bond_types_dict) {
 
-   std::cout << "................... mogul::make_restraints() " << items.size() << std::endl;
-      
    coot::dictionary_residue_restraints_t r(comp_id, -1);
 
    r.residue_info.comp_id = comp_id;

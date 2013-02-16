@@ -39,7 +39,7 @@
 #include <GraphMol/MolChemicalFeatures/MolChemicalFeatureFactory.h>
 
 bool residue_to_sdf_file(int imol, const char *chain_id, int res_no, const char *ins_code, 
-			 const char *sdf_file_name) {
+			 const char *sdf_file_name, bool kekulize) {
 
    bool success = true; 
    graphics_info_t g;
@@ -50,21 +50,20 @@ bool residue_to_sdf_file(int imol, const char *chain_id, int res_no, const char 
 	 try {
 	    bool includeStereo = true;
 	    int confId = 0;
-	    bool kekulize = true;
 	    // this can throw an exception
 	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, *g.Geom_p());
 	    // maybe this can throw an exception too.
 	    RDKit::MolToMolFile(rdkm, sdf_file_name, includeStereo, confId, kekulize);
 	    // success = true we presume
 	 }
-	 catch (std::runtime_error coot_error) {
+	 catch (const std::runtime_error &coot_error) {
 	    success = false;
 	    std::cout << coot_error.what() << std::endl;
 	    std::string m = "Residue type ";
 	    m += residue_p->GetResName();
 	    m += " not found in dictionary.";
 	 }
-	 catch (std::exception rdkit_error) {
+	 catch (const std::exception &rdkit_error) {
 	    success = false;
 	    std::cout << rdkit_error.what() << std::endl;
 	 }
@@ -98,14 +97,14 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 	    g.graphics_draw();
 	    success = true;
 	 }
-	 catch (std::runtime_error coot_error) {
+	 catch (const std::runtime_error &coot_error) {
 	    success = false;
 	    std::cout << coot_error.what() << std::endl;
 	    std::string m = "Residue type ";
 	    m += residue_p->GetResName();
 	    m += " not found in dictionary.";
 	 }
-	 catch (std::exception rdkit_error) {
+	 catch (const std::exception &rdkit_error) {
 	    success = false;
 	    std::cout << "RDKit molecule generation problem: "
 		      << rdkit_error.what() << std::endl;

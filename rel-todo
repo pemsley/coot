@@ -3,6 +3,10 @@
 
 ----
 
+  o  This happens (reproducibly) if I use
+     smiles_to_ligand_builder
+     with c1ccccc1 as a start and then add a 5 ring.
+
    o after delete residue, update environment distances - so that a
      double-added ligand gets cleaned up without recentering.
 
@@ -15,6 +19,8 @@
    - no)
 
      In the sdf file for mogul, there are double bonds to both oxygens.
+
+   o Files-> SMILES when libcheck is not installed
 
 -----
 

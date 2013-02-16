@@ -611,25 +611,6 @@ lbg_info_t::handle_drag(GdkModifierType state, int x_as_int, int y_as_int) {
 }
 
 
-static bool
-on_lbg_key_press_event(GooCanvasItem  *item,
-		       GooCanvasItem  *target_item,
-		       GdkEventKey    *event,
-		       gpointer        user_data) {
-
-
-   // this doesn't do anything?  event mask on item?
-   
-   switch (event->keyval) {
-   case GDK_space:
-      std::cout << "space was pressed " << std::endl;
-   default:
-      std::cout << "something was pressed " << std::endl;
-   }
-   return TRUE;
-} 
-
-
 void
 lbg_info_t::drag_canvas(int mouse_x, int mouse_y) {
 
@@ -838,16 +819,26 @@ lbg_info_t::remove_bond_and_atom_highlighting() {
       highlight_data.undisplay();
 }
 
-static gboolean
-on_highlight_key_press_event (GooCanvasItem *item,
-			      GooCanvasItem *target,
-			      GdkEventKey *event,
-			      gpointer data)
-{
-  gchar *id = 0;
-  // id = g_object_get_data (G_OBJECT (item), "id");
-  g_print ("%s received key-press event\n", id ? id : "unknown");
-  return FALSE;
+gboolean
+lbg_info_t::on_highlight_key_press_event (GooCanvasItem *item,
+					  GooCanvasItem *target,
+					  GdkEventKey *event,
+					  gpointer data) {
+
+   std::cout << "on_highlight_key_press_event: item   " << item   << std::endl;
+   std::cout << "on_highlight_key_press_event: target " << target << std::endl;
+   std::cout << "on_highlight_key_press_event: event  " << event  << std::endl;
+   std::cout << "on_highlight_key_press_event: data   " << data   << std::endl;
+   
+   lbg_info_t *l =
+      static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
+   if (!l) {
+      std::cout << "on button-click: NULL lbg-info from item" << std::endl;
+   } else {
+      std::cout << "on button-click: lbg-info from item" << std::endl;
+   }
+
+   return FALSE;
 }
 
 
@@ -872,13 +863,9 @@ lbg_info_t::highlight_bond(const lig_build::bond_t &bond, bool delete_mode) {
 				   B.x, B.y,
 				   "line-width", 7.0,
 				   "stroke-color", col.c_str(),
+				   "can-focus", 1,
 				   NULL);
-
-   // a GooCanvasItem is not a GtkWidget
-   //    gtk_widget_set_events(GTK_WIDGET(h_line),
-   // 			 GDK_KEY_PRESS_MASK     |
-   // 			 GDK_KEY_RELEASE_MASK);
-
+   goo_canvas_grab_focus(GOO_CANVAS(canvas), h_line);
 
    g_signal_connect (h_line, "key_press_event",
 		     G_CALLBACK (on_highlight_key_press_event), NULL);
@@ -897,16 +884,23 @@ lbg_info_t::highlight_atom(const lig_build::atom_t &atom, int atom_index, bool d
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
    double width = 10; // atom.name.length() * 3;
    double height = 14;
-   double x1 = A.x - width/2;
-   double y1 = A.y - height/2;
+   double x1 = A.x - width/2.0;
+   double y1 = A.y - height/2.0;
 
    // std::cout << x1 << " " << x2 << " "<< width << " " << height << std::endl;
 
    GooCanvasItem *rect_item =
       goo_canvas_rect_new (root, x1, y1, width, height,
-			   "line-width", 1.0,
+			   "line-width", 2.0,
 			   "stroke-color", col.c_str(),
+			   "can-focus", 1,
 			   NULL);
+
+   goo_canvas_grab_focus(GOO_CANVAS(canvas), rect_item);
+   
+   g_signal_connect(rect_item, "key_press_event",
+		     G_CALLBACK (on_highlight_key_press_event), NULL);
+   
    highlight_data = highlight_data_t(rect_item, A, atom_index);
 }
 
@@ -2362,14 +2356,6 @@ lbg_info_t::save_togglebutton_widgets(GtkBuilder *builder) {
 	 GTK_TOGGLE_TOOL_BUTTON(gtk_builder_get_object (builder, w_names[i].c_str()));
       widget_names[w_names[i]] = tb;
    }
-
-   // hack in 
-   for (unsigned int i=0; i<w_names.size(); i++) {
-      GtkToggleToolButton *tb =
-	 GTK_TOGGLE_TOOL_BUTTON(gtk_builder_get_object (builder, w_names[i].c_str()));
-      g_signal_connect (GTK_OBJECT(tb), "key_press_event",
-			G_CALLBACK (on_highlight_key_press_event), NULL);
-   }
    
    return TRUE;
 } 
@@ -2530,14 +2516,6 @@ lbg_info_t::init(GtkBuilder *builder) {
 		       "motion_notify_event",
 		       G_CALLBACK(on_canvas_motion_new), NULL);
       
-      g_signal_connect(G_OBJECT(canvas),
-		       "key_press_event",
-		       G_CALLBACK(on_lbg_key_press_event), NULL);
-
-      g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
-		       "key_press_event",
-		       G_CALLBACK(on_lbg_key_press_event), NULL);
-
       // setup_lbg_drag_and_drop(lbg_window); // this lbg_info_t is not attached to this object.
       setup_lbg_drag_and_drop(canvas);
       gtk_widget_show(canvas);
@@ -4265,8 +4243,8 @@ lbg_info_t::ligand_grid::avoid_ring_centres(std::vector<std::vector<std::string>
 	 if (n_atoms < 3) n_atoms = 3;
 	 
 	 double radius = 1/(2*sin(M_PI/double(n_atoms))) * 1.5; // in "A" or close
-	 std::cout << "avoid_ring_centres() adding ring centre at " << centre
-		   << " n_atoms: " << n_atoms << " radius " << radius << std::endl;
+	 // std::cout << "avoid_ring_centres() adding ring centre at " << centre
+	 // << " n_atoms: " << n_atoms << " radius " << radius << std::endl;
 	 add_for_accessibility(radius, centre);
       }
       catch (std::runtime_error rte) {
