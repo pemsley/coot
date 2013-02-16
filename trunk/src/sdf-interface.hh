@@ -22,7 +22,7 @@
 #ifdef MAKE_ENTERPRISE_TOOLS
 // was it OK or not?  (i.e. did we not catch an exception)
 bool residue_to_sdf_file(int imol, const char *chain_id, int resno, const char *ins_code, 
-			 const char *sdf_file_name);
+			 const char *sdf_file_name, bool kekulize = true);
 // rdkit chemical features.
 bool show_feats(int imol, const char *chain_id, int resno, const char *ins_code);
 

@@ -1042,6 +1042,11 @@ public:
    widgeted_molecule_t  import_mol_file(const lig_build::molfile_molecule_t &mol_in,
 					const std::string &filename,
 					CMMDBManager *pdb_mol);
+   static gboolean on_highlight_key_press_event (GooCanvasItem *item,
+						 GooCanvasItem *target,
+						 GdkEventKey *event,
+						 gpointer data);
+   
    // and the version of that not going via an intermediate molfile_molecule_t
 #ifdef MAKE_ENTERPRISE_TOOLS   
    widgeted_molecule_t import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const;
