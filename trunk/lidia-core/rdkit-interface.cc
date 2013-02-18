@@ -238,7 +238,16 @@ coot::rdkit_mol(CResidue *residue_p,
 		   << std::endl;
       RDKit::Bond::BondType type = convert_bond_type(restraints.bond_restraint[ib].type());
       RDKit::Bond *bond = new RDKit::Bond(type);
-	    
+
+      // if the restraints said that this bond was delocalized - we
+      // want to know that when we create an mdl file for mogul.
+      //
+      if (restraints.bond_restraint[ib].type() == "deloc") {
+	 std::string prop_type("restraints-type");
+	 std::string bond_type("deloc");
+	 bond->setProp(prop_type, bond_type);
+      }
+      
       std::string atom_name_1 = restraints.bond_restraint[ib].atom_id_1_4c();
       std::string atom_name_2 = restraints.bond_restraint[ib].atom_id_2_4c();
       std::string ele_1 = restraints.element(atom_name_1);
@@ -679,6 +688,14 @@ coot::add_H_to_ring_N_as_needed(RDKit::RWMol *mol,
    }
    return r;
 }
+
+void
+coot::mogulify_mol(RDKit::RWMol &mol) {
+
+   debug_rdkit_molecule(&mol);
+
+} 
+
 
 
 lig_build::molfile_molecule_t
@@ -1729,7 +1746,10 @@ coot::debug_rdkit_molecule(RDKit::ROMol *rdkm) {
       int n = at_p->getAtomicNum();
       std::string element = tbl->getElementSymbol(n);
       unsigned int degree = rdkm->getAtomDegree(at_p);
-      std::cout << "   " << iat << " " << element << " " << name << " " << degree << std::endl;
+      std::cout << "   " << iat << " ele: " << element;
+      if (! name.empty())
+	 std::cout << " name :" << name << ":";
+      std::cout << " degree: " << degree << std::endl;
    }
 
    int n_bonds = rdkm->getNumBonds();
