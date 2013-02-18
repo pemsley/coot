@@ -16,20 +16,17 @@ def pisa_assemblies(imol):
         # main line
         pdb_file_name, pisa_config, pisa_xml_file_name = prep_for_pisa('assemblies', imol)
 
-        print "DEBUG:: ========= pisa with args", \
-              [pisa_exe, "-analyse", pdb_file_name, pisa_config]
-        # used to be??" [pisa_project_name, "-analyse", pdb_file_name, pisa_config],
-        status = popen_command(pisa_exe,
-                               ["pisa", "-analyse", pdb_file_name, pisa_config],
-                               [], "pisa.log", False)
+        status_1 = popen_command(pisa_exe,
+                                 ["pisa", "-analyse", pdb_file_name],
+                                 [], "pisa.log", False)
 
-        if (status != 0):
+        if (status_1 != 0):
             info_dialog("Ooops PISA failed to deliver the goods!\n\n(Go for a curry instead?)")
         else:
             # good
             # used to be print "BL DEBUG:: 2nd pisa args", [pisa_project_name, "-xml", pisa_config]
             status_2 = popen_command(pisa_exe,
-                                     ["pisa", "-xml", "assemblies", pisa_config],
+                                     ["pisa", "-xml", "assemblies"],
                                      [], pisa_xml_file_name, False)
             if (status_2 == 0):
                 pisa_assemblies_xml(imol, pisa_xml_file_name)
@@ -130,7 +127,8 @@ def pisa_handle_xml_molecule(imol, molecule, pisa_results_type):
                     atom_selection_string = "// /" + residue_string + "/" + element_string
                 else:
                     atom_selection_string = "//" + chain_string + "/" + residue_string
-                print "BL debug:: atom_selection_string: %s from %s" %(atom_selection_string, chain_id_raw)
+                # print "BL debug:: atom_selection_string: %s from %s" \
+                #      %(atom_selection_string, chain_id_raw)
                 return atom_selection_string
         else:
             #print "found a simple chain_id", chain_id_raw
@@ -571,16 +569,17 @@ def pisa_interfaces(imol):
         if pisa_config:
             if not cached_pisa_analysis(pisa_config):
                 # pisa analysis
-                status = popen_command(pisa_exe,
-                                       ["pisa", "-analyse", pdb_file_name, pisa_config],
-                                       [],
-                                       "pisa-analysis.log", False)
-                # check status?
-            status = popen_command(pisa_exe,
-                                   ["pisa", "-xml", "interfaces", pisa_config], [],
-                                   pisa_xml_file_name, False)
-            if (status == 0):  # good
-                pisa_interfaces_xml(imol, pisa_xml_file_name)
+                status_1 = popen_command(pisa_exe,
+                                         ["pisa", "-analyse", pdb_file_name],
+                                         [],
+                                         "pisa-analysis.log", False)
+                if (status_1 == 0):
+                    status_2 = popen_command(pisa_exe,
+                                             ["pisa", "-xml", "interfaces"],
+                                             [],
+                                             pisa_xml_file_name, False)
+                    if (status_2 == 0):  # good
+                        pisa_interfaces_xml(imol, pisa_xml_file_name)
 
 
 def pisa_interfaces_xml(imol, file_name):

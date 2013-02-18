@@ -148,6 +148,7 @@ generic_int_vector_to_list_internal = generic_int_vector_to_list_internal_py
 inverse_rtop           = inverse_rtop_py
 protein_db_loops       = protein_db_loops_py
 make_link              = make_link_py
+link_info              = link_info_py
 map_to_model_correlation = map_to_model_correlation_py
 map_to_model_correlation_per_residue = map_to_model_correlation_per_residue_py
 key_sym_code           = key_sym_code_py
