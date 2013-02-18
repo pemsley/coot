@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 4437 (some prodrg stuff needs testing) generic objects, check new defs
+scripts      rev 4566 (some prodrg stuff needs testing) generic objects, check new defs
 tests        rev 4437 update
 build-it-win rev 4555
 
@@ -90,6 +90,21 @@ scripting exercise
 ----------------
 
 **** General ****
+
+   o Cys in symmetry looses SG
+
+   o raster3d: water as sphere, include labels, make surfaces, comment in code
+
+   o ligand searching: split in smaller fragments then torsion search and/or
+	use fragment for partial disordered ligand
+
+   o change chain ID: automatically check overlap (plus warning)
+
+   o mutate all Met->Mse
+
+   o refinement with non-bonded terms: select larger area for non-bonded only
+
+   o shift sequence/insert residue (for out-of-register errors)
 
    o turn off backup before phosphorylation
 
@@ -308,6 +323,8 @@ low importance
 
 **** Python ****
 
+   o Refmac use local NCS
+
    o make a quick test (no 3 x ramachandran)
 
    o find close atoms (on top waters)
@@ -386,6 +403,8 @@ low importance
    o new gtk/gtkglext disappears with Dexpot
 
    o include glob.m4 for windows
+try in with-python.m4: AC_CHECK_HEADER([glob.h], [UTIL_LIB="-lglob"], [UTIL_LIB=""])
+but needs the right CPPFLAGS
 
    o pop up dialog if disk space is limited!!
 

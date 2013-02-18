@@ -363,28 +363,35 @@ def residue_spec2chain_id(rs):
     if not isinstance(rs, list):
         return False
     else:
-        if not (len(rs) == 3):
-            return False
-        else:
+        if (len(rs) == 3):
             return rs[0]
+        else:
+            if (len(rs) == 4):
+                return rs[1]
+            else:
+                return False
 
 def residue_spec2res_no(rs):
     if not isinstance(rs, list):
         return False
     else:
-        if not (len(rs) == 3):
-            return False
-        else:
+        if (len(rs) == 3):
             return rs[1]
-
+        else:
+            if (len(rs) == 4):
+                return rs[2]
+        return False
+            
 def residue_spec2ins_code(rs):
     if not isinstance(rs, list):
         return False
     else:
-        if not (len(rs) == 3):
-            return False
-        else:
+        if (len(rs) == 3):
             return rs[2]
+        else:
+            if (len(rs) == 4):
+                return rs[3]
+        return False
 
 def atom_spec2imol(atom_spec):
     import types

@@ -24,7 +24,7 @@ socket.setdefaulttimeout(10)
 #sys.setcheckinterval(10) # doesnt seem to make much of a difference...
 
 import Queue
-max_queue = 10
+max_queue = 14
 coot_queue = Queue.Queue()
 
 import thread
@@ -180,8 +180,8 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
     ok_button.connect("clicked", delete_event)
     window.connect("destroy", delete_event)
     window.show_all()
-    # make a few downloaders, 10 seems to be a good number according to Paule
-    for i in range(10):
+    # make a few downloaders, 14 seems to be a good number according to Paule
+    for i in range(14):
         downloader_thread(i)
     return inside_vbox
 

@@ -2925,6 +2925,7 @@ def key_bindings_gui():
       return False
 
    def box_for_binding(item, inside_vbox, buttonize_flag):
+      
       binding_hbox = gtk.HBox(False, 2)
       txt = str(item[1])
       key_label = gtk.Label("   " + txt + "   ")
