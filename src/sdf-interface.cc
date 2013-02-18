@@ -67,10 +67,53 @@ bool residue_to_sdf_file(int imol, const char *chain_id, int res_no, const char 
 	    success = false;
 	    std::cout << rdkit_error.what() << std::endl;
 	 }
+      } else {
+	 success = false;
+      }
+   } else {
+      success = false;
+   }
+   return success;
+}
+
+bool residue_to_mdl_file_for_mogul(int imol, const char *chain_id,
+				   int res_no, const char *ins_code, 
+				   const char *mdl_file_name) {
+
+   bool success = false;
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol)) {
+      CResidue *residue_p =
+	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
+      if (residue_p) {
+	 try {
+	    bool includeStereo = true;
+	    int confId = 0;
+	    // this can throw an exception
+	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, *g.Geom_p());
+
+	    coot::mogulify_mol(rdkm); // convert difficult functional groups to mogul query
+	                              // format (changes reference).
+	    
+	    // this can throw an exception too.
+	    bool kekulize = false;
+	    RDKit::MolToMolFile(rdkm, mdl_file_name, includeStereo, confId, kekulize);
+	    success = true;
+	 }
+	 catch (const std::runtime_error &coot_error) {
+	    std::cout << coot_error.what() << std::endl;
+	    std::string m = "Residue type ";
+	    m += residue_p->GetResName();
+	    m += " not found in dictionary.";
+	 }
+	 catch (const std::exception &rdkit_error) {
+	    std::cout << rdkit_error.what() << std::endl;
+	 }
       }
    }
    return success;
 }
+
 
 // rdkit chemical features.
 bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code) {

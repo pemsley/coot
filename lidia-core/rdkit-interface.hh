@@ -37,6 +37,8 @@ namespace coot {
 			  const std::string &alt_conf="");
    // tinker with mol
    void rdkit_mol_sanitize(RDKit::RWMol &mol);
+   // tinker with mol
+   void mogulify_mol(RDKit::RWMol &mol);
 
    // tweaking function used by above (change mol maybe).
    // @return the added hydrogen name - or "" if nothing was added.
