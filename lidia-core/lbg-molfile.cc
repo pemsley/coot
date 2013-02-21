@@ -224,29 +224,29 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
       // extras: charges, radicals, isotopes, ring-bond count and wotnot...
       //
       for (int i= extras_start; i<extras_end; i++) {
-	 std::cout << "Check for extras: " << lines[i] << std::endl;
+	 // std::cout << "Check for extras: " << lines[i] << std::endl;
 	 if (lines[i].length() > 8) {
 	    std::string extra_type = lines[i].substr(3,3);
 
 	    // handle CHARGES
 	    // 
 	    if (extra_type == "CHG") {
-	       std::cout << "    parse charge on " << lines[i] << std::endl;
+	       // std::cout << "    parse charge on " << lines[i] << std::endl;
 	       std::string n_charged_atoms_str = lines[i].substr(7,3);
 	       try { 
 		  int nca = lig_build::string_to_int(n_charged_atoms_str);
-		  std::cout << "trying to find " << nca << " charged atoms on line"
-			    << std::endl;
+		  // std::cout << "trying to find " << nca << " charged atoms on line"
+		  // << std::endl;
 
 		  for (unsigned int ic=0; ic<nca; ic++) {
 		     if (lines[i].length() > 10+ic*6+3) { 
 			std::string atom_number_string = lines[i].substr(10+ic*8,3);
 			std::string charge_string      = lines[i].substr(14+ic*8,3);
-			std::cout << "found atom_number_string :"
-				  << atom_number_string << ":"
-				  << " charge_string :"
-				  << charge_string
-				  << ":" << std::endl;
+			// std::cout << "found atom_number_string :"
+			// << atom_number_string << ":"
+			//  << " charge_string :"
+			// << charge_string
+			// << ":" << std::endl;
 			int atom_number = lig_build::string_to_int(atom_number_string);
 			int charge      = lig_build::string_to_int(charge_string);
 			if (atom_number < n_atoms) {

@@ -593,7 +593,6 @@ coot::get_chiral_tag(CResidue *residue_p,
 	 break;
       } 
    }
-
    return chiral_tag;
 } 
 
@@ -692,9 +691,58 @@ coot::add_H_to_ring_N_as_needed(RDKit::RWMol *mol,
 void
 coot::mogulify_mol(RDKit::RWMol &mol) {
 
+   // charge_guanidinos(&mol);
    debug_rdkit_molecule(&mol);
 
-} 
+}
+
+void
+coot::charge_guanidinos(RDKit::RWMol *rdkm) {
+
+   std::cout << "-------------------- trying to delocalize_guanidinos() " << std::endl;
+
+   // find an sp2 hybridized C, of degree 3 connected to 3 Ns.  Deloc
+   // those three bonds.
+   RDKit::ROMol::AtomIterator ai;
+   for(ai=rdkm->beginAtoms(); ai!=rdkm->endAtoms(); ai++) {
+
+      if ((*ai)->getAtomicNum() == 6) {
+	 RDKit::Atom *C_at = *ai;
+	 int idx_c = C_at->getIdx();
+	 unsigned int degree = rdkm->getAtomDegree(C_at);
+	 if (degree == 3) { 
+	    std::vector<RDKit::Bond *> CN_bonds;
+	    RDKit::Bond *C_N_double_bond = NULL;
+	    RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
+	    boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(C_at);
+	    while(nbrIdx != endNbrs) {
+	       const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
+	       if (rdkm->getAtomWithIdx(*nbrIdx)->getAtomicNum() == 7) { 
+		  RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_c, *nbrIdx);
+		  if (bond) {
+		     CN_bonds.push_back(bond);
+		     if (!C_N_double_bond) {
+			if (bond->getBondType() == RDKit::Bond::DOUBLE)
+			   C_N_double_bond = bond;
+		     } else {
+			C_N_double_bond = NULL; // !! something strange
+		     } 
+		  }
+	       }
+	       ++nbrIdx;
+	    }
+	    std::cout << "found " << CN_bonds.size() << " N bonds to this C " << std::endl;
+	    if (CN_bonds.size() == 3) {
+	       if (C_N_double_bond) { 
+		  int idx_n = C_N_double_bond->getOtherAtomIdx(idx_c);
+		  // (*rdkm)[idx_n]->setFormalCharge(+1);
+	       }
+	    }
+	 }
+      }
+   }
+}
+
 
 
 
@@ -1301,6 +1349,7 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 void
 coot::undelocalise(RDKit::RWMol *rdkm) {
 
+   charge_undelocalized_guanidinos(rdkm);
    undelocalise_aminos(rdkm);
    undelocalise_methyl_carboxylates(rdkm);
    undelocalise_carboxylates(rdkm); // after above
@@ -1321,7 +1370,8 @@ coot::undelocalise_aminos(RDKit::RWMol *rdkm) {
    // 3)   if yes, then is the other atom a carbon
    // 4)      if yes, then find another bond to this carbon that
    //            is deloc (bond_2)
-   // 5)         if found, then make bond_1 single, bond_2 double
+   // 5)         if the other atom of this other bond an oxygen?
+   // 6)            if yes, then make bond_1 single, bond_2 double
 
    bool debug = false;
 
@@ -1348,40 +1398,27 @@ coot::undelocalise_aminos(RDKit::RWMol *rdkm) {
 
 	 if (do_it) {
 
-	    // atom_1 is a Nitrogen, atom_2 is a Carbon.  Does the
-	    // carbon have a bond (not this one) that is delocalised?
-	    // 
-	    for(bondIt_inner=rdkm->beginBonds(); bondIt_inner!=rdkm->endBonds(); ++bondIt_inner) {
-	       RDKit::Atom *atom_1_in = (*bondIt_inner)->getBeginAtom();
-	       RDKit::Atom *atom_2_in = (*bondIt_inner)->getEndAtom();
-	       if (atom_1_in == atom_2) {
-		  if (atom_2_in != atom_1) {
-		     if ((*bondIt_inner)->getBondType() == RDKit::Bond::ONEANDAHALF) {
-
-			// this can throw exception:
-			// getExplicitValence() called without call to calcExplicitValence()
-			// int e_valence_pre = atom_1->getExplicitValence();
-			
-			// swap them then
+	       // atom_1 is a Nitrogen, atom_2 is a Carbon.  Does the
+	    // carbon have a bond (not this one) to an oxygen that is
+	    // delocalised?
+	    //
+	    RDKit::Atom *N_at = atom_1;
+	    RDKit::Atom *C_at = atom_2;
+	    
+	    RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
+	    boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(C_at);
+	    while(nbrIdx != endNbrs) {
+	       const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
+	       if (at->getAtomicNum() == 8) { 
+		  RDKit::Bond *bond_inner = rdkm->getBondBetweenAtoms(C_at->getIdx(), *nbrIdx);
+		  if (bond_inner) {
+		     if (bond_inner->getBondType() == RDKit::Bond::ONEANDAHALF) {
 			(*bondIt)->setBondType(RDKit::Bond::SINGLE);
-			(*bondIt_inner)->setBondType(RDKit::Bond::DOUBLE);
-			if (debug)
-			   std::cout << "^^^^^^^^^^^^^^^^^ fixed up a bond! 1" << std::endl;
+			bond_inner->setBondType(RDKit::Bond::DOUBLE);
 		     }
 		  }
 	       }
-	       if (atom_2_in == atom_2) {
-		  if (atom_1_in != atom_1) {
-		     if ((*bondIt_inner)->getBondType() == RDKit::Bond::ONEANDAHALF) {
-			// swap them then
-			(*bondIt)->setBondType(RDKit::Bond::SINGLE);
-			(*bondIt_inner)->setBondType(RDKit::Bond::DOUBLE);
-			if (debug)
-			   std::cout << "^^^^^^^^^^^^^^^^^ fixed up a alternative path bond!"
-				     << std::endl;
-		     }
-		  }
-	       }
+	       ++nbrIdx;
 	    }
 	 }
       }
@@ -1720,7 +1757,7 @@ coot::charge_metals(RDKit::RWMol *rdkm) {
 	 (*ai)->setFormalCharge(+1);
       }
       if ((*ai)->getAtomicNum() == 12) { // Mg
-	 std::cout << "............................... charging Mg" << std::endl;
+	 // std::cout << "............................... charging Mg" << std::endl;
 	 (*ai)->setFormalCharge(+2);
       }
       if ((*ai)->getAtomicNum() == 20) { // Ca
@@ -1728,6 +1765,45 @@ coot::charge_metals(RDKit::RWMol *rdkm) {
       }
    }
 }
+
+void
+coot::charge_undelocalized_guanidinos(RDKit::RWMol *rdkm) {
+
+   RDKit::ROMol::AtomIterator ai;
+   for(ai=rdkm->beginAtoms(); ai!=rdkm->endAtoms(); ai++) {
+
+      // Find a C with 3 deloc bonds to N.  If found, charge the C.
+      if ((*ai)->getAtomicNum() == 6) {
+	 RDKit::Atom *C_at = *ai;
+	 int idx_c = C_at->getIdx();
+	 unsigned int degree = rdkm->getAtomDegree(C_at);
+	 int deloc_bond_count = 0;
+	 if (degree == 3) { 
+	    RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
+	    boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(C_at);
+	    while(nbrIdx != endNbrs) {
+	       const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
+	       if (rdkm->getAtomWithIdx(*nbrIdx)->getAtomicNum() == 7) { 
+		  RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_c, *nbrIdx);
+		  // std::cout << ".... found a C-N bond " << bond->getBondType() << std::endl;
+		  if (bond->getBondType() == RDKit::Bond::ONEANDAHALF) {
+		     // std::cout << "... it was ONEANDAHALF" << std::endl;
+		     deloc_bond_count++;
+		  }
+	       }
+	       ++nbrIdx;
+	    }
+	 }
+
+	 // std::cout << "...... deloc C-N bond count:" << deloc_bond_count << std::endl;
+	 if (deloc_bond_count == 3) {
+	    // std::cout << ".... charging the C" << std::endl;
+	    C_at->setFormalCharge(+1);
+	 } 
+      }
+   }
+}
+
 
 void
 coot::debug_rdkit_molecule(RDKit::ROMol *rdkm) {

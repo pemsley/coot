@@ -39,6 +39,7 @@ namespace coot {
    void rdkit_mol_sanitize(RDKit::RWMol &mol);
    // tinker with mol
    void mogulify_mol(RDKit::RWMol &mol);
+   void charge_guanidinos(RDKit::RWMol *rdkm);
 
    // tweaking function used by above (change mol maybe).
    // @return the added hydrogen name - or "" if nothing was added.
@@ -94,6 +95,7 @@ namespace coot {
    void undelocalise_methyl_carboxylates(RDKit::RWMol *rdkm);
    void charge_metals(RDKit::RWMol *rdkm);
    void charge_sp3_borons(RDKit::RWMol *rdkm);
+   void charge_undelocalized_guanidinos(RDKit::RWMol *rdkm); // A + on the  C.
    
    // which calls (not for public use)
    // fiddle with the bonds in rdkm as needed.
