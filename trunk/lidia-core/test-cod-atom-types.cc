@@ -69,6 +69,18 @@ void molecule_from_SMILES(const std::string &smiles_string) {
    s = "[H]/N=C(\\N)/NCCC[C@@H](C(=O)N[C@@H](CCc1ccccc1)/C=C/S(=O)(=O)c2ccccc2)NC(=O)N3CC[NH+](CC3)C";
    
    RDKit::RWMol *rdkmp = RDKit::SmilesToMol(s);
+   coot::mogulify_mol(*rdkmp);
+
+   { 
+      bool includeStereo = true;
+      bool kekulize = false;
+      std::string sdf_file_name = "smiles-string.mdl";
+      int confId = -1;
+      RDDepict::compute2DCoords(*rdkmp, NULL, true);
+      std::cout << "confId: " << confId << std::endl;
+      RDKit::MolToMolFile(*rdkmp, sdf_file_name, includeStereo, confId, kekulize);
+   }
+   
    coot::debug_rdkit_molecule(rdkmp);
    RDKit::RWMol rdkm(*rdkmp);
 	       
