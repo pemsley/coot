@@ -801,7 +801,6 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 	 mol.add_bond(mol_bond);
       }
    }
-   
    return mol;
 }
 

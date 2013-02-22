@@ -6980,5 +6980,12 @@ ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode
 ERROR:: Null atom_colour_map_p with COLOUR_BY_CHAIN_C_ONLY mode
 INFO:: graphics_info_t::clear_up_moving_atoms...
 
+
+----
+Thu Feb 21 12:34:18 GMT 2013
+
+OXT on multi-residue torsion:  OXT is left behind on rotation
+
+
 ------
 

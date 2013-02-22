@@ -159,6 +159,7 @@ void smiles_to_ligand_builder(const char *smiles_string) {
 	 // remove bogus chirality specs:
 	 RDKit::MolOps::cleanupChirality(*rdk_mol);
 	 int iconf = RDDepict::compute2DCoords(*rdk_mol, 0, true);
+	 
 	 lig_build::molfile_molecule_t m = coot::make_molfile_molecule(*rdk_mol, iconf);
    
 	 std::cout << " molfile contains " << m.atoms.size() << " atoms " << std::endl;
@@ -189,12 +190,15 @@ void smiles_to_ligand_builder(const char *smiles_string) {
 	     get_drug_mdl_via_wikipedia_and_drugbank);
       }
    }
-   catch (std::exception e) {
+   catch (const std::exception &e) {
       std::cout << "WARNING:: in generating molecule from SMILES: "
 		<< e.what() << std::endl;
+      std::string s = "When generating molecule from SMILES: ";
+      s += e.what();
+      add_status_bar_text(s.c_str());
    } 
    catch (...) {
-      std::cout << "WARNING:: some other exception in  SMILES generation..."
+      std::cout << "WARNING:: some other exception in SMILES generation..."
 		<< std::endl;
    } 
 } 

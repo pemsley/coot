@@ -3,14 +3,8 @@
 
 ----
 
-  o  This happens (reproducibly) if I use
-     smiles_to_ligand_builder
-     with c1ccccc1 as a start and then add a 5 ring.
-
    o after delete residue, update environment distances - so that a
      double-added ligand gets cleaned up without recentering.
-
-   o mogul brown bonds. 
 
    o 2izb: water bonds
 
@@ -65,3 +59,13 @@ Done.
      Punt?  ::: 1
 
 * Done.  Close enough - residues go beyond magic number (canvas max size).
+
+   o mogul brown bonds. 
+
+* Done
+
+  o  This happens (reproducibly) if I use
+     smiles_to_ligand_builder
+     with c1ccccc1 as a start and then add a 5 ring. ::: 2
+
+* Done

@@ -129,6 +129,7 @@ public:
 	 highlight_widget = w_in;
 	 atom_index = UNASSIGNED_INDEX; // no value
 	 bond_indices = bond_indices_in;
+	 has_ring_centre_flag = false;
       }
       highlight_data_t(GooCanvasItem *w_in,
 		       const lig_build::pos_t &p, int index_in) {
@@ -137,6 +138,7 @@ public:
 	 highlight_widget = w_in;
 	 atom_index = index_in;
 	 bond_indices = std::pair<int, int> (UNASSIGNED_INDEX, UNASSIGNED_INDEX);
+	 has_ring_centre_flag = false;
       }
 
       highlight_data_t() {
@@ -144,6 +146,7 @@ public:
 	 n_atoms_ = 0;
 	 atom_index = UNASSIGNED_INDEX; // unset
 	 bond_indices = std::pair<int, int> (UNASSIGNED_INDEX, UNASSIGNED_INDEX);
+	 has_ring_centre_flag = false;
       }
       bool has_contents() const {
 	 if (highlight_widget)
@@ -170,6 +173,8 @@ public:
 	    std::cout << "in clear() NULL highlight_widget" << std::endl;
 	 }
       }
+
+      bool has_ring_centre() const { return has_ring_centre_flag; }
       
       // The old way was to use clear() where we lose the button up if
       // the button up happens on the highlight item. So instead, we
@@ -187,6 +192,13 @@ public:
 	    std::cout << "in undisplay() NULL highlight_widget" << std::endl;
 	 }
       }
+
+      void set_ring_centre(const lig_build::pos_t &pos) {
+	 has_ring_centre_flag = true;
+	 ring_centre = pos;
+      } 
+
+      
       lig_build::polygon_position_info_t
       get_new_polygon_centre(int n_edges,
 			     bool spiro_flag,
