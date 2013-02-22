@@ -2850,8 +2850,6 @@ void
 molecule_class_info_t::update_additional_representations(const gl_context_info_t &gl_info,
 							 const coot::protein_geometry *geom) {
 
-   std::cout << ".... update_additional_representations() " << add_reps.size() << std::endl;
-
    for (unsigned int i=0; i<add_reps.size(); i++) {
       // make_ball_and_stick is not available from inside an add_rep,
       // so we do it outside.

@@ -80,6 +80,9 @@ int mmcif_sfs_to_mtz(const char *cif_file_name, const char *mtz_out_file_name) {
 	    clipper::CCP4MTZfile mtz;
 	    mtz.open_write(mtz_out_file_name);
 	    mtz.export_hkl_info(hkl_info);
+
+	    std::cout << ":::::::::::::::::::::::::: debug:: i_sigi and free_r_flags num obs "
+		      << i_sigi.num_obs() << " " << free_r_flags.num_obs() << std::endl;
 	    if (i_sigi.num_obs())
 	       mtz.export_hkl_data(i_sigi,       "/*/*/I" );
 	    if (i_sigi_anom.num_obs())

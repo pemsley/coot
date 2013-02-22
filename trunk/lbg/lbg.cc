@@ -869,8 +869,10 @@ lbg_info_t::highlight_bond(const lig_build::bond_t &bond, bool delete_mode) {
 
    g_signal_connect (h_line, "key_press_event",
 		     G_CALLBACK (on_highlight_key_press_event), NULL);
-   
+
    highlight_data = highlight_data_t(h_line, bond_indices, A, B);
+   if (bond.have_centre_pos())
+      highlight_data.set_ring_centre(bond.centre_pos());
 }
 
 // set highlight_data
@@ -2207,28 +2209,32 @@ lbg_info_t::highlight_data_t::get_new_polygon_centre_using_2_atoms(int n_edges,
    lig_build::pos_t ab_unit = (b - a).unit_vector();
    lig_build::pos_t mp_unit = ab_unit.rotate(90);
    lig_build::pos_t c_1 = m + mp_unit * cor_radius;
-   lig_build::pos_t c_2 = m + mp_unit * cor_radius;
+   lig_build::pos_t c_2 = m - mp_unit * cor_radius;
 
    lig_build::pos_t c = c_1;
+   bool swapped_centre_direction = false;
+   
    if (has_ring_centre_flag) {
       double l1 = lig_build::pos_t::length(c_1, ring_centre);
       double l2 = lig_build::pos_t::length(c_2, ring_centre);
-      if (l1 < l2)
+      if (l1 < l2) { 
 	 c = c_2;
-   }
+	 swapped_centre_direction = true;
+      } 
+   } 
 
    //  0    for a triangle : 120
    //  45   for a square   : 90
    //  0    for pentagon   : 72
    // 30    for hexagon    : 60
    // 51.43 for pentagon   : 51.43
-   // 22.5 for octagon : 45
+   // 22.5  for octagon    : 45
 
    // orientation correction
    // 
    // double oc = 0;
 
-   lig_build::pos_t ab = b - a;
+   lig_build::pos_t ab = b - a; 
 
    // canvas is upside down:
    lig_build::pos_t ab_cor(ab.x, -ab.y);
@@ -2241,6 +2247,8 @@ lbg_info_t::highlight_data_t::get_new_polygon_centre_using_2_atoms(int n_edges,
    double internal_angle_offset = -angle_step/2.0;
 
    double angle_off = ao + internal_angle_offset;
+   if (swapped_centre_direction)
+      angle_off -= 180;
    
    lig_build::polygon_position_info_t ppi(c, angle_off);
    return ppi;
