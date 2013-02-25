@@ -3,18 +3,18 @@
 
 ----
 
-   o after delete residue, update environment distances - so that a
-     double-added ligand gets cleaned up without recentering.
-
-   o 2izb: water bonds
-
    o ligand M2F in 2wbk: the nitro groups: O=N-O the O should have a
    formal charge not and H, I think (is there an H in the dictionary? 
    - no)
 
-     In the sdf file for mogul, there are double bonds to both oxygens.
+     In the sdf file for mogul, there should be double bonds to both oxygens.
 
-   o Files-> SMILES when libcheck is not installed
+   o Files -> SMILES when libcheck is not installed
+
+   o stamped polygon bonds different size when reading in smiles or mdl
+     mol.
+
+   o bond orders in CA+ligands mode?
 
 -----
 
@@ -69,3 +69,13 @@ Done.
      with c1ccccc1 as a start and then add a 5 ring. ::: 2
 
 * Done
+
+   o after delete residue, update environment distances - so that a
+     double-added ligand gets cleaned up without recentering. ::: 0.2
+
+* Done.
+
+
+   o 2izb: water bonds ::: 1
+
+* Done 

@@ -883,6 +883,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       const char *chain_id = res->GetChainID();
 	       delete_residue_sidechain(naii.imol, chain_id, resno, ins_code,
 					destroy_delete_dialog_flag_by_ctrl_press);
+	       g.update_environment_distances_maybe(naii.atom_index, naii.imol);
 	       run_post_manipulation_hook(naii.imol, DELETED);
 	    }
 	 }
@@ -898,6 +899,7 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       normal_cursor();
 	       delete_residue_by_atom_index(naii.imol, naii.atom_index,
 					    destroy_delete_dialog_flag_by_ctrl_press);
+	       g.update_environment_distances_maybe(naii.atom_index, naii.imol);
 	       run_post_manipulation_hook(naii.imol, DELETED);
 	       pick_pending_flag = 0;
 	    }
