@@ -278,6 +278,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
    if (ncontacts > 0) {
 
       std::vector<std::pair<bool, CResidue *> > het_residues; // bond these separately.
+      std::vector<std::pair<bool, CResidue *> > hoh_residues; // that have O and Hs.
       
       for (int i=0; i< ncontacts; i++) {
 
@@ -311,7 +312,13 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 		  bool bond_het_residue_by_dictionary =
 		     add_bond_by_dictionary_maybe(atom_p_1, atom_p_2, &het_residues); // add to het_residues maybe
 
-		  if (! bond_het_residue_by_dictionary) {
+		  if (bond_het_residue_by_dictionary) {
+		     
+		     std::string res_name = atom_p_1->GetResName();
+		     if (res_name == "HOH")
+			add_bond_by_dictionary_maybe(atom_p_1, atom_p_2, &hoh_residues);
+		     
+		  } else { 
 
 		     // this +/- 1 residue test
 		     if (labs(res_1 - res_2) < 2 ||
@@ -416,8 +423,13 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
       // OK, now we can handle the het_residues: But we don't want to
       // do this every time that this function is called (X-X, X-H).
       // So do it only on X-X.
+      //
+      // het_residues is filled for by X-X for everything except HOHs.
+      // 
       if (! are_different_atom_selections) 
 	 add_bonds_het_residues(het_residues, atom_colour_type, have_udd_atoms, udd_handle);
+      if (hoh_residues.size())
+	 add_bonds_het_residues(hoh_residues, atom_colour_type, have_udd_atoms, udd_handle);
       
    }
 }
@@ -472,7 +484,6 @@ Bond_lines_container::add_bond_by_dictionary_maybe(CAtom *atom_p_1,
 			het_residues->push_back(tp0);
 		     } 
 		  } else {
-
 		     // this HET group is already in the list and was maked as found in the dictionary.
 		     bond_het_residue_by_dictionary = true;
 		  }
