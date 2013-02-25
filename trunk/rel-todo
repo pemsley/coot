@@ -6,8 +6,6 @@
    o stamped polygon bonds different size when reading in smiles or mdl
      mol.
 
-   o bond orders in CA+ligands mode?
-
 -----
 
    o ligand from 3b6a has lost an OH in the thumbnail.
@@ -84,3 +82,12 @@ Done.
      In the sdf file for mogul, there should be double bonds to both oxygens.
 
 Done.
+
+   o bond orders in CA+ligands mode?
+
+Done.
+
+   o Shift R, then Shift R again before accept -> multiple dialogs
+
+Done.  Tricky code means that I could have introduced a bug here.
+
