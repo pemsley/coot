@@ -40,6 +40,8 @@ namespace coot {
    // tinker with mol
    void mogulify_mol(RDKit::RWMol &mol);
    void charge_guanidinos(RDKit::RWMol *rdkm);
+   void mogulify_nitro_groups(RDKit::RWMol *rdkm);
+
 
    // tweaking function used by above (change mol maybe).
    // @return the added hydrogen name - or "" if nothing was added.
@@ -91,6 +93,7 @@ namespace coot {
    void undelocalise_phosphates(RDKit::ROMol *rdkm);
    void undelocalise_sulphates(RDKit::ROMol *rdkm);
    void undelocalise_aminos(RDKit::RWMol *rdkm);
+   void undelocalise_nitros(RDKit::RWMol *rdkm);
    void undelocalise_carboxylates(RDKit::RWMol *rdkm);
    void undelocalise_methyl_carboxylates(RDKit::RWMol *rdkm);
    void charge_metals(RDKit::RWMol *rdkm);

@@ -3153,24 +3153,27 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 	 try_as_mdl_mol = true;
       } 
    }
-   catch (RDKit::FileParseException rte) {
+   catch (const RDKit::FileParseException &rte) {
       try { 
 	 RDKit::RWMol *m = RDKit::MolFileToMol(file_name);
 	 rdkit_mol_post_read_handling(m, file_name);
       }
-      catch (RDKit::FileParseException rte) {
+      catch (const RDKit::FileParseException &rte) {
 	 try_as_mdl_mol = true;
       }
+      catch (const RDKit::MolSanitizeException &rte) {
+	 try_as_mdl_mol = true; // e.g. charges wrong.
+      }
    }
-   catch (RDKit::BadFileException &e) {
+   catch (const RDKit::BadFileException &e) {
       std::cout << "WARNING:: Bad file " << file_name << " " << e.message() << std::endl;
       try_as_mdl_mol = true;
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "WARNING runtime_error in mol_to_asc_rdkit() " << rte.what() << std::endl;
       try_as_mdl_mol = true;
    } 
-   catch (std::exception e) {
+   catch (const std::exception &e) {
       std::cout << "WARNING:: import_mol_from_file: exception: " << e.what() << std::endl;
       try_as_mdl_mol = true;
    }
@@ -3643,7 +3646,7 @@ lbg_info_t::initial_residues_circles_layout() {
 
       position_non_primaries(grid, primary_indices); // untrap residues as needed.
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << rte.what() << std::endl;
    }
 }
@@ -3814,7 +3817,7 @@ lbg_info_t::ligand_grid::find_nearest_zero(const lig_build::pos_t &pos,
 	 }
       }
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       // the pos was off the grid.  It won't be trapped inside the
       // ligand, so just return what we were given.
       p = pos;
@@ -4102,7 +4105,7 @@ lbg_info_t::residue_circle_t::get_attachment_points(const widgeted_molecule_t &m
 	       v.push_back(p);
 	    }
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << "WARNING:: " << rte.what() << std::endl;
 	 }
       }
@@ -4117,7 +4120,7 @@ lbg_info_t::residue_circle_t::get_attachment_points(const widgeted_molecule_t &m
 	 std::pair<lig_build::pos_t, double> p(pos, stacking_dist);
 	 v.push_back(p);
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
       }
    }
@@ -4138,7 +4141,7 @@ lbg_info_t::residue_circle_t::get_attachment_points(const widgeted_molecule_t &m
 	 std::pair<lig_build::pos_t, double> p(pos, stacking_dist);
 	 v.push_back(p);
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
       }
    }
@@ -4255,7 +4258,7 @@ lbg_info_t::ligand_grid::avoid_ring_centres(std::vector<std::vector<std::string>
 	 // << " n_atoms: " << n_atoms << " radius " << radius << std::endl;
 	 add_for_accessibility(radius, centre);
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "Opps - failed to find ring centre for ring atom name "
 		   << iring << std::endl;
       }
@@ -4288,7 +4291,7 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level,
       try {
 	 lig_build::pos_t p;
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
       } 
    }
@@ -4539,7 +4542,7 @@ lbg_info_t::show_ring_centres(std::vector<std::vector<std::string> > ring_atoms_
 				NULL);
 
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "Opps - failed to find ring centre for ring atom name "
 		   << iring << std::endl;
       }
@@ -4859,14 +4862,14 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 			   double dist_to_protein = lig_build::string_to_float(words[7]);
 			   rc.set_water_dist_to_protein(dist_to_protein);
 			}
-			catch (std::runtime_error rte) {
+			catch (const std::runtime_error &rte) {
 			}
 		     } 
 		  } 
 		  rc.set_canvas_pos(pos);
 		  v.push_back(residue_circle_t(rc)); // why is there a constructor here?
 	       }
-	       catch (std::runtime_error rte) {
+	       catch (const std::runtime_error &rte) {
 		  std::cout << "failed to parse :" << lines[i] << ":" << std::endl;
 	       }
 	    }
@@ -4884,7 +4887,7 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 		  if (v.size())
 		     v.back().add_bond_to_ligand(btl);
 	       }
-	       catch (std::runtime_error rte) {
+	       catch (const std::runtime_error &rte) {
 		  std::cout << "failed to parse :" << lines[i] << ":" << std::endl;
 	       }
 	    }
@@ -4899,7 +4902,7 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 		     v.back().set_solvent_exposure_diff(se_holo, se_apo);
 		  }
 	       }
-	       catch (std::runtime_error rte) {
+	       catch (const std::runtime_error &rte) {
 		  std::cout << "failed to parse :" << lines[i] << ":" << std::endl;
 	       }
 	    }
@@ -4981,7 +4984,7 @@ lbg_info_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_
 	    draw_residue_circle_top_layer(l_residue_circles[i], ligand_centre, add_rep_handle);
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: draw_residue_circles: " << rte.what() << std::endl;
       }
    }
@@ -5304,7 +5307,7 @@ lbg_info_t::read_solvent_accessibilities(const std::string &file_name) const {
 		  solvent_accessible_atom_t saa(atom_name, pt, sa);
 		  solvent_accessible_atoms.push_back(saa);
 	       }
-	       catch (std::runtime_error rte) {
+	       catch (const std::runtime_error &rte) {
 		  std::cout << "failed to parse :" << lines[i] << ":" << std::endl;
 	       }
 	    }
@@ -5323,7 +5326,7 @@ lbg_info_t::read_solvent_accessibilities(const std::string &file_name) const {
 		     }
 		  }
 	       }
-	       catch (std::runtime_error rte) {
+	       catch (const std::runtime_error &rte) {
 		  std::cout << "failed to parse :" << lines[i] << ":" << std::endl;
 	       }
 	    } 
@@ -5514,7 +5517,7 @@ lbg_info_t::draw_substitution_contour() {
 	       }
 
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       std::cout << rte.what() << std::endl;
 	    }
 	 }
@@ -5589,7 +5592,7 @@ lbg_info_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) 
 	       lig_build::pos_t lc = mol.get_ring_centre(ligand_ring_atom_names);
 	       draw_annotated_stacking_line(lc, rc[ires].pos, st);
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       std::cout << rte.what() << std::endl;
 	    }
 	 }
@@ -5824,7 +5827,7 @@ lbg_info_t::draw_bonds_to_ligand() {
 								  "stroke-color", stroke_colour.c_str(),
 								  NULL);
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       std::cout << "WARNING:: " << rte.what() << std::endl;
 	    }
 	 }
@@ -6419,7 +6422,7 @@ lbg_info_t::update_statusbar_smiles_string() const {
       update_statusbar_smiles_string(s);
 
    }
-   catch (std::exception rte) {
+   catch (const std::exception &rte) {
       std::cout << rte.what() << std::endl;
    }
 }
@@ -6474,7 +6477,7 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 	 import_mol_from_file(file_name);
 	 save_molecule();
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
       } 
    } else {

@@ -9,8 +9,6 @@
 
      In the sdf file for mogul, there should be double bonds to both oxygens.
 
-   o Files -> SMILES when libcheck is not installed
-
    o stamped polygon bonds different size when reading in smiles or mdl
      mol.
 
@@ -79,3 +77,7 @@ Done.
    o 2izb: water bonds ::: 1
 
 * Done 
+
+   o Files -> SMILES when libcheck is not installed
+
+* Already Done.
