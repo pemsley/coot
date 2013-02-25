@@ -3,12 +3,6 @@
 
 ----
 
-   o ligand M2F in 2wbk: the nitro groups: O=N-O the O should have a
-   formal charge not and H, I think (is there an H in the dictionary? 
-   - no)
-
-     In the sdf file for mogul, there should be double bonds to both oxygens.
-
    o stamped polygon bonds different size when reading in smiles or mdl
      mol.
 
@@ -81,3 +75,12 @@ Done.
    o Files -> SMILES when libcheck is not installed
 
 * Already Done.
+
+
+   o ligand M2F in 2wbk: the nitro groups: O=N-O the O should have a
+   formal charge not and H, I think (is there an H in the dictionary? 
+   - no)
+
+     In the sdf file for mogul, there should be double bonds to both oxygens.
+
+Done.
