@@ -363,7 +363,10 @@ wrapped_create_accept_reject_refinement_dialog() {
   if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
     w = lookup_widget(GTK_WIDGET(graphics_info_t::glarea), "accept_reject_dialog_frame_docked");
   } else {
-    w = create_accept_reject_refinement_dialog();
+     if (graphics_info_t::accept_reject_dialog)
+	w = graphics_info_t::accept_reject_dialog;
+     else 
+	w = create_accept_reject_refinement_dialog();
   }
   graphics_info_t::accept_reject_dialog = w;
   return w;

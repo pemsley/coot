@@ -2397,6 +2397,7 @@ on_accept_reject_refinement_accept_button_clicked (GtkButton       *button,
 				    "accept_reject_refinement_dialog");
   accept_regularizement();
   save_accept_reject_dialog_window_position(window);
+  set_accept_reject_dialog(NULL);
   gtk_widget_destroy(window);
 }
 
@@ -2423,7 +2424,7 @@ on_accept_reject_refinement_dialog_destroy
      gone now).  And I suppose that we should clean up (and undisplay)
      the intermediate atoms too.
  */
-  set_accept_reject_dialog(0);
+  set_accept_reject_dialog(NULL);
   clear_up_moving_atoms();
 }
 
@@ -2439,7 +2440,7 @@ on_accept_reject_refinement_docked_accept_button_clicked (GtkButton       *butto
   accept_regularizement();
   if (accept_reject_dialog_docked_show_state() == 1) {
     gtk_widget_set_sensitive(window, FALSE);
-    set_accept_reject_dialog(0);
+    set_accept_reject_dialog(NULL);
     clear_up_moving_atoms();
     GtkWidget *p = main_window();
     gtk_widget_grab_focus(p);  
@@ -2459,7 +2460,7 @@ on_accept_reject_refinement_docked_reject_button_clicked (GtkButton       *butto
   /* done below in hide callback */
   if (accept_reject_dialog_docked_show_state() == 1) {
     gtk_widget_set_sensitive(window, FALSE);
-    set_accept_reject_dialog(0);
+    set_accept_reject_dialog(NULL);
     clear_up_moving_atoms();
     GtkWidget *p = main_window();
     gtk_widget_grab_focus(p);  
@@ -2473,7 +2474,7 @@ on_accept_reject_dialog_frame_docked_hide
                                         (GtkWidget       *widget,
                                         gpointer         user_data)
 {
-  set_accept_reject_dialog(0);
+  set_accept_reject_dialog(NULL);
   clear_up_moving_atoms();
   GtkWidget *p = main_window();
   gtk_widget_grab_focus(p);
