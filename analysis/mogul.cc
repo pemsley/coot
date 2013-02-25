@@ -38,8 +38,9 @@ coot::mogul::parse(const std::string &file_name) {
 		  mogul_item item = parse_item_line(bits, 2);
 		  items.push_back(item);
 	       }
-	       catch (std::runtime_error rte) {
-		  std::cout << "WARNING:: " << rte.what() << std::endl;
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "WARNING:: problem reading bond info: " << lines[iline] << " "
+			    << rte.what() << std::endl;
 	       } 
 	    }
 	    if (bits[0] == "ANGLE") {
@@ -47,8 +48,9 @@ coot::mogul::parse(const std::string &file_name) {
 		  mogul_item item = parse_item_line(bits, 3);
 		  items.push_back(item);
 	       }
-	       catch (std::runtime_error rte) {
-		  std::cout << "WARNING:: " << rte.what() << std::endl;
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "WARNING:: problem reading angle info: " << lines[iline] << " "
+			    << rte.what() << std::endl;
 	       } 
 	    }
 	    if (bits[0] == "TORSION") {
@@ -57,8 +59,9 @@ coot::mogul::parse(const std::string &file_name) {
 		  // std::cout << "ACCEPTED:::::::::::::::::::: " << lines[iline] << std::endl;
 		  items.push_back(item);
 	       }
-	       catch (std::runtime_error rte) {
-		  std::cout << "WARNING:: " << rte.what() << std::endl;
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "WARNING:: problem reading torsion info: " << lines[iline] << " "
+			    << rte.what() << std::endl;
 		  // std::cout << "REJECTED:::::::::::::::::::: " << lines[iline] << std::endl;
 	       } 
 	    }
@@ -93,8 +96,10 @@ coot::mogul::parse_item_line(const std::vector<std::string> &bits, int n_idx) co
       // std::cout << "got " << indices.size() << " indices and n_idx is  " << n_idx << std::endl;
       
       if (indices.size() > 1) {
+	 // std::cout << "model  value from :" << bits[2] << ":" << std::endl;
+	 // std::cout << "counts value from :" << bits[3] << ":" << std::endl;
 	 float model_value = coot::util::string_to_float(bits[2]);
-	 int counts    = coot::util::string_to_int(  bits[3]);
+	 int counts    = coot::util::string_to_int(bits[3]);
 
 	 // std::cout << "   model_value: " << model_value << std::endl;
 	 // std::cout << "   counts: " << counts << std::endl;

@@ -1008,9 +1008,34 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
 	    int mass_diff = 0;
 	    of.width(3);
 	    of << mass_diff;
-	    int charge = 0;
+
+	    int file_charge = 0;
+	    // int charge = 0;
+	    // from ctfile.pdf:
+	    // 1 means charge +3
+	    // 2 means charge +2
+	    // 3 means charge +1
+	    // 4 = doublet radical
+	    // 5 is charge -1
+	    // 6 is charge -2
+	    // 7 is charge -3
+	    if (atoms[iat].charge == 3)
+	       file_charge = 1;
+	    if (atoms[iat].charge == 2)
+	       file_charge = 1;
+	    if (atoms[iat].charge == 1)
+	       file_charge = 3;
+	    if (atoms[iat].charge == -1)
+	       file_charge = 5;
+	    if (atoms[iat].charge == -1)
+	       file_charge = 5;
+	    if (atoms[iat].charge == -2)
+	       file_charge = 6;
+	    if (atoms[iat].charge == -7)
+	       file_charge = 7;
 	    of.width(3);
-	    of << charge;
+	    of << file_charge;
+	    
 	    int stereo_parity = 0;
 	    of.width(3);
 	    of << stereo_parity;
