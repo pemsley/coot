@@ -2677,7 +2677,7 @@ molecule_class_info_t::makebonds() {
 void
 molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist) {
 
-   Bond_lines_container bonds;
+   Bond_lines_container bonds(graphics_info_t::Geom_p());
    bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS;
@@ -2693,7 +2693,7 @@ molecule_class_info_t::make_ca_bonds() {
 void
 molecule_class_info_t::make_ca_plus_ligands_bonds() { 
 
-   Bond_lines_container bonds;
+   Bond_lines_container bonds(graphics_info_t::Geom_p());
    bonds.do_Ca_plus_ligands_bonds(atom_sel, 2.4, 4.7);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;

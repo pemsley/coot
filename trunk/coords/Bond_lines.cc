@@ -3024,7 +3024,7 @@ Bond_lines_container::do_Ca_bonds(atom_selection_container_t SelAtom,
    }
    coot::my_atom_colour_map_t atom_colour_map_in;
    coot::my_atom_colour_map_t atom_colour_map = 
-      do_Ca_or_P_bonds_internal(SelAtom, " CA ", atom_colour_map_in,
+      do_Ca_or_P_bonds_internal(SelAtom, " CA ", atom_colour_map_in,  // PDBv3 FIXME
 				min_dist, max_dist, coot::COLOUR_BY_CHAIN);
    do_Ca_or_P_bonds_internal(SelAtom, " P  ",  atom_colour_map,
 			     0.1,      7.5, coot::COLOUR_BY_CHAIN);
@@ -3594,8 +3594,13 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
       // again looking for residues that don't have this handle set.
       // We should do normal bonds for those residues (if they aren't
       // water, of course).
+      //
+      // Try to bond by dictionary, if not, fall back to previous
+      // (add_ligand_bonds()) method. We use a cache of residue names
+      // to know if this resiudue type has a dictionary or not.
 
       std::vector<CAtom *> ligand_atoms;
+      std::vector<std::pair<bool, CResidue *> > het_residues;
       for (int ichain=0; ichain<nchains; ichain++) { 
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
@@ -3608,9 +3613,22 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 		     // Residue was not rendered as CA, needs normal bonds
 		     std::string resname(residue_p->name);
 		     if (resname != "WAT" && resname != "HOH") {
-			int natoms = residue_p->GetNumberOfAtoms();
-			for (int iat=0; iat<natoms; iat++) { 
-			   ligand_atoms.push_back(residue_p->GetAtom(iat));
+
+			// can we do this residue by dictionary?
+			bool done_by_dict = false; // initially
+			if (have_dictionary) {
+			   if (geom->have_at_least_minimal_dictionary_for_residue_type(resname)) {
+			      het_residues.push_back(std::pair<bool, CResidue *>(true, residue_p));
+			      done_by_dict = true;
+			   } 
+			} 
+
+			if (! done_by_dict) {
+			   // old method
+			   int natoms = residue_p->GetNumberOfAtoms();
+			   for (int iat=0; iat<natoms; iat++) { 
+			      ligand_atoms.push_back(residue_p->GetAtom(iat));
+			   }
 			}
 		     }
 		  }
@@ -3618,6 +3636,12 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 	    }
 	 }
       }
+
+      int het_atoms_colour_type = coot::COLOUR_BY_ATOM_TYPE;
+      short int have_udd_atoms = false;
+      int udd_handle = -1;
+      add_bonds_het_residues(het_residues, het_atoms_colour_type, have_udd_atoms, udd_handle);
+      
       if (ligand_atoms.size() > 0) { 
 	 PCAtom *ligand_atoms_selection = new PCAtom[ligand_atoms.size()];
 	 for(unsigned int iat=0; iat<ligand_atoms.size(); iat++) { 
@@ -3627,6 +3651,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 	 delete [] ligand_atoms_selection;
       } 
    }
+
 }
 
 void 
