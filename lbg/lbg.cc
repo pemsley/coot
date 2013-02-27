@@ -3145,6 +3145,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 #else    
    try {
       RDKit::RWMol *m = RDKit::Mol2FileToMol(file_name);
+      coot::set_3d_conformer_state(m);
       if (m) {
 	 rdkit_mol_post_read_handling(m, file_name);
       } else {
@@ -3156,6 +3157,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
    catch (const RDKit::FileParseException &rte) {
       try { 
 	 RDKit::RWMol *m = RDKit::MolFileToMol(file_name);
+	 coot::set_3d_conformer_state(m);
 	 rdkit_mol_post_read_handling(m, file_name);
       }
       catch (const RDKit::FileParseException &rte) {
@@ -3198,31 +3200,35 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
    // molfile molecules don't know about aromatic bonds, we need
    // to kekulize now.
    RDKit::MolOps::Kekulize(*m); // non-const reference?
-   double weight_for_3d_distances = 0.4; 
-   int iconf = 0; // current conformer number
-   int iconf_new = coot::add_2d_conformer(m, weight_for_3d_distances);
-   // could we add another conformer (which is 2d), if so, use
-   // that for layout instead.
-   if (iconf_new > iconf) {
-      iconf = iconf_new;
-   } else {
-      std::cout << "WARNING:: import_mol_from_file() failed to make 2d conformer "
-		<< std::endl;
+   double weight_for_3d_distances = 0.4;
+
+   int n_confs = m->getNumConformers();
+   // std::cout << "rdkit_mol_post_read_handling() n_confs is " << n_confs << std::endl;
+   
+   if (n_confs > 0) {
+      int iconf = 0;
+      if (m->getConformer(iconf).is3D()) { 
+	 iconf = coot::add_2d_conformer(m, weight_for_3d_distances);
+	 std::cout << "rdkit_mol_post_read_handling() add_2d_conformer returned "
+		   << iconf << std::endl;
+	 if (iconf == -1) 
+	    std::cout << "WARNING:: import_mol_from_file() failed to make 2d conformer "
+		      << std::endl;
+
+      }
+
+      //    Old way (Pre-Feb 2013) goving via a molfile_molecule_t
+      //    
+      //    lig_build::molfile_molecule_t mm = coot::make_molfile_molecule(*m, iconf);
+      //    CMMDBManager *mol = NULL; // no atom names to transfer
+      //    widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
+
+      widgeted_molecule_t wmol = import_rdkit_mol(m, iconf);
+      mdl_file_name = file_name;
+   
+      render_from_molecule(wmol);
+      update_descriptor_attributes();
    }
-
-
-//    Old way (Pre-Feb 2013) goving via a molfile_molecule_t
-//    
-//    lig_build::molfile_molecule_t mm = coot::make_molfile_molecule(*m, iconf);
-//    CMMDBManager *mol = NULL; // no atom names to transfer
-//    widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
-
-   widgeted_molecule_t wmol = import_rdkit_mol(m, iconf);
-   mdl_file_name = file_name;
-   
-   render_from_molecule(wmol);
-   update_descriptor_attributes();
-   
 }
 #endif // MAKE_ENTERPRISE_TOOLS
 
@@ -3249,11 +3255,11 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
    
    widgeted_molecule_t m;
 
-   int n_conf  = rdkm->getNumConformers();
-   if (n_conf) {
+   unsigned int n_conf  = rdkm->getNumConformers();
+   if (iconf < n_conf) {
       const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
       
-      RDKit::Conformer conf = rdkm->getConformer(iconf);
+      RDKit::Conformer &conf = rdkm->getConformer(iconf);
       int n_mol_atoms = rdkm->getNumAtoms();
 
       // determine the centre correction
@@ -3299,7 +3305,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 	 mol_at.charge = charge;
 	 if (! name.empty())
 	    mol_at.atom_name = name;
-	 m.add_atom(mol_at);
+	 std::pair<bool,int> added = m.add_atom(mol_at);
       }
 
       int n_bonds = rdkm->getNumBonds();
@@ -3308,17 +3314,25 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 	 int idx_1 = bond_p->getBeginAtomIdx();
 	 int idx_2 = bond_p->getEndAtomIdx();
 	 lig_build::bond_t::bond_type_t bt = coot::convert_bond_type(bond_p->getBondType());
-	 const widgeted_atom_t &wat1 = m.atoms[idx_1];
-	 const widgeted_atom_t &wat2 = m.atoms[idx_2];
-	 widgeted_bond_t bond(idx_1, idx_2, wat1, wat2, bt, NULL);
-	 RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
-	 if (bond_dir != RDKit::Bond::NONE) {
-	    if (bond_dir == RDKit::Bond::BEGINWEDGE)
-	       bond.set_bond_type(lig_build::bond_t::OUT_BOND);
-	    if (bond_dir == RDKit::Bond::BEGINDASH)
-	       bond.set_bond_type(lig_build::bond_t::IN_BOND);
+
+	 try { 
+	    const widgeted_atom_t &wat1 = m[idx_1];
+	    const widgeted_atom_t &wat2 = m[idx_2];
+	    widgeted_bond_t bond(idx_1, idx_2, wat1, wat2, bt, NULL);
+	    RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
+	    if (bond_dir != RDKit::Bond::NONE) {
+	       if (bond_dir == RDKit::Bond::BEGINWEDGE)
+		  bond.set_bond_type(lig_build::bond_t::OUT_BOND);
+	       if (bond_dir == RDKit::Bond::BEGINDASH)
+		  bond.set_bond_type(lig_build::bond_t::IN_BOND);
+	    }
+	    m.add_bond(bond);
 	 }
-	 m.add_bond(bond);
+	 catch (...) {
+	    std::cout << "WARNING:: problem. scrambled input molecule? numbers of atoms: ";
+	    std::cout << rdkm->getNumAtoms() << " vs "
+		      << m.get_number_of_atoms_including_hydrogens() << std::endl;
+	 } 
       }
 
       m.assign_ring_centres();

@@ -5,6 +5,16 @@
 
    o stamped polygon bonds different size when reading in smiles or mdl
      mol.
+ 
+   o wedge bonds disappear on cleanup (e.g. 0CO.sdf)
+
+   o if ssmlib is not installed, coot's configure should object (or
+   conditionally compile ssmlib code (including ssm_align.h was the
+   problem, I think)).
+
+   o let's set some args: should only run this on a linux machine.
+
+   o check for existance of pkg-config before running it.
 
 -----
 

@@ -1121,7 +1121,8 @@ else
         # note that g++ 3.2 cannot compile clipper's test_contrib.cpp.
         # So, if we have g++ 3.2 or less, then we need to get and apply 
         # test_contrib.cpp.patch
-	awk -vversion=$w 'BEGIN{ exit (version+0 >= 3.3)}'
+        # add a space before argument setting
+	awk -v version=$w 'BEGIN{ exit (version+0 >= 3.3)}'
         wvers=$?
         if [ $wvers = 0 ] ; then
 	   need_clipper_contrib_patch=true
