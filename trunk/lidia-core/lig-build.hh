@@ -728,6 +728,16 @@ namespace lig_build {
 	 return rv;
       }
 
+      // can throw a runtime_error exception
+      Ta &operator[](unsigned int idx) {
+	 if (idx >= atoms.size()) {
+	    std::string s = "molecule_t atom index error: ";
+	    throw std::runtime_error(s);
+	 } else {
+	    return atoms[idx];
+	 }
+      }
+
       // We dont want a copy of the bond, we want a reference to the
       // bond (so that it can be manipulated).
       // 
@@ -779,7 +789,7 @@ namespace lig_build {
       }
 
 
-      int get_number_of_atom_including_hydrogens() const {
+      int get_number_of_atoms_including_hydrogens() const {
 	 return atoms.size();
       }
 

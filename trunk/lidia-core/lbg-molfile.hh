@@ -133,11 +133,14 @@ namespace lig_build {
 	    }
 	 }
 	 if (bond_lengths.size() > 0) {
+	    for (unsigned int ibond=0; ibond<bond_lengths.size(); ibond++) { 
+	       std::cout << "  bond length " << ibond << " " << bond_lengths[ibond] << std::endl;
+	    }
 	    status = 1;
 	    std::sort(bond_lengths.begin(), bond_lengths.end());
 	    int index = bond_lengths.size()/2;
 	    double bll = bond_lengths[index];
-	    scale = 1.54/bll; // sqrt(1.54) is 1.24
+	    scale = 1.0/bll;
 	 }
 	 return std::pair<bool, double> (status, scale);
       }

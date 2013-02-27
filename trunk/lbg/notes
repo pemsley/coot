@@ -987,4 +987,14 @@ Mon Jul 23 12:29:37 BST 2012
    add initial position restraints on protein atoms when doing a sphere regularization.
 
 
+----
+Tue Feb 26 00:20:27 GMT 2013
+
+    o SMILES -> 2D
+    o Residue -> 2D
+    o FLEV
+    o Open mdl/sdf
+    o Post-cleanup
+
+
 -----

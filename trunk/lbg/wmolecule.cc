@@ -199,8 +199,12 @@ widgeted_molecule_t::input_coords_to_canvas_coords(const clipper::Coord_orth &po
 		<< " centre_correction " << centre_correction << " mol_in_max_y " << mol_in_max_y
 		<< " mol_in_min_y " << mol_in_min_y << std::endl;
 
-   double x =   scale_correction.second * (pos_in.x() - centre_correction.x) * SINGLE_BOND_CANVAS_LENGTH/1.3;
-   double y = - scale_correction.second * (pos_in.y() - centre_correction.y) * SINGLE_BOND_CANVAS_LENGTH/1.3;
+   // scale_correction is typically 0.9 - and is: how much do I need
+   // to scale up the coordinates of this molecule so that the average
+   // bond length is 1.0?
+
+   double x =   scale_correction.second * (pos_in.x() - centre_correction.x) * SINGLE_BOND_CANVAS_LENGTH;
+   double y = - scale_correction.second * (pos_in.y() - centre_correction.y) * SINGLE_BOND_CANVAS_LENGTH;
 
    // double y_offset = 60 + scale_correction.second * (centre_correction.y - mol_in_min_y) * 20;
    double y_offset = 40 + scale_correction.second * (centre_correction.y - mol_in_min_y) * 30;
@@ -991,9 +995,9 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
 	    // lowest Y values.  The JME has them with highest Y
 	    // values, so swap on output.
 	    of << setiosflags(std::ios::fixed) << std::setw(10) << std::setprecision(4)
-	       << (atoms[iat].atom_position.x - centre.x) * 1.33/SINGLE_BOND_CANVAS_LENGTH;
+	       << (atoms[iat].atom_position.x - centre.x) * 1.54/SINGLE_BOND_CANVAS_LENGTH; // file output
 	    of << setiosflags(std::ios::fixed) << std::setw(10) << std::setprecision(4)
-	       << (- atoms[iat].atom_position.y + centre.y) * 1.33/SINGLE_BOND_CANVAS_LENGTH;
+	       << (- atoms[iat].atom_position.y + centre.y) * 1.54/SINGLE_BOND_CANVAS_LENGTH;
 	    double z = 0.0;
 	    of << setiosflags(std::ios::fixed) << std::setw(10) << std::setprecision(4)
 	       << z;
@@ -1158,7 +1162,7 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
       std::string comp_id = "DRG";
       std::string three_letter_code = "DRG";
       std::string name = "ligand";
-      int n_atoms_all = get_number_of_atom_including_hydrogens();
+      int n_atoms_all = get_number_of_atoms_including_hydrogens();
       int n_non_H_atoms = atoms.size();
       std::string description_level = "M";
 

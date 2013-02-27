@@ -497,6 +497,28 @@ coot::rdkit_mol_sanitize(RDKit::RWMol &mol) {
 
 }
 
+// hack the setting of 3D state, seems not to
+// be done for mdl files when zs are 0.
+void
+coot::set_3d_conformer_state(RDKit::RWMol *mol) {
+
+   for (unsigned int iconf=0; iconf<mol->getNumConformers(); iconf++) { 
+      RDKit::Conformer &conf = mol->getConformer(iconf);
+      int n_atoms = conf.getNumAtoms();
+      bool zero_z = true;
+      for (unsigned int iat=0; iat<n_atoms; iat++) { 
+	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
+	 if ((r_pos.z < -0.01) || (r_pos.z > 0.01)) {
+	    zero_z = false;
+	    break;
+	 }
+	 if (zero_z) {
+	    conf.set3D(false);
+	 } 
+      }
+   }
+} 
+
 
 
 RDKit::Bond::BondType
@@ -1266,7 +1288,10 @@ coot::infer_H_name(int iat,
 }
 
 
-// tweak rdkmol
+// tweak rdkmol.
+// 
+// Don't do anything if rdk_mol is not 3d (return -1).
+// 
 int
 coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 
@@ -1280,8 +1305,15 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
    if (n_conf == 0) {
       std::cout << "WARNING:: no conformers in add_2d_conformer() - aborting"
 		<< std::endl;
+      return -1;
    }
 
+   if (! rdk_mol->getConformer(icurrent_conf).is3D())
+      return -1;
+
+
+   // OK, go........
+   
    int n_mol_atoms = rdk_mol->getNumAtoms();   
 
    if (debug) 
@@ -1355,7 +1387,7 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 
    // The can screw up the coordinates of rdk_mol.  I don't know
    // why. It is not due to distance matrix (dmat) I am pretty sure of
-   // that.
+   // that.  other confs are cleared, so this should return 0.
     int iconf =
        RDDepict::compute2DCoordsMimicDistMat(*rdk_mol, &dmat, true, true,
 					     weight_for_3d_distances, nRB, 200);
