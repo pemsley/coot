@@ -327,7 +327,8 @@
 # 4.93 20120921 Update mmdb to version 1.24.2
 # 4.94 20130123 Move pre-release and release server-dir to Cambridge.
 # 4.95 20130128 Refmac dictionary to 5.39
-script_version=4.95
+# 4.96 20130228 New mmdb version - 1.25.0
+script_version=4.96
 
 
 # :: NOTE:: 
@@ -2212,11 +2213,11 @@ mmdb_version=1.23
 mmdb_version=1.23.2
 mmdb_version=1.24
 mmdb_version=1.24.2
-echo ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/mmdb-$mmdb_version.tar.gz
-${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/mmdb-$mmdb_version.tar.gz
-# ${WGET} http://www.ebi.ac.uk/~keb/cldoc/downloads/mmdb-${mmdb_version}.tar.gz
-# for now get mmdb-1.21 from york, the ebi one has out of date files causing 
-# problems on make 
+mmdb_version=1.25.0
+mmdb_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/dependencies
+echo ${WGET} $mmdb_server_dir/mmdb-$mmdb_version.tar.gz
+${WGET} $mmdb_server_dir/mmdb-$mmdb_version.tar.gz
+
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/mmdb-$mmdb_version.tar.gz | tar xf -
