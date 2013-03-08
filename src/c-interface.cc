@@ -5348,7 +5348,7 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 		 PyErr_Print();
 	      }
 	   }
-	   delete py_command_str;
+	   delete[] py_command_str;
 	   // Py_XDECREF(pValue); // No. We want objects from here to have a refcount of 1.
 	}
       }

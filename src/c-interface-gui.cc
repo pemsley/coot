@@ -5594,16 +5594,15 @@ void show_restraints_editor(const char *monomer_type) {
 	 graphics_info_t g;
 	 coot::protein_geometry *pg = g.Geom_p();
 
-	 std::pair<short int, coot::dictionary_residue_restraints_t> p =
+	 std::pair<bool, coot::dictionary_residue_restraints_t> p =
 	    pg->get_monomer_restraints(monomer_type);
    
 	 if (p.first) { 
 	    coot::dictionary_residue_restraints_t restraints = p.second;
-      
 	    coot::restraints_editor r;
 	    r.fill_dialog(restraints);
 	    g.restraints_editors.push_back(r);
-	 }
+	 } 
       }
    }
 }

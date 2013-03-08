@@ -6477,7 +6477,7 @@ Tue Apr  3 17:04:40 BST 2012
 
 valgrind:
 
- valgrind --leak-check=full --suppressions=../../coot/guile.supp --suppressions=../../coot/valgrind-python.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-real 
+ valgrind --leak-check=full --suppressions=../../coot/trunk/guile.supp --suppressions=../../coot/trunk/valgrind-python.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-real 
 
   Where are the python suppressions?
 

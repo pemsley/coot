@@ -949,6 +949,7 @@ start_ligand_builder_gui(GtkMenuItem     *menuitem,
 #endif    
 
    lbg(mm, dummy_pair, mol, view_name, molecule_file_name, imol_dummy,
+       graphics_info_t::Geom_p(),
        use_graphics_interface_flag, stand_alone_flag,
        get_url_func_pointer,
        prodrg_import_function,

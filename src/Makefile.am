@@ -212,6 +212,7 @@ INCLUDES = \
 	$(GLUT_CFLAGS)			\
 	$(MMDBSSM_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
+	$(CCP4SRS_CXXFLAGS) 		\
 	$(GSL_CFLAGS)			\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(PYGTK_CFLAGS)                 \

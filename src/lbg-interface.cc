@@ -112,7 +112,9 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
 #ifdef USE_LIBCURL
 	       get_url_func_ptr = coot_get_url;
 #endif      
-	       lbg(m, p, mol, view_name, "", imol, use_graphics_flag, stand_alone_flag,
+	       lbg(m, p, mol, view_name, "", imol,
+		   graphics_info_t::Geom_p(),
+		   use_graphics_flag, stand_alone_flag,
 		   get_url_func_ptr,
 		   prodrg_import_function,
 		   sbase_import_function,
@@ -183,7 +185,9 @@ void smiles_to_ligand_builder(const char *smiles_string) {
 	 get_url_func_ptr = coot_get_url;
 #endif
 
-	 lbg(m, dummy_spec, mol, "", "", -1, use_graphics_flag, stand_alone_flag,
+	 lbg(m, dummy_spec, mol, "", "", -1,
+	     graphics_info_t::Geom_p(),
+	     use_graphics_flag, stand_alone_flag,
 	     get_url_func_ptr,
 	     prodrg_import_function,
 	     sbase_import_function,

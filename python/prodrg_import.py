@@ -274,7 +274,7 @@ def mdl_update_timeout_func():
                     fin = open(sbase_to_coot_tlc, 'r')
                     tlc_symbol = fin.readline()  # need to read more? FIXME
                     fin.close()
-                    imol = get_sbase_monomer(tlc_symbol)
+                    imol = get_ccp4srs_monomer_and_dictionary(tlc_symbol)
                     if not valid_model_molecule_qm(imol):
                         print "failed to get SBase molecule for", tlc_symbol
                     else:
@@ -484,7 +484,7 @@ def get_sbase_monomer_and_overlay(comp_id):
     if (active_residue()):
         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
-            imol = get_sbase_monomer(comp_id)
+            imol = get_ccp4srs_monomer_and_dictionary(comp_id)
             overlap_ligands(imol, aa_imol, aa_chain_id, aa_res_no)
             # BL:: again? I dont think so
-            #get_sbase_monomer(comp_id)
+        get_ccp4srs_monomer_and_dictionary(comp_id)

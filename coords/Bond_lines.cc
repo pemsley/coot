@@ -312,6 +312,9 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 		  bool bond_het_residue_by_dictionary =
 		     add_bond_by_dictionary_maybe(atom_p_1, atom_p_2, &het_residues); // add to het_residues maybe
 
+		  // std::cout << "bond_het_residue_by_dictionary returns " << bond_het_residue_by_dictionary
+		  // << std::endl;
+		  
 		  if (bond_het_residue_by_dictionary) {
 		     
 		     std::string res_name = atom_p_1->GetResName();
@@ -883,6 +886,10 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 						    residue_atoms[jat]->y,
 						    residue_atoms[jat]->z);
 
+				 // std::cout << "making bond between :" << residue_atoms[iat]->name
+				 // << ": and :" << residue_atoms[jat]->name << ": "
+				 // << bt << std::endl;
+
 				 std::string element_1 = residue_atoms[iat]->element;
 				 std::string element_2 = residue_atoms[jat]->element;
 
@@ -891,7 +898,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 				    // Bonded to different atom elements.
 
 				    // if ((element_1 != " H") && (element_2 != " H")) {
-				    if (!is_hydrogen(element_1) && !is_hydrogen(element_2)) { 
+				    if (!is_hydrogen(element_1) && !is_hydrogen(element_2)) {
 				       if (bt == "double") {
 					  add_double_bond(iat, jat, residue_atoms, n_atoms, atom_colour_type,
 							  restraints.second.bond_restraint);

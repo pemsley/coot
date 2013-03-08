@@ -400,10 +400,10 @@
 
 ;; import from SBASE, callback using sbase_import_function
 ;; 
-(define (get-sbase-monomer-and-overlay comp-id)
+(define (get-ccp4srs-monomer-and-overlay comp-id)
 
   (if (active-residue)
       (using-active-atom
-       (let ((imol (get-sbase-monomer comp-id)))
+       (let ((imol (get-ccp4srs-monomer-and-dictionary comp-id)))
 	 (overlap-ligands imol aa-imol aa-chain-id aa-res-no)))
-      (get-sbase-monomer comp-id)))
+      (get-ccp4srs-monomer-and-dictionary comp-id)))

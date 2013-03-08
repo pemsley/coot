@@ -47,8 +47,9 @@
 #include "gsl/gsl_multimin.h"
 
 #include <mmdb/mmdb_manager.h>
-#include <mmdb/mmdb_sbase.h>
-#define MONOMER_DIR_STR "COOT_SBASE_DIR"
+#ifndef MONOMER_DIR_STR
+#define MONOMER_DIR_STR "COOT_CCP4SRS_DIR"
+#endif 
 
 #include "lig-build.hh"
 #include "lbg-molfile.hh"
@@ -211,25 +212,6 @@ public:
       void swap_bond_indices() { std::swap(bond_indices.first, bond_indices.second);}
    }; // finish highlight_data_t class
 
-   // a container for the results of the comparison vs SBase graph matching.
-   //
-   class match_results_t {
-   public:
-      bool success;
-      std::string name;
-      std::string comp_id;
-      CResidue *res;
-      // clipper::RTop_orth
-      match_results_t(const std::string &comp_id_in, const std::string &name_in, CResidue *res_in) {
-	 name = name_in;
-	 comp_id = comp_id_in;
-	 res = res_in;
-	 if (res_in)
-	    success = 1;
-	 else
-	    success = 0;
-      }
-   };
 
    // contains a coordinate on the flat ligand (input mol coords) that
    // corresponds to an atom on the ligand - when we add read the
@@ -756,6 +738,7 @@ private:
       lbg_alert_hbox_outer = NULL;
       alert_group = NULL; // group for alert annotations
       show_alerts_user_control = false; // no pattern matching available
+      geom_p = NULL; // no (static) geometry passed/set
 #ifdef MAKE_ENTERPRISE_TOOLS   
       show_alerts_user_control = true;
       bond_pick_pending = false;
@@ -789,35 +772,18 @@ private:
    CMMDBManager *get_cmmdbmanager(const std::string &filename) const;
 
    // sbase functions
-   CSBase *SBase;
    float search_similarity;
-   int init_sbase(const std::string &sbase_monomer_dir_in);
-   std::vector<match_results_t> compare_vs_sbase(CGraph *graph1,
-						 float similarity,
-						 int n_vertices) const;
-   // return 0 on strangeness, to pass in search.
-   // 
-
-   int get_min_match(const int &n1, const float similarity) const {
-      int most_1 = int (similarity * float(n1));
-      return most_1;
-      // return n1;
-   }
-
-   // not used.
-   int get_min_match(const int &n1, const int &n2) const {
-      int r = 0;
-      int most_1 = int (search_similarity * float(n1));
-      int most_2 = int (search_similarity * float(n2));
-      if ((n2>=most_1) && (n1>=most_2))  {
-	 r = (most_2 > most_1) ? most_2 : most_1;
-      }
-      return r;
-   }
-   match_results_t residue_from_best_match(CGraph &graph_1, CGraph &graph_2,
-					   CGraphMatch &match, int n_match, 
-					   CSBStructure *SBS) const;
-   void display_search_results(const std::vector<lbg_info_t::match_results_t> v) const;
+   // int init_sbase(const std::string &sbase_monomer_dir_in);
+   std::vector<coot::match_results_t> compare_vs_sbase(CGraph *graph1,
+						       float similarity,
+						       int n_vertices) const;
+   
+#ifdef HAVE_CCP4SRS   
+   coot::match_results_t residue_from_best_match(CGraph &graph_1, CGraph &graph_2,
+						 CGraphMatch &match, int n_match, 
+						 CCP4SRSMonomer *monomer_p) const;
+#endif   
+   void display_search_results(const std::vector<coot::match_results_t> &v) const;
    void rotate_latest_bond(int x, int y);
    void rotate_or_extend_latest_bond(int x, int y);
    void extend_latest_bond(); // use hilight_data
@@ -957,14 +923,19 @@ private:
    std::vector<std::pair<std::string, std::string> > user_defined_alert_smarts() const;
    GooCanvasItem *alert_group;
 
+   // geometry
+   const coot::protein_geometry *geom_p;
+
 public:
-   lbg_info_t(GtkWidget *canvas_in) {
+   lbg_info_t(GtkWidget *canvas_in, const coot::protein_geometry *geom_p_in) {
       canvas = canvas_in;
       init_internal();
+      geom_p = geom_p_in;
    }
    lbg_info_t() { init_internal(); }
-   lbg_info_t(int imol_in) {
+   lbg_info_t(int imol_in, const coot::protein_geometry *geom_p_in) {
       init_internal();
+      geom_p = geom_p_in;
       imol = imol_in;
       if (0)
 	 std::cout << "in lbg_info_t(imol) mdl_file_name is now :"
@@ -1008,6 +979,7 @@ public:
    GtkWidget *lbg_get_drug_entry;
    GtkWidget *lbg_flip_rotate_hbox;
    GtkWidget *lbg_clean_up_2d_toolbutton;
+   GtkWidget *lbg_search_database_frame;
    GtkWidget *canvas;
    GooCanvasItem *key_group;
    std::map<std::string, GtkToggleToolButton *> widget_names;
@@ -1047,7 +1019,9 @@ public:
    void update_descriptor_attributes(); // this is not in render_from_molecule() because it can/might be slow.
    void delete_hydrogens();
    void undo();
+#ifdef HAVE_CCP4SRS   
    void search() const;
+#endif   
    // 20111021 try to read file_name as a MDL mol or a mol2 file.
    void import_mol_from_file(const std::string &file_name);
    // read an MDL mol file.
@@ -1213,6 +1187,7 @@ lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 		const std::string &view_name, // annotate the decoration
 		const std::string &molecule_file_name,
 		int imol, // molecule number of the molecule of the
+		const coot::protein_geometry *geom_p_in,
 			  // layed-out residue
 		bool use_graphics_interface_flag,
 		bool stand_alone_flag_in,

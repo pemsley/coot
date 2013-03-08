@@ -1217,7 +1217,6 @@ namespace coot {
       
       bool dictionary_name_matches_coords_resname(const std::string &comp_id,
 						  const std::string &resname) const {
-
 	 std::string r = resname;
 	 if (r.length() > 2) 
 	    if (r[2] == ' ')

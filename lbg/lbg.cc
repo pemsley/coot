@@ -61,6 +61,7 @@ lbg(lig_build::molfile_molecule_t mm,
     const std::string &view_name,
     const std::string &molecule_file_name,
     int imol,
+    const coot::protein_geometry *geom_p_in,
     bool use_graphics_interface_flag,
     bool stand_alone_flag_in,
     int (*get_url_func_pointer_in) (const char *s1, const char *s2),
@@ -113,7 +114,7 @@ lbg(lig_build::molfile_molecule_t mm,
 
 	    // Happy Path
 	 
-	    lbg = new lbg_info_t(imol);
+	    lbg = new lbg_info_t(imol, geom_p_in);
 	    if (stand_alone_flag_in)
 	       lbg->set_stand_alone();
 	    int init_status = lbg->init(builder);
@@ -139,7 +140,7 @@ lbg(lig_build::molfile_molecule_t mm,
       }
 
       if (! use_graphics_interface_flag) {
-	 lbg = new lbg_info_t(imol);
+	 lbg = new lbg_info_t(imol, geom_p_in);
 	 lbg->no_graphics_mode(); // sets flag for "don't display a window"
 	 int init_status = lbg->init(NULL); // setup canvas, but not gui.
 	 if (ligand_spec_pair.first)
@@ -179,7 +180,9 @@ lbg_info_t::new_lbg_window() {
    bool use_graphics_interface_flag = true;
 
    lbg(blank_mol, ligand_spec_pair, mol, view_name, molecule_file_name,
-       imol, use_graphics_interface_flag,
+       imol,
+       geom_p,
+       use_graphics_interface_flag,
        is_stand_alone(),
        get_url_func_ptr,
        prodrg_import_func_ptr,
@@ -2431,6 +2434,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_atom_x_dialog = NULL;
 	 lbg_atom_x_entry = NULL;
 	 lbg_clean_up_2d_toolbutton = NULL;
+	 lbg_search_database_frame = NULL;
 	 canvas = NULL;
 	 return false; // boo.
 
@@ -2463,6 +2467,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 pe_test_function_button =       GTK_WIDGET(gtk_builder_get_object(builder, "pe_test_function_button"));
 	 lbg_flip_rotate_hbox =          GTK_WIDGET(gtk_builder_get_object(builder, "lbg_flip_rotate_hbox"));
 	 lbg_clean_up_2d_toolbutton =    GTK_WIDGET(gtk_builder_get_object(builder, "lbg_clean_up_2d_toolbutton"));
+	 lbg_search_database_frame =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_database_frame"));
 
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
       }
@@ -2477,6 +2482,12 @@ lbg_info_t::init(GtkBuilder *builder) {
       gtk_widget_hide(lbg_alert_hbox_outer);
       gtk_widget_hide(ww);
    }
+
+#ifdef HAVE_CCP4SRS
+   gtk_widget_show(lbg_search_database_frame);
+#else
+   // ... we don't have ccp4 srs
+#endif // HAVE_CCP4SRS   
 
    if (use_graphics_interface_flag) { 
       gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
@@ -2529,10 +2540,6 @@ lbg_info_t::init(GtkBuilder *builder) {
       gtk_widget_show(canvas);
       add_search_combobox_text();
    }
-
-   // ------------ sbase ---------------------------
-   // 
-   init_sbase(".");
 
    
    // ------------ (old-style) watch for new files from coot ---------------------
