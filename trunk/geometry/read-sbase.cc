@@ -25,8 +25,10 @@
 #include "coot-utils.hh"
 #include "protein-geometry.hh"
 
+#ifdef HAVE_CCP4SRS
 #include "ccp4srs/ccp4srs_defs.h"
 #include "srs-interface.hh"
+#endif 
 
 #include <string.h> // strlen, strcpy for interface to sbase.
 
@@ -558,6 +560,7 @@ coot::protein_geometry::compare_vs_ccp4srs(CGraph *graph_1, float similarity, in
 #endif // HAVE_CCP4SRS   
 
 
+#ifdef HAVE_CCP4SRS
 // return 0 on strangeness, to pass in search.
 // 
 int coot::get_min_match(const int &n1, const float similarity) {
@@ -565,3 +568,4 @@ int coot::get_min_match(const int &n1, const float similarity) {
    return most_1;
    // return n1;
 }
+#endif
