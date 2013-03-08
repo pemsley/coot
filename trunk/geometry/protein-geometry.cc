@@ -4622,8 +4622,12 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
 
    unsigned int nrest = dict_res_restraints.size();
    for (unsigned int i=0; i<nrest; i++) {
+//       std::cout << "in get_monomer_restraints_internal() comparing :" << dict_res_restraints[i].residue_info.comp_id
+// 		<< ": and :" << monomer_type << ":" << std::endl;
       if (dict_res_restraints[i].residue_info.comp_id  == monomer_type) {
-	 if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_from_sbase_data())) { 
+	 // if (allow_minimal_flag || (! dict_res_restraints[i].is_from_sbase_data())) { // old
+	 if (1) { // I don't know what the attribute for minimal restraints.  Now CCP4SRS restraints
+            	  // typically are full.
 	    r.second = dict_res_restraints[i];
 	    r.first = 1;
 	    break;
@@ -4632,7 +4636,7 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
    }
 
    if (!r.first) {
-      // OK, that failed to, perhaps there is a synonym?
+      // OK, that failed, perhaps there is a synonym?
       for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
 	 if (residue_name_synonyms[i].comp_alternative_id == monomer_type) {
 	    int ndict = dict_res_restraints.size();

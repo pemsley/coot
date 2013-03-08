@@ -910,7 +910,7 @@ public:
       cif_dictionary_read_number = geom_p->init_standard();
       geom_p->add_planar_peptide_restraint();
 
-      geom_p->init_sbase(".");
+      // geom_p->init_ccp4srs("srsdata"); // overridden by COOT_CCP4SRS_DIR and CCP4_LIB
 
       // rotamer probabilitiles
       // guess we shall rather use COOT_DATA_DIR and only as fallback PKGDATADIR?!

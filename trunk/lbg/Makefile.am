@@ -11,7 +11,7 @@ INCLUDES = \
         $(GSL_CFLAGS) \
         $(GOOCANVAS_CFLAGS) \
         $(GTK_CFLAGS) \
-	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) \
+	$(CLIPPER_CXXFLAGS) $(CCP4SRS_CXXFLAGS) $(MMDB_CXXFLAGS) \
 	$(COOT_WINDOWS_CFLAGS) \
 	$(ENTERPRISE_TOOLS_CFLAGS)      \
 	$(RDKIT_CXXFLAGS) \
@@ -33,7 +33,7 @@ libcoot_lidia_la_LIBADD = \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/utils/libcoot-utils.la \
-	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
+	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
 
 lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc 
 

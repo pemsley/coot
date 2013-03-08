@@ -3402,8 +3402,8 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
 					      bool do_rama_plot_restraints, 
 					      coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds) {
 
-//   std::cout << "----- make restraints called with link_torsions_restraints_type: "
-// 	    << link_torsions_restraints_type << std::endl;
+   std::cout << "----- make restraints() called with geom of size : " << geom.size() << std::endl;
+   
 
    int iret = 0;
    restraints_usage_flag = flags_in; // also set in minimize() and geometric_distortions()
@@ -3834,6 +3834,8 @@ coot::restraints_container_t::make_monomer_restraints(const coot::protein_geomet
 int
 coot::restraints_container_t::make_monomer_restraints_by_linear(const coot::protein_geometry &geom,
 								bool do_residue_internal_torsions) {
+
+   std::cout << "------------------------ in make_monomer_restraints_by_linear() " << std::endl;
    
    int iret = 0;
    
@@ -3857,10 +3859,13 @@ coot::restraints_container_t::make_monomer_restraints_by_linear(const coot::prot
 // 	     << " residues (monomer restraints) " << std::endl;
    // save the (new (7Nov2003)) class variables (used in non_bonded
    // stuff) that keep the "active" (as opposed to "flanking") residues:
-   nSelResidues_active = nSelResidues; 
+   nSelResidues_active = nSelResidues;
+   // std::cout << "------------------------ in make_monomer_restraints_by_linear() nSelResidues "
+   // << nSelResidues << std::endl;
    if (nSelResidues > 0) { 
       for (int i=0; i<nSelResidues; i++) {
 	 if (SelResidue_active[i]) {
+	    // std::cout << "------- calling make_monomer_restraints_by_residue() " << std::endl;
 	    coot::restraints_container_t::restraint_counts_t local = 
 	       make_monomer_restraints_by_residue(SelResidue_active[i], geom,
 						  do_residue_internal_torsions);
@@ -3910,14 +3915,20 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(CResidue *resid
 								 const protein_geometry &geom,
 								 bool do_residue_internal_torsions) {
 
+   std::cout << "--------------- make_monomer_restraints_by_residue() called " << residue_spec_t(residue_p) <<  std::endl;
+
    coot::restraints_container_t::restraint_counts_t local;
    int i_no_res_atoms;
    PPCAtom res_selection = NULL;
+   std::string pdb_resname(residue_p->name);
+   if (pdb_resname == "UNK") pdb_resname = "ALA";
    
-   // idr: index dictionary residue 
+   // idr: index dictionary residue
+
+   std::cout << "geom.size() is " << geom.size() << std::endl;
+   
    for (int idr=0; idr<geom.size(); idr++) {
-      std::string pdb_resname(residue_p->name);
-      if (pdb_resname == "UNK") pdb_resname = "ALA";
+
       // if (geom[idr].comp_id == pdb_resname) {
       // old style comp_id usage
       // if (dictionary_name_matches_coords_resname(geom[idr].comp_id,pdb_resname)) {
@@ -3929,13 +3940,8 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(CResidue *resid
       // Ar         A        'Adenosine                    ' RNA                33  22 .
       // GAL-b-D    GAL      'beta_D_galactose             ' D-pyranose         24  12 .
 
-      if (dictionary_name_matches_coords_resname(geom.three_letter_code(idr),
-						 pdb_resname) ||
+      if (dictionary_name_matches_coords_resname(geom.three_letter_code(idr), pdb_resname) ||
 	  dictionary_name_matches_coords_resname(geom[idr].residue_info.comp_id, pdb_resname)) {
-
-	 
-// 	 std::cout << "DEBUG:: ------------- dict/pdb name matches " << pdb_resname
-// 		   << " --------------- " << std::endl; 
 
 	 // now get a list of atoms in that residue
 	 // (SelResidue[i]) and compare them to the atoms in
@@ -3945,9 +3951,10 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(CResidue *resid
 		  
 	 if (i_no_res_atoms > 0) {
 
-	    // 		     std::cout << "   bonds... " << std::endl;
+	    // std::cout << "   bonds... " << std::endl;
 	    local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
 						 residue_p, geom);
+	    
 	    // 		     std::cout << "   angles... " << std::endl;
 	    local.n_angle_restraints += add_angles(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
@@ -5567,7 +5574,10 @@ coot::restraints_container_t::add_bonds(int idr, PPCAtom res_selection,
 
    int n_bond_restr = 0;
    int index1, index2;
-   bool debug = 0;
+   bool debug = false;
+
+   if (debug)
+      std::cout << "in add_bonds() for " << residue_spec_t(SelRes) << std::endl;
 
    for (unsigned int ib=0; ib<geom[idr].bond_restraint.size(); ib++) {
       for (int iat=0; iat<i_no_res_atoms; iat++) {
@@ -5626,9 +5636,6 @@ coot::restraints_container_t::add_bonds(int idr, PPCAtom res_selection,
 			bonded_atom_indices[index1].push_back(index2);
 			bonded_atom_indices[index2].push_back(index1);
 
-			// 		  std::cout << "add_bond: " << index1_old << " " << index1 << std::endl;
-			// 		  std::cout << "add_bond: " << index2_old << " " << index2 << std::endl;
-
 			// this needs to be fixed for fixed atom (rather
 			// than just knowing that these are not flanking
 			// atoms).
@@ -5650,10 +5657,12 @@ coot::restraints_container_t::add_bonds(int idr, PPCAtom res_selection,
 			   n_bond_restr++;
 			}
 
-			catch (std::runtime_error rte) {
+			catch (const std::runtime_error &rte) {
+			   
 			   // do nothing, it's not really an error if the dictionary
 			   // doesn't have target geometry (the bonding description came
 			   // from a Chemical Component Dictionary entry for example).
+			   std::cout << "trapped a runtime_error on adding restraint " << std::endl;
 			} 
 		     } else {
 			std::cout << "ERROR:: Caught Enrico Stura bug.  How did it happen?" << std::endl;

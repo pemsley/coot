@@ -58,7 +58,11 @@ extern "C" G_MODULE_EXPORT void
 on_lbg_search_button_clicked(GtkButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+#ifdef HAVE_CCP4SRS   
    l->search();
+#else
+   std::cout << "No CCP4SRS." << std::endl;
+#endif // HAVE_CCP4SRS
 }
 
 extern "C" G_MODULE_EXPORT void

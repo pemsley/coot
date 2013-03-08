@@ -23,7 +23,7 @@
 #ifndef PROTEIN_GEOMETRY_HH
 #define PROTEIN_GEOMETRY_HH
 
-#define MONOMER_DIR_STR "COOT_SBASE_DIR"
+#define MONOMER_DIR_STR "COOT_CCP4SRS_DIR"
 
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
@@ -40,8 +40,13 @@
 
 #include <mmdb/mmdb_mmcif.h>
 
-#ifndef  __MMDB_SBase__
-#include <mmdb/mmdb_sbase.h>
+// Old SBase usage
+// #ifndef  __MMDB_SBase__
+// #include <mmdb/mmdb_sbase.h>
+// #endif
+
+#ifndef CCP4SRS_BASE_H
+#include <ccp4srs/ccp4srs_base.h>
 #endif
 
 #include "clipper/core/coords.h"
@@ -1325,7 +1330,28 @@ namespace coot {
 	    return 0;
       }
    };
+   
 
+   // a container for the results of the comparison vs SBase graph matching.
+   //
+   class match_results_t {
+   public:
+      bool success;
+      std::string name;
+      std::string comp_id;
+      CResidue *res;
+      // clipper::RTop_orth
+      match_results_t(const std::string &comp_id_in, const std::string &name_in, CResidue *res_in) {
+	 name = name_in;
+	 comp_id = comp_id_in;
+	 res = res_in;
+	 if (res_in)
+	    success = true;
+	 else
+	    success = false;
+      }
+   };
+      
    
 
    // ------------------------------------------------------------------------
@@ -1336,8 +1362,10 @@ namespace coot {
    // 
    // consider molecule_geometry
    class protein_geometry {
-      
-      PCSBase SBase; 
+
+#ifdef HAVE_CCP4SRS      
+      PCCP4SRSBase SBase;
+#endif      
 
       enum { MON_LIB_LIST_CIF = -999}; // A negative number special
 				       // flag to tell the reader that
@@ -1665,7 +1693,9 @@ namespace coot {
       protein_geometry() {
 	 read_number = 0;
 	 set_verbose(1);
+#if HAVE_CCP4SRS	 
 	 SBase = NULL;
+#endif	 
 	 fill_default_non_auto_load_residue_names();
       }
       
@@ -1673,16 +1703,16 @@ namespace coot {
 
       // init_sbase() should return SBase_OK.  If not, trouble.
       // 
-      int init_sbase(const std::string &sbase_monomer_dir); // inits SBase
-      void read_sbase_residues();
+      int init_ccp4srs(const std::string &sbase_monomer_dir); // inits CCP4SRS
+      void read_ccp4srs_residues();
       // return NULL on unable to make residue
-      CResidue *get_sbase_residue(const std::string &res_name) const;
+      CResidue *get_ccp4srs_residue(const std::string &res_name) const;
 
       // return a vector of compound ids and compound names for
       // compounds that contain compound_name_substring.
       //
       std::vector<std::pair<std::string, std::string> >
-      matching_sbase_residues_names(const std::string &compound_name_substring) const;
+      matching_ccp4srs_residues_names(const std::string &compound_name_substring) const;
 
       // and fills these chem mod classes, simple container class
       // indexed with map on the mod_id
@@ -1836,7 +1866,7 @@ namespace coot {
       //
       // return a flag to signify success.
       //
-      bool fill_using_sbase(const std::string &monomer_type);
+      bool fill_using_ccp4srs(const std::string &monomer_type);
 
       // If monomer_type is not in dict_res_restraints, then add a new
       // item to the dict_res_restraints and add mon_res_in.  Return 1
@@ -2099,6 +2129,15 @@ namespace coot {
 							       bool at_1_deloc_or_arom,
 							       bool at_2_deloc_or_arom) const;
 
+#ifdef HAVE_CCP4SRS
+      match_results_t residue_from_best_match(CGraph &graph1, CGraph &graph2,
+					      CGraphMatch &match, int n_match,
+					      CCP4SRSMonomer *monomer_p) const;
+      std::vector<match_results_t>
+      compare_vs_ccp4srs(CGraph *graph_1, float similarity, int n_vertices) const;
+      
+
+#endif // HAVE_CCP4SRS      
 	 
    };
 

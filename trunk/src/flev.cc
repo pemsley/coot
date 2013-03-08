@@ -391,6 +391,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 #ifdef HAVE_GOOCANVAS		     
 		     lbg_info_t *lbg_local_p = lbg(m, ligand_spec_pair,
 						   flat.mol, view_name, ligand_res_name, imol,
+						   graphics_info_t::Geom_p(),
 						   use_graphics_flag, stand_alone_flag,
 						   coot_get_url,
 						   prodrg_import_function,
@@ -526,6 +527,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 		  bool stand_alone_flag = 0; // no, it isn't from here.
 		  lbg_info_t *lbg_local_p = lbg(m, ligand_spec_pair,
 						NULL, view_name, ligand_res_name, imol,
+						graphics_info_t::Geom_p(),
 						use_graphics_flag, stand_alone_flag,
 						coot_get_url,
 						prodrg_import_function,

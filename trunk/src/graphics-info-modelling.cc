@@ -265,7 +265,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
       check_dictionary_for_residue_restraints(SelResidues, nSelResidues);
 
 
-   if (0) {  // debugging.
+   if (1) {  // debugging.
       std::cout << "Selecting from chain id " << chain_id_1 << std::endl;
       std::cout << "selecting from residue " << iselection_resno_start
 		<< " to " << iselection_resno_end << " selects "
@@ -340,6 +340,9 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 					   short int have_flanking_residue_at_end,
 					   int imol_for_map
 					   ) {
+
+   // for debugging CCP4SRS usage
+   // std::cout << "------------------- copy_mol_and_refine_inner() geom size " << Geom_p()->size() << std::endl;
 
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
    short int have_disulfide_residues = 0; // of course not in linear mode.
@@ -441,6 +444,7 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 
 	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
 	    restraints.add_extra_restraints(molecules[imol_for_atoms].extra_restraints);
+	 
 	 int nrestraints = 
 	    restraints.make_restraints(*geom_p, flags,
 				       do_residue_internal_torsions,

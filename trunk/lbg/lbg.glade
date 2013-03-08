@@ -151,8 +151,8 @@
     <property name="border_width">5</property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
-    <property name="do_overwrite_confirmation">True</property>
     <property name="action">save</property>
+    <property name="do_overwrite_confirmation">True</property>
     <signal name="close" handler="on_lbg_export_as_pdf_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_export_as_pdf_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -215,8 +215,8 @@
     <property name="border_width">5</property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
-    <property name="do_overwrite_confirmation">True</property>
     <property name="action">save</property>
+    <property name="do_overwrite_confirmation">True</property>
     <signal name="close" handler="on_lbg_export_as_png_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_export_as_png_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -432,8 +432,8 @@
     <property name="title" translatable="yes">Save As MDL Molfile...</property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
-    <property name="do_overwrite_confirmation">True</property>
     <property name="action">save</property>
+    <property name="do_overwrite_confirmation">True</property>
     <signal name="close" handler="on_lbg_save_as_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_save_as_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -1525,7 +1525,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkFrame" id="frame1">
+              <object class="GtkFrame" id="lbg_search_database_frame">
                 <property name="label_xalign">0</property>
                 <child>
                   <object class="GtkAlignment" id="alignment1">

@@ -1028,9 +1028,9 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    if (! use_sbase_molecules) 
       v = monomer_lib_3_letter_codes_matching(t, allow_minimal_descriptions_flag);
    else 
-      v = g.Geom_p()->matching_sbase_residues_names(t);
+      v = g.Geom_p()->matching_ccp4srs_residues_names(t);
 
-   std::cout << "DEBUG:: use_sbase_molecules: " << use_sbase_molecules
+   std::cout << "DEBUG::  " << use_sbase_molecules
 	     << " found " << v.size() << " matching molecules "
 	     << " using string :" << t << ":" 
 	     << std::endl;
@@ -1535,7 +1535,7 @@ SCM matching_compound_names_from_sbase_scm(const char *compound_name_fragment) {
 
    graphics_info_t g;
    std::vector<std::pair<std::string, std::string> > matching_comp_ids =
-      g.Geom_p()->matching_sbase_residues_names(compound_name_fragment);
+      g.Geom_p()->matching_ccp4srs_residues_names(compound_name_fragment);
 
    std::vector<std::string> rv;
    for (unsigned int i=0; i<matching_comp_ids.size(); i++)
@@ -1553,7 +1553,7 @@ PyObject *matching_compound_names_from_sbase_py(const char *compound_name_fragme
 
    graphics_info_t g;
    std::vector<std::pair<std::string, std::string> > matching_comp_ids =
-      g.Geom_p()->matching_sbase_residues_names(compound_name_fragment);
+      g.Geom_p()->matching_ccp4srs_residues_names(compound_name_fragment);
 
    std::vector<std::string> rv;
    for (unsigned int i=0; i<matching_comp_ids.size(); i++)
@@ -1665,10 +1665,16 @@ PyObject *matching_compound_names_from_dictionary_py(const char *compound_name_f
 
 int get_sbase_monomer(const char *comp_id) {
 
+   return get_ccp4srs_monomer_and_dictionary(comp_id);
+
+}
+      
+int get_ccp4srs_monomer_and_dictionary(const char *comp_id) {
+
    int imol = -1;
 
    graphics_info_t g;
-   CResidue *residue_p = g.Geom_p()->get_sbase_residue(comp_id);
+   CResidue *residue_p = g.Geom_p()->get_ccp4srs_residue(comp_id);
    if (residue_p) {
       CMMDBManager *mol = new CMMDBManager;
       CModel *model_p = new CModel;
@@ -1679,10 +1685,11 @@ int get_sbase_monomer(const char *comp_id) {
       model_p->AddChain(chain_p);
       mol->AddModel(model_p);
       imol = g.create_molecule();
-      std::string name = "SBase monomer ";
+      std::string name = "Monomer ";
       name += coot::util::upcase(comp_id);
       graphics_info_t::molecules[imol].install_model(imol, make_asc(mol), name, 1, 0);
       move_molecule_to_screen_centre_internal(imol);
+      g.Geom_p()->fill_using_ccp4srs(comp_id); // if you can (should be able to)
       graphics_draw();
    }
 

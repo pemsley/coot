@@ -29,7 +29,7 @@ INCLUDES = -I$(top_srcdir)/coords     \
 	   -I$(top_srcdir)/mini-mol   \
 	   -I$(top_srcdir)/coot-utils \
 	   -I$(top_srcdir)/compat     \
-	 $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
+	 $(CLIPPER_CXXFLAGS) $(CCP4SRS_CXXFLAGS) $(MMDB_CXXFLAGS)
 
 AM_CXXFLAGS = \
 	-DDATADIR='"$(datadir)"'       \
@@ -50,7 +50,7 @@ libcoot_geometry_la_SOURCES = protein-geometry.cc protein-geometry-mmdb.cc \
 libcoot_geometry_la_LIBADD = \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
         $(top_builddir)/utils/libcoot-utils.la       \
-        $(MMDB_LIBS) $(CLIPPER_LIBS)
+        $(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
 
 # libcoot_geometry_la_CXXFLAGS = -g -O1
 
@@ -63,11 +63,11 @@ test_read_components_SOURCES = test-read-components.cc test-read-components.hh
 test_geometry_LDADD = ./libcoot-geometry.la    \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
         $(top_builddir)/utils/libcoot-utils.la       \
-	$(CLIPPER_LIBS) $(MMDB_LIBS)
+	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
 
 test_read_components_LDADD =  \
 	./libcoot-geometry.la \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
         $(top_builddir)/utils/libcoot-utils.la       \
-	$(CLIPPER_LIBS) $(MMDB_LIBS)
+	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
 

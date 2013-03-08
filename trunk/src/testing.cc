@@ -70,6 +70,10 @@
 
 #include "coot-h-bonds.hh"
 
+#ifdef HAVE_CCP4SRS
+#include <ccp4srs/ccp4srs_defs.h>
+#endif 
+
 bool close_float_p(float f1, float f2) {
 
    return (fabsf(f1-f2) < 0.0001);
@@ -2156,23 +2160,24 @@ int test_previous_water() {
 
 }
 
-int test_sbase() {
+int test_ccp4srs() {
 
+#ifdef HAVE_CCP4SRS   
    int status = 0;
    testing_data t;
    const char *sbase_dir = getenv("COOT_SBASE_DIR");
    if (sbase_dir) {
       std::string sbase_monomer_dir = sbase_dir;
-      int init_status = t.geom.init_sbase(sbase_monomer_dir);
+      int init_status = t.geom.init_ccp4srs(sbase_monomer_dir);
       std::cout << "   SBase init status: " << init_status << std::endl;
-      if (init_status != SBASE_Ok) {
+      if (init_status != CCP4SRS_Ok) {
 	 std::cout << "   WARNING:: Trouble initialising SBase" << std::endl;
       } else { 
 	 // t.geom.read_sbase_residues();
 	 status = 1;
 
 	 std::string test_name= "AMP";
-	 std::vector<std::pair<std::string,std::string> > v = t.geom.matching_sbase_residues_names(test_name);
+	 std::vector<std::pair<std::string,std::string> > v = t.geom.matching_ccp4srs_residues_names(test_name);
 	 std::cout << "INFO:: " << v.size() << " matching residue names" << std::endl;
 	 for (unsigned int i=0; i<v.size(); i++) { 
 	    std::cout << "    " << i << " of " << v.size() << " "
@@ -2181,6 +2186,9 @@ int test_sbase() {
       }
    }
    return status;
+#else
+   return 1;
+#endif // HAVE_CCP4SRS   
 }
 
 
@@ -2632,6 +2640,8 @@ int test_remove_whitespace() {
 
 int test_position_residue_by_internal_coords() {
 
+#ifdef HAVE_CCP4SRS   
+
    // This test doesn't do proper test (as yet) and the class it tests
    // is not complete either.
 
@@ -2640,11 +2650,11 @@ int test_position_residue_by_internal_coords() {
    testing_data t;
    int idealised_flag = 1;
 
-   const char *sbase_dir = getenv("COOT_SBASE_DIR");
+   const char *sbase_dir = getenv("COOT_CCP4SRS_DIR");
    if (sbase_dir) {
       std::string sbase_monomer_dir = sbase_dir;
-      int init_status = t.geom.init_sbase(sbase_monomer_dir);
-      if (init_status != SBASE_Ok) {
+      int init_status = t.geom.init_ccp4srs(sbase_monomer_dir);
+      if (init_status != CCP4SRS_Ok) {
 	 std::cout << "   WARNING:: Trouble initialising SBase" << std::endl;
       } else { 
 
@@ -2652,7 +2662,7 @@ int test_position_residue_by_internal_coords() {
 	 r_mol->ReadPDBASCII("coot-ccp4/monomer-ASN.pdb");
    
 	 CResidue *r = coot::util::get_first_residue(r_mol);
-	 CResidue *m = t.geom.get_sbase_residue("NAG");
+	 CResidue *m = t.geom.get_ccp4srs_residue("NAG");
 
 	 if (! r_mol) {
 	    std::cout << "Failed to get ASN molecule " << std::endl;
@@ -2676,6 +2686,9 @@ int test_position_residue_by_internal_coords() {
       }
    }
    return status;
+#else
+   return 1;
+#endif // HAVE_CCP4SRS   
 } 
 
 

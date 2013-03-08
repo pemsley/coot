@@ -73,7 +73,7 @@ int test_ssm_sequence_formatting();
 int test_OXT_in_restraints();
 int test_relativise_file_name();
 int test_previous_water();
-int test_sbase();
+int test_ccp4srs();
 int test_coordinated_waters();
 int test_geometry_distortion_info_type();
 int test_translate_close_to_origin();

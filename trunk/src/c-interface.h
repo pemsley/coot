@@ -6811,6 +6811,9 @@ PyObject *matching_compound_names_from_sbase_py(const char *compound_name_fragme
 The monomer will have chainid "A" and residue number 1.
 
 Return -1 on failure to get monomer. */
+int get_ccp4srs_monomer_and_dictionary(const char *comp_id);
+
+/*! \brief same as above but using old name for back-compatibility */
 int get_sbase_monomer(const char *comp_id);
 
 /* \} */
