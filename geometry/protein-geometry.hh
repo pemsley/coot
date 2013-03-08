@@ -45,8 +45,10 @@
 // #include <mmdb/mmdb_sbase.h>
 // #endif
 
+#ifdef HAVE_CCP4SRS
 #ifndef CCP4SRS_BASE_H
 #include <ccp4srs/ccp4srs_base.h>
+#endif
 #endif
 
 #include "clipper/core/coords.h"
