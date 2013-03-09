@@ -613,7 +613,11 @@ function setup_ccp4 {
          if [ "$systype" = x86_64-centos-6 ] ; then 
 	    setup_file=/home/emsley/ccp4/setup-scripts/sh/ccp4.setup
          else 
-            setup_file=/lmb/dorset/linux_software/ccp4-6.0/include/ccp4.setup-sh
+            if [ "$systype" = x86_64-centos-5 ] ; then 
+	       setup_file=/home/emsley/ccp4/ccp4-6.2.0/include/ccp4.setup-sh
+            else 
+               setup_file=setup-ccp4
+            fi
          fi
          if test -e $setup_file ; then
             echo evaluating $setup_file
