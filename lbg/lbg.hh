@@ -773,10 +773,6 @@ private:
 
    // sbase functions
    float search_similarity;
-   // int init_sbase(const std::string &sbase_monomer_dir_in);
-   std::vector<coot::match_results_t> compare_vs_sbase(CGraph *graph1,
-						       float similarity,
-						       int n_vertices) const;
    
 #ifdef HAVE_CCP4SRS   
    coot::match_results_t residue_from_best_match(CGraph &graph_1, CGraph &graph_2,
@@ -885,8 +881,6 @@ private:
 			 double max_dist_water_to_ligand_atom,
 			 double max_dist_water_to_protein_atom) const;
 
-   PCGraph makeTestQueryGraph() const;  // debugging
-
    void refine_residue_circle_positions(); // changes the positions of in residue_circles
 
    std::vector<solvent_accessible_atom_t>
@@ -895,6 +889,8 @@ private:
    
 #ifdef MAKE_ENTERPRISE_TOOLS
    RDKit::Bond::BondType convert_bond_type(const lig_build::bond_t::bond_type_t &t) const;
+   RDKit::Bond::BondDir  convert_bond_dir(const lig_build::bond_t::bond_type_t &t) const;
+   
    std::string get_smiles_string_from_mol_rdkit() const;
    std::vector<alert_info_t> alerts(const RDKit::ROMol &mol) const;
    void rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name);

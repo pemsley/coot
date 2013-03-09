@@ -1183,7 +1183,22 @@ Punted from 0.6:
 
 * Can't reproduce.
 
+   o check for existance of pkg-config before running it.
 
+* This is hard to do.  Why is it a problem?
+
+
+   o if ssmlib is not installed, coot's configure should object (or
+   conditionally compile ssmlib code (including ssm_align.h was the
+   problem, I think)).
+
+* I can't work it out.  All includes of ssm_align.h are protected by HAVE_SSMLIB
+
+ 
+   Use vdw distances (look them up) and H-bond status to show
+   interactions with Environment distances.  Different rules for
+   hydrogenated molecule.  See the problem by turning up the Max Dist
+   to 4 with a hydrogenated complex.
 
 
 ------

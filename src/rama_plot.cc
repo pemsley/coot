@@ -873,16 +873,20 @@ coot::rama_plot::draw_phi_psi_points_for_model(const coot::phi_psis_for_model_t 
 //
 void
 coot::rama_plot::generate_phi_psis(CMMDBManager *mol_in) {
-   bool is_primary = 1;
-   generate_phi_psis(mol_in, is_primary);
+   if (mol_in) { 
+      bool is_primary = 1;
+      generate_phi_psis(mol_in, is_primary);
+   }
 }
 
 // fill phi_psi vector
 //
 void
 coot::rama_plot::generate_secondary_phi_psis(CMMDBManager *mol_in) {
-   bool is_primary = 0;
-   generate_phi_psis(mol_in, is_primary);
+   if (mol_in) { 
+      bool is_primary = 0;
+      generate_phi_psis(mol_in, is_primary);
+   }
 }
 
 
@@ -1499,24 +1503,28 @@ coot::rama_plot::draw_phi_psis_on_canvas(char *filename) {
    // 
    CMMDBManager *mol = rama_get_mmdb_manager(filename); 
 
-   // put the results in the *primary* list
-   generate_phi_psis(mol);
-
-   draw_phi_psi_points();
-   
-   delete mol; 
+   if (mol) { 
+      // put the results in the *primary* list
+      generate_phi_psis(mol);
+      
+      draw_phi_psi_points();
+      
+      delete mol;
+   }
 }
 
 
 void
 coot::rama_plot::draw_it(CMMDBManager *mol) {
 
-   display_background();
-   draw_axes();
-   draw_zero_lines(); 
-   generate_phi_psis(mol);
-   coot::rama_stats_container_t counts = draw_phi_psi_points();
-   counts_to_stats_frame(counts);
+   if (mol) { 
+      display_background();
+      draw_axes();
+      draw_zero_lines(); 
+      generate_phi_psis(mol);
+      coot::rama_stats_container_t counts = draw_phi_psi_points();
+      counts_to_stats_frame(counts);
+   }
 }
 
 void
@@ -1707,27 +1715,27 @@ void
 coot::rama_plot::draw_2_phi_psi_sets_on_canvas(CMMDBManager *mol1, 
 					       CMMDBManager *mol2) { 
 
-//    generate_phi_psis(&phi_psi_sets, mol1);
-//    generate_phi_psis(&secondary_phi_psi_sets, mol2);
-
 
    // Are you sure that you want to edit this function? (not the one below?)
 
-   bool primary = 1;
-   generate_phi_psis(mol1,  primary);
-   generate_phi_psis(mol2, !primary);
-   
-   // all_plot_background_and_bits(clipper::Ramachandran::All);
-   // std::cout << "finding differences..." << std::endl;
-   find_phi_psi_differences(); 
-   // std::cout << "drawing differences..." << std::endl;
-   draw_phi_psi_differences();
+   if (mol1 && mol2) { 
 
-   // do we need to do something like this?
-//    for (int ich=0; ich<phi_psi_sets.size(); ich++) 
-//       draw_phi_psi_points(ich);
-
-   drawing_differences = 1; // set flag for later drawing
+      bool primary = 1;
+      generate_phi_psis(mol1,  primary);
+      generate_phi_psis(mol2, !primary);
+      
+      // all_plot_background_and_bits(clipper::Ramachandran::All);
+      // std::cout << "finding differences..." << std::endl;
+      find_phi_psi_differences(); 
+      // std::cout << "drawing differences..." << std::endl;
+      draw_phi_psi_differences();
+      
+      // do we need to do something like this?
+      //    for (int ich=0; ich<phi_psi_sets.size(); ich++) 
+      //       draw_phi_psi_points(ich);
+      
+      drawing_differences = 1; // set flag for later drawing
+   }
 }
 
 // Kleywegt plots call this function
@@ -1736,6 +1744,9 @@ coot::rama_plot::draw_2_phi_psi_sets_on_canvas(CMMDBManager *mol1,
 					       CMMDBManager *mol2,
 					       std::string chainid1,
 					       std::string chainid2) {
+
+   if (! mol1) return;
+   if (! mol2) return;
 
    int imod = 1;
 

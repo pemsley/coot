@@ -1789,7 +1789,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	    // smaller if this atom is a hydrogen).
 	    // 
 	    double bonding_dist_max = max_dist;
-	    double shorter_bit = 0.38; // tinkered value
+	    // double shorter_bit = 0.38; // tinkered value
+	    double shorter_bit = 0.52; // tinkered value
 	    // 
 	    if (is_hydrogen(ele1))
 	       bonding_dist_max -= shorter_bit;

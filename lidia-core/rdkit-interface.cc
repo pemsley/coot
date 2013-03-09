@@ -271,9 +271,20 @@ coot::rdkit_mol(CResidue *residue_p,
       }
 
       if (idx_1 != -1) { 
-	 if (idx_2 != -1) {	 
-	    bond->setBeginAtomIdx(idx_1);
-	    bond->setEndAtomIdx(  idx_2);
+	 if (idx_2 != -1) {
+
+	    // wedge bonds should have the chiral centre as the first atom.
+	    // 
+	    bool swap_order = chiral_check_order_swap(m[idx_1], m[idx_2],
+						      restraints.chiral_restraint);
+	    if (! swap_order) {  // normal
+	       bond->setBeginAtomIdx(idx_1);
+	       bond->setEndAtomIdx(  idx_2);
+	    } else {
+	       bond->setBeginAtomIdx(idx_2);
+	       bond->setEndAtomIdx(  idx_1);
+	    } 
+	    
 	    if (type == RDKit::Bond::AROMATIC) { 
 	       bond->setIsAromatic(true);
 	       m[idx_1]->setIsAromatic(true);
@@ -456,8 +467,54 @@ coot::rdkit_mol(CResidue *residue_p,
    if (debug) 
       std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms()
 		<< std::endl;
+
+   // debugging
+   RDKit::MolToMolFile(m, "rdkit.mol");
+      
    return m;
 }
+
+bool
+coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
+			      const std::vector<dict_chiral_restraint_t>  &chiral_restraints) {
+   bool status = false;
+
+   // set status to true (only) if the first atom is not chiral and the
+   // second one is.
+   
+   try {
+      bool second_is_chiral = false;
+      std::string name_1;
+      std::string name_2;
+      at_1->getProp("name", name_1);
+      at_2->getProp("name", name_2);
+      for (unsigned int ich=0; ich<chiral_restraints.size(); ich++) {
+	 if (chiral_restraints[ich].atom_id_c_4c() == name_2) {
+	    second_is_chiral = true;
+	    break;
+	 }
+      }
+
+      if (second_is_chiral) {
+	 bool first_is_chiral = false;
+	 for (unsigned int ich=0; ich<chiral_restraints.size(); ich++) {
+	    if (chiral_restraints[ich].atom_id_c_4c() == name_1) {
+	       first_is_chiral = true;
+	       break;
+	    }
+	 }
+
+	 if (!first_is_chiral)
+	    status = true;
+      }
+   }
+   catch (...) {
+      // this should not catch anything, the names should be set as properties
+   } 
+
+   return status;
+} 
+
 
 // can throw a std::runtime_error or std::exception.
 //
@@ -561,7 +618,7 @@ coot::get_chiral_tag(CResidue *residue_p,
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    std::string atom_name = atom_p->name;
    
-   bool atom_orders_match = 0; 
+   bool atom_orders_match = 0;
    // does the order of the restraints match the order of the atoms?
    //
    for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) { 
@@ -611,7 +668,7 @@ coot::get_chiral_tag(CResidue *residue_p,
 	       chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
 	    else 
 	       chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
-	 } 
+	 }
 	 break;
       } 
    }
@@ -842,7 +899,15 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 	 std::string element = tbl->getElementSymbol(n);
 	 int charge = at_p->getFormalCharge();
 	 lig_build::molfile_atom_t mol_atom(pos, element, name);
+	 
 	 mol_atom.formal_charge = charge;
+	 RDKit::Atom::ChiralType ct = at_p->getChiralTag();
+	 if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CW)
+	    mol_atom.chiral = RDKit::Atom::CHI_TETRAHEDRAL_CW;
+	 if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CCW)
+	    mol_atom.chiral = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+	 mol_atom.aromatic = at_p->getIsAromatic();
+	 // std::cout << "added atom " << mol_atom << std::endl;
 	 mol.add_atom(mol_atom);
       }
 
@@ -861,10 +926,15 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 	 lig_build::molfile_bond_t mol_bond(idx_1, idx_2, bt);
 	 RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
 	 if (bond_dir != RDKit::Bond::NONE) {
-	    if (bond_dir == RDKit::Bond::BEGINWEDGE)
+	    if (bond_dir == RDKit::Bond::BEGINWEDGE) { 
 	       mol_bond.bond_type = lig_build::bond_t::OUT_BOND;
-	    if (bond_dir == RDKit::Bond::BEGINDASH)
+	       // std::cout << "found a BEGINWEDGE between atoms "
+	       // << mol.atoms[idx_1] << " and " << mol.atoms[idx_2]
+	       // << std::endl;
+	    } 
+	    if (bond_dir == RDKit::Bond::BEGINDASH) { 
 	       mol_bond.bond_type = lig_build::bond_t::IN_BOND;
+	    }
 	 }
 	 mol.add_bond(mol_bond);
       }

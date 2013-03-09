@@ -30,6 +30,9 @@
 #include "dipole.hh"
 #include "sequence-assignment.hh" // for residue_range_t
 
+#include "mmdb-extras.h"
+#include "mmdb-crystal.h"
+
 #include "flev-annotations.hh" // animated ligand interactions
 #include "named-rotamer-score.hh"
 
@@ -631,7 +634,9 @@ PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
 //! \name status bar string functions
 //! \{
 // status bar atom info text here?!
-std::string atom_info_as_text_for_statusbar(int atom_index, int imol, const char *symmetry_text = "");
+std::string atom_info_as_text_for_statusbar(int atom_index, int imol); 
+std::string atom_info_as_text_for_statusbar(int atom_index, int imol, 
+					    const std::pair<symm_trans_t, Cell_Translation> &sts); 
 //! \}
 
 

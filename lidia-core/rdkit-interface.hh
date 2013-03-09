@@ -43,6 +43,8 @@ namespace coot {
    void mogulify_mol(RDKit::RWMol &mol);
    void charge_guanidinos(RDKit::RWMol *rdkm);
    void mogulify_nitro_groups(RDKit::RWMol *rdkm);
+   bool chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
+				const std::vector<dict_chiral_restraint_t>  &chiral_restraints);
 
 
    // tweaking function used by above (change mol maybe).

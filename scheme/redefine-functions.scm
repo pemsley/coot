@@ -95,4 +95,5 @@
 (define score-rotamers score-rotamers-scm)
 (define link-info link-info-scm)
 
-
+;; I changed the function name - save those (just a few) with scripts that I've handed out
+(define toggle-idle-ligand-interactions toggle-flev-idle-ligand-interactions)
