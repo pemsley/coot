@@ -1890,12 +1890,21 @@ isotropic atoms.
 @section Symmetry
 @cindex symmetry 
 Coordinates symmetry is ``dynamic''.  Symmetry atoms
-can be labeled @footnote{symmetry labels are in pale blue and also
+can be labeled @footnote{symmetry labels are in pale blue/purple and also
   provide the symmetry operator number and the translations along the
-  a, b and c axes.}.  Every time you recentre, the symmetry coordinates
-  are updated.  The information shown contains the atom information and
-  the symmetry operation number and translations needed to generate the
-  atom in that position.
+  a, b and c axes.}.  
+
+Every time you recentre, the symmetry coordinates are updated.  The
+information shown contains the atom information and the symmetry
+operation number and translations needed to generate the atom in that
+position.  To show the symmetry operator as a string (rather than a
+(1-based) index into the list of symmetry operators (as is the default))
+Use @command{Draw -> Show Symmetry> -> Expanded Symmetry Atom Labels}.
+Coot generates symmetry related atoms by moving the current set close to
+the origin by a translation, performing the symmetry expansion around
+the origin and moving the the symmetry coordinates back by applying the
+inverse of the origin translation.  The origin translation is also
+displayed in curly braces, e.g. ``{1 -1 0}''.
 
 By default symmetry atoms are not displayed.  
 

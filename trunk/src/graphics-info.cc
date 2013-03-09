@@ -3329,13 +3329,11 @@ int
 graphics_info_t::Undo_molecule(coot::undo_type undo_type) const {
 
    int r = -1;
-   if (undo_molecule > -1)
+   if (is_valid_model_molecule(undo_molecule)) { 
       r = undo_molecule;
-   else {
+   } else {
       int n_mol = 0; 
       for (int imol=0; imol<n_molecules(); imol++) {
-	 // Argh.  I want to store an function (name) as a variable.
-	 // How do I do that?
 
 	 if (undo_type == coot::UNDO) { 
 	    if (molecules[imol].Have_modifications_p()) {

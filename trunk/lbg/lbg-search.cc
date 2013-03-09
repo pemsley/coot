@@ -135,6 +135,7 @@ lbg_info_t::get_search_similarity() const {
 
 
 
+#ifdef HAVE_CCP4SRS
 PCGraph
 lbg_info_t::makeTestQueryGraph() const {
    
@@ -163,9 +164,8 @@ lbg_info_t::makeTestQueryGraph() const {
   G->Build ( False ); // no bond orders!
 
   return G;
-
 }
-
+#endif 
 
 
 #ifdef HAVE_CCP4SRS   

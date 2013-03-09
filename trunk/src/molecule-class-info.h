@@ -648,7 +648,8 @@ class molecule_class_info_t {
    //
    short int molecule_is_all_c_alphas() const; 
    
-   std::string make_symm_atom_label_string(PCAtom atom, symm_trans_t symm_trans) const;
+   std::string make_symm_atom_label_string(PCAtom atom,
+					   const std::pair <symm_trans_t, Cell_Translation> &symm_trans) const;
    std::string make_atom_label_string(PCAtom atom, int brief_atom_labels_flag) const;
 
    // rebuild/save state command

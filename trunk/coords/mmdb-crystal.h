@@ -86,6 +86,7 @@ class symm_trans_t {
 
 };
 
+
 class Cell_Translation { 
 
  public: 
@@ -98,6 +99,9 @@ class Cell_Translation {
    friend ostream& operator<<(ostream &s, Cell_Translation ct);
  
 };
+
+std::string to_string(const std::pair<symm_trans_t, Cell_Translation> &sts);
+
 
 
 class molecule_extents_t { 

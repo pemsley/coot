@@ -246,12 +246,14 @@ graphics_info_t::symmetry_atom_pick() const {
    }
 
    if (p_i.success) {
-      coot::Cartesian tpos = translate_atom(molecules[p_i.imol].atom_sel,
-					    p_i.atom_index,
-					    p_i.symm_trans);
+      std::pair<symm_trans_t, Cell_Translation> symm_trans(p_i.symm_trans, p_i.pre_shift_to_origin);      
+      coot::Cartesian tpos = translate_atom_with_pre_shift(molecules[p_i.imol].atom_sel,
+							   p_i.atom_index,
+							   symm_trans);
 
       std::string ai;
-      ai = atom_info_as_text_for_statusbar(p_i.atom_index, p_i.imol, p_i.symm_trans.str(1).c_str());
+      int expanded_flag = 1;
+      ai = atom_info_as_text_for_statusbar(p_i.atom_index, p_i.imol, symm_trans);
       add_status_bar_text(ai);
       //gtk_statusbar_push(GTK_STATUSBAR(graphics_info_t::statusbar),
       //		 graphics_info_t::statusbar_context_id,

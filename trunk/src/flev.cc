@@ -492,11 +492,11 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 
 		  // polar Hs only, that is - need new function here.
 		  // (can throw a std::exception)
-		  std::cout << "DEBUG:: calling remove_non_polar_Hs() " << std::endl;
+		  // std::cout << "DEBUG:: calling remove_non_polar_Hs() " << std::endl;
 		  coot::undelocalise(&rdkm);
 		  coot::assign_formal_charges(&rdkm);
 		  coot::remove_non_polar_Hs(&rdkm);
-		  std::cout << "DEBUG::    done remove_non_polar_Hs() " << std::endl;
+		  // std::cout << "DEBUG::    done remove_non_polar_Hs() " << std::endl;
 
 		  int mol_2d_depict_conformer =
 		     coot::add_2d_conformer(&rdkm, weight_for_3d_distances);
@@ -1646,7 +1646,8 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 	    v.push_back(bond);
       }
 
-      std::cout << ".... get_fle_ligand_bonds(): after h-bonds v.size() is " << v.size() << std::endl;
+      if (debug)
+	 std::cout << ".... get_fle_ligand_bonds(): after h-bonds v.size() is " << v.size() << std::endl;
 
       // -----------------------
       //   covalent bonds 
@@ -1678,8 +1679,9 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
       for (unsigned int i=0; i<metal_bonds.size(); i++)
 	 v.push_back(metal_bonds[i]);
 
-      std::cout << ".... get_fle_ligand_bonds(): after metal bonds v.size() is " << v.size()
-		<< std::endl;
+      if (debug)
+	 std::cout << ".... get_fle_ligand_bonds(): after metal bonds v.size() is " << v.size()
+		   << std::endl;
 
       
       // -----------------------
@@ -1692,7 +1694,7 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 
    }
 
-   if (1) {
+   if (debug) {
       std::cout << ":::: get_fle_ligand_bonds returns these " << v.size()
 		<< " bonds: " << std::endl;
       for (unsigned int i=0; i<v.size(); i++) { 

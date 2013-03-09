@@ -4735,9 +4735,15 @@ PyObject *additional_representation_info_py(int imol);
 
 #endif	/* __cplusplus */
 
+/* Turn on nice animated ligand interaction display.
+ 
+turn on with arg 1.
 
-/* Turn on nice animated ligand interaction display */
-void toggle_idle_ligand_interactions();
+turn off with arg 0. */
+void set_flev_idle_ligand_interactions(int state);
+
+/* Toggle for animated ligand interaction display above */
+void toggle_flev_idle_ligand_interactions();
 
 
 

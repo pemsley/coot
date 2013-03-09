@@ -3225,8 +3225,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	       g.molecules[cl_at.second].add_to_labelled_atom_list(cl_at.first);
 	       // shall add to status_bar ? maybe this should be a function?
 	       // it is now
-	       std::string at_info = atom_info_as_text_for_statusbar(cl_at.first,
-								     cl_at.second);
+	       std::string at_info = atom_info_as_text_for_statusbar(cl_at.first, cl_at.second);
 	       g.add_status_bar_text(at_info);
 	       CAtom *at = g.molecules[cl_at.second].atom_sel.atom_selection[cl_at.first];
 	       CResidue *residue_p  = at->residue;

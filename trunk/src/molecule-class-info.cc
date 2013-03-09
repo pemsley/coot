@@ -2474,7 +2474,7 @@ molecule_class_info_t::test_label_symm_atom(int i) {
 	    std::pair <symm_trans_t, Cell_Translation> st = labelled_symm_atom_symm_trans_[i];
 	 
 	    std::string label =
-	       make_symm_atom_label_string(atom_sel.atom_selection[iatom_index], st.first);
+	       make_symm_atom_label_string(atom_sel.atom_selection[iatom_index], st);
 
 	    GLfloat blueish[3] = { 0.7, 0.7, 1.0 };
 	 
@@ -2494,34 +2494,7 @@ molecule_class_info_t::test_label_symm_atom(int i) {
 
 void
 molecule_class_info_t::label_symm_atom(int i, symm_trans_t symm_trans) {
-   //
-
-   // same test as has_model():
-   if (atom_sel.n_selected_atoms > 0 ) { 
-
-      if (atom_sel.n_selected_atoms > 0) {
-
-	 std::string label =
-	    make_symm_atom_label_string(atom_sel.atom_selection[i], symm_trans);
-
-	 GLfloat blueish[3] = { 0.7, 0.8, 1.0 };
-
-	 glColor3fv(blueish);
-
-	 std::cout << "label_symm_atom :" << symm_trans << std::endl;
-	 coot::Cartesian symm_point =
-	    translate_atom(atom_sel, i, symm_trans);
-            
-	 glRasterPos3f(symm_point.get_x(),
-		       symm_point.get_y()+0.02,
-		       symm_point.get_z()+0.02);
-
-	 std::cout << "adding symm label: " << label << std::endl;
-	 printString(label);
-	 std::cout << "done  symm label: in  label_symm_atom(..): " << label << std::endl;
-
-      }
-   }   
+   // This never gets called AFAICS.
 }
 
 // Put a label at the ith atom of mol_class_info::atom_selection. 
@@ -3090,11 +3063,11 @@ CMMDBManager
 
 
 std::string
-molecule_class_info_t::make_symm_atom_label_string(PCAtom atom, symm_trans_t symm_trans) const {
+molecule_class_info_t::make_symm_atom_label_string(PCAtom atom,
+						   const std::pair <symm_trans_t, Cell_Translation> &symm_trans) const {
 
    std::string s = make_atom_label_string(atom, 0);
-   s += " ";
-   s += symm_trans.str(graphics_info_t::symmetry_atom_labels_expanded_flag);
+   s += to_string(symm_trans);
    return s;
 }
 

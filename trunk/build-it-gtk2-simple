@@ -1197,17 +1197,19 @@ if [ $? -ne 0 ] ; then
    fi
 else 
    # let's try to set some args
-   memory_kb=$(awk '/MemTotal:/ {print $2} ' /proc/meminfo)
-   if [ "$memory_kb" -gt 2000512 ] ; then 
-      if [ -e /proc/cpuinfo ] ; then
-         if np=$(grep processor /proc/cpuinfo | wc -l) ; then
-            # limit to 4 processors, not much speed up after that.
-            if [ "$np" -gt 4 ] ; then 
-               np=4
+   if [ -e /proc/meminfo ] ; then 
+      memory_kb=$(awk '/MemTotal:/ {print $2} ' /proc/meminfo)
+      if [ "$memory_kb" -gt 2000512 ] ; then 
+         if [ -e /proc/cpuinfo ] ; then
+            if np=$(grep processor /proc/cpuinfo | wc -l) ; then
+               # limit to 4 processors, not much speed up after that.
+               if [ "$np" -gt 4 ] ; then 
+                  np=4
+               fi
+               echo using $np processors in compilation
+               MAKE="make -j$np"
+               echo MAKE set to $MAKE
             fi
-            echo using $np processors in compilation
-            MAKE="make -j$np"
-            echo MAKE set to $MAKE
          fi
       fi
    fi
@@ -1641,12 +1643,16 @@ fi
  
 
 # test for pkg-config
-if pkg-config --atleast-pkgconfig-version 0.16 ; then
-   build_pkg_config=
-   echo pkg-config is new enough `pkg-config --version`
-else 
-   build_pkg_config=1
-   echo pkg-config should be built
+if type pkg-config ; then
+   if pkg-config --atleast-pkgconfig-version 0.16 ; then
+      build_pkg_config=
+      echo pkg-config is new enough `pkg-config --version`
+   else 
+      build_pkg_config=1
+      echo pkg-config should be built \(but won\'t be\).
+   fi
+else
+   echo pkg-config doesn\'t exist.
 fi
 
 # Hmmm... I am not sure that I want to mess with pkg-config in the

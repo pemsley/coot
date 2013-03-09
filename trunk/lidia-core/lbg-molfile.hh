@@ -46,7 +46,7 @@ namespace lig_build {
       std::string name;
       std::string element;
       bool aromatic;
-      bool chiral;
+      int chiral; // encode direction information, CW CCW
       int formal_charge; 
       molfile_atom_t(const clipper::Coord_orth &pos_in,
 		     const std::string &element_in,
@@ -55,12 +55,16 @@ namespace lig_build {
 	 element = element_in;
 	 name = name_in;
 	 formal_charge = 0;
+	 aromatic = false;
+	 chiral = 0;
       }
       molfile_atom_t(float x, float y, float z, std::string ele_in) {
 	 atom_position = clipper::Coord_orth(x,y,z);
 	 element = ele_in;
 	 name = ele_in;
 	 formal_charge = 0;
+	 aromatic = false;
+	 chiral = 0;
       }
       friend std::ostream &operator<<(std::ostream &s, const molfile_atom_t &a);
    };
@@ -133,9 +137,9 @@ namespace lig_build {
 	    }
 	 }
 	 if (bond_lengths.size() > 0) {
-	    for (unsigned int ibond=0; ibond<bond_lengths.size(); ibond++) { 
-	       std::cout << "  bond length " << ibond << " " << bond_lengths[ibond] << std::endl;
-	    }
+	    // for (unsigned int ibond=0; ibond<bond_lengths.size(); ibond++)
+	    // std::cout << "  bond length " << ibond << " " << bond_lengths[ibond] << std::endl;
+	    
 	    status = 1;
 	    std::sort(bond_lengths.begin(), bond_lengths.end());
 	    int index = bond_lengths.size()/2;
@@ -152,6 +156,23 @@ namespace lig_build {
 	    std::cout << "   " << iat << " " << atoms[iat] << std::endl;
 	 for (unsigned int ib=0; ib<bonds.size(); ib++) 
 	    std::cout << "   bond " << ib << ":  " << bonds[ib] << std::endl;
+
+	 // bond length info
+	 std::vector<double> bond_lengths;
+	 for (unsigned int i=0; i<bonds.size(); i++) {
+	    int index_1 = bonds[i].index_1;
+	    int index_2 = bonds[i].index_2;
+	    if (atoms[index_1].element != "H") { 
+	       if (atoms[index_2].element != "H") { 
+		  double l =
+		     clipper::Coord_orth::length(atoms[index_1].atom_position,
+						 atoms[index_2].atom_position);
+		  bond_lengths.push_back(l);
+	       }
+	    }
+	 }
+	 for (unsigned int ibond=0; ibond<bond_lengths.size(); ibond++)
+	    std::cout << "  bond length " << ibond << " " << bond_lengths[ibond] << std::endl;
 
       } 
    };

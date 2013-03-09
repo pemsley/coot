@@ -946,7 +946,31 @@ symm_trans_t::str(short int expanded_flag) const {
    b += coot::util::int_to_string(z());
    b += ")";
    return b;
+}
+
+std::string
+to_string(const std::pair<symm_trans_t, Cell_Translation> &sts) {
+
+   std::string b;
+   b = coot::util::Upper(sts.first.symm_as_string);
+   b += " + (";
+   b += coot::util::int_to_string(sts.first.x());
+   b += " ";
+   b += coot::util::int_to_string(sts.first.y());
+   b += " ";
+   b += coot::util::int_to_string(sts.first.z());
+   b += ") ";
+   b += "& {";
+   b += " ";
+   b += coot::util::int_to_string(sts.second.us);
+   b += " ";
+   b += coot::util::int_to_string(sts.second.vs);
+   b += " ";
+   b += coot::util::int_to_string(sts.second.ws);
+   b += "}";
+   return b;
 } 
+
 
 // return an atom selection that has had the symm_trans
 // applied to it.

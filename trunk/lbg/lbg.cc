@@ -282,7 +282,10 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
    for (unsigned int ib=0; ib<mol.bonds.size(); ib++) {
       if (! mol.bonds[ib].is_closed()) {
 	 RDKit::Bond::BondType type = convert_bond_type(mol.bonds[ib].get_bond_type());
+	 RDKit::Bond::BondDir   dir = convert_bond_dir (mol.bonds[ib].get_bond_type());
 	 RDKit::Bond *bond = new RDKit::Bond(type);
+	 if (dir != RDKit::Bond::NONE)
+	    bond->setBondDir(dir);
 	 int idx_1 = mol.bonds[ib].get_atom_1_index();
 	 int idx_2 = mol.bonds[ib].get_atom_2_index();
 	 if (0)
@@ -337,7 +340,22 @@ lbg_info_t::convert_bond_type(const lig_build::bond_t::bond_type_t &t) const {
       bt = RDKit::Bond::ONEANDAHALF;
    
    return bt;
-} 
+}
+#endif
+
+#ifdef MAKE_ENTERPRISE_TOOLS
+RDKit::Bond::BondDir
+lbg_info_t::convert_bond_dir(const lig_build::bond_t::bond_type_t &t) const {
+
+   RDKit::Bond::BondDir bd = RDKit::Bond::NONE;
+   if (t == lig_build::bond_t::IN_BOND)
+      bd = RDKit::Bond::BEGINDASH;
+   if (t == lig_build::bond_t::OUT_BOND)
+      bd = RDKit::Bond::BEGINWEDGE;
+   
+   return bd;
+}
+
 #endif
 
 
@@ -3162,8 +3180,33 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       } 
    }
    catch (const RDKit::FileParseException &rte) {
-      try { 
-	 RDKit::RWMol *m = RDKit::MolFileToMol(file_name);
+      try {
+	 bool sanitize = true;
+	 bool removeHs = false;
+	 bool strict_parsing = true;
+	 RDKit::RWMol *m = RDKit::MolFileToMol(file_name, sanitize, removeHs, strict_parsing);
+
+	 int n_bonds = m->getNumBonds();
+	 for (unsigned int ib=0; ib<n_bonds; ib++) {
+	    const RDKit::Bond *bond_p = m->getBondWithIdx(ib);
+	    int idx_1 = bond_p->getBeginAtomIdx();
+	    int idx_2 = bond_p->getEndAtomIdx();
+	    lig_build::bond_t::bond_type_t bt = coot::convert_bond_type(bond_p->getBondType());
+	    
+	    try { 
+	       RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
+	       if (bond_dir != RDKit::Bond::NONE) {
+		  if (bond_dir == RDKit::Bond::BEGINWEDGE)
+		     std::cout << "out bond" << std::endl;
+		  if (bond_dir == RDKit::Bond::BEGINDASH)
+		     std::cout << "in bond" << std::endl;
+	       }
+	    }
+	    catch (...) {
+	       std::cout << "WARNING:: problem. scrambled input molecule? numbers of atoms: ";
+	    }
+	 }
+	 
 	 coot::set_3d_conformer_state(m);
 	 rdkit_mol_post_read_handling(m, file_name);
       }
@@ -3188,7 +3231,8 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
    }
 #endif // MAKE_ENTERPRISE_TOOLS
 
-   if (try_as_mdl_mol) { 
+   if (try_as_mdl_mol) {
+      std::cout << "..................... using my mdl parser.... " << std::endl;
       // read as an MDL mol file
       // 
       CMMDBManager *mol = NULL; // no atom names to transfer
@@ -3210,11 +3254,11 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
    double weight_for_3d_distances = 0.4;
 
    int n_confs = m->getNumConformers();
-   // std::cout << "rdkit_mol_post_read_handling() n_confs is " << n_confs << std::endl;
+   std::cout << "rdkit_mol_post_read_handling() n_confs is " << n_confs << std::endl;
    
    if (n_confs > 0) {
       int iconf = 0;
-      if (m->getConformer(iconf).is3D()) { 
+      if (m->getConformer(iconf).is3D()) {
 	 iconf = coot::add_2d_conformer(m, weight_for_3d_distances);
 	 std::cout << "rdkit_mol_post_read_handling() add_2d_conformer returned "
 		   << iconf << std::endl;
@@ -3222,7 +3266,9 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
 	    std::cout << "WARNING:: import_mol_from_file() failed to make 2d conformer "
 		      << std::endl;
 
-      }
+      } else {
+	 std::cout << "INFO:: file (and rdkit mol) was not 3D - using iconf " << iconf << std::endl;
+      } 
 
       //    Old way (Pre-Feb 2013) goving via a molfile_molecule_t
       //    
@@ -3230,6 +3276,8 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
       //    CMMDBManager *mol = NULL; // no atom names to transfer
       //    widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
 
+      const RDKit::Conformer conformer = m->getConformer(iconf);
+      RDKit::WedgeMolBonds(*m, &conformer);
       widgeted_molecule_t wmol = import_rdkit_mol(m, iconf);
       mdl_file_name = file_name;
    
@@ -3259,6 +3307,8 @@ widgeted_molecule_t
 lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 
    // transfer atom names if you can.
+
+   std::cout << "--------------------------- import_rdkit_mol() " << iconf << std::endl;
    
    widgeted_molecule_t m;
 
@@ -3327,6 +3377,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 	    const widgeted_atom_t &wat2 = m[idx_2];
 	    widgeted_bond_t bond(idx_1, idx_2, wat1, wat2, bt, NULL);
 	    RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
+	    // std::cout << "bond " << ib << " type " << bt << " dir " << bond_dir << std::endl;
 	    if (bond_dir != RDKit::Bond::NONE) {
 	       if (bond_dir == RDKit::Bond::BEGINWEDGE)
 		  bond.set_bond_type(lig_build::bond_t::OUT_BOND);
@@ -3371,8 +3422,9 @@ lbg_info_t::clean_up_2d_representation() {
 				   nSamples,
 				   sampleSeed,
 				   permuteDeg4Nodes);
-
 	 int iconf = 0;
+	 RDKit::Conformer conf = rdkm.getConformer(iconf);
+	 RDKit::WedgeMolBonds(rdkm, &conf);
 	 lig_build::molfile_molecule_t mm =
 	    coot::make_molfile_molecule(rdkm, iconf);
 	 CMMDBManager *mol = NULL; // no atom names to transfer
