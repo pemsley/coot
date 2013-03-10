@@ -919,6 +919,9 @@ private:
    std::vector<std::pair<std::string, std::string> > user_defined_alert_smarts() const;
    GooCanvasItem *alert_group;
 
+   // get bottom of flev items, used in positioning the key
+   double bottom_of_flev_items();
+
    // geometry
    const coot::protein_geometry *geom_p;
 

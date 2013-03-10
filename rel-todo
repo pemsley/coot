@@ -5,8 +5,6 @@
 
    o charge on lidia?
 
-   o positioning of key in flev: 2gru
- 
    o stamped polygon bonds different size when reading in smiles or mdl
      mol.
 
@@ -170,3 +168,8 @@ mol=0x0) at rama_plot.cc:1517
      back on "by hand"
 
 * Done.  
+
+   o positioning of key in flev: 2gru
+ 
+* Done.  
+

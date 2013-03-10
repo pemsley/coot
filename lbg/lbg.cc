@@ -2518,7 +2518,7 @@ lbg_info_t::init(GtkBuilder *builder) {
       GtkWidget *lbg_scrolled_win =
 	 GTK_WIDGET(gtk_builder_get_object (builder, "lbg_scrolledwindow"));
       gtk_container_add(GTK_CONTAINER(lbg_scrolled_win), canvas);
-      goo_canvas_set_bounds (GOO_CANVAS (canvas), 0, 0, 1200, 700);
+      goo_canvas_set_bounds (GOO_CANVAS (canvas), 0, 0, 1200, 1200);
    }
 
    GooCanvas *gc = GOO_CANVAS(canvas);
@@ -5914,6 +5914,22 @@ lbg_info_t::draw_bonds_to_ligand() {
    }
 }
 
+double
+lbg_info_t::bottom_of_flev_items() {
+
+   double biggest_y = 0;
+   for (unsigned int ic=0; ic<residue_circles.size(); ic++) {
+      // std::cout << "   residue cirlce " << ic << " " << residue_circles[ic].pos << std::endl;
+      if (residue_circles[ic].pos.y > biggest_y)
+	 biggest_y = residue_circles[ic].pos.y;
+   }
+   // also consider atom position here - for the (very?) rare case
+   // where the ligand atoms are below residue circles?
+   
+   return biggest_y;
+} 
+
+
 std::string
 lbg_info_t::file_to_string(const std::string &file_name) const {
 
@@ -5945,7 +5961,8 @@ lbg_info_t::show_key() {
    double dxc = 250.0; // column offset
    lig_build::pos_t co(dxc, 0);
    lig_build::pos_t ro(0, dy);
-   lig_build::pos_t tl(100, 500); // top left of key
+   double bf = bottom_of_flev_items();
+   lig_build::pos_t tl(100, bf+100); // top left of key
 
    // Lines
    lig_build::pos_t A       = tl;
