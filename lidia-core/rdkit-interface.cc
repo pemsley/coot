@@ -469,7 +469,7 @@ coot::rdkit_mol(CResidue *residue_p,
 		<< std::endl;
 
    // debugging
-   RDKit::MolToMolFile(m, "rdkit.mol");
+   // RDKit::MolToMolFile(m, "rdkit.mol");
       
    return m;
 }
