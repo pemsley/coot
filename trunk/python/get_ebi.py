@@ -21,10 +21,11 @@ global oca_server
 #oca_server = "http://bip.weizmann.ac.il"
 #oca_server = "http://oca.ebi.ac.uk"
 #oca_server = "http://structure.embl-hamburg.de"
-oca_server = "http://www.ebi.ac.uk/msd-srv/oca"
+pdbe_server = "http://www.ebi.ac.uk"
 
-global oca_pdb_request_stub
-oca_pdb_request_stub = "oca-bin/save-pdb?id="
+global pdbe_pdb_request_stub
+pdbe_pdb_request_dir = "pdbe-srv/view/files"
+#oca_pdb_request_stub = "oca-bin/save-pdb?id="
 #oca_pdb_request_stub = "oca-bin/send-pdb?id="
 #oca_pdb_request_stub = "oca-bin/send-x-pdb?id="
 
@@ -121,7 +122,7 @@ def get_ebi_pdb_and_sfs(id):
        print "failed to read coordinates."
     else:
        down_id = string.lower(id)
-       url_str = oca_server + "/" + oca_sfs_request_stub + down_id + oca_sfs_request_tail
+       url_str = pdbe_server + "/" + oca_sfs_request_stub + down_id + oca_sfs_request_tail
 #       print "BL DEBUG:: get_url_str with",id,url_str,"sfs",imol_coords
        get_url_str(id,url_str,"sfs",imol_coords)
 
@@ -131,8 +132,8 @@ def get_ebi_pdb_and_sfs(id):
 def get_ebi_pdb(id):
     import urllib, string
 
-    up_id = string.upper(id)
-    url_str = oca_server + "/" + oca_pdb_request_stub + up_id
+    down_id = string.lower(id)
+    url_str = pdbe_server + "/" + pdbe_pdb_request_dir + "/" + down_id + ".ent"
     imol_coords = get_url_str(id,url_str,"pdb",None)
     return imol_coords
 
