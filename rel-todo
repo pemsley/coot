@@ -3,19 +3,12 @@
 
 ----
 
-   o if you flev the ligand twice, that toggles the interactions
-     twice, which means they end up invisible, unless they are switched
-     back on "by hand"
-
-   o stamped polygon bonds different size when reading in smiles or mdl
-     mol.
-
-   o Getting EBI files
-
    o charge on lidia?
 
    o positioning of key in flev: 2gru
  
+   o stamped polygon bonds different size when reading in smiles or mdl
+     mol.
 
 -----
 
@@ -168,3 +161,12 @@ mol=0x0) at rama_plot.cc:1517
 
 * Not done properly - need HBA an checking.  Made a note for 0.8
 
+   o Getting EBI files
+
+* Done.
+
+   o if you flev the ligand twice, that toggles the interactions
+     twice, which means they end up invisible, unless they are switched
+     back on "by hand"
+
+* Done.  

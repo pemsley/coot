@@ -11,38 +11,18 @@
 ;;; file) returns a short file.  So we have to use the uncompressed
 ;;; form which returns a file that had META tags.  Argh.
 
-;(if (not (defined? 'oca-server))
-;(define oca-server "http://oca.ebi.ac.uk")
-(define oca-server "http://bip.weizmann.ac.il")
-;(define oca-server "http://structure.embl-hamburg.de")
-(define oca-server "http://www.ebi.ac.uk/msd-srv/oca")
+(define pdbe-server "http://www.ebi.ac.uk")
+(define pdbe-pdb-file-dir "pdbe-srv/view/files")
 
-;(if (not (defined? 'oca-request-stub))
-(define oca-pdb-request-stub "oca-bin/save-pdb?id=")
-;(define oca-pdb-request-stub "oca-bin/send-pdb?id=")
-;(define oca-pdb-request-stub "oca-bin/send-x-pdb?id=") ; get a compressed file
+(define pdbe-file-name-tail "ent")
 
-(define pdb-file-name-tail "")
-; (define pdb-file-name-tail ".gz") ; if the server gives us a compressed
-				  ; file, we need to add .Z to the
-				  ; output filename so that mmdb
-				  ; realizes it's compressed rather
-				  ; than gobbledegook.
-
-(define oca-sfs-request-stub "oca-bin/send-sf?r")
-(define oca-sfs-request-tail "sf.ent.Z")
+;; sf exmaple http://www.ebi.ac.uk/pdbe-srv/view/files/r4hrhsf.ent
 
 (define coot-tmp-dir "coot-download")
-
 
 ; e.g. (ebi-get-pdb "1crn")
 ; 
 ; no useful return value
-; 
-; Note that that for sf data, we need to construct something like the
-; string: http://oca.ebi.ac.uk/oca-bin/send-sf?r2acesf.ent.Z and we
-; don't need to strip any html (thank goodness). Also not that the
-; accession code now is lower case.
 ;
 ; data-type can be 'pdb or 'sfs (structure factors).  We might like to use
 ; 'coordinates rather than 'pdb in the future.
@@ -85,7 +65,7 @@
     (if (eq? data-type 'pdb)
 	(begin
 	  (let ((pdb-file-name (string-append coot-tmp-dir "/" id ".pdb"
-					      pdb-file-name-tail)))
+					      pdbe-file-name-tail)))
 	    (check-dir-and-get-url coot-tmp-dir pdb-file-name url-string)
 	    (handle-read-draw-molecule pdb-file-name))))
 
@@ -115,11 +95,11 @@
 	      
 	      (let* ((down-id (string-downcase id))
 		     (url-str (string-append 
-			       oca-server
+			       pdbe-server
 			       "/"
-			       oca-sfs-request-stub
+			       pdbe-pdb-file-dir
 			       down-id
-			       oca-sfs-request-tail)))
+			       "." pdbe-file-name-tail)))
 
 		(get-url-str id url-str 'sfs imol-coords)))))))
 
@@ -128,12 +108,13 @@
 ;; 
 (define (get-ebi-pdb id)
 
-  (let* ((up-id (string-upcase id))
-	 (url-str (string-append 
-		   oca-server
+  (let* ((down-id (string-downcase id))
+	 (url-str (string-append
+		   pdbe-server
 		   "/"
-		   oca-pdb-request-stub
-		   up-id)))
+		   pdbe-pdb-file-dir
+		   "/"
+		   down-id ".ent")))
     
     (get-url-str id url-str 'pdb)))
 
