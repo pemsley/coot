@@ -1,11 +1,12 @@
 
+// BL says:: may not even be required (certainly not on MINGW)
+#include "coot-sysdep.h"
 
 #include "protein-geometry.hh"
 #include "coot-coord-utils.hh"
 #include "simple-restraint.hh"
 #include "coot-compare-residues.hh"
 
-#include "coot-sysdep.h"
 
 bool
 coot::compare_residue_torsions(CMMDBManager *mol1, CResidue *res_1,

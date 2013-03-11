@@ -91,6 +91,12 @@ scripting exercise
 
 **** General ****
 
+   o Edit phi/psi only CB rama
+
+   o Kleywegt plot shouldnt be sensitive to non-displayed residues
+
+   o validation (and similar) graphs shoudl be aligned
+
    o Cys in symmetry looses SG
 
    o raster3d: water as sphere, include labels, make surfaces, comment in code

@@ -3184,7 +3184,12 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 	 bool sanitize = true;
 	 bool removeHs = false;
 	 bool strict_parsing = true;
+     //BL says:: actually depending on RDKit version.
+#ifdef WINDOWS_MINGW
+	 RDKit::RWMol *m = RDKit::MolFileToMol(file_name, sanitize, removeHs);
+#else
 	 RDKit::RWMol *m = RDKit::MolFileToMol(file_name, sanitize, removeHs, strict_parsing);
+#endif
 
 	 int n_bonds = m->getNumBonds();
 	 for (unsigned int ib=0; ib<n_bonds; ib++) {
