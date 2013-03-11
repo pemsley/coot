@@ -3711,6 +3711,7 @@ coot::protein_geometry::init_standard() {
    }
    
    if (mon_lib_dir.length() > 0) {
+      mon_lib_dir =  coot::util::intelligent_debackslash(mon_lib_dir);
       std::string filename = mon_lib_dir;
       // contains the linkages:
       filename += "/data/monomers/list/mon_lib_list.cif";
@@ -3863,6 +3864,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 filename += "/data/monomers/";
       }
 
+      filename = coot::util::intelligent_debackslash(filename);
       if (resname.length() > 0) {
 	 const char rs = resname[0];
 	 const char v = tolower(rs); // get the sub directory name
