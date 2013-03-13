@@ -711,7 +711,6 @@ coot::update_mogul_histogram_dialog(GtkWidget *mogul_geometry_results_table_dial
 	 }
       }
 
-      std::cout << "ifound is " << ifound << std::endl;
       if (ifound == 2) {
 	 try {
 	    coot::mogul_item item = m.get_bond_item(indices);
@@ -723,7 +722,7 @@ coot::update_mogul_histogram_dialog(GtkWidget *mogul_geometry_results_table_dial
 	    title += " - ";
 	    title += atom_ids[1];
 	    mogul_histogram_for_item(gg, item, "Bond Length", title);
-	    std::cout << "updating histogram for item " << gg << std::endl;
+	    // std::cout << "updating histogram for item " << gg << std::endl;
 	 }
 	 catch (const std::runtime_error &rte) {
 	    std::cout << "WARNING:: " << rte.what() << std::endl;

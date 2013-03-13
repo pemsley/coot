@@ -493,6 +493,19 @@ coot::rotamer_probability_tables::fill_tables(const std::string &dir) {
    std::cout << "\n";
 }
 
+// can throw an exception
+const coot::a_rotamer_table &
+coot::rotamer_probability_tables::operator[](unsigned int idx) const {
+
+   if (idx < tables.size()) { 
+      return tables[idx];
+   } else {
+      std::string s("out-of-range rotamer (table)");
+      throw std::runtime_error(s);
+   } 
+} 
+
+
 // float, a state and a name:
 coot::rotamer_probability_info_t
 coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table, 
