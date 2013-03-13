@@ -111,6 +111,11 @@ namespace coot {
       bool test_yourself();
    public:
       rotamer_probability_tables() { is_well_formatted_ = 0; tried_and_failed_ = 0; }
+
+      // can throw an exception
+      const a_rotamer_table & operator[](unsigned int) const;
+
+      unsigned int n_tables() const { return tables.size(); }
       //
       void set_tables_dir(const std::string &tables_dir_in) { tables_dir = tables_dir_in; }
       void fill_tables() { fill_tables(tables_dir); } // for on the fly construction

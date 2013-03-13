@@ -75,10 +75,14 @@ bin_PROGRAMS = findligand-real findwaters-real
 
 # check_PROGRAMS = test-helix-placement test-fffear-in-coot testdunbrack test-random test-ligand
 
-check_PROGRAMS = test-fffear-in-coot
+check_PROGRAMS = test-fffear-in-coot test-rotamer-tables-sql
 
 findligand_real_SOURCES = find-ligand.cc
 findwaters_real_SOURCES = find-waters.cc
+
+# test_rotamer_tables_sql = test-rotamer-tables-sql.cc
+#
+# test_rotamer_tables_sql_LDADD = ./libcoot-ligand.la  $(MMDB_LIBS) $(install_dir)/lib/libsqlite3.la
 
 # test_ligand_SOURCES = test-ligand.cc
 

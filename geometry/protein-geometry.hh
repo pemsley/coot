@@ -51,6 +51,7 @@
 #endif
 #endif
 
+
 #include "clipper/core/coords.h"
 
 #include "atom-quads.hh"

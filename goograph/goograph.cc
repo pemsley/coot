@@ -391,7 +391,7 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 void
 coot::goograph::set_extents(int axis, double min, double max) {
 
-   std::cout << "set_extents() " << axis << " " << min << " " << max << std::endl;
+   // std::cout << "set_extents() " << axis << " " << min << " " << max << std::endl;
 
    if (axis == X_AXIS) {
       if (min < extents_min_x)
