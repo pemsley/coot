@@ -376,12 +376,12 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
 
 	 bool reverse_flag = 1;
 	 double pre_score = coot::util::z_weighted_density_score_new(atoms, xmap);
-	 std::cout << "---------- scores: pre " << pre_score << std::endl;
 
 	 int n_trials = 400;
 	 double best_score = pre_score;
 	 int n_quads = quads.size();
 	 std::vector<double> best_quads(n_quads, -1);
+	 std::vector<atom_tree_t::tree_dihedral_quad_info_t> best_tree_dihedral_quads;
 	 coot::map_index_t fixed_index(0);
 
 	 // save the current
@@ -390,38 +390,42 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
       
 	 double frac = 360.0/(float) RAND_MAX;
 	 for (unsigned int itrial=0; itrial<n_trials; itrial++) {
-// 	    std::cout << "Round " << itrial << " of " << n_trials << " for " << n_quads << " quads "
-// 		      << std::endl;
-	    std::vector<coot::atom_tree_t::tree_dihedral_quad_info_t> torsion_quads;
+
+	    if (0)
+	       std::cout << "Round " << itrial << " of " << n_trials << " for " << n_quads << " quads "
+			 << std::endl;
+	    
+	    std::vector<atom_tree_t::tree_dihedral_quad_info_t> torsion_quads;
 	    for (unsigned int iquad=0; iquad<n_quads; iquad++) {
-	       // double rand_angle = best_quads[iquad] + 40.0 * minus_one_to_one * angle_scale_factor;
                double rand_angle = get_rand_angle(best_quads[iquad], quads[iquad], itrial, n_trials);
-	       // 	    std::cout << "   trying rand_angle " << rand_angle << " from "
-	       // 		      << best_quads[iquad] << " + " << minus_one_to_one
-	       // 		      << std::endl;
-	       coot::atom_tree_t::tree_dihedral_quad_info_t tor(quads[iquad], rand_angle, fixed_index);
+	       atom_tree_t::tree_dihedral_quad_info_t tor(quads[iquad], rand_angle, fixed_index);
 	       torsion_quads.push_back(tor);
 	    }
 	    tree.set_dihedral_multi(torsion_quads);
 	    double this_score = coot::util::z_weighted_density_score_new(atoms, xmap);
-	    std::cout << "this_score: " << this_score << std::endl;
-	    if (this_score > best_score) {
-	       std::cout << "----------------- updating best quads!" << std::endl;
-	       best_score = this_score;
 
+	    // debugging of scores
+	    if (0) { 
+	       std::cout << "this_score: " << this_score;
+	       for (unsigned int iquad=0; iquad<quads.size(); iquad++)
+		  std::cout << "   " << quads[iquad].torsion();
+	       std::cout << std::endl;
+	    }
+	    
+	    if (this_score > best_score) {
 	       // save best torsion angles
+	       best_score = this_score;
 	       for (unsigned int iquad=0; iquad<n_quads; iquad++)
 		  best_quads[iquad] = quads[iquad].torsion();
-
+	       best_tree_dihedral_quads = torsion_quads;
 	    }
 	 }
-	 std::cout << "--------------- best_score: " << best_score << std::endl;
-	 // tree.set_dihedral_multi(best_quads);
+	 tree.set_dihedral_multi(best_tree_dihedral_quads);
       
 	 mol->DeleteSelection(selhnd);
       }
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
    }
 } 
