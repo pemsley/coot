@@ -859,83 +859,10 @@ lbg_info_t::on_highlight_key_press_event (GooCanvasItem *item,
       GooCanvas *canvas_l = goo_canvas_item_get_canvas(item);
       GooCanvasItem *root = goo_canvas_get_root_item(canvas_l);
       lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (root), "lbg-info"));
-      // std::cout << "l3: " << l3 << " using canvas " << canvas_l << " and root " << root << std::endl;
-
       if (l) { 
 	 if (event) {
-	    switch (event->keyval) {
-
-	    case GDK_n:
-	       l->lbg_toggle_button_my_toggle(l->lbg_nitrogen_toggle_toolbutton);
-	       break;
-
-	    case GDK_c:
-	       l->lbg_toggle_button_my_toggle(l->lbg_carbon_toggle_toolbutton);
-	       break;
-
-	    case GDK_o:
-	       l->lbg_toggle_button_my_toggle(l->lbg_oxygen_toggle_toolbutton);
-	       break;
-
-	    case GDK_p:
-	       l->lbg_toggle_button_my_toggle(l->lbg_phos_toggle_toolbutton);
-	       break;
-
-	    case GDK_i:
-	       l->lbg_toggle_button_my_toggle(l->lbg_oxygen_toggle_toolbutton);
-	       break;
-
-	    case GDK_s:
-	       if  (event->state & GDK_CONTROL_MASK)
-		  l->lbg_toggle_button_my_toggle(l->lbg_sulfur_toggle_toolbutton);
-	       else
-		  l->lbg_toggle_button_my_toggle(l->lbg_single_bond_toggle_toolbutton);
-	       break;
-
-	    case GDK_d:
-	       l->lbg_toggle_button_my_toggle(l->lbg_double_bond_toggle_toolbutton);
-	       break;
-		  
-	    case GDK_1:
-	       l->lbg_toggle_button_my_toggle(l->lbg_single_bond_toggle_toolbutton);
-	       break;
-		  
-	    case GDK_2:
-	       l->lbg_toggle_button_my_toggle(l->lbg_single_bond_toggle_toolbutton);
-	       break;
-		  
-	    case GDK_3:
-	       l->lbg_toggle_button_my_toggle(l->lbg_ring_3_toggle_toolbutton);
-	       break;
-		  
-	    case GDK_4:
-	       l->lbg_toggle_button_my_toggle(l->lbg_ring_4_toggle_toolbutton);
-	       break;
-		  
-	    case GDK_5:
-	       l->lbg_toggle_button_my_toggle(l->lbg_ring_5_toggle_toolbutton);
-	       break;
-		  
-	    case GDK_6:
-	       l->lbg_toggle_button_my_toggle(l->lbg_ring_6_toggle_toolbutton);
-	       break;
-		  
-	    case GDK_7:
-	       l->lbg_toggle_button_my_toggle(l->lbg_ring_7_toggle_toolbutton);
-	       break;
-		  
-	    case GDK_8:
-	       l->lbg_toggle_button_my_toggle(l->lbg_ring_8_toggle_toolbutton);
-	       break;
-		  
-	    case GDK_b:
-	       // l->lbg_toggle_button_my_toggle(l->lbg_bromine_toggle_toolbutton);
-	       l->lbg_toggle_button_my_toggle(l->lbg_ring_6_arom_toggle_toolbutton);
-	       break;
-		  
-	    default:
-	       std::cout << "nothing we know" << std::endl;
-	    }
+	    bool ctrl_is_pressed = event->state & GDK_CONTROL_MASK;
+	    l->handle_key_press_button_toggle(event->keyval, ctrl_is_pressed);
 	 }
       }
    }
@@ -943,9 +870,85 @@ lbg_info_t::on_highlight_key_press_event (GooCanvasItem *item,
 }
 
 void
-lbg_info_t::lbg_toggle_button_my_toggle(GtkWidget *tbw) {
-   std::cout << "toggling tbw " << tbw << std::endl;
-   GtkToggleToolButton *tb = GTK_TOGGLE_TOOL_BUTTON(tbw);
+lbg_info_t::handle_key_press_button_toggle(int keyval, bool ctrl_is_pressed) {
+	    
+   switch (keyval) {
+
+   case GDK_n:
+      lbg_toggle_button_my_toggle(widget_names["nitrogen_toggle_toolbutton"]);
+      break;
+
+   case GDK_c:
+      lbg_toggle_button_my_toggle(widget_names["carbon_toggle_toolbutton"]);
+      break;
+
+   case GDK_o:
+      lbg_toggle_button_my_toggle(widget_names["oxygen_toggle_toolbutton"]);
+      break;
+
+   case GDK_p:
+      lbg_toggle_button_my_toggle(widget_names["phos_toggle_toolbutton"]);
+      break;
+
+   case GDK_i:
+      lbg_toggle_button_my_toggle(widget_names["iodine_toggle_toolbutton"]);
+      break;
+
+   case GDK_s:
+      if  (ctrl_is_pressed)
+	 lbg_toggle_button_my_toggle(widget_names["sulfur_toggle_toolbutton"]);
+      else
+	 lbg_toggle_button_my_toggle(widget_names["single_toggle_toolbutton"]);
+      break;
+
+   case GDK_d:
+      lbg_toggle_button_my_toggle(widget_names["double_toggle_toolbutton"]);
+      break;
+		  
+   case GDK_1:
+      lbg_toggle_button_my_toggle(widget_names["single_toggle_toolbutton"]);
+      break;
+		  
+   case GDK_2:
+      lbg_toggle_button_my_toggle(widget_names["double_toggle_toolbutton"]);
+      break;
+		  
+   case GDK_3:
+      lbg_toggle_button_my_toggle(widget_names["c3_toggle_toolbutton"]);
+      break;
+		  
+   case GDK_4:
+      lbg_toggle_button_my_toggle(widget_names["c4_toggle_toolbutton"]);
+      break;
+		  
+   case GDK_5:
+      lbg_toggle_button_my_toggle(widget_names["c5_toggle_toolbutton"]);
+      break;
+		  
+   case GDK_6:
+      lbg_toggle_button_my_toggle(widget_names["c6_toggle_toolbutton"]);
+      break;
+		  
+   case GDK_7:
+      lbg_toggle_button_my_toggle(widget_names["c7_toggle_toolbutton"]);
+      break;
+		  
+   case GDK_8:
+      lbg_toggle_button_my_toggle(widget_names["c8_toggle_toolbutton"]);
+      break;
+		  
+   case GDK_b:
+      // lbg_toggle_button_my_toggle(lbg_bromine_toggle_toolbutton);
+      lbg_toggle_button_my_toggle(widget_names["c6_arom_toggle_toolbutton"]);
+      break;
+		  
+   default:
+      std::cout << "nothing we know" << std::endl;
+   }
+} 
+
+void
+lbg_info_t::lbg_toggle_button_my_toggle(GtkToggleToolButton *tb) {
    if (gtk_toggle_tool_button_get_active(tb))
       gtk_toggle_tool_button_set_active(tb, FALSE);
    else
@@ -2575,24 +2578,6 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_flip_rotate_hbox =          GTK_WIDGET(gtk_builder_get_object(builder, "lbg_flip_rotate_hbox"));
 	 lbg_clean_up_2d_toolbutton =    GTK_WIDGET(gtk_builder_get_object(builder, "lbg_clean_up_2d_toolbutton"));
 	 lbg_search_database_frame =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_database_frame"));
-
-	 lbg_nitrogen_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "nitrogen_toggle_toolbutton"));
-	 lbg_carbon_toggle_toolbutton   = GTK_WIDGET(gtk_builder_get_object(builder, "carbon_toggle_toolbutton"));
-	 lbg_oxygen_toggle_toolbutton   = GTK_WIDGET(gtk_builder_get_object(builder, "oxygen_toggle_toolbutton"));
-	 lbg_sulfur_toggle_toolbutton   = GTK_WIDGET(gtk_builder_get_object(builder, "sulfur_toggle_toolbutton"));
-	 lbg_phos_toggle_toolbutton     = GTK_WIDGET(gtk_builder_get_object(builder, "phos_toggle_toolbutton"));
-	 lbg_fluorine_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "fluorine_toggle_toolbutton"));
-	 lbg_chlorine_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "chlorine_toggle_toolbutton"));
-	 lbg_bromine_toggle_toolbutton  = GTK_WIDGET(gtk_builder_get_object(builder, "bromine_toggle_toolbutton"));
-	 lbg_single_bond_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "single_toggle_toolbutton"));
-	 lbg_double_bond_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "double_toggle_toolbutton"));
-	 lbg_ring_8_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "c8_toggle_toolbutton"));
-	 lbg_ring_7_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "c7_toggle_toolbutton"));
-	 lbg_ring_6_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "c6_toggle_toolbutton"));
-	 lbg_ring_6_arom_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "c6_arom_toggle_toolbutton"));
-	 lbg_ring_5_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "c5_toggle_toolbutton"));
-	 lbg_ring_4_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "c4_toggle_toolbutton"));
-	 lbg_ring_3_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "c3_toggle_toolbutton"));
 
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
       }
