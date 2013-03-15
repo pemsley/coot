@@ -846,21 +846,107 @@ lbg_info_t::on_highlight_key_press_event (GooCanvasItem *item,
 					  GdkEventKey *event,
 					  gpointer data) {
 
-   std::cout << "on_highlight_key_press_event: item   " << item   << std::endl;
-   std::cout << "on_highlight_key_press_event: target " << target << std::endl;
-   std::cout << "on_highlight_key_press_event: event  " << event  << std::endl;
-   std::cout << "on_highlight_key_press_event: data   " << data   << std::endl;
+//    std::cout << "on_highlight_key_press_event: item   " << item   << std::endl;
+//    std::cout << "on_highlight_key_press_event: target " << target << std::endl;
+//    std::cout << "on_highlight_key_press_event: event  " << event  << std::endl;
+//    std::cout << "on_highlight_key_press_event: data   " << data   << std::endl;
    
-   lbg_info_t *l =
-      static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
-   if (!l) {
-      std::cout << "on button-click: NULL lbg-info from item" << std::endl;
-   } else {
-      std::cout << "on button-click: lbg-info from item" << std::endl;
-   }
+   if (item) {
+      GooCanvas *canvas_l = goo_canvas_item_get_canvas(item);
+      GooCanvasItem *root = goo_canvas_get_root_item(canvas_l);
+      lbg_info_t *l = static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (root), "lbg-info"));
+      // std::cout << "l3: " << l3 << " using canvas " << canvas_l << " and root " << root << std::endl;
 
+      if (l) { 
+	 if (event) {
+	    switch (event->keyval) {
+
+	    case GDK_n:
+	       l->lbg_toggle_button_my_toggle(l->lbg_nitrogen_toggle_toolbutton);
+	       break;
+
+	    case GDK_c:
+	       l->lbg_toggle_button_my_toggle(l->lbg_carbon_toggle_toolbutton);
+	       break;
+
+	    case GDK_o:
+	       l->lbg_toggle_button_my_toggle(l->lbg_oxygen_toggle_toolbutton);
+	       break;
+
+	    case GDK_p:
+	       l->lbg_toggle_button_my_toggle(l->lbg_phos_toggle_toolbutton);
+	       break;
+
+	    case GDK_i:
+	       l->lbg_toggle_button_my_toggle(l->lbg_oxygen_toggle_toolbutton);
+	       break;
+
+	    case GDK_s:
+	       if  (event->state & GDK_CONTROL_MASK)
+		  l->lbg_toggle_button_my_toggle(l->lbg_sulfur_toggle_toolbutton);
+	       else
+		  l->lbg_toggle_button_my_toggle(l->lbg_single_bond_toggle_toolbutton);
+	       break;
+
+	    case GDK_d:
+	       l->lbg_toggle_button_my_toggle(l->lbg_double_bond_toggle_toolbutton);
+	       break;
+		  
+	    case GDK_1:
+	       l->lbg_toggle_button_my_toggle(l->lbg_single_bond_toggle_toolbutton);
+	       break;
+		  
+	    case GDK_2:
+	       l->lbg_toggle_button_my_toggle(l->lbg_single_bond_toggle_toolbutton);
+	       break;
+		  
+	    case GDK_3:
+	       l->lbg_toggle_button_my_toggle(l->lbg_ring_3_toggle_toolbutton);
+	       break;
+		  
+	    case GDK_4:
+	       l->lbg_toggle_button_my_toggle(l->lbg_ring_4_toggle_toolbutton);
+	       break;
+		  
+	    case GDK_5:
+	       l->lbg_toggle_button_my_toggle(l->lbg_ring_5_toggle_toolbutton);
+	       break;
+		  
+	    case GDK_6:
+	       l->lbg_toggle_button_my_toggle(l->lbg_ring_6_toggle_toolbutton);
+	       break;
+		  
+	    case GDK_7:
+	       l->lbg_toggle_button_my_toggle(l->lbg_ring_7_toggle_toolbutton);
+	       break;
+		  
+	    case GDK_8:
+	       l->lbg_toggle_button_my_toggle(l->lbg_ring_8_toggle_toolbutton);
+	       break;
+		  
+	    case GDK_b:
+	       // l->lbg_toggle_button_my_toggle(l->lbg_bromine_toggle_toolbutton);
+	       l->lbg_toggle_button_my_toggle(l->lbg_ring_6_arom_toggle_toolbutton);
+	       break;
+		  
+	    default:
+	       std::cout << "nothing we know" << std::endl;
+	    }
+	 }
+      }
+   }
    return FALSE;
 }
+
+void
+lbg_info_t::lbg_toggle_button_my_toggle(GtkWidget *tbw) {
+   std::cout << "toggling tbw " << tbw << std::endl;
+   GtkToggleToolButton *tb = GTK_TOGGLE_TOOL_BUTTON(tbw);
+   if (gtk_toggle_tool_button_get_active(tb))
+      gtk_toggle_tool_button_set_active(tb, FALSE);
+   else
+      gtk_toggle_tool_button_set_active(tb, TRUE);
+} 
 
 
 // set highlight_data
@@ -1377,7 +1463,7 @@ lbg_info_t::font_colour(int addition_element_mode) const {
    if (addition_element_mode == lbg_info_t::ATOM_N)
       font_colour = "blue";
    if (addition_element_mode == lbg_info_t::ATOM_S)
-      font_colour = "#999900";
+      font_colour = "#669900";
    if (addition_element_mode == lbg_info_t::ATOM_F)
       font_colour = "#00aa00";
    if (addition_element_mode == lbg_info_t::ATOM_CL)
@@ -1945,7 +2031,6 @@ lbg_handle_toggle_button(GtkToggleToolButton *tb, GtkWidget *canvas, int mode) {
 
    if (l) { 
       if (gtk_toggle_tool_button_get_active(tb)) {
-
 	 l->untoggle_others_except(tb);
 	 l->canvas_addition_mode = mode;
       } else {
@@ -2487,6 +2572,24 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_clean_up_2d_toolbutton =    GTK_WIDGET(gtk_builder_get_object(builder, "lbg_clean_up_2d_toolbutton"));
 	 lbg_search_database_frame =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_database_frame"));
 
+	 lbg_nitrogen_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "nitrogen_toggle_toolbutton"));
+	 lbg_carbon_toggle_toolbutton   = GTK_WIDGET(gtk_builder_get_object(builder, "carbon_toggle_toolbutton"));
+	 lbg_oxygen_toggle_toolbutton   = GTK_WIDGET(gtk_builder_get_object(builder, "oxygen_toggle_toolbutton"));
+	 lbg_sulfur_toggle_toolbutton   = GTK_WIDGET(gtk_builder_get_object(builder, "sulfur_toggle_toolbutton"));
+	 lbg_phos_toggle_toolbutton     = GTK_WIDGET(gtk_builder_get_object(builder, "phos_toggle_toolbutton"));
+	 lbg_fluorine_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "fluorine_toggle_toolbutton"));
+	 lbg_chlorine_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "chlorine_toggle_toolbutton"));
+	 lbg_bromine_toggle_toolbutton  = GTK_WIDGET(gtk_builder_get_object(builder, "bromine_toggle_toolbutton"));
+	 lbg_single_bond_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "single_toggle_toolbutton"));
+	 lbg_double_bond_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "double_toggle_toolbutton"));
+	 lbg_ring_8_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "c8_toggle_toolbutton"));
+	 lbg_ring_7_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "c7_toggle_toolbutton"));
+	 lbg_ring_6_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "c6_toggle_toolbutton"));
+	 lbg_ring_6_arom_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "c6_arom_toggle_toolbutton"));
+	 lbg_ring_5_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "c5_toggle_toolbutton"));
+	 lbg_ring_4_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "c4_toggle_toolbutton"));
+	 lbg_ring_3_toggle_toolbutton = GTK_WIDGET(gtk_builder_get_object(builder, "c3_toggle_toolbutton"));
+
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
       }
    } 
@@ -2537,20 +2640,17 @@ lbg_info_t::init(GtkBuilder *builder) {
       gtk_widget_add_events(GTK_WIDGET(canvas),
  			    GDK_KEY_PRESS_MASK     |
  			    GDK_KEY_RELEASE_MASK);
-   
-      g_object_set_data_full(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
-			     "lbg-info", this, NULL);
 
-      g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
-		       "button_press_event",
+      GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
+
+      std::cout << "................ set lbg-info on root " << root_item << " of canvas" << canvas << std::endl;
+							  
+      g_object_set_data_full(G_OBJECT(root_item), "lbg-info", this, NULL);
+      g_signal_connect(G_OBJECT(root_item), "button_press_event",
 		       G_CALLBACK(on_canvas_button_press), NULL);
-
-      g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
-		       "button_release_event",
+      g_signal_connect(G_OBJECT(root_item), "button_release_event",
 		       G_CALLBACK(on_canvas_button_release), NULL);
-
-      g_signal_connect(G_OBJECT(goo_canvas_get_root_item(GOO_CANVAS(canvas))),
-		       "motion_notify_event",
+      g_signal_connect(G_OBJECT(root_item), "motion_notify_event",
 		       G_CALLBACK(on_canvas_motion_new), NULL);
       
       // setup_lbg_drag_and_drop(lbg_window); // this lbg_info_t is not attached to this object.
@@ -3114,14 +3214,17 @@ lbg_info_t::write_pdf(const std::string &file_name) const {
 }
 
 void
-lbg_info_t::write_png(const std::string &file_name) const {
+lbg_info_t::write_png(const std::string &file_name) {
 
    std::pair<lig_build::pos_t, lig_build::pos_t> extents = mol.ligand_extents();
 
    gdouble scale =  goo_canvas_get_scale(GOO_CANVAS(canvas));
-   // doesn't do anything
+
+   // doesn't do anything?
    // goo_canvas_set_scale(GOO_CANVAS(canvas), 4*scale);
    // goo_canvas_update(GOO_CANVAS(canvas));
+   // render_from_molecule(mol);
+   
    int size_x = (int)extents.second.x + 220; // or so... (ideally should reside circle-based).
    int size_y = (int)extents.second.y + 220;
    

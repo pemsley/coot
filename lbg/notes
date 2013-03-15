@@ -997,4 +997,11 @@ Tue Feb 26 00:20:27 GMT 2013
     o Post-cleanup
 
 
+----
+Thu Mar 14 18:27:07 GMT 2013
+
+   it would be nice to have a function lidia_render_molecule(const ROMol &mol, std::string file_name)
+   or some such.
+
+
 -----
