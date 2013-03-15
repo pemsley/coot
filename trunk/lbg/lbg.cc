@@ -34,6 +34,7 @@
 #include <algorithm>
 
 #ifdef MAKE_ENTERPRISE_TOOLS
+#include <RDGeneral/versions.h>
 #include <RDGeneral/FileParseException.h>
 #include <RDGeneral/BadFileException.h>
 #include <GraphMol/FileParsers/FileParsers.h>
@@ -366,12 +367,15 @@ std::string
 lbg_info_t::get_smiles_string_from_mol_rdkit() const {
 
    RDKit::RWMol rdkm = rdkit_mol(mol);
-   coot::rdkit_mol_sanitize(rdkm);
-   RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(rdkm);
-   bool doIsomericSmiles = true;
-   std::string s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs, doIsomericSmiles);
-   delete rdk_mol_with_no_Hs;
-   return s;
+   return get_smiles_string(rdkm);
+   
+//    coot::rdkit_mol_sanitize(rdkm);
+//    RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(rdkm);
+//    bool doIsomericSmiles = true;
+//    std::string s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs, doIsomericSmiles);
+//    delete rdk_mol_with_no_Hs;
+//    return s;
+
 }
 #endif
 
@@ -3287,13 +3291,14 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 	 bool sanitize = true;
 	 bool removeHs = false;
 	 bool strict_parsing = true;
-     //BL says:: actually depending on RDKit version.
-#ifdef WINDOWS_MINGW
-	 RDKit::RWMol *m = RDKit::MolFileToMol(file_name, sanitize, removeHs);
-#else
-	 RDKit::RWMol *m = RDKit::MolFileToMol(file_name, sanitize, removeHs, strict_parsing);
-#endif
 
+	 // strict_parsing is not in the MolFileToMol() interface for old RDKits.
+	 RDKit::RWMol *m = NULL;
+	 if (strcmp(RDKit::rdkitVersion, "2012.06") < 0)
+	    m = RDKit::MolFileToMol(file_name, sanitize, removeHs);
+	 else 
+	    m = RDKit::MolFileToMol(file_name, sanitize, removeHs, strict_parsing);
+	 
 	 int n_bonds = m->getNumBonds();
 	 for (unsigned int ib=0; ib<n_bonds; ib++) {
 	    const RDKit::Bond *bond_p = m->getBondWithIdx(ib);
@@ -3362,7 +3367,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
    double weight_for_3d_distances = 0.4;
 
    int n_confs = m->getNumConformers();
-   std::cout << "rdkit_mol_post_read_handling() n_confs is " << n_confs << std::endl;
+   // std::cout << "rdkit_mol_post_read_handling() n_confs is " << n_confs << std::endl;
    
    if (n_confs > 0) {
       int iconf = 0;
@@ -3375,7 +3380,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
 		      << std::endl;
 
       } else {
-	 std::cout << "INFO:: file (and rdkit mol) was not 3D - using iconf " << iconf << std::endl;
+	 // std::cout << "INFO:: file (and rdkit mol) was not 3D - using iconf " << iconf << std::endl;
       } 
 
       //    Old way (Pre-Feb 2013) goving via a molfile_molecule_t
@@ -3416,7 +3421,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 
    // transfer atom names if you can.
 
-   std::cout << "--------------------------- import_rdkit_mol() " << iconf << std::endl;
+   // std::cout << "--------------------------- import_rdkit_mol() " << iconf << std::endl;
    
    widgeted_molecule_t m;
 
@@ -3439,6 +3444,34 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 	 if (r_pos.y < min_y)
 	    min_y = r_pos.y;
       }
+
+      // set the scale correction
+      // 
+      std::vector<double> bond_lengths;
+      for (unsigned int i=0; i<rdkm->getNumBonds(); i++) {
+	 const RDKit::Bond *bond_p = rdkm->getBondWithIdx(i);
+	 int idx_1 = bond_p->getBeginAtomIdx();
+	 int idx_2 = bond_p->getEndAtomIdx();
+	 if ( (*rdkm)[idx_1]->getAtomicNum() != 1) { 
+	    if ( (*rdkm)[idx_2]->getAtomicNum() != 1) {
+	       RDGeom::Point3D &r_pos_1 = conf.getAtomPos(idx_1);
+	       RDGeom::Point3D &r_pos_2 = conf.getAtomPos(idx_2);
+	       clipper::Coord_orth p1(r_pos_1.x, r_pos_1.y, r_pos_1.z);
+	       clipper::Coord_orth p2(r_pos_2.x, r_pos_2.y, r_pos_2.z);
+	       double l = clipper::Coord_orth::length(p1, p2);
+	       bond_lengths.push_back(l);
+	    }
+	 }
+      }
+      if (bond_lengths.size() > 0) {
+	 std::sort(bond_lengths.begin(), bond_lengths.end());
+	 int index = bond_lengths.size()/2;
+	 double bll = bond_lengths[index];
+	 double scale = 1.0/bll;
+	 m.scale_correction.first = 1;
+	 m.scale_correction.second = scale;
+      }
+      
 
       if (n_mol_atoms > 0) {
 	 double centre_x = sum_x/double(n_mol_atoms);
@@ -6626,8 +6659,8 @@ lbg_info_t::update_statusbar_smiles_string() const {
 }
 
 #ifdef MAKE_ENTERPRISE_TOOLS
-void
-lbg_info_t::update_statusbar_smiles_string(const RDKit::RWMol &mol) const {
+std::string
+lbg_info_t::get_smiles_string(const RDKit::ROMol &mol) const {
 
    std::string s;
    if (mol.getNumAtoms() > 0) {
@@ -6635,6 +6668,14 @@ lbg_info_t::update_statusbar_smiles_string(const RDKit::RWMol &mol) const {
       RDKit::ROMol mol_copy(mol);
       s = RDKit::MolToSmiles(mol_copy);
    } 
+   return s;
+}
+#endif
+
+#ifdef MAKE_ENTERPRISE_TOOLS
+void
+lbg_info_t::update_statusbar_smiles_string(const RDKit::ROMol &mol) const {
+   std::string s = get_smiles_string(mol);
    update_statusbar_smiles_string(s);
 }
 #endif

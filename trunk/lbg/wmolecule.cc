@@ -194,7 +194,7 @@ widgeted_molecule_t::input_coords_to_canvas_coords(const clipper::Coord_orth &po
    // convert from JME-style (top canvas atoms have big Y) to internal
    // coordinates (top canvas has small Y).
 
-   if (0) 
+   if (0)
       std::cout << "   scale_correction  " << scale_correction.first << " " << scale_correction.second
 		<< " centre_correction " << centre_correction << " mol_in_max_y " << mol_in_max_y
 		<< " mol_in_min_y " << mol_in_min_y << std::endl;
@@ -219,9 +219,6 @@ widgeted_molecule_t::input_coords_to_canvas_coords(const clipper::Coord_orth &po
    y += y_offset;
 
    lig_build::pos_t pos(x,y);
-
-   // pos -= top_left_correction; // FIXME
-
    return pos;
 }
 

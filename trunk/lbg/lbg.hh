@@ -1099,7 +1099,9 @@ public:
 #ifdef MAKE_ENTERPRISE_TOOLS
    RDKit::RWMol rdkit_mol(const widgeted_molecule_t &mol) const;
    // do these need to be RWMols?
-   void update_statusbar_smiles_string(const RDKit::RWMol &rdkm) const;
+   void update_statusbar_smiles_string(const RDKit::ROMol &rdkm) const;
+   std::string get_smiles_string(const RDKit::ROMol &mol) const;
+
    void update_qed(const RDKit::RWMol &rdkm);
    void update_alerts(const RDKit::RWMol &rdkm);
    std::string get_smiles_string_from_mol(const RDKit::RWMol &mol) const;

@@ -5,9 +5,6 @@
 
    o charge on lidia?
 
-   o stamped polygon bonds different size when reading in smiles or mdl
-     mol.
-
 -----
 
    o ligand from 3b6a has lost an OH in the thumbnail.
@@ -171,5 +168,10 @@ mol=0x0) at rama_plot.cc:1517
 
    o positioning of key in flev: 2gru
  
+* Done.  
+
+   o stamped polygon bonds different size when reading in smiles or mdl
+     mol.
+
 * Done.  
 
