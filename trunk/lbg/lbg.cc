@@ -3278,11 +3278,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 	 bool strict_parsing = true;
 
 	 // strict_parsing is not in the MolFileToMol() interface for old RDKits.
-	 RDKit::RWMol *m = NULL;
-	 if (strcmp(RDKit::rdkitVersion, "2012.06") < 0)
-	    m = RDKit::MolFileToMol(file_name, sanitize, removeHs);
-	 else 
-	    m = RDKit::MolFileToMol(file_name, sanitize, removeHs, strict_parsing);
+	 RDKit::RWMol *m = RDKit::MolFileToMol(file_name, sanitize, removeHs);
 	 
 	 int n_bonds = m->getNumBonds();
 	 for (unsigned int ib=0; ib<n_bonds; ib++) {
