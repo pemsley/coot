@@ -734,23 +734,23 @@ private:
       sbase_import_func_ptr = NULL;
       get_drug_mdl_file_function_pointer = NULL;
       draw_flev_annotations_flag = false;
-      lbg_nitrogen_toggle_toolbutton = NULL;
-      lbg_carbon_toggle_toolbutton   = NULL;
-      lbg_oxygen_toggle_toolbutton   = NULL;
-      lbg_sulfur_toggle_toolbutton   = NULL;
-      lbg_phos_toggle_toolbutton     = NULL;
-      lbg_fluorine_toggle_toolbutton = NULL;
-      lbg_chlorine_toggle_toolbutton = NULL;
-      lbg_bromine_toggle_toolbutton  = NULL;
-      lbg_single_bond_toggle_toolbutton  = NULL;
-      lbg_double_bond_toggle_toolbutton  = NULL;
-      lbg_ring_8_toggle_toolbutton = NULL;
-      lbg_ring_7_toggle_toolbutton = NULL;
-      lbg_ring_6_toggle_toolbutton = NULL;
-      lbg_ring_6_arom_toggle_toolbutton = NULL;
-      lbg_ring_5_toggle_toolbutton = NULL;
-      lbg_ring_4_toggle_toolbutton = NULL;
-      lbg_ring_3_toggle_toolbutton = NULL;
+//       lbg_nitrogen_toggle_toolbutton = NULL;
+//       lbg_carbon_toggle_toolbutton   = NULL;
+//       lbg_oxygen_toggle_toolbutton   = NULL;
+//       lbg_sulfur_toggle_toolbutton   = NULL;
+//       lbg_phos_toggle_toolbutton     = NULL;
+//       lbg_fluorine_toggle_toolbutton = NULL;
+//       lbg_chlorine_toggle_toolbutton = NULL;
+//       lbg_bromine_toggle_toolbutton  = NULL;
+//       lbg_single_bond_toggle_toolbutton  = NULL;
+//       lbg_double_bond_toggle_toolbutton  = NULL;
+//       lbg_ring_8_toggle_toolbutton = NULL;
+//       lbg_ring_7_toggle_toolbutton = NULL;
+//       lbg_ring_6_toggle_toolbutton = NULL;
+//       lbg_ring_6_arom_toggle_toolbutton = NULL;
+//       lbg_ring_5_toggle_toolbutton = NULL;
+//       lbg_ring_4_toggle_toolbutton = NULL;
+//       lbg_ring_3_toggle_toolbutton = NULL;
       lbg_show_alerts_checkbutton    = NULL;
       lbg_alert_hbox_outer = NULL;
       alert_group = NULL; // group for alert annotations
@@ -996,29 +996,29 @@ public:
    GtkWidget *lbg_flip_rotate_hbox;
    GtkWidget *lbg_clean_up_2d_toolbutton;
    GtkWidget *lbg_search_database_frame;
-   GtkWidget *lbg_nitrogen_toggle_toolbutton;
-   GtkWidget *lbg_carbon_toggle_toolbutton;
-   GtkWidget *lbg_oxygen_toggle_toolbutton;
-   GtkWidget *lbg_sulfur_toggle_toolbutton;
-   GtkWidget *lbg_phos_toggle_toolbutton;
-   GtkWidget *lbg_fluorine_toggle_toolbutton;
-   GtkWidget *lbg_chlorine_toggle_toolbutton;
-   GtkWidget *lbg_bromine_toggle_toolbutton;
-   GtkWidget *lbg_single_bond_toggle_toolbutton;
-   GtkWidget *lbg_double_bond_toggle_toolbutton;
-   GtkWidget *lbg_ring_8_toggle_toolbutton;
-   GtkWidget *lbg_ring_7_toggle_toolbutton;
-   GtkWidget *lbg_ring_6_toggle_toolbutton;
-   GtkWidget *lbg_ring_6_arom_toggle_toolbutton;
-   GtkWidget *lbg_ring_5_toggle_toolbutton;
-   GtkWidget *lbg_ring_4_toggle_toolbutton;
-   GtkWidget *lbg_ring_3_toggle_toolbutton;
+//    GtkWidget *lbg_nitrogen_toggle_toolbutton;
+//    GtkWidget *lbg_carbon_toggle_toolbutton;
+//    GtkWidget *lbg_oxygen_toggle_toolbutton;
+//    GtkWidget *lbg_sulfur_toggle_toolbutton;
+//    GtkWidget *lbg_phos_toggle_toolbutton;
+//    GtkWidget *lbg_fluorine_toggle_toolbutton;
+//    GtkWidget *lbg_chlorine_toggle_toolbutton;
+//    GtkWidget *lbg_bromine_toggle_toolbutton;
+//    GtkWidget *lbg_single_bond_toggle_toolbutton;
+//    GtkWidget *lbg_double_bond_toggle_toolbutton;
+//    GtkWidget *lbg_ring_8_toggle_toolbutton;
+//    GtkWidget *lbg_ring_7_toggle_toolbutton;
+//    GtkWidget *lbg_ring_6_toggle_toolbutton;
+//    GtkWidget *lbg_ring_6_arom_toggle_toolbutton;
+//    GtkWidget *lbg_ring_5_toggle_toolbutton;
+//    GtkWidget *lbg_ring_4_toggle_toolbutton;
+//    GtkWidget *lbg_ring_3_toggle_toolbutton;
    GtkWidget *canvas;
    GooCanvasItem *key_group;
    std::map<std::string, GtkToggleToolButton *> widget_names;
    widgeted_molecule_t mol;
    int canvas_addition_mode;
-   void lbg_toggle_button_my_toggle(GtkWidget *tbw);
+   void lbg_toggle_button_my_toggle(GtkToggleToolButton *tb);
    void save_molecule(); // moved so that function lbg() can save on start.
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
    bool save_togglebutton_widgets(GtkBuilder *builder);
@@ -1066,6 +1066,7 @@ public:
 						 GooCanvasItem *target,
 						 GdkEventKey *event,
 						 gpointer data);
+   void handle_key_press_button_toggle(int key, bool ctrl_is_pressed);
    
    // and the version of that not going via an intermediate molfile_molecule_t
 #ifdef MAKE_ENTERPRISE_TOOLS   
