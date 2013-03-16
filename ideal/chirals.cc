@@ -423,7 +423,7 @@ coot::restraints_container_t::check_pushable_chiral_hydrogens(gsl_vector *v) {
 	       // is the hydrogen on the wrong side of the chiral centre?
 	       // 
 	       bool val = chiral_hydrogen_needs_pushing((*this)[i], v);
-	       std::cout << "::::  chiral_hydrogen_needs_pushing() returned " << val << std::endl;
+	       // std::cout << "::::  chiral_hydrogen_needs_pushing() returned " << val << std::endl;
 	       if (val) {
 		  const coot::simple_restraint &restraint = (*this)[i];
 		  push_chiral_hydrogen(restraint, v);
@@ -609,7 +609,7 @@ coot::restraints_container_t::has_tiny_chiral_centre_volume(const coot::simple_r
 
    double chiral_fraction = fabs(cv/chiral_restraint.target_chiral_volume);
 
-   std::cout << "     chiral_fraction " << chiral_fraction << std::endl;
+   // std::cout << "     chiral_fraction " << chiral_fraction << std::endl;
 
    if (chiral_fraction < 0.4)
       r = true; 
