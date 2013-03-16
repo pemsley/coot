@@ -438,15 +438,16 @@ coot::get_rand_angle(double current_angle,
 
    double r = current_angle;
    double minus_one_to_one = -1 + 2 * float(coot::util::random())/float(RAND_MAX);
-   double angle_scale_factor = 0.2 + 0.8 - double(itrial)/double(n_trials);
+   double trial_factor = double(itrial)/double(n_trials);
+   double angle_scale_factor = 0.2 + 0.8 - trial_factor;
  
    r += 30 * minus_one_to_one * angle_scale_factor;
 
    // allow gauche+/gauche-/trans
    double rn = float(coot::util::random())/float(RAND_MAX);
-   if (rn < 0.3) {
+   if (rn < (0.3 - 0.25*trial_factor)) {
       double rn_2 = float(coot::util::random())/float(RAND_MAX);
-      double step = floor(3 * rn_2) * 60.0;
+      double step = floor(6 * rn_2) * 60.0;
       // std::cout << "      step " << step << std::endl;
       r += step;
    } 
