@@ -336,6 +336,11 @@ GtkWidget *main_toolbar();
 
 /* entry_info_t entry_to_number(GtkWidget *entry);  */
 
+/*! \brief set the main window title.
+
+function added for Lothar Esser */
+void set_main_window_title(const char *s);
+
 /* \} */
 
 /*  -------------------------------------------------------------------- */
