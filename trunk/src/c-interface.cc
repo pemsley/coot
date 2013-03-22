@@ -1338,6 +1338,22 @@ void info_dialog_and_text(const char *txt) {
    add_to_history_typed(cmd, args);
 }
 
+void
+set_main_window_title(const char *s) {
+
+   graphics_info_t g;
+   if (g.use_graphics_interface_flag){
+      if (g.glarea) { 
+      	 GtkWidget *win = lookup_widget(g.glarea, "window1");
+	 if (win) { 
+	    GtkWindow *window = GTK_WINDOW(win);
+	    gtk_window_set_title(window, s);
+	 }
+      }
+   }
+} 
+
+
 
 GtkWidget *main_menubar() {
 
