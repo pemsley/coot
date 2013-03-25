@@ -73,9 +73,10 @@ AM_CXXFLAGS = \
 
 bin_PROGRAMS = findligand-real findwaters-real
 
-# check_PROGRAMS = test-helix-placement test-fffear-in-coot testdunbrack test-random test-ligand
+# check_PROGRAMS = test-helix-placement test-fffear-in-coot testdunbrack 
+#                  test-random test-ligand test-rotamer-tables-sql
 
-check_PROGRAMS = test-fffear-in-coot test-rotamer-tables-sql
+check_PROGRAMS = test-fffear-in-coot 
 
 findligand_real_SOURCES = find-ligand.cc
 findwaters_real_SOURCES = find-waters.cc
