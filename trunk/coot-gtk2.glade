@@ -26606,6 +26606,7 @@ density (too big to be waters):
 
 	  <child>
 	    <widget class="GtkScrolledWindow" id="scrolledwindow8">
+	      <property name="height_request">150</property>
 	      <property name="visible">True</property>
 	      <property name="hscrollbar_policy">GTK_POLICY_ALWAYS</property>
 	      <property name="vscrollbar_policy">GTK_POLICY_ALWAYS</property>
