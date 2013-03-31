@@ -1,0 +1,537 @@
+-*-text-*-
+
+
+Coot
+-------
+
+Coot is a toolkit for Macromolecular Crystallography and
+model-building.  Coot uses professional (and free) widgets (with the
+gui builder glade), mmdb, clipper, and OpenGL, together with a new
+approach to map contouring and importing/creation and other
+modelling and building operations.
+
+
+Redistribution
+--------------
+
+This software package (coot and its relatives) is Free Software.
+
+This software is substantially dependent on on Free and Open Source
+Software and software distributed under part (i) of the CCP4 Software
+Licence and is therefore is distributed under the GNU General Public
+Licence. 
+
+Therefore, of course, you are able to use and redistribute this
+software with *your* software (provided you also distribute this
+source code).
+
+You may find coot distributed with CCP4 Software.  Be aware that coot
+is not covered under the CCP4 Software Licence, either part (i) or
+part (ii).
+
+This is Free Software - anyone referring to it as "Open Source" shall
+be eaten by a gnu.
+
+Prerequisites:
+-------------
+
+ To build this software from scratch, you will need:
+
+ * a C++ compiler that knows about the STL.
+
+ * gtk+ (1.2), 
+
+ * gtkglarea, 
+   http://www.ysbl.york.ac.uk/~emsley/software/extras/gtkglarea-1.2.3.tar.gz
+
+ * mmdb-1.12 (or later)
+
+ * fftw-2.1.5, 
+
+ * ccp4 libs,
+   http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
+
+ * clipper and its dependencies (its dependencies are ccp4 libs, mmdb, fftw)
+
+ * OpenGL: (GL, glu, glut)
+
+ And optionally (coot is better if you have these):
+ 
+ * gsl-1.3 or later (http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/gsl)
+   [This is quite important, you can't regularize or refine without this] 
+ * gtk-canvas-0.1.1 (http://www.atai.org/gtk-canvas/)
+   [for Ramachandran plots, sequence view]
+ * guile-1.6.4 or later
+   (http://www.mirror.ac.uk/sites/ftp.gnu.org/gnu/guile/) [scripting]
+ * guile-gui-0.2.tar.gz (http://www.ossau.uklinux.net/guile/) [interactive scripting]
+ * guile-www-1.1.5 or later (http://www.ysbl.york.ac.uk/~emsley/software/extras/) 
+   [OCA Server interface]
+ * guile-gtk-0.40 or later (for gtk-1.2) 
+   (ftp://ftp.gnu.org/gnu/guile-gtk) [interactive scripting]
+ * goosh-1.3 or later (http://arglist.com/guile/) 
+   [external program (e.g. refmac, lsqman) interface] 
+ * SSMlib (http://www.ysbl.york.ac.uk/~emsley/software/extras/) 
+   [superposition]
+
+ (you can also get these from http://www.ysbl.york.ac.uk/~emsley/software/extras)
+
+
+Building Automatically
+----------------------
+
+ I'd say that the easiest way to try to build coot is to use the
+ auto-builder:
+
+ GTK+-2 version (the standard version)
+ http://coot.googlecode.com/svn/trunk/build-it-gtk2-simple
+
+ GTK+-1 version (getting old and less well supported)
+ http://www.ysbl.york.ac.uk/~emsley/build-logs/build-it
+
+ It checks for dependencies and builds them if needed.
+
+ Pass the argument "python" if you want to have python built into the
+ executable too (recommended).
+
+
+ From a fresh ubuntu install, you also need to install:
+
+ patch
+ m4
+ g++
+ libxext-dev
+ libxt-dev
+ libc6-dev
+ libglu1-mesa-dev 
+ mesa-common-dev
+ swig
+ libgtk2.0-dev
+ libgnomecanvas2-dev
+
+
+Building by Hand
+----------------
+
+ Don't do this.  Try autobuilding first.  If that fails report to Paul
+ (unless building on Windows, then report to Bernhard).  If you try to
+ autobuild on Macintosh OS X: good luck.
+
+ OK, if you ignore that advice.....
+
+ First build and install mmdb and clipper.
+
+  mmdb
+  ----
+
+ MMDB is CCP4's Macromolecular Coordinate Library written by Eugene
+ Krissinel at the EBI.
+
+ Note that official mmdb as distributed by Eugene does not install and
+ does conform to normal "unix" standard notions of the behaviour of
+ include and libraries. So either you will doing something by hand,
+ and that is to link (or copy) mmdb.a to libmmdb.a (and that it is in
+ the top directory of mmdb).
+
+ Or the easier method is to pick up the version of mmdb that has been
+ packaged with a GNU configure script from 
+ http://www.ysbl.york.ac.uk/~emsley/software/mmdb-1.21-ysbl.tar.gz 
+ is the current version (at time of writing).
+
+  clipper
+  -------
+
+Right now, building clipper is non-trivial.  clipper depends on mmdb,
+so compile mmdb first.  
+
+http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-2.1-090522-ac.tar.gz
+
+Configure clipper something like this:
+
+./configure --prefix=$HOME/crystal --with-fftw=$HOME/crystal --with-mmdb=$HOME/crystal --with-ccp4=$HOME/crystal --enable-mmdb --enable-mtz --enable-cif --enable-mmdbold --enable-minimol --enable-phs
+
+Clipper should give a summary like this (if it does not either clipper
+or coot will not work)
+
+        Configuration Summary
+ ------------------------------
+core:          yes
+contrib:       yes
+phs:           yes
+mmdb:          yes
+mmdbold:       yes
+minimol:       yes
+cif:           yes
+mtz:           no
+ccp4:          yes
+cctbx:         no
+
+
+
+ Other dependences:
+ -----------------
+
+ glib:
+
+   If necessary, use: --with-glib-prefix=PREFIX
+
+ gtk:
+
+   If necessary, use: --with-gtk-prefix=PREFIX
+
+ glut: 
+
+   If necessary, use: --with-glut-prefix=PREFIX
+
+ gtkglarea:
+
+   If necessary, use --with-gtkgl-prefix=PREFIX
+
+ guile
+
+   use --with-guile
+
+   If you use --with-guile you will need guile-config in your path
+
+ python
+
+   use --with-python
+
+
+ Note that without either guile or python, coot is pretty crippled -
+ and current the guile support is more developed - so use that for
+ now, if you can.
+
+ Building Coot
+ -------------
+To build coot, you will almost certainly need to specify the prefix
+for clipper and mmdb.  Here is how I do it:
+
+ ./configure --with-clipper-prefix=$HOME/crystal/clipper --with-mmdb-prefix=$HOME/crystal/mmdb112
+
+Similarly you may also need to specify the path to gtkglarea libs using the
+--with-gtkgl-prefix.
+
+The following comments are copied (from the clipper and mmdb macros)
+for you ease of reading:
+
+ Example:
+
+ So, here, for example, is the configure line used at the Daresbury
+ development computer, dlpx1:
+
+./configure --prefix=$HOME/gnu --with-gtk-prefix=/usr/local --with-gtkgl-prefix=$HOME/gnu --with-clipper-prefix=$HOME/cowtan --with-mmdb-prefix=$HOME/gnu --with-glib-prefix=/usr/local --with-glut-prefix=/usr/local
+
+Here is how I configure using MacOS 10.2 (Darwin/fink):
+
+./configure --prefix=$HOME/crystal --with-mmdb-prefix=$HOME/crystal --with-clipper-prefix=$HOME/crystal --with-glut-prefix=/sw --with-gl-prefix=/usr/X11R6 --with-guile
+
+Redhat 7.2
+ ./configure --prefix=$HOME/coot 
+    --with-fftw-prefix=$HOME/coot
+    --with-mmdb-prefix=$HOME/coot
+    --with-gtkgl-prefix=$HOME/coot
+    --with-clipper-prefix=$HOME/coot
+    --with-gtkcanvas-prefix=$HOME/coot
+    --with-guile
+
+ SGI
+ ---
+
+  To use either the binary distribution or to use GTK_CANVAS (for
+  Ramachandran plots), you will need to install the subsystem
+  fw_imlib.sw.lib (imlib-1.9.9 from
+  http://freeware.sgi.com/fw-6.2/index-by-alpha.html).  
+
+  You will also need gcc and libungif.
+
+  Note: Coot 0.1 moved to new style clipper and ccp4 libs and as a
+  result I can no longer get clipper to compile on SGI with gcc/g++.
+  Which means that Coot 0.1 won't work on SGI.  You can try to fix it
+  - good luck.
+
+
+Mac OS X
+--------
+
+The X11-dependent binary distribution for Mac OS X depends on having
+some libraries installed by fink:
+
+fink install gtk+ glib glib-shlibs guile16 guile16-libs guile16-shlibs guile16-dev glut glut-shlibs gtkglarea 
+fink install imlib imlib-shlib
+
+You also need Apple's X11 SDK.
+
+You need to work around a fink guile wrinkle.  The configure script
+needs to know that guile-1.6 is actually guile and guile-1.6-config is
+actually guile-config.  To do this I created links to those from a
+directory in my path.  To be explicit:
+
+$ mkdir ~/build/bin
+$ ln -s /sw/bin/guile-1.6 ~/build/bin/guile
+$ ln -s /sw/bin/guile-1.6-config ~/build/bin/guile-config
+
+
+If you want to be able to refine and regularize (and I suggest that
+you do) you will need to install the GNU Scientific Library (GSL).  I
+suggest that you install it in $HOME/coot/Darwin.  You will need to
+add $HOME/coot/Darwin/bin to your path before you configure coot.
+Also, it's a good idea to have gtk-canvas (installed in
+$HOME/coot/Darwin) too.  Here's how I configure gtk-canvas:
+
+$ ./configure --prefix=$HOME/coot/Darwin --with-imlib-prefix=/sw
+
+To compile, you will need to remove line 15 (the malloc line) from
+gtk-canvas/gtk-canvas-load.c
+
+If you use the binary tar, you will need to set the environment
+variable DYLD_LIBRARY_PATH.  Say you untared the binary distribution
+into $HOME/coot, then you would need to add setup (tcsh) setup code of
+the following form:
+
+if ($?DYLD_LIBRARY_PATH) then
+   setenv DYLD_LIBRARY_PATH $(DYLD_LIBRARY_DIR}:$HOME/coot/lib
+else
+   setenv DYLD_LIBRARY_PATH $HOME/coot/lib
+endif
+
+See also http://www.ysbl.york.ac.uk/~emsley/coot/setup
+
+The default mouse focusing with the Aqua window manager is a PITA when 
+using coot. Try this:
+
+$ defaults write com.apple.x11 wm_ffm true
+
+
+Cygwin
+------
+
+To extend the available memory:
+http://cygwin.com/cygwin-ug-net/setup-maxmem.html
+
+
+Ligand Dialog, aka LIDIA
+------------------------
+
+To get ligand builder dialog you will need to comile with a
+sufficiently recent version of gtk (2.16 or later) and goocavanvas.
+
+
+extension language wrapper
+--------------------------
+
+If you use Python without guile you will need to stop guile wrapper
+code being compiled:
+
+          $ cp src/blank.cc src/coot_wrap_guile.cc
+
+before you do a make. [I'd like to sort out this problem in the
+configure system, but I haven't managed it yet]
+
+If you get:
+coot_wrap_python.cc  -fPIC -DPIC -o .libs/coot_wrap_python.lo
+coot_wrap_python.cc:26:20: Python.h: No such file or directory
+coot_wrap_python.cc:247:20: Python.h: No such file or directory
+make[2]: *** [coot_wrap_python.lo] Error 1
+make[2]: Leaving directory `/home/paule/Projects/coot-0.4.36/src'
+make[1]: *** [all-recursive] Error 1
+make[1]: Leaving directory `/home/paule/Projects/coot-0.4.36'
+
+Solution: coot_wrap_python.cc needs to be updated now that python is
+          no longer being used:
+
+	  $ rm coot_wrap_python.cc
+          $ make
+
+../src/c-inner-main.c:76: undefined reference to `SWIG_init'
+
+Solution coot_wrap_guile.cc needs to be updated now that guile is 
+	 being used:
+
+	 $ rm coot_wrap_guile.cc
+	 $ make coot_wrap_guile.cc
+	 $ make
+
+Note that if you use the --with-python argument to coot's configure,
+then you will need by hand to install (copy) the resulting src/coot.py
+into $COOT_PREFIX/share/coot/python directory.
+
+
+Usage:
+-----
+
+Environment Variables: 
+
+  COOT_REF_STRUCTS:
+
+    By default Coot looks in
+    $prefix/share/coot/reference-structures, if not there then it
+    checks the environment variable COOT_REF_STRUCTS (see below).
+
+  COOT_STANDARD_RESIDUES:
+   
+    By defaults Coot looks in
+    $prefix/share/coot/standard-residues.pdb, if not there then it
+    checks the environment variable COOT_STANDARD_RESIDUES.
+
+  COOT_SCHEME_DIR
+
+    By defaults Coot looks in $prefix/share/coot/scheme for its scheme
+    extension files, if not there then it checks in the directory
+    pointed to by the environment variable COOT_SCHEME_DIR.
+  
+Reference Structures
+
+  COOT_REF_STRUCTS is an environment variable that points to a
+  directory of reference structures [these structures are used to
+  generate a fragment library for the generation of the mainchain from
+  Ca coordinates].  If you aren't building mainchain, you don't need
+  them.  A set of high resolution (1.3A or better) is available from: 
+
+  http://www.ysbl.york.ac.uk/~emsley/software/coot-reference-structures.tar.gz
+
+
+"External" Scheme Scripts
+-------------------------
+
+Ths error:
+
+Loading scheme files from /usr/local/coot/share/coot/scheme
+load "filter.scm"
+load "coot-utils.scm"
+load "coot-gui.scm"
+(Error in proc: misc-error  args:  (#f ~A ~S (no code for module (gui
+event-loop)) #f))
+(Error in proc: unbound-variable  args:  (#f Unbound variable: ~S
+(tips-gui) #f))
+
+is fixed by installing the guile-gui package.
+
+This error:
+
+(...)
+Loading scheme files from /usr/local/coot/share/coot/scheme
+load "filter.scm"
+load "coot-utils.scm"
+load "coot-gui.scm"
+Coot Scripting GUI code found and loaded.
+load "coot-lsq.scm"
+load "shelx.scm"
+load "get-ebi.scm"
+(Error in proc: misc-error  args:  (#f ~A ~S (no code for module (net
+http)) #f))
+(Error in proc: unbound-variable  args:  (#f Unbound variable: ~S
+(tips-gui) #f))
+
+is fixed by installing the net-http package.
+
+
+Scheme Usage
+------------
+
+Why write scripts in scheme when others are using python?
+
+There are several answers to that, the most important (to me) is that
+programming scheme is fun.  The scheme support for coot is more
+advanced than the python support.  I feel the python support code
+should be on at a similar level, I'm just not motivated to do it.
+Patches accepted, of course :) Shouldn't take very long for someone
+experienced in Python...
+
+
+To Debug:
+--------
+
+CXXFLAGS=-g CFLAGS=-g ./configure 
+make
+
+or ./configure [options] CXXFLAGS=-g (for tcsh users)
+
+Note that on RedHat Linux 8.0, you will need to compile with
+CXXFLAGS=-O1 since the default optimization level (-O2) will crash the
+compiler.
+
+Idea Thanks
+-----------
+
+   I have a memory of a conversation with Mike Hartshorn - which
+   planted the seed of the idea of writing a free model-building
+   program in about 1991.  It took many years for this idea to bear
+   fruit however. [Mike went on to write AstexView more rapidly].
+
+   Many of the ideas in Coot are of course influenced by Alwyn Jones'
+   O (and to a lesser extent Frodo).  I am grateful to him also
+   because it in the late 80s that was sitting in front of a PS300
+   running Frodo in York that I though "wow, this is what I want to
+   do", without him and Frodo, I wouldn't be a crystallographer. 
+   Thanks Alwyn.
+
+   Many evening sessions with Adrian Lapthorn undoubtedly put some
+   flesh on the bones of the ideas - certainly in those days we formed
+   many opinions about The Right Way to do things.  Some of them are
+   now present in Coot.
+
+   Some credit for the way the interactive refinement works should go
+   to Warren DeLano.  At a CCP4 Study Weekend (2003?) he presented
+   "sculpt" mode in PyMol.  The audience (and I!) was really wowed.
+   Until that point, I'd rejected the idea of such interactivity
+   because it was not reproducable in the history (not easily,
+   anyway).  But then I saw Warren's demo and I thought, "we've go to
+   have that something like that too!"  It then took me a couple of
+   days to bolt it into the existing real space refinement code.
+
+   A little while ago now, I was demonstrated and impressed by PyMol's
+   "view"s.  18 months later I added a view system to Coot.
+
+
+Code Thanks...
+---------
+
+  particularly go to:
+
+  Kevin Cowtan for many things, including clipper, explaining to me
+  how it works :), writing the density (grid)->coordinate space
+  transformation and general assistance when the maths got tricky,
+
+  Eugene Krissinel for mmdb, 
+
+  Eugene Krissinel and Kim Henrick for libssm,
+
+  Raghavendra Chandrashekara for iso-surface code,
+
+  Stuart McNicholas for MGTree code,
+
+  Roland Dunbrack and co-worker for the rotamer library,
+
+  Alexi Vagin for Refmac cif dictionaries,
+
+  And Mr Behind-the-scenes-man (who allowed the whole thing to happen):  
+  Prof. Keith Wilson,
+
+  Finally, thanks to those who have emailed advice[1], the Coot
+  testers[2] and particularly those who tried to compile the source
+  code[3] and sent patches[4]: they suffered so that you don't have
+  to.
+
+  Thank you all - I have very much enjoyed doing Coot.
+
+[1] Ethan Merritt, Gerard Kleywegt, George Sheldrick
+
+[2] Eleanor Dodson, Miguel Ortiz Lombardía, Charlie Bond,
+    Jan Dohnalek, Garib Murshudov, Jean Wittingham, Florence Vincent,
+    Tracy Gloucester, Constantina Fotinou, Roberto Steiner, Adrian
+    Lapthorn, Claudia Schnick, Rosa Grenha, Ezra Peisach, Ben Luisi, 
+    Frank von Delft, Karen McLuskey, Marcin Cymborowski, Stephen Graham.
+
+[3] William G. Scott, Bernhard Lohkamp, Alex Schuettlekopf, Luca Jovine, 
+    Bob Nolte.
+
+[4] Ezra Peisach, Charlie Bond, Mike Hartshorn
+
+
+---
+Thanks for using coot.
+
+Paul Emsley
+Now in Oxford: paul dot emsley at bioch dot ox dot ac dot uk
+
+

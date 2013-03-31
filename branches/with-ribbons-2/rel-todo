@@ -1,0 +1,177 @@
+ 
+ 0.7.1
+
+----
+
+   o charge on lidia?
+
+-----
+
+   o ligand from 3b6a has lost an OH in the thumbnail.
+     Also, carboxylates drawn wrongly.  ::: 0.5
+
+* Done.
+   
+   o Phil: I want bond orders in colour-by-chain mode.
+
+     This is problematic because thinning depends on colour index -
+     independent of where the bonds come from - either bonds to
+     hydrogen or CA bonds.  ::: 0.5
+
+* forget thinning.  Hacked it in for now - colours are a bit strange.
+
+Done.
+
+   o Get from PDBe... fails in refmac for 4eh5 (pressing the button on
+     the recent structures gui) with 
+
+ Refmac_5.7.0029:  Check input coordinates
+ Refmac_5.7.0029:  New ligand has been encountered. Stopping now
+ 
+   message.
+
+     Doing it from the entry seems to do nothing.  
+
+    ::: 0.5
+
+* Seems OK to me...
+
+   o get minimal description for ligand from pdb/rcsb ::: 0.2
+
+* Done.
+
+   o B-factor sharpening correction, Chang Liu ::: 0.5
+ 
+* Done.
+
+   o 3tos fails to offset correctly in sequence view.
+     Punt?  ::: 1
+
+* Done.  Close enough - residues go beyond magic number (canvas max size).
+
+   o mogul brown bonds. 
+
+* Done
+
+  o  This happens (reproducibly) if I use
+     smiles_to_ligand_builder
+     with c1ccccc1 as a start and then add a 5 ring. ::: 2
+
+* Done
+
+   o after delete residue, update environment distances - so that a
+     double-added ligand gets cleaned up without recentering. ::: 0.2
+
+* Done.
+
+
+   o 2izb: water bonds ::: 1
+
+* Done 
+
+   o Files -> SMILES when libcheck is not installed
+
+* Already Done.
+
+
+   o ligand M2F in 2wbk: the nitro groups: O=N-O the O should have a
+   formal charge not and H, I think (is there an H in the dictionary? 
+   - no)
+
+     In the sdf file for mogul, there should be double bonds to both oxygens.
+
+Done.
+
+   o bond orders in CA+ligands mode?
+
+Done.
+
+   o Shift R, then Shift R again before accept -> multiple dialogs
+
+Done.  Tricky code means that I could have introduced a bug here.
+
+     o 
+==24113== Mismatched free() / delete / delete []
+==24113==    at 0x4C26DCF: operator delete(void*) (vg_replace_malloc.c:387)
+==24113==    by 0x5D2792: safe_python_command_with_return(std::string const&) (c-interface.cc:5351)
+==24113==    by 0x5D2866: run_python_command(char const*) (c-interface.cc:5430)
+==24113==    by 0x605AD0: _wrap_run_python_command(scm_unused_struct*) (coot_wrap_guile_gtk2.cc:40370)
+==24113==    by 0x91C8E41: deval (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==    by 0x91C7788: deval (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==    by 0x91C753E: deval (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==    by 0x91C6A69: deval (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==    by 0x91C6A69: deval (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==    by 0x91CA646: scm_i_eval_x (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==    by 0x91CA68F: scm_primitive_eval_x (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==    by 0x91E0030: scm_primitive_load (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==  Address 0x241e0a00 is 0 bytes inside a block of size 18 alloc'd
+==24113==    at 0x4C27939: operator new[](unsigned long) (vg_replace_malloc.c:305)
+==24113==    by 0x5D26E6: safe_python_command_with_return(std::string const&) (c-interface.cc:5313)
+==24113==    by 0x5D2866: run_python_command(char const*) (c-interface.cc:5430)
+==24113==    by 0x605AD0: _wrap_run_python_command(scm_unused_struct*) (coot_wrap_guile_gtk2.cc:40370)
+==24113==    by 0x91C8E41: deval (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==    by 0x91C7788: deval (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==    by 0x91C753E: deval (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==    by 0x91C6A69: deval (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==    by 0x91C6A69: deval (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==    by 0x91CA646: scm_i_eval_x (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==    by 0x91CA68F: scm_primitive_eval_x (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113==    by 0x91E0030: scm_primitive_load (in /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/libguile.so.17.4.0)
+==24113== 
+
+Done.
+
+   o wedge bonds disappear on cleanup (e.g. 0CO.sdf)
+
+* Fixed. WedgeMolBonds().
+
+   o Jade Li:
+[New Thread 25364]
+[Thread debugging using libthread_db enabled]
+Core was generated by
+`/public/xtal/Coot/coot-Linux-x86_64-scientific-linux-gtk2-python-emsley/bin/coo'.
+Program terminated with signal 11, Segmentation fault.
+#0  GetNumberOfModels (this=0x5c086b0, mol_in=0x0, is_primary=true) at
+/lmb/home/pemsley/autobuild/coot-for-hal-gtk2-python/include/mmdb/mmdb_coormngr.h:254
+254	    int GetNumberOfModels ()  { return nModels; }
+#0  GetNumberOfModels (this=0x5c086b0, mol_in=0x0, is_primary=true) at
+/lmb/home/pemsley/autobuild/coot-for-hal-gtk2-python/include/mmdb/mmdb_coormngr.h:254
+#1  coot::rama_plot::generate_phi_psis (this=0x5c086b0, mol_in=0x0,
+is_primary=true) at rama_plot.cc:894
+#2  0x0000000000877e0c in coot::rama_plot::generate_phi_psis (this=<value
+optimized out>, mol_in=<value optimized out>) at rama_plot.cc:877
+#3  0x000000000087945c in coot::rama_plot::draw_it (this=0x5c086b0,
+mol=0x0) at rama_plot.cc:1517
+#4  0x0000000000713ef6 in graphics_info_t::handle_rama_plot_update
+(this=<value optimized out>, plot=0x5c086b0) at graphics-info-gui.cc:1179
+#5  0x00000000006da536 in graphics_info_t::apply_undo
+(this=0x7fff796b376f) at graphics-info.cc:3234
+#6  0x00000000005576f8 in apply_undo () at c-interface-build.cc:495
+
+   o let's set some args: should only run this on a linux machine.
+
+* Done.
+
+   o Environment distances with hydrogenated ligand.
+
+* Not done properly - need HBA an checking.  Made a note for 0.8
+
+   o Getting EBI files
+
+* Done.
+
+   o if you flev the ligand twice, that toggles the interactions
+     twice, which means they end up invisible, unless they are switched
+     back on "by hand"
+
+* Done.  
+
+   o positioning of key in flev: 2gru
+ 
+* Done.  
+
+   o stamped polygon bonds different size when reading in smiles or mdl
+     mol.
+
+* Done.  
+

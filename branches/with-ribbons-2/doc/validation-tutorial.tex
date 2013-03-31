@@ -1,0 +1,145 @@
+
+% 10pt is the smallest font for article
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{epsf}
+\usepackage{a4}
+\usepackage{palatino}
+\usepackage{euler}
+\newcommand {\atilde} {$_{\char '176}$} % tilde(~) character
+
+\title{Tutorial: Validation with Coot}
+
+% \author{CCP4 Workshop New Delhi 2010}
+\author{BCA/CCP4 Summer School Oxford 2010}
+
+\begin{document}
+\maketitle
+%\tableofcontents
+%\listoffigures
+
+\section{Preamble}
+
+  We will validate the structure in which we fitted the
+  3-aminobenzamide ligands.
+
+\section{Difference Map Peaks}
+
+  One of the best tools for finding problems is the difference maps
+  peaks tool. So let's use that that.  
+
+  You should be able to see the ligand sites and other interesting
+  features. What the problem here? (For me it is peak 5, but if you
+  have run refmac with the model from the ligand fitting, then it may
+  be peak number 1.)  Fix the problem.
+
+\section{Rotamer Analysis}
+ 
+Another useful tool is the Rotamer Analysis.  Use that tool (in the
+\textsf{Validate} menu) to find problematic residues (note: not all
+big bars are necessarily wrong).
+
+%   [ Note to demonstrator:]
+
+%   LEU A 358 is back to front 
+%   VAL A 567 is back to front
+
+%   LYS A 263 model as an ALA
+%   ILE A 289 round the wrong way
+
+%   TRP A 427 round the wrong way
+
+\section{Ramachandran Plot and Difference Plots}
+
+The Ramachandran Plot is a classic model-based validation tool.  The
+Kleywegt Plot (\emph{i.e.} Ramachandran NCS difference Plot) is often
+used to examine NCS-related mainchain differences.
+
+Use these tools on this model to find Rotamers with problematic
+phi/psi values.  What is the Kleywegt Plot telling you? Is there a
+problem? If there is a problem, how might you fix it? (Hint is there
+anything in Refinement/Regularization Control (R/RC) that might be of
+use?)
+
+\section{NCS and NCS Ghosts}
+
+   Another way of showing NCS differences is using the NCS Ghosts, NCS
+   Maps and NCS skipping.  
+
+\subsection{NCS Skipping}
+
+Press \texttt{"P"} to go to the nearest and then \texttt{"O"} to jump
+between NCS-related models preserving the relative (NCS-compensating)
+view.
+
+\subsection{NCS Ghosts}
+
+\textsf{Draw $\rightarrow$ NCS Ghosts Control\ldots} Then for the
+chosen molecule turn on the NCS ghosts.
+
+\subsection{NCS Maps}
+
+NCS maps (\textsf{Calculate $\rightarrow$ NCS maps}) are useful
+addition to the NCS Ghosts because they show the maps corresponding
+the the NCS ghost molecules in the context of the NCS master
+(typically "A") chain.
+
+ 
+\section{Sequence Validation}
+
+Sometime people make sequence-based errors in building models.  Coot
+has a tool that allows you to compare the sequence in the model with a
+reference sequence.
+
+\textsf{Validate $\rightarrow$ Alignment vs. PIR}
+
+Read in the sequence file and press ``OK''.
+
+Is there a sequence problem?  How might you fix it?
+
+\section{Freestyle...}
+
+Use the EDS to download the structure and data/map for \texttt{1BAV}.
+Use the above tools to find any issues and correct them.
+
+How about \texttt{1H4P}?  Any issues there?
+
+And how about \texttt{2XDE}? % example of checking by NCS jumping (top
+                             % peak), pepflip and LEU 6B.
+(Hint: Diff map peaks, NCS jumping).
+
+And how about \texttt{1QW9}?
+
+And \texttt{1QEX}?  Problems?
+
+And how about \texttt{3L0F}? (Easy to spot, non-trivial to
+fix.) % example of ligand with incorrect restraints
+
+Another: 3f1l
+
+
+% 1BJI
+
+% 3eni (new) vs 1m50 (old)
+
+% 3f1l: high res, some model building problems, wrong sidechains, including a leu.
+
+The point of this excercise is not to pick holes in other people's
+structures - it is to illustrate (hopefully) that using modern
+graphics software (and in particular, Coot) problems in structures can
+be readily identified and fixed.  
+
+% It's an opportunity to learn from and improve the software.
+
+Another: 1ug6 (noted by Dale Tronrud)
+
+\section*{Bottom line:}
+
+\begin{quotation}
+  ``At least one person should look at the map\ldots'' 
+
+  -- Dale Tronrud\footnote{I believe}
+\end{quotation}
+
+\end{document}

@@ -1,0 +1,165 @@
+# coot_load_modules+gui.py
+
+# Copyright 2004, 2005, 2006, 2007 by the University of York
+# Author: Bernhard Lohkamp, Paul Emsley
+
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or (at
+# your option) any later version.
+
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA
+
+# load coot python modules (including gui s)
+
+import os
+import sys
+import traceback
+
+# define some globals
+
+# This is full pathname of molprobity's probe program
+# deftexi probe_command
+global probe_command
+probe_command = 'probe'
+
+# This is full pathname of molprobity's reduce program
+# deftexi reduce_command
+global reduce_command
+reduce_command = 'reduce'
+
+# This has be be here (in a general place) because tips_gui (where it
+# used to be is conditionally loaded).
+# (default to tips_gui displayed is True).
+# deftexi do_coot_tips_flag
+global do_coot_tips_flag
+do_coot_tips_flag = True
+
+# this is the variable we check so that coot doesn't double-load its extensions
+# - this is set in src/main.cc
+global use_gui_qm
+global have_guile_gtk
+
+pre_list = ["coot_utils.py",
+            "filter.py",
+            "coot_lsq.py",
+            "shelx.py",
+            "get_ebi.py",
+            "local_code.py",
+            # hello might give some people problems (according to Paul, it does 
+            # in the scheme version), if so, just comment out the next line:
+            "hello.py",
+            "mutate.py",
+            "refmac.py",
+            "libcheck.py",
+            "gap.py",
+            "fitting.py",
+            "raster3d.py",
+            "povray.py",
+            "remote_control.py",
+            "generic_objects.py",
+            "ncs.py",
+            "parse_pisa_xml.py",
+            "cns2coot.py",
+            "tips.py",
+            "prodrg_import.py",
+            "jligand.py",
+            "americanisms.py",
+            "group_settings.py"]
+post_list = ["coot_gui.py",
+            "tips_gui.py",
+            "check_for_updates.py",
+            "jligand_gui.py",
+            "get_recent_pdbe.py",
+            "extensions.py",
+            "shelx_extensions.py",
+            "clear_backup.py",
+            "coot_toolbuttons.py",
+            "rcrane_loader.py"]
+
+# list of modules not available on Windows
+non_win_list = ["brute_lsqman.py"]
+
+python_list = pre_list
+
+if (os.name != 'nt'):
+    python_list += non_win_list
+
+# are we running unittesting?
+coot_unittesting = False
+for arg in sys.argv:
+    if "coot_unittest.py" in arg:
+        coot_unittesting = True
+        break
+
+have_coot_python = False
+if use_gui_qm:
+    try:
+        # we only append the graphics modules if we have pygtk 2
+        import pygtk
+        import gtk
+        # now try to import coot_python
+        try: 
+            import coot_python
+            have_coot_python = True
+        except:
+            print """BL WARNING:: could not import coot_python module!!
+            Some things, esp. extensions, may be crippled!"""
+
+        # now make a global tooltip
+        if (gtk.pygtk_version < (2, 12)):
+            coot_tooltips = gtk.Tooltips()
+        # pygtk.require("2.0")
+        python_list += post_list
+        if (use_gui_qm == 2):
+            # we do have guile_gtk and dont want to have 
+            # the extra extensions from python
+            python_list.remove("extensions.py")
+    except:
+        print "BL INFO:: could not import pygtk and gtk"
+        pass    
+
+coot_python_dir = os.getenv('COOT_PYTHON_DIR')
+if coot_python_dir:
+    search_load_path = coot_python_dir
+else:
+    search_load_path = "@prefix@/share/coot/python"
+
+
+def load_from_search_load_path(file):
+    f = os.path.join(search_load_path, file)
+    if f:
+        print "load", file
+        execfile(f, globals())
+    else:
+        print "Error finding", file
+
+
+for name in python_list:
+    filename = os.path.join(search_load_path, name)
+    if filename and os.path.isfile(filename):
+        print "Loading:", name
+        try:
+            # BL says::
+            # We execute the files rather than loading it as modules since
+            # some and parts thereof are actually scripts and not modules
+            # if you wish to rather use modules use, e.g.
+            # exec "from " + base + " import *"
+            # and set PYTHONPATH to point to COOT_PYTHON_DIR
+            execfile(filename)
+        except:
+            traceback.print_exc()
+            print "BL ERROR: couldn't load ", name
+            if coot_unittesting:
+                coot_real_exit(1)
+    else:
+        print "ERROR: cannot find", name
+

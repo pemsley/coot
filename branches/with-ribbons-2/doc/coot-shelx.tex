@@ -1,0 +1,494 @@
+\documentclass{article}
+
+\usepackage{epsf}
+\usepackage{a4}
+
+%\usepackage{palatino}
+%\usepackage{euler}
+
+\newcommand {\atilde} {$_{\char '176}$} % tilde(~) character
+% I thought tilde was $\sim$...
+
+\begin{document}
+
+\title{Coot for SHELXL Tutorial}
+\author{Paul Emsley \& Judit \'{E} Debreczeni}
+
+\maketitle
+\tableofcontents
+
+\pagebreak
+\section{Introduction}
+
+This is an extended description of the presentation of Coot at the ACA
+meeting in Salt Lake City, 2007.
+
+It should also serve as a tutorial for Coot specific for use with
+SHELXL. As such, it is intended for those already familiar with the
+basics of SHELXL refinement\footnote{If this is not the case you might
+  want to give these a good
+  read:\\http://shelx.uni-ac.gwdg.de/SHELX/shelx.pdf and
+  http://shelx.uni-ac.gwdg.de/SHELX/pn1a.htm}, and would like to use
+Coot as a model building and validation tool between SHELXL refinement
+cycles. This is, however, no substitute for the standard Coot
+tutorial\footnote{http://www.ysbl.york.ac.uk/$\sim$emsley/coot/tutorial-2.pdf}.
+
+Some of the SHELXL-related functionalities of Coot will only work in
+version 0.4 or higher.
+
+\section{A SHELXL Project}
+Refinement in SHELXL requires two files:
+\begin{itemize}
+\item {\bf \texttt{ins}} -- instruction file containing atomic
+  coordinates, restraints, constraints and other refinement
+  instructions. Atomic coordinates are fractional coordinates and
+  protein molecules are represented as one single chain.
+\item {\bf \texttt{hkl}} -- SHELX format reflection file (typically HKLF4).
+\end{itemize}
+and will produce the following:
+\begin{itemize}
+\item {\bf \texttt{res}} -- similar to \texttt{ins} with updated
+  values of refined parameters,
+\item {\bf \texttt{fcf}} -- a small molecule style cif file containing
+  phases,
+\item {\bf \texttt{lst}} -- listing file containing diagnostic
+  information, useful for spotting errors in the model or refinement
+  parameters,
+\item {\bf \texttt{pdb}} -- pdb style coordinate output if WPDB card was given.
+\end{itemize}
+All extensions are appended to a common root, e.g. \texttt{\emph{my-project}.ins,\\\emph{my-project}.fcf} etc.
+
+\subsection{Reading and writing SHELX coordinate files}
+Coordinate files in SHELX format (\texttt{ins} and \texttt{res}) are
+valid coordinate formats in Coot, i.e. they can be read and written.
+However, not all SHELX commands are interpreted.
+
+\begin{itemize}
+
+\item {\bf CELL, LATT and SYMM cards} are used to determine the cell
+  and space group when reading \texttt{ins/res}.
+
+\item {\bf Atomic coordinates} are reformated upon as they are read:
+  the single protein chain is split up based on gaps in residue
+  number. It is assumed that a gap larger than 21 indicates the
+  beginning of a new chain, where a new chain identifier is assigned.
+  Residues are not renumbered, \emph{i.e.} residue numbers correspond
+  to those in the SHELX coordinate
+  file. % Is 21 the limit really? Would be an odd number to
+        % choose. Actually, it would be better to check for gap AND a
+        % 1000 step in residue numbers. A 1000 shift is the classical
+        % way of treating chains, at least this is what SHELXPRO
+        % suggests.
+
+  By default, hydrogens are displayed for protein molecules if they
+  are present in \texttt{ins} or \texttt{res}. They can be set to be
+  invisible in \textsf{Edit$\to$Bond Parameters\ldots}
+
+\item {\bf PART cards} are converted to alternate conformation
+  identifiers (up to four alternate conformations). Negative PART
+  numbers translate as lower case identifiers.
+
+\item {\bf Anisotropic displacement parameters} are read and converted
+  to B-factors. Coot displays thermal ellipsoids,
+  too.% Is it fixed in rev-364?
+
+\item {\bf Free variables} are mostly used in macromolecular
+  refinement for\linebreak[4]co-restraining occupancies of atoms in
+  alternate conformations. Coot keeps free variables read from
+  \texttt{res} files and writes an updated FVAR list to \texttt{ins}.
+  It assigns a new free variable on splitting a residue and
+  dissociates an already existing fvar from the residue when its
+  alternate conformation is deleted, but will not renumber or
+  otherwise change fvars. SHELX style occupancies are not unencoded,
+  they are used to reconstruct the SHELX format when coordinates are
+  written to \texttt{ins}. (They should also serve as a potential
+  mechanism of changing free variables within Coot in the future.)
+
+\item {\bf AFIX cards} are handled as attributes of atoms.
+
+\item {\bf Most other} pre-coordinate SHELXL instructions are not
+  interpreted\footnote{This includes SHELX style restraints. As a
+    consequence, unconventional residues, e.g. ligand molecules,
+    require refmac style descriptions for refinement/regularization in
+    Coot.} and are written to \texttt{ins} unchanged. (In other words,
+  there are certain limitations of Coot's ability to create a fully
+  valid \texttt{ins} file, and will definitely fail if we try to
+  create \texttt{ins} from scratch, e.g. from a \texttt{pdb}
+  file.\footnote{You should be using SHELXPRO for that.}) There is,
+  however, a mechanism to insert SHELX instructions into the the new
+  \texttt{ins} file: with the scripting command
+  \texttt{(add-shelx-string-to-molecule \emph{imol string})}\\It is
+  also accessible through the SHELX menu (after running the
+  script\linebreak[4]\texttt{shelx-extension.scm}).
+
+  %% I found that button a bit dull, so took the liberty and made a
+  %% chooser-entry thingy for this in the shelx-extensions -- much
+  %% more useful, isn't it?  Do I need to say anything about the
+  %% reshelx process?
+
+\end{itemize}
+
+To make SHELXL coordinate formats filterable in the file selection
+window,\linebreak[4]\texttt{(add-coordinates-glob-extension ".res")}
+and \\\texttt{(add-coordinates-glob-extension ".ins")} should be
+included in the\linebreak[4]\texttt{.coot} file.
+
+\subsection{Reading \texttt{fcf} files}
+
+Coot can open \texttt{fcf} files and calculate electron density maps
+on the fly. More precisely, it converts \texttt{fcf} into mmCIF
+format, loads that and calculates\linebreak[4]$\sigma$-A-weighted
+electron density and difference maps. The new mmCIF is saved
+as\linebreak[4]\texttt{\emph{my-project}.fcf.cif}.
+
+\subsection{Reading \texttt{lst} files}
+% needs chain unsplitting. -- Urgh? Don't get it.
+Listing files corresponding to \texttt{ins}/\texttt{res} files can be
+opened with Coot and it will filter them for interesting features in
+the model and refinement flagged by SHELXL. Typically, these are
+potentially split atoms and disagreeable restraints, which are then
+displayed in an interesting-things-GUI. Such visualization of errors
+in the model provides a great validation tool in the context of a
+SHELXL project. The scripting function \texttt{(read-shelx-lst-file
+  \emph{lst-file imol})} can be used to read \texttt{lst} files;
+alternatively, \texttt{shelx-extensions.scm} provides a GUI option:
+\textsf{SHELX$\to$Read LST File\ldots}
+
+\subsection{Opening SHELXL projects} 
+
+% Yet another undocumented thing.
+Due to SHELXL's conservative file naming convention, it is
+straight-forward to open all relevant files of a project
+(\texttt{res}, \texttt{fcf} and \texttt{lst}) in one go. This can be
+done using \texttt{(read-shelx-project \emph{file-name})} where
+filename's root is the SHELX project's name. There is also a GUI
+option in the SHELX menu (after running the script
+\texttt{shelx-extension.scm}).
+
+%% .pdb was not recognized as project file. It is now. (.insh
+%% disappeared. That was just a trick to fool silly gmail.)
+
+\subsection{Running SHELXL from Coot}
+
+SHELXL can be run from Coot using either the function
+\texttt{(shelxl-refine \emph{imol hkl-file})} or
+\textsf{Extensions$\to$SHELXL refine\ldots} Specifying a \texttt{hkl}
+file is optional, to be used though if the \texttt{hkl} file does not
+correspond to the \texttt{res/ins} file.
+
+Before running SHELXL, Coot creates a time-stamped \texttt{ins} file
+and a sym-link to the \texttt{hkl} file. These, together with the
+resulting files are stored in the coot-shelxl directory. \texttt{res}
+and \texttt{fcf} files generated by SHELXL will be read in
+automatically after refinement has finished.
+
+
+\section{03srv}
+%% How do we get the files i.e. who's going to host them?
+
+In the small molecular world, it is generally not necessary to display
+electron density maps, as they can be represented by a simple peaklist
+quite precisely. However, visual examination of especially difference
+density maps can reveal subtle errors in refinement and can prove
+quite educational. So, suppose we have a small molecule project in
+some middle stage of refinement and wish to have a glance of the
+electron density map and maybe fix problematic parts of the structure.
+
+\subsection{Reading the project}
+\begin{itemize}
+\item We'll start Coot with\\\texttt{\$ coot --script shelx-extension.scm}
+
+  [\textsl{An additional menu item, SHELX appears in the menu bar}.]
+
+\item Open the project 03srv with\\\textsf{SHELX$\to$Read SHELX
+    project\ldots}\\and select any of the \texttt{03srv} files, i.e.
+  \texttt{res}, \texttt{lst} or \texttt{hkl}.
+
+  [\textsl{Coot now displays the 03srv molecule and the corresponding
+    electron density maps. Note that it has also created
+    \texttt{03srv.fcf.cif}, a macromolecular equivalent of
+    \texttt{03srv.fcf}.}]\footnote{Alternatively, we could have opened
+    the coordinates and the \texttt{fcf} file
+    using\\\textsf{File$\to$Open coordinates\ldots} and
+    \textsf{File$\to$Open MTZ, mmCIF, fcf and phs\ldots}}
+
+\item Note that the fcf file from SHELXL should be make using "LIST
+  6".
+
+\item Note that Coot has read \texttt{03srv.lst} as well but it has
+  decided that there was "nothing interesting" listed there.
+
+\item Now, just for speed and convenience, let's make the map radius a
+  bit smaller. Select \textsf{Edit$\to$Map Parameters\ldots} and set
+  the Map Radius to 5{\AA} and click \textsf{OK}.
+\end{itemize}
+
+\subsection{Hydrogens}
+\begin{itemize}
+\item Let's examine the structure by moving around a bit in the
+  density. We see large positive and negative difference density peaks
+  around some of the atoms. Let's centre on C2BA (the methyl group
+  with negative density on the hydrogen atoms and positive between
+  them) by middle-clicking on it (Figure \ref{fig:hydrogen-badness}).
+
+"Yuck! Hydrogens in wrong place!" --- you might say.
+
+\item Indeed, these hydrogens are incorrectly set: they are exactly 60
+  degrees off. Let's get rid of them. Select
+  \textsf{Calculate$\to$Model/Fit/Refine},
+
+[\textsl{Coot displays the Model/Fit/Refine window}]
+
+click \textsf{Delete}, 
+
+[\textsl{Coot displays the Delete item window}]
+
+click on the \textsf{Atom} and \textsf{Keep Delete Active} buttons and
+click on the hydrogen atoms to delete them. Finally, close the
+\textsf{Delete} window.
+
+\item Now we need to tell SHELXL to set the hydrogens properly. As
+  seasoned SHELXers, we know that methyl groups require the "HFIX 137"
+  instruction. Select \textsf{SHELX$\to$Add SHELXL instruction\ldots}
+  from the menu bar.
+
+[\textsl{A window appears where we can select our molecule and type the new command.}]
+
+Select 03srv.res for model and type \texttt{HFIX 137 C2BA} in the
+instruction entry box. Click \textsf{OK}.
+
+\item Let's undisplay the difference density --- just to see the
+  improvement after refinement. Click \textsf{Display Manager} in the
+  menu bar
+
+[\textsl{The Display Control window appears}]
+
+and click the \textsf{Display} button next to \textsf{03srv.fcf.cif Difference SigmaA}.
+
+\item To rerun SHELXL on the model with the new instruction for
+  hydrogens, click \textsl{SHELX$\to$SHELXL Refine\ldots} and select
+  03srv.res as molecule to be refined. We do not need to set the
+  \texttt{hkl} file as we already have a \texttt{03srv.hkl} to refine
+  against. Click \textsf{Refine}.
+
+  [\textsl{Coot now runs SHELXL in the background and displays the new
+    structure and electron density maps when the refinement has
+    finished. }(Figure \ref{fig:hydrogen-fixed})]
+
+\begin{figure}[htbp]
+    \begin{minipage}[t]{3in}
+        \epsfxsize 2.5in
+        \epsffile{hydrogens-incorrect.eps}
+        \parbox{2.5in}{\caption{\label{fig:hydrogen-badness}
+            Difference density peaks around C2BA indicating that
+            hydrogen atoms were incorrectly set}}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{3in}
+        \epsfxsize 2.5in
+        \epsffile{hydrogens-fixed.eps}
+        \parbox{2.5in}{\caption{\label{fig:hydrogen-fixed} No
+            difference density around the same region after SHELXL
+            refinement with corrected hydrogens}}
+    \end{minipage}
+\end{figure}
+
+SHELXL has set the hydrogens correctly and we see no difference
+density around C2BA. Well done.
+
+\item Can you fix any other hydrogens? (Sure you can. C9AA has similar
+  issues, for instance.) This will be your homework.
+
+\end{itemize}
+
+\subsection{Symmetry}
+It might be quite interesting to look at crystal packing and
+intermolecular interactions by displaying symmetry equivalents. This
+is how it is done in Coot:
+
+\begin{itemize}
+\item First, for clarity, we will switch off maps: in the
+  \textsf{Display Control} window click on the \textsf{All} toggle
+  button above the maps.
+\item Select \textsf{Draw$\to$Cell and Symmetry\ldots} and click
+  \textsf{Yes} in the master symmetry switch. Finally, click
+  \textsf{Apply}.
+
+\item You can switch on the unit cell too, if you like.
+
+\end{itemize}
+We are done with 03srv, you can close Coot now. 
+
+%% Is not saying anything good enough in terms of political correctness?
+
+
+\section{Viscotoxin-B2}
+Let's take Viscotoxin-B2 (an atomic resolution structure of a small
+peptide toxin, PDB-ID: 2V9B) as an example to show how Coot can be
+used for validation and model building of a protein refined with
+SHELXL.
+
+\subsection{Analysing \texttt{lst} files}
+
+\begin{itemize}
+\item Start Coot with\\\texttt{\$ coot --script shelx-extension.scm}
+
+  Open the project viscotoxin-b2 with \textsf{SHELX$\to$Read SHELX
+    project\ldots}\\and select any of the \texttt{viscotoxin-b2}
+  files, i.e. \texttt{res}, \texttt{lst} or \texttt{hkl}.
+
+[\textsl{Coot has read the \texttt{res} and \texttt{fcf} files. It has
+  also found quite a few interesting features in the \texttt{lst} file
+  and displays them in the \textsf{Interesting things from SHELXL}
+  window.}]
+
+As we browse the Interesting things from SHELXL list, we see many
+disagreeable bond distance, angle distance and even chiral volume
+restrains (DFIX, DANG and CHIV) around residue 1024. Navigate there by
+clicking on, say, the first disagreeable DANG button.
+
+What a mess! --- the structure around 1024 is strongly distorted and
+out of density.
+
+\item Other validation tools within Coot, such as the Ramachandran
+  plot, B-factor Variance Graph and Density Fit Graph show 1024 A as
+  an outlier\linebreak[4](Figure \ref{fig:viscotoxin}). Click
+  \textsf{Validate$\to$Temp. fact. variance analysis} and
+  select\linebreak[4]\textsf{viscotoxin-b2.res}. Examine the plot by
+  clicking on outliers. Similarly, you can take a look at the
+  Ramachandran plot and Density fit analysis as well (you will find a
+  similar degree of badness there).
+
+  Note that Coot has split the molecule into four chains: A and B are
+  protein chains, whereas C is for sulfate ions and D for waters.
+
+
+\item Let's fix 1024 A now. The easiest way to do that is real space
+  refinement. We select a map first: select
+  \textsf{Calculate$\to$Model/Fit/Refine\ldots}
+
+  [\textsl{The \textsf{Model/Fit/Refine} window pops up\ldots}]
+
+  where we click on \textsf{Select map\ldots} and select
+  viscotoxin-b2.fcf.cif SigmaA. Now click \textsf{Real Space Refine
+    Zone} in the \textsf{Model/Fit/Refine} window and select the
+  region 1023-1025 by clicking on these residues in the graphics
+  window.
+
+  [\textsl{Coot displays white intermediate atoms that migrate towards
+    the density. The \textsf{Accept Refinement} window pops up.}]
+
+  Try to pull the atoms into the density. It might be a good idea to
+  start with the carbonyl oxygen of 1024.\footnote{Eagle-eyed cooters
+    might have noticed that some of the hydrogen atoms have flown away
+    upon real-space-refine. This is due to some library
+    incompatibilities. Nothing to worry about, SHELXL will duly knock
+    them into shape.} Click \textsf{Accept} when done.
+
+  [\textsl{The Ramachandran plot and the Density fit graph look much
+    better.}]
+\end{itemize}
+
+\begin{figure}[htbp]
+    \begin{center}
+    \epsfxsize 5in
+    \epsffile{viscotoxin.eps}
+    \parbox{5in}{\caption{\label{fig:viscotoxin} Mistraced region in
+        \texttt{viscotoxin-b2.res.} When reading the project, Coot has
+        extracted potentially split atoms and disagreeable restraints
+        from the listing file and displayed them in an
+        interesting-things-GUI (upper-right corner). You can navigate
+        to the problematic regions by clicking on the items in the
+        list. The B-factor Variance Graph (bottom-right corner) shows
+        a couple of outliers, one of which is the residue shown in the
+        graphics window.}}
+    \end{center}
+\end{figure}
+
+\subsection{Adding Atoms}
+\begin{itemize}
+
+\item Let's locate missing bits of the structure now. Select
+  \textsf{Validate$\to$Difference Map Peaks\ldots} and hit
+  \textsf{Find blobs}.
+
+  [\textsl{The new pop-up contains a clickable list of difference
+    density blobs. We click on the first one and Coot navigates to a
+    large green cloud.}]
+
+  Let's examine the first blob: it is clearly tetrahedral. We know
+  that the crystals grew from ammonium-sulfate, so we will try to fit
+  a sulfate ion here.
+
+\item Select \textsf{Place Atom At Pointer} in the \textsf{Model/Fit/Refine} window.
+
+[\textsl{We are given a new window to pick what kind of atom/molecule we wish to place here.}]
+
+Select \textsf{SO4}. Select viscotoxin-b2.res to put the sulfate into
+and hit \textsf{OK}.
+
+[\textsl{A pretty sulfate ion appears, but it is a bit out of density. Let's fix it.}]
+
+\item Simply select \textsf{Real Space Refine} in the
+  \textsf{Model/Fit/Refine} window and click twice on the new sulfate
+  ion. And finally hit \textsf{Accept} in the \textsf{Accept
+    Refinement?} window. Done.
+
+%% Oh dear. I thought of showing properly set occupancies for SO4 (i.e. 11.00). And what do I get? 1.00. Baah.
+%% In no time, the PDB will be full of residues with different occupancies for all atoms.
+
+\end{itemize}
+
+\subsection{Adding Alternate Conformations}
+
+SHELXL gives us the flexibility to refine occupancies of discretely
+disordered atoms, where free variables are used to control occupancies
+of alternate atom pairs. Coot, on the other hand, can set free
+variables and occupancies according to the SHELX convention.
+
+\begin{itemize}
+\item You might remember another outlier in the B-factor Variance
+  Graph: Ile 2035 in chain B. Let's click on the corresponding bar in
+  the graph (it is the salmon coloured bar in the second row).
+
+  [\textsl{Coot centers on 2035. We see a side chain with some
+    difference density blobs around it. It is a hint for an alternate
+    conformation.}]
+
+\item To add an alternate conformation here, we select \textsf{Add
+    Alt. Conf.} in the \textsf{Model/Fit/Refine} window. In the pop-up
+  you can choose to split the whole residue or only atoms beyond
+  C$\alpha$ (this is a question of taste, I believe). Click on any
+  atom of 2035.
+
+  [\textsl{Coot has now split the residue, displays a set of white
+    atoms. We can pick a rotamer in the rotamer selection window.}]
+
+\item In this case rotamer 3 fits the density best, so let's select
+  that. We can set the occupancy of the new conformer to, say, 0.3.
+  (We do not need to be very precise, it will be refined by SHELXL
+  anyway.) Click \textsf{Accept}.
+
+  [\textsl{Well, C$\delta$ is still not perfect.}]
+
+\item We pull C$\delta$ to the density with real space refinement.
+
+  But how about the occupancies? Select \textsf{Measures/Residue
+    Info\ldots} and click on any atom of this residue to check what
+  Coot did about the occupancies.
+
+  [\textsl{In the \textsf{Residue Info} pop-up we see that occupancies
+    are set to 161.00 and -161.00 (and a new free variable, nr. 16,
+    has been assigned to them).}]
+
+\end{itemize}
+
+We can now save coordinates or perhaps re-run SHELXL to see how well
+we managed to fix things (would take about 3 minutes for 5 cycles on a
+2GHz laptop). But life is too short\ldots
+
+\end{document}
+%% Anything else? I'm sure I;ve missed something.
+
+
+

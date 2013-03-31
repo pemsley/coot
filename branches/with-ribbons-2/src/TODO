@@ -1,0 +1,558 @@
+-*-text-*-
+
+Sun Jul  7 00:51:53 BST 2002
+
+After discussion with Kevin.  We think that branch points are some
+distance away from the true Ca position.  Lets get some statistics
+about that.  
+
+Take a structure and data and create a map and skeletonize it. Find
+the branch points.  Find which branch points correspond to which Ca.
+Now get some statistics about the distance. First a list of distances
+and their mean and standard deviation would be useful.
+
+Make a line between the previous residue (if it is not the first) and
+the next residue (if it is not the last in the chain).
+
+You can try to reduce the resolution limit by applying a temperature
+factor and cutting the resolution. And perhaps adding noise as a
+function of resolution.  Ask Garib/Kevin about this.
+
+Also check for Tom's papers.
+	
+write mail to Kevin:
+
+I was just drawing a figure to describe the statistics that we were
+talking about the other day and I wondered if dia did colour gradient
+fills (it doesn't).  But I did see that it had UML widgets (change
+"circuit" to "UML").  It is not argoUML (or whatever it was called)
+but it may be of some use to you nevertheless.
+
+---
+Mon Jul  8 17:05:13 BST 2002
+
+    The rotation axes for the mouse rotation is still wrong.
+
+---
+Mon Jul  8 17:05:47 BST 2002
+
+    Check the code for reading in an mtz - it used to exit() when the
+file was not an mtz.  
+
+* Fixed. 
+
+---
+Thu Jul 11 13:58:00 BST 2002
+
+    Find "unnaccounted-for" electron density - that is accounted for
+    by waters (not protein (obviously)). 
+
+    Note that we want this to be available to the graphics program and
+    should design an interface that is easy for them.
+
+    (by the by, I would also want this routine in mapview, so it
+    should be GPLable).
+
+    So I think that the interface is this:
+
+    findInterestingBlobs(const MMDBManager &mol, const clipper::Xmap<float> &map, bool screenWatersFlag) 
+
+    vector<Cartesian> findInterestingBlobs::GetBlobCentres()
+
+
+    Here is the algorithm (generation 0):
+
+    Copy an electon density map, get a molecule, run through the atoms
+    of the molecule setting points close (upto the atom radius) to the
+    atoms that are not waters (depending on the screenWatersFlag) to
+    zero.  
+
+    When we do a set_data on the xmap this will automagically update
+    the asymmetric unit.
+
+    So now we have a map of which the only positive/high regions are
+    those where the atoms aren't.
+
+    Get map statistics: mean, variance.
+
+    trial one: 
+    
+    1) pick a level
+
+    2) find points above that level.
+
+    3) for each point: 
+
+       4) if this point is not a member of points associated with
+          peaks in the peak-list: 
+    
+          5) find the local maximum using a peak search (this may need
+             to be recursive). (see mapdemo.cpp)
+
+          6) At the local maximum, using an incrementing radius, add
+	     up the points "close" to the local maximum. 
+
+	     If there are no more points in a particular outer ring
+	     (or perhaps more sophistatedly the number of points in
+	     the outer ring is less than some radius-dependent
+	     yet-to-be-determined criterion) then stop adding.  [There
+	     are issues of quantization because we are looking at
+	     spheres on top of grids]. Put all the covered points into
+	     a list corresponding to this peak:
+
+	        struct peak_and_point_list { 
+	           Cartesian/Coord_grid local_peak; 
+	           vector<clipper::Coord_grid> point_list; 
+                }; 
+
+		vector <struct peak_and_point_list> peak_and_point_list_list; 
+
+	     The score of this peak then corresponds to the number of
+	     grid points (and optionally the sum of the densities at
+	     those points
+
+      Add peak and point_list to peak_and_point_list_list (heh,
+      am I a lisp programmer at heart, or what :-)
+
+    Sort peak_and_point_list_list.
+
+    Make a vector of Cartesians and return it.
+
+    The next step is to step through a number of orientations of the
+    ligand (puting the centre of the ligand at the (density weighted?) 
+    centre of the gridpoints) and rigid-body refine them (again see
+    mapdemo for the gradients).
+
+
+    Hmmm... there is some peaksearch technology here...
+
+
+
+
+
+----
+Fri Jul 12 13:41:53 BST 2002
+
+    Symmetry Colour merge is broken.
+
+    check symmetry atom picking.
+
+
+
+
+---
+Fri Jul 12 16:15:50 BST 2002
+
+    Need to write a function that takes the skeleton map and makes a
+list of each point.  Each point contains the skeleton to which it is
+attached.
+ 
+something like 
+struct {
+clipper::Coord_grid skel_point; 
+int skel_number; // the number of the skeleton of this grid point.
+}
+
+
+Argh!
+
+Asymmetric unit considerations.  Molecules go over the boundaries.
+
+Hmmm.
+
+Grid up a big map.
+
+Like the whole of the unit cell, perhaps.
+
+Hmmm..
+
+
+----
+Fri Jul 12 16:28:51 BST 2002
+
+Bernhard says:
+When I press return in the map radius widget (from map parameters) I
+want the map to be updated with the new radius.
+
+(Probably, adds, for all those things!)
+
+Ha!
+
+He also add the I should fix the addition parameters so that they
+actually do something!
+
+
+--
+Fri Jul 19 19:27:26 BST 2002
+
+Ernst says also find the previous/next angle and torsion and create a
+conditional probability density.
+
+
+---
+Fri Jul 26 12:53:03 BST 2002
+
+Kevin reminds me that it is a good idea to be able to change the
+(target?/backbone) skeleton colour.
+
+
+
+---
+Fri Jul 26 14:44:16 BST 2002
+
+Ask kevin if he wants mmtz-extras
+
+
+
+---
+Fri Jul 26 20:01:34 BST 2002
+
+Add colour by temperature factor
+
+
+---
+Fri Jul 26 20:04:45 BST 2002
+
+Add density level below which skeleton is not drawn.
+
+* Fixed
+
+-----
+Sun Jul 28 19:14:14 BST 2002
+    
+    Say to stuart about aniostropic temperature factor code. 
+
+    See
+
+    http://www.gamedev.net/reference/programming/features/superquadric/
+
+    It would be nice to have "ortep like" representation - in lines,
+    but especially in solid surface.
+
+    We need to render a hemisphere and demi-hemisphere and an semi
+    demi hemisphere for each atom.
+
+    The inside cut surfaces should be dependent on the atom colour,
+    but somewhat shifted and/or pastellized (say). 
+
+    Like raster3d does it.  See: 
+    http://www.bmsc.washington.edu/raster3d/html/rastep.html
+
+
+-----
+Mon Aug 19 15:18:12 BST 2002
+
+    Fix the about box text.
+
+* Done.
+
+----
+Mon Aug 12 08:08:13 BST 2002
+
+consider this:
+
+mytilini ~/crystal/mapview-0.3.99-h/src> grep mtz_io.h *.cc *.c *.h
+graphics-info.cc:#include "mtz_io.h"
+xmap-interface.h:#include "mtz_io.h"
+
+
+----
+Mon Aug 12 08:46:38 BST 2002
+
+on reading a pdb file:
+
+	note that we test for having symmetry, not unit cell.
+
+	We should properly check for both.
+
+
+---
+Tue Aug 13 09:34:31 BST 2002
+
+	Say to Eugene that mmdb (file/manager) should provide a method
+	to get the cell (c.f. gettmatrix) (the cell can be set but not
+	read! (as far as I can see)). 
+
+
+
+---
+Tue Aug 13 09:45:40 BST 2002
+
+	sloc mapview.
+
+
+
+---
+Tue Aug 13 18:16:00 BST 2002
+
+	The Christmas tree:
+
+	I think that we need expected distributions of density of the
+    Cb points for both the correct and upsidedown orientations.  This
+    means looking at several real electron density maps at various
+    resolutions. 
+
+    Consider how to automatically fit the helix upside down.
+
+    Consider looking not at just the Cb positions, but also the
+    positions of the other atoms.  Consider the distribution of the
+    other atoms.
+
+    Yes, I like that: for residues in a helix, move the mainchain of
+    that residue (by least squares say) onto a reference position and
+    then mark of the positions of the atoms of the rest of the residue
+    (from Cb onwards).  Do this for lots of residues and helices and
+    structures.
+
+    The reference residue has the Ca at the origin (actually arbitary,
+    but we need a standard).  The other atoms need to be placed so
+    that we can define a standard "up" and "down".
+
+    Now we have a distribution of points of sidechain atoms.  We will
+    bin them into a fine grid when we find them.
+
+    So now we have a grid that we can multiply(?) the electron density
+    by at side chains positions.  
+
+    For lots of test structures: We sum the sums over each residue in
+    the helix.
+
+    We do this again for the reverse orientation.
+
+    We get out 2 numbers for each helix of each structure.
+
+    We get a distribution of these 2 numbers then (if we do enough
+    experiments).  The 2 numbers corresponding to correct_orientation,
+    backward_orientation. 
+
+
+
+-----
+Wed Aug 14 07:55:24 BST 2002
+
+    Fix hydrogens bonds. 
+    
+
+-----
+Wed Aug 14 09:38:15 BST 2002
+
+    Fix ncs-search to use clipper skeleton.
+
+* Done. 
+
+----
+Wed Aug 14 09:51:13 BST 2002
+
+    Add CA representation.
+
+    preferably with ability to colour it.
+
+    Draw -> As Ca + ligands -> {Molecule Chooser 0 1 2}
+
+    (or maybe this is for the draw control box?)
+
+
+---
+Wed Aug 21 17:04:38 BST 2002
+
+    James Murray says: make thermal spheres for isotropic b values.
+
+
+----
+Sat Sep 14 12:59:11 BST 2002
+
+    On initial contour level: Find the nearest 0.05 (or whatever the
+    interval is) to the mean + 1.5 sigma.
+
+
+---
+Sat Sep 14 18:52:04 BST 2002
+
+    Read in a map and change its colour.
+
+    -> Crash
+
+    Notice that when we read in only the map (there should be only one
+    molecule and that is 0), when we open the map colour widget we get
+    the option of changing only map 1.
+
+----
+Sat Sep 14 23:59:32 BST 2002
+
+    Add skeleton box radius to the gui.
+
+------
+Tue Sep 24 01:59:42 BST 2002
+
+    Add score from sampling the density along the pseudo-bond.  The
+    pseudo-bond should be along density mostly.  
+
+    This will help stop jumping across space to side chains with
+    branch points where there is no branch point in the main chain. 
+
+    And also from jumping from strand to strand.
+
+    Or we could make 10 (say) pseudo atoms along the bond and do a
+    SeekContacts() between them and the atoms of the (symmetry
+    expanded) skeleton.
+
+
+-----
+Tue Sep 24 02:08:56 BST 2002
+
+    Put the skeletonization level (map cut_off into the gui)
+
+
+
+-----
+Wed Sep 25 02:41:43 BST 2002
+
+    Kevin: Reading a .phs file: If there is a cell and symmetry
+    already from a coordinates read, then use that.
+
+    If there is more than one cell...?
+
+* Done.
+
+---
+Wed Sep 25 02:48:54 BST 2002
+
+    Split out the autobuilding from the skeletonization
+
+*  Done.
+
+----
+Wed Sep 25 02:52:28 BST 2002
+
+    Consider the memory usage when we go into autobuilding...
+
+    delete[] after symmety expansion...?
+
+* Done.
+
+
+---
+Tue Oct 29 01:28:20 GMT 2002
+
+    make_and_draw_map in c-interface.cc makes a xmap.  We don't need to do that.
+
+    Take the xmap out of the interface to map_fill_from_mtz and mol_map_fill_from_mtz.
+
+---
+Fri Dec  6 14:55:58 GMT 2002
+
+    Add code that optionally adds sigma levels (not important) to the
+    absolute level.
+
+---
+Fri Dec  6 14:56:27 GMT 2002
+
+    Function/GUI control that returns the centre of the screen/pink pointer.
+
+
+-----
+Sun Dec  8 16:58:16 GMT 2002
+
+    Add colour map rotation for molecules
+
+
+----
+Sun Dec  8 16:58:32 GMT 2002
+
+    Ramachandran plot gtk: canvas - something for York?    
+    
+    Add clickable spots - takes you to the right part of the structure.
+
+    That would be cool.
+
+    Add tooltips to give residue information.  That would be cool too.
+
+
+---
+Sun Dec  8 16:59:23 GMT 2002
+
+    GUI display Distances and Angles - also for York?.
+
+---
+Sun Dec  8 17:02:07 GMT 2002
+
+    Get the g++ 3.2 corrected mapview code from York.
+
+
+---
+Mon Dec  9 16:19:53 GMT 2002
+
+    Add pep-flip.
+    Rotate round phi, phi -> phi + pi, moving the C and O.
+
+    Internal coordinates.
+    
+    Question, then: Given phi and all other atom positions, can we
+    place C and O?
+
+    Yes indeed, we have position_by_torsion in BuildCas
+
+
+--- 
+Mon Dec 9 16:19:53 GMT 2002
+
+    Add cis->trans, trans->cis for peptide.
+
+    Similarly, we can use position_by_torsion.
+
+    Also transify (i.e. set w to 180)
+
+
+---
+Mon Dec  9 20:28:15 GMT 2002
+
+    Using high resolution structures, analyse chi1 and chi2 for lys to
+    see if you can see peak 3 discussed in Kleywegt and Jones Acta
+    Cryst (1998) D54, 119-1131 "Databases in Protein Crystallography".
+
+    
+----
+Thu Dec 12 11:01:04 GMT 2002
+
+    We need a method that makes a selection,  click click.
+
+
+
+
+---
+Sat Feb  1 14:00:30 GMT 2003
+
+    When we turn off the display of the anisotropic atoms, the glarea
+    does not update - it should. 
+
+---
+Wed Feb 12 21:33:57 GMT 2003
+
+    We need a function that converts from an atom spec e.g:
+    "A" 1234 "CA" to an atom index for that mol.
+
+    It should be in c-interface - so that it is accessible to
+    scripting.
+
+--
+Wed Feb 12 21:47:36 GMT 2003
+
+    When we create a new molecule, it should return an index/number
+    that is that molecules index in g.molecules, so that I can use it
+    in a guile script without have to guess/work-out the molecule
+    number.
+
+
+---
+Wed Feb 12 21:53:28 GMT 2003
+
+    Change "handle-read-draw-molecule" to something more typable.
+
+
+----
+Sat Feb 15 10:33:59 GMT 2003
+
+    Add a background changer, black white.
+
+    Make it scriptable too (for other colours).
+
