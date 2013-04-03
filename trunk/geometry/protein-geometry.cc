@@ -3664,6 +3664,11 @@ coot::protein_geometry::init_standard() {
 		      << " CLIBD_MON: " << s << std::endl;
 	    mon_lib_dir = s;
 	    using_clibd_mon = 1;
+	    // strip any trailing / from mon_lib_dir
+	    if (mon_lib_dir.length() > 0) {
+	       if (mon_lib_dir.at(mon_lib_dir.length()-1) == '/')
+		  mon_lib_dir = mon_lib_dir.substr(0,mon_lib_dir.length()-1);
+	    }
 	 }
       }
 

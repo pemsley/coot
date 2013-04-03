@@ -208,16 +208,16 @@ PyObject *map_colour_components_py(int imol);
 
 (note: fit to the current-refinement map)
 */
-SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm);
+SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm, int n_trials);
 #endif // GUILE
-void multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t> &specs);
+void multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t> &specs, int n_trials);
 
 #ifdef USE_PYTHON
 /*! \brief fit residues
 
 (note: fit to the current-refinement map)
 */
-PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py);
+PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py, int n_trials);
 #endif // PYTHON
 //! \}
 
@@ -646,6 +646,10 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol,
 
 //! \name Refinement with specs
 //! \{
+
+
+void regularize_residues(int imol, const std::vector<coot::residue_spec_t> &residues);
+
 
 
 //! \brief refine a zone, allowing the specification of insertion

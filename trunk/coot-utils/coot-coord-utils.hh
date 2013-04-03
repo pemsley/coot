@@ -208,7 +208,6 @@ namespace coot {
 					      const std::pair<atom_spec_t, std::string> &b);
    std::pair<atom_spec_t, atom_spec_t> link_atoms(CLink *link);
 
-
    class residue_spec_t {
    public:
       int model_number;
@@ -227,6 +226,15 @@ namespace coot {
 	 resno = r;
 	 chain = chain_in;
 	 insertion_code = "";
+	 int_user_data = -1;
+      }
+      residue_spec_t(int model_number_in,
+		     const std::string &chain_in, int r,
+		     const std::string &ins_code_in) {
+	 model_number = model_number_in;
+	 resno = r;
+	 chain = chain_in;
+	 insertion_code = ins_code_in;
 	 int_user_data = -1;
       }
       residue_spec_t(const std::string &chain_in, int r,

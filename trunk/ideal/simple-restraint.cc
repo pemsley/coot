@@ -3402,7 +3402,7 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
 					      bool do_rama_plot_restraints, 
 					      coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds) {
 
-   std::cout << "----- make restraints() called with geom of size : " << geom.size() << std::endl;
+   // std::cout << "----- make restraints() called with geom of size : " << geom.size() << std::endl;
    
 
    int iret = 0;
@@ -3915,7 +3915,8 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(CResidue *resid
 								 const protein_geometry &geom,
 								 bool do_residue_internal_torsions) {
 
-   std::cout << "--------------- make_monomer_restraints_by_residue() called " << residue_spec_t(residue_p) <<  std::endl;
+   // std::cout << "--------------- make_monomer_restraints_by_residue() called " << residue_spec_t(residue_p)
+   // <<  std::endl;
 
    coot::restraints_container_t::restraint_counts_t local;
    int i_no_res_atoms;
@@ -3925,7 +3926,7 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(CResidue *resid
    
    // idr: index dictionary residue
 
-   std::cout << "geom.size() is " << geom.size() << std::endl;
+   // std::cout << "geom.size() is " << geom.size() << std::endl;
    
    for (int idr=0; idr<geom.size(); idr++) {
 
@@ -5161,7 +5162,7 @@ coot::restraints_container_t::set_non_bonded_neighbour_residues_by_residue_vecto
 	       }
 
 	       if (! found) {
-		  std::cout << ".... adding non-bonded neighbour " << residue_spec_t(test_res) << std::endl;
+		  // std::cout << ".... adding non-bonded neighbour " << residue_spec_t(test_res) << std::endl;
 		  nbr.push_back(test_res);
 	       } 
 	    }

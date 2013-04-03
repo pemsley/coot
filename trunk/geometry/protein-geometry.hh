@@ -1837,8 +1837,8 @@ namespace coot {
 
       // Return success status in first (0 is fail) and the second is
       // a whole residue's restraints so that we can use it to test if
-      // an atom is a hydrogen.  Must have a full entry (not from
-      // sbase) for the first of the returned pair to be true.
+      // an atom is a hydrogen.  Must have a full entry (not minimal
+      // for the first of the returned pair to be true.
       // 
       std::pair<bool, dictionary_residue_restraints_t>
       get_monomer_restraints(const std::string &monomer_type) const;

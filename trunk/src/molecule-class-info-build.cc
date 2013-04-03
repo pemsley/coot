@@ -271,5 +271,61 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 	 }
       } 
    }
-   
 }
+
+void
+molecule_class_info_t::delete_any_link_containing_residue(const coot::residue_spec_t &res_spec) {
+
+   if (atom_sel.mol) {
+      int n_models = atom_sel.mol->GetNumberOfModels();
+      for (unsigned int imod=1; imod<=n_models; imod++) {
+	 CModel *model_p = atom_sel.mol->GetModel(imod);
+	 if ((res_spec.model_number == imod) || (res_spec.model_number == MinInt4)) {
+	    CLinkContainer *links = model_p->GetLinks();
+	    int n_links = model_p->GetNumberOfLinks();
+	    for (unsigned int ilink=1; ilink<=n_links; ilink++) { 
+	       CLink *link_p = model_p->GetLink(ilink);
+	       // CLink *link = static_cast<CLink *>(links->GetContainerClass(ilink));
+
+	       if (link_p) { 
+
+		  // must pass a valid link_p
+		  std::pair<coot::atom_spec_t, coot::atom_spec_t> link_atoms = coot::link_atoms(link_p);
+		  coot::residue_spec_t res_1(link_atoms.first);
+		  coot::residue_spec_t res_2(link_atoms.second);
+		  std::cout << "found link " << res_1 << " to "  << res_2 << std::endl;
+		  if (res_spec == res_1) { 
+		     delete_link(link_p, model_p);
+		  } 
+		  if (res_spec == res_2) { 
+		     delete_link(link_p, model_p);
+		  }
+	       } else {
+		  std::cout << "ERROR:: Null link_p for link " << ilink << " of " << n_links << std::endl;
+	       } 
+	    }
+	 }
+      }
+   }
+}
+
+void
+molecule_class_info_t::delete_link(CLink *link, CModel *model_p) {
+
+   // Copy out the links, delete all links and add the saved links back
+   
+   std::vector<CLink *> saved_links;
+   int n_links = model_p->GetNumberOfLinks();
+   for (unsigned int ilink=1; ilink<=n_links; ilink++) {
+      CLink *model_link = model_p->GetLink(ilink);
+      if (model_link != link) { 
+	 CLink *copy_link = new CLink(*model_link);
+	 saved_links.push_back(copy_link);
+      }
+   }
+   model_p->RemoveLinks();
+   for (unsigned int i=0; i<saved_links.size(); i++) { 
+      model_p->AddLink(saved_links[i]);
+   }
+}
+

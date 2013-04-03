@@ -9,8 +9,8 @@ fi
 
 
 # Bernie wants libtoolize
-echo libtoolize --copy
-libtoolize --copy
+echo libtoolize --copy --no-warn
+libtoolize --copy --no-warn
 
 if test $sys = Darwin ; then 
    echo aclocal -I macros -I /sw/share/aclocal

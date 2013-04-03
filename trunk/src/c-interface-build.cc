@@ -59,7 +59,6 @@
 		       // header since some of the callbacks call
 		       // fuctions built by glade.
 
-
 #include "mmdb-crystal.h"
 
 #include "Cartesian.h"
@@ -113,6 +112,9 @@
 #include "protein_db-interface.hh"
 
 #include "cootilus-build.h"
+
+#include "c-interface-refine.hh"
+
 
 /*  ------------------------------------------------------------------------ */
 /*                   Maps - (somewhere else?):                               */
@@ -1314,6 +1316,34 @@ PyObject *refmac_parameters_py(int imol) {
 }
 #endif	/* USE_PYTHON */
 
+void
+regularize_residues(int imol, const std::vector<coot::residue_spec_t> &residue_specs) {
+
+   std::string alt_conf;
+   if (is_valid_model_molecule(imol)) {
+      if (residue_specs.size() > 0) {
+	 std::vector<CResidue *> residues;
+	 for (unsigned int i=0; i<residue_specs.size(); i++) {
+	    coot::residue_spec_t rs = residue_specs[i];
+	    CResidue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    if (r) {
+	       residues.push_back(r);
+	    }
+	 }
+
+	 if (residues.size() > 0) {
+	    graphics_info_t g;
+	    // normal
+	    CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+	    g.regularize_residues_vec(imol, residues, alt_conf.c_str(), mol);
+	 }
+      } else {
+	 std::cout << "No residue specs found" << std::endl;
+      }
+   }
+}
+
+
 
 #ifdef USE_GUILE
 SCM refine_residues_scm(int imol, SCM r) {
@@ -1327,15 +1357,12 @@ SCM regularize_residues_scm(int imol, SCM r) { /* presumes the alt_conf is "". *
 }
 #endif // USE_GUILE
 
+coot::refinement_results_t
+refine_residues_with_alt_conf(int imol, const std::vector<coot::residue_spec_t> &residue_specs,
+			      const std::string &alt_conf) {
 
-
-#ifdef USE_GUILE
-SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) { /* to be renamed later. */
-
-   SCM rv = SCM_BOOL_F;
+   coot::refinement_results_t rr;
    if (is_valid_model_molecule(imol)) {
-      std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(r);
-
       if (residue_specs.size() > 0) {
 	 std::vector<CResidue *> residues;
 	 for (unsigned int i=0; i<residue_specs.size(); i++) {
@@ -1354,14 +1381,31 @@ SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) { /
 	    } else {
 	       // normal
 	       CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
-	       coot::refinement_results_t rr =
-		  g.refine_residues_vec(imol, residues, alt_conf, mol);
-	       rv = g.refinement_results_to_scm(rr);
+	       rr = g.refine_residues_vec(imol, residues, alt_conf.c_str(), mol);
 	    }
 	 } 
       } else {
 	 std::cout << "No residue specs found" << std::endl;
-      } 
+      }
+   }
+   return rr;
+} 
+
+
+
+
+
+#ifdef USE_GUILE
+SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) { /* to be renamed later. */
+
+   SCM rv = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+      std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(r);
+      coot::refinement_results_t rr =
+	 refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
+      rv = g.refinement_results_to_scm(rr);
    }
    return rv;
 } 
@@ -6956,7 +7000,7 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
    return success status (0 = fail).
 */
 int add_linked_residue(int imol, const char *chain_id, int resno, const char *ins_code, 
-		       const char *new_residue_comp_id, const char *link_type) {
+		       const char *new_residue_comp_id, const char *link_type, int n_trials) {
 
    int status = 0;
    if (is_valid_model_molecule(imol)) {
@@ -6975,7 +7019,7 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
 	    std::vector<coot::residue_spec_t> residue_specs;
 	    residue_specs.push_back(res_spec);
 	    residue_specs.push_back(new_res_spec);
-	    g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	    g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 	 }
       }
       graphics_draw();
@@ -6994,6 +7038,7 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
 SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char *ins_code, 
 			   const char *new_residue_comp_id, const char *link_type) {
 
+   int n_trials = 10000;
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
@@ -7012,7 +7057,21 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 	    std::vector<coot::residue_spec_t> residue_specs;
 	    residue_specs.push_back(res_spec);
 	    residue_specs.push_back(new_res_spec);
-	    g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	    int n_trials = 1000;
+
+	    // 2 rounds of fit then refine
+	    for (int ii=0; ii<2; ii++) { 
+	       g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
+
+	       // refine and re-torsion-fit
+	       int mode = graphics_info_t::refinement_immediate_replacement_flag;
+	       std::string alt_conf;
+	       graphics_info_t::refinement_immediate_replacement_flag = 1;
+	       refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
+	       accept_regularizement();
+	       remove_initial_position_restraints(imol, residue_specs);
+	       graphics_info_t::refinement_immediate_replacement_flag = mode;
+	    }
 	 }
       }
       graphics_draw();
@@ -7025,6 +7084,7 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const char *ins_code, 
 				const char *new_residue_comp_id, const char *link_type) {
 
+   int n_trials = 1000;
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
@@ -7043,7 +7103,7 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
 	    std::vector<coot::residue_spec_t> residue_specs;
 	    residue_specs.push_back(res_spec);
 	    residue_specs.push_back(new_res_spec);
-	    g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	    g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 	 }
       }
       graphics_draw();
