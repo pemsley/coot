@@ -1146,8 +1146,8 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
       try {
 	 coot::beam_in_linked_residue lr(residue_ref, link_type, new_residue_comp_id, geom_p);
 	 CResidue *result = lr.get_residue();
-	 // lr.get_residue() can (and often does) modify residue_ref (for
-	 // deleting link mod atom, for example). So we need a FinishStructEdit() here
+	 // lr.get_residue() can (and often does) modify residue_ref (by
+	 // deleting a link mod atom, for example). So we need a FinishStructEdit() here
 	 atom_sel.mol->FinishStructEdit();
       
 	 std::pair<bool, CResidue *> status_pair = add_residue(result, spec_in.chain);
@@ -1158,6 +1158,9 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
 					     link_type, *geom_p);
 	    make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist, *geom_p);
 	 }
+
+	 // we no longer need result here, I think, so it can be deleted.
+	 
       }
       catch (std::runtime_error rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
@@ -1291,6 +1294,7 @@ coot::dict_link_info_t::check_for_order_switch(CResidue *residue_ref,
 void
 molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue_spec_t> &residue_specs,
 						 const clipper::Xmap<float> &xmap,
+						 int n_trials,
 						 coot::protein_geometry *geom_p) {
 
    CMMDBManager *moving_mol =
@@ -1299,7 +1303,7 @@ molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue
    // do we need to send over the base atom too?  Or just say
    // that it's the first atom in moving_mol?
    // 
-   coot::multi_residue_torsion_fit_map(moving_mol, xmap, geom_p);
+   coot::multi_residue_torsion_fit_map(moving_mol, xmap, n_trials, geom_p);
 
    atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
    replace_coords(moving_atoms_asc, 1, 1);

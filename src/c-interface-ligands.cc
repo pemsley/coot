@@ -1907,24 +1907,22 @@ multi_residue_torsion_py(int imol, PyObject *residues_specs_py) {
       graphics_info_t g;
       std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(residues_specs_py);
       g.multi_torsion_residues(imol, residue_specs);
-
       graphics_draw();
    } 
-
 } 
 
 #endif // USE_PYTHON
 
 
 void
-multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t> &residue_specs) {
+multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t> &residue_specs, int n_trials) {
 
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map())) {
 	 graphics_info_t g;
 	 const clipper::Xmap<float> &xmap =
 	    g.molecules[imol_refinement_map()].xmap_list[0];
-	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 	 graphics_draw();
       }
    }
@@ -1936,7 +1934,7 @@ multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t> &res
 (note: fit to the current-refinement map)
 */
 #ifdef USE_GUILE
-SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm) {
+SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm, int n_trials) {
 
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
@@ -1946,7 +1944,7 @@ SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm) {
 	    scm_to_residue_specs(residues_specs_scm);
 	 const clipper::Xmap<float> &xmap =
 	    g.molecules[imol_refinement_map()].xmap_list[0];
-	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 	 graphics_draw();
 	 r = SCM_BOOL_T; // we did something at least.
       }
@@ -1961,7 +1959,7 @@ SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm) {
 (note: fit to the current-refinement map)
 */
 #ifdef USE_PYTHON
-PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py) {
+PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py, int n_trials) {
 
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
@@ -1971,7 +1969,7 @@ PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py) {
        py_to_residue_specs(residues_specs_py);
 	 const clipper::Xmap<float> &xmap =
 	    g.molecules[imol_refinement_map()].xmap_list[0];
-	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 	 graphics_draw();
 	 r = Py_True; // we did something at least.
       }

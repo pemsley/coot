@@ -173,7 +173,7 @@ int test_function(int i, int j) {
 	       // do we need to send over the base atom too?  Or just say
 	       // that it's the first atom in moving_mol?
 	       // 
-	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, g.Geom_p());
+	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, 400, g.Geom_p());
 
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 
@@ -429,7 +429,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	       std::cout << "round " << iround << std::endl;
 	       CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 	       
-	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, g.Geom_p());
+	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, 400, g.Geom_p());
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 	       std::pair<CMMDBManager *, int> new_mol =
 		  coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
@@ -442,7 +442,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 				  active_atom.second.second.chain.c_str(),
 				  active_atom.second.second.resno,
 				  active_atom.second.second.insertion_code.c_str(),
-				  "NAG", "ASN-NAG");
+				  "NAG", "ASN-NAG", 400);
 	       
 	       delete moving_mol;
 	       graphics_draw();
@@ -483,7 +483,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 	       std::cout << "round " << iround << std::endl;
 	       CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 	       
-	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, g.Geom_p());
+	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, 400, g.Geom_p());
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 	       std::pair<CMMDBManager *, int> new_mol =
              coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
@@ -493,10 +493,10 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 	       int imol_new = g.create_molecule();
 	       g.molecules[imol_new].install_model(imol_new, asc_new, name, 1, shelx_flag);
 	       add_linked_residue(imol_new,
-                              active_atom.second.second.chain.c_str(),
-                              active_atom.second.second.resno,
-                              active_atom.second.second.insertion_code.c_str(),
-                              "NAG", "ASN-NAG");
+				  active_atom.second.second.chain.c_str(),
+				  active_atom.second.second.resno,
+				  active_atom.second.second.insertion_code.c_str(),
+				  "NAG", "ASN-NAG", 400);
 	       
 	       delete moving_mol;
 	       graphics_draw();

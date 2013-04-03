@@ -3097,6 +3097,9 @@ public:        //                      public
    void make_link(const coot::atom_spec_t &spec_1, const coot::atom_spec_t &spec_2,
 		  const std::string &link_name, float length,
 		  const coot::protein_geometry &geom);
+   void delete_any_link_containing_residue(const coot::residue_spec_t &res_spec);
+   void delete_link(CLink *link, CModel *model_p);
+
 
    // ------------ watson crick pair additions  ---------
    int watson_crick_pair_for_residue_range(const std::string &chain_id,
@@ -3163,6 +3166,7 @@ public:        //                      public
    // multi-residue torsion map fitting interface
    void multi_residue_torsion_fit(const std::vector<coot::residue_spec_t> &residue_specs,
 				  const clipper::Xmap<float> &xmap,
+				  int n_trials,
 				  coot::protein_geometry *geom_p);
 
 

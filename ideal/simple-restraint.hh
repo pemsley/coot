@@ -1804,6 +1804,7 @@ namespace coot {
    // this can throw an std::runtime exception
    void multi_residue_torsion_fit_map(CMMDBManager *mol,
 				      const clipper::Xmap<float> &xmap,
+				      int n_trials,
 				      coot::protein_geometry *geom_p); 
    // which calls 
    double get_rand_angle(double current_angle, const torsion_atom_quad &quad, int itrial, int n_trials);

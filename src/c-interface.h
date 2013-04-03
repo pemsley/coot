@@ -3355,7 +3355,9 @@ GtkWidget *wrapped_create_refine_params_dialog();
 
 void do_torsions_toggle(GtkWidget *button);
 
+
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+
 #ifdef USE_GUILE
 /*! \brief refine residues, r is a list of residue specs.
 
@@ -6841,7 +6843,7 @@ int get_sbase_monomer(const char *comp_id);
    return success status (0 = fail).
 */
 int add_linked_residue(int imol, const char *chain_id, int resno, const char *ins_code, 
-		       const char *new_residue_comp_id, const char *link_type);
+		       const char *new_residue_comp_id, const char *link_type, int n_trials);
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char *ins_code, 

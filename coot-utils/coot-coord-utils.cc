@@ -1270,7 +1270,11 @@ std::ostream& coot::operator<< (std::ostream& s, const coot::residue_spec_t &spe
    if (!spec.unset_p()) { 
 
       s << "[spec: ";
-      s << "\"";
+      if (spec.model_number == MinInt4)
+      s << "MinInt4";
+      else
+      s << spec.model_number;
+      s << " \"";
       s << spec.chain;
       s << "\" ";
       s << spec.resno;
@@ -4106,8 +4110,7 @@ coot::link_atoms(CLink *link) {
    atom_spec_t a2(link->chainID2, link->seqNum2, link->insCode2, link->atName2, link->aloc2);
 
    return std::pair<coot::atom_spec_t, coot::atom_spec_t> (a1, a2);
-
-} 
+}
 
 
 bool

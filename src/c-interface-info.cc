@@ -3308,6 +3308,9 @@ SCM monomer_restraints(const char *monomer_type) {
    SCM r = SCM_BOOL_F;
 
    graphics_info_t g;
+   // this forces try_dynamic_add()
+   g.Geom_p()->have_dictionary_for_residue_type(monomer_type, ++g.cif_dictionary_read_number);
+   // this doesn't force try_dynamic_add().  Hmmm.. FIXME (or think about it).
    std::pair<short int, coot::dictionary_residue_restraints_t> p =
       g.Geom_p()->get_monomer_restraints(monomer_type);
    if (p.first) {
@@ -3508,6 +3511,9 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
    r = Py_False;
 
    graphics_info_t g;
+   // this forces try_dynamic_add()
+   g.Geom_p()->have_dictionary_for_residue_type(monomer_type, ++g.cif_dictionary_read_number);
+   // this doesn't force try_dynamic_add().  Hmmm.. FIXME (or think about it).
    std::pair<short int, coot::dictionary_residue_restraints_t> p =
       g.Geom_p()->get_monomer_restraints(monomer_type);
    if (!p.first) {

@@ -1030,13 +1030,15 @@ molecule_class_info_t::delete_residue(int model_number,
 	 }
       }
    }
-   // potentially
+
    if (was_deleted) {
 
       // we can't do this after the modification: it has to be done before
       // atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
       
       atom_sel.atom_selection = NULL;
+      coot::residue_spec_t spec(model_number, chain_id, resno, ins_code);
+      delete_any_link_containing_residue(spec);
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1; 
