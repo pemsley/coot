@@ -6617,6 +6617,7 @@
 					  <property name="visible">True</property>
 					  <property name="can_focus">True</property>
 					  <property name="use_alpha">False</property>
+					  <property name="title" translatable="yes">Pick a Colour</property>
 					  <property name="focus_on_click">True</property>
 					  <signal name="color_set" handler="on_symmetry_colorbutton_color_set"/>
 					</widget>
