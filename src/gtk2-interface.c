@@ -4005,6 +4005,7 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_container_add (GTK_CONTAINER (frame33), symmetry_colorbutton);
+  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), _("Pick a Colour"));
 
   label68 = gtk_label_new (_("Sym Colour"));
   gtk_widget_show (label68);
@@ -13364,6 +13365,7 @@ create_ligand_big_blob_dialog (void)
   scrolledwindow8 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow8);
   gtk_box_pack_start (GTK_BOX (vbox97), scrolledwindow8, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (scrolledwindow8, -1, 150);
   GTK_WIDGET_UNSET_FLAGS (scrolledwindow8, GTK_CAN_FOCUS);
 
   viewport4 = gtk_viewport_new (NULL, NULL);
