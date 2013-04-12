@@ -1879,7 +1879,7 @@ fi
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7
+pver=2.7.3
 
 if [ $ENABLE_PYTHON_COOT = yes ] ; then 
    $install_top_dir/bin/python -V
@@ -2179,15 +2179,20 @@ fi
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 #
+extras_place=http://www2.mrc-lmb.cam.ac.uk/Groups/murshudov/coot/dependencies
+#
 # libccp4c:
 if test -n "$build_ccp4c" ; then 
     echo BUILDING: libccp4c
     # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
     # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
     #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
-    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
-    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/martyn-extras.tar.gz
-    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/ccp4-libs-underlay-2.tar.gz
+    #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
+    #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/martyn-extras.tar.gz
+    #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/ccp4-libs-underlay-2.tar.gz
+    ${WGET} $extras_place/libccp4c-5.0.2-ysbl-3.tar.gz
+    ${WGET} $extras_place/martyn-extras.tar.gz
+    ${WGET} $extras_place/ccp4-libs-underlay-2.tar.gz
     ( 
     date
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4c-5.0.2-ysbl-3.tar.gz | tar xf -
@@ -2260,7 +2265,9 @@ if test -n "$build_ssmlib" ; then
    echo BUILDING SSMlib:
 #
 ssmlib_version=0.0-pre-2-ysbl
-${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
+#${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
+#${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
+${WGET} $extras_place/SSMlib-$ssmlib_version.tar.gz
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/SSMlib-$ssmlib_version.tar.gz | tar xf -
@@ -2280,8 +2287,11 @@ if test -n "$build_fftw" ; then
 #
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/fftw-2.1.5.tar.gz
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/fftw-configure-stuff.tar.gz
-${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/fftw-2.1.5.tar.gz
-${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/fftw-configure-stuff.tar.gz
+#${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/fftw-2.1.5.tar.gz
+#${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/fftw-configure-stuff.tar.gz
+${WGET} $extras_place/fftw-2.1.5.tar.gz
+${WGET} $extras_place/fftw-configure-stuff.tar.gz
+
 (
 date
 pwd
@@ -2321,10 +2331,12 @@ if test -n "$build_clipper" ; then
     # 20110921 hack in a temporary solution, while Kevin's new clipper
     # is not available yet from his site.
     clipper_hack_version=2.1-110915-fixup-2
-    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-$clipper_hack_version.tar.gz
+    # ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-$clipper_hack_version.tar.gz
+    ${WGET} $extras_place/clipper-$clipper_hack_version.tar.gz
 
     if [ "$need_clipper_contrib_patch" = true ] ; then
-       ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper_test_contrib.cpp.patch
+       # ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper_test_contrib.cpp.patch
+       ${WGET} $extras_place/clipper_test_contrib.cpp.patch
     fi
     (
     
@@ -2387,7 +2399,7 @@ fi
 # freeglut
 if test -n "$build_freeglut" ; then
     echo BUILDING freeglut:
-${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/freeglut-2.4.0.tar.gz
+${WGET} $extras_place/freeglut-2.4.0.tar.gz
 (
 date
 pwd
@@ -2438,7 +2450,8 @@ if [ "$build_gtkglext" = 1 ] ; then
     gtkglext_version=1.2.0
     # this host? disappeared.
     # ${WGET} http://surfnet.dl.sourceforge.net/sourceforge/gtkglext/gtkglext-$gtkglext_version.tar.gz
-    ${WGET}   http://lmb.bioch.ox.ac.uk/coot/software/extras/gtkglext-$gtkglext_version.tar.gz
+    # ${WGET}   http://lmb.bioch.ox.ac.uk/coot/software/extras/gtkglext-$gtkglext_version.tar.gz
+    ${WGET}   $extras_place/gtkglext-$gtkglext_version.tar.gz
     (date
      pwd
      gzip -dc ${AUTOBUILD_SOURCES}/gtkglext-$gtkglext_version.tar.gz | tar xf -
@@ -2457,7 +2470,8 @@ if [ "$build_gtkglext" = 1 ] ; then
         if pkg-config gtk+-2.0 --atleast-version 2.20 ; then
            patch_file=gtk-gtkglwidget.c-for-modern-gtk.patch
         fi
-        ${WGET}   http://lmb.bioch.ox.ac.uk/coot/software/extras/$patch_file
+        # ${WGET}   http://lmb.bioch.ox.ac.uk/coot/software/extras/$patch_file
+        ${WGET}   $extras_place/$patch_file
 
         if patch -p0 < ${AUTOBUILD_SOURCES}/$patch_file ; then 
             echo gtkglext patched good.
@@ -2531,7 +2545,8 @@ if test -n "$build_python" ; then
 #
 
    ${WGET} http://www.python.org/ftp/python/$pver/Python-$pver.tgz
-   ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/python251_cci_patches_critical
+   # ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/python251_cci_patches_critical
+   ${WGET} $extras_place/python251_cci_patches_critical
    (
    date
    gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
@@ -2740,7 +2755,8 @@ if test -n "$build_readline" ; then
     readline_version=6.2
     # ${WGET} ftp://ftp.cwru.edu/pub/bash/readline-$readline_version.tar.gz
     ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
-    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/readline-5.1.patch
+    # ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/readline-5.1.patch
+    ${WGET} $extras_place/readline-5.1.patch
     (
     date
     pwd
@@ -2773,7 +2789,8 @@ guile_version=1.8.8
 # ${WGET} http://mirror.ac.uk/mirror/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 # ${WGET} http://ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
-${WGET} http://lmb.bioch.ox.ac.uk/coot/extras/guile-1.8.7-updated.patch
+#${WGET} http://lmb.bioch.ox.ac.uk/coot/extras/guile-1.8.7-updated.patch
+${WGET} $extras_place/guile-1.8.7-updated.patch
 
 ( 
 date
@@ -2829,7 +2846,8 @@ fi
 
 if test -n "$build_greg" ; then 
     echo building greg:
-    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/greg-2.0.0-pe.tar.gz
+    #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/greg-2.0.0-pe.tar.gz
+    ${WGET} $extras_place/greg-2.0.0-pe.tar.gz
     (
     date 
     gzip -dc ${AUTOBUILD_SOURCES}/greg-2.0.0-pe.tar.gz | tar xf -
@@ -2855,7 +2873,8 @@ gtk_minor_version=`awk -F '[()]' '/define GTK_MINOR_VERSION/ {print $(NF-1)} ' /
 if [ "$gtk_minor_version" = "4" ] ; then
     echo guile-gtk needs to be patched, gtk MINOR version is 4.
     apply_guile_gtk_patches=1
-    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/guile-gtk-2.1-for-gtk-2.4.patch
+    # ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/guile-gtk-2.1-for-gtk-2.4.patch
+    ${WGET} $extras_place/guile-gtk-2.1-for-gtk-2.4.patch
 else 
     echo GTK minor version is good enough, $gtk_minor_version
 fi
@@ -2909,7 +2928,8 @@ if test -n "$build_guile_gui" ; then
 #
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-0.2.tar.gz
 # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/neil-jerram.guile-gui.patch
-${WGET} http://lmb.bioch.ox.ac.uk/coot/extras/guile-gui-0.3.tar.gz
+# ${WGET} http://lmb.bioch.ox.ac.uk/coot/extras/guile-gui-0.3.tar.gz
+${WGET} $extras_place/guile-gui-0.3.tar.gz
 #
 # guile-gui-patch-post-neil.patch is the same as
 # neil-jerram.guile-gui.patch except guile-gui-patch-post-neil.patch
@@ -3287,8 +3307,6 @@ echo done coot build.
 # now, do we need to add the extra data files, the refmac monomer
 # library and the reference structures?
 
-extra_dir=http://www.ysbl.york.ac.uk/~emsley/software/extras
-extra_dir=http://lmb.bioch.ox.ac.uk/coot/software/dependencies
 # 20110505 we change to Garib's new dictionary
 #refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
 #refmac_mon_lib=refmac-monomer-library-20091203.tar.gz
@@ -3315,7 +3333,7 @@ if [ -e $install_top_dir/share/coot/reference-structures ] ; then
 else 
     echo GETTING reference structures tar...
     echo GETTING reference structures tar... &>2
-    $WGET $extra_dir/reference-structures.tar.gz
+    ${WGET} $extras_place/reference-structures.tar.gz
     if [ -e $AUTOBUILD_SOURCES/reference-structures.tar.gz ] ; then
        echo INSTALLING reference structures...
        tar xzCf $install_top_dir/share/coot $AUTOBUILD_SOURCES/reference-structures.tar.gz
