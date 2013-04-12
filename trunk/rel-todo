@@ -3,7 +3,21 @@
 
 ----
 
+   o diff map peak dialog wider
+
    o charge on lidia?
+
+   o (gtk-window-set-title) I could not figure it out: I would like to
+     change the title of the Coot window because I am using 2 or more in
+     parallel and having different window titles for different projects
+     seems like a good idea.
+
+     Is there a way to change the title when you startup coot or even
+     during a session?
+
+     coot --title "Membrane Protein XYZ"
+
+   o read ar66.fcf - can you scroll the map?
 
 -----
 

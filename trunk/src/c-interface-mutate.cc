@@ -357,7 +357,7 @@ int align_to_closest_chain(const char *target_seq_in, float match_fraction_crit)
    
    for (unsigned int imol=0; imol<graphics_n_molecules(); imol++) {
       if (is_valid_model_molecule(imol)) {
-	 if (target.length() > 0) { 
+	 if (target.length() > 0) {
 	    std::pair<bool, std::pair<std::string, coot::chain_mutation_info_container_t> > r = 
 	       graphics_info_t::molecules[imol].try_align_on_all_chains(target, match_fraction_crit,
 									graphics_info_t::alignment_wgap,

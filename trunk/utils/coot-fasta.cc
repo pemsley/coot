@@ -20,6 +20,8 @@
  */
 
 #include <iostream>
+#include <fstream>
+#include "coot-utils.hh"
 #include "coot-fasta.hh"
 
 // http://ngfnblast.gbf.de/docs/fasta.html
@@ -42,7 +44,7 @@
 //     N  asparagine                      -  gap of indeterminate length
 
 // sequence
-coot::fasta::fasta(const std::string &sequence_chain_id_in, const std::string &seq_in) {
+coot::fasta::fasta(const std::string &sequence_chain_id_in, const std::string &fasta_seq_in) {
 
    // format "> name\n <sequence>", we ignore everything that is not a
    // letter after the newline.
@@ -51,7 +53,7 @@ coot::fasta::fasta(const std::string &sequence_chain_id_in, const std::string &s
 
    std::string seq;
 
-   int nchars = seq_in.length();
+   int nchars = fasta_seq_in.length();
    short int found_greater = 0;
    short int found_newline = 0;
    std::string t;
@@ -61,17 +63,17 @@ coot::fasta::fasta(const std::string &sequence_chain_id_in, const std::string &s
       //       std::cout << "checking character: " << seq_in[i] << std::endl;
 
       if (found_newline && found_greater) {
-	 t = toupper(seq_in[i]);
+	 t = toupper(fasta_seq_in[i]);
 	 if (is_fasta_aa(t)) {
 	    // std::cout << "adding character: " << seq_in[i] << std::endl;
 	    seq += t;
 	 }
       }
-      if (seq_in[i] == '>') {
+      if (fasta_seq_in[i] == '>') {
 	 // std::cout << "DEBUG:: " << seq_in[i] << " is > (greater than)\n";
 	 found_greater = 1;
       }
-      if (seq_in[i] == '\n') { 
+      if (fasta_seq_in[i] == '\n') { 
 	 if (found_greater) {
 	    // std::cout << "DEBUG:: " << seq_in[i] << " is carriage return\n";
 	    found_newline = 1;
@@ -108,14 +110,14 @@ coot::fasta::fasta(const std::string &combined_string) { // decomposition happen
    // If the first non-blank character a ">" then we are dealing with
    // a fasta sequence, if not, then just a simple set of letters.
    //
-   short int is_fasta = 0;
+   bool is_fasta = 0;
    for (int i=0; i<nchars; i++) {
       if (combined_string[i] == ' '  ||
 	  combined_string[i] == '\n' ||
 	  combined_string[i] == '\t') {
       } else {
 	 if (combined_string[i] == '>') {
-	    is_fasta = 1;
+	    is_fasta = true;
 	 }
 	 break;
       }
@@ -166,7 +168,7 @@ coot::fasta::fasta(const std::string &combined_string) { // decomposition happen
    }
 }
 
-short int
+bool
 coot::fasta::is_fasta_aa(const std::string &a) const { 
 
    short int r = 0;
@@ -183,4 +185,58 @@ coot::fasta::is_fasta_aa(const std::string &a) const {
       }
    }
    return r;
+}
+
+void
+coot::fasta_multi::read(const std::string &file_name) {
+
+   if (file_exists(file_name)) {
+      std::ifstream f(file_name.c_str());
+      if (f) {
+	 std::vector<std::string> lines;
+	 std::string line;
+	 while (std::getline(f, line)) { 
+	    lines.push_back(line);
+	 }
+	 if (lines.size()) {
+	    bool found_greater = false;
+	    std::string running_seq;
+	    std::string running_name;
+	    fasta running_fasta;
+	    for (unsigned int iline=0; iline<lines.size(); iline++) { 
+	       std::string &line = lines[iline];
+	       unsigned int n_chars = line.length();
+	       for (unsigned int ic=0; ic<n_chars; ic++) {
+		  if (line[ic] == '>') {
+		     found_greater = true;
+		     if (running_seq.length()) {
+			fasta fas(running_name, running_seq, "direct");
+			sequences.push_back(fas);
+		     }
+		     unsigned int l = line.length();
+		     if (l>ic+1)
+			running_name = line.substr(ic+1,l);
+		     else
+			running_name.clear();
+		     running_seq.clear();
+		     break;
+		  }
+
+		  if (found_greater) {
+		     char t = toupper(line[ic]);
+		     std::string ss;
+		     ss += t;
+		     if (running_fasta.is_fasta_aa(ss)) {
+			running_seq += t;
+		     } 
+		  }
+	       }
+	    }
+	    if (running_seq.length())
+	       sequences.push_back(fasta(running_name, running_seq, "direct"));
+	 }
+      }
+   } else {
+      std::cout << "File not found: " << file_name << std::endl;
+   }
 }

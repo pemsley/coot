@@ -18,9 +18,6 @@ coot::chain_mutation_info_container_t::rationalize_insertions() {
    // We have a list of single insertions.  We want to move the single
    // insertions to a set of insertion ranges.
 
-   std::cout << "There are " << single_insertions.size() << " single_insertions"
-	     << std::endl;
-
    if (single_insertions.size() > 0) {
 
       int min_resno =  9999;
@@ -150,6 +147,19 @@ coot::chain_mutation_info_container_t::get_residue_type(const residue_spec_t &sp
    return r;
 }
 
+double
+coot::chain_mutation_info_container_t::dissimilarity_score() const {
+
+   double s = 0;
+   std::cout << "   dissimilarity_score: " << single_insertions.size() << " + "
+	     << deletions.size() << " + " << 0.5 * mutations.size() << std::endl;
+   s += single_insertions.size();
+   s += deletions.size();
+   s += 0.5 * mutations.size();
+   return s;
+}
+
+
 
 std::ostream& coot::operator<<(std::ostream &s, coot::mutate_insertion_range_info_t &r) {
 
@@ -159,3 +169,5 @@ std::ostream& coot::operator<<(std::ostream &s, coot::mutate_insertion_range_inf
       s << " " << r.types[t];
    return s;
 }
+
+

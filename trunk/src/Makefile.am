@@ -236,6 +236,7 @@ fix_nomenclature_errors_SOURCES = \
 	coot-nomenclature.hh   \
 	coot-nomenclature.cc
 
+
 coot_real_SOURCES = \
 	main.cc 		 \
 	svn-revision.cc 	 \
@@ -274,6 +275,8 @@ coot_real_SOURCES = \
 	c-interface-residues.cc	 \
 	c-interface-scm.hh	 \
 	c-interface-scm.cc	 \
+	c-interface-sequence.cc  \
+	c-interface-sequence.hh  \
 	c-interface-sfs.cc	 \
 	c-interface-superpose.cc \
 	c-interface-validate.cc	 \

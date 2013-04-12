@@ -19,6 +19,7 @@ public:
    int port;
    std::string hostname;
    std::string ccp4_project;
+   std::string title;
    short int try_listener;
    short int do_graphics;
    short int small_screen_display;

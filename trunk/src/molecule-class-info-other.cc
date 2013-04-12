@@ -3538,7 +3538,6 @@ molecule_class_info_t::assign_fasta_sequence(const std::string &chain_id, const 
    // letter after the newline.
 
    // sequence is member data.  Let's fill it.
-   std::cout << "in assign_fasta_sequence\n";
 
    std::string seq;
 
@@ -3586,7 +3585,7 @@ molecule_class_info_t::assign_pir_sequence(const std::string &chain_id, const st
    // letter after the newline.
 
    // sequence is member data.  Let's fill it.
-   std::cout << "in assign_pir_sequence\n";
+   // std::cout << "in assign_pir_sequence\n";
 
    std::string seq;
 
@@ -3698,7 +3697,7 @@ molecule_class_info_t::assign_sequence_from_file(const std::string &filename) {
 void
 molecule_class_info_t::assign_sequence_from_string(const std::string &chain_id, const std::string &seq_in) {
 
-   std::cout << "in assign_sequence_from_string\n";
+   // std::cout << "in assign_sequence_from_string\n";
 
    std::string seq = seq_in;
    if (seq.length() > 0) { 

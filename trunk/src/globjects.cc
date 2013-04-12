@@ -1270,12 +1270,18 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
    GdkGLConfig *glconfig = 0;
    bool got_hardware_stereo_flag = 0; 
    
+//    GdkGLConfigMode mode = static_cast<GdkGLConfigMode>
+//       (GDK_GL_MODE_RGB    |
+//        GDK_GL_MODE_DEPTH  |
+//        GDK_GL_MODE_DOUBLE |
+//        GDK_GL_MODE_MULTISAMPLE |
+//        /* 2x FSAA */
+//        (2 << GDK_GL_MODE_SAMPLES_SHIFT)       );
+
    GdkGLConfigMode mode = static_cast<GdkGLConfigMode>
       (GDK_GL_MODE_RGB    |
        GDK_GL_MODE_DEPTH  |
-       // GDK_GL_MODE_MULTISAMPLE |
-       GDK_GL_MODE_DOUBLE
-       );
+       GDK_GL_MODE_DOUBLE);
 
    if (try_stereo_flag == coot::HARDWARE_STEREO_MODE) {
       mode = static_cast<GdkGLConfigMode>
@@ -1325,8 +1331,8 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
    /* Try double-buffered visual */
    glconfig = gdk_gl_config_new_by_mode(mode);
    if (glconfig == NULL) {
-      g_print ("\n*** Cannot find the double-buffered visual.\n");
-      g_print ("\n*** Trying single-buffered visual.\n");
+      g_print ("\n*** Cannot find the double-buffered visual.");
+      g_print ("\n*** Trying single-buffered visual.\n\n");
 
       mode =static_cast<GdkGLConfigMode>
 	 (GDK_GL_MODE_RGB   |

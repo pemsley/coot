@@ -502,20 +502,25 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 				      int nSelResidues,
 				      const std::string &target,
 				      realtype wgap,
-				      realtype wspace) const {
+				      realtype wspace,
+				      bool console_output) const {
 
    coot::chain_mutation_info_container_t ch_info(chain_id);
+   bool debug = false;
 
-   std::cout << "\n\n-------------------------------------------------" << std::endl;
-   std::cout << "        chain " << chain_id << std::endl;
-   std::cout << "-------------------------------------------------\n\n" << std::endl;
-
+   if (console_output) { 
+      std::cout << "\n-------------------------------------------------" << std::endl;
+      std::cout << "        chain " << chain_id << std::endl;
+      std::cout << "-------------------------------------------------" << std::endl;
+   }
    std::vector<std::pair<CResidue *, int> > vseq =
       coot::util::sort_residues_by_seqno(SelResidues, nSelResidues);
 
    std::string model = coot::util::model_sequence(vseq);
-   std::cout << "INFO:: input model  sequence:" << model  << std::endl;
-   std::cout << "INFO:: input target sequence:" << target  << std::endl;
+   if (console_output) { 
+      std::cout << "INFO:: input model  sequence: " << model  << std::endl;
+      std::cout << "INFO:: input target sequence: " << target  << std::endl;
+   }
 
    CAlignment align;
 
@@ -524,7 +529,6 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    // when there is a deletion at the N-term of my model (rnase).
    // 
    // align.SetScores(0.5, -0.2);; // 2.0, -1 are the defaults.
-   
 
    // It seems to me now that it is the gap (and space) penalty that
    // is the important issue.
@@ -537,23 +541,35 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 
    std::string stripped_target = coot::util::remove_whitespace(target);
 
-   std::cout << "INFO:: align with gap penalty: " << wgap << " and extension penalty: "
-	     << wspace << std::endl;
+   if (debug)
+      std::cout << "debug:::: Align() with gap penalty: " << wgap
+		<< " and extension penalty: " << wspace << std::endl;
+   
    align.SetAffineModel(wgap, wspace);
    align.Align(model.c_str(), stripped_target.c_str());
 
    ch_info.alignedS = align.GetAlignedS();
    ch_info.alignedT = align.GetAlignedT();
+
+   if (debug) { 
+      std::cout << "debug:::: Align() on model  " << model << std::endl;
+      std::cout << "debug:::: Align() on target " << stripped_target << std::endl;
+      std::cout << "debug:::: Align() GetAlignedS:  " << ch_info.alignedS << std::endl;
+      std::cout << "debug:::: Align() GetAlignedT:  " << ch_info.alignedT << std::endl;
+   }
+   
    ch_info.alignedS_label = name_;
    ch_info.alignedT_label = "target sequence:";
+   ch_info.alignment_score = std::pair<bool, float> (true, align.GetScore());
+
+   if (console_output) { 
+      std::cout << ">  ";
+      std::cout << name_ << std::endl;
+      std::cout << align.GetAlignedS() << std::endl;
+      std::cout << "> target seq: \n" << align.GetAlignedT() << std::endl;
+      std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
+   }
    
-
-   std::cout << ">  ";
-   std::cout << name_ << std::endl;
-   std::cout << align.GetAlignedS() << std::endl;
-   std::cout << "> target seq: \n" << align.GetAlignedT() << std::endl;
-   std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
-
    // Before the use of SetAffineModel()
    // we got something like:
    // DVSGTVCLSALPPEATDTLNLIASDGPFPYSQD----F--------Q-------NRESVLPTQSYGYYHEYTVITP
@@ -1528,4 +1544,35 @@ molecule_class_info_t::remove_ter_atoms(const coot::residue_spec_t &spec) {  // 
 	 }
       }
    }
-} 
+}
+
+
+
+// Not a mutate function, (merely) a function that sees how close the
+// sequence match is to each of the chains.
+std::vector<coot::chain_mutation_info_container_t>
+molecule_class_info_t::sequence_comparison_to_chains(const std::string &target_sequence) const {
+
+   std::vector<coot::chain_mutation_info_container_t> mutation_info_vec;
+   if (atom_sel.mol) {
+      CModel *model_p = atom_sel.mol->GetModel(1);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (unsigned int ich=0; ich<n_chains; ich++) {
+	    CChain *chain_p = model_p->GetChain(ich);
+	    std::string chain_id = chain_p->GetChainID();
+	    realtype wgap   =  0.0;    //defaults
+	    realtype wspace = -1.0;
+	    int nSelResidues;
+	    PPCResidue SelResidues = 0;
+	    chain_p->GetResidueTable(SelResidues, nSelResidues);
+	    bool console_output = false;
+	    coot::chain_mutation_info_container_t mutation_info =
+	       align_on_chain(chain_id, SelResidues, nSelResidues, target_sequence, wgap, wspace, 
+			      console_output);
+	    mutation_info_vec.push_back(mutation_info);
+	 }
+      }
+   }
+   return mutation_info_vec;
+}
