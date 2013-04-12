@@ -1835,7 +1835,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
 	 if (bonds_box.bonds_[i].thin_lines_flag)
 	    zsc *= 0.5;
-
+ 
 	 glBegin(GL_QUADS); 
 	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 	    

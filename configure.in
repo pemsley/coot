@@ -108,7 +108,7 @@ dnl Check for MMDB.
 AM_PATH_MMDB(, [echo Error locating necessary mmdb; exit 1],,)
 
 AM_WITH_MMDBSSM
-# AM_WITH_CCP4SRS
+AM_WITH_CCP4SRS
 
 dnl Check for Clipper.  we exit if clipper is not found.
 #

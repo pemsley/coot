@@ -134,40 +134,6 @@ lbg_info_t::get_search_similarity() const {
 
 
 
-
-#ifdef HAVE_CCP4SRS
-PCGraph
-lbg_info_t::makeTestQueryGraph() const {
-   
-   // benzene
-   PCGraph  G;
-
-  G = new CGraph();
-
-  G->AddVertex ( new CVertex(" C","C1") );
-  G->AddVertex ( new CVertex(" C","C2") );
-  G->AddVertex ( new CVertex(" C","C3") );
-  G->AddVertex ( new CVertex(" C","C4") );
-  G->AddVertex ( new CVertex(" C","C5") );
-  G->AddVertex ( new CVertex(" C","C6") );
-
-  G->AddEdge ( new CEdge(1,2,2) );
-  G->AddEdge ( new CEdge(2,3,1) );
-  G->AddEdge ( new CEdge(3,4,2) );
-  G->AddEdge ( new CEdge(4,5,1) );
-  G->AddEdge ( new CEdge(5,6,2) );
-  G->AddEdge ( new CEdge(6,1,1) );
-
-  G->MakeVertexIDs();
-  G->MakeSymmetryRelief ( False );
-  // G->Build ( True ); // This makes the search results go crazy.
-  G->Build ( False ); // no bond orders!
-
-  return G;
-}
-#endif 
-
-
 #ifdef HAVE_CCP4SRS   
 coot::match_results_t
 lbg_info_t::residue_from_best_match(CGraph &graph_1, CGraph &graph_2,

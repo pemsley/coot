@@ -87,6 +87,8 @@ using namespace std; // Hmmm.. I don't approve, FIXME
 #include "dots-representation.hh"
 #include "named-rotamer-score.hh"
 
+#include "c-interface-sequence.hh"
+
 namespace molecule_map_type {
    enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3,
 	  TYPE_DIFF_SIGMAA=4 };
@@ -836,7 +838,8 @@ class molecule_class_info_t {
 		  PCResidue *SelResidues, int nSelResidues,
 		  const std::string &target,
 		  realtype wgap,
-		  realtype wspace) const;
+		  realtype wspace,
+		  bool console_output = true) const;
 
 
    std::string
@@ -3184,7 +3187,10 @@ public:        //                      public
    CAtom *get_centre_atom_from_sequence_triplet(const std::string &seq_trip) const;
    // which uses (like align's make_model_string).  Ignores waters.
    // The length of the string is guaranteed to the the length of the vector.
-   std::pair<std::string, std::vector<CResidue *> > sequence_from_chain(CChain *chain_p) const; 
+   std::pair<std::string, std::vector<CResidue *> > sequence_from_chain(CChain *chain_p) const;
+
+   std::vector<coot::chain_mutation_info_container_t>
+   sequence_comparison_to_chains(const std::string &sequence) const;
    
 };
 

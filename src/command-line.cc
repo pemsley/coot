@@ -107,6 +107,7 @@ parse_command_line(int argc, char ** argv ) {
       {"code",       1, 0, 0},
       {"comp_id",    1, 0, 0},
       {"comp-id",    1, 0, 0},
+      {"title",      1, 0, 0},
       {"port",       1, 0, 0},
       {"host",       1, 0, 0},
       {"hostname",   1, 0, 0}, // alternate for host
@@ -192,6 +193,9 @@ parse_command_line(int argc, char ** argv ) {
 	    if (arg_str == "comp-id") {
 	       cld.comp_ids.push_back(optarg);
 	    }
+	    if (arg_str == "title") {
+	       cld.title = optarg;
+	    }
 	    if (arg_str == "splash-screen") {
 	       cld.alternate_splash_screen_file_name = optarg;
 	    }
@@ -220,6 +224,7 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--auto mtz-file-name]\n"
 			       << "            [--dictionary cif-dictionary-file-name]\n"
 			       << "            [--script script-file-name]\n"
+			       << "            [--title some-title]\n"
 			       << "            [--small-screen]\n"
 			       << "            [--splash-screen]\n"
 			       << "            [--stereo]\n"
@@ -460,6 +465,10 @@ handle_command_line_data(command_line_data cld) {
       }
    }
 
+   // title
+   if (cld.title.length() > 0)
+      set_main_window_title(cld.title.c_str());
+   
    // --no-guano used?
    if (cld.disable_state_script_writing)
       graphics_info_t::disable_state_script_writing = 1;
