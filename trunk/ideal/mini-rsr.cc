@@ -57,7 +57,7 @@
 #include "clipper/core/hkl_compute.h"
 #include "clipper/core/map_utils.h" // Map_stats
 
-#define UNSET -9999
+#define UNSET MinInt4
 
 #ifndef  __MMDB_MMCIF__
 #include <mmdb/mmdb_mmcif.h>
@@ -87,6 +87,17 @@ map_from_mtz(std::string mtz_file_name,
 
 class input_data_t {
 public:
+   input_data_t() {
+      is_good = false;
+      is_debug_mode = false;
+      given_map_flag = false;
+      radius = 4.2;
+      residues_around = MinInt4;
+      resno_start = MinInt4;
+      resno_end = MinInt4;
+      f_col = "FWT";
+      phi_col = "PHWT";
+   }
    bool is_good;
    bool is_debug_mode; 
    bool given_map_flag;
@@ -94,7 +105,9 @@ public:
    bool use_torsion_targets;
    int resno_start;
    int resno_end;
+   int residues_around;
    float map_weight; 
+   float radius; 
    std::string chain_id;
    std::string mtz_file_name;
    std::string f_col;
@@ -102,7 +115,7 @@ public:
    std::string map_file_name;
    std::string  input_pdb_file_name;
    std::string output_pdb_file_name;
-
+   std::vector<coot::residue_spec_t> single_residue_specs; // not used as yet.
 };
 
 input_data_t get_input_details(int argc, char **argv);
@@ -112,7 +125,6 @@ std::vector<std::pair<bool,CResidue *> >
 fill_residues(const std::string &chain_id, int resno_start, int resno_end, CMMDBManager *mol) {
 
    std::vector<std::pair<bool,CResidue *> > v;
-
    
    int imod = 1;
    CModel *model_p = mol->GetModel(imod);
@@ -138,7 +150,7 @@ fill_residues(const std::string &chain_id, int resno_start, int resno_end, CMMDB
       }
    }
    return v;
-} 
+}
 
 
 
@@ -163,10 +175,13 @@ main(int argc, char **argv) {
 		<< "       --f f_col_label\n"
 		<< "       --phi phi_col_label\n"
 		<< "       --pdbout output-filename\n"
-		<< "       --resno-start resno_low\n"
-		<< "       --resno-end resno_high\n"
+		<< "       [ --resno-start resno_low\n"
+		<< "         --resno-end   resno_high] \n"
+		<< "       or [ --residues-around res_no ]\n"
+		<< "       or [ --residue-number resno ]\n"
 		<< "       --chain-id chain-id\n"
 		<< "       --weight w (weight of map gradients, default 60)\n"
+		<< "       --radius (default 4.2)\n"
 		<< "       --rama\n"
 		<< "\n"
 		<< "     --mapin ccp4-map-name can be used\n"
@@ -245,8 +260,25 @@ main(int argc, char **argv) {
 	 if (map_is_good) { 
 	    std::string altloc("");
 
-	    std::vector<std::pair<bool,CResidue *> > local_residues =
-	       fill_residues(chain_id, inputs.resno_start, inputs.resno_end, asc.mol);
+	    std::vector<std::pair<bool,CResidue *> > local_residues;
+
+	    if ((inputs.resno_start != MinInt4) && inputs.resno_end != MinInt4)
+	       local_residues =
+		  fill_residues(chain_id, inputs.resno_start, inputs.resno_end, asc.mol);
+
+	    if (inputs.residues_around != MinInt4) {
+	       coot::residue_spec_t res_spec(inputs.chain_id, inputs.residues_around);
+	       CResidue *res_ref = coot::util::get_residue(res_spec, asc.mol);
+	       if (res_ref) { 
+		  std::vector<CResidue *> residues =
+		     coot::residues_near_residue(res_ref, asc.mol, inputs.radius);
+		  local_residues.push_back(std::pair<bool,CResidue *>(true, res_ref));
+		  for (unsigned int i=0; i<residues.size(); i++) {
+		     std::pair<bool, CResidue *> p(true, residues[i]);
+		     local_residues.push_back(p);
+		  }
+	       }
+	    }
 
 	    // 	 int have_flanking_residue_at_start = 0;
 	    // 	 int have_flanking_residue_at_end   = 0;
@@ -291,7 +323,9 @@ main(int argc, char **argv) {
 	       do_rama_plot_restraints = 1;
 	    restraints.make_restraints(geom, flags, 1, 1.0, do_rama_plot_restraints, pseudos);
 
-	    restraints.minimize(flags);
+	    int nsteps_max = 4000;
+	    short int print_chi_sq_flag = 1;
+	    restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
 	    restraints.write_new_atoms(inputs.output_pdb_file_name);
 	 }
       }
@@ -401,8 +435,8 @@ get_input_details(int argc, char **argv) {
    d.is_good = 0;
    d.given_map_flag = 0;
    d.resno_start = UNSET;
-   d.resno_end = UNSET;
-   d.map_weight = UNSET;
+   d.resno_end   = UNSET;
+   d.map_weight  = UNSET;
    d.use_rama_targets = 0;
    d.use_torsion_targets = 0;
    
@@ -420,12 +454,15 @@ get_input_details(int argc, char **argv) {
       {"mapin",  1, 0, 0}, 
       {"resno-start", 1, 0, 0}, 
       {"resno-end",   1, 0, 0}, 
+      // {"residue",     2, 0, 0}, // can't give 2 args to one keyword, it seems?
+      {"residues-around",   1, 0, 0}, 
       {"chain-id",    1, 0, 0},
       {"weight",    1, 0, 0},
+      {"radius",    1, 0, 0},
       {"rama",      0, 0, 0},
-      {"torsions",      0, 0, 0},
-      {"torsion",      0, 0, 0},
-      {"debug",      0, 0, 0},  // developer option
+      {"torsions",  0, 0, 0},
+      {"torsion",   0, 0, 0},
+      {"debug",     0, 0, 0},  // developer option
       {0, 0, 0, 0}
    };
 
@@ -467,8 +504,14 @@ get_input_details(int argc, char **argv) {
 	    if (arg_str == "resno-end") { 
 	       d.resno_end = atoi(optarg);
 	    }
+	    if (arg_str == "residues-around") { 
+	       d.residues_around = atoi(optarg);
+	    }
 	    if (arg_str == "weight") { 
 	       d.map_weight = atof(optarg);
+	    }
+	    if (arg_str == "radius") { 
+	       d.radius = atof(optarg);
 	    }
 	 } else {
 	    // long argument without parameter:
@@ -533,7 +576,7 @@ get_input_details(int argc, char **argv) {
    }
 
    if (d.input_pdb_file_name != "" && d.output_pdb_file_name != "") { 
-      if (d.resno_start != UNSET && d.resno_end != UNSET) { 
+      if ((d.resno_start != UNSET && d.resno_end != UNSET) || (d.residues_around != MinInt4)) { 
 	 if (d.chain_id != "") { 
 	    if ( (d.map_file_name != "") || (d.mtz_file_name != "" && d.f_col != "" && d.phi_col != "") ) { 
 	       d.is_good = 1;
@@ -551,6 +594,4 @@ get_input_details(int argc, char **argv) {
    } 
 	    
    return d;
-} 
-
-
+}
