@@ -1,6 +1,7 @@
 /*
      mmut/mmut_connectivity.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -29,8 +30,8 @@
 #include "cartesian.h"
 #include "connect.h"
 
-#include <mmdb_manager.h>
-#include <mman_manager.h>
+#include <mmdb/mmdb_manager.h>
+#include "mman_manager.h"
 
 //enum types { SINGLE, DOUBLE, TRIPLE, QUADRUPLE, HBOND };
 
@@ -44,32 +45,37 @@ class Connection {
  public:
   bool isInTotalSelection;
   std::vector<int> external_connected_atoms;
+  std::vector<int> external_connected_spline_atoms;
   std::vector<int> connected_atoms;
   std::vector<unsigned int> orders;
   Connection();
   ~Connection();
   void AddConnection(int serNum);
   void AddExternalConnection(int serNum);
+  void AddExternalSplineConnection(int serNum);
 };
 
 class Connectivity {
   std::vector<Connection> TotalSelection_new;
   int IsInTotalSelection(int idx) const;
   int nSelAtomsTot;
+  int externalBonds;
   PPCAtom SelAtomsTot;
   
  public:
   Connectivity();
   ~Connectivity();
-  void AddBonds(CMMANManager *molhnd, int selhnd, const PPCAtom SelAtoms_in, const int nSelAtoms_in, int all_selHnd);
+  void AddBonds(CMMANManager *molhnd, int selhnd, const PPCAtom SelAtoms_in, const int nSelAtoms_in, int all_selHnd, int all_selHnd_spline);
   void AddContacts(CMMANManager *molhnd, int selhnd, const PPCAtom SelAtoms_in, const int nSelAtoms_in, const PSContact contacts_in, const int ncontacts_in);
   void AddTrace(PCMMANManager molhnd, const PPCAtom selAtoms, const int nSelAtoms,
 		realtype cutoff );
   std::vector<std::vector<int> > GetConnectivityLists(void) const;
   std::vector<std::vector<int> > GetExternalConnectivityLists(void) const;
+  std::vector<std::vector<int> > GetExternalSplineConnectivityLists(void) const;
   int GetNumberOfAtoms(void) const;
+  int GetNumberOfExternalBonds(void) { return externalBonds; }
   PPCAtom GetAtoms(void) const;
-  std::vector<int> GetCAtomIndex(void);
+  const std::vector<int> GetCAtomIndex(void) const;
   void Clear(void);
   //Tree GetTree(PCMMANManager molhnd) const;
 };
@@ -114,13 +120,14 @@ class Connectivity2 {
   void RemoveConnection(PCAtom p_atom1,int position);
   void DeleteConnection(int index);
   void DeleteConnections();
+  int DeleteTaggedConnections(int first, int last=-1);
   int GetNofConnections() { return  connected.size(); }
   std::vector<unsigned int> FindConnections(PCAtom p_atom1,PCAtom p_atom,bool switchpos=1);
   std::vector<unsigned int> FindConnections(PCAtom p_atom1, int position=0);
   int FindNofConnections(PCAtom p_atom1,int position=0);
   void Clear(void);	
   int SelectVectors (int nSelTags , int *selTags );
-  realtype* Extent();
+  double* Extent();
   std::string Print( const std::string &tag1="", const std::string &tag2="" );
   int DataMode(void) { return data_mode; }
   std::string GetLabel(int i){ return connected[i].label ; }
@@ -129,16 +136,24 @@ class Connectivity2 {
   std::string GetAtomID ( int i, int j);
   int GetTag(int iV);
   int SetTag(int iV,int i);
+  double GetRMSD();
+  int AddContactFromSelHandle( PCMMANManager molHnd1,int selHnd1,PCMMANManager molHnd2,int selHnd2,int tag=-1);
   int AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager molHnd2,int selHnd2_in,realtype  dist1, realtype  dist2, int  seqDist, int inter_model=0, int closest_bonding=5, int handle_hbond=0 );
-  int AddRangeConnections(int set, PCResidue res1,PCResidue res2, 
-		 PCResidue mres1, 
-		 const std::vector<std::string>& mainchain_name,
-			        int tag );
+  int AddRangeConnections(PCResidue res1,PCResidue res2, 
+	                  PCResidue mres1,  PCResidue mres2,
+		          const std::vector<std::string>& mainchain_name,int tag );
   int AddCloseRangeConnections(int set,PCResidue res1,
                     PCResidue res2,PCMMANManager M2,
 		      double central_cutoff, double cutoff,
 		    const std::vector<std::string>& mainchain_name,
                     const std::string &centralAtom, int tag );
+
+  int AddRangeWithSameIdConnections( PCMMANManager molHnd1,int selHnd1, PCMMANManager molHnd2,int selHnd2, 
+				     const std::vector<std::string>&  mainchain_name, int tag );
+
+  int AddCloseAtoms( PCMMANManager molHnd1,int selHnd1, 
+                     PCMMANManager molHnd2,int selHnd2 , 
+		     realtype central_cutoff, realtype cutoff , char *central, int tag );
 
   int GetSelection (int mode=1 );
   int Superpose(int fixed);

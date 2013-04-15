@@ -1,6 +1,8 @@
 /*
      mmut/mmut_manager.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2011 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -22,15 +24,21 @@
 #else
 #include <cstring>
 #endif
+#include <vector>
 #include <iostream>
 #include <stdio.h>
+#include <time.h>
 #include <fstream>
 #include <iomanip>
+#include <algorithm>
 #include <math.h>
 #include <sstream>
-#include <mmut_manager.h>
-#include <mmdb_utils.h>
-#include <mmdb_tables.h>
+#include "mmut_manager.h"
+#include <mmdb/mmdb_utils.h>
+#include <mmdb/mmdb_tables.h>
+#include <mmdb/mmdb_cifdefs.h>
+
+#include "mmut_util.h"
 
 using namespace std;
 
@@ -142,6 +150,55 @@ int CMMUTManager::NumberOfHydrogens(int selHnd){
 }
 
 //----------------------------------------------------------------------------
+int CMMUTManager::NumberOfAtoms(int selHnd) {
+//----------------------------------------------------------------------------
+
+  PPCAtom selected_atoms;
+  int natoms_sel;
+  GetSelIndex ( selHnd, selected_atoms, natoms_sel);
+
+  return natoms_sel;
+}
+
+//----------------------------------------------------------------------------
+realtype CMMUTManager::Mass(int selHnd) {
+//----------------------------------------------------------------------------
+
+  PPCAtom selected_atoms;
+  int natoms_sel;
+  GetSelIndex ( selHnd, selected_atoms, natoms_sel);
+
+  int l;
+  realtype weight = 0.0;
+  for(l=0;l<natoms_sel;l++){
+    weight += MolecWeight[getElementNo((selected_atoms[l])->element)];
+  }
+
+  return weight;
+}
+
+
+Cartesian CMMUTManager::CentreOfCoordinatesAsCartesian(int selHnd) {
+  realtype* com = CentreOfCoordinates(selHnd);
+  Cartesian cart;
+  cart.set_x(com[0]);
+  cart.set_y(com[1]);
+  cart.set_z(com[2]);
+  delete [] com;
+  return cart;
+}
+
+Cartesian CMMUTManager::CentreOfMassAsCartesian(int selHnd) {
+  realtype* com = CentreOfMass(selHnd);
+  Cartesian cart;
+  cart.set_x(com[0]);
+  cart.set_y(com[1]);
+  cart.set_z(com[2]);
+  delete [] com;
+  return cart;
+}
+
+//----------------------------------------------------------------------------
 realtype* CMMUTManager::CentreOfMass(int selHnd) {
 //----------------------------------------------------------------------------
 
@@ -154,7 +211,6 @@ realtype* CMMUTManager::CentreOfMass(int selHnd) {
   realtype atweight;
   realtype weight;
 
-  //weight=MolWeight(selHnd);
   weight = 0.0;
   com = new realtype[3];
 
@@ -162,12 +218,46 @@ realtype* CMMUTManager::CentreOfMass(int selHnd) {
   com[1] = 0.0;
   com[2] = 0.0;
 
-  atweight = 1.0;
   for(l=0;l<natoms_sel;l++){
-    //atweight = MolecWeight[getElementNo((selected_atoms[l])->element)];
+    atweight = MolecWeight[getElementNo((selected_atoms[l])->element)];
     com[0] +=  atweight * (selected_atoms[l])->x;
     com[1] +=  atweight * (selected_atoms[l])->y;
     com[2] +=  atweight * (selected_atoms[l])->z;
+    weight += atweight;
+  }
+
+  com[0] = com[0]/weight;
+  com[1] = com[1]/weight;
+  com[2] = com[2]/weight;
+
+  return com;
+
+}
+
+//----------------------------------------------------------------------------
+realtype* CMMUTManager::CentreOfCoordinates(int selHnd) {
+//----------------------------------------------------------------------------
+
+  PPCAtom selected_atoms;
+  int natoms_sel;
+  GetSelIndex ( selHnd, selected_atoms, natoms_sel);
+
+  int l;
+  realtype *com;
+  realtype atweight;
+  realtype weight;
+
+  weight = 0.0;
+  com = new realtype[3];
+
+  com[0] = 0.0;
+  com[1] = 0.0;
+  com[2] = 0.0;
+
+  for(l=0;l<natoms_sel;l++){
+    com[0] +=  (selected_atoms[l])->x;
+    com[1] +=  (selected_atoms[l])->y;
+    com[2] +=  (selected_atoms[l])->z;
     weight += 1.0;
   }
 
@@ -179,6 +269,22 @@ realtype* CMMUTManager::CentreOfMass(int selHnd) {
 
 }
 
+
+//-------------------------------------------------------------------------
+realtype CMMUTManager::ExtentSize(int selHnd) {
+//-------------------------------------------------------------------------
+  realtype* rtde = Extent(selHnd);
+
+  realtype mine[3] = {rtde[0],rtde[1],rtde[2]};
+  realtype maxe[3] = {rtde[3],rtde[4],rtde[5]};
+  realtype theSize = fabs(mine[0]-maxe[0]);
+  if(fabs(mine[1]-maxe[1])>theSize)
+     theSize = fabs(mine[1]-maxe[1]);
+  if(fabs(mine[2]-maxe[2])>theSize)
+     theSize = fabs(mine[2]-maxe[2]);
+  return theSize;
+}
+
 //-------------------------------------------------------------------------
 realtype* CMMUTManager::Extent(int selHnd) {
 //-------------------------------------------------------------------------
@@ -186,8 +292,6 @@ realtype* CMMUTManager::Extent(int selHnd) {
   PPCAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
-
-  if (natoms_sel < 1) return NULL;
 
   int l;
   realtype *com;
@@ -218,6 +322,16 @@ realtype* CMMUTManager::Extent(int selHnd) {
 
   return com;
 
+}
+
+std::vector<Cartesian> CMMUTManager::GetPrincipalComponents(int selHnd){
+  std::vector<Cartesian> pca;
+  PPCAtom selected_atoms;
+  int natoms_sel;
+  GetSelIndex ( selHnd, selected_atoms, natoms_sel);
+  std::vector<Cartesian> carts = PPCAtomsToCartesians(natoms_sel,selected_atoms);
+  pca = Cartesian::PrincipalComponentAnalysis(carts);
+  return pca;
 }
 
 int* CMMUTManager::AtomicComposition(int selHnd){
@@ -306,6 +420,261 @@ int* CMMUTManager::ResidueComposition(int selHnd) {
 
 }
 
+/*
+pstr CMMUTManager::GetSequence0(int selHnd){
+	
+  PPCAtom selected_atoms;
+  int natoms_sel;
+  GetSelIndex ( selHnd, selected_atoms, natoms_sel);
+
+  int i,l;
+  int numres;
+  pstr resname,sequence;
+
+  int maxresnum = selected_atoms[natoms_sel-1]->GetResidueNo();
+  std::cout << maxresnum << "\n";
+
+  numres = TotalNumRes(selHnd);
+  //std::cout << "total residues : " << numres << "\n";
+  sequence = new char[maxresnum+1];
+
+  int ires = 0;
+  for(i=0;i<natoms_sel;i++){
+    if(selected_atoms[i]->GetSeqNum()!=selected_atoms[i-1]->GetSeqNum()){
+      //std::cout << i << "\n";
+      resname = selected_atoms[i]->GetResName();
+      //std::cout << resname << "\n";
+      bool haveThis = false;
+      for(l=0;l<nResNames;l++){
+	if(!strcmp(resname,ResidueName[l])){
+	  //	  residue_comp[l]++;
+          //std::cout << ResidueName1[l] << "(" << ires << ")\n";
+	  if(ires<numres) sequence[ires] = ResidueName1[l];
+          haveThis = true;
+	}
+      }
+      if(!strcmp(resname,"HOH")){
+	//	residue_comp[22]++;        // HARDWIRE!!
+        //std::cout << 'O' << "(" << ires << ")\n";
+	if(ires<numres) sequence[ires] = 'O'; // Hackery since we have WAT in RNames
+        haveThis = true;
+      }
+      if(!haveThis&&ires<numres) sequence[ires] = '?'; 
+      ires++;
+    }
+  }
+
+  //std::cout << sequence[numres-1] << "\n";
+  sequence[ires] = '\0';
+
+  return sequence;
+
+}
+*/
+
+void CMMUTManager::SelectOneAtomForNonAminoNucleotide(int selHnd, int atomSelHnd){
+/* Given a selection of residues selHnd, a single atom is added to atom selection atomSelHnd,
+ * if the residue is neither amino acid nor nucleotide. */
+	
+  PPCResidue selected_atoms;
+  int natoms_sel;
+  GetSelIndex ( selHnd, selected_atoms, natoms_sel);
+  char AtomID[30];
+
+  int i,l;
+  int numres;
+  pstr resname;
+
+  numres = natoms_sel;
+  if(numres==0||natoms_sel==0){
+     if(getenv("CCP4MG_DEBUG_SEQUENCE")) std::cout << "No residues, returning\n";
+     return;
+  } 
+
+  resname = selected_atoms[0]->GetResName();
+  bool haveThis = false;
+  for(l=0;l<nResNames;l++){
+    if(!strcmp(resname,ResidueName[l])){
+      haveThis = true;
+    }
+  }
+  for(l=0;l<nNucleotideNames;l++){
+    if(!strcmp(resname,NucleotideName[l])){
+      if(strlen(NucleotideName[l])==1){
+        haveThis = true;
+      }else if(strlen(NucleotideName[l])==2){
+        haveThis = true;
+      }
+    }
+  }
+  if(!strcmp(resname,"HOH")){
+    haveThis = true;
+  }
+  if(!haveThis){
+   if(!selected_atoms[0]->isNucleotide()&&!selected_atoms[0]->isAminoacid()&&selected_atoms[0]->GetNumberOfAtoms()>0){
+     if(getenv("CCP4MG_DEBUG_SEQUENCE")) {
+       std::cout <<  resname << " is not nucleotide nor amino acid\n";
+     }
+   }
+   if(getenv("CCP4MG_DEBUG_SEQUENCE")) std::cout << selected_atoms[0]->GetAtom(0)->GetAtomID(AtomID) << "\n";
+   if(!selected_atoms[0]->isInSelection(selHnd))
+     Select(atomSelHnd,STYPE_ATOM,selected_atoms[0]->GetAtom(0)->GetAtomID(AtomID),SKEY_OR);
+  }
+
+  int ires = 1;
+  for(i=1;i<natoms_sel;i++){
+    if(selected_atoms[i]->seqNum!=selected_atoms[i-1]->seqNum
+      ||(
+      (selected_atoms[i]->seqNum==selected_atoms[i-1]->seqNum)&&((strlen(selected_atoms[i]->insCode)!=strlen(selected_atoms[i-1]->insCode))||(strncmp(selected_atoms[i]->insCode,selected_atoms[i-1]->insCode,strlen(selected_atoms[i]->insCode))))
+      )
+      ){
+      resname = selected_atoms[i]->GetResName();
+      bool haveThis = false;
+      for(l=0;l<nResNames;l++){
+	if(!strcmp(resname,ResidueName[l])){
+          haveThis = true;
+	}
+      }
+      for(l=0;l<nNucleotideNames;l++){
+	if(!strcmp(resname,NucleotideName[l])){
+	  if(ires<numres){
+            if(strlen(NucleotideName[l])==1){
+              haveThis = true;
+            }else if(strlen(NucleotideName[l])==2){
+              haveThis = true;
+            }
+          }
+	}
+      }
+      if(!strcmp(resname,"HOH")){
+        haveThis = true;
+      }
+      if(!haveThis&&ires<numres){
+        if(!selected_atoms[ires]->isNucleotide()&&!selected_atoms[ires]->isAminoacid()&&selected_atoms[ires]->GetNumberOfAtoms()>0){
+          if(getenv("CCP4MG_DEBUG_SEQUENCE")) {
+            std::cout <<  resname << " is not nucleotide nor amino acid\n";
+          }
+       }
+       if(getenv("CCP4MG_DEBUG_SEQUENCE")) std::cout << selected_atoms[ires]->GetAtom(0)->GetAtomID(AtomID) << "\n";
+       if(!selected_atoms[ires]->isInSelection(selHnd))
+         Select(atomSelHnd,STYPE_ATOM,selected_atoms[ires]->GetAtom(0)->GetAtomID(AtomID),SKEY_OR);
+      }
+      ires++;
+    }
+  }
+
+}
+
+pstr CMMUTManager::GetSequenceFromResidues(int selHnd){
+	
+  PPCResidue selected_atoms;
+  int natoms_sel;
+  GetSelIndex ( selHnd, selected_atoms, natoms_sel);
+
+  int i,l;
+  int numres;
+  pstr resname,sequence;
+
+  numres = natoms_sel;
+  //std::cout << "total residues : " << natoms_sel << "\n";
+  sequence = new char[numres+1];
+  if(numres==0||natoms_sel==0){
+    sequence[0] = '\0';
+    return sequence;
+  } 
+
+  resname = selected_atoms[0]->GetResName();
+  bool haveThis = false;
+  for(l=0;l<nResNames;l++){
+    if(!strcmp(resname,ResidueName[l])){
+      //std::cout << "First one: " << ResidueName1[l] << "\n";
+      //      residue_comp[l]++;
+      sequence[0] = ResidueName1[l];
+      haveThis = true;
+    }
+  }
+  for(l=0;l<nNucleotideNames;l++){
+    if(!strcmp(resname,NucleotideName[l])){
+      //      residue_comp[l]++;
+      if(strlen(NucleotideName[l])==1){
+        sequence[0] = NucleotideName[l][0];
+        haveThis = true;
+      }else if(strlen(NucleotideName[l])==2){
+        sequence[0] = NucleotideName[l][1];
+        haveThis = true;
+      }
+    }
+  }
+  if(!strcmp(resname,"HOH")){
+    //    residue_comp[22]++;        // HARDWIRE!!
+    sequence[0] = 'O'; // Hackery since we have WAT in RNames
+    haveThis = true;
+  }
+  if(!haveThis){
+   sequence[0] = 'X'; 
+  }
+  sequence[1] = '\0';
+  //std::cout << "Current sequence:" << sequence << "\n";
+
+  int ires = 1;
+  for(i=1;i<natoms_sel;i++){
+    if(selected_atoms[i]->seqNum!=selected_atoms[i-1]->seqNum
+      ||(
+      (selected_atoms[i]->seqNum==selected_atoms[i-1]->seqNum)&&((strlen(selected_atoms[i]->insCode)!=strlen(selected_atoms[i-1]->insCode))||(strncmp(selected_atoms[i]->insCode,selected_atoms[i-1]->insCode,strlen(selected_atoms[i]->insCode))))
+      )
+      ){
+      //std::cout << i << "\n";
+      resname = selected_atoms[i]->GetResName();
+      //std::cout << resname << "\n";
+      bool haveThis = false;
+      for(l=0;l<nResNames;l++){
+	if(!strcmp(resname,ResidueName[l])/*&&selected_atoms[i]->isAminoacid()*/){
+	  //	  residue_comp[l]++;
+          //std::cout << ResidueName1[l] << "(" << ires << ")\n";
+	  if(ires<numres){
+            sequence[ires] = ResidueName1[l];
+            sequence[ires+1] = '\0';
+          }
+          //std::cout << "Current sequence:" << sequence << "\n";
+          haveThis = true;
+	}
+      }
+      for(l=0;l<nNucleotideNames;l++){
+	if(!strcmp(resname,NucleotideName[l])){
+	  //	  residue_comp[l]++;
+          //std::cout << ResidueName1[l] << "(" << ires << ")\n";
+	  if(ires<numres){
+            if(strlen(NucleotideName[l])==1/*&&selected_atoms[i]->isNucleotide()*/){
+              sequence[ires] = NucleotideName[l][0];
+              haveThis = true;
+            }else if(strlen(NucleotideName[l])==2){
+              sequence[ires] = NucleotideName[l][1];
+              haveThis = true;
+            }
+          }
+	}
+      }
+      if(!strcmp(resname,"HOH")){
+	//	residue_comp[22]++;        // HARDWIRE!!
+        //std::cout << 'O' << "(" << ires << ")\n";
+	if(ires<numres) sequence[ires] = 'O'; // Hackery since we have WAT in RNames
+        haveThis = true;
+      }
+      if(!haveThis&&ires<numres){
+         sequence[ires] = 'X'; 
+      }
+      ires++;
+    }
+  }
+
+  //std::cout << sequence[numres-1] << "\n";
+  sequence[ires] = '\0';
+
+  if(getenv("CCP4MG_DEBUG_SEQUENCE")) std::cout <<  "Sequence length: " << strlen(sequence) << ", sequence--" << sequence << "\n";
+  return sequence;
+
+}
+
 pstr CMMUTManager::GetSequence(int selHnd){
 	
   PPCAtom selected_atoms;
@@ -314,42 +683,93 @@ pstr CMMUTManager::GetSequence(int selHnd){
 
   int i,l;
   int numres;
-  cpstr resname;
-  pstr sequence;
+  pstr resname,sequence;
 
   numres = TotalNumRes(selHnd);
-  sequence = new char[numres];
+  std::cout << "total residues : " << numres << "\n";
+  sequence = new char[numres+1];
+  if(numres==0||natoms_sel==0){
+    sequence[0] = '\0';
+    return sequence;
+  } 
 
   resname = selected_atoms[0]->GetResName();
+  bool haveThis = false;
   for(l=0;l<nResNames;l++){
     if(!strcmp(resname,ResidueName[l])){
       //      residue_comp[l]++;
       sequence[0] = ResidueName1[l];
+      haveThis = true;
+    }
+  }
+  for(l=0;l<nNucleotideNames;l++){
+    if(!strcmp(resname,NucleotideName[l])){
+      //      residue_comp[l]++;
+      if(strlen(NucleotideName[l])==1){
+        sequence[0] = NucleotideName[l][0];
+        haveThis = true;
+      }else if(strlen(NucleotideName[l])==2){
+        sequence[0] = NucleotideName[l][1];
+        haveThis = true;
+      }
     }
   }
   if(!strcmp(resname,"HOH")){
     //    residue_comp[22]++;        // HARDWIRE!!
     sequence[0] = 'O'; // Hackery since we have WAT in RNames
+    haveThis = true;
   }
+  if(!haveThis) sequence[0] = 'X'; 
 
+  int ires = 1;
   for(i=1;i<natoms_sel;i++){
-    if(selected_atoms[i]->GetSeqNum()!=selected_atoms[i-1]->GetSeqNum()){
+    if((selected_atoms[i]->GetSeqNum()!=selected_atoms[i-1]->GetSeqNum())
+      ||(
+      (selected_atoms[i]->GetSeqNum()==selected_atoms[i-1]->GetSeqNum())&&((strlen(selected_atoms[i]->residue->insCode)!=strlen(selected_atoms[i-1]->residue->insCode))||(strncmp(selected_atoms[i]->residue->insCode,selected_atoms[i-1]->residue->insCode,strlen(selected_atoms[i]->residue->insCode))))
+      )
+      ){
+      //std::cout << i << "\n";
       resname = selected_atoms[i]->GetResName();
+      //std::cout << resname << "\n";
+      bool haveThis = false;
       for(l=0;l<nResNames;l++){
 	if(!strcmp(resname,ResidueName[l])){
 	  //	  residue_comp[l]++;
-	  sequence[selected_atoms[i]->GetSeqNum()-1] = ResidueName1[l];
+          //std::cout << ResidueName1[l] << "(" << ires << ")\n";
+	  if(ires<numres) sequence[ires] = ResidueName1[l];
+          haveThis = true;
+	}
+      }
+      for(l=0;l<nNucleotideNames;l++){
+	if(!strcmp(resname,NucleotideName[l])){
+	  //	  residue_comp[l]++;
+          //std::cout << ResidueName1[l] << "(" << ires << ")\n";
+	  if(ires<numres){
+            if(strlen(NucleotideName[l])==1){
+              sequence[ires] = NucleotideName[l][0];
+              haveThis = true;
+            }else if(strlen(NucleotideName[l])==2){
+              sequence[ires] = NucleotideName[l][1];
+              haveThis = true;
+            }
+          }
 	}
       }
       if(!strcmp(resname,"HOH")){
 	//	residue_comp[22]++;        // HARDWIRE!!
-	sequence[selected_atoms[i]->GetSeqNum()-1] = 'O'; // Hackery since we have WAT in RNames
+        //std::cout << 'O' << "(" << ires << ")\n";
+	if(ires<numres) sequence[ires] = 'O'; // Hackery since we have WAT in RNames
+        haveThis = true;
       }
+      if(!haveThis&&ires<numres) sequence[ires] = 'X'; 
+      ires++;
     }
   }
 
-  sequence[numres] = '\0';
+  //std::cout << sequence[numres-1] << "\n";
+  sequence[ires] = '\0';
 
+  std::cout <<  "Sequence length: " << strlen(sequence) << ", sequence--" << sequence << "\n";
   return sequence;
 
 }
@@ -398,6 +818,17 @@ void CMMUTManager::PrintSequence(int selHnd){
 }
 
 
+std::vector<double> CMMUTManager::GetBValuesDoubleVector(int selHnd){
+  realtype* bvals = GetBValues(selHnd);
+  PPCAtom selected_atoms;
+  int natoms_sel;
+  GetSelIndex ( selHnd, selected_atoms, natoms_sel);
+  std::vector<double> bvals_vec;
+  for(int i=0;i<natoms_sel;i++)
+     bvals_vec.push_back(bvals[i]);
+  return bvals_vec;
+}
+
 realtype* CMMUTManager::GetBValues(int selHnd){
 
   // Handling anisotropic bvalues disabled to get compile working
@@ -413,8 +844,8 @@ realtype* CMMUTManager::GetBValues(int selHnd){
 
   realtype *bvalues;
 
-  if(!isCrystInfo())
-    return NULL;
+  //if(!isCrystInfo())
+    //return NULL;
 
   //Cryst.CalcOrthMatrices();
 
@@ -431,7 +862,11 @@ realtype* CMMUTManager::GetBValues(int selHnd){
     //}
 
   for(i=1;i<natoms_sel;i++){
-    if(selected_atoms[i]->GetSeqNum()!=selected_atoms[i-1]->GetSeqNum()) {
+    if((selected_atoms[i]->GetSeqNum()!=selected_atoms[i-1]->GetSeqNum())
+      ||(
+      (selected_atoms[i]->GetSeqNum()==selected_atoms[i-1]->GetSeqNum())&&((strlen(selected_atoms[i]->residue->insCode)!=strlen(selected_atoms[i-1]->residue->insCode))||(strncmp(selected_atoms[i]->residue->insCode,selected_atoms[i-1]->residue->insCode,strlen(selected_atoms[i]->residue->insCode))))
+      )
+      ){
       bvalues[k] = b / natomsres;
       k++;
       b = 0.0;
@@ -496,8 +931,14 @@ int CMMUTManager::TotalNumRes(int selHnd){
 
   nrestot = 1; 
 
-  for(i=1;i<natoms_sel;i++)
-    if(selected_atoms[i]->GetSeqNum()!=selected_atoms[i-1]->GetSeqNum()) nrestot++; 
+  for(i=1;i<natoms_sel;i++){
+    if(selected_atoms[i]->GetSeqNum()!=selected_atoms[i-1]->GetSeqNum()){
+      nrestot++; 
+    }else if((selected_atoms[i]->GetSeqNum()==selected_atoms[i-1]->GetSeqNum())&&((strlen(selected_atoms[i]->residue->insCode)!=strlen(selected_atoms[i-1]->residue->insCode))||(strncmp(selected_atoms[i]->residue->insCode,selected_atoms[i-1]->residue->insCode,strlen(selected_atoms[i]->residue->insCode))))){
+      //std::cout << selected_atoms[i]->GetSeqNum() << " " << selected_atoms[i]->residue->insCode << " does not match " << selected_atoms[i-1]->residue->insCode << "\n";
+      nrestot++; 
+    }
+  }
   
   return nrestot;
 
@@ -588,8 +1029,8 @@ realtype CMMUTManager::TorsionAngle(PCAtom A, PCAtom B, PCAtom C, PCAtom D){
 //----------------------------------------------------------------------------
 Boolean CMMUTManager::isMainChain(PCAtom p_atom) {
 //----------------------------------------------------------------------------
-   const char *mainchAtoms[5] = { "CA", "N", "C", "O", "HA" };
-   if ( NameComparison(p_atom->name,5,mainchAtoms) >= 0 ) {
+  char *mainchAtoms[5] = { "CA", "N", "C", "O", "HA" };
+  if ( NameComparison(p_atom->name,5,mainchAtoms) >= 0 ) {
     return true;
   }
   else {
@@ -609,7 +1050,7 @@ Boolean CMMUTManager::doAltLocMatch ( PCAtom pa1, PCAtom pa2 ) {
 
 
 //---------------------------------------------------------------------------------
-int CMMUTManager::NameComparison ( const char *name , int ntypes , const char *types[] ) {
+int CMMUTManager::NameComparison ( const char *name , int ntypes , char *types[] ) {
 //---------------------------------------------------------------------------------
   //Compare an fixed length char atom/residue/whatever name to a list of
   // variable length strings.  Return the position in the list of any match
@@ -692,7 +1133,7 @@ const char* CMMUTManager::AtomLabel_chain(PCAtom p_atom) {
 //--------------------------------------------------------------------
 Boolean CMMUTManager::ChainIDisDigit(PCChain p_ch) {
 //--------------------------------------------------------------------
-   const char *digits[10] = { "0", "1", "2", "3", "4","5", "6", "7", "8", "9"  };
+  char *digits[10] = { "0", "1", "2", "3", "4","5", "6", "7", "8", "9"  };
   if ( NameComparison(p_ch->GetChainID(),10,digits) >= 0 ) {
     return true;
   }
@@ -878,9 +1319,9 @@ int CMMUTManager::CopySelection (int selHnd , const PCMMDBManager mmdb2 ) {
   PPCResidue   res;
   PPCAtom      atom;
 
-  PCResidue newRes = 0;
-  PCChain newChain = 0;
-  PCModel newModel = 0;
+  PCResidue newRes;
+  PCChain newChain;
+  PCModel newModel;
 
   int nAcopied=0, nRcopied=0, nCcopied=0, nMcopied=0;
 
@@ -961,12 +1402,17 @@ int CMMUTManager::FindCloseAtomPairs ( int selHnd, double min_distance,
   PSContact contact = NULL; 
   int ncontacts; 
 
+  int closeHnd = NewSelection();
   GetSelIndex ( selHnd, selAtoms, nSelAtoms);
   GetSelIndex ( selHnd, selAtoms2, nSelAtoms2);
+
+  if(nSelAtoms<1||nSelAtoms2<1){
+    return closeHnd;
+  }
+
   SeekContacts ( selAtoms, nSelAtoms,  selAtoms2, nSelAtoms2, min_distance,
         max_distance , 0, contact,ncontacts);
 
-  int closeHnd = NewSelection();
   for (int n=0;n<ncontacts;n++) {
     if (doAltLocMatch( selAtoms[contact[n].id1],selAtoms2[contact[n].id2]) ) {
       SelectAtoms(closeHnd,selAtoms[contact[n].id1]->serNum,
@@ -979,3 +1425,262 @@ int CMMUTManager::FindCloseAtomPairs ( int selHnd, double min_distance,
   return closeHnd;
   
 }
+
+const std::string str_trim(const std::string& pString, const std::string& pWhitespace = " \t")
+{
+    const size_t beginStr = pString.find_first_not_of(pWhitespace);
+    if (beginStr == std::string::npos)
+    {
+        return "";
+    }
+
+    const size_t endStr = pString.find_last_not_of(pWhitespace);
+    const size_t range = endStr - beginStr + 1;
+
+    return pString.substr(beginStr, range);
+}
+
+int CMMUTManager::FixElementNames(){
+  //clock_t t1 = clock();
+  /*
+ * This attempts to fix atoms names such as "  2HB "
+ * which should be " 2HB  ".
+  */
+  int selHnd = NewSelection();
+  SelectAtoms(selHnd,0,"*", ANY_RES,"*", ANY_RES,"*","*","*","*","*",SKEY_NEW);
+  int nSelAtoms;
+  PPCAtom SelAtoms=NULL;
+  GetSelIndex(selHnd,SelAtoms,nSelAtoms);
+  std::string numbers = "1234567890";
+  int fixed_some = 0;
+ 
+  for(int i=0;i<nSelAtoms;i++){
+    if(getElementNo(SelAtoms[i]->element)==ELEMENT_UNKNOWN){
+      ++fixed_some;
+      // We do not know what this element is ...
+      std::string trimmed = str_trim(std::string(SelAtoms[i]->element));
+      if(strlen(SelAtoms[i]->name)>1&&trimmed.size()>0&&trimmed.substr(0,1).find_first_of(numbers)!=std::string::npos){
+        // It begins with whitespace and some numbers so we try removing first character ...
+        SelAtoms[i]->SetAtomName(SelAtoms[i]->name+1);
+        strcpy(SelAtoms[i]->element,"  ");
+        SelAtoms[i]->MakePDBAtomName();
+        if(getElementNo(SelAtoms[i]->element)==ELEMENT_UNKNOWN){
+          // That failed, so we try to find first non-whitespace, non-numeric character
+          std::string name_trimmed = str_trim(std::string(SelAtoms[i]->name));
+          if(name_trimmed.size()>0&&name_trimmed.find_first_not_of(numbers)!=std::string::npos){
+             std::string firstLetter = name_trimmed.substr(name_trimmed.find_first_not_of(numbers),1);
+             std::string tryElement = " "+ firstLetter;
+             strcpy(SelAtoms[i]->element,tryElement.c_str());
+          }
+          if(getElementNo(SelAtoms[i]->element)==ELEMENT_UNKNOWN){
+            // Even that failed, call it a C...
+            strcpy(SelAtoms[i]->element," C");
+          }
+        }
+      } else {
+        std::string orig_name = std::string(SelAtoms[i]->name);
+        SelAtoms[i]->SetAtomName((std::string(" ") + std::string(SelAtoms[i]->name).substr(0,10)).c_str());
+        strcpy(SelAtoms[i]->element,"  ");
+        SelAtoms[i]->MakePDBAtomName();
+        // Then put original name back, potentially hazardous, I guess.
+        SelAtoms[i]->SetAtomName(orig_name.c_str());
+        if(getElementNo(SelAtoms[i]->element)==ELEMENT_UNKNOWN){
+          strcpy(SelAtoms[i]->element," C");
+        }
+      }
+    } else if(SelAtoms[i]->GetResidue()->isAminoacid()&&SelAtoms[i]->element[0]=='H'){
+      std::cout << "Improbable He, Hf, Hg or Ho atom in amino acid (" << SelAtoms[i]->element << "), changing to H\n";
+      strcpy(SelAtoms[i]->element," H");
+    }
+  }
+
+  DeleteSelection(selHnd);
+  //clock_t t2 = clock();
+  //std::cout << "Time to fix element names " << ((t2-t1)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+  return fixed_some;
+}
+
+double CMMUTManager::Resolution(){
+  double resolution = GetResolution();
+  return resolution;
+}
+
+std::string CMMUTManager::StructureTitle(){
+  
+  pstr title_s=NULL;
+  GetStructureTitle(title_s);
+  if(!S) return std::string("");
+  std::string title(title_s);
+  return title;
+}
+
+std::vector<std::string> &split(const std::string &s, char delim, std::vector<std::string> &elems) {
+    std::stringstream ss(s);
+    std::string item;
+    while(std::getline(ss, item, delim)) {
+        elems.push_back(item);
+    }
+    return elems;
+}
+
+
+std::vector<std::string> split(const std::string &s, char delim) {
+    std::vector<std::string> elems;
+    return split(s, delim, elems);
+}
+
+struct is_remark_800 : public std::unary_function<std::string, bool>
+{
+    bool operator() (const string & inValue) const { return inValue.compare(0,10,std::string("REMARK 800")); }
+};
+
+struct is_site : public std::unary_function<std::string, bool>
+{
+    bool operator() (const string & inValue) const { return inValue.compare(0,6,std::string("SITE  ")); }
+};
+
+std::string CMMUTManager::SiteInfo(){
+  std::string s;
+
+  
+  std::string remarks = GetRemarksString();
+  std::vector<std::string> remarks800 = split(remarks,'\n');
+  std::vector<std::string>::iterator remarks800_iter = std::remove_if(remarks800.begin(),remarks800.end(),is_remark_800());
+  remarks800.erase(remarks800_iter,remarks800.end());
+  for(unsigned i=0;i<remarks800.size();i++){
+    s += remarks800[i]+std::string("\n");
+  }
+
+  std::string unknowns = Unknowns();
+  std::vector<std::string> site = split(unknowns,'\n');
+  std::vector<std::string>::iterator site_iter = std::remove_if(site.begin(),site.end(),is_site());
+  site.erase(site_iter,site.end());
+  for(unsigned i=0;i<site.size();i++){
+    s += site[i]+std::string("\n");
+  }
+
+
+  return s;
+}
+
+std::string CMMUTManager::GetRemarksString(){
+  std::string s;
+  char *tempfilename = tmpnam(0);
+  CFile f;
+  f.assign(tempfilename,True,False,False);
+  f.rewrite();
+  GetRemarks()->PDBASCIIDump(f);
+  f.shut();
+
+  std::ifstream ifstr(tempfilename);
+  if(ifstr){
+    std::stringstream buffer;
+    buffer << ifstr.rdbuf();
+    ifstr.close();
+    return buffer.str();
+  }
+  
+  return s;
+}
+
+std::string CMMUTManager::Unknowns(){
+  std::string s;
+  char *tempfilename = tmpnam(0);
+  CFile f;
+  f.assign(tempfilename,True,False,False);
+  f.rewrite();
+  SA.PDBASCIIDump(f); 
+  f.shut();
+
+  std::ifstream ifstr(tempfilename);
+  if(ifstr){
+    std::stringstream buffer;
+    buffer << ifstr.rdbuf();
+    ifstr.close();
+    return buffer.str();
+  }
+
+  return s;
+}
+
+std::string CMMUTManager::Source(){
+
+  pstr S=NULL;
+  PCMMCIFData CIF =  new CMMCIFData();
+  Title.MakeCIF(CIF);
+  CIF->GetString(S,CIFCAT_STRUCT,CIFTAG_SOURCE,False);
+  if(!S) return std::string("");
+  std::string source(S);
+  if(CIF) delete CIF;
+
+  return source;
+}
+
+std::vector<double> CMMUTManager::GetCellInfo() {
+  std::vector<double> cell_info;
+
+  realtype a,b,c,alpha,beta,gamma,vol;
+  int orth_code;
+
+  GetCell(a,b,c,alpha,beta,gamma,vol,orth_code);
+
+  cell_info.push_back(a);
+  cell_info.push_back(b);
+  cell_info.push_back(c);
+  cell_info.push_back(alpha);
+  cell_info.push_back(beta);
+  cell_info.push_back(gamma);
+
+  return cell_info;
+}
+
+std::string CMMUTManager::MMUTGetSpaceGroup(){
+  PCMMDBCryst my_cryst_p = (CMMDBCryst *) &(get_cell());
+  return std::string(my_cryst_p->spaceGroup);
+}
+
+int CMMUTManager::ApplyPDBSecStructure(int model){
+  // Need to consider all the fields in
+  // http://www.wwpdb.org/documentation/format33/sect5.html
+  // as long as MMDB supports them.
+  int nhelix = GetModel(model)->GetNumberOfHelices();
+  int nsheets = GetModel(model)->GetNumberOfSheets();
+  //std::cout << nhelix << " " << nsheets << "\n";
+  for(int i=1;i<=nhelix;i++){
+    PCHelix helix =GetModel(model)->GetHelix(i);
+    if(helix){
+      //std::cout << helix->initChainID << " " << helix->initSeqNum << " " << helix->endChainID << " " << helix->endSeqNum << "\n";
+      if(strncmp(helix->initChainID,helix->endChainID,1)==0){
+        for(int k=helix->initSeqNum;k<=helix->endSeqNum;k++){
+          PCResidue res = GetModel(model)->GetResidue(helix->initChainID,k,helix->initICode);
+          //std::cout << res->GetSeqNum() << "\n";
+          //std::cout << helix->helixClass << "\n";
+	  if(res&&(helix->helixClass==1||helix->helixClass==6||helix->helixClass==5)){
+            res->SSE = SSE_Helix;
+          }
+        }
+      }
+    }
+  }
+  for(int i=1;i<=nsheets;i++){
+    PCSheet sheet = GetModel(model)->GetSheet(i);
+    if(sheet){
+      //std::cout << sheet->nStrands << "\n"; std::cout.flush();
+      for(int j=0;j<sheet->nStrands;j++){
+        if(sheet->Strand[j]){
+          //std::cout << sheet->Strand[j]->initChainID << " " << sheet->Strand[j]->initSeqNum << " " << sheet->Strand[j]->endChainID << " " << sheet->Strand[j]->endSeqNum << "\n"; std::cout.flush();
+          if(strncmp(sheet->Strand[j]->initChainID,sheet->Strand[j]->endChainID,1)==0){
+            for(int k=sheet->Strand[j]->initSeqNum;k<=sheet->Strand[j]->endSeqNum;k++){
+              PCResidue res = GetModel(model)->GetResidue(sheet->Strand[j]->initChainID,k,sheet->Strand[j]->initICode);
+              if(res)
+                res->SSE = SSE_Strand;
+            }
+          }
+        }
+      }
+    }
+  }
+  return nhelix+nsheets;
+}
+
+

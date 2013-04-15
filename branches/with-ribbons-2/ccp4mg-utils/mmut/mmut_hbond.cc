@@ -32,12 +32,12 @@ Liz Potterton Oct02
 #include <stdlib.h>
 #include <sstream>
 #include <iomanip>
-#include <mman_base.h>
-#include <mmdb_manager.h>
-#include <mmut_manager.h>
-#include <mman_manager.h>
-#include <mmut_hbond.h>
-#include <mmut_sbase.h>
+#include "mman_base.h"
+#include <mmdb/mmdb_manager.h>
+#include "mmut_manager.h"
+#include "mman_manager.h"
+#include "mmut_hbond.h"
+#include "mmut_sbase.h"
 #include <connect.h>
 #include <vector>
 #include <mgutil.h>
@@ -122,13 +122,13 @@ int CHBond::Calculate0(int model)  {
   int nDonors,nAcceptors;
   int udd,udd2;
   int loop,nLoops = 1;
-  int uddD = -1, uddA = -1,selHndD = -1, selHndA = -1;
-  PCMMUTManager molHndD = 0,molHndA = 0;
-  int selHndDonors,selHndAcceptors,selHndHydrogens,selHndOverlap = -1;
+  int uddD,uddA,selHndD,selHndA;
+  PCMMUTManager molHndD,molHndA;
+  int selHndDonors,selHndAcceptors,selHndHydrogens,selHndOverlap;
   PSContact contacts = NULL;
   int ncontacts;
   int nOverlap = 0;
- 
+
   int RC,hbtype1,hbtype2,accept;
   int i,n;
   SAtomBond *donorBond = 0;

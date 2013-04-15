@@ -1,6 +1,8 @@
 /*
      mmut/mmut_manager.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2011 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -22,7 +24,9 @@
 #define __MMUT_Manager__
 
 #include <string>
-#include <mmdb_manager.h> 
+#include <vector>
+#include <mmdb/mmdb_manager.h>
+#include "cartesian.h"
 
 #define PI 3.141592653589793238462643
 
@@ -54,6 +58,8 @@ class CMMUTManager : public CMMDBManager  {
     int ResNoLookup(pstr resname);
     int TotalNumRes(int selHnd);
     pstr GetSequence(int selHnd);
+    pstr GetSequenceFromResidues(int selHnd);
+    void SelectOneAtomForNonAminoNucleotide(int selHnd, int atomSelHnd);
     int *AtomicComposition(int selHnd);
     int *ResidueComposition(int selHnd);
     PCResidue NextResidue( PCResidue pRes ,int increment=1);
@@ -64,12 +70,20 @@ class CMMUTManager : public CMMDBManager  {
     realtype  MolWeight(int selHnd);
     realtype  MolWeightWithH(int selHnd);
     realtype *GetBValues(int selHnd);
+    std::vector<double> GetBValuesDoubleVector(int selHnd);
     realtype *CentreOfMass(int selHnd);
+    Cartesian CentreOfMassAsCartesian(int selHnd);
+    realtype  Mass(int selHnd);
+    realtype *CentreOfCoordinates(int selHnd);
+    Cartesian CentreOfCoordinatesAsCartesian(int selHnd);
+    int  NumberOfAtoms(int selHnd);
     realtype *Extent(int selHnd);
+    realtype ExtentSize(int selHnd);
+    std::vector<Cartesian> GetPrincipalComponents(int selHnd);
 
     Boolean isMainChain(PCAtom p_atom);
     Boolean doAltLocMatch ( PCAtom pa1, PCAtom pa2 ); 
-    int NameComparison (const char *name , int ntypes , const char *types[] );
+    int NameComparison ( const char *name , int ntypes , char *types[] );
     std::string  TrimString(pstr inp);
     std::string AtomLabel(PCAtom p_atom, int mask[]);
     Boolean ChainIDisDigit(PCChain p_ch);
@@ -87,6 +101,20 @@ class CMMUTManager : public CMMDBManager  {
     int CopySelection (int selHnd,const PCMMDBManager mmdb2);
     int FindCloseAtomPairs ( int selHnd, double min_distance, 
 			     double max_distance);
+   int FixElementNames();
+
+   std::string Source();
+   std::string Unknowns();
+   std::string GetRemarksString();
+   std::string SiteInfo();
+   double Resolution();
+   std::string StructureTitle();
+
+   int ApplyPDBSecStructure(int model);
+
+   std::vector<double> GetCellInfo();
+   std::string MMUTGetSpaceGroup();
+
    private: 
 
      //Analysis

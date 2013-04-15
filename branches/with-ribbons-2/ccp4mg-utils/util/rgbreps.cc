@@ -1,6 +1,8 @@
 /*
-     pygl/rgbreps.cc: CCP4MG Molecular Graphics Program
+     util/rgbreps.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -87,21 +89,30 @@ std::vector<std::vector<double> > RGBReps::GetColourDefinitions(std::vector<int>
   for (int i=0;i< n_codes;i++) {
       col.clear();
       ii = codes[i];
-      if (ii>int(colours.size())){
-	col.push_back(1.0);
-	col.push_back(1.0);
-	col.push_back(1.0);
-	col.push_back(1.0);
-      } else if ( mode == HSVCOLOURREP ) {
-         col.push_back(hsv[ii][0]);
-         col.push_back(hsv[ii][1]);
-         col.push_back(hsv[ii][2]);
-         col.push_back(1.0);
+      if ( mode == HSVCOLOURREP ) {
+         if (ii>=int(hsv.size())){
+	   col.push_back(0.0);
+	   col.push_back(0.0);
+	   col.push_back(1.0);
+	   col.push_back(1.0);
+         } else {
+           col.push_back(hsv[ii][0]);
+           col.push_back(hsv[ii][1]);
+           col.push_back(hsv[ii][2]);
+           col.push_back(1.0);
+         }
       } else {
-         col.push_back(colours[ii][0]);
-         col.push_back(colours[ii][1]);
-         col.push_back(colours[ii][2]);
-         col.push_back(1.0);
+         if (ii>=int(colours.size())){
+	   col.push_back(1.0);
+	   col.push_back(1.0);
+	   col.push_back(1.0);
+	   col.push_back(1.0);
+         } else {
+           col.push_back(colours[ii][0]);
+           col.push_back(colours[ii][1]);
+           col.push_back(colours[ii][2]);
+           col.push_back(1.0);
+         }
       }
       //std::cout << i << " " << ii << " " << array[i][0] << " " << array[i][1] << " " << array[i][2] << endl;
       //std::cout << "GetColourDefinitions " << col[0] << " " << col[1] << " " << col[2] << " " << std::endl; 
@@ -484,6 +495,14 @@ double *RGBReps::hsvtorgb (double *hsv) {
 }
 
 
+//-----------------------------------------------------------------------
+void RGBReps::clear(){
+//-----------------------------------------------------------------------
+  colours_name_map.clear();
+  string_colours.clear();
+  colours.clear();
+  hsv.clear();
+}
 
 std::vector<std::string> RGBReps::colours_name_map;
 std::map<std::string,std::vector<double> > RGBReps::string_colours;

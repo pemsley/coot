@@ -1,6 +1,8 @@
 /*
      pygl/cdisplayobject.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -37,19 +39,32 @@ class Displayobject{
   int draw_symm;
   int symm_diff_colour;
   int draw_unit_cell;
+  int occDataAttrib;
+  int useVBO;
+  int useVertexArrays;
  protected:
   std::vector<Primitive*> prims;
   std::vector<Primitive*> surf_prims;
-  std::vector<SimpleBillBoard*> image_prims;
+  std::vector<BillBoard*> image_prims;
   std::vector<SimpleText*> text_prims;
+  std::vector<BillboardPrimitive*> bill_prims;
+  std::vector<BillboardPrimitive*> imposter_prims;
  public:
   Quat camera_quat; // These two are for any drawing which needs to
   Cartesian camera_origin;  // know about camera, ie zsorting.
   int anchored;
   virtual const std::vector<Primitive*> &GetPrimitives() const;
   virtual const std::vector<Primitive*> &GetSurfacePrimitives() const;
-  virtual const std::vector<SimpleBillBoard*> &GetImagePrimitives() const;
+  virtual const std::vector<BillBoard*> &GetImagePrimitives() const;
   virtual const std::vector<SimpleText*> &GetTextPrimitives() const;
+  virtual const std::vector<BillboardPrimitive*> &GetBillboardPrimitives() const;
+  virtual const std::vector<BillboardPrimitive*> &GetImposterPrimitives() const;
+  virtual const unsigned GetNumberOfPrimitives() const { return prims.size();} ;
+  virtual const unsigned GetNumberOfSurfacePrimitives() const { return surf_prims.size();} ;
+  virtual const unsigned GetNumberOfImagePrimitives() const { return image_prims.size();} ;
+  virtual const unsigned GetNumberOfTextPrimitives() const { return text_prims.size();} ;
+  virtual const unsigned GetNumberOfBillboardPrimitives() const { return bill_prims.size();} ;
+  virtual const unsigned GetNumberOfImposterPrimitives() const { return imposter_prims.size();} ;
   std::vector<matrix> symm_mat;
   std::vector<int> symm_nos;
   std::vector<Cartesian> unit_cell;
@@ -74,7 +89,9 @@ class Displayobject{
   void add_surf_primitive(Primitive *prim);
   void add_primitive(Primitive *prim);
   void add_text_primitive(SimpleText *prim);
-  void add_image_primitive(SimpleBillBoard *prim);
+  void add_image_primitive(BillBoard *prim);
+  void add_billboard_primitive(BillboardPrimitive *prim);
+  void add_imposter_primitive(BillboardPrimitive *prim);
   void increase_shininess(double shininess);
   void increase_specular(std::vector<double>specular);
   void increase_ambient(std::vector<double>specular);
@@ -100,13 +117,19 @@ class Displayobject{
   matrix get_rotation_matrix() const;
   void draw_lines(double *override_colour=0, int transparent=0,int selective_override=0) const ;
   void draw_solids(double *override_colour=0, int transparent=0,int selective_override=0) const ;
+  void draw_imposters(double *override_colour=0, int transparent=0,int selective_override=0) const ;
+  void draw_prims(double *override_colour=0, int transparent=0,int selective_override=0) const ;
+  void draw_surf_prims(double *override_colour=0, int transparent=0,int selective_override=0) const ;
   void draw(double *override_colour=0, int transparent=0,int selective_override=0) const ;
   std::vector<Primitive *> GetTransparentPrimitives();
-  void draw_text(const Quat &quat_in, double radius, double ox, double oy, double oz);
+  void draw_text(const Quat &quat_in, double radius, double ox, double oy, double oz, double fontScaling=1.0);
+  void draw_text_background(const Quat &quat_in, double radius, double ox, double oy, double oz, double fontScaling=1.0);
+  void draw_billboards(const Quat &quat_in, double radius, double ox, double oy, double oz);
   void draw_images(void);
   void clear_prims(void);
   void clear_images(void);
   void clear_labels(void);
+  void clear_billboards(void);
   int get_rebuild(void) const;
   void MoveTextPrimitiveInWindowCoords(SimpleText *text_primitive, double x, double y, double z, double *world_quat_dvals);
   void MoveTextPrimitiveInWindowCoords(SimpleText *text_primitive, double x, double y, double z, const std::vector<double> &world_quat_dvals);
@@ -122,7 +145,7 @@ class Displayobject{
   // the Text class to Python. But were doing it like this now.
   int *GetTextIDS(void) const;
   void SetTextFont(const std::string family,  const std::string weight, 
-                   const std::string slant, const int size);
+                   const std::string slant, const int size, const int underline=0);
   void DeleteText(void);
   int GetNumberOfTextIDS(void) const;
   void SetTextString(int text_id, const char* new_string);
@@ -149,8 +172,9 @@ class Displayobject{
   void SetDrawSymmetryColoured(int symm_diff_colour_in) { symm_diff_colour = symm_diff_colour_in; };
   int GetDrawSymmetryColoured() const { return symm_diff_colour; };
   void SetDrawUnitCell(int draw_unit_cell_in) { draw_unit_cell = draw_unit_cell_in; };
-  int GetDrawUnitCell() { return draw_unit_cell; };
+  int GetDrawUnitCell() const { return draw_unit_cell; };
   int IsAnchored() const {return anchored;};
+  void SetAnchored(bool _anchored) {anchored=_anchored;};
   void ZoomIn() {};
   void ZoomOut() {};
   void DrawPostscript(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz);
@@ -161,6 +185,14 @@ class Displayobject{
   void set_transparent(int trans_in);
   int get_transparent() const {return transparent;} ;
   int reInitializeTextPrims();
+  const std::vector<Cartesian> &GetUnitCell() const {return unit_cell;};
+  const std::vector<matrix> &GetSymmetryMatrices() const {return symm_mat;};
+  void SetOccDataAttrib(int occDataAttrib_in) {occDataAttrib=occDataAttrib_in;} ;
+  void forceRegenerateSurfaceArrays();
+  int GetUseVBO() const {return useVBO;} ; 
+  void SetUseVBO(const int _useVBO); 
+  int GetUseVertexArrays() const {return useVertexArrays;} ; 
+  void SetUseVertexArrays(const int _useVertexArrays); 
 };
 
 void DrawSortedTransparentPrimitives(const std::vector<Displayobject> &objs, int acsize, double xoff, double yoff, std::vector<std::vector<double> > jarray, std::vector<Cartesian> axes, bool antialias, bool rebuilt);

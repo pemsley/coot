@@ -1,6 +1,7 @@
 /*
      util/matrix.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2011 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -26,9 +27,11 @@
 #include <iostream>
 
 class Quat;
+class Cartesian;
 
 class matrix {
   std::vector<std::vector<double> > mat;
+  matrix QREigen() const;
 
 public:
   matrix(){/*std::cout << "matrix default constructor\n"; std::cout.flush();*/};
@@ -64,6 +67,9 @@ public:
   matrix operator- (const matrix &b) const ;
   matrix operator* (const matrix &b) const ;
   matrix operator/ (const matrix &b) const ;
+
+  bool operator== (const matrix &b) const { return ((*this)-b).isNull(); }
+  bool operator!= (const matrix &b) const { return !((*this)-b).isNull(); }
   
   // Combine assignment and operation
   void operator+= (const matrix &a);
@@ -84,26 +90,25 @@ public:
   friend matrix operator/ (const matrix &a, double val);
   
   //Matrix Stuff
-  matrix DirSum(const matrix &a, const matrix &b);
+  static matrix DirSum(const matrix &a, const matrix &b);
   //matrix DirProd(const matrix &a, const matrix &b);
   std::vector<matrix> Eigen() const;
-  std::vector<matrix> SortEigenvalues(const std::vector<matrix>&eigen) const;
+  static std::vector<matrix> SortEigenvalues(const std::vector<matrix>&eigen,bool descending=false);
 
   static matrix MinorMatrix(const matrix &a, const unsigned int &row, const unsigned int &col);
   static double Minor(const matrix &a, const unsigned int &row, const unsigned int &col);
-  static matrix TriangularSolveForward(const matrix &a, const matrix &b);
-  static matrix TriangularSolveBack(const matrix &a, const matrix &b);
-  static matrix LUDecomposition(const matrix &a, std::vector<int> &perm, int &parity);
-  static matrix LUSubstitution(const matrix &a, const matrix &b, const std::vector<int> &perm);
+  static std::vector<matrix> TriangularSolveForward(const matrix &a, const matrix &b, unsigned nsolutions=1);
+  static std::vector<matrix> TriangularSolveBack(const matrix &a, const matrix &b, unsigned nsolutions=1);
   static matrix SolveLinearEquations(const matrix &a, const matrix &b);
-  static matrix LUMult(const matrix &a, const matrix &b, const std::vector<int> &perm);
+
+  std::vector<matrix> SVD() const;
+  std::vector<matrix> Bidiagonalize() const;
+  std::vector<matrix> LUDecomposition() const;
+  double FrobeniusNorm() const;
 
   double Determinant() const;
-  matrix TriangularMatrix() const;
   matrix Inverse() const;
   matrix BlockMatrix(const std::vector<std::vector<matrix> > &blocks);
-  matrix GetUpperTriangle() const;
-  matrix GetLowerTriangle(int lu=0) const;
 
   void SwitchRows(const unsigned int &i1, const unsigned int &i2);
 
@@ -115,6 +120,28 @@ public:
   friend std::ostream& operator<<(std::ostream &c, matrix a);
   void Print(void){ std::cout << *this;};
 
+  std::vector<double> matrixVector();
+
+  matrix Cholesky() const;
+  matrix GaussianElimination(bool unitDiag=false) const;
+  matrix GaussJordanElimination() const;
+  Cartesian GetRotationAxis() const;
+  std::vector<matrix> QRDecomposition() const;
+  matrix Hessenberg() const;
+  matrix Orthonormalize() const;
+  matrix GetColumn(int j) const;
+  matrix GetRow(int i) const;
+
+  void SetColumn(int j, const matrix& colVec);
+  void SetRow(int i, const matrix& rowVec);
+  bool isNull() const;
+
+  // *this = *this * b;
+  void MultiplyAndSetRight (const matrix &b);
+  void MultiplyAndSetLeft (const matrix &b);
+
+  std::vector<matrix> GetEvecsAndEvalsFromEvals(const matrix& evalsMat) const ;
+  const std::vector<std::vector<double> >& GetAsDoubleVectors() const { return mat; };
 };
 
 // overloaded round brackets for indices

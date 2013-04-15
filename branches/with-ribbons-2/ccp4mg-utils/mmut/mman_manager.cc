@@ -1,6 +1,8 @@
 /*
      mmut/mman_manager.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2011 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -28,13 +30,14 @@
 #else
 #include <cstring>
 #endif
-#include <mmdb_manager.h>
-#include <mman_manager.h>
-#include <mmut_manager.h>
-#include <mmut_bonds.h>
-#include <mmut_sbase.h>
-#include <cartesian.h>
-#include <matrix.h>
+#include <mmdb/mmdb_manager.h>
+#include "mman_manager.h"
+#include "mmut_manager.h"
+#include "mmut_bonds.h"
+#include "mmut_sbase.h"
+#include "cartesian.h"
+#include "matrix.h"
+#include "mmdb/mmdb_tables.h"
 
 using namespace std;
 
@@ -42,17 +45,25 @@ using namespace std;
 //  =====================   CMMANManager   =======================
 
 
+CMMANManager::CMMANManager(CMMDBManager* molHnd){
+  p_bonds = 0;
+  p_sas = 0;
+  loaded_charge = "None";
+  p_sbase = 0;
+  customResTypes.clear();
+  Copy(molHnd,MMDBFCM_All);
+}
+
 CMMANManager::CMMANManager(){
   p_bonds = 0;
   p_sas = 0;
   loaded_charge = "None";
+  p_sbase = 0;
+  customResTypes.clear();
 }
 
-//------------------------------------------------------------------- 
-CMMANManager::CMMANManager(PCMGSBase p_sbase_in,
-           PCMolBondParams p_bond_params_in) : CMMUTManager()  {
-//-------------------------------------------------------------------
-
+int CMMANManager::SetSBaseAndBondParams(PCMGSBase p_sbase_in,
+           PCMolBondParams p_bond_params_in)  {
   p_bond_params = p_bond_params_in;
   p_sbase = p_sbase_in;
   /*
@@ -84,8 +95,14 @@ CMMANManager::CMMANManager(PCMGSBase p_sbase_in,
   transform_com_set = false;
   unremediated = false;
   Mat4Init(current_transform);
-  
+  return 0;
+}
 
+//------------------------------------------------------------------- 
+CMMANManager::CMMANManager(PCMGSBase p_sbase_in,
+           PCMolBondParams p_bond_params_in) : CMMUTManager()  {
+//-------------------------------------------------------------------
+  SetSBaseAndBondParams(p_sbase_in,p_bond_params_in);
 }
 
 //-------------------------------------------------------------------------
@@ -143,7 +160,7 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
     char lib[500];
     strcpy(lib,lib1);
     if (monlib.size()>0) {
-      cout << "clearing monlib" << endl;
+      //out << "clearing monlib" << endl;
       //LoadedPCSBStructure_iter p = monlib.find(resn);
       //if (p!=monlib.end()) return p->second;
       monlib.clear();
@@ -284,7 +301,7 @@ int CMMANManager::SetupAtomEnergyTypes () {
   PCResidue p_res;
   pstr compoundID = NULL;
   PCSBStructure p_sbase_struct;
-  cpstr atomType;
+  pstr atomType;
   int atomOrdinal;
   PCSBAtom p_sbase_atom;
 
@@ -319,16 +336,12 @@ int CMMANManager::SetupAtomEnergyTypes () {
 	//printf ( "resType %s index %i atomType %s %i\n"
 	    //  ,compoundID,atomOrdinal,atomType,strlen(atomType));
         if ( strlen(atomType) <  1 ) 
-	   //atomTable[j]->PutUDData(udd_atomEnergyType,-1);
-	   {
-	      char *v = (char *) "";
-	      atomTable[j]->PutUDData(udd_atomEnergyType,
-				      p_sbase->LibAtom(v,atomTable[j]->element));
-	   } 
-        else {
-	  int atty = p_sbase->LibAtom((char *) atomType);
-          atomTable[j]->PutUDData(udd_atomEnergyType, atty);
-	} 
+          //atomTable[j]->PutUDData(udd_atomEnergyType,-1);
+          atomTable[j]->PutUDData(udd_atomEnergyType,
+		p_sbase->LibAtom("",atomTable[j]->element));
+        else 
+          atomTable[j]->PutUDData(udd_atomEnergyType,
+                              p_sbase->LibAtom(atomType));
 	
       }  // End of loop over atoms
     } 
@@ -337,7 +350,7 @@ int CMMANManager::SetupAtomEnergyTypes () {
     else { 
       for (j=0;j<nat;j++) {
         atomTable[j]->PutUDData(udd_atomEnergyType,
-			p_sbase->LibAtom((char *) "",atomTable[j]->element));
+		p_sbase->LibAtom("",atomTable[j]->element));
         //printf ( "element %s type %i\n",atomTable[j]->element,
           //      p_sbase->LibAtom(1,atomTable[j]->element));
       }
@@ -394,7 +407,7 @@ Return an array of radii for selected atoms - expected to be used in
 drawing spheres etc.
 */
 
-  PPCAtom atomTable;
+  PPCAtom atomTable=NULL;
   int nat,i;
   int atomOrdinal;
   std::vector<double> atomRadii;
@@ -487,11 +500,12 @@ int CMMANManager::GetAtomHBondType1(PCAtom p_atom) {
   int atomOrd;
   std::string name;
   p_atom->GetUDData(udd_atomEnergyType, atomOrd);
+  if(atomOrd<0) return HBTYPE_UNKNOWN;
   //name = AtomLabel(p_atom);
   return p_sbase->libAtom[atomOrd].hbType;
 }
 //---------------------------------------------------------------------
-const char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
+char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
 //---------------------------------------------------------------------
   int atomOrd;
   p_atom->GetUDData(udd_atomEnergyType, atomOrd);
@@ -499,7 +513,7 @@ const char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
     return p_sbase->libAtom[atomOrd].getHBType();
   }
   else {
-     return (char *) "U";
+    return "U";
   }
 }
 //---------------------------------------------------------------------
@@ -923,11 +937,13 @@ int CMMANManager::TestBonding ( PCAtom patom1, PCAtom patom2, int max ) {
         hbtype1 = GetAtomHBondType1(patom1);
         hbtype2 = GetAtomHBondType1(patom2);
         //cout << "hbtypes " << hbtype1 << " " << hbtype2 << endl;
+        if (hbtype1!=HBTYPE_UNKNOWN&&hbtype2!=HBTYPE_UNKNOWN){
         if ( hbtype1 >= HBTYPE_HYDROGEN && hbtype2 >= HBTYPE_HYDROGEN ) {
           if ( (hbtype1 <= HBTYPE_BOTH && hbtype2 >= HBTYPE_BOTH) ||
 	        (hbtype2 <= HBTYPE_BOTH && hbtype1 >= HBTYPE_BOTH) ) 
             ret = 5;
         }
+       }
       }
     }
   }
@@ -1150,7 +1166,7 @@ CMMANManager* GetMMANManager(PCAtom pAtom) {
   return  (PCMMANManager)(PCMMDBFile)pAtom->GetCoordHierarchy();
 }
 
-
+/*
 //----------------------------------------------------------------------
 std::string CMMANManager::GetSymOpTitle(int nsym,int i,int j,int k) {
 //---------------------------------------------------------------------
@@ -1161,8 +1177,8 @@ std::string CMMANManager::GetSymOpTitle(int nsym,int i,int j,int k) {
 
   if (nsym < 0 || nsym >= GetNumberOfSymOps()) return output.str();
 
-  SymOp.SetSymOp ( GetSymOp(nsym) );   
-  SymOp.GetTMatrix ( TMatrix );
+  SymOp.SetSymOp ( GetSymOp(nsym) );
+
   TMatrix[0][3] += i;
   TMatrix[1][3] += j;
   TMatrix[2][3] += k;
@@ -1170,6 +1186,153 @@ std::string CMMANManager::GetSymOpTitle(int nsym,int i,int j,int k) {
 
   output << symOpTitle;
   return output.str();
+}
+*/
+
+//----------------------------------------------------------------------
+std::string CMMANManager::GetSymOpTitle(int nsym,int i,int j,int k) {
+//---------------------------------------------------------------------
+  std::ostringstream output;
+  pstr symOpTitle;
+  CSymOps SymOps;
+
+  SymOps.SetGroup(GetSpaceGroup());
+  if (nsym < 0 || nsym >= SymOps.GetNofSymOps()) return output.str();
+
+  symOpTitle = SymOps.GetSymOp(nsym);
+
+  output << symOpTitle;
+  return output.str();
+}
+
+
+//------------------------------------------------------------------------
+int CMMANManager::GenerateTransformedModel(int model,realtype *vmat) {
+//------------------------------------------------------------------------
+  // Apply transformation
+  int new_model;
+  PCModel p_model;
+  mat44 TMatrix;
+  mat44 TMatrixT;
+
+  new_model =  CopyModel(model);
+  p_model = GetModel(new_model);
+  if (!p_model) {
+    if(GetNumberOfModels()>0){
+        p_model = GetModel(1);
+        if (!p_model) {
+	  return -1;
+        }
+      }
+  }
+  TMatrixT[0][0] = 1;
+  TMatrixT[1][1] = 1;
+  TMatrixT[2][2] = 1;
+  TMatrixT[3][3] = 1;
+  TMatrixT[0][1] = 0;
+  TMatrixT[0][2] = 0;
+  TMatrixT[1][0] = 0;
+  TMatrixT[1][2] = 0;
+  TMatrixT[2][0] = 0;
+  TMatrixT[2][1] = 0;
+  TMatrix[0][3] = 0;
+  TMatrix[1][3] = 0;
+  TMatrix[2][3] = 0;
+  TMatrix[3][0] = 0;
+  TMatrix[3][1] = 0;
+  TMatrix[3][2] = 0;
+  TMatrix[3][3] = 1;
+  int kk = 0;
+  for (int ii = 0;ii<4;ii++) {
+    for (int jj = 0;jj<4;jj++) {
+      if(ii<3&&jj<3)
+      TMatrix[jj][ii] = vmat[kk];
+      else
+      TMatrixT[jj][ii] = -vmat[kk];
+      kk++;
+    }
+  }
+  /*
+  for (int ii = 0;ii<4;ii++) {
+    for (int jj = 0;jj<4;jj++) {
+      std::cout << TMatrix[ii][jj] << " ";
+    } std::cout << "\n";
+  } std::cout << "\n";
+  for (int ii = 0;ii<4;ii++) {
+    for (int jj = 0;jj<4;jj++) {
+      std::cout << TMatrixT[ii][jj] << " ";
+    } std::cout << "\n";
+  } std::cout << "\n";
+  */
+  p_model->ApplyTransform (TMatrixT);
+  p_model->ApplyTransform (TMatrix);
+  return new_model;
+}
+
+//------------------------------------------------------------------------
+int CMMANManager::ApplyTransformtoModel(int model,realtype *vmat,Boolean undo) {
+//------------------------------------------------------------------------
+  mat44 TMatrix,invTMatrix;
+  PCModel p_model = GetModel(model);
+  //std::cout << "model num: " << model << "\n";
+  //std::cout << "model: " << p_model << "\n";
+  //std::cout << "number of models: " << GetNumberOfModels() << "\n";
+  if (!p_model) {
+    if(GetNumberOfModels()>0){
+        p_model = GetModel(1);
+        if (!p_model) {
+	  return 1;
+        }
+      }
+  }
+  int kk = 0;
+  for (int ii = 0;ii<4;ii++) {
+    for (int jj = 0;jj<4;jj++) {
+      TMatrix[jj][ii] = vmat[kk];
+      kk++;
+    }
+  }
+  
+  if (undo) {
+    Mat4Inverse (TMatrix,invTMatrix);
+    p_model->ApplyTransform (invTMatrix);
+  } else
+    p_model->ApplyTransform (TMatrix);
+  return 0;
+}
+
+//------------------------------------------------------------------------
+int CMMANManager::GetLibTMatrix(mat44 &TMatrix,int nsym,int i,int j,int k) {
+//------------------------------------------------------------------------
+  CSymOps SymOps;
+  //mat44 transmat,rotmat;
+  int rv = 0;
+  //cout << "GetLibTMatrix " << nsym << " " << i << " " << j << " " << k << endl;
+  
+  /*
+  This uses symops from syminfo but does not seem to get the translation
+  component correct
+  SymOps.SetGroup(GetSpaceGroup());
+  cout << "GetLibTMatrix SymOps " << SymOps.GetSymOp(nsym) <<endl;
+  rv = SymOps.GetTMatrix(rotmat,nsym);
+
+  GetTMatrix(transmat,0,i,j,k);  
+  cout << "transmat" << endl;
+  for (int ii=0;ii<4;ii++) 
+    cout << transmat[0][ii] << " " <<  transmat[1][ii] << " "  << transmat[2][ii] << " " << transmat[3][ii] << endl;
+  Mat4Mult(TMatrix,transmat,rotmat);
+  */
+  
+  
+  GetTMatrix(TMatrix,nsym,i,j,k);
+  /* cout << "Tmatrix" << endl;
+  for (int ii=0;ii<4;ii++) 
+    cout << TMatrix[0][ii] << " " <<  TMatrix[1][ii] << " "  << TMatrix[2][ii] << " " << TMatrix[3][ii] << endl;
+  */
+  rv = 0;
+  
+
+  return rv;
 }
 
 //------------------------------------------------------------------------
@@ -1182,37 +1345,32 @@ int CMMANManager::GenerateSymmetryModel(int model,int nsym,int i,int j,int k) {
 
   new_model =  CopyModel(model);
   p_model = GetModel(new_model);
-  GetTMatrix(TMatrix,nsym,i,j,k);
+  if (!p_model) {
+	  return -1;
+  }
+  GetLibTMatrix(TMatrix,nsym,i,j,k);
   p_model->ApplyTransform (TMatrix);
   return new_model;
 }
+
+
 //------------------------------------------------------------------------
-int CMMANManager::ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,int undo_nsym,int undo_i,int undo_j,int undo_k) {
+int CMMANManager::ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,Boolean undo) {
 //------------------------------------------------------------------------
   // Apply transformation
-  mat44 TMatrix, invTMatrix, multTMatrix;
+  mat44 TMatrix, invTMatrix;
   PCModel p_model;
 
   p_model = GetModel(model);
   if (p_model == NULL) return 1;
-  if (undo_nsym>=0) {
-     GetTMatrix(TMatrix,undo_nsym,undo_i,undo_j,undo_k);
-     Mat4Inverse (TMatrix,invTMatrix);
-     GetTMatrix(TMatrix,nsym,i,j,k);
+  GetLibTMatrix(TMatrix,nsym,i,j,k);
+  if (undo) {
+    GetLibTMatrix(invTMatrix,nsym,i,j,k);
+    Mat4Inverse (invTMatrix,TMatrix);
+  } else 
+     GetLibTMatrix(TMatrix,nsym,i,j,k);
      
-     for (int i = 0;i<4;i++) {
-       for (int j= 0;j<4;j++) {
-         multTMatrix[j][i]=0.0;
-         for (int k= 0;k<4;k++) multTMatrix[j][i]=
-              multTMatrix[j][i]+(TMatrix[j][k]*invTMatrix[k][i]);
-       }
-     }
-    
-     p_model->ApplyTransform (multTMatrix);
-  } else {
-    GetTMatrix(TMatrix,nsym,i,j,k);
-    p_model->ApplyTransform (TMatrix);
-  }
+  p_model->ApplyTransform (TMatrix);
   return 0;
 }
 
@@ -1247,12 +1405,12 @@ int CMMANManager::IfSymmetryNeighbours(int selHnd, int model, int nsym,
   // in model
   if ( selHnd <= 0 )  GetSelIndex(modelSelHnd,selAtoms,nSelAtoms);  
 
-  GetTMatrix(TMatrix,nsym,i,j,k);
+  GetLibTMatrix(TMatrix,nsym,i,j,k);
   
   SeekContacts ( selAtoms, nSelAtoms, modelAtoms, nModelAtoms, 0.0, dist, 0,
 			 contact,ncontacts,maxlen,&TMatrix);
   
-  if (contact)  delete contact;
+  if (contact)  delete [] contact;
   if (modelSelHnd)  DeleteSelection(modelSelHnd);
   return ncontacts;
 }
@@ -1266,7 +1424,7 @@ int CMMANManager::CopyModel(int model) {
   new_model->Copy(GetModel(model));
   AddModel(new_model);
   PDBCleanup(PDBCLEAN_SERIAL);
-  //cout << "serNum " << new_model->GetSerNum();
+  //cout << "CopyModel serNum " << new_model->GetSerNum() <<endl;
 
   // Copy atom types and bonds
   int selHnd1,selHnd2;
@@ -1279,18 +1437,19 @@ int CMMANManager::CopyModel(int model) {
   selHnd1 = NewSelection();
   selHnd2 = NewSelection();
 
-  // Copy residue UDD
   Select(selHnd1,STYPE_RESIDUE,model,"*",ANY_RES, 
        "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
   Select(selHnd2,STYPE_RESIDUE,new_model->GetSerNum(),"*",ANY_RES, 
        "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
   GetSelIndex(selHnd1, p_res1, nat1);
   GetSelIndex(selHnd2, p_res2, nat2);
+  // Copy residue UDD
   for ( int ia=0;ia<nat1;ia++) {
     p_res1[ia]->GetUDData(udd_sbaseCompoundID, eType);
     RC = p_res2[ia]->PutUDData(udd_sbaseCompoundID, eType);
   }  
 
+  // Copy atom UDD
   Select(selHnd1,STYPE_ATOM,model,"*",ANY_RES, 
        "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
   Select(selHnd2,STYPE_ATOM,new_model->GetSerNum(),"*",ANY_RES, 
@@ -1346,8 +1505,10 @@ int CMMANManager::CopyModel(int model) {
       //cout << endl;
     }
   }
+  //cout << "CopyModel before DeleteSelection" << endl;
   DeleteSelection(selHnd1);
   DeleteSelection(selHnd2);
+  //cout << "CopyModel after DeleteSelection" << endl;
 
   return GetNumberOfModels();
   
@@ -1464,6 +1625,7 @@ bool CMMANManager::isAminoacid (PCResidue pres) {
   pstr sbaseCompoundID=NULL;
   PCSBStructure  pSbRes;
   // Is it a user defined 'custom' restype?
+  if(customResTypes.size()>0){
   std::map<std::string,int>::iterator pos = customResTypes.find(pres->name);
   if (pos!=customResTypes.end()) {
     if ( pos->second == RESTYPE_PEPTIDE || pos->second == RESTYPE_LPEPTIDE || pos->second == RESTYPE_DPEPTIDE )
@@ -1471,7 +1633,9 @@ bool CMMANManager::isAminoacid (PCResidue pres) {
     else
       return false;
   }
+  }
 
+  if(!p_sbase) return pres->isAminoacid();
   if (strlen(p_sbase->monomers_dir)<1) {
     return pres->isAminoacid();
   } else {
@@ -1513,12 +1677,13 @@ int CMMANManager::GetRestypeCode ( PCResidue pres ) {
 //------------------------------------------------------------------------
   pstr sbaseCompoundID=NULL;
   PCSBStructure  pSbRes;
-
   // Is it a user defined 'custom' restype?
+  if(customResTypes.size()>0){
   std::map<std::string,int>::iterator pos = customResTypes.find(pres->name);
   if (pos!=customResTypes.end()) return pos->second;
+  }
 
-  if (strlen(p_sbase->monomers_dir)>1 ) {
+  if (p_sbase&&(strlen(p_sbase->monomers_dir)>1) ) {
     pres->GetUDData(udd_sbaseCompoundID,sbaseCompoundID);
 
     //cout << "sbaseCompoundID " << sbaseCompoundID << endl;
@@ -1547,8 +1712,15 @@ int CMMANManager::GetRestypeCode ( PCResidue pres ) {
            strcmp(pSbRes->Formula, "D-saccharid")==0 ||
            strcmp(pSbRes->Formula, "L-saccharid")==0 ) 
           return RESTYPE_SACH;
-        else
+        else {
+          for(int iElementMetals=0;iElementMetals<nElementMetals;iElementMetals++){
+            if(pres->GetNumberOfAtoms()==1&&pres->GetAtom(ElementMetal[iElementMetals])&&(!strncmp(ElementMetal[iElementMetals],pres->GetAtom(ElementMetal[iElementMetals])->name,2)||!strncmp(ElementMetal[iElementMetals],pres->GetAtom(ElementMetal[iElementMetals])->element,2))){
+              //std::cout << "Metal: " << ElementMetal[iElementMetals] << "\n";
+              return RESTYPE_METAL;
+            }
+          }
           return RESTYPE_NONPOLY;
+        }
       }
     }
   }
@@ -1573,6 +1745,12 @@ int CMMANManager::GetRestypeCode ( PCResidue pres ) {
     return RESTYPE_NUCL;
   }
   
+  for(int iElementMetals=0;iElementMetals<nElementMetals;iElementMetals++){
+    if(pres->GetNumberOfAtoms()==1&&pres->GetAtom(ElementMetal[iElementMetals])&&(!strncmp(ElementMetal[iElementMetals],pres->GetAtom(ElementMetal[iElementMetals])->name,2)||!strncmp(ElementMetal[iElementMetals],pres->GetAtom(ElementMetal[iElementMetals])->element,2))){
+      //std::cout << "Metal: " << ElementMetal[iElementMetals] << "\n";
+      return RESTYPE_METAL;
+    }
+  }
   return RESTYPE_NONPOLY;
 
 }
@@ -1589,10 +1767,8 @@ int CMMANManager::SetCustomResSynonym ( const std::string &resname , const std::
   return customResSynonym.size();
 }
 
-//------------------------------------------------------------------------
-int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
-                                const realtype cutoff ) {
-//------------------------------------------------------------------------
+int ExcludeOverlappedAtoms ( CMMDBManager* molHnd, const int selHnd ,
+                                const realtype cutoff, int theModel ) {
   // Remove atoms closer that cutoff distance from a selection
   //std::cout << "ExcludeOverlappedAtoms\n";
   int tmpHnd1,tmpHnd2;
@@ -1605,28 +1781,29 @@ int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
   int iser1,iser2;
   int ndel = 0;
 
-  tmpHnd1 = NewSelection();
-  tmpHnd2 = NewSelection();
 
-  int nmodels = GetNumberOfModels();
+  tmpHnd1 = molHnd->NewSelection();
+  tmpHnd2 = molHnd->NewSelection();
+  int nmodels = molHnd->GetNumberOfModels();
   for(int imodel=1;imodel<=nmodels;imodel++){
- 
+    if(theModel>0&&imodel!=theModel) continue;
+
     // Copy the selection
-    Select(tmpHnd1,STYPE_ATOM,imodel,"*", ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
-    Select(tmpHnd1,STYPE_ATOM,selHnd,SKEY_AND);
-    Select(tmpHnd2,STYPE_ATOM,imodel,"*", ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
-    Select(tmpHnd2,STYPE_ATOM,selHnd,SKEY_AND);
+    molHnd->Select(tmpHnd1,STYPE_ATOM,imodel,"*", ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
+    molHnd->Select(tmpHnd1,STYPE_ATOM,selHnd,SKEY_AND);
+    molHnd->Select(tmpHnd2,STYPE_ATOM,imodel,"*", ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
+    molHnd->Select(tmpHnd2,STYPE_ATOM,selHnd,SKEY_AND);
     selAtoms1 = NULL;
     selAtoms2 = NULL;
     
-    GetSelIndex(tmpHnd1,selAtoms1,nat1);  
-    GetSelIndex(tmpHnd2,selAtoms2,nat2);
+    molHnd->GetSelIndex(tmpHnd1,selAtoms1,nat1);  
+    molHnd->GetSelIndex(tmpHnd2,selAtoms2,nat2);
     //std::cout << "model: " << imodel << ", nat1: " << nat1 << ", nat2: " << nat2 << "\n"; std::cout.flush();
     if(nat1>0&&nat2>0) {
    
 
       contacts = NULL;
-      SeekContacts(selAtoms1,nat1,selAtoms2,nat2,0.0,cutoff,0,
+      molHnd->SeekContacts(selAtoms1,nat1,selAtoms2,nat2,0.0,cutoff,0,
 		           contacts,ncontacts,0,TMatrix, 0 , 0);
 
       //std::cout << "ncontacts: " << ncontacts << "\n"; std::cout.flush();
@@ -1634,12 +1811,13 @@ int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
       for (int i=0;i<ncontacts;i++) {
         iser1 = selAtoms1[contacts[i].id1]->serNum;
         iser2 = selAtoms2[contacts[i].id2]->serNum;
-        // cout << i << "(" << ncontacts << ")" << ", iser1,iser2 " << iser1 << " " << iser2 << endl;
+        //cout << i << "(" << ncontacts << ")" << ", iser1,iser2 " << iser1 << " " << iser2 << endl;
         // Arbitrarilly exclude the atom with higher serial number
         // beware each contact listed twice
         if ( iser1 > iser2 ) {
           iser2 = iser1;
-          SelectAtoms(selHnd,iser1,iser2,SKEY_XOR);
+          //SelectAtoms(selHnd,iser1,iser2,SKEY_CLR);
+          molHnd->UnselectAtoms(selHnd,iser1,iser2);
           ndel++;
         }
       } }
@@ -1647,11 +1825,18 @@ int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
     }
 
   }
-  DeleteSelection(tmpHnd1);
-  DeleteSelection(tmpHnd2);
+  molHnd->DeleteSelection(tmpHnd1);
+  molHnd->DeleteSelection(tmpHnd2);
 
   return ndel;
   
+}
+
+//------------------------------------------------------------------------
+int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
+                                const realtype cutoff, int theModel ) {
+//------------------------------------------------------------------------
+  return ::ExcludeOverlappedAtoms(this,selHnd,cutoff,theModel);
 }
 
 int CMMANManager::SetTransform ( const matrix tMat, const bool reset) {
@@ -1703,7 +1888,8 @@ int CMMANManager::SetTransform ( const std::vector<float>& transf , const std::v
 
 
 void CMMANManager::UnSetTransform(bool apply_inverse) {
-  //cout << "UnSetTransform isTransformed " << isTransformed << endl; 
+  //cout << "UnSetTransform isTransformed " << isTransformed << " apply inverse " << apply_inverse << endl;
+  
   if (isTransformed && apply_inverse) {
     mat44 InvMatrix;
     Mat4Inverse(current_transform,InvMatrix);
@@ -1759,6 +1945,18 @@ int CMMANManager::SetTransform ( const realtype rot ,const std::vector<float>& a
 
 
 
+int CMMANManager::SetTransform (const std::vector<float> &TMatrix , const bool reset) {
+  mat44 newMatrix;
+  int kk=0;
+  for(int k=0;k<4;k++){
+    for(int i=0;i<4;i++){
+       newMatrix[k][i] = TMatrix[kk];
+       kk++;
+    }
+  }
+  SetTransform(newMatrix,reset);
+}
+
 int CMMANManager::SetTransform (mat44 &TMatrix , const bool reset) {
 
   if (reset) UnSetTransform();
@@ -1781,13 +1979,15 @@ int CMMANManager::SetTransform (mat44 &TMatrix , const bool reset) {
       current_transform[k][i]=newMatrix[k][i];
     } 
   } 
+ 
   /*
   cout << "\nSetTransform:\n\n";
   for (int i=0;i<4;i++) {
     for (int j=0;j<4;j++) cout << current_transform[i][j] << " ";
     cout << endl;
-  } 
+  }
   */
+  
   return 0;
 }
 
@@ -1848,7 +2048,9 @@ int CMMANManager::TransformToSuperposeAtoms (  PPCAtom A1, int nA, PPCAtom A2) {
   This method avoids need to pass a mat44 to Python
   */
   mat44 TMatrix;
+  //cout << "TransformToSuperposeAtoms nA " << nA << endl;
   int rv = SuperposeAtoms ( TMatrix, A1, nA, A2 );
+  //cout << "TransformToSuperposeAtoms rv " << rv <<  endl;
   if (rv == SPOSEAT_Ok) {
     SetTransform (TMatrix,0);
   }
@@ -1861,7 +2063,7 @@ double CMMANManager::DeltaResidueOrientation (PCResidue pRes,PCResidue pResFx) {
   PCAtom mvAtoms[5];
   PCAtom fxAtoms[5];
   int nat=0;
-  const char *names[] = { "CA" , "N", "C", "CB" };
+  char *names[] = { "CA" , "N", "C", "CB" };
 
   for (int n=0;n<4;n++ ){
     mvAtoms[nat]=pRes->GetAtom(names[n],"*","*");
@@ -1881,6 +2083,220 @@ double CMMANManager::DeltaResidueOrientation (PCResidue pRes,PCResidue pResFx) {
   //cout << "SuperposeResidue " << pResFx->seqNum << " " << pRes->seqNum << " " << nat << " " << ld <<endl;
   return ld;
 }
+
+//------------------------------------------------------------------------
+double CMMANManager::AtomicRMSDistance( PPCAtom A1, int nA, PPCAtom A2) {
+//------------------------------------------------------------------------
+  double dd,ddtot = 0.0;
+
+  for (int n=0;n<nA;n++) {
+    dd =  (A1[n]->x-A2[n]->x)*(A1[n]->x-A2[n]->x) +  
+          (A1[n]->y-A2[n]->y)*(A1[n]->y-A2[n]->y) + 
+          (A1[n]->z-A2[n]->z)*(A1[n]->z-A2[n]->z);
+    //cout << n << " " << dd << endl;
+    ddtot = ddtot+dd;
+    }
+  ddtot = sqrt(ddtot/nA);
+  return ddtot;
+    }
+
+
+int CMMANManager::CopyCoordinates(const PCMMDBManager fromMolHnd,int fromModel) {
+  /*
+  Copy coordinates - assume same number of atoms in both models
+  */
+  PPCAtom toAtoms=NULL, fromAtoms=NULL;
+  int toSelHnd,fromSelHnd, toNat, fromNat;
+
+  if (GetNumberOfModels() == 1) {
+    GetAtomTable1(toAtoms,toNat);
+    toSelHnd = -1;
+  } else { 
+    toSelHnd = NewSelection();
+    Select(toSelHnd,STYPE_ATOM,1,"*",ANY_RES,
+       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+    GetSelIndex(toSelHnd,toAtoms,toNat);
+  }
+  fromSelHnd = fromMolHnd->NewSelection();
+  fromMolHnd->Select(fromSelHnd,STYPE_ATOM,fromModel,"*",ANY_RES,
+       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+  fromMolHnd->GetSelIndex(fromSelHnd,fromAtoms,fromNat);
+  if (fromNat != toNat ) {
+    cout << "ERROR copying coordinates - different number of atoms" << endl;
+    cout << "Atoms in source: " << fromNat << " atoms in target " << toNat << endl;
+    fromMolHnd->DeleteSelection(fromSelHnd);
+    if(toAtoms) delete [] toAtoms;
+    return 1;
+  }
+
+  for (int i=0;i<toNat;i++) {
+    toAtoms[i]->x = fromAtoms[i]->x;
+    toAtoms[i]->y = fromAtoms[i]->y;
+    toAtoms[i]->z = fromAtoms[i]->z;
+  }
+  fromMolHnd->DeleteSelection(fromSelHnd);
+  if (toSelHnd>=0) {
+    DeleteSelection(toSelHnd);
+  } else {
+    if(toAtoms) delete [] toAtoms;
+  }
+  return 0;
+}
+
+//---------------------------------------------------------------------------
+int CMMANManager::LoadSerial(const PCMMDBManager fromMolHnd ) {
+//---------------------------------------------------------------------------
+
+  /*
+  Copy serial numbers from one MMDBManager to UDD of another MMDBManager
+  */
+  PPCAtom toAtoms=NULL, fromAtoms=NULL;
+  int toSelHnd,fromSelHnd, toNat, fromNat;
+
+  toSelHnd = NewSelection();
+  Select(toSelHnd,STYPE_ATOM,0,"*",ANY_RES,
+     "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+  GetSelIndex(toSelHnd,toAtoms,toNat);
+
+  fromSelHnd = fromMolHnd->NewSelection();
+  fromMolHnd->Select(fromSelHnd,STYPE_ATOM,0,"*",ANY_RES,
+       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+  fromMolHnd->GetSelIndex(fromSelHnd,fromAtoms,fromNat);
+  if (fromNat != toNat ) {
+    cout << "ERROR copying serial numbers - different number of atoms" << endl;
+    cout << "Atoms in source: " << fromNat << " atoms in target " << toNat << endl;
+    fromMolHnd->DeleteSelection(fromSelHnd);
+    DeleteSelection(toSelHnd);
+    return -1;
+  }
+
+  // Get a UDD identifier
+  int udd_serial =  GetUDDHandle( UDR_ATOM,"atomSerial");
+  if (udd_serial<=0)  udd_serial = RegisterUDInteger(UDR_ATOM,"atomSerial" );
+  if ( udd_serial < 0 ) {
+     printf ( "ERROR registering atom serial data.\n" );
+     return -1;
+  }
+  
+  for (int i=0;i<toNat;i++) {
+    toAtoms[i]->PutUDData(udd_serial,fromAtoms[i]->serNum);
+  }
+  fromMolHnd->DeleteSelection(fromSelHnd);
+  DeleteSelection(toSelHnd);
+  return udd_serial;
+}
+
+//---------------------------------------------------------------------------
+int CMMANManager::LoadSerialFromDifferentModel(const PCMMDBManager fromMolHnd ,int udd ) {
+//---------------------------------------------------------------------------
+
+  /*
+  Copy serial numbers from one MMDBManager to UDD of another MMDBManager
+  */
+  PCAtom pAtom;
+  PPCAtom  fromAtoms=NULL,atomTable=NULL;
+  int fromSelHnd, fromNat;
+  int natoms=0,nCopy = 0;
+
+  GetAtomTable1(atomTable,natoms);
+  for (int ia=0; ia<natoms;ia++) atomTable[ia]->PutUDData(udd,0);
+
+  fromSelHnd = fromMolHnd->NewSelection();
+  fromMolHnd->Select(fromSelHnd,STYPE_ATOM,0,"*",ANY_RES,
+       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+  fromMolHnd->GetSelIndex(fromSelHnd,fromAtoms,fromNat);
+
+  for ( int ia=0; ia<fromNat; ia++ ) {
+    pAtom = GetAtom ( fromAtoms[ia]->GetModelNum(),
+		      fromAtoms[ia]->GetChainID(),
+                      fromAtoms[ia]->residue->seqNum,
+                      fromAtoms[ia]->residue->insCode,
+                      fromAtoms[ia]->name,
+                      fromAtoms[ia]->element,
+                      fromAtoms[ia]->altLoc );
+
+    if (pAtom) {
+      //if (fromAtoms[ia]->serNum==3 ||fromAtoms[ia]->serNum==6 ) cout << "LoadSerialFromDifferentModel " << fromAtoms[ia]->residue->seqNum << " " <<fromAtoms[ia]->serNum << endl;
+      pAtom->PutUDData(udd,fromAtoms[ia]->serNum);
+      nCopy++;
+    }
+  }
+  return nCopy;
+  
+}
+
+int CMMANManager::GetNumberOfSecStructure (int type) { 
+
+  int ntype=0;
+
+  int           nr;
+  PPCResidue    selRes=NULL;
+
+  GetResidueTable(selRes,nr);
+  for( int i = 0; i < nr; i++) {
+    if( selRes[i]->isAminoacid() ) {
+      if(selRes[i]->SSE==type){
+        ntype++;
+      }
+    }
+  }
+  return ntype;
+}
+
+//-----------------------------------------------------------------------
+std::string CMMANManager::PrintSecStructure (void) { 
+//-----------------------------------------------------------------------
+  int		i;
+  const char 	secstr_text [9][12] = { "           ",
+                                        "beta strand",
+                                        "beta bulge ",
+			                "3-turn     ",
+                                        "4-turn     ",
+                                        "5-turn     ",
+                                        "alpha helix",
+                                        "H-bond turn",
+                                        "bend       " };
+
+  std::ostringstream output;
+  int           nr;
+  PPCResidue    selRes=NULL;
+  std::string resid;
+
+  output << "Secondary Structure Assignment based on Kabsch & Sanders"
+         << "\n"
+         << "Residue        "
+         << "SecStruct   \n";
+     
+
+   //   << "Hydrogen bonded to.."
+
+
+    //Get all residues with atoms in this atom selection
+    GetResidueTable(selRes,nr);
+ 
+    for ( i = 0; i < nr; i++) {
+      if ( selRes[i]->isAminoacid() ) {
+        resid = AtomLabel_residue1(selRes[i]);
+        output << std::endl 
+             <<  resid <<  std::setw(15-resid.length()) <<" " 
+             << secstr_text[selRes[i]->SSE] << " ";
+        /*  
+        if ( hbonds ) {
+          int k = 0;
+          while (  k <= 2 && hbonds[i][k] != 0 ) {
+            j = selRes[i + hbonds[i][k]];
+            resid = molH->AtomLabel_residue1(j);
+            output << resid << std::setw(15-resid.length()) << " ";
+            k++;
+          }
+        }
+        */
+      }
+    }
+    output << std::endl; 
+    return output.str();
+}
+
 
 //------------------------------------------------------------------------
 int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd, 
@@ -1981,7 +2397,7 @@ int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd,
           }
         }
       }
-      if (contact) delete contact;
+      if (contact) delete [] contact;
     }
   }
 
@@ -2009,142 +2425,22 @@ int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd,
   }
 }
 
-int CMMANManager::CopyCoordinates(const PCMMDBManager fromMolHnd,int fromModel) {
-  /*
-  Copy coordinates - assume same number of atoms in both models
-  */
-  PPCAtom toAtoms=NULL, fromAtoms=NULL;
-  int toSelHnd,fromSelHnd, toNat, fromNat;
+int CMMANManager::ApplyCartesiansDeltas(const std::vector<Cartesian> &dxyz, int selHnd, double scale){
+  PPCAtom atoms = NULL;
+  int natoms;
 
-  if (GetNumberOfModels() == 1) {
-    GetAtomTable1(toAtoms,toNat);
-    toSelHnd = -1;
-  } else { 
-    toSelHnd = NewSelection();
-    Select(toSelHnd,STYPE_ATOM,1,"*",ANY_RES,
-       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
-    GetSelIndex(toSelHnd,toAtoms,toNat);
+  GetSelIndex(selHnd,atoms,natoms);
+  //std::cout << "natoms: " << natoms << ", displacements size: " << dxyz.size() << "\n";
+  if(natoms>0&&((unsigned)natoms!=dxyz.size())){
+     std::cout << "Error, wrong number of atom deltas: natoms: " << natoms << ", displacements size: " << dxyz.size() << "\n";
+     DeleteSelection(selHnd);
+     return 1;
   }
-  fromSelHnd = fromMolHnd->NewSelection();
-  fromMolHnd->Select(fromSelHnd,STYPE_ATOM,fromModel,"*",ANY_RES,
-       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
-  fromMolHnd->GetSelIndex(fromSelHnd,fromAtoms,fromNat);
-  if (fromNat != toNat ) {
-    cout << "ERROR copying coordinates - different number of atoms" << endl;
-    cout << "Atoms in source: " << fromNat << " atoms in target " << toNat << endl;
-    fromMolHnd->DeleteSelection(fromSelHnd);
-    if(toAtoms) delete [] toAtoms;
-    return 1;
+  for(unsigned i=0;i<dxyz.size();i++){
+    atoms[i]->x += dxyz[i].get_x()*scale;
+    atoms[i]->y += dxyz[i].get_y()*scale;
+    atoms[i]->z += dxyz[i].get_z()*scale;
   }
 
-  for (int i=0;i<toNat;i++) {
-    toAtoms[i]->x = fromAtoms[i]->x;
-    toAtoms[i]->y = fromAtoms[i]->y;
-    toAtoms[i]->z = fromAtoms[i]->z;
-  }
-  fromMolHnd->DeleteSelection(fromSelHnd);
-  if (toSelHnd>=0) {
-    DeleteSelection(toSelHnd);
-  } else {
-    if(toAtoms) delete [] toAtoms;
-  }
-  return 0;
-}
-
-//---------------------------------------------------------------------------
-int CMMANManager::LoadSerial(const PCMMDBManager fromMolHnd ) {
-//---------------------------------------------------------------------------
-
-  /*
-  Copy serial numbers from one MMDBManager to UDD of another MMDBManager
-  */
-  PPCAtom toAtoms=NULL, fromAtoms=NULL;
-  int toSelHnd,fromSelHnd, toNat, fromNat;
-
-  toSelHnd = NewSelection();
-  Select(toSelHnd,STYPE_ATOM,0,"*",ANY_RES,
-     "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
-  GetSelIndex(toSelHnd,toAtoms,toNat);
-
-  fromSelHnd = fromMolHnd->NewSelection();
-  fromMolHnd->Select(fromSelHnd,STYPE_ATOM,0,"*",ANY_RES,
-       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
-  fromMolHnd->GetSelIndex(fromSelHnd,fromAtoms,fromNat);
-  if (fromNat != toNat ) {
-    cout << "ERROR copying serial numbers - different number of atoms" << endl;
-    cout << "Atoms in source: " << fromNat << " atoms in target " << toNat << endl;
-    fromMolHnd->DeleteSelection(fromSelHnd);
-    DeleteSelection(toSelHnd);
-    return -1;
-  }
-
-  // Get a UDD identifier
-  int udd_serial =  GetUDDHandle( UDR_ATOM,"atomSerial");
-  if (udd_serial<=0)  udd_serial = RegisterUDInteger(UDR_ATOM,"atomSerial" );
-  if ( udd_serial < 0 ) {
-     printf ( "ERROR registering atom serial data.\n" );
-     return -1;
-  }
-  
-  for (int i=0;i<toNat;i++) {
-    toAtoms[i]->PutUDData(udd_serial,fromAtoms[i]->serNum);
-  }
-  fromMolHnd->DeleteSelection(fromSelHnd);
-  DeleteSelection(toSelHnd);
-  return udd_serial;
-}
-
-
-//-----------------------------------------------------------------------
-std::string CMMANManager::PrintSecStructure (void) { 
-//-----------------------------------------------------------------------
-  int		i;
-  const char 	secstr_text [9][12] = { "           ",
-                                        "beta strand",
-                                        "beta bulge ",
-			                "3-turn     ",
-                                        "4-turn     ",
-                                        "5-turn     ",
-                                        "alpha helix",
-                                        "H-bond turn",
-                                        "bend       " };
-
-  std::ostringstream output;
-  int           nr;
-  PPCResidue    selRes=NULL;
-  std::string resid;
-
-  output << "Secondary Structure Assignment based on Kabsch & Sanders"
-         << "\n"
-         << "Residue        "
-         << "SecStruct   \n";
-     
-
-   //   << "Hydrogen bonded to.."
-
-
-    //Get all residues with atoms in this atom selection
-    GetResidueTable(selRes,nr);
- 
-    for ( i = 0; i < nr; i++) {
-      if ( selRes[i]->isAminoacid() ) {
-        resid = AtomLabel_residue1(selRes[i]);
-        output << std::endl 
-             <<  resid <<  std::setw(15-resid.length()) <<" " 
-             << secstr_text[selRes[i]->SSE] << " ";
-        /*  
-        if ( hbonds ) {
-          int k = 0;
-          while (  k <= 2 && hbonds[i][k] != 0 ) {
-            j = selRes[i + hbonds[i][k]];
-            resid = molH->AtomLabel_residue1(j);
-            output << resid << std::setw(15-resid.length()) << " ";
-            k++;
-          }
-        }
-        */
-      }
-    }
-    output << std::endl; 
-    return output.str();
+  return 1;
 }

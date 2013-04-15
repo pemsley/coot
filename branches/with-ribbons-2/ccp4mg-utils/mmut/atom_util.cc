@@ -1,6 +1,8 @@
 /*
-     pygl/atom_util.cc: CCP4MG Molecular Graphics Program
+     mmut/atom_util.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -25,9 +27,8 @@
 #include <stdlib.h>
 #include "mgtree.h"
 #include "cartesian.h"
-#include <mmdb_manager.h>
+#include <mmdb/mmdb_manager.h>
 #include <catmull.h>
-#include "cbuild.h"
 #include "atom_util.h"
 #include "rgbreps.h"
 
@@ -41,8 +42,22 @@ PPCAtom GetAtomPair(const std::vector<std::pair<PCAtom,PCAtom> > &pair, int i){
 std::vector <Cartesian> CartesiansFromAtoms(PPCAtom clip_atoms, int nclip_atoms){
   std::vector <Cartesian> clip_pos;
 
-  for(int i=0;i<nclip_atoms;i++){
-    clip_pos.push_back(Cartesian(clip_atoms[i]->x,clip_atoms[i]->y,clip_atoms[i]->z));
+  if(!clip_atoms) return clip_pos;
+
+  clip_pos.resize(nclip_atoms);
+  int ii=0;
+  int i;
+
+  for(i=0;i<nclip_atoms;i++){
+    //std::cout << i << "\n"; std::cout.flush();
+    if(clip_atoms[i]){
+      clip_pos[ii].set_xyz(clip_atoms[i]->x,clip_atoms[i]->y,clip_atoms[i]->z);
+      ii++;
+    }
+  }
+
+  while(clip_pos.size()>ii){
+    clip_pos.pop_back();
   }
   
   return clip_pos;
@@ -70,14 +85,19 @@ int TreeCartesiansToAtoms(Tree *tree, PPCAtom clip_atoms, int nclip_atoms){
 //--------------------------------------------------------------------------
 //--------------------------------------------------------------------------
 
+AtomColourVector::~AtomColourVector () { 
+  //std::cout << "AtomColourVector::~AtomColourVector\n"; std::cout.flush();
+}
+
 AtomColourVector::AtomColourVector () { 
   colour_mode = ACV_COLOUR_MODE_UNSET; 
 }
 
 //--------------------------------------------------------------------------
-int AtomColourVector::SetAtomColours (  int nat, int *icolin) { 
+int AtomColourVector::SetAtomColours (  const std::vector<int> &icolin) { 
 //--------------------------------------------------------------------------
-  for ( int n=0;n<nat;n++) { icolour.push_back(icolin[n]); }
+  for ( int n=0;n<icolin.size();n++) { icolour.push_back(icolin[n]); }
+  nColours = icolour.size();
   
   switch (colour_mode) { 
     case ACV_COLOUR_MODE_PROPERTY:
@@ -89,6 +109,28 @@ int AtomColourVector::SetAtomColours (  int nat, int *icolin) {
   }
   
   interpolation_mode = NOCOLOURREP;
+  UpdateColours();
+  return 0;
+}
+
+//--------------------------------------------------------------------------
+int AtomColourVector::SetAtomColours (  int nat, int *icolin) { 
+//--------------------------------------------------------------------------
+  //std::cout << "SetAtomColours nat " << nat << std::endl;
+  for ( int n=0;n<nat;n++) { icolour.push_back(icolin[n]); }
+  nColours = icolour.size();
+  
+  switch (colour_mode) { 
+    case ACV_COLOUR_MODE_PROPERTY:
+      colour_mode = ACV_COLOUR_MODE_BOTH;
+      break;
+    default:
+      colour_mode = ACV_COLOUR_MODE_ICOLOUR;
+      break;   
+  }
+  
+  interpolation_mode = NOCOLOURREP;
+  UpdateColours();
   return 0;
 }
 
@@ -121,6 +163,7 @@ int AtomColourVector::SetAtomColours ( int mode, int nat,
   }
   
   
+  UpdateColours();
   return 0;
 }
 //--------------------------------------------------------------------------
@@ -132,7 +175,7 @@ int AtomColourVector::SetAtomColours ( int mode, int nat,double *propertyin,
   //std::cout << "interpolation_mode " << interpolation_mode << " RGB " <<  RGBCOLOURREP << std::endl;
   property.clear();
   for ( n=0;n<nat;n++) { property.push_back(propertyin[n]); }
-  //std::cout << "SetAtomColours nat " << property.size() <<  std::endl;
+  //std::cout << "SetAtomColours nat, props " << property.size() <<  std::endl;
   nColours = cols.size();
   colour_codes.clear();
   for ( n=0;n<nColours;n++) { colour_codes.push_back(cols[n]); }
@@ -150,11 +193,12 @@ int AtomColourVector::SetAtomColours ( int mode, int nat,double *propertyin,
   }
   
   
+  UpdateColours();
   return 0;
 }
 
 //-------------------------------------------------------------------------
-double *AtomColourVector::GetResRGB ( int i ) {
+const double *AtomColourVector::GetResRGB ( int i ) const {
 //-------------------------------------------------------------------------
   //std::cout << "GetResRGB " << i << " " << res_to_atom[i] << std::endl;
 
@@ -180,57 +224,83 @@ void AtomColourVector::UpdateColours() {
 }
 
 //-------------------------------------------------------------------------
-double *AtomColourVector::GetRGB ( int i ) {
+const double *AtomColourVector::GetRGB ( int i ) const {
 //-------------------------------------------------------------------------
   int j,ir;
   float fColour;
  
   //std::cout << "GetRGB interpolation_mode " << interpolation_mode << std::endl;
 
-  if ( colour_mode == ACV_COLOUR_MODE_ICOLOUR) {
-    return  RGBReps::GetColourP(icolour[i]);
+  if(i<0){
+    return  RGBReps::GetColourP(0);
+  }
 
+  if ( colour_mode == ACV_COLOUR_MODE_ICOLOUR) {
+    if(i>=int(icolour.size()))
+      return  RGBReps::GetColourP(0);
+    else
+      return  RGBReps::GetColourP(icolour[i]);
 
   } else {
   
-    if (colours.size()<=0) UpdateColours();
+    //if (colours.size()<=0) UpdateColours();
+    //if (colours.size()<=0) std::cout << "ZERO COLOURS !!!!!!!!!!!!!!!!!!\n";
 
+    
+    double prop = 0.0;
+    ir = int(prop);
+    //std::cout << "property.size(): " << property.size() << "\n";
+    //std::cout << "i: " << i << "\n";
+    //std::cout.flush();
+    if(i<property.size()&&i>=0)
+       prop = property[i];
     double *col = new double[4];
+    col[0] = 0.0;
+    col[1] = 0.0;
+    col[2] = 0.0;
     col[3] = 1.0;
-    if (property[i] < 0.0) {
+    if (prop < 0.0&& colours.size()>0) {
       for (j=0;j<3;j++) col[j]= colours[0][j];
-    } else if ( interpolation_mode == NOCOLOURREP ) {
-      if ( property[i] >max_cutoff ) {
+    } else if ( interpolation_mode == NOCOLOURREP && (nColours-2)<colours.size()) {
+      if ( prop >max_cutoff  ) {
         for (j=0;j<3;j++) {col[j] =  colours[nColours-2][j]; }
-      } else {    
-        ir = int(property[i]);
-        //std::cout << property[i]<< " " << ir << std::endl;
-        for (j=0;j<3;j++) {col[j] =  colours[ir+1][j]; }
+      } else if((ir+1)<colours.size()){    
+        //std::cout << prop<< " " << ir << std::endl;
+        for (j=0;j<3;j++) {
+          col[j] =  colours[ir+1][j];
+        }
       }
-    } else if ( property[i] >max_cutoff ) {
-      for (j=0;j<3;j++) col[j]= colours[nColours-1][j];
-    } else if ( interpolation_mode == RGBCOLOURREP ) {
-      ir = int(property[i]);
-      fColour=property[i]-float(ir);
+    } else if ( prop >max_cutoff &&(nColours-1)<colours.size()) {
+      for (j=0;j<3;j++) {
+        col[j]= colours[nColours-1][j];
+      }
+    } else if ( interpolation_mode == RGBCOLOURREP &&(ir+2)<colours.size()) {
+      ir = int(prop);
+      fColour=prop-float(ir);
       for (j=0;j<3;j++) {
         col[j] =  fColour * colours[ir+2][j] +
 	    (1-fColour) * colours[ir+1][j];
       }
     } else {
-      ir = int(property[i]);
-      fColour=property[i]-float(ir);
-      //std::cout << "GetRGB " << i << " " << property[i] << " " << ir << " " << fColour << " " << colour_wheel_direction[ir+1] <<  std::endl;
+      ir = int(prop);
+      fColour=prop-float(ir);
+      //std::cout << "GetRGB " << i << " " << prop << " " << ir << " " << fColour << " " << colour_wheel_direction[ir+1] <<  std::endl;
+      //std::cout << colours.size() <<  std::endl;
       //std::cout << fColour << " " << ir << " " << colour_wheel_direction[ir+1];
       // dir is the direction round the wheel that we will get if
       // we do the simplest interpolation 
       int dir = COLOUR_WHEEL_CLOCK;
-      if (colours[ir+2][0] < colours[ir+1][0]) dir = COLOUR_WHEEL_ANTICLOCK;
+      if((ir+2)<colours.size()&&(ir+2)>=0){
+        if (colours[ir+2][0] < colours[ir+1][0]) dir = COLOUR_WHEEL_ANTICLOCK;
+      } else {
+        return col;
+      }
 
-      if ( colour_wheel_direction[ir+1] == dir ) {
+      if ( colour_wheel_direction[ir+1] == dir &&(ir+2)<colours.size()) {
           for (j=0;j<3;j++) {
           col[j] =  fColour * colours[ir+2][j] +
 	    (1-fColour) * colours[ir+1][j]; }
-      } else {
+      } else if((ir+2)<colours.size()){
         if ( colours[ir+1][0] > colours[ir+2][0] ) {
           col[0] =  fColour * colours[ir+2][0] +
             (1-fColour) * ( colours[ir+1][0] - 360.0);
@@ -346,17 +416,19 @@ int AtomColourVector::SetupResidueColourVector( PCMMDBManager molHnd,
   //std::cout << "Length of res_to_atom " << idx << " " << nRes << std::endl; std::cout.flush();
 
 
+  UpdateColours();
   molHnd->DeleteSelection(CAselHnd);
   return nAtoms;
 }
 
 void AtomColourVector::UnSetResidueColourVector() {
   res_to_atom.clear();
+  UpdateColours();
 }
 
-std::vector<double*> AtomColourVector::GetRGBVector() {
-  std::vector<double*> vcol;  
-  double *rgb;
+const std::vector<const double*> AtomColourVector::GetRGBVector() const {
+  std::vector<const double*> vcol;  
+  const double *rgb;
   
   for(int i=0;i<nColours;i++){
     rgb = GetRGB(i);
@@ -364,3 +436,11 @@ std::vector<double*> AtomColourVector::GetRGBVector() {
   }
   return vcol;
 }
+
+
+const int AtomColourVector::GetNumberOfColours() const {
+  if ( colour_mode == ACV_COLOUR_MODE_ICOLOUR) {
+    return icolour.size();
+  }
+  return property.size();
+} 

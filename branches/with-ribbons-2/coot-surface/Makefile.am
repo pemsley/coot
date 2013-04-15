@@ -21,12 +21,13 @@
 INCLUDES = -I$(top_srcdir)/surface \
            -I$(top_srcdir)/coot-utils \
            -I$(top_srcdir)/mini-mol \
+           -I$(top_srcdir)/ccp4mg-utils/util \
 	$(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) $(GTKGL_CFLAGS) $(GLUT_CFLAGS)
 
 lib_LTLIBRARIES = libcoot-surface.la
 
 libcoot_surface_la_SOURCES = \
-	 coot-surface.cc coot-surface.hh rgbreps.cc rgbreps.h
+	 coot-surface.cc coot-surface.hh 
 
 # We should provide the OpenGL library in the list of dependencies for
 # libcoot-surface.  Usually it resolved to -lGL, but on Windows - we

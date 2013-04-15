@@ -1,6 +1,7 @@
 /*
-     pygl/rgbreps.h: CCP4MG Molecular Graphics Program
+     util/rgbreps.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -67,6 +68,7 @@ class RGBReps {
   static double* rgbtohsv (double *rgb );
   static void SetBackgroundColour(std::string colour);
   static void SetBackgroundColour(std::vector<double> col);
+  static void clear();
 };
 
 #endif

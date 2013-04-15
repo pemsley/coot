@@ -37,10 +37,10 @@ Hacked to CSASArea class structure Liz Potterton 2002
 #include <stdlib.h>
 #include <sstream>
 #include <iomanip>
-#include <mman_base.h>
-#include <mmut_manager.h>
-#include <mman_manager.h>
-#include <mmut_sasarea.h>
+#include "mman_base.h"
+#include "mmut_manager.h"
+#include "mman_manager.h"
+#include "mmut_sasarea.h"
 #include "mginterrupt.h"
 
 #define MAXPNT 1500      
@@ -242,7 +242,7 @@ int CSASArea::Calculate_Contact ( void )  {
 //-------------------------------------------------------------------
 int CSASArea::Calculate (int imodel,bool separate_models)  {
 //-------------------------------------------------------------------
-   int rv = 0;
+  int rv;
   if ( molHnds[0]->GetNumberOfModels() == 1)
     rv = Calculate0(1);
   else if (imodel>0 && imodel <=  molHnds[0]->GetNumberOfModels()) 
@@ -265,7 +265,7 @@ int CSASArea::Calculate (int imodel,bool separate_models)  {
 int CSASArea::Calculate0 (int imodel)  {
 //-------------------------------------------------------------------
 
-  int RC = 0, i,j,nat;
+  int RC, i,j,nat;
   PPCAtom selected_atoms;
   rvector radwithhoh;
 

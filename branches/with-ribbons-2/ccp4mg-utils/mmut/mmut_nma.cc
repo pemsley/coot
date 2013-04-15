@@ -1,6 +1,7 @@
 /*
-     mmut/mmut_nma.h: CCP4MG Molecular Graphics Program
+     mmut/mmut_nma.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2011 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -35,7 +36,15 @@
 
 
 
+NormalModeAnalysis::NormalModeAnalysis(){
+    _type = MMUT_NMA_NONE;
+}
+
 NormalModeAnalysis::NormalModeAnalysis(const std::vector<Cartesian> &carts, const int type, const double cutoff){
+  Calculate(carts,type,cutoff);
+}
+
+void NormalModeAnalysis::Calculate(const std::vector<Cartesian> &carts, const int type, const double cutoff){
   if(type==MMUT_ANM){
     if(cutoff<0.0)
       NMA_ANM(carts,13.0);
@@ -72,6 +81,7 @@ NormalModeAnalysis::NormalModeAnalysis(const std::vector<Cartesian> &carts, cons
 void NormalModeAnalysis::NMA_ANM(const std::vector<Cartesian> &carts, const double cutoff){
   /* Generate the Kirchoff matrix */
 
+  //std::cout << "There are " << carts.size() << " input coords\n";
   matrix k(carts.size(),carts.size());
 
   for(unsigned i=0;i<k.get_rows();i++){
@@ -169,6 +179,12 @@ std::vector<double>  NormalModeAnalysis::GetBValues() const {
     return bvalues;
   }
 
+  if(eigen.size()==0){
+    std::cerr << "No valid eigenvalues in NormalModeAnalysis::GetBValues()\n";
+    std::cerr << "Cannot calculate theoretical  b-values\n";
+    return bvalues;
+  }
+
   matrix my_hinv = GetDiagonalInverseHessian();
   //std::cout << "Inverse Hessian\n";
   //std::cout << my_hinv << "\n";
@@ -182,12 +198,52 @@ std::vector<double>  NormalModeAnalysis::GetBValues() const {
   return bvalues;
 }
 
+matrix NormalModeAnalysis::GetCorrelations(const double gammainv) const {
+  double prefactor=kBA*TEMP*gammainv;
+  if(_type==MMUT_ANM){
+    std::cerr << "Warning, cross-correlation calculation for anisotropic method not yet implemented!\n";
+    return matrix(eigen[0].get_rows(),eigen[0].get_rows());
+  }
+
+  if(_type==MMUT_NMA_NONE){
+    std::cerr << "Warning no normal mode calculation yet performed\n";
+    return matrix();
+  }
+
+  matrix my_hinv = GetInverseHessian();
+  return prefactor*my_hinv;
+}
+
 void NormalModeAnalysis::StoreInverseHessian() {
+  if(_type==MMUT_NMA_NONE){
+    std::cerr << "Warning no normal mode calculation yet performed\n";
+    return;
+  }
   hinv = GetInverseHessian();
 }
 
+std::vector<std::vector<Cartesian> > NormalModeAnalysis::GetModeShapesAsCartesians(const double gammainv) const {
+  if(_type!=MMUT_ANM){
+    std::cerr << "Need to do an ANM calculation before calling GetModeShapesAsCartesians\n";
+    return std::vector<std::vector<Cartesian> >();
+  }
+  matrix eigenvecs = eigen[0];
+  std::vector<std::vector<double> >  shapes = GetModeShapes(gammainv);
+  std::vector<std::vector<Cartesian> > cartShapes;
+  for(unsigned j=0;j<eigenvecs.get_columns()-6;j++){
+    cartShapes.push_back(std::vector<Cartesian>());
+    for(unsigned i=0;i<shapes[j].size();i+=3){
+      cartShapes.back().push_back(Cartesian(shapes[j][i],shapes[j][i+1],shapes[j][i+2]));
+    }
+  }
+  return cartShapes;
+}
 std::vector<std::vector<double> > NormalModeAnalysis::GetModeShapes(const double gammainv) const {
 
+  if(_type==MMUT_NMA_NONE){
+    std::cerr << "Warning no normal mode calculation yet performed\n";
+    return std::vector<std::vector<double> >();
+  }
   // Almost certainly only correct for GNM at the moment.
   // Returns N-1 (or N-6 for ANM) vectors of N-values describing mobility of nodes.
   // gammainv can be calculated by comparing experimental with calculated B-values.
@@ -216,6 +272,10 @@ std::vector<std::vector<double> > NormalModeAnalysis::GetModeShapes(const double
 
 matrix NormalModeAnalysis::GetDiagonalInverseHessian() const {
 
+  if(_type==MMUT_NMA_NONE){
+    std::cerr << "Warning no normal mode calculation yet performed\n";
+    return matrix();
+  }
   if(hinv.get_rows()==eigen[0].get_rows()) 
     return hinv;
      
@@ -242,6 +302,10 @@ matrix NormalModeAnalysis::GetDiagonalInverseHessian() const {
 
 matrix NormalModeAnalysis::GetInverseHessian() const {
 
+  if(_type==MMUT_NMA_NONE){
+    std::cerr << "Warning no normal mode calculation yet performed\n";
+    return matrix();
+  }
   if(hinv.get_rows()==eigen[0].get_rows()) 
     return hinv;
      
@@ -273,33 +337,69 @@ matrix NormalModeAnalysis::GetInverseHessian() const {
   
 }
 
-std::vector<std::vector<Cartesian> > NormalModeAnalysis::GetDisplacements(const int nsteps) const{
+NormalModeDisplacements NormalModeAnalysis::GetDisplacements(const int nsteps) const{
 
-  std::vector<std::vector<Cartesian> > displacements;
+  NormalModeDisplacements theDisplacements;
+  if(_type==MMUT_NMA_NONE){
+    std::cerr << "Warning no normal mode calculation yet performed\n";
+    return theDisplacements;
+  }
   matrix evecs = eigen[0];
   matrix evals = eigen[1];
 
   if(_type==MMUT_GNM){
     std::cerr << "Cannot compute displacements for Gaussian Network Model, try Anisotropic method\n";
+    return theDisplacements;
   }
 
-  displacements = std::vector<std::vector<Cartesian> > (evecs.get_columns()-6);
-
   for(unsigned k=6;k<evecs.get_columns();k++){
+    theDisplacements.addMode();
     double t = 0.0; // And now we have to loop over time.
     double freq = sqrt(evals(k,0));
     double time_per_cycle = 1.0/freq;
     double tstep = time_per_cycle/nsteps;
     for(int step=0;step<nsteps;step++,t+=tstep){
+      std::vector<Cartesian> displacements;
       for(unsigned i=0;i<evecs.get_rows();i+=3){
          double x = evecs(i,k)*sin(2*M_PI*freq*t);
          double y = evecs(i+1,k)*sin(2*M_PI*freq*t);
          double z = evecs(i+2,k)*sin(2*M_PI*freq*t);
-         displacements[k-6].push_back(Cartesian(x,y,z));
+         displacements.push_back(Cartesian(x,y,z));
       }
+      theDisplacements.addDisplacements(k-6,displacements);
     }
   }
 
-  return displacements;
+  return theDisplacements;
 
+}
+
+NormalModeDisplacements::NormalModeDisplacements(){
+}
+
+const std::vector<std::vector<Cartesian> >& NormalModeDisplacements::getDisplacements(unsigned mode) const {
+  if(mode<displacements.size()){
+    return displacements[mode];
+  }
+  return displacements[0];
+}
+
+unsigned NormalModeDisplacements::NormalModeDisplacements::getNumberOfModes(){
+  return displacements.size();
+}
+
+const std::vector<Cartesian>& NormalModeDisplacements::getDisplacements(unsigned mode, int step) const {
+  if(mode<displacements.size()){
+    return displacements[mode][step];
+  }
+  return displacements[0][0];
+}
+
+int NormalModeDisplacements::addDisplacements(unsigned mode, const std::vector<Cartesian> &disp){
+  if(mode<displacements.size()){
+    displacements[mode].push_back(disp);
+    return 1;
+  }
+  std::cerr << "Error trying to add displacements to incorrect mode\n";
+  return 0;
 }

@@ -1,6 +1,6 @@
 /*
      mmut/mmut_secstr.h: CCP4MG Molecular Graphics Program
-     Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2001-2005 University of York, CCLRC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -21,9 +21,9 @@
 #ifndef __MMUT_SecStr__
 #define __MMUT_SecStr__
 
-#include <mmdb_manager.h>
-#include <mmut_manager.h>
-#include <mman_base.h>
+#include <mmdb/mmdb_manager.h>
+#include "mmut_manager.h"
+#include "mman_base.h"
 #include <string>
 
 // The recognised secondary structure types

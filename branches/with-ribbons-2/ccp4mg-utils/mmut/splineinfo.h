@@ -1,6 +1,8 @@
 /*
      mmut/splineinfo.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -16,7 +18,6 @@
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
      GNU Lesser General Public License for more details.
 */
-
 
 #ifndef _CCP4MG_SPLINEINFO_
 #define _CCP4MG_SPLINEINFO_
@@ -35,7 +36,7 @@ struct SplineInfo {
   std::vector<std::vector<Cartesian> > nacolours;
 };
 
-SplineInfo GetSplineInfo(CMMANManager *molH, int atom_selHnd, AtomColourVector *atm_col_vect, int spline_accu , int udd_chain = -1, int udd_CA = -1, int flatten_beta_sheet =0, int flatten_loop=0, int smooth_helix=0);
-
-
+SplineInfo GetSplineInfo(CMMDBManager *molH, int atom_selHnd, const AtomColourVector &atm_col_vect, int spline_accu , int udd_chain = -1, int udd_CA = -1, int flatten_beta_sheet =0, int flatten_loop=0, int smooth_helix=0, double trace_cutoff=5.0, double loop_frac=1.0, int customWidthUDD=-1);
+int GetCAFromSelection(CMMANManager *molH, int atom_selHnd_in);
+std::vector<std::vector <Cartesian> > GetExternalCartesians(CMMDBManager *molhnd, const std::vector<std::vector<int> > &conn_lists, int side_to_ribbon=0, int side_to_worm=0, double trace_cutoff=5.0);
 #endif

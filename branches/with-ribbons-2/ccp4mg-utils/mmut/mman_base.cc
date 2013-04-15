@@ -1,6 +1,6 @@
 /*
      mmut/mman_base.cc: CCP4MG Molecular Graphics Program
-     Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2001-2005 University of York, CCLRC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -26,8 +26,8 @@
 #include <ctype.h>
 #include <stdlib.h>
 #include <iostream>
-#include <mmdb_manager.h>
-#include <mman_base.h>
+#include <mmdb/mmdb_manager.h>
+#include "mman_base.h"
 
 using namespace std;
 
@@ -55,7 +55,7 @@ CMMANBase::CMMANBase (const PCMMUTManager molHndin, const int selHndin,
   exclude_hydrogen=0;
   exclude_alternate=0;
   own_selHnds = false;
-  use_altLoc = (char *) "";
+  use_altLoc = "";
 
   molHnds[0] = molHndin;
   selHnds[0] = selHndin;

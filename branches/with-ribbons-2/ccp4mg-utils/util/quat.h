@@ -1,6 +1,7 @@
 /*
      util/quat.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -80,6 +81,8 @@ class Quat{
    Quat Exp() const;
    Quat Power(double p) const;
    double Norm() const;
+   const std::vector<double> &dvals() const ;
+   Cartesian GetRotationAxis() const;
 
 };
 #endif

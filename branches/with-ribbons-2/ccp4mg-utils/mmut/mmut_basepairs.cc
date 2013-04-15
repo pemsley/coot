@@ -1,6 +1,7 @@
 /*
      mmut/mmut_basepairs.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -20,25 +21,39 @@
 #include <string.h>
 #include <vector>
 #include <utility>
+#include <stdlib.h>
 #include <math.h>
-#include <mman_manager.h>
+#include "mman_manager.h"
 #include "mmut_basepairs.h"
+#include "mmut_hbond.h"
 #include "plane.h"
 
-CNABasePairs::CNABasePairs(CMMANManager *molHnd, int selHnd, PPCAtom selAtoms, int nSelAtoms, AtomColourVector *atom_colour_vector){
+CNABasePairs::CNABasePairs(CMMANManager *molHnd, int selHnd, PPCAtom selAtoms, int nSelAtoms, const AtomColourVector &atom_colour_vector){
   Calculate(molHnd,selHnd,selAtoms,nSelAtoms,atom_colour_vector);
 }
 
-void CNABasePairs::Calculate(CMMANManager *molHnd, int selHnd, PPCAtom selAtoms, int nSelAtoms, AtomColourVector *atom_colour_vector){
+void CNABasePairs::Calculate(CMMANManager *molHnd, int selHnd, PPCAtom selAtoms, int nSelAtoms, const AtomColourVector &atom_colour_vector){
   
   int C5sel = molHnd->NewSelection();
   
   molHnd->Select(C5sel,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5*","C","*",SKEY_NEW);
   molHnd->Select(C5sel,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5'","C","*",SKEY_OR);
 
+  CHBond hbonds(molHnd, selHnd);
+  hbonds.Calculate();
+
   std::vector<std::pair<PCResidue,Plane> > plane_res_pairs;
   std::vector<double*> plane_res_colours;
+
+  //std::cout << "In base pairs calc " << nSelAtoms << " atoms\n"; std::cout.flush();
+  //std::cout << "In base pairs calc " << hbonds.hbonds.GetNofConnections() << " hbonds\n"; std::cout.flush();
   
+  char ID[50];
+  char ID1[50];
+  char ID2[50];
+  char AtomID1[50];
+  char AtomID2[50];
+  std::map<std::string,std::map<std::string,int> > alreadyDone;
   for(int i=0;i<nSelAtoms;i++){
     if(selAtoms[i]->isInSelection(C5sel)){
       PCResidue res = selAtoms[i]->GetResidue();
@@ -46,95 +61,175 @@ void CNABasePairs::Calculate(CMMANManager *molHnd, int selHnd, PPCAtom selAtoms,
         int restype = molHnd->GetRestypeCode(res);
         if(restype==RESTYPE_NUCL||restype==RESTYPE_DNA||restype==RESTYPE_RNA){
           //std::cout << "Considering atom " << selAtoms[i]->name << " in base " << selAtoms[i]->GetChainID() << "/" << selAtoms[i]->GetResidueNo() << "\n";
-          PCAtom c4 = res->GetAtom("C4");
-          PCAtom c5 = res->GetAtom("C5");
-          PCAtom c6 = res->GetAtom("C6");
-          if(c4&&c5&&c6){
-            Cartesian cart_c4(c4->x,c4->y,c4->z);
-            Cartesian cart_c5(c5->x,c5->y,c5->z);
-            Cartesian cart_c6(c6->x,c6->y,c6->z);
-            Plane plane(cart_c4,cart_c5,cart_c6);
-            // We give all planes a +ve D. This means that planes
-            // with similar values of D and large positive
-            // overlaps of plane normals are paired. Those with
-            // large -ve overlaps are not paired.
-            if(plane.get_D()<0.0){
-              plane.set_A(-plane.get_A());
-              plane.set_B(-plane.get_B());
-              plane.set_C(-plane.get_C());
-              plane.set_D(-plane.get_D());
-            }
-            //std::cout << "Gives Plane " << plane << "\n";
-            plane_res_pairs.push_back(std::pair<PCResidue,Plane>(res,plane));
-            if(atom_colour_vector){
-              double *col_tmp = atom_colour_vector->GetRGB(i);
-              plane_res_colours.push_back(col_tmp);
-            }else{
-              double *dum;
-              plane_res_colours.push_back(dum);
-            }
-          }
+	  for(int j=0;j<hbonds.hbonds.GetNofConnections();j++){
+	     const char* thisID = res->GetResidueID(ID);
+             PCAtom atom1 = hbonds.hbonds.pAtom1[j];
+             PCAtom atom2 = hbonds.hbonds.pAtom2[j];
+             PCResidue res1 = atom1->GetResidue();
+             PCResidue res2 = atom2->GetResidue();
+	     const char* id1 = res1->GetResidueID(ID1);
+	     const char* id2 = res2->GetResidueID(ID2);
+	     //const char* atomid1 = atom1->GetAtomID(AtomID1);
+	     //const char* atomid2 = atom2->GetAtomID(AtomID2);
+             int restype1 = molHnd->GetRestypeCode(res1);
+             int restype2 = molHnd->GetRestypeCode(res2);
+	     if((strncmp(thisID,id2,50)==0&&strncmp(id1,id2,50)!=0&&abs(res1->GetSeqNum()-res2->GetSeqNum())!=1&&(restype1==RESTYPE_NUCL||restype1==RESTYPE_DNA||restype1==RESTYPE_RNA))||(strncmp(thisID,id1,50)==0&&strncmp(id1,id2,50)!=0&&abs(res1->GetSeqNum()-res2->GetSeqNum())!=1&&(restype2==RESTYPE_NUCL||restype2==RESTYPE_DNA||restype2==RESTYPE_RNA))){
+		     if(
+			   ((
+			   std::string(res2->name)==std::string("C")||
+			   std::string(res2->name)==std::string("DC")||
+			   std::string(res2->name)==std::string("Cd")||
+			   std::string(res2->name)==std::string("CYT")
+			   )&&
+			   (
+			   std::string(res1->name)==std::string("T")||
+			   std::string(res1->name)==std::string("DT")||
+			   std::string(res1->name)==std::string("Td")||
+			   std::string(res1->name)==std::string("THY")
+			   ))||
+			   ((
+			   std::string(res2->name)==std::string("T")||
+			   std::string(res2->name)==std::string("DT")||
+			   std::string(res2->name)==std::string("Td")||
+			   std::string(res2->name)==std::string("THY")
+			   )&&
+			   (
+			   std::string(res1->name)==std::string("C")||
+			   std::string(res1->name)==std::string("DC")||
+			   std::string(res1->name)==std::string("Cd")||
+			   std::string(res1->name)==std::string("CYT")
+			   ))||
+			   ((
+			   std::string(res2->name)==std::string("A")||
+			   std::string(res2->name)==std::string("DA")||
+			   std::string(res2->name)==std::string("Ad")||
+			   std::string(res2->name)==std::string("ADE")
+			   )&&
+			   (
+			   std::string(res1->name)==std::string("G")||
+			   std::string(res1->name)==std::string("DG")||
+			   std::string(res1->name)==std::string("Gd")||
+			   std::string(res1->name)==std::string("GUA")
+			   ))||
+			   ((
+			   std::string(res2->name)==std::string("G")||
+			   std::string(res2->name)==std::string("DG")||
+			   std::string(res2->name)==std::string("Gd")||
+			   std::string(res2->name)==std::string("GUA")
+			   )&&
+			   (
+			   std::string(res1->name)==std::string("A")||
+			   std::string(res1->name)==std::string("DA")||
+			   std::string(res1->name)==std::string("Ad")||
+			   std::string(res1->name)==std::string("ADE")
+			   ))||
+			   (
+			    molHnd->BondLength(atom1,atom2)>3.3
+			   )||
+			   (
+			    std::string(atom1->name).find('\'')!=std::string::npos
+			   )||
+			   (
+			    std::string(atom1->name).find('*')!=std::string::npos
+			   )||
+			   (
+			    std::string(atom2->name).find('\'')!=std::string::npos
+			   )||
+			   (
+			    std::string(atom2->name).find('*')!=std::string::npos
+			   )){
+                              continue;
+                 }
+                 /*
+                 if(alreadyDone[atomid1].find(std::string(atomid2))==alreadyDone[atomid1].end()){
+                    alreadyDone[atomid1][atomid2] = 1;
+                 } else {
+                    std::cout << "Rejecting duplicate " << atomid1 << " " << atomid2 << ", with length: " << molHnd->BondLength(atom1,atom2) << "\n"; std::cout.flush();
+                    continue;
+                 }
+                 */
+		 const double *col = atom_colour_vector.GetRGB(i); 
+		 colours.push_back(std::pair<const double*,const double*>(col,col));
+                 //std::cout << "Accepting base pair " << atomid1 << " " << atomid2 << ", with length: " << molHnd->BondLength(atom1,atom2) << "\n"; std::cout.flush();
+	         if(strncmp(thisID,id2,50)==0&&strncmp(id1,id2,50)!=0&&abs(res1->GetSeqNum()-res2->GetSeqNum())!=1&&(restype1==RESTYPE_NUCL||restype1==RESTYPE_DNA||restype1==RESTYPE_RNA)){
+		     base_pairs.push_back(std::pair<PCResidue,PCResidue>(res,res1));
+	         }
+	         if(strncmp(thisID,id1,50)==0&&strncmp(id1,id2,50)!=0&&abs(res1->GetSeqNum()-res2->GetSeqNum())!=1&&(restype2==RESTYPE_NUCL||restype2==RESTYPE_DNA||restype2==RESTYPE_RNA)){
+		     base_pairs.push_back(std::pair<PCResidue,PCResidue>(res,res2));
+	         }
+	     }
+	  }
+	  //std::cout.flush();
         }
       }
     }
   }
-  std::vector<int> paired(plane_res_pairs.size());
-  for(unsigned ii=0;ii<plane_res_pairs.size();ii++){
-    if(paired[ii]==0){
-    //std::cout << ii << " " << plane_res_pairs[ii].second << "\n";
-    double min_dot = 1.0;
-    bool have_pair = false;
-    //for(unsigned jj=0;jj<plane_res_pairs.size()&&jj!=ii;jj++){
-    int final_jj=-1;
-    for(unsigned jj=0;jj<plane_res_pairs.size();jj++){
-	    if(jj!=ii){
-      Plane p1 = plane_res_pairs[ii].second;
-      Plane p2 = plane_res_pairs[jj].second;
-      Cartesian n1 = p1.get_normal();
-      Cartesian n2 = p2.get_normal();
-      n1.normalize();
-      n2.normalize();
-      double overlap = Cartesian::DotProduct(n1,n2);
-      if(overlap>0.7){
-        PCResidue res1 = plane_res_pairs[ii].first;
-        PCResidue res2 = plane_res_pairs[jj].first;
-        PCAtom c41 = res1->GetAtom("C4");
-        PCAtom c42 = res2->GetAtom("C4");
-        Cartesian cart1(c41->x,c41->y,c41->z);
-        Cartesian cart2(c42->x,c42->y,c42->z);
-	Cartesian c1c2 = cart2 - cart1;
-	c1c2.normalize();
-	double dot = fabs(Cartesian::DotProduct(c1c2,(n1+n2)*.5));
-	//std::cout << c41->GetChainID() << "/" << c41->GetResidueNo() << ", " << c42->GetChainID() << "/" << c42->GetResidueNo()  << ": " << overlap << " (" << dot << ")\n";
-        if(dot<min_dot){
-	  Cartesian avg_n = (n1+n2)*0.5;
-	  Cartesian p2p1 = cart1-cart2;
-	  p2p1.normalize();
-	  //std::cout << Cartesian::DotProduct(p2p1,avg_n) << "\n";
-          if((cart1-cart2).length()<7.9){
-		  //std::cout << "short enough\n";
-            if(have_pair){ 
-              base_pairs.pop_back();
-              colours.pop_back();
-            }
-            double *col1 = plane_res_colours[ii];
-            double *col2 = plane_res_colours[jj];
-	    //std::cout << res1->GetResidueNo() << ", "  << res2->GetResidueNo() << "\n";
-            base_pairs.push_back(std::pair<PCResidue,PCResidue>(res1,res2));
-            colours.push_back(std::pair<double*,double*>(col1,col2));
-            have_pair = true;
-            min_dot = dot;
-	    final_jj = jj;
+
+  //std::cout << base_pairs.size() << " " << colours.size() << "\n"; std::cout.flush();
+  //  Now let's deal with the mess
+  std::vector<std::map<int,int> > GCmap(nSelAtoms);
+  for(unsigned i=0;i<base_pairs.size();i++){
+     PCResidue res1 = base_pairs[i].first;
+     PCResidue res2 = base_pairs[i].second;
+     int seq1 = res1->GetSeqNum();
+     int seq2 = res2->GetSeqNum();
+     if(GCmap[seq2].find(seq1)==GCmap[seq2].end()){
+       GCmap[seq2][seq1]=0;
+     }
+     GCmap[seq2][seq1]++;
+     if(GCmap[seq1].find(seq2)==GCmap[seq1].end()){
+       GCmap[seq1][seq2]=0;
+     }
+     GCmap[seq1][seq2]++;
+  }
+  
+  std::map<int,int> popOff;
+  for(unsigned i=0;i<GCmap.size();i++){
+    if(GCmap[i].size()!=0) {
+      //std::cout << i << "\n";
+      std::map<int,int>::iterator map_iter = GCmap[i].begin();
+      int max_conn = -1;
+      int max_key = -1;
+      while(map_iter!=GCmap[i].end()){
+        //std::cout << "   " << map_iter->first << " " << map_iter->second << "\n";
+        if(map_iter->second>max_conn){
+           max_key = map_iter->first;
+           max_conn = map_iter->second;
+        }
+        ++map_iter;
+      }
+      if(max_key>-1){
+        map_iter = GCmap[i].begin();
+        while(map_iter!=GCmap[i].end()){
+          if(max_key!=map_iter->first){
+             //std::cout << "Pop off " << i << " " << map_iter->first << "\n";
+             popOff[i]=map_iter->first;
           }
-	  //else std::cout << "not short enough" << (cart1-cart2).length() << "\n";
+          ++map_iter;
         }
       }
     }
-    }
-    if(final_jj>=0)
-      paired[final_jj] = 1;
-    }
   }
+
+  std::vector<std::pair<PCResidue,PCResidue> > base_pairs_new;
+  std::vector<std::pair<const double*,const double*> > colours_new;
+
+  for(unsigned i=0;i<base_pairs.size();i++){
+     PCResidue res1 = base_pairs[i].first;
+     PCResidue res2 = base_pairs[i].second;
+     int seq1 = res1->GetSeqNum();
+     int seq2 = res2->GetSeqNum();
+     if(popOff.find(seq1)!=popOff.end()&&popOff[seq1]==seq2&&popOff.find(seq2)!=popOff.end()&&popOff[seq2]==seq1){
+        //std::cout << "Really pop off " << seq1 << " " << seq2 << "\n";
+        continue;
+     } else {
+        base_pairs_new.push_back(base_pairs[i]);
+        colours_new.push_back(colours[i]);
+     }
+  }
+  base_pairs=base_pairs_new;
+  colours=colours_new;
+
 }
 
 PCResidue CNABasePairs::GetPairedResidue(const PCResidue res_in) const {

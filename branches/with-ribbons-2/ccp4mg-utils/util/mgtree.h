@@ -1,6 +1,7 @@
 /*
      util/mgtree.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -71,7 +72,7 @@ class TreeVertex{
    void AddChild(TreeVertex *child){children.push_back(child);};
    void AddExternalChild(const Cartesian &child){ext_children.push_back(child);}; // Add a child connection index which is outside this tree.
    int GetParentID() const {return parent_id;};
-   int GetID() const {return id;};
+   const int &GetID() const {return id;};
    TreeVertex* GetParent() const {return parent;};
    std::vector<TreeVertex*> GetChildren() const {return children;};
    TreeVertex* GetChild(int i) const {return children[i];};
@@ -90,6 +91,13 @@ class TreeVertex{
    void GetDescendants(std::vector<TreeVertex *> &desc_vertices, const std::vector<TreeVertex*> stop_nodes) const ;
    void GetNonDescendants(std::vector<TreeVertex *> &desc_vertices) const ;
    void GetNonDescendants(std::vector<TreeVertex *> &desc_vertices, const std::vector<TreeVertex*> stop_nodes) const ;
+   void GetDescendants(std::vector<int> &desc_vertices, const TreeVertex *stop_node=0) const ;
+   void GetDescendants(std::vector<int> &desc_vertices, const std::vector<TreeVertex *> stop_nodes) const ;
+   void GetNonDescendants(std::vector<int> &desc_vertices) const ;
+   void GetNonDescendants(std::vector<int> &desc_vertices, const std::vector<TreeVertex *> stop_nodes) const ;
+   // These two use binary_search so stop_nodes *must* be ordered.
+   void GetDescendants(std::vector<int> &desc_vertices, const std::vector<int> &stop_nodes, const bool skipFirstCheck=false) const ;
+   void GetNonDescendants(std::vector<int> &desc_vertices, const std::vector<int> &stop_nodes) const ;
 };
 
 class Tree{
@@ -123,9 +131,11 @@ class Tree{
         const std::vector<std::vector<int> > &torsions, const std::vector<double> &torsion_angles,
         const std::vector<std::vector<int> > &chirals);
    Tree(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians);
+   Tree(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians, const std::vector<std::vector<int> > &forced_connections);
    ~Tree();
    void SetCoords(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists);
-   void SetCoords(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians);
+   void SetCoords(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const std::vector<std::vector<int> > &forced_connections);
+   void SetCoords(const std::vector<Cartesian> &SelAtoms, int start, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians, const std::vector<std::vector<int> > &forced_connections);
    friend std::ostream& operator<<(std::ostream &c, Tree a);
    void Print(void){ std::cout << *this;};
    int FindMaxDepth(void);
@@ -155,10 +165,15 @@ class Tree{
    Cartesian GetCartesian(int i, bool permuted=false) const;
    std::vector<Cartesian> GetAllCartesians(bool permuted=false) const ;
    void RotateAboutBond(int atom, int child, double TorsionAngleDiff, bool permuted=false);
-   void SetDihedralAngle(int atom, int child, double TorsionAngle, bool permuted=false);
+   void SetDihedralAngle(int atom, int child, double TorsionAngle, bool permuted=false, int movingAtom=-1, int baseAtom=-1);
    std::vector<std::vector<int> > FindLongBranches(int req_depth);
    void AddVertex(int pid, double dist, int gpid, double angle, int ggpid, double dihedral, int chiral);
+   void SetDihedralAngle(int baseAtom, int atom, int child, int movingAtom, double TorsionAngle);
+   void ForceEarlyConnection(int parent,int child);
    
+   std::vector<int> GetAllIDs() const ;
+   std::vector<int> GetAllParentIDs() const ;
+
 };
 
 #endif

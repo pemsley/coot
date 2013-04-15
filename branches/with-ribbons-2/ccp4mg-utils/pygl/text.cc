@@ -1,6 +1,8 @@
 /*
      pygl/text.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -246,6 +248,7 @@ int SimpleText::LoadFont(){
 }
 
 int SimpleText::GetFontSize() const {
+    return fn_size;
   int orig_size = fn_size;
   int mult = SimpleBillBoard::GetMagnification();
   const GLubyte *renderer = glGetString(GL_RENDERER);
@@ -260,7 +263,7 @@ std::string SimpleText::GetFontWeight() const {return weight;}
 std::string SimpleText::GetFontSlant() const {return slant;}
 std::string SimpleText::GetText(void) const{ return text; }
  
-void SimpleText::set_draw_colour(GLfloat *col){
+void SimpleText::set_draw_colour(const GLfloat *col){
   if(col)
     set_draw_colour_line();
   else
@@ -279,6 +282,7 @@ SimpleText::SimpleText(const Cartesian &vertex_in, const GLuint tex_id, const GL
   vertices.push_back(vertex_in);
   slant = "";
   weight = "normal";
+  underline = false;
   text = text_in;
   origin = origin_in;
   texture_id = tex_id;
@@ -288,6 +292,9 @@ SimpleText::SimpleText(const Cartesian &vertex_in, const GLuint tex_id, const GL
   texture.set_height(height);
   id = text_id++; // Need to get rid of this crap
   multicoloured = true;
+  text_height=width;
+  text_width=height;
+  centered = false;
 }
 Text::Text(const Cartesian &vertex_in, const GLuint tex_id, const GLuint tex_id_b, const int width, const int height, const Cartesian &origin_in, const std::string &text_in, const int size_in, double alpha_in) : SimpleText(vertex_in,tex_id,tex_id_b,width,height,origin_in,text_in,size_in,alpha_in){
 }
@@ -302,15 +309,20 @@ SimpleText::SimpleText(const Cartesian &vertex_in, const std::string &text_in, c
   alpha = alpha_in;
   family = family_in;
   fn_size = size_in;
+  //fn_descent = 0;
   weight = weight_in;
+  underline = false;
   slant = slant_in;
   yskip = 0.0;
   id = text_id++; // Need to get rid of this crap
   colour[0] = colour[1] = colour[2] = 0.0;
-  renderStringToPixmap(); 
+  text_height=0;
+  text_width=0;
+  //renderStringToPixmap(); 
   texture_id = 0;
   //initialize();
   multicoloured = false;
+  centered = false;
 }
 
 void SimpleText::initialize(){
@@ -322,6 +334,9 @@ void SimpleText::initialize(){
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glGenTextures(1,&texture_id);
   glBindTexture( GL_TEXTURE_2D, texture_id );
+  glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,texture.get_width(),texture.get_height(),0,GL_RGBA,GL_UNSIGNED_BYTE,texture.get_pixels());
+  glGenTextures(1,&texture_id_b);
+  glBindTexture( GL_TEXTURE_2D, texture_id_b );
   glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,texture.get_width(),texture.get_height(),0,GL_RGBA,GL_UNSIGNED_BYTE,texture.get_pixels());
 
 }
@@ -339,7 +354,7 @@ void SimpleText::SetFontName(const std::string &family_in, const int size_in, co
   weight = weight_in;
   slant = slant_in;
   fn_size = size_in;
-  renderStringToPixmap(); 
+  //renderStringToPixmap(); 
   texture_id = 0;
   //initialize();
 }
@@ -347,8 +362,13 @@ void SimpleText::SetFontName(const std::string &family_in, const int size_in, co
 Text::~Text(){
 }
 
-void SimpleText::SetColour(float r, float g, float b, float a) const{
+void SimpleText::SetColour(float r, float g, float b, float a) {
 
+  colour[0] = r;
+  colour[1] = g;
+  colour[2] = b;
+  colour[3] = a;
+  return;
   glDisable(GL_LIGHTING);
   glColor4f(r,g,b,a);
 
@@ -372,7 +392,7 @@ void SimpleText::SetColour(float r, float g, float b, float a) const{
   glPixelTransferi(GL_MAP_COLOR,GL_TRUE);
 }
 
-void SimpleText::SetDefaultColour(void) const{
+void SimpleText::SetDefaultColour(void) {
 
   GLfloat params[4];
   glGetFloatv(GL_COLOR_CLEAR_VALUE,params);
@@ -414,7 +434,7 @@ void Text::SetRasterPosition(double x, double y, double z) const {
   glGetDoublev(GL_CURRENT_RASTER_POSITION,rpos);
 }
 
-void Text::draw(double *override_colour, int selective_override){
+void Text::draw(const double *override_colour, int selective_override){
   double x = 0;//vertices.front().get_x();
   double y = 0;//vertices.front().get_y();
   double z = 0;//vertices.front().get_z();
@@ -439,7 +459,7 @@ int hex2dec(std::string strval){
   return DEC_VALUE;
 }
 
-void SimpleText::draw_main(double *override_colour, int selective_override){
+void SimpleText::draw_main(const double *override_colour, int selective_override){
 
 	/*
   baseline = 0.0;
@@ -1137,7 +1157,7 @@ void SimpleText::DrawPSmain(std::ofstream &fp, const Quat &quat, double radius, 
     }
   }
   if(!is_a_bill_board){
-    p = quat.getInvMatrix()*(objrotmatrix*(vertices[0]+objorigin)+Cartesian(ox,oy,oz));
+    p = quat.getMatrix()*(objrotmatrix*(vertices[0]+objorigin)+Cartesian(ox,oy,oz));
     Cartesian pfrac = Cartesian(p.get_x()/xscale,p.get_y()/yscale,0);
     Cartesian pps   = Cartesian(pfrac.get_x()*xscaleps+xoff,pfrac.get_y()*xscaleps+yoff,0);
     fp << pps.get_x() << " " << pps.get_y() << " m ";
@@ -1151,7 +1171,7 @@ void SimpleText::DrawPSmain(std::ofstream &fp, const Quat &quat, double radius, 
   std::string psname = X112PSFontName(GetFontFamily(),GetFontWeight(),GetFontSlant());
   fp << "/" << psname << " ff " << GetFontSize() << " scf sf ";
   if(!is_a_bill_board){
-    p = quat.getInvMatrix()*(objrotmatrix*(vertices[0]+objorigin)+Cartesian(ox,oy,oz));
+    p = quat.getMatrix()*(objrotmatrix*(vertices[0]+objorigin)+Cartesian(ox,oy,oz));
     Cartesian pfrac = Cartesian(p.get_x()/xscale,p.get_y()/yscale,0);
     Cartesian pps   = Cartesian(pfrac.get_x()*xscaleps+xoff,pfrac.get_y()*xscaleps+yoff,0);
     fp << pps.get_x() << " " << pps.get_y() << " m ";
@@ -1435,8 +1455,17 @@ std::string SimpleText::StripTags()
   
 }
 
+int SimpleText::GetFontDescent() const {
+	return fn_descent;
+}
+
+void SimpleText::SetFontDescent(unsigned int fn_isize){
+  fn_descent = fn_isize;
+}
+
 void SimpleText::SetFontSize(unsigned int fn_isize){
   fn_size = fn_isize;
+  //SetFontDescent(fn_size); // Until we know
 }
 
 void SimpleText::SetFontFamily(const std::string &Family){
@@ -1495,7 +1524,7 @@ void BillBoardText::SetRasterPosition(double x_in, double y_in, double z_in) con
 
 }
 
-void BillBoardText::draw(double *override_colour, int selective_override){
+void BillBoardText::draw(const double *override_colour, int selective_override){
 
   glPushMatrix();
   double x = vertices.front().get_x();

@@ -1,6 +1,6 @@
 /*
      mmut/mman_base.h: CCP4MG Molecular Graphics Program
-     Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2001-2005 University of York, CCLRC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -21,7 +21,7 @@
 #ifndef __MMAN_Base__
 #define __MMAN_Base__
 
-#include <mmut_manager.h>
+#include "mmut_manager.h"
 
 DefineClass(CMMANBase);
 DefineStreamFunctions(CMMANBase);

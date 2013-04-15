@@ -276,7 +276,7 @@ int coot::surface::colourByScalarValue(const std::string &scalarType, CColourSch
     if (!scalarRead){
        // double *newColour = colourScheme.GetRGB(scalar);
        std::vector<double>  newColour = colourScheme.GetRGB(scalar);
-      CXXCoord colour (newColour[0]/255., newColour[1]/255., newColour[2]/255.);
+      CXXCoord colour (newColour[0], newColour[1], newColour[2]);
       theSurface->setCoord("colour", i, colour);
     }
   }

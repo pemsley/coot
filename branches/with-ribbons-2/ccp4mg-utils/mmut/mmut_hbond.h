@@ -1,6 +1,6 @@
 /*
      mmut/mmut_hbond.h: CCP4MG Molecular Graphics Program
-     Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2001-2005 University of York, CCLRC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -24,9 +24,9 @@
 
 #include <utility>
 #include <string>
-#include <mmut_manager.h>
-#include <mman_base.h>
-#include <mmut_connectivity.h>
+#include "mmut_manager.h"
+#include "mman_base.h"
+#include "mmut_connectivity.h"
 
 enum { MIN_D_A, MAX_D_A, MAX_H_A, MIN_DD_D_A, MIN_D_A_AA, MIN_H_A_AA, MIN_D_H_A };
 

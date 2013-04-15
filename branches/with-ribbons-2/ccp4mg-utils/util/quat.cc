@@ -1,6 +1,7 @@
 /*
      util/quat.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -31,6 +32,21 @@
 std::ostream& operator<<(std::ostream& c, Quat a){
   c << a.dval[0] << " " << a.dval[1] << " " << a.dval[2] << " " << a.dval[3];
   return c;
+}
+
+const std::vector<double> &Quat::dvals() const {
+  return dval;
+} 
+
+Cartesian Quat::GetRotationAxis() const {
+  double angle = 2*acos(dval[0]);
+  double sina = sin(angle/2.);
+  double x = dval[1]/sina;
+  double y = dval[2]/sina;
+  double z = dval[3]/sina;
+  Cartesian rotAxis(x,y,z);
+
+  return rotAxis;
 }
 
 const double* Quat::Getdval(void) const{
@@ -118,6 +134,7 @@ void Quat::postMult(const Quat &q){
 
 
 void Quat::multAndSet(const Quat &quat1,const Quat &quat2){
+  // This needs *serious* checking !!!
   double dval_new[4];
   std::vector<double> quat1dval = quat1.dval;
   std::vector<double> quat2dval = quat2.dval;
@@ -211,11 +228,11 @@ matrix Quat::getMatrix(void) const{
   M(3,2) = 0.0;
   M(3,3) = 1.0;
 
-  return M;
+  return M.Transpose(); // SJM, 08/02/2010: I believe that constructing from getting matrices was simply using the wrong matrix order!
 }
 
-Quat::Quat(const matrix &m_in){
-  matrix m = m_in.Transpose(); // I should fix code below so that this is not necessary ...
+Quat::Quat(const matrix &m){
+
   double trace = m(0,0) + m(1,1) + m(2,2) + m(3,3);
   dval.push_back(0.0);
   dval.push_back(0.0);
@@ -267,9 +284,9 @@ Quat::Quat(const Cartesian &n, const Cartesian &up){
     *this = Quat(n,1,0.0);
   }
 
-  double up_rotation_angle = acos(Cartesian::DotProduct(up,getMatrix()*Cartesian(0,1,0,1)));
+  double up_rotation_angle = acos(Cartesian::DotProduct(up,getInvMatrix()*Cartesian(0,1,0,1)));
   if(fabs(up_rotation_angle)>1e-7){
-    Cartesian cross = getInvMatrix()*Cartesian::CrossProduct(getMatrix()*Cartesian(0,1,0,1),up);
+    Cartesian cross = getMatrix()*Cartesian::CrossProduct(getInvMatrix()*Cartesian(0,1,0,1),up);
     Cartesian up_rotation_vector(0,0,1);
     if(cross.get_z()<0.0)
       postMult(Quat(up_rotation_vector,1,up_rotation_angle * 180.0/M_PI));

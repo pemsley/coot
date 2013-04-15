@@ -20,10 +20,10 @@
 
 #ifndef __CCP4MolBonds__ 
 #define __CCP4MolBonds__
-#include <mmdb_manager.h>
-#include <mman_base.h>
-#include <mmdb_sbase.h>
-#include <mmut_sbase.h>
+#include <mmdb/mmdb_manager.h>
+#include "mman_base.h"
+#include <mmdb/mmdb_sbase.h>
+#include "mmut_sbase.h"
 
 
 DefineClass(CMolBondParams);

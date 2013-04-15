@@ -1,6 +1,7 @@
 /*
      util/mgtree.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -568,7 +569,7 @@ void Tree::SetBondsAnglesTorsions(const int &nvertices,
             int atom2 = torsions[jj][1];
             int atom3 = torsions[jj][2];
             int atom4 = torsions[jj][3];
-            if(!scanned_torsions[jj] && (((atom1==this_atom && atom2==prev_set_tor_parent && atom3==coords[prev_set_tor_parent]->GetParentID() && atom4==coords[prev_set_tor_parent]->GetParent()->GetParentID())) || ((atom4==this_atom && atom3==prev_set_tor_parent && atom2==coords[prev_set_tor_parent]->GetParentID() && atom1==coords[prev_set_tor_parent]->GetParent()->GetParentID())))) {
+            if((!scanned_torsions[jj])&&((atom1==this_atom&&atom2==prev_set_tor_parent&&atom3==coords[prev_set_tor_parent]->GetParentID()&&atom4==coords[prev_set_tor_parent]->GetParent()->GetParentID())||(atom4==this_atom&&atom3==prev_set_tor_parent&&atom2==coords[prev_set_tor_parent]->GetParentID()&&atom1==coords[prev_set_tor_parent]->GetParent()->GetParentID()))){
               double thisparentdist=0.0;
               for(unsigned kk=0;kk<bonds.size();kk++){
                 int atom1 = bonds[kk][0];
@@ -1061,19 +1062,66 @@ Tree::Tree(const int &nvertices,
 }
 
 Tree::Tree(const std::vector<Cartesian> &SelAtoms_in, int ioff, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians){
+  std::vector<std::vector<int> > forced_connections;
   if(ext_cartesians.size()>0)
-    SetCoords(SelAtoms_in, ioff, conn_lists, ext_cartesians);
+    SetCoords(SelAtoms_in, ioff, conn_lists, ext_cartesians,  forced_connections);
   else
-    SetCoords(SelAtoms_in, ioff, conn_lists);
+    SetCoords(SelAtoms_in, ioff, conn_lists, forced_connections);
+}
 
+Tree::Tree(const std::vector<Cartesian> &SelAtoms_in, int ioff, const std::vector<std::vector<int> > &conn_lists, const  std::vector<std::vector<Cartesian> > &ext_cartesians, const std::vector<std::vector<int> > &forced_connections){
+  if(ext_cartesians.size()>0)
+    SetCoords(SelAtoms_in, ioff, conn_lists, ext_cartesians, forced_connections);
+  else
+    SetCoords(SelAtoms_in, ioff, conn_lists, forced_connections);
 }
 
 void Tree::SetCoords(const std::vector<Cartesian> &SelAtoms_in, int ioff, const std::vector<std::vector<int> > &conn_lists){
   std::vector<std::vector<Cartesian> > ext_carts(SelAtoms_in.size());
-  SetCoords(SelAtoms_in,ioff,conn_lists,ext_carts);
+  std::vector<std::vector<int> > forced_connections;
+  SetCoords(SelAtoms_in,ioff,conn_lists,ext_carts,forced_connections);
 }
 
-void Tree::SetCoords(const std::vector<Cartesian> &SelAtoms_in, int ioff, const std::vector<std::vector<int> > &conn_lists, const std::vector<std::vector<Cartesian> >&ext_carts_in){
+void Tree::SetCoords(const std::vector<Cartesian> &SelAtoms_in, int ioff, const std::vector<std::vector<int> > &conn_lists, const std::vector<std::vector<int> > &forced_connections){
+  std::vector<std::vector<Cartesian> > ext_carts(SelAtoms_in.size());
+  SetCoords(SelAtoms_in,ioff,conn_lists,ext_carts,forced_connections);
+}
+
+void Tree::ForceEarlyConnection(int parent,int child){
+	std::vector<int> parent_conns = connectivity[parent];
+	std::vector<int> child_conns = connectivity[child];
+
+	bool isGood = false;
+	for(unsigned i=0;i<parent_conns.size();i++){
+		if(parent_conns[i]==child){
+			isGood=true;
+			break;
+		}
+	}
+	for(unsigned i=0;i<child_conns.size();i++){
+		if(child_conns[i]==parent){
+			isGood=true;
+			break;
+		}
+	}
+	if(!isGood) return;
+
+	std::vector<int> new_parent_conns;
+	new_parent_conns.push_back(child);
+	for(unsigned i=0;i<parent_conns.size();i++){
+		if(parent_conns[i]!=child) new_parent_conns.push_back(parent_conns[i]);
+	}
+
+	std::vector<int> new_child_conns;
+	new_child_conns.push_back(parent);
+	for(unsigned i=0;i<child_conns.size();i++){
+		if(child_conns[i]!=parent) new_child_conns.push_back(child_conns[i]);
+	}
+	connectivity[parent] = new_parent_conns;
+	connectivity[child] = new_child_conns;
+}
+
+void Tree::SetCoords(const std::vector<Cartesian> &SelAtoms_in, int ioff, const std::vector<std::vector<int> > &conn_lists, const std::vector<std::vector<Cartesian> >&ext_carts_in, const std::vector<std::vector<int> > &forced_connections){
 
   clock_t tv1, tv2;
   clock_t tvs;
@@ -1146,6 +1194,34 @@ void Tree::SetCoords(const std::vector<Cartesian> &SelAtoms_in, int ioff, const 
   tv1 = clock();
   for(unsigned i=0;i<SelAtoms.size();i++){
     coords.push_back(new TreeVertex());
+  }
+
+  std::vector<std::vector<int> >::const_iterator forced_iter=forced_connections.begin();
+  while(forced_iter!=forced_connections.end()){
+	if(forced_iter->size()>1){
+		bool isGood=true;
+		for(unsigned iforce=0;iforce<forced_iter->size();iforce++){
+			std::cout << (*forced_iter)[iforce] << "\n";
+			if(((*forced_iter)[iforce]>0)&&(unsigned)((*forced_iter)[iforce])>(SelAtoms.size())) isGood=false;
+		}
+		if(isGood){
+			std::cout << "We have a possibly good forced conn\n";
+			std::vector<int>::const_iterator this_iter = forced_iter->begin();
+			int parent = *this_iter;
+			std::cout << "----" << parent << "----\n";
+			while(this_iter!=forced_iter->end()-1){
+				this_iter++;
+				int child = *this_iter;
+				std::cout << parent << " " << child << "\n";
+				ForceEarlyConnection(parent,child);
+				parent = *this_iter;
+			}
+		}
+	}
+	forced_iter++;
+  }
+	
+  for(unsigned i=0;i<SelAtoms.size();i++){
     coords[i]->SetCoord(SelAtoms[i]);  // The above doesn't do much at moment.
     std::vector<Cartesian>::const_iterator this_ext_iter=ext_iter->begin();
     while(this_ext_iter!=ext_iter->end()){
@@ -1271,6 +1347,7 @@ void Tree::CalculateTree(){
       coords[i]->SetAngles(); // Shouldn't need the if ...
     }else{
       unbonded++;
+	//std::cout << i << " unbonded\n";
     }
   }
 
@@ -1342,6 +1419,41 @@ void TreeVertex::GetNonDescendants(std::vector<TreeVertex *> &desc_vertices, con
   top->GetDescendants(desc_vertices,stop_nodes);
 }
 
+void TreeVertex::GetNonDescendants(std::vector<int> &desc_vertices, const std::vector<TreeVertex*> stop_nodes_in) const {
+  TreeVertex *top = (TreeVertex *)(this);
+  std::vector<TreeVertex* > stop_nodes = stop_nodes_in;
+  //std::cout << "This id: " << GetID() << "\n";
+  while(top->GetParent()){
+    top=top->GetParent();
+    for(unsigned ii=0;ii<stop_nodes.size();ii++){
+      if(top->GetID()==stop_nodes[ii]->GetID())
+        return;
+    }
+    //std::cout << "parent id: " << top->GetID() << "\n";
+  }
+  stop_nodes.push_back((TreeVertex *)(this));
+  if(top==(TreeVertex *)(this)) return;
+  desc_vertices.push_back(top->GetID());
+  top->GetDescendants(desc_vertices,stop_nodes);
+}
+
+void TreeVertex::GetNonDescendants(std::vector<int> &desc_vertices, const std::vector<int> &stop_nodes) const {
+  // Uses binary_search so stop_nodes *must* be ordered.
+  const TreeVertex *top = this;
+  //std::cout << "This id: " << GetID() << "\n";
+  while(top->GetParent()){
+    top=top->GetParent();
+    if(std::binary_search(stop_nodes.begin(),stop_nodes.end(),top->GetID())){
+        std::cout << "Returning instantly\n";
+        return;
+    }
+    //std::cout << "parent id: " << top->GetID() << "\n";
+  }
+  if(top->GetID()==id) return;
+  desc_vertices.push_back(top->GetID());
+  top->GetDescendants(desc_vertices,stop_nodes);
+}
+
 void TreeVertex::GetDescendants(std::vector<TreeVertex *> &desc_vertices, const std::vector<TreeVertex*> stop_nodes) const {
   for(unsigned ii=0;ii<stop_nodes.size();ii++){
     if((TreeVertex *)(this)==stop_nodes[ii])
@@ -1363,7 +1475,51 @@ void TreeVertex::GetDescendants(std::vector<TreeVertex *> &desc_vertices, const 
   }
 }
 
+void TreeVertex::GetDescendants(std::vector<int> &desc_vertices, const std::vector<TreeVertex*> stop_nodes) const {
+  for(unsigned ii=0;ii<stop_nodes.size();ii++){
+    if((TreeVertex *)(this)==stop_nodes[ii])
+      return;
+  }
+  TreeVertex *child;
+  for(int i=0;i<GetNumberOfChildren();i++){
+    child = GetChild(i);
+    bool this_child_ok = true;
+    for(unsigned ii=0;ii<stop_nodes.size();ii++){
+      if(child==stop_nodes[ii]){
+        this_child_ok = false;
+      }
+    }
+    if(this_child_ok){
+      desc_vertices.push_back(child->GetID());
+      child->GetDescendants(desc_vertices,stop_nodes);
+    }
+  }
+}
+void TreeVertex::GetDescendants(std::vector<int> &desc_vertices, const std::vector<int> &stop_nodes, const bool skipFirstCheck) const {
+  // Uses binary_search so stop_nodes *must* be ordered.
+  if(!skipFirstCheck&&std::binary_search(stop_nodes.begin(),stop_nodes.end(),GetID())){
+      return;
+  }
+  TreeVertex *child;
+  for(int i=0;i<GetNumberOfChildren();i++){
+    int childID = children[i]->GetID();
+    if(!std::binary_search(stop_nodes.begin(),stop_nodes.end(),childID)){
+      desc_vertices.push_back(childID);
+      children[i]->GetDescendants(desc_vertices,stop_nodes,true);
+    }
+  }
+}
+
+
 void TreeVertex::GetNonDescendants(std::vector<TreeVertex *> &desc_vertices) const {
+  TreeVertex *top = (TreeVertex *)(this);
+  while(top->GetParent()){
+    top=top->GetParent();
+  }
+  top->GetDescendants(desc_vertices,this);
+}
+
+void TreeVertex::GetNonDescendants(std::vector<int> &desc_vertices) const {
   TreeVertex *top = (TreeVertex *)(this);
   while(top->GetParent()){
     top=top->GetParent();
@@ -1380,6 +1536,20 @@ void TreeVertex::GetDescendants(std::vector<TreeVertex *> &desc_vertices, const 
     child = GetChild(i);
     if(child!=stop_node){
       desc_vertices.push_back(child);
+      child->GetDescendants(desc_vertices,stop_node);
+    }
+  }
+}
+
+void TreeVertex::GetDescendants(std::vector<int> &desc_vertices, const TreeVertex *stop_node) const {
+  if((this)==stop_node){
+    return;
+  }
+  TreeVertex *child;
+  for(int i=0;i<GetNumberOfChildren();i++){
+    child = GetChild(i);
+    if(child!=stop_node){
+      desc_vertices.push_back(child->GetID());
       child->GetDescendants(desc_vertices,stop_node);
     }
   }
@@ -1665,7 +1835,7 @@ void Tree::PrintZMatrix(std::ostream &c, const std::vector<std::string> &labels,
 }
 
 TreeVertex* Tree::GetCoord(int i, bool permuted) const {
-   if ((start>0) & (!permuted)) 
+  if(start>0&&(!permuted))
     return coords[permutation[i]];
   return coords[i];
 }
@@ -1746,7 +1916,7 @@ Tree::Tree(const Tree &t){
 
 std::vector <TreeVertex*> Tree::GetCoords(bool permuted) const {
 
-   if ((start>0) & (!permuted)) {
+  if(start>0&&(!permuted)){
     std::vector<TreeVertex*> perm_coords;
     for(int i=0;i<GetNumberOfVertices();i++){
        perm_coords.push_back(coords[permutation[i]]);
@@ -1783,7 +1953,7 @@ std::vector<Cartesian> Tree::GetAllCartesians(bool permuted) const {
     k++;
   }
 
-  if ((start>0) & (!permuted)) {
+  if(start>0&&(!permuted)){
     std::vector<Cartesian> perm_carts;
     for(int i=0;i<GetNumberOfVertices();i++){
        perm_carts.push_back(cartesians[permutation[i]]);
@@ -1798,7 +1968,7 @@ void Tree::RotateAboutBond(int atom_in, int child_in, double TorsionAngle, bool 
   int atom = atom_in;
   int child = child_in;
   
-  if ((start>0) & (!permuted)) {
+  if(start>0&&(!permuted)){
     atom = permutation[atom];
     child = permutation[child];
   }
@@ -1830,16 +2000,29 @@ void Tree::RotateAboutBond(int atom_in, int child_in, double TorsionAngle, bool 
 
 }
 
-void Tree::SetDihedralAngle(int atom_in, int child_in, double TorsionAngle, bool permuted){
-  //std::cout << "SetDihedralAngle\n\n";
+void Tree::SetDihedralAngle(int baseAtom, int atom, int child, int movingAtom, double TorsionAngle){
+	std::cout << "SetDihedralAngle 1\n\n";
+	SetDihedralAngle(atom,child,TorsionAngle,false,movingAtom,baseAtom);
+}
+
+void Tree::SetDihedralAngle(int atom_in, int child_in, double TorsionAngle, bool permuted, int movingAtom, int baseAtom){
+  std::cout << "SetDihedralAngle 2\n\n";
 
   int atom = atom_in;
   int child = child_in;
   
-  if ((start>0) & (!permuted)) {
+  if(start>0&&(!permuted)){
     atom = permutation[atom];
     child = permutation[child];
   }
+
+  TreeVertex *E = NULL;
+  if(movingAtom>-1)
+	  E = coords[movingAtom];
+
+  TreeVertex *O = NULL;
+  if(baseAtom>-1)
+	  O = coords[baseAtom];
 
   TreeVertex *C = coords[child];
   TreeVertex *B = coords[atom];
@@ -1853,27 +2036,51 @@ void Tree::SetDihedralAngle(int atom_in, int child_in, double TorsionAngle, bool
     return;
   }
 
-  if(C->GetNumberOfChildren()==0)
+  if(C->GetNumberOfChildren()==0||!E)
     return;
 
   double angle_orig;
   double diff;
 
-  std::vector<TreeVertex*> children = C->GetChildren();
-  std::vector<TreeVertex*>::const_iterator child_iter=children.begin();
-
-  angle_orig = (*child_iter)->GetParentDihedralAngle();
-  diff = TorsionAngle - angle_orig;
-  (*child_iter)->SetParentDihedralAngle(TorsionAngle);
-  child_iter++;
-
-  while(child_iter!=children.end()){
-    //std::cout << "Original Dihedral Angle: " << (*child_iter)->GetParentDihedralAngle() << "\n";
-    (*child_iter)->SetParentDihedralAngle((*child_iter)->GetParentDihedralAngle()+diff);
-    //std::cout << "New Dihedral Angle: " << (*child_iter)->GetParentDihedralAngle() << "\n";
-    child_iter++;
+  if(E){
+	  if(O){
+  		angle_orig = DihedralAngle(E->GetCoord(),C->GetCoord(),B->GetCoord(),O->GetCoord());
+	  }else{
+  		angle_orig = E->GetParentDihedralAngle();
+	  }
+  }else{
+	  if(O){
+  		angle_orig = DihedralAngle(C->GetChildren()[0]->GetCoord(),C->GetCoord(),B->GetCoord(),O->GetCoord());
+	  }else{
+  		angle_orig = C->GetChildren()[0]->GetParentDihedralAngle();
+	  }
   }
-  //std::cout << "\n"; Rotated:
+  diff = TorsionAngle - angle_orig;
+
+  RotateAboutBond(atom_in,child_in,diff,permuted);
+
+  /*
+  if(!E){
+  	std::vector<TreeVertex*> children = C->GetChildren();
+  	std::vector<TreeVertex*>::const_iterator child_iter=children.begin();
+
+  	(*child_iter)->SetParentDihedralAngle(TorsionAngle);
+  	child_iter++;
+
+  	while(child_iter!=children.end()){
+    		(*child_iter)->SetParentDihedralAngle((*child_iter)->GetParentDihedralAngle()+diff);
+    		child_iter++;
+  	}
+  } else {
+  	E->SetParentDihedralAngle(TorsionAngle);
+  	std::vector<TreeVertex*> children = C->GetChildren();
+  	std::vector<TreeVertex*>::const_iterator child_iter=children.begin();
+  	while(child_iter!=children.end()){
+    		if(E!=(*child_iter))(*child_iter)->SetParentDihedralAngle((*child_iter)->GetParentDihedralAngle()+diff);
+    		child_iter++;
+  	}
+  }
+  */
 
 }
 
@@ -1948,3 +2155,18 @@ void Tree::ClearCoords(){
     delete coords[i];
   coords.clear();
 }
+
+std::vector<int> Tree::GetAllIDs() const {
+  std::vector<int> ids;
+  for(unsigned i=0;i<coords.size();i++)
+    ids.push_back(coords[i]->GetID());
+  return ids;
+}
+
+std::vector<int> Tree::GetAllParentIDs() const {
+  std::vector<int> ids;
+  for(unsigned i=0;i<coords.size();i++)
+    ids.push_back(coords[i]->GetParentID());
+  return ids;
+}
+

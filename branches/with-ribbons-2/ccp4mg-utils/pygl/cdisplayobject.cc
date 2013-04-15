@@ -1,6 +1,8 @@
 /*
      pygl/cdisplayobject.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2011 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -19,8 +21,11 @@
 
 #ifdef _WIN32
 #include <windows.h>
+#include "glew.h"
+#include "wglew.h"
 #endif
 
+#include <vector>
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -29,17 +34,17 @@
 
 #include <ctype.h>
 #include <math.h>
+#include <time.h>
+#include <stdio.h>
 
 #include "quat.h"
 #include "cprimitive.h"
 #include "cdisplayobject.h"
-#include <stdio.h>
 #include "cartesian.h"
 #include "help.h"
 #include "volume.h"
 #include "matrix.h"
-#include <vector>
-
+#include "texture.h"
 #include "rgbreps.h"
 
 #ifdef __APPLE_CC__
@@ -52,13 +57,33 @@
 
 #ifndef M_PI
 #define M_PI 3.141592653589793238462643
-#define PIBY2 (M_PI * 2)
 #endif
+#define PIBY2 (M_PI * 2)
 
 struct ZSortPrimitive {
   Primitive *prim;
   double z;
 } ZSortPrimitive;
+
+class ZSortThings{
+    GLdouble* matinv_;
+  public:
+    ZSortThings(GLdouble* matinv) : matinv_(matinv) {}
+    int operator()(BillboardPrimitive* const &p1, BillboardPrimitive* const &p2) const { 
+
+      double z1 = 0;
+      z1 += matinv_[8]  * p1->get_origin().get_x();
+      z1 += matinv_[9]  * p1->get_origin().get_y();
+      z1 += matinv_[10] * p1->get_origin().get_z();
+      double z2 = 0;
+      z2 += matinv_[8]  * p2->get_origin().get_x();
+      z2 += matinv_[9]  * p2->get_origin().get_y();
+      z2 += matinv_[10] * p2->get_origin().get_z();
+
+      //return p1->GetVertices()[0].get_z() < p2->GetVertices()[0].get_z() ;
+      return z1 < z2 ;
+    }
+};
 
 class sort_primitives{
   public:
@@ -73,16 +98,20 @@ const std::vector<Primitive*> &Displayobject::GetPrimitives() const {
 const std::vector<Primitive*> &Displayobject::GetSurfacePrimitives() const {
   return surf_prims;
 }
-const std::vector<SimpleBillBoard*> &Displayobject::GetImagePrimitives() const {
+const std::vector<BillBoard*> &Displayobject::GetImagePrimitives() const {
   return image_prims;
 }
 const std::vector<SimpleText*> &Displayobject::GetTextPrimitives() const {
   return text_prims;
 }
+const std::vector<BillboardPrimitive*> &Displayobject::GetBillboardPrimitives() const {
+  return bill_prims;
+}
 
 void DrawSortedTransparentPrimitives(const std::vector<Displayobject> &objs, int acsize, double xoff, double yoff, std::vector<std::vector<double> > jarray, std::vector<Cartesian> axes, bool antialias, bool rebuilt){
-
-  //clock_t t1 = clock();
+#ifdef _DO_TIMINGS_
+  clock_t t1 = clock();
+#endif
   Volume clip_vol = GetFrontAndBackClippingPlanes();
 
   glEnable(GL_LIGHTING);
@@ -105,8 +134,9 @@ void DrawSortedTransparentPrimitives(const std::vector<Displayobject> &objs, int
 
   //clock_t t2 = clock();
   //std::cout << "Time for setup " << ((t2-t1)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
-
+#ifdef _DO_TIMINGS_
   clock_t t3 = clock();
+#endif
   if(rebuilt){
   std::vector<std::vector<Primitive*> >::iterator prims_iter = simple_prims.begin();
   while(prims_iter!=simple_prims.end()){
@@ -119,14 +149,16 @@ void DrawSortedTransparentPrimitives(const std::vector<Displayobject> &objs, int
     prims_iter++;
   }
   simple_prims.clear();
+#ifdef _DO_TIMINGS_
   t3 = clock();
+#endif
   //std::cout << "Time for delete " << ((t3-t2)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
   while(obj_iter!=objs.end()){
     simple_prims.push_back(std::vector<Primitive*>(0));
     if(obj_iter->visible){
       std::vector<Primitive*> obj_prims=obj_iter->GetPrimitives();
       obj_prims.insert(obj_prims.begin(),obj_iter->GetSurfacePrimitives().begin(),obj_iter->GetSurfacePrimitives().end());
-      matrix objrotmat = (*obj_iter).quat.getMatrix();
+      matrix objrotmat = (*obj_iter).quat.getInvMatrix();
       std::vector<Primitive*>::const_iterator prim_iter = obj_prims.begin();
 
       while(prim_iter!=obj_prims.end()){
@@ -140,13 +172,15 @@ void DrawSortedTransparentPrimitives(const std::vector<Displayobject> &objs, int
     obj_iter++; i++;
   }
   }
-  //clock_t t4 = clock();
-  //std::cout << "Time for GetPrimitives" << ((t4-t3)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+#ifdef _DO_TIMINGS_
+  clock_t t4 = clock();
+  std::cout << "Time for GetPrimitives" << ((t4-t3)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+#endif
   i=0;
   obj_iter = objs.begin();
   while(obj_iter!=objs.end()){
     if(obj_iter->visible){
-      matrix objrotmat = (*obj_iter).quat.getMatrix();
+      matrix objrotmat = (*obj_iter).quat.getInvMatrix();
       std::vector<Primitive*>::const_iterator prim_iter = simple_prims[i].begin();
       Cartesian obj_origin = Cartesian(obj_iter->get_origin()) ;
       while(prim_iter!=simple_prims[i].end()){
@@ -159,12 +193,15 @@ void DrawSortedTransparentPrimitives(const std::vector<Displayobject> &objs, int
     }
     obj_iter++; i++;
   }
-
-  //clock_t t5 = clock();
-  //std::cout << "Time for setup sort" << ((t5-t4)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+#ifdef _DO_TIMINGS_
+  clock_t t5 = clock();
+  std::cout << "Time for setup sort" << ((t5-t4)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+#endif
   std::sort(transformed_prims.begin(),transformed_prims.end(),sort_primitives());
-  //clock_t t6 = clock();
-  //std::cout << "Time for sort" << ((t6-t5)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+#ifdef _DO_TIMINGS_
+  clock_t t6 = clock();
+  std::cout << "Time for sort" << ((t6-t5)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+#endif
 
   std::vector<struct ZSortPrimitive>::iterator k = transformed_prims.begin();
   glPolygonMode(GL_FRONT,GL_FILL);
@@ -180,16 +217,18 @@ void DrawSortedTransparentPrimitives(const std::vector<Displayobject> &objs, int
         glLineWidth(k->prim->GetSize());
         k->prim->set_draw_colour();
         k->prim->draw();
-      } else {
+      } else if(!(k->prim->isImposter())){
         glEnable(GL_LIGHTING);
         k->prim->set_draw_colour();
         k->prim->draw();
       }
       k++;
   }
-  //clock_t t7 = clock();
-  //std::cout << "Time for draw" << ((t7-t6)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
-  //std::cout << "Time for transparency" << ((t7-t1)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+#ifdef _DO_TIMINGS_
+  clock_t t7 = clock();
+  std::cout << "Time for draw" << ((t7-t6)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+  std::cout << "Time for transparency" << ((t7-t1)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+#endif
   glDepthMask(GL_TRUE);
 
 }
@@ -227,6 +266,8 @@ Displayobject::~Displayobject(){
   clear_prims();
   clear_images();
   clear_labels();
+  clear_billboards();
+  imposter_prims.clear();
 }
 
 
@@ -294,15 +335,16 @@ int* Displayobject::GetTextIDS(void) const{
 
 void Displayobject::SetTextFont(
   const std::string family,  const std::string weight, 
-  const std::string slant, const int size ) {
+  const std::string slant, const int size, const int underline ) {
   std::vector<SimpleText*>::const_iterator k = text_prims.begin();
   while(k!=text_prims.end()){
     (*k)->SetFontFamily(family);
     (*k)->SetFontWeight(weight);
     (*k)->SetFontSlant(slant);
     (*k)->SetFontSize(size);
+    (*k)->SetFontUnderline(underline);
     //(*k)->initialize();
-    (*k)->renderStringToPixmap(); 
+    //(*k)->renderStringToPixmap(); 
     k++;
   }
 }
@@ -331,23 +373,27 @@ Quat Displayobject::GetUnitCellAlignmentRotation(const std::string &axis){
   if(axis=="a"||axis=="A"){
     x = unit_cell[1];
     y = unit_cell[2];
+    z = unit_cell[0];
   }
   else if(axis=="b"||axis=="B"){
     x = unit_cell[2];
     y = unit_cell[0];
+    z = unit_cell[1];
     reverse_rot = true;
   }
   else if(axis=="c"||axis=="C"){
     x = unit_cell[0];
     y = unit_cell[1];
+    z = unit_cell[2];
   }
   else {
-    std::cout << "Unknown Crystallographic axis\n";
+    std::cerr << "Unknown Crystallographic axis\n";
     return q;
   }
   x.normalize();
   y.normalize();
-  z = x.CrossProduct(x,y);
+  z.normalize();
+  //z = x.CrossProduct(x,y);
 
   Cartesian Z(0,0,1);
 
@@ -355,31 +401,29 @@ Quat Displayobject::GetUnitCellAlignmentRotation(const std::string &axis){
 
   Cartesian rot_axis = Cartesian::CrossProduct(z,Z);
 
-  //std::cout << rot_axis << " " << theta << "\n"; std::cout.flush();
-
   if(fabs(theta)>1e-7)
     q = Quat(rot_axis,1,theta);
 
-  Cartesian xprim = q.getMatrix() * x;
+  Cartesian xprim = q.getInvMatrix() * x;
+  // We want projection of this unit cell vector in xy-plane.
+  xprim.set_z(0);
+  xprim.normalize();
   Cartesian X(1,0,0);
   
   double theta2 = acos(Cartesian::DotProduct(xprim,X))*180.0/M_PI;
-  Cartesian rot_axis2 = Cartesian::CrossProduct(xprim,X);
-
   if(fabs(theta2)>1e-7){
+    Cartesian rot_axis2 = Cartesian::CrossProduct(xprim,X);
     if(reverse_rot) theta2 *= -1;
     Quat q2(rot_axis2,1,theta2);
     q.postMult(q2);
   }
-
-  //std::cout << rot_axis2 << " " << theta2 << "\n"; std::cout.flush();
 
   return q;
 
 }
 
 void Displayobject::DrawUnitCell(){
-  if(unit_cell.size()<3)
+  if(unit_cell.size()<3||!GetDrawUnitCell())
     return;
   glDisable(GL_LIGHTING);
   GLfloat *params = new GLfloat[4];
@@ -518,8 +562,12 @@ void Displayobject::add_text_primitive(SimpleText *prim){
   text_prims.push_back(prim);
 }
 
-void Displayobject::add_image_primitive(SimpleBillBoard *prim){
+void Displayobject::add_image_primitive(BillBoard *prim){
   image_prims.push_back(prim);
+}
+
+void Displayobject::add_billboard_primitive(BillboardPrimitive *prim){
+  bill_prims.push_back(prim);
 }
 
 void Displayobject::clear_images(void){
@@ -536,20 +584,12 @@ void Displayobject::clear_images(void){
 void Displayobject::clear_prims(void){
   std::vector<Primitive*>::iterator prim_iter = prims.begin();
   while(prim_iter!=prims.end()){
-    //if(*prim_iter) delete *prim_iter;
+    delete *prim_iter;
     prim_iter++;
   }
   prims.clear();
-  /*
-    //Oh dear, we do have some object ownership confusion. 
-    //We want prims deleted from SurfaceDispobj.py and then we
-    //want to use same prim again. Very confusing.
-  prim_iter = surf_prims.begin();
-  while(prim_iter!=surf_prims.end()){
-    if(*prim_iter) delete *prim_iter;
-    prim_iter++;
-  }
-  */
+  bill_prims.clear();
+  imposter_prims.clear();
   surf_prims.clear();
 }
 
@@ -699,7 +739,7 @@ void Displayobject::apply_rotation_about_axes(double *xaxis, double *yaxis, doub
 }
 
 matrix Displayobject::get_rotation_matrix() const{
-  return quat.getMatrix();
+  return quat.getInvMatrix();
 }
 
 void Displayobject::set_origin(double *o_in){
@@ -801,11 +841,107 @@ void Displayobject::move_origin(const Cartesian &origin_in){
 }
 
 
-void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, double oy, double oz){
-#ifdef __APPLE_CC__
-  //GLboolean clip_test = glIsEnabled(GL_CLIP_PLANE0);
-  Volume v = GetClippingPlanes();
+void draw_billboards(const std::vector<BillboardPrimitive*> &sorted_in, const Quat &quat_in, double radius, double ox, double oy, double oz){
+#ifdef _WIN32
+    static bool doneglewInit=false;
+    if(!doneglewInit){
+      int err = glewInit();
+      if (GLEW_OK != err) {
+        fprintf(stderr, "Error [main]: glewInit failed: %s\r\n", glewGetErrorString(err));
+        fflush(stderr);
+        return;
+      }
+    }
+    doneglewInit=true;
 #endif
+  std::vector<BillboardPrimitive*> sorted = sorted_in;
+  /*
+  for(unsigned i=0;i<objs.size();i++){
+    std::vector<BillboardPrimitive*> thisPrims = objs[i].GetBillboardPrimitives();
+    sorted.insert(sorted.end(),thisPrims.begin(),thisPrims.end());
+  }
+  */
+  GLdouble* matinv = (GLdouble*)quat_in.getMatrix().to_dp();
+
+  Cartesian x_trans = quat_in.getInvMatrix()*Cartesian(1,0,0);
+  Cartesian y_trans = quat_in.getInvMatrix()*Cartesian(0,1,0);
+  Cartesian z_trans = quat_in.getInvMatrix()*Cartesian(0,0,1);
+  std::sort(sorted.begin(),sorted.end(),ZSortThings(matinv));
+  glNormal3f(z_trans.get_x(),z_trans.get_y(),z_trans.get_z());
+
+  GLfloat params[4];
+  glGetFloatv(GL_COLOR_CLEAR_VALUE,params);
+  GLdouble y = params[0]*0.299 + params[1]*0.587 + params[2]*0.114;
+
+  std::vector<BillboardPrimitive*>::const_iterator k = sorted.begin();
+  while(k!=sorted.end()){
+  glBegin(GL_QUADS);
+    (*k)->set_draw_colour();
+    (*k)->draw(y,x_trans,y_trans,z_trans);
+    k++;
+  glEnd();
+  }
+
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture( GL_TEXTURE_2D, 0 );
+  glDisable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture( GL_TEXTURE_2D, 0 );
+  glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_2D);
+
+  delete [] matinv;
+
+}
+
+void Displayobject::draw_billboards(const Quat &quat_in, double radius, double ox, double oy, double oz){
+  //std::cout << "Displayobject::draw_billboards\n";
+
+    if(bill_prims.size()<1) return;
+#ifdef _WIN32
+    int err = glewInit();
+    if (GLEW_OK != err) {
+      fprintf(stderr, "Error [main]: glewInit failed: %s\r\n", glewGetErrorString(err));
+      fflush(stderr);
+      return;
+    }
+#endif
+  GLdouble* matinv = (GLdouble*)quat_in.getMatrix().to_dp();
+
+  Cartesian x_trans = quat_in.getInvMatrix()*Cartesian(1,0,0);
+  Cartesian y_trans = quat_in.getInvMatrix()*Cartesian(0,1,0);
+  Cartesian z_trans = quat_in.getInvMatrix()*Cartesian(0,0,1);
+  std::vector<BillboardPrimitive*> sorted = bill_prims;
+  std::sort(sorted.begin(),sorted.end(),ZSortThings(matinv));
+  std::vector<BillboardPrimitive*>::const_iterator k = sorted.begin();
+  glNormal3f(z_trans.get_x(),z_trans.get_y(),z_trans.get_z());
+
+  GLfloat params[4];
+  glGetFloatv(GL_COLOR_CLEAR_VALUE,params);
+  GLdouble y = params[0]*0.299 + params[1]*0.587 + params[2]*0.114;
+
+  while(k!=sorted.end()){
+  glBegin(GL_QUADS);
+    (*k)->set_draw_colour();
+    (*k)->draw(y,x_trans,y_trans,z_trans);
+    k++;
+  glEnd();
+  }
+
+  glActiveTexture(GL_TEXTURE1);
+  glBindTexture( GL_TEXTURE_2D, 0 );
+  glDisable(GL_TEXTURE_2D);
+  glActiveTexture(GL_TEXTURE0);
+  glBindTexture( GL_TEXTURE_2D, 0 );
+  glDisable(GL_TEXTURE_2D);
+  glDisable(GL_TEXTURE_2D);
+
+  delete [] matinv;
+}
+
+void Displayobject::draw_text_background(const Quat &quat_in, double radius, double ox, double oy, double oz, double fontScaling){
+  GLboolean clip_test = glIsEnabled(GL_CLIP_PLANE0);
+  //Volume v = GetClippingPlanes();
 
   GLdouble projMatrix[16];
   glGetDoublev(GL_PROJECTION_MATRIX,projMatrix);
@@ -822,34 +958,156 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
   glGetIntegerv(GL_VIEWPORT,viewport);
   GLdouble view_h = (viewport[3] - viewport[1]);
 
-  GLdouble* matinv = (GLdouble*)quat_in.getInvMatrix().to_dp();
+  GLdouble* matinv = (GLdouble*)quat_in.getMatrix().to_dp();
   std::vector<SimpleText*>::const_iterator k = text_prims.begin();
 
+  GLfloat params[4];
+  glGetFloatv(GL_COLOR_CLEAR_VALUE,params);
+  GLdouble y = params[0]*0.299 + params[1]*0.587 + params[2]*0.114;
+
+  //glColor4f(1.0,1.0,1.0,1.0);
   //if(k!=text_prims.end()) (*k)->SetDefaultColour();
+  if(k!=text_prims.end()){
+     if(clip_test){
+        if((*k)->IsBillBoard()){
+           glDisable(GL_CLIP_PLANE0);
+           glDisable(GL_CLIP_PLANE1);
+         } else {
+           glEnable(GL_CLIP_PLANE0);
+           glEnable(GL_CLIP_PLANE1);
+         }
+      }
+  }
   while(k!=text_prims.end()){
     if(!(*k)->isMultiColoured()){
-#ifdef __APPLE_CC__
-    //if(clip_test){
-      //if((*k)->IsBillBoard()||(v.PointInVolume(get_rotation_matrix()*((*k)->GetVertices()[0]+origin)))){
-        //glDisable(GL_CLIP_PLANE0);
-        //glDisable(GL_CLIP_PLANE1);
-        //(*k)->draw();
-        //glEnable(GL_CLIP_PLANE0);
-        //glEnable(GL_CLIP_PLANE1);
-      //}
-    //}else{
-#endif
       glPushMatrix();
       Cartesian v = (*k)->GetVertices()[0]; 
       glTranslatef(v.get_x(),v.get_y(),v.get_z());
       glMultMatrixd(matinv);
       if( (*k)->GetTextureID()==0) (*k)->initialize();
-      glBindTexture( GL_TEXTURE_2D, (*k)->GetTextureID() );
+      double pix_w= (*k)->GetTextWidth();
+      double pix_h= (*k)->GetTextHeight();
+      double size = fabs(win_h*pix_h/view_h*fontScaling*radius/60.0);
+      double size_offset = -2*fabs(win_h*((*k)->GetFontDescent())/view_h*fontScaling*radius/60.0);
+      double ratio = double(pix_w)/pix_h;
+      glBegin(GL_QUADS);
+      glVertex3f(0,size_offset,0);
+      glVertex3f(2*size*ratio,size_offset,0);
+      glVertex3f(2*size*ratio,2*size+size_offset,0);
+      glVertex3f(0,2*size+size_offset,0);
+      glEnd();
+      glPopMatrix();
+    }
+#ifdef __APPLE_CC__
+    //}
+#endif
+    k++;
+  }
+
+  //glColor4f(1.0,1.0,1.0,1.0);
+  k = text_prims.begin();
+  while(k!=text_prims.end()){
+    if((*k)->isMultiColoured()){
+      if( (*k)->GetTextureID()==0) (*k)->initialize();
+      glPushMatrix();
+      Cartesian v = (*k)->GetVertices()[0]; 
+      double x_cent_off = 0;
+      double y_cent_off = 0;
+      if((*k)->GetCentered()){
+         x_cent_off = -fabs(win_h*(*k)->GetTextWidth()/view_h*fontScaling*radius/60.0);
+         y_cent_off = -fabs(win_h*(*k)->GetTextHeight()/2.0/view_h*fontScaling*radius/60.0);
+      }
+      double pix_w= (*k)->GetTextWidth();
+      double pix_h= (*k)->GetTextHeight();
+      double size = fabs(win_h*pix_h/view_h*fontScaling*radius/60.0);
+      double size_offset = -2*fabs(win_h*((*k)->GetFontDescent())/view_h*fontScaling*radius/60.0);
+      double ratio = double(pix_w)/pix_h;
+      if((*k)->IsBillBoard()){
+        glLoadIdentity();
+        GLdouble x = (v.get_x()-.5)*(r-l);
+        GLdouble y = (v.get_y()-.5)*(b-t);
+        GLdouble z =  -n-3;
+	size_offset = 0;
+        size = fabs(win_h*pix_h/view_h)*fontScaling;
+        glTranslatef(x,y,z);
+      } else {
+        glTranslatef(v.get_x(),v.get_y(),v.get_z());
+        glMultMatrixd(matinv);
+      }
+      glBegin(GL_QUADS);
+      glVertex3f(x_cent_off,y_cent_off+size_offset,0);
+      glVertex3f(x_cent_off+2*size*ratio,y_cent_off+size_offset,0);
+      glVertex3f(x_cent_off+2*size*ratio,y_cent_off+2*size+size_offset,0);
+      glVertex3f(x_cent_off,y_cent_off+2*size+size_offset,0);
+      glEnd();
+      glPopMatrix();
+    }
+    k++;
+  }
+  delete [] matinv;
+  if(clip_test){
+    glEnable(GL_CLIP_PLANE0);
+    glEnable(GL_CLIP_PLANE1);
+  }
+}
+
+void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, double oy, double oz, double fontScaling){
+  GLboolean clip_test = glIsEnabled(GL_CLIP_PLANE0);
+  //Volume v = GetClippingPlanes();
+
+  GLdouble projMatrix[16];
+  glGetDoublev(GL_PROJECTION_MATRIX,projMatrix);
+  GLdouble l = (projMatrix[12] - 1.0)/projMatrix[0]; 
+  GLdouble r = (projMatrix[12] + 1.0)/projMatrix[0];
+  GLdouble t = (projMatrix[13] - 1.0)/projMatrix[5];
+  GLdouble b = (projMatrix[13] + 1.0)/projMatrix[5];
+  GLdouble n = 1;
+  if(fabs(projMatrix[10])>1e-7){
+    n = (projMatrix[14] + 1)/projMatrix[10];
+  }
+  GLdouble win_h = ((projMatrix[13] + 1.0)/projMatrix[5] - (projMatrix[13] - 1.0)/projMatrix[5])*0.5;
+  GLint viewport[4];
+  glGetIntegerv(GL_VIEWPORT,viewport);
+  GLdouble view_h = (viewport[3] - viewport[1]);
+
+  GLdouble* matinv = (GLdouble*)quat_in.getMatrix().to_dp();
+  std::vector<SimpleText*>::const_iterator k = text_prims.begin();
+
+  GLfloat params[4];
+  glGetFloatv(GL_COLOR_CLEAR_VALUE,params);
+  GLdouble y = params[0]*0.299 + params[1]*0.587 + params[2]*0.114;
+
+  glColor4f(1.0,1.0,1.0,1.0);
+  //if(k!=text_prims.end()) (*k)->SetDefaultColour();
+  if(k!=text_prims.end()){
+     if(clip_test){
+        if((*k)->IsBillBoard()){
+           glDisable(GL_CLIP_PLANE0);
+           glDisable(GL_CLIP_PLANE1);
+         } else {
+           glEnable(GL_CLIP_PLANE0);
+           glEnable(GL_CLIP_PLANE1);
+         }
+      }
+  }
+  while(k!=text_prims.end()){
+    if(!(*k)->isMultiColoured()){
+      glPushMatrix();
+      Cartesian v = (*k)->GetVertices()[0]; 
+      glTranslatef(v.get_x(),v.get_y(),v.get_z());
+      glMultMatrixd(matinv);
+      if( (*k)->GetTextureID()==0) (*k)->initialize();
+      if(y<0.5)
+        glBindTexture( GL_TEXTURE_2D, (*k)->GetTextureID() );
+      else
+        glBindTexture( GL_TEXTURE_2D, (*k)->GetTextureID_B() );
+      //glBindTexture( GL_TEXTURE_2D, (*k)->GetTextureID() );
       double pix_w= (*k)->GetTexture().get_width();
       double pix_h= (*k)->GetTexture().get_height();
-      double size = fabs(win_h*pix_h/view_h*radius/60.0);
-      double size_offset = -2*fabs(win_h*(pix_h-(*k)->GetFontSize())/view_h*radius/60.0);
+      double size = fabs(win_h*pix_h/view_h*fontScaling*radius/60.0);
+      double size_offset = -2*fabs(win_h*((*k)->GetFontDescent())/view_h*fontScaling*radius/60.0);
       double ratio = double(pix_w)/pix_h;
+      //glDisable(GL_TEXTURE_2D); glColor4f(0,0,0,1);
       glBegin(GL_QUADS);
       glTexCoord2f(0,0);
       glVertex3f(0,size_offset,0);
@@ -870,9 +1128,6 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
   }
 
   glColor4f(1.0,1.0,1.0,1.0);
-  GLfloat params[4];
-  glGetFloatv(GL_COLOR_CLEAR_VALUE,params);
-  GLdouble y = params[0]*0.299 + params[1]*0.587 + params[2]*0.114;
   k = text_prims.begin();
   while(k!=text_prims.end()){
     if((*k)->isMultiColoured()){
@@ -883,10 +1138,16 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
         glBindTexture( GL_TEXTURE_2D, (*k)->GetTextureID_B() );
       glPushMatrix();
       Cartesian v = (*k)->GetVertices()[0]; 
+      double x_cent_off = 0;
+      double y_cent_off = 0;
+      if((*k)->GetCentered()){
+         x_cent_off = -fabs(win_h*(*k)->GetTextWidth()/view_h*fontScaling*radius/60.0);
+         y_cent_off = -fabs(win_h*(*k)->GetTextHeight()/2.0/view_h*fontScaling*radius/60.0);
+      }
       double pix_w= (*k)->GetTexture().get_width();
       double pix_h= (*k)->GetTexture().get_height();
-      double size = fabs(win_h*pix_h/view_h*radius/60.0);
-      double size_offset = -2*fabs(win_h*(pix_h-(*k)->GetFontSize())/view_h*radius/60.0);
+      double size = fabs(win_h*pix_h/view_h*fontScaling*radius/60.0);
+      double size_offset = -2*fabs(win_h*((*k)->GetFontDescent())/view_h*fontScaling*radius/60.0);
       double ratio = double(pix_w)/pix_h;
       if((*k)->IsBillBoard()){
         glLoadIdentity();
@@ -894,21 +1155,22 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
         GLdouble y = (v.get_y()-.5)*(b-t);
         GLdouble z =  -n-3;
 	size_offset = 0;
-        size = fabs(win_h*pix_h/view_h);
+        size = fabs(win_h*pix_h/view_h)*fontScaling;
         glTranslatef(x,y,z);
       } else {
         glTranslatef(v.get_x(),v.get_y(),v.get_z());
         glMultMatrixd(matinv);
       }
+      //glDisable(GL_TEXTURE_2D); glColor4f(0,0,0,1);
       glBegin(GL_QUADS);
       glTexCoord2f(0,0);
-      glVertex3f(0,size_offset,0);
+      glVertex3f(x_cent_off,y_cent_off+size_offset,0);
       glTexCoord2f(1,0);
-      glVertex3f(2*size*ratio,size_offset,0);
+      glVertex3f(x_cent_off+2*size*ratio,y_cent_off+size_offset,0);
       glTexCoord2f(1,1);
-      glVertex3f(2*size*ratio,2*size+size_offset,0);
+      glVertex3f(x_cent_off+2*size*ratio,y_cent_off+2*size+size_offset,0);
       glTexCoord2f(0,1);
-      glVertex3f(0,2*size+size_offset,0);
+      glVertex3f(x_cent_off,y_cent_off+2*size+size_offset,0);
       //(*k)->draw();
       glEnd();
       glPopMatrix();
@@ -916,18 +1178,16 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
     k++;
   }
   delete [] matinv;
-#ifdef __APPLE_CC__
-  //if(clip_test){
-    //glEnable(GL_CLIP_PLANE0);
-    //glEnable(GL_CLIP_PLANE1);
-  //}
-#endif
+  if(clip_test){
+    glEnable(GL_CLIP_PLANE0);
+    glEnable(GL_CLIP_PLANE1);
+  }
 }
 
 void Displayobject::draw_images(void){
 
   glDepthFunc(GL_ALWAYS);
-  std::vector<SimpleBillBoard*>::const_iterator k = image_prims.begin();
+  std::vector<BillBoard*>::const_iterator k = image_prims.begin();
 
   while(k!=image_prims.end()){
     (*k)->draw();
@@ -993,6 +1253,34 @@ void Displayobject::draw_lines(double *override_colour, int transparent_in, int 
 
 }
 
+void Displayobject::SetUseVBO(const int _useVBO){
+  useVBO = _useVBO;
+  std::vector<Primitive*>::iterator k = prims.begin();
+  while(k!=prims.end()){
+    (*k)->SetUseVBO(_useVBO);
+    k++;
+  }
+  k = surf_prims.begin();
+  while(k!=surf_prims.end()){
+    (*k)->SetUseVBO(_useVBO);
+    k++;
+  }
+}
+
+void Displayobject::SetUseVertexArrays(const int _useVertexArrays){
+  useVertexArrays = _useVertexArrays;
+  std::vector<Primitive*>::iterator k = prims.begin();
+  while(k!=prims.end()){
+    (*k)->SetUseVertexArrays(_useVertexArrays);
+    k++;
+  }
+  k = surf_prims.begin();
+  while(k!=surf_prims.end()){
+    (*k)->SetUseVertexArrays(_useVertexArrays);
+    k++;
+  }
+}
+
 void Displayobject::SetAlpha(double alpha_in){
   alpha = alpha_in;
   std::vector<Primitive*>::iterator k = prims.begin();
@@ -1008,6 +1296,7 @@ void Displayobject::SetAlpha(double alpha_in){
     k++;
   }
 }
+
 void Displayobject::set_transparent(int trans){
   transparent = trans;
   std::vector<Primitive*>::iterator k = prims.begin();
@@ -1024,9 +1313,7 @@ void Displayobject::set_transparent(int trans){
   }
 }
 
-void Displayobject::draw_solids(double *override_colour, int transparent_in, int selective_override) const {
-  std::vector<Primitive*>::const_iterator k = prims.begin();
-
+void Displayobject::draw_prims(double *override_colour, int transparent_in, int selective_override) const {
   GLfloat col[4];
   GLfloat *colp=0;
 
@@ -1034,8 +1321,114 @@ void Displayobject::draw_solids(double *override_colour, int transparent_in, int
   glMaterialfv(GL_FRONT, GL_EMISSION,  lighting.emission);
   glMaterialf(GL_FRONT, GL_SHININESS, lighting.shininess);
 
+  std::vector<Primitive*>::const_iterator k;
+  k = prims.begin();
   while(k!=prims.end()){
-    if((*k)->get_transparent()==transparent_in&&!(*k)->isLine()){
+    if((*k)->get_transparent()==transparent_in&&!(*k)->isLine()&&!(*k)->isImposter()){
+      if(override_colour){
+        if(selective_override==0||(selective_override==1&&(*k)->GetColourOverride())){
+	  col[0] = override_colour[0];
+	  col[1] = override_colour[1];
+	  col[2] = override_colour[2];
+	  col[3] = override_colour[3];
+	  colp = col;
+        }
+      }
+      (*k)->set_draw_colour(colp);
+      (*k)->draw(override_colour, selective_override);
+    }
+    k++;
+  }
+
+}
+
+void Displayobject::forceRegenerateSurfaceArrays(){
+  std::vector<Primitive*>::const_iterator k;
+  k = surf_prims.begin();
+  while(k!=surf_prims.end()){
+    (*k)->forceRegenerateArrays();
+    k++;
+  }
+}
+
+void Displayobject::draw_surf_prims(double *override_colour, int transparent_in, int selective_override) const {
+  GLfloat col[4];
+  GLfloat *colp=0;
+
+  glMaterialfv(GL_FRONT, GL_SPECULAR,  lighting.specular);
+  glMaterialfv(GL_FRONT, GL_EMISSION,  lighting.emission);
+  glMaterialf(GL_FRONT, GL_SHININESS, lighting.shininess);
+
+  std::vector<Primitive*>::const_iterator k;
+  k = surf_prims.begin();
+  while(k!=surf_prims.end()){
+    if((*k)->get_transparent()==transparent_in&&!(*k)->isLine()&&!(*k)->isImposter()){
+      if(override_colour){
+        if(selective_override==0||(selective_override==1&&(*k)->GetColourOverride())){
+	  col[0] = override_colour[0];
+	  col[1] = override_colour[1];
+	  col[2] = override_colour[2];
+	  col[3] = override_colour[3];
+	  colp = col;
+        }
+      }
+      (*k)->set_draw_colour(colp);
+      (*k)->draw(override_colour, selective_override);
+    }
+    k++;
+  }
+
+}
+
+void Displayobject::draw_imposters(double *override_colour, int transparent_in, int selective_override) const {
+  std::vector<Primitive*>::const_iterator k = prims.begin();
+
+  glEnable(GL_LIGHTING);
+  GLfloat col[4];
+  GLfloat *colp=0;
+
+
+  //glColor3dv(override_colour);
+
+  glMaterialfv(GL_FRONT, GL_SPECULAR,  lighting.specular);
+  glMaterialfv(GL_FRONT, GL_EMISSION,  lighting.emission);
+  glMaterialf(GL_FRONT, GL_SHININESS, lighting.shininess);
+
+  while(k!=prims.end()){
+    if((*k)->get_transparent()==transparent_in&&(*k)->isImposter()){
+      if(override_colour){
+        if(selective_override==0||(selective_override==1&&(*k)->GetColourOverride())){
+	  col[0] = override_colour[0];
+	  col[1] = override_colour[1];
+	  col[2] = override_colour[2];
+	  col[3] = override_colour[3];
+	  colp = col;
+        }
+      }
+      (*k)->set_draw_colour(colp);
+      (*k)->draw(override_colour, selective_override);
+    }
+    k++;
+  }
+
+}
+
+void Displayobject::draw_solids(double *override_colour, int transparent_in, int selective_override) const {
+  std::vector<Primitive*>::const_iterator k = prims.begin();
+
+  glEnable(GL_LIGHTING);
+  GLfloat col[4];
+  GLfloat *colp=0;
+
+
+  //glColor3dv(override_colour);
+
+  glMaterialfv(GL_FRONT, GL_SPECULAR,  lighting.specular);
+  glMaterialfv(GL_FRONT, GL_EMISSION,  lighting.emission);
+  glMaterialf(GL_FRONT, GL_SHININESS, lighting.shininess);
+
+  while(k!=prims.end()){
+    if((*k)->get_transparent()==transparent_in&&!(*k)->isLine()&&!(*k)->isImposter()){
       if(override_colour){
         if(selective_override==0||(selective_override==1&&(*k)->GetColourOverride())){
 	  col[0] = override_colour[0];
@@ -1053,7 +1446,7 @@ void Displayobject::draw_solids(double *override_colour, int transparent_in, int
 
   k = surf_prims.begin();
   while(k!=surf_prims.end()){
-    if((*k)->get_transparent()==transparent_in&&!(*k)->isLine()){
+    if((*k)->get_transparent()==transparent_in&&!(*k)->isLine()&&!(*k)->isImposter()){
       if(override_colour){
         if(selective_override==0||(selective_override==1&&(*k)->GetColourOverride())){
 	  col[0] = override_colour[0];
@@ -1114,7 +1507,7 @@ double* Displayobject::get_primorigin(int i) const{
 
 double* Displayobject::rotate_point(double x, double y, double z){
 
-  Cartesian v = quat.getMatrix()*Cartesian(x,y,z);
+  Cartesian v = quat.getInvMatrix()*Cartesian(x,y,z);
 
   return v.to_dp();
 }
@@ -1123,7 +1516,7 @@ double* Displayobject::get_primoriginrot(int i) const{
 
   Cartesian cart = prims[i]-> get_origin();
 
-  Cartesian v = quat.getMatrix()*cart;
+  Cartesian v = quat.getInvMatrix()*cart;
 
   return v.to_dp();
 
@@ -1144,7 +1537,7 @@ void Displayobject::MoveTextPrimitiveInWindowCoords(SimpleText *text_primitive, 
   world_quat.Setdval(world_quat_dvals);
   world_quat.postMult(quat);
 
-  Cartesian result = world_quat.getMatrix()*Cartesian(x,y,z);
+  Cartesian result = world_quat.getInvMatrix()*Cartesian(x,y,z);
 
   result += text_primitive->get_origin();
   text_primitive->set_origin(result.to_dp());
@@ -1160,7 +1553,7 @@ SimpleText* Displayobject::findtextprimitive(const std::vector<Cartesian> &xyzbo
     primorigin.push_back(text_prims[i]->get_origin());
   }
 
-  int nearprim = findprimc(xyzbox,primorigin,origin,quat.getInvMatrix());
+  int nearprim = findprimc(xyzbox,primorigin,origin,quat.getMatrix());
 
   if(nearprim>-1)
     return text_prims[nearprim];
@@ -1177,11 +1570,15 @@ int Displayobject::findprimitive(const std::vector<Cartesian> &xyzbox){
     primorigin.push_back(prims[i]->get_origin());
   }
 
-  int nearprim = findprimc(xyzbox,primorigin,origin,quat.getInvMatrix());
+  int nearprim = findprimc(xyzbox,primorigin,origin,quat.getMatrix());
 
   return nearprim;
 
 }          
+
+void Displayobject::clear_billboards(void){
+  bill_prims.clear();
+}
 
 void Displayobject::clear_labels(void){
   // This seems to cause a nasty double delete.
@@ -1210,7 +1607,7 @@ std::vector<int> Displayobject::GetPrimitivesInVolume(Volume volume) const{
   while(prim_iter!=prims.end()){
      clicked = 1;
      prim_origin = (*prim_iter)->get_origin();
-     prim_origin = quat.getInvMatrix()*prim_origin;
+     prim_origin = quat.getMatrix()*prim_origin;
      prim_origin += origin;
      for(int ii=0;ii<volume.GetNumberOfPlanes();ii++){
        plane = volume.GetPlane(ii);
@@ -1280,7 +1677,7 @@ void Displayobject::OutputTextLabels(std::ofstream &fp, const Quat &quat_in, dou
     }
     kk++;
   }
-  std::vector<SimpleBillBoard*>::const_iterator ll = image_prims.begin();
+  std::vector<BillBoard*>::const_iterator ll = image_prims.begin();
   while(ll!=image_prims.end()){
     if(clip_test){
       glDisable(GL_CLIP_PLANE0);
@@ -1321,8 +1718,8 @@ void Displayobject::DrawPostscript(std::ofstream &fp, const Quat &quat_in, doubl
 
   Cartesian tl = getxyzc(0,0)[0];
   Cartesian br = getxyzc(viewport[2]/2.0,viewport[3]/2.0)[0];
-  tl = quat_in.getInvMatrix()*tl;
-  br = quat_in.getInvMatrix()*br;
+  tl = quat_in.getMatrix()*tl;
+  br = quat_in.getMatrix()*br;
 
   double xscale = fabs(tl.get_x()-br.get_x());
   double yscale = fabs(tl.get_y()-br.get_y());
@@ -1363,7 +1760,7 @@ void Displayobject::DrawPostscript(std::ofstream &fp, const Quat &quat_in, doubl
   * need to make all that more portable and interpret it here somehow.
   * Tricky. */
 
-  std::vector<SimpleBillBoard*>::const_iterator ll = image_prims.begin();
+  std::vector<BillBoard*>::const_iterator ll = image_prims.begin();
   while(ll!=image_prims.end()){
     (*ll)->DrawPostScript(fp,quat_in,radius,ox,oy,oz,get_rotation_matrix(),origin,double(xoff),double(yoff),xscale,yscale,xscaleps,v);
     ll++;
@@ -1376,3 +1773,25 @@ void Displayobject::DrawPostscript(std::ofstream &fp, const Quat &quat_in, doubl
 
 }
 
+const std::vector<BillboardPrimitive*>& Displayobject::GetImposterPrimitives() const{
+  return imposter_prims;
+}
+
+void Displayobject::add_imposter_primitive(BillboardPrimitive *prim){
+  imposter_prims.push_back(prim);
+}
+
+void draw_imposters(const std::vector<BillboardPrimitive*> &sorted_in, const Quat &quat_in, double radius, double ox, double oy, double oz){
+  Cartesian x_trans = quat_in.getInvMatrix()*Cartesian(1,0,0);
+  Cartesian y_trans = quat_in.getInvMatrix()*Cartesian(0,1,0);
+  Cartesian z_trans = quat_in.getInvMatrix()*Cartesian(0,0,1);
+  std::vector<BillboardPrimitive*>::const_iterator k = sorted_in.begin();
+  while(k!=sorted_in.end()){
+  glBegin(GL_QUADS);
+    (*k)->set_draw_colour();
+    (*k)->draw(1,x_trans,y_trans,z_trans);
+    k++;
+  glEnd();
+  }
+
+}

@@ -1,6 +1,7 @@
 /*
      pygl/subdivide.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -99,17 +100,19 @@ void subdivide(float *v1, float *v2, float *v3, int depth, float radius){
 }
 
 
-void SubdivideDots(double *v1, double *v2, double *v3, double dotSpacing, bool draw_first){
+void SubdivideDots(double *v1, double *v2, double *v3, double dotSpacingSquared, bool draw_first){
    GLdouble v12[3], v23[3], v31[3];
    GLint i;
  
-   if(draw_first) glVertex3dv(v1);
-   glVertex3dv(v2);
-   glVertex3dv(v3);
+   if(draw_first) {
+	glVertex3dv(v1);
+   	glVertex3dv(v2);
+   	glVertex3dv(v3);
+   }
  
-   bool do_12 = (v1[0]-v2[0])*(v1[0]-v2[0])+(v1[1]-v2[1])*(v1[1]-v2[1])+(v1[2]-v2[2])*(v1[2]-v2[2])>dotSpacing;
-   bool do_13 = (v1[0]-v3[0])*(v1[0]-v3[0])+(v1[1]-v3[1])*(v1[1]-v3[1])+(v1[2]-v3[2])*(v1[2]-v3[2])>dotSpacing;
-   bool do_23 = (v2[0]-v3[0])*(v2[0]-v3[0])+(v2[1]-v3[1])*(v2[1]-v3[1])+(v2[2]-v3[2])*(v2[2]-v3[2])>dotSpacing;
+   bool do_12 = (v1[0]-v2[0])*(v1[0]-v2[0])+(v1[1]-v2[1])*(v1[1]-v2[1])+(v1[2]-v2[2])*(v1[2]-v2[2])>dotSpacingSquared;
+   bool do_13 = (v1[0]-v3[0])*(v1[0]-v3[0])+(v1[1]-v3[1])*(v1[1]-v3[1])+(v1[2]-v3[2])*(v1[2]-v3[2])>dotSpacingSquared;
+   bool do_23 = (v2[0]-v3[0])*(v2[0]-v3[0])+(v2[1]-v3[1])*(v2[1]-v3[1])+(v2[2]-v3[2])*(v2[2]-v3[2])>dotSpacingSquared;
    
    if(do_12)
      for (i = 0; i < 3; i++) 
@@ -122,13 +125,13 @@ void SubdivideDots(double *v1, double *v2, double *v3, double dotSpacing, bool d
         v23[i] = 0.5*(v2[i]+v3[i]);
 
    if(do_12 && do_13)
-     SubdivideDots(v1, v12, v31, dotSpacing, false);
+     SubdivideDots(v1, v12, v31, dotSpacingSquared, false);
    if(do_12 && do_23)
-     SubdivideDots(v2, v23, v12, dotSpacing,false);
+     SubdivideDots(v2, v23, v12, dotSpacingSquared,false);
    if(do_13 && do_23)
-     SubdivideDots(v3, v31, v23, dotSpacing,false);
+     SubdivideDots(v3, v31, v23, dotSpacingSquared,false);
    if(do_12 && do_13 && do_23)
-     SubdivideDots(v12, v23, v31, dotSpacing);
+     SubdivideDots(v12, v23, v31, dotSpacingSquared);
    
 }
 

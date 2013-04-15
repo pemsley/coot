@@ -21,19 +21,19 @@
 #define _CCP4_MMUT_BASE_PAIRS_H_
 #include <vector>
 #include <utility>
-#include <mman_manager.h>
+#include "mman_manager.h"
 #include "atom_util.h"
 
 class CNABasePairs{
   std::vector<std::pair<PCResidue,PCResidue> > base_pairs;
-  std::vector<std::pair<double*,double*> > colours;
+  std::vector<std::pair<const double*,const double*> > colours;
  public:
   CNABasePairs(){};
-  void Calculate(CMMANManager *molHnd, int selHnd, PPCAtom selAtoms, int nSelAtoms, AtomColourVector *atom_colour_vector);
-  CNABasePairs(CMMANManager *molHnd, int selHnd, PPCAtom selAtoms, int nSelAtoms, AtomColourVector *atom_colour_vector);
+  void Calculate(CMMANManager *molHnd, int selHnd, PPCAtom selAtoms, int nSelAtoms, const AtomColourVector &atom_colour_vector);
+  CNABasePairs(CMMANManager *molHnd, int selHnd, PPCAtom selAtoms, int nSelAtoms, const AtomColourVector &atom_colour_vector);
   PCResidue GetPairedResidue(const PCResidue res_in) const ;
   int GetPairedResidueIndex(const int i) const ;
   std::vector<std::pair<PCResidue,PCResidue> > GetPairs() const {return base_pairs;};
-  std::vector<std::pair<double*,double*> > GetColours() const {return colours;};
+  const std::vector<std::pair<const double*,const double*> > GetColours() const {return colours;};
 };
 #endif //_CCP4_MMUT_BASE_PAIRS_H_
