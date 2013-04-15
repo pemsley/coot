@@ -853,6 +853,13 @@ void set_flat_shading_for_solid_density_surface(short int state);
 
 /* \} */
 
+void set_show_ribbons(int imol, short int state);
+void set_show_aniso_spheroids(int imol, short int state);
+void set_ribbon_param_int(int imol, const char *name, int value);
+void set_ribbon_param_float(int imol, const char *name, float value);
+void set_global_ccp4mg_param_int(int imol, const char *name, int value);
+void set_global_ccp4mg_param_float(int imol, const char *name, float value);
+
 /*  -------------------------------------------------------------------- */
 /*                     Testing Interface:                                */
 /*  -------------------------------------------------------------------- */

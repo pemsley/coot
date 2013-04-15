@@ -1,6 +1,8 @@
 /*
      pygl/symmetry.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2011 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -21,11 +23,12 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <stdlib.h>
 #include <math.h>
 #include <string.h>
 #include <mman_manager.h>
-#include <mmdb_atom.h>
-#include <mmdb_cryst.h>
+#include <mmdb/mmdb_atom.h>
+#include <mmdb/mmdb_cryst.h>
 #include "cartesian.h"
 #include "plane.h"
 #include "volume.h"
@@ -237,6 +240,32 @@ Cell_Translation::Cell_Translation(int a, int b, int c) {
 
 }
 
+bool molecule_extents_t::point_is_near_centre_of_box(Cartesian point, PPCAtom TransSel, float radius) const { 
+   // front back left right bottom top
+   //      z         x            y
+   // 
+   Cartesian  front(TransSel[0]->x, TransSel[0]->y, TransSel[0]->z);
+   Cartesian   back(TransSel[1]->x, TransSel[1]->y, TransSel[1]->z);
+   Cartesian   left(TransSel[2]->x, TransSel[2]->y, TransSel[2]->z);
+   Cartesian  right(TransSel[3]->x, TransSel[3]->y, TransSel[3]->z);
+   Cartesian bottom(TransSel[4]->x, TransSel[4]->y, TransSel[4]->z);
+   Cartesian    top(TransSel[5]->x, TransSel[5]->y, TransSel[5]->z);
+
+   std::vector<Cartesian> box;
+   box.push_back(front);
+   box.push_back(back);
+   box.push_back(left);
+   box.push_back(right);
+   box.push_back(top);
+   box.push_back(bottom);
+
+   Cartesian centre = Cartesian::MidPoint(box);
+   if((point-centre).length()<radius)
+     return true;
+   else
+     return false;
+}
+
 bool molecule_extents_t::point_is_in_box(Cartesian point, PPCAtom TransSel) const { 
 
    // front back left right bottom top
@@ -270,14 +299,14 @@ bool molecule_extents_t::point_is_in_box(Cartesian point, PPCAtom TransSel) cons
 	       if (front.DotProduct(left_to_right, right_to_point) <= 0.0) {
 		  if (front.DotProduct(bottom_to_top, top_to_point) <= 0.0) {
 
-		     return 1;
+		     return true;
 		  }
 	       }
 	    }
 	 }
       }
    }
-   return 0;
+   return false;
 }
 std::vector<Cartesian> Symmetry::GetUnitCell() const {
 
@@ -324,6 +353,101 @@ std::vector<matrix> Symmetry::GetSymmetryMatrices()  const{
    }
    
    return symm_mats;
+
+}
+
+realtype Symmetry::ExtentSize() {
+  realtype* rtde = Extent();
+
+  realtype mine[3] = {rtde[0],rtde[1],rtde[2]};
+  realtype maxe[3] = {rtde[3],rtde[4],rtde[5]};
+  realtype theSize = fabs(mine[0]-maxe[0]);
+  if(fabs(mine[1]-maxe[1])>theSize)
+     theSize = fabs(mine[1]-maxe[1]);
+  if(fabs(mine[2]-maxe[2])>theSize)
+     theSize = fabs(mine[2]-maxe[2]);
+  return theSize;
+}
+
+realtype* Symmetry::Extent() {
+  realtype *comCentral = molhnd->Extent(selHnd);
+  realtype xmin = comCentral[0];
+  realtype ymin = comCentral[1];
+  realtype zmin = comCentral[2];
+  realtype xmax = comCentral[3];
+  realtype ymax = comCentral[4];
+  realtype zmax = comCentral[5];
+  PPCAtom box_selection = new PCAtom[8];
+  for (int ii=0; ii<8; ii++) {
+      box_selection[ii] = new CAtom;
+  }
+  // "bottom left front"
+  box_selection[0]->x = comCentral[0];
+  box_selection[0]->y = comCentral[1];
+  box_selection[0]->z = comCentral[2];
+  // "bottom right front"
+  box_selection[1]->x = comCentral[3];
+  box_selection[1]->y = comCentral[1];
+  box_selection[1]->z = comCentral[2];
+  // "top right front"
+  box_selection[2]->x = comCentral[3];
+  box_selection[2]->y = comCentral[4];
+  box_selection[2]->z = comCentral[2];
+  // "top left front"
+  box_selection[3]->x = comCentral[0];
+  box_selection[3]->y = comCentral[4];
+  box_selection[3]->z = comCentral[2];
+  // "bottom left back"
+  box_selection[4]->x = comCentral[0];
+  box_selection[4]->y = comCentral[1];
+  box_selection[4]->z = comCentral[5];
+  // "bottom right back"
+  box_selection[5]->x = comCentral[3];
+  box_selection[5]->y = comCentral[1];
+  box_selection[5]->z = comCentral[5];
+  // "top right back"
+  box_selection[6]->x = comCentral[3];
+  box_selection[6]->y = comCentral[4];
+  box_selection[6]->z = comCentral[5];
+  // "top left back"
+  box_selection[7]->x = comCentral[0];
+  box_selection[7]->y = comCentral[4];
+  box_selection[7]->z = comCentral[5];
+
+  realtype *com;
+  com = new realtype[6];
+
+  mat44 my_matt;
+  for(unsigned ii=0;ii<symm_trans.size();ii++){
+    int err = my_cryst_p->GetTMatrix(my_matt, symm_trans[ii].isym(), symm_trans[ii].x(),
+                                 symm_trans[ii].y(), symm_trans[ii].z());
+    if (err != 0) {
+      std::cerr << "!!!!!!!!!!!!!! something BAD with CMMDBCryst.GetTMatrix" << std::endl;
+      return com;
+    }
+    PPCAtom trans_selection = new PCAtom[8];
+    for (int ii=0; ii<8; ii++) {
+
+      trans_selection[ii] = new CAtom;
+      trans_selection[ii]->Copy(box_selection[ii]);
+      trans_selection[ii]->Transform(my_matt);
+      if (trans_selection[ii]->x < xmin ) xmin = trans_selection[ii]->x;
+      if (trans_selection[ii]->y < ymin ) ymin = (trans_selection[ii])->y;
+      if (trans_selection[ii]->z < zmin ) zmin = (trans_selection[ii])->z;
+      if (trans_selection[ii]->x > xmax ) xmax = (trans_selection[ii])->x;
+      if (trans_selection[ii]->y > ymax ) ymax = (trans_selection[ii])->y;
+      if (trans_selection[ii]->z > zmax ) zmax = (trans_selection[ii])->z;
+
+    }
+  }
+
+  com[0] = xmin;
+  com[1] = ymin;
+  com[2] = zmin;
+  com[3] = xmax;
+  com[4] = ymax;
+  com[5] = zmax;
+  return com;
 
 }
 
@@ -443,7 +567,7 @@ std::vector<symm_trans_t> molecule_extents_t::GetUnitCellOps(PCMMANManager molhn
 
 }
 
-std::vector<symm_trans_t> molecule_extents_t::which_box(Cartesian point, PCMMANManager molhnd, PPCAtom SelAtoms, int nSelAtoms, Cartesian tl, Cartesian tr, Cartesian br, Cartesian bl) {
+std::vector<symm_trans_t> molecule_extents_t::which_box_contacts(Cartesian point, PCMMANManager molhnd, int selHnd, Cartesian tl, Cartesian tr, Cartesian br, Cartesian bl, float radius) {
 
    std::vector<symm_trans_t> symm_trans;
    Cartesian p;
@@ -451,16 +575,34 @@ std::vector<symm_trans_t> molecule_extents_t::which_box(Cartesian point, PCMMANM
    realtype u, v, w;
    PCMMDBCryst my_cryst_p = (CMMDBCryst *) &(molhnd->get_cell());
 
+   if(!my_cryst_p->isCellParameters()) return symm_trans;
+   //std::cout << my_cryst_p->a << " " << my_cryst_p->b << " " << my_cryst_p->c << "\n";
+
+   if(fabs(my_cryst_p->a-1.0)<1e-6&&fabs(my_cryst_p->b-1.0)<1e-6&&fabs(my_cryst_p->c-1.0)<1e-6){
+      std::cerr << "Bad crystal: " << my_cryst_p->a << " " << my_cryst_p->b << " " << my_cryst_p->c << " " << my_cryst_p->alpha << " " << my_cryst_p->beta << " " << my_cryst_p->gamma << "\n";
+      return symm_trans;
+   }
+
    my_cryst_p->Orth2Frac(point.get_x(), point.get_y(), point.get_z(), u, v, w);
    Cell_Translation c_t = Cell_Translation(int (rint (u)), int (rint (v)), int (rint (w)));
 
    int n = my_cryst_p->GetNumberOfSymOps();
 
+   int xshifts = 3;//int(ceilf(radius/my_cryst_p->a));
+   int yshifts = 3;//int(ceilf(radius/my_cryst_p->b));
+   int zshifts = 3;//int(ceilf(radius/my_cryst_p->c));
+
+   int xoff = abs(int((centre.get_x())/my_cryst_p->a));
+   int yoff = abs(int((centre.get_y())/my_cryst_p->b));
+   int zoff = abs(int((centre.get_z())/my_cryst_p->c));
+
    for (int ii=0; ii<n; ii++) {
 	       
-      for(int x_shift = -1+c_t.us; x_shift<(2+c_t.us); x_shift++) { 
-	 for(int y_shift = -1+c_t.vs; y_shift<(2+c_t.vs); y_shift++) { 
-	    for(int z_shift = -1+c_t.ws; z_shift<(2+c_t.ws); z_shift++) {
+      // So we need to tinker with these shifts and the radius parameter (50) to search within a certain radius.
+      // We should be able to work out the shifts from the cell parameters and the radius.
+      for(int x_shift = -xshifts+c_t.us-xoff; x_shift<(1+xshifts+c_t.us+xoff); x_shift++) { 
+	 for(int y_shift = -yshifts+c_t.vs-yoff; y_shift<(1+yshifts+c_t.vs+yoff); y_shift++) { 
+	    for(int z_shift = -zshifts+c_t.ws-zoff; z_shift<(1+zshifts+c_t.ws+zoff); z_shift++) {
 
 	       // don't check for symmetry where the model is.
 	       // 
@@ -470,8 +612,71 @@ std::vector<symm_trans_t> molecule_extents_t::which_box(Cartesian point, PCMMANM
 		  
 		  PPCAtom trans_selection = trans_sel(my_cryst_p, s_t);
 		  p = point;
-		  bool in = point_is_in_box(p, trans_selection);
-		  if (in == 1) {
+		  int in = molhnd->IfSymmetryNeighbours(selHnd, 1, ii, x_shift, y_shift, z_shift, 7. );
+		  if (in) {
+		    symm_trans.push_back(s_t);
+		  }
+                  for (int ii=0; ii<6; ii++) {
+		    delete trans_selection[ii];
+                  }
+		  delete [] trans_selection;
+	       }
+	    }
+	 }
+      }
+   }
+
+   return symm_trans;
+}
+
+std::vector<symm_trans_t> molecule_extents_t::which_box(Cartesian point, PCMMANManager molhnd, PPCAtom SelAtoms, int nSelAtoms, Cartesian tl, Cartesian tr, Cartesian br, Cartesian bl, float radius) {
+
+   std::vector<symm_trans_t> symm_trans;
+   Cartesian p;
+   
+   realtype u, v, w;
+   PCMMDBCryst my_cryst_p = (CMMDBCryst *) &(molhnd->get_cell());
+
+   if(!my_cryst_p->isCellParameters()) return symm_trans;
+   //std::cout << my_cryst_p->a << " " << my_cryst_p->b << " " << my_cryst_p->c << "\n";
+
+   if(fabs(my_cryst_p->a-1.0)<1e-6&&fabs(my_cryst_p->b-1.0)<1e-6&&fabs(my_cryst_p->c-1.0)<1e-6){
+      std::cerr << "Bad crystal: " << my_cryst_p->a << " " << my_cryst_p->b << " " << my_cryst_p->c << " " << my_cryst_p->alpha << " " << my_cryst_p->beta << " " << my_cryst_p->gamma << "\n";
+      return symm_trans;
+   }
+
+   my_cryst_p->Orth2Frac(point.get_x(), point.get_y(), point.get_z(), u, v, w);
+   Cell_Translation c_t = Cell_Translation(int (rint (u)), int (rint (v)), int (rint (w)));
+
+   int n = my_cryst_p->GetNumberOfSymOps();
+
+   int xshifts = int(ceilf(radius/my_cryst_p->a));
+   int yshifts = int(ceilf(radius/my_cryst_p->b));
+   int zshifts = int(ceilf(radius/my_cryst_p->c));
+
+   int xoff = abs(int((centre.get_x())/my_cryst_p->a));
+   int yoff = abs(int((centre.get_y())/my_cryst_p->b));
+   int zoff = abs(int((centre.get_z())/my_cryst_p->c));
+
+   for (int ii=0; ii<n; ii++) {
+	       
+      // So we need to tinker with these shifts and the radius parameter (50) to search within a certain radius.
+      // We should be able to work out the shifts from the cell parameters and the radius.
+      for(int x_shift = -xshifts+c_t.us-xoff; x_shift<(1+xshifts+c_t.us+xoff); x_shift++) { 
+	 for(int y_shift = -yshifts+c_t.vs-yoff; y_shift<(1+yshifts+c_t.vs+yoff); y_shift++) { 
+	    for(int z_shift = -zshifts+c_t.ws-zoff; z_shift<(1+zshifts+c_t.ws+zoff); z_shift++) {
+
+	       // don't check for symmetry where the model is.
+	       // 
+	       if ( ! (x_shift == 0 && y_shift == 0 && z_shift == 0 && ii==0)) {
+
+		  symm_trans_t s_t(ii, x_shift, y_shift, z_shift);
+		  
+		  PPCAtom trans_selection = trans_sel(my_cryst_p, s_t);
+		  p = point;
+		  //bool in = point_is_in_box(p, trans_selection);
+		  bool in = point_is_near_centre_of_box(p, trans_selection,radius);
+		  if (in) {
 		    symm_trans.push_back(s_t);
 		  }
                   for (int ii=0; ii<6; ii++) {
@@ -566,7 +771,17 @@ Symmetry::~Symmetry(){
   symm_trans.clear();
 }
 
-Symmetry::Symmetry(PCMMANManager molhnd_in, PPCAtom SelAtoms_in, int nSelAtoms_in, Cartesian point_in, Cartesian tl_in, Cartesian tr_in, Cartesian br_in, Cartesian bl_in, int draw_unit_cell, int xshifts, int yshifts, int zshifts){
+Symmetry::Symmetry(CMMANManager *molhnd_in, int SelHnd, Cartesian point_in, Cartesian tl_in, Cartesian tr_in, Cartesian br_in, Cartesian bl_in, int draw_unit_cell, int xshifts, int yshifts, int zshifts, float radius, int draw_contacts){
+  PPCAtom SelAtoms_in;
+  int nSelAtoms_in;
+  selHnd = SelHnd;
+  molhnd_in->GetSelIndex(SelHnd,SelAtoms_in,nSelAtoms_in);
+  //std::cout << "Got " << nSelAtoms_in << " atoms\n";
+  init(molhnd_in, SelAtoms_in, nSelAtoms_in, point_in, tl_in, tr_in, br_in, bl_in, draw_unit_cell, xshifts, yshifts, zshifts, radius,draw_contacts);
+  //std::cout << "symm_trans.size() in new constructor " << symm_trans.size() << "\n";
+}
+
+void Symmetry::init(PCMMANManager molhnd_in, PPCAtom SelAtoms_in, int nSelAtoms_in, Cartesian point_in, Cartesian tl_in, Cartesian tr_in, Cartesian br_in, Cartesian bl_in, int draw_unit_cell, int xshifts, int yshifts, int zshifts,float radius, int draw_contacts){
   molhnd = molhnd_in;
   SelAtoms = SelAtoms_in;
   clear_symmetries();
@@ -584,10 +799,14 @@ Symmetry::Symmetry(PCMMANManager molhnd_in, PPCAtom SelAtoms_in, int nSelAtoms_i
 
   molecule_extents_t extents(SelAtoms, nSelAtoms);
 
-  if(draw_unit_cell)
+  //FIXME if draw_contacts then which_box_contacts
+  if(draw_unit_cell){
     symm_trans =  extents.GetUnitCellOps(molhnd, xshifts, yshifts, zshifts);
-  else
-    symm_trans =  extents.which_box(point, molhnd, SelAtoms, nSelAtoms,tl,tr,br,bl);
+  }else if(draw_contacts){
+    symm_trans =  extents.which_box_contacts(point, molhnd, selHnd,tl,tr,br,bl,radius);
+  }else{
+    symm_trans =  extents.which_box(point, molhnd, SelAtoms, nSelAtoms,tl,tr,br,bl,radius);
+  }
 
 }
 

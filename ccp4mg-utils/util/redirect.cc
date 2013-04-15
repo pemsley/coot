@@ -1,6 +1,7 @@
 /*
      util/redirect.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -18,10 +19,10 @@
 */
 #include <stdio.h>
 
-void RedirectStdOut(const char *fname){
-   FILE *f = freopen(fname,"a",stdout);
+void RedirectStdOut(const char *fname,const char *mode){
+  freopen(fname,mode,stdout);
 }
 
-void RedirectStdErr(const char *fname){
-   FILE *f = freopen(fname,"a",stderr);
+void RedirectStdErr(const char *fname,const char *mode){
+  freopen(fname,mode,stderr);
 }

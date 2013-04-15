@@ -1,6 +1,7 @@
 /*
      pygl/subdivide.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -32,6 +33,6 @@
 
 void drawtriangle(float *v1, float *v2, float *v3);
 void subdivide(float *v1, float *v2, float *v3, int depth, float radius);
-void SubdivideDots(double *v1, double *v2, double *v3, double dotSpacing, bool draw_first=true);
+void SubdivideDots(double *v1, double *v2, double *v3, double dotSpacingSquared, bool draw_first=true);
 
 #endif

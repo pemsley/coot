@@ -1,6 +1,8 @@
 /*
      mmut/mmut_connectivity.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2011 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -27,15 +29,17 @@
 #include <vector>
 #include <algorithm>
 
+#include <string.h>
+
 #include "connect.h"
 #include "cartesian.h"
 
-#include <mmdb_manager.h>
-#include <mmdb_tables.h>
-#include <mman_manager.h>
-#include <mmut_connectivity.h>
-#include <mman_base.h>
-#include <mgutil.h>
+#include <mmdb/mmdb_manager.h>
+#include <mmdb/mmdb_tables.h>
+#include "mman_manager.h"
+#include "mmut_connectivity.h"
+#include "mman_base.h"
+#include "mgutil.h"
 
 //#include "mgtree.h"
 //#include <atom_util.h>
@@ -51,6 +55,11 @@ void Connection::AddExternalConnection(int index){
   external_connected_atoms.push_back(index);
 }
 
+void Connection::AddExternalSplineConnection(int index){
+  //std::cout << "Pushing back external " << index << "\n";
+  external_connected_spline_atoms.push_back(index);
+}
+
 Connection::Connection(){
   isInTotalSelection = false;
 }
@@ -60,6 +69,7 @@ Connection::~Connection(){
 
 Connectivity::Connectivity(){
   nSelAtomsTot = 0;
+  externalBonds = -1;
 }
 
 Connectivity::~Connectivity(){
@@ -82,13 +92,16 @@ int Connectivity::GetNumberOfAtoms(void) const{
 }
 
 /* Returns a 1 if atom is C, 0 otherwise */
-std::vector<int> Connectivity::GetCAtomIndex(void){
+const std::vector<int> Connectivity::GetCAtomIndex(void) const {
   std::vector<int> indices;
   int i;
 
+  const char* C = " C";
   for(i=0;i<nSelAtomsTot;i++){
-    if(IsInTotalSelection(SelAtomsTot[i]->serNum-1)){
-      if(std::string(SelAtomsTot[i]->element)==std::string(" C")){
+    //if(IsInTotalSelection(SelAtomsTot[i]->serNum-1)){
+    if(TotalSelection_new[SelAtomsTot[i]->serNum-1].isInTotalSelection!=0){
+      //if(std::string(SelAtomsTot[i]->element)==std::string(" C")){
+      if(strncmp(SelAtomsTot[i]->element,C,2)==0){
          indices.push_back(1);
       }else{
          indices.push_back(0);
@@ -104,7 +117,7 @@ PPCAtom Connectivity::GetAtoms(void) const {
   int i,j=0;
 
   for(i=0;i<nSelAtomsTot;i++){
-    if(IsInTotalSelection(SelAtomsTot[i]->serNum-1)){
+    if(SelAtomsTot[i]&&IsInTotalSelection(SelAtomsTot[i]->serNum-1)){
       //printf("Getting atom %d\n",j); fflush(stdout);
       atoms[j++] = SelAtomsTot[i];
     }
@@ -116,12 +129,13 @@ PPCAtom Connectivity::GetAtoms(void) const {
 void Connectivity::Clear(void){
   nSelAtomsTot = 0;
   SelAtomsTot = 0;
+  externalBonds = -1;
   TotalSelection_new.clear();
 }
 
 void Connectivity::AddBonds(PCMMANManager molhnd, int selhnd,
                const PPCAtom SelAtoms_in, const int nSelAtoms_in,
-               int all_selHnd){
+               int all_selHnd, int all_selHnd_spline){
 
   int i,j;
   SAtomBond *AtomBond;
@@ -129,6 +143,7 @@ void Connectivity::AddBonds(PCMMANManager molhnd, int selhnd,
 
   std::vector<std::vector<int> > atom_connectivity;
   SelAtomsTot=0;
+  externalBonds = 0;
   molhnd->GetAtomTable (SelAtomsTot,nSelAtomsTot);
   //cout << "AddBonds nSelAtomsTot" << nSelAtomsTot << endl;
   if(int(TotalSelection_new.size())!=nSelAtomsTot)
@@ -142,20 +157,27 @@ void Connectivity::AddBonds(PCMMANManager molhnd, int selhnd,
     if(!conn.isInTotalSelection){
       conn.isInTotalSelection = true;
     }
-    //cout << "Connecting " << SelAtoms_in[i]->serNum-1 << " " <<
-	    //molhnd->AtomLabel_atom(SelAtoms_in[i]);
+    //std::cout << "Connecting " << SelAtoms_in[i]->serNum-1 << " " << molhnd->AtomLabel_atom(SelAtoms_in[i]); std::cout.flush();
     for (j=0;j<nAtomBonds;j++) {
       if(AtomBond[j].atom->isInSelection(selhnd)){
-        //cout << " to " << AtomBond[j].atom->serNum-1 << " " << 
-	//molhnd->AtomLabel_atom(AtomBond[j].atom)<<  endl;
+        //std::cout << " to " << AtomBond[j].atom->serNum-1 << " " << molhnd->AtomLabel_atom(AtomBond[j].atom)<<  std::endl; std::cout.flush();
 	conn.AddConnection(AtomBond[j].atom->serNum-1);
-      } else if ( all_selHnd > 0 &&
+      } else {
+         externalBonds++;
+         if ( all_selHnd > 0 &&
 		   AtomBond[j].atom->isInSelection(all_selHnd) ) {
-	conn.AddExternalConnection(AtomBond[j].atom->serNum-1);
+            conn.AddExternalConnection(AtomBond[j].atom->serNum-1);
+         }
+         if ( all_selHnd_spline > 0 &&
+		   AtomBond[j].atom->isInSelection(all_selHnd_spline) ) {
+            conn.AddExternalSplineConnection(AtomBond[j].atom->serNum-1);
+         }
       }
+       
     }
   }
 
+  //std::cout << "externalBonds " << externalBonds << std::endl;
   //printf("TotalSelection.size():%d\n",TotalSelection_new.size());
 
 }
@@ -230,6 +252,10 @@ std::vector<std::vector<int> > Connectivity::GetConnectivityLists(void) const{
 
   int i=0;
   std::vector<int> selection_map;
+
+  selection_map.reserve(TotalSelection_new.size());
+  conn_lists.reserve(TotalSelection_new.size());
+
   std::vector<Connection>::const_iterator k=TotalSelection_new.begin();
   while(k!=TotalSelection_new.end()){
     if(k->isInTotalSelection){
@@ -277,6 +303,20 @@ std::vector<std::vector<int> > Connectivity::GetConnectivityLists(void) const{
      //}
      //std::cout << "\n"; std::cout.flush();
   //}
+
+  return conn_lists;
+}
+
+std::vector<std::vector<int> > Connectivity::GetExternalSplineConnectivityLists(void) const {
+  /* In here we return  serNum-1 lists, ie index in total selection */
+
+  std::vector<std::vector<int> > conn_lists;
+
+  for(int i=0;i<nSelAtomsTot;i++){
+    if(IsInTotalSelection(SelAtomsTot[i]->serNum-1)){
+      conn_lists.push_back(TotalSelection_new[i].external_connected_spline_atoms);
+    }
+  }
 
   return conn_lists;
 }
@@ -680,6 +720,18 @@ void Connectivity2::DeleteConnections( ) {
   DeleteConnections(indices,true);
 }
 
+int Connectivity2::DeleteTaggedConnections(int first, int last ) {
+  std::vector<unsigned int> indices;
+  if (tagged==0) return 0;
+  std::vector<int>::const_iterator i = tags.begin();
+  while(i!=tags.end()){
+    if (*i >= first && (last<0 || *i<=last)) indices.push_back((unsigned int)*i);
+    i++;
+  }
+  int ndel = indices.size();
+  if (ndel>0) DeleteConnections(indices,false);
+  return ndel;
+}
 
 void Connectivity2::RemoveConnection( PCAtom p_atom1, int position ) {
   std::vector<unsigned int> indices = FindConnections(p_atom1,position);
@@ -764,13 +816,13 @@ std::vector <unsigned int> Connectivity2::FindConnections( PCAtom p_atom1 ,
   return indices;
 }
 
-realtype* Connectivity2::Extent() {
+double* Connectivity2::Extent() {
   /*
   Find the max/min of x/y/z of all vector ends
   */
   double coord;
-  realtype *com;
-  com = new realtype[6];
+  double *com;
+  com = new double[6];
   com[0] = 9999999.9;
   com[1] = 9999999.9;
   com[2] = 9999999.9;
@@ -882,7 +934,7 @@ int Connectivity2::SetTag ( int iV, int i ) {
 }
 
 std::string Connectivity2::Print ( const std::string &tag1, const std::string &tag2 ) {
-  PCMMUTManager M1 = 0, M2 = 0;
+  PCMMUTManager M1,M2;
 
   std::ostringstream output;
   output.setf(ios::fixed);
@@ -906,13 +958,15 @@ std::string Connectivity2::Print ( const std::string &tag1, const std::string &t
   }
   if ( tag1.length()>=1 &&  (nAtomSets<=1 || tag1.length()>=1 )) {
     while(i<pAtom1.end()){
-      output << "<dataobj=" << tag1 << ">";
+      //output << "<dataobj=" << tag1 << ">";
+      output << tag1 << ": ";
       output << M1->AtomLabel_atom(*i) << " ";
-      output << "</dataobj>";
+      //output << "</dataobj>";
       if  ( nAtomSets>=2) {
-        output << "<dataobj=" << tag2 << ">";
+        //output << "<dataobj=" << tag2 << ">";
+        output << tag2 << ": ";
         output << M2->AtomLabel_atom(*j) << " ";
-        output << "</dataobj>";
+	// output << "</dataobj>";
         j++;
       }
       output << cc->label << endl;
@@ -989,8 +1043,8 @@ int Connectivity2::AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager 
 }
 
 //----------------------------------------------------------------------------
-int Connectivity2::AddRangeConnections(int set, PCResidue res1,PCResidue res2, 
-			     PCResidue mres1, 
+int Connectivity2::AddRangeConnections( PCResidue res1,PCResidue res2, 
+			     PCResidue mres1, PCResidue mres2,
 			     const std::vector<std::string>&  mainchain_name,
                                        int tag ) {
 //----------------------------------------------------------------------------
@@ -1022,11 +1076,7 @@ int Connectivity2::AddRangeConnections(int set, PCResidue res1,PCResidue res2,
           pat2 = r2->GetAtom(mainchain_name[ia].c_str(),"*","");
           if (pat1!=NULL && pat2!=NULL) {
             nconn++;
-            if ( set == 1) {
-              AddConnection(pat1,pat2,"",tag);
-            } else {
-              AddConnection(pat2,pat1,"",tag);
-            }
+            AddConnection(pat1,pat2,"",tag);
           }
         }
       } else {
@@ -1035,11 +1085,7 @@ int Connectivity2::AddRangeConnections(int set, PCResidue res1,PCResidue res2,
           //cout << "pat" << pat << endl;
           if (pat2!=NULL) {
             nconn++;
-            if ( set == 1) {
-              AddConnection(r1->GetAtom(ia),pat2,"",tag);
-            } else {
-              AddConnection(pat2,r1->GetAtom(ia),"",tag);
-            }
+            AddConnection(r1->GetAtom(ia),pat2,"",tag);
           }
 	}
       }
@@ -1050,6 +1096,231 @@ int Connectivity2::AddRangeConnections(int set, PCResidue res1,PCResidue res2,
   return nconn;
 }
 
+//----------------------------------------------------------------------------
+int Connectivity2::AddRangeWithSameIdConnections( PCMMANManager molHnd1,int selHnd1, 
+                                                  PCMMANManager molHnd2,int selHnd2, 
+			     const std::vector<std::string>&  mainchain_name, int tag ) {
+//----------------------------------------------------------------------------
+  // Match the range of residue res1->res2 (not necessarilly input
+  // in correct sequence order) to mres1 (equivalent of res1)
+  // for the residues with the same sequence id 
+  // selection_mode: CA/main/all etc
+  int nconn = 0;
+  int mainchain_max= mainchain_name.size();
+  PPCResidue selRes1, selRes2;
+  PCAtom pat1, pat2;
+  int nr1,nr2;
+
+  molHnd1->GetSelIndex(selHnd1,selRes1,nr1);
+  molHnd2->GetSelIndex(selHnd2,selRes2,nr2);
+  //cout << "AddRangeWithSameIdConnections " << nr1 << " " << nr2 << " " << mainchain_max<<endl;
+
+  int targetHnd = molHnd2->NewSelection();
+ 
+  for (int ir=0; ir< nr1; ir++) {
+    
+    molHnd2->Select ( targetHnd,STYPE_RESIDUE,selHnd2,SKEY_NEW);
+    molHnd2->Select ( targetHnd,STYPE_RESIDUE,0,"*",selRes1[ir]->seqNum,selRes1[ir]->insCode,
+                      selRes1[ir]->seqNum,selRes1[ir]->insCode,"*","*","*","*",SKEY_AND);
+    molHnd2->GetSelIndex(targetHnd,selRes2,nr2);
+    //cout << "AddRangeWithSameIdConnections " << ir << " " << selRes1[ir]->seqNum << selRes1[ir]->insCode << " " << nr2;
+    //if (nr2>0) cout << " " << selRes2[0]->seqNum;
+    //cout << endl;
+    if (nr2>0) {
+      if (mainchain_max>0) {
+        for (int ia=0;ia<mainchain_max;ia++) {         
+          pat1 = selRes1[ir]->GetAtom(mainchain_name[ia].c_str(),"*","");
+          pat2 = selRes2[0]->GetAtom(mainchain_name[ia].c_str(),"*","");
+          if (pat1!=NULL && pat2!=NULL) {
+            nconn++;
+            AddConnection(pat1,pat2,"",tag);
+          }
+        }
+      } else {
+        for (int ia=0;ia<selRes1[ir]->GetNumberOfAtoms();ia++) {
+          pat1 = selRes1[ir]->GetAtom(ia);
+          pat2 = selRes2[0]->GetAtom(pat1->name, pat1->element,pat1->altLoc);
+          //cout << "pat" << pat << endl;
+          if (pat2!=NULL) {
+            nconn++;
+            AddConnection(pat1,pat2,"",tag);
+          }
+	}
+      }
+    }
+  }
+  //cout << "nconn " << nconn <<endl;
+  return nconn;
+}
+
+double Connectivity2::GetRMSD() {
+
+  double rmsd,dist,distsum=0.0;
+  int nat = 0;
+
+  std::vector<PCAtom>::iterator at1=pAtom1.begin();
+  std::vector<PCAtom>::iterator at2=pAtom2.begin();
+  std::vector<Cartesian>::iterator  xyz;
+
+  while(at1!=pAtom1.end()){
+    //if (strcmp((*at1)->name,selected_atom)==0) {
+      dist =   ((*at1)->x-(*at2)->x) *  ((*at1)->x-(*at2)->x) +
+	     ((*at1)->y-(*at2)->y) *  ((*at1)->y-(*at2)->y) +
+         	((*at1)->z-(*at2)->z) *  ((*at1)->z-(*at2)->z) ;
+      //cout << "GetRMSD dist " << dist <<endl;
+      at1++;
+      at2++;
+      distsum += dist;
+      nat++;
+      // }
+  
+  }
+  rmsd = pow((distsum/nat),0.5);
+  //cout << "Matching " << nat << " atoms with RMSD " << rmsd <<endl;
+  return rmsd;
+  
+}
+
+int Connectivity2::AddContactFromSelHandle( PCMMANManager molHnd1,int selHnd1, 
+                                            PCMMANManager molHnd2,int selHnd2, int tag) {
+
+  int na1,na2;
+  PPCAtom pa1 = NULL;
+  PPCAtom pa2 = NULL;
+  double dist;
+  molHnd1->GetSelIndex ( selHnd1,pa1,na1 );
+  molHnd2->GetSelIndex ( selHnd2,pa2,na2 );
+  //cout << "AddFromSelHandle na1,na2 " << na1 << " " << na2 << endl;
+  if ( na1 > na2 ) na1 = na2;
+  for (int i=0;i<na1;i++ ) {
+    dist = sqrt ( ( pa1[i]->x-pa2[i]->x)* ( pa1[i]->x-pa2[i]->x) +
+                  ( pa1[i]->y-pa2[i]->y)* ( pa1[i]->y-pa2[i]->y) +
+                  ( pa1[i]->z-pa2[i]->z)* ( pa1[i]->z-pa2[i]->z)  ) ;
+    AddConnection( pa1[i],pa2[i],FloatToString(dist,"%.1f"),tag);
+  }
+  return na1;
+}
+
+//------------------------------------------------------------------------
+int Connectivity2::AddCloseAtoms( PCMMANManager molHnd1,int selHnd1_in, 
+                                  PCMMANManager molHnd2,int selHnd2 , 
+				  realtype central_cutoff, realtype cutoff , char *central, int tag ) {
+//------------------------------------------------------------------------
+  int selHnd1;
+  PPCAtom SelAtoms1 = NULL;
+  int NAtoms1;
+  int ResHnd1;
+  PPCResidue SelRes1 = NULL;
+  int NRes1;
+  int nConn=0;
+  double dist;
+
+  // Max possible number of superposed atoms
+  selHnd1 =  molHnd1->NewSelection();
+  if (selHnd1_in>0)
+    molHnd1->Select(selHnd1,STYPE_ATOM,selHnd1_in,SKEY_NEW);
+  else
+    molHnd1->Select(selHnd1,STYPE_ATOM,0,"*",ANY_RES,
+	       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+
+  molHnd1->GetSelIndex(selHnd1,SelAtoms1,NAtoms1);
+  if (NAtoms1<=0) return -1;
+
+  
+  //Get list of target residues
+  ResHnd1 = molHnd1->NewSelection();
+  molHnd1->Select(ResHnd1,STYPE_RESIDUE,selHnd1,SKEY_NEW);
+  molHnd1->GetSelIndex(ResHnd1,SelRes1,NRes1);
+  //cout << "fxNAtoms,fxNRes " << fxNAtoms << " " << fxNRes << endl;
+  if (NRes1<=0) {
+    molHnd1->DeleteSelection(ResHnd1);
+    return -1;
+  }
+ 
+
+  //Get the 'central' atoms in the second model
+  int centralHnd = molHnd2->NewSelection();
+  PPCAtom centralAtoms;
+  int centralNAtoms;
+  if (selHnd2>0) {
+    molHnd2->Select(centralHnd,STYPE_ATOM,selHnd2,SKEY_NEW);
+    molHnd2->Select(centralHnd,STYPE_ATOM,0,"*",ANY_RES,
+       "*",ANY_RES, "*","*","CA","C","*",SKEY_AND);
+  } else
+    molHnd2->Select(centralHnd,STYPE_ATOM,0,"*",ANY_RES,
+       "*",ANY_RES, "*","*","CA","C","*",SKEY_NEW);
+  molHnd2->GetSelIndex(centralHnd,centralAtoms,centralNAtoms);
+  //cout << "centralNAtoms " << centralNAtoms << endl;
+
+  // Loop over residues in fixed model
+
+  PCAtom pCentralAtom;
+  PCResidue closeRes;
+  PCAtom fxAtom,closeAtom;
+  int ncontacts,best_match;
+  double score,best_score;
+
+  for (int ir=0; ir<NRes1; ir++) {
+    // Find the 'central' atoms in moving object that
+    // are close to the central atom of fixed residue
+    // -- there should just be one!
+
+    pCentralAtom = SelRes1[ir]->GetAtom("CA","*","*");
+    if (pCentralAtom) {
+      PSContact contact= NULL;
+      ncontacts = 0;
+      molHnd2->SeekContacts (pCentralAtom,centralAtoms,centralNAtoms,
+		    0.0, central_cutoff,0,contact,ncontacts,-1);
+      best_match=-1;
+      best_score=central_cutoff;
+      if (ncontacts ==1 ) {
+        best_match=0;
+      } else if (ncontacts>1) {
+        //cout <<  pCentralAtom->residue->seqNum << "ncontacts " << ncontacts << endl;
+      
+        for (int nc=0;nc<ncontacts;nc++) {
+          score=contact[nc].dist -
+           molHnd2->DeltaResidueOrientation(centralAtoms[contact[nc].id2]->residue,SelRes1[ir]);
+          if(score<best_score && score <central_cutoff-1.5 ) {
+            best_score=score;
+            best_match=nc;
+          }
+        }
+        //cout << "best " << best_match << " " << best_score << endl;
+      }
+      
+
+      // -- there should be just one close residue!
+      if (best_match >=0 ) {
+        closeRes = centralAtoms[contact[best_match].id2]->residue;
+        // Loop over atoms in the fixed residue
+        // Is the atom in the original selection 
+        for (int ia=0;ia<SelRes1[ir]->GetNumberOfAtoms();ia++) {
+          fxAtom = SelRes1[ir]->GetAtom(ia);
+          if ( fxAtom && fxAtom->isInSelection(selHnd1) ) {
+	    // Is there an atom with same name in the close moving residue
+	     closeAtom= closeRes->GetAtom(fxAtom->name,fxAtom->element,"*");
+             if ( closeAtom && molHnd2->BondLength(fxAtom,closeAtom)<=cutoff) {
+               dist = sqrt ( ( fxAtom->x-closeAtom->x)* ( fxAtom->x-closeAtom->x) +
+                  ( fxAtom->y-closeAtom->y)* ( fxAtom->y-closeAtom->y) +
+                  ( fxAtom->z-closeAtom->z)* ( fxAtom->z-closeAtom->z)  ) ;
+               AddConnection(fxAtom,closeAtom,FloatToString(dist,"%.1f"),tag);
+               nConn++;
+             }
+          }
+        }
+      }
+      if (contact) delete contact;
+    }
+  }
+
+  // Cleanup
+  molHnd1->DeleteSelection(ResHnd1);
+  molHnd2->DeleteSelection(centralHnd);
+
+  return nConn;
+
+}
 
 
 //----------------------------------------------------------------------------
@@ -1207,11 +1478,13 @@ int Connectivity2::Superpose(int fixed) {
   i=pAtom2.begin(); j = 0;
   while(i!=pAtom2.end()){  A2[j++] = *i; i++; }
 
+  //cout << "Connectivity2::Superpose fixed " << fixed <<" " <<pAtom1.size() << endl;
+
   if (fixed == 1) {
     // Move the second set of atoms
     i = pAtom2.begin();
-    PCMMANManager M1 = (PCMMANManager)(PCMMDBFile)(*i)->GetCoordHierarchy();
-    M1->TransformToSuperposeAtoms( A2,pAtom2.size() ,A1 );
+    PCMMANManager M2 = (PCMMANManager)(PCMMDBFile)(*i)->GetCoordHierarchy();
+    M2->TransformToSuperposeAtoms( A2,pAtom2.size() ,A1 );
 
   } else {
     i = pAtom1.begin();
@@ -1219,7 +1492,7 @@ int Connectivity2::Superpose(int fixed) {
     M1->TransformToSuperposeAtoms( A1,pAtom1.size() ,A2 );
 
   }
-
+  //cout << "Connectivity2::Superpose done " << endl;
   return 0;
  
 }

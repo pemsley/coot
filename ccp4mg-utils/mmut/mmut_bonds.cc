@@ -1,6 +1,8 @@
 /*
      mmut/mmut_bonds.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -25,14 +27,15 @@
 #include <iostream>
 #include <sstream>
 #include <iomanip>
-#include <mmdb_manager.h>
-#include <mmdb_sbase.h>
-#include <mmdb_graph.h>
-#include <mattype_.h>
-#include <mmut_bonds.h>
-#include <mmut_sbase.h>
-#include <mmut_manager.h>
-#include <mman_manager.h>
+#include <mmdb/mmdb_manager.h>
+#include <mmdb/mmdb_sbase.h>
+#include <mmdb/mmdb_graph.h>
+#include <mmdb/mattype_.h>
+#include "mmut_bonds.h"
+#include "mmut_sbase.h"
+#include "mmut_manager.h"
+#include "mman_manager.h"
+#include <mmdb/mmdb_tables.h>
 
 using namespace std;
 
@@ -93,7 +96,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
   PCSBStructure pSbRes=NULL;
   ivector nMatchAtom = NULL;
   imatrix matchAtom = NULL;
-  int nAtominRes,nAtoms,ir,i,j,na1,na2,ia1,ia2,ib,selH = 0;
+  int nAtominRes,nAtoms,ir,i,j,na1,na2,ia1,ia2,ib,selH;
   int nModels,nm,nAtominModel; 
 
   int nr;
@@ -116,15 +119,23 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
 
   // Pointer to atoms in residue for all models
   // Big bovver if >100 models
+  /*
   PPCAtom modelSelAtom[100];
   int nSelAtom[100];
   for (nm=1;nm<=100;nm++) {  modelSelAtom[nm]=NULL; }
+  */
 
   // For NMR structure with multiple models we need to 
   // find the bonds in one model but populate the bonds data
   // structure for all models - but first make sure all models
   // have the same composition 
   nModels = molHnds[0]->GetNumberOfModels();
+
+  // Avoid big bovver. May use a lot of memory.
+  PPCAtom *modelSelAtom = new PPCAtom[nModels+1];
+  int* nSelAtom = new int[nModels+1];
+  for (nm=0;nm<=nModels;nm++) {  modelSelAtom[nm]=NULL; }
+
   if (nModels>1) {
     lastModel = nModels;
     firstModel = 0;
@@ -215,6 +226,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
           // equivalent bond  
           if ( nAlt >= 1 ) {
             for ( ib = 0; ib < pSbRes->nBonds; ib++ ) {
+              realtype dist = 0;
               na1 = nMatchAtom[pSbRes->Bond[ib]->atom1-1];
               na2 = nMatchAtom[pSbRes->Bond[ib]->atom2-1];
               if (na1>0 && na2>0) {
@@ -222,12 +234,21 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
                   ia1 = matchAtom[i][pSbRes->Bond[ib]->atom1-1];
                   for ( j = 0; j< na2; j++ ) {
                     ia2 = matchAtom[j][pSbRes->Bond[ib]->atom2-1];
-                    if (molHnds[0]->doAltLocMatch (selAtom[ia1],selAtom[ia2] )){ 
+                    realtype x1 = selAtom[ia1]->x;
+                    realtype y1 = selAtom[ia1]->y;
+                    realtype z1 = selAtom[ia1]->z;
+                    realtype x2 = selAtom[ia2]->x;
+                    realtype y2 = selAtom[ia2]->y;
+                    realtype z2 = selAtom[ia2]->z;
+                    dist = sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) + (z2-z1)*(z2-z1));
+                    if (molHnds[0]->doAltLocMatch (selAtom[ia1],selAtom[ia2] )&&params->sbase->CheckCovalentDistance(selAtom[ia1]->element,selAtom[ia2]->element,dist)!=0){ 
                       AddConnection(ia1, ia2, selAtom);
                       if (modelBondsSame && nModels > 1 ) {
-                        for (nm = firstModel+1; nm <= lastModel; nm++) {                                if (molHnds[0]->GetModel(nm) != NULL) {
-                          AddConnection(ia1, ia2, modelSelAtom[nm]);
-                        } }
+                        for (nm = firstModel+1; nm <= lastModel; nm++) {
+                          if (molHnds[0]->GetModel(nm) != NULL) {
+                            AddConnection(ia1, ia2, modelSelAtom[nm]);
+                          }
+                        }
                       }
                     }
                   }  
@@ -238,8 +259,21 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
            else {
             // No alternate locations - should only be one bond of each type
             for ( ib = 0; ib < pSbRes->nBonds; ib++ ) {
+              realtype dist = 0;
               if ( nMatchAtom[pSbRes->Bond[ib]->atom1-1] > 0 &&
-		     nMatchAtom[pSbRes->Bond[ib]->atom2-1] > 0 ) {
+		     nMatchAtom[pSbRes->Bond[ib]->atom2-1] > 0){
+                 realtype x1 = selAtom[matchAtom[0][pSbRes->Bond[ib]->atom1-1]]->x;
+                 realtype y1 = selAtom[matchAtom[0][pSbRes->Bond[ib]->atom1-1]]->y;
+                 realtype z1 = selAtom[matchAtom[0][pSbRes->Bond[ib]->atom1-1]]->z;
+                 realtype x2 = selAtom[matchAtom[0][pSbRes->Bond[ib]->atom2-1]]->x;
+                 realtype y2 = selAtom[matchAtom[0][pSbRes->Bond[ib]->atom2-1]]->y;
+                 realtype z2 = selAtom[matchAtom[0][pSbRes->Bond[ib]->atom2-1]]->z;
+                 dist = sqrt((x2-x1)*(x2-x1) + (y2-y1)*(y2-y1) + (z2-z1)*(z2-z1));
+              }
+              if ( nMatchAtom[pSbRes->Bond[ib]->atom1-1] > 0 &&
+		     nMatchAtom[pSbRes->Bond[ib]->atom2-1] > 0 &&
+                  params->sbase->CheckCovalentDistance(selAtom[matchAtom[0][pSbRes->Bond[ib]->atom1-1]]->element,selAtom[matchAtom[0][pSbRes->Bond[ib]->atom2-1]]->element,dist)!=0
+                ) {
                 AddConnection ( matchAtom[0][pSbRes->Bond[ib]->atom1-1],
 			  matchAtom[0][pSbRes->Bond[ib]->atom2-1],selAtom) ;
                 if (modelBondsSame && nModels > 1 ) {
@@ -281,7 +315,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
          }
       }
     }
-  } } 
+  } }
 
   //INTER-residue bonds
 
@@ -297,7 +331,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
   nContacts = 0;
   molHnds[0]->SeekContacts(selAtom0,nAtoms,selAtom0,nAtoms,
 		 0.0,params->interResCut,1,contacts,nContacts,0,NULL,0);
-  //cout << "nContacts " << nAtoms << " " << nContacts << endl;
+  //cout << "FindBonds INTER-residue bonds nContacts " << nAtoms << " " << nContacts << endl;
 
   // Check if each contact is between possible altLoc matches
   // and that this corresponds to recognised chemical link
@@ -311,7 +345,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
           //cout << "testing contact " << pa1->residue->seqNum << " " << pa2->residue->seqNum << endl;
           restype1 =  dynamic_cast<PCMMANManager>(molHnds[0])->GetRestypeCode (pa1->residue);
           restype2 = dynamic_cast<PCMMANManager>( molHnds[0])->GetRestypeCode (pa2->residue);
-          //cout << "testing interres " << pa1->residue->name << " " << restype1 << " " <<  pa1->residue->name  << " " << restype2 << endl;
+          //cout << "testing interres " <<  pa1->residue->seqNum << pa1->residue->name << " " << restype1 << " "  << pa2->residue->seqNum <<  pa2->residue->name  << " " << restype2 << endl;
           if (restype1 ==  RESTYPE_PEPTIDE && restype2 == RESTYPE_PEPTIDE ) {
             if (isInterResBond(pa1,pa2)) 
                AddConnection (contacts[ic].id1,contacts[ic].id2,selAtom0); 
@@ -320,11 +354,32 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
  
             if (isInterResBond(pa1,pa2)) 
                AddConnection (contacts[ic].id1,contacts[ic].id2,selAtom0); 
+          } else if ( (restype1==RESTYPE_SACH || restype1==RESTYPE_DSACH || restype1==RESTYPE_LSACH) && 
+                 (restype2 == RESTYPE_SACH || restype2 == RESTYPE_DSACH || restype2 == RESTYPE_LSACH) ) {
+ 
+            if (isInterResBond(pa1,pa2)) 
+               AddConnection (contacts[ic].id1,contacts[ic].id2,selAtom0); 
+
 	  } else if ((restype1<RESTYPE_SOLVENT || restype1>RESTYPE_NONPOLY) &&
                (restype2<RESTYPE_SOLVENT || restype2>RESTYPE_NONPOLY ) ) {
             if (ltBondDistance(pa1,pa2,contacts[ic].dist) )  {
-	    //cout << "non-peptide" << pa1->name << " " << pa2->name << endl;
-              AddConnection (contacts[ic].id1,contacts[ic].id2,selAtom0);
+	      //cout << "non-peptide" << pa1->name << " " << pa2->name << endl;
+              if((isMetal(pa1->name)&&!isMetal(pa2->name))||(isMetal(pa2->name)&&!isMetal(pa1->name))){
+	        //cout << "metal coordination, ignoring" << endl;
+              } else {
+                AddConnection (contacts[ic].id1,contacts[ic].id2,selAtom0);
+              }
+            }
+          } else {
+            if (isInterResBond(pa1,pa2)) {
+               AddConnection (contacts[ic].id1,contacts[ic].id2,selAtom0); 
+            } else {
+               double dist = contacts[ic].dist;
+               if(params->sbase->CheckCovalentDistance(pa1->element,pa2->element,dist)==1){
+                 //std::cout << "Adding possible covalent contact\n";
+                 //std::cout << pa1->element << " " <<  pa2->element << " " << dist << "\n";
+                 AddConnection (contacts[ic].id1,contacts[ic].id2,selAtom0); 
+               }
             }
           }
         }
@@ -341,7 +396,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
         molHnds[0]->GetSelIndex ( selH,selAtom0,nAtoms );
         //cout << "selAtom0 " << nm << " nAtoms " << nAtoms << " nContacts " << nContacts << endl;
         for ( ic = 0; ic < nContacts; ic++) {
-          if ( contacts[ic].id1 < contacts[ic].id2 ) {
+          if ( contacts[ic].id1 < contacts[ic].id2 && contacts[ic].id2 < nAtoms && contacts[ic].id2 > 0 ) {
             pa1 = selAtom0[contacts[ic].id1];
             pa2 = selAtom0[contacts[ic].id2];
             if ( nAltTot <= 0 || molHnds[0]->doAltLocMatch( pa1, pa2 )) { 
@@ -374,10 +429,15 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
   matchAtom = NULL;
   if (contacts) delete [] contacts;
   if (selAtom) delete [] selAtom;
+  /*
   for (nm=2;nm<=nModels;nm++) {
     if (modelSelAtom[nm]) delete [] modelSelAtom[nm];
   }
+  */
   //cout << "done FindBonds" << endl;
+  if(modelSelAtom) delete [] modelSelAtom;
+  if(nSelAtom) delete [] nSelAtom;
+
 
   return output.str();
 }
@@ -624,25 +684,32 @@ bool CMolBonds::isInterResBond ( PCAtom pa1, PCAtom pa2 ) {
   int type1,type2,n;
   AtomName a1,a2;
 
+  /*
   std::string first,second;
-  first =  std::string(GetMolHnd(0)->AtomLabel_atom(pa1));
+  first =  std::string(GetMolHnd(0)->AtomLabel_atom(pa1));// Why is this dodgy (well valgrind thinks it is)?
   second = std::string(GetMolHnd(0)->AtomLabel_atom(pa2));
-  //cout << "interres " << first << " " <<  second << endl;
+  */
 
   type1 =  dynamic_cast<PCMMANManager>(molHnds[0])->GetRestypeCode (pa1->residue);
   type2 =  dynamic_cast<PCMMANManager>(molHnds[0])->GetRestypeCode (pa2->residue);
 
+  //cout << "CMolBonds::isInterResBond " << first << " " <<  second << " " << type1 << " " << type2 << " " << params->sbase->nLinks << endl;
   
   strcpy_css(a1,pa1->name);
   strcpy_css(a2,pa2->name);
   
-  for ( n = 0; n < params->sbase->nLinks; n++ ) {
+  for ( n = 0; n <= params->sbase->nLinks; n++ ) {
     if (strcmp(params->sbase->link[n]->id,"symmetry") != 0 &&
         strcmp(params->sbase->link[n]->id,"gap") != 0 ) {
+      //cout << "CMolBonds::isInterResBond " << n << " " << params->sbase->link[n]->id << endl;
       if ( params->sbase->link[n]->lg1.Match(type1, pa1->residue->name, a1)&&
 	  params->sbase->link[n]->lg2.Match(type2, pa2->residue->name, a2)) {
-       //printf ("Type of link: %i\n",n);
+	//printf ("Type of link: %i\n",n);
         return true;
+      } else if ( params->sbase->link[n]->lg2.Match(type1, pa1->residue->name, a1)&&
+	  params->sbase->link[n]->lg1.Match(type2, pa2->residue->name, a2)) {
+	//printf ("Type of link: %i\n",n);
+          return true;
       }
     }
   }

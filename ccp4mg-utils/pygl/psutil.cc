@@ -1,6 +1,6 @@
 /*
      pygl/psutil.cc: CCP4MG Molecular Graphics Program
-     Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2001-2005 University of York, CCLRC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -18,7 +18,7 @@
 */
 
 
-#include <psutil.h>
+#include "psutil.h"
 
 #include <iostream>
 #include <fstream>

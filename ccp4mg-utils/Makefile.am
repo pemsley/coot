@@ -18,20 +18,22 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-lib_LTLIBRARIES=libccp4mg-utils.la
+SUBDIRS = util mmut pygl mgapp
 
-include_HEADERS = geomutil.h mgtree.h cartesian.h matrix.h quat.h ppmutil.h
+#lib_LTLIBRARIES=libccp4mg-utils.la
 
-EXTRA_DIST = convert.sh get-new-utils.sh
+include_HEADERS = geomutil.h mgtree.h cartesian.h quat.h ppmutil.h
+
+EXTRA_DIST = convert.sh get-new-utils.sh get-all-new-utils.sh
 
 INCLUDES =  \
-	$(MMDB_CXXFLAGS) \
-	$(LIBPNG_CFLAGS)
+	-I$(top_srcdir)/ccp4mg-utils/util       \
+	$(MMDB_CXXFLAGS)
 
-libccp4mg_utils_la_SOURCES = geomutil.cc mgtree.cc cartesian.cc \
-	matrix.cc quat.cc ppmutil.cc
+# for ppmutil.cc compilation
+# CXXFLAGS = -DUSE_LIBPNG -I/sw/include
 
+#libccp4mg_utils_la_SOURCES = geomutil.cc mgtree.cc cartesian.cc \
+#	quat.cc ppmutil.cc
 
-libccp4mg_utils_la_LIBADD = \
-   $(LIBPNG_LIBS)
 

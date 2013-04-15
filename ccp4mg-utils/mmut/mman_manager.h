@@ -1,6 +1,8 @@
 /*
      mmut/mman_manager.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2011 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -24,11 +26,11 @@
 #include <string>
 #include <vector>
 #include <map>
-#include <cartesian.h>
-#include <matrix.h>
-#include <mmut_manager.h> 
-#include <mmut_sasarea.h>
-#include <mmut_bonds.h>
+#include "cartesian.h"
+#include "matrix.h"
+#include "mmut_manager.h"
+#include "mmut_sasarea.h"
+#include "mmut_bonds.h"
 
 enum enum_atomTypeData { HBTYPE, VDWRADIUS, VDWHRADIUS, IONRADIUS };
 enum enum_property { PROPERTY_B, PROPERTY_OCC, PROPERTY_CHARGE,
@@ -53,7 +55,9 @@ class CMMANManager : public CMMUTManager  {
   public :
 
     CMMANManager();
+    CMMANManager(CMMDBManager*);
     CMMANManager(PCMGSBase p_sbase_in, PCMolBondParams p_bond_params_in);
+    int SetSBaseAndBondParams(PCMGSBase p_sbase_in,PCMolBondParams p_bond_params_in);
     ~CMMANManager();
 
     // MG SBase class
@@ -77,7 +81,7 @@ class CMMANManager : public CMMUTManager  {
     int GetAtomEnergyType(PCAtom p_atom);
 
     realtype GetAtomVDWRadius(PCAtom p_atom);
-    const char* GetAtomHBondType(PCAtom p_atom);
+    char* GetAtomHBondType(PCAtom p_atom);
     int GetAtomHBondType1(PCAtom p_atom);
     int LoadCharge(std::string loadfrom);
     std::string PrintCharges(void);
@@ -93,8 +97,10 @@ class CMMANManager : public CMMUTManager  {
 
     int CopyModel(int model);
     int GenerateSymmetryModel(int model,int nsym,int i,int j,int k);
+    int GenerateTransformedModel(int model,realtype *vmat);
+    int ApplyTransformtoModel(int model,realtype *vmat,Boolean undo=false);
     std::string GetSymOpTitle(int nsym,int i,int j,int k);
-    int ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,int undo_nsym=-1,int undo_i=0,int undo_j=0,int undo_k=0);
+    int ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,Boolean undo=false);
     int IfSymmetryNeighbours(int selHnd, int model, int nsym, 
 			     int i, int j, int k, double dist );
     int MoveFragment(int nMove, PPCAtom moveAtoms, Cartesian dxyz); 
@@ -109,25 +115,30 @@ class CMMANManager : public CMMUTManager  {
     int SetCustomResSynonym ( const std::string &resname , const std::string &alias , Boolean clear=false);
 
 
-    int ExcludeOverlappedAtoms ( const int selHnd ,const realtype cutoff );
+    int ExcludeOverlappedAtoms ( const int selHnd ,const realtype cutoff, int theModel=0 );
     int SetTransform ( const std::vector<float>& transf , const std::vector<float>& transl , const bool reset);
     int SetTransform ( const realtype rot ,const std::vector<float>& axis, const int selHnd = -1 );
     int SetTransform ( const matrix tMat, const bool reset);
     int SetTransform ( mat44 &TMatrix , const bool reset);
+    int SetTransform ( const std::vector<float>&, const bool reset);
     int ReApplyTransform( const bool reset=0);
     void UnSetTransform(bool apply_inverse=1);
     std::vector<float> GetTransform();
     std::string GetTransformString();
     bool GetIsTransformed() { return isTransformed; }
+    double AtomicRMSDistance( PPCAtom A1, int nA, PPCAtom A2);
     int TransformToSuperposeAtoms (  PPCAtom A1, int nA, PPCAtom A2 );
-    double DeltaResidueOrientation (PCResidue pRes, PCResidue pResFx);
     int TransformToSuperposeCloseAtoms(PCMMANManager fxMolHnd, int fxSelHnd , realtype central_cutoff, realtype cutoff, int mvSuperposeHnd,int fxSuperposeHnd);
+    double DeltaResidueOrientation (PCResidue pRes, PCResidue pResFx);
     int CopyCoordinates(const PCMMDBManager fromMolHnd,int fromModel=1);
     int LoadSerial(const PCMMDBManager fromMolHnd );
+    int LoadSerialFromDifferentModel(const PCMMDBManager fromMolHnd , int uddSerial);
     bool GetUnremediated() { return unremediated; };
+    int GetNumberOfSecStructure(int type);
     std::string PrintSecStructure (void);
-
-  private: 
+    int GetLibTMatrix(mat44 &TMatrix,int nsym,int i,int j,int k);
+    int ApplyCartesiansDeltas(const std::vector<Cartesian> &dxyz, int selHnd, double scale=1.0); 
+ private:
     
     // SAS
     PCSASArea p_sas;
@@ -155,6 +166,7 @@ class CMMANManager : public CMMUTManager  {
     realtype transform_com[3];
 
     bool unremediated;
+
 
 };
 

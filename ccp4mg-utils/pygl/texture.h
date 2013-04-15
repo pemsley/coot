@@ -1,6 +1,7 @@
 /*
      pygl/texture.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -28,8 +29,12 @@
 #include <GL/gl.h>
 #endif
 
+#include <utility>
+#include "ppmutil.h"
 enum {NEAREST, LINEAR, MIPMAP};
 unsigned int load_texture(const image_info &iinfo, int style);
+std::pair<unsigned,unsigned> GetCompatibleTextureSize(const unsigned width_in, const unsigned height_in);
+image_info ResizeWithEmptySpace(const image_info &iinfo, const unsigned width, const unsigned height);
 void set_texture_coord(GLfloat x, GLfloat y, int textured);
 
 #endif

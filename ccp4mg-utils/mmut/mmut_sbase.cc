@@ -1,6 +1,8 @@
 /*
      mmut/mmut_sbase.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -26,17 +28,17 @@
 #include <stdlib.h>
 #include <iostream>
 #include <sstream>
+#include <fstream>
 #include <iomanip>
 #include <algorithm>
-#include <sstream>
-#include <mmdb_manager.h>
-#include <mmut_manager.h>
-#include <mmut_sbase.h>
-#include <mmdb_sbase.h>
-#include <mmdb_graph.h>
-#include <mmdb_tables.h>
-#include <mgtree.h>
-#include <mgutil.h>
+#include <mmdb/mmdb_manager.h>
+#include "mmut_manager.h"
+#include "mmut_sbase.h"
+#include <mmdb/mmdb_sbase.h>
+#include <mmdb/mmdb_graph.h>
+#include <mmdb/mmdb_tables.h>
+#include "mgtree.h"
+#include "mgutil.h"
 
 using namespace std;
 
@@ -51,19 +53,18 @@ bool CCompoundGroup::groupMatch[13][13] = {
  {false,false,false,false,true ,false,false,false,false,false,false,false,true}, 
  {false,false,false,false,false,true ,false,false,false,false,false,false,true}, 
  {false,false,false,false,false,false,true ,true ,true ,false,false,false,true}, 
- {false,false,false,false,false,false,false,true ,false,false,false,false,true}, 
- {false,false,false,false,false,false,false,false,true ,false,false,false,true}, 
- {false,false,false,false,false,false,false,false,false,true ,false,false,true}, 
- {false,false,false,false,false,false,false,false,false,false,true ,false,true}, 
+ {false,false,false,false,false,false,false,true ,true ,true ,true ,false,true}, 
+ {false,false,false,false,false,false,false,true ,true ,true ,true ,false,true}, 
+ {false,false,false,false,false,false,false,true ,true ,true ,true ,false,true}, 
+ {false,false,false,false,false,false,false,true ,true ,true ,true ,false,true}, 
  {false,false,false,false,false,false,false,false,false,false,false,true ,true}, 
  {true ,true ,true ,true ,true ,true ,true ,true ,true ,true ,true ,true ,true} };
 
 
-const char *CCompoundGroup::cifGroupNames[12] = { "peptide", "D-peptide", "L-peptide", 
-						  "DNA/RNA", "DNA", "RNA", 
-						  "saccharide", "pyranose",
-						  "D-saccharid","L-saccharid", 
-						  "solvent","non-polymer" };
+char *CCompoundGroup::cifGroupNames[12] = { "peptide", "D-peptide", "L-peptide", 
+			     "DNA/RNA", "DNA", "RNA", 
+		 "saccharide", "pyranose", "D-saccharid","L-saccharid", 
+			     "solvent","non-polymer" };
 int CCompoundGroup::groupCode[12] = { RESTYPE_PEPTIDE, RESTYPE_DPEPTIDE,  RESTYPE_LPEPTIDE, 
 		      RESTYPE_NUCL,RESTYPE_DNA, RESTYPE_RNA, 
 	     RESTYPE_SACH, RESTYPE_SACH, RESTYPE_DSACH, RESTYPE_LSACH, 
@@ -71,15 +72,15 @@ int CCompoundGroup::groupCode[12] = { RESTYPE_PEPTIDE, RESTYPE_DPEPTIDE,  RESTYP
 
 // definition of the CLibAtom atom hydrogen bonding types
 int CLibAtom::nHbCodes = 6;
-const char *CLibAtom::hbCharCode[6] = { "U", "N", "H", "D", "B", "A" };
+char *CLibAtom::hbCharCode[6] = { "U", "N", "H", "D", "B", "A" };
 int CLibAtom::hbCode[6] = { HBTYPE_UNKNOWN,HBTYPE_NEITHER, HBTYPE_HYDROGEN, 
                     HBTYPE_DONOR, HBTYPE_BOTH, HBTYPE_ACCEPTOR };
 
 // definition of CLibBond bond types
  
 int CLibBond::nBondCodes = 6;
-const char *CLibBond::bondCharCode[6] = { "single" , "double", "triple", 
-					  "aromatic", "deloc", "metal" };
+char *CLibBond::bondCharCode[6] = { "single" , "double", "triple", 
+				    "aromatic", "deloc", "metal" };
 int CLibBond::bondCode[6] = {  BONDTYPE_SINGLE, BONDTYPE_DOUBLE, 
 			       BONDTYPE_TRIPLE, BONDTYPE_AROMATIC, 
                                BONDTYPE_DELOC, BONDTYPE_METAL};
@@ -202,9 +203,9 @@ int CMGSBase::InitSBase(char *sb) {
   int RC,i;
   int nload = 21;
   LoadedPCSBStructure dummy;
-  const char *load[] = { "ALA","GLY","SER","THR","ASP","GLU","ASN","GLN",
-			 "LEU","ILE","PHE","TYR","HIS","CYS","MET","TRP",
-			 "ARG","LYS","PRO","VAL","HOH" };
+  char *load[] = { "ALA","GLY","SER","THR","ASP","GLU","ASN","GLN",
+                   "LEU","ILE","PHE","TYR","HIS","CYS","MET","TRP",
+		   "ARG","LYS","PRO","VAL","HOH" };
   if (strlen(sb)>0) {
     SBase  = new CSBase ();
     RC = SBase->LoadIndex1("CCP4_SBASE");
@@ -337,7 +338,10 @@ CMGSBase::~CMGSBase() {
 //-----------------------------------------------------------------------
   int i;
   LoadedPCSBStructure_iter p = loadedPStruct.begin();
-  while (p != loadedPStruct.end()) delete p->second;
+  while (p != loadedPStruct.end()){
+    delete p->second;
+    p++;
+  }
   if (SBase) delete SBase;
   for ( i = 0; i < nLinks; i++ ){
     if(link[i])
@@ -416,6 +420,7 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
     RC = CIFGetString ( new_atom->pdb_name, Loop,CIFTAG_COMP_ATOM_ID,N,sizeof(new_atom->pdb_name),"");
     if ( RC || (!new_atom->pdb_name) ) {
       delete structure;
+      delete new_atom;
       return NULL;
     }
     RC = CIFGetString ( new_atom->sca_name, Loop,CIFTAG_COMP_ALT_ATOM_ID,N,sizeof(new_atom->sca_name),"");
@@ -443,7 +448,6 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
     int nBonds =  Loop->GetLoopLength();
     AtomName atom1,atom2;
     for (int N=0;N<nBonds;N++) {
-      CSBBond *new_bond =  new CSBBond();
       RC = CIFGetString(atom1,Loop,CIFTAG_COMP_BOND_ATOM_1,N,sizeof(atom1),"");
       if ( RC || (!atom1) ) {
         delete structure;
@@ -451,6 +455,7 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
       }
       RC = CIFGetString(atom2,Loop,CIFTAG_COMP_BOND_ATOM_2,N,sizeof(atom2),"");
 
+      CSBBond *new_bond =  new CSBBond();
       for ( int j = 0; j < structure->nAtoms; j++ ) {
         if ( strcmp (atom1, structure->Atom[j]->pdb_name) == 0 ) new_bond->atom1 = j+1;
         if ( strcmp (atom2, structure->Atom[j]->pdb_name) == 0 ) new_bond->atom2 = j+1;
@@ -493,13 +498,13 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
     int nAngles =  Loop->GetLoopLength();
     AtomName atom1,atom2,atom3;
     for (int N=0;N<nAngles;N++) {
-      CSBAngle *new_angle =  new CSBAngle();
       RC = CIFGetString(atom1,Loop,CIFTAG_COMP_BOND_ATOM_1,N,sizeof(atom1),"");
       if ( RC || (!atom1) ) {
         return structure;
       }
       RC = CIFGetString(atom2,Loop,CIFTAG_COMP_BOND_ATOM_2,N,sizeof(atom2),"");
       RC = CIFGetString(atom3,Loop,"atom_id_3",N,sizeof(atom3),"");
+      CSBAngle *new_angle =  new CSBAngle();
       for ( int j = 0; j < structure->nAtoms; j++ ) {
         if ( strcmp (atom1, structure->Atom[j]->pdb_name) == 0 ) new_angle->atom1 = j+1;
         if ( strcmp (atom2, structure->Atom[j]->pdb_name) == 0 ) new_angle->atom2 = j+1;
@@ -556,7 +561,6 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
     int nTorsions =  Loop->GetLoopLength();
     AtomName atom1,atom2,atom3,atom4;
     for (int N=0;N<nTorsions;N++) {
-      CSBTorsion *new_torsion =  new CSBTorsion();
       RC = CIFGetString(atom1,Loop,CIFTAG_COMP_BOND_ATOM_1,N,sizeof(atom1),"");
       if ( RC || (!atom1) ) {
         return structure;
@@ -564,6 +568,7 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
       RC = CIFGetString(atom2,Loop,CIFTAG_COMP_BOND_ATOM_2,N,sizeof(atom2),"");
       RC = CIFGetString(atom3,Loop,"atom_id_3",N,sizeof(atom3),"");
       RC = CIFGetString(atom4,Loop,"atom_id_4",N,sizeof(atom4),"");
+      CSBTorsion *new_torsion =  new CSBTorsion();
       for ( int j = 0; j < structure->nAtoms; j++ ) {
         if ( strcmp (atom1, structure->Atom[j]->pdb_name) == 0 ) new_torsion->atom1 = j+1;
         if ( strcmp (atom2, structure->Atom[j]->pdb_name) == 0 ) new_torsion->atom2 = j+1;
@@ -612,11 +617,11 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
     int nChirals =  Loop->GetLoopLength();
     AtomName atom1,atom2,atom3,atom4;
     for (int N=0;N<nChirals;N++) {
-      CSBTorsion *new_torsion =  new CSBTorsion();
       RC = CIFGetString(atom1,Loop,"atom_id_centre",N,sizeof(atom1),"");
       if ( RC || (!atom1) ) {
         return structure;
       }
+      CSBTorsion *new_torsion =  new CSBTorsion();
       RC = CIFGetString(atom2,Loop,"atom_id_1",N,sizeof(atom2),"");
       RC = CIFGetString(atom3,Loop,"atom_id_2",N,sizeof(atom3),"");
       RC = CIFGetString(atom4,Loop,"atom_id_3",N,sizeof(atom4),"");
@@ -1067,6 +1072,7 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
    // Try again ignoring spaces in names
     try_atom_match = true;
     got_alt_names = true;
+    bool iflip = false;
     if (!strncmp(pSbaseRes->Atom[0]->sca_name,"   ",3))got_alt_names=false;
     while (try_atom_match) {
       nmatch = 0;
@@ -1084,6 +1090,12 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
           }
           if ( strcmp (name1,name2) == 0 ) {
             pAtom[ia]->PutUDData(udd_sbaseAtomOrdinal,j);
+	    if(strcmp(pAtom[ia]->element,"  ")==0){
+               strcpy(pAtom[ia]->element,pSbaseRes->Atom[j]->element);
+            } else if(strncmp(pAtom[ia]->element,pSbaseRes->Atom[j]->element,2)!=0){
+               output << "Warning, element name " << pAtom[ia]->element << " does not match dictionary name " << pSbaseRes->Atom[j]->element << " for " << AtomID <<  "\n";
+               strcpy(pAtom[ia]->element,pSbaseRes->Atom[j]->element);
+            }
             pAtom[ia]->PutUDData(udd_atomEnergyType, 
   	       LibAtom(pSbaseRes->Atom[j]->energyType,pAtom[ia]->element));
             nmatch++;
@@ -1096,10 +1108,11 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
         }
       }
       //cout <<  pRes->name << " " << use_alt_names << " " << got_alt_names<< " " << nAtominRes << " " << nmatch << " " << alt_nmatch << endl;
-      if (alt_nmatch<=nmatch) {
+      if (alt_nmatch<=nmatch||iflip) {
         try_atom_match = false;
       } else {
         use_alt_names = !use_alt_names;
+        iflip = true;
       }
     }
 
@@ -1108,6 +1121,7 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
     // Can stop now if all matched
     if ( nmatch == nAtominRes ) {
       delete [] pAtom; 
+      HandleTerminii(pRes,udd_atomEnergyType);
       return output.str();
     }
 
@@ -1140,7 +1154,7 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
     // name monomer in the library
     // But only do this for limited number of atoms
 
-    if ( nAtominRes> 1 && nAtominRes < 30 ) {
+    if ( nAtominRes> 1 && nAtominRes < 10 ) {
       
       GetVectorMemory ( imatch,2000 , 0);
       for ( j = 0; j < 2000 ; j++ ) imatch[j] = -1;
@@ -1169,13 +1183,12 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
           }
         }
       } else {
-	 char *altloc = (char *) "";
-	 RC = MatchGraphs( pRes, Hflag, false, altloc, pSbaseRes, nmatch,imatch,tolMatch );
-      }
+        RC = MatchGraphs( pRes, Hflag, false, "", pSbaseRes, nmatch,imatch,tolMatch );
 
 
         //printf("%s MatchGraphs Nmatch %i nAtominRes %i\n",AtomID,nmatch,nAtominRes);
-      delete aL;
+      }
+      delete [] aL;
       FreeVectorMemory (occupancy,0 );
 
       // The graphs match - so is good match for monomer but has
@@ -1193,11 +1206,12 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
           } 
           else {
             // This atom is not part of the graph matching fragment
-	     pAtom[ia]->PutUDData(udd_atomEnergyType,LibAtom((char *) "",pAtom[ia]->element));
+            pAtom[ia]->PutUDData(udd_atomEnergyType,LibAtom("",pAtom[ia]->element));
           }  //pAtom[ia]->GetUDData(udd_atomEnergyType,itype);
         }
         FreeVectorMemory(imatch,0);
 	delete [] pAtom; 
+        HandleTerminii(pRes,udd_atomEnergyType);
 	return output.str();
       } 
       else {
@@ -1217,16 +1231,48 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
     for (j=0;j < nAtominRes;j++) {
       pAtom[j]->GetUDData(udd_atomEnergyType,itype);
       if (itype <= 0)
-	 pAtom[j]->PutUDData(udd_atomEnergyType,LibAtom((char *) "",pAtom[j]->element));
+        pAtom[j]->PutUDData(udd_atomEnergyType,LibAtom("",pAtom[j]->element));
       //cout << "Assigned atom type " << LibAtom("",pAtom[j]->element) << endl;
     }
     //return 1;
-  } 
+  }
+
+
   //else {
     //RC = GraphSearch ( pRes, pSbaseRes, nAtominRes, nMatchAtom, matchAtom);
   //}
+
+  HandleTerminii(pRes,udd_atomEnergyType);
   delete [] pAtom;
   return output.str();
+}
+
+
+int CMGSBase::HandleTerminii(PCResidue pRes, int udd_atomEnergyType ) {
+  // Check for peptide chain terminii to fix the typing of N and O
+  PCAtom pAtom;
+  char *Nnames[] = { "N", "NT" };
+  char *Onames[] = { "O", "OXT" , "OE" };
+  if ( isAminoacid(pRes->name) ) {
+    //cout << "isAminoacid " << pRes->name << pRes->seqNum << endl;
+    if ( pRes->index == 0 ) {
+      for (int ia=0; ia<2; ia++ ) {
+        pAtom = pRes->GetAtom(Nnames[ia],"*","*");
+        //cout << "first " << pRes->name << pRes->seqNum << pAtom << " " << LibAtom("NC2","N") <<endl;
+        if (pAtom) pAtom->PutUDData(udd_atomEnergyType,LibAtom("NC2","N"));
+      }
+    }
+    // Test if last in chain or the next residue is not amino acid
+    else if ( (pRes->index == pRes->chain->GetNumberOfResidues()-1) ||
+	      !( isAminoacid(pRes->chain->GetResidue(pRes->index+1)->name) ) ) {
+      for (int ia=0; ia<3; ia++ ) {
+        pAtom = pRes->GetAtom(Onames[ia],"*","*");
+        //cout << "last " << pRes->name << pRes->seqNum << pAtom << " " << LibAtom("OC","O") << endl;
+        if (pAtom) pAtom->PutUDData(udd_atomEnergyType,LibAtom("OC","O"));
+      }
+    }
+  }
+  return 0;
 }
 
 
@@ -1455,12 +1501,23 @@ int CMGSBase::LoadMonLib (pstr filename ) {
     }
   }
 
-  //for ( n = 0; n < nLinks; n++ ) link[n]->Print();
- 
+  //if (nLinks>=0) for ( n = 0; n <= nLinks; n++ ) link[n]->Print();
+
   if (file) delete file;
    
 
   return 0;
+}
+
+//------------------------------------------------------------------
+int CMGSBase::AddLink ( pstr resName1 , pstr atmName1, pstr resName2 , pstr atmName2  ) {
+//------------------------------------------------------------------
+  nLinks++;
+  //cout << "CMGSBase::AddLink " << nLinks << " " << resName1 << " " << atmName1 << " " <<  resName2 << " " << atmName2 << endl;
+  link[nLinks] = new MGCLink();
+  link[nLinks]->lg2.Set( resName1,"","*", atmName1);
+  link[nLinks]->lg1.Set( resName2,"", "*", atmName2);
+  return nLinks;
 }
 
 //-----------------------------------------------------------------
@@ -1481,9 +1538,9 @@ MGCLink::~MGCLink() {
 int  MGCLink::GetCif(  PCMMCIFLoop Loop1, int N ) {
 //----------------------------------------------------------------
   int RC;
-  pstr cmp,modif,grp;
+  pstr cmp,modif,grp,atm;
  
-  cpstr atm = "";
+  atm = "";
  
    if (!Loop1) return -1;
   if (N >= Loop1->GetLoopLength()) return -1;
@@ -1539,7 +1596,7 @@ MGCLinkGroup::MGCLinkGroup ( ): group() {
 }
 
 //------------------------------------------------------------------------
-void MGCLinkGroup::Set ( char *comp, char *modif, char *grp, const char *atm ) {
+void MGCLinkGroup::Set ( char *comp, char *modif, char *grp, char *atm ) {
 //------------------------------------------------------------------------
   if ( comp) strcpy(compId,comp);
   if ( modif) strcpy(modId,modif);
@@ -1561,8 +1618,10 @@ void MGCLinkGroup::Print() {
 //------------------------------------------------------------------------
 bool MGCLinkGroup::Match ( int grp, pstr comp, pstr atm ) {
 //------------------------------------------------------------------------
-  
-  //printf ( "match group %i %i comp *%s* *%s* atom *%s* *%s* \n", group.code,grp,comp,compId,atom,atm);
+  //if (group.code < 0 || group.Match(grp)) {
+  // printf ( "match group %i %i comp *%s* *%s* atom *%s* *%s* \n", group.code,grp,comp,compId,atom,atm);
+  //  cout << group.Match(grp) << " " << strcmp(comp,compId) << " " << strcmp(atom,atm) << endl;
+    //}
   if ( (group.code < 0 || group.Match(grp)) &&
        ((strlen(compId)<1 ) || (strcmp(comp,compId)==0) ) 
        && ((strlen(atom)<1) || (strcmp(atom,atm)==0) ) ) {
@@ -1596,7 +1655,7 @@ int CCompoundGroup::GetCifGroupCode ( pstr name ) {
   int i;
   int retCode = RESTYPE_UNKNOWN;
 
-  if ( !name) return -1;
+  if ( !name || strcmp(name,"*")==0) return -1;
 
   for ( i = 0; i < 11; i++ ) {
     if ( strcmp ( name , cifGroupNames[i]) == 0 ) {
@@ -1683,6 +1742,57 @@ int CMGSBase::LoadEnerLib (pstr filename ) {
 
   delete CIF;
   return 0;
+}
+
+//------------------------------------------------------------------
+int CMGSBase:: CheckCovalentDistance (Element a1, Element a2,realtype d) const {
+//------------------------------------------------------------------
+  std::string s1 = std::string(a1);
+  std::string s2 = std::string(a2);
+  s1.erase(std::remove(s1.begin(), s1.end(),' '), s1.end() );
+  s2.erase(std::remove(s2.begin(), s2.end(),' '), s2.end() );
+  bool found = false;
+  for(unsigned i=0;i<covalentDistances.size();i++){
+     CMGCovalentDistance cd = covalentDistances[i];
+     if((s1==cd.GetFirstAtom()&&s2==cd.GetSecondAtom())||(s2==cd.GetFirstAtom()&&s1==cd.GetSecondAtom())){
+       found = true;
+       if(d>=cd.GetMinLength()&&d<=cd.GetMaxLength()){
+         return 1;
+       }
+     }
+  }
+  if(!found) return -1; // We have to trust dictionaries, or else we need complete covalent_distances file
+  return 0;
+}
+
+//------------------------------------------------------------------
+int CMGSBase::LoadCovalentDistances(pstr filename ) {
+//------------------------------------------------------------------
+  covalentDistances.clear();
+  ifstream cdFile(filename);
+  char line[1024];
+  std::string a1,a2;
+  realtype mind,maxd;
+  if(cdFile){
+    while(cdFile.getline(line,1024)){
+      std::istringstream sl(std::string(line),std::istringstream::in);
+      sl >> a1;
+      sl >> a2;
+      sl >> mind;
+      sl >> maxd;
+      CMGCovalentDistance cd(a1,a2,mind,maxd);
+      covalentDistances.push_back(cd);
+    }
+    cdFile.close();
+  }
+  return 0;
+}
+
+//------------------------------------------------------------------
+int CMGSBase::AddCovalentDistance(Element a1, Element a2,realtype mind,realtype maxd) {
+//------------------------------------------------------------------
+  CMGCovalentDistance cd(std::string(a1),std::string(a2),mind,maxd);
+  covalentDistances.push_back(cd);
 }
 
 //------------------------------------------------------------------
@@ -1775,7 +1885,7 @@ int  CMGSBase::GetNofLibAtoms() {
 //--------------------------------------------------------------
 int CMGSBase::LibAtom ( pstr atomType ) {
 //--------------------------------------------------------------
-   return LibAtom(atomType,(char *) "");
+  return LibAtom(atomType,"");
 }
 
 //--------------------------------------------------------------
@@ -1805,9 +1915,9 @@ int CMGSBase::LibAtom ( pstr atomType, pstr element ) {
   }
   
   //cout << "defaulting to C" << endl;
-  const char *local_element = " C";
+  element = " C";
   for (i = 0; i < nLibElements; i++ ) {
-    if ( strcmp(libElement[i]->name,local_element)==0 ) 
+    if ( strcmp(libElement[i]->name,element)==0 ) 
         return libElement[i]->defaultAtomIndex;
   }
   return -1; 
@@ -1821,7 +1931,7 @@ int CMGSBase::LibAtom ( pstr resType, int atomIndex ) {
   int i;
   PCSBStructure p_sbase_struct;
   PCSBAtom p_sbase_atom;
-  cpstr atomType;
+  pstr atomType;
   //printf ("nLibAtoms %i\n",nLibAtoms);
   LoadedPCSBStructure dummy;
 
@@ -1938,7 +2048,7 @@ int CLibAtom::encodeHbType ( pstr hb ) {
   return HBTYPE_UNKNOWN;
 }
 //------------------------------------------------------------------
-const char* CLibAtom::getHBType () {
+char* CLibAtom::getHBType () {
 //------------------------------------------------------------------
 //Interpret one-letter atom hydrogen bonding type as an integer code
   int i;

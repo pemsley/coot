@@ -1,6 +1,8 @@
 /*
      pygl/help.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2011 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -48,6 +50,7 @@
 #include <vector>
 
 // These are  helper functions which don't depend on an OPENGL context.
+void setTextureMatrix(void);
 image_info get_pixdata(int trans=0);
 void write_pixdata(const char *filename, int width=-1, int height=-1, int trans=0);
 int findprimc(const std::vector<Cartesian> &xyzbox, const std::vector<Cartesian> &primorigin, const Cartesian &origin, const matrix &objrotmat);
@@ -71,6 +74,13 @@ image_info_yuv_t get_yuvdata(int trans=0);
 Volume GetClippingPlanes();
 Volume GetFrontAndBackClippingPlanes();
 bool isPointInClippingVolume(const Cartesian &p, const Volume &v);
+
+void SetupFBOBlending();
+
+void DrawAxes(float y, int w, int h, const Quat &quat, float viewsize, const std::vector<double> &axes_position,
+ unsigned tex_id_x_0, unsigned tex_id_x_1, unsigned tex_id_y_0, unsigned tex_id_y_1, unsigned tex_id_z_0, unsigned tex_id_z_1, 
+ unsigned tex_image_x_0_w, unsigned tex_image_x_0_h, unsigned tex_image_y_0_w, unsigned tex_image_y_0_h, unsigned tex_image_z_0_w, unsigned tex_image_z_0_h, int descent
+);
 
 class OffScreenBuffer{
   unsigned width;
@@ -121,5 +131,32 @@ class OnScreenBuffer{
 };
 
 void SetStereoAvailable(int stereo_available_in);
+
+class MGFramebufferObject {
+ protected:
+  GLuint _texture;
+  GLuint _id;
+  int _width;
+  int _height;
+ public:
+  MGFramebufferObject(){};
+  MGFramebufferObject(int theWidth, int theHeight);
+  unsigned texture(){ return _texture; }
+  unsigned handle(){ return _id; }
+  int width(){ return _width; }
+  int height(){ return _height; }
+  void bind();
+  void release();
+};
+
+class MGDepthFramebufferObject : public MGFramebufferObject {
+ public:
+  MGDepthFramebufferObject(int theWidth, int theHeight);
+};
+
+class MGDepthCompareFramebufferObject : public MGFramebufferObject {
+ public:
+  MGDepthCompareFramebufferObject(int theWidth, int theHeight);
+};
 
 #endif

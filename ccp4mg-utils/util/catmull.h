@@ -1,6 +1,7 @@
 /*
-     pygl/lincrv.h: CCP4MG Molecular Graphics Program
+     util/catmull.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -18,14 +19,12 @@
 */
 
 
-#ifndef __LINCRV__
-#define __LINCRV__
+#ifndef __CATMULL__
+#define __CATMULL__
 #include "cartesian.h"
 #include <vector>
 
-/****** lincrv.h ******/
-/* Ken Shoemake, 1994 */
+std::vector<Cartesian> SplineCurve(const std::vector <Cartesian> &ctlPts, int nsteps, int Cn, int iinterp);
+std::vector<Cartesian> BezierCurve(const std::vector<Cartesian> &carts, const unsigned int accu);
 
-Cartesian DialASpline(double t, const std::vector<double> &a,  const std::vector<Cartesian> &p, int Cn, int interp);
 #endif
-

@@ -1,6 +1,8 @@
 /*
      util/cartesian.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -24,6 +26,7 @@
 #include <iomanip>
 #include <math.h>
 #include "matrix.h"
+#include <stdlib.h>
 
 std::istream& operator>>(std::istream& c, Cartesian &a){
 
@@ -61,11 +64,11 @@ double Angle(const Cartesian &A, const Cartesian &B, const Cartesian &C){
 
 Cartesian operator*(const matrix &objrotmat, const Cartesian &prim){
   double result[4];
-  double input[4] = {prim.get_x(), prim.get_y(), prim.get_z(), prim.get_a()};
+  double input[4] = {prim.x, prim.y, prim.z, prim.a};
 
-  for(int i=0;i<4;i++){
+  for(int i=0;i<objrotmat.get_columns();i++){
     result[i] = 0.0;
-    for(int j=0;j<4;j++){
+    for(int j=0;j<objrotmat.get_rows();j++){
       result[i] += input[j]*objrotmat(i,j);
     }
   }
@@ -76,31 +79,37 @@ Cartesian operator*(const matrix &objrotmat, const Cartesian &prim){
 
 Cartesian operator* (double val, const Cartesian &a){
   
-  Cartesian c(a.get_x()*val,a.get_y()*val,a.get_z()*val);
+  Cartesian c(a.x*val,a.y*val,a.z*val);
   return c;
 }
 
 Cartesian operator* (const Cartesian &a, double val){
   
-  Cartesian c(a.get_x()*val,a.get_y()*val,a.get_z()*val);
+  Cartesian c(a.x*val,a.y*val,a.z*val);
   return c;
 }
 
 Cartesian operator/ (const Cartesian &a, double val){
   
-  Cartesian c(a.get_x()/val,a.get_y()/val,a.get_z()/val);
+  Cartesian c(a.x/val,a.y/val,a.z/val);
   return c;
 }
 
 Cartesian& Cartesian::operator*= (double val){
   
-  *this = *this * val;
+  //*this = *this * val;
+  x *= val;
+  y *= val;
+  z *= val;
   return *this;
 }
 
 Cartesian& Cartesian::operator/= (double val){
   
-  *this = *this / val;
+  //*this = *this / val;
+  x /= val;
+  y /= val;
+  z /= val;
   return *this;
 }
 
@@ -110,7 +119,7 @@ Cartesian::Cartesian(){
   a = 1.0;
 }
 
-Cartesian::Cartesian(double *coords_in){
+Cartesian::Cartesian(const double *coords_in){
   x = coords_in[0];
   y = coords_in[1];
   z = coords_in[2];
@@ -141,7 +150,7 @@ double *Cartesian::getxyza(void) const{
   return result;
 }
 
-void Cartesian::setxyza(double *coords_in){
+void Cartesian::setxyza(const double *coords_in){
   x = coords_in[0];
   y = coords_in[1];
   z = coords_in[2];
@@ -191,9 +200,9 @@ std::vector<Cartesian> Cartesian::PrincipalComponentAnalysis(const std::vector<C
   std::vector<double> Z;
   std::vector<Cartesian>::iterator iter=i1;
   while(iter!=i2+1){
-    X.push_back(iter->get_x());
-    Y.push_back(iter->get_y());
-    Z.push_back(iter->get_z());
+    X.push_back(iter->x);
+    Y.push_back(iter->y);
+    Z.push_back(iter->z);
     iter++;
   }
   return PrincipalComponentAnalysis(X,Y,Z);
@@ -204,9 +213,9 @@ std::vector<Cartesian> Cartesian::PrincipalComponentAnalysis(const std::vector<C
   std::vector<double> Y;
   std::vector<double> Z;
   for(unsigned i=0;i<carts.size();i++){
-    X.push_back(carts[i].get_x());
-    Y.push_back(carts[i].get_y());
-    Z.push_back(carts[i].get_z());
+    X.push_back(carts[i].x);
+    Y.push_back(carts[i].y);
+    Z.push_back(carts[i].z);
   }
   return PrincipalComponentAnalysis(X,Y,Z);
 }
@@ -320,6 +329,7 @@ void Cartesian::normalize(double radius){
 
    if (fabs(d)<1.0e-12) {
            std::cout << "zero length vector in Cartesian::normalize" << *this << "\n";
+      //abort();
       return;
    }
 
@@ -395,4 +405,25 @@ void Cartesian::Scale(double a, double b, double c){
   x *= a;
   y *= b;
   z *= c;
+}
+
+void Cartesian::setMultiplyAndAdd(double m1, const Cartesian &c1, double m2, const Cartesian &c2){
+  x = m1 * c1.x + m2 * c2.x;
+  y = m1 * c1.y + m2 * c2.y;
+  z = m1 * c1.z + m2 * c2.z;
+}
+
+bool Cartesian::CheckDistanceRangeMin(const Cartesian &v1, const Cartesian &v2, double minv){
+  double d2 = (v1.get_x()-v2.get_x())*(v1.get_x()-v2.get_x()) + (v1.get_y()-v2.get_y())*(v1.get_y()-v2.get_y()) + (v1.get_z()-v2.get_z())*(v1.get_z()-v2.get_z());
+  double minv2 = minv*minv;
+  if(d2>minv2) return true;
+  return false;
+}
+
+bool Cartesian::CheckDistanceRange(const Cartesian &v1, const Cartesian &v2, double minv, double maxv){
+  double d2 = (v1.get_x()-v2.get_x())*(v1.get_x()-v2.get_x()) + (v1.get_y()-v2.get_y())*(v1.get_y()-v2.get_y()) + (v1.get_z()-v2.get_z())*(v1.get_z()-v2.get_z());
+  double minv2 = minv*minv;
+  double maxv2 = maxv*maxv;
+  if((d2>minv2)&&(d2<maxv2)) return true;
+  return false;
 }

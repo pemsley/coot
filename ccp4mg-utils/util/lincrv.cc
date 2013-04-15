@@ -11,7 +11,9 @@
 /* Ken Shoemake, 1994 */
 
 #include <vector>
+#include <iostream>
 #include "cartesian.h"
+#include "lincrv.h"
 
 inline Cartesian lerp(const double &t, const double &a0, const double &a1, const Cartesian &p0, const Cartesian &p1)
 {
@@ -30,11 +32,11 @@ inline Cartesian lerp(const double &t, const double &a0, const double &a1, const
     n+1 of them are provided. The work array must have room for n+1 points.
  */
 
-Cartesian DialASpline(double t, const std::vector<double> &a,  const std::vector<Cartesian> &p, int Cn, int interp)
+void DialASpline(double t, const std::vector<double> &a,  const std::vector<Cartesian> &p, int Cn, int interp, std::vector<Cartesian> &output, const int idx, std::vector<CART3D> &work)
 {
     register int i, j, k, h, lo, hi;
-    Cartesian val;
-    std::vector<Cartesian> work(p.size());
+    //Cartesian val;
+    //std::vector<Cartesian> work(p.size());
 
     int n = (int)(p.size()) - 1;
 
@@ -51,24 +53,45 @@ Cartesian DialASpline(double t, const std::vector<double> &a,  const std::vector
                    if (hi-lo<Cn) {drop += Cn-hi; hi = Cn;}}
         if (hi>n) {hi = n; drop += k+1+Cn-n;
                    if (hi-lo<Cn) {drop += lo-(n-Cn); lo = n-Cn;}}
-        for (i=lo; i<=hi; i++) work[i] = p[i];
+        for (i=lo; i<=hi; i++){
+          work[i].x = p[i].get_x();
+          work[i].y = p[i].get_y();
+          work[i].z = p[i].get_z();
+        }
         for (j=1; j<=Cn; j++) {
             for (i=lo; i<=hi-j; i++) {
-                work[i] = lerp(t,a[i],a[i+j],work[i],work[i+1]);
+                //work[i] = lerp(t,a[i],a[i+j],work[i],work[i+1]);
+                double t0=(a[i+j]-t)/(a[i+j]-a[i]), t1=1-t0;
+                work[i].x = t0*work[i].x + t1*work[i+1].x;
+                work[i].y = t0*work[i].y + t1*work[i+1].y;
+                work[i].z = t0*work[i].z + t1*work[i+1].z;
             }
         }
         h = 1+Cn-drop;
     } else {                    /* Prepare for B-spline steps */
         if (lo<0) {h += lo; lo = 0;}
-        for (i=lo; i<=lo+h; i++) work[i]= p[i];
+        for (i=lo; i<=lo+h; i++){
+          work[i].x = p[i].get_x();
+          work[i].y = p[i].get_y();
+          work[i].z = p[i].get_z();
+        }
         if (h<0) h = 0;
     }
     for (j=0; j<h; j++) {
         int tmp = 1+Cn-j;
         for (i=h-1; i>=j; i--) {
-            work[lo+i+1] = lerp(t,a[lo+i],a[lo+i+tmp],work[lo+i],work[lo+i+1]);
+            //work[lo+i+1] = lerp(t,a[lo+i],a[lo+i+tmp],work[lo+i],work[lo+i+1]);
+            double t0=(a[lo+i+tmp]-t)/(a[lo+i+tmp]-a[lo+i]), t1=1-t0;
+            work[lo+i+1].x = t0*work[lo+i].x + t1*work[lo+i+1].x;
+            work[lo+i+1].y = t0*work[lo+i].y + t1*work[lo+i+1].y;
+            work[lo+i+1].z = t0*work[lo+i].z + t1*work[lo+i+1].z;
         }
     }
-    val = work[lo+h];
-    return val;
+    //val = work[lo+h];
+    //return val;
+    //Cartesian val = Cartesian(work[lo+h].x,work[lo+h].y,work[lo+h].z);
+    //output[idx] = val;
+    output[idx].set_x(work[lo+h].x);
+    output[idx].set_y(work[lo+h].y);
+    output[idx].set_z(work[lo+h].z);
 }

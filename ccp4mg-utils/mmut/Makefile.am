@@ -27,9 +27,15 @@ GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 # remove this from coot dependencies:
 # 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la 
 
-lib_LTLIBRARIES=libccp4mg-mmut.la
+lib_LTLIBRARIES=libccp4mg-mmut.la \
+	libccp4mg-atom_util.la
 
 include_HEADERS=splineinfo.h
+
+libccp4mg_atom_util_la_SOURCES = \
+	atom_util.cc atom_util.h
+
+libccp4mg_atom_util_la_LDFLAGS = -L. -L../util -lccp4mg-bezier -lccp4mg-pygl_coord -lccp4mg-mgutil -lccp4mg-rgbreps
 
 libccp4mg_mmut_la_SOURCES = \
 	mmut_manager.cc mmut_util.cc mman_manager.cc	\
@@ -42,7 +48,7 @@ libccp4mg_mmut_la_SOURCES = \
 	mmut_hbond.h mmut_contact.h mmut_basepairs.h	\
 	mmut_spline.cc mmut_lipids.cc mmut_morph.cc	\
 	mmut_lipids.h mmut_morph.h	\
-	mmut_nma.cc mmut_colour.cc mmut_nma.h mmut_colour.h
+	mmut_nma.cc mmut_nma.h
 
 
 # must have GUILE and GUILE_GTK flags before $(INCLUDES), and this 

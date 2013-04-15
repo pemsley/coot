@@ -1,5 +1,5 @@
 /*
-     mmut/mmut_nma.h: CCP4MG Molecular Graphics Program
+     mmut/mmut_morph.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
 
      This library is free software: you can redistribute it and/or

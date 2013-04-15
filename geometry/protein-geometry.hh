@@ -2141,6 +2141,9 @@ namespace coot {
       
 
 #endif // HAVE_CCP4SRS      
+
+      // the saved mon lib dir
+      std::string saved_mon_lib_dir;
 	 
    };
 

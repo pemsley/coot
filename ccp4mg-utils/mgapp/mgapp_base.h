@@ -1,6 +1,6 @@
 /*
-     pygl/catmull.h: CCP4MG Molecular Graphics Program
-     Copyright (C) 2001-2008 University of York, CCLRC
+     mgapp/mgapp_base.h: CCP4MG Molecular Graphics Program
+     Copyright (C) 2001-2005 University of York, CCLRC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -18,12 +18,31 @@
 */
 
 
-#ifndef __CATMULL__
-#define __CATMULL__
-#include "cartesian.h"
-#include <vector>
+#ifndef __MgApp_Base__
+#define __MgApp_Base__
 
-std::vector<Cartesian> SplineCurve(const std::vector <Cartesian> &ctlPts, int nsteps, int Cn, int iinterp);
-std::vector<Cartesian> BezierCurve(const std::vector<Cartesian> &carts, const unsigned int accu);
+#include <mman_manager.h>
+
+DefineClass(CMgAppBase)
+DefineStreamFunctions(CMgAppBase)
+
+class CMgAppBase {
+
+ public:
+  CMgAppBase (const PCMMANManager molHndin );
+  CMgAppBase (const PCMMANManager molHndin, const int selHndin );
+  ~CMgAppBase ();
+
+  void SetSelHandle ( const int selHndin);
+  int GetSelection (PPCAtom &atomTable, int & nAtoms );
+  int GetSelection (PPCResidue &resTable, int & nRes );
+  void ClearSelection ();
+
+ protected:
+  PCMMANManager molHnd;
+  int selHnd, resSelHnd;
+
+
+};
 
 #endif

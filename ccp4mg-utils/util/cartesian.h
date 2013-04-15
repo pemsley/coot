@@ -1,6 +1,8 @@
 /*
      util/cartesian.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -32,21 +34,24 @@ class Cartesian{
   static std::vector<Cartesian> PrincipalComponentAnalysis(const std::vector<double> &X, const std::vector<double> &Y, const std::vector<double> &Z);
  public:
   Cartesian();
-  Cartesian(double *coords_in);
+  Cartesian(const double *coords_in);
   Cartesian(const std::vector<double> &coords_in);
   Cartesian(double x_in, double y_in, double z_in, double a_in=1.0);
   double *getxyza(void) const;
-  void setxyza(double *coords_in);
+  void setxyza(const double *coords_in);
   std::vector<double> getxyza_vec(void) const;
   void setxyza_vec(const std::vector<double> &coords_in);
-  inline double get_x(void) const {return x;};
-  inline double get_y(void) const {return y;};
-  inline double get_z(void) const {return z;};
-  inline double get_a(void) const {return a;};
+  const double& get_x(void) const {return x;};
+  const double& get_y(void) const {return y;};
+  const double& get_z(void) const {return z;};
+  const double& get_a(void) const {return a;};
   inline void set_x(double x_in){x=x_in;};
   inline void set_y(double y_in){y=y_in;};
   inline void set_z(double z_in){z=z_in;};
   inline void set_a(double a_in){a=a_in;};
+  inline void set_xyz(double x_in, double y_in, double z_in){x=x_in;y=y_in;z=z_in;};
+  inline void set_xyza(double x_in, double y_in, double z_in, double a_in){x=x_in;y=y_in;z=z_in;a=a_in;};
+  void setMultiplyAndAdd(double m1, const Cartesian &c1, double m2, const Cartesian &c2);
   static Cartesian CrossProduct(const Cartesian &a, const Cartesian &b);
   static double DotProduct(const Cartesian &a, const Cartesian &b);
   static Cartesian MidPoint(const Cartesian &v1, const Cartesian &v2);
@@ -54,6 +59,8 @@ class Cartesian{
   static std::vector<Cartesian> PrincipalComponentAnalysis(const std::vector<Cartesian> &carts);
   static std::vector<Cartesian> PrincipalComponentAnalysis(const std::vector<Cartesian>::iterator &i1, const std::vector<Cartesian>::iterator &i2);
   void normalize(double radius=1.0);
+  static bool CheckDistanceRangeMin(const Cartesian &v1, const Cartesian &v2, double minv);
+  static bool CheckDistanceRange(const Cartesian &v1, const Cartesian &v2, double minv, double maxv);
   Cartesian operator+(const Cartesian &) const;
   Cartesian operator-(const Cartesian &) const; 
   Cartesian operator-() const; 

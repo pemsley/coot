@@ -1,0 +1,31 @@
+--- pygl/cdisplayobject.cc.orig	2013-04-11 08:58:48 +0200
++++ pygl/cdisplayobject.cc	2013-04-11 08:59:17 +0200
+@@ -344,7 +344,7 @@
+     (*k)->SetFontSize(size);
+     (*k)->SetFontUnderline(underline);
+     //(*k)->initialize();
+-    (*k)->renderStringToPixmap(); 
++    //(*k)->renderStringToPixmap(); 
+     k++;
+   }
+ }
+--- pygl/text.cc.orig	2013-04-11 10:27:04 +0200
++++ pygl/text.cc	2013-04-11 10:27:30 +0200
+@@ -318,7 +318,7 @@
+   colour[0] = colour[1] = colour[2] = 0.0;
+   text_height=0;
+   text_width=0;
+-  renderStringToPixmap(); 
++  //renderStringToPixmap(); 
+   texture_id = 0;
+   //initialize();
+   multicoloured = false;
+@@ -354,7 +354,7 @@
+   weight = weight_in;
+   slant = slant_in;
+   fn_size = size_in;
+-  renderStringToPixmap(); 
++  //renderStringToPixmap(); 
+   texture_id = 0;
+   //initialize();
+ }

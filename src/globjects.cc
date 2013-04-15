@@ -816,6 +816,7 @@ float       graphics_info_t::residue_density_fit_scale_factor = 1.0;
 // cif dictionary
 std::vector<std::string> *graphics_info_t::cif_dictionary_filename_vec = NULL;
 int graphics_info_t::cif_dictionary_read_number = 1; 
+std::string graphics_info_t::master_mon_lib_dir = "dummy";
 
 // map radius slider
 float graphics_info_t::map_radius_slider_max = 50.0;
@@ -2101,6 +2102,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // Turn the light(s) on and after off, if needed.
 	 // 
 	 graphics_info_t::molecules[ii].draw_surface();
+
+         // ribbons
+         graphics_info_t::molecules[ii].draw_ribbons();
+
+         // solid ccp4mg ellipsoids
+         graphics_info_t::molecules[ii].draw_aniso_spheroids();
 
 	 // extra restraints - thin blue lines or some such
 	 graphics_info_t::molecules[ii].draw_extra_restraints_representation();

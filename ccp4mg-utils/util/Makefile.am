@@ -29,24 +29,33 @@ GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 
 lib_LTLIBRARIES=libccp4mg-pygl_coord.la libccp4mg-mginterrupt.la	\
 	libccp4mg-mgutil.la libccp4mg-paramsmanager.la			\
-	libccp4mg-redirect.la 
+	libccp4mg-redirect.la libccp4mg-bezier.la                       \
+        libccp4mg-rgbreps.la
 
 libccp4mg_pygl_coord_la_SOURCES = \
 	mgtree.cc mgtree.h quat.cc quat.h cartesian.cc cartesian.h 	\
 	matrix.cc matrix.h volume.cc volume.h plane.cc plane.h 		\
 	connect.cc connect.h geomutil.cc geomutil.h
 
-libccp4mg_mginterrupt_la_SOURCES = \
-	mginterrupt.cc mginterrupt.h
+libccp4mg_bezier_la_SOURCES = \
+        catmull.cc lincrv.cc bezier.cc catmull.h lincrv.h
+
+libccp4mg_bezier_la_LDFLAGS = -L. -lccp4mg-pygl_coord
+
+libccp4mg_redirect_la_SOURCES = \
+	redirect.cc redirect.h
 
 libccp4mg_mgutil_la_SOURCES = \
 	mgutil.cc mgutil.h 
 
+libccp4mg_mginterrupt_la_SOURCES = \
+	mginterrupt.cc mginterrupt.h
+
 libccp4mg_paramsmanager_la_SOURCES = \
 	CParamsManager.cc CParamsManager.h
 
-libccp4mg_redirect_la_SOURCES = \
-	redirect.cc redirect.h
+libccp4mg_rgbreps_la_SOURCES = \
+        rgbreps.cc rgbreps.h
 
 # must have GUILE and GUILE_GTK flags before $(INCLUDES), and this 
 # does not happen because LTCXXCOMPILE has AM_CXXFLAGS after INCLUDES.

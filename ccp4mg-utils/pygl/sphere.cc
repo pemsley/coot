@@ -1,6 +1,7 @@
 /*
      pygl/sphere.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -402,113 +403,79 @@ void sphere(int accu, float radius, bool force_dl){
   int i;
 
   if(accu==0){
-    glNormalPointer(GL_FLOAT, 0, icosa_0);
     static bool have_dl = false;
     static GLuint listid;
-    glScalef(radius,radius,radius);
-    if((!have_dl)||force_dl){
+    if((!have_dl)||force_dl||listid==0){
       if(listid==0) {
-        /*
-        glVertexPointer(3, GL_FLOAT, 0, icosa_0);
-        listid = glGenLists(1);
-        glNewList(listid,GL_COMPILE);
-        glDrawElements(GL_TRIANGLE_STRIP, 37, GL_UNSIGNED_INT, vindices_0);
-        glEndList();
-      }else{
-        */
         listid = glGenLists(1);
       }
-        glNewList(listid,GL_COMPILE);
-        for (i = 0; i < 20; i++) {    
-            subdivide(&icosa[tindices[i][0]][0],  
-                      &icosa[tindices[i][1]][0],  
-                      &icosa[tindices[i][2]][0],accu,radius); 
-        }
-        glEndList();
+      glNewList(listid,GL_COMPILE);
+      GLUquadric *q = gluNewQuadric();
+      gluSphere(q,1,4,4);
+      gluDeleteQuadric(q);
+      glEndList();
       have_dl = true;
-    }else{
-      glCallList(listid);
     }
+    glScalef(radius,radius,radius);
+    glCallList(listid);
   }else if(accu==1){
     static bool have_dl = false;
     static GLuint listid;
-    glScalef(radius,radius,radius);
-    if((!have_dl)||force_dl){
-      if(listid==0)
+    if((!have_dl)||force_dl||listid==0){
+      if(listid==0){
         listid = glGenLists(1);
-      bool useVertexArrays = true;
-      if(useVertexArrays){
-        glEnableClientState(GL_VERTEX_ARRAY);
-        glEnableClientState(GL_NORMAL_ARRAY);
-        glVertexPointer(3, GL_FLOAT, 0, icosa_1);
-        glNormalPointer(GL_FLOAT, 0, icosa_1);
-        glNewList(listid,GL_COMPILE);
-        glDrawElements(GL_TRIANGLE_STRIP, 128, GL_UNSIGNED_INT, vindices_1);
-        glEndList();
-      } else {
-        glNewList(listid,GL_COMPILE);
-        for (i = 0; i < 20; i++) {    
-              subdivide(&icosa[tindices[i][0]][0],  
-                        &icosa[tindices[i][1]][0],  
-                        &icosa[tindices[i][2]][0],accu,radius); 
-        }
-        glEndList();
       }
+      GLUquadric *q = gluNewQuadric();
+      glNewList(listid,GL_COMPILE_AND_EXECUTE);
+      gluSphere(q,1,10,10);
+      glEndList();
+      gluDeleteQuadric(q);
       have_dl = true;
-    }else{
-      glCallList(listid);
     }
+    glScalef(radius,radius,radius);
+    glCallList(listid);
   }else if(accu==2){ 
     static bool have_dl = false;
     static GLuint listid;
-    glScalef(radius,radius,radius);
-    if((!have_dl)||force_dl){
+    if((!have_dl)||force_dl||listid==0){
       if(listid==0) listid = glGenLists(1);
       glNewList(listid,GL_COMPILE);
-      for (i = 0; i < 20; i++) {    
-        subdivide(&icosa[tindices[i][0]][0],  
-		  &icosa[tindices[i][1]][0],  
-		  &icosa[tindices[i][2]][0],accu,radius); 
-      }
+      GLUquadric *q = gluNewQuadric();
+      gluSphere(q,1,16,16);
+      gluDeleteQuadric(q);
       glEndList();
       have_dl = true;
-    }else{
-      glCallList(listid);
     }
+    glScalef(radius,radius,radius);
+    glCallList(listid);
   }else if(accu==3){ 
     static bool have_dl = false;
     static GLuint listid;
-    glScalef(radius,radius,radius);
-    if((!have_dl)||force_dl){
+    if((!have_dl)||force_dl||listid==0){
       if(listid==0) listid = glGenLists(1);
       glNewList(listid,GL_COMPILE);
-      for (i = 0; i < 20; i++) {    
-        subdivide(&icosa[tindices[i][0]][0],  
-		  &icosa[tindices[i][1]][0],  
-		  &icosa[tindices[i][2]][0],accu,radius); 
-      }
+      GLUquadric *q = gluNewQuadric();
+      gluSphere(q,1,32,32);
+      gluDeleteQuadric(q);
       glEndList();
       have_dl = true;
-    }else{
-      glCallList(listid);
     }
+    glScalef(radius,radius,radius);
+    glCallList(listid);
   }else if(accu==4){ 
     static bool have_dl = false;
     static GLuint listid;
-    glScalef(radius,radius,radius);
-    if((!have_dl)||force_dl){
+    if((!have_dl)||force_dl||listid==0){
       if(listid==0) listid = glGenLists(1);
       glNewList(listid,GL_COMPILE);
-      for (i = 0; i < 20; i++) {    
-        subdivide(&icosa[tindices[i][0]][0],  
-		  &icosa[tindices[i][1]][0],  
-		  &icosa[tindices[i][2]][0],accu,radius); 
-      }
+      GLUquadric *q = gluNewQuadric();
+      gluSphere(q,1,64,64);
+      gluDeleteQuadric(q);
       glEndList();
       have_dl = true;
-    }else{
-      glCallList(listid);
     }
+    glScalef(radius,radius,radius);
+    glCallList(listid);
   }else{
     for (i = 0; i < 20; i++) {    
       subdivide(&icosa[tindices[i][0]][0],  

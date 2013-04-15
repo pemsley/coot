@@ -1,6 +1,7 @@
 /*
-     pygl/catmull.cc: CCP4MG Molecular Graphics Program
+     util/catmull.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2010 University of York
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -51,7 +52,6 @@ std::vector <Cartesian> SplineCurve(const std::vector<Cartesian> &ctlPts, int ns
    double tstep;
    double knotstep;
 
-   std::vector <Cartesian>output;
    Cartesian outputi;
    int interp;
 
@@ -93,10 +93,14 @@ std::vector <Cartesian> SplineCurve(const std::vector<Cartesian> &ctlPts, int ns
 
    //std::cout << "mint: " << mint << "\n";
    //std::cout << "maxt: " << maxt << "\n";
+   
+   std::vector <Cartesian>output(nsteps);
+   std::vector<CART3D> work(ctlPts.size());
    for (int ii=0;ii<nsteps;ii++){
      t = mint + ii*tstep;
-     outputi = DialASpline(t, knots, ctlPts, Cn, interp);
-     output.push_back(outputi);
+     //outputi = DialASpline(t, knots, ctlPts, Cn, interp,output,ii);
+     //output.push_back(outputi);
+     DialASpline(t, knots, ctlPts, Cn, interp,output,ii,work);
    }
 
    return output;

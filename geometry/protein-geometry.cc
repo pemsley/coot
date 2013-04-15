@@ -3764,6 +3764,8 @@ coot::protein_geometry::init_standard() {
 
    read_energy_lib(energy_cif_file_name);
 
+   saved_mon_lib_dir = mon_lib_dir;
+
    return read_number;
 }
 

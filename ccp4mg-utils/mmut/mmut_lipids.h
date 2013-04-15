@@ -21,7 +21,7 @@
 #define _CCP4_MMUT_LIPIDS_H_
 #include <vector>
 #include <utility>
-#include <mman_manager.h>
+#include "mman_manager.h"
 #include "atom_util.h"
 #include <mgtree.h>
 

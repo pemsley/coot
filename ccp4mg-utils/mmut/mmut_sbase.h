@@ -1,6 +1,8 @@
 /*
      mmut/mmut_sbase.h: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2011 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -20,9 +22,9 @@
 
 #ifndef __CCP4Sbase__ 
 #define __CCP4Sbase__
-#include <mmdb_manager.h>
-#include <mmut_manager.h>
-#include <mmdb_sbase.h>
+#include <mmdb/mmdb_manager.h>
+#include "mmut_manager.h"
+#include <mmdb/mmdb_sbase.h>
 #include <string>
 #include <vector>
 #include <map>
@@ -108,6 +110,7 @@ enum { RESTYPE_PEPTIDE, RESTYPE_DPEPTIDE, RESTYPE_LPEPTIDE,
        RESTYPE_NUCL,RESTYPE_DNA, RESTYPE_RNA,
        RESTYPE_SACH, RESTYPE_DSACH, RESTYPE_LSACH,
        RESTYPE_SOLVENT, RESTYPE_SOLUTE,RESTYPE_NONPOLY, RESTYPE_PSEUDO,
+       RESTYPE_METAL,
        RESTYPE_UNKNOWN };
 
 // Atom hydrogen bonding type - following definitions in ener_lib.cif
@@ -133,7 +136,7 @@ class CCompoundGroup {
   static int GetCifGroupCode ( pstr name);
   bool Match ( int cd );
   static bool groupMatch[13][13];
-  static const char *cifGroupNames[12];
+  static char *cifGroupNames[12];
   static int groupCode[12];
 
  protected:
@@ -149,7 +152,7 @@ friend class MGCLink;
 
  public:  
   MGCLinkGroup ();
-  void Set ( pstr comp, pstr modif, pstr grp, cpstr atm );
+  void Set ( pstr comp, pstr modif, pstr grp, pstr atm );
   ~MGCLinkGroup();
   void Print();
   bool Match( int grp, pstr comp, pstr atm );
@@ -220,10 +223,10 @@ class CLibAtom {
   realtype charge;
 
   static int nHbCodes;
-  static const char *hbCharCode[6];
+  static char *hbCharCode[6];
   static int hbCode[6];
   int encodeHbType( pstr hb);
-  const char* getHBType();
+  char* getHBType();
 
 };
 
@@ -245,15 +248,17 @@ class CLibBond {
   //realtype length_esd;
 
   static int nBondCodes;
-  static const char *bondCharCode[6];
+  static char *bondCharCode[6];
   static int bondCode[6];
   static int encodeBondType( pstr ty );
 
 };
 
+class CMGCovalentDistance;
 class CMGSBase {
   friend class CMolBonds;
   std::vector<std::vector<int> > chirals;
+  std::vector<CMGCovalentDistance> covalentDistances;
 public:
   CMGSBase(char *mon_dir ,char *user_mon_dir,char *sb, char *ener_lib, char *mon_lib, char *ele_lib );
   ~CMGSBase();
@@ -277,8 +282,8 @@ public:
   int LoadMonomerLibrary( char* filename, LoadedPCSBStructure &monlib);
   PCSBStructure LoadCifMonomer ( const ResName resNam , const PCMMCIFFile file, const bool unscramble=true );
   int MatchGraphs(PCResidue pRes,int Hflag, Boolean Cflag, const pstr altLoc, 
-		  PCSBStructure pSbaseRes, int &nMatched,
-		  ivector match, int minMatchSize );
+                          PCSBStructure pSbaseRes, int &nMatched,
+		      ivector match, int minMatchSize );
   //PCLibAtom LibAtom (char *);
   int LibAtom(char*);
   int LibAtom(char *, char *);
@@ -290,6 +295,8 @@ public:
   int maxAtomInRes;
   Tree GetMonomerLibraryTree(const char *monomer_name);
   PPCAtom GetMonomerLibraryStructure(const char *monomer_name);
+  int HandleTerminii(PCResidue pRes, int udd_atomEnergyType);
+  int AddLink ( pstr resName1 , pstr atmName1, pstr resName2 , pstr atmName2);
 
   //private:
 
@@ -327,7 +334,22 @@ public:
   CLibBond *libBond[MGSBASE_MAX_LIBBONDS];
 
   realtype fracMatch;
+  int LoadCovalentDistances (pstr filename );
+  int AddCovalentDistance (Element a1, Element a2,realtype mind_in,realtype maxd_in);
+  int CheckCovalentDistance (Element a1, Element a2,realtype d) const;
 };
 
+class CMGCovalentDistance {
+  std::string a1;
+  std::string a2;
+  realtype mind;
+  realtype maxd;
+  public:
+    CMGCovalentDistance(std::string a1_in,std::string a2_in,realtype mind_in,realtype maxd_in):a1(a1_in),a2(a2_in),mind(mind_in),maxd(maxd_in){};
+    std::string GetFirstAtom() const {return a1;};
+    std::string GetSecondAtom() const {return a2;};
+    realtype GetMinLength() const {return mind;};
+    realtype GetMaxLength() const {return maxd;};
+};
 
 #endif

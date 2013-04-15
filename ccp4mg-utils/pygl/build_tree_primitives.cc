@@ -1,6 +1,8 @@
 /*
      pygl/build_tree_primitives.cc: CCP4MG Molecular Graphics Program
      Copyright (C) 2001-2008 University of York, CCLRC
+     Copyright (C) 2009-2011 University of York
+     Copyright (C) 2012 STFC
 
      This library is free software: you can redistribute it and/or
      modify it under the terms of the GNU Lesser General Public License
@@ -24,10 +26,12 @@
 #include <iostream>
 #include <stdlib.h>
 #include "mgtree.h"
+#include "mgutil.h"
 #include "cdisplayobject.h"
 #include "cprimitive.h"
 #include "CParamsManager.h"
 #include "cartesian.h"
+#include <mman_manager.h>
 #include "cbuild.h"
 #include "rgbreps.h"
 #include "help.h"
@@ -48,13 +52,23 @@
 #include <mmut_basepairs.h>
 #include <mmut_lipids.h>
 #include <mmut_util.h>
-#include <mmdb_manager.h>
+#include <mmdb/mmdb_manager.h>
 #include <atom_util.h>
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include "atom_texture_coords.h"
+
+#ifndef M_PI
+#define M_PI 3.141592653589793238462643
+#endif
 
 enum enum_SecStr { NOSECSTR, BETA, BULGE, TURN3, TURN4, TURN5, ALPHA }; // We want a #include enum_secstr from mmut_sec ....
+
+ClickedLine FindLine(Displayobject &obj, const std::vector<Cartesian> &primorigin, const std::vector<Cartesian> &xyzbox, const Connectivity &conn, int symmetry){
+  std::vector<std::vector<int> > conn_lists = conn.GetConnectivityLists();
+  return FindLine(obj, primorigin, xyzbox, conn_lists, symmetry);
+}
 
 ClickedLine FindLine(Displayobject &obj, const std::vector<Cartesian> &primorigin, const std::vector<Cartesian> &xyzbox, const std::vector<std::vector<int> > &conn_lists, int symmetry){
   /* Find lines nearest to, eg., a mouse click. */
@@ -65,7 +79,7 @@ ClickedLine FindLine(Displayobject &obj, const std::vector<Cartesian> &primorigi
   lines.push_back(-1);
   lines.push_back(-1);
 
-  matrix objrotmat = obj.quat.getMatrix();
+  matrix objrotmat = obj.quat.getInvMatrix();
 
   Cartesian front = Cartesian::MidPoint(objrotmat*xyzbox[2],objrotmat*xyzbox[6]);
   Cartesian back  = Cartesian::MidPoint(objrotmat*xyzbox[3],objrotmat*xyzbox[7]);
@@ -136,7 +150,7 @@ ClickedLine FindLine(Displayobject &obj, const std::vector<Cartesian> &primorigi
       }
       if(in_clip_planes0||in_clip_planes1){
 	std::vector<double> linedist = DistanceBetweenTwoLines(front,back,prim0,prim1);
-	double dist = linedist[0];
+	double dist = fabs(linedist[0]);
 	double u = linedist[2];
         if(dist<1.5){
         }
@@ -174,10 +188,11 @@ ClickedLine FindLine(Displayobject &obj, const std::vector<Cartesian> &primorigi
       prim = T*prim;
     }
     std::vector<double> linedisttmp = DistanceBetweenTwoLines(front,back,prim,prim);
-    if(linedisttmp[0]<mindist){
+    double dist = fabs(linedisttmp[0]);
+    if(dist<mindist){
       lines[0] = unconnected_map[nearprim.first];
       lines[1] = -1;
-      mindist  = linedisttmp[0];
+      mindist  = dist;
       clicked_symm = nearprim.symm;
     }
   }
@@ -199,7 +214,7 @@ ClickedLine FindLine(Displayobject &obj, const std::vector<SimpleConnection> &co
   lines.push_back(-1);
   lines.push_back(-1);
 
-  matrix objrotmat = obj.quat.getMatrix();
+  matrix objrotmat = obj.quat.getInvMatrix();
   Cartesian dum;
   Cartesian front = dum.MidPoint(objrotmat*xyzbox[2],objrotmat*xyzbox[6]);
   Cartesian back  = dum.MidPoint(objrotmat*xyzbox[3],objrotmat*xyzbox[7]);
@@ -292,17 +307,33 @@ ClickedLine FindLine(Displayobject &obj, const std::vector<SimpleConnection> &co
 
 
 
-void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection> &conn, const std::vector<double> &colour, int style, int width, int labelstyle, std::string labelcolour){
+void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection> &conn, const std::vector<double> &colour, int style, int width, int labelstyle, const std::string &labelcolour,
+  const std::string &family,  const std::string &weight, 
+  const std::string &slant, const std::string &size){
+  std::vector<double> defcol;
+  if(labelcolour!=""&&labelcolour!="default"&&labelcolour!="complement"){
+       defcol = RGBReps::GetColour(labelcolour);
+  }
+  DrawSimpleConnection(obj,conn,colour,style,width,labelstyle,defcol,
+		  family,weight,slant,size);
+}
+
+void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection> &conn, const std::vector<double> &colour, int style, int width, int labelstyle, const std::vector<double>&labelcolf,
+  const std::string &family,  const std::string &weight, 
+  const std::string &slant, const std::string &size){
   double col[3] ={double(colour[0]),double(colour[1]),double(colour[2])};
   double alpha = double(colour[3]);
   int cylinders_accu = 8;
+  double cylinder_radius_scale = 0.02;
 
-  std::string label;
   std::vector<Cartesian> carts(2);
   Text *text;
 
   LineCollection *lines = new LineCollection();
   PolyCollection *polys = new PolyCollection();
+  DashLinesCollection *dash_lines_collection = new DashLinesCollection();
+  CylinderCollection *cylinders = new CylinderCollection();
+  DashCylinderCollection *dash_cylinders = new DashCylinderCollection();
 
   bool have_lines = false;
   bool have_polys = false;
@@ -312,9 +343,10 @@ void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection
     carts[1] = i->second;
     // style == NOLINE => do nothing
     if(style==DASHLINE){
-      DashLineElement *line;
-      line = new DashLineElement(carts,col,carts[0],double(width),alpha);
-      lines->add_primitive(line);
+      dash_lines_collection->add(carts,col,0);
+      //DashLineElement *line;
+      //line = new DashLineElement(carts,col,carts[0],double(width),alpha);
+      //lines->add_primitive(line);
       have_lines=true;
     }
     if(style==LINE){
@@ -337,17 +369,17 @@ void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection
     }
     if(style==DASHCYLINDER){
       DashCylinderElement *line;
-      line = new DashCylinderElement(carts,col,carts[0],0.1,
+      line = new DashCylinderElement(carts,col,carts[0],double(width)*cylinder_radius_scale,
                                   alpha,cylinders_accu);
       line->SetDashLength(0.2);
       line->SetDashEnd(1);
-      polys->add_primitive(line);
+      dash_cylinders->add_primitive(line);
       have_polys=true;
     }
     if(style==CYLINDER){
       Cylinder *line;
-      line = new Cylinder(carts,col,carts[0],0.2,cylinders_accu);
-      polys->add_primitive(line);
+      line = new Cylinder(carts,col,carts[0],double(width)*cylinder_radius_scale,cylinders_accu);
+      cylinders->add_primitive(line);
       have_polys=true;
     }
     if(style==CYLINDERARROW){
@@ -355,12 +387,12 @@ void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection
       Cartesian p0 = carts[0];
       carts[0] = p;
       Cone *cone;
-      cone = new Cone(carts,col,carts[0],0.4,alpha,cylinders_accu);
+      cone = new Cone(carts,col,carts[0],double(width)*cylinder_radius_scale*2.0,alpha,cylinders_accu);
       polys->add_primitive(cone);
       carts[0] = p0;
       carts[1] = p;
       Cylinder *line;
-      line = new Cylinder(carts,col,carts[0],0.2,alpha,cylinders_accu);
+      line = new Cylinder(carts,col,carts[0],double(width)*cylinder_radius_scale,alpha,cylinders_accu);
       polys->add_primitive(line);
       have_polys=true;
     }
@@ -369,31 +401,46 @@ void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection
 
 
   lines->SetSize((double)width);
+  dash_lines_collection->SetSize((double)width);
+  dash_lines_collection->SetDashLength(0.2);
+  dash_cylinders->SetDashLength(0.2);
   if(have_lines)obj.add_primitive(lines);
   if(have_polys)obj.add_primitive(polys);
+  if(have_polys)obj.add_primitive(cylinders);
+  if(have_polys)obj.add_primitive(dash_cylinders);
+  if(have_lines)obj.add_primitive(dash_lines_collection);
   // Add text label
   if (labelstyle == NOTLABELLED) return;
 
   i = conn.begin();
 
   while(i!=conn.end()){
-    //if (labelcolour != "") 
-      //label = "<colour=\""+labelcolour+"\">"+ i->label+"</colour>";
-    // label =  i->label;
-    //else
-      label =  i->label;
+    /*
+    if (labelcolf.size() != 0) 
+     label = "<colour=\""+labelcolour+"\">"+ i->label+"</colour>";
+    else
+    */
     if ( labelstyle == LABELLEDCENTRE )
-      text = new Text ( i->first.MidPoint(i->first,i->second) , label,
+      text = new Text ( i->first.MidPoint(i->first,i->second) , i->label,
               i->first.MidPoint(i->first,i->second));
     else if ( labelstyle == LABELLEDSTART)
-      text = new Text ( i->first , label,i->first);
+      text = new Text ( i->first , i->label,i->first);
     else if ( labelstyle == LABELLEDEND)
-      text = new Text ( i->second ,label,i->second);
+      text = new Text ( i->second ,i->label,i->second);
     else
-      text = new Text ( i->first , label,i->first);
+      text = new Text ( i->first , i->label,i->first);
 
     text->SetFontSize(18);
-    text->initialize();
+    if(family!="") text->SetFontFamily(family);
+    if(weight!="") text->SetFontWeight(weight);
+    if(slant!="") text->SetFontSlant(slant);
+    if(size!="") text->SetFontSize(atoi(size.c_str()));
+    if(labelcolf.size()!=0){
+       text->SetColour(labelcolf[0],labelcolf[1],labelcolf[2],1.0);
+    } else {
+       text->SetDefaultColour();
+    }
+    //text->initialize();
     obj.add_text_primitive(text);
     i++;
   }
@@ -403,18 +450,38 @@ void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection
 void DrawSimpleConnection(Displayobject &obj,
   const std::vector<SimpleConnection> &conn,
   const std::vector<double> &colour, int style, int width,
-  int labelstyle, std::string labelcolour,
-  const std::string family,  const std::string weight, 
-  const std::string slant, const std::string size,
+  int labelstyle, const std::string &labelcolour,
+  const std::string &family,  const std::string &weight, 
+  const std::string &slant, const std::string &size,
+  const std::vector<int> &tags,const std::vector<int> &selTags){
+
+  std::vector<double> labelcolf = RGBReps::GetColour(labelcolour);
+  DrawSimpleConnection(obj,conn,colour,style,width,labelstyle,labelcolf,
+		  family,weight,slant,size,tags,selTags);
+
+}
+
+void DrawSimpleConnection(Displayobject &obj,
+  const std::vector<SimpleConnection> &conn,
+  const std::vector<double> &colour, int style, int width,
+  int labelstyle, const  std::vector<double> &labelcolf,
+  const std::string &family,  const std::string &weight, 
+  const std::string &slant, const std::string &size,
   const std::vector<int> &tags,const std::vector<int> &selTags){
 
   double col[3] ={double(colour[0]),double(colour[1]),double(colour[2])};
   double alpha = double(colour[3]);
   int cylinders_accu = 8;
+  double cylinder_radius_scale = 0.02;
   bool apply_selection = false;
   std::string label;
   std::vector<Cartesian> carts(2);
   Text *text;
+
+  std::string labelcolr = FloatToString(floor(labelcolf[0])*255,"%x");
+  std::string labelcolg = FloatToString(floor(labelcolf[1])*255,"%x");
+  std::string labelcolb = FloatToString(floor(labelcolf[2])*255,"%x");
+  std::string labelcolour = "#" + labelcolr + labelcolg + labelcolb;
 
   if (selTags.size()>=1)apply_selection = true; 
   std::vector<SimpleConnection>::const_iterator i = conn.begin();
@@ -445,9 +512,20 @@ void DrawSimpleConnection(Displayobject &obj,
         line = new DashArrow(carts,col,carts[0],double(width),alpha);
         obj.add_primitive(line);
       }
+
+      if(style==DASHCYLINDER){
+        DashCylinderElement *line;
+        line = new DashCylinderElement(carts,col,carts[0],double(width)*cylinder_radius_scale,
+                                  alpha,cylinders_accu);
+        line->SetDashLength(0.2);
+        line->SetDashEnd(1);
+        obj.add_primitive(line);
+      }
+ 
+
       if(style==CYLINDER){
         Cylinder *line;
-        line = new Cylinder(carts,col,carts[0],0.2,alpha,cylinders_accu);
+        line = new Cylinder(carts,col,carts[0],double(width)*cylinder_radius_scale,alpha,cylinders_accu);
         obj.add_primitive(line);
       }
       if(style==CYLINDERARROW){
@@ -455,12 +533,12 @@ void DrawSimpleConnection(Displayobject &obj,
         Cartesian p0 = carts[0];
         carts[0] = p;
         Cone *cone;
-        cone = new Cone(carts,col,carts[0],0.4,alpha,cylinders_accu);
+        cone = new Cone(carts,col,carts[0],double(width)*cylinder_radius_scale*2.0,alpha,cylinders_accu);
         obj.add_primitive(cone);
         carts[0] = p0;
         carts[1] = p;
         Cylinder *line;
-        line = new Cylinder(carts,col,carts[0],0.2,alpha,cylinders_accu);
+        line = new Cylinder(carts,col,carts[0],double(width)*cylinder_radius_scale,alpha,cylinders_accu);
         obj.add_primitive(line);
       }
     }
@@ -514,7 +592,7 @@ std::vector<int> GetPointsInVolume(Displayobject &obj, const std::vector<Cartesi
   for(unsigned int j=0;j<atoms.size();j++){
      clicked = 1;
      atom_origin = atoms[j];
-     matrix mat = obj.quat.getInvMatrix();
+     matrix mat = obj.quat.getMatrix();
      atom_origin = mat*atom_origin;
      atom_origin += obj.origin;
      for(int ii=0;ii<volume.GetNumberOfPlanes();ii++){
@@ -537,7 +615,7 @@ std::vector<int> GetPointsInVolume(Displayobject &obj, const std::vector<Cartesi
 ClickedLine FindPoint(Displayobject &obj, const std::vector<Cartesian> &primorigin, const std::vector<Cartesian> &xyzbox, int symmetry){
 
   int clicked_symm = -1;
-  int nearprim = findprimc(xyzbox,primorigin,obj.origin,obj.quat.getInvMatrix());
+  int nearprim = findprimc(xyzbox,primorigin,obj.origin,obj.quat.getMatrix());
   std::vector<Cartesian> primorigin2 = primorigin;
 
   unsigned int nsym = obj.GetNumSymmetryMatrices();
@@ -552,7 +630,7 @@ ClickedLine FindPoint(Displayobject &obj, const std::vector<Cartesian> &primorig
         cart = T*cart;
         primorigin2.push_back(cart);
       }
-      nearprim = findprimc(xyzbox,primorigin2,obj.origin,obj.quat.getInvMatrix());
+      nearprim = findprimc(xyzbox,primorigin2,obj.origin,obj.quat.getMatrix());
       //std::cout << "For symmetry " << j << " found " << nearprim << std::endl;
       if(nearprim>-1){
 	 clicked_symm = j;
@@ -627,7 +705,7 @@ void FitToPolynomial(std::vector<Cartesian> &carts, int pass){
 }
 
 
-void build_beta_surface(CMMANManager *molH, int atom_selHnd_in, Displayobject &obj, const CParamsManager &params, AtomColourVector *atom_colour_vector){
+void build_beta_surface(CMMANManager *molH, int atom_selHnd_in, Displayobject &obj, const CParamsManager &params, const AtomColourVector &atom_colour_vector){
 
 
   std::cout << "build_beta_surface\n";
@@ -654,7 +732,7 @@ void build_beta_surface(CMMANManager *molH, int atom_selHnd_in, Displayobject &o
   molH->ExcludeOverlappedAtoms(CAselHnd,0.8);
   molH->GetSelIndex ( atom_selHnd, atomTable, nAtoms );
   std::vector<Cartesian>  cavertices;
-  double *colour_array=0;
+  const double *colour_array=0;
   double red[] = {1.0,0.0,0.0,1.0};
 
   /* We won't try anything fancy with colours just yet. */
@@ -736,8 +814,11 @@ void build_beta_surface(CMMANManager *molH, int atom_selHnd_in, Displayobject &o
 
 void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, const CParamsManager &params,  const CParamsManager &global_params, const std::string &texture, const std::string &bumpmap){
 
+#ifdef _DO_TIMINGS_
+  clock_t t1 = clock();
+#endif
   unsigned int i;
-  int ribbon_accus[] = {4, 9, 12, 18, 30, 36};
+  int ribbon_accus[] = {6, 9, 12, 18, 30, 36};
 
   //std::cout << "into build_spline" << std::endl;
 
@@ -759,17 +840,17 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
 
   std::vector<std::vector<Cartesian> >exp_atomColourVector;
   if(multicolour&&(int)splineinfo.colours.size()>0) {
-    for(i=0;i<splineinfo.colours.size();i++){
+    for(i=0;i<splineinfo.colours.size();++i){
       exp_atomColourVector.push_back(std::vector<Cartesian>(0));
-      for(int j=0;j<int(splineinfo.colours[i].size())-1;j++){
-	for(int k=0;k<spline_accu;k++){
+      for(int j=0;j<int(splineinfo.colours[i].size())-1;++j){
+	for(int k=0;k<spline_accu;++k){
           /* Need to be more clever since multicolour is too much of a catchall */
           double frac = 0.0;// double(k)/spline_accu;
           Cartesian frac_col = (1.0-frac) * splineinfo.colours[i][j] + frac * splineinfo.colours[i][j+1];
 	  exp_atomColourVector[i].push_back(frac_col);
         }
       }
-      for(int k=0;k<spline_accu;k++){
+      for(int k=0;k<spline_accu;++k){
         double frac = 0.0;// double(k)/spline_accu;
         Cartesian frac_col = frac * splineinfo.colours[i][splineinfo.colours[i].size()-1] + (1.0-frac) * splineinfo.colours[i][splineinfo.colours[i].size()-2];
         exp_atomColourVector[i].push_back(frac_col);
@@ -797,10 +878,10 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
   std::vector<std::vector<Cartesian> >::const_iterator n2_nasplines_iter=splineinfo.n2_nasplines.begin();
   std::vector<std::vector<Cartesian> > naexp_atomColourVector;
   if(multicolour&&(int)splineinfo.nacolours.size()>0) {
-    for(i=0;i<splineinfo.nacolours.size();i++){
+    for(i=0;i<splineinfo.nacolours.size();++i){
       naexp_atomColourVector.push_back(std::vector<Cartesian>(0));
-      for(unsigned int j=0;j<splineinfo.nacolours[i].size();j++)
-	for(int k=0;k<spline_accu;k++)
+      for(unsigned int j=0;j<splineinfo.nacolours[i].size();++j)
+	for(int k=0;k<spline_accu;++k)
 	   naexp_atomColourVector[i].push_back(splineinfo.nacolours[i][j]);
     }
   }
@@ -814,7 +895,7 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
     int spline_accu = 4+4*global_params.GetInt("solid_quality");
     if (mode == SPLINE|| mode == FATWORM){
       double *col_tmp = RGBReps::GetColourP(1);
-      Ribbon *ribbon = new Ribbon(*nasplines_iter,*n1_nasplines_iter,*n2_nasplines_iter,col_tmp,(*nasplines_iter)[0],*nacolours_iter,worm_width,ribbon_width,worm_width,1.0,-((ribbon_style<<16)|ribbon_accu*2),spline_accu);
+      Ribbon *ribbon = new Ribbon(*nasplines_iter,*n1_nasplines_iter,*n2_nasplines_iter,col_tmp,(*nasplines_iter)[0],*nacolours_iter,worm_width,ribbon_width,worm_width,1.0,ribbon_accu*2,spline_accu,0,ribbon_style);
       obj.add_primitive(ribbon);
       delete [] col_tmp;
     }else{
@@ -824,10 +905,10 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
       delete [] col_tmp;
     }
     }
-    nasplines_iter++;
-    n1_nasplines_iter++;
-    n2_nasplines_iter++;
-    if(multicolour) nacolours_iter++;
+    ++nasplines_iter;
+    ++n1_nasplines_iter;
+    ++n2_nasplines_iter;
+    if(multicolour) ++nacolours_iter;
   }
 
   int totalpoints = 0;
@@ -835,15 +916,15 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
   while(splines_iter!=splineinfo.splines.end()){
     std::vector<std::vector<int> > secstr_indices = splineinfo.secstr_indices[nchain];
     std::vector<std::vector<int> >::const_iterator secstr_iter=secstr_indices.begin();
-    nchain++;
+    ++nchain;
     if(splines_iter->size()<2){
-      splines_iter++;
-      n1_splines_iter++;
-      n2_splines_iter++;
-      if(multicolour) colour_vecs++;
+      ++splines_iter;
+      ++n1_splines_iter;
+      ++n2_splines_iter;
+      if(multicolour) ++colour_vecs;
       secstr_indices = splineinfo.secstr_indices[nchain];
       secstr_iter=secstr_indices.begin();
-      nchain++;
+      ++nchain;
     }
     spline_iter=(*splines_iter).begin();
     n1_spline_iter=(*n1_splines_iter).begin();
@@ -857,38 +938,46 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
         //std::cout << (*secstr_iter)[0] << " to " << (*(secstr_iter+1))[0] << "\n";
         int begin = (*secstr_iter)[0]*spline_accu;
         int end = (*(secstr_iter+1))[0]*spline_accu;
-        //std::cout << begin << " to " << end << "(" << end-begin << ")\n";
-        for(int i=begin;i<=end&&spline_iter!=(*splines_iter).end();i++){ 
+        for(int i=begin;i<=end&&(*splines_iter).size()>0&&spline_iter!=(*splines_iter).end();++i){ 
 	  cartesians.push_back(*spline_iter);
 	  n1_cartesians.push_back(*n1_spline_iter);
 	  n2_cartesians.push_back(*n2_spline_iter);
 	  if(multicolour) colours_vec.push_back(*colour_vec);
-	  n1_spline_iter++;
-	  n2_spline_iter++;
-	  spline_iter++;
-	  if(multicolour) colour_vec++;
+	  ++n1_spline_iter;
+	  ++n2_spline_iter;
+	  ++spline_iter;
+	  if(multicolour) ++colour_vec;
+        }
+        bool doOneMore = false;
+	if(spline_iter+1==(*splines_iter).end()) doOneMore = true;
+	if((*splines_iter).size()>0&&spline_iter!=(*splines_iter).end()&&spline_iter+1<(*splines_iter).end() && spline_iter+2<(*splines_iter).end() && (*(spline_iter+1)-*(spline_iter+2)).length()>15./spline_accu) doOneMore = true;
+	if((*splines_iter).size()>0&&doOneMore&&spline_iter!=(*splines_iter).end()&&n1_spline_iter!=(*n1_splines_iter).end()&&n2_spline_iter!=(*n2_splines_iter).end()){
+	  cartesians.push_back(*spline_iter);
+	  n1_cartesians.push_back(*n1_spline_iter);
+	  n2_cartesians.push_back(*n2_spline_iter);
+	  if(multicolour&&(colour_vec!=(*colour_vecs).end())) colours_vec.push_back(*colour_vec);
         }
         //std::cout << "cartesians.size() " << cartesians.size() << "\n"; std::cout.flush();
-        totalpoints++;
-        spline_iter--;
-        n1_spline_iter--;
-        n2_spline_iter--;
-	if(multicolour) colour_vec--;
+        ++totalpoints;
+        --spline_iter;
+        --n1_spline_iter;
+        --n2_spline_iter;
+	if(multicolour) --colour_vec;
       }else{
-	while(spline_iter!=(*splines_iter).end()){
+	while((*splines_iter).size()>0&&spline_iter<(*splines_iter).end()){
 	  cartesians.push_back(*spline_iter);
 	  n1_cartesians.push_back(*n1_spline_iter);
 	  n2_cartesians.push_back(*n2_spline_iter);
 	  if(multicolour) colours_vec.push_back(*colour_vec);
-	  n1_spline_iter++;
-	  n2_spline_iter++;
-	  spline_iter++;
-	  if(multicolour) colour_vec++;
+	  ++n1_spline_iter;
+	  ++n2_spline_iter;
+	  ++spline_iter;
+	  if(multicolour) ++colour_vec;
 	}
-        spline_iter--;
-        n1_spline_iter--;
-        n2_spline_iter--;
-	if(multicolour) colour_vec--;
+        --spline_iter;
+        --n1_spline_iter;
+        --n2_spline_iter;
+	if(multicolour) --colour_vec;
       }
       if(cartesians.size()>2) {
         if((cartesians[cartesians.size()-1]-cartesians[cartesians.size()-2]).length()<1e-4){
@@ -906,11 +995,14 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
         int ribbon_style = params.GetInt("ribbon_style");
         int helix_style = params.GetInt("helix_style");
         int spline_accu = 4+4*global_params.GetInt("solid_quality");
-        int two_colour_ribbon = params.GetInt("two_colour_ribbon");
+        bool two_colour_ribbon = params.GetInt("two_colour_ribbon");
+        bool grey_ribbon_edge = params.GetInt("grey_ribbon_edge");
         float alpha_helix_width;
         float beta_sheet_width;
+	float helix_tube_diameter;
         if (mode == SPLINE || mode == FATWORM) {
           alpha_helix_width = params.GetFloat("alpha_helix_width");
+          helix_tube_diameter =  params.GetFloat("helix_tube_diameter");
           beta_sheet_width = params.GetFloat("alpha_helix_width");
           //beta_sheet_width = params.GetFloat("beta_sheet_width");
         } else {
@@ -924,17 +1016,21 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
           colours_vec.push_back(colours_vec.back());
         }
         if((*secstr_iter)[1]==ALPHA&&cartesians.size()>4){
-          if (mode == SPLINE||mode==WORM) {
+          if (mode == SPLINE||mode==WORM||mode==VARIABLEWORM) {
 	    Ribbon *ribbon;
             double *col_tmp = RGBReps::GetColourP((*secstr_iter)[1]+1);
-            if(mode==WORM)
+            if(mode==WORM){
 	      ribbon = new Ribbon(cartesians,n1_cartesians,n2_cartesians,col_tmp,cartesians[0],colours_vec,worm_width,alpha_helix_width,worm_width,1.0,ribbon_accu*2,spline_accu);
-            else
-	      ribbon = new Ribbon(cartesians,n1_cartesians,n2_cartesians,col_tmp,cartesians[0],colours_vec,worm_width,alpha_helix_width,worm_width,1.0,-((two_colour_ribbon<<20)|(helix_style<<16)|ribbon_accu*2),spline_accu);
+            }else if(mode==VARIABLEWORM){
+	      ribbon = new VariableWorm(cartesians,n1_cartesians,n2_cartesians,col_tmp,cartesians[0],colours_vec,worm_width,alpha_helix_width,worm_width,1.0,ribbon_accu*2,spline_accu);
+            }else{
+	      ribbon = new Ribbon(cartesians,n1_cartesians,n2_cartesians,col_tmp,cartesians[0],colours_vec,worm_width,alpha_helix_width,worm_width,1.0,ribbon_accu*2,spline_accu,0,helix_style,two_colour_ribbon,grey_ribbon_edge);
+            }
 	    obj.add_primitive(ribbon);
             delete [] col_tmp;
           }else{
             double *col_tmp = RGBReps::GetColourP((*secstr_iter)[1]+1);
+            col_tmp = RGBReps::GetColourP(RGBReps::GetColourNumber("black"));
             /* This is cylinder rep of alpha helices !! */
             std::vector<Cartesian> lead_in(cartesians.begin(),cartesians.begin()+1*spline_accu);
             std::vector<Cartesian> n1_lead_in(n1_cartesians.begin(),n1_cartesians.begin()+1*spline_accu);
@@ -942,38 +1038,46 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
             std::vector<Cartesian> cols_lead_in(colours_vec.begin(),colours_vec.begin()+1*spline_accu);
 	    Worm *ribbon = new Worm(lead_in,n1_lead_in,n2_lead_in,col_tmp,cartesians[0],cols_lead_in,worm_width,worm_width,worm_width,1.0,ribbon_accu*2,spline_accu);
 	    obj.add_primitive(ribbon);
-            std::vector<Cartesian> main(cartesians.begin()+1*spline_accu-1,cartesians.end()-2*spline_accu+1);
-            std::vector<Cartesian> n1_main(n1_cartesians.begin()+1*spline_accu-1,n1_cartesians.end()-2*spline_accu+1);
-            std::vector<Cartesian> n2_main(n2_cartesians.begin()+1*spline_accu-1,n2_cartesians.end()-2*spline_accu+1);
-            std::vector<Cartesian> cols_main(colours_vec.begin()+1*spline_accu-1,colours_vec.end()-2*spline_accu+1);
-	    ribbon = new Worm(main,n1_main,n2_main,col_tmp,cartesians[0],cols_main,2.2,2.2,2.2,1.0,ribbon_accu*2,spline_accu);
+            if(cartesians.size()>2*spline_accu+1){
+            std::vector<Cartesian> main(cartesians.begin()+1*spline_accu-1,cartesians.end()-1*spline_accu+1);
+            std::vector<Cartesian> n1_main(n1_cartesians.begin()+1*spline_accu-1,n1_cartesians.end()-1*spline_accu+1);
+            std::vector<Cartesian> n2_main(n2_cartesians.begin()+1*spline_accu-1,n2_cartesians.end()-1*spline_accu+1);
+            std::vector<Cartesian> cols_main(colours_vec.begin()+1*spline_accu-1,colours_vec.end()-1*spline_accu+1);
+	    ribbon = new Worm(main,n1_main,n2_main,col_tmp,cartesians[0],cols_main,helix_tube_diameter,helix_tube_diameter,helix_tube_diameter,1.0,ribbon_accu*2,spline_accu);
 	    obj.add_primitive(ribbon);
-            std::vector<Cartesian> lead_out(cartesians.end()-2*spline_accu,cartesians.end());
-            std::vector<Cartesian> n1_lead_out(n1_cartesians.end()-2*spline_accu,n1_cartesians.end());
-            std::vector<Cartesian> n2_lead_out(n2_cartesians.end()-2*spline_accu,n2_cartesians.end());
-            std::vector<Cartesian> cols_lead_out(colours_vec.end()-2*spline_accu,colours_vec.end());
+            std::vector<Cartesian> lead_out(cartesians.end()-1*spline_accu,cartesians.end());
+            std::vector<Cartesian> n1_lead_out(n1_cartesians.end()-1*spline_accu,n1_cartesians.end());
+            std::vector<Cartesian> n2_lead_out(n2_cartesians.end()-1*spline_accu,n2_cartesians.end());
+            std::vector<Cartesian> cols_lead_out(colours_vec.end()-1*spline_accu,colours_vec.end());
 	    ribbon = new Worm(lead_out,n1_lead_out,n2_lead_out,col_tmp,cartesians[0],cols_lead_out,worm_width,worm_width,worm_width,1.0,ribbon_accu*2,spline_accu);
 	    obj.add_primitive(ribbon);
+            }
             delete [] col_tmp;
           }
         }else if((*secstr_iter)[1]==BETA&&cartesians.size()>4){
           double *col_tmp = RGBReps::GetColourP((*secstr_iter)[1]+1);
 	  Ribbon *ribbon;
           if (mode == SPLINE|| mode == FATWORM) {
-            if(ribbon_style==0)
-	      ribbon = new ArrowHeadRibbon(cartesians,n1_cartesians,n2_cartesians,col_tmp,cartesians[0],colours_vec,worm_width,beta_sheet_width,worm_width,arrow_length,arrow_width,1.0,ribbon_accu*2,spline_accu);
-            else
-	      ribbon = new ArrowHeadRibbon(cartesians,n1_cartesians,n2_cartesians,col_tmp,cartesians[0],colours_vec,worm_width,beta_sheet_width,worm_width,arrow_length,arrow_width,1.0,-((ribbon_style<<16)|ribbon_accu*2),spline_accu);
+	    ribbon = new ArrowHeadRibbon(cartesians,n1_cartesians,n2_cartesians,col_tmp,cartesians[0],colours_vec,worm_width,beta_sheet_width,worm_width,arrow_length,arrow_width,1.0,ribbon_accu*2,spline_accu,0,ribbon_style,false,grey_ribbon_edge);
             obj.add_primitive(ribbon);
           } else {
-	    ribbon = new Ribbon(cartesians,n1_cartesians,n2_cartesians,col_tmp,cartesians[0],colours_vec,worm_width,beta_sheet_width,worm_width,1.0,ribbon_accu*2,spline_accu);
+            if(mode==VARIABLEWORM){
+	      ribbon = new VariableWorm(cartesians,n1_cartesians,n2_cartesians,col_tmp,cartesians[0],colours_vec,worm_width,beta_sheet_width,worm_width,1.0,ribbon_accu*2,spline_accu);
+            }else{
+	      ribbon = new Ribbon(cartesians,n1_cartesians,n2_cartesians,col_tmp,cartesians[0],colours_vec,worm_width,beta_sheet_width,worm_width,1.0,ribbon_accu*2,spline_accu);
+            }
    	   obj.add_primitive(ribbon);
 	  }
           delete [] col_tmp;
         }else{
           double *col_tmp = RGBReps::GetColourP((*secstr_iter)[1]+1);
-	  Worm *ribbon = new Worm(cartesians,n1_cartesians,n2_cartesians,col_tmp,cartesians[0],colours_vec,worm_width,worm_width,worm_width,1.0,ribbon_accu*2,spline_accu);
-	  obj.add_primitive(ribbon);
+          if(mode==VARIABLEWORM){
+	    VariableWorm *ribbon = new VariableWorm(cartesians,n1_cartesians,n2_cartesians,col_tmp,cartesians[0],colours_vec,worm_width,worm_width,worm_width,1.0,ribbon_accu*2,spline_accu);
+	    obj.add_primitive(ribbon);
+          }else{
+	    Worm *ribbon = new Worm(cartesians,n1_cartesians,n2_cartesians,col_tmp,cartesians[0],colours_vec,worm_width,worm_width,worm_width,1.0,ribbon_accu*2,spline_accu);
+	    obj.add_primitive(ribbon);
+          }
           delete [] col_tmp;
         }
       }
@@ -982,39 +1086,40 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
       n2_cartesians.clear();
       colours_vec.clear();
       //std::cout << (*secstr_iter)[0]*params.spline_accu << " " << totalpoints << "\n";
-      secstr_iter++;
+      ++secstr_iter;
     }
-    splines_iter++;
-    n1_splines_iter++;
-    n2_splines_iter++;
-    if(multicolour) colour_vecs++;
+    ++splines_iter;
+    ++n1_splines_iter;
+    ++n2_splines_iter;
+    if(multicolour) ++colour_vecs;
   }
-
  //std::cout << "done build_spline" << std::endl;
+#ifdef _DO_TIMINGS_
+  clock_t t2 = clock();
+  std::cout << "Time for build_spline" << ((t2-t1)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+#endif
 }
 
 ConnectivityDraw::ConnectivityDraw(){
 }
 
-void ConnectivityDraw::SetParametersAndCalculate(const Connectivity &connectivity_in, PCMMANManager molhnd_in, Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms, AtomColourVector *atom_colour_vector, std::vector<double> atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour, int side_to_ribbon, int side_to_worm){
+void ConnectivityDraw::SetParametersAndCalculate(const Connectivity &connectivity_in, PCMMANManager molhnd_in, Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms, const AtomColourVector &atom_colour_vector, const std::vector<double> &atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour, int side_to_ribbon, int side_to_worm, int bonds_mode){
   molhnd = molhnd_in;
-  connectivity = connectivity_in;
-  RedrawPrimitives(obj,mode,params,global_params,nSelAtoms,atom_colour_vector,atomRadii,texture,bumpmap,stick_colour,side_to_ribbon,side_to_worm);
+  RedrawPrimitives(obj,connectivity_in,mode,params,global_params,nSelAtoms,atom_colour_vector,atomRadii,texture,bumpmap,stick_colour,side_to_ribbon,side_to_worm,bonds_mode);
 }
 
-ConnectivityDraw::ConnectivityDraw(const Connectivity &connectivity_in, PCMMANManager molhnd_in, Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms, AtomColourVector *atom_colour_vector, std::vector<double> atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour, int side_to_ribbon, int side_to_worm){
+ConnectivityDraw::ConnectivityDraw(const Connectivity &connectivity_in, PCMMANManager molhnd_in, Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms, const AtomColourVector &atom_colour_vector, const std::vector<double> &atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour, int side_to_ribbon, int side_to_worm,int bonds_mode ){
 
   molhnd = molhnd_in;
-  connectivity = connectivity_in;
-  RedrawPrimitives(obj,mode,params,global_params,nSelAtoms,atom_colour_vector,atomRadii,texture,bumpmap,stick_colour,side_to_ribbon,side_to_worm);
+  RedrawPrimitives(obj,connectivity_in,mode,params,global_params,nSelAtoms,atom_colour_vector,atomRadii,texture,bumpmap,stick_colour,side_to_ribbon,side_to_worm,bonds_mode);
 }
 
-void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms,  AtomColourVector *atom_colour_vector, std::vector<double> atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour , int side_to_ribbon, int side_to_worm){
+void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, const Connectivity &connectivity, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms,  const AtomColourVector &atom_colour_vector, const std::vector<double> &atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour , int side_to_ribbon, int side_to_worm, int bonds_mode){
 
   double width=1.0;
-  LineCollection *lines = new LineCollection();
-  PolyCollection *polys = new PolyCollection();
   bool warning = false;
+
+  static int cylinders_accus[] = {8,18,24};
 
   double spheres_size=1.0;
   double cylinders_size=params.GetFloat("cylinder_width");
@@ -1026,7 +1131,12 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CPar
   bool dashed = params.GetInt("dashed_bonds"); 
   double dash_length = params.GetFloat("dashed_bond_length"); 
 
+  //std::cout << "RedrawPrimitives " << bonds_mode << " " << side_to_ribbon << std::endl;
+
   std::vector <int> catom_indices = connectivity.GetCAtomIndex();
+
+  double trace_cutoff = params.GetFloat("trace_cutoff"); 
+  double trace_cutoff_sq = trace_cutoff*trace_cutoff;
 
   if(mode==SPHERES){
     spheres_size = 1.2;
@@ -1037,12 +1147,18 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CPar
     spheres_size = 0.6;
     cylinders_size = params.GetFloat("ballstick_stick");
     spheres_accu = global_params.GetInt("solid_quality");
-    cylinders_accu = 8;
+    if(global_params.GetInt("solid_quality")<3)
+      cylinders_accu = cylinders_accus[global_params.GetInt("solid_quality")];
+    else
+      cylinders_accu = 8+8*global_params.GetInt("solid_quality");
   }
   if(mode==CYLINDERS){
     spheres_size = cylinders_size;
     spheres_accu = global_params.GetInt("solid_quality");
-    cylinders_accu = 8;
+    if(global_params.GetInt("solid_quality")<3)
+      cylinders_accu = cylinders_accus[global_params.GetInt("solid_quality")];
+    else
+      cylinders_accu = 8+8*global_params.GetInt("solid_quality");
   }
   if(mode==BONDS)
     width = params.GetInt("bond_width");
@@ -1060,22 +1176,37 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CPar
     width = params.GetInt("thin_bond_width");
 
   std::vector<std::vector<int> > conn_lists = connectivity.GetConnectivityLists();
+  std::vector<std::vector<int> > ext_conn_lists_spline = connectivity.GetExternalSplineConnectivityLists();
   std::vector<std::vector<int> > ext_conn_lists = connectivity.GetExternalConnectivityLists();
   PPCAtom atoms = connectivity.GetAtoms();
   int natoms = connectivity.GetNumberOfAtoms();
   std::vector <Cartesian> int_carts = CartesiansFromAtoms(atoms,natoms);
   if(atoms) delete [] atoms;
-  std::vector<std::vector <Cartesian> > ext_carts = GetExternalCartesians(molhnd,ext_conn_lists,side_to_ribbon,side_to_worm);
+  std::vector<std::vector <Cartesian> > ext_carts = GetExternalCartesians(molhnd,ext_conn_lists,side_to_ribbon,side_to_worm,params.GetFloat("trace_cutoff"));
+  std::vector<std::vector <Cartesian> > ext_carts_spline = GetExternalCartesians(molhnd,ext_conn_lists_spline,side_to_ribbon,side_to_worm,params.GetFloat("trace_cutoff"));
+
+  LineCollection *lines = new LineCollection();
+  PolyCollection *polys = new PolyCollection();
+  SphereCollection *spheres = new SphereCollection();
+  CylinderCollection *cylinders = new CylinderCollection();
+
+  LinesCollection *lines_collection = new LinesCollection();
+  DashLinesCollection *dash_lines_collection = new DashLinesCollection();
+  lines_collection->SetSize(width);
+  dash_lines_collection->SetSize(width);
+  dash_lines_collection->SetDashLength(dash_length);
+
+  spheres->SetAccu(spheres_accu);
+  cylinders->SetAccu(cylinders_accu);
 
   std::vector<Cartesian> carts(2);
 
   Cartesian tmp_v;
+  Cartesian midpoint;
 
-  double *stick_colour_array=0;
-  double *colour_array=0;
-  double *colour_array2=0;
+  const double *stick_colour_array=0;
+  const double *colour_array=0;
   //double colour_array[4];
-  //double colour_array2[4];
   if ( stick_colour > 0 ) stick_colour_array = RGBReps::GetColourP(stick_colour);
   if (side_to_ribbon>0 || side_to_worm>0 ) {
     midpoint_frac0 = 0.0;
@@ -1083,52 +1214,60 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CPar
     //std::cout << "Setting midpoint to external cart\n";
   }
 
-  for(unsigned i=0;i<ext_conn_lists.size();i++){
-    colour_array = atom_colour_vector->GetRGB(i);
+  lines_collection->reserve((ext_conn_lists_spline.size()+ext_conn_lists.size()+conn_lists.size())*3);
+  if(dashed)
+    dash_lines_collection->reserve((ext_conn_lists_spline.size()+ext_conn_lists.size()+conn_lists.size())*3);
+  if (bonds_mode != DRAW_INTERNAL_BONDS) {
+
+  //if(!atom_colour_vector) std::cout << "BIG PROBLEM: atom_colour_vector not valid\n";
+  std::cout.flush();
+  for(unsigned i=0;i<ext_conn_lists_spline.size()&&(side_to_ribbon>0 || side_to_worm>0);i++){
+    colour_array = atom_colour_vector.GetRGB(i);
     
-    for(unsigned j=0;j<ext_conn_lists[i].size();j++){
+    for(unsigned j=0;j<ext_conn_lists_spline[i].size();j++){
       if(dashed==true&&(mode==BONDS||mode==FATBONDS||mode==THINBONDS)){
-        Cartesian midpoint =midpoint_frac0 *int_carts[i]+midpoint_frac1*ext_carts[i][j];
+        //Cartesian midpoint =midpoint_frac0 *int_carts[i]+midpoint_frac1*ext_carts[i][j];
+        midpoint.setMultiplyAndAdd(midpoint_frac0 ,int_carts[i],midpoint_frac1,ext_carts_spline[i][j]);
         carts[1] = int_carts[i];
         carts[0] = midpoint;
         tmp_v = carts[0] -  carts[1];
-        if (tmp_v.length() < 0.001 ) {
+        if (tmp_v.length() < 0.001||tmp_v.length() > trace_cutoff_sq  ) {
           if (!warning) {
 	    warning = true;
             std::cout << "Error drawing BONDS ext\n" ;
           }
+          continue;
         }
-        DashLineElement *line = new DashLineElement(carts,colour_array,carts[1],width,1.0);
-        line->SetColourOverride(catom_indices[i]);
-        line->SetDashLength(dash_length);
-        lines->add_primitive(line);
+        dash_lines_collection->add(carts,colour_array,catom_indices[i]);
+        //DashLineElement *line = new DashLineElement(carts,colour_array,carts[1],width,1.0);
+        //line->SetColourOverride(catom_indices[i]);
+        //line->SetDashLength(dash_length);
+        //lines->add_primitive(line);
       }
       if(dashed==false&&(mode==BONDS||mode==FATBONDS||mode==THINBONDS)){
-        Cartesian midpoint =midpoint_frac0 *int_carts[i]+midpoint_frac1*ext_carts[i][j];
+        //Cartesian midpoint =midpoint_frac0 *int_carts[i]+midpoint_frac1*ext_carts[i][j];
+        midpoint.setMultiplyAndAdd(midpoint_frac0,int_carts[i],midpoint_frac1,ext_carts_spline[i][j]);
         carts[0] = int_carts[i];
         carts[1] = midpoint;
-        tmp_v = carts[0] -  carts[1];
-        if (tmp_v.length() < 0.001 ) {
+        bool distOK = Cartesian::CheckDistanceRange(carts[0],carts[1],0.001,6);
+        //tmp_v = carts[0] -  carts[1];
+        //if (tmp_v.length() < 0.001 ||tmp_v.length() > 6  ) {
+        if (!distOK) {
           if (!warning) {
 	    warning = true;
             std::cout << "Error drawing BONDS ext\n" ;
           }
+          continue;
         }
-        LineElement *line = new LineElement(carts,colour_array,carts[0],width,1.0);
-        line->SetColourOverride(catom_indices[i]);
-        lines->add_primitive(line);
+        lines_collection->add(carts,colour_array,catom_indices[i]);
+        //LineElement *line = new LineElement(carts,colour_array,carts[0],width,1.0);
+        //line->SetColourOverride(catom_indices[i]);
+        //lines->add_primitive(line);
       }
       if(mode==CYLINDERS||mode==BALLSTICK){
-        Cartesian midpoint =midpoint_frac0 *int_carts[i]+midpoint_frac1*ext_carts[i][j];
+        //Cartesian midpoint =midpoint_frac0 *int_carts[i]+midpoint_frac1*ext_carts[i][j];
+        midpoint.setMultiplyAndAdd(midpoint_frac0 ,int_carts[i],midpoint_frac1,ext_carts_spline[i][j]);
         carts[0] = int_carts[i];
-        /*
-        if(mode==BALLSTICK){
-          Cartesian vec = ext_carts[i][j]-int_carts[i];
-          vec.normalize();
-          double rad = sqrt(atomRadii[i]*atomRadii[i]-cylinders_size*cylinders_size);
-          carts[0] = int_carts[i] +rad*vec;
-        }
-        */
         carts[1] = midpoint;
         tmp_v = carts[0] -  carts[1];
         if (tmp_v.length() < 0.001 ) {
@@ -1136,37 +1275,115 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CPar
             warning = true;
             std::cout << "Error drawing CYLINDER ext\n";
           }
+          continue;
         }
         if (stick_colour > 0 && mode==BALLSTICK && stick_colour_array ) {
           CylinderElement *line = new CylinderElement(carts,stick_colour_array,carts[0],cylinders_size,1.0,cylinders_accu);
           line->SetColourOverride(catom_indices[i]);
-          polys->add_primitive(line);
+          cylinders->add_primitive(line);
         } else {
           CylinderElement *line = new CylinderElement(carts,colour_array,carts[0],cylinders_size,1.0,cylinders_accu);
           line->SetColourOverride(catom_indices[i]);
-          polys->add_primitive(line);
+          cylinders->add_primitive(line);
         }
       }
     }
     if(colour_array) delete [] colour_array;
   }
 
+  //if(!atom_colour_vector) std::cout << "BIG PROBLEM: atom_colour_vector not valid\n";
+  std::cout.flush();
+  for(unsigned i=0;i<ext_conn_lists.size();i++){
+    colour_array = atom_colour_vector.GetRGB(i);
+    
+    for(unsigned j=0;j<ext_conn_lists[i].size();j++){
+      if(dashed==true&&(mode==BONDS||mode==FATBONDS||mode==THINBONDS)){
+        //Cartesian midpoint =midpoint_frac0 *int_carts[i]+midpoint_frac1*ext_carts[i][j];
+        midpoint.setMultiplyAndAdd(0.5 ,int_carts[i],0.5,ext_carts[i][j]);
+        carts[1] = int_carts[i];
+        carts[0] = midpoint;
+        tmp_v = carts[0] -  carts[1];
+        if (tmp_v.length() < 0.001||tmp_v.length() > trace_cutoff_sq  ) {
+          if (!warning) {
+	    warning = true;
+            std::cout << "Error drawing BONDS ext\n" ;
+          }
+          continue;
+        }
+        dash_lines_collection->add(carts,colour_array,catom_indices[i]);
+        //DashLineElement *line = new DashLineElement(carts,colour_array,carts[1],width,1.0);
+        //line->SetColourOverride(catom_indices[i]);
+        //line->SetDashLength(dash_length);
+        //lines->add_primitive(line);
+      }
+      if(dashed==false&&(mode==BONDS||mode==FATBONDS||mode==THINBONDS)){
+        //Cartesian midpoint =midpoint_frac0 *int_carts[i]+midpoint_frac1*ext_carts[i][j];
+        midpoint.setMultiplyAndAdd(0.5,int_carts[i],0.5,ext_carts[i][j]);
+        carts[0] = int_carts[i];
+        carts[1] = midpoint;
+        bool distOK = Cartesian::CheckDistanceRange(carts[0],carts[1],0.001,6);
+        //tmp_v = carts[0] -  carts[1];
+        //if (tmp_v.length() < 0.001 ||tmp_v.length() > 6  ) {
+        if (!distOK) {
+          if (!warning) {
+	    warning = true;
+            std::cout << "Error drawing BONDS ext\n" ;
+          }
+          continue;
+        }
+        lines_collection->add(carts,colour_array,catom_indices[i]);
+        //LineElement *line = new LineElement(carts,colour_array,carts[0],width,1.0);
+        //line->SetColourOverride(catom_indices[i]);
+        //lines->add_primitive(line);
+      }
+      if(mode==CYLINDERS||mode==BALLSTICK){
+        //Cartesian midpoint =midpoint_frac0 *int_carts[i]+midpoint_frac1*ext_carts[i][j];
+        midpoint.setMultiplyAndAdd(0.5 ,int_carts[i],0.5,ext_carts[i][j]);
+        carts[0] = int_carts[i];
+        carts[1] = midpoint;
+        tmp_v = carts[0] -  carts[1];
+        if (tmp_v.length() < 0.001 ) {
+          if ( !warning ) {
+            warning = true;
+            std::cout << "Error drawing CYLINDER ext\n";
+          }
+          continue;
+        }
+        if (stick_colour > 0 && mode==BALLSTICK && stick_colour_array ) {
+          CylinderElement *line = new CylinderElement(carts,stick_colour_array,carts[0],cylinders_size,1.0,cylinders_accu);
+          line->SetColourOverride(catom_indices[i]);
+          cylinders->add_primitive(line);
+        } else {
+          CylinderElement *line = new CylinderElement(carts,colour_array,carts[0],cylinders_size,1.0,cylinders_accu);
+          line->SetColourOverride(catom_indices[i]);
+          cylinders->add_primitive(line);
+        }
+      }
+    }
+    if(colour_array) delete [] colour_array;
+  }
+ 
+
+  }
+
+  if (bonds_mode != DRAW_EXTERNAL_BONDS) {
+
   for(unsigned i=0;i<conn_lists.size();i++){
-    colour_array = atom_colour_vector->GetRGB(i);
+    colour_array = atom_colour_vector.GetRGB(i);
     if(mode==SPHERES||mode==BALLSTICK){
       if (atomRadii[i]<0.01) {
 	//std::cout << "SPHERE radii";
       } else {
       SphereElement *sphere = new SphereElement(int_carts[i],colour_array,int_carts[i],atomRadii[i],1.0,spheres_accu);
       sphere->SetColourOverride(catom_indices[i]);
-      polys->add_primitive(sphere);
+      spheres->add_primitive(sphere);
       }
     }
     if(mode==CYLINDERS){
         //if (spheres_size<0.01) std::cout << "CYLINDER radii";
         SphereElement *sphere = new SphereElement(int_carts[i],colour_array,int_carts[i],spheres_size,1.0,spheres_accu);
         sphere->SetColourOverride(catom_indices[i]);
-        polys->add_primitive(sphere);
+        spheres->add_primitive(sphere);
     }
     if(mode==PYRAMIDS){
       for (unsigned j=0;j<5;j++) {     
@@ -1184,87 +1401,70 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CPar
     }
 
     for(unsigned j=0;j<conn_lists[i].size();j++){
-      colour_array2 = atom_colour_vector->GetRGB(conn_lists[i][j]);
       if(dashed==true&&(mode==BONDS||mode==FATBONDS||mode==THINBONDS)){
         //Cartesian midpoint = Cartesian::MidPoint(int_carts[i],int_carts[conn_lists[i][j]]);
         Cartesian midpoint = 0.50*int_carts[i]+0.50*int_carts[conn_lists[i][j]];
         carts[1] = int_carts[i];
         carts[0] = midpoint;
         tmp_v = carts[0] -  carts[1];
-        if (tmp_v.length() < 0.001 ) {
+        if (tmp_v.length() < 0.001||tmp_v.length() > 6   ) {
           if (!warning) {
             warning = true;
             std::cout << "Error drawing BONDS \n";
           }
+          continue;
         }
-        DashLineElement *line = new DashLineElement(carts,colour_array,carts[1],width,1.0);
-        line->SetColourOverride(catom_indices[i]);
-        line->SetDashLength(dash_length);
-        lines->add_primitive(line);
-        /*
-        carts[0] = midpoint;
-        carts[1] = int_carts[conn_lists[i][j]];
-        midpoint = 0.50*int_carts[i]+0.50*int_carts[conn_lists[i][j]];
-        line = new DashLineElement(carts,colour_array2,carts[1],width,1.0);
-        line->SetColourOverride(catom_indices[conn_lists[i][j]]);
-        lines->add_primitive(line);
-        */
+        dash_lines_collection->add(carts,colour_array,catom_indices[i]);
+        //DashLineElement *line = new DashLineElement(carts,colour_array,carts[1],width,1.0);
+        //line->SetColourOverride(catom_indices[i]);
+        //line->SetDashLength(dash_length);
+        //lines->add_primitive(line);
       }
       if(dashed==false&&(mode==BONDS||mode==FATBONDS||mode==THINBONDS)){
         //Cartesian midpoint = Cartesian::MidPoint(int_carts[i],int_carts[conn_lists[i][j]]);
-        Cartesian midpoint = 0.50*int_carts[i]+0.50*int_carts[conn_lists[i][j]];
+        //Cartesian midpoint = 0.50*int_carts[i]+0.50*int_carts[conn_lists[i][j]];
+        midpoint.setMultiplyAndAdd(0.50,int_carts[i],0.50,int_carts[conn_lists[i][j]]);
         carts[0] = int_carts[i];
         carts[1] = midpoint;
-        tmp_v = carts[0] -  carts[1];
-        if (tmp_v.length() < 0.001 ) {
+        bool distOK = Cartesian::CheckDistanceRange(carts[0],carts[1],0.001,6);
+        //tmp_v = carts[0] -  carts[1];
+        //if (tmp_v.length() < 0.001||tmp_v.length() > 6   ) {
+        if (!distOK) {
           if (!warning) {
             warning = true;
             std::cout << "Error drawing BONDS \n";
           }
+          continue;
         }
-        LineElement *line = new LineElement(carts,colour_array,carts[0],width,1.0);
-        line->SetColourOverride(catom_indices[i]);
-        lines->add_primitive(line);
-        /*
-        carts[0] = midpoint;
-        carts[1] = int_carts[conn_lists[i][j]];
-        midpoint = 0.50*int_carts[i]+0.50*int_carts[conn_lists[i][j]];
-        line = new LineElement(carts,colour_array2,carts[1],width,1.0);
-        line->SetColourOverride(catom_indices[conn_lists[i][j]]);
-        lines->add_primitive(line);
-       */
+        lines_collection->add(carts,colour_array,catom_indices[i]);
+        //LineElement *line = new LineElement(carts,colour_array,carts[0],width,1.0);
+        //line->SetColourOverride(catom_indices[i]);
+        //lines->add_primitive(line);
       }
       if(mode==CYLINDERS||mode==BALLSTICK){
-        Cartesian midpoint = Cartesian::MidPoint(int_carts[i],int_carts[conn_lists[i][j]]);
+        //Cartesian midpoint = Cartesian::MidPoint(int_carts[i],int_carts[conn_lists[i][j]]);
+        midpoint.setMultiplyAndAdd(0.50,int_carts[i],0.50,int_carts[conn_lists[i][j]]);
         carts[0] = int_carts[i];
-        /*
-        if(mode==BALLSTICK){
-          Cartesian vec = int_carts[conn_lists[i][j]]-int_carts[i];
-          vec.normalize();
-          double rad = sqrt(atomRadii[i]*atomRadii[i]-cylinders_size*cylinders_size);
-          carts[0] = int_carts[i] +rad*vec;
-        }
-        */
         carts[1] = midpoint;
         tmp_v = carts[0] -  carts[1];
-        if (tmp_v.length() < 0.001 ) {
+        if (tmp_v.length() < 0.001||tmp_v.length() > 6   ) {
 	  if (!warning) {
 	    warning = true;
             std::cout << "Error drawing CYLINDER \n";
           }
+          continue;
         }
         if (stick_colour > 0 && mode==BALLSTICK ) {
           CylinderElement *line = new CylinderElement(carts,stick_colour_array,carts[0],cylinders_size,1.0,cylinders_accu);
-          polys->add_primitive(line);
+          cylinders->add_primitive(line);
         } else {
           CylinderElement *line = new CylinderElement(carts,colour_array,carts[0],cylinders_size,1.0,cylinders_accu);
           line->SetColourOverride(catom_indices[i]);
-          polys->add_primitive(line);
+          cylinders->add_primitive(line);
         }
       }
-      if(colour_array2) delete [] colour_array2;
     }
-    if(conn_lists[i].size()==0 && ext_conn_lists[i].size()==0){
+    if(conn_lists[i].size()==0 && ext_conn_lists[i].size()==0 && ext_conn_lists_spline[i].size()==0){
       if(mode==BONDS||mode==FATBONDS||mode==THINBONDS){
         Cartesian p1 = int_carts[i];
         p1.set_x(p1.get_x()-0.2);
@@ -1273,32 +1473,40 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CPar
         Cartesian origin = int_carts[i];
         carts[0] = p1; 
         carts[1] = p2;
-        LineElement* xaxis = new LineElement(carts,colour_array,origin,width,1.0);
+        lines_collection->add(carts,colour_array,0);
+        //LineElement* xaxis = new LineElement(carts,colour_array,origin,width,1.0);
         p1 = int_carts[i];
         p1.set_y(p1.get_y()-0.2);
         p2 = int_carts[i];
         p2.set_y(p2.get_y()+0.2);
         carts[0] = p1; 
         carts[1] = p2;
-        LineElement* yaxis = new LineElement(carts,colour_array,origin,width,1.0);
+        lines_collection->add(carts,colour_array,0);
+        //LineElement* yaxis = new LineElement(carts,colour_array,origin,width,1.0);
         p1 = int_carts[i];
         p1.set_z(p1.get_z()-0.2);
         p2 = int_carts[i];
         p2.set_z(p2.get_z()+0.2);
         carts[0] = p1; 
         carts[1] = p2;
-        LineElement* zaxis = new LineElement(carts,colour_array,origin,width,1.0);
-        lines->add_primitive(xaxis);
-        lines->add_primitive(yaxis);
-        lines->add_primitive(zaxis);
+        lines_collection->add(carts,colour_array,0);
+        //LineElement* zaxis = new LineElement(carts,colour_array,origin,width,1.0);
+        //lines->add_primitive(xaxis);
+        //lines->add_primitive(yaxis);
+        //lines->add_primitive(zaxis);
       }
     }
     if(colour_array) delete [] colour_array;
   }
+  }
 
   lines->SetSize(width);
   obj.add_primitive(lines);
+  obj.add_primitive(lines_collection);
+  obj.add_primitive(dash_lines_collection);
   obj.add_primitive(polys);
+  obj.add_primitive(spheres);
+  obj.add_primitive(cylinders);
   if ( stick_colour > 0 ) delete [] stick_colour_array;
 
 }
@@ -1411,30 +1619,43 @@ std::vector<Cartesian> GetBasePairEnds(PCResidue res1, PCResidue res2, const Spl
   PCAtom c42 = res2->GetAtom("C4\'");
   PCAtom o42 = res2->GetAtom("O4\'");
 
-  if(!c11) c12 = res2->GetAtom("C1*");
-  if(!c21) c22 = res2->GetAtom("C2*");
-  if(!c31) c32 = res2->GetAtom("C3*");
-  if(!c41) c42 = res2->GetAtom("C4*");
-  if(!o41) o42 = res2->GetAtom("O4*");
+  if(!c12) c12 = res2->GetAtom("C1*");
+  if(!c22) c22 = res2->GetAtom("C2*");
+  if(!c32) c32 = res2->GetAtom("C3*");
+  if(!c42) c42 = res2->GetAtom("C4*");
+  if(!o42) o42 = res2->GetAtom("O4*");
 
   PCAtom c51 = res1->GetAtom("C5\'");
   if(!c51) c51 = res1->GetAtom("C5*");
   PCAtom c52 = res2->GetAtom("C5\'");
   if(!c52) c52 = res2->GetAtom("C5*");
+  PCAtom p1 = res1->GetAtom("P");
+  PCAtom p2 = res2->GetAtom("P");
+  Cartesian backbone1, backbone2;
+  if(c51&&c52){
+    backbone1 = Cartesian(c51->x,c51->y,c51->z);
+    backbone2 = Cartesian(c52->x,c52->y,c52->z);
+  } else if(p1&&p2){
+    backbone1 = Cartesian(p1->x,p1->y,p1->z);
+    backbone2 = Cartesian(p2->x,p2->y,p2->z);
+  } else {
+    carts.clear();
+    return carts;
+  }
 
-  if(c11&&c21&&c31&&c41&&o41&&c12&&c22&&c32&&c42&&o42){
+  if((c11||c21||c31||c41||o41)&&(c12||c22||c32||c42||o42)){
     std::vector<Cartesian> carts1;
     std::vector<Cartesian> carts2;
-    carts1.push_back(Cartesian(c11->x,c11->y,c11->z));
-    carts1.push_back(Cartesian(c21->x,c21->y,c21->z));
-    carts1.push_back(Cartesian(c31->x,c31->y,c31->z));
-    carts1.push_back(Cartesian(c41->x,c41->y,c41->z));
-    carts1.push_back(Cartesian(o41->x,o41->y,o41->z));
-    carts2.push_back(Cartesian(c12->x,c12->y,c12->z));
-    carts2.push_back(Cartesian(c22->x,c22->y,c22->z));
-    carts2.push_back(Cartesian(c32->x,c32->y,c32->z));
-    carts2.push_back(Cartesian(c42->x,c42->y,c42->z));
-    carts2.push_back(Cartesian(o42->x,o42->y,o42->z));
+    if(c11) carts1.push_back(Cartesian(c11->x,c11->y,c11->z));
+    if(c21) carts1.push_back(Cartesian(c21->x,c21->y,c21->z));
+    if(c31) carts1.push_back(Cartesian(c31->x,c31->y,c31->z));
+    if(c41) carts1.push_back(Cartesian(c41->x,c41->y,c41->z));
+    if(o41) carts1.push_back(Cartesian(o41->x,o41->y,o41->z));
+    if(c12) carts2.push_back(Cartesian(c12->x,c12->y,c12->z));
+    if(c22) carts2.push_back(Cartesian(c22->x,c22->y,c22->z));
+    if(c32) carts2.push_back(Cartesian(c32->x,c32->y,c32->z));
+    if(c42) carts2.push_back(Cartesian(c42->x,c42->y,c42->z));
+    if(o42) carts2.push_back(Cartesian(o42->x,o42->y,o42->z));
     carts[0] = Cartesian::MidPoint(carts1);
     carts[1] = Cartesian::MidPoint(carts2);
 
@@ -1443,11 +1664,9 @@ std::vector<Cartesian> GetBasePairEnds(PCResidue res1, PCResidue res2, const Spl
     if((cart1-cart2).length()>9.0){
        std::vector<Cartesian> carts_tmp(2);
        Cartesian M = Cartesian::MidPoint(cart1,cart2);
-       Cartesian c51c(c51->x,c51->y,c51->z);
-       Cartesian c52c(c52->x,c52->y,c52->z);
 
        Cartesian MP = cart1 - M;
-       Cartesian MC = c51c - M;
+       Cartesian MC = backbone1 - M;
 
        Cartesian MPnorm = MP;
        MPnorm.normalize();
@@ -1459,7 +1678,7 @@ std::vector<Cartesian> GetBasePairEnds(PCResidue res1, PCResidue res2, const Spl
        carts[0] = GetClosestSplinePoint(carts_tmp[1],splineinfo);
 
        MP = cart2 - M;
-       MC = c52c - M;
+       MC = backbone2 - M;
 
        MPnorm = MP;
        MPnorm.normalize();
@@ -1471,15 +1690,29 @@ std::vector<Cartesian> GetBasePairEnds(PCResidue res1, PCResidue res2, const Spl
 
     }
   } else {
+    /*
+    std::cout << "Do not have all atoms\n";
+    if(c11) std::cout << "C11\n"; std::cout.flush();
+    if(c21) std::cout << "C21\n"; std::cout.flush();
+    if(c31) std::cout << "C31\n"; std::cout.flush();
+    if(c41) std::cout << "C41\n"; std::cout.flush();
+    if(o41) std::cout << "O41\n"; std::cout.flush();
+    if(c12) std::cout << "C12\n"; std::cout.flush();
+    if(c22) std::cout << "C22\n"; std::cout.flush();
+    if(c32) std::cout << "C32\n"; std::cout.flush();
+    if(c42) std::cout << "C42\n"; std::cout.flush();
+    if(o42) std::cout << "O42\n"; std::cout.flush();
+    */
     carts.clear();
   }
 
   return carts;
 }
 
-void DrawBaseBlock(PolyCollection *polys, PCResidue res1, double *col1, const CParamsManager &params ){
+void DrawBaseBlock(PolyCollection *polys, PCResidue res1, const double *col1, const CParamsManager &params ){
 
-    float thickness = params.GetFloat("cylinder_width")-0.02;
+    //float thickness = params.GetFloat("cylinder_width")-0.02;
+    float thickness = params.GetFloat("base_block_thickness")-0.02;
     if (thickness<0.02)thickness=0.1;
  
     PCAtom n1 = res1->GetAtom("N1");
@@ -1489,6 +1722,7 @@ void DrawBaseBlock(PolyCollection *polys, PCResidue res1, double *col1, const CP
     PCAtom c5 = res1->GetAtom("C5");
     PCAtom c6 = res1->GetAtom("C6");
 
+    TriangleElement* tri;
     if(n1&&c2&&n3&&c4&&c5&&c6){
       Cartesian n1cart(n1->x,n1->y,n1->z);
       Cartesian c2cart(c2->x,c2->y,c2->z);
@@ -1500,17 +1734,57 @@ void DrawBaseBlock(PolyCollection *polys, PCResidue res1, double *col1, const CP
       std::vector <Cartesian> carts;
       Cartesian up = Cartesian::CrossProduct(n1cart-c2cart,c2cart-n3cart);
       up.normalize(thickness);
+
       carts.push_back(n1cart+up);
       carts.push_back(c2cart+up);
       carts.push_back(n3cart+up);
       carts.push_back(c4cart+up);
       carts.push_back(c5cart+up);
       carts.push_back(c6cart+up);
-      carts.push_back(n1cart+up);
       Cartesian midpoint = Cartesian::MidPoint(carts);
-      carts.insert(carts.begin(),midpoint);
-      TriangleFanElement* polygon = new TriangleFanElement(carts,col1,midpoint,1.0);
-      polys->add_primitive(polygon);
+
+      carts.clear();
+      carts.push_back(midpoint);
+      carts.push_back(n1cart+up);
+      carts.push_back(c2cart+up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(midpoint);
+      carts.push_back(c2cart+up);
+      carts.push_back(n3cart+up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(midpoint);
+      carts.push_back(n3cart+up);
+      carts.push_back(c4cart+up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(midpoint);
+      carts.push_back(c4cart+up);
+      carts.push_back(c5cart+up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(midpoint);
+      carts.push_back(c5cart+up);
+      carts.push_back(c6cart+up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(midpoint);
+      carts.push_back(c6cart+up);
+      carts.push_back(n1cart+up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
       carts.clear();
       carts.push_back(c6cart-up);
       carts.push_back(c5cart-up);
@@ -1520,44 +1794,128 @@ void DrawBaseBlock(PolyCollection *polys, PCResidue res1, double *col1, const CP
       carts.push_back(n1cart-up);
       carts.push_back(c6cart-up);
       midpoint = Cartesian::MidPoint(carts);
-      carts.insert(carts.begin(),midpoint);
-      polygon = new TriangleFanElement(carts,col1,midpoint,1.0);
-      polys->add_primitive(polygon);
+
+      carts.clear();
+      carts.push_back(midpoint);
+      carts.push_back(c2cart-up);
+      carts.push_back(n1cart-up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(midpoint);
+      carts.push_back(n3cart-up);
+      carts.push_back(c2cart-up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(midpoint);
+      carts.push_back(c4cart-up);
+      carts.push_back(n3cart-up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(midpoint);
+      carts.push_back(c5cart-up);
+      carts.push_back(c4cart-up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(midpoint);
+      carts.push_back(c6cart-up);
+      carts.push_back(c5cart-up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(midpoint);
+      carts.push_back(n1cart-up);
+      carts.push_back(c6cart-up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
       carts.clear();
       carts.push_back(n1cart-up);
       carts.push_back(c2cart-up);
       carts.push_back(c2cart+up);
+      //carts.push_back(n1cart+up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(n1cart-up);
+      //carts.push_back(c2cart-up);
+      carts.push_back(c2cart+up);
       carts.push_back(n1cart+up);
-      QuadElement* quad = new QuadElement(carts,col1,Cartesian::MidPoint(carts),1.0);
-      polys->add_primitive(quad);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
       carts.clear();
       carts.push_back(c2cart-up);
       carts.push_back(n3cart-up);
       carts.push_back(n3cart+up);
+      //carts.push_back(c2cart+up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(c2cart-up);
+      //carts.push_back(n3cart-up);
+      carts.push_back(n3cart+up);
       carts.push_back(c2cart+up);
-      quad = new QuadElement(carts,col1,Cartesian::MidPoint(carts),1.0);
-      polys->add_primitive(quad);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
       carts.clear();
       carts.push_back(c5cart-up);
       carts.push_back(c6cart-up);
       carts.push_back(c6cart+up);
+      //carts.push_back(c5cart+up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(c5cart-up);
+      //carts.push_back(c6cart-up);
+      carts.push_back(c6cart+up);
       carts.push_back(c5cart+up);
-      quad = new QuadElement(carts,col1,Cartesian::MidPoint(carts),1.0);
-      polys->add_primitive(quad);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
       carts.clear();
       carts.push_back(c6cart-up);
       carts.push_back(n1cart-up);
       carts.push_back(n1cart+up);
+      //carts.push_back(c6cart+up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(c6cart-up);
+      //carts.push_back(n1cart-up);
+      carts.push_back(n1cart+up);
       carts.push_back(c6cart+up);
-      quad = new QuadElement(carts,col1,Cartesian::MidPoint(carts),1.0);
-      polys->add_primitive(quad);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
       carts.clear();
       carts.push_back(n3cart-up);
       carts.push_back(c4cart-up);
       carts.push_back(c4cart+up);
+      //carts.push_back(n3cart+up);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
+
+      carts.clear();
+      carts.push_back(n3cart-up);
+      //carts.push_back(c4cart-up);
+      carts.push_back(c4cart+up);
       carts.push_back(n3cart+up);
-      quad = new QuadElement(carts,col1,Cartesian::MidPoint(carts),1.0);
-      polys->add_primitive(quad);
+      tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+      polys->add_primitive(tri);
 
       PCAtom n9 = res1->GetAtom("N9");
       PCAtom c8 = res1->GetAtom("C8");
@@ -1566,6 +1924,7 @@ void DrawBaseBlock(PolyCollection *polys, PCResidue res1, double *col1, const CP
         Cartesian n9cart(n9->x,n9->y,n9->z);
         Cartesian c8cart(c8->x,c8->y,c8->z);
         Cartesian n7cart(n7->x,n7->y,n7->z);
+
         carts.clear();
         carts.push_back(c5cart+up);
         carts.push_back(c4cart+up);
@@ -1574,9 +1933,42 @@ void DrawBaseBlock(PolyCollection *polys, PCResidue res1, double *col1, const CP
         carts.push_back(n7cart+up);
         carts.push_back(c5cart+up);
         midpoint = Cartesian::MidPoint(carts);
-        carts.insert(carts.begin(),midpoint);
-        polygon = new TriangleFanElement(carts,col1,midpoint,1.0);
-        polys->add_primitive(polygon);
+
+        carts.clear();
+        carts.push_back(midpoint);
+        carts.push_back(c5cart+up);
+        carts.push_back(c4cart+up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
+        carts.clear();
+        carts.push_back(midpoint);
+        carts.push_back(c4cart+up);
+        carts.push_back(n9cart+up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
+        carts.clear();
+        carts.push_back(midpoint);
+        carts.push_back(n9cart+up);
+        carts.push_back(c8cart+up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
+        carts.clear();
+        carts.push_back(midpoint);
+        carts.push_back(c8cart+up);
+        carts.push_back(n7cart+up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
+        carts.clear();
+        carts.push_back(midpoint);
+        carts.push_back(n7cart+up);
+        carts.push_back(c5cart+up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
         carts.clear();
         carts.push_back(n7cart-up);
         carts.push_back(c8cart-up);
@@ -1585,51 +1977,127 @@ void DrawBaseBlock(PolyCollection *polys, PCResidue res1, double *col1, const CP
         carts.push_back(c5cart-up);
         carts.push_back(n7cart-up);
         midpoint = Cartesian::MidPoint(carts);
-        carts.insert(carts.begin(),midpoint);
-        polygon = new TriangleFanElement(carts,col1,midpoint,1.0);
-        polys->add_primitive(polygon);
+
+        carts.clear();
+        carts.push_back(midpoint);
+        carts.push_back(c4cart-up);
+        carts.push_back(c5cart-up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
+        carts.clear();
+        carts.push_back(midpoint);
+        carts.push_back(n9cart-up);
+        carts.push_back(c4cart-up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
+        carts.clear();
+        carts.push_back(midpoint);
+        carts.push_back(c8cart-up);
+        carts.push_back(n9cart-up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
+        carts.clear();
+        carts.push_back(midpoint);
+        carts.push_back(n7cart-up);
+        carts.push_back(c8cart-up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
+        carts.clear();
+        carts.push_back(midpoint);
+        carts.push_back(c5cart-up);
+        carts.push_back(n7cart-up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
         carts.clear();
         carts.push_back(c4cart-up);
         carts.push_back(n9cart-up);
         carts.push_back(n9cart+up);
+        //carts.push_back(c4cart+up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
+        carts.clear();
+        carts.push_back(c4cart-up);
+        //carts.push_back(n9cart-up);
+        carts.push_back(n9cart+up);
         carts.push_back(c4cart+up);
-        quad = new QuadElement(carts,col1,Cartesian::MidPoint(carts),1.0);
-        polys->add_primitive(quad);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
         carts.clear();
         carts.push_back(n9cart-up);
         carts.push_back(c8cart-up);
         carts.push_back(c8cart+up);
+        //carts.push_back(n9cart+up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
+        carts.clear();
+        carts.push_back(n9cart-up);
+        //carts.push_back(c8cart-up);
+        carts.push_back(c8cart+up);
         carts.push_back(n9cart+up);
-        quad = new QuadElement(carts,col1,Cartesian::MidPoint(carts),1.0);
-        polys->add_primitive(quad);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
         carts.clear();
         carts.push_back(c8cart-up);
         carts.push_back(n7cart-up);
         carts.push_back(n7cart+up);
+        //carts.push_back(c8cart+up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
+        carts.clear();
+        carts.push_back(c8cart-up);
+        //carts.push_back(n7cart-up);
+        carts.push_back(n7cart+up);
         carts.push_back(c8cart+up);
-        quad = new QuadElement(carts,col1,Cartesian::MidPoint(carts),1.0);
-        polys->add_primitive(quad);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
         carts.clear();
         carts.push_back(n7cart-up);
         carts.push_back(c5cart-up);
         carts.push_back(c5cart+up);
+        //carts.push_back(n7cart+up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
+        carts.clear();
+        carts.push_back(n7cart-up);
+        //carts.push_back(c5cart-up);
+        carts.push_back(c5cart+up);
         carts.push_back(n7cart+up);
-        quad = new QuadElement(carts,col1,Cartesian::MidPoint(carts),1.0);
-        polys->add_primitive(quad);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
       }else{
         carts.clear();
         carts.push_back(c4cart-up);
         carts.push_back(c5cart-up);
         carts.push_back(c5cart+up);
+        //carts.push_back(c4cart+up);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
+
+        carts.clear();
+        carts.push_back(c4cart-up);
+        //carts.push_back(c5cart-up);
+        carts.push_back(c5cart+up);
         carts.push_back(c4cart+up);
-        quad = new QuadElement(carts,col1,Cartesian::MidPoint(carts),1.0);
-        polys->add_primitive(quad);
+        tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
+        polys->add_primitive(tri);
       }
     }
 }
 
-void DrawBaseBlocks(Displayobject &obj, CMMANManager *molHnd, int selHnd, PPCAtom selAtoms, int nSelAtoms, AtomColourVector *atom_colour_vector,const CParamsManager &params ){
-  PolyCollection *polys = new PolyCollection();
+void DrawBaseBlocks(Displayobject &obj, CMMANManager *molHnd, int selHnd, PPCAtom selAtoms, int nSelAtoms, const AtomColourVector &atom_colour_vector,const CParamsManager &params ){
+  TriangleCollection *polys = new TriangleCollection();
   int C5sel = molHnd->NewSelection();
   molHnd->Select(C5sel,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5*","C","*",SKEY_NEW);
   molHnd->Select(C5sel,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5'","C","*",SKEY_OR);
@@ -1640,7 +2108,7 @@ void DrawBaseBlocks(Displayobject &obj, CMMANManager *molHnd, int selHnd, PPCAto
         int restype = molHnd->GetRestypeCode(res);
 	//std::cout << res->name << " " << restype << std::endl;
         if(restype==RESTYPE_NUCL||restype==RESTYPE_DNA||restype==RESTYPE_RNA){
-           double *col = atom_colour_vector->GetRGB(ii);
+           const double *col = atom_colour_vector.GetRGB(ii);
            DrawBaseBlock(polys,res,col, params);
            delete [] col;
         }
@@ -1651,17 +2119,108 @@ void DrawBaseBlocks(Displayobject &obj, CMMANManager *molHnd, int selHnd, PPCAto
   obj.add_primitive(polys);
 }
 
+//-----------------------------------------------------------------
+void DrawImposterSpheres(Displayobject &obj,
+     const Connectivity &connectivity, 
+     const AtomColourVector &atom_colour_vector,
+     const CParamsManager &params,
+     const CParamsManager &global_params,
+     const std::vector<double> &atomRadii){
+//-----------------------------------------------------------------
+
+  std::vector<std::vector<int> > conn_lists = connectivity.GetConnectivityLists();
+  std::vector<std::vector<int> > ext_conn_lists = connectivity.GetExternalConnectivityLists();
+
+  PPCAtom selAtoms = connectivity.GetAtoms();
+  int nSelAtoms = connectivity.GetNumberOfAtoms();
+
+  std::vector <Cartesian> int_carts = CartesiansFromAtoms(selAtoms,nSelAtoms);
+
+  ImposterSphereCollection *collection = new ImposterSphereCollection();
+  for(unsigned i=0;i<conn_lists.size();i++){
+    const double *col = atom_colour_vector.GetRGB(i);
+    ImposterSphereElement *p = new ImposterSphereElement(int_carts[i],col,int_carts[i],atomRadii[i],1,0);
+    collection->add_primitive(p);
+  }
+  obj.add_primitive(collection);
+}
+
+//-----------------------------------------------------------------
+void DrawCircles(Displayobject &obj,
+     const Connectivity &connectivity, 
+     const AtomColourVector &atom_colour_vector,
+     const CParamsManager &params,
+     const CParamsManager &global_params,
+     int stick_colour) {
+//-----------------------------------------------------------------
+
+  std::vector<std::vector<int> > conn_lists = connectivity.GetConnectivityLists();
+  std::vector<std::vector<int> > ext_conn_lists = connectivity.GetExternalConnectivityLists();
+
+  PPCAtom selAtoms = connectivity.GetAtoms();
+  int nSelAtoms = connectivity.GetNumberOfAtoms();
+
+  double *stick_colour_array=0;
+  if ( stick_colour > 0 ) stick_colour_array = RGBReps::GetColourP(stick_colour);
+
+  std::vector <Cartesian> int_carts = CartesiansFromAtoms(selAtoms,nSelAtoms);
+
+  // These need to be got from prefs
+  double size = 0.3;
+  double cylinders_size = 0.1;
+
+  std::vector<Cartesian> carts(2);
+  for(unsigned i=0;i<conn_lists.size();i++){
+    const double *col = atom_colour_vector.GetRGB(i);
+    bool warning = false;
+    for(unsigned j=0;j<conn_lists[i].size();j++){
+      Cartesian midpoint = Cartesian::MidPoint(int_carts[i],int_carts[conn_lists[i][j]]);
+      // 0.85 is a fudge factor which seems to get rid of gaps at ends of bonds.
+      double frac = 1-size*0.85/(int_carts[i]-midpoint).length();
+      carts[1] = midpoint;
+      carts[0] = midpoint+frac*(int_carts[i]-midpoint);
+      Cartesian tmp_v = carts[0] -  carts[1];
+      if (tmp_v.length() < 0.001||tmp_v.length() > 6   ) {
+        if (!warning) {
+          warning = true;
+          std::cout << "Error drawing FLAT CYLINDER \n";
+        }
+        continue;
+      }
+      // Now we have to implement BillboardCylinderElement.
+      BillboardCylinderElement *line;
+      if ( stick_colour > 0 )
+        line = new BillboardCylinderElement(carts,stick_colour_array,Cartesian::MidPoint(carts),cylinders_size,1.0);
+      else
+        line = new BillboardCylinderElement(carts,col,Cartesian::MidPoint(carts),cylinders_size,1.0);
+      line->SetTextureStartXCoord(0.003);
+      line->SetTextureEndXCoord(0.125);
+      line->SetTextureStartYCoord(0.0);
+      line->SetTextureEndYCoord(0.125);
+      obj.add_billboard_primitive(line);
+    }
+    BillboardLabelledCircleElement *p = new BillboardLabelledCircleElement(int_carts[i],col,int_carts[i],size,1,0,"Foo");
+    std::vector<double> coords = TexCoords::GetCoords(std::string(selAtoms[i]->element));
+    p->SetTextureStartXCoord(coords[0]);
+    p->SetTextureEndXCoord(coords[1]);
+    p->SetTextureStartYCoord(coords[2]);
+    p->SetTextureEndYCoord(coords[3]);
+    obj.add_billboard_primitive(p);
+  }
+  if ( stick_colour > 0 && stick_colour_array ) delete [] stick_colour_array;
+}
+
 
 //-----------------------------------------------------------------
 void DrawAnisoU(Displayobject &obj,
      int selHndin, PPCAtom selAtoms, int nSelAtoms, 
-     AtomColourVector *atom_colour_vector,
+     const AtomColourVector &atom_colour_vector, const std::vector<double> &atomRadii,
      int style, double scale, 
      const CParamsManager &global_params) {
 //-----------------------------------------------------------------
 
   std::string label;
-  Spheroid *elipse;
+  Spheroid *ellipse;
   double a,b,c;
   Cartesian a_axis,b_axis,c_axis;
 
@@ -1674,42 +2233,45 @@ void DrawAnisoU(Displayobject &obj,
     show_solid=1;
   }
 
+  SpheroidCollection *polys = new SpheroidCollection();
+  polys->SetAccu(accu);
   for ( int i = 0; i < nSelAtoms; i++ ) {
     Cartesian vertex = Cartesian(selAtoms[i]->x, 
                              selAtoms[i]->y,selAtoms[i]->z);
+    const double *col = atom_colour_vector.GetRGB(i);
     if (selAtoms[i]->WhatIsSet&ASET_Anis_tFac) {
       double array[9] = { 
 	  selAtoms[i]->u11,selAtoms[i]->u12, selAtoms[i]->u13, 
 	  selAtoms[i]->u12,selAtoms[i]->u22, selAtoms[i]->u23, 
 	  selAtoms[i]->u13,selAtoms[i]->u23, selAtoms[i]->u33 };
-      matrix us(3,3,array);
-      std::vector<matrix>  eigen = us.Eigen();
-      //cout << "eigen vectors" << eigen[0] << endl;
-      //cout << "eigen values" << eigen[1] << endl;
-      a =  eigen[1](0,0);
-      b =  eigen[1](1,0);
-      c =  eigen[1](2,0);
-      a_axis = Cartesian (eigen[0](0,0),eigen[0](1,0),eigen[0](2,0));
-      b_axis = Cartesian (eigen[0](0,1),eigen[0](1,1),eigen[0](2,1));
-      c_axis = Cartesian (eigen[0](0,2),eigen[0](1,2),eigen[0](2,2));
-      //cout << "a_axis " << a_axis << endl;
-      //cout << "b_axis " << b_axis << endl;
-      //cout << "c_axis " << c_axis << endl;
-      //cout << "a,b,c " << a << " " << b << " " << c << endl;
+      matrix U(3,3,array);
+      matrix A = atomRadii[i]*scale*U.Cholesky();
+      matrix B(4,4);
+      B(0,0) = A(0,0);
+      B(1,0) = A(1,0);
+      B(1,1) = A(1,1);
+      B(2,0) = A(2,0);
+      B(2,1) = A(2,1);
+      B(2,2) = A(2,2);
+      B(3,3) = 1.0;
+      ellipse = new Spheroid(vertex, col, vertex,
+		    B,
+         	    1.0, accu , show_axes, show_solid );
+      polys->add_primitive(ellipse);
     } else {
-      a =b= c = 0.01 * selAtoms[i]->tempFactor ;
-      a_axis = Cartesian (1.0,0.0,0.0);
-      b_axis = Cartesian (0.0,1.0,0.0);
-      c_axis = Cartesian (0.0,0.0,1.0);
+      matrix B(4,4);
+      double Bfac = atomRadii[i]*scale * selAtoms[i]->tempFactor/(8*M_PI*M_PI) ;
+      B(0,0) = B(1,1) = B(2,2) = Bfac;
+      B(3,3) = 1.0;
+      ellipse = new Spheroid(vertex, col, vertex,
+		    B,
+         	    1.0, accu , show_axes, show_solid );
+      polys->add_primitive(ellipse);
       
     }
-    double *col = atom_colour_vector->GetRGB(i);
-    elipse = new Spheroid(vertex, col, vertex,
-		   a*scale, b*scale, c*scale, a_axis, b_axis, c_axis,
-         	    1.0, accu , show_axes, show_solid );
     delete [] col;
-    obj.add_primitive(elipse);
   }
+  obj.add_primitive(polys);
 
 }
 
@@ -1816,7 +2378,7 @@ Cartesian GetClosestSplinePoint(const std::vector<Cartesian> &carts, const Splin
 
 void DrawBasePairs(Displayobject &obj, const CNABasePairs &bp, const SplineInfo &splineinfo, const CParamsManager &params){
   std::vector<std::pair<PCResidue,PCResidue> > base_pairs = bp.GetPairs();
-  std::vector<std::pair<double*,double*> > colours = bp.GetColours();
+  std::vector<std::pair<const double*,const double*> > colours = bp.GetColours();
   PolyCollection *polys = new PolyCollection();
   double cylinders_size = params.GetFloat("nucleic_stick_width");
   if (cylinders_size<0.02)cylinders_size=0.1;
@@ -1826,10 +2388,11 @@ void DrawBasePairs(Displayobject &obj, const CNABasePairs &bp, const SplineInfo 
   for(unsigned ii=0;ii<base_pairs.size();ii++){
     PCResidue res1 = base_pairs[ii].first;
     PCResidue res2 = base_pairs[ii].second;
-    double *col1 = colours[ii].first;
-    double *col2 = colours[ii].second;
+    const double *col1 = colours[ii].first;
+    const double *col2 = colours[ii].second;
 
     std::vector<Cartesian> cartsend = GetBasePairEnds(res1,res2,splineinfo);
+    //std::cout << cartsend[0] << "\n" << cartsend[1] << "\n\n";
     if(cartsend.size()>0){
       std::vector<Cartesian> carts(2);
       std::vector<Cartesian> carts1(2);
@@ -1837,14 +2400,14 @@ void DrawBasePairs(Displayobject &obj, const CNABasePairs &bp, const SplineInfo 
       Cartesian Mnew = Cartesian::MidPoint(cartsend[0],cartsend[1]);
       carts[0] = Mnew;
       carts[1] = cartsend[0];
-      carts2[0] = Mnew;
-      carts2[1] = cartsend[1];
+      //carts2[0] = Mnew;
+      //carts2[1] = cartsend[1];
 
       CylinderElement *line = new CylinderElement(carts,col1,carts[1],cylinders_size,1.0,cylinders_accu);
       polys->add_primitive(line);
 
-      line = new CylinderElement(carts2,col2,carts2[1],cylinders_size,1.0,cylinders_accu);
-      polys->add_primitive(line);
+      //line = new CylinderElement(carts2,col2,carts2[1],cylinders_size,1.0,cylinders_accu);
+      //polys->add_primitive(line);
 
     }
   }
@@ -1852,14 +2415,15 @@ void DrawBasePairs(Displayobject &obj, const CNABasePairs &bp, const SplineInfo 
   obj.add_primitive(polys);
 }
 
-void DrawLipids(Displayobject &obj, const std::vector<MMUTLipid> &lipids, CMMANManager *molHnd, AtomColourVector *atom_colour_vector, const CParamsManager &params, const CParamsManager &global_params){
-
+void DrawLipids(Displayobject &obj, const std::vector<MMUTLipid> &lipids, CMMANManager *molHnd, const AtomColourVector &atom_colour_vector, const CParamsManager &params, const CParamsManager &global_params){
+#ifdef _DO_TIMINGS_
   clock_t t1 = clock();
+#endif
   /* Need colours, etc. */
 
   if(lipids.size()<1) return;
 
-  PolyCollection *polys = new PolyCollection();
+  SpheroidCollection *polys = new SpheroidCollection();
   int spheres_accu=1;
   spheres_accu = global_params.GetInt("solid_quality");
   int spline_accu = 1+global_params.GetInt("solid_quality");
@@ -1869,14 +2433,13 @@ void DrawLipids(Displayobject &obj, const std::vector<MMUTLipid> &lipids, CMMANM
 
   //std::cout << "ribbon_accu: " << ribbon_accu << "\n";
   //std::cout << "spline_accu: " << spline_accu << "\n";
-  for(unsigned ilipid=0;ilipid<lipids.size();ilipid++){
-  MMUTLipid lipid = lipids[ilipid];
-  std::vector<std::vector<Cartesian> > sorted_tail_carts = lipid.GetTailCartesians();
-  std::vector<std::vector<int> > sorted_tail_serNums = lipid.GetTailSerNums();
-  std::vector<std::vector<Cartesian> > all_head_carts = lipid.GetHeadCartesians();
-  std::vector<std::vector<int> > all_head_serNums = lipid.GetHeadSerNums();
+  std::cout << "There are " << lipids.size() << "\n";
+  if(lipids.size()<1) return;
 
-  int selHnd = lipid.GetMainSelectionHandle();
+  // This requires that the whole lipid vector is from one
+  // selHnd. It *should* be, but we probably want a container
+  // class rather than std::vector of lipids.
+  int selHnd = lipids[0].GetMainSelectionHandle();
   PPCAtom atomTable_main_selection=0;
   int nAtoms_main_selection;
   molHnd->GetSelIndex ( selHnd, atomTable_main_selection, nAtoms_main_selection);
@@ -1887,6 +2450,14 @@ void DrawLipids(Displayobject &obj, const std::vector<MMUTLipid> &lipids, CMMANM
   for(int jj=0;jj<nAtoms_main_selection;jj++){
     serNums.push_back(atomTable_main_selection[jj]->serNum);
   }
+  std::sort(serNums.begin(),serNums.end());
+
+  for(unsigned ilipid=0;ilipid<lipids.size();ilipid++){
+  MMUTLipid lipid = lipids[ilipid];
+  std::vector<std::vector<Cartesian> > sorted_tail_carts = lipid.GetTailCartesians();
+  std::vector<std::vector<int> > sorted_tail_serNums = lipid.GetTailSerNums();
+  std::vector<std::vector<Cartesian> > all_head_carts = lipid.GetHeadCartesians();
+  std::vector<std::vector<int> > all_head_serNums = lipid.GetHeadSerNums();
 
   //std::cout << "Heads:\n";
   std::vector<Cartesian> head_centres;
@@ -1896,15 +2467,26 @@ void DrawLipids(Displayobject &obj, const std::vector<MMUTLipid> &lipids, CMMANM
      if(head_carts.size()>0){ //Hopefully
        Cartesian centre = Cartesian::MidPoint(head_carts);
        head_centres.push_back(centre);
+
        int atom_map=0;
+       std::vector<int>::iterator ub = std::lower_bound(serNums.begin(),serNums.end(),head_serNums[0]);
+        if(ub!=serNums.end()){
+          //atom_map = (*ub)-1;
+         atom_map = std::distance(serNums.begin(),ub);
+        }
+       //else std::cout << "Bummer\n";
+       //std::cout << atom_map << "\n";
+       /*
        for(int j=0;j<nAtoms_main_selection;j++) {
          if(head_serNums[0]==serNums[j]){
            atom_map = j;
-	   //std::cout << atoms[0]->name << " " << atoms[0]->GetResidueNo() << " " << j << "\n";
            break;
          }
        }
-       double *col = atom_colour_vector->GetRGB(atom_map);
+       */
+
+       //std::cout << "atom_map " << atom_map << "\n";
+       const double *col = atom_colour_vector.GetRGB(atom_map);
        if(head_carts.size()>3){
        std::vector<Cartesian> pca = Cartesian::PrincipalComponentAnalysis(head_carts);
          SpheroidElement *spheroid = new SpheroidElement(centre,col,centre,2.0*sqrt(pca[4].get_x())+.7,2.0*sqrt(pca[4].get_y())+.7,2.0*sqrt(pca[4].get_z())+.7,pca[0],pca[1],pca[2],1.0,spheres_accu);
@@ -1930,14 +2512,23 @@ void DrawLipids(Displayobject &obj, const std::vector<MMUTLipid> &lipids, CMMANM
      std::vector<Cartesian> tail_carts = sorted_tail_carts[ii];
      std::vector<int> tail_serNums = sorted_tail_serNums[ii];
      std::vector<int> atom_map;
-     // This looks slow, any better way? (But it isn't slow compared to mmdb stuff above).
      for(unsigned i=0;i<tail_serNums.size();i++) {
        int serNum = tail_serNums[i];
+       std::vector<int>::iterator ub = std::lower_bound(serNums.begin(),serNums.end(),serNum);
+       if(ub!=serNums.end()) {
+         //atom_map.push_back((*ub)-1);
+         atom_map.push_back(std::distance(serNums.begin(),ub));
+         //std::cout << "Index (1.1) " << std::distance(serNums.begin(),ub) << "\n";
+       }
+       /*
        for(int j=0;j<nAtoms_main_selection;j++) {
 	  if(serNum==serNums[j]){
             atom_map.push_back(j);
+            std::cout << "Index (2) " << j << "\n";
+            break;
 	  }
        }
+       */
      }
 
      if(tail_carts.size()>3) {
@@ -1995,33 +2586,33 @@ void DrawLipids(Displayobject &obj, const std::vector<MMUTLipid> &lipids, CMMANM
          t_iter++;
        }
        //std::cout << "Size of spline inputs: " << tail_carts.size() << " " << tail_n1.size() << "\n";
-       std::cout.flush();
+       //std::cout.flush();
        // And this is what we draw.
        std::vector<Cartesian> tail_spline = BezierCurve(tail_carts,spline_accu);
        std::vector<Cartesian> tail_n1_spline = BezierCurve(tail_n1,spline_accu);
        std::vector<Cartesian> tail_n2_spline;
        std::vector<Cartesian> colour_vector;
-       double *col = atom_colour_vector->GetRGB(serNums[0]-1);
+       const double *col = atom_colour_vector.GetRGB(serNums[0]-1);
        if(head_offset>0){
          for(int iat=0;iat<(int)tail_carts.size()-1;iat++){
-           double *atcol = atom_colour_vector->GetRGB(atom_map[iat]);
+           const double *atcol = atom_colour_vector.GetRGB(atom_map[iat]);
 	   for(int iacc=0;iacc<spline_accu;iacc++)
              colour_vector.push_back(Cartesian(atcol));
            delete [] atcol;
          }
-         double *atcol = atom_colour_vector->GetRGB(atom_map[tail_serNums.size()-1]);
+         const double *atcol = atom_colour_vector.GetRGB(atom_map[tail_serNums.size()-1]);
 	 for(int iacc=0;iacc<spline_accu;iacc++)
            colour_vector.push_back(Cartesian(atcol));
          delete [] atcol;
        } else {
          if(head_offset<0){
-           double *atcol = atom_colour_vector->GetRGB(atom_map[0]);
+           const double *atcol = atom_colour_vector.GetRGB(atom_map[0]);
 	   for(int iacc=0;iacc<spline_accu;iacc++)
              colour_vector.push_back(Cartesian(atcol));
            delete [] atcol;
          }
          for(int iat=-head_offset;iat<(int)tail_carts.size();iat++){
-           double *atcol = atom_colour_vector->GetRGB(atom_map[iat+head_offset]);
+           const double *atcol = atom_colour_vector.GetRGB(atom_map[iat+head_offset]);
 	   for(int iacc=0;iacc<spline_accu;iacc++)
              colour_vector.push_back(Cartesian(atcol));
            delete [] atcol;
@@ -2041,13 +2632,16 @@ void DrawLipids(Displayobject &obj, const std::vector<MMUTLipid> &lipids, CMMANM
        }
        tail_n2_spline.push_back(tail_n2_spline.back());
        float worm_width = params.GetFloat("worm_width");
-       Ribbon *ribbon = new Ribbon(tail_spline,tail_n1_spline,tail_n2_spline,col,tail_spline[0],colour_vector,worm_width,worm_width,worm_width,1.0,ribbon_accu*2,spline_accu);
-       polys->add_primitive(ribbon);
+       Ribbon *ribbon = new Ribbon(tail_spline,tail_n2_spline,tail_n1_spline,col,tail_spline[0],colour_vector,worm_width,worm_width,worm_width,1.0,ribbon_accu,spline_accu);
+       obj.add_primitive(ribbon);
      }
   }
   }
+  polys->SetAccu(spheres_accu);
   obj.add_primitive(polys);
+#ifdef _DO_TIMINGS_
   clock_t t2 = clock();
   std::cout << "Time for lipid draw " << ((t2-t1)*1000.0/CLOCKS_PER_SEC)/1000.0<< "\n";
+#endif
 }
 
