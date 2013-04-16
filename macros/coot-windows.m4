@@ -33,7 +33,7 @@ AC_MSG_CHECKING([if this is MINGW on Windows])
  case $ac_cv_build_alias in 
 
   *-mingw*)
-    COOT_WINDOWS_CFLAGS="-DWINDOWS_MINGW -DUSE_GNOME_CANVAS -DGLEW_BUILD"
+    COOT_WINDOWS_CFLAGS="-DWINDOWS_MINGW -DUSE_GNOME_CANVAS"
     have_windows_mingw=yes
     ;;
  esac
