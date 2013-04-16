@@ -40,7 +40,11 @@ include_HEADERS = cbuild.h 	\
 
 libccp4mg_opengl_la_SOURCES = \
 	help.cc splineset.cc texture.cc help.h 	\
-	texture.h glew.c glewUtils.cc 
+	texture.h 
+if BUILD_GLEW
+libccp4mg_opengl_la_SOURCES+= glew.c glewUtils.cc 
+GLEW_FLAG=-DGLEW_BUILD
+endif
 
 libccp4mg_opengl_la_LDFLAGS = -L../util -lccp4mg-pygl_coord
 
@@ -82,7 +86,7 @@ AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	-DPACKAGE_LOCALE_DIR='"$(pkgdatadir)/locale"' \
 	-DDATADIR='"$(datadir)"'    \
-	$(COOT_WINDOWS_CFLAGS)
+	$(GLEW_FLAG)
 
 
 # SWIG_FLAGS is something of a misnomer.  It actually defines

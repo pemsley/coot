@@ -68,6 +68,8 @@ PKG_CHECK_MODULES([GLIB], [glib-2.0])
 
 dnl test for WINDOWS_MINGW
 AM_MINGW_WINDOWS
+dnl Need to build glew for windows only
+AM_CONDITIONAL([BUILD_GLEW], [test "$have_windows_mingw" = yes])
 dnl test for LIBPNG (Windows only)
 AM_PATH_LIBPNG
 
