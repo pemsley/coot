@@ -3,9 +3,7 @@
 
 ----
 
-   o diff map peak dialog wider
-
-   o charge on lidia?
+   o charge on lidia?
 
    o Fix jligand setup.
 
@@ -200,3 +198,8 @@ mol=0x0) at rama_plot.cc:1517
    o iodine comp-id is IOD
 
 * Done.
+
+   o diff map peak dialog wider
+
+* Done.
+
