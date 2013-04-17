@@ -5012,31 +5012,38 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 			res_p->SetResName("CL");
 			element = "CL";
 		     } else { 
-			if (type == "Mg") { 
-			   atom_p->SetAtomName("MG  ");
-			   atom_p->SetElementName("MG");
-			   res_p->SetResName("MG");
-			   element = "MG";
+			if (type == "I") { 
+			   atom_p->SetAtomName("I   ");
+			   atom_p->SetElementName("I");
+			   res_p->SetResName("IOD");
+			   element = "I";
 			} else { 
+			   if (type == "Mg") { 
+			      atom_p->SetAtomName("MG  ");
+			      atom_p->SetElementName("MG");
+			      res_p->SetResName("MG");
+			      element = "MG";
+			   } else { 
 
-			   // User Typed atom:
+			      // User Typed atom:
 
-			   // make up (guess) the residue type and element
-			   std::string at_name = coot::util::upcase(type);
-			   std::string ele     = coot::util::upcase(type);
-			   std::string resname = coot::util::upcase(type);
-			   if (type.length() > 4)
-			      at_name = at_name.substr(0,4);
-			   if (type.length() > 3)
-			      resname = at_name.substr(0,3);
-			   if (type.length() > 2)
-			      ele = at_name.substr(0,2);
+			      // make up (guess) the residue type and element
+			      std::string at_name = coot::util::upcase(type);
+			      std::string ele     = coot::util::upcase(type);
+			      std::string resname = coot::util::upcase(type);
+			      if (type.length() > 4)
+				 at_name = at_name.substr(0,4);
+			      if (type.length() > 3)
+				 resname = at_name.substr(0,3);
+			      if (type.length() > 2)
+				 ele = at_name.substr(0,2);
 
-			   element = ele;
-			   atom_p->SetAtomName(at_name.c_str());
-			   atom_p->SetElementName(ele.c_str());
-			   res_p->SetResName(resname.c_str());
-			} 
+			      element = ele;
+			      atom_p->SetAtomName(at_name.c_str());
+			      atom_p->SetElementName(ele.c_str());
+			      res_p->SetResName(resname.c_str());
+			   } 
+			}
 		     }
 		  }
 	       }
