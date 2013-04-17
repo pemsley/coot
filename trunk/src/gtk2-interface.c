@@ -20635,7 +20635,7 @@ create_diff_map_peaks_dialog (void)
   scrolledwindow18 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow18);
   gtk_box_pack_start (GTK_BOX (dialog_vbox78), scrolledwindow18, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (scrolledwindow18, 277, 126);
+  gtk_widget_set_size_request (scrolledwindow18, 440, 220);
   GTK_WIDGET_UNSET_FLAGS (scrolledwindow18, GTK_CAN_FOCUS);
 
   viewport11 = gtk_viewport_new (NULL, NULL);
