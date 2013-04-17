@@ -7,15 +7,9 @@
 
    o charge on lidia?
 
-   o read ar66.fcf - can you scroll the map?
-
-   o iodine comp-id is IOD
-
    o Fix jligand setup.
 
    o density fit analysis graph can use correlation coefficient?
-
-   o sc: lawerence and colman jmb 1993
 
 -----
 
@@ -196,5 +190,13 @@ mol=0x0) at rama_plot.cc:1517
      during a session?
 
      coot --title "Membrane Protein XYZ"
+
+* Done.
+
+   o read ar66.fcf - can you scroll the map?
+
+* Yes, I can now.
+
+   o iodine comp-id is IOD
 
 * Done.
