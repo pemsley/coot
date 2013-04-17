@@ -1007,7 +1007,16 @@ coot::column_selector_using_cmtz(const std::string &filename) {
       is_phs = try_read_phs_file(filename.c_str()); /* Try reading the data file 
 						   as an XtalView .phs file */ 
       if (is_phs == 0) { 
-	 is_cif = try_read_cif_file(filename.c_str()); 
+	 int imol_new = try_read_cif_file(filename.c_str());
+
+	 if (coot::util::file_name_extension(filename) == ".fcf") { 
+	    if (is_valid_map_molecule(imol_new)) {
+	       graphics_info_t g;
+	       g.scroll_wheel_map = imol_new;  // change the current scrollable map.
+	       g.activate_scroll_radio_button_in_display_manager(imol_new);
+	    }
+	 }
+	 
 
 	 // This no longer makes sense given that
 	 // try_read_cns_data_file takes an imol argument also now.

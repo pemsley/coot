@@ -16,11 +16,11 @@
 #include "c-interface.h"
 
 gboolean
-on_drag_drop (GtkWidget *widget,
-		 GdkDragContext *context,
-		 gint x, gint y,
-		 guint time,
-		 gpointer user_data) {
+on_gl_canvas_drag_drop(GtkWidget *widget,
+		       GdkDragContext *context,
+		       gint x, gint y,
+		       guint time,
+		       gpointer user_data) {
 
    gboolean is_valid_drop_site = TRUE;
    // Request the data from the source.
@@ -45,14 +45,17 @@ on_drag_data_received (GtkWidget *widget,
 		       guint target_type, 
 		       guint time,
 		       gpointer data) {
-   
+
    gboolean dnd_success = FALSE;
    gboolean delete_selection_data = FALSE;
    
    // Deal with what the source sent over
    if((selection_data != NULL) && (selection_data-> length >= 0)) {
+      std::cout << "Yep here 1 " << std::endl;
       if (target_type == TARGET_STRING) {
+	 std::cout << "Yep here 2 " << std::endl;
 	 std::string uri_string = (gchar*)selection_data-> data;
+	 std::cout << "Yep here 3 " << uri_string << std::endl;
 	 dnd_success = handle_drag_and_drop_string(uri_string);
      delete_selection_data = TRUE;
       } 
@@ -73,24 +76,25 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
    std::string uri = uri_in;
    // std::cout << "handle_drag_and_drop_string() :" << uri<< ":" << std::endl;
    // was it a file://xx?
-   // std::cout << "examining :" << uri << ":" << std::endl;
+   std::string url;
    std::string::size_type pos = uri.find_first_of('\n');
    while (pos != std::string::npos) {
-      std::string url = uri.substr(0, pos-1); // front part
+      url = uri.substr(0, pos-1); // front part
       uri = uri.substr(pos+1); // back part
-//       std::cout << "Now URI is " << uri.size() << ":" << uri << ":" << std::endl;
-//       std::cout << "Now URL is " << url.size() << ":" << url << ":" << std::endl;
+      // std::cout << "Now URI is " << uri.size() << ":" << uri << ":" << std::endl;
+      // std::cout << "Now URL is " << url.size() << ":" << url << ":" << std::endl;
       if (url.length() > 7) {
 	 if (url.substr(0,7) == "file://") {
-	    std::cout << "---:" << url << ": was a file " << std::endl;
+	    // std::cout << "---:" << url << ": was a file " << std::endl;
 	    std::string file;
 #ifdef WINDOWS_MINGW
-        file = url.substr(8);
+	    file = url.substr(8);
 #else
-        file = url.substr(7);
+	    file = url.substr(7);
 #endif
 	    handled = handle_drag_and_drop_single_item(file);
 	    tried_already = true;
+	    std::cout << "setting tried_already here 1" << std::endl;
 	 }
       }
       pos = uri.find_first_of('\n');
@@ -101,8 +105,9 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
       // OK, was it an HTTP type string?
       std::string url = uri_in;
       if (url.length() > 8) {
-	 tried_already = true;
+
 	 if (url.substr(0,7) == "http://") {
+	    tried_already = true;
 	    int l = url.length();
 	    if (url[l-1] == '\n') { 
 	       // std::cout << "extra \\n" << std::endl;
@@ -124,7 +129,7 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
 			coot::util::split_string_on_last_slash(s.first);
 		     std::pair<std::string, std::string> sss =
 			coot::util::split_string_on_last_slash(ss.first);
-		     tried_already = 1;
+		     tried_already = true;
 		     handled = FALSE;
 		     if (ss.second.length() == 2) {
 			if (sss.second.length() == 2) {
@@ -159,10 +164,17 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
       int l = uri_in.length();
       if (l == 4) {
 	 get_coords_for_accession_code(uri_in.c_str());
-	 tried_already = 1;
+	 tried_already = true;
 	 handled = TRUE;
       } 
    }
+
+   if (! tried_already) {
+      std::cout << "here at the end of handle_drag_and_drop_string() " << std::endl;
+      if (coot::file_exists(url)) {
+	 handled = handle_drag_and_drop_single_item(url);
+      } 
+   } 
    return handled;
 }
 

@@ -1498,7 +1498,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 
 	// if something was dropped
         g_signal_connect (GTK_WIDGET(drawing_area_tmp), "drag-drop",
-			  G_CALLBACK (on_drag_drop), NULL);
+			  G_CALLBACK (on_gl_canvas_drag_drop), NULL);
 	// what to we do with dropped data...
 	g_signal_connect (GTK_WIDGET(drawing_area_tmp), "drag-data-received",
 			  G_CALLBACK(on_drag_data_received), NULL);

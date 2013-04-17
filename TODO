@@ -1015,6 +1015,17 @@ Punted from 0.6:
 
     Release 0.8, June 2013
 
+   o difference map peaks submarines?
+
+
+   o Pepflip: fails when there is a not a next N.  All we often want
+     to do in such cases, is to rotate the carbonyl O 180 degrees about
+     CA-C vector and we can do that without next N.
+
+   o control shift arrows to rotate residue
+
+   o better density scoring peptide addtitions (score holes/lack of
+     density).
 
    o Phil: I want colour by chain to be the default.
      How about a post-read hook? ::: 1

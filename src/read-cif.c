@@ -13,28 +13,22 @@
 int 
 try_read_cif_file(const char *filename) { 
 
-   char *f_pt; 
-   int imol_cif; 
-
-/*    printf("DEBUG::: ========= in try_read_cif_file() ===============\n"); */
+  int imol_new = -1; // bad
+  char *f_pt; 
+  short int is_valid = 0;
+  
    f_pt = strrchr(filename, '.');
    if (f_pt != NULL) { 
       if (! (strncmp(f_pt, ".fcf", 4))) { 
 	 printf ("INFO trying to read %s as a SHELX fcf file\n", filename);
-	 imol_cif = handle_shelx_fcf_file_internal(filename);
-	 return is_valid_map_molecule(imol_cif);
+	 imol_new = handle_shelx_fcf_file_internal(filename);
       }
       if (! (strncmp(f_pt, ".cif", 4))) { 
 	 printf ("%s is a mmCIF file\n", filename); 
-
-	 /* let's call that c-interface function then */
-	 
-	 auto_read_cif_data_with_phases(filename);
-	 
-	 return 1; /* true */
+	 imol_new = auto_read_cif_data_with_phases(filename);
       }
    }
-   return 0; 
+   return imol_new;
 }
 
 int 
