@@ -10,17 +10,6 @@
 (define *to-jligand-secret-file-name* ".coot-to-jligand-8lcs")
 (define *from-jligand-secret-link-file-name* ".jligand-to-coot-link")
 
-;; Define an environment variable for the place where jligand.jar
-;; resides in a canonical distribution
-;; 
-(define *jligand-home-env* (getenv "JLIGAND_HOME"))
-(define *jligand-home* (if *jligand-home-env* *jligand-home-env* "."))
-
-(define *java-command* "java")  ;; what else would it be?
-
-(define *jligand-jar* (append-dir-file *jligand-home* "JLigand.jar"))
-(define *jligand-args* (list "-jar" *jligand-jar* "-coot"))  ;; for coot-enable jligand
-
 ;; jligand internal parameter
 (define *imol-jligand-link* #f)
 
