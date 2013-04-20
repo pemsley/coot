@@ -1292,6 +1292,12 @@ namespace coot {
 					      const clipper::Coord_orth &position,
 					      const clipper::Coord_orth &origin_shift,
 					      double angle);
+      // angle in radians
+      // 
+      void rotate_residue(CResidue *residue_p,
+			  const clipper::Coord_orth &direction,
+			  const clipper::Coord_orth &origin_shift,
+			  double angle);
 
       // This presumes that a_residue_p and b_residue_p are valid.
       std::vector<std::pair<int, int> > pair_residue_atoms(CResidue *a_residue_p,

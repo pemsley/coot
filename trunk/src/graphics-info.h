@@ -3725,6 +3725,7 @@ public:
 
    // --- nudge active residue
    static void nudge_active_residue(guint direction);
+   static void nudge_active_residue_by_rotate(guint direction);
 
    // --- curl handlers
 #ifdef USE_LIBCURL

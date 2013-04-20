@@ -2885,8 +2885,35 @@ graphics_info_t::nudge_active_residue(guint direction) {
       coot::Cartesian shift_cart(shift.x(), shift.y(), shift.z());
       g.add_vector_to_RotationCentre(shift_cart);
       graphics_draw();
-   } 
+   }
 }
+
+
+// --- nudge (rotate) active residue
+// static
+void
+graphics_info_t::nudge_active_residue_by_rotate(guint direction) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = graphics_info_t::active_atom_spec();
+   if (active_atom.first) {
+      graphics_info_t g;
+      int imol = active_atom.second.first;
+      double angle = M_PI/20;
+      if (direction == GDK_Left)
+	 angle = -angle;
+      if (direction == GDK_Up)
+	 angle *=5;
+      if (direction == GDK_Down)
+	 angle *= -5;
+      coot::Cartesian rc = g.RotationCentre();
+      clipper::Coord_orth origin_offset(rc.x(), rc.y(), rc.z());
+      coot::Cartesian front_centre = unproject(0.0);
+      clipper::Coord_orth around_vec(front_centre.x(), front_centre.y(), front_centre.z());
+     g.molecules[imol].rotate_residue(active_atom.second.second, around_vec, origin_offset, angle);
+      graphics_draw();
+   }
+}
+
  
 
 
