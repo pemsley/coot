@@ -271,6 +271,7 @@ coot_real_SOURCES = \
 	c-interface-pisa-gui.cc	 \
 	c-interface-preferences.cc \
 	c-interface-python.hh	 \
+	c-interface-refine.hh	 \
 	c-interface-refine.cc	 \
 	c-interface-residues.cc	 \
 	c-interface-scm.hh	 \
