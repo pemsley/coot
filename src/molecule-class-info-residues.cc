@@ -1526,3 +1526,21 @@ molecule_class_info_t::get_centre_atom_from_sequence_triplet(const std::string &
    }
    return at;
 }
+
+
+void
+molecule_class_info_t::rotate_residue(coot::residue_spec_t rs,
+				      const clipper::Coord_orth &around_vec,
+				      const clipper::Coord_orth &origin_offset,
+				      double angle) {
+
+   CResidue *residue_p = get_residue(rs);
+   if (residue_p) {
+      make_backup();
+      coot::util::rotate_residue(residue_p, around_vec, origin_offset, angle);
+      have_unsaved_changes_flag = 1;
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      make_bonds_type_checked();
+   } 
+}

@@ -3360,25 +3360,37 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_Left:
       if (graphics_info_t::control_is_pressed) {
-	 graphics_info_t::nudge_active_residue(GDK_Left);
+	 if (graphics_info_t::shift_is_pressed) 
+	    graphics_info_t::nudge_active_residue_by_rotate(GDK_Left);
+	 else 
+	    graphics_info_t::nudge_active_residue(GDK_Left);
 	 handled = TRUE;
 	 break;
       } 
    case GDK_Right:
       if (graphics_info_t::control_is_pressed) {
-	 graphics_info_t::nudge_active_residue(GDK_Right);
+	 if (graphics_info_t::shift_is_pressed)
+	    graphics_info_t::nudge_active_residue_by_rotate(GDK_Right);
+	 else
+	    graphics_info_t::nudge_active_residue(GDK_Right);
 	 handled = TRUE;
 	 break;
       } 
    case GDK_Up:
       if (graphics_info_t::control_is_pressed) {
-	 graphics_info_t::nudge_active_residue(GDK_Up);
+	 if (graphics_info_t::shift_is_pressed)
+	    graphics_info_t::nudge_active_residue_by_rotate(GDK_Up);
+	 else
+	    graphics_info_t::nudge_active_residue(GDK_Up);
 	 handled = TRUE;
 	 break;
       } 
    case GDK_Down:
       if (graphics_info_t::control_is_pressed) {
-	 graphics_info_t::nudge_active_residue(GDK_Down);
+	 if (graphics_info_t::shift_is_pressed)
+	    graphics_info_t::nudge_active_residue_by_rotate(GDK_Down);
+	 else
+	    graphics_info_t::nudge_active_residue(GDK_Down);
 	 handled = TRUE;
 	 break;
       }

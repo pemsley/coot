@@ -5607,6 +5607,33 @@ coot::util::rotate_round_vector(const clipper::Coord_orth &direction,
    return origin_shift + (position-origin_shift).transform(rtop);
 }
 
+
+// angle in radians
+// 
+void
+coot::util::rotate_residue(CResidue *residue_p,
+			   const clipper::Coord_orth &direction,
+			   const clipper::Coord_orth &origin_shift,
+			   double angle) {
+
+   if (residue_p) {
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	 CAtom *at = residue_atoms[iat];
+	 if (at) {
+	    clipper::Coord_orth pt(at->x, at->y, at->z);
+	    clipper::Coord_orth pt_new = rotate_round_vector(direction, pt, origin_shift, angle);
+	    at->x = pt_new.x();
+	    at->y = pt_new.y();
+	    at->z = pt_new.z();
+	 }
+      }
+   } 
+} 
+
+
 // We ignore the issue of alt confs because from refinement/reg we
 // will be only looking at a single stretch of amino acids, of a given
 // alt conf (or blank).

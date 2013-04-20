@@ -41,6 +41,22 @@ coot::pepflip(CMMDBManager *mol,
 	      const std::string &ins_code, 
 	      const std::string &altconf) {
 
+   int status = pepflip_standard(mol, chain_id, resno, ins_code, altconf);
+   if (status)
+      return status;
+   else
+      return pepflip_internal_to_residue(mol, chain_id, resno, ins_code, altconf);
+}
+
+   
+int
+coot::pepflip_standard(CMMDBManager *mol,
+	      const std::string &chain_id,
+	      int resno, 
+	      const std::string &ins_code, 
+	      const std::string &altconf) {
+
+
    // We need to find the 2 Ca's.  If we do not we return 0.
    //
    // Then we need to find the coordinates of the C, O of this atom
@@ -130,6 +146,53 @@ coot::pepflip(CMMDBManager *mol,
 
    return status; // 1 success, 0 failure
 }
+
+   
+int
+coot::pepflip_internal_to_residue(CMMDBManager *mol,
+				  const std::string &chain_id,
+				  int resno, 
+				  const std::string &ins_code, 
+				  const std::string &altconf) {
+
+   int status = 0;
+   CResidue *residue_p = coot::util::get_residue(chain_id, resno, ins_code, mol);
+   if (residue_p) {
+      CAtom *c_at  = NULL;
+      CAtom *o_at  = NULL;
+      CAtom *ca_at = NULL;
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 CAtom *at = residue_atoms[iat];
+	 std::string atom_name(at->name);
+	 std::string atom_alt_conf(at->altLoc);
+	 // PDBv3 FIXME
+	 if (atom_alt_conf == altconf) { 
+	    if (atom_name == " CA ")
+	       ca_at = at;
+	    if (atom_name == " C  ")
+	       c_at = at;
+	    if (atom_name == " O  ")
+	       o_at = at;
+	 }
+	 if (c_at && o_at && ca_at) {
+	    clipper::Coord_orth p1(ca_at->x, ca_at->y, ca_at->z);
+	    clipper::Coord_orth p2(c_at->x,   c_at->y,  c_at->z);
+	    clipper::Coord_orth p3(o_at->x,   o_at->y,  o_at->z);
+	    clipper::Coord_orth p3_new = util::rotate_round_vector(p2-p1, p3, p1, M_PI);
+	    o_at->x = p3_new.x();
+	    o_at->y = p3_new.y();
+	    o_at->z = p3_new.z();
+	    status = true;
+	 }
+      }
+   }
+   return status;
+} 
+
+
 
 
 std::vector<clipper::Coord_orth> 
