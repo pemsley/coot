@@ -2908,7 +2908,9 @@ graphics_info_t::nudge_active_residue_by_rotate(guint direction) {
       coot::Cartesian rc = g.RotationCentre();
       clipper::Coord_orth origin_offset(rc.x(), rc.y(), rc.z());
       coot::Cartesian front_centre = unproject(0.0);
-      clipper::Coord_orth around_vec(front_centre.x(), front_centre.y(), front_centre.z());
+      coot::Cartesian  back_centre = unproject(1.0);
+      coot::Cartesian ftb = back_centre - front_centre;
+      clipper::Coord_orth around_vec(ftb.x(), ftb.y(), ftb.z());
      g.molecules[imol].rotate_residue(active_atom.second.second, around_vec, origin_offset, angle);
       graphics_draw();
    }
