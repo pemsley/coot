@@ -293,7 +293,7 @@ molecule_class_info_t::delete_any_link_containing_residue(const coot::residue_sp
 		  std::pair<coot::atom_spec_t, coot::atom_spec_t> link_atoms = coot::link_atoms(link_p);
 		  coot::residue_spec_t res_1(link_atoms.first);
 		  coot::residue_spec_t res_2(link_atoms.second);
-		  std::cout << "found link " << res_1 << " to "  << res_2 << std::endl;
+		  // std::cout << "found link " << res_1 << " to "  << res_2 << std::endl;
 		  if (res_spec == res_1) { 
 		     delete_link(link_p, model_p);
 		  } 
