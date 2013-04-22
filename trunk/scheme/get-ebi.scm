@@ -64,7 +64,7 @@
     
     (if (eq? data-type 'pdb)
 	(begin
-	  (let ((pdb-file-name (string-append coot-tmp-dir "/" id ".pdb"
+	  (let ((pdb-file-name (string-append coot-tmp-dir "/" id ".pdb" "."
 					      pdbe-file-name-tail)))
 	    (check-dir-and-get-url coot-tmp-dir pdb-file-name url-string)
 	    (handle-read-draw-molecule pdb-file-name))))
