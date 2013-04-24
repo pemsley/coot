@@ -329,7 +329,8 @@
 # 4.95 20130128 Refmac dictionary to 5.39
 # 4.96 20130228 New mmdb version - 1.25.0
 # 4.97 20130424 Rework (fix typo) for python include directory slimming.
-script_version=4.97
+# 4.98 20130424 Remove ssh copying
+script_version=4.98
 
 
 # :: NOTE:: 
@@ -3424,18 +3425,11 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
 	       mv $holding_tar_file $bin_tar_file
 	       mv $holding_tar_file.md5sum $bin_tar_file.md5sum
                # copy file to pre-release dir if needed
-               ssh_copy $bin_tar_file
-	       echo copying over $bin_tar_file to biop
-               ssh_copy_to_biop $bin_tar_file
-	       echo copying over logs to biop
-               ssh_copy_logs_to_biop $HOME/public_html/build-logs/$OS-$HOST/ public_html/emsley/build-logs
 
                # update the description of the latest binary tar file for
                # this build-type.
                binary_type_latest=$BINARY_TAR_DEST_DIR/type-binary-${OS}-${systype}${python_tag}${gtk2}-latest.txt
 	       echo $coot_version > $binary_type_latest
-               ssh_copy $binary_type_latest
-               ssh_copy_to_biop $binary_type_latest
 
                # update the ChangeLog, README and RELEASE-NOTES
                cd "$build_dir"
