@@ -328,7 +328,8 @@
 # 4.94 20130123 Move pre-release and release server-dir to Cambridge.
 # 4.95 20130128 Refmac dictionary to 5.39
 # 4.96 20130228 New mmdb version - 1.25.0
-script_version=4.96
+# 4.97 20130424 Rework (fix typo) for python include directory slimming.
+script_version=4.97
 
 
 # :: NOTE:: 
@@ -467,7 +468,7 @@ function mkdir_maybe {
 }
 
 # Give args: prefix-dir and (based on is-static-flag) either
-# "clear-static" or "clear-dynamic" #
+# "clear-static" or "clear-dynamic"
 #
 function post_install_slim {
 
@@ -482,9 +483,10 @@ function post_install_slim {
     mkdir_maybe $cleaned_dir
     mkdir_maybe $cleaned_dir/bin
     mkdir_maybe $cleaned_dir/lib
+    # and this for pyconfig.h
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
        mkdir_maybe $cleaned_dir/include
-       mkdir_maybe $cleaned_dir/include/python$pver
+       mkdir_maybe $cleaned_dir/include/$python_version
     fi
 
     lib_sos=`cd $fat_dir && ls -1 lib/lib*.so*`
@@ -508,7 +510,7 @@ function post_install_slim {
         # 20090427 remove python and python config from bin dir (as it
         #  interfers with system python)
         file_list="$file_list html  \
-                   lib/$python_version include/python$pver"
+                   lib/$python_version include/$python_version"
     fi
     echo rsyncing... 
     for file in $file_list ;
