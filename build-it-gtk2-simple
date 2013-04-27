@@ -331,7 +331,9 @@
 # 4.97 20130424 Rework (fix typo) for python include directory slimming.
 # 4.98 20130424 Remove ssh copying
 # 4.99 20130424 swig 1.3.29 is broken no matter what the architecture.
-script_version=4.99
+# 5.00 20130425 CXX testing updates (for ubuntu).
+script_version=5.00
+
 
 
 # :: NOTE:: 
@@ -1100,17 +1102,35 @@ fi
 
 
 if [ -n "$CXX" ] ; then
+
 	# CXX was set
-	gxxtest=`$CXX-$CXX --version | awk 'NR==1 {print $2}'`
+	gxxtest=$($CXX --version | awk 'NR==1 {print $2}')
+        # typically gxxtest is set to "(GCC)", but not on Ubuntu, where the line is:
+	# g++ (Ubuntu 4.4.3-4ubuntu5.1) 4.4.3
+        # Scientific Linux:
+        # g++ (GCC) 4.4.6 20120305 (Red Hat 4.4.6-4)
+        # RHEL 6:
+        # g++ (GCC) 4.4.7 20120313 (Red Hat 4.4.7-3)
+        echo gxxtest: $gxxtest
 	if [ "$gxxtest" != "(GCC)" ] ; then
-	   # but not g++ 
-	   w=$CXX-`$CXX -v`
-	      if [ $? -ne 0 ] ; then
-	    	 w="missing_cxx_version"
-	      fi
+
+             # but not g++ (?).  Maybe it was Ubuntu...
+
+             case "$gxxtest" in
+                *[Uu]buntu*) 
+                   w=$($CXX --version | head -1 | awk '{print $3}' | tr -d ')')
+                   ;;
+	   
+                *) 
+                   w=$CXX-$($CXX -v | head -1 | sed 's/ / /g')
+   	           if [ $? -ne 0 ] ; then
+	    	      w="missing_cxx_version"
+	           fi
+                   ;; 
+             esac
 	else 
            # g++
-           w=$CXX-`$CXX --version | awk 'NR==1 {print $3}'`
+           w=$CXX-$($CXX --version | awk 'NR==1 {print $3}')
 	fi
 else
 	# CXX not set
