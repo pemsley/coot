@@ -22,7 +22,7 @@ lib_LTLIBRARIES=libcoot-geometry.la
 
 EXTRA_DIST = notes Makefile.simple
 
-include_HEADERS =  protein-geometry.hh read-sbase.hh lbg-graph.hh 
+include_HEADERS =  protein-geometry.hh read-sbase.hh lbg-graph.hh srs-geometry.hh
 
 INCLUDES = -I$(top_srcdir)/coords     \
 	   -I$(top_srcdir)/utils      \
