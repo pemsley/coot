@@ -332,7 +332,8 @@
 # 4.98 20130424 Remove ssh copying
 # 4.99 20130424 swig 1.3.29 is broken no matter what the architecture.
 # 5.00 20130425 CXX testing updates (for ubuntu).
-script_version=5.00
+# 5.01 20130429 mmdb version bump 1.25.2
+script_version=5.01
 
 
 
@@ -2243,6 +2244,7 @@ mmdb_version=1.23.2
 mmdb_version=1.24
 mmdb_version=1.24.2
 mmdb_version=1.25.0
+mmdb_version=1.25.2
 mmdb_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/dependencies
 echo ${WGET} $mmdb_server_dir/mmdb-$mmdb_version.tar.gz
 ${WGET} $mmdb_server_dir/mmdb-$mmdb_version.tar.gz
