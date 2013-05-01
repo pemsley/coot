@@ -41,6 +41,8 @@
 #endif // MINGW
 #endif
 
+#include <glob.h>
+
 // These 2 are for getpwnam
 #include <sys/types.h>
 
@@ -1144,4 +1146,23 @@ coot::sequence::is_sequence_triplet(const std::string &s) {
    }
    return r;
 } 
+
+
+// return a set of string that match the glob, with the directory name pre-appended
+std::vector<std::string>
+coot::util::glob_files(const std::string &dir, const std::string &glob_pattern) {
+
+   std::vector<std::string> r;
+   glob_t myglob;
+   std::string glob_files = append_dir_file(dir, glob_pattern);
+   int flags = 0;
+   glob(glob_files.c_str(), flags, 0, &myglob);
+   size_t count = myglob.gl_pathc;
+   for (char **p = myglob.gl_pathv; count ; p++, count--) { 
+      char *file(*p);
+      r.push_back(file);
+   }
+   globfree(&myglob);
+   return r;
+}
 
