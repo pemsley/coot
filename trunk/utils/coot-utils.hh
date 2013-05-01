@@ -107,6 +107,9 @@ namespace coot {
       // as above but only protein atom names allowed (and MSE).
       bool is_standard_amino_acid_name(const std::string &residue_name);
 
+      // return a set of string that match the glob, with the directory name pre-appended
+      std::vector<std::string> glob_files(const std::string &dir, const std::string &glob_pattern);
+
       std::string downcase(const std::string &s);
       std::string upcase(const std::string &s);
       std::string capitalise(const std::string &s); // capitalise first, downcase rest
