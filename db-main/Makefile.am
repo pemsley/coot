@@ -27,6 +27,7 @@ testdbmain_LDADD = libcoot-db-main.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
+	$(GLOB_LIBS)	     \
 	$(CLIPPER_LIBS)      \
 	$(MMDB_LIBS)
 
@@ -37,6 +38,7 @@ train_pepflip_LDADD = libcoot-db-main.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
+	$(GLOB_LIBS)	     \
 	$(CLIPPER_LIBS)      \
 	$(MMDB_LIBS)
 

@@ -117,7 +117,7 @@ testshelxreader_LDADD =          \
 	./libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-        $(top_builddir)/utils/libcoot-utils.la
+        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 
 testcootutils_SOURCES = test-utils.cc
 testcootutils_LDADD =            \
@@ -126,18 +126,18 @@ testcootutils_LDADD =            \
 	./libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-        $(top_builddir)/utils/libcoot-utils.la
+        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 
 test_h_bonds_SOURCES = test-h-bonds.cc
 test_h_bonds_LDADD = \
 	 ./libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-        $(top_builddir)/utils/libcoot-utils.la
+        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 
 test_hole_SOURCES = test-hole.cc
 test_hole_LDADD = ./libcoot-coord-utils.la \
-	$(top_builddir)/utils/libcoot-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 	$(top_builddir)/geometry/libcoot-geometry.la \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la 
 
@@ -146,7 +146,7 @@ test_tt_morph_SOURCES = test-morph.cc
 test_tt_morph_LDADD = 	./libcoot-map-heavy.la
 
 test_elastic_SOURCES = test-elastic.cc
-test_elastic_LDADD   = ./libcoot-coord-utils.la
+test_elastic_LDADD   = ./libcoot-coord-utils.la $(GLOB_LIBS)
 
 
 

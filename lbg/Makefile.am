@@ -33,7 +33,8 @@ libcoot_lidia_la_LIBADD = \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/utils/libcoot-utils.la \
-	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
+	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) \
+	$(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
 
 lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc 
 
@@ -53,8 +54,8 @@ lidia_LDADD = \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
-	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) \
-	$(GOOCANVAS_LIBS) $(GTK_LIBS) $(PYTHON_LIBS)
+	$(GLOB_LIBS) $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) \
+	$(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS) $(PYTHON_LIBS)
 
 EXTRA_DIST=lbg.glade $(appicon_DATA) lbg-callbacks.cc
 

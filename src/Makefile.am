@@ -225,6 +225,7 @@ INCLUDES = \
 	$(GSL_CFLAGS)			\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(PYGTK_CFLAGS)                 \
+	$(GLOB_CFLAGS)                 \
 	$(CURL_CFLAGS)                 
 
 #	$(WITH_SCRIPT_CFLAGS) 
@@ -461,7 +462,8 @@ fix_nomenclature_errors_LDADD = \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la	  	        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
-        $(RDKIT_LIBS) \
+        $(GLOB_LIBS)		\
+        $(RDKIT_LIBS)		\
 	$(GSL_LIBS)		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)		
@@ -481,6 +483,7 @@ coot_real_LDADD =  $(OPENMP_CFLAGS)     \
 		$(MMDBSSM_LIBS)		\
 		$(MMDB_LIBS)		\
 		$(PYTHON_LIBS)		\
+		$(GLOB_LIBS)		\
 		$(GTKGL_CONTEXT_LIBS) 	\
 		$(GLUT_LIBS)		\
 		$(CANVAS_LIBS) 		\
@@ -533,7 +536,8 @@ test_coot_align_LDADD =	\
 	$(top_builddir)/coot-utils/libcoot-shelx.la  		\
 	$(top_builddir)/utils/libcoot-utils.la  		\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
-        $(RDKIT_LIBS) \
+        $(GLOB_LIBS)		\
+        $(RDKIT_LIBS) 		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)
 
@@ -552,7 +556,8 @@ density_score_by_residue_real_LDADD  =	\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(top_builddir)/compat/libcoot-compat.la  		\
-        $(RDKIT_LIBS) \
+        $(GLOB_LIBS)  		 \
+        $(RDKIT_LIBS) 		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)		\
 	$(GSL_LIBS)

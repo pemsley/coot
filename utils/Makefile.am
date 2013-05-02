@@ -22,6 +22,7 @@ INCLUDES = \
 	-I$(top_srcdir)/compat		
 
 AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS) \
+	$(GLOB_CFLAGS)		     \
 	-DPKGDATADIR='"$(pkgdatadir)"'
 
 lib_LTLIBRARIES=libcoot-utils.la
@@ -33,4 +34,6 @@ include_HEADERS = coot-utils.hh coot-fasta.hh
 libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc \
 	gdk-keysyms.cc hsv-rgb.cc
 
+libcoot_utils_la_LIBADD = \
+	$(GLOB_LIBS)
 
