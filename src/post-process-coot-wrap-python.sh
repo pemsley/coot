@@ -12,6 +12,7 @@ gtk2="$1"
 echo "#ifdef USE_PYTHON " > "$post"
 if [ "$gtk2" = gtk2 ] ; then
    echo "#ifdef COOT_USE_GTK2_INTERFACE"  >> $post
+   echo "#include <stddef.h>" >> $post
 else 
    echo "#ifndef COOT_USE_GTK2_INTERFACE"  >> $post
 fi    
