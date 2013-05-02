@@ -170,3 +170,5 @@ de_chainsaw                    = fill_partial_residues
 # fix typo of set_find_hydrogen_torsions (for backwards compatibility?!)
 set_find_hydrogen_torsion = set_find_hydrogen_torsions
 
+# redefine in case someone has old function
+toggle_idle_ligand_interactions = toggle_flev_idle_ligand_interactions
