@@ -231,7 +231,9 @@
 # 1.10 04/02/13 Refmac dictionary 5.39
 #               href tp get pre release version
 # 1.11 28/02/13 New mmdb version - 1.25.0
-script_version=1.11
+# 1.12 28/04/13 mmdb version bump 1.25.2
+#               update to LMB-MRC download locations
+script_version=1.12
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1365,13 +1367,16 @@ fi
 
 
 # test for pkg-config
-which pkg-config
-if pkg-config --atleast-pkgconfig-version 0.16 ; then
-   build_pkg_config=
-   echo pkg-config is new enough `pkg-config --version`
-else 
-   build_pkg_config=1
-   echo pkg-config should be built
+if type pkg-config ; then
+   if pkg-config --atleast-pkgconfig-version 0.16 ; then
+      build_pkg_config=
+      echo pkg-config is new enough `pkg-config --version`
+   else 
+      build_pkg_config=1
+      echo pkg-config should be built \(but won\'t be\).
+   fi
+else
+   echo pkg-config doesn\'t exist.
 fi
 
 # This allows standard pkg-config to find gtkglext and several other things.
@@ -1931,13 +1936,17 @@ fi
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 #
+extras_place=http://www2.mrc-lmb.cam.ac.uk/Groups/murshudov/coot/dependencies
 # libccp4c:
 if test -n "$build_ccp4c" ; then 
     echo BUILDING: libccp4c
     # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
-    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
-    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
-    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/ccp4-libs-underlay-2.tar.gz
+    #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
+    #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
+    #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/ccp4-libs-underlay-2.tar.gz
+    ${WGET} $extras_place/libccp4c-5.0.2-ysbl-3.tar.gz
+    ${WGET} $extras_place/martyn-extras.tar.gz
+    ${WGET} $extras_place/ccp4-libs-underlay-2.tar.gz
     ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/ccp4_library_utils.c.patch
     ( 
     date
@@ -1976,6 +1985,7 @@ mmdb_version=1.23.2
 mmdb_version=1.24
 mmdb_version=1.24.2
 mmdb_version=1.25.0
+mmdb_version=1.25.2
 mmdb_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/dependencies
 echo ${WGET} $mmdb_server_dir/mmdb-$mmdb_version.tar.gz
 ${WGET} $mmdb_server_dir/mmdb-$mmdb_version.tar.gz
@@ -2001,7 +2011,8 @@ if test -n "$build_ssmlib" ; then
 #
 # wget  http://www.ysbl.york.ac.uk/~emsley/software/extras/SSMlib-0.0-pre-1-ysbl.tar.gz
 ssmlib_version=0.0-pre-2-ysbl
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/SSMlib-$ssmlib_version.tar.gz
+#${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
+${WGET} $extras_place/SSMlib-$ssmlib_version.tar.gz
 (
 date
 gzip -dc ${AUTOBUILD_SOURCES}/SSMlib-$ssmlib_version.tar.gz | tar xf -
@@ -2019,8 +2030,10 @@ fi
 if test -n "$build_fftw" ; then
     echo BUILDING fftw:
 #
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/fftw-2.1.5.tar.gz
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/fftw-configure-stuff.tar.gz
+#${WGET} http://www.ysbl.york.ac.uk/~emsley/software/fftw-2.1.5.tar.gz
+#${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/fftw-configure-stuff.tar.gz
+${WGET} $extras_place/fftw-2.1.5.tar.gz
+#${WGET} $extras_place/fftw-configure-stuff.tar.gz
 (
 date
 pwd
@@ -2053,18 +2066,19 @@ if test -n "$build_clipper" ; then
     #clipper_version=2.1-091215-ac
     clipper_version=2.1-100511-ac
     clipper_dir_version=2.1
-    ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
+    #${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
     # 20110921 hack in a temporary solution, while Kevin's new clipper
     # is not available yet from his site.
-    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-2.1-110915-fixup.tar.gz
+    #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-2.1-110915-fixup.tar.gz
     # fix threading on windows, i.e. disable
     ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper-2.1.thread.patch
     # PE 20110921 hack in a temporary solution, while Kevin's new clipper
     # is not available yet from his site.
     clipper_hack_version=2.1-110915-fixup-2
-    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-$clipper_hack_version.tar.gz
+    ${WGET} $extras_place/clipper-$clipper_hack_version.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
-       ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
+       #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
+       ${WGET} $extras_place/clipper_test_contrib.cpp.patch
     fi 
     (
     # temp hack
@@ -2512,7 +2526,8 @@ if test -n "$build_gtkglext" ; then
         if pkg-config gtk+-2.0 --atleast-version 2.20 ; then
            patch_file=gtk-gtkglwidget.c-for-modern-gtk.patch
         fi
-        ${WGET}   http://lmb.bioch.ox.ac.uk/coot/software/extras/$patch_file
+        #${WGET}   http://lmb.bioch.ox.ac.uk/coot/software/extras/$patch_file
+        ${WGET}   $extras_place/gtkglext-$gtkglext_version.tar.gz
 
         if patch -p0 < ${AUTOBUILD_SOURCES}/$patch_file ; then 
             echo gtkglext patched good.
@@ -3016,7 +3031,8 @@ if test -n "$build_guile_gui" ; then
 #
 guile_gui_version=0.3
 #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-0.2.tar.gz
-${WGET} http://lmb.bioch.ox.ac.uk/coot/extras/guile-gui-${guile_gui_version}.tar.gz
+#${WGET} http://lmb.bioch.ox.ac.uk/coot/extras/guile-gui-${guile_gui_version}.tar.gz
+${WGET} $extras_place/guile-gui-0.3.tar.gz
 #${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-gui-0.2.patch
 ( 
 date
@@ -3371,8 +3387,6 @@ echo done coot build.
 # now, do we need to add the extra data files, the refmac monomer
 # library and the reference structures?
 
-#extra_dir=http://www.ysbl.york.ac.uk/~emsley/software/extras
-extra_dir=http://www.biop.ox.ac.uk/coot/software/dependencies
 # 8/5/11 change to Garib's new dicionary.
 #refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
 # mon_lib_dir=http://www.ysbl.york.ac.uk/~garib/refmac/data/refmac_experimental
@@ -3391,9 +3405,15 @@ fi
 if [ -e $install_top_dir/share/coot/reference-structures ] ; then
     echo INFO:: installation has reference structures
 else 
-    echo INSTALLING reference structures...
-    $WGET $extra_dir/reference-structures.tar.gz
-    tar xzCf $install_top_dir/share/coot $AUTOBUILD_SOURCES/reference-structures.tar.gz
+    echo GETTING reference structures tar...
+    echo GETTING reference structures tar... &>2
+    ${WGET} $extras_place/reference-structures.tar.gz
+    if [ -e $AUTOBUILD_SOURCES/reference-structures.tar.gz ] ; then
+       echo INSTALLING reference structures...
+       tar xzCf $install_top_dir/share/coot $AUTOBUILD_SOURCES/reference-structures.tar.gz
+    else 
+       echo FAIL wget for reference-structures.tar.gz failed.
+    fi
 fi
 
 # clear up the library dependencies
