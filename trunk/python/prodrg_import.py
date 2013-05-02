@@ -473,9 +473,9 @@ def fle_view_to_png(imol, chain_id, res_no, ins_code, neighb_radius,
                                  png_file_name)
                 
 
-# import from SBASE, callback using sbase_import_function
+# import from SRS, callback using sbase_import_function
 #
-def get_sbase_monomer_and_overlay(comp_id):
+def get_ccp4srs_monomer_and_overlay(comp_id):
 
     """
     import from SBASE, callback using sbase_import_function
