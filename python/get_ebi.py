@@ -16,27 +16,12 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-# this is get-ebi stuff
-global oca_server
-#oca_server = "http://bip.weizmann.ac.il"
-#oca_server = "http://oca.ebi.ac.uk"
-#oca_server = "http://structure.embl-hamburg.de"
 pdbe_server = "http://www.ebi.ac.uk"
+pdbe_pdb_file_dir = "pdbe-srv/view/files"
 
-global pdbe_pdb_request_stub
-pdbe_pdb_request_dir = "pdbe-srv/view/files"
-#oca_pdb_request_stub = "oca-bin/save-pdb?id="
-#oca_pdb_request_stub = "oca-bin/send-pdb?id="
-#oca_pdb_request_stub = "oca-bin/send-x-pdb?id="
+pdbe_file_name_tail = "ent"
 
-global pdb_file_name_tail
-pdb_file_name_tail = ""
-
-global oca_sfs_request_stub 
-oca_sfs_request_stub = "oca-bin/send-sf?id="
-global oca_sfs_request_tail 
-oca_sfs_request_tail = ""
-#oca_sfs_request_tail = "sf.ent.Z"
+# sf example http://www.ebi.ac.uk/pdbe-srv/view/files/r4hrhsf.ent
 
 global coot_tmp_dir
 coot_tmp_dir = "coot-download"
@@ -59,6 +44,31 @@ coot_tmp_dir = "coot-download"
 # calculate phases.
 #
 
+# helper function to avoid downloading empty files
+# returns download filename upon success or False when fail
+#
+def coot_urlretrieve(url, file_name):
+
+    """Helper function to avoid downloading empty files
+    returns download filename upon success or False when fail."""
+
+    import urllib
+    local_filename = False
+    class CootURLopener(urllib.FancyURLopener):
+        def http_error_default(self, url, fp, errcode, errmsg, headers):
+            # handle errors the way you'd like to
+            # we just pass
+            pass
+
+    opener = CootURLopener()
+    try:
+        local_filename, header = opener.retrieve(url, file_name)
+    except:
+        # we could catch more here, but dont bother for now
+        print "BL WARNING:: retrieve of url %s failed" %url
+
+    return local_filename
+
 # we dont need something like net-get-url in python 
 # since we have build in functions like urlretrieve (in module urllib)
 
@@ -67,24 +77,19 @@ coot_tmp_dir = "coot-download"
 def check_dir_and_get_url(dir,file_name,url_string):
     import os,urllib
 
+    # FIXME logic, can be done better
     if (os.path.isfile(dir) or os.path.isdir(dir)):
        if (os.path.isfile(dir)):
-          print dir," is atually a file and not a dir, so we can't write to it"
+          print dir, " is atually a file and not a dir, so we can't write to it"
        else:
           if (os.path.isdir(dir)):
-             try:
-                urllib.urlretrieve(url_string, file_name)
-             except IOError:
-                print "ERROR:: We can't get ",url_string
+              coot_urlretrieve(url_string, file_name)
           else:
-             print "ERROR:: Oops - Can't write to ",dir," directory!"
+              print "ERROR:: Oops - Can't write to ", dir, " directory!"
     else:
        os.mkdir(dir)
        if (os.path.isdir(dir)):
-          try:
-             urllib.urlretrieve(url_string, file_name)
-          except IOError:
-             print "ERROR:: We can't get ",url_string
+           coot_urlretrieve(url_string, file_name)
        else:
          print "ERROR:: Oops - create-directory ",dir," failed!"
 
@@ -96,7 +101,7 @@ def get_url_str(id, url_string, data_type, imol_coords_arg_list):
     #print "DEBUG:: in get_url_string:", id, url_string, data_type
 
     if (data_type == "pdb"):
-       pdb_file_name = coot_tmp_dir + "/" + id + ".pdb" + pdb_file_name_tail
+       pdb_file_name = coot_tmp_dir + "/" + id + ".pdb." + pdbe_file_name_tail
        check_dir_and_get_url(coot_tmp_dir,pdb_file_name,url_string)
        imol_coords = handle_read_draw_molecule(pdb_file_name)
        return imol_coords
@@ -106,8 +111,8 @@ def get_url_str(id, url_string, data_type, imol_coords_arg_list):
 #       print "BL DEBUG:: cif output file is: ",sfs_file_name
        imol_coords = imol_coords_arg_list
        if (operator.isNumberType(imol_coords) and imol_coords>=-1):
-         check_dir_and_get_url(coot_tmp_dir,sfs_file_name,url_string)
-         read_cif_data(sfs_file_name,imol_coords_arg_list) 
+         check_dir_and_get_url(coot_tmp_dir, sfs_file_name, url_string)
+         read_cif_data(sfs_file_name, imol_coords_arg_list) 
 
 # Get the pdb and sfs. @var{id} is the accession code
 def get_ebi_pdb_and_sfs(id):
@@ -122,9 +127,11 @@ def get_ebi_pdb_and_sfs(id):
        print "failed to read coordinates."
     else:
        down_id = string.lower(id)
-       url_str = pdbe_server + "/" + oca_sfs_request_stub + down_id + oca_sfs_request_tail
+       url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + \
+                 "r" + down_id + "sf." + \
+                 pdbe_file_name_tail
 #       print "BL DEBUG:: get_url_str with",id,url_str,"sfs",imol_coords
-       get_url_str(id,url_str,"sfs",imol_coords)
+       get_url_str(id, url_str, "sfs", imol_coords)
 
 # Return a molecule number on success
 # or not a number (False) or -1 on error.
@@ -133,8 +140,9 @@ def get_ebi_pdb(id):
     import urllib, string
 
     down_id = string.lower(id)
-    url_str = pdbe_server + "/" + pdbe_pdb_request_dir + "/" + down_id + ".ent"
-    imol_coords = get_url_str(id,url_str,"pdb",None)
+    url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + down_id + \
+              "." + pdbe_file_name_tail
+    imol_coords = get_url_str(id, url_str, "pdb", None)
     return imol_coords
 
 
@@ -230,16 +238,10 @@ def get_eds_pdb_and_mtz(id):
             except:
                 print "BL ERROR:: could not get pre_download_info from", eds_core
                 bad_map_status = True
-            try:
-                s1 = urllib.urlretrieve(model_url, dir_target_pdb_file)
-                print "INFO:: read model status: ",s1
-            except IOError:
-                print "BL ERROR:: We can't open ", model_url
-            try:
-                s2 = urllib.urlretrieve(mtz_url, dir_target_mtz_file)
-                print "INFO:: read mtz   status: ",s2
-            except IOError:
-                print "BL ERROR:: We can't open ", mtz_url 
+            s1 = coot_urlretrieve(model_url, dir_target_pdb_file)
+            print "INFO:: read model status: ",s1
+            s2 = coot_urlretrieve(mtz_url, dir_target_mtz_file)
+            print "INFO:: read mtz   status: ",s2
 
             if bad_map_status:
                 s = "This map (" + down_id + \
