@@ -31,6 +31,8 @@
 #include <stdlib.h>
 #include <iostream>
 
+#include "coot-sysdep.h"
+
 
 #include "guile-fixups.h"
 
