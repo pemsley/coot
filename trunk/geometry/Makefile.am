@@ -63,11 +63,11 @@ test_read_components_SOURCES = test-read-components.cc test-read-components.hh
 test_geometry_LDADD = ./libcoot-geometry.la    \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
         $(top_builddir)/utils/libcoot-utils.la       \
-	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
+	$(GLOB_LIBS) $(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
 
 test_read_components_LDADD =  \
 	./libcoot-geometry.la \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
         $(top_builddir)/utils/libcoot-utils.la       \
-	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
+	$(GLOB_LIBS) $(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
 

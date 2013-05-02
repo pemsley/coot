@@ -182,6 +182,7 @@ findligand_real_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
 	$(top_builddir)/compat/libcoot-compat.la           \
+        $(GLOB_LIBS) \
         $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
@@ -201,6 +202,7 @@ findwaters_real_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
 	$(top_builddir)/compat/libcoot-compat.la           \
+        $(GLOB_LIBS) \
         $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 

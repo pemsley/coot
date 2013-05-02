@@ -2,7 +2,7 @@
 
 scripts      rev 4566 (some prodrg stuff needs testing) generic objects, check new defs
 tests        rev 4437 update
-build-it-win rev 4555
+build-it-win rev 4623
 
 -------------------------------------------------------
 * THINGS TO DO BEFORE 0.7.1 RELEASE * ONLY URGENT THING
@@ -91,7 +91,28 @@ scripting exercise
 
 **** General ****
 
-   o Edit phi/psi only CB rama
+   o colour/display residue/ligand by distortion score (like mogul) but based
+	on dictionary (better than nothing!)
+
+   o backup file does not change name when saved in between (Feature/bug?)
+
+   o Additional representations need tree and/or other better navigation
+
+   o Additional representations/ballNstick tick marks do not update with 
+	Clear Ball and Stick 
+
+   o Water validation tick partial occupancy removes most other waters too
+
+   o Check NCS copy when insertions etc. May need update of matrix
+	and/or use of SSM rather than LSQ. Mmh. Tricky
+
+   o save screenshot (and maybe other figures - or else) doesnt have a
+	root directory to save in set (in file chooser)
+
+   o NCS not always identified properly (e.g. 3c10)
+	(ERROR:: An NCS reference chain finding error has occured)
+
+   o Edit phi/psi shown appropriate rama underneath
 
    o Kleywegt plot shouldnt be sensitive to non-displayed residues
 
@@ -238,7 +259,7 @@ from Osaka 2010
 
    o Edit Chi for hydrogens not working (H from reduce at least)
 
-   o transform whole asu for packing comparision?!
+   o transform whole asu for packing comparision?! (check mmdb, use ORIGX?)
 
    o doublication of find strand/find ss (Extensions, Other tools)
 
@@ -329,6 +350,19 @@ low importance
 
 **** Python ****
 
+   o views gui shows lots of "Play views" (one isnt enough?!)
+
+   o views play is not interuptable?!
+
+   o change name of Play Views to Play All Views
+
+   o List of 3d annotations e.g. for delete
+
+   o make rotamer and auto-zone fit protein function!?
+
+   o cootaneer shows 2 sequences after only 1 has been assigned before?!
+	no map selection possible
+
    o Refmac use local NCS
 
    o make a quick test (no 3 x ramachandran)
@@ -408,10 +442,6 @@ low importance
 
    o new gtk/gtkglext disappears with Dexpot
 
-   o include glob.m4 for windows
-try in with-python.m4: AC_CHECK_HEADER([glob.h], [UTIL_LIB="-lglob"], [UTIL_LIB=""])
-but needs the right CPPFLAGS
-
    o pop up dialog if disk space is limited!!
 
    o installer: show/hide details
@@ -485,6 +515,17 @@ but needs the right CPPFLAGS
 				- download test data and unittests
 				- run tests
 				- send email about status/or notify otherwise
+
+
+**** Ribbons ****
+
+   o fix colouring for electrostatic surface -> should use fractional
+
+   o put old ribbons code in branch
+
+   o fix str char warnings
+
+   o change name of functions (check with Paul)
 
 
 **** Tutorial ****
@@ -761,4 +802,9 @@ Osaka 2010
    o check ref counting for py_clean_internal
 
 * Done (I think)
+
+   o include glob.m4 for windows
+
+* Done
+
 

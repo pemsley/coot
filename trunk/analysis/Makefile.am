@@ -40,6 +40,7 @@ bfactan_LDADD = \
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
         $(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/utils/libcoot-utils.la 		\
+	$(GLOB_LIBS) 		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)
 

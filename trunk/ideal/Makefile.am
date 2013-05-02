@@ -104,6 +104,7 @@ with_geometry_LDADD = \
 	$(top_builddir)/utils/libcoot-utils.la             \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+	$(GLOB_LIBS) \
 	$(RDKIT_LIBS) \
         $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
@@ -121,6 +122,7 @@ mini_rsr_LDADD =  \
 	$(top_builddir)/utils/libcoot-utils.la        \
         $(top_builddir)/compat/libcoot-compat.la           \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+	$(GLOB_LIBS) \
 	$(RDKIT_LIBS) \
         $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 

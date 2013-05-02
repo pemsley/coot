@@ -127,7 +127,8 @@ if test x$with_python != x; then
 	# BL says:: same as for cygwin in mingw
 	# dunno where else to put the glob at the moment
 	MINGW*|Mingw*|*mingw*)
-		UTIL_LIB="-lglob"
+		#UTIL_LIB="-lglob"
+		UTIL_LIB=""
 	;;
    esac	
 
