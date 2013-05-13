@@ -26,7 +26,7 @@ namespace coot {
 
    class mogul_item {
    public:
-      enum type_t { NONE, BOND, ANGLE, TORSION, PLANE };
+      enum type_t { NONE, BOND, ANGLE, TORSION, PLANE, BOND_OR_ANGLE };
       // 1-based counting
       int idx_1;
       int idx_2;
@@ -57,7 +57,7 @@ namespace coot {
 	 median = median_in;
 	 std_dev = std_dev_in;
 	 z = z_in;
-	 max_badness = 5.0; 
+	 max_badness = 5.0;
       }
       mogul_item(int atom_idx_1_in, int atom_idx_2_in, int atom_idx_3_in,
 		 float value_in,
@@ -106,7 +106,9 @@ namespace coot {
       }
       void ft_model_torsion_distribution();
       void spline_model_torsion_distribution();
+      friend std::ostream &operator<<(std::ostream &s, const mogul_item &it);
    };
+   std::ostream &operator<<(std::ostream &s, const mogul_item &it);
 
    class mogul {
       std::vector<mogul_item> items;
@@ -187,6 +189,12 @@ namespace coot {
       mogul_item get_bond_item(const std::vector<int> &indices) const;
       // can throw a runtime_exception
       mogul_item get_torsion_item(const std::vector<int> &indices) const;
+
+      // Dont consider items with less than 2 hits
+      // 
+      // return a negative value in first on unable for some reason
+      // 
+      std::pair<float, mogul_item> get_max_z_badness(mogul_item::type_t t) const; 
 
    };
 }
