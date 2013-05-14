@@ -335,7 +335,8 @@
 # 5.01 20130429 mmdb version bump 1.25.2
 # 5.02 20130502 better diagnostic for goocanvas compile
 # 5.03 20130503 Remove SWIG version test (now it is not needed to build source)
-script_version=5.03
+# 5.04 20130514 Add COOT_BUILD_INFO_STRING
+script_version=5.04
 
 
 
@@ -1268,7 +1269,7 @@ if [ $? -ne 0 ] ; then
 	echo $AUTOBUILD_BUILD failed for some reason. Now in `pwd`
 fi
 # for ccp4 (20051104) compatibility, we can't use colons in the date string
-date=`date -u +'%Y-%m-%d__T%H_%M_%S'`
+date=$(date -u +'%Y-%m-%d__T%H_%M_%S')
 echo Date: $date
 
 # now in $AUTOBUILD_BUILD
@@ -3231,6 +3232,10 @@ if [ $architecture = x86_64 ] ; then
    #   unset CXXFLAGS
 fi
 
+cbis_n=$(finger $USER | head -1 | sed 's/.*Name: //')
+cbis_d=$(date +'%a %d %b %H%M.%S %Z %Y')
+coot_build_info_string="built by: $cbis_n build-host: $HOST on: $cbis_d"
+
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
 echo ./configure $coot_prefix \
@@ -3256,7 +3261,8 @@ echo ./configure $coot_prefix \
       --with-gtkgl-prefix=$install_top_dir  \
       --with-gtk2         \
       $goocanvas_args     \
-       $glut_prefix       \
+      $glut_prefix        \
+      COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       $scripting          \
       $python_scripting   \
       $shared_static_flag \
