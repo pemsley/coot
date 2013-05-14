@@ -1922,6 +1922,16 @@ class PdbMtzTestFunctions(unittest.TestCase):
                         "   TER card found: %s" %line)
 
 
+    def test48_1(self):
+        """Adding atoms to Many-Chained Molecule"""
+
+        imol = read_pdb(rnase_pdb())
+        set_pointer_atom_molecule(imol)
+        for i in range(100):
+            place_typed_atom_at_pointer("Mg")
+        # doesnt crash...
+        
+            
     def test49_0(self):
         """Arrange waters round protein"""
 
