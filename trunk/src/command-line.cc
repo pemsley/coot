@@ -251,6 +251,9 @@ parse_command_line(int argc, char ** argv ) {
 			   std::cout << coot_version() << std::endl;
 			   std::cout << "Binary type: " << COOT_SYS_BUILD_TYPE << std::endl;
 			   std::string s = COOT_BUILD_INFO_STRING;
+// 			   if (s.length() == 0)
+// 			      s = "Unknown";
+// 			   std::cout << "Builder_info: " << s << std::endl;
 			   if (s.length())
 			      std::cout << "Builder_info: " << s << std::endl;
 			   exit(0);
