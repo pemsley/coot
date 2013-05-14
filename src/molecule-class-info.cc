@@ -4892,18 +4892,20 @@ molecule_class_info_t::add_pointer_atom(coot::Cartesian pos) {
 void 
 molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::string &type) { 
 
-   short int single_atom = 1; // true
+   bool single_atom = true; 
 
-   std::cout << "INFO:: adding atom of type " << type << " at " << pos << std::endl;
+   // std::cout << "INFO:: adding atom of type " << type << " at " << pos << std::endl;
    make_backup();
 
    // we get a chain pointer or NULL, if there is not yet a chain only
    // of the given type:
-   CChain *single_type = coot::util::chain_only_of_type(atom_sel.mol, type);
+   coot::atom_name_bits_t bits(type);
+   CChain *single_type = coot::util::chain_only_of_type(atom_sel.mol, bits.res_name);
+   // std::cout << "DEBUG:: single_type returned " << single_type << std::endl;
 
    // We do different things (e.g adding the chain) if this is a new
    // chain or a pre-existing one, let's set a flag.
-   short int pre_existing_chain_flag;
+   bool pre_existing_chain_flag;
    CChain *chain_p;
    if (single_type) {
       chain_p = single_type;
@@ -4986,100 +4988,42 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
   	 // Not water
 	 std::string element = "";
 
-	 if (mol_chain_id.first || pre_existing_chain_flag) { 
+	 if (mol_chain_id.first || pre_existing_chain_flag) {
 
-	    if (type == "Br") { 
-	       atom_p->SetAtomName("BR  ");
-	       atom_p->SetElementName("BR");
-	       res_p->SetResName("BR");
-	       element = "BR";
-	    } else { 
-	       if (type == "Ca") { 
-		  atom_p->SetAtomName("CA  ");
-		  atom_p->SetElementName("CA");
-		  res_p->SetResName("CA");
-		  element = "CA";
-	       } else { 
-		  if (type == "Na") { 
-		     atom_p->SetAtomName("NA  ");
-		     atom_p->SetElementName("NA");
-		     res_p->SetResName("NA");
-		     element = "NA";
-		  } else { 
-		     if (type == "Cl") { 
-			atom_p->SetAtomName("CL  ");
-			atom_p->SetElementName("CL");
-			res_p->SetResName("CL");
-			element = "CL";
-		     } else { 
-			if (type == "I") { 
-			   atom_p->SetAtomName("I   ");
-			   atom_p->SetElementName("I");
-			   res_p->SetResName("IOD");
-			   element = "I";
-			} else { 
-			   if (type == "Mg") { 
-			      atom_p->SetAtomName("MG  ");
-			      atom_p->SetElementName("MG");
-			      res_p->SetResName("MG");
-			      element = "MG";
-			   } else { 
+	    if (bits.filled) {
+	       bits.SetAtom(atom_p, res_p);
 
-			      // User Typed atom:
+	       res_p->AddAtom(atom_p);
+	       std::cout << atom_p << " added to molecule" << std::endl;
+	       if (! pre_existing_chain_flag) { 
+		  chain_p->SetChainID(mol_chain_id.second.c_str());
+		  atom_sel.mol->GetModel(1)->AddChain(chain_p);
+	       }
+	       std::pair<short int, int> ires_prev_pair = coot::util::max_resno_in_chain(chain_p);
+	       int previous_max = 0;
+	       if (ires_prev_pair.first) { // was not an empty chain
+		  previous_max =  ires_prev_pair.second;
+		  res_p->seqNum = previous_max + 1;
+	       } else {
 
-			      // make up (guess) the residue type and element
-			      std::string at_name = coot::util::upcase(type);
-			      std::string ele     = coot::util::upcase(type);
-			      std::string resname = coot::util::upcase(type);
-			      if (type.length() > 4)
-				 at_name = at_name.substr(0,4);
-			      if (type.length() > 3)
-				 resname = at_name.substr(0,3);
-			      if (type.length() > 2)
-				 ele = at_name.substr(0,2);
+		  // was an empty chain.  Handle the shelx case:
 
-			      element = ele;
-			      atom_p->SetAtomName(at_name.c_str());
-			      atom_p->SetElementName(ele.c_str());
-			      res_p->SetResName(resname.c_str());
-			   } 
-			}
+		  if (! is_from_shelx_ins_flag) { 
+		     res_p->seqNum = 1 ; // start of a new chain.
+		  } else {
+		     // in a shelx molecule, we can't make the residue
+		     // number 1 because there are no chains.  We need to
+		     // make the residue number bigger than the biggest
+		     // residue number so far.
+		     std::pair<short int, int> ires_prev_pair =
+			coot::util::max_resno_in_molecule(atom_sel.mol);
+		     if (ires_prev_pair.first) {
+			res_p->seqNum = ires_prev_pair.second + 1;
+		     } else {
+			res_p->seqNum = 1;
 		     }
 		  }
 	       }
-	    }
-
-	    res_p->AddAtom(atom_p);
-	    std::cout << atom_p << " added to molecule" << std::endl;
-	    if (! pre_existing_chain_flag) { 
-	       chain_p->SetChainID(mol_chain_id.second.c_str());
-	       atom_sel.mol->GetModel(1)->AddChain(chain_p);
-	    }
-	    std::pair<short int, int> ires_prev_pair = coot::util::max_resno_in_chain(chain_p);
-	    int previous_max = 0;
-	    if (ires_prev_pair.first) { // was not an empty chain
-	       previous_max =  ires_prev_pair.second;
-	       res_p->seqNum = previous_max + 1;
-	    } else {
-
-	       // was an empty chain.  Handle the shelx case:
-
-	       if (! is_from_shelx_ins_flag) { 
-		  res_p->seqNum = 1 ; // start of a new chain.
-	       } else {
-		  // in a shelx molecule, we can't make the residue
-		  // number 1 because there are no chains.  We need to
-		  // make the residue number bigger than the biggest
-		  // residue number so far.
-		  std::pair<short int, int> ires_prev_pair =
-		     coot::util::max_resno_in_molecule(atom_sel.mol);
-		  if (ires_prev_pair.first) {
-		     res_p->seqNum = ires_prev_pair.second + 1;
-		  } else {
-		     res_p->seqNum = 1;
-		  }
-	       }
-	       
 	    }
 
 	    // Add this element to the sfac (redundancy check in the addition function
@@ -5127,14 +5071,15 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
    // or we could just use update_molecule_after_additions() there.
 }
 
+
 // return status [1 means "usable"] and a chain id [status = 0 when
 // there are 2*26 chains...]
 // 
-std::pair<short int, std::string>
+std::pair<bool, std::string>
 molecule_class_info_t::unused_chain_id() const { 
-   
+
    std::string r("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-   std::pair<short int, std::string> s(0,""); 
+   std::pair<bool, std::string> s(false,""); 
    CChain *chain_p;
    if (atom_sel.n_selected_atoms > 0) { 
       CModel *model_p = atom_sel.mol->GetModel(1);
@@ -5143,17 +5088,18 @@ molecule_class_info_t::unused_chain_id() const {
    
       for (int ich=0; ich<nchains; ich++) {
 	 chain_p = model_p->GetChain(ich);
-	 idx = r.find(std::string(chain_p->GetChainID()));
-	 // 	 while (idx != std::string::npos) { 
-	    r = r.substr(0, idx) + r.substr(idx+1);
-	    idx = r.find(std::string(chain_p->GetChainID()));
-	    s.first = 1;
-	    // 	 } // Take out the while, as per Ezra's suggestion.
+	 std::string this_chain_id = chain_p->GetChainID();
+	 std::string::size_type idx = r.find(this_chain_id);
+	 if (idx != std::string::npos) {
+	    r.erase(idx,1);
+	 } 
       }
-      std::string tstring = r.substr(0,1);
-      s.second = tstring;
+      if (r.length()) { 
+	 s.first = true;
+	 s.second = r.substr(0,1);
+      }
    } else {
-      s.first = 1;
+      s.first = true;
       s.second = "A";
    } 
    return s;
@@ -6441,7 +6387,7 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
       // We need to create a new chain.
       chain_p = new CChain;
       atom_sel.mol->GetModel(1)->AddChain(chain_p);
-      std::pair<short int, std::string> u = unused_chain_id();
+      std::pair<bool, std::string> u = unused_chain_id();
       if (u.first)
 	 chain_p->SetChainID(u.second.c_str());
       else 

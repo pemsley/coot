@@ -591,6 +591,77 @@ namespace coot {
       }
    };
 
+   // e.g. 
+   // "Mg" -> <"  MG", "MG">
+   // "I"  -> <"   I", "IOD">
+   // 
+   class atom_name_bits_t {
+   public:
+      atom_name_bits_t() { filled = false; }
+      bool filled;
+      std::string atom_name;
+      std::string element_name;
+      std::string res_name;
+      atom_name_bits_t(const std::string &type) {
+	 if (type == "Br") {
+	    atom_name = "BR  ";
+	    element_name = "BR";
+	    res_name = "BR";
+	    filled = true;
+	 }
+	 if (type == "Ca") {
+	    atom_name = "CA  ";
+	    element_name = "CA";
+	    res_name = "CA";
+	    filled = true;
+	 }
+	 if (type == "Na") {
+	    atom_name = "NA  ";
+	    element_name = "NA";
+	    res_name = "NA";
+	    filled = true;
+	 }
+	 if (type == "Cl") {
+	    atom_name = "CL  ";
+	    element_name = "CL";
+	    res_name = "CL";
+	    filled = true;
+	 }
+	 if (type == "I") {
+	    atom_name = "I   ";
+	    element_name = "I";
+	    res_name = "IOD";
+	    filled = true;
+	 }
+	 if (type == "Mg") {
+	    atom_name = "MG  ";
+	    element_name = "MG";
+	    res_name = "MG";
+	    filled = true;
+	 }
+	 if (! filled) {
+	    // make up (guess) the residue type and element
+	    std::string at_name = coot::util::upcase(type);
+	    std::string ele     = coot::util::upcase(type);
+	    std::string resname = coot::util::upcase(type);
+	    if (type.length() > 4)
+	       atom_name = at_name.substr(0,4);
+	    if (type.length() > 3)
+	       res_name = at_name.substr(0,3);
+	    if (type.length() > 2)
+	       element_name = at_name.substr(0,2);
+	    filled = true;
+	 } 
+      }
+      void SetAtom(CAtom *at, CResidue *res) {
+	 if (filled) { 
+	    at->SetAtomName(atom_name.c_str());
+	    at->SetElementName(element_name.c_str());
+	    res->SetResName(res_name.c_str());
+	 }
+      } 
+   };
+
 } // namespace coot
 
 
@@ -748,7 +819,8 @@ class molecule_class_info_t {
 
    // return status and a chain id [status = 0 when there are 26 chains...]
    // 
-   std::pair<short int, std::string> unused_chain_id() const;
+   std::pair<bool, std::string> unused_chain_id() const;
+   coot::atom_name_bits_t atom_name_to_atom_name_plus_res_name() const;
 
    int set_coot_save_index(const std::string &s); 
 

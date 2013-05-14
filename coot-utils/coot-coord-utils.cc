@@ -3529,23 +3529,25 @@ coot::util::chain_only_of_type(CMMDBManager *mol, const std::string &residue_typ
       for (int ich=0; ich<nchains; ich++) {
 	 chain_p = model_p->GetChain(ich);
 	 int nres = chain_p->GetNumberOfResidues();
-	 short int all_same_type_flag = 1; 
-	 for (int ires=0; ires<nres; ires++) { 
-	    residue_p = chain_p->GetResidue(ires);
-	    std::string resname(residue_p->name);
-	    if (! (resname == residue_type)) {
-	       all_same_type_flag = 0;
+	 if (nres) { 
+	    bool all_same_type_flag = true; 
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       std::string resname(residue_p->name);
+	       if (! (resname == residue_type)) {
+		  all_same_type_flag = false;
+		  break;
+	       }
+	    }
+	    if (all_same_type_flag) { 
+	       single_type_chain_p = chain_p;
 	       break;
 	    }
 	 }
-	 if (all_same_type_flag) { 
-	    single_type_chain_p = chain_p;
-	    break;
-	 }
       }
-   } 
+   }
    return single_type_chain_p;
-} 
+}
 
 
 std::string
