@@ -2448,6 +2448,18 @@
 		(else (loop (read-line port)))))))))))
 
 
+(greg-testcase "Adding atoms to Many-Chained Molecule" #t 
+   (lambda () 
+
+     (let ((imol (read-pdb rnase-pdb)))
+       (set-pointer-atom-molecule imol)
+       (for-each 
+	(lambda (i)
+	  (place-typed-atom-at-pointer "Mg"))
+	(range 100))
+       #t))) ;; doesn't crash :)
+
+
 (greg-testcase "Arrange waters round protein" #t
    (lambda ()
 
