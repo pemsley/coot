@@ -234,7 +234,8 @@
 # 1.12 28/04/13 mmdb version bump 1.25.2
 #               update to LMB-MRC download locations
 # 1.13 14/05/13 Add COOT_BUILD_INFO_STRING
-script_version=1.13
+# 1.14 14/05/13 remove install_top_dir before stable install
+script_version=1.14
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1170,12 +1171,15 @@ fi
 # Stable release only! (Windows!)
 # Remove install_top_dir if exists and we make a stable release, i.e.
 # start from scratch
-# not always....
-#if [ "$build_coot_prerelease" != 1 ] ; then 
-#    if [ -e "$install_top_dir" ] ; then
-#        rm -fr $install_top_dir
-#    fi
-#fi
+# not always..... why not?
+# only if exe version doesnt exis?
+# but where to find?
+wincoot_exe=WinCoot-${wincoot_version}.exe
+if [ "$build_coot_prerelease" != 1 ] ; then 
+    if [ -e "$install_top_dir" ] ; then
+        rm -fr $install_top_dir
+    fi
+fi
 
 # we need to export this for net-http, because it doesn't set
 # variables from configure, we rely on a shell (environment) variable.
@@ -3140,6 +3144,7 @@ fi
 
 
 echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT guile=$ENABLE_GUILE_COOT
+wincoot_version=${coot_version/coot-}
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
    ${WGET} $release_server_dir/$coot_version.tar.gz
@@ -3385,7 +3390,6 @@ if [ $coot_build_status != 0 ] ; then
     my_exit 2 $coot_revision
 else 
     # and finally write a coot-version file for the installer
-    wincoot_version=${coot_version/coot-}
     echo '!define WinCootVersion "'${wincoot_version}'"' >$install_top_dir/coot-version
 
     echo coot build was good.
