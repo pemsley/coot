@@ -3307,8 +3307,7 @@ cbis_d=$(date +'%a %d %b %H%M.%S %Z %Y')
 coot_build_info_string="built by: $cbis_n build-host: $HOST on: $cbis_d"
 
 # this is a quick fix, and should be done properly at some point
-coot_optim_args="-build=i686-pc-mingw32"
-coot_optim_args+=" --with-glob-prefix=/usr"
+coot_optim_args="-build=i686-pc-mingw32 --with-glob-prefix=/usr"
 
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
