@@ -1,0 +1,64 @@
+# Makefile.am
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or (at
+# your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA
+
+cootpixmapdir = $(pkgdatadir)/pixmaps
+
+# no longer use xpms.
+
+dist_cootpixmap_DATA = \
+add-alt-conf.png      dna.svg			   probe-clash.svg                \
+add-alt-conf.svg      edit-backbone.svg		   radacina_handcuffs-small.svg   \
+add-peptide-1.png     edit-chi.png		   ramachandran.png               \
+add-peptide-1.svg     edit-chi.svg		   refine-1.svg                   \
+add-water.svg	      emsley.jpg		   refine.png                     \
+anchor.svg	      env-distances.png		   regularize-1.svg               \
+aniso-atom.png	      env-distances.svg		   regularize.png                 \
+aniso-atom.svg	      eugene.jpg		   renumber-residues.svg          \
+appointment-new.png   flip-peptide.png		   reset-view-32.png              \
+atom-at-pointer.png   flip-peptide.svg		   reset-view-32.svg              \
+atom-at-pointer.svg   generic-display-objects.svg  reset-view.png                 \
+auto-fit-rotamer.png  geom.svg			   reset-view.svg                 \
+auto-fit-rotamer.svg  ghosts.png		   residue-info.png               \
+azerbaijan2.svg       ghosts.svg		   residue-info.svg               \
+azerbaijan.svg	      gln-asn-b-factors.svg	   rigid-body.png                 \
+calculate-ghosts.svg  gln-asn-b-factorssvg.svg	   rigid-body.svg                 \
+cell+symm.png	      glyco-structures.svg	   rotamers.png                   \
+cell+symm.svg	      gnome-run.png		   rotamers.svg                   \
+change-chain-id.svg   go-to-atom.svg		   rtz.png                        \
+chiral.png	      go-to-ligand.svg		   rtz.svg                        \
+chiral.svg	      gtk-connect-16.png	   scroll-wheel.svg               \
+connect-to-ccp4.svg   gtk-font.png		   secondary-structure.svg        \
+connect-to-oca.svg    gtk-open-16.png		   sequence-view.png              \
+connect-to-usf.svg    gtk-open-24.png		   sequence-view.svg              \
+connect-to-world.svg  gtk-open.png		   side-chain-180.png             \
+coot-0.6.1.png	      kevin.jpg			   side-chain-180.svg             \
+coot-0.6.png	      kevin-orig.jpg		   smiles.png                     \
+coot-0.7.png	      kleywegt.svg		   smiles.svg                     \
+coot-0.7-pre-1.png    map.svg			   spin-view.png                  \
+coot-favicon.png      merge-molecules.svg	   spin-view.svg                  \
+coot-icon.png	      mutate-auto-fit.svg	   stereo-view.svg                \
+coot-save.png	      mutate.svg		   stop.svg                       \
+coot-save-symm.png    panel-screenshot.png	   temperature.png                \
+crosshairs.png	      peptide-omega.png		   temperature.svg                \
+crosshairs.svg	      peptide-omega.svg		   torsion-general.svg            \
+delete.png	      phenixed.svg		   undo-1.png                     \
+delete.svg	      pink-pointer.png		   undo-1.svg                     \
+density-fit.svg       pink-pointer.svg		   unknown-blob.png               \
+diff-map.png	      plane-distances.png	   unknown-blob.svg               \
+diff-map.svg	      plane-distances.svg	   water-diff-map.svg             \
+display-manager.png   pointer-distances.png	   water-drop.svg                 \
+display-manager.svg   pointer-distances.svg

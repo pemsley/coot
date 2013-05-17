@@ -6986,13 +6986,26 @@ Thu Feb 21 12:34:18 GMT 2013
 
 OXT on multi-residue torsion:  OXT is left behind on rotation
 
-------------------
+----
 Wed Apr 17 16:47:04 UYT 2013
 
 
    o sc: lawerence and colman jmb 1993
 
    might be worth a look.
+
+
+----
+Thu May 16 13:29:43 BST 2013
+
+   Find areas of a map that should have model but do not:
+   
+   o make a partial model, run refmac, make a map, low res filter it,
+     mask out the protein parts that we have, fill big blobs with dummy atoms - zero occ
+     (these should be added to the partial model for sending back to
+     refmac).  Make dummy atoms 1.5A apart.
+
+   -> resulting map should have better density for the missing domain.  Does it?
 
 ------
 
