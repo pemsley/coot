@@ -94,7 +94,7 @@
       ;; (apply format port (cdr args))))
 
       ))
-	  
+
 
     (local-format #t "got args: pdb-in-filename: ~s, pdb-out-filename: ~s, mtz-in-filename: ~s, mtz-out-filename: ~s, imol-refmac-count: ~s, show-diff-map-flag: ~s, phase-combine-flag: ~s, phib-fom-pair: ~s, force-n-cycles: ~s, f-col: ~s, sig-f-col: ~s, r-free-col: ~s~%"
 	    pdb-in-filename pdb-out-filename
@@ -104,6 +104,9 @@
 	    phib-fom-pair
 	    force-n-cycles
 	    f-col sig-f-col r-free-col)
+    (format #t "########################### in run-refmac-by-filename refmac-extra-params: ~s~%" 
+	    refmac-extra-params)
+
 	
     (let* ((local-r-free-col (if (null? r-free-col) '() (car r-free-col)))
 		   ; need to check for f-col being a string or list
@@ -188,7 +191,7 @@
 			       ))
 			     (extra-params (get-refmac-extra-params))
 			     (extra-rigid-params (refmac-rigid-params))
-;			     (format #t "BL DEBUG:: extra rigid params ~s~%" extra-rigid-params)
+			     (noval (format #t "PE DEBUG:: extra params ~s~%" extra-params))
 			     (extra-ncs-params   (refmac-ncs-params))
 			     (extra-sad-params   (refmac-sad-params))
 			     )
@@ -208,8 +211,7 @@
 				    extra-sad-params
 				    (list labin-string)))))
 
-	  (nov (local-format #t "DEBUG:: refmac-extra-params returns ~s~%"
-		       (get-refmac-extra-params)))
+	  (nov (format #t "DEBUG:: refmac-extra-params returns ~s~%" (get-refmac-extra-params)))
 	  ;; this should be a database filename:
 	  ;; 
 	  (refmac-log-file-name (string-append 
@@ -220,10 +222,9 @@
 				 (number->string refmac-count) ".log")))
 
       (set! refmac-count (+ imol-refmac-count 1))
-      (local-format #t "INFO:: Running refmac with these command line args: ~s~%"
+      (format #t "INFO:: Running refmac with these command line args: ~s~%"
 	      command-line-args)
-      (local-format #t "INFO:: Running refmac with these data lines: ~s~%"
-	      data-lines)
+      (format #t "INFO:: Running refmac with these data lines: ~s~%" data-lines)
       (local-format #t "environment variable:  SYMOP: ~s~%" (getenv "SYMOP"))
       (local-format #t "environment variable: ATOMSF: ~s~%" (getenv "ATOMSF"))
       (local-format #t "environment variable:  CLIBD: ~s~%" (getenv "CLIBD"))
