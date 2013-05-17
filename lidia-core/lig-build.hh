@@ -381,7 +381,7 @@ namespace lig_build {
 			 DOUBLE_OR_AROMATIC=7,
 			 DELOC_ONE_AND_A_HALF=8,
 			 BOND_ANY=9 };
-   protected: // atom_1 and atom_2 get swaped when turning an IN_BOND to an OUT_BOND;
+   protected: // atom_1 and atom_2 get swapped when turning an IN_BOND to an OUT_BOND;
       int atom_1;
       int atom_2;
    private:
@@ -1401,6 +1401,23 @@ namespace lig_build {
 	    return atom_id_info;
 	 }
       } // end of make_atom_id_by_using_bonds()
+
+      bool delete_bond_between(int idx_1, int idx_2) {
+	 bool status = false;
+
+	 for (unsigned int ibond=0; ibond<bonds.size(); ibond++) { 
+	    int index_1 = bonds[ibond].get_atom_1_index();
+	    int index_2 = bonds[ibond].get_atom_2_index();
+	    if (idx_1 == index_1) { 
+	       if (idx_2 == index_2) {
+		  bonds.erase(bonds.begin()+ibond);
+		  status = true;
+		  break;
+	       }
+	    }
+	 }
+	 return status;
+      } 
 
       
       // write out the atom and bond tables:
