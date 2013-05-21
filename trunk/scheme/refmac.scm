@@ -306,7 +306,7 @@
 				    (swap-map-colours imol-mtz-molecule new-map-id))
 
 				;; set new map as refinement map
-				(if (valid-map-molecule? imol)
+				(if (valid-map-molecule? new-map-id)
 				    (set-imol-refinement-map new-map-id))
 
 				(if (= (get-refmac-used-mtz-file-state) 1)
