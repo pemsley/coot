@@ -265,7 +265,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
       check_dictionary_for_residue_restraints(SelResidues, nSelResidues);
 
 
-   if (1) {  // debugging.
+   if (0) {  // debugging.
       std::cout << "Selecting from chain id " << chain_id_1 << std::endl;
       std::cout << "selecting from residue " << iselection_resno_start
 		<< " to " << iselection_resno_end << " selects "
