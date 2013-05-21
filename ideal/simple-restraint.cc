@@ -3835,7 +3835,7 @@ int
 coot::restraints_container_t::make_monomer_restraints_by_linear(const coot::protein_geometry &geom,
 								bool do_residue_internal_torsions) {
 
-   std::cout << "------------------------ in make_monomer_restraints_by_linear() " << std::endl;
+   // std::cout << "------------------------ in make_monomer_restraints_by_linear() " << std::endl;
    
    int iret = 0;
    
