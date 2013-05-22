@@ -1506,7 +1506,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       // debugging atom selection
       // std::cout << "debug:: selected " << n_atoms << " atoms " << std::endl;
       // for (unsigned int iat=0; iat<n_atoms; iat++)
-      //    std::cout << "    " << atom_selection[iat]->name << std::endl;
+      // std::cout << "    " << iat << " " << atom_selection[iat]->name << " " << atom_selection[iat] << std::endl;
       
       for (unsigned int iat=0; iat<n_atoms; iat++) {
 	 clipper::Coord_orth co(atom_selection[iat]->x,
@@ -1533,7 +1533,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 	    for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
 	       for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
 		  if ( (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - co).lengthsq() < atom_radius_sq) {
-		     if (0) 
+		     if (0)
 			std::cout << "masked point at " 
 				  << iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()).format()
 				  << " centre point: " << co.format() << " " 
@@ -1554,14 +1554,18 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       int n = 0;
       for (ix = reference_map.first(); !ix.last(); ix.next()) {
 	 double x = calc_map[ix];
-	 double y = reference_map[ix];
-	 if (masked_map[ix]) {
-	    sum_x  += x;
-	    sum_y  += y;
-	    sum_xy += x * y;
-	    sum_x_sqd += x*x;
-	    sum_y_sqd += y*y;
-	    n++;
+	 if (! clipper::Util::is_nan(x)) { 
+	    double y = reference_map[ix];
+	    if (masked_map[ix]) {
+	       sum_x  += x;
+	       sum_y  += y;
+	       sum_xy += x * y;
+	       sum_x_sqd += x*x;
+	       sum_y_sqd += y*y;
+	       n++;
+	    }
+	 } else {
+	    // std::cout << "x for " << ix.coord().format() << " is " << x << std::endl;
 	 }
       }
 
@@ -1578,16 +1582,26 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 	 mapout_mask.export_xmap(masked_map);
 	 mapout_mask.close_write();
       }
-      
+
       double top = double(n) * sum_xy - sum_x * sum_y;
       double b_1 = double(n) * sum_x_sqd - sum_x * sum_x;
       double b_2 = double(n) * sum_y_sqd - sum_y * sum_y;
+      if (0) { 
+	 std::cout << ".... n is " << n << std::endl;
+	 std::cout << ".... sum_xy is " << sum_xy << std::endl;
+	 std::cout << ".... sum_x is " << sum_x << std::endl;
+	 std::cout << ".... sum_y is " << sum_y << std::endl;
+	 std::cout << ".... top is " << top << std::endl;
+	 std::cout << ".... b_1 is " << b_1 << std::endl;
+	 std::cout << ".... b_2 is " << b_2 << std::endl;
+      }
 
       if (b_1 < 0) b_1 = 0;
       if (b_2 < 0) b_2 = 0;
 
       double c = top/(sqrt(b_1) * sqrt(b_2));
-      // std::cout << "INFO:: map vs model correlation: " << c << std::endl;
+      if (0)
+	 std::cout << "INFO:: map vs model correlation: " << c << std::endl;
       ret_val = c;
    }
    mol->DeleteSelection(SelHnd);
