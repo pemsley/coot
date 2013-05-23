@@ -12,9 +12,10 @@
 # Note: setting IFS in a dash script causes problems (it splits on ts
 # and ns! (disaster)).
 #
-if [ -n "$BASH" ] ; then
-   IFS=$'\t\n'
-fi
+# now that we use "$@", we don't need this, I think
+# if [ -n "$BASH" ] ; then
+#    IFS=$'\t\n'
+# fi
 
 function apply_pending_install { 
 
@@ -241,8 +242,8 @@ fi
 # "Use $@ to stop word splitting" from Ben Eisenbraun.  But it doesn't work for me.  
 # this shell does not see the arguments as split, but coot does. Don't understand. Grrr.  
 # So the IFS up top stays.
-echo $coot_real $@
-$coot_real $@
+echo $coot_real "$@"
+$coot_real "$@"
 status=$?
 
 if [ $status != 0 ] ; then
@@ -255,4 +256,5 @@ if [ $status != 0 ] ; then
        $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real $*
     fi
 fi 
+exit $status
 
