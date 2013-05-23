@@ -317,7 +317,8 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
 
         gobject.timeout_add(1000,
                             post_run_refmac,
-                            imol_refmac_count, swap_map_colours_post_refmac_p,
+                            imol_refmac_count,
+                            imol_mtz_molecule, swap_map_colours_post_refmac_p,
                             show_diff_map_flag,
                             pdb_out_filename, mtz_out_filename, mtz_in_filename,
                             refmac_log_file_name,
@@ -337,7 +338,8 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
             return pdb_out_filename, mtz_out_filename  # return values
         else:
             # pass refmac_status as refmac_process!?
-            post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
+            post_run_refmac(imol_refmac_count,
+                            imol_mtz_molecule, swap_map_colours_post_refmac_p,
                             show_diff_map_flag,
                             pdb_out_filename, mtz_out_filename, mtz_in_filename,
                             refmac_log_file_name,
@@ -345,7 +347,8 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
                             phase_combine_flag, refmac_status)
 
 
-def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
+def post_run_refmac(imol_refmac_count,
+                    imol_mtz_molecule, swap_map_colours_post_refmac_p,
                     show_diff_map_flag,
                     pdb_out_filename, mtz_out_filename, mtz_in_filename,
                     refmac_log_file_name,
