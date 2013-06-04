@@ -70,7 +70,7 @@ if test x$with_python != x; then
      PYTHON_LIBS_PRE="-L`$PYTHON -c "$py_cmd"`"
    else 
      # normal execution proceeds..
-     PYTHON_CFLAGS="-DUSE_PYTHON `$PYTHON_CONFIG --include`"
+     PYTHON_CFLAGS="-DUSE_PYTHON `$PYTHON_CONFIG --includes`"
    # PYTHON_LIBS="-L/h/paule/build/lib/python2.2/config -lpython2.2 -lutil"
      config_dir=`$PYTHON -c "import sys; print sys.prefix + '/$acl_libdirstem/python' + sys.version[[:3]] + '/config'"`
      # echo  ======== config_dir: $config_dir
