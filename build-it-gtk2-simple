@@ -335,8 +335,10 @@
 # 5.01 20130429 mmdb version bump 1.25.2
 # 5.02 20130502 better diagnostic for goocanvas compile
 # 5.03 20130503 Remove SWIG version test (now it is not needed to build source)
-# 5.04 20130514 Add COOT_BUILD_INFO_STRING
-script_version=5.04
+# 5.04 20130514 Add COOT_BUILD_INFO_STRING.
+# 5.05 20130604 For Release 0.7.1, change release vs pre-release logic 
+#               (MRC server).
+script_version=5.05
 
 
 
@@ -362,12 +364,12 @@ script_version=5.04
 # At the moment, if you build with Gtk2, you build with python, hence $build_type 
 # is the same thing.
 # 
-if [ "$1" = "python" ] ; then 
-   ENABLE_PYTHON_COOT=yes
-   build_type=gtk2-python
-else 
+if [ "$1" = "no-python" ] ; then 
    ENABLE_PYTHON_COOT=no
    build_type=gtk2
+else 
+   ENABLE_PYTHON_COOT=yes
+   build_type=gtk2-python
 fi
 
 # Set the host and the OS.
@@ -396,7 +398,7 @@ AUTOBUILD_INSTALLED=${AUTOBUILD_INSTALLED:=${HOME}/autobuild/${OS}-${HOST}}
 # 
 # AUTOBUILD_BUILD=${HOME}/autobuild
 # I'm putting my build on "scratch space"
-AUTOBUILD_BUILD=${AUTOBUILD_BUILD:=/y/work/emsley/autobuild}
+AUTOBUILD_BUILD=${AUTOBUILD_BUILD:=$HOME/autobuild}
 
 # This is where the build logs go:
 # suggested value:
@@ -530,6 +532,7 @@ function post_install_slim {
        else
           echo $fat_dir/$file does not exist
        fi
+    echo done rsyncing.
     done
 }
 
@@ -1319,41 +1322,17 @@ if [ $build_coot_prerelease = yes ]  ; then
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
 fi
 
-coot_version_tmp=$(awk  ' /a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+coot_version_tmp=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
 $pre_release_files_html | tail -1)
+
+echo pre_release_files_html $pre_release_files_html
+echo coot_version_tmp : $coot_version_tmp :
 
 if [ -z "$coot_version_tmp" ] ; then
     echo clever coot_version extraction failed, using default.
 else 
     coot_version=$coot_version_tmp
-    echo setting coot_version to $coot_version from extraction
-fi
-
-
-# Are we doing a pre-release in York or biop?
-#
-# problem here? generic_prefix is not yet set.  What happens to coot_prefix?
-#
-domainname=`domainname`
-coot_prefix=
-if test -z "$build_coot_prerelease" ; then
-   if [ "$domainname" = "yorksbl" ] ; then
-       # we are in York, let's try the pre-release coot...
-       echo we are in York
-       build_coot_prerelease=1
-   fi
-   if [ "$domainname" = "biop" ] ; then
-      build_coot_prerelease=1
-   fi
-fi
-
-if [ "$domainname" = "yorksbl" ] ; then
-   # we are in York, let's test.  Always.
-   echo we are in York
-   run_tests=true
-fi
-if [ "$domainname" = "biop" ] ; then
-   run_tests=true
+    echo clever coot_version succeeded, setting coot_version to $coot_version from extraction
 fi
 
 
@@ -1367,18 +1346,29 @@ fi
 # directory later on.
 coot_prerelease_exists=
 
+# coot_version_pre no longer has .tar.gz extension
+
 if test "$build_coot_prerelease" = 1 ; then 
 
    ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir
-   coot_version_pre=$(awk  ' /a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; print file}' \
+   coot_version_pre=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
        ${AUTOBUILD_SOURCES}/index.html | tail -1)
 
    echo INFO:: building pre-release and coot_version_pre is $coot_version_pre
    if [ -z "$coot_version_pre" ] ; then
       # this path when there are no pre-releases to be built, i.e. build the latest release.
       echo trying to build pre-release coot, but failed to find pre-release version
+      echo make a stable release then
+      build_coot_prerelease=
       BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
       mkdir -p ${BINARY_TAR_DEST_DIR}/holding
+
+      ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
+      coot_version=$(awk  ' /a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+          ${AUTOBUILD_SOURCES}/index.html | tail -1)
+      echo coot_version $coot_version
+
+
    else
       build_coot_prerelease=1  # belt and braces
       coot_prerelease_exists=1
@@ -1388,8 +1378,8 @@ if test "$build_coot_prerelease" = 1 ; then
       else
          coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2 ${config_extras:-}"
       fi
-      coot_source_tar_file=$pre_release_server_dir/$coot_version_pre
-      echo DEBUG:: set coot_source_tar_file to $pre_release_server_dir/$coot_version_pre
+      coot_source_tar_file=${pre_release_server_dir}$coot_version_pre.tar.gz
+      echo DEBUG:: set coot_source_tar_file to $coot_source_tar_file
       coot_version=`echo $coot_version_pre | sed s/\.tar.gz//`
       BINARY_TAR_DEST_DIR=$NIGHTLY_DEST_DIR
       mkdir -p ${NIGHTLY_DEST_DIR}
@@ -1404,6 +1394,15 @@ else
 fi
 
 echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_DIR
+
+
+
+echo coot_version_pre is $coot_version_pre
+echo build_coot_prerelease: $build_coot_prerelease
+echo release_server_dir $release_server_dir 
+echo coot_version $coot_version
+
+
 
 # set the build prefix for installed stuff.  Put everything in the
 # pre-release directory if we are building a pre-release.
@@ -1878,7 +1877,7 @@ fi
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7.3
+pver=2.7.5
 
 if [ $ENABLE_PYTHON_COOT = yes ] ; then 
    $install_top_dir/bin/python -V
@@ -3105,6 +3104,10 @@ else
 fi
 
 
+###############################################################################
+##########         get Coot                                       #############
+###############################################################################
+#
 echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
@@ -3381,6 +3384,7 @@ if [ -e $LOGS/$build_type-test-status ] ; then
    rm $LOGS/$build_type-test-status
 fi
 # run test
+echo running tests...
 test_coot > $LOGS/$build_type-test.log 2>&1
 r=$?
 # run python tests too, maybe (i.e. if we build with python)
