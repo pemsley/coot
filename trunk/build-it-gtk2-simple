@@ -532,8 +532,8 @@ function post_install_slim {
        else
           echo $fat_dir/$file does not exist
        fi
-    echo done rsyncing.
     done
+    echo done rsyncing.
 }
 
 
