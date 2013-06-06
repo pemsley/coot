@@ -235,7 +235,9 @@
 #               update to LMB-MRC download locations
 # 1.13 14/05/13 Add COOT_BUILD_INFO_STRING
 # 1.14 14/05/13 remove install_top_dir before stable install
-script_version=1.14
+# 1.15 06/06/13 For Release 0.7.1, change release vs pre-release logic
+#               (MRC server)
+script_version=1.15
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -303,7 +305,7 @@ AUTOBUILD_INSTALLED=${AUTOBUILD_INSTALLED:=${HOME}/autobuild/${OS}-${HOST}}
 # 
 # AUTOBUILD_BUILD=${HOME}/autobuild
 # I'm putting my build on "scratch space"
-AUTOBUILD_BUILD=${AUTOBUILD_BUILD:=/home/bernhard/autobuild}
+AUTOBUILD_BUILD=${AUTOBUILD_BUILD:=$HOME/autobuild}
 
 # This is where the build logs go:
 # suggested value:
@@ -357,7 +359,7 @@ STABLE_DEST_DIR=${STABLE_DEST_DIR:=${HOME}/public_html/software/binaries/stable}
 # When we fail to extract the correct tar file from the web site, what
 # shall we build instead?
 #
-fallback_coot_version=coot-0.6.2
+fallback_coot_version=coot-0.7
 
 # ----------------------------------------------------------------
 #   End of tinkering with parameters.
@@ -423,6 +425,7 @@ function post_install_slim {
           echo $fat_dir/$file does not exist
        fi
     done
+    echo done rsyncing
 }
 
 
@@ -1043,43 +1046,19 @@ if [ $build_coot_prerelease = yes ]  ; then
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
 fi
 
-coot_version_tmp=$(awk ' /a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+coot_version_tmp=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
 $pre_release_files_html | tail -1)
+
+echo pre_release_files_html $pre_release_files_html
+echo coot_version_tmp : $coot_version_tmp :
 
 if [ -z "$coot_version_tmp" ] ; then
     echo clever coot_version extraction failed, using default.
 else 
     coot_version=$coot_version_tmp
-    echo setting coot_version to $coot_version from extraction
+    echo clever coot_version succeeded, setting coot_version to $coot_version from extraction
 fi
 
-
-# are we doing a pre-release in York?
-#
-# problem here? generic_prefix is not yet set.  What happens to coot_prefix?
-#
-#domainname=`domainname`
-domainname="yorksbl"
-coot_prefix=
-if test -z "$build_coot_prerelease" ; then
-   if [ "$domainname" = "yorksbl" ] ; then
-       # we are in York, let's try the pre-release coot...
-       echo we are in York
-       build_coot_prerelease=1
-   fi
-fi
-
-if [ "$domainname" = "yorksbl" ] ; then
-   # we are in York, let's test.  Always.
-   echo we are in York
-   run_tests=true
-fi
-
-if [ "$domainname" = "biop" ] ; then
-    run_tests=true
-
-fi
-echo BUILDING prelease variable $build_coot_prerelease
 
 # override the switch which turns off the building of the pre-release here:
 # build_coot_prerelease=1
@@ -1091,28 +1070,38 @@ echo BUILDING prelease variable $build_coot_prerelease
 # directory later on.
 coot_prerelease_exists=
 
+# coot_version_pre no longer has .tar.gz extension
+
 if test "$build_coot_prerelease" = 1 ; then 
 
    ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir
-   coot_version_pre=`egrep href ${AUTOBUILD_SOURCES}/index.html | sed -e 's/.*="//' -e 's/">.*//' | awk ' /^coot-[0-9]\.[0-9]+.*-pre.*\.tar\.gz$/ {  
-   last=$0 }
-END {
-   print last
-}
-'`
+
+   coot_version_pre=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+       ${AUTOBUILD_SOURCES}/index.html | tail -1)
+
    echo INFO:: building pre-release and coot_version_pre is $coot_version_pre
    if [ -z "$coot_version_pre" ] ; then
+      # this path when there are no pre-releases to be built, i.e. build the latest release.
       echo trying to build pre-release coot, but failed to find pre-release version
-      # this may actually be a stable release here
-      build_coot_prerelease=0
+      echo make a stable release then
+      build_coot_prerelease=
       BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
       mkdir -p ${BINARY_TAR_DEST_DIR}
+      mkdir -p ${BINARY_TAR_DEST_DIR}/holding  # not needed?!
+
+      ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
+      coot_version=$(awk  ' /a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+          ${AUTOBUILD_SOURCES}/index.html | tail -1)
+      echo coot_version $coot_version
+
+
    else
       build_coot_prerelease=1  # belt and braces
       coot_prerelease_exists=1
       # tinker with coot_prefix, it is generic_prefix with pre-release added to prefix dir
       coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2${build_type} ${config_extras:-}"
-      coot_source_tar_file=$pre_release_server_dir/$coot_version_pre
+      coot_source_tar_file=${pre_release_server_dir}$coot_version_pre.tar.gz
+      echo DEBUG:: set coot_source_tar_file to $coot_source_tar_file
       coot_version=`echo $coot_version_pre | sed s/\.tar.gz//`
       BINARY_TAR_DEST_DIR=$NIGHTLY_DEST_DIR
       mkdir -p ${NIGHTLY_DEST_DIR}
@@ -1125,6 +1114,15 @@ else
 fi
 
 echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_DIR
+
+
+
+echo coot_version_pre is $coot_version_pre
+echo build_coot_prerelease: $build_coot_prerelease
+echo release_server_dir $release_server_dir 
+echo coot_version $coot_version
+
+
 
 # set the build prefix for installed stuff.  Put everything in the
 # pre-release directory if we are building a pre-release.
@@ -3143,6 +3141,10 @@ else
 fi
 
 
+###############################################################################
+##########         get Coot                                       #############
+###############################################################################
+#
 echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT guile=$ENABLE_GUILE_COOT
 wincoot_version=${coot_version/coot-}
 if [ "$build_coot_prerelease" != 1 ] ; then 
@@ -3454,6 +3456,7 @@ if [ -e $LOGS/gtk2${build_type}-test-status.log ] ; then
    rm $LOGS/gtk2${build_type}-test-status.log
 fi
 # run tests
+echo running tests...
 test_coot_python > $LOGS/gtk2${build_type}-test.log 2>&1
 coot_test_status=$?
 gtk2=-gtk2

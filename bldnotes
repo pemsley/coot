@@ -350,6 +350,12 @@ low importance
 
 **** Python ****
 
+   o add user define restraints, make stay open option [Tim G]
+
+   o associate sequence: tick box for all chains
+
+   o fix guile translator, seems broken
+
    o views gui shows lots of "Play views" (one isnt enough?!)
 
    o views play is not interuptable?!
@@ -429,6 +435,8 @@ low importance
 
 
 **** Windows ****
+
+   o write installer to registry/installed programs etc.
 
    o load pdb problem with space and/or umlaut in path!?
 
