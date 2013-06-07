@@ -385,13 +385,13 @@ SectionEnd
 
 ; we dont want guile for now
 ; 2nd section for guile
-Section /o "Guile/Scheme Add-On" SEC02
-  SetOverwrite on
-  SetOutPath "$INSTDIR\bin"
-  File "${src_dir}-guile\bin\coot-real.exe"
-  SetOverwrite ifnewer
+;Section /o "Guile/Scheme Add-On" SEC02
+;  SetOverwrite on
+;  SetOutPath "$INSTDIR\bin"
+;  File "${src_dir}-guile\bin\coot-real.exe"
+;  SetOverwrite ifnewer
 ;  maybe here the other guile things?!
-SectionEnd
+;SectionEnd
 
 Section /o "Windows feel" SEC03
   SetOverwrite on
@@ -443,7 +443,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "This is 'default' WinCoot (${WinCootVersion}) $\n$\nPython scripting only"
 ; disable guile for now
 ;  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Tick if you want additionally $\nGuile/Scheme scripting"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Tick if you want a $\nWindowsy feeling to WinCoot"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC03} "Tick if you want a $\nWindowsy feeling to WinCoot"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 

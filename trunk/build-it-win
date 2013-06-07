@@ -623,7 +623,7 @@ if test "$run_tests" = true ; then
       return 1
    fi
 else 
-   echo run_tests is not true, not testing
+   echo run_tests is not true, not testing in python
    return 1
 fi
 
@@ -1175,6 +1175,7 @@ fi
 wincoot_exe=WinCoot-${wincoot_version}.exe
 if [ "$build_coot_prerelease" != 1 ] ; then 
     if [ -e "$install_top_dir" ] ; then
+        echo building new stable release, clean out old things from $install_top_dir
         rm -fr $install_top_dir
     fi
 fi
@@ -1380,6 +1381,8 @@ if type pkg-config ; then
    fi
 else
    echo pkg-config doesn\'t exist.
+   echo so should be build
+   build_pkg_config=1
 fi
 
 # This allows standard pkg-config to find gtkglext and several other things.
@@ -2173,7 +2176,7 @@ ${WGET} http://www.opengl.org/registry/api/glext.h
 ${WGET} http://www.opengl.org/registry/api/glxext.h
 ${WGET} http://www.opengl.org/registry/api/wglext.h
 cp ${AUTOBUILD_SOURCES}/glext.h  $install_top_dir/include/GL
-cp ${AUTOBUILD_SOURCES}/gxlext.h $install_top_dir/include/GL
+cp ${AUTOBUILD_SOURCES}/glxext.h $install_top_dir/include/GL
 cp ${AUTOBUILD_SOURCES}/wglext.h $install_top_dir/include/GL
 cd ${AUTOBUILD_SOURCES}
 ) >  $HOSTLOGDIR/05-freeglut.txt 2>&1
@@ -2364,7 +2367,7 @@ if test -n "$build_gtk" ; then
       7z x -y ${AUTOBUILD_SOURCES}/libtiff_${libtiff_version}_win32.zip
       7z x -y ${AUTOBUILD_SOURCES}/zlib_${zlib_version}_win32.zip
       7z x -y ${AUTOBUILD_SOURCES}/zlib-dev_${zlib_version}_win32.zip
-      cp  libjpeg-8.dll libjpeg-uchar-boolean-8.dll
+      cp  bin/libjpeg-8.dll bin/libjpeg-uchar-boolean-8.dll
       cd -
    else
        echo NOT BUILDING libpng
