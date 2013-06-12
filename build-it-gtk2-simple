@@ -338,7 +338,8 @@
 # 5.04 20130514 Add COOT_BUILD_INFO_STRING.
 # 5.05 20130604 For Release 0.7.1, change release vs pre-release logic 
 #               (MRC server).
-script_version=5.05
+# 5.05 20130612 More tinkering to get the correct version for release from the server.
+script_version=5.06
 
 
 
@@ -1364,7 +1365,8 @@ if test "$build_coot_prerelease" = 1 ; then
       mkdir -p ${BINARY_TAR_DEST_DIR}/holding
 
       ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
-      coot_version=$(awk  ' /a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+      echo examining release server files ${AUTOBUILD_SOURCES}/index.html
+      coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
           ${AUTOBUILD_SOURCES}/index.html | tail -1)
       echo coot_version $coot_version
 
