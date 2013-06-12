@@ -1,0 +1,19 @@
+#!/bin/tcsh
+
+set files=`find . -name "*.orig"`
+set patchfilelist=""
+
+foreach file ($files)
+	set modified=$file:r
+	set patchfile=$modified.patch
+	diff -u $file $modified > $patchfile
+	set patchfilelist = ($patchfilelist $patchfile)
+end
+
+if ("$patchfilelist" != "") then
+	echo master.patch created
+	cat $patchfilelist > master.patch
+else
+	echo no patches
+endif
+

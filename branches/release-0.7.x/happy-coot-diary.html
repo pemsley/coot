@@ -1,0 +1,945 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+      <head>
+	<title>The Happy/Coot Developer Diary</title>
+	<!-- Changed by: Paul Emsley, 18-Feb-2009 -->
+      </head>
+
+  <body>
+    <h1>The Happy Coot Developer Diary</h1>
+
+<hr>
+<p>Sat 25 Apr 11:43:21 2009 BST
+</p>
+
+<p>I've been trying to write papers and work on HAPPy in the previous
+7 or 8 weeks.  HAPPy is making slow progress, but I have not managed
+to get cphasematch to run (with some help from Kevin).  Raj and I
+spotted a bug (sort of) in BP3 when HAPPy gives it extreme resolution
+limits (well past the end of the anomalous data) BP3 it uses them.
+Silly HAPPy for giving non-sensible limits, perhaps. </p>
+
+<p>Anyway, back to Coot for a bit.  In rev 1965, I've fixed up a bug
+that prevented mutation of DNA.</p> 
+
+<p>Laptop upgraded to Jaunty yesterday (I've been running the beta for
+2 months or so).  Nothing much changed.  The new notifications are a
+bit ugly - being on a black background.</p>
+
+<hr>
+<p>Wed Feb 18 16:13:16 GMT 2009
+</p>
+
+<p>Other recent new stuff:
+
+<ul>
+<li>User-defined clicks
+</ls>
+<li>A new sequence view.
+</li>
+</ul>
+</p>
+
+
+<p>I've been working on symmetry and handling <a href="http://www.ebi.ac.uk/msd-srv/prot_int/pistart.html">PISA</a> output to represent interfaces and assemblies.  Still a lot to do here.  </p>
+
+<p>Oh, and I changed the splash screen to 0.6-pre (Fulica americana).</p>
+
+
+<hr>
+<p>Wed Feb 18 15:57:47 GMT 2009</p>
+
+<p>An update on last Thursdays bugs:</p>
+
+<ul>
+<li>The code now tests for the presence of menu tool bars to conditionally 
+    compile the Rotation/Translation toolbar code.
+</li>
+
+<li>Stuart McNicholas and I had quite a bit of back and forth and he
+    and I (mostly he)
+    bashed the dihedral angle code into shape so that we can now
+    rotate to the correct angle given an atom name spec quad.  Hooray.
+    This was combined with the abiltity to search only a given region
+    of the map.  This should advance ligand fitting in a known site.
+    Next time I give a ligand-fitting talk I'll have to update my
+    slides.  </li>
+
+<li>It turns out (I discover after picking over the documentation)
+    that the radio button group changes when you move from 2 items to
+    1 item in a group (and also from 1 to 0 obviously).  I also
+    discovered that you can use the group indirectly via a radio
+    button already in the group.  So that's what I did, and thus
+    deleted horrid ** pointer code.  Thus long-standing Display
+    Manager bug is dead - hoorah.
+</li>
+</ul>
+
+<p>Which still leaves the "terminal residue atoms as stars" bug.
+</p>
+
+<hr>
+<p>Fri Feb  6 21:44:16 GMT 2009
+
+<p>Failed to go to <a href="http://www.strubi.ox.ac.uk/">STRUBI</a>
+today because of snow (buses canceled).</p>
+
+<p>Worked on segids instead - and trying to fix this disconnect atoms
+problem (no solution yet, but it doesn't seem to be about segids).
+
+
+<hr>
+
+<p>Thu Feb  5 00:23:37 GMT 2009</p>
+
+<p>Frustrating day...</p>
+
+<p>Tried to fix 3 bugs: </p>
+
+    <ul>
+      <li>The non-compiling of the new Rot/Trans menu button on old
+      GTK+s </li>
+      <li>The settings of torsion angles for conformation generation in flexible ligands</li>
+      <li>The crashing bug due to the scroll button in the display manager.</li>
+    </ul>
+
+<p>I got none of them fixed. And it goes without saying that I didn't
+fix the "terminal residue as stars" bug previously mentioned...</p>
+
+<p>Grumpy.</p>
+
+
+
+
+<hr>
+
+<p>Wed 04 Feb 14:12:06 2009 GMT
+
+<p>I've changed the Rotate/Translate toolbar togglebutton to a menu
+toolbutton - this allows you to change the mode of the
+Rotate/Translate (choices of Residue Range, Chain and Molecule).
+Annoyingly though RHEL 4 is quite backwards so its GTK+ does not have
+menu toolbuttons.  So this is currently disabled for RHEL 4/CentOS
+4/FC 3.  This will need a work-around.  It works nicely for systems
+that have it though.
+
+
+<hr>
+
+<p>Mon 02 Feb 14:22:52 2009 GMT
+
+<p>Add terminal residue, for some reason has been mis-behaving for a
+while: when added, the new atoms show as disconnected "stars" (and also
+the atoms were missing in the output pdb file).  I didn't know what
+that was happening - but I knew that the previous release was OK.
+
+<p>So I wrote a test and did a binary search through the SVN
+repository.  I have not done this before for previous failures because
+it involves a tremendous amount of autogen/configure/compile/install -
+and never before have I thought it worth the time.  However, I have
+just been given a 4-core brute (actually the RHEL 4 machine mentioned
+below) and that made light work of the building.  Surprisingly quickly
+I found the faulty commit (1727) - unfortuately that turns out to be a
+big mash-up (a diff of 30,000 lines) of fixes/additions that I'd
+written while on holiday recently - without network access. OK, strike
+one for bazaar over subversion because using that I could have made
+more fine-grained commits without network access.
+
+<p>So, not out of the woods on this one yet.  However commit notes
+describe changes related to segids - I wonder if that is the
+problem...
+
+<hr>
+<p>Sun Feb  1 13:56:37 GMT 2009
+
+<p>Back hacking on items in the todo list.  
+
+<p>After an exchange on the CCP4bb and Coot mailing lists, I added
+distance to protein to the GUI for the water search.
+
+<hr>
+<p>Sat 31 Jan 2009 06:57:04 GMT
+
+<p>RHEL 4 64-bit binaries are now building (that's what I've been
+doing since Boston).  libtool was out of date, so it was picking up
+the wrong libGL at compile time for gtkglext and coot.  A new libtool
+fixes that.  (For more elegance, I should investigate using ltmain.sh
+instead of current fix.)
+
+<p>Also, I installed Fedora 10 on what previously was the Centos 4
+machine. I hope to virtual-box the CentOS 4 at some stage.
+
+<p>I spoke to Martin Noble recently and he pointed me to the right
+function to tweak to add partially-charged atoms to the electrostatic
+calculation.  So now we can have something like:
+
+<p>
+<a href="http://www.biop.ox.ac.uk/emsley/pictures/various/ala-surface.png"><img src="http://www.biop.ox.ac.uk/emsley/pictures/various/ala-surface-small.png" alt="ala surface"></a>
+
+<p>
+(this is alanine of course).  
+
+<p>The partial charges are read from the cif file for a given monomer
+type - and that includes HET ligands - so if your cif-file-generating
+program adds partial charges too you can do this to any monomer type.
+
+<p>Oh, to be fair, I should add that I faked the transparency by
+taking 2 images and using screen in the GIMP.
+
+<hr>
+<p>
+Wed 28 Jan 2009 20:03:40 GMT
+
+<p> Just back from the US - I was in the Boston Area - helping out (if
+that is the right word) teaching with Piotr Sliz.  
+
+<p>Man, Boston was cold.  Cold, cold, relentlessly cold.  When I got
+back it was 7 degrees and I thought it was comfortably warm. 
+
+<p>I did a brief talk to a few crystallographers at Harvard
+Medical School (Steve Harrison was away though).
+
+<p> Also, I made a presentation to the group(s) of Dagmar Ringe and
+Greg Petsko in Brandeis (Chris Miller was there too).  That was an
+enjoyable day - starting off with dim-sum and ending with chips and
+beer (via way of a very pleasant pat on the back).
+
+<p>I feel the need to try some French Caribbean rum at some stage.
+
+<p>I was recommemded to go to Zaftig's for dinner - so I did (it being
+a short walk to Coolidge Corner).  They provide complimentary toated
+bagel slices as you sit - never seen such a thing before.  It occured
+to me to wonder how they were made.  Surely not someone out the back
+with a sharp knife - no, that would be a very tedious job and anyway,
+there were simply too many to do.  So how did they make them then?
+With something like an boiled egg-slicer?  But surely that would just
+crush and tear a fresh bagel.  How about a ham slicer... well I
+suppose that might do, but you'd have to watch your fingers - I can't
+imagine that health and safety would approve of the method.  So I was
+stumped.
+
+<p>It turns out (of course, haha) that there is such a thing a bagel
+slicer - I discovered it later when I googled for "toasted bagel
+slices".
+
+<p> OK, on to technical issues:
+
+<p> "Sphere refinement" as it has been dubbed - seems to be a hit -
+although I do have one (unreproducable) report of it crashing.  I have
+since re-worked the residue selection part - hopefully that should
+stabilize things.  (I suspect a bug in mmdb actually.  These days I
+have a feel for how mmdb should work and in this part of code it is
+behaving.. well, let's call it "unconventially".)
+
+<p> I have added a <a
+href="http://www.ysbl.york.ac.uk/~emsley/coot/burn-up.png">graph</a>
+to the development binary build page.  The graph plots scope and
+progress through the todo list for the next release.  I knew that in
+previous release cycles I'd added "must fix" items to the scope and I
+wanted to trace how much doing so again would affect the release date
+this time round.
+
+<p>There is still a crashing bug in the delete molecule code - very
+annoying.  It is a "2-star" imperative programmimg problem - difficult
+to track.  It needs a boring day inside valgrind and I'm not rushing
+to do it.
+
+<hr>
+<p> 
+Fri Oct 31 22:15:36 GMT 2008
+</p>
+
+<p>
+So much time has passed.  Nothing said!
+
+<p>
+Today is Intrepid Ibex day.  Installed on the laptop - the only computer
+with some spare disk space.  I'm typing on it now.  Horrah! I like it!
+The wireless works without any fuss for the first time, restoring 
+from suspend only takes a few seconds now, rather than a minute or so.
+Me likey.  Now to install a load of good stuff... first things to 
+go on: tcsh, xemacs (this has been the way of my new computers for 
+the last 20 years).  Then svn, patch. 
+
+<p>
+Then coot build dependencies...
+
+<p>
+
+
+<hr>
+    <p>Fri Aug 15 16:01:12 BST 2008
+
+    <p>I noticed that the refinement Chi squared values were not being
+    added to the Accept/Reject dialog in the Gtk1 version.  So I have
+    fixed that.
+
+    <p>The restraints editor has been enabled for the Gtk 2.3 (Centos
+    4.6) version.
+
+    <p>I have at last moved over to using mmdb 1.11.  That involved a
+    non-backwardly-compatible change, so all the Coot builds need to
+    be built with mmdb 1.11 from now on.  The CISPEP test passes now -
+    horrah! (i.e. Coot checks and corrects the cispep cards when
+    writing out a PDB file now).
+
+    <p>Bernhard has enabled loop fitting backwards and forward in the
+    Python version and done something with the icons in the GTK+2
+    version.  Now they look blurry instead of pixelated :-).  But more
+    to the point, perhaps, GTK+2 Coot now fits on laptops screens
+    (including the <a
+    href="http://www.ysbl.york.ac.uk/~cowtan/coot/coot-eee.png">Eee
+    PC</a> according to Kevin).
+
+    <p>The Ramachandran restraints have had lots of testing - and
+    seeme to work just fine.  I need to find some test examples from
+    the PDB where Ramachandran restraints on loops would fix up
+    geometry - I need to get this sorted before going to the IUCr - I
+    have 6 days to write the talk.
+
+    <p>I went to see Arsenal vs Juventus and Hamburg vs Real Madrid at
+    the Emirates the other weekend.  It was good (Arsenal failed to
+    win however).
+
+<hr>
+    <p>Yay!  Ramachandran restraints work (or seem to for
+    me). Revision 1318.
+
+    <p>To turn them on, click Model/Fit/Refine -> Refinement Control
+    -> Ramachandran Restraints -> On.
+
+<p><A href="http://www.biop.ox.ac.uk/emsley/pictures/various/Ramachandran-restraints-in-action.png"><img src="http://www.biop.ox.ac.uk/emsley/pictures/various/Ramachandran-restraints-in-action-small.png" alt="Ramachandran angles refinement"></a>
+
+    <p>Obviously a bit faked-up, you can see the "fixed" atoms are in
+    the correct position, but this is showing you that there are
+    problems with the geometry... (you didn't want to see a "6 greens"
+    did you?)
+
+<hr>
+    <p>Yay!  The Centos machine builds Coot (revision 1298) - and the
+    tests pass - the binary tar is on the web site now.  It doesn't
+    compile completely out the box, I need to add the guile-gtk
+    patches to the build script.
+
+<hr>
+    <p>Tue 29 Jul 22:11:42 2008 BST
+
+    <p>Yep, the guile-gtk build failed.  I built it by hand and
+    installed it.
+
+    <p>But coot is still failing to build because it doesn't know not
+    to use the AboutDialog widget - which does not exist exist in GTK
+    version 2.4.13 - which is what exists on RHEL4 and CentOS4.6.
+
+<hr>
+    <p>Tue Jul 29 17:49:59 BST 2008
+
+    <p>Dell machine was booted! The "noprobe" option was needed, so it
+    didn't detect my mouse and I had to use text mode to install.  So,
+    it boots up now, it detected USB keyboard and USB mouse on
+    first-boot, but fails to run the screen at native resolution. DNS,
+    NIS and NFS all working - which is more important.  I am doing a
+    "yum update" as I type - 183 packages to be updated.
+
+    <p>I think that I should be able to run the autobuilder on it
+    tonight.  I expect guile-gtk to fail.
+
+<hr>
+    <p>Tue Jul 27 13:39:13 BST 2008
+
+    <p>Hoorah!  I eventually got display lists working with side by
+    side stereo.  Woop.  What a tangled web it was... the problem
+    fundamentally, was the when compiling the display lists, we have
+    to be in the correct GL context - and when there are side by side
+    view, there are 2 gl contexts.  Generally speaking, I like to keep
+    the interfaces as clean as possible, i.e. keep graphics and GL
+    variables/functions/classes out out ostensibly lower-level classes
+    (e.g. those to do with storing, representing and mapulating
+    molecules and maps).  However, when making display lists (a
+    molecule represenation issue, we need to know about the GL context
+    state (a graphics issue) so the hierarchy was inverted in this
+    case. Because of this, I had been doing a
+    "draw_main_graphics_window()" then
+    "draw_secondary_graphics_window()".  But when compiling the new
+    lists (e.g. on switch to stereo or changing the contour level) I
+    was not properly setting the context first.
+
+    <p> And of course, additionally we need to take care that when the
+    display lists are actually displayed, they use the correct GL
+    context to draw them in. 
+
+    <p>OK, done now.  Bill, your work-around can go - that should
+    speed things up on a Mac.
+
+
+<hr>
+    <p>Sat 26 Jul 14:38:31 2008 BST
+
+    <p>It seems that I am not the first to use the term "<a
+    href="http://www.ljudmila.org/chrt/pp/cz/laos/imagepages/image95.htm">multichicken</a>".
+
+
+<hr>
+    <p>Sat 26 Jul 14:33:59 2008 BST
+
+    <p>I forgot to mention that yesterday I took delivery of an (el
+    cheapo) Dell Inspiron 530.  I booted Vista to find the MAC address
+    so that it could be added to the network.  Very frustrating
+    experience trying to use the GUI to do this.  I gave up and
+    googled it.
+
+    <p>Google said that I needed to type "getmac".
+
+    <p>Hmmm...
+
+    <p>Well, after that I tried to install CentOS 4.6 on it.  No go,
+    though, it failed startup up the OS for the install (on the
+    "select language" page).  I wonder if it was anything to do with
+    APCI, and perhaps I should boot with the pci=noacpi flag.
+
+    <p>I'll give it another go on Monday.
+
+<hr>
+    <p> Fri Jul 25 21:54:48 BST 2008
+
+    <p>I've been in Holland this week - at Radboud University.  We
+    made some progress on the What-If to Coot interface.  It looks
+    quite cute, I think.  It currently seems to me that we have been a
+    little gung-ho with the "Fix it" button - it is not clear what
+    fraction of the problems can be usefully fixed with the "Fix it"
+    function. We shall see - and of course it is possible that the
+    "Fix it" function can get more sophisticated.
+
+    <p>Also the paucity of the refinement residue selection protocol -
+    particularly with reference to carbohydrates, was brought home to
+    me by Thomas Lütteke.
+
+    <p>So on the way home, I spent my time at Dusseldorf airport
+    adding in a parser for chem_links and mod_lists from the Refmac
+    library [1].  That job was substantially assisted by Ryanair
+    cancelling the flight after one of the tugs rammed into the plane
+    as we were about to board.  "Go away for 3 and a half hours", they
+    said.
+
+    <p>It goes without saying that they didn't play their jaunty
+    buggle jingle when we eventually landed...
+
+    <p>Didn't get home until about 3am.  Baah.
+
+    <p>[1] (OK, so I did watch a bit of X-Files too.)
+
+
+<hr>
+    <p>Wed 16 Jul 16:10:15 2008 BST
+
+    <p>Much head-scratching over torsion restraints failing.
+
+    <p>I eventually tracked it down to failing when there was a PRO in
+    the residue selection.  Why should PRO be a problem? (I thought)
+    Let's look at the torsion definition in PRO.cif:
+
+<pre>
+ PRO      chi1     N      CA     CB     CG       -25.000   15.000   3
+ PRO      chi2     CA     CB     CG     CD        35.000   15.000   3
+ PRO      chi3     CB     CG     CD     N        -30.000   15.000   3
+</pre>
+
+    <p>Ah, there we go, it's a circular sytem of chi angles.  Bleugh.
+    It causes my minimizer to collapse in a heap.
+
+    <p>OK, turn off torsion refinement for prolines then.  (Maybe I
+    should have included just chi1 - but I didn't). So here are the
+    numerical and analytical torsion gradients for a residue selection
+    including a PRO:
+
+<p><A href="http://www.biop.ox.ac.uk/emsley/pictures/various/Screenshot-PRO-torsions-improved.png"><img src="http://www.biop.ox.ac.uk/emsley/pictures/various/Screenshot-PRO-torsions-improved-small.png" alt="residue selection with PRO torsion gradients"></a>
+
+    <p>Yay!  Clean.
+
+
+<hr>
+    <p>Tue 15 Jul 22:52:54 2008 BST
+
+    <p>One step forward, 2 steps back.  Some progress was made with
+    the Ramachandran restraints. However, I still can't make the
+    numerical and analytical gradients match - despite hours of
+    staring at the code and sketching out what is going on in
+    pencil...  Baah.  
+
+    <p> It seems that the torsions might be broken - the numerical vs
+    analytical gradients have the measles (of course it should be an
+    "uninfected" straight line otherwise the refinement goes unstable
+    - "line search abandoned", that sort of thing). (And of course
+    torsions restraints are a pre-requisite to Ramachandran
+    restraints.)
+
+<p><A href="http://www.biop.ox.ac.uk/emsley/pictures/various/Screenshot-torsion-gradients.png"><img src="http://www.biop.ox.ac.uk/emsley/pictures/various/Screenshot-torsion-gradients-small.png" alt="torsion gradients"></a>
+
+    <p>Oh well, another bash at it tomorrow...
+
+
+<hr>
+    <p>Fri Jul 11 00:46:02 BST 2008
+
+    <p>Well it turns out that I did add some test code, not as much as
+    I would have liked, but I spent time fixing some GUI problems.
+    More Rama testing tomorrow.
+
+<hr>
+    <p>Thu 10 Jul 11:10:39 2008 BST
+
+    <p>Yesterday, I was testing conformation generation for flexible
+    ligands.  That looked OK. I think when there are bonding problems
+    from using this algorithm, that occurs because Coot is sampling
+    angles from torsions in a ribose or some other ring system.  It
+    seems to me that these torsion angles should not be allowed to be
+    sampled.  But that is not something that Coot should make a
+    decision about.  Not today, anyway.
+
+    <p>Today is for putting in place test code for phi/psi angles and
+    ramachandran plot probabilities... i.e. I am beginning to tackle
+    the addition of Ramachandran restraints in real space refinement.
+
+    <p>"At long last" - you might say.
+
+    <p>(Hmmm).
+
+
+<hr>
+    <p>Mon 07 Jul 16:28:37 2008 BST 
+
+    <p>OK, rotamer probabilities for residues with alt confs can be
+    put to bed.  Horrah.
+
+<p><A href="http://www.biop.ox.ac.uk/emsley/pictures/various/alt-confed-rotamers.png"><img src="http://www.biop.ox.ac.uk/emsley/pictures/various/alt-confed-rotamers-small.png" alt="image or rotamer plot comparison - with fixed blocks for residues with alt confs"></a>
+
+    <p>The block for 72 B has gone away to almost nothing.
+
+
+<hr>
+    <p>Mon 07 Jul 03:02:15 2008 BST
+</p>
+    <p>
+      Today, I will try a 4th attempt and returning a variable number
+      of probabilities for each residue. The current rotamer/chi angle
+      code is a mess - the worse part of coot source, this is partly
+      due to Dunbrack rotamer legacy.  I had wanted to keep Dunbrack
+      rotamers as a compile time option.  I may ditch that idea to
+      keep new code cleaner.
+    <p>
+<hr>
+<P>
+Thu Jul  3 17:30:32 BST 2008
+</P>
+<P>
+  Rotamer probabilities are not as plain sailing as I'd though.  If
+  you look carefully at the image posted yesterday, you will
+  notice that we now get a "missing atoms" block for residue 72 B in
+  the new version, whereas we has nothing of note there previously.
+  This is caused by the extra atoms due to alt confs making the
+  rotamer unrecognisable.  I suppose that I need to extend the
+  analysis to provide a variable number of probabilities for each
+  residue.
+ </P>
+
+<hr>
+    <p>Wed 02 Jul 14:07:57 2008 BST
+
+    <p>Here's a bit of fun: multi-chicken.  This makes multiple
+    representations of the map in varying colours.  You need a decent
+    graphics card to work with it though.
+
+<p><A href="http://www.biop.ox.ac.uk/emsley/pictures/various/multi-chicken.png"><img src="http://www.biop.ox.ac.uk/emsley/pictures/various/multi-chicken-small.png" alt="image or rotamer plot comparison"></a>
+
+<hr>
+    <p>
+      Wed Jul  2 07:08:46 BST 2008
+    <p>
+      OK, so the reading of the probability tables at start-up is just
+      too slow to be tolerated - I will change it so that it is read
+      when needed - which will slow down the first rotamer probability
+      plot (instead).
+    <p>
+      Here's the old and new rotamer probability plot compared. 
+<p><A href="http://www.biop.ox.ac.uk/emsley/pictures/various/rotamer-probabilites-both.png"><img src="http://www.biop.ox.ac.uk/emsley/pictures/various/rotamer-probabilites-both-small.png" alt="image or rotamer plot comparison"></a>
+      <p> Much better signal to noise now.  All the large blocks in the new
+      plot are genuine problems - with the exception of a ARG rotamer
+      at 0.17% probability (which probably is not problematic, I
+      think). Implemented in revision 1193.
+
+<hr>
+    <p>Mon 30 Jun 14:45:56 2008 BST
+    </p>
+
+    <p>Back from France.  Back hacking on rotamer probabilities. I've
+    added the rotamer tables to the distribution now.  It bulks up the
+    tar file and slows down the startup of coot.</p>
+
+    <p>We have enabled running "Refmac with no labels" in the scheme
+    version (the python version has had it for a while).  Cool.  Now
+    if only ccp4i would listen to Coot, people might actually use
+    this Refmac interface...</p>
+
+<hr>
+<p>Tue Jun 24 12:52:18 BST 2008
+
+<p>ARP/wARP loopy day today.  Which means an XML day, largely.  I
+decided that using the <a
+href="http://okmij.org/ftp/Scheme/xml.html">SXML</a> interface was the
+way to go.  And the consequence of that is that we need another
+dependency, guile-lib.  It's good for the soul.  I have added this
+to the autobuilders.
+
+<hr>
+<p>Tue 24 Jun 00:46:23 2008 BST
+
+<p>As you may know - over the past year or so, there is a timer in
+Coot, which after a certain amount of time lets you know that a new
+version of Coot is available.  Coot does not "phone home" to find this
+information, I just guess, at release time, when there will be a new
+version out at a particular future date - and I give myself several
+months margin.  However, with 0.5 slipping, that date is fast
+approaching (end of July, if you look it up) for the 0.4 series.  So
+I'd like a new release out by then or else Coot will say "Get a new
+Coot" - but there will be no new Coot available.  And that will be
+bad.
+
+<p>I've been attacking the TODO list for 0.5 these past 10 days or so.
+Currently it's at 11 items.  Several of those depend on MMDB PDB 3.0
+support and it seems (fingers crossed) that that may actually get
+released in the foreseeable future.
+
+<p>Then there are the two big ones, Ramachandran restraints and
+correction of the rotamer probabilities.
+
+<p>I now have 3 probability distributions for the Ramachandran
+restraints.  I'd like to make all 3 available, so the user can choose.
+The Otwinowski parameterization is the most elegant (and least
+straightforward). Without testing them yet, my feeling is that there
+will not be much to choose between them. We'll see.
+
+<p>The rotamer probability distributions are from the Richardsons - I
+brought them back with me recently.  I am not sure how to distribute
+them - they are 45Mb or so.  My estimate is they can be properly
+integrated into Coot in less than 20 hours work.
+
+<p>Going to France for a wedding next week, which will remove any
+slack that I might have had in the release schedule...  Hey ho.
+
+<p>Recent additions: Map Transformation by LSQing models, align&mutate
+function cleaned up (so that, amongst other things, Add Terminal
+Residue knows what residue type it should be), stereo map drawing
+issues addressed, updates for GCC 4.3, MSE rotamers in Alt Confs, NCS
+chain skipping with hetero-dimers fixed. (Mac distro has taken a
+back-seat).
+
+<hr>
+<p>Sat 14 Jun 00:57:14 2008 BST
+
+<p>First "restful" week in ages.  Since the start of this year I have
+been to Reading (CCP4 Study Weekend) Abingdon (CCP4 developers
+meeting), Boston (Harvard Medical School, SBGrid Workshop), London
+(CCP4 Working Group II), EBI, Cambridge (Validation Workshop), Oulu,
+Finland (CCP4 Workshop) India (Bangalore (CCP4 Workshop)), Chennai
+(Internation Symposium on the Advances in Structural Biology), Beijing
+(CSHL Course-China), Knoxville (ACA), Duke (chez Richardsons).  And
+that has not left me much time to work (or write it up here).  And
+foolish me, (as I've said before) I forgot to account for these
+meetings when I scheduled the release of 0.5.  So now 0.5 is way
+overdue.  And I become anxious about hitting the deadline for
+1.0. Hmm.  Well maybe I'll just have to let it whoosh by...
+
+<p>I always like the ACA, but this year it was particularly quiet, I
+thought.  Not much action at the CCP4 stand.  A few people came over
+and said hello, which I appreciated.
+
+<p>I don't think putting trout in an underground lake is a good idea
+- not for the fish anyway.
+
+<hr>
+<p>Fri 13 Jun 15:20:50 2008 BST
+
+<p>Back from the ACA. I came back from Knoxville with Jane and David
+Richardson and spent the next day in their lab. Making plans.
+Mini-RSR as a python extension - that would be useful.  Not sure how
+to handle clipper objects (e.g. an Xmap) and coot objects
+(e.g. restraints) from python though.  I'll look at it after 0.5 is
+out.
+
+<p>Also it seemed an easy addition to include a pucker checker into
+Coot after the method described in their Molprobity paper (Davis et
+al. (2007) Molprobity: all atom contacts and structure validation for
+proteins and nucleic acids, Nucleic Acids Research 35, W375-W383).
+
+<p>It was indeed pretty easy and the result is called "Pukka Puckers?" 
+and now lives in the Validation menu.
+
+<p>After talking to Herb Klei at the ACA I added cheap "Active Site
+Hilighting".  This lives in the Extensions for now.  Here is an example:
+
+<p><A href="http://www.biop.ox.ac.uk/emsley/pictures/various/Active-Site-hilighting.png"><img src="http://www.biop.ox.ac.uk/emsley/pictures/various/Active-Site-hilighting-small.png" alt="image of Active Site Highlighting"></a>
+
+<p>
+
+<p>The Mac build (from May) worked fine. I have not yet gotten around
+to making a stand-alone binary tar from it though.
+
+<p>After coming back from the SBGrid Workshop, I am interested in ray
+tracing and how to get that in to Coot.  There is no easy way to add a
+ray tracer - which is slightly annoying, there are lots of ray tracers
+but none of them fit the bill.  Yafray might be the best of the bunch.
+Its documentation is terrible though.  And it seems to be dead or in
+stasis for a couple of years.  Hmm...
+
+
+<hr>
+<p>Tue May 20 20:18:04 BST 2008
+
+<p>Fixed up the flying hydrogens problem today (apparent after
+undoing).
+
+<p>Things are moving forward on the Mac front... I am doing a fink
+install coot as we speak.  I intend to use that in the daily builds
+and put the Mac snapshot pre-released on the web site too.
+
+<p>YSBL web site has been down today causing some disgruntlement
+amongst users who want their (daily? :) dose of fresh Coot.
+
+<p>Hardy comes with a GCC 4.3 for testing.  4.3 is not happy with way
+mmdb is used in Coot.  I am corresponding with Eugene Krissinel about
+how to resolve this.
+
+
+<hr>
+<p> Sat May 17 11:40:47 BST 2008 
+
+<p>Back from Boston/Harvard and Beijing.  Lots of mails to deal with.
+
+<p>As a result of this trip, I am much more committed to getting things
+working on the Mac.  I think I will make a stand-alone "coot-only" 
+fink-based installation.
+
+<p>Both Harvard Medical School and the Institute of Biophysics
+(Beijing) tutorials were completely Mac-based.  In the Coot tutorials
+at the IBP, the X11 on the Macs crashed about 30 times in a 3hr
+session. Not good.  Bad, in fact.
+
+<p>Something interesting (for me) became apparent.  Several of the
+students on the course had used Coot before, and they fired up Coot
+and loaded the tutorial files and started doing the modifications
+faster than I'd seen before at other tutorials.  However, as soon as
+we started talking about features that were not completely
+discoverable (e.g. single atom drag, over-dragging, auto-zone) the
+pace slowed down dramatically.  Hit a brick wall in fact.  These
+features are extensively described in the documentation, but these
+Coot users just didn't know about them.  So I need to think about
+making them more obvious.  If possible.
+
+<p>Having tried a recent Coot on the Mac though, I did discover a
+couple of problems with display lists - and fixing one of those caused
+a resolution of the testing problems on the Ubuntu build host.  So
+that is cleaned up at last, hoorah.
+
+<p>I installed Hardy this morning, I am typing this on Hardy now (in
+vi - as I am waiting for xemacs to download and install).  Also,
+installing Coot dependencies to see if compiz is compatible with Coot
+yet....
+
+<p>Baah, no.  It isn't.  Lot's of flashing/blanking of the windows and
+misdrawing of the z-order.  OK, desktop effects off :-(.
+
+<p>But at least I can use xemacs now.
+
+<p>Incidentally, the ability to display the key bindings in a GUI was
+a hit, it seems.
+
+<p>Coot compiles out of the box on Hardy (GCC 4.2.3).
+
+<hr>
+<p>Sat May  3 11:39:54 EDT 2008
+
+<p>The static key bindings are now displayed in a dialog.
+
+<hr>
+<p>Sat May  3 11:39:44 EDT 2008
+
+<p>Now that the web page build analyser is in place (how did I live
+without it?), it has become necessary for me to more frequently be
+able to build Coot on the old/standard Coot machine (GTK1 with Python
+on Red Hat 8).  I've been wanting to be able to do the build "from a
+one-liner" for a long time, the "build status " web page was the thing 
+that broke the camel's back (as it were) and I decided to put some 
+effort into making it happen.
+
+<p>Previously, I'd been logging in through the firewall to the build
+host and running the command there - slightly tedious.  Now, I knew that 
+expect can handle that sort of thing for us.  However, I was not going to program
+in tcl - no way, so the Don Libes version was not an option.  What's
+left? Guile.  Let's give that a go.
+
+<p>So, I tried for about an hour or so - probably more - but was not
+making headway.  The documentation was spare and only a few
+examples. There seemed to be some problem with pseudo terminals over
+ssh.
+
+<p>OK, what else? Python?  Python has expect?
+
+<p>(google google).. oh yes, it does.  Pexpect, it's called.
+
+<p>Within 20 minutes of downloading it, I'd got it doing just what I
+wanted.  Pexpect was trivial to install, fully featured, well
+documented and easy to use.  The result was just a few lines of code,
+in fact.  I grudgingly admit that python/pexpect was a much better
+solution than using guile.
+
+<hr>
+<p>Thu May  1 01:18:05 BST 2008
+
+<p>Builds back to normal... (although the build hosts are dropping
+like flies (now the RFC6 machine has gone west)).
+
+<p> The key bindings - which are dynamic, of course - can now be
+displayed in a gui dialog that is activated from the Extensions menu.
+I need to add the static key bindings there too, I think.
+
+<p>Bernhard and I are experimenting with/implementing a system to call
+python functions from scheme and vice versa.  And have the return
+values converted in the process.  The new side chain assignment
+interface that he wrote (in Python) will be used that way.
+
+<p>I write this from a bed and breakfast bed near Harvard Yard - I
+flew to Boston today. Easy trip.  Now, I discover, immigration wants a
+to scan all fingers for finger prints...
+
+<hr>
+<p>Sun 27 Apr 11:05:44 2008 BST
+
+<p>Oh, ha!  This is what I saw on checking the builds this morning:
+
+<p> <a
+href="http://www.biop.ox.ac.uk/emsley/pictures/various/Build-Summary-bad.png"><img
+src="http://www.biop.ox.ac.uk/emsley/pictures/various/Build-Summary-bad-small.png"></a>.
+
+<p>Yikes! a screen full of failure.  I'd forgotten to update the test
+for key-bindings (I'd changed the function so that the bindings take a
+name string, but not also updated the test). Fixed now.
+
+<p>Sad to say I won't have much time to examine non-trivial items on
+the TODO list for 0.5 until after the ACA.  I guess I'll have to push
+back the release again.  I hadn't sufficiently accounted for
+meetings/courses and other things.  Baah.
+
+
+<hr>
+<p>Sat Apr 26 05:01:19 BST 2008
+
+<p>Leaving for home in a couple of hours.  Looking forward to getting
+back and trying Hardy (I'll have to wipe out an Edgy to do it).
+
+
+<hr>
+
+<p>Fri Apr 25 22:12:16 BST 2008
+
+<p> Just finished Finnish Bioxhit course (Oulu).  Was good (for me at
+least).  I utterly broke the key bindings in the last presentation (in
+an attempt to make a GUI that displayed them).  Bah.  With just one
+minute more preparation, I could have fixed it.  Anyway, it works now
+(of course) and has been added to the Extensions menu.
+
+<p>I have some photos somewhere.
+
+<p>The Fedora Core 6 binaries are no longer being built - that's
+because the FC6 machine in York was upgraded to a F8 machine :-(.
+
+<p>Also, possibly found why the Coot binaries became very unportable
+when python was introduced.  Needs testing.
+
+<p>After about 2 years of being broken, I fixed up the script that
+converts svn to source code tar file while I was here (a stupid typo
+in setting $PATH).
+
+<p>However, the release (0.5) critical features list has not been
+reduced in about a month.  Badness, I've had to push back the release
+date a month.
+
+<p>I note that Bernhard has done something interesting with the icons
+in the python extensions and I hope/think that this makes them
+anti-aliased.  It would be nice to get the currently ugly icons fixed
+up at last.
+
+<hr>
+<p>Fri Mar  7 17:57:17 GMT 2008
+
+<p>I gave up trying to compile Gtk2+ from scratch.  Just too hard.
+Now the build system of Coot requires Gtk+ 2.4 or better.  That seems
+to be doing the trick.  I am using the "simple" build script to build
+Fedora Gtk2 binaries in York.
+
+<p>The molecule array to molecule vector transformation was a success.
+Thank goodness for the test suite, which tripped over most of the bugs
+(not all, it must be said).
+
+<p>Recently, I have added Scheme and python interfaces to the getting and
+setting of the monomer restraint information.  It was easier than I
+thought it was going to be, (I expected it to be tricky and lengthy,
+and in fact is was just lengthy).  Now this needs a GUI, which again I
+suspect will be both lengthy and tricky to implement (taking more than
+a day).
+
+<p>"Additional Representations" are in the works too - this has taken a
+bit of internal surgery - as I suspected, but it is OK elegance-wise.
+I've currently got it working from the scripting layer.  Now I need to
+create a gui so that the user can define a new representation by
+filling in entry boxes.  Also, a gui to remove (undisplay)
+representations.
+
+<p>Also, the key binding mechanism has changed today.  Now there is an
+external function add-key-binding which adds [a key number (currently)
+and a thunk] to an association list (*key-bindings*).  Now
+graphics-general-key-press-hook tests the key vs the association
+list.  Much cleaner.
+
+<p>Yesterday, I added a function "Save dialog positions" which saves a
+state file and extracts from that the dialog positions and adds them
+to the .coot file in $HOME.
+
+<p>I learnt the other day of a Chemical Components dictionary
+distributed by the PDB.  I tried to get Coot to read it (it has more
+than 5000 entries and over 1 million lines) but it failed.  That was
+due to a line length limitation in mmdb's mmCIF parser it turned out.
+Hopefully that will be resolved soon.  When it is, we will be able to
+instantaneously (more or less) beam in any of those Components.
+That'll be cool...
+
+<p>We have a new splash screen for 0.5-pre.  From an actual photograph.
+
+<hr>
+<p>Thu 31 Jan 14:15:27 2008 GMT
+
+<p>Back to "blogging", now that new system arrangements are somewhat
+better.
+
+<p>Two major projects going on at the same time.  One is to move the
+molecules array to a vector.  Which means that there is no limit now
+to the number of molecules that you can display.  Previously there was
+a fixed limit of 50, and Coot would try to dynamically resize if you
+went over that limit.  That was inelegant.  I've been meaning to do
+this change for years.
+
+<p>The other project is to get "Gtk+2 + python" binaries to autobuild.
+What an utter pain this is turning out to be.  The package stack to
+get Gtk+2 to build is about 10 packages (and counting) of twisty
+inter-dependencies.  The dependencies for PyGtk are only slightly
+better.  And I'm trying to get this to build from one script across
+all platforms. Very tedious.
+
+    <hr>
+    <address><a href="mailto:paul dot emsley at bioch ox ac uk">Paul Emsley</a></address>
+<!-- Created: Fri Jul 15 09:20:45 BST 2005 -->
+<!-- hhmts start -->
+Last modified: Thu Feb  5 19:12:25 GMT 2009
+<!-- hhmts end -->
+  </body>
+</html>

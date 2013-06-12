@@ -1,0 +1,19 @@
+
+How are carbohydrates handled in Coot?
+
+Monomer restraints
+
+Link restraints, including N and O links (how does the library handle these?)
+
+Link restraints between monomers - link searching.  Why?  Because LINK
+cards are often wrong or missing (this was even more so before the
+recent remediation of the PDB) and don't provide a description of the
+link type.
+
+Glyco-tree searching - is this a standard tree? oligomannose, complex and hybrid.
+
+Tree-dependent, position-dependent "next residue type and link" selection.
+
+Density fitting, alpha 1-6 problems. Candidate model, conformation
+selection, trans, gauche(+), gauche(-).
+

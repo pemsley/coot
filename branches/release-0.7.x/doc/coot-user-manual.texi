@@ -1,0 +1,4989 @@
+\input texinfo   @c -*-texinfo-*-
+
+@c @input palatino
+
+@c %**start of header
+@setfilename coot.info
+@settitle The Coot User Manual
+@c %**end of header 
+
+@dircategory The molecular graphics application Coot 
+@direntry
+* Coot: (coot-user-manual).  The Coot User Manual.
+@end direntry
+
+
+@c needs documenting:
+@c void set_unpathed_backup_file_names(int state);
+@c int  unpathed_backup_file_names_state();
+@c miguel's axes
+
+@c Part 2: Summary Description and Copyright
+
+@c A real manual includes more text here, according to the license under
+@c which it is distributed. See GNU Sample Texts.
+
+@c @copying is not understood by tex2dvi on bubbles - Grrr! FIXME
+@c @copying
+@c @end copying
+
+@c Copyright @copyright{} 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Paul Emsley
+
+@c Part 3: Titlepage, Contents, Copyright
+
+@c The titlepage segment does not appear in the online output, only in the
+@c printed manual. We use the @insertcopying command to include the
+@c permission text from the previous section, instead of writing it out
+@c again; it is output on the back of the title page. The @contents command
+@c generates a table of contents.
+
+@titlepage
+@title The Coot User Manual
+
+@flushright
+Paul Emsley 
+@email{paul dot emsley at bioch dot ox dot ac dot uk}
+@end flushright
+
+@vskip 10mm
+
+@image{coot-plain-2,127mm}
+
+     
+@c The following two commands start the copyright page. 
+@page
+@vskip 0pt plus 1filll
+@c @copying is not understood by tex2dvi on bubbles - Grrr!
+@c @insertcopying
+@end titlepage
+     
+@c Output the table of contents at the beginning.
+@contents
+
+@c Part 4: `Top' Node and Master Menu
+
+@c The `Top' node contains the master menu for the Info file. Since the
+@c printed manual uses a table of contents rather than a menu, it excludes
+@c the `Top' node. We also include the copying text again for the benefit
+@c of online readers. Since the copying text begins with a brief
+@c description of the manual, no other text is needed in this case. The
+@c `@top' command itself helps makeinfo determine the relationships between
+@c nodes.
+
+@ifnottex
+@node Top
+@top Coot User Manual
+@c @insertcopying : FIXME see above.
+@end ifnottex
+
+@menu
+* Introduction::
+* Mousing and Keyboarding::
+* General Features::
+* Coordinate-Related Features::
+* Modelling and Building::
+* Map-Related Features::
+* Validation::
+* Representation::
+* Hints and Usage Tips::
+* Other Programs::
+* Scripting Functions::
+* More Scripting Functions::
+* Scheme Scripting Functions::
+* Concept Index::   Concept index.
+* Function Index::   Function index.
+
+@detailmenu
+ --- The Detailed Node Listing ---
+
+Introduction
+
+* Citing Coot::
+* What is Coot?::
+* What Coot is Not::
+* Hardware Requirements::
+* Environment Variables::
+* Command Line Arguments::
+* Web Page::
+* Crash::
+
+Mousing and Keyboarding
+
+* Next Residue::
+* Keyboard Contouring::
+* Mouse Z Translation::
+* Keyboard Z Translation::
+* Keyboard Zoom and Clip::
+* Scrollwheel::
+* Selecting Atoms::
+* Virtual Trackball::
+* more on zooming::
+
+General Features
+
+* Version number::
+* Screenshot::
+* Raster3D::
+* Display Manager::
+* The Modelling Toolbar::
+* The file selector::
+* Scripting::
+* Backups and Undo::
+* View Matrix::
+* Space Group and Symmetry::
+* Recentring View::
+* Views::
+* Clipping Manipulation::
+* Background colour::
+* Unit Cell::
+* Rotation Centre Pointer::
+* Orientation Axes::
+* Pointer Distances::
+* Crosshairs::
+* 3D Annotations::
+* Frame Rate::
+* Program Output::
+
+Scripting
+
+* Python::
+* Scheme::
+* Coot State::
+* Key Binding::
+* User-Defined Functions::
+
+Python
+
+
+Backups and Undo
+
+
+Coordinate-Related Features
+
+* Reading coordinates::
+* Atom Info::
+* Atom Labeling::
+* Atom Colouring::
+* Bond Parameters::
+* Download coordinates::
+* Get Coordinates and Map from EDS::
+* Save coordinates::
+* Setting the Space Group::
+* Anisotropic Atoms::
+* Symmetry::
+* Sequence View::
+* Print Sequence::
+* Environment Distances::
+* Distances and Angles::
+* Zero Occupancy Marker::
+* Atomic Dots::
+* Ball and Stick Representation::
+* Mean and Median Temperature Factors::
+* Secondary Structure Matching (SSM)::
+* Least-Squares Fitting::
+* Ligand Overlaying::
+* Writing PDB files::
+
+Modelling and Building
+
+* Regularization and Real Space Refinement::
+* Changing the Map for Building/Refinement::
+* Rotate/Translate Zone::
+* Rigid Body Refinement::
+* Simplex Refinement::
+* Post-manipulation-hook::
+* Baton Building::
+* Reversing Direction of Fragment::
+* C-alpha -> Mainchain::
+* Backbone Torsion Angles::
+* Docking Sidechains::
+* Rotamers::
+* Editing Chi Angles::
+* Torsion General::
+* Pep-flip::
+* Adding Alternative Conformations::
+* Mutation::
+* Importing Ligands/Monomers::
+* Ligand from SMILES strings::
+* Find Ligands::
+* Flip Ligand::
+* Find Waters::
+* Place Helix::
+* Building Ideal DNA and RNA::
+* Merge Molecules::
+* Temperature Factor for New Atoms::
+* Applying NCS Edits::
+* Running Refmac::
+* Running SHELXL::
+* Clear Pending Picks::
+* Delete::
+* Sequence Assignment::
+* Building Links and Loops::
+* Fill Partial Residues::
+* Changing Chain IDs::
+* Setting Occupancies::
+* Fix Nomenclature Errors::
+* Rotamer Fix Whole Protein::
+* Refine All Waters::
+* Moving Molecules/Ligands::
+* Modifying the Labels on the Model/Fit/Refine dialog::
+
+Regularization and Real Space Refinement 
+
+* Dictionary::
+* Sphere Refinement::
+* Refining Carbohydrates::
+* Planar Peptide Restraints::
+* The UNK residue type::
+* Moving Zero Occupancy Atoms::
+
+Map-Related Features 
+
+* Maps in General::
+* Create a Map::
+* Map Contouring::
+* Map Extent::
+* Map Line Width::
+* Map colouring::
+* Difference Map Colouring::
+* Map Sampling::
+* Make a Difference Map::
+* Make an Averaged Map::
+* Dragged Map::
+* Dynamic Map Sampling and Display Size::
+* Skeletonization::
+* Map Sharpening::
+* masks::
+* Trimming Atoms::
+* Map Transformation::
+* Export Map::
+
+Validation 
+
+* Ramachandran Plots::
+* Chiral Volumes::
+* sec_blobs::
+* Check Waters by Difference Map::
+* Molprobity Tools Interface::
+* GLN and ASN B-factor Outliers::
+* Validation Graphs::
+
+Hints and Usage Tips
+
+* Documentation::
+* Low Resolution::
+* Coot Droppings::
+* Clearing Backups::
+* Getting out of ``Translate'' Mode::
+* Getting out of ``Continuous Rotation'' Mode::
+* Label Atom Only Mode::
+* Button Labels::
+* sec_picking::
+* Resizing View::
+* Scroll-wheel::
+* Slow Computer Configuration::
+
+Other Programs
+
+* findligand::
+
+@end detailmenu
+@end menu
+
+@c -------------------------------------------------------------
+@node    Introduction
+@chapter Introduction
+@c -------------------------------------------------------------
+     
+This document is the Coot User Manual, giving an overview of the
+interactive features.  Other documentation includes the
+@cindex reference manual
+Coot Reference Manual and the Coot
+@c @cindex{tutorial} 
+Tutorial.  These documents should be distributed with
+the source code.
+
+@menu 
+* Citing Coot::
+* What is Coot?::
+* What Coot is Not::
+* Hardware Requirements::
+* Environment Variables::
+* Command Line Arguments::
+* Web Page::
+* Crash::
+@end menu
+
+@node Citing Coot
+@section Citing Coot and Friends
+@cindex citing coot
+
+
+If have found this software to be useful, you are requested
+(if appropriate) to cite:
+
+@c @quotation
+@c  "Coot: model-building tools for molecular graphics"
+@c         Emsley P, Cowtan K
+@c    @emph{Acta Crystallographica Section D-Biological Crystallography}
+@c    @strong{60}: 2126-2132 Part 12 Sp. Iss. 1 DEC 2004
+
+@quotation
+  "Features and Development of Coot"
+   P Emsley, B Lohkamp, W Scott, and K Cowtan
+   Acta Cryst. (2010).  D66, 486-501
+   @emph{Acta Crystallographica Section D-Biological Crystallography}
+   @strong{66}: 486-501
+@end quotation
+
+
+The reference for the REFMAC5 Dictionary is:
+
+@quotation
+   REFMAC5 dictionary: "Organization of Prior Chemical Knowledge and
+   Guidelines for its Use" Vagin AA, Steiner RA, Lebedev AA, Potterton L,
+   McNicholas S Long F, Murshudov GN @emph{Acta Crystallographica Section
+   D-Biological Crystallography} @strong{60}: 2184-2195 Part 12 Sp. Iss. 1
+   DEC 2004"
+@end quotation
+
+
+If using "SSM Superposition", please cite:
+
+@quotation
+   "Secondary-structure matching (SSM), a new tool for fast
+   protein structure alignment in three dimensions"
+   Krissinel E, Henrick K
+   @emph{Acta Crystallographica Section D-Biological Crystallography}
+   @strong{60}: 2256-2268 Part 12 Sp. Iss. 1 DEC 2004
+@end quotation
+
+
+
+The reference for the the Electron Density Server is: 
+
+@quotation
+GJ Kleywegt, MR Harris, JY Zou, TC Taylor, A W@"ahlby,  TA Jones (2004),
+"The Uppsala Electron-Density Server", 
+@emph{Acta Crystallographica Section D-Biological Crystallography} @strong{60}, 2240-2249.
+
+Please also cite the primary literature for the received structures.
+
+@end quotation
+
+
+
+@node What is Coot?
+@section What is Coot?
+
+Coot is a molecular graphics application. Its primary focus is
+crystallographic macromolecular model-building and manipulation rather
+than representation @emph{i.e.} more like Frodo than Rasmol.
+@c @cindex{Rasmol}.  
+Having said that, Coot can work with small molecule (SHELXL) and electron
+microscopy data, be used for homology modelling, make passably pretty
+pictures and display NMR structures.
+
+Coot is Free Software.  You can give it away. If you don't like the way
+it behaves, you can fix it yourself.
+
+@node What Coot is Not
+@section What Coot is Not
+
+Coot is not:
+
+@itemize
+
+@item CCP4's official Molecular Graphics program @footnote{
+    The official CCP4 graphics program (which contains parts of Coot
+    (and Coot contains parts of CCP4MG)), CCP4MG is under the
+    direct control of Liz Potterton and Stuart McNicholas.}
+
+@item a program to do refinement @footnote{although it does have a
+    local refinement algorithm it is no substitute for refmac
+    (a wrapper for refmac is available).}
+
+@item a protein crystallographic suite@footnote{that's the job of the
+     CCP4 Program Suite.}.
+
+@end itemize
+
+@node Hardware Requirements
+@section Hardware Requirements
+
+The code is designed to be portable to any Unix-like operating system.
+Coot certainly runs on SGI IRIX64, RedHat Linux of various sorts, SuSe
+Linux@footnote{so far only 8.2 verified.}  and MacOS X (10.2).  The sgi
+Coot binaries should also work on IRIX.
+
+
+@c @footnote{including Cygwin, but currently coot is ``unstable'' on a Cygwin system.}.  
+
+If you want to port to some other operating system, you are welcome
+@footnote{it's Free Software after all and I could give you a
+  hand.}.  Note that your task will be eased by using GNU GCC to compile
+the programs components.
+
+@subsection Mouse
+@cindex mouse
+Coot works best with a 3-button mouse and works better if
+it has a scroll-wheel too (see Chapter 2 for more details) @footnote{I
+  can get by with a one button Macintosh - but it's not ideal.}.
+
+@node Environment Variables
+@section Environment Variables
+Coot responds to several environment variables that modify its
+behaviour.
+
+@itemize
+@item @env{COOT_STANDARD_RESIDUES} 
+  The filename of the pdb file
+  containing the standard amino acid residues in ``standard
+  conformation'' @footnote{as it is known in Clipper.}
+@item @env{COOT_SCHEME_DIR} 
+  The directory containing standard (part of the distribution) scheme
+  files 
+@item @env{COOT_SCHEME_EXTRAS_DIR} 
+  A ':'-separated list of directories containing bespoke scheme files.
+  This variable is not set by default.  If you set it, Coot will test
+  each ':'-separated string that it points to a directory, and if it does, 
+  Coot will load all the @t{.scm} files in that directory.
+@item @env{COOT_PYTHON_EXTRAS_DIR} 
+  A ':'-separated list of directories containing bespoke python files.
+  This variable is not set by default.  If you set it, Coot will test
+  each ':'-separated string that it points to a directory, and if it does, 
+  Coot will load all the @t{.py} files in that directory.
+@item @env{COOT_REF_STRUCTS} 
+  The directory containing a set of high resolution pdb files used as 
+@cindex reference structures
+  reference structures to build backbone atoms from
+  C@math{\alpha} positions
+@item @env{COOT_REF_SEC_STRUCTS} 
+  The directory containing a set of high-quality structures to be used
+  as templates for fitting beta strands.  If this is not set, then the
+  directory COOT_REF_SEC_STRUCTS will be used to find the reference pdb
+  files.  
+@item @env{COOT_REFMAC_LIB_DIR} 
+@cindex dictionary, cif 
+  Refmac's CIF directory containing the monomers and link descriptions.
+  In the future this may simply be the same directory in which refmac
+  looks to find the library dictionary.
+@item @env{COOT_SBASE_DIR} 
+@cindex dictionary, ligands
+  The directory to find the SBASE dictionary (often comes with CCP4).
+@item @env{COOT_RESOURCES_DIR} 
+  The directory that contains the
+  splash screen image and the GTK+ application resources.
+@item @env{COOT_BACKUP_DIR} 
+  The directory to which backup are
+  written (if it exists as a directory).  If it is not, then backups
+  are written to the current directory (the directory in which coot
+  was started).
+@end itemize
+  
+And of course extension language environment variables are used too:
+
+@itemize
+@item @env{PYTHONPATH} (for python modules)
+@item @env{GUILE_LOAD_PATH} (for guile modules)
+@end itemize
+
+Normally, these environment variables will be set correctly in the coot
+shell script.
+
+@node Command Line Arguments
+@section Command Line Arguments
+@cindex command line arguments 
+Rather that using the GUI to read in information, you can use the
+following command line arguments:
+@itemize
+@item @code{--c @emph{cmd}} to run a command @code{@emph{cmd}} on start up
+@item @code{--script @emph{filename}} to run a script on start up (but see Section @ref{Scripting})
+@item @code{--no-state-script} don't run the @t{0-coot.state.scm} script on start up.  
+   Don't save a state script on exit either.
+@item @code{--pdb @emph{filename}}  for pdb/coordinates file
+@item @code{--coords @emph{filename}}  for SHELX .ins/.res and CIF files
+@item @code{--data @emph{filename}} for mtz, phs or mmCIF data file
+@item @code{--auto @emph{filename}} for auto-reading mtz files (mtz file has the default labels FWT, PHWT)
+@item @code{--map @emph{filename}}  for a map (currently CCP4-format only)
+@item @code{--dictionary @emph{filename}} read in a cif monomer dictionary 
+@item @code{--help} print command line options
+@item @code{--stereo} start up in hardware stereo mode
+@item @code{--version} print the version of coot and exit
+@item @code{--code @emph{accession-code}} on starting Coot, get the pdb file 
+   and mtz file (if it exists) from the EDS
+@item @code{--no-guano} don't leave ``Coot droppings'' i.e. don't write state
+    and history files on exit
+@item @code{--side-by-side} start in side-by-side stereo mode
+@item @code{--update-self} command-line mode to update the coot to the latest 
+    pre-release on the server
+@item @code{--python} an argument with no parameters - used to tell Coot that 
+    the -c arguments should be process as python (rather than as scheme).
+@item @code{--small-screen} start with smaller icons and font to fit on small
+    screen displays
+@item @code{--zalman-stereo} start in Zalman stereo mode
+@end itemize
+
+So, for example, one might use:
+@itemize
+@item @code{coot --pdb post-refinement.pdb --auto refmac-2.mtz --dictionary lig.cif}
+@end itemize
+
+@node Web Page
+@section Web Page
+@cindex web page
+Coot has a web page:
+
+@itemize
+@item @url{http://www.biop.ox.ac.uk/coot}
+@end itemize
+
+There you can read more about the CCP4 molecular graphics project in
+general and other projects which are important for Coot @footnote{coot
+  has several influences and dependencies, but these will not be
+  discussed here in the User Manual.}.
+
+@node Crash
+@section Crash
+@cindex crash
+Coot might crash on you - it shouldn't.  
+
+@cindex recover session
+@cindex crash recovery
+Whenever Coot manipulates the model, it saves a backup pdb file.
+There are backup files in
+the directory @t{coot-backup} @footnote{COOT_BACKUP_DIR is used
+  in preference if set}. You can recover the session (until the last
+edit) by reading in the pdb file that you started with last time and
+then use @command{File -> Recover Session@dots{}}.
+
+I would like to know about coot crashing @footnote{The map-reading
+  problem (documented in Section @ref{Maps in General}) is already
+  known.} so that I can fix it as soon as possible. If you want your
+problem fixed, this involves some work on your part sadly.
+
+First please make sure that you are using the most recent version of
+coot.  I will often need to know as much as possible about what you did
+to cause the bug.  If you can reproduce the bug and send me the files
+that are needed to cause it, I can almost certainly fix it @footnote{now
+there's a hostage to fortune.} - especially if you
+@cindex debugger 
+@cindex gdb
+use the debugger (gdb) and send a backtrace
+too@footnote{to do so, please send me the output of the following:
+  @t{$ gdb `which coot-real` @emph{corefile}} and then at the
+  @t{(gdb)} prompt type: @command{where}, where
+  @t{@emph{corefile}} is the core dump file, @file{core} or
+  @file{core.4536} or some such.}.  Note that you may have to source the
+  contents of @t{bin/coot} so that the libraries are can be found when
+  the executable dynamically links.
+
+
+@c % -----------------------------------------------------------
+@node Mousing and Keyboarding
+@chapter Mousing and Keyboarding
+@c % -----------------------------------------------------------
+@cindex mouse buttons 
+How do we move around and select things?
+
+@c \vspace{0.5cm}
+
+@table @command
+@item    Left-mouse Drag
+   Rotate view
+@item    Ctrl Left-Mouse Drag
+  Translates view
+@item    Shift Left-Mouse 
+  Label Atom
+@item    Right-Mouse Drag
+  Zoom in and out@c @cindex{zoom}
+@item   Ctrl Shift Right-Mouse Drag
+  Rotate View around Screen Z axis
+@item   Middle-mouse 
+   Centre on atom
+@item   Scroll-wheel Forward
+  Increase map contour level
+@item    Scroll-wheel Backward
+  Decrease map contour level
+@end table
+
+See also Chapter @ref{Hints and Usage Tips} for more help.
+
+@menu
+* Next Residue::
+* Keyboard Contouring::
+* Mouse Z Translation::
+* Keyboard Z Translation::
+* Keyboard Zoom and Clip::
+* Scrollwheel::
+* Selecting Atoms::
+* Virtual Trackball::
+* more on zooming::
+@end menu
+
+@node Next Residue
+@section Next Residue
+
+@table @command
+@item  ``Space''  
+   Next Residue
+@item  ``Shift'' ``Space''
+   Previous Residue
+@end table
+
+See also ``Recentring View'' (Section @ref{Recentring View}).
+
+@node Keyboard Contouring
+@section Keyboard Contouring
+
+Use @key{+} or @key{-} on the keyboard if you don't have a
+scroll-wheel.
+
+
+@node Mouse Z Translation
+@section Mouse Z Translation and Clipping
+@cindex translation, mouse
+
+Here we can change the clipping and Translate in Screen Z
+
+@table @command
+@item  Ctrl Right-Mouse Drag Up/Down
+    changes the slab (clipping planes)
+@item   Ctrl Right-Mouse Drag Left/Right
+    translates the view in screen Z
+@end table
+
+@node Keyboard Z Translation
+@section Keyboard Translation
+@cindex translation, keyboard
+
+@table @command
+@item  Keypad 3 
+ Push View (+Z translation)
+@item  Keypad . 
+ Pull View (-Z translation)
+@end table
+
+
+@node Keyboard Zoom and Clip
+@section Keyboard Zoom and Clip
+
+@table @command
+@item  N 
+   Zoom out  
+@item  M
+   Zoom in    
+@item  D 
+   Slim clip  
+@item  F 
+   Fatten clip
+@end table
+
+@node Scrollwheel
+@section Scrollwheel
+When there is no map, using the scroll-wheel has no effect.  If there
+is exactly one map displayed, 
+@cindex contouring, map
+@cindex scroll, map contour change by
+@cindex map scrolling
+@cindex scroll-wheel
+the scroll-wheel
+will change the contour level of that map.  If there are two or more
+maps, the map for which the contour level is changed can be set using either 
+@command{HID -> Scrollwheel -> Attach scroll-wheel
+  to which map?} and selecting a map number or clicking the "Scroll"
+  radio button for the map in the Display Manager.
+
+You can turn off the map contour level changing by the scroll wheel using:
+
+@code{(set-scroll-by-wheel-mouse 0)}
+
+(the default is 1 [on]).
+
+@node Selecting Atoms
+@section Selecting Atoms
+Several Coot functions require the selecting of atoms to specify a
+residue range (for example: Regularize, Refine (Section
+@ref{Regularization and Real Space Refinement}) or Rigid Body Fit Zone (Section
+@ref{Rigid Body Refinement})).  Select atoms with the Left-mouse.
+See also Picking (Section @ref{sec_picking}).
+
+Use the scripting function
+@c @cindex{quanta-buttons}
+@code{(quanta-buttons)} to make the mouse
+functions more like other molecular graphics programs to which you may
+be more accustomed @footnote{See also @ref{more on zooming}}.
+
+@node Virtual Trackball
+@section Virtual Trackball
+@cindex trackball, virtual
+You may not completely like the way the
+molecule is moved by the mouse movement @footnote{Mouse movement in
+  ``Spherical Surface'' mode generates a component of (often
+  undesirable) screen z-rotation, particularly noticeable when the
+  mouse is at the edge of the screen.}.  To change this, try:
+@command{HID -> Virtual Trackball -> Flat}.  To
+do this from the scripting interface: @code{(vt-surface
+  1)} @footnote{@code{(vt-surface 0)} to turn it back to ``Spherical''
+  mode.}.
+
+If you @emph{do} want @command{screen-z rotation}
+@cindex z-rotation 
+screen-z rotation, you can either use Shift Right-Mouse Drag or set
+the Virtual Trackball to Spherical Surface mode and move the mouse
+along the bottom edge of the screen.
+
+
+@node more on zooming
+@section More on Zooming
+The function @code{(quanta-like-zoom)} adds the ability to zoom the
+view using just Shift + Mouse movement @footnote{this is off by default
+  because I find it annoying.}.
+
+There is also a Zoom slider
+@cindex zoom, slider
+(@command{Draw -> Zoom}) for those without a right-mouse button.
+
+
+@c % -----------------------------------------------------------
+@node General Features
+@chapter General Features
+@c % -----------------------------------------------------------
+
+The map-fitting and model-building tools can be accessed by using
+@command{Calculate -> Model/Fit/Refine@dots{}}.  Many functions have
+tooltips @footnote{Put your mouse over a widget for a couple of seconds,
+if that widget has a tooltip, it will pop-up in a yellow box (or a grey
+box for some reason if you are using Macintosh).}
+@cindex tooltips 
+describing the particular features and are documented in Chapter
+@ref{Modelling and Building}.
+
+@table @command
+@item F5:  
+   posts the Model/Fit/Refine dialog
+@item F6:
+      posts the Go To Atom Window
+@item F7:
+      posts the Display Control Window
+@end table
+
+
+@menu 
+* Version number::
+* Antialiasing::
+* Molecule Number::
+* Display Issues::
+* Screenshot::
+* Raster3D::
+* Display Manager::
+* The Modelling Toolbar::
+* The file selector::
+* Scripting::
+* Backups and Undo::
+* View Matrix::
+* Space Group and Symmetry::
+* Recentring View::
+* Views::
+* Clipping Manipulation::
+* Background colour::
+* Unit Cell::
+* Rotation Centre Pointer::
+* Orientation Axes::
+* Pointer Distances::
+* Crosshairs::
+* 3D Annotations::
+* Frame Rate::
+* Program Output::
+@end menu
+
+@node Version number
+@section Version number
+@cindex version number 
+
+The version number of Coot can be found at the top of the ``About''
+window (@command{Help -> About}).
+
+This will return the version of coot:
+
+@code{$ coot --version}
+
+There is also a script function to return the version of coot:
+
+@code{(coot-version)}
+
+@node Antialiasing
+@section Antialiasing
+
+The built-in antialiasing (for what it's worth) can be enabled using:
+
+@code{(set-do-anti-aliasing 1)}
+
+The default is @code{0} (off).
+
+This can also be activated using @command{Edit Preferences -> Others ->
+Antialiasing -> Yes}.
+
+If you have an nVidia graphics card, external antialiasing can be
+actived setting the environment variable @t{__GL_FSAA_MODE}.  For me a
+setting of @t{5} works nicely and gives a better image than using
+Coot's built-in antialiasing.
+
+
+Also for nVidia graphics card users, there is the application
+nvidia-settings: 
+
+@command{Antialiasing Setting -> Override Application Settings} and
+slide the slider to the right. On restarting Coot, it should be in
+antialias mode @footnote{that works for me, at least.}.
+
+@node Molecule Number
+@section Molecule Number
+@cindex molecule number 
+Coot is based on the concept of molecules.  Maps and coordinates are
+different representations of molecules.  The access to the molecule is
+@emph{via} the @emph{molecule number}.  It is often important therefore to
+know the molecule number of a particular molecule.
+
+The Molecule Number of a molecule can be found by clicking on an atom of
+that molecule (if it has coordinates of course). The first number in
+brackets in the resulting text in the status bar and console is the
+Molecule Number.  The Molecule Number can also be found in Display
+Control window (Section @ref{Display Manager}).  It is also displayed on
+the left-hand side of the molecule name in the option menus of the
+``Save Coordinates'' and ``Go To Atom'' windows.
+
+@node Display Issues
+@section Display Issues
+The ``graphics'' window is drawn using 
+@cindex OpenGL
+OpenGL.  It is considerably smoother (i.e. more frames/sec) when using a
+3D accelerated X server.
+
+The view is orthographic (@emph{i.e.} the back is the same size as the
+front).  The default clipping is about right for viewing coordinate
+data, but is often a little too ``thick'' for viewing electron
+density.  It is easily changed (see Section @ref{Clipping
+ Manipulation}).
+
+Depth-cueing
+@cindex depth-cueing 
+is linear and fixed on.
+
+The graphics window can be resized, but it has a minimum size of
+400x400 pixels.
+
+@subsection Stereo
+Hardware Stereo is an option for Coot (@command{Draw -> Stereo@dots{} ->
+Hardware Stereo -> OK}), side-by-side stereo is not an option.
+
+The angle between the stereo pairs (the stereo separation) can be
+changed to suit your personal tastes using:
+
+@code{(set-hardware-stereo-angle-factor @emph{angle-factor})}
+
+where @code{@emph{angle-factor}} would typically be between 1.0 and 2.0
+
+@subsection Pick Cursor
+When asked to pick a residue or atom, the cursor changes from the normal
+arrow shape to a "pick" cursor.  Sometimes it is difficult to see the
+default pick cursor, so you can change it using the function
+
+@code{(set-pick-cursor-index @emph{i})}
+
+where @code{@emph{i}} is an integer less than 256.  The cursors can be
+viewed using an external X program:
+
+@code{xfd -fn cursor}
+
+
+@subsection Origin Marker
+
+A yellow box
+@cindex yellow box
+ called the ``origin
+marker''
+@cindex origin marker
+ marks the origin.  It can be removed using:
+
+@code{(set-show-origin-marker 0)}
+
+Its state can be queried like this:
+
+@code{(show-origin-marker-state)}
+
+which returns an number (0 if it is not displayed, 1 if it is).
+
+@node Screenshot
+@section Screenshot
+@cindex screenshot.
+
+A simple screenshot (image dump) can be made using @command{Draw ->
+Screenshot -> Simple@dots{}}.  Note that in side by side stereo mode you
+only get the left-hand image.
+
+
+@node Raster3D
+@section Raster3D output
+Output suitable for use by Raster3D's
+@cindex Raster3D
+``render''
+@cindex render
+can be generated using the scripting function
+
+@code{(raster3d @emph{file-name})}
+
+where @code{@emph{file-name}} is such as @code{"test.r3d"}
+@footnote{Povray support is only semi-working, there is a problem
+ with the orientation of the image.}.
+
+There is a keyboard key to generate this file, run ``render'' and
+display the image: Function key F8.
+
+You can also use the function
+
+@code{(render-image)}
+
+which will create a file @file{coot.r3d}, from which ``render'' produces
+@file{coot.png}. This png file is displayed using ImageMagick's display
+program (by default).  Use something like:
+
+@code{(set! coot-png-display-program "gqview")}
+
+to change that to different display program ("gqview" in this case).
+
+@code{(set! coot-png-display-program "open")} 
+
+would use Preview (by default) on Macintosh.
+@c thanks for that info Bill Scott.
+
+To change the widths of the bonds and density ``lines'' use (for example):
+
+@code{(set-raster3d-bond-thickness 0.1)}
+
+and 
+
+@code{(set-raster3d-density-thickness 0.01)}
+
+Similarly for bones:
+
+@code{(set-raster3d-bone-thickness 0.05)}
+
+
+To turn off the representations of the atoms (spheres):
+
+@code{(set-renderer-show-atoms 0)}
+
+
+@node Display Manager
+@section Display Manager
+@cindex Display Manager
+This is also known as ``Map and molecule
+(coordinates) display control''.  Here you can select which maps and
+molecules you can see and how they are drawn @footnote{to a limited
+  extent.}.  The ``Display'' and ``Active'' are toggle buttons, either
+depressed (active) or undepressed (inactive).  The ``Display'' buttons
+control whether a molecule (or map) is drawn and the ``Active'' button
+controls if the molecule is clickable @footnote{the substantial
+  majority of the time you will want your the buttons to be both
+  either depressed or undepressed, rarely one but not the other.}
+(@emph{i.e.} if the molecule's atoms can be labeled).
+
+@cindex Scroll
+The "Scroll" radio buttons sets which map is has its contour level
+changed by scrolling the mouse scroll wheel.
+
+By default, the path names of the files are not displayed in the
+Display Manager.  To turn them on:
+
+@code{(set-show-paths-in-display-manager 1)}
+
+@cindex colour by chain
+@cindex atom colouring
+If you pull across the
+horizontal scrollbar in a Molecule view, you will see the ``Render
+as'' menu.  You can use this to change between normal ``Bonds (Colour
+by Atom)'',``Bonds (Colour by Chain)'' and ``C@math{\alpha}''
+representation
+@cindex C@math{\alpha} representation
+There is also
+available ``No Waters'' and ``C@math{\alpha} + ligands'' representations.
+
+
+@node The Modelling Toolbar
+@section The Modelling Toolbar
+@cindex modelling toolbar
+
+You might not want to have the right-hand-side vertical toolbar that
+contains icons for some modelling operations @footnote{British
+modelling, of course} displayed:
+
+@code{(hide-modelling-toolbar)}
+
+to bring it back again:
+
+@code{(show-modelling-toolbar)}
+
+
+
+@node    The file selector
+@section The file selector
+@subsection File-name Filtering
+@cindex file-name filtering
+The ``Filter'' button in the fileselection
+filters the filenames according to extension.  For coordinates files
+the extensions are ``.pdb'' ``.brk'' ``.mmcif'' and others.  For data:
+``.mtz'', ``.hkl'', ``.phs'', ``.cif'' and for (CCP4) maps ``.ext'',
+``.msk'' and ``.map''.  If you want to add to the extensions, the
+following functions are available:
+
+@itemize 
+@item @code{(add-coordinates-glob-extension @emph{extension})}
+@item @code{(add-data-glob-extension @emph{extension})}
+@item @code{(add-map-glob-extension @emph{extension})}
+@item @code{(add-dictionary-glob-extension @emph{extension})}
+@end itemize
+where @code{@emph{extension}} is something like: @code{".mycif"}.
+
+If you want the fileselection to be filtered without having to use the
+"Filter" button, use the scripting function
+
+@code{(set-filter-fileselection-filenames 1)}
+
+@subsection Filename Sorting
+If you like your files initially sorted by date (rather than
+lexicographically, which is the default) use:
+
+@code{(set-sticky-sort-by-date)}
+
+@c this should be a GUI option.
+@subsection Save Coordinates Directory
+@cindex save coordinates directory
+@cindex directory for save coordinates
+
+Some people prefer that the fileselection for saving coordinates starts
+in the original directory (rather than the directory from which they
+last imported coordinates).  This option is for them:
+
+@code{(set-save-coordinates-in-original-directory 1)}
+
+
+@node    Scripting
+@section Scripting
+@cindex  scripting
+
+@menu
+* Python::
+* Scheme::
+* Coot State::
+* Key Binding::
+* User-Defined Functions::
+@end menu
+
+There is an compile-time option of adding a script interpreter.
+Currently the options are python and guile.  It seems possible that in
+future you will be able to use both in the same executable.  The binary
+distribution of Coot are linked with guile, others with python.
+
+Hundreds of commands are made available for use in scripting by using
+SWIG, some of which are documented here. Other functions documented less
+well, but descriptions for them can be found at the end of this manual.
+
+Commands described throughout this manual (such as @code{(vt-surface
+  1))} can be evaluated
+@cindex executing commands
+directly by Coot by using the ``Scripting Window'' (@command{Calculate
+-> Scripting@dots{}}). Note that you type the commands in the upper
+entry widget and the command gets echoed (in red) and the return value
+and any output is displayed in the text widget lower (green).  The typed
+command should be terminated with a carriage return @footnote{which
+causes the evaluation of the command.}.  Files @footnote{such as the Coot
+state file (Section @ref{Coot State}).} can be evaluated (executed)
+using @command{Calculate -> Run Script@dots{}}.  
+
+Note that in scheme (the usual scripting language of Coot), the
+parentheses are important.
+
+To execute a script file from the command line use the @code{--script
+@emph{filename}} arguments 
+@c % this seems not to be the case (any more), --script works 
+@c % fine with --no-graphics
+(except when also using the command line
+argument @code{--no-graphics}, in which case you should use @code{-s
+@emph{filename}}).
+
+After you have used the scripting window, you may have noticed that you
+can no longer kill Coot by using Ctrl-C in the console.  To recover this
+ability:
+
+@code{(exit)}
+
+in the scripting window.
+
+@node       Python
+@subsection Python
+@cindex python
+
+@menu
+ * Python Commands
+@end menu
+
+Coot has an (optional) embedded python interpreter.
+Thus the full power of python is available to you.  Coot will look for
+an initialization script 
+@cindex startup settings (python)
+@cindex @code{.coot.py}
+(@code{$HOME/.coot.py}) and
+will execute it if found.  This file should contain python commands
+that set your personal preferences.
+
+
+@subsubsection Python Commands
+The scripting functions described in this manual are formatted
+suitable for use with guile, @emph{i.e.}:
+
+@code{(@emph{function} @emph{arg1} @emph{arg2@dots{}})}
+
+If you are using Python instead: the format needs to be changed to:
+
+@code{@emph{function}(@emph{arg1},@emph{arg2@dots{}})}
+
+Note that dashes in guile function names become underscores for
+python, so that (for example) @code{(raster-screen-shot)} becomes
+@code{raster_screen_shot()}.
+
+
+@c --------------------------------------------------------
+@node       Scheme
+@c --------------------------------------------------------
+@subsection Scheme
+@cindex guile
+@cindex scheme
+@cindex initialization file
+The scheme interpreter is made available by embedding
+guile.  The initialization script used by this interpreter is
+@cindex startup settings (scheme) 
+@cindex @code{.coot}
+@code{$HOME/.coot}.  This file should contain scheme commands that
+set your personal preferences.
+
+@c --------------------------------------------------------
+@node       Coot State
+@c --------------------------------------------------------
+@subsection Coot State
+The ``state''
+@cindex state
+of Coot is saved on Exit and written to a
+file called @code{0-coot.state.scm} (scheme)
+@code{0-coot.state.py} (python).   This
+state file contains information about the screen centre, the
+clipping, colour map rotation size, the symmetry radius, and other
+molecule related parameters such as filename, column labels,
+coordinate filename @emph{etc.}.
+
+Use @command{Calculate -> Run Script@dots{}} to use this file
+to re-create the loaded maps and models that you had when you finished
+using Coot @footnote{in that particular directory.} last time.
+A state file can be saved at any time using @code{(save-state)}
+which saves to file @code{0-coot.state.scm} or
+@code{(save-state-filename "thing.scm")} which saves to file
+@code{thing.scm}.
+
+When Coot starts it can optionally run the commands in
+@code{0-coot.state.scm}.  
+
+Use @code{(set-run-state-file-status i)}
+to change the behaviour: @code{i} is @code{0} to never run this
+state file at 
+@cindex startup dialog (state)
+startup, @code{i} is
+@code{1} to get a dialog option (this is the default) and @code{i}
+is @code{2} to run the commands without question.
+
+@c --------------------------------------------------------
+@node       Key Binding
+@c --------------------------------------------------------
+@subsection Key Binding
+
+``Power users'' of Coot might like to write their own functions and bind
+that function to a keyboard key.  How do they do that?
+
+By using the add-key-binding function:
+
+@code{(add-key-binding @emph{function-name key function})}
+
+where @code{@emph{key}} is a quoted string (note that upper case and
+lower case keys are distinguished - activate get upper case key binding
+you need to chord the shift key @footnote{funny that}).
+
+for example:
+
+@code{(add-key-binding "Refine Active Residue with Auto-accept" "x" refine-active-residue)}
+ 
+Have a look at the key bindings section on the Coot wiki for several
+more examples.
+
+@c --------------------------------------------------------
+@node       User-Defined Functions
+@c --------------------------------------------------------
+@subsection User-Defined Functions
+
+``Power users'' of Coot might also like to write their own functions
+that occur after picking an atom (or a number of atoms)
+
+@code{(user-defined-click @emph{n_clicks} @emph{udfunc})}
+
+define a function @code{@emph{func}} which runs after the user has
+made @code{@emph{n_clicked}} atom picks.  @code{@emph{func}} is called
+with a list of atom specifiers - the first member of which is the
+molecule number.
+
+
+@c --------------------------------------------------------
+@node Backups and Undo
+@c --------------------------------------------------------
+@section Backups and Undo
+@cindex backups
+@cindex undo
+
+@menu
+ * Redo::
+ * Restoring from Backup::
+@end menu
+
+By default, each time a modification is made to a model, the old
+coordinates are written out @footnote{this might be initially surprising
+since this could chew up a lot of disk space.  However, disk space is
+cheap compared to losing you molecule.}.  The backups are kept in a
+backup directory and are tagged with the date and the history number
+(lower numbers are more ancient @footnote{The coordinates are written in
+pdb format - that's OK, isn't it?.}).  The ``Undo'' function discards
+the current molecule and loads itself from the most recent backup
+coordinates.  Thus you do not have to remember to ``Save Changes'' -
+coot will do it for you @footnote{unless you tell it not to, of course -
+use (@emph{e.g.})  @code{(turn-off-backup 0)} to turn off the backup
+(for molecule 0 in this case).}.
+
+If you have made changes to more than one molecule, Coot will pop-up a
+dialog box in which you should set the ``Undo Molecule'' @emph{i.e.}
+the molecule to which the Undo operations will apply.  Further Undo
+operations will continue to apply to this molecule until there are
+none left.  If another Undo is requested Coot checks to see if there
+are other molecules that can be undone, if there is exactly one, then
+that molecule becomes the ``Undo Molecule'', if there are more than
+one, then another Undo selection dialog will be displayed.
+
+You can set the undo molecule using the scripting function:
+
+@code{(set-undo-molecule @emph{imol})}
+
+If for reasons of strange system@footnote{or system manager.}
+requirements you want to remove the path components of the backup file
+name you can do so using:
+
+@code{(set-unpathed-backup-file-names 1)}
+
+@subsection Redo
+@cindex redo
+The ``undone'' modifications can be re-done using this
+button.  This is not available immediately after a
+modification @footnote{It works like the ``Forwards'' buttons in a web
+browser - which is not available immediately after viewing a new
+page.}.
+
+@subsection Restoring from Backup
+@cindex restore after crash
+ There may be certain
+circumstances @footnote{for example, if coot crashes.} in which you
+wish to restore from a backup but can't get it by the ``Undo''
+mechanism described above.  In that case, start coot as normal and
+then open the (typically most recent) coordinates file in the
+directory @code{coot-backup} (or the directory pointed to the
+environment variable @code{COOT_BACKUP_DIR} if it was set) .
+This file should contain your most recent edits.  In such a case, it
+is sensible for neatness purposes to immediately save the coordinates
+(probably to the current directory) so that you are not modifying a
+file in the backup directory.
+
+See also Section @ref{Crash}.
+
+@node View Matrix
+@section View Matrix
+@cindex view matrix 
+It is sometimes useful to use this to orient the
+view and export this orientation to other programs.  The orientation
+matrix of the view can be displayed (in the console) using:
+
+@code{(view-matrix)}
+
+Also, the internal representation of the view can be returned and set
+using:
+
+@code{(view-quaternion)} to return a 4-element list
+
+@code{(set-view-quaternion i j k l)} which sets the view quaternion.
+
+So the usage of these functions would be something like:
+
+@verbatim
+(let ((v (view-quaternion)))
+   ;; manipulate v here, maybe
+   (apply set-view-quaternion v))
+@end verbatim
+
+@node Space Group and Symmetry 
+@section Space Group and Symmetry 
+Occasionally you may want to know the space group of a particular
+molecule.  Interactively (for maps) you can see it using the Map
+Properties button in the Molecule Display Control dialog.
+
+There is a scripting interface function that returns the space group
+for a given molecule  @footnote{if no space group has been assigned it
+  returns @code{``No spacegroup for this molecule''}}:
+
+@code{(show-spacegroup @emph{imol})}
+
+You can force a space group onto a molecule using the following:
+
+@code{(set-space-group @emph{imol} @emph{space-group})}
+
+where @code{@emph{space-group}} is one of the standard CCP4 space group
+names (@emph{e.g.} @code{@t{"P 21 21 21"}}).
+
+@cindex space group operators
+@cindex symmetry operators
+To show the symmetry operators of a particular molecule use:
+@code{(get-symmetry @emph{imol})}
+which will return a list of strings.
+
+@node Recentring View
+@section Recentring View
+@cindex recentring view 
+@itemize
+@item Use Control + left-mouse to drag around the view
+@item or
+@item middle-mouse over an atom.  In this case, you will often see
+  ``slide-recentring'', the graphics smoothly changes between the
+  current centre and the newly selected centre.
+@item or
+@item Use @command{Draw -> Go To Atom@dots{}} to select an atom
+  using the keyboard.  Note that you can subsequently use ``Space'' in
+  the ``graphics'' window (OpenGL canvas) to recentre on the next
+  C@math{\alpha}.
+@item or
+@cindex set-rotation-centre
+@cindex rotation centre
+@item To centre on an arbitrary position (x,y,z), use the scripting function
+   @code{(set-rotation-centre x y z)}.
+@item or
+@item Use the keyboard: [Ctrl G] then key in a residue number and (optionally) a chainid 
+      and press Return
+@end itemize
+
+If you don't want smooth recentring (sliding)
+@cindex sliding 
+@command{Edit -> Preferences -> Smooth Recentring -> Off}.  You
+can also use this dialog to speed it up a bit (by decreasing the
+number of steps instead of turning it off).
+
+@node Views
+@section Views
+
+Coot has a views interface (you might call them ''scenes``) that
+define a particular orientation, zoom and view centre.  Coot and
+linearly interpolate between the views.  The animation play back speed
+can be set with the ''Views Play Speed`` menu item - default is a
+speed of 10.
+
+The views interface can be found under the Extensions menu item.
+
+@node Clipping Manipulation
+@section Clipping Manipulation
+@cindex clipping
+The clipping planes (a.k.a. ``slab''
+@cindex slab 
+) can
+be adjusted using @command{Edit -> Clipping} and adjusting
+the slider.  There is only one parameter to change and it affects both
+the front and the back clipping planes @footnote{I find a clipping
+  level of about 3.5 to 4 comfortable for viewing electron density
+  maps - it is a little ``thinner'' than the default startup
+  thickness.}.
+The clipping can also be changed using keyboard ``D'' and ``F''.  
+
+It can also be changed with Ctrl + Right-mouse drag up and down.
+Likewise the screen-Z can be changed with Ctrl + Right-mouse left and
+right @footnote{Inspired by PyMol?  Yep@dots{} sure was!}.
+
+
+One can ``push'' and ``pull'' the view in the screen-Z direction using
+keypad 3 and keypad ``.'' (see Section @ref{Keyboard Z Translation}).
+
+
+@node Background colour
+@section Background colour
+@cindex background colour
+The background colour can be set either using a GUI dialog
+(@command{Edit$ -> Background Colour}) or the function
+@code{(set-background-colour 0.00 0.00 0.00)}, where the arguments
+are 3 numbers between 0.0 and 1.0, which respectively represent the
+red, green and blue components of the background colour.  The default
+is (0.0, 0.0, 0.0) (black).
+
+@node Unit Cell
+@section Unit Cell
+@cindex unit cell
+If coordinates have symmetry available then unit
+cells can be drawn for molecules (@command{Draw -> Cell &
+  Symmetry -> Show Unit Cell?}).
+
+@node  Rotation Centre Pointer
+@section Rotation Centre Pointer
+@cindex rotation centre pointer 
+There is a pink pointer
+@cindex pink pointer
+at the centre of the screen that marks the rotation centre.
+The size of the pointer can be changed using @command{Edit
+  -> Pink Pointer Size@dots{}} or using scripting commands:
+@code{(set-rotation-centre-size 0.3)}.
+
+@node  Orientation Axes
+@section Orientation Axes
+@cindex Orientation Axes
+
+The green axes showing the orientation of the molecule are displayed
+by default.  To remove them use the scripting function;
+
+@code{(set-draw-axes 0)}
+
+
+@node Pointer Distances
+@section Pointer Distances
+The Rotation Centre Pointer is sometimes called simply ``Pointer''.
+One can find distances to the pointer from any active set of atoms
+using ``Pointer Distances'' (under Measures).  If you move the Pointer
+(@emph{e.g.} by centering on an atom) and want to update the distances
+to it, you have to toggle off and on the ``Show Pointer Distances'' on
+the Pointer Distances dialog.
+
+@node Crosshairs
+@section Crosshairs
+@cindex crosshairs
+Crosshairs can be drawn at the centre of the screen, using either the
+@key{C} key@footnote{and @key{C} again to toggle them off.} in graphics
+window or @command{Draw -> Crosshairs@dots{}}.  The ticks are at
+1.54@AA{}, 2.7@AA{} and 3.8@AA{}.
+
+@node 3D Annotations
+@section 3D Annotations
+@cindex annotations
+Positions in 3D space can be annotated with 3D text.  The mechanism to
+do this can be found under Extensions -> Representations -> 3D
+Annotations.  3D Annotations can be saved to and loaded from a file.
+
+@node Frame Rate
+@section Frame Rate
+@cindex frame rate
+Sometimes, you might as yourself ``how fast is the computer?'' 
+@footnote{compared to some other one.}.  Using @code{Calculate ->
+Frames/Sec} you can see how fast the molecule is rotating, giving an
+indication of graphics performance.  It is often better to use a map
+that is more realistic and stop the picture whizzing round.  The output
+is written to the status bar and the console, you need to give it a few
+seconds to ``settle down''.  It is best not to have other widgets
+overlaying the GL canvas as you do this.
+
+The contouring elapsed time @footnote{prompted by changing the contour
+  level.} gives an indication of CPU performance.
+
+@node Program Output
+@section Program Output
+@cindex output 
+Due to its ``in development'' nature (at the moment),
+Coot produces a lot of ``console'' @footnote{@emph{i.e.} the terminal
+  in which you started Coot.} output - much of it debugging or
+``informational''.  This will go away in due course.  You are advised
+to run Coot so that you can see the console and the graphics window at
+the same time, since feedback from atom clicking (for example) is
+often written there rather than displayed in the graphics window.
+
+@itemize
+@item Output that starts ``ERROR...'' is a programming problem (and
+  ideally, you should never see it).
+@item Output that starts ``WARNING...'' means that something probably
+unintended happened due to the unexpected nature of your input or
+file(s).
+@item Output that starts ``DEBUG...'' has (obviously enough) been
+  added to aid debugging.  Most of them should have been cleaned up
+  before release, but as Coot is constantly being developed, a few may
+  slip through.  Just ignore them.
+@end itemize
+
+
+@c % -----------------------------------------------------------
+@node Coordinate-Related Features
+@chapter Coordinate-Related Features
+@c % -----------------------------------------------------------
+
+@menu
+* Reading coordinates::
+* Atom Info::
+* Atom Labeling::
+* Atom Colouring::
+* Bond Parameters::
+* Download coordinates::
+* Get Coordinates and Map from EDS::
+* Save coordinates::
+* Setting the Space Group::
+* Anisotropic Atoms::
+* Symmetry::
+* Sequence View::
+* Print Sequence::
+* Environment Distances::
+* Distances and Angles::
+* Zero Occupancy Marker::
+* Atomic Dots::
+* Ball and Stick Representation::
+* Mean and Median Temperature Factors::
+* Secondary Structure Matching (SSM)::
+* Least-Squares Fitting::
+* Ligand Overlaying::
+* Writing PDB files::
+@end menu
+
+@node Reading coordinates
+@section Reading coordinates
+The format
+@cindex coordinates format
+of coordinates that can be read by coot is either PDB or mmCIF.  To read
+coordinates, choose @command{File -> Read Coordinates} from the
+menu-bar.  Immediately after the coordinates have been read, the view is
+(by default) recentred to the centre of this new molecule and the
+molecule is displayed.  The recentring of the view after the coordinates
+have been read can be turned off by unclicking the "Recentre?" 
+radio-button.
+
+To disable the recentring of the view on reading a coordinates file via
+scripting, use: @code{(set-recentre-on-read-pdb 0)}.  However, when
+reading a coordinates file from a script it is just as good (if not
+better) to use @code{(handle-read-draw-molecule-with-recentre
+@emph{filename} 0)} - the additional @code{0} means ``don't recentre''.
+And that affects just the reading of @code{@emph{filename}} and not
+subsequent files.
+
+Note that as of version 0.6.2 Coot can read MDL mol/mol2 files (the
+atom names are not unique (of course), but at least you can see the
+coordinates).
+
+@subsection A Note on Space Groups Names
+@cindex space group names
+Coot uses the space group on the ``CRYST1'' line of the pdb file.  The
+space group should be one of the xHM symbols listed (for example) in the
+CCP4 dictionary file @file{syminfo.lib}.  So, for example, @t{"R 3 2 :H"}
+should be used in preference to @t{"H32"}.
+
+@subsection Read multiple coordinate files
+@cindex reading multiple pdb files 
+@cindex multiple coordinates files 
+The reading multiple files using the GUI is not available (at the
+moment).  However the following scripting functions are available:
+
+@code{(read-pdb-all)}
+
+which reads all the ``*.pdb'' files in the current directory
+
+@code{(multi-read-pdb @emph{glob-pattern} @emph{dir})}
+
+which reads all the files matching @code{@emph{glob-pattern}} in
+directory @code{@emph{dir}}.  Typical usage of this might be:
+
+@code{(multi-read-pdb "a*.pdb" ".")}
+
+Alternatively you can specify the files to be opened on the command
+line when you start coot (see Section
+@ref{Command Line Arguments}).
+
+@c @node    SHELX .ins/.res files
+@subsection SHELX .ins/.res files
+@cindex SHELX .ins
+
+SHELX ".res" (and ".ins" of course) files can be read into Coot, either
+using the GUI @command{File -> Open Coordinates@dots{}} or by the
+scripting function:
+
+@code{(read-shelx-ins-file @emph{file-name})}
+
+where @code{@emph{file-name}} is quoted, such as @code{"thox.ins"}.
+
+Although Coot should be able to read any SHELX ".res" file, it may
+currently have trouble displaying the bonds for centro-symmetric
+structures.
+
+ShelxL atoms with negative @command{PART} numbers are given alternative
+configuration identifiers in lower case.
+
+To write a SHELX ".ins" file:
+
+@code{(write-shelx-ins-file @emph{imol} @emph{file-name})}
+
+where @code{@emph{imol}} is the number of the molecule you wish to
+export.
+
+This will be a rudimentary file if the coordinates were initially from a
+"PDB" file, but will contain substantial SHELX commands if the
+coordinates were initially generated from a SHELX @t{ins} file.  
+
+@c I am pretty sure they are now.
+@c The FVARs may not be correctly handled at present. 
+
+
+@node    Atom Info
+@section Atom Info
+@cindex atom info
+@cindex residue info 
+Information about about a particular atom is displayed in the text
+console when you click using middle-mouse.  Information for all the
+atoms in a residue is available using @command{Info -> Residue
+Info@dots{}}.
+
+@cindex edit B-factors 
+@cindex edit occupancy 
+The temperature factors
+and occupancy of the atoms in a residue can be set by using
+@command{Edit -> Residue Info@dots{}}.
+
+@node Atom Labeling
+@section Atom Labeling
+@cindex atom labeling 
+Use Shift + left-mouse to label atom.  Do the same to toggle off the
+label.  The font size is changeable using @command{Edit ->
+  Font Size@dots{}}.  The newly centred atom is labelled by default.
+To turn this off use:
+
+@code{(set-label-on-recentre-flag 0)}
+
+@cindex atom label, brief 
+Some people prefer to have atom labels that
+are shorter, without the slashes and residue name:
+
+@code{(set-brief-atom-labels 1)}
+
+To change the atom label colour, use:
+
+@code{(set-font-colour 0.9 0.9 0.9)}
+
+
+@node Atom Colouring
+@section Atom Colouring
+The atom colouring 
+@cindex colouring, atoms
+@cindex atom colouring 
+system in coot is unsophisticated. Typically, atoms are coloured by
+element: carbons are yellow, oxygens red, nitrogens blue, hydrogens
+white and everything else green (see Section @ref{Display Manager}
+for colour by chain).  However, it is useful to be able to distinguish
+different molecules by colour, so by default coot rotates the colour
+map of the atoms (@emph{i.e.} changes the H value in the
+HSV @footnote{Hue Saturation Value (Intensity).}  colour system).  The
+amount of the rotation depends on the molecule number and a
+user-settable parameter:
+@itemize
+@item @code{(set-colour-map-rotation-on-read-pdb 30)}.
+@end itemize
+
+The default value is 31@math{^\circ}.
+
+Also one is able to select only the Carbon atoms to change colour in
+this manner: @code{(set-colour-map-rotation-on-read-pdb-c-only-flag
+  1)}.
+
+The colour map rotation can be set individually for each molecule by
+using the GUI: @code{Edit -> Bond Colours@enddots{}}.
+
+@node Bond Parameters
+@section Bond Parameters
+The various bond parameters can be set using the GUI dialog
+@command{Draw -> Bond Parameters} or @emph{via} scripting
+functions.
+
+The represention style of the molecule that has the active residue (if any) 
+can be changed using the scroll wheel with Ctrl and Shift.
+
+@subsection Bond Thickness
+@cindex bond thickness 
+@cindex width, bonds
+The thickness (width) of
+bonds of individual molecules can be changed.  This can be done via the
+@command{Bond Parameters} dialog or the scripting interface:
+
+@code{(set-bond-thickness @emph{thickness imol})}
+
+where @code{imol} is the molecule number. 
+
+The default thickness is 3 pixels. The bond thickness also applies to
+the symmetry atoms of the molecule. The default bond thickness for new
+molecules can be set using:
+
+@code{(set-default-bond-thickness @emph{thick})}
+
+where @code{@emph{thick}} is an integer.
+
+There is no means to change the
+bond thickness of a residue selection within a molecule.
+
+@subsection Display Hydrogens
+@cindex hydrogens
+Initially, hydrogens are displayed.  They can be
+undisplayed using 
+
+@code{(set-draw-hydrogens @emph{mol-no} 0)} @footnote{they
+  can be redisplayed using @code{(set-draw-hydrogens @emph{mol-no} 1)}.}
+
+where @code{@emph{mol-no}} is the molecule number.
+
+There is a GUI to control this too, under ``Edit -> Bond Parameters''.
+
+@subsection NCS Ghosts Coordinates
+@cindex NCS 
+It is occasionally useful when analysing non-crystallographically
+related molecules to have ``images'' of the other related molecules
+appear matched onto the current coordinates.  It is important to
+understand that these ghosts are for displaying differences of
+NCS-related molecules by structure superposition, not displaying
+neighbouring NCS related molecules.  As you read in coordinates in
+Coot, they are checked for NCS relationships and clicking on ``Edit ->
+Bond Parameters -> Show NCS Ghosts'' -> ``Yes'' -> ``Apply'' will
+create ``ghost'' copies of them over the reference chain @footnote{the
+reference chain is, by default, the first chain of that type in the
+coordinates file.  The reference (master) chain can be changed using
+the NCS Ghosts Control dialog.}.
+
+Sometimes SSM does not provide a good (or even useful) matrix.  In that
+case, we can specify the residue range ourselves and let the LSQ
+algorithm provide the matrix.  A gui dialog for this operation can be
+found under @command{Extensions -> NCS -> NCS Ghosts by Residue
+Range@dots{}}.
+
+The scripting function is used like this:
+
+@code{(manual-ncs-ghosts @emph{imol resno-start resno-end ncs-chain-ids})}
+
+ Typical usage: @t{(manual-ncs-ghosts 0 1 10 (list "A" "B" "C"))}
+
+note that in @code{@emph{ncs-chain-ids}}, the NCS master/reference
+chain-id goes first.
+
+@subsection NCS Maps
+Coot can use the relative transformations of the NCS-related molecules
+in a coordinates molecule to transform maps. Use @command{Calculate}
+-> @command{NCS Maps@dots{}} to do this (note the NCS maps
+only make sense in the region of the reference chain (see above).
+
+Note also that the internal representation of the map is not
+transformed.  If you try to export a NCS overlay map you will get an
+untransformed map.  A transformed map only makes sense around a given
+point (and when using transformed maps in Coot, this reference point is
+changed on the fly, thus allowing map transformations on the fly).
+[This applies to NCS overlap maps, NCS averaged maps are transformed].
+
+@cindex NCS averaging
+This will also create an NCS averaged
+map @footnote{that also only makes sense in the region of the reference
+  chain.}.
+
+@subsection Using Strict NCS
+Coot can use a set of strict NCS matrices to specify NCS which means
+that NCS-related molecules can appear like convention symmetry-related
+molecules.
+
+@code{(add-strict-ncs-matrix @emph{imol ncs-chain-id ncs-target-chain-id m11 m12 m13 m21 m22 m23 m31 m32 m33 t1 t2 t3})}
+
+where @code{@emph{ncs-chain-id}} might be "B", "C" "D" (etc.) and
+@code{@emph{ncs-target-chain-id}} is "A", i.e. the B, C, D molecules are
+NCS copies of the A chain.
+
+for icosahedral symmetry the translation components @code{@emph{t1}}, 
+@code{@emph{t2}}, @code{@emph{t3}} will be 0.
+
+You need to turn on symmetry for molecule @code{@emph{imol}} and set the
+displayed symmetry object type to "Display Near Chains".
+
+
+@node Download coordinates
+@section Download coordinates
+Coot provides the possibility to download coordinates from an
+@cindex OCA 
+OCA @footnote{OCA is ``goose'' in Spanish (and Italian)}.
+@cindex goose 
+(@emph{e.g.} EBI) server @footnote{the default is the
+  Weizmann Institute - which for reasons I won't go into here is
+  currently much faster than the EBI server.} (@command{File
+  -> Get PDB Using Code@dots{}}). A pop-up entry box is
+displayed into which you can type a PDB accession code.  Coot will
+then connect to the web server and transfer the file.  Coot blocks as
+it does this (which is not ideal) but on a semi-decent internet
+connection, it's not too bad.  The downloaded coordinates are saved
+into a directory called @file{coot-download}.
+
+It is also possible to download mmCIF data and generate a map.  This
+currently requires a properly formatted database structure factors
+mmCIF file @footnote{which (currently) only a fraction are.}.
+
+@node    Get Coordinates and Map from EDS
+@section Get Coordinates and Map from EDS
+@cindex  Electron Density Server
+
+Using this function we have the ability to download coordinates and view
+the map from structures in the Electron Density Server (EDS) at Uppsala
+University.  This is a much more robust and faster way to see maps from
+deposited structures.  This function can be found under the File menu
+item.
+
+This feature was added with the assistance of Gerard Kleywegt.  If you
+use the EDS, please cite GJ Kleywegt, MR Harris, JY Zou, TC Taylor, A
+W@"ahlby & TA Jones (2004), @i{"The Uppsala Electron-Density Server"}, @i{Acta
+Cryst.} @b{D}60, 2240-2249.
+
+@node Save coordinates
+@section Save Coordinates
+On selecting from the menus @command{File -> Save
+  Coordinates@dots{}} you are first presented with a list of molecules
+which have coordinates.  As well as the molecule number, there is the
+molecule name - very frequently the name of the file that was read in
+to generate the coordinates in coot initially.  However, this is only
+a @emph{molecule} name and should not be confused with the filename to
+which the coordinates are saved.  The coordinates @emph{filename} can
+be selected using the @command{Select Filename@dots{}} button.
+
+If your filename ends in @code{.cif}, @code{.mmcif} or
+@code{.mmCIF} then an mmCIF file will be written (not a ``PDB''
+file).
+
+@node    Setting the Space Group
+@section Setting the Space Group
+@cindex  setting space group
+
+If for some reason, the pdb file that you read does not have a space
+group, or has the wrong space group, then you can set it using the
+following function:
+
+@code{(set-space-group @emph{imol} @emph{symbol})}
+
+e.g.:
+
+@code{(set-space-group 0 "P 41 21 2")}
+
+@node Anisotropic Atoms
+@section Anisotropic Atoms
+@cindex anisotropic atoms
+By default anisotropic atom information is
+not represented @footnote{using thermal ellipsoids}.  To turn them on,
+use @command{Draw -> Anisotropic Atoms -> Show
+  Anisotropic Atoms?  -> Yes}, or the command:
+@code{(set-show-aniso 1)}.
+
+You cannot currently display thermal ellipsoids @footnote{in the case
+  of isotropic atoms, ellipsoids are spherical, of course.} for
+isotropic atoms.
+
+@node Symmetry
+@section Symmetry
+@cindex symmetry 
+Coordinates symmetry is ``dynamic''.  Symmetry atoms
+can be labeled @footnote{symmetry labels are in pale blue/purple and also
+  provide the symmetry operator number and the translations along the
+  a, b and c axes.}.  
+
+Every time you recentre, the symmetry coordinates are updated.  The
+information shown contains the atom information and the symmetry
+operation number and translations needed to generate the atom in that
+position.  To show the symmetry operator as a string (rather than a
+(1-based) index into the list of symmetry operators (as is the default))
+Use @command{Draw -> Show Symmetry> -> Expanded Symmetry Atom Labels}.
+Coot generates symmetry related atoms by moving the current set close to
+the origin by a translation, performing the symmetry expansion around
+the origin and moving the the symmetry coordinates back by applying the
+inverse of the origin translation.  The origin translation is also
+displayed in curly braces, e.g. ``{1 -1 0}''.
+
+By default symmetry atoms are not displayed.  
+
+If you want coot to display symmetry coordinates without having to use
+the gui, add to your @file{~/.coot} the following:
+
+@code{(set-show-symmetry-master 1)}
+
+
+The symmetry can be represented as C@math{\alpha}s.
+@cindex C@math{\alpha} symmetry
+This along with representation of the molecule as
+C@math{\alpha}s (Section @ref{Display Manager}) allow the production of
+a packing diagram.
+@cindex packing diagram
+
+@subsection Missing symmetry
+@cindex missing symmetry
+
+Sometimes (rarely) coot misses symmetry-related molecules that should be
+displayed.  In that case you need to expand the shift search (the default is 1):
+
+@code{(set-symmetry-shift-search-size 2)}
+
+This is a hack, until the symmetry search algorithm is improved.
+       
+
+@node Sequence View
+@section Sequence View
+@cindex sequence view
+ The protein is represented by one letter codes
+and coloured according to secondary structure.  These one letter codes
+are active - if you click on them, they will change the centre of the
+graphics window - in much the same way as clicking on a residue in the
+Ramachandran plot.
+
+@node Print Sequence 
+@section Print Sequence 
+@cindex Print Sequence 
+The single letter code (of the @code{@emph{imol}}th molecule) is written
+out to the console in FASTA format.  Use can use this to cut and paste
+into other applications:
+
+@code{(print-sequence @emph{imol})}
+
+@node Environment Distances
+@section Environment Distances
+Environment distances are turned on using @command{Info -> Environment
+Distances@dots{}}.  Contacts to other residues are shown and to
+symmetry-related atoms if symmetry is being displayed.  The contacts
+are coloured by atom type @footnote{contacts involving two hydrogens
+or at least one carbon atom are yellow, denoting 'bump'.  Hydrogen
+contacts display cut-off are based on the user-defined maximum
+distance, but shortened by 0.5@AA{} per hydrogen atom.}.
+
+@node Distances and Angles
+@section Distances and Angles
+The distance between atoms can be found using @command{Info
+  -> Distance} @footnote{Use @command{Angle} for an angle, of
+  course.}.  The result is displayed graphically, and written to the
+console.
+
+@node Zero Occupancy Marker
+@section Zero Occupancy Marker
+@cindex zero occupancy
+Atoms of zero occupancy are marked with a grey
+spot. To turn off these markers, use:
+
+@code{(set-draw-zero-occ-markers 0)}
+
+Use an argument of 1 to turn them on.
+
+@node Atomic Dots
+@section Atomic Dots
+@cindex atomic dots
+
+You can draw dots round arbitrary atom selections
+
+@code{(dots @emph{imol atom-selection dot-density radius})}
+The function returns a handle.
+
+@emph{e.g.} put a sphere of dots around all atoms of the 0th molecule
+(it might be a set of heavy atom coordinates) at the default dot density
+and radius:
+
+@code{(dots 0 "/1"  "heavy-atom-sites" 1 1)}
+
+You can't change the colour of the dots.  
+
+There is no internal mechanism to change the radius according to atom
+type.  With some cleverness you might be able to call this function
+several times and change the radius according to the atom selection.
+
+There is a function to clear up the dots for a particular molecule
+@code{@emph{imol}} and dots set identifier @code{@emph{dots-handle}}
+
+@code{(clear-dots @emph{imol dots-handle})}
+
+There is a function to return how many dots sets there are for a 
+particular molecule @code{@emph{imol}}:
+
+@code{(n-dots-set @emph{imol})}
+
+@node Ball and Stick Representation
+@section Ball and Stick Representation
+@cindex ball and stick
+
+Fragments of the molecule can be rendered as a ``ball and stick'' molecule:
+
+@code{(make-ball-and-stick @emph{imol atom-selection bond-thickness sphere-size draw-spheres-flag})}
+
+e.g. 
+@code{(make-ball-and-stick 0 "/1/A/10-20" 0.3 0.4 1)}
+
+The ball-and-stick representation can be cleared using:
+
+@code{(clear-ball-and-stick @emph{imol})}
+
+
+
+@node Mean and Median Temperature Factors
+@section Mean, Median Temperature Factors
+Coot can be used to calculate the 
+@cindex mean B-factor
+mean (average)
+and
+@cindex median B-factor
+median temperatures factors:
+
+@code{(average-temperature-factor @emph{imol})}
+
+@code{(median-temperature-factor @emph{imol})}
+
+@math{-1} is returned if there was a problem @footnote{@emph{e.g.} this
+molecule was a map or a closed molecule.}.
+
+@node    Secondary Structure Matching (SSM)
+@section Secondary Structure Matching (SSM)
+@cindex  Secondary Structure Matching (SSM)
+@cindex  superposition
+
+The excellent SSM alogrithm@footnote{the same one as in the CCP4 program
+SUPERPOSE} of Eugene Krissinel is available in Coot.  The GUI interface
+is straight-forward and can be found under @command{Calculate -> SSM
+Superpose}.  You can specify the specific chains that you wish to match
+using the "Use Specific Chain" check-button.
+
+There is a scripting level function which gives even finer control:
+
+@code{(superpose-with-atom-selection @emph{imol1 imol2
+mmdb-atom-selection-string-1 mmdb-atom-selection-string-2
+move-copy-flag} )}
+
+the @code{@emph{move-copy-flag}} should be 1 if you want to apply the
+transformation to a copy of @code{@emph{imol2}} (rather than
+@code{@emph{imol2}} itself). Otherwise, @code{@emph{move-copy-flag}}
+should be 0.
+
+mmdb atom selection strings (Coordinate-IDs) are explained in detail in
+the mmdb manual.
+
+Briefly, the string should be formed in this manner:
+
+@code{/mdl/chn/seq(res).ic/atm[elm]:aloc}
+
+@emph{e.g.} @code{"/1/A/12-130/CA"}
+
+@ifhtml
+<p><a href="http://www.ebi.ac.uk/~keb/cldoc/object/cl_obj_surf.html#CoordinateID">The mmdb manual CoordinateID description</a>.</p>
+@end ifhtml
+
+
+@node  Least-Squares Fitting
+@section Least-Squares Fitting
+@cindex Least Squares Fitting
+
+There is a simple GUI for this @command{Calculate -> LSQ Superpose@dots{}}
+
+The scripting interface to LSQ fitting is as follows:
+
+@code{(simple-lsq-match @emph{ref-start-resno ref-end-resno ref-chain-id imol-ref
+           mov-start-resno mov-end-resno mov-chain-id imol-mov
+           match-type})}
+
+where:
+@itemize
+@item @code{@emph{ref-start-resno}} is the starting residue number
+  of the reference molecule
+@item @code{@emph{ref-end-resno}} is the last residue number
+  of the reference molecule
+@item @code{@emph{mov-start-resno}} is the starting residue number
+  of the moving molecule
+@item @code{@emph{mov-end-resno}} is the last residue number
+  of the moving molecule
+@item @code{@emph{match-type}} is one of @code{'CA},
+  @code{'main}, or @code{'all}.
+@end itemize
+
+@emph{e.g.}: 
+@code{(simple-lsq-match 940 950 "A" 0 940 950 "A" 1 'main)}
+
+More sophisticated (match molecule number 1 chain ``B'' on to molecule
+number 0 chain ``A''):
+
+@code{(define match1 (list 840 850 "A" 440 450 "B" 'all))}
+
+@code{(define match2 (list 940 950 "A" 540 550 "B" 'main))}
+
+@code{(clear-lsq-matches)}
+
+@code{(set-match-element match1)}
+
+@code{(set-match-element match2)}
+
+@code{(lsq-match 0 1)} ; match molecule number 1 onto molecule number 0.
+
+@c %% @itemize 
+@c %% @item @code{(define match1 (list 840 850 "A" 440 450 "B" 'all))}
+@c %% @item @code{(define match2 (list 940 950 "A" 540 550 "B" 'main))}
+@c %% @item @code{(clear-lsq-matches)}
+@c %% @item @code{(set-match-element match1)}
+@c %% @item @code{(set-match-element match2)}
+@c %% @item @code{(lsq-match 0 1)}
+@c %% @end itemize
+
+@node  Ligand Overlaying
+@section Ligand Overlaying
+@cindex ligand, overlay
+@cindex overlaying ligands
+
+The scripting function 
+
+@code{(overlap-ligands @emph{imol-ligand imol-ref chain-id-ref resno-ref})}
+
+returns a rotation+translation operator which can be applied to other
+molecules (and maps).  Here, @code{@emph{imol-ligand}} is the molecule
+number of the ligand (which is presumed to be a a molecule on its own -
+Coot simply takes the first residue that it finds). @code{@emph{imol-ref
+chain-id-ref resno-ref}} collectively describe the target position for
+the moving @code{@emph{imol-ligand}} molecule.
+
+The convenience function 
+
+@code{(overlay-my-ligands @emph{imol-mov chain-id-mov resno-mov imol-ref chain-id-ref resno-ref})} 
+
+wraps @code{overlap-ligands}.  
+
+The GUI for the function can be found under 
+
+@command{Extensions -> Modelling -> Supperpose Ligands@dots{}}
+
+@node Writing PDB files
+@section Writing PDB files
+@cindex writing PDBs
+
+As well as the GUI option @command{File -> Save Coordinates@dots{}} there
+is a scripting options available:
+
+@code{(write-pdb-file @emph{imol pdb-file-name})}
+
+which writes the @code{@emph{imol}}th coordinates molecule to
+@code{@emph{filename}}.
+
+To write a specific residue range: 
+
+@code{(write-residue-range-to-pdb-file @emph{imol chain-id start-resno
+endresno pdb-file-name})}
+
+
+@c % -----------------------------------------------------------
+@node Modelling and Building
+@chapter Modelling and Building
+@c % -----------------------------------------------------------
+
+@menu
+* Regularization and Real Space Refinement ::  
+* Changing the Map for Building/Refinement::  
+* Rotate/Translate Zone::       
+* Rigid Body Refinement  ::     
+* Simplex Refinement ::         
+* Post-manipulation-hook::      
+* Baton Building::              
+* Reversing Direction of Fragment::  
+* C-alpha -> Mainchain::        
+* Backbone Torsion Angles ::    
+* Docking Sidechains::          
+* Rotamers::                    
+* Editing Chi Angles::          
+* Torsion General::             
+* Pep-flip::                    
+* Adding Alternative Conformations::  
+* Mutation::                    
+* Importing Ligands/Monomers::  
+* Ligand from SMILES strings::  
+* Find Ligands::                
+* Flip Ligand::                 
+* Find Waters::
+* Add Terminal Residue::
+* Add OXT Atom to Residue::
+* Add Atom at Pointer::
+* Place Helix::                 
+* Building Ideal DNA and RNA::  
+* Merge Molecules::             
+* Temperature Factor for New Atoms::  
+* Applying NCS Edits::          
+* Running Refmac::              
+* Running SHELXL::              
+* Clear Pending Picks::         
+* Delete::                      
+* Sequence Assignment ::        
+* Building Links and Loops::    
+* Fill Partial Residues::       
+* Changing Chain IDs::          
+* Setting Occupancies::         
+* Fix Nomenclature Errors::     
+* Rotamer Fix Whole Protein::   
+* Refine All Waters ::          
+* Moving Molecules/Ligands::    
+* Modifying the Labels on the Model/Fit/Refine dialog::  
+@end menu
+
+The functions described in this chapter manipulate, extend or build
+molecules and can be found under @command{Calculate ->
+  Model/Fit/Refine@dots{}}.  When activated, the dialog "stays on top"
+  of the main graphics window @footnote{given a half-decent window
+  manager}.  Some people think that this is not always desirable, so
+  this behaviour can be undone using:
+
+@code{(set-model-fit-refine-dialog-stays-on-top 0)}
+
+
+@node    Regularization and Real Space Refinement 
+@section Regularization and Real Space Refinement 
+
+@menu
+* Dictionary::
+* Sphere Refinement::
+* Refining Specific Residues::
+* Refining Carbohydrates::
+* Planar Peptide Restraints::
+* The UNK residue type::
+* Moving Zero Occupancy Atoms::
+@end menu
+
+Coot will read the geometry restraints for
+refmac and use them in fragment (zone) idealization - this is called
+``Regularization''.
+@cindex regularization 
+  The geometrical restraints
+are, by default, bonds, angles, planes
+@cindex planes 
+ and non-bonded
+contacts.  You can additionally use torsion restraints
+@cindex torsion restraints
+by @command{Calculate -> Model/Fit/Refine@dots{} -> Refine/Regularize Control
+  -> Use Torsion Restraints}.  Truth to tell, this has not been
+  successful in my hands (sadly).
+
+``RS (Real Space) Refinement''
+@cindex refinement
+ (after Diamond,
+1971 @footnote{Diamond, R. (1971). A Real-Space Refinement Procedure
+  for Proteins. @emph{Acta Crystallographica} @b{A}27, 436-452.
+  }) in Coot is the use of the map in addition to geometry terms to
+improve the positions of the atoms.  Select ``Regularize'' from the
+``Model/Fit/Refine'' dialog and click on 2 atoms to define the zone
+(you can of course click on the same atom twice if you only want to
+regularize one residue).  Coot then regularizes the residue range.  At
+the end Coot, displays the intermediate atoms in white and also
+displays a dialog, in which you can accept or reject this
+regularization.  In the console are displayed the @math{\chi^2}
+values of the various geometrical restraints for the zone before 
+and after the regularization.  Usually the @math{\chi^2} values are 
+considerably decreased - structure idealization such as this should 
+drive the @math{\chi^2} values toward zero.
+
+The use of ``Refinement'' is similar - with the addition of using a
+map.  The map used to refine the structure is set by using the
+``Refine/Regularize Control'' dialog.  If you have read/created only
+one map into Coot, then that map will be used (there is no need to set
+it explicitly).
+
+
+Use, for example, 
+@cindex @code{set-matrix}
+@cindex weight, real space refinement
+@cindex refinement weight
+@code{(set-matrix 20.0)}
+
+
+to change the weight of the map gradients to geometric gradients.  The
+higher the number the more weight that is given to the map terms
+@footnote{but the resulting @math{\chi^2} values are higher.}.  The
+default is 60.0.  This will be needed for maps generated from data not
+on (or close to) the absolute scale or maps that have been scaled (for
+example so that the sigma level has been scaled to 1.0).
+
+For both ``Regularize Zone'' and ``Refine Zone'' one is able to use a
+single click to
+@cindex single click refine 
+@cindex refine single click 
+refine a residue range.  Pressing @key{A} on the keyboard while
+selecting an atom in a residue will automatically create a residue
+range with that residue in the middle.  By default the zone is
+extended one residue either size of the central residue.  This can be
+changed to 2 either side using @code{(set-refine-auto-range-step
+  2)}.
+
+Intermediate (white) atoms can be moved around with the mouse (click
+and drag with left-mouse, by default).  
+@c \marginpar{ @footnotesize
+@c   @command{This is a useful feature}} 
+Refinement will proceed from the
+new atom positions when the mouse button is released.  It is possible
+to create incorrect atom nomenclature and/or chiral volumes in this
+manner - so some care must be taken.  Press the @key{A} key as you
+left-mouse click to move atoms more ``locally'' (rather than a linear
+shear) and @key{Ctrl} key as you left-mouse click to move just one atom.
+
+In more up to date versions, Coot will display colour patches (something
+like a traffic light system) 
+@cindex traffic lights
+representing the chi squared values of each
+of types of geometric feature refined.  Typically ``5 greens'' is the
+thing to aim for, the colour changes occurring at chi squared values 2, 5
+and 8 (8 being the most red).
+
+To prevent the unintentional refinement of a large number of residues,
+there is a ``heuristic fencepost'' of 20 residues.  A selection of
+than 20 residues will not be regularized or refined.  The limit can be
+changed using the scripting function: @emph{e.g.}
+@code{(set-refine-max-residues 30)}.
+
+@node Dictionary
+@subsection Dictionary
+@cindex cif dictionary 
+@cindex mmCIF dictionary 
+
+The geometry description for residues, monomers and links used by Coot
+are in the standard mmCIF format.  Because this format alows multiple
+comp_ids (residue types) to be described within a cif loop, it is hard
+to tell when a dictionary entry needs to be overwritten when reading a
+new file.  Therefore Coot makes this extra constraint: that the
+``chem_comp'' loop should appear first in the comp list data item - if
+this is the case, then Coot can overwrite an old restraint table for a
+particular comp_id/residue-type when a new one is read.
+
+By default, 
+the geometry dictionary entries for only the standard
+residues are read in at the start  @footnote{And a few extras, such as
+  phosphate}.  It may be that your particular ligand is not amongst
+these.  To interactively add a dictionary entry use @command{File
+  -> Import CIF Dictionary}.  Alternatively, you can use
+the function:
+
+@code{(read-cif-dictionary @emph{filename})}
+
+and add this to your @code{.coot} file (this may be the preferred
+method if you want to read the file on more than one occasion).  
+
+Note: the dictionary also provides the description of the ligand's
+torsions.
+
+@node       Sphere Refinement
+@subsection Sphere Refinement
+@cindex sphere refinement
+
+Sphere refinement selects residues within a certain distance of the
+residue at the centre of the screen and includes them for real space
+refinement.  In this way, one can select residues that are not in a
+linear range.  This technique is useful for refining disulfide bonds and
+glycosidic linkages.
+
+To enable sphere refinement, Right-mouse in the vertical toolbutton
+menu, Manage buttons -> [Tick] Sphere Refine -> Apply.  You will need
+a python-enabled Coot to do this.
+
+The following adds a key binding (Shift-R) that refines resides that are
+within 3.5@AA{} of the residue at the centre of the screen:
+
+@verbatim
+        
+(define *sphere-refine-radius* 3.5)
+
+(add-key-binding "Refine residues in a sphere" "R"
+    (lambda ()
+     (using-active-atom
+      
+      (let* ((rc-spec (list aa-chain-id aa-res-no aa-ins-code))
+	     (ls (residues-near-residue aa-imol rc-spec *sphere-refine-radius*)))
+	(refine-residues aa-imol (cons rc-spec ls))))))
+
+
+@end verbatim
+
+
+@node       Refining Specific Residues
+@subsection Refining Specific Residues
+@cindex refining residues
+
+You can specify the residues that you want to refine without using a
+linear or sphere selection usine @code{refine-residues}.   For example:
+
+@code{(refine-residues 0 '(("L" 501 "") ("L" 503 "")))}
+
+will refine residues A501 and A503 (and residue A502 (if it exists)
+will be an anchoring residue - used in optimizing the link geometry of
+the atoms in A501 and A503).
+
+@node       Refining Carbohydrates
+@subsection Refining Carbohydrates
+@cindex carbohydrates
+
+Refining carbohydrates monomers should be as straightforward as refining
+a protein residue.  Coot will look in the dictionary for the 3-letter
+code for the particular residue type, if it does not find it, Coot will
+try to search for dictionary files using ``-b-D'' or ``-a-L'' extensions.
+
+When refining a group of carbohydrates, the situation needs a bit more
+explanation. For each residue pair with tandem residue numbers specified
+in the refinement range selection, Coot checks if these residue types
+are are furanose or pyranose in the dictionary, and if the are both one
+or the other, then it tries to see if there are any of the 11 link types
+(BETA1-4, BETA2-3, ALPHA1-2 and so on) specified in the dictionary.  It
+does this by a distance check of the potentially bonding atoms.  If the
+distance is less than 3.0@AA{}, then a glycosidic bond is made and used
+in the refinement.
+
+Bonds between protein and carbohydrate and branched carbohydrates can be
+refined using ``Sphere Refinement''.
+
+Instead of using a sphere to make a residue selection, you can specify
+the residues directly using @code{refine-residues}, for example:
+
+@code{(refine-residues 0 '(("L" 501 "") ("L" 503 "")))}
+
+LINK and LINKR cards are not yet used to determine the geometry of the
+restraints.
+
+
+
+@node Planar Peptide Restraints
+@subsection Planar Peptide Restraints
+@cindex planar peptide restraints
+@cindex peptide restraints, planar
+
+By default, Coot uses a 5 atom (CA-1, C-1, O-1, N-2, CA-2) planar
+peptide restraints.  These restraints should help in low resolution
+fitting (the main-chains becomes less distorted), reduce accidental
+cis-peptides and may help ``clean up'' Ramachandran plots.
+
+@code{(add-planar-peptide-restraints)}
+
+And similarly they can be removed:
+
+@code{(remove-planar-peptide-restraints)}
+
+There is also a GUI to add and remove these restraints in
+@code{Extensions -> Refine@dots{} -> Peptide Restraints@dots{}} 
+
+
+
+
+@node The UNK residue type
+@subsection The UNK residue type
+@cindex  @code{UNK} residue 
+
+The @code{UNK} residue type is a special residue type to Coot.  It has
+been added for use with Buccaneer. Don't give you ligand (or anything
+else) the 3-letter-code @code{UNK} or confusion will result
+@footnote{unless you are using Buccaneer, of course}.
+
+@node Moving Zero Occupancy Atoms
+@subsection Moving Zero Occupancy Atoms
+@cindex  Moving Zero Occupancy Atoms
+
+By default, atoms with zero occupancy are moved when refining and
+regularizing.  This can sometimes be inconvenient.  To turn of the
+movement of atoms with zero occupancy when refining and regularizing:
+
+@code{(set-refinement-move-atoms-with-zero-occupancy 0)}
+
+
+@c --------------------------------------------------
+@node    Changing the Map for Building/Refinement
+@section Changing the Map for Building/Refinement
+@cindex  changing the Refinement Map
+@cindex  map changing (for refinement/building)
+
+You can change the map that is used for the fitting and refinement tools
+using the @command{Select Map@enddots{}} button on the Model/Fit/Refine
+dialog.
+
+
+@node Rotate/Translate Zone
+@section Rotate/Translate Zone
+@cindex rotate/translate, manual 
+
+``Rotate/Translate Zone'' from the ``Model/Fit/Refine'' menu allows
+manual movement of a zone.  After pressing the ``Rotate/Translate Zone''
+button, select two atoms in the graphics canvas to define a residue
+range @footnote{if you
+  want to move only one residue, then click the same atom twice.}, the
+second atom that you click will be the local rotation centre for the
+zone.  The atoms selected in the moving fragment have the same
+alternate conformation code as the first atom you click.  To actuate a
+transformation, click and drag horizontally across the relevant button
+in the newly-created ``Rotation & Translation'' dialog. The axis
+system of the rotations and translations are the screen coordinates.
+Alternatively  @footnote{like Refinement and Regularization}, you can
+click using left-mouse on an atom in the fragment and drag the
+fragment around. Use Control Left-mouse to move just one atom, rather
+than the whole fragment.  If you click Control Left-mouse whilst @emph{not} 
+over an atom then you can rotate the fragment using mouse drag. 
+Click ``OK'' (or press Return) when the transformation is complete.
+
+To change the rotation point to the centre of the intermediate atoms
+(rather than the second clicked atom), use the setting:
+
+@code{(set-rotate-translate-zone-rotates-about-zone-centre 1)}
+
+@node Rigid Body Refinement  
+@section Rigid Body Refinement
+@cindex refinement, rigid body
+@cindex rigid body fit 
+``Rigid Body Fit Zone'' from the
+``Model/Fit/Refine'' dialog provides rigid body refinement.  The
+selection is zone-based @footnote{like Regularization and Refinement.}.
+So to refine just one residue, click on one atom twice.
+
+Sometimes no results are displayed after Rigid Body Fit Zone.  This is
+because the final model positions had too many final atom positions in
+negative density.  If you want to over-rule the default fraction of
+atoms in the zone that have an acceptable fit (0.75), to be (say)
+0.25:
+
+@code{(set-rigid-body-fit-acceptable-fit-fraction 0.25)}
+
+@node    Simplex Refinement 
+@section Simplex Refinement
+@cindex  simplex refinement
+@cindex refinement, simplex
+
+Rigid body refinement via Nelder-Mead Simplex minimization is available
+in Coot.  Simplex refinement has a larger radius of convergence and thus
+is useful in a position where simple rigid body refinement finds the
+wrong minimum. However the Simplex algorithm is much slower.  Simplex
+refinement for a residue range @code{@emph{start-resno}} to
+@code{@emph{end-resno}} (inclusive) in chain @code{@emph{chain-id}} can
+be accessed as follows:
+
+@code{(fit-residue-range-to-map-by-simplex @emph{start-resno end-resno alt-loc 
+        chain-id imol imol-for-map})}
+
+There is currently no GUI interface to Simplex refinement.
+
+@node    Post-manipulation-hook
+@section Post-manipulation-hook
+@cindex  post-manipulation-hook
+
+If you wanted automatically run a function after a model has been
+manipulated then you can do so using by creating a function that takes
+2 arguments, such as:
+
+@code{(post-manipulation-hook @emph{imol manipulation-mode})}
+
+@code{@emph{manipulation-mode}} is one of @code{@emph{(DELETED)}},
+@code{@emph{(MUTATED)}} or @code{@emph{(MOVINGATOMS)}}.
+
+And of course @code{@emph{imol}} is the model number of the maniplated
+molecule.
+
+(It would of course be far more useful if this function was also
+passed a list of residues - that is something for the future).
+
+@node    Baton Building
+@section Baton Building
+@cindex  baton build 
+
+Baton build is most useful if a skeleton is already calculated and
+displayed (see Section @ref{Skeletonization}).  When three or more atoms
+have been built in a chain, Coot will use a prior probability
+distribution for the next position based on the position of the previous
+three.  The analysis is similar to that of Oldfield & Hubbard (1994)
+@footnote{T. J.  Oldfield & R. E. Hubbard (1994).  ``Analysis of
+C@math{\alpha} Geometry in Protein Structures'' @emph{Proteins-Structure
+Function and Genetics} @b{18(4)} 324 -- 337.}, however it is based on a
+more recent and considerably larger database.
+
+Little crosses are drawn representing directions in which is is
+possible that the chain goes, and a baton is drawn from the current
+point to one of these new positions.  If you don't like this
+particular direction @footnote{which is quite likely at first since
+  coot has no knowledge of where the chain has been and cannot score
+  according to geometric criteria.}, use @command{Try Another}.  The
+list of directions is scored according to the above criterion and
+sorted so that the most likely is at the top of the list and displayed
+first as the baton direction.
+
+When starting baton building, be sure to be about 3.8@AA{} from the
+position of the first-placed C@math{\alpha}, this is because the next
+C@math{\alpha} is placed at the end of the baton, the baton root being at
+the centre of the screen.  So, when trying to baton-build a chain
+starting at residue 1, centre the screen at about the position of
+residue 2.
+
+It seems like a good idea to increase the map sampling to 2 or even 2.5
+(before reading in your mtz file) [a grid sampling of about 0.5@AA{}
+seems reasonable] when trying to baton-build a low resolution map.  You
+can set the map sampling using @command{Edit -> Map Parameters -> Map
+Sampling}.
+
+@c %%% FIXME: Tell me where it is in the gui
+
+@c % ``b'' key in GL canvas
+@cindex baton mode 
+Occasionally, every point is not where you want to
+position the next atom.  In that case you can either shorten or
+lengthen the baton, or position it yourself using the mouse.  Use
+``b'' on the keyboard to swap to baton mode for the
+mouse @footnote{``b'' again toggles the mode off.}.
+
+Baton-built atoms are placed into a molecule called ``Baton Atom'' and
+it is often sensible to save the coordinates of this molecule before
+quitting coot.
+
+If you try to trace a high resolution map (1.5@AA{}  or better) you will
+need to increase the skeleton search depth from the default (10), for
+example:
+
+@code{(set-max-skeleton-search-depth 20)}
+
+Alternatively, you could generate a new map using data
+to a more moderate resolution (2@AA{}), the map may be easier to
+interpret at that resolution anyhow @footnote{high-resolution map
+  interpretation is planned.}.
+
+The guide positions are updated every time the ``Accept'' button is
+clicked.  The molecule name for these atoms is ``Baton Build Guide Points''
+and is is not usually necessary to keep them.
+
+@subsection Undo 
+There is also an ``Undo'' button for baton-building.  Pressing this
+will delete the most recently placed C@math{\alpha} and the guide points
+will be recalculated for the previous position.  The number of
+``Undo''s is unlimited.  Note that you should use the ``Undo'' button
+in the Baton Build dialog, not the one in the ``Model/Fit/Refine''
+dialog (Section @ref{Backups and Undo}).
+
+@subsection Missing Skeleton 
+@cindex skeleton, missing
+Sometimes (especially at loops) you can see
+the direction in which the chain should go, but there is no skeleton
+(see Section @ref{Skeletonization}) is displayed (and consequently no
+guide points) in that direction. In that case, ``Undo'' the previous
+atom and decrease the skeletonization level (@command{Edit
+  -> Skeleton Parameters -> Skeletonization
+  Level}).  Accept the atom (in the same place as last time) and now
+when the new guide points are displayed, there should be an option to
+build in a new direction.
+
+@subsection Building Backwards
+The following scenario is not uncommon: you find a nice stretch of
+density and start baton building in it.  After a while you come to a
+point where you stop (dismissing the baton build dialog).  You want to
+go back to where you started and build the other way.  How do you do
+that?
+
+@itemize
+@item Use the command: 
+
+@code{(set-baton-build-params @emph{start-resno}
+    @emph{chain-id} "backwards")}
+
+where @code{@emph{start-resno}} would typically
+    be 0 @footnote{@emph{i.e.} one less than the starting residue in the
+    forward direction (defaults to 1).} and @code{@emph{chain-id}} would be
+    @code{""} (default).
+@item Recentre the graphics window on the first atom of the just-build
+  fragment
+@item Select ``Ca Baton Mode'' and select a baton direction
+  that goes in the ``opposite'' direction to what is typically residue
+  2.  This is slightly awkward because the initial baton atoms build
+  in the ``opposite'' direction are not dependent on the first few
+  atoms of the previously build fragment.
+@end itemize
+
+@node Reversing Direction of Fragment
+@section Reversing Direction of Fragment
+@cindex reverse direction
+@cindex fragment direction change
+
+After you've build a fragment, sometimes you might want to change the
+direction of that fragment (this function changes an already existing
+fragment, as opposed to Backwards Building which sets up Baton Building
+to place new points in reverse order).
+
+The fragment is defined as a contiguous set of residues numbers.  So
+that you should be sure that other partial fragments which have the same
+chain id and that are not connected to this fragment have residue
+numbers that are not contiguous with the fragment you are trying to
+reverse.  
+
+@c markup properly when you have a manual.
+@c e.g.:    
+@c 
+@c          other fragment   fragment-for-reversing   other fragment
+@c residues      1-20                 22-32                  34-60
+
+
+
+@node C-alpha -> Mainchain
+@section C@math{\alpha} -> Mainchain 
+@cindex mainchain 
+Mainchain can be generated using a set of C@math{\alpha}s
+as guide-points (such as those from Baton-building) along the line of
+Esnouf @footnote{R. M. Esnouf ``Polyalanine Reconstruction from
+  C@math{\alpha} Positions Using the Program @emph{CALPHA} Can Aid Initial
+  Phasing of Data by Molecular Replacement Procedures'' @emph{Acta
+    Cryst. }, D@b{53}, 666-672 (1997).} or Jones and
+coworkers @footnote{T.A.  Jones & S. Thirup ``Using known
+  substructures in protein model building and crystallography''
+  @emph{EMBO J.} @b{5}, 819--822 (1986).}.  Briefly, 6-residue
+fragments of are generated from a list of high-quality @footnote{and
+  high resolution} structures. The C@math{\alpha} atoms of these fragments
+are matched against overlapping sets of the guide-point C@math{\alpha}s.
+The resulting matches are merged to provide positions for the
+mainchain (and C@math{\beta}) atoms.  This procedure works well for
+helices and strands, but less well @footnote{@emph{i.e.}  there are
+  severely misplaced atoms} for less common structural features.
+
+This function is also available from the scripting interface:
+
+@code{(db-mainchain @emph{imol chain-id resno-start resno-end direction})}
+    
+where direction is either @code{"backwards"} or @code{"forwards"}. 
+
+Recall that the @code{@emph{chain-id}} needs to be quoted, @emph{i.e.}
+use @code{"A"} not @code{A}.  Note that @code{@emph{chain-id}} is
+@code{""} when the C@math{\alpha}s have been built with Baton Mode in
+Coot.
+
+
+@c % Withdrawn due to being to difficult to calculate the atom positions 
+@c % given the phi and psi
+@c %
+@c %@section{Edit Phi/Psi}
+@c %@cindex{edit $\phi/\psi$}This generates a Ramachandran plot with only
+@c %one residue represented.  You can click and drag this residue round
+@c %the plot and the coordinates in the graphics window will change to the
+@c %$\phi/\psi$ values in the Ramachandran plot.
+
+@node    Backbone Torsion Angles 
+@section Backbone Torsion Angles
+@cindex mainchain torsions
+It is possible to edit the backbone @math{\phi} and @math{\psi} angles
+indirectly using an option in the Model/Fit/Refine's dialog: ``Edit
+Backbone Torsions..''. When clicked and an atom of a peptide is
+selected, this produces a new dialog that offers ``Rotate Peptide''
+which changes this residues @math{\psi} and ``Rotate Carbonyl'' which
+changes @math{\phi}.  Click and drag across the button @footnote{as for
+Rotate/Translate Zone (Section @ref{Rotate/Translate Zone}).} to rotate
+the moving atoms in the graphics window.  You should know, of course,
+that making these modifications alter the @math{\phi/\psi} angles of
+more than one residue.
+
+
+@node Docking Sidechains
+@section Docking Sidechains
+@cindex docking sidechains
+@cindex sidechains
+
+Docking sidechains means adding sidechains to a model or fragment that
+has currently only poly-Ala, where the sequence assignment is unknown.
+The algorithm is basically the same as in Cowtan's Buccaneer, but with
+some corners cut to make things (more or less) interactive.  The
+algorithm uses the shape of the density around the C-beta position to
+estimate the probability of each sidechain type at that position.
+
+The function is accessed via the @command{Extensions -> Dock Sequence}
+menu item.  First, a sequence should be assigned from a PIR file to a
+particular chain-id and model number.  Secondly @command{Extensions ->
+Dock Sequence -> Dock Sequence on this fragment@dots{}}.  Choose the
+model to build on and then @command{Dock Sequence!} If all goes well,
+the model will be updated with mutated residues and undergo rotamer
+seach for each of the new residues.  If the sequence alignment is not
+sufficiently clear, then you will get a dialog suggesting that you
+extend or improve the fragment.
+
+@node Rotamers
+@section Rotamers
+@cindex rotamers 
+
+The rotamers are generated @footnote{since version 0.4} from the
+backbone independent sidechain library of the Richardsons group
+@footnote{SC Lovell, JM Word, JS Richardson and DC Richardson (2000)
+"The Penultimate Rotamer Library" Proteins: Structure Function and
+Genetics 40: 389-408.  You can get the paper from
+@url{http://kinemage.biochem.duke.edu/databases/rotamer.php}}.
+
+The m, t and p stand for ``minus (-60)'', ``trans (180)'' and ``plus
+(+60)''.  There is one letter per @math{\chi} angle.
+
+Use keyboard @key{.} and @key{,} to cycle round the rotamers.
+
+@subsection Auto Fit Rotamer
+@cindex auto-fit rotamer
+``Auto Fit Rotamer'' will try to fit the
+rotamer to the electron density.  Each rotamer is generated, rigid
+body refined and scored according to the fit to the map.  Fitting the
+second conformation of a dual conformation in this way will often fail
+- the algorithm will pick the best fit to the density - ignoring the
+position of the other atoms.
+
+The algorithm doesn't know if the other atoms in the structure are in
+sensible positions.  If they are, then it is sensible not to put this
+residue too close to them, if they are not then there should be no
+restriction from the other atoms as to the position of this residue -
+the default is ``are sensible'', which means that the algorithm is
+prevented from finding solutions that are too close to the atoms of
+other residues. @code{(set-rotamer-check-clashes 0)} will stop this.
+
+
+There is a scripting interface to auto-fitting rotamers:
+
+@code{(auto-fit-best-rotamer @emph{resno alt-loc ins-code chain-id
+imol-coords
+imol-map clash-flag lowest-rotamer-probability})}
+
+where:
+
+@code{@emph{resno}} is the residue number
+
+@code{@emph{alt-loc}} is the alternate/alternative location symbol
+(@emph{e.g.} @code{"A"} or @code{"B"}, but most often @code{""})
+
+@code{@emph{ins-code}} is the insertion code (usually @code{""})
+
+@code{@emph{imol-coords}} is the molecule number of the coordinates molecule
+
+@code{@emph{imol-map}} is the molecule number of the map to which
+you wish to fit the side chains
+
+@code{@emph{clash-flag}} should the positions of other residues be
+included in the scoring of the rotamers (@emph{i.e.} clashing with other
+other atoms gets marked as bad/unlikely)
+
+@code{@emph{lowest-rotamer-probability}}: some rotamers of some side
+chains are so unlikely that they shouldn't be considered - typically
+0.01 (1%).
+
+
+You can change the auto-fit rotamer fitting algorithms using
+
+@code{(set-rotamer-search-mode @emph{mode})}
+ 
+where @code{@emph{mode}} is one of @code{(ROTAMERSEARCHAUTOMATIC)},
+@code{(ROTAMERSEARCHLOWRES)} (@emph{i.e.} "Backrub Rotamers"
+(@emph{vide infra})) or @code{(ROTAMERSEARCHHIGHRES)} (the
+conventional/high-resolution method using rigid-body fitting).
+
+By default, the auto-fit rotamer method is @code{(ROTAMERSEARCHAUTOMATIC)}.
+
+@subsubsection Backrub Rotamers
+@cindex backrub rotamers
+By default, Auto Fit Rotamer will switch to ``Backrub Rotamer''
+@footnote{"The Backrub Motion: How Protein Backbone Shrugs
+     When a Sidechain Dances" @emph{Structure}, Volume @b{14}, Issue 2, Pages
+     265-274 I. Davis, W. Bryan Arendall III, D. Richardson, J. Richardson}
+mode when fitting against a map of worse than 2.7@AA{}.  This
+search mode moves the some atoms of the mainchain of the
+neighbouring residues.  After rotation of the central residue and 
+neighbouring atoms around the ``backrub vector'', the 
+individual peptides are back-rotated (along the peptide axis) so that the
+carbonyl oxygen are placed as near as possible to their original position.  
+The Ramachandran plot is not used in this fitting algorithm.
+
+
+@subsection De-clashing residues
+Sometimes you don't have a map @footnote{for example, in preparation of
+  a model for molecular replacement} but nevertheless there are
+clashing residues
+@cindex clashing residues 
+ @footnote{atoms of residues
+  that are too close to each other} (for example after mutation of a
+residue range) and you need to rotate side-chains to a non-clashing
+rotamer.  There is a scripting interface:
+
+@code{(de-clash @emph{imol chain-id start-resno end-resno})}
+
+@code{@emph{start-resno}} is the residue number of the first residue
+you wish to de-clash
+
+@code{@emph{end-resno}} is the residue number of the last residue
+you wish to de-clash
+
+@code{@emph{imol}} is the molecule number of the coordinates molecule
+
+This interface will not change residues with insertion codes or
+alternate conformation.  The
+@code{@emph{lowest-rotamer-probability}} is set to 0.01.
+
+@node Editing Chi Angles
+@section Editing chi Angles
+@cindex edit @math{\chi} angles
+@cindex chi angles
+Instead of using Rotamers, one can instead
+change the @math{\chi} angles 
+@cindex torsions 
+(often called ``torsions'')
+``by hand'' (using ``Edit Chi Angles'' from the ``Model/Fit/Refine''
+dialog). To edit a residue's @math{\chi_1} press ``1'': to edit 
+@math{\chi_2},
+``2'': @math{\chi_3} ``3'' and @math{\chi_4} ``4''.  
+Use left-mouse click and
+drag to change the @math{\chi} value.  Use keyboard ``0'' @footnote{that's
+  ``zero''.} to go back to ordinary view mode at any time during the
+editing.  Alternatively, one can use the ``View Rotation Mode'' or use
+the @key{Ctrl} key when moving the mouse in the graphics window.  Use the
+Accept/Reject dialog when you have finished editing the @math{\chi} 
+angles.
+
+For non-standard residues, the clicked atom defines the base of the atom
+tree, which defines the ``head'' of the molecule (it's the ``tail''
+(twigs/leaves) that wags).  To emphasise, then: it matters on which atom
+you click!
+
+@c It should be emphasised that for standard residues this is an option
+@c of last resort - use the other rotamer manipulation options first.
+
+By default torsions for hydrogen atoms are turned off.  To turn them on:
+
+@code{(set-find-hydrogen-torsions 1)}
+
+To edit the rotatable bonds of a ligand using this tool, you will need
+to have read in the mmCIF dictionary beforehand.
+
+@node Torsion General
+@section Torsion General
+@cindex torsion general
+
+   You need to click on the torsion-general button, then click 4 atoms
+   that describe the torsion - the first atom will be the base (non
+   moving) part of the atom tree, on clicking the 4th atom a dialog
+   will pop up with a "Reverse" button.  Move this dialog out of
+   the way and then left mouse click and drag in the main window will
+   rotate the "top" part of the residue round the clicked atoms 2 and
+   3.  When you are happy, click "Accept".
+
+   If you are torsion generaling a residue that has an alt conf, then
+   the atoms of residue that are moved are those that have the same alt
+   conf as the 4th clicked atom (or have an blank alt conf).
+
+
+@subsection Ligand Torsion angles
+@cindex torsion angles, ligand 
+@cindex ligand torsion angles
+For ligands, you will need to read the mmCIF file that contains a
+description of the ligand's geometry (see Section @ref{Regularization
+and Real Space Refinement}).  By default, torsions that move hydrogens
+are not included.  Only 9 torsion angles are available from the keyboard
+torsion angle selection.
+
+@node Pep-flip
+@section Pep-flip
+@cindex pepflip
+@cindex flip peptide
+Coot uses the same pepflip scheme
+as is used in @code{O} (@emph{i.e.} the C, N and O atoms are rotated
+180@math{^o} round a line joining the C@math{\alpha} atoms of the residues
+involved in the peptide).  Flip the peptide again to return the atoms
+to their previous position.
+
+@node Adding Alternative Conformations
+@section Add Alternate Conformation
+@cindex  alternate conformation
+
+The allows the addition alternate (dual,
+@cindex dual conformations
+triple @emph{etc.})  conformations to the picked residue.  By default,
+this provides a choice of rotamer (Section @ref{Rotamers}).  If
+there are not the correct main chain atoms a rotamer choice cannot be
+provided, and Coot falls back to providing intermediate atoms.
+
+The default occupancy for new atoms is 0.5.  This can be changed by
+using use slider on the rotamer selection window or by using the
+scripting function:
+
+@code{(set-add-alt-conf-new-atoms-occupancy 0.4)}
+
+The remaining occupancy of the atoms (after the new occupancy has been
+added) is split amongst the atoms that existed in the residue before
+the split.  It is important therefore that the residues atoms have
+sane occupancies before adding an alternative conformation.
+
+@c % The intermediate atoms interface can be forced using:
+
+@c % @code{(set-show-alt-conf-intermediate-atoms 1)}
+
+The default Split Type is to split the whole residue.  If you want the
+default to be to split a residue after (and including) the CA, then add
+to your @file{.coot} file:
+
+@code{(set-add-alt-conf-split-type-number 0)}
+
+@node Mutation
+@section Mutation
+@cindex mutate
+Mutations are available on a 1-by-1 basis using the
+graphics.  After selecting ``Mutate@dots{}'' from the
+``Model/Fit/Refine'' dialog, click on an atom in the graphics.  A
+``Residue Type'' window will now appear.  Select the new residue type
+you wish and the residue in the graphics is updated to the new residue
+type @footnote{Note that selecting a residue type that matches the
+  residue in the graphics will also result in a mutation}.  The
+initial position of the new rotamer is the @emph{a priori} most
+likely rotamer. Note that in interactive mode, such as this, a residue
+type match @footnote{@emph{i.e.} the current residue type matches the
+  residue type to which you wish to mutate the residue} will not stop
+the mutation action occurring.
+
+@subsection Mutating DNA/RNA
+@cindex mutating RNA
+@cindex mutating DNA
+@cindex RNA, mutating
+@cindex DNA, mutating
+Mutation of DNA or RNA can be performed using ``Simple Mutate'' from the
+Model/Fit/Refine dialog.  Residues need to be named "Ad", "Gr", "Ur"
+etc.  
+
+@subsection Multiple mutations
+This dialog can be found under @command{Calculate -> Mutate
+  Residue Range}.  A residue range can be assigned a sequence and
+optionally fitted to the map.  This is useful converting a poly-ALA
+model to the correct sequence @footnote{@emph{e.g.} after using Ca
+  -> Mainchain.}.
+
+Multiple mutations
+@cindex multi-mutate
+ are also supported @emph{via}
+the scripting interface.  Unlike the single residue mutation function,
+a residue type match @emph{will} prevent a modification of the
+residue @footnote{@emph{i.e.} the residue atoms will remain untouched}.
+Two functions are provided: To mutate a whole chain, use
+@code{(mutate-chain @emph{imol} @emph{chain-id sequence})} where:
+
+@code{@emph{chain-id}} is the chain identifier of the chain that you wish
+to mutate (@emph{e.g.} @code{"A"}) and 
+
+@code{@emph{imol}} is molecule number.  
+
+@code{@emph{sequence}} is a list of single-letter residue codes,
+such as @code{"GYRESDF"} (this should be a straight string with no
+additional spaces or carriage returns).
+
+Note that the number of residues in the sequence chain and those in
+the chain of the protein must match exactly (@emph{i.e.} the whole of
+  the chain is mutated (except residues that have a matching residue
+  type).)
+
+To mutate a residue range, use 
+
+@itemize
+@item 
+@code{(mutate-residue-range @emph{imol} @emph{chain-id}
+  @emph{start-res-no} @emph{stop-res-no sequence})}
+@end itemize
+
+where
+
+@code{@emph{start-res-no}} is the starting residue for mutation
+
+@code{@emph{stop-res-no}} is the last residue for mutation, @emph{i.e.}
+using values of 2 and 3 for @code{@emph{start-res-no}} and
+@code{@emph{stop-res-no}} respectively will mutate 2 residues.
+
+Again, the length of the sequence must correspond to the residue range
+length.  Note also that this is a protein sequence - not nucleic acid.
+
+For mutation of nucleic acids, use: 
+
+@code{(mutate-nucleotide-range @emph{imol chain-id resno-start
+      resno-end sequence})}
+
+@subsection Mutating to a Non-Standard Residue
+
+Sometimes one might like to model post-translational or other such
+modifications.  How is that done, if the new residue type is not one of
+the standard residue types?
+ 
+There is a scripting function: 
+
+@code{(mutate-by-overlap @emph{imol chain-id resno new-three-letter-code})}
+
+This imports a model residue for the new residue type and overlays it on
+to the given residue by using graph-matching to determine the equivalent
+atoms.
+
+The GUI for this can be found under @command{Extensions -> Modelling
+-> Replace Residue...} (for this to work, you need to be centred on
+the residue you wish to replace).
+
+Note that if you are replacing are conventional protein residue with a
+modified form (@emph{e.g.} replacing a TYR with a phoso-tyrosine or a
+LYS with an acetyl-lysine) you will need to make sure that the group
+of the resulting restraints is an @code{L-peptide} (use @command{Edit
+-> Restraints} to check and modify the restraints group.  Likewise for
+modified RNA/DNA nucleotides, you need to specify the group as
+@t{RNA} or @t{DNA} as appropriate.
+
+
+@subsection Mutate and Autofit
+The function combines Mutation and Auto Fit Rotamer and is the easiest
+way to make a mutation and then fit to the map.  You can currently only
+``Mutate and Autofit'' protein residues (@emph{i.e.} things with a
+rotamer dictionary.
+
+@subsection Renumbering
+@cindex renumbering residues 
+Renumbering is straightforward using the
+renumber dialog available under @command{Calculate ->
+  Renumber Residue Range@dots{}}.  There is also a scripting interface:
+
+@code{(renumber-residue-range @emph{imol chain-id start-res-no
+    last-resno offset})}
+
+
+@node    Importing Ligands/Monomers
+@section Importing Lignds/Monomers
+@cindex  monomers
+@cindex  ligands
+
+You can import monomers (often ligands) using @command{File -> Get
+Monomer@dots{}}@footnote{this is a wrapper round LIBCHECK, so you must
+have CCP4 suite to installed for this function to work} by providing
+the 3-letter code of your monomer/ligand.  The resulting molecule will
+be moved so that it placed at the current screen centre.
+
+Typically, when you are happy about the placement of the ligand, you'd
+then use @command{Merge Molecules} to add the ligand/monomer to the main
+set of coordinates.
+
+This procedure creates a pdb file @file{monomer-XXX.pdb} and a
+dictionary file @file{libcheck_XXX.cif} in the directory in which Coot
+was started.
+
+A future invocation of Get Monomer uses these file so that the monomer
+appears quickly @footnote{rather than running LIBCHECK again}.
+
+@node    Ligand from SMILES strings
+@section Ligand from SMILES strings
+@cindex  SMILES strings
+
+Similarly, you can generate ligands using @command{File -> SMILES...}
+and providing a SMILES string and a code for the residue name (this is
+your name for the residue type and a dictionary will be generated for
+the monomer of this type). This function is also a wrapper to
+LIBCHECK.
+
+
+@node    Find Ligands
+@section Find Ligands
+@cindex ligands
+You are offered a selection of maps to search (you can only choose one
+at a time) and a selection of molecules that act as a mask to this
+map.  Finally you must choose which ligand types you are going to
+search for in this map @footnote{you can search for many different
+ligand types.}.  Only molecules with less than 400 atoms are suggested
+as potential ligands.
+
+If you do not have any molecules with less that 400 atoms loaded in
+Coot, you will get the message:
+
+"Error: you must have at least one ligand to search for!"
+
+New ligands are placed where the
+map density is and protein (mask) atoms are @emph{not}).  The masked
+map is searched for clusters using a default cut-off of 1.0@math{\sigma}.
+In weak density this cut-off may be too high and in such a case the
+cut-off value can be changed using something such as:
+
+@code{(set-ligand-cluster-sigma-level 0.8)}
+
+However, if the map to be searched for ligands is a difference map, a
+cluster level of 2.0 or 3.0 would probably be more appropriate (less
+likely to generate spurious sites).
+
+Each ligand is fitted with rigid body refinement to each potential
+ligand site in the map and the best one for each site selected and
+written out as a pdb file.  The clusters are sorted by size, the
+biggest one first (with an index of 0).  The output placed ligands
+files have a prefix ``best-overall'' and are tagged by the cluster
+index and residue type of the best fit ligand in that site.
+
+By default, the top 10 sites are tested for ligands - to increase this
+use:
+
+@code{(set-ligand-n-top-ligands 20)}
+
+@subsection Flexible Ligands
+@cindex ligands, flexible
+If the ``Flexible?'' checkbutton is activated, coot will generate a
+number of variable conformations (default 100) by rotating around the
+rotatable bonds (torsions).  Each of these conformations will be fitted
+to each of the potential ligand sites in the map and the best one will
+be selected (again, if it passes the fitting criteria above).
+
+Before you search for flexible ligands you must have read the mmCIF
+dictionary for that particular ligand residue type (@command{File
+  -> Import CIF dictionary}).
+@cindex dictionary, cif
+
+Use:
+
+@code{(set-ligand-flexible-ligand-n-samples @emph{n-samples})}
+
+where @code{@emph{n-samples}} is the number of samples of flexibility
+made for each ligand.  Generally speaking, The more the number of
+rotatable bonds, the bigger this number should be.
+
+By default the options to change these values are not in the GUI.  To
+enable these GUI options, use the scripting function:
+
+@code{(ligand-expert)}
+
+@subsection Adding Ligands to Model
+After successful ligand searching, one may well want to add that
+displayed ligand to the current model (the coordinates set that
+provided the map mask).  To do so, use Merge Molecules (Section
+@ref{Merge Molecules}).
+
+
+@node Flip Ligand
+@section Flip Ligand
+@cindex ligand orientation
+
+Sometimes a ligand is placed more or less in the correct position, but
+the orientation is wrong - or at least you might want to explore other
+possible orientation.  To do that easily a function has been provided:
+
+@code{(flip-ligand @emph{imol chain-id residue-number})}
+
+This will flip the orientation of the residue around the Eigen vector
+corresponding to the largest Eigen value, exploring 4 possible
+orientations.
+
+This function has been further wrapped to provide flipping for the active
+residue: 
+
+@code{(flip-active-ligand)}
+
+This function can easily be bound to a key.
+
+
+@node Find Waters
+@section Find Waters
+@cindex waters, finding
+As with finding ligands, you are given a chose of maps, protein
+(masking) atoms. A final selection has to be made for the cut-off level,
+note that this value is the number of standard deviation of the density
+of the map @emph{before} the map has been masked.  The default sigma
+level (water positions must have density above this level) is set for a
+``2Fo-Fc''-style map.  If you want to use a difference map, you must
+change the sigma level (typically to 3 sigma) otherwise you run the risk
+of fitting waters to difference map noise peaks.
+
+Then the map is masked by the masking atoms and a search is
+made of features in the map about the electron density cut-off value.
+Waters are added if the feature is approximately water-sized and can
+make sensible hydrogen bonds to the protein atoms.  The new waters are
+optionally created in a new molecule called ``Waters''.
+
+You have control over several parameters used in the water finding:
+
+@code{(set-write-peaksearched-waters)} 
+
+which writes @code{ligand-waters-peaksearch-results.pdb}, which
+contains the water peaks (from the clusters) without any filtering and
+@code{ligand-waters.pdb} which are a disk copy filtered waters that
+have been either added to the molecule or from which a new molecule
+has been created.
+
+@code{(set-ligand-water-to-protein-distance-limits @emph{min-d max-d})} sets
+the minimum and maximum allowable distances between new waters and the
+masking molecule (usually the protein).  Defaults are 2.4 and 3.2@AA{}.
+
+@code{(set-ligand-water-spherical-variance-limit @emph{varlim})} sets the
+upper limit for the density variance around water atoms. The default
+is 0.12.
+@c % $electrons^2/@AA{}^6$.
+
+The map that is marked by the protein and is searched to find the
+waters is written out in CCP4 format as @code{"masked-for-waters.map"}.
+
+@subsection Refinement Failure 
+
+Sometimes as a result of water fitting, you may see something like:
+
+@verbatim
+ WARNING:: refinement failure
+           start pos: xyz = (      17.1,     34.76,     60.42)
+           final pos: xyz = (     17.19,     34.61,     60.59)
+@end verbatim
+ 
+When Coot finds a blob, it does a crude positioning of an atom at the
+centre of the grid points.  It then proceeds to move to the peak of the
+blob by a series of translations.  There are a certain number of
+cycles, and if it doesn't reach convergence by the end of those cycles
+then you get the error message.
+
+Often when you go to the position indicated, you can see why Coot had a
+problem in the refinement.
+
+@subsection Blobs 
+After a water search, Coot will create a blobs dialog (see Section
+@ref{sec_blobs}).
+
+@node Add Terminal Residue
+@section Add Terminal Residue
+@cindex terminal residue
+This creates a new residue at the C or N terminal extension of the
+residue clicked by fitting to the map.  @math{\phi,\psi} angle pairs
+are selected at random based on the Ramachandran plot probability (for
+a generic residue) and fitted to the density.  By default there are
+100 trials.  It is possible that a wrong position will be selected for
+the terminal residue and if so, you can reject this fit and try again
+with Fit Terminal Residue @footnote{usually if this still fails after
+two repetitions then it never seems to work.}. Each of the trial
+positions are scored according to their fit to the map @footnote{The
+map is selected using ``Refine/Regularize Control''} and the best one
+selected.  It is probably a good idea to run ``Refine Zone'' on these
+new residues.
+
+If you use the Extensions (@command{Dock Sequence... -> Associate
+Sequence with Model}) to apply a PIR sequence file to a model then
+@command{Add Terminal Residue} will use the sequence alignment to
+determine the residue type of the added residue.
+
+Sometimes, particularly with low resolution maps, the added terminal
+residue will wander off to somewhere inappropriate.  This can be
+addressed in a number of ways:
+
+
+@enumerate
+
+@item 
+@code{(set-terminal-residue-do-rigid-body-refine 0)} will disable
+rigid body fitting of the terminal residue fragment for
+each trial residue position (the default is 1 (on)) - this may help if
+the search does not provide good results.
+
+@item
+to anneal the newly added residue back to the clicked residue (no
+matter where it ended up being positioned):
+@code{(set-add-terminal-residue-do-post-refine 1)}
+
+@item
+@code{(set-add-terminal-residue-n-phi-psi-trials 200)} will change the
+number of trials (default is 100).  This is useful if you think that
+Coot needs to search harder to find a good solution to the positioning
+of the next residue.
+
+@end enumerate
+
+@node Add OXT Atom to Residue
+@section Add OXT Atom to Residue
+
+@cindex terminal oxygen
+@cindex OXT atom
+At the
+C-terminus
+@cindex C-terminus
+of a chain of amino-acid residues, there
+is a ``modification'' so that the C-O becomes a carbonyl, @emph{i.e.}
+an extra (terminal) oxygen (OXT) needs to be added.  This atom is
+added so that it is in the plane of the C@math{\alpha}, C and O atoms of
+the residue.
+
+Scripting usage:
+
+@code{(add-OXT-to-residue imol residue-number insertion-code
+  chain-id)} @footnote{@emph{e.g.} @code{(add-OXT-to-residue 0 428 "" "A")}}, 
+
+where @code{insertion-code} is typically @code{""}.  
+
+Note, in order to place OXT, the N, CA, C and O atoms must be present
+in the residue - if (for example) the existing carbonyl oxygen atom is
+called ``OE1'' then this function will not work.
+
+@node Add Atom at Pointer
+@section Add Atom at Pointer
+By default, ``Add Atom At Pointer'' will pop-up a dialog from which
+you can choose the atom type you wish to insert @footnote{including
+  sulfate or phosphate ions (in such a case, it is probably useful to
+do a ``Rigid Body Fit Zone'' on that new residue).}.  Using
+@code{(set-pointer-atom-is-dummy 1)} you can by-pass this dialog and
+immediately create a dummy atom at the pointer position.  Use an
+argument of @code{0} to revert to using the atom type selection
+pop-up on a button press.
+
+The atoms are added to a new molecule called ``Pointer Atoms''.  They
+should be saved and merged with your coordinates outside of Coot.
+
+@node    Place Helix
+@section Place Helix
+@cindex helix placement
+
+The idea is to place a helix more or less ``here'' (the screen centre)
+by fitting to the electron density map.  The algorithm is
+straightforward.  First we move to the local centre of density, then
+examine the density for characteristic directions and fit ideal helices
+(of length 20 residues) to these directions.  The helix is then extended
+if possible (by checking the fit to the map of residues added in ideal
+helix conformation) and chopped back if not.  If the fit is successful,
+the helix is created in a new molecule called ``Helix''.  If the fit is
+not successful, there is instead a message added to the status bar.  You
+can build the majority of a helical protein in a few minutes using this
+method (you will of course have to assemble the helices and assign
+residue numbers and sequence later).
+
+This is available as a scripting function @code{(place-helix-here)} and
+in the GUI (in the ``Other Modelling Tools'' dialog).
+
+@node    Building Ideal DNA and RNA
+@section Building Ideal DNA and RNA
+@cindex  DNA, ideal
+@cindex  RNA, ideal
+@cindex polynucleotides
+
+The interface to building ideal polynucleotides can be found by
+pressing the ``Ideal RNA/DNA@dots{}'' button on the ``Other Modelling
+Tools'' dialog.
+
+For a given sequence, a choice of DNA or RNA, A or B form, single or
+double stranded is presented.  
+
+The interface may not gracefully handle uracils in DNA, thymines in
+RNA or B form RNA @footnote{But you don't want those things anyway,
+right?}.
+
+
+
+@node    Merge Molecules
+@section Merge Molecules
+@cindex merge molecules
+This dialog can be found under ``Calculate'' in the main menubar.
+This is typically used to add molecule fragments or residues that are
+in one molecule to the ``working'' coordinates @footnote{For example,
+  after a ligand search has been performed.}.
+
+@node    Temperature Factor for New Atoms
+@section Temperature Factor for New Atoms
+@cindex  B-Factor, New Atoms
+
+The default temperature factor for new atoms is 30.0.  This can be
+changed by the following
+
+@code{(set-default-temperature-factor-for-new-atoms 50.0)}
+
+@node    Applying NCS Edits
+@section Applying NCS Edits
+@cindex  NCS edits
+
+Let's imagine that you have 3-fold NCS.  You have molecule ``A'' as your
+master molecule and you make edits to that molecule.  Now you want to
+apply the edits that you made to ``A'' (the NCS master chain ID) to the
+``B'' and ``C'' molecules (i.e. you want the ``B'' and ``C'' molecules
+to be rotated/translated versions of the ``A'' molecule).  How is that
+done?
+
+There are now guis to NCS command to help you out (under Extensions).
+However, for completeness here are the scripting versions:
+
+@code{(copy-from-ncs-master-to-others @emph{imol} @emph{master-chain-id})}
+
+If you have only a range of residues, rather than a whole chain to replace:
+
+@code{(copy-residue-range-from-ncs-master-to-others @emph{imol} 
+        @emph{master-chain-id start-resno end-resno})}
+
+e.g.
+
+@code{(copy-residue-range-from-ncs-master-to-others 0 "A" 1 5)}
+
+If you want to copy a residue range to a specific chain, or specific
+list of chains (rather than all NCS peer chains) then make a list of
+the chain-ids that you wish replaced:
+
+@code{(copy-residue-range-from-ncs-master-to-chains 0 "A" 1 5 (list "C"))}
+
+in this case, just the residues in the "C" chain is replaced.
+
+
+@node    Running Refmac
+@section Running Refmac 
+@cindex refmac
+@cindex running refmac
+
+Use the ``Run Refmac@enddots{}'' button to select the dataset and the
+coordinates on which you would like to run Refmac.  Note that here Coot
+only allows the use of datasets which has Refmac parameters set as the
+MTZ file was read. By default, Coot displays the new coordinates and the
+new map generated from refmac's output MTZ file.  Optionally, you can
+also display the difference map.
+
+You can add extra parameters 
+@cindex refmac parameters
+(data lines) to
+refmac's input by storing them in a file called
+@code{refmac-extra-params} in the directory in which you started
+coot.
+
+You can also provide extra/replacement parameters for refmac by setting
+the variable @code{refmac-extra-params} to a list of strings, for
+example:
+
+@code{(set! refmac-extra-params (list "REFINE MATRIX 0.1" "MAKE HYDROGENS NO"))}
+
+
+Coot ``blocks'' @footnote{@emph{i.e.} Coot is idle and ignores all
+  input.} until Refmac has terminated @footnote{This is not an ideal
+  feature, of course and will be addressed in future@enddots{}. Digressive
+  Musing: If only computers were fast enough to run Refmac
+  interactively@dots{}}.
+
+The default refmac executable
+@cindex refmac, default 
+@cindex default refmac executable 
+is @code{refmac5} it is presumed to be in the
+path.  If you don't want this, it can be overridden using a
+re-definition either at the scripting interface or in one's
+@code{~/.coot} file @emph{e.g.}:
+@itemize
+@item @code{(define refmac-exec "/e/refmac-new/bin/refmac5.6.3")}
+@end itemize
+
+@cindex refmac map colour
+After running refmac several times, you may
+find that you prefer if the new map that refmac creates (after refmac
+refinement) is the same colour as the previous one (from before this
+refmac refinement).  If so, use:
+
+@code{(set-keep-map-colour-after-refmac 1)}
+
+which will swap the colours of then new and old refmac map so that the
+post-refmac map has the same colour as the pre-refmac map and the
+pre-refmac map is coloured with a different colour.
+
+@node    Running SHELXL
+@section Running SHELXL 
+@cindex SHELXL
+@cindex running SHELXL
+
+Coot can read shelx @t{.res} files and write @t{.ins} files, and thus
+one can refine using SHELXL in a convenient manner using the function 
+
+@code{(shelxl-refine @emph{imol} . @emph{hkl-file-name})}
+
+(the @code{@emph{hkl-file-name}} is an optional argument)
+
+@emph{e.g.}
+
+@code{(shelxl-refine 0)}
+
+or 
+
+@code{(shelxl-refine 0 "insulin.hkl")}
+
+In the former case, coot will presume that there is a SHELX @t{hkl} file
+corresponding to the @t{res} file that you read in; if there is not coot
+will print a warning and not try to run shelxl.  In the latter case, you
+can specify the location of the @t{hkl} file.
+
+After shelxl has finished, coot will automatically read in the resulting
+@t{res} coordinates, the @t{fcf} file, convert the data to @t{mmCIF}
+format and read that, which generates a @math{\sigma_A} map and a
+difference map.  
+
+Coot creates a time stamped @t{ins} file and a time-stamped sym-link to
+the @t{hkl} file in the @code{coot-shelxl} directory.
+
+
+Please note that
+the output @t{ins} file will not be particularly useful (and thus shelxl
+will fail) if the input file was not in SHELX @t{ins} format.
+
+There is a GUI for this operation under the ``Extensions'' menu item.
+
+@node    Clear Pending Picks
+@section Clear Pending Picks
+@cindex  Clear Pending Picks
+@cindex atom picking 
+Sometimes one can click
+on a button @footnote{such that Coot would subsequently expect an atom
+  selection ``pick'' in the graphics window.} unintentionally. This
+button is there for such a case.  It clears the expectation of an
+atom pick.  This works not only for modelling functions, but also
+geometry functions (such as Distance and Angle).
+
+@node    Delete
+@section Delete 
+@cindex delete 
+
+Single atoms or residues can be deleted from the molecule using
+``Delete@dots{}'' from the ``Model/Fit/Refine''dialog.  Pressing this
+button results in a new dialog, with the options of ``Residue'' (the
+default), ``Atom'' and ``Hydrogen Atoms''.  Now click on an atom in the
+graphics - the deleted object will be the whole residue of the atom if
+``Residue'' was selected and just that atom if ``Atom'' was selected.
+Note that if a residue has an alternative conformation, then ``Delete
+Residue'' will delete only the conformation that matches that
+alternative conformation specifier of the clicked atom.
+
+Only waters are deletable if the "Water" check button is active and
+waters are not deletable if the "Residue/Monomer" check button is
+active.  This is to reduce mis-clicking.
+
+To rotate the view when in ``Delete Mode'', use Ctrl left-mouse.
+
+If you want to delete multiple items you can use check the ``Keep Delete
+Active'' check-button on this dialog This will will keep the dialog
+open, ready for deletion of next item.
+
+@c document delete-atom, delete-residue, delete-residue-with-altconf here.
+
+
+@node    Sequence Assignment 
+@section Sequence Assignment 
+You can assign a (FASTA format) sequence to a molecule using:
+
+@code{(assign-fasta-sequence imol chain-id fasta-seq)}
+
+This function has been provided as a precursor to functions that will
+(as automatically as possible) mutate your current coordinates to one
+that has the desired sequence. It will be used in automatic side-chain
+assignment (at some stage in the future).
+
+@node    Building Links and Loops
+@section Building Links and Loops
+
+Coot can make an attempt to build missing linking regions or loops
+@footnote{the current single function doesn't always perform very well
+in tests}.  This is an area of Coot that needs to be improved, currently
+O does it much better.  We will have several different loop tools here
+@footnote{I suspect that there is not one tool that fits for all.}.  For
+now there is @command{Calculate -> Fit Gap} or the scripting function:
+
+@code{(fit-gap @emph{imol} @emph{chain-id} @emph{start-resno} @emph{stop-resno})}
+
+and 
+
+@code{(fit-gap @emph{imol} @emph{chain-id} @emph{start-resno} @emph{stop-resno} @emph{sequence})}
+
+the second form will also mutate and try to rotamer fit the provided sequence.
+
+Example usage: let's say for molecule number 0 in chain @code{"A"}
+we have residues up to 56 and then a gap after which we have residues
+62 and beyond:
+
+@code{(fit-gap 0 "A" 57 61 "TYPWS")}
+
+@node    Fill Partial Residues
+@section Fill Partial Residues
+@cindex  fill partial residues
+
+After molecular replacement, the residues of your protein could well
+have the correct sequence but be chopped back to CG or CB atoms. There
+is a function to fill such partially-filled residues:
+
+@code{(fill-partial-residues @emph{imol})}
+
+This identifies residues with missing atoms, then fills them and does a
+rotamer fit and real-space refinement.
+
+If you want to fill the side chain of just one residue
+
+@code{(fill-partial-residue @emph{imol chain-id res-no ins-code})}
+
+this does a auto-fit-best-rotamer and a refinement on the resulting
+side-chain position.
+
+
+@node Changing Chain IDs
+@section Changing Chain IDs
+@cindex chain id
+@cindex changing chain ids
+
+You can change the chain ids of chains using @command{Calculate ->
+Change Chain IDs@dots{}}.  Coot will block an attempt to change the
+whole of a chain and the target chain id already exists in the
+molecule.  
+
+If you use the "Residue Range" option then you can insert residues
+with non-conflicting residue number into pre-existing chains.
+
+
+@node    Setting Occupancies
+@section Setting Occupancies
+As well as the editing ``Residue Info'' to change occupancies of
+individual atoms, one can use a scripting function to change
+occupancies of a whole residue range:
+
+@itemize 
+@item @code{(zero-occupancy-residue-range @emph{imol chain-id 
+resno-start resno-last})}
+@end itemize
+
+example usage:
+
+@code{(zero-occupancy-residue-range 0 "A" 23 28)}
+
+This is often useful to zero out a questionable loop before submitting
+for refinement.  After refinement (with refmac) there should be
+relatively unbiased density in the resulting 2Fo-Fc-style and
+difference maps.
+
+Similarly there is a function to reverse this operation:
+
+@itemize
+@item @code{(fill-occupancy-residue-range @emph{imol chain-id 
+      resno-start resno-last})}
+@end itemize
+
+
+@node    Fix Nomenclature Errors
+@section Fix Nomenclature Errors
+
+Currently this is available only in scripting form:
+
+@code{(fix-nomenclature-errors @emph{imol})}
+
+This will fix atoms nomenclature problems in molecule number
+@code{@emph{imol}} according to the same criteria as WATCHECK
+@footnote{R.W.W. Hooft, G. Vriend, C. Sander, E.E. Abola, Errors in
+protein structures.  @emph{Nature} (1996) @strong{381}, 272-272.}
+@emph{e.g.} Chi-2 for Phe, Tyr, Asp, and Glu should be between -90 and
+90 degrees.  Note that Val and Leu nomenclature errors are also corrected.
+
+
+@node    Rotamer Fix Whole Protein
+@section Rotamer Fix Whole Protein
+       
+There is an experimental scripting function
+
+@code{(fit-protein @emph{imol})}
+
+which does a auto-fit rotamer and Real Space Refinement for each
+residue.  The graphics follow the refinement.
+
+
+@node    Refine All Waters 
+@section Refine All Waters 
+
+All the waters in a model can be refined (that is, moved to the local
+density peak) using
+
+@code{(fit-waters @emph{imol})}
+
+This is a non-interactive function (the waters are moved without user
+intervention).
+
+
+@node Moving Molecules/Ligands
+@section Moving Molecules/Ligands
+@cindex moving molecules
+@cindex moving ligands
+
+Often you want to move a ligand (or some such) from wherever it was read
+in to the position of interest in your molecule (@emph{i.e.} the current view
+centre).  There is a GUI to do this: @command{Calculate -> Move Molecule
+Here}.
+
+There are scripting functions available for this sort of thing:
+
+@code{(molecule-centre @emph{imol})} 
+
+will tell you the molecule centre 
+@cindex molecule centre
+ of the
+@code{@emph{imol}}th molecule.
+
+@code{(translate-molecule-by @code{imol x-shift y-shift z-shift})}
+
+will translate all the atoms in molecule @code{@emph{imol}} by the
+given amount (in @AA{}ngstr@"{o}ms).
+@cindex translate molecule
+
+@code{(move-molecule-to-screen-centre @emph{imol})}
+
+will move the @code{@emph{imol}}th molecule to the current centre of
+the screen (sometimes useful for imported ligands).  Note that this
+moves the atoms of the molecule - not just the view of the molecule.
+
+@node    Modifying the Labels on the Model/Fit/Refine dialog
+@section Modifying the Labels on the Model/Fit/Refine dialog
+@cindex  modified labels
+
+If you don't like the labels "Rotate/Translate Zone" or "Place Atom at
+Pointer" and rather they said something else, you can change the button
+names using:
+
+@code{(set-model-fit-refine-rotate-translate-zone-label "Move Zone")}
+
+and
+
+@code{(set-model-fit-refine-place-atom-at-pointer "Add Atom")}
+
+
+
+@c % -----------------------------------------------------------
+@node    Map-Related Features 
+@chapter Map-Related Features 
+@c % -----------------------------------------------------------
+
+@menu
+* Maps in General::
+* Create a Map::
+* Map Contouring::
+* Map Extent::
+* Map Contour ``Scrolling'' Limits::
+* Map Line Width::
+* Map colouring::
+* Difference Map Colouring::
+* Make a Difference Map::
+* Make an Averaged Map::
+* Map Sampling::
+* Dragged Map::
+* Dynamic Map Sampling and Display Size::
+* Skeletonization::
+* Map Sharpening::
+* Pattersons::
+* masks::
+* Trimming Atoms::
+* Map Transformation::
+* Export Map::
+@end menu
+
+@node Maps in General
+@section Maps in General 
+Maps are ``infinite,'' not limited to pre-calculated volume (the
+``Everywhere You Click - There Is Electron Density''
+(EYC-TIED)
+@cindex EYC-TIED
+paradigm) symmetry-related electron
+density is generated automatically. Maps are easily re-contoured.
+Simply use the scroll wheel on you mouse to alter the contour level
+(or -/+ on the keyboard).
+@cindex change contour level
+ 
+Maps follow the molecule.  As you recentre or move about the crystal,
+the map quickly follows.  If your computer is not up to re-contouring
+all the maps for every frame, then use @command{Draw ->
+  Dragged Map@dots{}} to turn off this feature.
+
+
+@subsection Map Reading Bug
+Unfortunately, there is a bug in map-reading.  If the map is not a
+bona-fide CCP4 map @footnote{@emph{e.g.} it's a directory or a
+coordinate filename.}, then coot will crash.  Sorry.  A fix is in the
+works but ``it's complicated''.  That's why maps are limited to the
+extension ".ext" and ".map", to make it less likely a non-CCP4 map is
+read.
+
+@node    Create a Map
+@section Create a Map 
+From MTZ, mmCIF and .phs
+@cindex PHS data format
+data use @command{File -> Open MTZ, CIF or phs@dots{}}. You can then
+choose the MTZ columns for the Fourier synthesis.  The button ``Expert
+mode'' also adds to the options any anomalous columns you may have in
+the MTZ file (a -90 degree phase shift will be applied).  It also
+provides the option to apply resolution limits.
+
+From a CCP4
+map use @command{File -> Read Map}.  After being
+generated/read, the map is immediately contoured and centred on the
+current rotation centre.
+
+
+@subsection Auto-read MTZ file
+This function allows Coot to read an MTZ file and make a map directly
+(without going through the column selection procedure).  The default
+column labels for auto-reading are "FWT" and "PHWT" for the 2Fo-Fc-style
+map, "DELFWT" and "PHDELWT" for the difference map.  You can change the
+column labels that Coot uses for auto-reading - here is an example of
+how to do that:
+
+@code{(set-auto-read-column-labels "2FOFCWT" "PHIWT" 0)}
+@code{(set-auto-read-column-labels "FOFCWT" "DELPHIWT" 1)}
+
+By default the difference map is created in auto-reading the MTZ file.
+If you don't want a difference map, you can use the function:
+
+@code{(set-auto-read-do-difference-map-too 0)}
+
+@subsection Reading CIF data
+There are several maps that can be generated from CIF files that
+contain observed Fs, calculated Fs and calculated phases:
+
+@itemize 
+@item @code{(read-cif-data-with-phases-fo-alpha-calc
+    @emph{cif-file-name})} Calculate an atom map using @math{F_obs} and
+    @math{\alpha_calc}
+@item @code{(read-cif-data-with-phases-2fo-fc @emph{cif-file-name})}
+ Calculate an atom map using @math{F_obs}, @math{F_calc} and
+  @math{\alpha_calc}
+@item @code{(read-cif-data-with-phases-fo-fc @emph{cif-file-name})}
+ Calculate an difference map using @math{F_obs}, @math{F_calc} and
+  @math{\alpha_calc}.
+@end itemize
+
+@subsection Reading PHS data
+@cindex PHS data
+
+There are 2 ways to read data by scripting:
+
+@code{(read-phs-and-make-map-using-cell-symm @emph{phs-file-name space-group-name a b c alpha beta gamma})}
+
+@code{(read-pdb-and-make-map-with-reso-limits @emph{imol-previous phs-file-name reso-limit-low reso-limit-high})}
+
+The first specifies the cell explicitly, and @code{@emph{alpha, beta}}
+and @code{@emph{gamma}} are specified in degrees. 
+
+The second form allows the specification of resolution limits and takes
+the cell and symmetry from a previous molecule (typically a pdb file).
+
+@node    Map Contouring
+@section Map Contouring
+@cindex contouring, map
+Maps can be re-contoured using the middle-mouse
+scroll-wheel (buttons 4 and 5 in X Window System(TM)
+@c $^{\textrm{\tiny TM}}$
+terminology).  Scrolling the mouse wheel will change the map contour
+level and the map it redrawn.  If you have several maps displayed then
+the map that has its contour level changed can be set using
+@command{HID -> Scrollwheel -> Attach scroll-wheel
+  to which map?}.  If there is only one map displayed, then that is
+the map that has its contour level changed (no matter what the
+scroll-wheel is attached to in the menu).  The level of the electron
+density is displayed in the top right hand corner of the OpenGL canvas.
+
+Use keyboard @key{+} or @key{-} to change the contour level if you don't
+have a scroll-wheel @footnote{like I don't on my Mac.}.
+
+If you are creating your map from an MTZ file, you can choose to click
+on the ``is difference map''
+@cindex difference map
+button on the Column
+Label selection widget (after a data set filename has been selected)
+then this map will be displayed in 2 colours corresponding to + and -
+the map contour level.
+
+If you read in a map and it is a difference map then there is
+a checkbutton to tell Coot that.
+
+If you want to tell Coot that a map is a difference
+map
+@cindex difference map colours
+after it has been read, use:
+
+@code{(set-map-is-difference-map @emph{imol})}
+
+where @code{@emph{imol}} is the molecule number.
+
+By default the change of the contour level is determined from the sigma
+of the map.  You can change this in the map properties dialog or by
+using the scripting function:
+
+@code{(set-contour-by-sigma-step-by-mol @emph{step on/off? imol})}
+
+where 
+
+@code{@emph{step}} is the difference in sigma from one level to the next
+(typically 0.2)
+
+@code{@emph{on/off?}} is either 0 (sigma stepping off) or 1 (sigma stepping on)
+
+By default the map radius @footnote{actually, it's a box.} is 10@AA{}.
+The default increment to the electron density depends on whether or
+not this is a difference map (0.05 @math{e^-/\AA^3} for a ``2Fo-Fc''
+style map and 0.005 @math{e^-/\AA^3} for a difference map).  You can
+change these using @command{Edit -> Map Parameters} or by
+using the ``Properties'' button of a particular map in the Display
+Control (Display Manager) window.
+
+@node Map Extent
+@section Map Extent
+@cindex map extent
+@cindex map box radius
+
+The extent of the map can be set using the GUI (@command{Edit -> Map
+Parameters -> Map Radius}) or by using the scripting function,
+@emph{e.g.}:
+
+@code{(set-map-radius 13.2)}
+
+@node    Map Contour ``Scrolling'' Limits
+@section Map Contour ``Scrolling'' Limits
+Usually one doesn't want to look at 
+@cindex negative contour levels
+negative contour levels of a map@footnote{in a coot
+  difference map you will get to see the negative level contoured at
+  the inverted level of the positive level, what I mean is that you
+  don't want to see the ``positive'' level going less than 0.}, so
+Coot has by default a limit that stops the contour level going beyond
+(less than) 0.  To remove the limit:
+
+@code{(set-stop-scroll-iso-map 0)} for a 2Fo-Fc style map
+
+@code{(set-stop-scroll-diff-map 0)} for a difference map
+
+To set the limits to negative (@emph{e.g.} -0.6) levels:
+
+@code{(set-stop-scroll-iso-map-level -0.6)}
+
+and similarly: 
+
+@code{(set-stop-scroll-diff-map-level -0.6)}
+
+where the level is specified in @math{e^-/\AA^3}.
+
+@node Map Line Width 
+@section Map Line Width 
+@cindex map line width 
+@cindex density line thickness 
+@cindex thickness of density lines
+The width of the lines that describe the density can
+be changed like this:
+
+@code{(set-map-line-width 2)}
+
+The default line width is 1.
+
+@node     Map colouring 
+@section ``Dynamic'' Map colouring 
+@cindex colouring, map
+ By default, maps get coloured according to
+their molecule number.  The starting colour (@emph{i.e.} for molecule
+0) is blue.  The colour of a map can be changed by @command{Edit
+  -> Map Colour..}. The map colour gets updated as you
+change the value in the colour selector @footnote{takes you right back
+  to the good old Frodo days, no?}.  Use ``OK'' to fix that colour.
+
+As subsequent maps are read, they are coloured by rotation round a
+colour wheel.  The default colour map step is 31 degrees.  You can
+change this using:
+
+@code{(set-colour-map-rotation-for-map @emph{step})}
+
+@node    Difference Map Colouring
+@section Difference Map Colouring
+For some strange reason, some crystallographers @footnote{Jan Dohnalek,
+  for instance.} like to have their difference maps coloured with red
+as positive and green as negative, this option is for them:
+
+@code{(set-swap-difference-map-colours 1)}
+
+This option will allow the ``blue is positive, red is negative'' colour
+scheme on ``Edit -> Map Colour''.
+
+
+@node    Make a Difference Map
+@section Make a Difference Map
+@cindex difference map
+
+Using the ``Make a Difference Map'' function in the Extensions menu, one
+can make a difference from two arbitrary maps.  The maps need not be on
+the same griding, or in the same space group even.  The resulting map
+will be on the same griding and space group as the ``Reference'' map.
+
+@node    Make an Averaged Map
+@section Make an Averaged Map
+@cindex average map
+
+There is a scripting interface to the generation of map averages.  As
+above, the maps need not be on the same grid or in the same space group.
+The resulting map will have the same gridding and space group as the
+first map in the list.  Typical usage:
+
+@code{(average-map '((1 1.0) (2 1.0))))}
+
+The argument to @code{(average-map} is a list of lists, each list
+element is a list of the map number and a weighting factor (1.0 in this
+case).
+
+
+@node    Map Sampling
+@section Map Sampling
+By default, the Shannon sampling factor is the conventional 1.5.  Use
+larger values (@command{Edit -> Map Parameters ->
+  Sampling Rate}) for smoother maps @footnote{a value of 2.5 is often
+  sufficient.}.
+
+This value can be set by the scripting command
+
+@code{(set-map-sampling-rate 2.5)}
+
+@node    Dragged Map 
+@section Dragged Map 
+By default, the map is re-contoured at every frame during a drag (Ctrl
+Left-mouse).  Sometimes this can be annoyingly slow and jerky so it is
+possible to turn it off: @command{Draw -> Dragged Map
+  -> No}.
+
+To change this by scripting:
+
+@code{(set-active-map-drag-flag 0)}
+
+@node Dynamic Map Sampling and Display Size
+@section Dynamic Map Sampling and Display Size 
+If activated (@command{Edit -> Map Parameters ->
+  Dynamic Map Sampling}) the map will be re-sampled on a more coarse grid
+when the view is zoomed out.  If ``Display Size'' is also activated,
+the box of electron density will be increased in size also.  In this
+way, you can see electron density for
+@cindex big maps
+big maps (many
+unit cells) and the graphics still remain rotatable.
+
+If you want to have these functions active for all maps, add the
+following to your initialization file @ref{Scheme}:
+
+@code{(set-dynamic-map-sampling-on)}
+@code{(set-dynamic-map-size-display-on)}
+
+@node Skeletonization
+@section Skeletonization
+@cindex skeletonization
+@cindex bones
+The skeleton (also known as
+``Bones'' @footnote{If you're living in Sweden@enddots{} or Captain Kirk, that
+  is.}) can be displayed for any map.  A map can be skeletonized using
+@command{Calculate -> Map Skeleton@dots{}}.  Use the option
+menu to choose the map and click ``On'' then ``OK'' to the generate
+the map (the skeleton is off by default).
+
+The level of the skeleton can be changed by using @command{Edit
+  -> Skeleton Parameters@dots{} ->
+  Skeletonization Level@dots{}} and corresponds to the electron density
+level in the map.  By default this value is 1.2 map standard
+deviations.  The amount of map can be changed using @command{Edit
+  -> Skeleton Parameters@dots{} -> Skeleton Box
+  Radius@dots{}}@footnote{you may think it strange that a box has a
+  radius, this is an idiosyncrasy of Coot.}.  The units are in 
+@AA{}ngstr@"{o}ms, with 40 as the default value.
+
+The skeleton is often recalculated as the screen centre changes - but
+not always since it can be an irritatingly slow calculation.
+@cindex skeleton updating
+If you want to force a regeneration of
+the displayed skeleton, simply centre on an atom (using the middle
+mouse button) or press the @key{S} key.
+
+@node Map Sharpening
+@section Map Sharpening
+@cindex sharpening, map
+
+It can be educational (even useful at lower resolutions)
+to sharpen or blur a map.  This can be achieved with the sharpening
+tool @command{Calculate -> Map Sharpening@dots{}}.  By default, the
+maximum and minimum sharpness is +/- @math{30@AA{}^2}, this can be
+changed (in this case to 80) using:
+
+@command{(set-map-sharpening-scale-limit 80)}
+
+This currently only works on maps created by reading an MTZ (or other)
+reflection data file.
+
+@node Pattersons
+@section Pattersons
+@cindex Patterson
+
+Pattersons can be generated using the @code{make-and-draw-patterson}
+function.  Example usage:
+
+@code{(make-and-draw-patterson @emph{mtz-file-name f-col sig-f-col weight-col use-weights-flag})}
+
+where @code{@emph{use-weights-flag}} is either @code{0} or @code{1}.
+
+
+@node masks
+@section Masks
+@cindex masks
+A map can be masked by a set of coordinates. Use the
+scripting function: 
+
+@code{(mask-map-by-molecule @emph{imol-map} @emph{imol-model} @emph{invert-mask?})}
+
+If @code{@emph{invert-mask?}} is 0, this will create a new map that has
+density only where there are no (close) coordinates.  If
+@code{@emph{invert-mask?}} is 1 then the map density values will be set
+to zero everywhere @emph{except} close to the atoms of molecule number
+@emph{imol-model}.
+
+The radius of the mask around each atom is 2.0@AA{} by default.  You can
+change this using:
+
+@code{(set-map-mask-atom-radius @emph{radius})}
+
+There is a GUI interface to Map Masking under the Extensions menu. 
+
+@subsection Example 
+If one wanted to show just the density around a ligand:
+
+@enumerate
+@item Make a pdb file the contains just the ligand and read it in to
+  Coot - let's say it is molecule 1 and the ligand is residue 3 of
+  chain ``L''.
+@item Get a map that covers the ligand (@emph{e.g.} from refmac).
+  Let's say this map is molecule number 2.
+@item Mask the map:
+
+@code{(mask-map-by-molecule 2 1 1)}
+
+This creates a new map.  Turn the other maps off, leaving only the
+masked map.
+
+@end enumerate
+
+To get a nice rendered image, press F8 (see Section @ref{Raster3D}).
+
+@node Trimming Atoms
+@section Trimming 
+@cindex trimming atoms
+If you want to remove all the atoms @footnote{or set their occupancy to
+  zero} that lie ``outside the map'' (@emph{i.e.} in low density) you can use
+
+@code{(trim-molecule-by-map @emph{imol-coords imol-map density-level delete/zero-occ?})}
+
+where @code{@emph{delete/zero-occ?}} is @code{0} to remove the atoms and
+@code{1} to set their occupancy to zero.
+
+There is a GUI interface for this feature under the ``Extensions'' menu
+item.
+
+@node    Map Transformation
+@section Map Transformation
+@cindex  map transformation
+
+If you want to transform a map, you can do it thusly:
+
+@code{(transform-map @emph{imol} @emph{rotation-matrix} @emph{trans} @emph{point radius})}
+
+where:
+
+@code{@emph{rotation-matrix}} is a 9-membered list of numbers for an orthogonal rotation matrix.
+
+ @code{@emph{trans}} is a 3-membered list of numbers (distances in @AA{}ngst@"{o}ms).
+
+ @code{@emph{point}} is a 3-membered list of numbers (centre point in @AA{}ngst@"{o}ms).
+
+ @code{@emph{radius}} is a single number (also in @AA{}ngst@"{o}ms).
+
+
+This applies the rotation @code{@emph{rotation-matrix}} and a
+translation @code{@emph{trans}} to a map fragment, so that when the
+transformation is applied the centre of the new map is at
+@code{@emph{point}}.  
+
+Example usage:
+
+@code{(transform-map 2 '(1 0 0 0 1 0 0 0 1) '(0 0 1) (rotation-centre) 10)}
+
+which transforms map number 2 by a translation of 1@AA{} along the Z
+axis, centred at the screen centre for 10@AA{} around that centre.
+
+Here's a more real-world example:
+
+Let's say we want to tranform the density over the ``B'' molecule to a
+position over the ``A'' molecule. First we do a LSQ transformation to
+get the rotation and translation that moves the ``B'' coordinates over
+the ``A'' coordinates:
+
+In the terminal output we get:
+
+@verbatim
+|    0.9707,    0.2351,   0.05033|
+|  -0.04676,      0.39,   -0.9196|
+|   -0.2358,    0.8903,    0.3896|
+(    -33.34,     21.14,     18.82)
+@end verbatim
+
+The centre of the ``A'' molecule is at (58.456, 5.65, 11.108).  So we do:
+
+@code{(transform-map 3 (list 0.9707 0.2351 0.05033 -0.04676 0.39 -0.9196
+-0.2358 0.8903 0.3896) (list -33.34 21.14 18.82) (list 58.456 5.65
+11.108) 8)}
+
+Which creates a map over the middle of the ``A'' molecule.  Note that
+using a too high @code{@emph{radius}} can cause overlap problems, so try
+with a small @code{@emph{radius}} (@emph{e.g.} 5.0) if the resulting map
+looks problematic.
+
+Alternatively, instead of typing the whole matrix, you can use a
+coordinates least-squares fit to generate the matrix for you.
+@code{(transform-map-using-lsq-matrix)} does just that.
+
+Heres how to use it:
+
+@code{(transform-map-using-lsq-matrix @emph{imol-ref ref-chain
+ref-resno-start ref-resno-end imol-mov mov-chain mov-resno-start
+mov-resno-end imol-map about-pt radius})}
+
+
+Hopefully the arguments are self explanatory (@code{@emph{ref}} refers
+to the reference molecule, of course and @code{@emph{about-pt}} is a
+3-number list such as is returned by @code{(rotation-centre)}).
+
+We can now export that map, if we want.
+
+
+@node Export Map
+@section Export Map
+@cindex write map
+@cindex export map
+
+You can write out a map from Coot (e.g. one from NCS averaging, or
+masking or general transformation) using the export map function:
+
+@code{(export-map @emph{imol} @emph{filename})}
+
+@emph{e.g.}
+
+@code{(export-map 4 "ncs-averaged.map")}
+
+@c % -----------------------------------------------------------
+@node    Validation
+@chapter Validation 
+@c % -----------------------------------------------------------
+
+The validation functions are still being added to from time to time.  In
+future there will be more functions, particularly those that will
+interface to other programs.
+
+@menu
+* Ramachandran Plots::
+* Geometry Analysis::
+* Chiral Volumes::
+* sec_blobs::
+* Difference Map Peaks::
+* Check Waters by Difference Map::
+* Molprobity Tools Interface::
+* GLN and ASN B-factor Outliers::
+* Validation Graphs::
+@end menu
+
+@node    Ramachandran Plots
+@section Ramachandran Plots
+@cindex Ramachandran plot
+
+Ramachandran plots are ``dynamic''.  When you edit the molecule
+(@emph{i.e.} move the coordinates of some of atoms) the Ramachandran
+plot gets updated to reflect those changes.  Also the underlying
+@math{\phi/\psi} probability density changes according to the selected
+residue type (@emph{i.e.} the residue under the mouse in the plot).
+There are 3 different residue types: GLY, PRO, and not-GLY-or-PRO
+@footnote{the not-GLY-or-PRO is the most familiar
+  Ramachandran plot.}.
+
+When you mouse over a representation of a residue (a little square or
+triangle @footnote{prolines have a grey outline rather than a black
+  one, triangles are glycines.}) the residue label pops up.  The
+residue is ``active'' @emph{i.e.} it can be clicked.  The ``graphics''
+view changes so that the C@math{\alpha} of the selected residue is centred.
+In the Ramachandran plot window, the current residue is highlighted by
+a green square.
+
+The underlying distributions are taken from the Richardson's Top500
+structures @url{http://kinemage.biochem.duke.edu/databases/top500.php}.
+
+The probability levels for acceptable (yellow) and preferred (red) are
+0.2% and 2% respectively.
+
+You can change the contour levels:
+
+@code{(set-ramachandran-plot-contour-levels 0.025 0.003)}
+
+You can change the ``blocksize'' (the default is 10 degrees) of the
+contours using
+
+@code{(set-ramachandran-plot-background-block-size 5)}
+
+These comes into effect when a new plot is created (it doesn't change
+plots currently displayed).
+
+
+@node Geometry Analysis
+@section Geometry Analysis
+
+A restraints-based geometry analysis of the molecule.  The distortion
+is weighted by atom occupancy. The distortion of the geometry due to
+links is shared between the contributing residues.
+
+Note that only the first model of a multi-model molecule is analysed.
+
+
+@node Chiral Volumes
+@section Chiral Volumes
+The dictionary is used to identify the chiral atoms of each of the
+model's residues.  A clickable list is created of atoms whose chiral
+volume in the model is of a different sign to that in the dictionary.
+
+During refinement and regularization, Coot will pop-up dialogs warning
+about chiral volume errors - if you have them.  This can be annoying
+@footnote{but that's partly the idea, I suppose.}. You can inhibit this
+dialog like this:
+
+@code{(set-show-chiral-volume-errors-dialog 0)}
+
+
+@subsection Fixing Chiral Volume Errors
+
+There are two obvious ways:
+
+1) mutate and auto-fit rotamer (mutate it to the residue type that it is)
+
+2) RS Refine the residue and invert the chiral centre by pulling an
+atom. Usually you can pull the CA to the other side of the plane made
+by the chiral neighbouring atoms (using ctrl left-click).  Sometimes
+giving the CB a good old tweak is the easier way.
+
+Inverting the CB of THR is easier, just move the OG so that the plane
+of the neighbours is on the other side of the CB (again with ctrl
+left-click).
+
+
+@node sec_blobs
+@section Blobs: a.k.a. Unmodelled density
+This is an interface to the Blobs
+@cindex blobs 
+@cindex unmodelled density
+dialog.  A map and a set of coordinates that model the
+protein are required.
+
+A blob is region of relatively high residual election density that
+cannot be explained by a simple water.
+@cindex unexplained density 
+So, for example, sulfates, ligands, mis-placed sidechains or unbuilt
+terminal residues might appear as blobs.  The blobs are in order, the
+biggest  @footnote{and therefore most interesting} at the top.
+
+@node     Difference Map Peaks
+@section  Difference Map Peaks
+
+This is one of the fastest ways to validate a model and its data
+(presuming that the difference map comes from a post-refinement
+mFo-DFc map).  It highlights regions where the model and the data do
+not agree.
+
+Lesser peaks within a certain distance (by default, 2.0@AA{}) of a
+large peak are not shown.  This cuts down on the number of times one
+is navigated to a particular region because of ripple or other noise
+peaks around a central peak. 
+
+This value can be queried:
+
+@code{(difference-map-peaks-max-closeness)}
+
+and adjusted:
+
+@code{(set-difference-map-peaks-max-closeness 0.1)}
+
+
+@node Check Waters by Difference Map
+@section Check Waters by Difference Map
+
+Sometimes waters can be misplaced - taking the place of sidechains or
+ligands or crystallization agents such as phosphate for
+example @footnote{or the water should be more properly modelled as
+  anistrotropic or a split partial site}.  In such cases the variance
+of the difference map can be used to identify these problems.
+
+This function is also useful to check anomalous maps.  Often waters
+are placed in density that is really a something else, perhaps a
+cation, anion, sulphate or a ligand.  If such an atom diffracts
+anomalously this can be identified and corrected.
+
+By default the waters with a map variance greater than 3.5@math{\sigma}
+are listed.  One can be more rigorous by using a lower cut-off:
+
+@code{(set-check-waters-by-difference-map-sigma-level 3.0)}
+
+The scripting interface is: 
+
+@code{(check-waters-by-difference-map @emph{imol-coords}
+  @emph{imol-diff-map})}
+
+where @code{@emph{imol-coords}} is the molecule number of the
+coordinates that contain the waters to be checked
+
+@code{@emph{imol-diff-map}} is the molecule number of the difference
+map (it must be a difference map, not an ``ordinary'' map).  This
+difference map must have been calculated using the waters. So there is
+no point in doing this check immediately after ``Find Waters''.  You
+will need to run Refmac or some other refinement first first
+@footnote{and remember to check the difference map button in the ``Run
+Refmac'' dialog}.
+
+@node    Molprobity Tools Interface
+@section Molprobity Tools Interface
+@cindex  Molprobity Tools
+@cindex  probe
+@cindex  reduce
+
+The molprobity tools @file{probe} and @file{reduce} have been
+interfaced into Coot (currently, the interface is not as slick as it
+might be).  However, the tools are useful and can be used in the
+following way:
+
+first we need to tell Coot where to find the relevant executables
+(typically you would add the following lines to you @file{~/.coot}
+file):
+
+@code{(define *probe-command* "/path/to/probe/executable")}
+
+@code{(define *reduce-command* "/path/to/reduce/executable")}
+ 
+now the probe hydrogens and probe dots can be generated using
+@command{Validate -> Probe Clashes} (or in the Scripting Window):
+
+@code{(probe @emph{imol})}
+
+where @code{@emph{imol}} is the molecule number of coordinates to be
+probed.  A new molecule with Hydrogens is created (by @file{reduce}) and
+read in.
+
+By default Coot creates a new molecule for the molecule that now has
+hydrogens.  To change this:
+
+@code{(set! reduce-molecule-updates-current #t)}
+
+and that, as you can guess, replaces, rather than adds to the
+``probed'' molecule.
+
+This gives a "static" view of the molecule's interactions.
+
+To get a dynamic view (which is currently only enabled on rotating chi
+angles) add these to your @file{~/.coot} file:
+
+@code{(set-do-probe-dots-on-rotamers-and-chis 1)}
+
+To get a semi-static view (dots are regenerated in the region of zone
+after a "Real Space Refinement"):
+
+@code{(set-do-probe-dots-post-refine 1)}
+
+
+@node GLN and ASN B-factor Outliers
+@section GLN and ASN B-factor Outliers
+@cindex  GLN and ASN B-factor Outliers
+
+It is often difficult to detect by eye the correct orientation of the
+amino-carbonylo group of GLN and ASNs.  However, we can use (properly
+refined) temperature factors to detect outliers.  We take the Z value as
+half the difference between the B-factor of the NE2 and OE1 divided by
+the standard deviation of the B-factors of the rest of the residue.  An
+analysis of GLNs and ASNs of high resolutions structures indicates that
+a Z value of greater than 2.25 indicates a potential (if not probable)
+flip.  A ``Fix'' button is provided in the resultant dialog make this
+easy to do.
+
+This analysis was added after discussions with Atsushi Nakagawa and so
+is called ``Nakagawa's Bees''.
+
+The analysis does not check residues with multiple conformations.
+
+@node Validation Graphs
+@section Validation Graphs 
+@cindex  Validation Graphs 
+
+Coot provides several graphs that are useful for model validation (on
+a residue by residue basis): residue density fit, geometry distortion,
+temperature factor variance, peptide distortion and rotamer analysis.
+
+@subsection Residue Density Fit 
+
+The density fit graph shows the density fit for residues.  The score
+is the average electron density level at the atom centres of the atoms
+in the residue.  The height of the blocks is inversely proportional to
+the density average.
+
+The residue density fit is by default scaled to a map that is
+calculated on the absolute scale.  Sometimes you might be using a map
+with density levels considerably different to this, which makes the
+residue density fit graph less useful.  To correct for this you can
+use the scripting function:
+
+@code{(set-residue-density-fit-scale-factor @emph{factor})}
+
+where @code{@emph{factor}} would be @math{1/(4\sigma_{map})} (as a rule
+of thumb).
+
+@code{(residue-density-fit-scale-factor)} returns the current scale
+factor (default 1.0).
+
+There is also a GUI to this: 
+
+@command{Extensions -> Refine@dots{} -> Set Density Fit Graph Weight@dots{}}
+
+@subsection Rotamer Analysis 
+Residue rotamers are scored according to the prior likelihood.  Note
+that when CD1 and CD2 of a PHE residue are exchanged (simply a
+nomenclature error) this can lead to large red blocks in the graph
+(apparently due to very unlikely rotamers).  There are several other
+residues that can have nomenclature errors like this.  To fix these
+problems use 
+
+@code{(fix-nomenclature-errors @emph{imol})}
+
+@subsection Temperature Factor Variance 
+
+This idea is from Eleanor Dodson, who liked to use the standard
+deviation of a residue's temperature factors to highlight regions of
+questionable structure.
+
+Note that Hydrogens are ignored in this analysis.
+
+@subsection Peptide Omega Angle Distortion
+
+Some variability of the @math{\omega} is to be expected in the peptide
+bond.  But not too much. Anything more than 13 degrees is suspicicous.
+Unexpected peptide bonds show up red by default.  If cis peptides
+@emph{are} to be expected, and should not marked as bad, then you can
+tell this to Coot using:
+
+@command{Edit -> Preferences -> Geometry -> Cis-Peptides -> No}
+
+@c @subsection Geometry
+
+
+@c @menu
+@c * Pukka Puckers?::
+@c @end menu
+
+@c This checks the the bonds, angles and planes geometry of the model is
+@c consistent with the dictionary @footnote{the Refmac dictionary, that
+@c is}.  The block size is correlated with the geometry distortion and the
+@c tooltip tells you the most distorted geometrical feature in the residue.
+@c A ``plane'' distortion can refer to the peptide plane.
+
+@c @node Pukka Puckers?
+@c @subsection Pukka Puckers?
+@c @cindex  Pukka Puckers?
+
+@c A pucker checker has been incorporated into Coot after the method
+@c described in their Molprobity paper @footnote{Davis @emph{et al.} (2007)
+@c Molprobity: all atom contacts and structure validation for proteins and
+@c nucleic acids, Nucleic Acids Research @b{35}, W375-W383}. Davis @emph{et
+@c al.} note that the distance of phosphate atom of the following residue
+@c out of the plane of the base is strongly correlated with the ribose
+@c pucker.  Coot checks that the out of plane distance is consistent with
+@c the ribose pucker (and let's you know if it is not). 
+
+
+
+@c % -----------------------------------------------------------
+@node Representation
+@chapter Representation
+@c % -----------------------------------------------------------
+
+@menu
+* Surfaces::
+@end menu
+
+@node Surfaces
+@section Surfaces
+
+Coot uses the surface code from Gruber and Noble (2004).
+
+Coot uses the partial charges of the atoms (the @var{partial_charge}
+field in the @var{_chem_comp_atom} block) from the charge dictionary item
+in the refmac (or other) cif dictionary.  However, partial charges are
+only used under certain conditions
+
+1) the molecule consists of less than 100 atoms
+
+or 
+
+2) the number of atoms in the molecule that are hydrogens is at least
+15% of the total number of atoms in the molecule
+
+If partial charges are not used, then the fall-back is to use charges
+from side-chains charged at physiological pH (Arg, Lys, Asp, Glu).
+
+
+@c % -----------------------------------------------------------
+@node Hints and Usage Tips
+@chapter Hints and Usage Tips
+@c % -----------------------------------------------------------
+
+@menu 
+* Documentation::
+* Low Resolution::
+* Coot Droppings::
+* Clearing Backups::
+* Getting out of ``Translate'' Mode::
+* Getting out of ``Continuous Rotation'' Mode::
+* Label Atom Only Mode::
+* Button Labels::
+* sec_picking::
+* Resizing View::
+* Scroll-wheel::
+* Slow Computer Configuration::
+@end menu
+
+@node    Documentation
+@section Documentation
+
+This manual is on the web where it can be searched:
+@itemize
+@item @url{http://www.biop.ox.ac.uk/coot/doc/user-manual.html} monolithic version
+@item @url{http://www.biop.ox.ac.uk/coot/doc/chapters/user-manual_toc.html} which is 
+        split into sections
+@end itemize
+
+In the Menu item ``About'', under ``Online Docs URL...'' there is a
+entry bar that can be used to search the Coot documentation via Google.
+The results are returned as a web page in web browser. The browser type
+can be specified as in this example:
+
+@code{(set-browser-interface "firefox")}
+
+Example usage can be found in @file{xxx/share/coot/scheme/group-settings.scm}
+
+
+@node    Low Resolution
+@section Low Resolution
+
+Building structures using low resolution data is a pain.  We hope to
+make it less of a pain in future, but there are some things that you can
+do now.
+
+@itemize
+@item [Add Planar Peptide Restraints] Add restraints via scripting command
+@item [Use Secondary Structure Restraints] where appropriate under Refinement Control
+@item [Check Chirals] Check Chiral Volumes regularly
+@item [Change the Weighing Scheme] @code{(set-matrix 20.0)}
+[Default is 60, the lower the number the more the geometry is idealised]
+@end itemize
+
+@node    Coot Droppings
+@section Coot Droppings
+@cindex  coot droppings
+@cindex  droppings
+
+This describes the files and directory that coot leaves behind after it
+has been fed (sorry, I mean ``used'').  Everything except the
+@t{0-coot.state.scm} state file can comfortably be deleted if needed
+after coot has finished.
+
+@cindex guano
+You can stop the state and history files being written if you start coot
+with the @code{--no-guano} option.
+
+@itemize
+@item @t{0-coot.state.scm}  The most important file.  This contains the state of 
+        coot when you last exited. It contains things like which molecules  
+        were read, the maps, the colours of the molecules and map, the screen 
+        centre, map size and so on.  When restarting a coot session, this file
+        should usually be used.  
+
+@item @t{0-coot-history.scm} The history of coot commands you used in your last 
+        coot session in scheme format.  Incomplete history.  One day this will be 
+        a complete history of the session suitable for uploading into a database 
+        describing the model modification.
+
+@item @t{0-coot-history.py} The history of coot commands you used in your last 
+        coot session in python format.
+
+@item @t{coot-download} directory where the files downloaded from the network (e.g. 
+        from the EBI and EDS) go.
+
+@item @t{coot-backup} Each model modification generates the saving of coordinates 
+        as a pdb file in this directory.
+
+@item @t{coot-refmac} When running REFMAC using the Coot interface, the input to 
+        refmac and the output go in this directory.
+
+@item @t{coot-molprobity} When running Molprobity's Probe and Reduce using the Coot
+         interface, the input and output go in this directory.
+
+@end itemize
+
+@node    Clearing Backups
+@section Clearing Backups
+@cindex  clearing backups
+@cindex  backups, clearing
+
+Coot will occasionally ask you to clear up the @file{coot-backup}
+directory.  You can adjust the behaviour in a number of ways:
+
+@itemize
+@item @code{(define *clear-out-backup-run-n-days* 3)} will run the backup clearance every 3 days (the default is every 7).
+@item @code{(define *clear-out-backup-old-days* 1)} will clear out files older then 1 day (rather than the default 7 days).
+@item You can create your own version of the function that is run on exiting Coot:
+   @code{(clear-backups-maybe)}
+@end itemize
+
+So, if you wanted to clear out everything more than 1 day old, every
+time, without Coot asking you about it:
+
+@smalllisp
+(define *clear-out-backup-run-n-days* 0)
+(define *clear-out-backup-old-days* 1)
+(define (clear-backups-maybe) 
+  (delete-coot-backup-files 'delete)
+  (coot-real-exit 0))
+@end smalllisp
+
+
+@node Getting out of ``Translate'' Mode 
+@section Getting out of ``Translate'' Mode 
+If you get stuck in "translate" mode in the GL canvas (@emph{i.e.} mouse
+does not rotate the view as you would expect) simply press and release
+the Ctrl key to return to "rotate" mode.
+
+@node    Getting out of ``Continuous Rotation'' Mode
+@section Getting out of ``Continuous Rotation'' Mode
+
+The keyboard @key{I} key toggles the ``continuous rotation'' mode.  The
+menu item @command{Draw -> Spin View On/Off} does the same thing.
+
+@node Label Atom Only Mode
+@section Getting out of ``Label Atom Only'' Mode
+Similarly, if you are stuck in a mode where the ``Model/Fit/Refine''
+buttons don't work (the atoms are not selected, only the atom gets
+labelled), press and release the Shift key.
+
+@node Button Labels
+@section Button Labels 
+Button labels ending in ``@dots{}'' mean that a new dialog will pop-up
+when this button is pressed.
+
+@node sec_picking 
+@section Picking 
+@cindex picking 
+Note that left-mouse in the 
+graphics window is used for both atom picking and rotating the view,
+so try not to click over an atom when trying to rotate the view when
+in atom selection mode.  
+
+@node    Resizing View 
+@section Resizing View 
+@cindex resizing view 
+@cindex zoom
+Click and drag using right-mouse (up and down or left and right) to zoom in and out.
+
+
+@node    Scroll-wheel
+@section Scroll-wheel
+@cindex  scroll wheel, map for
+To change the map to which the scroll-wheel is attached, use the scroll
+check button in the Display Manager or use @command{HID -> Scrollwheel
+-> Attach Scrollwheel to which map?}
+ 
+@node Slow Computer Configuration
+@section Slow Computer Configuration 
+@cindex slow computer 
+Several of the parameters of Coot are chosen
+because they are reasonable on my ``middle-ground'' development
+machine.  However, these parameters can be tweaked so that slower
+computers perform better:
+
+@itemize 
+@item @code{(set-smooth-scroll-steps 4) ; default 8 }
+@item @code{(set-smooth-scroll-limit 30) ; Angstroms}
+@item @code{(set-residue-selection-flash-frames-number 3);}
+@item @code{(set-skeleton-box-size 20.0) ; A (default 40).}
+@item @code{(set-active-map-drag-flag 0) ; turn off recontouring every step}
+@item @code{(set-idle-function-rotate-angle 1.5) ; continuous spin speed}
+@end itemize
+
+@c % -----------------------------------------------------------
+@node    Other Programs
+@chapter Other Programs
+@c % -----------------------------------------------------------
+
+@menu 
+* findligand::
+@end menu
+
+@node    findligand
+@section findligand
+@cindex  findligand
+
+@command{findligand} is a stand-alone command-line program that uses the
+libraries of Coot.
+
+@command{findligand} provides a number of command line arguments for
+increased flexibility:
+
+@itemize
+ @item @code{--pdbin @emph{pdb-in-filename}}
+
+        where @code{@emph{pdb-in-filename}} is the protein (typically)
+ @item @code{--hklin @emph{mtz-filename}}
+ @item @code{--f @emph{f_col_label}}
+ @item @code{--phi @emph{phi_col_label}}
+ @item @code{--clusters @emph{nclust}}
+
+        where @code{@emph{nclust}} is the number of density clusters 
+        (potential ligand sites) to search for
+ @item @code{--sigma @emph{sigma-level}}
+
+        where @code{@emph{sigma-level}} the density level (in sigma) above 
+        which the map is searched for ligands
+ @item @code{--fit-fraction @emph{frac}}
+
+        where @code{@emph{frac}} is the minimum fraction of atoms in 
+        density allowed after fit [default 0.75]
+ @item @code{--flexible}
+
+       means use torsional conformation ligand search
+ @item @code{--samples @emph{nsamples}}
+
+       @code{@emph{nsamples}} is the number of flexible conformation samples [default 30]
+ @item @code{--dictionary @emph{cif-dictionary-name}}
+
+        the file containing the CIF ligand dictionary description
+@end itemize
+
+One uses @code{findligand} like this:
+
+@cartouche
+  @code{$ findligand @emph{various-args ligand-pdb-file-name(s)}}
+@end cartouche
+
+ @emph{i.e.} the example ligand pdb files that you wish to search for
+are given at the end of the command line.
+
+@c % -----------------------------------------------------------
+@c % -----------------------------------------------------------
+@node    Scripting Functions
+@chapter Scripting Functions
+@c % -----------------------------------------------------------
+@c % -----------------------------------------------------------
+
+@c the documentation from doxygen in c-interface.h
+@c from the source src directory:
+@c doxygen coot-dox.cfg
+@c from the build doc directory:
+
+@c xsltproc ../../coot/doc/xml2texi.xsl ../../coot/src/doxygen/xml/c-interface_8h.xml > ../../coot/doc/c-interface.h.texi
+@c note that texi2html (and makeinfo) requires that this c-interface texi file be in the 
+@c same directory as this file (user-manual.texi) NOT the directory that 
+@c texi2html is run in.
+@include c-interface.h.texi
+@node    More Scripting Functions
+@chapter More Scripting Functions
+@include cc-interface.hh.texi
+
+
+
+
+@c % -----------------------------------------------------------
+@c % -----------------------------------------------------------
+@node    Scheme Scripting Functions
+@chapter Scheme Scripting Functions
+@c % -----------------------------------------------------------
+@c % -----------------------------------------------------------
+
+@c The documentation from snarfing scheme docs.
+@c
+@c Lets not include this yet, there are problems with duplicate
+@c nodes (mutate, povray) and (e.g.) `tips-gui', but has no menu entry for this node
+@c
+
+@include coot-scheme-functions.texi
+
+
+
+
+@node Concept Index
+@unnumbered Concept Index
+     
+@printindex cp
+
+@node Function Index 
+@unnumbered Function Index
+@printindex fn
+ 
+@bye

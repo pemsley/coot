@@ -1,0 +1,15 @@
+
+Rotate/Translate object
+
+rotate_translate_obj* calbacks created manually in the rottrans-button
+system.
+
+
+Accept/Reject button
+on_accept_reject_dialog_accept_button_clicked accept_moving_atoms()
+on_accept_reject_dialog_reject_button_clicked clear_moving_atoms_object()
+
+
+
+
+
