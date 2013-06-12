@@ -3,15 +3,6 @@
 
 ----
 
-   o difference map peaks submarines?
-
-   o charge on lidia?
-
-   o density fit analysis graph can use correlation coefficient?
-
-     Seems so.  look at graphics-info-graphs:
-     graphics_info_t::density_fit_from_residues()
-
 -----
 
    o ligand from 3b6a has lost an OH in the thumbnail.
@@ -216,3 +207,8 @@ mol=0x0) at rama_plot.cc:1517
      CA-C vector and we can do that without next N.
 
 * Done.
+
+   o difference map peaks submarines?
+
+* Done.
+

@@ -22,25 +22,26 @@
     (gtk-widget-set-sensitive sep #f)
     (gtk-widget-show sep)))
 
-(if (defined? 'coot-main-menubar)
-
     ;; --------------------------------------------------
     ;;           coot news dialog and updates dialog
     ;; --------------------------------------------------
-    (let ((menu (coot-menubar-menu "About")))
-      (if menu
-	  (begin
-	    (add-simple-coot-menu-menuitem
-	     menu "Coot News..."
-	     (lambda ()
-	       (whats-new-dialog)))
-	    (let ((os-type (vector-ref (uname) 0)))
-	      (if (not (string=? os-type "Darwin"))
-		  (add-simple-coot-menu-menuitem
-		   menu "Check for Updates..."
-		   (lambda () 
-		     (format #t "checking for updates....~%")
-		     (check-for-updates-gui)))))))))
+
+; not at the moment (release 0.7.1)    
+; (if (defined? 'coot-main-menubar)
+;    (let ((menu (coot-menubar-menu "About")))
+;      (if menu
+;	  (begin
+;	    (add-simple-coot-menu-menuitem
+;	     menu "Coot News..."
+;	     (lambda ()
+;	       (whats-new-dialog)))
+;	    (let ((os-type (vector-ref (uname) 0)))
+;	      (if (not (string=? os-type "Darwin"))
+;		  (add-simple-coot-menu-menuitem
+;		   menu "Check for Updates..."
+;		   (lambda () 
+;		     (format #t "checking for updates....~%")
+;		     (check-for-updates-gui)))))))))
 
 
 (if (defined? 'coot-main-menubar)

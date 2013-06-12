@@ -277,8 +277,13 @@ graphics_info_t::graphics_ligand_view() {
 	 glPopMatrix();
       }
 
-      catch (std::runtime_error rte) {
-	 std::cout << "ERROR:: " << rte.what() << std::endl;
+      catch(const std::runtime_error &rte) {
+	 // PE20130605
+	 // This is useful for debugging, but not for production
+	 // (e.g. where the comp-id is ZN we get here currently and it
+	 // is printed on every frame)
+	 // 
+	 // std::cout << "ERROR:: " << rte.what() << std::endl;
       }
    }
 } 

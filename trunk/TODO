@@ -1033,6 +1033,16 @@ Punted from 0.6:
 
 * Punted.
 
+   o charge on lidia?
+
+* Punt
+
+   o density fit analysis graph can use correlation coefficient?
+
+*    Seems so.  look at graphics-info-graphs:
+     graphics_info_t::density_fit_from_residues()
+     Punt.
+
    o colour-by-molecule hydrogens should be thin.
 
 * Punted.

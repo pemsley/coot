@@ -20,6 +20,7 @@ cootpixmapdir = $(pkgdatadir)/pixmaps
 # no longer use xpms.
 
 dist_cootpixmap_DATA = \
+coot-0.7.1.png \
 add-alt-conf.png      dna.svg			   probe-clash.svg                \
 add-alt-conf.svg      edit-backbone.svg		   radacina_handcuffs-small.svg   \
 add-peptide-1.png     edit-chi.png		   ramachandran.png               \
@@ -45,10 +46,10 @@ connect-to-ccp4.svg   gtk-font.png		   secondary-structure.svg        \
 connect-to-oca.svg    gtk-open-16.png		   sequence-view.png              \
 connect-to-usf.svg    gtk-open-24.png		   sequence-view.svg              \
 connect-to-world.svg  gtk-open.png		   side-chain-180.png             \
-coot-0.6.1.png	      kevin.jpg			   side-chain-180.svg             \
-coot-0.6.png	      kevin-orig.jpg		   smiles.png                     \
-coot-0.7.png	      kleywegt.svg		   smiles.svg                     \
-coot-0.7-pre-1.png    map.svg			   spin-view.png                  \
+	    kevin.jpg			   side-chain-180.svg             \
+	    kevin-orig.jpg		   smiles.png                     \
+	    kleywegt.svg		   smiles.svg                     \
+	    map.svg			   spin-view.png                  \
 coot-favicon.png      merge-molecules.svg	   spin-view.svg                  \
 coot-icon.png	      mutate-auto-fit.svg	   stereo-view.svg                \
 coot-save.png	      mutate.svg		   stop.svg                       \

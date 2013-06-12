@@ -618,7 +618,6 @@ coot::get_chiral_tag(CResidue *residue_p,
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    std::string atom_name = atom_p->name;
    
-   bool atom_orders_match = 0;
    // does the order of the restraints match the order of the atoms?
    //
    for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) { 
@@ -626,54 +625,78 @@ coot::get_chiral_tag(CResidue *residue_p,
 	 const coot::dict_chiral_restraint_t &chiral_restraint = restraints.chiral_restraint[ichi];
 
 	 int n_neigbours_found = 0;
-	 unsigned int i_next = 0;
-	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	 std::vector<int> ni(4, -1); // neighbour_indices: gap for c atom at 0.
+	 bool atom_orders_match = false;
+
+	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
 	    std::string atom_name_local = residue_atoms[iat]->name;
 	    if (atom_name_local == chiral_restraint.atom_id_1_4c()) {
+	       ni[1] = iat;
 	       n_neigbours_found++;
-	       i_next = iat+1;
-	       break;
 	    }
-	 }
-	 for (unsigned int iat=i_next; iat<n_residue_atoms; iat++) {
-	    std::string atom_name_local = residue_atoms[iat]->name;
 	    if (atom_name_local == chiral_restraint.atom_id_2_4c()) {
+	       ni[2] = iat;
 	       n_neigbours_found++;
-	       i_next = iat+1;
-	       break;
 	    }
-	 }
-	 for (unsigned int iat=i_next; iat<n_residue_atoms; iat++) {
-	    std::string atom_name_local = residue_atoms[iat]->name;
 	    if (atom_name_local == chiral_restraint.atom_id_3_4c()) {
+	       ni[3] = iat;
 	       n_neigbours_found++;
-	       break;
 	    }
 	 }
 
 	 if (n_neigbours_found == 3) {
-	    // yes, they match
-	    atom_orders_match = 1;
-	 }
 
-	 // This bit needs checking
-	 // 
-	 if (atom_orders_match) {
-	    if (chiral_restraint.volume_sign == 1)
-	       chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
-	    else 
-	       chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
-	 } else {
-	    if (chiral_restraint.volume_sign == 1)
-	       chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
-	    else 
-	       chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+	    // 3 2 1
+	    if ((ni[3] > ni[2]) && (ni[2] > ni[1])) { 
+	       atom_orders_match = true;
+	       // std::cout << "match by method A " << std::endl;
+	    } 
+	    // circular permutation, 1 3 2 
+	    if ((ni[1] > ni[3]) && (ni[3] > ni[2])) { 
+	       atom_orders_match = true;
+	       // std::cout << "match by method B " << std::endl;
+	    } 
+	    // circular permutation, 2 1 3
+	    if ((ni[2] > ni[1]) && (ni[1] > ni[3])) {
+	       // std::cout << "match by method C " << std::endl;
+	       atom_orders_match = true;
+	    } 
+	    
+	    // This bit needs checking
+	    // 
+	    if (atom_orders_match) {
+	       if (0) 
+		  std::cout << "atom orders match: true, vol sign " << chiral_restraint.volume_sign
+			    << " ->  CCW "
+			    << "for atom " << atom_name 
+			    << " neighbs " << ni[1] << " "  << ni[2] << " " << ni[3] << " "
+			    << chiral_restraint.atom_id_1_4c() << " "
+			    << chiral_restraint.atom_id_2_4c() << " " 
+			    << chiral_restraint.atom_id_3_4c() << std::endl;
+	       if (chiral_restraint.volume_sign == 1)
+		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
+	       if (chiral_restraint.volume_sign == -1)
+		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+	    } else {
+	       if (0) 
+		  std::cout << "atom orders NOT match: true, vol sign " << chiral_restraint.volume_sign
+			    << "  ->  CW "
+			    << "for atom " << atom_name 
+			    << " neighbs "<< ni[1] << " "  << ni[2] << " " << ni[3] << " "
+			    << chiral_restraint.atom_id_1_4c() << " "
+			    << chiral_restraint.atom_id_2_4c() << " " 
+			    << chiral_restraint.atom_id_3_4c() << std::endl;
+	       if (chiral_restraint.volume_sign == 1)
+		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+	       if (chiral_restraint.volume_sign == -1)
+		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
+	    }
 	 }
-	 break;
-      } 
+	 break; // because we found the restraint that matches the passed atom
+      }
    }
    return chiral_tag;
-} 
+}
 
 
 

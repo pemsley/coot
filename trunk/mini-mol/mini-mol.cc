@@ -621,12 +621,13 @@ coot::minimol::fragment::operator[](int i) {
 	 int new_offset = i - 1;
 	 int offset_diff = new_offset - residues_offset;
 
-	 check();
+	 // 	 check();
 
-	 std::cout << "DEBUG:: residues.size() is " << residues.size() << " and offset_diff is " << offset_diff
-		   << " new_offset " << new_offset << " residues_offset " << residues_offset
-		   << " and passed i " << i << std::endl;
-	 std::cout << "FYI: MinInt4 is " << MinInt4 << std::endl;
+// 	 std::cout << "DEBUG:: residues.size() is " << residues.size() << " and offset_diff is " << offset_diff
+// 		   << " new_offset " << new_offset << " residues_offset " << residues_offset
+// 		   << " and passed i " << i << std::endl;
+// 	 std::cout << "FYI: MinInt4 is " << MinInt4 << std::endl;
+	 
 	 std::vector<residue> new_residues(residues.size() - offset_diff);
 	 // copy across the current residues...
 	 if (residues.size() > 0) { 
