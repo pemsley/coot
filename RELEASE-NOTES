@@ -1,6 +1,37 @@
 
 ------
 
+  Release 0.7.1
+
+  o FEATURE: Navigation via residue triple.
+
+  o FEATURE: csv mogul output parser.
+
+  o CHANGE: Updated interface to JLigandl
+
+  o CHANGE: Sequence View improved.
+
+  o CHANGE: Bond orders for Het-groups in CA+ligands mode.
+
+  o CHANGE: Optional use of build-info at compile time.
+
+  o BUG-FIX: Ligand fitting improved/fixed.
+
+  o BUG-FIX: Drag and drop improved.
+
+  o BUG-FIX: Fix up for reading of molprobity files.
+
+  o BUG-FIX: Use Extended HM symbols when converting from clipper
+    symmetry to mmdb symmetry.
+
+  o BUG-FIX: Get Drug feature improved.
+
+  o BUG-FIX: Better use of extant ring info when drawing rings in LIDIA.
+
+  o BUG-FIX: Scale factor for sharpening fixed [Chang Liu]
+
+------
+
   Release 0.7
 
   o FEATURE: Het-groups are now represented with bond orders.

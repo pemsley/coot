@@ -1322,7 +1322,7 @@ graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_
 void 
 graphics_info_t::clear_up_moving_atoms() { 
 
-   std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms..." << std::endl;
+   // std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms..." << std::endl;
    moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // unset
    in_moving_atoms_drag_atom_mode_flag = 0; // no more dragging atoms
    have_fixed_points_sheared_drag_flag = 0;
@@ -1343,9 +1343,8 @@ graphics_info_t::clear_up_moving_atoms() {
 	 std::cout << "ignoring " << std::endl;
       }
    } else {
-      std::cout << "WARNING:: attempting to delete NULL moving_atoms_asc.atom_selection"
-		<< std::endl;
-      std::cout << "Ignoring. " << std::endl;
+      // std::cout << "WARNING:: Ignoring attempt to delete NULL moving_atoms_asc.atom_selection"
+      // << std::endl;
    }
    if (moving_atoms_asc->mol != NULL) {
       if (moving_atoms_asc->n_selected_atoms > 0) { 

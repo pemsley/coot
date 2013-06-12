@@ -33,17 +33,17 @@ if (have_coot_python):
      # --------------------------------------------------
      #           coot news dialog and updates dialog
      # --------------------------------------------------
-     menu = coot_menubar_menu("About")
-     if (menu):
-       add_simple_coot_menu_menuitem(menu, "Coot News...",
-                                     lambda func: whats_new_dialog())
+#   comment these out for now     
+#      menu = coot_menubar_menu("About")
+#      if (menu):
+#        add_simple_coot_menu_menuitem(menu, "Coot News...",
+#                                      lambda func: whats_new_dialog())
 
-
-       os_type = os.name
-       if not os_type == 'mac':
-         add_simple_coot_menu_menuitem(menu, "Check for Updates...",
-                                       lambda func: (printf("checking for updates..."),
-                                                     check_for_updates_gui()))
+#        os_type = os.name
+#        if not os_type == 'mac':
+#          add_simple_coot_menu_menuitem(menu, "Check for Updates...",
+#                                        lambda func: (printf("checking for updates..."),
+#                                                      check_for_updates_gui()))
 
 
      # --------------------------------------------------
