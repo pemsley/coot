@@ -3694,20 +3694,54 @@ molecule_class_info_t::assign_sequence_from_file(const std::string &filename) {
 }
 
 // to assign a sequence from a simple string
+// Apply to NCS-related chains too if present.
+//
 void
-molecule_class_info_t::assign_sequence_from_string(const std::string &chain_id, const std::string &seq_in) {
+molecule_class_info_t::assign_sequence_to_NCS_related_chains_from_string(const std::string &chain_id,
+									 const std::string &seq_in) {
 
    // std::cout << "in assign_sequence_from_string\n";
+
+   std::string seq = seq_in;
+   if (seq.length() > 0) { 
+      input_sequence.push_back(std::pair<std::string, std::string> (chain_id, seq));
+
+      std::vector<std::string> ncs_related_chain_ids;
+      for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) { 
+	 if (ncs_ghosts[ighost].chain_id == chain_id)
+	    // add the target/master chain-id if it is not alreay in ncs_related_chain_ids
+	    if (std::find(ncs_related_chain_ids.begin(),
+			  ncs_related_chain_ids.end(), ncs_ghosts[ighost].target_chain_id) ==
+		ncs_related_chain_ids.end())
+	       ncs_related_chain_ids.push_back(ncs_ghosts[ighost].target_chain_id);
+	 if (ncs_ghosts[ighost].target_chain_id == chain_id)
+	    // add the ghost chain-id if it is not alreay in ncs_related_chain_ids
+	    if (std::find(ncs_related_chain_ids.begin(),
+			  ncs_related_chain_ids.end(), ncs_ghosts[ighost].chain_id) ==
+		ncs_related_chain_ids.end())
+	       ncs_related_chain_ids.push_back(ncs_ghosts[ighost].chain_id);
+      }
+
+      if (ncs_related_chain_ids.size())
+	 for (unsigned int in=0; in<ncs_related_chain_ids.size(); in++)
+	    assign_sequence_from_string_simple(ncs_related_chain_ids[in], seq);
+      
+   } else { 
+      std::cout << "WARNING:: no sequence found or improper string\n";
+   }
+}
+
+void
+molecule_class_info_t::assign_sequence_from_string_simple(const std::string &chain_id, const std::string &seq_in) {
 
    std::string seq = seq_in;
    if (seq.length() > 0) { 
       std::cout << "storing sequence: " << seq << " for chain id: " << chain_id
 		<< " in molecule number " << imol_no << std::endl;
       input_sequence.push_back(std::pair<std::string, std::string> (chain_id, seq));
-   } else { 
-      std::cout << "WARNING:: no sequence found or improper string\n";
    }
-}
+} 
+
 
 // Delete all the associated sequences from the molecule
 void 

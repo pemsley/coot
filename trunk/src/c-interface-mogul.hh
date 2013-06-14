@@ -20,6 +20,8 @@ float get_mogul_max_badness();
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM mogul_results_scm(const char *mogul_out_file_name);
+
+SCM mogul_results_process_many(const char *glob_str, const char *glob_dir);
 #endif 
 #endif 
 

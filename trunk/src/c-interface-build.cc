@@ -4062,7 +4062,7 @@ void assign_sequence_from_file(int imol, const char *file) {
 void assign_sequence_from_string(int imol, const char *chain_id_in, const char *seq) {
    if (is_valid_model_molecule(imol)) {
     const std::string chain_id = chain_id_in;
-    graphics_info_t::molecules[imol].assign_sequence_from_string(chain_id, std::string(seq));
+    graphics_info_t::molecules[imol].assign_sequence_to_NCS_related_chains_from_string(chain_id, std::string(seq));
   }
   std::string cmd = "assign-sequence-from-string";
   std::vector<coot::command_arg_t> args;

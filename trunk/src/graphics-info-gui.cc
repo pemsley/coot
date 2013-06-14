@@ -3709,6 +3709,7 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pai
    GtkWidget *w = create_diff_map_peaks_dialog();
    difference_map_peaks_dialog = w; // save it for use with , and .
                                     // (globjects key press callback)
+   set_transient_and_position(COOT_DIFF_MAPS_PEAK_DIALOG, w);
    GtkWidget *radio_button;
    GSList *diff_map_group = NULL;
    GtkWidget *button_vbox = lookup_widget(w, "diff_map_peaks_vbox");
