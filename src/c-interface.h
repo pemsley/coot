@@ -1545,10 +1545,10 @@ void set_esoteric_depth_cue(int istate);
   return the state of the esoteric depth cueing flag */
 int  esoteric_depth_cue_state();
 
-/*! \brief not everone lies coot's default difference map colouring.  
+/*! \brief not everone likes coot's default difference map colouring.  
 
    Pass an argument i=1 to swap the difference map colouring so that
-   red is positve and green is negative. */
+   red is positive and green is negative. */
 void set_swap_difference_map_colours(int i);
 int swap_difference_map_colours_state();
 /*! \brief post-hoc set the map of molecule number imol to be a

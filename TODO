@@ -1013,7 +1013,23 @@ Punted from 0.6:
  ------
     
 
-    Release 0.8, June 2013
+    Release 0.8, Sept 2013
+
+   o density fit analysis graph can use correlation coefficient?
+
+     Seems so.  look at graphics-info-graphs:
+     graphics_info_t::density_fit_from_residues()
+
+     Punt for 0.8.
+
+   o closest_atom() should do what it says.  rename current
+     (user-level) function closest_atom_preferring_CA().
+
+   o Pepflip: fails when there is a not a next N.  All we often want
+     to do in such cases, is to rotate the carbonyl O 180 degrees about
+     CA-C vector and we can do that without next N.
+ 
+* Done.
 
    o control shift arrows to rotate residue
 

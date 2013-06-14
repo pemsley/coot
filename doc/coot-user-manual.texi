@@ -3450,10 +3450,21 @@ right?}.
 @node    Merge Molecules
 @section Merge Molecules
 @cindex merge molecules
-This dialog can be found under ``Calculate'' in the main menubar.
-This is typically used to add molecule fragments or residues that are
-in one molecule to the ``working'' coordinates @footnote{For example,
+The dialog for this opperation can be found under ``Calculate'' in the
+main menubar.  This is typically used to add molecule fragments or
+residues that are in one molecule to the ``working'' coordinates
+@footnote{For example,
   after a ligand search has been performed.}.
+
+The scripting interface is used like this
+
+@code{(merge-molecules @emph{molecule-list} @emph{target-molecule})}
+
+@emph{e.g.}
+
+@code{(merge-molecules (list 1 2 ) 0)}
+
+merges molecules 1 and 2 into molecule 0.
 
 @node    Temperature Factor for New Atoms
 @section Temperature Factor for New Atoms

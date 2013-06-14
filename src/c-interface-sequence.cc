@@ -61,7 +61,8 @@ assign_sequence_to_best_matching_chain(std::string sequence) {
    }
 
    if (is_valid_model_molecule(best_match_mol)) {
-      g.molecules[best_match_mol].assign_sequence_from_string(best_match_chain, sequence);
+      // assign to NCS-related molecules too if it finds a match
+      g.molecules[best_match_mol].assign_sequence_to_NCS_related_chains_from_string(best_match_chain, sequence);
       done = true;
    }
 

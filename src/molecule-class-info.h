@@ -797,7 +797,7 @@ class molecule_class_info_t {
    void draw_transparent_molecular_surface(); // the function to draw surface transparently
    
    // difference map negative level colour relative to positive level:
-   float rotate_colour_map_for_difference_map; // 120.0 default colour_map_rotation
+   float rotate_colour_map_for_difference_map; // 240.0 default colour_map_rotation
 
    float get_clash_score(const coot::minimol::molecule &a_rotamer) const;
    std::pair<double, clipper::Coord_orth> get_minimol_pos(const coot::minimol::molecule &a_rotamer) const; 
@@ -2623,7 +2623,9 @@ public:        //                      public
 
    void assign_sequence_from_file(const std::string &filename);
 
-   void assign_sequence_from_string(const std::string &chain_id, const std::string &seq);
+   // Apply to NCS-related chains too, if present
+   void assign_sequence_to_NCS_related_chains_from_string(const std::string &chain_id, const std::string &seq);
+   void assign_sequence_from_string_simple(const std::string &chain_id, const std::string &seq);
 
    void delete_all_sequences_from_molecule();
 
