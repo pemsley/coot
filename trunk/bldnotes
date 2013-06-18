@@ -2,7 +2,7 @@
 
 scripts      rev 4566 (some prodrg stuff needs testing) generic objects, check new defs
 tests        rev 4437 update
-build-it-win rev 4638
+build-it-win rev 4658 (check 0.8 pre builder)
 
 -------------------------------------------------------
 * THINGS TO DO BEFORE 0.7.1 RELEASE * ONLY URGENT THING
