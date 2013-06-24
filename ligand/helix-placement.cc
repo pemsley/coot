@@ -467,6 +467,8 @@ clipper::RTop_orth
 coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, double cyl_len,
 						  double cyl_rad, float max_density_limit) const {
 
+   std::cout << "max_density_limit: " << max_density_limit << std::endl;
+
    // density map score for density d:
    //     below mdl: d
    //
@@ -526,14 +528,17 @@ coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, doubl
 	       if ( fabs(c1.z()) < cyl_len &&
 		    c1.x()*c1.x()+c1.y()*c1.y() < cyl_rad*cyl_rad ) {
 		  d = xmap[iw];
-		  scores[j] += (d > max_density_limit ? 2*max_density_limit-d : d);
+		  double this_score = (d > max_density_limit ? 2*max_density_limit-d : d);
+		  // std::cout << "this_score: " << this_score << " using d " << d << std::endl;
+		  scores[j] += this_score;
+		  // scores[j] += d;
 		  n_cyl_points[j]++;
 	       }
 	    }
 	 }
    }
    
-   if (0) // debug
+   if (1) // debug
       for (unsigned int j = 0; j < ops.size(); j++)
 	 std::cout << "orientation " << j << " score " << scores[j] << " " << n_cyl_points[j]
 		   << " points" << std::endl;

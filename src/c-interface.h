@@ -5928,6 +5928,9 @@ int place_helix_here();
 int place_strand_here(int n_residues, int n_sample_strands);
 
 
+void set_place_helix_here_fudge_factor(float ff);
+
+
 /*! \brief show the strand placement gui.
 
   Choose the python version in there, if needed.  Call scripting
@@ -6798,6 +6801,8 @@ void pisa_clear_interfaces();
 float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
 				  int n_trials,
 				  float jiggle_scale_factor);
+
+float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_scale_factor);
 /* \} */
 
 

@@ -667,6 +667,9 @@ namespace coot {
 } // namespace coot
 
 
+bool trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
+			    const std::pair<clipper::RTop_orth, float> &b);
+
 
 // Forward declaration
 class graphics_info_t;
@@ -3040,9 +3043,9 @@ public:        //                      public
 				     const clipper::Xmap<float> &xmap,
 				     float map_sigma,
 				     int n_trials,
-				     float jiggle_scale_factor);
-
-
+				     float jiggle_scale_factor,
+				     bool use_biased_density_scoring);
+   
    // return a fitted molecule
    coot::minimol::molecule rigid_body_fit(const coot::minimol::molecule &mol_in,
 					  const clipper::Xmap<float> &xmap,

@@ -149,6 +149,10 @@ namespace coot {
 
       clipper::Xmap<float> laplacian_transform(const clipper::Xmap<float> &xmap_in);
 
+      std::vector<float> density_map_points_in_sphere(clipper::Coord_orth pt, float radius,
+						      const clipper::Xmap<float> &xmap_in);
+      float interquartile_range(const std::vector<float> &v);
+
       // pass a negative atom_selection to build an atom map for the whole molecule
       // 
       clipper::Xmap<float> calc_atom_map(CMMDBManager *mol,

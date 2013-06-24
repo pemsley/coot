@@ -1436,7 +1436,7 @@
     (if (not (and space-group cell-params))
 	(let ((message (format #f "Bad cell or symmetry for molecule ~s~%"
 			       cell space-group imol-ref)))
-	  mesage) ;; fix syntax
+	  message) ;; fix syntax
 	(let ((rtop (apply-lsq-matches imol-ref imol-mov)))
 	  (transform-map imol-map (car rtop) (car (cdr rtop)) about-pt radius space-group cell-params)))))
 

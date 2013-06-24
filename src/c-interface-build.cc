@@ -5493,6 +5493,10 @@ void copy_residue_range_from_ncs_master_to_chains_py(int imol, const char *maste
 } 
 #endif 
 
+void set_place_helix_here_fudge_factor(float ff) {
+   graphics_info_t::place_helix_here_fudge_factor = ff;
+} 
+
 
 
 /*  ----------------------------------------------------------------------- */
@@ -5512,9 +5516,24 @@ int place_helix_here() {
       // g.helix_placement_cb_density_descrimination_ratio
       // defaults to 1.0.
       int imol = -1;
-      coot::helix_placement p(graphics_info_t::molecules[imol_map].xmap_list[0]);
-      float min_density_limit = 1.0 * graphics_info_t::molecules[imol_map].map_sigma();
-      // std::cout << "DEBUG:: choosing map_density limit: " << min_density_limit << std::endl;
+      clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+      coot::helix_placement p(xmap);
+
+      // test
+      std::vector<float> dv_test(100);
+      for (unsigned int i=0; i<100; i++) { 
+	 dv_test[i] = 100-i;
+      }
+      float iqr_test = 0.5*coot::util::interquartile_range(dv_test);
+      std::cout << "test iqr: " << iqr_test << std::endl;      
+      
+
+      std::vector<float> dv = coot::util::density_map_points_in_sphere(pt, 20, xmap);
+      float iqr_2 = 0.5*coot::util::interquartile_range(dv);
+	 
+      float min_density_limit = iqr_2 * g.place_helix_here_fudge_factor;
+      std::cout << "DEBUG:: choosing map_density limit: " << min_density_limit << std::endl;
+      
       float bf = g.default_new_atoms_b_factor;
       coot::helix_placement_info_t n =
 	 p.place_alpha_helix_near_kc_version(pt, 20, min_density_limit, bf);
@@ -6991,6 +7010,28 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
    }
    return val;
 }
+
+float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_scale_factor) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      int imol_map = g.Imol_Refinement_Map();
+      if (is_valid_map_molecule(imol_map)) { 
+	 float map_sigma = g.molecules[imol_map].map_sigma();
+	 PPCAtom atom_selection = g.molecules[imol].atom_sel.atom_selection;
+	 int n_atoms = g.molecules[imol].atom_sel.n_selected_atoms;
+	 bool use_biased_density_scoring = false; // not for all-molecule
+	 g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
+						       g.molecules[imol_map].xmap_list[0],
+						       map_sigma,
+						       n_trials, jiggle_scale_factor,
+						       use_biased_density_scoring);
+	 graphics_draw();
+      }
+   }
+   return 0.0;
+} 
+
 
 /* add a linked residue based purely on dictionary templete. 
    For addition of NAG to ASNs typically.

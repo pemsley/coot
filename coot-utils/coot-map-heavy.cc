@@ -322,27 +322,23 @@ coot::util::score_atoms(const minimol::residue &residue,
 
 
 
-
-std::vector<CAtom>
+// annealing_factor is default arg 1.0
+// 
+std::pair<clipper::RTop_orth, std::vector<CAtom> >
 coot::util::jiggle_atoms(const std::vector<CAtom *> &atoms,
 			 const clipper::Coord_orth &centre_pt,
-			 float jiggle_scale_factor) {
+			 float jiggle_trans_scale_factor,
+			 float annealing_factor) {
 
+   if (annealing_factor <= 0)
+      annealing_factor = 1.0;
+
+   clipper::RTop_orth rtop = get_jiggle_atoms_rtop_orth(jiggle_trans_scale_factor,
+							annealing_factor);
    std::vector<CAtom> new_atoms(atoms.size());
    for (unsigned int i=0; i<atoms.size(); i++) { 
       new_atoms[i].Copy(atoms[i]);
    }
-   float rmi = 1.0/float(RAND_MAX);
-   double rand_ang_1 = 2* M_PI * coot::util::random() * rmi;
-   double rand_ang_2 = 2* M_PI * coot::util::random() * rmi;
-   double rand_ang_3 = 2* M_PI * coot::util::random() * rmi;
-   double rand_pos_1 = coot::util::random() * rmi * 0.1 * jiggle_scale_factor;
-   double rand_pos_2 = coot::util::random() * rmi * 0.1 * jiggle_scale_factor;
-   double rand_pos_3 = coot::util::random() * rmi * 0.1 * jiggle_scale_factor;
-   clipper::Euler<clipper::Rotation::EulerXYZr> e(rand_ang_1, rand_ang_2, rand_ang_3);
-   clipper::Mat33<double> r = e.rotation().matrix();
-   clipper::Coord_orth shift(rand_pos_1, rand_pos_2, rand_pos_3);
-   clipper::RTop_orth rtop(r, shift);
    // now apply rtop to atoms (shift the atoms relative to the
    // centre_pt before doing the wiggle
    for (unsigned int i=0; i<atoms.size(); i++) {
@@ -355,6 +351,53 @@ coot::util::jiggle_atoms(const std::vector<CAtom *> &atoms,
       new_atoms[i].y = new_pt.y();
       new_atoms[i].z = new_pt.z();
    }
-   return new_atoms;
+   return std::pair<clipper::RTop_orth, std::vector<CAtom> > (rtop, new_atoms);
 }
 
+// We want to pass atoms of the same type as we get back (so that they
+// can be dynamically updated, rather than jiggling the original
+// atoms)
+// 
+// annealing_factor is default arg 1.0
+// 
+std::pair<clipper::RTop_orth, std::vector<CAtom> >
+coot::util::jiggle_atoms(const std::vector<CAtom > &atoms,
+			 const clipper::Coord_orth &centre_pt,
+			 float jiggle_trans_scale_factor,
+			 float annealing_factor) {
+
+   std::vector<CAtom> new_atoms(atoms.size());
+   // now apply rtop to atoms (shift the atoms relative to the
+   // centre_pt before doing the wiggle
+   clipper::RTop_orth rtop = get_jiggle_atoms_rtop_orth(jiggle_trans_scale_factor, annealing_factor);
+   for (unsigned int i=0; i<atoms.size(); i++) {
+      clipper::Coord_orth pt_rel(atoms[i].x - centre_pt.x(),
+				 atoms[i].y - centre_pt.y(),
+				 atoms[i].z - centre_pt.z());
+      clipper::Coord_orth new_pt = pt_rel.transform(rtop);
+      new_pt += centre_pt;
+      new_atoms[i].x = new_pt.x();
+      new_atoms[i].y = new_pt.y();
+      new_atoms[i].z = new_pt.z();
+   }
+   return std::pair<clipper::RTop_orth, std::vector<CAtom> > (rtop, new_atoms);
+}
+
+clipper::RTop_orth
+coot::util::get_jiggle_atoms_rtop_orth(float jiggle_trans_scale_factor,
+				       float annealing_factor) {
+
+   float rmi = 1.0/float(RAND_MAX);
+   double rand_ang_1 = 2* M_PI * coot::util::random() * rmi * annealing_factor;
+   double rand_ang_2 = 2* M_PI * coot::util::random() * rmi * annealing_factor;
+   double rand_ang_3 = 2* M_PI * coot::util::random() * rmi * annealing_factor;
+   double rand_pos_1 = coot::util::random() * rmi * 0.1 * jiggle_trans_scale_factor * annealing_factor;
+   double rand_pos_2 = coot::util::random() * rmi * 0.1 * jiggle_trans_scale_factor * annealing_factor;
+   double rand_pos_3 = coot::util::random() * rmi * 0.1 * jiggle_trans_scale_factor * annealing_factor;
+   clipper::Euler<clipper::Rotation::EulerXYZr> e(rand_ang_1, rand_ang_2, rand_ang_3);
+   clipper::Mat33<double> r = e.rotation().matrix();
+   clipper::Coord_orth shift(rand_pos_1, rand_pos_2, rand_pos_3);
+   clipper::RTop_orth rtop(r, shift);
+   return rtop;
+
+}

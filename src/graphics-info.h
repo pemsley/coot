@@ -3889,6 +3889,9 @@ string   static std::string sessionid;
    // Mogul (default is 5.0)
    static float mogul_max_badness;
 
+   // place helix here fudge factor (for EM maps?)
+   static float place_helix_here_fudge_factor;
+
 };
 
 

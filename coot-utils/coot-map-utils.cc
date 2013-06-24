@@ -1774,3 +1774,53 @@ coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
 }
 
 
+
+std::vector<float>
+coot::util::density_map_points_in_sphere(clipper::Coord_orth pt, float search_radius, const clipper::Xmap<float> &xmap) {
+
+   std::vector<float> v;
+
+   float search_radius_sq = search_radius * search_radius; 
+   clipper::Coord_frac cf = pt.coord_frac(xmap.cell());
+   clipper::Coord_frac box0(cf.u() - search_radius/xmap.cell().descr().a(),
+			    cf.v() - search_radius/xmap.cell().descr().b(),
+			    cf.w() - search_radius/xmap.cell().descr().c());
+
+   clipper::Coord_frac box1(cf.u() + search_radius/xmap.cell().descr().a(),
+			    cf.v() + search_radius/xmap.cell().descr().b(),
+			    cf.w() + search_radius/xmap.cell().descr().c());
+
+   clipper::Grid_map grid(box0.coord_grid(xmap.grid_sampling()),
+			  box1.coord_grid(xmap.grid_sampling()));
+
+   clipper::Xmap_base::Map_reference_coord ix(xmap, grid.min()), iu, iv, iw;
+   for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+      for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
+	 for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+	    // sample a sphere
+	    if ( (iw.coord().coord_frac(xmap.grid_sampling()).coord_orth(xmap.cell()) - pt).lengthsq() < search_radius_sq) {
+	       v.push_back(xmap[iw]);
+	    }
+	 }
+      }
+   }
+   return v;
+}
+
+// throw_frac is say 20% (remove top and bottom 10% and recalculate rmsd)
+//
+float
+coot::util::interquartile_range(const std::vector<float> &v_in) {
+
+   float iqr = 0;
+   std::vector<float> v = v_in;
+
+   std::sort(v.begin(), v.end());
+   unsigned int n = v.size();
+   int q_1 = int(0.25 * n);
+   int q_3 = int(0.75 * n);
+   float v_1 = v[q_1];
+   float v_3 = v[q_3];
+   iqr = v_3 - v_1;
+   return iqr;
+} 
