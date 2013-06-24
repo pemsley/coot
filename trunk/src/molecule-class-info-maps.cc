@@ -3097,15 +3097,24 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
    if (residue_p) {
       PPCAtom residue_atoms = 0;
       int n_residue_atoms;
+      bool use_biased_density_scoring = true;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       v = fit_to_map_by_random_jiggle(residue_atoms, n_residue_atoms, xmap, map_sigma,
-				      n_trials, jiggle_scale_factor);
+				      n_trials, jiggle_scale_factor, use_biased_density_scoring);
    } else {
       std::cout << "WARNING:: residue " << spec << " not found" << std::endl;
    } 
    return v;
 }
 
+// Sort so that the biggest numbers are at the top (lowest index) of the sorted list
+bool
+trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
+		       const std::pair<clipper::RTop_orth, float> &b) {
+
+   return (b.second < a.second);
+
+}
 
 // called by above and split_water.
 float
@@ -3114,15 +3123,19 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
 						   const clipper::Xmap<float> &xmap,
 						   float map_sigma,
 						   int n_trials,
-						   float jiggle_scale_factor) {
+						   float jiggle_scale_factor,
+						   bool use_biased_density_scoring) {
    float v = 0;
    std::vector<std::pair<std::string, int> > atom_numbers = coot::util::atomic_number_atom_list();
-
+   if (n_trials <= 0)
+      n_trials = 1;
+   
    // set atoms so that we can get an initial score.
    std::vector<CAtom *> initial_atoms(n_atoms);
    std::vector<CAtom> direct_initial_atoms(n_atoms);
    for (int iat=0; iat<n_atoms; iat++)
       initial_atoms[iat] = atom_selection[iat];
+   
 
    // We have to make a copy because direct_initial_atoms goes out of
    // scope and destroys the CAtoms (we don't want to take the
@@ -3131,14 +3144,29 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
    for (int iat=0; iat<n_atoms; iat++)
       direct_initial_atoms[iat].Copy(atom_selection[iat]);
    coot::minimol::molecule direct_mol(atom_selection, n_atoms, direct_initial_atoms);
+
+   float (*density_scoring_function)(const coot::minimol::molecule &mol,
+				     const std::vector<std::pair<std::string, int> > &atom_number_list,
+				     const clipper::Xmap<float> &map) = coot::util::z_weighted_density_score;
+
+   if (use_biased_density_scoring)
+      density_scoring_function = coot::util::biased_z_weighted_density_score;
+   
    
    // best score is the inital score (without the atoms being jiggled) (could be a good score!)
    // 
-   float initial_score = coot::util::z_weighted_density_score(direct_mol, atom_numbers, xmap);
-   initial_score = coot::util::biased_z_weighted_density_score(direct_mol, atom_numbers, xmap);
+   float initial_score = density_scoring_function(direct_mol, atom_numbers, xmap);
+   // float initial_score = coot::util::z_weighted_density_score(direct_mol, atom_numbers, xmap);
+   // initial_score = coot::util::biased_z_weighted_density_score(direct_mol, atom_numbers, xmap);
+   
    float best_score = initial_score;
-   bool  bested = 0;
+
+   std::cout << "------------------------- initial_score " << initial_score
+	     << " ------------------------------" << std::endl;
+   bool  bested = false;
    coot::minimol::molecule best_molecule;
+   clipper::RTop_orth best_rtop;
+   
 
    // first, find the centre point.  We do that because otherwise we
    // do it lots of times in jiggle_atoms.  Inefficient.
@@ -3152,26 +3180,68 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
    if (n_atoms)
       fact = 1.0/float(n_atoms);
    clipper::Coord_orth centre_pt(p[0]*fact, p[1]*fact, p[2]*fact);
-   
+
+   std::vector<std::pair<clipper::RTop_orth, float> > trial_results(n_trials);
    for (int itrial=0; itrial<n_trials; itrial++) {
 
-      std::vector<CAtom> jiggled_atoms =
+      float annealing_factor = 1 - float(itrial)/float(n_trials);
+      std::pair<clipper::RTop_orth, std::vector<CAtom> > jiggled_atoms =
 	 coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
-      coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms);
-      coot::minimol::molecule fitted_mol = rigid_body_fit(jiggled_mol, xmap, map_sigma);
-      float this_score = coot::util::z_weighted_density_score(fitted_mol, atom_numbers, xmap);
-      float bias_score  = coot::util::biased_z_weighted_density_score(fitted_mol, atom_numbers, xmap);
-	 // std::cout << " comparing scores " << this_score << " vs " << best_score << std::endl;
-      if (bias_score > best_score) {
-	 best_score = this_score;
-	 best_score = bias_score;
-	 best_molecule = fitted_mol;
-	 bested = 1;
-      } 
+      coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
+      float this_score = density_scoring_function(jiggled_mol, atom_numbers, xmap);
+      std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
+      trial_results[itrial] = p;
    }
 
-   // If we got a better score, transfer the positions from atoms back
-   // to the atom_selection
+   int n_for_rigid = int(float(n_trials) * 0.1);
+   if (n_for_rigid > 10) n_for_rigid = 10;
+   if (n_for_rigid == 0)  n_for_rigid = 1;
+
+   std::sort(trial_results.begin(),
+	     trial_results.end(),
+ 	     trial_results_comparer);
+   
+   // sorted results (debugging)
+   // for (unsigned int i_trial=0; i_trial<trial_results.size(); i_trial++) 
+   // std::cout << "   " << i_trial << " " << trial_results[i_trial].second << std::endl;
+
+
+   // Here grid-search each of top n_for_rigid solution, replacing
+   // each by best of grid-search results.  {5,10} degrees x 3 angles?
+
+   // these get updated in the following loop
+   std::vector<std::pair<clipper::RTop_orth, float> > post_fit_trial_results = trial_results;
+   // 
+   for (unsigned int i_trial=0; i_trial<n_for_rigid; i_trial++) {
+      coot::minimol::molecule  trial_mol = direct_mol;
+
+      trial_mol.transform(trial_results[i_trial].first, centre_pt);
+
+      float recap_score = density_scoring_function(trial_mol, atom_numbers, xmap);
+      std::cout << "optimizing: " << i_trial << " was " << trial_results[i_trial].second
+		<< " now " << recap_score << std::endl;
+      
+      coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap, map_sigma);
+      float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap);
+      std::cout << "optimizing: " << i_trial << " was " << trial_results[i_trial].second
+		<< " now " << recap_score << " post-fit " << this_score << std::endl;
+      post_fit_trial_results[i_trial].second = this_score;
+   }
+
+   std::sort(post_fit_trial_results.begin(),
+	     post_fit_trial_results.end(),
+ 	     trial_results_comparer);
+   
+    if (post_fit_trial_results[0].second > initial_score) {
+       bested = true;
+       coot::minimol::molecule  post_fit_mol = direct_mol;
+       post_fit_mol.transform(post_fit_trial_results[0].first, centre_pt);
+       coot::minimol::molecule fitted_mol = rigid_body_fit(post_fit_mol, xmap, map_sigma);
+       best_molecule = fitted_mol;
+       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap);
+       std::cout << ".......... chose new molecule with score " << this_score << std::endl;
+    } 
+
    //
    if (bested) {
       make_backup();

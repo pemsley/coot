@@ -338,6 +338,8 @@ int graphics_info_t::baton_build_start_resno = 1;
 short int graphics_info_t::baton_build_params_active = 0; // not active initially.
 std::string graphics_info_t::baton_build_chain_id = std::string("");
 
+// place helix here
+float graphics_info_t::place_helix_here_fudge_factor = 1.0; // (it's multiplicative)
 
 // double*  graphics_info_t::symm_colour_merge_weight = new double[10];
 // double **graphics_info_t::symm_colour = new double*[10];

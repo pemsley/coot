@@ -991,6 +991,20 @@ coot::minimol::molecule::transform(const clipper::RTop_orth &rtop) {
 }
 
 
+void
+coot::minimol::molecule::transform(const clipper::RTop_orth &rtop, const clipper::Coord_orth &pos) {
+
+   // this is heavy-weight - baah (we need a shift operator for atoms, residues and fragments)
+   // 
+   clipper::RTop_orth shift_1(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1), -pos);
+   clipper::RTop_orth shift_2(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1),  pos);
+   transform(shift_1);
+   transform(rtop);
+   transform(shift_2);
+} 
+
+
+
 std::vector<coot::minimol::atom*>
 coot::minimol::fragment::select_atoms_serial() const {
 

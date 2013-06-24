@@ -1270,10 +1270,12 @@ std::ostream& coot::operator<< (std::ostream& s, const coot::residue_spec_t &spe
    if (!spec.unset_p()) { 
 
       s << "[spec: ";
+      s << "{{debug:: MinInt4 is " << MinInt4 << "}} ";
       if (spec.model_number == MinInt4)
-      s << "MinInt4";
+	 s << "MinInt4";
       else
-      s << spec.model_number;
+	 s << spec.model_number;
+      
       s << " \"";
       s << spec.chain;
       s << "\" ";

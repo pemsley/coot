@@ -85,9 +85,21 @@ namespace coot {
       std::vector<std::pair<std::string, float> > score_atoms(const minimol::residue &residue_res,
 							      const clipper::Xmap<float> &xmap);
 
-      std::vector<CAtom> jiggle_atoms(const std::vector<CAtom *> &atoms,
-				      const clipper::Coord_orth &centre_pt,
-				      float jiggle_scale_factor);
+      // if annealing_factor is > 0, then scale the offsets by this amount
+      // (so, between 0 and 1)
+      // 
+      std::pair<clipper::RTop_orth, std::vector<CAtom> >
+      jiggle_atoms(const std::vector<CAtom *> &atoms,
+		   const clipper::Coord_orth &centre_pt,
+		   float jiggle_scale_factor,
+		   float annealing_factor=1.0);
+      std::pair<clipper::RTop_orth, std::vector<CAtom> >
+      jiggle_atoms(const std::vector<CAtom> &atoms,
+		   const clipper::Coord_orth &centre_pt,
+		   float jiggle_scale_factor,
+		   float annealing_factor=1.0);
+      clipper::RTop_orth get_jiggle_atoms_rtop_orth(float jiggle_trans_scale_factor,
+						    float annealing_factor);
 
 
 #endif // HAVE_GSL      
