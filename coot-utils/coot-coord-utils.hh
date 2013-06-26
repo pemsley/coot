@@ -886,6 +886,7 @@ namespace coot {
       };
 
       class quaternion {
+	 void normalize();
       public:
 	 float q0, q1, q2, q3;
 	 quaternion(const float &q0in, const float &q1in,
@@ -919,6 +920,7 @@ namespace coot {
 	    }
 	    return r;
 	 }
+	 clipper::RTop_orth centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops);
       };
 
       class chain_id_residue_vec_helper_t { 

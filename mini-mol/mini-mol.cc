@@ -1366,3 +1366,43 @@ coot::minimol::molecule::get_pos() const {
    }
    return r;
 }
+
+
+// get the RTop that transforms this molecule onto mol_ref.
+// mol_ref is (guaranteed by caller) to be of the same
+// structure as this molecule with (potentially) moved atom positions.
+// 
+std::pair<bool, clipper::RTop_orth>
+coot::minimol::molecule::get_rtop(const molecule &mol_ref) const {
+
+   clipper::Mat33<double> m(1,0,0,0,1,0,0,0,1);
+   clipper::Coord_orth p(0,0,0);
+   clipper::RTop_orth rtop(m,p);
+   bool is_valid = false;
+
+   std::vector<clipper::Coord_orth> p_b; // beginning positions
+   std::vector<clipper::Coord_orth> p_e; // end positions
+   
+   for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++)
+      for (int ires=(*this)[ifrag].min_res_no(); ires<=(*this)[ifrag].max_residue_number(); ires++)
+	 for (int iat=0; iat<(*this)[ifrag][ires].n_atoms(); iat++)
+	    p_b.push_back((*this)[ifrag][ires][iat].pos);
+   
+   for (unsigned int ifrag=0; ifrag<mol_ref.fragments.size(); ifrag++)
+      for (int ires=mol_ref[ifrag].min_res_no(); ires<=mol_ref[ifrag].max_residue_number(); ires++)
+	 for (int iat=0; iat<mol_ref[ifrag][ires].n_atoms(); iat++)
+	    p_e.push_back(mol_ref[ifrag][ires][iat].pos);
+   
+   if (p_b.size() == 0 ) {
+      std::cout << "WARNING molecule::get_rtop() zero atoms" << std::endl;
+   } else { 
+      if (p_b.size() != p_e.size()) {
+	 std::cout << "WARNING molecule::get_rtop() mis-matching atoms" << std::endl;
+      } else {
+	 rtop = clipper::RTop_orth(p_e, p_b);
+	 is_valid = true;
+      }
+   } 
+   return std::pair<bool, clipper::RTop_orth> (is_valid, rtop);
+
+}

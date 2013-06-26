@@ -6130,7 +6130,22 @@ int rigid_body_fit_with_residue_ranges(int imol,
       }
    }
    return success;
+}
+
+int morph_fit_all(int imol, float transformation_averaging_radius) {
+
+   int success = 0;
+   graphics_info_t g;
+   int imol_ref_map = g.Imol_Refinement_Map();
+   if (is_valid_map_molecule(imol_ref_map)) {
+      if (is_valid_model_molecule(imol)) {
+	 success = g.molecules[imol].morph_fit_all(g.molecules[imol_ref_map].xmap_list[0],
+						   transformation_averaging_radius);
+      }
+   }
+   return success;
 } 
+
 
 
 

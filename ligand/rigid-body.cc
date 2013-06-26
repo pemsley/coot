@@ -32,10 +32,11 @@
 void
 coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xmap) {
 
-   int round_max = 200;
+   int round_max = 100;
    int iround = 0;
    double move_by_length = 1.0; // just to past test initially
    int n_atoms = 0;  // the number of non-zero occupancy atoms.
+   bool debug = false;
 
    double t = (xmap.cell().a()/xmap.grid_sampling().nu() +
 	       xmap.cell().c()/xmap.grid_sampling().nv() +
@@ -48,8 +49,16 @@ coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xma
 
       n_atoms = 0;
       for (unsigned int ifrag=0; ifrag<m->fragments.size(); ifrag++) {
+	 if (debug) { 
+	    std::cout << "round " << iround << " fragment ifrag " << ifrag << std::endl;
+	    std::cout << "             fragment ifrag " << ifrag << " loop limits " << (*m)[ifrag].min_res_no()
+		      << " " << (*m)[ifrag].max_residue_number() << " " << std::endl;
+	 }
 	 for (unsigned int ires=(*m)[ifrag].min_res_no();
 	      ires<(*m)[ifrag].max_residue_number(); ires++) {
+	    if (debug)
+	       std::cout << "          residue ires " << ires << " n atoms: "
+			 << (*m)[ifrag][ires].atoms.size() << std::endl;
 	    for (unsigned int iat=0; iat<(*m)[ifrag][ires].atoms.size(); iat++) {
 	       if (fabs((*m)[ifrag][ires][iat].occupancy) > 0.001) {
 		  midpoint += (*m)[ifrag][ires][iat].pos;
@@ -58,7 +67,10 @@ coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xma
 	    }
 	 }
       }
-      if (n_atoms > 0) {
+
+      if (n_atoms == 0) {
+	 break;
+      } else { 
 
 	 // assign the atom weights
 	 std::vector<minimol::atom *> atoms = m->select_atoms_serial();
@@ -135,8 +147,7 @@ coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xma
 	    }
 	 }
 	 
-	 if (n_atoms > 1) 
-	    apply_angles_to_molecule(angles, &atoms, mean_pos); // modify atoms
+	 apply_angles_to_molecule(angles, &atoms, mean_pos); // modify atoms
 	 
 	 iround++;
       }
@@ -283,3 +294,15 @@ coot::score_molecule(const coot::minimol::molecule &m,
    }
    return score; 
 }
+
+
+std::pair<bool, clipper::RTop_orth>
+coot::get_rigid_body_fit_rtop(coot::minimol::molecule *mol_in,
+			      const clipper::Xmap<float> &xmap) {
+
+   minimol::molecule moving_copy = *mol_in;
+   rigid_body_fit(&moving_copy, xmap);
+
+   return moving_copy.get_rtop(*mol_in);
+
+} 

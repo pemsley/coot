@@ -3216,14 +3216,10 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
       coot::minimol::molecule  trial_mol = direct_mol;
 
       trial_mol.transform(trial_results[i_trial].first, centre_pt);
-
       float recap_score = density_scoring_function(trial_mol, atom_numbers, xmap);
-      std::cout << "optimizing: " << i_trial << " was " << trial_results[i_trial].second
-		<< " now " << recap_score << std::endl;
-      
       coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap, map_sigma);
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap);
-      std::cout << "optimizing: " << i_trial << " was " << trial_results[i_trial].second
+      std::cout << "INFO:: Jiggle-fit: optimizing trial: " << i_trial << " was " << trial_results[i_trial].second
 		<< " now " << recap_score << " post-fit " << this_score << std::endl;
       post_fit_trial_results[i_trial].second = this_score;
    }

@@ -38,6 +38,10 @@ namespace coot {
    float score_molecule(const coot::minimol::molecule &m,
 			const clipper::Xmap<float> &xmap);
 
+   std::pair<bool, clipper::RTop_orth>
+   get_rigid_body_fit_rtop(minimol::molecule *mol,
+			   const clipper::Xmap<float> &xmap);
+
 }
 
 #endif // COOT_RIGID_BODY_HH

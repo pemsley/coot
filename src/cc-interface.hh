@@ -684,6 +684,13 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 // on fitting happened.
 int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue_range_t> &ranges);
 
+// Model morphing (average the atom shift by using shifts of the
+// atoms within shift_average_radius A of the central residue).
+// 
+// return 0 on fail to move atoms and 1 on fitting happened.
+// 
+int morph_fit_all(int imol, float transformation_averaging_radius);
+
 /*  ----------------------------------------------------------------------- */
 /*                  check water baddies                                     */
 /*  ----------------------------------------------------------------------- */
