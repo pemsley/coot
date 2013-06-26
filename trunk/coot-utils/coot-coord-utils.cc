@@ -770,6 +770,48 @@ coot::util::quaternion::convert_sign(const float &x, const float &y) const {
    return  x; 
 }
 
+void
+coot::util::quaternion::normalize() {
+
+   double sum_sq = 0.0;
+   sum_sq += q0*q0;
+   sum_sq += q1*q1;
+   sum_sq += q2*q2;
+   sum_sq += q3*q3;
+   if (sum_sq > 0.0) {
+      double f = 1.0/sum_sq;
+      q0 *= f;
+      q1 *= f;
+      q2 *= f;
+      q3 *= f;
+   }
+} 
+
+
+clipper::RTop_orth
+coot::util::quaternion::centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops) {
+
+   if (rtops.size() == 0) { 
+      return clipper::RTop_orth(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1), clipper::Vec3<double>(0,0,0));
+   } else {
+      clipper::Coord_orth sum_trn(0,0,0);
+      for (unsigned int i=0; i<rtops.size(); i++) { 
+	 quaternion q(rtops[i].first.rot());
+	 q0 += rtops[i].second * q.q0;
+	 q1 += rtops[i].second * q.q1;
+	 q2 += rtops[i].second * q.q2;
+	 q3 += rtops[i].second * q.q3;
+	 sum_trn += rtops[i].first.trn();
+      }
+      normalize();
+      clipper::Mat33<double> m = matrix();
+      double inv_n = 1.0/double(rtops.size());
+      clipper::Coord_orth t(sum_trn.x() * inv_n, sum_trn.y() * inv_n, sum_trn.z() * inv_n);
+      return clipper::RTop_orth(m, t);
+   }
+}
+
+
 // static 
 void
 coot::util::quaternion::test_quaternion() {
@@ -1270,7 +1312,7 @@ std::ostream& coot::operator<< (std::ostream& s, const coot::residue_spec_t &spe
    if (!spec.unset_p()) { 
 
       s << "[spec: ";
-      s << "{{debug:: MinInt4 is " << MinInt4 << "}} ";
+      // s << "{{debug:: MinInt4 is " << MinInt4 << "}} ";
       if (spec.model_number == MinInt4)
 	 s << "MinInt4";
       else

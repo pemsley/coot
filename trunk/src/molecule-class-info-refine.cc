@@ -8,6 +8,10 @@
 #include "mmdb-extras.h"
 #include "mmdb-crystal.h"
 
+// morphing
+#include "coot-coord-utils.hh"
+#include "rigid-body.hh"
+
 #include "molecule-class-info.h"
 
 // return an index of the new restraint
@@ -173,3 +177,253 @@ molecule_class_info_t::add_extra_torsion_restraint(coot::atom_spec_t atom_1,
    update_extra_restraints_representation();
    return extra_restraints.torsion_restraints.size() -1;
 }
+
+
+int
+molecule_class_info_t::morph_fit_all(const clipper::Xmap<float> &xmap_in, float transformation_average_radius) {
+
+   int success = 0;
+
+   // construct minimol fragments 
+
+   int n_neighb=2; // either side of central residue
+   int imod = 1;
+   CModel *model_p = atom_sel.mol->GetModel(imod);
+   CChain *chain_p;
+   int n_chains = model_p->GetNumberOfChains();
+   std::map<CResidue *, std::pair<bool, clipper::RTop_orth> > rtop_map;
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+
+      for (int ires=n_neighb; ires<(nres-n_neighb); ires++) { // residue-in-chain loop
+
+	 std::vector<CResidue *> fragment_residues;
+	 CResidue *residue_p = chain_p->GetResidue(ires);
+	 std::cout << "Working on " << coot::residue_spec_t(residue_p) << std::endl;
+	 for (int ifragres=-n_neighb; ifragres<=n_neighb; ifragres++) {
+	    CResidue *r = chain_p->GetResidue(ires+ifragres);
+	    if (!r)
+	       break;
+	    fragment_residues.push_back(r);
+	 }
+
+	 coot::minimol::fragment f;
+	 for (unsigned int ifr=0; ifr<fragment_residues.size(); ifr++) {
+	    f.addresidue(coot::minimol::residue(fragment_residues[ifr]), false);
+	 } 
+	 coot::minimol::molecule m(f);
+	 // m.write_file("working-fragment.pdb",10);
+	 // returns the rtop to move m into map.
+	 std::pair<bool, clipper::RTop_orth> rtop = coot::get_rigid_body_fit_rtop(&m, xmap_in);
+	 rtop_map[residue_p] = rtop;
+      }
+   }
+
+   std::map<CResidue *, std::pair<bool, clipper::RTop_orth> >::const_iterator it;
+   if (rtop_map.size()) {
+      success = 1;
+      make_backup();
+
+      for (it=rtop_map.begin(); it!=rtop_map.end(); it++) {
+	 CResidue *this_residue = it->first;
+	 if (it->second.first) {
+
+	    std::cout << "::::::::::::::::::: debug:: morphing " << coot::residue_spec_t(this_residue) << std::endl;
+	    
+	    std::vector<std::pair<clipper::RTop_orth, float> > rtops;
+	    // std::cout << "this residue:\n" << it->second.second.format() << std::endl;
+	    rtops.push_back(std::pair<clipper::RTop_orth,float>(it->second.second, 1));
+ 	    std::vector<CResidue *> neighb_residues =
+ 	       coot::residues_near_residue(this_residue, atom_sel.mol, transformation_average_radius);
+
+  	    for (unsigned int i_n_res=0; i_n_res<neighb_residues.size(); i_n_res++) { 
+	       std::map<CResidue *, std::pair<bool, clipper::RTop_orth> >::const_iterator it_for_neighb =
+		  rtop_map.find(neighb_residues[i_n_res]);
+	       if (it_for_neighb != rtop_map.end()) { 
+		  if (it_for_neighb->second.first) {
+		     std::pair<clipper::RTop_orth, float> p(it_for_neighb->second.second, 0.5);
+		     rtops.push_back(p);
+		     if (0)
+			std::cout << "adding rtop for " << coot::residue_spec_t(neighb_residues[i_n_res]) << "\n"
+				  << it_for_neighb->second.second.format() << std::endl;
+		  }
+	       }
+	    }
+	    morph_residue_atoms_by_average_rtops(this_residue, rtops);
+	    
+	 } else {
+	    std::cout << "no RTop for " << coot::residue_spec_t(it->first) << std::endl;
+	 } 
+      }
+      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      have_unsaved_changes_flag = 1;
+      make_bonds_type_checked();
+   }
+   return success;
+}
+
+// I fail to make a function that does a good "average" of RTops,
+// so do it long-hand by generating sets of coordinates by applying
+// each rtop to each atom - weights are transfered in the second part of the pair.
+//
+// This doesn't do backups or unsaved changes marking of course.
+void
+molecule_class_info_t::morph_residue_atoms_by_average_rtops(CResidue *residue_p,
+							    const std::vector<std::pair<clipper::RTop_orth, float> > &rtops) {
+
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   if (rtops.size()) { 
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 CAtom *at = residue_atoms[iat];
+	 clipper::Coord_orth pt(at->x, at->y, at->z);
+	 clipper::Coord_orth sum_transformed_pts(0,0,0);
+	 double sum_weights = 0.0;
+	 for (unsigned int i_rtop=0; i_rtop<rtops.size(); i_rtop++) { 
+	    clipper::Coord_orth t_pt = pt.transform(rtops[i_rtop].first);
+	    double weight = rtops[i_rtop].second;
+	    sum_weights += weight;
+	    sum_transformed_pts += t_pt*weight;
+	 }
+	 if (sum_weights > 0.0) {
+	    double inv_weight = 1.0/sum_weights;
+	    clipper::Coord_orth new_pt(sum_transformed_pts.x() * inv_weight,
+				       sum_transformed_pts.y() * inv_weight,
+				       sum_transformed_pts.z() * inv_weight);
+	    at->x = new_pt.x();
+	    at->y = new_pt.y();
+	    at->z = new_pt.z();
+	 }
+      }
+   }
+}
+
+
+
+void
+molecule_class_info_t::morph_show_shifts(const std::map<CResidue *, clipper::RTop_orth> &simple_shifts,
+					 const std::map<CResidue *, clipper::RTop_orth> &smooth_shifts) const {
+
+   // write a file
+   
+   std::map<CResidue *, clipper::RTop_orth>::const_iterator it;
+   std::ofstream f("morph-shifts.scm");
+
+   std::string ss;
+   ss = "(define simple-shifts (new-generic-object-number \"simple-shifts\"))";
+   f << ss << "\n";
+   ss = "(define smooth-shifts (new-generic-object-number \"smooth-shifts\"))";
+   f << ss << "\n";
+   ss = "(set-display-generic-object simple-shifts 1)";
+   f << ss << "\n";
+   ss = "(set-display-generic-object smooth-shifts 1)";
+   f << ss << "\n";
+
+   for (it=simple_shifts.begin(); it!=simple_shifts.end(); it++) {
+      CResidue *r = it->first;
+      std::pair<bool, clipper::Coord_orth> rc = residue_centre(r);
+      CAtom *C_alpha = r->GetAtom(" CA ");
+      if (! C_alpha)
+	 C_alpha = r->GetAtom(" P  ");
+      if (C_alpha) {
+	 clipper::Coord_orth ca_pos(C_alpha->x, C_alpha->y, C_alpha->z);
+	 if (rc.first) {
+	    std::string s;
+	    std::string line_colour = "yellow";
+	    std::string ball_colour = "yellow";
+
+	    clipper::Coord_orth to_pos = ca_pos.transform(it->second);
+	 
+	    s += "(to-generic-object-add-line  simple-shifts ";
+	    s += "\"";
+	    s += line_colour;
+	    s += "\"";
+	    s += "  2 ";
+	    s += coot::util::float_to_string(ca_pos.x());
+	    s += " ";
+	    s += coot::util::float_to_string(ca_pos.y());
+	    s += " ";
+	    s += coot::util::float_to_string(ca_pos.z());
+	    s += " ";
+	    s += coot::util::float_to_string(to_pos.x());
+	    s += " ";
+	    s += coot::util::float_to_string(to_pos.y());
+	    s += " ";
+	    s += coot::util::float_to_string(to_pos.z());
+	    s += " ";
+	    s += ")";
+	    f << s << "\n";
+	    s = "";
+	    s += "(to-generic-object-add-point simple-shifts ";
+	    s += "\"";
+	    s += ball_colour;
+	    s += "\"";
+	    s += " 12                 ";
+	    s += coot::util::float_to_string(to_pos.x());
+	    s += " ";
+	    s += coot::util::float_to_string(to_pos.y());
+	    s += " ";
+	    s += coot::util::float_to_string(to_pos.z());
+	    s += " ";
+	    s += ")";
+	    f << s << "\n";
+	 }
+      }
+   }
+   for (it=smooth_shifts.begin(); it!=smooth_shifts.end(); it++) {
+      CResidue *r = it->first;
+      std::pair<bool, clipper::Coord_orth> rc = residue_centre(r);
+      CAtom *C_alpha = r->GetAtom(" CA ");
+      if (! C_alpha)
+	 C_alpha = r->GetAtom(" P  ");
+      if (C_alpha) {
+	 clipper::Coord_orth ca_pos(C_alpha->x, C_alpha->y, C_alpha->z);
+	 if (rc.first) {
+	    std::string s;
+	    std::string line_colour = "red";
+	    std::string ball_colour = "red";
+
+	    clipper::Coord_orth to_pos = ca_pos.transform(it->second);
+	 
+	    s += "(to-generic-object-add-line smooth-shifts ";
+	    s += "\"";
+	    s += line_colour;
+	    s += "\"";
+	    s += " 2 ";
+	    s += coot::util::float_to_string(ca_pos.x());
+	    s += " ";
+	    s += coot::util::float_to_string(ca_pos.y());
+	    s += " ";
+	    s += coot::util::float_to_string(ca_pos.z());
+	    s += " ";
+	    s += coot::util::float_to_string(to_pos.x());
+	    s += " ";
+	    s += coot::util::float_to_string(to_pos.y());
+	    s += " ";
+	    s += coot::util::float_to_string(to_pos.z());
+	    s += " ";
+	    s += ")";
+	    f << s << "\n";
+	    s = "";
+	    s += "(to-generic-object-add-point smooth-shifts ";
+	    s += "\"";
+	    s += ball_colour;
+	    s += "\"";
+	    s += " 12                 ";
+	    s += coot::util::float_to_string(to_pos.x());
+	    s += " ";
+	    s += coot::util::float_to_string(to_pos.y());
+	    s += " ";
+	    s += coot::util::float_to_string(to_pos.z());
+	    s += " ";
+	    s += ")";
+	    f << s << "\n";
+	 }
+      }
+   }
+   f.close();
+}
+

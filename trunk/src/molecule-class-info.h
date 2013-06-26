@@ -3275,6 +3275,18 @@ public:        //                      public
 		       const clipper::Coord_orth &around_vec,
 		       const clipper::Coord_orth &origin_offset,
 		       double angle);
+
+   // model morphing (average the atom shift by using shifts of the
+   // atoms within shift_average_radius A of the central residue)
+   // 
+   int morph_fit_all(const clipper::Xmap<float> &xmap_in, float shift_average_radius);
+   void morph_show_shifts(const std::map<CResidue *, clipper::RTop_orth> &simple_shifts,
+			  const std::map<CResidue *, clipper::RTop_orth> &smooth_shifts) const;
+   // I fail to make a function that does a good "average" of RTops,
+   // so do it long-hand by generating sets of coordinates by applying
+   // each rtop to each atom - weights are transfered in the second part of the pair
+   void morph_residue_atoms_by_average_rtops(CResidue *this_residue,
+					     const std::vector<std::pair<clipper::RTop_orth, float> > &rtops);
    
 };
 
