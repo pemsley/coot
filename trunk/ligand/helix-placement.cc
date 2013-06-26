@@ -480,7 +480,7 @@ coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, doubl
    int resultops;
 
    // make a list of rotation ops to try
-   float step  =10.0;
+   float step  =5.0; // test value
    float beta1 =90.0;   // beta search half range for mirror sym
    float alpha1=360.0;  // no gamma search for cyl sym
    // do a uniformly sampled search of orientation space

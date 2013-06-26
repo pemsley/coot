@@ -5600,7 +5600,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
       float s = graphics_info_t::molecules[imol_map].map_sigma();
       coot::helix_placement p(graphics_info_t::molecules[imol_map].xmap_list[0]);
       coot::helix_placement_info_t si =
-	 p.place_strand(pt, n_residues, n_sample_strands, s);
+	 p.place_strand(pt, n_residues, n_sample_strands, s * graphics_info_t::place_helix_here_fudge_factor);
       if (si.success) {
 	 // nice to refine the fragment here, but the interface
 	 // doesn't work that way, so put the refinement after the
