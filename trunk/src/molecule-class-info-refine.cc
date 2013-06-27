@@ -242,7 +242,7 @@ molecule_class_info_t::morph_fit_all(const clipper::Xmap<float> &xmap_in, float 
 		  rtop_map.find(neighb_residues[i_n_res]);
 	       if (it_for_neighb != rtop_map.end()) { 
 		  if (it_for_neighb->second.first) {
-		     std::pair<clipper::RTop_orth, float> p(it_for_neighb->second.second, 0.5);
+		     std::pair<clipper::RTop_orth, float> p(it_for_neighb->second.second, 1.0);
 		     rtops.push_back(p);
 		     if (0)
 			std::cout << "adding rtop for " << coot::residue_spec_t(neighb_residues[i_n_res]) << "\n"
