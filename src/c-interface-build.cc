@@ -5524,21 +5524,22 @@ int place_helix_here() {
       for (unsigned int i=0; i<100; i++) { 
 	 dv_test[i] = 100-i;
       }
-      float iqr_test = 0.5*coot::util::interquartile_range(dv_test);
-      std::cout << "test iqr: " << iqr_test << std::endl;      
-      
 
       std::vector<float> dv = coot::util::density_map_points_in_sphere(pt, 20, xmap);
-      float iqr_2 = 0.5*coot::util::interquartile_range(dv);
+      float f_iqr = coot::util::interquartile_range(dv);
+      float iqr_2 = 0.5*f_iqr;
 	 
-      float min_density_limit = iqr_2 * g.place_helix_here_fudge_factor;
-      std::cout << "DEBUG:: choosing map_density limit: " << min_density_limit << std::endl;
+      float min_density_limit = iqr_2;
+      float high_density_turning_point = f_iqr * 4 * g.place_helix_here_fudge_factor;
+      std::cout << "DEBUG:: choosing map min_density limit: " << min_density_limit << std::endl;
+      std::cout << "DEBUG:: choosing map high_density_turning_point limit: " << high_density_turning_point
+		<< std::endl;
       
       float bf = g.default_new_atoms_b_factor;
       coot::helix_placement_info_t n =
-	 p.place_alpha_helix_near_kc_version(pt, 20, min_density_limit, bf);
+	 p.place_alpha_helix_near_kc_version(pt, 20, min_density_limit, high_density_turning_point, bf);
        if (! n.success) {
-	  n = p.place_alpha_helix_near_kc_version(pt, 9, min_density_limit, bf);
+	  n = p.place_alpha_helix_near_kc_version(pt, 9, min_density_limit, high_density_turning_point, bf);
        }
 
        if (n.success) {

@@ -272,12 +272,13 @@ coot::helix_placement_info_t
 coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_orth &pt,
 							 int n_residues,
 							 float min_density_limit,
+							 float high_density_turning_point,
 							 float b_factor) const {
 
    clipper::Coord_orth ptc = pt;
    for (int i=0; i<10; i++) {
-      float max_density_lim = min_density_limit * 2.0; // min_density_limit is the 
-						       // wrong name, I think.
+      float max_density_lim = high_density_turning_point; // min_density_limit is the 
+						          // wrong name, I think.
       ptc = move_helix_centre_point_guess(ptc, max_density_lim);
    }
 
@@ -334,7 +335,7 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 
       // ------------- elided ----------------
 
-      float max_density_limit = min_density_limit * 2.0;
+      float max_density_limit = high_density_turning_point;
       clipper::RTop_orth ops_resultops =
 	 find_best_tube_orientation(ptc, cyl_len, cyl_rad, max_density_limit);
 
@@ -461,13 +462,13 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
    return coot::helix_placement_info_t(mr, success, failure_message);
 }
 
-// when density is above max_density_limit, reduce the score
+// when density is above max_density_limit, start reducing the score
 // 
 clipper::RTop_orth 
 coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, double cyl_len,
-						  double cyl_rad, float max_density_limit) const {
+						  double cyl_rad, float high_density_turning_point) const {
 
-   std::cout << "max_density_limit: " << max_density_limit << std::endl;
+   std::cout << "INFO:: high_density_turning_point: " << high_density_turning_point << std::endl;
 
    // density map score for density d:
    //     below mdl: d
@@ -528,7 +529,7 @@ coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, doubl
 	       if ( fabs(c1.z()) < cyl_len &&
 		    c1.x()*c1.x()+c1.y()*c1.y() < cyl_rad*cyl_rad ) {
 		  d = xmap[iw];
-		  double this_score = (d > max_density_limit ? 2*max_density_limit-d : d);
+		  double this_score = (d > high_density_turning_point ? 2*high_density_turning_point-d : d);
 		  // std::cout << "this_score: " << this_score << " using d " << d << std::endl;
 		  scores[j] += this_score;
 		  // scores[j] += d;
@@ -538,7 +539,7 @@ coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, doubl
 	 }
    }
    
-   if (1) // debug
+   if (0) // debug
       for (unsigned int j = 0; j < ops.size(); j++)
 	 std::cout << "orientation " << j << " score " << scores[j] << " " << n_cyl_points[j]
 		   << " points" << std::endl;
