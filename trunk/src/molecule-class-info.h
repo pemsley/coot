@@ -3276,6 +3276,31 @@ public:        //                      public
 		       const clipper::Coord_orth &origin_offset,
 		       double angle);
 
+
+   // for morphign
+   class morph_rtop_triple {
+   public:
+      bool valid;
+      clipper::Coord_orth co;
+      clipper::RTop_orth rtop;
+   public:
+      morph_rtop_triple() { valid = false; }
+      morph_rtop_triple(bool valid_in,
+		  const clipper::Coord_orth &co_in,
+		  const clipper::RTop_orth &rtop_in) {
+	 valid = valid_in;
+	 co = co_in;
+	 rtop = rtop_in;
+      }
+      morph_rtop_triple(const clipper::Coord_orth &co_in,
+		  const std::pair<bool, clipper::RTop_orth> &rtop_in) {
+	 valid = rtop_in.first;
+	 co = co_in;
+	 rtop = rtop_in.second;
+      }
+   };
+
+
    // model morphing (average the atom shift by using shifts of the
    // atoms within shift_average_radius A of the central residue)
    // 
@@ -3287,6 +3312,7 @@ public:        //                      public
    // each rtop to each atom - weights are transfered in the second part of the pair
    void morph_residue_atoms_by_average_rtops(CResidue *this_residue,
 					     const std::vector<std::pair<clipper::RTop_orth, float> > &rtops);
+   
    
 };
 
