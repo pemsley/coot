@@ -191,7 +191,8 @@ molecule_class_info_t::morph_fit_all(const clipper::Xmap<float> &xmap_in, float 
    CModel *model_p = atom_sel.mol->GetModel(imod);
    CChain *chain_p;
    int n_chains = model_p->GetNumberOfChains();
-   std::map<CResidue *, std::pair<bool, clipper::RTop_orth> > rtop_map;
+   // store the local origin too.
+   std::map<CResidue *, morph_rtop_triple> rtop_map;
    for (int ichain=0; ichain<n_chains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
@@ -200,66 +201,93 @@ molecule_class_info_t::morph_fit_all(const clipper::Xmap<float> &xmap_in, float 
 
 	 std::vector<CResidue *> fragment_residues;
 	 CResidue *residue_p = chain_p->GetResidue(ires);
-	 std::cout << "Working on " << coot::residue_spec_t(residue_p) << std::endl;
-	 for (int ifragres=-n_neighb; ifragres<=n_neighb; ifragres++) {
-	    CResidue *r = chain_p->GetResidue(ires+ifragres);
-	    if (!r)
-	       break;
-	    fragment_residues.push_back(r);
-	 }
+	 std::pair<bool, clipper::Coord_orth> local_centre = residue_centre(residue_p);
+	 if (local_centre.first) { 
+	    std::cout << "\rINFO:: Getting RTops for " << coot::residue_spec_t(residue_p);
+	    std::cout.flush();
+	    for (int ifragres=-n_neighb; ifragres<=n_neighb; ifragres++) {
+	       CResidue *r = chain_p->GetResidue(ires+ifragres);
+	       if (!r)
+		  break;
+	       fragment_residues.push_back(r);
+	    }
 
-	 coot::minimol::fragment f;
-	 for (unsigned int ifr=0; ifr<fragment_residues.size(); ifr++) {
-	    f.addresidue(coot::minimol::residue(fragment_residues[ifr]), false);
-	 } 
-	 coot::minimol::molecule m(f);
-	 // m.write_file("working-fragment.pdb",10);
-	 // returns the rtop to move m into map.
-	 std::pair<bool, clipper::RTop_orth> rtop = coot::get_rigid_body_fit_rtop(&m, xmap_in);
-	 rtop_map[residue_p] = rtop;
+	    coot::minimol::fragment f;
+	    for (unsigned int ifr=0; ifr<fragment_residues.size(); ifr++) {
+	       f.addresidue(coot::minimol::residue(fragment_residues[ifr]), false);
+	    } 
+	    coot::minimol::molecule m(f);
+	    // m.write_file("working-fragment.pdb",10);
+	    // returns the rtop to move m into map.
+	    std::pair<bool, clipper::RTop_orth> rtop = coot::get_rigid_body_fit_rtop(&m, local_centre.second, xmap_in);
+	    morph_rtop_triple rt(local_centre.second, rtop);
+	    rtop_map[residue_p] = rt; 
+	 }
       }
+      std::cout << std::endl;
    }
 
-   std::map<CResidue *, std::pair<bool, clipper::RTop_orth> >::const_iterator it;
+   std::map<CResidue *, morph_rtop_triple>::const_iterator it;
    if (rtop_map.size()) {
       success = 1;
       make_backup();
 
+      std::map<CResidue *, clipper::RTop_orth> simple_shifts;
+      std::map<CResidue *, clipper::RTop_orth> smooth_shifts;
+      
       for (it=rtop_map.begin(); it!=rtop_map.end(); it++) {
 	 CResidue *this_residue = it->first;
-	 if (it->second.first) {
+	 if (it->second.valid) {
 
-	    std::cout << "::::::::::::::::::: debug:: morphing " << coot::residue_spec_t(this_residue) << std::endl;
+	    // Morphing step is super-fast
+	    // std::cout << "\rINFO:: Morphing " << coot::residue_spec_t(this_residue);
+	    // std::cout.flush();
 	    
 	    std::vector<std::pair<clipper::RTop_orth, float> > rtops;
 	    // std::cout << "this residue:\n" << it->second.second.format() << std::endl;
-	    rtops.push_back(std::pair<clipper::RTop_orth,float>(it->second.second, 1));
+	    rtops.push_back(std::pair<clipper::RTop_orth,float>(it->second.rtop, 1));
  	    std::vector<CResidue *> neighb_residues =
  	       coot::residues_near_residue(this_residue, atom_sel.mol, transformation_average_radius);
 
   	    for (unsigned int i_n_res=0; i_n_res<neighb_residues.size(); i_n_res++) { 
-	       std::map<CResidue *, std::pair<bool, clipper::RTop_orth> >::const_iterator it_for_neighb =
+	       std::map<CResidue *, morph_rtop_triple>::const_iterator it_for_neighb =
 		  rtop_map.find(neighb_residues[i_n_res]);
 	       if (it_for_neighb != rtop_map.end()) { 
-		  if (it_for_neighb->second.first) {
-		     std::pair<clipper::RTop_orth, float> p(it_for_neighb->second.second, 1.0);
+		  if (it_for_neighb->second.valid) {
+		     std::pair<clipper::RTop_orth, float> p(it_for_neighb->second.rtop, 1.0);
 		     rtops.push_back(p);
 		     if (0)
 			std::cout << "adding rtop for " << coot::residue_spec_t(neighb_residues[i_n_res]) << "\n"
-				  << it_for_neighb->second.second.format() << std::endl;
+				  << it_for_neighb->second.rtop.format() << std::endl;
 		  }
 	       }
 	    }
-	    morph_residue_atoms_by_average_rtops(this_residue, rtops);
+
+	    // pre-local shifts and quaternion-based rtop averaging
+	    // morph_residue_atoms_by_average_rtops(this_residue, rtops);
+
+	    coot::util::quaternion q(0,0,0,0);
+	    clipper::RTop_orth rtop = q.centroid_rtop(rtops);
+	    // if (0)
+	    // std::cout << "yields averaged RTop:\n" << rtop.format() << std::endl;
+	    
+	    transform_by_internal(rtop, it->first);
+	    simple_shifts[this_residue] = it->second.rtop; // save just to view them
+	    smooth_shifts[this_residue] = rtop;
+	    
 	    
 	 } else {
 	    std::cout << "no RTop for " << coot::residue_spec_t(it->first) << std::endl;
 	 } 
       }
+      std::cout << std::endl;
       atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();
+
+      // morph_show_shifts(simple_shifts, smooth_shifts);
+      
    }
    return success;
 }
@@ -361,7 +389,7 @@ molecule_class_info_t::morph_show_shifts(const std::map<CResidue *, clipper::RTo
 	    s += "\"";
 	    s += ball_colour;
 	    s += "\"";
-	    s += " 12                 ";
+	    s += " 12                   ";
 	    s += coot::util::float_to_string(to_pos.x());
 	    s += " ";
 	    s += coot::util::float_to_string(to_pos.y());
@@ -388,7 +416,7 @@ molecule_class_info_t::morph_show_shifts(const std::map<CResidue *, clipper::RTo
 
 	    clipper::Coord_orth to_pos = ca_pos.transform(it->second);
 	 
-	    s += "(to-generic-object-add-line smooth-shifts ";
+	    s += "(to-generic-object-add-line  smooth-shifts ";
 	    s += "\"";
 	    s += line_colour;
 	    s += "\"";

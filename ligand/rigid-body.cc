@@ -306,3 +306,33 @@ coot::get_rigid_body_fit_rtop(coot::minimol::molecule *mol_in,
    return moving_copy.get_rtop(*mol_in);
 
 } 
+
+
+// as above but make a local RTop, that is, remove local_centre
+// from coordinates before calculating the RTop.
+// 
+std::pair<bool, clipper::RTop_orth>
+coot::get_rigid_body_fit_rtop(coot::minimol::molecule *mol_in,
+			      const clipper::Coord_orth &local_centre,
+			      const clipper::Xmap<float> &xmap) {
+
+   minimol::molecule moving_copy = *mol_in;
+   rigid_body_fit(&moving_copy, xmap);
+
+   std::pair<bool, clipper::RTop_orth> unshifted_rtop = moving_copy.get_rtop(*mol_in);
+
+   // This is heavyweight.  We want really to call moving_copy.translate() (it doesn't exist).
+   // 
+   clipper::RTop_orth rtop_shift(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1), -local_centre);
+
+   moving_copy.transform(rtop_shift);
+   mol_in->transform(rtop_shift);
+   std::pair<bool, clipper::RTop_orth> shifted_rtop = moving_copy.get_rtop(*mol_in);
+
+   // So these are the same rotation matrix, but different shifts
+   // std::cout << "unshifted rtop:\n" << unshifted_rtop.second.format() << std::endl;
+   // std::cout << "shifted rtop:\n"   <<   shifted_rtop.second.format() << std::endl;
+
+   return shifted_rtop;
+
+} 

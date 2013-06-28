@@ -41,6 +41,12 @@ namespace coot {
    std::pair<bool, clipper::RTop_orth>
    get_rigid_body_fit_rtop(minimol::molecule *mol,
 			   const clipper::Xmap<float> &xmap);
+   // as above but make a local RTop, that is, remove local_centre
+   // from coordinates before calculating the RTop.
+   std::pair<bool, clipper::RTop_orth>
+   get_rigid_body_fit_rtop(minimol::molecule *mol,
+			   const clipper::Coord_orth &local_centre,
+			   const clipper::Xmap<float> &xmap);
 
 }
 
