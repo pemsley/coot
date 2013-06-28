@@ -3202,6 +3202,8 @@ public:        //                      public
    residue_centre(const std::string &chain_id, int resno, const std::string &ins_code) const;
    // which calls:
    std::pair<bool, clipper::Coord_orth> residue_centre(CResidue *residue_p) const;
+   // related (distance between residue_centres), return negative number if not valid:
+   float distance_between_residues(CResidue *r1, CResidue *r2) const;
 
    // ------------------- ligand centre ---------------------
    // we want a button that goes to the ligand when we click it.
@@ -3305,6 +3307,8 @@ public:        //                      public
    // atoms within shift_average_radius A of the central residue)
    // 
    int morph_fit_all(const clipper::Xmap<float> &xmap_in, float shift_average_radius);
+   int morph_fit_residues(std::vector<std::pair<CResidue *, std::vector<CResidue *> > > moving_residues,
+			  const clipper::Xmap<float> &xmap_in, float transformation_average_radius);
    void morph_show_shifts(const std::map<CResidue *, clipper::RTop_orth> &simple_shifts,
 			  const std::map<CResidue *, clipper::RTop_orth> &smooth_shifts) const;
    // I fail to make a function that does a good "average" of RTops,

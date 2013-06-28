@@ -950,6 +950,22 @@ molecule_class_info_t::residue_centre(CResidue *residue_p) const {
    return std::pair<bool, clipper::Coord_orth> (r, pos);
 }
 
+// return a negative number if not valid
+float
+molecule_class_info_t::distance_between_residues(CResidue *r1, CResidue *r2) const {
+
+   float dist = -1; 
+   std::pair<bool, clipper::Coord_orth> c1 = residue_centre(r1);
+   std::pair<bool, clipper::Coord_orth> c2 = residue_centre(r2);
+
+   if (c1.first && c2.first) {
+      dist = clipper::Coord_orth::length(c1.second, c2.second);
+   }
+
+   return dist;
+}
+
+
 
 
 // ------------------- ligand centre ---------------------

@@ -182,49 +182,76 @@ molecule_class_info_t::add_extra_torsion_restraint(coot::atom_spec_t atom_1,
 int
 molecule_class_info_t::morph_fit_all(const clipper::Xmap<float> &xmap_in, float transformation_average_radius) {
 
-   int success = 0;
-
-   // construct minimol fragments 
-
-   int n_neighb=2; // either side of central residue
    int imod = 1;
    CModel *model_p = atom_sel.mol->GetModel(imod);
    CChain *chain_p;
+   int n_neighb=2; // either side of central residue
    int n_chains = model_p->GetNumberOfChains();
-   // store the local origin too.
-   std::map<CResidue *, morph_rtop_triple> rtop_map;
+
+   // the central residue and it's upstream and downstream neighbours (if it has them)
+   std::vector<std::pair<CResidue *, std::vector<CResidue *> > > moving_residues;
+   
    for (int ichain=0; ichain<n_chains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
 
-      for (int ires=n_neighb; ires<(nres-n_neighb); ires++) { // residue-in-chain loop
 
-	 std::vector<CResidue *> fragment_residues;
-	 CResidue *residue_p = chain_p->GetResidue(ires);
-	 std::pair<bool, clipper::Coord_orth> local_centre = residue_centre(residue_p);
-	 if (local_centre.first) { 
-	    std::cout << "\rINFO:: Getting RTops for " << coot::residue_spec_t(residue_p);
-	    std::cout.flush();
-	    for (int ifragres=-n_neighb; ifragres<=n_neighb; ifragres++) {
-	       CResidue *r = chain_p->GetResidue(ires+ifragres);
-	       if (!r)
-		  break;
-	       fragment_residues.push_back(r);
+      for (int ires=0; ires<nres; ires++) { // residue-in-chain loop
+	 std::vector<CResidue *> v; // up and downstream neighbours
+
+
+	 for (int ifragres=-n_neighb; ifragres<=n_neighb; ifragres++) {
+	    if (ifragres != 0) {
+	       int idx = ires+ifragres;
+	       if ((idx >=0) && (idx<nres)) { 
+		  CResidue *r = chain_p->GetResidue(idx);
+		  if (r)
+		     v.push_back(r);
+	       }
 	    }
-
-	    coot::minimol::fragment f;
-	    for (unsigned int ifr=0; ifr<fragment_residues.size(); ifr++) {
-	       f.addresidue(coot::minimol::residue(fragment_residues[ifr]), false);
-	    } 
-	    coot::minimol::molecule m(f);
-	    // m.write_file("working-fragment.pdb",10);
-	    // returns the rtop to move m into map.
-	    std::pair<bool, clipper::RTop_orth> rtop = coot::get_rigid_body_fit_rtop(&m, local_centre.second, xmap_in);
-	    morph_rtop_triple rt(local_centre.second, rtop);
-	    rtop_map[residue_p] = rt; 
 	 }
+	 std::pair<CResidue *, std::vector<CResidue *> > p(chain_p->GetResidue(ires), v);
+	 moving_residues.push_back(p);
       }
-      std::cout << std::endl;
+   }
+   return morph_fit_residues(moving_residues, xmap_in, transformation_average_radius);
+}
+
+int
+molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std::vector<CResidue *> > > moving_residues,
+					  const clipper::Xmap<float> &xmap_in, float transformation_average_radius) {
+
+   int success = 0;
+
+   // construct minimol fragments 
+
+   // store the local origin too.
+   std::map<CResidue *, morph_rtop_triple> rtop_map;
+
+   for (unsigned int ires=0; ires<moving_residues.size(); ires++) {
+      
+      std::vector<CResidue *> fragment_residues;
+      CResidue *residue_p = moving_residues[ires].first;
+      std::pair<bool, clipper::Coord_orth> local_centre = residue_centre(residue_p);
+      if (local_centre.first) { 
+	 std::cout << "\rINFO:: Getting RTops for " << coot::residue_spec_t(residue_p);
+	 std::cout.flush();
+
+	 fragment_residues.push_back(moving_residues[ires].first);
+	 for (unsigned int ires=0; ires<moving_residues[ires].second.size(); ires++) {
+	    CResidue *r = moving_residues[ires].second[ires];
+	    fragment_residues.push_back(r);
+	 }
+	 coot::minimol::fragment f;
+	 for (unsigned int ifr=0; ifr<fragment_residues.size(); ifr++) {
+	    f.addresidue(coot::minimol::residue(fragment_residues[ifr]), false);
+	 } 
+	 coot::minimol::molecule m(f);
+	 // returns the rtop to move m into map.
+	 std::pair<bool, clipper::RTop_orth> rtop = coot::get_rigid_body_fit_rtop(&m, local_centre.second, xmap_in);
+	 morph_rtop_triple rt(local_centre.second, rtop);
+	 rtop_map[residue_p] = rt; 
+      }
    }
 
    std::map<CResidue *, morph_rtop_triple>::const_iterator it;
@@ -254,7 +281,15 @@ molecule_class_info_t::morph_fit_all(const clipper::Xmap<float> &xmap_in, float 
 		  rtop_map.find(neighb_residues[i_n_res]);
 	       if (it_for_neighb != rtop_map.end()) { 
 		  if (it_for_neighb->second.valid) {
-		     std::pair<clipper::RTop_orth, float> p(it_for_neighb->second.rtop, 1.0);
+		     float weight = 0.1;
+		     float d_r = distance_between_residues(this_residue, neighb_residues[i_n_res]);
+		     if (d_r > 0) {
+			weight = 3.8/d_r;
+			if (weight > 1.0)
+			   weight = 1.0; // weight of central residue, shouldn't be more than that.
+			// std::cout << "distance " << d_r << " weight " << weight << std::endl;
+		     } 
+		     std::pair<clipper::RTop_orth, float> p(it_for_neighb->second.rtop, weight);
 		     rtops.push_back(p);
 		     if (0)
 			std::cout << "adding rtop for " << coot::residue_spec_t(neighb_residues[i_n_res]) << "\n"
