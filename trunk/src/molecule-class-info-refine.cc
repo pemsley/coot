@@ -195,10 +195,8 @@ molecule_class_info_t::morph_fit_all(const clipper::Xmap<float> &xmap_in, float 
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
 
-
       for (int ires=0; ires<nres; ires++) { // residue-in-chain loop
 	 std::vector<CResidue *> v; // up and downstream neighbours
-
 
 	 for (int ifragres=-n_neighb; ifragres<=n_neighb; ifragres++) {
 	    if (ifragres != 0) {
@@ -216,6 +214,46 @@ molecule_class_info_t::morph_fit_all(const clipper::Xmap<float> &xmap_in, float 
    }
    return morph_fit_residues(moving_residues, xmap_in, transformation_average_radius);
 }
+
+int
+molecule_class_info_t::morph_fit_chain(const std::string &chain_id,
+				       const clipper::Xmap<float> &xmap_in, float transformation_average_radius) {
+
+   int imod = 1;
+   CModel *model_p = atom_sel.mol->GetModel(imod);
+   CChain *chain_p;
+   int n_neighb=2; // either side of central residue
+   int n_chains = model_p->GetNumberOfChains();
+
+   // the central residue and it's upstream and downstream neighbours (if it has them)
+   std::vector<std::pair<CResidue *, std::vector<CResidue *> > > moving_residues;
+   
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      if (std::string(chain_p->GetChainID()) == chain_id) { 
+	 int nres = chain_p->GetNumberOfResidues();
+	 for (int ires=0; ires<nres; ires++) { // residue-in-chain loop
+	    std::vector<CResidue *> v; // up and downstream neighbours
+	    
+	    for (int ifragres=-n_neighb; ifragres<=n_neighb; ifragres++) {
+	       if (ifragres != 0) {
+		  int idx = ires+ifragres;
+		  if ((idx >=0) && (idx<nres)) { 
+		     CResidue *r = chain_p->GetResidue(idx);
+		     if (r)
+			v.push_back(r);
+		  }
+	       }
+	    }
+	    std::pair<CResidue *, std::vector<CResidue *> > p(chain_p->GetResidue(ires), v);
+	    moving_residues.push_back(p);
+	 }
+      }
+   }
+   return morph_fit_residues(moving_residues, xmap_in, transformation_average_radius);
+
+}
+
 
 int
 molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std::vector<CResidue *> > > moving_residues,

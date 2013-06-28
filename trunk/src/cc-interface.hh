@@ -690,6 +690,7 @@ int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue
 // return 0 on fail to move atoms and 1 on fitting happened.
 // 
 int morph_fit_all(int imol, float transformation_averaging_radius);
+int morph_fit_chain(int imol, std::string chain_id, float transformation_averaging_radius);
 
 /*  ----------------------------------------------------------------------- */
 /*                  check water baddies                                     */
