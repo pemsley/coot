@@ -24644,9 +24644,9 @@ programs to which you may be more accustomed.
   <property name="urgency_hint">False</property>
 
   <child>
-    <widget class="GtkImage" id="image7052">
+    <widget class="GtkImage" id="image10157">
       <property name="visible">True</property>
-      <property name="pixbuf">coot-0.7.1.png</property>
+      <property name="pixbuf">coot-0.8-pre.png</property>
       <property name="xalign">0.5</property>
       <property name="yalign">0.5</property>
       <property name="xpad">0</property>
