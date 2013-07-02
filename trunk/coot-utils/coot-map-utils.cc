@@ -1807,7 +1807,6 @@ coot::util::density_map_points_in_sphere(clipper::Coord_orth pt, float search_ra
    return v;
 }
 
-// throw_frac is say 20% (remove top and bottom 10% and recalculate rmsd)
 //
 float
 coot::util::interquartile_range(const std::vector<float> &v_in) {
