@@ -1155,4 +1155,3 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
    return r;
 } 
 
-

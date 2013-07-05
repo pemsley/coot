@@ -4892,7 +4892,15 @@ int n_symops(int imol) {
       r = graphics_info_t::molecules[imol].xmap_list[0].spacegroup().num_symops();
    } 
    return r;
+}
+
+/* This function works by active symm atom. */
+int move_reference_chain_to_symm_chain_position() {
+
+   graphics_info_t g;
+   return g.move_reference_chain_to_symm_chain_position();
 } 
+
 
 
 

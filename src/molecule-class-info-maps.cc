@@ -1731,7 +1731,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 	   file.import_nxmap(nx_map);
 	   std::cout << "INFO:: created NX Map with grid " << nx_map.grid().format() << std::endl;
 	} 
-     } catch (clipper::Message_base exc) {
+     } catch (const clipper::Message_base &exc) {
 	std::cout << "WARNING:: failed to open " << filename << std::endl;
 	bad_read = 1;
      }

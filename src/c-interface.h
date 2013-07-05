@@ -1943,6 +1943,9 @@ int new_molecule_by_symop(int imol, const char *symop_string,
 return -1 on no-symmetry for molecule or inappropriate imol number */
 int n_symops(int imol);
 
+/* This function works by active symm atom. */
+int move_reference_chain_to_symm_chain_position();
+
 #ifdef __cplusplus
 #ifdef USE_GUILE
 /*! \brief return the pre-shift (the shift that translates the centre

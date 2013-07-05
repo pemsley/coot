@@ -7008,5 +7008,18 @@ Thu May 16 13:29:43 BST 2013
 
    -> resulting map should have better density for the missing domain.  Does it?
 
+
+-----
+Thu Jun 27 15:40:01 BST 2013
+
+    from chimera:
+
+    create a new map by placing target points in the map (position
+    them like go to blob) then mask a map around these atoms.
+
+    Hmm... this is basically how Water+ works.  No point in making
+    another interface.
+
+
 ------
 

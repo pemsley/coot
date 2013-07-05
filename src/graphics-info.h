@@ -1934,6 +1934,7 @@ public:
    CAtom *find_atom_in_moving_atoms(const coot::atom_spec_t &at) const;
 
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick() const;
+   coot::Symm_Atom_Pick_Info_t symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const;
 
    // map skeletonization level (and (different widget) boxsize). 
    //
@@ -3764,6 +3765,9 @@ public:
    // do the symmetry expansion, and it seems that st generates the
    // symmetry-related molecule that we are looking at now).
    int unapply_symmetry_to_view(int imol, const std::vector<std::pair<clipper::RTop_orth, clipper::Coord_orth> > &symm_mat_and_pre_shift);
+
+   // 
+   int move_reference_chain_to_symm_chain_position();
 
 
 #ifdef USE_MYSQL_DATABASE

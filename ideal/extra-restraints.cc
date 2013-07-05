@@ -67,10 +67,13 @@ coot::extra_restraints_t::read_refmac_distance_restraints(const std::string &fil
 	       extra_bond_restraint_t br(spec_1, spec_2, d, e);
 	       bond_restraints.push_back(br);
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       // silently ignore
+	       std::cout << "rte on : " << lines[i] << std::endl;
 	    }
-	 }
+	 } else {
+	    std::cout << "failed to match template: " << lines[i] << std::endl;
+	 } 
       }
    }
 }
@@ -87,8 +90,8 @@ bool
 coot::extra_restraints_t::matches_template_p(const std::vector<std::string> &words) const {
 
    bool status = false;
-   if (words.size() == 24) {
-      std::vector<std::string> u(24);
+   if (words.size() >= 24) {
+      std::vector<std::string> u(words.size());
       for (unsigned int i=0; i<words.size(); i++)
 	 u[i] = coot::util::upcase(words[i]);
       if (u[0].length() > 3) {
@@ -148,7 +151,9 @@ coot::extra_restraints_t::matches_template_p(const std::vector<std::string> &wor
 	    }
 	 }
       }
-   }
+   } else {
+      std::cout << "not 24 words" << std::endl;
+   } 
    return status;
 } 
 
