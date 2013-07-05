@@ -345,7 +345,7 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 	 optimize_rotation_fit(m.mol[0], ops_resultops, ptc);
 
       // There are 2 orientation in ofm correspoding to the up and
-      // down orientations of the initial helix.  We have already hade
+      // down orientations of the initial helix.  We have already had
       // a guess at which would be the best, but we need to do a full
       // optimization of both directions before we can decide the best.
       //
@@ -427,8 +427,11 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 		     success = 1; // debugging
 		  } 
 	       } else {
-		  std::cout      << "Bad fit for CBs - helix rejected\n" ;
-		  failure_message = "Bad fit for CBs - helix rejected";
+		  std::cout      << "WARNING:: Bad fit for CBs - helix rejected\n" ;
+		  failure_message = "WARNING:: Bad fit for CBs - helix rejected";
+		  std::cout << "INFO:: --------------- density_stats_info_t ds mean and var "
+			    << mv0.first << " " << mv0.second << std::endl;
+		  std::cout << "INFO:: --------------- n " << ds.n << std::endl;
 		  success = 0;
 	       }
 	    }

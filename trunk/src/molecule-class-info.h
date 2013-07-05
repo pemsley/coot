@@ -84,6 +84,8 @@ using namespace std; // Hmmm.. I don't approve, FIXME
 #include "gl-bits.hh"
 #include "flev-annotations.hh" // animated ligand interactions
 
+#include "pick.h"
+
 #include "dots-representation.hh"
 #include "named-rotamer-score.hh"
 
@@ -2878,6 +2880,7 @@ public:        //                      public
    short int symmetry_rotate_colour_map_flag; // do we want symmetry of other
 						     // molecules to have a different
 						     // colour [MOL]?
+   void move_reference_chain_to_symm_chain_position(coot::Symm_Atom_Pick_Info_t naii);
 
    // ncs control
    void fill_ncs_control_frame(GtkWidget *dialog) const; // called for every coords mol

@@ -68,10 +68,18 @@ void write_symm_search_point(std::ofstream&s , const coot::Cartesian &cart) {
 coot::Symm_Atom_Pick_Info_t
 graphics_info_t::symmetry_atom_pick() const { 
 
-   coot::Cartesian screen_centre = RotationCentre();
-
    coot::Cartesian front = unproject(0.0);
    coot::Cartesian back  = unproject(1.0);
+   return symmetry_atom_pick(front, back);
+}
+
+// 
+coot::Symm_Atom_Pick_Info_t
+graphics_info_t::symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const {
+
+   
+   coot::Cartesian screen_centre = RotationCentre();
+
    // Cartesian centre_unproj = unproject(0.5); // not needed, use midpoint of front and back.
    coot::Cartesian mid_point = front.mid_point(back);
    float dist_front_to_back = (front - back).amplitude();
@@ -788,4 +796,27 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_x(double angle) {
       }
    }
 } 
+
+
+
+int graphics_info_t::move_reference_chain_to_symm_chain_position() {
+
+   int r = 0;
+   std::cout << "here in graphics move_reference_chain_to_symm_chain_position() " << std::endl;
+   int iw = graphics_info_t::glarea->allocation.width;
+   int ih = graphics_info_t::glarea->allocation.height;
+   coot::Cartesian front = unproject_xyz(iw/2, ih/2, 0);
+   coot::Cartesian back  = unproject_xyz(iw/2, ih/2, 1);
+   coot::Symm_Atom_Pick_Info_t naii = symmetry_atom_pick(front, back);
+   if (naii.success == GL_TRUE) {
+      if (is_valid_model_molecule(naii.imol)) {
+	 graphics_info_t::molecules[naii.imol].move_reference_chain_to_symm_chain_position(naii);
+      } else {
+	 std::cout << "not valid mol" << std::endl;
+      } 
+   } else {
+      std::cout << "bad pick " << std::endl;
+   } 
+   return r;
+}
 

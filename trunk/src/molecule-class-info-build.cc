@@ -329,3 +329,45 @@ molecule_class_info_t::delete_link(CLink *link, CModel *model_p) {
    }
 }
 
+
+void
+molecule_class_info_t::move_reference_chain_to_symm_chain_position(coot::Symm_Atom_Pick_Info_t naii) {
+
+   if (naii.success) {
+
+      make_backup();
+
+      mat44 my_matt;
+      mat44 pre_shift_matt;
+      
+      int err_1 = atom_sel.mol->GetTMatrix(my_matt,
+					   naii.symm_trans.isym(),
+					   naii.symm_trans.x(),
+					   naii.symm_trans.y(),
+					   naii.symm_trans.z());
+      
+      int err_2 = atom_sel.mol->GetTMatrix(pre_shift_matt, 0,
+					   -naii.pre_shift_to_origin.us,
+					   -naii.pre_shift_to_origin.vs,
+					   -naii.pre_shift_to_origin.ws);
+
+      if (err_1 == 0) { 
+	 if (err_2 == 0) {
+	    CChain *moving_chain = atom_sel.atom_selection[naii.atom_index]->residue->chain;
+	    for (unsigned int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
+	       CAtom *at = atom_sel.atom_selection[iat];
+	       if (at->residue->chain == moving_chain) { 
+		  at->Transform(pre_shift_matt);
+		  at->Transform(my_matt);
+	       }
+	    }
+
+
+	    have_unsaved_changes_flag = 1; // because we do a backup whatever...
+	    atom_sel.mol->FinishStructEdit();
+	    update_molecule_after_additions();
+	    update_symmetry();
+	 }
+      }
+   } 
+}

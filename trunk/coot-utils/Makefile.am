@@ -97,7 +97,7 @@ libcoot_map_heavy_la_LIBADD = \
 
 
 # test-agg-clust
-noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic 
+noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic test-spherical
 
 check_PROGRAMS = test-tt-morph
 
@@ -147,6 +147,9 @@ test_tt_morph_LDADD = 	./libcoot-map-heavy.la
 
 test_elastic_SOURCES = test-elastic.cc
 test_elastic_LDADD   = ./libcoot-coord-utils.la $(GLOB_LIBS)
+
+test_spherical_SOURCES = test-spherical.cc
+test_spherical_LDADD   = ./libcoot-coord-utils.la $(GSL_LIBS)
 
 
 
