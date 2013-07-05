@@ -27,17 +27,16 @@ endif
 
 lib_LTLIBRARIES= libcoot-coord-utils.la  libcoot-shelx.la libcoot-coord-extras.la libcoot-map-utils.la libcoot-map-heavy.la
 
-include_HEADERS = peak-search.hh coot-trim.hh \
+pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	coot-coord-utils.hh coot-map-utils.hh coot-coord-extras.hh \
 	coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh \
 	coot-rama.hh xmap-stats.hh coot-h-bonds.hh lsq-improve.hh coot-hole.hh \
 	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh 
+pkgincludedir = $(includedir)/coot/coot-utils
+
 
 INCLUDES = \
-	-I$(top_srcdir)/utils	        \
-	-I$(top_srcdir)/geometry	\
-	-I$(top_srcdir)/compat		\
-	-I$(top_srcdir)/mini-mol	\
+	-I$(top_srcdir)	\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(GSL_CFLAGS)			\

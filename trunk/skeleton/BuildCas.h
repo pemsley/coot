@@ -4,13 +4,13 @@
 #include <string>
 #include <mmdb/mmdb_manager.h>
 
-#include "mmdb-extras.h"
 #include "clipper/core/xmap.h"
 #include "clipper/contrib/skeleton.h"
 
-#include "Cartesian.h"
+#include "coords/mmdb-extras.h"
+#include "coords/Cartesian.h"
 
-#include "AngleInfo.h"
+#include "angles/AngleInfo.h"
 
 #ifndef RADTODEG
 #define RADTODEG 57.2957795147

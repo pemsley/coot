@@ -20,7 +20,7 @@
  * 02110-1301, USA.
  */
 
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 #include "ideal-rna.hh"
 #include "base-pairing.hh"
 

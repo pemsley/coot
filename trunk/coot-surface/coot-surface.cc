@@ -26,11 +26,11 @@
 
 #include <GL/gl.h>
 #include "coot-surface.hh"
-#include "CXXCreator.h"
-#include "CXXUtils.h"
+#include "surface/CXXCreator.h"
+#include "surface/CXXUtils.h"
 
 #include "rgbreps.h"
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 // assign_charges is an instruction to CXX surface code to generate
 // the charges - sometime we want to do that (e.g. surface on a

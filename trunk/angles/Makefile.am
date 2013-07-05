@@ -4,7 +4,8 @@ lib_LTLIBRARIES=libcoot-AngleInfo.la
 EXTRA_DIST = \
 	angle-torsion-autogen.awk
 
-include_HEADERS = AngleInfo.h ncube.h wrapped-ncube.h
+pkginclude_HEADERS = AngleInfo.h ncube.h wrapped-ncube.h
+pkgincludedir = $(includedir)/coot/angles
 
 INCLUDES = $(CLIPPER_CXXFLAGS)
 

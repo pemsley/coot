@@ -55,7 +55,7 @@
 #undef DATADIR
 #endif // DATADIR
 #endif /* MINGW */
-#include "sleep-fixups.h"
+#include "compat/sleep-fixups.h"
 
 // Here we used to define GTK_ENABLE_BROKEN if defined(WINDOWS_MINGW)
 // Now we don't want to enable broken stuff.  That is not the way.
@@ -91,23 +91,22 @@
 #include <string>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
-#include "read-sm-cif.hh"
-
-#include "Cartesian.h"
-#include "Bond_lines.h"
-#include "coot-utils.hh"
-#include "coot-map-utils.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/read-sm-cif.hh"
+#include "coot-utils/coot-map-utils.hh"
 #include "coot-database.hh"
 #include "coot-fileselections.h"
 
 // #include "xmap-interface.h"
 #include "graphics-info.h"
 
-#include "BuildCas.h"
+#include "skeleton/BuildCas.h"
 
 #include "trackball.h" // adding exportable rotate interface
 
@@ -135,12 +134,12 @@
 #endif // USE_PYTHON
 
 #ifdef HAVE_GOOCANVAS
-#include "goocanvas.h"
-#include "wmolecule.hh"
-#include "goograph.hh"
+#include <goocanvas.h>
+#include "lbg/wmolecule.hh"
+#include "goograph/goograph.hh"
 #endif
 
-#include "simple-restraint.hh"  // for multi-residue torsion map fitting.
+#include "ideal/simple-restraint.hh"  // for multi-residue torsion map fitting.
 
 #include "cc-interface-network.hh"
 

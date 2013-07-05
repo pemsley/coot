@@ -3,7 +3,7 @@
 #include <iostream>
 #include <iomanip>
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-h-bonds.hh"
 
 std::string stuartify(const std::string &s) {

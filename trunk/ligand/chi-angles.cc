@@ -19,12 +19,12 @@
  * 02110-1301, USA
  */
 
+#include "compat/coot-sysdep.h"
+#include "coot-utils/coot-coord-extras.hh"
+
 #include "chi-angles.hh"
-#include "mgtree.h"
+#include "ccp4mg-utils/mgtree.h"
 
-#include "coot-coord-extras.hh"
-
-#include "coot-sysdep.h"
  
 coot::simple_rotamer::simple_rotamer(int rot1_in,  
 				     int rot2_in,  

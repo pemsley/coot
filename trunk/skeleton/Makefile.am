@@ -22,17 +22,13 @@
 lib_LTLIBRARIES=libcoot-skeleton.la
 
 INCLUDES = \
-	  -I$(top_srcdir)/mini-mol   \
-	  -I$(top_srcdir)/geometry   \
-          -I$(top_srcdir)/coords     \
-          -I$(top_srcdir)/angles     \
-          -I$(top_srcdir)/coot-utils \
-	  -I$(top_srcdir)/compat     \
+	  -I$(top_srcdir) \
 	 $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) 
 
 AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS)
 
-include_HEADERS = graphical_skel.h dm-utils.h BuildCas.h
+pkginclude_HEADERS = graphical_skel.h dm-utils.h BuildCas.h
+pkgincludedir = $(includedir)/coot/skeleton
 
 libcoot_skeleton_la_SOURCES =  \
 	dm-utils.cc \

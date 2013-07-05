@@ -59,35 +59,34 @@
 #endif
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
-
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "clipper/core/map_utils.h" // Map_stats
-#include "graphical_skel.h"
+#include "skeleton/graphical_skel.h"
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 #include "interface.h"
 
 #include "molecule-class-info.h"
-#include "BuildCas.h"
+#include "skeleton/BuildCas.h"
 
 #include "gl-matrix.h" // for baton rotation
 #include "trackball.h" // for baton rotation
 
-#include "bfkurt.hh"
+#include "analysis/bfkurt.hh"
 
 #include "globjects.h"
-#include "ligand.hh"
+#include "ligand/ligand.hh"
 #include "graphics-info.h"
 
-#include "dunbrack.hh"
+#include "ligand/dunbrack.hh"
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 //temp
 #include "cmtz-interface.hh"

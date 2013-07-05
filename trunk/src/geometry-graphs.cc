@@ -23,12 +23,12 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
  
-#include "coot-coord-utils.hh" // compilation error on MacOSX if this
+#include "coot-utils/coot-coord-utils.hh" // compilation error on MacOSX if this
 			       // doesn't come before the next 3 lines
 			       // (for gtk/gtk-canvas) (I suspect
 			       // canvas is the problem).
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 #ifdef HAVE_GTK_CANVAS
 #include <gtk/gtk.h>

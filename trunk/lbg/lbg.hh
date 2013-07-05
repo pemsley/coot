@@ -34,7 +34,7 @@
 
 
 #ifdef MAKE_ENTERPRISE_TOOLS
-#include "rdkit-interface.hh"
+#include "lidia-core/rdkit-interface.hh"
 #endif 
 
 #include <iostream>
@@ -51,15 +51,15 @@
 #define MONOMER_DIR_STR "COOT_CCP4SRS_DIR"
 #endif 
 
-#include "lig-build.hh"
-#include "lbg-molfile.hh"
+#include "lidia-core/lig-build.hh"
+#include "lidia-core/lbg-molfile.hh"
 
 // #include "some-coot-utils.hh"
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 #include "wmolecule.hh"
 
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 #include "flev-annotations.hh"
 
 #ifdef MAKE_ENTERPRISE_TOOLS

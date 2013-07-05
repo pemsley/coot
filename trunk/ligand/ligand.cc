@@ -60,11 +60,14 @@
   		     // of mask_map interface.
 
 #include <mmdb/mmdb_coormngr.h> // for GetMassCenter()
-#include "mmdb-extras.h"   // 220403
-#include "mmdb.h"
 
-#include "coot-coord-utils.hh"
-#include "coot-map-utils.hh"
+#include "utils/coot-utils.hh"
+
+#include "coords/mmdb-extras.h"   // 220403
+#include "coords/mmdb.h"
+
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 
 
 std::pair<coot::minimol::molecule, coot::minimol::molecule>
@@ -1955,8 +1958,6 @@ coot::ligand::n_ligands_for_cluster(unsigned int iclust,
    return n;
 }
 
-
-#include "coot-utils.hh"
 
 // generate correlation scores for the top n_sol solutions and re-sort
 //

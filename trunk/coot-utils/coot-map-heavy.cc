@@ -24,7 +24,7 @@
 #include "clipper/core/hkl_compute.h"
 #include "clipper/core/rotation.h"
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-map-heavy.hh"
 #include "coot-map-utils.hh"
 #include "coot-coord-utils.hh"

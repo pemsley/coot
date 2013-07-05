@@ -1,7 +1,7 @@
 
+#include "mini-mol/mini-mol-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 #include "protein_db-interface.hh"
-#include "coot-coord-utils.hh"
-#include "mini-mol-utils.hh"
 
 CMMDBManager *make_mol(const std::vector<ProteinDB::Chain> &chains, const std::string &chain_id,
 		       int first_res_no) {

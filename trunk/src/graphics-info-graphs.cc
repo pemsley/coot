@@ -41,22 +41,22 @@
 #include <iostream>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
 
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "clipper/core/map_utils.h" // Map_stats
-#include "graphical_skel.h"
+#include "skeleton/graphical_skel.h"
 
 
 #include "interface.h"
 
 #include "molecule-class-info.h"
 // #include "rama_plot.hh"
-#include "BuildCas.h"
+#include "skeleton/BuildCas.h"
 
 
 #include "gl-matrix.h" // for baton rotation
@@ -64,18 +64,18 @@
 
 // #include "rottrans-buttons.hh"  old and deletable.
 
-#include "bfkurt.hh"
+#include "analysis/bfkurt.hh"
 
 #include "globjects.h"
 #ifdef USE_DUNBRACK_ROTAMERS
-#include "dunbrack.hh"
+#include "ligand/dunbrack.hh"
 #else 
-#include "richardson-rotamer.hh"
+#include "ligand/richardson-rotamer.hh"
 #endif 
-#include "ligand.hh"
+#include "ligand/ligand.hh"
 #include "graphics-info.h"
 
-#include "coot-map-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 #include "geometry-graphs.hh"
 
 // Validation stuff	    //

@@ -54,26 +54,26 @@
 #include <string>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
 
-#include "coot-coord-utils.hh"
-#include "coot-fasta.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "utils/coot-fasta.hh"
 
-#include "BuildCas.h"
-#include "helix-placement.hh"
-#include "fast-ss-search.hh"
+#include "skeleton/BuildCas.h"
+#include "ligand/helix-placement.hh"
+#include "ligand/fast-ss-search.hh"
 
 #include "trackball.h" // adding exportable rotate interface
 
-#include "coot-utils.hh"  // for is_member_p
-#include "coot-map-heavy.hh"  // for fffear
+#include "utils/coot-utils.hh"  // for is_member_p
+#include "coot-utils/coot-map-heavy.hh"  // for fffear
 
 #include "guile-fixups.h"
 
@@ -93,7 +93,7 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 
-#include "ligand.hh" // for rigid body fit by atom selection.
+#include "ligand/ligand.hh" // for rigid body fit by atom selection.
 
 #include "cmtz-interface.hh" // for valid columns mtz_column_types_info_t
 #include "c-interface-mmdb.hh"
@@ -101,9 +101,9 @@
 #include "c-interface-python.hh"
 
 #ifdef USE_DUNBRACK_ROTAMERS
-#include "dunbrack.hh"
+#include "ligand/dunbrack.hh"
 #else 
-#include "richardson-rotamer.hh"
+#include "ligand/richardson-rotamer.hh"
 #endif 
 
 void do_regularize_kill_delete_dialog() {

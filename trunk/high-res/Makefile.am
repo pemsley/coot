@@ -20,22 +20,15 @@
 
 lib_LTLIBRARIES=libcoot-high-res.la
 
-include_HEADERS = high-res.hh coot-atom-graph.hh coot-node-info.hh \
+pkginclude_HEADERS = high-res.hh coot-atom-graph.hh coot-node-info.hh \
 	sequence-assignment.hh
+pkgincludedir = $(includedir)/coot/high-res
 
 
 AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS)
 
 INCLUDES = \
-	-I$(top_srcdir)/geometry     \
-	-I$(top_srcdir)/coords       \
-	-I$(top_srcdir)/ccp4mg-utils \
-	-I$(top_srcdir)/mini-mol     \
-	-I$(top_srcdir)/ligand       \
-	-I$(top_srcdir)/utils        \
-	-I$(top_srcdir)/coot-utils   \
-	-I$(top_srcdir)/lidia-core   \
-	-I$(top_srcdir)/compat       \
+	-I$(top_srcdir)   \
 	$(MMDB_CXXFLAGS)  \
 	$(CLIPPER_CXXFLAGS)
 

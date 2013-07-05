@@ -2,11 +2,11 @@
 #ifndef CC_INTERFACE_MOGUL_HH
 #define CC_INTERFACE_MOGUL_HH
 
-#include "mogul-interface.hh"
+#include "analysis/mogul-interface.hh"
 
 #ifdef HAVE_GOOCANVAS
 
-#include "goograph.hh"
+#include "goograph/goograph.hh"
 
 void show_mogul_geometry_dialog(const coot::mogul &m, CResidue *residue);
 void set_null_goograph_pointer(GtkWidget *w);

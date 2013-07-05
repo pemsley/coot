@@ -21,7 +21,7 @@
 
 #include <iostream>
 
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 #include "ideal-rna.hh"
 
 coot::ideal_rna::ideal_rna(const std::string &RNA_or_DNA, const std::string &form,

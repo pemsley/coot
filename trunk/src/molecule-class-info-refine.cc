@@ -4,13 +4,13 @@
 
 // these are needed to compile molecule-compile-info.h:
 // 
-#include "Cartesian.h"
-#include "mmdb-extras.h"
-#include "mmdb-crystal.h"
+#include "coords/Cartesian.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb-crystal.h"
 
 // morphing
-#include "coot-coord-utils.hh"
-#include "rigid-body.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "ligand/rigid-body.hh"
 
 #include "molecule-class-info.h"
 

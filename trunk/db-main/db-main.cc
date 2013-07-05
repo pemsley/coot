@@ -32,7 +32,7 @@
 #define DATADIR "C:/coot/share"
 #endif
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "db-main.hh"
 
 coot::main_fragment_t::main_fragment_t(int i_start_res,

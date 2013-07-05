@@ -29,7 +29,7 @@
 #include <sstream>   // ditto.
 #include <cstdio>    // 20090806 Justin Lecher says we need this on Gentoo 
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 #if defined _MSC_VER
 #include <direct.h>
 #include <windows.h>

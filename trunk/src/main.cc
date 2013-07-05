@@ -58,7 +58,7 @@
 
 #include <GL/glut.h> // for glutInit()
 
-#include "lbg.hh"
+#include "lbg/lbg.hh"
 
 #include "interface.h"
 #ifndef HAVE_SUPPORT_H
@@ -82,15 +82,15 @@
 #include <string>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
 #include "clipper/core/test_core.h"
 #include "clipper/contrib/test_contrib.h"
 
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "command-line.hh"
 
@@ -106,12 +106,12 @@
 #undef DATADIR
 #endif // DATADIR
 #endif
-#include "sleep-fixups.h"
+#include "compat/sleep-fixups.h"
 
 #include "c-interface.h"
 #include "cc-interface.hh"
 
-#include "rgbreps.h"
+#include "coot-surface/rgbreps.h"
 
 #include "coot-database.hh"
 

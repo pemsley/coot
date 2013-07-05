@@ -21,8 +21,8 @@
 #ifndef COOT_RIGID_BODY_HH
 #define COOT_RIGID_BODY_HH
 
-#include "mini-mol.hh"
 #include "clipper/core/xmap.h"
+#include "mini-mol/mini-mol.hh"
 
 // move the atoms of mol
 namespace coot { 

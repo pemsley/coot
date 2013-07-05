@@ -30,9 +30,9 @@
 
 #include <string>
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "Cartesian.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/Cartesian.h"
+#include "coords/mmdb-crystal.h"
 #include "molecule-class-info.h"
 
 #include "clipper/ccp4/ccp4_mtz_io.h"

@@ -70,7 +70,7 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 #include "cmtz-interface.hh"
-#include "mmdb.h"  // for centre of molecule
+#include "coords/mmdb.h"  // for centre of molecule
 #include "clipper/core/clipper_instance.h"
 
 #if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 5))

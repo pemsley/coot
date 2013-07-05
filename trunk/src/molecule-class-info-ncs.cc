@@ -36,16 +36,16 @@
 #include <string.h>  // strncpy
 
 
-#include "Cartesian.h"
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/Cartesian.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 #include "molecule-class-info.h"
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
-#include "coot-map-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 #include "xmap-utils.h"
 #include "graphics-info.h"
 

@@ -22,7 +22,7 @@
 #ifndef MMDB_H
 #define MMDB_H
 
-#include "lbg-molfile.hh"
+#include "lidia-core/lbg-molfile.hh"
 
 // needs to have included mmdb_manager.h"
 // and "mmdb-extras.h" for atom_selection_container_t

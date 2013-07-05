@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <map>
-#include "coot-utils.hh" // for random()
+#include "utils/coot-utils.hh" // for random()
 #include "elastic.hh"
 
 coot::elastic_network_model_t::elastic_network_model_t(CMMDBManager *mol,

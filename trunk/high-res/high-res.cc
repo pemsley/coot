@@ -20,12 +20,12 @@
 
 #include <algorithm>
 #include <map>
-#include "mmdb-extras.h" // for atom_selection_container_t used in coot-close
-#include "mmdb.h" // for formatting of CAtom
-#include "coot-close.hh"
+#include "coords/mmdb-extras.h" // for atom_selection_container_t used in coot-close
+#include "coords/mmdb.h" // for formatting of CAtom
+#include "coords/coot-close.hh"
+#include "coot-utils/coot-coord-utils.hh"
 #include "coot-atom-graph.hh"
-#include "coot-coord-utils.hh"
-#include "mini-mol-utils.hh"
+#include "mini-mol/mini-mol-utils.hh"
 #include "high-res.hh"
 
 coot::high_res::high_res(const coot::minimol::molecule &mol) {

@@ -24,9 +24,9 @@
 
 #include <math.h>
 #include <algorithm>
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "dunbrack.hh"
-#include "mgtree.h"
+#include "ccp4mg-utils/mgtree.h"
 
 // #include "clipper/core/coords.h"
 

@@ -12,11 +12,11 @@
 #include "clipper/contrib/sfscale.h"
 #include "clipper/contrib/sfweight.h"
 
-#include "coot-utils.hh"
+#include "compat/coot-sysdep.h"
+#include "utils/coot-utils.hh"
 
 #include "read-sm-cif.hh"
 
-#include "coot-sysdep.h"
 
 // add a casting hack for old versions of mmdb
 //

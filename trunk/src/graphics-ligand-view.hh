@@ -19,9 +19,9 @@
  */
 
 #include <iostream>
-#include "lig-build.hh"
-#include "lbg-molfile.hh"
-#include "protein-geometry.hh"
+#include "lidia-core/lig-build.hh"
+#include "lidia-core/lbg-molfile.hh"
+#include "geometry/protein-geometry.hh"
 #include "coot-render.hh"  // for colour_t
 
 class graphics_ligand_atom : public lig_build::atom_t {

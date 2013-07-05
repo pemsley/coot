@@ -28,17 +28,17 @@
 // For reasons I don't understand, this should come near the top of
 // includes, otherwise we get RDKit dcgettext() include file problems.
 //
-#include "lbg.hh"
+#include "lbg/lbg.hh"
 
 #include "c-interface-ligands.hh"
-#include "mmdb-extras.h"
-#include "mmdb.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
 
 #include "graphics-info.h"
 #include "c-interface.h"
-#include "lbg-graph.hh"
+#include "geometry/lbg-graph.hh"
 
-#include "coot-h-bonds.hh"
+#include "coot-utils/coot-h-bonds.hh"
 
 #include "flev.hh"
 

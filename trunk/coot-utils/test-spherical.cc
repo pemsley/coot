@@ -18,6 +18,7 @@ void calc_almn(const clipper::Xmap<float> &xmap, clipper::Coord_orth &pos) {
    clipper::Coord_orth c0, c1;
    typedef clipper::Xmap<float>::Map_reference_coord MRC;
    MRC i0, iu, iv, iw;
+   g = pos.coord_frac(cell).coord_grid(grid);
    g0 = g + gr.min();
    g1 = g + gr.max();
    i0 = MRC(xmap, g0);

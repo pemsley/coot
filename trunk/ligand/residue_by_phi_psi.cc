@@ -18,9 +18,11 @@
  * 02110-1301, USA.
  */
 
-#include "residue_by_phi_psi.hh"
+#include "utils/coot-utils.hh"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
 
-#include "coot-utils.hh"
+#include "residue_by_phi_psi.hh"
 
 
 coot::residue_by_phi_psi::residue_by_phi_psi(const CMMDBManager *mol_in,
@@ -357,8 +359,6 @@ coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id,
 } 
 
 
-#include "mmdb-extras.h"
-#include "mmdb.h"
 
 // If there are 3 positions on return their order is N, C, CA
 // 

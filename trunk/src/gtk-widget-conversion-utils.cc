@@ -5,7 +5,7 @@
 #include <gtk/gtk.h>
 #include "gtk-widget-conversion-utils.h"
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 struct entry_info_t coot_entry_to_val(GtkEntry *entry) { 
 

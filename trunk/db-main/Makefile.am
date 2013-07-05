@@ -5,10 +5,11 @@ AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	-DDATADIR='"$(datadir)"'
 
-INCLUDES = -I$(top_srcdir)/utils -I$(top_srcdir)/coot-utils -I$(top_srcdir)/mini-mol \
+INCLUDES = -I$(top_srcdir) \
    $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS)
 
-include_HEADERS = db-main.hh db-strands.hh
+pkginclude_HEADERS = db-main.hh db-strands.hh
+pkgincludedir = $(includedir)/coot/db-main
 
 libcoot_db_main_la_SOURCES  = db-main.cc db-strands.cc
 

@@ -44,9 +44,9 @@
 #include "mmdb-extras.h"
 #include "mmdb.h"
 #include "mmdb-crystal.h"
-#include "coot-utils.hh" // for Upper
+#include "utils/coot-utils.hh" // for Upper
 
-#include "mini-mol.hh"
+#include "mini-mol/mini-mol.hh"
 
 // Note that with expansion_size small or 0, symmetry operators are
 // missed.  We only consider symmetry operators that put the point in

@@ -45,9 +45,9 @@
 #include <string>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
 
 #include "graphics-info.h"
@@ -68,7 +68,7 @@
 
 #include "c-interface.h"
 
-#include "wligand.hh"
+#include "ligand/wligand.hh"
 
 
 

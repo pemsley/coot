@@ -2,12 +2,7 @@
 lib_LTLIBRARIES=libcoot-lidia.la
 
 INCLUDES = \
-	-I$(top_srcdir)/lidia-core \
-	-I$(top_srcdir)/coot-utils \
-	-I$(top_srcdir)/mini-mol \
-	-I$(top_srcdir)/geometry \
-	-I$(top_srcdir)/coot-utils \
-	-I$(top_srcdir)/utils \
+	-I$(top_srcdir) \
         $(GSL_CFLAGS) \
         $(GOOCANVAS_CFLAGS) \
         $(GTK_CFLAGS) \
@@ -38,8 +33,9 @@ libcoot_lidia_la_LIBADD = \
 
 lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc 
 
-include_HEADERS = lbg.hh wmolecule.hh  flev-annotations.hh graphics-c-interface-functions.hh \
+pkginclude_HEADERS = lbg.hh wmolecule.hh  flev-annotations.hh graphics-c-interface-functions.hh \
 	lbg-drag-and-drop.hh qed-interface.hh alerts.hh
+pkgincludedir = $(includedir)/coot/lbg
 
 
 lidia_LDFLAGS = -Wl,--export-dynamic

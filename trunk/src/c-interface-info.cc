@@ -60,19 +60,19 @@
 #include <string>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
-#include "coot-map-utils.hh" // for make_rtop_orth_from()
+#include "coot-utils/coot-map-utils.hh" // for make_rtop_orth_from()
 
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
 
-#include "BuildCas.h"
-#include "primitive-chi-angles.hh"
+#include "skeleton/BuildCas.h"
+#include "ligand/primitive-chi-angles.hh"
 
 #include "trackball.h" // adding exportable rotate interface
 

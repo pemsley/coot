@@ -24,7 +24,7 @@
 #include "use-rdkit.hh"
 
 #include <mmdb/mmdb_manager.h>
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 #include "lbg-molfile.hh"
 
 namespace coot { 

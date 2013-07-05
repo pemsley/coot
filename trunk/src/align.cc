@@ -23,13 +23,14 @@
 #include <string>
 #include <vector>
 
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 #include <mmdb/mmdb_align.h>
 #include <mmdb/mmdb_tables.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "coot-utils.hh"
+
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "utils/coot-utils.hh"
 #include "coot-align.hh"
 
 void do_alignment(atom_selection_container_t asc);

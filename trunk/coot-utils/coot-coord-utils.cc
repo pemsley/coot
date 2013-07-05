@@ -26,12 +26,12 @@
 #include <stdexcept>
 
 #include <string.h> // for strcpy
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include <mmdb/mmdb_tables.h>  // for Get1LetterCode()
 #include <mmdb/mmdb_graph.h> // for graph matching
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 #include "clipper/mmdb/clipper_mmdb.h"
 

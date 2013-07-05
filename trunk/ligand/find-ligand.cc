@@ -31,10 +31,10 @@
 #endif
 
 #ifdef __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #else
 #define __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #undef __GNU_LIBRARY__
 #endif
 
@@ -42,7 +42,7 @@
 #include <string>
 #include <stdexcept>
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "wligand.hh"
 
 int

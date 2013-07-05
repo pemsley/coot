@@ -20,10 +20,11 @@
 
 lib_LTLIBRARIES=libcoot-cabuild.la
 
-include_HEADERS = CalphaBuild.hh
+pkginclude_HEADERS = CalphaBuild.hh
+pkgincludedir = $(includedir)/coot/build
 
 INCLUDES =  \
-	-I$(top_srcdir)/angles \
+	-I$(top_srcdir) \
 	$(CLIPPER_CXXFLAGS) \
 	$(MMDB_CXXFLAGS)
 

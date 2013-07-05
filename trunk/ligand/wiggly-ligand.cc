@@ -21,13 +21,13 @@
  */
 
 #include <stdexcept>
-#include "coot-utils.hh"  // needed, it seems for the case where GSL
+#include "utils/coot-utils.hh"  // needed, it seems for the case where GSL
 			  // is not defined.
 
-#include "coot-coord-extras.hh"
+#include "coot-utils/coot-coord-extras.hh"
+#include "ideal/regularize-minimol.hh"
 
 #include "wligand.hh"
-#include "regularize-minimol.hh"
 
 // Ligand installation from coordinates (an minimol), number of trials.
 //

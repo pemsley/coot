@@ -1,5 +1,5 @@
 
-#include "protein_db.h"  // Kevin's
+#include "protein_db/protein_db.h"  // Kevin's
 
 CMMDBManager *make_mol(const std::vector<ProteinDB::Chain> &chains, const std::string &chain_id, 
 		       int first_resno);

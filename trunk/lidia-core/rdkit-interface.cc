@@ -20,9 +20,9 @@
 
 #ifdef MAKE_ENTERPRISE_TOOLS
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
-#include "coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
+#include "coot-utils/coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
 
 
 // This can throw an runtime_error exception (residue not in

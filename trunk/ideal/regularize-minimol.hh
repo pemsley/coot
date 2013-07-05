@@ -24,7 +24,7 @@
 
 #ifdef HAVE_GSL
 
-#include "mini-mol.hh"
+#include "mini-mol/mini-mol.hh"
 #include "simple-restraint.hh"
 
 

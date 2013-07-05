@@ -20,9 +20,11 @@
  */
 
 #include <string.h>  // for strcpy
+
+#include "compat/coot-sysdep.h"
+
 #include "monomer-utils.hh"
 
-#include "coot-sysdep.h"
 
 CResidue *
 coot::deep_copy_residue(CResidue *residue) {

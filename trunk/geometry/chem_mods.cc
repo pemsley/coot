@@ -25,7 +25,7 @@
 #include <stdexcept>  // Thow execption.
 
 #include "protein-geometry.hh"
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
@@ -41,8 +41,8 @@
 
 #include "clipper/core/clipper_util.h"
 
-#include "coot-sysdep.h"
-#include "Cartesian.h"
+#include "compat/coot-sysdep.h"
+#include "coords/Cartesian.h"
 
 #include "lbg-graph.hh"
 

@@ -30,11 +30,11 @@
 		   // libintl.h (via RDKitBase.h etc (including boost
 		   // stuff).
 
-#include "rdkit-interface.hh"
-#include "lbg-interface.hh"
+#include "lidia-core/rdkit-interface.hh"
 #include "graphics-info.h"
-#include "lbg.hh"
+#include "lbg/lbg.hh"
 
+#include "lbg-interface.hh"
 #include "c-interface.h"
 #include "cc-interface.hh" // for coot_get_url()
 

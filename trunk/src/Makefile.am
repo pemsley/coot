@@ -181,32 +181,7 @@ AM_CXXFLAGS = \
 #
 #
 INCLUDES = \
-	-I$(top_srcdir)/compat 		\
-	-I$(top_srcdir)/coords 		\
-	-I$(top_srcdir)/ccp4mg-utils	\
-	-I$(top_srcdir)/utils	        \
-	-I$(top_srcdir)/coot-utils	\
-	-I$(top_srcdir)/protein_db	\
-	-I$(top_srcdir)/intl 		\
-	-I$(top_srcdir)/skeleton	\
-	-I$(top_srcdir)/angles		\
-	-I$(top_srcdir)/db-main		\
-	-I$(top_srcdir)/mini-mol	\
-	-I$(top_srcdir)/ligand		\
-	-I$(top_srcdir)/geometry	\
-	-I$(top_srcdir)/ideal   	\
-	-I$(top_srcdir)/coot-surface	\
-	-I$(top_srcdir)/surface		\
-	-I$(top_srcdir)/density-contour	\
-	-I$(top_srcdir)/build		\
-	-I$(top_srcdir)/high-res	\
-	-I$(top_srcdir)/analysis	\
-	-I$(top_srcdir)/cootilus	\
-	-I$(top_srcdir)/cootaneer	\
-	-I$(top_srcdir)/lidia-core      \
-	-I$(top_srcdir)/libgtkgraph     \
-	-I$(top_srcdir)/goograph        \
-	-I$(top_srcdir)/lbg             \
+	-I$(top_srcdir) \
 	$(RDKIT_CXXFLAGS) 		\
 	$(ENTERPRISE_TOOLS_CFLAGS)      \
 	$(WITH_GUILE_CFLAGS)		\

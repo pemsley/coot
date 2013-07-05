@@ -20,8 +20,8 @@
 
 #include "clipper/core/coords.h"
 #include "clipper/core/xmap.h"
-#include "mini-mol.hh"
-#include "coot-map-utils.hh"
+#include "mini-mol/mini-mol.hh"
+#include "coot-utils/coot-map-utils.hh"
 
 namespace coot {
 

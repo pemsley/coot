@@ -30,7 +30,7 @@
 #include "clipper/contrib/skeleton.h"
 #include "clipper/mmdb/clipper_mmdb.h"
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-map-utils.hh"
 
 

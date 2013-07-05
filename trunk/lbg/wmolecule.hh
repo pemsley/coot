@@ -41,7 +41,7 @@
 #ifndef WMOLECULE_HH
 #define WMOLECULE_HH
 
-#include "lbg-shared.hh"
+#include "lidia-core/lbg-shared.hh"
 
 // #define dark "#111111"
 

@@ -27,13 +27,13 @@
 #include "clipper/core/spacegroup.h"
 #include "clipper/core/coords.h"
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "coot-shelx.hh"
 #include <iostream>
 #include <fstream>
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 enum { NONE=0, ONE_HALF=6, ONE_THIRD=4, ONE_QUARTER=3, ONE_SIXTH=2, TWO_THIRDS=8,
        THREE_QUARTERS=9, FIVE_SIXTHS=10, MINUS_ONE_HALF= -6, MINUS_ONE_THIRD = -4,

@@ -10,7 +10,7 @@
 
 #include <cstdio>
 #include "globjects.h"  //includes gtk/gtk.h
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 #include "c-interface.h"
 #include "cc-interface.hh"
 #include "c-interface-database.hh"
@@ -32,7 +32,7 @@
 
 
 #include "globjects.h"  //includes gtk/gtk.h
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 /* actually we should ignore all GtkWidgets or similar.... */
 %ignore main_window();
 %ignore main_menubar();
@@ -52,5 +52,4 @@
 %include "rotamer-search-modes.hh"
 %include "lbg-interface.hh"
 %include "sdf-interface.hh"
-// %include "coot-coord-utils.hh"
 %include "probe-clash-score.hh"

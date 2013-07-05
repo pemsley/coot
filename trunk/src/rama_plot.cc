@@ -39,7 +39,7 @@
 
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
-#include "coot-utils.hh" // int to string
+#include "utils/coot-utils.hh" // int to string
 
 #include "rama_plot.hh" // has gtk/gtk.h which interface.h needs
 

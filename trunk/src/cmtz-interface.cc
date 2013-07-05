@@ -51,7 +51,7 @@
 
 #include "clipper/ccp4/ccp4_mtz_io.h"
 #include "cmtz-interface.hh"
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 //tmp?
 #include "c-interface.h"

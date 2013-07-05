@@ -24,7 +24,7 @@
 #include <algorithm>
 #include <string.h>
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "coot-coord-extras.hh"
 

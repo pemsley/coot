@@ -2,7 +2,7 @@
 #ifndef HAVE_GENERIC_DISPLAY_OBJECT_HH
 #define HAVE_GENERIC_DISPLAY_OBJECT_HH
 
-#include "coot-utils.hh"  // for colour_holder
+#include "utils/coot-utils.hh"  // for colour_holder
 
 #include "coot-colour.hh"
 
