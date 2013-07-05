@@ -22,13 +22,13 @@
 
 #include <iostream>
 #include "coot-nomenclature.hh"
-#include "simple-restraint.hh"
+#include "ideal/simple-restraint.hh"
 
 
 #ifdef USE_DUNBRACK_ROTAMERS
-#include "dunbrack.hh"
+#include "ligand/dunbrack.hh"
 #else 
-#include "richardson-rotamer.hh"
+#include "ligand/richardson-rotamer.hh"
 #endif 
 
 

@@ -5,7 +5,7 @@
 
 #include "graphics-info.h"
 
-#include "sleep-fixups.h"
+#include "compat/sleep-fixups.h"
 
 
 #ifdef USE_LIBCURL

@@ -26,8 +26,8 @@
 #include "gsl/gsl_multimin.h"
 #endif // HAVE_GSL
 #include "clipper/core/nxmap.h"
-#include "mini-mol.hh"
-#include "protein-geometry.hh"
+#include "mini-mol/mini-mol.hh"
+#include "geometry/protein-geometry.hh"
 
 namespace coot {
 

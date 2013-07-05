@@ -36,7 +36,7 @@
 #include "coot-getopt.h"
 #else
 #define __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #undef __GNU_LIBRARY__
 #endif
 
@@ -68,13 +68,13 @@
 #include <vector>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
 
 #include "simple-restraint.hh"
 
 // for debugging (the density_around_point function)
-#include "coot-map-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 
 std::pair<bool,clipper::Xmap<float> >
 map_from_mtz(std::string mtz_file_name,

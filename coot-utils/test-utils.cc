@@ -23,7 +23,7 @@
 
 #include "clipper/core/rotation.h"
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "coot-coord-extras.hh"
 #include "lsq-improve.hh"

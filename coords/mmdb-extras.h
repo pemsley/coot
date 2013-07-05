@@ -54,12 +54,12 @@ class MyCMMDBManager : public CMMDBManager {
 }; 
 
 
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 
 // we need this for bonded_pair_container_t.
-#include "bonded-pairs.hh"
+#include "coot-utils/bonded-pairs.hh"
 // and atom quads
-#include "atom-quads.hh"
+#include "mini-mol/atom-quads.hh"
 
 // 
 //

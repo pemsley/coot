@@ -32,14 +32,14 @@
 #include "clipper/core/hkl_compute.h"
 #include "clipper/core/map_interp.h"
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "ligand.hh" // has mmdb-manager because PPCAtom is part
                      // of mask_map interface.
 
 #include <mmdb/mmdb_coormngr.h> // for GetMassCenter
 
-#include "xmap-stats.hh"
-#include "peak-search.hh"
+#include "coot-utils/xmap-stats.hh"
+#include "coot-utils/peak-search.hh"
 
 
 // uses index to cluster array

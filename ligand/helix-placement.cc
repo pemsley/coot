@@ -29,10 +29,10 @@
 #endif
 
 #ifdef __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #else
 #define __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #undef __GNU_LIBRARY__
 #endif
 
@@ -41,11 +41,11 @@
 #include <clipper/clipper.h>
 #include "clipper/ccp4/ccp4_map_io.h"
 #include "helix-placement.hh"
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "rigid-body.hh"
 #include "residue_by_phi_psi.hh"
-#include "mini-mol-utils.hh"
-#include "db-strands.hh"
+#include "mini-mol/mini-mol-utils.hh"
+#include "db-main/db-strands.hh"
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>

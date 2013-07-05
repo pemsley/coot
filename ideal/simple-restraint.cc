@@ -32,13 +32,13 @@
 #include "simple-restraint.hh"
 
 //
-#include "coot-coord-extras.hh"  // is_nucleotide_by_dict
+#include "coot-utils/coot-coord-extras.hh"  // is_nucleotide_by_dict
 
 // #include "mmdb.h" // for printing of CAtom pointers as info not raw
                      // pointers.  Removed. Too much (linking issues in)
                      // Makefile pain.
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 // #include "mmdb.h"
 

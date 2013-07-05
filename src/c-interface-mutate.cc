@@ -40,7 +40,7 @@
 
 #include <clipper/clipper-ccp4.h>
 #include <clipper/clipper-contrib.h>
-#include "cootaneer-sequence.h"
+#include "cootaneer/cootaneer-sequence.h"
 #include "graphics-info.h"
 
 // Including python needs to come after graphics-info.h, because
@@ -50,7 +50,7 @@
 // since the follwing two include python graphics-info.h is moved up
 #include "c-interface.h"
 #include "cc-interface.hh"  // includes coot-coord-utils.hh
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "guile-fixups.h"
 
 

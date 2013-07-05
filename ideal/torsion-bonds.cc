@@ -1,8 +1,8 @@
 
 #include <algorithm>
+#include "coot-utils/coot-coord-extras.hh"
+#include "coot-utils/coot-map-heavy.hh"
 #include "simple-restraint.hh"
-#include "coot-coord-extras.hh"
-#include "coot-map-heavy.hh"
 
 // this can throw an exception
 // 

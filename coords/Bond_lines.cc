@@ -33,11 +33,11 @@
 #include "mmdb.h"
 #include "mmdb-crystal.h"  // should be merged with extras
 
-#include "lbg-graph.hh"  // aromatic ring systems
-#include "coot-utils.hh" // for int_to_string
+#include "geometry/lbg-graph.hh"  // aromatic ring systems
+#include "utils/coot-utils.hh" // for int_to_string
 
 #include "Bond_lines.h"
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 
 static std::string b_factor_bonds_scale_handle_name = "B-factor-bonds-scale";

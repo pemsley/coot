@@ -2,8 +2,8 @@
 #ifndef FLEV_ANNOTATIONS_HH
 #define FLEV_ANNOTATIONS_HH
 
-#include "protein-geometry.hh"
-#include "lbg-shared.hh" // bash_distance_t
+#include "geometry/protein-geometry.hh"
+#include "lidia-core/lbg-shared.hh" // bash_distance_t
 
 namespace coot {
 

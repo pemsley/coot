@@ -26,7 +26,7 @@
 // #include "coot-coord-utils.hh"   no! mini-mol should be a low level library, not depend on
                                  // higher level libs.
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 coot::minimol::molecule::molecule(CMMDBManager *mol) {
    setup(mol);

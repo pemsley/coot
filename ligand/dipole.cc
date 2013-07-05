@@ -19,12 +19,13 @@
  * 02110-1301, USA.
  */
 
-#include "mmdb-extras.h" // this and next 
-#include "mmdb.h"        // for nice printing of atom pointer
+#include "coords/mmdb-extras.h" // this and next 
+#include "coords/mmdb.h"        // for nice printing of atom pointer
 
 #include <stdexcept>
+#include "utils/coot-utils.hh" // for int_to_string()
+
 #include "dipole.hh"
-#include "coot-utils.hh" // for int_to_string()
 
 coot::dipole::dipole() {
    dipole_is_good_flag = 0;

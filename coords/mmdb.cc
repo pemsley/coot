@@ -31,7 +31,7 @@
 #include <RDGeneral/FileParseException.h>
 #include <RDGeneral/BadFileException.h>
 #include <GraphMol/FileParsers/FileParsers.h>
-#include "rdkit-interface.hh"
+#include "lidia-core/rdkit-interface.hh"
 #endif
 
 #include <mmdb/mmdb_manager.h>
@@ -39,9 +39,9 @@
 #include "Cartesian.h"
 #include "mmdb.h"
 
-#include "coot-utils.hh"
-#include "coot-coord-utils.hh"
-#include "coot-shelx.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-shelx.hh"
 
 
 bool

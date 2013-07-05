@@ -42,17 +42,17 @@
 #include <string>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "cc-interface.hh"
-#include "coot-coord-utils.hh"
-#include "peak-search.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/peak-search.hh"
 
-#include "wligand.hh"
+#include "ligand/wligand.hh"
 
 #include "guile-fixups.h"
 

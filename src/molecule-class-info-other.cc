@@ -49,7 +49,7 @@
 #include <vector>
 #include <queue>
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 #include "clipper/core/xmap.h"
 #include "clipper/cns/cns_hkl_io.h"
@@ -61,31 +61,31 @@
 #endif
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
 #include "graphics-info.h"
 #include "xmap-utils.h"
-#include "xmap-stats.hh"
+#include "coot-utils/xmap-stats.hh"
 
 #include "molecule-class-info.h"
 
 #ifdef USE_DUNBRACK_ROTAMERS
-#include "dunbrack.hh"
+#include "ligand/dunbrack.hh"
 #else 
-#include "richardson-rotamer.hh"
+#include "ligand/richardson-rotamer.hh"
 #endif 
 
-#include "ligand.hh"
-#include "coot-utils.hh"
-#include "lsq-improve.hh"
-#include "coot-trim.hh"
-#include "coot-map-utils.hh"
-#include "coot-coord-utils.hh" // check_dictionary_for_residue
-#include "coot-map-heavy.hh"   // situation's heavy... [simplex]
-#include "pepflip.hh"
-#include "backrub-rotamer.hh"
+#include "ligand/ligand.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/lsq-improve.hh"
+#include "coot-utils/coot-trim.hh"
+#include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/coot-coord-utils.hh" // check_dictionary_for_residue
+#include "coot-utils/coot-map-heavy.hh"   // situation's heavy... [simplex]
+#include "ideal/pepflip.hh"
+#include "ligand/backrub-rotamer.hh"
 
 #include "coot-nomenclature.hh"
 
@@ -5511,7 +5511,7 @@ molecule_class_info_t::find_deviant_geometry(float strictness) {
 //                       sequence assignment
 // ------------------------------------------------------------------
 
-#include "sequence-assignment.hh"
+#include "high-res/sequence-assignment.hh"
 
 void
 molecule_class_info_t::assign_sequence(const clipper::Xmap<float> &xmap,

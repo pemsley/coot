@@ -24,7 +24,7 @@
 #include <vector>
 #endif // HAVE_VECTOR
 
-#include "mini-mol.hh"
+#include "mini-mol/mini-mol.hh"
 #include "coot-node-info.hh"
 #include "sequence-assignment.hh"
 

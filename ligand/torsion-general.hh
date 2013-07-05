@@ -22,12 +22,12 @@
 
 #include <vector>
 #include <string>
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 #ifndef __MMDB_Manager__
 #include <mmdb_manager.h>
 #endif
-#include "mgtree.h"
+#include "ccp4mg-utils/mgtree.h"
 
 namespace coot {
 

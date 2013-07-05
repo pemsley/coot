@@ -29,7 +29,7 @@
 #include <libguile.h>		/* for SCM type (returned by safe_scheme_command) */
 #endif
 
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 // This is a common denominator really.  It does not depend on mmdb,
 // but it can't be declared in c-interface.h because then we'd have to
 // include c-interface.h which would cause (resolvable, I think, not

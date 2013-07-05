@@ -22,10 +22,10 @@
 #include <list>
 #include <algorithm>
 
-#include "coot-utils.hh"
+#include "compat/coot-sysdep.h"
+#include "utils/coot-utils.hh"
 #include "coot-coord-extras.hh"
 
-#include "coot-sysdep.h"
 
 // Note: this is a simple-minded hack.  The right way of doing this
 // is to define a bonding tree that includes atoms from both

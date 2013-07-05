@@ -30,23 +30,20 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "cos-sin.h"
-
 #include <string.h> // strncmp
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h" //need for Bond_lines now
-
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h" //need for Bond_lines now
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
 
 #include "molecule-class-info.h"
 
-#include "cos-sin.h"
+#include "coords/cos-sin.h"
 
 #include "globjects.h"
 

@@ -27,12 +27,12 @@
 #include <algorithm>
 
 
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 #include "mmdb-extras.h" 
 #include "mmdb.h"
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 
 float max_bond_length(const std::string &element) { 

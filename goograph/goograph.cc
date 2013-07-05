@@ -21,8 +21,8 @@
 #ifdef HAVE_GOOCANVAS
 #include <iostream>
 #include <algorithm>
+#include "utils/coot-utils.hh"
 #include "goograph.hh"
-#include "coot-utils.hh"
 
 // returns the close button the first time it is called, otherwise returns null.
 GtkWidget *

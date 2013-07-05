@@ -53,35 +53,38 @@
 
 #include "guile-fixups.h"
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
+
 #ifdef USE_DUNBRACK_ROTAMERS
-#include "dunbrack.hh"
+#include "ligand/dunbrack.hh"
 #else 
-#include "richardson-rotamer.hh"
+#include "ligand/richardson-rotamer.hh"
 #endif 
 
 #include "clipper/core/map_utils.h" // Map_stats
-#include "graphical_skel.h"
+#include "skeleton/graphical_skel.h"
 
 #include "interface.h"
 
 #include "molecule-class-info.h"
-#include "coot-coord-extras.hh"
+#include "coot-utils/coot-coord-extras.hh"
 
 
 #include "globjects.h"
-#include "torsion-general.hh"
-#include "ligand.hh"
-#include "ideal-rna.hh"
+#include "ligand/torsion-general.hh"
+#include "ligand/ligand.hh"
+#include "ligand/ideal-rna.hh"
+#include "ligand/residue_by_phi_psi.hh"
+
 #include "graphics-info.h"
 #include "rotate-translate-modes.hh"
 
@@ -96,7 +99,7 @@
 // #endif // USE_PYTHON
 
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 
 // Idealize the geometry without considering the map.
@@ -1976,8 +1979,6 @@ graphics_info_t::set_residue_range_refine_atoms(const std::string &chain_id,
    }
 }
 
-
-#include "residue_by_phi_psi.hh"
 
 // The passed residue type is either N, C or (now [20031222]) M.
 // 

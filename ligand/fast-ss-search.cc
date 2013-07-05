@@ -29,18 +29,19 @@
 #endif
 
 #ifdef __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #else
 #define __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #undef __GNU_LIBRARY__
 #endif
 
 #include <algorithm> // for sort
 
 #include <clipper/clipper.h>
+#include "mini-mol/mini-mol-utils.hh"
+
 #include "fast-ss-search.hh"
-#include "mini-mol-utils.hh"
 
 
 namespace coot {

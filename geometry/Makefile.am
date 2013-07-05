@@ -22,13 +22,10 @@ lib_LTLIBRARIES=libcoot-geometry.la
 
 EXTRA_DIST = notes Makefile.simple
 
-include_HEADERS =  protein-geometry.hh read-sbase.hh lbg-graph.hh srs-interface.hh
+pkginclude_HEADERS =  protein-geometry.hh read-sbase.hh lbg-graph.hh srs-interface.hh
+pkgincludedir = $(includedir)/coot/geometry
 
-INCLUDES = -I$(top_srcdir)/coords     \
-	   -I$(top_srcdir)/utils      \
-	   -I$(top_srcdir)/mini-mol   \
-	   -I$(top_srcdir)/coot-utils \
-	   -I$(top_srcdir)/compat     \
+INCLUDES = -I$(top_srcdir) \
 	 $(CLIPPER_CXXFLAGS) $(CCP4SRS_CXXFLAGS) $(MMDB_CXXFLAGS)
 
 AM_CXXFLAGS = \

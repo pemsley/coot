@@ -37,7 +37,7 @@
 
 #include "nsv.hh"
 #include "support.h"
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 #include "c-interface.h" // for sequence_view_is_displayed()
 #include "cc-interface.hh" // for set_go_to_atom_from_spec()

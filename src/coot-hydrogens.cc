@@ -1,12 +1,12 @@
 
 #ifdef MAKE_ENTERPRISE_TOOLS
-#include "rdkit-interface.hh"
+#include "lidia-core/rdkit-interface.hh"
 #endif
  
 #include <iostream> // fixes undefined strchr, strchrr problems
 #include <mmdb/mmdb_manager.h>
 
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 #include "coot-hydrogens.hh"
 
 

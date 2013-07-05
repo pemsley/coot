@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 
 // at some stage check that the coot:: prefixes are needed here.
 

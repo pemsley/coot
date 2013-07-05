@@ -35,12 +35,12 @@
 
 #include <string>
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "Cartesian.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/Cartesian.h"
+#include "coords/mmdb-crystal.h"
 #include "molecule-class-info.h"
-#include "coot-coord-utils.hh"
-#include "CIsoSurface.h"
+#include "coot-utils/coot-coord-utils.hh"
+#include "density-contour/CIsoSurface.h"
 
 #include "clipper/ccp4/ccp4_mtz_io.h"
 #include "clipper/cns/cns_hkl_io.h"
@@ -59,18 +59,18 @@
 #include "clipper/contrib/sfcalc.h"
 
 #include "xmap-utils.h"
-#include "xmap-stats.hh"
+#include "coot-utils/xmap-stats.hh"
 
 #include "graphics-info.h"
 #include <GL/glut.h> // needed (only?) for wirecube
 #include "globjects.h" // for set_bond_colour()
-#include "graphical_skel.h"
+#include "skeleton/graphical_skel.h"
 
-#include "mmdb.h"
+// #include "coords/mmdb.h"
 
 // for jiggle_fit
-#include "coot-map-heavy.hh"
-#include "ligand.hh"
+#include "coot-utils/coot-map-heavy.hh"
+#include "ligand/ligand.hh"
 
 // 
 void

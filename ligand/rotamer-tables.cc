@@ -23,11 +23,12 @@
 #include <stdexcept>
 #include <string.h>
 
+#include "ccp4mg-utils/mgtree.h"
+
 #include "primitive-chi-angles.hh"
 #include "rotamer.hh"
-#include "mgtree.h"
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 coot::a_rotamer_table::a_rotamer_table(const std::string &residue_name_in,
 				       const std::string &file_name) {
 

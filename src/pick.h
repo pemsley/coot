@@ -7,10 +7,11 @@
 #include <string>
 
 #include <mmdb/mmdb_manager.h> 
-#include "mmdb-extras.h"
-#include "mmdb-crystal.h"
-
 #include "clipper/core/coords.h"
+
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb-crystal.h"
+
 
 coot::Cartesian unproject(float screen_z);
 coot::Cartesian unproject_xyz(int x, int y, float screen_z);

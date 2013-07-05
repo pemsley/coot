@@ -36,7 +36,7 @@
 #include "c-interface-scm.hh"
 #include "c-inner-main.h"
 #include "coot-preferences.h"
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 
 // Return success status

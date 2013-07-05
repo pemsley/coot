@@ -24,16 +24,16 @@
 
 #include <gtk/gtk.h>
 
-#include "coot-utils.hh"
-#include "coot-coord-utils.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
-#include "dipole.hh"
-#include "sequence-assignment.hh" // for residue_range_t
+#include "ligand/dipole.hh"
+#include "high-res/sequence-assignment.hh" // for residue_range_t
 
-#include "mmdb-extras.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb-crystal.h"
 
-#include "flev-annotations.hh" // animated ligand interactions
+#include "lbg/flev-annotations.hh" // animated ligand interactions
 #include "named-rotamer-score.hh"
 
 namespace coot {

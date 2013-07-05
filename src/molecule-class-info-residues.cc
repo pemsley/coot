@@ -42,16 +42,16 @@
 
 #include <mmdb/mmdb_manager.h>
 #include <mmdb/mmdb_tables.h>  // for Get1LetterCode()
-#include "mmdb-extras.h"
-#include "Cartesian.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/Cartesian.h"
+#include "coords/mmdb-crystal.h"
 
-#include "rotamer.hh" // in ligand
+#include "ligand/rotamer.hh" // in ligand
 
-#include "base-pairing.hh"
+#include "ligand/base-pairing.hh"
 
 #include "molecule-class-info.h"
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-hydrogens.hh"
 
 #include "rama_plot.hh"

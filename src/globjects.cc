@@ -53,7 +53,7 @@
 #include <GL/glext.h>
 //#include <GL/wglext.h>
 #endif // WINDOWS_MINGW
-#include "sleep-fixups.h"
+#include "compat/sleep-fixups.h"
 
 #include <string.h> // strncmp
 
@@ -70,13 +70,13 @@
 #include "interface.h"
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
-#include "cos-sin.h"
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/cos-sin.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
 

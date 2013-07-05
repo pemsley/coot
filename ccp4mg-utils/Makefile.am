@@ -20,7 +20,8 @@
 
 lib_LTLIBRARIES=libccp4mg-utils.la
 
-include_HEADERS = geomutil.h mgtree.h cartesian.h matrix.h quat.h ppmutil.h
+pkginclude_HEADERS = geomutil.h mgtree.h cartesian.h matrix.h quat.h ppmutil.h
+pkgincludedir = $(includedir)/coot/ccp4mg-utils
 
 EXTRA_DIST = convert.sh get-new-utils.sh
 

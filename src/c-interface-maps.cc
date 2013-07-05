@@ -27,9 +27,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "coot-map-utils.hh" // for variance map
-#include "xmap-stats.hh"
-#include "BuildCas.h"
+#include "coot-utils/coot-map-utils.hh" // for variance map
+#include "coot-utils/xmap-stats.hh"
+#include "skeleton/BuildCas.h"
+#include "skeleton/graphical_skel.h"
+#include "coot-utils/xmap-stats.hh"
 
 #include "c-interface-mmdb.hh"
 #include "c-interface-python.hh"
@@ -930,8 +932,6 @@ void set_scrollable_map(int imol) {
    }
      
 }
-#include "graphical_skel.h"
-#include "xmap-stats.hh"
 
 // For some as yet unknown reason, this code is executed when we
 // select skeleton off.

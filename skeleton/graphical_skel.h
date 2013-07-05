@@ -1,8 +1,8 @@
 
 // -*-c++-*-
 #include "clipper/contrib/skeleton.h"
-#include "mmdb-crystal.h"
-#include "Bond_lines.h"
+#include "coords/mmdb-crystal.h"
+#include "coords/Bond_lines.h"
 
 
 class GraphicalSkel {

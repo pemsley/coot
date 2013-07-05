@@ -29,7 +29,7 @@
 #include <stdexcept>
 
 #include <mmdb/mmdb_manager.h>
-#include "bonded-pairs.hh"
+#include "coot-utils/bonded-pairs.hh"
 
 // refinement_results_t is outside of the GSL test because it is
 // needed to make the accept_reject_dialog, and that can be compiled
@@ -147,7 +147,7 @@ namespace coot {
 #include "gsl/gsl_multimin.h"
 
 // #include "Cartesian.h"
-#include "mmdb-extras.h" // for atom_selection_container_t, this and
+#include "coords/mmdb-extras.h" // for atom_selection_container_t, this and
 			 // the interface that uses this can be
 			 // deleted, I think, when we move to clipper
 			 // (so that clipper does not get infected
@@ -159,11 +159,11 @@ namespace coot {
 #include "clipper/core/xmap.h"
 #include "clipper/core/map_interp.h"
 
-#include "coot-utils.hh"
-#include "coot-coord-utils.hh" // for atom_spec_t
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh" // for atom_spec_t
 
 // for protein dictionary container:
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 
 // For Kevin's (Log) Ramachandran Plot and derivatives
 #include "lograma.h"

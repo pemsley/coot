@@ -29,20 +29,20 @@
 #endif
 
 #ifdef __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #else
 #define __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #undef __GNU_LIBRARY__
 #endif
 
 #include <stdlib.h>
 
-#include "mmdb-extras.h"
-#include "mmdb.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
 #include "ligand.hh"
-#include "coot-map-utils.hh"
-#include "coot-trim.hh"
+#include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/coot-trim.hh"
 #include "clipper/core/map_utils.h"
 #include "clipper/ccp4/ccp4_map_io.h"
 #include "clipper/ccp4/ccp4_mtz_io.h"

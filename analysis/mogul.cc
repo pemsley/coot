@@ -5,9 +5,10 @@
 #include <complex>
 #include <math.h>
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
+#include "lidia-core/lig-build.hh"
+
 #include "mogul-interface.hh"
-#include "lig-build.hh"
 
 
 std::ostream &

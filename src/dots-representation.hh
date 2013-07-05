@@ -7,7 +7,7 @@
 #include <mmdb/mmdb_manager.h>
 
 #include "coot-colour.hh"
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 namespace coot { 
    class dots_representation_info_t {

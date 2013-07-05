@@ -56,18 +56,18 @@
 #include "cwiid.h"
 #endif 
 
-
-#include "Cartesian.h"
-#include "mgtree.h"
-#include "pick.h"
 #include "clipper/core/xmap.h"
 
-#include "coot-sysdep.h"
+#include "coords/Cartesian.h"
+#include "ccp4mg-utils/mgtree.h"
+#include "pick.h"
+
+#include "compat/coot-sysdep.h"
 #include "command-arg.hh"
 
-#include "rotamer.hh"
+#include "ligand/rotamer.hh"
 
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 
 #include "molecule-class-info.h"
 
@@ -75,17 +75,17 @@
 #include "ssm_align.h"
 #endif
 
-#include "db-main.hh"
-#include "CalphaBuild.hh"
-#include "simple-restraint.hh"
+#include "db-main/db-main.hh"
+#include "build/CalphaBuild.hh"
+#include "ideal/simple-restraint.hh"
 
 #include "history_list.hh"
 #include "sequence-view.hh"
 #include "rama_plot.hh" 
 #include "geometry-graphs.hh"
-#include "coot-utils.hh"
-#include "coot-coord-utils.hh"
-#include "coot-coord-extras.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-coord-extras.hh"
 
 #include "positioned-widgets.h"
 #include "geometry-graphs.hh"

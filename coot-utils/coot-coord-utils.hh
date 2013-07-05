@@ -40,7 +40,7 @@
 #include <mmdb/mmdb_manager.h>
 
 #include "clipper/core/coords.h"
-#include "atom-quads.hh"
+#include "mini-mol/atom-quads.hh"
 #include "coot-lsq-types.h"
 
 // How should I do this better?

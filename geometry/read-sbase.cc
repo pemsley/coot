@@ -22,8 +22,8 @@
 #include <algorithm>
 #include <stdlib.h>
 
-#include "coot-utils.hh"
-#include "protein-geometry.hh"
+#include "utils/coot-utils.hh"
+#include "geometry/protein-geometry.hh"
 
 #ifdef HAVE_CCP4SRS
 #include "ccp4srs/ccp4srs_defs.h"

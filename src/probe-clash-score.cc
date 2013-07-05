@@ -12,8 +12,8 @@
 #include <algorithm>
 #include <map>
 
-#include "coot-coord-utils.hh"
-#include "coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "utils/coot-utils.hh"
 
 #include "guile-fixups.h"
 #include "c-interface-ligands-swig.hh"

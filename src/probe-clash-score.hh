@@ -2,7 +2,7 @@
 #ifndef PROBE_CLASH_SCORE_HH
 #define PROBE_CLASH_SCORE_HH
 
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 namespace coot {
 

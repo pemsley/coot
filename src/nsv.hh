@@ -44,7 +44,7 @@
    #endif
 #endif
 
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 namespace exptl {
 

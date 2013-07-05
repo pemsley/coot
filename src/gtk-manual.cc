@@ -40,7 +40,7 @@
 #include "gtk-manual.hh"
 
 #include "interface.h"  /* for create_single_map_properties_dialog() */
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 
 

@@ -3,9 +3,9 @@
 #include <vector>
 
 #include <mmdb/mmdb_manager.h>
-#include "protein-geometry.hh"
-#include "lbg-shared.hh"
-#include "coot-coord-utils.hh"
+#include "geometry/protein-geometry.hh"
+#include "lidia-core/lbg-shared.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 #include "flev-annotations.hh"
 

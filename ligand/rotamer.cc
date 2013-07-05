@@ -26,12 +26,12 @@
 #include <stdexcept>
 
 #include "rotamer.hh"
-#include "mgtree.h"
+#include "ccp4mg-utils/mgtree.h"
 
-#include "coot-utils.hh"
-#include "coot-coord-extras.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-extras.hh"
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 
 std::ostream &

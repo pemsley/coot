@@ -21,7 +21,7 @@
 
 #include <stdexcept>
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-rama.hh"
 #include "clipper/core/coords.h"
 #include "clipper/core/ramachandran.h"

@@ -4,7 +4,7 @@ int main(int argc, char **argv) {return 0;}
 #else 
 #include "cod-types.hh"
 #include "rdkit-interface.hh"
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 void molecule_from_comp_id(const std::string &comp_id) {
    try {

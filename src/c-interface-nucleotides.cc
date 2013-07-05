@@ -30,7 +30,7 @@
 #include <stdexcept>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
+#include "coords/mmdb-extras.h"
 
 #include "graphics-info.h"
 
@@ -53,8 +53,8 @@
 #endif // USE_PYTHON
 
 #include "cc-interface.hh"
-#include "ideal-rna.hh"
-#include "base-pairing.hh"
+#include "ligand/ideal-rna.hh"
+#include "ligand/base-pairing.hh"
 
 #ifdef USE_GUILE
 SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {

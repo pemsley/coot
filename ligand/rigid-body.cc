@@ -22,8 +22,8 @@
 #include "rigid-body.hh"
 #include "clipper/core/map_interp.h"
 
-#include "coot-utils.hh"
-#include "coot-map-utils.hh" // score_molecule
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-map-utils.hh" // score_molecule
 
 
 // move the atoms of m, don't use atoms with near zero occupancy for

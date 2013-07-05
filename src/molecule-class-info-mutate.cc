@@ -35,7 +35,7 @@
 #include <stdexcept>
 
 #include "clipper/core/xmap.h"
-#include "CIsoSurface.h"
+#include "density-contour/CIsoSurface.h"
 
 #include "clipper/core/hkl_compute.h"
 #include "clipper/clipper-phs.h"
@@ -52,7 +52,7 @@
 // #include "xmap-utils.h"
 // #include "coot-coord-utils.hh"
 
-#include "coot-map-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 
 #include "molecule-class-info.h"
 #include <mmdb/mmdb_align.h>

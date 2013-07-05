@@ -27,16 +27,11 @@ lib_LTLIBRARIES=libcoot-ideal.la
 
 EXTRA_DIST = notes Makefile.simple molmantest.cc test-indexing.hh test-indexing.cc
 
-include_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh regularize-minimol.hh lograma.h
+pkginclude_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh regularize-minimol.hh lograma.h
+pkgincludedir = $(includedir)/coot/ideal
 
 INCLUDES = \
-	-I$(top_srcdir)/compat     \
-	-I$(top_srcdir)/coords     \
-	-I$(top_srcdir)/utils      \
-	-I$(top_srcdir)/lidia-core \
-	-I$(top_srcdir)/coot-utils \
-	-I$(top_srcdir)/mini-mol   \
-	-I$(top_srcdir)/geometry   \
+	-I$(top_srcdir) \
 	$(CLIPPER_CXXFLAGS)        \
 	$(MMDB_CXXFLAGS)
 

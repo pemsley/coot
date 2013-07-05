@@ -1,16 +1,13 @@
 
 lib_LTLIBRARIES=libcoot-analysis.la
 
-include_HEADERS=bfkurt.hh mogul-interface.hh
+pkginclude_HEADERS=bfkurt.hh mogul-interface.hh
+pkgincludedir = $(includedir)/coot/analysis
 
 # CXXFLAGS = 	$(COOT_GSL_FLAGS)
 
 INCLUDES = \
-	-I$(top_srcdir)/lidia-core      \
-	-I$(top_srcdir)/geometry        \
-	-I$(top_srcdir)/coot-utils   	\
-	-I$(top_srcdir)/mini-mol   	\
-	-I$(top_srcdir)/utils   	\
+	-I$(top_srcdir) \
 	$(CLIPPER_CXXFLAGS)		\
 	$(MMDB_CXXFLAGS)
 

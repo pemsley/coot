@@ -25,8 +25,8 @@
 #include <vector>
 
 #include "richardson-rotamer.hh"
-#include "coot-utils.hh"
-#include "coot-map-utils.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 #include "backrub-rotamer.hh"
 
 // thow an exception on failure to get a good result.

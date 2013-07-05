@@ -19,7 +19,7 @@
 # 02110-1301, USA
 
 INCLUDES = \
-	-I$(top_srcdir)/compat		
+	-I$(top_srcdir)
 
 AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS) \
 	$(GLOB_CFLAGS)		     \
@@ -27,7 +27,8 @@ AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS) \
 
 lib_LTLIBRARIES=libcoot-utils.la
 
-include_HEADERS = coot-utils.hh coot-fasta.hh
+pkginclude_HEADERS = coot-utils.hh coot-fasta.hh
+pkgincludedir = $(includedir)/coot/utils
 
 
 # for simple things:

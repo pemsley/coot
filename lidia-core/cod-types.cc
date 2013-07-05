@@ -1,7 +1,7 @@
 
 #ifdef MAKE_ENTERPRISE_TOOLS
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "cod-types.hh"
 #include "GraphMol/Rings.h"
 #include "GraphMol/RingInfo.h"

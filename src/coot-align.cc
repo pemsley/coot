@@ -6,8 +6,8 @@
 
 #include <mmdb/mmdb_align.h>
 #include <mmdb/mmdb_tables.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
 #include "coot-align.hh"
 
 void

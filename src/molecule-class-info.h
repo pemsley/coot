@@ -46,31 +46,31 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 
 #include "clipper/ccp4/ccp4_map_io.h"
 
-#include "Bond_lines.h"
+#include "coords/Bond_lines.h"
 #include "gtk-manual.h"
 
-#include "mini-mol.hh"
-#include "CalphaBuild.hh"
+#include "mini-mol/mini-mol.hh"
+#include "build/CalphaBuild.hh"
 #include "coot-render.hh"
-#include "coot-surface.hh"
+#include "coot-surface/coot-surface.hh"
 #include "coot-align.hh"
-#include "coot-fasta.hh"
-#include "coot-shelx.hh"
-#include "coot-utils.hh"
+#include "utils/coot-fasta.hh"
+#include "coot-utils/coot-shelx.hh"
+#include "utils/coot-utils.hh"
 
-#include "protein_db_utils.h"
+#include "protein_db/protein_db_utils.h"
 
 using namespace std; // Hmmm.. I don't approve, FIXME
 
 #include "select-atom-info.hh"
-#include "coot-coord-utils.hh"
-#include "coot-coord-extras.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-coord-extras.hh"
 
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 
-#include "simple-restraint.hh" // for extra restraints.
+#include "ideal/simple-restraint.hh" // for extra restraints.
 
-#include "rotamer.hh" // in ligand, for rotamer probabilty tables
+#include "ligand/rotamer.hh" // in ligand, for rotamer probabilty tables
 
 
 #include "validation-graphs.hh"  // GTK things, now part of
@@ -78,11 +78,11 @@ using namespace std; // Hmmm.. I don't approve, FIXME
 				 // to be part of graphics_info_t before the 
                                  // array->vector change-over.
 
-#include "dipole.hh"
-#include "density-contour-triangles.hh"
+#include "ligand/dipole.hh"
+#include "density-contour/density-contour-triangles.hh"
 
 #include "gl-bits.hh"
-#include "flev-annotations.hh" // animated ligand interactions
+#include "lbg/flev-annotations.hh" // animated ligand interactions
 
 #include "pick.h"
 

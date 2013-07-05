@@ -21,19 +21,19 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
-#include "gtkgraph.h"
+#include "libgtkgraph/gtkgraph.h"
 
 #ifdef HAVE_GOOCANVAS
-#include "goograph.hh"
+#include "goograph/goograph.hh"
 #endif
 
-#include "coot-map-utils.hh" // for variance map
+#include "coot-utils/coot-map-utils.hh" // for variance map
 
 #include "graphics-info.h"
 #include "cc-interface.hh"
 #include "c-interface.h"
 
-#include "coot-hole.hh"
+#include "coot-utils/coot-hole.hh"
 
 /* ------------------------------------------------------------------------- */
 /*                      HOLE                                                 */

@@ -40,43 +40,45 @@
 #include <stdexcept>
 
 #include <string.h> // strcmp
+
 #include <mmdb/mmdb_manager.h>
 #include <mmdb/mmdb_tables.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+
+#include <clipper/ccp4/ccp4_mtz_io.h>
+#include <clipper/ccp4/ccp4_map_io.h>
+#include <clipper/core/xmap.h>
+#include <clipper/cns/cns_map_io.h>
+#include <clipper/core/hkl_compute.h>
+#include <clipper/core/map_utils.h> // Map_stats
+#include <clipper/core/resol_basisfn.h>
+#include <clipper/core/resol_targetfn.h>
+#include <clipper/mmdb/clipper_mmdb.h>
+#include <clipper/clipper-phs.h>
+#include <clipper/contrib/sfcalc_obs.h>
+#include <clipper/contrib/sfscale.h>
+#include <clipper/contrib/sfweight.h>
+
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 #include "gtk-manual.hh"
 
-#include "clipper/ccp4/ccp4_mtz_io.h"
-#include "clipper/ccp4/ccp4_map_io.h"
-#include "clipper/core/xmap.h"
-#include "clipper/cns/cns_map_io.h"
-#include "clipper/core/hkl_compute.h"
-#include "clipper/core/map_utils.h" // Map_stats
-#include "clipper/core/resol_basisfn.h"
-#include "clipper/core/resol_targetfn.h"
-#include "clipper/mmdb/clipper_mmdb.h"
-#include "clipper/clipper-phs.h"
-#include "clipper/contrib/sfcalc_obs.h"
-#include "clipper/contrib/sfscale.h"
-#include "clipper/contrib/sfweight.h"
-
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 // For stat, mkdir:
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "Bond_lines.h"
+#include "coords/Bond_lines.h"
 
 #include "gl-matrix.h"
 #include "graphics-info.h"
 
-#include "Bond_lines_ext.h"  
+#include "coords/Bond_lines_ext.h"  
 #include "globjects.h" // for set_bond_colour(), r_50
 
-#include "coot-coord-utils.hh"
-#include "coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "utils/coot-utils.hh"
 
 #include <GL/glut.h> // needed (only?) for wirecube
 
@@ -84,9 +86,9 @@
 #include "clipper/core/map_interp.h"
 #endif 
 
-#include "ligand.hh"
-#include "residue_by_phi_psi.hh"
-#include "mini-mol-utils.hh"
+#include "ligand/ligand.hh"
+#include "ligand/residue_by_phi_psi.hh"
+#include "mini-mol/mini-mol-utils.hh"
 
 // for debugging
 #include "c-interface.h"
@@ -5433,7 +5435,7 @@ molecule_class_info_t::previous_baton_atom(const CAtom* latest_atom_addition,
    
 } 
 
-#include "CalphaBuild.hh"
+#include "build/CalphaBuild.hh"
 
 std::vector<coot::scored_skel_coord>
 molecule_class_info_t::next_ca_by_skel(const std::vector<clipper::Coord_orth> &previous_ca_positions,

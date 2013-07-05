@@ -24,7 +24,7 @@
 
 #ifdef USE_PYTHON
 
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 // This is a common denominator really.  It does not depend on mmdb,
 // but it can't be declared in c-interface.h because then we'd have to
 // include c-interface.h which would cause (resolvable, I think, not

@@ -26,10 +26,11 @@
 #include <string>
 #include <vector>
 
-#include "mini-mol.hh"
-#include "protein-geometry.hh" // for wiggly ligands
-
 #include <mmdb/mmdb_manager.h>
+
+#include "mini-mol/mini-mol.hh"
+#include "geometry/protein-geometry.hh" // for wiggly ligands
+
 #include "clipper/core/xmap.h"
 #include "clipper/contrib/skeleton.h" // neighbs is in the recursive function call
 #include "clipper/core/map_utils.h" // map stats (returned value)

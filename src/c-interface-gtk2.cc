@@ -54,7 +54,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 #include "support.h"  // for lookup_widget
 #include "c-interface.h"

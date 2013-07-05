@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "c-interface-scm.hh"
 
 #include "graphics-info.h"

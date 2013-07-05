@@ -29,16 +29,17 @@
 #include <algorithm> // for sort
 #include <stdexcept>
 
-#include "simple-restraint.hh"
+#include "compat/coot-sysdep.h"
 
 //
-#include "coot-coord-extras.hh"  // is_nucleotide_by_dict
+#include "coot-utils/coot-coord-extras.hh"  // is_nucleotide_by_dict
+
+#include "simple-restraint.hh"
 
 // #include "mmdb.h" // for printing of CAtom pointers as info not raw
                      // pointers.  Removed. Too much (linking issues in)
                      // Makefile pain.
 
-#include "coot-sysdep.h"
 
 
 // Before we ask this question, we need to match residues which chiral
