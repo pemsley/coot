@@ -665,10 +665,18 @@
 	    (lambda (imol)
 	      (rigid-body-refine-by-atom-selection imol "//")))))
       
+	;; ---- S ---------
+
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Superpose ligands..."
 	 (lambda ()
 	    (superpose-ligand-gui)))
+
+	(add-simple-coot-menu-menuitem 
+	 submenu-models "Symm Shift Reference Chain Here"
+	 move-reference-chain-to-symm-chain-position)
+
+
 
 	;; ---- U ---------
 
