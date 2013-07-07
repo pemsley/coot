@@ -338,8 +338,9 @@
 # 5.04 20130514 Add COOT_BUILD_INFO_STRING.
 # 5.05 20130604 For Release 0.7.1, change release vs pre-release logic 
 #               (MRC server).
-# 5.05 20130612 More tinkering to get the correct version for release from the server.
-script_version=5.06
+# 5.06 20130612 More tinkering to get the correct version for release from the server.
+# 5.07 20130707 Adjustment to build stable logic.
+script_version=5.07
 
 
 
@@ -1313,21 +1314,25 @@ release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software
 release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/releases
 release_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/source/releases/
 
+echo here 1 
 ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
 ${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
-pre_release_files_html=""
+pre_release_files_html="none"
 if [ $build_coot_prerelease = 1 ]  ; then 
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
 fi
 if [ $build_coot_prerelease = yes ]  ; then 
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
 fi
+echo here 2
 
 coot_version_tmp=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
 $pre_release_files_html | tail -1)
+echo here 3
 
 echo pre_release_files_html $pre_release_files_html
 echo coot_version_tmp : $coot_version_tmp :
+echo here 4
 
 if [ -z "$coot_version_tmp" ] ; then
     echo clever coot_version extraction failed, using default.
@@ -1390,6 +1395,15 @@ if test "$build_coot_prerelease" = 1 ; then
    fi
 else 
     # this is a stable release
+
+    echo ============= This is a stable build ==============
+
+    ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
+    echo examining release server files ${AUTOBUILD_SOURCES}/index.html
+    coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
+        ${AUTOBUILD_SOURCES}/index.html | tail -1)
+    echo coot_version $coot_version
+
     BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
     mkdir -p ${BINARY_TAR_DEST_DIR}
     mkdir -p ${BINARY_TAR_DEST_DIR}/holding
