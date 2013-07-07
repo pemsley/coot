@@ -2258,14 +2258,14 @@ def views_panel_gui():
 # BL says:: add the decisption condition!!
       buttons.append([button_label, "go_to_view_number(" + str(button_number) + ",0)", desciption])
 
-      if len(buttons) > 1:
-         def view_button_func():
-            import time
-            go_to_first_view(1)
-            time.sleep(1)
-            play_views()
-         view_button = ["  Play Views ", lambda func: view_button_func()]
-         buttons.insert(0,view_button)
+   if len(buttons) > 1:
+      def view_button_func():
+         import time
+         go_to_first_view(1)
+         time.sleep(1)
+         play_views()
+      view_button = ["  Play Views ", lambda func: view_button_func()]
+      buttons.insert(0,view_button)
 
    views_vbox = dialog_box_of_buttons("Views", [200,140], buttons, "  Close  ")
    views_dialog_vbox = views_vbox
@@ -3879,22 +3879,31 @@ def map_sharpening_gui(imol):
    window.show_all()
 
 
-# Associate the contents of a PIR file with a molecule. Select file from a GUI.
+# Associate the contents of a sequence file with a chain.
+# Select file from a GUI.
+# File format can be Fasta (default) or PIR
 #
-def associate_pir_with_molecule_gui(do_alignment=False):
+def associate_sequence_with_chain_gui(sequence_format="FASTA",
+                                      do_alignment=False):
 
    def associate_func(imol, chain_id, pir_file_name):
       #print "assoc seq:", imol, chain_id, pir_file_name
-      associate_pir_file(imol, chain_id, pir_file_name)
+      if (sequence_format == "FASTA"):
+         associate_fasta_file(imol, chain_id, pir_file_name)
+      elif (sequence_format == "PIR"):
+         associate_pir_file(imol, chain_id, pir_file_name)
+      else:
+         info_dialog("BL INFO:: wrong sequence input format.")
+         return
       if do_alignment:
          alignment_mismatches_gui(imol)
       
    generic_chooser_entry_and_file_selector(
-      "Associate Sequence to Model: ",
+      "Associate Sequence with Chain: ",
       valid_model_molecule_qm,
       "Chain ID",
       "",
-      "Select PIR file",
+      "Select " + sequence_format +" file",
       lambda imol, chain_id, pir_file_name:
       associate_func(imol, chain_id, pir_file_name))
 
@@ -4011,7 +4020,7 @@ def wrapper_alignment_mismatches_gui(imol):
    if seq_info:
       alignment_mismatches_gui(imol)
    else:
-      associate_pir_with_molecule_gui(True)
+      associate_sequence_with_molecule_gui(True)
 
 
 # Multiple residue ranges gui

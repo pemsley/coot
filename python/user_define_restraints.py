@@ -29,23 +29,25 @@ def user_defined_add_single_bond_restraint():
     
   user_defined_click(2, make_restr)
 
-def user_defined_add_arbitrary_length_bond_restraint():
+def user_defined_add_arbitrary_length_bond_restraint(bond_length=2.0):
+
   # maybe make a generic one....
-  def make_restr(dist):
+  def make_restr(text_list, continue_qm):
     s = "Now click on 2 atoms to define the additional bond restraint"
     add_status_bar_text(s)
+    dist = text_list[0]
     try:
       bl = float(dist)
     except:
       bl = False
       add_status_bar_text("Must define a number for the bond length")
     if bl:
+      # save distance for future use?!
       def make_restr_dist(*args):
             atom_spec_1 = args[0]
             atom_spec_2 = args[1]
             imol = atom_spec_1[1]
             print "BL DEBUG:: imol: %s spec 1: %s and 2: %s" %(imol, atom_spec_1, atom_spec_2)
-            print "BL DEBUG:: using dist", bl
             add_extra_bond_restraint(imol,
                                      atom_spec_1[2],
                                      atom_spec_1[3],
@@ -59,12 +61,21 @@ def user_defined_add_arbitrary_length_bond_restraint():
                                      atom_spec_2[6],
                                      bl, 0.035)
       user_defined_click(2, make_restr_dist)
+      if continue_qm:
+        user_defined_add_arbitrary_length_bond_restraint(bl)
       
-      
-  generic_single_entry("Add a User-defined extra distance restraint",
-                       "2.0",
-                       "OK...",
-                       lambda text: make_restr(text))
+  def stay_open(*args):
+    pass
+  #generic_single_entry("Add a User-defined extra distance restraint",
+  #                     "2.0",
+  #                     "OK...",
+  #                     lambda text: make_restr(text))
+  generic_multiple_entries_with_check_button(
+    [["Add a User-defined extra distance restraint",
+      str(bond_length)]],
+    ["Stay open?", lambda active_state: stay_open(active_state)],
+    "OK...",
+    lambda text, stay_open_qm: make_restr(text, stay_open_qm))
 
 def add_base_restraint(imol, spec_1, spec_2, atom_name_1, atom_name_2, dist):
   add_extra_bond_restraint(imol,

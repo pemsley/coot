@@ -1228,6 +1228,20 @@ def is_solvent_chain_qm(imol,chain_id):
     if (is_solvent_chain_p(imol,chain_id)==1): return True
     else: return False
 
+# convert from interface name to schemisch name to be equivalent to Paul's naming
+#
+# return True or False
+#
+def is_protein_chain_qm(imol, chain_id):
+    return is_protein_chain_p(imol, chain_id) == 1
+
+# convert from interface name to schemisch name to be equivalent to Paul's naming
+#
+# return True or False
+#
+def is_nucleotide_chain_qm(imol, chain_id):
+    return is_nucleotide_chain_p(imol, chain_id) == 1
+
 # python (schemeyish) interface to eponymous scripting interface function!?
 # return True or False
 #
