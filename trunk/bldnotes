@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 4566 (some prodrg stuff needs testing) generic objects, check new defs
+scripts      rev 4681 (some prodrg stuff needs testing) generic objects, update running of jligand?! 
 tests        rev 4437 update
 build-it-win rev 4658 (check 0.8 pre builder)
 
@@ -90,6 +90,14 @@ scripting exercise
 ----------------
 
 **** General ****
+
+   o torsion angle refinement: 
+	- shrink atom ardii or downweight nonbonded
+	- use phenix updated torsion library
+
+   o add most common ligands to find?!
+
+   o views play is not interuptable?!
 
    o colour/display residue/ligand by distortion score (like mogul) but based
 	on dictionary (better than nothing!)
@@ -350,18 +358,12 @@ low importance
 
 **** Python ****
 
-   o add user define restraints, make stay open option [Tim G]
+   o streamline generic_entry functions, one generic one should be enough!
 
    o associate sequence: tick box for all chains
 
-   o fix guile translator, seems broken
-
-   o views gui shows lots of "Play views" (one isnt enough?!)
-
-   o views play is not interuptable?!
-
-   o change name of Play Views to Play All Views
-
+   o toolbutton for local probe dots
+ 
    o List of 3d annotations e.g. for delete
 
    o make rotamer and auto-zone fit protein function!?
@@ -427,6 +429,8 @@ low importance
    o key code for '(' and ')' not recognised (on FC10 e.g.)
 
    o update python WIKI scripts
+
+   o fix guile translator, seems broken (or not, find a good example, seems ok)
 
    o python: rapper-gui and what-check (*Done?!)
 
@@ -812,6 +816,18 @@ Osaka 2010
 * Done (I think)
 
    o include glob.m4 for windows
+
+* Done
+
+   o add user define restraints, make stay open option [Tim G]
+
+* Done
+
+   o views gui shows lots of "Play views" (one isnt enough?!)
+
+* Done
+
+   o change name of Play Views to Play All Views
 
 * Done
 

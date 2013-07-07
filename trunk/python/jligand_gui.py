@@ -9,6 +9,7 @@ def launch_jligand_function():
     global java_command
     
     start_jligand_listener()
+    # maybe this should rather check PATH or similar!? FIXME
     if not os.path.isfile(jligand_jar):
 
         # Boo.  Give us a warning dialog

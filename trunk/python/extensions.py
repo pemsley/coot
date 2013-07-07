@@ -464,10 +464,29 @@ if (have_coot_python):
      #    "",
      #    "Select PIR file",
      #    lambda imol, chain_id, seq_file_name: associate_seq_func(imol, chain_id, seq_file_name)))
+
+     # FIXME
+     # need to do this differently. Kevin's assign_sequence_from_file may
+     # not be ideal (seems to only read the chain from format and wont
+     # assign more than one chain...
+     #
+     #add_simple_coot_menu_menuitem(
+     #  submenu,
+     #  "Associate Sequence to Molecule...",
+     #  lambda func:    generic_chooser_and_file_selector(
+     #                  "Associate Sequence with Molecule: ",
+     #                  valid_model_molecule_qm,
+     #                  "Select Sequence File",
+     #                  "",
+     #                  lambda imol, sequence_file_name:
+     #                  assign_sequence_from_file(imol,
+     #                                            sequence_file_name)
+     #  ))
+     
      add_simple_coot_menu_menuitem(
        submenu,
-       "Associate Sequence...",
-       lambda func: associate_pir_with_molecule_gui()) # no alignment on OK press
+       "Associate Sequence to Chain...",
+       lambda func: associate_sequence_with_chain_gui()) # no alignment on OK press
 
      # ---- F ---------
 
@@ -723,6 +742,7 @@ if (have_coot_python):
        lambda func: molecule_chooser_gui("Rigid Body Fit Molecule",
                 lambda imol: rigid_body_refine_by_atom_selection(imol, "//")))                                         
        
+     # ---- S --------
 
      add_simple_coot_menu_menuitem(
        submenu_models,
@@ -732,10 +752,10 @@ if (have_coot_python):
 
      add_simple_coot_menu_menuitem(
        submenu_models,
-       "Use SEGIDs...",
-       lambda func: molecule_chooser_gui("Exchange the Chain IDs, replace with SEG IDs",
-		lambda imol: exchange_chain_ids_for_seg_ids(imol)))
+       "Symm Shift Reference Chain Here",
+       lambda func: move_reference_chain_to_symm_chain_position())
 
+     
      # ---- U ---------
      
      submenu = gtk.Menu()
@@ -757,6 +777,14 @@ if (have_coot_python):
        lambda func: set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
        )
 
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Use SEGIDs...",
+       lambda func: molecule_chooser_gui("Exchange the Chain IDs, replace with SEG IDs",
+		lambda imol: exchange_chain_ids_for_seg_ids(imol)))
+
+     
      # ---- W ---------
 
      def whats_this():

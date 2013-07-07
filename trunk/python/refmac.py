@@ -414,7 +414,8 @@ def post_run_refmac(imol_refmac_count,
         new_map_id = make_and_draw_map_with_refmac_params(*args)
 
         # set the new map as refinement map
-        set_imol_refinement_map(new_map_id)
+        if valid_map_molecule_qm(new_map_id):
+            set_imol_refinement_map(new_map_id)
 
         # store the refmac parameters to the new map (if we used a file)
         if (get_refmac_used_mtz_file_state()):
