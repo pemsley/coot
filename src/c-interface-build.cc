@@ -2921,6 +2921,54 @@ int is_solvent_chain_p(int imol, const char *chain_id) {
    return r;
 }
 
+// return -1 on error (e.g. chain_id not found, or molecule is not a
+// model), 0 for no, 1 for is.
+int is_protein_chain_p(int imol, const char *chain_id) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      int nchains = mol->GetNumberOfChains(1);
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 CChain *chain_p = mol->GetChain(1,ichain);
+	 std::string mol_chain_id(chain_p->GetChainID());
+	 if (mol_chain_id == std::string(chain_id)) {
+	    r = chain_p->isAminoacidChain();
+	 }
+      }
+   }
+   std::string cmd = "is-protein-chain-p";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   add_to_history_typed(cmd, args);
+   return r;
+}
+
+// return -1 on error (e.g. chain_id not found, or molecule is not a
+// model), 0 for no, 1 for is.
+int is_nucleotide_chain_p(int imol, const char *chain_id) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      int nchains = mol->GetNumberOfChains(1);
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 CChain *chain_p = mol->GetChain(1,ichain);
+	 std::string mol_chain_id(chain_p->GetChainID());
+	 if (mol_chain_id == std::string(chain_id)) {
+	    r = chain_p->isNucleotideChain();
+	 }
+      }
+   }
+   std::string cmd = "is-nucleotide-chain-p";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   add_to_history_typed(cmd, args);
+   return r;
+}
+
 // 
 // /*! \brief sort the chain ids of the imol-th molecule in lexographical order */
 void sort_chains(int imol) { 

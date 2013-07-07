@@ -441,6 +441,33 @@ int n_chains(int imol);
  */
 int is_solvent_chain_p(int imol, const char *chain_id);
 
+/*! \brief is this a protein chain? [Raw function]
+
+   This is a raw interface function, you should generally not use
+   this, but instead use (is-protein-chain? imol chain-id)
+
+   @return -1 on error, 0 for no, 1 for is "a protein chain".  We
+   wouldn't want to be doing rotamer searches and the like on such a
+   chain.
+
+   This wraps the mmdb function isAminoacidChain().
+ */
+int is_protein_chain_p(int imol, const char *chain_id);
+
+/*! \brief is this a nucleic acid chain? [Raw function]
+
+   This is a raw interface function, you should generally not use
+   this, but instead use (is-nucleicacid-chain? imol chain-id)
+
+   @return -1 on error, 0 for no, 1 for is "a nucleicacid chain".  We
+   wouldn't want to be doing rotamer searches and the like on such a
+   chain.
+
+   This wraps the mmdb function isNucleotideChain().
+   For completeness.
+ */
+int is_nucleotide_chain_p(int imol, const char *chain_id);
+
 
 /*!\brief return the number of residues in the molecule, 
 
