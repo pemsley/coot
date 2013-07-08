@@ -5,6 +5,18 @@
 # 2.) build a python + guile version
 # 3.) pack into an installer
 #
+# can take build_coot_prerelease arg to manually build stable release e.g.
+# is command line arg here... damn msys shell
+#
+# set this to "no" if you don't want to compile the pre-release code.
+# build_coot_prerelease=
+build_coot_prerelease=${1:=1}
+if [ $build_coot_prerelease == 0 ] ; then 
+  echo building stable installer
+else
+  echo building pre-release installer
+fi
+#
 BINARY_DIR=/c/msys/home/bernhard/public_html/software/binaries/nightlies/pre-release
 PRE_BINARY_DIR=/c/msys/home/bernhard/public_html/software/binaries/nightlies/pre-release
 # test if there is enough disk space first
@@ -72,9 +84,9 @@ do
   # make a clean build of failed 3 times previously (last resort)
   # shall we reset the counter? not yet
   if [ "$minor_build_cycle" = "2" ] ; then
-      run_tests=true $build_it clean
+      run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it clean
   else
-      run_tests=true $build_it
+      run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it
   fi
   python_build_status=$?
   echo python build status $python_build_status
@@ -103,9 +115,9 @@ do
     echo 'waiting for guile build      ' > $PUBLIC_HTML_LOGS/gtk2-test-status
     echo BUILDING:: python+guile WinCoot
     if [ "$minor_build_cycle" = "2" ] ; then
-        run_tests=true $build_it guile clean
+        run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it guile clean
     else
-        run_tests=true $build_it guile
+        run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it guile
     fi
 
     # copy log files from local to public html

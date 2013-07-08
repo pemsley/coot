@@ -237,8 +237,9 @@
 # 1.14 14/05/13 remove install_top_dir before stable install
 # 1.15 06/06/13 For Release 0.7.1, change release vs pre-release logic
 #               (MRC server)
-# 1.16 18/07/13 More tinkering to get correct version for release from server.
-script_version=1.16
+# 1.16 18/06/13 More tinkering to get correct version for release from server.
+# 1.17 08/07/13 Adjust to build stable logic.
+script_version=1.17
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1039,7 +1040,7 @@ release_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/source/re
 
 ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
 ${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir
-pre_release_files_html=""
+pre_release_files_html="none"
 if [ $build_coot_prerelease = 1 ]  ; then 
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
 fi
@@ -1113,6 +1114,17 @@ ile=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files
    fi
 else 
     # this is a stable release
+
+    echo ============= This is a stable build ==============
+
+    ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
+    echo examining release server files ${AUTOBUILD_SOURCES}/index.html
+    # somehow these are in the wron order, so pick up the 'largest' hope
+    # this logis is ok!?
+    coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { if (file>final) { final=file } } ; print final } ' \
+        ${AUTOBUILD_SOURCES}/index.html | tail -1)
+    echo coot_version $coot_version
+
     BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
     mkdir -p ${BINARY_TAR_DEST_DIR}
 fi
