@@ -317,7 +317,29 @@
 				     (run-prosmart imol-tar imol-ref)
 				     (gtk-widget-destroy window))))
 	     (gtk-widget-show-all window)))))
-	 
+
+
+      (add-simple-coot-menu-menuitem
+       menu "Read ProSMART Restraints..."
+       (lambda ()
+         (generic-chooser-and-file-selector 
+          "Apply restraints to molecule"
+          valid-model-molecule?  "File:" ""
+          (lambda (imol file-name)
+            (add-refmac-extra-restraints imol file-name)))))
+
+      (add-simple-coot-menu-menuitem
+       menu "Undisplay ProSMART Extra Restraints..."
+       (lambda ()
+         (using-active-atom
+          (set-show-extra-restraints aa-imol 0))))
+         
+      (add-simple-coot-menu-menuitem
+       menu "Display proSMART Extra Restraints..."
+       (lambda ()
+         (using-active-atom
+          (set-show-extra-restraints aa-imol 1))))
+
 
       (add-simple-coot-menu-menuitem
        menu "Delete an Extra Restraint..."
