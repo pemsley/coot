@@ -504,7 +504,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 	 bool spacegroup_ok = true;
 	 try {
 	    space_group.init(clipper::Spgr_descr(symmetry_ops, clipper::Spgr_descr::Symops));
-	 } catch ( clipper::Message_base exc ) {
+	 } catch (const clipper::Message_base &exc) {
 	    std::cout << "Oops, trouble.  No such spacegroup\n";
 	    spacegroup_ok = false;
 	 }
@@ -1124,7 +1124,7 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 			      f << " ";
 			   f << resno << "   " << residue_p->GetResName() << "\n";
 			}
-			catch (std::ios::failure &e) { 
+			catch (const std::ios::failure &e) { 
 			   std::cout << "WARNING:: IOS exception caught on RESI start " << e.what() << std::endl;
 			}
 		     }
@@ -1216,14 +1216,14 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 			   }
 			   current_altloc = this_altloc;
 			}
-			catch (std::ios::failure &e) { 
+			catch (const std::ios::failure &e) { 
 			   std::cout << "WARNING:: IOS exception caught: " << e.what() << std::endl;
 			}
 		     }
 		     try { 
 			f << " \n"; // end of a RESI
 		     } 
-		     catch (std::ios::failure &e) { 
+		     catch (const std::ios::failure &e) { 
 			std::cout << "WARNING:: IOS exception caught on end of a RESI " << e.what() << std::endl;
 		     }
 		  }
@@ -1246,7 +1246,7 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 	    try { 
 	       f << post_atom_lines[i] << "\n";
 	    }
-	    catch (std::ios::failure &e) { 
+	    catch (const std::ios::failure &e) { 
 	       std::cout << "WARNING:: IOS exception caught in post atom lines " << e.what() << std::endl;
 	    }
 	 }

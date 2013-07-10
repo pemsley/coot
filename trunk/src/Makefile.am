@@ -354,6 +354,7 @@ coot_real_SOURCES = \
 	lbg-interface.cc 	 \
 	molecule-class-info.cc 	 \
 	molecule-class-info-maps.cc 	\
+	molecule-class-info-maps-2.cc 	\
 	molecule-class-info-kdc.cc      \
 	molecule-class-info-dots.cc 	\
 	molecule-class-info-other.cc 	\
