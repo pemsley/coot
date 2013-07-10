@@ -1240,7 +1240,21 @@ int export_map_fragment(int imol, float x, float y, float z, float radius, const
       rv = 1;
    } 
    return rv;
+}
+
+/*! \brief export a fragment of the map about (x,y,z)  */
+int export_map_fragment_with_origin_shift(int imol, float x, float y, float z, float radius, const char *filename) {
+
+   int rv = 0;
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t g;
+      clipper::Coord_orth pos(x,y,z);
+      g.molecules[imol].export_map_fragment_with_origin_shift(radius, pos, filename);
+      rv = 1;
+   } 
+   return rv;
 } 
+
 
 
 /* create a number of maps by segmenting the given map, above the

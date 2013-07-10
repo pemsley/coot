@@ -1385,6 +1385,9 @@ coot::util::segment_map::path_to_peak(const clipper::Coord_grid &start_point,
 
 #include <clipper/contrib/edcalc.h>
 
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+
 // pass a negative atom_selection to build an atom map for the whole molecule
 // 
 clipper::Xmap<float>
@@ -1402,21 +1405,51 @@ coot::util::calc_atom_map(CMMDBManager *mol,
    PPCAtom sel_atoms = 0;
    int n_atoms;
    mol->GetSelIndex(atom_selection_handle, sel_atoms, n_atoms);
-   for (unsigned int i=0; i<n_atoms; i++) {
-      CAtom mmdb_atom; // (sel_atoms[i]);
-      mmdb_atom.Copy(sel_atoms[i]);
-      clipper::MMDBAtom clipper_mmdb_at(mmdb_atom);
-      clipper::Atom atom(clipper_mmdb_at);
-      l.push_back(atom);
+
+
+   // 20130710 for some reason this gives (memory?) errors when making clipper::Atom atom
+   // (coords are nan and ele is scrambled text)
+   // 
+//    for (unsigned int i=0; i<n_atoms; i++) {
+//       CAtom mmdb_atom;
+//       mmdb_atom.Copy(sel_atoms[i]);
+//       clipper::MMDBAtom clipper_mmdb_at(mmdb_atom);
+//       clipper::Atom atom(clipper_mmdb_at);
+//       std::cout << "copied mmdb_atom " << clipper_mmdb_at << " to clipper atom "
+// 		<< atom.coord_orth().format() << " " << atom.element()
+// 		<< std::endl;
+//       l.push_back(atom);
+//    }
+
+   for (unsigned int iat=0; iat<n_atoms; iat++) {
+      CAtom *at = sel_atoms[iat];
+      clipper::Coord_orth pt(at->x, at->y, at->z);
+      std::string ele(at->element);
+      clipper::Atom cat;
+      cat.set_element(ele);
+      cat.set_coord_orth(pt);
+      cat.set_u_iso(at->tempFactor);
+      cat.set_occupancy(at->occupancy);
+      l.push_back(cat);
    }
 
-   try { 
+   try {
+
       clipper::Atom_list al(l);
+      if (0) { // debug
+	 std::cout << "======================= al size(): " << al.size() << std::endl;
+	 std::cout << "here are some atoms" << std::endl;
+	 for (unsigned int iat=0; iat<5; iat++)
+	    std::cout << "           "
+		      << al[iat].coord_orth().format() << " "
+		      << al[iat].element() << std::endl;
+      }
       clipper::EDcalc_iso<float> e;
       e(xmap, al);
    }
-   catch (clipper::Message_base &e) {
-      std::cout << "e.what()" << std::endl;
+   catch (clipper::Message_generic &e) {
+      std::cout << "ERROR:: some sort of clipper map problem" << std::endl;
+      std::cout << e.text() << std::endl;
    }
    return xmap;
 }
@@ -1504,9 +1537,12 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
 
       // debugging atom selection
-      // std::cout << "debug:: selected " << n_atoms << " atoms " << std::endl;
-      // for (unsigned int iat=0; iat<n_atoms; iat++)
-      // std::cout << "    " << iat << " " << atom_selection[iat]->name << " " << atom_selection[iat] << std::endl;
+      if (0) { 
+	 std::cout << "debug:: selected " << n_atoms << " atoms " << std::endl;
+	 for (unsigned int iat=0; iat<n_atoms; iat++)
+	    std::cout << "    " << iat << " " << atom_selection[iat]->name << " "
+		      << atom_selection[iat] << std::endl;
+      }
       
       for (unsigned int iat=0; iat<n_atoms; iat++) {
 	 clipper::Coord_orth co(atom_selection[iat]->x,
@@ -1556,16 +1592,22 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 	 double x = calc_map[ix];
 	 if (! clipper::Util::is_nan(x)) { 
 	    double y = reference_map[ix];
-	    if (masked_map[ix]) {
-	       sum_x  += x;
-	       sum_y  += y;
-	       sum_xy += x * y;
-	       sum_x_sqd += x*x;
-	       sum_y_sqd += y*y;
-	       n++;
-	    }
+	    if (! clipper::Util::is_nan(y)) { 
+	       if (masked_map[ix]) {
+		  sum_x  += x;
+		  sum_y  += y;
+		  sum_xy += x * y;
+		  sum_x_sqd += x*x;
+		  sum_y_sqd += y*y;
+		  n++;
+	       }
+	    } else {
+	       std::cout << "ERROR:: oops (reference) map density for " << ix.coord().format()
+			 << " is nan " << std::endl;
+	    } 
 	 } else {
-	    // std::cout << "x for " << ix.coord().format() << " is " << x << std::endl;
+	    std::cout << "ERROR:: oops calc density for " << ix.coord().format() << " is nan "
+		      << std::endl;
 	 }
       }
 

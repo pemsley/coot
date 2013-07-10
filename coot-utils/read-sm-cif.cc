@@ -364,8 +364,9 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 		     }
 		  } 
 	       } 
-	       catch (clipper::Message_base exc) {
-		  std::cout << "Oops, trouble.  No such spacegroup\n";
+	       catch (const clipper::Message_base &exc) {
+		  // 20130710 clipper::Message_base::text() doesn't exist yet? 
+		  std::cout << "ERROR:: Oops, trouble.  No such spacegroup " << "\n";
 	       }
 	    } else {
 	       std::cout << "ERROR:: no symm strings" << std::endl;
@@ -376,7 +377,7 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 	 
       }
 
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "ERROR:: " << rte.what() << std::endl;
       }
    }

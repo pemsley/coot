@@ -46,6 +46,9 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 
 #include "clipper/ccp4/ccp4_map_io.h"
 
+#include "coords/Cartesian.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb-crystal.h"
 #include "coords/Bond_lines.h"
 #include "gtk-manual.h"
 
@@ -59,8 +62,6 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "utils/coot-utils.hh"
 
 #include "protein_db/protein_db_utils.h"
-
-using namespace std; // Hmmm.. I don't approve, FIXME
 
 #include "select-atom-info.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -3262,6 +3263,13 @@ public:        //                      public
    void export_map_fragment(float radius,
 			    clipper::Coord_orth centre,
 			    const std::string &file_name) const;
+
+   // shift "bottom left" to the origin and make sure that it's on a grid that is
+   // "nice" (acceptable?) for molrep
+   // 
+   int export_map_fragment_with_origin_shift(float radius,
+					     clipper::Coord_orth centre,
+					     const std::string &file_name) const;
 
    coot::residue_spec_t get_residue_by_type(const std::string &residue_type) const;
 
