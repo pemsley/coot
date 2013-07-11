@@ -38,7 +38,27 @@ rm ${HOME}/diskspace.tmp
 ) 2>&1 > $HOME/disk-space-status
 OS=`uname`
 HOST=`hostname`
-cp disk-space-status /z/build-logs/${OS}-${HOST}/disk-space-status
+
+# function to copy all logs to windos host
+# not copying status files yet. FIXME
+function copy_logs {
+  cp -p disk-space-status /z/build-logs/${OS}-${HOST}/disk-space-status
+
+  if [ $1 = "python" ] ; then 
+  # copy log files from local to public html
+   cp -p $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS
+   cp -p $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS/gtk2-python-build.log
+   cp -r -p $LOCAL_HTML_LOGS/$HOSTLOG_STUB  $PUBLIC_HTML_LOGS
+   cp -p $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS
+   cp -p $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS/gtk2-python-test.log
+  else
+  # copy log files from local to public html
+   cp -p $LOCAL_HTML_LOGS/gtk2-guile-build.log $PUBLIC_HTML_LOGS
+   cp -r -p $LOCAL_HTML_LOGS/${HOSTLOG_STUB}-guile  $PUBLIC_HTML_LOGS
+   cp -p $LOCAL_HTML_LOGS/gtk2-guile-test.log  $PUBLIC_HTML_LOGS
+  fi
+
+}
 
 # location of the build-it script
 build_it=${HOME}/Projects/coot/build-it-win
@@ -90,15 +110,9 @@ do
   fi
   python_build_status=$?
   echo python build status $python_build_status
+  copy_logs python
   # read in variables from install run
   . ${HOME}/wincoot-installer-variables
-
-  # copy log files from local to public html
-  cp $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS
-  cp $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS/gtk2-python-build.log
-  cp -r $LOCAL_HTML_LOGS/$HOSTLOG_STUB  $PUBLIC_HTML_LOGS
-  cp $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS
-  cp $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS/gtk2-python-test.log
 
   if [ "$build_coot_prerelease" = "0" ] ; then
     install_top_dir=${HOME}/autobuild/${OS}-${HOST}-gtk2
@@ -120,11 +134,7 @@ do
         run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it guile
     fi
 
-    # copy log files from local to public html
-    cp $LOCAL_HTML_LOGS/gtk2-guile-build.log $PUBLIC_HTML_LOGS
-    cp -r $LOCAL_HTML_LOGS/${HOSTLOG_STUB}-guile  $PUBLIC_HTML_LOGS
-    cp $LOCAL_HTML_LOGS/gtk2-guile-test.log  $PUBLIC_HTML_LOGS
-
+    copy_logs guile
     diff ${COOT_PYTHON_VERSION} ${COOT_GUILE_VERSION} 
     coot_version_status=$?
     if [ "$coot_version_status" = "1" ] ; then
