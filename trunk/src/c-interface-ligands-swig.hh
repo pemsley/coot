@@ -39,4 +39,12 @@ residues_torsions_match_py(int imol_1, PyObject *res_1,
 			   float tolerance); // in degrees
 #endif // USE_PYTHON
 
+#ifdef USE_GUILE
+double kolmogorov_smirnov_scm(SCM l1, SCM l2);
+#endif
+
+#ifdef USE_GUILE
+SCM kullback_liebler_scm(SCM l1, SCM l2);
+#endif
+
 #endif // C_INTERFACE_LIGANDS_SWIG_HH

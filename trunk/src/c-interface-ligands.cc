@@ -2267,3 +2267,60 @@ residues_torsions_match_py(int imol_1, PyObject *res_1,
 
 
 
+
+#include "analysis/kolmogorov.hh"
+
+#ifdef USE_GUILE
+double kolmogorov_smirnov_scm(SCM l1, SCM l2) {
+
+   double result = -1;
+   if (scm_list_p(l1) && scm_list_p(l2)) {
+      SCM length_scm_1 = scm_length(l1);
+      SCM length_scm_2 = scm_length(l2);
+      int len_l1 = scm_to_int(length_scm_1);
+      int len_l2 = scm_to_int(length_scm_2);
+      std::vector<double> v1;
+      std::vector<double> v2;
+      for (unsigned int i=0; i<len_l1; i++) {
+	 SCM item = scm_list_ref(l1, SCM_MAKINUM(i));
+	 if (scm_number_p(item))
+	    v1.push_back(scm_to_double(item));
+      }
+      for (unsigned int i=0; i<len_l2; i++) {
+	 SCM item = scm_list_ref(l2, SCM_MAKINUM(i));
+	 if (scm_number_p(item))
+	    v2.push_back(scm_to_double(item));
+      }
+      result = nicholls::get_KS(v1, v2);
+   }
+   return result;
+}
+#endif
+
+#ifdef USE_GUILE
+SCM kullback_liebler_scm(SCM l1, SCM l2) {
+
+   SCM result_scm = SCM_BOOL_F;
+   if (scm_list_p(l1) && scm_list_p(l2)) {
+      SCM length_scm_1 = scm_length(l1);
+      SCM length_scm_2 = scm_length(l2);
+      int len_l1 = scm_to_int(length_scm_1);
+      int len_l2 = scm_to_int(length_scm_2);
+      std::vector<double> v1;
+      std::vector<double> v2;
+      for (unsigned int i=0; i<len_l1; i++) {
+	 SCM item = scm_list_ref(l1, SCM_MAKINUM(i));
+	 if (scm_number_p(item))
+	    v1.push_back(scm_to_double(item));
+      }
+      for (unsigned int i=0; i<len_l2; i++) {
+	 SCM item = scm_list_ref(l2, SCM_MAKINUM(i));
+	 if (scm_number_p(item))
+	    v2.push_back(scm_to_double(item));
+      }
+      std::pair<double, double> result = nicholls::get_KL(v1, v2);
+      SCM r = scm_list_2(scm_double2num(result.first), scm_double2num(result.second));
+   }
+   return result_scm;
+}
+#endif
