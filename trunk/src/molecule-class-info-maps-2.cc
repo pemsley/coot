@@ -3,12 +3,17 @@
 #include "molecule-class-info.h"
 
 // shift "bottom left" to the origin and make sure that it's on a grid that is
-// "nice" (acceptable?) for molrep
+// "nice" (acceptable?) for molrep.
+//
+// Now the resulting map has gompertz scaling of density (drops off
+// towards the edge) and border added (8% of radius).
 // 
 int
 molecule_class_info_t::export_map_fragment_with_origin_shift(float radius,
 							     clipper::Coord_orth centre,
 							     const std::string &file_name) const {
+
+   // centre is the centre of the map of this molecule (that we are extracting from)
 
    int r = 0;
    if (has_map()) {
@@ -56,18 +61,41 @@ molecule_class_info_t::export_map_fragment_with_origin_shift(float radius,
       clipper::Coord_orth centre_radius(centre.x() - radius,
 					centre.y() - radius,
 					centre.z() - radius);
+      clipper::Coord_orth nxmap_centre(radius, radius, radius);
       clipper::Coord_grid offset = xmap.coord_map(centre_radius).coord_grid();
       
       std::cout << "--------------- xmap offset to centre        " << centre_radius.format() << std::endl;
       std::cout << "--------------- xmap offset to centre (grid) " << offset.format() << std::endl;
 
       typedef clipper::NXmap<float>::Map_reference_index NRI;
+      double limited_radius = radius * 0.92;
       for (NRI inx = nxmap.first(); !inx.last(); inx.next()) {
-	 // ix indexes the xmap
 	 clipper::Coord_orth p = inx.coord().coord_frac(nxmap_grid_sampling).coord_orth(nxmap_cell);
-	 clipper::Coord_grid gp = p.coord_frac(xmap_cell).coord_grid(xmap_grid_sampling);
-	 ix.set_coord(gp + offset);
-	 nxmap[inx] = xmap[ix];
+	 double d_to_c_sq = clipper::Coord_orth(p-nxmap_centre).lengthsq();
+	 if (d_to_c_sq > limited_radius*limited_radius) {
+	    nxmap[inx] = 0.0;
+	    if (0) 
+	       std::cout << " inx " << inx.coord().format() << " " << d_to_c_sq << "  " << p.format() << " " << centre.format()
+			 << " vs " << limited_radius*limited_radius << " is outside " << std::endl;
+	 } else {
+	    // ix indexes the xmap
+	    clipper::Coord_grid gp = p.coord_frac(xmap_cell).coord_grid(xmap_grid_sampling);
+	    ix.set_coord(gp + offset);
+
+	    // make a function that is y=1 around x=0 and y=1 around x=1 and
+	    // falls of to 0.5 around x=0.8 or so.
+	    //
+	    double x = sqrt(d_to_c_sq)/limited_radius;
+	    double gompertz_a = 0.14;
+	    double gompertz_b = 0.1; 
+	    double gompertz_c = 3;
+	    double gompertz_scale = 1 - (-gompertz_a*1.1 + gompertz_a * exp (gompertz_b * exp(gompertz_c * x)));
+	    nxmap[inx] = xmap[ix] * gompertz_scale;
+	    if (0)
+	       std::cout << " inx " << inx.coord().format() << " " << d_to_c_sq << "  " << p.format() << " " << centre.format()
+			 << " vs " << limited_radius*limited_radius << " " << gompertz_scale << std::endl;
+	 } 
+	    
       }
       clipper::CCP4MAPfile mapout;
       mapout.open_write(file_name);
