@@ -2324,3 +2324,60 @@ SCM kullback_liebler_scm(SCM l1, SCM l2) {
    return result_scm;
 }
 #endif
+
+
+#ifdef USE_PYTHON
+double kolmogorov_smirnov_py(PyObject *l1, PyObject *l2) {
+
+   double result = -1;
+   if (PyList_Check(l1) && PyList_Check(l2)) {
+      int len_l1 = PyList_Size(l1);
+      int len_l2 = PyList_Size(l2);
+      std::vector<double> v1;
+      std::vector<double> v2;
+      for (unsigned int i=0; i<len_l1; i++) {
+         PyObject *item = PyList_GetItem(l1, i);
+         if (PyFloat_Check(item))
+            v1.push_back(PyFloat_AsDouble(item));
+      }
+      for (unsigned int i=0; i<len_l2; i++) {
+         PyObject *item = PyList_GetItem(l2, i);
+         if (PyFloat_Check(item))
+            v2.push_back(PyFloat_AsDouble(item));
+      }
+      result = nicholls::get_KS(v1, v2);
+   }
+   return result;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2) {
+
+   PyObject *result_py = Py_False;
+   if (PyList_Check(l1) && PyList_Check(l2)) {
+      int len_l1 = PyList_Size(l1);
+      int len_l2 = PyList_Size(l2);
+      std::vector<double> v1;
+      std::vector<double> v2;
+      for (unsigned int i=0; i<len_l1; i++) {
+         PyObject *item = PyList_GetItem(l1, i);
+         if (PyFloat_Check(item))
+            v1.push_back(PyFloat_AsDouble(item));
+      }
+      for (unsigned int i=0; i<len_l2; i++) {
+         PyObject *item = PyList_GetItem(l2, i);
+         if (PyFloat_Check(item))
+            v2.push_back(PyFloat_AsDouble(item));
+      }
+      std::pair<double, double> result = nicholls::get_KL(v1, v2);
+      PyObject *result_py = PyList_New(2);
+      PyList_SetItem(result_py, 0, PyFloat_FromDouble(result.first));
+      PyList_SetItem(result_py, 1, PyFloat_FromDouble(result.second));
+   }
+   if (PyBool_Check(result_py)) {
+      Py_INCREF(result_py);
+   }
+   return result_py;
+}
+#endif

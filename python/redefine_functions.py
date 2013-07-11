@@ -156,6 +156,11 @@ screen_vectors         = screen_vectors_py
 get_residue_by_type    = get_residue_by_type_py
 score_rotamers         = score_rotamers_py
 
+# c-interface-ligands-swig.hh:
+residues_torsions_match = residues_torsions_match_py
+kolmogorov_smirnov     = kolmogorov_smirnov_py
+kullback_liebler       = kullback_liebler_py
+
 # curl and hence coot_get_url_as_string are conditionally compiled.
 try:
     coot_get_url_as_string = coot_get_url_as_string_py
