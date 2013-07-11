@@ -94,6 +94,8 @@
 (define het-group-residues het-group-residues-scm)
 (define score-rotamers score-rotamers-scm)
 (define link-info link-info-scm)
+(define kolmogorov-smirnov kolmogorov-smirnov-scm)
+(define kullback-liebler kullback-liebler-scm)
 
 ;; I changed the function name - save those (just a few) with scripts that I've handed out
 (define toggle-idle-ligand-interactions toggle-flev-idle-ligand-interactions)

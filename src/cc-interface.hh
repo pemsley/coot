@@ -496,13 +496,16 @@ SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 
 
 #ifdef USE_GUILE
-//! \brief Return a list of atom info for each atom in the specified residue
+//! \brief Return a list of atom info for each atom in the specified residue.
 //! 
 //! output is like this:
 //! (list
 //!    (list (list atom-name alt-conf)
 //!          (list occ temp-fact element)
 //!          (list x y z)))
+//! 
+//! occ can be a single number or a list of seven numbers of which the first is
+//! the isotropic B.
 //! 
 SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code);
 SCM residue_name(int imol, const char* chain_id, int resno, const char *ins_code);
