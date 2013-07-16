@@ -1849,19 +1849,3 @@ coot::util::density_map_points_in_sphere(clipper::Coord_orth pt, float search_ra
    return v;
 }
 
-//
-float
-coot::util::interquartile_range(const std::vector<float> &v_in) {
-
-   float iqr = 0;
-   std::vector<float> v = v_in;
-
-   std::sort(v.begin(), v.end());
-   unsigned int n = v.size();
-   int q_1 = int(0.25 * n);
-   int q_3 = int(0.75 * n);
-   float v_1 = v[q_1];
-   float v_3 = v[q_3];
-   iqr = v_3 - v_1;
-   return iqr;
-} 
