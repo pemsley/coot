@@ -340,7 +340,8 @@
 #               (MRC server).
 # 5.06 20130612 More tinkering to get the correct version for release from the server.
 # 5.07 20130707 Adjustment to build stable logic.
-script_version=5.07
+# 5.08 20130716 Move source server to personal/pemsley.
+script_version=5.08
 
 
 
@@ -1310,9 +1311,11 @@ coot_version=$fallback_coot_version
 pre_release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/
 pre_release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/pre-releases/
 pre_release_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/source/pre-releases/
+pre_release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/pre-releases/
 release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software
 release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/releases
 release_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/source/releases/
+release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/releases/
 
 echo here 1 
 ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
