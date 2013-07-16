@@ -516,6 +516,24 @@
 					   ;; 
 					   (get-monomer text))))))))
 
+;	(add-simple-coot-menu-menuitem
+;	 submenu-models "Morph Fit Chain (Radius 4.2)"
+;	 (lambda ()
+;	   (using-active-atom
+;	    (morph-fit-chain aa-imol aa-chain-id 4.2))))
+	 
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Morph Fit Chain (Radius 7)"
+	 (lambda ()
+	   (using-active-atom
+	    (morph-fit-chain aa-imol aa-chain-id 7))))
+
+;	(add-simple-coot-menu-menuitem
+;	 submenu-models "Morph Fit Chain (Radius 11)"
+;	 (lambda ()
+;	   (using-active-atom
+;	    (morph-fit-chain aa-imol aa-chain-id 11))))
+
 	;; ---- N ---------
 
 	(add-simple-coot-menu-menuitem submenu-models "New Molecule by Sphere..."
