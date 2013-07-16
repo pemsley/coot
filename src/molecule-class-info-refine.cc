@@ -340,7 +340,9 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std:
 	    // morph_residue_atoms_by_average_rtops(this_residue, rtops);
 
 	    coot::util::quaternion q(0,0,0,0);
-	    clipper::RTop_orth rtop = q.centroid_rtop(rtops);
+	    // clipper::RTop_orth rtop = q.centroid_rtop(rtops);
+	    bool robust_filter = true;
+	    clipper::RTop_orth rtop = q.centroid_rtop(rtops, robust_filter);
 	    // if (0)
 	    // std::cout << "yields averaged RTop:\n" << rtop.format() << std::endl;
 	    

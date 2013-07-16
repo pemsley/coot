@@ -753,6 +753,16 @@ namespace coot {
 
    namespace util {
 
+      class stats_data {
+      public:
+	 stats_data(const std::vector<float> &d);
+	 float mean;
+	 float sd;
+	 float iqr;
+      };
+
+      float interquartile_range(const std::vector<float> &v);
+
       class peptide_torsion_angles_info_t {
       public:
 	 short int status;
@@ -885,6 +895,18 @@ namespace coot {
 	 
       };
 
+      // weighted RTop_orth with deviance
+      class w_rtop_orth : public clipper::RTop_orth {
+      public:
+	 w_rtop_orth() : clipper::RTop_orth() {
+	    deviance = 0;
+	    weight = 0;
+	 }
+	 clipper::RTop_orth rtop;
+	 double deviance;
+	 double weight;
+      };
+
       class quaternion {
 	 void normalize();
       public:
@@ -921,6 +943,9 @@ namespace coot {
 	    return r;
 	 }
 	 clipper::RTop_orth centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops);
+	 clipper::RTop_orth centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops,
+					  bool robust_filter);
+	 static bool deviance_sorter(const w_rtop_orth &a, const w_rtop_orth &b);
       };
 
       class chain_id_residue_vec_helper_t { 

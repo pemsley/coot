@@ -151,7 +151,6 @@ namespace coot {
 
       std::vector<float> density_map_points_in_sphere(clipper::Coord_orth pt, float radius,
 						      const clipper::Xmap<float> &xmap_in);
-      float interquartile_range(const std::vector<float> &v);
 
       // pass a negative atom_selection to build an atom map for the whole molecule
       // 
