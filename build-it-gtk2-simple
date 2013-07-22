@@ -3360,6 +3360,7 @@ refmac_mon_lib=refmac_dictionary_v5.29.tar.gz
 refmac_mon_lib=refmac_dictionary_v5.37.tar.gz
 refmac_mon_lib=refmac_dictionary_v5.38.tar.gz
 refmac_mon_lib=refmac_dictionary_v5.39.tar.gz
+refmac_mon_lib=refmac_dictionary_v5.41.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
