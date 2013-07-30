@@ -229,10 +229,39 @@ namespace coot {
 				  int &current_res_no) const;
       void save_fvars(const shelx_card_info_t &card);
       CAtom *make_atom(const coot::shelx_card_info_t &card, const std::string &altconf,
-		       int udd_afix_handle, int have_udd_atoms, int current_afix,
-		       clipper::Cell &cell) const;
+		       int udd_afix_handle,
+		       int udd_riding_atom_flag_handle,
+		       int udd_riding_atom_negative_u_value_handle,
+		       bool have_udd_atoms, int current_afix,
+		       clipper::Cell &cell, const std::vector<CAtom *> &atom_vector) const;
       std::pair<int, std::string> write_ins_file_internal(CMMDBManager *mol_in,
 							  const std::string &filename) const;
+      
+      CAtom *previous_non_riding_atom(const std::vector<CAtom *> &atom_vector,
+				      int udd_non_riding_atom_flag_handle) const {
+
+	 if (atom_vector.size()==0) {
+	    return NULL;
+	 } else { 
+	    for (int i=atom_vector.size()-1;  i>=0; i--) {
+	       CAtom *at = atom_vector[i];
+	       int ic = -1; // is riding atom flag
+	       if (at->GetUDData(udd_non_riding_atom_flag_handle, ic) == UDDATA_Ok) {
+		  if (ic==1)
+		     return at;
+	       } else {
+		  // this can happen (currently) when udd_non_riding_atom_flag is not set to 1 in
+		  // make_atom() (as happens when it is a riding atom)
+		  // std::cout << "ooops UDData get failed" << std::endl;
+	       } 
+	    }
+	    // bad news if we get here.
+	    return NULL;
+	 }
+      }
+      std::string message_for_atom(const std::string &in_string, CAtom *at) const;
+
+      
    public:
       ShelxIns() {init(); }
       // pair: status (0: bad), udd_afix_handle (-1 bad)
@@ -245,6 +274,7 @@ namespace coot {
       int add_fvar(float f); // return the shelx index FVAR number for this fvar
       void set_fvar(int fvar_no, float f); // set FVAR number fvar_no to value f
       int udd_afix_handle;
+      int udd_riding_atom_negative_u_value_handle;
       void debug() const;
       static int shelx_occ_to_fvar(float shelx_occ); // e.g. return 18 if shelx_occ 181.00,
                                                      // return -1 on a problem.
