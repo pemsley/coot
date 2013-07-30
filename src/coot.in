@@ -99,6 +99,21 @@ lib"
 }
 
 
+function check_for_no_graphics {
+
+    r=0
+    for arg in "$@"
+    do
+      echo $arg
+      if [ "$arg" == --no-graphics ] ; then
+         r=1
+         break
+      fi
+    done
+    return $r
+}
+
+
 current_exe_dir=$(dirname $0)
 # echo current_exe_dir is $current_exe_dir
 
@@ -239,9 +254,7 @@ if [ -e $COOT_PREFIX/pending-install ] ; then
    apply_pending_install $COOT_PREFIX
 fi
   
-# "Use $@ to stop word splitting" from Ben Eisenbraun.  But it doesn't work for me.  
-# this shell does not see the arguments as split, but coot does. Don't understand. Grrr.  
-# So the IFS up top stays.
+# "Use $@ to stop word splitting" from Ben Eisenbraun.  
 echo $coot_real "$@"
 $coot_real "$@"
 status=$?
@@ -251,6 +264,7 @@ if [ $status != 0 ] ; then
     # $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm .libs/lt-`basename $coot_real`
     unset PYTHONHOME
     unset PYTHONPATH
+    unset LD_LIBRARY_PATH
     # only run the crash catcher if coot was compiled with guile
     if [ "@COOT_USE_GUILE@" = "-DUSE_GUILE" ] ; then 
        $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real $*

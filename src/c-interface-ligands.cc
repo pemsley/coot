@@ -515,6 +515,14 @@ PyObject *execute_ligand_search_py() {
 }
 #endif // USE_PYTHON
 
+
+/*! \brief  Allow the user a scripting means to find ligand at the rotation centre */
+void set_find_ligand_here_cluster(int state) {
+   graphics_info_t g;
+   g.find_ligand_here_cluster_flag = state;
+} 
+
+
 std::vector<int>
 execute_ligand_search_internal() {
    

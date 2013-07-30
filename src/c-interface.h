@@ -4422,6 +4422,9 @@ void add_ligand_search_ligand_molecule(int imol_ligand);
   in ligand searching */
 void add_ligand_search_wiggly_ligand_molecule(int imol_ligand);
 
+/*! \brief  Allow the user a scripting means to find ligand at the rotation centre */
+void set_find_ligand_here_cluster(int state);
+
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM execute_ligand_search();  
