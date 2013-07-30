@@ -235,7 +235,7 @@
 (define (send-emsley-text gdb-string)
   
   (run-command/strings "mail"
-		       (list "-s" "Coot Crashed" (string-append "emsley" "@" "ysbl.york.ac.uk"))
+		       (list "-s" "Coot Crashed" (string-append "pemsley" "@" "mrc-lmb" ".cam" ".ac.uk"))
 		       (list gdb-string)))
 
 
