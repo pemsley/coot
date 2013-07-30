@@ -257,8 +257,8 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	 }
 	 catch (std::runtime_error rte) {
 	    std::cout << "ERROR: in install_simple_wiggly_ligands() " << rte.what() << std::endl;
-	 } 
-      } 
+	 }
+      }
    } // samples for loop
    
    return returned_tors_molecules_info;

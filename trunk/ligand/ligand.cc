@@ -1971,7 +1971,9 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
 //    }
    
    int n_ligs = final_ligand[iclust].size();
-   // #pragma openmp parallel for
+
+   
+// #pragma openmp parallel for
 
    std::cout << "score_and_resort_using_correlation iclust: " << iclust << " n_ligs " << n_ligs
 	     << " n_sol " << n_sol << std::endl;
