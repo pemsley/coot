@@ -244,8 +244,8 @@ fi
 # Set the host and the OS.
 # Fairly fundamental.
 #
-OS=`uname`
-HOST=`hostname`
+OS=$(uname)
+HOST=$(hostname)
 
 # Do we need to use a proxy server to get documents from the web? (set
 # to 1 if we do)
@@ -632,14 +632,13 @@ if test "$OS" = "Linux" ; then
 fi
 
 if test $OS = Linux ; then 
-  which rpm > /dev/null
-  have_rpm=$?
-  if  [ $have_rpm = 0 ] ; then 
-      for i in fedora redhat centos ; do
-	dist=`rpm -q --qf '%{name}' ${i}-release`
+
+  if rpm -a ; then 
+      for i in fedora-release redhat-release redhat-release-workstation centos-release ; do
+	dist=`rpm -q --qf '%{name}' ${i}`
 	if test $? = 0 ; then
 	  dist_name=`echo ${dist} | sed s/\-release//g`
-	  dist_ver=`rpm -q --qf '%{version}' ${i}-release`
+	  dist_ver=`rpm -q --qf '%{version}' ${i}`
 	  break
 	else
 	  dist_name='unknown'
@@ -650,7 +649,7 @@ if test $OS = Linux ; then
    fi
 
   case ${dist_name} in
-    redhat )
+    redhat* )
     case ${dist_ver} in
       [0-9] | [0-9].[0-9]* )
         systype=${architecture}-redhat-${dist_ver}
