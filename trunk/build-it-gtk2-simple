@@ -928,23 +928,25 @@ fi
 
 if test $OS = Linux ; then 
 
-  if rpm -a ; then 
+  if rpm -a ; then
       for i in fedora-release redhat-release redhat-release-workstation centos-release ; do
-	dist=`rpm -q --qf '%{name}' ${i}`
-	if test $? = 0 ; then
-	  dist_name=`echo ${dist} | sed s/\-release//g`
-	  dist_ver=`rpm -q --qf '%{version}' ${i}`
-	  break
-	else
-	  dist_name='unknown'
-	fi
+        dist=`rpm -q --qf '%{name}' ${i}`
+        echo  dist is $dist
+        dist=`rpm -q --qf '%{name}' ${i}`
+        if test $? = 0 ; then
+          dist_name=$(echo ${dist} | sed -e 's/\-release//g' -e 's/\-workstation//g')
+          dist_ver=`rpm -q --qf '%{version}' ${i}`
+          break
+        else
+          dist_name='unknown'
+        fi
       done
    else
       dist_name='unknown'
    fi
 
   case ${dist_name} in
-    redhat )
+    redhat* )
     case ${dist_ver} in
       [0-9] | [0-9].[0-9]* )
         systype=${architecture}-redhat-${dist_ver}
