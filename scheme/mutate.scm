@@ -209,6 +209,11 @@
      ((eq? letter #\g) "G")
      ((eq? letter #\t) "T")
      ((eq? letter #\u) "U")
+     ((eq? letter #\A) "A")
+     ((eq? letter #\C) "C")
+     ((eq? letter #\G) "G")
+     ((eq? letter #\T) "T")
+     ((eq? letter #\U) "U")
      (else 
       #f)))
 
