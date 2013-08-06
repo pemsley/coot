@@ -96,26 +96,26 @@ coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
       // goes in the minimol.  First we need to find the chain, then
       // residue.  Then add the atom to the residue.
       
-      bool found_fragment = 0;
-      int ifrag_atom = -1;
+      bool found_fragment = false;
+      int ifrag_for_atom = -1;
       for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) {
 	 if (fragments[ifrag].fragment_id == chain_id) {
-	    found_fragment = 1;
-	    ifrag_atom = ifrag;
+	    found_fragment = true;
+	    ifrag_for_atom = ifrag;
 	 }
       }
       
-      if (!found_fragment) {
+      if (! found_fragment) {
 	 coot::minimol::fragment frag(chain_id);
 	 fragments.push_back(frag);
-	 ifrag_atom = 0;
+	 ifrag_for_atom = fragments.size() -1;
       }
 
       // now find the residue, or add one.
-      bool found_residue = 0;
-      if (resno <= fragments[ifrag_atom].max_residue_number()) {
-	 if (resno >= fragments[ifrag_atom].min_res_no()) {
-	    found_residue = 1;
+      bool found_residue = false;
+      if (resno <= fragments[ifrag_for_atom].max_residue_number()) {
+	 if (resno >= fragments[ifrag_for_atom].min_res_no()) {
+	    found_residue = true;
 	 }
       }
 
@@ -126,7 +126,7 @@ coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
 	 minimol_atom.pos = clipper::Coord_orth(atoms[iat].x, atoms[iat].y, atoms[iat].z);
 	 res.addatom(minimol_atom);
 	 try { 
-	    fragments[ifrag_atom].addresidue(res,1);
+	    fragments[ifrag_for_atom].addresidue(res,1);
 	 }
 	 catch (std::runtime_error rte) {
 	    std::cout << "ERROR:: minimol constructor " << rte.what() << std::endl;
@@ -134,7 +134,7 @@ coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
       } else {
 	 coot::minimol::atom minimol_atom(at);
 	 minimol_atom.pos = clipper::Coord_orth(atoms[iat].x, atoms[iat].y, atoms[iat].z);
-	 fragments[ifrag_atom][resno].addatom(minimol_atom);
+	 fragments[ifrag_for_atom][resno].addatom(minimol_atom);
       } 
    }
 

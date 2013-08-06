@@ -3143,6 +3143,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
    // 
    for (int iat=0; iat<n_atoms; iat++)
       direct_initial_atoms[iat].Copy(atom_selection[iat]);
+
    coot::minimol::molecule direct_mol(atom_selection, n_atoms, direct_initial_atoms);
 
    float (*density_scoring_function)(const coot::minimol::molecule &mol,
@@ -3219,8 +3220,9 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
       float recap_score = density_scoring_function(trial_mol, atom_numbers, xmap);
       coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap, map_sigma);
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap);
-      std::cout << "INFO:: Jiggle-fit: optimizing trial: " << i_trial << " was " << trial_results[i_trial].second
-		<< " now " << recap_score << " post-fit " << this_score << std::endl;
+      std::cout << "INFO:: Jiggle-fit: optimizing trial: " << i_trial << " was "
+		<< trial_results[i_trial].second << " now " << recap_score << " post-fit "
+		<< this_score << std::endl;
       post_fit_trial_results[i_trial].second = this_score;
    }
 
@@ -3234,8 +3236,9 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
        post_fit_mol.transform(post_fit_trial_results[0].first, centre_pt);
        coot::minimol::molecule fitted_mol = rigid_body_fit(post_fit_mol, xmap, map_sigma);
        best_molecule = fitted_mol;
+
        float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap);
-       std::cout << ".......... chose new molecule with score " << this_score << std::endl;
+       std::cout << "INFO:: chose new molecule with score " << this_score << std::endl;
     } 
 
    //
@@ -3247,16 +3250,37 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
 	 CMMDBManager *mol = best_molecule.pcmmdbmanager();
 	 if (mol) {
 
+
+	    int imod = 1;
+	    CModel *model_p = mol->GetModel(imod);
+	    CChain *chain_p;
+	    int n_chains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<n_chains; ichain++) {
+	       chain_p = model_p->GetChain(ichain);
+	       int nres = chain_p->GetNumberOfResidues();
+	       CResidue *residue_p;
+	       CAtom *at;
+	       for (int ires=0; ires<nres; ires++) { 
+		  residue_p = chain_p->GetResidue(ires);
+		  int n_atoms = residue_p->GetNumberOfAtoms();
+		  for (int iat=0; iat<n_atoms; iat++) {
+		     at = residue_p->GetAtom(iat);
+		     std::cout << "    " << iat << " " << at << std::endl;
+		  }
+	       }
+	    }
+
+	    
 	    atom_selection_container_t asc_ligand = make_asc(mol);
 
 	    if (0) { // debug
 	       std::cout << "===== initial positions: =====" << std::endl;
 	       for (int iat=0; iat<n_atoms; iat++) {
-		  std::cout << "   " << atom_selection[iat] << std::endl;
+		  std::cout << "   " << iat << " " << atom_selection[iat] << std::endl;
 	       } 
 	       std::cout << "===== moved to: =====" << std::endl;
 	       for (int iat=0; iat<asc_ligand.n_selected_atoms; iat++) {
-		  std::cout << "   " << asc_ligand.atom_selection[iat] << std::endl;
+		  std::cout << "   " << iat << " "<< asc_ligand.atom_selection[iat] << std::endl;
 	       }
 	    }
 
