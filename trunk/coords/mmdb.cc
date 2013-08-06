@@ -562,8 +562,8 @@ ostream& operator<<(ostream& s, PCAtom atom) {
    //
    if (atom) { 
       s << atom->GetModelNum() << "/" << atom->GetChainID() << "/"
-	<< atom->GetSeqNum()   << atom->GetInsCode() << "/"
-     << atom->GetResName() << "/"
+	<< atom->GetSeqNum()   << atom->GetInsCode() << " {"
+	<< atom->GetResName() << "}/"
 	<< atom->name << " altLoc :" << atom->altLoc << ": segid :"
 	<< atom->segID << ":" << " pos: ("
 	<< atom->x << "," << atom->y << "," << atom->z
