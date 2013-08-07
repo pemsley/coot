@@ -3060,6 +3060,11 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 
    if (bond_colour_type == coot::COLOUR_BY_RAINBOW)
       atom_colours_udd = set_rainbow_colours(SelAtom.mol);
+   
+   int udd_has_bond_handle = SelAtom.mol->RegisterUDInteger(UDR_ATOM, "found-backbone-bond");
+   for (int i=0; i<SelAtom.n_selected_atoms; i++)
+      SelAtom.atom_selection[i]->PutUDData(udd_has_bond_handle, 0);
+   
 
    for(int imod = 1; imod<=SelAtom.mol->GetNumberOfModels(); imod++) {
       CModel *model_p = SelAtom.mol->GetModel(imod);
@@ -3133,6 +3138,9 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 					  }
 					  bonds_size_colour_check(col);
 					  addBond(col, ca_1, ca_2);
+					  at_1->PutUDData(udd_has_bond_handle, 1);
+					  at_2->PutUDData(udd_has_bond_handle, 1);
+					  
 				       }
 				       // for use with Ca+ligand mode
 				       residue_this->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
@@ -3150,6 +3158,60 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
       }
    }
 
+
+   // stars if needed:
+   // 
+   float star_size = 0.4;
+   // for atoms with no neighbour (contacts):
+   coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
+   coot::Cartesian small_vec_y(0.0, star_size, 0.0);
+   coot::Cartesian small_vec_z(0.0, 0.0, star_size);
+
+   int udd_status;
+   int udd_value;
+   for(int imod = 1; imod<=SelAtom.mol->GetNumberOfModels(); imod++) {
+      CModel *model_p = SelAtom.mol->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 for (int ires=0; ires<nres; ires++) {
+	    CResidue *residue_p = chain_p->GetResidue(ires);
+	    if (residue_p) { 
+	       int n_atoms = residue_p->GetNumberOfAtoms();
+	       for (unsigned int iat=0; iat<n_atoms; iat++) { 
+		  CAtom *at = residue_p->GetAtom(iat);
+		  std::string atom_name(at->GetAtomName());
+		  if (atom_name == " CA " || atom_name == " P  ") {
+		     udd_status = at->GetUDData(udd_has_bond_handle, udd_value);
+		     // All atoms have OK status, some are marked as not having a bond
+		     // 
+		     // then it has a bond, if not we need to mark it as a star.
+		     
+		     if (udd_status != UDDATA_Ok || udd_value == 0) {
+			int col = 0;
+			if (atom_colours_udd > 0) {
+			   realtype f;
+			   if (at->GetUDData(atom_colours_udd, f) == UDDATA_Ok)
+			      col = atom_colour_map.index_for_chain(chain_p->GetChainID());
+			}
+			if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR)
+			   col = atom_colour(at, coot::COLOUR_BY_B_FACTOR);
+			if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT)
+			   col = atom_colour(at, bond_colour_type);
+			
+			coot::Cartesian pos(at->x, at->y, at->z);
+			addBond(col, pos+small_vec_x, pos-small_vec_x);
+			addBond(col, pos+small_vec_y, pos-small_vec_y);
+			addBond(col, pos+small_vec_z, pos-small_vec_z);
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
    return atom_colour_map;
 }
 
