@@ -590,6 +590,17 @@ if (have_coot_python):
                               lambda text: mon_dict_func(text)))
                               
 
+     def morph_fit_chain_func(radius=7):
+       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
+         morph_fit_chain(aa_imol, aa_chain_id, radius)
+         
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Morph Fit Chain (Radius 7)",
+       lambda func: morph_fit_chain_func()
+       )
+     
      # -- N --
 
      def new_mol_sphere_func1(imol, text):
