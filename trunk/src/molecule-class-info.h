@@ -2537,6 +2537,7 @@ public:        //                      public
 
    // So that we can move around all the atoms of a ligand (typically)
    void translate_by(float x, float y, float z);
+   void translate_by_internal(const clipper::Coord_orth &co, CResidue *residue_p);
    void transform_by(mat44 mat); // can't make this const: mmdb probs.
    void transform_by(const clipper::RTop_orth &rtop);
    void transform_by(const clipper::RTop_orth &rtop, CResidue *res);
@@ -3290,7 +3291,7 @@ public:        //                      public
 		       double angle);
 
 
-   // for morphign
+   // for morphing
    class morph_rtop_triple {
    public:
       bool valid;
@@ -3322,8 +3323,8 @@ public:        //                      public
 			  const clipper::Xmap<float> &xmap_in, float transformation_average_radius);
    int morph_fit_chain(const std::string &chain_id,
 		       const clipper::Xmap<float> &xmap_in, float transformation_average_radius);
-   void morph_show_shifts(const std::map<CResidue *, clipper::RTop_orth> &simple_shifts,
-			  const std::map<CResidue *, clipper::RTop_orth> &smooth_shifts) const;
+   void morph_show_shifts(const std::map<CResidue *, morph_rtop_triple> &simple_shifts,
+			  const std::map<CResidue *, morph_rtop_triple> &smooth_shifts) const;
    // I fail to make a function that does a good "average" of RTops,
    // so do it long-hand by generating sets of coordinates by applying
    // each rtop to each atom - weights are transfered in the second part of the pair

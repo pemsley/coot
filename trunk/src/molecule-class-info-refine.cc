@@ -276,8 +276,8 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std:
 	 std::cout.flush();
 
 	 fragment_residues.push_back(moving_residues[ires].first);
-	 for (unsigned int ires=0; ires<moving_residues[ires].second.size(); ires++) {
-	    CResidue *r = moving_residues[ires].second[ires];
+	 for (unsigned int ires_l=0; ires_l<moving_residues[ires].second.size(); ires_l++) {
+	    CResidue *r = moving_residues[ires].second[ires_l];
 	    fragment_residues.push_back(r);
 	 }
 	 coot::minimol::fragment f;
@@ -285,11 +285,29 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std:
 	    f.addresidue(coot::minimol::residue(fragment_residues[ifr]), false);
 	 } 
 	 coot::minimol::molecule m(f);
-	 // returns the rtop to move m into map.
+	 
+	 coot::minimol::molecule m_copy = m; // for debugging
+	 
+	 // returns the local rtop (relative to local centre) to move m into map.
 	 std::pair<bool, clipper::RTop_orth> rtop = coot::get_rigid_body_fit_rtop(&m, local_centre.second, xmap_in);
-	 morph_rtop_triple rt(local_centre.second, rtop);
-	 rtop_map[residue_p] = rt; 
+	 if (rtop.first) { 
+	    morph_rtop_triple rt(local_centre.second, rtop);
+	    rtop_map[residue_p] = rt;
+	    
+	    // debugging block
+	    //
+	    if (0) { 
+	       coot::rigid_body_fit(&m_copy, xmap_in);
+	       std::string file_name = "morph-" + coot::util::int_to_string(ires);
+	       file_name += ".pdb";
+	       m_copy.write_file(file_name, 10);
+	       std::cout << "    rtop for " << residue_p->GetSeqNum() << " " << residue_p->GetResName()
+			 << " local centre " << local_centre.second.format() << " is " << std::endl;
+	       std::cout << rt.rtop.format() << std::endl;
+	    }
+	 }
       }
+      std::cout << std::endl; // for \r RTop specs
    }
 
    std::map<CResidue *, morph_rtop_triple>::const_iterator it;
@@ -297,8 +315,8 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std:
       success = 1;
       make_backup();
 
-      std::map<CResidue *, clipper::RTop_orth> simple_shifts;
-      std::map<CResidue *, clipper::RTop_orth> smooth_shifts;
+      std::map<CResidue *, morph_rtop_triple> simple_shifts;
+      std::map<CResidue *, morph_rtop_triple> smooth_shifts;
       
       for (it=rtop_map.begin(); it!=rtop_map.end(); it++) {
 	 CResidue *this_residue = it->first;
@@ -343,13 +361,15 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std:
 	    // clipper::RTop_orth rtop = q.centroid_rtop(rtops);
 	    bool robust_filter = true;
 	    clipper::RTop_orth rtop = q.centroid_rtop(rtops, robust_filter);
-	    // if (0)
-	    // std::cout << "yields averaged RTop:\n" << rtop.format() << std::endl;
-	    
-	    transform_by_internal(rtop, it->first);
-	    simple_shifts[this_residue] = it->second.rtop; // save just to view them
-	    smooth_shifts[this_residue] = rtop;
-	    
+
+	    translate_by_internal(-it->second.co, it->first);
+	    transform_by_internal(rtop,           it->first);
+	    translate_by_internal(it->second.co,  it->first);
+
+	    // debugging: save just to view them
+	    simple_shifts[this_residue] = it->second; 
+	    smooth_shifts[this_residue] = morph_rtop_triple(it->second.co,
+							    std::pair<bool, clipper::RTop_orth>(true, rtop));
 	    
 	 } else {
 	    std::cout << "no RTop for " << coot::residue_spec_t(it->first) << std::endl;
@@ -407,12 +427,12 @@ molecule_class_info_t::morph_residue_atoms_by_average_rtops(CResidue *residue_p,
 
 
 void
-molecule_class_info_t::morph_show_shifts(const std::map<CResidue *, clipper::RTop_orth> &simple_shifts,
-					 const std::map<CResidue *, clipper::RTop_orth> &smooth_shifts) const {
+molecule_class_info_t::morph_show_shifts(const std::map<CResidue *, morph_rtop_triple> &simple_shifts,
+					 const std::map<CResidue *, morph_rtop_triple> &smooth_shifts) const {
 
    // write a file
    
-   std::map<CResidue *, clipper::RTop_orth>::const_iterator it;
+   std::map<CResidue *, morph_rtop_triple>::const_iterator it;
    std::ofstream f("morph-shifts.scm");
 
    std::string ss;
@@ -438,7 +458,11 @@ molecule_class_info_t::morph_show_shifts(const std::map<CResidue *, clipper::RTo
 	    std::string line_colour = "yellow";
 	    std::string ball_colour = "yellow";
 
-	    clipper::Coord_orth to_pos = ca_pos.transform(it->second);
+	    clipper::RTop_orth rtop_for_centre(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1), it->second.co);
+	    clipper::RTop_orth rtop_for_centre_i(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1), -it->second.co);
+	    clipper::Coord_orth tp_1   = ca_pos.transform(rtop_for_centre_i);
+	    clipper::Coord_orth tp_2   =   tp_1.transform(it->second.rtop);
+	    clipper::Coord_orth to_pos =   tp_2.transform(rtop_for_centre);
 	 
 	    s += "(to-generic-object-add-line  simple-shifts ";
 	    s += "\"";
@@ -489,7 +513,11 @@ molecule_class_info_t::morph_show_shifts(const std::map<CResidue *, clipper::RTo
 	    std::string line_colour = "red";
 	    std::string ball_colour = "red";
 
-	    clipper::Coord_orth to_pos = ca_pos.transform(it->second);
+	    clipper::RTop_orth rtop_for_centre(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1), it->second.co);
+	    clipper::RTop_orth rtop_for_centre_i(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1), -it->second.co);
+	    clipper::Coord_orth tp_1   = ca_pos.transform(rtop_for_centre_i);
+	    clipper::Coord_orth tp_2   =   tp_1.transform(it->second.rtop);
+	    clipper::Coord_orth to_pos =   tp_2.transform(rtop_for_centre);
 	 
 	    s += "(to-generic-object-add-line  smooth-shifts ";
 	    s += "\"";
@@ -515,7 +543,7 @@ molecule_class_info_t::morph_show_shifts(const std::map<CResidue *, clipper::RTo
 	    s += "\"";
 	    s += ball_colour;
 	    s += "\"";
-	    s += " 12                 ";
+	    s += " 14                 ";
 	    s += coot::util::float_to_string(to_pos.x());
 	    s += " ";
 	    s += coot::util::float_to_string(to_pos.y());
