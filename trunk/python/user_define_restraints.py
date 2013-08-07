@@ -304,6 +304,36 @@ if (have_coot_python):
       lambda func: launch_prosmart_gui()
       )
 
+
+    add_simple_coot_menu_menuitem(
+      menu,
+      "Read ProSMART Restraints...",
+      lambda func:
+      generic_chooser_and_file_selector("Apply restraints to molecule",
+                                        valid_model_molecule_qm,
+                                        "File:", "",
+                                        lambda imol, file_name:
+                                        add_refmac_extra_restraints(imol, file_name)))
+
+    
+    def set_prosmart_display_func(state):
+      with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                 aa_ins_code, aa_atom_name, aa_alt_conf]:
+        set_show_extra_restraints(aa_imol, state)
+    
+    add_simple_coot_menu_menuitem(
+      menu,
+      "Undisplay ProSMART Extra Restraints...",
+      lambda func: set_prosmart_display_func(0)
+      )
+
+    add_simple_coot_menu_menuitem(
+      menu,
+      "Display proSMART Extra Restraints...",
+      lambda func: set_prosmart_display_func(1)
+      )
+    
+    
     add_simple_coot_menu_menuitem(
       menu,
       "Delete an Extra Restraint...",
