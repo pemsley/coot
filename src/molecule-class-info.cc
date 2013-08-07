@@ -7006,7 +7006,24 @@ molecule_class_info_t::translate_by(float x, float y, float z) {
       make_bonds_type_checked();
       have_unsaved_changes_flag = 1;
    }
-} 
+}
+
+void
+molecule_class_info_t::translate_by_internal(const clipper::Coord_orth &co, CResidue *residue_p) {
+
+   if (residue_p) {
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 CAtom *at = residue_atoms[iat];
+	 at->x += co.x();
+	 at->y += co.y();
+	 at->z += co.z();
+      }
+   }
+}
+
 
 // Sets coot_save_index maybe (using set_coot_save_index()).
 // 
