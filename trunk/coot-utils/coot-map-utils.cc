@@ -1388,7 +1388,7 @@ coot::util::segment_map::path_to_peak(const clipper::Coord_grid &start_point,
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 
-// pass a negative atom_selection to build an atom map for the whole molecule
+// pass a negative atom_selection_handle to build an atom map for the whole molecule
 // 
 clipper::Xmap<float>
 coot::util::calc_atom_map(CMMDBManager *mol,
