@@ -154,6 +154,52 @@
 	(= have-command? 0)) ; return #t or #f
       #f))
 
+;; Return a list if str is a string, else return '()
+;; 
+(define (string->list-of-strings str)
+
+  (if (not (string? str))
+      '()
+      (let f ((chars (string->list str))
+	      (word-list '())
+	      (running-list '()))
+
+	(cond 
+	 ((null? chars) (reverse 
+			 (if (null? running-list)
+			     word-list
+			     (cons (list->string (reverse running-list)) word-list))))
+	 ((or (char=? (car chars) #\space) 
+	      (char=? (car chars) #\tab)
+	      (char=? (car chars) #\newline))
+	  (f (cdr chars)
+					  (if (null? running-list)
+					      word-list
+					      (cons (list->string 
+						     (reverse running-list))
+						    word-list))
+					  '()))
+	 (else 
+	  (f (cdr chars)
+	     word-list
+	     (cons (car chars) running-list)))))))
+
+;; code from thi <ttn at mingle.glug.org>
+;; 
+;; run command and put the output into a string and return
+;; it. (c.f. @code{run-command/strings})
+;; 
+(define (shell-command-to-string cmd)
+  (with-output-to-string
+    (lambda ()
+      (let ((in-port (open-input-pipe cmd)))
+	(let loop ((line (read-line in-port 'concat)))
+	  (or (eof-object? line)
+	      (begin
+		(display line)
+		(loop (read-line in-port 'concat)))))))))
+
+
 
 ;; return string output of gdb:
 ;;
@@ -232,11 +278,19 @@
 		  (format #t "can't write gdb script~%")
 		  #f)))))))
 
-(define (send-emsley-text gdb-string)
+(define (send-emsley-text coot-exe gdb-string)
+
+  (format #t "Send this stuff:~%")
+  (format #t "~s~%" gdb-string)
   
-  (run-command/strings "mail"
-		       (list "-s" "Coot Crashed" (string-append "pemsley" "@" "mrc-lmb" ".cam" ".ac.uk"))
-		       (list gdb-string)))
+  (let ((info-list (list (format #f "hostname: ~s~%" (run-command/strings "hostname" '() '()))
+			 (format #f "version-full: ~s~%" (run-command/strings coot-exe
+									      (list "--version-full") '())))))
+    (run-command/strings "mail"
+			 (list "-s" "Coot Crashed" 
+			       (string-append "pemsley" "@" "mrc-lmb" ".cam" ".ac.uk"))
+			 (append info-list (list gdb-string)))))
+
 
 
 ;; gui
@@ -249,7 +303,7 @@
 	   (scrolled-win (gtk-scrolled-window-new))
 	   (text (gtk-text-new #f #f))
 	   (hbox-buttons (gtk-hbox-new #f 5))
-;	   (send-button (gtk-button-new-with-label " Send to Paul Emsley "))
+	   (send-button (gtk-button-new-with-label " Send to Paul Emsley "))
 	   (send-label (gtk-label-new 
 			(string-append "Please send to Paul Emsley (using cut 'n paste)\n"
 				       "(a few words to describe what you were \n"
@@ -263,19 +317,24 @@
       (gtk-container-add scrolled-win text)
       (gtk-box-pack-start vbox scrolled-win #t #t 5)
       (gtk-box-pack-start vbox hbox-buttons #f #f 5)
-;      (gtk-box-pack-start hbox-buttons send-button #t #f 5)
-      (gtk-box-pack-start hbox-buttons send-label #t #f 5)
+      ;; if in MRC show the send-mail button, else show the text.
+      (let ((domainname (string->list-of-strings (shell-command-to-string "domainname"))))
+	(if (string=? "mrc-lmb")
+	    (gtk-box-pack-start hbox-buttons send-button #t #f 5)
+	    (gtk-box-pack-start hbox-buttons send-label #t #f 5)))
       (gtk-box-pack-start hbox-buttons cancel-button #t #f 5)
       (gtk-text-insert text #f "black" "white" text-string -1)
 
       (gtk-signal-connect cancel-button "clicked"
 			  (lambda args
-			    (gtk-widget-destroy window)))
+			    ;; (gtk-widget-destroy window)))
+			    (press-the-other-button-window)))
 
-;      (gtk-signal-connect send-button "clicked"
-;			  (lambda args 
-;			    (send-emsley-text gdb-strings)
-;			    (gtk-widget-destroy window)))
+      (gtk-signal-connect send-button "clicked"
+			  (lambda args 
+			    (let ((coot-exe  (car (cdr (command-line)))))
+			      (send-emsley-text coot-exe gdb-strings)
+			      (gtk-widget-destroy window))))
 
       (gtk-widget-show-all window)
       (gtk-standalone-main window))))
@@ -289,6 +348,23 @@
      (else
       (add-newlines (cdr ls) (string-append stub "\n" (car ls)))))))
 ;; (add-newlines (list "one" "two" "three") "")
+
+
+(define (press-the-other-button-window)
+    (let* ((window (gtk-window-new 'toplevel))
+	   (label (gtk-label-new "  No! Press the Other Button (Go On - it's not hard...) "))
+	   (vbox (gtk-vbox-new #f 2))
+	   (cancel-button (gtk-button-new-with-label " Cancel ")))
+	   
+      (gtk-box-pack-start vbox label #f #f 5)
+      (gtk-box-pack-start vbox cancel-button #f #f 5)
+      (gtk-container-add window vbox)
+
+      (gtk-signal-connect cancel-button "clicked"
+			  (lambda args
+			    (gtk-widget-destroy window)))
+      (gtk-widget-show-all window)))
+
 
 (define bug-report
   (lambda (coot-exe)
