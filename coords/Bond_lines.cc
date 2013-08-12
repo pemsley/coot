@@ -1098,32 +1098,38 @@ Bond_lines_container::construct_from_model_links(CModel *model_p,
    // Interestingly, when we add a LINK to a PDB file, if there are
    // less residues in a chain than is specified in a LINK line, mmdb
    // expands the residue list in a chain with NULL residues!
+
+   // 20130812 Can we come here with NULL model_p? It seems that we can!
+   // (somehow!)
+   // 
+   if (model_p) { 
    
-   int n_links = model_p->GetNumberOfLinks();
-   if (n_links > 0) { 
-      for (int i_link=1; i_link<=n_links; i_link++) {
-	 PCLink link = model_p->GetLink(i_link);
+      int n_links = model_p->GetNumberOfLinks();
+      if (n_links > 0) { 
+	 for (int i_link=1; i_link<=n_links; i_link++) {
+	    PCLink link = model_p->GetLink(i_link);
 	 
-	 // For the moment, don't make Link dashed bonds to
-	 // symmetry-related molecules.
-	 // 
-	 if ((link->s1 == link->s2) && (link->i1 == link->i2) &&
-	     (link->j1 == link->j2) && (link->k1 == link->k2)) { 
-	    add_link_bond(model_p, atom_colour_type, link);
+	    // For the moment, don't make Link dashed bonds to
+	    // symmetry-related molecules.
+	    // 
+	    if ((link->s1 == link->s2) && (link->i1 == link->i2) &&
+		(link->j1 == link->j2) && (link->k1 == link->k2)) { 
+	       add_link_bond(model_p, atom_colour_type, link);
+	    }
 	 }
       }
-   }
    
 #ifdef MMDB_WITHOUT_LINKR
 #else
-   int n_linkrs = model_p->GetNumberOfLinkRs();
-   if (n_linkrs > 0) { 
-      for (int i_link=1; i_link<=n_linkrs; i_link++) {
-	 PCLinkR link = model_p->GetLinkR(i_link);
-	 add_link_bond(model_p, atom_colour_type, link);
+      int n_linkrs = model_p->GetNumberOfLinkRs();
+      if (n_linkrs > 0) { 
+	 for (int i_link=1; i_link<=n_linkrs; i_link++) {
+	    PCLinkR link = model_p->GetLinkR(i_link);
+	    add_link_bond(model_p, atom_colour_type, link);
+	 }
       }
-   }
 #endif   
+   }
 }
 
 void
@@ -1372,7 +1378,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    //    int n_non_H();
    // }
    
-   int imodel; 
+   int imodel = -1;
    int n_models = SelAtom.mol->GetNumberOfModels(); // models start at number 1
    std::vector<coot::model_bond_atom_info_t> atom_stuff_vec(n_models+1);
    
@@ -3068,88 +3074,90 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 
    for(int imod = 1; imod<=SelAtom.mol->GetNumberOfModels(); imod++) {
       CModel *model_p = SelAtom.mol->GetModel(imod);
-      CChain *chain_p;
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 CResidue *residue_this;
-	 CResidue *residue_prev;
-	 CAtom *at_1;
-	 CAtom *at_2;
-	 for (int ires=1; ires<nres; ires++) { 
-	    residue_this = chain_p->GetResidue(ires);
-	    residue_prev = chain_p->GetResidue(ires-1);
-	    if (residue_this && residue_prev) {
-	       int n_atoms_prev = residue_prev->GetNumberOfAtoms();
-	       int n_atoms_this = residue_this->GetNumberOfAtoms();
-	       for (int iat=0; iat<n_atoms_prev; iat++) {
-		  at_1 = residue_prev->GetAtom(iat);
-		  std::string atom_name_1(at_1->GetAtomName());
-		  if (atom_name_1 == " CA " || atom_name_1 == " P  ") { 
-		     for (int jat=0; jat<n_atoms_this; jat++) {
-			at_2 = residue_this->GetAtom(jat);
-			std::string atom_name_2(at_2->GetAtomName());
-			std::string alt_conf_prev = at_1->altLoc;
-			std::string alt_conf_this = at_2->altLoc;
-			if (!at_1->Het && !at_2->Het) {
-			   if (!at_1->isTer() && !at_2->isTer()) {
-			      float dist_max_sqrd = dist_max_CA_CA * dist_max_CA_CA;
-			      bool phosphate_pair = false;
-			      bool Calpha_pair    = false;
-			      if ((atom_name_1 == " P  ") && (atom_name_2 == " P  ")) { 
-				 phosphate_pair = 1;
-				 dist_max_sqrd = dist_max_P_P * dist_max_P_P;
-			      } 
-			      if ((atom_name_1 == " CA ") && (atom_name_2 == " CA ")) { 
-				 Calpha_pair = 1;
-			      }
+      if (model_p) { 
+	 CChain *chain_p;
+	 int nchains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    CResidue *residue_this;
+	    CResidue *residue_prev;
+	    CAtom *at_1;
+	    CAtom *at_2;
+	    for (int ires=1; ires<nres; ires++) { 
+	       residue_this = chain_p->GetResidue(ires);
+	       residue_prev = chain_p->GetResidue(ires-1);
+	       if (residue_this && residue_prev) {
+		  int n_atoms_prev = residue_prev->GetNumberOfAtoms();
+		  int n_atoms_this = residue_this->GetNumberOfAtoms();
+		  for (int iat=0; iat<n_atoms_prev; iat++) {
+		     at_1 = residue_prev->GetAtom(iat);
+		     std::string atom_name_1(at_1->GetAtomName());
+		     if (atom_name_1 == " CA " || atom_name_1 == " P  ") { 
+			for (int jat=0; jat<n_atoms_this; jat++) {
+			   at_2 = residue_this->GetAtom(jat);
+			   std::string atom_name_2(at_2->GetAtomName());
+			   std::string alt_conf_prev = at_1->altLoc;
+			   std::string alt_conf_this = at_2->altLoc;
+			   if (!at_1->Het && !at_2->Het) {
+			      if (!at_1->isTer() && !at_2->isTer()) {
+				 float dist_max_sqrd = dist_max_CA_CA * dist_max_CA_CA;
+				 bool phosphate_pair = false;
+				 bool Calpha_pair    = false;
+				 if ((atom_name_1 == " P  ") && (atom_name_2 == " P  ")) { 
+				    phosphate_pair = 1;
+				    dist_max_sqrd = dist_max_P_P * dist_max_P_P;
+				 } 
+				 if ((atom_name_1 == " CA ") && (atom_name_2 == " CA ")) { 
+				    Calpha_pair = 1;
+				 }
 			      
-			      if (Calpha_pair || phosphate_pair) { 
-				 if (alt_conf_prev == alt_conf_this || alt_conf_this == "" || alt_conf_prev == "") {
-				    int col = 0; // overridden.
-				    coot::Cartesian ca_1(at_1->x, at_1->y, at_1->z);
-				    coot::Cartesian ca_2(at_2->x, at_2->y, at_2->z);
-				    if ((ca_1-ca_2).amplitude_squared() < dist_max_sqrd) { 
-				       if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
-					  coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
-					  col = atom_colour(at_1, coot::COLOUR_BY_B_FACTOR);
-					  addBond(col, ca_1, bond_mid_point);
-					  col = atom_colour(at_2, coot::COLOUR_BY_B_FACTOR);
-					  addBond(col, bond_mid_point, ca_2);
-				       } else {
-					  if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) { 
-					     col = atom_colour(at_1, bond_colour_type);
+				 if (Calpha_pair || phosphate_pair) { 
+				    if (alt_conf_prev == alt_conf_this || alt_conf_this == "" || alt_conf_prev == "") {
+				       int col = 0; // overridden.
+				       coot::Cartesian ca_1(at_1->x, at_1->y, at_1->z);
+				       coot::Cartesian ca_2(at_2->x, at_2->y, at_2->z);
+				       if ((ca_1-ca_2).amplitude_squared() < dist_max_sqrd) { 
+					  if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR) {
+					     coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+					     col = atom_colour(at_1, coot::COLOUR_BY_B_FACTOR);
+					     addBond(col, ca_1, bond_mid_point);
+					     col = atom_colour(at_2, coot::COLOUR_BY_B_FACTOR);
+					     addBond(col, bond_mid_point, ca_2);
 					  } else {
-					     if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
-						if (atom_colours_udd > 0) {
-						   realtype f;
-						   if (at_1->GetUDData(atom_colours_udd, f) == UDDATA_Ok) {
-						      col = atom_colour_map.index_for_rainbow(f);
+					     if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) { 
+						col = atom_colour(at_1, bond_colour_type);
+					     } else {
+						if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
+						   if (atom_colours_udd > 0) {
+						      realtype f;
+						      if (at_1->GetUDData(atom_colours_udd, f) == UDDATA_Ok) {
+							 col = atom_colour_map.index_for_rainbow(f);
+						      } else {
+							 col = 0;
+						      }
 						   } else {
 						      col = 0;
 						   }
 						} else {
-						   col = 0;
+						   col = atom_colour_map.index_for_chain(chain_p->GetChainID());
 						}
-					     } else {
-						col = atom_colour_map.index_for_chain(chain_p->GetChainID());
 					     }
-					  }
-					  bonds_size_colour_check(col);
-					  addBond(col, ca_1, ca_2);
-					  at_1->PutUDData(udd_has_bond_handle, 1);
-					  at_2->PutUDData(udd_has_bond_handle, 1);
+					     bonds_size_colour_check(col);
+					     addBond(col, ca_1, ca_2);
+					     at_1->PutUDData(udd_has_bond_handle, 1);
+					     at_2->PutUDData(udd_has_bond_handle, 1);
 					  
+					  }
+					  // for use with Ca+ligand mode
+					  residue_this->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+					  residue_prev->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
 				       }
-				       // for use with Ca+ligand mode
-				       residue_this->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
-				       residue_prev->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
-				    }
-				 }				 
+				    }				 
+				 }
 			      }
-			   }
-			} 
+			   } 
+			}
 		     }
 		  }
 	       }
@@ -3171,40 +3179,42 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
    int udd_value;
    for(int imod = 1; imod<=SelAtom.mol->GetNumberOfModels(); imod++) {
       CModel *model_p = SelAtom.mol->GetModel(imod);
-      CChain *chain_p;
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 for (int ires=0; ires<nres; ires++) {
-	    CResidue *residue_p = chain_p->GetResidue(ires);
-	    if (residue_p) { 
-	       int n_atoms = residue_p->GetNumberOfAtoms();
-	       for (unsigned int iat=0; iat<n_atoms; iat++) { 
-		  CAtom *at = residue_p->GetAtom(iat);
-		  std::string atom_name(at->GetAtomName());
-		  if (atom_name == " CA " || atom_name == " P  ") {
-		     udd_status = at->GetUDData(udd_has_bond_handle, udd_value);
-		     // All atoms have OK status, some are marked as not having a bond
-		     // 
-		     // then it has a bond, if not we need to mark it as a star.
+      if (model_p) { 
+	 CChain *chain_p;
+	 int nchains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       CResidue *residue_p = chain_p->GetResidue(ires);
+	       if (residue_p) { 
+		  int n_atoms = residue_p->GetNumberOfAtoms();
+		  for (unsigned int iat=0; iat<n_atoms; iat++) { 
+		     CAtom *at = residue_p->GetAtom(iat);
+		     std::string atom_name(at->GetAtomName());
+		     if (atom_name == " CA " || atom_name == " P  ") {
+			udd_status = at->GetUDData(udd_has_bond_handle, udd_value);
+			// All atoms have OK status, some are marked as not having a bond
+			// 
+			// then it has a bond, if not we need to mark it as a star.
 		     
-		     if (udd_status != UDDATA_Ok || udd_value == 0) {
-			int col = 0;
-			if (atom_colours_udd > 0) {
-			   realtype f;
-			   if (at->GetUDData(atom_colours_udd, f) == UDDATA_Ok)
-			      col = atom_colour_map.index_for_chain(chain_p->GetChainID());
-			}
-			if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR)
-			   col = atom_colour(at, coot::COLOUR_BY_B_FACTOR);
-			if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT)
-			   col = atom_colour(at, bond_colour_type);
+			if (udd_status != UDDATA_Ok || udd_value == 0) {
+			   int col = 0;
+			   if (atom_colours_udd > 0) {
+			      realtype f;
+			      if (at->GetUDData(atom_colours_udd, f) == UDDATA_Ok)
+				 col = atom_colour_map.index_for_chain(chain_p->GetChainID());
+			   }
+			   if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR)
+			      col = atom_colour(at, coot::COLOUR_BY_B_FACTOR);
+			   if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT)
+			      col = atom_colour(at, bond_colour_type);
 			
-			coot::Cartesian pos(at->x, at->y, at->z);
-			addBond(col, pos+small_vec_x, pos-small_vec_x);
-			addBond(col, pos+small_vec_y, pos-small_vec_y);
-			addBond(col, pos+small_vec_z, pos-small_vec_z);
+			   coot::Cartesian pos(at->x, at->y, at->z);
+			   addBond(col, pos+small_vec_x, pos-small_vec_x);
+			   addBond(col, pos+small_vec_y, pos-small_vec_y);
+			   addBond(col, pos+small_vec_z, pos-small_vec_z);
+			}
 		     }
 		  }
 	       }
@@ -3403,43 +3413,45 @@ Bond_lines_container::set_rainbow_colours(CMMDBManager *mol) {
       int n_models = mol->GetNumberOfModels();
       for (int imod=1; imod<=n_models; imod++) { 
 	 CModel *model_p = mol->GetModel(imod);
-	 int nchains = model_p->GetNumberOfChains();
-	 for (int ich=0; ich<nchains; ich++) {
-	    CChain *chain_p = model_p->GetChain(ich);
-	    int nres = chain_p->GetNumberOfResidues();
-	    int seq_no_max = MinInt4;
-	    int seq_no_min = MaxInt4;
+	 if (model_p) { 
+	    int nchains = model_p->GetNumberOfChains();
+	    for (int ich=0; ich<nchains; ich++) {
+	       CChain *chain_p = model_p->GetChain(ich);
+	       int nres = chain_p->GetNumberOfResidues();
+	       int seq_no_max = MinInt4;
+	       int seq_no_min = MaxInt4;
 	    
-	    for (int ires=0; ires<nres; ires++) { 
-	       CResidue *residue_p = chain_p->GetResidue(ires);
-	       std::string res_name(residue_p->GetResName());
-	       if (res_name != "HOH") {
-		  if (coot::util::is_standard_residue_name(res_name)) {
-		     int seq_no_this = ires;
-		     if (seq_no_this < seq_no_min) {
-			seq_no_min = seq_no_this;
-		     }
-		     if (seq_no_this > seq_no_max) {
-			seq_no_max = seq_no_this;
-		     } 
-		  } 
-	       }
-	    }
-	    if ((seq_no_max != MinInt4) && (seq_no_min != MaxInt4)) {
-	       
 	       for (int ires=0; ires<nres; ires++) { 
 		  CResidue *residue_p = chain_p->GetResidue(ires);
-		  if (seq_no_min < seq_no_max) { 
-		     float range = seq_no_max - seq_no_min;
-		     float chain_pos = float(ires)/range;
-		     if (chain_pos < 0)
-			chain_pos = 0;
-		     if (chain_pos > 1)
-			chain_pos = 1;
-		     int n_atoms = residue_p->GetNumberOfAtoms();
-		     for (unsigned int iat=0; iat<n_atoms; iat++) { 
-			CAtom *atom_p = residue_p->GetAtom(iat);
-			atom_p->PutUDData(udd_handle, chain_pos);
+		  std::string res_name(residue_p->GetResName());
+		  if (res_name != "HOH") {
+		     if (coot::util::is_standard_residue_name(res_name)) {
+			int seq_no_this = ires;
+			if (seq_no_this < seq_no_min) {
+			   seq_no_min = seq_no_this;
+			}
+			if (seq_no_this > seq_no_max) {
+			   seq_no_max = seq_no_this;
+			} 
+		     } 
+		  }
+	       }
+	       if ((seq_no_max != MinInt4) && (seq_no_min != MaxInt4)) {
+	       
+		  for (int ires=0; ires<nres; ires++) { 
+		     CResidue *residue_p = chain_p->GetResidue(ires);
+		     if (seq_no_min < seq_no_max) { 
+			float range = seq_no_max - seq_no_min;
+			float chain_pos = float(ires)/range;
+			if (chain_pos < 0)
+			   chain_pos = 0;
+			if (chain_pos > 1)
+			   chain_pos = 1;
+			int n_atoms = residue_p->GetNumberOfAtoms();
+			for (unsigned int iat=0; iat<n_atoms; iat++) { 
+			   CAtom *atom_p = residue_p->GetAtom(iat);
+			   atom_p->PutUDData(udd_handle, chain_pos);
+			}
 		     }
 		  }
 	       }
@@ -4181,7 +4193,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 	    atom_selection[i]->PutUDData(uddHnd, NO_BOND);
       }
 
-      if (ncontacts > 0) { 
+      if (contact && ncontacts > 0) { 
 
 	 CAtom *at1 = 0;
 	 CAtom *at2 = 0;
@@ -4457,137 +4469,142 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 
    int n_models = asc.mol->GetNumberOfModels();
    
-   for (int imodel=1; imodel<=n_models; imodel++) { 
+   for (int imodel=1; imodel<=n_models; imodel++) {
 
-      PPCAtom atom_selection = 0;
-      int n_selected_atoms = 0;
-      contact = NULL;
+      CModel *model_p = asc.mol->GetModel(imodel);
 
-      // make a new atom selection, based on the model.
-      int SelectionHandle = asc.mol->NewSelection();
-      asc.mol->SelectAtoms (SelectionHandle, imodel, "*",
-			    ANY_RES, // starting resno, an int
-			    "*", // any insertion code
-			    ANY_RES, // ending resno
-			    "*", // ending insertion code
-			    "*", // any residue name
-			    "*", // atom name
-			    "*", // elements
-			    "*"  // alt loc.
-			    );
+      if (model_p) { 
+
+	 PPCAtom atom_selection = 0;
+	 int n_selected_atoms = 0;
+	 contact = NULL;
+
+	 // make a new atom selection, based on the model.
+	 int SelectionHandle = asc.mol->NewSelection(); // d
+	 asc.mol->SelectAtoms (SelectionHandle, imodel, "*",
+			       ANY_RES, // starting resno, an int
+			       "*", // any insertion code
+			       ANY_RES, // ending resno
+			       "*", // ending insertion code
+			       "*", // any residue name
+			       "*", // atom name
+			       "*", // elements
+			       "*"  // alt loc.
+			       );
       
-      asc.mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
+	 asc.mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
       
-      asc.mol->SeekContacts(atom_selection, n_selected_atoms,
-			    atom_selection, n_selected_atoms,
-			    min_dist, max_dist, // min, max distances
-			    0,        // seqDist 0 -> in same res also
-			    contact, ncontacts,
-			    0, &my_matt, i_contact_group);
+	 asc.mol->SeekContacts(atom_selection, n_selected_atoms,
+			       atom_selection, n_selected_atoms,
+			       min_dist, max_dist, // min, max distances
+			       0,        // seqDist 0 -> in same res also
+			       contact, ncontacts,
+			       0, &my_matt, i_contact_group);
 
-      coot::my_atom_colour_map_t atom_colour_map;
-      int res1, res2;
-      // Now, let's not forget that some atoms don't have contacts, so
-      // whenever we find a contact for an atom, we mark it with
-      // UserDefinedData "found bond".
-      // 
-      int uddHnd = asc.mol->RegisterUDInteger (UDR_ATOM, "found bond");
-      if (uddHnd<0)  {
-	 std::cout << " atom bonding registration failed.\n";
-      } else {
-	 for (int i=0; i<n_selected_atoms; i++)
-	    atom_selection[i]->PutUDData(uddHnd, NO_BOND);
-      }
+	 coot::my_atom_colour_map_t atom_colour_map;
+	 int res1, res2;
+	 // Now, let's not forget that some atoms don't have contacts, so
+	 // whenever we find a contact for an atom, we mark it with
+	 // UserDefinedData "found bond".
+	 // 
+	 int uddHnd = asc.mol->RegisterUDInteger (UDR_ATOM, "found bond");
+	 if (uddHnd<0)  {
+	    std::cout << " atom bonding registration failed.\n";
+	 } else {
+	    for (int i=0; i<n_selected_atoms; i++)
+	       atom_selection[i]->PutUDData(uddHnd, NO_BOND);
+	 }
 
-      if (ncontacts > 0) { 
+	 if (contact && ncontacts > 0) { 
       
-	 std::string element1;
-	 std::string element2;
-	 for (int i=0; i< ncontacts; i++) {
-	    if (contact[i].id2 > contact[i].id1) {
+	    std::string element1;
+	    std::string element2;
+	    for (int i=0; i< ncontacts; i++) {
+	       if (contact[i].id2 > contact[i].id1) {
 
-	       CAtom *at1 = atom_selection[ contact[i].id1 ];
-	       CAtom *at2 = atom_selection[ contact[i].id2 ];
+		  CAtom *at1 = atom_selection[ contact[i].id1 ];
+		  CAtom *at2 = atom_selection[ contact[i].id2 ];
       
-	       res1 = at1->GetSeqNum();
-	       res2 = at2->GetSeqNum();
+		  res1 = at1->GetSeqNum();
+		  res2 = at2->GetSeqNum();
 
-	       if (abs(res1 - res2) < 2) { 
-		  coot::Cartesian atom_1(at1->x, at1->y, at1->z);
-		  coot::Cartesian atom_2(at2->x, at2->y, at2->z);
+		  if (abs(res1 - res2) < 2) { 
+		     coot::Cartesian atom_1(at1->x, at1->y, at1->z);
+		     coot::Cartesian atom_2(at2->x, at2->y, at2->z);
 
-		  element1 = at1->element;
-		  element2 = at2->element;
-		  if ( (draw_hydrogens_flag == 1) ||
-		       // (element1 != " H" && element1 != " D" &&
-		       // element2 != " H" && element2 != " D") ) {
-		       (! is_hydrogen(element1) && ! is_hydrogen(element2))) { 
+		     element1 = at1->element;
+		     element2 = at2->element;
+		     if ( (draw_hydrogens_flag == 1) ||
+			  // (element1 != " H" && element1 != " D" &&
+			  // element2 != " H" && element2 != " D") ) {
+			  (! is_hydrogen(element1) && ! is_hydrogen(element2))) { 
 		  
-		     // alternate location test
-		     // 	    
-		     std::string aloc_1(at1->altLoc);
-		     std::string aloc_2(at2->altLoc);
-		     // 
-		     if (aloc_1 == "" || aloc_2 == "" || aloc_1 == aloc_2) {
+			// alternate location test
+			// 	    
+			std::string aloc_1(at1->altLoc);
+			std::string aloc_2(at2->altLoc);
+			// 
+			if (aloc_1 == "" || aloc_2 == "" || aloc_1 == aloc_2) {
 
-			// OK, draw a bond! (but not between 2 Hydrogens)
+			   // OK, draw a bond! (but not between 2 Hydrogens)
 
-			// if (! (element1 == " H" && element2 == " H")) { 
-			if (! (is_hydrogen(element1) && is_hydrogen(element2))) { 
-			   bonds_size_colour_check(col);
-			   addBond(col, atom_1, atom_2);
-			}
+			   // if (! (element1 == " H" && element2 == " H")) { 
+			   if (! (is_hydrogen(element1) && is_hydrogen(element2))) { 
+			      bonds_size_colour_check(col);
+			      addBond(col, atom_1, atom_2);
+			   }
 		     
+			   if (uddHnd>=0) {
+			      at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+			      at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+			   }
+			}
+		     } else {
+			// It was a hydrogen (or bonded to Hydrogen).
+			// Mark it as bonded (we don't want to see single
+			// unbonded (stared) hydorgens).
 			if (uddHnd>=0) {
 			   at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
 			   at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
 			}
 		     }
-		  } else {
-		     // It was a hydrogen (or bonded to Hydrogen).
-		     // Mark it as bonded (we don't want to see single
-		     // unbonded (stared) hydorgens).
-		     if (uddHnd>=0) {
-			at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-			at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-		     }
 		  }
 	       }
 	    }
+	    delete [] contact;
+	    contact = NULL;
 	 }
-	 delete [] contact;
-	 contact = NULL;
-      }
 
-      if (uddHnd>=0) {
+	 if (uddHnd>=0) {
     
-	 // for atoms with no neighbour (contacts):
-	 coot::Cartesian small_vec_x(0.5, 0.0, 0.0);
-	 coot::Cartesian small_vec_y(0.0, 0.5, 0.0);
-	 coot::Cartesian small_vec_z(0.0, 0.0, 0.5);
+	    // for atoms with no neighbour (contacts):
+	    coot::Cartesian small_vec_x(0.5, 0.0, 0.0);
+	    coot::Cartesian small_vec_y(0.0, 0.5, 0.0);
+	    coot::Cartesian small_vec_z(0.0, 0.0, 0.5);
 
-	 int ic; // changed by reference;
-	 int col;
-	 for (int i=0; i<n_selected_atoms; i++) { 
-	    if ( atom_selection[i]->GetUDData(uddHnd,ic) == UDDATA_Ok ) {
-	       if (ic == 0) {
-		  std::string segid(atom_selection[i]->GetChainID());
-		  col = atom_colour_map.index_for_chain(segid);
-		  bonds_size_colour_check(col);
-		  coot::Cartesian atom(atom_selection[i]->x,
-				       atom_selection[i]->y,
-				       atom_selection[i]->z);
+	    int ic; // changed by reference;
+	    int col;
+	    for (int i=0; i<n_selected_atoms; i++) { 
+	       if ( atom_selection[i]->GetUDData(uddHnd,ic) == UDDATA_Ok ) {
+		  if (ic == 0) {
+		     std::string segid(atom_selection[i]->GetChainID());
+		     col = atom_colour_map.index_for_chain(segid);
+		     bonds_size_colour_check(col);
+		     coot::Cartesian atom(atom_selection[i]->x,
+					  atom_selection[i]->y,
+					  atom_selection[i]->z);
 	       
-		  addBond(col, atom+small_vec_x, atom-small_vec_x); 
-		  addBond(col, atom+small_vec_y, atom-small_vec_y);
-		  addBond(col, atom+small_vec_z, atom-small_vec_z);
+		     addBond(col, atom+small_vec_x, atom-small_vec_x); 
+		     addBond(col, atom+small_vec_y, atom-small_vec_y);
+		     addBond(col, atom+small_vec_z, atom-small_vec_z);
+		  }
 	       }
 	    }
-	 }
-	 construct_from_model_links(asc.mol->GetModel(imodel), coot::COLOUR_BY_CHAIN);
+	    construct_from_model_links(asc.mol->GetModel(imodel), coot::COLOUR_BY_CHAIN);
 	 
+	 }
+	 asc.mol->DeleteSelection(SelectionHandle);
       }
-      asc.mol->DeleteSelection(SelectionHandle);
    }
    add_zero_occ_spots(asc);
    int atom_colour_type = coot::COLOUR_BY_CHAIN;

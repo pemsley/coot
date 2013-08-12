@@ -488,28 +488,34 @@ fix_element_name_lengths(CMMDBManager *mol) {
 
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
       CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
-      int n_chains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<n_chains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 CResidue *residue_p;
-	 CAtom *at;
-	 for (int ires=0; ires<nres; ires++) { 
-	    residue_p = chain_p->GetResidue(ires);
-	    int n_atoms = residue_p->GetNumberOfAtoms();
-	    for (int iat=0; iat<n_atoms; iat++) {
-	       at = residue_p->GetAtom(iat);
-	       std::string ele(at->element);
-	       if (ele.length() == 1) {
-		  ele = " " + ele;
-		  at->SetElementName(ele.c_str());
-	       } 
+      if (model_p) { 
+	 CChain *chain_p;
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    if (chain_p) {
+	       int nres = chain_p->GetNumberOfResidues();
+	       CResidue *residue_p;
+	       CAtom *at;
+	       for (int ires=0; ires<nres; ires++) { 
+		  residue_p = chain_p->GetResidue(ires);
+		  if (residue_p) { 
+		     int n_atoms = residue_p->GetNumberOfAtoms();
+		     for (int iat=0; iat<n_atoms; iat++) {
+			at = residue_p->GetAtom(iat);
+			std::string ele(at->element);
+			if (ele.length() == 1) {
+			   ele = " " + ele;
+			   at->SetElementName(ele.c_str());
+			}
+		     }
+		  }
+	       }
 	    }
 	 }
       }
    }
-} 
+}
 
 
 
