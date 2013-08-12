@@ -768,12 +768,10 @@ molecule_class_info_t::make_environment_bonds_box(int atom_index,
 	 }
       } else {
 	 std::cout << "ERROR:: NULL residue_p in make_environment_bonds_box() " << std::endl;
-      } 
-   } else {
-      std::cout << "ERROR bad atom index in make_environment_bonds_box() " << std::endl;
-   } 
+      }
+   }
    return bonds_box;
-} 
+}
 
 graphical_bonds_container
 molecule_class_info_t::make_symmetry_environment_bonds_box(int atom_index,
