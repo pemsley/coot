@@ -280,15 +280,18 @@
 
 (define (send-emsley-text coot-exe gdb-string)
 
-  (format #t "Send this stuff:~%")
-  (format #t "~s~%" gdb-string)
-  
-  (let ((info-list (list (format #f "hostname: ~s~%" (run-command/strings "hostname" '() '()))
-			 (format #f "version-full: ~s~%" (run-command/strings coot-exe
-									      (list "--version-full") '())))))
+  (let ((info-list (list "\n------------------------------------\n" 
+			 (let ((u (getenv "USER")))
+			   (format #f "user: ~s ~s~%" s (getpwnam u)))
+			 (format #f "hostname: ~s~%" (run-command/strings "hostname" '() '()))
+			 (format #f "exe-name: ~s~%" coot-exe)
+			 (format #f "version-full: ~s~%" 
+				 (run-command/strings coot-exe (list "--version-full") '()))
+			 (format #f "working directory: ~s~%" (getcwd)))))
+
     (run-command/strings "mail"
 			 (list "-s" "Coot Crashed" 
-			       (string-append "pemsley" "@" "mrc-lmb" ".cam" ".ac.uk"))
+			       (string-append "p" "e" "msley" "@" "mrc-lmb" "." "cam" ".ac.uk"))
 			 (append info-list (list gdb-string)))))
 
 
@@ -319,7 +322,8 @@
       (gtk-box-pack-start vbox hbox-buttons #f #f 5)
       ;; if in MRC show the send-mail button, else show the text.
       (let ((domainname (string->list-of-strings (shell-command-to-string "domainname"))))
-	(if (string=? "mrc-lmb")
+	(if (or (string=? "mrc-lmb" domainname)
+		(string? (getenv "COOT_DEV_TEST")))
 	    (gtk-box-pack-start hbox-buttons send-button #t #f 5)
 	    (gtk-box-pack-start hbox-buttons send-label #t #f 5)))
       (gtk-box-pack-start hbox-buttons cancel-button #t #f 5)
