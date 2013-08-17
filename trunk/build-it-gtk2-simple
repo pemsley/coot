@@ -451,6 +451,11 @@ NIGHTLY_DEST_DIR=${NIGHTLY_DEST_DIR:=${HOME}/public_html/software/binaries/night
 STABLE_DEST_DIR=${STABLE_DEST_DIR:=${HOME}/public_html/software/binaries/stable}
 
 
+# how do we transfer the file on the build host to the web server?
+# Some systems we can simply copy the files.  For others, we now have
+# this "publish" mechanism (to be overwritten as needed)
+publish=${publish::}
+
 # When we fail to extract the correct tar file from the web site, what
 # shall we build instead?
 #
@@ -517,7 +522,6 @@ function post_install_slim {
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
 	bin/guile bin/density-score-by-residue bin/density-score-by-residue-real \
         bin/curl $keep_lib_archs"
-
 
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
         # 20090427 remove python and python config from bin dir (as it
@@ -3464,11 +3468,9 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
                echo second coot test passed
                echo ========================
                echo pass-2nd-test > $LOGS/$build_type-test-status
-               # copy over to York if we are in biop
 
 	       mv $holding_tar_file $bin_tar_file
 	       mv $holding_tar_file.md5sum $bin_tar_file.md5sum
-               # copy file to pre-release dir if needed
 
                # update the description of the latest binary tar file for
                # this build-type.
@@ -3480,9 +3482,17 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
                cd $coot_dir_name
                echo INFO:: in "$build_dir"/$coot_dir_name and about to copy over README and RELEASE-NOTES to $BINARY_TAR_DEST_DIR
                cp ChangeLog $BINARY_TAR_DEST_DIR
+               cp README    coot-README
                cp README    $BINARY_TAR_DEST_DIR/coot-README
                cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
                cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
+
+	       $publish $bin_tar_file
+	       $publish $bin_tar_file.md5sum
+	       $publish ChangeLog
+	       $publish coot-README
+	       $publish RELEASE-NOTES
+
 	       echo done copy of README and RELEASE-NOTES
 	    else 
                echo ========================
