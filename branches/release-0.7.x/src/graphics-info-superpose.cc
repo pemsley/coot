@@ -168,16 +168,15 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 
 #ifdef HAVE_SSMLIB
 
-   int precision = SSMP_Normal;
-   int connectivity = CSSC_Flexible;
+   ssm::PRECISION precision = ssm::PREC_Normal;
+   ssm::CONNECTIVITY connectivity = ssm::CONNECT_Flexible;
 
    // probably not necessary, not sure:
-   SetSSConnectivityCheck ( CSSC_Flexible );
-   SetSSMatchPrecision    ( SSMP_Normal );
+   ssm::SetConnectivityCheck(ssm::CONNECT_Flexible);
+   ssm::SetMatchPrecision(ssm::PREC_Normal);
 
    if (asc_ref.n_selected_atoms > 0) { 
       if (asc_mov.n_selected_atoms > 0) {
-	 
 
 	 CMMDBManager *mol1 = asc_ref.mol;
 	 CMMDBManager *mol2 = asc_mov.mol;
@@ -199,36 +198,36 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 
 	 // Remove the pointer one day.
 	 // 
-	 CSSMAlign *SSMAlign = new CSSMAlign();
-	 int rc = SSMAlign->Align(mol2, mol1, precision, connectivity,
-				  asc_mov.SelectionHandle,
-				  asc_ref.SelectionHandle);
+	 ssm::Align *SSMAlign = new ssm::Align();
+	 int rc = SSMAlign->AlignSelectedMatch(mol2, mol1, precision, connectivity,
+					       asc_mov.SelectionHandle,
+					       asc_ref.SelectionHandle);
 
 	 if (rc)  {
 	    std::string ws;
 	    switch (rc)  {
-	    case SSM_noHits :
+	    case ssm::RC_NoHits :
 	       std::cout << " *** secondary structure does not match.\n";
 	       ws = "secondary structure does not match";
 	       break;
-	    case SSM_noSPSN :
+	    case ssm::RC_NoSuperposition :
 	       std::cout << " *** structures are too remote.\n";
 	       ws = "structures are too remote";
 	       break;
-	    case SSM_noGraph :
+	    case ssm::RC_NoGraph :
 	       std::cout << " *** can't make graph for " << name1 << "\n";
 	       ws = "can't make graph for " + name1;
 	       ws += " structure";
 	       break;
-	    case SSM_noVertices :
+	    case ssm::RC_NoVertices :
 	       std::cout << " *** empty graph for " << name1 << "\n";
 	       ws = "empty graph for " + name1;
 	       break;
-	    case SSM_noGraph2 :
+	    case ssm::RC_NoGraph2 :
 	       std::cout << " *** can't make graph for " << name2 << "\n";
 	       ws = "can't make graph for " + name2;
 	       break;
-	    case SSM_noVertices2 :
+	    case ssm::RC_NoVertices2 :
 	       std::cout << " *** empty graph for " << name2 << "\n";
 	       ws = "empty graph for " + name2;
 	       break;
@@ -331,7 +330,7 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 
 #ifdef HAVE_SSMLIB
 void
-graphics_info_t::make_and_print_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+graphics_info_t::make_and_print_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 							 atom_selection_container_t asc_ref,
 							 atom_selection_container_t asc_mov,
 							 PCAtom *atom_selection1, PCAtom *atom_selection2,
@@ -394,7 +393,7 @@ graphics_info_t::print_horizontal_ssm_sequence_alignment(std::pair<std::string, 
 
 #ifdef HAVE_SSMLIB
 std::pair<std::string, std::string>
-graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+graphics_info_t::get_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 						       atom_selection_container_t asc_ref,
 						       atom_selection_container_t asc_mov,
 						       PCAtom *atom_selection1, PCAtom *atom_selection2,
@@ -483,7 +482,7 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
 
 #ifdef HAVE_SSMLIB
 void
-graphics_info_t::print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+graphics_info_t::print_ssm_sequence_alignment(ssm::Align *SSMAlign,
 					      atom_selection_container_t asc_ref,
 					      atom_selection_container_t asc_mov,
 					      PCAtom *atom_selection1, PCAtom *atom_selection2,

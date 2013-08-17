@@ -35,24 +35,12 @@ if test x$with_ssmlib_prefix != x; then
    MMDBSSM_CXXFLAGS="-DHAVE_SSMLIB"
    MMDBSSM_LIBS="-L$with_ssmlib_prefix/$acl_libdirstem -lssm"
 
-ac_mmdb_dirs='
-.
-include
-include/ssm
-include/mmdb
-lib
-src
-lib/src
-lib/src/mmdb'
+   echo ======= testing for presence of "$with_ssmlib_prefix/include/ssm/ssm_superpose.h"
 
-   for ac_dir in $ac_mmdb_dirs; do
-      if test -r "$with_ssmlib_prefix/$ac_dir/ssm_superpose.h"; then
-         ac_MMDBSSM_CXXFLAGS="-I$with_ssmlib_prefix/$ac_dir"
-         break
-      fi
-   done
-
-  MMDBSSM_CXXFLAGS="$MMDBSSM_CXXFLAGS $ac_MMDBSSM_CXXFLAGS"
+   if test -r "$with_ssmlib_prefix/include/ssm/ssm_superpose.h"; then
+      ac_MMDBSSM_CXXFLAGS="-I$with_ssmlib_prefix/include"
+   fi
+   MMDBSSM_CXXFLAGS="$MMDBSSM_CXXFLAGS $ac_MMDBSSM_CXXFLAGS"
   
 else 
 
