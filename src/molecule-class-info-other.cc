@@ -6943,6 +6943,9 @@ molecule_class_info_t::cis_trans_conversion(const std::string &chain_id, int res
 int
 molecule_class_info_t::cis_trans_conversion(CAtom *at, short int is_N_flag) {
 
+   std::cout << "in molecule_class_info_t::cis_trans_conversion() atom_sel.mol is "
+	     << atom_sel.mol << std::endl;
+
    // These 3 are pointers, each of which are of size 2
    PCResidue *trans_residues = NULL;
    PCResidue *cis_residues = NULL;
@@ -6956,7 +6959,7 @@ molecule_class_info_t::cis_trans_conversion(CAtom *at, short int is_N_flag) {
    int resno_2 = resno_1 + 1; // i.e. *this* residue, if N clicked.
    char *chain_id = at->GetChainID();
 
-   int selHnd = atom_sel.mol->NewSelection();
+   int selHnd = atom_sel.mol->NewSelection(); //
    int nSelResidues;
    
    atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
@@ -6975,59 +6978,63 @@ molecule_class_info_t::cis_trans_conversion(CAtom *at, short int is_N_flag) {
    int istat = 0;
    if (nSelResidues >= 2) {
 
-      int selHnd_trans = g.standard_residues_asc.mol->NewSelection();
-      int ntrans_residues; 
-      g.standard_residues_asc.mol->Select(selHnd_trans, STYPE_RESIDUE, 0,
-					  "*",
-					  ANY_RES, "*",
-					  ANY_RES, "*",
-					  "TNS", // residue name
-					  "*",   // Residue must contain this atom name?
-					  "*",   // Residue must contain this Element?
-					  "*",   // altLocs
-					  SKEY_NEW // selection key
-					  );
-      g.standard_residues_asc.mol->GetSelIndex(selHnd_trans,
-					       trans_residues, ntrans_residues);
-      if (ntrans_residues >= 2) {
-
-	 int selHnd_cis = g.standard_residues_asc.mol->NewSelection();
-	 int ncis_residues; 
-	 g.standard_residues_asc.mol->Select(selHnd_cis, STYPE_RESIDUE, 0,
+      if (g.standard_residues_asc.mol) { 
+	 int selHnd_trans = g.standard_residues_asc.mol->NewSelection();
+	 int ntrans_residues; 
+	 g.standard_residues_asc.mol->Select(selHnd_trans, STYPE_RESIDUE, 0,
 					     "*",
 					     ANY_RES, "*",
 					     ANY_RES, "*",
-					     "CIS", // residue name
+					     "TNS", // residue name
 					     "*",   // Residue must contain this atom name?
 					     "*",   // Residue must contain this Element?
 					     "*",   // altLocs
 					     SKEY_NEW // selection key
 					     );
-	 g.standard_residues_asc.mol->GetSelIndex(selHnd_cis, cis_residues, ncis_residues);
+	 g.standard_residues_asc.mol->GetSelIndex(selHnd_trans,
+						  trans_residues, ntrans_residues);
+	 if (ntrans_residues >= 2) {
 
-	 if (ncis_residues >= 2) { 
+	    int selHnd_cis = g.standard_residues_asc.mol->NewSelection(); // d
+	    int ncis_residues; 
+	    g.standard_residues_asc.mol->Select(selHnd_cis, STYPE_RESIDUE, 0,
+						"*",
+						ANY_RES, "*",
+						ANY_RES, "*",
+						"CIS", // residue name
+						"*",   // Residue must contain this atom name?
+						"*",   // Residue must contain this Element?
+						"*",   // altLocs
+						SKEY_NEW // selection key
+						);
+	    g.standard_residues_asc.mol->GetSelIndex(selHnd_cis, cis_residues, ncis_residues);
 
-	    PPCAtom residue_atoms = NULL;
-	    int n_residue_atoms;
-	    trans_residues[0]->GetAtomTable(residue_atoms, n_residue_atoms);
-	    trans_residues[1]->GetAtomTable(residue_atoms, n_residue_atoms);
+	    if (ncis_residues >= 2) { 
+
+	       PPCAtom residue_atoms = NULL;
+	       int n_residue_atoms;
+	       trans_residues[0]->GetAtomTable(residue_atoms, n_residue_atoms);
+	       trans_residues[1]->GetAtomTable(residue_atoms, n_residue_atoms);
 	    
-	    istat = cis_trans_convert(mol_residues, trans_residues, cis_residues);
-	    if (istat) {
-	       // backup made in cis_trans_convert()
-	       have_unsaved_changes_flag = 1;
-	       make_bonds_type_checked();
+	       istat = cis_trans_convert(mol_residues, trans_residues, cis_residues);
+	       if (istat) {
+		  // backup made in cis_trans_convert()
+		  have_unsaved_changes_flag = 1;
+		  make_bonds_type_checked();
+	       }
+	    } else {
+	       std::cout << "ERROR:: failed to get cis residues in cis_trans_convert "
+			 << ncis_residues << std::endl;
 	    }
+	    g.standard_residues_asc.mol->DeleteSelection(selHnd_cis);
 	 } else {
-	    std::cout << "ERROR:: failed to get cis residues in cis_trans_convert "
-		      << ncis_residues << std::endl;
+	    std::cout << "ERROR:: failed to get trans residues in cis_trans_convert "
+		      << ntrans_residues << std::endl;
 	 }
-	 g.standard_residues_asc.mol->DeleteSelection(selHnd_cis);
+	 g.standard_residues_asc.mol->DeleteSelection(selHnd_trans);
       } else {
-	 std::cout << "ERROR:: failed to get trans residues in cis_trans_convert "
-		   << ntrans_residues << std::endl;
-      }
-      g.standard_residues_asc.mol->DeleteSelection(selHnd_trans);
+	 std::cout << "ERROR:: NULL standard residues molecule" << std::endl;
+      } 
    } else {
       std::cout << "ERROR:: failed to get mol residues in cis_trans_convert" << std::endl;
    }

@@ -980,10 +980,8 @@ translated_atoms(atom_selection_container_t AtomSel,
 		symm_trans_t symm_trans) {
 
    mat44 my_matt;
-   CMMDBCryst *cryst_p =  (CMMDBCryst *) &AtomSel.mol->get_cell();
-   
-   int err = cryst_p->GetTMatrix(my_matt, symm_trans.isym(), symm_trans.x(),
-				 symm_trans.y(), symm_trans.z());
+   int err = AtomSel.mol->GetTMatrix(my_matt, symm_trans.isym(), symm_trans.x(),
+				      symm_trans.y(), symm_trans.z());
    
    if (err != 0) {
       cout << "!!!!!!!!!!!!!! something BAD with CMMDBCryst.GetTMatrix"

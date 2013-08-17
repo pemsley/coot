@@ -390,18 +390,18 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 				   current_point.get_y(),
 				   current_point.get_z(), 1.0, 99.9);
       
-      CMMDBCryst *cryst_p =  (CMMDBCryst *) &AtomSel.mol->get_cell();
+      // CMMDBCryst *cryst_p =  (CMMDBCryst *) &AtomSel.mol->get_cell();
 
-      cout << "DEBUG: There are " << cryst_p->GetNumberOfSymOps() << " sym ops" << endl; 
+      cout << "DEBUG: There are " << AtomSel.mol->GetNumberOfSymOps() << " sym ops" << endl; 
       cout << "symmetry expanding about " << current_point << endl; 
 
       for (int ix = -1; ix < 2; ix++) { 
 	 for (int iy = -1; iy < 2; iy++) { 
 	    for (int iz = -1; iz < 2; iz++) {
 
-	       for (int isym = 0; isym < cryst_p->GetNumberOfSymOps(); isym++) { 
+	       for (int isym = 0; isym < AtomSel.mol->GetNumberOfSymOps(); isym++) { 
 
-		  int err = cryst_p->GetTMatrix(my_matt, isym, ix, iy, iz); 
+		  int err = AtomSel.mol->GetTMatrix(my_matt, isym, ix, iy, iz); 
 
 		  if (err != 0)
 		     cout << "!! something BAD with CMMDBCryst.GetTMatrix"

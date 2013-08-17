@@ -3992,7 +3992,7 @@ gchar *get_text_for_phs_cell_chooser(int imol, char *field) {
    gchar *retval = NULL;
    retval = (gchar *) malloc(12); 
    int ihave_cell = 0; 
-   float cell[6];
+   realtype cell[6];
    const char *spgrp = NULL; 
 
    if (imol >= 0) { 
@@ -4002,12 +4002,11 @@ gchar *get_text_for_phs_cell_chooser(int imol, char *field) {
 
 	       ihave_cell = 1; 
 
-	       cell[0] = g.molecules[imol].atom_sel.mol->get_cell().a;
-	       cell[1] = g.molecules[imol].atom_sel.mol->get_cell().b;
-	       cell[2] = g.molecules[imol].atom_sel.mol->get_cell().c;
-	       cell[3] = g.molecules[imol].atom_sel.mol->get_cell().alpha;
-	       cell[4] = g.molecules[imol].atom_sel.mol->get_cell().beta;
-	       cell[5] = g.molecules[imol].atom_sel.mol->get_cell().gamma;
+	       realtype vol;
+	       int orthcode;
+	       g.molecules[imol].atom_sel.mol->GetCell(cell[0], cell[1], cell[2],
+						       cell[3], cell[4], cell[5],
+						       vol, orthcode);
 	       spgrp   = g.molecules[imol].atom_sel.mol->GetSpaceGroup(); 
 
 	    } else { 
