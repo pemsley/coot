@@ -142,22 +142,19 @@ AC_SUBST(COOT_GSL_FLAGS)
 
 dnl =========================== GTK, GNOMECANVAS ===========================
 
-AC_ARG_WITH(gtk2, [  use to compile coot with GTK+2],
- coot_gtk2="TRUE", coot_gtk2="FALSE")
-
 coot_gtk2=TRUE
 
-	#  AM_PATH_GTK(2.4.14)
-  PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.12)
-  PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
-  if test -n "$GNOME_CANVAS_CFLAGS" ; then 
-	GNOME_CANVAS_CFLAGS="-DHAVE_GNOME_CANVAS $GNOME_CANVAS_CFLAGS"
-  fi
-  AC_SUBST(GNOME_CANVAS_CFLAGS)
+# AM_PATH_GTK(2.4.14)
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.12)
+PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
+if test -n "$GNOME_CANVAS_CFLAGS" ; then 
+   GNOME_CANVAS_CFLAGS="-DHAVE_GNOME_CANVAS $GNOME_CANVAS_CFLAGS"
+fi
+AC_SUBST(GNOME_CANVAS_CFLAGS)
 
-  AM_PATH_GTKGLEXT_1_0(1.0.0,,[exit 1]) 
-  MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
-  AC_SUBST(MAKE_COOTRC_CMD)
+AM_PATH_GTKGLEXT_1_0(1.0.0,,[exit 1]) 
+MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
+AC_SUBST(MAKE_COOTRC_CMD)
 
 
 dnl ============================ OPENGL ===================
