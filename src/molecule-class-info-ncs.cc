@@ -50,7 +50,7 @@
 #include "graphics-info.h"
 
 #ifdef HAVE_SSMLIB
-#include "ssm_align.h"
+#include <ssm/ssm_align.h>
 #endif
 
 // This is called by make_bonds_type_checked(), which is called by
@@ -514,34 +514,40 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
    if (graphics_info_t::ncs_matrix_flag == coot::NCS_SSM) {
 #ifdef HAVE_SSMLIB
 
-      int precision = SSMP_Normal;
-      int connectivity = CSSC_Flexible;
-      CSSMAlign *SSMAlign = new CSSMAlign();
-      int rc = SSMAlign->Align(atom_sel.mol, atom_sel.mol,
-			       precision, connectivity, SelHandle2, SelHandle1);
+      ssm::PRECISION precision = ssm::PREC_Normal;
+      ssm::CONNECTIVITY connectivity = ssm::CONNECT_Flexible;
+      ssm::Align *SSMAlign = new ssm::Align();
+      int rc = SSMAlign->AlignSelectedMatch(atom_sel.mol, atom_sel.mol,
+					    precision, connectivity, SelHandle2, SelHandle1);
 
       if (rc)  {
 	 std::string ws;
 	 switch (rc)  {
-	 case SSM_noHits :
+
+	 case ssm::RC_NoHits :
 	    std::cout << " *** secondary structure does not match.\n";
 	    ws = "secondary structure does not match";
 	    break;
-	 case SSM_noSPSN :
+	 case ssm::RC_NoSuperposition :
 	    std::cout << " *** structures are too remote.\n";
 	    ws = "structures are too remote";
 	    break;
-	 case SSM_noGraph :
-	    std::cout << " *** can't make graph for 1\n";
+	 case ssm::RC_NoGraph :
+	    std::cout << " *** can't make graph for 1 \n";
+	    ws = "can't make graph for 1 ";
+	    ws += " structure";
 	    break;
-	 case SSM_noVertices :
+	 case ssm::RC_NoVertices :
 	    std::cout << " *** empty graph for 1\n";
+	    ws = "empty graph for 1";
 	    break;
-	 case SSM_noGraph2 :
+	 case ssm::RC_NoGraph2 :
 	    std::cout << " *** can't make graph for 2\n";
+	    ws = "can't make graph for 2 ";
 	    break;
-	 case SSM_noVertices2 :
+	 case ssm::RC_NoVertices2 :
 	    std::cout << " *** empty graph for 2\n";
+	    ws = "empty graph for 2";
 	    break;
 	 default :
 	    std::cout << " *** undocumented return code: " << rc << "\n";
