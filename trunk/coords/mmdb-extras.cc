@@ -82,16 +82,16 @@ debug_atom_selection_container(atom_selection_container_t asc) {
    cout << "DEBUG: asc " << "read_error_message=" << asc.read_error_message << endl;
    cout << "DEBUG: asc " << "read_success=" << asc.read_success << endl;
 
-   cout << "DEBUG: asc " << "cell="
-	<< asc.mol->get_cell_p()->a << " "
-	<< asc.mol->get_cell_p()->b << " "
-	<< asc.mol->get_cell_p()->c << " "
-	<< asc.mol->get_cell_p()->alpha << " "
-	<< asc.mol->get_cell_p()->beta << " "
-	<< asc.mol->get_cell_p()->gamma << endl;
+//    cout << "DEBUG: asc " << "cell="
+// 	<< asc.mol->get_cell_p()->a << " "
+// 	<< asc.mol->get_cell_p()->b << " "
+// 	<< asc.mol->get_cell_p()->c << " "
+// 	<< asc.mol->get_cell_p()->alpha << " "
+// 	<< asc.mol->get_cell_p()->beta << " "
+// 	<< asc.mol->get_cell_p()->gamma << endl;
    
-   cout << "DEBUG: asc " << "spacegroup=" << asc.mol->get_cell_p()->spaceGroup
-	<< endl;
+//    cout << "DEBUG: asc " << "spacegroup=" << asc.mol->get_cell_p()->spaceGroup
+// 	<< endl;
 
    if (asc.n_selected_atoms > 10) {
       cout << "DEBUG start 10 atoms: " << endl;

@@ -65,8 +65,7 @@ class MyCMMDBManager : public CMMDBManager {
 //
 class atom_selection_container_t { 
 public:
-   //PCMMDBManager mol; 
-   MyCMMDBManager *mol;
+   CMMDBManager *mol;
    int n_selected_atoms; 
    PPCAtom atom_selection; 
    std::string read_error_message;

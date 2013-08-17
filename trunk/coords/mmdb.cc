@@ -60,7 +60,7 @@ atom_selection_container_t
 get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
    int err;
-   MyCMMDBManager* MMDBManager;
+   CMMDBManager* MMDBManager;
 
    // Needed for the error message printing: 
    // MMDBManager->GetInputBuffer(S, lcount);
@@ -97,9 +97,7 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
     } else { 
 
-
        if (coot::util::extension_is_for_shelx_coords(extension)) {
-
 
 	  coot::ShelxIns s;
 	  coot::shelx_read_file_info_t srf = s.read_file(pdb_name);
@@ -110,9 +108,9 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 	  if (asc.mol)
 	     asc.read_success = 1;  // a good idea?
 
-       } else { 
-   
-	  MMDBManager = new MyCMMDBManager();
+       } else {
+
+	  MMDBManager = new CMMDBManager;
 
 	  // For mmdb version 1.0.3:
 	  //    MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
@@ -131,28 +129,26 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 #ifdef HAVE_MMDB_IGNORE_HASH
        
 	  MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
-				 MMDBF_IgnoreDuplSeqNum |
+// 				 MMDBF_IgnoreDuplSeqNum |
 				 MMDBF_IgnoreNonCoorPDBErrors |
 				 MMDBF_IgnoreHash |
 				 MMDBF_IgnoreRemarks);
 #else
 	  MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
-				 MMDBF_IgnoreDuplSeqNum |
+//				 MMDBF_IgnoreDuplSeqNum |
 				 MMDBF_IgnoreNonCoorPDBErrors |
 				 MMDBF_IgnoreRemarks);
 #endif // HAVE_MMDB_IGNORE_HASH       
        
 	  std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
 	  err = MMDBManager->ReadCoorFile(pdb_name.c_str());
-   
+
 	  if (err) {
 	     // does_file_exist(pdb_name.c_str());
 	     cout << "There was an error reading " << pdb_name.c_str() << ". \n";
 	     cout << "ERROR " << err << " READ: "
 		  << GetErrorDescription(err) << endl;
 	     //
-	     // This makes my stomach churn too. Sorry.
-	     // 
 	     MMDBManager->GetInputBuffer(error_buf, error_count);
 	     if (error_count >= 0) { 
 		cout << "         LINE #" << error_count << "\n     "
@@ -197,14 +193,13 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 	  std::cout << "No Spacegroup found for this PDB file\n";
        } 
     
-       std::cout << "Cell: "
-		 << MMDBManager->get_cell().a << " "
-		 << MMDBManager->get_cell().b << " "
-		 << MMDBManager->get_cell().c << " "
-		 << MMDBManager->get_cell().alpha << " "
-		 << MMDBManager->get_cell().beta  << " "
-		 << MMDBManager->get_cell().gamma << "\n";
-
+//        std::cout << "Cell: "
+// 		 << MMDBManager->get_cell().a << " "
+// 		 << MMDBManager->get_cell().b << " "
+// 		 << MMDBManager->get_cell().c << " "
+// 		 << MMDBManager->get_cell().alpha << " "
+// 		 << MMDBManager->get_cell().beta  << " "
+// 		 << MMDBManager->get_cell().gamma << "\n";
 
        // 
     

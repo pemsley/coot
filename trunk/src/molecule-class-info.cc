@@ -140,7 +140,6 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 				    
    // Read in pdb, [shelx files use the read_shelx_ins_file method]
    //
-
    atom_sel = get_atom_selection(filename, convert_to_v2_atom_names_flag);
 
    if (atom_sel.read_success == 1) {
@@ -464,10 +463,10 @@ molecule_class_info_t::install_model(int imol_no_in,
 
    atom_sel = asc;
 
-   CMMDBCryst *cryst_p =  (atom_sel.mol)->get_cell_p();
+   //    CMMDBCryst *cryst_p =  (atom_sel.mol)->get_cell_p();
    mat44 my_matt;
    
-   int err = cryst_p->GetTMatrix(my_matt, 0, 0, 0, 0);
+   int err = asc.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
    if (err != 0) {
       std::cout << "!! Warning:: No symmetry available for this molecule"
 		<< std::endl;
@@ -2540,11 +2539,11 @@ molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag) {
 void
 molecule_class_info_t::set_have_unit_cell_flag_maybe() {
    
-   CMMDBCryst *cryst_p = atom_sel.mol->get_cell_p();
+   // CMMDBCryst *cryst_p = atom_sel.mol->get_cell_p();
 
    mat44 my_matt;
 
-   int err = cryst_p->GetTMatrix(my_matt, 0, 0, 0, 0);
+   int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
 
    if (err != 0) {
       have_unit_cell = 0;
@@ -7172,12 +7171,20 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
    std::cout << "INFO:: coordinates transformed by orthonal matrix: \n"
 	     << rtop.format() << std::endl;
    if (have_unit_cell) {
-      clipper::Cell cell(clipper::Cell_descr(atom_sel.mol->get_cell().a,
-					     atom_sel.mol->get_cell().b,
-					     atom_sel.mol->get_cell().c,
-					     clipper::Util::d2rad(atom_sel.mol->get_cell().alpha),
-					     clipper::Util::d2rad(atom_sel.mol->get_cell().beta),
-					     clipper::Util::d2rad(atom_sel.mol->get_cell().gamma))); 
+
+      realtype cell_params[6];
+      realtype vol;
+      int orthcode;
+      atom_sel.mol->GetCell(cell_params[0], cell_params[1], cell_params[2],
+			    cell_params[3], cell_params[4], cell_params[5],
+			    vol, orthcode);
+      
+      clipper::Cell cell(clipper::Cell_descr(cell_params[0],
+					     cell_params[1],
+					     cell_params[2],
+					     clipper::Util::d2rad(cell_params[3]),
+					     clipper::Util::d2rad(cell_params[4]),
+					     clipper::Util::d2rad(cell_params[5]))); 
       std::cout << "INFO:: fractional coordinates matrix:" << std::endl;
       std::cout << rtop.rtop_frac(cell).format() << std::endl;
    } else {

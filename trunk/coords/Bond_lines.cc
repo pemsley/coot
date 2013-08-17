@@ -2296,16 +2296,14 @@ Bond_lines_container::addSymmetry_calphas(const atom_selection_container_t &SelA
    CAtom t_atom2;
 
    for (unsigned int ii=0; ii<symm_trans.size(); ii++) {
-      CMMDBCryst *cryst_p =  (CMMDBCryst *) &SelAtom.mol->get_cell();
-
-      int err = cryst_p->GetTMatrix(my_matt, symm_trans[ii].first.isym(), symm_trans[ii].first.x(),
-				    symm_trans[ii].first.y(), symm_trans[ii].first.z());
+      int err = SelAtom.mol->GetTMatrix(my_matt, symm_trans[ii].first.isym(), symm_trans[ii].first.x(),
+					symm_trans[ii].first.y(), symm_trans[ii].first.z());
 
       mat44 mol_to_origin_matt;
-      cryst_p->GetTMatrix(mol_to_origin_matt, 0,
-			  -symm_trans[ii].second.us,
-			  -symm_trans[ii].second.vs,
-			  -symm_trans[ii].second.ws);
+      SelAtom.mol->GetTMatrix(mol_to_origin_matt, 0,
+			      -symm_trans[ii].second.us,
+			      -symm_trans[ii].second.vs,
+			      -symm_trans[ii].second.ws);
       
       if (err != 0) {
 	 cout << "!!!!!!!!!!!!!! something BAD with CMMDBCryst.GetTMatrix"
@@ -2587,30 +2585,9 @@ Bond_lines_container::trans_sel(atom_selection_container_t AtomSel,
    //
    // modify my_matt;
    // 
-   // GetTMatrix is not const:  Arrrrrrrggggh!  Ghod this is *so* frustrating.
-   //
-   // I want to say "simply":
-   // AtomSel.mol->get_cell().GetTMatrix(my_matt, symm_trans.isym(), symm_trans.x(),
-   //                                    symm_trans.y(), symm_trans.z());
-   // so this is the ugly hack work around...
-   //
-   // Note that we have to move to a pointer because CMMDBCryst
-   // destructor will trash an CMMDBCryst returned from get_cell()
-   // (which is actually a const ref to the real one).
-   //
-   // And we do (CMMDBCryst *) casting because &AtomSel.mol->get_cell();
-   // returns (as I just said) a const ref and the compiler cannot
-   // convert const `CMMDBCryst *' to `CMMDBCryst *' (sensibly enough).
-   //
-   // And we can't type cryst_p as const because (see above) GetTMatrix is
-   // not a const function and can't use a const object.
-   //
-   // Fun eh?
    // 
-   CMMDBCryst *cryst_p =  (CMMDBCryst *) &AtomSel.mol->get_cell();
-
-   int err = cryst_p->GetTMatrix(my_matt, symm_trans.first.isym(), symm_trans.first.x(),
-				 symm_trans.first.y(), symm_trans.first.z());
+   int err = AtomSel.mol->GetTMatrix(my_matt, symm_trans.first.isym(), symm_trans.first.x(),
+				     symm_trans.first.y(), symm_trans.first.z());
 
    if (err != 0) {
       cout << "!!!!!!!!!!!!!! something BAD with CMMDBCryst.GetTMatrix"
@@ -2631,10 +2608,10 @@ Bond_lines_container::trans_sel(atom_selection_container_t AtomSel,
 
 
    mat44 mol_to_origin_matt;
-   cryst_p->GetTMatrix(mol_to_origin_matt, 0,
-		       -symm_trans.second.us,
-		       -symm_trans.second.vs,
-		       -symm_trans.second.ws);
+   AtomSel.mol->GetTMatrix(mol_to_origin_matt, 0,
+			   -symm_trans.second.us,
+			   -symm_trans.second.vs,
+			   -symm_trans.second.ws);
 		       
    // Whoah!  Big alloc!  Given back in addSymmetry
    // 
@@ -3839,10 +3816,8 @@ Bond_lines_container::do_symmetry_Ca_bonds(atom_selection_container_t SelAtom,
 
    // adjust my_matt to the symm_trans:
    //
-   CMMDBCryst *cryst_p =  (CMMDBCryst *) &SelAtom.mol->get_cell();
-
-   int err = cryst_p->GetTMatrix(my_matt, symm_trans.isym(), symm_trans.x(),
-				 symm_trans.y(), symm_trans.z());
+   int err = SelAtom.mol->GetTMatrix(my_matt, symm_trans.isym(), symm_trans.x(),
+				     symm_trans.y(), symm_trans.z());
 
    if (err != 0) {
       cout << "!!!!!!!!!!!!!! something BAD with CMMDBCryst.GetTMatrix"
