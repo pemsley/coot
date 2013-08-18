@@ -85,8 +85,6 @@ namespace exptl {
       };
 
 
-     
-
       int molecule_number;
       GtkCanvas *canvas;
       std::vector<GtkCanvasItem *> canvas_item_vec;
@@ -109,16 +107,23 @@ namespace exptl {
       int pixels_per_chain;
       bool add_text_and_rect(CResidue *residue_p, int pos_number, int lowest_resno, double x_offset);
       std::string colour_by_secstr(CResidue *residue_p) const;
+      int points_max; 
       
    public:
       nsv(CMMDBManager *mol,
 	  const std::string &molecule_name,
 	  int molecule_number_in,
 	  bool use_graphics_interface);
+      nsv(CMMDBManager *mol,
+	  const std::string &molecule_name,
+	  int molecule_number_in,
+	  bool use_graphics_interface,
+	  int canvas_pixel_limit);
       void regenerate(CMMDBManager *mol);
       GtkWidget *Canvas() const { return GTK_WIDGET(canvas); }
+      // default is 22500 
+      void set_points_max(int v) { points_max = v; }
    };
-
 }
 
 

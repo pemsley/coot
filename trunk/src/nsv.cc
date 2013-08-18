@@ -50,9 +50,20 @@ exptl::nsv::nsv(CMMDBManager *mol,
 		const std::string &molecule_name,
 		int molecule_number_in,
 		bool use_graphics_interface_in) {
+   
+   points_max = 22500;
+   nsv(mol, molecule_name, molecule_number_in, use_graphics_interface_in);
+}
+
+exptl::nsv::nsv(CMMDBManager *mol,
+		const std::string &molecule_name,
+		int molecule_number_in,
+		bool use_graphics_interface_in,
+		int canvas_pixel_limit) {
 
    molecule_number = molecule_number_in;
    use_graphics_interface_flag = use_graphics_interface_in;
+   points_max = canvas_pixel_limit;
 
    GtkWidget *top_lev = gtk_dialog_new();
    gtk_object_set_data(GTK_OBJECT(top_lev), "nsv_dialog", top_lev);
@@ -360,8 +371,9 @@ exptl::nsv::add_text_and_rect(CResidue *residue_p,
       double y2 = y1 - 11; // pixels_per_letter;
       std::string rect_colour = "grey85";
 
-      double x1_max = 22500; // magic number
-      if (x1 < x1_max) { 
+      // double x1_max = 22500; // magic number
+      
+      if (x1 < points_max) { 
 	 GtkCanvasItem *rect_item;
 	 rect_item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 					 GTK_CANVAS_TYPE_CANVAS_RECT,
@@ -393,7 +405,7 @@ exptl::nsv::add_text_and_rect(CResidue *residue_p,
 	 canvas_item_vec.push_back(text_item);
       } else {
 	 too_wide = true;
-      } 
+      }
    }
    return too_wide;
 }
@@ -524,7 +536,6 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
    GtkCanvasPoints *points = gtk_canvas_points_new(2);
    float font_scaler = pixels_per_letter;
 
-
    // ticks and text
    int irn_start = tick_start_number(lrn);
    // 2 sets of x-axis and ticks and tick numbers, one above and one
@@ -547,7 +558,6 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
       points->coords[2] = (brn-lrn)*font_scaler - x_offset;
       points->coords[3] = y_value;
 
-      double points_max = 22500; // 23000 too many (strangely)
       if (points->coords[2] > points_max)
 	 points->coords[2] = points_max;
 

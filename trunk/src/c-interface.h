@@ -7040,6 +7040,7 @@ void set_show_graphics_ligand_view(int state);
 /*                  experimental                                            */
 /*  ----------------------------------------------------------------------- */
 void nsv(int imol);
+void set_nsv_canvas_pixel_limit(int cpl);
 
 void sequence_view_old_style(int imol);
 
