@@ -336,7 +336,7 @@
 
       (gtk-signal-connect send-button "clicked"
 			  (lambda args 
-			    (let ((coot-exe  (car (cdr (command-line)))))
+			    (let ((coot-exe (car (cdr (command-line)))))
 			      (send-emsley-text coot-exe gdb-strings)
 			      (gtk-widget-destroy window))))
 
