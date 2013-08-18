@@ -5658,13 +5658,17 @@ void nsv(int imol) {
 	 std::string name = g.molecules[imol].name_for_display_manager();
 	 exptl::nsv *seq_view =
 	    new exptl::nsv(g.molecules[imol].atom_sel.mol, name, imol,
-			   g.use_graphics_interface_flag);
-	 // 
-	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
+			   g.use_graphics_interface_flag,
+			   g.nsv_canvas_pixel_limit);
       }
    }
 #endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 }
+
+void set_nsv_canvas_pixel_limit(int cpl) {
+   graphics_info_t::nsv_canvas_pixel_limit = cpl;
+}
+
 
 
 void sequence_view_old_style(int imol) {

@@ -934,6 +934,7 @@ std::string graphics_info_t::mutate_sequence_chain_from_optionmenu;
 int         graphics_info_t::mutate_sequence_imol;
 int         graphics_info_t::align_and_mutate_imol;
 std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
+int         graphics_info_t::nsv_canvas_pixel_limit = 22500;
 
 // Bob recommends:
 realtype    graphics_info_t::alignment_wgap   = -0.5; // was -3.0;
