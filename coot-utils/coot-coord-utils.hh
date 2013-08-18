@@ -1543,6 +1543,9 @@ namespace coot {
       // Print secondary structure info:
       void print_secondary_structure_info(CModel *model_p);
 
+      // return a string description of MMDB SSE values
+      std::string sse_to_string(int sse);
+
       
    } // namespace util
    std::ostream&  operator<<(std::ostream&  s, const util::quaternion &q);
