@@ -6888,6 +6888,40 @@ coot::util::print_secondary_structure_info(CModel *model_p) {
    }
    std::cout << "------------------------------------------------\n";
 }
+
+// return a string description of MMDB SSE values
+std::string
+coot::util::sse_to_string(int sse) {
+
+   std::string r;
+   switch (sse)  {
+   case SSE_None: 
+      r = "None";
+      break;
+   case SSE_Strand:
+      r = "Strand";
+      break;
+   case SSE_Bulge:  
+      r = "Bulge";
+      break;
+   case SSE_3Turn:  
+      r = "Turn";
+      break;
+   case SSE_4Turn:  
+      r = "4Turn";
+      break;
+   case SSE_5Turn:  
+      r = "5Turn";
+      break;
+   case SSE_Helix:  
+      r = "Helix";
+      break;
+   default:
+      r = "None";
+   }
+   return r;
+} 
+
    
 
 // return success status as first element
