@@ -40,11 +40,15 @@
 #include <gtk/gtk.h> 
 #include "c-interface.h"
 #include "cc-interface.hh"
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif
 
-#include "ssm_align.h"
+// Unless something strange is going on we don't need this here. Commenting out for now.
+// Delete later.
+// 
+// #ifdef USE_PYTHON
+// #include "Python.h"
+// #endif
+
+#include <ssm/ssm_align.h>
 #include <iostream>
 #include "interface.h"
 
