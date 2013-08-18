@@ -11,7 +11,7 @@ INCLUDES = \
 	$(CLIPPER_CXXFLAGS)		\
 	$(MMDB_CXXFLAGS)
 
-libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc kolmogorov.hh kolmogorov.cc
+libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc kolmogorov.hh kolmogorov.cc cablam.hh cablam.cc
 
 libcoot_analysis_la_LIBADD = \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la    \
@@ -23,13 +23,18 @@ libcoot_analysis_la_LIBADD = \
 
 bin_PROGRAMS = bfactan
 
-check_PROGRAMS = test-mogul
+check_PROGRAMS = test-mogul test-cablam
 
 bfactan_SOURCES = bfactan.cc
 
 test_mogul_SOURCES = test-mogul.cc
 
 test_mogul_LDADD = libcoot-analysis.la
+
+test_cablam_SOURCES = test-cablam.cc
+
+test_cablam_LDADD =    $(top_builddir)/coords/libcoot-coords.la    \
+                       libcoot-analysis.la
 
 bfactan_LDADD = \
 	libcoot-analysis.la 					\
