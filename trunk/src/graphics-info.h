@@ -72,7 +72,7 @@
 #include "molecule-class-info.h"
 
 #ifdef HAVE_SSMLIB
-#include "ssm_align.h"
+#include <ssm/ssm_align.h>
 #endif
 
 #include "db-main/db-main.hh"
@@ -3308,7 +3308,7 @@ public:
 				      short int move_copy_of_imol2_flag);
 
 #ifdef HAVE_SSMLIB
-   void print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+   void print_ssm_sequence_alignment(ssm::Align *SSMAlign,
 				     atom_selection_container_t asc_ref,
 				     atom_selection_container_t asc_mov,
 				     PCAtom *atom_selection1, 
@@ -3316,7 +3316,7 @@ public:
 				     int n_selected_atoms_1, int n_selected_atoms_2, 
 				     short int move_copy_of_imol2_flag);
 
-   void make_and_print_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+   void make_and_print_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 							 atom_selection_container_t asc_ref,
 							 atom_selection_container_t asc_mov,
 							 PCAtom *atom_selection1, 
@@ -3326,7 +3326,7 @@ public:
    void print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const;
 
    std::pair<std::string, std::string>
-     get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+      get_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 					   atom_selection_container_t asc_ref,
 					   atom_selection_container_t asc_mov,
 					   PCAtom *atom_selection1, PCAtom *atom_selection2,
