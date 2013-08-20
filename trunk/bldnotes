@@ -1,8 +1,8 @@
  -*-text-*-
 
-scripts      rev 4681 (some prodrg stuff needs testing) generic objects, update running of jligand?! 
-tests        rev 4437 update
-build-it-win rev 4658 (check 0.8 pre builder)
+scripts      rev 4714 (some prodrg stuff needs testing) generic objects, update running of jligand?! 
+tests        rev 4730 update
+build-it-win rev 4739 (check 0.8 pre builder, add publishing?!)
 
 -------------------------------------------------------
 * THINGS TO DO BEFORE 0.7.1 RELEASE * ONLY URGENT THING
@@ -439,6 +439,10 @@ low importance
 
 
 **** Windows ****
+
+   o +/- to change contour level is reversed!!
+
+   o use fftw binaries
 
    o write installer to registry/installed programs etc.
 

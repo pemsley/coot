@@ -239,7 +239,8 @@
 #               (MRC server)
 # 1.16 18/06/13 More tinkering to get correct version for release from server.
 # 1.17 08/07/13 Adjust to build stable logic.
-script_version=1.17
+# 1.18 18/08/13 Use ssm-1.3 and update mmdb tar server spec.
+script_version=1.18
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -1033,10 +1034,17 @@ pre_release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/
 pre_release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/pre-releases/
 pre_release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/pre-releases/
 pre_release_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/source/pre-releases/
+pre_release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/pre-releases/
+#
 release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/
 release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/releases/
 release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/releases
 release_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/source/releases/
+release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/releases/
+#
+extras_place=http://www2.mrc-lmb.cam.ac.uk/Groups/murshudov/coot/dependencies
+extras_place=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
+
 
 ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
 ${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir
@@ -1119,7 +1127,7 @@ else
 
     ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
     echo examining release server files ${AUTOBUILD_SOURCES}/index.html
-    # somehow these are in the wron order, so pick up the 'largest' hope
+    # somehow these are in the wrong order, so pick up the 'largest' hope
     # this logis is ok!?
     coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { if (file>final) { final=file } } ; print final } ' \
         ${AUTOBUILD_SOURCES}/index.html | tail -1)
@@ -1896,7 +1904,7 @@ else
     build_mmdb=1
 fi
 
-if [ -e $install_top_dir/include/ssm_align.h ] ; then
+if [ -e $install_top_dir/include/ssm/ssm_align.h ] ; then
    if [ "$build_mmdb" = 1 ] ; then
       build_ssmlib=1
    else 
@@ -1958,7 +1966,6 @@ fi
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 #
-extras_place=http://www2.mrc-lmb.cam.ac.uk/Groups/murshudov/coot/dependencies
 # libccp4c:
 if test -n "$build_ccp4c" ; then 
     echo BUILDING: libccp4c
@@ -2008,7 +2015,9 @@ mmdb_version=1.24
 mmdb_version=1.24.2
 mmdb_version=1.25.0
 mmdb_version=1.25.2
-mmdb_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/dependencies
+mmdb_version=1.25.3
+# mmdb_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/dependencies
+mmdb_server_dir=ftp://ftp.ccp4.ac.uk/opensource
 echo ${WGET} $mmdb_server_dir/mmdb-$mmdb_version.tar.gz
 ${WGET} $mmdb_server_dir/mmdb-$mmdb_version.tar.gz
 
@@ -2034,12 +2043,16 @@ if test -n "$build_ssmlib" ; then
 # wget  http://www.ysbl.york.ac.uk/~emsley/software/extras/SSMlib-0.0-pre-1-ysbl.tar.gz
 ssmlib_version=0.0-pre-2-ysbl
 #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
-${WGET} $extras_place/SSMlib-$ssmlib_version.tar.gz
+# ${WGET} $extras_place/SSMlib-$ssmlib_version.tar.gz
+${WGET} ftp://ftp.ccp4.ac.uk/opensource/ssm-1.3.tar.bz2
 (
 date
-gzip -dc ${AUTOBUILD_SOURCES}/SSMlib-$ssmlib_version.tar.gz | tar xf -
-cd SSMlib-$ssmlib_version
-./configure $generic_prefix --with-mmdb-prefix=$install_top_dir
+# gzip -dc ${AUTOBUILD_SOURCES}/SSMlib-$ssmlib_version.tar.gz | tar xf -
+tar xf ${AUTOBUILD_SOURCES}/ssm-1.3.tar.bz2
+cd ssm-1.3
+# ./configure $generic_prefix --with-mmdb-prefix=$install_top_dir
+# grrr PE I agree
+./configure $generic_prefix CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib
 $MAKE
 $MAKE install
 ) >  $HOSTLOGDIR/02-ssmlib.txt 2>&1
@@ -3427,6 +3440,7 @@ echo done coot build.
 mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/content/refmac/Dictionary
 
 refmac_mon_lib=refmac_dictionary_v5.39.tar.gz
+refmac_mon_lib=refmac_dictionary_v5.41.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
