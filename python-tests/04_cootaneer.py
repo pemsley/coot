@@ -23,7 +23,7 @@ import unittest
 import os
 
 rnase_pir     = os.path.join(unittest_data_dir, "rnase.pir")
-poly_ala_frag = os.path.join(unittest_data_dir, "crashes_on_cootaneering.pdb")
+poly_ala_frag = os.path.join(unittest_data_dir, "crashes_on_cootaneering-v2.pdb")
 
 class CootaneerTestFunctions(unittest.TestCase):
 
