@@ -122,16 +122,16 @@ std::string
 coot::chain_mutation_info_container_t::get_residue_type(const residue_spec_t &spec) const {
 
    std::string r;
-   bool found = 0;
+   bool found = false;
    
    for (unsigned int ispec=0; ispec<single_insertions.size(); ispec++) { 
       if (spec == single_insertions[ispec].first) {
 	 r = single_insertions[ispec].second;
-	 found = 1;
+	 found = true;
 	 break;
       }
    }
-   if (found == 0) {
+   if (! found) {
       // try a mutation then
       for (unsigned int imut=0; imut<mutations.size(); imut++) {
 	 if (spec == mutations[imut].first) {
@@ -141,7 +141,7 @@ coot::chain_mutation_info_container_t::get_residue_type(const residue_spec_t &sp
 	 } 
       }
    }
-   if (found == 0) 
+   if (! found) 
       throw std::runtime_error("no alignment match");
 
    return r;

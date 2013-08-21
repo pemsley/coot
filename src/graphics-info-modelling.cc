@@ -1985,10 +1985,11 @@ graphics_info_t::set_residue_range_refine_atoms(const std::string &chain_id,
 void 
 graphics_info_t::execute_add_terminal_residue(int imol, 
 					      const std::string &terminus_type,
-					      const CResidue *res_p,
+					      CResidue *res_p,
 					      const std::string &chain_id, 
 					      const std::string &res_type_in,
 					      short int immediate_addition_flag) {
+
 
    std::string res_type = res_type_in; // const
    int imol_map = Imol_Refinement_Map();
@@ -2022,8 +2023,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	 imol_moving_atoms = imol;
 
 	 std::string residue_type_string = res_type;
-	 CResidue *unconst_res_p = (CResidue *) res_p;     // bleugh.
-	 int residue_number = unconst_res_p->GetSeqNum(); // bleugh.
+	 int residue_number = res_p->GetSeqNum();  // bleugh.
 	 if (residue_type_string == "auto") {
 	    int resno_added = -1; // was unset
 	    if (terminus_type == "C" || terminus_type == "MC")
@@ -2219,7 +2219,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 // 			    << std::endl;
 // 	       }
 
-	       coot::residue_spec_t rs(unconst_res_p);
+	       coot::residue_spec_t rs(res_p);
 	       graphics_info_t::molecules[imol].remove_ter_atoms(rs);
 
 	       if (! immediate_addition_flag) { 
@@ -2251,9 +2251,6 @@ void
 graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string &term_type, 
 						    CResidue *res_p, const std::string &chain_id) {
 
-   // debug maybe?
-   std::cout << "INFO:: Adding a nucleotide, with term_type: \"" << term_type << "\""
-	     << std::endl;
 
    // If it's RNA beam it in in ideal A form,
    // If it's DNA beam it in in ideal B form
@@ -2277,6 +2274,28 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
       std::string RNA_or_DNA_str = "RNA";
       std::string form_str = "A";
       short int single_stranded_flag = 1;
+
+
+      if (is_valid_model_molecule(imol)) {
+	 int residue_number = res_p->GetSeqNum();
+	 int resno_added = -1; // was unset
+	 if (term_type == "C" || term_type == "MC")
+	    resno_added = residue_number + 1;
+	 if (term_type == "N" || term_type == "MN")
+	    resno_added = residue_number - 1;
+	 if (resno_added != -1) {
+	    bool is_nucleic_acid = true;
+	    std::pair<bool, std::string> p = 
+	       molecules[imol].find_terminal_residue_type(chain_id, resno_added,
+							  alignment_wgap,
+							  alignment_wspace, is_nucleic_acid);
+	    if (p.first) {
+	       seq = "a" + coot::util::downcase(p.second);
+	    }
+	 }
+      }
+      
+      
    
       if (coot::util::nucleotide_is_DNA(res_p)) { 
 	 RNA_or_DNA_str = "DNA";

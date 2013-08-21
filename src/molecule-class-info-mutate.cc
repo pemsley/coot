@@ -503,6 +503,7 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 				      const std::string &target,
 				      realtype wgap,
 				      realtype wspace,
+				      bool is_nucleic_acid_flag,
 				      bool console_output) const {
 
    coot::chain_mutation_info_container_t ch_info(chain_id);
@@ -685,8 +686,11 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 	       coot::residue_spec_t res_spec(ires_running+1);
 	       ires_running++; // for next insertion
 	       
-	       std::string target_type =
-		  coot::util::single_letter_to_3_letter_code(t[iseq_indx]);
+	       std::string target_type(1, t[iseq_indx]);
+
+	       if (! is_nucleic_acid_flag)
+		  target_type = coot::util::single_letter_to_3_letter_code(t[iseq_indx]);
+	       
 	       ch_info.add_insertion(res_spec, target_type);
 	       if (0) 
 		  std::cout << "DEBUG:: Insert residue  " << res_spec << " " << target_type
@@ -726,8 +730,8 @@ molecule_class_info_t::try_align_on_all_chains(const std::string &target, float 
 	 std::string chain_id = chain_p->GetChainID();
 
 	 // Only try to align if this chain does not have an assigned
-	 // sequence already.  Slightly awkward in c++ - we want a
-	 // scheme 'map'.
+	 // sequence already.  
+	 //
 	 bool already_assigned = false;
 	 for (unsigned int ii=0; ii<input_sequence.size(); ii++) {
 	    if (input_sequence[ii].first == chain_id) {
@@ -812,13 +816,11 @@ molecule_class_info_t::residue_mismatches(realtype alignment_wgap, realtype alig
 std::pair<bool, std::string>
 molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, int resno,
 						  realtype alignment_wgap,
-						  realtype alignment_wspace) const {
+						  realtype alignment_wspace,
+						  bool is_nucleic_acid_flag) const {
 
 
-   std::cout << "DEBUG:: ==== finding terminal residue type of chaind " << chain_id << " with resno "
-	     << resno << std::endl;
-
-   bool found = 0;
+   bool found = false;
    std::string type = "None";
    std::string target = "";
 
@@ -833,12 +835,12 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
    
       CMMDBManager *mol = atom_sel.mol;
       if (mol) { 
-	 int selHnd = mol->NewSelection();
+	 int selHnd = mol->NewSelection(); // d
 	 PCResidue *SelResidues = NULL;
 	 int nSelResidues;
    
 	 mol->Select(selHnd, STYPE_RESIDUE, 0,
-		     (char *) chain_id.c_str(),
+		     chain_id.c_str(),
 		     ANY_RES, "*",
 		     ANY_RES, "*",
 		     "*",  // residue name
@@ -852,16 +854,16 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
 	    
 	    coot::chain_mutation_info_container_t mi =
 	       align_on_chain(chain_id, SelResidues, nSelResidues, target,
-			      alignment_wgap, alignment_wspace); 
-	    mi.print();
+			      alignment_wgap, alignment_wspace, is_nucleic_acid_flag); 
+	    // mi.print();
 
 	    coot::residue_spec_t search_spec(chain_id, resno);
 	    try {
 	       type = mi.get_residue_type(search_spec);
-	       found = 1;
+	       found = true;
 	    }
-	    catch (std::runtime_error mess) {
-	       std::cout << " failed to find " << search_spec
+	    catch (const std::runtime_error &mess) {
+	       std::cout << "WARNING:: on catch() failed to find " << search_spec
 			 << " for an insertion " << mess.what() << std::endl;
 	    } 
 	 }
@@ -869,8 +871,6 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
       }
    }
 
-   std::cout << "DEBUG:: ==== finding terminal residue type returns " << found << " with type "
-	     << type << std::endl;
    return std::pair<bool, std::string> (found, type);
 }
 
