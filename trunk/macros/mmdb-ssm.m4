@@ -26,17 +26,29 @@ AC_DEFUN([AM_WITH_MMDBSSM],
 AC_ARG_WITH(ssmlib-prefix, 
 	AC_HELP_STRING( [--with-ssmlib-prefix=PFX], [Prefix where SSMLib has been installed] ),
 	[ with_ssmlib_prefix="$withval" ],
- with_ssmlib_prefix="")
+          with_ssmlib_prefix=)
 
-AC_MSG_CHECKING([for SSMLib])
+AC_MSG_CHECKING([for ssm library])
 
 if test x$with_ssmlib_prefix != x; then
 
-   MMDBSSM_CXXFLAGS="-DHAVE_SSMLIB"
-   MMDBSSM_LIBS="-L$with_ssmlib_prefix/$acl_libdirstem -lssm"
-
    if test -r "$with_ssmlib_prefix/include/ssm/ssm_superpose.h"; then
+
+      MMDBSSM_CXXFLAGS="-DHAVE_SSMLIB"
+      # AFAICS, ssm does not put its libs in $acl_libdirstem
+      # MMDBSSM_LIBS="-L$with_ssmlib_prefix/$acl_libdirstem -lssm"
+      MMDBSSM_LIBS="-L$with_ssmlib_prefix/lib -lssm"
       ac_MMDBSSM_CXXFLAGS="-I$with_ssmlib_prefix/include"
+
+      # saved_LIBS="$LIBS"
+      # saved_CPPFLAGS="$CPPFLAGS"
+      # CPPFLAGS="$CPPFLAGS $ac_MMDBSSM_CPPFLAGS"
+      # AC_CHECK_LIB([ssm], [ssm::DefineStructure])
+      # LIBS="$saved_LIBS"
+      # CPPFLAGS="$saved_CPPFLAGS"
+
+   else 
+      AC_MSG_FAILURE([ --with-ssmlib-prefix specified but include files not found])
    fi
    MMDBSSM_CXXFLAGS="$MMDBSSM_CXXFLAGS $ac_MMDBSSM_CXXFLAGS"
   

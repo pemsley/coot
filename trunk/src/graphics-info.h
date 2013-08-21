@@ -2573,7 +2573,7 @@ public:
 
    void execute_add_terminal_residue(int imol, 
 				     const std::string &terminus,
-				     const CResidue *res_p,
+				     CResidue *res_p,
 				     const std::string &chain_id, 
 				     const std::string &res_type,
 				     short int immediate_addition_flag);

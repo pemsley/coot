@@ -680,8 +680,11 @@ int add_terminal_residue(int imol,
 	    CResidue *res_p =
 	       g.molecules[imol].residue_from_external(residue_number, inscode,
 						       std::string(chain_id));
+
+	    
 	    g.execute_add_terminal_residue(imol, term_type, res_p, chain_id,
 					   residue_type_string, immediate_add);
+	    
 	    istate = 1;
 	 } else {
 	    std::cout << "WARNING:: in add_terminal_residue: "

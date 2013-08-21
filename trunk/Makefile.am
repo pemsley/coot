@@ -100,6 +100,5 @@ dist-hook:
 
 subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = cootrc standard-residues.pdb colours.def \
-	mtrix-to-ncs-matrix.awk 
-
+	mtrix-to-ncs-matrix.awk syminfo.lib
 

@@ -4868,12 +4868,14 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
       std::vector<clipper::Coord_orth> refrce_atom_positions;
       std::vector<clipper::Coord_orth> moving_atom_positions;
 
-      for (unsigned int i=0; i<refrce_name_vector.size(); i++)
- 	 std::cout << "ref base search atom :" << refrce_name_vector[i]
-		   << ":" << std::endl;
-      for (unsigned int i=0; i<moving_name_vector.size(); i++)
-	 std::cout << "mov base search atom :" << moving_name_vector[i]
- 		   << ":" << std::endl;
+      if (0) { 
+	 for (unsigned int i=0; i<refrce_name_vector.size(); i++)
+	    std::cout << "ref base search atom :" << refrce_name_vector[i]
+		      << ":" << std::endl;
+	 for (unsigned int i=0; i<moving_name_vector.size(); i++)
+	    std::cout << "mov base search atom :" << moving_name_vector[i]
+		      << ":" << std::endl;
+      }
       
       for (int j=0; j<n_match_atoms; j++) {
 	 for (int i=0; i<n_mol_base_atoms; i++) {
@@ -4882,7 +4884,8 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
 	       refrce_atom_positions.push_back(clipper::Coord_orth(mol_base_atoms[i]->x,
 								   mol_base_atoms[i]->y,
 								   mol_base_atoms[i]->z));
-	       std::cout << "Found " << atom_name << " in reference " << std::endl;
+	       if (0) 
+		  std::cout << "Found " << atom_name << " in reference " << std::endl;
 	    }
 	 }
       }
@@ -4894,7 +4897,8 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
 	       moving_atom_positions.push_back(clipper::Coord_orth(std_base_atoms[i]->x,
 								   std_base_atoms[i]->y,
 								   std_base_atoms[i]->z));
-	       std::cout << "Found " << atom_name << " in moving (std) base " << std::endl;
+	       if (0) 
+		  std::cout << "Found " << atom_name << " in moving (std) base " << std::endl;
 	    }
 	 }
       }

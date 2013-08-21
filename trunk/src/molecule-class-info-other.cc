@@ -3904,7 +3904,9 @@ molecule_class_info_t::is_fasta_aa(const std::string &a) const {
 bool
 molecule_class_info_t::is_pir_aa(const std::string &a) const { 
 
-   short int r = 0;
+   bool r = false;
+
+   // 20130820 Allow U for RNA sequence assignment.
    
    if (a == "A" || a == "G" ) { 
       r = 1;
@@ -3912,7 +3914,9 @@ molecule_class_info_t::is_pir_aa(const std::string &a) const {
       if (   a == "C" || a == "D" || a == "E" || a == "F" || a == "H" || a == "I"
 	  || a == "K" || a == "L" || a == "M" || a == "N" || a == "P" || a == "Q" 
 	  || a == "R" || a == "S" || a == "T" ||             a == "V" || a == "W" 
-	  || a == "Y" || a == "Z" || a == "X" ) {
+          || a == "Y" || a == "Z" || a == "X"
+	  || a == "U"
+	     ) {
 	 r = 1;
       }
    }

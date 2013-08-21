@@ -919,6 +919,7 @@ class molecule_class_info_t {
 		  const std::string &target,
 		  realtype wgap,
 		  realtype wspace,
+		  bool is_nucleic_acid_flag = false,
 		  bool console_output = true) const;
 
 
@@ -1968,7 +1969,8 @@ public:        //                      public
    // by alignment (against asigned pir seq file) return, "HIS", "ALA" etc, if we can.
    std::pair<bool, std::string> find_terminal_residue_type(const std::string &chain_id, int resno,
 							   realtype alignment_wgap,
-							   realtype alignment_wspace) const;
+							   realtype alignment_wspace,
+							   bool is_nucleic_acid_flag = false) const;
 
 
    // These create an object that is not specific to a molecule, there
