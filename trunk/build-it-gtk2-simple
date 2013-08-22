@@ -455,7 +455,7 @@ STABLE_DEST_DIR=${STABLE_DEST_DIR:=${HOME}/public_html/software/binaries/stable}
 # how do we transfer the file on the build host to the web server?
 # Some systems we can simply copy the files.  For others, we now have
 # this "publish" mechanism (to be overwritten as needed)
-publish=${publish::}
+publish=${publish:=:}
 
 # When we fail to extract the correct tar file from the web site, what
 # shall we build instead?
@@ -3063,7 +3063,8 @@ if test -n "$build_curl" ; then
    # get libcurl from here: 
    # libcurl_version=7.19.7
    # libcurl_version=7.25.0
-   libcurl_version=7.27.0
+   # libcurl_version=7.27.0
+   libcurl_version=7.32.0
    ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
 
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
