@@ -342,7 +342,8 @@
 # 5.07 20130707 Adjustment to build stable logic.
 # 5.08 20130716 Move source server to personal/pemsley.
 # 5.09 20130818 Use ssm-1.3
-script_version=5.09
+# 5.10 20130824 debugging publish
+script_version=5.10
 
 
 
@@ -680,7 +681,7 @@ function my_exit {
 function test_coot { 
 
 echo testing with greg
-echo testing with greg &>2
+echo testing with greg >&2
 echo currently we are here:
 pwd
 date
@@ -753,7 +754,7 @@ fi
 function test_coot_python { 
 
 echo testing with python unittest
-echo testing with python unittest &>2
+echo testing with python unittest >&2
 
 echo currently we are here:
 pwd
@@ -3021,8 +3022,6 @@ else
 fi
 
 
-
-
 ###############################################################################
 ##########         build idn                                      #############
 ###############################################################################
@@ -3380,7 +3379,7 @@ if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
 else 
     echo INSTALLING refmac monomer library...
-    echo INSTALLING refmac monomer library... &>2
+    echo INSTALLING refmac monomer library... >&2
     $WGET $mon_lib_dir/$refmac_mon_lib
     mkdir -p $install_top_dir/share/coot/lib/data
     tar xzCf $install_top_dir/share/coot/lib/data $AUTOBUILD_SOURCES/$refmac_mon_lib
@@ -3389,7 +3388,7 @@ if [ -e $install_top_dir/share/coot/reference-structures ] ; then
     echo INFO:: installation has reference structures
 else 
     echo GETTING reference structures tar...
-    echo GETTING reference structures tar... &>2
+    echo GETTING reference structures tar... >&2
     ${WGET} $extras_place/reference-structures.tar.gz
     if [ -e $AUTOBUILD_SOURCES/reference-structures.tar.gz ] ; then
        echo INSTALLING reference structures...
@@ -3494,10 +3493,17 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
                cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
                cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
 
+	       echo about to publish files:
+
+	       echo $publish $bin_tar_file
 	       $publish $bin_tar_file
+	       echo $publish $bin_tar_file.md5sum
 	       $publish $bin_tar_file.md5sum
+	       echo $publish ChangeLog
 	       $publish ChangeLog
+	       echo $publish coot-README
 	       $publish coot-README
+	       echo $publish RELEASE-NOTES
 	       $publish RELEASE-NOTES
 
 	       echo done copy of README and RELEASE-NOTES
