@@ -3495,16 +3495,19 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
 
 	       echo about to publish files:
 
+	       # only copy over the binary files if they are not there
+	       # already (checked by publish executable).
+	       #
 	       echo $publish $bin_tar_file
 	       $publish $bin_tar_file
 	       echo $publish $bin_tar_file.md5sum
 	       $publish $bin_tar_file.md5sum
-	       echo $publish ChangeLog
-	       $publish ChangeLog
-	       echo $publish coot-README
-	       $publish coot-README
-	       echo $publish RELEASE-NOTES
-	       $publish RELEASE-NOTES
+	       echo $publish --no-server-check ChangeLog
+	       $publish --no-server-check ChangeLog
+	       echo $publish --no-server-check coot-README
+	       $publish --no-server-check coot-README
+	       echo $publish  --no-server-checkRELEASE-NOTES
+	       $publish --no-server-check RELEASE-NOTES
 
 	       echo done copy of README and RELEASE-NOTES
 	    else 

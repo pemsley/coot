@@ -20,6 +20,8 @@
 
    o What about placement of RNA rotamers?
 
+   o sort out the FAQ (Bernie message)
+
    o Change to configure.ac ::: 1
 
    o When (for example) with-ssmlib-prefix is specified, but the
