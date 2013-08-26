@@ -343,7 +343,8 @@
 # 5.08 20130716 Move source server to personal/pemsley.
 # 5.09 20130818 Use ssm-1.3
 # 5.10 20130824 debugging publish
-script_version=5.10
+# 5.11 20130826 Allow build without guile; name directory for building.
+script_version=5.11
 
 
 
@@ -371,11 +372,20 @@ script_version=5.10
 # 
 if [ "$1" = "no-python" ] ; then 
    ENABLE_PYTHON_COOT=no
+   ENABLE_GUILE_COOT=yes
    build_type=gtk2
 else 
-   ENABLE_PYTHON_COOT=yes
-   build_type=gtk2-python
+   if [ "$1" = "no-guile" ] ; then 
+      ENABLE_PYTHON_COOT=yes
+      ENABLE_GUILE_COOT=no
+      build_type=gtk2-noguile
+   else
+      ENABLE_PYTHON_COOT=yes
+      ENABLE_GUILE_COOT=yes
+      build_type=gtk2-python
+   fi
 fi
+
 
 # Set the host and the OS.
 # Fairly fundamental.
@@ -1286,13 +1296,14 @@ date=$(date -u +'%Y-%m-%d__T%H_%M_%S')
 echo Date: $date
 
 # now in $AUTOBUILD_BUILD
-mkdir ${HOST}_$date
+BUILDING_DIR=${BUILDING_DIR:=${HOST}_$date}
+mkdir $BUILDING_DIR
 if [ $? -ne 0 ] ; then
-	echo mkdir  ${HOST}_$date failed for some reason. Now in `pwd`
+	echo mkdir  $BUILDING_DIR failed for some reason. Now in `pwd`
 fi
-cd ${HOST}_$date
+cd $BUILDING_DIR
 if [ $? -ne 0 ] ; then
-	echo cd ${HOST}_$date failed for some reason. Now in `pwd`
+	echo cd $BUILDING_DIR failed for some reason. Now in `pwd`
 fi
 build_dir=`pwd`
 
@@ -1395,11 +1406,7 @@ if test "$build_coot_prerelease" = 1 ; then
       build_coot_prerelease=1  # belt and braces
       coot_prerelease_exists=1
       # tinker with coot_prefix, it is generic_prefix with pre-release added to prefix dir
-      if [ $ENABLE_PYTHON_COOT = yes ] ; then 
-         coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2-python ${config_extras:-}"
-      else
-         coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2 ${config_extras:-}"
-      fi
+      coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-${build_type} ${config_extras:-}"
       coot_source_tar_file=${pre_release_server_dir}$coot_version_pre.tar.gz
       echo DEBUG:: set coot_source_tar_file to $coot_source_tar_file
       coot_version=`echo $coot_version_pre | sed s/\.tar.gz//`
@@ -1445,38 +1452,20 @@ echo coot_version $coot_version
 #
 if [ "$build_coot_prerelease" = 1 ] ; then 
     if [ "$coot_prerelease_exists" = 1 ] ; then 
-      if [ $ENABLE_PYTHON_COOT = yes ] ; then 
-         generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2-python ${config_extras:-}"
-         coot_prefix="$generic_prefix"
-         install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-gtk2-python
-      else 
-         generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2 ${config_extras:-}"
-         coot_prefix="$generic_prefix"
-         install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-gtk2
-      fi
+      generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-${build_type} ${config_extras:-}"
+      coot_prefix="$generic_prefix"
+      install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-${build_type}
     else 
       # don't use pre-release
-      if [ $ENABLE_PYTHON_COOT = yes ] ; then 
-         generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2-python ${config_extras:-}"
-         coot_prefix="$generic_prefix"
-         install_top_dir=${AUTOBUILD_INSTALLED}-gtk2-python
-      else 
-         generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2 ${config_extras:-}"
-         coot_prefix="$generic_prefix"
-         install_top_dir=${AUTOBUILD_INSTALLED}-gtk2
-      fi
+      generic_prefix="--prefix=$AUTOBUILD_INSTALLED-${build_type} ${config_extras:-}"
+      coot_prefix="$generic_prefix"
+      install_top_dir=${AUTOBUILD_INSTALLED}-${build_type}
     fi
 else 
    # not pre-release
-   if [ $ENABLE_PYTHON_COOT = yes ] ; then 
-      generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2-python ${config_extras:-}"
-      install_top_dir=${AUTOBUILD_INSTALLED}-gtk2-python
-      coot_prefix="$generic_prefix"
-   else 
-      generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2 ${config_extras:-}"
-      install_top_dir=${AUTOBUILD_INSTALLED}-gtk2
-      coot_prefix="$generic_prefix"
-   fi
+   generic_prefix="--prefix=$AUTOBUILD_INSTALLED-${build_type} ${config_extras:-}"
+   install_top_dir=${AUTOBUILD_INSTALLED}-${build_type}
+   coot_prefix="$generic_prefix"
 fi
 PATH=$install_top_dir/bin:$PATH
 
@@ -1793,6 +1782,10 @@ else
     echo libtool should be built
 fi
 
+# ========== guile etc ==========
+# FIXME indent
+
+if [ $ENABLE_GUILE_COOT = yes ] ; then 
 
 # using install_top_dir's libgmp causes selinux problems on some systems.  Therefore, if 
 # libgmp-dev is installed in the system lib dir /usr/$acl_libdirstem/libgmp.so.la we should 
@@ -1901,6 +1894,8 @@ else
    echo greg should be built
    build_greg=1
 fi
+
+fi #  ENABLE_GUILE_COOT
 
 # ============= python ================
 #
@@ -2601,6 +2596,7 @@ if test -n "$build_python" ; then
    cd Python-$pver
 
    echo INFO:: ./configure $generic_prefix $python_spec_flags for python
+   # BL comment may need --enable-shared for python-config to pick up ldflags properly!?
    ./configure $generic_prefix $python_spec_flags
    echo INFO:: make for python
    $MAKE 
@@ -2856,7 +2852,7 @@ else
    additional_unused_arg=
 fi
 # arg to guile's configure
-./configure $generic_prefix CFLAGS="-I$install_top_dir/include $additional_unused_arg-O" LDFLAGS=-L$install_top_dir/lib CPPFLAGS=-P
+./configure $generic_prefix CFLAGS="-I$install_top_dir/include $additional_unused_arg" LDFLAGS=-L$install_top_dir/lib CPPFLAGS=-P
 # Multilib fix for procedures.txt
 echo =========== post-configure patching threads.doc ====================
 perl -pi -e 's|threads.doc||' `find . -name Makefile`
@@ -3145,7 +3141,7 @@ fi
 ##########         get Coot                                       #############
 ###############################################################################
 #
-echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
+echo BUILDING coot: version $coot_version, guile=$ENABLE_GUILE_COOT, python=$ENABLE_PYTHON_COOT
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
    ${WGET} $release_server_dir/$coot_version.tar.gz 
@@ -3198,7 +3194,9 @@ if test -n "$gtk_installed" ; then
     coot_extra_args="$coot_extra_args --with-gtk-prefix=$install_top_dir"
 fi
 
-scripting="--with-guile --with-guile-gtk --with-guile-gtk-prefix=$install_top_dir"
+if [ "$ENABLE_GUILE_COOT" != "no" ] ; then 
+    scripting="--with-guile --with-guile-gtk --with-guile-gtk-prefix=$install_top_dir"
+fi
 
 # if ENABLE_PYTHON_COOT is not set, then we choose a day of the week
 # to build a python version.
@@ -3423,8 +3421,12 @@ if [ -e $LOGS/$build_type-test-status ] ; then
 fi
 # run test
 echo running tests...
-test_coot > $LOGS/$build_type-test.log 2>&1
-r=$?
+if [ "$ENABLE_GUILE_COOT" = "yes" ] ; then 
+    test_coot > $LOGS/$build_type-test.log 2>&1
+    r=$?
+else
+    r=0
+fi
 # run python tests too, maybe (i.e. if we build with python)
 if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
     test_coot_python > $LOGS/$build_type-test-python.log 2>&1
