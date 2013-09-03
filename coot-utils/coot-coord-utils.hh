@@ -110,12 +110,20 @@ namespace coot {
       }
       // This presumes at is a member of a coordinate hierarchy.
       atom_spec_t(CAtom *at) {
-	 chain = at->GetChainID();
-	 resno = at->GetSeqNum();
-	 insertion_code = at->GetInsCode();
-	 model_number = at->GetModelNum();
-	 atom_name = at->name;
-	 alt_conf = at->altLoc;
+	 if (at) { 
+	    chain          = at->GetChainID();
+	    resno          = at->GetSeqNum();
+	    insertion_code = at->GetInsCode();
+	    model_number   = at->GetModelNum();
+	    atom_name      = at->name;
+	    alt_conf       = at->altLoc;
+	 } else {
+	    chain = "unset";
+	    resno = MinInt4;
+	    insertion_code = "";
+	    model_number = -1;
+	    int_user_data = -1;
+	 }
 	 int_user_data = -1; // mark as "unset" (better than not setting it)
       }
       // This presumes at is a member of a coordinate hierarchy.
