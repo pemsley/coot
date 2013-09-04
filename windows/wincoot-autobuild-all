@@ -103,11 +103,24 @@ do
   echo BUILDING:: python WinCoot
   # make a clean build of failed 3 times previously (last resort)
   # shall we reset the counter? not yet
+  extra_flag=
   if [ "$minor_build_cycle" = "2" ] ; then
-      run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it clean
-  else
-      run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it
+      extra_flag="clean"
   fi
+  if [ "$build_coot_prerelease" = "0" ] ; then
+     # stable release
+     if [ -e /z/make_clean_wincoot_stable ] ; then
+        extra_flag="veryclean"
+        rm /z/make_clean_wincoot_stable
+     fi
+  else
+     # pre-release
+     if [ -e /z/make_clean_wincoot_prerelease ] ; then
+        extra_flag="veryclean"
+        rm /z/make_clean_wincoot_prerelease
+     fi
+  fi
+  run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it $extra_flag
   python_build_status=$?
   echo python build status $python_build_status
   copy_logs python
@@ -123,20 +136,52 @@ do
   COOT_GUILE_VERSION=$install_top_dir-guile/coot-version
   diff ${COOT_PYTHON_VERSION} ${COOT_GUILE_VERSION} 
   coot_version_status=$?
+
+  if [ "$build_coot_prerelease" = "0" ] ; then
+     # stable release
+     touch /z/make_clean_wincoot_prerelease
+  else
+     # pre-release
+     touch /z/make_clean_wincoot_stable
+  fi
+
   # build a guile version but only if python build ok
   # dont build for now at all
   if [ "$coot_build_status" = "0" ] ; then
     echo 'waiting for guile build      ' > $PUBLIC_HTML_LOGS/gtk2-test-status
     echo BUILDING:: python+guile WinCoot
+    # possibly could simplify extra flag, but issue if bails out on guile build
+    extra_flag=
     if [ "$minor_build_cycle" = "2" ] ; then
-        run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it guile clean
-    else
-        run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it guile
+        extra_flag="clean"
     fi
+    if [ "$build_coot_prerelease" = "0" ] ; then
+       # stable release
+       if [ -e /z/make_clean_wincoot_stable-guile ] ; then
+          extra_flag="veryclean"
+          rm /z/make_clean_wincoot_stable-guile
+       fi
+    else
+       # pre-release
+       if [ -e /z/make_clean_wincoot_prerelease-guile ] ; then
+          extra_flag="veryclean"
+          rm /z/make_clean_wincoot_prerelease-guile
+       fi
+    fi
+    run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it guile $extra_flag
 
     copy_logs guile
     diff ${COOT_PYTHON_VERSION} ${COOT_GUILE_VERSION} 
     coot_version_status=$?
+
+    if [ "$build_coot_prerelease" = "0" ] ; then
+       # stable release
+       touch /z/make_clean_wincoot_prerelease-guile
+    else
+       # pre-release
+       touch /z/make_clean_wincoot_stable-guile
+    fi
+
     if [ "$coot_version_status" = "1" ] ; then
        echo 'python and python+guile build differ => build again'
        build_cycle=$(($build_cycle+1))
