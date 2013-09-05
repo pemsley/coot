@@ -2051,7 +2051,7 @@ ${WGET} ftp://ftp.ccp4.ac.uk/opensource/ssm-1.3.tar.bz2
 (
 date
 # gzip -dc ${AUTOBUILD_SOURCES}/SSMlib-$ssmlib_version.tar.gz | tar xf -
-tar xf ${AUTOBUILD_SOURCES}/ssm-1.3.tar.bz2
+tar xfj ${AUTOBUILD_SOURCES}/ssm-1.3.tar.bz2
 cd ssm-1.3
 # ./configure $generic_prefix --with-mmdb-prefix=$install_top_dir
 # grrr PE I agree
@@ -2848,9 +2848,10 @@ if test -n "$build_pygtk" ; then
    #msiexec //i ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.msi TARGETDIR=$py_inst_dir ALLUSERS=1 //qn
    # 
    # no msi installer for this version, so we use 7z to unpack and install
+   # but this does nto work, some post stuff required
    mkdir ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short
-   echo do: 7z x -aoa${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
-   7z x -aoa${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
+   echo do: 7z x -y -o${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
+   7z x -y -o${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
    echo do: cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/DATA/* $install_top_dir/$python_version/
    cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/DATA/* $install_top_dir/$python_version/
    echo do: cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/PLATLIB/* $install_top_dir/$python_version/Lib/site-packages/
