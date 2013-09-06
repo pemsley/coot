@@ -2750,11 +2750,12 @@ fi
 
 if test -n "$build_gmp" ; then
     echo BUILDING gmp:
-    gmp_version=4.2.4
-    ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.gz
+    # gmp_version=4.2.4
+    gmp_version=5.1.2
+    ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.bz2
     (date
      pwd
-     gzip -dc ${AUTOBUILD_SOURCES}/gmp-$gmp_version.tar.gz | tar xf -
+     tar xf ${AUTOBUILD_SOURCES}/gmp-$gmp_version.tar.bz2
      cd gmp-$gmp_version
      ./configure $generic_prefix
      $MAKE
