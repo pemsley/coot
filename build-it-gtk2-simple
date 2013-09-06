@@ -461,6 +461,8 @@ NIGHTLY_DEST_DIR=${NIGHTLY_DEST_DIR:=${HOME}/public_html/software/binaries/night
 # for a stable release, they go somewhere else:
 #
 STABLE_DEST_DIR=${STABLE_DEST_DIR:=${HOME}/public_html/software/binaries/stable}
+# this is given args: arg1(dir) arg2(file-name)
+BINARY_INSTALL_CMD=www-placement
 
 
 # how do we transfer the file on the build host to the web server?
@@ -2075,9 +2077,8 @@ if [ "$build_gtk" = "" ] ; then
        esac
    else 
       echo pkg-config does not find libgnomecanvas-2.0.  Exiting.
+      my_exit 2
    fi
-else 
-   echo gnomecanvas need to be built
 fi
 
 # ##############################################################
@@ -3278,13 +3279,10 @@ coot_build_info_string="built by: $cbis_n build-host: $HOST on: $cbis_d"
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
 echo ./configure $coot_prefix \
-   --with-gtkcanvas-prefix=$install_top_dir \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
-      --with-gtkgl-prefix=$install_top_dir  \
       $goocanvas_args     \
-      --with-gtk2         \
        $glut_prefix       \
       $scripting          \
       $python_scripting   \
@@ -3293,12 +3291,9 @@ echo ./configure $coot_prefix \
       $coot_extra_args
 
 ./configure $coot_prefix \
-   --with-gtkcanvas-prefix=$install_top_dir \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
-      --with-gtkgl-prefix=$install_top_dir  \
-      --with-gtk2         \
       $goocanvas_args     \
       $glut_prefix        \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
