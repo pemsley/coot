@@ -2675,8 +2675,18 @@ cd $install_top_dir/bin
 py_dll_dir=`pwd -W`
 py_dll_dir=${py_dll_dir//\//\\}
 
+global_py_inst_dir=${AUTOBUILD_BUILD}/${HOST}/${python_version}
+saved_global_py_inst_dir=$global_py_inst_dir
+mkdir $global_py_inst_dir
+cd $global_py_inst_dir
+global_py_inst_dir=`pwd -W`
+# convert / to \ for windows file names
+global_py_inst_dir=${global_py_inst_dir//\//\\}
+cd -
+
 echo py_inst_dir is: $py_inst_dir
 echo py_dll_dir is: $py_dll_dir
+echo global_py_inst_dir is :$global_py_inst_dir
 
 if test -n "$build_python" ; then 
     echo BUILDING Python ${pver}:
@@ -2687,66 +2697,62 @@ ${WGET} http://www.python.org/ftp/python/$pver/python-$pver.msi
 (
 date
 pwd
-# FIXME only works if not installed before. //fa may do reinstall/repair
-# better uninstall?!
-echo msiexec /i python-$pver.msi TARGETDIR=$py_inst_dir DLLDIR=$py_dll_dir ALLUSERS=1 /qn
-msiexec //i python-$pver.msi TARGETDIR=$py_inst_dir DLLDIR=$py_dll_dir ALLUSERS=1 //qn
-status=$?
-copy_python=0
-if [ "$status" != 0 ] ; then
-   echo problem installing python
-   echo '  may be already installed elsewhere?! lets find out'
-   copy_python=1
-fi
-# see if python works, i.e. test as above for version
-python_version_installed=`python -V 2>&1`
+
+# New method:
+# install python in ${AUTOBUILD_BUILD}/${HOST}
+# copy from there, whenever needed.
+# Needs occasional uninstall of old pythons....
+# 
+
+# check if python is installed (correct version)
+python_version_installed=`${python_version}/python -V 2>&1`
 python_target_version="Python $pver"
+echo now compare $python_version_installed with $python_target_version
 if [ $python_version_installed == $python_target_version ] ; then
-   echo python installation successful, we have now $python_target_version 
-else
-   # new python not installed, so copy from old python
-   echo python installation failed, try to copy?
+   echo $python_target_version already installed just copy files
    copy_python=1
+else
+   # new python needs to be installed, please go ahead!!! put ddl in same dir
+   echo msiexec /i python-$pver.msi TARGETDIR=$global_py_inst_dir DLLDIR=$global_py_inst_dir ALLUSERS=1 /qn
+   msiexec //i python-$pver.msi TARGETDIR=$global_py_inst_dir DLLDIR=$global_py_inst_dir ALLUSERS=1 //qn
+   status=$?
+   if [ "$status" != 0 ] ; then
+      echo problem installing python
+      echo '  may be already installed elsewhere?! But we dont know!?'
+      copy_python=1
+      my_exit 2
+   else
+      echo python installation seems successfull, continue
+   fi
 fi
 
 if test -n "$copy_python" ; then
-   # in a simple minded approach we say we install a guile version 
-   # and have python already installed earlier in the non-guile version
-   if [ "$ENABLE_GUILE_COOT" = "yes" ] ; then
-     dll_location=${install_top_dir%$build_type}/bin/python${pver_short/./}.dll
-     echo dll to search for is $dll_location
-     if [ -e ${dll_location} ] ; then
        # have an installed dll in non-guile dir, so just copy everything over
-       echo copy everything over from ${install_top_dir%$build_type}
+       echo copy everything over from ${AUTOBUILD_BUILD}/${HOST}
        # what do we need
        # 1. python.xx
        # 2. pythonXX.dll
        # 3. includes (pyg*)
        # 4. pkg-config (pyg*)
-       echo copy dir: cp -r ${install_top_dir%$build_type}/${python_version} ${install_top_dir}
-       cp -r ${install_top_dir%$build_type}/${python_version} ${install_top_dir}
-       echo copy dll: cp $dll_location ${install_top_dir}/bin
-       cp $dll_location ${install_top_dir}/bin
+       echo copy dir: cp -r ${global_py_inst_dir} ${install_top_dir}
+       cp -r ${global_py_inst_dir} ${install_top_dir}
+       dll_name=${global_py_inst_dir}/python${pver_short/./}.dll
+       echo copy dll: cp $dll_name ${install_top_dir}/bin
+       cp $dll_name ${install_top_dir}/bin
        # pygobject
        echo copy pygobject things
        mkdir $install_top_dir/include/pygtk-2.0
-       cp    $install_top_dir/$python_version/include/pygtk-2.0/pygobject.h $install_top_dir/include/pygtk-2.0/
-       cp    $install_top_dir/$python_version/Lib/pkgconfig/pygobject-2.0.pc $install_top_dir/lib/pkgconfig/
+       cp    ${global_py_inst_dir}/include/pygtk-2.0/pygobject.h $install_top_dir/include/pygtk-2.0/
+       cp    ${global_py_inst_dir}/Lib/pkgconfig/pygobject-2.0.pc $install_top_dir/lib/pkgconfig/
        # pycairo
        echo copy pycairo things
-       cp -r $install_top_dir/$python_version/include/pycairo $install_top_dir/include/
-       cp    $install_top_dir/$python_version/Lib/pkgconfig/pycairo.pc $install_top_dir/lib/pkgconfig/
+       cp -r ${global_py_inst_dir}/include/pycairo $install_top_dir/include/
+       cp    ${global_py_inst_dir}/Lib/pkgconfig/pycairo.pc $install_top_dir/lib/pkgconfig/
        # pygtk
        echo copy pygtk things
-       cp -r $install_top_dir/$python_version/include/pygtk-2.0/pygtk $install_top_dir/include/pygtk-2.0/
-       cp    $install_top_dir/$python_version/Lib/pkgconfig/pygtk-2.0.pc $install_top_dir/lib/pkgconfig/
+       cp -r ${global_py_inst_dir}/include/pygtk-2.0/pygtk $install_top_dir/include/pygtk-2.0/
+       cp    ${global_py_inst_dir}/Lib/pkgconfig/pygtk-2.0.pc $install_top_dir/lib/pkgconfig/
        copy_python=2
-     else
-       echo Cannot find a previously installed python version in ${dll_location}
-     fi
-   else
-     echo 'Dont have guile enabled so cannot find a python installation (stupid me)'
-   fi
 fi
 echo $copy_python > $HOME/python_copied.tmp
 ) >  $HOSTLOGDIR/07-python.txt 2>&1
@@ -2798,12 +2804,12 @@ if test -n "$build_pygobject" ; then
    date
    cd ${AUTOBUILD_SOURCES}
    # FIXME may need uninstall too!!!
-   msiexec //i pygobject-$pygobject_version.win32-py$pver_short.msi TARGETDIR=$py_inst_dir ALLUSERS=1 //qn
+   msiexec //i pygobject-$pygobject_version.win32-py$pver_short.msi TARGETDIR=$global_py_inst_dir ALLUSERS=1 //qn
    cd -
    # copy pkgconfig and include files
    mkdir_maybe $install_top_dir/include/pygtk-2.0
-   cp    $install_top_dir/$python_version/include/pygtk-2.0/pygobject.h $install_top_dir/include/pygtk-2.0/
-   cp    $install_top_dir/$python_version/Lib/pkgconfig/pygobject-2.0.pc $install_top_dir/lib/pkgconfig/
+   cp    $global_py_inst_dir/include/pygtk-2.0/pygobject.h $install_top_dir/include/pygtk-2.0/
+   cp    $global_py_inst_dir/Lib/pkgconfig/pygobject-2.0.pc $install_top_dir/lib/pkgconfig/
 ) > $HOSTLOGDIR/07-pygobject.txt 2>&1
 else 
    echo not building pygobject:
@@ -2821,11 +2827,11 @@ if test -n "$build_pycairo" ; then
    date
    #${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.win32-py2.5.exe
    cd ${AUTOBUILD_SOURCES}
-   msiexec //i pycairo-$pycairo_version.win32-py$pver_short.msi TARGETDIR=$py_inst_dir ALLUSERS=1 //qn
+   msiexec //i pycairo-$pycairo_version.win32-py$pver_short.msi TARGETDIR=$global_py_inst_dir ALLUSERS=1 //qn
    cd -
    # copy pkgconfig and include files
-   cp -r $install_top_dir/$python_version/include/pycairo $install_top_dir/include/
-   cp    $install_top_dir/$python_version/Lib/pkgconfig/pycairo.pc $install_top_dir/lib/pkgconfig/
+   cp -r $global_py_inst_dir/include/pycairo $install_top_dir/include/
+   cp    $global_py_inst_dir/Lib/pkgconfig/pycairo.pc $install_top_dir/lib/pkgconfig/
 ) > $HOSTLOGDIR/07-pycairo.txt 2>&1
 else 
    echo not building pycairo:
@@ -2844,25 +2850,25 @@ if test -n "$build_pygtk" ; then
    ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.16/pygtk-$py_gtk_version.win32-py$pver_short.exe
    (
    date
-   #${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py2.5.exe
+   ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
    #msiexec //i ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.msi TARGETDIR=$py_inst_dir ALLUSERS=1 //qn
    # 
    # no msi installer for this version, so we use 7z to unpack and install
    # but this does nto work, some post stuff required
    mkdir ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short
-   echo do: 7z x -y -o${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
-   7z x -y -o${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
-   echo do: cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/DATA/* $install_top_dir/$python_version/
-   cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/DATA/* $install_top_dir/$python_version/
-   echo do: cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/PLATLIB/* $install_top_dir/$python_version/Lib/site-packages/
-   cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/PLATLIB/* $install_top_dir/$python_version/Lib/site-packages/
-   echo do: $install_top_dir/$python_version/python ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/SCRIPTS/pygtk_postinstall.py -install
-   $install_top_dir/$python_version/python ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/SCRIPTS/pygtk_postinstall.py -install
+   #echo do: 7z x -y -o${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
+   #7z x -y -o${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
+   #echo do: cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/DATA/* $install_top_dir/$python_version/
+   #cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/DATA/* $install_top_dir/$python_version/
+   #echo do: cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/PLATLIB/* $install_top_dir/$python_version/Lib/site-packages/
+   #cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/PLATLIB/* $install_top_dir/$python_version/Lib/site-packages/
+   #echo do: $install_top_dir/$python_version/python ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/SCRIPTS/pygtk_postinstall.py -install
+   #$install_top_dir/$python_version/python ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/SCRIPTS/pygtk_postinstall.py -install
    # the latter will give error since it cannot make shortcuts
 
    # copy pkgconfig and include files
-   cp -r $install_top_dir/$python_version/include/pygtk-2.0/pygtk $install_top_dir/include/pygtk-2.0/
-   cp    $install_top_dir/$python_version/Lib/pkgconfig/pygtk-2.0.pc $install_top_dir/lib/pkgconfig/
+   cp -r $global_py_inst_dir/include/pygtk-2.0/pygtk $install_top_dir/include/pygtk-2.0/
+   cp    $global_py_inst_dir/Lib/pkgconfig/pygtk-2.0.pc $install_top_dir/lib/pkgconfig/
 ) > $HOSTLOGDIR/07-pygtk.txt 2>&1
 else 
    echo not building pytgtk
@@ -2873,8 +2879,11 @@ fi
 # N.B. pkgconfig on windows doesnt pick up prefix in *.pc file
 # well, actually overwrites it if 'usual' parent path (i.e. lib)
 if test -n "$build_python" ; then 
-   cp -r $install_top_dir/$python_version/DLLs $install_top_dir/bin
-   cp -r $install_top_dir/$python_version/Lib  $install_top_dir/bin
+   echo now copy over DLLs, Lib and $python_version
+   cp -r $global_py_inst_dir/DLLs $install_top_dir/bin
+   cp -r $global_py_inst_dir/Lib  $install_top_dir/bin
+   echo cp -r $saved_global_py_inst_dir  $install_top_dir/
+   cp -r $saved_global_py_inst_dir  $install_top_dir/
 fi
 
 # Now we need:
