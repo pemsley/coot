@@ -345,7 +345,8 @@
 # 5.10 20130824 debugging publish
 # 5.11 20130826 Allow build without guile; name directory for building.
 # 5.12 20130909 LD_LIBRARY_PATH changes/fixup.
-script_version=5.12
+# 5.13 20130910 Force -O usage for guile compilation.
+script_version=5.13
 
 
 
@@ -1343,7 +1344,6 @@ extras_place=http://www2.mrc-lmb.cam.ac.uk/Groups/murshudov/coot/dependencies
 extras_place=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
 
 
-echo here 1 
 ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
 ${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
 pre_release_files_html="none"
@@ -1353,15 +1353,12 @@ fi
 if [ $build_coot_prerelease = yes ]  ; then 
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
 fi
-echo here 2
 
 coot_version_tmp=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
 $pre_release_files_html | tail -1)
-echo here 3
 
 echo pre_release_files_html $pre_release_files_html
 echo coot_version_tmp : $coot_version_tmp :
-echo here 4
 
 if [ -z "$coot_version_tmp" ] ; then
     echo clever coot_version extraction failed, using default.
@@ -2833,6 +2830,38 @@ else
 fi 
 
 
+# $ guile
+# Backtrace:
+# In unknown file:
+#    ?: 133* [#<procedure #f ()>]
+#    ?: 134* [load-file #<primitive-procedure primitive-load> ...]
+#    ?: 135* [save-module-excursion #<procedure #f ()>]
+#    ?: 136  (let (# #) (dynamic-wind # thunk #))
+#    ?: 137  [dynamic-wind #<procedure #f ()> #<procedure #f ()> #<procedure #f ()>]
+#    ?: 138* [#<procedure #f ()>]
+#    ?: 139* [primitive-load "/home/xxx/autobuild/Linux-host-pre-release-gtk2-python/share/guile/1.8/ice-9/debug.scm"]
+# In /home/xxx/autobuild/Linux-host-pre-release-gtk2-python/share/guile/1.8/ice-9/debug.scm:
+#   22: 140* (define-module (ice-9 debug) :export ...)
+# In unknown file:
+#    ?: 141* [copy-tree ...
+#    ?: 142* [apply #<procedure #f args> (# :export #)]
+#    ?: 143  [#<procedure #f args> (ice-9 debug) :export ...]
+#    ?: 144  (quasiquote (eval-case (# #) (else #)))
+#    ?: 145* [compile-define-module-args (# :export #)]
+#    ?: 146  [loop ((quote #)) (:export (frame-number->index trace untrace ...))]
+#      ...
+#    ?: 147  [loop ((quote (ice-9 debug))) ...
+#    ?: 148* [cons ...
+#    ?: 149* [keyword-like-symbol->keyword :export]
+#    ?: 150  [symbol->keyword ...
+#    ?: 151* [string->symbol ...
+#    ?: 152* (substring (symbol->string sym) 1)
+#
+# then compile guile with -O (it defaults to -O2 if you do not add this, I think)
+# 20130910 force -O2 for every target.
+
+# <unnamed port>: In expression (substring (symbol->string sym) 1):
+# <unnamed port>: Stack overflow
 
 if test -n "$build_guile" ; then 
     echo BUILDING guile:
@@ -2862,7 +2891,7 @@ else
    additional_unused_arg=
 fi
 # arg to guile's configure
-./configure $generic_prefix CFLAGS="-I$install_top_dir/include $additional_unused_arg" LDFLAGS=-L$install_top_dir/lib CPPFLAGS=-P
+./configure $generic_prefix CFLAGS="-I$install_top_dir/include $additional_unused_arg -O" LDFLAGS=-L$install_top_dir/lib CPPFLAGS=-P
 # Multilib fix for procedures.txt
 echo =========== post-configure patching threads.doc ====================
 perl -pi -e 's|threads.doc||' `find . -name Makefile`
