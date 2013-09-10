@@ -344,7 +344,8 @@
 # 5.09 20130818 Use ssm-1.3
 # 5.10 20130824 debugging publish
 # 5.11 20130826 Allow build without guile; name directory for building.
-script_version=5.11
+# 5.12 20130909 LD_LIBRARY_PATH changes/fixup.
+script_version=5.12
 
 
 
@@ -437,7 +438,7 @@ build_coot_prerelease=${build_coot_prerelease:=1}
 check_dependencies_in_install_only=1
 
 # get build specials, e.g. change the compiler or the compiler options
-# (e.g build for debugging), extra libraries etc setup LD_LIBRARY_DIR
+# (e.g build for debugging), extra libraries etc setup LD_LIBRARY_PATH
 # (or whatever) to include the autobuild library dir so that
 # intermediate (configure compile) programs run and the addition to
 # the path of GNU make and wget.
@@ -1509,27 +1510,34 @@ fi
 # append or set LD_LIBRARY_PATH
 #
 if [ -z "$LD_LIBRARY_PATH" ] ; then
-	LD_LIBRARY_PATH=$install_top_dir/lib
+    LD_LIBRARY_PATH=$install_top_dir/lib
+    export LD_LIBRARY_PATH
 else
-        LD_LIBRARY_PATH=$install_top_dir/lib:$LD_LIBRARY_PATH
+    LD_LIBRARY_PATH=$install_top_dir/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH
 fi
-export LD_LIBRARY_PATH
+
+
+
 #for Macs:
-if [ -z "$LD_LIBRARY_PATH" ] ; then
-	DYLD_LIBRARY_PATH=$install_top_dir/lib
-else
-        DYLD_LIBRARY_PATH=$install_top_dir/lib:$LD_LIBRARY_PATH
+if test "$OS" = "Darwin" ; then
+   if [ -z "$DYLD_LIBRARY_PATH" ] ; then
+      DYLD_LIBRARY_PATH=$install_top_dir/lib
+      export DYLD_LIBRARY_PATH
+   else
+      DYLD_LIBRARY_PATH=$install_top_dir/lib:$LD_LIBRARY_PATH
+      export DYLD_LIBRARY_PATH
+   fi
 fi
-export DYLD_LIBRARY_PATH
 
 #
 # IRIX64 (on batman at least) does not seem to use LD_LIBRARY_PATH, 
 # it uses, instead, LD_LIBRARYN32_PATH.  So we set that for all
 # systems, hoping that it won't do any harm on other systems.
 #
-#
-LD_LIBRARYN32_PATH=$LD_LIBRARY_PATH
-export LD_LIBRARYN32_PATH
+# This surely is no longer used - PE 20130909
+# LD_LIBRARYN32_PATH=$LD_LIBRARY_PATH
+# export LD_LIBRARYN32_PATH
 
 
 
@@ -3504,8 +3512,13 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
 	       $publish --no-server-check ChangeLog
 	       echo $publish --no-server-check coot-README
 	       $publish --no-server-check coot-README
-	       echo $publish  --no-server-checkRELEASE-NOTES
-	       $publish --no-server-check RELEASE-NOTES
+               if [ -z "$build_coot_prerelease" ] ; then 
+   	          echo $publish  --no-server-check RELEASE-NOTES
+	          $publish --no-server-check RELEASE-NOTES
+               else 
+   	          echo $publish  --no-server-check PRE-RELEASE-NOTES
+	          $publish --no-server-check PRE-RELEASE-NOTES
+               fi
 
 	       echo done copy of README and RELEASE-NOTES
 	    else 
