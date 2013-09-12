@@ -1482,8 +1482,11 @@ void try_load_scheme_extras_dir() {
    char *s = getenv("COOT_SCHEME_EXTRAS_DIR");
    if (s) {
 
+#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+      std::vector<std::string> dirs = coot::util::split_string(s, ";");
+#else
       std::vector<std::string> dirs = coot::util::split_string(s, ":");
-
+#endif
       for (unsigned int i=0; i<dirs.size(); i++) { 
 	 struct stat buf;
 	 int status = stat(dirs[i].c_str(), &buf);
@@ -1542,7 +1545,11 @@ void try_load_python_extras_dir() {
 
    char *s = getenv("COOT_PYTHON_EXTRAS_DIR");
    if (s) {
+#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+      std::vector<std::string> dirs = coot::util::split_string(s, ";");
+#else
       std::vector<std::string> dirs = coot::util::split_string(s, ":");
+#endif
       for (unsigned int i=0; i<dirs.size(); i++) { 
 	 struct stat buf;
 	 int status = stat(dirs[i].c_str(), &buf);
