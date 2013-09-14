@@ -949,7 +949,7 @@ fi
 if test $OS = Linux ; then 
 
   if rpm -a ; then
-      for i in fedora-release redhat-release redhat-release-workstation centos-release ; do
+      for i in fedora-release redhat-release redhat-release-workstation centos-release sl-release ; do
         dist=`rpm -q --qf '%{name}' ${i}`
         echo  dist is $dist
         dist=`rpm -q --qf '%{name}' ${i}`
@@ -1516,7 +1516,11 @@ if [ ! -e "$install_top_dir/lib" ] ; then
         fi
 fi
 #
-# append or set LD_LIBRARY_PATH
+# append or set LD_LIBRARY_PATH.
+#
+# this can be problematic for a distributable tar build because this can cause linkage
+# against ccp4's libxml2! Hmm!
+# 
 #
 if [ -z "$LD_LIBRARY_PATH" ] ; then
     LD_LIBRARY_PATH=$install_top_dir/lib
