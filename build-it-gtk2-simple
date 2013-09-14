@@ -990,6 +990,11 @@ if test $OS = Linux ; then
     ;;
 
 
+    sl ) 
+      systype=${architecture}-scientific-linux-${dist_ver}
+      ;; 
+
+
     * )
       if test -r /etc/issue; then
         dist_name=$(awk 'NR==1{print tolower($1)}' /etc/issue)
