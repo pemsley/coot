@@ -241,6 +241,7 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
       if (! mol.atoms[iat].is_closed()) { 
 	 RDKit::Atom *at = new RDKit::Atom;
 	 at->setAtomicNum(tbl->getAtomicNumber(mol.atoms[iat].element));
+	 at->setFormalCharge(mol.atoms[iat].charge);
 
 	 // add the name to "at" too here (if you can).
 	 // 
@@ -268,11 +269,11 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	    conf->setAtomPos(at_no, pos);
 	    atom_index[iat] = at_no++;
 	 }
-	 catch (boost::bad_lexical_cast blc) {
+	 catch (const boost::bad_lexical_cast &blc) {
 	    std::cout << "on making atom bad_lexical_cast " << iat << " "
 		      << blc.what() << std::endl;
 	 }
-	 catch (std::exception rte) {
+	 catch (const std::exception &rte) {
 	    std::cout << "on making atom " << iat << " " << rte.what() << std::endl;
 	 }
       } else {
@@ -1072,6 +1073,7 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
 
 void
 lbg_info_t::update_descriptor_attributes() {
+   
 #ifdef MAKE_ENTERPRISE_TOOLS
 
    if (use_graphics_interface_flag) { 
@@ -1093,14 +1095,12 @@ lbg_info_t::update_descriptor_attributes() {
 	    gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
 			       statusbar_context_id,
 			       status_string.c_str());
-#ifdef MAKE_ENTERPRISE_TOOLS
 	    // QED progress bar
 	    gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), "");
 	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
 	    // alerts
 	    gtk_widget_hide(lbg_alert_hbox);
 	    clear_canvas_alerts();
-#endif	 
 	 }
       }
    }
@@ -2757,6 +2757,7 @@ void
 lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 
 #ifdef USE_PYTHON   
+
    if (rdkm.getNumAtoms() == 0) {
       // non-interesting case first
       gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
@@ -2764,11 +2765,17 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
    } else {
       bool all_set = false;
       double qed = 0.0;
-      if (silicos_it_qed_default_func) { 
+      if (silicos_it_qed_default_func) {
 	 qed = get_qed(silicos_it_qed_default_func, rdkm);
 	 if (qed > 0)
 	    all_set = true;
-      }
+      } else {
+
+	 // If you are reading this: are you sure that Biscu-it has
+	 // been installed?
+	 
+	 // std::cout << "null silicos_it_qed_default_func " << std::endl;
+      } 
 
       if (all_set) { 
 	 std::string s = coot::util::float_to_string_using_dec_pl(qed, 3);
