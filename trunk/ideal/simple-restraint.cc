@@ -3167,6 +3167,7 @@ coot::my_df_planes(const gsl_vector *v,
 	    simple_restraint plane_restraint = (*restraints)[i];
 	    plane_info = distortion_score_plane_internal(plane_restraint, v);
 	    n_plane_atoms = plane_restraint.atom_index.size();
+	    weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
 	    for (int j=0; j<n_plane_atoms; j++) {
 	       if (! (*restraints)[i].fixed_atom_flags[j] ) { 
 		  n_plane_restr++;
@@ -3176,7 +3177,6 @@ coot::my_df_planes(const gsl_vector *v,
 		     plane_info.abcd[1]*gsl_vector_get(v,idx+1) +
 		     plane_info.abcd[2]*gsl_vector_get(v,idx+2) -
 		     plane_info.abcd[3];
-		  weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
 
 		  clipper::Grad_orth<double> d(2.0 * weight * devi_len * plane_info.abcd[0],
 					       2.0 * weight * devi_len * plane_info.abcd[1],
