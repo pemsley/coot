@@ -1781,6 +1781,7 @@ public:
    // 1: ask to run it
    // 2: alwasy run it
    static short int run_state_file_status; 
+   static bool state_file_was_run_flag;
 
    // Go To Atom 
    // 

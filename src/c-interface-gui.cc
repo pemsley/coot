@@ -1230,9 +1230,6 @@ float get_positive_float_from_entry(GtkEntry *w) {
 gboolean
 coot_checked_exit(int retval) {
 
-   //    cout << "exitting with status " << retval << endl;
-
-
    graphics_info_t g;
    int i_unsaved = g.check_for_unsaved_changes();
    std::string cmd = "coot-checked-exit";
@@ -1320,8 +1317,19 @@ void coot_clear_backup_or_real_exit(int retval) {
    
 void
 coot_real_exit(int retval) {
+   coot_save_state_and_exit(retval, 1);
+}
 
-   save_state(); // we get error message in save_state()
+void
+coot_no_state_real_exit(int retval) {
+   coot_save_state_and_exit(retval, 0);
+}
+
+void
+coot_save_state_and_exit(int retval, int save_state_flag) {
+
+   if (save_state_flag)
+      save_state(); // we get error message in save_state()
 
    // save the history
    graphics_info_t g;
@@ -1336,15 +1344,16 @@ coot_real_exit(int retval) {
    // Py_Finalize();
    // #endif
 
-
    for (unsigned int imol=0; imol<graphics_n_molecules(); imol++)
       graphics_info_t::molecules[imol].close_yourself();
+
+   // why is this windows-only?
 
 #ifdef WINDOWS_MINGW
    clipper::ClipperInstantiator::instance().destroy();
 #endif
    exit(retval);
-}
+} 
 
 // This is called by when the save coordinates menu item is pressed,
 // for the save coordinates fileselection (other fileselections do not
