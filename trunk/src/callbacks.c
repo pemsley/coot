@@ -78,6 +78,7 @@ on_window1_destroy                     (GtkObject       *object,
   gtk_main_quit();
 }
 
+/* When the user uses the window manager to close coot, this gets called. */
 /* When the window manager "close window" events happens it send the
    application a delete_event event.  If we return FALSE from this
    attached function, then a "destroy" signal will be emitted.
@@ -88,8 +89,11 @@ on_window1_delete_event                (GtkWidget       *widget,
                                         GdkEvent        *event,
                                         gpointer         user_data)
 {
-  gboolean v = coot_checked_exit(0); 
-  return v;
+/*   printf("---------------------------- on_window1_delete_event() ------------------\n"); */
+  /* coot_checked_exit() calls coot_real_exit() and that calls exit(),
+     so we don't (normally?) return from this function. */
+  coot_no_state_real_exit(0);
+  return 0;
 }
 
 
@@ -184,8 +188,8 @@ on_exit1_activate                      (GtkMenuItem     *menuitem,
 /*   printf("calling gtk_main_quit()\n"); */
 /*   gtk_main_quit(); */
 
+/*    printf("---------------------------- on_exit1_activate() ------------------\n"); */
    coot_checked_exit(0); /* without error */
-
 }
 
 

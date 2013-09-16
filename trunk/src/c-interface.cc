@@ -5856,6 +5856,7 @@ run_state_file() {
    int status = stat(filename.c_str(), &buf);
    if (status == 0) { 
       run_guile_script(filename.c_str());
+      graphics_info_t::state_file_was_run_flag = true;
    }
 #else 
 #ifdef USE_PYTHON
@@ -5864,6 +5865,7 @@ run_state_file() {
    int status = stat(filename.c_str(), &buf);
    if (status == 0) { 
       run_python_script(filename.c_str());
+      graphics_info_t::state_file_was_run_flag = true;
    }
 #endif
 #endif
@@ -5878,6 +5880,7 @@ run_state_file_py() {
    int status = stat(filename.c_str(), &buf);
    if (status == 0) { 
       run_python_script(filename.c_str());
+      graphics_info_t::state_file_was_run_flag = true;
    }
 }
 #endif // USE_PYTHON
@@ -5906,6 +5909,7 @@ run_state_file_maybe() {
       if (status == 0) { 
 	 if (g.run_state_file_status == 2) {
 	    run_script(filename.c_str());
+	    graphics_info_t::state_file_was_run_flag = true;
 	 } else {
 	    if (graphics_info_t::use_graphics_interface_flag) { 
 	       GtkWidget *dialog = wrapped_create_run_state_file_dialog();

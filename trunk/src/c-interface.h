@@ -609,7 +609,10 @@ gboolean coot_checked_exit(int retval);
 /*! \brief exit from coot, give return value retval back to invoking
   process. */
 void coot_real_exit(int retval); 
+void coot_no_state_real_exit(int retval);
 void coot_clear_backup_or_real_exit(int retval);
+void coot_save_state_and_exit(int retval, int save_state_flag);
+
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
