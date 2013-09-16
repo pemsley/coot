@@ -966,6 +966,7 @@ if test $OS = Linux ; then
    fi
 
   case ${dist_name} in
+
     redhat* )
     case ${dist_ver} in
       [0-9] | [0-9].[0-9]* )
@@ -985,6 +986,7 @@ if test $OS = Linux ; then
       ;;
     esac
     ;;
+
     fedora | centos | openSUSE )
       systype=${architecture}-${dist_name}-${dist_ver}
     ;;
@@ -3345,7 +3347,7 @@ echo ./configure $coot_prefix \
       $scripting          \
       $python_scripting   \
       $shared_static_flag \
-      $coot_optim_args   \
+      $coot_optim_args    \
       $coot_extra_args
 
 ./configure $coot_prefix \

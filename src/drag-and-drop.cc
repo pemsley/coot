@@ -51,11 +51,8 @@ on_drag_data_received (GtkWidget *widget,
    
    // Deal with what the source sent over
    if((selection_data != NULL) && (selection_data-> length >= 0)) {
-      std::cout << "Yep here 1 " << std::endl;
       if (target_type == TARGET_STRING) {
-	 std::cout << "Yep here 2 " << std::endl;
 	 std::string uri_string = (gchar*)selection_data-> data;
-	 std::cout << "Yep here 3 " << uri_string << std::endl;
 	 dnd_success = handle_drag_and_drop_string(uri_string);
      delete_selection_data = TRUE;
       } 
