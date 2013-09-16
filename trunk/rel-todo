@@ -12,15 +12,21 @@
     That also should write a state file. (user can use quick-save-as
     if they want)
 
+   o hydrogens are corrected also on nomenclature correction?
+
    o Strange canvas scrolling with big RNA 
 
 * added a hack.
 
    o sequence assignment for placement of RNA.
 
+* Done.
+
    o What about placement of RNA rotamers?
 
    o sort out the FAQ (Bernie message)
+
+* Done.
 
    o Change to configure.ac ::: 1
 
