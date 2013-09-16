@@ -2632,7 +2632,8 @@ lbg_info_t::init(GtkBuilder *builder) {
 
       GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 
-      std::cout << "................ set lbg-info on root " << root_item << " of canvas" << canvas << std::endl;
+      // std::cout << "................ set lbg-info on root " << root_item << " of canvas"
+      // << canvas << std::endl;
 							  
       g_object_set_data_full(G_OBJECT(root_item), "lbg-info", this, NULL);
       g_signal_connect(G_OBJECT(root_item), "button_press_event",
