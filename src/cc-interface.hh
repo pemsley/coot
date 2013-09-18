@@ -1172,7 +1172,7 @@ PyObject *map_to_model_correlation_per_residue_py(int imol, PyObject *residue_sp
 // prodrg-in.mdl file has been made.  We no longer have a timeout
 // function waiting for prodrg-in.mdl to be updated/written.
 // 
-void prodrg_import_function(std::string file_name);
+void prodrg_import_function(std::string file_name, std::string comp_id);
 
 
 

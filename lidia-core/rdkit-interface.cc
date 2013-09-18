@@ -104,6 +104,9 @@ coot::rdkit_mol(CResidue *residue_p,
       CAtom *at_1 = residue_atoms[iat_1];
       if (! at_1->Ter) {
 	 std::string atom_name_1(at_1->name);
+	 if (debug)
+	    std::cout << "rdkit_mol() handling atom " << iat_1 << " with CResidue atom name "
+		      << atom_name_1 << std::endl;
 	 std::string atom_alt_conf(at_1->altLoc);
 	 if (atom_alt_conf == alt_conf) { 
 	    bool found_a_bonded_atom = false;
@@ -150,7 +153,7 @@ coot::rdkit_mol(CResidue *residue_p,
       CAtom *at = residue_atoms[bonded_atoms[iat]];
       std::string atom_name(at->name);
       if (debug)
-	 std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " " 
+	 std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " bonded_atoms " 
 		   << atom_name << std::endl;
 	 
       // only add the atom if the atom_name is not in the list of
@@ -168,7 +171,6 @@ coot::rdkit_mol(CResidue *residue_p,
 	    rdkit_at->setAtomicNum(atomic_number);
 	    rdkit_at->setMass(tbl->getAtomicWeight(atomic_number));
 	    rdkit_at->setProp("name", atom_name);
-
 
 	    // set the valence from they type energy.  Abstract?
 	    //
@@ -429,8 +431,6 @@ coot::rdkit_mol(CResidue *residue_p,
 		      <<  kee.what() << std::endl;
 	 }
 	 int formal_charge = at_p->getFormalCharge();
-	 std::cout << " " << iat << " " << name << " formal charge: "
-		   << formal_charge << std::endl;
       }
    }
 

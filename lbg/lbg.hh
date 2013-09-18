@@ -1187,8 +1187,8 @@ public:
 
    // handle PRODRG output
    // 
-   void (*prodrg_import_func_ptr) (std::string file_name);
-   void set_prodrg_import_function(void (*f) (std::string)) {
+   void (*prodrg_import_func_ptr) (std::string file_name_in, std::string comp_id);
+   void set_prodrg_import_function(void (*f) (std::string, std::string)) {
       prodrg_import_func_ptr = f;
    }
    // handle SBase input, i.e. when a user clicks on a sbase-search
@@ -1199,9 +1199,9 @@ public:
       sbase_import_func_ptr = f;
    }
 
-   void import_prodrg_output(const std::string &prodrg_mdl_file_name) {
+   void import_prodrg_output(const std::string &prodrg_mdl_file_name, const std::string &comp_id) {
       if (prodrg_import_func_ptr) {
-	 prodrg_import_func_ptr(prodrg_mdl_file_name);
+	 prodrg_import_func_ptr(prodrg_mdl_file_name, comp_id);
       } else {
 	 std::cout << "WARNING:: No prodrg_import_func_ptr set" << std::endl;
       } 
@@ -1239,7 +1239,7 @@ lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 		bool use_graphics_interface_flag,
 		bool stand_alone_flag_in,
 		int (*get_url_func_pointer) (const char *s1, const char *s2),
-		void (*prodrg_import_function_pointer) (std::string file_name),
+		void (*prodrg_import_function_pointer) (std::string file_name_in, std::string comp_id),
 		void (*sbase_import_function_pointer) (std::string comp_id),
 		std::string (*get_drug_mdl_file_function_pointer) (std::string drug_name)
 		);
