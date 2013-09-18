@@ -66,7 +66,7 @@ lbg(lig_build::molfile_molecule_t mm,
     bool use_graphics_interface_flag,
     bool stand_alone_flag_in,
     int (*get_url_func_pointer_in) (const char *s1, const char *s2),
-    void (*prodrg_import_function_pointer) (std::string file_name),
+    void (*prodrg_import_function_pointer) (std::string file_name, std::string comp_id),
     void (*sbase_import_function_pointer) (std::string comp_id),
     std::string (*get_drug_mdl_file_function_pointer_in) (std::string drug_name)) {
    
@@ -125,12 +125,19 @@ lbg(lig_build::molfile_molecule_t mm,
 	    if (! init_status) {
 	       std::cout << "ERROR:: lbg init failed." << std::endl;
 	    } else {
-	       // happy path
-	       if (use_graphics_interface_flag)
-		  gtk_builder_connect_signals (builder, lbg->canvas);
+
+	       // Happy Path
+	       
+	       gtk_builder_connect_signals (builder, lbg->canvas);
 	       g_object_unref (G_OBJECT (builder));
 	       if (ligand_spec_pair.first)
 		  lbg->set_ligand_spec(ligand_spec_pair.second);
+
+	       CResidue *residue_p = coot::util::get_first_residue(mol);
+	       if (residue_p) {
+		  std::string res_name = residue_p->GetResName();
+		  gtk_label_set_text(GTK_LABEL(lbg->lbg_toolbar_layout_info_label), res_name.c_str());
+	       } 
 	       
 	       widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
 	       lbg->render_from_molecule(wmol);

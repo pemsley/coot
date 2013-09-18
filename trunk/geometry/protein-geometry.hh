@@ -429,7 +429,7 @@ namespace coot {
    // 
    class dictionary_residue_restraints_t {
       bool has_partial_charges_flag;
-      bool filled_with_sbase_data_flag; // if set, this means that
+      bool filled_with_bond_order_data_only_flag; // if set, this means that
 					// there is only bond orders
 					// (at the moment) and atom
 					// names.
@@ -439,22 +439,28 @@ namespace coot {
 	 has_partial_charges_flag = 0;
 	 // comp_id = comp_id_in;
 	 read_number = read_number_in;
-	 filled_with_sbase_data_flag = 0;
+	 filled_with_bond_order_data_only_flag = 0;
       }
       dictionary_residue_restraints_t() {
 	 // comp_id = ""; /* things are unset */
-	 filled_with_sbase_data_flag = 0;
+	 filled_with_bond_order_data_only_flag = 0;
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
       }
       dictionary_residue_restraints_t(bool constructor_for_sbase_restraints) {
 	 // comp_id = ""; /* things are unset */
-	 filled_with_sbase_data_flag = 1;
+	 filled_with_bond_order_data_only_flag = 1;
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
       }
       std::string cif_file_name;
       void clear_dictionary_residue();
+      bool is_filled() const {
+	 if (bond_restraint.size() > 0)
+	    if (atom_info.size() > 0)
+	       return true;
+	 return false;
+      } 
       dict_chem_comp_t residue_info;
       std::vector <dict_atom> atom_info;
       // std::string comp_id; // i.e. residue type name
@@ -501,7 +507,7 @@ namespace coot {
 
       std::vector<std::string> get_attached_H_names(const std::string &atom_name) const;
 
-      bool is_from_sbase_data() const { return filled_with_sbase_data_flag; }
+      bool is_bond_order_data_only() const { return filled_with_bond_order_data_only_flag; }
 
       std::vector<std::string> neighbours(const std::string &atom_name, bool allow_hydrogen_neighbours_flag) const;
 

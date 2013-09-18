@@ -4309,7 +4309,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    read_number = read_number_in;
    for (int i=0; i<ndict; i++) {
       if (dict_res_restraints[i].residue_info.comp_id == monomer_type) {
-	 if (! dict_res_restraints[i].is_from_sbase_data()) {
+	 if (! dict_res_restraints[i].is_bond_order_data_only()) {
 	    ifound = 1;
 	    break;
 	 }
@@ -4341,7 +4341,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    if (ifound == 0) {
       for (int i=0; i<ndict; i++) {
 	 if (dict_res_restraints[i].residue_info.three_letter_code == monomer_type) {
-	    if (! dict_res_restraints[i].is_from_sbase_data()) {
+	    if (! dict_res_restraints[i].is_bond_order_data_only()) {
 	       ifound = 1;
 	       break;
 	    }
@@ -4363,7 +4363,7 @@ coot::protein_geometry::have_dictionary_for_residue_type_no_dynamic_add(const st
    int ndict = dict_res_restraints.size();
    for (int i=0; i<ndict; i++) {
       if (dict_res_restraints[i].residue_info.comp_id == monomer_type) {
-	 if (! dict_res_restraints[i].is_from_sbase_data()) {
+	 if (! dict_res_restraints[i].is_bond_order_data_only()) {
 	    ifound = 1;
 	    break;
 	 }
@@ -4663,7 +4663,7 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
    if (!r.first) {
       for (unsigned int i=0; i<nrest; i++) {
 	 if (dict_res_restraints[i].residue_info.three_letter_code  == monomer_type) {
-	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_from_sbase_data())) { 
+	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_bond_order_data_only())) { 
 	       r.second = dict_res_restraints[i];
 	       r.first = 1;
 	       break;
@@ -4683,7 +4683,7 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
    unsigned int nrest = dict_res_restraints.size();
    for (unsigned int i=0; i<nrest; i++) {
       if (dict_res_restraints[i].residue_info.comp_id  == monomer_type) {
-	 if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_from_sbase_data())) { 
+	 if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_bond_order_data_only())) { 
 	    r = i;
 	    break;
 	 }
@@ -4710,7 +4710,7 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
    if (r == -1) {
       for (unsigned int i=0; i<nrest; i++) {
 	 if (dict_res_restraints[i].residue_info.three_letter_code  == monomer_type) {
-	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_from_sbase_data())) { 
+	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_bond_order_data_only())) { 
 	       r = i;
 	       break;
 	    }

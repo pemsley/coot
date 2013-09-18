@@ -2035,11 +2035,12 @@ void set_multi_residue_torsion_reverse_mode(short int mode) {
 // prodrg-in.mdl file has been made.  We no longer have a timeout
 // function waiting for prodrg-in.mdl to be updated/written.
 // 
-void prodrg_import_function(std::string file_name) {
+void prodrg_import_function(std::string file_name, std::string comp_id) {
 
    std::string func_name = "import-from-3d-generator-from-mdl";
    std::vector<coot::command_arg_t> args;
    args.push_back(single_quote(file_name));
+   args.push_back(single_quote(comp_id));
    coot::scripting_function(func_name, args);
 }
 
