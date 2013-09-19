@@ -949,7 +949,7 @@ fi
 if test $OS = Linux ; then 
 
   if rpm -a ; then
-      for i in fedora-release redhat-release redhat-release-workstation centos-release sl-release ; do
+      for i in fedora-release redhat-release redhat-release-workstation centos-release sl-release openSUSE-release ; do
         dist=`rpm -q --qf '%{name}' ${i}`
         echo  dist is $dist
         dist=`rpm -q --qf '%{name}' ${i}`
