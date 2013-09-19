@@ -1,5 +1,6 @@
 
 import sys
+import os
 from subprocess import call
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -59,16 +60,20 @@ def add_atom_names(mol):
     nz = {}
     atom_names = []
     for atom in mol.GetAtoms():
-        z = atom.GetAtomicNum()
-        if z in nz:
-            nz[z]  = nz[z] + 1
-        else:
-            nz[z] = 1;
-        ele = atom.GetSymbol().upper()
-        name = atom_name_from_atomic_number_and_count(ele, nz[z])
-        p_name = pad_atom_name(name, ele)
-        atom.SetProp("name", p_name)
-        atom_names.append(p_name)
+       try:
+          n = atom.GetProp('name')
+          atom_names.append(n)
+       except KeyError:
+          z = atom.GetAtomicNum()
+          if z in nz:
+             nz[z]  = nz[z] + 1
+          else:
+             nz[z] = 1;
+          ele = atom.GetSymbol().upper()
+          name = atom_name_from_atomic_number_and_count(ele, nz[z])
+          p_name = pad_atom_name(name, ele)
+          atom.SetProp("name", p_name)
+          atom_names.append(p_name)
     return atom_names
 
 def convert_to_coot_bond_type(rdkit_type):
@@ -421,17 +426,41 @@ def make_restraints_from_mdl(mol_file_name, comp_id, sdf_file_name, pdb_out_file
    m = Chem.MolFromMolFile(mol_file_name)
    return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name)
 
+def make_restraints_from_pdbx_cif(cif_file_name_in, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
+
+   compound_name = 'something'
+   coords_file_name = ''
+   # later: embed the compound_name name into m.
+   m = coot_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id, coords_file_name)
+
+#    for atom in m.GetAtoms():
+#       name = atom.GetProp('name')
+#       print 'in p2.py make_restraints_from_pdbx_cif()', atom, ' of m has name ', name
+
+   return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name)
+
+
    
 def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
    
    compound_name = 'some-compound'
    m_H = AllChem.AddHs(m)
+
+   
    AllChem.EmbedMolecule(m_H)
    AllChem.UFFOptimizeMolecule(m_H)
+
    atom_names = add_atom_names(m_H)
+
+   for atom in m_H.GetAtoms():
+      name   = atom.GetProp('name')
+      print 'in p2.py make_restraints()', atom, ' of m_H 3 has name ', name
+   
+   
    m_H.SetProp('comp_id', comp_id)
    m_H.SetProp('name', compound_name)
    all_set = set_atom_types(m_H)
+
    if (all_set != True):
       return False
    else:
@@ -447,7 +476,7 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
       bor = make_restraints_for_bond_orders(m_H)
       # print "we got this bor: ", bor
       # coot.write_restraints(bor, comp_id, 'bond-orders.cif')
-      
+
       # print out the set types:
       for atom in m_H.GetAtoms():
          charge = atom.GetProp('_GasteigerCharge')
@@ -470,7 +499,10 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
          # coot.write_pdb_from_mol(new_mol, comp_id, "test-LIG.pdb")
 
       else:
-         coot.mmcif_dict_from_mol(comp_id, compound_name, m_H, mmcif_dict_name)
+         # we need ENERGY_LIB_CIF set to run mmcif_dict_from_mol() correctly
+         restraints = coot.mmcif_dict_from_mol(comp_id, compound_name, m_H, mmcif_dict_name)
+         if restraints == None:
+            print "No restraints"
          coot.write_pdb_from_mol(m_H, comp_id, pdb_out_file_name)
          return True # hacked in value
       return mogul_state
@@ -507,8 +539,8 @@ if __name__ == "__main__":
                 run_mogul = False
 
         sdf_file_name = file_stub + ".sdf"
-        cif_restraints_file_name = file_stub + ".cif"
-        pdb_out_file_name = file_stub + ".pdb"
+        cif_restraints_file_name = 'pyrogen-' + file_stub + '.cif'
+        pdb_out_file_name        = 'pyrogen-' + file_stub + '.pdb'
         comp_id = file_stub
 
         if is_mdl_file(smiles_or_mdl_string):
@@ -524,11 +556,19 @@ if __name__ == "__main__":
                  print "Type Error", ex
                  pass
            else:
-              smiles_string = smiles_or_mdl_string
-              if is_smiles_file(smiles_or_mdl_string):
-                 smiles_string = read_file(smiles_or_mdl_string)
-              status = make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name,
-                                                   pdb_out_file_name, cif_restraints_file_name)
-              
+
+              extension = os.path.splitext(smiles_or_mdl_string)[1]
+              if (extension == '.cif'):
+
+                 make_restraints_from_pdbx_cif(smiles_or_mdl_string, comp_id, sdf_file_name,
+                                               pdb_out_file_name, cif_restraints_file_name);
+
+              else:
+
+                 smiles_string = smiles_or_mdl_string
+                 if is_smiles_file(smiles_or_mdl_string):
+                    smiles_string = read_file(smiles_or_mdl_string)
+                 status = make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name,
+                                                      pdb_out_file_name, cif_restraints_file_name)
 
 

@@ -8,8 +8,8 @@
 #include <GraphMol/MolOps.h>
 #include <GraphMol/Bond.h>
 
-#include "protein-geometry.hh"
-#include "mogul-interface.hh"
+#include <geometry/protein-geometry.hh>
+#include <analysis/mogul-interface.hh>
 
 #include "restraints-private.hh"
 

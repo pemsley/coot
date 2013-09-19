@@ -17,7 +17,7 @@ install_top_dir=$(HOME)/autobuild/build-coot+rdkit-pre-release-gtk2-python
 prfx = $(install_top_dir)
 CXX = g++ -Wreturn-type
 HACK_INCLUDES = -I../coot/analysis
-INCLUDES = -I$(prfx)/include/python2.7 -I$(prfx)/include $(HACK_INCLUDES) -I$(prfx)/include/rdkit
+INCLUDES = -I$(prfx)/include/python2.7 -I$(prfx)/include/coot -I$(prfx)/include $(HACK_INCLUDES) -I$(prfx)/include/rdkit
 LIBS=$(prfx)/lib/libcoot-ideal.la \
      $(prfx)/lib/libcoot-coord-utils.la \
      $(prfx)/lib/libcoot-geometry.la \
@@ -52,12 +52,13 @@ test-call-python: test-call-python.cc
 	libtool --mode=link $(CXX) -fPIC $(INCLUDES) $< -o $@ $(LIBS)
 
 clean:
-	rm -f _coot_libs.so coot_libs.py \
+	rm -f restraints_boost.so restraints-boost.o py-restraints.o \
+              _coot_libs.so coot_libs.py \
               restraints.lo restraints.o example.o _example.so example_wrap.o \
 	      wrap-coot-libs.cc wrap-coot-libs.lo wrap-coot-libs.o example-wrap.o
 
 test:
-	# python test-coot-libs.py
+	# test-coot-libs.py
 	python p2.py
 
 boost-example.o: boost-example.cc
@@ -68,6 +69,9 @@ boost-example-defs.o: boost-example-defs.cc
 
 mytest.so: boost-example.o boost-example-defs.o
 	libtool --mode=link g++ -shared -fPIC $^ -o $@ $(LIBS)
+
+nick-firth: nick-firth.cc
+	libtool --mode=link $(CXX) $(INCLUDES) -shared -fPIC $^ -o $@ $(LIBS)
 
 # an example of using boost python in and out of python - i.e. use
 # python function return value in c++
