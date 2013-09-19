@@ -3332,9 +3332,13 @@ if [ $architecture = x86_64 ] ; then
    #   unset CXXFLAGS
 fi
 
-cbis_n=$(finger $USER | head -1 | sed 's/.*Name: //')
 cbis_d=$(date +'%a %d %b %H%M.%S %Z %Y')
-coot_build_info_string="built by: $cbis_n build-host: $HOST on: $cbis_d"
+if finger ; then
+   cbis_n=$(finger $USER | head -1 | sed 's/.*Name: //')
+   coot_build_info_string="built by: $cbis_n build-host: $HOST on: $cbis_d"
+else
+   coot_build_info_string="build-host: $HOST on: $cbis_d"
+fi
 
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
