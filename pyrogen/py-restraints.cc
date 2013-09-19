@@ -3,8 +3,8 @@
 #include <boost/python.hpp>
 #include "restraints.hh"
 #include "py-restraints.hh"
-#include <rdkit-interface.hh>
-#include <coot-coord-utils.hh>
+#include <lidia-core/rdkit-interface.hh>
+#include <coot-utils/coot-coord-utils.hh>
 
 coot::dictionary_residue_restraints_t
 monomer_restraints_from_python(PyObject *restraints) {

@@ -3,12 +3,12 @@
 #include <boost/python.hpp>
 #include "restraints.hh"
 #include "py-restraints.hh"
-#include <rdkit-interface.hh>
-#include <coot-coord-utils.hh>
+#include <lidia-core/rdkit-interface.hh>
+#include <coot-utils/coot-coord-utils.hh> 
 
 // for minimization
 #define HAVE_GSL
-#include <simple-restraint.hh>
+#include <ideal/simple-restraint.hh>
 
 
 void
@@ -86,6 +86,8 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
       
 }
 
+// write restraints and return restraints
+// 
 PyObject *
 coot::mmcif_dict_from_mol(const std::string &comp_id,
 			  const std::string &compound_name,
@@ -94,8 +96,15 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
 
    coot::dictionary_residue_restraints_t restraints =
       mmcif_dict_from_mol_inner(comp_id, compound_name, rdkit_mol_py);
-   restraints.write_cif(mmcif_out_file_name);
-   return monomer_restraints_to_python(restraints);
+   if (restraints.is_filled()) { 
+      restraints.write_cif(mmcif_out_file_name);
+      return monomer_restraints_to_python(restraints);
+   } else {
+      PyObject *o = new PyObject;
+      o = Py_None;
+      Py_INCREF(o);
+      return o;
+   } 
 } 
 
 coot::dictionary_residue_restraints_t
@@ -109,6 +118,7 @@ coot::mmcif_dict_from_mol_inner(const std::string &comp_id,
 
    const char *env = getenv("ENERGY_LIB_CIF");
    if (! env) {
+      // restraints.is_fillled() is false
       std::cout << "ERROR:: no ENERGY_LIB_CIF env var" << std::endl;
    } else {
 
@@ -131,7 +141,6 @@ coot::mmcif_dict_from_mol_inner(const std::string &comp_id,
       restraints.residue_info.number_atoms_nh = n_atoms_non_hydrogen;
       restraints.residue_info.group = "non-polymer";
       restraints.residue_info.description_level = "Partial";
-
       
       coot::add_chem_comp_atoms(mol, &restraints); // alter restraints
       coot::fill_with_energy_lib_bonds(mol, energy_lib, &restraints); // alter restraints
