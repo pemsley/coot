@@ -2911,7 +2911,8 @@ cd guile-${guile_version}
 # at least - I presume others also).
 
 if [ "$need_guile_unused_values_patch" = true ] ; then 
-   additional_unused_arg=-Wno-unused-but-set-variable
+   # 20130820-PE Ubuntu 12.04 also needs -Wno-unused-result
+   additional_unused_arg="-Wno-unused-but-set-variable -Wno-unused-result"
 else
    additional_unused_arg=
 fi
@@ -3566,6 +3567,8 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
 	       $publish $bin_tar_file
 	       echo $publish $bin_tar_file.md5sum
 	       $publish $bin_tar_file.md5sum
+	       echo $publish $binary_type_latest
+	       $publish $binary_type_latest
 	       echo $publish --no-server-check ChangeLog
 	       $publish --no-server-check ChangeLog
 	       echo $publish --no-server-check coot-README
