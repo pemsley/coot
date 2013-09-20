@@ -28,7 +28,9 @@
       (set-browser-interface "firefox"))
 
   (if (string=? os-type "Darwin")
-      (set-browser-interface "open")))
+      (begin
+	(set-display-lists-for-maps 0)
+	(set-browser-interface "open")))
 
 ;; York setting for molprobity. 
 ;; 
