@@ -346,7 +346,8 @@
 # 5.11 20130826 Allow build without guile; name directory for building.
 # 5.12 20130909 LD_LIBRARY_PATH changes/fixup.
 # 5.13 20130910 Force -O usage for guile compilation.
-script_version=5.13
+# 5.14 20130920 Publish logs.
+script_version=5.14
 
 
 
@@ -471,6 +472,7 @@ BINARY_INSTALL_CMD=www-placement
 # Some systems we can simply copy the files.  For others, we now have
 # this "publish" mechanism (to be overwritten as needed)
 publish=${publish:=:}
+publish_logs=${publish_logs:=:}
 
 # When we fail to extract the correct tar file from the web site, what
 # shall we build instead?
@@ -3609,6 +3611,8 @@ else
       fi
    fi
 fi
+
+$publish_logs $LOGS
 
 
 echo finished.
