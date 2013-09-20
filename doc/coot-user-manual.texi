@@ -253,6 +253,8 @@ Map-Related Features
 * Dynamic Map Sampling and Display Size::
 * Skeletonization::
 * Map Sharpening::
+* Pattersons::
+* Map Re-Interpolation::
 * masks::
 * Trimming Atoms::
 * Map Transformation::
@@ -3847,6 +3849,7 @@ and
 * Skeletonization::
 * Map Sharpening::
 * Pattersons::
+* Map Re-Interpolation::
 * masks::
 * Trimming Atoms::
 * Map Transformation::
@@ -4195,6 +4198,16 @@ function.  Example usage:
 
 where @code{@emph{use-weights-flag}} is either @code{0} or @code{1}.
 
+@node Map Re-Interpolation
+@section Map Re-Interpolation
+@cindex map re-Interpolation
+
+Maps can be re-interpolated to match a reference map.
+
+@code{(reinterp-map @emph{map-no reference-map-no})}
+
+will create a copy of  @code{@emph{map-no}} in the same cell, spacegroup and grid spacing as  
+the @code{@emph{reference-map-no}} map.
 
 @node masks
 @section Masks
