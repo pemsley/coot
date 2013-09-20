@@ -239,6 +239,10 @@ namespace coot {
       // factor of the input map)
       // 
       clipper::Xmap<float> reinterp_map_fine_gridding(const clipper::Xmap<float> &xmap);
+
+      // make a copy of map_in, but in the cell, spacegroup and gridding of reference_map
+      clipper::Xmap<float> reinterp_map(const clipper::Xmap<float> &xmap_in,
+					const clipper::Xmap<float> &reference_xmap);
   
       // 
       //

@@ -1407,6 +1407,29 @@ int difference_map(int imol1, int imol2, float map_scale) {
    return r;
 }
 
+
+int reinterp_map(int map_no, int reference_map_no) {
+
+   int r = -1;
+   if (is_valid_map_molecule(map_no)) { 
+      if (is_valid_map_molecule(reference_map_no)) {
+	 graphics_info_t g;
+	 clipper::Xmap<float> new_map =
+	    coot::util::reinterp_map(g.molecules[map_no].xmap_list[0],
+				     g.molecules[reference_map_no].xmap_list[0]);
+	 int imol = graphics_info_t::create_molecule();
+	 std::string name = "map ";
+	 name += coot::util::int_to_string(map_no);
+	 name += " re-interprolated to match ";
+	 name += coot::util::int_to_string(reference_map_no);
+	 graphics_info_t::molecules[imol].new_map(new_map, name);
+	 r = imol;
+	 graphics_draw();
+      }
+   }
+   return r;
+} 
+
 #ifdef USE_GUILE
 /*! \brief make an average map from the map_number_and_scales (which
   is a list of pairs (list map-number scale-factor)) (the scale factor
