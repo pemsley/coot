@@ -1339,6 +1339,10 @@ int transform_map_raw(int imol,
   Return -1 on failure. */
 int difference_map(int imol1, int imol2, float map_scale);
 
+/*! \brief make a new map (a copy of map_no) that is in the cell,
+  spacegroup and gridding of the map in reference_map_no */
+int reinterp_map(int map_no, int reference_map_no);
+
 #ifdef __cplusplus
 #ifdef USE_GUILE
 /*! \brief make an average map from the map_number_and_scales (which

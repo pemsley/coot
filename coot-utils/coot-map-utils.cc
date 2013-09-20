@@ -562,17 +562,48 @@ coot::util::difference_map(const clipper::Xmap<float> &xmap_in_1,
    return std::pair<clipper::Xmap<float>, float> (r, std_dev); 
 }
 
+// make a copy of map_in, but in the cell and gridding of reference_map
+clipper::Xmap<float>
+coot::util::reinterp_map(const clipper::Xmap<float> &xmap_in,
+			 const clipper::Xmap<float> &reference_xmap) {
+
+   clipper::Xmap<float> rmap;
+   rmap.init(reference_xmap.spacegroup(), reference_xmap.cell(), reference_xmap.grid_sampling());
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = rmap.first(); !ix.last(); ix.next())  {
+      clipper::Coord_map  cm1 = ix.coord().coord_map();
+      clipper::Coord_frac cf1 = cm1.coord_frac(rmap.grid_sampling());
+      clipper::Coord_orth co  = cf1.coord_orth(rmap.cell());
+      clipper::Coord_frac cf2 =  co.coord_frac(xmap_in.cell());
+      clipper::Coord_map  cm2 = cf2.coord_map( xmap_in.grid_sampling());
+      float map_2_val;
+      clipper::Interp_cubic::interp(xmap_in, cm2, map_2_val);
+      rmap[ix] = map_2_val;
+   }
+   return rmap;
+
+} 
+
+
 clipper::Xmap<float>
 coot::util::average_map(const std::vector<std::pair<clipper::Xmap<float>, float> > &maps_and_scales_vec) {
+   
    clipper::Xmap<float> rmap;
 
    if (maps_and_scales_vec.size() > 0) {
-      // set the first map
+
+      for (unsigned int imap=0; imap<maps_and_scales_vec.size(); imap++) 
+	 std::cout << "INFO:: multiplying map (function index) " << imap << " " 
+		   << maps_and_scales_vec[imap].first.grid_sampling().format()
+		   << " by " << maps_and_scales_vec[imap].second << std::endl;
+
+	  
+      // set the first map and scale it.
       rmap = maps_and_scales_vec[0].first;
       clipper::Xmap_base::Map_reference_index ix;
-      for (ix = rmap.first(); !ix.last(); ix.next())  {
+      for (ix = rmap.first(); !ix.last(); ix.next())
 	 rmap[ix] *= maps_and_scales_vec[0].second;
-      }
+
       for (unsigned int iothers=1; iothers<maps_and_scales_vec.size(); iothers++) {
 	 for (ix = rmap.first(); !ix.last(); ix.next())  {
 	    clipper::Coord_map  cm1 = ix.coord().coord_map();
