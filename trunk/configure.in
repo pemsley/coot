@@ -192,19 +192,18 @@ if test "$GOOCANVAS_CFLAGS" != "" ; then
    GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
 fi
 
-AC_ARG_WITH(enterprise-tools, [ --with-enterprise-tools with optional complicated/experimental ligand-related dependencies ],
- coot_enterprise_additions="true",
- coot_enterprise_additions="false")
+AC_ARG_WITH(enhanced-ligand-tools, [ --with-enhanced-ligand-tools with optional complicated/experimental ligand-related dependencies ],
+ coot_enhanced_ligand_additions="true",
+ coot_enhanced_ligand_additions="false")
 
-if test x$coot_enterprise_additions = xtrue ; then
-   ENTERPRISE_TOOLS_CFLAGS="-DMAKE_ENTERPRISE_TOOLS"
+if test x$coot_enhanced_ligand_additions = xtrue ; then
+   ENHANCED_LIGAND_TOOLS_CFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
 else 	
-   ENTERPRISE_TOOLS_CFLAGS=""
+   ENHANCED_LIGAND_TOOLS_CFLAGS=""
 fi
 
-# coot_enterprise_additions=true
-AM_CONDITIONAL(MAKE_ENTERPRISE_TOOLS, test x$coot_enterprise_additions = xtrue)
-AC_SUBST(ENTERPRISE_TOOLS_CFLAGS)
+AM_CONDITIONAL(MAKE_ENHANCED_LIGAND_TOOLS, test x$coot_enterprise_additions = xtrue)
+AC_SUBST(ENHANCED_LIGAND_TOOLS_CFLAGS)
 
 AC_SUBST(RDKIT_CXXFLAGS)
 AC_SUBST(RDKIT_LIBS)

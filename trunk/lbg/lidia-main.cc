@@ -43,7 +43,7 @@
 #endif
 #include "lbg.hh"
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 void set_show_additional_representation(int imol, int representation_number, int on_off_flag) {}
 void set_show_all_additional_representations(int imol, int on_off_flag) {}
 void orient_view(int imol,

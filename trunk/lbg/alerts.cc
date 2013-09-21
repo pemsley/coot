@@ -18,7 +18,7 @@
  * 02110-1301, USA
  */
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 // Now this is in lbg.hh (for make check reasons) we don't need to include it here
 // #ifdef USE_PYTHON
@@ -109,4 +109,4 @@ lbg_info_t::user_defined_alert_smarts() const {
 } 
 
 
-#endif // MAKE_ENTERPRISE_TOOLS
+#endif // MAKE_ENHANCED_LIGAND_TOOLS

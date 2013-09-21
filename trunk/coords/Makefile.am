@@ -27,7 +27,7 @@ pkgincludedir = $(includedir)/coot/coords
 
 INCLUDES = \
 	-I$(top_srcdir) \
-	$(ENTERPRISE_TOOLS_CFLAGS)      \
+	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
 	$(RDKIT_CXXFLAGS) 		\
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 

@@ -27,7 +27,7 @@
 #include "string.h"
 
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include <RDGeneral/FileParseException.h>
 #include <RDGeneral/BadFileException.h>
 #include <GraphMol/FileParsers/FileParsers.h>
@@ -80,7 +80,7 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
     if (coot::util::extension_is_for_mdl_mol_or_mol2_coords(extension)) {
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
        asc = coot::mol_to_asc_rdkit(pdb_name); // (not a PDB file of course)
        // OK, if that failed, maybe it was an MDL mol file format.
        // Use my parser for that for now.
@@ -725,7 +725,7 @@ coot::delete_aniso_records_from_atoms(CMMDBManager *mol) {
 }
 
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 atom_selection_container_t
 coot::mol_to_asc_rdkit(const std::string &file_name) {

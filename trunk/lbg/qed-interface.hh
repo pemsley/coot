@@ -1,5 +1,5 @@
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #ifdef USE_PYTHON
 
 #include "lbg.hh"

@@ -1,5 +1,5 @@
 
-#ifndef MAKE_ENTERPRISE_TOOLS
+#ifndef MAKE_ENHANCED_LIGAND_TOOLS
 int main(int argc, char **argv) {return 0;}
 #else 
 #include "cod-types.hh"
@@ -106,5 +106,5 @@ int main(int argc, char **argv) {
    return status;
 }
 
-#endif // MAKE_ENTERPRISE_TOOLS
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
