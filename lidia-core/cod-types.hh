@@ -1,5 +1,5 @@
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #ifndef COD_TYPES_HH
 #define COD_TYPES_HH
@@ -50,4 +50,4 @@ namespace cod {
 
 #endif // COD_TYPES_HH
 
-#endif // MAKE_ENTERPRISE_TOOLS
+#endif // MAKE_ENHANCED_LIGAND_TOOLS

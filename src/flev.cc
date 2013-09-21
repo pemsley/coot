@@ -431,7 +431,7 @@ void fle_view_with_rdkit_to_png(int imol, const char *chain_id, int res_no, cons
 
 void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *file_format, const char *output_image_file_name) { 
    
-#ifndef MAKE_ENTERPRISE_TOOLS
+#ifndef MAKE_ENHANCED_LIGAND_TOOLS
 # else
 
    double weight_for_3d_distances = 0.4; // for 3d distances
@@ -598,7 +598,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 	 }
       }
    }
-#endif // MAKE_ENTERPRISE_TOOLS   
+#endif // MAKE_ENHANCED_LIGAND_TOOLS   
 }
 
 void fle_view_set_water_dist_max(float dist_max) { 

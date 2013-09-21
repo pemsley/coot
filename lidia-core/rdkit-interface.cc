@@ -18,7 +18,7 @@
  * 02110-1301, USA
  */
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
@@ -2299,4 +2299,4 @@ coot::join_molecules(const RDKit::ROMol &mol, int atom_index, const RDKit::ROMol
 }
 
 
-#endif // MAKE_ENTERPRISE_TOOLS   
+#endif // MAKE_ENHANCED_LIGAND_TOOLS   

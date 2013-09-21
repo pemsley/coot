@@ -34,7 +34,7 @@
 #include <string.h>
 #include <GL/glut.h>
 
-// #ifdef MAKE_ENTERPRISE_TOOLS
+// #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // // includes order important, otherwise we get dcgettext() problems.
 // #include "rdkit-interface.hh" // needed for add_hydrogens()
 // #endif

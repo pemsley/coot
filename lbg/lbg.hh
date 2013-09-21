@@ -33,7 +33,7 @@
 #endif 
 
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
 #endif 
 
@@ -62,7 +62,7 @@
 #include "coot-utils/coot-coord-utils.hh"
 #include "flev-annotations.hh"
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "graphics-c-interface-functions.hh"
 #endif 
 
@@ -613,7 +613,7 @@ public:
                                          // of the primary residues.
    };
 
-#ifdef MAKE_ENTERPRISE_TOOLS   
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS   
    class alert_info_t {
    public:
       std::string smarts;
@@ -756,7 +756,7 @@ private:
       alert_group = NULL; // group for alert annotations
       show_alerts_user_control = false; // no pattern matching available
       geom_p = NULL; // no (static) geometry passed/set
-#ifdef MAKE_ENTERPRISE_TOOLS   
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS   
       show_alerts_user_control = true;
       bond_pick_pending = false;
       atom_pick_pending = false;
@@ -904,7 +904,7 @@ private:
    convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
 	   const coot::flev_attached_hydrogens_t &ah) const;
    
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
    RDKit::Bond::BondType convert_bond_type(const lig_build::bond_t::bond_type_t &t) const;
    RDKit::Bond::BondDir  convert_bond_dir(const lig_build::bond_t::bond_type_t &t) const;
    
@@ -1069,9 +1069,9 @@ public:
    void handle_key_press_button_toggle(int key, bool ctrl_is_pressed);
    
    // and the version of that not going via an intermediate molfile_molecule_t
-#ifdef MAKE_ENTERPRISE_TOOLS   
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS   
    widgeted_molecule_t import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const;
-#endif // MAKE_ENTERPRISE_TOOLS   
+#endif // MAKE_ENHANCED_LIGAND_TOOLS   
 
    static void on_sbase_search_result_button_clicked(GtkButton *button, gpointer user_data);
    static gboolean watch_for_mdl_from_coot(gpointer user_data);
@@ -1097,7 +1097,7 @@ public:
    // non-enterprise path
    void update_statusbar_smiles_string() const;
    void update_statusbar_smiles_string(const std::string &smiles_string) const;
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
    RDKit::RWMol rdkit_mol(const widgeted_molecule_t &mol) const;
    // do these need to be RWMols?
    void update_statusbar_smiles_string(const RDKit::ROMol &rdkm) const;
@@ -1114,9 +1114,9 @@ public:
 #endif
    // although these depend on/manipulate rdkit-based entities - they
    // only clear them up, not generate them, so, in order that we
-   // don't complicated lbg-callbacks.cc with MAKE_ENTERPRISE_TOOLS
+   // don't complicated lbg-callbacks.cc with MAKE_ENHANCED_LIGAND_TOOLS
    // dependencies, let's put those functions outside the
-   // MAKE_ENTERPRISE_TOOLS dependency here.
+   // MAKE_ENHANCED_LIGAND_TOOLS dependency here.
    void clear_canvas_alerts();
    bool show_alerts_user_control; 
    

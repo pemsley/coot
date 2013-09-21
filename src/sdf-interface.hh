@@ -19,7 +19,7 @@
  */
 
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // was it OK or not?  (i.e. did we not catch an exception)
 bool residue_to_sdf_file(int imol, const char *chain_id, int resno, const char *ins_code, 
 			 const char *sdf_file_name, bool kekulize = true);

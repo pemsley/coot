@@ -1,5 +1,5 @@
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include "utils/coot-utils.hh"
 #include "cod-types.hh"

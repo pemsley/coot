@@ -110,7 +110,7 @@ coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
                              $(top_srcdir)/src/sdf-interface.hh \
                              $(top_srcdir)/src/c-interface-mogul.hh
-	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENTERPRISE_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -guile -c++  $(top_srcdir)/src/coot.i
+	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -guile -c++  $(top_srcdir)/src/coot.i
 
 # For GOOPS support: -proxy -Linkage module (or passive), however, doing that makes SWIG_init() go away.
 
@@ -126,7 +126,7 @@ coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h      \
                               $(top_srcdir)/src/c-interface-ligands-swig.hh \
 			      $(top_srcdir)/src/sdf-interface.hh   \
                               $(top_srcdir)/src/c-interface-mogul.hh
-	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENTERPRISE_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk2.py
+	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk2.py
 
 coot_wrap_python_gtk2.cc: coot_wrap_python_pre_gtk2.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
@@ -183,7 +183,7 @@ AM_CXXFLAGS = \
 INCLUDES = \
 	-I$(top_srcdir) \
 	$(RDKIT_CXXFLAGS) 		\
-	$(ENTERPRISE_TOOLS_CFLAGS)      \
+	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK) 		\
 	$(GUILE_GTK_CFLAGS)		\
