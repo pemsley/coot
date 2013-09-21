@@ -30,7 +30,7 @@
   (if (string=? os-type "Darwin")
       (begin
 	(set-display-lists-for-maps 0)
-	(set-browser-interface "open")))
+	(set-browser-interface "open"))))
 
 ;; York setting for molprobity. 
 ;; 
