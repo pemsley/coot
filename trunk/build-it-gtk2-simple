@@ -3577,8 +3577,8 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
    	          echo $publish  --no-server-check RELEASE-NOTES
 	          $publish --no-server-check RELEASE-NOTES
                else 
-   	          echo $publish  --no-server-check PRE-RELEASE-NOTES
-	          $publish --no-server-check PRE-RELEASE-NOTES
+   	          echo $publish  --no-server-check $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
+	          $publish --no-server-check $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
                fi
 
 	       echo done copy of README and RELEASE-NOTES
