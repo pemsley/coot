@@ -957,7 +957,7 @@ if test $OS = Linux ; then
         dist=`rpm -q --qf '%{name}' ${i}`
         if test $? = 0 ; then
           dist_name=$(echo ${dist} | sed -e 's/\-release//g' -e 's/\-workstation//g')
-          dist_ver=`rpm -q --qf '%{version}' ${i}`
+          dist_ver=$(rpm -q --qf '%{version}' ${i})
           break
         else
           dist_name='unknown'
