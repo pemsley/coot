@@ -949,12 +949,14 @@
 
       (define (cached-or-net-get-image-func image-url image-name hbox)
 
-	(let ((curl-status 'start)
+	(let ((curl-status 'start)  ;; what does this do?
 	      (pack-image-func
 	       (lambda ()
 		 (let ((pixmap (gtk-pixmap-new-from-file image-name button-hbox)))
-		   (gtk-box-pack-start hbox pixmap #f #f 1)
-		   (gtk-widget-show pixmap)))))
+		   (if pixmap
+		       (begin
+			 (gtk-box-pack-start hbox pixmap #f #f 1)
+			 (gtk-widget-show pixmap)))))))
 
 	  (cache-or-net-get-image image-url image-name pack-image-func)))
 	  
