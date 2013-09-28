@@ -131,7 +131,7 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
         # now do the protein icon:
         image_size = 120
         image_name_stub = entry_id + "_cbc" + str(image_size) + ".png"
-        image_url = "http://www.ebi.ac.uk/pdbe-srv/view/images/entry/" + \
+        image_url = "http://www.ebi.ac.uk/pdbe/entry-images/" + \
                     image_name_stub
         
         entry_image_file_name = os.path.join(coot_pdbe_image_cache_dir,
