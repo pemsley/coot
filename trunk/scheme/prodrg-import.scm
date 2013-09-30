@@ -20,8 +20,8 @@
 
 ;; This function can be overwritten by your favourite 3d conformer and restraints generator.
 ;; 
-(define (import-from-3d-generator-from-mdl mdl-file-name)
-  (import-from-prodrg "mini-no"))
+(define (import-from-3d-generator-from-mdl mdl-file-name comp-id)
+  (import-from-prodrg "mini-no" comp-id))
 
 
 (define (import-ligand-with-overlay prodrg-xyzout prodrg-cif)
@@ -175,12 +175,11 @@
 
 
 
-(define (import-from-prodrg minimize-mode)
+(define (import-from-prodrg minimize-mode res-name)
 
   ;; main line of import-from-prodrg
   ;; 
-  (let ((prodrg-dir "coot-ccp4")
-	(res-name "DRG"))
+  (let ((prodrg-dir "coot-ccp4"))
     
     (make-directory-maybe prodrg-dir)
     (let ((prodrg-xyzout (append-dir-file prodrg-dir
