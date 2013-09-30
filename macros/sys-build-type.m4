@@ -50,7 +50,7 @@ if test "$OS" = Linux ; then
       ;;
       * )
         systype=${architecture}-rhel-$(echo ${dist_ver} | sed s/[A-Za-z]//g)
-        if test $arch = x86_64 ; then 
+        if test "$architecture" = x86_64 ; then 
 	   if test $dist_ver = 4WS  ; then
 	      echo RedHat 4 Linux x86_64 detected. need to update libtool
               update_libtool=1
