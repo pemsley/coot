@@ -1283,7 +1283,9 @@ void handle_map_colour_change     (int map_no, gdouble[4]);
 void handle_symmetry_colour_change(int mol,    gdouble[4]);
 void fill_single_map_properties_dialog(GtkWidget *window, int imol);
 
+/* \brief set the contour level, direct control */
 void set_contour_level_absolute(int imol_map, float level);
+/* \brief set the contour level, direct control in r.m.s.d. (if you like that sort of thing) */
 void set_contour_level_in_sigma(int imol_map, float level);
 
 /*! \brief set the sigma step of the last map to f sigma */
