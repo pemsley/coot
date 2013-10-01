@@ -48,7 +48,7 @@ libccp4mg_surface_la_SOURCES = \
 	CXXUtils.h \
 	CXXSphereFlatTriangle.h
 
-libccp4mg_surface_la_LIBADD = $(CLIPPER_LIBS) $(MMDB_LIBS)
+libccp4mg_surface_la_LIBADD = $(CLIPPER_LIBS) $(MMDB_LIBS) $(OPENMP_CFLAGS)
 
 
 # CXXAtom.h CXXAtom.cpp
