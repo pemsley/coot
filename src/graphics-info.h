@@ -3224,7 +3224,7 @@ public:
 #if (GTK_MAJOR_VERSION > 1)
    void set_directory_for_filechooser_string(std::string filename);
    void set_directory_for_saving_for_filechooser_string(std::string filename);
-#endif // GKT_MAJOR_VERSION
+#endif // GTK_MAJOR_VERSION
    static int file_selection_dialog_x_size;
    static int file_selection_dialog_y_size; 
 

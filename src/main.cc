@@ -291,27 +291,19 @@ main (int argc, char *argv[]) {
 #endif // USE_LIBGLADE
      
      std::string version_string = VERSION;
-     gchar *main_title;
-#ifdef WINDOWS_MINGW
-     main_title = g_strconcat("WinCoot ", version_string.c_str(), NULL);
-#else
-     main_title = g_strconcat("Coot ", version_string.c_str(), NULL);
-#endif
-     gtk_window_set_title (GTK_WINDOW (window1), _(main_title));
-     g_free(main_title);
-
-     // Trying to put a pixmap into the menu bar...
-     GtkWidget *reset_view1 = lookup_widget(window1, "reset_view1");
-     if (! reset_view1) {
-	std::cout << "ERROR:: failed to find reset_view1" << std::endl;
-     } else {
-	//      GtkWidget *box = gtk_hbox_new(FALSE, 0);
-	//      GtkWidget *pixmap = create_pixmap (box, "recentre.xpm");
-	//      gtk_box_pack_start (GTK_BOX (box),
-	// 			 pixmap, FALSE, FALSE, 3);
-	//      gtk_container_add(GTK_CONTAINER(reset_view1), box);
-	//      gtk_widget_show(box);
+     std::string main_title = "Coot " + version_string;
+     // if this is a pre-release, stick in the revision number too
+     if (version_string.find("-pre") != std::string::npos) {
+	main_title += " (revision ";
+	main_title += coot::util::int_to_string(svn_revision());
+	main_title += ")";
      }
+     
+#ifdef WINDOWS_MINGW
+     main_title = "Win" + main_title;
+#endif
+
+     gtk_window_set_title(GTK_WINDOW (window1), main_title.c_str());
 
      glarea = gl_extras(lookup_widget(window1, "vbox1"),
 			cld.hardware_stereo_flag);
