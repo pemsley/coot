@@ -2394,11 +2394,9 @@ if test -n "$build_clipper" ; then
     # 20110921 hack in a temporary solution, while Kevin's new clipper
     # is not available yet from his site.
     clipper_hack_version=2.1-110915-fixup-2
-    # ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-$clipper_hack_version.tar.gz
     ${WGET} $extras_place/clipper-$clipper_hack_version.tar.gz
 
     if [ "$need_clipper_contrib_patch" = true ] ; then
-       # ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper_test_contrib.cpp.patch
        ${WGET} $extras_place/clipper_test_contrib.cpp.patch
     fi
     (
