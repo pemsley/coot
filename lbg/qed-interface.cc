@@ -3,7 +3,6 @@
 #ifdef USE_PYTHON
 
 #include <boost/python.hpp>
-using namespace boost::python;
 
 #include "qed-interface.hh"
 #include "lidia-core/rdkit-interface.hh"
