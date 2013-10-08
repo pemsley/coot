@@ -2067,7 +2067,7 @@ void sbase_import_function(std::string comp_id) {
 
 #ifdef USE_GUILE
    if (! done) { 
-      std::string s = "(get-sbase-monomer-and-overlay ";
+      std::string s = "(get-ccp4srs-monomer-and-overlay ";
       s += single_quote(comp_id);
       s += ")";
       safe_scheme_command(s);

@@ -183,7 +183,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    // get the group.  If it is "non-polymer", then we can tinker with
    // the have_flanking_residue_at_* flags.
 
-   int SelHnd_first = mol->NewSelection();
+   int SelHnd_first = mol->NewSelection(); // d
    int n_residue_first;
    PCResidue *residue_first = NULL;
    mol->Select(SelHnd_first, STYPE_RESIDUE, 0,
@@ -305,7 +305,8 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	 info_dialog_refinement_non_matching_atoms(icheck_atoms.second);
 	 return rr; // fail
       } else { 
-	 
+
+	 std::cout << "DEBUG:: pre copy_mol_and_refine_inner() geom has size " << Geom_p()->size() << std::endl;
 	 return copy_mol_and_refine_inner(imol_for_atoms,
 					  resno_1, resno_2,
 					  nSelResidues, SelResidues,
@@ -345,7 +346,9 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 					   ) {
 
    // for debugging CCP4SRS usage
-   // std::cout << "------------------- copy_mol_and_refine_inner() geom size " << Geom_p()->size() << std::endl;
+   // 
+   // std::cout << "------------------- copy_mol_and_refine_inner() start geom size "
+   //           << Geom_p()->size() << std::endl;
 
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
    short int have_disulfide_residues = 0; // of course not in linear mode.
@@ -447,9 +450,43 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 
 	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
 	    restraints.add_extra_restraints(molecules[imol_for_atoms].extra_restraints);
+
+	 const coot::protein_geometry &geom = *geom_p;
+
+	 // 20132008: debugging CCP4 SRS inclusion.  Currently it
+	 // seems that problem is calling a member function of
+	 // restraints.  An inline version of the same test function
+	 // doesn't cause the corruption of geom.
+	 // 
+	 if (0) { 
+	    std::cout << "------------------- copy_mol_and_refine_inner() pre calling make_restraints() geom size "
+		      << Geom_p()->size() << std::endl;
+	    std::cout << "    geom     pointer " << Geom_p() << std::endl;
+	    std::cout << "------------------- copy_mol_and_refine_inner() pre calling make_restraints() ref geom size "
+		      << geom.size() << std::endl;
+	    std::cout << "    geom ref pointer " << &geom << std::endl;
+
+	 
+
+	    unsigned int n_test = restraints.inline_const_test_function(geom);
+	    std::cout << "------------------- copy_mol_and_refine_inner() inline_const_test_function n_test: "
+		      << n_test << std::endl;
+	 
+	    n_test = restraints.const_test_function(geom);
+	    std::cout << "------------------- copy_mol_and_refine_inner() const_test_function n_test: "
+		      << n_test << std::endl;
+	 
+	    n_test = restraints.test_function(geom);
+	    std::cout << "------------------- copy_mol_and_refine_inner() test_function n_test: "
+		      << n_test << std::endl;
+	 
+	    n_test = restraints.const_test_function(geom);
+	    std::cout << "------------------- copy_mol_and_refine_inner() const test_function n_test: "
+		      << n_test << std::endl;
+	 } 
 	 
 	 int nrestraints = 
-	    restraints.make_restraints(*geom_p, flags,
+	    restraints.make_restraints(geom, flags,
 				       do_residue_internal_torsions,
 				       rama_plot_restraint_weight,
 				       do_rama_restraints,
@@ -1225,7 +1262,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
       cout << "Picked atoms are not in the same chain.  Failure" << endl; 
    } else { 
       flash_selection(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
-       rr = copy_mol_and_regularize(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
+      rr = copy_mol_and_regularize(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
       short int istat = rr.found_restraints_flag;
       if (istat) { 
 	 graphics_draw();
