@@ -27,7 +27,8 @@ lib_LTLIBRARIES=libcoot-ideal.la
 
 EXTRA_DIST = notes Makefile.simple molmantest.cc test-indexing.hh test-indexing.cc
 
-pkginclude_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh regularize-minimol.hh lograma.h
+pkginclude_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh regularize-minimol.hh lograma.h \
+	parallel-planes.hh
 pkgincludedir = $(includedir)/coot/ideal
 
 INCLUDES = \
@@ -71,7 +72,7 @@ libcoot_ideal_la_LIBADD =                 \
 libcoot_ideal_la_SOURCES = simple-restraint.cc chirals.cc  extra-restraints.cc \
 	pepflip.cc regularize-minimol.cc lograma.cpp \
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
-	coot-compare-residues.hh coot-compare-residues.cc
+	coot-compare-residues.hh coot-compare-residues.cc link-restraints.cc parallel-planes.cc
 
 noinst_PROGRAMS =  with-geometry logramatest
 bin_PROGRAMS = mini-rsr

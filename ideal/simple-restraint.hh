@@ -1686,12 +1686,12 @@ namespace coot {
       refinement_results_t minimize(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
       void fix_chiral_atoms_maybe(gsl_vector *s);
 
-      simple_restraint& operator[](int i) { 
+      simple_restraint& operator[] (unsigned int i) {
 	 return restraints_vec[i]; 
       } 
 
       // because chi_squareds is const:
-      const simple_restraint& operator[](int i) const { 
+      const simple_restraint& operator[] (const unsigned int &i) const { 
 	 return restraints_vec[i]; 
       } 
   
@@ -1709,6 +1709,14 @@ namespace coot {
 			  float rama_plot_target_weight,
 			  bool do_rama_plot_retraints, 
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds);
+
+      unsigned int test_function(const coot::protein_geometry &geom);
+      unsigned int inline_const_test_function(const coot::protein_geometry &geom) const {
+	 std::cout << "----- inline_const_test_function() with geom of size : " << geom.size() << std::endl;
+	 std::cout << "    geom ref pointer " << &geom << std::endl;
+	 return geom.size();
+      } 
+      unsigned int const_test_function(const coot::protein_geometry &geom) const;
 
       void add_extra_restraints(const extra_restraints_t &extra_restraints);
       // and that calls:
