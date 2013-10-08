@@ -1784,8 +1784,11 @@ namespace coot {
       // 
       int init_refmac_mon_lib(std::string filename, int read_number_in);
 
-      int size() const { return dict_res_restraints.size(); }
+      unsigned int size() const { return dict_res_restraints.size(); }
       const dictionary_residue_restraints_t & operator[](int i) const {
+	 // debugging SRS compilation
+	 // std::cout << "const operator[] for a geom " << i << " of size "
+	 //           << dict_res_restraints.size() << std::endl;
 	 return dict_res_restraints[i]; }
       const dictionary_residue_link_restraints_t & link(int i) const {
 	 return dict_link_res_restraints[i]; }
