@@ -1,12 +1,15 @@
  -*-text-*-
 
-scripts      rev 4714 (some prodrg stuff needs testing) generic objects, update running of jligand?! 
+scripts      rev 4787 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
 tests        rev 4730 update
 build-it-win rev 4739 (check 0.8 pre builder, add publishing?!)
 
 -------------------------------------------------------
-* THINGS TO DO BEFORE 0.7.1 RELEASE * ONLY URGENT THING
+* THINGS TO DO BEFORE 0.7.2 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
+
+Fix installer guile warning for windows feel.
+Test spider drag and drop
 
 FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
 
@@ -16,6 +19,7 @@ FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
 Windows:
  o change runwincoot.bat to (win)coot.bat
  o write things to WINDIR (rather than HOME)
+ o check if    clipper::ClipperInstantiator::instance().destroy(); is still needed in c-interface-gui.ss
 
 ---- FINISH URGENT ----
 
@@ -90,6 +94,10 @@ scripting exercise
 ----------------
 
 **** General ****
+
+   o add (more sensible) timeout for download at EDS (and others?)
+
+   o allow reading of ent.gz ?! not there (in windows??)?!
 
    o torsion angle refinement: 
 	- shrink atom ardii or downweight nonbonded
@@ -439,6 +447,8 @@ low importance
 
 
 **** Windows ****
+
+   o make install syminfo.lib from windows dir
 
    o +/- to change contour level is reversed!!
 
