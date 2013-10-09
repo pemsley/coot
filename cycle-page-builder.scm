@@ -1,4 +1,6 @@
 
+;; (use-modules (www url))
+
 (use-modules (srfi srfi-13)
              (srfi srfi-1)
              (sxml simple)
@@ -8,22 +10,37 @@
 	     (ice-9 receive)
 	     (ice-9 format)
 	     ;; (net http)
-	     (www main)
+
+;; changed?
+;	     (www main)
+	     (www url)
+	     (www http)
+
 	     (os process)
 	     (ice-9 regex))
 
 (use-syntax (ice-9 syncase))
 
-(define devel-dir  "http://lmb.bioch.ox.ac.uk/coot/devel")
+;; (define devel-dir  "http://lmb.bioch.ox.ac.uk/coot/devel")
+(define devel-dir  "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/devel")
+
 ;;
-(define svn-log-page  "http://lmb.bioch.ox.ac.uk/coot/devel/svn.log")
+;; (define svn-log-page  "http://lmb.bioch.ox.ac.uk/coot/devel/svn.log")
+
+(define svn-log-page  "http://www2.mrc-lmb.cam.ac.uk/personal/pemsleycoot/devel/svn.log")
+
+; no longer used.  Now we get source info from the web server, not the file system.
+;
+; ;; 
+; (define source-tar-dir (string-append
+; 			(getenv "HOME")
+; 			"/public_html"
+; 			"/coot/software/source/pre-releases/"))
+
+
+;; this must be slashed
 ;; 
-(define source-tar-dir (string-append
-			(getenv "HOME")
-			"/public_html"
-			"/coot/software/source/pre-releases/"))
-;; 
-(define web-source-tar-dir "http://lmb.bioch.ox.ac.uk/coot/software/source/pre-releases/")
+(define web-source-tar-dir "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/pre-releases/")
 
 
 ;; code from thi <ttn at mingle.glug.org>
@@ -39,6 +56,38 @@
 	      (begin
 		(display line)
 		(loop (read-line in-port 'concat)))))))))
+
+
+
+
+;; regex-split by Neil Jerram
+;; 
+(define (regex-split regex str . opts)
+  (let* ((unique-char #\@)
+         (unique-char-string (string unique-char)))
+    (let ((splits (separate-fields-discarding-char
+                   unique-char
+                   (regexp-substitute/global #f
+                                             regex
+                                             str
+                                             'pre
+                                             unique-char-string
+                                             0
+                                             unique-char-string
+                                             'post)
+                   list)))
+      (cond ((memq 'keep opts)
+             splits)
+            (else
+             (let ((non-matches (map (lambda (i)
+                                       (list-ref splits (* i 2)))
+                                     (iota (floor (/ (1+ (length splits)) 2))))))
+               (if (memq 'trim opts)
+                   (filter (lambda (s)
+                             (not (zero? (string-length s))))
+                           non-matches)
+                   non-matches)))))))
+
 
 
 ;; or define a utility function for this
@@ -94,34 +143,29 @@
 	      (begin
 		(format #t "~%")
 		(let* ((url (list-ref build-info 2))
-                       ;; (nov (format #t "debug:: getting url ~s~%" url))
-		       (s (www:get url))
-			;;(call-with-output-string
-			 ;;(lambda (port)
-			  ;; (let ((initial-output-port (current-output-port)))
-			   ;;  (set-current-output-port port)
-			    ;; ;; (http-get url)
-			     ;; (http-get "http://lmb.bioch.ox.ac.uk") 
-			     ;;(www:get url)
-			     ;;(set-current-output-port initial-output-port)
-                             ;;))))
-                       ;; (nov-2 (format #t "================== got http string : ~s~%" s))
-		       (s-lines (string-split s #\newline)))
-                  ;; (format #t "debug2:: done getting url~%")
-		  (set! cached-pages (acons web-dir s-lines cached-pages))
-		  s-lines))))))))
+		       (url-slashed (string-append url "/"))
+                       (nov (format #t "debug:: getting url ~s~%" url-slashed))
+
+		       (s (get-url url-slashed)))
+
+		  (if (not (= (vector-length s) 5))
+		      #f
+		      (let ((s-lines (string-split (vector-ref s 4) #\newline)))
+			(set! cached-pages (acons web-dir s-lines cached-pages))
+			s-lines))))))))))
+
 
 ;; Return the revision (as a number) 
 ;; Return #f on failure.
 ;; 
 (define (get-revision-from-tar binary-tar-file-name)
   (let ((bits (string-split binary-tar-file-name #\-)))
-    (format #t "bits in get-revision-from-binary-tar: ~s~%" bits)
+    ;; (format #t "bits in get-revision-from-binary-tar: ~s~%" bits)
     (let loop ((bits bits))
       (cond
        ((null? bits) (values #f #f))
        ((string-match "revision" (car bits))
-        (format #t "matched on revision: ~s~%" bits)
+        ;; (format #t "matched on revision: ~s~%" bits)
 	(if (> (length bits) 1)
 	    (let ((revision+exe (car (cdr bits)))) ;; e.g. "1234.exe" for WinCoot
 	      (let ((rev-bits (string-split revision+exe #\.)))
@@ -162,16 +206,24 @@
 ;;
 (define (get-latest-binary-url-info build-info)
 
+  ;; 
   (define (oxford-string->binary-tar-file binary-file-name-bit binary-match python? gtk2?)
+
     (if (or (string-match "coot" binary-file-name-bit)
 	    (string-match "WinCoot" binary-file-name-bit))
 	(let ((bits-2 (string-split binary-file-name-bit #\>)))
-	  (format #t "==== Here 2, bits-2 ~s ~%" bits-2)
+
+	  ;; (format #t "==== Here 2, bits-2 ~s ~%" bits-2)
+
 	  (if (> (length bits-2) 1)
 	      (let ((bits-3 (string-split (list-ref bits-2 1) #\<)))
-		(format #t "==== Here 3 bit-3: ~s~%" bits-3)
+
+		;; (format #t "==== Here 3 bit-3: ~s~%" bits-3)
+
 		(if (> (length bits-3) 1)
 		    (let ((a-file-name (car bits-3)))
+
+		      ;; (format #t "**************** examining a-file-name: ~s~%" a-file-name)
 		      
 		      (cond 
 		      ;; WinCoot
@@ -181,7 +233,9 @@
 		      ;; not WinCoot, e.g. Ubuntu
 		      ((string-match ".tar.gz" a-file-name)
 		       (if (not (string-match binary-match a-file-name))
-			   #f
+			   (begin
+			     ;; (format #t "+++++++++ fail 1 string-match ~s on ~s ~%" binary-match a-file-name)
+			     #f)
 			   (if (or (and (string-match "python" a-file-name)
 					python?)
 				   (and (not (string-match "python" a-file-name))
@@ -190,44 +244,71 @@
 					    gtk2?)
 				       (and (not (string-match "gtk2" a-file-name))
 					    (not gtk2?)))
-				   a-file-name)
-			       #f)))
+
+				   (let ((dum 'dummy))
+				     ;; (format #t "oxford-string->binary-tar-file returns ~s~%" a-file-name)
+				     a-file-name))
+			       (begin
+				 (format #t "+++++++++ fail 2 ~%")
+				 #f)
+			       )))
 		      (else
-		       #f)))
-		    #f))
-	      #f))
+		       (begin
+			 (format #t "+++++++++ fail 3 ~%")
+			 #f)
+
+		       )))
+
+		    (begin
+		      (format #t "+++++++++ fail 4 ~%")
+		      #f)
+		    ))
+	      (begin
+		(format #t "+++++++++ fail 5 ~%")
+		#f)
+	      ))
 	#f))
   
   ;; return a string or #f
   (define (line->binary-tar-file line binary-match python? gtk2?)
 
     (let ((line-bits (string-split line #\")))
-      ;; (format #t "line-bits: ~s~%" line-bits)
+      ;;(format #t "    ----- binary-match: ~s line-bits: ~s~%" binary-match line-bits)
+
       (if (> (length line-bits) 6)
 	  (let* ((tim-server (string-match "top" (list-ref line-bits 1)))
 		 (tar-file-idx (if tim-server 7 6))
 		 (binary-file-name-bit (list-ref line-bits tar-file-idx)))
-	    (format #t "binary-file-name-bit: idx: ~s string: ~s~%" tar-file-idx binary-file-name-bit)
+	    
+	    ;; (format #t "      ---- binary-file-name-bit: idx: ~s string: ~s~%" tar-file-idx binary-file-name-bit)
 	    (if tim-server
 
 		;; tim server
 		(let ((smr-1 (string-match "debian-gnu-linux-" binary-file-name-bit)))
-		  (format #t "tim-server smr-1 ~s~%" smr-1)
+		  ;; (format #t "tim-server smr-1 ~s~%" smr-1)
 		  (if (not smr-1)
 		      #f 
 		      (begin
-			(format #t "tim-server ===== pass 1! ~s ~s~%" 
-				binary-file-name-bit smr-1)
+			;; (format #t "tim-server ===== pass 1! ~s ~s~%" 
+			;; binary-file-name-bit smr-1)
 			(let ((smr-2 (string-match ".tar.gz" binary-file-name-bit)))
 			  (if (not smr-2)
 			      #f 
 			      binary-file-name-bit)))))
 
 		;; oxford/york (-like) then
+		;; 
 		(oxford-string->binary-tar-file binary-file-name-bit binary-match python? gtk2?)))
 
-	  #f)))
-		      
+	  ;; it seems that the York server for WinCoot has changed.  Now file names are quoted with 's.
+	  (if (not (string-match binary-match line))
+	      #f
+	      (let ((line-bits (string-split line #\')))
+		;; (format #t "WinCoot line-bits: ~s~%" line-bits)
+		(if (not (> (length line-bits) 2))
+		    #f
+		    (let ((file-name (list-ref line-bits 1)))
+		      file-name)))))))
 
   
   ;; In future, cache the result (the list of
@@ -261,9 +342,10 @@
 	(python? (list-ref build-info 3))
 	(gtk2?   (list-ref build-info 4)))
     
-    (format #t "s-lines: ~s ~s lines~%" s-lines (length s-lines))
+    ;; (format #t "  ----- in get-binary-tar-file-names s-lines: ~s ~s lines~%" s-lines (length s-lines))
+
     (let ((file-ls (get-binary-tar-file-names s-lines binary-match python? gtk2?)))
-      (format #t "file-ls: ~s ~%" file-ls)
+      ;; (format #t "  ----- in get-binary-tar-file-names file-ls: ~s ~%" file-ls)
       
       (let loop ((file-ls file-ls)
 		 (latest-revision #f)
@@ -286,7 +368,7 @@
 		
   
 
-(define (get-url url)
+(define (old-get-url url)
   (call-with-output-string
    (lambda (port)
      (let ((initial-output-port (current-output-port)))
@@ -294,10 +376,19 @@
        (www:get url)
        (set-current-output-port initial-output-port)))))
 
-;; return the revision number or #f
+;; does this return a string?
+;; No.
 ;; 
+(define (get-url url)
+  ;; (format #t "=== in get-url we get url: ~s~%" url)
+  (http:request 'GET (url:parse url)  (list "User-Agent: Bespoke-0.0"
+					    "Content-Type: text/plain")))
+
+
+;; return the revision number or #f
+; ;
 (define (get-svn-revision)
-  (let ((coot-dir (string-append (getenv "HOME") "/Projects/coot-svn/trunk"))
+  (let ((coot-dir (string-append (getenv "HOME") "/Projects/coot/trunk"))
 	(current-dir (getcwd)))
     ; (format #t "coot-dir: ~s~%" coot-dir)
     ; (format #t "curr-dir: ~s~%" current-dir)
@@ -447,9 +538,10 @@
 	  `(p (a (@ href ,build-log-dir)
 		 ,((record-accessor rec-type 'binary-type) binary-record))
 	      " " 
-	      ,(colourize ((record-accessor rec-type 'build-status) binary-record))
+	       ,(colourize ((record-accessor rec-type 'build-status) binary-record))
 	      " "
-	      ,(colourize ((record-accessor rec-type 'test-status) binary-record))))))
+	      ,(colourize ((record-accessor rec-type 'test-status) binary-record))
+	      ))))
 		 
 
   ;; main-line of make-builds-table-from-records
@@ -518,6 +610,68 @@
 		      (loop (cdr files) latest-file latest-revision-number tar-file-date))))))
        (else 
 	(loop (cdr files) latest-file latest-revision-number tar-file-date))))))
+
+
+;; Return values: the source code url, a file-name (for the link) and
+;; a revision number (a number) and a date (string) for the tar file.
+;; These values can be #f #f #f #f.
+;;
+;; use web-source-tar-dir
+;; 
+(define source-code-url-info
+  (let ((cached #f))
+    (lambda ()
+
+      (if cached
+	  cached
+	  
+	  (let* ((r (get-url web-source-tar-dir))
+		 (s (vector-ref r 4)))
+
+	    (let loop ((best-revision -1)
+		       (best-date #f)
+		       (best-file-name #f)
+		       (lines (string-split s #\newline)))
+	      (cond
+	       ((null? lines)
+
+		(set! cached
+		      (if (> best-revision 0)
+			  (values (string-append web-source-tar-dir "/" best-file-name) 
+				  best-file-name best-revision best-date)
+			  (values #f #f #f #f)))
+		cached)
+	       (else 
+		(let* ((line (car lines))
+		       (bits (regex-split  "<|>" line)))
+		  (if (<= (length bits) 4)
+		      (loop best-revision best-date best-file-name (cdr lines))
+
+		      ;; 
+		      (let ((potential-tar-string (list-ref bits 4)))
+			(if (not (string-match ".tar.gz" potential-tar-string))
+			    (loop best-revision best-date best-file-name (cdr lines))
+			    (let ((tar-bits (string-split potential-tar-string #\-)))
+			      ;; (format #t "bits: ~s~%" bits)
+			      (if (not (> (length tar-bits) 4))
+				  (loop best-revision best-date best-file-name (cdr lines))
+				  (if (not (string-match ".tar.gz" (list-ref tar-bits 4)))
+				      (loop best-revision best-date best-file-name (cdr lines))
+				      (let* ((rev-bits (string-split (list-ref tar-bits 4) #\.))
+					     (n (string->number (list-ref rev-bits 0))))
+					(if (not (number? n))
+					    (loop best-revision best-date best-file-name (cdr lines))
+					    (if (not (> n best-revision))
+						(loop best-revision best-date best-file-name (cdr lines))
+
+						;; OK we can update best-revision.  What is the date file this file?
+						;; 
+						(let ((date-size-str (list-ref bits (- (length bits) 1))))
+						  (let ((date-bits (string-split date-size-str #\space)))
+						    (let ((this-date (list-ref date-bits 1)))
+						      (loop n this-date potential-tar-string (cdr lines)))))))))))))))))))))))
+  
+
   
 
 ;; return a sxml paragraph
@@ -527,7 +681,7 @@
   ;; 
   (define (get-running-status-contents)
     (let* ((running-status-file (append-dir-file devel-dir "source-build-running"))
-	   (s (www:get running-status-file)))
+	   (s (vector-ref (get-url running-status-file) 4)))
       (if (string-match "Not Found" s)
 	 #f
 	 s)))
@@ -601,29 +755,31 @@
 						   python-status-extra
 						   "-test-status")))
 
-	     (format #t "debug:: test-status-link: ~s~%"  test-status-link)
-	     (format #t "debug:: build-status-link: ~s~%" build-status-link)
-	     (format #t "debug:: tar-file ~s revision-number: ~s~%" tar-file revision-number)
+	     ;; (format #t "debug:: test-status-link: ~s~%"  test-status-link)
+	     ;; (format #t "debug:: build-status-link: ~s~%" build-status-link)
+	     (format #t "---- in fill-record debug:: tar-file ~s revision-number: ~s~%" tar-file revision-number)
 
-
-	     (let ((build-status (www:get build-status-link))
-		   ( test-status (www:get  test-status-link)))
+	     (let* ((build-status-pre (vector-ref (get-url build-status-link) 4))
+		    ( test-status-pre (vector-ref (get-url  test-status-link) 4))
+		    (build-status (if (< (string-length build-status-pre) 100) build-status-pre "Build-Status-Not-Found"))
+		    ( test-status (if (< (string-length  test-status-pre) 100)  test-status-pre "Test-Status-Not-Found")))
 
   
-	       (format #t "============== test-status  for ~s is ~s~%" test-status-link test-status)
-	       (format #t "============== build-status for ~s is ~s~%" build-status-link build-status)
+	       ;; (format #t "============== test-status  for ~s is ~s~%" test-status-link test-status)
+	       ;; (format #t "============== build-status for ~s is ~s~%" build-status-link build-status)
 		     
 	       (if (not (and (string? tar-file)
 			     (number? revision-number)))
 
 		   ;; make a dummy record then
 		   (begin
-		     (format #t "a dummy record created~%")
+		     (format #t "a dummy record created with build-info :~s: ~%" build-info)
 		     (apply make-build-record (append build-info (list #f #f build-status test-status))))
 		   
 		   
 		   (let ((binary-url (string-append 
 				      (list-ref build-info 2) ;; "/" is included in pre-release dir, right?
+				      "/" ;; not currently, it isn't.
 				      tar-file)))
 		     ;; build-status is e.g. "passed build" or #f
 		     ;;  test-status is e.g. "passed test" or #f
@@ -673,7 +829,7 @@
 		      "\n"
 		      ,(svn-details)
 		      ,(source-code-details)
-		      ,(burn-up-chart)
+		      ;; ,(burn-up-chart)  ;; not at the moment.
 		      (h3 "Latest Binary Tars")
 		      
 		      ;;we want the souce code revision number so that we can
@@ -698,121 +854,63 @@
 ;;       is-a-python?
 ;;       is-a-gtk2-build?)
 ;;
-(let* ((html-file-name (string-append (getenv "HOME") 
+(let* ( 
+       ;; this puts the file on our local directory 
+       ;;
+       (html-file-name (string-append (getenv "HOME") 
 				      "/public_html/coot/devel/build-info.html"))
-       ;; (york-ubuntu-version "8.04.4")
-       (york-ubuntu-version "10.04.4")
+       (h (getenv "HOST"))
+       (this-host (if (string? h) h "pc"))
        (build-list
 	(list 
 	 
-
-         ; ancient dead virtual machine
-	 ;(list "binary-Linux-i386-fedora-8-python-gtk2"
-	       ;"http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-8/gtk2"
-	       ;"http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
-	       ;#t #t)
-
-         ; dead virtual machine?
-	 ; (list "binary-Linux-i386-fedora-10-python-gtk2"
-	       ; "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-10/gtk2"
-	       ; "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
-	       ; #t #t)
-
-	 ;; I make routinely now
-	 ;; 
-	 (list "binary-Linux-i386-fedora-12-python-gtk2"
-	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-jackal-f12/gtk2"
-	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	       #t #t)
-
-         ; dead virtual machine?
-	;; kevin makes this occassionally.
- 	; (list "binary-Linux-i386-fedora-12-python-gtk2"
- 	      ; "http://www.ysbl.york.ac.uk/~emsley/build-logs/fedora-12/gtk2"
-  	      ; "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
- 	      ; #t #t)
-
-	 ; (list "binary-Linux-i386-centos-4-gtk2"
-	       ; "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"
-	       ; "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	       ; #f #t)
-
-	 ; (list "binary-Linux-i386-centos-4-python-gtk2"
-	       ; "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-jackal/gtk2"
-	       ; "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	       ; #t #t)
-
 	 (list "binary-Linux-x86_64-centos-5-python-gtk2"
-	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-koala.bioch/gtk2" 
-	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-pcterm37.lmb.internal/gtk2" 
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
 	       #t #t)
 
-	 (list "binary-Linux-x86_64-centos-6-python-gtk2"
-	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-newt/gtk2" 
-	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	 (list "binary-Linux-x86_64-rhel-6-python-gtk2"
+	       (string-append "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-" this-host "/gtk2")
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
 	       #t #t)
 
-	 ; (list "binary-Linux-x86_64-rhel-4-gtk2"
-	       ; "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-lemur/gtk2" 
-	       ; "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	       ; #f #t)
-
-	 (list "binary-Linux-x86_64-rhel-4-python-gtk2"
-	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-lemur/gtk2" 
-	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
+	 (list "binary-Linux-x86_64-scientific-linux-6.4-python-gtk2"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-hal.lmb.internal/gtk2" 
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
 	       #t #t)
 
-         ; ancient dead virtual machine.
-	 ;(list "binary-Linux-i686-ubuntu-6.06.1-python-gtk2" 
-	       ;"http://www.ysbl.york.ac.uk/~emsley/build-logs/ubuntu-6.06/gtk2"
-	       ;"http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
-	       ;#t #t)
-
-	 ;; bragg3 has been updated and not setup for building coot.
-	 ;(list (string-append "binary-Linux-i686-ubuntu-" york-ubuntu-version "-python-gtk2")
-	       ;"http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg3/gtk2" 
-	       ;"http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
-	       ;#t #t)
-
-	 (list (string-append "binary-Linux-i686-ubuntu-" york-ubuntu-version "-python-gtk2")
-	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-bragg1/gtk2"
-	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	 (list "binary-Linux-x86_64-ubuntu-12.04.3-python-gtk2"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-ubuntu-server/gtk2" 
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
 	       #t #t)
 
-	 (list "binary-Linux-i386-rhel-5-python-gtk2"
-	       "http://www.ysbl.york.ac.uk/~emsley/build-logs/Linux-krosp.chem.york.ac.uk/gtk2"
-	       "http://www.ysbl.york.ac.uk/~emsley/software/binaries/nightlies/pre-release/"
+	 (list "binary-Linux-x86_64-openSUSE-12.3-python-gtk2"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-emsley-vm-suse/gtk2" 
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
 	       #t #t)
 
-	 (list "binary-Linux-i386-fedora-14-python-gtk2"
-	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-marmoset-f14/gtk2" 
-	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
-	       #t #t)
+; this machine got upgraded.
+;          (list "binary-Linux-x86_64-debian-gnu-linux-6.0-python-gtk2"
+;                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/squeeze/build-logs/Linux-shelx10/gtk2"
+;                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/squeeze/binaries/nightlies/pre-release/"
+;                #t #t)
 
- 	 (list "binary-Linux-i386-ubuntu-11.10-python-gtk2"
- 	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-nestor/gtk2" 
- 	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
- 	       #t #t)
+          (list "binary-Linux-x86_64-debian-gnu-linux-jessie-sid-python-gtk2"
+                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/build-logs/Linux-shelx11/gtk2"
+                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/binaries/nightlies/pre-release"
+                #t #t)
 
- 	 (list "binary-Linux-x86_64-ubuntu-10.04.4-python-gtk2"
- 	       "http://lmb.bioch.ox.ac.uk/emsley/build-logs/Linux-scylla/gtk2" 
- 	       "http://lmb.bioch.ox.ac.uk/coot/software/binaries/pre-releases/" 
- 	       #t #t)
-
- 	 (list "binary-Linux-x86_64-debian-gnu-linux-6.0-python-gtk2"
-               "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/squeeze/build-logs/Linux-shelx10/gtk2"
-	       "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/squeeze/binaries/nightlies/pre-release/"
- 	       #t #t)
-
- 	 (list "binary-Linux-x86_64-debian-gnu-linux-wheezy-sid-python-gtk2"
-               "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/wheezy/build-logs/Linux-shelx11/gtk2"
-	       "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/wheezy/binaries/nightlies/pre-release/"
- 	       #t #t)
+          (list "binary-Linux-x86_64-debian-gnu-linux-7-python-gtk2"
+                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/wheezy/build-logs/Linux-shelx10/gtk2"
+                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/wheezy/binaries/nightlies/pre-release"
+                #t #t)
 
 	 (list "WinCoot" 
 	       "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-5.1-sarabellum/gtk2" 
-	       "http://www.ysbl.york.ac.uk/~lohkamp/software/binaries/nightlies/pre-release/"
-	       #t #t))))
+	       "http://www.ysbl.york.ac.uk/~lohkamp/software/binaries/nightlies/pre-release"
+	       #t #t)
+
+	 )))
 
   (make-page build-list html-file-name))
 	
