@@ -3518,7 +3518,6 @@
 						      " already exists.  Not overwritten.")))
 				(add-status-bar-text s)))
 			    (begin 
-			      (format #t "------ copy file ~s to ~s~%" ref-scm pref-file)
 			      (copy-file ref-scm pref-file)
 			      (if (file-exists? pref-file)
 				  (load pref-file)))))))))))))
