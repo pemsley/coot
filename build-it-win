@@ -2703,12 +2703,13 @@ pwd
 # copy from there, whenever needed.
 # Needs occasional uninstall of old pythons....
 # 
+echo checking for python now
 
 # check if python is installed (correct version)
-python_version_installed=`${python_version}/python -V 2>&1`
+python_version_installed=`${saved_global_py_inst_dir}/python -V 2>&1`
 python_target_version="Python $pver"
 echo now compare $python_version_installed with $python_target_version
-if [ $python_version_installed == $python_target_version ] ; then
+if [ "$python_version_installed" == "$python_target_version" ] ; then
    echo $python_target_version already installed just copy files
    copy_python=1
 else
@@ -2734,8 +2735,8 @@ if test -n "$copy_python" ; then
        # 2. pythonXX.dll
        # 3. includes (pyg*)
        # 4. pkg-config (pyg*)
-       echo copy dir: cp -r ${global_py_inst_dir} ${install_top_dir}
-       cp -r ${global_py_inst_dir} ${install_top_dir}
+       echo copy dir: cp -r ${saved_global_py_inst_dir} ${install_top_dir}
+       cp -r ${saved_global_py_inst_dir} ${install_top_dir}
        dll_name=${global_py_inst_dir}/python${pver_short/./}.dll
        echo copy dll: cp $dll_name ${install_top_dir}/bin
        cp $dll_name ${install_top_dir}/bin
@@ -2759,9 +2760,9 @@ echo $copy_python > $HOME/python_copied.tmp
 
 if [ $(cat $HOME/python_copied.tmp) == 2 ] ; then
    echo copied python, so dont install pygobject etc.
-   build_pygobject=0
-   build_pycairo=0
-   build_pygtk=0
+   build_pygobject=
+   build_pycairo=
+   build_pygtk=
 fi
 rm $HOME/python_copied.tmp
 
@@ -2884,7 +2885,13 @@ if test -n "$build_python" ; then
    cp -r $global_py_inst_dir/Lib  $install_top_dir/bin
    echo cp -r $saved_global_py_inst_dir  $install_top_dir/
    cp -r $saved_global_py_inst_dir  $install_top_dir/
+   dll_name=${global_py_inst_dir}/python${pver_short/./}.dll
+   echo copy dll: cp $dll_name ${install_top_dir}/bin
+   cp $dll_name ${install_top_dir}/bin
 fi
+
+# be save and go back to build_dir
+cd ${build_dir}
 
 # Now we need:
 #  * guile
@@ -3366,7 +3373,6 @@ echo ./configure $coot_prefix \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
-      --with-gtk2         \
       $glut_prefix        \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       $scripting          \
@@ -3379,7 +3385,6 @@ echo ./configure $coot_prefix \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
-      --with-gtk2         \
        $glut_prefix       \
       $scripting          \
       $python_scripting   \
@@ -3507,6 +3512,17 @@ if [ -e $LOGS/gtk2${build_type}-test-status.log ] ; then
 fi
 # run tests
 echo running tests...
+
+if test "$run_tests" = true ; then
+   # download the test data to make sure we have the latest version.
+   echo downloading test data...
+   ${WGET} http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/data/greg-data.tar.gz
+   echo "   done."
+   cd ~/data
+   gzip -cd ${AUTOBUILD_SOURCES}/greg-data.tar.gz | tar xf - 
+   cd -
+fi
+
 test_coot_python > $LOGS/gtk2${build_type}-test.log 2>&1
 coot_test_status=$?
 gtk2=-gtk2
