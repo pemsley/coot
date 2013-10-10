@@ -782,11 +782,12 @@ SectionEnd
 # 'BUILD-IN' FUNCTIONS
 ######################
 
-Function .onSelChange
-   ${If} ${SectionIsSelected} ${SEC03}
-      MessageBox MB_OK|MB_ICONEXCLAMATION "You have with guile selected. Sure? This may not work perfectly.$\r$\n\"
-   ${EndIf}
-FunctionEnd
+# BL says:: disable for now, since no guile available anyway 
+#Function .onSelChange
+#   ${If} ${SectionIsSelected} ${SEC03}
+#      MessageBox MB_OK|MB_ICONEXCLAMATION "You have with guile selected. Sure? This may not work perfectly.$\r$\n\"
+#   ${EndIf}
+#FunctionEnd
 
 Function .onInit
 
