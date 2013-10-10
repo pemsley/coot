@@ -947,15 +947,23 @@
 ;; 
 (define (append-dir-file dir-name file-name)
 
-  (if (> (string-length dir-name) 0)
-      (string-append (directory-as-file-name dir-name) "/" file-name)
-      file-name))
+  (if (not (string? dir-name))
+      #f
+      (if (not (string? file-name))
+	  #f
+	  (if (> (string-length dir-name) 0)
+	      (string-append (directory-as-file-name dir-name) "/" file-name)
+	      file-name))))
 
 ;; Similarly attempting to minimise system dependence.
 ;; 
 (define (append-dir-dir dir-name sub-dir-name)
 
-  (string-append (directory-as-file-name dir-name) "/" sub-dir-name))
+  (if (not (string? dir-name))
+      #f
+      (if (not (string? sub-dir-name))
+	  #f
+	  (string-append (directory-as-file-name dir-name) "/" sub-dir-name))))
 
 ;; remove any trailing /s
 ;; 
@@ -3484,7 +3492,37 @@
 			  (let ((s (SMILES-for-comp-id comp-id)))
 			    s))))))))))
 
+(define (template-keybindings-to-preferences)
 
+  (let* ((bindings-file-name "template-key-bindings.scm")
+	 (scm-dir (append-dir-dir (pkgdatadir) "scheme"))
+	 (ref-scm (append-dir-file scm-dir bindings-file-name)))
+    (if (not (string? ref-scm))
+	(begin
+	  (add-status-bar-text "bad get-pkgdata-dir."))
+	(begin
+	  (if (not (file-exists? ref-scm))
+	      (begin
+		(add-status-bar-text "Missing reference template key bindings."))
+	      (begin
+		;; happy path
+		(let ((home (getenv "HOME")))
+		  (if (string? home)
+		      (let* ((pref-dir  (append-dir-dir home ".coot-preferences"))
+			     (pref-file (append-dir-file pref-dir bindings-file-name)))
+			;; don't install it if it is already in place.
+			(if (file-exists? pref-file)
+			    (begin 
+			      (let ((s (string-append "keybinding file "
+						      pref-file
+						      " already exists.  Not overwritten.")))
+				(add-status-bar-text s)))
+			    (begin 
+			      (format #t "------ copy file ~s to ~s~%" ref-scm pref-file)
+			      (copy-file ref-scm pref-file)
+			      (if (file-exists? pref-file)
+				  (load pref-file)))))))))))))
+	
 ;; Americans...
 (define chiral-center-inverter chiral-centre-inverter)
 

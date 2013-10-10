@@ -1477,19 +1477,24 @@
 	 (lambda ()
 	   (key-bindings-gui)))
 
-
-      (add-simple-coot-menu-menuitem
-       submenu-settings "Enable Quick-Save checkpointing..." 
-       (lambda ()
-	 (generic-single-entry
-	  "Checkpoint interval (seconds)"
-	  "30"
-	  " Start Auto-saving "
-	  (lambda (txt)
-	    (let ((n (string->number txt)))
-	      (if (number? n)
-		  (gtk-timeout-add (* 1000 n) (lambda () (quick-save)))))))))
-
+	(add-simple-coot-menu-menuitem
+	 submenu-settings "Add Template Keybindings"
+	 (lambda ()
+	   (template-keybindings-to-preferences))) ;; copy and evaluate
+	
+	
+	(add-simple-coot-menu-menuitem
+	 submenu-settings "Enable Quick-Save checkpointing..." 
+	 (lambda ()
+	   (generic-single-entry
+	    "Checkpoint interval (seconds)"
+	    "30"
+	    " Start Auto-saving "
+	    (lambda (txt)
+	      (let ((n (string->number txt)))
+		(if (number? n)
+		    (gtk-timeout-add (* 1000 n) (lambda () (quick-save)))))))))
+	
 			  
 	))) ;  finish let and if
 
