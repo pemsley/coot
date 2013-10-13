@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 4787 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
+scripts      rev 4802 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
 tests        rev 4730 update
 build-it-win rev 4739 (check 0.8 pre builder, add publishing?!)
 
