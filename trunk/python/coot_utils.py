@@ -3165,6 +3165,39 @@ try:
 except:
     pass
 
+# Add file with filename to preferences directory
+#
+def file_to_preferences(filename):
+    
+    """Copy the file filename from python pkgdatadir directory to
+    prefereneces directory.
+    """
+
+    import shutil
+    
+    ref_py = os.path.join(get_pkgdatadir(), "python", filename)
+    if not os.path.exists(ref_py):
+        add_status_bar_text("Missing reference template key bindings.")
+    else:
+        # happy path
+        home = os.getenv("HOME")
+        if is_windows():
+            home = os.getenv("COOT_HOME")
+        if isinstance(home, str):
+            pref_dir = os.path.join(home, ".coot-preferences")
+            if not os.path.isdir(pref_dir):
+                make_directory_maybe(pref_dir)
+            pref_file = os.path.join(pref_dir, filename)
+            # don't install it if it is already in place.
+            if os.path.isfile(pref_file):
+                s = "keybinding file " + pref_file + \
+                    " already exists. Not overwritten."
+                add_status_bar_text(s)
+            else:
+                shutil.copyfile(ref_py, pref_file)
+                if os.path.isfile(pref_file):
+                    execfile(pref_file, globals())
+
 # add terminal residue is the normal thing we do with an aligned
 # sequence, but also we can try ton find the residue type of a
 # residue in the middle of the chain that is modelled as an ALA, say.

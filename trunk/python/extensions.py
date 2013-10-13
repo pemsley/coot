@@ -1590,6 +1590,12 @@ if (have_coot_python):
        lambda func: key_bindings_gui())
 
 
+     add_simple_coot_menu_menuitem(
+       submenu_settings, "Add Template Keybindings",
+       lambda func:
+          file_to_preferences("template_key_bindings.py")) # copy and evaluate
+
+
      def quick_save_func(txt):
        try:
          n = int(txt)
