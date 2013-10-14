@@ -82,15 +82,50 @@ molecule_class_info_t::delete_extra_restraints_for_residue(const coot::residue_s
       update_extra_restraints_representation();
 }
 
+
+// 20131014 unused currently.
+bool
+spec_pair_comparer(const std::pair<coot::atom_spec_t, coot::atom_spec_t> &p1,
+		   const std::pair<coot::atom_spec_t, coot::atom_spec_t> &p2) {
+
+//    if (p1.first < p2.first) { 
+//       return true;
+//    } else { 
+//       if (p2.first < p1.first) { 
+// 	 return false;
+//       } else {
+// 	 return (p1.second < p2.second);
+//       }
+//    }
+   
+   if (p1.first < p2.first) {
+      std::cout << "spec_pair_comparer A " << "[" << p1.first << " , " << p1.second << "]" << " < " "[" << p2.first << " , " << p2.second << "]" << std::endl;
+      return true;
+   } else { 
+      if (p2.first < p1.first) { 
+	 std::cout << "spec_pair_comparer B " << "[" << p2.first << " , " << p2.second << "]" " < " "[" << p1.first << " , " << p1.second << "]" << std::endl;
+	 return false;
+      } else {
+	 bool v = (p1.second < p2.second);
+	 if (v) {
+	    std::cout << "spec_pair_comparer C " << "[" << p1.first << " , " << p1.second << "]" " < " "[" << p2.first << " , " << p2.second << "]" << std::endl;
+	    return true;
+	 } else {
+	    std::cout << "spec_pair_comparer D " << "[" << p2.first << " , " << p2.second << "]" " < " "[" << p1.first << " , " << p1.second << "]" << std::endl;
+	    return false;
+	 }
+      }
+   }
+}
+
 void
 molecule_class_info_t::delete_extra_restraints_worse_than(const double &n_sigma) {
 
+
    unsigned int pre_n = extra_restraints.bond_restraints.size();
 
-   // the real dist, with atom specs for keys
-   // (to be used by the erasor)
-   // 
-   std::map<std::pair<coot::atom_spec_t, coot::atom_spec_t>, double> dist_map;
+   std::vector<coot::extra_restraints_t::extra_bond_restraint_t> ebrv_l;
+
    std::map<coot::atom_spec_t, CAtom *> atom_map;
    std::map<coot::atom_spec_t, CAtom *>::const_iterator it_1;
    std::map<coot::atom_spec_t, CAtom *>::const_iterator it_2;
@@ -119,17 +154,29 @@ molecule_class_info_t::delete_extra_restraints_worse_than(const double &n_sigma)
 	 double dy = at_1->y - at_2->y;
 	 double dz = at_1->z - at_2->z;
 	 double dist_sq = dx*dx + dy*dy + dz*dz;
-	 if (dist_sq < 0) dist_sq = 0;
-	 dist_map[std::pair<coot::atom_spec_t, coot::atom_spec_t>(br.atom_1, br.atom_2)] = sqrt(dist_sq);
+	 double dist = sqrt(dist_sq);
+
+	 double this_n_sigma = fabs((br.bond_dist -dist)/br.esd);
+	 if (this_n_sigma < n_sigma) {
+	    ebrv_l.push_back(br);
+	 }
+      } else {
+	 if (! at_1)
+	    std::cout << "WARNING: missing atom_1 " << br.atom_1 << " when constructing dist_map" << std::endl;
+	 if (! at_2)
+	    std::cout << "WARNING: missing atom_2 " << br.atom_2 << " when constructing dist_map" << std::endl;
       }
    }
+   extra_restraints.bond_restraints = ebrv_l;
 
-   extra_restraints.bond_restraints.erase(std::remove_if(extra_restraints.bond_restraints.begin(), extra_restraints.bond_restraints.end(), coot::extra_restraints_t::bond_erasor(dist_map, n_sigma)), extra_restraints.bond_restraints.end());
+   // remove_if and erase formulation.  Should work.  Crashes for some reason.
+   // 
+   // extra_restraints.bond_restraints.erase(std::remove_if(extra_restraints.bond_restraints.begin(), extra_restraints.bond_restraints.end(), coot::extra_restraints_t::bond_eraser(dist_map, n_sigma)), extra_restraints.bond_restraints.end());
 
    unsigned int post_n = extra_restraints.bond_restraints.size();
    if (post_n != pre_n)
       update_extra_restraints_representation();
-   std::cout << "INFO deleted : " << pre_n - post_n << " extra bond restraints" << std::endl;
+   std::cout << "INFO deleted : " << pre_n - post_n << " of " << pre_n << " extra bond restraints" << std::endl;
 } 
 
 

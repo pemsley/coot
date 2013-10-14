@@ -79,9 +79,14 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
    int n_data = 0;
    int n_tweaked = 0;
    int n_count = 0;
-   bool debugging = 0;
+   bool debugging = false;
 
-   bool do_gompertz = 0;
+   if (debugging) { 
+      std::cout << "gompertz: " << try_gompertz << " " << gompertz_factor << std::endl;
+   }
+
+   
+   bool do_gompertz = false;
    if (try_gompertz) {
       if (original_fobs_sigfobs_filled) {
 	 do_gompertz = 1;
@@ -97,7 +102,7 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
 	    } 
 	 }
       }
-   } 
+   }
 
    if (original_fphis_filled) { 
 
@@ -1139,6 +1144,14 @@ molecule_class_info_t::make_patterson(std::string mtz_file_name,
 	       count++;
 	    }
 	 }
+	 std::cout << "DEBUG:: read " << count << " reflections" << std::endl;
+	 if (count) {
+
+	    // This is a problem for Kevin
+	    // original_fphis_filled = true;
+	    // original_fphis.init(fphi.spacegroup(),fphi.cell(),fphi.hkl_sampling());
+	    // original_fphis = fphi;
+	 }
 
 	 clipper::Grid_sampling grid;
 	 grid.init( pspgr, cell, reso );
@@ -1718,7 +1731,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 	   try {
 	      file.import_xmap( xmap_list[0] );
 	   }
-	   catch (clipper::Message_base exc) {
+	   catch (const clipper::Message_generic &exc) {
 	      std::cout << "WARNING:: failed to read " << filename
 			<< " Bad ASU (inconsistant gridding?)." << std::endl;
 	      bad_read = 1;

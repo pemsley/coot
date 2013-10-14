@@ -677,6 +677,7 @@ namespace coot {
 	 atom_spec_t atom_2;
 	 double bond_dist;
 	 double esd;
+	 extra_bond_restraint_t() {}
 	 extra_bond_restraint_t(const atom_spec_t &a1, const atom_spec_t &a2, double d, double e) {
 	    atom_1 = a1;
 	    atom_2 = a2;
@@ -695,21 +696,34 @@ namespace coot {
 	 }
       };
 
-      class bond_erasor {
+      class bond_eraser {
       public:
 	 double n_sigma_lim;
-	 std::map<std::pair<atom_spec_t, atom_spec_t>, double> dist_map;
-	 bond_erasor(const std::map<std::pair<atom_spec_t, atom_spec_t>, double> &dist_map_in, double nsi) {
-	    n_sigma_lim = nsi;
-	    dist_map = dist_map_in;
-	 } 
+	 
+	 std::map<std::pair<atom_spec_t, atom_spec_t>, double,
+		  bool(*)(const std::pair<coot::atom_spec_t, coot::atom_spec_t> &,
+			  const std::pair<coot::atom_spec_t, coot::atom_spec_t> &) > dist_map;
+	 
+	 
+ 	 bond_eraser(const std::map<std::pair<atom_spec_t, atom_spec_t>, double,
+ 		     bool(*)(const std::pair<coot::atom_spec_t, coot::atom_spec_t> &,
+ 		             const std::pair<coot::atom_spec_t, coot::atom_spec_t> &)
+		     > &dist_map_in, double nsi) {
+ 	    n_sigma_lim = nsi;
+ 	    dist_map = dist_map_in;
+ 	 } 
 	 bool operator()(const extra_bond_restraint_t &br) {
 	    std::pair<atom_spec_t, atom_spec_t> p(br.atom_1, br.atom_2);
 	    std::map<std::pair<atom_spec_t, atom_spec_t>, double>::const_iterator it =
 	       dist_map.find(p);
 	    if (it != dist_map.end()) {
-	       return (fabs(br.bond_dist -it->second)/br.esd > n_sigma_lim);
+	       bool v =  (fabs(br.bond_dist - it->second)/br.esd >= n_sigma_lim);
+	       std::cout << "comparing (" << br.bond_dist << " - " << it->second << ")/" << br.esd
+			 << " = " << fabs(br.bond_dist - it->second)/br.esd << " vs " << n_sigma_lim
+			 << " -> " << v << std::endl;
+	       return (fabs(br.bond_dist - it->second)/br.esd >= n_sigma_lim);
 	    } else {
+	       std::cout << "not found bond restraint between " << br.atom_1 <<  " " << br.atom_2 << std::endl;
 	       return false;
 	    } 
 	 } 
