@@ -3,6 +3,12 @@
 
 ----
 
+   o sharpen a patterson. Kevin message
+
+   o Remove -lXmu and see what happens.
+
+   o libtool usage goo-canvas check.
+
    o Top right exit should not write a state file.
 
     --no-state-file should not write a state file.
@@ -12,9 +18,20 @@
     That also should write a state file. (user can use quick-save-as
     if they want)
 
+
+   o Fix CA mode with MSEs
+
+
+   o patch dictionary for chiral link restraint for NAG-ASN
+
+   o link for test data
+
    o hydrogens are corrected also on nomenclature correction?
 
    o Quick notebook: (what was changed on this residue? on previous rounds?)
+
+   o validate real metals for coordination (instead of only waters)?
+
 
    o Strange canvas scrolling with big RNA 
 
@@ -31,6 +48,9 @@
 * Done.
 
    o Change to configure.ac ::: 1
+
+   o extend lidia to represent carbohydrates
+
 
    o in FLEV, find pi-pi stacking interactions, if needed use an
      RDKit molecule to find aromatic systems in the ligand.
@@ -177,6 +197,37 @@ optimized out>, argv=0x7fffad4965d8) at c-inner-main.c:311
 #37 0x00000000005287d1 in c_wrapper_scm_boot_guile (argc=447092401, argv=0x7fe4279,
 pcld=0x0) at c-inner-main.c:366
 #38 0x000000000051d0a8 in main (argc=1, argv=0x7fffad4965d8) at main.cc:620
+
+
+
+   is this an (mmdb) problem?
+
+==7937== Invalid read of size 4
+==7937==    at 0xC1E18E3: PyObject_Free (obmalloc.c:969)
+==7937==    by 0xC1ACC15: code_dealloc (codeobject.c:317)
+==7937==    by 0xC25974C: load_source_module (import.c:1100)
+==7937==    by 0xC25A4E0: import_submodule (import.c:2700)
+==7937==    by 0xC25A753: load_next (import.c:2515)
+==7937==    by 0xC25AD7F: PyImport_ImportModuleLevel (import.c:2224)
+==7937==    by 0xC23D10E: builtin___import__ (bltinmodule.c:49)
+==7937==    by 0xC194952: PyObject_Call (abstract.c:2529)
+==7937==    by 0xC23D5F2: PyEval_CallObjectWithKeywords (ceval.c:3890)
+==7937==    by 0xC241AB5: PyEval_EvalFrameEx (ceval.c:2333)
+==7937==    by 0xC24597D: PyEval_EvalCodeEx (ceval.c:3253)
+==7937==    by 0xC245A91: PyEval_EvalCode (ceval.c:667)
+==7937==  Address 0x1a586020 is 6 bytes after a block of size 26 alloc'd
+==7937==    at 0x4A085BC: operator new(unsigned long) (vg_replace_malloc.c:298)
+==7937==    by 0x325EC9C3C8: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (in /usr/lib64/libstdc++.so.6.0.13)
+==7937==    by 0x325EC9DDA9: std::string::_M_mutate(unsigned long, unsigned long, unsigned long) (in /usr/lib64/libstdc++.so.6.0.13)
+==7937==    by 0x325EC9DF6B: std::string::_M_replace_safe(unsigned long, unsigned long, char const*, unsigned long) (in /usr/lib64/libstdc++.so.6.0.13)
+==7937==    by 0x7029CEB: coot::protein_geometry::add_chem_mod_atom(CMMCIFLoop*) (basic_string.h:975)
+==7937==    by 0x702A442: coot::protein_geometry::add_mod(CMMCIFData*) (chem_mods.cc:163)
+==7937==    by 0x700A166: coot::protein_geometry::init_refmac_mon_lib(std::string, int) (protein-geometry.cc:239)
+==7937==    by 0x700CE24: coot::protein_geometry::init_standard() (protein-geometry.cc:3757)
+==7937==    by 0x4DB09C: graphics_info_t::init() (graphics-info.h:910)
+==7937==    by 0x4D682B: main (main.cc:274)
+==7937== 
+
 
 -----
 

@@ -3801,7 +3801,7 @@ void add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM
 #ifdef USE_PYTHON
 void add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol_2, PyObject *atom_spec_2);
 #endif
-#endif // __cplusplus
+#endif /* __cplusplus */
 
 /* \} */
 

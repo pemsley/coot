@@ -1586,60 +1586,6 @@ on_read_map_difference_map_toggle_button_toggled (GtkButton       *button,
    } 
 }
 
-#if (GTK_MAJOR_VERSION > 1) || defined (GTK_ENABLE_BROKEN)
-#else 
-void
-on_filename_filter_toggle_button_toggled_gtk1(GtkButton       *button,
-					      gpointer         user_data)
-{
-   int int_user_data = GPOINTER_TO_INT(user_data);
-   int data_type = int_user_data & 31; // lower 5 bits
-   int file_selection_type = data_type; 
-
-   // We need to add text to the string of the dictectory we are in
-   // (pre_directory), so first we need to find pre_directory (as per
-   // fileselection_sort_button_clicked()
-   // 
-   GtkWidget *sort_button = lookup_widget(GTK_WIDGET(button),
-					  "fileselection_sort_button");
-   if (sort_button) { 
-      // std::cout << "Hooray! we found the sort button!\n";
-      // usually, we do.
-   } else { 
-      std::cout << "Boo we failed to find the sort button!\n";
-   } 
-   std::string pre_directory = pre_directory_file_selection(sort_button);
-   GtkWidget *fileselection = lookup_file_selection_widgets(sort_button,
-							    file_selection_type);
-   
-   if (fileselection) { 
-      if (GTK_TOGGLE_BUTTON(button)->active) { 
-	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),"Unfilter");
-	 
-	 // so now we have pre_directory
-	 // 
-	 // std::cout << "DEBUG:: pre_directory: " << pre_directory << std::endl;
-	 std::vector<std::string> v = filtered_by_glob(pre_directory, data_type);
-	 // std::cout << "DEBUG:: filtering by glob using data type: " << data_type
-	 // << " returns" << std::endl;
-	 // for (unsigned int iv=0; iv< v.size(); iv++)
-	 // std::cout << iv << " " << v[iv] << std::endl;
-
-	 filelist_into_fileselection_clist(fileselection, v);
-
-      } else { 
-	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),"Filter");
-	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
-					 (pre_directory + "/").c_str());
-      }
-   } else {
-      std::cout << "ERROR:: no fileselection found from sort button\n";
-      std::cout << "ERROR:: lookup of file selection from " << sort_button
-		<< " failed for file selection type: " << file_selection_type
-		<< std::endl;
-   }
-}
-#endif // GTK_MAJOR_VERSION > 1 or BROKEN
 
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
@@ -1664,82 +1610,6 @@ on_filename_filter_key_press_event (GtkWidget       *widget,
 }
 
 
-// This is for the "bespoke" filename filtering, reading the glob from
-// an entry added to the action area.
-void
-handle_filename_filter_gtk1(GtkWidget *entry_widget) {
-   
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-   // nothing
-#else 
-
-   std::cout << "running handle_filename_filter\n";
-
-   const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry_widget));
-
-   // We need to add text to the string of the dictectory we are in
-   // (pre_directory), so first we need to find pre_directory (as per
-   // fileselection_sort_button_clicked()
-   // 
-   GtkWidget *sort_button = lookup_widget(entry_widget, "fileselection_sort_button");
-   if (sort_button) { 
-      // std::cout << "Hooray! we found the sort button!\n";
-      // usually, we do.
-   } else { 
-      std::cout << "Boo we failed to find the sort button!\n";
-   } 
-   std::string pre_directory = pre_directory_file_selection(sort_button);
-
-   int file_selection_type = COOT_SCRIPTS_FILE_SELECTION; 
-
-   // so now we have pre_directory
-   // 
-   // std::cout << "DEBUG:: pre_directory: " << pre_directory << std::endl;
-   GtkWidget *fileselection = lookup_file_selection_widgets(sort_button,
-							    file_selection_type);
-   if (fileselection) { 
-      GtkCList  *file_list = GTK_CLIST(GTK_FILE_SELECTION(fileselection)->file_list);
-      std::string file_name_glob;
-      file_name_glob = pre_directory;
-      file_name_glob += "/";
-      file_name_glob += text;
-
-      glob_t myglob;
-      int flags = 0;
-      glob(file_name_glob.c_str(), flags, 0, &myglob);
-      size_t count;
-
-
-      char **p;
-      std::vector<std::string> v;
-      for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
-	 v.push_back(std::string(*p));
-      }
-      globfree(&myglob);
-
-      if (v.size() > 0) { 
-	 gtk_clist_clear(file_list);
-	 std::string::size_type islash;
-	 std::string t;
-	 for (unsigned int i=0; i<v.size(); i++) {
-	    islash = v[i].find_last_of("/");
-	    if (islash == string::npos) { 
-	       // no slash found:
-	       t = v[i];
-	    } else {
-	       t = v[i].substr(islash + 1);
-	    }
-	    char *text = new char[t.length()+1];
-	    strncpy(text, t.c_str(), t.length()+1);
-	    gtk_clist_append(file_list, &text);
-	 }
-      }
-   } else { 
-      std::cout << "ERROR:: couldn't find fileselection\n";
-   } 
-
-#endif // WINDOWS_MINGW
-}
 
 std::string pre_directory_file_selection(GtkWidget *sort_button) { 
 
@@ -2736,7 +2606,7 @@ void hide_modelling_toolbar() {
       GtkWidget *w = 0;
       GtkWidget *handle_box = lookup_widget(graphics_info_t::glarea,
 					"model_fit_refine_toolbar_handlebox");
-#if (GTK_MAJOR_VERSION > 1)
+
       if (graphics_info_t::model_toolbar_position_state == coot::model_toolbar::TOP ||
 	  graphics_info_t::model_toolbar_position_state == coot::model_toolbar::BOTTOM) {
 	w = handle_box;
@@ -2744,7 +2614,6 @@ void hide_modelling_toolbar() {
 	// get the frame of the left/right toolbar
 	w = gtk_widget_get_parent(handle_box);
       }
-#endif // GKT_MAJOR_VERSION
       if (!w) {
 	 std::cout << "failed to lookup toolbar" << std::endl;
       } else {
@@ -2762,14 +2631,13 @@ void show_modelling_toolbar() {
       GtkWidget *handle_box = lookup_widget(graphics_info_t::glarea,
 					    "model_fit_refine_toolbar_handlebox");
 
-#if (GTK_MAJOR_VERSION > 1)
       if (graphics_info_t::model_toolbar_position_state == coot::model_toolbar::TOP ||
 	  graphics_info_t::model_toolbar_position_state == coot::model_toolbar::BOTTOM) {
 	w = handle_box;
       } else {
 	w = gtk_widget_get_parent(handle_box);
       }
-#endif // GKT_MAJOR_VERSION
+
       if (!w) {
 	 std::cout << "failed to lookup toolbar" << std::endl;
       } else {
@@ -2793,7 +2661,6 @@ show_model_toolbar_all_icons() {
   for (int i=0; i<(*graphics_info_t::model_toolbar_icons).size(); i++) {
     show_model_toolbar_icon(i);
   }
-#if (GTK_MAJOR_VERSION >1)
   gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(toolbar_radiobutton), TRUE);
   if (graphics_info_t::preferences_widget) {
     // have preferences open and shall update the tree model for icon
@@ -2806,7 +2673,6 @@ show_model_toolbar_all_icons() {
     //model = gtk_tree_view_get_model(GTK_TREE_VIEW(icons_treeview));
     //graphics_info_t::update_main_toolbar_icons(model);
   }
-#endif // GTK2
 
   gtk_widget_show(hsep);
   gtk_widget_show(vsep);
@@ -2829,7 +2695,7 @@ show_model_toolbar_main_icons() {
       hide_model_toolbar_icon(i);
     }
   }
-#if (GTK_MAJOR_VERSION >1)
+
   gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(toolbar_radiobutton), TRUE);
   if (graphics_info_t::preferences_widget) {
     // have preferences open and shall update the tree model for icon
@@ -2842,7 +2708,7 @@ show_model_toolbar_main_icons() {
     //model = gtk_tree_view_get_model(GTK_TREE_VIEW(icons_treeview));
     //graphics_info_t::update_main_toolbar_icons(model);
   }
-#endif // GTK2
+
   gtk_widget_hide(hsep);
   gtk_widget_hide(vsep);
 }

@@ -1683,6 +1683,30 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 
 // the first of the pair contains the correlation for the given residue spec.
 // 
+//! \brief atom-mask-mode is as follows:
+// 0: all-atoms
+// 1: main-chain atoms if is standard amino-acid, else all atoms
+// 2: side-chain atoms if is standard amino-acid, else all atoms
+// 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
+// 4: main-chain atoms if is standard amino-acid, else nothing
+// 5: side-chain atoms if is standard amino-acid, else nothing
+//
+// reformat that:
+// 
+// if (standard-amino-acid):
+//    0: all atoms
+//    1: main-chain
+//    2: side-chain
+//    3: side-chain excluding CB
+//    4: main-chain atoms
+//    5: side-chain atoms
+// else
+//    0: all atoms
+//    1: all atoms
+//    2: all atoms
+//    3: all atoms
+//    4: nothing
+//    5: nothing
 std::vector<std::pair<coot::residue_spec_t, float> >
 coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
 						 const std::vector<coot::residue_spec_t> &specs,
@@ -1706,9 +1730,9 @@ coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
 
 	       // PDBv3 FIXME
 	       // 
-	       if (atom_mask_mode == 1)
+	       if (atom_mask_mode == 1 || atom_mask_mode == 4)
 		  atom_name_selection = " N  , H  , HA , CA , C  , O  ";
-	       if (atom_mask_mode == 2)
+	       if (atom_mask_mode == 2 || atom_mask_mode == 5)
 		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
 	       if (atom_mask_mode == 3)
 		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
@@ -1733,7 +1757,18 @@ coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
 		       "*", // alt loc.
 		       SKEY_OR
 		       );
+      if (0) { // debugging selection
+	 PPCAtom atom_selection = 0;
+	 int n_atoms;
+	 mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+
+	 std::cout << "selected n_atoms " << n_atoms << " where specs[0] is " << specs[0]
+		   << " for mask mode " << atom_mask_mode << std::endl;
+	 for (unsigned int iat=0; iat<n_atoms; iat++)
+	    std::cout << "    " << iat << " " << atom_spec_t(atom_selection[iat]) << std::endl;
+      }
    }
+   
 
 
    clipper::Xmap<float> calc_map =
