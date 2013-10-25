@@ -7042,6 +7042,11 @@ void set_rotamer_search_mode(int mode) {
    }
 }
 
+int rotamer_search_mode_state() {
+   
+   return graphics_info_t::rotamer_search_mode;
+}
+
 
 /*! \name Backrubbing function */
 /*! \{ */

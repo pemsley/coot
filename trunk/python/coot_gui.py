@@ -5037,7 +5037,42 @@ def select_atom_alt_conf_occ_gui():
         ins_code  = args[0][4]
         scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code)
     user_defined_click(1, helper_function)
-    
+
+
+def toggle_backrub_rotamers(widget=None):
+   """Toggle function to swtich on and off backrub rotamer fitting.
+   
+   Keyword arguments:
+   widget -- can be passed from the toolbutton
+
+   """
+
+   if widget:
+      if widget.get_active():
+         # the button is toggled on
+         set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
+         print "BL INFO:: Using Backrub rotamers now!"
+      else:
+         set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
+         print "BL INFO:: NOT using Backrub rotamers any more!"
+
+   else:
+      # non graphical - but wont be able to run if this is not loaded.
+      mode = rotamer_search_mode_state()
+      if (mode == ROTAMERSEARCHLOWRES):
+         set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
+         print "BL INFO:: NOT using Backrub rotamers any more!"
+      if (mode == ROTAMERSEARCHHIGHRES or
+          mode == ROTAMERSEARCHAUTOMATIC):
+         set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
+         print "BL INFO:: Using Backrub rotamers now!"
+         
+         
+      # no alternative for now
+      # need to be able to get the state of search mode.
+      # easily added. FIXME
+      print "BL WARNING:: no widget"
+   
 
 def toggle_wiimote(widget=None):
    """a toggle function to connect and disconnect from a Wiimote
