@@ -95,6 +95,10 @@ scripting exercise
 
 **** General ****
 
+   o strip trainling spaces from "Fetch..." fucntions
+
+   o desensitise refmac buttons etc if no ccp4/refmac installed
+
    o add (more sensible) timeout for download at EDS (and others?)
 
    o allow reading of ent.gz ?! not there (in windows??)?!

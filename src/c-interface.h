@@ -5120,6 +5120,9 @@ GtkWidget *wrapped_create_new_close_molecules_dialog();
   (ROTAMERSEARCHHIGHRES) (with rigid body fitting) */
 void set_rotamer_search_mode(int mode);
 
+/*! \ brief get the mode of rotamer search */
+int rotamer_search_mode_state();
+
 void setup_rotamers(short int state);
 
 /*  display the rotamer option and display the most likely in the graphics as a */
