@@ -804,9 +804,9 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos_ideal) { 
 
    // debugging
-   bool debug = 0;
+   bool debug = false;
    if (debug) { 
-      std::cout << "   mon_lib_add_atom  " << comp_id << " :" << atom_id << ": :"
+      std::cout << "   mon_lib_add_atom  " << comp_id << " atom-id:" << atom_id << ": :"
 		<< atom_id_4c << ": " << type_symbol << " " << type_energy << " ("
 		<< partial_charge.first << "," << partial_charge.second << ")" << std::endl;
    } 
@@ -1826,8 +1826,8 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	 if (ierr_tot == 0) {
 
 	    std::string padded_name = comp_atom_pad_atom_name(atom_id, type_symbol);
-// 	    std::cout << "comp_atom_pad_atom_name: in :" << atom_id << ": out :"
-// 		      << padded_name << ":" << std::endl;
+//  	    std::cout << "comp_atom_pad_atom_name: in :" << atom_id << ": out :"
+//  		      << padded_name << ":" << std::endl;
 	    n_atoms++;
 	    if (comp_id_for_partial_charges != "bad match") { 
 	       if (comp_id_for_partial_charges == "unset") {
