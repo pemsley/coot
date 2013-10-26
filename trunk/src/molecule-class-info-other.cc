@@ -1529,8 +1529,8 @@ molecule_class_info_t::delete_atom(const std::string &chain_id,
 		  if (ins_code_local == ins_code) {
 		  
 		     // so we have a matching residue:
-		     std::cout << "debug:: delete_atom: we have a matching residue "
-			       << resno << " :" << ins_code << ":" << std::endl;
+		     // std::cout << "debug:: delete_atom: we have a matching residue "
+		     // << resno << " :" << ins_code << ":" << std::endl;
 
 		     PPCAtom residue_atoms;
 		     int nResidueAtoms;
