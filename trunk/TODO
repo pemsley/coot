@@ -475,6 +475,7 @@ Punted from 0.6:
 
    o Fix up mini-RSR so that it compiles properly. ::: 4
 
+* Done.
 
    o Put refine-zone and regularize-zone into the history. ::: 2
 
