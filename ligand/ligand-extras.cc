@@ -699,7 +699,8 @@ coot::ligand::get_solution(unsigned int isolution, unsigned int iclust) const {
 	 return final_ligand[iclust][isolution].first;
    } else {
       std::cout << "Error in get_solution: iclust is " << iclust
-		<< " but size is " << initial_ligand.size() << " "
+		<< " but final_size is " << final_ligand.size()
+		<< " with inital ligand size "
 		<< int(initial_ligand.size()) << std::endl;
    }
    return empty;
