@@ -282,16 +282,18 @@ graphics_info_t::check_if_in_user_defined_define(GdkEventButton *event) {
       if (nearest_atom_index_info.success == GL_TRUE) {
 	 in_user_defined_define--;
 	 int im = nearest_atom_index_info.imol;
-	 CAtom *at = molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index];
 	 molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
-	 coot::atom_spec_t spec(at);
-	 spec.int_user_data = im;
-	 user_defined_atom_pick_specs.push_back(spec);
-	 graphics_draw(); // let's see the label
-	 if (in_user_defined_define == 0) {
-	    run_user_defined_click_func(); // uses user_defined_atom_pick_specs
-	    normal_cursor();
-	 } 
+	 CAtom *at = molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index];
+	 if (at) { 
+	    coot::atom_spec_t spec(at);
+	    spec.int_user_data = im;
+	    user_defined_atom_pick_specs.push_back(spec);
+	    graphics_draw(); // let's see the label
+	    if (in_user_defined_define == 0) {
+	       run_user_defined_click_func(); // uses user_defined_atom_pick_specs
+	    }
+	 }
+	 normal_cursor();
       }
    } 
 } 
