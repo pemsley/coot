@@ -30,8 +30,13 @@
 
    o Quick notebook: (what was changed on this residue? on previous rounds?)
 
-   o validate real metals for coordination (instead of only waters)?
+   o drag and drop SMILES strings into lidia
 
+   o render the SMILES string in this file
+
+   o Lidia: Need atom label CH3 (or CH2) at end of bonds
+
+   o validate real metals for coordination (instead of only waters)?
 
    o Strange canvas scrolling with big RNA 
 
@@ -109,13 +114,23 @@ f_sigf_ano_i->data_import(HKL(h,k,l), x_anom
      at coot_wrap_python_gtk2.cc:31126
  >
 
+  * this all looks like use of the wrong library.  I tried these files
+    and it works as expected for me.
 
-   o Charge function in Lidia 
 
    o Deal with LEU nomenclature error problem on list recently (Dirk K.).
 
+   o Fix nomenclature error hydrogens on PHE and TYR - others also?   
+
+* Done - LEUs and VALs need doing also.
+
+
    o George S. Riding atom U problem
 
+* Needs B factor from U checked.  And integrated into test/test-data.
+
+
+   o Charge function in Lidia 
 
 
 Zohar Baram
@@ -200,6 +215,13 @@ pcld=0x0) at c-inner-main.c:366
 
 
 
+   * possibly fixed by adding CAtom * -> atom spec protection
+
+
+   o bundle coot.probe and coot.reduce in the binaries
+
+
+-------
    is this an (mmdb) problem?
 
 ==7937== Invalid read of size 4
@@ -229,10 +251,12 @@ pcld=0x0) at c-inner-main.c:366
 ==7937== 
 
 
+
 -----
 
    o with --no-graphics, don't try to start coot crash catcher
-
+ 
+* Done.
 
 -----
 

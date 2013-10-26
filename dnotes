@@ -7002,4 +7002,34 @@ Thu Jun 27 15:40:01 BST 2013
 
 
 ------
+Sat Oct  5 09:29:10 BST 2013
+
+   Problems with python's pip:
+tiresias ~/compile/pip-1.4.1> pip install tornado
+Traceback (most recent call last):
+  File "/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/bin/pip", line 9, in <module>
+    load_entry_point('pip==1.4.1', 'console_scripts', 'pip')()
+  File "build/bdist.linux-x86_64/egg/pkg_resources.py", line 357, in load_entry_point
+    """Yield named metadata resource as list of non-blank non-comment lines
+  File "build/bdist.linux-x86_64/egg/pkg_resources.py", line 2394, in load_entry_point
+    
+  File "build/bdist.linux-x86_64/egg/pkg_resources.py", line 2108, in load
+    parse_map = classmethod(parse_map)
+  File "/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/python2.7/site-packages/pip-1.4.1-py2.7.egg/pip/__init__.py", line 10, in <module>
+    from pip.util import get_installed_distributions, get_prog
+  File "/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/python2.7/site-packages/pip-1.4.1-py2.7.egg/pip/util.py", line 17, in <module>
+    from pip.vendor.distlib import version
+  File "/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/python2.7/site-packages/pip-1.4.1-py2.7.egg/pip/vendor/distlib/version.py", line 13, in <module>
+    from .compat import string_types
+  File "/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/python2.7/site-packages/pip-1.4.1-py2.7.egg/pip/vendor/distlib/compat.py", line 31, in <module>
+    from urllib2 import (Request, urlopen, URLError, HTTPError,
+ImportError: cannot import name HTTPSHandler
+
+https://plus.google.com/117010240131763942181/posts/h3AzbmSQU6r
+
+ install openssl-devel, then re-make python
+
+
+
+------
 
