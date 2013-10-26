@@ -42,7 +42,7 @@
 
 @flushright
 Paul Emsley 
-@email{paul dot emsley at bioch dot ox dot ac dot uk}
+@email{pemsley at mrc dash lmb dot cam dot ac dot uk}
 @end flushright
 
 @vskip 10mm
@@ -1357,6 +1357,16 @@ names (@emph{e.g.} @code{@t{"P 21 21 21"}}).
 To show the symmetry operators of a particular molecule use:
 @code{(get-symmetry @emph{imol})}
 which will return a list of strings.
+
+Sometimes molecular replacement solutions (for example) create models
+with chains non-optimally placed relative to each other - a
+symmetry-related copy would be more apealling (but would be equivalent,
+crystalographically). For example, to move the B chain to a
+symmetry-related position:
+
+Centre on an atom in the symmetry-related B chain (where you want the B chain to be)
+
+@command{Extensions -> Modelling -> Symm Shift Reference Chain Here.}
 
 @node Recentring View
 @section Recentring View
@@ -4194,9 +4204,13 @@ reflection data file.
 Pattersons can be generated using the @code{make-and-draw-patterson}
 function.  Example usage:
 
-@code{(make-and-draw-patterson @emph{mtz-file-name f-col sig-f-col weight-col use-weights-flag})}
+@code{(make-and-draw-patterson @emph{mtz-file-name f-col sig-f-col})}
 
 where @code{@emph{use-weights-flag}} is either @code{0} or @code{1}.
+
+@emph{e.g.}
+
+@code{(make-and-draw-patterson "native.mtz" "FP_nat" "SIGFP_nat")}
 
 @node Map Re-Interpolation
 @section Map Re-Interpolation
@@ -4208,6 +4222,7 @@ Maps can be re-interpolated to match a reference map.
 
 will create a copy of  @code{@emph{map-no}} in the same cell, spacegroup and grid spacing as  
 the @code{@emph{reference-map-no}} map.
+
 
 @node masks
 @section Masks
