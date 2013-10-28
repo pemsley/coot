@@ -642,8 +642,9 @@ namespace coot {
 	 if (! filled) {
 	    // make up (guess) the residue type and element
 	    std::string at_name = coot::util::upcase(type);
-	    std::string ele     = coot::util::upcase(type);
-	    std::string resname = coot::util::upcase(type);
+	    atom_name = at_name;
+	    res_name = at_name;
+	    element_name = at_name;
 	    if (type.length() > 4)
 	       atom_name = at_name.substr(0,4);
 	    if (type.length() > 3)
