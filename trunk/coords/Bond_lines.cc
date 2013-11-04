@@ -3067,6 +3067,8 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 	       if (residue_this && residue_prev) {
 		  int n_atoms_prev = residue_prev->GetNumberOfAtoms();
 		  int n_atoms_this = residue_this->GetNumberOfAtoms();
+		  std::string res_name_1 = residue_prev->GetResName();
+		  std::string res_name_2 = residue_this->GetResName();
 		  for (int iat=0; iat<n_atoms_prev; iat++) {
 		     at_1 = residue_prev->GetAtom(iat);
 		     std::string atom_name_1(at_1->GetAtomName());
@@ -3076,7 +3078,8 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 			   std::string atom_name_2(at_2->GetAtomName());
 			   std::string alt_conf_prev = at_1->altLoc;
 			   std::string alt_conf_this = at_2->altLoc;
-			   if (!at_1->Het && !at_2->Het) {
+			   // Allow MSE hetgroups in CA mode
+			   if ((!at_1->Het || res_name_1 == "MSE") && (!at_2->Het || res_name_2 == "MSE")) {
 			      if (!at_1->isTer() && !at_2->isTer()) {
 				 float dist_max_sqrd = dist_max_CA_CA * dist_max_CA_CA;
 				 bool phosphate_pair = false;
