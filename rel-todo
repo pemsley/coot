@@ -9,6 +9,8 @@
 
    o libtool usage goo-canvas check.
 
+* Fixed.
+
    o Top right exit should not write a state file.
 
     --no-state-file should not write a state file.
@@ -21,6 +23,7 @@
 
    o Fix CA mode with MSEs
 
+* Done.
 
    o patch dictionary for chiral link restraint for NAG-ASN
 
