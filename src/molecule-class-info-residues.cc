@@ -1560,3 +1560,62 @@ molecule_class_info_t::rotate_residue(coot::residue_spec_t rs,
       make_bonds_type_checked();
    } 
 }
+
+std::vector<coot::fragment_info_t>
+molecule_class_info_t::get_fragment_info(bool screen_output_also) const {
+
+   std::vector<coot::fragment_info_t> v;
+
+   int imod = 1;
+   CModel *model_p = atom_sel.mol->GetModel(imod);
+   CChain *chain_p;
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      if (nres > 0) { 
+	 coot::fragment_info_t fi(chain_p->GetChainID());
+	 CResidue *residue_p_prev  = 0;
+	 CResidue *residue_p_start = 0;
+	 CResidue *residue_p_this;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p_this = chain_p->GetResidue(ires);
+	    // if this was the second residue or further along...
+	    if (residue_p_prev) {
+	       if ((residue_p_prev->GetSeqNum() + 1) != residue_p_this->GetSeqNum()) {
+		  coot::fragment_info_t::fragment_range_t r(residue_p_start, residue_p_prev);
+		  fi.add_range(r);
+		  residue_p_start = residue_p_this; // start a new fragment (part-way through a chain)
+	       }
+	    } else {
+	       // we are starting a new fragment (at the beginning of a chain)
+	       residue_p_start = residue_p_this;
+	    } 
+	    residue_p_prev = residue_p_this;
+	 }
+	 
+	 // and the last fragment of the chain
+	 if (residue_p_start) {
+	    coot::fragment_info_t::fragment_range_t r(residue_p_start, residue_p_this);
+	    fi.add_range(r);
+	 }
+
+	 // done this fragment info:
+	 v.push_back(fi);
+      }
+   }
+
+   if (screen_output_also) {
+      std::cout << "------------------" << std::endl;
+      for (unsigned int i=0; i<v.size(); i++) { 
+	 std::cout << "   chain-id: " << v[i].chain_id << std::endl;
+	 for (unsigned int j=0; j<v[i].ranges.size(); j++) { 
+	    std::cout << "      "
+		      << v[i].ranges[j].start_res.resno << " "
+		      << v[i].ranges[j].end_res.resno << std::endl;
+	 }
+      }
+      std::cout << "------------------" << std::endl;
+   }
+   return v;
+} 

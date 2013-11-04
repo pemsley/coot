@@ -510,6 +510,8 @@ SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code);
 SCM residue_name(int imol, const char* chain_id, int resno, const char *ins_code);
 
+SCM chain_fragments_scm(int imol, short int screen_output_also); 
+
 //! \brief generate a molecule from an s-expression
 //! 
 //! return a molecule number, -1 on error
@@ -588,6 +590,8 @@ PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
 //!
 PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code);
 PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char *ins_code);
+
+PyObject *chain_fragments_py(int imol, short int screen_output_also);
 
 //! \}
 
