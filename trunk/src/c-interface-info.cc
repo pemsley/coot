@@ -1335,6 +1335,33 @@ PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char 
 
 
 #ifdef USE_GUILE
+SCM chain_fragments_scm(int imol, short int screen_output_also) {
+
+   SCM r = SCM_BOOL_F;
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::vector<coot::fragment_info_t> f = g.molecules[imol].get_fragment_info(screen_output_also);
+   } 
+   return r;
+} 
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+PyObject *chain_fragments_py(int imol, short int screen_output_also) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::vector<coot::fragment_info_t> f = g.molecules[imol].get_fragment_info(screen_output_also);
+   } 
+   return r;
+}
+#endif // USE_PYTHON
+
+
+
+#ifdef USE_GUILE
 // Bernie, no need to pythonize this, it's just to test the return
 // values on pressing "next residue" and "previous residue" (you can
 // if you wish of course).
