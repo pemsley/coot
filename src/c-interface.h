@@ -2128,6 +2128,9 @@ void save_state();
 /*! \brief save the current state to file filename */
 void save_state_file(const char *filename);
 
+/*! \brief save the current state to file filename */
+void save_state_file_py(const char *filename);
+
 /*! \brief set the default state file name (default 0-coot.state.scm) */
 /* set the filename */
 void set_save_state_file_name(const char *filename);
