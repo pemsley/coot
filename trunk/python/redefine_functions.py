@@ -21,6 +21,7 @@ cell                   = cell_py
 map_cell               = cell_py
 get_refmac_sad_atom_info = get_refmac_sad_atom_info_py
 origin_pre_shift       = origin_pre_shift_py
+save_state_file        = save_state_file_py
 save_state_file_name   = save_state_file_name_py
 run_state_file         = run_state_file_py
 wrapped_create_run_state_file_dialog =  wrapped_create_run_state_file_dialog_py

@@ -2843,6 +2843,17 @@ save_state_file(const char *filename) {
    add_to_history_typed(cmd, args);
 }
 
+/*! \brief save the current state to file filename */
+void save_state_file_py(const char *filename) {
+   graphics_info_t g;
+   g.save_state_file(std::string(filename), coot::PYTHON_SCRIPT);
+   std::string cmd = "save-state-file";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote(filename));
+   add_to_history_typed(cmd, args);
+} 
+
+
 
 #ifdef USE_GUILE
 /* Return the default file name suggestion (that would come up in the
