@@ -1008,7 +1008,8 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
 		     std::string res_name = residue_p->GetResName();
 		     if (res_name != "HOH")
 			if (res_name != "WAT")
-			   is_het = true;
+			   if (res_name != "MSE")
+			      is_het = true;
 		     break;
 		  } 
 	       }
