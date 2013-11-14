@@ -95,6 +95,8 @@ scripting exercise
 
 **** General ****
 
+   o user defined click should keep selecting mouse pointer
+
    o strip trainling spaces from "Fetch..." fucntions
 
    o desensitise refmac buttons etc if no ccp4/refmac installed
@@ -369,6 +371,9 @@ low importance
 
 
 **** Python ****
+
+   o info dialog and dont send to Jligand if 2 atoms in same residue 
+     are clicked
 
    o streamline generic_entry functions, one generic one should be enough!
 
