@@ -1355,6 +1355,11 @@ PyObject *chain_fragments_py(int imol, short int screen_output_also) {
       graphics_info_t g;
       std::vector<coot::fragment_info_t> f = g.molecules[imol].get_fragment_info(screen_output_also);
    } 
+
+   if (PyBool_Check(r)) {
+      Py_INCREF(r);
+   }
+
    return r;
 }
 #endif // USE_PYTHON
