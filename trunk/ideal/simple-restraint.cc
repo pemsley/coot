@@ -366,6 +366,8 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
       } else { 
 	 for (int i=0; i<n_atoms; i++) {
 	    atom[i]->PutUDData(udd_atom_index_handle,i);
+	    // std::cout << "init_shared_post() atom " << atom_spec_t(atom[i])
+	    // << " gets udd_atom_index_handle value " << i << std::endl;
 	 }
       }
    }
@@ -1010,9 +1012,12 @@ coot::distortion_score(const gsl_vector *v, void *params) {
    double d;
 
    for (int i=0; i<restraints->size(); i++) {
+
+//       std::cout << "... restraint " << i << " of " << restraints->size() << " type "
+// 		<< (*restraints)[i].restraint_type << std::endl;
       if (restraints->restraints_usage_flag & coot::BONDS_MASK) { // 1: bonds
 	 if ( (*restraints)[i].restraint_type == coot::BOND_RESTRAINT) {
-  	    // cout << "adding an bond restraint " << i << endl;
+  	    // cout << "this is a bond restraint: " << i << endl;
 	    d = coot::distortion_score_bond((*restraints)[i], v);
 	    // std::cout << "DEBUG:: distortion for bond: " << d << std::endl;
 	    distortion += d;
@@ -1042,11 +1047,17 @@ coot::distortion_score(const gsl_vector *v, void *params) {
       if (restraints->restraints_usage_flag & coot::PLANES_MASK) { // 8: planes
 	 if ( (*restraints)[i].restraint_type == coot::PLANE_RESTRAINT) {
 	    // 	    std::cout << "adding an plane restraint " << i << std::endl;  
-	    // std::cout << "distortion sum pre-adding a torsion: " << distortion << std::endl;
 	    d =  coot::distortion_score_plane((*restraints)[i], v);
-	    // std::cout << "DEBUG:: distortion for plane restraint  " << i << ":  " << d << std::endl;
 	    distortion += d;
-	    // std::cout << "distortion sum post-adding a torsion: " << distortion << std::endl;
+	 }
+      }
+
+      if (restraints->restraints_usage_flag & coot::PARALLEL_PLANES_MASK) { // 128
+	 if ( (*restraints)[i].restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
+	    d =  coot::distortion_score_parallel_planes((*restraints)[i], v);
+	    // std::cout << "DEBUG:: distortion for parallel plane restraint  " << i << ":  " << d
+	    // << " c.f. " << distortion << std::endl;
+	    distortion += d;
 	 }
       }
 
@@ -1134,6 +1145,11 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	    atom_index = restraints_vec[i].atom_index[0];
 	 } 
 
+      if (restraints_usage_flag & coot::PARALLEL_PLANES_MASK) 
+	 if (restraints_vec[i].restraint_type == coot::PARALLEL_PLANES_RESTRAINT) { 
+	    distortion = coot::distortion_score_parallel_planes(restraints_vec[i], v);
+	    atom_index = restraints_vec[i].atom_index[0];
+	 } 
       if (restraints_usage_flag & coot::NON_BONDED_MASK)  
 	 if (restraints_vec[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) { 
 	    distortion = coot::distortion_score_non_bonded_contact(restraints_vec[i], v);
@@ -1196,7 +1212,6 @@ double
 coot::distortion_score_bond(const coot::simple_restraint &bond_restraint,
 			    const gsl_vector *v) {
 
-   // cout << "adding a bond restraint" << endl;
    int idx = 3*(bond_restraint.atom_index_1 - 0); 
    clipper::Coord_orth a1(gsl_vector_get(v,idx), 
 			  gsl_vector_get(v,idx+1), 
@@ -1388,6 +1403,24 @@ coot::distortion_score_plane(const coot::simple_restraint &plane_restraint,
    return info.distortion_score;
 
 }
+
+double
+coot::distortion_score_parallel_planes(const simple_restraint &ppr,
+				       const gsl_vector *v) {
+
+   double score = 0;
+	 
+   plane_distortion_info_t info =
+      distortion_score_2_planes(ppr.atom_index, ppr.atom_index_other_plane, ppr.sigma, v);
+   if (0)
+      std::cout << "parallel plane-combined abcd "
+		<< info.abcd[0] << " "
+		<< info.abcd[1] << " "
+		<< info.abcd[2] << " "
+		<< info.abcd[3] << std::endl;
+   return info.distortion_score;
+} 
+
 
 double 
 coot::distortion_score_chiral_volume(const coot::simple_restraint &chiral_restraint,
@@ -1744,6 +1777,182 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
    return info;
 }
 
+// Like the above, except use atom indices, not a restraint.
+// 
+// I copied and edited, rather than abstracted&refactored for speed reasons.
+//
+// 
+coot::plane_distortion_info_t
+coot::distortion_score_2_planes(const std::vector<int> &atom_index_set_1,
+				const std::vector<int> &atom_index_set_2,
+				const double &restraint_sigma,
+				const gsl_vector *v) {
+
+   coot::plane_distortion_info_t info;
+   double sum_devi = 0; // return this (after weighting)
+
+   // Recall the equation of a plane: ax + by + cz + d = 0:
+   // 
+   // First find the centres of the sets of atoms: x_cen, y_cen,
+   // z_cen.  We move the plane down so that it crosses the origin and
+   // there for d=0 (we'll add it back later).  This makes the problem
+   // into 3 equations, 3 unknowns, an eigenvalue problem, with the
+   // smallest eigenvalue corresponding to the best fit plane.
+   //
+   // Google for: least squares plane:
+   // http://www.infogoaround.org/JBook/LSQ_Plane.html
+   //
+   //
+   //
+   // So, first get the centres:
+   double sum_x = 0, sum_y = 0, sum_z = 0;
+   int idx;
+
+   if (atom_index_set_1.size() > 2 && atom_index_set_2.size() > 2) {
+
+      double f_1 = 1.0/double(atom_index_set_1.size());
+      double f_2 = 1.0/double(atom_index_set_2.size());
+      
+      // plane 1
+      // 
+      for (unsigned int i=0; i<atom_index_set_1.size(); i++) {
+	 idx = 3*(atom_index_set_1[i]);
+	 if (atom_index_set_1[i] < 0) {
+	    std::cout << "trapped bad par plane restraint! " << atom_index_set_1[i]
+		      << std::endl;
+	 } else {
+	    sum_x += gsl_vector_get(v,idx);
+	    sum_y += gsl_vector_get(v,idx+1);
+	    sum_z += gsl_vector_get(v,idx+2);
+	 }
+      }
+      double x_cen_1 = sum_x * f_1;
+      double y_cen_1 = sum_y * f_1;
+      double z_cen_1 = sum_z * f_1;
+      info.centre_1 = clipper::Coord_orth(x_cen_1, y_cen_1, z_cen_1);
+      
+      
+      // plane 2
+      // 
+      sum_x = 0; sum_y = 0; sum_z = 0;
+      for (unsigned int i=0; i<atom_index_set_2.size(); i++) {
+	 idx = 3*(atom_index_set_2[i]);
+	 if (atom_index_set_2[i] < 0) {
+	    std::cout << "trapped bad par plane restraint! " << atom_index_set_2[i]
+		      << std::endl;
+	 } else {
+	    sum_x += gsl_vector_get(v,idx);
+	    sum_y += gsl_vector_get(v,idx+1);
+	    sum_z += gsl_vector_get(v,idx+2);
+	 }
+      }
+      double x_cen_2 = sum_x * f_2;
+      double y_cen_2 = sum_y * f_2;
+      double z_cen_2 = sum_z * f_2;
+      info.centre_2 = clipper::Coord_orth(x_cen_2, y_cen_2, z_cen_2);
+
+      clipper::Matrix<double> mat(3,3);
+      
+      for (int i=0; i<atom_index_set_1.size(); i++) {
+	 idx = 3*(atom_index_set_1[i]);
+	 if (atom_index_set_1[i] < 0) {
+	 } else { 
+	    mat(0,0) += (gsl_vector_get(v,idx  ) - x_cen_1) * (gsl_vector_get(v,idx  ) - x_cen_1);
+	    mat(1,1) += (gsl_vector_get(v,idx+1) - y_cen_1) * (gsl_vector_get(v,idx+1) - y_cen_1);
+	    mat(2,2) += (gsl_vector_get(v,idx+2) - z_cen_1) * (gsl_vector_get(v,idx+2) - z_cen_1);
+	    mat(0,1) += (gsl_vector_get(v,idx  ) - x_cen_1) * (gsl_vector_get(v,idx+1) - y_cen_1);
+	    mat(0,2) += (gsl_vector_get(v,idx  ) - x_cen_1) * (gsl_vector_get(v,idx+2) - z_cen_1);
+	    mat(1,2) += (gsl_vector_get(v,idx+1) - y_cen_1) * (gsl_vector_get(v,idx+2) - z_cen_1);
+	 }
+      }
+      for (int i=0; i<atom_index_set_2.size(); i++) {
+	 idx = 3*(atom_index_set_2[i]);
+	 if (atom_index_set_2[i] < 0) {
+	 } else { 
+	    mat(0,0) += (gsl_vector_get(v,idx  ) - x_cen_2) * (gsl_vector_get(v,idx  ) - x_cen_2);
+	    mat(1,1) += (gsl_vector_get(v,idx+1) - y_cen_2) * (gsl_vector_get(v,idx+1) - y_cen_2);
+	    mat(2,2) += (gsl_vector_get(v,idx+2) - z_cen_2) * (gsl_vector_get(v,idx+2) - z_cen_2);
+	    mat(0,1) += (gsl_vector_get(v,idx  ) - x_cen_2) * (gsl_vector_get(v,idx+1) - y_cen_2);
+	    mat(0,2) += (gsl_vector_get(v,idx  ) - x_cen_2) * (gsl_vector_get(v,idx+2) - z_cen_2);
+	    mat(1,2) += (gsl_vector_get(v,idx+1) - y_cen_2) * (gsl_vector_get(v,idx+2) - z_cen_2);
+	 }
+      }
+      mat(1,0) = mat(0,1);
+      mat(2,0) = mat(0,2);
+      mat(2,1) = mat(1,2);
+
+      if (0) { // debug
+	 std::cout << "mat pre  eigens:\n";
+	 for (unsigned int ii=0; ii<3; ii++) { 
+	    for (unsigned int jj=0; jj<3; jj++) { 
+	       std::cout << "mat(" << ii << "," << jj << ") = " << mat(ii,jj) << "   ";
+	    }
+	    std::cout << "\n";
+	 }
+      }
+      
+      std::vector<double> eigens = mat.eigen(true);
+
+      if (0) 
+	 std::cout << "we get eigen values: "
+		   << eigens[0] << "  "
+		   << eigens[1] << "  "
+		   << eigens[2] << std::endl;
+
+      
+      // Let's now extract the values of a,b,c normalize them
+      std::vector<double> abcd(4);
+      abcd[0] = mat(0,0);
+      abcd[1] = mat(1,0);
+      abcd[2] = mat(2,0);
+
+      if (0) { // debug
+	 std::cout << "mat post eigens:\n";
+	 for (unsigned int ii=0; ii<3; ii++) { 
+	    for (unsigned int jj=0; jj<3; jj++) { 
+	       std::cout << "mat(" << ii << "," << jj << ") = " << mat(ii,jj) << "   ";
+	    }
+	    std::cout << "\n";
+	 }
+      }
+      
+      double sqsum = 1e-20;
+
+      for (int i=0; i<3; i++)
+	 sqsum += abcd[i] * abcd[i];
+      for (int i=0; i<3; i++)
+	 abcd[i] /= sqsum;
+
+      abcd[3] = 0;  // we move the combined plane to the origin
+      info.abcd = abcd;
+
+      double val;
+      for (int i=0; i<atom_index_set_1.size(); i++) {
+	 idx = 3*(atom_index_set_1[i]);
+	 if (idx < 0) {
+	 } else { 
+	    val = 
+	       abcd[0]*(gsl_vector_get(v,idx  ) - x_cen_1) +
+	       abcd[1]*(gsl_vector_get(v,idx+1) - y_cen_1) +
+	       abcd[2]*(gsl_vector_get(v,idx+2) - z_cen_1);
+	    sum_devi += val * val;
+	 }
+      }
+      for (int i=0; i<atom_index_set_2.size(); i++) {
+	 idx = 3*(atom_index_set_2[i]);
+	 if (idx < 0) {
+	 } else { 
+	    val = 
+	       abcd[0]*(gsl_vector_get(v,idx  ) - x_cen_2) +
+	       abcd[1]*(gsl_vector_get(v,idx+1) - y_cen_2) +
+	       abcd[2]*(gsl_vector_get(v,idx+2) - z_cen_2);
+	    sum_devi += val * val;
+	 }
+      }
+   }
+   info.distortion_score = sum_devi / (restraint_sigma * restraint_sigma);
+   return info;
+}
 
 
 std::vector<coot::refinement_lights_info_t>
@@ -2022,14 +2231,16 @@ void coot::my_df(const gsl_vector *v,
       gsl_vector_set(df,i,0);
    }
 
-   coot::my_df_bonds     (v, params, df); 
-   coot::my_df_angles    (v, params, df);
-   coot::my_df_torsions  (v, params, df);
-   coot::my_df_rama      (v, params, df);
-   coot::my_df_planes    (v, params, df);
-   coot::my_df_non_bonded(v, params, df);
-   coot::my_df_chiral_vol(v, params, df);
-   coot::my_df_start_pos (v, params, df);
+   my_df_bonds     (v, params, df); 
+   my_df_angles    (v, params, df);
+   my_df_torsions  (v, params, df);
+   my_df_rama      (v, params, df);
+   my_df_planes    (v, params, df);
+   my_df_non_bonded(v, params, df);
+   my_df_chiral_vol(v, params, df);
+   my_df_start_pos (v, params, df);
+   my_df_parallel_planes(v, params, df);
+
    
    if (restraints->include_map_terms()) {
       // std::cout << "Using map terms " << std::endl;
@@ -3146,10 +3357,7 @@ coot::my_df_planes(const gsl_vector *v,
    coot::restraints_container_t *restraints =
       (coot::restraints_container_t *)params;
    
-
-
    int idx; 
-   int n_plane_restr = 0; // debugging counter
 
    coot::plane_distortion_info_t plane_info;
 
@@ -3164,14 +3372,13 @@ coot::my_df_planes(const gsl_vector *v,
        
 	 if ( (*restraints)[i].restraint_type == coot::PLANE_RESTRAINT) {
 
-	    simple_restraint plane_restraint = (*restraints)[i];
+	    const simple_restraint &plane_restraint = (*restraints)[i];
 	    plane_info = distortion_score_plane_internal(plane_restraint, v);
 	    n_plane_atoms = plane_restraint.atom_index.size();
 	    weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
 	    for (int j=0; j<n_plane_atoms; j++) {
 	       if (! (*restraints)[i].fixed_atom_flags[j] ) { 
-		  n_plane_restr++;
-		  idx = 3*(plane_restraint.atom_index[j]);
+		  idx = 3*plane_restraint.atom_index[j];
 		  devi_len =
 		     plane_info.abcd[0]*gsl_vector_get(v,idx  ) + 
 		     plane_info.abcd[1]*gsl_vector_get(v,idx+1) +
@@ -3186,11 +3393,6 @@ coot::my_df_planes(const gsl_vector *v,
 		     gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + d.dx());
 		     gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + d.dy());
 		     gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + d.dz());
-// 		     if (n_plane_restr == 1) {
-// 			clipper::Coord_orth normal(plane_info.abcd[0],
-// 						   plane_info.abcd[1],
-// 						   plane_info.abcd[2]);
-// 		     }
 		  }
 	       }
 	    }
@@ -3198,6 +3400,87 @@ coot::my_df_planes(const gsl_vector *v,
       }
    }
 }
+
+
+// manipulate the gsl_vector_get *df
+// 
+void
+coot::my_df_parallel_planes(const gsl_vector *v, 
+			    void *params, 
+			    gsl_vector *df) {
+   int idx;
+   double devi_len;
+
+   // first extract the object from params 
+   //
+   coot::restraints_container_t *restraints = (coot::restraints_container_t *)params;
+   
+   if (restraints->restraints_usage_flag & coot::PARALLEL_PLANES_MASK) {
+      for (int i=0; i<restraints->size(); i++) {
+       
+	 if ( (*restraints)[i].restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
+	    const simple_restraint &ppr = (*restraints)[i];
+
+	    unsigned int first_atoms_size = ppr.atom_index.size();
+	    
+	    plane_distortion_info_t plane_info =
+	       distortion_score_2_planes(ppr.atom_index, ppr.atom_index_other_plane, ppr.sigma, v);
+
+	    // first plane
+	    unsigned int n_plane_atoms = ppr.atom_index.size();
+	    double weight = 1/(ppr.sigma * ppr.sigma);
+	    for (int j=0; j<n_plane_atoms; j++) {
+	       if (! (*restraints)[i].fixed_atom_flags[j] ) { 
+		  idx = 3*ppr.atom_index[j];
+		  devi_len =
+		     plane_info.abcd[0]*(gsl_vector_get(v,idx  ) - plane_info.centre_1.x()) + 
+		     plane_info.abcd[1]*(gsl_vector_get(v,idx+1) - plane_info.centre_1.y()) +
+		     plane_info.abcd[2]*(gsl_vector_get(v,idx+2) - plane_info.centre_1.z()) -
+		     plane_info.abcd[3];
+
+		  clipper::Grad_orth<double> d(2.0 * weight * devi_len * plane_info.abcd[0],
+					       2.0 * weight * devi_len * plane_info.abcd[1],
+					       2.0 * weight * devi_len * plane_info.abcd[2]);
+
+		  // std::cout << "pp first plane devi len " << devi_len << " and gradients "
+		  // << d.format() << std::endl;
+
+		  if (!(*restraints)[i].fixed_atom_flags[j]) { 
+		     gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + d.dx());
+		     gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + d.dy());
+		     gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + d.dz());
+		  }
+	       }
+	    }
+
+	    // second plane
+	    n_plane_atoms = ppr.atom_index_other_plane.size();
+	    for (int j=0; j<n_plane_atoms; j++) {
+	       if (! (*restraints)[i].fixed_atom_flags[j] ) { 
+		  idx = 3*ppr.atom_index_other_plane[j];
+		  devi_len =
+		     plane_info.abcd[0]*(gsl_vector_get(v,idx  ) - plane_info.centre_2.x()) + 
+		     plane_info.abcd[1]*(gsl_vector_get(v,idx+1) - plane_info.centre_2.y()) +
+		     plane_info.abcd[2]*(gsl_vector_get(v,idx+2) - plane_info.centre_2.z()) -
+		     plane_info.abcd[3];
+
+		  clipper::Grad_orth<double> d(2.0 * weight * devi_len * plane_info.abcd[0],
+					       2.0 * weight * devi_len * plane_info.abcd[1],
+					       2.0 * weight * devi_len * plane_info.abcd[2]);
+
+		  if (!(*restraints)[i].fixed_atom_flags_other_plane[j]) { 
+		     gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + d.dx());
+		     gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + d.dy());
+		     gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + d.dz());
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
+
 
 double
 coot::restraints_container_t::electron_density_score_at_point(const clipper::Coord_orth &ao) const {
@@ -3932,7 +4215,8 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(CResidue *resid
    if (pdb_resname == "UNK") pdb_resname = "ALA";
 
    if (0) 
-      std::cout << "--------------- make_monomer_restraints_by_residue() called " << residue_spec_t(residue_p)
+      std::cout << "--------------- make_monomer_restraints_by_residue() called "
+		<< residue_spec_t(residue_p)
 		<<  " and using type :" << pdb_resname << ":" << std::endl;
 
    // idr: index dictionary residue
@@ -5863,7 +6147,7 @@ coot::restraints_container_t::add_planes(int idr, PPCAtom res_selection,
 	    n_plane_restr++;
 	 }
       } else {
-	 if (verbose_geometry_reporting == 1) {  
+	 if (verbose_geometry_reporting) {  
 	    std::cout << "in add_planes: sadly not every restraint atom had a match"
 		      << std::endl;
 	    std::cout << "   needed " << geom[idr].plane_restraint[ip].n_atoms()
@@ -6000,6 +6284,13 @@ coot::restraints_container_t::add_rama(std::string link_type,
    return n_rama; 
 }
 
+
+int
+coot::restraints_container_t::get_asc_index(const coot::atom_spec_t &spec) const {
+
+   return get_asc_index_new(spec.atom_name.c_str(), spec.alt_conf.c_str(), spec.resno,
+			    spec.insertion_code.c_str(), spec.chain.c_str());
+}
 
 
 int

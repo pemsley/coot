@@ -91,6 +91,7 @@ int test_multi_residue_torsion();
 int test_torsions_from_residue_selection();
 int test_read_prosmart_distance_restraints();
 int test_dreiding_torsion_energy();
+int test_parallel_plane_restraints();
 
 // uses greg data test data
 int test_phi_psi_values();

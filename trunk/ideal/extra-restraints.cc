@@ -29,7 +29,7 @@
 #include "simple-restraint.hh"
 
 void
-coot::extra_restraints_t::read_refmac_distance_restraints(const std::string &file_name) {
+coot::extra_restraints_t::read_refmac_extra_restraints(const std::string &file_name) {
 
    if (coot::file_exists(file_name)) {
       std::string line;
@@ -41,7 +41,7 @@ coot::extra_restraints_t::read_refmac_distance_restraints(const std::string &fil
 
       for (unsigned int i=0; i<lines.size(); i++) { 
 	 std::vector<std::string> words = coot::util::split_string_no_blanks(lines[i], " ");
-	 if (matches_template_p(words)) {
+	 if (matches_bond_template_p(words)) {
 	    try { 
 	       std::string chain_id_1 = words[4];
 	       std::string ins_code_1 = words[8];
@@ -72,7 +72,14 @@ coot::extra_restraints_t::read_refmac_distance_restraints(const std::string &fil
 	       std::cout << "rte on : " << lines[i] << std::endl;
 	    }
 	 } else {
-	    std::cout << "failed to match template: " << lines[i] << std::endl;
+	    
+	    parallel_planes_t ppr(lines[i]); // try to parse the line and make a restraint
+	    if (ppr.matches) {
+	       // add parallel plane (aka "stacking") restraint
+	       parallel_plane_restraints.push_back(ppr);
+	    } else { 
+	       std::cout << "INFO:: Failed to match restraint to templates:\n" << lines[i] << std::endl;
+	    }
 	 } 
       }
    }
@@ -87,7 +94,7 @@ coot::extra_restraints_t::delete_restraints_for_residue(const residue_spec_t &rs
 
 
 bool
-coot::extra_restraints_t::matches_template_p(const std::vector<std::string> &words) const {
+coot::extra_restraints_t::matches_bond_template_p(const std::vector<std::string> &words) const {
 
    bool status = false;
    if (words.size() >= 24) {
@@ -160,12 +167,17 @@ coot::extra_restraints_t::matches_template_p(const std::vector<std::string> &wor
 
 
 void
-coot::restraints_container_t::add_extra_restraints(const extra_restraints_t &extra_restraints) {
+coot::restraints_container_t::add_extra_restraints(const extra_restraints_t &extra_restraints,
+						   const protein_geometry &geom) {
+
+//    std::cout << "---------------- in add_extra_restraints() " << extra_restraints.parallel_plane_restraints.size()
+// 	     << " pp restraints " << std::endl;
 
    add_extra_bond_restraints(extra_restraints);
    add_extra_angle_restraints(extra_restraints);
    add_extra_torsion_restraints(extra_restraints);
    add_extra_start_pos_restraints(extra_restraints);
+   add_extra_parallel_plane_restraints(extra_restraints, geom);
 }
 
 void
@@ -214,12 +226,6 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_1) ==
 		coot::residue_spec_t(SelResidue_local[ir])) {
 	       r_1 = SelResidue_local[ir];
-               // BL says:: this is certainly not working, since we dont have the residues_vec
-               // not sure how to get the fixed flag. Too lazy to look up. Paul. Fixme!?
-	       //fixed_1 = residues_vec[ir].first;
-	       //
-	       // 20100807 corrected now.
-	       // 
 	       fixed_1 = fixed_check(ir);
 	    }
 	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_2) ==
@@ -426,8 +432,146 @@ coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraint
 	    }
 	 } 
       }
-   } 
+   }
 }
+
+void
+coot::restraints_container_t::add_extra_parallel_plane_restraints(const extra_restraints_t &extra_restraints,
+								  const protein_geometry &geom) {
+
+//    std::cout << "------ in add_extra_parallel_plane_restraints() " << extra_restraints.parallel_plane_restraints.size()
+// 	     << " pp restraints " << std::endl;
+
+   for (unsigned int i=0; i<extra_restraints.parallel_plane_restraints.size(); i++) {
+      std::vector<int> plane_1_atom_indices;
+      std::vector<int> plane_2_atom_indices;
+      const parallel_planes_t &r = extra_restraints.parallel_plane_restraints[i];
+      CResidue *r_1 = util::get_residue(r.plane_1_atoms.res_spec, mol);
+      CResidue *r_2 = util::get_residue(r.plane_2_atoms.res_spec, mol);
+
+      if (0) { 
+	 std::cout << "------ in add_extra_parallel_plane_restraints() extracting 1 " << r.plane_1_atoms.res_spec
+		   << std::endl;
+	 std::cout << "------ in add_extra_parallel_plane_restraints() extracting 2 " << r.plane_2_atoms.res_spec
+		   << std::endl;
+	 std::cout << "------ in add_extra_parallel_plane_restraints() extracting from mol " << mol << std::endl;
+	 std::cout << "------ in add_extra_parallel_plane_restraints() " << r_1 << " " << r_2 << std::endl;
+      }
+
+      if (r_1 && r_2) {
+
+	 bool fixed_1 = 0;
+	 bool fixed_2 = 0;
+
+	 // 20131112 OK, so the extra restraints have non-spaced
+	 // names, we need (at the moment at least) to look up the
+	 // 4-char names so that we can match the atom names from the
+	 // PDB.  For that, we need the dictionary for the residue
+	 // types of the selected residues.
+	 //
+	 //
+	 std::string res_type_1 = r_1->GetResName();
+	 std::string res_type_2 = r_2->GetResName();
+	 std::pair<bool, dictionary_residue_restraints_t> dri_1 = geom.get_monomer_restraints(res_type_1);
+	 std::pair<bool, dictionary_residue_restraints_t> dri_2 = geom.get_monomer_restraints(res_type_2);
+
+	 if (dri_1.first && dri_2.first) {
+
+
+	    if (from_residue_vector) {
+	       for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
+		  if (residues_vec[ir].second == r_1) 
+		     fixed_1 = residues_vec[ir].first;
+		  if (residues_vec[ir].second == r_2) 
+		     fixed_2 = residues_vec[ir].first;
+	       }
+	    } 
+	 
+	    PPCAtom residue_atoms = 0;
+	    int n_residue_atoms;
+
+	    // add to plane_1_atom_indices
+	    // 
+	    r_1->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (unsigned int i_rest_at=0; i_rest_at<r.plane_1_atoms.atom_names.size(); i_rest_at++) {
+	       std::string plane_atom_expanded_name =
+		  dri_1.second.atom_name_for_tree_4c(r.plane_1_atoms.atom_names[i_rest_at]);
+	       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+		  CAtom *at = residue_atoms[iat];
+		  std::string atom_name(at->name);
+		  std::string alt_conf(at->altLoc);
+		  if (plane_atom_expanded_name == atom_name) {
+		     if (r.plane_1_atoms.alt_conf == alt_conf) {
+			int idx = -1;
+			if (at->GetUDData(udd_atom_index_handle, idx) == UDDATA_Ok) { 
+			   if (idx != -1) {
+			      plane_1_atom_indices.push_back(idx);
+			      if (0)
+				 std::cout << "adding plane-1 parallel plane atom " << atom_spec_t(at)
+					   << " which has idx " << idx << std::endl;
+			   }
+			} else {
+			   std::cout << "no udd_atom_index_handle for " <<  atom_spec_t(at) << std::endl;
+			} 
+		     }
+		  }
+	       }
+	    }
+	    // same for plane_2_atom_indices
+	    //
+	    residue_atoms = 0;
+	    r_2->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (unsigned int i_rest_at=0; i_rest_at<r.plane_2_atoms.atom_names.size(); i_rest_at++) {
+	       std::string plane_atom_expanded_name =
+		  dri_2.second.atom_name_for_tree_4c(r.plane_2_atoms.atom_names[i_rest_at]);
+	       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+		  CAtom *at = residue_atoms[iat];
+		  std::string atom_name(at->name);
+		  std::string alt_conf(at->altLoc);
+		  // std::cout << "testing :" << plane_atom_expanded_name << ": vs :" << atom_name << ":" << std::endl;
+		  if (plane_atom_expanded_name == atom_name) {
+		     if (r.plane_2_atoms.alt_conf == alt_conf) {
+			int idx = -1;
+			if (at->GetUDData(udd_atom_index_handle, idx) == UDDATA_Ok) { 
+			   if (idx != -1) {
+			      plane_2_atom_indices.push_back(idx);
+			      if (0)
+				 std::cout << "adding plane-2 parallel plane atom " << atom_spec_t(at)
+					   << " which has idx " << idx << std::endl;
+			   }
+			} else {
+			   std::cout << "no udd_atom_index_handle for " <<  atom_spec_t(at) << std::endl;
+			}
+		     }
+		  }
+	       }
+	    }
+
+	    if (plane_1_atom_indices.size() > 3) {
+	       if (plane_2_atom_indices.size() > 3) {
+
+		  std::vector<bool> fixed_atoms_plane_1 = make_fixed_flags(plane_1_atom_indices);
+		  std::vector<bool> fixed_atoms_plane_2 = make_fixed_flags(plane_2_atom_indices);
+
+		  simple_restraint sr(PARALLEL_PLANES_RESTRAINT,
+				      plane_1_atom_indices,
+				      plane_2_atom_indices,
+				      fixed_atoms_plane_1,
+				      fixed_atoms_plane_2,
+				      r.target_angle, r.sigma_combined_planes);
+
+		  restraints_vec.push_back(sr);
+		  if (0)
+		     std::cout << "after pp restraints with sigma " << sr.sigma << " from " << r.sigma_combined_planes
+			       << "   after push restraints_vec is now of size "
+			       << restraints_vec.size() << std::endl;
+	       }
+	    }
+	 }
+      }
+   }
+}
+
 
 
 

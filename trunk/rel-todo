@@ -70,6 +70,8 @@
      include/libs are not found, then we should exit configure with 
      an error
 
+   o Repeat B-form DNA in 10.5 bp, not 11.
+
    o Bernie notes:
 
 1.) when downloading a non existing (sf) cif file I get clipper fatal

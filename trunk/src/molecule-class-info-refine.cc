@@ -65,7 +65,7 @@ void
 molecule_class_info_t::add_refmac_extra_restraints(const std::string &file_name) {
 
    coot::extra_restraints_t r;
-   r.read_refmac_distance_restraints(file_name);
+   r.read_refmac_extra_restraints(file_name);
    extra_restraints.add_restraints(r);
    std::cout << "in add_refmac_extra_restraints we have " << extra_restraints.bond_restraints.size()
 	     << " bond restraints " << std::endl;

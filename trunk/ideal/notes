@@ -33,3 +33,23 @@ Fri May  9 20:33:27 BST 2003
 	(torsions not tested).
 
 	
+-------------------
+Fri Oct 11 12:49:13 BST 2013
+
+
+	       // 	       plane_distortion_info_t plane_1_info =
+	       // distortion_score_plane_internal_using_atom_indices(plane_1_atom_indices, v);
+
+
+      void add_parallel_plane_restraint(const std::vector<int> &plane_1_atom_indices,
+					const std::vector<int> &plane_2_atom_indices,
+					const double &target_angle_in,
+					conost double &sigma) {
+
+	 simple_restraint sr(PARALLEL_PLANE_RESTRAINT,
+			     plane_1_atom_indices,
+			     plane_2_atom_indices,
+			     target_angle_in, sigma);
+	 restraints_vec.push_back(sr);
+
+      }

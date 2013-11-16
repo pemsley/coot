@@ -195,7 +195,6 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 	 }
       }
    }
-
 }
 
 
