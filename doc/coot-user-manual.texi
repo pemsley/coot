@@ -3454,8 +3454,11 @@ For a given sequence, a choice of DNA or RNA, A or B form, single or
 double stranded is presented.  
 
 The interface may not gracefully handle uracils in DNA, thymines in
-RNA or B form RNA @footnote{But you don't want those things anyway,
-right?}.
+RNA or B form RNA.
+
+The ideal B-form DNA is somewhat under-wound, needing 11 base-pairs to
+repeat (instead of the expected 10.5).  There is no easy fix for this
+currently.
 
 
 

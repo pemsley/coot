@@ -1,5 +1,6 @@
 #include "testing.hh"
 #include "testing-data.hh"
+#include "ideal/simple-restraint.hh"
 
 
 int test_dreiding_torsion_energy() {
@@ -29,3 +30,55 @@ int test_dreiding_torsion_energy() {
    }
    return r;
 }
+
+
+int test_parallel_plane_restraints() {
+
+   int status = 0;
+   testing_data t;
+   CMMDBManager *mol = new CMMDBManager;
+   int ierr = mol->ReadPDBASCII("3tu4-test-37,38.pdb");
+   std::cout << "ReadPDBASCII() returned " << ierr << std::endl;
+
+   short int have_flanking_residue_at_start = 1;
+   short int have_flanking_residue_at_end = 1;
+   short int have_disulfide_residues = 0;
+   std::string alt_conf = "";
+   std::string chain_id("I");
+   std::vector<coot::atom_spec_t> fixed_atom_specs;
+   
+   coot::restraints_container_t restraints(37,
+					   38,
+					   have_flanking_residue_at_start,
+					   have_flanking_residue_at_end,
+					   have_disulfide_residues,
+					   alt_conf,
+					   chain_id.c_str(),
+					   mol,
+					   fixed_atom_specs);
+
+   short int do_rama_restraints = 0;
+   short int do_residue_internal_torsions = 1;
+   short int do_link_torsions = 0;
+   float rama_plot_restraint_weight = 1.0;
+
+   coot::restraint_usage_Flags flags =
+      coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
+   coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+   int nrestraints = 
+      restraints.make_restraints(t.geom, flags,
+				 do_residue_internal_torsions,
+				 rama_plot_restraint_weight,
+				 do_rama_restraints,
+				 pseudos);
+
+   std::string extra_restraints_file_name("test-base-pairing-extras-I-chain.txt");
+   coot::extra_restraints_t er;
+   er.read_refmac_extra_restraints(extra_restraints_file_name);
+   restraints.add_extra_restraints(er, t.geom); // we need a geom to look up expansions for restraint atom names.
+   restraints.minimize(flags);
+   mol->WritePDBASCII("3tu4-test-37,38-par-planes-out.pdb");
+
+   delete mol;
+   return status;
+} 

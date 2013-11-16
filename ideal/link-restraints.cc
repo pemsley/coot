@@ -604,6 +604,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
    int n_link_angle_restr = 0;
    int n_link_torsion_restr = 0;
    int n_link_plane_restr = 0;
+   int n_link_parallel_plane_restr = 0;
 
    for (unsigned int ibonded_residue=0;
 	ibonded_residue<bonded_residue_pairs.size();
@@ -666,6 +667,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
 					      is_fixed_first_residue,
 					      is_fixed_second_residue,
 					      geom);
+
 	 // 	    gettimeofday(&current_time, NULL);
 	 // td = time_diff(current_time, start_time);
 	 // t2 = td;
@@ -690,6 +692,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
    std::cout << "   " << n_link_bond_restr    << " bond    links" << std::endl;
    std::cout << "   " << n_link_angle_restr   << " angle   links" << std::endl;
    std::cout << "   " << n_link_plane_restr   << " plane   links" << std::endl;
+   std::cout << "   " << n_link_parallel_plane_restr   << " parallel plane restraints" << std::endl;
    return iret; 
 }
 
@@ -1250,16 +1253,6 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
       }
    }
    return n_plane;
-}
-
-int coot::restraints_container_t::add_link_plane_tmp(std::string link_type,
-						 PCResidue first, PCResidue second,
-						 short int is_fixed_first_res,
-						 short int is_fixed_second_res,
-						 const coot::protein_geometry &geom) {
-
-   return 0;
-
 }
 
 #endif // HAVE_GSL

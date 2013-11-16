@@ -448,10 +448,10 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 // However, ramachandran goodness will use phi and psi
 	 //
 	 
-	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
-	    restraints.add_extra_restraints(molecules[imol_for_atoms].extra_restraints);
-
 	 const coot::protein_geometry &geom = *geom_p;
+
+	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
+	    restraints.add_extra_restraints(molecules[imol_for_atoms].extra_restraints, geom);
 
 	 // 20132008: debugging CCP4 SRS inclusion.  Currently it
 	 // seems that problem is calling a member function of
@@ -745,7 +745,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 			    << std::endl;
 	       
 	       if (molecules[imol].extra_restraints.has_restraints())
-		  restraints.add_extra_restraints(molecules[imol].extra_restraints);
+		  restraints.add_extra_restraints(molecules[imol].extra_restraints, *Geom_p());
 
 	       int n_restraints = restraints.make_restraints(*Geom_p(), flags,
 							     do_residue_internal_torsions,

@@ -647,8 +647,8 @@ graphics_info_t::set_file_for_save_fileselection(GtkWidget *fileselection) const
       if (graphics_info_t::directory_for_saving_for_fileselection != "")
 	 full_name = directory_for_saving_for_fileselection + stripped_name;
 
-      std::cout << "INFO:: Setting fileselection with file: " << full_name
-		<< std::endl;
+//       std::cout << "INFO:: Setting fileselection with file: " << full_name
+// 		<< std::endl;
       gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
 				      full_name.c_str());
    }

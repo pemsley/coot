@@ -292,7 +292,8 @@ int test_internal_single() {
       // status = test_multi_residue_torsion();
       // status = test_torsions_from_residue_selection();
       // status = test_read_prosmart_distance_restraints();
-      status = test_dreiding_torsion_energy();
+      // status = test_dreiding_torsion_energy();
+      status = test_parallel_plane_restraints();
       
    }
    catch (std::runtime_error mess) {
