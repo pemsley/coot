@@ -356,7 +356,14 @@ void add_refmac_extra_restraints(int imol, const char *file_name) {
 
 void set_show_extra_restraints(int imol, int state) {
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].set_extra_restraints_are_displayed(state);
+      graphics_info_t::molecules[imol].set_display_extra_restraints(state);
+   }
+   graphics_draw();
+}
+
+void set_show_parallel_plane_restraints(int imol, int state) {
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_display_parallel_plane_restraints(state);
    }
    graphics_draw();
 }
@@ -365,6 +372,13 @@ int extra_restraints_are_shown(int imol) {
    int r = 0;
    if (is_valid_model_molecule(imol))
       r = graphics_info_t::molecules[imol].drawit_for_extra_restraints;
+   return r;
+}
+
+int parallel_plane_restraints_are_shown(int imol) {
+   int r = 0;
+   if (is_valid_model_molecule(imol))
+      r = graphics_info_t::molecules[imol].drawit_for_parallel_plane_restraints;
    return r;
 } 
 

@@ -3639,6 +3639,10 @@ void add_refmac_extra_restraints(int imol, const char *file_name);
 void set_show_extra_restraints(int imol, int state);
 int extra_restraints_are_shown(int imol);
 
+void set_show_parallel_plane_restraints(int imol, int state);
+int parallel_plane_restraints_are_shown(int imol);
+
+
 #ifdef __cplusplus
 #ifdef USE_GUILE		
 /* restraint_spec is something like (list 'bond spec-1 spec-2)

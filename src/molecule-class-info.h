@@ -541,9 +541,27 @@ namespace coot {
 	    esd = e;
 	 }
       };
+
+      class extra_parallel_planes_restraints_representation_t {
+      public:
+	 clipper::Coord_orth centre;
+	 clipper::Coord_orth normal;
+	 double radius;
+	 extra_parallel_planes_restraints_representation_t(const clipper::Coord_orth &a,
+							   const clipper::Coord_orth &c,
+							   double r1) {
+	    centre = a;
+	    normal = c;
+	    radius = r1;
+	 }
+      };
+
+      
       std::vector<extra_bond_restraints_respresentation_t> bonds;
+      std::vector<extra_parallel_planes_restraints_representation_t> parallel_planes;
       void clear() {
 	 bonds.clear();
+	 parallel_planes.clear();
       }
       void add_bond(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2) {
 	 extra_bond_restraints_respresentation_t br(pt1, pt2, -1, -1);
@@ -555,6 +573,10 @@ namespace coot {
 	 extra_bond_restraints_respresentation_t br(pt1, pt2, d, e);
 	 bonds.push_back(br);
       }
+
+      // maybe extra parameters are needed here (e.g. for colouring later, perhaps).
+      void add_parallel_plane(const lsq_plane_info_t &pi_1,
+			      const lsq_plane_info_t &pi_2);
    };
 
    // ------------ molecule probability scoring ------------
@@ -1099,6 +1121,7 @@ public:        //                      public
       // clipper leak message?
       drawit = 0;
       drawit_for_extra_restraints = false;
+      drawit_for_parallel_plane_restraints = false;
       draw_it_for_map = 0;  // don't display this thing on a redraw!
       draw_it_for_map_standard_lines = 0;
 
@@ -1377,8 +1400,13 @@ public:        //                      public
    }
 
    // pass 0 or 1
-   void set_extra_restraints_are_displayed(int state) {
+   void set_display_extra_restraints(int state) {
       drawit_for_extra_restraints = state; 
+   }
+   
+   // pass 0 or 1
+   void set_display_parallel_plane_restraints(int state) {
+      drawit_for_parallel_plane_restraints = state; 
    }
 
    void delete_extra_restraints_for_residue(const coot::residue_spec_t &rs);
@@ -3102,9 +3130,11 @@ public:        //                      public
    // ---- extra restraints (currently only bonds) -----------
    //
    bool drawit_for_extra_restraints;
+   bool drawit_for_parallel_plane_restraints;
    coot::extra_restraints_t extra_restraints;
    coot::extra_restraints_representation_t extra_restraints_representation;
    void draw_extra_restraints_representation();
+   void draw_parallel_plane_restraints_representation();
    
    // return an index of the new restraint
    int add_extra_bond_restraint(coot::atom_spec_t atom_1,
@@ -3129,6 +3159,7 @@ public:        //                      public
    void remove_extra_torsion_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2,
                                       coot::atom_spec_t atom_3, coot::atom_spec_t atom_4);
    void update_extra_restraints_representation(); // called from make_bonds_type_checked()
+   void update_extra_restraints_representation_parallel_planes();
    void add_refmac_extra_restraints(const std::string &file_name);
    void clear_extra_restraints();
 

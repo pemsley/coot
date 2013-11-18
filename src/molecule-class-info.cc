@@ -893,7 +893,49 @@ molecule_class_info_t::draw_extra_restraints_representation() {
 	 }
       }
    }
-} 
+
+   draw_parallel_plane_restraints_representation();
+}
+
+void
+molecule_class_info_t::draw_parallel_plane_restraints_representation() {
+
+   if (drawit) {
+      if (drawit_for_extra_restraints) {
+	 if (extra_restraints_representation.parallel_planes.size() > 0) { 
+	    glLineWidth(2.0);
+	    glColor3f(0.6, 0.6, 0.8);
+	    glBegin(GL_LINES);
+	    for (unsigned int i=0; i<extra_restraints_representation.parallel_planes.size(); i++) {
+	       const coot::extra_restraints_representation_t::extra_parallel_planes_restraints_representation_t &r =
+		  extra_restraints_representation.parallel_planes[i];
+
+	       if (0)
+		  std::cout << "draw at " << r.centre.format() << " normal " << r.normal.format() << " " << r.radius
+			    << std::endl;
+
+	       clipper::Coord_orth arb(0.2, 0.8, 0.1);
+	       clipper::Coord_orth cr(clipper::Coord_orth::cross(r.normal, arb).unit());
+	       clipper::Coord_orth first_pt = r.centre + r.radius * cr;
+
+	       unsigned int n_steps = 20;
+	       double step_frac = 1/double(n_steps);
+	       for (unsigned int istep=0; istep<n_steps; istep++) {
+		  double angle_1 = step_frac * 2.0 * M_PI * istep;
+		  double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
+		  clipper::Coord_orth pt_1 = coot::util::rotate_round_vector(r.normal, first_pt, r.centre, angle_1);
+		  clipper::Coord_orth pt_2 = coot::util::rotate_round_vector(r.normal, first_pt, r.centre, angle_2);
+		  glVertex3f(pt_1.x(), pt_1.y(), pt_1.z());
+		  glVertex3f(pt_2.x(), pt_2.y(), pt_2.z());
+	       }
+	    }
+	    glEnd();
+	 }
+      }
+   } 
+}
+
+
 
 //
 void
@@ -2916,7 +2958,7 @@ void
 molecule_class_info_t::update_extra_restraints_representation() {
 
    extra_restraints_representation.clear();
-   
+
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
       CAtom *at_1 = NULL;
       CAtom *at_2 = NULL;
@@ -2981,6 +3023,80 @@ molecule_class_info_t::update_extra_restraints_representation() {
 	 extra_restraints_representation.add_bond(p1, p2, res.bond_dist, res.esd);
       } 
    }
+
+   update_extra_restraints_representation_parallel_planes();
+}
+
+void
+molecule_class_info_t::update_extra_restraints_representation_parallel_planes() {
+
+   std::string s = "Mol " + coot::util::int_to_string(imol_no) + "Parallel-Plane-Restraints";
+   coot::generic_display_object_t rest_rep(s);
+
+   // needed for parallel plane restraints atom name lookup.
+   const coot::protein_geometry &geom = *graphics_info_t::Geom_p();  // pass this?
+
+   for (unsigned int i=0; i<extra_restraints.parallel_plane_restraints.size(); i++) {
+      const coot::parallel_planes_t &pp = extra_restraints.parallel_plane_restraints[i];
+      CResidue *r_1 = get_residue(pp.plane_1_atoms.res_spec);
+      CResidue *r_2 = get_residue(pp.plane_2_atoms.res_spec);
+      if (r_1 && r_2) {
+	
+	 std::string res_type_1 = r_1->GetResName();
+	 std::string res_type_2 = r_2->GetResName();
+	 std::pair<bool, coot::dictionary_residue_restraints_t> dri_1 = geom.get_monomer_restraints(res_type_1);
+	 std::pair<bool, coot::dictionary_residue_restraints_t> dri_2 = geom.get_monomer_restraints(res_type_2);
+	 
+	 std::vector<clipper::Coord_orth> p_1_positions;
+	 std::vector<clipper::Coord_orth> p_2_positions;
+	 
+	 PPCAtom residue_atoms = 0;
+	 int n_residue_atoms;
+	 r_1->GetAtomTable(residue_atoms, n_residue_atoms);
+
+	 // first plane
+	 for (unsigned int i_rest_at=0; i_rest_at<pp.plane_1_atoms.atom_names.size(); i_rest_at++) {
+	    std::string plane_atom_expanded_name =
+	       dri_1.second.atom_name_for_tree_4c(pp.plane_1_atoms.atom_names[i_rest_at]);
+	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	       CAtom *at = residue_atoms[iat];
+	       std::string atom_name(at->name);
+	       std::string alt_conf(at->altLoc);
+	       if (plane_atom_expanded_name == atom_name) {
+		  if (pp.plane_1_atoms.alt_conf == alt_conf) {
+		     p_1_positions.push_back(clipper::Coord_orth(at->x, at->y, at->z));
+		  }
+	       }
+	    }
+	 }
+	 // second plane
+	 residue_atoms = 0;
+	 r_2->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (unsigned int i_rest_at=0; i_rest_at<pp.plane_2_atoms.atom_names.size(); i_rest_at++) {
+	    std::string plane_atom_expanded_name =
+	       dri_2.second.atom_name_for_tree_4c(pp.plane_2_atoms.atom_names[i_rest_at]);
+	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	       CAtom *at = residue_atoms[iat];
+	       std::string atom_name(at->name);
+	       std::string alt_conf(at->altLoc);
+	       if (plane_atom_expanded_name == atom_name) {
+		  if (pp.plane_2_atoms.alt_conf == alt_conf) {
+		     p_2_positions.push_back(clipper::Coord_orth(at->x, at->y, at->z));
+		  }
+	       }
+	    }
+	 }
+
+	 if (p_1_positions.size() > 2) { 
+	    if (p_2_positions.size() > 2) { 
+	       coot::lsq_plane_info_t pi_1(p_1_positions);
+	       coot::lsq_plane_info_t pi_2(p_2_positions);
+
+	       extra_restraints_representation.add_parallel_plane(pi_1, pi_2);
+	    }
+	 }
+      } 
+   }
 } 
 
 
@@ -2990,7 +3106,7 @@ int
 molecule_class_info_t::export_coordinates(std::string filename) const { 
 
    //
-   int err = atom_sel.mol->WritePDBASCII((char *)filename.c_str()); 
+   int err = atom_sel.mol->WritePDBASCII(filename.c_str()); 
    
    if (err) { 
       std::cout << "WARNING:: export coords: There was an error in writing "
