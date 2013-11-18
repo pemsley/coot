@@ -605,3 +605,44 @@ molecule_class_info_t::morph_show_shifts(const std::map<CResidue *, morph_rtop_t
    f.close();
 }
 
+
+// maybe extra parameters are needed here (e.g. for colouring later, perhaps).
+void
+coot::extra_restraints_representation_t::add_parallel_plane(const lsq_plane_info_t &pi_1,
+							    const lsq_plane_info_t &pi_2) {
+
+      double offset_d = 0.4;
+      clipper::Coord_orth n_1 = pi_1.normal();
+      clipper::Coord_orth n_2 = pi_2.normal();
+      clipper::Coord_orth offset_pt_1_a = pi_1.centre() + offset_d * n_1;
+      clipper::Coord_orth offset_pt_1_b = pi_1.centre() - offset_d * n_1;
+      clipper::Coord_orth offset_pt_2_a = pi_2.centre() + offset_d * n_2;
+      clipper::Coord_orth offset_pt_2_b = pi_2.centre() - offset_d * n_2;
+
+      clipper::Coord_orth op_1 = offset_pt_1_a;
+      if (clipper::Coord_orth(offset_pt_1_b - pi_2.centre()).lengthsq() <
+	  clipper::Coord_orth(offset_pt_1_a - pi_2.centre()).lengthsq())
+	 op_1 = offset_pt_1_b;
+      clipper::Coord_orth op_2 = offset_pt_2_a;
+      if (clipper::Coord_orth(offset_pt_2_b - pi_1.centre()).lengthsq() <
+	  clipper::Coord_orth(offset_pt_2_a - pi_1.centre()).lengthsq())
+	 op_2 = offset_pt_2_b;
+	 
+      extra_parallel_planes_restraints_representation_t eppr_1(op_1, pi_1.normal(), 1.6);
+      extra_parallel_planes_restraints_representation_t eppr_2(op_2, pi_2.normal(), 1.6);
+      parallel_planes.push_back(eppr_1);
+      parallel_planes.push_back(eppr_2);
+
+      double f_top_1 = -(pi_2.a()*op_1.x() + pi_2.b()*op_1.y() + pi_2.c()*op_1.z() - pi_2.d());
+      double f_top_2 = -(pi_1.a()*op_2.x() + pi_1.b()*op_2.y() + pi_1.c()*op_2.z() - pi_1.d());
+      double f_bot   = pi_2.a() * pi_1.a() + pi_2.b() * pi_1.b() + pi_2.c() * pi_1.c();
+      double s_1 = f_top_1/f_bot;
+      double s_2 = f_top_2/f_bot;
+
+      clipper::Coord_orth projected_plane_pt_1 = op_1 + s_1 * pi_1.normal();
+      clipper::Coord_orth projected_plane_pt_2 = op_2 + s_2 * pi_2.normal();
+      extra_bond_restraints_respresentation_t br_1(op_1, projected_plane_pt_1, -1, -1);
+      extra_bond_restraints_respresentation_t br_2(op_2, projected_plane_pt_2, -1, -1);
+      bonds.push_back(br_1);
+      bonds.push_back(br_2);
+}

@@ -509,6 +509,10 @@ namespace coot {
       clipper::Coord_orth centre() const {
 	 return centre_;
       }
+      double a() const { return abcd[0]; }
+      double b() const { return abcd[1]; }
+      double c() const { return abcd[2]; }
+      double d() const { return abcd[3]; }
    };
 
    
