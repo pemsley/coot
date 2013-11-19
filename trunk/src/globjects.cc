@@ -109,20 +109,34 @@ std::vector<molecule_class_info_t> graphics_info_t::molecules;
 // and rotation centre.
 
 #if !defined WINDOWS_MINGW
+
 #ifdef USE_GUILE
+#ifdef USE_GUILE_GTK
 bool graphics_info_t::prefer_python = 0; // prefer python scripts when
 					 // scripting (if we have a
 					 // choice). Default: no.
 #else
 #ifdef USE_PYTHON
+bool graphics_info_t::prefer_python = 1; // prefer python (gui) when no
+                                         // guile gui. Fixes (place-strand-here-gui)
+                                         // problem when there is no guile-gtk
+#else
+// guile but not guile-gui, and not python
+bool graphics_info_t::prefer_python = 0;
+#endif // USE_PYTHON test
+#endif // USE_GUILE_GTK test
+
+
+#else // USE_GUILE test (no guile path)
+#ifdef USE_PYTHON
 bool graphics_info_t::prefer_python = 1; // Python, not guile
 #else
 bool graphics_info_t::prefer_python = 0; // no GUILE or PYTHON
 #endif // python test
-#endif // guile test
-#else
+#endif // USE_GUILE test
+#else // Windows test (windows path)
 bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
-#endif // window test
+#endif // windows test
 
 short int graphics_info_t::python_at_prompt_flag = 0;
 
