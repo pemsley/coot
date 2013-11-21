@@ -3430,7 +3430,7 @@ coot::my_df_parallel_planes(const gsl_vector *v,
 	    unsigned int n_plane_atoms = ppr.atom_index.size();
 	    double weight = 1/(ppr.sigma * ppr.sigma);
 	    for (int j=0; j<n_plane_atoms; j++) {
-	       if (! (*restraints)[i].fixed_atom_flags[j] ) { 
+	       if (! ppr.fixed_atom_flags[j] ) { 
 		  idx = 3*ppr.atom_index[j];
 		  devi_len =
 		     plane_info.abcd[0]*(gsl_vector_get(v,idx  ) - plane_info.centre_1.x()) + 
@@ -3445,18 +3445,16 @@ coot::my_df_parallel_planes(const gsl_vector *v,
 		  // std::cout << "pp first plane devi len " << devi_len << " and gradients "
 		  // << d.format() << std::endl;
 
-		  if (!(*restraints)[i].fixed_atom_flags[j]) { 
-		     gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + d.dx());
-		     gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + d.dy());
-		     gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + d.dz());
-		  }
+		  gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + d.dx());
+		  gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + d.dy());
+		  gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + d.dz());
 	       }
 	    }
 
 	    // second plane
 	    n_plane_atoms = ppr.atom_index_other_plane.size();
 	    for (int j=0; j<n_plane_atoms; j++) {
-	       if (! (*restraints)[i].fixed_atom_flags[j] ) { 
+	       if (! ppr.fixed_atom_flags_other_plane[j] ) {
 		  idx = 3*ppr.atom_index_other_plane[j];
 		  devi_len =
 		     plane_info.abcd[0]*(gsl_vector_get(v,idx  ) - plane_info.centre_2.x()) + 
@@ -3468,11 +3466,9 @@ coot::my_df_parallel_planes(const gsl_vector *v,
 					       2.0 * weight * devi_len * plane_info.abcd[1],
 					       2.0 * weight * devi_len * plane_info.abcd[2]);
 
-		  if (!(*restraints)[i].fixed_atom_flags_other_plane[j]) { 
-		     gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + d.dx());
-		     gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + d.dy());
-		     gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + d.dz());
-		  }
+		  gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + d.dx());
+		  gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + d.dy());
+		  gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + d.dz());
 	       }
 	    }
 	 }
