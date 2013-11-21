@@ -358,6 +358,7 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std:
    }
 
    std::map<CResidue *, morph_rtop_triple>::const_iterator it;
+   // std::cout << "rtop_map.size(): " << rtop_map.size() << std::endl;
    if (rtop_map.size()) {
       success = 1;
       make_backup();
