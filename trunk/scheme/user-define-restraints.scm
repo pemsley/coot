@@ -71,7 +71,8 @@
 					  (list-ref (list-ref atom-specs 1) 6)
 					  bl 0.035))))))))))
 
-
+;; spec-1 and spec-2 are 7-element atom-specs
+;; 
 (define (add-base-restraint imol spec-1 spec-2 atom-name-1 atom-name-2 dist)
   (format #t "add-base-restraint ~s ~s ~s ~s ~s ~s~%" imol spec-1 spec-2 atom-name-1 atom-name-2 dist)
   (add-extra-bond-restraint imol
@@ -107,6 +108,25 @@
     (add-base-restraint imol spec-1 spec-2 " C4 " " N1 " 7.73)
     (add-base-restraint imol spec-1 spec-2 " C5 " " C5 " 7.21)))
 
+(define (dna-a-t-restraints spec-1 spec-2)
+
+  (let ((imol (cadr spec-1)))
+    (add-base-restraint imol spec-1 spec-2 " C2 " " O2 " 3.49)
+    (add-base-restraint imol spec-1 spec-2 " N1 " " N3 " 2.85)
+    (add-base-restraint imol spec-1 spec-2 " N6 " " O4 " 3.23)
+    (add-base-restraint imol spec-1 spec-2 " C6 " " C8 " 9.94)
+    (add-base-restraint imol spec-1 spec-2 " N1 " " O2 " 3.52)))
+
+(define (dna-g-c-restraints spec-1 spec-2)
+    
+  (let ((imol (cadr spec-1)))
+    (add-base-restraint imol spec-1 spec-2 " O6 " " N4 " 2.72)
+    (add-base-restraint imol spec-1 spec-2 " N1 " " N3 " 2.81)
+    (add-base-restraint imol spec-1 spec-2 " N2 " " O2 " 2.83)
+    (add-base-restraint imol spec-1 spec-2 " N9 " " N1 " 8.83)))
+
+
+
 (define (user-defined-RNA-A-form)
   (user-defined-click 2
 		      (lambda (atom-specs)
@@ -130,6 +150,30 @@
 			    (if (and (string=? res-name-1 "U")
 				     (string=? res-name-2 "A"))
 				(a-u-restraints spec-2 spec-1)))))))
+
+(define (user-defined-DNA-B-form)
+  (user-defined-click 2
+		      (lambda (atom-specs)
+			(let ((spec-1 (list-ref atom-specs 0))
+			      (spec-2 (list-ref atom-specs 1)))
+			  (let ((res-name-1 (res-name-from-atom-spec spec-1))
+				(res-name-2 (res-name-from-atom-spec spec-2)))
+
+			    (if (and (string=? res-name-1 "DG")
+				     (string=? res-name-2 "DC"))
+				(dna-g-c-restraints spec-1 spec-2))
+
+			    (if (and (string=? res-name-1 "DC")
+				     (string=? res-name-2 "DG"))
+				(dna-g-c-restraints spec-2 spec-1))
+
+			    (if (and (string=? res-name-1 "DA")
+				     (string=? res-name-2 "DT"))
+				(dna-a-t-restraints spec-1 spec-2))
+
+			    (if (and (string=? res-name-1 "DT")
+				     (string=? res-name-2 "DA"))
+				(dna-a-t-restraints spec-2 spec-1)))))))
 
 (define (user-defined-add-helix-restraints)
     (user-defined-click 
@@ -259,9 +303,78 @@
 	    (add-refmac-extra-restraints imol-target prosmart-out))))))
 
 
+(define (res-name->plane-atom-name-list res-name)
+
+  (cond 
+   ((not (string? res-name)) #f)
+   ((string=? res-name  "DG")
+    (list "N1" "C6" "O6" "C2" "N2" "N3" "C5" "C4" "N9" "N7" "C8" "C1'"))
+   ((string=? res-name  "DA")
+    (list "N1" "C6" "C2" "N6" "N3" "C5" "C4" "N9" "N7" "C8" "C1'"))
+   ((string=? res-name  "DT")
+    (list "N3" "C2" "O2" "C4" "O4" "C5" "C7" "C6" "N1" "C1'"))
+   ((string=? res-name  "DC")
+    (list "N3" "C2" "O2" "C4" "N4" "C5"      "C6" "N1" "C1'"))
+
+   ((string=? res-name  "G")
+    (list "N1" "C6" "O6" "C2" "N2" "N3" "C5" "C4" "N9" "N7" "C8" "C1'"))
+   ((string=? res-name  "A")
+    (list "N1" "C6" "C2" "N6" "N3" "C5" "C4" "N9" "N7" "C8" "C1'"))
+   ((string=? res-name  "T")
+    (list "N3" "C2" "O2" "C4" "O4" "C5" "C7" "C6" "N1" "C1'"))
+   ((string=? res-name  "U")
+    (list "N3" "C2" "O2" "C4" "O4" "C5"      "C6" "N1" "C1'"))
+   ((string=? res-name  "C")
+    (list "N3" "C2" "O2" "C4" "N4" "C5"      "C6" "N1" "C1'"))
+   (else (list))))
+
+
+;; exte stac plan 1  firs resi 99 chai A atoms { CB CG CD1 CD2 CE1 CE2 CZ OH }  plan 2  firs resi 61 chai B atoms { CB CG CD1 CD2 CE1 CE2 CZ }  dist 3.4 sddi 0.2  sdan 6.0 type 1 
+;; 
+(define (write-refmac-parallel-plane-restraint file-name res-spec-0 res-spec-1 atom-list-0 atom-list-1)
+
+  (call-with-output-file file-name
+    (lambda (port)
+      (display "EXTE STACK PLAN 1 FIRST RESIDUE " port)
+      (display (residue-spec->res-no res-spec-0) port)
+      (display " CHAIN " port)
+      (display (residue-spec->chain-id res-spec-0) port)
+      (display " ATOMS { " port)
+      (for-each (lambda (atom-name)
+		  (display " " port)
+		  (display atom-name port)
+		  (display " " port))
+		atom-list-0)
+      (display " } PLAN 2 FIRST RESIDUE " port)
+      (display (residue-spec->res-no res-spec-1) port)
+      (display " CHAIN " port)
+      (display (residue-spec->chain-id res-spec-1) port)
+      (display " ATOMS { " port)
+      (for-each (lambda (atom-name)
+		  (display " " port)
+		  (display atom-name port)
+		  (display " " port))
+		atom-list-1)
+      (display " } DIST 3.4 SDDI 0.2 SDAN 6.0 TYPE 1 " port))))
+
+
+(define (add-parallel-planes-restraint imol rs-0 rs-1)
+
+  (format #t "in add-parallel-planes-restraint: rs-0: ~s rs-1 ~s ~%" rs-0 rs-1)
+
+  (let* ((rn-0 (residue-spec->residue-name imol rs-0))
+	 (rn-1 (residue-spec->residue-name imol rs-1))
+	 (atom-ls-0 (res-name->plane-atom-name-list rn-0))
+	 (atom-ls-1 (res-name->plane-atom-name-list rn-1)))
+
+  (write-refmac-parallel-plane-restraint "tmp.rst" rs-0 rs-1 atom-ls-0 atom-ls-1)
+  (add-refmac-extra-restraints imol "tmp.rst")))
+
+
+
 (if (defined? 'coot-main-menubar)
 
-    (let* ((menu (coot-menubar-menu "Extras")))
+    (let* ((menu (coot-menubar-menu "Restraints")))
       
       (add-simple-coot-menu-menuitem 
        menu "Add Simple C-C Single Bond Restraint..."
@@ -278,6 +391,10 @@
       (add-simple-coot-menu-menuitem
        menu "RNA A form bond restraints..."
        user-defined-RNA-A-form)
+
+      (add-simple-coot-menu-menuitem
+       menu "DNA B form bond restraints..."
+       user-defined-DNA-B-form)
 
       (add-simple-coot-menu-menuitem
        menu "ProSMART..."
@@ -320,7 +437,7 @@
 
 
       (add-simple-coot-menu-menuitem
-       menu "Read ProSMART Restraints..."
+       menu "Read Refmac Extra Restraints..."
        (lambda ()
          (generic-chooser-and-file-selector 
           "Apply restraints to molecule"
@@ -329,13 +446,13 @@
             (add-refmac-extra-restraints imol file-name)))))
 
       (add-simple-coot-menu-menuitem
-       menu "Undisplay ProSMART Extra Restraints..."
+       menu "Undisplay Extra Restraints..."
        (lambda ()
          (using-active-atom
           (set-show-extra-restraints aa-imol 0))))
          
       (add-simple-coot-menu-menuitem
-       menu "Display proSMART Extra Restraints..."
+       menu "Display ProSMART Extra Restraints..."
        (lambda ()
          (using-active-atom
           (set-show-extra-restraints aa-imol 1))))
@@ -370,8 +487,41 @@
 					    " Restraints file name:  " 
 					    "refmac-restraints.txt"
 					    (lambda (imol file-name)
-					      (extra-restraints->refmac-restraints-file imol file-name)))))))
+					      (extra-restraints->refmac-restraints-file imol file-name)))))
 
-;; Now make helix restraints, demonstrate with Bill Weiss, GPCR bent
-;; helix
+
+    (let ((menu (coot-menubar-menu "Restraints")))
+      (add-simple-coot-menu-menuitem 
+       menu "Add Parallel Planes restraint..."
+       (lambda ()
+
+	 (add-status-bar-text "Click on 2 residues to define the additional parallel planes restraint")
+	 (user-defined-click 2 (lambda (atom-specs)
+
+				 (let* ((atom-0 (list-ref atom-specs 0))
+					(atom-1 (list-ref atom-specs 1))
+					(rs-0 (atom-spec->residue-spec atom-0))
+					(rs-1 (atom-spec->residue-spec atom-1))
+					(imol (atom-spec->imol atom-0)))
+				   
+
+				   (let ((rn-0 (residue-name imol
+							     (residue-spec->chain-id (atom-spec->residue-spec atom-0))
+							     (residue-spec->res-no   (atom-spec->residue-spec atom-0))
+							     (residue-spec->ins-code (atom-spec->residue-spec atom-0))))
+					 (rn-1 (residue-name imol
+							     (residue-spec->chain-id (atom-spec->residue-spec atom-1))
+							     (residue-spec->res-no   (atom-spec->residue-spec atom-1))
+							     (residue-spec->ins-code (atom-spec->residue-spec atom-1)))))
+					 
+				     (format #t "got resname 0 ~s ~%" rn-0)
+				     (format #t "got resname 1 ~s ~%" rn-1)
+
+				     (let ((atom-ls-0 (res-name->plane-atom-name-list rn-0))
+					   (atom-ls-1 (res-name->plane-atom-name-list rn-1)))
+
+				       (write-refmac-parallel-plane-restraint "tmp.rst" rs-0 rs-1 atom-ls-0 atom-ls-1)
+				       (add-refmac-extra-restraints imol "tmp.rst")
+
+				       ))))))))))
 
