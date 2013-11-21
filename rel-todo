@@ -3,9 +3,14 @@
 
 ----
 
+   o save_state_file() needs to write a python file when called from
+     python (redefine save_save_file_py()).
+
    o sharpen a patterson. Kevin message
 
    o Remove -lXmu and see what happens.
+
+   o guile without guile-gui  (#f Unbound variable: ~S (place-strand-here-gui) #f))
 
    o libtool usage goo-canvas check.
 
@@ -40,6 +45,9 @@
    o Lidia: Need atom label CH3 (or CH2) at end of bonds
 
    o validate real metals for coordination (instead of only waters)?
+
+   o Felix Frolow: (copy-residue-range-from-ncs-master-to-chains 0 "A" 1 500 (list "B" "C" "D" "E")) 
+     but master chain is not A.
 
    o Strange canvas scrolling with big RNA 
 
