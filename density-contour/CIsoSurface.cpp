@@ -582,14 +582,15 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
   }
 
   clipper::Xmap_base::Map_reference_coord ix( crystal_map ); 
-  int icount = 0; 
-  for ( int w = grid.min().w(); w <= grid.max().w(); w+=isample_step ) { 
-     for ( int v = grid.min().v(); v <= grid.max().v(); v+=isample_step ) {
-        ix.set_coord( clipper::Coord_grid( grid.min().u(), v, w ) ); 
-        for ( int u = grid.min().u(); u <= grid.max().u(); u+= isample_step ) { 
+  int icount = 0;
+  int w, v, u, ii;
+  for (w = grid.min().w(); w <= grid.max().w(); w+=isample_step ) { 
+     for (v = grid.min().v(); v <= grid.max().v(); v+=isample_step ) {
+        ix.set_coord(clipper::Coord_grid( grid.min().u(), v, w )); 
+        for (u = grid.min().u(); u <= grid.max().u(); u+= isample_step ) { 
            ptScalarField[icount] = crystal_map[ ix ]; 
            icount++;
-	   for(int ii=0; ii<isample_step; ii++) 
+	   for(ii=0; ii<isample_step; ii++) 
 	      ix.next_u(); 
         } 
      } 
@@ -601,14 +602,8 @@ CIsoSurface<T>::GenerateSurface_from_Xmap(const clipper::Xmap<T>& crystal_map,
 		  (grid.nw()-1)/isample_step,
 		  isample_step * 1.0, isample_step * 1.0, isample_step * 1.0);
 
-  //morphVertices();
 
   delete [] ptScalarField;
-  //
-  //
-  //cout << "offseting map vectors by "
-  //    << crystal_map.grid_sampling().to_frac(grid.min()).format()
-  //    << endl;
   
   return returnTriangles( crystal_map,
 			  grid.min().coord_frac(crystal_map.grid_sampling()),
@@ -1560,7 +1555,7 @@ do_line(done_line_list_t &done_line_list, int j, int jp) {
 }
 
 
-template <class T> // vector<CartesianPair>
+template <class T>
 coot::CartesianPairInfo
 CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
 				 const clipper::Coord_frac& base,
@@ -1571,13 +1566,13 @@ CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
    T nv = xmap.grid_sampling().nv();
    T nw = xmap.grid_sampling().nw();
 
-
-   // vector<CartesianPair> result;
    coot::CartesianPair *result = new coot::CartesianPair[m_nTriangles*3]; // at most it can be this
    int line_index = 0; // indexer of the result array.
    
    clipper::Coord_frac cf;
    clipper::Coord_orth co1, co2, co3;
+   float radius_sqd = radius * radius;
+   clipper::Coord_orth centre_clipper(centre.x(), centre.y(), centre.z());
 
    done_line_list_t done_line_list;
 
@@ -1590,6 +1585,10 @@ CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
    coot::Cartesian co1_c;
    coot::Cartesian co2_c;
    coot::Cartesian co3_c;
+
+   bool valid_co_1 = true;
+   bool valid_co_2 = true;
+   bool valid_co_3 = true;
    
    for (unsigned int i=0; i < m_nTriangles*3; i+=3) {
 
@@ -1628,19 +1627,35 @@ CIsoSurface<T>::returnTriangles( const clipper::Xmap<T>& xmap,
       // Cartesian co1_c ( co1.x(), co1.y(), co1.z() );
       // Cartesian co2_c ( co2.x(), co2.y(), co2.z() );
       // Cartesian co3_c ( co3.x(), co3.y(), co3.z() );
+      // if (d1_2 == 1) 
+      //    result.push_back(coot::CartesianPair(co1_c, co2_c));
+      // if (d1_3 == 1) 
+      //    result.push_back(coot::CartesianPair(co1_c, co3_c));
+      // if (d2_3 == 1) 
+      //    result.push_back(coot::CartesianPair(co3_c, co2_c));
 
-      if (d1_2 == 1) 
-	 //	 result.push_back(coot::CartesianPair(co1_c, co2_c));
-	 result[line_index++] = coot::CartesianPair(co1_c, co2_c);
-      if (d1_3 == 1) 
-	 // result.push_back(coot::CartesianPair(co1_c, co3_c));
-	 result[line_index++] = coot::CartesianPair(co1_c, co3_c); 
-      if (d2_3 == 1) 
-	 // result.push_back(coot::CartesianPair(co3_c, co2_c));
-	 result[line_index++] = coot::CartesianPair(co3_c, co2_c);
+      valid_co_1 = true;
+      valid_co_2 = true;
+      valid_co_3 = true;
+
+      if ((co1_c-centre).amplitude_squared() > radius_sqd)
+	 valid_co_1 = false;
+      if ((co2_c-centre).amplitude_squared() > radius_sqd)
+	 valid_co_2 = false;
+      if ((co3_c-centre).amplitude_squared() > radius_sqd)
+	 valid_co_3 = false;
+
+      if (valid_co_1 && valid_co_2)
+	 if (d1_2 == 1) 
+	    result[line_index++] = coot::CartesianPair(co1_c, co2_c);
+      if (valid_co_1 && valid_co_3)
+	 if (d1_3 == 1) 
+	    result[line_index++] = coot::CartesianPair(co1_c, co3_c); 
+      if (valid_co_2 && valid_co_3)
+	 if (d2_3 == 1) 
+	    result[line_index++] = coot::CartesianPair(co3_c, co2_c);
 
       done_count += d1_2 + d1_3 + d2_3;
-      
 	 
    }
 
