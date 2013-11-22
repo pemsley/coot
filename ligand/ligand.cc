@@ -103,6 +103,10 @@ coot::ligand::ligand() {
    write_raw_waters = 0; // default not, Eleanor wants them on
 			 // however, so a function to turn them on is
 			 // provided.
+
+   water_molecule_volume = 11.0; // 11 captures the phosphate and the
+				 // ligand in the tutorial, 15 does
+				 // not!
    
    dont_test_rotations = 0;  // do test (the following) rotations by default.
    fit_fraction = 0.75;
@@ -303,7 +307,7 @@ coot::ligand::mask_map(CMMDBManager *mol, short int mask_waters_flag) {
    realtype xmc, ymc, zmc; // filled by reference
    GetMassCenter (atoms, n_atoms, xmc, ymc, zmc);
    protein_centre = clipper::Coord_orth(xmc, ymc, zmc);
-   std::cout << "Protein centre at: " << protein_centre.format() << std::endl; 
+   std::cout << "INFO:: Protein centre at: " << protein_centre.format() << std::endl; 
 
    // std::cout << "masking....";
    for(int i=0; i<n_atoms; i++) {
@@ -829,13 +833,15 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
 	     << " (" << z_cut_off_in << " sigma) ";
    std::cout << " (mean " << xmap_masked_stats.second.first
 	     << " stdev: " << xmap_masked_stats.second.second << ")" << std::endl;
+   std::cout << "INFO:: Blobs with volume larger than " << water_molecule_volume 
+	     << " A^3 are too big to be considered waters." << std::endl;
    std::cout << "INFO:: Using water to protein distance limits: "
 	     << water_to_protein_distance_lim_min << " "
 	     << water_to_protein_distance_lim_max << std::endl;
       
    
    clipper::Xmap_base::Map_reference_index ix;
-   std::cout << "Finding clusters...";
+   std::cout << "INFO:: Finding clusters...";
    std::cout.flush();
    clipper::Xmap<int> cluster_map;
    cluster_map.init(xmap_pristine.spacegroup(), xmap_pristine.cell(), 
@@ -885,7 +891,7 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
 	 }
       }
    }
-   std::cout << "done" << std::endl;
+   std::cout << "done" << std::endl; // finding clusters.
 
    calculate_cluster_centres_and_eigens();
    move_ligand_centres_close_to_protein(sampled_protein_coords);
@@ -1308,6 +1314,19 @@ coot::compare_clusters(const map_point_cluster &a,
 
    return (a.score > b.score); 
 }
+
+
+double
+coot::map_point_cluster::volume(const clipper::Xmap<float> &xmap_ref) const {
+
+   double cell_vol = xmap_ref.cell().volume();
+   double n_grid_pts =
+      xmap_ref.grid_sampling().nu() *
+      xmap_ref.grid_sampling().nv() *
+      xmap_ref.grid_sampling().nw();
+   double grid_point_vol = cell_vol/n_grid_pts;
+   return map_grid.size() * grid_point_vol;
+} 
 
 void
 coot::ligand::print_cluster_details() const {

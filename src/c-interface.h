@@ -4636,6 +4636,9 @@ void execute_find_blobs_from_widget(GtkWidget *dialog);
 
 GtkWidget *wrapped_create_unmodelled_blobs_dialog();
 
+/* there is also a c++ interface to find blobs, which returns a vector
+   of pairs (currently) */
+
 /*! \begin split the given water and fit to map.
 
 If refinement map is not defined, don't do anything.

@@ -97,6 +97,7 @@
 (define kolmogorov-smirnov kolmogorov-smirnov-scm)
 (define kullback-liebler kullback-liebler-scm)
 (define chain-fragments chain-fragments-scm)
+(define find-blobs find-blobs-scm)
 
 ;; I changed the function name - save those (just a few) with scripts that I've handed out
 (define toggle-idle-ligand-interactions toggle-flev-idle-ligand-interactions)

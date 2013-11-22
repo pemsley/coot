@@ -687,6 +687,7 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 /*  ----------------------------------------------------------------------- */
 /*                  rigid body fitting (multiple residue ranges)            */
 /*  ----------------------------------------------------------------------- */
+
 // return 0 on fail to refine (no sensible place to put atoms) and 1
 // on fitting happened.
 int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue_range_t> &ranges);
@@ -705,6 +706,18 @@ int morph_fit_chain(int imol, std::string chain_id, float transformation_averagi
 
 std::vector<coot::atom_spec_t>
 check_waters_baddies(int imol, float b_factor_lim, float map_sigma_lim, float min_dist, float max_dist, short int part_occ_contact_flag, short int zero_occ_flag, short int logical_operator_and_or_flag);
+
+// blobs, returning position and volume
+// 
+std::vector<std::pair<clipper::Coord_orth, double> >
+find_blobs(int imol_model, int imol_map, float cut_off_density_level);
+
+#ifdef USE_GUILE
+SCM find_blobs_scm(int imol_model, int imol_map, float cut_off_density_level);
+#endif 
+#ifdef USE_PYTHON
+PyObject *find_blobs_py(int imol_model, int imol_map, float cut_off_density_level);
+#endif 
 
 /*  ----------------------------------------------------------------------- */
 /*                  water chain                                             */

@@ -3,10 +3,31 @@
 
 ----
 
+   o look at 3owu for symmetry expansion (symmetry lies over main
+     molecule?)
+
    o save_state_file() needs to write a python file when called from
      python (redefine save_save_file_py()).
 
-   o sharpen a patterson. Kevin message
+   o sharpen a Patterson. Kevin message
+
+   o need a test to see if hydrogens are properly swapped on a
+     nomenclature change on a TYR.
+
+   o Ligand fitting is broken.  Why does it work with 
+     (set-find-ligand-multi-solutions-per-cluster 0.88 0.88)
+
+   o GLC pyranose 1-4 linked template.
+
+   o PISA Interfaces surface colours are wrong. 
+
+   o 1r9f fails to load from PDBe.
+
+   o add surface and ball and stick ligand to tutorial.
+
+   o hydrophobicity surface for next year.
+
+   o Sharpen a Patterson. Kevin message.
 
    o Remove -lXmu and see what happens.
 
@@ -24,7 +45,6 @@
 
     That also should write a state file. (user can use quick-save-as
     if they want)
-
 
    o Fix CA mode with MSEs
 
