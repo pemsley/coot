@@ -358,6 +358,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 							   (card_word_0.substr(0, 4) == "MPLA") ||
 							   (card_word_0.substr(0, 4) == "HOPE") ||
 							   (card_word_0.substr(0, 4) == "EXTI") ||
+							   (card_word_0.substr(0, 4) == "XNPD") ||
 							   (card_word_0.substr(0, 4) == "WPDB")) { 
 						      } else {
 							 if (card_word_0.substr(0, 4) == "LATT") {
@@ -650,22 +651,31 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
       at->x = atof(card.words[2].c_str());
       at->y = atof(card.words[3].c_str());
       at->z = atof(card.words[4].c_str());
-      float occupancy = 11.0;
+      float occupancy = 1.0;
       float b_synth= 10.0;
-   
-      if (card.words.size() > 5)
-	 occupancy = atof(card.words[5].c_str()); // 11.0
-      at->SetCoordinates(atof(card.words[2].c_str()),
-			 atof(card.words[3].c_str()),
-			 atof(card.words[4].c_str()),
-			 occupancy, b_synth);
-      at->SetElementName(element.c_str());
-      strncpy(at->altLoc, altconf.c_str(), 2);
+
+      std::cout << "------------------------- here 1 occupancy " << occupancy << std::endl;
+
+      try { 
+	 if (card.words.size() > 5)
+	    occupancy = util::string_to_float(card.words[5]); // 11.0
+	 
+	 at->SetCoordinates(util::string_to_float(card.words[2].c_str()),
+			    util::string_to_float(card.words[3].c_str()),
+			    util::string_to_float(card.words[4].c_str()),
+			    occupancy, b_synth);
+	 std::cout << "------------------------- here 2 occupancy " << occupancy << std::endl;
+	 at->SetElementName(element.c_str());
+	 strncpy(at->altLoc, altconf.c_str(), 2);
+      }
+      catch (const std::runtime_error &rte) {
+	 // do nothing
+      }
       if (card.words.size() >= 5) {
+	 
 // 	 for (unsigned int iword=0; iword<card.words.size(); iword++) {
 // 	    std::cout << "    " << iword << " " << card.words[iword] << std::endl;
 // 	 }
-
 
 	 // What makes an atom non-riding?
 	 // 
