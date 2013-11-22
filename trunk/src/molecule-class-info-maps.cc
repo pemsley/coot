@@ -1694,7 +1694,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
        int c = getc(file);
        if ( c == EOF ) break;
        if ( c == 0 )                                 c1++;
-       if ( isalpha(c) || isdigit(c) || isspace(c) ) c2++;
+       if ( std::isalpha(c) || std::isdigit(c) || std::isspace(c) ) c2++;
      }
      if ( c1 > c2 ) map_file_type = CCP4;
      else           map_file_type = CNS;
