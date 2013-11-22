@@ -58,7 +58,7 @@ namespace coot {
       float y() const { return y_;};
       float z() const { return z_;};
 
-      Cartesian(float a, float b, float c); 
+      Cartesian(float xi, float yi, float zi) { x_ = xi; y_ = yi; z_ = zi; }
       Cartesian();
 
       Cartesian(const clipper::Coord_orth &pt) {
@@ -72,12 +72,12 @@ namespace coot {
 
 
       float amplitude(void) const;
-      float amplitude_squared(void) const;
+      float amplitude_squared(void) const { return (x_*x_ + y_*y_ + z_*z_); }
       float length(void) const { return amplitude(); }
       short int  normalize();  // return success status 0: fails, 1: OK
 
-      Cartesian operator+(const Cartesian &) const;
-      Cartesian operator-(const Cartesian &) const;
+      Cartesian operator+(const Cartesian &in1) const { return Cartesian(x_+in1.x_, y_+in1.y_, z_+in1.z_); }
+      Cartesian operator-(const Cartesian &in1) const { return Cartesian(x_-in1.x_, y_-in1.y_, z_-in1.z_); }
       Cartesian operator*(const float &f) const;
 
       void operator+=(const Cartesian &);

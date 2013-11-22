@@ -27,31 +27,9 @@
 
 #include "Cartesian.h"
 
-coot::Cartesian::Cartesian(float xi, float yi, float zi) {
-
-   x_ = xi;
-   y_ = yi;
-   z_ = zi;
-
-}
-
-coot::Cartesian 
-coot::Cartesian::operator+(const Cartesian &in1) const {
-   
-   Cartesian out(x_+in1.x_, y_+in1.y_, z_+in1.z_);
-   return out;
-} 
-
-coot::Cartesian
-coot::Cartesian::operator-(const coot::Cartesian &in1) const {
-
-   coot::Cartesian out(x_-in1.x_, y_-in1.y_, z_-in1.z_);
-   return out;
-}
 
 coot::Cartesian
 coot::Cartesian::operator*(const float &f) const {
-   
    return coot::Cartesian(x_*f, y_*f, z_*f);
 } 
 
@@ -280,11 +258,6 @@ coot::cos_angle_btwn_vecs(const coot::Cartesian &v1, const coot::Cartesian &v2) 
 float coot::Cartesian::amplitude(void) const {
 
    return sqrt(x_*x_ + y_*y_ + z_*z_);
-}
-
-float coot::Cartesian::amplitude_squared(void) const {
-
-   return (x_*x_ + y_*y_ + z_*z_);
 }
 
 coot::Cartesian

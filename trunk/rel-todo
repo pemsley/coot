@@ -19,6 +19,10 @@
 
    o GLC pyranose 1-4 linked template.
 
+   o Does rubber-banding in sphere-refine mode move the fixed environment residues?
+	
+   o Are active residues bumping off environment residues in sphere-refine mode?
+
    o PISA Interfaces surface colours are wrong. 
 
    o 1r9f fails to load from PDBe.
