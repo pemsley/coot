@@ -374,21 +374,21 @@ main(int argc, char **argv) {
 			
 		     } else { 
 			
-		       if (blobs_mode) { 
-			 int n_cycles = 1;
-			 lig.water_fit(input_sigma_level, n_cycles);
-			 unsigned int n_big_blobs = lig.big_blobs().size();
-			 if (n_big_blobs) { 
-			   std::cout << "=============== start blob-table ==========\n";
-			   for (unsigned int i=0; i<n_big_blobs; i++) { 
-			     std::cout << "  blob " << i << " " << lig.big_blobs()[i].format()
-				       << std::endl;
+			if (blobs_mode) { 
+			   int n_cycles = 1;
+			   lig.water_fit(input_sigma_level, n_cycles);
+			   unsigned int n_big_blobs = lig.big_blobs().size();
+			   if (n_big_blobs) { 
+			      std::cout << "=============== start blob-table ==========\n";
+			      for (unsigned int i=0; i<n_big_blobs; i++) { 
+				 std::cout << "  blob " << i << " " << lig.big_blobs()[i].first.format()
+					   << " " << lig.big_blobs()[i].second << std::endl;
+			      } 
+			      std::cout << "=============== end blob-table ==========\n";
 			   } 
-			   std::cout << "=============== end blob-table ==========\n";
-			 } 
-		       } else { 
-			 lig.find_clusters(input_sigma_level);
-		       }
+			} else { 
+			   lig.find_clusters(input_sigma_level);
+			}
 		     }
 		     // install ligands:
 		     for (unsigned int ilig=0; ilig<lig_files.size(); ilig++)

@@ -56,7 +56,7 @@ coot::ligand::cluster_is_possible_water(int i) const {
       xmap_pristine.grid_sampling().nw();
 
    float grid_vol = vol/ngrid;
-   float n_grid_lim = 11.0/grid_vol; // 15 is 4/3 Pi r^3: with r=1.53
+   float n_grid_lim = water_molecule_volume/grid_vol; // 15 is 4/3 Pi r^3: with r=1.53
 
 //    std::cout << "n_grid_lim is " << n_grid_lim
 // 	     << " map_grid size: " << cluster[i].map_grid.size() << std::endl;
@@ -83,16 +83,22 @@ coot::ligand::cluster_is_possible_water(const coot::map_point_cluster &mpc) cons
       xmap_pristine.grid_sampling().nw();
 
    float grid_vol = vol/ngrid;
-   float n_grid_lim = 11.0/grid_vol; // 15 is 4/3 Pi r^3: with r=1.53
+   float n_grid_lim = water_molecule_volume/grid_vol; // 15 is 4/3 Pi r^3: with r=1.53
 
    if (mpc.map_grid.size() < n_grid_lim) {
       return 1;
    } else {
       return 0;
    }
-
-
 }
+
+// Things above this volume limit are too bit to be waters.  What is that limit?
+// 
+double
+coot::ligand::possible_water_volume_limit() const {
+
+   return water_molecule_volume;
+} 
 
 
 // In the case of waters, the search map is the masked map.
@@ -359,7 +365,7 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
    std::vector<clipper::Coord_orth> water_list;
    std::vector<clipper::Coord_orth> this_round_water_list;
    std::vector<clipper::Coord_orth> raw_water_list;
-   std::vector<clipper::Coord_orth> blobs;
+   std::vector<std::pair<clipper::Coord_orth, double> > blobs;
 
    // xmap_cluster is fine at start
    // output_map(xmap_cluster, "xmap_cluster_start_water_fit.map");
@@ -427,7 +433,9 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
 	       if (iround == 0) {
 		  std::cout << "INFO:: cluster at " << cl_centre.format()
 			    << " is too big to be water\n";
-		  blobs.push_back(cl_centre);
+		  double cl_vol = it->volume(xmap_pristine);
+		  std::pair<clipper::Coord_orth, double> p(cl_centre, cl_vol);
+		  blobs.push_back(p);
 		  iterator_remove_list.push_back(it);
 	       }
 	    }
@@ -456,7 +464,7 @@ coot::ligand::flood() {
    std::cout << "positioning waters in " << cluster.size() 
 	     << " density clusters " << std::endl;
    
-   std::vector<clipper::Coord_orth> blobs;
+   std::vector<std::pair<clipper::Coord_orth, double> > blobs; // is this used in this function!?
    short int found_waters_prev_round_flag = 1;
    float density_cut_off = 0.2;
 

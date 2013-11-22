@@ -464,3 +464,88 @@ void split_water(int imol, const char *chain_id, int res_no, const char *ins_cod
    } 
    graphics_draw();
 } 
+
+
+std::vector<std::pair<clipper::Coord_orth, double> >
+find_blobs(int imol_model, int imol_map, float sigma_cut_off) {
+
+   std::vector<std::pair<clipper::Coord_orth, double> > r;
+
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+	 
+	 graphics_info_t g;
+	 short int mask_waters_flag = g.find_ligand_mask_waters_flag;
+	 int n_cycles = 1;
+	 
+	 coot::ligand lig;
+	 
+	 lig.import_map_from(g.molecules[imol_map].xmap_list[0], 
+			     g.molecules[imol_map].map_sigma());
+	 lig.set_map_atom_mask_radius(1.9); // Angstrom
+	 lig.mask_map(g.molecules[imol_model].atom_sel.mol, mask_waters_flag);
+	 // water_fit() makes big blobs
+	 lig.water_fit(sigma_cut_off, n_cycles);
+	 r = lig.big_blobs();
+      } else {
+	 std::cout << "WARNING:: not a valid map molecule " << imol_map << std::endl;
+      } 
+   } else {
+	 std::cout << "WARNING:: not a valid model molecule " << imol_model << std::endl;
+   } 
+   return r;
+}
+
+
+#ifdef USE_GUILE
+SCM find_blobs_scm(int imol_model, int imol_map, float cut_off_sigma) {
+   SCM r = SCM_BOOL_F;
+   std::vector<std::pair<clipper::Coord_orth, double> > v;
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+	 r = SCM_EOL;
+	 v = find_blobs(imol_model, imol_map, cut_off_sigma);
+	 for (unsigned int i=0; i<v.size(); i++) {
+	    SCM l = scm_list_4(scm_double2num(v[i].second),
+			       scm_double2num(v[i].first.x()),
+			       scm_double2num(v[i].first.y()),
+			       scm_double2num(v[i].first.z()));
+	    r = scm_cons(l, r);
+	 }
+	 r = scm_reverse(r);
+      }
+   }
+   return r;
+} 
+#endif
+
+
+#ifdef USE_PYTHON
+PyObject *find_blobs_py(int imol_model, int imol_map, float cut_off_sigma) {
+   
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+	 std::vector<std::pair<clipper::Coord_orth, double> > v =
+	    find_blobs(imol_model, imol_map, cut_off_sigma);
+	 r = PyList_New(v.size());
+	 for (unsigned int i=0; i<v.size(); i++) {
+	    PyObject *vol = PyFloat_FromDouble(v[i].second);
+	    PyObject *pos = PyList_New(3);
+	    PyList_SetItem(pos, 0, PyFloat_FromDouble(v[i].first.x()));
+	    PyList_SetItem(pos, 1, PyFloat_FromDouble(v[i].first.y()));
+	    PyList_SetItem(pos, 2, PyFloat_FromDouble(v[i].first.z()));
+	    PyObject *both = PyList_New(2);
+	    PyList_SetItem(both, 0, pos);
+	    PyList_SetItem(both, 1, vol);
+	    PyList_SetItem(r, i, both);
+	 }
+      }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+}
+#endif 
+
