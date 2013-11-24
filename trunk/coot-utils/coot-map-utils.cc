@@ -1574,6 +1574,19 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 	    std::cout << "    " << iat << " " << atom_selection[iat]->name << " "
 		      << atom_selection[iat] << std::endl;
       }
+
+      // atom selection grid:
+      //
+      // 
+      std::pair<clipper::Coord_orth, clipper::Coord_orth> selection_extents = util::extents(mol, specs);
+      clipper::Coord_frac ex_pt_1_fc = clipper::Coord_orth(selection_extents.first.x()-3,
+							   selection_extents.first.y()-3,
+							   selection_extents.first.z()-3).coord_frac(masked_map.cell());
+      clipper::Coord_frac ex_pt_2_fc = clipper::Coord_orth(selection_extents.second.x()-3,
+							   selection_extents.second.y()-3,
+							   selection_extents.second.z()-3).coord_frac(masked_map.cell());
+      clipper::Grid_map selection_grid(ex_pt_1_fc.coord_grid(masked_map.grid_sampling()),
+				       ex_pt_2_fc.coord_grid(masked_map.grid_sampling()));
       
       for (unsigned int iat=0; iat<n_atoms; iat++) {
 	 clipper::Coord_orth co(atom_selection[iat]->x,
@@ -1596,7 +1609,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 	 float atom_radius_sq = atom_radius * atom_radius;
 
 	 clipper::Xmap_base::Map_reference_coord ix(masked_map, grid.min() ), iu, iv, iw;
-	 for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) { 
+	 for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) { 
 	    for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
 	       for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
 		  if ( (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - co).lengthsq() < atom_radius_sq) {
@@ -1618,27 +1631,55 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       double sum_x_sqd  = 0;
       double sum_y_sqd  = 0;
       double sum_xy = 0;
+      double y;
+      double x;
       int n = 0;
-      for (ix = reference_map.first(); !ix.last(); ix.next()) {
-	 double x = calc_map[ix];
-	 if (! clipper::Util::is_nan(x)) { 
-	    double y = reference_map[ix];
-	    if (! clipper::Util::is_nan(y)) { 
-	       if (masked_map[ix]) {
-		  sum_x  += x;
-		  sum_y  += y;
-		  sum_xy += x * y;
-		  sum_x_sqd += x*x;
-		  sum_y_sqd += y*y;
-		  n++;
-	       }
-	    } else {
-	       std::cout << "ERROR:: oops (reference) map density for " << ix.coord().format()
-			 << " is nan " << std::endl;
-	    } 
-	 } else {
-	    std::cout << "ERROR:: oops calc density for " << ix.coord().format() << " is nan "
-		      << std::endl;
+      
+      // scan all map:
+//       for (ix = reference_map.first(); !ix.last(); ix.next()) {
+// 	 double x = calc_map[ix];
+// 	 if (! clipper::Util::is_nan(x)) { 
+// 	    y = reference_map[ix];
+// 	    if (! clipper::Util::is_nan(y)) { 
+// 	       if (masked_map[ix]) {
+// 		  sum_x  += x;
+// 		  sum_y  += y;
+// 		  sum_xy += x * y;
+// 		  sum_x_sqd += x*x;
+// 		  sum_y_sqd += y*y;
+// 		  n++;
+// 	       }
+// 	    } else {
+// 	       std::cout << "ERROR:: oops (reference) map density for " << ix.coord().format()
+// 			 << " is nan " << std::endl;
+// 	    } 
+// 	 } else {
+// 	    std::cout << "ERROR:: oops calc density for " << ix.coord().format() << " is nan "
+// 		      << std::endl;
+// 	 }
+//       }
+
+      // scan the selection grid
+      // 
+      clipper::Xmap_base::Map_reference_coord iix(masked_map, selection_grid.min() ), iu, iv, iw;
+      for (iu = iix; iu.coord().u() <= selection_grid.max().u(); iu.next_u() ) { 
+	 for (iv = iu; iv.coord().v() <= selection_grid.max().v(); iv.next_v() ) { 
+	    for (iw = iv; iw.coord().w() <= selection_grid.max().w(); iw.next_w() ) {
+	       if (masked_map[iw]) {
+		  x = calc_map[ix];
+		  if (! clipper::Util::is_nan(x)) {
+		     y = reference_map[ix];
+		     if (! clipper::Util::is_nan(y)) {
+			sum_x  += x;
+			sum_y  += y;
+			sum_xy += x * y;
+			sum_x_sqd += x*x;
+			sum_y_sqd += y*y;
+			n++;
+		     }
+		  }
+	       } 
+	    }
 	 }
       }
 
