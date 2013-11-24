@@ -1381,6 +1381,9 @@ namespace coot {
       std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(CMMDBManager *mol);
       std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(CMMDBManager *mol,
 								  int SelectionHandle);
+      std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(CMMDBManager *mol,
+								  const std::vector<residue_spec_t> &specs);
+      
       // pair.second = 0 for failure
       // pair.first  = 1 for success
       //

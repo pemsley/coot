@@ -3804,8 +3804,6 @@ std::pair<clipper::Coord_orth, clipper::Coord_orth>
 coot::util::extents(CMMDBManager *mol,
 		     int SelectionHandle) {
 
-   std::pair<clipper::Coord_orth, clipper::Coord_orth> p;
-
    PCAtom *atoms = NULL;
    int n_selected_atoms;
    mol->GetSelIndex(SelectionHandle, atoms, n_selected_atoms);
@@ -3830,6 +3828,39 @@ coot::util::extents(CMMDBManager *mol,
 
    return std::pair<clipper::Coord_orth, clipper::Coord_orth> (p2, p1);
 }
+
+std::pair<clipper::Coord_orth, clipper::Coord_orth>
+coot::util::extents(CMMDBManager *mol,
+		    const std::vector<residue_spec_t> &specs) {
+
+   float most_x = -99999;
+   float most_y = -99999;
+   float most_z = -99999;
+   float least_x = 99999;
+   float least_y = 99999;
+   float least_z = 99999;
+   for (unsigned int ispec=0; ispec<specs.size(); ispec++) { 
+      CResidue *residue_p = get_residue(specs[ispec], mol);
+      if (residue_p) {
+	 PPCAtom residue_atoms = 0;
+	 int n_residue_atoms;
+	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	    CAtom *at = residue_atoms[iat];
+	    if (at->x < least_x) least_x = at->x;
+	    if (at->y < least_y) least_x = at->y;
+	    if (at->z < least_z) least_x = at->z;
+	    if (at->x >  most_x)  most_x = at->x;
+	    if (at->y >  most_y)  most_x = at->y;
+	    if (at->z >  most_z)  most_x = at->z;
+	 }
+      }
+   }
+   clipper::Coord_orth p1( most_x,  most_y,  most_z);
+   clipper::Coord_orth p2(least_x, least_y, least_z);
+   return std::pair<clipper::Coord_orth, clipper::Coord_orth> (p2, p1);
+}
+
 
 
 // pair.second = 0 for failure
