@@ -6203,6 +6203,7 @@ int morph_fit_all(int imol, float transformation_averaging_radius) {
       if (is_valid_model_molecule(imol)) {
 	 success = g.molecules[imol].morph_fit_all(g.molecules[imol_ref_map].xmap_list[0],
 						   transformation_averaging_radius);
+	 graphics_draw();
       }
    }
    return success;
@@ -6218,12 +6219,42 @@ int morph_fit_chain(int imol, std::string chain_id, float transformation_averagi
 	 success = g.molecules[imol].morph_fit_chain(chain_id,
 						     g.molecules[imol_ref_map].xmap_list[0],
 						     transformation_averaging_radius);
+	 graphics_draw();
       }
    }
    return success;
 } 
 
 
+int morph_fit_residues_scm(int imol, SCM residue_specs_scm, float transformation_averaging_radius) {
+
+   std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(residue_specs_scm);
+   return morph_fit_residues(imol, residue_specs, transformation_averaging_radius);
+}
+
+int morph_fit_residues_py( int imol, PyObject *residue_specs_py, float transformation_averaging_radius) {
+
+   std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(residue_specs_py);
+   return morph_fit_residues(imol, residue_specs, transformation_averaging_radius);
+} 
+
+int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residue_specs,
+		       float transformation_averaging_radius) {
+   
+   graphics_info_t g;
+   int success = 0;
+   int imol_ref_map = g.Imol_Refinement_Map();
+   if (is_valid_map_molecule(imol_ref_map)) {
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t g;
+	 const clipper::Xmap<float> &xmap = g.molecules[imol_ref_map].xmap_list[0];
+	 success = g.molecules[imol].morph_fit_residues(residue_specs, xmap,
+							transformation_averaging_radius);
+	 graphics_draw();
+      }
+   }
+   return success;
+}
 
 
 

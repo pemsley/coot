@@ -699,6 +699,11 @@ int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue
 // 
 int morph_fit_all(int imol, float transformation_averaging_radius);
 int morph_fit_chain(int imol, std::string chain_id, float transformation_averaging_radius);
+int morph_fit_residues_scm(int imol, SCM residue_specs,       float transformation_averaging_radius);
+int morph_fit_residues_py( int imol, PyObject *residue_specs, float transformation_averaging_radius);
+int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residue_specs,
+		       float transformation_averaging_radius);
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  check water baddies                                     */

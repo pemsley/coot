@@ -3374,6 +3374,8 @@ public:        //                      public
    int morph_fit_all(const clipper::Xmap<float> &xmap_in, float shift_average_radius);
    int morph_fit_residues(std::vector<std::pair<CResidue *, std::vector<CResidue *> > > moving_residues,
 			  const clipper::Xmap<float> &xmap_in, float transformation_average_radius);
+   int morph_fit_residues(const std::vector<coot::residue_spec_t> &residue_specs,
+			  const clipper::Xmap<float> &xmap_in, float transformation_average_radius);
    int morph_fit_chain(const std::string &chain_id,
 		       const clipper::Xmap<float> &xmap_in, float transformation_average_radius);
    void morph_show_shifts(const std::map<CResidue *, morph_rtop_triple> &simple_shifts,
