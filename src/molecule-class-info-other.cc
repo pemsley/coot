@@ -583,13 +583,13 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
 	 for (unsigned int iv=0; iv<v.size(); iv++) {
 	    int SelectionHandle = atom_sel.mol->NewSelection();
 	    atom_sel.mol->SelectAtoms(SelectionHandle, 0,
-				      (char *) v[iv].atom_spec.chain.c_str(),
-				      v[iv].atom_spec.resno, (char *) v[iv].atom_spec.insertion_code.c_str(),
-				      v[iv].atom_spec.resno, (char *) v[iv].atom_spec.insertion_code.c_str(),
+				      v[iv].atom_spec.chain.c_str(),
+				      v[iv].atom_spec.resno, v[iv].atom_spec.insertion_code.c_str(),
+				      v[iv].atom_spec.resno, v[iv].atom_spec.insertion_code.c_str(),
 				      "*",
-				      (char *) v[iv].atom_spec.atom_name.c_str(),
+				      v[iv].atom_spec.atom_name.c_str(),
 				      "*",
-				      (char *) v[iv].atom_spec.alt_conf.c_str());
+				      v[iv].atom_spec.alt_conf.c_str());
 	    int nSelAtoms;
 	    PPCAtom SelAtoms;
 	    atom_sel.mol->GetSelIndex(SelectionHandle, SelAtoms, nSelAtoms);
@@ -602,7 +602,7 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
 // 			 << std::endl;
 	       if (v[iv].attribute_value.type == coot::atom_attribute_setting_help_t::IS_STRING) {
 		  if (v[iv].attribute_name == "atom-name")
-		     at->SetAtomName((char *) v[iv].attribute_value.s.c_str());
+		     at->SetAtomName(v[iv].attribute_value.s.c_str());
 		  if (v[iv].attribute_name == "alt-conf") {
 		     strncpy(at->altLoc, v[iv].attribute_value.s.c_str(), 2);
 		  }
@@ -628,6 +628,7 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
 		     at->occupancy = v[iv].attribute_value.val;
 	       }
 	    }
+	    atom_sel.mol->DeleteSelection(SelectionHandle);
 	 }
 	 have_unsaved_changes_flag = 1;
 	 atom_sel.mol->FinishStructEdit();

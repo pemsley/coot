@@ -1143,7 +1143,9 @@ int set_atom_attributes(SCM attribute_expression_list) {
    }
 
    for (int i=0; i<n; i++) {
-      if (v[i].size() > 0){
+      if (v[i].size() > 0) {
+	 // std::cout << "DEBUG:: setting atom attributes for molecule " << i << " " << v[i].size() 
+	 //           << " attributes to set " << std::endl;
 	 graphics_info_t::molecules[i].set_atom_attributes(v[i]);
       } 
    }

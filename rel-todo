@@ -3,6 +3,11 @@
 
 ----
 
+   o Markus Rudolf: atom names are not preserved on reading mol2 files.
+
+     rdkit-interface.cc: lig_build::molfile_molecule_t
+     coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) needs to (also) try to use _Name atom property.
+
    o look at 3owu for symmetry expansion (symmetry lies over main
      molecule?)
 
