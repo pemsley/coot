@@ -301,6 +301,24 @@ molecule_class_info_t::morph_fit_chain(const std::string &chain_id,
 
 }
 
+int
+molecule_class_info_t::morph_fit_residues(const std::vector<coot::residue_spec_t> &residue_specs,
+					  const clipper::Xmap<float> &xmap_in, float transformation_average_radius) {
+
+   // fill this from specs:
+   std::vector<std::pair<CResidue *, std::vector<CResidue *> > > moving_residues;
+   for (unsigned int i=0; i<residue_specs.size(); i++) { 
+      CResidue *r = get_residue(residue_specs[i]);
+      if (r) { 
+	 std::vector<CResidue *> env_residues =
+	    coot::residues_near_residue(r, atom_sel.mol, transformation_average_radius);
+	 std::pair<CResidue *, std::vector<CResidue *> > p(r, env_residues);
+	 moving_residues.push_back(p);
+      }
+   }
+   return morph_fit_residues(moving_residues, xmap_in, transformation_average_radius);
+} 
+
 
 int
 molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std::vector<CResidue *> > > moving_residues,
