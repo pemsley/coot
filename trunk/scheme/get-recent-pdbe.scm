@@ -528,8 +528,8 @@
 
 	  ;; return a list of the progress bars and the window 
 	  ;; 
-					; (the pdb-file-name and sfs-cif-file-name are passed so
-					; that the cancel button knows what transfers to cancel (if
+	  ;; (the pdb-file-name and sfs-cif-file-name are passed so
+	  ;; that the cancel button knows what transfers to cancel (if
 	  ;; needed)).
 	  ;; 
 	  (define (progress-dialog pdb-file-name sfs-cif-file-name)
@@ -638,12 +638,16 @@
 
 	  ;; ----------------------------------------
 	  ;; 
-	  (let* ((coords-type ".pdb") ;; can/will be ".cif"
+	  (let* ((coords-type ".ent") ;; can/will be ".cif"
+; 20131205		 
+;		 (pdb-url (string-append 
+;			   "http://www.ebi.ac.uk/pdbe-srv/view/files/"
+;			   entry-id coords-type))
 		 (pdb-url (string-append 
-			   "http://www.ebi.ac.uk/pdbe-srv/view/files/"
+			   "http://www.ebi.ac.uk/pdbe/entry-files/pdb"
 			   entry-id coords-type))
 		 (sfs-cif-url (string-append
-			       "http://www.ebi.ac.uk/pdbe-srv/view/files/r"
+			       "http://www.ebi.ac.uk/pdbe/entry-files/r"
 			       entry-id "sf.ent"))
 		 (pdb-file-name (append-dir-file "coot-download" (string-append entry-id coords-type)))
 		 (sfs-cif-file-name (append-dir-file "coot-download" 
@@ -671,7 +675,6 @@
 		 (cif-fail-icon     (get-widget progr-widgets    'cif-fail-icon))
 		 (refmac-fail-icon  (get-widget progr-widgets 'refmac-fail-icon))
 		 (refmac-fail-label (get-widget progr-widgets 'refmac-fail-label)))
-	    
 
 	    (if (file-exists? refmac-log-file-name)
 		(delete-file refmac-log-file-name))
