@@ -17,6 +17,8 @@ FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
 -- before 0.8
 
 Windows:
+ o put index.theme in share/icons/hicolor
+ o distribute src code!!!
  o change runwincoot.bat to (win)coot.bat
  o write things to WINDIR (rather than HOME)
  o check if    clipper::ClipperInstantiator::instance().destroy(); is still needed in c-interface-gui.ss
@@ -94,6 +96,10 @@ scripting exercise
 ----------------
 
 **** General ****
+
+   o add more things to Preferences, e.g. no of auto refine residues steps;
+	Preferences could include all (almost) default
+	settings from globjects e.g.
 
    o user defined click should keep selecting mouse pointer
 

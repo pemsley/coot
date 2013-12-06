@@ -6226,17 +6226,21 @@ int morph_fit_chain(int imol, std::string chain_id, float transformation_averagi
 } 
 
 
+#ifdef USE_GUILE
 int morph_fit_residues_scm(int imol, SCM residue_specs_scm, float transformation_averaging_radius) {
 
    std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(residue_specs_scm);
    return morph_fit_residues(imol, residue_specs, transformation_averaging_radius);
 }
+#endif // USE_GUILE
 
+#ifdef USE_PYTHON
 int morph_fit_residues_py( int imol, PyObject *residue_specs_py, float transformation_averaging_radius) {
 
    std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(residue_specs_py);
    return morph_fit_residues(imol, residue_specs, transformation_averaging_radius);
 } 
+#endif // USE_PYTHON
 
 int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residue_specs,
 		       float transformation_averaging_radius) {
