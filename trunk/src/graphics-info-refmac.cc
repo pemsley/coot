@@ -88,8 +88,8 @@
 
 #include "utils/coot-utils.hh"
 
-//temp
 #include "cmtz-interface.hh"
+#include "cmtz-interface-gui.hh"
 
 #include "manipulation-modes.hh"
 

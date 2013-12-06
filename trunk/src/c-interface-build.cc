@@ -162,7 +162,7 @@ void calc_phases_generic(const char *mtz_file_name) {
 
    if (coot::file_exists(mtz_file_name)) { 
       graphics_info_t g;
-      coot::mtz_column_types_info_t r = coot::get_f_phi_columns(mtz_file_name);
+      coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
       if (r.f_cols.size() == 0) {
 	 std::cout << "No Fobs found in " << mtz_file_name << std::endl;
 	 std::string s =  "No Fobs found in ";

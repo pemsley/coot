@@ -70,6 +70,7 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 #include "cmtz-interface.hh"
+#include "cmtz-interface-gui.hh"
 #include "coords/mmdb.h"  // for centre of molecule
 #include "clipper/core/clipper_instance.h"
 
@@ -3320,7 +3321,7 @@ int valid_labels(const char *mtz_file_name, const char *f_col, const char *phi_c
 //    char **weight_cols = get_weight_cols(mtz_file_name, &n_weight);
 //    char **d_cols      = get_d_cols(mtz_file_name, &n_d); // anom
 
-   coot::mtz_column_types_info_t r = coot::get_f_phi_columns(mtz_file_name);
+   coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
 
    // Check first the MTZ column labels that don't have a slash
    for (unsigned int i=0; i<r.f_cols.size(); i++) { 
@@ -3426,7 +3427,7 @@ int valid_labels(const char *mtz_file_name, const char *f_col, const char *phi_c
 /*  go down a (new 20060920) different path. */
 int mtz_file_has_phases_p(const char *mtz_file_name) {
 
-   coot::mtz_column_types_info_t r = coot::get_f_phi_columns(mtz_file_name);
+   coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
 //    std::cout << "DEBUG:: mtz_file_has_phases_p: " << mtz_file_name << " has "
 // 	     << r.phi_cols.size() << " phasing columns" << std::endl;
    if (r.phi_cols.size() > 0)
@@ -3442,7 +3443,7 @@ int is_mtz_file_p(const char *mtz_file_name) {
    //
    if (coot::file_exists(mtz_file_name)) { 
       
-      coot::mtz_column_types_info_t r = coot::get_f_phi_columns(mtz_file_name);
+      coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
       if (r.f_cols.size() > 0)
 	 return 1;
       else

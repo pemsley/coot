@@ -41,7 +41,6 @@ guile_version=`$guile_config --version 2>&1`
 
 echo guile_config:  $guile_config
 echo guile_version: $guile_version
-echo gtk2: $gtk2
 
 # if guile_config was blank (as can be the case when we compile
 # without guile, then we want a new blank file for $post.

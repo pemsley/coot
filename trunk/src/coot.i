@@ -23,11 +23,11 @@
 #include "lbg-interface.hh"
 #include "sdf-interface.hh"
 #include "probe-clash-score.hh"
+#include "cmtz-interface.hh"
 %}
 
 
 %template(vector_string) std::vector<std::string>;
-%template(vector_atom_spec) std::vector<coot::atom_spec_t>;
 %template(pairbf) std::pair<bool, float>;
 
 
@@ -48,8 +48,13 @@
 %include "c-interface-ligands-swig.hh"
 %include "c-interface-mogul.hh"
 %include "c-interface-sequence.hh"
+%include "cmtz-interface.hh"
 %include "manipulation-modes.hh"
 %include "rotamer-search-modes.hh"
 %include "lbg-interface.hh"
 %include "sdf-interface.hh"
+%include "coot-utils/residue-and-atom-specs.hh" // for atom_spec_t
 %include "probe-clash-score.hh"
+
+%template(vector_atom_spec)      std::vector<coot::atom_spec_t>;
+%template(vector_mtz_type_label) std::vector<coot::mtz_type_label>;
