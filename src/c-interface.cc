@@ -1483,6 +1483,83 @@ float density_at_point(int imol, float x, float y, float z) {
    return r;
 }
 
+
+#ifdef USE_GUILE
+float density_score_residue_scm(int imol, SCM residue_spec_scm, int imol_map) {
+
+   float v = 0.0;
+   if (is_valid_map_molecule(imol_map)) { 
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t g;
+	 coot::residue_spec_t residue_spec = residue_spec_from_scm(residue_spec_scm);
+	 CResidue *r = g.molecules[imol].get_residue(residue_spec);
+	 if (r) {
+	    PPCAtom residue_atoms = 0;
+	    int n_residue_atoms;
+	    r->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	       CAtom *at = residue_atoms[iat];
+	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
+	       v += d_at * at->occupancy;
+	    }
+	 } 
+      }
+   }
+   return v;
+}
+#endif 
+
+#ifdef USE_PYTHON
+float density_score_residue_py(int imol, PyObject *residue_spec_py, int imol_map) {
+
+   float v = 0.0;
+   if (is_valid_map_molecule(imol_map)) { 
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t g;
+	 coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
+	 CResidue *r = g.molecules[imol].get_residue(residue_spec);
+	 if (r) {
+	    PPCAtom residue_atoms = 0;
+	    int n_residue_atoms;
+	    r->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	       CAtom *at = residue_atoms[iat];
+	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
+	       v += d_at * at->occupancy;
+	    }
+	 } 
+      }
+   }
+   return v; 
+} 
+#endif 
+
+/*! \brief simple density score for given residue (over-ridden by scripting function) */
+float density_score_residue(int imol, const char *chain_id, int res_no, const char *ins_code, int imol_map) {
+   
+   float v = 0.0;
+   if (is_valid_map_molecule(imol_map)) { 
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t g;
+	 coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
+	 CResidue *r = g.molecules[imol].get_residue(residue_spec);
+	 if (r) {
+	    PPCAtom residue_atoms = 0;
+	    int n_residue_atoms;
+	    r->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	       CAtom *at = residue_atoms[iat];
+	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
+	       v += d_at * at->occupancy;
+	    }
+	 } 
+      }
+   }
+   return v;
+
+}
+
+
 #ifdef USE_GUILE
 SCM map_sigma_scm(int imol) {
   

@@ -8,9 +8,6 @@
      rdkit-interface.cc: lig_build::molfile_molecule_t
      coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) needs to (also) try to use _Name atom property.
 
-   o look at 3owu for symmetry expansion (symmetry lies over main
-     molecule?)
-
    o save_state_file() needs to write a python file when called from
      python (redefine save_save_file_py()).
 
@@ -36,15 +33,7 @@
 
    o hydrophobicity surface for next year.
 
-   o Sharpen a Patterson. Kevin message.
-
    o Remove -lXmu and see what happens.
-
-   o guile without guile-gui  (#f Unbound variable: ~S (place-strand-here-gui) #f))
-
-   o libtool usage goo-canvas check.
-
-* Fixed.
 
    o Top right exit should not write a state file.
 
@@ -54,10 +43,6 @@
 
     That also should write a state file. (user can use quick-save-as
     if they want)
-
-   o Fix CA mode with MSEs
-
-* Done.
 
    o patch dictionary for chiral link restraint for NAG-ASN
 
@@ -78,19 +63,7 @@
    o Felix Frolow: (copy-residue-range-from-ncs-master-to-chains 0 "A" 1 500 (list "B" "C" "D" "E")) 
      but master chain is not A.
 
-   o Strange canvas scrolling with big RNA 
-
-* added a hack.
-
-   o sequence assignment for placement of RNA.
-
-* Done.
-
    o What about placement of RNA rotamers?
-
-   o sort out the FAQ (Bernie message)
-
-* Done.
 
    o Change to configure.ac ::: 1
 
@@ -255,8 +228,6 @@ optimized out>, argv=0x7fffad4965d8) at c-inner-main.c:311
 pcld=0x0) at c-inner-main.c:366
 #38 0x000000000051d0a8 in main (argc=1, argv=0x7fffad4965d8) at main.cc:620
 
-
-
    * possibly fixed by adding CAtom * -> atom spec protection
 
 
@@ -299,6 +270,37 @@ pcld=0x0) at c-inner-main.c:366
    o with --no-graphics, don't try to start coot crash catcher
  
 * Done.
+
+   o look at 3owu for symmetry expansion (symmetry lies over main
+     molecule?)
+
+* No, that's fine (maybe wrong code?)
+
+   o guile without guile-gui  (#f Unbound variable: ~S (place-strand-here-gui) #f))
+
+* Fixed.
+
+   o libtool usage goo-canvas check.
+
+* Fixed.
+
+   o Fix CA mode with MSEs
+
+* Done.
+
+
+   o Strange canvas scrolling with big RNA 
+
+* added a hack.
+
+   o sequence assignment for placement of RNA.
+
+* Done.
+
+   o sort out the FAQ (Bernie message)
+
+* Done.
+
 
 -----
 
