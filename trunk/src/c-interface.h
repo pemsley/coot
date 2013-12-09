@@ -1615,7 +1615,20 @@ float residue_density_fit_scale_factor();
 
 /*! \brief return the density at the given point for the given
   map. Return 0 for bad imol */
-float density_at_point(int imol, float x, float y, float z);
+float density_at_point(int imol_map, float x, float y, float z);
+
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+float density_score_residue_scm(int imol, SCM residue_spec, int imol_map);
+#endif 
+#ifdef USE_PYTHON
+float density_score_residue_py(int imol, PyObject *residue_spec, int imol_map);
+#endif 
+#endif 
+
+/*! \brief simple density score for given residue (over-ridden by scripting function) */
+float density_score_residue(int imol, const char *chain_id, int res_no, const char *ins_code, int imol_map);
 
 
 #ifdef __cplusplus
