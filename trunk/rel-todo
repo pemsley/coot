@@ -11,13 +11,9 @@
    o save_state_file() needs to write a python file when called from
      python (redefine save_save_file_py()).
 
+   o Re-write ligand fitting using UJ6 from 4cgf (needs flexible fitting and consideration of chirality)
+
    o sharpen a Patterson. Kevin message
-
-   o need a test to see if hydrogens are properly swapped on a
-     nomenclature change on a TYR.
-
-   o Ligand fitting is broken.  Why does it work with 
-     (set-find-ligand-multi-solutions-per-cluster 0.88 0.88)
 
    o GLC pyranose 1-4 linked template.
 
@@ -37,7 +33,7 @@
 
    o Top right exit should not write a state file.
 
-    --no-state-file should not write a state file.
+       --no-state-file should not write a state file.
 
     But what about starting with interactive no to state-file reading?
 
@@ -47,8 +43,6 @@
    o patch dictionary for chiral link restraint for NAG-ASN
 
    o link for test data
-
-   o hydrogens are corrected also on nomenclature correction?
 
    o Quick notebook: (what was changed on this residue? on previous rounds?)
 
@@ -301,6 +295,19 @@ pcld=0x0) at c-inner-main.c:366
 
 * Done.
 
+   o need a test to see if hydrogens are properly swapped on a
+     nomenclature change on a TYR.
+
+* Done.
+
+   o hydrogens are corrected also on nomenclature correction?
+
+* Done.
+
+   o Ligand fitting is broken.  Why does it work with 
+     (set-find-ligand-multi-solutions-per-cluster 0.88 0.88)
+
+* Fixed.  Bug in extents code.
 
 -----
 
