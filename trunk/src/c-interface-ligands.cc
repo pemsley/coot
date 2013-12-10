@@ -671,6 +671,8 @@ execute_ligand_search_internal() {
 
       if (nlc > 12) nlc = 12; // arbitrary limit of max 12 solutions per cluster
       float tolerance = 20.0;
+      // limit_solutions should be run only after a post-correlation sort.
+      //
       wlig.limit_solutions(iclust, correl_frac_lim, nlc, tolerance, true);
 			   
       for (unsigned int isol=0; isol<nlc; isol++) { 

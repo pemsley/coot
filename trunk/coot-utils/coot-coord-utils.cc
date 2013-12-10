@@ -3848,11 +3848,11 @@ coot::util::extents(CMMDBManager *mol,
 	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
 	    CAtom *at = residue_atoms[iat];
 	    if (at->x < least_x) least_x = at->x;
-	    if (at->y < least_y) least_x = at->y;
-	    if (at->z < least_z) least_x = at->z;
+	    if (at->y < least_y) least_y = at->y;
+	    if (at->z < least_z) least_z = at->z;
 	    if (at->x >  most_x)  most_x = at->x;
-	    if (at->y >  most_y)  most_x = at->y;
-	    if (at->z >  most_z)  most_x = at->z;
+	    if (at->y >  most_y)  most_y = at->y;
+	    if (at->z >  most_z)  most_z = at->z;
 	 }
       }
    }

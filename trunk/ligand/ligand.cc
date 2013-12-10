@@ -1831,7 +1831,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
 
    // for debugging
    write_orientation_solutions = 0;
-   bool debug = 0;
+   bool debug = false;
 
    minimol::molecule ior_holder;
    
@@ -1983,12 +1983,14 @@ coot::ligand::n_ligands_for_cluster(unsigned int iclust,
 void
 coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned int n_sol) {
 
+   bool debug = false;
+   
 //    #pragma openmp parallel for 
 //    for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
 //       usleep(int(100000 * float(util::random())/float(RAND_MAX)));
 //       std::cout << "   parallel i " << i << std::endl;
 //    }
-   
+
    int n_ligs = final_ligand[iclust].size();
 
    
@@ -2018,6 +2020,7 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
 	 delete mol;
       }
    }
+
    std::sort(final_ligand[iclust].begin(),
 	     final_ligand[iclust].end(),
 	     compare_scored_ligands_using_correlation);
@@ -2025,12 +2028,13 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
 		final_ligand[iclust].end());
 
    
-   if (1) {
-      std::cout << "------------------ " << final_ligand[iclust].size()
+   if (debug) {
+      std::cout << "INFO post-sort: ------------------ iclust: " << iclust
+		<<  " size: " << final_ligand[iclust].size()
 		<< " solutions for cluster "
 		<< iclust << " ------------- " << std::endl;
       for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
-	 std::cout << "post correl " << isol << " of "
+	 std::cout << "   post correl " << isol << " of "
 		   << final_ligand[iclust].size() << " "
 		   << final_ligand[iclust][isol].second << std::endl;
    }
@@ -2062,11 +2066,12 @@ coot::ligand::limit_solutions(unsigned int iclust,
 			      float tolerance,
 			      bool filter_by_torsion_match) { // false
 
+   bool debug = false;
    unsigned int pre_erase_size = final_ligand[iclust].size();
    if (final_ligand[iclust].size()) {
       float min_correl = final_ligand[iclust][0].second.correlation.second * frac_max_correl_lim;
-      if (0)
-	 std::cout << "..... in limit_solutions() min_correl is " << min_correl << std::endl;
+      if (debug)
+	 std::cout << "INFO:: ..... in limit_solutions() min_correl is " << min_correl << std::endl;
       final_ligand[iclust].erase(std::remove_if(final_ligand[iclust].begin(),
 						final_ligand[iclust].end(),
 						scored_ligand_eraser(min_correl)),
@@ -2090,9 +2095,8 @@ coot::ligand::limit_solutions(unsigned int iclust,
 
       // now we have the vector, let's test for similar
    }
-      
 
-   if (1)
+   if (debug)
       for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
 	 std::cout << "limit solutions: " << isol << " of "
 		   << final_ligand[iclust].size() << " "
