@@ -1504,9 +1504,11 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
    float ret_val = -2;
    int SelHnd = mol->NewSelection(); // d
 
-   // std::cout << "There are " << specs.size() << " residues " << std::endl;
-   // for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++)
-   // std::cout << "   " << specs[ilocal] << std::endl;
+   if (0) { 
+      std::cout << "INFO:: map_to_model_correlation:: there are " << specs.size() << " residues " << std::endl;
+      for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++)
+	 std::cout << "   " << specs[ilocal] << std::endl;
+   }
 
    for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++) {
       
@@ -1568,7 +1570,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
 
       // debugging atom selection
-      if (0) { 
+      if (0) {
 	 std::cout << "debug:: selected " << n_atoms << " atoms " << std::endl;
 	 for (unsigned int iat=0; iat<n_atoms; iat++)
 	    std::cout << "    " << iat << " " << atom_selection[iat]->name << " "
@@ -1579,14 +1581,24 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       //
       // 
       std::pair<clipper::Coord_orth, clipper::Coord_orth> selection_extents = util::extents(mol, specs);
+      if (0) 
+	 std::cout << "INFO:: mol residue set extents: "
+		   << selection_extents.first.format() << " to "
+		   << selection_extents.second.format() << std::endl;
+      
       clipper::Coord_frac ex_pt_1_fc = clipper::Coord_orth(selection_extents.first.x()-3,
 							   selection_extents.first.y()-3,
 							   selection_extents.first.z()-3).coord_frac(masked_map.cell());
-      clipper::Coord_frac ex_pt_2_fc = clipper::Coord_orth(selection_extents.second.x()-3,
-							   selection_extents.second.y()-3,
-							   selection_extents.second.z()-3).coord_frac(masked_map.cell());
+      clipper::Coord_frac ex_pt_2_fc = clipper::Coord_orth(selection_extents.second.x()+3,
+							   selection_extents.second.y()+3,
+							   selection_extents.second.z()+3).coord_frac(masked_map.cell());
       clipper::Grid_map selection_grid(ex_pt_1_fc.coord_grid(masked_map.grid_sampling()),
 				       ex_pt_2_fc.coord_grid(masked_map.grid_sampling()));
+      if (0) {
+	 std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
+	 std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
+	 std::cout << "INFO:: Selection grid: " << selection_grid.format() << std::endl;
+      } 
       
       for (unsigned int iat=0; iat<n_atoms; iat++) {
 	 clipper::Coord_orth co(atom_selection[iat]->x,
@@ -1662,13 +1674,13 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       // scan the selection grid
       // 
       clipper::Xmap_base::Map_reference_coord iix(masked_map, selection_grid.min() ), iu, iv, iw;
-      for (iu = iix; iu.coord().u() <= selection_grid.max().u(); iu.next_u() ) { 
+      for (iu = iix; iu.coord().u() <= selection_grid.max().u(); iu.next_u() ) {
 	 for (iv = iu; iv.coord().v() <= selection_grid.max().v(); iv.next_v() ) { 
 	    for (iw = iv; iw.coord().w() <= selection_grid.max().w(); iw.next_w() ) {
 	       if (masked_map[iw]) {
-		  x = calc_map[ix];
+		  x = calc_map[iw];
 		  if (! clipper::Util::is_nan(x)) {
-		     y = reference_map[ix];
+		     y = reference_map[iw];
 		     if (! clipper::Util::is_nan(y)) {
 			sum_x  += x;
 			sum_y  += y;
@@ -1676,13 +1688,16 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 			sum_x_sqd += x*x;
 			sum_y_sqd += y*y;
 			n++;
-		     }
-		  }
+		     } else {
+			// std::cout << "null reference map data point at " << iw.coord().format() << std::endl;
+		     } 
+		  } else {
+		     // std::cout << "null calc map data point at " << iw.coord().format() << std::endl;
+		  } 
 	       } 
 	    }
 	 }
       }
-
 
       if (0) { 
 	 // just checking that the maps are what we expect them to be...
