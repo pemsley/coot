@@ -389,7 +389,7 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p
 			if (e_atom_name == " CE2") 
 			   CE2 = residue_atoms[ie];
 			
-			if (e_atom_name == " HD11") 
+			if (e_atom_name == " HD1")
 			   HD1 = residue_atoms[ie];
 			if (e_atom_name == " HD2") 
 			   HD2 = residue_atoms[ie];

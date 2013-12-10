@@ -848,21 +848,23 @@
 	 (f res (cdr ls) (- count 1)))))))
 
 
+;; now useful in testing
+;; 
+;; residue-atoms must be a list
+(define (get-atom-from-residue atom-name residue-atoms alt-conf)
+  (let loop ((residue-atoms residue-atoms))
+    (cond 
+     ((null? residue-atoms) #f)
+     ((and (string=? atom-name (car (car (car residue-atoms))))
+	   (string=? alt-conf (car (cdr (car (car residue-atoms))))))
+      (car residue-atoms))
+     (else 
+      (loop (cdr residue-atoms))))))
+
 ;; Return an atom info or #f (if atom not found).
 ;; 
 (define (get-atom imol chain-id resno ins-code atom-name . alt-conf)
   
-
-  (define (get-atom-from-res atom-name residue-atoms alt-conf)
-    (let loop ((residue-atoms residue-atoms))
-      (cond 
-       ((null? residue-atoms) #f)
-       ((and (string=? atom-name (car (car (car residue-atoms))))
-	     (string=? alt-conf (car (cdr (car (car residue-atoms))))))
-	(car residue-atoms))
-       (else 
-	(loop (cdr residue-atoms))))))
-
   ;; main line
   ;; 
   ;; (format #t "DEBUG::  get-atom is passed imol ~s: chain-id: ~s  resno: ~s  atom-name: ~s alt-conf: ~s ~%" imol chain-id resno atom-name alt-conf)
@@ -871,11 +873,9 @@
 	(alt-conf-internal (if (null? alt-conf)
 			       ""
 			       (car alt-conf))))
-
     (if (not res-info)
 	#f
-	(get-atom-from-res atom-name res-info alt-conf-internal))))
-	
+	(get-atom-from-residue atom-name res-info alt-conf-internal))))
 
 ;;
 (define (residue-info-dialog-displayed?)
