@@ -635,6 +635,7 @@ def list_of_toolbar_functions():
           "probe-clash.svg", True, True]
          ],
         ["Building",
+         ["Ligand Builder", "start_ligand_builder_gui()", "Ligand Builder", "go-to-ligand.svg"],
          ["Split Water", "split_active_water()", "Split water in two and refine", "add-water.svg"],
          ["Find Waters", "wrapped_create_find_waters_dialog()", "Find water molecules in map", "add-water.svg"],
          ["Build NA", "find_nucleic_acids_local(6.0)", "Find nucleic acids locally using Cootilus", "dna.svg"]
