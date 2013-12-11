@@ -909,13 +909,20 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
 	 RDKit::ATOM_SPTR at_p = rdkm[iat];
 	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
-	 std::string name = "";
+	 std::string name = "ZZZZ";
 	 try {
 	    at_p->getProp("name", name);
 	 }
-	 catch (KeyErrorException kee) {
-	    std::cout << "caught no-name for atom exception in make_molfile_molecule(): "
-		      <<  kee.what() << std::endl;
+	 catch (const KeyErrorException &kee) {
+	    //std::cout << "caught no-name for atom exception in make_molfile_molecule(): "
+	    // <<  kee.what() << std::endl;
+
+	    try {
+	       at_p->getProp("_Name", name);  // RDKit's version of an atom name.
+	    }
+	    catch  (const KeyErrorException &kee) {
+	       
+	    }
 	 } 
 	 clipper::Coord_orth pos(r_pos.x, r_pos.y, r_pos.z);
 	 int n = at_p->getAtomicNum();

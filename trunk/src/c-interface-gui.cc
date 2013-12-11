@@ -2282,24 +2282,35 @@ void handle_get_accession_code(GtkWidget *widget) {
 
    const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
    cout << "PDB Accession Code: " << text << endl;
-   int *n = (int *) gtk_object_get_user_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(widget),
-								      "accession_code_window")));
+   int *n_p = (int *) gtk_object_get_user_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(widget),
+									"accession_code_window")));
+   int n = *n_p;
+   
 #ifdef USE_GUILE
    string scheme_command;
 
-   if (*n == 1) {
+   if (n == 1) {
       get_coords_for_accession_code(text);
    } else { 
-      if (*n == COOT_ACCESSION_CODE_WINDOW_EDS) {
+      if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
 	 // 20050725 EDS code:
 	 scheme_command = "(get-eds-pdb-and-mtz ";
 	 scheme_command += single_quote(text);
 	 scheme_command += ")";
-      } else { 
-         // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
-	 scheme_command = "(get-ebi-pdb-and-sfs ";
-	 scheme_command += single_quote(text);
-	 scheme_command += ")";
+      } else {
+
+	 if (n == 2) { 
+	    // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
+	    scheme_command = "(get-ebi-pdb-and-sfs ";
+	    scheme_command += single_quote(text);
+	    scheme_command += ")";
+	 } else {
+	    if (n == 3) {
+	       scheme_command = "(get-pdb-redo ";
+	       scheme_command += single_quote(text);
+	       scheme_command += ")";
+	    }
+	 }
       }
       safe_scheme_command(scheme_command);
    }
@@ -2308,20 +2319,28 @@ void handle_get_accession_code(GtkWidget *widget) {
    
 #ifdef USE_PYTHON
    string python_command;
-   if (*n == 1) {
+   if (n == 1) {
       get_coords_for_accession_code(text);
    } else {
 
-      if (*n == COOT_ACCESSION_CODE_WINDOW_EDS) {
+      if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
 	 // 20050725 EDS code:
 	 python_command = "get_eds_pdb_and_mtz(";
 	 python_command += single_quote(text);
 	 python_command += ")";
       } else {
-	 // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
-	 python_command = "get_ebi_pdb_and_sfs(";
-	 python_command += single_quote(text);
-	 python_command += ")";
+	 if (n == 2) { 
+	    // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
+	    python_command = "get_ebi_pdb_and_sfs(";
+	    python_command += single_quote(text);
+	    python_command += ")";
+	 } else {
+	    if (n == 3) { 
+	       python_command = "get_pdb_redo(";
+	       python_command += single_quote(text);
+	       python_command += ")";
+	    }
+	 } 
       }
       safe_python_command(python_command);
    }
