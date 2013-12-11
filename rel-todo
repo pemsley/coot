@@ -1,7 +1,13 @@
  
  0.8
 
-----
+---- 
+
+   o get drug: suvorexant - what's going wrong?
+
+   o drag and drop - same reason.
+
+   o PDB-redo into coot File menu.
 
    o Markus Rudolf: atom names are not preserved on reading mol2 files.
 
@@ -30,6 +36,12 @@
    o hydrophobicity surface for next year.
 
    o Remove -lXmu and see what happens.
+
+   o Reconsider descision to disallow reading of molecules with
+     different residues but the same residue number and insetion code.
+
+   o Don't display same molecule dialog if there are no molecules to save.
+     Use the status bar.
 
    o Top right exit should not write a state file.
 
@@ -62,7 +74,6 @@
    o Change to configure.ac ::: 1
 
    o extend lidia to represent carbohydrates
-
 
    o in FLEV, find pi-pi stacking interactions, if needed use an
      RDKit molecule to find aromatic systems in the ligand.
@@ -308,6 +319,14 @@ pcld=0x0) at c-inner-main.c:366
      (set-find-ligand-multi-solutions-per-cluster 0.88 0.88)
 
 * Fixed.  Bug in extents code.
+
+   o recent structure browser data download.
+
+* Fixed.
+
+   o mtz-file-name->colummn-labels
+
+* Done.
 
 -----
 

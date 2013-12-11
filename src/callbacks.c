@@ -1914,7 +1914,23 @@ on_get_pdb_and_sf_using_code1_activate (GtkMenuItem     *menuitem,
   *n = 2; 
 
   window = create_accession_code_window(); 
-  gtk_object_set_user_data(GTK_OBJECT(window), (char *) n); 
+  gtk_object_set_user_data(GTK_OBJECT(window), n); 
+  gtk_widget_show(window); 
+
+}
+
+void
+on_fetch_pdb_and_map_using_pdbredo1_activate
+                                        (GtkMenuItem     *menuitem,
+					 gpointer         user_data) {
+
+  GtkWidget *window; 
+  int *n; 
+  n = (int *) g_malloc(sizeof(int)); 
+  *n = 3; 
+
+  window = create_accession_code_window(); 
+  gtk_object_set_user_data(GTK_OBJECT(window), n); 
   gtk_widget_show(window); 
 
 }
