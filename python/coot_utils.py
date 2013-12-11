@@ -760,24 +760,36 @@ def every_nth(ls, n):
         a.append(ls[i])
     return a
 
-# return atom info or False (if atom not found).
+# now usefull in testing
 #
-def get_atom(imol, chain_id, resno, ins_code, atom_name, alt_conf_internal=""):
+# residue_atoms must be a list
+#
+def get_atom_from_residue(atom_name, residue_atoms, alt_conf):
 
-    def get_atom_from_res(atom_name, residue_atoms, alt_conf):
+    """Get atom_info fomr a residue.
+    residue_atoms must be a list
+    """
+    
+    if ((isinstance(residue_atoms, list)) and
+        (residue_atoms != [])):
         for residue_atom in residue_atoms:
             if (residue_atom[0][0] == atom_name and
                 residue_atom[0][1] == alt_conf):
                 return residue_atom
-        #print "BL WARNING:: no atom name %s found in residue" %atom_name
-        return False # no residue name found
+    # print "BL WARNING:: no atom name %s found in residue" %atom_name
+    return False # no residue name found fail save
     
+
+# return atom info or False (if atom not found).
+#
+def get_atom(imol, chain_id, resno, ins_code, atom_name, alt_conf_internal=""):
+
     res_info = residue_info(imol, chain_id, resno, "")
 
     if (not res_info):
         return False
     else:
-        ret = get_atom_from_res(atom_name, res_info, alt_conf_internal)
+        ret = get_atom_from_residue(atom_name, res_info, alt_conf_internal)
         return ret
 
 #
