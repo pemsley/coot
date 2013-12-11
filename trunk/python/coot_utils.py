@@ -21,6 +21,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import re, string
+        
 # 3D annotations - a bit of a hack currently
 global annotations
 annotations = []
@@ -2227,7 +2229,6 @@ def remove_line_containing_from_file(remove_str_ls, filename):
         print "BL INFO:: no %s file, so cannot remove line" %init_file
         lines = []
     if (lines):
-        import re, string
         patt = string.join(remove_str_ls,'|')
         re_patt = re.compile(patt)
         tmp_ls = []
@@ -3056,6 +3057,7 @@ def get_drug_via_wikipedia(drug_name):
         return parse_wiki_drug_xml(xml, '#REDIRECT', True)
     
     def parse_wiki_drug_xml(tree, key, redirect=False):
+        key_re = re.compile(key)
         drug_bank_id = False
         query_ele = tree.find("query")
         rev_iter = query_ele.getiterator("rev")
@@ -3063,7 +3065,8 @@ def get_drug_via_wikipedia(drug_name):
         # seems to be in some strange format!?
         decode_text = rev_text.encode('ascii', 'ignore')
         for line in decode_text.split("\n"):
-            if key in line:
+            # if key in line: # too simple, we need a regular expresssion search
+            if key_re.search(line):
                 if (redirect == False):
                    drug_bank_id = line.split(" ")[-1]
                    if not drug_bank_id:
@@ -3072,16 +3075,11 @@ def get_drug_via_wikipedia(drug_name):
                 else:
                     # a REDIRECT was found
                     drug_bank_id = line[line.find("[[")+2:line.find("]]")]
-                    
+
         return drug_bank_id
             
-        
-    # main line
-    def drugbox2drugbank():
-        return "DrugBank = "
-    def drugbox2pubchem():
-        return "PubChem = "
 
+    
     file_name = False
     if isinstance(drug_name, str):
         if len(drug_name) > 0:
@@ -3093,15 +3091,15 @@ def get_drug_via_wikipedia(drug_name):
             xml = urllib2.urlopen(url)
             xml_tree = ElementTree.parse(xml)
             
-            mol_name = parse_wiki_drug_xml(xml_tree, drugbox2drugbank())
-            
+            mol_name = parse_wiki_drug_xml(xml_tree, "DrugBank  *= ")
+
             if not isinstance(mol_name, str):
-                print "BL WARNING:: mol_name not a string (from wikipedia)", mol_name
+                print "BL WARNING:: mol_name not a string (DrugBank entry from wikipedia)", mol_name
                 # try pubchem as fallback
-                mol_name = parse_wiki_drug_xml(xml_tree, drugbox2pubchem())
+                mol_name = parse_wiki_drug_xml(xml_tree,  "PubChem  *= ")
                 if not isinstance(mol_name, str):
 
-                    print "BL WARNING:: mol_name not a string (from pubchem either)", mol_name
+                    print "BL WARNING:: mol_name not a string (pubchem entry either)", mol_name
                     # so was there a redirect?
                     # if so, get the name and call get_drug_via_wikipedia with it
                     redirected_drug_name = get_redirected_drug_name(xml_tree)
