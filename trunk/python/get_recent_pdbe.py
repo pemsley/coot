@@ -509,13 +509,15 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                     "refmac_good_icon": refmac_good_icon}
 
         # main line
+        coords_type = ".ent"  # can/will be ".cif"
 #       pdb_url = "http://www.ebi.ac.uk/pdbe-srv/view/files/" + \
 #                       entry_id + ".ent"
 #       sfs_cif_url = "http://www.ebi.ac.uk/pdbe-srv/view/files/r" + \
 #                       entry_id + "sf.ent"
-        pdb_url     = "http://www.ebi.ac.uk/pdbe/entry-files/pdb" + entry_id + ".ent"
+        pdb_url     = "http://www.ebi.ac.uk/pdbe/entry-files/pdb" + \
+                      entry_id + coords_type
         sfs_cif_url = "http://www.ebi.ac.uk/pdbe/entry-files/r"   + entry_id + "sf.ent"
-        pdb_file_name = os.path.join("coot-download", entry_id + ".ent")
+        pdb_file_name = os.path.join("coot-download", entry_id + coords_type)
         sfs_cif_file_name = os.path.join("coot-download", "r" + entry_id + "sf.cif")
         sfs_mtz_file_name = os.path.join("coot-download", "r" + entry_id + "sf.mtz")
         refmac_out_mtz_file_name = os.path.join("coot-download",
