@@ -7,8 +7,6 @@
 
    o drag and drop - same reason.
 
-   o PDB-redo into coot File menu.
-
    o Markus Rudolf: atom names are not preserved on reading mol2 files.
 
      rdkit-interface.cc: lig_build::molfile_molecule_t
@@ -327,6 +325,12 @@ pcld=0x0) at c-inner-main.c:366
    o mtz-file-name->colummn-labels
 
 * Done.
+
+   o PDB-redo into coot File menu.
+
+* Done.
+
+
 
 -----
 

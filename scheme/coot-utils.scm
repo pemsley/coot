@@ -3221,6 +3221,9 @@
 ;; of the mdl mol file from drugbank. Or #f/undefined on fail.  
 ;; Test result with string?.
 ;; 
+;; If you are debugging this function, you probably want to be looking
+;; at handle-rev-string or drugbox->drugitem.
+;; 
 (define (get-drug-via-wikipedia drug-name)
 
   ;; To Bernie: I imagine that this would be confusing.  I don't think
@@ -3233,6 +3236,8 @@
 
 
   (define (drugbox->drugitem key s) 
+;    (format #t "===== here in drugbox->drugitem : ~s ~s ================== ~%" key s)
+;    (format #t "==========================================================~%" )
     (let ((n (string-length s)))
       (let ((ls (string-split s #\newline)))
 	(let loop ((ls ls))
@@ -3241,15 +3246,18 @@
 	   ((string-match key (car ls))
 	    (let ((sls (string-split (car ls) #\space)))
 	      (let ((n-sls (length sls)))
-		(list-ref sls (- n-sls 1)))))
+		(let ((r (list-ref sls (- n-sls 1))))
+		  (if (string=? r "")
+		      #f
+		      r)))))
 	   (else 
 	    (loop (cdr ls))))))))
 
   (define (drugbox->drugbank s)
-    (drugbox->drugitem "DrugBank =" s))
+    (drugbox->drugitem "DrugBank * =" s))
 
   (define (drugbox->pubchem s)
-    (drugbox->drugitem "PubChem =" s))
+    (drugbox->drugitem "PubChem  *=" s))
 	
 
   ;; With some clever coding, these handle-***-value functions could
@@ -3273,15 +3281,15 @@
 	  (get-drug-via-wikipedia s)))
       
        ((let ((re-result (regexp-exec re rev-string)))
-	  ;; (format #t "===== re-result: ~s~%" re-result)
 	  (if re-result
 	      (begin
-		;; (format #t "matched a Drugbox~%")
+		;; (format #t "INFO:: matched a Drugbox~%")
 		(let ((dbi (drugbox->drugbank rev-string)))
+
 		  (if (not (string? dbi))
 		      (begin 
 
-			(format #t "DEBUG:: dbi not a string: ~s~%" dbi)
+			(format #t "DEBUG:: dbi (drugbank result) not a string: ~s~%" dbi)
 			;; try pubchem as a fallback
 			(let ((pc (drugbox->pubchem rev-string)))
 			  (if (not (string? pc))
@@ -3292,6 +3300,7 @@
 						    pc 
 						    "&disopt=DisplaySDF"))
 				    (file-name (string-append "pc-" pc ".mol")))
+				;; (format #t "========== pubchem pc-mol-url: ~s~%" pc-mol-url)
 				(coot-get-url pc-mol-url file-name)
 				file-name))))
 

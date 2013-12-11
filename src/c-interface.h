@@ -7080,8 +7080,10 @@ void set_nsv_canvas_pixel_limit(int cpl);
 void sequence_view_old_style(int imol);
 
 void add_ligand_builder_menu_item_maybe();
-void start_ligand_builder_gui(GtkMenuItem     *menuitem,
-			      gpointer         user_data);
+
+void start_ligand_builder_gui_internal(GtkMenuItem     *menuitem,
+				       gpointer         user_data);
+void start_ligand_builder_gui();
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
