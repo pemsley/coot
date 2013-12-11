@@ -3,8 +3,6 @@
 
 ---- 
 
-   o get drug: suvorexant - what's going wrong?
-
    o drag and drop - same reason.
 
    o Markus Rudolf: atom names are not preserved on reading mol2 files.
@@ -331,6 +329,7 @@ pcld=0x0) at c-inner-main.c:366
 * Done.
 
 
+   o get drug: suvorexant - what's going wrong?
 
 -----
 
