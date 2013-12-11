@@ -534,6 +534,39 @@ class PdbMtzTestFunctions(unittest.TestCase):
         
         
     def test16_3(self):
+        """Hs are correctly swapped on a TYR"""
+
+        imol = unittest_pdb("pdb1py3.ent")
+        self.failUnless(valid_model_molecule_qm(imol),
+                        "missing or bar pdb1py3")
+
+        # the pdb file contains hydrogens and nomenclature
+        # errors, lets see if we can fix them
+        #
+        fix_nomenclature_errors(imol)
+        atoms = residue_info(imol, "C", 54, "")
+        self.failUnless(isinstance(atoms, list), "atoms not a list")
+        cd1 = get_atom_from_residue(" CD1", atoms, "")
+        cd2 = get_atom_from_residue(" CD2", atoms, "")
+        hd1 = get_atom_from_residue(" HD1", atoms, "")
+        hd2 = get_atom_from_residue(" HD2", atoms, "")
+        ce1 = get_atom_from_residue(" CE1", atoms, "")
+        ce2 = get_atom_from_residue(" CE2", atoms, "")
+        he1 = get_atom_from_residue(" HE1", atoms, "")
+        he2 = get_atom_from_residue(" HE2", atoms, "")
+        bonded_atoms = [[cd1, hd1],
+                        [cd2, hd2],
+                        [ce1, he1],
+                        [ce2, he2]]
+        results = map(lambda atom:
+                      bond_length_within_tolerance_qm(atom[0], atom[1],
+                                                      0.93, 0.02),
+                      bonded_atoms)
+        print "BL DEBUG:: results:", results
+        self.failUnless(all(results))
+
+
+    def test16_4(self):
         """Splitting residue leaves no atoms with negative occupancy"""
 
         # return False if there are negative occupancies
