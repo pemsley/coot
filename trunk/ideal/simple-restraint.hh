@@ -949,9 +949,15 @@ namespace coot {
 
       void filter_non_bonded_by_distance(const std::vector<std::vector<int> > &non_bonded_atom_indices, double dist);
       // don't include bonds which are make to flanking atoms/residues
-      void construct_non_bonded_contact_list(const bonded_pair_container_t &bpc); // fills filtered_non_bonded_atom_indices;
+      void construct_non_bonded_contact_list(const bonded_pair_container_t &bpc,
+					     const coot::protein_geometry &geom); // fills filtered_non_bonded_atom_indices;
       // which uses
-      void construct_non_bonded_contact_list_by_res_vec(const bonded_pair_container_t &bpc);
+      void construct_non_bonded_contact_list_by_res_vec(const bonded_pair_container_t &bpc,
+							const coot::protein_geometry &geom);
+      // and
+      void construct_nbc_for_moving_non_moving_bonded(unsigned int i, unsigned int j, const std::string &link_type, const coot::protein_geometry &geom);
+      // (which modifies (adds to) filtered_non_bonded_atom_indices).
+
       // or 
       void construct_non_bonded_contact_list_conventional();
       // to make
@@ -1043,6 +1049,8 @@ namespace coot {
       void init_shared_pre(CMMDBManager *mol_in);
 
       void init_shared_post(const std::vector<atom_spec_t> &fixed_atom_specs);
+      // neighbour residues already are fixed.
+      void add_fixed_atoms_from_flanking_residues(const coot::bonded_pair_container_t &bpc);
 
    
       // 
@@ -1434,6 +1442,7 @@ namespace coot {
 			 const coot::protein_geometry &geom);
 
       int make_non_bonded_contact_restraints(const bonded_pair_container_t &bpc, const protein_geometry &geom);
+      void symmetry_non_bonded_contacts(bool p);
       std::vector<std::vector<int> > bonded_atom_indices;
 
       //! Set a flag that we have an OXT and we need to position it

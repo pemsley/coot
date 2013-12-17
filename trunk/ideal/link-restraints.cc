@@ -639,7 +639,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
 
       if (1) { 
 
-	 bool is_fixed_first_residue = bonded_residue_pairs[ibonded_residue].is_fixed_first;
+	 bool is_fixed_first_residue  = bonded_residue_pairs[ibonded_residue].is_fixed_first;
 	 bool is_fixed_second_residue = bonded_residue_pairs[ibonded_residue].is_fixed_second;
 
 	 // link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);

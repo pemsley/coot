@@ -708,6 +708,7 @@ namespace coot {
       std::vector <dict_link_chiral_restraint_t>  link_chiral_restraint;
       int assign_link_chiral_volume_targets(); // return the number of link targets made.
       bool has_unassigned_chiral_volumes() const;
+      bool empty() const { return link_id.empty(); }
    };
 
    class simple_cif_reader {

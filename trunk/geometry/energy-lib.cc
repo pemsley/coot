@@ -464,7 +464,7 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
 	 // 
 	 // I need to reject atoms that have bond (done), angle and
 	 // torsion interactions from NBC interactions, I think.  Then
-	 // I can set r.second to 1.0 maybe.
+	 // I can set r.second multiplier to 1.0 maybe.
 	 // 
 	 r.second *= 0.84;
 
