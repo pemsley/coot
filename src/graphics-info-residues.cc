@@ -27,7 +27,7 @@
 #include "interface.h" // for create_multi_residue_torsion_dialog()
 
 void
-graphics_info_t:: multi_torsion_residues(int imol, const std::vector<coot::residue_spec_t> &v) {
+graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residue_spec_t> &v) {
 
    if (is_valid_model_molecule(imol)) {
 

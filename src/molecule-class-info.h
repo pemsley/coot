@@ -3390,7 +3390,6 @@ public:        //                      public
    std::vector<coot::fragment_info_t> get_fragment_info(bool screen_output_also) const;
 
    
-   
 };
 
 #endif // MOLECULE_CLASS_INFO_T

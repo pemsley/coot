@@ -3,8 +3,8 @@
 
 ---- 
 
-   o drag and drop - same reason.
-
+   o Does rubber-banding in sphere-refine mode move the fixed environment residues?
+	
    o Markus Rudolf: atom names are not preserved on reading mol2 files.
 
      rdkit-interface.cc: lig_build::molfile_molecule_t
@@ -19,8 +19,6 @@
 
    o GLC pyranose 1-4 linked template.
 
-   o Does rubber-banding in sphere-refine mode move the fixed environment residues?
-	
    o Are active residues bumping off environment residues in sphere-refine mode?
 
    o PISA Interfaces surface colours are wrong. 
@@ -328,8 +326,13 @@ pcld=0x0) at c-inner-main.c:366
 
 * Done.
 
-
    o get drug: suvorexant - what's going wrong?
+
+* Varibility in drugbox formatting.
+
+   o drag and drop - same reason.
+
+* PubChem added.
 
 -----
 
