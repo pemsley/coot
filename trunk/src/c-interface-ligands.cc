@@ -1907,6 +1907,55 @@ multi_residue_torsion_scm(int imol, SCM residues_specs_scm) {
 }
 #endif
 
+// /*! \brief set the torsion of the given residues. The
+// torsion_residues_specs_scm is a list of: (list  torsion-angle atom-spec-1 atom-spec-2
+// atom-spec-2 atom-spec-3).
+// */
+// #ifdef USE_GUILE
+// SCM set_multi_torsion_scm(int imol, SCM torsion_residues_specs_scm) {
+
+//    SCM r = SCM_BOOL_F;
+//    if (is_valid_model_molecule(imol)) {
+//       graphics_info_t g;
+//       if (scm_is_true(scm_list_p(torsion_residues_specs_scm))) {
+// 	 std::vector<coot::torsion_atom_specs_t> tas;
+// 	 SCM specs_length_scm = scm_length(torsion_residues_specs_scm);
+// 	 unsigned int specs_length = scm_to_int(specs_length_scm);
+// 	 for (unsigned int i=0; i<specs_length; i++) { 
+// 	    SCM torsion_spec_scm = scm_list_ref(torsion_residues_specs_scm, SCM_MAKINUM(i));
+// 	    if (! scm_is_true(scm_list_p(torsion_spec_scm))) {
+// 	       break;
+// 	    } else {
+// 	       // happy path
+// 	       SCM torsion_spec_length_scm = scm_length(torsion_spec_scm);
+// 	       unsigned int torsion_spec_length = scm_to_int(torsion_spec_length_scm);
+// 	       if (torsion_spec_length == 5) {
+// 		  SCM torsion_angle_scm = scm_car(torsion_spec_scm);
+// 		  if (scm_is_true(scm_number_p(torsion_angle_scm))) {
+// 		     double ta = scm_to_double(torsion_angle_scm);
+// 		     SCM atom_spec_1_scm = scm_list_ref(torsion_spec_scm, SCM_MAKINUM(1));
+// 		     SCM atom_spec_2_scm = scm_list_ref(torsion_spec_scm, SCM_MAKINUM(2));
+// 		     SCM atom_spec_3_scm = scm_list_ref(torsion_spec_scm, SCM_MAKINUM(3));
+// 		     SCM atom_spec_4_scm = scm_list_ref(torsion_spec_scm, SCM_MAKINUM(4));
+// 		     coot::atom_spec_t atom_spec_1 = atom_spec_from_scm_expression(atom_spec_1_scm);
+// 		     coot::atom_spec_t atom_spec_2 = atom_spec_from_scm_expression(atom_spec_2_scm);
+// 		     coot::atom_spec_t atom_spec_3 = atom_spec_from_scm_expression(atom_spec_3_scm);
+// 		     coot::atom_spec_t atom_spec_4 = atom_spec_from_scm_expression(atom_spec_4_scm);
+// 		     coot::torsion_atom_specs_t t(atom_spec_1, atom_spec_2, atom_spec_3, atom_spec_4, ta);
+// 		     tas.push_back(t);
+// 		  }
+// 	       }
+// 	    }
+// 	 }
+// 	 if (specs_length == tas.size()) {
+// 	    g.molecules[imol].set_multi_torsion(tas);
+// 	 } 
+//       }
+//    }
+//    return r;
+// }
+// #endif // USE_GUILE
+
 
 #ifdef USE_PYTHON
 void
@@ -2293,12 +2342,12 @@ double kolmogorov_smirnov_scm(SCM l1, SCM l2) {
       std::vector<double> v2;
       for (unsigned int i=0; i<len_l1; i++) {
 	 SCM item = scm_list_ref(l1, SCM_MAKINUM(i));
-	 if (scm_number_p(item))
+	 if (scm_is_true(scm_number_p(item)))
 	    v1.push_back(scm_to_double(item));
       }
       for (unsigned int i=0; i<len_l2; i++) {
 	 SCM item = scm_list_ref(l2, SCM_MAKINUM(i));
-	 if (scm_number_p(item))
+	 if (scm_is_true(scm_number_p(item)))
 	    v2.push_back(scm_to_double(item));
       }
       result = nicholls::get_KS(v1, v2);
@@ -2320,12 +2369,12 @@ SCM kullback_liebler_scm(SCM l1, SCM l2) {
       std::vector<double> v2;
       for (unsigned int i=0; i<len_l1; i++) {
 	 SCM item = scm_list_ref(l1, SCM_MAKINUM(i));
-	 if (scm_number_p(item))
+	 if (scm_is_true(scm_number_p(item)))
 	    v1.push_back(scm_to_double(item));
       }
       for (unsigned int i=0; i<len_l2; i++) {
 	 SCM item = scm_list_ref(l2, SCM_MAKINUM(i));
-	 if (scm_number_p(item))
+	 if (scm_is_true(scm_number_p(item)))
 	    v2.push_back(scm_to_double(item));
       }
       std::pair<double, double> result = nicholls::get_KL(v1, v2);

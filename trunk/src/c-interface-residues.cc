@@ -139,3 +139,4 @@ PyObject *score_rotamers_py(int imol,
    return r;
 } 
 #endif
+
