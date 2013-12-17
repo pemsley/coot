@@ -5303,8 +5303,8 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 			
  			if (mi.swap_needed)
  			   construct_nbc_for_moving_non_moving_bonded(jat, iat, mi.link_type, geom);
-			//  			else
-// 			   construct_nbc_for_moving_non_moving_bonded(iat, jat, mi.link_type);
+			else
+ 			   construct_nbc_for_moving_non_moving_bonded(iat, jat, mi.link_type, geom);
 		     }
 		  }
 	       }
