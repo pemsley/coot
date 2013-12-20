@@ -2270,7 +2270,7 @@ public:        //                      public
    // Are we looking back along the chain (i.e. we are building forward (direction = 1))
    // or building backward (direction = 0)? 
    // 
-   std::vector<clipper::Coord_orth> previous_baton_atom(const CAtom* latest_atom_addition,
+   std::vector<clipper::Coord_orth> previous_baton_atom(CAtom* latest_atom_addition,
 							short int direction) const;
 
    clipper::Xmap<coot::SkeletonTreeNode> skeleton_treenodemap;

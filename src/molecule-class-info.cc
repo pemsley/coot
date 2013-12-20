@@ -3127,10 +3127,10 @@ molecule_class_info_t::export_coordinates(std::string filename) const {
 }
 
 // Perhaps this should be a util function?
-CMMDBManager
-*molecule_class_info_t::get_residue_range_as_mol(const std::string &chain_id,
-						 int resno_start,
-						 int resno_end) const {
+CMMDBManager *
+molecule_class_info_t::get_residue_range_as_mol(const std::string &chain_id,
+						int resno_start,
+						int resno_end) const {
 
    int imod = 1;
 
@@ -3253,13 +3253,13 @@ molecule_class_info_t::atom_spec_to_atom_index(std::string chain, int resno,
    int iatom_index = -1; 
    int selHnd = atom_sel.mol->NewSelection();
 
-   atom_sel.mol->SelectAtoms(selHnd, 0, (char *) chain.c_str(), 
-			    resno, "*", // start, insertion code
-			    resno, "*", // end, insertion code
-			    "*", // residue name
-			    (char *) atom_name.c_str(),
-			    "*", // elements
-			    "*"); // alt locs
+   atom_sel.mol->SelectAtoms(selHnd, 0, chain.c_str(), 
+			     resno, "*", // start, insertion code
+			     resno, "*", // end, insertion code
+			     "*", // residue name
+			     atom_name.c_str(),
+			     "*", // elements
+			     "*"); // alt locs
 
    int nSelAtoms;
    PPCAtom local_SelAtom; 
@@ -3277,7 +3277,7 @@ molecule_class_info_t::atom_spec_to_atom_index(std::string chain, int resno,
 				ANY_RES, "*", // start, insertion code
 				ANY_RES, "*", // end, insertion code
 				"*", // residue name
-				(char *) atom_name.c_str(),
+				atom_name.c_str(),
 				"*", // elements
 				"*"); // alt locs
 
@@ -4841,12 +4841,10 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
       PPCResidue SelResidue;
       int nSelResidues;
 
-      char *ins_code_search = (char *) ins_code.c_str(); // bleugh (as usual)
-      
       atom_sel.mol->Select (selHnd, STYPE_RESIDUE, 0,
-			    (char *)chain_id.c_str(), 
-			    resno, ins_code_search,
-			    resno, ins_code_search,
+			    chain_id.c_str(), 
+			    resno, ins_code.c_str(),
+			    resno, ins_code.c_str(),
 			    "*",  // residue name
 			    "*",  // Residue must contain this atom name?
 			    "*",  // Residue must contain this Element?
@@ -5480,7 +5478,7 @@ molecule_class_info_t::add_baton_atom(coot::Cartesian pos,
 // in the back() slot of the vector.
 // 
 std::vector<clipper::Coord_orth>
-molecule_class_info_t::previous_baton_atom(const CAtom* latest_atom_addition,
+molecule_class_info_t::previous_baton_atom(CAtom* latest_atom_addition,
 					   short int direction) const {
    std::vector<clipper::Coord_orth> positions;
    int direction_sign = +1; 
@@ -5492,9 +5490,9 @@ molecule_class_info_t::previous_baton_atom(const CAtom* latest_atom_addition,
       direction_sign = -1; // building backward, look in positive
 			   // direction for previously build atoms.
    }
-   int ires_last_atom = ((CAtom *) latest_atom_addition)->GetSeqNum();
+   int ires_last_atom = latest_atom_addition->GetSeqNum();
 
-   char *chain = ((CAtom *) latest_atom_addition)->GetChainID();
+   char *chain = latest_atom_addition->GetChainID();
    // does the CA for the (ires_last_atom-2) exist?
    int selHnd = atom_sel.mol->NewSelection();
 	 
@@ -6319,7 +6317,7 @@ molecule_class_info_t::get_standard_residue_instance(const std::string &residue_
 					   "*", // Chain(s) it's "A" in this case.
 					   ANY_RES,"*",  // starting res
 					   ANY_RES,"*",  // ending res
-					   (char *) residue_type.c_str(),  // residue name
+					   residue_type.c_str(),  // residue name
 					   "*",  // Residue must contain this atom name?
 					   "*",  // Residue must contain this Element?
 					   "*",  // altLocs

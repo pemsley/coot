@@ -667,7 +667,7 @@ class graphics_info_t {
    // baton tip (is the baton root)
    static std::vector<clipper::Coord_orth> *baton_previous_ca_positions; // up to 3.
    coot::Cartesian non_skeleton_tip_pos() const; 
-   void baton_next_directions(int imol_for_skel, const CAtom *atom, const coot::Cartesian& pos,
+   void baton_next_directions(int imol_for_skel, CAtom *atom, const coot::Cartesian& pos,
 			      const clipper::Coord_grid &cg_start,
 			      short int use_cg_start);
    coot::Cartesian baton_tip_by_ca_option(int index) const;
@@ -687,12 +687,6 @@ class graphics_info_t {
 
    
    int imol_for_skeleton() const;
-   /* for all the GtkItem:: and GtkTreeItem:: signals */
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-
-   static void residue_tree_view_itemsignal( GtkWidget *item,
-				      gchar     *signame);
-#endif
 
    void create_molecule_and_display(std::vector<coot::scored_skel_coord> &pos_position,
 				    const std::string &molname);
