@@ -544,15 +544,20 @@ namespace coot {
 
       class extra_parallel_planes_restraints_representation_t {
       public:
-	 clipper::Coord_orth centre;
-	 clipper::Coord_orth normal;
-	 double radius;
-	 extra_parallel_planes_restraints_representation_t(const clipper::Coord_orth &a,
-							   const clipper::Coord_orth &c,
-							   double r1) {
-	    centre = a;
-	    normal = c;
-	    radius = r1;
+	 clipper::Coord_orth ring_centre;
+	 clipper::Coord_orth plane_projection_point;
+	 clipper::Coord_orth normal; // for the ring plane
+	 double ring_radius;
+	 double pp_radius; // projection point
+	 extra_parallel_planes_restraints_representation_t(const clipper::Coord_orth &rc,
+							   const clipper::Coord_orth &ppp,
+							   const clipper::Coord_orth &norm,
+							   double r1, double r2) {
+	    ring_centre = rc;
+	    plane_projection_point = ppp;
+	    normal = norm;
+	    ring_radius = r1;
+	    pp_radius = r2;
 	 }
       };
 
