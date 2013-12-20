@@ -2703,7 +2703,7 @@ graphics_info_t::start_baton_here() {
 // baton_next_ca_options) and display it.
 // 
 void
-graphics_info_t::baton_next_directions(int imol_for_skel, const CAtom *latest_atom,
+graphics_info_t::baton_next_directions(int imol_for_skel, CAtom *latest_atom,
 				       const coot::Cartesian &baton_root,
 				       const clipper::Coord_grid &cg_start,
 				       short int use_cg_start) {
