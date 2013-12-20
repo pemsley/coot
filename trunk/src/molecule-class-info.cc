@@ -911,23 +911,40 @@ molecule_class_info_t::draw_parallel_plane_restraints_representation() {
 		  extra_restraints_representation.parallel_planes[i];
 
 	       if (0)
-		  std::cout << "draw at " << r.centre.format() << " normal " << r.normal.format() << " " << r.radius
-			    << std::endl;
+		  std::cout << "draw at " << r.ring_centre.format() << " normal " << r.normal.format()
+			    << " " << r.ring_radius << std::endl;
 
 	       clipper::Coord_orth arb(0.2, 0.8, 0.1);
 	       clipper::Coord_orth cr(clipper::Coord_orth::cross(r.normal, arb).unit());
-	       clipper::Coord_orth first_pt = r.centre + r.radius * cr;
+	       clipper::Coord_orth first_pt = r.ring_centre + r.ring_radius * cr;
+	       clipper::Coord_orth first_pt_pp = r.plane_projection_point + r.pp_radius * cr;
+	       // std::cout << i << " r.plane_projection_point: " << r.plane_projection_point.format() << std::endl;
 
 	       unsigned int n_steps = 20;
 	       double step_frac = 1/double(n_steps);
+	       clipper::Coord_orth pt_1;
+	       clipper::Coord_orth pt_2;
 	       for (unsigned int istep=0; istep<n_steps; istep++) {
 		  double angle_1 = step_frac * 2.0 * M_PI * istep;
 		  double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
-		  clipper::Coord_orth pt_1 = coot::util::rotate_round_vector(r.normal, first_pt, r.centre, angle_1);
-		  clipper::Coord_orth pt_2 = coot::util::rotate_round_vector(r.normal, first_pt, r.centre, angle_2);
+		  pt_1 = coot::util::rotate_round_vector(r.normal, first_pt, r.ring_centre, angle_1);
+		  pt_2 = coot::util::rotate_round_vector(r.normal, first_pt, r.ring_centre, angle_2);
 		  glVertex3f(pt_1.x(), pt_1.y(), pt_1.z());
 		  glVertex3f(pt_2.x(), pt_2.y(), pt_2.z());
 	       }
+
+	       for (unsigned int istep=0; istep<n_steps; istep++) {
+		  double angle_1 = step_frac * 2.0 * M_PI * istep;
+		  double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
+		  pt_1 = coot::util::rotate_round_vector(r.normal, first_pt_pp, r.plane_projection_point, angle_1);
+		  pt_2 = coot::util::rotate_round_vector(r.normal, first_pt_pp, r.plane_projection_point, angle_2);
+		  glVertex3f(pt_1.x(), pt_1.y(), pt_1.z());
+		  glVertex3f(pt_2.x(), pt_2.y(), pt_2.z());
+	       }
+
+	       // now the lines between planes
+	       glVertex3d(r.ring_centre.x(), r.ring_centre.y(), r.ring_centre.z());
+	       glVertex3d(r.plane_projection_point.x(), r.plane_projection_point.y(), r.plane_projection_point.z());
 	    }
 	    glEnd();
 	 }
