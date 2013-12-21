@@ -910,10 +910,6 @@ molecule_class_info_t::draw_parallel_plane_restraints_representation() {
 	       const coot::extra_restraints_representation_t::extra_parallel_planes_restraints_representation_t &r =
 		  extra_restraints_representation.parallel_planes[i];
 
-	       if (0)
-		  std::cout << "draw at " << r.ring_centre.format() << " normal " << r.normal.format()
-			    << " " << r.ring_radius << std::endl;
-
 	       clipper::Coord_orth arb(0.2, 0.8, 0.1);
 	       clipper::Coord_orth cr(clipper::Coord_orth::cross(r.normal, arb).unit());
 	       clipper::Coord_orth first_pt = r.ring_centre + r.ring_radius * cr;
@@ -948,6 +944,17 @@ molecule_class_info_t::draw_parallel_plane_restraints_representation() {
 	    }
 	    glEnd();
 	 }
+
+	 // points
+	 float zsc = graphics_info_t::zoom;
+	 glPointSize(120.0/zsc);
+	 glBegin(GL_POINTS);
+	 for (unsigned int i=0; i<extra_restraints_representation.parallel_planes.size(); i++) {
+	    const coot::extra_restraints_representation_t::extra_parallel_planes_restraints_representation_t &r =
+	       extra_restraints_representation.parallel_planes[i];
+	    glVertex3d(r.plane_projection_point.x(), r.plane_projection_point.y(), r.plane_projection_point.z());
+	 }
+	 glEnd();
       }
    } 
 }
