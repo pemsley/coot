@@ -904,7 +904,7 @@ molecule_class_info_t::draw_parallel_plane_restraints_representation() {
       if (drawit_for_extra_restraints) {
 	 if (extra_restraints_representation.parallel_planes.size() > 0) { 
 	    glLineWidth(2.0);
-	    glColor3f(0.6, 0.6, 0.8);
+	    glColor3f(0.55, 0.55, 0.3);
 	    glBegin(GL_LINES);
 	    for (unsigned int i=0; i<extra_restraints_representation.parallel_planes.size(); i++) {
 	       const coot::extra_restraints_representation_t::extra_parallel_planes_restraints_representation_t &r =
@@ -916,7 +916,7 @@ molecule_class_info_t::draw_parallel_plane_restraints_representation() {
 	       clipper::Coord_orth first_pt_pp = r.plane_projection_point + r.pp_radius * cr;
 	       // std::cout << i << " r.plane_projection_point: " << r.plane_projection_point.format() << std::endl;
 
-	       unsigned int n_steps = 20;
+	       unsigned int n_steps = 32;
 	       double step_frac = 1/double(n_steps);
 	       clipper::Coord_orth pt_1;
 	       clipper::Coord_orth pt_2;
@@ -929,6 +929,8 @@ molecule_class_info_t::draw_parallel_plane_restraints_representation() {
 		  glVertex3f(pt_2.x(), pt_2.y(), pt_2.z());
 	       }
 
+	       n_steps = 16;
+	       step_frac = 1/double(n_steps);
 	       for (unsigned int istep=0; istep<n_steps; istep++) {
 		  double angle_1 = step_frac * 2.0 * M_PI * istep;
 		  double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);

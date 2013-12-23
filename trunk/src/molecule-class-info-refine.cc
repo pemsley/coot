@@ -657,17 +657,9 @@ coot::extra_restraints_representation_t::add_parallel_plane(const lsq_plane_info
       clipper::Coord_orth ppp_1 = op_1 + s_1 * pi_1.normal();
       clipper::Coord_orth ppp_2 = op_2 + s_2 * pi_2.normal();
 
-      extra_parallel_planes_restraints_representation_t eppr_1(op_1, ppp_1, pi_1.normal(), 1.6, 0.2);
-      extra_parallel_planes_restraints_representation_t eppr_2(op_2, ppp_2, pi_2.normal(), 1.6, 0.2);
+      extra_parallel_planes_restraints_representation_t eppr_1(op_1, ppp_1, pi_1.normal(), 1.3, 0.2);
+      extra_parallel_planes_restraints_representation_t eppr_2(op_2, ppp_2, pi_2.normal(), 1.3, 0.2);
       parallel_planes.push_back(eppr_1);
       parallel_planes.push_back(eppr_2);
 
-// put these simple lines into the drawing of the parallel plane
-// representation, they are not bonds.
-//      
-//       extra_bond_restraints_respresentation_t br_1(op_1, projected_plane_pt_1, -1, -1);
-//       extra_bond_restraints_respresentation_t br_2(op_2, projected_plane_pt_2, -1, -1);
-//       bonds.push_back(br_1);
-//       bonds.push_back(br_2);
-      
 }
