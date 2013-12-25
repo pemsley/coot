@@ -15,6 +15,9 @@ class PDB_Entry:
 	self.IoverSigma            = False
 	self.numMillerIndices      = False
 	self.percent_RSRZ_outliers = False
+	self.absolute_percentile_percent_RSRZ_outliers = False
+	self.relative_percentile_percent_RSRZ_outliers = False
+	self.percent_RSRZ_outliers                     = False
 	self.acentric_outliers     = False
 	self.centric_outliers      = False
 	self.EDS_R                 = False
@@ -42,6 +45,13 @@ class PDB_Entry:
 	self.RefmacVersion      = False
 	self.bulk_solvent_k     = False
 	self.bulk_solvent_b     = False
+	self.absolute_percentile_percent_rama_outliers = False
+	self.absolute_percentile_percent_rota_outliers = False
+	self.relative_percentile_percent_rama_outliers = False
+	self.relative_percentile_percent_rota_outliers = False
+	self.percent_rama_outliers                     = False
+	self.percent_rota_outliers                     = False
+	
         try: 
 	    self.PDB_revision_number                       = entry_attrib['PDB-revision-number']
 	    self.absolute_percentile_clashscore            = entry_attrib['absolute-percentile-clashscore']
@@ -390,26 +400,90 @@ def test_parse_xml_aside_1(xml_file_name):
 	print child.tag, child.attrib
 
 def draw_rgb_image(da, gc, x, y):
-    b = 80*3*80*['\0']
-    for i in range(80):
-	for j in range(80):
-	    b[3*80*i+3*j]   = chr(255)
-	    b[3*80*i+3*j+1] = chr(int(255*(j/40-math.trunc(j/40))))
-	    b[3*80*i+3*j+2] = chr(j*3)
-    buff = string.join(b, '')
-    da.window.draw_rgb_image(gc, x, y, 200, 20,
-			     gtk.gdk.RGB_DITHER_NONE, buff, 80*3)
-    return
+    bar_length = 200
+    bar_height = 20
+    c = 3*bar_length*bar_height*['\0']
     
-def on_drawing_area_expose(da, event):
-    style = da.get_style()
-    gc = style.fg_gc[gtk.STATE_NORMAL]
-    black_color = gtk.gdk.Color(red=0, green=0, blue=0)
-    draw_rgb_image(da, gc, 60, 20)
-    da.window.draw_rectangle(gc, False, 60, 20, 200, 20)
+    for i in range(bar_height):
+	for j in range(bar_length):
+
+	    idx = 3*(bar_length*i + j)
+	    f_j = float(j)/float(bar_length)
+	    # we need g to go 255:255:0
+	    r = int(255*(1-math.pow(f_j, 2)))
+	    # we need g to go 0:255:0
+	    g_1 = f_j                #  0 : 0.5 : 1
+	    g_2 = 2 * (g_1 - 0.5)    # -1 : 0.  : 1
+	    g_3 = g_2 * g_2          #  1 : 0.  : 1
+	    g_4 = 1 - g_3            #  0 : 1.  : 0
+	    g = int(200*g_4)
+	    b = int(255*math.pow(f_j, 0.4))
+	    
+	    c[idx  ] = chr(r)
+	    c[idx+1] = chr(g)
+	    c[idx+2] = chr(b)
+	    
+    buff = string.join(c, '')
+    da.window.draw_rgb_image(gc, x, y, bar_length, bar_height,
+			     gtk.gdk.RGB_DITHER_NONE, buff, bar_length*3)
+    return
 
 
 def validation_entry_to_canvas(entry_validation_info):
+
+    def on_drawing_area_expose(da, event):
+	style = da.get_style()
+	gc = style.fg_gc[gtk.STATE_NORMAL]
+	black_color = gtk.gdk.Color(red=0, green=0, blue=0)
+
+# 	draw_rgb_image(da, gc, 60, 20)
+# 	da.window.draw_rectangle(gc, False, 60, 20, 200, 20)
+
+	draw_sliders(da, gc)
+
+    def draw_slider(name, abs, rel, slider_no, da, gc):
+	x = 100
+	y = 50*(slider_no+1)
+	draw_rgb_image(da, gc, x, y)
+	da.window.draw_rectangle(gc, False, x, y, 200, 20)
+	pangolayout = da.create_pango_layout("")
+        pangolayout.set_text(name)
+        da.window.draw_layout(gc, 4, y, pangolayout)
+	
+	
+
+    def draw_sliders(da, gc):
+	
+	draw_slider("Clashscore",
+		    entry_validation_info.absolute_percentile_clashscore,
+		    entry_validation_info.relative_percentile_clashscore,
+		    0, da, gc)
+    
+	draw_slider("Rama",
+		    entry_validation_info.absolute_percentile_percent_rama_outliers,
+		    entry_validation_info.relative_percentile_percent_rama_outliers,
+		    1, da, gc)
+    
+	draw_slider("Rotamers",
+		    entry_validation_info.absolute_percentile_percent_rota_outliers,
+		    entry_validation_info.relative_percentile_percent_rota_outliers,
+		    2, da, gc)
+
+	draw_slider("DCC-Rfree",
+		    entry_validation_info.absolute_percentile_DCC_Rfree,
+		    entry_validation_info.relative_percentile_DCC_Rfree,
+		    3, da, gc)
+
+	draw_slider("RSRZ Outliers",
+		    entry_validation_info.relative_percentile_percent_RSRZ_outliers,
+		    entry_validation_info.absolute_percentile_percent_RSRZ_outliers,
+		    4, da, gc)
+	
+	draw_slider("RNASuiteness",
+		    entry_validation_info.relative_percentile_RNAsuiteness,
+		    entry_validation_info.absolute_percentile_RNAsuiteness,
+		    5, da, gc)
+
     
     window = gtk.Window(gtk.WINDOW_TOPLEVEL)
     window.set_title("Validation Report")
@@ -417,7 +491,7 @@ def validation_entry_to_canvas(entry_validation_info):
     vbox.set_border_width(5)
     h_sep = gtk.HSeparator()
     da = gtk.DrawingArea()
-    da.set_size_request(300,200)
+    da.set_size_request(300,360)
     close_button = gtk.Button("  Close  ")
     vbox.pack_start(da,           False, 6)
     vbox.pack_start(h_sep,        False, 6)
@@ -426,20 +500,13 @@ def validation_entry_to_canvas(entry_validation_info):
     window.show_all()
     da.connect("expose-event", on_drawing_area_expose)
 
-    style = da.get_style()
-    gc = style.fg_gc[gtk.STATE_NORMAL]
-    pangolayout = da.create_pango_layout("")
+    # pangolayout = da.create_pango_layout("")
+    # black_color = gtk.gdk.Color(red=0, green=0, blue=0)
+    # da.window.draw_layout(gc, 102, 100, pangolayout)
 
-    black_color = gtk.gdk.Color(red=0, green=0, blue=0)
-    da.window.draw_rectangle(gc, True, 10, 20, 30, 50)
-    da.window.draw_point(gc, 30, 40)
-    da.window.draw_layout(gc, 102, 100, pangolayout)
+    
+    
 
-
-# parse_wwpdb_validataion_xml("3NPQ.xml")
-# test_parse_xml("test.xml")
-# c = TestComplex(1,2)
-# c = TestComplex(1)
 
 vi = parse_wwpdb_validataion_xml("3NPQ.xml")
 validation_entry_to_canvas(vi)
