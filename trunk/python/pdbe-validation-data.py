@@ -9,7 +9,8 @@ class PDB_Entry:
     def setup(self):
 	self.other = 'Done'
 	
-    def __init__(self, entry_attrib):
+    def __init__(self, entry_attrib, xml_file_name):
+	self.xml_file_name = xml_file_name
 	self.setup()
 	self.Fo_Fc_correlation     = False
 	self.IoverSigma            = False
@@ -51,18 +52,22 @@ class PDB_Entry:
 	self.relative_percentile_percent_rota_outliers = False
 	self.percent_rama_outliers                     = False
 	self.percent_rota_outliers                     = False
+	self.RestypesNotcheckedForBondAngleGeometry    = False
 	
         try: 
 	    self.PDB_revision_number                       = entry_attrib['PDB-revision-number']
 	    self.absolute_percentile_clashscore            = entry_attrib['absolute-percentile-clashscore']
 	    self.relative_percentile_clashscore            = entry_attrib['relative-percentile-clashscore']
-	    self.RestypesNotcheckedForBondAngleGeometry    = entry_attrib['RestypesNotcheckedForBondAngleGeometry']
 	    self.attemptedValidationSteps                  = entry_attrib['attemptedValidationSteps']
 	    self.clashscore                                = entry_attrib['clashscore']
 	    self.num_H_reduce                              = entry_attrib['num-H-reduce']
 	except KeyError as e:
 	    print 'PDB_Entry: KeyError with key', e
-	    return None
+
+	try:
+	    self.RestypesNotcheckedForBondAngleGeometry    = entry_attrib['RestypesNotcheckedForBondAngleGeometry']
+	except KeyError as e:
+	    print 'PDB_Entry: KeyError with key', e
 
 	try:
 	    self.absolute_percentile_percent_rama_outliers = entry_attrib['absolute-percentile-percent-rama-outliers']
@@ -327,16 +332,46 @@ class ModelledSubgroup:
 	
 	try:
 	    self.altcode   = subgroup_attrib['altcode']
-	    self.rscc      = subgroup_attrib['rscc']
 	    self.resnum    = subgroup_attrib['resnum']
 	    self.chain     = subgroup_attrib['chain']
-	    self.NatomsEDS = subgroup_attrib['NatomsEDS']
-	    self.owab      = subgroup_attrib['owab']
-	    self.avgoccu   = subgroup_attrib['avgoccu']
 	    self.icode     = subgroup_attrib['icode']
 	    self.resname   = subgroup_attrib['resname']
 	    self.model     = subgroup_attrib['model']
-	    self.rsr       = subgroup_attrib['rsr']
+	    self.rscc      = False
+	    self.NatomsEDS = False
+	    self.owab      = False
+	    self.avgoccu   = False
+	    self.rsr       = False
+	    
+	    try:
+		self.rsr   = subgroup_attrib['rsr']
+	    except KeyError as e:
+		# it is OK if a ModelledSubgroup doesnt have a rsrz
+		pass
+
+	    try:
+		self.avgoccu   = subgroup_attrib['avgoccu']
+	    except KeyError as e:
+		# it is OK if a ModelledSubgroup doesnt have a rsrz
+		pass
+
+	    try:
+		self.owab = subgroup_attrib['owab']
+	    except KeyError as e:
+		# it is OK if a ModelledSubgroup doesnt have a rsrz
+		pass
+
+	    try:
+		self.NatomsEDS = subgroup_attrib['NatomsEDS']
+	    except KeyError as e:
+		# it is OK if a ModelledSubgroup doesnt have a rsrz
+		pass
+
+	    try:
+		self.rscc = subgroup_attrib['rscc']
+	    except KeyError as e:
+		# it is OK if a ModelledSubgroup doesnt have a rsrz
+		pass
 	    
 	    try:
 		self.rsrz = subgroup_attrib['rsrz']
@@ -361,17 +396,21 @@ class ModelledSubgroup:
 
 def parse_wwpdb_validataion_xml(xml_file_name):
 
-    tree = et.parse(xml_file_name)
-    root = tree.getroot()
-    modelled_subgroups = []
-    for child in root:
-	if child.tag == 'Entry':
-	    entry_info = PDB_Entry(child.attrib)
-	if child.tag == 'ModelledSubgroup':
-	    subgroup = ModelledSubgroup(child)
-	    if subgroup:
-		modelled_subgroups.append(subgroup)
-    return entry_info
+    try: 
+	tree = et.parse(xml_file_name)
+	root = tree.getroot()
+	modelled_subgroups = []
+	for child in root:
+	    if child.tag == 'Entry':
+		entry_info = PDB_Entry(child.attrib, xml_file_name)
+	    if child.tag == 'ModelledSubgroup':
+		subgroup = ModelledSubgroup(child)
+		if subgroup:
+		    modelled_subgroups.append(subgroup)
+	return entry_info
+    except IOError as e:
+	print e
+	return False
 
 
 def test_parse_xml(xml_file_name):
@@ -399,9 +438,8 @@ def test_parse_xml_aside_1(xml_file_name):
     for child in root:
 	print child.tag, child.attrib
 
-def draw_rgb_image(da, gc, x, y):
-    bar_length = 200
-    bar_height = 20
+def draw_rgb_image(da, gc, x, y, bar_length, bar_height):
+
     c = 3*bar_length*bar_height*['\0']
     
     for i in range(bar_height):
@@ -431,74 +469,107 @@ def draw_rgb_image(da, gc, x, y):
 
 def validation_entry_to_canvas(entry_validation_info):
 
+    def bar_for_abs(abs_percent, x_min, y_min, bar_length, bar_height, da, gc):
+	x = int(x_min + 0.01 * abs_percent * bar_length)
+	y = int(y_min - bar_height * 0.25)
+	# print "abs bar at: ", x, y, "for abs_percent", abs_percent
+	abs_bar_width = 6
+	abs_bar_height = int(bar_height * 1.5)
+	da.window.draw_rectangle(gc, True, x, y, abs_bar_width, abs_bar_height)
+
+    def arcs_for_rel(rel_percent, x_min, y_min, bar_length, bar_height, da, gc):
+	x = int(x_min + 0.01 * rel_percent * bar_length)
+	y = int(y_min - bar_height * 0.25)
+	# print "rel bar at: ", x, y, "for re_percent", rel_percent
+	abs_bar_width = 6
+	abs_bar_height = int(bar_height * 1.5)
+	da.window.draw_rectangle(gc, False, x, y, abs_bar_width, abs_bar_height)
+
     def on_drawing_area_expose(da, event):
 	style = da.get_style()
 	gc = style.fg_gc[gtk.STATE_NORMAL]
 	black_color = gtk.gdk.Color(red=0, green=0, blue=0)
 
-# 	draw_rgb_image(da, gc, 60, 20)
-# 	da.window.draw_rectangle(gc, False, 60, 20, 200, 20)
-
 	draw_sliders(da, gc)
 
-    def draw_slider(name, abs, rel, slider_no, da, gc):
+    def draw_slider(name, abs_str, rel_str, slider_no, da, gc):
 	x = 100
 	y = 50*(slider_no+1)
-	draw_rgb_image(da, gc, x, y)
-	da.window.draw_rectangle(gc, False, x, y, 200, 20)
+	bar_length = 200
+	bar_height = 20
+	draw_rgb_image(da, gc, x, y, bar_length, bar_height)
+	da.window.draw_rectangle(gc, False, x, y, bar_length, bar_height)
 	pangolayout = da.create_pango_layout("")
         pangolayout.set_text(name)
         da.window.draw_layout(gc, 4, y, pangolayout)
-	
+	try:
+	    if abs_str != False:
+		abs = float(abs_str)
+		bar_for_abs(abs, x, y, bar_length, bar_height, da, gc)
+	    if rel_str != False:
+		rel = float(rel_str)
+		arcs_for_rel(rel, x, y, bar_length, bar_height, da, gc)
+		
+	    rel = float(rel_str)
+	except TypeError as e:
+	    print e
 	
 
     def draw_sliders(da, gc):
+
+	icount_slider = 0
+	abs = entry_validation_info.absolute_percentile_clashscore
+	rel = entry_validation_info.relative_percentile_clashscore
+	if abs != False and rel != False: 
+	    draw_slider("Clashscore", abs, rel, icount_slider, da, gc)
+	    icount_slider += 1
+    
+	abs = entry_validation_info.absolute_percentile_percent_rama_outliers
+	rel = entry_validation_info.relative_percentile_percent_rama_outliers
+	if abs != False and rel != False: 
+	    draw_slider("Rama", abs, rel, icount_slider, da, gc)
+	    icount_slider += 1
+    
+	abs = entry_validation_info.absolute_percentile_percent_rota_outliers
+	rel = entry_validation_info.relative_percentile_percent_rota_outliers
+	if abs != False and rel != False: 
+	    draw_slider("Rotamers", abs, rel, icount_slider, da, gc)
+	    icount_slider += 1
+	    
+	abs = entry_validation_info.absolute_percentile_DCC_Rfree
+	rel = entry_validation_info.relative_percentile_DCC_Rfree
+	if abs != False and rel != False: 
+	    draw_slider("DCC-Rfree", abs, rel, icount_slider, da, gc)
+	    icount_slider += 1
+
+	abs = entry_validation_info.relative_percentile_percent_RSRZ_outliers
+	rel = entry_validation_info.absolute_percentile_percent_RSRZ_outliers
+	if abs != False and rel != False: 
+	    draw_slider("RSRZ Outliers", abs, rel, icount_slider, da, gc)
+	    icount_slider += 1
 	
-	draw_slider("Clashscore",
-		    entry_validation_info.absolute_percentile_clashscore,
-		    entry_validation_info.relative_percentile_clashscore,
-		    0, da, gc)
-    
-	draw_slider("Rama",
-		    entry_validation_info.absolute_percentile_percent_rama_outliers,
-		    entry_validation_info.relative_percentile_percent_rama_outliers,
-		    1, da, gc)
-    
-	draw_slider("Rotamers",
-		    entry_validation_info.absolute_percentile_percent_rota_outliers,
-		    entry_validation_info.relative_percentile_percent_rota_outliers,
-		    2, da, gc)
+	abs = entry_validation_info.relative_percentile_RNAsuiteness
+	rel = entry_validation_info.absolute_percentile_RNAsuiteness
+	if abs != False and rel != False: 
+	    draw_slider("RNASuiteness", abs, rel, icount_slider, da, gc)
+	    icount_slider += 1
 
-	draw_slider("DCC-Rfree",
-		    entry_validation_info.absolute_percentile_DCC_Rfree,
-		    entry_validation_info.relative_percentile_DCC_Rfree,
-		    3, da, gc)
-
-	draw_slider("RSRZ Outliers",
-		    entry_validation_info.relative_percentile_percent_RSRZ_outliers,
-		    entry_validation_info.absolute_percentile_percent_RSRZ_outliers,
-		    4, da, gc)
-	
-	draw_slider("RNASuiteness",
-		    entry_validation_info.relative_percentile_RNAsuiteness,
-		    entry_validation_info.absolute_percentile_RNAsuiteness,
-		    5, da, gc)
-
-    
-    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-    window.set_title("Validation Report")
-    vbox = gtk.VBox(False, 0)
-    vbox.set_border_width(5)
-    h_sep = gtk.HSeparator()
-    da = gtk.DrawingArea()
-    da.set_size_request(300,360)
-    close_button = gtk.Button("  Close  ")
-    vbox.pack_start(da,           False, 6)
-    vbox.pack_start(h_sep,        False, 6)
-    vbox.pack_start(close_button, False, 6)
-    window.add(vbox)
-    window.show_all()
-    da.connect("expose-event", on_drawing_area_expose)
+    if entry_validation_info != False:
+	window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+	title = "PDB Validation Report for " + entry_validation_info.xml_file_name
+	window.set_title(title)
+	vbox = gtk.VBox(False, 0)
+	vbox.set_border_width(5)
+	h_sep = gtk.HSeparator()
+	da = gtk.DrawingArea()
+	da.set_size_request(400,360)
+	close_button = gtk.Button("  Close  ")
+	vbox.pack_start(da,           False, 6)
+	vbox.pack_start(h_sep,        False, 6)
+	vbox.pack_start(close_button, False, 6)
+	window.add(vbox)
+	window.show_all()
+	da.connect("expose-event", on_drawing_area_expose)
 
     # pangolayout = da.create_pango_layout("")
     # black_color = gtk.gdk.Color(red=0, green=0, blue=0)
@@ -506,10 +577,12 @@ def validation_entry_to_canvas(entry_validation_info):
 
     
     
+xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
+xml_list = ["3NPQ.xml"]
 
-
-vi = parse_wwpdb_validataion_xml("3NPQ.xml")
-validation_entry_to_canvas(vi)
+for xml_file in xml_list:
+    vi = parse_wwpdb_validataion_xml(xml_file)
+    validation_entry_to_canvas(vi)
 
 # coot_real_exit(0)
 gtk.main()
