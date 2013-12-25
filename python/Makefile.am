@@ -48,5 +48,6 @@ dist_python_DATA = \
    get_recent_pdbe.py   jligand.py	     	 jligand_gui.py	              \
    redefine_functions.py user_define_restraints.py template_key_bindings.py   \
    coot_toolbuttons.py  rcrane_loader.py \
+   pdbe-validation-data.py \
    $(TEXI_FILE)
 
