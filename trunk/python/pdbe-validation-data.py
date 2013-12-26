@@ -3,6 +3,7 @@ import pygtk, gtk, pango
 import xml.etree.ElementTree as et
 import string
 import math
+import types
 
 class PDB_Entry:
 
@@ -70,12 +71,12 @@ class PDB_Entry:
 	    print 'PDB_Entry: KeyError with key', e
 
 	try:
+	    self.percent_rama_outliers                     = entry_attrib['percent-rama-outliers']
+	    self.percent_rota_outliers                     = entry_attrib['percent-rota-outliers']
 	    self.absolute_percentile_percent_rama_outliers = entry_attrib['absolute-percentile-percent-rama-outliers']
 	    self.absolute_percentile_percent_rota_outliers = entry_attrib['absolute-percentile-percent-rota-outliers']
 	    self.relative_percentile_percent_rama_outliers = entry_attrib['relative-percentile-percent-rama-outliers']
 	    self.relative_percentile_percent_rota_outliers = entry_attrib['relative-percentile-percent-rota-outliers']
-	    self.percent_rama_outliers                     = entry_attrib['percent-rama-outliers']
-	    self.percent_rota_outliers                     = entry_attrib['percent-rota-outliers']
 	except KeyError as e:
 	    # it is OK if a Entry doesnt have these
 	    pass
@@ -438,147 +439,285 @@ def test_parse_xml_aside_1(xml_file_name):
     for child in root:
 	print child.tag, child.attrib
 
-def draw_rgb_image(da, gc, x, y, bar_length, bar_height):
-
-    c = 3*bar_length*bar_height*['\0']
-    
-    for i in range(bar_height):
-	for j in range(bar_length):
-
-	    idx = 3*(bar_length*i + j)
-	    f_j = float(j)/float(bar_length)
-	    # we need g to go 255:255:0
-	    r = int(255*(1-math.pow(f_j, 2)))
-	    # we need g to go 0:255:0
-	    g_1 = f_j                #  0 : 0.5 : 1
-	    g_2 = 2 * (g_1 - 0.5)    # -1 : 0.  : 1
-	    g_3 = g_2 * g_2          #  1 : 0.  : 1
-	    g_4 = 1 - g_3            #  0 : 1.  : 0
-	    g = int(200*g_4)
-	    b = int(255*math.pow(f_j, 0.4))
-	    
-	    c[idx  ] = chr(r)
-	    c[idx+1] = chr(g)
-	    c[idx+2] = chr(b)
-	    
-    buff = string.join(c, '')
-    da.window.draw_rgb_image(gc, x, y, bar_length, bar_height,
-			     gtk.gdk.RGB_DITHER_NONE, buff, bar_length*3)
-    return
 
 
-def validation_entry_to_canvas(entry_validation_info):
+class validation_entry_to_canvas:
 
-    def bar_for_abs(abs_percent, x_min, y_min, bar_length, bar_height, da, gc):
-	x = int(x_min + 0.01 * abs_percent * bar_length)
-	y = int(y_min - bar_height * 0.25)
-	# print "abs bar at: ", x, y, "for abs_percent", abs_percent
-	abs_bar_width = 6
-	abs_bar_height = int(bar_height * 1.5)
-	da.window.draw_rectangle(gc, True, x, y, abs_bar_width, abs_bar_height)
+    def __init__(self, entry_validation_info_in):
 
-    def arcs_for_rel(rel_percent, x_min, y_min, bar_length, bar_height, da, gc):
-	x = int(x_min + 0.01 * rel_percent * bar_length)
-	y = int(y_min - bar_height * 0.25)
-	# print "rel bar at: ", x, y, "for re_percent", rel_percent
-	abs_bar_width = 6
-	abs_bar_height = int(bar_height * 1.5)
-	da.window.draw_rectangle(gc, False, x, y, abs_bar_width, abs_bar_height)
+	self.entry_validation_info = entry_validation_info_in;
+	self.bar_length = 300
+	self.bar_height = 10
+	self.x_bar_offset = 130
+	self.y_bar_offset =  20
+	self.y_pixels_bar_spacing = 30
+	self.abs_bar_width = 6
+	self.abs_bar_height = int(self.bar_height * 1.6)
+	
+	if self.entry_validation_info != False:
+	    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
+	    title = "PDB Validation Report for " + self.entry_validation_info.xml_file_name
+	    window.set_title(title)
+	    vbox = gtk.VBox(False, 0)
+	    vbox.set_border_width(5)
+	    h_sep = gtk.HSeparator()
+	    da = gtk.DrawingArea()
+	    da.set_size_request(550,260)
+	    close_button = gtk.Button("  Close  ")
+	    vbox.pack_start(da,           False, 6)
+	    vbox.pack_start(h_sep,        False, 6)
+	    vbox.pack_start(close_button, False, 6)
+	    window.add(vbox)
+	    window.show_all()
+	    da.connect("expose-event", self.on_drawing_area_expose)
+	    self.pangolayout = da.create_pango_layout("")
 
-    def on_drawing_area_expose(da, event):
+    def on_drawing_area_expose(self, da, event):
 	style = da.get_style()
 	gc = style.fg_gc[gtk.STATE_NORMAL]
 	black_color = gtk.gdk.Color(red=0, green=0, blue=0)
 
-	draw_sliders(da, gc)
+	n_sliders = self.draw_sliders(da, gc)
+	self.draw_top_labels(da, gc)
+	self.draw_bottom_labels(da, gc, n_sliders) # Worse, Better
+	self.draw_key(da, gc, n_sliders) # percentile box descriptions
 
-    def draw_slider(name, abs_str, rel_str, slider_no, da, gc):
-	x = 100
-	y = 50*(slider_no+1)
-	bar_length = 200
-	bar_height = 20
-	draw_rgb_image(da, gc, x, y, bar_length, bar_height)
-	da.window.draw_rectangle(gc, False, x, y, bar_length, bar_height)
+    def draw_rgb_image(self, da, gc, x, y):
+
+	c = 3*self.bar_length*self.bar_height*['\0']
+
+	for i in range(self.bar_height):
+	    for j in range(self.bar_length):
+
+		idx = 3*(self.bar_length*i + j)
+		f_j = float(j)/float(self.bar_length)
+		# we need g to go 255:255:0
+		r = int(255*(1-math.pow(f_j, 5)))
+		# we need g to go 0:255:0
+		g_1 = f_j                #  0 : 0.5 : 1
+		g_2 = 2 * (g_1 - 0.5)    # -1 : 0.  : 1
+		g_3 = g_2 * g_2          #  1 : 0.  : 1
+		g_4 = 1 - g_3            #  0 : 1.  : 0
+		g = int(255*g_4)
+		b = int(255*math.pow(f_j, 0.2))
+
+		c[idx  ] = chr(r)
+		c[idx+1] = chr(g)
+		c[idx+2] = chr(b)
+
+	buff = string.join(c, '')
+	da.window.draw_rgb_image(gc, x, y, self.bar_length, self.bar_height,
+				 gtk.gdk.RGB_DITHER_NONE, buff, self.bar_length*3)
+	return
+
+    def bar_for_abs(self, abs_percent, y_min, da, gc):
+
+	x = int(self.x_bar_offset + 0.01 * abs_percent * self.bar_length)
+	y = int(y_min - self.bar_height * 0.25)
+	da.window.draw_rectangle(gc, True, x, y, self.abs_bar_width, self.abs_bar_height)
+	
+    def arcs_for_rel(self, rel_percent, y_min, da, gc):
+	x = int(self.x_bar_offset + 0.01 * rel_percent * self.bar_length)
+	y = int(y_min - self.bar_height * 0.25)
+	da.window.draw_rectangle(gc, False, x, y, self.abs_bar_width, self.abs_bar_height)
+
+    # Worse, Better
+    def draw_bottom_labels(self, da, gc, n_sliders): 
+	x_worse  = self.x_bar_offset
+	y_worse  = self.y_bar_offset + self.y_pixels_bar_spacing * n_sliders + 13
+	x_better = self.x_bar_offset + self.bar_length - 40
+	y_better = y_worse
+
+        self.pangolayout.set_text('Worse')
+	
+# 	pango.AttrSize(15000)
+# 	attr = pango.AttrList()
+# 	attr.change(pango.AttrSize(15000))
+
+        # fd = self.pangolayout.get_font_description()
+	# print "fd", fd
+
+# 	fontdesc = pango.FontDescription("Serif Bold 30")
+#         self.label.modify_font(fontdesc)
+	
+        da.window.draw_layout(gc, x_worse,  y_worse,  self.pangolayout)
+        self.pangolayout.set_text('Better')
+        da.window.draw_layout(gc, x_better, y_better, self.pangolayout)
+	
+    
+    # percentile box descriptions
+    def draw_key(self, da, gc, n_sliders):
+	x_key_box_abs =  self.x_bar_offset
+	y_key_box_abs = self.y_bar_offset + self.y_pixels_bar_spacing * (n_sliders + 1) + 10
+
+	x_key_box_rel = x_key_box_abs
+	y_key_box_rel = y_key_box_abs + 20
+
+	x_key_1 =  x_key_box_abs + 10
+	y_key_1  = y_key_box_abs - 3
+	
+	x_key_2 =  x_key_1
+	y_key_2  = y_key_1 + 20
+
+	da.window.draw_rectangle(gc, True, x_key_box_abs, y_key_box_abs,
+				 self.abs_bar_width, self.abs_bar_height)
+	da.window.draw_rectangle(gc, False, x_key_box_rel, y_key_box_rel,
+				 self.abs_bar_width, self.abs_bar_height)
+	
+        self.pangolayout.set_text('Percentile Relative to All X-ray Structures')
+        da.window.draw_layout(gc, x_key_1, y_key_1, self.pangolayout)
+        self.pangolayout.set_text('Percentile Relative to X-ray structures of similar resolutions')
+        da.window.draw_layout(gc, x_key_2, y_key_2, self.pangolayout)
+	
+
+    # return True if the bar for the absolute percentile was drawn,
+    # otherwise return False
+    #
+    def draw_slider(self, name, abs_str, rel_str, value_str, slider_no, da, gc):
+	
+	y = self.y_bar_offset + self.y_pixels_bar_spacing*(slider_no+1)
+
+	# colour bar
+	self.draw_rgb_image(da, gc, self.x_bar_offset, y)
+	da.window.draw_rectangle(gc, False, self.x_bar_offset, y, self.bar_length, self.bar_height)
+
+	# Metric text
 	pangolayout = da.create_pango_layout("")
+	pangolayout.set_justify(1)
+	pangolayout.set_alignment(pango.ALIGN_RIGHT)
         pangolayout.set_text(name)
-        da.window.draw_layout(gc, 4, y, pangolayout)
+        da.window.draw_layout(gc, 4, y-6, pangolayout)
+
+	# Values text
+	if isinstance(value_str, types.StringType):
+	    x_for_value = self.x_bar_offset + self.bar_length + 8
+	    pangolayout.set_text(value_str)
+	    # print "value", x_for_value, y
+	    da.window.draw_layout(gc, x_for_value, y-6, pangolayout)
+
+	# Bars for percentile scores
 	try:
-	    if abs_str != False:
-		abs = float(abs_str)
-		bar_for_abs(abs, x, y, bar_length, bar_height, da, gc)
 	    if rel_str != False:
 		rel = float(rel_str)
-		arcs_for_rel(rel, x, y, bar_length, bar_height, da, gc)
+		self.arcs_for_rel(rel, y, da, gc)
+	    if abs_str != False:
+		abs = float(abs_str)
+		self.bar_for_abs( abs, y, da, gc)
+		return True
 		
 	    rel = float(rel_str)
 	except TypeError as e:
 	    print e
+
+	# hopefully we don't get here.
+	return False
+
+
+    # pass abs values
+    def draw_connecting_lines(self, pc_ranks, da, gc):
+
+	x_min = 130
+	if len(pc_ranks) > 1:
+	    for slider_no in range(len(pc_ranks)-1):
+		y_min_1 = 20 + 30*(slider_no+1)
+		y_min_2 = 20 + 30*(slider_no+2)
+		abs_1 = float(pc_ranks[slider_no])
+		abs_2 = float(pc_ranks[slider_no+1])
+		
+		x_1 = int(x_min + 0.01 * abs_1 * self.bar_length)
+		y_1 = int(y_min_1 + self.bar_height + 1)
+		
+		x_2 = int(x_min + 0.01 * abs_2 * self.bar_length)
+		y_2 = int(y_min_2 - self.bar_height * 0.25)
+		
+		# print "draw_line:", x_1, y_1, x_2, y_2
+		da.window.draw_line(gc, x_1, y_1, x_2, y_2)
 	
 
-    def draw_sliders(da, gc):
+    def draw_sliders(self, da, gc):
+
+	save_abs = []
 
 	icount_slider = 0
-	abs = entry_validation_info.absolute_percentile_clashscore
-	rel = entry_validation_info.relative_percentile_clashscore
+	abs   = self.entry_validation_info.absolute_percentile_clashscore
+	rel   = self.entry_validation_info.relative_percentile_clashscore
+	value = self.entry_validation_info.clashscore
 	if abs != False and rel != False: 
-	    draw_slider("Clashscore", abs, rel, icount_slider, da, gc)
+	    state = self.draw_slider("Clashscore", abs, rel, value, icount_slider, da, gc)
+	    if state:
+		save_abs.append(abs)
 	    icount_slider += 1
     
-	abs = entry_validation_info.absolute_percentile_percent_rama_outliers
-	rel = entry_validation_info.relative_percentile_percent_rama_outliers
+	abs   = self.entry_validation_info.absolute_percentile_percent_rama_outliers
+	rel   = self.entry_validation_info.relative_percentile_percent_rama_outliers
+	value = self.entry_validation_info.percent_rama_outliers
+	# print "rama value", value
 	if abs != False and rel != False: 
-	    draw_slider("Rama", abs, rel, icount_slider, da, gc)
+	    state = self.draw_slider("Rama Outliers", abs, rel, value, icount_slider, da, gc)
+	    if state:
+		save_abs.append(abs)
 	    icount_slider += 1
     
-	abs = entry_validation_info.absolute_percentile_percent_rota_outliers
-	rel = entry_validation_info.relative_percentile_percent_rota_outliers
+	abs = self.entry_validation_info.absolute_percentile_percent_rota_outliers
+	rel = self.entry_validation_info.relative_percentile_percent_rota_outliers
+	value = self.entry_validation_info.percent_rota_outliers
+	# print "rota value", value
 	if abs != False and rel != False: 
-	    draw_slider("Rotamers", abs, rel, icount_slider, da, gc)
+	    state = self.draw_slider("Rotamers Outliers", abs, rel, value, icount_slider, da, gc)
+	    if state:
+		save_abs.append(abs)
 	    icount_slider += 1
 	    
-	abs = entry_validation_info.absolute_percentile_DCC_Rfree
-	rel = entry_validation_info.relative_percentile_DCC_Rfree
+	abs = self.entry_validation_info.absolute_percentile_DCC_Rfree
+	rel = self.entry_validation_info.relative_percentile_DCC_Rfree
+	value = self.entry_validation_info.DCC_Rfree
 	if abs != False and rel != False: 
-	    draw_slider("DCC-Rfree", abs, rel, icount_slider, da, gc)
+	    state = self.draw_slider("DCC-Rfree", abs, rel, value, icount_slider, da, gc)
+	    if state:
+		save_abs.append(abs)
 	    icount_slider += 1
 
-	abs = entry_validation_info.relative_percentile_percent_RSRZ_outliers
-	rel = entry_validation_info.absolute_percentile_percent_RSRZ_outliers
+	abs = self.entry_validation_info.relative_percentile_percent_RSRZ_outliers
+	rel = self.entry_validation_info.absolute_percentile_percent_RSRZ_outliers
+	value = self.entry_validation_info.percent_RSRZ_outliers
 	if abs != False and rel != False: 
-	    draw_slider("RSRZ Outliers", abs, rel, icount_slider, da, gc)
+	    state = self.draw_slider("RSRZ Outliers", abs, rel, value, icount_slider, da, gc)
+	    if state:
+		save_abs.append(abs)
 	    icount_slider += 1
 	
-	abs = entry_validation_info.relative_percentile_RNAsuiteness
-	rel = entry_validation_info.absolute_percentile_RNAsuiteness
+	abs = self.entry_validation_info.relative_percentile_RNAsuiteness
+	rel = self.entry_validation_info.absolute_percentile_RNAsuiteness
+	value = self.entry_validation_info.RNAsuiteness
 	if abs != False and rel != False: 
-	    draw_slider("RNASuiteness", abs, rel, icount_slider, da, gc)
+	    state = self.draw_slider("RNASuiteness", abs, rel, value, icount_slider, da, gc)
+	    if state:
+		save_abs.append(abs)
 	    icount_slider += 1
 
-    if entry_validation_info != False:
-	window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-	title = "PDB Validation Report for " + entry_validation_info.xml_file_name
-	window.set_title(title)
-	vbox = gtk.VBox(False, 0)
-	vbox.set_border_width(5)
-	h_sep = gtk.HSeparator()
-	da = gtk.DrawingArea()
-	da.set_size_request(400,360)
-	close_button = gtk.Button("  Close  ")
-	vbox.pack_start(da,           False, 6)
-	vbox.pack_start(h_sep,        False, 6)
-	vbox.pack_start(close_button, False, 6)
-	window.add(vbox)
-	window.show_all()
-	da.connect("expose-event", on_drawing_area_expose)
+	# print "now draw connecting lines to", len(save_abs), "abs values"
+	self.draw_connecting_lines(save_abs, da, gc)
+	return icount_slider
 
-    # pangolayout = da.create_pango_layout("")
-    # black_color = gtk.gdk.Color(red=0, green=0, blue=0)
-    # da.window.draw_layout(gc, 102, 100, pangolayout)
+    def draw_top_labels(self, da, gc):
+	pangolayout = da.create_pango_layout("")
+        pangolayout.set_text('Metric')
+	y_level = 15
+        da.window.draw_layout(gc, 10, y_level, pangolayout)
+        pangolayout.set_text('Percentile Ranks')
+        da.window.draw_layout(gc, 215, y_level, pangolayout)
+        pangolayout.set_text('Value')
+        da.window.draw_layout(gc, 435, y_level, pangolayout)
 
-    
     
 xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
-xml_list = ["3NPQ.xml"]
+
+xml_list = ["3NPQ.xml"] # DNA only?
+xml_list = ["1FV2.xml"]
+xml_list = ["2PE5.xml"]
+xml_list = ["1HAK.xml"]
+xml_list = ["2FGG.xml"]
+xml_list = ["1CBS.xml"]
 
 for xml_file in xml_list:
     vi = parse_wwpdb_validataion_xml(xml_file)
