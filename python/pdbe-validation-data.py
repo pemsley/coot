@@ -566,7 +566,7 @@ class validation_entry_to_canvas:
 	
         pl.set_text('Percentile Relative to All X-ray Structures')
         da.window.draw_layout(gc, x_key_1, y_key_1, pl)
-        pl.set_text('Percentile Relative to X-ray structures of similar resolutions')
+        pl.set_text('Percentile Relative to X-ray structures of similar resolution')
         da.window.draw_layout(gc, x_key_2, y_key_2, pl)
 	
 
