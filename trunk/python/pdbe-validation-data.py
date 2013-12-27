@@ -514,12 +514,12 @@ class validation_entry_to_canvas:
 
     def bar_for_abs(self, abs_percent, y_min, da, gc):
 
-	x = int(self.x_bar_offset + 0.01 * abs_percent * self.bar_length)
+	x = int(self.x_bar_offset + 0.01 * abs_percent * self.bar_length - 0.5 * self.abs_bar_width)
 	y = int(y_min - self.bar_height * 0.25)
 	da.window.draw_rectangle(gc, True, x, y, self.abs_bar_width, self.abs_bar_height)
 	
     def arcs_for_rel(self, rel_percent, y_min, da, gc):
-	x = int(self.x_bar_offset + 0.01 * rel_percent * self.bar_length)
+	x = int(self.x_bar_offset + 0.01 * rel_percent * self.bar_length - 0.5 * self.abs_bar_width)
 	y = int(y_min - self.bar_height * 0.25)
 	da.window.draw_rectangle(gc, False, x, y, self.abs_bar_width, self.abs_bar_height)
 
