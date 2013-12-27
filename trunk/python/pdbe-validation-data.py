@@ -448,7 +448,8 @@ class validation_entry_to_canvas:
 	self.entry_validation_info = entry_validation_info_in;
 	self.bar_length = 300
 	self.bar_height = 10
-	self.x_bar_offset = 130
+	# self.x_bar_offset = 130
+	self.x_bar_offset = 160
 	self.y_bar_offset =  20
 	self.y_pixels_bar_spacing = 30
 	self.abs_bar_width = 6
@@ -462,7 +463,7 @@ class validation_entry_to_canvas:
 	    vbox.set_border_width(5)
 	    h_sep = gtk.HSeparator()
 	    da = gtk.DrawingArea()
-	    da.set_size_request(550,260)
+	    da.set_size_request(560,280)
 	    close_button = gtk.Button("  Close  ")
 	    vbox.pack_start(da,           False, 6)
 	    vbox.pack_start(h_sep,        False, 6)
@@ -470,6 +471,7 @@ class validation_entry_to_canvas:
 	    window.add(vbox)
 	    window.show_all()
 	    da.connect("expose-event", self.on_drawing_area_expose)
+	    close_button.connect("clicked", lambda w: gtk.main_quit())
 	    self.pangolayout = da.create_pango_layout("")
 
     def on_drawing_area_expose(self, da, event):
@@ -524,25 +526,19 @@ class validation_entry_to_canvas:
     # Worse, Better
     def draw_bottom_labels(self, da, gc, n_sliders): 
 	x_worse  = self.x_bar_offset
-	y_worse  = self.y_bar_offset + self.y_pixels_bar_spacing * n_sliders + 13
-	x_better = self.x_bar_offset + self.bar_length - 40
+	y_worse  = self.y_bar_offset + self.y_pixels_bar_spacing * n_sliders + 15
+	x_better = self.x_bar_offset + self.bar_length - 32
 	y_better = y_worse
 
-        self.pangolayout.set_text('Worse')
+        pl_wb = da.create_pango_layout("")
+        pl_wb.set_text('Worse')
+        font_desc = pango.FontDescription('Sans 8')
+	font_desc.set_style(pango.STYLE_ITALIC)
+	pl_wb.set_font_description(font_desc)
+        da.window.draw_layout(gc, x_worse,  y_worse,  pl_wb)
 	
-# 	pango.AttrSize(15000)
-# 	attr = pango.AttrList()
-# 	attr.change(pango.AttrSize(15000))
-
-        # fd = self.pangolayout.get_font_description()
-	# print "fd", fd
-
-# 	fontdesc = pango.FontDescription("Serif Bold 30")
-#         self.label.modify_font(fontdesc)
-	
-        da.window.draw_layout(gc, x_worse,  y_worse,  self.pangolayout)
-        self.pangolayout.set_text('Better')
-        da.window.draw_layout(gc, x_better, y_better, self.pangolayout)
+        pl_wb.set_text('Better')
+        da.window.draw_layout(gc, x_better, y_better, pl_wb)
 	
     
     # percentile box descriptions
@@ -554,7 +550,7 @@ class validation_entry_to_canvas:
 	y_key_box_rel = y_key_box_abs + 20
 
 	x_key_1 =  x_key_box_abs + 10
-	y_key_1  = y_key_box_abs - 3
+	y_key_1  = y_key_box_abs 
 	
 	x_key_2 =  x_key_1
 	y_key_2  = y_key_1 + 20
@@ -563,17 +559,21 @@ class validation_entry_to_canvas:
 				 self.abs_bar_width, self.abs_bar_height)
 	da.window.draw_rectangle(gc, False, x_key_box_rel, y_key_box_rel,
 				 self.abs_bar_width, self.abs_bar_height)
+
+        pl = da.create_pango_layout("")
+        font_desc = pango.FontDescription('Sans 9')
+	pl.set_font_description(font_desc)
 	
-        self.pangolayout.set_text('Percentile Relative to All X-ray Structures')
-        da.window.draw_layout(gc, x_key_1, y_key_1, self.pangolayout)
-        self.pangolayout.set_text('Percentile Relative to X-ray structures of similar resolutions')
-        da.window.draw_layout(gc, x_key_2, y_key_2, self.pangolayout)
+        pl.set_text('Percentile Relative to All X-ray Structures')
+        da.window.draw_layout(gc, x_key_1, y_key_1, pl)
+        pl.set_text('Percentile Relative to X-ray structures of similar resolutions')
+        da.window.draw_layout(gc, x_key_2, y_key_2, pl)
 	
 
     # return True if the bar for the absolute percentile was drawn,
     # otherwise return False
     #
-    def draw_slider(self, name, abs_str, rel_str, value_str, slider_no, da, gc):
+    def draw_slider(self, name, x_for_rj, abs_str, rel_str, value_str, slider_no, da, gc):
 	
 	y = self.y_bar_offset + self.y_pixels_bar_spacing*(slider_no+1)
 
@@ -586,11 +586,14 @@ class validation_entry_to_canvas:
 	pangolayout.set_justify(1)
 	pangolayout.set_alignment(pango.ALIGN_RIGHT)
         pangolayout.set_text(name)
-        da.window.draw_layout(gc, 4, y-6, pangolayout)
+	pangolayout.context_changed()
+	# da.pango_layout_context_changed()
+	# print dir(da)
+        da.window.draw_layout(gc, 4+x_for_rj, y-6, pangolayout)
 
 	# Values text
 	if isinstance(value_str, types.StringType):
-	    x_for_value = self.x_bar_offset + self.bar_length + 8
+	    x_for_value = self.x_bar_offset + self.bar_length + 12
 	    pangolayout.set_text(value_str)
 	    # print "value", x_for_value, y
 	    da.window.draw_layout(gc, x_for_value, y-6, pangolayout)
@@ -616,7 +619,6 @@ class validation_entry_to_canvas:
     # pass abs values
     def draw_connecting_lines(self, pc_ranks, da, gc):
 
-	x_min = 130
 	if len(pc_ranks) > 1:
 	    for slider_no in range(len(pc_ranks)-1):
 		y_min_1 = 20 + 30*(slider_no+1)
@@ -624,10 +626,10 @@ class validation_entry_to_canvas:
 		abs_1 = float(pc_ranks[slider_no])
 		abs_2 = float(pc_ranks[slider_no+1])
 		
-		x_1 = int(x_min + 0.01 * abs_1 * self.bar_length)
+		x_1 = int(self.x_bar_offset + 0.01 * abs_1 * self.bar_length)
 		y_1 = int(y_min_1 + self.bar_height + 1)
 		
-		x_2 = int(x_min + 0.01 * abs_2 * self.bar_length)
+		x_2 = int(self.x_bar_offset + 0.01 * abs_2 * self.bar_length)
 		y_2 = int(y_min_2 - self.bar_height * 0.25)
 		
 		# print "draw_line:", x_1, y_1, x_2, y_2
@@ -637,13 +639,22 @@ class validation_entry_to_canvas:
     def draw_sliders(self, da, gc):
 
 	save_abs = []
-
 	icount_slider = 0
+
+	abs = self.entry_validation_info.absolute_percentile_DCC_Rfree
+	rel = self.entry_validation_info.relative_percentile_DCC_Rfree
+	value = self.entry_validation_info.DCC_Rfree
+	if abs != False and rel != False: 
+	    state = self.draw_slider("Rfree", 114, abs, rel, value, icount_slider, da, gc)
+	    if state:
+		save_abs.append(abs)
+	    icount_slider += 1
+
 	abs   = self.entry_validation_info.absolute_percentile_clashscore
 	rel   = self.entry_validation_info.relative_percentile_clashscore
 	value = self.entry_validation_info.clashscore
 	if abs != False and rel != False: 
-	    state = self.draw_slider("Clashscore", abs, rel, value, icount_slider, da, gc)
+	    state = self.draw_slider("Clashscore", 78, abs, rel, value, icount_slider, da, gc)
 	    if state:
 		save_abs.append(abs)
 	    icount_slider += 1
@@ -653,7 +664,8 @@ class validation_entry_to_canvas:
 	value = self.entry_validation_info.percent_rama_outliers
 	# print "rama value", value
 	if abs != False and rel != False: 
-	    state = self.draw_slider("Rama Outliers", abs, rel, value, icount_slider, da, gc)
+	    # state = self.draw_slider("Rama Outliers", 28, abs, rel, value, icount_slider, da, gc)
+	    state = self.draw_slider("Ramachandran Outliers", 0, abs, rel, value, icount_slider, da, gc)
 	    if state:
 		save_abs.append(abs)
 	    icount_slider += 1
@@ -663,25 +675,16 @@ class validation_entry_to_canvas:
 	value = self.entry_validation_info.percent_rota_outliers
 	# print "rota value", value
 	if abs != False and rel != False: 
-	    state = self.draw_slider("Rotamers Outliers", abs, rel, value, icount_slider, da, gc)
+	    state = self.draw_slider("Sidechain Outliers", 32, abs, rel, value, icount_slider, da, gc)
 	    if state:
 		save_abs.append(abs)
 	    icount_slider += 1
 	    
-	abs = self.entry_validation_info.absolute_percentile_DCC_Rfree
-	rel = self.entry_validation_info.relative_percentile_DCC_Rfree
-	value = self.entry_validation_info.DCC_Rfree
-	if abs != False and rel != False: 
-	    state = self.draw_slider("DCC-Rfree", abs, rel, value, icount_slider, da, gc)
-	    if state:
-		save_abs.append(abs)
-	    icount_slider += 1
-
 	abs = self.entry_validation_info.relative_percentile_percent_RSRZ_outliers
 	rel = self.entry_validation_info.absolute_percentile_percent_RSRZ_outliers
 	value = self.entry_validation_info.percent_RSRZ_outliers
 	if abs != False and rel != False: 
-	    state = self.draw_slider("RSRZ Outliers", abs, rel, value, icount_slider, da, gc)
+	    state = self.draw_slider("RSRZ Outliers", 56, abs, rel, value, icount_slider, da, gc)
 	    if state:
 		save_abs.append(abs)
 	    icount_slider += 1
@@ -690,7 +693,7 @@ class validation_entry_to_canvas:
 	rel = self.entry_validation_info.absolute_percentile_RNAsuiteness
 	value = self.entry_validation_info.RNAsuiteness
 	if abs != False and rel != False: 
-	    state = self.draw_slider("RNASuiteness", abs, rel, value, icount_slider, da, gc)
+	    state = self.draw_slider("RNASuiteness", 57, abs, rel, value, icount_slider, da, gc)
 	    if state:
 		save_abs.append(abs)
 	    icount_slider += 1
@@ -701,23 +704,29 @@ class validation_entry_to_canvas:
 
     def draw_top_labels(self, da, gc):
 	pangolayout = da.create_pango_layout("")
+
+        pangolayout = da.create_pango_layout("")
+        font_desc = pango.FontDescription('Sans 13')
+	pangolayout.set_font_description(font_desc)
+	
         pangolayout.set_text('Metric')
 	y_level = 15
-        da.window.draw_layout(gc, 10, y_level, pangolayout)
+        da.window.draw_layout(gc, 100, y_level, pangolayout)
         pangolayout.set_text('Percentile Ranks')
-        da.window.draw_layout(gc, 215, y_level, pangolayout)
+        da.window.draw_layout(gc, 245, y_level, pangolayout)
         pangolayout.set_text('Value')
-        da.window.draw_layout(gc, 435, y_level, pangolayout)
+        da.window.draw_layout(gc, 470, y_level, pangolayout)
 
     
 xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
 
-xml_list = ["3NPQ.xml"] # DNA only?
 xml_list = ["1FV2.xml"]
 xml_list = ["2PE5.xml"]
 xml_list = ["1HAK.xml"]
 xml_list = ["2FGG.xml"]
 xml_list = ["1CBS.xml"]
+xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
+#xml_list = ["3NPQ.xml"] # DNA only?
 
 for xml_file in xml_list:
     vi = parse_wwpdb_validataion_xml(xml_file)
