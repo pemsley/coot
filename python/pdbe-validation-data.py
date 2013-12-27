@@ -7,12 +7,9 @@ import types
 
 class PDB_Entry:
 
-    def setup(self):
-	self.other = 'Done'
-	
     def __init__(self, entry_attrib, xml_file_name):
 	self.xml_file_name = xml_file_name
-	self.setup()
+	self.accession_code        = False
 	self.Fo_Fc_correlation     = False
 	self.IoverSigma            = False
 	self.numMillerIndices      = False
@@ -54,6 +51,11 @@ class PDB_Entry:
 	self.percent_rama_outliers                     = False
 	self.percent_rota_outliers                     = False
 	self.RestypesNotcheckedForBondAngleGeometry    = False
+
+	try:
+	    self.accession_code = entry_attrib['accession_code']
+	except KeyError as e:
+	    print 'PDB_Entry: KeyError with key', e
 	
         try: 
 	    self.PDB_revision_number                       = entry_attrib['PDB-revision-number']
@@ -414,33 +416,6 @@ def parse_wwpdb_validataion_xml(xml_file_name):
 	return False
 
 
-def test_parse_xml(xml_file_name):
-
-    print xml_file_name
-    tree = et.parse(xml_file_name)
-    root = tree.getroot()
-    print root
-    for child in root:
-	# print child.tag, child.attrib
-	if child.tag == 'Entry':
-	    print '==========================================='
-	    entry_info = PDB_Entry(child.attrib)
-    print 'entry_info.other: ', entry_info.other
-    print 'entry_info.RefmacVersion: ', entry_info.RefmacVersion
-
-
-def test_parse_xml_aside_1(xml_file_name):
-
-    tree = et.parse(xml_file_name)
-    root = tree.getroot()
-    print root
-    # print dir(root)
-    print root.tag
-    for child in root:
-	print child.tag, child.attrib
-
-
-
 class validation_entry_to_canvas:
 
     def __init__(self, entry_validation_info_in):
@@ -457,7 +432,11 @@ class validation_entry_to_canvas:
 	
 	if self.entry_validation_info != False:
 	    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-	    title = "PDB Validation Report for " + self.entry_validation_info.xml_file_name
+	    title = "PDB Validation Report for " # ...
+	    if self.entry_validation_info.accession_code:
+		 title += self.entry_validation_info.accession_code
+	    else:
+		 title += self.entry_validation_info.xml_file_name
 	    window.set_title(title)
 	    vbox = gtk.VBox(False, 0)
 	    vbox.set_border_width(5)
@@ -564,9 +543,9 @@ class validation_entry_to_canvas:
         font_desc = pango.FontDescription('Sans 9')
 	pl.set_font_description(font_desc)
 	
-        pl.set_text('Percentile Relative to All X-ray Structures')
+        pl.set_text('Percentile relative to all x-ray structures')
         da.window.draw_layout(gc, x_key_1, y_key_1, pl)
-        pl.set_text('Percentile Relative to X-ray structures of similar resolution')
+        pl.set_text('Percentile relative to x-ray structures of similar resolution')
         da.window.draw_layout(gc, x_key_2, y_key_2, pl)
 	
 
@@ -579,7 +558,12 @@ class validation_entry_to_canvas:
 
 	# colour bar
 	self.draw_rgb_image(da, gc, self.x_bar_offset, y)
-	da.window.draw_rectangle(gc, False, self.x_bar_offset, y, self.bar_length, self.bar_height)
+	
+	local_gc = gc;
+	local_gc.set_foreground(local_gc.get_colormap().alloc_color("#888888"))
+	
+	da.window.draw_rectangle(local_gc, False, self.x_bar_offset, y, self.bar_length, self.bar_height)
+	local_gc.set_foreground(local_gc.get_colormap().alloc_color("#000000"))
 
 	# Metric text
 	pangolayout = da.create_pango_layout("")
@@ -725,8 +709,9 @@ xml_list = ["2PE5.xml"]
 xml_list = ["1HAK.xml"]
 xml_list = ["2FGG.xml"]
 xml_list = ["1CBS.xml"]
-xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
-#xml_list = ["3NPQ.xml"] # DNA only?
+xml_list = ["1CBS-1.xml"]
+# xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
+# xml_list = ["3NPQ.xml"] # DNA only?
 
 for xml_file in xml_list:
     vi = parse_wwpdb_validataion_xml(xml_file)
