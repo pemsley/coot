@@ -416,7 +416,7 @@ class ModelledSubgroup:
 	   try:
 	       if abs(float(bo.z)) > 2:
 		   is_bad = True
-		   s = "Bond Outlier " + bo.atom0 + " " + bo.atom1 + " " + bo.z
+		   s = "Bond Outlier " + bo.atom0 + " " + bo.atom1 + " z = " + bo.z
 		   problems.append(s)
 	   except TypeError as e:
 	       pass
@@ -425,7 +425,7 @@ class ModelledSubgroup:
 	   try:
 	       if abs(float(ao.z)) > 3:
 		   is_bad = True
-		   s = "Angle Outlier " + ao.atom0 + " " + ao.atom1 + " " + ao.atom2 + " " + ao.z
+		   s = "Angle Outlier " + ao.atom0 + " " + ao.atom1 + " " + ao.atom2 + " z = " + ao.z
 		   problems.append(s)
 	   except TypeError as e:
 	       pass
@@ -434,7 +434,7 @@ class ModelledSubgroup:
 	   try:
 	       if abs(float(bo.Zscore)) > 2:
 		   is_bad = True
-		   s = "Mog Bond Outlier " + bo.atoms + " " + bo.Zscore
+		   s = "Mogul-based Bond Outlier " + bo.atoms + ", z = " + bo.Zscore
 		   problems.append(s)
 	   except TypeError as e:
 	       pass
@@ -443,7 +443,7 @@ class ModelledSubgroup:
 	   try:
 	       if abs(float(ao.Zscore)) > 2:
 		   is_bad = True
-		   s = "Mog Angle Outlier " + ao.atoms + " " + ao.Zscore
+		   s = "Mogul-based Angle Outlier " + ao.atoms + ", z = " + ao.Zscore
 		   problems.append(s)
 	   except TypeError as e:
 	       pass
@@ -453,7 +453,7 @@ class ModelledSubgroup:
 	       if (clash.clashmag):
 		   if float(clash.clashmag) >= 0.4:
 		       is_bad = True
-		       s = "Clash " + clash.atom + " " + clash.clashmag
+		       s = "Clash atom " + clash.atom + " score: " + clash.clashmag
 		       problems.append(s)
 	   except TypeError as e:
 	       pass
@@ -514,6 +514,7 @@ class validation_entry_to_canvas:
 	self.x_bar_offset = 160
 	self.y_bar_offset =  20
 	self.y_pixels_bar_spacing = 30
+	self.setup_colour_bar_buff()
 	self.abs_bar_width = 6
 	self.abs_bar_height = int(self.bar_height * 1.6)
 	self.vbox = False
@@ -543,6 +544,28 @@ class validation_entry_to_canvas:
 	    close_button.connect("clicked", lambda w: gtk.main_quit())
 	    self.pangolayout = da.create_pango_layout("")
 
+    def setup_colour_bar_buff(self):
+
+	c = 3*self.bar_length*self.bar_height*['\0']
+	for j in range(self.bar_length):
+
+	    f_j = float(j)/float(self.bar_length)
+	    # we need g to go 255:255:0
+	    r = int(255*(1-math.pow(f_j, 5)))
+	    # we need g to go 0:255:0
+	    g_1 = f_j                #  0 : 0.5 : 1
+	    g_2 = 2 * (g_1 - 0.5)    # -1 : 0.  : 1
+	    g_3 = g_2 * g_2          #  1 : 0.  : 1
+	    g_4 = 1 - g_3            #  0 : 1.  : 0
+	    g = int(255*g_4)
+	    b = int(255*math.pow(f_j, 0.2))
+	    for i in range(self.bar_height):
+		idx = 3*(self.bar_length*i + j)
+		c[idx  ] = chr(r)
+		c[idx+1] = chr(g)
+		c[idx+2] = chr(b)
+	self.colour_bar_buff = string.join(c, '')
+
     def on_drawing_area_expose(self, da, event):
 	style = da.get_style()
 	gc = style.fg_gc[gtk.STATE_NORMAL]
@@ -555,31 +578,8 @@ class validation_entry_to_canvas:
 
     def draw_rgb_image(self, da, gc, x, y):
 
-	c = 3*self.bar_length*self.bar_height*['\0']
-
-	for i in range(self.bar_height):
-	    for j in range(self.bar_length):
-
-		idx = 3*(self.bar_length*i + j)
-		f_j = float(j)/float(self.bar_length)
-		# we need g to go 255:255:0
-		r = int(255*(1-math.pow(f_j, 5)))
-		# we need g to go 0:255:0
-		g_1 = f_j                #  0 : 0.5 : 1
-		g_2 = 2 * (g_1 - 0.5)    # -1 : 0.  : 1
-		g_3 = g_2 * g_2          #  1 : 0.  : 1
-		g_4 = 1 - g_3            #  0 : 1.  : 0
-		g = int(255*g_4)
-		b = int(255*math.pow(f_j, 0.2))
-
-		c[idx  ] = chr(r)
-		c[idx+1] = chr(g)
-		c[idx+2] = chr(b)
-
-	buff = string.join(c, '')
 	da.window.draw_rgb_image(gc, x, y, self.bar_length, self.bar_height,
-				 gtk.gdk.RGB_DITHER_NONE, buff, self.bar_length*3)
-	return
+				 gtk.gdk.RGB_DITHER_NONE, self.colour_bar_buff, self.bar_length*3)
 
     def bar_for_abs(self, abs_percent, y_min, da, gc):
 
