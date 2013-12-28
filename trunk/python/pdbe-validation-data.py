@@ -55,7 +55,7 @@ class PDB_Entry:
 	try:
 	    self.accession_code = entry_attrib['accession_code']
 	except KeyError as e:
-	    print 'PDB_Entry: KeyError with key', e
+	    pass
 	
         try: 
 	    self.PDB_revision_number                       = entry_attrib['PDB-revision-number']
@@ -70,7 +70,7 @@ class PDB_Entry:
 	try:
 	    self.RestypesNotcheckedForBondAngleGeometry    = entry_attrib['RestypesNotcheckedForBondAngleGeometry']
 	except KeyError as e:
-	    print 'PDB_Entry: KeyError with key', e
+	    pass
 
 	try:
 	    self.percent_rama_outliers                     = entry_attrib['percent-rama-outliers']
@@ -345,6 +345,7 @@ class ModelledSubgroup:
 	    self.owab      = False
 	    self.avgoccu   = False
 	    self.rsr       = False
+	    self.rama      = False
 	    
 	    try:
 		self.rsr   = subgroup_attrib['rsr']
@@ -359,21 +360,27 @@ class ModelledSubgroup:
 		pass
 
 	    try:
+		self.rama      = subgroup_attrib['rama']
+	    except KeyError as e:
+		# it is OK if a ModelledSubgroup doesnt have a rama
+		pass
+
+	    try:
 		self.owab = subgroup_attrib['owab']
 	    except KeyError as e:
-		# it is OK if a ModelledSubgroup doesnt have a rsrz
+		# it is OK if a ModelledSubgroup doesnt have a owab
 		pass
 
 	    try:
 		self.NatomsEDS = subgroup_attrib['NatomsEDS']
 	    except KeyError as e:
-		# it is OK if a ModelledSubgroup doesnt have a rsrz
+		# it is OK if a ModelledSubgroup doesnt have a NatomsEDS
 		pass
 
 	    try:
 		self.rscc = subgroup_attrib['rscc']
 	    except KeyError as e:
-		# it is OK if a ModelledSubgroup doesnt have a rsrz
+		# it is OK if a ModelledSubgroup doesnt have a rscc
 		pass
 	    
 	    try:
@@ -397,6 +404,85 @@ class ModelledSubgroup:
 	except KeyError as e:
 	    print 'ModelledSubgroup: KeyError with key', e
 
+    # Is this a residue for which we want to create a button?
+    #
+    # return a string (for the button, if yes) otherwise return False.
+    #
+    def is_problematic_p(self):
+
+       is_bad = False
+       problems = []
+       for bo in self.bond_outliers:
+	   try:
+	       if abs(float(bo.z)) > 2:
+		   is_bad = True
+		   s = "Bond Outlier " + bo.atom0 + " " + bo.atom1 + " " + bo.z
+		   problems.append(s)
+	   except TypeError as e:
+	       pass
+
+       for ao in self.angle_outliers:
+	   try:
+	       if abs(float(ao.z)) > 3:
+		   is_bad = True
+		   s = "Angle Outlier " + ao.atom0 + " " + ao.atom1 + " " + ao.atom2 + " " + ao.z
+		   problems.append(s)
+	   except TypeError as e:
+	       pass
+
+       for bo in self.mog_bond_outliers:
+	   try:
+	       if abs(float(bo.Zscore)) > 2:
+		   is_bad = True
+		   s = "Mog Bond Outlier " + bo.atoms + " " + bo.Zscore
+		   problems.append(s)
+	   except TypeError as e:
+	       pass
+	   
+       for ao in self.mog_angle_outliers:
+	   try:
+	       if abs(float(ao.Zscore)) > 2:
+		   is_bad = True
+		   s = "Mog Angle Outlier " + ao.atoms + " " + ao.Zscore
+		   problems.append(s)
+	   except TypeError as e:
+	       pass
+
+       for clash in self.clashes:
+	   try:
+	       if (clash.clashmag):
+		   if float(clash.clashmag) >= 0.4:
+		       is_bad = True
+		       s = "Clash " + clash.atom + " " + clash.clashmag
+		       problems.append(s)
+	   except TypeError as e:
+	       pass
+
+       if self.rsrz:
+	   if float(self.rsrz) > 0.40:
+	       is_bad = True
+	       s = "Bad RSRZ " + self.rsrz
+	       problems.append(s)
+	       
+       if self.RNAscore:
+	   if float(self.RNAscore) < 0.5:
+	       is_bad = True
+	       s = "Bad RNAScore " + self.RNAscore
+	       problems.append(s)
+
+       if self.rama:
+	   if self.rama == 'OUTLIER':
+	       is_bad = True
+	       s = "Ramachandran Outlier"
+	       problems.append(s)
+
+       if is_bad:
+	   return problems
+       else:
+	   return False
+
+# return validation info, which wraps entry_validation_info
+#
 def parse_wwpdb_validataion_xml(xml_file_name):
 
     try: 
@@ -410,7 +496,8 @@ def parse_wwpdb_validataion_xml(xml_file_name):
 		subgroup = ModelledSubgroup(child)
 		if subgroup:
 		    modelled_subgroups.append(subgroup)
-	return entry_info
+	validation_info = [entry_info, modelled_subgroups]
+	return validation_info
     except IOError as e:
 	print e
 	return False
@@ -429,6 +516,7 @@ class validation_entry_to_canvas:
 	self.y_pixels_bar_spacing = 30
 	self.abs_bar_width = 6
 	self.abs_bar_height = int(self.bar_height * 1.6)
+	self.vbox = False
 	
 	if self.entry_validation_info != False:
 	    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -438,16 +526,18 @@ class validation_entry_to_canvas:
 	    else:
 		 title += self.entry_validation_info.xml_file_name
 	    window.set_title(title)
-	    vbox = gtk.VBox(False, 0)
-	    vbox.set_border_width(5)
+	    self.vbox = gtk.VBox(False, 0)
+	    self.vbox.set_border_width(5)
 	    h_sep = gtk.HSeparator()
 	    da = gtk.DrawingArea()
 	    da.set_size_request(560,280)
 	    close_button = gtk.Button("  Close  ")
-	    vbox.pack_start(da,           False, 6)
-	    vbox.pack_start(h_sep,        False, 6)
-	    vbox.pack_start(close_button, False, 6)
-	    window.add(vbox)
+	    hbox = gtk.HBox(False, 0)
+	    self.vbox.pack_start(da,           False, 6)
+	    self.vbox.pack_start(h_sep,        False, 6)
+	    hbox.pack_start(close_button, True, 6)
+	    self.vbox.pack_end(hbox,         False, 6)
+	    window.add(self.vbox)
 	    window.show_all()
 	    da.connect("expose-event", self.on_drawing_area_expose)
 	    close_button.connect("clicked", lambda w: gtk.main_quit())
@@ -701,21 +791,76 @@ class validation_entry_to_canvas:
         pangolayout.set_text('Value')
         da.window.draw_layout(gc, 470, y_level, pangolayout)
 
+def add_residue_buttons(subgroups, vbox):
+
+    def go_to_residue(button, residue_spec):
+	print "go to ", residue_spec
+	
+    if vbox:
+	vbox_residue_buttons = gtk.VBox(False, 0)
+	scrolled_win = gtk.ScrolledWindow()
+	scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
+	scrolled_win.add_with_viewport(vbox_residue_buttons)
+	scrolled_win.set_size_request(-1, 200)
+	for group in subgroups:
+	    p = group.is_problematic_p()
+	    if (p):
+		ri_string = 'Residue '
+		ri_string += group.chain
+		ri_string += ' '
+		ri_string += group.resnum
+		ri_string += ' '
+		ri_string += group.resname
+		ri_string += ':'
+		is_first = True
+# 		for p_i in p:
+# 		    if is_first:
+# 			is_first = False
+# 		    else:
+# 			ri_string += ','
+# 		    ri_string += ' '
+# 		    ri_string += p_i
+		for p_i in p:
+		    ri_string += '\n'
+		    ri_string += '    '
+		    ri_string += p_i
+		residue_button = gtk.Button(ri_string)
+		residue_spec = [group.chain, group.resnum, group.icode ]
+		residue_button.connect("clicked", go_to_residue, residue_spec)
+		vbox_residue_buttons.pack_start(residue_button, False, 2)
+		residue_button.show()
+	vbox.pack_start(scrolled_win, True, 2)
+	scrolled_win.show()
+	vbox_residue_buttons.show()
+
+def validation_to_gui(entry_validation_info, subgroups):
+    vi = validation_entry_to_canvas(entry_validation_info)
+    add_residue_buttons(subgroups, vi.vbox)
+
+def sort_subgroups(subgroups):
+    return subgroups
+    
+
     
 xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
 
 xml_list = ["1FV2.xml"]
 xml_list = ["2PE5.xml"]
 xml_list = ["1HAK.xml"]
-xml_list = ["2FGG.xml"]
 xml_list = ["1CBS.xml"]
 xml_list = ["1CBS-1.xml"]
+xml_list = ["2FGG.xml"]
 # xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
 # xml_list = ["3NPQ.xml"] # DNA only?
+xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
 
 for xml_file in xml_list:
     vi = parse_wwpdb_validataion_xml(xml_file)
-    validation_entry_to_canvas(vi)
+    if vi:
+	entry_validation_info = vi[0]
+	subgroups = vi[1]
+	ss = sort_subgroups(subgroups)
+	validation_to_gui(entry_validation_info, ss)
 
 # coot_real_exit(0)
 gtk.main()
