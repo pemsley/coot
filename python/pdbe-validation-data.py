@@ -557,7 +557,7 @@ class validation_entry_to_canvas:
 	    g_2 = 2 * (g_1 - 0.5)    # -1 : 0.  : 1
 	    g_3 = g_2 * g_2          #  1 : 0.  : 1
 	    g_4 = 1 - g_3            #  0 : 1.  : 0
-	    g = int(255*g_4)
+	    g = int(240*g_4)
 	    b = int(255*math.pow(f_j, 0.2))
 	    for i in range(self.bar_height):
 		idx = 3*(self.bar_length*i + j)
@@ -852,7 +852,7 @@ xml_list = ["1CBS-1.xml"]
 xml_list = ["2FGG.xml"]
 # xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
 # xml_list = ["3NPQ.xml"] # DNA only?
-xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
+# xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
 
 for xml_file in xml_list:
     vi = parse_wwpdb_validataion_xml(xml_file)
