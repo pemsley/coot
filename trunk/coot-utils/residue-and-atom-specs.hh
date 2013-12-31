@@ -82,6 +82,7 @@ namespace coot {
       // tested against a residue not in a hierarchy.
       bool matches_spec(CAtom *atom) const;
 
+#ifndef THIS_IS_SWIG
       bool operator==(const atom_spec_t &matcher) const {
 	 bool r = false;
 	 if (matcher.model_number == model_number) { 
@@ -99,7 +100,9 @@ namespace coot {
 	 }
 	 return r;
       }
+#endif 
 
+#ifndef THIS_IS_SWIG
       // we need this if atom_spec_t are used in a std::map.
       bool operator<(const atom_spec_t &matcher) const {
 	 if (matcher.empty())
@@ -131,6 +134,8 @@ namespace coot {
 	 }
 	 return false;
       }
+#endif // THIS_IS_SWIG      
+      
 #ifndef THIS_IS_SWIG      
       friend std::ostream& operator<< (std::ostream& s, const atom_spec_t &spec);
 #endif // THIS_IS_SWIG      
@@ -226,6 +231,7 @@ namespace coot {
 	    r.resno -= 1;
 	 return r;
       }
+#ifndef THIS_IS_SWIG
       bool operator==(const residue_spec_t &matcher) const {
 	 if (matcher.chain == chain) {
 	    if (matcher.resno == resno) {
@@ -236,6 +242,9 @@ namespace coot {
 	 }
 	 return 0;
       }
+#endif // THIS_IS_SWIG      
+      
+#ifndef THIS_IS_SWIG
       bool operator<(const residue_spec_t &matcher) const{
 	 if (matcher.chain == chain) {
 	    if (matcher.resno == resno) {
@@ -261,6 +270,7 @@ namespace coot {
 	 } 
 	 return 0;
       }
+#endif // THIS_IS_SWIG      
 
       std::string format() const {
 	 std::ostringstream s;
