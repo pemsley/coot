@@ -100,6 +100,7 @@
 (define find-blobs find-blobs-scm)
 (define morph-fit-residues morph-fit-residues-scm)
 (define density-score-residue density-score-residue-scm)
+(define align-to-closest-chain align-to-closest-chain-scm)
 
 ;; I changed the function name - save those (just a few) with scripts that I've handed out
 (define toggle-idle-ligand-interactions toggle-flev-idle-ligand-interactions)
