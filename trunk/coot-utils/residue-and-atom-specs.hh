@@ -131,7 +131,9 @@ namespace coot {
 	 }
 	 return false;
       }
+#ifndef THIS_IS_SWIG      
       friend std::ostream& operator<< (std::ostream& s, const atom_spec_t &spec);
+#endif // THIS_IS_SWIG      
    };
    
    bool compare_atom_specs_user_float(const atom_spec_t &a1,
@@ -275,7 +277,9 @@ namespace coot {
       // 
       int select_atoms(CMMDBManager *mol, int selhnd, int selection_key_type);
 
+#ifndef THIS_IS_SWIG      
       friend std::ostream& operator<< (std::ostream& s, const residue_spec_t &spec);
+#endif // THIS_IS_SWIG      
    };
 
 }
