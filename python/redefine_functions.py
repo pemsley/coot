@@ -165,6 +165,7 @@ chain_fragments        = chain_fragments_py
 find_blobs             = find_blobs_py
 morph_fit_residues     = morph_fit_residues_py
 density_score_residue  = density_score_residue_py
+align_to_closest_chain = align_to_closest_chain_py
 
 # curl and hence coot_get_url_as_string are conditionally compiled.
 try:

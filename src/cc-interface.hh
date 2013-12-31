@@ -1211,6 +1211,31 @@ void prodrg_import_function(std::string file_name, std::string comp_id);
 // 
 void sbase_import_function(std::string comp_id);
 
+/* ------------------------------------------------------------------------- */
+/*                       Alignment functions (now C++)                       */
+/* ------------------------------------------------------------------------- */
+
+//! \brief align sequence to closest chain (compare across all chains
+//!   in all molecules).
+//! 
+//! Typically match_fraction is 0.95 or so.
+//! 
+//! Return the molecule number and chain id if successful, return -1 as the
+//! molecule number if not.
+//! 
+std::pair<int, std::string>
+align_to_closest_chain(std::string target_seq, float match_fraction);
+
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_PYTHON
+PyObject *align_to_closest_chain_py(std::string target_seq, float match_fraction);
+#endif /* USE_PYTHON */
+#ifdef USE_GUILE
+SCM align_to_closest_chain_scm(std::string target_seq, float match_fraction);
+#endif /* USE_GUILE */
+#endif /* c++ */
+
+
 
 
 /*  ----------------------------------------------------------------------- */
