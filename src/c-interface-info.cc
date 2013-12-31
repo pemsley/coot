@@ -1576,7 +1576,31 @@ int set_go_to_atom_from_res_spec_py(PyObject *residue_spec_py) {
 std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec() {
 
    return graphics_info_t::active_atom_spec();
-} 
+}
+
+#ifdef USE_PYTHON
+// return a tuple of (Py_Bool (number, atom_spec))
+PyObject *active_atom_spec_py() {
+
+   PyObject *rv = PyTuple_New(2);
+   
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > r = active_atom_spec();
+      PyObject *state_py = Py_True;
+      PyObject *mol_no = PyInt_FromLong(r.second.first);
+      PyObject *spec = py_residue(r.second.second);
+      PyObject *tuple_inner = PyTuple_New(2);
+   if (! r.first) {
+      state_py = Py_False;
+      Py_INCREF(state_py);
+   }
+   PyTuple_SetItem(tuple_inner, 0, mol_no);
+   PyTuple_SetItem(tuple_inner, 1, spec);
+   PyTuple_SetItem(rv, 0, state_py);
+   PyTuple_SetItem(rv, 1, tuple_inner);
+   return rv;
+}
+#endif // USE_PYTHON
+
 
 #ifdef USE_GUILE
 //* \brief 

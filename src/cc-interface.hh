@@ -143,6 +143,10 @@ int set_go_to_atom_from_res_spec_py(PyObject *residue_spec);
 // if an atom spec was found.
 //
 std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
+#ifdef USE_PYTHON
+// return a tuple of (Py_Bool (number, atom_spec))
+PyObject *active_atom_spec_py();
+#endif // USE_PYTHON
 
 
 /*  ---------------------------------------------------------------------- */
