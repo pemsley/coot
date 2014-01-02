@@ -3252,6 +3252,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
 
        float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap);
        std::cout << "INFO:: chose new molecule with score " << this_score << std::endl;
+       best_score = this_score;
     } 
 
    //
@@ -3262,27 +3263,6 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
       if (! best_molecule.is_empty()) {
 	 CMMDBManager *mol = best_molecule.pcmmdbmanager();
 	 if (mol) {
-
-
-	    int imod = 1;
-	    CModel *model_p = mol->GetModel(imod);
-	    CChain *chain_p;
-	    int n_chains = model_p->GetNumberOfChains();
-	    for (int ichain=0; ichain<n_chains; ichain++) {
-	       chain_p = model_p->GetChain(ichain);
-	       int nres = chain_p->GetNumberOfResidues();
-	       CResidue *residue_p;
-	       CAtom *at;
-	       for (int ires=0; ires<nres; ires++) { 
-		  residue_p = chain_p->GetResidue(ires);
-		  int n_atoms = residue_p->GetNumberOfAtoms();
-		  for (int iat=0; iat<n_atoms; iat++) {
-		     at = residue_p->GetAtom(iat);
-		     std::cout << "    " << iat << " " << at << std::endl;
-		  }
-	       }
-	    }
-
 	    
 	    atom_selection_container_t asc_ligand = make_asc(mol);
 
