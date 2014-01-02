@@ -1591,8 +1591,9 @@ PyObject *active_atom_spec_py() {
       PyObject *tuple_inner = PyTuple_New(2);
    if (! r.first) {
       state_py = Py_False;
-      Py_INCREF(state_py);
    }
+   Py_INCREF(state_py);
+   
    PyTuple_SetItem(tuple_inner, 0, mol_no);
    PyTuple_SetItem(tuple_inner, 1, spec);
    PyTuple_SetItem(rv, 0, state_py);
