@@ -509,16 +509,27 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    coot::chain_mutation_info_container_t ch_info(chain_id);
    bool debug = false;
 
-   if (console_output) { 
-      std::cout << "\n-------------------------------------------------" << std::endl;
+
+   if (console_output || debug) { 
+      std::cout << "\n----- input to align_on_chain() -----------------" << std::endl;
       std::cout << "        chain " << chain_id << std::endl;
-      std::cout << "-------------------------------------------------" << std::endl;
+      if (0)
+	 for (int i=0; i<nSelResidues; i++)
+	    std::cout << "        sel-residue: " << coot::residue_spec_t(SelResidues[i])
+		      << std::endl;
+	 
+      std::cout << "        target " <<  target << std::endl;
+      std::cout << "        wgap  " << wgap << std::endl;
+      std::cout << "        is_nucleic_acid_flag " << is_nucleic_acid_flag << std::endl;
+      std::cout << "        console_output " << console_output << std::endl;
+      std::cout << "---------------------------------------------------" << std::endl;
    }
+   
    std::vector<std::pair<CResidue *, int> > vseq =
       coot::util::sort_residues_by_seqno(SelResidues, nSelResidues);
 
    std::string model = coot::util::model_sequence(vseq);
-   if (console_output) { 
+   if (console_output || debug) { 
       std::cout << "INFO:: input model  sequence: " << model  << std::endl;
       std::cout << "INFO:: input target sequence: " << target  << std::endl;
    }
@@ -605,98 +616,127 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    std::string s=align.GetAlignedS();
    std::string t=align.GetAlignedT();
 
-   // we need to match the poistion in SelResidues to the position
+   // we need to match the position in SelResidues to the position
    // after alignment (it has had "-"s inserted into it).
    std::vector<int> selindex(s.length());
    int sel_offset = 0;
    for (unsigned int iseq_indx=0; iseq_indx<s.length(); iseq_indx++) {
-      selindex[iseq_indx] = iseq_indx - sel_offset;
-//       std::cout << "assigned: selindex[" << iseq_indx << "]=" << selindex[iseq_indx]
-//  		<< std::endl;
+      int trial_idx = iseq_indx - sel_offset;
+      if (trial_idx < nSelResidues)
+	 selindex[iseq_indx] = trial_idx;
+      else 
+	 selindex[iseq_indx] = -1; // something bad happened in the setting of selindex values.
+
+      if (debug)
+	 std::cout << "assigned: selindex[" << iseq_indx << "]=" << selindex[iseq_indx]
+		   << std::endl;
+
+      // for next round
       if (s[iseq_indx] == '-')
 	 sel_offset++;
    }
 
    if (s.length() == t.length()) {
 
-//       for (unsigned int iseq_indx=0; iseq_indx<s.length(); iseq_indx++) {
-// 	 std::cout << "   " << iseq_indx << " " << s[iseq_indx] << std::endl;
-//       }
+      if (debug) { 
+	 for (unsigned int iseq_indx=0; iseq_indx<s.length(); iseq_indx++) 
+	    std::cout << "   s array: " << iseq_indx << " " << s[iseq_indx] << std::endl;
+
+	 if (debug)
+	    for (unsigned int i=0; i<selindex.size(); i++)
+	       std::cout << "    selindex [" << i << "] is " << selindex[i] << "\n";
+
+       
+	 for (unsigned int i=0; i<s.length(); i++) {
+	    if (selindex[i] > -1)
+	       std::cout << "   sequence-check: " << i << " " << t[i] << " " << s[i] << " "
+			 << coot::util::three_letter_to_one_letter(SelResidues[selindex[i]]->GetResName())
+			 << std::endl;
+	    else 
+	       std::cout << "   sequence-check: " << i << " target " << t[i] << " seq " << s[i] << " -1" << std::endl;
+	 }
+      }
       
-      // std::vector<int> resno_offsets(s.length(), 0);
-      
-//       std::cout << "DEBUG:: s.length() " << s.length() << std::endl;
-//       std::cout << "DEBUG:: nSelResidues " << nSelResidues << std::endl;
+      std::cout << "DEBUG:: s.length() " << s.length() << std::endl;
+      std::cout << "DEBUG:: nSelResidues " << nSelResidues << std::endl;
 
       std::string inscode("");
       int ires = 0;
-      int ires_running = 0;
+      int res_no_running = 0;
       
       for (unsigned int iseq_indx=0; iseq_indx<s.length(); iseq_indx++) {
 
-	 if (s[iseq_indx] != '-') { 
-	    ires_running = SelResidues[selindex[iseq_indx]]->GetSeqNum();
-	    if (0)
-	       std::cout << "DEBUG:: outer: ===  just set ires to " << ires << " because "
-			 << "s[" << iseq_indx << "] was " << s[iseq_indx] << std::endl;
-	 }
-	 
-	 if (s[iseq_indx] != t[iseq_indx]) {
+	 int res_idx = selindex[iseq_indx];
 
-	    // These only make sense when the aligned residue (in s) was not "-"
-	    if (s[iseq_indx] != '-') { 
-	       ires            = SelResidues[selindex[iseq_indx]]->GetSeqNum();
-	       inscode = SelResidues[selindex[iseq_indx]]->GetInsCode();
-	    }
+	 if (res_idx != -1) {
 
-	    //	    std::cout << "DEBUG:: ires: " << ires << std::endl;
+	    // sane res_index
 	    
-	    // Case 1: (simple mutate)
-	    if ((s[iseq_indx] != '-') && t[iseq_indx] != '-') {
-// 	       std::cout << "mutate res number " << ires << " "
-// 			 << s[iseq_indx] << " to " << t[iseq_indx] << std::endl;
-	       std::string target_type =
-		  coot::util::single_letter_to_3_letter_code(t[iseq_indx]);
-	       coot::residue_spec_t res_spec(ires);
-	       ch_info.add_mutation(res_spec, target_type);
+	    if (s[iseq_indx] != '-') {
+	       if (debug)
+		  std::cout << "DEBUG:: just set res_idx to " << res_idx << " because "
+			    << "selindex[" << iseq_indx << "] was " << selindex[iseq_indx]
+			    << " of " << nSelResidues << " selected residues" << std::endl;
+	       res_no_running = SelResidues[res_idx]->GetSeqNum();
 	    }
+	 
+	    if (s[iseq_indx] != t[iseq_indx]) {
 
-	    // Case 2: model had insertion
-	    if ((s[iseq_indx] != '-') && t[iseq_indx] == '-') {
+	       // These only make sense when the aligned residue (in s) was not "-"
+	       if (s[iseq_indx] != '-') { 
+		  ires            = SelResidues[selindex[iseq_indx]]->GetSeqNum();
+		  inscode = SelResidues[selindex[iseq_indx]]->GetInsCode();
+	       }
 
-// 	       for (unsigned int i=iseq_indx+1; i<s.length(); i++)
-// 		  resno_offsets[i] -= 1;
+	       //	    std::cout << "DEBUG:: ires: " << ires << std::endl;
+	    
+	       // Case 1: (simple mutate)
+	       if ((s[iseq_indx] != '-') && t[iseq_indx] != '-') {
+		  // 	       std::cout << "mutate res number " << ires << " "
+		  // 			 << s[iseq_indx] << " to " << t[iseq_indx] << std::endl;
+		  std::string target_type =
+		     coot::util::single_letter_to_3_letter_code(t[iseq_indx]);
+		  coot::residue_spec_t res_spec(ires);
+		  ch_info.add_mutation(res_spec, target_type);
+	       }
+
+	       // Case 2: model had insertion
+	       if ((s[iseq_indx] != '-') && t[iseq_indx] == '-') {
+
+		  // 	       for (unsigned int i=iseq_indx+1; i<s.length(); i++)
+		  // 		  resno_offsets[i] -= 1;
 	       
-	       coot::residue_spec_t res_spec(ires);
-	       if (0)
-		  std::cout << "DEBUG:: Delete residue number " << iseq_indx << " "
-			    << s[iseq_indx] << " " << res_spec << std::endl;
+		  coot::residue_spec_t res_spec(ires);
+		  if (0)
+		     std::cout << "DEBUG:: Delete residue number " << iseq_indx << " "
+			       << s[iseq_indx] << " " << res_spec << std::endl;
 	       
-	       ch_info.add_deletion(res_spec);
+		  ch_info.add_deletion(res_spec);
+	       }
+
+	       // Case 3: model has a deletion
+	       if ((s[iseq_indx] == '-') && t[iseq_indx] != '-') {
+		  // 	       for (unsigned int i=iseq_indx+1; i<s.length(); i++)
+		  // 		  resno_offsets[i] += 1;
+		  // ires will be for the previous residue.  It was not
+		  // set for this one.
+
+		  // 20090902
+		  coot::residue_spec_t res_spec(res_no_running + 1);
+		  res_no_running++; // for next insertion
+	       
+		  std::string target_type(1, t[iseq_indx]);
+
+		  if (! is_nucleic_acid_flag)
+		     target_type = coot::util::single_letter_to_3_letter_code(t[iseq_indx]);
+	       
+		  ch_info.add_insertion(res_spec, target_type);
+		  if (0) 
+		     std::cout << "DEBUG:: Insert residue  " << res_spec << " " << target_type
+			       << " " << iseq_indx << " " << t[iseq_indx]
+			       << " with ires " << ires << std::endl;
+	       }
 	    }
-
-	    // Case 3: model has a deletion
-	    if ((s[iseq_indx] == '-') && t[iseq_indx] != '-') {
-// 	       for (unsigned int i=iseq_indx+1; i<s.length(); i++)
-// 		  resno_offsets[i] += 1;
-	       // ires will be for the previous residue.  It was not
-	       // set for this one.
-	       
-	       // 20090902
-	       coot::residue_spec_t res_spec(ires_running+1);
-	       ires_running++; // for next insertion
-	       
-	       std::string target_type(1, t[iseq_indx]);
-
-	       if (! is_nucleic_acid_flag)
-		  target_type = coot::util::single_letter_to_3_letter_code(t[iseq_indx]);
-	       
-	       ch_info.add_insertion(res_spec, target_type);
-	       if (0) 
-		  std::cout << "DEBUG:: Insert residue  " << res_spec << " " << target_type
-			    << " " << iseq_indx << " " << t[iseq_indx]
-			    << " with ires " << ires << std::endl;
-	    } 
 	 }
       }
    }

@@ -303,7 +303,7 @@ graphics_info_t::mutate_chain(int imol, const std::string &chain_id,
    if (imol < n_molecules()) { 
       if (imol >= 0) { 
 	 if (molecules[imol].has_model()) {
-	    std::cout << "INFO:: aligning to mol number " << imol << "chain: "
+	    std::cout << "INFO:: aligning to mol number " << imol << " chain: "
 		      << chain_id << std::endl;
 	    coot::chain_mutation_info_container_t mutation_info = 
 	       molecules[imol].align_and_mutate(chain_id, coot::fasta(seq), renumber_residues_flag,
