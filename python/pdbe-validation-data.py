@@ -661,8 +661,6 @@ class validation_entry_to_canvas:
 	pangolayout.set_alignment(pango.ALIGN_RIGHT)
         pangolayout.set_text(name)
 	pangolayout.context_changed()
-	# da.pango_layout_context_changed()
-	# print dir(da)
         da.window.draw_layout(gc, 4+x_for_rj, y-6, pangolayout)
 
 	# Values text
@@ -706,7 +704,6 @@ class validation_entry_to_canvas:
 		x_2 = int(self.x_bar_offset + 0.01 * abs_2 * self.bar_length)
 		y_2 = int(y_min_2 - self.bar_height * 0.25)
 		
-		# print "draw_line:", x_1, y_1, x_2, y_2
 		da.window.draw_line(gc, x_1, y_1, x_2, y_2)
 	
 
@@ -736,9 +733,7 @@ class validation_entry_to_canvas:
 	abs   = self.entry_validation_info.absolute_percentile_percent_rama_outliers
 	rel   = self.entry_validation_info.relative_percentile_percent_rama_outliers
 	value = self.entry_validation_info.percent_rama_outliers
-	# print "rama value", value
 	if abs != False and rel != False: 
-	    # state = self.draw_slider("Rama Outliers", 28, abs, rel, value, icount_slider, da, gc)
 	    state = self.draw_slider("Ramachandran Outliers", 0, abs, rel, value, icount_slider, da, gc)
 	    if state:
 		save_abs.append(abs)
@@ -747,7 +742,6 @@ class validation_entry_to_canvas:
 	abs = self.entry_validation_info.absolute_percentile_percent_rota_outliers
 	rel = self.entry_validation_info.relative_percentile_percent_rota_outliers
 	value = self.entry_validation_info.percent_rota_outliers
-	# print "rota value", value
 	if abs != False and rel != False: 
 	    state = self.draw_slider("Sidechain Outliers", 32, abs, rel, value, icount_slider, da, gc)
 	    if state:
@@ -772,7 +766,6 @@ class validation_entry_to_canvas:
 		save_abs.append(abs)
 	    icount_slider += 1
 
-	# print "now draw connecting lines to", len(save_abs), "abs values"
 	self.draw_connecting_lines(save_abs, da, gc)
 	return icount_slider
 
@@ -813,13 +806,6 @@ def add_residue_buttons(subgroups, vbox):
 		ri_string += group.resname
 		ri_string += ':'
 		is_first = True
-# 		for p_i in p:
-# 		    if is_first:
-# 			is_first = False
-# 		    else:
-# 			ri_string += ','
-# 		    ri_string += ' '
-# 		    ri_string += p_i
 		for p_i in p:
 		    ri_string += '\n'
 		    ri_string += '    '
