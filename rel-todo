@@ -3,8 +3,10 @@
 
 ---- 
 
-   o Does rubber-banding in sphere-refine mode move the fixed environment residues?
-	
+   o To explain the update to helix fitting in EM maps, we need to
+     find the distribution of (n rms) density of atom in refined maps.  
+     Maybe there is a relationship to resolution.  Try a few 100 structures. 
+
    o Markus Rudolf: atom names are not preserved on reading mol2 files.
 
      rdkit-interface.cc: lig_build::molfile_molecule_t
@@ -13,13 +15,12 @@
    o save_state_file() needs to write a python file when called from
      python (redefine save_save_file_py()).
 
-   o Re-write ligand fitting using UJ6 from 4cgf (needs flexible fitting and consideration of chirality)
+   o Re-write ligand fitting tutorial using UJ6 from 4cgf (needs
+     flexible fitting and consideration of chirality)
 
    o sharpen a Patterson. Kevin message
 
    o GLC pyranose 1-4 linked template.
-
-   o Are active residues bumping off environment residues in sphere-refine mode?
 
    o PISA Interfaces surface colours are wrong. 
 
@@ -67,7 +68,8 @@
 
    o Change to configure.ac ::: 1
 
-   o extend lidia to represent carbohydrates
+   o extend lidia to represent carbohydrates. Low priority. Should be
+     done in RDKit, I think (Haworth projections)
 
    o in FLEV, find pi-pi stacking interactions, if needed use an
      RDKit molecule to find aromatic systems in the ligand.
@@ -333,6 +335,11 @@ pcld=0x0) at c-inner-main.c:366
    o drag and drop - same reason.
 
 * PubChem added.
+
+   o Does rubber-banding in sphere-refine mode move the fixed environment residues?
+   o Are active residues bumping off environment residues in sphere-refine mode?
+	
+* Fixed. 
 
 -----
 
