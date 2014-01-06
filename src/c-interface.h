@@ -3807,10 +3807,10 @@ void set_show_environment_distances_as_solid(int state);
 
 void set_environment_distance_label_atom(int state);
 
-void add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, float x_2, float y_2, float z_2);
+double add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, float x_2, float y_2, float z_2);
 #ifdef __cplusplus
 #ifdef USE_GUILE
-void add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom_spec_2);
+double add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom_spec_2);
 #endif
 #ifdef USE_PYTHON
 void add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol_2, PyObject *atom_spec_2);
