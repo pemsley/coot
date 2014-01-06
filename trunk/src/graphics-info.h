@@ -2500,8 +2500,9 @@ public:
    void display_geometry_angle() const;
    double get_geometry_torsion() const;
    void display_geometry_torsion() const;
-   void display_geometry_distance_symm(int imol1, const coot::Cartesian &p1, 
-				       int imol2, const coot::Cartesian &p2);
+   // return the distance
+   double display_geometry_distance_symm(int imol1, const coot::Cartesian &p1, 
+					 int imol2, const coot::Cartesian &p2);
    //
    void pepflip();
 

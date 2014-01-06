@@ -2277,30 +2277,44 @@ void set_environment_distance_label_atom(int state) {
   graphics_info_t::environment_distance_label_atom = state;
 }
 
-void add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, float x_2, float y_2, float z_2) {
+double
+add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, float x_2, float y_2, float z_2) {
 
    graphics_info_t g;
-   g.display_geometry_distance_symm(imol_1, coot::Cartesian(x_1, y_1, z_1),
-				    imol_2, coot::Cartesian(x_2, y_2, z_2));
-
+   double d = g.display_geometry_distance_symm(imol_1, coot::Cartesian(x_1, y_1, z_1),
+					       imol_2, coot::Cartesian(x_2, y_2, z_2));
+   return d;
 } 
 
 #ifdef USE_GUILE
-void add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom_spec_2) {
+double
+add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom_spec_2) {
 
+   double d = -1; 
    if (is_valid_model_molecule(imol_1)) {
       if (is_valid_model_molecule(imol_2)) {
 	 
 	 graphics_info_t g;
 	 coot::atom_spec_t spec_1 = atom_spec_from_scm_expression(atom_spec_1);
 	 coot::atom_spec_t spec_2 = atom_spec_from_scm_expression(atom_spec_2);
-	 CAtom *at_1 = graphics_info_t::molecules[imol_1].get_atom(spec_1);
-	 CAtom *at_2 = graphics_info_t::molecules[imol_2].get_atom(spec_2);
-	 coot::Cartesian pos_1(at_1->x, at_1->y, at_1->z);
-	 coot::Cartesian pos_2(at_2->x, at_2->y, at_2->z);
-	 g.display_geometry_distance_symm(imol_1, pos_1, imol_2, pos_2);
+	 CAtom *at_1 = g.molecules[imol_1].get_atom(spec_1);
+	 CAtom *at_2 = g.molecules[imol_2].get_atom(spec_2);
+	 if (! at_1) {
+	    std::cout << "WARNING:: atom not found from spec " << spec_1 << std::endl;
+	 } else { 
+	    if (! at_2) {
+	       std::cout << "WARNING:: atom not found from spec " << spec_2 << std::endl;
+	    } else {
+	       // happy path
+	       coot::Cartesian pos_1(at_1->x, at_1->y, at_1->z);
+	       coot::Cartesian pos_2(at_2->x, at_2->y, at_2->z);
+	       d = g.display_geometry_distance_symm(imol_1, pos_1, imol_2, pos_2);
+	       std::cout << "Distance: " << spec_1 << " to " << spec_2 << " is " << d << " A" << std::endl;
+	    }
+	 }
       }
    }
+   return d; 
 } 
 #endif
 

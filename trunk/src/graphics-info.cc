@@ -2231,16 +2231,17 @@ graphics_info_t::display_geometry_distance() {
    add_status_bar_text(s);
 }
 
-void 
+double 
 graphics_info_t::display_geometry_distance_symm(int imol1, const coot::Cartesian &p1,
 						int imol2, const coot::Cartesian &p2) { 
+
 
    coot::simple_distance_object_t p(imol1, clipper::Coord_orth(p1.x(), p1.y(), p1.z()),
 				    imol2, clipper::Coord_orth(p2.x(), p2.y(), p2.z()));
    distance_object_vec->push_back(p);
    graphics_draw();
-   std::cout << "Distance: " << (p1-p2).length() << std::endl;
-
+   double d =  (p1-p2).length();
+   return d;
 } 
 
 void

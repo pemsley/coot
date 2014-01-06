@@ -1405,10 +1405,10 @@ coot::get_selection_handle(CMMDBManager *mol, const coot::atom_spec_t &at) {
    int SelHnd = -1;
    if (mol) { 
       SelHnd = mol->NewSelection();
-      char *chain   = (char *) at.chain.c_str();
-      char *inscode = (char *) at.insertion_code.c_str();
-      char *atname  = (char *) at.atom_name.c_str(); // atom name
-      char *altconf = (char *) at.alt_conf.c_str();
+      const char *chain   =  at.chain.c_str();
+      const char *inscode =  at.insertion_code.c_str();
+      const char *atname  =  at.atom_name.c_str(); // atom name
+      const char *altconf =  at.alt_conf.c_str();
       mol->SelectAtoms (SelHnd, 0, chain,
 			at.resno, // starting resno, an int
 			inscode, // any insertion code
