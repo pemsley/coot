@@ -2394,6 +2394,7 @@ if test -n "$build_clipper" ; then
     # 20110921 hack in a temporary solution, while Kevin's new clipper
     # is not available yet from his site.
     clipper_hack_version=2.1-110915-fixup-2
+    clipper_hack_version=2.1-140110-fixup
     ${WGET} $extras_place/clipper-$clipper_hack_version.tar.gz
 
     if [ "$need_clipper_contrib_patch" = true ] ; then
