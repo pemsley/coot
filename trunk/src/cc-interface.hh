@@ -1078,7 +1078,7 @@ PyObject *score_rotamers_py(int imol,
 std::pair<std::pair<int, int> , std::vector<int> >
 protein_db_loops(int imol_coords, 
 		 const std::vector<coot::residue_spec_t> &residue_specs, 
-		 int imol_map, int nfrags);
+		 int imol_map, int nfrags, bool preserve_residue_names);
 // so that we can create a "original loop" molecule from the atom
 // specs picked (i.e. the atom selection string should extend over the
 // range from the smallest residue number to the largest (in the same
@@ -1086,10 +1086,10 @@ protein_db_loops(int imol_coords,
 std::string
 protein_db_loop_specs_to_atom_selection_string(const std::vector<coot::residue_spec_t> &specs);
 #ifdef USE_GUILE
-SCM protein_db_loops_scm(int imol_coords, SCM residues_specs, int imol_map, int nfrags);
+SCM protein_db_loops_scm(int imol_coords, SCM residues_specs, int imol_map, int nfrags, bool preserve_residue_names);
 #endif 
 #ifdef USE_PYTHON 
-PyObject *protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imol_map, int nfrags);
+PyObject *protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imol_map, int nfrags, bool preserve_residue_names);
 #endif 
 /* \} */
 
