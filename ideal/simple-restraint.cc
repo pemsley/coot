@@ -2287,11 +2287,11 @@ void coot::my_df(const gsl_vector *v,
    
    if (restraints->include_map_terms()) {
       // std::cout << "Using map terms " << std::endl;
-      coot::my_df_electron_density((gsl_vector *)v,params,df);
+      coot::my_df_electron_density(v, params, df);
    } 
 
    if (restraints->do_numerical_gradients_status())
-      coot::numerical_gradients((gsl_vector *)v,params,df); 
+      coot::numerical_gradients((gsl_vector *)v, params, df); 
 
 }
    
@@ -3605,7 +3605,7 @@ coot::electron_density_score(const gsl_vector *v, void *params) {
 // the atoms cooinside with the density - hence the contributions that
 // we add are negated.
 // 
-void coot::my_df_electron_density (gsl_vector *v, 
+void coot::my_df_electron_density (const gsl_vector *v, 
 				   void *params, 
 				   gsl_vector *df) {
 

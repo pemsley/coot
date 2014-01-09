@@ -682,7 +682,7 @@ namespace coot {
    // 
    double electron_density_score(const gsl_vector *v, void *params);
    // new style Grad_map/Grad_orth method
-   void my_df_electron_density (gsl_vector *v, void *params, gsl_vector *df);
+   void my_df_electron_density (const gsl_vector *v, void *params, gsl_vector *df);
    // old style numerical method
    void my_df_electron_density_old (gsl_vector *v, void *params, gsl_vector *df); 
 
