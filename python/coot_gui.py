@@ -4898,6 +4898,9 @@ def min_max_residues_from_atom_specs(specs):
       return [min_res_no, max_res_no, chain_id]
    else:
       return False
+
+global db_loop_preserve_residue_names
+db_loop_preserve_residue_names = False
                
 def click_protein_db_loop_gui():
 
@@ -4912,7 +4915,7 @@ def click_protein_db_loop_gui():
          else:
             loop_mols = protein_db_loops(imol, residue_specs,
                                          imol_refinement_map(),
-                                         10)
+                                         10, db_loop_preserve_residue_names)
             imol_loop_orig = loop_mols[0][0]
             imol_loops_consolidated = loop_mols[0][1]
             loop_mols = loop_mols[1]

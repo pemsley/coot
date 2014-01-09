@@ -7298,7 +7298,8 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
 
 #ifdef USE_GUILE
 SCM
-protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int nfrags) {
+protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int nfrags,
+		     bool preserve_residue_names) {
 
    SCM r = SCM_BOOL_F;
    std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(residue_specs_scm);
@@ -7308,7 +7309,7 @@ protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int n
 		<< std::endl;
    } else {
       std::pair<std::pair<int, int>, std::vector<int> > p = 
-	 protein_db_loops(imol_coords, specs, imol_map, nfrags);
+	 protein_db_loops(imol_coords, specs, imol_map, nfrags, preserve_residue_names);
       SCM mol_list_scm = SCM_EOL;
       // add backwards (for scheme)
       for (int i=(p.second.size()-1); i>=0; i--)
@@ -7322,7 +7323,8 @@ protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int n
 
 #ifdef USE_PYTHON
 PyObject *
-protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, int nfrags) {
+protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, int nfrags,
+		    bool preserve_residue_names) {
 
    PyObject *r = Py_False;
    std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_py);
@@ -7332,7 +7334,7 @@ protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, i
 		<< std::endl;
    } else {
       std::pair<std::pair<int, int>, std::vector<int> > p = 
-	 protein_db_loops(imol_coords, specs, imol_map, nfrags);
+	 protein_db_loops(imol_coords, specs, imol_map, nfrags, preserve_residue_names);
       PyObject *mol_list_py = PyList_New(p.second.size());
       for (int i=0; i< p.second.size(); i++)
         PyList_SetItem(mol_list_py, i, PyInt_FromLong(p.second[i]));
@@ -7360,8 +7362,9 @@ protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, i
 // return -1 in the first of the pair on failure
 // 
 std::pair<std::pair<int, int> , std::vector<int> > 
-protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &residue_specs, int imol_map, int nfrags) {
-
+protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &residue_specs, int imol_map, int nfrags,
+		 bool preserve_residue_names) {
+   
    int imol_consolodated = -1;
    int imol_loop_orig = -1; // set later hopefully
    std::vector<int> vec_chain_mols;
@@ -7391,7 +7394,7 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 
 	       // a molecule for each chain
 	       for(unsigned int ich=0; ich<chains.size(); ich++) { 
-		  CMMDBManager *mol = make_mol(chains[ich], chain_id, first_res_no);
+		  CMMDBManager *mol = make_mol(chains[ich], chain_id, first_res_no, preserve_residue_names);
 		  int imol = graphics_info_t::create_molecule();
 		  std::string name = "Loop candidate #"; 
 		  name += coot::util::int_to_string(ich+1);
@@ -7403,7 +7406,7 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 
 	       // The consolodated molecule
 	       imol_consolodated = graphics_info_t::create_molecule();
-	       CMMDBManager *mol = make_mol(chains, chain_id, first_res_no);
+	       CMMDBManager *mol = make_mol(chains, chain_id, first_res_no, preserve_residue_names);
 	       std::string name = "All Loop candidates "; 
 	       graphics_info_t::molecules[imol_consolodated].install_model(imol_consolodated, 
 									   mol, name, 1);
