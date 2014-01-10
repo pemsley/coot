@@ -7,8 +7,6 @@
      find the distribution of (n rms) density of atom in refined maps.  
      Maybe there is a relationship to resolution.  Try a few 100 structures. 
 
-   o Markus Rudolf: atom names are not preserved on reading mol2 files.
-
    o hydrogenate the N terminus of tutorial-modern, what is happening to H3?
 
      rdkit-interface.cc: lig_build::molfile_molecule_t
@@ -25,8 +23,6 @@
    o GLC pyranose 1-4 linked template.
 
    o PISA Interfaces surface colours are wrong. 
-
-   o 1r9f fails to load from PDBe.
 
    o add surface and ball and stick ligand to tutorial.
 
@@ -343,5 +339,14 @@ pcld=0x0) at c-inner-main.c:366
 	
 * Fixed. 
 
+   o 1r9f fails to load from PDBe.
+
+* "H 3 2" fixed in (my patched) clipper.
+
+
+  o Markus Rudolf: atom names are not preserved on reading mol2 files.
+ 
+* Fixed.  _TriposAtomName is what I wanted.
+ 
 -----
 

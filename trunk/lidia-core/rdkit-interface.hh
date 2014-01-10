@@ -69,6 +69,8 @@ namespace coot {
    // resulting residues has chain id of "" and residue number 1.
    //
    CResidue *make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name);
+   dictionary_residue_restraints_t make_dictionary(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name);
+
    
    lig_build::bond_t::bond_type_t convert_bond_type(const RDKit::Bond::BondType &type);
    
