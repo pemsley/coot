@@ -733,15 +733,25 @@ coot::mol_to_asc_rdkit(const std::string &file_name) {
    atom_selection_container_t asc;
 
    try { 
+
       RDKit::RWMol *m = RDKit::Mol2FileToMol(file_name);
-      if (m) { 
-	 CResidue *res = coot::make_residue(*m, 0, "XXX");
+
+      std::string res_name = "UNL";
+      try {
+	 m->getProp("_Name", res_name);
+      }
+      catch (const KeyErrorException &kee) {
+	 std::cout << "mol_to_asc_rdkit() no rdkit molecule name for " << m << " " << kee.what() << std::endl;
+      }
+
+      if (m) {
+	 CResidue *res = coot::make_residue(*m, 0, res_name);
 	 if (res) { 
 	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(NULL, res);
 	    asc = make_asc(mol);
 	 }
       } else {
-	 std::cout << "Null m" << std::endl;
+	 std::cout << "Null rdkit mol ptr m" << std::endl;
       } 
    }
    catch (RDKit::FileParseException rte) {

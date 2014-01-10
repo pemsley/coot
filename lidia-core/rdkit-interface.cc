@@ -914,14 +914,20 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 	    at_p->getProp("name", name);
 	 }
 	 catch (const KeyErrorException &kee) {
-	    //std::cout << "caught no-name for atom exception in make_molfile_molecule(): "
+	    // std::cout << "caught no-name for atom exception in make_molfile_molecule(): "
 	    // <<  kee.what() << std::endl;
 
 	    try {
 	       at_p->getProp("_Name", name);  // RDKit's version of an atom name.
 	    }
 	    catch  (const KeyErrorException &kee) {
-	       
+	       // std::cout << "no _Name for " << at_p << " " << kee.what() << std::endl;
+	       try {
+		  at_p->getProp("_TriposAtomName", name);  // RDKit's version of an atom name from a Mol2 File.
+	       }
+	       catch  (const KeyErrorException &kee) {
+		  std::cout << "no name, _Name or _TriposAtomName for " << at_p << " " << kee.what() << std::endl;
+	       }
 	    }
 	 } 
 	 clipper::Coord_orth pos(r_pos.x, r_pos.y, r_pos.z);
@@ -1005,6 +1011,15 @@ coot::make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_n
 
    return residue_p;
 }
+
+coot::dictionary_residue_restraints_t
+coot::make_dictionary(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name) {
+
+   coot::dictionary_residue_restraints_t d;
+
+   return d;
+
+} 
 
 
 lig_build::bond_t::bond_type_t
