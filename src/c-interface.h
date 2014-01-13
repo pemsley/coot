@@ -6869,6 +6869,7 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
 				  float jiggle_scale_factor);
 
 float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_scale_factor);
+float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor); 
 /* \} */
 
 
