@@ -7163,7 +7163,46 @@ float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_
       }
    }
    return 0.0;
-} 
+}
+
+float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      int imol_map = g.Imol_Refinement_Map();
+      CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+      if (is_valid_map_molecule(imol_map)) { 
+	 float map_sigma = g.molecules[imol_map].map_sigma();
+	 
+	 PPCAtom atom_selection = 0;
+	 int n_atoms;
+
+	 int SelHnd = mol->NewSelection();
+
+	 mol->SelectAtoms(SelHnd, 0,
+			  chain_id,
+			  ANY_RES, "*",
+			  ANY_RES, "*",
+			  "*","*","*","*",SKEY_NEW);
+	 
+	 mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+	 if (n_atoms) { 
+	    bool use_biased_density_scoring = false; // not for all-molecule
+	    g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
+							  g.molecules[imol_map].xmap_list[0],
+							  map_sigma,
+							  n_trials, jiggle_scale_factor,
+							  use_biased_density_scoring);
+	    mol->DeleteSelection(SelHnd);
+	    graphics_draw();
+	 } else {
+	    add_status_bar_text("Jiggle Fit: No atoms selected.");
+	 } 
+      }
+   }
+   return 0.0;
+}
+
 
 
 /* add a linked residue based purely on dictionary templete. 
