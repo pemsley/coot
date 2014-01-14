@@ -388,9 +388,13 @@ coot::util::get_jiggle_atoms_rtop_orth(float jiggle_trans_scale_factor,
 				       float annealing_factor) {
 
    float rmi = 1.0/float(RAND_MAX);
+
+   // If these angles are small, then we get small rotations of the model
+   // 
    double rand_ang_1 = 2* M_PI * coot::util::random() * rmi * annealing_factor;
    double rand_ang_2 = 2* M_PI * coot::util::random() * rmi * annealing_factor;
    double rand_ang_3 = 2* M_PI * coot::util::random() * rmi * annealing_factor;
+
    double rand_pos_1 = coot::util::random() * rmi * 0.1 * jiggle_trans_scale_factor * annealing_factor;
    double rand_pos_2 = coot::util::random() * rmi * 0.1 * jiggle_trans_scale_factor * annealing_factor;
    double rand_pos_3 = coot::util::random() * rmi * 0.1 * jiggle_trans_scale_factor * annealing_factor;

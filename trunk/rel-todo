@@ -3,14 +3,26 @@
 
 ---- 
 
+   o Tricky ligand problem: 4cje, use Residue -> 2D and prodrg to
+     generate restraints.  After normal "Apply" (and import) the
+     resulting ligand has hydrogens on the wrong way round.  Why
+     didn't the refinment fix this?  What is the pathology?
+
+     Hydrogens on the wrong way round like this means that the ligand
+     fitting failed.  I corrected them by hand and the ligand fitting
+     worked nicely (except a rotation round an acyl bond).
+
+     I want to see mark-up of restraints violation (not mogul).  I hope that the
+     incorrect orientation of the isobutyl should then be apparent.
+
+     Also give me a table of restraints violation for a given residue,
+     bond and angles at least (worse than xx z?).
+
    o To explain the update to helix fitting in EM maps, we need to
      find the distribution of (n rms) density of atom in refined maps.  
      Maybe there is a relationship to resolution.  Try a few 100 structures. 
 
    o hydrogenate the N terminus of tutorial-modern, what is happening to H3?
-
-     rdkit-interface.cc: lig_build::molfile_molecule_t
-     coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) needs to (also) try to use _Name atom property.
 
    o save_state_file() needs to write a python file when called from
      python (redefine save_save_file_py()).
@@ -347,6 +359,10 @@ pcld=0x0) at c-inner-main.c:366
   o Markus Rudolf: atom names are not preserved on reading mol2 files.
  
 * Fixed.  _TriposAtomName is what I wanted.
+
+     rdkit-interface.cc: lig_build::molfile_molecule_t
+     coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf)
+     needs to (also) try to use _Name atom property.
  
 -----
 

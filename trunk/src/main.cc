@@ -480,10 +480,7 @@ main (int argc, char *argv[]) {
        if (coot_dot_py_checked) {
 	 std::cout << "INFO:: importing coot.py from " << coot_dot_py_checked
 		   << std::endl;
-	 //run_python_script(coot_dot_py_checked);
-	 // not a const argument?  Dear oh dear....
 	 int err = import_python_module("coot", 0);
-	 //PyRun_SimpleString((char *)simple.c_str());
 	 if (err == -1) {
 	   std::cout << "ERROR:: could not import coot.py" << std::endl;
 	 } else {
