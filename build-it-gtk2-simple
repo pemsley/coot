@@ -1607,7 +1607,6 @@ build_mmdb=0
 build_ssmlib=0
 build_fftw=0
 build_clipper=
-# build_gtk=0
 build_guile=0
 build_guile_www=0
 build_guile_gui=0
@@ -1732,9 +1731,6 @@ export PKG_CONFIG_PATH
 echo  PKG_CONFIG_PATH is now $PKG_CONFIG_PATH
 
 
-# is the system gtk+2 new enough?  Needs to be 2.8 or better
-build_gtk=
-
 # Do we have freetype2?  cairo depends on it.
 if pkg-config freetype2 ; then
    build_freetype2=
@@ -1764,13 +1760,8 @@ needed_gtk_version=2.10
 pkg-config --atleast-version=$needed_gtk_version gtk+-2.0
 gtk_pkg_config_status=$?
 if [ "$gtk_pkg_config_status" = 0 ] ; then 
-   build_gtk=
    echo :::::::: gtk version is at least $needed_gtk_version
    echo :::::::: gtk version is `pkg-config --modversion gtk+-2.0`
-else 
-   # no recent/good gtk
-   echo :::::::: gtk and dependencies need to be built
-   build_gtk=1
 fi 
 
 # guilegtk2.1 need version 2.8 of gtk to compile out of the box.  If
@@ -2031,24 +2022,13 @@ fi
 # ##############################################################
 
 build_gtkglext=1
-if [ "$build_gtk" = "" ] ; then 
-   if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
-      echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.so
-      build_gtkglext=
-   fi
-   if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.la ; then
-      echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.la
-      build_gtkglext=
-   fi
-else 
-   if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
-      echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.so
-      build_gtkglext=
-   fi
-   if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.la ; then
-      echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.la
-      build_gtkglext=
-   fi
+if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
+   echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.so
+   build_gtkglext=
+fi
+if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.la ; then
+   echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.la
+   build_gtkglext=
 fi
 if test -z "$build_gtkglext" ; then
    echo installation has gtkglext
@@ -2092,23 +2072,21 @@ fi
 # ##############################################################
 
 # test for gnomecanvas here
-if [ "$build_gtk" = "" ] ; then 
-   pkg-config --modversion libgnomecanvas-2.0
-    if [ $? = 0 ] ; then 
-       gnome_canvas_result=`pkg-config --modversion libgnomecanvas-2.0`
-       case ${gnome_canvas_result} in
-           2.*) 
-            echo system has libgnomecanvas-2.0
-            ;; 
-           *)
-             echo system does not have libgnomecanvas-2.0
-             my_exit 2
-             ;; 
-       esac
-   else 
-      echo pkg-config does not find libgnomecanvas-2.0.  Exiting.
-      my_exit 2
-   fi
+pkg-config --modversion libgnomecanvas-2.0
+if [ $? = 0 ] ; then 
+    gnome_canvas_result=`pkg-config --modversion libgnomecanvas-2.0`
+    case ${gnome_canvas_result} in
+        2.*) 
+         echo system has libgnomecanvas-2.0
+         ;; 
+        *)
+          echo system does not have libgnomecanvas-2.0
+          my_exit 2
+          ;; 
+    esac
+else 
+   echo pkg-config does not find libgnomecanvas-2.0.  Exiting.
+   my_exit 2
 fi
 
 # ##############################################################
