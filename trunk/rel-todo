@@ -24,6 +24,8 @@
 
    o hydrogenate the N terminus of tutorial-modern, what is happening to H3?
 
+   o column types are not set in mtz file written by mmcif_sfs_to_mtz().
+
    o save_state_file() needs to write a python file when called from
      python (redefine save_save_file_py()).
 
@@ -143,6 +145,9 @@ f_sigf_ano_i->data_import(HKL(h,k,l), x_anom
   * this all looks like use of the wrong library.  I tried these files
     and it works as expected for me.
 
+
+  * Wish: highlight bond/atom/angles of restraints selected in
+    Restraints editor [DB via BL].
 
    o Deal with LEU nomenclature error problem on list recently (Dirk K.).
 
