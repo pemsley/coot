@@ -220,7 +220,7 @@ graphics_info_t::residue_tree_selection_func(GtkTreeSelection *selection,
 		   // std::cout << "Null residue " << residue_data << std::endl;
 		   // std::cout << "should expand here, perhaps?" << std::endl;
 		} else {
-		   CResidue *res = (CResidue *) residue_data;
+		   CResidue *res = static_cast<CResidue *>(residue_data);
 		   CAtom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
 		   if (!at) {
 		      std::cout << "ERROR:: failed to get atom in intelligent_this_residue_mmdb_atom: "

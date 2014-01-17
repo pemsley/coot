@@ -3,6 +3,13 @@
 
 ---- 
 
+   o link for test data
+
+   o Program terminated with signal 11, Segmentation fault.
+    in molecule-class-info.cc
+#0  0x0000000000811a11 in molecule_class_info_t::intelligent_this_residue_mmdb_atom (this=<value optimized out>, res_p=<value optimized out>) at molecule-class-info.cc:4722
+#1  0x000000000075d80f in graphics_info_t::residue_tree_selection_func (selection=<value optimized out>, model=<value optimized out>, path=<value optimized out>, path_currently_selected=<value optimized out>, data=<value optimized out>) at graphics-info-navigation-gtk2.cc:224
+
    o Tricky ligand problem: 4cje, use Residue -> 2D and prodrg to
      generate restraints.  After normal "Apply" (and import) the
      resulting ligand has hydrogens on the wrong way round.  Why
@@ -47,7 +54,7 @@
    o Reconsider descision to disallow reading of molecules with
      different residues but the same residue number and insetion code.
 
-   o Don't display same molecule dialog if there are no molecules to save.
+   o Don't display Save Molecule dialog if there are no molecules to save.
      Use the status bar.
 
    o Top right exit should not write a state file.
@@ -60,8 +67,6 @@
     if they want)
 
    o patch dictionary for chiral link restraint for NAG-ASN
-
-   o link for test data
 
    o Quick notebook: (what was changed on this residue? on previous rounds?)
 
@@ -94,6 +99,9 @@
      an error
 
    o Repeat B-form DNA in 10.5 bp, not 11.
+
+   o interesting ligand series examples: 4cie..s 4cj4..5 4cje..p
+
 
    o Bernie notes:
 
@@ -304,7 +312,6 @@ pcld=0x0) at c-inner-main.c:366
 
 * Done.
 
-
    o Strange canvas scrolling with big RNA 
 
 * added a hack.
@@ -359,7 +366,6 @@ pcld=0x0) at c-inner-main.c:366
    o 1r9f fails to load from PDBe.
 
 * "H 3 2" fixed in (my patched) clipper.
-
 
   o Markus Rudolf: atom names are not preserved on reading mol2 files.
  

@@ -333,8 +333,8 @@ coot::util::jiggle_atoms(const std::vector<CAtom *> &atoms,
    if (annealing_factor <= 0)
       annealing_factor = 1.0;
 
-   clipper::RTop_orth rtop = get_jiggle_atoms_rtop_orth(jiggle_trans_scale_factor,
-							annealing_factor);
+   clipper::RTop_orth rtop = make_rtop_orth_for_jiggle_atoms(jiggle_trans_scale_factor,
+							     annealing_factor);
    std::vector<CAtom> new_atoms(atoms.size());
    for (unsigned int i=0; i<atoms.size(); i++) { 
       new_atoms[i].Copy(atoms[i]);
@@ -369,7 +369,7 @@ coot::util::jiggle_atoms(const std::vector<CAtom > &atoms,
    std::vector<CAtom> new_atoms(atoms.size());
    // now apply rtop to atoms (shift the atoms relative to the
    // centre_pt before doing the wiggle
-   clipper::RTop_orth rtop = get_jiggle_atoms_rtop_orth(jiggle_trans_scale_factor, annealing_factor);
+   clipper::RTop_orth rtop = make_rtop_orth_for_jiggle_atoms(jiggle_trans_scale_factor, annealing_factor);
    for (unsigned int i=0; i<atoms.size(); i++) {
       clipper::Coord_orth pt_rel(atoms[i].x - centre_pt.x(),
 				 atoms[i].y - centre_pt.y(),
@@ -384,8 +384,8 @@ coot::util::jiggle_atoms(const std::vector<CAtom > &atoms,
 }
 
 clipper::RTop_orth
-coot::util::get_jiggle_atoms_rtop_orth(float jiggle_trans_scale_factor,
-				       float annealing_factor) {
+coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
+					    float annealing_factor) {
 
    float rmi = 1.0/float(RAND_MAX);
 

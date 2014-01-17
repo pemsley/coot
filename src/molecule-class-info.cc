@@ -4833,24 +4833,24 @@ molecule_class_info_t::intelligent_this_residue_atom(const coot::residue_spec_t 
 //
 CAtom *
 molecule_class_info_t::intelligent_this_residue_mmdb_atom(CResidue *res_p) const {
-   PPCAtom residue_atoms;
-   int nResidueAtoms;
+
+   CAtom *null_at = NULL;
    
-   res_p->GetAtomTable(residue_atoms, nResidueAtoms);
-   for (int i=0; i<nResidueAtoms; i++) {
-      std::string atom_name(residue_atoms[i]->name);
-      if (atom_name == " CA ") {
-	 return residue_atoms[i];
+   if (res_p) { 
+      PPCAtom residue_atoms = 0;
+      int nResidueAtoms;
+      res_p->GetAtomTable(residue_atoms, nResidueAtoms);
+      if (nResidueAtoms > 0) {
+	 for (int i=0; i<nResidueAtoms; i++) {
+	    std::string atom_name(residue_atoms[i]->name);
+	    if (atom_name == " CA ") {
+	       return residue_atoms[i];
+	    }
+	 }
+	 return residue_atoms[0]; // ok, so any atom will do
       }
    }
-
-   if (nResidueAtoms > 0) {
-      return residue_atoms[0];
-   }
-
-   // failure
-   return NULL;
-
+   return null_at;
 }
 
 // Return pointer to atom " CA ", or the first atom in the residue, or
