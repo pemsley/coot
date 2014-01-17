@@ -1971,3 +1971,86 @@ coot::util::density_map_points_in_sphere(clipper::Coord_orth pt, float search_ra
    return v;
 }
 
+
+clipper::Xmap<float>
+coot::util::map_from_map_fragment(const clipper::Xmap<float> &xmap,
+				  const clipper::Coord_orth &centre,
+				  float radius) {
+
+   clipper::Cell          xmap_cell = xmap.cell();
+   clipper::Grid_sampling xmap_grid_sampling = xmap.grid_sampling();
+   clipper::Coord_orth centre_moved = centre_moved - clipper::Coord_orth(0.1, 0.1, 0.1);
+
+   clipper::Grid_range gr0(xmap_cell, xmap_grid_sampling, radius);
+   clipper::Grid_range gr1(gr0.min() + centre.coord_frac(xmap_cell).coord_grid(xmap_grid_sampling),
+			   gr0.max() + centre.coord_frac(xmap_cell).coord_grid(xmap_grid_sampling));
+      
+   int new_x_u = 2*gr0.max().u();
+   int new_x_v = 2*gr0.max().v();
+   int new_x_w = 2*gr0.max().w();
+      
+   clipper::Coord_grid new_xmap_grid(new_x_u, new_x_v, new_x_w);
+   clipper::Coord_grid new_xmap_grid_max(new_x_u-1, new_x_v-1, new_x_w-1);
+   clipper::Coord_grid new_xmap_origin(0,0,0);
+   clipper::Grid_range new_xmap_grid_range(new_xmap_origin, new_xmap_grid_max);
+   clipper::Grid_sampling new_xmap_grid_sampling(new_x_u, new_x_v, new_x_w);
+   std::cout << "--------------- new_xmap grid_sampling init with " << new_x_u << " " << new_x_v << " " << new_x_w
+	     << std::endl;
+      
+   std::cout << "--------------- gr0.min() " << gr0.min().format() << std::endl;
+   std::cout << "--------------- gr0.max() " << gr0.max().format() << std::endl;
+   std::cout << "--------------- new_xmap_grid_sampling "   << new_xmap_grid_sampling.format() << std::endl;
+   std::cout << "--------------- new_xmap grid range min: " << new_xmap_grid_range.min().format() << std::endl;
+   std::cout << "--------------- new_xmap grid range max: " << new_xmap_grid_range.max().format() << std::endl;
+      
+
+   double new_x_alpha = xmap.cell().descr().alpha();
+   double new_x_beta  = xmap.cell().descr().beta();
+   double new_x_gamma = xmap.cell().descr().gamma();
+   double new_x_a = xmap.cell().descr().a() * double(new_xmap_grid_sampling.nu())/double(xmap_grid_sampling.nu());
+   double new_x_b = xmap.cell().descr().b() * double(new_xmap_grid_sampling.nv())/double(xmap_grid_sampling.nv());
+   double new_x_c = xmap.cell().descr().c() * double(new_xmap_grid_sampling.nw())/double(xmap_grid_sampling.nw());
+   clipper::Cell_descr new_xmap_cell_descr(new_x_a, new_x_b, new_x_c, new_x_alpha, new_x_beta, new_x_beta);
+   clipper::Cell new_xmap_cell(new_xmap_cell_descr);
+
+   // init new_xmap
+   clipper::Xmap<float> new_xmap(clipper::Spacegroup::p1(), new_xmap_cell, new_xmap_grid_sampling);
+      
+   clipper::Xmap<float>::Map_reference_coord ix(xmap);
+   clipper::Coord_orth centre_radius(centre.x() - radius,
+				     centre.y() - radius,
+				     centre.z() - radius);
+   clipper::Coord_orth new_xmap_centre(radius, radius, radius);
+   clipper::Coord_grid offset = xmap.coord_map(centre_radius).coord_grid();
+      
+   std::cout << "--------------- xmap offset to centre        " << centre_radius.format() << std::endl;
+   std::cout << "--------------- xmap offset to centre (grid) " << offset.format() << std::endl;
+
+   typedef clipper::Xmap<float>::Map_reference_index NRI;
+   double limited_radius = radius * 0.92;
+   for (NRI inx = new_xmap.first(); !inx.last(); inx.next()) {
+      clipper::Coord_orth p = inx.coord().coord_frac(new_xmap_grid_sampling).coord_orth(new_xmap_cell);
+      double d_to_c_sq = clipper::Coord_orth(p-new_xmap_centre).lengthsq();
+      if (d_to_c_sq > limited_radius*limited_radius) {
+	 new_xmap[inx] = 0.0;
+      } else {
+	 // ix indexes the xmap
+	 clipper::Coord_grid gp = p.coord_frac(xmap_cell).coord_grid(xmap_grid_sampling);
+	 ix.set_coord(gp + offset);
+
+	 // make a function that is y=1 around x=0 and y=1 around x=1 and
+	 // falls of to 0.5 around x=0.8 or so.
+	 //
+	 double x = sqrt(d_to_c_sq)/limited_radius;
+	 double gompertz_a = 0.14;
+	 double gompertz_b = 0.1; 
+	 double gompertz_c = 3;
+	 double gompertz_scale = 1 - (-gompertz_a*1.1 + gompertz_a * exp (gompertz_b * exp(gompertz_c * x)));
+	 new_xmap[inx] = xmap[ix] * gompertz_scale;
+	 if (0)
+	    std::cout << " inx " << inx.coord().format() << " " << d_to_c_sq << "  " << p.format() << " " << centre.format()
+		      << " vs " << limited_radius*limited_radius << " " << gompertz_scale << std::endl;
+      } 
+   }
+   return new_xmap;
+} 

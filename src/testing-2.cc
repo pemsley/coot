@@ -1,7 +1,30 @@
+#include "clipper/ccp4/ccp4_map_io.h"
+
 #include "testing.hh"
 #include "testing-data.hh"
 #include "ideal/simple-restraint.hh"
+#include "coot-utils/coot-map-utils.hh"
 
+int test_map_tools() {
+
+   int r = 0;
+
+   clipper::Xmap<float> m;
+
+   std::string mtz_file_name("test.mtz");
+   std::string f_col = "FWT";
+   std::string phi_col = "PHWT";
+   coot::util::map_fill_from_mtz(&m, mtz_file_name, f_col, phi_col, "", 0, 0);
+   clipper::Coord_orth c(2,1,-2);
+   clipper::Xmap<float> n = coot::util::map_from_map_fragment(m, c, 20);
+
+   clipper::CCP4MAPfile mapout;
+   mapout.open_write("fragment.map");
+   mapout.export_xmap(n);
+   mapout.close_write();
+   
+   return r;
+}
 
 int test_dreiding_torsion_energy() {
 
