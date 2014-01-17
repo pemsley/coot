@@ -98,8 +98,8 @@ namespace coot {
 		   const clipper::Coord_orth &centre_pt,
 		   float jiggle_scale_factor,
 		   float annealing_factor=1.0);
-      clipper::RTop_orth get_jiggle_atoms_rtop_orth(float jiggle_trans_scale_factor,
-						    float annealing_factor);
+      clipper::RTop_orth make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
+							 float annealing_factor);
 
 
 #endif // HAVE_GSL      
