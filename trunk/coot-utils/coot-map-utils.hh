@@ -243,6 +243,11 @@ namespace coot {
       // make a copy of map_in, but in the cell, spacegroup and gridding of reference_map
       clipper::Xmap<float> reinterp_map(const clipper::Xmap<float> &xmap_in,
 					const clipper::Xmap<float> &reference_xmap);
+
+      clipper::Xmap<float>
+      map_from_map_fragment(const clipper::Xmap<float> &xmap,
+			    const clipper::Coord_orth &centre,
+			    float radius);
   
       // 
       //
