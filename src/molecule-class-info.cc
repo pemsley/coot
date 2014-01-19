@@ -1762,7 +1762,8 @@ molecule_class_info_t::zero_occupancy_spots() const {
    if (bonds_box.n_zero_occ_spot > 0) { 
 
       glColor3f(0.8, 0.7, 0.7);
-      glPointSize(6.5);
+      float zsc = graphics_info_t::zoom;
+      glPointSize(145.0/zsc);
       glBegin(GL_POINTS); 
       for (int i=0; i<bonds_box.n_zero_occ_spot; i++) { 
 	 glVertex3f(bonds_box.zero_occ_spot[i].x(),
