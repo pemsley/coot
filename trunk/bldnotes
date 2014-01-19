@@ -97,6 +97,10 @@ scripting exercise
 
 **** General ****
 
+   o Preferences: add zero occ box size??
+
+   o save blurring factor and display in slider
+
    o add more things to Preferences, e.g. no of auto refine residues steps;
 	Preferences could include all (almost) default
 	settings from globjects e.g.
@@ -118,6 +122,8 @@ scripting exercise
    o add most common ligands to find?!
 
    o views play is not interuptable?!
+
+   o check that labels cannot be set to black accidentally/reset
 
    o colour/display residue/ligand by distortion score (like mogul) but based
 	on dictionary (better than nothing!)
@@ -462,6 +468,12 @@ low importance
 
 
 **** Windows ****
+
+   o import cif dictionaries have 'wrong' path - debackslash!!!
+
+
+   o write some info in registry to see that WinCoot is actually installed
+	together with version info etc maybe
 
    o make install syminfo.lib from windows dir
 

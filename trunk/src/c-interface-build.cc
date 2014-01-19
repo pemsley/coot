@@ -6741,12 +6741,13 @@ int handle_cif_dictionary(const char *filename) {
    short int show_dialog_flag = 0;
    if (graphics_info_t::use_graphics_interface_flag)
       show_dialog_flag = 1;
-   int r = g.add_cif_dictionary(filename, show_dialog_flag); 
+   int r = g.add_cif_dictionary(coot::util::intelligent_debackslash(filename),
+                                show_dialog_flag);
    graphics_draw();
    return r;
 }
 
-int read_cif_dictionary(const char *filename) { 
+int read_cif_dictionary(const char *filename) {
    
    return handle_cif_dictionary(filename);
 
