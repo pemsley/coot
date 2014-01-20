@@ -4864,7 +4864,7 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
    CAtom *at = NULL; 
 
    if (atom_sel.n_selected_atoms > 0) { 
-      int selHnd = atom_sel.mol->NewSelection();
+      int selHnd = atom_sel.mol->NewSelection(); // d
       PPCResidue SelResidue;
       int nSelResidues;
 
@@ -4903,7 +4903,7 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
 	       at = residue_atoms[0];
 	 }
       }
-      atom_sel.mol->DeleteSelection(selHnd); // Safe to put it here?
+      atom_sel.mol->DeleteSelection(selHnd); 
    }
    return at;
 }

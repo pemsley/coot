@@ -1821,16 +1821,16 @@ public:
    void update_go_to_atom_window_on_other_molecule_chosen(int imol);
    int update_go_to_atom_molecule_on_go_to_atom_molecule_deleted(); // return new gotoatom mol
    int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget);
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-   static void fill_go_to_atom_atom_list_gtk1(GtkWidget *atom_gtklist, int imol,
-					      char *chain_id, int seqno);
-#else
    static void fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 					   GtkWidget *residue_tree_scrolled_window,
 					   GtkWidget *atom_list_scrolled_window);
    static void fill_go_to_atom_atom_list_gtk2(GtkWidget *atom_tree, int imol,
 					      char *chain_id, int seqno, char *ins_code);
-#endif
+
+   static void go_to_atom_residue_tree_destroy(gpointer data);
+   static void go_to_atom_list_destroy(gpointer data);
+
+
    static void clear_atom_list(GtkWidget *atom_gtklist); 
    static void fill_go_to_atom_residue_list_gtk1(GtkWidget *gtklist);
    static void fill_go_to_atom_residue_tree_and_atom_list_gtk2(int imol, 

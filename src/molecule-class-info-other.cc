@@ -2347,7 +2347,7 @@ molecule_class_info_t::get_atom(const std::string &go_to_residue_string,
 				const coot::Cartesian &pt) const {
 
    CAtom *at = NULL;
-   coot::go_to_residue_string_info_t si(go_to_residue_string, atom_sel.mol);
+   coot::goto_residue_string_info_t si(go_to_residue_string, atom_sel.mol);
    if (si.chain_id_is_set) {
       if (si.resno_is_set) {
 	 CResidue *res_p = get_residue(si.chain_id, si.resno, "");
@@ -2409,7 +2409,7 @@ molecule_class_info_t::get_atom(const coot::atom_spec_t &atom_spec) const {
 // This should check that if "a" is typed, then set "a" as the
 // chain_id if it exists, else convert to "A" (if that exists).
 // 
-coot::go_to_residue_string_info_t::go_to_residue_string_info_t(const std::string &go_to_residue_string, CMMDBManager *mol) {
+coot::goto_residue_string_info_t::goto_residue_string_info_t(const std::string &go_to_residue_string, CMMDBManager *mol) {
 
    resno_is_set = 0;
    chain_id_is_set = 0;

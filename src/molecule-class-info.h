@@ -117,11 +117,11 @@ namespace coot {
 
    class new_centre_info_t {
    public:
-      coot::new_ligand_position_type type;
+      new_ligand_position_type type;
       clipper::Coord_orth position;
       std::string info_string;
       residue_spec_t residue_spec;
-      new_centre_info_t(coot::new_ligand_position_type pt,
+      new_centre_info_t(new_ligand_position_type pt,
 			const clipper::Coord_orth &pos,
 			const residue_spec_t &res_spec_in) {
 	 type = pt;
@@ -138,10 +138,11 @@ namespace coot {
       model_view_residue_button_info_t(const std::string &lab,
 				       CResidue *res) {
 	 button_label = lab;
-	 residue = res;
+	 residue_spec = res;
       } 
       std::string button_label;
-      CResidue *residue;
+      // CResidue *residue; No. This can go out of date.
+      residue_spec_t residue_spec;
    };
 
    class model_view_atom_tree_item_info_t {
@@ -150,10 +151,11 @@ namespace coot {
       model_view_atom_tree_item_info_t(const std::string &label,
 				       CResidue *res) {
 	 button_label = label;
-	 residue = res;
+	 residue_spec = res;
       }
       std::string button_label;
-      CResidue *residue;
+      // CResidue *residue;
+      residue_spec_t residue_spec;
    };
 
    class model_view_atom_tree_chain_t {
@@ -352,7 +354,7 @@ namespace coot {
       bool check_for_order_switch(CResidue *residue_ref,
 				  CResidue *residue_new,
 				  const std::string &link_type,
-				  const coot::protein_geometry &geom) const;
+				  const protein_geometry &geom) const;
    public:
       // this can throw a std::runtime_error
       dict_link_info_t (CResidue *residue_ref, CResidue *residue_new,
@@ -363,13 +365,13 @@ namespace coot {
    };
 
 
-   class go_to_residue_string_info_t {
+   class goto_residue_string_info_t {
    public:
       bool resno_is_set;
       bool chain_id_is_set;
       int resno;
       std::string chain_id;
-      go_to_residue_string_info_t(const std::string &go_to_residue_string, CMMDBManager *mol);
+      goto_residue_string_info_t(const std::string &goto_residue_string, CMMDBManager *mol);
    }; 
 
    class atom_attribute_setting_help_t {
@@ -672,7 +674,7 @@ namespace coot {
 	 }
 	 if (! filled) {
 	    // make up (guess) the residue type and element
-	    std::string at_name = coot::util::upcase(type);
+	    std::string at_name = util::upcase(type);
         atom_name = at_name;
         res_name = at_name;
         element_name = at_name;
@@ -2251,7 +2253,7 @@ public:        //                      public
    //
    int intelligent_this_residue_atom(CResidue *res_p) const;
    coot::atom_spec_t intelligent_this_residue_atom(const coot::residue_spec_t &rs) const;
-   CAtom *intelligent_this_residue_mmdb_atom(CResidue *res_p) const;
+   CAtom *intelligent_this_residue_mmdb_atom(CResidue *res_p) const; // has null res_p protection.
 
    // pointer atoms:
    void add_pointer_atom(coot::Cartesian pos);
