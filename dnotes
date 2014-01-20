@@ -6480,8 +6480,31 @@ valgrind:
 
  valgrind --leak-check=full --suppressions=../../coot/trunk/guile.supp --suppressions=../../coot/trunk/valgrind-python.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-real 
 
+
   Where are the python suppressions?
 
+   http://stackoverflow.com/questions/16659781/memory-leaks-in-gtk-hello-world-program
+
+   For debugging glib/gtk programs I would use this command:
+
+   G_SLICE=debug-blocks valgrind --tool=memcheck --leak-check=full <gtk program>
+   G_SLICE=debug-blocks will turn off gtk's advanced memory management to allow valgrind to show correct results.
+   --leak-check=full will show stack traces for the leaked memory blocks.
+
+   You can also use --show-reachable=yes to see stack traces for all
+   memory blocks that haven't been free when the program exits.
+
+   There is also the massif valgrind tool that tracks memory usage to
+   show which parts of the program are using the most memory.
+
+   Run program under massif:
+
+   G_SLICE=always-malloc valgrind --tool=massif --detailed-freq=2 --max-snapshots=400 --num-callers=20 <gtk program>
+
+   Show results:
+
+   ms_print massif.out.<pid>
+     
 ----
 Mon Apr  9 16:45:32 BST 2012
 

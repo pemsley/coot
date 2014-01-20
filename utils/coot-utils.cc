@@ -865,6 +865,7 @@ coot::util::split_string(const std::string &string_in,
    return v;
 }
 
+// by default splitter is " "
 std::vector<std::string>
 coot::util::split_string_no_blanks(const std::string &string_in,
 				   const std::string &splitter) {

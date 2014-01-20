@@ -367,9 +367,9 @@ namespace coot {
 
    class goto_residue_string_info_t {
    public:
-      bool resno_is_set;
+      bool res_no_is_set;
       bool chain_id_is_set;
-      int resno;
+      int res_no;
       std::string chain_id;
       goto_residue_string_info_t(const std::string &goto_residue_string, CMMDBManager *mol);
    }; 
