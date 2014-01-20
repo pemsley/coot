@@ -2349,8 +2349,8 @@ molecule_class_info_t::get_atom(const std::string &go_to_residue_string,
    CAtom *at = NULL;
    coot::goto_residue_string_info_t si(go_to_residue_string, atom_sel.mol);
    if (si.chain_id_is_set) {
-      if (si.resno_is_set) {
-	 CResidue *res_p = get_residue(si.chain_id, si.resno, "");
+      if (si.res_no_is_set) {
+	 CResidue *res_p = get_residue(si.chain_id, si.res_no, "");
 	 if (res_p) { 
 	    CAtom *int_at = intelligent_this_residue_mmdb_atom(res_p);
 	    if (int_at) {
@@ -2365,8 +2365,8 @@ molecule_class_info_t::get_atom(const std::string &go_to_residue_string,
       } 
    } else {
       // use the chain_id from the active_atom_spec.chain then
-      if (si.resno_is_set) {
-	 CResidue *res_p = get_residue(active_atom_spec.chain, si.resno, "");
+      if (si.res_no_is_set) {
+	 CResidue *res_p = get_residue(active_atom_spec.chain, si.res_no, "");
 	 if (res_p) { 
 	    CAtom *int_at = intelligent_this_residue_mmdb_atom(res_p);
 	    if (int_at) {
@@ -2409,48 +2409,85 @@ molecule_class_info_t::get_atom(const coot::atom_spec_t &atom_spec) const {
 // This should check that if "a" is typed, then set "a" as the
 // chain_id if it exists, else convert to "A" (if that exists).
 // 
-coot::goto_residue_string_info_t::goto_residue_string_info_t(const std::string &go_to_residue_string, CMMDBManager *mol) {
+// When there is a space, then the first string is the chain id and second string is the res_no.
+// 
+coot::goto_residue_string_info_t::goto_residue_string_info_t(const std::string &goto_residue_string,
+							     CMMDBManager *mol) {
 
-   resno_is_set = 0;
-   chain_id_is_set = 0;
-   resno = -1;
+   res_no_is_set    = false;
+   chain_id_is_set = false;
+   res_no = MinInt4;
    chain_id = "";
+
+   std::vector<std::string> bits = coot::util::split_string_no_blanks(goto_residue_string);
+
+
+   if (bits.size() == 1) { 
    
-   std::vector<std::string> chain_ids;
-   if (mol) { 
-      int imod = 1;
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
-      // run over chains of the existing mol
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 chain_ids.push_back(chain_p->GetChainID());
+      std::vector<std::string> chain_ids;
+      if (mol) { 
+	 int imod = 1;
+	 CModel *model_p = mol->GetModel(imod);
+	 CChain *chain_p;
+	 // run over chains of the existing mol
+	 int nchains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<nchains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    chain_ids.push_back(chain_p->GetChainID());
+	 }
       }
-   }
 
-   std::string::size_type l = go_to_residue_string.length();
-   std::string number_string = "";
-   std::string chain_id_string = ""; 
-   for (int i=0; i<l; i++) { 
-      if (coot::util::is_number(go_to_residue_string[i])) {
-	 number_string += go_to_residue_string[i];
-	 resno_is_set = 1;
+      std::string::size_type l = goto_residue_string.length();
+      std::string number_string = "";
+      std::string chain_id_string = ""; 
+      for (int i=0; i<l; i++) { 
+	 if (coot::util::is_number(goto_residue_string[i])) {
+	    number_string += goto_residue_string[i];
+	    res_no_is_set = true;
+	 }
+	 if (coot::util::is_letter(goto_residue_string[i])) {
+	    chain_id_string += goto_residue_string[i];
+	    chain_id_is_set = true;
+	 }
       }
-      if (coot::util::is_letter(go_to_residue_string[i])) {
-	 chain_id_string += go_to_residue_string[i];
-	 chain_id_is_set = 1;
+
+      if (res_no_is_set) {
+	 res_no = atoi(number_string.c_str());
       }
-   }
 
-   if (resno_is_set) {
-      resno = atoi(number_string.c_str());
-   }
+      if (chain_id_is_set) {
+	 chain_id = chain_id_string;
+      }
+   } else {
 
-   if (chain_id_is_set) {
-      chain_id = chain_id_string;
+      // The Chris Oubridge case, the first set of characters might actually be a chain id.
+
+      if (bits.size() == 2) { 
+
+	 if (mol) { 
+	    int imod = 1;
+	    CModel *model_p = mol->GetModel(imod);
+	    CChain *chain_p;
+	    // run over chains of the existing mol
+	    int nchains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<nchains; ichain++) {
+	       chain_p = model_p->GetChain(ichain);
+	       std::string this_chain_id = chain_p->GetChainID();
+	       if (this_chain_id == bits[0]) {
+		  try { 
+		     res_no = coot::util::string_to_int(bits[1]);
+		     res_no_is_set = true;
+		     chain_id = this_chain_id;
+		     chain_id_is_set = true;
+		  }
+		  catch (const std::runtime_error &rte) {
+		     
+		  }
+	       }
+	    }
+	 }
+      }
    } 
-   
 } 
 
 

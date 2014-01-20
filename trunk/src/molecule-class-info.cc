@@ -4892,8 +4892,9 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
 	    std::cout << "INFO:: No atoms in residue" << std::endl;
 	 } else {
 	    short int found_it = 0;
+	    std::string CA = " CA "; // PDBv3 FIXME
 	    for (int i=0; i<nResidueAtoms; i++) { 
-	       if (std::string(residue_atoms[i]->name) == std::string(" CA ")) { 
+	       if (std::string(residue_atoms[i]->name) == CA) { 
 		  at = residue_atoms[i];
 		  found_it = 1;
 		  break;
