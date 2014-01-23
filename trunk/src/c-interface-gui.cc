@@ -5867,6 +5867,9 @@ GtkWidget *wrapped_create_map_shapening_dialog() {
    gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
 		      GTK_SIGNAL_FUNC(map_sharpening_value_changed), NULL);
 
+   // set to sharpening value
+   gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), graphics_info_t::molecules[imol].sharpen_b_factor());
+   
 #if (GTK_MAJOR_VERSION > 1)
 #if (GTK_MAJOR_VERSION > 2) || (GTK_MINOR_VERSION > 14)
    int ticks = 3;  // number of ticks on the (one) side (not including centre tick)
