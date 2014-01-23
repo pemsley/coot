@@ -757,6 +757,7 @@ class molecule_class_info_t {
    float map_mean_;
    float map_max_;
    float map_min_;
+   float sharpen_b_factor_;
    short int is_dynamically_transformed_map_flag;
    coot::ghost_molecule_display_t map_ghost_info;
 
@@ -1195,9 +1196,10 @@ public:        //                      public
       // backup on by default, turned off for dummy atoms (baton building)
       backup_this_molecule = 1;
 
-      // Map sutff
+      // Map stuff
       map_max_ = 100.0;
       map_min_ = -100.0;
+      sharpen_b_factor_ = 0.0;
 
       // fourier (for phase recombination (potentially) in refmac:
       fourier_weight_label = ""; // unset initially.
@@ -1885,6 +1887,9 @@ public:        //                      public
 
    //
    float map_sigma() const { return map_sigma_; }
+
+   //
+   float sharpen_b_factor() const { return sharpen_b_factor_; }
 
    // for debugging.
    int test_function();

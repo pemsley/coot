@@ -225,6 +225,7 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       map_sigma_ = sqrt(mv.variance);
       map_max_   = mv.max_density;
       map_min_   = mv.min_density;
+      sharpen_b_factor_ = b_factor;
    
       std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
       std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
@@ -242,7 +243,6 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       update_map();
    }
 }
-
 
 
 void
