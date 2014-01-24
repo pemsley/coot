@@ -263,6 +263,35 @@ def get_eds_pdb_and_mtz(id):
         else:
             print "Can't make directory ",coot_tmp_dir
 
+# not sure if coot functio better or python script function coot_urlretrieve
+def net_get_url(my_url, file_name):
+    coot_get_url(my_url, file_name)
+
+def get_pdb_redo(text):
+
+    if not isinstance(text, str):
+        print "BL WARNING:: No string. No accession code."
+    else:
+        if not (len(text) == 4):
+            print "BL WARNING:: Accession code not 4 chars."
+        else:
+            text = string.lower(text)
+            stub = "http://www.cmbi.ru.nl/pdb_redo/" + \
+                   text[1:3] + \
+                   "/" + text + "/" + text + "_final"
+            pdb_file_name = text + "_final.pdb"
+            mtz_file_name = text + "_final.mtz"
+            url_pdb = stub + ".pdb"
+            url_mtz = stub + ".mtz"
+
+            print "getting", url_pdb
+            net_get_url(url_pdb, pdb_file_name)
+            print "getting", url_mtz
+            net_get_url(url_mtz, mtz_file_name)
+
+            read_pdb(pdb_file_name)
+            print "make-and-draw-map with", mtz_file_name
+            make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
 
 
 # BL says: to test, some examples
