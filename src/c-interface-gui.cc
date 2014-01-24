@@ -2281,6 +2281,7 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
 void handle_get_accession_code(GtkWidget *widget) {
 
    const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
+   text = coot::util::remove_trailing_whitespace(text).c_str();
    cout << "PDB Accession Code: " << text << endl;
    int *n_p = (int *) gtk_object_get_user_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(widget),
 									"accession_code_window")));
