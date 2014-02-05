@@ -2087,10 +2087,12 @@ coot::util::p1_sfs_t::sfs_from_boxed_molecule(CMMDBManager *mol, float border) {
    clipper::Cell_descr cell_descr(x_d, y_d, z_d, nr, nr, nr);
    cell = clipper::Cell(cell_descr);
    spacegroup = clipper::Spacegroup::p1();
-   reso = clipper::Resolution(3);
+   reso = clipper::Resolution(4);
 
    // calculate structure factors
    hkl_info = clipper::HKL_info(spacegroup, cell, reso);
+   hkl_info.generate_hkl_list();
+   std::cout << "P1-sfs: num_reflections: " << hkl_info.num_reflections() << std::endl;
 
    // with bulking
    // clipper::SFcalc_obs_bulk<float> sfcb;
@@ -2102,7 +2104,6 @@ coot::util::p1_sfs_t::sfs_from_boxed_molecule(CMMDBManager *mol, float border) {
    //
    std::cout << "P1-sfs: cell " << cell.format() << std::endl;
    std::cout << "P1-sfs: resolution limit " << reso.limit() << std::endl;
-   
 
    clipper::MMDBAtom_list atoms(asc.atom_selection, asc.n_selected_atoms);
    std::cout << "P1-sfs: asc.n_selected_atoms: " << asc.n_selected_atoms << std::endl;
@@ -2110,16 +2111,16 @@ coot::util::p1_sfs_t::sfs_from_boxed_molecule(CMMDBManager *mol, float border) {
    fc = clipper::HKL_data<clipper::data32::F_phi>(hkl_info, cell);
 
    
-//    std::cout << "P1-sfs: fc data debug  " << std::endl;
-//    fc.debug();
-//    clipper::SFcalc_aniso_fft<float> sfc;
-//    sfc(fc, atoms);
-//    std::cout << "P1-sfs: done sfs calculation " << std::endl;
+   clipper::SFcalc_aniso_fft<float> sfc;
+   sfc(fc, atoms);
+   std::cout << "P1-sfs: done sfs calculation " << std::endl;
 
-//    clipper::HKL_info::HKL_reference_index hri;
-//    for (hri = fc.first(); !hri.last(); hri.next()) {
-//       std::cout << hri.hkl().format() << " " << fc[hri].f() << std::endl;
-//    }
+   if (0) { // debug
+      clipper::HKL_info::HKL_reference_index hri;
+      for (hri = fc.first(); !hri.last(); hri.next()) {
+	 std::cout << hri.hkl().format() << " " << fc[hri].f() << " " << fc[hri].phi() << "\n";
+      }
+   }
 
    asc.clear_up();
 }
@@ -2131,85 +2132,88 @@ void
 coot::util::p1_sfs_t::integrate(const clipper::Xmap<float> &xmap) const {
 
    // sfs from map
-   clipper::Resolution reso(3.1);
+   clipper::Resolution reso(4.1);
    clipper::HKL_info hkl_info(xmap.spacegroup(), xmap.cell(), reso);
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > map_fphidata(hkl_info); 
-   xmap.fft_to(map_fphidata);
+   hkl_info.generate_hkl_list();
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > map_fphidata(hkl_info);
+   xmap.fft_to(map_fphidata, clipper::Xmap_base::Normal);
 
    double x = 5.0;
    double y = gsl_sf_bessel_J0(x);
 
+   clipper::Range<double>    fc_range = fc.invresolsq_range();
+   clipper::Range<double> map_f_range = map_fphidata.invresolsq_range();
+   std::cout << "fc resolution ranges " << fc_range.min() << " " << fc_range.max() << std::endl;
+   std::cout << "fc resolution ranges " << 1/sqrt(fc_range.min()) << " " << 1/sqrt(fc_range.max())
+	     << std::endl;
+
+
    // N is number of points for Gauss-Legendre Integration.
    // Run over model reflection list, to make T(k), k = 1,N
 
-   int N = 100;
+   int N = 20;
    float f = 1/float(N);
-   std::vector<float> T(N+1, 0);
-   for (float r_k_i=1; r_k_i<=N; r_k_i++) { 
-      float r_k = f * r_k_i;
+   // store T(k) and the weights
+   std::vector<std::pair<float, float> > T(N+1, std::pair<float, float> (0,0));
+   for (float r_k_i=1; r_k_i<=N; r_k_i++) {
+      // scaled so that when there is a reflection at max resolution, r * r_k is 1:
+      float r_k = f * r_k_i/fc_range.max();
       clipper::HKL_info::HKL_reference_index hri;
       for (hri = fc.first(); !hri.last(); hri.next()) {
-	 float x = 2*M_PI*r_k*(hri.hkl().h() + hri.hkl().k() + hri.hkl().l());
+	 // r and r_k are in inversely-related spaces: when
+	 // fc_range.max() is 0.0623598, the max value of r is
+	 // 0.0623598
+	 float r = hri.invresolsq();
+	 float x = 2*M_PI*r_k*r;
 	 float y = gsl_sf_bessel_J0(x);
-	 // std::cout << "x and f " << x << " " << fc[hri].f() << std::endl;
-	 T[r_k_i] += r_k*y*fc[hri].f();
+	 T[r_k_i].second += r_k*y*fc[hri].f();
+	 float w_k = 1;
+	 float func_r_k = 1.0;
+	 T[r_k_i].first = w_k * func_r_k * r_k *r_k;
       }
    }
-   
+
+   std::cout << "---- T(k) table ----- " << std::endl;
    for (float r_k_i=1; r_k_i<=N; r_k_i++) {
-      // std::cout << "rki " << r_k_i << " " << T[r_k_i] << std::endl;
+      std::cout << "   rki " << r_k_i << " w: " << T[r_k_i].first << "   val: " << T[r_k_i].second
+		<< std::endl;
    }
+
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > A_data = map_fphidata; 
+   
+   // run over the "map fragment" reflection list
+   clipper::HKL_info::HKL_reference_index hri;
+   for (hri = map_fphidata.first(); !hri.last(); hri.next()) {
+      double sum = 0;
+      for (float r_k_i=1; r_k_i<=N; r_k_i++) {
+	 // scaled so that when there is a reflection at max resolution, r * r_k is 1:
+	 float r_k = f * r_k_i/map_f_range.max();
+	 float r = hri.invresolsq();
+	 float x = 2*M_PI*r_k*r;
+	 float y = gsl_sf_bessel_J0(x);
+	 float prod = y * T[r_k_i].first * T[r_k_i].second;
+	 sum += prod;
+      }
+      A_data[hri].f() *= sum;
+   }
+
+   // scale down A_data to "sensible" numbers:
+   for (hri = map_fphidata.first(); !hri.last(); hri.next()) A_data[hri].f() *= 0.0000001;
+
+
+   clipper::Xmap<float> A_map(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
+   A_map.fft_from(A_data);
+
+   clipper::CCP4MAPfile mapout;
+   mapout.open_write("A.map");
+   mapout.export_xmap(A_map);
+   mapout.close_write();
+   
 }
 
 void
 coot::util::p1_sfs_t::test() const {
 
    std::cout << "--------------------- start test -------------" << std::endl;
-   
-   std::string pdb("4c62-fragment.pdb");
-
-   // atomic model
-   clipper::MMDBManager mmdb;
-   const int mmdbflags = MMDBF_IgnoreBlankLines | MMDBF_IgnoreDuplSeqNum;
-   mmdb.SetFlag(mmdbflags);
-   mmdb.ReadPDBASCII(pdb.c_str());
-
-   // get a list of all the atoms
-   clipper::mmdb::PPCAtom psel;
-   int hndl, nsel;
-   hndl = mmdb.NewSelection();
-   mmdb.SelectAtoms( hndl, 0, 0, SKEY_NEW );
-   mmdb.GetSelIndex( hndl, psel, nsel );
-   clipper::MMDBAtom_list atoms( psel, nsel );
-   mmdb.DeleteSelection(hndl);
-
-   double x_d = 200;
-   double y_d = 200;
-   double z_d = 200;
-   double nr = clipper::Util::d2rad(90);
-   clipper::Cell_descr cell_descr(x_d, y_d, z_d, nr, nr, nr);
-   clipper::Cell cell(cell_descr);
-   clipper::Spacegroup spacegroup = clipper::Spacegroup::p1();
-   clipper::Resolution reso(4.0);
-   
-   clipper::HKL_info hkls;
-   hkls = clipper::HKL_info(spacegroup, cell, reso);
-
-   clipper::MTZcrystal cxtl;
-
-   // calculate structure factors
-   // clipper::HKL_data<clipper::data32::F_phi> fc(hkls, cxtl);
-   
-   clipper::HKL_data<clipper::data32::F_phi> fc(hkls, cell);
-
-   clipper::SFcalc_aniso_fft<float> sfc;
-   sfc(fc, atoms);
-
-   fc.debug();
-   
-   clipper::HKL_info::HKL_reference_index hri;
-   for (hri = fc.first(); !hri.last(); hri.next()) {
-      std::cout << hri.hkl().format() << " " << fc[hri].f() << std::endl;
-   }
    std::cout << "--------------------- done test -------------" << std::endl;
 }

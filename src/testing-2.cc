@@ -29,13 +29,8 @@ int test_map_tools() {
    atom_selection_container_t asc = get_atom_selection(pdb_file_name, false);
 
    if (asc.mol) {
-
-      // sfs from model
-      coot::util::p1_sfs_t s_m(asc.mol, 5);
-      s_m.test();
-
-      // s_m.integrate(n.xmap);
-      
+      coot::util::p1_sfs_t sphd(asc.mol, 5); // 5 is border
+      sphd.integrate(n.xmap);
    } 
    return r;
 }

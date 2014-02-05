@@ -259,10 +259,10 @@ namespace coot {
 			    float radius);
 
       class p1_sfs_t {
-	 void sfs_from_boxed_molecule(CMMDBManager *mol, float boarder);
+	 void sfs_from_boxed_molecule(CMMDBManager *mol, float border);
       public:
-	 p1_sfs_t(CMMDBManager *mol, float boarder) {
-	    sfs_from_boxed_molecule(mol, boarder);
+	 p1_sfs_t(CMMDBManager *mol, float border) {
+	    sfs_from_boxed_molecule(mol, border);
 	 } 
 	 clipper::Spacegroup spacegroup;
 	 clipper::Cell cell;
