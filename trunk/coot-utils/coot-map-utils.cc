@@ -1972,10 +1972,13 @@ coot::util::density_map_points_in_sphere(clipper::Coord_orth pt, float search_ra
 }
 
 
-clipper::Xmap<float>
+// clipper::Xmap<float>
+coot::util::map_fragment_info_t
 coot::util::map_from_map_fragment(const clipper::Xmap<float> &xmap,
 				  const clipper::Coord_orth &centre,
 				  float radius) {
+
+   map_fragment_info_t mfi;
 
    clipper::Cell          xmap_cell = xmap.cell();
    clipper::Grid_sampling xmap_grid_sampling = xmap.grid_sampling();
@@ -2014,7 +2017,8 @@ coot::util::map_from_map_fragment(const clipper::Xmap<float> &xmap,
    clipper::Cell new_xmap_cell(new_xmap_cell_descr);
 
    // init new_xmap
-   clipper::Xmap<float> new_xmap(clipper::Spacegroup::p1(), new_xmap_cell, new_xmap_grid_sampling);
+   // clipper::Xmap<float> new_xmap(clipper::Spacegroup::p1(), new_xmap_cell, new_xmap_grid_sampling);
+   mfi.xmap.init(clipper::Spacegroup::p1(), new_xmap_cell, new_xmap_grid_sampling);
       
    clipper::Xmap<float>::Map_reference_coord ix(xmap);
    clipper::Coord_orth centre_radius(centre.x() - radius,
@@ -2022,17 +2026,18 @@ coot::util::map_from_map_fragment(const clipper::Xmap<float> &xmap,
 				     centre.z() - radius);
    clipper::Coord_orth new_xmap_centre(radius, radius, radius);
    clipper::Coord_grid offset = xmap.coord_map(centre_radius).coord_grid();
+   mfi.offset = offset;
       
    std::cout << "--------------- xmap offset to centre        " << centre_radius.format() << std::endl;
    std::cout << "--------------- xmap offset to centre (grid) " << offset.format() << std::endl;
 
    typedef clipper::Xmap<float>::Map_reference_index NRI;
    double limited_radius = radius * 0.92;
-   for (NRI inx = new_xmap.first(); !inx.last(); inx.next()) {
+   for (NRI inx = mfi.xmap.first(); !inx.last(); inx.next()) {
       clipper::Coord_orth p = inx.coord().coord_frac(new_xmap_grid_sampling).coord_orth(new_xmap_cell);
       double d_to_c_sq = clipper::Coord_orth(p-new_xmap_centre).lengthsq();
       if (d_to_c_sq > limited_radius*limited_radius) {
-	 new_xmap[inx] = 0.0;
+	 mfi.xmap[inx] = 0.0;
       } else {
 	 // ix indexes the xmap
 	 clipper::Coord_grid gp = p.coord_frac(xmap_cell).coord_grid(xmap_grid_sampling);
@@ -2046,11 +2051,165 @@ coot::util::map_from_map_fragment(const clipper::Xmap<float> &xmap,
 	 double gompertz_b = 0.1; 
 	 double gompertz_c = 3;
 	 double gompertz_scale = 1 - (-gompertz_a*1.1 + gompertz_a * exp (gompertz_b * exp(gompertz_c * x)));
-	 new_xmap[inx] = xmap[ix] * gompertz_scale;
+	 mfi.xmap[inx] = xmap[ix] * gompertz_scale;
 	 if (0)
 	    std::cout << " inx " << inx.coord().format() << " " << d_to_c_sq << "  " << p.format() << " " << centre.format()
 		      << " vs " << limited_radius*limited_radius << " " << gompertz_scale << std::endl;
       } 
    }
-   return new_xmap;
-} 
+   return mfi;
+}
+
+#include <clipper/clipper-contrib.h>
+#include "coords/mmdb-crystal.h"
+void
+coot::util::p1_sfs_t::sfs_from_boxed_molecule(CMMDBManager *mol, float border) {
+
+   CMMDBManager *copy_mol = new CMMDBManager;
+   copy_mol->Copy(mol, MMDBFCM_All);
+
+   // bleugh.  Make an asc for extents.  Don't like.
+   atom_selection_container_t asc = make_asc(copy_mol);
+   molecule_extents_t me(asc, 4);
+   
+   double x_range = me.get_right().x()  - me.get_left().x();
+   double y_range = me.get_top().y()    - me.get_bottom().y();
+   double z_range = me.get_back().z()   - me.get_front().z();
+
+   double x_d = x_range + border;
+   double y_d = y_range + border;
+   double z_d = z_range + border;
+
+   // move the coordinates to around the middle of the box
+   asc.apply_shift(-x_range/2, -y_range/2, -z_range/2);
+
+   double nr = clipper::Util::d2rad(90);
+   clipper::Cell_descr cell_descr(x_d, y_d, z_d, nr, nr, nr);
+   cell = clipper::Cell(cell_descr);
+   spacegroup = clipper::Spacegroup::p1();
+   reso = clipper::Resolution(3);
+
+   // calculate structure factors
+   hkl_info = clipper::HKL_info(spacegroup, cell, reso);
+
+   // with bulking
+   // clipper::SFcalc_obs_bulk<float> sfcb;
+   // sfcb( fc, fo, atoms );
+   // bulkfrc = sfcb.bulk_frac();
+   // bulkscl = sfcb.bulk_scale();
+
+   // debug
+   //
+   std::cout << "P1-sfs: cell " << cell.format() << std::endl;
+   std::cout << "P1-sfs: resolution limit " << reso.limit() << std::endl;
+   
+
+   clipper::MMDBAtom_list atoms(asc.atom_selection, asc.n_selected_atoms);
+   std::cout << "P1-sfs: asc.n_selected_atoms: " << asc.n_selected_atoms << std::endl;
+
+   fc = clipper::HKL_data<clipper::data32::F_phi>(hkl_info, cell);
+
+   
+//    std::cout << "P1-sfs: fc data debug  " << std::endl;
+//    fc.debug();
+//    clipper::SFcalc_aniso_fft<float> sfc;
+//    sfc(fc, atoms);
+//    std::cout << "P1-sfs: done sfs calculation " << std::endl;
+
+//    clipper::HKL_info::HKL_reference_index hri;
+//    for (hri = fc.first(); !hri.last(); hri.next()) {
+//       std::cout << hri.hkl().format() << " " << fc[hri].f() << std::endl;
+//    }
+
+   asc.clear_up();
+}
+
+#include <gsl/gsl_sf_bessel.h>
+
+
+void
+coot::util::p1_sfs_t::integrate(const clipper::Xmap<float> &xmap) const {
+
+   // sfs from map
+   clipper::Resolution reso(3.1);
+   clipper::HKL_info hkl_info(xmap.spacegroup(), xmap.cell(), reso);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > map_fphidata(hkl_info); 
+   xmap.fft_to(map_fphidata);
+
+   double x = 5.0;
+   double y = gsl_sf_bessel_J0(x);
+
+   // N is number of points for Gauss-Legendre Integration.
+   // Run over model reflection list, to make T(k), k = 1,N
+
+   int N = 100;
+   float f = 1/float(N);
+   std::vector<float> T(N+1, 0);
+   for (float r_k_i=1; r_k_i<=N; r_k_i++) { 
+      float r_k = f * r_k_i;
+      clipper::HKL_info::HKL_reference_index hri;
+      for (hri = fc.first(); !hri.last(); hri.next()) {
+	 float x = 2*M_PI*r_k*(hri.hkl().h() + hri.hkl().k() + hri.hkl().l());
+	 float y = gsl_sf_bessel_J0(x);
+	 // std::cout << "x and f " << x << " " << fc[hri].f() << std::endl;
+	 T[r_k_i] += r_k*y*fc[hri].f();
+      }
+   }
+   
+   for (float r_k_i=1; r_k_i<=N; r_k_i++) {
+      // std::cout << "rki " << r_k_i << " " << T[r_k_i] << std::endl;
+   }
+}
+
+void
+coot::util::p1_sfs_t::test() const {
+
+   std::cout << "--------------------- start test -------------" << std::endl;
+   
+   std::string pdb("4c62-fragment.pdb");
+
+   // atomic model
+   clipper::MMDBManager mmdb;
+   const int mmdbflags = MMDBF_IgnoreBlankLines | MMDBF_IgnoreDuplSeqNum;
+   mmdb.SetFlag(mmdbflags);
+   mmdb.ReadPDBASCII(pdb.c_str());
+
+   // get a list of all the atoms
+   clipper::mmdb::PPCAtom psel;
+   int hndl, nsel;
+   hndl = mmdb.NewSelection();
+   mmdb.SelectAtoms( hndl, 0, 0, SKEY_NEW );
+   mmdb.GetSelIndex( hndl, psel, nsel );
+   clipper::MMDBAtom_list atoms( psel, nsel );
+   mmdb.DeleteSelection(hndl);
+
+   double x_d = 200;
+   double y_d = 200;
+   double z_d = 200;
+   double nr = clipper::Util::d2rad(90);
+   clipper::Cell_descr cell_descr(x_d, y_d, z_d, nr, nr, nr);
+   clipper::Cell cell(cell_descr);
+   clipper::Spacegroup spacegroup = clipper::Spacegroup::p1();
+   clipper::Resolution reso(4.0);
+   
+   clipper::HKL_info hkls;
+   hkls = clipper::HKL_info(spacegroup, cell, reso);
+
+   clipper::MTZcrystal cxtl;
+
+   // calculate structure factors
+   // clipper::HKL_data<clipper::data32::F_phi> fc(hkls, cxtl);
+   
+   clipper::HKL_data<clipper::data32::F_phi> fc(hkls, cell);
+
+   clipper::SFcalc_aniso_fft<float> sfc;
+   sfc(fc, atoms);
+
+   fc.debug();
+   
+   clipper::HKL_info::HKL_reference_index hri;
+   for (hri = fc.first(); !hri.last(); hri.next()) {
+      std::cout << hri.hkl().format() << " " << fc[hri].f() << std::endl;
+   }
+   std::cout << "--------------------- done test -------------" << std::endl;
+}

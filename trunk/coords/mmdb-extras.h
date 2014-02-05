@@ -1,4 +1,5 @@
 /* coords/mmdb-extras.h
+ * -*-c++-*-  
  * 
  * Copyright 2005 by The University of York
  * Author: Paul Emsley
@@ -106,7 +107,14 @@ public:
       mol->DeleteSelection(SelectionHandle);
       n_selected_atoms = 0;
       atom_selection = 0;
-   } 
+   }
+   void apply_shift(float x_shift, float y_shift, float z_shift) {
+      for (unsigned int i=0; i<n_selected_atoms; i++) { 
+	 atom_selection[i]->x -= x_shift;
+	 atom_selection[i]->y -= y_shift;
+	 atom_selection[i]->z -= z_shift;
+      }
+   }
 };
 
 // debug this struct

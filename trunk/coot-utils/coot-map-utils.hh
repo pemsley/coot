@@ -26,8 +26,12 @@
 #include "clipper/core/coords.h"
 #include "clipper/core/xmap.h"
 #include "clipper/core/hkl_data.h"
+#include "clipper/contrib/sfcalc_obs.h"
 #include "coot-coord-utils.hh"
 #include <mmdb/mmdb_manager.h>
+
+// for asc.  unclean
+#include "coords/mmdb-extras.h"
 
 namespace coot {
 
@@ -244,10 +248,30 @@ namespace coot {
       clipper::Xmap<float> reinterp_map(const clipper::Xmap<float> &xmap_in,
 					const clipper::Xmap<float> &reference_xmap);
 
-      clipper::Xmap<float>
+      class map_fragment_info_t {
+      public:
+	 clipper::Xmap<float> xmap;
+	 clipper::Coord_grid offset;
+      };
+      map_fragment_info_t
       map_from_map_fragment(const clipper::Xmap<float> &xmap,
 			    const clipper::Coord_orth &centre,
 			    float radius);
+
+      class p1_sfs_t {
+	 void sfs_from_boxed_molecule(CMMDBManager *mol, float boarder);
+      public:
+	 p1_sfs_t(CMMDBManager *mol, float boarder) {
+	    sfs_from_boxed_molecule(mol, boarder);
+	 } 
+	 clipper::Spacegroup spacegroup;
+	 clipper::Cell cell;
+	 clipper::Resolution reso;
+	 clipper::HKL_info hkl_info;
+	 clipper::HKL_data<clipper::data32::F_phi> fc;
+	 void integrate(const clipper::Xmap<float> &xmap) const;
+	 void test() const;
+      };
   
       // 
       //
