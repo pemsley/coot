@@ -1,9 +1,11 @@
+
 #include "clipper/ccp4/ccp4_map_io.h"
 
 #include "testing.hh"
 #include "testing-data.hh"
 #include "ideal/simple-restraint.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "coords/mmdb-crystal.h"
 
 int test_map_tools() {
 
@@ -16,13 +18,25 @@ int test_map_tools() {
    std::string phi_col = "PHWT";
    coot::util::map_fill_from_mtz(&m, mtz_file_name, f_col, phi_col, "", 0, 0);
    clipper::Coord_orth c(2,1,-2);
-   clipper::Xmap<float> n = coot::util::map_from_map_fragment(m, c, 20);
+   coot::util::map_fragment_info_t n = coot::util::map_from_map_fragment(m, c, 20);
 
    clipper::CCP4MAPfile mapout;
    mapout.open_write("fragment.map");
-   mapout.export_xmap(n);
+   mapout.export_xmap(n.xmap);
    mapout.close_write();
-   
+
+   std::string pdb_file_name = "4c62-fragment.pdb";
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name, false);
+
+   if (asc.mol) {
+
+      // sfs from model
+      coot::util::p1_sfs_t s_m(asc.mol, 5);
+      s_m.test();
+
+      // s_m.integrate(n.xmap);
+      
+   } 
    return r;
 }
 

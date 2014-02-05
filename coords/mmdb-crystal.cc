@@ -197,16 +197,33 @@ molecule_extents_t::~molecule_extents_t() {
 } 
 
 coot::Cartesian
-molecule_extents_t::get_front() {
-
+molecule_extents_t::get_front() const {
    return front;
+}
+
+coot::Cartesian
+molecule_extents_t::get_back() const {
+   // Jojo
+   return back;
 } 
 
 coot::Cartesian
-molecule_extents_t::get_back() {
-   // Jojo
+molecule_extents_t::get_left() const {
+   return left;
+}
 
-   return back;
+coot::Cartesian
+molecule_extents_t::get_right() const {
+   return right;
+} 
+coot::Cartesian
+molecule_extents_t::get_top() const {
+   return top;
+}
+
+coot::Cartesian
+molecule_extents_t::get_bottom() const {
+   return bottom;
 } 
 
 
@@ -524,8 +541,6 @@ molecule_extents_t::shift_matrix(CMMDBManager *mol,
 				 mat44 my_matt,
 				 int x_shift, int y_shift, int z_shift,
 				 mat44 new_matrix) const {
-
-
    mat44 amat;
    mol->GetTMatrix(amat, 0, x_shift, y_shift, z_shift);
    for (int i=0; i<4; i++) 
