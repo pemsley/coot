@@ -17,7 +17,7 @@ int test_map_tools() {
    std::string f_col = "FWT";
    std::string phi_col = "PHWT";
    coot::util::map_fill_from_mtz(&m, mtz_file_name, f_col, phi_col, "", 0, 0);
-   clipper::Coord_orth c(2,1,-2);
+   clipper::Coord_orth c(-15,-4,21);
    coot::util::map_fragment_info_t n = coot::util::map_from_map_fragment(m, c, 20);
 
    clipper::CCP4MAPfile mapout;

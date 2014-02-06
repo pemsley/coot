@@ -2195,6 +2195,7 @@ coot::util::p1_sfs_t::integrate(const clipper::Xmap<float> &xmap) const {
 	 sum += prod;
       }
       A_data[hri].f() *= sum;
+      A_data[hri].phi() = 0;
    }
 
    // scale down A_data to "sensible" numbers:
@@ -2207,6 +2208,10 @@ coot::util::p1_sfs_t::integrate(const clipper::Xmap<float> &xmap) const {
    clipper::CCP4MAPfile mapout;
    mapout.open_write("A.map");
    mapout.export_xmap(A_map);
+   mapout.close_write();
+   
+   mapout.open_write("map_fragment.map");
+   mapout.export_xmap(xmap);
    mapout.close_write();
    
 }
