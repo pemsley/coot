@@ -20,6 +20,9 @@
 
 // add a casting hack for old versions of mmdb
 //
+#ifndef MMDB_MAJOR_VERSION
+#define PSTR_CAST_HACK (pstr *) // old, old, full of old-ability
+#else 
 #if (MMDB_MAJOR_VERSION == 1)
 #if (MMDB_MINOR_VERSION < 24)
 #define PSTR_CAST_HACK (pstr *)
@@ -29,7 +32,7 @@
 #else 
 #define PSTR_CAST_HACK
 #endif
-
+#endif
 
 // This can throw a std::runtime_error.
 // 

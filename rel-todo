@@ -254,6 +254,8 @@ pcld=0x0) at c-inner-main.c:366
 
    * possibly fixed by adding CAtom * -> atom spec protection
 
+   * possibly fixed by replacing with residue spec usage.
+
 
    o bundle coot.probe and coot.reduce in the binaries
 
