@@ -4508,6 +4508,10 @@ molecule_class_info_t::close_yourself() {
       delete [] xmap_list;
       xmap_list = NULL;
       xmap_is_filled[0] = 0;
+      delete [] draw_vectors;
+      delete [] diff_map_draw_vectors;
+      draw_vectors = NULL;
+      diff_map_draw_vectors = NULL;
       max_xmaps = 0;
    }
 

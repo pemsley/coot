@@ -1154,7 +1154,9 @@ public:        //                      public
       // while zero maps, don't need to intialise the arrays (xmap_is_filled)
       max_xmaps = 0;
       nx_map_is_filled = 0;
-      is_patterson = 0; 
+      is_patterson = 0;
+      draw_vectors = NULL;
+      diff_map_draw_vectors = NULL;
       
       //
       xskel_is_filled = 0; // not filled.
@@ -1759,7 +1761,7 @@ public:        //                      public
    //
 
    // a generic function to convert from a residue_spec_vec to a
-   // selection handle. Caller creates teh SelHnd_selection so that it
+   // selection handle. Caller creates the SelHnd_selection so that it
    // is clearer where the SelHnd_selection should be deleted.
    //
    void fill_residue_selection(int SelHnd_selection,
