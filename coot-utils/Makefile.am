@@ -82,7 +82,8 @@ libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from
 
 # clean
 libcoot_map_utils_la_LIBADD = \
-   libcoot-coord-utils.la
+   libcoot-coord-utils.la \
+   $(top_builddir)/coords/libcoot-coords.la
 
 # for map things that need mmdb, clipper, gsl and other things
 libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc
