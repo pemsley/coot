@@ -23,7 +23,8 @@
 #include <algorithm> // for sorting.
 #include <queue>
 
-// #include "clipper/ccp4/ccp4_map_io.h"
+#include <gsl/gsl_sf_bessel.h>
+
 #include "clipper/ccp4/ccp4_mtz_io.h"
 #include "clipper/core/map_interp.h"
 #include "clipper/core/hkl_compute.h"
@@ -2069,19 +2070,24 @@ coot::util::p1_sfs_t::sfs_from_boxed_molecule(CMMDBManager *mol, float border) {
    copy_mol->Copy(mol, MMDBFCM_All);
 
    // bleugh.  Make an asc for extents.  Don't like.
-   atom_selection_container_t asc = make_asc(copy_mol);
-   molecule_extents_t me(asc, 4);
+   // atom_selection_container_t asc = make_asc(copy_mol);
+
+   // molecule_extents_t me(asc, 4);
    
-   double x_range = me.get_right().x()  - me.get_left().x();
-   double y_range = me.get_top().y()    - me.get_bottom().y();
-   double z_range = me.get_back().z()   - me.get_front().z();
+//    double x_range = me.get_right().x()  - me.get_left().x();
+//    double y_range = me.get_top().y()    - me.get_bottom().y();
+//    double z_range = me.get_back().z()   - me.get_front().z();
+   
+   double x_range = 10;
+   double y_range = 10;
+   double z_range = 10;
 
    double x_d = x_range + border;
    double y_d = y_range + border;
    double z_d = z_range + border;
 
    // move the coordinates to around the middle of the box
-   asc.apply_shift(-x_range/2, -y_range/2, -z_range/2);
+   // asc.apply_shift(0, 0, 0);
 
    double nr = clipper::Util::d2rad(90);
    clipper::Cell_descr cell_descr(x_d, y_d, z_d, nr, nr, nr);
@@ -2105,12 +2111,23 @@ coot::util::p1_sfs_t::sfs_from_boxed_molecule(CMMDBManager *mol, float border) {
    std::cout << "P1-sfs: cell " << cell.format() << std::endl;
    std::cout << "P1-sfs: resolution limit " << reso.limit() << std::endl;
 
-   clipper::MMDBAtom_list atoms(asc.atom_selection, asc.n_selected_atoms);
-   std::cout << "P1-sfs: asc.n_selected_atoms: " << asc.n_selected_atoms << std::endl;
+   PPCAtom atom_selection = 0;
+   int n_selected_atoms;
+   // now do selection
+   int SelHnd = mol->NewSelection(); // d
+   copy_mol->SelectAtoms(SelHnd, 1, "*",
+			 ANY_RES, "*",
+			 ANY_RES, "*",
+			 "*", "*", 
+			 "*", // elements
+			 "*", // alt loc.
+			 SKEY_NEW);
+   
+   clipper::MMDBAtom_list atoms(atom_selection, n_selected_atoms);
+   std::cout << "P1-sfs: n_selected_atoms: " << n_selected_atoms << std::endl;
 
    fc = clipper::HKL_data<clipper::data32::F_phi>(hkl_info, cell);
 
-   
    clipper::SFcalc_aniso_fft<float> sfc;
    sfc(fc, atoms);
    std::cout << "P1-sfs: done sfs calculation " << std::endl;
@@ -2122,10 +2139,10 @@ coot::util::p1_sfs_t::sfs_from_boxed_molecule(CMMDBManager *mol, float border) {
       }
    }
 
-   asc.clear_up();
-}
+   copy_mol->DeleteSelection(SelHnd);
+   delete copy_mol;
 
-#include <gsl/gsl_sf_bessel.h>
+}
 
 
 void
@@ -2148,9 +2165,17 @@ coot::util::p1_sfs_t::integrate(const clipper::Xmap<float> &xmap) const {
 	     << std::endl;
 
 
+   //
+   { 
+      clipper::HKL_info::HKL_reference_index hri;
+      for (hri = fc.first(); !hri.last(); hri.next()) {
+      }
+   }
+
+
    // N is number of points for Gauss-Legendre Integration.
    // Run over model reflection list, to make T(k), k = 1,N
-
+   // 
    int N = 20;
    float f = 1/float(N);
    // store T(k) and the weights
