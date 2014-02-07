@@ -379,9 +379,13 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
 
+   if (1) {
+      std::cout << "size of a molecule " << sizeof(molecule_class_info_t) << std::endl;
+   } 
+
 #ifdef USE_LIBCURL
 
-   if (1) {
+   if (0) {
       curl_make_a_post();
    } 
 

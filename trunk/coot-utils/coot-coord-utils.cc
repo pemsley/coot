@@ -2081,11 +2081,6 @@ coot::graph_match(CResidue *res_moving,
 					  clipper::Coord_orth(0,0,0)); // unset
 	    if (apply_rtop_flag) {
 
-// 	       for (unsigned int iat=0; iat<4; iat++) {
-// 		  std::cout << "debug:: getting rtop " << coords_1_local[iat].format() << " vs "
-// 			    << coords_2_local[iat].format() << std::endl;
-// 	       }
-	       
 	       rtop_local = clipper::RTop_orth(coords_1_local, coords_2_local);
 	       for (unsigned int i=0; i<coords_1_local.size(); i++) {
 		  dist_sum += clipper::Coord_orth::length(coords_2_local[i],
@@ -2097,8 +2092,10 @@ coot::graph_match(CResidue *res_moving,
 	       }
 	    } 
 	    if (dist_sum < best_match_sum) {
+	       
 	       // Debugging
-	       std::cout << "DEBUG:: better dist_sum: " << dist_sum << std::endl;
+	       // std::cout << "DEBUG:: better dist_sum: " << dist_sum << std::endl;
+	       
 	       best_rtop = rtop_local;
 	       best_match_sum = dist_sum;
 	       best_match = imatch;

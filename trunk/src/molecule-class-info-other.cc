@@ -2415,7 +2415,7 @@ coot::goto_residue_string_info_t::goto_residue_string_info_t(const std::string &
 							     CMMDBManager *mol) {
 
    res_no_is_set    = false;
-   chain_id_is_set = false;
+   chain_id_is_set  = false;
    res_no = MinInt4;
    chain_id = "";
 

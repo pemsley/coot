@@ -2135,7 +2135,7 @@ coot::util::p1_sfs_t::integrate(const clipper::Xmap<float> &xmap) const {
    clipper::Resolution reso(4.1);
    clipper::HKL_info hkl_info(xmap.spacegroup(), xmap.cell(), reso);
    hkl_info.generate_hkl_list();
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > map_fphidata(hkl_info);
+   clipper::HKL_data< clipper::datatypes::F_phi<double> > map_fphidata(hkl_info);
    xmap.fft_to(map_fphidata, clipper::Xmap_base::Normal);
 
    double x = 5.0;
@@ -2154,7 +2154,8 @@ coot::util::p1_sfs_t::integrate(const clipper::Xmap<float> &xmap) const {
    int N = 20;
    float f = 1/float(N);
    // store T(k) and the weights
-   std::vector<std::pair<float, float> > T(N+1, std::pair<float, float> (0,0));
+   std::complex<double> zero_c(0,0);
+   std::vector<std::pair<double, std::complex<double> > > T(N+1, std::pair<double, std::complex<double> > (0, zero_c));
    for (float r_k_i=1; r_k_i<=N; r_k_i++) {
       // scaled so that when there is a reflection at max resolution, r * r_k is 1:
       float r_k = f * r_k_i/fc_range.max();
@@ -2164,13 +2165,15 @@ coot::util::p1_sfs_t::integrate(const clipper::Xmap<float> &xmap) const {
 	 // fc_range.max() is 0.0623598, the max value of r is
 	 // 0.0623598
 	 float r = hri.invresolsq();
-	 float x = 2*M_PI*r_k*r;
+	 float x = 2*M_PI*r_k*r * 5;
 	 float y = gsl_sf_bessel_J0(x);
-	 T[r_k_i].second += r_k*y*fc[hri].f();
-	 float w_k = 1;
-	 float func_r_k = 1.0;
-	 T[r_k_i].first = w_k * func_r_k * r_k *r_k;
+	 std::complex<float> t = fc[hri];
+	 std::complex<double> t1(y*t.real(), y*t.imag());
+	 T[r_k_i].second += t1;
       }
+      float w_k = 1;
+      float func_r_k = 1.0;
+      T[r_k_i].first = w_k * func_r_k * r_k *r_k * 25;
    }
 
    std::cout << "---- T(k) table ----- " << std::endl;
@@ -2179,27 +2182,32 @@ coot::util::p1_sfs_t::integrate(const clipper::Xmap<float> &xmap) const {
 		<< std::endl;
    }
 
-   clipper::HKL_data< clipper::datatypes::F_phi<float> > A_data = map_fphidata; 
+   clipper::HKL_data< clipper::datatypes::F_phi<double> > A_data = map_fphidata; 
    
    // run over the "map fragment" reflection list
    clipper::HKL_info::HKL_reference_index hri;
    for (hri = map_fphidata.first(); !hri.last(); hri.next()) {
-      double sum = 0;
+      std::complex<double> sum(0,0);
       for (float r_k_i=1; r_k_i<=N; r_k_i++) {
 	 // scaled so that when there is a reflection at max resolution, r * r_k is 1:
 	 float r_k = f * r_k_i/map_f_range.max();
 	 float r = hri.invresolsq();
 	 float x = 2*M_PI*r_k*r;
 	 float y = gsl_sf_bessel_J0(x);
-	 float prod = y * T[r_k_i].first * T[r_k_i].second;
+	 std::complex<double> prod(y * T[r_k_i].first * T[r_k_i].second.real(),
+				   y * T[r_k_i].first * T[r_k_i].second.imag());
 	 sum += prod;
       }
-      A_data[hri].f() *= sum;
-      A_data[hri].phi() = 0;
+      std::complex<double> sp = map_fphidata[hri];
+      std::cout << "   " << hri.hkl().format() << " " << std::abs(sp) << " " << std::arg(sp)
+		<< "   " <<  "   " << std::abs(sum) << " " << std::arg(sum)
+		<< std::endl;
+      sp *= sum;
+      A_data[hri] = sp;
    }
 
    // scale down A_data to "sensible" numbers:
-   for (hri = map_fphidata.first(); !hri.last(); hri.next()) A_data[hri].f() *= 0.0000001;
+   // for (hri = map_fphidata.first(); !hri.last(); hri.next()) A_data[hri].f() *= 0.0000001;
 
 
    clipper::Xmap<float> A_map(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
