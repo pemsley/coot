@@ -175,6 +175,33 @@ namespace coot {
    std::vector<float> convert_rgb_to_hsv(const std::vector<float> &in_vals);
    colour_holder hsv_to_colour(const std::vector<float> &hsv);
 
+   // Gauss Legendre Quadrature
+   
+   class glwa_t {
+      void fill_weight_abscicca(int N);
+      int N;
+      std::vector<std::pair<double, double> > weight_abscissa_;
+   public:
+      std::pair<double,double> weight_abscissa(int idx) {
+	 if (weight_abscissa_.size() == 0)
+	    fill_weight_abscicca(N);
+	 return weight_abscissa_[idx];
+      }
+      double weight(int idx) {
+	 if (weight_abscissa_.size() == 0)
+	    fill_weight_abscicca(N);
+	 return weight_abscissa_[idx].first;
+      }
+      double abscissa(int idx) {
+	 if (weight_abscissa_.size() == 0)
+	    fill_weight_abscicca(N);
+	 return weight_abscissa_[idx].second;
+      }
+      glwa_t();
+   };
+
+
+
 }
 
 #endif // COOT_UTILS_HH

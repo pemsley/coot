@@ -1274,6 +1274,8 @@ namespace coot {
       clipper::Coord_orth median_position(CMMDBManager *mol);
       // also throws an exception
       clipper::Coord_orth median_position(const std::vector<clipper::Coord_orth> &pts);
+
+      void shift(CMMDBManager *mol, clipper::Coord_orth pt);
       //
       clipper::Coord_orth
       translate_close_to_origin(const clipper::Coord_orth water_pos_pre,

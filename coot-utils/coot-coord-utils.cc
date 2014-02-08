@@ -217,10 +217,37 @@ coot::util::translate_close_to_origin(CMMDBManager *mol) {
 	 }
       }
    } 
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << rte.what() << std::endl;
    } 
 }
+
+void
+coot::util::shift(CMMDBManager *mol, clipper::Coord_orth pt) {
+
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       at = residue_p->GetAtom(iat);
+	       at->x += pt.x();
+	       at->y += pt.y();
+	       at->z += pt.z();
+	    }
+	 }
+      }
+   }
+}
+
 
 
 void
@@ -1146,7 +1173,7 @@ coot::copy_segid(CResidue *provider, CResidue *receiver) {
       }
    }
 
-   catch (std::runtime_error mess) {
+   catch (const std::runtime_error &mess) {
       // maybe do this.. not sure.
       std::cout << "   INFO:: " << mess.what() << std::endl;
    }
@@ -5034,7 +5061,7 @@ coot::util::mutate_internal(CResidue *residue,
       old_seg_id_for_residue_atoms = coot::residue_atoms_segid(residue);
       use_old_seg_id = 1;
    }
-   catch (std::runtime_error mess) {
+   catch (const std::runtime_error &mess) {
    } 
 
    bool verb = 0;
@@ -5225,7 +5252,7 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base,
       old_seg_id_for_residue_atoms = coot::residue_atoms_segid(residue);
       use_old_seg_id = 1;
    }
-   catch (std::runtime_error mess) {
+   catch (const std::runtime_error &mess) {
    } 
 
 
@@ -6366,7 +6393,7 @@ coot::util::move_waters_around_protein(CMMDBManager *mol) {
 	 }
       }
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << rte.what() << std::endl;
    }
 
@@ -6479,7 +6506,7 @@ coot::util::move_hetgroups_around_protein(CMMDBManager *mol) {
 	    }
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
       }
    }
@@ -6615,7 +6642,7 @@ coot::util::get_cell_symm(CMMDBManager *mol) {
 	    std::cout << "Null clipper cell  " << std::endl;
 	 return std::pair<clipper::Cell, clipper::Spacegroup> (cell, spacegroup);
       }
-      catch (clipper::Message_base except) {
+      catch (const clipper::Message_base &except) {
 	 std::string message = "Fail to make clipper::Spacegroup from ";
 	 message += mol->GetSpaceGroup();
 	 throw std::runtime_error(message);
