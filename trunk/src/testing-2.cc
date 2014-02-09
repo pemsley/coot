@@ -5,6 +5,7 @@
 #include "testing-data.hh"
 #include "ideal/simple-restraint.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/emma.hh"
 #include "coords/mmdb-crystal.h"
 
 int test_map_tools() {
@@ -30,7 +31,7 @@ int test_map_tools() {
    atom_selection_container_t asc = get_atom_selection(pdb_file_name, false);
 
    if (asc.mol) {
-      coot::util::p1_sfs_t sphd(asc.mol, 5); // 5 is border
+      coot::util::emma sphd(asc.mol, 5); // 5 is border
       sphd.integrate(n.xmap);
    } 
    return r;
