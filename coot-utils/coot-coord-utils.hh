@@ -959,13 +959,11 @@ namespace coot {
      create_mmdbmanager_from_residue_vector(const std::vector<CResidue *> &res_vec);
 
       // ignore atom index transfer, return NULL on error.
-      // orig_mol is ignored!  Remove from interface!
-      //
+      // 
       // create a copy of res and add it to a newly created molecule.
-      // Return the new molecule.
+      // Return the new molecule. Return NULL on error.
       //
-      CMMDBManager *create_mmdbmanager_from_residue(CMMDBManager *orig_mol,
-						    CResidue *res);
+      CMMDBManager *create_mmdbmanager_from_residue(CResidue *res);
 
       CMMDBManager *create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 							   int SelectionHandle,
