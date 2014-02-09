@@ -3270,8 +3270,7 @@ coot::util::create_mmdbmanager_from_inverted_atom_selection(CMMDBManager *orig_m
 
 // ignore atom index transfer, return NULL on error.
 CMMDBManager *
-coot::util::create_mmdbmanager_from_residue(CMMDBManager *orig_mol,
-					    CResidue *res) {
+coot::util::create_mmdbmanager_from_residue(CResidue *res) {
 
    CResidue *r = coot::util::deep_copy_this_residue(res);
    CMMDBManager *mol = new CMMDBManager;
