@@ -258,21 +258,6 @@ namespace coot {
 			    const clipper::Coord_orth &centre,
 			    float radius);
 
-      class p1_sfs_t {
-	 void sfs_from_boxed_molecule(CMMDBManager *mol, float border);
-      public:
-	 p1_sfs_t(CMMDBManager *mol, float border) {
-	    sfs_from_boxed_molecule(mol, border);
-	 } 
-	 clipper::Spacegroup spacegroup;
-	 clipper::Cell cell;
-	 clipper::Resolution reso;
-	 clipper::HKL_info hkl_info;
-	 clipper::HKL_data<clipper::data32::F_phi> fc;
-	 void integrate(const clipper::Xmap<float> &xmap) const;
-	 void test() const;
-      };
-  
       // 
       //
       class residue_triple_t {

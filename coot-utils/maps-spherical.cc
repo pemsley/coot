@@ -19,22 +19,20 @@
  */
 
 
-#include <algorithm> // for sorting.
-#include <queue>
-
 #include <gsl/gsl_sf_bessel.h>
 
 #include <clipper/mmdb/clipper_mmdb.h>
 #include <clipper/ccp4/ccp4_map_io.h>
+#include <clipper/clipper-contrib.h> // sfc
 
 #include "utils/coot-utils.hh"
 #include "coot-map-utils.hh"
+#include "emma.hh"
 #include "peak-search.hh"
 
-#include <clipper/clipper-contrib.h>
 
 void
-coot::util::p1_sfs_t::sfs_from_boxed_molecule(CMMDBManager *mol_orig, float border) {
+coot::util::emma::sfs_from_boxed_molecule(CMMDBManager *mol_orig, float border) {
 
    CMMDBManager *mol = new CMMDBManager;
    mol->Copy(mol_orig, MMDBFCM_All);
@@ -107,7 +105,7 @@ coot::util::p1_sfs_t::sfs_from_boxed_molecule(CMMDBManager *mol_orig, float bord
 
 
 void
-coot::util::p1_sfs_t::integrate(const clipper::Xmap<float> &xmap) const {
+coot::util::emma::integrate(const clipper::Xmap<float> &xmap) const {
 
    // sfs from map
    clipper::Resolution reso(2.5);
@@ -255,7 +253,7 @@ coot::util::p1_sfs_t::integrate(const clipper::Xmap<float> &xmap) const {
 }
 
 void
-coot::util::p1_sfs_t::test() const {
+coot::util::emma::test() const {
 
    std::cout << "--------------------- start test -------------" << std::endl;
    std::cout << "--------------------- done test -------------" << std::endl;
