@@ -1177,21 +1177,21 @@ coot::glwa_t::fill_weight_abscicca(int N) {
 
    weight_abscissa_.resize(16+1);
 
-   weight_abscissa_[1] = std::pair<double,double>(0.1894506104550685, -0.0950125098376374);
-   weight_abscissa_[2] = std::pair<double, double>(0.1894506104550685, 0.0950125098376374);
-   weight_abscissa_[3] = std::pair<double, double>(0.1826034150449236, -0.2816035507792589);
-   weight_abscissa_[4] = std::pair<double, double>(0.1826034150449236, 0.2816035507792589);
-   weight_abscissa_[5] = std::pair<double, double>(0.1691565193950025, -0.4580167776572274);
-   weight_abscissa_[6] = std::pair<double, double>(0.1691565193950025, 0.4580167776572274);
-   weight_abscissa_[7] = std::pair<double, double>(0.1495959888165767, -0.6178762444026438);
-   weight_abscissa_[8] = std::pair<double, double>(0.1495959888165767, 0.6178762444026438);
-   weight_abscissa_[9] = std::pair<double, double>(0.1246289712555339, -0.7554044083550030);
-   weight_abscissa_[10] = std::pair<double, double>(0.1246289712555339, 0.7554044083550030);
+   weight_abscissa_[1]  = std::pair<double, double>(0.1894506104550685, -0.0950125098376374);
+   weight_abscissa_[2]  = std::pair<double, double>(0.1894506104550685,  0.0950125098376374);
+   weight_abscissa_[3]  = std::pair<double, double>(0.1826034150449236, -0.2816035507792589);
+   weight_abscissa_[4]  = std::pair<double, double>(0.1826034150449236,  0.2816035507792589);
+   weight_abscissa_[5]  = std::pair<double, double>(0.1691565193950025, -0.4580167776572274);
+   weight_abscissa_[6]  = std::pair<double, double>(0.1691565193950025,  0.4580167776572274);
+   weight_abscissa_[7]  = std::pair<double, double>(0.1495959888165767, -0.6178762444026438);
+   weight_abscissa_[8]  = std::pair<double, double>(0.1495959888165767,  0.6178762444026438);
+   weight_abscissa_[9]  = std::pair<double, double>(0.1246289712555339, -0.7554044083550030);
+   weight_abscissa_[10] = std::pair<double, double>(0.1246289712555339,  0.7554044083550030);
    weight_abscissa_[11] = std::pair<double, double>(0.0951585116824928, -0.8656312023878318);
-   weight_abscissa_[12] = std::pair<double, double>(0.0951585116824928, 0.8656312023878318);
+   weight_abscissa_[12] = std::pair<double, double>(0.0951585116824928,  0.8656312023878318);
    weight_abscissa_[13] = std::pair<double, double>(0.0622535239386479, -0.9445750230732326);
-   weight_abscissa_[14] = std::pair<double, double>(0.0622535239386479, 0.9445750230732326);
+   weight_abscissa_[14] = std::pair<double, double>(0.0622535239386479,  0.9445750230732326);
    weight_abscissa_[15] = std::pair<double, double>(0.0271524594117541, -0.9894009349916499);
-   weight_abscissa_[16] = std::pair<double, double>(0.0271524594117541, 0.9894009349916499);
+   weight_abscissa_[16] = std::pair<double, double>(0.0271524594117541,  0.9894009349916499);
 
 } 

@@ -78,7 +78,8 @@ libcoot_coord_extras_la_LIBADD = \
     $(top_builddir)/utils/libcoot-utils.la
 
 # for (map) things that need to link mmdb and clipper:
-libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc xmap-stats.cc
+libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc \
+	xmap-stats.cc maps-spherical.cc
 
 # clean
 libcoot_map_utils_la_LIBADD = \

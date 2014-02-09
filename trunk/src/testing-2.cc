@@ -26,6 +26,7 @@ int test_map_tools() {
    mapout.close_write();
 
    std::string pdb_file_name = "4c62-fragment.pdb";
+   pdb_file_name = "4cgf.ent-coot-0.pdb";
    atom_selection_container_t asc = get_atom_selection(pdb_file_name, false);
 
    if (asc.mol) {
