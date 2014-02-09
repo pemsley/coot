@@ -149,10 +149,8 @@ int test_function(int i, int j) {
 
    // Is this the function you are really looking for (these days)?
 
-   if (1) {
-      curl_make_a_post();
-   } 
-   
+
+
 
    if (0) {
 
@@ -380,13 +378,17 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (1) {
+      
+   } 
+
+   if (0) {
       std::cout << "size of a molecule " << sizeof(molecule_class_info_t) << std::endl;
    } 
 
 #ifdef USE_LIBCURL
 
    if (0) {
-      curl_make_a_post();
+      curl_test_make_a_post();
    } 
 
 #endif    
