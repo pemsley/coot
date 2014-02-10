@@ -7,6 +7,12 @@
 
    o test that code block at 2040 in graphics-info-modelling.cc works as expected.
 
+   o Remove coords include/lib usage in geometry:
+     chem_mods.cc:#include "coords/Cartesian.h"
+     protein-geometry.cc:#include "coords/Cartesian.h"
+
+     This might help the lib dependencies of the executables there.
+
    o Program terminated with signal 11, Segmentation fault.
     in molecule-class-info.cc
 #0  0x0000000000811a11 in molecule_class_info_t::intelligent_this_residue_mmdb_atom (this=<value optimized out>, res_p=<value optimized out>) at molecule-class-info.cc:4722

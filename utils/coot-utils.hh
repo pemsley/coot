@@ -177,7 +177,7 @@ namespace coot {
 
    // Gauss Legendre Quadrature
    
-   class glwa_t {
+   class gauss_legendre_t {
       void fill_weight_abscicca(int N);
       int N;
       std::vector<std::pair<double, double> > weight_abscissa_;
@@ -197,7 +197,7 @@ namespace coot {
 	    fill_weight_abscicca(N);
 	 return weight_abscissa_[idx].second;
       }
-      glwa_t();
+      gauss_legendre_t();
    };
 
 

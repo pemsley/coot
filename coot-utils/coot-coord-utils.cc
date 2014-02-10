@@ -3354,7 +3354,7 @@ coot::util::deep_copy_this_residue(CResidue *residue) {
    rres->seqNum = residue->GetSeqNum();
    strcpy(rres->name, residue->name);
 
-   PPCAtom residue_atoms;
+   PPCAtom residue_atoms = 0;
    int nResidueAtoms;
    residue->GetAtomTable(residue_atoms, nResidueAtoms);
    CAtom *atom_p;
