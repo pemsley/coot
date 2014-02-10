@@ -300,7 +300,7 @@ int watson_crick_pair(int imol, const char *chain_id, int resno) {
 	 CResidue *res_wc =
 	    coot::watson_crick_partner(res, graphics_info_t::standard_residues_asc.mol);
 	 if (res_wc) {
-	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(0, res_wc);
+	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(res_wc);
 	    if (mol) {
 	       graphics_info_t g;
 	       int imol_new = g.create_molecule();

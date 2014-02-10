@@ -421,6 +421,29 @@ graphics_info_t::geometric_distortion(int imol) {
 #endif
 }
 
+#ifdef HAVE_GSL
+coot::geometry_distortion_info_container_t
+graphics_info_t::geometric_distortions(CResidue *residue_p) {
+   
+   coot::geometry_distortion_info_container_t gdc(NULL, 0, "");
+
+   if (residue_p) { 
+      CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
+      if (mol) {
+	 atom_selection_container_t asc = make_asc(mol);
+	 std::vector<coot::geometry_distortion_info_container_t> v = geometric_distortions_from_mol(asc);
+	 if (v.size() == 1) {
+	    if (v[0].geometry_distortion.size() > 1) {
+	       gdc = v[0];
+	    }
+	 } 
+	 asc.clear_up();
+      } 
+   }
+   return gdc;
+}
+#endif // HAVE_GSL
+
 
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)

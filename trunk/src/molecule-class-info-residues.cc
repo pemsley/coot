@@ -216,7 +216,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  const std::string &alt_conf = alt_confs[iac];
 
 
-		  CMMDBManager *residue_mol = coot::util::create_mmdbmanager_from_residue(NULL, residue_p);
+		  CMMDBManager *residue_mol = coot::util::create_mmdbmanager_from_residue(residue_p);
 		  CResidue *residue_cp_p = coot::util::get_first_residue(residue_mol);
 
 		  coot::util::delete_alt_confs_except(residue_cp_p, alt_conf);

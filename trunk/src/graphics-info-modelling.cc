@@ -2046,8 +2046,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	    //	    CResidue *res_new = add_terminal_residue_directly(terminus_type, res_p,
 	    // chain_id, res_type, phi, psi);
 	    CResidue *res_new = 0;
-	    CMMDBManager *new_mol = coot::util::create_mmdbmanager_from_residue(orig_mol,
-										res_new);
+	    CMMDBManager *new_mol = coot::util::create_mmdbmanager_from_residue(res_new);
 	    if (new_mol) { 
 	       atom_selection_container_t extra_residue_asc = make_asc(new_mol);
 	       graphics_info_t::molecules[imol].add_coords(extra_residue_asc);
@@ -2403,7 +2402,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 	       // byte gz = GZM_NONE;
 	       // mol->WritePDBASCII("overlapped.pdb", gz);
 	       CMMDBManager *residue_mol =
-		  coot::util::create_mmdbmanager_from_residue(mol, interesting_residue_p);
+		  coot::util::create_mmdbmanager_from_residue(interesting_residue_p);
 
 	       atom_selection_container_t asc = make_asc(residue_mol);
 	       // set the chain id of the chain that contains interesting_residue_p:

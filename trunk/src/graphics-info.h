@@ -3893,6 +3893,8 @@ string   static std::string sessionid;
    // place helix here fudge factor (for EM maps?)
    static float place_helix_here_fudge_factor;
 
+   coot::geometry_distortion_info_container_t geometric_distortions(CResidue *residue_p);
+
 };
 
 

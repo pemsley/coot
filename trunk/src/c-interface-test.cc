@@ -378,8 +378,18 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (1) {
-      
-   } 
+
+      int imol = scm_to_int(i_scm); // map molecule
+      if (! is_valid_model_molecule(imol)) {
+	 std::cout << "Not a valid model molecule " << imol << std::endl;
+      } else { 
+	 CResidue *residue_p = g.molecules[imol].get_residue("A", 1, "");
+	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
+	 for (unsigned int i=0; i<gdc.geometry_distortion.size(); i++) { 
+	    std::cout << "  geom distortion: " << i << " " << gdc.geometry_distortion[i] << std::endl;
+	 }
+      }
+   }
 
    if (0) {
       std::cout << "size of a molecule " << sizeof(molecule_class_info_t) << std::endl;

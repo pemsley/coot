@@ -85,8 +85,7 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
 	    }
 
 	    CMMDBManager *mol =
-	       coot::util::create_mmdbmanager_from_residue(g.molecules[imol].atom_sel.mol,
-							   residue_p);
+	       coot::util::create_mmdbmanager_from_residue(residue_p);
 	    if (!mol) {
 	       std::cout << "ERROR:: failed to make mol for lbg" << std::endl;
 	    } else { 

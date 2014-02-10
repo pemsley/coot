@@ -747,7 +747,7 @@ coot::mol_to_asc_rdkit(const std::string &file_name) {
       if (m) {
 	 CResidue *res = coot::make_residue(*m, 0, res_name);
 	 if (res) { 
-	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(NULL, res);
+	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(res);
 	    asc = make_asc(mol);
 	 }
       } else {
