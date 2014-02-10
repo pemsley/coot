@@ -688,6 +688,65 @@ coot::protein_geometry::assign_link_chiral_volume_targets() {
    }
 }
 
+
+// constructor
+coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(CResidue *residue_p) {
+
+   if (residue_p) {
+
+      // copy the residue and make a molecule from it.
+      
+      CResidue *r = new CResidue;
+      r->seqNum = residue_p->GetSeqNum();
+      strcpy(r->name, residue_p->name);
+      PPCAtom residue_atoms = 0;
+      int nResidueAtoms;
+      residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
+      CAtom *atom_p;
+      for(int iat=0; iat<nResidueAtoms; iat++) {
+	 if (! residue_atoms[iat]->isTer()) { 
+	    atom_p = new CAtom;
+	    atom_p->Copy(residue_atoms[iat]);
+	    r->AddAtom(atom_p);
+	 }
+      }
+      
+      CMMDBManager *mol = new CMMDBManager;
+      CModel *model_p = new CModel;
+      CChain *chain_p = new CChain;
+      chain_p->AddResidue(r);
+      model_p->AddChain(chain_p);
+      mol->AddModel(model_p);
+      if (mol) {
+	 chain_p->SetChainID(residue_p->GetChainID());
+	 if (residue_p->GetCoordHierarchy()) {
+	    std::string chain_id = residue_p->GetChainID();
+	    chain_p->SetChainID(chain_id.c_str());
+	 } else {
+	    chain_p->SetChainID("A");
+	 }
+
+	 
+	 // OK, now we can work on mol
+	 
+	 Boolean calc_only = true;
+	 mol->MakeBonds(calc_only);
+
+
+	 residue_atoms = 0;
+	 r->GetAtomTable(residue_atoms, nResidueAtoms);
+	 for (unsigned int iat=0; iat<nResidueAtoms; iat++) { 
+	    CAtom *at = residue_atoms[iat];
+	    int n_bonds = at->GetNBonds();
+	    std::cout << at << " ------------------- n_bonds " << n_bonds << " -----------------"
+		      << std::endl;
+	 }
+      }
+      delete mol;
+   }
+}
+
+
 void
 coot::dictionary_residue_restraints_t::clear_dictionary_residue() {
 

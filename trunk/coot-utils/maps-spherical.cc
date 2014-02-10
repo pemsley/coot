@@ -141,27 +141,27 @@ coot::util::emma::integrate(const clipper::Xmap<float> &xmap) const {
    // 
    int N = 16;
    float f = 1/float(N);
-   glwa_t gauss_legendre; // 1-indexed
-   // store T(k) and the weights
-   std::complex<double> zero_c(0,0);
+   gauss_legendre_t gl; // 1-indexed
    float x_rad_max = 15; // max integration radius
    float x_rad_min =  0; // min integration radius
    float x_rad_range = x_rad_max - x_rad_min;
    float x_rad_mid = (x_rad_max + x_rad_min)*0.5;
+   // store T(k) 
+   std::complex<double> zero_c(0,0);
    std::vector<std::complex<double> > T(N+1, zero_c);
    for (float r_k_i=1; r_k_i<=N; r_k_i++) {
-      float w_k = gauss_legendre.weight  (r_k_i);
-      float r_k = gauss_legendre.abscissa(r_k_i);
-      float x_gl = x_rad_range*gauss_legendre.abscissa(r_k_i)*0.5 + x_rad_mid;
+      float w_k = gl.weight  (r_k_i);
+      float r_k = gl.abscissa(r_k_i);
+      float x_gl = x_rad_range*gl.abscissa(r_k_i)*0.5 + x_rad_mid;
       
-      // scaled so that when there is a reflection at max resolution, r * r_k is 1:
-      // float r_k = f * r_k_i/fc_range.max();
       clipper::HKL_info::HKL_reference_index hri;
       for (hri = fc.first(); !hri.last(); hri.next()) {
-	 // r and r_k are in inversely-related spaces: when
+	 
+	 // r and x_gl are in inversely-related spaces: when
 	 // fc_range.max() is 0.0623598, the max value of r is
 	 // 0.0623598 (=1/(4*4))
-	 float r = hri.invresolsq();
+	 
+	 float r = sqrt(hri.invresolsq());
 	 float x = 2*M_PI*x_gl*r;
 	 float y = gsl_sf_bessel_J0(x);
 	 if (0) 
@@ -191,7 +191,7 @@ coot::util::emma::integrate(const clipper::Xmap<float> &xmap) const {
       for (float r_k_i=1; r_k_i<=N; r_k_i++) {
 	 // scaled so that when there is a reflection at max resolution, r * r_k is 1:
 	 float r_k = f * r_k_i/map_f_range.max();
-	 float r = hri.invresolsq();
+	 float r = sqrt(hri.invresolsq());
 	 float x = 2*M_PI*r_k*r;
 	 float y = gsl_sf_bessel_J0(x);
 	 std::complex<double> prod(T[r_k_i].real() * y, T[r_k_i].imag() * y);
@@ -234,7 +234,7 @@ coot::util::emma::integrate(const clipper::Xmap<float> &xmap) const {
    
    A_map.fft_from(A_data);
    peak_search ps(A_map);
-   float n_sigma = 4;
+   float n_sigma = 3;
    std::vector<std::pair<clipper::Coord_grid, float> > peaks = ps.get_peak_grid_points(A_map, n_sigma);
    std::cout << "==== peaks ==== " << std::endl;
    for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++)

@@ -1168,12 +1168,12 @@ coot::util::glob_files(const std::string &dir, const std::string &glob_pattern) 
 }
 
 
-coot::glwa_t::glwa_t() {
+coot::gauss_legendre_t::gauss_legendre_t() {
    fill_weight_abscicca(16);
 }
 
 void
-coot::glwa_t::fill_weight_abscicca(int N) {
+coot::gauss_legendre_t::fill_weight_abscicca(int N) {
 
    weight_abscissa_.resize(16+1);
 

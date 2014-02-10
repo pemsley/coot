@@ -453,6 +453,11 @@ namespace coot {
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
       }
+      // fake a dictionary (bond and angle restraints) from the
+      // coordinates in the residue.  Fake up some bond and angle
+      // esds.
+      dictionary_residue_restraints_t(CResidue *residue_p);
+      
       std::string cif_file_name;
       void clear_dictionary_residue();
       bool is_filled() const {
