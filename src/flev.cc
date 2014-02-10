@@ -506,7 +506,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 		  CResidue *residue_flat =
 		     coot::make_residue(rdkm, mol_2d_depict_conformer, "XXX");
 		  CMMDBManager *mol_for_flat_residue =
-		     coot::util::create_mmdbmanager_from_residue(NULL, residue_flat);
+		     coot::util::create_mmdbmanager_from_residue(residue_flat);
 
 		  if (0) 
 		     for (unsigned int iat=0; iat<m.atoms.size(); iat++)
