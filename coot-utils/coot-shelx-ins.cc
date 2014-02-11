@@ -654,7 +654,7 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
       float occupancy = 1.0;
       float b_synth= 10.0;
 
-      std::cout << "------------------------- here 1 occupancy " << occupancy << std::endl;
+      // std::cout << "------------------------- here 1 occupancy " << occupancy << std::endl;
 
       try { 
 	 if (card.words.size() > 5)
@@ -664,7 +664,7 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 			    util::string_to_float(card.words[3].c_str()),
 			    util::string_to_float(card.words[4].c_str()),
 			    occupancy, b_synth);
-	 std::cout << "------------------------- here 2 occupancy " << occupancy << std::endl;
+	 // std::cout << "------------------------- here 2 occupancy " << occupancy << std::endl;
 	 at->SetElementName(element.c_str());
 	 strncpy(at->altLoc, altconf.c_str(), 2);
       }
