@@ -51,6 +51,11 @@
      (let ((imol-model (read-pdb poly-ala-frag))
 	   (imol-map (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0)))
 
+       (if (not (valid-model-molecule? imol-model))
+	   (begin
+	     (format #t "bad imol-model: ~s from file ~s ~%" imol-model poly-ala-frag)
+	     (throw 'fail)))
+
        (if (not (file-exists? rnase-pir))
 	   (begin
 	     (format #t "missing rnase pir file~%")
