@@ -383,7 +383,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       if (! is_valid_model_molecule(imol)) {
 	 std::cout << "Not a valid model molecule " << imol << std::endl;
       } else { 
-	 CResidue *residue_p = g.molecules[imol].get_residue("A", 844, "");
+	 CResidue *residue_p = g.molecules[imol].get_residue("A", 301, "");
 	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
 	 for (unsigned int i=0; i<gdc.geometry_distortion.size(); i++) { 
 	    // std::cout << "geom distortion: " << i << " " << gdc.geometry_distortion[i] << std::endl;
@@ -430,7 +430,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       int imol_2 = scm_to_int(j_scm);
       std::cout << "here with imol_2 " << imol_2 << std::endl;
       if (is_valid_model_molecule(imol_2)) {
-	 CResidue *residue_2_p = g.molecules[imol].get_residue("C", 3, "");
+	 CResidue *residue_2_p = g.molecules[imol].get_residue("A", 901, "");
 	 std::cout << "here with residue_2_p " << residue_2_p << std::endl;
 	 if (residue_2_p) {
 	    coot::dictionary_residue_restraints_t rest(residue_2_p);

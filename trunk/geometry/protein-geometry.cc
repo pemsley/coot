@@ -732,17 +732,51 @@ coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(CResidue 
 	 Boolean calc_only = true;
 	 mol->MakeBonds(calc_only);
 
-
 	 residue_atoms = 0;
 	 r->GetAtomTable(residue_atoms, nResidueAtoms);
-	 for (unsigned int iat=0; iat<nResidueAtoms; iat++) { 
+	 
+	 std::string comp_id = residue_p->GetResName();
+	 std::string group("monomer");
+	 std::string desc_level(".");
+	 int n_all = nResidueAtoms;
+	 int n_non_H = 0;
+	 for (unsigned int iat=0; iat<nResidueAtoms; iat++) {
+	    std::string ele(residue_atoms[iat]->element);
+	    if (ele != "H" && ele != " H" && ele != "D" && ele != " D")
+	       n_non_H++;
+	 }
+	    
+	 residue_info = dict_chem_comp_t(comp_id, comp_id, comp_id, group,
+					 n_all, n_non_H, desc_level);
+	 // also fill atom_info with dict_atom objects
+	 for (unsigned int iat=0; iat<nResidueAtoms; iat++) {
 	    CAtom *at = residue_atoms[iat];
-	    int n_bonds = at->GetNBonds();
-	    std::cout << at << " ------------------- n_bonds " << n_bonds << " -----------------"
-		      << std::endl;
+	    dict_atom da(at->name, at->name, "", "", std::pair<bool, float> (false, 0));
+	    atom_info.push_back(da);
+	 }
+
+	 for (unsigned int iat=0; iat<nResidueAtoms; iat++) { 
+	    CAtom *at_1 = residue_atoms[iat];
+	    int n_bonds_1 = at_1->GetNBonds();
+	    SAtomBond *AtomBonds = NULL;
+	    int n_bonds_2; 
+	    at_1->GetBonds(AtomBonds, n_bonds_2);
+	    for (unsigned int ibond=0; ibond<n_bonds_2; ibond++) {
+	       CAtom *at_2 = AtomBonds[ibond].atom;
+	       if (at_1 < at_2) { // pointer comparison
+		  std::string at_name_1(at_1->name);
+		  std::string at_name_2(at_2->name);
+		  std::string type = "single";
+		  clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
+		  clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+		  double dist = sqrt((pt_1-pt_2).lengthsq());
+		  double dist_esd = 0.02;
+		  dict_bond_restraint_t br(at_name_1, at_name_2, type, dist, dist_esd);
+	       }
+	    }
 	 }
       }
-      delete mol;
+      delete mol;  // r is embedded in mol
    }
 }
 
@@ -5344,7 +5378,7 @@ coot::dictionary_residue_restraints_t::is_redundant_plane_resetraints(std::vecto
 void
 coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) const {
 
-   PCMMCIFFile mmCIFFile = new CMMCIFFile();
+   PCMMCIFFile mmCIFFile = new CMMCIFFile(); // d
       
    PCMMCIFData   mmCIFData = NULL;
    PCMMCIFStruct mmCIFStruct;
@@ -5570,11 +5604,11 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	    for (int i=0; i<plane_restraint.size(); i++) {
 	       // std::cout << "DEBUG:: adding plane number " << i << std::endl;
 	       for (int iat=0; iat<plane_restraint[i].n_atoms(); iat++) {
-		  char *ss = (char *) residue_info.comp_id.c_str();
+		  const char *ss = residue_info.comp_id.c_str();
 		  mmCIFLoop->PutString(ss, "comp_id", icount);
-		  ss = (char *) plane_restraint[i].plane_id.c_str();
+		  ss = plane_restraint[i].plane_id.c_str();
 		  mmCIFLoop->PutString(ss, "plane_id", icount);
-		  ss = (char *) plane_restraint[i].atom_id(iat).c_str();
+		  ss = plane_restraint[i].atom_id(iat).c_str();
 		  mmCIFLoop->PutString(ss, "atom_id", icount);
 		  float v = plane_restraint[i].dist_esd();
 		  mmCIFLoop->PutReal(v, "dist_esd", icount);
@@ -5583,6 +5617,8 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	    }
 	 }
       }
+
+      // delete mmCIFLoop; // crashed when enabled?
       
       mmCIFFile->WriteMMCIFFile(filename.c_str());
 
