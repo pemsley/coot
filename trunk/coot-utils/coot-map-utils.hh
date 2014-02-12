@@ -30,9 +30,6 @@
 #include "coot-coord-utils.hh"
 #include <mmdb/mmdb_manager.h>
 
-// for asc.  unclean
-#include "coords/mmdb-extras.h"
-
 namespace coot {
 
    namespace util { 
