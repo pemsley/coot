@@ -32,7 +32,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	coot-coord-utils.hh coot-map-utils.hh coot-coord-extras.hh \
 	coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh \
 	coot-rama.hh xmap-stats.hh coot-h-bonds.hh lsq-improve.hh coot-hole.hh \
-	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh emma.h
+	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh emma.hh
 pkgincludedir = $(includedir)/coot/coot-utils
 
 
