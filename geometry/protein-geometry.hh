@@ -428,6 +428,41 @@ namespace coot {
    // ------------------------------------------------------------------------
    // 
    class dictionary_residue_restraints_t {
+
+      class atom_pair_t {
+      public:
+	 CAtom *at_1;
+	 CAtom *at_2;
+	 atom_pair_t() {
+	    at_1 = 0;
+	    at_2 = 0;
+	 }
+	 atom_pair_t(CAtom *a1, CAtom *a2) { at_1 = a1; at_2 = a2; }
+	 bool operator==(const std::pair<CAtom *, CAtom *> &t) {
+	    if (t.first == at_1) {
+	       if (t.second == at_2) {
+		  return true;
+	       } else {
+		  return false;
+	       }
+	    } else {
+	       return false;
+	    }
+	 }
+	 CAtom *shared_atom(const atom_pair_t &pair_in) {
+	    CAtom *shared_atom = NULL;
+	    if (pair_in.at_1 == at_1) {
+	       if (pair_in.at_2 != at_2) {
+		  shared_atom = at_1;
+	       }
+	    } else {
+	       if (pair_in.at_2 == at_2) {
+		  shared_atom = at_2;
+	       }
+	    }
+	    return shared_atom;
+	 }
+      };
       bool has_partial_charges_flag;
       bool filled_with_bond_order_data_only_flag; // if set, this means that
 					// there is only bond orders
@@ -457,6 +492,7 @@ namespace coot {
       // coordinates in the residue.  Fake up some bond and angle
       // esds.
       dictionary_residue_restraints_t(CResidue *residue_p);
+      dictionary_residue_restraints_t(CMMDBManager *mol); // mol contains one residue in a hierarchy
       
       std::string cif_file_name;
       void clear_dictionary_residue();

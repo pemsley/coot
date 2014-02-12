@@ -55,4 +55,10 @@ double kolmogorov_smirnov_py(PyObject *l1, PyObject *l2);
 PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2);
 #endif
 
+// Returning void ATM.  We shoud return an interesting object at some
+// stage. Perhaps a coot::geometry_distortion_info_container_t?
+//
+void
+print_residue_distortions(int imol, std::string chain_id, int res_no, std::string ins_code);
+
 #endif // C_INTERFACE_LIGANDS_SWIG_HH

@@ -132,6 +132,11 @@ namespace coot {
       bool is_letter(char c);
 
       bool even_p(int ii);
+
+      inline bool sd_compare(const std::pair<std::string, double> &p1,
+			     const std::pair<std::string, double> &p2) {
+	 return p1.second < p2.second;
+      } 
       
 
    } // end of util name space

@@ -142,6 +142,7 @@
 #include "ideal/simple-restraint.hh"  // for multi-residue torsion map fitting.
 
 #include "cc-interface-network.hh"
+#include "c-interface-ligands-swig.hh"
 
 int test_function(int i, int j) {
 
@@ -380,61 +381,22 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    if (1) {
 
       int imol = scm_to_int(i_scm); // map molecule
-      if (! is_valid_model_molecule(imol)) {
-	 std::cout << "Not a valid model molecule " << imol << std::endl;
-      } else { 
-	 CResidue *residue_p = g.molecules[imol].get_residue("A", 301, "");
-	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
-	 for (unsigned int i=0; i<gdc.geometry_distortion.size(); i++) { 
-	    // std::cout << "geom distortion: " << i << " " << gdc.geometry_distortion[i] << std::endl;
-	    coot::simple_restraint &rest = gdc.geometry_distortion[i].restraint;
-	    if (rest.restraint_type == coot::BOND_RESTRAINT) {
-	       CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
-	       CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
-	       if (at_1 && at_2) {
-		  clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
-		  clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
-		  double d = sqrt((p2-p1).lengthsq());
-		  double distortion = d - rest.target_value;
-		  double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
-		  std::cout <<  "bond" << at_1->name << " to " << at_2->name << " d: " << d
-			    << " target_value: " << rest.target_value << " sigma: " << rest.sigma
-			    << " length-devi " << distortion << " penalty-score " << pen_score << std::endl;
-	       } 
-	    }
 
-	    if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
-	       CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
-	       CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
-	       CAtom *at_3 = residue_p->GetAtom(rest.atom_index_3);
-	       if (at_1 && at_2 && at_2) {
-		  clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
-		  clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
-		  clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
-		  double angle_rad = clipper::Coord_orth::angle(p1, p2, p3);
-		  double angle = clipper::Util::rad2d(angle_rad);
-		  double distortion = angle - rest.target_value;
-		  double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
-		  std::cout <<  "angle"
-			    << at_1->name << " -- "
-			    << at_2->name << " -- "
-			    << at_3->name << " angle: " << angle
-			    << " target_value: " << rest.target_value << " sigma: " << rest.sigma
-			    << " angle-devi " << distortion << " penalty-score " << pen_score << std::endl;
-	       }
-	    }
-	 }
-      }
+      print_residue_distortions(imol, "A", 1, "");
 
       // now test making a dictionary
       int imol_2 = scm_to_int(j_scm);
-      std::cout << "here with imol_2 " << imol_2 << std::endl;
       if (is_valid_model_molecule(imol_2)) {
-	 CResidue *residue_2_p = g.molecules[imol].get_residue("A", 901, "");
-	 std::cout << "here with residue_2_p " << residue_2_p << std::endl;
-	 if (residue_2_p) {
-	    coot::dictionary_residue_restraints_t rest(residue_2_p);
-	 } 
+	 CResidue *residue_2_p = g.molecules[imol_2].get_residue("A", 444, "");
+	 if (! residue_2_p) {
+	    std::cout << " residue not found " << std::endl;
+	 } else {
+	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(residue_2_p);
+	    if (mol) { 
+	       coot::dictionary_residue_restraints_t rest(mol);
+	       rest.write_cif("testing.cif");
+	    }
+	 }
       }
    }
 
