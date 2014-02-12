@@ -2440,3 +2440,116 @@ PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2) {
    return result_py;
 }
 #endif
+
+
+// Returning void ATM.  We shoud return an interesting object at some
+// stage. Perhaps a coot::geometry_distortion_info_container_t?
+//
+void
+print_residue_distortions(int imol, std::string chain_id, int res_no, std::string ins_code) {
+
+   if (! is_valid_model_molecule(imol)) {
+      std::cout << "Not a valid model molecule " << imol << std::endl;
+   } else {
+      graphics_info_t g;
+      CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      if (! residue_p) {
+	 std::cout << "Residue not found in molecule " << imol << " "
+		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
+      } else { 
+	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
+	 int n_restraints_bonds = 0;
+	 int n_restraints_angles = 0;
+	 double sum_penalties_bonds  = 0;
+	 double sum_penalties_angles = 0;
+	 std::vector<std::pair<std::string,double> > penalty_string_bonds;
+	 std::vector<std::pair<std::string,double> > penalty_string_angles;
+	 std::cout << "Residue Distortion List: \n";
+	 for (unsigned int i=0; i<gdc.geometry_distortion.size(); i++) { 
+	    coot::simple_restraint &rest = gdc.geometry_distortion[i].restraint;
+	    if (rest.restraint_type == coot::BOND_RESTRAINT) {
+	       n_restraints_bonds++;
+	       CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+	       CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+	       if (at_1 && at_2) {
+		  clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+		  clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+		  double d = sqrt((p2-p1).lengthsq());
+		  double distortion = d - rest.target_value;
+		  double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
+		  std::string s = std::string("bond ")
+		     + std::string(at_1->name) + std::string(" to ") + std::string(at_2->name)
+		     + std::string(" d: ") + coot::util::float_to_string(d)
+		     + std::string(" target_value: ") + coot::util::float_to_string(rest.target_value)
+		     + std::string(" sigma: ") + coot::util::float_to_string(rest.sigma)
+		     + std::string(" length-devi ") + coot::util::float_to_string_using_dec_pl(distortion, 3)
+		     + std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
+		  penalty_string_bonds.push_back(std::pair<std::string,double> (s, pen_score));
+		  sum_penalties_bonds += pen_score;
+	       } 
+	    }
+
+	    if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
+	       n_restraints_angles++;
+	       CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+	       CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+	       CAtom *at_3 = residue_p->GetAtom(rest.atom_index_3);
+	       if (at_1 && at_2 && at_2) {
+		  clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+		  clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+		  clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+		  double angle_rad = clipper::Coord_orth::angle(p1, p2, p3);
+		  double angle = clipper::Util::rad2d(angle_rad);
+		  double distortion = angle - rest.target_value;
+		  double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
+		  std::string s = std::string("angle ")
+		     + std::string(at_1->name) + std::string(" - ")
+		     + std::string(at_2->name) + std::string(" - ")
+		     + std::string(at_3->name) + std::string(" angle: ")
+		     + coot::util::float_to_string(angle)
+		     + std::string(" target_value: ") + coot::util::float_to_string(rest.target_value)
+		     + std::string(" sigma: ") + coot::util::float_to_string(rest.sigma)
+		     + std::string(" angle-devi ") + coot::util::float_to_string(distortion)
+		     + std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
+		  penalty_string_angles.push_back(std::pair<std::string,double> (s, pen_score));
+		  sum_penalties_angles += pen_score;
+	       }
+	    }
+	 }
+	 
+	 std::sort(penalty_string_bonds.begin(),  penalty_string_bonds.end(),  coot::util::sd_compare);
+	 std::sort(penalty_string_angles.begin(), penalty_string_angles.end(), coot::util::sd_compare);
+
+	 std::reverse(penalty_string_bonds.begin(),  penalty_string_bonds.end());
+	 std::reverse(penalty_string_angles.begin(), penalty_string_angles.end());
+
+	 // sorted list, line by line
+	 for (unsigned int i=0; i<penalty_string_bonds.size(); i++)
+	    std::cout << "   " << penalty_string_bonds[i].first << std::endl;
+	 for (unsigned int i=0; i<penalty_string_angles.size(); i++)
+	    std::cout << "   " << penalty_string_angles[i].first << std::endl;
+
+	 
+	 // Summary:
+	 double av_penalty_bond = 0;
+	 double av_penalty_angle = 0;
+	 double av_penalty_total = 0;
+	 if (n_restraints_bonds > 0)
+	    av_penalty_bond = sum_penalties_bonds/double(n_restraints_bonds);
+	 if (n_restraints_angles > 0)
+	    av_penalty_angle = sum_penalties_angles/double(n_restraints_angles);
+	 if ((n_restraints_bonds+n_restraints_angles) > 0)
+	    av_penalty_total = (sum_penalties_bonds+sum_penalties_angles)/(n_restraints_bonds+n_restraints_angles);
+	 std::cout << "Residue Distortion Summary: \n   "
+		   << n_restraints_bonds  << " bond restraints\n   "
+		   << n_restraints_angles << " angle restraints\n"
+		   << "   sum of bond  distortions penalties:  " << sum_penalties_bonds  << "\n"
+		   << "   sum of angle distortions penalties:  " << sum_penalties_angles << "\n"
+		   << "   average bond  distortion penalty:    " << av_penalty_bond  << "\n"
+		   << "   average angle distortion penalty:    " << av_penalty_angle << "\n"
+		   << "   total distortion penalty:            " << sum_penalties_bonds+sum_penalties_angles << "\n"
+		   << "   average distortion penalty:          " << av_penalty_total
+		   << std::endl;
+      }
+   }
+} 
