@@ -2564,8 +2564,12 @@ write_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::s
       std::cout << "Residue not found in molecule " << imol << " "
 		<< coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
    } else {
-      coot::dictionary_residue_restraints_t d(residue_p);
-      d.write_cif(cif_file_name);
+      CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
+      if (mol) { 
+	 coot::dictionary_residue_restraints_t d(mol);
+	 d.write_cif(cif_file_name);
+      }
+      delete mol;
    } 
 } 
 
@@ -2578,7 +2582,11 @@ add_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::str
       std::cout << "Residue not found in molecule " << imol << " "
 		<< coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
    } else {
-      coot::dictionary_residue_restraints_t d(residue_p);
-      g.Geom_p()->replace_monomer_restraints(d.residue_info.comp_id, d);
+      CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
+      if (mol) { 
+	 coot::dictionary_residue_restraints_t d(mol);
+	 g.Geom_p()->replace_monomer_restraints(d.residue_info.comp_id, d);
+      }
+      delete mol;
    } 
 } 
