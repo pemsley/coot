@@ -387,7 +387,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       // now test making a dictionary
       int imol_2 = scm_to_int(j_scm);
       if (is_valid_model_molecule(imol_2)) {
-	 CResidue *residue_2_p = g.molecules[imol_2].get_residue("A", 444, "");
+	 CResidue *residue_2_p = g.molecules[imol_2].get_residue("A", 304, "");
 	 if (! residue_2_p) {
 	    std::cout << " residue not found " << std::endl;
 	 } else {

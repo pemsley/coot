@@ -2479,7 +2479,7 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 		  double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
 		  std::string s = std::string("bond ")
 		     + std::string(at_1->name) + std::string(" to ") + std::string(at_2->name)
-		     + std::string(" d: ") + coot::util::float_to_string(d)
+		     + std::string("   d: ") + coot::util::float_to_string(d)
 		     + std::string(" target_value: ") + coot::util::float_to_string(rest.target_value)
 		     + std::string(" sigma: ") + coot::util::float_to_string(rest.sigma)
 		     + std::string(" length-devi ") + coot::util::float_to_string_using_dec_pl(distortion, 3)
@@ -2552,4 +2552,33 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 		   << std::endl;
       }
    }
+} 
+
+
+void
+write_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::string ins_code, std::string cif_file_name) {
+
+   graphics_info_t g;
+   CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+   if (! residue_p) {
+      std::cout << "Residue not found in molecule " << imol << " "
+		<< coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
+   } else {
+      coot::dictionary_residue_restraints_t d(residue_p);
+      d.write_cif(cif_file_name);
+   } 
+} 
+
+void 
+add_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::string ins_code) {
+
+   graphics_info_t g;
+   CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+   if (! residue_p) {
+      std::cout << "Residue not found in molecule " << imol << " "
+		<< coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
+   } else {
+      coot::dictionary_residue_restraints_t d(residue_p);
+      g.Geom_p()->replace_monomer_restraints(d.residue_info.comp_id, d);
+   } 
 } 

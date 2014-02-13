@@ -894,7 +894,8 @@ coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(CResidue 
    write_cif("test.cif");
 }
 
-// mol contains one residue in a hierarchy
+// mol contains one residue in a hierarchy, the residue from which the
+// dictionary should be constructed.
 // 
 coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(CMMDBManager *mol) {
 
@@ -919,94 +920,70 @@ coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(CMMDBMana
 
    if (residue_p) {
 
-      { // debug
-	 int imod = 1;
-	 CModel *model_p = mol->GetModel(imod);
-	 CChain *chain_p;
-	 int n_chains = model_p->GetNumberOfChains();
-	 for (int ichain=0; ichain<n_chains; ichain++) {
-	    chain_p = model_p->GetChain(ichain);
-	    int nres = chain_p->GetNumberOfResidues();
-	    CResidue *residue_p;
-	    CAtom *at;
-	    for (int ires=0; ires<nres; ires++) { 
-	       residue_p = chain_p->GetResidue(ires);
-	       int n_atoms = residue_p->GetNumberOfAtoms();
-	       for (int iat=0; iat<n_atoms; iat++) {
-		  at = residue_p->GetAtom(iat);
-		  std::cout << "atom " << at->name << " " << at->GetSeqNum() << " "
-			    << at->x << " "<< at->y << " " << at->z << std::endl;
-	       }
-	    }
-	 }
+      mol->RemoveBonds();
+      PCModel   model;
+      PCChain   chain;
+      PCResidue res;
+      CGraph    graph;
+      PPCVertex V;
+      PPCEdge   E;
+      int       i, im,ic,ir, nV,nE, k1,k2;
 
-	 mol->RemoveBonds();
-	 PCModel   model;
-	 PCChain   chain;
-	 PCResidue res;
-	 CGraph    graph;
-	 PPCVertex V;
-	 PPCEdge   E;
-	 int       i, im,ic,ir, nV,nE, k1,k2;
-
-	 std::cout << "here with " << mol->GetNumberOfModels() << " models " << std::endl;
-	 for (im=1;im<=mol->GetNumberOfModels();im++)  {
-	    model = mol->GetModel(im);
-	    if (model) { 
-	       std::cout << "here with " << model->GetNumberOfChains() << " chains " << std::endl;
-	       for (ic=0;ic<model->GetNumberOfChains();ic++)  {
-		  chain = model->GetChain(ic);
-		  if (chain) { 
-		     std::cout << "here with " << chain->GetNumberOfResidues() << " residues " << std::endl;
-		     for (ir=0;ir<chain->GetNumberOfResidues();ir++)  {
-			res = chain->GetResidue(ir);
-			std::cout << "here with res " << res << std::endl;
-			if (res)  {
-			   graph.MakeGraph   ( res,NULL );
-			   graph.GetVertices ( V,nV );
-			   graph.GetEdges    ( E,nE );
+      for (im=1;im<=mol->GetNumberOfModels();im++)  {
+	 model = mol->GetModel(im);
+	 if (model) { 
+	    for (ic=0;ic<model->GetNumberOfChains();ic++)  {
+	       chain = model->GetChain(ic);
+	       if (chain) { 
+		  for (ir=0;ir<chain->GetNumberOfResidues();ir++)  {
+		     res = chain->GetResidue(ir);
+		     if (res)  {
+			graph.MakeGraph   ( res,NULL );
+			graph.GetVertices ( V,nV );
+			graph.GetEdges    ( E,nE );
 
 
+			if (0) { 
 			   for (unsigned int iv=0; iv<nV; iv++) { 
 			      std::cout << "vertex " << iv << " of " << nV << " " << V[iv] << std::endl;
 			   }
-
+			      
 			   for (unsigned int ie=0; ie<nE; ie++) { 
 			      std::cout << "edge " << ie << " of " << nE << " " << E[ie] << std::endl;
+			      std::cout << "edge " << ie << " of " << nE << " with vertex1 "
+					<< E[ie]->GetVertex1() << " and vertex2 "
+					<< E[ie]->GetVertex2() << std::endl;
 			   }
+			}
 			   
 			   
-			   for (i=0;i<nE;i++)  {
+			for (i=0;i<nE;i++)  {
+			   if (0) { 
 			      std::cout << "V index for k1 " << E[i]->GetVertex1() << std::endl;
 			      std::cout << "V index for k2 " << E[i]->GetVertex2() << std::endl;
-			      k1 = V[E[i]->GetVertex1()]->GetUserID();
-			      k2 = V[E[i]->GetVertex2()]->GetUserID();
-			      res->atom[k1]->AddBond ( res->atom[k2],E[i]->GetType() );
-			      res->atom[k2]->AddBond ( res->atom[k1],E[i]->GetType() );
+			   }
+			   k1 = V[E[i]->GetVertex1()-1]->GetUserID();
+			   k2 = V[E[i]->GetVertex2()-1]->GetUserID();
+			   res->atom[k1]->AddBond ( res->atom[k2],E[i]->GetType() );
+			   res->atom[k2]->AddBond ( res->atom[k1],E[i]->GetType() );
+			   if (0) 
 			      std::cout << "adding bond of type " << E[i]->GetType() << " to "
 					<< k1 << " and " << k2 << std::endl;
-			   }
 			}
 		     }
 		  }
 	       }
 	    }
 	 }
-	 std::cout << "done my debug section" << std::endl;
       }
 
 	 
-	 
-
-      // OK, now we can work on mol
-      CResidue *r = residue_p;
-	 
-      Boolean calc_only = true;
-      mol->MakeBonds(calc_only);
+      // Boolean calc_only = true;
+      // mol->MakeBonds(calc_only);  // crash, hence above hack.
 
       PPCAtom residue_atoms = 0;
       int nResidueAtoms;
-      r->GetAtomTable(residue_atoms, nResidueAtoms);
+      residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
 	 
       std::string comp_id = residue_p->GetResName();
       std::string group("monomer");
@@ -1060,19 +1037,19 @@ coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(CMMDBMana
       // an atom
       // 
       for (unsigned int ibp=0; ibp<bond_pairs.size(); ibp++) { 
-	 for (unsigned int jbp=0; jbp<bond_pairs.size(); jbp++) {
+	 for (unsigned int jbp=ibp; jbp<bond_pairs.size(); jbp++) {
 	    if (ibp != jbp) {
 	       CAtom *shared_atom = bond_pairs[ibp].shared_atom(bond_pairs[jbp]);
 	       if (shared_atom) {
 		  CAtom *at_1 = bond_pairs[ibp].at_1;
 		  CAtom *at_2 = bond_pairs[ibp].at_2;
-		  CAtom *at_3 = bond_pairs[ibp].at_1;
+		  CAtom *at_3 = bond_pairs[jbp].at_1;
 		  if (at_1 == shared_atom) {
 		     at_1 = bond_pairs[ibp].at_2;
 		     at_2 = bond_pairs[ibp].at_1; // shared atom
 		  } 
 		  if (at_3 == shared_atom)
-		     at_3 = bond_pairs[ibp].at_2;
+		     at_3 = bond_pairs[jbp].at_2;
 
 		  clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
 		  clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
@@ -1080,18 +1057,22 @@ coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(CMMDBMana
 		  // doesn't exist (mmdb problem)?
 		  // double angle = BondAngle(at_1, at_2, at_3);
 		  double angle = clipper::Util::rad2d(clipper::Coord_orth::angle(pt_1, pt_2, pt_3));
+		  // std::cout << "angle: " << angle << std::endl;
 		  if (angle > 0.001) {
 		     std::string at_name_1(at_1->name);
 		     std::string at_name_2(at_2->name);
 		     std::string at_name_3(at_3->name);
 		     double angle_esd = 3;
 		     dict_angle_restraint_t ar(at_name_1, at_name_2, at_name_3, angle, angle_esd);
-		  } 
+		     angle_restraint.push_back(ar);
+		     if (0)
+			std::cout << "found an angle restraint "
+				  << at_name_1 << " " << at_name_2 << " " << at_name_3 << std::endl;
+		  }
 	       }
-	    } 
+	    }
 	 }
       }
-      write_cif("test.cif");
    }
 } 
 
