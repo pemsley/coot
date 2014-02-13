@@ -449,6 +449,7 @@ namespace coot {
 	       return false;
 	    }
 	 }
+	 // return null if they both match.
 	 CAtom *shared_atom(const atom_pair_t &pair_in) {
 	    CAtom *shared_atom = NULL;
 	    if (pair_in.at_1 == at_1) {
@@ -460,6 +461,17 @@ namespace coot {
 		  shared_atom = at_2;
 	       }
 	    }
+
+	    // now with swapped indices
+	    if (pair_in.at_1 == at_2) {
+	       if (pair_in.at_2 != at_1) {
+		  shared_atom = at_2;
+	       }
+	    } else {
+	       if (pair_in.at_2 == at_1) {
+		  shared_atom = at_1;
+	       }
+	    } 
 	    return shared_atom;
 	 }
       };
@@ -556,7 +568,7 @@ namespace coot {
       std::string get_bond_type(const std::string &name_1, const std::string &name_2) const;
 
       // replace the restraints that we have with new_restraints,
-      // keeping restraints that in the current set bu not in
+      // keeping restraints that in the current set but not in
       // new_restraints
       void conservatively_replace_with(const dictionary_residue_restraints_t &new_restraints);
       void conservatively_replace_with_bonds (const dictionary_residue_restraints_t &new_restraints);
