@@ -43,6 +43,7 @@
 #include <stdexcept>
 
 #include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 #include "wligand.hh"
 
 int
@@ -331,15 +332,15 @@ main(int argc, char **argv) {
 	    int n_cluster = atoi(n_cluster_string.c_str());
 	    short int use_weights = 0;
 	    short int is_diff_map = 0; 
-
+	    coot::wligand wlig;
+	    wlig.set_verbose_reporting();
+	    
 	    if (! use_wiggly_ligand) {
 
 	       // rigid ligands path
 
-	       coot::ligand lig;
-	       lig.set_verbose_reporting();
-	       short int map_stat = lig.map_fill_from_mtz(mtz_filename, f_col, phi_col, "", 
-							  use_weights, is_diff_map);
+	       short int map_stat = wlig.map_fill_from_mtz(mtz_filename, f_col, phi_col, "", 
+							   use_weights, is_diff_map);
 
 	       // Now we have the map, we can the convert absolute level (if it was set by
 	       // the user to absolute) which is what the interface to the ligand class
@@ -348,7 +349,7 @@ main(int argc, char **argv) {
 	       if (set_absolute) {
 		  try { 
 		     float ab = coot::util::string_to_float(absolute_string);
-		     clipper::Map_stats stats = lig.map_statistics();
+		     clipper::Map_stats stats = wlig.map_statistics();
 		     input_sigma_level = ab/stats.std_dev();
 		     std::cout << "Masking with level " << absolute_string << "("
 			       << input_sigma_level << " sigma)" << std::endl;
@@ -361,39 +362,39 @@ main(int argc, char **argv) {
 	       if (map_stat == 0) { 
 		     std::cout << "Map making failure." << std::endl;
 	       } else {
-		  lig.mask_by_atoms(pdb_file_name);
-		  if (lig.masking_molecule_has_atoms()) {
-		     lig.set_acceptable_fit_fraction(fit_frac); 
+		  wlig.mask_by_atoms(pdb_file_name);
+		  if (wlig.masking_molecule_has_atoms()) {
+		     wlig.set_acceptable_fit_fraction(fit_frac); 
 		     // lig.output_map("find-ligands-masked.map"); // debugging
 
 		     if (pos_x.first && pos_y.first && pos_z.first) {
 
 			clipper::Coord_orth pt(pos_x.second, pos_y.second, pos_z.second);
-			lig.cluster_from_point(pt, input_sigma_level);
-			lig.fit_ligands_to_clusters(1); // just this cluster.
+			wlig.cluster_from_point(pt, input_sigma_level);
+			wlig.fit_ligands_to_clusters(1); // just this cluster.
 			
 		     } else { 
 			
 			if (blobs_mode) { 
 			   int n_cycles = 1;
-			   lig.water_fit(input_sigma_level, n_cycles);
-			   unsigned int n_big_blobs = lig.big_blobs().size();
+			   wlig.water_fit(input_sigma_level, n_cycles);
+			   unsigned int n_big_blobs = wlig.big_blobs().size();
 			   if (n_big_blobs) { 
 			      std::cout << "=============== start blob-table ==========\n";
 			      for (unsigned int i=0; i<n_big_blobs; i++) { 
-				 std::cout << "  blob " << i << " " << lig.big_blobs()[i].first.format()
-					   << " " << lig.big_blobs()[i].second << std::endl;
+				 std::cout << "  blob " << i << " " << wlig.big_blobs()[i].first.format()
+					   << " " << wlig.big_blobs()[i].second << std::endl;
 			      } 
 			      std::cout << "=============== end blob-table ==========\n";
 			   } 
 			} else { 
-			   lig.find_clusters(input_sigma_level);
+			   wlig.find_clusters(input_sigma_level);
 			}
 		     }
 		     // install ligands:
 		     for (unsigned int ilig=0; ilig<lig_files.size(); ilig++)
-			lig.install_ligand(lig_files[ilig]);
-		     lig.fit_ligands_to_clusters(10); 
+			wlig.install_ligand(lig_files[ilig]);
+		     wlig.fit_ligands_to_clusters(10); 
 		  } else {
 		     std::cout << "No atoms found in masking molecule: " 
 			       << pdb_file_name << std::endl;
@@ -404,7 +405,6 @@ main(int argc, char **argv) {
 
 	       // wiggly ligands  path
 
-	       coot::wligand wlig;
 	       coot::protein_geometry geom;
 	       wlig.set_verbose_reporting();
 	       
@@ -485,7 +485,50 @@ main(int argc, char **argv) {
 		     }
 		  }
 	       }
-	    } 
+	    }
+
+	    // what are the results?
+	    
+	    // now add in the solution ligands:
+	    int n_clusters = wlig.n_clusters_final();
+
+	    int n_new_ligand = 0;
+	    coot::minimol::molecule m;
+	    for (unsigned int iclust=0; iclust<n_clusters; iclust++) {
+
+	       // frac_lim is the fraction of the score of the best solutions
+	       // that we should consider as solutions. 0.5 is generous, I
+	       // think.
+	       float frac_lim = 0.7;
+	       float correl_frac_lim = 0.9;
+	       
+	       // nino-mode
+	       unsigned int nlc = 1;
+	       wlig.score_and_resort_using_correlation(iclust, nlc);
+
+	       correl_frac_lim = 0.975;
+
+	       if (nlc > 12) nlc = 12; // arbitrary limit of max 12 solutions per cluster
+	       float tolerance = 20.0;
+	       // limit_solutions should be run only after a post-correlation sort.
+	       //
+	       wlig.limit_solutions(iclust, correl_frac_lim, nlc, tolerance, true);
+			   
+	       for (unsigned int isol=0; isol<nlc; isol++) { 
+
+		  m = wlig.get_solution(isol, iclust);
+		  if (! m.is_empty()) {
+		     float bf = 30;
+		     CMMDBManager *ligand_mol = m.pcmmdbmanager();
+		     coot::hetify_residues_as_needed(ligand_mol);
+
+		     std::string file_name = "fitted-ligand-" +
+			coot::util::int_to_string(iclust) + std::string("-") + 
+			coot::util::int_to_string(isol) + std::string(".pdb");
+		     ligand_mol->WritePDBASCII(file_name.c_str());
+		  }
+	       }
+	    }
 	 }
       }
    }
