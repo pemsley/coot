@@ -292,6 +292,9 @@ main (int argc, char *argv[]) {
      
      std::string version_string = VERSION;
      std::string main_title = "Coot " + version_string;
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS	
+     main_title += " EL";
+#endif 	
      // if this is a pre-release, stick in the revision number too
      if (version_string.find("-pre") != std::string::npos) {
 	main_title += " (revision ";
