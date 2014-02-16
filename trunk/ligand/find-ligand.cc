@@ -140,7 +140,7 @@ main(int argc, char **argv) {
 	 
 	       std::string arg_str = long_options[option_index].name;
 
-	       std::cout << " considering arg_str :" << arg_str << ":\n";
+	       // std::cout << " considering arg_str :" << arg_str << ":\n";
 
 	       if (arg_str == "pdbin") { 
 		  pdb_file_name = optarg;
