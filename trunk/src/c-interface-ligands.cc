@@ -2479,9 +2479,9 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 		  double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
 		  std::string s = std::string("bond ")
 		     + std::string(at_1->name) + std::string(" to ") + std::string(at_2->name)
-		     + std::string("   d: ") + coot::util::float_to_string(d)
-		     + std::string(" target_value: ") + coot::util::float_to_string(rest.target_value)
-		     + std::string(" sigma: ") + coot::util::float_to_string(rest.sigma)
+		     + std::string("   d: ") + coot::util::float_to_string_using_dec_pl(d, 3)
+		     + std::string(" target_value: ") + coot::util::float_to_string_using_dec_pl(rest.target_value, 3)
+		     + std::string(" sigma: ") + coot::util::float_to_string_using_dec_pl(rest.sigma, 3)
 		     + std::string(" length-devi ") + coot::util::float_to_string_using_dec_pl(distortion, 3)
 		     + std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
 		  penalty_string_bonds.push_back(std::pair<std::string,double> (s, pen_score));
@@ -2585,7 +2585,22 @@ add_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::str
       CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
       if (mol) { 
 	 coot::dictionary_residue_restraints_t d(mol);
+	 std::cout << "replacing restraints for :" << d.residue_info.comp_id << ":" << std::endl;
 	 g.Geom_p()->replace_monomer_restraints(d.residue_info.comp_id, d);
+
+	 std::pair<bool, coot::dictionary_residue_restraints_t>
+	    r = g.Geom_p()->get_monomer_restraints(d.residue_info.comp_id);
+	 if (! r.first) {
+	    std::cout << "-------------------- problem retrieving restraints " << std::endl;
+	 } else {
+	    std::cout << "-------------------- got restraints " << std::endl;
+	    for (unsigned int ib=0; ib<r.second.bond_restraint.size(); ib++) {
+	       const coot::dict_bond_restraint_t &rest = r.second.bond_restraint[ib];
+	       std::cout << ib << "   " << rest.atom_id_1_4c() << " " << rest.atom_id_2_4c() << " "
+			 << rest.value_dist() << std::endl;
+	    }
+	 } 
+
       }
       delete mol;
    } 

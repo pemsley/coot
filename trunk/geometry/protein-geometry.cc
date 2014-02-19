@@ -22,6 +22,7 @@
 
 #include <string.h>
 #include <iostream>
+#include <fstream>
 #include <map>
 #include <algorithm>  // needed for sort? Yes.
 #include <stdexcept>  // Thow execption.
@@ -45,7 +46,6 @@
 #include "clipper/core/clipper_util.h"
 
 #include "compat/coot-sysdep.h"
-#include "coords/Cartesian.h"
 
 #include "lbg-graph.hh"
 
@@ -707,7 +707,7 @@ coot::dictionary_residue_restraints_t::init(CResidue *residue_p) {
    if (residue_p) {
       PCModel   model;
       PCChain   chain;
-      PCResidue res;
+      // PCResidue res = 0;
       CGraph    graph;
       PPCVertex V;
       PPCEdge   E;
@@ -737,8 +737,8 @@ coot::dictionary_residue_restraints_t::init(CResidue *residue_p) {
 	 }
 	 k1 = V[E[i]->GetVertex1()-1]->GetUserID();
 	 k2 = V[E[i]->GetVertex2()-1]->GetUserID();
-	 res->atom[k1]->AddBond ( res->atom[k2],E[i]->GetType() );
-	 res->atom[k2]->AddBond ( res->atom[k1],E[i]->GetType() );
+	 residue_p->atom[k1]->AddBond ( residue_p->atom[k2],E[i]->GetType() );
+	 residue_p->atom[k2]->AddBond ( residue_p->atom[k1],E[i]->GetType() );
 	 if (0) 
 	    std::cout << "adding bond of type " << E[i]->GetType() << " to "
 		      << k1 << " and " << k2 << std::endl;
@@ -5870,6 +5870,7 @@ coot::protein_geometry::replace_monomer_restraints(std::string monomer_type,
    
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].residue_info.comp_id == monomer_type) {
+	 std::cout << "found a match for " << monomer_type << " replacing index " << i << std::endl;
 	 dict_res_restraints[i] = mon_res;
 	 s = 1;
 	 break;
