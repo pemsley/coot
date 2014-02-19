@@ -23,7 +23,7 @@
 
 template <class T>
 mean_and_variance<T>
-map_density_distribution(const clipper::Xmap<T> &map, short int write_output_flag) { 
+map_density_distribution(const clipper::Xmap<T> &map, bool write_output_flag) { 
 
 
    mean_and_variance<T> mv;  // returned object
@@ -86,7 +86,7 @@ map_density_distribution(const clipper::Xmap<T> &map, short int write_output_fla
 }
 
 // instantiate that 
-template mean_and_variance<float> map_density_distribution(const clipper::Xmap<float> &map, short int write_output_flag); 
+template mean_and_variance<float> map_density_distribution(const clipper::Xmap<float> &map, bool write_output_flag); 
 // template mean_and_variance<int> map_density_distribution(const clipper::Xmap<int> &map, short int write_output_flag); 
 
 

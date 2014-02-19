@@ -475,6 +475,7 @@ namespace coot {
 	    return shared_atom;
 	 }
       };
+      void init(CResidue *r);
       bool has_partial_charges_flag;
       bool filled_with_bond_order_data_only_flag; // if set, this means that
 					// there is only bond orders

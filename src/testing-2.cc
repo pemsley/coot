@@ -1,39 +1,17 @@
 
 #include "clipper/ccp4/ccp4_map_io.h"
 
-#include "testing.hh"
-#include "testing-data.hh"
 #include "ideal/simple-restraint.hh"
 #include "coot-utils/coot-map-utils.hh"
-#include "coot-utils/emma.hh"
 #include "coords/mmdb-crystal.h"
+
+#include "testing.hh"
+#include "testing-data.hh"
+
 
 int test_map_tools() {
 
    int r = 0;
-
-   clipper::Xmap<float> m;
-
-   std::string mtz_file_name("test.mtz");
-   std::string f_col = "FWT";
-   std::string phi_col = "PHWT";
-   coot::util::map_fill_from_mtz(&m, mtz_file_name, f_col, phi_col, "", 0, 0);
-   clipper::Coord_orth c(-15,-4,21);
-   coot::util::map_fragment_info_t n = coot::util::map_from_map_fragment(m, c, 20);
-
-   clipper::CCP4MAPfile mapout;
-   mapout.open_write("fragment.map");
-   mapout.export_xmap(n.xmap);
-   mapout.close_write();
-
-   std::string pdb_file_name = "4c62-fragment.pdb";
-   // pdb_file_name = "4cgf.ent-coot-0.pdb";
-   atom_selection_container_t asc = get_atom_selection(pdb_file_name, false);
-
-   if (asc.mol) {
-      coot::util::emma sphd(asc.mol, 5); // 5 is border
-      sphd.integrate(n.xmap);
-   } 
    return r;
 }
 

@@ -707,7 +707,7 @@ execute_ligand_search_internal() {
 #if defined USE_GUILE && !defined WINDOWS_MINGW
 	 safe_scheme_command("(post-ligand-fit-gui)");
 #else
-   // BL says:: guess we shall do it for python too (done it...)
+
 #ifdef USE_PYGTK
 	 safe_python_command("post_ligand_fit_gui()");
 #endif // USE_PYGTK

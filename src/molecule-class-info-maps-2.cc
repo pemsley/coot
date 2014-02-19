@@ -75,8 +75,9 @@ molecule_class_info_t::export_map_fragment_with_origin_shift(float radius,
 	 if (d_to_c_sq > limited_radius*limited_radius) {
 	    nxmap[inx] = 0.0;
 	    if (0) 
-	       std::cout << " inx " << inx.coord().format() << " " << d_to_c_sq << "  " << p.format() << " " << centre.format()
-			 << " vs " << limited_radius*limited_radius << " is outside " << std::endl;
+	       std::cout << " inx " << inx.coord().format() << " " << d_to_c_sq << "  " << p.format() << " "
+			 << centre.format() << " vs " << limited_radius*limited_radius << " is outside "
+			 << std::endl;
 	 } else {
 	    // ix indexes the xmap
 	    clipper::Coord_grid gp = p.coord_frac(xmap_cell).coord_grid(xmap_grid_sampling);

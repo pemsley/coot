@@ -3,8 +3,6 @@
 
 ---- 
 
-   o link for test data
-
    o test that code block at 2040 in graphics-info-modelling.cc works as expected.
 
    o Remove coords include/lib usage in geometry:
@@ -379,11 +377,15 @@ pcld=0x0) at c-inner-main.c:366
 
   o Markus Rudolf: atom names are not preserved on reading mol2 files.
  
-* Fixed.  _TriposAtomName is what I wanted.
-
      rdkit-interface.cc: lig_build::molfile_molecule_t
      coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf)
      needs to (also) try to use _Name atom property.
  
+* Fixed.  _TriposAtomName is what I wanted.
+
+   o link for test data
+
+* Done.
+
 -----
 

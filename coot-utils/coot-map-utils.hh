@@ -246,16 +246,23 @@ namespace coot {
 					const clipper::Xmap<float> &reference_xmap);
 
       class map_fragment_info_t {
+	 // sans recentre at origin
+	 void init(const clipper::Xmap<float> &xmap,
+		   const clipper::Coord_orth &centre,
+		   float radius);
+	 // 
+	 void init_making_map_centred_at_origin(const clipper::Xmap<float> &xmap,
+						const clipper::Coord_orth &centre,
+						float radius);
       public:
+	 map_fragment_info_t(const clipper::Xmap<float> &xmap,
+			     const clipper::Coord_orth &centre,
+			     float radius, bool centre_at_origin = false);
 	 clipper::Xmap<float> xmap;
 	 clipper::Coord_grid offset;
       };
-      map_fragment_info_t
-      map_from_map_fragment(const clipper::Xmap<float> &xmap,
-			    const clipper::Coord_orth &centre,
-			    float radius);
+      
 
-      // 
       //
       class residue_triple_t {
       public:
