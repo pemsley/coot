@@ -284,7 +284,7 @@ main (int argc, char *argv[]) {
     window1 = glade_xml_get_widget(xml, "window1");
     g_object_set_data_full (G_OBJECT(xml), "window1", 
 	gtk_widget_ref (window1), (GDestroyNotify) gtk_widget_unref);
-    std::cout << "DEBUG:: ..... window1: " << window1 << std::endl;
+    // std::cout << "DEBUG:: ..... window1: " << window1 << std::endl;
 
 #else
      window1 = create_window1 ();

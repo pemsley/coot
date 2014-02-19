@@ -144,6 +144,8 @@
 #include "cc-interface-network.hh"
 #include "c-interface-ligands-swig.hh"
 
+#include "coot-utils/emma.hh"
+
 int test_function(int i, int j) {
 
    graphics_info_t g;
@@ -371,6 +373,7 @@ int test_function(int i, int j) {
 }
 
 
+
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
@@ -378,7 +381,37 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
 
-   if (1) {
+   // ------------------------ spherical density overlap -------------------------
+   // 
+   if (1) { 
+      int imol = scm_to_int(i_scm); // map molecule
+      int imol_map = scm_to_int(j_scm); // map molecule
+
+      if (is_valid_model_molecule(imol)) { 
+	 if (is_valid_map_molecule(imol_map)) { 
+
+	    const clipper::Xmap<float> &m = g.molecules[imol_map].xmap_list[0];
+	    clipper::Coord_orth c(0,0,0); // (set-rotation-centre -15 -4 21)
+	    coot::util::map_fragment_info_t mf(m, c, 20, true);
+
+	    if (mf.xmap.is_null()) {
+	       std::cout << "null map fragment xmap " << std::endl;
+	    } else { 
+	       clipper::CCP4MAPfile mapout;
+	       mapout.open_write("fragment.map");
+	       mapout.export_xmap(mf.xmap);
+	       mapout.close_write();
+	       
+	       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	       coot::util::emma sphd(mol, 15); // 5 is border
+	       sphd.overlap_simple(mf.xmap);
+	    }
+	 }
+      }
+   }
+   
+
+   if (0) {
 
       int imol = scm_to_int(i_scm); // map molecule
 
