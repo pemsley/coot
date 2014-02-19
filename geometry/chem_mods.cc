@@ -42,7 +42,6 @@
 #include "clipper/core/clipper_util.h"
 
 #include "compat/coot-sysdep.h"
-#include "coords/Cartesian.h"
 
 #include "lbg-graph.hh"
 
