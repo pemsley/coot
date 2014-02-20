@@ -2585,22 +2585,24 @@ add_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::str
       CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
       if (mol) { 
 	 coot::dictionary_residue_restraints_t d(mol);
-	 std::cout << "replacing restraints for :" << d.residue_info.comp_id << ":" << std::endl;
+	 std::cout << "INFO:: replacing restraints for type \""
+		   << d.residue_info.comp_id << "\"" << std::endl;
 	 g.Geom_p()->replace_monomer_restraints(d.residue_info.comp_id, d);
 
-	 std::pair<bool, coot::dictionary_residue_restraints_t>
-	    r = g.Geom_p()->get_monomer_restraints(d.residue_info.comp_id);
-	 if (! r.first) {
-	    std::cout << "-------------------- problem retrieving restraints " << std::endl;
-	 } else {
-	    std::cout << "-------------------- got restraints " << std::endl;
-	    for (unsigned int ib=0; ib<r.second.bond_restraint.size(); ib++) {
-	       const coot::dict_bond_restraint_t &rest = r.second.bond_restraint[ib];
-	       std::cout << ib << "   " << rest.atom_id_1_4c() << " " << rest.atom_id_2_4c() << " "
-			 << rest.value_dist() << std::endl;
+	 if (0) { 
+	    std::pair<bool, coot::dictionary_residue_restraints_t>
+	       r = g.Geom_p()->get_monomer_restraints(d.residue_info.comp_id);
+	    if (! r.first) {
+	       std::cout << "-------------------- problem retrieving restraints " << std::endl;
+	    } else {
+	       std::cout << "-------------------- got restraints " << std::endl;
+	       for (unsigned int ib=0; ib<r.second.bond_restraint.size(); ib++) {
+		  const coot::dict_bond_restraint_t &rest = r.second.bond_restraint[ib];
+		  std::cout << ib << "   " << rest.atom_id_1_4c() << " " << rest.atom_id_2_4c() << " "
+			    << rest.value_dist() << std::endl;
+	       }
 	    }
-	 } 
-
+	 }
       }
       delete mol;
    } 

@@ -3,6 +3,17 @@
 
 ---- 
 
+   o question for Eugene: 
+
+      If I do:
+  
+      PCMMCIFLoop mmCIFLoop = new CMMCIFLoop; // 20100212
+      rc = mmCIFData->AddLoop("_chem_comp", mmCIFLoop);
+
+      then should I delete mmCIFLoop before it goes out of scope?
+
+Done, code fixed. new is not needed.
+
    o test that code block at 2040 in graphics-info-modelling.cc works as expected.
 
    o Remove coords include/lib usage in geometry:
