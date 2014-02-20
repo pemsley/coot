@@ -704,6 +704,7 @@ coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(CResidue 
 void
 coot::dictionary_residue_restraints_t::init(CResidue *residue_p) {
 
+   filled_with_bond_order_data_only_flag = false;
    if (residue_p) {
       PCModel   model;
       PCChain   chain;
@@ -735,18 +736,26 @@ coot::dictionary_residue_restraints_t::init(CResidue *residue_p) {
       }
 			   
       for (i=0;i<nE;i++)  {
-	 if (0) { 
+
+	 // mmdb 1.25.3 on pc offset needs to be -1
+	 int idx_offset = -1;
+
+	 bool debug = false;
+	 
+	 if (debug) { 
 	    std::cout << "V index for k1 " << E[i]->GetVertex1() << std::endl;
 	    std::cout << "V index for k2 " << E[i]->GetVertex2() << std::endl;
 	 }
 	 // this indexing needs testing.
-	 k1 = V[E[i]->GetVertex1()]->GetUserID();
-	 k2 = V[E[i]->GetVertex2()]->GetUserID();
-	 // std::cout << "1 adding bond to atom  " << k1 << " of " << nResidueAtoms << std::endl;
+	 k1 = V[E[i]->GetVertex1()+idx_offset]->GetUserID();
+	 k2 = V[E[i]->GetVertex2()+idx_offset]->GetUserID();
+	 if (debug) 
+	    std::cout << "1 adding bond to atom  " << k1 << " of " << nResidueAtoms << std::endl;
 	 residue_p->atom[k1]->AddBond ( residue_p->atom[k2],E[i]->GetType() );
-	 // std::cout << "2 adding bond to atom  " << k2 << " of " << nResidueAtoms << std::endl;
+	 if (debug)
+	    std::cout << "2 adding bond to atom  " << k2 << " of " << nResidueAtoms << std::endl;
 	 residue_p->atom[k2]->AddBond ( residue_p->atom[k1],E[i]->GetType() );
-	 if (0) 
+	 if (debug) 
 	    std::cout << "added bond of type " << E[i]->GetType() << " to "
 		      << k1 << " and " << k2 << std::endl;
       }
@@ -852,7 +861,8 @@ coot::dictionary_residue_restraints_t::init(CResidue *residue_p) {
 coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(CMMDBManager *mol) {
 
    CResidue *residue_p = NULL;
-
+   filled_with_bond_order_data_only_flag = true; // it has nothing initially
+   
    int imod = 1;
    CModel *model_p = mol->GetModel(imod);
    CChain *chain_p;
