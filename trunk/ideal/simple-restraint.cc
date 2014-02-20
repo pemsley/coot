@@ -4157,6 +4157,9 @@ int
 coot::restraints_container_t::make_monomer_restraints(const coot::protein_geometry &geom,
 						      short int do_residue_internal_torsions) {
 
+   // std::cout << "------------------------ in make_monomer_restraints() "
+   // << from_residue_vector << std::endl;
+   
    if (from_residue_vector)
       return make_monomer_restraints_from_res_vec(geom, do_residue_internal_torsions);
    else

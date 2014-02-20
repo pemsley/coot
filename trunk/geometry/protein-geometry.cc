@@ -717,6 +717,10 @@ coot::dictionary_residue_restraints_t::init(CResidue *residue_p) {
       graph.GetVertices ( V,nV );
       graph.GetEdges    ( E,nE );
 
+      PPCAtom residue_atoms = 0;
+      int nResidueAtoms;
+      residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
+	 
       if (0) { //debug
 	 for (unsigned int iv=0; iv<nV; iv++) { 
 	    std::cout << "vertex " << iv << " of " << nV << " " << V[iv] << std::endl;
@@ -735,12 +739,15 @@ coot::dictionary_residue_restraints_t::init(CResidue *residue_p) {
 	    std::cout << "V index for k1 " << E[i]->GetVertex1() << std::endl;
 	    std::cout << "V index for k2 " << E[i]->GetVertex2() << std::endl;
 	 }
-	 k1 = V[E[i]->GetVertex1()-1]->GetUserID();
-	 k2 = V[E[i]->GetVertex2()-1]->GetUserID();
+	 // this indexing needs testing.
+	 k1 = V[E[i]->GetVertex1()]->GetUserID();
+	 k2 = V[E[i]->GetVertex2()]->GetUserID();
+	 // std::cout << "1 adding bond to atom  " << k1 << " of " << nResidueAtoms << std::endl;
 	 residue_p->atom[k1]->AddBond ( residue_p->atom[k2],E[i]->GetType() );
+	 // std::cout << "2 adding bond to atom  " << k2 << " of " << nResidueAtoms << std::endl;
 	 residue_p->atom[k2]->AddBond ( residue_p->atom[k1],E[i]->GetType() );
 	 if (0) 
-	    std::cout << "adding bond of type " << E[i]->GetType() << " to "
+	    std::cout << "added bond of type " << E[i]->GetType() << " to "
 		      << k1 << " and " << k2 << std::endl;
       }
 
@@ -748,10 +755,6 @@ coot::dictionary_residue_restraints_t::init(CResidue *residue_p) {
       // Boolean calc_only = true;
       // mol->MakeBonds(calc_only);  // crash, hence above hack.
 
-      PPCAtom residue_atoms = 0;
-      int nResidueAtoms;
-      residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
-	 
       std::string comp_id = residue_p->GetResName();
       std::string group("monomer");
       std::string desc_level(".");
@@ -5870,7 +5873,6 @@ coot::protein_geometry::replace_monomer_restraints(std::string monomer_type,
    
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].residue_info.comp_id == monomer_type) {
-	 std::cout << "found a match for " << monomer_type << " replacing index " << i << std::endl;
 	 dict_res_restraints[i] = mon_res;
 	 s = 1;
 	 break;
