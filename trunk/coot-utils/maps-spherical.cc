@@ -54,7 +54,7 @@ coot::util::emma::sfs_from_boxed_molecule(CMMDBManager *mol_orig, float border) 
    if (centre.first) { 
 
       // move the coordinates so that the middle of the molecule is at the origin.
-      shift(mol, -centre.second);
+      // shift(mol, -centre.second);
       std::pair<clipper::Coord_orth, clipper::Coord_orth> e = extents(mol, SelHnd);
       double x_range = e.second.x() - e.first.x();
       double y_range = e.second.y() - e.first.y();
@@ -70,7 +70,7 @@ coot::util::emma::sfs_from_boxed_molecule(CMMDBManager *mol_orig, float border) 
 				     z_range + 2*border, nr, nr, nr);
       cell = clipper::Cell(cell_descr);
       spacegroup = clipper::Spacegroup::p1();
-      reso = clipper::Resolution(3.2);
+      reso = clipper::Resolution(2.0);
 
       // calculate structure factors
       hkl_info = clipper::HKL_info(spacegroup, cell, reso);
@@ -153,17 +153,17 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
    int N = 16;
    float f = 1/float(N);
    gauss_legendre_t gl; // 1-indexed
-   float x_rad_max = 15; // max integration radius
-   float x_rad_min =  0; // min integration radius
-   float x_rad_range = x_rad_max - x_rad_min;
-   float x_rad_mid = (x_rad_max + x_rad_min)*0.5;
+   float radius_max = 15; // max integration radius
+   float radius_min =  0; // min integration radius
+   float radius_range = radius_max - radius_min;
+   float radius_mid = (radius_max + radius_min)*0.5;
    // store T(k) 
    std::complex<double> zero_c(0,0);
    std::vector<std::complex<double> > T(N+1, zero_c);
    for (float r_k_i=1; r_k_i<=N; r_k_i++) {
       float w_k = gl.weight  (r_k_i);
       float r_k = gl.abscissa(r_k_i);
-      float x_gl = x_rad_range*gl.abscissa(r_k_i)*0.5 + x_rad_mid;
+      float x_gl = radius_range*gl.abscissa(r_k_i)*0.5 + radius_mid;
       
       clipper::HKL_info::HKL_reference_index hri;
       for (hri = fc_from_model.first(); !hri.last(); hri.next()) {
@@ -200,14 +200,15 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
    clipper::HKL_data< clipper::datatypes::F_phi<double> > A_data = map_fphidata; 
    
    // run over the "map fragment" reflection list
+   // 
    clipper::HKL_info::HKL_reference_index hri;
    for (hri = map_fphidata.first(); !hri.last(); hri.next()) {
       std::complex<double> sum(0,0);
       for (float r_k_i=1; r_k_i<=N; r_k_i++) {
-	 // scaled so that when there is a reflection at max resolution, r * r_k is 1:
-	 float r_k = f * r_k_i/map_f_range.max();
+
+	 float x_gl = radius_range*gl.abscissa(r_k_i)*0.5 + radius_mid;
 	 float r = sqrt(hri.invresolsq());
-	 float x = 2*M_PI*r_k*r;
+	 float x = 2*M_PI*x_gl*r;
 	 float y = gsl_sf_bessel_J0(x);
 	 std::complex<double> prod(T[r_k_i].real() * y, T[r_k_i].imag() * y);
 	 sum += prod;
@@ -284,7 +285,7 @@ void
 coot::util::emma::overlap_simple(const clipper::Xmap<float> &xmap) const {
 
    // sfs from map
-   clipper::Resolution reso(3.2);
+   clipper::Resolution reso(2.0);
    clipper::HKL_info hkl_info(xmap.spacegroup(), xmap.cell(), reso);
    hkl_info.generate_hkl_list();
    clipper::HKL_data< clipper::datatypes::F_phi<double> > map_fphidata(hkl_info);
@@ -362,12 +363,11 @@ coot::util::emma::f(const clipper::HKL_info::HKL_reference_index &hri_model,
 		    const clipper::HKL_info::HKL_reference_index &hri_map,
 		    double va) const{
 
-   double r_va = 1/sqrt(va);
-   double x_a = 2*M_PI*r_va*hri_model.invresolsq();
-   double x_b = 2*M_PI*r_va*hri_map.invresolsq();
+   double x_a = 2*M_PI*va*sqrt(hri_model.invresolsq());
+   double x_b = 2*M_PI*va*sqrt(hri_map.invresolsq());
    double j0_a = gsl_sf_bessel_J0(x_a);
    double j0_b = gsl_sf_bessel_J0(x_b);
-   double d = j0_a * j0_b * r_va * r_va;
+   double d = j0_a * j0_b * va * va;
    return d;
 } 
 

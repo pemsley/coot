@@ -392,19 +392,20 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
 	    const clipper::Xmap<float> &m = g.molecules[imol_map].xmap_list[0];
 	    clipper::Coord_orth c(0,0,0); // (set-rotation-centre -15 -4 21)
-	    coot::util::map_fragment_info_t mf(m, c, 20, true);
+	    coot::util::map_fragment_info_t mf(m, c, 50, true);
 
 	    if (mf.xmap.is_null()) {
 	       std::cout << "null map fragment xmap " << std::endl;
 	    } else { 
 	       clipper::CCP4MAPfile mapout;
-	       mapout.open_write("fragment.map");
+	       mapout.open_write("map-fragment-at-origin.map");
 	       mapout.export_xmap(mf.xmap);
 	       mapout.close_write();
 	       
 	       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	       coot::util::emma sphd(mol, 15); // 5 is border
-	       sphd.overlap_simple(mf.xmap);
+	       // sphd.overlap_simple(mf.xmap);
+	       sphd.overlap(mf.xmap);
 	    }
 	 }
       }
