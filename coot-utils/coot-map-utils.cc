@@ -2143,15 +2143,6 @@ coot::util::map_fragment_info_t::init_making_map_centred_at_origin(const clipper
 	 }
       }
    }
-   
-   { 
-      clipper::CCP4MAPfile mapout;
-      mapout.open_write("nx_map_at_origin.ext");
-      mapout.set_cell(new_xmap_cell);
-      mapout.export_xmap(new_xmap);
-      mapout.close_write();
-   }
    xmap = new_xmap;
-   
 }
 
