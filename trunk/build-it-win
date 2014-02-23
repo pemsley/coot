@@ -1335,6 +1335,7 @@ build_mmdb=0
 build_ssmlib=0
 build_fftw=0
 build_clipper=0
+build_gtk=
 build_guile=0
 build_guile_www=0
 build_guile_gui=0
@@ -1358,7 +1359,6 @@ build_curl=
 #build_libidn=
 build_guile_lib=0
 build_gettext=0
-build_gtk=0
 #gnome_canvas????
 
 
@@ -1419,9 +1419,6 @@ fi
 PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig
 export PKG_CONFIG_PATH
 echo  PKG_CONFIG_PATH is $PKG_CONFIG_PATH
-
-# is the system gtk+2 new enough?  Needs to be 2.8 or better
-build_gtk=
 
 # Do we have freetype2?  cairo depends on it.
 if pkg-config freetype2 ; then
@@ -1874,9 +1871,13 @@ if [ "$build_goocanvas" = "" ] ; then
           build_goocanvas=no
        fi
     else 
-       echo goocanvas: gtk+-2.0 too old.  Goocanvas needs 2.12 or later. You have:
-       pkg-config gtk+-2.0 --modversion
-       build_goocanvas=no
+       if test -n "$build_gtk" ; then 
+          echo goocanvas: building gtk, should build goocanvas too.
+       else
+          echo goocanvas: gtk+-2.0 too old.  Goocanvas needs 2.12 or later. You have:
+          pkg-config gtk+-2.0 --modversion
+          build_goocanvas=no
+       fi
     fi
 fi
 echo goocanvas:  goocanvas_args set to $goocanvas_args
@@ -2498,12 +2499,27 @@ if test -n "$build_gtk" ; then
       # versions later up to 2.24 are not working with gtkglext on win32!!
       gtk2_major_version=2.16
       gtk2_version=2.16.6-3
+      hicolor_version=0.13
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/${gtk2_major_version}/gtk+_${gtk2_version}_win32.zip
       ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/gtk+/${gtk2_major_version}/gtk+-dev_${gtk2_version}_win32.zip
       cd $install_top_dir
       7z x -y ${AUTOBUILD_SOURCES}/gtk+_${gtk2_version}_win32.zip
       7z x -y ${AUTOBUILD_SOURCES}/gtk+-dev_${gtk2_version}_win32.zip
       cd - 
+      # install hicolor theme
+      ${WGET} http://icon-theme.freedesktop.org/releases/hicolor-icon-theme-${hicolor_version}.tar.gz
+      gzip -cd ${AUTOBUILD_SOURCES}/hicolor-icon-theme-${hicolor_version}.tar.gz | tar xf -
+      cd hicolor-icon-theme-${hicolor_version}
+      ./configure --prefix=$install_top_dir
+      $MAKE
+      hicolor_status=$?
+      if [ "$hicolor_status" != 0 ] ; then 
+        echo make of hicolor theme failed
+        exit 2
+      else   
+          $MAKE install
+      fi
+      cd -
    else
       echo NOT BUILDING gtk2
    fi
