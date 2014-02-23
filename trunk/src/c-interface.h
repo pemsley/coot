@@ -83,6 +83,7 @@ BEGIN_C_DECLS
 
 
 #define COOT_SCHEME_DIR "COOT_SCHEME_DIR"
+#define COOT_PYTHON_DIR "COOT_PYTHON_DIR"
 
 /*  ------------------------------------------------------------------------ */
 /*                         Startup Functions:                                */
@@ -5868,12 +5869,17 @@ SCM ncs_master_chains_scm(int imol);
 void copy_residue_range_from_ncs_master_to_chains_scm(int imol, const char *master_chain_id, 
 						      int residue_range_start, int residue_range_end, 
 						      SCM chain_id_list);
+/*! \brief Copy chain from master to a list of NCS chains */
+void copy_from_ncs_master_to_chains_scm(int imol, const char *master_chain_id, 
+					SCM chain_id_list);
 #endif 
 #ifdef USE_PYTHON
+PyObject *ncs_master_chains_py(int imol);
 void copy_residue_range_from_ncs_master_to_chains_py(int imol, const char *master_chain_id, 
 						     int residue_range_start, int residue_range_end, 
 						     PyObject *chain_id_list);
-PyObject *ncs_master_chains_py(int imol);
+void copy_from_ncs_master_to_chains_py(int imol, const char *master_chain_id, 
+				       PyObject *chain_id_list);
 #endif 
 #endif 
 

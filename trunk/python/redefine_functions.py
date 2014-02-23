@@ -34,6 +34,7 @@ alignment_results      = alignment_results_py
 nearest_residue_by_sequence = nearest_residue_by_sequence_py
 refine_residues        = refine_residues_py
 copy_residue_range_from_ncs_master_to_chains = copy_residue_range_from_ncs_master_to_chains_py
+copy_from_ncs_master_to_chains = copy_from_ncs_master_to_chains_py
 # to be renamed later
 matching_compound_names_from_dictionary = matching_compound_names_from_dictionary_py
 comp_id2name           = comp_id_to_name_py
@@ -152,6 +153,7 @@ make_link              = make_link_py
 link_info              = link_info_py
 map_to_model_correlation = map_to_model_correlation_py
 map_to_model_correlation_per_residue = map_to_model_correlation_per_residue_py
+align_to_closest_chain = align_to_closest_chain_py
 key_sym_code           = key_sym_code_py
 screen_vectors         = screen_vectors_py
 get_residue_by_type    = get_residue_by_type_py
