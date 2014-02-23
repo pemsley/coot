@@ -4899,11 +4899,14 @@ def min_max_residues_from_atom_specs(specs):
    else:
       return False
 
+# by default, rename loop residues to UNK.  If python True, then
+# leave them as the residue names found in the database.
 global db_loop_preserve_residue_names
 db_loop_preserve_residue_names = False
                
 def click_protein_db_loop_gui():
 
+   global db_loop_preserve_residue_names
    def pick_loop_func(n):
       def pick_func(*atom_specs):
          residue_specs = map(atom_spec2residue_spec, atom_specs)
@@ -4922,6 +4925,7 @@ def click_protein_db_loop_gui():
             min_resno = min_max_and_chain_id[0]
             max_resno = min_max_and_chain_id[1]
             chain_id  = min_max_and_chain_id[2]
+            set_mol_active(imol_loops_consolidated, 1)
 
             if valid_model_molecule_qm(imol_loop_orig):
                if len(loop_mols) > 0:
@@ -4931,6 +4935,10 @@ def click_protein_db_loop_gui():
                                                                  loop_mol, chain_id,
                                                                  min_resno, max_resno)],
                                 loop_mols)
+                  def toggle_func(imol):
+                     toggle_active_mol(imol)
+                     toggle_display_mol(imol)
+
                   dialog_box_of_buttons("Loop Candidates",
                                         [360, 200],
                                         [["Original loop", lambda func:
@@ -4939,7 +4947,7 @@ def click_protein_db_loop_gui():
                                                              min_resno, max_resno)
                                          ],
                                          ["Toggle All Candidate Loops", lambda func:
-                                          toggle_display_mol(imol_loops_consolidated)]
+                                          toggle_func(imol_loops_consolidated)]
                                          ] + buttons,
                                         " Close ")
                   
