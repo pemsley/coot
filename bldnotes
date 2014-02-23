@@ -1,7 +1,7 @@
  -*-text-*-
 
-scripts      rev 4843 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
-tests        rev 4843 update
+scripts      rev 4921 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
+tests        rev 4921 update
 build-it-win rev 4739 (check 0.8 pre builder, add publishing?!)
 
 -------------------------------------------------------
@@ -17,11 +17,10 @@ FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
 -- before 0.8
 
 Windows:
- o put index.theme in share/icons/hicolor
  o distribute src code!!!
  o change runwincoot.bat to (win)coot.bat
  o write things to WINDIR (rather than HOME)
- o check if    clipper::ClipperInstantiator::instance().destroy(); is still needed in c-interface-gui.ss
+ o check if    clipper::ClipperInstantiator::instance().destroy(); is still needed in c-interface-gui.cc
 
 ---- FINISH URGENT ----
 
@@ -97,23 +96,26 @@ scripting exercise
 
 **** General ****
 
-   o Preferences: add zero occ box size??
 
-   o save blurring factor and display in slider
+   o proper sphere selection (without neighbouring crap) and keeping
+	of all specs (and alt confs) - use double mmdb selection method
+	from Eugene
 
    o add more things to Preferences, e.g. no of auto refine residues steps;
 	Preferences could include all (almost) default
 	settings from globjects e.g.
+	add zero occ box size??
+
+   o make auto_read column labels public and expandable (cf pdb, mtz extension
+	list)
 
    o user defined click should keep selecting mouse pointer
-
-   o strip trainling spaces from "Fetch..." fucntions
 
    o desensitise refmac buttons etc if no ccp4/refmac installed
 
    o add (more sensible) timeout for download at EDS (and others?)
 
-   o allow reading of ent.gz ?! not there (in windows??)?!
+   o optional: do not increment file save no/automatically overwrite (dangerous)
 
    o torsion angle refinement: 
 	- shrink atom ardii or downweight nonbonded
@@ -284,8 +286,6 @@ from Osaka 2010
 
    o enable Alt key for scripting keyboard shortcuts
 
-   o reset button for map sharpening
-
    o water check for B below threshold?!
 
    o Tooltips for residues in new sequence view?! (wait for goocanvas - has
@@ -384,8 +384,12 @@ low importance
 
 **** Python ****
 
-   o info dialog and dont send to Jligand if 2 atoms in same residue 
-     are clicked
+   o export COOT_PYTHON_DIR
+
+* Done? but useful? CHECK
+
+   o make variables e.g. ROTAMERSEARCHMODE... work to be set
+	not possible I think. Cannot overload function/variable in python
 
    o streamline generic_entry functions, one generic one should be enough!
 
@@ -396,11 +400,15 @@ low importance
    o List of 3d annotations e.g. for delete
 
    o make rotamer and auto-zone fit protein function!?
+  
+   o slider to change stereo angle factor (and add toolbutton for it)
 
    o cootaneer shows 2 sequences after only 1 has been assigned before?!
 	no map selection possible
 
    o Refmac use local NCS
+
+   o find below occ 1 atoms (not just zero).
 
    o make a quick test (no 3 x ramachandran)
 
@@ -436,8 +444,6 @@ low importance
 
    o different 'Control_' spellings in key board shortcuts
 
-   o remove trailing space for EBI/downloaded file names (if exists)
-
    o make all 'macros' (e.g. with_auto_accept) to use all sort of input
 	(list, args, ... - cf using_active_atom)
 
@@ -469,15 +475,19 @@ low importance
 
 **** Windows ****
 
-   o import cif dictionaries have 'wrong' path - debackslash!!!
+   o Add Documents\ and Settings to favourites in filechooser
 
+   o fix dragNdrop for filenames with spaces!!
+
+   o write proper path in state file if file is absolute (i.e. include drive letter)
+
+   o fix find-ligand (and maybe others) for use in Windows. Arg parsing not
+	working on MinGW (maybe DOS?)
 
    o write some info in registry to see that WinCoot is actually installed
 	together with version info etc maybe
 
    o make install syminfo.lib from windows dir
-
-   o +/- to change contour level is reversed!!
 
    o use fftw binaries
 
@@ -871,5 +881,36 @@ Osaka 2010
    o change name of Play Views to Play All Views
 
 * Done
+
+ o put index.theme in share/icons/hicolor
+
+* Done
+
+   o allow reading of ent.gz ?! not there (in windows??)?!
+
+* Done (well, working)
+
+   o save blurring factor and display in slider
+
+* Done
+
+   o strip trainling spaces from "Fetch..." functions
+
+* Done
+
+   o info dialog and dont send to Jligand if 2 atoms in same residue 
+     are clicked
+
+* Done (well, seems JLigand doesnt like twice the same residue name,
+	although no reason to not to)
+
+   o import cif dictionaries have 'wrong' path - debackslash!!!
+
+* Done
+
+   o reset button for map sharpening
+
+* Done
+
 
 

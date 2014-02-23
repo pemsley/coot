@@ -69,7 +69,9 @@ class CootaneerTestFunctions(unittest.TestCase):
         """Cootaneer Beta Strand"""
         imol_model = read_pdb(poly_ala_frag)
         imol_map = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
-
+        
+        self.failUnless(valid_model_molecule_qm(imol_model),
+                        "bad imol_model: %i from file %s" %(imol_model, poly_ala_frag))
         self.failUnless(os.path.isfile(rnase_pir), "missing rnase pir file")
 
         seq_text = file2string(rnase_pir)

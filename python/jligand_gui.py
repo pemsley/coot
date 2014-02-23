@@ -78,6 +78,10 @@ def click_select_residues_for_jligand():
                                          click_2[4])
                 imol_click_1 = click_1[1]
                 imol_click_2 = click_2[1]
+                chain_click_1 = click_1[2]
+                chain_click_2 = click_2[2]
+                resno_click_1 = click_1[3]
+                resno_click_2 = click_2[3]
                 if not (isinstance(resname_1, str) and
                         isinstance(resname_2, str)):
                     print "Bad resnames: %s and %s" %(resname_1, resname_2)
@@ -88,10 +92,11 @@ def click_select_residues_for_jligand():
                               "Make sure to select residues in the same molecule."
                         info_dialog(msg)
                         imol_jligand_link = False
-                    elif (resname_1 == resname_2):
-                        msg = "Same residue (type) %s selected.\n" \
-                              %resname_1 + \
-                              "Make sure to select different residue types."
+                    elif (chain_click_1 == chain_click_2 and
+                          resno_click_1 == resno_click_2):
+                        msg = "Same residue %s %s selected.\n" \
+                              %(chain_click_1, resno_click_1) + \
+                              "Make sure to select different residues."
                         info_dialog(msg)
                         imol_jligand_link = False
                     else:
