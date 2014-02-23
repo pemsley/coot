@@ -2920,6 +2920,8 @@ public:        //                      public
    int copy_residue_range_from_ncs_master_to_chains(const std::string &master_chain_id,
 						    int resno_start, int resno_end,
 						    const std::vector<std::string> &chain_ids);
+   int copy_from_ncs_master_to_chains(const std::string &master_chain_id,
+				      const std::vector<std::string> &chain_ids);
    int set_ncs_master_chain(const std::string &new_master_chain_id, float homology_lev);
    // add ghosts
    void add_ncs_ghosts_no_explicit_master(const std::vector<std::string> &chain_ids,
