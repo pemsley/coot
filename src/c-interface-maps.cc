@@ -411,12 +411,15 @@ int auto_read_make_and_draw_maps(const char *mtz_file_name) {
       // try MTZ file
       // list of standard column names
       const char coldefs[][40] = { "+FWT,PHWT,",
-				   "-DELFWT,PHDELWT,",
-				   "+2FOFCWT,PH2FOFCWT,",
-				   "-FOFCWT,PHFOFCWT,",
-				   "+FDM,PHIDM,",
-				   "+parrot.F_phi.F,parrot.F_phi.phi,",
-				   "+pirate.F_phi.F,pirate.F_phi.phi," };
+                                   "-DELFWT,PHDELWT,",
+                                   "+2FOFCWT,PH2FOFCWT,",
+                                   "-FOFCWT,PHFOFCWT,",
+                                   "+FDM,PHIDM,",
+                                   "+parrot.F_phi.F,parrot.F_phi.phi,",
+                                   "+pirate.F_phi.F,pirate.F_phi.phi,",
+                                   "-FAN,PHAN,"};
+      /* "-DELFAN,PHDELAN," not sure about this last one,
+         and maybe last one could be optional!? */
       const int nc = sizeof(coldefs)/sizeof(coldefs[0]);
 
       // make a list of column names to try: F, phase, and difference map flag
