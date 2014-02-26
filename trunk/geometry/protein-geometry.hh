@@ -173,7 +173,6 @@ namespace coot {
 	 have_target_values = 1;
       }
 
-
       dict_bond_restraint_t(std::string atom_id_1_in,
 			    std::string atom_id_2_in,
 			    std::string type) :
@@ -197,6 +196,15 @@ namespace coot {
 	 else
 	    throw std::runtime_error("unset target distance geometry");
       }
+      bool matches_names(const dict_bond_restraint_t &r) const {
+	 if (atom_id_1() == r.atom_id_1())
+	    if (atom_id_2() == r.atom_id_2())
+	       return true;
+	 if (atom_id_1() == r.atom_id_2())
+	    if (atom_id_2() == r.atom_id_1())
+	       return true;
+	 return false;
+      } 
       friend std::ostream& operator<<(std::ostream &s, const dict_bond_restraint_t &rest);
    };
    std::ostream& operator<<(std::ostream &s, const dict_bond_restraint_t &rest);
@@ -217,10 +225,24 @@ namespace coot {
 	 angle_ = angle;
 	 angle_esd_ = angle_esd; 
       };
-      
+
+      std::string atom_id_3() const { return atom_id_3_;}
       std::string atom_id_3_4c() const { return atom_id_mmdb_expand(atom_id_3_);}
       double angle() const { return angle_; }
       double esd ()  const { return angle_esd_;}
+
+      bool matches_names(const dict_angle_restraint_t &r) const {
+	 if (atom_id_1() == r.atom_id_1())
+	    if (atom_id_2() == r.atom_id_2())
+	       if (atom_id_3() == r.atom_id_3())
+		  return true;
+	 if (atom_id_1() == r.atom_id_3())
+	    if (atom_id_2() == r.atom_id_2())
+	       if (atom_id_3() == r.atom_id_1())
+	       return true;
+	 return false;
+      } 
+
       friend std::ostream& operator<<(std::ostream &s, const dict_angle_restraint_t &rest);
    };
    std::ostream& operator<<(std::ostream &s, const dict_angle_restraint_t &rest);
@@ -304,6 +326,7 @@ namespace coot {
       std::string atom_id(int i) const { return atom_id_mmdb_expand(atom_ids[i]); }
       int n_atoms() const { return atom_ids.size(); }
       const std::string &operator[](int i) const { return atom_ids[i];}
+      bool matches_names(const dict_plane_restraint_t &r) const;
       void push_back_atom(const std::string &at) { atom_ids.push_back(at); }
       friend std::ostream&  operator<<(std::ostream &s, dict_plane_restraint_t rest);
    };
@@ -367,7 +390,25 @@ namespace coot {
       bool has_unassigned_chiral_volume() const {
 	 return (volume_sigma_ < 0.0) ? 1 : 0;
       }
-
+      bool matches_names(const dict_chiral_restraint_t &r) const {
+	 if (atom_id_c_4c() != r.atom_id_c_4c()) { 
+	    return false;
+	 } else {
+	    if (atom_id_1_4c() == r.atom_id_1_4c())
+	       if (atom_id_2_4c() == r.atom_id_2_4c())
+		  if (atom_id_3_4c() == r.atom_id_3_4c())
+		     return true;
+	    if (atom_id_1_4c() == r.atom_id_2_4c())
+	       if (atom_id_2_4c() == r.atom_id_3_4c())
+		  if (atom_id_3_4c() == r.atom_id_1_4c())
+		     return true;
+	    if (atom_id_1_4c() == r.atom_id_3_4c())
+	       if (atom_id_2_4c() == r.atom_id_1_4c())
+		  if (atom_id_3_4c() == r.atom_id_2_4c())
+		     return true;
+	 }
+	 return false;
+      }
    };
 
 
@@ -578,6 +619,8 @@ namespace coot {
       //
       void remove_redundant_plane_resetraints();
       bool is_redundant_plane_resetraints(std::vector<dict_plane_restraint_t>::iterator it);
+
+      bool compare(const dictionary_residue_restraints_t &new_restraints) const;
       
    };
 
