@@ -2,8 +2,10 @@
 #include "utils/coot-utils.hh"
 #include "protein-geometry.hh"
 
+// quite means don't tell me about matches
 bool
-coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restraints_t &r) const {
+coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restraints_t &r,
+					       bool quiet) const {
 
    bool check_hydrogens = false;
    double bond_length_tolerance = 0.01;
@@ -48,7 +50,8 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       residue_info_matches = false;
    }
    if (residue_info_matches)
-      std::cout << "Residue-Info:: matches " << std::endl;
+      if (! quiet)
+	 std::cout << "Residue-Info:: matches " << std::endl;
 
    // atom info
    if (atom_info.size() != r.atom_info.size()) {
@@ -126,7 +129,9 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       }
    }
    if (bonds_match)
-      std::cout << "Bond-Restraint::  all bonds  match within tolerance " << std::endl;
+      if (! quiet)
+	 std::cout << "Bond-Restraint::  all bonds  match within tolerance "
+		   << std::endl;
 
    
    // -------------------------  angle restraints -------------------
@@ -169,7 +174,9 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       }
    }
    if (angles_match)
-      std::cout << "Angle-Restraint:: all angles match within tolerance " << std::endl;
+      if (! quiet)
+	 std::cout << "Angle-Restraint:: all angles match within tolerance "
+		   << std::endl;
 
    // -------------------------  torsion restraints -------------------
 
@@ -205,7 +212,8 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       }
    }
    if (chirals_match)
-      std::cout << "Chiral-Restraint:: all chiral restraints match" << std::endl;
+      if (! quiet)
+	 std::cout << "Chiral-Restraint:: all chiral restraints match" << std::endl;
    
 
    // -------------------------  plane restraints -------------------
@@ -219,22 +227,26 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       bool matched_this_plane = false;
       for (unsigned int j=0; j<r.plane_restraint.size(); j++) {
 	 if (plane_restraint[i].matches_names(r.plane_restraint[j])) {
-	    n_planes_matched++;
 	    matched_this_plane = true;
 	    break;
 	 }
       }
-      if (! matched_this_plane) 
+      if (matched_this_plane) {
+	 n_planes_matched++;
+      } else { 
 	 std::cout << "Plane-Restraint:: no match for plane restraints "
 		   << plane_restraint[i].plane_id << std::endl;
+      }
    }
    if (n_planes_matched == plane_restraint.size())
       planes_match = true;
-   // 
-   if (planes_match) 
-      std::cout << "Plane-Restraint:: all plane restraints match" << std::endl;
-   else
+   //
+   if (planes_match) {
+      if (! quiet)
+	 std::cout << "Plane-Restraint:: all plane restraints match" << std::endl;
+   } else {
       std::cout << "Plane-Restraint:: plane restraints do not match" << std::endl;
+   }
    
 
    bool status = false;

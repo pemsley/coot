@@ -620,7 +620,9 @@ namespace coot {
       void remove_redundant_plane_resetraints();
       bool is_redundant_plane_resetraints(std::vector<dict_plane_restraint_t>::iterator it);
 
-      bool compare(const dictionary_residue_restraints_t &new_restraints) const;
+      // quiet means don't tell me about matches
+      bool compare(const dictionary_residue_restraints_t &new_restraints,
+		   bool quiet=false) const;
       
    };
 
