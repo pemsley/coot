@@ -4,6 +4,7 @@
 int main(int argc, char **argv) {
 
    int status = 0;
+   bool quiet = true;
 
    if (argc < 4) {
       std::cout << "Usage: " << argv[0] << " type dict-file-name-1 dict-file-name2"
@@ -16,6 +17,9 @@ int main(int argc, char **argv) {
 
       coot::protein_geometry pg_1;
       coot::protein_geometry pg_2;
+
+      pg_1.set_verbose(false);
+      pg_2.set_verbose(false);
 
       pg_1.init_refmac_mon_lib(file_name_1, 0);
       pg_2.init_refmac_mon_lib(file_name_2, 0);
@@ -37,7 +41,9 @@ int main(int argc, char **argv) {
 	 } else {
 	    // Happy path
 	    //
-	    status = r1.second.compare(r2.second);
+	    // if compare_status is true, they matched.
+	    bool compare_status = r1.second.compare(r2.second, quiet);
+	    status = !compare_status; // invert for unix return value (0 happy)
 	 }
       }
    }
