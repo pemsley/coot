@@ -3,6 +3,13 @@
 
 ---- 
 
+   o Update RDKit for Bill.
+
+   o conditional SWIG - at compile time - for ENHANCED_LIGAND.
+
+   o split out the cif parsing functions of protein-geometry.
+     also link functions to another file?
+
    o question for Eugene: 
 
       If I do:

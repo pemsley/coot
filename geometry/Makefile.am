@@ -37,7 +37,7 @@ AM_CXXFLAGS = \
 libcoot_geometry_la_SOURCES = protein-geometry.cc protein-geometry-mmdb.cc \
     read-sbase.cc energy-lib.cc 	 \
     chem_mods.cc \
-    lbg-graph.cc  dreiding.cc
+    lbg-graph.cc  dreiding.cc dict-utils.cc
 
 
 #libcoot_geometry_la_LIBADD = \
@@ -52,6 +52,8 @@ libcoot_geometry_la_LIBADD = \
 # libcoot_geometry_la_CXXFLAGS = -g -O1
 
 noinst_PROGRAMS = test-geometry test-read-components
+
+bin_PROGRAMS = compare-dictionaries
 
 test_geometry_SOURCES = test-geometry.cc
 
@@ -68,3 +70,6 @@ test_read_components_LDADD =  \
         $(top_builddir)/utils/libcoot-utils.la       \
 	$(GLOB_LIBS) $(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
 
+compare_dictionaries_SOURCES = compare-dictionaries.cc
+
+compare_dictionaries_LDADD = ./libcoot-geometry.la

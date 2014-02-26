@@ -688,6 +688,28 @@ coot::protein_geometry::assign_link_chiral_volume_targets() {
    }
 }
 
+bool
+coot::dict_plane_restraint_t::matches_names(const coot::dict_plane_restraint_t &r) const {
+
+   bool status = true;
+   int n_found = 0;
+   if (atom_ids.size() != r.atom_ids.size())
+      return false;
+   
+   for (unsigned int i=0; i<atom_ids.size(); i++) {
+      const std::string &ref_atom = atom_ids[i];
+      for (unsigned int j=0; j<r.atom_ids.size(); j++) { 
+	 if (atom_ids[j] == ref_atom) {
+	    n_found++;
+	    break;
+	 }
+      }
+   }
+   if (n_found == atom_ids.size())
+      status = true;
+   return status;
+}
+
 // for debugging
 #ifndef  __MMDB_Graph__
 #include <mmdb/mmdb_graph.h>
