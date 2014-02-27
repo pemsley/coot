@@ -77,7 +77,8 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 			 << std::endl;
 	    }
 	    if (atom_info[iat].type_energy != r.atom_info[jat].type_energy) {
-	       std::cout << "Atom-Info:: " << atom_id_refr << " type_energy mismatch "
+	       std::cout << "Atom-Info:: " << atom_info[iat].atom_id_4c
+			 << " type_energy mismatch "
 			 << atom_info[iat].type_energy << " vs "
 			 << r.atom_info[jat].type_energy << " "
 			 << std::endl;
@@ -102,7 +103,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	    if (d_d_a > bond_length_tolerance) {
 	       std::cout << "Bond-Restraint:: mismatch bond length between     "
 			 << bond_restraint[ib].atom_id_1() << " "
-			 << bond_restraint[ib].atom_id_2() << " "
+			 << bond_restraint[ib].atom_id_2() << "  "
 			 << bond_restraint[ib].value_dist() << " vs "
 			 << r.bond_restraint[jb].value_dist()
 			 << std::endl;
@@ -114,7 +115,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	    if (esd_d_a > bond_esd_tolerance) {
 	       std::cout << "Bond-Restraint:: mismatch bond length esd between "
 			 << bond_restraint[ib].atom_id_1() << " "
-			 << bond_restraint[ib].atom_id_2() << " "
+			 << bond_restraint[ib].atom_id_2() << "  "
 			 << bond_restraint[ib].value_esd() << " vs "
 			 << r.bond_restraint[jb].value_esd()
 			 << std::endl;
@@ -158,7 +159,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	       std::cout << "Angle-Restraint:: mismatch angle between     "
 			 << angle_restraint[ia].atom_id_1() << " "
 			 << angle_restraint[ia].atom_id_2() << " "
-			 << angle_restraint[ia].atom_id_3() << " "
+			 << angle_restraint[ia].atom_id_3() << "  "
 			 << angle_restraint[ia].angle() << " vs "
 			 << r.angle_restraint[ja].angle()
 			 << std::endl;
@@ -171,7 +172,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	       std::cout << "Angle-Restraint:: mismatch angle esd between "
 			 << angle_restraint[ia].atom_id_1() << " "
 			 << angle_restraint[ia].atom_id_2() << " "
-			 << angle_restraint[ia].atom_id_3() << " "
+			 << angle_restraint[ia].atom_id_3() << "  "
 			 << angle_restraint[ia].esd() << " vs "
 			 << r.angle_restraint[ja].esd()
 			 << std::endl;
