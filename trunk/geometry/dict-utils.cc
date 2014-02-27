@@ -2,50 +2,57 @@
 #include "utils/coot-utils.hh"
 #include "protein-geometry.hh"
 
-// quite means don't tell me about matches
+// quiet means don't tell me about matches
 bool
 coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restraints_t &r,
+					       double bond_length_tolerance,
+					       double bond_esd_tolerance,
+					       double angle_tolerance,
+					       double angle_esd_tolerance,
 					       bool quiet) const {
 
-   bool check_hydrogens = false;
-   double bond_length_tolerance = 0.01;
-   double bond_esd_tolerance    = 0.005;
-   double angle_tolerance       = 0.3;
-   double angle_esd_tolerance   = 0.15;
-
+//    bool check_hydrogens = false;
+//    double bond_length_tolerance = 0.01;
+//    double bond_esd_tolerance    = 0.005;
+//    double angle_tolerance       = 0.3;
+//    double angle_esd_tolerance   = 0.15;
    
    // residue info
    bool residue_info_matches = true;
    if (r.residue_info.comp_id != residue_info.comp_id) {
-      std::cout << "Residue-Info:: mismatch comp_id "
-		<< r.residue_info.comp_id << " " << residue_info.comp_id << std::endl;
+      // this can't happen, surely.
+      std::cout << "Residue-Info:: mismatch comp_id \""
+		<< residue_info.comp_id << "\" vs \""
+		<< r.residue_info.comp_id << "\"" << std::endl;
       residue_info_matches = false;
    }
    if (r.residue_info.three_letter_code != residue_info.three_letter_code) {
       std::cout << "Residue-Info:: mismatch three_letter_code "
-		<< r.residue_info.three_letter_code << " " << residue_info.three_letter_code
+		<< residue_info.three_letter_code << " vs "
+		<< r.residue_info.three_letter_code
 		<< std::endl;
       residue_info_matches = false;
    }
    if (r.residue_info.name != residue_info.name) {
-      std::cout << "Residue-Info:: mismatch name "
-		<< r.residue_info.name << " " << residue_info.name << std::endl;
+      std::cout << "Residue-Info:: mismatch name \""
+		<< residue_info.name << "\" vs \"" << r.residue_info.name << "\""
+		<< std::endl;
       residue_info_matches = false;
    }
    if (r.residue_info.group != residue_info.group) {
       std::cout << "Residue-Info:: mismatch group "
-		<< r.residue_info.group << " " << residue_info.group << std::endl;
+		<< residue_info.group << " vs " << r.residue_info.group << std::endl;
       residue_info_matches = false;
    }
    if (r.residue_info.number_atoms_all != residue_info.number_atoms_all) {
       std::cout << "Residue-Info:: mismatch number_atoms_all "
-		<< r.residue_info.number_atoms_all << " " << residue_info.number_atoms_all
+		<< residue_info.number_atoms_all << " " << r.residue_info.number_atoms_all
 		<< std::endl;
       residue_info_matches = false;
    }
    if (r.residue_info.number_atoms_nh != residue_info.number_atoms_nh) {
       std::cout << "Residue-Info:: mismatch number_atoms_nh "
-		<< r.residue_info.number_atoms_nh << " " << residue_info.number_atoms_nh
+		<< residue_info.number_atoms_nh << " " << r.residue_info.number_atoms_nh
 		<< std::endl;
       residue_info_matches = false;
    }
@@ -93,7 +100,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	       r.bond_restraint[jb].value_dist();
 	    double d_d_a = fabs(d_d);
 	    if (d_d_a > bond_length_tolerance) {
-	       std::cout << "Bond-Restraint:: mismatch bond length between "
+	       std::cout << "Bond-Restraint:: mismatch bond length between     "
 			 << bond_restraint[ib].atom_id_1() << " "
 			 << bond_restraint[ib].atom_id_2() << " "
 			 << bond_restraint[ib].value_dist() << " vs "
@@ -148,7 +155,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	       r.angle_restraint[ja].angle();
 	    double a_d_a = fabs(a_d);
 	    if (a_d_a > angle_tolerance) {
-	       std::cout << "Angle-Restraint:: mismatch angle between "
+	       std::cout << "Angle-Restraint:: mismatch angle between     "
 			 << angle_restraint[ia].atom_id_1() << " "
 			 << angle_restraint[ia].atom_id_2() << " "
 			 << angle_restraint[ia].atom_id_3() << " "
@@ -161,7 +168,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	       r.angle_restraint[ja].esd();
 	    double esd_d_a = fabs(esd_d);
 	    if (esd_d_a > angle_esd_tolerance) {
-	       std::cout << "Angle-Restraint:: mismatch angle esd "
+	       std::cout << "Angle-Restraint:: mismatch angle esd between "
 			 << angle_restraint[ia].atom_id_1() << " "
 			 << angle_restraint[ia].atom_id_2() << " "
 			 << angle_restraint[ia].atom_id_3() << " "
@@ -239,7 +246,8 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       }
    }
    if (n_planes_matched == plane_restraint.size())
-      planes_match = true;
+      if (n_planes_matched == r.plane_restraint.size())
+	 planes_match = true;
    //
    if (planes_match) {
       if (! quiet)

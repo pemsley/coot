@@ -622,6 +622,10 @@ namespace coot {
 
       // quiet means don't tell me about matches
       bool compare(const dictionary_residue_restraints_t &new_restraints,
+		   double bond_length_tolerance,
+		   double bond_esd_tolerance,
+		   double angle_tolerance,
+		   double angle_esd_tolerance,
 		   bool quiet=false) const;
       
    };
