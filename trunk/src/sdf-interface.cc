@@ -32,9 +32,11 @@
 
 #include "graphics-info.h"
 #include "sdf-interface.hh"
-#include "sdf-internal.hh" // has use-rdkit (because an RDKit::ROMol is in the interface)
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "sdf-internal.hh" // has use-rdkit (because an RDKit::ROMol is in the interface)
 #include <GraphMol/MolChemicalFeatures/MolChemicalFeatureFactory.h>
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 bool residue_to_sdf_file(int imol, const char *chain_id, int res_no, const char *ins_code, 
 			 const char *sdf_file_name, bool kekulize) {
