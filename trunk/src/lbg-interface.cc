@@ -28,7 +28,9 @@
 		   // libintl.h (via RDKitBase.h etc (including boost
 		   // stuff).
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
+#endif
 #include "graphics-info.h"
 #include "lbg/lbg.hh"
 
