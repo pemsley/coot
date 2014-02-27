@@ -18,8 +18,6 @@
  * 02110-1301, USA
  */
 
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
-
 #if defined (USE_PYTHON)
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -42,6 +40,8 @@ void
 residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char *ins_code,
 			  double weight_for_3d_distances) {
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
       CResidue *residue_p =
@@ -133,11 +133,15 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
 	    std::cout << rdkit_error.what() << std::endl;
 	 }
       } 
-   } 
+   }
+#else
+   std::cout << "Not compiled with MAKE_ENHANCED_LIGAND_TOOLS" << std::endl;
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
 void smiles_to_ligand_builder(const char *smiles_string) {
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS   
    try {
       
       RDKit::RWMol *rdk_mol = RDKit::SmilesToMol(smiles_string);
@@ -203,8 +207,10 @@ void smiles_to_ligand_builder(const char *smiles_string) {
    catch (...) {
       std::cout << "WARNING:: some other exception in SMILES generation..."
 		<< std::endl;
-   } 
+   }
+#else
+   std::cout << "Not compiled with MAKE_ENHANCED_LIGAND_TOOLS" << std::endl;
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 } 
 
 
-#endif // MAKE_ENHANCED_LIGAND_TOOLS

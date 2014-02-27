@@ -18,8 +18,6 @@
  * 02110-1301, USA
  */
 
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
-
 #if defined (USE_PYTHON)
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -40,6 +38,8 @@
 
 bool residue_to_sdf_file(int imol, const char *chain_id, int res_no, const char *ins_code, 
 			 const char *sdf_file_name, bool kekulize) {
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    bool success = true; 
    graphics_info_t g;
@@ -74,11 +74,17 @@ bool residue_to_sdf_file(int imol, const char *chain_id, int res_no, const char 
       success = false;
    }
    return success;
+#else
+   std::cout << "Not compiled with MAKE_ENHANCED_LIGAND_TOOLS" << std::endl;
+   return false;
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
 bool residue_to_mdl_file_for_mogul(int imol, const char *chain_id,
 				   int res_no, const char *ins_code, 
 				   const char *mdl_file_name) {
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    bool success = false;
    graphics_info_t g;
@@ -112,11 +118,17 @@ bool residue_to_mdl_file_for_mogul(int imol, const char *chain_id,
       }
    }
    return success;
+#else
+   std::cout << "Not compiled with MAKE_ENHANCED_LIGAND_TOOLS" << std::endl;
+   return false;
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
 
 // rdkit chemical features.
 bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code) {
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    bool success = false; 
    graphics_info_t g;
@@ -155,6 +167,10 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
       }
    }
    return success;
+#else
+   std::cout << "Not compiled with MAKE_ENHANCED_LIGAND_TOOLS" << std::endl;
+   return false;
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
 // internal - no public access
@@ -364,4 +380,3 @@ chemical_features::get_normal_info_donor(RDKit::MolChemicalFeature *feat,
    return std::pair<bool, clipper::Coord_orth>(r, v);
 }
 
-#endif
