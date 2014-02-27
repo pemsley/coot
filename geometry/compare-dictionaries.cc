@@ -6,12 +6,17 @@
 #undef __GNU_LIBRARY__
 #endif
 
+#include "utils/coot-utils.hh"
 #include "protein-geometry.hh"
 
 int
 compare_dictionaries(const std::string &type,
 		     const std::string &file_name_1,
 		     const std::string &file_name_2,
+		     double bond_length_tolerance,
+		     double bond_esd_tolerance,
+		     double angle_tolerance,
+		     double angle_esd_tolerance,
 		     bool quiet) {
 
    int status = 0;
@@ -44,11 +49,31 @@ compare_dictionaries(const std::string &type,
 	 // Happy path
 	 //
 	 // if compare_status is true, they matched.
-	 bool compare_status = r1.second.compare(r2.second, quiet);
+	 bool compare_status = r1.second.compare(r2.second,
+						 bond_length_tolerance,
+						 bond_esd_tolerance,
+						 angle_tolerance,
+						 angle_esd_tolerance,
+						 quiet);
 	 status = !compare_status; // invert for unix return value (0 happy)
       }
    }
    return status;
+}
+
+void print_help(std::string cmd) {
+   std::cout << "Usage: " << cmd << " "
+      "--help     this help\n" << 
+      "--quiet    do not report satisfatory matches\n" << 
+      "--type     residue tupe to match\n" << 
+      "--dict-1   file with reference dictionary\n"
+      "--dict-2   file with comparison dictionary\n" << 
+      "--bond-length-tol\n" << 
+      "--bond-length-esd-tol" << 
+      "--angle-tol" << 
+      "--angle-esd-tol" << 
+      std::endl;
+   
 } 
 
 int main(int argc, char **argv) {
@@ -57,20 +82,29 @@ int main(int argc, char **argv) {
    bool quiet = false;
 
    if (argc < 4) {
-      std::cout << "Usage: " << argv[0] << " type dict-file-name-1 dict-file-name2"
-		<< std::endl;
+      print_help(argv[0]);
    } else {
 
       std::string type;
       std::string file_name_1;
       std::string file_name_2;
+
+      double bond_length_tolerance = 0.01;
+      double bond_esd_tolerance    = 0.005;
+      double angle_tolerance       = 0.3;
+      double angle_esd_tolerance   = 0.15;
       
       const char *optstr = "q";
       struct option long_options[] = {
+	 {"help",   0, 0, 0},
 	 {"quiet",   0, 0, 0},
 	 {"type",    1, 0, 0},
 	 {"dict-1",  1, 0, 0},
 	 {"dict-2",  1, 0, 0},
+	 {"bond-length-tol",  1, 0, 0},
+	 {"bond-length-esd-tol",  1, 0, 0},
+	 {"angle-tol",  1, 0, 0},
+	 {"angle-esd-tol",  1, 0, 0},
 	 {0, 0, 0, 0}
       };
 
@@ -90,8 +124,45 @@ int main(int argc, char **argv) {
 		  file_name_1 = optarg;
 	       if (arg_str == "dict-2")
 		  file_name_2 = optarg;
+	       if (arg_str == "bond-length-tol") { 
+		  try {
+		     bond_length_tolerance = coot::util::string_to_float(optarg);
+		  }
+		  catch (const std::runtime_error &rte) {
+		     std::cout << "bad number " << optarg << std::endl;
+		  }
+	       }
+	       if (arg_str == "bond-length-esd-tol") { 
+		  try {
+		     bond_esd_tolerance = coot::util::string_to_float(optarg);
+		  }
+		  catch (const std::runtime_error &rte) {
+		     std::cout << "bad number " << optarg << std::endl;
+		  }
+	       }
+	       if (arg_str == "angle-tol") { 
+		  try {
+		     angle_tolerance = coot::util::string_to_float(optarg);
+		  }
+		  catch (const std::runtime_error &rte) {
+		     std::cout << "bad number " << optarg << std::endl;
+		  }
+	       }
+	       if (arg_str == "angle-esd-tol") { 
+		  try {
+		     angle_esd_tolerance = coot::util::string_to_float(optarg);
+		  }
+		  catch (const std::runtime_error &rte) {
+		     std::cout << "bad number " << optarg << std::endl;
+		  }
+	       }
+
+	       
 	    } else {
 	       std::string arg_str = long_options[option_index].name;
+	       if (arg_str == "help") { 
+		  print_help(argv[0]);
+	       }
 	       if (arg_str == "quiet") { 
 		  quiet = true;
 	       }
@@ -113,7 +184,12 @@ int main(int argc, char **argv) {
 	       std::cout << "missing dict-2" << std::endl;
 	    } else {
 	       // Happy path
-	       status = compare_dictionaries(type, file_name_1, file_name_2, quiet);
+	       status = compare_dictionaries(type, file_name_1, file_name_2,
+					     bond_length_tolerance,
+					     bond_esd_tolerance,
+					     angle_tolerance,
+					     angle_esd_tolerance,
+					     quiet);
 	    }
 	 }
       }
