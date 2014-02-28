@@ -17,6 +17,7 @@ compare_dictionaries(const std::string &type,
 		     double bond_esd_tolerance,
 		     double angle_tolerance,
 		     double angle_esd_tolerance,
+		     bool compare_hydrogens,
 		     bool quiet) {
 
    int status = 0;
@@ -54,6 +55,7 @@ compare_dictionaries(const std::string &type,
 						 bond_esd_tolerance,
 						 angle_tolerance,
 						 angle_esd_tolerance,
+						 compare_hydrogens,
 						 quiet);
 	 status = !compare_status; // invert for unix return value (0 happy)
       }
@@ -63,15 +65,16 @@ compare_dictionaries(const std::string &type,
 
 void print_help(std::string cmd) {
    std::cout << "Usage: " << cmd << " "
-      "--help     this help\n" << 
-      "--quiet    do not report satisfatory matches\n" << 
-      "--type     residue tupe to match\n" << 
-      "--dict-1   file with reference dictionary\n"
-      "--dict-2   file with comparison dictionary\n" << 
-      "--bond-length-tol\n" << 
-      "--bond-length-esd-tol" << 
-      "--angle-tol" << 
-      "--angle-esd-tol" << 
+      "        --help     this help\n" << 
+      "        --quiet    do not report satisfatory matches\n" << 
+      "        --type     residue type to match\n" << 
+      "        --dict-1   file with reference dictionary\n"
+      "        --dict-2   file with comparison dictionary\n" << 
+      "        --bond-length-tol\n" << 
+      "        --bond-length-esd-tol\n" << 
+      "        --angle-tol\n" << 
+      "        --angle-esd-tol\n" << 
+      "        --include-hydrogens (default geometry including hydrogens)\n" << 
       std::endl;
    
 } 
@@ -80,6 +83,7 @@ int main(int argc, char **argv) {
 
    int status = 0;
    bool quiet = false;
+   bool compare_hydrogens = false;
 
    if (argc < 4) {
       print_help(argv[0]);
@@ -96,15 +100,17 @@ int main(int argc, char **argv) {
       
       const char *optstr = "q";
       struct option long_options[] = {
-	 {"help",   0, 0, 0},
+	 {"include-hydrogens",    0, 0, 0},
+	 {"Hs",    0, 0, 0},
+	 {"help",    0, 0, 0},
 	 {"quiet",   0, 0, 0},
 	 {"type",    1, 0, 0},
 	 {"dict-1",  1, 0, 0},
 	 {"dict-2",  1, 0, 0},
-	 {"bond-length-tol",  1, 0, 0},
+	 {"bond-length-tol",      1, 0, 0},
 	 {"bond-length-esd-tol",  1, 0, 0},
-	 {"angle-tol",  1, 0, 0},
-	 {"angle-esd-tol",  1, 0, 0},
+	 {"angle-tol",            1, 0, 0},
+	 {"angle-esd-tol",        1, 0, 0},
 	 {0, 0, 0, 0}
       };
 
@@ -166,6 +172,12 @@ int main(int argc, char **argv) {
 	       if (arg_str == "quiet") { 
 		  quiet = true;
 	       }
+	       if (arg_str == "include-hydrogens") { 
+		  compare_hydrogens = true;
+	       }
+	       if (arg_str == "Hs") { 
+		  compare_hydrogens = true;
+	       }
 	    }
 	    break;
 
@@ -189,6 +201,7 @@ int main(int argc, char **argv) {
 					     bond_esd_tolerance,
 					     angle_tolerance,
 					     angle_esd_tolerance,
+					     compare_hydrogens,
 					     quiet);
 	    }
 	 }

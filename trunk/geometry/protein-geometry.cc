@@ -5034,13 +5034,19 @@ coot::protein_geometry::get_monomer_type_index(const std::string &monomer_type) 
 bool
 coot::dictionary_residue_restraints_t::is_hydrogen(const std::string &atom_name) const {
 
-   bool r = 0;
+   bool r = false;
    for (unsigned int i=0; i<atom_info.size(); i++) {
+      if (0)
+	 std::cout << "in is_hydrogen() comparing \"" << atom_info[i].atom_id_4c << "\" with \"" << atom_name
+		   << "\"" << std::endl;
       if (atom_info[i].atom_id_4c == atom_name) {
+	 if (0)
+	    std::cout << "in is_hydrogen found atom name " << atom_name << " and atom has type_symbol \""
+		      << atom_info[i].type_symbol << "\"" << std::endl;
 	 if (atom_info[i].type_symbol == "H" ||
 	     atom_info[i].type_symbol == " H" ||
 	     atom_info[i].type_symbol == "D") {
-	    r = 1;
+	    r = true;
 	    break;
 	 }
       }
