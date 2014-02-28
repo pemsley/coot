@@ -40,11 +40,6 @@
 
 #include <mmdb/mmdb_mmcif.h>
 
-// Old SBase usage
-// #ifndef  __MMDB_SBase__
-// #include <mmdb/mmdb_sbase.h>
-// #endif
-
 #ifdef HAVE_CCP4SRS
 #ifndef CCP4SRS_BASE_H
 #include <ccp4srs/ccp4srs_base.h>
@@ -626,6 +621,7 @@ namespace coot {
 		   double bond_esd_tolerance,
 		   double angle_tolerance,
 		   double angle_esd_tolerance,
+		   bool compare_hydrogens=false,
 		   bool quiet=false) const;
       
    };
