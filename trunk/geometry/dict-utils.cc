@@ -1,6 +1,7 @@
 
 #include <map>
 #include <algorithm>
+#include <iomanip> // setw()
 #include "utils/coot-utils.hh"
 #include "protein-geometry.hh"
 #include "dict-mismatches.hh"
@@ -360,6 +361,135 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       std::cout << "Plane-Restraint:: plane restraints do not match" << std::endl;
    }
 
+
+   // Statistics summary:
+   //
+   double sum_sqrd = 0.0;
+   double sum = 0;
+   double max_pos_diff = 0;
+   double max_neg_diff = 0;
+   if (bond_length_mismatches.size() > 0) { 
+      for (unsigned int ib=0; ib<bond_length_mismatches.size(); ib++) { 
+	 sum      += bond_length_mismatches[ib].diff;
+	 sum_sqrd += bond_length_mismatches[ib].diff * bond_length_mismatches[ib].diff;
+	 if (bond_length_mismatches[ib].diff > 0) { 
+	    if (bond_length_mismatches[ib].diff > max_pos_diff)
+	       max_pos_diff = bond_length_mismatches[ib].diff;
+	 } else {
+	    if (fabs(bond_length_mismatches[ib].diff) > fabs(max_neg_diff))
+	       max_neg_diff = bond_length_mismatches[ib].diff;
+	 }
+      }
+      double inv_N = 1.0/double(bond_length_mismatches.size());
+      double average = sum * inv_N;
+      double var     = sum_sqrd * inv_N - average * average;
+      if (var < 0) var = 0;
+      std::cout << "\nBond Length Difference Statistics Summary::\n";
+      std::cout << "            Mean:         " << std::setw(6) << average      << " A\n";
+      std::cout << "            Std. Dev:     " << std::setw(6) << sqrt(var)    << " A\n";
+      std::cout << std::right;
+      std::cout << "            Max Pos Diff: ";
+      std::cout.width(6); // affects the next thing written out
+      std::cout << max_pos_diff << " A\n";
+      std::cout << "            Max Neg Diff: ";
+      std::cout.width(6);
+      std::cout << max_neg_diff << " A\n";
+   }
+   sum_sqrd = 0.0;
+   sum = 0;
+   max_pos_diff = 0;
+   max_neg_diff = 0;
+   if (bond_esd_mismatches.size() > 0) { 
+      for (unsigned int ib=0; ib<bond_esd_mismatches.size(); ib++) { 
+	 sum      += bond_esd_mismatches[ib].diff;
+	 sum_sqrd += bond_esd_mismatches[ib].diff * bond_esd_mismatches[ib].diff;
+	 if (bond_esd_mismatches[ib].diff > 0) { 
+	    if (bond_esd_mismatches[ib].diff > max_pos_diff)
+	       max_pos_diff = bond_esd_mismatches[ib].diff;
+	 } else {
+	    if (fabs(bond_esd_mismatches[ib].diff) > fabs(max_neg_diff))
+	       max_neg_diff = bond_esd_mismatches[ib].diff;
+	 }
+      }
+      double inv_N = 1.0/double(bond_esd_mismatches.size());
+      double average = sum * inv_N;
+      double var     = sum_sqrd * inv_N - average * average;
+      if (var < 0) var = 0;
+      std::cout << "\nBond Length ESD Difference Statistics Summary::\n";
+      std::cout << "            Mean:         " << std::setw(6) << average      << " A\n";
+      std::cout << "            Std. Dev:     " << std::setw(6) << sqrt(var)    << " A\n";
+      std::cout << std::right;
+      std::cout << "            Max Pos Diff: ";
+      std::cout.width(6); // affects the next thing written out
+      std::cout << max_pos_diff << " A\n";
+      std::cout << "            Max Neg Diff: ";
+      std::cout.width(6);
+      std::cout << max_neg_diff << " A\n";
+   }
+   sum_sqrd = 0.0;
+   sum = 0;
+   max_pos_diff = 0;
+   max_neg_diff = 0;
+   if (angle_mismatches.size() > 0) { 
+      for (unsigned int ia=0; ia<angle_mismatches.size(); ia++) { 
+	 sum      += angle_mismatches[ia].diff;
+	 sum_sqrd += angle_mismatches[ia].diff * angle_mismatches[ia].diff;
+	 if (angle_mismatches[ia].diff > 0) { 
+	    if (angle_mismatches[ia].diff > max_pos_diff)
+	       max_pos_diff = angle_mismatches[ia].diff;
+	 } else {
+	    if (fabs(angle_mismatches[ia].diff) > fabs(max_neg_diff))
+	       max_neg_diff = angle_mismatches[ia].diff;
+	 }
+      }
+      double inv_N = 1.0/double(angle_mismatches.size());
+      double average = sum * inv_N;
+      double var     = sum_sqrd * inv_N - average * average;
+      if (var < 0) var = 0;
+      std::cout << "\nAngle Difference Statistics Summary::\n";
+      std::cout << "            Mean:         " << std::setw(6) << average      << " degrees\n";
+      std::cout << "            Std. Dev:     " << std::setw(6) << sqrt(var)    << " degrees\n";
+      std::cout << std::right;
+      std::cout << "            Max Pos Diff: ";
+      std::cout.width(6); // affects the next thing written out
+      std::cout << max_pos_diff << " degrees\n";
+      std::cout << "            Max Neg Diff: ";
+      std::cout.width(6);
+      std::cout << max_neg_diff << " degrees\n";
+   }
+   sum_sqrd = 0.0;
+   sum = 0;
+   max_pos_diff = 0;
+   max_neg_diff = 0;
+   if (angle_esd_mismatches.size() > 0) { 
+      for (unsigned int ia=0; ia<angle_esd_mismatches.size(); ia++) { 
+	 sum      += angle_esd_mismatches[ia].diff;
+	 sum_sqrd += angle_esd_mismatches[ia].diff * angle_esd_mismatches[ia].diff;
+	 if (angle_esd_mismatches[ia].diff > 0) { 
+	    if (angle_esd_mismatches[ia].diff > max_pos_diff)
+	       max_pos_diff = angle_esd_mismatches[ia].diff;
+	 } else {
+	    if (fabs(angle_esd_mismatches[ia].diff) > fabs(max_neg_diff))
+	       max_neg_diff = angle_esd_mismatches[ia].diff;
+	 }
+      }
+      double inv_N = 1.0/double(angle_esd_mismatches.size());
+      double average = sum * inv_N;
+      double var     = sum_sqrd * inv_N - average * average;
+      if (var < 0) var = 0;
+      std::cout << "\nAngle ESD Difference Statistics Summary::\n";
+      std::cout << "            Mean:         " << std::setw(6) << average      << " degrees\n";
+      std::cout << "            Std. Dev:     " << std::setw(6) << sqrt(var)    << " degrees\n";
+      std::cout << std::right;
+      std::cout << "            Max Pos Diff: ";
+      std::cout.width(6); // affects the next thing written out
+      std::cout << max_pos_diff << " degrees\n";
+      std::cout << "            Max Neg Diff: ";
+      std::cout.width(6);
+      std::cout << max_neg_diff << " degrees\n";
+   }
+   
+
    bool status = false;
    if (bonds_match == true)
       if (angles_match == true)
@@ -369,3 +499,6 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    
    return status;
 } 
+
+
+// 1mzt
