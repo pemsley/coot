@@ -3,6 +3,8 @@
 
 ---- 
 
+   o Lots of testing of add other solvent molecules, jiggle-fit, in
+     low-resolution maps, perhaps?
 
    o SWIG is defined when using SWIG and SWIGIMPORTED is used when
      imported via %import.  Change coot-utils/residue-and-atom-specs.hh 

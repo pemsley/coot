@@ -33,7 +33,10 @@ namespace coot {
    //
    RDKit::RWMol rdkit_mol_sanitized(CResidue *residue_p, const protein_geometry &geom);
    RDKit::RWMol rdkit_mol(CResidue *residue_p, const protein_geometry &geom);
-   RDKit::RWMol rdkit_mol(CResidue *residue_p, const coot::dictionary_residue_restraints_t &restraints,
+   RDKit::RWMol rdkit_mol(const dictionary_residue_restraints_t &restraints); // fill the coord from
+                                                                              // the dictionary if
+                                                                              // you can.
+   RDKit::RWMol rdkit_mol(CResidue *residue_p, const dictionary_residue_restraints_t &restraints,
 			  const std::string &alt_conf="");
    // tinker with mol
    void set_3d_conformer_state(RDKit::RWMol *mol); // hack the setting of 3D state, seems not to
@@ -55,7 +58,7 @@ namespace coot {
    // 
    std::string add_H_to_ring_N_as_needed(RDKit::RWMol *mol,
 				  int idx, const std::string &atom_name,
-				  const coot::dictionary_residue_restraints_t &restraints); 
+				  const dictionary_residue_restraints_t &restraints); 
    
    int add_2d_conformer(RDKit::ROMol *rdkmol_in, double weight_for_3d_distances); // tweak rdkmol_in
    RDKit::Bond::BondType convert_bond_type(const std::string &t);

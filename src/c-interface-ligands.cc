@@ -2442,7 +2442,7 @@ PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2) {
 #endif
 
 
-// Returning void ATM.  We shoud return an interesting object at some
+// Returning void ATM.  We should return an interesting object at some
 // stage. Perhaps a coot::geometry_distortion_info_container_t?
 //
 void
@@ -2479,8 +2479,8 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 		  double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
 		  std::string s = std::string("bond ")
 		     + std::string(at_1->name) + std::string(" to ") + std::string(at_2->name)
-		     + std::string("   d: ") + coot::util::float_to_string_using_dec_pl(d, 3)
 		     + std::string(" target_value: ") + coot::util::float_to_string_using_dec_pl(rest.target_value, 3)
+		     + std::string(" d: ") + coot::util::float_to_string_using_dec_pl(d, 3)
 		     + std::string(" sigma: ") + coot::util::float_to_string_using_dec_pl(rest.sigma, 3)
 		     + std::string(" length-devi ") + coot::util::float_to_string_using_dec_pl(distortion, 3)
 		     + std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
@@ -2494,7 +2494,7 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 	       CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
 	       CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
 	       CAtom *at_3 = residue_p->GetAtom(rest.atom_index_3);
-	       if (at_1 && at_2 && at_2) {
+	       if (at_1 && at_2 && at_3) {
 		  clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
 		  clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
 		  clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
@@ -2505,9 +2505,9 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 		  std::string s = std::string("angle ")
 		     + std::string(at_1->name) + std::string(" - ")
 		     + std::string(at_2->name) + std::string(" - ")
-		     + std::string(at_3->name) + std::string(" angle: ")
-		     + coot::util::float_to_string(angle)
-		     + std::string(" target_value: ") + coot::util::float_to_string(rest.target_value)
+		     + std::string(at_3->name)
+		     + std::string("  target: ") + coot::util::float_to_string(rest.target_value)
+		     + std::string(" model_angle: ") + coot::util::float_to_string(angle)
 		     + std::string(" sigma: ") + coot::util::float_to_string(rest.sigma)
 		     + std::string(" angle-devi ") + coot::util::float_to_string(distortion)
 		     + std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
