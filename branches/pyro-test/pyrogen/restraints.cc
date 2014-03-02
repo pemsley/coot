@@ -849,4 +849,3 @@ coot::regularize_inner(RDKit::ROMol &mol,
    simple_refine(residue_p, cmmdbmanager, dict_restraints);
    return std::pair<CMMDBManager *, CResidue *> (cmmdbmanager, residue_p);
 } 
-

@@ -63,6 +63,6 @@ namespace coot {
 			   const std::string &res_name,
 			   const std::string &file_name);
 
-
+   
 }
 

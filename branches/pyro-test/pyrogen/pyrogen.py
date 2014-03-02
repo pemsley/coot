@@ -169,7 +169,10 @@ def set_atom_type(match, match_atom_index, mol, atom_type):
             # print "   oops - atom ", mol.GetAtomWithIdx(this_atom).GetProp("name"), " already has type ", current_type
         except KeyError:
             mol.GetAtomWithIdx(this_atom).SetProp("atom_type", atom_type)
-            print "    set atom number ", this_atom, " having name \"", mol.GetAtomWithIdx(this_atom).GetProp("name"), "\" as type ", atom_type
+            # print "    set atom number ", this_atom, " having name \"", mol.GetAtomWithIdx(this_atom).GetProp("name"), "\" as type ", atom_type
+            name = mol.GetAtomWithIdx(this_atom).GetProp("name");
+            print '    set atom number %s having name %s with type %s ' % (str(this_atom).rjust(2),
+                                                                           repr(name), repr(atom_type))
     except TypeError:
         for match_atom in match_atom_index:
             set_atom_type(match, match_atom, mol, atom_type)
@@ -422,16 +425,20 @@ def make_restraints_from_mdl(mol_file_name, comp_id, sdf_file_name, pdb_out_file
 
    if (not (test_for_mogul())): return False
 
-   compound_name = 'some-compound'
+   compound_name = '.'
    m = Chem.MolFromMolFile(mol_file_name)
    return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name)
 
 def make_restraints_from_pdbx_cif(cif_file_name_in, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
 
-   compound_name = 'something'
-   coords_file_name = ''
    # later: embed the compound_name name into m.
-   m = coot_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id, coords_file_name)
+   m = coot_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
+
+   name = ''
+   try:
+      name = m.GetProp('_Name')
+   except KeyError:
+      print 'caught key error in trying to get _Name in make_restraints_from_pdbx_cif()'
 
 #    for atom in m.GetAtoms():
 #       name = atom.GetProp('name')
@@ -442,10 +449,14 @@ def make_restraints_from_pdbx_cif(cif_file_name_in, comp_id, sdf_file_name, pdb_
 
    
 def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
-   
-   compound_name = 'some-compound'
-   m_H = AllChem.AddHs(m)
 
+   try:
+      compound_name = m.GetProp('_Name');
+   except KeyError:
+      print 'caught key error in trying to get _Name in make_restraints() for m'
+      compound_name = '.'
+      
+   m_H = AllChem.AddHs(m)
    
    AllChem.EmbedMolecule(m_H)
    AllChem.UFFOptimizeMolecule(m_H)
@@ -454,8 +465,7 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
 
    for atom in m_H.GetAtoms():
       name   = atom.GetProp('name')
-      print 'in p2.py make_restraints()', atom, ' of m_H 3 has name ', name
-   
+      # print 'in p2.py make_restraints()', atom, ' of m_H 3 has name ', name
    
    m_H.SetProp('comp_id', comp_id)
    m_H.SetProp('name', compound_name)
@@ -478,14 +488,20 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
       # coot.write_restraints(bor, comp_id, 'bond-orders.cif')
 
       # print out the set types:
+      print '--- Atom Props ---'
       for atom in m_H.GetAtoms():
-         charge = atom.GetProp('_GasteigerCharge')
+         charge = atom.GetProp('_GasteigerCharge') # string?
          name   = atom.GetProp('name')
          try:
             atom_type   = atom.GetProp('atom_type')
             is_aromatic = atom.GetIsAromatic()
             hybrid      = atom.GetHybridization()
-            print "   atom: ", name, atom.GetSymbol(), " ", is_aromatic, " ", hybrid, "   ", atom_type, "    ", charge
+            f_charge    = float(charge)
+            print "  atom: %s %s type: %s arom: %s hybrid: %s charge: %6.3f" % (name, atom.GetSymbol(),
+                                                                                atom_type.ljust(4),
+                                                                                str(is_aromatic).ljust(5),
+                                                                                str(hybrid).rjust(3),
+                                                                                f_charge)
          except KeyError:
             print "miss", name, atom.GetSymbol(), charge
 
@@ -539,14 +555,15 @@ if __name__ == "__main__":
                 run_mogul = False
 
         sdf_file_name = file_stub + ".sdf"
-        cif_restraints_file_name = 'pyrogen-' + file_stub + '.cif'
-        pdb_out_file_name        = 'pyrogen-' + file_stub + '.pdb'
+        cif_restraints_file_name = file_stub + '-pyrogen.cif'
+        pdb_out_file_name        = file_stub + '-pyrogen.pdb'
         comp_id = file_stub
 
         if is_mdl_file(smiles_or_mdl_string):
            status = make_restraints_from_mdl(smiles_or_mdl_string, comp_id, sdf_file_name,
                                              pdb_out_file_name, cif_restraints_file_name)
         else:
+
            if is_comp_id(smiles_or_mdl_string):
               try:
                  smiles_string = get_smiles_from_comp_id(smiles_or_mdl_string)
