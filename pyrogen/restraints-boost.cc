@@ -17,14 +17,16 @@ namespace coot {
    RDKit::ROMol *regularize_with_dict(RDKit::ROMol &r,
 				      PyObject *py_restraints,
 				      const std::string &comp_id);
+   // This tries to get a residue from the dictionary using the
+   // model_Cartn of the dict_atoms.  If that is not available, return
+   // a molecule with atoms that do not have positions.
    RDKit::ROMol *rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
-					  const std::string &comp_id,
-					  const std::string &experimental_model_pdb_file_name);
+					  const std::string &comp_id);
 }
 
 BOOST_PYTHON_MODULE(restraints_boost) {
-   def("regularize",  coot::regularize, return_value_policy<manage_new_object>());
-   def("regularize_with_dict",  coot::regularize_with_dict, return_value_policy<manage_new_object>());
+   def("regularize",               coot::regularize,               return_value_policy<manage_new_object>());
+   def("regularize_with_dict",     coot::regularize_with_dict,     return_value_policy<manage_new_object>());
    def("rdkit_mol_chem_comp_pdbx", coot::rdkit_mol_chem_comp_pdbx, return_value_policy<manage_new_object>());
 }
 
@@ -62,21 +64,32 @@ coot::regularize_with_dict(RDKit::ROMol &mol_in, PyObject *restraints_py, const 
 
 RDKit::ROMol *
 coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
-			       const std::string &comp_id,
-			       const std::string &experimental_model_pdb_file_name) {
+			       const std::string &comp_id) {
 
    RDKit::ROMol *mol = new RDKit::ROMol;
    coot::protein_geometry geom;
+   geom.set_verbose(false);
    int read_number = 0;
    geom.init_refmac_mon_lib(chem_comp_dict_file_name, read_number);
    bool idealized = false;
 
    CResidue *r = geom.get_residue(comp_id, idealized);
    if (r) {
+      // makes a 3d conformer
       RDKit::RWMol mol_rw = coot::rdkit_mol_sanitized(r, geom);
       RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
       return m;
-   }
+   } else {
+      // makes a 2d conformer
+      std::pair<bool, dictionary_residue_restraints_t> rest = geom.get_monomer_restraints(comp_id);
+      if (rest.first) { 
+	 RDKit::RWMol mol_rw = coot::rdkit_mol(rest.second);
+	 RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
+	 bool canon_orient = false;
+	 bool clear_confs = false;
+	 int iconf = RDDepict::compute2DCoords(*m, NULL, canon_orient, clear_confs, 10, 20);
+	 return m;
+      }
+   } 
    return mol;
-
 } 
