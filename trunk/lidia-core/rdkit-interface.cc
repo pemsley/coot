@@ -76,8 +76,11 @@ coot::rdkit_mol(CResidue *residue_p,
 		<< restraints.bond_restraint.size() << " bond restraints" << std::endl;
    
    RDKit::RWMol m;
-   const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
 
+   std::string n = coot::util::remove_trailing_whitespace(restraints.residue_info.name);
+   m.setProp("_Name", n);
+   
+   const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
    PPCAtom residue_atoms = 0;
    int n_residue_atoms;
    // this is so that we don't add multiple copies of an atom with
@@ -220,7 +223,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	    atom_index[atom_name] = current_atom_id;
 	    current_atom_id++; // for next round
 	 }
-	 catch (std::exception rte) {
+	 catch (const std::exception &rte) {
 	    std::cout << rte.what() << std::endl;
 	 }
       }
@@ -513,7 +516,91 @@ coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
    } 
 
    return status;
+}
+
+// fill the coord from the dictionary if you can.
+// 
+RDKit::RWMol
+coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
+
+   RDKit::RWMol m;
+   const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
+
+   std::map<std::string, int> added_atoms; // atom name to rdkit atom index
+
+   // ------------------------------------ Atoms -----------------------------
+
+   for (unsigned int iat=0; iat<r.atom_info.size(); iat++) { 
+
+      try {
+	 RDKit::Atom *at = new RDKit::Atom;
+	 std::string ele_capped =
+	    coot::util::capitalise(coot::util::remove_leading_spaces(r.atom_info[iat].type_symbol));
+	 int atomic_number = tbl->getAtomicNumber(ele_capped);
+	 at->setAtomicNum(atomic_number);
+	 at->setMass(tbl->getAtomicWeight(atomic_number));
+	 at->setProp("name", r.atom_info[iat].atom_id);
+
+	 // set the chirality (if this atom is chiral).
+	 //
+	 for (unsigned int ichi=0; ichi<r.chiral_restraint.size(); ichi++) { 
+	    if (r.chiral_restraint[ichi].atom_id_c_4c() == r.atom_info[iat].atom_id_4c) {
+	       if (!r.chiral_restraint[ichi].has_unassigned_chiral_volume()) {
+		  if (!r.chiral_restraint[ichi].is_a_both_restraint()) {
+		     RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+		     at->setChiralTag(chiral_tag);
+		  }
+	       } 
+	    } 
+	 }
+	 int idx = m.addAtom(at);
+	 added_atoms[r.atom_info[iat].atom_id_4c] = idx; // for making bonds.
+      }
+      catch (const std::exception &rte) {
+	 std::cout << rte.what() << std::endl;
+      }
+   }
+
+   // ------------------------------------ Bonds -----------------------------
+
+   std::map<std::string, int>::const_iterator it_1;
+   std::map<std::string, int>::const_iterator it_2;
+   int idx_1, idx_2;
+   for (unsigned int ib=0; ib<r.bond_restraint.size(); ib++) {
+      const dict_bond_restraint_t &br = r.bond_restraint[ib];
+      it_1 = added_atoms.find(br.atom_id_1_4c());
+      it_2 = added_atoms.find(br.atom_id_2_4c());
+      if (it_1 != added_atoms.end()) { 
+	 if (it_2 != added_atoms.end()) {
+	    idx_1 = it_1->second;
+	    idx_2 = it_2->second;
+	    RDKit::Bond::BondType type = convert_bond_type(br.type());
+	    RDKit::Bond *bond = new RDKit::Bond(type);
+	    
+	    // wedge bonds should have the chiral centre as the first atom.
+	    // 
+	    bool swap_order = chiral_check_order_swap(m[idx_1], m[idx_2], r.chiral_restraint);
+	    if (! swap_order) {  // normal
+	       bond->setBeginAtomIdx(idx_1);
+	       bond->setEndAtomIdx(  idx_2);
+	    } else {
+	       bond->setBeginAtomIdx(idx_2);
+	       bond->setEndAtomIdx(  idx_1);
+	    } 
+	    
+	    if (type == RDKit::Bond::AROMATIC) { 
+	       bond->setIsAromatic(true);
+	       m[idx_1]->setIsAromatic(true);
+	       m[idx_2]->setIsAromatic(true);
+	    }
+	    m.addBond(bond); // worry about ownership or memory leak.
+	    
+	 }
+      }
+   }
+   return m;
 } 
+
 
 
 // can throw a std::runtime_error or std::exception.
@@ -2055,7 +2142,7 @@ coot::debug_rdkit_molecule(RDKit::ROMol *rdkm) {
       try {
 	 at_p->getProp("name", name);
       }
-      catch (KeyErrorException &err) {
+      catch (const KeyErrorException &err) {
       }
       int n = at_p->getAtomicNum();
       std::string element = tbl->getElementSymbol(n);
@@ -2072,7 +2159,19 @@ coot::debug_rdkit_molecule(RDKit::ROMol *rdkm) {
       const RDKit::Bond *bond_p = rdkm->getBondWithIdx(ib);
       int idx_1 = bond_p->getBeginAtomIdx();
       int idx_2 = bond_p->getEndAtomIdx();
-      std::cout << "   " << ib << "th between " << idx_1 << " " << idx_2 << " type " 
+
+      std::string n_1, n_2;
+      
+      RDKit::ATOM_SPTR at_1 = (*rdkm)[idx_1];
+      RDKit::ATOM_SPTR at_2 = (*rdkm)[idx_2];
+      try { 
+	 at_1->getProp("name", n_1);
+	 at_2->getProp("name", n_2);
+      }
+      catch (const KeyErrorException &err) {
+      }
+      std::cout << "   " << ib << "th between " << idx_1 << " "
+		<< n_1 << " " << idx_2 << " " << n_2 << " type " 
 		<< bond_p->getBondType() << std::endl;
    }
 }
