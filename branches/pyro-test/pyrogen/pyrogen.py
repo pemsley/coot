@@ -438,7 +438,7 @@ def make_restraints_from_pdbx_cif(cif_file_name_in, comp_id, sdf_file_name, pdb_
    try:
       name = m.GetProp('_Name')
    except KeyError:
-      print 'caught key error in trying to get _Name in make_restraints_from_pdbx_cif()'
+      print 'caught KeyError in make_restraints_from_pdbx_cif() trying GetProp _Name'
 
 #    for atom in m.GetAtoms():
 #       name = atom.GetProp('name')

@@ -74,10 +74,15 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
    bool idealized = false;
 
    CResidue *r = geom.get_residue(comp_id, idealized);
+
    if (r) {
       // makes a 3d conformer
       RDKit::RWMol mol_rw = coot::rdkit_mol_sanitized(r, geom);
       RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
+
+      // debug.  OK, so the bond orders are undelocalized here.
+      debug_rdkit_molecule(&mol_rw);
+      
       return m;
    } else {
       // makes a 2d conformer
