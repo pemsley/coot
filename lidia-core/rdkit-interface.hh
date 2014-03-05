@@ -37,7 +37,8 @@ namespace coot {
                                                                               // the dictionary if
                                                                               // you can.
    RDKit::RWMol rdkit_mol(CResidue *residue_p, const dictionary_residue_restraints_t &restraints,
-			  const std::string &alt_conf="");
+			  const std::string &alt_conf="",
+			  bool undelocalise=true);
    // tinker with mol
    void set_3d_conformer_state(RDKit::RWMol *mol); // hack the setting of 3D state, seems not to
                                                    // be done for mdl files when zs are 0.
@@ -108,13 +109,12 @@ namespace coot {
    void charge_metals(RDKit::RWMol *rdkm);
    void charge_sp3_borons(RDKit::RWMol *rdkm);
    void charge_undelocalized_guanidinos(RDKit::RWMol *rdkm); // A + on the  C.
-   
+
    // which calls (not for public use)
    // fiddle with the bonds in rdkm as needed.
    void deloc_O_check_inner(RDKit::RWMol *rdkm, RDKit::Atom *central_C,
 			    RDKit::Atom *O1, RDKit::Atom *O2,
 			    RDKit::Bond *b1, RDKit::Bond *b2);
-
 
 
    // try to add (for instance) a +1 to Ns with 4 bonds.
@@ -124,6 +124,11 @@ namespace coot {
    // account for Ns with "too many" hydrogens by assigning a formal
    // charge to the N.
    void assign_formal_charges(RDKit::RWMol *rdkm);
+
+   // when using a refmac cif dictionary, we construct a molecule with
+   // deloc bonds (e.g. on a phosphate)
+   // valence on P: (1 1/2) * 3 + 1 -> 6 => problem
+   void charge_phosphates(RDKit::RWMol *rdkm);
 
    // account for Ns with "too many" hydrogens by assigning deleting a
    // hydrogen.
