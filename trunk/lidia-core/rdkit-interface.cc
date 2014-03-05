@@ -64,12 +64,15 @@ coot::rdkit_mol(CResidue *residue_p, const coot::protein_geometry &geom) {
    }
 }
 
+// alt_conf is an optional argument, default "".
+// undelocalize is an optional argument, default false
 RDKit::RWMol
 coot::rdkit_mol(CResidue *residue_p,
 		const coot::dictionary_residue_restraints_t &restraints,
-		const std::string &alt_conf) {
+		const std::string &alt_conf,
+		bool do_undelocalize) {
 
-   bool debug = false;
+   bool debug = true;
    
    if (debug)
       std::cout << "==================== here in rdkit_mol() with restraints that have "
@@ -404,12 +407,16 @@ coot::rdkit_mol(CResidue *residue_p,
 
    // debug_rdkit_molecule(&m);
 
-    if (debug)
-       std::cout << "=============== calling undelocalise() " << &m << std::endl;
-    coot::undelocalise(&m);
+
+   if (do_undelocalize) { 
+       if (debug)
+	  std::cout << "=============== calling undelocalise() " << &m << std::endl;
+       coot::undelocalise(&m);
+   }
 
     if (debug)
-       std::cout << "---------------------- calling assign_formal_charges() -----------" << std::endl;
+       std::cout << "---------------------- calling assign_formal_charges() -----------"
+		 << std::endl;
     coot::assign_formal_charges(&m);
    
     if (debug)
@@ -1276,6 +1283,9 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
 	 at_p->setFormalCharge(2);
       }
    }
+
+   charge_phosphates(rdkm);
+   
    if (0) 
       std::cout << "----------- normal completion of assign_formal_charges()" << std::endl;
 }
@@ -1638,6 +1648,7 @@ coot::undelocalise(RDKit::RWMol *rdkm) {
    charge_metals(rdkm);
    charge_sp3_borons(rdkm);
 }
+
 
 void
 coot::undelocalise_aminos(RDKit::RWMol *rdkm) {
@@ -2128,6 +2139,48 @@ coot::charge_undelocalized_guanidinos(RDKit::RWMol *rdkm) {
       }
    }
 }
+
+// when using a refmac cif dictionary, we construct a molecule with
+// deloc bonds (e.g. on a phosphate)
+// valence on P: (1 1/2) * 3 + 1 -> 6 => problem.
+// 
+// So, in that case, +1 charge the P.  This might be a hack.
+void
+coot::charge_phosphates(RDKit::RWMol *rdkm) {
+
+   RDKit::ROMol::AtomIterator ai;
+   for(ai=rdkm->beginAtoms(); ai!=rdkm->endAtoms(); ai++) {
+
+      if ((*ai)->getAtomicNum() == 15) {
+	 RDKit::Atom *P_at = *ai;
+	 int idx_1 = P_at->getIdx();
+	 std::vector<RDKit::Bond *> deloc_O_bonds;
+	 
+	 RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
+	 boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(P_at);
+	 while(nbrIdx != endNbrs) {
+	    const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
+	    RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_1, *nbrIdx);
+	    if (bond) {
+	       if (bond->getBondType() == RDKit::Bond::ONEANDAHALF)
+		  deloc_O_bonds.push_back(bond);
+	    } 
+	    ++nbrIdx;
+	 }
+
+	 if (deloc_O_bonds.size() == 3) {
+	    
+	    // a typical terminal phosphate (e.g. AMP)
+	    // 
+	    // (intermediate phosphates in ATP have 1 + 1 + 11/2 + 11/2, which is OK)
+	    //
+	    
+	    P_at->setFormalCharge(1);
+	 } 
+      }
+   }
+}
+
 
 
 void

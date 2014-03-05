@@ -7062,4 +7062,26 @@ Sat Feb  8 22:57:51 GMT 2014
    http://www.holoborodko.com/pavel/numerical-methods/numerical-integration/
 
 ------
+Tue Mar  4 14:27:39 GMT 2014
 
+   For ligands at RCSB:
+
+   http://www.rcsb.org/pdb/ligand/ligandsummary.do?hetId=AMP
+
+
+------
+Tue Mar  4 14:27:39 GMT 2014
+
+   The thumbnail for ATP should be:
+
+            O-  O-  O-
+            |   |   |
+	 -O-P-O-P-O-P=0
+            H   H   |
+            O   O   O-  
+
+      H = vertical double bond
+
+      It is.
+
+------

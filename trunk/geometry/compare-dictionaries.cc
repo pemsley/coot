@@ -74,7 +74,7 @@ void print_help(std::string cmd) {
       "        --bond-length-esd-tol\n" << 
       "        --angle-tol\n" << 
       "        --angle-esd-tol\n" << 
-      "        --include-hydrogens (default geometry including hydrogens)\n" << 
+      "        --include-hydrogens (default: geometry excludes hydrogens)\n" << 
       std::endl;
    
 } 
