@@ -3448,9 +3448,9 @@ fi
 
 if [ $clear_up_type != "" ] ; then 
    if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
-      slim_dir=`dirname $install_top_dir`/coot-${OS}-${systype}-gtk2-python
+      slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}-gtk2-python
    else
-      slim_dir=`dirname $install_top_dir`/coot-${OS}-${systype}-gtk2
+      slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}-gtk2
    fi
    post_install_slim $install_top_dir $slim_dir $clear_up_type 
 fi
