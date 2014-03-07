@@ -2515,6 +2515,24 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 		  sum_penalties_angles += pen_score;
 	       }
 	    }
+
+	    if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+	       if (gdc.geometry_distortion[i].distortion_score > 10) { // arbitrons
+		  CAtom *at_c = residue_p->GetAtom(rest.atom_index_centre);
+		  CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+		  CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+		  CAtom *at_3 = residue_p->GetAtom(rest.atom_index_3);
+		  if (at_c && at_1 && at_2 && at_3) {
+		     std::cout << "   chiral volume problem centred at: "
+			       << at_c->name << " with neighbours "
+			       << at_1->name << " "
+			       << at_2->name << " "
+			       << at_2->name << " "
+			       << gdc.geometry_distortion[i].distortion_score
+			       << std::endl;
+		  }
+	       }
+	    }
 	 }
 	 
 	 std::sort(penalty_string_bonds.begin(),  penalty_string_bonds.end(),  coot::util::sd_compare);
