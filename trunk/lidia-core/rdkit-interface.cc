@@ -72,7 +72,7 @@ coot::rdkit_mol(CResidue *residue_p,
 		const std::string &alt_conf,
 		bool do_undelocalize) {
 
-   bool debug = true;
+   bool debug = false;
    
    if (debug)
       std::cout << "==================== here in rdkit_mol() with restraints that have "
