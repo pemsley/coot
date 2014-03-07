@@ -2265,8 +2265,6 @@ void coot::update_coords(RDKit::RWMol *mol_p, int iconf, CResidue *residue_p) {
 }
 
 
-// return something interesting in due course
-//
 // bond_index is the index of the bond to be replace.  atom_index
 // is the index of the atom (i.e. one of the atoms in bond of
 // bond_index), the R-group of which the atoms are marked for
