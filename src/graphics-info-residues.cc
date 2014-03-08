@@ -27,7 +27,7 @@
 #include "interface.h" // for create_multi_residue_torsion_dialog()
 
 void
-graphics_info_t:: multi_torsion_residues(int imol, const std::vector<coot::residue_spec_t> &v) {
+graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residue_spec_t> &v) {
 
    if (is_valid_model_molecule(imol)) {
 
@@ -277,8 +277,13 @@ graphics_info_t::graphics_ligand_view() {
 	 glPopMatrix();
       }
 
-      catch (std::runtime_error rte) {
-	 std::cout << "ERROR:: " << rte.what() << std::endl;
+      catch(const std::runtime_error &rte) {
+	 // PE20130605
+	 // This is useful for debugging, but not for production
+	 // (e.g. where the comp-id is ZN we get here currently and it
+	 // is printed on every frame)
+	 // 
+	 // std::cout << "ERROR:: " << rte.what() << std::endl;
       }
    }
 } 

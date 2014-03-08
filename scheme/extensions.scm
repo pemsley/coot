@@ -22,25 +22,26 @@
     (gtk-widget-set-sensitive sep #f)
     (gtk-widget-show sep)))
 
-(if (defined? 'coot-main-menubar)
-
     ;; --------------------------------------------------
     ;;           coot news dialog and updates dialog
     ;; --------------------------------------------------
-    (let ((menu (coot-menubar-menu "About")))
-      (if menu
-	  (begin
-	    (add-simple-coot-menu-menuitem
-	     menu "Coot News..."
-	     (lambda ()
-	       (whats-new-dialog)))
-	    (let ((os-type (vector-ref (uname) 0)))
-	      (if (not (string=? os-type "Darwin"))
-		  (add-simple-coot-menu-menuitem
-		   menu "Check for Updates..."
-		   (lambda () 
-		     (format #t "checking for updates....~%")
-		     (check-for-updates-gui)))))))))
+
+; not at the moment (release 0.7.1)    
+; (if (defined? 'coot-main-menubar)
+;    (let ((menu (coot-menubar-menu "About")))
+;      (if menu
+;	  (begin
+;	    (add-simple-coot-menu-menuitem
+;	     menu "Coot News..."
+;	     (lambda ()
+;	       (whats-new-dialog)))
+;	    (let ((os-type (vector-ref (uname) 0)))
+;	      (if (not (string=? os-type "Darwin"))
+;		  (add-simple-coot-menu-menuitem
+;		   menu "Check for Updates..."
+;		   (lambda () 
+;		     (format #t "checking for updates....~%")
+;		     (check-for-updates-gui)))))))))
 
 
 (if (defined? 'coot-main-menubar)
@@ -77,9 +78,9 @@
 	    (menuitem-7 (gtk-menu-item-new-with-label "Settings..."))
 	    (submenu-pisa (gtk-menu-new))
 	    (menuitem-pisa (gtk-menu-item-new-with-label "PISA..."))
-	    (submenu-plugins (gtk-menu-new))
-	    (menuitem-pdbe (gtk-menu-item-new-with-label "PDBe..."))
 	    (submenu-pdbe (gtk-menu-new))
+	    (menuitem-pdbe (gtk-menu-item-new-with-label "PDBe..."))
+	    (submenu-plugins (gtk-menu-new))
 	    (menuitem-plugins (gtk-menu-item-new-with-label "Plug-ins..."))
 	    (submenu-ncs (gtk-menu-new))
 	    (menuitem-ncs (gtk-menu-item-new-with-label "NCS...")))
@@ -515,6 +516,24 @@
 					   ;; 
 					   (get-monomer text))))))))
 
+;	(add-simple-coot-menu-menuitem
+;	 submenu-models "Morph Fit Chain (Radius 4.2)"
+;	 (lambda ()
+;	   (using-active-atom
+;	    (morph-fit-chain aa-imol aa-chain-id 4.2))))
+	 
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Morph Fit Chain (Radius 7)"
+	 (lambda ()
+	   (using-active-atom
+	    (morph-fit-chain aa-imol aa-chain-id 7))))
+
+;	(add-simple-coot-menu-menuitem
+;	 submenu-models "Morph Fit Chain (Radius 11)"
+;	 (lambda ()
+;	   (using-active-atom
+;	    (morph-fit-chain aa-imol aa-chain-id 11))))
+
 	;; ---- N ---------
 
 	(add-simple-coot-menu-menuitem submenu-models "New Molecule by Sphere..."
@@ -664,10 +683,18 @@
 	    (lambda (imol)
 	      (rigid-body-refine-by-atom-selection imol "//")))))
       
+	;; ---- S ---------
+
 	(add-simple-coot-menu-menuitem
 	 submenu-models "Superpose ligands..."
 	 (lambda ()
 	    (superpose-ligand-gui)))
+
+	(add-simple-coot-menu-menuitem 
+	 submenu-models "Symm Shift Reference Chain Here"
+	 move-reference-chain-to-symm-chain-position)
+
+
 
 	;; ---- U ---------
 
@@ -1450,19 +1477,24 @@
 	 (lambda ()
 	   (key-bindings-gui)))
 
-
-      (add-simple-coot-menu-menuitem
-       submenu-settings "Enable Quick-Save checkpointing..." 
-       (lambda ()
-	 (generic-single-entry
-	  "Checkpoint interval (seconds)"
-	  "30"
-	  " Start Auto-saving "
-	  (lambda (txt)
-	    (let ((n (string->number txt)))
-	      (if (number? n)
-		  (gtk-timeout-add (* 1000 n) (lambda () (quick-save)))))))))
-
+	(add-simple-coot-menu-menuitem
+	 submenu-settings "Add Template Keybindings"
+	 (lambda ()
+	   (template-keybindings-to-preferences))) ;; copy and evaluate
+	
+	
+	(add-simple-coot-menu-menuitem
+	 submenu-settings "Enable Quick-Save checkpointing..." 
+	 (lambda ()
+	   (generic-single-entry
+	    "Checkpoint interval (seconds)"
+	    "30"
+	    " Start Auto-saving "
+	    (lambda (txt)
+	      (let ((n (string->number txt)))
+		(if (number? n)
+		    (gtk-timeout-add (* 1000 n) (lambda () (quick-save)))))))))
+	
 			  
 	))) ;  finish let and if
 

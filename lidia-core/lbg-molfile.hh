@@ -27,7 +27,7 @@
 #include "clipper/core/coords.h"
 
 #include <mmdb/mmdb_manager.h> // 20110408 for the constructor using restraints and CResidue
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 
 #include "lig-build.hh"
 
@@ -148,6 +148,23 @@ namespace lig_build {
 	 }
 	 return std::pair<bool, double> (status, scale);
       }
+
+      bool delete_bond_between(int idx_1, int idx_2) {
+	 bool status = false;
+	 std::vector<molfile_bond_t>::iterator it;
+	 for (it=bonds.begin(); it!=bonds.end(); it++) { 
+	    int index_1 = it->index_1;
+	    int index_2 = it->index_2;
+	    if (idx_1 == index_1) { 
+	       if (idx_2 == index_2) {
+		  bonds.erase(it);
+		  status = true;
+		  break;
+	       }
+	    }
+	 }
+	 return status;
+      } 
 
       void debug() const {
 	 std::cout << "molfile_molecule_t: " << atoms.size() << " atoms" << std::endl;

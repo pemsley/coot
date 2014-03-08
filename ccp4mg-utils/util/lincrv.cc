@@ -41,7 +41,7 @@ void DialASpline(double t, const std::vector<double> &a,  const std::vector<Cart
     int n = (int)(p.size()) - 1;
 
     if (Cn>n-1) Cn = n-1;       /* Anything greater gives one polynomial */
-    for (k=0; t> a[k]&&k<a.size(); k++);    /* Find enclosing knot interval */
+    for (k=0; t> a[k]&&k<int(a.size()); k++);    /* Find enclosing knot interval */
     for (h=k; t==a[k]; k++);    /* May want to use fewer legs */
     if (k>n) {k = n; if (h>k) h = k;}
     h = 1+Cn - (k-h); k--;

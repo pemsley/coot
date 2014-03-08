@@ -392,7 +392,7 @@ void stop_curl_download(const char *file_name) {  // stop curling the to file_na
 
 
 #ifdef USE_LIBCURL
-void curl_make_a_post() {
+void curl_test_make_a_post() {
 
 #ifdef NO_ANOMYMOUS_DATA
    // don't do anything
@@ -422,5 +422,26 @@ void curl_make_a_post() {
 		<< std::endl;
    curl_easy_cleanup(c);
 #endif
-} 
+}
+#endif // USE_LIBCURL
+
+
+
+#ifdef USE_LIBCURL
+void
+curl_post(const std::string &url, const std::string &post_string) {
+   
+   CURL *c = curl_easy_init();
+   long int no_signal = 1; // for multi-threading
+   curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
+   curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 10);
+   curl_easy_setopt(c, CURLOPT_URL, url.c_str());
+   curl_easy_setopt(c, CURLOPT_POSTFIELDS, post_string.c_str());
+
+   CURLcode status = curl_easy_perform(c);
+   if (status != CURLE_OK)
+      std::cout << "curl_post() failed " << curl_easy_strerror(status)
+		<< std::endl;
+   curl_easy_cleanup(c);
+}
 #endif // USE_LIBCURL

@@ -36,7 +36,7 @@ typedef GnomeCanvasItem GtkCanvasItem;
 #endif
 
 
-#include "simple-restraint.hh"
+#include "ideal/simple-restraint.hh"
 
 namespace coot {
 

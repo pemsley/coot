@@ -24,6 +24,7 @@
 #define LIGAND_ATOM_QUAD_HH
 
 #include <vector>
+#include <stdexcept>
 
 #ifndef HAVE_STRING
 #include <string>

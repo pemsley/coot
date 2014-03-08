@@ -22,7 +22,7 @@
 
 lib_LTLIBRARIES=libcoot-sequence-view.la
 
-include_HEADERS = sequence-view.hh seq-view-interface.h
+pkginclude_HEADERS = sequence-view.hh seq-view-interface.h
 
 CANVAS_CFLAGS = $(GTKCANVAS_CFLAGS) $(GNOME_CANVAS_CFLAGS)
 CANVAS_LIBS   = $(GTKCANVAS_LIBS) $(GNOME_CANVAS_LIBS)

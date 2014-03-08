@@ -24,10 +24,11 @@
 #include <sys/types.h>   
 #include <dirent.h>
 
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
+
 #include "db-main.hh" // for matches_pdb_name
 #include "db-strands.hh"
-#include "coot-coord-utils.hh"
-#include "coot-utils.hh"
 
 coot::db_strands::db_strands() {
    

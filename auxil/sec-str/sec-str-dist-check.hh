@@ -1,6 +1,6 @@
 
 #include <string>
-#include "mmdb_manager.h"
+#include <mmdb/mmdb_manager.h>
 
 void distance_checks(CModel *model_p);
 int SSE(CResidue *res);

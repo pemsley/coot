@@ -21,9 +21,11 @@
 
 #include <iostream>
 
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 #include "ideal-rna.hh"
 
+// The sequence passed must be in lower case.
+// 
 coot::ideal_rna::ideal_rna(const std::string &RNA_or_DNA, const std::string &form,
 			   short int single_stranged_flag_in,
 			   const std::string &sequence, CMMDBManager *standard_residues_in) {
@@ -105,8 +107,8 @@ coot::ideal_rna::make_molecule() {
 	       } 
 	    }
 	 } else {
-	    std::cout << "ERROR:: oops not a valid base " << iseq << " "
-		      << seq[iseq] << std::endl;
+	    std::cout << "ERROR:: oops not a valid base sequence-position: " << iseq
+		      << " type: " << seq[iseq] << std::endl;
 	 }
       }
 

@@ -88,10 +88,10 @@ def bond_length_from_atoms(atom_1, atom_2):
     from types import ListType
     if (type(atom_1) is not ListType):
         print "   WARNING:: bond_length_from_atoms: atom_1 not a list:", atom_1
-        return
+        return False
     elif (type(atom_2) is not ListType):
         print "   WARNING:: bond_length_from_atoms: atom_2 not a list:", atom_2
-        return
+        return False
     else:
         return bond_length(atom_1[2],
                            atom_2[2])

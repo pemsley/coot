@@ -1,12 +1,15 @@
  -*-text-*-
 
-scripts      rev 4566 (some prodrg stuff needs testing) generic objects, check new defs
-tests        rev 4437 update
-build-it-win rev 4555
+scripts      rev 4843 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
+tests        rev 4843 update
+build-it-win rev 4739 (check 0.8 pre builder, add publishing?!)
 
 -------------------------------------------------------
-* THINGS TO DO BEFORE 0.7.1 RELEASE * ONLY URGENT THING
+* THINGS TO DO BEFORE 0.7.2 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
+
+Fix installer guile warning for windows feel.
+Test spider drag and drop
 
 FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
 
@@ -14,8 +17,11 @@ FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
 -- before 0.8
 
 Windows:
+ o put index.theme in share/icons/hicolor
+ o distribute src code!!!
  o change runwincoot.bat to (win)coot.bat
  o write things to WINDIR (rather than HOME)
+ o check if    clipper::ClipperInstantiator::instance().destroy(); is still needed in c-interface-gui.ss
 
 ---- FINISH URGENT ----
 
@@ -91,7 +97,56 @@ scripting exercise
 
 **** General ****
 
-   o Edit phi/psi only CB rama
+   o Preferences: add zero occ box size??
+
+   o save blurring factor and display in slider
+
+   o add more things to Preferences, e.g. no of auto refine residues steps;
+	Preferences could include all (almost) default
+	settings from globjects e.g.
+
+   o user defined click should keep selecting mouse pointer
+
+   o strip trainling spaces from "Fetch..." fucntions
+
+   o desensitise refmac buttons etc if no ccp4/refmac installed
+
+   o add (more sensible) timeout for download at EDS (and others?)
+
+   o allow reading of ent.gz ?! not there (in windows??)?!
+
+   o torsion angle refinement: 
+	- shrink atom ardii or downweight nonbonded
+	- use phenix updated torsion library
+
+   o add most common ligands to find?!
+
+   o views play is not interuptable?!
+
+   o check that labels cannot be set to black accidentally/reset
+
+   o colour/display residue/ligand by distortion score (like mogul) but based
+	on dictionary (better than nothing!)
+
+   o backup file does not change name when saved in between (Feature/bug?)
+
+   o Additional representations need tree and/or other better navigation
+
+   o Additional representations/ballNstick tick marks do not update with 
+	Clear Ball and Stick 
+
+   o Water validation tick partial occupancy removes most other waters too
+
+   o Check NCS copy when insertions etc. May need update of matrix
+	and/or use of SSM rather than LSQ. Mmh. Tricky
+
+   o save screenshot (and maybe other figures - or else) doesnt have a
+	root directory to save in set (in file chooser)
+
+   o NCS not always identified properly (e.g. 3c10)
+	(ERROR:: An NCS reference chain finding error has occured)
+
+   o Edit phi/psi shown appropriate rama underneath
 
    o Kleywegt plot shouldnt be sensitive to non-displayed residues
 
@@ -238,7 +293,7 @@ from Osaka 2010
 
    o Edit Chi for hydrogens not working (H from reduce at least)
 
-   o transform whole asu for packing comparision?!
+   o transform whole asu for packing comparision?! (check mmdb, use ORIGX?)
 
    o doublication of find strand/find ss (Extensions, Other tools)
 
@@ -329,6 +384,22 @@ low importance
 
 **** Python ****
 
+   o info dialog and dont send to Jligand if 2 atoms in same residue 
+     are clicked
+
+   o streamline generic_entry functions, one generic one should be enough!
+
+   o associate sequence: tick box for all chains
+
+   o toolbutton for local probe dots
+ 
+   o List of 3d annotations e.g. for delete
+
+   o make rotamer and auto-zone fit protein function!?
+
+   o cootaneer shows 2 sequences after only 1 has been assigned before?!
+	no map selection possible
+
    o Refmac use local NCS
 
    o make a quick test (no 3 x ramachandran)
@@ -388,6 +459,8 @@ low importance
 
    o update python WIKI scripts
 
+   o fix guile translator, seems broken (or not, find a good example, seems ok)
+
    o python: rapper-gui and what-check (*Done?!)
 
    o make guile-gtk properly gtk2 complient (esp. text-view) or wait for
@@ -395,6 +468,20 @@ low importance
 
 
 **** Windows ****
+
+   o import cif dictionaries have 'wrong' path - debackslash!!!
+
+
+   o write some info in registry to see that WinCoot is actually installed
+	together with version info etc maybe
+
+   o make install syminfo.lib from windows dir
+
+   o +/- to change contour level is reversed!!
+
+   o use fftw binaries
+
+   o write installer to registry/installed programs etc.
 
    o load pdb problem with space and/or umlaut in path!?
 
@@ -407,10 +494,6 @@ low importance
    o ccp4 project dir not showing up (with new gtk2 chooser)
 
    o new gtk/gtkglext disappears with Dexpot
-
-   o include glob.m4 for windows
-try in with-python.m4: AC_CHECK_HEADER([glob.h], [UTIL_LIB="-lglob"], [UTIL_LIB=""])
-but needs the right CPPFLAGS
 
    o pop up dialog if disk space is limited!!
 
@@ -485,6 +568,17 @@ but needs the right CPPFLAGS
 				- download test data and unittests
 				- run tests
 				- send email about status/or notify otherwise
+
+
+**** Ribbons ****
+
+   o fix colouring for electrostatic surface -> should use fractional
+
+   o put old ribbons code in branch
+
+   o fix str char warnings
+
+   o change name of functions (check with Paul)
 
 
 **** Tutorial ****
@@ -761,4 +855,21 @@ Osaka 2010
    o check ref counting for py_clean_internal
 
 * Done (I think)
+
+   o include glob.m4 for windows
+
+* Done
+
+   o add user define restraints, make stay open option [Tim G]
+
+* Done
+
+   o views gui shows lots of "Play views" (one isnt enough?!)
+
+* Done
+
+   o change name of Play Views to Play All Views
+
+* Done
+
 

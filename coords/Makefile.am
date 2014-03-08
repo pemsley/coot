@@ -20,19 +20,14 @@
 
 lib_LTLIBRARIES=libcoot-coords.la
 
-include_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
+pkginclude_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
 	mmdb.h mmdb-extras.h utils.h mmdb-crystal.h Bond_lines_ext.h \
 	coot-close.hh
+pkgincludedir = $(includedir)/coot/coords
 
 INCLUDES = \
-	-I$(top_srcdir)/lidia-core   \
-	-I$(top_srcdir)/skeleton   \
-	-I$(top_srcdir)/utils      \
-	-I$(top_srcdir)/coot-utils \
-	-I$(top_srcdir)/geometry   \
-	-I$(top_srcdir)/mini-mol   \
-	-I$(top_srcdir)/compat     \
-	$(ENTERPRISE_TOOLS_CFLAGS)      \
+	-I$(top_srcdir) \
+	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
 	$(RDKIT_CXXFLAGS) 		\
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 

@@ -30,6 +30,7 @@
 #include "splineinfo.h"
 #include "atom_util.h"
 #include "mmut_basepairs.h"
+std::list<int> bla;
 
 extern int ExcludeOverlappedAtoms ( CMMDBManager* molHnd, const int selHnd ,
                                 const realtype cutoff, int theModel ) ;
@@ -274,7 +275,7 @@ SplineInfo GetSplineInfo (CMMDBManager *molH, int atom_selHnd_in ,const AtomColo
 
   molH->GetSelIndex ( atom_selHnd_in, atomTable, nAtoms );
 
-  std::cout << "GetSplineInfo " << nAtoms << " atoms\n";
+  //std::cout << "GetSplineInfo " << nAtoms << " atoms\n";
   if(nAtoms<4){
     return splineinfo;
   }
@@ -851,6 +852,10 @@ SplineInfo GetSplineInfo (CMMDBManager *molH, int atom_selHnd_in ,const AtomColo
 	      res->GetAtom("P","*","*") && res->GetAtom("N1","*","*") && res->GetAtom("C2","*","*") && res->GetAtom("C4","*","*")) {
         PCAtom c5 = res->GetAtom("C5\'");
         if(!c5) c5 = res->GetAtom("C5*");
+        if(!c5) c5 = res->GetAtom("C5\'",NULL,"A");
+        if(!c5||!c5->isInSelection(atom_selHnd_in)) c5 = res->GetAtom("C5*",NULL,"A");
+        if(!c5||!c5->isInSelection(atom_selHnd_in)) c5 = res->GetAtom("C5\'",NULL,"B");
+        if(!c5||!c5->isInSelection(atom_selHnd_in)) c5 = res->GetAtom("C5*",NULL,"B");
         //PCAtom c5 = res->GetAtom("P");
         if(nac5vertices.back().size()>0&&c5){
           PCAtom nac5prev = nac5vertices.back().back();
@@ -862,6 +867,14 @@ SplineInfo GetSplineInfo (CMMDBManager *molH, int atom_selHnd_in ,const AtomColo
             if(!c3p) c3p = resp->GetAtom("C3*");
             if(!c3p) c3p = resp->GetAtom("C5\'");
             if(!c3p) c3p = resp->GetAtom("C5*");
+            if(!c3p) c3p = resp->GetAtom("C3\'",NULL,"A");
+            if(!c3p||!c3p->isInSelection(atom_selHnd_in)) c3p = resp->GetAtom("C3*",NULL,"A");
+            if(!c3p||!c3p->isInSelection(atom_selHnd_in)) c3p = resp->GetAtom("C3\'",NULL,"B");
+            if(!c3p||!c3p->isInSelection(atom_selHnd_in)) c3p = resp->GetAtom("C3*",NULL,"B");
+            if(!c3p||!c3p->isInSelection(atom_selHnd_in)) c3p = resp->GetAtom("C5\'",NULL,"A");
+            if(!c3p||!c3p->isInSelection(atom_selHnd_in)) c3p = resp->GetAtom("C5*",NULL,"A");
+            if(!c3p||!c3p->isInSelection(atom_selHnd_in)) c3p = resp->GetAtom("C5\'",NULL,"B");
+            if(!c3p||!c3p->isInSelection(atom_selHnd_in)) c3p = resp->GetAtom("C5*",NULL,"B");
 	    nac5vertices.back().pop_back(); 
 	    nac5vertices.back().push_back(c3p); 
             nac5vertices.push_back(std::vector<PCAtom>(0));
@@ -894,7 +907,17 @@ SplineInfo GetSplineInfo (CMMDBManager *molH, int atom_selHnd_in ,const AtomColo
   
   if(c5prev&&nac5vertices.size()>0&&nac5vertices.back().size()>0){
     PCAtom c3 = c5prev->GetResidue()->GetAtom("C3\'");
+    if(!c3) c3 = c5prev->GetResidue()->GetAtom("C3*");
+    if(!c3) c3 = c5prev->GetResidue()->GetAtom("C5\'");
     if(!c3) c3 = c5prev->GetResidue()->GetAtom("C5*");
+    if(!c3) c3 = c5prev->GetResidue()->GetAtom("C3\'",NULL,"A");
+    if(!c3||!c3->isInSelection(atom_selHnd_in)) c3 = c5prev->GetResidue()->GetAtom("C3*",NULL,"A");
+    if(!c3||!c3->isInSelection(atom_selHnd_in)) c3 = c5prev->GetResidue()->GetAtom("C3\'",NULL,"B");
+    if(!c3||!c3->isInSelection(atom_selHnd_in)) c3 = c5prev->GetResidue()->GetAtom("C3*",NULL,"B");
+    if(!c3||!c3->isInSelection(atom_selHnd_in)) c3 = c5prev->GetResidue()->GetAtom("C5\'",NULL,"A");
+    if(!c3||!c3->isInSelection(atom_selHnd_in)) c3 = c5prev->GetResidue()->GetAtom("C5*",NULL,"A");
+    if(!c3||!c3->isInSelection(atom_selHnd_in)) c3 = c5prev->GetResidue()->GetAtom("C5\'",NULL,"B");
+    if(!c3||!c3->isInSelection(atom_selHnd_in)) c3 = c5prev->GetResidue()->GetAtom("C5*",NULL,"B");
     if(c3){
       nac5vertices.back().pop_back(); 
       nac5vertices.back().push_back(c3); 
@@ -931,9 +954,17 @@ SplineInfo GetSplineInfo (CMMDBManager *molH, int atom_selHnd_in ,const AtomColo
           posm2 = AtToCart(*(l-2));
         pos= AtToCart(*l);
         PCAtom n1 = (*l)->GetResidue()->GetAtom("N1");
+        if(!n1) n1 = (*l)->GetResidue()->GetAtom("N1",NULL,"A");
+        if(!n1||!n1->isInSelection(atom_selHnd_in)) n1 = (*l)->GetResidue()->GetAtom("N1",NULL,"B");
         PCAtom c2 = (*l)->GetResidue()->GetAtom("C2");
+        if(!c2) c2 = (*l)->GetResidue()->GetAtom("C2",NULL,"A");
+        if(!c2||!c2->isInSelection(atom_selHnd_in)) c2 = (*l)->GetResidue()->GetAtom("C2",NULL,"B");
         PCAtom c4 = (*l)->GetResidue()->GetAtom("C4");
+        if(!c4) c4 = (*l)->GetResidue()->GetAtom("C4",NULL,"A");
+        if(!c4||!c4->isInSelection(atom_selHnd_in)) c4 = (*l)->GetResidue()->GetAtom("C4",NULL,"B");
         PCAtom n9 = (*l)->GetResidue()->GetAtom("N9");
+        if(!n9) n9 = (*l)->GetResidue()->GetAtom("N9",NULL,"A");
+        if(!n9||!n9->isInSelection(atom_selHnd_in)) n9 = (*l)->GetResidue()->GetAtom("N9",NULL,"B");
         bool reverse=false;
         if(n9&&strncmp((*l)->GetResidue()->name,"EDA",3))
           reverse = true;
@@ -953,8 +984,16 @@ SplineInfo GetSplineInfo (CMMDBManager *molH, int atom_selHnd_in ,const AtomColo
            if(strncmp((*l)->GetResidue()->name,"PSU",3)==0){
              PCAtom c1p = (*l)->GetResidue()->GetAtom("C1\'");
              if(!c1p) c1p = (*l)->GetResidue()->GetAtom("C1*");
+             if(!c1p) c1p = (*l)->GetResidue()->GetAtom("C1\'",NULL,"A");
+             if(!c1p||!c1p->isInSelection(atom_selHnd_in)) c1p = (*l)->GetResidue()->GetAtom("C1*",NULL,"A");
+             if(!c1p||!c1p->isInSelection(atom_selHnd_in)) c1p = (*l)->GetResidue()->GetAtom("C1\'",NULL,"B");
+             if(!c1p||!c1p->isInSelection(atom_selHnd_in)) c1p = (*l)->GetResidue()->GetAtom("C1*",NULL,"B");
              PCAtom c2p = (*l)->GetResidue()->GetAtom("C2\'");
              if(!c2p) c2p = (*l)->GetResidue()->GetAtom("C2*");
+             if(!c2p) c2p = (*l)->GetResidue()->GetAtom("C2\'",NULL,"A");
+             if(!c2p||!c2p->isInSelection(atom_selHnd_in)) c2p = (*l)->GetResidue()->GetAtom("C2*",NULL,"A");
+             if(!c2p||!c2p->isInSelection(atom_selHnd_in)) c2p = (*l)->GetResidue()->GetAtom("C2\'",NULL,"B");
+             if(!c2p||!c2p->isInSelection(atom_selHnd_in)) c2p = (*l)->GetResidue()->GetAtom("C2*",NULL,"B");
              Cartesian c1c2 = AtToCart(c1p) - AtToCart(c2p);
              if(Cartesian::DotProduct(c1c2,norm1)>0.0) reverse = true;
            }
@@ -1207,7 +1246,7 @@ SplineInfo GetSplineInfo (CMMDBManager *molH, int atom_selHnd_in ,const AtomColo
       for(unsigned ii=0; ii<beta_indices.size(); ++ii){
         int start_beta = beta_indices[ii][0];
         int end_beta   = beta_indices[ii][1];
-        if(end_beta<int(ctrlpoints.size())-1);
+        if(end_beta<int(ctrlpoints.size())-1)
            ++end_beta;
 
         if(end_beta-start_beta>1){
@@ -1251,7 +1290,7 @@ SplineInfo GetSplineInfo (CMMDBManager *molH, int atom_selHnd_in ,const AtomColo
         for(unsigned ii=0; ii<loop_indices.size(); ++ii){
           int start_loop = loop_indices[ii][0];
           int end_loop   = loop_indices[ii][1];
-          if(end_loop<int(ctrlpoints.size())-1);
+          if(end_loop<int(ctrlpoints.size())-1)
              ++end_loop;
   
           if(end_loop-start_loop>2){
@@ -1643,9 +1682,9 @@ SplineInfo GetSplineInfo (CMMDBManager *molH, int atom_selHnd_in ,const AtomColo
     splineinfo.nacolours.pop_back();
   }
 
-  splineinfo.splines.back().pop_back();
-  splineinfo.splines.back().pop_back();
-  splineinfo.splines.back().pop_back();
+  //splineinfo.splines.back().pop_back();
+  //splineinfo.splines.back().pop_back();
+  //splineinfo.splines.back().pop_back();
 
   // Clean up the selection handle 
   molH->DeleteSelection(CALocAselHnd);
@@ -1727,7 +1766,22 @@ SplineInfo GetSplineInfo (CMMDBManager *molH, int atom_selHnd_in ,const AtomColo
 
 }
 
-std::vector<std::vector<Cartesian> > GetExternalCartesians(PCMMDBManager molhnd, const std::vector<std::vector<int> > &ext_conn_lists, int side_to_ribbon, int side_to_worm, double trace_cutoff ){
+SplineInfo GetRibbonOrWormSplineInfo(PCMMDBManager molhnd, int side_to_ribbon_worm, bool isribbon){
+  PPCAtom atomTable=0;
+  int nAtoms;
+  molhnd->GetAtomTable ( atomTable, nAtoms );  
+  int spline_accu = 4;
+  int udd_chain,udd_CA;
+  udd_chain = molhnd->GetUDDHandle ( UDR_ATOM,"spline_tmp_atom_int" );
+  udd_CA = molhnd->GetUDDHandle ( UDR_ATOM,"spline_tmp_atom_int1" );
+  if (udd_chain<=0) udd_chain = molhnd->RegisterUDInteger(UDR_ATOM,"spline_tmp_atom_int" );
+  if (udd_CA<=0) udd_CA = molhnd->RegisterUDInteger(UDR_ATOM,"spline_tmp_atom_int1" );
+  for (int i=0;i<nAtoms;i++)atomTable[i]->PutUDData(udd_CA,-1);
+  SplineInfo splineinfo = GetSplineInfo (molhnd, side_to_ribbon_worm, AtomColourVector(),spline_accu, udd_chain, udd_CA, isribbon );
+  return splineinfo;
+}
+
+std::vector<std::vector<Cartesian> > GetExternalCartesians_internal(PCMMDBManager molhnd, const std::vector<std::vector<int> > &ext_conn_lists, const SplineInfo &splineinfo_ribbon, const SplineInfo &splineinfo_worm, int side_to_ribbon, int side_to_worm, double trace_cutoff ){
 
   PPCAtom atomTable=0;
   int nAtoms;
@@ -1743,21 +1797,29 @@ std::vector<std::vector<Cartesian> > GetExternalCartesians(PCMMDBManager molhnd,
   //std::cout << "side_to_ribbon " << side_to_ribbon << "\n";
   //std::cout << "side_to_worm " << side_to_worm << "\n";
   if (side_to_ribbon>0||side_to_worm>0) {
+
+    SplineInfo splineinfo;
+    bool isworm=false;
+    PCAtom pCA; 
+    udd_chain = molhnd->GetUDDHandle ( UDR_ATOM,"spline_tmp_atom_int" );
+    udd_CA = molhnd->GetUDDHandle ( UDR_ATOM,"spline_tmp_atom_int1" );
+
+    if(side_to_ribbon>0&&splineinfo_ribbon.splines.size()>0){
+      splineinfo = splineinfo_ribbon;
+    } else if(side_to_worm>0&&splineinfo_worm.splines.size()>0) {
+      splineinfo = splineinfo_worm;
+      isworm=true;
+    } else {
     // Create a spline through all atoms 
     // Set up UDD for GetSplineInfo to load with index to spline data
     // for each selected residue
-    udd_chain = molhnd->GetUDDHandle ( UDR_ATOM,"tmp_atom_int" );
-    if (udd_chain<=0) udd_chain = molhnd->RegisterUDInteger(UDR_ATOM,"tmp_atom_int" );
-    udd_CA = molhnd->GetUDDHandle ( UDR_ATOM,"tmp_atom_int1" );
-    if (udd_CA<=0) udd_CA = molhnd->RegisterUDInteger(UDR_ATOM,"tmp_atom_int1" );
+    if (udd_chain<=0) udd_chain = molhnd->RegisterUDInteger(UDR_ATOM,"spline_tmp_atom_int" );
+    if (udd_CA<=0) udd_CA = molhnd->RegisterUDInteger(UDR_ATOM,"spline_tmp_atom_int1" );
     for (int i=0;i<nAtoms;i++)atomTable[i]->PutUDData(udd_CA,-1);
 
-    SplineInfo splineinfo;
     PPCAtom SelAtoms=0;
-    PCAtom pCA; 
     int nSelAtoms=0;
     molhnd->GetSelIndex(side_to_ribbon,SelAtoms,nSelAtoms);
-    bool isworm=false;
     if (side_to_ribbon>0&&nSelAtoms>0){
       splineinfo = GetSplineInfo (molhnd, side_to_ribbon ,AtomColourVector(),spline_accu, udd_chain, udd_CA, 1 );
     }else{
@@ -1765,6 +1827,7 @@ std::vector<std::vector<Cartesian> > GetExternalCartesians(PCMMDBManager molhnd,
       isworm=true;
     }
     //if(SelAtoms) delete [] SelAtoms;
+    }
     
     std::vector<std::vector<int> >::const_iterator ext_iter = ext_conn_lists.begin();
     while(ext_iter!=ext_conn_lists.end()){
@@ -1827,5 +1890,15 @@ std::vector<std::vector<Cartesian> > GetExternalCartesians(PCMMDBManager molhnd,
     }
   }
   return carts;
+}
+
+std::vector<std::vector<Cartesian> > GetExternalCartesiansWithSplineInfo(PCMMDBManager molhnd, const std::vector<std::vector<int> > &ext_conn_lists, const SplineInfo &splineinfo_ribbon, const SplineInfo &splineinfo_worm, int side_to_ribbon, int side_to_worm, double trace_cutoff){
+  return GetExternalCartesians_internal(molhnd, ext_conn_lists, splineinfo_ribbon, splineinfo_worm, side_to_ribbon, side_to_worm, trace_cutoff);
+}
+
+std::vector<std::vector<Cartesian> > GetExternalCartesians(PCMMDBManager molhnd, const std::vector<std::vector<int> > &ext_conn_lists, int side_to_ribbon, int side_to_worm, double trace_cutoff ){
+  SplineInfo splineinfo_ribbon;
+  SplineInfo splineinfo_worm;
+  return GetExternalCartesians_internal(molhnd, ext_conn_lists, splineinfo_ribbon, splineinfo_worm, side_to_ribbon, side_to_worm, trace_cutoff);
 }
 

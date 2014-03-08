@@ -25,10 +25,10 @@
 #include <mmdb/mmdb_manager.h>
 #include "graphics-ligand-view.hh"
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
-#ifdef MAKE_ENTERPRISE_TOOLS
-#include "rdkit-interface.hh"
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "lidia-core/rdkit-interface.hh"
 #endif 
 
 void 
@@ -330,7 +330,7 @@ graphics_ligand_molecule::setup_from(CResidue *residue_p,
 
    bool status = false; // "failed" status initially
    
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    if (residue_p) {
       try {
@@ -398,7 +398,7 @@ graphics_ligand_molecule::setup_from(CResidue *residue_p,
 	 std::cout << rdkit_error.what() << std::endl;
       }
    }
-#endif   // MAKE_ENTERPRISE_TOOLS
+#endif   // MAKE_ENHANCED_LIGAND_TOOLS
    return status;
 } 
 

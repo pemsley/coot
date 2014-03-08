@@ -24,7 +24,7 @@
 
 #include <map>
 #include <string>
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 // ------------------------ Canvas stuff -----------------------------------
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
@@ -49,7 +49,7 @@ typedef GnomeCanvasPoints GtkCanvasPoints;
 
 #include <mmdb/mmdb_manager.h>
 #include "clipper/core/ramachandran.h"
-#include "coot-rama.hh"
+#include "coot-utils/coot-rama.hh"
 
 namespace coot { 
 

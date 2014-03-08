@@ -18,7 +18,7 @@
  * 02110-1301, USA
  */
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #if defined (USE_PYTHON)
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
@@ -30,11 +30,11 @@
 		   // libintl.h (via RDKitBase.h etc (including boost
 		   // stuff).
 
-#include "rdkit-interface.hh"
-#include "lbg-interface.hh"
+#include "lidia-core/rdkit-interface.hh"
 #include "graphics-info.h"
-#include "lbg.hh"
+#include "lbg/lbg.hh"
 
+#include "lbg-interface.hh"
 #include "c-interface.h"
 #include "cc-interface.hh" // for coot_get_url()
 
@@ -85,8 +85,7 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
 	    }
 
 	    CMMDBManager *mol =
-	       coot::util::create_mmdbmanager_from_residue(g.molecules[imol].atom_sel.mol,
-							   residue_p);
+	       coot::util::create_mmdbmanager_from_residue(residue_p);
 	    if (!mol) {
 	       std::cout << "ERROR:: failed to make mol for lbg" << std::endl;
 	    } else { 
@@ -208,4 +207,4 @@ void smiles_to_ligand_builder(const char *smiles_string) {
 } 
 
 
-#endif // MAKE_ENTERPRISE_TOOLS
+#endif // MAKE_ENHANCED_LIGAND_TOOLS

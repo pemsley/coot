@@ -60,19 +60,19 @@
 #include <string>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
-#include "coot-map-utils.hh" // for make_rtop_orth_from()
+#include "coot-utils/coot-map-utils.hh" // for make_rtop_orth_from()
 
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
 
-#include "BuildCas.h"
-#include "primitive-chi-angles.hh"
+#include "skeleton/BuildCas.h"
+#include "ligand/primitive-chi-angles.hh"
 
 #include "trackball.h" // adding exportable rotate interface
 
@@ -1335,6 +1335,38 @@ PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char 
 
 
 #ifdef USE_GUILE
+SCM chain_fragments_scm(int imol, short int screen_output_also) {
+
+   SCM r = SCM_BOOL_F;
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::vector<coot::fragment_info_t> f = g.molecules[imol].get_fragment_info(screen_output_also);
+   } 
+   return r;
+} 
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+PyObject *chain_fragments_py(int imol, short int screen_output_also) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::vector<coot::fragment_info_t> f = g.molecules[imol].get_fragment_info(screen_output_also);
+   } 
+
+   if (PyBool_Check(r)) {
+      Py_INCREF(r);
+   }
+
+   return r;
+}
+#endif // USE_PYTHON
+
+
+
+#ifdef USE_GUILE
 // Bernie, no need to pythonize this, it's just to test the return
 // values on pressing "next residue" and "previous residue" (you can
 // if you wish of course).
@@ -1544,7 +1576,32 @@ int set_go_to_atom_from_res_spec_py(PyObject *residue_spec_py) {
 std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec() {
 
    return graphics_info_t::active_atom_spec();
-} 
+}
+
+#ifdef USE_PYTHON
+// return a tuple of (Py_Bool (number, atom_spec))
+PyObject *active_atom_spec_py() {
+
+   PyObject *rv = PyTuple_New(2);
+   
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > r = active_atom_spec();
+      PyObject *state_py = Py_True;
+      PyObject *mol_no = PyInt_FromLong(r.second.first);
+      PyObject *spec = py_residue(r.second.second);
+      PyObject *tuple_inner = PyTuple_New(2);
+   if (! r.first) {
+      state_py = Py_False;
+   }
+   Py_INCREF(state_py);
+   
+   PyTuple_SetItem(tuple_inner, 0, mol_no);
+   PyTuple_SetItem(tuple_inner, 1, spec);
+   PyTuple_SetItem(rv, 0, state_py);
+   PyTuple_SetItem(rv, 1, tuple_inner);
+   return rv;
+}
+#endif // USE_PYTHON
+
 
 #ifdef USE_GUILE
 //* \brief 
@@ -2220,30 +2277,44 @@ void set_environment_distance_label_atom(int state) {
   graphics_info_t::environment_distance_label_atom = state;
 }
 
-void add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, float x_2, float y_2, float z_2) {
+double
+add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, float x_2, float y_2, float z_2) {
 
    graphics_info_t g;
-   g.display_geometry_distance_symm(imol_1, coot::Cartesian(x_1, y_1, z_1),
-				    imol_2, coot::Cartesian(x_2, y_2, z_2));
-
+   double d = g.display_geometry_distance_symm(imol_1, coot::Cartesian(x_1, y_1, z_1),
+					       imol_2, coot::Cartesian(x_2, y_2, z_2));
+   return d;
 } 
 
 #ifdef USE_GUILE
-void add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom_spec_2) {
+double
+add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom_spec_2) {
 
+   double d = -1; 
    if (is_valid_model_molecule(imol_1)) {
       if (is_valid_model_molecule(imol_2)) {
 	 
 	 graphics_info_t g;
 	 coot::atom_spec_t spec_1 = atom_spec_from_scm_expression(atom_spec_1);
 	 coot::atom_spec_t spec_2 = atom_spec_from_scm_expression(atom_spec_2);
-	 CAtom *at_1 = graphics_info_t::molecules[imol_1].get_atom(spec_1);
-	 CAtom *at_2 = graphics_info_t::molecules[imol_2].get_atom(spec_2);
-	 coot::Cartesian pos_1(at_1->x, at_1->y, at_1->z);
-	 coot::Cartesian pos_2(at_2->x, at_2->y, at_2->z);
-	 g.display_geometry_distance_symm(imol_1, pos_1, imol_2, pos_2);
+	 CAtom *at_1 = g.molecules[imol_1].get_atom(spec_1);
+	 CAtom *at_2 = g.molecules[imol_2].get_atom(spec_2);
+	 if (! at_1) {
+	    std::cout << "WARNING:: atom not found from spec " << spec_1 << std::endl;
+	 } else { 
+	    if (! at_2) {
+	       std::cout << "WARNING:: atom not found from spec " << spec_2 << std::endl;
+	    } else {
+	       // happy path
+	       coot::Cartesian pos_1(at_1->x, at_1->y, at_1->z);
+	       coot::Cartesian pos_2(at_2->x, at_2->y, at_2->z);
+	       d = g.display_geometry_distance_symm(imol_1, pos_1, imol_2, pos_2);
+	       std::cout << "Distance: " << spec_1 << " to " << spec_2 << " is " << d << " A" << std::endl;
+	    }
+	 }
       }
    }
+   return d; 
 } 
 #endif
 
@@ -2816,6 +2887,17 @@ save_state_file(const char *filename) {
    add_to_history_typed(cmd, args);
 }
 
+/*! \brief save the current state to file filename */
+void save_state_file_py(const char *filename) {
+   graphics_info_t g;
+   g.save_state_file(std::string(filename), coot::PYTHON_SCRIPT);
+   std::string cmd = "save-state-file";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(single_quote(filename));
+   add_to_history_typed(cmd, args);
+} 
+
+
 
 #ifdef USE_GUILE
 /* Return the default file name suggestion (that would come up in the
@@ -3308,6 +3390,9 @@ SCM monomer_restraints(const char *monomer_type) {
    SCM r = SCM_BOOL_F;
 
    graphics_info_t g;
+   // this forces try_dynamic_add()
+   g.Geom_p()->have_dictionary_for_residue_type(monomer_type, ++g.cif_dictionary_read_number);
+   // this doesn't force try_dynamic_add().  Hmmm.. FIXME (or think about it).
    std::pair<short int, coot::dictionary_residue_restraints_t> p =
       g.Geom_p()->get_monomer_restraints(monomer_type);
    if (p.first) {
@@ -3508,6 +3593,9 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
    r = Py_False;
 
    graphics_info_t g;
+   // this forces try_dynamic_add()
+   g.Geom_p()->have_dictionary_for_residue_type(monomer_type, ++g.cif_dictionary_read_number);
+   // this doesn't force try_dynamic_add().  Hmmm.. FIXME (or think about it).
    std::pair<short int, coot::dictionary_residue_restraints_t> p =
       g.Geom_p()->get_monomer_restraints(monomer_type);
    if (!p.first) {

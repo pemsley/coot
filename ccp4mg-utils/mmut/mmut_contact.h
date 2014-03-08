@@ -56,6 +56,7 @@ private:
   int test_VDW_radius;
   int label_VDW_radius;
   int exclude_hbondable;
+  int test_metal_coord_distance;
   realtype simple_max_cutoff;
   realtype simple_min_cutoff;
   realtype VDW_fraction_min;

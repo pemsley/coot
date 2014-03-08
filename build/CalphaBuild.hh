@@ -30,7 +30,7 @@
 #include <vector>
 #define HAVE_VECTOR
 #endif
-#include "AngleInfo.h"
+#include "angles/AngleInfo.h"
 
 namespace coot {
 

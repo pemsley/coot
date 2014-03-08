@@ -31,7 +31,7 @@ enum { TRANSPOSE };
 #endif
 
 #include <clipper/core/coords.h>
-#include "Cartesian.h"
+#include "coords/Cartesian.h"
 
 class GL_matrix { 
 

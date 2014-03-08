@@ -56,9 +56,9 @@ class ClickedLine {
 void DrawLipids(Displayobject &obj, const std::vector<MMUTLipid> &lipids, CMMANManager *molHnd, const AtomColourVector &atom_colour_vector, const CParamsManager &params, const CParamsManager &global_params);
 
 void DrawBasePairs(Displayobject &obj, const CNABasePairs &bp, const SplineInfo &splineinfo, const CParamsManager &params);
-void DrawBaseBlocks(Displayobject &obj, CMMANManager *molHnd, int selHnd, PPCAtom selAtoms, int nSelAtoms, const AtomColourVector &atom_colour_vector, const CParamsManager &params);
+void DrawBaseBlocks(Displayobject &obj, CMMANManager *molHnd, int selHnd, CAtom** selAtoms, int nSelAtoms, const AtomColourVector &atom_colour_vector, const CParamsManager &params);
 
-void DrawAnisoU(Displayobject &obj, int selHndin, PPCAtom selAtoms, int nSelAtoms, const AtomColourVector &atom_colour_vector, const std::vector<double> &atomRadii,int style, double scale,const CParamsManager &global_params);
+void DrawAnisoU(Displayobject &obj, int selHndin, CAtom** selAtoms, int nSelAtoms, const AtomColourVector &atom_colour_vector, const std::vector<double> &atomRadii,int style, double scale,const CParamsManager &global_params);
 
 void DrawCircles(Displayobject &obj, const Connectivity &connectivity, const AtomColourVector &atom_colour_vector,const CParamsManager &params,const CParamsManager &global_params, int stick_colour);
 
@@ -66,9 +66,9 @@ void DrawImposterSpheres(Displayobject &obj, const Connectivity &connectivity, c
 
 void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection> &conn, const std::vector<double> &colour, int style=DASHLINE, int width=1, int labelstyle=NOTLABELLED, const std::string &labelcolour="", const std::string &family="",  const std::string &weight="", const std::string &slant="", const std::string &size="");
 
-void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection> &conn, const std::vector<double> &colour, int style=DASHLINE, int width=1, int labelstyle=NOTLABELLED, const std::vector<double> &labelcolf=std::vector<double>(), const std::string &family="",  const std::string &weight="", const std::string &slant="", const std::string &size="");
+void DrawSimpleConnectionColourVec(Displayobject &obj, const std::vector<SimpleConnection> &conn, const std::vector<double> &colour, int style=DASHLINE, int width=1, int labelstyle=NOTLABELLED, const std::vector<double> &labelcolf=std::vector<double>(), const std::string &family="",  const std::string &weight="", const std::string &slant="", const std::string &size="");
 
-void DrawSimpleConnection(Displayobject &obj,
+void DrawSimpleConnectionTags(Displayobject &obj,
   const std::vector<SimpleConnection> &conn,
   const std::vector<double> &colour, int style, int width,
   int labelstyle, const std::string &labelcolour,
@@ -76,7 +76,7 @@ void DrawSimpleConnection(Displayobject &obj,
   const std::string &slant, const std::string &size,
   const std::vector<int> &tags, const std::vector<int> &selTags);
 
-void DrawSimpleConnection(Displayobject &obj,
+void DrawSimpleConnectionColourVecTags(Displayobject &obj,
   const std::vector<SimpleConnection> &conn,
   const std::vector<double> &colour, int style, int width,
   int labelstyle, const std::vector<double> &labelcolf,
@@ -110,9 +110,9 @@ class ConnectivityDraw{
     //Connectivity connectivity;
     std::vector<Cartesian> all_cart;
     ConnectivityDraw();
-    void SetParametersAndCalculate(const Connectivity &connectivity_in, CMMANManager *molhnd, Displayobject &obj, int mode, const CParamsManager &params,const CParamsManager &global_params,  int nSelAtoms, const AtomColourVector &at_col_vec, const std::vector<double> &atomRadii, const std::string &texture, const std::string &bumpmap , int stick_colour=-1,int side_to_ribbon=0,int side_to_worm=0,int bonds_mode=DRAW_ALL_BONDS);
-    ConnectivityDraw(const Connectivity &connectivity_in, CMMANManager *molhnd, Displayobject &obj, int mode, const CParamsManager &params,const CParamsManager &global_params,  int nSelAtoms, const AtomColourVector &at_col_vec, const std::vector<double> &atomRadii, const std::string &texture, const std::string &bumpmap , int stick_colour=-1,int side_to_ribbon=0,int side_to_worm=0,int bonds_mode=DRAW_ALL_BONDS);
-    void RedrawPrimitives(Displayobject &obj, const Connectivity &connectivity, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms,  const AtomColourVector &at_col_vec, const std::vector<double> &atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour=-1,int side_to_ribbon=0,int side_to_worm=0,int bonds_mode=DRAW_ALL_BONDS);
+    void SetParametersAndCalculate(const Connectivity &connectivity_in, CMMANManager *molhnd, Displayobject &obj, int mode, const CParamsManager &params,const CParamsManager &global_params,  int nSelAtoms, const AtomColourVector &at_col_vec, const std::vector<double> &atomRadii, const SplineInfo &splineinfo_ribbon, const SplineInfo &splineinfo_worm, const std::string &texture, const std::string &bumpmap , int stick_colour=-1,int side_to_ribbon=0,int side_to_worm=0,int bonds_mode=DRAW_ALL_BONDS);
+    ConnectivityDraw(const Connectivity &connectivity_in, CMMANManager *molhnd, Displayobject &obj, int mode, const CParamsManager &params,const CParamsManager &global_params,  int nSelAtoms, const AtomColourVector &at_col_vec, const std::vector<double> &atomRadii, const SplineInfo &splineinfo_ribbon, const SplineInfo &splineinfo_worm, const std::string &texture, const std::string &bumpmap , int stick_colour=-1,int side_to_ribbon=0,int side_to_worm=0,int bonds_mode=DRAW_ALL_BONDS);
+    void RedrawPrimitives(Displayobject &obj, const Connectivity &connectivity, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms,  const AtomColourVector &at_col_vec, const std::vector<double> &atomRadii, const SplineInfo &splineinfo_ribbon, const SplineInfo &splineinfo_worm, const std::string &texture, const std::string &bumpmap, int stick_colour=-1,int side_to_ribbon=0,int side_to_worm=0,int bonds_mode=DRAW_ALL_BONDS);
 	
 };
 

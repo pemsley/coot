@@ -24,13 +24,13 @@
 #endif
 
 #include <vector>
-#include "Cartesian.h"
 #include <mmdb/mmdb_manager.h> 
-#include "mmdb-extras.h"
-#include "mmdb-crystal.h"
+#include "coords/Cartesian.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb-crystal.h"
 
 #include "molecule-class-info.h"
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "globjects.h" // for rotate_rgb.  That should be a utility
 			// function, not in globjects.hh
 

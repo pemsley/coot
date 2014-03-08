@@ -70,7 +70,8 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 #include "cmtz-interface.hh"
-#include "mmdb.h"  // for centre of molecule
+#include "cmtz-interface-gui.hh"
+#include "coords/mmdb.h"  // for centre of molecule
 #include "clipper/core/clipper_instance.h"
 
 #if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 5))
@@ -1230,9 +1231,6 @@ float get_positive_float_from_entry(GtkEntry *w) {
 gboolean
 coot_checked_exit(int retval) {
 
-   //    cout << "exitting with status " << retval << endl;
-
-
    graphics_info_t g;
    int i_unsaved = g.check_for_unsaved_changes();
    std::string cmd = "coot-checked-exit";
@@ -1320,8 +1318,19 @@ void coot_clear_backup_or_real_exit(int retval) {
    
 void
 coot_real_exit(int retval) {
+   coot_save_state_and_exit(retval, 1);
+}
 
-   save_state(); // we get error message in save_state()
+void
+coot_no_state_real_exit(int retval) {
+   coot_save_state_and_exit(retval, 0);
+}
+
+void
+coot_save_state_and_exit(int retval, int save_state_flag) {
+
+   if (save_state_flag)
+      save_state(); // we get error message in save_state()
 
    // save the history
    graphics_info_t g;
@@ -1336,15 +1345,16 @@ coot_real_exit(int retval) {
    // Py_Finalize();
    // #endif
 
-
    for (unsigned int imol=0; imol<graphics_n_molecules(); imol++)
       graphics_info_t::molecules[imol].close_yourself();
+
+   // why is this windows-only?
 
 #ifdef WINDOWS_MINGW
    clipper::ClipperInstantiator::instance().destroy();
 #endif
    exit(retval);
-}
+} 
 
 // This is called by when the save coordinates menu item is pressed,
 // for the save coordinates fileselection (other fileselections do not
@@ -1577,60 +1587,6 @@ on_read_map_difference_map_toggle_button_toggled (GtkButton       *button,
    } 
 }
 
-#if (GTK_MAJOR_VERSION > 1) || defined (GTK_ENABLE_BROKEN)
-#else 
-void
-on_filename_filter_toggle_button_toggled_gtk1(GtkButton       *button,
-					      gpointer         user_data)
-{
-   int int_user_data = GPOINTER_TO_INT(user_data);
-   int data_type = int_user_data & 31; // lower 5 bits
-   int file_selection_type = data_type; 
-
-   // We need to add text to the string of the dictectory we are in
-   // (pre_directory), so first we need to find pre_directory (as per
-   // fileselection_sort_button_clicked()
-   // 
-   GtkWidget *sort_button = lookup_widget(GTK_WIDGET(button),
-					  "fileselection_sort_button");
-   if (sort_button) { 
-      // std::cout << "Hooray! we found the sort button!\n";
-      // usually, we do.
-   } else { 
-      std::cout << "Boo we failed to find the sort button!\n";
-   } 
-   std::string pre_directory = pre_directory_file_selection(sort_button);
-   GtkWidget *fileselection = lookup_file_selection_widgets(sort_button,
-							    file_selection_type);
-   
-   if (fileselection) { 
-      if (GTK_TOGGLE_BUTTON(button)->active) { 
-	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),"Unfilter");
-	 
-	 // so now we have pre_directory
-	 // 
-	 // std::cout << "DEBUG:: pre_directory: " << pre_directory << std::endl;
-	 std::vector<std::string> v = filtered_by_glob(pre_directory, data_type);
-	 // std::cout << "DEBUG:: filtering by glob using data type: " << data_type
-	 // << " returns" << std::endl;
-	 // for (unsigned int iv=0; iv< v.size(); iv++)
-	 // std::cout << iv << " " << v[iv] << std::endl;
-
-	 filelist_into_fileselection_clist(fileselection, v);
-
-      } else { 
-	 gtk_label_set_text(GTK_LABEL(GTK_BIN(button)->child),"Filter");
-	 gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
-					 (pre_directory + "/").c_str());
-      }
-   } else {
-      std::cout << "ERROR:: no fileselection found from sort button\n";
-      std::cout << "ERROR:: lookup of file selection from " << sort_button
-		<< " failed for file selection type: " << file_selection_type
-		<< std::endl;
-   }
-}
-#endif // GTK_MAJOR_VERSION > 1 or BROKEN
 
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
@@ -1655,82 +1611,6 @@ on_filename_filter_key_press_event (GtkWidget       *widget,
 }
 
 
-// This is for the "bespoke" filename filtering, reading the glob from
-// an entry added to the action area.
-void
-handle_filename_filter_gtk1(GtkWidget *entry_widget) {
-   
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-   // nothing
-#else 
-
-   std::cout << "running handle_filename_filter\n";
-
-   const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry_widget));
-
-   // We need to add text to the string of the dictectory we are in
-   // (pre_directory), so first we need to find pre_directory (as per
-   // fileselection_sort_button_clicked()
-   // 
-   GtkWidget *sort_button = lookup_widget(entry_widget, "fileselection_sort_button");
-   if (sort_button) { 
-      // std::cout << "Hooray! we found the sort button!\n";
-      // usually, we do.
-   } else { 
-      std::cout << "Boo we failed to find the sort button!\n";
-   } 
-   std::string pre_directory = pre_directory_file_selection(sort_button);
-
-   int file_selection_type = COOT_SCRIPTS_FILE_SELECTION; 
-
-   // so now we have pre_directory
-   // 
-   // std::cout << "DEBUG:: pre_directory: " << pre_directory << std::endl;
-   GtkWidget *fileselection = lookup_file_selection_widgets(sort_button,
-							    file_selection_type);
-   if (fileselection) { 
-      GtkCList  *file_list = GTK_CLIST(GTK_FILE_SELECTION(fileselection)->file_list);
-      std::string file_name_glob;
-      file_name_glob = pre_directory;
-      file_name_glob += "/";
-      file_name_glob += text;
-
-      glob_t myglob;
-      int flags = 0;
-      glob(file_name_glob.c_str(), flags, 0, &myglob);
-      size_t count;
-
-
-      char **p;
-      std::vector<std::string> v;
-      for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
-	 v.push_back(std::string(*p));
-      }
-      globfree(&myglob);
-
-      if (v.size() > 0) { 
-	 gtk_clist_clear(file_list);
-	 std::string::size_type islash;
-	 std::string t;
-	 for (unsigned int i=0; i<v.size(); i++) {
-	    islash = v[i].find_last_of("/");
-	    if (islash == string::npos) { 
-	       // no slash found:
-	       t = v[i];
-	    } else {
-	       t = v[i].substr(islash + 1);
-	    }
-	    char *text = new char[t.length()+1];
-	    strncpy(text, t.c_str(), t.length()+1);
-	    gtk_clist_append(file_list, &text);
-	 }
-      }
-   } else { 
-      std::cout << "ERROR:: couldn't find fileselection\n";
-   } 
-
-#endif // WINDOWS_MINGW
-}
 
 std::string pre_directory_file_selection(GtkWidget *sort_button) { 
 
@@ -2401,25 +2281,37 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
 void handle_get_accession_code(GtkWidget *widget) {
 
    const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
+   text = coot::util::remove_trailing_whitespace(text).c_str();
    cout << "PDB Accession Code: " << text << endl;
-   int *n = (int *) gtk_object_get_user_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(widget),
-								      "accession_code_window")));
+   int *n_p = (int *) gtk_object_get_user_data(GTK_OBJECT(lookup_widget(GTK_WIDGET(widget),
+									"accession_code_window")));
+   int n = *n_p;
+   
 #ifdef USE_GUILE
    string scheme_command;
 
-   if (*n == 1) {
+   if (n == 1) {
       get_coords_for_accession_code(text);
    } else { 
-      if (*n == COOT_ACCESSION_CODE_WINDOW_EDS) {
+      if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
 	 // 20050725 EDS code:
 	 scheme_command = "(get-eds-pdb-and-mtz ";
 	 scheme_command += single_quote(text);
 	 scheme_command += ")";
-      } else { 
-         // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
-	 scheme_command = "(get-ebi-pdb-and-sfs ";
-	 scheme_command += single_quote(text);
-	 scheme_command += ")";
+      } else {
+
+	 if (n == 2) { 
+	    // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
+	    scheme_command = "(get-ebi-pdb-and-sfs ";
+	    scheme_command += single_quote(text);
+	    scheme_command += ")";
+	 } else {
+	    if (n == 3) {
+	       scheme_command = "(get-pdb-redo ";
+	       scheme_command += single_quote(text);
+	       scheme_command += ")";
+	    }
+	 }
       }
       safe_scheme_command(scheme_command);
    }
@@ -2428,20 +2320,28 @@ void handle_get_accession_code(GtkWidget *widget) {
    
 #ifdef USE_PYTHON
    string python_command;
-   if (*n == 1) {
+   if (n == 1) {
       get_coords_for_accession_code(text);
    } else {
 
-      if (*n == COOT_ACCESSION_CODE_WINDOW_EDS) {
+      if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
 	 // 20050725 EDS code:
 	 python_command = "get_eds_pdb_and_mtz(";
 	 python_command += single_quote(text);
 	 python_command += ")";
       } else {
-	 // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
-	 python_command = "get_ebi_pdb_and_sfs(";
-	 python_command += single_quote(text);
-	 python_command += ")";
+	 if (n == 2) { 
+	    // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
+	    python_command = "get_ebi_pdb_and_sfs(";
+	    python_command += single_quote(text);
+	    python_command += ")";
+	 } else {
+	    if (n == 3) { 
+	       python_command = "get_pdb_redo(";
+	       python_command += single_quote(text);
+	       python_command += ")";
+	    }
+	 } 
       }
       safe_python_command(python_command);
    }
@@ -2727,7 +2627,7 @@ void hide_modelling_toolbar() {
       GtkWidget *w = 0;
       GtkWidget *handle_box = lookup_widget(graphics_info_t::glarea,
 					"model_fit_refine_toolbar_handlebox");
-#if (GTK_MAJOR_VERSION > 1)
+
       if (graphics_info_t::model_toolbar_position_state == coot::model_toolbar::TOP ||
 	  graphics_info_t::model_toolbar_position_state == coot::model_toolbar::BOTTOM) {
 	w = handle_box;
@@ -2735,7 +2635,6 @@ void hide_modelling_toolbar() {
 	// get the frame of the left/right toolbar
 	w = gtk_widget_get_parent(handle_box);
       }
-#endif // GKT_MAJOR_VERSION
       if (!w) {
 	 std::cout << "failed to lookup toolbar" << std::endl;
       } else {
@@ -2753,14 +2652,13 @@ void show_modelling_toolbar() {
       GtkWidget *handle_box = lookup_widget(graphics_info_t::glarea,
 					    "model_fit_refine_toolbar_handlebox");
 
-#if (GTK_MAJOR_VERSION > 1)
       if (graphics_info_t::model_toolbar_position_state == coot::model_toolbar::TOP ||
 	  graphics_info_t::model_toolbar_position_state == coot::model_toolbar::BOTTOM) {
 	w = handle_box;
       } else {
 	w = gtk_widget_get_parent(handle_box);
       }
-#endif // GKT_MAJOR_VERSION
+
       if (!w) {
 	 std::cout << "failed to lookup toolbar" << std::endl;
       } else {
@@ -2784,7 +2682,6 @@ show_model_toolbar_all_icons() {
   for (int i=0; i<(*graphics_info_t::model_toolbar_icons).size(); i++) {
     show_model_toolbar_icon(i);
   }
-#if (GTK_MAJOR_VERSION >1)
   gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(toolbar_radiobutton), TRUE);
   if (graphics_info_t::preferences_widget) {
     // have preferences open and shall update the tree model for icon
@@ -2797,7 +2694,6 @@ show_model_toolbar_all_icons() {
     //model = gtk_tree_view_get_model(GTK_TREE_VIEW(icons_treeview));
     //graphics_info_t::update_main_toolbar_icons(model);
   }
-#endif // GTK2
 
   gtk_widget_show(hsep);
   gtk_widget_show(vsep);
@@ -2820,7 +2716,7 @@ show_model_toolbar_main_icons() {
       hide_model_toolbar_icon(i);
     }
   }
-#if (GTK_MAJOR_VERSION >1)
+
   gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(toolbar_radiobutton), TRUE);
   if (graphics_info_t::preferences_widget) {
     // have preferences open and shall update the tree model for icon
@@ -2833,7 +2729,7 @@ show_model_toolbar_main_icons() {
     //model = gtk_tree_view_get_model(GTK_TREE_VIEW(icons_treeview));
     //graphics_info_t::update_main_toolbar_icons(model);
   }
-#endif // GTK2
+
   gtk_widget_hide(hsep);
   gtk_widget_hide(vsep);
 }
@@ -3445,7 +3341,7 @@ int valid_labels(const char *mtz_file_name, const char *f_col, const char *phi_c
 //    char **weight_cols = get_weight_cols(mtz_file_name, &n_weight);
 //    char **d_cols      = get_d_cols(mtz_file_name, &n_d); // anom
 
-   coot::mtz_column_types_info_t r = coot::get_f_phi_columns(mtz_file_name);
+   coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
 
    // Check first the MTZ column labels that don't have a slash
    for (unsigned int i=0; i<r.f_cols.size(); i++) { 
@@ -3551,7 +3447,7 @@ int valid_labels(const char *mtz_file_name, const char *f_col, const char *phi_c
 /*  go down a (new 20060920) different path. */
 int mtz_file_has_phases_p(const char *mtz_file_name) {
 
-   coot::mtz_column_types_info_t r = coot::get_f_phi_columns(mtz_file_name);
+   coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
 //    std::cout << "DEBUG:: mtz_file_has_phases_p: " << mtz_file_name << " has "
 // 	     << r.phi_cols.size() << " phasing columns" << std::endl;
    if (r.phi_cols.size() > 0)
@@ -3567,7 +3463,7 @@ int is_mtz_file_p(const char *mtz_file_name) {
    //
    if (coot::file_exists(mtz_file_name)) { 
       
-      coot::mtz_column_types_info_t r = coot::get_f_phi_columns(mtz_file_name);
+      coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
       if (r.f_cols.size() > 0)
 	 return 1;
       else
@@ -3583,16 +3479,20 @@ int cns_file_has_phases_p(const char *cns_file_name) {
    int r = 0; 
    if (coot::file_exists(cns_file_name)) { 
       FILE* file = fopen( cns_file_name, "r" );
-      char buf[4096];
-      for ( int i = 0; i < 4096; i++ ) buf[i] = toupper(fgetc(file));
-      fclose( file );
-      buf[4095] = 0;
-      if ( strstr( buf, "ALPHA" ) != NULL && strstr( buf, "BETA"  ) != NULL &&
-	   strstr( buf, "GAMMA" ) != NULL && strstr( buf, "SYMOP" ) != NULL &&
-	   strstr( buf, " F1="  ) != NULL && strstr( buf, " F2="  ) != NULL )
-	 r = 1;
-      else
-	 r = 0; 
+      if (! file) {
+	 std::cout << "WARNING:: oops! failed to open " << cns_file_name << std::endl;
+      } else { 
+	 char buf[4096];
+	 for ( int i = 0; i < 4096; i++ ) buf[i] = toupper(fgetc(file));
+	 fclose( file );
+	 buf[4095] = 0;
+	 if ( strstr( buf, "ALPHA" ) != NULL && strstr( buf, "BETA"  ) != NULL &&
+	      strstr( buf, "GAMMA" ) != NULL && strstr( buf, "SYMOP" ) != NULL &&
+	      strstr( buf, " F1="  ) != NULL && strstr( buf, " F2="  ) != NULL )
+	    r = 1;
+	 else
+	    r = 0;
+      }
    } else {
       r = 0;
    }
@@ -5654,13 +5554,17 @@ void nsv(int imol) {
 	 std::string name = g.molecules[imol].name_for_display_manager();
 	 exptl::nsv *seq_view =
 	    new exptl::nsv(g.molecules[imol].atom_sel.mol, name, imol,
-			   g.use_graphics_interface_flag);
-	 // 
-	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
+			   g.use_graphics_interface_flag,
+			   g.nsv_canvas_pixel_limit);
       }
    }
 #endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 }
+
+void set_nsv_canvas_pixel_limit(int cpl) {
+   graphics_info_t::nsv_canvas_pixel_limit = cpl;
+}
+
 
 
 void sequence_view_old_style(int imol) {
@@ -5964,6 +5868,9 @@ GtkWidget *wrapped_create_map_shapening_dialog() {
    gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
 		      GTK_SIGNAL_FUNC(map_sharpening_value_changed), NULL);
 
+   // set to sharpening value
+   gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), graphics_info_t::molecules[imol].sharpen_b_factor());
+   
 #if (GTK_MAJOR_VERSION > 1)
 #if (GTK_MAJOR_VERSION > 2) || (GTK_MINOR_VERSION > 14)
    int ticks = 3;  // number of ticks on the (one) side (not including centre tick)

@@ -21,8 +21,8 @@
 #ifndef COOT_RIGID_BODY_HH
 #define COOT_RIGID_BODY_HH
 
-#include "mini-mol.hh"
 #include "clipper/core/xmap.h"
+#include "mini-mol/mini-mol.hh"
 
 // move the atoms of mol
 namespace coot { 
@@ -37,6 +37,16 @@ namespace coot {
 				 const clipper::Coord_orth &mean_pos);
    float score_molecule(const coot::minimol::molecule &m,
 			const clipper::Xmap<float> &xmap);
+
+   std::pair<bool, clipper::RTop_orth>
+   get_rigid_body_fit_rtop(minimol::molecule *mol,
+			   const clipper::Xmap<float> &xmap);
+   // as above but make a local RTop, that is, remove local_centre
+   // from coordinates before calculating the RTop.
+   std::pair<bool, clipper::RTop_orth>
+   get_rigid_body_fit_rtop(minimol::molecule *mol,
+			   const clipper::Coord_orth &local_centre,
+			   const clipper::Xmap<float> &xmap);
 
 }
 

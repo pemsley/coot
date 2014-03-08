@@ -119,6 +119,7 @@ cp $CCP4MGHOME/pygl/atom_texture_coords.h    \
    $CCP4MGHOME/pygl/freetype_dl.h    \
    $CCP4MGHOME/pygl/glew.h    \
    $CCP4MGHOME/pygl/help.h    \
+   $CCP4MGHOME/pygl/help_globals.h    \
    $CCP4MGHOME/pygl/ppmutil.h    \
    $CCP4MGHOME/pygl/psutil.h    \
    $CCP4MGHOME/pygl/sphere.h    \
@@ -131,6 +132,7 @@ cp $CCP4MGHOME/pygl/atom_texture_coords.h    \
    $CCP4MGHOME/pygl/subdivide.h    \
    $CCP4MGHOME/pygl/symmetry.h    \
    $CCP4MGHOME/pygl/texture.h    \
+   $CCP4MGHOME/pygl/texture_globals.h    \
    $CCP4MGHOME/pygl/wglew.h    \
    $CCP4MGHOME/pygl/win_font.h    \
    $CCP4MGHOME/pygl/x11_font.h pygl/ 

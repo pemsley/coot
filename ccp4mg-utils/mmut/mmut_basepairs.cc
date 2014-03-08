@@ -61,7 +61,7 @@ void CNABasePairs::Calculate(CMMANManager *molHnd, int selHnd, PPCAtom selAtoms,
         int restype = molHnd->GetRestypeCode(res);
         if(restype==RESTYPE_NUCL||restype==RESTYPE_DNA||restype==RESTYPE_RNA){
           //std::cout << "Considering atom " << selAtoms[i]->name << " in base " << selAtoms[i]->GetChainID() << "/" << selAtoms[i]->GetResidueNo() << "\n";
-	  for(int j=0;j<hbonds.hbonds.GetNofConnections();j++){
+	  for(size_t j=0;j<hbonds.hbonds.GetNofConnections();j++){
 	     const char* thisID = res->GetResidueID(ID);
              PCAtom atom1 = hbonds.hbonds.pAtom1[j];
              PCAtom atom2 = hbonds.hbonds.pAtom2[j];
@@ -171,8 +171,8 @@ void CNABasePairs::Calculate(CMMANManager *molHnd, int selHnd, PPCAtom selAtoms,
   for(unsigned i=0;i<base_pairs.size();i++){
      PCResidue res1 = base_pairs[i].first;
      PCResidue res2 = base_pairs[i].second;
-     int seq1 = res1->GetSeqNum();
-     int seq2 = res2->GetSeqNum();
+     int seq1 = res1->GetResidueNo();
+     int seq2 = res2->GetResidueNo();
      if(GCmap[seq2].find(seq1)==GCmap[seq2].end()){
        GCmap[seq2][seq1]=0;
      }
@@ -217,8 +217,8 @@ void CNABasePairs::Calculate(CMMANManager *molHnd, int selHnd, PPCAtom selAtoms,
   for(unsigned i=0;i<base_pairs.size();i++){
      PCResidue res1 = base_pairs[i].first;
      PCResidue res2 = base_pairs[i].second;
-     int seq1 = res1->GetSeqNum();
-     int seq2 = res2->GetSeqNum();
+     int seq1 = res1->GetResidueNo();
+     int seq2 = res2->GetResidueNo();
      if(popOff.find(seq1)!=popOff.end()&&popOff[seq1]==seq2&&popOff.find(seq2)!=popOff.end()&&popOff[seq2]==seq1){
         //std::cout << "Really pop off " << seq1 << " " << seq2 << "\n";
         continue;

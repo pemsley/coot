@@ -24,7 +24,7 @@
 
 #include <iostream>
 #include <fstream>
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 
 #ifndef HAVE_MMMDB
 #include <mmdb/mmdb_manager.h>

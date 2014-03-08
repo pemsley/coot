@@ -59,7 +59,7 @@
 #include <typeinfo>
 
 #include "ppmutil.h"
-#include "texture.h"
+#include "texture_globals.h"
 #include "sphere.h"
 #include "subdivide.h"
 
@@ -491,7 +491,7 @@ void draw_cone(const Cartesian &v1, const Cartesian &v2, double size,int accu, i
     if(a.length() < 0.000000001){
       a = line.CrossProduct(line,xaxis);
       if(a.length()  < 0.000000001){ 
-	      printf("Error cannot find suitable axis. Coincident points?\n");
+	      fprintf(stderr,"Error cannot find suitable axis. Coincident points?\n");
       }
     }
   }
@@ -1049,7 +1049,7 @@ void SpheroidElement::draw(const double *override_colour, int selective_override
 
     glMultMatrixd(mdp);
 
-  float strip_offset = 1.05;
+  float strip_offset = 1.001;
   float strip_width = .03;
 
   if(show_axes){
@@ -1989,7 +1989,8 @@ void DashLinesCollection::draw(const double *override_colour, int selective_over
       }
     }
   } else {
-    for(unsigned i=0;i<line_cartesians.size()-6;i+=6,iprim++){
+    for(unsigned i=0;i<line_cartesians.size()-5;i+=6,iprim++){
+      std::cout << i << "\n";
       double frac = 0;
       double frac2 =0.5/(double)nsegments;
       glColor3f(line_colours[iprim*4],line_colours[iprim*4+1],line_colours[iprim*4+2]);
@@ -3002,21 +3003,24 @@ std::vector<std::vector<Cartesian> > VariableWorm::GetAB(int &insert_at_vertex) 
   return AB;
 }
 
-int PolyCylinder::GetNumberOfSimplePrimitives() const {
+size_t PolyCylinder::GetNumberOfSimplePrimitives() const {
   return vertices.size()*accu;
 }
 
-int Ribbon::GetNumberOfSimplePrimitives() const {
-  int nprims;
+size_t Ribbon::GetNumberOfSimplePrimitives() const {
+  size_t nprims;
+  if(vertices.size()<1){
+    return 0;
+  }
   nprims = (vertices.size()-1)*accu;
   if(RenderQuality::GetSmoothRibbons())
     nprims = nprims * 4 - accu;
   return nprims;
 }
 
-int ArrowHeadRibbon::GetNumberOfSimplePrimitives() const {
+size_t ArrowHeadRibbon::GetNumberOfSimplePrimitives() const {
   int insert_at_vertex;
-  int nprims;
+  size_t nprims;
   std::vector<std::vector<Cartesian> > AB = GetAB(insert_at_vertex);
   if (insert_at_vertex > -1) insert_at_vertex = 0;
   nprims = (vertices.size()+insert_at_vertex)*accu;
@@ -8361,7 +8365,7 @@ void Ribbon::get_elliptical_ribbon_array(std::vector<Primitive*> &a,const std::v
   polygonType = GL_TRIANGLE_STRIP;
 
   for(unsigned ii=0; ii < nVerts; ii++){
-     if(bufferIndices[ii]>nRealVerts||bufferIndices[ii]<0){
+     if(bufferIndices[ii]>nRealVerts){
         std::cout << ii << " " << bufferIndices[ii] << "\n";
      }
   }
@@ -8528,13 +8532,13 @@ std::vector<Primitive*> Primitive::GetSimplePrimitivesArrays(const Volume &clip_
 
 // FIXME Not dashed.
 std::vector<Primitive*> DashCylinderCollection::GetSimplePrimitivesArrays(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start, int end) {
-  std::cout << "DashCylinderCollection::GetSimplePrimitivesArrays\n";
+  //std::cout << "DashCylinderCollection::GetSimplePrimitivesArrays\n";
   return CylinderCollection::GetSimplePrimitivesArrays(clip_vol, objrotmatrix, objorigin, start, end);
 }
 
 // FIXME ?? Seems to work in render with this. Render seems to not get here.
 std::vector<Primitive*> DashCylinderCollection::GetPrimitives() const {
-  std::cout << "DashCylinderCollection::GetPrimitives\n";
+  //std::cout << "DashCylinderCollection::GetPrimitives\n";
   return CylinderCollection::GetPrimitives();
 }
 
@@ -8822,7 +8826,7 @@ std::vector<Primitive*> SpheroidCollection::GetSimplePrimitivesArrays(const Volu
 
   //std::cout << "nSpheres: " << nSpheres << "\n"; std::cout.flush();
 
-  static int spheres_accus[] = {4,9,18};
+  static int spheres_accus[] = {8,12,20};
 
 
   int my_accu = 8;
@@ -8854,8 +8858,8 @@ std::vector<Primitive*> SpheroidCollection::GetSimplePrimitivesArrays(const Volu
   int axesOffset = 0;
   int axesOffsetInternal = 0;
   if(show_solid) {
-    nVerts += 2*(my_accu+1)*my_accu*nSpheres + 2*my_accu*nSpheres;
-    axesOffsetInternal = 2*(my_accu+1)*my_accu*nSpheres + 2*my_accu*nSpheres;
+    nVerts += (my_accu)*my_accu*nSpheres + 2*my_accu*nSpheres;
+    axesOffsetInternal = (my_accu)*my_accu*nSpheres + 2*my_accu*nSpheres;
     axesOffset = (my_accu+1)*my_accu*nSpheres;
   }
   if(show_axes) nVerts += 3*(my_accu+2)*2*nSpheres ;
@@ -8864,7 +8868,7 @@ std::vector<Primitive*> SpheroidCollection::GetSimplePrimitivesArrays(const Volu
 
   int indexOffsetInternal = 0;
 
-  float strip_offset = 1.05;
+  float strip_offset = 1.0001;
   float strip_width = .03;
 
   int maxInd = 0;
@@ -8932,6 +8936,13 @@ std::vector<Primitive*> SpheroidCollection::GetSimplePrimitivesArrays(const Volu
       m = q1.getMatrix();
     }
 
+    matrix mTrans = m.Transpose();
+    std::vector<double> mTransVector = mTrans.matrixVector();
+    bool doMatrix = false;
+    if(p->GetMatrix().get_rows()==4 && p->GetMatrix().get_columns()==4){
+      doMatrix = true;
+    }
+
     if(show_axes){
       int jj = 0;
       for(int j=0;j<=360;j=j+360/my_accu,jj++){
@@ -8951,45 +8962,45 @@ std::vector<Primitive*> SpheroidCollection::GetSimplePrimitivesArrays(const Volu
         y1 = y2 = strip_offset*sin(theta);
         z1 = -strip_width/lz;
         z2 = strip_width/lz;
-        if(p->GetMatrix().get_rows()==4 && p->GetMatrix().get_columns()==4){
+        if(doMatrix){
           Cartesian cs = Cartesian(x1,y1,z1);
-          cs = m.Transpose()*cs;
+          cs *= mTransVector;
           xs1 = cs.get_x();
           ys1 = cs.get_y();
           zs1 = cs.get_z();
           Cartesian c = Cartesian(x1,y1,z1);
-          c = m.Transpose()*c;
+          c *= mTransVector;
           x1 = c.get_x()/lx/lx;
           y1 = c.get_y()/ly/ly;
           z1 = c.get_z()/lz/lz;
           cs = Cartesian(x2,y2,z2);
-          cs = m.Transpose()*cs;
+          cs *= mTransVector;
           xs2 = cs.get_x();
           ys2 = cs.get_y();
           zs2 = cs.get_z();
           c = Cartesian(x2,y2,z2);
-          c = m.Transpose()*c;
+          c = mTransVector*c;
           x2 = c.get_x()/lx/lx;
           y2 = c.get_y()/ly/ly;
           z2 = c.get_z()/lz/lz;
         }else {
           Cartesian cs = Cartesian(x1*p->GetA(),y1*p->GetB(),z1*p->GetC());
-          cs = m.Transpose()*cs;
+          cs *= mTransVector;
           xs1 = cs.get_x();
           ys1 = cs.get_y();
           zs1 = cs.get_z();
           Cartesian c = Cartesian(x1/p->GetA(),y1/p->GetB(),z1/p->GetC());
-          c = m.Transpose()*c;
+          c *= mTransVector;
           x1 = c.get_x();
           y1 = c.get_y();
           z1 = c.get_z();
           cs = Cartesian(x2*p->GetA(),y2*p->GetB(),z2*p->GetC());
-          cs = m.Transpose()*cs;
+          cs *= mTransVector;
           xs2 = cs.get_x();
           ys2 = cs.get_y();
           zs2 = cs.get_z();
           c = Cartesian(x2/p->GetA(),y2/p->GetB(),z2/p->GetC());
-          c = m.Transpose()*c;
+          c *= mTransVector;
           x2 = c.get_x();
           y2 = c.get_y();
           z2 = c.get_z();
@@ -9030,45 +9041,45 @@ std::vector<Primitive*> SpheroidCollection::GetSimplePrimitivesArrays(const Volu
         z1 = z2 = strip_offset*sin(theta);
         x1 = -strip_width/lx;
         x2 = strip_width/lx;
-        if(p->GetMatrix().get_rows()==4 && p->GetMatrix().get_columns()==4){
+        if(doMatrix){
           Cartesian cs = Cartesian(x1,y1,z1);
-          cs = m.Transpose()*cs;
+          cs *= mTransVector;
           xs1 = cs.get_x();
           ys1 = cs.get_y();
           zs1 = cs.get_z();
           Cartesian c = Cartesian(x1,y1,z1);
-          c = m.Transpose()*c;
+          c *= mTransVector;
           x1 = c.get_x()/lx/lx;
           y1 = c.get_y()/ly/ly;
           z1 = c.get_z()/lz/lz;
           cs = Cartesian(x2,y2,z2);
-          cs = m.Transpose()*cs;
+          cs *= mTransVector;
           xs2 = cs.get_x();
           ys2 = cs.get_y();
           zs2 = cs.get_z();
           c = Cartesian(x2,y2,z2);
-          c = m.Transpose()*c;
+          c *= mTransVector;
           x2 = c.get_x()/lx/lx;
           y2 = c.get_y()/ly/ly;
           z2 = c.get_z()/lz/lz;
         }else {
           Cartesian cs = Cartesian(x1*p->GetA(),y1*p->GetB(),z1*p->GetC());
-          cs = m.Transpose()*cs;
+          cs *= mTransVector;
           xs1 = cs.get_x();
           ys1 = cs.get_y();
           zs1 = cs.get_z();
           Cartesian c = Cartesian(x1/p->GetA(),y1/p->GetB(),z1/p->GetC());
-          c = m.Transpose()*c;
+          c *= mTransVector;
           x1 = c.get_x();
           y1 = c.get_y();
           z1 = c.get_z();
           cs = Cartesian(x2*p->GetA(),y2*p->GetB(),z2*p->GetC());
-          cs = m.Transpose()*cs;
+          cs *= mTransVector;
           xs2 = cs.get_x();
           ys2 = cs.get_y();
           zs2 = cs.get_z();
           c = Cartesian(x2/p->GetA(),y2/p->GetB(),z2/p->GetC());
-          c = m.Transpose()*c;
+          c *= mTransVector;
           x2 = c.get_x();
           y2 = c.get_y();
           z2 = c.get_z();
@@ -9109,45 +9120,45 @@ std::vector<Primitive*> SpheroidCollection::GetSimplePrimitivesArrays(const Volu
         z1 = z2 = strip_offset*sin(theta);
         y1 = strip_width/ly;
         y2 = -strip_width/ly;
-        if(p->GetMatrix().get_rows()==4 && p->GetMatrix().get_columns()==4){
+        if(doMatrix){
           Cartesian cs = Cartesian(x1,y1,z1);
-          cs = m.Transpose()*cs;
+          cs *= mTransVector;
           xs1 = cs.get_x();
           ys1 = cs.get_y();
           zs1 = cs.get_z();
           Cartesian c = Cartesian(x1,y1,z1);
-          c = m.Transpose()*c;
+          c *= mTransVector;
           x1 = c.get_x()/lx/lx;
           y1 = c.get_y()/ly/ly;
           z1 = c.get_z()/lz/lz;
           cs = Cartesian(x2,y2,z2);
-          cs = m.Transpose()*cs;
+          cs *= mTransVector;
           xs2 = cs.get_x();
           ys2 = cs.get_y();
           zs2 = cs.get_z();
           c = Cartesian(x2,y2,z2);
-          c = m.Transpose()*c;
+          c *= mTransVector;
           x2 = c.get_x()/lx/lx;
           y2 = c.get_y()/ly/ly;
           z2 = c.get_z()/lz/lz;
         }else {
           Cartesian cs = Cartesian(x1*p->GetA(),y1*p->GetB(),z1*p->GetC());
-          cs = m.Transpose()*cs;
+          cs *= mTransVector;
           xs1 = cs.get_x();
           ys1 = cs.get_y();
           zs1 = cs.get_z();
           Cartesian c = Cartesian(x1/p->GetA(),y1/p->GetB(),z1/p->GetC());
-          c = m.Transpose()*c;
+          c *= mTransVector;
           x1 = c.get_x();
           y1 = c.get_y();
           z1 = c.get_z();
           cs = Cartesian(x2*p->GetA(),y2*p->GetB(),z2*p->GetC());
-          cs = m.Transpose()*cs;
+          cs *= mTransVector;
           xs2 = cs.get_x();
           ys2 = cs.get_y();
           zs2 = cs.get_z();
           c = Cartesian(x2/p->GetA(),y2/p->GetB(),z2/p->GetC());
-          c = m.Transpose()*c;
+          c *= mTransVector;
           x2 = c.get_x();
           y2 = c.get_y();
           z2 = c.get_z();
@@ -9190,19 +9201,19 @@ std::vector<Primitive*> SpheroidCollection::GetSimplePrimitivesArrays(const Volu
 
     if(show_solid){
       int ii=0;
-      for(int i=0;i<=180;i=i+180/my_accu,ii++){
+      for(int i=0;i<=180;i=i+360/my_accu,ii++){
         int indexOffset = k*(my_accu+1)*my_accu;
         double theta = (double)i/360.0 * PIBY2;
         int jj=0;
         for(int j=0;j<=360;j=j+360/my_accu,jj++){
-          if(ii<my_accu){
+          if(ii<my_accu/2){
             if(j==0){
               // Prepend a degenerate triangle
               bufferIndices[indexOffsetInternal++] = indexOffset + jj + (ii+1) * my_accu;
             }
             if(jj==my_accu){
-            bufferIndices[indexOffsetInternal++] = indexOffset + (ii+1) * my_accu;
-            bufferIndices[indexOffsetInternal++] = indexOffset + ii * my_accu;
+              bufferIndices[indexOffsetInternal++] = indexOffset + (ii+1) * my_accu;
+              bufferIndices[indexOffsetInternal++] = indexOffset + ii * my_accu;
               // Append a degenerate triangle
               bufferIndices[indexOffsetInternal++] = indexOffset + (ii) * my_accu;
             } else {
@@ -9218,25 +9229,25 @@ std::vector<Primitive*> SpheroidCollection::GetSimplePrimitivesArrays(const Volu
           float xs;
           float ys;
           float zs;
-          if(p->GetMatrix().get_rows()==4 && p->GetMatrix().get_columns()==4){
+          if(doMatrix){
             Cartesian cs = Cartesian(x,y,z);
-            cs = m.Transpose()*cs;
+            cs *= mTransVector;
             xs = cs.get_x();
             ys = cs.get_y();
             zs = cs.get_z();
             Cartesian c = Cartesian(x,y,z);
-            c = m.Transpose()*c;
+            c *= mTransVector;
             x = c.get_x()/lx/lx;
             y = c.get_y()/ly/ly;
             z = c.get_z()/lz/lz;
           }else {
             Cartesian cs = Cartesian(x*p->GetA(),y*p->GetB(),z*p->GetC());
-            cs = m.Transpose()*cs;
+            cs *= mTransVector;
             xs = cs.get_x();
             ys = cs.get_y();
             zs = cs.get_z();
             Cartesian c = Cartesian(x/p->GetA(),y/p->GetB(),z/p->GetC());
-            c = m.Transpose()*c;
+            c *= mTransVector;
             x = c.get_x();
             y = c.get_y();
             z = c.get_z();

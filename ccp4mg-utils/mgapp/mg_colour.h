@@ -45,11 +45,11 @@ class CColourScheme {
   CColourScheme();
   ~CColourScheme();
   int SetSchemeInt (  const std::vector<int>& ityp , const std::vector<std::string>& cols);
-  int SetSchemeInt ( int n, int typ[] , char *cols[] );
+  int SetSchemeInt ( int n, int typ[] , const char *cols[] );
   int SetSchemeFloat (  const std::vector<float>& rtyp , const std::vector<std::string>& cols);
-  int SetSchemeFloat ( int n, realtype typ[] , char *cols[] );
+  int SetSchemeFloat ( int n, realtype typ[] , const char *cols[] );
   int SetSchemeString (  const std::vector<std::string>& chtyp , const std::vector<std::string>& cols);
-  int SetSchemeString ( int n, char *typ[] , char *cols[] );
+  int SetSchemeString ( int n, const char *typ[] , const char *cols[] );
   int SetInterpolationMode(int n, int m=COLOUR_WHEEL_CLOCK){ interpolation_mode = n;colour_wheel_direction=m; return 0; }
   int GetInterpolationMode() { return interpolation_mode ;}
   int GetColourWheelDirection() { return colour_wheel_direction ;}
@@ -185,4 +185,25 @@ public :
   int BlendThruChain();
 
 };
+
+class DoubleColourSliderInfo {
+  std::string lowerColour;
+  std::string upperColour;
+  std::string nonAlignedColour;
+  float lowerValue;
+  float upperValue;
+  int mode;
+  int wheelDirection;
+ public:
+  DoubleColourSliderInfo();
+  DoubleColourSliderInfo(const std::string &lowCol, const std::string &hiCol, float lowVal, float hiVal, int _mode, int wheelDir, const std::string &nonCol);
+  const std::string& getLowerColour() const {return lowerColour;};
+  const std::string& getUpperColour() const {return upperColour;};
+  const std::string& getNonAlignedColour() const {return nonAlignedColour;};
+  const float getLowerValue() const {return lowerValue;};
+  const float getUpperValue() const {return upperValue;};
+  const int getMode() const {return mode;};
+  const int getWheelDirection() const {return wheelDirection;};
+};
+
 #endif

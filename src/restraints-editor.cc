@@ -39,8 +39,8 @@
 #include "interface.h"
 #include "support.h"
 
-#include "protein-geometry.hh"
-#include "coot-utils.hh"
+#include "geometry/protein-geometry.hh"
+#include "utils/coot-utils.hh"
 
 #include "coot-fileselections.h"
 #include "c-interface.h"

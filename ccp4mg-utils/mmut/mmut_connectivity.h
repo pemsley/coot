@@ -69,6 +69,7 @@ class Connectivity {
   void AddContacts(CMMANManager *molhnd, int selhnd, const PPCAtom SelAtoms_in, const int nSelAtoms_in, const PSContact contacts_in, const int ncontacts_in);
   void AddTrace(PCMMANManager molhnd, const PPCAtom selAtoms, const int nSelAtoms,
 		realtype cutoff );
+  void AddTraceByChain(CMMDBManager *molhnd, int selHnd, realtype cutoff );
   std::vector<std::vector<int> > GetConnectivityLists(void) const;
   std::vector<std::vector<int> > GetExternalConnectivityLists(void) const;
   std::vector<std::vector<int> > GetExternalSplineConnectivityLists(void) const;
@@ -106,6 +107,7 @@ class Connectivity2 {
 
   Connectivity2(int data_mode=CONN_ATOM_ATOM,int crystal_axes=0,int tagged=0);
   ~Connectivity2();
+  void AddConnectionsFromMatches(CMMDBManager *molHnd1, CMMDBManager *molHnd2, const std::vector<int> &m1, const std::vector<int> &m2, const std::vector<std::string> &c1, const std::vector<std::string> &c2, const std::vector<std::string> &i1, const std::vector<std::string> &i2, const std::vector<std::string> &labels);
   void AddConnection(PCAtom p_atom1,PCAtom p_atom2, const std::string &label_in="", int tag=-1);
   void AddConnection( double xyz1[3] ,  double xyz2[3] , const std::string &label_in,int tag=-1);
   void AddConnection(  PCAtom p_atom1, double xyz2[3] ,
@@ -121,7 +123,7 @@ class Connectivity2 {
   void DeleteConnection(int index);
   void DeleteConnections();
   int DeleteTaggedConnections(int first, int last=-1);
-  int GetNofConnections() { return  connected.size(); }
+  size_t GetNofConnections() { return  connected.size(); }
   std::vector<unsigned int> FindConnections(PCAtom p_atom1,PCAtom p_atom,bool switchpos=1);
   std::vector<unsigned int> FindConnections(PCAtom p_atom1, int position=0);
   int FindNofConnections(PCAtom p_atom1,int position=0);

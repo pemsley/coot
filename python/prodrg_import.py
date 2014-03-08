@@ -49,8 +49,8 @@ sbase_to_coot_tlc = ".sbase-to-coot-comp-id"
 
 # to be over-ridden by your favourite 3d conformer generator, if you like...
 #
-def import_from_3d_generator_from_mdl(file_name):
-    import_from_prodrg("mini-no")
+def import_from_3d_generator_from_mdl(file_name, comp_id):
+    import_from_prodrg("mini-no", comp_id)
 
 
 def import_ligand_with_overlay(prodrg_xyzout, prodrg_cif):
@@ -202,7 +202,7 @@ def import_ligand_with_overlay(prodrg_xyzout, prodrg_cif):
     # return False otherwise? When? FIXME
 
     
-def import_from_prodrg(minimize_mode):
+def import_from_prodrg(minimize_mode, res_name):
 
     import operator
     global prodrg_xyzin
@@ -210,7 +210,6 @@ def import_from_prodrg(minimize_mode):
     # main line of import_from_prodrg
     #
     prodrg_dir = "coot-ccp4"
-    res_name = "DRG"
 
     make_directory_maybe(prodrg_dir)
     prodrg_xyzout = os.path.join(prodrg_dir, "prodrg-" + res_name + ".pdb")
@@ -473,9 +472,9 @@ def fle_view_to_png(imol, chain_id, res_no, ins_code, neighb_radius,
                                  png_file_name)
                 
 
-# import from SBASE, callback using sbase_import_function
+# import from SRS, callback using sbase_import_function
 #
-def get_sbase_monomer_and_overlay(comp_id):
+def get_ccp4srs_monomer_and_overlay(comp_id):
 
     """
     import from SBASE, callback using sbase_import_function

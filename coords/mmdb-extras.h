@@ -1,4 +1,5 @@
 /* coords/mmdb-extras.h
+ * -*-c++-*-  
  * 
  * Copyright 2005 by The University of York
  * Author: Paul Emsley
@@ -54,19 +55,18 @@ class MyCMMDBManager : public CMMDBManager {
 }; 
 
 
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 
 // we need this for bonded_pair_container_t.
-#include "bonded-pairs.hh"
+#include "coot-utils/bonded-pairs.hh"
 // and atom quads
-#include "atom-quads.hh"
+#include "mini-mol/atom-quads.hh"
 
 // 
 //
 class atom_selection_container_t { 
 public:
-   //PCMMDBManager mol; 
-   MyCMMDBManager *mol;
+   CMMDBManager *mol;
    int n_selected_atoms; 
    PPCAtom atom_selection; 
    std::string read_error_message;
@@ -107,7 +107,14 @@ public:
       mol->DeleteSelection(SelectionHandle);
       n_selected_atoms = 0;
       atom_selection = 0;
-   } 
+   }
+   void apply_shift(float x_shift, float y_shift, float z_shift) {
+      for (unsigned int i=0; i<n_selected_atoms; i++) { 
+	 atom_selection[i]->x -= x_shift;
+	 atom_selection[i]->y -= y_shift;
+	 atom_selection[i]->z -= z_shift;
+      }
+   }
 };
 
 // debug this struct

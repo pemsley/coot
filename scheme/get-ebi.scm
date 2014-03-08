@@ -64,7 +64,7 @@
     
     (if (eq? data-type 'pdb)
 	(begin
-	  (let ((pdb-file-name (string-append coot-tmp-dir "/" id ".pdb"
+	  (let ((pdb-file-name (string-append coot-tmp-dir "/" id ".pdb" "."
 					      pdbe-file-name-tail)))
 	    (check-dir-and-get-url coot-tmp-dir pdb-file-name url-string)
 	    (handle-read-draw-molecule pdb-file-name))))
@@ -231,4 +231,32 @@
 			#f)))))))))
 
 
+(define (get-pdb-redo text) 
 
+  (define mid-string (lambda (text-in) (substring text-in 1 3)))
+
+  (if (not (string? text))
+      "Pass an accession code"
+
+      ;; 
+      (if (not (= (string-length text) 4))
+
+	  "Give an acession code"
+	  
+	  (let* ((stub (string-append 
+			"http://www.cmbi.ru.nl/pdb_redo/"
+			(mid-string text)
+			"/" text "/" text "_final"))
+		 (pdb-file-name (string-append text "_final.pdb"))
+		 (mtz-file-name (string-append text "_final.mtz"))
+		 (url-pdb (string-append stub ".pdb"))
+		 (url-mtz (string-append stub ".mtz")))
+
+	    (format #t "getting ~s~%" url-pdb)
+	    (net-get-url url-mtz mtz-file-name)
+	    (format #t "getting ~s~%" url-mtz)
+	    (net-get-url url-pdb pdb-file-name)
+
+	    (read-pdb pdb-file-name)
+	    (format #t "make-and-draw-map with ~s~%" mtz-file-name)
+	    (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)))))

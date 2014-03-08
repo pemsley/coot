@@ -27,11 +27,11 @@
 
 #include "string.h"
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "coot-coord-extras.hh"
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 
 // Return 0 if any of the residues don't have a dictionary entry

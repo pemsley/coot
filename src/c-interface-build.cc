@@ -48,8 +48,8 @@
  
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
 
 #include "globjects.h" //includes gtk/gtk.h
 
@@ -59,25 +59,24 @@
 		       // header since some of the callbacks call
 		       // fuctions built by glade.
 
+#include "coords/mmdb-crystal.h"
 
-#include "mmdb-crystal.h"
-
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
 
-#include "coot-coord-utils.hh"
-#include "coot-fasta.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "utils/coot-fasta.hh"
 
-#include "BuildCas.h"
-#include "helix-placement.hh"
-#include "fast-ss-search.hh"
+#include "skeleton/BuildCas.h"
+#include "ligand/helix-placement.hh"
+#include "ligand/fast-ss-search.hh"
 
 #include "trackball.h" // adding exportable rotate interface
 
-#include "coot-utils.hh"  // for is_member_p
-#include "coot-map-heavy.hh"  // for fffear
+#include "utils/coot-utils.hh"  // for is_member_p
+#include "coot-utils/coot-map-heavy.hh"  // for fffear
 
 #include "guile-fixups.h"
 
@@ -93,7 +92,7 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 
-#include "ligand.hh" // for rigid body fit by atom selection.
+#include "ligand/ligand.hh" // for rigid body fit by atom selection.
 
 #include "cmtz-interface.hh" // for valid columns mtz_column_types_info_t
 #include "c-interface-mmdb.hh"
@@ -101,18 +100,21 @@
 #include "c-interface-python.hh"
 
 #ifdef USE_DUNBRACK_ROTAMERS
-#include "dunbrack.hh"
+#include "ligand/dunbrack.hh"
 #else 
-#include "richardson-rotamer.hh"
+#include "ligand/richardson-rotamer.hh"
 #endif
 
-#include "backrub-rotamer.hh"
+#include "ligand/backrub-rotamer.hh"
 #include "rotamer-search-modes.hh"
 
-#include "protein_db_utils.h"
+#include "protein_db/protein_db_utils.h"
 #include "protein_db-interface.hh"
 
-#include "cootilus-build.h"
+#include "cootilus/cootilus-build.h"
+
+#include "c-interface-refine.hh"
+
 
 /*  ------------------------------------------------------------------------ */
 /*                   Maps - (somewhere else?):                               */
@@ -160,7 +162,7 @@ void calc_phases_generic(const char *mtz_file_name) {
 
    if (coot::file_exists(mtz_file_name)) { 
       graphics_info_t g;
-      coot::mtz_column_types_info_t r = coot::get_f_phi_columns(mtz_file_name);
+      coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
       if (r.f_cols.size() == 0) {
 	 std::cout << "No Fobs found in " << mtz_file_name << std::endl;
 	 std::string s =  "No Fobs found in ";
@@ -678,8 +680,11 @@ int add_terminal_residue(int imol,
 	    CResidue *res_p =
 	       g.molecules[imol].residue_from_external(residue_number, inscode,
 						       std::string(chain_id));
+
+	    
 	    g.execute_add_terminal_residue(imol, term_type, res_p, chain_id,
 					   residue_type_string, immediate_add);
+	    
 	    istate = 1;
 	 } else {
 	    std::cout << "WARNING:: in add_terminal_residue: "
@@ -1138,7 +1143,9 @@ int set_atom_attributes(SCM attribute_expression_list) {
    }
 
    for (int i=0; i<n; i++) {
-      if (v[i].size() > 0){
+      if (v[i].size() > 0) {
+	 // std::cout << "DEBUG:: setting atom attributes for molecule " << i << " " << v[i].size() 
+	 //           << " attributes to set " << std::endl;
 	 graphics_info_t::molecules[i].set_atom_attributes(v[i]);
       } 
    }
@@ -1314,6 +1321,34 @@ PyObject *refmac_parameters_py(int imol) {
 }
 #endif	/* USE_PYTHON */
 
+void
+regularize_residues(int imol, const std::vector<coot::residue_spec_t> &residue_specs) {
+
+   std::string alt_conf;
+   if (is_valid_model_molecule(imol)) {
+      if (residue_specs.size() > 0) {
+	 std::vector<CResidue *> residues;
+	 for (unsigned int i=0; i<residue_specs.size(); i++) {
+	    coot::residue_spec_t rs = residue_specs[i];
+	    CResidue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    if (r) {
+	       residues.push_back(r);
+	    }
+	 }
+
+	 if (residues.size() > 0) {
+	    graphics_info_t g;
+	    // normal
+	    CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+	    g.regularize_residues_vec(imol, residues, alt_conf.c_str(), mol);
+	 }
+      } else {
+	 std::cout << "No residue specs found" << std::endl;
+      }
+   }
+}
+
+
 
 #ifdef USE_GUILE
 SCM refine_residues_scm(int imol, SCM r) {
@@ -1327,15 +1362,12 @@ SCM regularize_residues_scm(int imol, SCM r) { /* presumes the alt_conf is "". *
 }
 #endif // USE_GUILE
 
+coot::refinement_results_t
+refine_residues_with_alt_conf(int imol, const std::vector<coot::residue_spec_t> &residue_specs,
+			      const std::string &alt_conf) {
 
-
-#ifdef USE_GUILE
-SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) { /* to be renamed later. */
-
-   SCM rv = SCM_BOOL_F;
+   coot::refinement_results_t rr;
    if (is_valid_model_molecule(imol)) {
-      std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(r);
-
       if (residue_specs.size() > 0) {
 	 std::vector<CResidue *> residues;
 	 for (unsigned int i=0; i<residue_specs.size(); i++) {
@@ -1354,14 +1386,31 @@ SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) { /
 	    } else {
 	       // normal
 	       CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
-	       coot::refinement_results_t rr =
-		  g.refine_residues_vec(imol, residues, alt_conf, mol);
-	       rv = g.refinement_results_to_scm(rr);
+	       rr = g.refine_residues_vec(imol, residues, alt_conf.c_str(), mol);
 	    }
 	 } 
       } else {
 	 std::cout << "No residue specs found" << std::endl;
-      } 
+      }
+   }
+   return rr;
+} 
+
+
+
+
+
+#ifdef USE_GUILE
+SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) { /* to be renamed later. */
+
+   SCM rv = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+      std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(r);
+      coot::refinement_results_t rr =
+	 refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
+      rv = g.refinement_results_to_scm(rr);
    }
    return rv;
 } 
@@ -2877,6 +2926,54 @@ int is_solvent_chain_p(int imol, const char *chain_id) {
    return r;
 }
 
+// return -1 on error (e.g. chain_id not found, or molecule is not a
+// model), 0 for no, 1 for is.
+int is_protein_chain_p(int imol, const char *chain_id) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      int nchains = mol->GetNumberOfChains(1);
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 CChain *chain_p = mol->GetChain(1,ichain);
+	 std::string mol_chain_id(chain_p->GetChainID());
+	 if (mol_chain_id == std::string(chain_id)) {
+	    r = chain_p->isAminoacidChain();
+	 }
+      }
+   }
+   std::string cmd = "is-protein-chain-p";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   add_to_history_typed(cmd, args);
+   return r;
+}
+
+// return -1 on error (e.g. chain_id not found, or molecule is not a
+// model), 0 for no, 1 for is.
+int is_nucleotide_chain_p(int imol, const char *chain_id) {
+
+   int r = -1;
+   if (is_valid_model_molecule(imol)) {
+      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      int nchains = mol->GetNumberOfChains(1);
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 CChain *chain_p = mol->GetChain(1,ichain);
+	 std::string mol_chain_id(chain_p->GetChainID());
+	 if (mol_chain_id == std::string(chain_id)) {
+	    r = chain_p->isNucleotideChain();
+	 }
+      }
+   }
+   std::string cmd = "is-nucleotide-chain-p";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   add_to_history_typed(cmd, args);
+   return r;
+}
+
 // 
 // /*! \brief sort the chain ids of the imol-th molecule in lexographical order */
 void sort_chains(int imol) { 
@@ -4018,7 +4115,7 @@ void assign_sequence_from_file(int imol, const char *file) {
 void assign_sequence_from_string(int imol, const char *chain_id_in, const char *seq) {
    if (is_valid_model_molecule(imol)) {
     const std::string chain_id = chain_id_in;
-    graphics_info_t::molecules[imol].assign_sequence_from_string(chain_id, std::string(seq));
+    graphics_info_t::molecules[imol].assign_sequence_to_NCS_related_chains_from_string(chain_id, std::string(seq));
   }
   std::string cmd = "assign-sequence-from-string";
   std::vector<coot::command_arg_t> args;
@@ -4848,7 +4945,15 @@ int n_symops(int imol) {
       r = graphics_info_t::molecules[imol].xmap_list[0].spacegroup().num_symops();
    } 
    return r;
+}
+
+/* This function works by active symm atom. */
+int move_reference_chain_to_symm_chain_position() {
+
+   graphics_info_t g;
+   return g.move_reference_chain_to_symm_chain_position();
 } 
+
 
 
 
@@ -5449,6 +5554,10 @@ void copy_residue_range_from_ncs_master_to_chains_py(int imol, const char *maste
 } 
 #endif 
 
+void set_place_helix_here_fudge_factor(float ff) {
+   graphics_info_t::place_helix_here_fudge_factor = ff;
+} 
+
 
 
 /*  ----------------------------------------------------------------------- */
@@ -5468,14 +5577,30 @@ int place_helix_here() {
       // g.helix_placement_cb_density_descrimination_ratio
       // defaults to 1.0.
       int imol = -1;
-      coot::helix_placement p(graphics_info_t::molecules[imol_map].xmap_list[0]);
-      float min_density_limit = 1.0 * graphics_info_t::molecules[imol_map].map_sigma();
-      // std::cout << "DEBUG:: choosing map_density limit: " << min_density_limit << std::endl;
+      clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+      coot::helix_placement p(xmap);
+
+      // test
+      std::vector<float> dv_test(100);
+      for (unsigned int i=0; i<100; i++) { 
+	 dv_test[i] = 100-i;
+      }
+
+      std::vector<float> dv = coot::util::density_map_points_in_sphere(pt, 20, xmap);
+      float f_iqr = coot::util::interquartile_range(dv);
+      float iqr_2 = 0.5*f_iqr;
+	 
+      float min_density_limit = iqr_2;
+      float high_density_turning_point = f_iqr * 4 * g.place_helix_here_fudge_factor;
+      std::cout << "DEBUG:: choosing map min_density limit: " << min_density_limit << std::endl;
+      std::cout << "DEBUG:: choosing map high_density_turning_point limit: " << high_density_turning_point
+		<< std::endl;
+      
       float bf = g.default_new_atoms_b_factor;
       coot::helix_placement_info_t n =
-	 p.place_alpha_helix_near_kc_version(pt, 20, min_density_limit, bf);
+	 p.place_alpha_helix_near_kc_version(pt, 20, min_density_limit, high_density_turning_point, bf);
        if (! n.success) {
-	  n = p.place_alpha_helix_near_kc_version(pt, 9, min_density_limit, bf);
+	  n = p.place_alpha_helix_near_kc_version(pt, 9, min_density_limit, high_density_turning_point, bf);
        }
 
        if (n.success) {
@@ -5537,7 +5662,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
       float s = graphics_info_t::molecules[imol_map].map_sigma();
       coot::helix_placement p(graphics_info_t::molecules[imol_map].xmap_list[0]);
       coot::helix_placement_info_t si =
-	 p.place_strand(pt, n_residues, n_sample_strands, s);
+	 p.place_strand(pt, n_residues, n_sample_strands, s * graphics_info_t::place_helix_here_fudge_factor);
       if (si.success) {
 	 // nice to refine the fragment here, but the interface
 	 // doesn't work that way, so put the refinement after the
@@ -6067,7 +6192,73 @@ int rigid_body_fit_with_residue_ranges(int imol,
       }
    }
    return success;
+}
+
+int morph_fit_all(int imol, float transformation_averaging_radius) {
+
+   int success = 0;
+   graphics_info_t g;
+   int imol_ref_map = g.Imol_Refinement_Map();
+   if (is_valid_map_molecule(imol_ref_map)) {
+      if (is_valid_model_molecule(imol)) {
+	 success = g.molecules[imol].morph_fit_all(g.molecules[imol_ref_map].xmap_list[0],
+						   transformation_averaging_radius);
+	 graphics_draw();
+      }
+   }
+   return success;
+}
+
+int morph_fit_chain(int imol, std::string chain_id, float transformation_averaging_radius) {
+
+   int success = 0;
+   graphics_info_t g;
+   int imol_ref_map = g.Imol_Refinement_Map();
+   if (is_valid_map_molecule(imol_ref_map)) {
+      if (is_valid_model_molecule(imol)) {
+	 success = g.molecules[imol].morph_fit_chain(chain_id,
+						     g.molecules[imol_ref_map].xmap_list[0],
+						     transformation_averaging_radius);
+	 graphics_draw();
+      }
+   }
+   return success;
 } 
+
+
+#ifdef USE_GUILE
+int morph_fit_residues_scm(int imol, SCM residue_specs_scm, float transformation_averaging_radius) {
+
+   std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(residue_specs_scm);
+   return morph_fit_residues(imol, residue_specs, transformation_averaging_radius);
+}
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+int morph_fit_residues_py( int imol, PyObject *residue_specs_py, float transformation_averaging_radius) {
+
+   std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(residue_specs_py);
+   return morph_fit_residues(imol, residue_specs, transformation_averaging_radius);
+} 
+#endif // USE_PYTHON
+
+int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residue_specs,
+		       float transformation_averaging_radius) {
+   
+   graphics_info_t g;
+   int success = 0;
+   int imol_ref_map = g.Imol_Refinement_Map();
+   if (is_valid_map_molecule(imol_ref_map)) {
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t g;
+	 const clipper::Xmap<float> &xmap = g.molecules[imol_ref_map].xmap_list[0];
+	 success = g.molecules[imol].morph_fit_residues(residue_specs, xmap,
+							transformation_averaging_radius);
+	 graphics_draw();
+      }
+   }
+   return success;
+}
 
 
 
@@ -6550,12 +6741,13 @@ int handle_cif_dictionary(const char *filename) {
    short int show_dialog_flag = 0;
    if (graphics_info_t::use_graphics_interface_flag)
       show_dialog_flag = 1;
-   int r = g.add_cif_dictionary(filename, show_dialog_flag); 
+   int r = g.add_cif_dictionary(coot::util::intelligent_debackslash(filename),
+                                show_dialog_flag);
    graphics_draw();
    return r;
 }
 
-int read_cif_dictionary(const char *filename) { 
+int read_cif_dictionary(const char *filename) {
    
    return handle_cif_dictionary(filename);
 
@@ -6888,6 +7080,11 @@ void set_rotamer_search_mode(int mode) {
    }
 }
 
+int rotamer_search_mode_state() {
+   
+   return graphics_info_t::rotamer_search_mode;
+}
+
 
 /*! \name Backrubbing function */
 /*! \{ */
@@ -6948,6 +7145,67 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
    return val;
 }
 
+float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_scale_factor) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      int imol_map = g.Imol_Refinement_Map();
+      if (is_valid_map_molecule(imol_map)) { 
+	 float map_sigma = g.molecules[imol_map].map_sigma();
+	 PPCAtom atom_selection = g.molecules[imol].atom_sel.atom_selection;
+	 int n_atoms = g.molecules[imol].atom_sel.n_selected_atoms;
+	 bool use_biased_density_scoring = false; // not for all-molecule
+	 g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
+						       g.molecules[imol_map].xmap_list[0],
+						       map_sigma,
+						       n_trials, jiggle_scale_factor,
+						       use_biased_density_scoring);
+	 graphics_draw();
+      }
+   }
+   return 0.0;
+}
+
+float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      int imol_map = g.Imol_Refinement_Map();
+      CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+      if (is_valid_map_molecule(imol_map)) { 
+	 float map_sigma = g.molecules[imol_map].map_sigma();
+	 
+	 PPCAtom atom_selection = 0;
+	 int n_atoms;
+
+	 int SelHnd = mol->NewSelection();
+
+	 mol->SelectAtoms(SelHnd, 0,
+			  chain_id,
+			  ANY_RES, "*",
+			  ANY_RES, "*",
+			  "*","*","*","*",SKEY_NEW);
+	 
+	 mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+	 if (n_atoms) { 
+	    bool use_biased_density_scoring = false; // not for all-molecule
+	    g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
+							  g.molecules[imol_map].xmap_list[0],
+							  map_sigma,
+							  n_trials, jiggle_scale_factor,
+							  use_biased_density_scoring);
+	    mol->DeleteSelection(SelHnd);
+	    graphics_draw();
+	 } else {
+	    add_status_bar_text("Jiggle Fit: No atoms selected.");
+	 } 
+      }
+   }
+   return 0.0;
+}
+
+
+
 /* add a linked residue based purely on dictionary templete. 
    For addition of NAG to ASNs typically.
 
@@ -6956,7 +7214,7 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
    return success status (0 = fail).
 */
 int add_linked_residue(int imol, const char *chain_id, int resno, const char *ins_code, 
-		       const char *new_residue_comp_id, const char *link_type) {
+		       const char *new_residue_comp_id, const char *link_type, int n_trials) {
 
    int status = 0;
    if (is_valid_model_molecule(imol)) {
@@ -6975,7 +7233,7 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
 	    std::vector<coot::residue_spec_t> residue_specs;
 	    residue_specs.push_back(res_spec);
 	    residue_specs.push_back(new_res_spec);
-	    g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	    g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 	 }
       }
       graphics_draw();
@@ -6994,6 +7252,7 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
 SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char *ins_code, 
 			   const char *new_residue_comp_id, const char *link_type) {
 
+   int n_trials = 10000;
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
@@ -7012,7 +7271,21 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 	    std::vector<coot::residue_spec_t> residue_specs;
 	    residue_specs.push_back(res_spec);
 	    residue_specs.push_back(new_res_spec);
-	    g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	    int n_trials = 1000;
+
+	    // 2 rounds of fit then refine
+	    for (int ii=0; ii<2; ii++) { 
+	       g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
+
+	       // refine and re-torsion-fit
+	       int mode = graphics_info_t::refinement_immediate_replacement_flag;
+	       std::string alt_conf;
+	       graphics_info_t::refinement_immediate_replacement_flag = 1;
+	       refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
+	       accept_regularizement();
+	       remove_initial_position_restraints(imol, residue_specs);
+	       graphics_info_t::refinement_immediate_replacement_flag = mode;
+	    }
 	 }
       }
       graphics_draw();
@@ -7025,6 +7298,7 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const char *ins_code, 
 				const char *new_residue_comp_id, const char *link_type) {
 
+   int n_trials = 1000;
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
@@ -7043,7 +7317,7 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
 	    std::vector<coot::residue_spec_t> residue_specs;
 	    residue_specs.push_back(res_spec);
 	    residue_specs.push_back(new_res_spec);
-	    g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	    g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 	 }
       }
       graphics_draw();
@@ -7064,7 +7338,8 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
 
 #ifdef USE_GUILE
 SCM
-protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int nfrags) {
+protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int nfrags,
+		     bool preserve_residue_names) {
 
    SCM r = SCM_BOOL_F;
    std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(residue_specs_scm);
@@ -7074,7 +7349,7 @@ protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int n
 		<< std::endl;
    } else {
       std::pair<std::pair<int, int>, std::vector<int> > p = 
-	 protein_db_loops(imol_coords, specs, imol_map, nfrags);
+	 protein_db_loops(imol_coords, specs, imol_map, nfrags, preserve_residue_names);
       SCM mol_list_scm = SCM_EOL;
       // add backwards (for scheme)
       for (int i=(p.second.size()-1); i>=0; i--)
@@ -7088,7 +7363,8 @@ protein_db_loops_scm(int imol_coords, SCM residue_specs_scm, int imol_map, int n
 
 #ifdef USE_PYTHON
 PyObject *
-protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, int nfrags) {
+protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, int nfrags,
+		    bool preserve_residue_names) {
 
    PyObject *r = Py_False;
    std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_py);
@@ -7098,7 +7374,7 @@ protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, i
 		<< std::endl;
    } else {
       std::pair<std::pair<int, int>, std::vector<int> > p = 
-	 protein_db_loops(imol_coords, specs, imol_map, nfrags);
+	 protein_db_loops(imol_coords, specs, imol_map, nfrags, preserve_residue_names);
       PyObject *mol_list_py = PyList_New(p.second.size());
       for (int i=0; i< p.second.size(); i++)
         PyList_SetItem(mol_list_py, i, PyInt_FromLong(p.second[i]));
@@ -7126,8 +7402,9 @@ protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, i
 // return -1 in the first of the pair on failure
 // 
 std::pair<std::pair<int, int> , std::vector<int> > 
-protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &residue_specs, int imol_map, int nfrags) {
-
+protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &residue_specs, int imol_map, int nfrags,
+		 bool preserve_residue_names) {
+   
    int imol_consolodated = -1;
    int imol_loop_orig = -1; // set later hopefully
    std::vector<int> vec_chain_mols;
@@ -7157,7 +7434,7 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 
 	       // a molecule for each chain
 	       for(unsigned int ich=0; ich<chains.size(); ich++) { 
-		  CMMDBManager *mol = make_mol(chains[ich], chain_id, first_res_no);
+		  CMMDBManager *mol = make_mol(chains[ich], chain_id, first_res_no, preserve_residue_names);
 		  int imol = graphics_info_t::create_molecule();
 		  std::string name = "Loop candidate #"; 
 		  name += coot::util::int_to_string(ich+1);
@@ -7169,7 +7446,7 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 
 	       // The consolodated molecule
 	       imol_consolodated = graphics_info_t::create_molecule();
-	       CMMDBManager *mol = make_mol(chains, chain_id, first_res_no);
+	       CMMDBManager *mol = make_mol(chains, chain_id, first_res_no, preserve_residue_names);
 	       std::string name = "All Loop candidates "; 
 	       graphics_info_t::molecules[imol_consolodated].install_model(imol_consolodated, 
 									   mol, name, 1);

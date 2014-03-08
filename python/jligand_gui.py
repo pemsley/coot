@@ -9,6 +9,7 @@ def launch_jligand_function():
     global java_command
     
     start_jligand_listener()
+    # maybe this should rather check PATH or similar!? FIXME
     if not os.path.isfile(jligand_jar):
 
         # Boo.  Give us a warning dialog
@@ -82,6 +83,16 @@ def click_select_residues_for_jligand():
                     print "Bad resnames: %s and %s" %(resname_1, resname_2)
                 else:
                     if not (imol_click_1 == imol_click_2):
+                        msg = "Two different molecules %s and %s selected.\n" \
+                              %(imol_click_1, imol_click_2) + \
+                              "Make sure to select residues in the same molecule."
+                        info_dialog(msg)
+                        imol_jligand_link = False
+                    elif (resname_1 == resname_2):
+                        msg = "Same residue (type) %s selected.\n" \
+                              %resname_1 + \
+                              "Make sure to select different residue types."
+                        info_dialog(msg)
                         imol_jligand_link = False
                     else:
                         # happy path

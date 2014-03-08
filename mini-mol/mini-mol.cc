@@ -26,7 +26,7 @@
 // #include "coot-coord-utils.hh"   no! mini-mol should be a low level library, not depend on
                                  // higher level libs.
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 coot::minimol::molecule::molecule(CMMDBManager *mol) {
    setup(mol);
@@ -96,26 +96,26 @@ coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
       // goes in the minimol.  First we need to find the chain, then
       // residue.  Then add the atom to the residue.
       
-      bool found_fragment = 0;
-      int ifrag_atom = -1;
+      bool found_fragment = false;
+      int ifrag_for_atom = -1;
       for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) {
 	 if (fragments[ifrag].fragment_id == chain_id) {
-	    found_fragment = 1;
-	    ifrag_atom = ifrag;
+	    found_fragment = true;
+	    ifrag_for_atom = ifrag;
 	 }
       }
       
-      if (!found_fragment) {
+      if (! found_fragment) {
 	 coot::minimol::fragment frag(chain_id);
 	 fragments.push_back(frag);
-	 ifrag_atom = 0;
+	 ifrag_for_atom = fragments.size() -1;
       }
 
       // now find the residue, or add one.
-      bool found_residue = 0;
-      if (resno <= fragments[ifrag_atom].max_residue_number()) {
-	 if (resno >= fragments[ifrag_atom].min_res_no()) {
-	    found_residue = 1;
+      bool found_residue = false;
+      if (resno <= fragments[ifrag_for_atom].max_residue_number()) {
+	 if (resno >= fragments[ifrag_for_atom].min_res_no()) {
+	    found_residue = true;
 	 }
       }
 
@@ -126,7 +126,7 @@ coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
 	 minimol_atom.pos = clipper::Coord_orth(atoms[iat].x, atoms[iat].y, atoms[iat].z);
 	 res.addatom(minimol_atom);
 	 try { 
-	    fragments[ifrag_atom].addresidue(res,1);
+	    fragments[ifrag_for_atom].addresidue(res,1);
 	 }
 	 catch (std::runtime_error rte) {
 	    std::cout << "ERROR:: minimol constructor " << rte.what() << std::endl;
@@ -134,7 +134,7 @@ coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
       } else {
 	 coot::minimol::atom minimol_atom(at);
 	 minimol_atom.pos = clipper::Coord_orth(atoms[iat].x, atoms[iat].y, atoms[iat].z);
-	 fragments[ifrag_atom][resno].addatom(minimol_atom);
+	 fragments[ifrag_for_atom][resno].addatom(minimol_atom);
       } 
    }
 
@@ -621,12 +621,13 @@ coot::minimol::fragment::operator[](int i) {
 	 int new_offset = i - 1;
 	 int offset_diff = new_offset - residues_offset;
 
-	 check();
+	 // 	 check();
 
-	 std::cout << "DEBUG:: residues.size() is " << residues.size() << " and offset_diff is " << offset_diff
-		   << " new_offset " << new_offset << " residues_offset " << residues_offset
-		   << " and passed i " << i << std::endl;
-	 std::cout << "FYI: MinInt4 is " << MinInt4 << std::endl;
+// 	 std::cout << "DEBUG:: residues.size() is " << residues.size() << " and offset_diff is " << offset_diff
+// 		   << " new_offset " << new_offset << " residues_offset " << residues_offset
+// 		   << " and passed i " << i << std::endl;
+// 	 std::cout << "FYI: MinInt4 is " << MinInt4 << std::endl;
+	 
 	 std::vector<residue> new_residues(residues.size() - offset_diff);
 	 // copy across the current residues...
 	 if (residues.size() > 0) { 
@@ -990,6 +991,20 @@ coot::minimol::molecule::transform(const clipper::RTop_orth &rtop) {
 }
 
 
+void
+coot::minimol::molecule::transform(const clipper::RTop_orth &rtop, const clipper::Coord_orth &pos) {
+
+   // this is heavy-weight - baah (we need a shift operator for atoms, residues and fragments)
+   // 
+   clipper::RTop_orth shift_1(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1), -pos);
+   clipper::RTop_orth shift_2(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1),  pos);
+   transform(shift_1);
+   transform(rtop);
+   transform(shift_2);
+} 
+
+
+
 std::vector<coot::minimol::atom*>
 coot::minimol::fragment::select_atoms_serial() const {
 
@@ -1350,4 +1365,44 @@ coot::minimol::molecule::get_pos() const {
       std::cout << "ERROR: minimol pos: there are no atoms in the residue" << std::endl;
    }
    return r;
+}
+
+
+// get the RTop that transforms this molecule onto mol_ref.
+// mol_ref is (guaranteed by caller) to be of the same
+// structure as this molecule with (potentially) moved atom positions.
+// 
+std::pair<bool, clipper::RTop_orth>
+coot::minimol::molecule::get_rtop(const molecule &mol_ref) const {
+
+   clipper::Mat33<double> m(1,0,0,0,1,0,0,0,1);
+   clipper::Coord_orth p(0,0,0);
+   clipper::RTop_orth rtop(m,p);
+   bool is_valid = false;
+
+   std::vector<clipper::Coord_orth> p_b; // beginning positions
+   std::vector<clipper::Coord_orth> p_e; // end positions
+   
+   for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++)
+      for (int ires=(*this)[ifrag].min_res_no(); ires<=(*this)[ifrag].max_residue_number(); ires++)
+	 for (int iat=0; iat<(*this)[ifrag][ires].n_atoms(); iat++)
+	    p_b.push_back((*this)[ifrag][ires][iat].pos);
+   
+   for (unsigned int ifrag=0; ifrag<mol_ref.fragments.size(); ifrag++)
+      for (int ires=mol_ref[ifrag].min_res_no(); ires<=mol_ref[ifrag].max_residue_number(); ires++)
+	 for (int iat=0; iat<mol_ref[ifrag][ires].n_atoms(); iat++)
+	    p_e.push_back(mol_ref[ifrag][ires][iat].pos);
+   
+   if (p_b.size() == 0 ) {
+      std::cout << "WARNING molecule::get_rtop() zero atoms" << std::endl;
+   } else { 
+      if (p_b.size() != p_e.size()) {
+	 std::cout << "WARNING molecule::get_rtop() mis-matching atoms" << std::endl;
+      } else {
+	 rtop = clipper::RTop_orth(p_e, p_b);
+	 is_valid = true;
+      }
+   } 
+   return std::pair<bool, clipper::RTop_orth> (is_valid, rtop);
+
 }

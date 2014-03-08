@@ -31,6 +31,8 @@
 #include <stdlib.h>
 #include <iostream>
 
+#include "compat/coot-sysdep.h"
+
 
 #include "guile-fixups.h"
 
@@ -354,7 +356,14 @@ void add_refmac_extra_restraints(int imol, const char *file_name) {
 
 void set_show_extra_restraints(int imol, int state) {
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].set_extra_restraints_are_displayed(state);
+      graphics_info_t::molecules[imol].set_display_extra_restraints(state);
+   }
+   graphics_draw();
+}
+
+void set_show_parallel_plane_restraints(int imol, int state) {
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_display_parallel_plane_restraints(state);
    }
    graphics_draw();
 }
@@ -363,6 +372,13 @@ int extra_restraints_are_shown(int imol) {
    int r = 0;
    if (is_valid_model_molecule(imol))
       r = graphics_info_t::molecules[imol].drawit_for_extra_restraints;
+   return r;
+}
+
+int parallel_plane_restraints_are_shown(int imol) {
+   int r = 0;
+   if (is_valid_model_molecule(imol))
+      r = graphics_info_t::molecules[imol].drawit_for_parallel_plane_restraints;
    return r;
 } 
 
@@ -741,7 +757,37 @@ void delete_extra_restraints_worse_than(int imol, float n_sigma) {
 
 void
 set_use_only_extra_torsion_restraints_for_torsions(short int state) {
-
    graphics_info_t:: use_only_extra_torsion_restraints_for_torsions_flag = state;
-
 } 
+
+void
+add_initial_position_restraints(int imol, const std::vector<coot::residue_spec_t> &residue_specs,
+				double weight) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      for (unsigned int i=0; i<residue_specs.size(); i++) {
+	 CResidue *residue_p = g.molecules[imol].get_residue(residue_specs[i]);
+	 if (residue_p) {
+	    PPCAtom residue_atoms = 0;
+	    int n_residue_atoms;
+	    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	       CAtom *at = residue_atoms[iat];
+	       add_extra_start_pos_restraint(imol,
+					     at->GetChainID(), 
+					     at->GetSeqNum(), 
+					     at->GetInsCode(), 
+					     at->GetAtomName(), 
+					     at->altLoc,
+					     weight);
+	    }
+	 } 
+      }
+   }
+}
+
+void
+remove_initial_position_restraints(int imol, const std::vector<coot::residue_spec_t> &residue_specs) {
+   delete_all_extra_restraints(imol);
+}

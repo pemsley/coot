@@ -44,9 +44,9 @@
 #include "mmdb-extras.h"
 #include "mmdb.h"
 #include "mmdb-crystal.h"
-#include "coot-utils.hh" // for Upper
+#include "utils/coot-utils.hh" // for Upper
 
-#include "mini-mol.hh"
+#include "mini-mol/mini-mol.hh"
 
 // Note that with expansion_size small or 0, symmetry operators are
 // missed.  We only consider symmetry operators that put the point in
@@ -197,16 +197,33 @@ molecule_extents_t::~molecule_extents_t() {
 } 
 
 coot::Cartesian
-molecule_extents_t::get_front() {
-
+molecule_extents_t::get_front() const {
    return front;
+}
+
+coot::Cartesian
+molecule_extents_t::get_back() const {
+   // Jojo
+   return back;
 } 
 
 coot::Cartesian
-molecule_extents_t::get_back() {
-   // Jojo
+molecule_extents_t::get_left() const {
+   return left;
+}
 
-   return back;
+coot::Cartesian
+molecule_extents_t::get_right() const {
+   return right;
+} 
+coot::Cartesian
+molecule_extents_t::get_top() const {
+   return top;
+}
+
+coot::Cartesian
+molecule_extents_t::get_bottom() const {
+   return bottom;
 } 
 
 
@@ -524,8 +541,6 @@ molecule_extents_t::shift_matrix(CMMDBManager *mol,
 				 mat44 my_matt,
 				 int x_shift, int y_shift, int z_shift,
 				 mat44 new_matrix) const {
-
-
    mat44 amat;
    mol->GetTMatrix(amat, 0, x_shift, y_shift, z_shift);
    for (int i=0; i<4; i++) 
@@ -980,10 +995,8 @@ translated_atoms(atom_selection_container_t AtomSel,
 		symm_trans_t symm_trans) {
 
    mat44 my_matt;
-   CMMDBCryst *cryst_p =  (CMMDBCryst *) &AtomSel.mol->get_cell();
-   
-   int err = cryst_p->GetTMatrix(my_matt, symm_trans.isym(), symm_trans.x(),
-				 symm_trans.y(), symm_trans.z());
+   int err = AtomSel.mol->GetTMatrix(my_matt, symm_trans.isym(), symm_trans.x(),
+				      symm_trans.y(), symm_trans.z());
    
    if (err != 0) {
       cout << "!!!!!!!!!!!!!! something BAD with CMMDBCryst.GetTMatrix"

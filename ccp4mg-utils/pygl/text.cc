@@ -62,6 +62,7 @@ typedef struct StringPos {
    std::vector<double> col;
 } StringPos;
 
+/*
 void BuildTextTextures(MGFontInfo &finfo){
   std::cout << "Building Textures for " << finfo.Family() << "\n"; std::cout.flush();
   glEnable(GL_TEXTURE_2D);
@@ -173,7 +174,7 @@ void SimpleText::BitMapFont(int count, int left, const MGFontInfo &finfo, int un
 		finfo.Descent(count)+baseline+yskip*finfo.BaseLineSkip(),
 		0);
 
-      /* And then advance raster position */
+      // And then advance raster position
       glBitmap (0,0,0,0,
 		finfo.AdvanceX(count)-finfo.LBearing(count)-kern,
 		finfo.AdvanceY(count),
@@ -240,6 +241,7 @@ void SimpleText::BlankBitMapFont(int count, int left, const MGFontInfo &finfo){
   }
 
 }
+*/
 
 int SimpleText::LoadFont(){
   return 0;
@@ -320,6 +322,7 @@ SimpleText::SimpleText(const Cartesian &vertex_in, const std::string &text_in, c
   text_width=0;
   //renderStringToPixmap(); 
   texture_id = 0;
+  texture_id_b = 0;
   //initialize();
   multicoloured = false;
   centered = false;
@@ -327,6 +330,12 @@ SimpleText::SimpleText(const Cartesian &vertex_in, const std::string &text_in, c
 
 void SimpleText::initialize(){
 
+  if(texture_id>0) {
+          glDeleteTextures(1,&texture_id);
+  }
+  if(texture_id_b>0) {
+          glDeleteTextures(1,&texture_id_b);
+  }
   glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
@@ -367,7 +376,7 @@ void SimpleText::SetColour(float r, float g, float b, float a) {
   colour[0] = r;
   colour[1] = g;
   colour[2] = b;
-  colour[3] = a;
+  //colour[3] = a;
   return;
   glDisable(GL_LIGHTING);
   glColor4f(r,g,b,a);
@@ -808,6 +817,7 @@ void PSBlank(char c){
 void PSBackspace(char c){
 }
 
+/*
 int CalculateStringSize(const MGFontInfo &finfo, const std::string &str){
   if(!finfo.isValid()) return 0;
   int have_kerning = 0;
@@ -839,6 +849,7 @@ int CalculateStringSize(const MGFontInfo &finfo, const std::string &str){
   }
   return current_advance;
 }
+*/
 
 void SimpleText::DrawPSmain(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, double xoff, double yoff, double xscale, double yscale, double xscaleps, const Volume &v, bool is_a_bill_board){
 

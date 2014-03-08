@@ -18,7 +18,7 @@
      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
      GNU Lesser General Public License for more details.
 */
-#if defined (_WIN32)
+#if defined (_WIN32) && not defined (WINDOWS_MINGW)
 #include <windows.h>
 #if !defined (__GNUC__)
 #define snprintf _snprintf
@@ -48,39 +48,6 @@
 #include "volume.h"
 
 #include <vector>
-
-// These are  helper functions which don't depend on an OPENGL context.
-void setTextureMatrix(void);
-image_info get_pixdata(int trans=0);
-void write_pixdata(const char *filename, int width=-1, int height=-1, int trans=0);
-int findprimc(const std::vector<Cartesian> &xyzbox, const std::vector<Cartesian> &primorigin, const Cartesian &origin, const matrix &objrotmat);
-int findprimc(double *xyzmpc, double *xyzmmc, double *xyzpmc, double *xyzppc, std::vector<Cartesian> primorigin, Cartesian origin, matrix objrotmat);
-int findprimc_main(const Cartesian &xyzmpf, const Cartesian &xyzmpb, const Cartesian &xyzmmf, const Cartesian &xyzmmb, const Cartesian &xyzpmf, const Cartesian &xyzpmb, const Cartesian &xyzppf, const Cartesian &xyzppb, const std::vector<Cartesian> &primorigin,const Cartesian &origin,const matrix &objrotmat);
-std::vector<Cartesian>getxyzc(double x,double y);
-const double *GLf2f(const GLfloat *in, int size);
-const GLfloat *f2GLf(double *in, int size);
-const GLfloat *buildrotmatrix_from_c(matrix a);
-const GLfloat *buildrotmatrix(
-GLfloat a0, GLfloat a1, GLfloat a2, GLfloat a3, 
-GLfloat a4, GLfloat a5, GLfloat a6, GLfloat a7, 
-GLfloat a8, GLfloat a9, GLfloat a10, GLfloat a11, 
-GLfloat a12, GLfloat a13, GLfloat a14, GLfloat a15);
-
-int CheckIfStereoAvailable(void);
-int CheckIfAlphaAvailable(void);
-
-image_info_yuv_t get_yuvdata(int trans=0);
-
-Volume GetClippingPlanes();
-Volume GetFrontAndBackClippingPlanes();
-bool isPointInClippingVolume(const Cartesian &p, const Volume &v);
-
-void SetupFBOBlending();
-
-void DrawAxes(float y, int w, int h, const Quat &quat, float viewsize, const std::vector<double> &axes_position,
- unsigned tex_id_x_0, unsigned tex_id_x_1, unsigned tex_id_y_0, unsigned tex_id_y_1, unsigned tex_id_z_0, unsigned tex_id_z_1, 
- unsigned tex_image_x_0_w, unsigned tex_image_x_0_h, unsigned tex_image_y_0_w, unsigned tex_image_y_0_h, unsigned tex_image_z_0_w, unsigned tex_image_z_0_h, int descent
-);
 
 class OffScreenBuffer{
   unsigned width;
@@ -132,6 +99,9 @@ class OnScreenBuffer{
 
 void SetStereoAvailable(int stereo_available_in);
 
+#if defined (_WIN32) && not defined (WINDOWS_MINGW)
+#define EXAMPLE_DLL __declspec(dllexport)
+#endif
 class MGFramebufferObject {
  protected:
   GLuint _texture;
@@ -139,24 +109,49 @@ class MGFramebufferObject {
   int _width;
   int _height;
  public:
-  MGFramebufferObject(){};
+#if defined (_WIN32) && not defined (WINDOWS_MINGW)
+  __stdcall EXAMPLE_DLL MGFramebufferObject();
+  __stdcall EXAMPLE_DLL ~MGFramebufferObject();
+  __stdcall EXAMPLE_DLL MGFramebufferObject(int theWidth, int theHeight);
+  unsigned __stdcall EXAMPLE_DLL texture();
+  unsigned __stdcall EXAMPLE_DLL handle();
+  int __stdcall EXAMPLE_DLL width();
+  int __stdcall EXAMPLE_DLL height();
+  void __stdcall EXAMPLE_DLL bind();
+  void __stdcall EXAMPLE_DLL release();
+#else
+  MGFramebufferObject();
+  ~MGFramebufferObject();
   MGFramebufferObject(int theWidth, int theHeight);
-  unsigned texture(){ return _texture; }
-  unsigned handle(){ return _id; }
-  int width(){ return _width; }
-  int height(){ return _height; }
+  unsigned texture();
+  unsigned handle();
+  int width();
+  int height();
   void bind();
   void release();
+#endif
 };
 
 class MGDepthFramebufferObject : public MGFramebufferObject {
  public:
-  MGDepthFramebufferObject(int theWidth, int theHeight);
+#if defined (_WIN32) && not defined (WINDOWS_MINGW)
+   __stdcall EXAMPLE_DLL MGDepthFramebufferObject(int theWidth, int theHeight);
+   __stdcall EXAMPLE_DLL ~MGDepthFramebufferObject();
+#else
+   MGDepthFramebufferObject(int theWidth, int theHeight);
+   ~MGDepthFramebufferObject();
+#endif
 };
 
 class MGDepthCompareFramebufferObject : public MGFramebufferObject {
  public:
-  MGDepthCompareFramebufferObject(int theWidth, int theHeight);
+#if defined (_WIN32) && not defined (WINDOWS_MINGW)
+   __stdcall EXAMPLE_DLL MGDepthCompareFramebufferObject(int theWidth, int theHeight);
+   __stdcall EXAMPLE_DLL ~MGDepthCompareFramebufferObject();
+#else
+   MGDepthCompareFramebufferObject(int theWidth, int theHeight);
+   ~MGDepthCompareFramebufferObject();
+#endif
 };
 
 #endif

@@ -61,7 +61,7 @@ bool CCompoundGroup::groupMatch[13][13] = {
  {true ,true ,true ,true ,true ,true ,true ,true ,true ,true ,true ,true ,true} };
 
 
-char *CCompoundGroup::cifGroupNames[12] = { "peptide", "D-peptide", "L-peptide", 
+const char *CCompoundGroup::cifGroupNames[12] = { "peptide", "D-peptide", "L-peptide", 
 			     "DNA/RNA", "DNA", "RNA", 
 		 "saccharide", "pyranose", "D-saccharid","L-saccharid", 
 			     "solvent","non-polymer" };
@@ -72,14 +72,14 @@ int CCompoundGroup::groupCode[12] = { RESTYPE_PEPTIDE, RESTYPE_DPEPTIDE,  RESTYP
 
 // definition of the CLibAtom atom hydrogen bonding types
 int CLibAtom::nHbCodes = 6;
-char *CLibAtom::hbCharCode[6] = { "U", "N", "H", "D", "B", "A" };
+const char *CLibAtom::hbCharCode[6] = { "U", "N", "H", "D", "B", "A" };
 int CLibAtom::hbCode[6] = { HBTYPE_UNKNOWN,HBTYPE_NEITHER, HBTYPE_HYDROGEN, 
                     HBTYPE_DONOR, HBTYPE_BOTH, HBTYPE_ACCEPTOR };
 
 // definition of CLibBond bond types
  
 int CLibBond::nBondCodes = 6;
-char *CLibBond::bondCharCode[6] = { "single" , "double", "triple", 
+const char *CLibBond::bondCharCode[6] = { "single" , "double", "triple", 
 				    "aromatic", "deloc", "metal" };
 int CLibBond::bondCode[6] = {  BONDTYPE_SINGLE, BONDTYPE_DOUBLE, 
 			       BONDTYPE_TRIPLE, BONDTYPE_AROMATIC, 
@@ -203,7 +203,7 @@ int CMGSBase::InitSBase(char *sb) {
   int RC,i;
   int nload = 21;
   LoadedPCSBStructure dummy;
-  char *load[] = { "ALA","GLY","SER","THR","ASP","GLU","ASN","GLN",
+  const char *load[] = { "ALA","GLY","SER","THR","ASP","GLU","ASN","GLN",
                    "LEU","ILE","PHE","TYR","HIS","CYS","MET","TRP",
 		   "ARG","LYS","PRO","VAL","HOH" };
   if (strlen(sb)>0) {
@@ -1251,8 +1251,8 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
 int CMGSBase::HandleTerminii(PCResidue pRes, int udd_atomEnergyType ) {
   // Check for peptide chain terminii to fix the typing of N and O
   PCAtom pAtom;
-  char *Nnames[] = { "N", "NT" };
-  char *Onames[] = { "O", "OXT" , "OE" };
+  const char *Nnames[] = { "N", "NT" };
+  const char *Onames[] = { "O", "OXT" , "OE" };
   if ( isAminoacid(pRes->name) ) {
     //cout << "isAminoacid " << pRes->name << pRes->seqNum << endl;
     if ( pRes->index == 0 ) {
@@ -1277,7 +1277,7 @@ int CMGSBase::HandleTerminii(PCResidue pRes, int udd_atomEnergyType ) {
 
 
 int CMGSBase::MatchGraphs(PCResidue pRes,int Hflag, Boolean Cflag, 
-                          const pstr altLoc, 
+                          cpstr altLoc, 
                           PCSBStructure pSbaseRes, int &nMatched,
 			  ivector match, int tolMatch ) {
   
@@ -1538,9 +1538,9 @@ MGCLink::~MGCLink() {
 int  MGCLink::GetCif(  PCMMCIFLoop Loop1, int N ) {
 //----------------------------------------------------------------
   int RC;
-  pstr cmp,modif,grp,atm;
+  pstr cmp,modif,grp;
  
-  atm = "";
+  cpstr atm = "";
  
    if (!Loop1) return -1;
   if (N >= Loop1->GetLoopLength()) return -1;
@@ -1596,7 +1596,7 @@ MGCLinkGroup::MGCLinkGroup ( ): group() {
 }
 
 //------------------------------------------------------------------------
-void MGCLinkGroup::Set ( char *comp, char *modif, char *grp, char *atm ) {
+void MGCLinkGroup::Set ( const char *comp, const char *modif, const char *grp, const char *atm ) {
 //------------------------------------------------------------------------
   if ( comp) strcpy(compId,comp);
   if ( modif) strcpy(modId,modif);
@@ -1643,14 +1643,14 @@ void CCompoundGroup::Set ( int cd ) {
   code = cd;
 }
 //------------------------------------------------------------------------
-void CCompoundGroup::Set ( pstr name ) {
+void CCompoundGroup::Set ( cpstr name ) {
 //------------------------------------------------------------------------
   code = GetCifGroupCode ( name );
   //printf("Compound %s %i\n",name,code);
 }
 
 //------------------------------------------------------------------------
-int CCompoundGroup::GetCifGroupCode ( pstr name ) {
+int CCompoundGroup::GetCifGroupCode ( cpstr name ) {
 //------------------------------------------------------------------------
   int i;
   int retCode = RESTYPE_UNKNOWN;
@@ -1793,6 +1793,7 @@ int CMGSBase::AddCovalentDistance(Element a1, Element a2,realtype mind,realtype 
 //------------------------------------------------------------------
   CMGCovalentDistance cd(std::string(a1),std::string(a2),mind,maxd);
   covalentDistances.push_back(cd);
+  return 0;
 }
 
 //------------------------------------------------------------------
@@ -1883,13 +1884,13 @@ int  CMGSBase::GetNofLibAtoms() {
 
 
 //--------------------------------------------------------------
-int CMGSBase::LibAtom ( pstr atomType ) {
+int CMGSBase::LibAtom ( cpstr atomType ) {
 //--------------------------------------------------------------
   return LibAtom(atomType,"");
 }
 
 //--------------------------------------------------------------
-int CMGSBase::LibAtom ( pstr atomType, pstr element ) {
+int CMGSBase::LibAtom ( cpstr atomType, cpstr element ) {
 //--------------------------------------------------------------
   int i;
   //cout << "element" << element << "*" << endl;
@@ -1915,9 +1916,8 @@ int CMGSBase::LibAtom ( pstr atomType, pstr element ) {
   }
   
   //cout << "defaulting to C" << endl;
-  element = " C";
   for (i = 0; i < nLibElements; i++ ) {
-    if ( strcmp(libElement[i]->name,element)==0 ) 
+    if ( strcmp(libElement[i]->name," C")==0 ) 
         return libElement[i]->defaultAtomIndex;
   }
   return -1; 
@@ -1926,7 +1926,7 @@ int CMGSBase::LibAtom ( pstr atomType, pstr element ) {
 
 
 //--------------------------------------------------------------
-int CMGSBase::LibAtom ( pstr resType, int atomIndex ) {
+int CMGSBase::LibAtom ( cpstr resType, int atomIndex ) {
 //--------------------------------------------------------------
   int i;
   PCSBStructure p_sbase_struct;
@@ -2048,7 +2048,7 @@ int CLibAtom::encodeHbType ( pstr hb ) {
   return HBTYPE_UNKNOWN;
 }
 //------------------------------------------------------------------
-char* CLibAtom::getHBType () {
+const char* CLibAtom::getHBType () {
 //------------------------------------------------------------------
 //Interpret one-letter atom hydrogen bonding type as an integer code
   int i;

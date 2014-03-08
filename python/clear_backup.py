@@ -193,8 +193,8 @@ def clear_backups_maybe():
             val = fin.read()
             fin.close()
             try:
-                int(val)
-                if (val < last_week):
+                ival = int(val)
+                if (ival < last_week):
                     ret = clear_backup_gui()
                     return ret
                 else:

@@ -43,6 +43,11 @@ if test x$with_python != x; then
    if test x$PYTHON = x ; then
       PYTHON=python
    fi
+   # Similar for python-config
+   #
+   if test x$PYTHON_CONFIG = x ; then
+      PYTHON_CONFIG=python-config
+   fi
 
    # Check to see if python exists:
    $PYTHON -c ''
@@ -65,11 +70,11 @@ if test x$with_python != x; then
      PYTHON_LIBS_PRE="-L`$PYTHON -c "$py_cmd"`"
    else 
      # normal execution proceeds..
-     PYTHON_CFLAGS="-DUSE_PYTHON `python-config --include`"
+     PYTHON_CFLAGS="-DUSE_PYTHON `$PYTHON_CONFIG --includes`"
    # PYTHON_LIBS="-L/h/paule/build/lib/python2.2/config -lpython2.2 -lutil"
      config_dir=`$PYTHON -c "import sys; print sys.prefix + '/$acl_libdirstem/python' + sys.version[[:3]] + '/config'"`
      # echo  ======== config_dir: $config_dir
-     PYTHON_LIBS_PRE="`python-config --ldflags`"
+     PYTHON_LIBS_PRE="`$PYTHON_CONFIG --ldflags`"
    
      # extra hacking so that -ldl appears after -lpython2.x (needed
      # for correct linking on some systems)
@@ -127,7 +132,8 @@ if test x$with_python != x; then
 	# BL says:: same as for cygwin in mingw
 	# dunno where else to put the glob at the moment
 	MINGW*|Mingw*|*mingw*)
-		UTIL_LIB="-lglob"
+		#UTIL_LIB="-lglob"
+		UTIL_LIB=""
 	;;
    esac	
 

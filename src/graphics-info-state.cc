@@ -723,12 +723,14 @@ graphics_info_t::save_state() {
    if (run_state_file_status) {
       short int il = coot::SCHEME_SCRIPT;
 #ifdef USE_GUILE
-      r = save_state_file(save_state_file_name, il);
+      if (state_file_was_run_flag) 
+	 r = save_state_file(save_state_file_name, il);
 #endif // USE_GUILE
       
 #ifdef USE_PYTHON
       il = coot::PYTHON_SCRIPT;
-      r = save_state_file("0-coot.state.py", il);
+      if (state_file_was_run_flag) 
+	 r = save_state_file("0-coot.state.py", il);
 #endif // USE_PYTHON   
       return r;
    }

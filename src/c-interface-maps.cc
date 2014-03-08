@@ -27,9 +27,11 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "coot-map-utils.hh" // for variance map
-#include "xmap-stats.hh"
-#include "BuildCas.h"
+#include "coot-utils/coot-map-utils.hh" // for variance map
+#include "coot-utils/xmap-stats.hh"
+#include "skeleton/BuildCas.h"
+#include "skeleton/graphical_skel.h"
+#include "coot-utils/xmap-stats.hh"
 
 #include "c-interface-mmdb.hh"
 #include "c-interface-python.hh"
@@ -930,8 +932,6 @@ void set_scrollable_map(int imol) {
    }
      
 }
-#include "graphical_skel.h"
-#include "xmap-stats.hh"
 
 // For some as yet unknown reason, this code is executed when we
 // select skeleton off.
@@ -1178,8 +1178,6 @@ handle_read_ccp4_map(const char* filename, int is_diff_map_flag) {
 						   *graphics_info_t::map_glob_extensions);
 
       if (istate > -1) { // not a failure
-
-	 std::string name = g.molecules[imol_new].dotted_chopped_name();
 	 g.scroll_wheel_map = imol_new;  // change the current scrollable map.
 	 g.activate_scroll_radio_button_in_display_manager(imol_new);
       } else {
@@ -1242,7 +1240,21 @@ int export_map_fragment(int imol, float x, float y, float z, float radius, const
       rv = 1;
    } 
    return rv;
+}
+
+/*! \brief export a fragment of the map about (x,y,z)  */
+int export_map_fragment_with_origin_shift(int imol, float x, float y, float z, float radius, const char *filename) {
+
+   int rv = 0;
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t g;
+      clipper::Coord_orth pos(x,y,z);
+      g.molecules[imol].export_map_fragment_with_origin_shift(radius, pos, filename);
+      rv = 1;
+   } 
+   return rv;
 } 
+
 
 
 /* create a number of maps by segmenting the given map, above the
@@ -1394,6 +1406,29 @@ int difference_map(int imol1, int imol2, float map_scale) {
    }
    return r;
 }
+
+
+int reinterp_map(int map_no, int reference_map_no) {
+
+   int r = -1;
+   if (is_valid_map_molecule(map_no)) { 
+      if (is_valid_map_molecule(reference_map_no)) {
+	 graphics_info_t g;
+	 clipper::Xmap<float> new_map =
+	    coot::util::reinterp_map(g.molecules[map_no].xmap_list[0],
+				     g.molecules[reference_map_no].xmap_list[0]);
+	 int imol = graphics_info_t::create_molecule();
+	 std::string name = "map ";
+	 name += coot::util::int_to_string(map_no);
+	 name += " re-interprolated to match ";
+	 name += coot::util::int_to_string(reference_map_no);
+	 graphics_info_t::molecules[imol].new_map(new_map, name);
+	 r = imol;
+	 graphics_draw();
+      }
+   }
+   return r;
+} 
 
 #ifdef USE_GUILE
 /*! \brief make an average map from the map_number_and_scales (which

@@ -620,6 +620,43 @@
 
 
 
+
+(greg-testcase "Hs are correctly swapped on a TYR" #t
+   (lambda ()
+
+     (let ((imol (greg-pdb "pdb1py3.ent")))
+       (if (not (valid-model-molecule? imol))
+	   (throw 'missing-or-bad-pdb1py3)
+	   
+	   (begin
+
+	     ;; the pdb file contains hydrogens and nomenclature
+	     ;; errors, lets see if we can fix them
+	     ;; 
+	     (fix-nomenclature-errors imol)
+	     (let* ((atoms (residue-info imol "C" 54 "")))
+	       (if (not (list? atoms))
+		   (throw 'atoms-not-a-list)
+		   (let ((cd1 (get-atom-from-residue " CD1" atoms ""))
+			 (cd2 (get-atom-from-residue " CD2" atoms ""))
+			 (hd1 (get-atom-from-residue " HD1" atoms ""))
+			 (hd2 (get-atom-from-residue " HD2" atoms ""))
+			 (ce1 (get-atom-from-residue " CE1" atoms ""))
+			 (ce2 (get-atom-from-residue " CE2" atoms ""))
+			 (he1 (get-atom-from-residue " HE1" atoms ""))
+			 (he2 (get-atom-from-residue " HE2" atoms "")))
+		     (let ((bonded-atoms (list (list cd1 hd1)
+					       (list cd2 hd2)
+					       (list ce1 he1)
+					       (list ce2 he2))))
+		       (let ((results (map (lambda (atom-1 atom-2) 
+					     (bond-length-within-tolerance? atom-1 atom-2 0.93 0.02))
+					   (map car  bonded-atoms)
+					   (map cadr bonded-atoms))))
+			 (format #t "results: ~s~%" results)
+			 (all-true? results)))))))))))
+
+
 (greg-testcase "Splitting residue leaves no atoms with negative occupancy" #t 
    (lambda ()
 
@@ -2446,6 +2483,18 @@
 		 #f ;; fail!
 		 )
 		(else (loop (read-line port)))))))))))
+
+
+(greg-testcase "Adding atoms to Many-Chained Molecule" #t 
+   (lambda () 
+
+     (let ((imol (read-pdb rnase-pdb)))
+       (set-pointer-atom-molecule imol)
+       (for-each 
+	(lambda (i)
+	  (place-typed-atom-at-pointer "Mg"))
+	(range 100))
+       #t))) ;; doesn't crash :)
 
 
 (greg-testcase "Arrange waters round protein" #t

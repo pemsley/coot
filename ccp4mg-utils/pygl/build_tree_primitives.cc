@@ -34,7 +34,7 @@
 #include <mman_manager.h>
 #include "cbuild.h"
 #include "rgbreps.h"
-#include "help.h"
+#include "help_globals.h"
 #include "catmull.h"
 #include <vector>
 #include <utility>
@@ -314,11 +314,11 @@ void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection
   if(labelcolour!=""&&labelcolour!="default"&&labelcolour!="complement"){
        defcol = RGBReps::GetColour(labelcolour);
   }
-  DrawSimpleConnection(obj,conn,colour,style,width,labelstyle,defcol,
+  DrawSimpleConnectionColourVec(obj,conn,colour,style,width,labelstyle,defcol,
 		  family,weight,slant,size);
 }
 
-void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection> &conn, const std::vector<double> &colour, int style, int width, int labelstyle, const std::vector<double>&labelcolf,
+void DrawSimpleConnectionColourVec(Displayobject &obj, const std::vector<SimpleConnection> &conn, const std::vector<double> &colour, int style, int width, int labelstyle, const std::vector<double>&labelcolf,
   const std::string &family,  const std::string &weight, 
   const std::string &slant, const std::string &size){
   double col[3] ={double(colour[0]),double(colour[1]),double(colour[2])};
@@ -447,7 +447,7 @@ void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection
 }
 
 
-void DrawSimpleConnection(Displayobject &obj,
+void DrawSimpleConnectionTags(Displayobject &obj,
   const std::vector<SimpleConnection> &conn,
   const std::vector<double> &colour, int style, int width,
   int labelstyle, const std::string &labelcolour,
@@ -456,12 +456,12 @@ void DrawSimpleConnection(Displayobject &obj,
   const std::vector<int> &tags,const std::vector<int> &selTags){
 
   std::vector<double> labelcolf = RGBReps::GetColour(labelcolour);
-  DrawSimpleConnection(obj,conn,colour,style,width,labelstyle,labelcolf,
+  DrawSimpleConnectionColourVecTags(obj,conn,colour,style,width,labelstyle,labelcolf,
 		  family,weight,slant,size,tags,selTags);
 
 }
 
-void DrawSimpleConnection(Displayobject &obj,
+void DrawSimpleConnectionColourVecTags(Displayobject &obj,
   const std::vector<SimpleConnection> &conn,
   const std::vector<double> &colour, int style, int width,
   int labelstyle, const  std::vector<double> &labelcolf,
@@ -1103,18 +1103,18 @@ void build_spline(const SplineInfo &splineinfo, Displayobject &obj, int mode, co
 ConnectivityDraw::ConnectivityDraw(){
 }
 
-void ConnectivityDraw::SetParametersAndCalculate(const Connectivity &connectivity_in, PCMMANManager molhnd_in, Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms, const AtomColourVector &atom_colour_vector, const std::vector<double> &atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour, int side_to_ribbon, int side_to_worm, int bonds_mode){
+void ConnectivityDraw::SetParametersAndCalculate(const Connectivity &connectivity_in, PCMMANManager molhnd_in, Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms, const AtomColourVector &atom_colour_vector, const std::vector<double> &atomRadii, const SplineInfo &splineinfo_ribbon, const SplineInfo &splineinfo_worm, const std::string &texture, const std::string &bumpmap, int stick_colour, int side_to_ribbon, int side_to_worm, int bonds_mode){
   molhnd = molhnd_in;
-  RedrawPrimitives(obj,connectivity_in,mode,params,global_params,nSelAtoms,atom_colour_vector,atomRadii,texture,bumpmap,stick_colour,side_to_ribbon,side_to_worm,bonds_mode);
+  RedrawPrimitives(obj,connectivity_in,mode,params,global_params,nSelAtoms,atom_colour_vector,atomRadii,splineinfo_ribbon,splineinfo_worm,texture,bumpmap,stick_colour,side_to_ribbon,side_to_worm,bonds_mode);
 }
 
-ConnectivityDraw::ConnectivityDraw(const Connectivity &connectivity_in, PCMMANManager molhnd_in, Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms, const AtomColourVector &atom_colour_vector, const std::vector<double> &atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour, int side_to_ribbon, int side_to_worm,int bonds_mode ){
+ConnectivityDraw::ConnectivityDraw(const Connectivity &connectivity_in, PCMMANManager molhnd_in, Displayobject &obj, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms, const AtomColourVector &atom_colour_vector, const std::vector<double> &atomRadii, const SplineInfo &splineinfo_ribbon, const SplineInfo &splineinfo_worm, const std::string &texture, const std::string &bumpmap, int stick_colour, int side_to_ribbon, int side_to_worm,int bonds_mode ){
 
   molhnd = molhnd_in;
-  RedrawPrimitives(obj,connectivity_in,mode,params,global_params,nSelAtoms,atom_colour_vector,atomRadii,texture,bumpmap,stick_colour,side_to_ribbon,side_to_worm,bonds_mode);
+  RedrawPrimitives(obj,connectivity_in,mode,params,global_params,nSelAtoms,atom_colour_vector,atomRadii,splineinfo_ribbon,splineinfo_worm,texture,bumpmap,stick_colour,side_to_ribbon,side_to_worm,bonds_mode);
 }
 
-void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, const Connectivity &connectivity, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms,  const AtomColourVector &atom_colour_vector, const std::vector<double> &atomRadii, const std::string &texture, const std::string &bumpmap, int stick_colour , int side_to_ribbon, int side_to_worm, int bonds_mode){
+void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, const Connectivity &connectivity, int mode, const CParamsManager &params, const CParamsManager &global_params, int nSelAtoms,  const AtomColourVector &atom_colour_vector, const std::vector<double> &atomRadii, const SplineInfo &splineinfo_ribbon, const SplineInfo &splineinfo_worm, const std::string &texture, const std::string &bumpmap, int stick_colour, int side_to_ribbon, int side_to_worm, int bonds_mode){
 
   double width=1.0;
   bool warning = false;
@@ -1182,8 +1182,9 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, const Connectivity &
   int natoms = connectivity.GetNumberOfAtoms();
   std::vector <Cartesian> int_carts = CartesiansFromAtoms(atoms,natoms);
   if(atoms) delete [] atoms;
-  std::vector<std::vector <Cartesian> > ext_carts = GetExternalCartesians(molhnd,ext_conn_lists,side_to_ribbon,side_to_worm,params.GetFloat("trace_cutoff"));
-  std::vector<std::vector <Cartesian> > ext_carts_spline = GetExternalCartesians(molhnd,ext_conn_lists_spline,side_to_ribbon,side_to_worm,params.GetFloat("trace_cutoff"));
+
+  std::vector<std::vector <Cartesian> > ext_carts = GetExternalCartesiansWithSplineInfo(molhnd,ext_conn_lists,splineinfo_ribbon,splineinfo_worm,side_to_ribbon,side_to_worm,params.GetFloat("trace_cutoff"));
+  std::vector<std::vector <Cartesian> > ext_carts_spline = GetExternalCartesiansWithSplineInfo(molhnd,ext_conn_lists_spline,splineinfo_ribbon,splineinfo_worm,side_to_ribbon,side_to_worm,params.GetFloat("trace_cutoff"));
 
   LineCollection *lines = new LineCollection();
   PolyCollection *polys = new PolyCollection();
@@ -1709,19 +1710,12 @@ std::vector<Cartesian> GetBasePairEnds(PCResidue res1, PCResidue res2, const Spl
   return carts;
 }
 
-void DrawBaseBlock(PolyCollection *polys, PCResidue res1, const double *col1, const CParamsManager &params ){
+void DrawBaseBlockInt(PolyCollection *polys, PCResidue res1, const double *col1, const CParamsManager &params, int selHnd, PCAtom n1,PCAtom c2,PCAtom n3,PCAtom c4,PCAtom c5,PCAtom c6,PCAtom n7,PCAtom c8,PCAtom n9){
 
     //float thickness = params.GetFloat("cylinder_width")-0.02;
     float thickness = params.GetFloat("base_block_thickness")-0.02;
     if (thickness<0.02)thickness=0.1;
  
-    PCAtom n1 = res1->GetAtom("N1");
-    PCAtom c2 = res1->GetAtom("C2");
-    PCAtom n3 = res1->GetAtom("N3");
-    PCAtom c4 = res1->GetAtom("C4");
-    PCAtom c5 = res1->GetAtom("C5");
-    PCAtom c6 = res1->GetAtom("C6");
-
     TriangleElement* tri;
     if(n1&&c2&&n3&&c4&&c5&&c6){
       Cartesian n1cart(n1->x,n1->y,n1->z);
@@ -1917,9 +1911,6 @@ void DrawBaseBlock(PolyCollection *polys, PCResidue res1, const double *col1, co
       tri = new TriangleElement(carts,col1,Cartesian::MidPoint(carts),1.0);
       polys->add_primitive(tri);
 
-      PCAtom n9 = res1->GetAtom("N9");
-      PCAtom c8 = res1->GetAtom("C8");
-      PCAtom n7 = res1->GetAtom("N7");
       if(n9&&c8&&n7){
         Cartesian n9cart(n9->x,n9->y,n9->z);
         Cartesian c8cart(c8->x,c8->y,c8->z);
@@ -2096,6 +2087,66 @@ void DrawBaseBlock(PolyCollection *polys, PCResidue res1, const double *col1, co
     }
 }
 
+void DrawBaseBlock(PolyCollection *polys, PCResidue res1, const double *col1, const CParamsManager &params, int selHnd ){
+
+    PCAtom n1 = res1->GetAtom("N1");
+    PCAtom c2 = res1->GetAtom("C2");
+    PCAtom n3 = res1->GetAtom("N3");
+    PCAtom c4 = res1->GetAtom("C4");
+    PCAtom c5 = res1->GetAtom("C5");
+    PCAtom c6 = res1->GetAtom("C6");
+    PCAtom n7 = res1->GetAtom("N7");
+    PCAtom c8 = res1->GetAtom("C8");
+    PCAtom n9 = res1->GetAtom("N9");
+    if(n1&&c2&&n3&&c4&&c5&&c6){
+      DrawBaseBlockInt(polys, res1, col1, params, selHnd, n1,c2,n3,c4,c5,c6,n7,c8,n9 );
+      return;
+    }
+
+    n1 = res1->GetAtom("N1",NULL,"A");
+    c2 = res1->GetAtom("C2",NULL,"A");
+    n3 = res1->GetAtom("N3",NULL,"A");
+    c4 = res1->GetAtom("C4",NULL,"A");
+    c5 = res1->GetAtom("C5",NULL,"A");
+    c6 = res1->GetAtom("C6",NULL,"A");
+    n7 = res1->GetAtom("N7",NULL,"A");
+    c8 = res1->GetAtom("C8",NULL,"A");
+    n9 = res1->GetAtom("N9",NULL,"A");
+    if(n1&&c2&&n3&&c4&&c5&&c6){
+      if(n1->isInSelection(selHnd)&&c2->isInSelection(selHnd)&&n3->isInSelection(selHnd)&&c4->isInSelection(selHnd)&&c5->isInSelection(selHnd)&&c6->isInSelection(selHnd)){
+        DrawBaseBlockInt(polys, res1, col1, params, selHnd, n1,c2,n3,c4,c5,c6,n7,c8,n9 );
+      }
+    }
+    n1 = res1->GetAtom("N1",NULL,"B");
+    c2 = res1->GetAtom("C2",NULL,"B");
+    n3 = res1->GetAtom("N3",NULL,"B");
+    c4 = res1->GetAtom("C4",NULL,"B");
+    c5 = res1->GetAtom("C5",NULL,"B");
+    c6 = res1->GetAtom("C6",NULL,"B");
+    n7 = res1->GetAtom("N7",NULL,"B");
+    c8 = res1->GetAtom("C8",NULL,"B");
+    n9 = res1->GetAtom("N9",NULL,"B");
+    if(n1&&c2&&n3&&c4&&c5&&c6){
+      if(n1->isInSelection(selHnd)&&c2->isInSelection(selHnd)&&n3->isInSelection(selHnd)&&c4->isInSelection(selHnd)&&c5->isInSelection(selHnd)&&c6->isInSelection(selHnd)){
+        DrawBaseBlockInt(polys, res1, col1, params, selHnd, n1,c2,n3,c4,c5,c6,n7,c8,n9 );
+      }
+    }
+    n1 = res1->GetAtom("N1",NULL,"C");
+    c2 = res1->GetAtom("C2",NULL,"C");
+    n3 = res1->GetAtom("N3",NULL,"C");
+    c4 = res1->GetAtom("C4",NULL,"C");
+    c5 = res1->GetAtom("C5",NULL,"C");
+    c6 = res1->GetAtom("C6",NULL,"C");
+    n7 = res1->GetAtom("N7",NULL,"C");
+    c8 = res1->GetAtom("C8",NULL,"C");
+    n9 = res1->GetAtom("N9",NULL,"C");
+    if(n1&&c2&&n3&&c4&&c5&&c6){
+      if(n1->isInSelection(selHnd)&&c2->isInSelection(selHnd)&&n3->isInSelection(selHnd)&&c4->isInSelection(selHnd)&&c5->isInSelection(selHnd)&&c6->isInSelection(selHnd)){
+        DrawBaseBlockInt(polys, res1, col1, params, selHnd, n1,c2,n3,c4,c5,c6,n7,c8,n9 );
+      }
+    }
+}
+
 void DrawBaseBlocks(Displayobject &obj, CMMANManager *molHnd, int selHnd, PPCAtom selAtoms, int nSelAtoms, const AtomColourVector &atom_colour_vector,const CParamsManager &params ){
   TriangleCollection *polys = new TriangleCollection();
   int C5sel = molHnd->NewSelection();
@@ -2109,7 +2160,7 @@ void DrawBaseBlocks(Displayobject &obj, CMMANManager *molHnd, int selHnd, PPCAto
 	//std::cout << res->name << " " << restype << std::endl;
         if(restype==RESTYPE_NUCL||restype==RESTYPE_DNA||restype==RESTYPE_RNA){
            const double *col = atom_colour_vector.GetRGB(ii);
-           DrawBaseBlock(polys,res,col, params);
+           DrawBaseBlock(polys,res,col, params, selHnd);
            delete [] col;
         }
       }

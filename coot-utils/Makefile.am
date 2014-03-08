@@ -27,17 +27,17 @@ endif
 
 lib_LTLIBRARIES= libcoot-coord-utils.la  libcoot-shelx.la libcoot-coord-extras.la libcoot-map-utils.la libcoot-map-heavy.la
 
-include_HEADERS = peak-search.hh coot-trim.hh \
+pkginclude_HEADERS = peak-search.hh coot-trim.hh \
+	residue-and-atom-specs.hh \
 	coot-coord-utils.hh coot-map-utils.hh coot-coord-extras.hh \
 	coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh \
 	coot-rama.hh xmap-stats.hh coot-h-bonds.hh lsq-improve.hh coot-hole.hh \
 	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh 
+pkgincludedir = $(includedir)/coot/coot-utils
+
 
 INCLUDES = \
-	-I$(top_srcdir)/utils	        \
-	-I$(top_srcdir)/geometry	\
-	-I$(top_srcdir)/compat		\
-	-I$(top_srcdir)/mini-mol	\
+	-I$(top_srcdir)	\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(GSL_CFLAGS)			\
@@ -78,11 +78,12 @@ libcoot_coord_extras_la_LIBADD = \
     $(top_builddir)/utils/libcoot-utils.la
 
 # for (map) things that need to link mmdb and clipper:
-libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc xmap-stats.cc
+libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc \
+	xmap-stats.cc maps-spherical.cc
 
 # clean
 libcoot_map_utils_la_LIBADD = \
-   libcoot-coord-utils.la
+   libcoot-coord-utils.la 
 
 # for map things that need mmdb, clipper, gsl and other things
 libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc
@@ -97,7 +98,7 @@ libcoot_map_heavy_la_LIBADD = \
 
 
 # test-agg-clust
-noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic 
+noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic test-spherical
 
 check_PROGRAMS = test-tt-morph
 
@@ -117,7 +118,7 @@ testshelxreader_LDADD =          \
 	./libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-        $(top_builddir)/utils/libcoot-utils.la
+        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 
 testcootutils_SOURCES = test-utils.cc
 testcootutils_LDADD =            \
@@ -126,18 +127,18 @@ testcootutils_LDADD =            \
 	./libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-        $(top_builddir)/utils/libcoot-utils.la
+        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 
 test_h_bonds_SOURCES = test-h-bonds.cc
 test_h_bonds_LDADD = \
 	 ./libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-        $(top_builddir)/utils/libcoot-utils.la
+        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 
 test_hole_SOURCES = test-hole.cc
 test_hole_LDADD = ./libcoot-coord-utils.la \
-	$(top_builddir)/utils/libcoot-utils.la \
+	$(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 	$(top_builddir)/geometry/libcoot-geometry.la \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la 
 
@@ -146,7 +147,10 @@ test_tt_morph_SOURCES = test-morph.cc
 test_tt_morph_LDADD = 	./libcoot-map-heavy.la
 
 test_elastic_SOURCES = test-elastic.cc
-test_elastic_LDADD   = ./libcoot-coord-utils.la
+test_elastic_LDADD   = ./libcoot-coord-utils.la $(GLOB_LIBS)
+
+test_spherical_SOURCES = test-spherical.cc
+test_spherical_LDADD   = ./libcoot-coord-utils.la $(GSL_LIBS)
 
 
 

@@ -34,7 +34,7 @@
 
 #include "clipper/core/xmap.h"
 #include <mmdb/mmdb_manager.h>
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 
 namespace coot {
 

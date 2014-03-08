@@ -84,7 +84,7 @@ namespace coot {
       std::vector<std::string> split_string(const std::string &string_in,
 					    const std::string &splitter);
       std::vector<std::string> split_string_no_blanks(const std::string &string_in,
-						      const std::string &splitter);
+						      const std::string &splitter=" ");
 
       std::string plain_text_to_sequence(const std::string &s);
       std::string plain_text_to_pir(const std::string &title, const std::string &sequence, short int il);
@@ -106,6 +106,9 @@ namespace coot {
       bool is_standard_residue_name(const std::string &residue_name);
       // as above but only protein atom names allowed (and MSE).
       bool is_standard_amino_acid_name(const std::string &residue_name);
+
+      // return a set of string that match the glob, with the directory name pre-appended
+      std::vector<std::string> glob_files(const std::string &dir, const std::string &glob_pattern);
 
       std::string downcase(const std::string &s);
       std::string upcase(const std::string &s);
@@ -129,6 +132,11 @@ namespace coot {
       bool is_letter(char c);
 
       bool even_p(int ii);
+
+      inline bool sd_compare(const std::pair<std::string, double> &p1,
+			     const std::pair<std::string, double> &p2) {
+	 return p1.second < p2.second;
+      } 
       
 
    } // end of util name space
@@ -171,6 +179,33 @@ namespace coot {
    std::vector<float> convert_hsv_to_rgb(const std::vector<float> &hsv);
    std::vector<float> convert_rgb_to_hsv(const std::vector<float> &in_vals);
    colour_holder hsv_to_colour(const std::vector<float> &hsv);
+
+   // Gauss Legendre Quadrature
+   
+   class gauss_legendre_t {
+      void fill_weight_abscicca(int N);
+      int N;
+      std::vector<std::pair<double, double> > weight_abscissa_;
+   public:
+      std::pair<double,double> weight_abscissa(int idx) {
+	 if (weight_abscissa_.size() == 0)
+	    fill_weight_abscicca(N);
+	 return weight_abscissa_[idx];
+      }
+      double weight(int idx) {
+	 if (weight_abscissa_.size() == 0)
+	    fill_weight_abscicca(N);
+	 return weight_abscissa_[idx].first;
+      }
+      double abscissa(int idx) {
+	 if (weight_abscissa_.size() == 0)
+	    fill_weight_abscicca(N);
+	 return weight_abscissa_[idx].second;
+      }
+      gauss_legendre_t();
+   };
+
+
 
 }
 

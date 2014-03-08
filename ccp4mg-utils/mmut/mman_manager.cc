@@ -458,6 +458,42 @@ int CMMANManager::GetAtomEnergyType(PCAtom p_atom) {
 }
 
 //---------------------------------------------------------------------
+realtype CMMANManager::GetMetalCoordinationDistance(PCAtom p_atom) {
+//---------------------------------------------------------------------
+// Based on following with a bit of extra freedom.
+// http://tanna.bch.ed.ac.uk/newtargs_06.html
+// Acta Cryst. D62 (2006), 678-682
+  if(strncmp(p_atom->name,"NA",2)==0)
+     return 2.6;
+  if(strncmp(p_atom->name,"MG",2)==0)
+     return 2.5;
+  if(strncmp(p_atom->name,"K ",2)==0)
+     return 3.0;
+  if(strncmp(p_atom->name,"CA",2)==0)
+     return 2.6;
+  if(strncmp(p_atom->name,"MN",2)==0)
+     return 2.6;
+  if(strncmp(p_atom->name,"FE",2)==0)
+     return 2.5;
+  if(strncmp(p_atom->name,"CO",2)==0)
+     return 2.4;
+  if(strncmp(p_atom->name,"CU",2)==0)
+     return 2.3;
+  if(strncmp(p_atom->name,"ZN",2)==0)
+     return 2.5;
+  return 3.0;
+}
+
+//---------------------------------------------------------------------
+realtype CMMANManager::GetAtomIonRadius(PCAtom p_atom) {
+//---------------------------------------------------------------------
+  int atomType;
+  p_atom->GetUDData(udd_atomEnergyType, atomType);
+  return p_sbase->libAtom[atomType].ionRadius;
+  //return 1.5;
+}
+
+//---------------------------------------------------------------------
 realtype CMMANManager::GetAtomVDWRadius(PCAtom p_atom) {
 //---------------------------------------------------------------------
   int atomType;
@@ -505,7 +541,7 @@ int CMMANManager::GetAtomHBondType1(PCAtom p_atom) {
   return p_sbase->libAtom[atomOrd].hbType;
 }
 //---------------------------------------------------------------------
-char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
+const char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
 //---------------------------------------------------------------------
   int atomOrd;
   p_atom->GetUDData(udd_atomEnergyType, atomOrd);
@@ -1162,6 +1198,13 @@ int CMMANManager::LoadUDDData( const int property ) {
 
 
 
+std::string GetMMANManagerAddress(PCAtom pAtom) {
+  PCMMANManager manager = (PCMMANManager)(PCMMDBFile)pAtom->GetCoordHierarchy();
+  if(manager)
+    return manager->GetAddress();
+  return std::string("");
+}
+
 CMMANManager* GetMMANManager(PCAtom pAtom) {
   return  (PCMMANManager)(PCMMDBFile)pAtom->GetCoordHierarchy();
 }
@@ -1188,6 +1231,13 @@ std::string CMMANManager::GetSymOpTitle(int nsym,int i,int j,int k) {
   return output.str();
 }
 */
+
+std::string CMMANManager::GetAddress() {
+  std::ostringstream _addr_;
+  _addr_ << (void const*)this;
+  std::string addr(_addr_.str());
+  return addr;
+}
 
 //----------------------------------------------------------------------
 std::string CMMANManager::GetSymOpTitle(int nsym,int i,int j,int k) {
@@ -2063,7 +2113,7 @@ double CMMANManager::DeltaResidueOrientation (PCResidue pRes,PCResidue pResFx) {
   PCAtom mvAtoms[5];
   PCAtom fxAtoms[5];
   int nat=0;
-  char *names[] = { "CA" , "N", "C", "CB" };
+  const char *names[] = { "CA" , "N", "C", "CB" };
 
   for (int n=0;n<4;n++ ){
     mvAtoms[nat]=pRes->GetAtom(names[n],"*","*");

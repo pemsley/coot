@@ -13,11 +13,11 @@ BEGIN_C_DECLS
 enum { TARGET_STRING };
 
 gboolean
-on_drag_drop (GtkWidget *widget,
-	      GdkDragContext *context,
-	      gint x, gint y,
-	      guint time,
-	      gpointer user_data);
+on_gl_canvas_drag_drop(GtkWidget *widget,
+		       GdkDragContext *context,
+		       gint x, gint y,
+		       guint time,
+		       gpointer user_data);
 
 
 void

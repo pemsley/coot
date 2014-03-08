@@ -1,7 +1,7 @@
 
 #include <fstream>
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "coot-hole.hh"
 

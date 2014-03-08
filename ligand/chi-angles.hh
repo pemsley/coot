@@ -22,9 +22,10 @@
 #ifndef CHI_ANGLES_HH
 #define CHI_ANGLES_HH
 
+#include "geometry/protein-geometry.hh"
+#include "coot-utils/coot-coord-utils.hh"
+
 #include "monomer-utils.hh"
-#include "protein-geometry.hh"
-#include "coot-coord-utils.hh"
 
 namespace coot {
 

@@ -132,11 +132,11 @@ class CCompoundGroup {
  public:
   CCompoundGroup();
   void Set ( int cd);
-  void Set ( pstr name );
-  static int GetCifGroupCode ( pstr name);
+  void Set ( cpstr name );
+  static int GetCifGroupCode ( cpstr name);
   bool Match ( int cd );
   static bool groupMatch[13][13];
-  static char *cifGroupNames[12];
+  static const char *cifGroupNames[12];
   static int groupCode[12];
 
  protected:
@@ -152,7 +152,7 @@ friend class MGCLink;
 
  public:  
   MGCLinkGroup ();
-  void Set ( pstr comp, pstr modif, pstr grp, pstr atm );
+  void Set ( cpstr comp, cpstr modif, cpstr grp, cpstr atm );
   ~MGCLinkGroup();
   void Print();
   bool Match( int grp, pstr comp, pstr atm );
@@ -178,12 +178,12 @@ class MGCLink {
   int GetCif(PCMMCIFLoop Loop, int N);
   void Print();
   
-  //protected:
-  CompoundID id;
   MGCLinkGroup lg1;
   MGCLinkGroup lg2;
   int GetCifBond ( PCMMCIFData dataBlock );
  
+  protected:
+   CompoundID id;
   //int cifGroupCode( pstr cifGroup);
  
 };
@@ -223,10 +223,10 @@ class CLibAtom {
   realtype charge;
 
   static int nHbCodes;
-  static char *hbCharCode[6];
+  static const char *hbCharCode[6];
   static int hbCode[6];
   int encodeHbType( pstr hb);
-  char* getHBType();
+  const char* getHBType();
 
 };
 
@@ -248,7 +248,7 @@ class CLibBond {
   //realtype length_esd;
 
   static int nBondCodes;
-  static char *bondCharCode[6];
+  static const char *bondCharCode[6];
   static int bondCode[6];
   static int encodeBondType( pstr ty );
 
@@ -281,13 +281,13 @@ public:
   PCSBStructure GetStructure ( const ResName resNam , LoadedPCSBStructure monlib, const bool unremediated=false);
   int LoadMonomerLibrary( char* filename, LoadedPCSBStructure &monlib);
   PCSBStructure LoadCifMonomer ( const ResName resNam , const PCMMCIFFile file, const bool unscramble=true );
-  int MatchGraphs(PCResidue pRes,int Hflag, Boolean Cflag, const pstr altLoc, 
+  int MatchGraphs(PCResidue pRes,int Hflag, Boolean Cflag, cpstr altLoc, 
                           PCSBStructure pSbaseRes, int &nMatched,
 		      ivector match, int minMatchSize );
   //PCLibAtom LibAtom (char *);
-  int LibAtom(char*);
-  int LibAtom(char *, char *);
-  int LibAtom ( pstr resType, int atomIndex );
+  int LibAtom(const char*);
+  int LibAtom(const char *, const char *);
+  int LibAtom ( cpstr resType, int atomIndex );
   int GetNofLibAtoms();
   //PCLibAtom LibAtom ( int index );
   PCLibElement LibElement ( char *);

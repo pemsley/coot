@@ -1,5 +1,5 @@
 
-#include "rdkit-interface.hh"
+#include "lidia-core/rdkit-interface.hh"
 #include <GraphMol/MolChemicalFeatures/MolChemicalFeature.h>
 #include "generic-display-object.hh"
 

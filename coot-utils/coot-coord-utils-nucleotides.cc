@@ -22,7 +22,7 @@
 #include <algorithm>
 #include <stdexcept>
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 
 

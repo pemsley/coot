@@ -23,7 +23,7 @@ import unittest
 import os
 
 rnase_pir     = os.path.join(unittest_data_dir, "rnase.pir")
-poly_ala_frag = os.path.join(unittest_data_dir, "crashes_on_cootaneering.pdb")
+poly_ala_frag = os.path.join(unittest_data_dir, "crashes_on_cootaneering-v2.pdb")
 
 class CootaneerTestFunctions(unittest.TestCase):
 
@@ -88,4 +88,6 @@ class CootaneerTestFunctions(unittest.TestCase):
         alt_conf = n_atom[5]
         print "   Cootaneering: imol %s chain-id %s resno %s inscode %s at-name %s alt-conf %s" \
               %(imol, chain_id, resno, inscode, at_name, alt_conf)
+
         cootaneer(imol_map, imol, [chain_id, resno, inscode, at_name, alt_conf])
+

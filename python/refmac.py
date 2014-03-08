@@ -317,7 +317,8 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
 
         gobject.timeout_add(1000,
                             post_run_refmac,
-                            imol_refmac_count, swap_map_colours_post_refmac_p,
+                            imol_refmac_count,
+                            imol_mtz_molecule, swap_map_colours_post_refmac_p,
                             show_diff_map_flag,
                             pdb_out_filename, mtz_out_filename, mtz_in_filename,
                             refmac_log_file_name,
@@ -337,7 +338,8 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
             return pdb_out_filename, mtz_out_filename  # return values
         else:
             # pass refmac_status as refmac_process!?
-            post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
+            post_run_refmac(imol_refmac_count,
+                            imol_mtz_molecule, swap_map_colours_post_refmac_p,
                             show_diff_map_flag,
                             pdb_out_filename, mtz_out_filename, mtz_in_filename,
                             refmac_log_file_name,
@@ -345,7 +347,8 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
                             phase_combine_flag, refmac_status)
 
 
-def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
+def post_run_refmac(imol_refmac_count,
+                    imol_mtz_molecule, swap_map_colours_post_refmac_p,
                     show_diff_map_flag,
                     pdb_out_filename, mtz_out_filename, mtz_in_filename,
                     refmac_log_file_name,
@@ -411,7 +414,8 @@ def post_run_refmac(imol_refmac_count, swap_map_colours_post_refmac_p,
         new_map_id = make_and_draw_map_with_refmac_params(*args)
 
         # set the new map as refinement map
-        set_imol_refinement_map(new_map_id)
+        if valid_map_molecule_qm(new_map_id):
+            set_imol_refinement_map(new_map_id)
 
         # store the refmac parameters to the new map (if we used a file)
         if (get_refmac_used_mtz_file_state()):

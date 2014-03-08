@@ -81,7 +81,7 @@ coot::protein_geometry::comp_atom_pad_atom_name(const std::string &atom_id,
 
 		  // e.g "NP" "P", or "CA" "C" (20100929, eh?)
 		  if ((atom_id.substr(1,1) == element) &&
-		      (element != "H") && (element != "C") && (element != "N")) {
+		      (element != "H") && (element != "C") && (element != "N") && (element != "B")) {
 		     new_name = atom_id + "  ";
 		  } else {
 		     new_name = " " + atom_id;

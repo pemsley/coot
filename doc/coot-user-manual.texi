@@ -42,7 +42,7 @@
 
 @flushright
 Paul Emsley 
-@email{paul dot emsley at bioch dot ox dot ac dot uk}
+@email{pemsley at mrc dash lmb dot cam dot ac dot uk}
 @end flushright
 
 @vskip 10mm
@@ -253,6 +253,8 @@ Map-Related Features
 * Dynamic Map Sampling and Display Size::
 * Skeletonization::
 * Map Sharpening::
+* Pattersons::
+* Map Re-Interpolation::
 * masks::
 * Trimming Atoms::
 * Map Transformation::
@@ -1356,6 +1358,16 @@ To show the symmetry operators of a particular molecule use:
 @code{(get-symmetry @emph{imol})}
 which will return a list of strings.
 
+Sometimes molecular replacement solutions (for example) create models
+with chains non-optimally placed relative to each other - a
+symmetry-related copy would be more apealling (but would be equivalent,
+crystalographically). For example, to move the B chain to a
+symmetry-related position:
+
+Centre on an atom in the symmetry-related B chain (where you want the B chain to be)
+
+@command{Extensions -> Modelling -> Symm Shift Reference Chain Here.}
+
 @node Recentring View
 @section Recentring View
 @cindex recentring view 
@@ -2119,7 +2131,7 @@ number 0 chain ``A''):
 
 @code{(set-match-element match2)}
 
-@code{(lsq-match 0 1)} ; match molecule number 1 onto molecule number 0.
+@code{(apply-lst-matches 0 1)} ; match molecule number 1 onto molecule number 0.
 
 @c %% @itemize 
 @c %% @item @code{(define match1 (list 840 850 "A" 440 450 "B" 'all))}
@@ -3442,18 +3454,32 @@ For a given sequence, a choice of DNA or RNA, A or B form, single or
 double stranded is presented.  
 
 The interface may not gracefully handle uracils in DNA, thymines in
-RNA or B form RNA @footnote{But you don't want those things anyway,
-right?}.
+RNA or B form RNA.
+
+The ideal B-form DNA is somewhat under-wound, needing 11 base-pairs to
+repeat (instead of the expected 10.5).  There is no easy fix for this
+currently.
 
 
 
 @node    Merge Molecules
 @section Merge Molecules
 @cindex merge molecules
-This dialog can be found under ``Calculate'' in the main menubar.
-This is typically used to add molecule fragments or residues that are
-in one molecule to the ``working'' coordinates @footnote{For example,
+The dialog for this opperation can be found under ``Calculate'' in the
+main menubar.  This is typically used to add molecule fragments or
+residues that are in one molecule to the ``working'' coordinates
+@footnote{For example,
   after a ligand search has been performed.}.
+
+The scripting interface is used like this
+
+@code{(merge-molecules @emph{molecule-list} @emph{target-molecule})}
+
+@emph{e.g.}
+
+@code{(merge-molecules (list 1 2 ) 0)}
+
+merges molecules 1 and 2 into molecule 0.
 
 @node    Temperature Factor for New Atoms
 @section Temperature Factor for New Atoms
@@ -3836,6 +3862,7 @@ and
 * Skeletonization::
 * Map Sharpening::
 * Pattersons::
+* Map Re-Interpolation::
 * masks::
 * Trimming Atoms::
 * Map Transformation::
@@ -4180,9 +4207,24 @@ reflection data file.
 Pattersons can be generated using the @code{make-and-draw-patterson}
 function.  Example usage:
 
-@code{(make-and-draw-patterson @emph{mtz-file-name f-col sig-f-col weight-col use-weights-flag})}
+@code{(make-and-draw-patterson @emph{mtz-file-name f-col sig-f-col})}
 
 where @code{@emph{use-weights-flag}} is either @code{0} or @code{1}.
+
+@emph{e.g.}
+
+@code{(make-and-draw-patterson "native.mtz" "FP_nat" "SIGFP_nat")}
+
+@node Map Re-Interpolation
+@section Map Re-Interpolation
+@cindex map re-Interpolation
+
+Maps can be re-interpolated to match a reference map.
+
+@code{(reinterp-map @emph{map-no reference-map-no})}
+
+will create a copy of  @code{@emph{map-no}} in the same cell, spacegroup and grid spacing as  
+the @code{@emph{reference-map-no}} map.
 
 
 @node masks

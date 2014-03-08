@@ -5,9 +5,37 @@
 #include <complex>
 #include <math.h>
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
+#include "lidia-core/lig-build.hh"
+
 #include "mogul-interface.hh"
-#include "lig-build.hh"
+
+
+std::ostream &
+coot::operator<<(std::ostream &s, const mogul_item &it) {
+
+   if (it.type == mogul_item::NONE)
+      s << "NONE";
+   if (it.type == mogul_item::BOND)
+      s << "BOND";
+   if (it.type == mogul_item::ANGLE)
+      s << "ANGLE";
+   if (it.type == mogul_item::TORSION)
+      s << "TORSION";
+   if (it.type == mogul_item::PLANE)
+      s << "PLANE";
+
+   s << " ";
+   if (it.type == mogul_item::BOND)
+      s << it.idx_1 << " " << it.idx_2;
+   if (it.type == mogul_item::ANGLE)
+      s << it.idx_1 << " " << it.idx_2 << " " << it.idx_3;
+   
+   s << " counts: " << it.counts << " value: " << it.value << " mean: " << it.mean
+     << " median: " << it.median << " sd: " << it.std_dev;
+   return s;
+} 
+
 
 void
 coot::mogul::parse(const std::string &file_name) {
@@ -25,13 +53,13 @@ coot::mogul::parse(const std::string &file_name) {
 	 while (std::getline(f, line)) { 
 	    lines.push_back(line);
 	 }
-	 std::cout << "Read " << lines.size() << " lines." << std::endl;
+	 // std::cout << "Read " << lines.size() << " lines." << std::endl;
 
 	 // 2 from the end because we do a lines+2 to try to read distributions
 	 for (unsigned int iline=0; iline<(lines.size()); iline++) {
 	    std::vector<std::string> bits = coot::util::split_string(lines[iline], ",");
 
-	    // mmmmnstd::cout << "parsing line " << lines[iline] << std::endl;
+	    // mmmm std::cout << "parsing line " << lines[iline] << std::endl;
 
 	    if (bits[0] == "BOND") {
 	       try {
@@ -104,15 +132,18 @@ coot::mogul::parse_item_line(const std::vector<std::string> &bits, int n_idx) co
 	 // std::cout << "   model_value: " << model_value << std::endl;
 	 // std::cout << "   counts: " << counts << std::endl;
 
-	 if (counts > 0) { 
+	 if (counts > 0) {
 
 	    if (indices.size() == 2 || indices.size() == 3) { 
 	       mean    = coot::util::string_to_float(bits[4]);
 	       median  = coot::util::string_to_float(bits[5]);
-	       std_dev = coot::util::string_to_float(bits[6]);
-	       z       = coot::util::string_to_float(bits[7]);
 	       min     = coot::util::string_to_float(bits[9]);
 	       max     = coot::util::string_to_float(bits[10]);
+	       if (counts > 1) {
+		  std_dev = coot::util::string_to_float(bits[6]);
+		  z       = coot::util::string_to_float(bits[7]);
+	       }
+	       
 	    } else {
 	       dmin    = coot::util::string_to_float(bits[8]);
 	       // std::cout << "got dmin " << dmin << " from :" << dmin << ":" << std::endl;
@@ -589,4 +620,46 @@ coot::mogul_item::spline_model_torsion_distribution() {
 	 std::cout << p1234.x << " " << p1234.y << std::endl;
       }
    }
+}
+
+// Dont consider items with less than 2 hits
+// 
+// return a negative value on unable for some reason.
+std::pair<float, coot::mogul_item>
+coot::mogul::get_max_z_badness(mogul_item::type_t t) const {
+
+   float r = -1;
+   coot::mogul_item worst_item;
+
+   for (unsigned int i_item=0; i_item<items.size(); i_item++) {
+      const mogul_item &item = items[i_item];
+      if (item.counts > 1) { 
+	 if (item.type == mogul_item::BOND) { 
+	    if (t == mogul_item::BOND || t == mogul_item::BOND_OR_ANGLE) {
+	       float s = item.std_dev;
+	       // cap sigma
+	       // if (s < 0.021)
+	       // s = 0.021;
+	       float n_z =  fabsf(item.value-item.median)/s;
+	       if (n_z > r) { 
+		  r = n_z;
+		  worst_item = item;
+	       } 
+	    }
+	 }
+	 if (item.type == mogul_item::ANGLE) { 
+	    if (t == mogul_item::ANGLE || t == mogul_item::BOND_OR_ANGLE) {
+	       float s = item.std_dev;
+	       // if (s < 2.1)
+	       // s = 2.1;
+	       float n_z =  fabsf(item.value-item.median)/s;
+	       if (n_z > r) { 
+		  r = n_z;
+		  worst_item = item;
+	       }
+	    }
+	 }
+      }
+   }
+   return std::pair<float, mogul_item> (r, worst_item);
 }

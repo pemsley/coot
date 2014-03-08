@@ -46,9 +46,9 @@
 #include <iostream>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
 // #include "interface.h"
 
@@ -1154,5 +1154,4 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
    }
    return r;
 } 
-
 

@@ -32,9 +32,9 @@ enum enum_AtomColourVector { ACV_COLOUR_MODE_UNSET, ACV_COLOUR_MODE_ICOLOUR, ACV
 enum enum_ColourWheelDirection { COLOUR_WHEEL_CLOCK, COLOUR_WHEEL_ANTICLOCK };
 
 
-std::vector <Cartesian> CartesiansFromAtoms(PPCAtom clip_atoms, int nclip_atoms);
-int TreeCartesiansToAtoms(Tree *tree, PPCAtom clip_atoms, int nclip_atoms);
-PPCAtom GetAtomPair(const std::vector<std::pair<PCAtom,PCAtom> > &pair, int i);
+std::vector <Cartesian> CartesiansFromAtoms(CAtom** clip_atoms, int nclip_atoms);
+int TreeCartesiansToAtoms(Tree *tree, CAtom** clip_atoms, int nclip_atoms);
+CAtom** GetAtomPair(const std::vector<std::pair<CAtom*,CAtom*> > &pair, int i);
 
 class AtomColourVector {
  private:
@@ -61,7 +61,7 @@ class AtomColourVector {
   const double* GetRGB(int i) const;
   const double* GetResRGB(int i) const;
   const std::vector<const double*> GetRGBVector() const;
-  int SetupResidueColourVector( PCMMDBManager molhnd, int selHnd );
+  int SetupResidueColourVector( CMMDBManager* molhnd, int selHnd );
   void UnSetResidueColourVector();
   const int GetNumberOfColours() const;
 };

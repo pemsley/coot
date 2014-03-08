@@ -60,11 +60,14 @@
   		     // of mask_map interface.
 
 #include <mmdb/mmdb_coormngr.h> // for GetMassCenter()
-#include "mmdb-extras.h"   // 220403
-#include "mmdb.h"
 
-#include "coot-coord-utils.hh"
-#include "coot-map-utils.hh"
+#include "utils/coot-utils.hh"
+
+#include "coords/mmdb-extras.h"   // 220403
+#include "coords/mmdb.h"
+
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 
 
 std::pair<coot::minimol::molecule, coot::minimol::molecule>
@@ -100,6 +103,10 @@ coot::ligand::ligand() {
    write_raw_waters = 0; // default not, Eleanor wants them on
 			 // however, so a function to turn them on is
 			 // provided.
+
+   water_molecule_volume = 11.0; // 11 captures the phosphate and the
+				 // ligand in the tutorial, 15 does
+				 // not!
    
    dont_test_rotations = 0;  // do test (the following) rotations by default.
    fit_fraction = 0.75;
@@ -300,7 +307,7 @@ coot::ligand::mask_map(CMMDBManager *mol, short int mask_waters_flag) {
    realtype xmc, ymc, zmc; // filled by reference
    GetMassCenter (atoms, n_atoms, xmc, ymc, zmc);
    protein_centre = clipper::Coord_orth(xmc, ymc, zmc);
-   std::cout << "Protein centre at: " << protein_centre.format() << std::endl; 
+   std::cout << "INFO:: Protein centre at: " << protein_centre.format() << std::endl; 
 
    // std::cout << "masking....";
    for(int i=0; i<n_atoms; i++) {
@@ -826,13 +833,15 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
 	     << " (" << z_cut_off_in << " sigma) ";
    std::cout << " (mean " << xmap_masked_stats.second.first
 	     << " stdev: " << xmap_masked_stats.second.second << ")" << std::endl;
+   std::cout << "INFO:: Blobs with volume larger than " << water_molecule_volume 
+	     << " A^3 are too big to be considered waters." << std::endl;
    std::cout << "INFO:: Using water to protein distance limits: "
 	     << water_to_protein_distance_lim_min << " "
 	     << water_to_protein_distance_lim_max << std::endl;
       
    
    clipper::Xmap_base::Map_reference_index ix;
-   std::cout << "Finding clusters...";
+   std::cout << "INFO:: Finding clusters...";
    std::cout.flush();
    clipper::Xmap<int> cluster_map;
    cluster_map.init(xmap_pristine.spacegroup(), xmap_pristine.cell(), 
@@ -882,7 +891,7 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
 	 }
       }
    }
-   std::cout << "done" << std::endl;
+   std::cout << "done" << std::endl; // finding clusters.
 
    calculate_cluster_centres_and_eigens();
    move_ligand_centres_close_to_protein(sampled_protein_coords);
@@ -1305,6 +1314,19 @@ coot::compare_clusters(const map_point_cluster &a,
 
    return (a.score > b.score); 
 }
+
+
+double
+coot::map_point_cluster::volume(const clipper::Xmap<float> &xmap_ref) const {
+
+   double cell_vol = xmap_ref.cell().volume();
+   double n_grid_pts =
+      xmap_ref.grid_sampling().nu() *
+      xmap_ref.grid_sampling().nv() *
+      xmap_ref.grid_sampling().nw();
+   double grid_point_vol = cell_vol/n_grid_pts;
+   return map_grid.size() * grid_point_vol;
+} 
 
 void
 coot::ligand::print_cluster_details() const {
@@ -1809,7 +1831,7 @@ coot::ligand::fit_ligands_to_cluster(int iclust) {
 
    // for debugging
    write_orientation_solutions = 0;
-   bool debug = 0;
+   bool debug = false;
 
    minimol::molecule ior_holder;
    
@@ -1956,25 +1978,27 @@ coot::ligand::n_ligands_for_cluster(unsigned int iclust,
 }
 
 
-#include "coot-utils.hh"
-
 // generate correlation scores for the top n_sol solutions and re-sort
 //
 void
 coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned int n_sol) {
 
-//    #pragma openmp parallel for 
+   bool debug = false;
+   
+//    #pragma omp parallel for 
 //    for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
 //       usleep(int(100000 * float(util::random())/float(RAND_MAX)));
 //       std::cout << "   parallel i " << i << std::endl;
 //    }
-   
+
    int n_ligs = final_ligand[iclust].size();
-   // #pragma openmp parallel for
+
+   
 
    std::cout << "score_and_resort_using_correlation iclust: " << iclust << " n_ligs " << n_ligs
 	     << " n_sol " << n_sol << std::endl;
    
+//    #pragma omp parallel for
    for (unsigned int i=0; i<n_ligs; i++) {
       if (i < n_sol) {
 
@@ -1996,6 +2020,7 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
 	 delete mol;
       }
    }
+
    std::sort(final_ligand[iclust].begin(),
 	     final_ligand[iclust].end(),
 	     compare_scored_ligands_using_correlation);
@@ -2003,12 +2028,13 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
 		final_ligand[iclust].end());
 
    
-   if (1) {
-      std::cout << "------------------ " << final_ligand[iclust].size()
+   if (debug) {
+      std::cout << "INFO post-sort: ------------------ iclust: " << iclust
+		<<  " size: " << final_ligand[iclust].size()
 		<< " solutions for cluster "
 		<< iclust << " ------------- " << std::endl;
       for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
-	 std::cout << "post correl " << isol << " of "
+	 std::cout << "   post correl " << isol << " of "
 		   << final_ligand[iclust].size() << " "
 		   << final_ligand[iclust][isol].second << std::endl;
    }
@@ -2040,11 +2066,12 @@ coot::ligand::limit_solutions(unsigned int iclust,
 			      float tolerance,
 			      bool filter_by_torsion_match) { // false
 
+   bool debug = false;
    unsigned int pre_erase_size = final_ligand[iclust].size();
    if (final_ligand[iclust].size()) {
       float min_correl = final_ligand[iclust][0].second.correlation.second * frac_max_correl_lim;
-      if (0)
-	 std::cout << "..... in limit_solutions() min_correl is " << min_correl << std::endl;
+      if (debug)
+	 std::cout << "INFO:: ..... in limit_solutions() min_correl is " << min_correl << std::endl;
       final_ligand[iclust].erase(std::remove_if(final_ligand[iclust].begin(),
 						final_ligand[iclust].end(),
 						scored_ligand_eraser(min_correl)),
@@ -2068,9 +2095,8 @@ coot::ligand::limit_solutions(unsigned int iclust,
 
       // now we have the vector, let's test for similar
    }
-      
 
-   if (1)
+   if (debug)
       for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
 	 std::cout << "limit solutions: " << isol << " of "
 		   << final_ligand[iclust].size() << " "

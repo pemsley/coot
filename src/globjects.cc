@@ -53,7 +53,7 @@
 #include <GL/glext.h>
 //#include <GL/wglext.h>
 #endif // WINDOWS_MINGW
-#include "sleep-fixups.h"
+#include "compat/sleep-fixups.h"
 
 #include <string.h> // strncmp
 
@@ -70,13 +70,13 @@
 #include "interface.h"
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
-#include "cos-sin.h"
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/cos-sin.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
 
@@ -109,20 +109,34 @@ std::vector<molecule_class_info_t> graphics_info_t::molecules;
 // and rotation centre.
 
 #if !defined WINDOWS_MINGW
+
 #ifdef USE_GUILE
+#ifdef USE_GUILE_GTK
 bool graphics_info_t::prefer_python = 0; // prefer python scripts when
 					 // scripting (if we have a
 					 // choice). Default: no.
 #else
 #ifdef USE_PYTHON
+bool graphics_info_t::prefer_python = 1; // prefer python (gui) when no
+                                         // guile gui. Fixes (place-strand-here-gui)
+                                         // problem when there is no guile-gtk
+#else
+// guile but not guile-gui, and not python
+bool graphics_info_t::prefer_python = 0;
+#endif // USE_PYTHON test
+#endif // USE_GUILE_GTK test
+
+
+#else // USE_GUILE test (no guile path)
+#ifdef USE_PYTHON
 bool graphics_info_t::prefer_python = 1; // Python, not guile
 #else
 bool graphics_info_t::prefer_python = 0; // no GUILE or PYTHON
 #endif // python test
-#endif // guile test
-#else
+#endif // USE_GUILE test
+#else // Windows test (windows path)
 bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
-#endif // window test
+#endif // windows test
 
 short int graphics_info_t::python_at_prompt_flag = 0;
 
@@ -338,6 +352,8 @@ int graphics_info_t::baton_build_start_resno = 1;
 short int graphics_info_t::baton_build_params_active = 0; // not active initially.
 std::string graphics_info_t::baton_build_chain_id = std::string("");
 
+// place helix here
+float graphics_info_t::place_helix_here_fudge_factor = 1.0; // (it's multiplicative)
 
 // double*  graphics_info_t::symm_colour_merge_weight = new double[10];
 // double **graphics_info_t::symm_colour = new double*[10];
@@ -380,7 +396,7 @@ short int graphics_info_t::print_initial_chi_squareds_flag = 0;
 
 short int graphics_info_t::show_symmetry = 0; 
 
-float    graphics_info_t::box_radius = 10;
+float    graphics_info_t::box_radius = 12.6;
 
 
 int      graphics_info_t::debug_atom_picking = 0;
@@ -540,6 +556,7 @@ float molecule_rot_t::y_axis_angle = 0.0;
 // 1: ask to run it
 // 2: alwasy run it
 short int graphics_info_t::run_state_file_status = 1;
+bool      graphics_info_t::state_file_was_run_flag = false;
 
 GtkWidget *graphics_info_t::preferences_widget = NULL;
 int        graphics_info_t::mark_cis_peptides_as_bad_flag = 1;
@@ -933,6 +950,7 @@ std::string graphics_info_t::mutate_sequence_chain_from_optionmenu;
 int         graphics_info_t::mutate_sequence_imol;
 int         graphics_info_t::align_and_mutate_imol;
 std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
+int         graphics_info_t::nsv_canvas_pixel_limit = 22500;
 
 // Bob recommends:
 realtype    graphics_info_t::alignment_wgap   = -0.5; // was -3.0;
@@ -1271,12 +1289,18 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
    GdkGLConfig *glconfig = 0;
    bool got_hardware_stereo_flag = 0; 
    
+//    GdkGLConfigMode mode = static_cast<GdkGLConfigMode>
+//       (GDK_GL_MODE_RGB    |
+//        GDK_GL_MODE_DEPTH  |
+//        GDK_GL_MODE_DOUBLE |
+//        GDK_GL_MODE_MULTISAMPLE |
+//        /* 2x FSAA */
+//        (2 << GDK_GL_MODE_SAMPLES_SHIFT)       );
+
    GdkGLConfigMode mode = static_cast<GdkGLConfigMode>
       (GDK_GL_MODE_RGB    |
        GDK_GL_MODE_DEPTH  |
-       // GDK_GL_MODE_MULTISAMPLE |
-       GDK_GL_MODE_DOUBLE
-       );
+       GDK_GL_MODE_DOUBLE);
 
    if (try_stereo_flag == coot::HARDWARE_STEREO_MODE) {
       mode = static_cast<GdkGLConfigMode>
@@ -1326,8 +1350,8 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
    /* Try double-buffered visual */
    glconfig = gdk_gl_config_new_by_mode(mode);
    if (glconfig == NULL) {
-      g_print ("\n*** Cannot find the double-buffered visual.\n");
-      g_print ("\n*** Trying single-buffered visual.\n");
+      g_print ("\n*** Cannot find the double-buffered visual.");
+      g_print ("\n*** Trying single-buffered visual.\n\n");
 
       mode =static_cast<GdkGLConfigMode>
 	 (GDK_GL_MODE_RGB   |
@@ -1493,7 +1517,7 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 
 	// if something was dropped
         g_signal_connect (GTK_WIDGET(drawing_area_tmp), "drag-drop",
-			  G_CALLBACK (on_drag_drop), NULL);
+			  G_CALLBACK (on_gl_canvas_drag_drop), NULL);
 	// what to we do with dropped data...
 	g_signal_connect (GTK_WIDGET(drawing_area_tmp), "drag-data-received",
 			  G_CALLBACK(on_drag_data_received), NULL);
@@ -3361,25 +3385,37 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_Left:
       if (graphics_info_t::control_is_pressed) {
-	 graphics_info_t::nudge_active_residue(GDK_Left);
+	 if (graphics_info_t::shift_is_pressed) 
+	    graphics_info_t::nudge_active_residue_by_rotate(GDK_Left);
+	 else 
+	    graphics_info_t::nudge_active_residue(GDK_Left);
 	 handled = TRUE;
 	 break;
       } 
    case GDK_Right:
       if (graphics_info_t::control_is_pressed) {
-	 graphics_info_t::nudge_active_residue(GDK_Right);
+	 if (graphics_info_t::shift_is_pressed)
+	    graphics_info_t::nudge_active_residue_by_rotate(GDK_Right);
+	 else
+	    graphics_info_t::nudge_active_residue(GDK_Right);
 	 handled = TRUE;
 	 break;
       } 
    case GDK_Up:
       if (graphics_info_t::control_is_pressed) {
-	 graphics_info_t::nudge_active_residue(GDK_Up);
+	 if (graphics_info_t::shift_is_pressed)
+	    graphics_info_t::nudge_active_residue_by_rotate(GDK_Up);
+	 else
+	    graphics_info_t::nudge_active_residue(GDK_Up);
 	 handled = TRUE;
 	 break;
       } 
    case GDK_Down:
       if (graphics_info_t::control_is_pressed) {
-	 graphics_info_t::nudge_active_residue(GDK_Down);
+	 if (graphics_info_t::shift_is_pressed)
+	    graphics_info_t::nudge_active_residue_by_rotate(GDK_Down);
+	 else
+	    graphics_info_t::nudge_active_residue(GDK_Down);
 	 handled = TRUE;
 	 break;
       }

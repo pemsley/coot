@@ -33,7 +33,7 @@ SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-
 	coords angles skeleton ccp4mg-utils density-contour \
 	db-main ideal ligand high-res build greg-tests python-tests \
 	analysis  tw libgtkgraph lbg cootaneer cootilus goograph src data \
-        rama-data doc rcrane
+        rama-data doc rcrane pixmaps
 
 # po, no po today.
 
@@ -72,21 +72,21 @@ EXTRA_DIST = 		\
 	intltool-merge.in        \
 	intltool-update.in 
 
-install-data-local:
-	@$(NORMAL_INSTALL)
-	if test -d $(srcdir)/pixmaps; then \
-	  $(mkinstalldirs) $(DESTDIR)$(pkgdatadir)/pixmaps; \
-	  for pixmap in $(srcdir)/pixmaps/*; do \
-	    if test -f $$pixmap; then \
-	      $(INSTALL_DATA) $$pixmap $(DESTDIR)$(pkgdatadir)/pixmaps; \
-	    fi \
-	  done \
-	fi
-	if test -z "$(COOT_WINDOWS_CFLAGS)" ; then \
-	  $(INSTALL_DATA) $(srcdir)/syminfo.lib $(DESTDIR)$(pkgdatadir); \
-	  else \
-	  $(INSTALL_DATA) $(srcdir)/windows/syminfo.lib $(DESTDIR)$(pkgdatadir); \
-	fi
+# install-data-local:
+# 	@$(NORMAL_INSTALL)
+# 	if test -d $(srcdir)/pixmaps; then \
+# 	  $(mkinstalldirs) $(DESTDIR)$(pkgdatadir)/pixmaps; \
+# 	  for pixmap in $(srcdir)/pixmaps/*; do \
+# 	    if test -f $$pixmap; then \
+# 	      $(INSTALL_DATA) $$pixmap $(DESTDIR)$(pkgdatadir)/pixmaps; \
+# 	    fi \
+# 	  done \
+# 	fi
+# 	if test -z "$(COOT_WINDOWS_CFLAGS)" ; then \
+# 	  $(INSTALL_DATA) $(srcdir)/syminfo.lib $(DESTDIR)$(pkgdatadir); \
+# 	  else \
+# 	  $(INSTALL_DATA) $(srcdir)/windows/syminfo.lib $(DESTDIR)$(pkgdatadir); \
+# 	fi
 
 dist-hook:
 	if test -d $(srcdir)/pixmaps; then \
@@ -100,6 +100,5 @@ dist-hook:
 
 subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = cootrc standard-residues.pdb colours.def \
-	mtrix-to-ncs-matrix.awk 
-
+	mtrix-to-ncs-matrix.awk syminfo.lib
 

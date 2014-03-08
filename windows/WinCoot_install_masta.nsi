@@ -383,23 +383,23 @@ Section "!WinCoot" SEC01
 SectionEnd
 
 
-; we dont want guile for now
-; 2nd section for guile
-Section /o "Guile/Scheme Add-On" SEC02
-  SetOverwrite on
-  SetOutPath "$INSTDIR\bin"
-  File "${src_dir}-guile\bin\coot-real.exe"
-  SetOverwrite ifnewer
-;  maybe here the other guile things?!
-SectionEnd
-
-Section /o "Windows feel" SEC03
+Section /o "Windows feel" SEC02
   SetOverwrite on
   SetOutPath "$INSTDIR\share\coot"
   File "C:\msys\home\bernhard\autobuild\extras\cootrc"
   SetOverwrite ifnewer
 ;  maybe here the other guile things?!
 SectionEnd
+
+; we dont want guile for now
+; 2nd section for guile
+;Section /o "Guile/Scheme Add-On" SEC03
+;  SetOverwrite on
+;  SetOutPath "$INSTDIR\bin"
+;  File "${src_dir}-guile\bin\coot-real.exe"
+;  SetOverwrite ifnewer
+;  maybe here the other guile things?!
+;SectionEnd
 
 Section -AddIcons
   ;; First install for all users, if anything fails, install
@@ -441,9 +441,9 @@ SectionEnd
 ; Section descriptions
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
   !insertmacro MUI_DESCRIPTION_TEXT ${SEC01} "This is 'default' WinCoot (${WinCootVersion}) $\n$\nPython scripting only"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Tick if you want a $\nWindowsy feeling to WinCoot"
 ; disable guile for now
 ;  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Tick if you want additionally $\nGuile/Scheme scripting"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SEC02} "Tick if you want a $\nWindowsy feeling to WinCoot"
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
 
@@ -782,11 +782,12 @@ SectionEnd
 # 'BUILD-IN' FUNCTIONS
 ######################
 
-Function .onSelChange
-   ${If} ${SectionIsSelected} ${SEC02}
-      MessageBox MB_OK|MB_ICONEXCLAMATION "You have with guile selected. Sure? This may not work perfectly.$\r$\n\"
-   ${EndIf}
-FunctionEnd
+# BL says:: disable for now, since no guile available anyway 
+#Function .onSelChange
+#   ${If} ${SectionIsSelected} ${SEC03}
+#      MessageBox MB_OK|MB_ICONEXCLAMATION "You have with guile selected. Sure? This may not work perfectly.$\r$\n\"
+#   ${EndIf}
+#FunctionEnd
 
 Function .onInit
 

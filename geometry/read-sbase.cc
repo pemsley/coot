@@ -22,8 +22,8 @@
 #include <algorithm>
 #include <stdlib.h>
 
-#include "coot-utils.hh"
-#include "protein-geometry.hh"
+#include "utils/coot-utils.hh"
+#include "geometry/protein-geometry.hh"
 
 #ifdef HAVE_CCP4SRS
 #include "ccp4srs/ccp4srs_defs.h"
@@ -35,7 +35,7 @@
 void
 coot::protein_geometry::read_ccp4srs_residues() {
 
-#ifdef HAVE_CCP4SRS   
+#ifdef HAVE_CCP4SRS
 
    if (SBase) { 
       CCP4SRSMonomer *monomer_p = NULL;
@@ -499,25 +499,29 @@ coot::protein_geometry::compare_vs_ccp4srs(CGraph *graph_1, float similarity, in
 		   << int (similarity * float(n_vertices)) << " " 
 		   << std::endl;
 
-      std::cout << "Close fragments must match " << min_match << " atoms of "
+      std::cout << "INFO:: Close fragments must match " << min_match << " atoms of "
 		<< n_vertices << std::endl;
       
 
       int nStructures = SBase->n_entries();
       int n_match = 0;
-      std::cout << "searching " << nStructures << " SBase structures\n";
+      std::cout << "INFO:: Searching " << nStructures << " CCP4SRS structures\n";
       for (int is=0; is<nStructures; is++)  {
 	 int rc = SBase->getGraph(graphFile, graph_2, exclude_H_flag);
 	 if (graph_2 == NULL) {
 	    std::cout << "bad status on get graph " << is << std::endl;
 	 } else {
-	    // std::cout << "graph check on structure " << is << std::endl;
-	    int n2 = graph_2->GetNofVertices();
 
+	    int n2 = graph_2->GetNofVertices();
 	    if ((n2 >= int (double(similarity) * double(n_vertices))) &&
 		(n2 < (2.0 - double(similarity)) * double(n_vertices))) { 
 
 	       graph_2->MakeVertexIDs();
+
+	       // 20131008: We can't make the arg True, because that
+	       // removes ~90% of the "hits" and returns molecules
+	       // with the wrong bond orders.
+	       // 
 	       graph_2->Build(False); // 20100608 was True
 
 	       CGraphMatch *match  = new CGraphMatch();

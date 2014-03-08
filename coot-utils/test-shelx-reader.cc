@@ -19,7 +19,7 @@
  */
 
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-shelx.hh"
 #include <iostream>
 

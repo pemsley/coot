@@ -625,6 +625,9 @@ def list_of_toolbar_functions():
          ["Change Alt Conf Occ", "select_atom_alt_conf_occ_gui()", "Change occupancies for alternative conformations", "add-alt-conf.svg"],
          ["Edit BB", "setup_backbone_torsion_edit(1)", "Edit Backbone Torsion Angle", "flip-peptide.svg"],
          ['Torsion Gen.', "setup_torsion_general(1)", "Torsion General (after O function)", "edit-chi.svg"],
+         ['Backrub Rotamers', toggle_backrub_rotamers,
+          "Toggle use (or not) of backrub rotamers",
+          "auto-fit-rotamer.svg", True, True],
          ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement", "azerbaijan.svg"]],
         ["Validation",
          ["Interactive dots", toggle_interactive_probe_dots,
@@ -632,6 +635,7 @@ def list_of_toolbar_functions():
           "probe-clash.svg", True, True]
          ],
         ["Building",
+         ["Ligand Builder", "start_ligand_builder_gui()", "Ligand Builder", "go-to-ligand.svg"],
          ["Split Water", "split_active_water()", "Split water in two and refine", "add-water.svg"],
          ["Find Waters", "wrapped_create_find_waters_dialog()", "Find water molecules in map", "add-water.svg"],
          ["Build NA", "find_nucleic_acids_local(6.0)", "Find nucleic acids locally using Cootilus", "dna.svg"]

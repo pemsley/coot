@@ -1,8 +1,7 @@
-/* ligand/find-waters.cc
+/* ligand/coot-map-utils.cc
  * 
  * Copyright 2004, 2005, 2006, 2007 The University of York
- * Copyright 2008 by The University of Oxford
- * Author: Paul Emsley
+ * Copyright 2008, 2009, 2010 by The University of Oxford
   * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -23,14 +22,16 @@
 #include <algorithm> // for sorting.
 #include <queue>
 
-// #include "clipper/ccp4/ccp4_map_io.h"
-#include "clipper/ccp4/ccp4_mtz_io.h"
+#include <gsl/gsl_sf_bessel.h>
+
 #include "clipper/core/map_interp.h"
 #include "clipper/core/hkl_compute.h"
-#include "clipper/contrib/skeleton.h"
 #include "clipper/mmdb/clipper_mmdb.h"
+#include "clipper/ccp4/ccp4_mtz_io.h"
+#include "clipper/contrib/skeleton.h"
+#include <clipper/contrib/edcalc.h>
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-map-utils.hh"
 
 
@@ -562,17 +563,48 @@ coot::util::difference_map(const clipper::Xmap<float> &xmap_in_1,
    return std::pair<clipper::Xmap<float>, float> (r, std_dev); 
 }
 
+// make a copy of map_in, but in the cell and gridding of reference_map
+clipper::Xmap<float>
+coot::util::reinterp_map(const clipper::Xmap<float> &xmap_in,
+			 const clipper::Xmap<float> &reference_xmap) {
+
+   clipper::Xmap<float> rmap;
+   rmap.init(reference_xmap.spacegroup(), reference_xmap.cell(), reference_xmap.grid_sampling());
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = rmap.first(); !ix.last(); ix.next())  {
+      clipper::Coord_map  cm1 = ix.coord().coord_map();
+      clipper::Coord_frac cf1 = cm1.coord_frac(rmap.grid_sampling());
+      clipper::Coord_orth co  = cf1.coord_orth(rmap.cell());
+      clipper::Coord_frac cf2 =  co.coord_frac(xmap_in.cell());
+      clipper::Coord_map  cm2 = cf2.coord_map( xmap_in.grid_sampling());
+      float map_2_val;
+      clipper::Interp_cubic::interp(xmap_in, cm2, map_2_val);
+      rmap[ix] = map_2_val;
+   }
+   return rmap;
+
+} 
+
+
 clipper::Xmap<float>
 coot::util::average_map(const std::vector<std::pair<clipper::Xmap<float>, float> > &maps_and_scales_vec) {
+   
    clipper::Xmap<float> rmap;
 
    if (maps_and_scales_vec.size() > 0) {
-      // set the first map
+
+      for (unsigned int imap=0; imap<maps_and_scales_vec.size(); imap++) 
+	 std::cout << "INFO:: multiplying map (function index) " << imap << " " 
+		   << maps_and_scales_vec[imap].first.grid_sampling().format()
+		   << " by " << maps_and_scales_vec[imap].second << std::endl;
+
+	  
+      // set the first map and scale it.
       rmap = maps_and_scales_vec[0].first;
       clipper::Xmap_base::Map_reference_index ix;
-      for (ix = rmap.first(); !ix.last(); ix.next())  {
+      for (ix = rmap.first(); !ix.last(); ix.next())
 	 rmap[ix] *= maps_and_scales_vec[0].second;
-      }
+
       for (unsigned int iothers=1; iothers<maps_and_scales_vec.size(); iothers++) {
 	 for (ix = rmap.first(); !ix.last(); ix.next())  {
 	    clipper::Coord_map  cm1 = ix.coord().coord_map();
@@ -1383,9 +1415,7 @@ coot::util::segment_map::path_to_peak(const clipper::Coord_grid &start_point,
 } 
 
 
-#include <clipper/contrib/edcalc.h>
-
-// pass a negative atom_selection to build an atom map for the whole molecule
+// pass a negative atom_selection_handle to build an atom map for the whole molecule
 // 
 clipper::Xmap<float>
 coot::util::calc_atom_map(CMMDBManager *mol,
@@ -1402,21 +1432,51 @@ coot::util::calc_atom_map(CMMDBManager *mol,
    PPCAtom sel_atoms = 0;
    int n_atoms;
    mol->GetSelIndex(atom_selection_handle, sel_atoms, n_atoms);
-   for (unsigned int i=0; i<n_atoms; i++) {
-      CAtom mmdb_atom; // (sel_atoms[i]);
-      mmdb_atom.Copy(sel_atoms[i]);
-      clipper::MMDBAtom clipper_mmdb_at(mmdb_atom);
-      clipper::Atom atom(clipper_mmdb_at);
-      l.push_back(atom);
+
+
+   // 20130710 for some reason this gives (memory?) errors when making clipper::Atom atom
+   // (coords are nan and ele is scrambled text)
+   // 
+//    for (unsigned int i=0; i<n_atoms; i++) {
+//       CAtom mmdb_atom;
+//       mmdb_atom.Copy(sel_atoms[i]);
+//       clipper::MMDBAtom clipper_mmdb_at(mmdb_atom);
+//       clipper::Atom atom(clipper_mmdb_at);
+//       std::cout << "copied mmdb_atom " << clipper_mmdb_at << " to clipper atom "
+// 		<< atom.coord_orth().format() << " " << atom.element()
+// 		<< std::endl;
+//       l.push_back(atom);
+//    }
+
+   for (unsigned int iat=0; iat<n_atoms; iat++) {
+      CAtom *at = sel_atoms[iat];
+      clipper::Coord_orth pt(at->x, at->y, at->z);
+      std::string ele(at->element);
+      clipper::Atom cat;
+      cat.set_element(ele);
+      cat.set_coord_orth(pt);
+      cat.set_u_iso(at->tempFactor);
+      cat.set_occupancy(at->occupancy);
+      l.push_back(cat);
    }
 
-   try { 
+   try {
+
       clipper::Atom_list al(l);
+      if (0) { // debug
+	 std::cout << "======================= al size(): " << al.size() << std::endl;
+	 std::cout << "here are some atoms" << std::endl;
+	 for (unsigned int iat=0; iat<5; iat++)
+	    std::cout << "           "
+		      << al[iat].coord_orth().format() << " "
+		      << al[iat].element() << std::endl;
+      }
       clipper::EDcalc_iso<float> e;
       e(xmap, al);
    }
-   catch (clipper::Message_base &e) {
-      std::cout << "e.what()" << std::endl;
+   catch (clipper::Message_generic &e) {
+      std::cout << "ERROR:: some sort of clipper map problem" << std::endl;
+      std::cout << e.text() << std::endl;
    }
    return xmap;
 }
@@ -1440,9 +1500,11 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
    float ret_val = -2;
    int SelHnd = mol->NewSelection(); // d
 
-   // std::cout << "There are " << specs.size() << " residues " << std::endl;
-   // for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++)
-   // std::cout << "   " << specs[ilocal] << std::endl;
+   if (0) { 
+      std::cout << "INFO:: map_to_model_correlation:: there are " << specs.size() << " residues " << std::endl;
+      for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++)
+	 std::cout << "   " << specs[ilocal] << std::endl;
+   }
 
    for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++) {
       
@@ -1504,9 +1566,35 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
 
       // debugging atom selection
-      // std::cout << "debug:: selected " << n_atoms << " atoms " << std::endl;
-      // for (unsigned int iat=0; iat<n_atoms; iat++)
-      //    std::cout << "    " << atom_selection[iat]->name << std::endl;
+      if (0) {
+	 std::cout << "debug:: selected " << n_atoms << " atoms " << std::endl;
+	 for (unsigned int iat=0; iat<n_atoms; iat++)
+	    std::cout << "    " << iat << " " << atom_selection[iat]->name << " "
+		      << atom_selection[iat] << std::endl;
+      }
+
+      // atom selection grid:
+      //
+      // 
+      std::pair<clipper::Coord_orth, clipper::Coord_orth> selection_extents = util::extents(mol, specs);
+      if (0) 
+	 std::cout << "INFO:: mol residue set extents: "
+		   << selection_extents.first.format() << " to "
+		   << selection_extents.second.format() << std::endl;
+      
+      clipper::Coord_frac ex_pt_1_fc = clipper::Coord_orth(selection_extents.first.x()-3,
+							   selection_extents.first.y()-3,
+							   selection_extents.first.z()-3).coord_frac(masked_map.cell());
+      clipper::Coord_frac ex_pt_2_fc = clipper::Coord_orth(selection_extents.second.x()+3,
+							   selection_extents.second.y()+3,
+							   selection_extents.second.z()+3).coord_frac(masked_map.cell());
+      clipper::Grid_map selection_grid(ex_pt_1_fc.coord_grid(masked_map.grid_sampling()),
+				       ex_pt_2_fc.coord_grid(masked_map.grid_sampling()));
+      if (0) {
+	 std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
+	 std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
+	 std::cout << "INFO:: Selection grid: " << selection_grid.format() << std::endl;
+      } 
       
       for (unsigned int iat=0; iat<n_atoms; iat++) {
 	 clipper::Coord_orth co(atom_selection[iat]->x,
@@ -1529,11 +1617,11 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 	 float atom_radius_sq = atom_radius * atom_radius;
 
 	 clipper::Xmap_base::Map_reference_coord ix(masked_map, grid.min() ), iu, iv, iw;
-	 for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) { 
+	 for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) { 
 	    for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
 	       for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
 		  if ( (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - co).lengthsq() < atom_radius_sq) {
-		     if (0) 
+		     if (0)
 			std::cout << "masked point at " 
 				  << iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()).format()
 				  << " centre point: " << co.format() << " " 
@@ -1551,20 +1639,61 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       double sum_x_sqd  = 0;
       double sum_y_sqd  = 0;
       double sum_xy = 0;
+      double y;
+      double x;
       int n = 0;
-      for (ix = reference_map.first(); !ix.last(); ix.next()) {
-	 double x = calc_map[ix];
-	 double y = reference_map[ix];
-	 if (masked_map[ix]) {
-	    sum_x  += x;
-	    sum_y  += y;
-	    sum_xy += x * y;
-	    sum_x_sqd += x*x;
-	    sum_y_sqd += y*y;
-	    n++;
+      
+      // scan all map:
+//       for (ix = reference_map.first(); !ix.last(); ix.next()) {
+// 	 double x = calc_map[ix];
+// 	 if (! clipper::Util::is_nan(x)) { 
+// 	    y = reference_map[ix];
+// 	    if (! clipper::Util::is_nan(y)) { 
+// 	       if (masked_map[ix]) {
+// 		  sum_x  += x;
+// 		  sum_y  += y;
+// 		  sum_xy += x * y;
+// 		  sum_x_sqd += x*x;
+// 		  sum_y_sqd += y*y;
+// 		  n++;
+// 	       }
+// 	    } else {
+// 	       std::cout << "ERROR:: oops (reference) map density for " << ix.coord().format()
+// 			 << " is nan " << std::endl;
+// 	    } 
+// 	 } else {
+// 	    std::cout << "ERROR:: oops calc density for " << ix.coord().format() << " is nan "
+// 		      << std::endl;
+// 	 }
+//       }
+
+      // scan the selection grid
+      // 
+      clipper::Xmap_base::Map_reference_coord iix(masked_map, selection_grid.min() ), iu, iv, iw;
+      for (iu = iix; iu.coord().u() <= selection_grid.max().u(); iu.next_u() ) {
+	 for (iv = iu; iv.coord().v() <= selection_grid.max().v(); iv.next_v() ) { 
+	    for (iw = iv; iw.coord().w() <= selection_grid.max().w(); iw.next_w() ) {
+	       if (masked_map[iw]) {
+		  x = calc_map[iw];
+		  if (! clipper::Util::is_nan(x)) {
+		     y = reference_map[iw];
+		     if (! clipper::Util::is_nan(y)) {
+			sum_x  += x;
+			sum_y  += y;
+			sum_xy += x * y;
+			sum_x_sqd += x*x;
+			sum_y_sqd += y*y;
+			n++;
+		     } else {
+			// std::cout << "null reference map data point at " << iw.coord().format() << std::endl;
+		     } 
+		  } else {
+		     // std::cout << "null calc map data point at " << iw.coord().format() << std::endl;
+		  } 
+	       } 
+	    }
 	 }
       }
-
 
       if (0) { 
 	 // just checking that the maps are what we expect them to be...
@@ -1578,16 +1707,26 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 	 mapout_mask.export_xmap(masked_map);
 	 mapout_mask.close_write();
       }
-      
+
       double top = double(n) * sum_xy - sum_x * sum_y;
       double b_1 = double(n) * sum_x_sqd - sum_x * sum_x;
       double b_2 = double(n) * sum_y_sqd - sum_y * sum_y;
+      if (0) { 
+	 std::cout << ".... n is " << n << std::endl;
+	 std::cout << ".... sum_xy is " << sum_xy << std::endl;
+	 std::cout << ".... sum_x is " << sum_x << std::endl;
+	 std::cout << ".... sum_y is " << sum_y << std::endl;
+	 std::cout << ".... top is " << top << std::endl;
+	 std::cout << ".... b_1 is " << b_1 << std::endl;
+	 std::cout << ".... b_2 is " << b_2 << std::endl;
+      }
 
       if (b_1 < 0) b_1 = 0;
       if (b_2 < 0) b_2 = 0;
 
       double c = top/(sqrt(b_1) * sqrt(b_2));
-      // std::cout << "INFO:: map vs model correlation: " << c << std::endl;
+      if (0)
+	 std::cout << "INFO:: map vs model correlation: " << c << std::endl;
       ret_val = c;
    }
    mol->DeleteSelection(SelHnd);
@@ -1596,6 +1735,30 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 
 // the first of the pair contains the correlation for the given residue spec.
 // 
+//! \brief atom-mask-mode is as follows:
+// 0: all-atoms
+// 1: main-chain atoms if is standard amino-acid, else all atoms
+// 2: side-chain atoms if is standard amino-acid, else all atoms
+// 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
+// 4: main-chain atoms if is standard amino-acid, else nothing
+// 5: side-chain atoms if is standard amino-acid, else nothing
+//
+// reformat that:
+// 
+// if (standard-amino-acid):
+//    0: all atoms
+//    1: main-chain
+//    2: side-chain
+//    3: side-chain excluding CB
+//    4: main-chain atoms
+//    5: side-chain atoms
+// else
+//    0: all atoms
+//    1: all atoms
+//    2: all atoms
+//    3: all atoms
+//    4: nothing
+//    5: nothing
 std::vector<std::pair<coot::residue_spec_t, float> >
 coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
 						 const std::vector<coot::residue_spec_t> &specs,
@@ -1619,9 +1782,9 @@ coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
 
 	       // PDBv3 FIXME
 	       // 
-	       if (atom_mask_mode == 1)
+	       if (atom_mask_mode == 1 || atom_mask_mode == 4)
 		  atom_name_selection = " N  , H  , HA , CA , C  , O  ";
-	       if (atom_mask_mode == 2)
+	       if (atom_mask_mode == 2 || atom_mask_mode == 5)
 		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
 	       if (atom_mask_mode == 3)
 		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
@@ -1646,7 +1809,18 @@ coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
 		       "*", // alt loc.
 		       SKEY_OR
 		       );
+      if (0) { // debugging selection
+	 PPCAtom atom_selection = 0;
+	 int n_atoms;
+	 mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
+
+	 std::cout << "selected n_atoms " << n_atoms << " where specs[0] is " << specs[0]
+		   << " for mask mode " << atom_mask_mode << std::endl;
+	 for (unsigned int iat=0; iat<n_atoms; iat++)
+	    std::cout << "    " << iat << " " << atom_spec_t(atom_selection[iat]) << std::endl;
+      }
    }
+   
 
 
    clipper::Xmap<float> calc_map =
@@ -1759,4 +1933,126 @@ coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
    return v;
 }
 
+
+
+std::vector<float>
+coot::util::density_map_points_in_sphere(clipper::Coord_orth pt, float search_radius, const clipper::Xmap<float> &xmap) {
+
+   std::vector<float> v;
+
+   float search_radius_sq = search_radius * search_radius; 
+   clipper::Coord_frac cf = pt.coord_frac(xmap.cell());
+   clipper::Coord_frac box0(cf.u() - search_radius/xmap.cell().descr().a(),
+			    cf.v() - search_radius/xmap.cell().descr().b(),
+			    cf.w() - search_radius/xmap.cell().descr().c());
+
+   clipper::Coord_frac box1(cf.u() + search_radius/xmap.cell().descr().a(),
+			    cf.v() + search_radius/xmap.cell().descr().b(),
+			    cf.w() + search_radius/xmap.cell().descr().c());
+
+   clipper::Grid_map grid(box0.coord_grid(xmap.grid_sampling()),
+			  box1.coord_grid(xmap.grid_sampling()));
+
+   clipper::Xmap_base::Map_reference_coord ix(xmap, grid.min()), iu, iv, iw;
+   for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+      for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
+	 for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+	    // sample a sphere
+	    if ( (iw.coord().coord_frac(xmap.grid_sampling()).coord_orth(xmap.cell()) - pt).lengthsq() < search_radius_sq) {
+	       v.push_back(xmap[iw]);
+	    }
+	 }
+      }
+   }
+   return v;
+}
+
+
+// clipper::Xmap<float>
+coot::util::map_fragment_info_t
+coot::util::map_from_map_fragment(const clipper::Xmap<float> &xmap,
+				  const clipper::Coord_orth &centre,
+				  float radius) {
+
+   map_fragment_info_t mfi;
+
+   clipper::Cell          xmap_cell = xmap.cell();
+   clipper::Grid_sampling xmap_grid_sampling = xmap.grid_sampling();
+   clipper::Coord_orth centre_moved = centre_moved - clipper::Coord_orth(0.1, 0.1, 0.1);
+
+   clipper::Grid_range gr0(xmap_cell, xmap_grid_sampling, radius);
+   clipper::Grid_range gr1(gr0.min() + centre.coord_frac(xmap_cell).coord_grid(xmap_grid_sampling),
+			   gr0.max() + centre.coord_frac(xmap_cell).coord_grid(xmap_grid_sampling));
+      
+   int new_x_u = 2*gr0.max().u();
+   int new_x_v = 2*gr0.max().v();
+   int new_x_w = 2*gr0.max().w();
+      
+   clipper::Coord_grid new_xmap_grid(new_x_u, new_x_v, new_x_w);
+   clipper::Coord_grid new_xmap_grid_max(new_x_u-1, new_x_v-1, new_x_w-1);
+   clipper::Coord_grid new_xmap_origin(0,0,0);
+   clipper::Grid_range new_xmap_grid_range(new_xmap_origin, new_xmap_grid_max);
+   clipper::Grid_sampling new_xmap_grid_sampling(new_x_u, new_x_v, new_x_w);
+   std::cout << "--------------- new_xmap grid_sampling init with " << new_x_u << " " << new_x_v << " " << new_x_w
+	     << std::endl;
+      
+   std::cout << "--------------- gr0.min() " << gr0.min().format() << std::endl;
+   std::cout << "--------------- gr0.max() " << gr0.max().format() << std::endl;
+   std::cout << "--------------- new_xmap_grid_sampling "   << new_xmap_grid_sampling.format() << std::endl;
+   std::cout << "--------------- new_xmap grid range min: " << new_xmap_grid_range.min().format() << std::endl;
+   std::cout << "--------------- new_xmap grid range max: " << new_xmap_grid_range.max().format() << std::endl;
+      
+
+   double new_x_alpha = xmap.cell().descr().alpha();
+   double new_x_beta  = xmap.cell().descr().beta();
+   double new_x_gamma = xmap.cell().descr().gamma();
+   double new_x_a = xmap.cell().descr().a() * double(new_xmap_grid_sampling.nu())/double(xmap_grid_sampling.nu());
+   double new_x_b = xmap.cell().descr().b() * double(new_xmap_grid_sampling.nv())/double(xmap_grid_sampling.nv());
+   double new_x_c = xmap.cell().descr().c() * double(new_xmap_grid_sampling.nw())/double(xmap_grid_sampling.nw());
+   clipper::Cell_descr new_xmap_cell_descr(new_x_a, new_x_b, new_x_c, new_x_alpha, new_x_beta, new_x_beta);
+   clipper::Cell new_xmap_cell(new_xmap_cell_descr);
+
+   // init new_xmap
+   // clipper::Xmap<float> new_xmap(clipper::Spacegroup::p1(), new_xmap_cell, new_xmap_grid_sampling);
+   mfi.xmap.init(clipper::Spacegroup::p1(), new_xmap_cell, new_xmap_grid_sampling);
+      
+   clipper::Xmap<float>::Map_reference_coord ix(xmap);
+   clipper::Coord_orth centre_radius(centre.x() - radius,
+				     centre.y() - radius,
+				     centre.z() - radius);
+   clipper::Coord_orth new_xmap_centre(radius, radius, radius);
+   clipper::Coord_grid offset = xmap.coord_map(centre_radius).coord_grid();
+   mfi.offset = offset;
+      
+   std::cout << "--------------- xmap offset to centre        " << centre_radius.format() << std::endl;
+   std::cout << "--------------- xmap offset to centre (grid) " << offset.format() << std::endl;
+
+   typedef clipper::Xmap<float>::Map_reference_index NRI;
+   double limited_radius = radius * 0.92;
+   for (NRI inx = mfi.xmap.first(); !inx.last(); inx.next()) {
+      clipper::Coord_orth p = inx.coord().coord_frac(new_xmap_grid_sampling).coord_orth(new_xmap_cell);
+      double d_to_c_sq = clipper::Coord_orth(p-new_xmap_centre).lengthsq();
+      if (d_to_c_sq > limited_radius*limited_radius) {
+	 mfi.xmap[inx] = 0.0;
+      } else {
+	 // ix indexes the xmap
+	 clipper::Coord_grid gp = p.coord_frac(xmap_cell).coord_grid(xmap_grid_sampling);
+	 ix.set_coord(gp + offset);
+
+	 // make a function that is y=1 around x=0 and y=1 around x=1 and
+	 // falls of to 0.5 around x=0.8 or so.
+	 //
+	 double x = sqrt(d_to_c_sq)/limited_radius;
+	 double gompertz_a = 0.14;
+	 double gompertz_b = 0.1; 
+	 double gompertz_c = 3;
+	 double gompertz_scale = 1 - (-gompertz_a*1.1 + gompertz_a * exp (gompertz_b * exp(gompertz_c * x)));
+	 mfi.xmap[inx] = xmap[ix] * gompertz_scale;
+	 if (0)
+	    std::cout << " inx " << inx.coord().format() << " " << d_to_c_sq << "  " << p.format() << " " << centre.format()
+		      << " vs " << limited_radius*limited_radius << " " << gompertz_scale << std::endl;
+      } 
+   }
+   return mfi;
+}
 

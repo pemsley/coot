@@ -43,7 +43,7 @@
 #endif
 #include "lbg.hh"
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 void set_show_additional_representation(int imol, int representation_number, int on_off_flag) {}
 void set_show_all_additional_representations(int imol, int on_off_flag) {}
 void orient_view(int imol,
@@ -81,7 +81,7 @@ main(int argc, char *argv[]) {
    std::pair<bool, coot::residue_spec_t> p(0, coot::residue_spec_t());
    int imol = -1; // dummy/unset
    int (*func) (const char *s1, const char *s2) = NULL;
-   void (*prodrg_import_func_ptr) (std::string file_name) = NULL;
+   void (*prodrg_import_func_ptr) (std::string file_name, std::string comp_id) = NULL;
    void (*sbase_import_func_ptr)  (std::string file_name) = NULL;
    std::string (*get_drug_mdl_via_wikipedia_and_drugbank) (std::string drug_name) = NULL;
    coot::protein_geometry *geom_p = NULL;

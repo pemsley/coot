@@ -1,8 +1,8 @@
 
 #include <algorithm>
+#include "coot-utils/coot-coord-extras.hh"
+#include "coot-utils/coot-map-heavy.hh"
 #include "simple-restraint.hh"
-#include "coot-coord-extras.hh"
-#include "coot-map-heavy.hh"
 
 // this can throw an exception
 // 
@@ -239,7 +239,7 @@ coot::torsionable_link_quads(std::vector<CResidue *> residues_in,
 	 if (link.link_torsion_restraint.size() > 0) { 
 	 
 	    for (unsigned int il=0; il<link.link_torsion_restraint.size(); il++) {
-	       std::cout << "----------- link torsion restraint " << il << std::endl;
+	       // std::cout << "----------- link torsion restraint " << il << std::endl;
 	       const coot::dict_link_torsion_restraint_t &rest = link.link_torsion_restraint[il];
 	       if (rest.is_pyranose_ring_torsion()) {
 		  // pass
@@ -331,7 +331,9 @@ coot::torsionable_link_quads(std::vector<CResidue *> residues_in,
 void
 coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
 				    const clipper::Xmap<float> &xmap,
+				    int n_trials,
 				    coot::protein_geometry *geom_p) {
+
 
    std::vector<std::pair<std::string, int> > atom_numbers = coot::util::atomic_number_atom_list();
    
@@ -377,7 +379,6 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
 	 bool reverse_flag = 1;
 	 double pre_score = coot::util::z_weighted_density_score_new(atoms, xmap);
 
-	 int n_trials = 400;
 	 double best_score = pre_score;
 	 int n_quads = quads.size();
 	 std::vector<double> best_quads(n_quads, -1);
@@ -397,6 +398,7 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
 	    
 	    std::vector<atom_tree_t::tree_dihedral_quad_info_t> torsion_quads;
 	    for (unsigned int iquad=0; iquad<n_quads; iquad++) {
+	       // quads[iquad] is passed for debugging
                double rand_angle = get_rand_angle(best_quads[iquad], quads[iquad], itrial, n_trials);
 	       atom_tree_t::tree_dihedral_quad_info_t tor(quads[iquad], rand_angle, fixed_index);
 	       torsion_quads.push_back(tor);
@@ -419,6 +421,9 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
 		  best_quads[iquad] = quads[iquad].torsion();
 	       best_tree_dihedral_quads = torsion_quads;
 	    }
+
+	    // std::string file_name = "trial-" + util::int_to_string(itrial) + ".pdb";
+	    // mol->WritePDBASCII(file_name.c_str());
 	 }
 	 tree.set_dihedral_multi(best_tree_dihedral_quads);
       
@@ -437,10 +442,11 @@ coot::get_rand_angle(double current_angle,
                      int itrial, int n_trials) { 
 
    double r = current_angle;
-   double minus_one_to_one = -1 + 2 * float(coot::util::random())/float(RAND_MAX);
+   double minus_one_to_one = -1 + 2 * double(coot::util::random())/double(RAND_MAX);
    double trial_factor = double(itrial)/double(n_trials);
+   // double angle_scale_factor = 0.2 + 0.8*(1-trial_factor);
    double angle_scale_factor = 0.2 + 0.8 - trial_factor;
- 
+   
    r += 30 * minus_one_to_one * angle_scale_factor;
 
    // allow gauche+/gauche-/trans
@@ -452,8 +458,9 @@ coot::get_rand_angle(double current_angle,
       r += step;
    } 
 
-   //    std::cout << "   varying " << quad.name << " was " << current_angle << " now "
-   // << r << std::endl;
+   if (0)
+      std::cout << "   varying " << quad.name << " was " << current_angle << " now "
+		<< r << " delta: " << r - current_angle << std::endl;
    
    return r; 
 } 

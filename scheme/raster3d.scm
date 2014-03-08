@@ -2,6 +2,9 @@
 (define coot-r3d-file-name "coot.r3d")
 (define coot-png-file-name "coot.png")
 (define coot-png-display-program "display")
+(let ((os-type (vector-ref (uname) 0)))
+  (if (string=? os-type "Darwin")
+      (set! coot-png-display-program "open")))
 
 ;; run raster3d
 (define render-image

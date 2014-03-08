@@ -206,6 +206,43 @@ void Connectivity::AddContacts(PCMMANManager molhnd, int selhnd,
 
 }
 
+void Connectivity::AddTraceByChain(PCMMDBManager molHnd, int selHnd, realtype cutoff ) {
+  // Adds a trace of selected atoms or all if selHnd <1.
+  realtype cutoff2 = cutoff*cutoff;
+  for(int i=0;i<molHnd->GetNumberOfModels();i++){
+    printf("There are %d chains\n",molHnd->GetModel(i+1)->GetNumberOfChains());
+    for(int j=0;j<molHnd->GetModel(i+1)->GetNumberOfChains();j++){
+      PCChain chain = molHnd->GetChain ( i+1, j );
+      if(j>30) return;
+      printf("Consider chain: %s, with %d residues\n",chain->GetChainID(),chain->GetNumberOfResidues());
+      for(int k=1;k<chain->GetNumberOfResidues();k++){
+        PCResidue res1 = chain->GetResidue(k-1);
+        PCResidue res2 = chain->GetResidue(k);
+        PCAtom at1 = res1->GetAtom("CA");
+        PCAtom at2 = res2->GetAtom("CA");
+        if(selHnd<1||(at1->isInSelection(selHnd)&&at2->isInSelection(selHnd))){
+          double dist = (at1->x - at2->x) * (at1->x - at2->x)
+                      + (at1->y - at2->y) * (at1->y - at2->y)
+                      + (at1->z - at2->z) * (at1->z - at2->z);
+          //printf("Trace by chain distance: %f\n",sqrt(dist));
+          Connection &conn = TotalSelection_new[at1->serNum-1];
+          if(!conn.isInTotalSelection){
+            conn.isInTotalSelection = true;
+          }
+          if ( dist > 0.0001 && dist < cutoff2 ) {
+            conn.AddConnection(at2->serNum-1);
+            Connection &conn2 = TotalSelection_new[at2->serNum-1];
+            if(!conn2.isInTotalSelection){
+              conn2.isInTotalSelection = true;
+            }
+            conn2.AddConnection(at1->serNum-1);
+          }
+        }
+      }
+    }
+  }
+}
+
 void Connectivity::AddTrace(PCMMANManager molhnd, const PPCAtom selAtoms,
               const int nSelAtoms, realtype cutoff ) {
   realtype cutoff2,dist;
@@ -1647,4 +1684,37 @@ int Connectivity2::MatchGraphs(PCResidue pRes1,const pstr altLoc1,
   delete G2;
   delete G1;
   return natMatch;
+}
+
+void Connectivity2::AddConnectionsFromMatches(CMMDBManager *molHnd1, CMMDBManager *molHnd2, const std::vector<int> &m1, const std::vector<int> &m2, const std::vector<std::string> &c1, const std::vector<std::string> &c2, const std::vector<std::string> &i1, const std::vector<std::string> &i2, const std::vector<std::string> &labels){
+
+  if(m1.size()==m2.size()&&m1.size()==labels.size()&&m1.size()==c1.size()&&m1.size()==c2.size()){
+
+    for(unsigned i=0;i<m1.size();i++){
+      const char* c1str = c1[i].c_str();
+      const char* c2str = c2[i].c_str();
+      PCChain ch1 = molHnd1->GetModel(1)->GetChain(c1str);
+      PCChain ch2 = molHnd2->GetModel(1)->GetChain(c2str);
+      if(!ch1||!ch2){
+        continue;
+      }
+      const char* i1str = i1[i].c_str();
+      const char* i2str = i2[i].c_str();
+      PCResidue res1 = ch1->GetResidue(m1[i],i1str);
+      PCResidue res2 = ch2->GetResidue(m2[i],i2str);
+      if(!res1||!res2){
+        continue;
+      }
+      PCAtom p_atom1 = res1->GetAtom("CA");
+      PCAtom p_atom2 = res2->GetAtom("CA");
+      if(p_atom1&&p_atom2){
+        pAtom1.push_back(p_atom1);
+        pAtom2.push_back(p_atom2);
+        Cartesian p1 = Cartesian(p_atom1->x, p_atom1->y, p_atom1->z);
+        Cartesian p2 = Cartesian(p_atom2->x, p_atom2->y, p_atom2->z);
+        connected.push_back(SimpleConnection(p1,p2,labels[i]));
+      }
+    }
+  }
+    std::cout << connected.size() << "\n";
 }

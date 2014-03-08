@@ -29,7 +29,7 @@
 #include <sstream>   // ditto.
 #include <cstdio>    // 20090806 Justin Lecher says we need this on Gentoo 
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 #if defined _MSC_VER
 #include <direct.h>
 #include <windows.h>
@@ -40,6 +40,8 @@
 #include <pwd.h>
 #endif // MINGW
 #endif
+
+#include <glob.h>
 
 // These 2 are for getpwnam
 #include <sys/types.h>
@@ -863,6 +865,7 @@ coot::util::split_string(const std::string &string_in,
    return v;
 }
 
+// by default splitter is " "
 std::vector<std::string>
 coot::util::split_string_no_blanks(const std::string &string_in,
 				   const std::string &splitter) {
@@ -1145,3 +1148,50 @@ coot::sequence::is_sequence_triplet(const std::string &s) {
    return r;
 } 
 
+
+// return a set of string that match the glob, with the directory name pre-appended
+std::vector<std::string>
+coot::util::glob_files(const std::string &dir, const std::string &glob_pattern) {
+
+   std::vector<std::string> r;
+   glob_t myglob;
+   std::string glob_files = append_dir_file(dir, glob_pattern);
+   int flags = 0;
+   glob(glob_files.c_str(), flags, 0, &myglob);
+   size_t count = myglob.gl_pathc;
+   for (char **p = myglob.gl_pathv; count ; p++, count--) { 
+      char *file(*p);
+      r.push_back(file);
+   }
+   globfree(&myglob);
+   return r;
+}
+
+
+coot::gauss_legendre_t::gauss_legendre_t() {
+   fill_weight_abscicca(16);
+}
+
+void
+coot::gauss_legendre_t::fill_weight_abscicca(int N) {
+
+   weight_abscissa_.resize(16+1);
+
+   weight_abscissa_[1]  = std::pair<double, double>(0.1894506104550685, -0.0950125098376374);
+   weight_abscissa_[2]  = std::pair<double, double>(0.1894506104550685,  0.0950125098376374);
+   weight_abscissa_[3]  = std::pair<double, double>(0.1826034150449236, -0.2816035507792589);
+   weight_abscissa_[4]  = std::pair<double, double>(0.1826034150449236,  0.2816035507792589);
+   weight_abscissa_[5]  = std::pair<double, double>(0.1691565193950025, -0.4580167776572274);
+   weight_abscissa_[6]  = std::pair<double, double>(0.1691565193950025,  0.4580167776572274);
+   weight_abscissa_[7]  = std::pair<double, double>(0.1495959888165767, -0.6178762444026438);
+   weight_abscissa_[8]  = std::pair<double, double>(0.1495959888165767,  0.6178762444026438);
+   weight_abscissa_[9]  = std::pair<double, double>(0.1246289712555339, -0.7554044083550030);
+   weight_abscissa_[10] = std::pair<double, double>(0.1246289712555339,  0.7554044083550030);
+   weight_abscissa_[11] = std::pair<double, double>(0.0951585116824928, -0.8656312023878318);
+   weight_abscissa_[12] = std::pair<double, double>(0.0951585116824928,  0.8656312023878318);
+   weight_abscissa_[13] = std::pair<double, double>(0.0622535239386479, -0.9445750230732326);
+   weight_abscissa_[14] = std::pair<double, double>(0.0622535239386479,  0.9445750230732326);
+   weight_abscissa_[15] = std::pair<double, double>(0.0271524594117541, -0.9894009349916499);
+   weight_abscissa_[16] = std::pair<double, double>(0.0271524594117541,  0.9894009349916499);
+
+} 

@@ -1,10 +1,12 @@
 
 #include <stdlib.h>
 #include <iostream> // fixes undefined strchr, strchrr problems
+
+#include "geometry/protein-geometry.hh"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+
 #include "coot-nomenclature.hh"
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "protein-geometry.hh"
 
 int
 main(int argc, char **argv) {

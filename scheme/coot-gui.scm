@@ -3321,20 +3321,22 @@
 	 (lambda ()
 
 	   (let ((maps-to-average-list 
-		  (map 
-		   (lambda (mav-bits)
-		     (let* ((option-menu  (list-ref mav-bits 1))
-			    (map-mol-list (list-ref mav-bits 2))
-			    (entry        (list-ref mav-bits 3))
-			    (nov (format #t "map-mol-list: ~s~%" 
-					 map-mol-list))
-			    (map-selected
-			     (get-option-menu-active-molecule
-			      option-menu map-mol-list))
-			    (text (gtk-entry-get-text entry))
-			    (weight (string->number text)))
-		       (list map-selected weight)))
-		   mav-widgets)))
+		  (reverse ;; so that the top map comes first and the gridding of the 
+		           ;; resulting map is this map
+		   (map 
+		    (lambda (mav-bits)
+		      (let* ((option-menu  (list-ref mav-bits 1))
+			     (map-mol-list (list-ref mav-bits 2))
+			     (entry        (list-ref mav-bits 3))
+			     (nov (format #t "map-mol-list: ~s~%" 
+					  map-mol-list))
+			     (map-selected
+			      (get-option-menu-active-molecule
+			       option-menu map-mol-list))
+			     (text (gtk-entry-get-text entry))
+			     (weight (string->number text)))
+			(list map-selected weight)))
+		    mav-widgets))))
 	     (format #t "maps to average: ~s~%" 
 		     maps-to-average-list)
 	     (average-map maps-to-average-list)
@@ -3653,7 +3655,10 @@
 	#f
 	(list min-res-no max-res-no chain-id))))
     
-   
+
+;; by default, rename loop residues to UNK.  If scheme true, then
+;; leave them as the residue names found in the database.
+(define *db-loop-preserve-residue-names* #f)
 
 (define (click-protein-db-loop-gui)
   (generic-number-chooser (range 2 10) 4 
@@ -3672,7 +3677,7 @@
 				     (let ((loop-mols
 					    (protein-db-loops imol residue-specs 
 							      (imol-refinement-map)
-							      10)))
+							      10 *db-loop-preserve-residue-names*)))
 
 				       (let ((imol-loop-orig (car (car loop-mols)))
 					     (imol-loops-consolodated (cadr (car loop-mols)))
@@ -3707,7 +3712,9 @@
 										  min-resno max-resno)))
 						      (list "Toggle All Candidate Loops"
 							    (lambda () 
-							      (toggle-display-mol imol-loops-consolodated)))
+							      (toggle-display-mol imol-loops-consolodated)
+							      (toggle-active-mol  imol-loops-consolodated)
+							      ))
 						      )
 						     buttons)
 						    " Close ")))))))))))))

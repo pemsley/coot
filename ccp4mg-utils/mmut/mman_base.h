@@ -58,7 +58,7 @@ class CMMANBase {
   int exclude_solvent;
   int exclude_hydrogen;
   int exclude_alternate;
-  char* use_altLoc;
+  const char* use_altLoc;
   Boolean own_selHnds;
   int selMode[MAXSETS];
   PCMMUTManager molHnds[MAXSETS];

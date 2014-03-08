@@ -26,10 +26,11 @@
 #include <string>
 #include <vector>
 
-#include "mini-mol.hh"
-#include "protein-geometry.hh" // for wiggly ligands
-
 #include <mmdb/mmdb_manager.h>
+
+#include "mini-mol/mini-mol.hh"
+#include "geometry/protein-geometry.hh" // for wiggly ligands
+
 #include "clipper/core/xmap.h"
 #include "clipper/contrib/skeleton.h" // neighbs is in the recursive function call
 #include "clipper/core/map_utils.h" // map stats (returned value)
@@ -117,6 +118,7 @@ namespace coot {
       bool operator==(const map_point_cluster &mpc) const {
 	 return (mpc.map_grid == map_grid);
       }
+      double volume(const clipper::Xmap<float> &xmap_ref) const;
    }; 
 
    bool compare_clusters(const map_point_cluster &a,
@@ -135,6 +137,7 @@ namespace coot {
       short int do_cluster_size_check_flag;
       short int do_chemically_sensible_test_flag;
       short int do_sphericity_test_flag;
+      float water_molecule_volume;
 
       // There is no operator= for clipper::Map_stats
       // values: set, mean, std_dev:
@@ -297,7 +300,7 @@ namespace coot {
 
       // blobs that are too big to be waters
       // 
-      std::vector<clipper::Coord_orth> keep_blobs;
+      std::vector<std::pair<clipper::Coord_orth, double> > keep_blobs;
 
    protected:
 
@@ -571,6 +574,8 @@ namespace coot {
 	 }
       }
 
+      double possible_water_volume_limit() const;
+
       // 
       void water_fit_old(int n_cycles);
       void water_fit(float sigma_cutoff, int n_cycles);
@@ -593,7 +598,7 @@ namespace coot {
 
       void set_default_b_factor(float f);
 
-      std::vector<clipper::Coord_orth> big_blobs() const { 
+      std::vector<std::pair<clipper::Coord_orth, double> > big_blobs() const { 
 	 return keep_blobs;
       }
 

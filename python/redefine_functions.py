@@ -21,6 +21,7 @@ cell                   = cell_py
 map_cell               = cell_py
 get_refmac_sad_atom_info = get_refmac_sad_atom_info_py
 origin_pre_shift       = origin_pre_shift_py
+save_state_file        = save_state_file_py
 save_state_file_name   = save_state_file_name_py
 run_state_file         = run_state_file_py
 wrapped_create_run_state_file_dialog =  wrapped_create_run_state_file_dialog_py
@@ -156,6 +157,17 @@ screen_vectors         = screen_vectors_py
 get_residue_by_type    = get_residue_by_type_py
 score_rotamers         = score_rotamers_py
 
+# c-interface-ligands-swig.hh:
+residues_torsions_match = residues_torsions_match_py
+kolmogorov_smirnov     = kolmogorov_smirnov_py
+kullback_liebler       = kullback_liebler_py
+chain_fragments        = chain_fragments_py
+find_blobs             = find_blobs_py
+morph_fit_residues     = morph_fit_residues_py
+density_score_residue  = density_score_residue_py
+align_to_closest_chain = align_to_closest_chain_py
+active_atom_spec       = active_atom_spec_py
+
 # curl and hence coot_get_url_as_string are conditionally compiled.
 try:
     coot_get_url_as_string = coot_get_url_as_string_py
@@ -170,3 +182,5 @@ de_chainsaw                    = fill_partial_residues
 # fix typo of set_find_hydrogen_torsions (for backwards compatibility?!)
 set_find_hydrogen_torsion = set_find_hydrogen_torsions
 
+# redefine in case someone has old function
+toggle_idle_ligand_interactions = toggle_flev_idle_ligand_interactions

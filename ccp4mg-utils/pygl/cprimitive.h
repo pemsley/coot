@@ -40,10 +40,18 @@
 #include <GL/glu.h>
 #endif
 
+#if defined (_WIN32) && not defined (WINDOWS_MINGW)
+#define EXAMPLE_DLL __declspec(dllimport)
+void __stdcall EXAMPLE_DLL draw_flat_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false, const bool grey_ribbon_edge=false);
+void __stdcall EXAMPLE_DLL draw_flat_rounded_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
+void __stdcall EXAMPLE_DLL draw_fancy_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
+void __stdcall EXAMPLE_DLL draw_elliptical_ribbon(const std::vector<Cartesian> &vertices, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int quality, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
+#else
 void draw_flat_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false, const bool grey_ribbon_edge=false);
 void draw_flat_rounded_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
 void draw_fancy_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
 void draw_elliptical_ribbon(const std::vector<Cartesian> &vertices, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int quality, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
+#endif
 void draw_billboard(double v11, double v12, double v21, double v22);
 void draw_quadstrip_outline(const double *vertices, int nvertices);
 void draw_quadstrip_textured(const double *vertices, int nvertices, int textured);
@@ -182,7 +190,7 @@ class Primitive{
   virtual bool isDots() const {return false;};
   virtual bool isImposter() const {return false;};
   virtual std::vector<Primitive*> GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start=-1, int end=-1) const;
-  virtual int GetNumberOfSimplePrimitives() const { return 1;} ;
+  virtual size_t GetNumberOfSimplePrimitives() const { return 1;} ;
   void SetOccDataAttrib(int occDataAttrib_in) {occDataAttrib=occDataAttrib_in;} ;
   virtual void forceRegenerateArrays() {};
   int GetUseVBO() const {return useVBO;} ; 
@@ -642,7 +650,7 @@ class QuadStripElement : public Primitive{
   void DrawPovray(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const Volume &v);
   bool isLine() const {return false;};
   std::vector<Primitive*> GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start=-1, int end=-1) const;
-  int GetNumberOfSimplePrimitives() const { return vertices.size()-2;} ;
+  size_t GetNumberOfSimplePrimitives() const { if(vertices.size()>1) {return vertices.size()-2;} else {return 0;};} ;
 };
 
 class QuadStrip: public QuadStripElement {
@@ -664,7 +672,7 @@ class TriangleStripElement : public Primitive{
   void DrawPovray(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const Volume &v);
   bool isLine() const {return false;};
   std::vector<Primitive*> GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start=-1, int end=-1) const;
-  int GetNumberOfSimplePrimitives() const { return vertices.size()-3;} ;
+  size_t GetNumberOfSimplePrimitives() const { if(vertices.size()>2) {return vertices.size()-3;} else {return 0;};} ;
 };
 
 class TriangleStrip: public TriangleStripElement {
@@ -710,7 +718,7 @@ class PolyCylinder : public Primitive{
   void DrawPovray(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const Volume &v);
   bool isLine() const {return false;};
   std::vector<Primitive*> GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start=-1, int end=-1) const;
-  int GetNumberOfSimplePrimitives() const ;
+  size_t GetNumberOfSimplePrimitives() const ;
 };
 
 class Ribbon : public Primitive{
@@ -741,7 +749,7 @@ class Ribbon : public Primitive{
   void DrawPovray(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const Volume &v);
   bool isLine() const {return false;};
   std::vector<Primitive*> GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start=-1, int end=-1) const;
-  virtual int GetNumberOfSimplePrimitives() const ;
+  virtual size_t GetNumberOfSimplePrimitives() const ;
   virtual void SetAlpha(double alpha_in);
 };
 
@@ -782,7 +790,7 @@ class ArrowHeadRibbon : public Ribbon {
   bool isLine() const {return false;};
   void DrawPostScript(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, double xoff, double yoff, double xscale, double yscale, double xscaleps, const Volume &v);
   std::vector<Primitive*> GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start=-1, int end=-1) const;
-  int GetNumberOfSimplePrimitives() const ;
+  size_t GetNumberOfSimplePrimitives() const ;
 };
 
 enum { IMAGE_FULLSCREEN, IMAGE_ORIGINAL_SIZE, IMAGE_KEEP_ORIGINAL_SIZE };
@@ -875,14 +883,14 @@ class SimpleText : public Primitive{
   virtual void SetRasterPosition(double x_in, double y_in, double z_in) const = 0;
   void set_draw_colour(const GLfloat *col=0);
   virtual void draw(const double *override_colour=0, int selective_override=0) = 0;
-  virtual int IsBillBoard() = 0;
+  virtual int IsBillBoard() const = 0;
   void draw_main(const double *override_colour=0, int selective_override=0);
   void SetFontName(const std::string &family_in, const int size_in, const std::string &weight_in, const std::string &slant_in);
   std::string StripTags();
   int LoadFont();
-  void BitMapFont(int count, int left, const MGFontInfo &finfo, int underline, int strikethrough);
-  void BackspaceBitMapFont(int count, int left, const MGFontInfo &finfo);
-  void BlankBitMapFont(int count, int left, const MGFontInfo &finfo);
+  //void BitMapFont(int count, int left, const MGFontInfo &finfo, int underline, int strikethrough);
+  //void BackspaceBitMapFont(int count, int left, const MGFontInfo &finfo);
+  //void BlankBitMapFont(int count, int left, const MGFontInfo &finfo);
   void SetFontSize(unsigned int fn_isize);
   void SetFontFamily(const std::string &Family);
   void SetFontWeight(const std::string &Weight);
@@ -929,7 +937,7 @@ class Text : public SimpleText{
   void SetRasterPosition(double x_in, double y_in, double z_in) const ;
   void DrawPovray(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const Volume &v);
   void DrawPostScript(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, double xoff, double yoff, double xscale, double yscale, double xscaleps, const Volume &v);
-  int IsBillBoard() {return 0;};
+  int IsBillBoard() const {return 0;};
   bool isLine() const {return true;};
 };
 
@@ -945,7 +953,7 @@ class BillBoardText : public SimpleText, public SimpleBillBoard {
   void SetRasterPosition(double x_in, double y_in, double z_in) const ;
   void DrawPovray(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, const Volume &v);
   void DrawPostScript(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, double xoff, double yoff, double xscale, double yscale, double xscaleps, const Volume &v);
-  int IsBillBoard() {return 1;};
+  int IsBillBoard() const {return 1;};
   bool isLine() const {return true;};
 };
 
@@ -980,7 +988,7 @@ class PointCollection : public Primitive {
   std::vector<Primitive*> GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start=-1, int end=-1) const;
   std::vector<Primitive*> GetPrimitives() const {return lines;}
   void SetPrimitives(std::vector<Primitive*> &lines_in){lines=lines_in;}
-  int GetNumberOfSimplePrimitives() const { return lines.size();} ;
+  size_t GetNumberOfSimplePrimitives() const { return lines.size();} ;
 };
 
 class LineCollection : public Primitive {
@@ -997,7 +1005,7 @@ class LineCollection : public Primitive {
   std::vector<Primitive*> GetSimplePrimitives(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start=-1, int end=-1) const;
   std::vector<Primitive*> GetPrimitives() const {return lines;}
   void SetPrimitives(std::vector<Primitive*> &lines_in){lines=lines_in;}
-  int GetNumberOfSimplePrimitives() const { return lines.size();} ;
+  size_t GetNumberOfSimplePrimitives() const { return lines.size();} ;
   std::vector<Primitive*> GetSimplePrimitivesArrays(const Volume &clip_vol, const matrix &objrotmatrix, const Cartesian &objorigin, int start=-1, int end=-1) ;
 };
 
@@ -1091,7 +1099,7 @@ class PolyCollection : public Primitive {
   void set_transparent(int trans_in);
   std::vector<Primitive*> GetPrimitives() const {return prims;}
   void SetPrimitives(std::vector<Primitive*> &prims_in){prims=prims_in;}
-  int GetNumberOfSimplePrimitives() const { return prims.size();} ;
+  size_t GetNumberOfSimplePrimitives() const { return prims.size();} ;
   void SetUseVBO(const int _useVBO); 
   void SetUseVertexArrays(const int _useVertexArrays); 
 };
@@ -1125,7 +1133,7 @@ class ImposterSphereCollection : public Primitive {
   void set_transparent(int trans_in);
   std::vector<Primitive*> GetPrimitives() const {return prims;}
   void SetPrimitives(std::vector<Primitive*> &prims_in){prims=prims_in;}
-  int GetNumberOfSimplePrimitives() const { return prims.size();} ;
+  size_t GetNumberOfSimplePrimitives() const { return prims.size();} ;
   void SetUseVBO(const int _useVBO); 
   void SetUseVertexArrays(const int _useVertexArrays); 
 };

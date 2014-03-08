@@ -1,20 +1,17 @@
 
 lib_LTLIBRARIES=libcoot-analysis.la
 
-include_HEADERS=bfkurt.hh mogul-interface.hh
+pkginclude_HEADERS=bfkurt.hh mogul-interface.hh
+pkgincludedir = $(includedir)/coot/analysis
 
 # CXXFLAGS = 	$(COOT_GSL_FLAGS)
 
 INCLUDES = \
-	-I$(top_srcdir)/lidia-core      \
-	-I$(top_srcdir)/geometry        \
-	-I$(top_srcdir)/coot-utils   	\
-	-I$(top_srcdir)/mini-mol   	\
-	-I$(top_srcdir)/utils   	\
+	-I$(top_srcdir) \
 	$(CLIPPER_CXXFLAGS)		\
 	$(MMDB_CXXFLAGS)
 
-libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc 
+libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc kolmogorov.hh kolmogorov.cc cablam.hh cablam.cc
 
 libcoot_analysis_la_LIBADD = \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la    \
@@ -26,7 +23,7 @@ libcoot_analysis_la_LIBADD = \
 
 bin_PROGRAMS = bfactan
 
-check_PROGRAMS = test-mogul
+check_PROGRAMS = test-mogul test-cablam
 
 bfactan_SOURCES = bfactan.cc
 
@@ -34,12 +31,18 @@ test_mogul_SOURCES = test-mogul.cc
 
 test_mogul_LDADD = libcoot-analysis.la
 
+test_cablam_SOURCES = test-cablam.cc
+
+test_cablam_LDADD =    $(top_builddir)/coords/libcoot-coords.la    \
+                       libcoot-analysis.la
+
 bfactan_LDADD = \
 	libcoot-analysis.la 					\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la 	\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
         $(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/utils/libcoot-utils.la 		\
+	$(GLOB_LIBS) 		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)
 

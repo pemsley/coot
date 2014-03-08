@@ -41,22 +41,22 @@
 #include <iostream>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
 
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "clipper/core/map_utils.h" // Map_stats
-#include "graphical_skel.h"
+#include "skeleton/graphical_skel.h"
 
 
 #include "interface.h"
 
 #include "molecule-class-info.h"
 // #include "rama_plot.hh"
-#include "BuildCas.h"
+#include "skeleton/BuildCas.h"
 
 
 #include "gl-matrix.h" // for baton rotation
@@ -64,18 +64,18 @@
 
 // #include "rottrans-buttons.hh"  old and deletable.
 
-#include "bfkurt.hh"
+#include "analysis/bfkurt.hh"
 
 #include "globjects.h"
 #ifdef USE_DUNBRACK_ROTAMERS
-#include "dunbrack.hh"
+#include "ligand/dunbrack.hh"
 #else 
-#include "richardson-rotamer.hh"
+#include "ligand/richardson-rotamer.hh"
 #endif 
-#include "ligand.hh"
+#include "ligand/ligand.hh"
 #include "graphics-info.h"
 
-#include "coot-map-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 #include "geometry-graphs.hh"
 
 // Validation stuff	    //
@@ -420,6 +420,29 @@ graphics_info_t::geometric_distortion(int imol) {
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif
 }
+
+#ifdef HAVE_GSL
+coot::geometry_distortion_info_container_t
+graphics_info_t::geometric_distortions(CResidue *residue_p) {
+   
+   coot::geometry_distortion_info_container_t gdc(NULL, 0, "");
+
+   if (residue_p) { 
+      CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
+      if (mol) {
+	 atom_selection_container_t asc = make_asc(mol);
+	 std::vector<coot::geometry_distortion_info_container_t> v = geometric_distortions_from_mol(asc);
+	 if (v.size() == 1) {
+	    if (v[0].geometry_distortion.size() > 1) {
+	       gdc = v[0];
+	    }
+	 } 
+	 asc.clear_up();
+      } 
+   }
+   return gdc;
+}
+#endif // HAVE_GSL
 
 
 #ifdef HAVE_GSL

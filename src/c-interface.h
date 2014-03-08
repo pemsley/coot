@@ -62,7 +62,7 @@
    twice in C-declarations inside gmp library. Hmm! */
 #ifdef __cplusplus
 #ifdef USE_GUILE
-#include <cstdio> // for std::FILE in gmp.h for libguile.h
+#include <cstdio> /* for std::FILE in gmp.h for libguile.h */
 #include <libguile.h>		/* for SCM type (returned by safe_scheme_command) */
 #endif /*  USE_GUILE */
 #endif /* c++ */
@@ -81,15 +81,6 @@
 
 BEGIN_C_DECLS
 
-/* Fix this on a rainy day. */
-/* #ifdef __cplusplus */
-/* #include "mini-mol.hh" */
-/* #endif //  __cplusplus */
-
-/* For similar reason to above, we can't have this here (mmdb poisoning) */
-/* #ifdef __cplusplus */
-/* #include "sequence-view.hh" */
-/* #endif */
 
 #define COOT_SCHEME_DIR "COOT_SCHEME_DIR"
 
@@ -98,10 +89,10 @@ BEGIN_C_DECLS
 /*  ------------------------------------------------------------------------ */
 #ifdef USE_GUILE
 void try_load_scheme_extras_dir();
-#endif // USE_GUILE
+#endif /* USE_GUILE */
 #ifdef USE_PYTHON
 void try_load_python_extras_dir();
-#endif // USE_PYTHON
+#endif /* USE_PYTHON */
 
 /* section Startup Functions */
 /*!  \name Startup Functions */
@@ -236,11 +227,12 @@ void add_save_coordinates_include_hydrogens_and_aniso_checkbutton(GtkWidget *fil
 
 
 
-// where data type:
-// 0 coords
-// 1 mtz etc
-// 2 maps
-// (return the button)
+/* where data type:
+ 0 coords
+ 1 mtz etc
+ 2 maps
+ (return the button)
+*/
 GtkWidget *add_filename_filter_button(GtkWidget *fileselection, 
 				      short int type);
 
@@ -251,7 +243,7 @@ void add_filechooser_filter_button(GtkWidget *fileselection,
 void add_filechooser_extra_filter_button(GtkWidget *fileselection, 
 				      const gchar *name,
                                       const gchar *name2);
-#endif // GTK2
+#endif /* GTK2 */
 
 gboolean on_filename_filter_key_press_event (GtkWidget       *widget,
 					     GdkEventKey     *event,
@@ -441,6 +433,33 @@ int n_chains(int imol);
  */
 int is_solvent_chain_p(int imol, const char *chain_id);
 
+/*! \brief is this a protein chain? [Raw function]
+
+   This is a raw interface function, you should generally not use
+   this, but instead use (is-protein-chain? imol chain-id)
+
+   @return -1 on error, 0 for no, 1 for is "a protein chain".  We
+   wouldn't want to be doing rotamer searches and the like on such a
+   chain.
+
+   This wraps the mmdb function isAminoacidChain().
+ */
+int is_protein_chain_p(int imol, const char *chain_id);
+
+/*! \brief is this a nucleic acid chain? [Raw function]
+
+   This is a raw interface function, you should generally not use
+   this, but instead use (is-nucleicacid-chain? imol chain-id)
+
+   @return -1 on error, 0 for no, 1 for is "a nucleicacid chain".  We
+   wouldn't want to be doing rotamer searches and the like on such a
+   chain.
+
+   This wraps the mmdb function isNucleotideChain().
+   For completeness.
+ */
+int is_nucleotide_chain_p(int imol, const char *chain_id);
+
 
 /*!\brief return the number of residues in the molecule, 
 
@@ -569,11 +588,11 @@ const char *molecule_name(int imol);
 #ifdef USE_GUILE
 /*! \brief return the molecule name without file extension */
 SCM molecule_name_stub_scm(int imol, int include_path_flag);
-#endif // USE_GUILE
+#endif /* USE_GUILE */
 #ifdef USE_PYTHON
 /*! \brief return the molecule name without file extension */
 PyObject *molecule_name_stub_py(int imol, int include_path_flag);
-#endif // USE_PYTHON
+#endif /* USE_PYTHON */
 #endif	/* __cplusplus */
 /*! \brief set the molecule name of the imol-th molecule */
 void set_molecule_name(int imol, const char *new_name);
@@ -582,7 +601,10 @@ gboolean coot_checked_exit(int retval);
 /*! \brief exit from coot, give return value retval back to invoking
   process. */
 void coot_real_exit(int retval); 
+void coot_no_state_real_exit(int retval);
 void coot_clear_backup_or_real_exit(int retval);
+void coot_save_state_and_exit(int retval, int save_state_flag);
+
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
@@ -707,7 +729,7 @@ void set_rocking_factors(float width_scale, float frequency_scale);
 
 /*! \brief how far should we rotate when (auto) spinning? Fast
   computer? set this to 0.1  */
-void set_idle_function_rotate_angle(float f);  // degrees
+void set_idle_function_rotate_angle(float f);  /* degrees */
 
 float idle_function_rotate_angle();
 
@@ -739,7 +761,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 int handle_read_draw_molecule_and_move_molecule_here(const char *filename);
 
 /*! \brief read coordinates from filename */
-int read_pdb(const char *filename); // cc4mg function name
+int read_pdb(const char *filename);
 
 /*! \brief some programs produce PDB files with ATOMs where there
   should be HETATMs.  This is a function to assign HETATMs as per the
@@ -1260,7 +1282,9 @@ void handle_map_colour_change     (int map_no, gdouble[4]);
 void handle_symmetry_colour_change(int mol,    gdouble[4]);
 void fill_single_map_properties_dialog(GtkWidget *window, int imol);
 
+/* \brief set the contour level, direct control */
 void set_contour_level_absolute(int imol_map, float level);
+/* \brief set the contour level, direct control in r.m.s.d. (if you like that sort of thing) */
 void set_contour_level_in_sigma(int imol_map, float level);
 
 /*! \brief set the sigma step of the last map to f sigma */
@@ -1291,6 +1315,10 @@ int export_map(int imol, const char *filename);
 /*! \brief export a fragment of the map about (x,y,z)  */
 int export_map_fragment(int imol, float x, float y, float z, float radius, const char *filename);
 
+/*! \brief export a fragment of the map about (x,y,z)  */
+int export_map_fragment_with_origin_shift(int imol, float x, float y, float z, float radius, const char *filename);
+
+
 /* return the new molecule number. The cell is given in Angstroms and
    the angles in degrees.  The ref_space_group can be a H-M symbol or
    a colon-separated string of symmetry operators.
@@ -1311,6 +1339,10 @@ int transform_map_raw(int imol,
   on the grid of imap1.  Return the new molecule number.  
   Return -1 on failure. */
 int difference_map(int imol1, int imol2, float map_scale);
+
+/*! \brief make a new map (a copy of map_no) that is in the cell,
+  spacegroup and gridding of the map in reference_map_no */
+int reinterp_map(int map_no, int reference_map_no);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
@@ -1552,10 +1584,10 @@ void set_esoteric_depth_cue(int istate);
   return the state of the esoteric depth cueing flag */
 int  esoteric_depth_cue_state();
 
-/*! \brief not everone lies coot's default difference map colouring.  
+/*! \brief not everone likes coot's default difference map colouring.  
 
    Pass an argument i=1 to swap the difference map colouring so that
-   red is positve and green is negative. */
+   red is positive and green is negative. */
 void set_swap_difference_map_colours(int i);
 int swap_difference_map_colours_state();
 /*! \brief post-hoc set the map of molecule number imol to be a
@@ -1582,7 +1614,20 @@ float residue_density_fit_scale_factor();
 
 /*! \brief return the density at the given point for the given
   map. Return 0 for bad imol */
-float density_at_point(int imol, float x, float y, float z);
+float density_at_point(int imol_map, float x, float y, float z);
+
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+float density_score_residue_scm(int imol, SCM residue_spec, int imol_map);
+#endif 
+#ifdef USE_PYTHON
+float density_score_residue_py(int imol, PyObject *residue_spec, int imol_map);
+#endif 
+#endif 
+
+/*! \brief simple density score for given residue (over-ridden by scripting function) */
+float density_score_residue(int imol, const char *chain_id, int res_no, const char *ins_code, int imol_map);
 
 
 #ifdef __cplusplus
@@ -1950,6 +1995,9 @@ int new_molecule_by_symop(int imol, const char *symop_string,
 return -1 on no-symmetry for molecule or inappropriate imol number */
 int n_symops(int imol);
 
+/* This function works by active symm atom. */
+int move_reference_chain_to_symm_chain_position();
+
 #ifdef __cplusplus
 #ifdef USE_GUILE
 /*! \brief return the pre-shift (the shift that translates the centre
@@ -2092,6 +2140,9 @@ void save_state();
 /*! \brief save the current state to file filename */
 void save_state_file(const char *filename);
 
+/*! \brief save the current state to file filename */
+void save_state_file_py(const char *filename);
+
 /*! \brief set the default state file name (default 0-coot.state.scm) */
 /* set the filename */
 void set_save_state_file_name(const char *filename);
@@ -2124,7 +2175,7 @@ void set_run_state_file_status(short int istat);
 void run_state_file();		/* just do it */
 #ifdef USE_PYTHON
 void run_state_file_py();		/* just do it */
-#endif // USE_PYTHON
+#endif /* USE_PYTHON */
 /*! \brief run the state file depending on the state variables */
 void run_state_file_maybe();	/* depending on the above state variables */
 
@@ -2418,7 +2469,7 @@ gchar *get_text_for_rotation_centre_cube_size();
 short int recentre_on_read_pdb(); 
 void set_recentre_on_read_pdb(short int);
 void set_rotation_centre(float x, float y, float z);
-// The redraw happens somewhere else...
+/* The redraw happens somewhere else... */
 void set_rotation_centre_internal(float x, float y, float z); 
 float rotation_centre_position(int axis); /* only return one value: x=0, y=1, z=2 */
 /*! \brief centre on the ligand of the "active molecule", if we are
@@ -2476,7 +2527,7 @@ void clear_pending_picks();
 char *centre_of_mass_string(int imol);
 #ifdef USE_PYTHON
 char *centre_of_mass_string_py(int imol);
-#endif // PYTHON
+#endif 
 /*! \brief set the default temperature factor for newly created atoms
   (initial default 20) */
 void set_default_temperature_factor_for_new_atoms(float new_b);
@@ -2509,7 +2560,7 @@ int set_atom_attributes(SCM attribute_expression_list);
 #ifdef USE_PYTHON
 int set_atom_attributes_py(PyObject *attribute_expression_list);
 #endif 
-#endif // __cplusplus
+#endif /* __cplusplus */
 
 void set_residue_name(int imol, const char *chain_id, int res_no, const char *ins_code, const char *new_residue_name);
 
@@ -2710,7 +2761,7 @@ gchar *get_text_for_phs_cell_chooser(int imol, char *field);
 /*! \name Graphics Move */
 /* \{ */
 /*! \brief undo last move  */
-void undo_last_move(); // suggested by Frank von Delft
+void undo_last_move(); /* suggested by Frank von Delft */
 
 /*! \brief translate molecule number imol by (x,y,z) in Angstroms  */
 void translate_molecule_by(int imol, float x, float y, float z);
@@ -2773,11 +2824,6 @@ int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id,
 
 int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno, const char *t3, 
 						     short int make_the_move_flag);
-
-/* FIXME one day */
-/* #ifdef __cplusplus */
-/* int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec); */
-/* #endif // __cplusplus */
 
 int set_go_to_atom_chain_residue_atom_name_strings(const gchar *t1, 
 						   const gchar *t2, 
@@ -2904,7 +2950,7 @@ SCM test_function_scm(SCM i, SCM j);
 #endif
 #ifdef USE_PYTHON
 PyObject *test_function_py(PyObject *i, PyObject *j);
-#endif // PYTHON
+#endif /* PYTHON */
 #endif
 
 
@@ -3080,12 +3126,6 @@ void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe, s
 /*! \brief set the penalty for affine gap and space when aligning, defaults -3.0 and -0.4 */
 void set_alignment_gap_and_space_penalty(float wgap, float wspace);
 
-/*! \brief align sequence to closest chain (compare across all chains in all molecules).  
-
-Typically match_fraction is 0.95 or so.
-
-Return 1 if we were successful, 0 if not. */
-int align_to_closest_chain(const char *target_seq, float match_fraction);
 
 /* What are these functions?  consider deleting them - we have alignment_mismatches_* . */
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
@@ -3362,7 +3402,9 @@ GtkWidget *wrapped_create_refine_params_dialog();
 
 void do_torsions_toggle(GtkWidget *button);
 
+
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+
 #ifdef USE_GUILE
 /*! \brief refine residues, r is a list of residue specs.
 
@@ -3598,6 +3640,10 @@ void add_refmac_extra_restraints(int imol, const char *file_name);
 void set_show_extra_restraints(int imol, int state);
 int extra_restraints_are_shown(int imol);
 
+void set_show_parallel_plane_restraints(int imol, int state);
+int parallel_plane_restraints_are_shown(int imol);
+
+
 #ifdef __cplusplus
 #ifdef USE_GUILE		
 /* restraint_spec is something like (list 'bond spec-1 spec-2)
@@ -3755,15 +3801,15 @@ void set_show_environment_distances_as_solid(int state);
 
 void set_environment_distance_label_atom(int state);
 
-void add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, float x_2, float y_2, float z_2);
+double add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int imol_2, float x_2, float y_2, float z_2);
 #ifdef __cplusplus
 #ifdef USE_GUILE
-void add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom_spec_2);
+double add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom_spec_2);
 #endif
 #ifdef USE_PYTHON
 void add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol_2, PyObject *atom_spec_2);
 #endif
-#endif // __cplusplus
+#endif /* __cplusplus */
 
 /* \} */
 
@@ -4393,6 +4439,9 @@ void add_ligand_search_ligand_molecule(int imol_ligand);
   in ligand searching */
 void add_ligand_search_wiggly_ligand_molecule(int imol_ligand);
 
+/*! \brief  Allow the user a scripting means to find ligand at the rotation centre */
+void set_find_ligand_here_cluster(int state);
+
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM execute_ligand_search();  
@@ -4533,12 +4582,12 @@ void execute_find_waters(GtkWidget *ok_button);
 void execute_find_waters_real(int imol_for_map,
 			      int imol_for_protein,
 			      short int new_waters_mol_flag, 
-			      float sigma_cut_off);
+			      float rmsd_cut_off);
 
 void find_waters(int imol_for_map,
 		 int imol_for_protein,
 		 short int new_waters_mol_flag, 
-		 float sigma_cut_off,
+		 float rmsd_cut_off,
 		 short int show_blobs_dialog);
 
 
@@ -4587,6 +4636,9 @@ void execute_find_blobs(int imol_model, int imol_for_map, float cut_off, short i
 void execute_find_blobs_from_widget(GtkWidget *dialog);
 
 GtkWidget *wrapped_create_unmodelled_blobs_dialog();
+
+/* there is also a c++ interface to find blobs, which returns a vector
+   of pairs (currently) */
 
 /*! \begin split the given water and fit to map.
 
@@ -5018,13 +5070,13 @@ void cis_trans_convert(int imol, const char *chain_id, int resno, const char *al
 
 Return a SCM list object of (residue1 residue2 omega) */
 SCM cis_peptides(int imol);
-#endif // GUILE
+#endif /* GUILE */
 #ifdef USE_PYTHON
 /*! \brief return cis_peptide info for imol.
 
 Return a Python list object of [residue1, residue2, omega] */
 PyObject *cis_peptides_py(int imol);
-#endif // PYTHON
+#endif /* PYTHON */
 #endif 
 
 
@@ -5078,6 +5130,9 @@ GtkWidget *wrapped_create_new_close_molecules_dialog();
   (ROTAMERSEARCHLOWRES) (aka. "backrub rotamers"), 
   (ROTAMERSEARCHHIGHRES) (with rigid body fitting) */
 void set_rotamer_search_mode(int mode);
+
+/*! \ brief get the mode of rotamer search */
+int rotamer_search_mode_state();
 
 void setup_rotamers(short int state);
 
@@ -5174,7 +5229,7 @@ set_graphics_rotamer_dialog(GtkWidget *w);
 
 Return rotamer info - function used in testing.  */
 SCM rotamer_graphs(int imol);
-#endif // USE_GUILE
+#endif /* USE_GUILE */
 #ifdef USE_PYTHON
 /*! \brief Activate rotamer graph analysis for molecule number imol.  
 
@@ -5605,7 +5660,7 @@ SCM get_lsq_matrix_scm(int imol_reference, int imol_moving);
 /* Return an rtop pair (proper list) on good match, else False */
 PyObject *apply_lsq_matches_py(int imol_reference, int imol_moving);
 PyObject *get_lsq_matrix_py(int imol_reference, int imol_moving);
-#endif // PYTHON
+#endif /* PYTHON */
 #endif /* __cplusplus */
 
 /* poor old python programmers... */
@@ -5761,7 +5816,7 @@ int draw_ncs_ghosts_state(int imol);
 /*! \brief set bond thickness of NCS ghosts for molecule number imol   */
 void set_ncs_ghost_bond_thickness(int imol, float f);
 /*! \brief update ghosts for molecule number imol */
-void ncs_update_ghosts(int imol); // update ghosts
+void ncs_update_ghosts(int imol); /* update ghosts */
 /*! \brief make NCS map */
 int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, 
 					  int overwrite_maps_of_same_name_flag);
@@ -5931,6 +5986,9 @@ int place_helix_here();
 
    @return the index of the new molecule.*/
 int place_strand_here(int n_residues, int n_sample_strands);
+
+
+void set_place_helix_here_fudge_factor(float ff);
 
 
 /*! \brief show the strand placement gui.
@@ -6274,7 +6332,7 @@ void set_mark_cis_peptides_as_bad(int istate);
 int show_mark_cis_peptides_as_bad_state();
 #if (GTK_MAJOR_VERSION > 1)
 void show_hide_preferences_tabs(GtkToggleToolButton *toggletoolbutton, int preference_type);
-#endif // GTK_MAJOR_VERSION
+#endif /* GTK_MAJOR_VERSION */
 void update_preference_gui();
 void make_preferences_internal();
 void make_preferences_internal_default();
@@ -6285,7 +6343,6 @@ void preferences_internal_change_value_int2(int preference_type, int ivalue1, in
 void preferences_internal_change_value_float(int preference_type, float fvalue);
 void preferences_internal_change_value_float3(int preference_type, 
 					float fvalue1, float fvalue2, float fvalue3);
-//void preferences_internal_change_value_vector_add_remove(int preference_type, int ivalue, int add_remove_flag);
 void show_model_toolbar_icon(int pos);
 void hide_model_toolbar_icon(int pos);
 void fill_preferences_model_toolbar_icons(GtkWidget *preferences,
@@ -6488,12 +6545,12 @@ float interactive_probe_dots_molprobity_radius();
 /*! \brief return the parsed user mod fields from the PDB file
   file_name (output by reduce most likely) */
 SCM user_mods_scm(const char *file_name);
-#endif // USE_GUILE
+#endif /* USE_GUILE */
 #ifdef USE_PYTHON
 /*! \brief return the parsed user mod fields from the PDB file
   file_name (output by reduce most likely) */
 PyObject *user_mods_py(const char *file_name);
-#endif // USE_PYTHON
+#endif /* USE_PYTHON */
 #endif	/* c++ */
 
 /* \} */
@@ -6779,8 +6836,8 @@ void pisa_clear_interfaces();
 PyObject *handle_pisa_interfaces_py(PyObject *interfaces_description_py);
 
 /* internal function */
-//PyObject *pisa_molecule_record_residues_py(PyObject *molecule_record_1);
-//PyObject *pisa_molecule_record_chain_id_py(PyObject *molecule_record_1);
+/* PyObject *pisa_molecule_record_residues_py(PyObject *molecule_record_1); */
+/* PyObject *pisa_molecule_record_chain_id_py(PyObject *molecule_record_1); */
 void add_pisa_interface_bond_py(int imol_1, int imol_2, PyObject *pisa_bond_py,
                                  int interface_number);
 
@@ -6803,6 +6860,9 @@ void pisa_clear_interfaces();
 float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
 				  int n_trials,
 				  float jiggle_scale_factor);
+
+float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_scale_factor);
+float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor); 
 /* \} */
 
 
@@ -6848,7 +6908,7 @@ int get_sbase_monomer(const char *comp_id);
    return success status (0 = fail).
 */
 int add_linked_residue(int imol, const char *chain_id, int resno, const char *ins_code, 
-		       const char *new_residue_comp_id, const char *link_type);
+		       const char *new_residue_comp_id, const char *link_type, int n_trials);
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char *ins_code, 
@@ -6976,7 +7036,7 @@ int single_model_view_prev_model_number(int imol);
 /*                  update self                                             */
 /*  ----------------------------------------------------------------------- */
 /* this function is here because it is called by c_inner_main() (ie. need a c interface). */
-void run_update_self_maybe(); // called when --update-self given at command line
+void run_update_self_maybe(); /* called when --update-self given at command line */
 
 /*  ----------------------------------------------------------------------- */
 /*                    keyboarding mode  */
@@ -7003,23 +7063,26 @@ void set_show_graphics_ligand_view(int state);
 /*                  experimental                                            */
 /*  ----------------------------------------------------------------------- */
 void nsv(int imol);
+void set_nsv_canvas_pixel_limit(int cpl);
 
 void sequence_view_old_style(int imol);
 
 void add_ligand_builder_menu_item_maybe();
-void start_ligand_builder_gui(GtkMenuItem     *menuitem,
-			      gpointer         user_data);
+
+void start_ligand_builder_gui_internal(GtkMenuItem     *menuitem,
+				       gpointer         user_data);
+void start_ligand_builder_gui();
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM all_molecule_rotamer_score(int imol);
 SCM all_molecule_ramachandran_score(int imol); /* a stub currently */
-#endif // USE_GUILE
+#endif /* USE_GUILE */
 #ifdef USE_PYTHON
 PyObject *all_molecule_rotamer_score_py(int imol);
 PyObject *all_molecule_ramachandran_score_py(int imol); /* a stub currently */
 PyObject *all_molecule_ramachandran_region_py(int imol); 
-#endif // USE_PYTHON
+#endif /* USE_PYTHON */
 #endif /* __cplusplus */
 
 

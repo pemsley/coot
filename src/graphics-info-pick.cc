@@ -30,23 +30,20 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include "cos-sin.h"
-
 #include <string.h> // strncmp
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h" //need for Bond_lines now
-
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h" //need for Bond_lines now
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
 
 #include "molecule-class-info.h"
 
-#include "cos-sin.h"
+#include "coords/cos-sin.h"
 
 #include "globjects.h"
 
@@ -68,10 +65,18 @@ void write_symm_search_point(std::ofstream&s , const coot::Cartesian &cart) {
 coot::Symm_Atom_Pick_Info_t
 graphics_info_t::symmetry_atom_pick() const { 
 
-   coot::Cartesian screen_centre = RotationCentre();
-
    coot::Cartesian front = unproject(0.0);
    coot::Cartesian back  = unproject(1.0);
+   return symmetry_atom_pick(front, back);
+}
+
+// 
+coot::Symm_Atom_Pick_Info_t
+graphics_info_t::symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const {
+
+   
+   coot::Cartesian screen_centre = RotationCentre();
+
    // Cartesian centre_unproj = unproject(0.5); // not needed, use midpoint of front and back.
    coot::Cartesian mid_point = front.mid_point(back);
    float dist_front_to_back = (front - back).amplitude();
@@ -788,4 +793,32 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_x(double angle) {
       }
    }
 } 
+
+
+
+int graphics_info_t::move_reference_chain_to_symm_chain_position() {
+
+   int r = 0;
+   if (use_graphics_interface_flag) { 
+      int iw = graphics_info_t::glarea->allocation.width;
+      int ih = graphics_info_t::glarea->allocation.height;
+      coot::Cartesian front = unproject_xyz(iw/2, ih/2, 0);
+      coot::Cartesian back  = unproject_xyz(iw/2, ih/2, 1);
+      coot::Symm_Atom_Pick_Info_t naii = symmetry_atom_pick(front, back);
+      if (naii.success == GL_TRUE) {
+	 if (is_valid_model_molecule(naii.imol)) {
+	    graphics_info_t::molecules[naii.imol].move_reference_chain_to_symm_chain_position(naii);
+	    graphics_draw();
+	 } else {
+	    std::cout << "not valid mol" << std::endl;
+	 } 
+      } else {
+	 std::cout << "bad pick " << std::endl;
+	 std::string s = "Symm Atom not found at centre.  Are you centred on a symm atom?";
+	 add_status_bar_text(s);
+	 gdk_beep();
+      }
+   }
+   return r;
+}
 

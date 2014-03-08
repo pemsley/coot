@@ -71,6 +71,8 @@ class Cartesian{
   friend Cartesian operator/ (const Cartesian &a, double val);
 
   friend Cartesian operator* (const matrix &objrotmat, const Cartesian &prim);
+  friend Cartesian operator*(const std::vector<double> &objrotmat, const Cartesian &prim);
+  void operator*=(const std::vector<double> &objrotmat);
 
   Cartesian& operator*= (double val);
   Cartesian& operator/= (double val);

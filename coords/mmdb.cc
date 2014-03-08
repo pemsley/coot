@@ -27,11 +27,11 @@
 #include "string.h"
 
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include <RDGeneral/FileParseException.h>
 #include <RDGeneral/BadFileException.h>
 #include <GraphMol/FileParsers/FileParsers.h>
-#include "rdkit-interface.hh"
+#include "lidia-core/rdkit-interface.hh"
 #endif
 
 #include <mmdb/mmdb_manager.h>
@@ -39,9 +39,9 @@
 #include "Cartesian.h"
 #include "mmdb.h"
 
-#include "coot-utils.hh"
-#include "coot-coord-utils.hh"
-#include "coot-shelx.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-shelx.hh"
 
 
 bool
@@ -60,7 +60,7 @@ atom_selection_container_t
 get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
    int err;
-   MyCMMDBManager* MMDBManager;
+   CMMDBManager* MMDBManager;
 
    // Needed for the error message printing: 
    // MMDBManager->GetInputBuffer(S, lcount);
@@ -80,7 +80,7 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
     if (coot::util::extension_is_for_mdl_mol_or_mol2_coords(extension)) {
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
        asc = coot::mol_to_asc_rdkit(pdb_name); // (not a PDB file of course)
        // OK, if that failed, maybe it was an MDL mol file format.
        // Use my parser for that for now.
@@ -97,9 +97,7 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
     } else { 
 
-
        if (coot::util::extension_is_for_shelx_coords(extension)) {
-
 
 	  coot::ShelxIns s;
 	  coot::shelx_read_file_info_t srf = s.read_file(pdb_name);
@@ -110,9 +108,9 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 	  if (asc.mol)
 	     asc.read_success = 1;  // a good idea?
 
-       } else { 
-   
-	  MMDBManager = new MyCMMDBManager();
+       } else {
+
+	  MMDBManager = new CMMDBManager;
 
 	  // For mmdb version 1.0.3:
 	  //    MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
@@ -131,28 +129,26 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 #ifdef HAVE_MMDB_IGNORE_HASH
        
 	  MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
-				 MMDBF_IgnoreDuplSeqNum |
+// 				 MMDBF_IgnoreDuplSeqNum |
 				 MMDBF_IgnoreNonCoorPDBErrors |
 				 MMDBF_IgnoreHash |
 				 MMDBF_IgnoreRemarks);
 #else
 	  MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
-				 MMDBF_IgnoreDuplSeqNum |
+//				 MMDBF_IgnoreDuplSeqNum |
 				 MMDBF_IgnoreNonCoorPDBErrors |
 				 MMDBF_IgnoreRemarks);
 #endif // HAVE_MMDB_IGNORE_HASH       
        
 	  std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
 	  err = MMDBManager->ReadCoorFile(pdb_name.c_str());
-   
+
 	  if (err) {
 	     // does_file_exist(pdb_name.c_str());
 	     cout << "There was an error reading " << pdb_name.c_str() << ". \n";
 	     cout << "ERROR " << err << " READ: "
 		  << GetErrorDescription(err) << endl;
 	     //
-	     // This makes my stomach churn too. Sorry.
-	     // 
 	     MMDBManager->GetInputBuffer(error_buf, error_count);
 	     if (error_count >= 0) { 
 		cout << "         LINE #" << error_count << "\n     "
@@ -197,14 +193,13 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 	  std::cout << "No Spacegroup found for this PDB file\n";
        } 
     
-       std::cout << "Cell: "
-		 << MMDBManager->get_cell().a << " "
-		 << MMDBManager->get_cell().b << " "
-		 << MMDBManager->get_cell().c << " "
-		 << MMDBManager->get_cell().alpha << " "
-		 << MMDBManager->get_cell().beta  << " "
-		 << MMDBManager->get_cell().gamma << "\n";
-
+//        std::cout << "Cell: "
+// 		 << MMDBManager->get_cell().a << " "
+// 		 << MMDBManager->get_cell().b << " "
+// 		 << MMDBManager->get_cell().c << " "
+// 		 << MMDBManager->get_cell().alpha << " "
+// 		 << MMDBManager->get_cell().beta  << " "
+// 		 << MMDBManager->get_cell().gamma << "\n";
 
        // 
     
@@ -488,28 +483,34 @@ fix_element_name_lengths(CMMDBManager *mol) {
 
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
       CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
-      int n_chains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<n_chains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 CResidue *residue_p;
-	 CAtom *at;
-	 for (int ires=0; ires<nres; ires++) { 
-	    residue_p = chain_p->GetResidue(ires);
-	    int n_atoms = residue_p->GetNumberOfAtoms();
-	    for (int iat=0; iat<n_atoms; iat++) {
-	       at = residue_p->GetAtom(iat);
-	       std::string ele(at->element);
-	       if (ele.length() == 1) {
-		  ele = " " + ele;
-		  at->SetElementName(ele.c_str());
-	       } 
+      if (model_p) { 
+	 CChain *chain_p;
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    if (chain_p) {
+	       int nres = chain_p->GetNumberOfResidues();
+	       CResidue *residue_p;
+	       CAtom *at;
+	       for (int ires=0; ires<nres; ires++) { 
+		  residue_p = chain_p->GetResidue(ires);
+		  if (residue_p) { 
+		     int n_atoms = residue_p->GetNumberOfAtoms();
+		     for (int iat=0; iat<n_atoms; iat++) {
+			at = residue_p->GetAtom(iat);
+			std::string ele(at->element);
+			if (ele.length() == 1) {
+			   ele = " " + ele;
+			   at->SetElementName(ele.c_str());
+			}
+		     }
+		  }
+	       }
 	    }
 	 }
       }
    }
-} 
+}
 
 
 
@@ -562,8 +563,8 @@ ostream& operator<<(ostream& s, PCAtom atom) {
    //
    if (atom) { 
       s << atom->GetModelNum() << "/" << atom->GetChainID() << "/"
-	<< atom->GetSeqNum()   << atom->GetInsCode() << "/"
-     << atom->GetResName() << "/"
+	<< atom->GetSeqNum()   << atom->GetInsCode() << " {"
+	<< atom->GetResName() << "}/"
 	<< atom->name << " altLoc :" << atom->altLoc << ": segid :"
 	<< atom->segID << ":" << " pos: ("
 	<< atom->x << "," << atom->y << "," << atom->z
@@ -724,7 +725,7 @@ coot::delete_aniso_records_from_atoms(CMMDBManager *mol) {
 }
 
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 atom_selection_container_t
 coot::mol_to_asc_rdkit(const std::string &file_name) {
@@ -732,15 +733,25 @@ coot::mol_to_asc_rdkit(const std::string &file_name) {
    atom_selection_container_t asc;
 
    try { 
+
       RDKit::RWMol *m = RDKit::Mol2FileToMol(file_name);
-      if (m) { 
-	 CResidue *res = coot::make_residue(*m, 0, "XXX");
+
+      std::string res_name = "UNL";
+      try {
+	 m->getProp("_Name", res_name);
+      }
+      catch (const KeyErrorException &kee) {
+	 std::cout << "mol_to_asc_rdkit() no rdkit molecule name for " << m << " " << kee.what() << std::endl;
+      }
+
+      if (m) {
+	 CResidue *res = coot::make_residue(*m, 0, res_name);
 	 if (res) { 
-	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(NULL, res);
+	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(res);
 	    asc = make_asc(mol);
 	 }
       } else {
-	 std::cout << "Null m" << std::endl;
+	 std::cout << "Null rdkit mol ptr m" << std::endl;
       } 
    }
    catch (RDKit::FileParseException rte) {

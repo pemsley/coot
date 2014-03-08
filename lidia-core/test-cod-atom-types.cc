@@ -1,10 +1,10 @@
 
-#ifndef MAKE_ENTERPRISE_TOOLS
+#ifndef MAKE_ENHANCED_LIGAND_TOOLS
 int main(int argc, char **argv) {return 0;}
 #else 
 #include "cod-types.hh"
 #include "rdkit-interface.hh"
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 void molecule_from_comp_id(const std::string &comp_id) {
    try {
@@ -106,5 +106,5 @@ int main(int argc, char **argv) {
    return status;
 }
 
-#endif // MAKE_ENTERPRISE_TOOLS
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 

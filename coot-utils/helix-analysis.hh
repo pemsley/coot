@@ -5,7 +5,7 @@
 #include <clipper/core/clipper_types.h>
 #include <clipper/core/coords.h>
 
-#include "atom-quads.hh"
+#include "mini-mol/atom-quads.hh"
 
 namespace coot {
 

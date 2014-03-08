@@ -29,7 +29,7 @@
 #include <string>
 #include <string.h>
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 #include "c-interface-mmdb.hh"
 

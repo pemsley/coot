@@ -40,7 +40,7 @@
 
 #include <clipper/clipper-ccp4.h>
 #include <clipper/clipper-contrib.h>
-#include "cootaneer-sequence.h"
+#include "cootaneer/cootaneer-sequence.h"
 #include "graphics-info.h"
 
 // Including python needs to come after graphics-info.h, because
@@ -50,7 +50,7 @@
 // since the follwing two include python graphics-info.h is moved up
 #include "c-interface.h"
 #include "cc-interface.hh"  // includes coot-coord-utils.hh
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "guile-fixups.h"
 
 
@@ -285,7 +285,6 @@ SCM find_terminal_residue_type(int imol, const char *chain_id, int resno) {
    }
    return r;
 }
-
 #endif // GUILE
 
 #ifdef USE_PYTHON
@@ -347,7 +346,8 @@ SCM alignment_results_scm(int imol, const char *chain_id, const char *seq) {
 Typically match_fraction is 0.95 or so.
 
 Return 1 if we were successful, 0 if not. */
-int align_to_closest_chain(const char *target_seq_in, float match_fraction_crit) {
+std::pair<int, std::string>
+align_to_closest_chain(std::string target_seq_in, float match_fraction_crit) {
 
    int status = 0;
    float match_fragment_best = 1.0;
@@ -357,7 +357,7 @@ int align_to_closest_chain(const char *target_seq_in, float match_fraction_crit)
    
    for (unsigned int imol=0; imol<graphics_n_molecules(); imol++) {
       if (is_valid_model_molecule(imol)) {
-	 if (target.length() > 0) { 
+	 if (target.length() > 0) {
 	    std::pair<bool, std::pair<std::string, coot::chain_mutation_info_container_t> > r = 
 	       graphics_info_t::molecules[imol].try_align_on_all_chains(target, match_fraction_crit,
 									graphics_info_t::alignment_wgap,
@@ -379,12 +379,45 @@ int align_to_closest_chain(const char *target_seq_in, float match_fraction_crit)
    }
 
    if (status) {
-      assign_sequence_from_string(imol_best, chain_id_best.c_str(), target_seq_in);
+      assign_sequence_from_string(imol_best, chain_id_best.c_str(), target_seq_in.c_str());
       std::cout << "INFO:: sequence assigned to chain \"" << chain_id_best
 		<< "\" of molecule " << imol_best << std::endl;
    } 
-   return status;
+   return std::pair<int, std::string> (imol_best, chain_id_best);
+}
+
+#ifdef USE_PYTHON
+PyObject *align_to_closest_chain_py(std::string target_seq, float match_fraction) {
+
+   PyObject *r = Py_False;
+   std::pair<int, std::string> result = align_to_closest_chain(target_seq, match_fraction);
+   if (is_valid_model_molecule(result.first)) {
+      r = PyList_New(2);
+      PyList_SetItem(r, 0, PyInt_FromLong(result.first));
+      PyList_SetItem(r, 1, PyString_FromString(result.second.c_str()));
+   }
+
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
 } 
+#endif /* USE_PYTHON */
+
+#ifdef USE_GUILE
+SCM align_to_closest_chain_scm(std::string target_seq, float match_fraction) {
+
+   SCM r = SCM_BOOL_F;
+   std::pair<int, std::string> result = align_to_closest_chain(target_seq, match_fraction);
+   if (is_valid_model_molecule(result.first)) {
+      SCM a = SCM_MAKINUM(result.first);
+      SCM b = scm_makfrom0str(result.second.c_str());
+      r = scm_list_2(a,b);
+   }
+   return r;
+}
+#endif /* USE_GUILE */
+
 
 
 

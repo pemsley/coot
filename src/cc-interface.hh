@@ -24,16 +24,16 @@
 
 #include <gtk/gtk.h>
 
-#include "coot-utils.hh"
-#include "coot-coord-utils.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
-#include "dipole.hh"
-#include "sequence-assignment.hh" // for residue_range_t
+#include "ligand/dipole.hh"
+#include "high-res/sequence-assignment.hh" // for residue_range_t
 
-#include "mmdb-extras.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb-crystal.h"
 
-#include "flev-annotations.hh" // animated ligand interactions
+#include "lbg/flev-annotations.hh" // animated ligand interactions
 #include "named-rotamer-score.hh"
 
 namespace coot {
@@ -143,6 +143,10 @@ int set_go_to_atom_from_res_spec_py(PyObject *residue_spec);
 // if an atom spec was found.
 //
 std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
+#ifdef USE_PYTHON
+// return a tuple of (Py_Bool (number, atom_spec))
+PyObject *active_atom_spec_py();
+#endif // USE_PYTHON
 
 
 /*  ---------------------------------------------------------------------- */
@@ -208,16 +212,16 @@ PyObject *map_colour_components_py(int imol);
 
 (note: fit to the current-refinement map)
 */
-SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm);
+SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm, int n_trials);
 #endif // GUILE
-void multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t> &specs);
+void multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t> &specs, int n_trials);
 
 #ifdef USE_PYTHON
 /*! \brief fit residues
 
 (note: fit to the current-refinement map)
 */
-PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py);
+PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py, int n_trials);
 #endif // PYTHON
 //! \}
 
@@ -496,7 +500,7 @@ SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 
 
 #ifdef USE_GUILE
-//! \brief Return a list of atom info for each atom in the specified residue
+//! \brief Return a list of atom info for each atom in the specified residue.
 //! 
 //! output is like this:
 //! (list
@@ -504,8 +508,13 @@ SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 //!          (list occ temp-fact element)
 //!          (list x y z)))
 //! 
+//! occ can be a single number or a list of seven numbers of which the first is
+//! the isotropic B.
+//! 
 SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code);
 SCM residue_name(int imol, const char* chain_id, int resno, const char *ins_code);
+
+SCM chain_fragments_scm(int imol, short int screen_output_also); 
 
 //! \brief generate a molecule from an s-expression
 //! 
@@ -586,6 +595,8 @@ PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
 PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code);
 PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char *ins_code);
 
+PyObject *chain_fragments_py(int imol, short int screen_output_also);
+
 //! \}
 
 //! \name Using S-expression molecules
@@ -648,6 +659,10 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol,
 //! \{
 
 
+void regularize_residues(int imol, const std::vector<coot::residue_spec_t> &residues);
+
+
+
 //! \brief refine a zone, allowing the specification of insertion
 //!  codes for the residues too.
 //! 
@@ -676,9 +691,27 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 /*  ----------------------------------------------------------------------- */
 /*                  rigid body fitting (multiple residue ranges)            */
 /*  ----------------------------------------------------------------------- */
+
 // return 0 on fail to refine (no sensible place to put atoms) and 1
 // on fitting happened.
 int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue_range_t> &ranges);
+
+// Model morphing (average the atom shift by using shifts of the
+// atoms within shift_average_radius A of the central residue).
+// 
+// return 0 on fail to move atoms and 1 on fitting happened.
+// 
+int morph_fit_all(int imol, float transformation_averaging_radius);
+int morph_fit_chain(int imol, std::string chain_id, float transformation_averaging_radius);
+#ifdef USE_GUILE
+int morph_fit_residues_scm(int imol, SCM residue_specs,       float transformation_averaging_radius);
+#endif
+#ifdef USE_PYTHON
+int morph_fit_residues_py( int imol, PyObject *residue_specs, float transformation_averaging_radius);
+#endif
+int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residue_specs,
+		       float transformation_averaging_radius);
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  check water baddies                                     */
@@ -686,6 +719,18 @@ int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue
 
 std::vector<coot::atom_spec_t>
 check_waters_baddies(int imol, float b_factor_lim, float map_sigma_lim, float min_dist, float max_dist, short int part_occ_contact_flag, short int zero_occ_flag, short int logical_operator_and_or_flag);
+
+// blobs, returning position and volume
+// 
+std::vector<std::pair<clipper::Coord_orth, double> >
+find_blobs(int imol_model, int imol_map, float cut_off_density_level);
+
+#ifdef USE_GUILE
+SCM find_blobs_scm(int imol_model, int imol_map, float cut_off_density_level);
+#endif 
+#ifdef USE_PYTHON
+PyObject *find_blobs_py(int imol_model, int imol_map, float cut_off_density_level);
+#endif 
 
 /*  ----------------------------------------------------------------------- */
 /*                  water chain                                             */
@@ -1033,7 +1078,7 @@ PyObject *score_rotamers_py(int imol,
 std::pair<std::pair<int, int> , std::vector<int> >
 protein_db_loops(int imol_coords, 
 		 const std::vector<coot::residue_spec_t> &residue_specs, 
-		 int imol_map, int nfrags);
+		 int imol_map, int nfrags, bool preserve_residue_names);
 // so that we can create a "original loop" molecule from the atom
 // specs picked (i.e. the atom selection string should extend over the
 // range from the smallest residue number to the largest (in the same
@@ -1041,10 +1086,10 @@ protein_db_loops(int imol_coords,
 std::string
 protein_db_loop_specs_to_atom_selection_string(const std::vector<coot::residue_spec_t> &specs);
 #ifdef USE_GUILE
-SCM protein_db_loops_scm(int imol_coords, SCM residues_specs, int imol_map, int nfrags);
+SCM protein_db_loops_scm(int imol_coords, SCM residues_specs, int imol_map, int nfrags, bool preserve_residue_names);
 #endif 
 #ifdef USE_PYTHON 
-PyObject *protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imol_map, int nfrags);
+PyObject *protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imol_map, int nfrags, bool preserve_residue_names);
 #endif 
 /* \} */
 
@@ -1121,7 +1166,7 @@ PyObject *map_to_model_correlation_py(int imol, PyObject *residue_specs,
 // 0: all-atoms
 // 1: main-chain atoms if is standard amino-acid, else all atoms
 // 2: side-chain atoms if is standard amino-acid, else all atoms
-// 3: side-chain atoms-exclusing CB if is standard amino-acid, else all atoms
+// 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
 // 4: main-chain atoms if is standard amino-acid, else nothing
 // 5: side-chain atoms if is standard amino-acid, else nothing
 // 
@@ -1157,7 +1202,7 @@ PyObject *map_to_model_correlation_per_residue_py(int imol, PyObject *residue_sp
 // prodrg-in.mdl file has been made.  We no longer have a timeout
 // function waiting for prodrg-in.mdl to be updated/written.
 // 
-void prodrg_import_function(std::string file_name);
+void prodrg_import_function(std::string file_name, std::string comp_id);
 
 
 
@@ -1169,6 +1214,31 @@ void prodrg_import_function(std::string file_name);
 // function waiting for prodrg-in.mdl to be updated/written.
 // 
 void sbase_import_function(std::string comp_id);
+
+/* ------------------------------------------------------------------------- */
+/*                       Alignment functions (now C++)                       */
+/* ------------------------------------------------------------------------- */
+
+//! \brief align sequence to closest chain (compare across all chains
+//!   in all molecules).
+//! 
+//! Typically match_fraction is 0.95 or so.
+//! 
+//! Return the molecule number and chain id if successful, return -1 as the
+//! molecule number if not.
+//! 
+std::pair<int, std::string>
+align_to_closest_chain(std::string target_seq, float match_fraction);
+
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_PYTHON
+PyObject *align_to_closest_chain_py(std::string target_seq, float match_fraction);
+#endif /* USE_PYTHON */
+#ifdef USE_GUILE
+SCM align_to_closest_chain_scm(std::string target_seq, float match_fraction);
+#endif /* USE_GUILE */
+#endif /* c++ */
+
 
 
 

@@ -38,7 +38,7 @@
 #include <vector>
 #include <string>
 
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 
 namespace coot { 
 

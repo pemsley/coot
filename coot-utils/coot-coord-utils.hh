@@ -40,11 +40,13 @@
 #include <mmdb/mmdb_manager.h>
 
 #include "clipper/core/coords.h"
-#include "atom-quads.hh"
+#include "mini-mol/atom-quads.hh"
 #include "coot-lsq-types.h"
 
 // How should I do this better?
 #define CXX_UNSET_CHARGE -99.8
+
+#include "residue-and-atom-specs.hh"
 
 namespace coot {
 
@@ -77,266 +79,6 @@ namespace coot {
    std::string pad_atom_name(const std::string &atom_name_in,
 			     const std::string &element);
 
-   class atom_spec_t {
-   public:
-      std::string chain;
-      int resno;
-      std::string insertion_code;
-      std::string atom_name;
-      std::string alt_conf;
-      int int_user_data;
-      float float_user_data;
-      std::string string_user_data;
-      int model_number;
-      atom_spec_t() {
-	 chain = "unset";
-	 resno = MinInt4;
-	 insertion_code = "";
-	 model_number = -1;
-	 int_user_data = -1;
-      }
-      atom_spec_t(const std::string &chain_in,
-		  int resno_in,
-		  const std::string &insertion_code_in,
-		  const std::string &atom_name_in,
-		  const std::string &alt_conf_in) {
-	 chain = chain_in;
-	 resno = resno_in;
-	 insertion_code = insertion_code_in;
-	 atom_name = atom_name_in;
-	 alt_conf = alt_conf_in;
-	 model_number = 1;
-	 int_user_data = -1;
-      }
-      // This presumes at is a member of a coordinate hierarchy.
-      atom_spec_t(CAtom *at) {
-	 chain = at->GetChainID();
-	 resno = at->GetSeqNum();
-	 insertion_code = at->GetInsCode();
-	 model_number = at->GetModelNum();
-	 atom_name = at->name;
-	 alt_conf = at->altLoc;
-	 int_user_data = -1; // mark as "unset" (better than not setting it)
-      }
-      // This presumes at is a member of a coordinate hierarchy.
-      atom_spec_t(CAtom *at, const std::string &user_data_string) {
-	 model_number = at->GetModelNum();
-	 chain = at->GetChainID();
-	 resno = at->GetSeqNum();
-	 insertion_code = at->GetInsCode();
-	 atom_name = at->name;
-	 alt_conf = at->altLoc;
-	 string_user_data = user_data_string;
-      }
-
-      bool empty() const {
-	 if (resno == MinInt4)
-	    return true;
-	 else
-	    return false;
-      }
-
-      void selectatoms(CMMDBManager *mol, int SelHnd) {
-	 const char *chainid = chain.c_str();
-	 const char *inscode = insertion_code.c_str();
-	 const char *atname  = atom_name.c_str(); // atom name
-	 const char *altconf = alt_conf.c_str();
-	 
-	 mol->SelectAtoms(SelHnd, 0, chainid, resno, inscode, resno, inscode,
-			  "*", atname, "*", altconf);
-      }
-
-      // Presumes that atom can get to SeqNum() and InsCode()? Need
-      // tested against a residue not in a hierarchy.
-      bool matches_spec(CAtom *atom) const;
-
-      bool operator==(const atom_spec_t &matcher) const {
-	 bool r = false;
-	 if (matcher.model_number == model_number) { 
-	    if (matcher.chain == chain) {
-	       if (matcher.resno == resno) {
-		  if (matcher.insertion_code == insertion_code) {
-		     if (matcher.atom_name == atom_name) {
-			if (matcher.alt_conf == alt_conf) {
-			   r = true;
-			}
-		     }
-		  }
-	       }
-	    }
-	 }
-	 return r;
-      }
-
-      // we need this if atom_spec_t are used in a std::map.
-      bool operator<(const atom_spec_t &matcher) const {
-	 if (matcher.empty())
-	    return false; 
-	 if (empty())
-	    return true; 
-	 if (matcher.model_number < model_number) {
-	    return true;
-	 } else {
-	    if (matcher.chain < chain) {
-	       return true;
-	    } else { 
-	       if (matcher.resno < resno) {
-		  return true;
-	       } else { 
-		  if (matcher.insertion_code < insertion_code) {
-		     return true;
-		  } else { 
-		     if (matcher.atom_name < atom_name) {
-			return true;
-		     } else { 
-			if (matcher.alt_conf < alt_conf) {
-			   return true; 
-			}
-		     }
-		  }
-	       }
-	    }
-	 }
-	 return false;
-      }
-      friend std::ostream& operator<< (std::ostream& s, const atom_spec_t &spec);
-   };
-   
-   bool compare_atom_specs_user_float(const atom_spec_t &a1,
-				      const atom_spec_t &a2);
-   bool compare_atom_specs_user_float_in_pair(const std::pair<atom_spec_t, std::string> &a,
-					      const std::pair<atom_spec_t, std::string> &b);
-   std::pair<atom_spec_t, atom_spec_t> link_atoms(CLink *link);
-
-
-   class residue_spec_t {
-   public:
-      int model_number;
-      std::string chain;
-      int resno;
-      std::string insertion_code;
-      int int_user_data;
-      residue_spec_t(int r) {
-	 resno = r;
-	 chain = "";
-	 insertion_code = "";
-	 int_user_data = -1;
-      }
-      residue_spec_t(const std::string &chain_in, int r) {
-	 model_number = MinInt4;
-	 resno = r;
-	 chain = chain_in;
-	 insertion_code = "";
-	 int_user_data = -1;
-      }
-      residue_spec_t(const std::string &chain_in, int r,
-		     const std::string &ins_code_in) {
-	 model_number = MinInt4;
-	 resno = r;
-	 chain = chain_in;
-	 insertion_code = ins_code_in;
-	 int_user_data = -1;
-      }
-      residue_spec_t(CResidue *res) {
-	 if (! res) {
-	    chain = "";
-	    model_number = MinInt4;
-	    resno = MinInt4;
-	    insertion_code = "";
-	 } else { 
-	    chain = res->GetChainID();
-	    model_number = res->GetModelNum();
-	    resno = res->GetSeqNum();
-	    insertion_code = res->GetInsCode();
-	 }
-	 int_user_data = -1;
-      } 
-      residue_spec_t(const atom_spec_t &atom_spec) { 
-	 model_number = MinInt4;
-         chain = atom_spec.chain;
-         resno = atom_spec.resno;
-         insertion_code = atom_spec.insertion_code;
-	 int_user_data = -1;
-      }
-      // This one for coot_wrap_guile
-      residue_spec_t() {
-	 model_number = MinInt4;
-	 resno = MinInt4;
-	 chain = "";
-	 insertion_code = "";
-	 int_user_data = -1;
-      }
-      bool unset_p() const {
-	 bool u = true;
-	 if (resno != MinInt4)
-	    u = false;
-	 return u;
-      }
-      residue_spec_t next() const {
-	 residue_spec_t r = *this;
-	 if (resno != MinInt4)
-	    r.resno += 1;
-	 return r;
-      }
-      residue_spec_t previous() const {
-	 residue_spec_t r = *this;
-	 if (resno != MinInt4)
-	    r.resno -= 1;
-	 return r;
-      }
-      bool operator==(const residue_spec_t &matcher) const {
-	 if (matcher.chain == chain) {
-	    if (matcher.resno == resno) {
-	       if (matcher.insertion_code == insertion_code) {
-		  return 1; 
-	       }
-	    }
-	 }
-	 return 0;
-      }
-      bool operator<(const residue_spec_t &matcher) const{
-	 if (matcher.chain == chain) {
-	    if (matcher.resno == resno) {
-	       if (matcher.insertion_code == insertion_code) {
-		  return 0; 
-	       } else {
-		  if (matcher.insertion_code < insertion_code)
-		     return 0;
-		  else
-		     return 1;
-	       }
-	    } else {
-	       if (matcher.resno < resno)
-		  return 0;
-	       else
-		  return 1;
-	    } 
-	 } else {
-	    if (matcher.chain < chain)
-	       return 0;
-	    else
-	       return 1;
-	 } 
-	 return 0;
-      }
-
-      std::string format() const {
-	 std::ostringstream s;
-	 if (!(s << *this))
-	    return "";
-	 return s.str();
-      }
-
-      // return an atom selection handle for the selection in the mol
-      // that matches the spec.  Caller is responsible for deleting
-      // the atom selection.
-      //
-      // selection_key_type is typically either SKEY_NEW or SKEY_OR
-      // 
-      int select_atoms(CMMDBManager *mol, int selhnd, int selection_key_type);
-
-      friend std::ostream& operator<< (std::ostream& s, const residue_spec_t &spec);
-   };
 
    class torsion {
    public:
@@ -493,6 +235,10 @@ namespace coot {
       clipper::Coord_orth centre() const {
 	 return centre_;
       }
+      double a() const { return abcd[0]; }
+      double b() const { return abcd[1]; }
+      double c() const { return abcd[2]; }
+      double d() const { return abcd[3]; }
    };
 
    
@@ -745,6 +491,16 @@ namespace coot {
 
    namespace util {
 
+      class stats_data {
+      public:
+	 stats_data(const std::vector<float> &d);
+	 float mean;
+	 float sd;
+	 float iqr;
+      };
+
+      float interquartile_range(const std::vector<float> &v);
+
       class peptide_torsion_angles_info_t {
       public:
 	 short int status;
@@ -877,7 +633,20 @@ namespace coot {
 	 
       };
 
+      // weighted RTop_orth with deviance
+      class w_rtop_orth : public clipper::RTop_orth {
+      public:
+	 w_rtop_orth() : clipper::RTop_orth() {
+	    deviance = 0;
+	    weight = 0;
+	 }
+	 clipper::RTop_orth rtop;
+	 double deviance;
+	 double weight;
+      };
+
       class quaternion {
+	 void normalize();
       public:
 	 float q0, q1, q2, q3;
 	 quaternion(const float &q0in, const float &q1in,
@@ -911,6 +680,10 @@ namespace coot {
 	    }
 	    return r;
 	 }
+	 clipper::RTop_orth centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops);
+	 clipper::RTop_orth centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops,
+					  bool robust_filter);
+	 static bool deviance_sorter(const w_rtop_orth &a, const w_rtop_orth &b);
       };
 
       class chain_id_residue_vec_helper_t { 
@@ -1186,13 +959,11 @@ namespace coot {
      create_mmdbmanager_from_residue_vector(const std::vector<CResidue *> &res_vec);
 
       // ignore atom index transfer, return NULL on error.
-      // orig_mol is ignored!  Remove from interface!
-      //
+      // 
       // create a copy of res and add it to a newly created molecule.
-      // Return the new molecule.
+      // Return the new molecule. Return NULL on error.
       //
-      CMMDBManager *create_mmdbmanager_from_residue(CMMDBManager *orig_mol,
-						    CResidue *res);
+      CMMDBManager *create_mmdbmanager_from_residue(CResidue *res);
 
       CMMDBManager *create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 							   int SelectionHandle,
@@ -1284,6 +1055,12 @@ namespace coot {
 					      const clipper::Coord_orth &position,
 					      const clipper::Coord_orth &origin_shift,
 					      double angle);
+      // angle in radians
+      // 
+      void rotate_residue(CResidue *residue_p,
+			  const clipper::Coord_orth &direction,
+			  const clipper::Coord_orth &origin_shift,
+			  double angle);
 
       // This presumes that a_residue_p and b_residue_p are valid.
       std::vector<std::pair<int, int> > pair_residue_atoms(CResidue *a_residue_p,
@@ -1328,6 +1105,9 @@ namespace coot {
       std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(CMMDBManager *mol);
       std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(CMMDBManager *mol,
 								  int SelectionHandle);
+      std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(CMMDBManager *mol,
+								  const std::vector<residue_spec_t> &specs);
+      
       // pair.second = 0 for failure
       // pair.first  = 1 for success
       //
@@ -1492,6 +1272,8 @@ namespace coot {
       clipper::Coord_orth median_position(CMMDBManager *mol);
       // also throws an exception
       clipper::Coord_orth median_position(const std::vector<clipper::Coord_orth> &pts);
+
+      void shift(CMMDBManager *mol, clipper::Coord_orth pt);
       //
       clipper::Coord_orth
       translate_close_to_origin(const clipper::Coord_orth water_pos_pre,
@@ -1501,6 +1283,9 @@ namespace coot {
 
       // Print secondary structure info:
       void print_secondary_structure_info(CModel *model_p);
+
+      // return a string description of MMDB SSE values
+      std::string sse_to_string(int sse);
 
       
    } // namespace util

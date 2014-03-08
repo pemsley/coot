@@ -41,10 +41,10 @@
 #include "cprimitive.h"
 #include "cdisplayobject.h"
 #include "cartesian.h"
-#include "help.h"
+#include "help_globals.h"
 #include "volume.h"
 #include "matrix.h"
-#include "texture.h"
+#include "texture_globals.h"
 #include "rgbreps.h"
 
 #ifdef __APPLE_CC__
@@ -870,7 +870,8 @@ void draw_billboards(const std::vector<BillboardPrimitive*> &sorted_in, const Qu
   glNormal3f(z_trans.get_x(),z_trans.get_y(),z_trans.get_z());
 
   GLfloat params[4];
-  glGetFloatv(GL_COLOR_CLEAR_VALUE,params);
+  //glGetFloatv(GL_COLOR_CLEAR_VALUE,params);
+  glGetFloatv(GL_FOG_COLOR,params);
   GLdouble y = params[0]*0.299 + params[1]*0.587 + params[2]*0.114;
 
   std::vector<BillboardPrimitive*>::const_iterator k = sorted.begin();
@@ -883,7 +884,7 @@ void draw_billboards(const std::vector<BillboardPrimitive*> &sorted_in, const Qu
   }
 
   glActiveTexture(GL_TEXTURE1);
-  glBindTexture( GL_TEXTURE_2D, 0 );
+  //glBindTexture( GL_TEXTURE_2D, 0 );
   glDisable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture( GL_TEXTURE_2D, 0 );
@@ -929,7 +930,7 @@ void Displayobject::draw_billboards(const Quat &quat_in, double radius, double o
   }
 
   glActiveTexture(GL_TEXTURE1);
-  glBindTexture( GL_TEXTURE_2D, 0 );
+  //glBindTexture( GL_TEXTURE_2D, 0 );
   glDisable(GL_TEXTURE_2D);
   glActiveTexture(GL_TEXTURE0);
   glBindTexture( GL_TEXTURE_2D, 0 );
@@ -1051,7 +1052,7 @@ void Displayobject::draw_text_background(const Quat &quat_in, double radius, dou
   }
 }
 
-void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, double oy, double oz, double fontScaling){
+void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, double oy, double oz, double fontScaling,int nCustomPlanes){
   GLboolean clip_test = glIsEnabled(GL_CLIP_PLANE0);
   //Volume v = GetClippingPlanes();
 
@@ -1084,9 +1085,21 @@ void Displayobject::draw_text(const Quat &quat_in, double radius, double ox, dou
         if((*k)->IsBillBoard()){
            glDisable(GL_CLIP_PLANE0);
            glDisable(GL_CLIP_PLANE1);
+           glDisable(GL_CLIP_PLANE2);
+           glDisable(GL_CLIP_PLANE3);
+           glDisable(GL_CLIP_PLANE4);
+           glDisable(GL_CLIP_PLANE5);
          } else {
            glEnable(GL_CLIP_PLANE0);
            glEnable(GL_CLIP_PLANE1);
+           if(nCustomPlanes>0)
+             glEnable(GL_CLIP_PLANE2);
+           if(nCustomPlanes>1)
+             glEnable(GL_CLIP_PLANE3);
+           if(nCustomPlanes>2)
+             glEnable(GL_CLIP_PLANE4);
+           if(nCustomPlanes>3)
+             glEnable(GL_CLIP_PLANE5);
          }
       }
   }

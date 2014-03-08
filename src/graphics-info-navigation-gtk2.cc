@@ -23,9 +23,6 @@
 #endif // USE_PYTHON
 
 #include <gtk/gtk.h>
-#if (GTK_MAJOR_VERSION == 1)
-
-# else 
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
@@ -56,17 +53,25 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
    GtkWidget *residue_tree = gtk_tree_view_new(); 
    gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(residue_tree_scrolled_window),
 					 residue_tree);
+
    gtk_widget_ref(residue_tree);
    gtk_object_set_data_full(GTK_OBJECT(go_to_atom_window),
  			    "go_to_atom_residue_tree",
- 			    residue_tree, 
- 			    (GtkDestroyNotify) gtk_widget_unref);
+ 			    residue_tree, go_to_atom_residue_tree_destroy
+ 			    );
    int imol = g.go_to_atom_molecule();
    
    /* The atom list/tree */
    GtkWidget *scrolled_window = lookup_widget(GTK_WIDGET(go_to_atom_window),
 					      "go_to_atom_atom_scrolledwindow");
    GtkTreeView *atom_list = GTK_TREE_VIEW(gtk_tree_view_new());
+
+   if (0) { 
+      std::cout << "atom_list: "     << atom_list   << std::endl;
+      std::cout << "residue_tree: " << residue_tree << std::endl;
+      std::cout << "go_to_atom_window: " << go_to_atom_window << std::endl;
+   }
+   
    gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW(scrolled_window),
 					  GTK_WIDGET(atom_list));
    /* attach the name to the widget (by hand (as interface.c does
@@ -76,8 +81,12 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
    // (as we normally do with things for which we do
    // gtk_object_set_data_full() because it is not a GtkWidget (or
    // something).
-   gtk_object_set_data_full(GTK_OBJECT(go_to_atom_window), "go_to_atom_atom_list", 
-			    atom_list, NULL);
+
+   
+    gtk_object_set_data_full(GTK_OBJECT(go_to_atom_window), "go_to_atom_atom_list",
+ 			    atom_list, go_to_atom_list_destroy);
+
+   
    
    graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(imol, residue_tree,
 								    GTK_WIDGET(atom_list));
@@ -87,6 +96,41 @@ graphics_info_t::fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 
 }
 
+
+// This gets called on window close with the residue_tree as the data.
+// 
+// static
+void
+graphics_info_t::go_to_atom_residue_tree_destroy(gpointer data) {
+
+   // std::cout << "go_to_atom_residue_tree_destroy called " << data << std::endl;
+   // the residue_tree is a GtkTreeView (that's what gtk_tree_view_new() returns).
+   GtkTreeView *residue_tree = static_cast<GtkTreeView *>(data);
+   gtk_widget_unref(GTK_WIDGET(residue_tree));
+} 
+
+
+// This gets called on window close with the atom_list as the data.
+// 
+// static
+void
+graphics_info_t::go_to_atom_list_destroy(gpointer data) {
+
+   // std::cout << "go_to_atom_list_destroy called " << data << std::endl;
+   GtkTreeView *atom_list = static_cast<GtkTreeView *>(data);
+} 
+
+
+void
+residue_button_info_free(coot::model_view_residue_button_info_t *bi) {
+   delete bi;
+}
+
+coot::model_view_residue_button_info_t*
+residue_button_info_copy(coot::model_view_residue_button_info_t *bi) {
+   coot::model_view_residue_button_info_t *n = new coot::model_view_residue_button_info_t(*bi);
+   return n;
+}
 
 // a static
 //
@@ -99,11 +143,16 @@ graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(int imol,
    std::string button_string;
    graphics_info_t g;
 
+   // std::cout << "fill_go_to_atom_residue_tree_and_atom_list_gtk2()!! " << std::endl;
+   
    g.go_to_atom_residue(); // sets values of unset (magic -1) go to
 			   // atom residue number.
 
-
    if (is_valid_model_molecule(imol)) {
+
+//       static GType xy_type = g_boxed_type_register_static("Residue_Chains_for_View",
+// 							  (GBoxedCopyFunc)residue_button_info_copy,
+// 							  (GBoxedFreeFunc)residue_button_info_free);
 
       std::vector<coot::model_view_atom_tree_chain_t> residue_chains = 
 	 molecules[imol].model_view_residue_tree_labels();
@@ -151,11 +200,15 @@ graphics_info_t::fill_go_to_atom_residue_tree_and_atom_list_gtk2(int imol,
 			     -1);
 	 for (unsigned int ires=0; ires<residue_chains[ichain].tree_residue.size();
 	      ires++) {
+	    // memory leak.  We don't give this memory back.
+	    coot::residue_spec_t *rsp =
+	       new coot::residue_spec_t(residue_chains[ichain].tree_residue[ires].residue_spec);
+	    gpointer res_spec_ptr = static_cast<gpointer> (rsp);
 	    gtk_tree_store_append(GTK_TREE_STORE(tree_store),
 				  &child, &toplevel);
 	    gtk_tree_store_set(tree_store, &child,
 			       CHAIN_COL,  residue_chains[ichain].tree_residue[ires].button_label.c_str(),
-			       RESIDUE_COL, (gpointer)(residue_chains[ichain].tree_residue[ires].residue),
+			       RESIDUE_COL, res_spec_ptr,
 			       -1);
 	 }
       }
@@ -220,7 +273,10 @@ graphics_info_t::residue_tree_selection_func(GtkTreeSelection *selection,
 		   // std::cout << "Null residue " << residue_data << std::endl;
 		   // std::cout << "should expand here, perhaps?" << std::endl;
 		} else {
-		   CResidue *res = (CResidue *) residue_data;
+		   // CResidue *res = (CResidue *) residue_data;
+		   
+		   coot::residue_spec_t *rsp = static_cast<coot::residue_spec_t *> (residue_data);
+		   CResidue *res = molecules[go_to_imol].get_residue(*rsp);
 		   CAtom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
 		   if (!at) {
 		      std::cout << "ERROR:: failed to get atom in intelligent_this_residue_mmdb_atom: "
@@ -266,6 +322,8 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
    
    GtkTreeModel *model = gtk_tree_view_get_model(treeview);
    GtkTreeIter   iter;
+
+   std::cout << "residue_tree_residue_row_activated()!! " << std::endl;
    
     if (gtk_tree_model_get_iter(model, &iter, path)) {
        gchar *name;
@@ -282,7 +340,13 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
 		// std::cout << "Null residue " << residue_data << std::endl;
 		// std::cout << "should expand here, perhaps?" << std::endl;
 	     } else {
-		CResidue *res = (CResidue *) residue_data;
+
+		// CResidue *res = (CResidue *) residue_data;
+
+		coot::residue_spec_t *rsp = static_cast<coot::residue_spec_t *> (residue_data);
+
+		CResidue *res = molecules[go_to_imol].get_residue(*rsp);
+		
 		CAtom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
 		// this does simple setting, nothing else
 		if (!at) {
@@ -455,6 +519,3 @@ graphics_info_t::atom_tree_selection_func(GtkTreeSelection *selection,
    }
    return can_change_selected_status_flag;
 }
-
-   
-#endif // GTK_MAJOR_VERSION etc

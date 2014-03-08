@@ -2,7 +2,7 @@
 #ifndef COMMAND_ARG_HH
 #define COMMAND_ARG_HH
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 namespace coot { 
    class command_arg_t {

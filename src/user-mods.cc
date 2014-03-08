@@ -7,8 +7,8 @@
 #include <stdexcept>
 #include <sstream>
 
-#include "coot-utils.hh"
-#include "coot-coord-utils.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 #include "user-mods.hh"
 #include "guile-fixups.h"

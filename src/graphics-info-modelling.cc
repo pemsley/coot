@@ -53,35 +53,38 @@
 
 #include "guile-fixups.h"
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
+
 #ifdef USE_DUNBRACK_ROTAMERS
-#include "dunbrack.hh"
+#include "ligand/dunbrack.hh"
 #else 
-#include "richardson-rotamer.hh"
+#include "ligand/richardson-rotamer.hh"
 #endif 
 
 #include "clipper/core/map_utils.h" // Map_stats
-#include "graphical_skel.h"
+#include "skeleton/graphical_skel.h"
 
 #include "interface.h"
 
 #include "molecule-class-info.h"
-#include "coot-coord-extras.hh"
+#include "coot-utils/coot-coord-extras.hh"
 
 
 #include "globjects.h"
-#include "torsion-general.hh"
-#include "ligand.hh"
-#include "ideal-rna.hh"
+#include "ligand/torsion-general.hh"
+#include "ligand/ligand.hh"
+#include "ligand/ideal-rna.hh"
+#include "ligand/residue_by_phi_psi.hh"
+
 #include "graphics-info.h"
 #include "rotate-translate-modes.hh"
 
@@ -96,7 +99,7 @@
 // #endif // USE_PYTHON
 
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 
 // Idealize the geometry without considering the map.
@@ -180,7 +183,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    // get the group.  If it is "non-polymer", then we can tinker with
    // the have_flanking_residue_at_* flags.
 
-   int SelHnd_first = mol->NewSelection();
+   int SelHnd_first = mol->NewSelection(); // d
    int n_residue_first;
    PCResidue *residue_first = NULL;
    mol->Select(SelHnd_first, STYPE_RESIDUE, 0,
@@ -265,7 +268,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
       check_dictionary_for_residue_restraints(SelResidues, nSelResidues);
 
 
-   if (1) {  // debugging.
+   if (0) {  // debugging.
       std::cout << "Selecting from chain id " << chain_id_1 << std::endl;
       std::cout << "selecting from residue " << iselection_resno_start
 		<< " to " << iselection_resno_end << " selects "
@@ -302,7 +305,8 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	 info_dialog_refinement_non_matching_atoms(icheck_atoms.second);
 	 return rr; // fail
       } else { 
-	 
+
+	 std::cout << "DEBUG:: pre copy_mol_and_refine_inner() geom has size " << Geom_p()->size() << std::endl;
 	 return copy_mol_and_refine_inner(imol_for_atoms,
 					  resno_1, resno_2,
 					  nSelResidues, SelResidues,
@@ -342,7 +346,9 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 					   ) {
 
    // for debugging CCP4SRS usage
-   // std::cout << "------------------- copy_mol_and_refine_inner() geom size " << Geom_p()->size() << std::endl;
+   // 
+   // std::cout << "------------------- copy_mol_and_refine_inner() start geom size "
+   //           << Geom_p()->size() << std::endl;
 
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
    short int have_disulfide_residues = 0; // of course not in linear mode.
@@ -417,7 +423,8 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES; 
 	 coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
 	 // flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED; 20071124
-	 flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+	 flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
 
 	 short int do_residue_internal_torsions = 0;
 
@@ -427,11 +434,14 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	    flags = coot::BONDS_ANGLES_AND_TORSIONS; // OK
 	    flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES;  // OK
 	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED; // fail
-	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS; // fail
+	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS; // fail [ 20131109 - eh? ]
+	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
 	 } 
 
 	 if (do_rama_restraints) 
-	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
+
 
 	 // coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 
@@ -442,11 +452,45 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 // However, ramachandran goodness will use phi and psi
 	 //
 	 
+	 const coot::protein_geometry &geom = *geom_p;
+
 	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
-	    restraints.add_extra_restraints(molecules[imol_for_atoms].extra_restraints);
+	    restraints.add_extra_restraints(molecules[imol_for_atoms].extra_restraints, geom);
+
+	 // 20132008: debugging CCP4 SRS inclusion.  Currently it
+	 // seems that problem is calling a member function of
+	 // restraints.  An inline version of the same test function
+	 // doesn't cause the corruption of geom.
+	 // 
+	 if (0) { 
+	    std::cout << "------------------- copy_mol_and_refine_inner() pre calling make_restraints() geom size "
+		      << Geom_p()->size() << std::endl;
+	    std::cout << "    geom     pointer " << Geom_p() << std::endl;
+	    std::cout << "------------------- copy_mol_and_refine_inner() pre calling make_restraints() ref geom size "
+		      << geom.size() << std::endl;
+	    std::cout << "    geom ref pointer " << &geom << std::endl;
+
+	 
+
+	    unsigned int n_test = restraints.inline_const_test_function(geom);
+	    std::cout << "------------------- copy_mol_and_refine_inner() inline_const_test_function n_test: "
+		      << n_test << std::endl;
+	 
+	    n_test = restraints.const_test_function(geom);
+	    std::cout << "------------------- copy_mol_and_refine_inner() const_test_function n_test: "
+		      << n_test << std::endl;
+	 
+	    n_test = restraints.test_function(geom);
+	    std::cout << "------------------- copy_mol_and_refine_inner() test_function n_test: "
+		      << n_test << std::endl;
+	 
+	    n_test = restraints.const_test_function(geom);
+	    std::cout << "------------------- copy_mol_and_refine_inner() const test_function n_test: "
+		      << n_test << std::endl;
+	 } 
 	 
 	 int nrestraints = 
-	    restraints.make_restraints(*geom_p, flags,
+	    restraints.make_restraints(geom, flags,
 				       do_residue_internal_torsions,
 				       rama_plot_restraint_weight,
 				       do_rama_restraints,
@@ -705,7 +749,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 			    << std::endl;
 	       
 	       if (molecules[imol].extra_restraints.has_restraints())
-		  restraints.add_extra_restraints(molecules[imol].extra_restraints);
+		  restraints.add_extra_restraints(molecules[imol].extra_restraints, *Geom_p());
 
 	       int n_restraints = restraints.make_restraints(*Geom_p(), flags,
 							     do_residue_internal_torsions,
@@ -1222,7 +1266,7 @@ graphics_info_t::regularize(int imol, short int auto_range_flag, int i_atom_no_1
       cout << "Picked atoms are not in the same chain.  Failure" << endl; 
    } else { 
       flash_selection(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
-       rr = copy_mol_and_regularize(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
+      rr = copy_mol_and_regularize(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
       short int istat = rr.found_restraints_flag;
       if (istat) { 
 	 graphics_draw();
@@ -1977,17 +2021,16 @@ graphics_info_t::set_residue_range_refine_atoms(const std::string &chain_id,
 }
 
 
-#include "residue_by_phi_psi.hh"
-
 // The passed residue type is either N, C or (now [20031222]) M.
 // 
 void 
 graphics_info_t::execute_add_terminal_residue(int imol, 
 					      const std::string &terminus_type,
-					      const CResidue *res_p,
+					      CResidue *res_p,
 					      const std::string &chain_id, 
 					      const std::string &res_type_in,
 					      short int immediate_addition_flag) {
+
 
    std::string res_type = res_type_in; // const
    int imol_map = Imol_Refinement_Map();
@@ -2003,8 +2046,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	    //	    CResidue *res_new = add_terminal_residue_directly(terminus_type, res_p,
 	    // chain_id, res_type, phi, psi);
 	    CResidue *res_new = 0;
-	    CMMDBManager *new_mol = coot::util::create_mmdbmanager_from_residue(orig_mol,
-										res_new);
+	    CMMDBManager *new_mol = coot::util::create_mmdbmanager_from_residue(res_new);
 	    if (new_mol) { 
 	       atom_selection_container_t extra_residue_asc = make_asc(new_mol);
 	       graphics_info_t::molecules[imol].add_coords(extra_residue_asc);
@@ -2021,8 +2063,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	 imol_moving_atoms = imol;
 
 	 std::string residue_type_string = res_type;
-	 CResidue *unconst_res_p = (CResidue *) res_p;     // bleugh.
-	 int residue_number = unconst_res_p->GetSeqNum(); // bleugh.
+	 int residue_number = res_p->GetSeqNum();  // bleugh.
 	 if (residue_type_string == "auto") {
 	    int resno_added = -1; // was unset
 	    if (terminus_type == "C" || terminus_type == "MC")
@@ -2218,7 +2259,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 // 			    << std::endl;
 // 	       }
 
-	       coot::residue_spec_t rs(unconst_res_p);
+	       coot::residue_spec_t rs(res_p);
 	       graphics_info_t::molecules[imol].remove_ter_atoms(rs);
 
 	       if (! immediate_addition_flag) { 
@@ -2250,9 +2291,6 @@ void
 graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string &term_type, 
 						    CResidue *res_p, const std::string &chain_id) {
 
-   // debug maybe?
-   std::cout << "INFO:: Adding a nucleotide, with term_type: \"" << term_type << "\""
-	     << std::endl;
 
    // If it's RNA beam it in in ideal A form,
    // If it's DNA beam it in in ideal B form
@@ -2276,6 +2314,28 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
       std::string RNA_or_DNA_str = "RNA";
       std::string form_str = "A";
       short int single_stranded_flag = 1;
+
+
+      if (is_valid_model_molecule(imol)) {
+	 int residue_number = res_p->GetSeqNum();
+	 int resno_added = -1; // was unset
+	 if (term_type == "C" || term_type == "MC")
+	    resno_added = residue_number + 1;
+	 if (term_type == "N" || term_type == "MN")
+	    resno_added = residue_number - 1;
+	 if (resno_added != -1) {
+	    bool is_nucleic_acid = true;
+	    std::pair<bool, std::string> p = 
+	       molecules[imol].find_terminal_residue_type(chain_id, resno_added,
+							  alignment_wgap,
+							  alignment_wspace, is_nucleic_acid);
+	    if (p.first) {
+	       seq = "a" + coot::util::downcase(p.second);
+	    }
+	 }
+      }
+      
+      
    
       if (coot::util::nucleotide_is_DNA(res_p)) { 
 	 RNA_or_DNA_str = "DNA";
@@ -2342,7 +2402,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 	       // byte gz = GZM_NONE;
 	       // mol->WritePDBASCII("overlapped.pdb", gz);
 	       CMMDBManager *residue_mol =
-		  coot::util::create_mmdbmanager_from_residue(mol, interesting_residue_p);
+		  coot::util::create_mmdbmanager_from_residue(interesting_residue_p);
 
 	       atom_selection_container_t asc = make_asc(residue_mol);
 	       // set the chain id of the chain that contains interesting_residue_p:
@@ -2885,8 +2945,37 @@ graphics_info_t::nudge_active_residue(guint direction) {
       coot::Cartesian shift_cart(shift.x(), shift.y(), shift.z());
       g.add_vector_to_RotationCentre(shift_cart);
       graphics_draw();
-   } 
+   }
 }
+
+
+// --- nudge (rotate) active residue
+// static
+void
+graphics_info_t::nudge_active_residue_by_rotate(guint direction) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = graphics_info_t::active_atom_spec();
+   if (active_atom.first) {
+      graphics_info_t g;
+      int imol = active_atom.second.first;
+      double angle = M_PI/20;
+      if (direction == GDK_Left)
+	 angle = -angle;
+      if (direction == GDK_Up)
+	 angle *=5;
+      if (direction == GDK_Down)
+	 angle *= -5;
+      coot::Cartesian rc = g.RotationCentre();
+      clipper::Coord_orth origin_offset(rc.x(), rc.y(), rc.z());
+      coot::Cartesian front_centre = unproject(0.0);
+      coot::Cartesian  back_centre = unproject(1.0);
+      coot::Cartesian ftb = back_centre - front_centre;
+      clipper::Coord_orth around_vec(ftb.x(), ftb.y(), ftb.z());
+     g.molecules[imol].rotate_residue(active_atom.second.second, around_vec, origin_offset, angle);
+      graphics_draw();
+   }
+}
+
  
 
 

@@ -20,11 +20,11 @@
 
 lib_LTLIBRARIES=libcoot-mini-mol.la
 
-include_HEADERS =  mini-mol.hh mini-mol-utils.hh atom-quads.hh
+pkginclude_HEADERS =  mini-mol.hh mini-mol-utils.hh atom-quads.hh
+pkgincludedir = $(includedir)/coot/mini-mol
 
 INCLUDES =  \
-	-I$(top_srcdir)/coot-utils \
-	-I$(top_srcdir)/compat \
+	-I$(top_srcdir) \
 	$(CLIPPER_CXXFLAGS)    \
 	$(MMDB_CXXFLAGS)
 

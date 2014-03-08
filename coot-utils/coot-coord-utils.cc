@@ -26,12 +26,12 @@
 #include <stdexcept>
 
 #include <string.h> // for strcpy
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include <mmdb/mmdb_tables.h>  // for Get1LetterCode()
 #include <mmdb/mmdb_graph.h> // for graph matching
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 #include "clipper/mmdb/clipper_mmdb.h"
 
@@ -217,10 +217,37 @@ coot::util::translate_close_to_origin(CMMDBManager *mol) {
 	 }
       }
    } 
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << rte.what() << std::endl;
    } 
 }
+
+void
+coot::util::shift(CMMDBManager *mol, clipper::Coord_orth pt) {
+
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      CModel *model_p = mol->GetModel(imod);
+      CChain *chain_p;
+      int nchains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 CResidue *residue_p;
+	 CAtom *at;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       at = residue_p->GetAtom(iat);
+	       at->x += pt.x();
+	       at->y += pt.y();
+	       at->z += pt.z();
+	    }
+	 }
+      }
+   }
+}
+
 
 
 void
@@ -716,6 +743,43 @@ coot::operator<<(std::ostream&  s, const coot::lsq_range_match_info_t &m) {
    return s;
 } 
 
+//
+float
+coot::util::interquartile_range(const std::vector<float> &v_in) {
+
+   float iqr = 0;
+   std::vector<float> v = v_in;
+
+   std::sort(v.begin(), v.end());
+   unsigned int n = v.size();
+   int q_1 = int(0.25 * n);
+   int q_3 = int(0.75 * n);
+   float v_1 = v[q_1];
+   float v_3 = v[q_3];
+   iqr = v_3 - v_1;
+   return iqr;
+}
+
+coot::util::stats_data::stats_data(const std::vector<float> &v) {
+
+   mean = 0;
+   sd = 0;
+   iqr = 0;
+   double sum = 0;
+   double sum_sq = 0;
+   for (unsigned int i=0; i<v.size(); i++) { 
+      sum += v[i];
+      sum_sq += v[i] * v[1];
+   }
+   if (v.size() > 0) { 
+      mean = sum/double(v.size());
+      double var = sum_sq/double(v.size()) - mean * mean;
+      if (var < 0) var = 0;
+      sd = sqrt(var);
+      iqr = interquartile_range(v);
+   }
+}
+
 
 // -------------------------------------------------------------
 //                       quaternions
@@ -769,6 +833,151 @@ coot::util::quaternion::convert_sign(const float &x, const float &y) const {
    if ((x > 0) && (y < 0)) return -x; 
    return  x; 
 }
+
+void
+coot::util::quaternion::normalize() {
+
+   double sum_sq = 0.0;
+   sum_sq += q0*q0;
+   sum_sq += q1*q1;
+   sum_sq += q2*q2;
+   sum_sq += q3*q3;
+   if (sum_sq > 0.0) {
+      double f = 1.0/sum_sq;
+      q0 *= f;
+      q1 *= f;
+      q2 *= f;
+      q3 *= f;
+   }
+} 
+
+
+clipper::RTop_orth
+coot::util::quaternion::centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops) {
+
+   if (rtops.size() == 0) { 
+      return clipper::RTop_orth(clipper::Mat33<double>(1,0,0,0,1,0,0,0,1), clipper::Vec3<double>(0,0,0));
+   } else {
+      clipper::Coord_orth sum_trn(0,0,0);
+      for (unsigned int i=0; i<rtops.size(); i++) { 
+	 quaternion q(rtops[i].first.rot());
+	 q0 += rtops[i].second * q.q0;
+	 q1 += rtops[i].second * q.q1;
+	 q2 += rtops[i].second * q.q2;
+	 q3 += rtops[i].second * q.q3;
+	 sum_trn += rtops[i].first.trn();
+      }
+      normalize();
+      clipper::Mat33<double> m = matrix();
+      double inv_n = 1.0/double(rtops.size());
+      clipper::Coord_orth t(sum_trn.x() * inv_n, sum_trn.y() * inv_n, sum_trn.z() * inv_n);
+      return clipper::RTop_orth(m, t);
+   }
+}
+
+clipper::RTop_orth
+coot::util::quaternion::centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops,
+				      bool robust_filter) {
+
+   if (! robust_filter) { 
+      return centroid_rtop(rtops);
+   } else {
+      clipper::Coord_orth sum_trn(0,0,0);
+      for (unsigned int i=0; i<rtops.size(); i++) { 
+	 quaternion q(rtops[i].first.rot());
+	 q0 += rtops[i].second * q.q0;
+	 q1 += rtops[i].second * q.q1;
+	 q2 += rtops[i].second * q.q2;
+	 q3 += rtops[i].second * q.q3;
+	 sum_trn += rtops[i].first.trn();
+      }
+      normalize();
+
+      double inv_n = 1.0/double(rtops.size());
+      clipper::Coord_orth t(sum_trn.x() * inv_n, sum_trn.y() * inv_n, sum_trn.z() * inv_n);
+
+
+      double sum_rotation_distance_sq = 0.0;
+      double sum_translation_distance_sq = 0.0;
+      std::vector<w_rtop_orth> deviance(rtops.size());
+      for (unsigned int i=0; i<rtops.size(); i++) {
+	 // rotation
+	 quaternion q(rtops[i].first.rot());
+	 double d0 = q0 - rtops[i].second * q.q0;
+	 double d1 = q1 - rtops[i].second * q.q1;
+	 double d2 = q2 - rtops[i].second * q.q2;
+	 double d3 = q3 - rtops[i].second * q.q3;
+	 double d = d0*d0 + d1*d1 + d2*d2 + d3*d3;
+	 sum_rotation_distance_sq += d;
+	 
+	 // translation
+	 clipper::Coord_orth wpt(rtops[i].second * clipper::Coord_orth(rtops[i].first.trn()));
+	 double dt = (t-wpt).lengthsq();
+	 sum_translation_distance_sq += dt;
+	 if (0)
+	    std::cout << "for irtop " << i << " added rotation distance_sq " << d 
+		      << " and translation distance "<< dt << std::endl;
+	 deviance[i].rtop   = rtops[i].first;
+	 deviance[i].weight = rtops[i].second;
+	 deviance[i].deviance = d * 1.888 + dt;
+      }
+
+      std::sort(deviance.begin(), deviance.end(), deviance_sorter);
+      for (unsigned int i=0; i<deviance.size(); i++)
+	 if (0) 
+	    std::cout << "        deviance " << i << " " << deviance[i].weight << " "
+		      << deviance[i].deviance << std::endl;
+      std::vector<float> iqr_data(deviance.size());
+      for (unsigned int i=0; i<deviance.size(); i++)
+	 iqr_data[i] = deviance[i].deviance;
+      stats_data sd(iqr_data);
+      
+      clipper::Coord_orth sum_trn_filtered_dev(0,0,0);
+      int n = 0;
+
+      for (unsigned int i=0; i<deviance.size(); i++) {
+	 if (deviance[i].deviance < sd.mean + 0.5 * sd.iqr) {
+	    n++;
+	    quaternion q(rtops[i].first.rot());
+	    q0 += deviance[i].weight * q.q0;
+	    q1 += deviance[i].weight * q.q1;
+	    q2 += deviance[i].weight * q.q2;
+	    q3 += deviance[i].weight * q.q3;
+	    sum_trn_filtered_dev += deviance[i].weight * deviance[i].rtop.trn();
+	 }
+      }
+
+//       std::cout << "rejecting deviances more than " << sd.mean + 0.5 * sd.iqr
+// 		<< " leaves " << n << " from " << rtops.size() 
+// 		<< std::endl;
+      
+      if (n > 0) {
+
+	 normalize();
+	 double inv_n = 1.0/double(n);
+	 clipper::Mat33<double> m = matrix();
+	 clipper::Coord_orth td(sum_trn_filtered_dev.x() * inv_n,
+				sum_trn_filtered_dev.y() * inv_n,
+				sum_trn_filtered_dev.z() * inv_n);
+	 return clipper::RTop_orth(m, td);
+      } else { 
+       
+	 // unfiltered
+	 clipper::Mat33<double> m = matrix();
+	 return clipper::RTop_orth(m, t);
+      }
+   } 
+}
+
+// static
+bool
+coot::util::quaternion::deviance_sorter(const w_rtop_orth &a,
+					const w_rtop_orth &b) {
+   return a.deviance < a.deviance;
+}
+
+
+
 
 // static 
 void
@@ -964,7 +1173,7 @@ coot::copy_segid(CResidue *provider, CResidue *receiver) {
       }
    }
 
-   catch (std::runtime_error mess) {
+   catch (const std::runtime_error &mess) {
       // maybe do this.. not sure.
       std::cout << "   INFO:: " << mess.what() << std::endl;
    }
@@ -1223,10 +1432,10 @@ coot::get_selection_handle(CMMDBManager *mol, const coot::atom_spec_t &at) {
    int SelHnd = -1;
    if (mol) { 
       SelHnd = mol->NewSelection();
-      char *chain   = (char *) at.chain.c_str();
-      char *inscode = (char *) at.insertion_code.c_str();
-      char *atname  = (char *) at.atom_name.c_str(); // atom name
-      char *altconf = (char *) at.alt_conf.c_str();
+      const char *chain   =  at.chain.c_str();
+      const char *inscode =  at.insertion_code.c_str();
+      const char *atname  =  at.atom_name.c_str(); // atom name
+      const char *altconf =  at.alt_conf.c_str();
       mol->SelectAtoms (SelHnd, 0, chain,
 			at.resno, // starting resno, an int
 			inscode, // any insertion code
@@ -1270,7 +1479,13 @@ std::ostream& coot::operator<< (std::ostream& s, const coot::residue_spec_t &spe
    if (!spec.unset_p()) { 
 
       s << "[spec: ";
-      s << "\"";
+      // s << "{{debug:: MinInt4 is " << MinInt4 << "}} ";
+      if (spec.model_number == MinInt4)
+	 s << "MinInt4";
+      else
+	 s << spec.model_number;
+      
+      s << " \"";
       s << spec.chain;
       s << "\" ";
       s << spec.resno;
@@ -1893,11 +2108,6 @@ coot::graph_match(CResidue *res_moving,
 					  clipper::Coord_orth(0,0,0)); // unset
 	    if (apply_rtop_flag) {
 
-// 	       for (unsigned int iat=0; iat<4; iat++) {
-// 		  std::cout << "debug:: getting rtop " << coords_1_local[iat].format() << " vs "
-// 			    << coords_2_local[iat].format() << std::endl;
-// 	       }
-	       
 	       rtop_local = clipper::RTop_orth(coords_1_local, coords_2_local);
 	       for (unsigned int i=0; i<coords_1_local.size(); i++) {
 		  dist_sum += clipper::Coord_orth::length(coords_2_local[i],
@@ -1909,8 +2119,10 @@ coot::graph_match(CResidue *res_moving,
 	       }
 	    } 
 	    if (dist_sum < best_match_sum) {
+	       
 	       // Debugging
-	       std::cout << "DEBUG:: better dist_sum: " << dist_sum << std::endl;
+	       // std::cout << "DEBUG:: better dist_sum: " << dist_sum << std::endl;
+	       
 	       best_rtop = rtop_local;
 	       best_match_sum = dist_sum;
 	       best_match = imatch;
@@ -3058,8 +3270,7 @@ coot::util::create_mmdbmanager_from_inverted_atom_selection(CMMDBManager *orig_m
 
 // ignore atom index transfer, return NULL on error.
 CMMDBManager *
-coot::util::create_mmdbmanager_from_residue(CMMDBManager *orig_mol,
-					    CResidue *res) {
+coot::util::create_mmdbmanager_from_residue(CResidue *res) {
 
    CResidue *r = coot::util::deep_copy_this_residue(res);
    CMMDBManager *mol = new CMMDBManager;
@@ -3143,7 +3354,7 @@ coot::util::deep_copy_this_residue(CResidue *residue) {
    rres->seqNum = residue->GetSeqNum();
    strcpy(rres->name, residue->name);
 
-   PPCAtom residue_atoms;
+   PPCAtom residue_atoms = 0;
    int nResidueAtoms;
    residue->GetAtomTable(residue_atoms, nResidueAtoms);
    CAtom *atom_p;
@@ -3525,23 +3736,25 @@ coot::util::chain_only_of_type(CMMDBManager *mol, const std::string &residue_typ
       for (int ich=0; ich<nchains; ich++) {
 	 chain_p = model_p->GetChain(ich);
 	 int nres = chain_p->GetNumberOfResidues();
-	 short int all_same_type_flag = 1; 
-	 for (int ires=0; ires<nres; ires++) { 
-	    residue_p = chain_p->GetResidue(ires);
-	    std::string resname(residue_p->name);
-	    if (! (resname == residue_type)) {
-	       all_same_type_flag = 0;
+	 if (nres) { 
+	    bool all_same_type_flag = true; 
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       std::string resname(residue_p->name);
+	       if (! (resname == residue_type)) {
+		  all_same_type_flag = false;
+		  break;
+	       }
+	    }
+	    if (all_same_type_flag) { 
+	       single_type_chain_p = chain_p;
 	       break;
 	    }
 	 }
-	 if (all_same_type_flag) { 
-	    single_type_chain_p = chain_p;
-	    break;
-	 }
       }
-   } 
+   }
    return single_type_chain_p;
-} 
+}
 
 
 std::string
@@ -3614,8 +3827,6 @@ std::pair<clipper::Coord_orth, clipper::Coord_orth>
 coot::util::extents(CMMDBManager *mol,
 		     int SelectionHandle) {
 
-   std::pair<clipper::Coord_orth, clipper::Coord_orth> p;
-
    PCAtom *atoms = NULL;
    int n_selected_atoms;
    mol->GetSelIndex(SelectionHandle, atoms, n_selected_atoms);
@@ -3640,6 +3851,39 @@ coot::util::extents(CMMDBManager *mol,
 
    return std::pair<clipper::Coord_orth, clipper::Coord_orth> (p2, p1);
 }
+
+std::pair<clipper::Coord_orth, clipper::Coord_orth>
+coot::util::extents(CMMDBManager *mol,
+		    const std::vector<residue_spec_t> &specs) {
+
+   float most_x = -99999;
+   float most_y = -99999;
+   float most_z = -99999;
+   float least_x = 99999;
+   float least_y = 99999;
+   float least_z = 99999;
+   for (unsigned int ispec=0; ispec<specs.size(); ispec++) { 
+      CResidue *residue_p = get_residue(specs[ispec], mol);
+      if (residue_p) {
+	 PPCAtom residue_atoms = 0;
+	 int n_residue_atoms;
+	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	    CAtom *at = residue_atoms[iat];
+	    if (at->x < least_x) least_x = at->x;
+	    if (at->y < least_y) least_y = at->y;
+	    if (at->z < least_z) least_z = at->z;
+	    if (at->x >  most_x)  most_x = at->x;
+	    if (at->y >  most_y)  most_y = at->y;
+	    if (at->z >  most_z)  most_z = at->z;
+	 }
+      }
+   }
+   clipper::Coord_orth p1( most_x,  most_y,  most_z);
+   clipper::Coord_orth p2(least_x, least_y, least_z);
+   return std::pair<clipper::Coord_orth, clipper::Coord_orth> (p2, p1);
+}
+
 
 
 // pair.second = 0 for failure
@@ -4106,8 +4350,7 @@ coot::link_atoms(CLink *link) {
    atom_spec_t a2(link->chainID2, link->seqNum2, link->insCode2, link->atName2, link->aloc2);
 
    return std::pair<coot::atom_spec_t, coot::atom_spec_t> (a1, a2);
-
-} 
+}
 
 
 bool
@@ -4679,12 +4922,14 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
       std::vector<clipper::Coord_orth> refrce_atom_positions;
       std::vector<clipper::Coord_orth> moving_atom_positions;
 
-      for (unsigned int i=0; i<refrce_name_vector.size(); i++)
- 	 std::cout << "ref base search atom :" << refrce_name_vector[i]
-		   << ":" << std::endl;
-      for (unsigned int i=0; i<moving_name_vector.size(); i++)
-	 std::cout << "mov base search atom :" << moving_name_vector[i]
- 		   << ":" << std::endl;
+      if (0) { 
+	 for (unsigned int i=0; i<refrce_name_vector.size(); i++)
+	    std::cout << "ref base search atom :" << refrce_name_vector[i]
+		      << ":" << std::endl;
+	 for (unsigned int i=0; i<moving_name_vector.size(); i++)
+	    std::cout << "mov base search atom :" << moving_name_vector[i]
+		      << ":" << std::endl;
+      }
       
       for (int j=0; j<n_match_atoms; j++) {
 	 for (int i=0; i<n_mol_base_atoms; i++) {
@@ -4693,7 +4938,8 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
 	       refrce_atom_positions.push_back(clipper::Coord_orth(mol_base_atoms[i]->x,
 								   mol_base_atoms[i]->y,
 								   mol_base_atoms[i]->z));
-	       std::cout << "Found " << atom_name << " in reference " << std::endl;
+	       if (0) 
+		  std::cout << "Found " << atom_name << " in reference " << std::endl;
 	    }
 	 }
       }
@@ -4705,7 +4951,8 @@ coot::util::nucleotide_to_nucleotide(CResidue *residue,
 	       moving_atom_positions.push_back(clipper::Coord_orth(std_base_atoms[i]->x,
 								   std_base_atoms[i]->y,
 								   std_base_atoms[i]->z));
-	       std::cout << "Found " << atom_name << " in moving (std) base " << std::endl;
+	       if (0) 
+		  std::cout << "Found " << atom_name << " in moving (std) base " << std::endl;
 	    }
 	 }
       }
@@ -4813,7 +5060,7 @@ coot::util::mutate_internal(CResidue *residue,
       old_seg_id_for_residue_atoms = coot::residue_atoms_segid(residue);
       use_old_seg_id = 1;
    }
-   catch (std::runtime_error mess) {
+   catch (const std::runtime_error &mess) {
    } 
 
    bool verb = 0;
@@ -5004,7 +5251,7 @@ coot::util::mutate_base(CResidue *residue, CResidue *std_base,
       old_seg_id_for_residue_atoms = coot::residue_atoms_segid(residue);
       use_old_seg_id = 1;
    }
-   catch (std::runtime_error mess) {
+   catch (const std::runtime_error &mess) {
    } 
 
 
@@ -5604,6 +5851,33 @@ coot::util::rotate_round_vector(const clipper::Coord_orth &direction,
    return origin_shift + (position-origin_shift).transform(rtop);
 }
 
+
+// angle in radians
+// 
+void
+coot::util::rotate_residue(CResidue *residue_p,
+			   const clipper::Coord_orth &direction,
+			   const clipper::Coord_orth &origin_shift,
+			   double angle) {
+
+   if (residue_p) {
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	 CAtom *at = residue_atoms[iat];
+	 if (at) {
+	    clipper::Coord_orth pt(at->x, at->y, at->z);
+	    clipper::Coord_orth pt_new = rotate_round_vector(direction, pt, origin_shift, angle);
+	    at->x = pt_new.x();
+	    at->y = pt_new.y();
+	    at->z = pt_new.z();
+	 }
+      }
+   } 
+} 
+
+
 // We ignore the issue of alt confs because from refinement/reg we
 // will be only looking at a single stretch of amino acids, of a given
 // alt conf (or blank).
@@ -6118,7 +6392,7 @@ coot::util::move_waters_around_protein(CMMDBManager *mol) {
 	 }
       }
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << rte.what() << std::endl;
    }
 
@@ -6231,7 +6505,7 @@ coot::util::move_hetgroups_around_protein(CMMDBManager *mol) {
 	    }
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
       }
    }
@@ -6367,7 +6641,7 @@ coot::util::get_cell_symm(CMMDBManager *mol) {
 	    std::cout << "Null clipper cell  " << std::endl;
 	 return std::pair<clipper::Cell, clipper::Spacegroup> (cell, spacegroup);
       }
-      catch (clipper::Message_base except) {
+      catch (const clipper::Message_base &except) {
 	 std::string message = "Fail to make clipper::Spacegroup from ";
 	 message += mol->GetSpaceGroup();
 	 throw std::runtime_error(message);
@@ -6672,6 +6946,40 @@ coot::util::print_secondary_structure_info(CModel *model_p) {
    }
    std::cout << "------------------------------------------------\n";
 }
+
+// return a string description of MMDB SSE values
+std::string
+coot::util::sse_to_string(int sse) {
+
+   std::string r;
+   switch (sse)  {
+   case SSE_None: 
+      r = "None";
+      break;
+   case SSE_Strand:
+      r = "Strand";
+      break;
+   case SSE_Bulge:  
+      r = "Bulge";
+      break;
+   case SSE_3Turn:  
+      r = "Turn";
+      break;
+   case SSE_4Turn:  
+      r = "4Turn";
+      break;
+   case SSE_5Turn:  
+      r = "5Turn";
+      break;
+   case SSE_Helix:  
+      r = "Helix";
+      break;
+   default:
+      r = "None";
+   }
+   return r;
+} 
+
    
 
 // return success status as first element

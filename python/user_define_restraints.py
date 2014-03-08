@@ -29,23 +29,26 @@ def user_defined_add_single_bond_restraint():
     
   user_defined_click(2, make_restr)
 
-def user_defined_add_arbitrary_length_bond_restraint():
+  
+def user_defined_add_arbitrary_length_bond_restraint(bond_length=2.0):
+
   # maybe make a generic one....
-  def make_restr(dist):
+  def make_restr(text_list, continue_qm):
     s = "Now click on 2 atoms to define the additional bond restraint"
     add_status_bar_text(s)
+    dist = text_list[0]
     try:
       bl = float(dist)
     except:
       bl = False
       add_status_bar_text("Must define a number for the bond length")
     if bl:
+      # save distance for future use?!
       def make_restr_dist(*args):
             atom_spec_1 = args[0]
             atom_spec_2 = args[1]
             imol = atom_spec_1[1]
             print "BL DEBUG:: imol: %s spec 1: %s and 2: %s" %(imol, atom_spec_1, atom_spec_2)
-            print "BL DEBUG:: using dist", bl
             add_extra_bond_restraint(imol,
                                      atom_spec_1[2],
                                      atom_spec_1[3],
@@ -59,14 +62,32 @@ def user_defined_add_arbitrary_length_bond_restraint():
                                      atom_spec_2[6],
                                      bl, 0.035)
       user_defined_click(2, make_restr_dist)
+      if continue_qm:
+        user_defined_add_arbitrary_length_bond_restraint(bl)
       
-      
-  generic_single_entry("Add a User-defined extra distance restraint",
-                       "2.0",
-                       "OK...",
-                       lambda text: make_restr(text))
+  def stay_open(*args):
+    pass
+  #generic_single_entry("Add a User-defined extra distance restraint",
+  #                     "2.0",
+  #                     "OK...",
+  #                     lambda text: make_restr(text))
+  generic_multiple_entries_with_check_button(
+    [["Add a User-defined extra distance restraint",
+      str(bond_length)]],
+    ["Stay open?", lambda active_state: stay_open(active_state)],
+    "OK...",
+    lambda text, stay_open_qm: make_restr(text, stay_open_qm))
 
+# spec_1 and spec_2 are 7-element atom_specs
+#
 def add_base_restraint(imol, spec_1, spec_2, atom_name_1, atom_name_2, dist):
+
+  """
+  spec_1 and spec_2 are 7-element atom_specs
+  """
+
+  print "add_base_restraint", imol, spec_1, spec_2, atom_name_1, atom_name_2, dist
+  
   add_extra_bond_restraint(imol,
                            spec_1[2],
                            spec_1[3],
@@ -83,6 +104,7 @@ def add_base_restraint(imol, spec_1, spec_2, atom_name_1, atom_name_2, dist):
 def a_u_restraints(spec_1, spec_2):
 
   imol = spec_1[1]
+  print "BL DEBUG:: add_base_restraint a u",imol, spec_1, spec_2, " N6 ", " O4 ", 3.12
   add_base_restraint(imol, spec_1, spec_2, " N6 ", " O4 ", 3.12)
   add_base_restraint(imol, spec_1, spec_2, " N1 ", " N3 ", 3.05)
   add_base_restraint(imol, spec_1, spec_2, " C2 ", " O2 ", 3.90)
@@ -93,36 +115,83 @@ def a_u_restraints(spec_1, spec_2):
 def g_c_restraints(spec_1, spec_2):
 
   imol = spec_1[1]
-  add_base_restraint(imol, spec_1, spec_2, " O6 ", " N4 ", 3.08)
+  print "BL DEBUG:: add_base_restraint gc", imol, spec_1, spec_2, " O6 ", " N4 ", 3.08
+  add_base_restraint(imol, spec_1, spec_2, " N6 ", " O4 ", 3.12)
   add_base_restraint(imol, spec_1, spec_2, " N1 ", " N3 ", 3.04)
   add_base_restraint(imol, spec_1, spec_2, " N2 ", " O2 ", 3.14)
   add_base_restraint(imol, spec_1, spec_2, " C4 ", " N1 ", 7.73)
   add_base_restraint(imol, spec_1, spec_2, " C5 ", " C5 ", 7.21)
 
+def dna_a_t_restraints(spec_1, spec_2):
+
+  imol = spec_1[1]
+  add_base_restraint(imol, spec_1, spec_2, " C2 ", " O2 ", 3.49)
+  add_base_restraint(imol, spec_1, spec_2, " N1 ", " N3 ", 2.85)
+  add_base_restraint(imol, spec_1, spec_2, " N6 ", " O4 ", 3.23)
+  add_base_restraint(imol, spec_1, spec_2, " C6 ", " C8 ", 9.94)
+  add_base_restraint(imol, spec_1, spec_2, " N1 ", " O2 ", 3.52)
+
+def dna_g_c_restraints(spec_1, spec_2):
+
+  imol = spec_1[1]
+  add_base_restraint(imol, spec_1, spec_2, " O6 ", " N4 ", 2.72)
+  add_base_restraint(imol, spec_1, spec_2, " N1 ", " N3 ", 2.81)
+  add_base_restraint(imol, spec_1, spec_2, " N2 ", " O2 ", 2.83)
+  add_base_restraint(imol, spec_1, spec_2, " N9 ", " N1 ", 8.83)
+
+  
 def user_defined_RNA_A_form():
+  def make_restr(*args):
+    spec_1 = args[0]
+    spec_2 = args[1]
+    print "BL DEBUG:: have specs", spec_1, spec_2
+    res_name_1 = res_name_from_atom_spec(spec_1)
+    res_name_2 = res_name_from_atom_spec(spec_2)
+    print "BL DEBUG:: have resnames", res_name_1, res_name_2
+    # just check the first letter, should be save
+    if (res_name_1[0] == "G" and
+        res_name_2[0] == "C"):
+      g_c_restraints(spec_1, spec_2)
+
+    if (res_name_1[0] == "C" and
+        res_name_2[0] == "G"):
+      g_c_restraints(spec_2, spec_1)
+
+    if (res_name_1[0] == "A" and
+        res_name_2[0] == "U"):
+      a_u_restraints(spec_1, spec_2)
+
+    if (res_name_1[0] == "U" and
+        res_name_2[0] == "A"):
+      a_u_restraints(spec_2, spec_1)
+
+  user_defined_click(2, make_restr)
+
+def user_defined_DNA_B_form():
   def make_restr(*args):
     spec_1 = args[0]
     spec_2 = args[1]
     res_name_1 = res_name_from_atom_spec(spec_1)
     res_name_2 = res_name_from_atom_spec(spec_2)
-    if (res_name_1 == "Gr" and
-        res_name_2 == "Cr"):
-      g_c_restraints(spec_1, spec_2)
+    if (res_name_1 == "DG" and
+        res_name_2 == "DC"):
+      dna_g_c_restraints(spec_1, spec_2)
 
-    if (res_name_1 == "Cr" and
-        res_name_2 == "Gr"):
-      g_c_restraints(spec_2, spec_1)
+    if (res_name_1 == "DC" and
+        res_name_2 == "DG"):
+      dna_g_c_restraints(spec_2, spec_1)
 
-    if (res_name_1 == "Ar" and
-        res_name_2 == "Ur"):
-      a_u_restraints(spec_1, spec_2)
+    if (res_name_1 == "DA" and
+        res_name_2 == "DT"):
+      dna_a_t_restraints(spec_1, spec_2)
 
-    if (res_name_1 == "Ur" and
-        res_name_2 == "Ar"):
-      a_u_restraints(spec_2, spec_1)
+    if (res_name_1 == "DT" and
+        res_name_2 == "DA"):
+      dna_a_t_restraints(spec_2, spec_1)
 
-    user_defined_click(2, make_restr)
+  user_defined_click(2, make_restr)
 
+    
 def user_defined_add_helix_restraints():
   def make_restr(*args):
     spec_1 = args[0]
@@ -228,12 +297,113 @@ def run_prosmart(imol_target, imol_ref):
     else:
       print "Reading ProSMART restraints from", prosmart_out
       add_refmac_extra_restraints(imol_target, prosmart_out)
+
+def res_name2plane_atom_name_list(res_name):
+
+  if not (isinstance(res_name, str)):
+    return False
+  else:
+    if (res_name == "DG"):
+      return ["N1", "C6", "O6", "C2", "N2", "N3", "C5", "C4", "N9", "N7", "C8", "C1'"]
+    elif (res_name == "DA"):
+      return ["N1", "C6", "C2", "N6", "N3", "C5", "C4", "N9", "N7", "C8", "C1'"]
+    elif (res_name == "DT"):
+      return ["N3", "C2", "O2", "C4", "O4", "C5", "C7", "C6", "N1", "C1'"]
+    elif (res_name == "DC"):
+      return ["N3", "C2", "O2", "C4", "N4", "C5", "C6", "N1", "C1'"]
+
+    elif (res_name == "G"):
+      return ["N1", "C6", "O6", "C2", "N2", "N3", "C5", "C4", "N9", "N7", "C8", "C1'"]
+    elif (res_name == "A"):
+      return ["N1", "C6", "C2", "N6", "N3", "C5", "C4", "N9", "N7", "C8", "C1'"]
+    elif (res_name == "T"):
+      return ["N3", "C2", "O2", "C4", "O4", "C5", "C7", "C6", "N1", "C1'"]
+    elif (res_name == "U"):
+      return ["N3", "C2", "O2", "C4", "O4", "C5", "C6", "N1", "C1'"]
+    elif (res_name == "C"):
+      return ["N3", "C2", "O2", "C4", "N4", "C5", "C6", "N1", "C1'"]
+    else:
+      return []
+
+
+# example?
+# exte stac plan 1  firs resi 99 chai A atoms { CB CG CD1 CD2 CE1 CE2 CZ OH }  plan 2  firs resi 61 chai B atoms { CB CG CD1 CD2 CE1 CE2 CZ }  dist 3.4 sddi 0.2  sdan 6.0 type 1
+#
+def write_refmac_parallel_plane_restraint(file_name,
+                                          res_spec_0, res_spec_1,
+                                          atom_list_0, atom_list_1):
+
+  fout = open(file_name, 'w')
+  fout.write("EXTE STACK PLAN 1 FIRST RESIDUE ")
+  fout.write(str(residue_spec2res_no(res_spec_0)))
+  fout.write(" CHAIN ")
+  fout.write(residue_spec2chain_id(res_spec_0))
+  fout.write(" ATOMS { ")
+  for atom_name in atom_list_0:
+    fout.write(" " + atom_name + " ")
+  fout.write(" } PLAN 2 FIRST RESIDUE ")
+  fout.write(str(residue_spec2res_no(res_spec_1)))
+  fout.write(" CHAIN ")
+  fout.write(residue_spec2chain_id(res_spec_1))
+  fout.write(" ATOMS { ")
+  for atom_name in atom_list_1:
+    fout.write(" " + atom_name + " ")
+  fout.write(" } DIST 3.4 SDDI 0.2 SDAN 6.0 TYPE 1 \n")
+  fout.close()
+  # maybe some return value that it worked to write at some point
+
+
+def add_parallel_planes_restraint(imol, rs_0, rs_1):
+
+  print "in add_parallel_planes_restraint: rs_0: %s rs_1 %s" %(rs_0, rs_1)
+
+  rn_0 = residue_spec2residue_name(imol, rs_0)
+  rn_1 = residue_spec2residue_name(imol, rs_1)
+  atom_ls_0 = res_name2plane_atom_name_list(rn_0)
+  atom_ls_1 = res_name2plane_atom_name_list(rn_1)
+
+  write_refmac_parallel_plane_restraint("tmp.rst", rs_0, rs_1, atom_ls_0, atom_ls_1)
+
+  add_refmac_extra_restraints(imol, "tmp.rst")
+
+
+def user_defined_add_planes_restraint():
+
+  add_status_bar_text("Click on 2 atoms to define the additional parallel planes restraint")
   
+  def make_restr(*args):
+    atom_0 = args[0]
+    atom_1 = args[1]
+    rs_0 = atom_spec2residue_spec(atom_0)
+    rs_1 = atom_spec2residue_spec(atom_1)
+    imol = atom_spec2imol(atom_0)
+
+    rn_0 = residue_name(imol,
+                        residue_spec2chain_id(atom_spec2residue_spec(atom_0)),
+                        residue_spec2res_no(atom_spec2residue_spec(atom_0)),
+                        residue_spec2ins_code(atom_spec2residue_spec(atom_0)))
+    rn_1 = residue_name(imol,
+                        residue_spec2chain_id(atom_spec2residue_spec(atom_1)),
+                        residue_spec2res_no(atom_spec2residue_spec(atom_1)),
+                        residue_spec2ins_code(atom_spec2residue_spec(atom_1)))
+
+    print "BL DEBUG:: got resname 0", rn_0
+    print "BL DEBUG:: got resname 1", rn_1
+
+    atom_ls_0 = res_name2plane_atom_name_list(rn_0)
+    atom_ls_1 = res_name2plane_atom_name_list(rn_1)
+
+    write_refmac_parallel_plane_restraint("tmp.rst",
+                                          rs_0, rs_1,
+                                          atom_ls_0, atom_ls_1)
+    add_refmac_extra_restraints(imol, "tmp.rst")
+    
+  user_defined_click(2, make_restr)
     
 if (have_coot_python):
   if coot_python.main_menubar():
     
-    menu = coot_menubar_menu("Extras")
+    menu = coot_menubar_menu("Restraints")
 
     add_simple_coot_menu_menuitem(
       menu,
@@ -254,6 +424,11 @@ if (have_coot_python):
       menu,
       "RNA A form bond restraints...",
       lambda func: user_defined_RNA_A_form())
+
+    add_simple_coot_menu_menuitem(
+      menu,
+      "DNA B form bond restraints...",
+      lambda func: user_defined_DNA_B_form())
 
     def launch_prosmart_gui():
       def go_button_cb(*args):
@@ -293,6 +468,36 @@ if (have_coot_python):
       lambda func: launch_prosmart_gui()
       )
 
+
+    add_simple_coot_menu_menuitem(
+      menu,
+      "Read Refmac Extra Restraints...",
+      lambda func:
+      generic_chooser_and_file_selector("Apply restraints to molecule",
+                                        valid_model_molecule_qm,
+                                        "File:", "",
+                                        lambda imol, file_name:
+                                        add_refmac_extra_restraints(imol, file_name)))
+
+    
+    def set_prosmart_display_func(state):
+      with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                 aa_ins_code, aa_atom_name, aa_alt_conf]:
+        set_show_extra_restraints(aa_imol, state)
+    
+    add_simple_coot_menu_menuitem(
+      menu,
+      "Undisplay Extra Restraints...",
+      lambda func: set_prosmart_display_func(0)
+      )
+
+    add_simple_coot_menu_menuitem(
+      menu,
+      "Display ProSMART Extra Restraints...",
+      lambda func: set_prosmart_display_func(1)
+      )
+    
+    
     add_simple_coot_menu_menuitem(
       menu,
       "Delete an Extra Restraint...",
@@ -335,7 +540,13 @@ if (have_coot_python):
                                         lambda imol, file_name:
                                           extra_restraints2refmac_restraints_file(imol, file_name)))
     
-    
+
+    add_simple_coot_menu_menuitem(
+      menu,
+      "Add Parallel Planes Restraint...",
+      lambda func:
+      user_defined_add_planes_restraint()
+      )
   
   
 

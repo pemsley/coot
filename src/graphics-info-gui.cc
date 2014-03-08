@@ -49,40 +49,37 @@
 
 #if !defined _MSC_VER && !defined WINDOWS_MINGW
 #include <unistd.h>
-#else
-#include "coot-sysdep.h"
 #endif
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
-
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "clipper/core/map_utils.h" // Map_stats
-#include "graphical_skel.h"
+#include "skeleton/graphical_skel.h"
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 #include "interface.h"
 
 #include "molecule-class-info.h"
-#include "BuildCas.h"
+#include "skeleton/BuildCas.h"
 
 #include "gl-matrix.h" // for baton rotation
 #include "trackball.h" // for baton rotation
 
-#include "bfkurt.hh"
+#include "analysis/bfkurt.hh"
 
 #include "globjects.h"
-#include "ligand.hh"
+#include "ligand/ligand.hh"
 #include "graphics-info.h"
 
-#include "dunbrack.hh"
+#include "ligand/dunbrack.hh"
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 //temp
 #include "cmtz-interface.hh"
@@ -650,8 +647,8 @@ graphics_info_t::set_file_for_save_fileselection(GtkWidget *fileselection) const
       if (graphics_info_t::directory_for_saving_for_fileselection != "")
 	 full_name = directory_for_saving_for_fileselection + stripped_name;
 
-      std::cout << "INFO:: Setting fileselection with file: " << full_name
-		<< std::endl;
+//       std::cout << "INFO:: Setting fileselection with file: " << full_name
+// 		<< std::endl;
       gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
 				      full_name.c_str());
    }
@@ -3709,6 +3706,7 @@ graphics_info_t::wrapped_create_diff_map_peaks_dialog(const std::vector<std::pai
    GtkWidget *w = create_diff_map_peaks_dialog();
    difference_map_peaks_dialog = w; // save it for use with , and .
                                     // (globjects key press callback)
+   set_transient_and_position(COOT_DIFF_MAPS_PEAK_DIALOG, w);
    GtkWidget *radio_button;
    GSList *diff_map_group = NULL;
    GtkWidget *button_vbox = lookup_widget(w, "diff_map_peaks_vbox");

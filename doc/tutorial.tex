@@ -25,12 +25,46 @@
 %\author{CCP4 School APS 2010}
 %\author{BCA/CCP4 Summer School Oxford 2010}
 %\author{BCA/CCP4 Summer School Oxford 2012}
-\author{Universit\"at Basel Workshop}
+%\author{Universit\"at Basel Workshop}
+\author{X-ray Methods, CSHL 2013}
 
 \begin{document}
 \maketitle
 \tableofcontents
 %\listoffigures
+
+
+%% what does changing contour level tell us?
+
+%% effects of resolution - blur the map and see what we can see now
+
+%% proteins are surrounded by solvent
+
+%% given an electron density map and a sequence, where do we go next?
+%% i.e. where does the chain go?
+
+%% What are the differnt types of maps we typically look at? and why
+%% (you can add some maths here)
+
+%% lets zoom out and look at the crystall packing - how are the
+%% crystals fromed from arrangement of the protein chains
+
+%% where are the challenges now?  Where do we struggle in the process?
+
+%% how do we know that we have assigned the sequence correctly? what
+%% do we know about how proteins pack their side-chains (by
+%% hydrophobicity) - and for membrane proteins it's the reverse...
+
+%% add (somewhere) a cartoon for the formation of a peptide bond.
+%% Which limits the rotation freedom.
+
+%% And energy considerations with bonds between sp2 or sp3 hybridized atoms.
+%% how does this lead to rotamers (library)?
+
+%% Project: Verify3D for membrane proteins
+
+%% what numerical methods are we using to build the protein here?
+
 
 
 \newpage
@@ -140,6 +174,9 @@ of structure factor amplitudes and phases) in an ``MTZ'' file.  Let's
 take a look\ldots
 
 
+%% Note to self add something here for map sampling 2.4 or something.
+
+
 \begin{itemize}
 \item Select \textsf{``File''} from the Coot menu-bar
 \item Select \textsf{``Auto Open MTZ''} menu item
@@ -232,8 +269,8 @@ the opposite way.
   Another, additional way to make the movements faster is to change the 
   number of steps for the ``Smooth Recentering''. Again you find this in
   the ``Preferences'' (\textsf{Preferences $\rightarrow$ General $\rightarrow$ 
-  Smooth Recentering}). Change the \textsf{``Number of Steps''} from the 
-  default 80 to something smaller, e.g. 20.
+  Smooth Recentering}). Change the \textsf{``Number of Steps''} (the 
+  default is 40) to something smaller, e.g. 20.
 
 
 \begin{figure}[htbp]
@@ -629,7 +666,7 @@ Now merge this ligand into the protein:
 
   \emph{[We need to add residues to the C-terminus of the A chain.]}
 
-The missing residues are GLU, THR, CYS (QTC).
+The missing residues are GLN, THR, CYS (QTC).
 
 \item \textsf{Calculate $\rightarrow$ Fit Loop\ldots}
 
@@ -722,7 +759,7 @@ improper).
 
 \item Comparing the NCS-related chains.
 
-  Go to \textsf{Draw/NCS ghost control} and select \textsf{Draw
+  Go to \textsf{Draw/NCS ghost control} and select \textsf{Display
     non-crystallographic ghosts}. You will now see a copy of the B
   chain superimposed on the A chain. The B chain is draw using thin
   bonds.

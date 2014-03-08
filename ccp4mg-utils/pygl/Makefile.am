@@ -39,8 +39,8 @@ include_HEADERS = cbuild.h 	\
 	sphere_arrays.h glew.h wglew.h atom_texture_coords.h
 
 libccp4mg_opengl_la_SOURCES = \
-	help.cc splineset.cc texture.cc help.h 	\
-	texture.h 
+	help.cc texture.cc help.h 	help_globals.h \
+	texture.h texture_globals.h
 if BUILD_GLEW
 libccp4mg_opengl_la_SOURCES+= glew.c glewUtils.cc 
 GLEW_FLAG=-DGLEW_BUILD
@@ -60,7 +60,7 @@ libccp4mg_cprim_la_SOURCES = \
 	sphere.h subdivide.h cdisplayobject.h	\
 	build_tree_primitives.cc cprimitive.cc text.cc	\
 	billboard.cc billboard_primitive.cc cprimitive.h \
-	cprimitive_vbo.cc atom_texture_coords.cc
+	cprimitive_vbo.cc atom_texture_coords.cc splineset.cc
 
 libccp4mg_cprim_la_LDFLAGS = -L../mmut -lccp4mg-mmut -L../util -lccp4mg-mginterrupt -lccp4mg-pygl_coord -lccp4mg-mgutil -lccp4mg-paramsmanager -lccp4mg-rgbreps -lccp4mg-atom_util -lccp4mg-bezier -L. -lccp4mg-opengl -lccp4mg-font_cache
 
@@ -86,6 +86,7 @@ AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	-DPACKAGE_LOCALE_DIR='"$(pkgdatadir)/locale"' \
 	-DDATADIR='"$(datadir)"'    \
+	$(COOT_WINDOWS_CFLAGS)   \
 	$(GLEW_FLAG)
 
 

@@ -29,7 +29,9 @@
 #include <stdexcept>
 
 #include <mmdb/mmdb_manager.h>
-#include "bonded-pairs.hh"
+#include "coot-utils/bonded-pairs.hh"
+
+#include "parallel-planes.hh"
 
 // refinement_results_t is outside of the GSL test because it is
 // needed to make the accept_reject_dialog, and that can be compiled
@@ -147,7 +149,7 @@ namespace coot {
 #include "gsl/gsl_multimin.h"
 
 // #include "Cartesian.h"
-#include "mmdb-extras.h" // for atom_selection_container_t, this and
+#include "coords/mmdb-extras.h" // for atom_selection_container_t, this and
 			 // the interface that uses this can be
 			 // deleted, I think, when we move to clipper
 			 // (so that clipper does not get infected
@@ -159,11 +161,11 @@ namespace coot {
 #include "clipper/core/xmap.h"
 #include "clipper/core/map_interp.h"
 
-#include "coot-utils.hh"
-#include "coot-coord-utils.hh" // for atom_spec_t
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh" // for atom_spec_t
 
 // for protein dictionary container:
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 
 // For Kevin's (Log) Ramachandran Plot and derivatives
 #include "lograma.h"
@@ -182,7 +184,7 @@ namespace coot {
    // 
    enum {BOND_RESTRAINT, ANGLE_RESTRAINT, TORSION_RESTRAINT, PLANE_RESTRAINT,
          NON_BONDED_CONTACT_RESTRAINT, CHIRAL_VOLUME_RESTRAINT, RAMACHANDRAN_RESTRAINT,
-         START_POS_RESTRAINT};
+         START_POS_RESTRAINT, PARALLEL_PLANES_RESTRAINT};
 
    enum pseudo_restraint_bond_type {NO_PSEUDO_BONDS, HELIX_PSEUDO_BONDS,
 				    STRAND_PSEUDO_BONDS};
@@ -215,6 +217,9 @@ namespace coot {
 				BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 123,
 				BONDS_ANGLES_TORSIONS_PLANES_CHIRALS_AND_RAMA = 111,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 127,
+				BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 187,
+				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 191,
+				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES = 255
 				
    };
 
@@ -222,7 +227,7 @@ namespace coot {
 					 OMEGA_PHI_PSI_TORSION = 3 };
 					 
    enum { BONDS_MASK = 1,  ANGLES_MASK = 2, TORSIONS_MASK = 4, PLANES_MASK = 8, 
-          NON_BONDED_MASK = 16, CHIRAL_VOLUME_MASK = 32, RAMA_PLOT_MASK = 64};
+          NON_BONDED_MASK = 16, CHIRAL_VOLUME_MASK = 32, RAMA_PLOT_MASK = 64, PARALLEL_PLANES_MASK = 128};
 
 
    class ramachandran_restraint_flanking_residues_helper_t {
@@ -249,6 +254,7 @@ namespace coot {
       int atom_index_1, atom_index_2, atom_index_3, atom_index_4, atom_index_5, atom_index_6;
       int atom_index_centre;
       std::vector <int> atom_index; // atom_index can return negative (-1) for planes
+      std::vector <int> atom_index_other_plane; // for the second plane in parallel planes
       double target_value; 
       double sigma; 
       float observed_value;    
@@ -260,6 +266,7 @@ namespace coot {
                                  // centre, then the atom index, otherwise -1.
       // otherwise this is -1.
       std::vector<bool> fixed_atom_flags;
+      std::vector<bool> fixed_atom_flags_other_plane;
       bool is_user_defined_restraint;
 
       // allocator for geometry_distortion_info_t
@@ -371,6 +378,25 @@ namespace coot {
 	 is_user_defined_restraint = 0;
       }
 
+
+      // Parallel planes (actually angle-between-planes,typically-zero)
+      simple_restraint(short int restraint_type_in,
+		       const std::vector<int> &atom_index_plane_1_in,
+		       const std::vector<int> &atom_index_plane_2_in,
+		       const std::vector<bool> &fixed_atom_flags_plane_1_in,
+		       const std::vector<bool> &fixed_atom_flags_plane_2_in,
+		       double target_angle_in,
+		       double sigma_in) {
+	 restraint_type = restraint_type_in; 
+	 atom_index = atom_index_plane_1_in;
+	 atom_index_other_plane = atom_index_plane_2_in;
+	 fixed_atom_flags             = fixed_atom_flags_plane_1_in;
+	 fixed_atom_flags_other_plane = fixed_atom_flags_plane_2_in;
+	 target_value = target_angle_in;
+	 sigma = sigma_in;
+	 is_user_defined_restraint = 1;
+      } 
+
       // Non-bonded
       simple_restraint(short int restraint_type_in, 
 		       int index_1, 
@@ -469,6 +495,8 @@ namespace coot {
    class plane_distortion_info_t {
    public:
       std::vector<double> abcd;
+      clipper::Coord_orth centre_1;
+      clipper::Coord_orth centre_2;
       plane_distortion_info_t() {
 	 distortion_score = 0.0;
       }
@@ -591,7 +619,9 @@ namespace coot {
 			    void *params,
 			    const gsl_vector *v);
    double distortion_score_non_bonded_contact(const simple_restraint &plane_restraint,
-					      const gsl_vector *v); 
+					      const gsl_vector *v);
+   double distortion_score_parallel_planes(const simple_restraint &plane_restraint,
+					   const gsl_vector *v); 
    void fix_chiral_atom_maybe (const simple_restraint &chiral_restraint,
 			       gsl_vector *v);
    void fix_chiral_atom_internal (const simple_restraint &chiral_restraint,
@@ -600,6 +630,12 @@ namespace coot {
    plane_distortion_info_t
    distortion_score_plane_internal(const simple_restraint &plane_restraint,
 				   const gsl_vector *v);
+   plane_distortion_info_t
+   distortion_score_2_planes(const std::vector<int> &atom_index_set_1,
+			     const std::vector<int> &atom_index_set_2,
+			     const double &restraint_sigma,
+			     const gsl_vector *v);
+
 
    distortion_torsion_gradients_t
    fill_distortion_torsion_gradients(const clipper::Coord_orth &P1,
@@ -617,7 +653,7 @@ namespace coot {
    void my_df_torsions_internal(const gsl_vector *v, void *params, gsl_vector *df, bool do_rama_torsions);
    //  just the ramachandran plot gradient terms:
    void my_df_rama(const gsl_vector *v, void *params, gsl_vector *df); 
-   //  the deviation from starting point terms:
+   //  the plane deviation from terms:
    void my_df_planes(const gsl_vector *v, void *params, gsl_vector *df); 
    //  the non-bonded contacts
    void my_df_non_bonded(const gsl_vector *v, void *params, gsl_vector *df); 
@@ -625,6 +661,8 @@ namespace coot {
    void my_df_chiral_vol(const gsl_vector *v, void *params, gsl_vector *df); 
    //  the deviation from starting point terms:
    void my_df_start_pos(const gsl_vector *v, void *params, gsl_vector *df); 
+   //  20131012 the parallel plane deviation from terms:
+   void my_df_parallel_planes(const gsl_vector *v, void *params, gsl_vector *df); 
    // Compute both f and df together.
    void my_fdf (const gsl_vector *x, void *params, double *f, gsl_vector *df);
 
@@ -644,7 +682,7 @@ namespace coot {
    // 
    double electron_density_score(const gsl_vector *v, void *params);
    // new style Grad_map/Grad_orth method
-   void my_df_electron_density (gsl_vector *v, void *params, gsl_vector *df);
+   void my_df_electron_density (const gsl_vector *v, void *params, gsl_vector *df);
    // old style numerical method
    void my_df_electron_density_old (gsl_vector *v, void *params, gsl_vector *df); 
 
@@ -667,7 +705,7 @@ namespace coot {
    
    class extra_restraints_t {
 
-      bool matches_template_p(const std::vector<std::string> &words) const;
+      bool matches_bond_template_p(const std::vector<std::string> &words) const;
 
    public:
 
@@ -677,6 +715,7 @@ namespace coot {
 	 atom_spec_t atom_2;
 	 double bond_dist;
 	 double esd;
+	 extra_bond_restraint_t() {}
 	 extra_bond_restraint_t(const atom_spec_t &a1, const atom_spec_t &a2, double d, double e) {
 	    atom_1 = a1;
 	    atom_2 = a2;
@@ -695,21 +734,34 @@ namespace coot {
 	 }
       };
 
-      class bond_erasor {
+      class bond_eraser {
       public:
 	 double n_sigma_lim;
-	 std::map<std::pair<atom_spec_t, atom_spec_t>, double> dist_map;
-	 bond_erasor(const std::map<std::pair<atom_spec_t, atom_spec_t>, double> &dist_map_in, double nsi) {
-	    n_sigma_lim = nsi;
-	    dist_map = dist_map_in;
-	 } 
+	 
+	 std::map<std::pair<atom_spec_t, atom_spec_t>, double,
+		  bool(*)(const std::pair<coot::atom_spec_t, coot::atom_spec_t> &,
+			  const std::pair<coot::atom_spec_t, coot::atom_spec_t> &) > dist_map;
+	 
+	 
+ 	 bond_eraser(const std::map<std::pair<atom_spec_t, atom_spec_t>, double,
+ 		     bool(*)(const std::pair<coot::atom_spec_t, coot::atom_spec_t> &,
+ 		             const std::pair<coot::atom_spec_t, coot::atom_spec_t> &)
+		     > &dist_map_in, double nsi) {
+ 	    n_sigma_lim = nsi;
+ 	    dist_map = dist_map_in;
+ 	 } 
 	 bool operator()(const extra_bond_restraint_t &br) {
 	    std::pair<atom_spec_t, atom_spec_t> p(br.atom_1, br.atom_2);
 	    std::map<std::pair<atom_spec_t, atom_spec_t>, double>::const_iterator it =
 	       dist_map.find(p);
 	    if (it != dist_map.end()) {
-	       return (fabs(br.bond_dist -it->second)/br.esd > n_sigma_lim);
+	       bool v =  (fabs(br.bond_dist - it->second)/br.esd >= n_sigma_lim);
+	       std::cout << "comparing (" << br.bond_dist << " - " << it->second << ")/" << br.esd
+			 << " = " << fabs(br.bond_dist - it->second)/br.esd << " vs " << n_sigma_lim
+			 << " -> " << v << std::endl;
+	       return (fabs(br.bond_dist - it->second)/br.esd >= n_sigma_lim);
 	    } else {
+	       std::cout << "not found bond restraint between " << br.atom_1 <<  " " << br.atom_2 << std::endl;
 	       return false;
 	    } 
 	 } 
@@ -769,22 +821,25 @@ namespace coot {
       std::vector<extra_angle_restraint_t> angle_restraints;
       std::vector<extra_torsion_restraint_t> torsion_restraints;
       std::vector<extra_start_pos_restraint_t> start_pos_restraints;
+      std::vector<parallel_planes_t> parallel_plane_restraints;
 
-      void read_refmac_distance_restraints(const std::string &file_name);
+      void read_refmac_extra_restraints(const std::string &file_name);
 
       bool has_restraints() const {
-
 	 if (bond_restraints.size() > 0)
-	    return 1;
+	    return true;
 	 if (angle_restraints.size() > 0)
-	    return 1;
+	    return true;
 	 else if (torsion_restraints.size() > 0)
-	    return 1;
+	    return true;
 	 else if (start_pos_restraints.size() > 0)
-	    return 1;
+	    return true;
+	 else if (parallel_plane_restraints.size() > 0)
+	    return true;
 	 else 
-	    return 0;
+	    return false;
       }
+      
       void clear() {
 	 bond_restraints.clear();
 	 angle_restraints.clear();
@@ -800,6 +855,8 @@ namespace coot {
 	    torsion_restraints.push_back(r.torsion_restraints[i]);
 	 for (unsigned int i=0; i<r.start_pos_restraints.size(); i++)
 	    start_pos_restraints.push_back(r.start_pos_restraints[i]);
+	 for (unsigned int i=0; i<r.parallel_plane_restraints.size(); i++)
+	    parallel_plane_restraints.push_back(r.parallel_plane_restraints[i]);
       }
       void delete_restraints_for_residue(const residue_spec_t &rs);
       // updates restraint on atom if it can, else adds
@@ -892,9 +949,15 @@ namespace coot {
 
       void filter_non_bonded_by_distance(const std::vector<std::vector<int> > &non_bonded_atom_indices, double dist);
       // don't include bonds which are make to flanking atoms/residues
-      void construct_non_bonded_contact_list(const bonded_pair_container_t &bpc); // fills filtered_non_bonded_atom_indices;
+      void construct_non_bonded_contact_list(const bonded_pair_container_t &bpc,
+					     const coot::protein_geometry &geom); // fills filtered_non_bonded_atom_indices;
       // which uses
-      void construct_non_bonded_contact_list_by_res_vec(const bonded_pair_container_t &bpc);
+      void construct_non_bonded_contact_list_by_res_vec(const bonded_pair_container_t &bpc,
+							const coot::protein_geometry &geom);
+      // and
+      void construct_nbc_for_moving_non_moving_bonded(unsigned int i, unsigned int j, const std::string &link_type, const coot::protein_geometry &geom);
+      // (which modifies (adds to) filtered_non_bonded_atom_indices).
+
       // or 
       void construct_non_bonded_contact_list_conventional();
       // to make
@@ -919,7 +982,7 @@ namespace coot {
       PCResidue previous_residue;
       PCResidue next_residue;
       
-      short int verbose_geometry_reporting;
+      bool verbose_geometry_reporting;
    
       // we will store in here the initial positions as parameters
       // 
@@ -986,6 +1049,8 @@ namespace coot {
       void init_shared_pre(CMMDBManager *mol_in);
 
       void init_shared_post(const std::vector<atom_spec_t> &fixed_atom_specs);
+      // neighbour residues already are fixed.
+      void add_fixed_atoms_from_flanking_residues(const coot::bonded_pair_container_t &bpc);
 
    
       // 
@@ -1061,6 +1126,7 @@ namespace coot {
 	    restraints_vec.back().is_user_defined_restraint = 1;
 	 }
       }
+
       
 
       // used for Ramachandran restraint
@@ -1143,7 +1209,9 @@ namespace coot {
 			const char *alt_loc,
 			int resno,
 			const char *ins_code,
-			const char *chain_id) const; 
+			const char *chain_id) const;
+
+      int get_asc_index(const coot::atom_spec_t &spec) const;      
 
       int add_bonds(int idr, PPCAtom res_selection,
 		    int i_no_res_atoms,
@@ -1362,6 +1430,11 @@ namespace coot {
 			 short int is_fixed_second_res,
 			 const coot::protein_geometry &geom);
 
+      int add_parallel_planes(CResidue *first, CResidue *second,
+			      short int is_fixed_first_res,
+			      short int is_fixed_second_res,
+			      const coot::protein_geometry &geom);
+
       int add_link_plane_tmp(std::string link_type,
 			 PCResidue first, PCResidue second,
 			 short int is_fixed_first_res,
@@ -1369,6 +1442,7 @@ namespace coot {
 			 const coot::protein_geometry &geom);
 
       int make_non_bonded_contact_restraints(const bonded_pair_container_t &bpc, const protein_geometry &geom);
+      void symmetry_non_bonded_contacts(bool p);
       std::vector<std::vector<int> > bonded_atom_indices;
 
       //! Set a flag that we have an OXT and we need to position it
@@ -1686,12 +1760,12 @@ namespace coot {
       refinement_results_t minimize(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
       void fix_chiral_atoms_maybe(gsl_vector *s);
 
-      simple_restraint& operator[](int i) { 
+      simple_restraint& operator[] (unsigned int i) {
 	 return restraints_vec[i]; 
       } 
 
       // because chi_squareds is const:
-      const simple_restraint& operator[](int i) const { 
+      const simple_restraint& operator[] (const unsigned int &i) const { 
 	 return restraints_vec[i]; 
       } 
   
@@ -1710,12 +1784,23 @@ namespace coot {
 			  bool do_rama_plot_retraints, 
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds);
 
-      void add_extra_restraints(const extra_restraints_t &extra_restraints);
+      unsigned int test_function(const coot::protein_geometry &geom);
+      unsigned int inline_const_test_function(const coot::protein_geometry &geom) const {
+	 std::cout << "----- inline_const_test_function() with geom of size : " << geom.size() << std::endl;
+	 std::cout << "    geom ref pointer " << &geom << std::endl;
+	 return geom.size();
+      } 
+      unsigned int const_test_function(const coot::protein_geometry &geom) const;
+
+      void add_extra_restraints(const extra_restraints_t &extra_restraints,
+				const protein_geometry &geom);
       // and that calls:
       void add_extra_bond_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_angle_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_torsion_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_start_pos_restraints(const extra_restraints_t &extra_restraints);
+      void add_extra_parallel_plane_restraints(const extra_restraints_t &extra_restraints,
+					       const protein_geometry &geom);
 
       // old code:
       // Read restraints from the refmac .rst file
@@ -1804,6 +1889,7 @@ namespace coot {
    // this can throw an std::runtime exception
    void multi_residue_torsion_fit_map(CMMDBManager *mol,
 				      const clipper::Xmap<float> &xmap,
+				      int n_trials,
 				      coot::protein_geometry *geom_p); 
    // which calls 
    double get_rand_angle(double current_angle, const torsion_atom_quad &quad, int itrial, int n_trials);

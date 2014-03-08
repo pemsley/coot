@@ -25,7 +25,7 @@
 
 #include <clipper/core/coords.h>
 #include <clipper/core/xmap.h>
-#include "peak-search.hh"
+#include "coot-utils/peak-search.hh"
 
 
 #include "graphics-info.h"

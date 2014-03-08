@@ -49,6 +49,7 @@ using namespace std;
 
     iatom_types=NULL;
     iatom_type_lookup=NULL;
+    doneBiomolecule = false;
 
   }
 
@@ -244,7 +245,6 @@ realtype* CMMUTManager::CentreOfCoordinates(int selHnd) {
 
   int l;
   realtype *com;
-  realtype atweight;
   realtype weight;
 
   weight = 0.0;
@@ -1029,7 +1029,7 @@ realtype CMMUTManager::TorsionAngle(PCAtom A, PCAtom B, PCAtom C, PCAtom D){
 //----------------------------------------------------------------------------
 Boolean CMMUTManager::isMainChain(PCAtom p_atom) {
 //----------------------------------------------------------------------------
-  char *mainchAtoms[5] = { "CA", "N", "C", "O", "HA" };
+  const char *mainchAtoms[5] = { "CA", "N", "C", "O", "HA" };
   if ( NameComparison(p_atom->name,5,mainchAtoms) >= 0 ) {
     return true;
   }
@@ -1050,7 +1050,7 @@ Boolean CMMUTManager::doAltLocMatch ( PCAtom pa1, PCAtom pa2 ) {
 
 
 //---------------------------------------------------------------------------------
-int CMMUTManager::NameComparison ( const char *name , int ntypes , char *types[] ) {
+int CMMUTManager::NameComparison ( const char *name , int ntypes , const char *types[] ) {
 //---------------------------------------------------------------------------------
   //Compare an fixed length char atom/residue/whatever name to a list of
   // variable length strings.  Return the position in the list of any match
@@ -1133,7 +1133,7 @@ const char* CMMUTManager::AtomLabel_chain(PCAtom p_atom) {
 //--------------------------------------------------------------------
 Boolean CMMUTManager::ChainIDisDigit(PCChain p_ch) {
 //--------------------------------------------------------------------
-  char *digits[10] = { "0", "1", "2", "3", "4","5", "6", "7", "8", "9"  };
+  const char *digits[10] = { "0", "1", "2", "3", "4","5", "6", "7", "8", "9"  };
   if ( NameComparison(p_ch->GetChainID(),10,digits) >= 0 ) {
     return true;
   }
@@ -1258,7 +1258,7 @@ int CMMUTManager::ApplyTransform(int selHnd,double rotmat[],
 
 
 //-------------------------------------------------------------------------
-int CMMUTManager::WriteSelection (int selHnd,char *file, char *format) {
+int CMMUTManager::WriteSelection (int selHnd,char *file, const char *format) {
 //-------------------------------------------------------------------------
   PCMMUTManager mmdb2;
   PPCAtom selAtom;
@@ -1683,4 +1683,374 @@ int CMMUTManager::ApplyPDBSecStructure(int model){
   return nhelix+nsheets;
 }
 
+std::string CMMUTManager::SelectionToSCOP(int selHnd){
+  std::string scopString = std::string("");
 
+  PPCResidue selResidues=NULL;
+  PPCChain selChains=NULL;
+  int nResidues;
+  int nChains;
+
+  if ( selHnd >= 0 ) {
+    GetChainTable(GetFirstModelNum(),selChains,nChains);
+    for(int j=0;j<nChains;j++){
+      selResidues=NULL;
+      selChains[j]->GetResidueTable(selResidues,nResidues);
+      int previous=-1;
+      int start=-1;
+      int end=-1;
+      for(int i=0;i<nResidues;i++){
+        if(selResidues[i]->GetAtom(0)->isInSelection(selHnd)){
+          //std::cout << int(selResidues[i]->isAminoacid()) << " " << int(selResidues[i]->isNucleotide()) << "\n";
+          if(previous<0||start<0){
+            start = selResidues[i]->GetSeqNum();
+          }
+          if((i>0)&&(selResidues[i]->GetSeqNum()-previous>1)&&(previous!=end)){
+            //std::cout << "case 1\n";
+            end = previous;
+            std::ostringstream soss;
+            std::ostringstream eoss;
+            soss << start;
+            eoss << end;
+            if(scopString.size()>0){
+              scopString += std::string(",");
+            }
+            scopString += std::string(selChains[j]->GetChainID()) + std::string(":") + soss.str() + std::string("-") + eoss.str();
+            start = selResidues[i]->GetSeqNum();
+          }
+          else if((i<nResidues-1)&&!(selResidues[i+1]->GetAtom(0)->isInSelection(selHnd))){
+            //std::cout << "case 2\n";
+            end = selResidues[i]->GetSeqNum();
+            std::ostringstream soss;
+            std::ostringstream eoss;
+            soss << start;
+            eoss << end;
+            if(scopString.size()>0){
+              scopString += std::string(",");
+            }
+            scopString += std::string(selChains[j]->GetChainID()) + std::string(":") + soss.str() + std::string("-") + eoss.str();
+            start = -1;
+          }
+          if(i==nResidues-1){
+            //std::cout << "case 3\n";
+            end = selResidues[i]->GetSeqNum();
+            std::ostringstream soss;
+            std::ostringstream eoss;
+            soss << start;
+            eoss << end;
+            if(scopString.size()>0){
+              scopString += std::string(",");
+            }
+            scopString += std::string(selChains[j]->GetChainID()) + std::string(":") + soss.str() + std::string("-") + eoss.str();
+          }
+          previous = selResidues[i]->GetSeqNum();
+        }
+      }
+    }
+  }
+
+  return scopString;
+}
+
+PCMMDBManager CMMUTManager::GetCAModel(PCMMDBManager molHnd){
+  CMMDBManager *mmdb2 = new CMMDBManager();
+
+  PPCAtom calphas = NULL;
+  int nCalphas;
+  for(int i=0;i<molHnd->GetNumberOfModels();i++){
+    std::cout << "Number of chains: " << molHnd->GetModel(i+1)->GetNumberOfChains() << "\n";
+    PCModel model = new CModel();
+    mmdb2->AddModel(model);
+    for(int j=0;j<molHnd->GetModel(i+1)->GetNumberOfChains();j++){
+      //PCChain chain2 = new CChain();
+      //model->AddChain(chain2);
+      PCChain chain = molHnd->GetChain ( i+1, j );
+      PCChain chain2 = model->GetChainCreate(chain->GetChainID(),True);
+      //chain2->SetChainID(chain->GetChainID());
+      PCAtom atom = chain->GetResidue(0)->GetAtom(0);
+      atom->GetChainCalphas(calphas,nCalphas);
+      for (int ic=0;ic<nCalphas;ic++){
+        PCResidue res = new CResidue();
+        PCAtom at2 = new CAtom();
+        strncpy(res->name,calphas[ic]->GetResidue()->name,20);
+        res->seqNum = calphas[ic]->GetResidue()->seqNum;
+        strncpy(res->insCode,calphas[ic]->GetResidue()->insCode,10);
+        at2->Copy(calphas[ic]);
+        res->AddAtom(at2);
+        chain2->AddResidue(res);
+      }
+    }
+  }
+  if (calphas) delete [] calphas;
+
+  return mmdb2;
+}
+
+std::vector<matrix> CMMUTManager::GetBiomoleculeAsMatrices(int nBiomol,int nModel){
+
+  if(doneBiomolecule)
+    return biomatrices;
+
+  doneBiomolecule = true;
+  ParseBiomolecules();
+  //std::cout << "ParseBiomolecules() return code " << RC << "\n";
+
+  int nbiomol = GetNofBiomolecules();
+  //int nmodel = GetNumberOfModels();
+
+  //std::cout << "nbiomol: " << nbiomol << ", nmodels: " << nmodel << "\n";
+
+  if(nbiomol==0)
+    return biomatrices;
+
+  CMMDBManager *biomol;
+  biomol = MakeBiomolecule(nBiomol,nModel);
+
+  PPCBiomolecule biomols=NULL;
+  int nbiomols;
+  
+  GetBiomolecules(biomols,nbiomols);
+
+  //std::cout << "GetBiomolecules returns " << nbiomols << " biomols\n";
+
+  // FIXME Need to be much cleverer than this, probably. Applying all transformations
+  // to all chains which is almost certainly incorrect.
+ 
+  for(int i=0;i<nbiomols;i++){
+    //std::cout << "GetBiomolecules returns " << biomols[i]->nBMAs << " biomol applies\n";
+    for(int j=0;j<biomols[i]->nBMAs;j++){
+      PCBMApply bmapply = biomols[i]->BMApply[j];
+      //std::cout << "This biomol has " << bmapply->nChains << " and " << bmapply->nMatrices << " biomatrices\n";
+      for(int k=0;k<bmapply->nMatrices;k++){
+        matrix mat(4,4);
+        mat(0,0) =  bmapply->tm[k][0][0];
+        mat(0,1) =  bmapply->tm[k][0][1];
+        mat(0,2) =  bmapply->tm[k][0][2];
+        mat(0,3) =  bmapply->tm[k][0][3];
+        mat(1,0) =  bmapply->tm[k][1][0];
+        mat(1,1) =  bmapply->tm[k][1][1];
+        mat(1,2) =  bmapply->tm[k][1][2];
+        mat(1,3) =  bmapply->tm[k][1][3];
+        mat(2,0) =  bmapply->tm[k][2][0];
+        mat(2,1) =  bmapply->tm[k][2][1];
+        mat(2,2) =  bmapply->tm[k][2][2];
+        mat(2,3) =  bmapply->tm[k][2][3];
+        mat(3,0) =  bmapply->tm[k][3][0];
+        mat(3,1) =  bmapply->tm[k][3][1];
+        mat(3,2) =  bmapply->tm[k][3][2];
+        mat(3,3) =  bmapply->tm[k][3][3];
+        //std::cout << mat << "\n\n";
+        biomatrices.push_back(mat);
+      }
+    }
+  }
+
+  delete biomol;
+
+  return biomatrices;
+
+}
+
+int CMMUTManager::GenerateTransformedChain(const char *chainID, realtype *vmat, CMMDBManager *molHnd2){
+  PPCAtom selAtoms=0;
+  int nAtoms;
+  int selHnd = NewSelection();
+  SelectAtoms(selHnd, 0,chainID,ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_OR );
+  int nSelAtoms;
+  GetSelIndex(selHnd,selAtoms,nSelAtoms);
+
+  if(nSelAtoms==0){
+    return nSelAtoms;
+  }
+
+  mat44 TMatrix;
+  mat44 TMatrixT;
+
+  TMatrixT[0][0] = 1;
+  TMatrixT[1][1] = 1;
+  TMatrixT[2][2] = 1;
+  TMatrixT[3][3] = 1;
+  TMatrixT[0][1] = 0;
+  TMatrixT[0][2] = 0;
+  TMatrixT[1][0] = 0;
+  TMatrixT[1][2] = 0;
+  TMatrixT[2][0] = 0;
+  TMatrixT[2][1] = 0;
+  TMatrix[0][3] = 0;
+  TMatrix[1][3] = 0;
+  TMatrix[2][3] = 0;
+  TMatrix[3][0] = 0;
+  TMatrix[3][1] = 0;
+  TMatrix[3][2] = 0;
+  TMatrix[3][3] = 1;
+  int kk = 0;
+  for (int ii = 0;ii<4;ii++) {
+    for (int jj = 0;jj<4;jj++) {
+      if(ii<3&&jj<3){
+        TMatrix[jj][ii] = vmat[kk];
+      }else {
+        TMatrixT[ii][jj] = vmat[kk];
+      }
+      kk++;
+    }
+  }
+  TMatrixT[3][3] = 1;
+
+  PPCAtom trans_selection = new PCAtom[nSelAtoms];
+
+  PCChain pcchain = molHnd2->GetModel(1)->GetChainCreate(chainID, true); //FIXME - all models?
+  PCResidue res = new CResidue();
+  
+  res->seqNum = selAtoms[0]->residue->seqNum;
+  res->index  = selAtoms[0]->residue->index;
+  strcpy ( res->name   ,selAtoms[0]->residue->name    );
+  strcpy ( res->insCode,selAtoms[0]->residue->insCode );
+  res->SSE    = selAtoms[0]->residue->SSE;
+  pcchain->AddResidue(res);
+  
+  trans_selection[0] = new CAtom;
+  trans_selection[0]->Copy(selAtoms[0]);
+  trans_selection[0]->Transform(TMatrix);
+  trans_selection[0]->Transform(TMatrixT);
+  res->AddAtom(trans_selection[0]);
+
+  for (int ii=1; ii<nSelAtoms; ii++) {
+      if(selAtoms[ii]->residue->index!=selAtoms[ii-1]->residue->index){
+        res = new CResidue();
+        res->seqNum = selAtoms[ii]->residue->seqNum;
+        res->index  = selAtoms[ii]->residue->index;
+        strcpy ( res->name   ,selAtoms[ii]->residue->name    );
+        strcpy ( res->insCode,selAtoms[ii]->residue->insCode );
+        res->SSE    = selAtoms[ii]->residue->SSE;
+        pcchain->AddResidue(res);
+      }
+      trans_selection[ii] = new CAtom;
+      trans_selection[ii]->Copy(selAtoms[ii]);
+      trans_selection[ii]->Transform(TMatrix);
+      trans_selection[ii]->Transform(TMatrixT);
+      res->AddAtom(trans_selection[ii]);
+  }
+
+  molHnd2->FinishStructEdit();
+
+  return nSelAtoms;
+}
+
+int CMMUTManager::RemoveSmallHelices(int model,int minHelices){
+  PPCAtom selAtoms,atomTable;
+  PPCResidue resTable;
+  int nres;
+  for ( int ic = 0; ic < GetNumberOfChains(1) ; ic++ ) {
+    int helix_start=-1;
+    int nhelix = 0;
+    bool inHelix=false;
+    resTable = NULL;
+    GetResidueTable(1,ic,resTable,nres);
+    for(int ires=0;ires<nres;ires++){
+      if((int)resTable[ires]->SSE==(int)SSE_Helix){
+        if(!inHelix){
+          helix_start = ires;
+        }
+        inHelix=true;
+        nhelix++;
+        if(ires>0&&resTable[ires-1]&&resTable[ires-1]->GetSeqNum()==resTable[ires]->GetSeqNum()){
+          nhelix--;
+        }
+      }else{
+        if(inHelix){
+          if(nhelix<minHelices){
+            for(int iresfix=helix_start;iresfix<nres&&iresfix<helix_start+nhelix;iresfix++){
+              resTable[iresfix]->SSE = SSE_None;
+            }
+          }
+        }
+        inHelix=false;
+        nhelix=0;
+      }
+    }
+  }
+  return 0;
+}
+
+void  CMMUTManager::SelectAminoNotHet ( int selHnd, int selType, int iModel, cpstr Chains, int ResNo1, cpstr Ins1,
+                                        int ResNo2, cpstr Ins2, cpstr RNames, cpstr ANames, cpstr Elements, cpstr altLocs, int selKey ){
+  int aminoSel = NewSelection();
+
+  Select(aminoSel,selType,iModel,Chains,ResNo1,Ins1,ResNo2,Ins2,RNames,ANames,Elements,altLocs,SKEY_NEW);
+
+  if(selType==STYPE_RESIDUE){
+    int nSelRes;
+    PPCResidue selRes;
+    GetSelIndex(aminoSel,selRes,nSelRes);
+    for(int ires=0;ires<nSelRes;ires++){
+      if(selRes[ires]&&selRes[ires]->nAtoms>0&&(strncmp(selRes[ires]->name,"MSE",3)==0)){
+        continue;
+      }
+      if(selRes[ires]&&selRes[ires]->nAtoms>0&&selRes[ires]->GetAtom(0)){
+        if(selRes[ires]->GetAtom(0)->Het){
+          SelectResidue(aminoSel,selRes[ires],STYPE_RESIDUE,SKEY_CLR,false);
+        }
+      }
+    }
+    MakeSelIndex(aminoSel);
+  }else if(selType==STYPE_ATOM){
+    int nSelAtoms;
+    PPCAtom selAtoms;
+    GetSelIndex(aminoSel,selAtoms,nSelAtoms);
+    for(int iat=0;iat<nSelAtoms;iat++){
+      if(selAtoms[iat]){
+        if(selAtoms[iat]->Het&&(strncmp(selAtoms[iat]->residue->name,"MSE",3)!=0)){
+          SelectAtom(aminoSel,selAtoms[iat],SKEY_CLR,false);
+        }
+      }
+    }
+    MakeSelIndex(aminoSel);
+  }
+  // else do nothing ... Should we do STYPE_CHAIN and STYPE_MODEL?
+
+  Select(selHnd,selType,aminoSel,selKey);
+
+  DeleteSelection(aminoSel);
+}
+
+bool CMMUTManager::isPeptideBound(PCResidue res){
+  if(res->nAtoms==0)
+    return false;
+  PCAtom cat = res->GetAtom(" C"," C","*");
+  if(!cat)
+    return false;
+  SAtomBond *AtomBond;
+  int nAtomBonds;
+  cat->GetBonds ( AtomBond, nAtomBonds);
+  for (int i=0;i<nAtomBonds;i++) {
+    if(AtomBond[i].atom->residue&&AtomBond[i].atom->residue->seqNum!=res->seqNum)
+      return true;
+  }
+  PCAtom nat = res->GetAtom(" N"," N","*");
+  if(!nat)
+    return false;
+  nat->GetBonds ( AtomBond, nAtomBonds);
+  for (int i=0;i<nAtomBonds;i++) {
+    if(AtomBond[i].atom->residue&&AtomBond[i].atom->residue->seqNum!=res->seqNum)
+      return true;
+  }
+  return false;
+}
+
+bool CMMUTManager::isNTerminusBound(PCResidue res){
+  if(res->nAtoms==0)
+    return false;
+  PCAtom cat = res->GetAtom(" C"," C","*");
+  if(cat->isNTerminus())
+    return true;
+  if(!cat)
+    return false;
+  SAtomBond *AtomBond;
+  int nAtomBonds;
+  cat->GetBonds ( AtomBond, nAtomBonds);
+  for (int i=0;i<nAtomBonds;i++) {
+    if(AtomBond[i].atom->isNTerminus())
+      return true;
+  }
+  return false;
+}

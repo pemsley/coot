@@ -26,8 +26,12 @@
 #include "clipper/core/coords.h"
 #include "clipper/core/xmap.h"
 #include "clipper/core/hkl_data.h"
+#include "clipper/contrib/sfcalc_obs.h"
 #include "coot-coord-utils.hh"
 #include <mmdb/mmdb_manager.h>
+
+// for asc.  unclean
+#include "coords/mmdb-extras.h"
 
 namespace coot {
 
@@ -149,6 +153,9 @@ namespace coot {
 
       clipper::Xmap<float> laplacian_transform(const clipper::Xmap<float> &xmap_in);
 
+      std::vector<float> density_map_points_in_sphere(clipper::Coord_orth pt, float radius,
+						      const clipper::Xmap<float> &xmap_in);
+
       // pass a negative atom_selection to build an atom map for the whole molecule
       // 
       clipper::Xmap<float> calc_atom_map(CMMDBManager *mol,
@@ -236,7 +243,21 @@ namespace coot {
       // factor of the input map)
       // 
       clipper::Xmap<float> reinterp_map_fine_gridding(const clipper::Xmap<float> &xmap);
-  
+
+      // make a copy of map_in, but in the cell, spacegroup and gridding of reference_map
+      clipper::Xmap<float> reinterp_map(const clipper::Xmap<float> &xmap_in,
+					const clipper::Xmap<float> &reference_xmap);
+
+      class map_fragment_info_t {
+      public:
+	 clipper::Xmap<float> xmap;
+	 clipper::Coord_grid offset;
+      };
+      map_fragment_info_t
+      map_from_map_fragment(const clipper::Xmap<float> &xmap,
+			    const clipper::Coord_orth &centre,
+			    float radius);
+
       // 
       //
       class residue_triple_t {

@@ -23,14 +23,14 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "Cartesian.h"
-#include "mmdb-extras.h"
-#include "mmdb-crystal.h" // for atom_selection_container_t usage
+#include "coords/Cartesian.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb-crystal.h" // for atom_selection_container_t usage
 
-#include "coot-utils.hh"
-#include "coot-coord-utils.hh"
-#include "coot-map-utils.hh"
-#include "dunbrack.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
+#include "ligand/dunbrack.hh"
 #include "sequence-assignment.hh"
 
 

@@ -19,7 +19,7 @@
  */
 
 #include "clipper/core/nxmap.h"
-#include "CXXSurface.h"
+#include "surface/CXXSurface.h"
 
 namespace coot {
 

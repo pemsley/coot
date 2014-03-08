@@ -22,7 +22,7 @@
 #ifndef MMDB_H
 #define MMDB_H
 
-#include "lbg-molfile.hh"
+#include "lidia-core/lbg-molfile.hh"
 
 // needs to have included mmdb_manager.h"
 // and "mmdb-extras.h" for atom_selection_container_t
@@ -73,9 +73,9 @@ ostream& operator<<(ostream& s, PCAtom atom);
 namespace coot { 
   // mdl mol file support
   atom_selection_container_t mdl_mol_to_asc(const lig_build::molfile_molecule_t &m);
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
   atom_selection_container_t mol_to_asc_rdkit(const std::string &file_name);
-#endif // MAKE_ENTERPRISE_TOOLS
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 } 
 
 

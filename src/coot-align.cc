@@ -6,8 +6,8 @@
 
 #include <mmdb/mmdb_align.h>
 #include <mmdb/mmdb_tables.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
 #include "coot-align.hh"
 
 void
@@ -17,9 +17,6 @@ coot::chain_mutation_info_container_t::rationalize_insertions() {
    //
    // We have a list of single insertions.  We want to move the single
    // insertions to a set of insertion ranges.
-
-   std::cout << "There are " << single_insertions.size() << " single_insertions"
-	     << std::endl;
 
    if (single_insertions.size() > 0) {
 
@@ -125,16 +122,16 @@ std::string
 coot::chain_mutation_info_container_t::get_residue_type(const residue_spec_t &spec) const {
 
    std::string r;
-   bool found = 0;
+   bool found = false;
    
    for (unsigned int ispec=0; ispec<single_insertions.size(); ispec++) { 
       if (spec == single_insertions[ispec].first) {
 	 r = single_insertions[ispec].second;
-	 found = 1;
+	 found = true;
 	 break;
       }
    }
-   if (found == 0) {
+   if (! found) {
       // try a mutation then
       for (unsigned int imut=0; imut<mutations.size(); imut++) {
 	 if (spec == mutations[imut].first) {
@@ -144,11 +141,24 @@ coot::chain_mutation_info_container_t::get_residue_type(const residue_spec_t &sp
 	 } 
       }
    }
-   if (found == 0) 
+   if (! found) 
       throw std::runtime_error("no alignment match");
 
    return r;
 }
+
+double
+coot::chain_mutation_info_container_t::dissimilarity_score() const {
+
+   double s = 0;
+   std::cout << "   dissimilarity_score: " << single_insertions.size() << " + "
+	     << deletions.size() << " + " << 0.5 * mutations.size() << std::endl;
+   s += single_insertions.size();
+   s += deletions.size();
+   s += 0.5 * mutations.size();
+   return s;
+}
+
 
 
 std::ostream& coot::operator<<(std::ostream &s, coot::mutate_insertion_range_info_t &r) {
@@ -159,3 +169,5 @@ std::ostream& coot::operator<<(std::ostream &s, coot::mutate_insertion_range_inf
       s << " " << r.types[t];
    return s;
 }
+
+

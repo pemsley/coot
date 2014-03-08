@@ -66,7 +66,7 @@ class molecule_extents_t {
 
  public:
 
-   molecule_extents_t(PPCAtom SelAtoms, int nSelAtoms); 
+   molecule_extents_t(CAtom** SelAtoms, int nSelAtoms); 
    ~molecule_extents_t();
    Cartesian get_front(); 
    Cartesian get_back(); 
@@ -80,14 +80,14 @@ class molecule_extents_t {
       //coord_to_unit_cell_translations(Cartesian point,
 				      //atom_selection_container_t AtomSel); 
 
-   std::vector<symm_trans_t> which_box_contacts(Cartesian point,PCMMANManager molhnd, int selHnd, Cartesian tl, Cartesian tr, Cartesian br, Cartesian bl, float radius);
-   std::vector<symm_trans_t> which_box(Cartesian point,PCMMANManager molhnd, PPCAtom SelAtoms, int nSelAtoms, Cartesian tl, Cartesian tr, Cartesian br, Cartesian bl, float radius);
-   std::vector<symm_trans_t> GetUnitCellOps(PCMMANManager molhnd, int xshifts, int yshifts, int zshifts) ;
+   std::vector<symm_trans_t> which_box_contacts(Cartesian point,CMMANManager* molhnd, int selHnd, Cartesian tl, Cartesian tr, Cartesian br, Cartesian bl, float radius);
+   std::vector<symm_trans_t> which_box(Cartesian point,CMMANManager* molhnd, CAtom** SelAtoms, int nSelAtoms, Cartesian tl, Cartesian tr, Cartesian br, Cartesian bl, float radius);
+   std::vector<symm_trans_t> GetUnitCellOps(CMMANManager* molhnd, int xshifts, int yshifts, int zshifts) ;
 
-   PPCAtom trans_sel(CMMDBCryst *my_cryst, symm_trans_t symm_trans) const;
+   CAtom** trans_sel(CMMDBCryst *my_cryst, symm_trans_t symm_trans) const;
 
-   bool point_is_in_box(Cartesian point, PPCAtom TransSel) const;
-   bool point_is_near_centre_of_box(Cartesian point, PPCAtom TransSel, float radius) const;
+   bool point_is_in_box(Cartesian point, CAtom** TransSel) const;
+   bool point_is_near_centre_of_box(Cartesian point, CAtom** TransSel, float radius) const;
 
 };
 
@@ -116,19 +116,19 @@ class Symmetry {
     PCMMDBCryst my_cryst_p;
     std::vector<PPCAtom> symmetries;
     void clear_symmetries();
-    void init(CMMANManager *molhnd_in, PPCAtom SelAtoms_in, int nSelAtoms_in, Cartesian point_in, Cartesian tl_in, Cartesian tr_in, Cartesian br_in, Cartesian bl_in, int draw_unit_cell=0, int xshifts=0, int yshifts=0, int zshifts=0, float radius=50, int draw_contacts=0);
+    void init(CMMANManager *molhnd_in, CAtom** SelAtoms_in, int nSelAtoms_in, Cartesian point_in, Cartesian tl_in, Cartesian tr_in, Cartesian br_in, Cartesian bl_in, int draw_unit_cell=0, int xshifts=0, int yshifts=0, int zshifts=0, float radius=50, int draw_contacts=0);
   public:
     Symmetry(CMMANManager *molhnd_in, int selHnd_in, Cartesian point_in, Cartesian tl_in, Cartesian tr_in, Cartesian br_in, Cartesian bl_in, int draw_unit_cell=0, int xshifts=0, int yshifts=0, int zshifts=0, float radius=50, int draw_contacts=0);
     ~Symmetry();
-    PPCAtom trans_sel(const symm_trans_t &symm_tran) const;
+    CAtom** trans_sel(const symm_trans_t &symm_tran) const;
     void AddSymmetry(float symm_distance);
-    std::vector<PPCAtom> GetSymmetries();
+    std::vector<CAtom**> GetSymmetries();
     std::vector<symm_trans_t> GetSymmTrans(void){return symm_trans;};
 
     std::vector<matrix> GetSymmetryMatrices() const;
     std::vector<int> GetSymmetryMatrixNumbers() const;
     std::vector<Cartesian> GetUnitCell() const;
-    PPCAtom GetSymmetry(int nsym);
+    CAtom** GetSymmetry(int nsym);
     unsigned int GetNumSymmetries();
     realtype ExtentSize();
     realtype* Extent();

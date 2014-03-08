@@ -109,7 +109,9 @@ EXTRA_DIST = \
 	mol-hierachy.cc coot.py  coot_gtk2.py \
 	junk.cc coot.defs coot-dox.cfg post-gtk2-glade.sh \
         post-process-coot-wrap-guile.sh \
-        post-process-coot-wrap-python.sh
+        post-process-coot-wrap-python.sh \
+	coot_wrap_guile_pre_gtk2.cc 
+
 
 
 
@@ -121,8 +123,9 @@ coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/coot.i           \
                              $(top_srcdir)/src/lbg-interface.hh \
                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
-                             $(top_srcdir)/src/sdf-interface.hh
-	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENTERPRISE_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -guile -c++  $(top_srcdir)/src/coot.i
+                             $(top_srcdir)/src/sdf-interface.hh \
+                             $(top_srcdir)/src/c-interface-mogul.hh
+	swig -o $@ -DCOOT_USE_GTK2_INTERFACE -DTHIS_IS_SWIG $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -I$(top_srcdir) -guile -c++  $(top_srcdir)/src/coot.i
 
 # For GOOPS support: -proxy -Linkage module (or passive), however, doing that makes SWIG_init() go away.
 
@@ -131,8 +134,14 @@ coot_wrap_guile_gtk2.cc: coot_wrap_guile_pre_gtk2.cc
 
 # python
 
-coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h $(top_srcdir)/src/cc-interface.hh $(top_srcdir)/src/coot.i $(top_srcdir)/src/lbg-interface.hh  $(top_srcdir)/src/sdf-interface.hh
-	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENTERPRISE_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk2.py
+coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h      \
+			      $(top_srcdir)/src/cc-interface.hh    \
+	                      $(top_srcdir)/src/coot.i             \
+			      $(top_srcdir)/src/lbg-interface.hh   \
+                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
+			      $(top_srcdir)/src/sdf-interface.hh   \
+                              $(top_srcdir)/src/c-interface-mogul.hh
+	swig -o $@ -DCOOT_USE_GTK2_INTERFACE -DTHIS_IS_SWIG $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk2.py
 
 coot_wrap_python_gtk2.cc: coot_wrap_python_pre_gtk2.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
@@ -169,6 +178,7 @@ AM_CXXFLAGS = \
 	-DPACKAGE_LOCALE_DIR='"$(pkgdatadir)/locale"' \
 	-DDATADIR='"$(datadir)"'    \
         -DCOOT_SYS_BUILD_TYPE='"$(COOT_SYS_BUILD_TYPE)"' \
+        -DCOOT_BUILD_INFO_STRING='"$(COOT_BUILD_INFO_STRING)"' \
 	$(USE_LIBCURL) 	        \
 	$(WITH_GUILE_CFLAGS)	\
 	$(USE_GUILE_GTK) 	\
@@ -186,37 +196,13 @@ AM_CXXFLAGS = \
 #
 #
 INCLUDES = \
-	-I$(top_srcdir)/compat 		\
-	-I$(top_srcdir)/coords 		\
 	-I$(top_srcdir)/ccp4mg-utils/util	\
 	-I$(top_srcdir)/ccp4mg-utils/mmut	\
 	-I$(top_srcdir)/ccp4mg-utils/pygl	\
 	-I$(top_srcdir)/ccp4mg-utils/mgapp	\
-	-I$(top_srcdir)/utils	        \
-	-I$(top_srcdir)/coot-utils	\
-	-I$(top_srcdir)/protein_db	\
-	-I$(top_srcdir)/intl 		\
-	-I$(top_srcdir)/skeleton	\
-	-I$(top_srcdir)/angles		\
-	-I$(top_srcdir)/db-main		\
-	-I$(top_srcdir)/mini-mol	\
-	-I$(top_srcdir)/ligand		\
-	-I$(top_srcdir)/geometry	\
-	-I$(top_srcdir)/ideal   	\
-	-I$(top_srcdir)/coot-surface	\
-	-I$(top_srcdir)/surface		\
-	-I$(top_srcdir)/density-contour	\
-	-I$(top_srcdir)/build		\
-	-I$(top_srcdir)/high-res	\
-	-I$(top_srcdir)/analysis	\
-	-I$(top_srcdir)/cootilus	\
-	-I$(top_srcdir)/cootaneer	\
-	-I$(top_srcdir)/lidia-core      \
-	-I$(top_srcdir)/libgtkgraph     \
-	-I$(top_srcdir)/goograph        \
-	-I$(top_srcdir)/lbg             \
+	-I$(top_srcdir) \
 	$(RDKIT_CXXFLAGS) 		\
-	$(ENTERPRISE_TOOLS_CFLAGS)      \
+	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK) 		\
 	$(GUILE_GTK_CFLAGS)		\
@@ -234,6 +220,7 @@ INCLUDES = \
 	$(GSL_CFLAGS)			\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(PYGTK_CFLAGS)                 \
+	$(GLOB_CFLAGS)                 \
 	$(CURL_CFLAGS)                 
 
 #	$(WITH_SCRIPT_CFLAGS) 
@@ -288,11 +275,14 @@ coot_real_SOURCES = \
 	c-interface-pisa-gui.cc	 \
 	c-interface-preferences.cc \
 	c-interface-python.hh	 \
+	c-interface-refine.hh	 \
 	c-interface-refine.cc	 \
 	c-interface-residues.cc	 \
 	c-interface-ribbons.cc	 \
 	c-interface-scm.hh	 \
 	c-interface-scm.cc	 \
+	c-interface-sequence.cc  \
+	c-interface-sequence.hh  \
 	c-interface-sfs.cc	 \
 	c-interface-superpose.cc \
 	c-interface-validate.cc	 \
@@ -307,6 +297,7 @@ coot_real_SOURCES = \
 	cc-interface-mogul.hh    \
 	callbacks.c callbacks.h	 \
         canvas-fixes.hh          \
+	cmtz-interface-gui.hh	 \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \
 	command-arg.hh           \
@@ -383,6 +374,7 @@ coot_real_SOURCES = \
 	lbg-interface.cc 	 \
 	molecule-class-info.cc 	 \
 	molecule-class-info-maps.cc 	\
+	molecule-class-info-maps-2.cc 	\
 	molecule-class-info-kdc.cc      \
 	molecule-class-info-dots.cc 	\
 	molecule-class-info-other.cc 	\
@@ -440,6 +432,7 @@ coot_real_SOURCES = \
 
 if COOT_USE_PYTHON
    coot_real_SOURCES += coot_wrap_python_gtk2.cc
+   EXTRA_DIST += coot_wrap_python_pre_gtk2.cc 
 endif
 
 
@@ -466,7 +459,8 @@ fix_nomenclature_errors_LDADD = \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la	  	        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
-        $(RDKIT_LIBS) \
+        $(GLOB_LIBS)		\
+        $(RDKIT_LIBS)		\
 	$(GSL_LIBS)		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)		
@@ -486,6 +480,7 @@ coot_real_LDADD =  $(OPENMP_CFLAGS)     \
 		$(MMDBSSM_LIBS)		\
 		$(MMDB_LIBS)		\
 		$(PYTHON_LIBS)		\
+		$(GLOB_LIBS)		\
 		$(GTKGL_CONTEXT_LIBS) 	\
 		$(GLUT_LIBS)		\
 		$(CANVAS_LIBS) 		\
@@ -538,7 +533,8 @@ test_coot_align_LDADD =	\
 	$(top_builddir)/coot-utils/libcoot-shelx.la  		\
 	$(top_builddir)/utils/libcoot-utils.la  		\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
-        $(RDKIT_LIBS) \
+        $(GLOB_LIBS)		\
+        $(RDKIT_LIBS) 		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)
 
@@ -557,7 +553,8 @@ density_score_by_residue_real_LDADD  =	\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(top_builddir)/compat/libcoot-compat.la  		\
-        $(RDKIT_LIBS) \
+        $(GLOB_LIBS)  		 \
+        $(RDKIT_LIBS) 		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)		\
 	$(GSL_LIBS)

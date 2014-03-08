@@ -1108,7 +1108,7 @@ std::vector<matrix> matrix::Eigen() const{
         maxvals[i]=j;
         maxval=b(i,j);
         if(maxval<0)
-          amaxval =- maxval;
+          amaxval = -maxval;
         else
           amaxval = maxval;
       }
@@ -1146,7 +1146,7 @@ std::vector<matrix> matrix::Eigen() const{
 	if(b(i,j)>amaxval||-b(i,j)>amaxval) {
 	  maxval=b(i,j);
 	  if(maxval<0)
-		  amaxval =- maxval;
+		  amaxval = -maxval;
 	  else
 		  amaxval = maxval;
           //amaxval = fabs(maxval);
@@ -1242,7 +1242,7 @@ std::vector<matrix> matrix::Eigen() const{
             maxvals[i]=j;
             maxval=b(i,j);
             if(maxval<0)
-              amaxval =- maxval;
+              amaxval = -maxval;
             else
               amaxval = maxval;
           }
@@ -1254,7 +1254,7 @@ std::vector<matrix> matrix::Eigen() const{
             maxvals[i]=j;
             maxval=b(i,j);
             if(maxval<0)
-              amaxval =- maxval;
+              amaxval = -maxval;
             else
               amaxval = maxval;
           }

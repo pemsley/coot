@@ -18,9 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-INCLUDES = -I$(top_srcdir)/surface \
-           -I$(top_srcdir)/coot-utils \
-           -I$(top_srcdir)/mini-mol \
+INCLUDES = -I$(top_srcdir) \
            -I$(top_srcdir)/ccp4mg-utils/util \
 	$(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) $(GTKGL_CFLAGS) $(GLUT_CFLAGS)
 
