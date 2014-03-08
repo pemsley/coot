@@ -39,6 +39,7 @@ namespace coot {
    RDKit::RWMol rdkit_mol(CResidue *residue_p, const dictionary_residue_restraints_t &restraints,
 			  const std::string &alt_conf="",
 			  bool undelocalise=true);
+   RDKit::RWMol remove_Hs_and_clean(const RDKit::ROMol m, bool set_aromaticity=false);
    // tinker with mol
    void set_3d_conformer_state(RDKit::RWMol *mol); // hack the setting of 3D state, seems not to
                                                    // be done for mdl files when zs are 0.
