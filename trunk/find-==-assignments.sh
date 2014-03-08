@@ -1,1 +1,1 @@
-grep == */*.cc | egrep -v ': *if'| egrep -v ': *while' | grep -v MAJOR | grep -v // | egrep -v '{$' | egrep -v "  *\(" | grep -v '===' | grep -v std::cout | grep -v coot_wrap | grep -v ccp4mg | grep -v coot-utils/tree | egrep ';'
+grep == */*.cc | egrep -v ':  *if'| egrep -v ':  *while' | grep -v MAJOR | grep -v // | egrep -v '{$' | egrep -v "  *\(" | grep -v '===' | grep -v std::cout | grep -v coot_wrap | grep -v ccp4mg | grep -v coot-utils/tree | egrep ';'
