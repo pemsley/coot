@@ -2056,7 +2056,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 		  comp_id_for_partial_charges = comp_id;
 	       } else {
 		  if (comp_id != comp_id_for_partial_charges) {
-		     comp_id_for_partial_charges == "bad match";
+		     comp_id_for_partial_charges = "bad match";
 		  }
 	       }
 	    }
