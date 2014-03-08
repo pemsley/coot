@@ -29,7 +29,7 @@ class graphics_ligand_atom : public lig_build::atom_t {
 public:
    graphics_ligand_atom(lig_build::pos_t pos_in, std::string ele_in, int formal_charge_in) :
       lig_build::atom_t(pos_in, ele_in, formal_charge_in) {
-      font_colour == "";
+      font_colour = "";
    }
    std::string font_colour;
 

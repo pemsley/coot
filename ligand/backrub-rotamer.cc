@@ -684,8 +684,8 @@ coot::backrub::get_clash_score(const coot::minimol::molecule &a_rotamer,
 	       for (int ires=a_rotamer[ifrag].min_res_no(); ires<=a_rotamer[ifrag].max_residue_number(); ires++) {
 		  for (int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
 		     double dlsq = (a_rotamer[ifrag][ires][iat].pos-atom_sel_atom_pos).lengthsq();
-		     if (dlsq <= 0.0)
-			dlsq == 0.001; 
+		     if (dlsq <= 0.001)
+			dlsq = 0.001; 
 		     if (dlsq < dist_crit_sq) {
 			// We take off  1.0/dist_crit_sq so that the clash score goes to 0 at dist_crit.
 			float extra_clash_score = 100 * (1.0/dlsq - 1.0/dist_crit_sq);

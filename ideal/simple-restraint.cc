@@ -3838,16 +3838,16 @@ coot::restraints_container_t::make_non_bonded_fixed_flags(int index1, int index2
    bool set_1 = 0;
    for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
       if (index1 == fixed_atom_indices[ifixed]) { 
-	 r[0] = 1;
-	 set_0 == 1;
+	 r[0] =  true;
+	 set_0 = true;
 	 break;
       }
    } 
       
    for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
       if (index2 == fixed_atom_indices[ifixed]) { 
-	 r[1] = 1;
-	 set_1 == 1;
+	 r[1] = true;
+	 set_1 = true;
 	 break;
       }
    }

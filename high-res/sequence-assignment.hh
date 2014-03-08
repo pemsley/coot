@@ -159,7 +159,8 @@ namespace coot {
 	 side_chain_name_index convert_slc_to_index(const std::string &code) const;
 	 // and a test to see if the above was valid:
 	 bool is_valid_residue_type(const side_chain_name_index &i) const {
-	    return (i<999 ? 1 : 0);
+	    // return (i<999 ? 1 : 0);  20140308 : what did I mean!?
+	    return true;
 	 }
 	 // isn't auto_fit_score using a CResidue a better fit?
 	 float auto_fit_score(const std::string &chain_id,
