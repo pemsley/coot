@@ -39,7 +39,7 @@ int test_molfile() {
 
 int test_split_molecule() {
    int status = 0;
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    lig_build::molfile_molecule_t mol;
    // mol.read("FPX.mdl");

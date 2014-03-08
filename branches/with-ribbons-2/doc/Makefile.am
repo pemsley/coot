@@ -27,6 +27,9 @@ coot.html: $(top_srcdir)/doc/coot-user-manual.texi
 	makeinfo --html --no-split --force $^
 	makeinfo --html            --force $^
 
+# and similarly for the coot FAQ
+# makeinfo --html --no-split --force coot-faq.texi
+
 coot.dvi: $(top_srcdir)/doc/coot.tex
 	if [ ! -e coot-plain-2.ps ] ; then cp $(top_srcdir)/doc/coot-plain-2.ps . ; fi
 	-latex -interaction=nonstopmode $^

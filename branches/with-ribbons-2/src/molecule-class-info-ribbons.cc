@@ -29,9 +29,9 @@
 #include <iostream>
 #include <vector>
 
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
 // guessing for now as I lost the orig file....
 #include "mman_manager.h"
@@ -114,29 +114,16 @@ molecule_class_info_t::make_ribbons() {
 
   //molHnd = new CMMANManager(s_base, bond_params);
   molHnd = new CMMANManager();
-  //molHnd = new CMMDBManager();
   g_print("BL DEBUG:: reading file %s\n", name_.c_str());
-  //molHnd->ReadCoorFile(name_.c_str());
-  //molHnd->(CMMANManager *)atom_sel.mol;
-  //molHnd = atom_sel.mol;
-  //CMMDBManager* newmol = get_residue_range_as_mol("A", 10, 90);
   molHnd = (CMMANManager*)atom_sel.mol;
-  //molHnd = (CMMANManager*)newmol;
-  //molHnd->SetSBaseAndBondParams(s_base, bond_params);
   int selHnd = molHnd->NewSelection();
 
   molHnd->SelectAtoms(selHnd, 0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_OR );
-  std::cout<<"BL DEBUG:: selHnd " << selHnd <<std::endl;
-  //std::cout<<"BL DEBUG:: no of atoms in molHnd, i.e. selHnd" << molHnd->NumberOfAtoms(selHnd) <<std::endl;
-  //molHnd->GetMolBonds();
-  //molHnd->GetModel(1)->CalcSecStructure(0);
   molHnd->GetModel(1)->CalcSecStructure(0);
-  std::cout<<"BL DEBUG:: gto to here " << selHnd <<std::endl;
   int nSelAtoms;
   PPCAtom selAtoms=0;
 
   molHnd->GetSelIndex(selHnd,selAtoms,nSelAtoms);
-  std::cout<<"BL DEBUG:: gto to here 2 with no sel " << nSelAtoms <<std::endl;
 
   AtomColourVector cv;// = new AtomColourVector();
 
@@ -153,19 +140,6 @@ molecule_class_info_t::make_ribbons() {
   //cmc.SetOneColour (5);
   //cmc.SetMode (1, ONECOLOUR, ONECOLOUR, -1, 0);
   cv = cmc.GetAtomColourVector();
-  std::cout<<"BL DEBUG:: got to here 3 " <<std::endl;
-  for (int i=0;i<10;i++)
-     std::cout << "BL DEBUG:: col i before " << cv.GetRGB(i)[0] << " " <<  cv.GetRGB(i)[1] << " "<< cv.GetRGB(i)[2]<< std::endl;
-  
-  /*
-  for (int i=0;i<cv.size();i++) {
-     cv.GetRGB(i)[0] = cv.GetRGB(i)[0]/255.;
-     cv.GetRGB(i)[1] = cv.GetRGB(i)[1]/255.;
-     cv.GetRGB(i)[2] = cv.GetRGB(i)[2]/255.;
-  }
-  for (int i=0;i<10;i++) 
-  std::cout << "BL DEBUG:: col i after " << cv.GetRGB(i)[0] << " " <<  cv.GetRGB(i)[1] << " "<< cv.GetRGB(i)[2]<< std::endl;
-  */
   
   int spline_accu = 4 + ccp4mg_global_params.GetInt("solid_quality") * 4;
   //SplineInfo sinfo = GetSplineInfo(molHnd, selHnd, cv,
@@ -317,9 +291,7 @@ molecule_class_info_t::make_aniso_spheroids() {
 
   CMolBondParams *bond_params = new CMolBondParams(s_base);
 
-  //molHnd = new CMMANManager(s_base, bond_params);
   molHnd = new CMMANManager();
-  g_print("BL DEBUG:: reading file %s\n", name_.c_str());
   //molHnd->ReadCoorFile(name_.c_str());
   molHnd = (CMMANManager*)atom_sel.mol;
   int selHnd = molHnd->NewSelection();
@@ -330,19 +302,16 @@ molecule_class_info_t::make_aniso_spheroids() {
   PPCAtom selAtoms=0;
 
   molHnd->GetSelIndex(selHnd,selAtoms,nSelAtoms);
-  g_print ("BL DEBUG:: no of atoms: %i\n", nSelAtoms);
 
   AtomColourVector cv;
 
   PCColourSchemes schemes = new CColourSchemes();
   CColourScheme *AtomType = schemes->GetScheme("atomtype");
-  char *atmtyps[7] = { "*"," C"," O", " N", " S"," H"," P" };
-  char *atmcols[7] = { "grey", "yellow", "red", "blue" , "green", "grey","magenta" };
+  const char *atmtyps[7] = { "*"," C"," O", " N", " S"," H"," P" };
+  const char *atmcols[7] = { "grey", "yellow", "red", "blue" , "green", "grey","magenta" };
   //char *atmcols_coot[7] = {};
   std::vector<float> c_col = get_atom_colour_from_element(" C");
-  std::cout << "BL DEBUG:: have atom col C " << c_col[0]<< " " << c_col[1] << " " << c_col[2]<< std::endl;
   std::vector<float> o_col = get_atom_colour_from_element(" O");
-  std::cout << "BL DEBUG:: have atom col O " << o_col[0]<< " " << o_col[1] << " " << o_col[2]<< std::endl;
 
   int RC;
   RC = AtomType->SetSchemeString(7, atmtyps, atmcols);
@@ -364,13 +333,10 @@ molecule_class_info_t::make_aniso_spheroids() {
   //atom_radii = molHnd->GetAtomRadii(selHnd, VDWRADIUS, 1.);
   //cmc.Print();
   cv = cmc.GetAtomColourVector();
-  for (int i=0;i<10;i++) 
-    std::cout << "BL DEBUG:: col i " << cv.GetRGB(i)[0] << " " <<  cv.GetRGB(i)[1] << " "<< cv.GetRGB(i)[2]<< std::endl;
 
   // 1.2 is arbitrary scale, appears to be needed to get to same level... FIXME
   float spheroid_scale = graphics_info_t::show_aniso_atoms_probability / 50. * 1.2;
   
-  g_print ("BL DEBUG:: no of atoms: %i\n", nSelAtoms);
   int aniso_style;
   aniso_style = SPHEROID_SOLID;
   //aniso_style = SPHEROID_AXES;

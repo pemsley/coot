@@ -45,9 +45,9 @@
 #include <string>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
 
 #include "graphics-info.h"
@@ -68,7 +68,7 @@
 
 #include "c-interface.h"
 
-#include "wligand.hh"
+#include "ligand/wligand.hh"
 
 
 
@@ -224,7 +224,7 @@ void execute_find_blobs(int imol_model, int imol_for_map,
 			GtkWidget *button = gtk_button_new_with_label(label.c_str());
 			//	 gtk_widget_ref(button);
 			clipper::Coord_orth *c = new clipper::Coord_orth;
-			*c = lig.big_blobs()[i];
+			*c = lig.big_blobs()[i].first;
 			gtk_signal_connect (GTK_OBJECT(button), "clicked", 
 					    GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
 					    c);
@@ -491,7 +491,7 @@ void find_waters(int imol_for_map,
 			GtkWidget *button = gtk_button_new_with_label(label.c_str());
 			//	 gtk_widget_ref(button);
 			clipper::Coord_orth *c = new clipper::Coord_orth;
-			*c = lig.big_blobs()[i];
+			*c = lig.big_blobs()[i].first;
 			gtk_signal_connect (GTK_OBJECT(button), "clicked", 
 					    GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
 					    c);

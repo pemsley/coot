@@ -28,7 +28,7 @@
 #include <string>
 #include <vector>
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 #ifdef USE_PYTHON
 #include "c-interface-python.hh"

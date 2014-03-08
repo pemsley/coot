@@ -39,6 +39,7 @@
 #include <gtk/gtk.h>
 #include <GL/glut.h> // for glutInit()
 
+#include <clipper/ccp4/ccp4_mtz_io.h>
 
 #include "interface.h"
 #ifndef HAVE_SUPPORT_H
@@ -49,9 +50,9 @@
 #include "read-phs.h"
 #include "read-cif.h"
 
-#include "clipper/ccp4/ccp4_mtz_io.h"
 #include "cmtz-interface.hh"
-#include "coot-utils.hh"
+#include "cmtz-interface-gui.hh"
+#include "utils/coot-utils.hh"
 
 //tmp?
 #include "c-interface.h"
@@ -59,9 +60,7 @@
 
 
 coot::mtz_column_types_info_t
-coot::get_f_phi_columns(const std::string &filename) {
-
-   // std::cout << "DEBUG:: getting f_phi_columns..." << std::endl;
+coot::get_mtz_columns(const std::string &filename) {
 
    coot::mtz_column_types_info_t a;
    a.read_success = 0;
@@ -291,7 +290,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
   if (filename.size() > 0) {
    // get the column labels
    coot::mtz_column_types_info_t *f_phi_columns = new coot::mtz_column_types_info_t;
-   *f_phi_columns = coot::get_f_phi_columns(filename);
+   *f_phi_columns = coot::get_mtz_columns(filename);
    f_phi_columns->mtz_filename = filename;
    const coot::mtz_column_types_info_t &col_labs = *f_phi_columns;
 
@@ -615,31 +614,47 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
 }
 
 
-std::vector<std::string> coot::get_f_cols(const std::string &mtz_file_name) {
+std::vector<std::string>
+coot::get_f_cols(const std::string &mtz_file_name) {
 
    std::vector<std::string> v;
-
+   mtz_column_types_info_t ti = get_mtz_columns(mtz_file_name);
+   for (unsigned int i=0; i<ti.f_cols.size(); i++) { 
+      v.push_back(ti.f_cols[i].column_label);
+   }
    return v;
 }
 
-std::vector<std::string> coot::get_phi_cols(const std::string &mtz_file_name) {
+std::vector<std::string>
+coot::get_phi_cols(const std::string &mtz_file_name) {
 
    std::vector<std::string> v;
-
+   mtz_column_types_info_t ti = get_mtz_columns(mtz_file_name);
+   for (unsigned int i=0; i<ti.phi_cols.size(); i++) { 
+      v.push_back(ti.phi_cols[i].column_label);
+   }
    return v;
 }
 
-std::vector<std::string> coot::get_weight_cols(const std::string &mtz_file_name) {
+std::vector<std::string>
+coot::get_weight_cols(const std::string &mtz_file_name) {
 
    std::vector<std::string> v;
-
+   mtz_column_types_info_t ti = get_mtz_columns(mtz_file_name);
+   for (unsigned int i=0; i<ti.weight_cols.size(); i++) { 
+      v.push_back(ti.weight_cols[i].column_label);
+   }
    return v;
 }
 
-std::vector<std::string> coot::get_d_cols(const std::string &mtz_file_name) {
+std::vector<std::string>
+coot::get_d_cols(const std::string &mtz_file_name) {
 
    std::vector<std::string> v;
-
+   mtz_column_types_info_t ti = get_mtz_columns(mtz_file_name);
+   for (unsigned int i=0; i<ti.d_cols.size(); i++) { 
+      v.push_back(ti.d_cols[i].column_label);
+   }
    return v;
 }
 
@@ -996,7 +1011,7 @@ coot::column_selector_using_cmtz(const std::string &filename) {
    // We use this indirection because f_phi_columns gets attached to
    // the column chooser dialog
    coot::mtz_column_types_info_t *f_phi_columns = new coot::mtz_column_types_info_t;
-   *f_phi_columns = coot::get_f_phi_columns(filename);
+   *f_phi_columns = coot::get_mtz_columns(filename);
    f_phi_columns->mtz_filename = filename;
 
 //    std::cout << "DEBUG:: in column_selector_using_cmtz got read success of "
@@ -1007,7 +1022,16 @@ coot::column_selector_using_cmtz(const std::string &filename) {
       is_phs = try_read_phs_file(filename.c_str()); /* Try reading the data file 
 						   as an XtalView .phs file */ 
       if (is_phs == 0) { 
-	 is_cif = try_read_cif_file(filename.c_str()); 
+	 int imol_new = try_read_cif_file(filename.c_str());
+
+	 if (coot::util::file_name_extension(filename) == ".fcf") { 
+	    if (is_valid_map_molecule(imol_new)) {
+	       graphics_info_t g;
+	       g.scroll_wheel_map = imol_new;  // change the current scrollable map.
+	       g.activate_scroll_radio_button_in_display_manager(imol_new);
+	    }
+	 }
+	 
 
 	 // This no longer makes sense given that
 	 // try_read_cns_data_file takes an imol argument also now.

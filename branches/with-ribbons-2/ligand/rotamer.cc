@@ -25,13 +25,13 @@
 #include <fstream>
 #include <stdexcept>
 
+#include "compat/coot-sysdep.h"
+
 #include "rotamer.hh"
-#include "mgtree.h"
+#include "ccp4mg-utils/mgtree.h"
 
-#include "coot-utils.hh"
-#include "coot-coord-extras.hh"
-
-#include "coot-sysdep.h"
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-extras.hh"
 
 
 std::ostream &

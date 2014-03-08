@@ -1,12 +1,11 @@
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #ifdef USE_PYTHON
 
 #include <boost/python.hpp>
-using namespace boost::python;
 
 #include "qed-interface.hh"
-#include "rdkit-interface.hh"
+#include "lidia-core/rdkit-interface.hh"
 
 
 // try to get the python function, or set it to null.

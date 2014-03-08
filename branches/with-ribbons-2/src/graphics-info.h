@@ -56,36 +56,36 @@
 #include "cwiid.h"
 #endif 
 
-
-#include "Cartesian.h"
-#include "mgtree.h"
-#include "pick.h"
 #include "clipper/core/xmap.h"
 
-#include "coot-sysdep.h"
+#include "coords/Cartesian.h"
+#include "ccp4mg-utils/mgtree.h"
+#include "pick.h"
+
+#include "compat/coot-sysdep.h"
 #include "command-arg.hh"
 
-#include "rotamer.hh"
+#include "ligand/rotamer.hh"
 
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 
 #include "molecule-class-info.h"
 
 #ifdef HAVE_SSMLIB
-#include "ssm_align.h"
+#include <ssm/ssm_align.h>
 #endif
 
-#include "db-main.hh"
-#include "CalphaBuild.hh"
-#include "simple-restraint.hh"
+#include "db-main/db-main.hh"
+#include "build/CalphaBuild.hh"
+#include "ideal/simple-restraint.hh"
 
 #include "history_list.hh"
 #include "sequence-view.hh"
 #include "rama_plot.hh" 
 #include "geometry-graphs.hh"
-#include "coot-utils.hh"
-#include "coot-coord-utils.hh"
-#include "coot-coord-extras.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-coord-extras.hh"
 
 #include "positioned-widgets.h"
 #include "geometry-graphs.hh"
@@ -667,7 +667,7 @@ class graphics_info_t {
    // baton tip (is the baton root)
    static std::vector<clipper::Coord_orth> *baton_previous_ca_positions; // up to 3.
    coot::Cartesian non_skeleton_tip_pos() const; 
-   void baton_next_directions(int imol_for_skel, const CAtom *atom, const coot::Cartesian& pos,
+   void baton_next_directions(int imol_for_skel, CAtom *atom, const coot::Cartesian& pos,
 			      const clipper::Coord_grid &cg_start,
 			      short int use_cg_start);
    coot::Cartesian baton_tip_by_ca_option(int index) const;
@@ -687,12 +687,6 @@ class graphics_info_t {
 
    
    int imol_for_skeleton() const;
-   /* for all the GtkItem:: and GtkTreeItem:: signals */
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-
-   static void residue_tree_view_itemsignal( GtkWidget *item,
-				      gchar     *signame);
-#endif
 
    void create_molecule_and_display(std::vector<coot::scored_skel_coord> &pos_position,
 				    const std::string &molname);
@@ -911,7 +905,7 @@ public:
       geom_p->add_planar_peptide_restraint();
       master_mon_lib_dir = geom_p->saved_mon_lib_dir;
 
-      // geom_p->init_ccp4srs("srsdata"); // overridden by COOT_CCP4SRS_DIR and CCP4_LIB
+      geom_p->init_ccp4srs("srsdata"); // overridden by COOT_CCP4SRS_DIR and CCP4_LIB
 
       // rotamer probabilitiles
       // guess we shall rather use COOT_DATA_DIR and only as fallback PKGDATADIR?!
@@ -1782,6 +1776,7 @@ public:
    // 1: ask to run it
    // 2: alwasy run it
    static short int run_state_file_status; 
+   static bool state_file_was_run_flag;
 
    // Go To Atom 
    // 
@@ -1827,16 +1822,16 @@ public:
    void update_go_to_atom_window_on_other_molecule_chosen(int imol);
    int update_go_to_atom_molecule_on_go_to_atom_molecule_deleted(); // return new gotoatom mol
    int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget);
-#if (GTK_MAJOR_VERSION == 1) || defined (GTK_ENABLE_BROKEN)
-   static void fill_go_to_atom_atom_list_gtk1(GtkWidget *atom_gtklist, int imol,
-					      char *chain_id, int seqno);
-#else
    static void fill_go_to_atom_window_gtk2(GtkWidget *go_to_atom_window,
 					   GtkWidget *residue_tree_scrolled_window,
 					   GtkWidget *atom_list_scrolled_window);
    static void fill_go_to_atom_atom_list_gtk2(GtkWidget *atom_tree, int imol,
 					      char *chain_id, int seqno, char *ins_code);
-#endif
+
+   static void go_to_atom_residue_tree_destroy(gpointer data);
+   static void go_to_atom_list_destroy(gpointer data);
+
+
    static void clear_atom_list(GtkWidget *atom_gtklist); 
    static void fill_go_to_atom_residue_list_gtk1(GtkWidget *gtklist);
    static void fill_go_to_atom_residue_tree_and_atom_list_gtk2(int imol, 
@@ -1935,6 +1930,7 @@ public:
    CAtom *find_atom_in_moving_atoms(const coot::atom_spec_t &at) const;
 
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick() const;
+   coot::Symm_Atom_Pick_Info_t symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const;
 
    // map skeletonization level (and (different widget) boxsize). 
    //
@@ -2263,7 +2259,6 @@ public:
    // save the master monomer library dictionary somewhere
    static std::string master_mon_lib_dir;
 
-
    static int residue_selection_flash_frames_number;
 
    // scripting
@@ -2287,6 +2282,7 @@ public:
    // sequence view
    static GtkWidget **sequence_view_is_displayed;
    void set_sequence_view_is_displayed(GtkWidget *seq_view_canvas, int imol);
+   static int nsv_canvas_pixel_limit;
 
    // Geometry Graphs:
 
@@ -2508,8 +2504,9 @@ public:
    void display_geometry_angle() const;
    double get_geometry_torsion() const;
    void display_geometry_torsion() const;
-   void display_geometry_distance_symm(int imol1, const coot::Cartesian &p1, 
-				       int imol2, const coot::Cartesian &p2);
+   // return the distance
+   double display_geometry_distance_symm(int imol1, const coot::Cartesian &p1, 
+					 int imol2, const coot::Cartesian &p2);
    //
    void pepflip();
 
@@ -2576,7 +2573,7 @@ public:
 
    void execute_add_terminal_residue(int imol, 
 				     const std::string &terminus,
-				     const CResidue *res_p,
+				     CResidue *res_p,
 				     const std::string &chain_id, 
 				     const std::string &res_type,
 				     short int immediate_addition_flag);
@@ -3226,7 +3223,7 @@ public:
 #if (GTK_MAJOR_VERSION > 1)
    void set_directory_for_filechooser_string(std::string filename);
    void set_directory_for_saving_for_filechooser_string(std::string filename);
-#endif // GKT_MAJOR_VERSION
+#endif // GTK_MAJOR_VERSION
    static int file_selection_dialog_x_size;
    static int file_selection_dialog_y_size; 
 
@@ -3312,7 +3309,7 @@ public:
 				      short int move_copy_of_imol2_flag);
 
 #ifdef HAVE_SSMLIB
-   void print_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+   void print_ssm_sequence_alignment(ssm::Align *SSMAlign,
 				     atom_selection_container_t asc_ref,
 				     atom_selection_container_t asc_mov,
 				     PCAtom *atom_selection1, 
@@ -3320,7 +3317,7 @@ public:
 				     int n_selected_atoms_1, int n_selected_atoms_2, 
 				     short int move_copy_of_imol2_flag);
 
-   void make_and_print_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+   void make_and_print_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 							 atom_selection_container_t asc_ref,
 							 atom_selection_container_t asc_mov,
 							 PCAtom *atom_selection1, 
@@ -3330,7 +3327,7 @@ public:
    void print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const;
 
    std::pair<std::string, std::string>
-     get_horizontal_ssm_sequence_alignment(CSSMAlign *SSMAlign,
+      get_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 					   atom_selection_container_t asc_ref,
 					   atom_selection_container_t asc_mov,
 					   PCAtom *atom_selection1, PCAtom *atom_selection2,
@@ -3730,6 +3727,7 @@ public:
 
    // --- nudge active residue
    static void nudge_active_residue(guint direction);
+   static void nudge_active_residue_by_rotate(guint direction);
 
    // --- curl handlers
 #ifdef USE_LIBCURL
@@ -3768,6 +3766,9 @@ public:
    // do the symmetry expansion, and it seems that st generates the
    // symmetry-related molecule that we are looking at now).
    int unapply_symmetry_to_view(int imol, const std::vector<std::pair<clipper::RTop_orth, clipper::Coord_orth> > &symm_mat_and_pre_shift);
+
+   // 
+   int move_reference_chain_to_symm_chain_position();
 
 
 #ifdef USE_MYSQL_DATABASE
@@ -3892,6 +3893,11 @@ string   static std::string sessionid;
 
    // Mogul (default is 5.0)
    static float mogul_max_badness;
+
+   // place helix here fudge factor (for EM maps?)
+   static float place_helix_here_fudge_factor;
+
+   coot::geometry_distortion_info_container_t geometric_distortions(CResidue *residue_p);
 
 };
 

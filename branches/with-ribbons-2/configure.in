@@ -28,7 +28,7 @@ dnl Process this file with autoconf to produce a configure script.
 # AC_INIT package-name version-number
 AC_INIT(configure.in)
 
-AM_INIT_AUTOMAKE(coot, 0.7.1-pre)
+AM_INIT_AUTOMAKE(coot, 0.8-pre)
 # for old versions of automake
 # AM_CONFIG_HEADER(config.h)
 
@@ -68,11 +68,14 @@ PKG_CHECK_MODULES([GLIB], [glib-2.0])
 
 dnl test for WINDOWS_MINGW
 AM_MINGW_WINDOWS
-dnl Need to build glew for windows only
+dnl Need to build glew for windows only (still true?)
 AM_CONDITIONAL([BUILD_GLEW], [test "$have_windows_mingw" = yes])
-dnl test for LIBPNG (Windows only)
-AM_PATH_LIBPNG
+dnl test for LIBPNG (Windows only - maybe shouif here rather than in macro?)
+if test "$have_windows_mingw" = yes; then
+  AM_PATH_GLOB
+fi
 
+AM_PATH_LIBPNG
 
 
 dnl =========================== crystallographic libraries ================================
@@ -110,7 +113,7 @@ dnl Check for MMDB.
 AM_PATH_MMDB(, [echo Error locating necessary mmdb; exit 1],,)
 
 AM_WITH_MMDBSSM
-# AM_WITH_CCP4SRS
+AM_WITH_CCP4SRS
 
 dnl Check for Clipper.  we exit if clipper is not found.
 #
@@ -141,22 +144,19 @@ AC_SUBST(COOT_GSL_FLAGS)
 
 dnl =========================== GTK, GNOMECANVAS ===========================
 
-AC_ARG_WITH(gtk2, [  use to compile coot with GTK+2],
- coot_gtk2="TRUE", coot_gtk2="FALSE")
-
 coot_gtk2=TRUE
 
-	#  AM_PATH_GTK(2.4.14)
-  PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.12)
-  PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
-  if test -n "$GNOME_CANVAS_CFLAGS" ; then 
-	GNOME_CANVAS_CFLAGS="-DHAVE_GNOME_CANVAS $GNOME_CANVAS_CFLAGS"
-  fi
-  AC_SUBST(GNOME_CANVAS_CFLAGS)
+# AM_PATH_GTK(2.4.14)
+PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.12)
+PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
+if test -n "$GNOME_CANVAS_CFLAGS" ; then 
+   GNOME_CANVAS_CFLAGS="-DHAVE_GNOME_CANVAS $GNOME_CANVAS_CFLAGS"
+fi
+AC_SUBST(GNOME_CANVAS_CFLAGS)
 
-  AM_PATH_GTKGLEXT_1_0(1.0.0,,[exit 1]) 
-  MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
-  AC_SUBST(MAKE_COOTRC_CMD)
+AM_PATH_GTKGLEXT_1_0(1.0.0,,[exit 1]) 
+MAKE_COOTRC_CMD="sed -e 's/\#GTK2 //' "
+AC_SUBST(MAKE_COOTRC_CMD)
 
 
 dnl ============================ OPENGL ===================
@@ -194,22 +194,23 @@ if test "$GOOCANVAS_CFLAGS" != "" ; then
    GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
 fi
 
-AC_ARG_WITH(enterprise-tools, [ --with-enterprise-tools with optional complicated/experimental ligand-related dependencies ],
- coot_enterprise_additions="true",
- coot_enterprise_additions="false")
+AC_ARG_WITH(enhanced-ligand-tools, [ --with-enhanced-ligand-tools with optional complicated/experimental ligand-related dependencies ],
+ coot_enhanced_ligand_additions="true",
+ coot_enhanced_ligand_additions="false")
 
-if test x$coot_enterprise_additions = xtrue ; then
-   ENTERPRISE_TOOLS_CFLAGS="-DMAKE_ENTERPRISE_TOOLS"
+if test x$coot_enhanced_ligand_additions = xtrue ; then
+   ENHANCED_LIGAND_TOOLS_CFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
 else 	
-   ENTERPRISE_TOOLS_CFLAGS=""
+   ENHANCED_LIGAND_TOOLS_CFLAGS=""
 fi
 
-# coot_enterprise_additions=true
-AM_CONDITIONAL(MAKE_ENTERPRISE_TOOLS, test x$coot_enterprise_additions = xtrue)
-AC_SUBST(ENTERPRISE_TOOLS_CFLAGS)
+AM_CONDITIONAL(MAKE_ENHANCED_LIGAND_TOOLS, test x$coot_enterprise_additions = xtrue)
+AC_SUBST(ENHANCED_LIGAND_TOOLS_CFLAGS)
 
 AC_SUBST(RDKIT_CXXFLAGS)
 AC_SUBST(RDKIT_LIBS)
+
+AC_SUBST(COOT_BUILD_INFO_STRING)
 
 
 # #defines for SWIG:
@@ -319,6 +320,7 @@ src/Makefile
 src/coot
 python/coot_load_modules.py
 data/Makefile
+pixmaps/Makefile
 rama-data/Makefile
 auxil/Makefile
 auxil/catcheck/Makefile	

@@ -37,6 +37,19 @@
 #endif
 #define PIBY2 (M_PI * 2)
 
+#if defined (_WIN32) && not defined (WINDOWS_MINGW)
+#define EXAMPLE_DLL __declspec(dllexport)
+void __stdcall EXAMPLE_DLL draw_flat_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false, const bool grey_ribbon_edge=false);
+void __stdcall EXAMPLE_DLL draw_flat_rounded_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
+void __stdcall EXAMPLE_DLL draw_fancy_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
+void __stdcall EXAMPLE_DLL draw_elliptical_ribbon(const std::vector<Cartesian> &vertices, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int quality, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
+#else
+void draw_flat_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false, const bool grey_ribbon_edge=false);
+void draw_flat_rounded_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
+void draw_fancy_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int npoints, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
+void draw_elliptical_ribbon(const std::vector<Cartesian> &vertices, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int quality, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false);
+#endif
+
 bool GetFaceOne(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pvpr){
   bool face_one = true;
   if(spline.size()>3){
@@ -77,7 +90,7 @@ std::vector<Cartesian> get_v_and_vpr(const Cartesian &sp1, const Cartesian &sp2,
 }
 
 
-void draw_flat_rounded_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int nsectors, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour=false){
+void draw_flat_rounded_ribbon(const std::vector<Cartesian> &spline, const std::vector<Cartesian> &pv, const std::vector<Cartesian> &pvpr, int nsectors, int textured, int multicolour, const std::vector<Cartesian> &colour_vector, const bool two_colour){
 
   Cartesian normal;
 

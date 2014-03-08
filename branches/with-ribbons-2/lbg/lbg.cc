@@ -33,7 +33,7 @@
 #include <iomanip>
 #include <algorithm>
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include <RDGeneral/versions.h>
 #include <RDGeneral/FileParseException.h>
 #include <RDGeneral/BadFileException.h>
@@ -66,7 +66,7 @@ lbg(lig_build::molfile_molecule_t mm,
     bool use_graphics_interface_flag,
     bool stand_alone_flag_in,
     int (*get_url_func_pointer_in) (const char *s1, const char *s2),
-    void (*prodrg_import_function_pointer) (std::string file_name),
+    void (*prodrg_import_function_pointer) (std::string file_name, std::string comp_id),
     void (*sbase_import_function_pointer) (std::string comp_id),
     std::string (*get_drug_mdl_file_function_pointer_in) (std::string drug_name)) {
    
@@ -125,12 +125,19 @@ lbg(lig_build::molfile_molecule_t mm,
 	    if (! init_status) {
 	       std::cout << "ERROR:: lbg init failed." << std::endl;
 	    } else {
-	       // happy path
-	       if (use_graphics_interface_flag)
-		  gtk_builder_connect_signals (builder, lbg->canvas);
+
+	       // Happy Path
+	       
+	       gtk_builder_connect_signals (builder, lbg->canvas);
 	       g_object_unref (G_OBJECT (builder));
 	       if (ligand_spec_pair.first)
 		  lbg->set_ligand_spec(ligand_spec_pair.second);
+
+	       CResidue *residue_p = coot::util::get_first_residue(mol);
+	       if (residue_p) {
+		  std::string res_name = residue_p->GetResName();
+		  gtk_label_set_text(GTK_LABEL(lbg->lbg_toolbar_layout_info_label), res_name.c_str());
+	       } 
 	       
 	       widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
 	       lbg->render_from_molecule(wmol);
@@ -199,7 +206,7 @@ GtkWidget *get_canvas_from_scrolled_win(GtkWidget *canvas) {
    return canvas;
 }
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // 
 RDKit::RWMol
 lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
@@ -241,6 +248,7 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
       if (! mol.atoms[iat].is_closed()) { 
 	 RDKit::Atom *at = new RDKit::Atom;
 	 at->setAtomicNum(tbl->getAtomicNumber(mol.atoms[iat].element));
+	 at->setFormalCharge(mol.atoms[iat].charge);
 
 	 // add the name to "at" too here (if you can).
 	 // 
@@ -268,11 +276,11 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	    conf->setAtomPos(at_no, pos);
 	    atom_index[iat] = at_no++;
 	 }
-	 catch (boost::bad_lexical_cast blc) {
+	 catch (const boost::bad_lexical_cast &blc) {
 	    std::cout << "on making atom bad_lexical_cast " << iat << " "
 		      << blc.what() << std::endl;
 	 }
-	 catch (std::exception rte) {
+	 catch (const std::exception &rte) {
 	    std::cout << "on making atom " << iat << " " << rte.what() << std::endl;
 	 }
       } else {
@@ -315,7 +323,7 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 }
 #endif
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 RDKit::Bond::BondType
 lbg_info_t::convert_bond_type(const lig_build::bond_t::bond_type_t &t) const {
 
@@ -344,7 +352,7 @@ lbg_info_t::convert_bond_type(const lig_build::bond_t::bond_type_t &t) const {
 }
 #endif
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 RDKit::Bond::BondDir
 lbg_info_t::convert_bond_dir(const lig_build::bond_t::bond_type_t &t) const {
 
@@ -360,7 +368,7 @@ lbg_info_t::convert_bond_dir(const lig_build::bond_t::bond_type_t &t) const {
 #endif
 
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // this can throw a std::exception
 // 
 std::string
@@ -441,7 +449,7 @@ on_canvas_button_press(GooCanvasItem  *item,
       if (item)
 	 l = static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
    
-#ifdef MAKE_ENTERPRISE_TOOLS      
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS      
       if (spec_p) { 
 	 std::cout << "clicked on " << *spec_p << std::endl;
 	 if (event->type==GDK_2BUTTON_PRESS) { // double click
@@ -468,7 +476,7 @@ on_canvas_button_press(GooCanvasItem  *item,
       } else {
 
 	 bool handled = false;
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 	 handled = l->handle_bond_picking_maybe();
 #endif
 
@@ -566,7 +574,7 @@ on_canvas_motion_new(GooCanvasItem  *item,
       }
    } else {
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
       coot::residue_spec_t *spec_p =
 	 static_cast<coot::residue_spec_t *> (g_object_get_data (G_OBJECT (target_item), "spec"));
       int *add_rep_handle_p =
@@ -1072,7 +1080,8 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
 
 void
 lbg_info_t::update_descriptor_attributes() {
-#ifdef MAKE_ENTERPRISE_TOOLS
+   
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    if (use_graphics_interface_flag) { 
       try {
@@ -1093,14 +1102,12 @@ lbg_info_t::update_descriptor_attributes() {
 	    gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
 			       statusbar_context_id,
 			       status_string.c_str());
-#ifdef MAKE_ENTERPRISE_TOOLS
 	    // QED progress bar
 	    gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), "");
 	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
 	    // alerts
 	    gtk_widget_hide(lbg_alert_hbox);
 	    clear_canvas_alerts();
-#endif	 
 	 }
       }
    }
@@ -1129,7 +1136,7 @@ lbg_info_t::handle_item_delete(GdkEventButton *event) {
    }
 }
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 bool
 lbg_info_t::handle_bond_picking_maybe() {
 
@@ -2632,7 +2639,8 @@ lbg_info_t::init(GtkBuilder *builder) {
 
       GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 
-      std::cout << "................ set lbg-info on root " << root_item << " of canvas" << canvas << std::endl;
+      // std::cout << "................ set lbg-info on root " << root_item << " of canvas"
+      // << canvas << std::endl;
 							  
       g_object_set_data_full(G_OBJECT(root_item), "lbg-info", this, NULL);
       g_signal_connect(G_OBJECT(root_item), "button_press_event",
@@ -2667,7 +2675,7 @@ lbg_info_t::init(GtkBuilder *builder) {
    // if we don't have rdkit or python then we don't want to see qed progress bar
    // or the "show alerts" (because we can't match to the alert patterns).
    
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #ifdef USE_PYTHON   
    // all, with QED
 #else   
@@ -2719,7 +2727,7 @@ lbg_info_t::setup_lbg_drag_and_drop(GtkWidget *lbg_window) {
 std::string
 lbg_info_t::get_smiles_string_from_mol() const {
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
    std::string s;
    try { 
       s = get_smiles_string_from_mol_rdkit();
@@ -2751,12 +2759,13 @@ lbg_info_t::get_smiles_string_from_mol_openbabel() const {
    return s;
 }
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 void
 lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 
 #ifdef USE_PYTHON   
+
    if (rdkm.getNumAtoms() == 0) {
       // non-interesting case first
       gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
@@ -2764,11 +2773,17 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
    } else {
       bool all_set = false;
       double qed = 0.0;
-      if (silicos_it_qed_default_func) { 
+      if (silicos_it_qed_default_func) {
 	 qed = get_qed(silicos_it_qed_default_func, rdkm);
 	 if (qed > 0)
 	    all_set = true;
-      }
+      } else {
+
+	 // If you are reading this: are you sure that Biscu-it has
+	 // been installed?
+	 
+	 // std::cout << "null silicos_it_qed_default_func " << std::endl;
+      } 
 
       if (all_set) { 
 	 std::string s = coot::util::float_to_string_using_dec_pl(qed, 3);
@@ -2783,7 +2798,7 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 }
 #endif
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 void
 lbg_info_t::update_alerts(const RDKit::RWMol &rdkm) {
 
@@ -3256,7 +3271,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
    // if we don't have rdkit of course, just use my parser.
 
    bool try_as_mdl_mol = false;
-#ifndef MAKE_ENTERPRISE_TOOLS
+#ifndef MAKE_ENHANCED_LIGAND_TOOLS
    // fallback
    try_as_mdl_mol = true; 
 #else    
@@ -3323,7 +3338,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       std::cout << "WARNING:: import_mol_from_file: exception: " << e.what() << std::endl;
       try_as_mdl_mol = true;
    }
-#endif // MAKE_ENTERPRISE_TOOLS
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
    if (try_as_mdl_mol) {
       std::cout << "..................... using my mdl parser.... " << std::endl;
@@ -3338,7 +3353,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
    }
 }
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 void
 lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name) {
 
@@ -3379,7 +3394,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
       update_descriptor_attributes();
    }
 }
-#endif // MAKE_ENTERPRISE_TOOLS
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 // pdb_mol is the pdb representation of the (flat) ligand - and it has
 // the atom names.  We will add the atom names into mol by matching
@@ -3396,7 +3411,7 @@ lbg_info_t::import_mol_file(const lig_build::molfile_molecule_t &mol_in,
    return new_mol;
 }
 
-#ifdef MAKE_ENTERPRISE_TOOLS 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS 
 widgeted_molecule_t
 lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 
@@ -3519,12 +3534,12 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
    }
    return m;
 }
-#endif // MAKE_ENTERPRISE_TOOLS
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 void
 lbg_info_t::clean_up_2d_representation() {
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
    
    if (use_graphics_interface_flag) { 
       try {
@@ -3559,7 +3574,7 @@ lbg_info_t::clean_up_2d_representation() {
 	 std::cout << "WARNING:: clean_up_2d_representation() " << e.what() << std::endl;
       }
    }
-#endif // MAKE_ENTERPRISE_TOOLS
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
 
@@ -6639,7 +6654,7 @@ lbg_info_t::update_statusbar_smiles_string() const {
    }
 }
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 std::string
 lbg_info_t::get_smiles_string(const RDKit::ROMol &mol) const {
 
@@ -6653,7 +6668,7 @@ lbg_info_t::get_smiles_string(const RDKit::ROMol &mol) const {
 }
 #endif
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 void
 lbg_info_t::update_statusbar_smiles_string(const RDKit::ROMol &mol) const {
    std::string s = get_smiles_string(mol);
@@ -6706,7 +6721,7 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 }
 
 
-#ifdef MAKE_ENTERPRISE_TOOLS   
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS   
 #ifdef USE_PYTHON   
 PyObject *
 lbg_info_t::get_callable_python_func(const std::string &module_name,
@@ -6752,7 +6767,7 @@ lbg_info_t::get_callable_python_func(const std::string &module_name,
 void
 lbg_info_t::pe_test_function() {
 
-#ifdef MAKE_ENTERPRISE_TOOLS   
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS   
    std::cout << "PE test function" << std::endl;
 
    std::cout << "identify bond..." << std::endl;

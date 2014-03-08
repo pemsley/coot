@@ -48,9 +48,11 @@ DefineStreamFunctions(CMMANManager) ;
 
 // Function to return the parent PCMMANManager of an atom
 CMMANManager* GetMMANManager(PCAtom pAtom);
+std::string GetMMANManagerAddress(PCAtom pAtom);
 
   
 class CMMANManager : public CMMUTManager  {
+    realtype MetalCoordinationDistance[92];
  
   public :
 
@@ -80,8 +82,10 @@ class CMMANManager : public CMMUTManager  {
     std::vector<double> GetAtomRadii ( int selHnd, int type, double scale );
     int GetAtomEnergyType(PCAtom p_atom);
 
+    realtype GetMetalCoordinationDistance(PCAtom p_atom);
     realtype GetAtomVDWRadius(PCAtom p_atom);
-    char* GetAtomHBondType(PCAtom p_atom);
+    realtype GetAtomIonRadius(PCAtom p_atom);
+    const char* GetAtomHBondType(PCAtom p_atom);
     int GetAtomHBondType1(PCAtom p_atom);
     int LoadCharge(std::string loadfrom);
     std::string PrintCharges(void);
@@ -138,6 +142,7 @@ class CMMANManager : public CMMUTManager  {
     std::string PrintSecStructure (void);
     int GetLibTMatrix(mat44 &TMatrix,int nsym,int i,int j,int k);
     int ApplyCartesiansDeltas(const std::vector<Cartesian> &dxyz, int selHnd, double scale=1.0); 
+    std::string GetAddress();
  private:
     
     // SAS

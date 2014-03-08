@@ -1,5 +1,5 @@
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // alerts from SilOS-it's biscu-it.
 //
 

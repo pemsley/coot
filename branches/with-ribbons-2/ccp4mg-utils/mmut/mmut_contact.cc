@@ -34,6 +34,7 @@ Liz Potterton Aug03
 #include <iomanip>
 #include "mman_base.h"
 #include <mmdb/mmdb_manager.h>
+#include <mmdb/mmdb_tables.h>
 #include "mmut_manager.h"
 #include "mman_manager.h"
 #include "mmut_contact.h"
@@ -91,6 +92,7 @@ void CContact::SetParams(int nv, double *value, int niv, int *ivalue) {
   test_VDW_radius = ivalue[0];
   label_VDW_radius = ivalue[1];
   exclude_hbondable = ivalue[2];
+  test_metal_coord_distance= ivalue[3];
   simple_min_cutoff = value[0];
   simple_max_cutoff = value[1];
   VDW_fraction_min = value[2];
@@ -164,6 +166,12 @@ int CContact::Calculate0(int model)  {
   // Loop over the contacts testing VDW distance
   if(test_VDW_radius==1 || label_VDW_radius) {
     for (n=0;n<ncontacts;n++) {
+      if(test_metal_coord_distance){
+        if((selAtoms[contacts[n].id1]->isMetal())&&contacts[n].dist>dynamic_cast<PCMMANManager>(molHnds[0])->GetMetalCoordinationDistance(selAtoms[contacts[n].id1]))
+          continue;
+        if((selAtoms2[contacts[n].id2]->isMetal())&&contacts[n].dist>dynamic_cast<PCMMANManager>(molHnds[0])->GetMetalCoordinationDistance(selAtoms2[contacts[n].id2]))
+          continue;
+      }
       vdw1=dynamic_cast<PCMMANManager>(molHnds[0])->GetAtomVDWRadius(selAtoms[contacts[n].id1]);
       if (molHnds[1])
         vdw2=dynamic_cast<PCMMANManager>(molHnds[1])->GetAtomVDWRadius(selAtoms2[contacts[n].id2]);
@@ -196,9 +204,17 @@ int CContact::Calculate0(int model)  {
 	     selAtoms[contacts[n].id1],selAtoms2[contacts[n].id2]);
 
       if ( (bb == 0 || (exclude_hbondable==0 && bb==5)) &&
-         molHnds[0]->doAltLocMatch(selAtoms[contacts[n].id1],selAtoms2[contacts[n].id2]) )
-        close_contacts.AddUniqueConnection(selAtoms[contacts[n].id1],
-        selAtoms2[contacts[n].id2],FloatToString(contacts[n].dist,"%.1f"));
+         molHnds[0]->doAltLocMatch(selAtoms[contacts[n].id1],selAtoms2[contacts[n].id2]) ){
+         //std::cout << int((selAtoms[contacts[n].id2]->isMetal())) << "\n"; std::cout.flush();
+         if(!(test_metal_coord_distance)||
+           (selAtoms[contacts[n].id1]->isMetal())&&contacts[n].dist<dynamic_cast<PCMMANManager>(molHnds[0])->GetMetalCoordinationDistance(selAtoms[contacts[n].id1]) ||
+           (selAtoms2[contacts[n].id2]->isMetal())&&contacts[n].dist<dynamic_cast<PCMMANManager>(molHnds[0])->GetMetalCoordinationDistance(selAtoms2[contacts[n].id2]) ||
+           (!(selAtoms[contacts[n].id1]->isMetal())&&!(selAtoms2[contacts[n].id2]->isMetal()))
+           ){
+             close_contacts.AddUniqueConnection(selAtoms[contacts[n].id1],
+             selAtoms2[contacts[n].id2],FloatToString(contacts[n].dist,"%.1f"));
+         }
+       }
     }
   }
     	

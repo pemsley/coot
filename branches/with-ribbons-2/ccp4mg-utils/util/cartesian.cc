@@ -62,13 +62,43 @@ double Angle(const Cartesian &A, const Cartesian &B, const Cartesian &C){
   return  acos((bcsq + absq - acsq)/(2*bc*ab));
 }
 
+void Cartesian::operator*=(const std::vector<double> &objrotmat) {
+  double result[4];
+  double input[4] = {x, y, z, a};
+
+  for(unsigned i=0;i<4;i++){
+    result[i] = 0.0;
+    for(unsigned j=0;j<4;j++){
+      result[i] += input[j]*objrotmat[i*4+j];
+    }
+  }
+  x = result[0];
+  y = result[1];
+  z = result[2];
+  a = result[3];
+}
+
+Cartesian operator*(const std::vector<double> &objrotmat, const Cartesian &prim){
+  double result[4];
+  double input[4] = {prim.x, prim.y, prim.z, prim.a};
+
+  for(unsigned i=0;i<4;i++){
+    result[i] = 0.0;
+    for(unsigned j=0;j<4;j++){
+      result[i] += input[j]*objrotmat[i*4+j];
+    }
+  }
+  
+  return Cartesian(result);
+}
+
 Cartesian operator*(const matrix &objrotmat, const Cartesian &prim){
   double result[4];
   double input[4] = {prim.x, prim.y, prim.z, prim.a};
 
-  for(int i=0;i<objrotmat.get_columns();i++){
+  for(unsigned i=0;i<objrotmat.get_columns();i++){
     result[i] = 0.0;
-    for(int j=0;j<objrotmat.get_rows();j++){
+    for(unsigned j=0;j<objrotmat.get_rows();j++){
       result[i] += input[j]*objrotmat(i,j);
     }
   }
@@ -328,7 +358,7 @@ void Cartesian::normalize(double radius){
    double d = sqrt(x*x+y*y+z*z);
 
    if (fabs(d)<1.0e-12) {
-           std::cout << "zero length vector in Cartesian::normalize" << *this << "\n";
+           std::cerr << "zero length vector in Cartesian::normalize" << *this << "\n";
       //abort();
       return;
    }

@@ -18,11 +18,11 @@
  * 02110-1301, USA
  */
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
-#include "coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
+#include "coot-utils/coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
 
 
 // This can throw an runtime_error exception (residue not in
@@ -104,6 +104,9 @@ coot::rdkit_mol(CResidue *residue_p,
       CAtom *at_1 = residue_atoms[iat_1];
       if (! at_1->Ter) {
 	 std::string atom_name_1(at_1->name);
+	 if (debug)
+	    std::cout << "rdkit_mol() handling atom " << iat_1 << " with CResidue atom name "
+		      << atom_name_1 << std::endl;
 	 std::string atom_alt_conf(at_1->altLoc);
 	 if (atom_alt_conf == alt_conf) { 
 	    bool found_a_bonded_atom = false;
@@ -150,7 +153,7 @@ coot::rdkit_mol(CResidue *residue_p,
       CAtom *at = residue_atoms[bonded_atoms[iat]];
       std::string atom_name(at->name);
       if (debug)
-	 std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " " 
+	 std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " bonded_atoms " 
 		   << atom_name << std::endl;
 	 
       // only add the atom if the atom_name is not in the list of
@@ -168,7 +171,6 @@ coot::rdkit_mol(CResidue *residue_p,
 	    rdkit_at->setAtomicNum(atomic_number);
 	    rdkit_at->setMass(tbl->getAtomicWeight(atomic_number));
 	    rdkit_at->setProp("name", atom_name);
-
 
 	    // set the valence from they type energy.  Abstract?
 	    //
@@ -429,8 +431,6 @@ coot::rdkit_mol(CResidue *residue_p,
 		      <<  kee.what() << std::endl;
 	 }
 	 int formal_charge = at_p->getFormalCharge();
-	 std::cout << " " << iat << " " << name << " formal charge: "
-		   << formal_charge << std::endl;
       }
    }
 
@@ -618,7 +618,6 @@ coot::get_chiral_tag(CResidue *residue_p,
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    std::string atom_name = atom_p->name;
    
-   bool atom_orders_match = 0;
    // does the order of the restraints match the order of the atoms?
    //
    for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) { 
@@ -626,54 +625,78 @@ coot::get_chiral_tag(CResidue *residue_p,
 	 const coot::dict_chiral_restraint_t &chiral_restraint = restraints.chiral_restraint[ichi];
 
 	 int n_neigbours_found = 0;
-	 unsigned int i_next = 0;
-	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	 std::vector<int> ni(4, -1); // neighbour_indices: gap for c atom at 0.
+	 bool atom_orders_match = false;
+
+	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
 	    std::string atom_name_local = residue_atoms[iat]->name;
 	    if (atom_name_local == chiral_restraint.atom_id_1_4c()) {
+	       ni[1] = iat;
 	       n_neigbours_found++;
-	       i_next = iat+1;
-	       break;
 	    }
-	 }
-	 for (unsigned int iat=i_next; iat<n_residue_atoms; iat++) {
-	    std::string atom_name_local = residue_atoms[iat]->name;
 	    if (atom_name_local == chiral_restraint.atom_id_2_4c()) {
+	       ni[2] = iat;
 	       n_neigbours_found++;
-	       i_next = iat+1;
-	       break;
 	    }
-	 }
-	 for (unsigned int iat=i_next; iat<n_residue_atoms; iat++) {
-	    std::string atom_name_local = residue_atoms[iat]->name;
 	    if (atom_name_local == chiral_restraint.atom_id_3_4c()) {
+	       ni[3] = iat;
 	       n_neigbours_found++;
-	       break;
 	    }
 	 }
 
 	 if (n_neigbours_found == 3) {
-	    // yes, they match
-	    atom_orders_match = 1;
-	 }
 
-	 // This bit needs checking
-	 // 
-	 if (atom_orders_match) {
-	    if (chiral_restraint.volume_sign == 1)
-	       chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
-	    else 
-	       chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
-	 } else {
-	    if (chiral_restraint.volume_sign == 1)
-	       chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
-	    else 
-	       chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+	    // 3 2 1
+	    if ((ni[3] > ni[2]) && (ni[2] > ni[1])) { 
+	       atom_orders_match = true;
+	       // std::cout << "match by method A " << std::endl;
+	    } 
+	    // circular permutation, 1 3 2 
+	    if ((ni[1] > ni[3]) && (ni[3] > ni[2])) { 
+	       atom_orders_match = true;
+	       // std::cout << "match by method B " << std::endl;
+	    } 
+	    // circular permutation, 2 1 3
+	    if ((ni[2] > ni[1]) && (ni[1] > ni[3])) {
+	       // std::cout << "match by method C " << std::endl;
+	       atom_orders_match = true;
+	    } 
+	    
+	    // This bit needs checking
+	    // 
+	    if (atom_orders_match) {
+	       if (0) 
+		  std::cout << "atom orders match: true, vol sign " << chiral_restraint.volume_sign
+			    << " ->  CCW "
+			    << "for atom " << atom_name 
+			    << " neighbs " << ni[1] << " "  << ni[2] << " " << ni[3] << " "
+			    << chiral_restraint.atom_id_1_4c() << " "
+			    << chiral_restraint.atom_id_2_4c() << " " 
+			    << chiral_restraint.atom_id_3_4c() << std::endl;
+	       if (chiral_restraint.volume_sign == 1)
+		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
+	       if (chiral_restraint.volume_sign == -1)
+		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+	    } else {
+	       if (0) 
+		  std::cout << "atom orders NOT match: true, vol sign " << chiral_restraint.volume_sign
+			    << "  ->  CW "
+			    << "for atom " << atom_name 
+			    << " neighbs "<< ni[1] << " "  << ni[2] << " " << ni[3] << " "
+			    << chiral_restraint.atom_id_1_4c() << " "
+			    << chiral_restraint.atom_id_2_4c() << " " 
+			    << chiral_restraint.atom_id_3_4c() << std::endl;
+	       if (chiral_restraint.volume_sign == 1)
+		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+	       if (chiral_restraint.volume_sign == -1)
+		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
+	    }
 	 }
-	 break;
-      } 
+	 break; // because we found the restraint that matches the passed atom
+      }
    }
    return chiral_tag;
-} 
+}
 
 
 
@@ -886,13 +909,26 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
 	 RDKit::ATOM_SPTR at_p = rdkm[iat];
 	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
-	 std::string name = "";
+	 std::string name = "ZZZZ";
 	 try {
 	    at_p->getProp("name", name);
 	 }
-	 catch (KeyErrorException kee) {
-	    std::cout << "caught no-name for atom exception in make_molfile_molecule(): "
-		      <<  kee.what() << std::endl;
+	 catch (const KeyErrorException &kee) {
+	    // std::cout << "caught no-name for atom exception in make_molfile_molecule(): "
+	    // <<  kee.what() << std::endl;
+
+	    try {
+	       at_p->getProp("_Name", name);  // RDKit's version of an atom name.
+	    }
+	    catch  (const KeyErrorException &kee) {
+	       // std::cout << "no _Name for " << at_p << " " << kee.what() << std::endl;
+	       try {
+		  at_p->getProp("_TriposAtomName", name);  // RDKit's version of an atom name from a Mol2 File.
+	       }
+	       catch  (const KeyErrorException &kee) {
+		  std::cout << "no name, _Name or _TriposAtomName for " << at_p << " " << kee.what() << std::endl;
+	       }
+	    }
 	 } 
 	 clipper::Coord_orth pos(r_pos.x, r_pos.y, r_pos.z);
 	 int n = at_p->getAtomicNum();
@@ -975,6 +1011,15 @@ coot::make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_n
 
    return residue_p;
 }
+
+coot::dictionary_residue_restraints_t
+coot::make_dictionary(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name) {
+
+   coot::dictionary_residue_restraints_t d;
+
+   return d;
+
+} 
 
 
 lig_build::bond_t::bond_type_t
@@ -2276,4 +2321,4 @@ coot::join_molecules(const RDKit::ROMol &mol, int atom_index, const RDKit::ROMol
 }
 
 
-#endif // MAKE_ENTERPRISE_TOOLS   
+#endif // MAKE_ENHANCED_LIGAND_TOOLS   

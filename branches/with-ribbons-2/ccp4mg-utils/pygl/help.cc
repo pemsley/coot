@@ -87,8 +87,57 @@
 #include "matrix.h"
 #include "geomutil.h"
 
-#if defined (_WIN32)
+#if defined (_WIN32) 
 void BlendFuncSeparate(GLenum, GLenum, GLenum, GLenum);
+#endif
+
+// These are  helper functions which don't depend on an OPENGL context.
+//
+#if defined (_WIN32) && not defined (WINDOWS_MINGW)
+#define EXAMPLE_DLL __declspec(dllexport)
+image_info __stdcall EXAMPLE_DLL get_pixdata(int trans=0);
+void __stdcall EXAMPLE_DLL write_pixdata(const char *filename, int width=-1, int height=-1, int trans=0);
+int __stdcall EXAMPLE_DLL findprimc(const std::vector<Cartesian> &xyzbox, const std::vector<Cartesian> &primorigin, const Cartesian &origin, const matrix &objrotmat);
+int __stdcall EXAMPLE_DLL findprimc(double *xyzmpc, double *xyzmmc, double *xyzpmc, double *xyzppc, std::vector<Cartesian> primorigin, Cartesian origin, matrix objrotmat);
+int __stdcall EXAMPLE_DLL findprimc_main(const Cartesian &xyzmpf, const Cartesian &xyzmpb, const Cartesian &xyzmmf, const Cartesian &xyzmmb, const Cartesian &xyzpmf, const Cartesian &xyzpmb, const Cartesian &xyzppf, const Cartesian &xyzppb, const std::vector<Cartesian> &primorigin,const Cartesian &origin,const matrix &objrotmat);
+std::vector<Cartesian> __stdcall EXAMPLE_DLL getxyzc(double x,double y);
+const double* __stdcall EXAMPLE_DLL GLf2f(const GLfloat *in, int size);
+const GLfloat* __stdcall EXAMPLE_DLL f2GLf(double *in, int size);
+const GLfloat* __stdcall EXAMPLE_DLL buildrotmatrix_from_c(matrix a);
+const GLfloat* __stdcall EXAMPLE_DLL buildrotmatrix(
+GLfloat a0, GLfloat a1, GLfloat a2, GLfloat a3, 
+GLfloat a4, GLfloat a5, GLfloat a6, GLfloat a7, 
+GLfloat a8, GLfloat a9, GLfloat a10, GLfloat a11, 
+GLfloat a12, GLfloat a13, GLfloat a14, GLfloat a15);
+int __stdcall EXAMPLE_DLL CheckIfStereoAvailable(void);
+int __stdcall EXAMPLE_DLL CheckIfAlphaAvailable(void);
+image_info_yuv_t __stdcall EXAMPLE_DLL get_yuvdata(int trans=0);
+Volume __stdcall EXAMPLE_DLL GetClippingPlanes();
+Volume __stdcall EXAMPLE_DLL GetFrontAndBackClippingPlanes();
+bool __stdcall EXAMPLE_DLL isPointInClippingVolume(const Cartesian &p, const Volume &v);
+void __stdcall EXAMPLE_DLL SetupFBOBlending();
+#else
+image_info get_pixdata(int trans=0);
+void write_pixdata(const char *filename, int width=-1, int height=-1, int trans=0);
+int findprimc(const std::vector<Cartesian> &xyzbox, const std::vector<Cartesian> &primorigin, const Cartesian &origin, const matrix &objrotmat);
+int findprimc(double *xyzmpc, double *xyzmmc, double *xyzpmc, double *xyzppc, std::vector<Cartesian> primorigin, Cartesian origin, matrix objrotmat);
+int findprimc_main(const Cartesian &xyzmpf, const Cartesian &xyzmpb, const Cartesian &xyzmmf, const Cartesian &xyzmmb, const Cartesian &xyzpmf, const Cartesian &xyzpmb, const Cartesian &xyzppf, const Cartesian &xyzppb, const std::vector<Cartesian> &primorigin,const Cartesian &origin,const matrix &objrotmat);
+std::vector<Cartesian> getxyzc(double x,double y);
+const double* GLf2f(const GLfloat *in, int size);
+const GLfloat* f2GLf(double *in, int size);
+const GLfloat* buildrotmatrix_from_c(matrix a);
+const GLfloat* buildrotmatrix(
+GLfloat a0, GLfloat a1, GLfloat a2, GLfloat a3, 
+GLfloat a4, GLfloat a5, GLfloat a6, GLfloat a7, 
+GLfloat a8, GLfloat a9, GLfloat a10, GLfloat a11, 
+GLfloat a12, GLfloat a13, GLfloat a14, GLfloat a15);
+int CheckIfStereoAvailable(void);
+int CheckIfAlphaAvailable(void);
+image_info_yuv_t get_yuvdata(int trans=0);
+Volume GetClippingPlanes();
+Volume GetFrontAndBackClippingPlanes();
+bool isPointInClippingVolume(const Cartesian &p, const Volume &v);
+void SetupFBOBlending();
 #endif
 
 #ifndef M_PI
@@ -490,7 +539,7 @@ OffScreenBuffer::OffScreenBuffer(unsigned w, unsigned h){
 #endif
 }
 
-#if defined (_WIN32)
+#if defined (_WIN32) 
 static int stereo_available;
 #endif
 

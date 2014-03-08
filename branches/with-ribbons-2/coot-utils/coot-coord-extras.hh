@@ -28,9 +28,9 @@
 #include "tree.hh" // Kasper Peeters tree
 
 #include "coot-coord-utils.hh"
-#include "protein-geometry.hh"
-#include "atom-quads.hh"
-#include "mini-mol.hh"
+#include "geometry/protein-geometry.hh"
+#include "mini-mol/atom-quads.hh"
+#include "mini-mol/mini-mol.hh"
 #include "bonded-pairs.hh"
 
 // functions and classes here (in extras) can use protein_geometry.

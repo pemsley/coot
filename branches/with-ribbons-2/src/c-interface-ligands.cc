@@ -42,27 +42,27 @@
 #include <string>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
-#include "read-sm-cif.hh"
+#include "coot-utils/read-sm-cif.hh"
 
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "cc-interface.hh"
-#include "coot-coord-utils.hh"
-#include "peak-search.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/peak-search.hh"
 
 // #include "coot-compare-residues.hh"
 
-#include "wligand.hh"
+#include "ligand/wligand.hh"
 
 #include "guile-fixups.h"
 
 #ifdef HAVE_GOOCANVAS
-#include "goocanvas.h"
-#include "wmolecule.hh"
+#include <goocanvas.h>
+#include "lbg/wmolecule.hh"
 #endif // HAVE_GOOCANVAS
 
 
@@ -195,7 +195,6 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 	 }
       }
    }
-
 }
 
 
@@ -515,6 +514,14 @@ PyObject *execute_ligand_search_py() {
 }
 #endif // USE_PYTHON
 
+
+/*! \brief  Allow the user a scripting means to find ligand at the rotation centre */
+void set_find_ligand_here_cluster(int state) {
+   graphics_info_t g;
+   g.find_ligand_here_cluster_flag = state;
+} 
+
+
 std::vector<int>
 execute_ligand_search_internal() {
    
@@ -664,6 +671,8 @@ execute_ligand_search_internal() {
 
       if (nlc > 12) nlc = 12; // arbitrary limit of max 12 solutions per cluster
       float tolerance = 20.0;
+      // limit_solutions should be run only after a post-correlation sort.
+      //
       wlig.limit_solutions(iclust, correl_frac_lim, nlc, tolerance, true);
 			   
       for (unsigned int isol=0; isol<nlc; isol++) { 
@@ -1898,6 +1907,55 @@ multi_residue_torsion_scm(int imol, SCM residues_specs_scm) {
 }
 #endif
 
+// /*! \brief set the torsion of the given residues. The
+// torsion_residues_specs_scm is a list of: (list  torsion-angle atom-spec-1 atom-spec-2
+// atom-spec-2 atom-spec-3).
+// */
+// #ifdef USE_GUILE
+// SCM set_multi_torsion_scm(int imol, SCM torsion_residues_specs_scm) {
+
+//    SCM r = SCM_BOOL_F;
+//    if (is_valid_model_molecule(imol)) {
+//       graphics_info_t g;
+//       if (scm_is_true(scm_list_p(torsion_residues_specs_scm))) {
+// 	 std::vector<coot::torsion_atom_specs_t> tas;
+// 	 SCM specs_length_scm = scm_length(torsion_residues_specs_scm);
+// 	 unsigned int specs_length = scm_to_int(specs_length_scm);
+// 	 for (unsigned int i=0; i<specs_length; i++) { 
+// 	    SCM torsion_spec_scm = scm_list_ref(torsion_residues_specs_scm, SCM_MAKINUM(i));
+// 	    if (! scm_is_true(scm_list_p(torsion_spec_scm))) {
+// 	       break;
+// 	    } else {
+// 	       // happy path
+// 	       SCM torsion_spec_length_scm = scm_length(torsion_spec_scm);
+// 	       unsigned int torsion_spec_length = scm_to_int(torsion_spec_length_scm);
+// 	       if (torsion_spec_length == 5) {
+// 		  SCM torsion_angle_scm = scm_car(torsion_spec_scm);
+// 		  if (scm_is_true(scm_number_p(torsion_angle_scm))) {
+// 		     double ta = scm_to_double(torsion_angle_scm);
+// 		     SCM atom_spec_1_scm = scm_list_ref(torsion_spec_scm, SCM_MAKINUM(1));
+// 		     SCM atom_spec_2_scm = scm_list_ref(torsion_spec_scm, SCM_MAKINUM(2));
+// 		     SCM atom_spec_3_scm = scm_list_ref(torsion_spec_scm, SCM_MAKINUM(3));
+// 		     SCM atom_spec_4_scm = scm_list_ref(torsion_spec_scm, SCM_MAKINUM(4));
+// 		     coot::atom_spec_t atom_spec_1 = atom_spec_from_scm_expression(atom_spec_1_scm);
+// 		     coot::atom_spec_t atom_spec_2 = atom_spec_from_scm_expression(atom_spec_2_scm);
+// 		     coot::atom_spec_t atom_spec_3 = atom_spec_from_scm_expression(atom_spec_3_scm);
+// 		     coot::atom_spec_t atom_spec_4 = atom_spec_from_scm_expression(atom_spec_4_scm);
+// 		     coot::torsion_atom_specs_t t(atom_spec_1, atom_spec_2, atom_spec_3, atom_spec_4, ta);
+// 		     tas.push_back(t);
+// 		  }
+// 	       }
+// 	    }
+// 	 }
+// 	 if (specs_length == tas.size()) {
+// 	    g.molecules[imol].set_multi_torsion(tas);
+// 	 } 
+//       }
+//    }
+//    return r;
+// }
+// #endif // USE_GUILE
+
 
 #ifdef USE_PYTHON
 void
@@ -1907,24 +1965,22 @@ multi_residue_torsion_py(int imol, PyObject *residues_specs_py) {
       graphics_info_t g;
       std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(residues_specs_py);
       g.multi_torsion_residues(imol, residue_specs);
-
       graphics_draw();
    } 
-
 } 
 
 #endif // USE_PYTHON
 
 
 void
-multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t> &residue_specs) {
+multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t> &residue_specs, int n_trials) {
 
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map())) {
 	 graphics_info_t g;
 	 const clipper::Xmap<float> &xmap =
 	    g.molecules[imol_refinement_map()].xmap_list[0];
-	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 	 graphics_draw();
       }
    }
@@ -1936,7 +1992,7 @@ multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t> &res
 (note: fit to the current-refinement map)
 */
 #ifdef USE_GUILE
-SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm) {
+SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm, int n_trials) {
 
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
@@ -1946,7 +2002,7 @@ SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm) {
 	    scm_to_residue_specs(residues_specs_scm);
 	 const clipper::Xmap<float> &xmap =
 	    g.molecules[imol_refinement_map()].xmap_list[0];
-	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 	 graphics_draw();
 	 r = SCM_BOOL_T; // we did something at least.
       }
@@ -1961,7 +2017,7 @@ SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm) {
 (note: fit to the current-refinement map)
 */
 #ifdef USE_PYTHON
-PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py) {
+PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py, int n_trials) {
 
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
@@ -1971,7 +2027,7 @@ PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py) {
        py_to_residue_specs(residues_specs_py);
 	 const clipper::Xmap<float> &xmap =
 	    g.molecules[imol_refinement_map()].xmap_list[0];
-	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, g.Geom_p());
+	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 	 graphics_draw();
 	 r = Py_True; // we did something at least.
       }
@@ -2029,11 +2085,12 @@ void set_multi_residue_torsion_reverse_mode(short int mode) {
 // prodrg-in.mdl file has been made.  We no longer have a timeout
 // function waiting for prodrg-in.mdl to be updated/written.
 // 
-void prodrg_import_function(std::string file_name) {
+void prodrg_import_function(std::string file_name, std::string comp_id) {
 
    std::string func_name = "import-from-3d-generator-from-mdl";
    std::vector<coot::command_arg_t> args;
    args.push_back(single_quote(file_name));
+   args.push_back(single_quote(comp_id));
    coot::scripting_function(func_name, args);
 }
 
@@ -2060,7 +2117,7 @@ void sbase_import_function(std::string comp_id) {
 
 #ifdef USE_GUILE
    if (! done) { 
-      std::string s = "(get-sbase-monomer-and-overlay ";
+      std::string s = "(get-ccp4srs-monomer-and-overlay ";
       s += single_quote(comp_id);
       s += ")";
       safe_scheme_command(s);
@@ -2269,3 +2326,117 @@ residues_torsions_match_py(int imol_1, PyObject *res_1,
 
 
 
+
+#include "analysis/kolmogorov.hh"
+
+#ifdef USE_GUILE
+double kolmogorov_smirnov_scm(SCM l1, SCM l2) {
+
+   double result = -1;
+   if (scm_list_p(l1) && scm_list_p(l2)) {
+      SCM length_scm_1 = scm_length(l1);
+      SCM length_scm_2 = scm_length(l2);
+      int len_l1 = scm_to_int(length_scm_1);
+      int len_l2 = scm_to_int(length_scm_2);
+      std::vector<double> v1;
+      std::vector<double> v2;
+      for (unsigned int i=0; i<len_l1; i++) {
+	 SCM item = scm_list_ref(l1, SCM_MAKINUM(i));
+	 if (scm_is_true(scm_number_p(item)))
+	    v1.push_back(scm_to_double(item));
+      }
+      for (unsigned int i=0; i<len_l2; i++) {
+	 SCM item = scm_list_ref(l2, SCM_MAKINUM(i));
+	 if (scm_is_true(scm_number_p(item)))
+	    v2.push_back(scm_to_double(item));
+      }
+      result = nicholls::get_KS(v1, v2);
+   }
+   return result;
+}
+#endif
+
+#ifdef USE_GUILE
+SCM kullback_liebler_scm(SCM l1, SCM l2) {
+
+   SCM result_scm = SCM_BOOL_F;
+   if (scm_list_p(l1) && scm_list_p(l2)) {
+      SCM length_scm_1 = scm_length(l1);
+      SCM length_scm_2 = scm_length(l2);
+      int len_l1 = scm_to_int(length_scm_1);
+      int len_l2 = scm_to_int(length_scm_2);
+      std::vector<double> v1;
+      std::vector<double> v2;
+      for (unsigned int i=0; i<len_l1; i++) {
+	 SCM item = scm_list_ref(l1, SCM_MAKINUM(i));
+	 if (scm_is_true(scm_number_p(item)))
+	    v1.push_back(scm_to_double(item));
+      }
+      for (unsigned int i=0; i<len_l2; i++) {
+	 SCM item = scm_list_ref(l2, SCM_MAKINUM(i));
+	 if (scm_is_true(scm_number_p(item)))
+	    v2.push_back(scm_to_double(item));
+      }
+      std::pair<double, double> result = nicholls::get_KL(v1, v2);
+      SCM r = scm_list_2(scm_double2num(result.first), scm_double2num(result.second));
+   }
+   return result_scm;
+}
+#endif
+
+
+#ifdef USE_PYTHON
+double kolmogorov_smirnov_py(PyObject *l1, PyObject *l2) {
+
+   double result = -1;
+   if (PyList_Check(l1) && PyList_Check(l2)) {
+      int len_l1 = PyList_Size(l1);
+      int len_l2 = PyList_Size(l2);
+      std::vector<double> v1;
+      std::vector<double> v2;
+      for (unsigned int i=0; i<len_l1; i++) {
+         PyObject *item = PyList_GetItem(l1, i);
+         if (PyFloat_Check(item))
+            v1.push_back(PyFloat_AsDouble(item));
+      }
+      for (unsigned int i=0; i<len_l2; i++) {
+         PyObject *item = PyList_GetItem(l2, i);
+         if (PyFloat_Check(item))
+            v2.push_back(PyFloat_AsDouble(item));
+      }
+      result = nicholls::get_KS(v1, v2);
+   }
+   return result;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2) {
+
+   PyObject *result_py = Py_False;
+   if (PyList_Check(l1) && PyList_Check(l2)) {
+      int len_l1 = PyList_Size(l1);
+      int len_l2 = PyList_Size(l2);
+      std::vector<double> v1;
+      std::vector<double> v2;
+      for (unsigned int i=0; i<len_l1; i++) {
+         PyObject *item = PyList_GetItem(l1, i);
+         if (PyFloat_Check(item))
+            v1.push_back(PyFloat_AsDouble(item));
+      }
+      for (unsigned int i=0; i<len_l2; i++) {
+         PyObject *item = PyList_GetItem(l2, i);
+         if (PyFloat_Check(item))
+            v2.push_back(PyFloat_AsDouble(item));
+      }
+      std::pair<double, double> result = nicholls::get_KL(v1, v2);
+      PyObject *result_py = PyList_New(2);
+      PyList_SetItem(result_py, 0, PyFloat_FromDouble(result.first));
+      PyList_SetItem(result_py, 1, PyFloat_FromDouble(result.second));
+   }
+   if (PyBool_Check(result_py)) {
+      Py_INCREF(result_py);
+   }
+   return result_py;
+}
+#endif

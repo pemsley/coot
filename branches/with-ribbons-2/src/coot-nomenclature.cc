@@ -22,13 +22,13 @@
 
 #include <iostream>
 #include "coot-nomenclature.hh"
-#include "simple-restraint.hh"
+#include "ideal/simple-restraint.hh"
 
 
 #ifdef USE_DUNBRACK_ROTAMERS
-#include "dunbrack.hh"
+#include "ligand/dunbrack.hh"
 #else 
-#include "richardson-rotamer.hh"
+#include "ligand/richardson-rotamer.hh"
 #endif 
 
 
@@ -289,6 +289,8 @@ int
 coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p,
 							     bool apply_swap_if_found) {
 
+   // PDBv3 FIXME - all this function.
+
    int iswapped = 0; // number of alt confs swapped in this residue
    PPCAtom residue_atoms;
    int n_residue_atoms;
@@ -374,6 +376,10 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p
 		  // find CE1 and CE2 and swap if both sets exists.
 		  CAtom *CE1 = 0;
 		  CAtom *CE2 = 0;
+		  CAtom *HD1 = 0;
+		  CAtom *HD2 = 0;
+		  CAtom *HE1 = 0;
+		  CAtom *HE2 = 0;
 		  for (int ie=0; ie<n_residue_atoms; ie++) {
 		     std::string e_atom_name = residue_atoms[ie]->name;
 		     std::string e_atom_altconf = residue_atoms[ie]->altLoc;
@@ -382,6 +388,15 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p
 			   CE1 = residue_atoms[ie];
 			if (e_atom_name == " CE2") 
 			   CE2 = residue_atoms[ie];
+			
+			if (e_atom_name == " HD1")
+			   HD1 = residue_atoms[ie];
+			if (e_atom_name == " HD2") 
+			   HD2 = residue_atoms[ie];
+			if (e_atom_name == " HE1") 
+			   HE1 = residue_atoms[ie];
+			if (e_atom_name == " HE2") 
+			   HE2 = residue_atoms[ie];
 		     }
 		  }
 		  if (CE1 && CE2) {
@@ -396,6 +411,19 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p
 				  << std::endl;
 
 		     iswapped++;
+		  }
+
+		  if (HD1 && HD2) {
+		     if (apply_swap_if_found) { 
+			HD1->SetAtomName(" HD2");
+			HD2->SetAtomName(" HD1");
+		     }
+		  } 
+		  if (HE1 && HE2) {
+		     if (apply_swap_if_found) { 
+			HE1->SetAtomName(" HE2");
+			HE2->SetAtomName(" HE1");
+		     }
 		  }
 	       }
 	    }

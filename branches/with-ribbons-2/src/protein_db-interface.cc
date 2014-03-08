@@ -1,17 +1,17 @@
 
+#include "mini-mol/mini-mol-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 #include "protein_db-interface.hh"
-#include "coot-coord-utils.hh"
-#include "mini-mol-utils.hh"
 
 CMMDBManager *make_mol(const std::vector<ProteinDB::Chain> &chains, const std::string &chain_id,
-		       int first_res_no) {
+		       int first_res_no, bool preserve_residue_names) {
 
    CMMDBManager *mol = new CMMDBManager;
    std::vector<CResidue *> needs_cb_and_o;
 
    for (unsigned int ich=0; ich<chains.size(); ich++) {
       std::vector<CResidue *> needs_cb_and_o_for_chain = 
-	 add_chain_to_molecule(chains[ich], "Z", first_res_no, mol);
+	 add_chain_to_molecule(chains[ich], "Z", first_res_no, preserve_residue_names, mol);
       for (unsigned int ires=0; ires<needs_cb_and_o_for_chain.size(); ires++) 
 	 needs_cb_and_o.push_back(needs_cb_and_o_for_chain[ires]);
    }
@@ -20,10 +20,11 @@ CMMDBManager *make_mol(const std::vector<ProteinDB::Chain> &chains, const std::s
 } 
 
 CMMDBManager *make_mol(const ProteinDB::Chain &chain, const std::string &chain_id, 
-		       int first_res_no) { 
+		       int first_res_no, bool preserve_residue_names) { 
 
   CMMDBManager *mol = new CMMDBManager; 
-  std::vector<CResidue *> residues = add_chain_to_molecule(chain, chain_id, first_res_no, mol);
+  std::vector<CResidue *> residues = add_chain_to_molecule(chain, chain_id, first_res_no,
+							   preserve_residue_names, mol);
   add_cbs_and_os(residues, mol);
   return mol;
 
@@ -31,7 +32,7 @@ CMMDBManager *make_mol(const ProteinDB::Chain &chain, const std::string &chain_i
 
 std::vector<CResidue *> 
 add_chain_to_molecule(const ProteinDB::Chain &chain, const std::string &chain_id, 
-		      int first_res_no, CMMDBManager *mol) { 
+		      int first_res_no, bool preserve_residue_names, CMMDBManager *mol) {
 
    std::vector<CResidue *> needs_cb_and_o;
 
@@ -50,7 +51,13 @@ add_chain_to_molecule(const ProteinDB::Chain &chain, const std::string &chain_id
 	 residue_p->seqNum = ires+first_res_no;
 	 CAtom *at_p = new CAtom;
 	 residue_p->AddAtom(at_p);
-	 residue_p->SetResName("UNK");
+	 if (preserve_residue_names) {
+	    char t = chain[ires].type();
+	    std::string rn = coot::util::single_letter_to_3_letter_code(t);
+	    residue_p->SetResName(rn.c_str());
+	 } else { 
+	    residue_p->SetResName("UNK");
+	 }
 	 clipper::Coord_orth ca_pos = chain[ires].coord_ca();
 	 at_p->SetCoordinates(ca_pos.x(), ca_pos.y(), ca_pos.z(), 1.0, 30.0);
 	 at_p->SetElementName(" C");

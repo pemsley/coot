@@ -57,6 +57,7 @@ private:
   // Params
   realtype min_D_A;
   realtype max_D_A;
+  realtype max_D_A_S;
   realtype max_H_A;
   realtype min_DD_D_A;
   realtype min_D_A_AA;

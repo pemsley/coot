@@ -46,7 +46,8 @@ dist_python_DATA = \
    shelx_extensions.py  parse_pisa_xml.py    		        		          \
    check_for_updates.py prodrg_import.py     								  \
    get_recent_pdbe.py   jligand.py	     	 jligand_gui.py	              \
-   redefine_functions.py user_define_restraints.py coot_toolbuttons.py        \
-   rcrane_loader.py \
+   redefine_functions.py user_define_restraints.py template_key_bindings.py   \
+   coot_toolbuttons.py  rcrane_loader.py \
+   pdbe-validation-data.py \
    $(TEXI_FILE)
 

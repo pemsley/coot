@@ -848,21 +848,23 @@
 	 (f res (cdr ls) (- count 1)))))))
 
 
+;; now useful in testing
+;; 
+;; residue-atoms must be a list
+(define (get-atom-from-residue atom-name residue-atoms alt-conf)
+  (let loop ((residue-atoms residue-atoms))
+    (cond 
+     ((null? residue-atoms) #f)
+     ((and (string=? atom-name (car (car (car residue-atoms))))
+	   (string=? alt-conf (car (cdr (car (car residue-atoms))))))
+      (car residue-atoms))
+     (else 
+      (loop (cdr residue-atoms))))))
+
 ;; Return an atom info or #f (if atom not found).
 ;; 
 (define (get-atom imol chain-id resno ins-code atom-name . alt-conf)
   
-
-  (define (get-atom-from-res atom-name residue-atoms alt-conf)
-    (let loop ((residue-atoms residue-atoms))
-      (cond 
-       ((null? residue-atoms) #f)
-       ((and (string=? atom-name (car (car (car residue-atoms))))
-	     (string=? alt-conf (car (cdr (car (car residue-atoms))))))
-	(car residue-atoms))
-       (else 
-	(loop (cdr residue-atoms))))))
-
   ;; main line
   ;; 
   ;; (format #t "DEBUG::  get-atom is passed imol ~s: chain-id: ~s  resno: ~s  atom-name: ~s alt-conf: ~s ~%" imol chain-id resno atom-name alt-conf)
@@ -871,11 +873,9 @@
 	(alt-conf-internal (if (null? alt-conf)
 			       ""
 			       (car alt-conf))))
-
     (if (not res-info)
 	#f
-	(get-atom-from-res atom-name res-info alt-conf-internal))))
-	
+	(get-atom-from-residue atom-name res-info alt-conf-internal))))
 
 ;;
 (define (residue-info-dialog-displayed?)
@@ -947,15 +947,23 @@
 ;; 
 (define (append-dir-file dir-name file-name)
 
-  (if (> (string-length dir-name) 0)
-      (string-append (directory-as-file-name dir-name) "/" file-name)
-      file-name))
+  (if (not (string? dir-name))
+      #f
+      (if (not (string? file-name))
+	  #f
+	  (if (> (string-length dir-name) 0)
+	      (string-append (directory-as-file-name dir-name) "/" file-name)
+	      file-name))))
 
 ;; Similarly attempting to minimise system dependence.
 ;; 
 (define (append-dir-dir dir-name sub-dir-name)
 
-  (string-append (directory-as-file-name dir-name) "/" sub-dir-name))
+  (if (not (string? dir-name))
+      #f
+      (if (not (string? sub-dir-name))
+	  #f
+	  (string-append (directory-as-file-name dir-name) "/" sub-dir-name))))
 
 ;; remove any trailing /s
 ;; 
@@ -1436,7 +1444,7 @@
     (if (not (and space-group cell-params))
 	(let ((message (format #f "Bad cell or symmetry for molecule ~s~%"
 			       cell space-group imol-ref)))
-	  mesage) ;; fix syntax
+	  message) ;; fix syntax
 	(let ((rtop (apply-lsq-matches imol-ref imol-mov)))
 	  (transform-map imol-map (car rtop) (car (cdr rtop)) about-pt radius space-group cell-params)))))
 
@@ -3213,6 +3221,9 @@
 ;; of the mdl mol file from drugbank. Or #f/undefined on fail.  
 ;; Test result with string?.
 ;; 
+;; If you are debugging this function, you probably want to be looking
+;; at handle-rev-string or drugbox->drugitem.
+;; 
 (define (get-drug-via-wikipedia drug-name)
 
   ;; To Bernie: I imagine that this would be confusing.  I don't think
@@ -3225,6 +3236,8 @@
 
 
   (define (drugbox->drugitem key s) 
+;    (format #t "===== here in drugbox->drugitem : ~s ~s ================== ~%" key s)
+;    (format #t "==========================================================~%" )
     (let ((n (string-length s)))
       (let ((ls (string-split s #\newline)))
 	(let loop ((ls ls))
@@ -3233,15 +3246,18 @@
 	   ((string-match key (car ls))
 	    (let ((sls (string-split (car ls) #\space)))
 	      (let ((n-sls (length sls)))
-		(list-ref sls (- n-sls 1)))))
+		(let ((r (list-ref sls (- n-sls 1))))
+		  (if (string=? r "")
+		      #f
+		      r)))))
 	   (else 
 	    (loop (cdr ls))))))))
 
   (define (drugbox->drugbank s)
-    (drugbox->drugitem "DrugBank =" s))
+    (drugbox->drugitem "DrugBank * =" s))
 
   (define (drugbox->pubchem s)
-    (drugbox->drugitem "PubChem =" s))
+    (drugbox->drugitem "PubChem  *=" s))
 	
 
   ;; With some clever coding, these handle-***-value functions could
@@ -3265,15 +3281,15 @@
 	  (get-drug-via-wikipedia s)))
       
        ((let ((re-result (regexp-exec re rev-string)))
-	  ;; (format #t "===== re-result: ~s~%" re-result)
 	  (if re-result
 	      (begin
-		;; (format #t "matched a Drugbox~%")
+		;; (format #t "INFO:: matched a Drugbox~%")
 		(let ((dbi (drugbox->drugbank rev-string)))
+
 		  (if (not (string? dbi))
 		      (begin 
 
-			(format #t "DEBUG:: dbi not a string: ~s~%" dbi)
+			(format #t "DEBUG:: dbi (drugbank result) not a string: ~s~%" dbi)
 			;; try pubchem as a fallback
 			(let ((pc (drugbox->pubchem rev-string)))
 			  (if (not (string? pc))
@@ -3284,6 +3300,7 @@
 						    pc 
 						    "&disopt=DisplaySDF"))
 				    (file-name (string-append "pc-" pc ".mol")))
+				;; (format #t "========== pubchem pc-mol-url: ~s~%" pc-mol-url)
 				(coot-get-url pc-mol-url file-name)
 				file-name))))
 
@@ -3484,7 +3501,36 @@
 			  (let ((s (SMILES-for-comp-id comp-id)))
 			    s))))))))))
 
+(define (template-keybindings-to-preferences)
 
+  (let* ((bindings-file-name "template-key-bindings.scm")
+	 (scm-dir (append-dir-dir (pkgdatadir) "scheme"))
+	 (ref-scm (append-dir-file scm-dir bindings-file-name)))
+    (if (not (string? ref-scm))
+	(begin
+	  (add-status-bar-text "bad get-pkgdata-dir."))
+	(begin
+	  (if (not (file-exists? ref-scm))
+	      (begin
+		(add-status-bar-text "Missing reference template key bindings."))
+	      (begin
+		;; happy path
+		(let ((home (getenv "HOME")))
+		  (if (string? home)
+		      (let* ((pref-dir  (append-dir-dir home ".coot-preferences"))
+			     (pref-file (append-dir-file pref-dir bindings-file-name)))
+			;; don't install it if it is already in place.
+			(if (file-exists? pref-file)
+			    (begin 
+			      (let ((s (string-append "keybinding file "
+						      pref-file
+						      " already exists.  Not overwritten.")))
+				(add-status-bar-text s)))
+			    (begin 
+			      (copy-file ref-scm pref-file)
+			      (if (file-exists? pref-file)
+				  (load pref-file)))))))))))))
+	
 ;; Americans...
 (define chiral-center-inverter chiral-centre-inverter)
 

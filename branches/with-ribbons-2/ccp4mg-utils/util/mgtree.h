@@ -77,8 +77,8 @@ class TreeVertex{
    std::vector<TreeVertex*> GetChildren() const {return children;};
    TreeVertex* GetChild(int i) const {return children[i];};
    Cartesian GetExternalChild(int i) const {return ext_children[i];};
-   int GetNumberOfChildren() const {return children.size();};
-   int GetNumberOfExternalChildren() const {return ext_children.size();};
+   size_t GetNumberOfChildren() const {return children.size();};
+   size_t GetNumberOfExternalChildren() const {return ext_children.size();};
    void PrintTree(void) const {std::cout << *this;};
    friend std::ostream& operator<<(std::ostream &c, TreeVertex a);
    int FindDepth(void) const ;
@@ -86,7 +86,7 @@ class TreeVertex{
    double GetParentBondAngle() const {return parent_bond_angle;};
    double GetParentDihedralAngle() const {return parent_dihedral_angle;};
    std::vector <TreeVertex*> GetBranch();
-   int GetNumberOfDescendants() const ;
+   size_t GetNumberOfDescendants() const ;
    void GetDescendants(std::vector<TreeVertex *> &desc_vertices, const TreeVertex *stop_node=0) const ;
    void GetDescendants(std::vector<TreeVertex *> &desc_vertices, const std::vector<TreeVertex*> stop_nodes) const ;
    void GetNonDescendants(std::vector<TreeVertex *> &desc_vertices) const ;
@@ -142,7 +142,7 @@ class Tree{
    std::vector<std::pair<int,int> > extra_bonded_pairs;
    void PrintZMatrix(std::ostream &c, const std::vector<std::string> &labels, const std::string &separater=",");
    void PrintZMatrix(const std::vector<std::string> &labels, const std::string &separater=",");
-   int GetNumberOfVertices() const {return coords.size();}
+   size_t GetNumberOfVertices() const {return coords.size();}
    Cartesian GetCartesian(TreeVertex *unknown) const ;
 
    /*

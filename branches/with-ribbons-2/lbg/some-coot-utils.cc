@@ -24,7 +24,7 @@
 #include <unistd.h>
 #include <stdio.h>
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // no stand-alone functions need be added
 #else 
 
@@ -106,4 +106,4 @@ coot::util::downcase(const std::string &s) {
    return r;
 }
 
-#endif // MAKE_ENTERPRISE_TOOLS
+#endif // MAKE_ENHANCED_LIGAND_TOOLS

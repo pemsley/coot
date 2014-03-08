@@ -258,6 +258,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
           }
            else {
             // No alternate locations - should only be one bond of each type
+            int nMatched = 0;
             for ( ib = 0; ib < pSbRes->nBonds; ib++ ) {
               realtype dist = 0;
               if ( nMatchAtom[pSbRes->Bond[ib]->atom1-1] > 0 &&
@@ -274,6 +275,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
 		     nMatchAtom[pSbRes->Bond[ib]->atom2-1] > 0 &&
                   params->sbase->CheckCovalentDistance(selAtom[matchAtom[0][pSbRes->Bond[ib]->atom1-1]]->element,selAtom[matchAtom[0][pSbRes->Bond[ib]->atom2-1]]->element,dist)!=0
                 ) {
+                nMatched++;
                 AddConnection ( matchAtom[0][pSbRes->Bond[ib]->atom1-1],
 			  matchAtom[0][pSbRes->Bond[ib]->atom2-1],selAtom) ;
                 if (modelBondsSame && nModels > 1 ) {
@@ -299,6 +301,13 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
                 }
               }
 	    }
+            if(nMatched>0&&pSbRes->nBonds>0&&pSbRes->nBonds/nMatched>3){
+              if(strlen(selRes[ir]->name)==3&&(strncmp(selRes[ir]->name,"HOH",3)!=0)){
+                if(!selRes[ir]->isAminoacid()){
+                  doContacts = true;
+                }
+              }
+            }
           }
         }
 
@@ -347,18 +356,35 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
           restype2 = dynamic_cast<PCMMANManager>( molHnds[0])->GetRestypeCode (pa2->residue);
           //cout << "testing interres " <<  pa1->residue->seqNum << pa1->residue->name << " " << restype1 << " "  << pa2->residue->seqNum <<  pa2->residue->name  << " " << restype2 << endl;
           if (restype1 ==  RESTYPE_PEPTIDE && restype2 == RESTYPE_PEPTIDE ) {
-            if (isInterResBond(pa1,pa2)) 
-               AddConnection (contacts[ic].id1,contacts[ic].id2,selAtom0); 
+            if (isInterResBond(pa1,pa2)) {
+              AddConnection (contacts[ic].id1,contacts[ic].id2,selAtom0); 
+            }else{
+              double dist = contacts[ic].dist;
+              if(params->sbase->CheckCovalentDistance(pa1->element,pa2->element,dist)==1)
+                 AddConnection (contacts[ic].id1,contacts[ic].id2,selAtom0); 
+            }
           } else if ( (restype1==RESTYPE_NUCL || restype1==RESTYPE_RNA || restype1==RESTYPE_DNA) && 
                  (restype2 == RESTYPE_NUCL || restype2 == RESTYPE_RNA || restype2 == RESTYPE_DNA) ) {
  
-            if (isInterResBond(pa1,pa2)) 
+            if (isInterResBond(pa1,pa2)){ 
                AddConnection (contacts[ic].id1,contacts[ic].id2,selAtom0); 
+            } else {
+               double dist = contacts[ic].dist;
+               if(params->sbase->CheckCovalentDistance(pa1->element,pa2->element,dist)==1){
+                 AddConnection (contacts[ic].id1,contacts[ic].id2,selAtom0); 
+               }
+            }
           } else if ( (restype1==RESTYPE_SACH || restype1==RESTYPE_DSACH || restype1==RESTYPE_LSACH) && 
                  (restype2 == RESTYPE_SACH || restype2 == RESTYPE_DSACH || restype2 == RESTYPE_LSACH) ) {
  
-            if (isInterResBond(pa1,pa2)) 
+            if (isInterResBond(pa1,pa2)) {
                AddConnection (contacts[ic].id1,contacts[ic].id2,selAtom0); 
+            } else {
+               double dist = contacts[ic].dist;
+               if(params->sbase->CheckCovalentDistance(pa1->element,pa2->element,dist)==1){
+                 AddConnection (contacts[ic].id1,contacts[ic].id2,selAtom0); 
+               }
+            }
 
 	  } else if ((restype1<RESTYPE_SOLVENT || restype1>RESTYPE_NONPOLY) &&
                (restype2<RESTYPE_SOLVENT || restype2>RESTYPE_NONPOLY ) ) {

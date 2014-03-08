@@ -991,12 +991,12 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
 	    // coordinates have the atoms top of the canvas with
 	    // lowest Y values.  The JME has them with highest Y
 	    // values, so swap on output.
-	    of << setiosflags(std::ios::fixed) << std::setw(10) << std::setprecision(4)
+	    of << std::setiosflags(std::ios::fixed) << std::setw(10) << std::setprecision(4)
 	       << (atoms[iat].atom_position.x - centre.x) * 1.54/SINGLE_BOND_CANVAS_LENGTH; // file output
-	    of << setiosflags(std::ios::fixed) << std::setw(10) << std::setprecision(4)
+	    of << std::setiosflags(std::ios::fixed) << std::setw(10) << std::setprecision(4)
 	       << (- atoms[iat].atom_position.y + centre.y) * 1.54/SINGLE_BOND_CANVAS_LENGTH;
 	    double z = 0.0;
-	    of << setiosflags(std::ios::fixed) << std::setw(10) << std::setprecision(4)
+	    of << std::setiosflags(std::ios::fixed) << std::setw(10) << std::setprecision(4)
 	       << z;
 	    // of.width(3);
 	    std::string ele = atoms[iat].element;

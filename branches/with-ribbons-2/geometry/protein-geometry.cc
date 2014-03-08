@@ -26,9 +26,9 @@
 #include <algorithm>  // needed for sort? Yes.
 #include <stdexcept>  // Thow execption.
 
-#include "atom-quads.hh"
-#include "protein-geometry.hh"
-#include "coot-utils.hh"
+#include "mini-mol/atom-quads.hh"
+#include "geometry/protein-geometry.hh"
+#include "utils/coot-utils.hh"
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
@@ -44,8 +44,8 @@
 
 #include "clipper/core/clipper_util.h"
 
-#include "coot-sysdep.h"
-#include "Cartesian.h"
+#include "compat/coot-sysdep.h"
+#include "coords/Cartesian.h"
 
 #include "lbg-graph.hh"
 
@@ -688,6 +688,65 @@ coot::protein_geometry::assign_link_chiral_volume_targets() {
    }
 }
 
+
+// constructor
+coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(CResidue *residue_p) {
+
+   if (residue_p) {
+
+      // copy the residue and make a molecule from it.
+      
+      CResidue *r = new CResidue;
+      r->seqNum = residue_p->GetSeqNum();
+      strcpy(r->name, residue_p->name);
+      PPCAtom residue_atoms = 0;
+      int nResidueAtoms;
+      residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
+      CAtom *atom_p;
+      for(int iat=0; iat<nResidueAtoms; iat++) {
+	 if (! residue_atoms[iat]->isTer()) { 
+	    atom_p = new CAtom;
+	    atom_p->Copy(residue_atoms[iat]);
+	    r->AddAtom(atom_p);
+	 }
+      }
+      
+      CMMDBManager *mol = new CMMDBManager;
+      CModel *model_p = new CModel;
+      CChain *chain_p = new CChain;
+      chain_p->AddResidue(r);
+      model_p->AddChain(chain_p);
+      mol->AddModel(model_p);
+      if (mol) {
+	 chain_p->SetChainID(residue_p->GetChainID());
+	 if (residue_p->GetCoordHierarchy()) {
+	    std::string chain_id = residue_p->GetChainID();
+	    chain_p->SetChainID(chain_id.c_str());
+	 } else {
+	    chain_p->SetChainID("A");
+	 }
+
+	 
+	 // OK, now we can work on mol
+	 
+	 Boolean calc_only = true;
+	 mol->MakeBonds(calc_only);
+
+
+	 residue_atoms = 0;
+	 r->GetAtomTable(residue_atoms, nResidueAtoms);
+	 for (unsigned int iat=0; iat<nResidueAtoms; iat++) { 
+	    CAtom *at = residue_atoms[iat];
+	    int n_bonds = at->GetNBonds();
+	    std::cout << at << " ------------------- n_bonds " << n_bonds << " -----------------"
+		      << std::endl;
+	 }
+      }
+      delete mol;
+   }
+}
+
+
 void
 coot::dictionary_residue_restraints_t::clear_dictionary_residue() {
 
@@ -804,9 +863,9 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos_ideal) { 
 
    // debugging
-   bool debug = 0;
+   bool debug = false;
    if (debug) { 
-      std::cout << "   mon_lib_add_atom  " << comp_id << " :" << atom_id << ": :"
+      std::cout << "   mon_lib_add_atom  " << comp_id << " atom-id:" << atom_id << ": :"
 		<< atom_id_4c << ": " << type_symbol << " " << type_energy << " ("
 		<< partial_charge.first << "," << partial_charge.second << ")" << std::endl;
    } 
@@ -1826,8 +1885,8 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	 if (ierr_tot == 0) {
 
 	    std::string padded_name = comp_atom_pad_atom_name(atom_id, type_symbol);
-// 	    std::cout << "comp_atom_pad_atom_name: in :" << atom_id << ": out :"
-// 		      << padded_name << ":" << std::endl;
+//  	    std::cout << "comp_atom_pad_atom_name: in :" << atom_id << ": out :"
+//  		      << padded_name << ":" << std::endl;
 	    n_atoms++;
 	    if (comp_id_for_partial_charges != "bad match") { 
 	       if (comp_id_for_partial_charges == "unset") {
@@ -3664,6 +3723,11 @@ coot::protein_geometry::init_standard() {
 		      << " CLIBD_MON: " << s << std::endl;
 	    mon_lib_dir = s;
 	    using_clibd_mon = 1;
+	    // strip any trailing / from mon_lib_dir
+	    if (mon_lib_dir.length() > 0) {
+	       if (mon_lib_dir.at(mon_lib_dir.length()-1) == '/')
+		  mon_lib_dir = mon_lib_dir.substr(0,mon_lib_dir.length()-1);
+	    }
 	 }
       }
 
@@ -4306,7 +4370,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    read_number = read_number_in;
    for (int i=0; i<ndict; i++) {
       if (dict_res_restraints[i].residue_info.comp_id == monomer_type) {
-	 if (! dict_res_restraints[i].is_from_sbase_data()) {
+	 if (! dict_res_restraints[i].is_bond_order_data_only()) {
 	    ifound = 1;
 	    break;
 	 }
@@ -4338,7 +4402,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    if (ifound == 0) {
       for (int i=0; i<ndict; i++) {
 	 if (dict_res_restraints[i].residue_info.three_letter_code == monomer_type) {
-	    if (! dict_res_restraints[i].is_from_sbase_data()) {
+	    if (! dict_res_restraints[i].is_bond_order_data_only()) {
 	       ifound = 1;
 	       break;
 	    }
@@ -4360,7 +4424,7 @@ coot::protein_geometry::have_dictionary_for_residue_type_no_dynamic_add(const st
    int ndict = dict_res_restraints.size();
    for (int i=0; i<ndict; i++) {
       if (dict_res_restraints[i].residue_info.comp_id == monomer_type) {
-	 if (! dict_res_restraints[i].is_from_sbase_data()) {
+	 if (! dict_res_restraints[i].is_bond_order_data_only()) {
 	    ifound = 1;
 	    break;
 	 }
@@ -4660,7 +4724,7 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
    if (!r.first) {
       for (unsigned int i=0; i<nrest; i++) {
 	 if (dict_res_restraints[i].residue_info.three_letter_code  == monomer_type) {
-	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_from_sbase_data())) { 
+	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_bond_order_data_only())) { 
 	       r.second = dict_res_restraints[i];
 	       r.first = 1;
 	       break;
@@ -4680,7 +4744,7 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
    unsigned int nrest = dict_res_restraints.size();
    for (unsigned int i=0; i<nrest; i++) {
       if (dict_res_restraints[i].residue_info.comp_id  == monomer_type) {
-	 if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_from_sbase_data())) { 
+	 if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_bond_order_data_only())) { 
 	    r = i;
 	    break;
 	 }
@@ -4707,7 +4771,7 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
    if (r == -1) {
       for (unsigned int i=0; i<nrest; i++) {
 	 if (dict_res_restraints[i].residue_info.three_letter_code  == monomer_type) {
-	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_from_sbase_data())) { 
+	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].is_bond_order_data_only())) { 
 	       r = i;
 	       break;
 	    }
@@ -5101,14 +5165,18 @@ coot::protein_geometry::remove_planar_peptide_restraint() {
 	      it != dict_link_res_restraints[i].link_plane_restraint.end(); it++) {
 	    if (it->plane_id == plane_id) {
 	       ifound = 1;
+	       if (0)
+		  std::cout << "INFO:: before removal of plane3 TRANS has " 
+			    << dict_link_res_restraints[i].link_plane_restraint.size()
+			    << " plane restraints\n";
+	       
 	       // let's remove it
-	       std::cout << "INFO:: before removal of plane3 TRANS has " 
-			 << dict_link_res_restraints[i].link_plane_restraint.size()
-			 << " plane restraints\n";
  	       dict_link_res_restraints[i].link_plane_restraint.erase(it);
-	       std::cout << "INFO::  after removal of plane3 TRANS has " 
-			 << dict_link_res_restraints[i].link_plane_restraint.size()
-			 << " plane restraints\n";
+	       
+	       if (0)
+		  std::cout << "INFO::  after removal of plane3 TRANS has " 
+			    << dict_link_res_restraints[i].link_plane_restraint.size()
+			    << " plane restraints\n";
 	       break;
 	    }
 	 }

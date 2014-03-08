@@ -131,7 +131,7 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
         # now do the protein icon:
         image_size = 120
         image_name_stub = entry_id + "_cbc" + str(image_size) + ".png"
-        image_url = "http://www.ebi.ac.uk/pdbe-srv/view/images/entry/" + \
+        image_url = "http://www.ebi.ac.uk/pdbe/entry-images/" + \
                     image_name_stub
         
         entry_image_file_name = os.path.join(coot_pdbe_image_cache_dir,
@@ -509,11 +509,15 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                     "refmac_good_icon": refmac_good_icon}
 
         # main line
-        pdb_url = "http://www.ebi.ac.uk/pdbe-srv/view/files/" + \
-                  entry_id + ".ent"
-        sfs_cif_url = "http://www.ebi.ac.uk/pdbe-srv/view/files/r" + \
-                      entry_id + "sf.ent"
-        pdb_file_name = os.path.join("coot-download", entry_id + ".ent")
+        coords_type = ".ent"  # can/will be ".cif"
+#       pdb_url = "http://www.ebi.ac.uk/pdbe-srv/view/files/" + \
+#                       entry_id + ".ent"
+#       sfs_cif_url = "http://www.ebi.ac.uk/pdbe-srv/view/files/r" + \
+#                       entry_id + "sf.ent"
+        pdb_url     = "http://www.ebi.ac.uk/pdbe/entry-files/pdb" + \
+                      entry_id + coords_type
+        sfs_cif_url = "http://www.ebi.ac.uk/pdbe/entry-files/r"   + entry_id + "sf.ent"
+        pdb_file_name = os.path.join("coot-download", entry_id + coords_type)
         sfs_cif_file_name = os.path.join("coot-download", "r" + entry_id + "sf.cif")
         sfs_mtz_file_name = os.path.join("coot-download", "r" + entry_id + "sf.mtz")
         refmac_out_mtz_file_name = os.path.join("coot-download",

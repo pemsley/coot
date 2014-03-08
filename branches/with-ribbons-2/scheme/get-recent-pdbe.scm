@@ -324,6 +324,9 @@
 	  (set! refmac-extra-params (cons (list "MAKE NEWLIGAND CONTINUE") refmac-extra-params))
 	  (set! refmac-extra-params (list "MAKE NEWLIGAND CONTINUE")))
 
+      ;; (format #t "########################### save-refmac-extra-params: ~s~%" save-refmac-extra-params)
+      ;; (format #t "########################### refmac-extra-params: ~s~%" refmac-extra-params)
+
       (let ((refmac-result
 	     (run-refmac-by-filename pdb-in-file-name 
 				     pdb-out-file-name 
@@ -525,8 +528,8 @@
 
 	  ;; return a list of the progress bars and the window 
 	  ;; 
-					; (the pdb-file-name and sfs-cif-file-name are passed so
-					; that the cancel button knows what transfers to cancel (if
+	  ;; (the pdb-file-name and sfs-cif-file-name are passed so
+	  ;; that the cancel button knows what transfers to cancel (if
 	  ;; needed)).
 	  ;; 
 	  (define (progress-dialog pdb-file-name sfs-cif-file-name)
@@ -635,12 +638,16 @@
 
 	  ;; ----------------------------------------
 	  ;; 
-	  (let* ((coords-type ".pdb") ;; can/will be ".cif"
+	  (let* ((coords-type ".ent") ;; can/will be ".cif"
+; 20131205		 
+;		 (pdb-url (string-append 
+;			   "http://www.ebi.ac.uk/pdbe-srv/view/files/"
+;			   entry-id coords-type))
 		 (pdb-url (string-append 
-			   "http://www.ebi.ac.uk/pdbe-srv/view/files/"
+			   "http://www.ebi.ac.uk/pdbe/entry-files/pdb"
 			   entry-id coords-type))
 		 (sfs-cif-url (string-append
-			       "http://www.ebi.ac.uk/pdbe-srv/view/files/r"
+			       "http://www.ebi.ac.uk/pdbe/entry-files/r"
 			       entry-id "sf.ent"))
 		 (pdb-file-name (append-dir-file "coot-download" (string-append entry-id coords-type)))
 		 (sfs-cif-file-name (append-dir-file "coot-download" 
@@ -668,7 +675,6 @@
 		 (cif-fail-icon     (get-widget progr-widgets    'cif-fail-icon))
 		 (refmac-fail-icon  (get-widget progr-widgets 'refmac-fail-icon))
 		 (refmac-fail-label (get-widget progr-widgets 'refmac-fail-label)))
-	    
 
 	    (if (file-exists? refmac-log-file-name)
 		(delete-file refmac-log-file-name))
@@ -946,12 +952,14 @@
 
       (define (cached-or-net-get-image-func image-url image-name hbox)
 
-	(let ((curl-status 'start)
+	(let ((curl-status 'start)  ;; what does this do?
 	      (pack-image-func
 	       (lambda ()
 		 (let ((pixmap (gtk-pixmap-new-from-file image-name button-hbox)))
-		   (gtk-box-pack-start hbox pixmap #f #f 1)
-		   (gtk-widget-show pixmap)))))
+		   (if pixmap
+		       (begin
+			 (gtk-box-pack-start hbox pixmap #f #f 1)
+			 (gtk-widget-show pixmap)))))))
 
 	  (cache-or-net-get-image image-url image-name pack-image-func)))
 	  
@@ -974,7 +982,8 @@
       ;; now do the protein icon:
       (let* ((image-size 120)
 	     (image-name-stub (string-append (string-append entry-id "_cbc" (number->string image-size) ".png")))
-	     (image-url (string-append "http://www.ebi.ac.uk/pdbe-srv/view/images/entry/" image-name-stub))
+	     ;; (image-url (string-append "http://www.ebi.ac.uk/pdbe-srv/view/images/entry/" image-name-stub))
+	     (image-url (string-append "http://www.ebi.ac.uk/pdbe/entry-images/" image-name-stub))
 	     (entry-image-file-name (append-dir-file *coot-pdbe-image-cache-dir* image-name-stub)))
 
 	(cached-or-net-get-image-func image-url entry-image-file-name protein-ribbon-hbox))))

@@ -27,4 +27,5 @@ std::string get_drug_via_wikipedia_and_drugbank_scm(const std::string &drugname)
 std::string get_drug_via_wikipedia_and_drugbank_py(const std::string &drugname);
 #endif
 
-void curl_make_a_post();
+void curl_test_make_a_post();
+void curl_post(const std::string &url, const std::string &post_string);

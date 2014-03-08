@@ -1,6 +1,6 @@
 
 (define rnase-pir     (append-dir-file greg-data-dir "rnase.pir"))
-(define poly-ala-frag (append-dir-file greg-data-dir "crashes_on_cootaneering.pdb"))
+(define poly-ala-frag (append-dir-file greg-data-dir "crashes_on_cootaneering-v2.pdb"))
 
 
 (greg-testcase "Assignment of new PIR sequence overwrites old assignment" #t

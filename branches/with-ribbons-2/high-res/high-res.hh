@@ -1,6 +1,5 @@
 
-// #include "mmdb_manager.h"
-#include "mini-mol.hh"
+#include "mini-mol/mini-mol.hh"
 
 namespace coot { 
 

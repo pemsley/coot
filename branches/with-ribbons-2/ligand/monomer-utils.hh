@@ -29,12 +29,13 @@
 #include <vector>
 #endif
 
-#include "mmdb-extras.h"
-#include "mmdb.h"
 #include <mmdb/mmdb_manager.h>
 
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+
 #include "clipper/core/coords.h"
-#include "atom-quads.hh"
+#include "mini-mol/atom-quads.hh"
 
 namespace coot {
 

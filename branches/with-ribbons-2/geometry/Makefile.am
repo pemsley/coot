@@ -22,13 +22,10 @@ lib_LTLIBRARIES=libcoot-geometry.la
 
 EXTRA_DIST = notes Makefile.simple
 
-include_HEADERS =  protein-geometry.hh read-sbase.hh lbg-graph.hh 
+pkginclude_HEADERS =  protein-geometry.hh read-sbase.hh lbg-graph.hh srs-interface.hh
+pkgincludedir = $(includedir)/coot/geometry
 
-INCLUDES = -I$(top_srcdir)/coords     \
-	   -I$(top_srcdir)/utils      \
-	   -I$(top_srcdir)/mini-mol   \
-	   -I$(top_srcdir)/coot-utils \
-	   -I$(top_srcdir)/compat     \
+INCLUDES = -I$(top_srcdir) \
 	 $(CLIPPER_CXXFLAGS) $(CCP4SRS_CXXFLAGS) $(MMDB_CXXFLAGS)
 
 AM_CXXFLAGS = \
@@ -63,11 +60,11 @@ test_read_components_SOURCES = test-read-components.cc test-read-components.hh
 test_geometry_LDADD = ./libcoot-geometry.la    \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
         $(top_builddir)/utils/libcoot-utils.la       \
-	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
+	$(GLOB_LIBS) $(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
 
 test_read_components_LDADD =  \
 	./libcoot-geometry.la \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
         $(top_builddir)/utils/libcoot-utils.la       \
-	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
+	$(GLOB_LIBS) $(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
 

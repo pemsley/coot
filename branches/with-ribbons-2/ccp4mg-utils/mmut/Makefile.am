@@ -68,10 +68,9 @@ AM_CXXFLAGS = \
 # correct callbacks in both GTK1 and GTK2 regimes.
 #
 INCLUDES = \
-	-I$(top_srcdir)/ccp4mg-utils/util	\
-	-I$(top_srcdir)/ccp4mg-utils/mmut	\
-	-I$(top_srcdir)/ccp4mg-utils/pygl	\
-	-I$(top_srcdir)/ccp4mg-utils	\
+	-I$(top_srcdir)			\
+	-I$(top_srcdir)/ccp4mg-utils/mmut \
+	-I$(top_srcdir)/ccp4mg-utils/util \
 	$(GTKGL_CONTEXT_CFLAGS)		\
 	$(LIBGLADE_CFLAGS)		\
 	@GTK_CFLAGS@ 			\

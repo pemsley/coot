@@ -201,6 +201,54 @@
 	     (cdr chain-id-list))))))
 
 
+
+
+;; Update NCS ghosts based on local environment (residues within 6A of
+;; (and including) the active residue).
+;; 
+;; Typically one would bind this function to a key.
+;; 
+(define (update-ncs-ghosts-by-local-sphere)
+  (using-active-atom 
+   ;; (clear-ncs-ghost-matrices aa-imol)
+   (let* ((ghost-ncs-chain-ids (ncs-chain-ids aa-imol)))
+     ;; (print-var ghost-ncs-chain-ids)
+     (if (list? ghost-ncs-chain-ids)
+	 (let ((ghost-chain-id-list (car ghost-ncs-chain-ids)))
+	   ;; (print-var ghost-chain-id-list)
+	   (if (list? ghost-chain-id-list)
+	       (begin
+		 (clear-ncs-ghost-matrices aa-imol)
+		 (for-each 
+		  (lambda (chain-id)
+		    (let ((imol-copy (copy-molecule aa-imol))) ;; temporary
+		      (set-mol-displayed imol-copy 0)
+		      (set-mol-active    imol-copy 0)
+		      (clear-lsq-matches)
+		      (let* ((active-res-spec (list aa-chain-id aa-res-no aa-ins-code))
+			     (near-residues (residues-near-residue aa-imol active-res-spec 6))
+			     (sphere-residues (cons active-res-spec near-residues)))
+			(for-each (lambda(residue-spec)
+				    ;; (print-var residue-spec)
+				    (let ((res-no  (residue-spec->res-no residue-spec)))
+				      (add-lsq-match res-no res-no (car ghost-chain-id-list)
+						     res-no res-no chain-id 1)))
+				  sphere-residues)
+
+			(let ((rtop (apply-lsq-matches aa-imol imol-copy)))
+			  (close-molecule imol-copy)
+			  (if (not rtop)
+			      (begin
+				(format #t "Failed to get LSQ matching matrix ~s~%" chain-id))
+			      (begin
+				(let ((master (car ghost-chain-id-list)))
+				  (if (string? master)
+				      (apply add-ncs-matrix aa-imol chain-id master (apply append rtop))))))))))
+		  (cdr ghost-chain-id-list)))))))))
+
+
+
+
 ;; Return the first master chain id (usually there is only one of course) or #f.
 ;; 
 (define (ncs-master-chain-id imol)

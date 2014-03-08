@@ -106,8 +106,10 @@ std::vector<SearchResult> SSfind::search( const std::vector<Pair_coord>& target_
   }
 
   // eliminate any results which would have been eliminated by the cutoff
+  std::vector<SearchResult> rslts_cut;
   for ( int i = 0; i < rslts.size(); i++ )
-    if ( rslts[i].score < bestcut ) rslts[i] = rsltnull;
+    if ( rslts[i].score >= bestcut && rslts[i].rot >= 0 && rslts[i].trn >= 0 )
+      rslts_cut.push_back( rslts[i] );
 
-  return rslts;
+  return rslts_cut;
 }

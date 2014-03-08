@@ -2,8 +2,9 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "coot-utils/coot-coord-utils.hh"
+
 #include "primitive-chi-angles.hh"
-#include "coot-coord-utils.hh"
 
 
 

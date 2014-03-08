@@ -80,4 +80,27 @@ void printintpp(int **a, int rows, int cols);
 
 std::vector<Cartesian> PPCAtomsToCartesians(int natoms, PPCAtom atoms);
 
+/*
+PPCChain GetChainTable(CMMDBManager *molHnd, int model, int &nChains);
+
+PPCResidue GetResidueTable(CMMDBManager *molHnd, int &nResidues);
+PPCResidue GetResidueTable(CMMDBManager *molHnd, int model, const char* chainID, int &nResidues);
+PPCResidue GetResidueTable(CMMDBManager *molHnd, int model, int chainNo, int &nResidues);
+PPCResidue GetResidueTable(CMMDBManager *molHnd, const char* CID, int &nResidues);
+
+PPCAtom GetAtomTable(CMMDBManager *molHnd, int &nAtoms);
+PPCAtom GetAtomTable(CMMDBManager *molHnd, int model, const char* chainID, int seqNo, const char* insCode, int &nAtoms);
+PPCAtom GetAtomTable(CMMDBManager *molHnd, int model, int chainNo, int seqNo, const char* insCode, int &nAtoms);
+PPCAtom GetAtomTable(CMMDBManager *molHnd, int model, const char* chainID, int resNo, int &nAtoms);
+PPCAtom GetAtomTable(CMMDBManager *molHnd, int model, int chainNo, int resNo, int &nAtoms);
+PPCAtom GetAtomTable(CMMDBManager *molHnd, const char* CID, int &nAtoms);
+
+PPCAtom GetAtomTable(CResidue *res, int &nAtoms);
+
+PPCModel GetModelSelIndex(CMMDBManager *molHnd, int selHnd, int &nModels);
+PPCChain GetChainSelIndex(CMMDBManager *molHnd, int selHnd, int &nChains);
+PPCResidue GetResidueSelIndex(CMMDBManager *molHnd, int selHnd, int &nResidues);
+PPCAtom GetAtomSelIndex(CMMDBManager *molHnd, int selHnd, int &nAtoms);
+*/
+
 #endif

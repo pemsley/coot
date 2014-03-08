@@ -36,7 +36,8 @@ EXTRA_DIST = cootsound.c
 
 lib_LTLIBRARIES=libcoot-tw.la
 
-include_HEADERS = coot-tw.hh
+pkginclude_HEADERS = coot-tw.hh
+pkgincludedir = $(includedir)/coot/tw
 
 libcoot_tw_la_SOURCES = tw.cc
 

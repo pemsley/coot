@@ -21,6 +21,8 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import re, string
+        
 # 3D annotations - a bit of a hack currently
 global annotations
 annotations = []
@@ -760,24 +762,36 @@ def every_nth(ls, n):
         a.append(ls[i])
     return a
 
-# return atom info or False (if atom not found).
+# now usefull in testing
 #
-def get_atom(imol, chain_id, resno, ins_code, atom_name, alt_conf_internal=""):
+# residue_atoms must be a list
+#
+def get_atom_from_residue(atom_name, residue_atoms, alt_conf):
 
-    def get_atom_from_res(atom_name, residue_atoms, alt_conf):
+    """Get atom_info fomr a residue.
+    residue_atoms must be a list
+    """
+    
+    if ((isinstance(residue_atoms, list)) and
+        (residue_atoms != [])):
         for residue_atom in residue_atoms:
             if (residue_atom[0][0] == atom_name and
                 residue_atom[0][1] == alt_conf):
                 return residue_atom
-        #print "BL WARNING:: no atom name %s found in residue" %atom_name
-        return False # no residue name found
+    # print "BL WARNING:: no atom name %s found in residue" %atom_name
+    return False # no residue name found fail save
     
+
+# return atom info or False (if atom not found).
+#
+def get_atom(imol, chain_id, resno, ins_code, atom_name, alt_conf_internal=""):
+
     res_info = residue_info(imol, chain_id, resno, "")
 
     if (not res_info):
         return False
     else:
-        ret = get_atom_from_res(atom_name, res_info, alt_conf_internal)
+        ret = get_atom_from_residue(atom_name, res_info, alt_conf_internal)
         return ret
 
 #
@@ -1227,6 +1241,20 @@ def chain_ids(imol):
 def is_solvent_chain_qm(imol,chain_id):
     if (is_solvent_chain_p(imol,chain_id)==1): return True
     else: return False
+
+# convert from interface name to schemisch name to be equivalent to Paul's naming
+#
+# return True or False
+#
+def is_protein_chain_qm(imol, chain_id):
+    return is_protein_chain_p(imol, chain_id) == 1
+
+# convert from interface name to schemisch name to be equivalent to Paul's naming
+#
+# return True or False
+#
+def is_nucleotide_chain_qm(imol, chain_id):
+    return is_nucleotide_chain_p(imol, chain_id) == 1
 
 # python (schemeyish) interface to eponymous scripting interface function!?
 # return True or False
@@ -2201,7 +2229,6 @@ def remove_line_containing_from_file(remove_str_ls, filename):
         print "BL INFO:: no %s file, so cannot remove line" %init_file
         lines = []
     if (lines):
-        import re, string
         patt = string.join(remove_str_ls,'|')
         re_patt = re.compile(patt)
         tmp_ls = []
@@ -3030,6 +3057,7 @@ def get_drug_via_wikipedia(drug_name):
         return parse_wiki_drug_xml(xml, '#REDIRECT', True)
     
     def parse_wiki_drug_xml(tree, key, redirect=False):
+        key_re = re.compile(key)
         drug_bank_id = False
         query_ele = tree.find("query")
         rev_iter = query_ele.getiterator("rev")
@@ -3037,7 +3065,8 @@ def get_drug_via_wikipedia(drug_name):
         # seems to be in some strange format!?
         decode_text = rev_text.encode('ascii', 'ignore')
         for line in decode_text.split("\n"):
-            if key in line:
+            # if key in line: # too simple, we need a regular expresssion search
+            if key_re.search(line):
                 if (redirect == False):
                    drug_bank_id = line.split(" ")[-1]
                    if not drug_bank_id:
@@ -3046,16 +3075,11 @@ def get_drug_via_wikipedia(drug_name):
                 else:
                     # a REDIRECT was found
                     drug_bank_id = line[line.find("[[")+2:line.find("]]")]
-                    
+
         return drug_bank_id
             
-        
-    # main line
-    def drugbox2drugbank():
-        return "DrugBank = "
-    def drugbox2pubchem():
-        return "PubChem = "
 
+    
     file_name = False
     if isinstance(drug_name, str):
         if len(drug_name) > 0:
@@ -3067,15 +3091,15 @@ def get_drug_via_wikipedia(drug_name):
             xml = urllib2.urlopen(url)
             xml_tree = ElementTree.parse(xml)
             
-            mol_name = parse_wiki_drug_xml(xml_tree, drugbox2drugbank())
-            
+            mol_name = parse_wiki_drug_xml(xml_tree, "DrugBank  *= ")
+
             if not isinstance(mol_name, str):
-                print "BL WARNING:: mol_name not a string (from wikipedia)", mol_name
+                print "BL WARNING:: mol_name not a string (DrugBank entry from wikipedia)", mol_name
                 # try pubchem as fallback
-                mol_name = parse_wiki_drug_xml(xml_tree, drugbox2pubchem())
+                mol_name = parse_wiki_drug_xml(xml_tree,  "PubChem  *= ")
                 if not isinstance(mol_name, str):
 
-                    print "BL WARNING:: mol_name not a string (from pubchem either)", mol_name
+                    print "BL WARNING:: mol_name not a string (pubchem entry either)", mol_name
                     # so was there a redirect?
                     # if so, get the name and call get_drug_via_wikipedia with it
                     redirected_drug_name = get_redirected_drug_name(xml_tree)
@@ -3150,6 +3174,39 @@ try:
     load_from_search_load_path("redefine_functions.py")
 except:
     pass
+
+# Add file with filename to preferences directory
+#
+def file_to_preferences(filename):
+    
+    """Copy the file filename from python pkgdatadir directory to
+    prefereneces directory.
+    """
+
+    import shutil
+    
+    ref_py = os.path.join(get_pkgdatadir(), "python", filename)
+    if not os.path.exists(ref_py):
+        add_status_bar_text("Missing reference template key bindings.")
+    else:
+        # happy path
+        home = os.getenv("HOME")
+        if is_windows():
+            home = os.getenv("COOT_HOME")
+        if isinstance(home, str):
+            pref_dir = os.path.join(home, ".coot-preferences")
+            if not os.path.isdir(pref_dir):
+                make_directory_maybe(pref_dir)
+            pref_file = os.path.join(pref_dir, filename)
+            # don't install it if it is already in place.
+            if os.path.isfile(pref_file):
+                s = "keybinding file " + pref_file + \
+                    " already exists. Not overwritten."
+                add_status_bar_text(s)
+            else:
+                shutil.copyfile(ref_py, pref_file)
+                if os.path.isfile(pref_file):
+                    execfile(pref_file, globals())
 
 # add terminal residue is the normal thing we do with an aligned
 # sequence, but also we can try ton find the residue type of a

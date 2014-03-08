@@ -195,9 +195,9 @@ int test_torsion_general(atom_selection_container_t asc, std::string pdb_filenam
 		  }
 		  std::reverse(reverse_atom_specs.begin(), reverse_atom_specs.end());
 		  CMMDBManager *res_mol_1 =
-		     coot::util::create_mmdbmanager_from_residue(asc.mol, residue_p);
+		     coot::util::create_mmdbmanager_from_residue(residue_p);
 		  CMMDBManager *res_mol_2 =
-		     coot::util::create_mmdbmanager_from_residue(asc.mol, residue_p);
+		     coot::util::create_mmdbmanager_from_residue(residue_p);
 
 		  CResidue *res_copy_1 = coot::util::get_residue("", target_resno, "", res_mol_1);
 		  CResidue *res_copy_2 = coot::util::get_residue("", target_resno, "", res_mol_2);

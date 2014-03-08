@@ -40,6 +40,9 @@ namespace coot {
    // Return status is 0 if the flip did not happen (because, for
    // example, either or both of the Ca's could not be found).
    //
+   // If this can't be done, try to simply rotate the O 180 degrees
+   // around the CA-C vector (of this residue)
+   //
    // Typically, one would copy one's mol (and save it) before calling
    // this.
    // 
@@ -48,6 +51,21 @@ namespace coot {
 	       int resno, 
 	       const std::string &inscode,
 	       const std::string &altconf);
+
+   // Rotates around CA-CA vector
+   int pepflip_standard(CMMDBManager *mol,
+			const std::string &chain_id,
+			int resno, 
+			const std::string &inscode,
+			const std::string &altconf);
+
+   // Rotates around CA-CA vector
+   int pepflip_internal_to_residue(CMMDBManager *mol,
+				   const std::string &chain_id,
+				   int resno, 
+				   const std::string &inscode,
+				   const std::string &altconf);
+
 
    // You are advised against using this externally.
    // 

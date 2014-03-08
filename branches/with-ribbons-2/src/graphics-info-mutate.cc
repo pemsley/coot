@@ -47,22 +47,21 @@
 #include <iostream>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
-
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
 #include <GL/glut.h>  // for some reason...  // Eh?
 
 #include "interface.h"
 
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 #include "molecule-class-info.h"
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 #include "graphics-info.h"
 #include "manipulation-modes.hh"
@@ -304,7 +303,7 @@ graphics_info_t::mutate_chain(int imol, const std::string &chain_id,
    if (imol < n_molecules()) { 
       if (imol >= 0) { 
 	 if (molecules[imol].has_model()) {
-	    std::cout << "INFO:: aligning to mol number " << imol << "chain: "
+	    std::cout << "INFO:: aligning to mol number " << imol << " chain: "
 		      << chain_id << std::endl;
 	    coot::chain_mutation_info_container_t mutation_info = 
 	       molecules[imol].align_and_mutate(chain_id, coot::fasta(seq), renumber_residues_flag,

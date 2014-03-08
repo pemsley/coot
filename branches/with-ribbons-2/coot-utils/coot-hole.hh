@@ -2,8 +2,8 @@
 #include <mmdb/mmdb_manager.h>
 #include "clipper/core/coords.h"
 
-#include "coot-utils.hh"
-#include "protein-geometry.hh"
+#include "utils/coot-utils.hh"
+#include "geometry/protein-geometry.hh"
 
 namespace coot {
 

@@ -22,10 +22,10 @@
 #include <list>
 #include <algorithm>
 
-#include "coot-utils.hh"
+#include "compat/coot-sysdep.h"
+#include "utils/coot-utils.hh"
 #include "coot-coord-extras.hh"
 
-#include "coot-sysdep.h"
 
 // Note: this is a simple-minded hack.  The right way of doing this
 // is to define a bonding tree that includes atoms from both
@@ -117,7 +117,6 @@ coot::beam_in_linked_residue::setup_by_comp_id(const std::string &comp_id_ref,
    
    if (coot::file_exists(full_path_pdb_filename)) {
    
-
       CMMDBManager *t_mol = new CMMDBManager;
       int status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
       if (status != Error_NoError) {
@@ -142,8 +141,8 @@ coot::beam_in_linked_residue::setup_by_comp_id(const std::string &comp_id_ref,
 	       // Happy path
 	       status = true;
 	       have_template = 1; // template_res_mov and
-	       // template_res_ref are correctly
-	       // set.
+                                  // template_res_ref are correctly
+	                          // set.
 	    } 
 	 }
       }
@@ -171,7 +170,7 @@ coot::beam_in_linked_residue::setup_by_group_group(const std::string &group_ref,
    std::string full_path_pdb_filename = pkgdatadir; // and then add to it...
    full_path_pdb_filename += "/";
    full_path_pdb_filename += file_name;
-   if (0)
+   if (1)
       std::cout << "debug:: setup_by_group() full_path_pdb_filename "
 		<< full_path_pdb_filename
 		<< std::endl;
@@ -203,8 +202,8 @@ coot::beam_in_linked_residue::setup_by_group_group(const std::string &group_ref,
 	    } else { 
 	       // Happy path
 	       have_template = 1; // template_res_mov and
-	       // template_res_ref are correctly
-	       // set.
+	                          // template_res_ref are correctly
+	                          // set.
 	       status = true;
 	    } 
 	 }
@@ -258,11 +257,10 @@ coot::beam_in_linked_residue::setup_by_comp_id_group(const std::string &comp_id_
 			 << comp_id_new << " in " << full_path_pdb_filename
 			 << std::endl;
 	    } else { 
-	       std::cout << "Here 5" << std::endl;
 	       // Happy path
 	       have_template = 1; // template_res_mov and
-	       // template_res_ref are correctly
-	       // set.
+	                          // template_res_ref are correctly
+	                          // set.
 	       status = true;
 	    } 
 	 }
@@ -376,10 +374,23 @@ coot::beam_in_linked_residue::get_residue_raw() const {
       } else {
 	 // fit template_res_ref to residue_ref and move the atoms of template_res_mov
 	 //
+	 // util::create_mmdbmanager_from_residue(NULL, template_res_ref)->WritePDBASCII("template_res_ref-pre-1.pdb");
+	 // util::create_mmdbmanager_from_residue(NULL, template_res_mov)->WritePDBASCII("template_res_mov-pre-1.pdb");
+	 // util::create_mmdbmanager_from_residue(NULL, residue_ref)->WritePDBASCII("residue_ref-pre-1.pdb");
+	 
 	 bool status = lsq_fit(template_res_ref, residue_ref, template_res_mov,
 			       lsq_atom_names_ref, lsq_atom_names_match);
+
+	 // debug
+	 lsq_fit(template_res_ref, residue_ref, template_res_ref,
+		 lsq_atom_names_ref, lsq_atom_names_match);
+	 
 	 if (status) { 
 	    r = template_res_mov;
+
+	    // util::create_mmdbmanager_from_residue(NULL, template_res_ref)->WritePDBASCII("template_res_ref-post-1.pdb");
+	    // util::create_mmdbmanager_from_residue(NULL, template_res_mov)->WritePDBASCII("template_res_mov-post-1.pdb");
+	    // util::create_mmdbmanager_from_residue(NULL, residue_ref)->WritePDBASCII("residue_ref-post-1.pdb");
 
 	    // Now, if r is a BMA, but we actually want a NAG (or
 	    // so) then we need to get a NAG from the dictionary
@@ -387,8 +398,7 @@ coot::beam_in_linked_residue::get_residue_raw() const {
 	    // (comp_id_new is set in the constructor).
 	    // 
 	    std::string r_res_name(r->GetResName());
-	    // std::cout << "DEBUG:: comparing " << r_res_name
-	    // << " with wanted " << comp_id_new << std::endl;
+	    // std::cout << "DEBUG:: comparing " << r_res_name << " with wanted " << comp_id_new << std::endl;
 	    if (r_res_name != comp_id_new) {
 
 	       // Something strange happens with the atom indices,
@@ -406,7 +416,7 @@ coot::beam_in_linked_residue::get_residue_raw() const {
 			       << comp_id_new << " substituting "
 			       << r_res_name << std::endl;
 		  } else {
-		     // happy path, lsq_fit: reference_res moving_res atom_names
+		     // happy path, lsq_fit: reference_res matcher_res moving_res atom_names
 		     bool state = lsq_fit(r_new, r, r_new, lsq_atom_names_ref, lsq_atom_names_match);
 		     if (state)
 			r = r_new;
@@ -456,7 +466,7 @@ coot::beam_in_linked_residue::get_residue_raw() const {
 	 // << " - that's OK" << std::endl;
       } 
    }
-   std::cout << "get_residue_raw() returns " << r << std::endl;
+   // std::cout << "get_residue_raw() returns " << r << std::endl;
    return r;
 }
 

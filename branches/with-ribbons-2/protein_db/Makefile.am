@@ -21,7 +21,8 @@ lib_LTLIBRARIES=libcoot-protein-db.la
 
 INCLUDES= $(CLIPPER_CXXFLAGS)  $(MMDB_CXXFLAGS)
 
-include_HEADERS=protein_db.h  protein_db_utils.h rna_db.h
+pkginclude_HEADERS=protein_db.h  protein_db_utils.h rna_db.h
+pkgincludedir = $(includedir)/coot/protein_db
 
 libcoot_protein_db_la_SOURCES=protein_db.cpp  protein_db_utils.cpp rna_db.cpp
 

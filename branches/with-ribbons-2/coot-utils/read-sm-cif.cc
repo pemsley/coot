@@ -12,14 +12,17 @@
 #include "clipper/contrib/sfscale.h"
 #include "clipper/contrib/sfweight.h"
 
-#include "coot-utils.hh"
+#include "compat/coot-sysdep.h"
+#include "utils/coot-utils.hh"
 
 #include "read-sm-cif.hh"
 
-#include "coot-sysdep.h"
 
 // add a casting hack for old versions of mmdb
 //
+#ifndef MMDB_MAJOR_VERSION
+#define PSTR_CAST_HACK (pstr *) // old, old, full of old-ability
+#else 
 #if (MMDB_MAJOR_VERSION == 1)
 #if (MMDB_MINOR_VERSION < 24)
 #define PSTR_CAST_HACK (pstr *)
@@ -29,7 +32,7 @@
 #else 
 #define PSTR_CAST_HACK
 #endif
-
+#endif
 
 // This can throw a std::runtime_error.
 // 
@@ -364,8 +367,9 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 		     }
 		  } 
 	       } 
-	       catch (clipper::Message_base exc) {
-		  std::cout << "Oops, trouble.  No such spacegroup\n";
+	       catch (const clipper::Message_base &exc) {
+		  // 20130710 clipper::Message_base::text() doesn't exist yet? 
+		  std::cout << "ERROR:: Oops, trouble.  No such spacegroup " << "\n";
 	       }
 	    } else {
 	       std::cout << "ERROR:: no symm strings" << std::endl;
@@ -376,7 +380,7 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 	 
       }
 
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "ERROR:: " << rte.what() << std::endl;
       }
    }

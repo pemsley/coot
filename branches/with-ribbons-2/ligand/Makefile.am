@@ -25,24 +25,18 @@ EXTRA_DIST = Makefile.simple read-dunbrack.awk
 
 INCLUDES = \
 	-I$(top_srcdir)/ccp4mg-utils/util \
-	-I$(top_srcdir)/mini-mol \
-	-I$(top_srcdir)/geometry \
-	-I$(top_srcdir)/ideal \
-	-I$(top_srcdir)/coords \
-	-I$(top_srcdir)/lidia-core \
-	-I$(top_srcdir)/utils \
-	-I$(top_srcdir)/coot-utils \
-	-I$(top_srcdir)/compat \
-	-I$(top_srcdir)/db-main \
+	-I$(top_srcdir) \
 	$(COOT_GSL_FLAGS)		\
 	$(GSL_CFLAGS)			\
 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) 
 
-include_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh \
+pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh \
 	chi-angles.hh dunbrack.hh helix-placement.hh fast-ss-search.hh        \
 	rigid-body.hh ideal-rna.hh rotamer.hh richardson-rotamer.hh           \
 	torsion-general.hh primitive-chi-angles.hh dipole.hh    \
 	base-pairing.hh backrub-rotamer.hh
+pkgincludedir = $(includedir)/coot/ligand
+
 
 libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	wiggly-ligand.cc monomer-utils.cc dunbrack.cc chi-angles-autogen.cc   \
@@ -182,6 +176,7 @@ findligand_real_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
 	$(top_builddir)/compat/libcoot-compat.la           \
+        $(GLOB_LIBS) \
         $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
@@ -201,6 +196,7 @@ findwaters_real_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
 	$(top_builddir)/compat/libcoot-compat.la           \
+        $(GLOB_LIBS) \
         $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 

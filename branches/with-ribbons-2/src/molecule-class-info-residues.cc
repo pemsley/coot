@@ -34,7 +34,7 @@
 #include <string.h>
 #include <GL/glut.h>
 
-// #ifdef MAKE_ENTERPRISE_TOOLS
+// #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // // includes order important, otherwise we get dcgettext() problems.
 // #include "rdkit-interface.hh" // needed for add_hydrogens()
 // #endif
@@ -42,16 +42,16 @@
 
 #include <mmdb/mmdb_manager.h>
 #include <mmdb/mmdb_tables.h>  // for Get1LetterCode()
-#include "mmdb-extras.h"
-#include "Cartesian.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/Cartesian.h"
+#include "coords/mmdb-crystal.h"
 
-#include "rotamer.hh" // in ligand
+#include "ligand/rotamer.hh" // in ligand
 
-#include "base-pairing.hh"
+#include "ligand/base-pairing.hh"
 
 #include "molecule-class-info.h"
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-hydrogens.hh"
 
 #include "rama_plot.hh"
@@ -216,7 +216,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  const std::string &alt_conf = alt_confs[iac];
 
 
-		  CMMDBManager *residue_mol = coot::util::create_mmdbmanager_from_residue(NULL, residue_p);
+		  CMMDBManager *residue_mol = coot::util::create_mmdbmanager_from_residue(residue_p);
 		  CResidue *residue_cp_p = coot::util::get_first_residue(residue_mol);
 
 		  coot::util::delete_alt_confs_except(residue_cp_p, alt_conf);
@@ -950,6 +950,22 @@ molecule_class_info_t::residue_centre(CResidue *residue_p) const {
    return std::pair<bool, clipper::Coord_orth> (r, pos);
 }
 
+// return a negative number if not valid
+float
+molecule_class_info_t::distance_between_residues(CResidue *r1, CResidue *r2) const {
+
+   float dist = -1; 
+   std::pair<bool, clipper::Coord_orth> c1 = residue_centre(r1);
+   std::pair<bool, clipper::Coord_orth> c2 = residue_centre(r2);
+
+   if (c1.first && c2.first) {
+      dist = clipper::Coord_orth::length(c1.second, c2.second);
+   }
+
+   return dist;
+}
+
+
 
 
 // ------------------- ligand centre ---------------------
@@ -992,7 +1008,8 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
 		     std::string res_name = residue_p->GetResName();
 		     if (res_name != "HOH")
 			if (res_name != "WAT")
-			   is_het = true;
+			   if (res_name != "MSE")
+			      is_het = true;
 		     break;
 		  } 
 	       }
@@ -1146,8 +1163,8 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
       try {
 	 coot::beam_in_linked_residue lr(residue_ref, link_type, new_residue_comp_id, geom_p);
 	 CResidue *result = lr.get_residue();
-	 // lr.get_residue() can (and often does) modify residue_ref (for
-	 // deleting link mod atom, for example). So we need a FinishStructEdit() here
+	 // lr.get_residue() can (and often does) modify residue_ref (by
+	 // deleting a link mod atom, for example). So we need a FinishStructEdit() here
 	 atom_sel.mol->FinishStructEdit();
       
 	 std::pair<bool, CResidue *> status_pair = add_residue(result, spec_in.chain);
@@ -1158,6 +1175,9 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
 					     link_type, *geom_p);
 	    make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist, *geom_p);
 	 }
+
+	 // we no longer need result here, I think, so it can be deleted.
+	 
       }
       catch (std::runtime_error rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
@@ -1291,6 +1311,7 @@ coot::dict_link_info_t::check_for_order_switch(CResidue *residue_ref,
 void
 molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue_spec_t> &residue_specs,
 						 const clipper::Xmap<float> &xmap,
+						 int n_trials,
 						 coot::protein_geometry *geom_p) {
 
    CMMDBManager *moving_mol =
@@ -1299,7 +1320,7 @@ molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue
    // do we need to send over the base atom too?  Or just say
    // that it's the first atom in moving_mol?
    // 
-   coot::multi_residue_torsion_fit_map(moving_mol, xmap, geom_p);
+   coot::multi_residue_torsion_fit_map(moving_mol, xmap, n_trials, geom_p);
 
    atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
    replace_coords(moving_atoms_asc, 1, 1);
@@ -1376,7 +1397,7 @@ molecule_class_info_t::split_water(std::string chain_id, int res_no, std::string
       PPCAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      fit_to_map_by_random_jiggle(residue_atoms, n_residue_atoms, xmap, map_sigma, 10, 1);
+      fit_to_map_by_random_jiggle(residue_atoms, n_residue_atoms, xmap, map_sigma, 10, 1, false);
       
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions();
@@ -1522,3 +1543,80 @@ molecule_class_info_t::get_centre_atom_from_sequence_triplet(const std::string &
    }
    return at;
 }
+
+
+void
+molecule_class_info_t::rotate_residue(coot::residue_spec_t rs,
+				      const clipper::Coord_orth &around_vec,
+				      const clipper::Coord_orth &origin_offset,
+				      double angle) {
+
+   CResidue *residue_p = get_residue(rs);
+   if (residue_p) {
+      make_backup();
+      coot::util::rotate_residue(residue_p, around_vec, origin_offset, angle);
+      have_unsaved_changes_flag = 1;
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      make_bonds_type_checked();
+   } 
+}
+
+std::vector<coot::fragment_info_t>
+molecule_class_info_t::get_fragment_info(bool screen_output_also) const {
+
+   std::vector<coot::fragment_info_t> v;
+
+   int imod = 1;
+   CModel *model_p = atom_sel.mol->GetModel(imod);
+   CChain *chain_p;
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      if (nres > 0) { 
+	 coot::fragment_info_t fi(chain_p->GetChainID());
+	 CResidue *residue_p_prev  = 0;
+	 CResidue *residue_p_start = 0;
+	 CResidue *residue_p_this;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p_this = chain_p->GetResidue(ires);
+	    // if this was the second residue or further along...
+	    if (residue_p_prev) {
+	       if ((residue_p_prev->GetSeqNum() + 1) != residue_p_this->GetSeqNum()) {
+		  coot::fragment_info_t::fragment_range_t r(residue_p_start, residue_p_prev);
+		  fi.add_range(r);
+		  residue_p_start = residue_p_this; // start a new fragment (part-way through a chain)
+	       }
+	    } else {
+	       // we are starting a new fragment (at the beginning of a chain)
+	       residue_p_start = residue_p_this;
+	    } 
+	    residue_p_prev = residue_p_this;
+	 }
+	 
+	 // and the last fragment of the chain
+	 if (residue_p_start) {
+	    coot::fragment_info_t::fragment_range_t r(residue_p_start, residue_p_this);
+	    fi.add_range(r);
+	 }
+
+	 // done this fragment info:
+	 v.push_back(fi);
+      }
+   }
+
+   if (screen_output_also) {
+      std::cout << "------------------" << std::endl;
+      for (unsigned int i=0; i<v.size(); i++) { 
+	 std::cout << "   chain-id: " << v[i].chain_id << std::endl;
+	 for (unsigned int j=0; j<v[i].ranges.size(); j++) { 
+	    std::cout << "      "
+		      << v[i].ranges[j].start_res.resno << " "
+		      << v[i].ranges[j].end_res.resno << std::endl;
+	 }
+      }
+      std::cout << "------------------" << std::endl;
+   }
+   return v;
+} 

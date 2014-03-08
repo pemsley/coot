@@ -33,8 +33,8 @@
 #endif 
 
 
-#ifdef MAKE_ENTERPRISE_TOOLS
-#include "rdkit-interface.hh"
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "lidia-core/rdkit-interface.hh"
 #endif 
 
 #include <iostream>
@@ -51,18 +51,18 @@
 #define MONOMER_DIR_STR "COOT_CCP4SRS_DIR"
 #endif 
 
-#include "lig-build.hh"
-#include "lbg-molfile.hh"
+#include "lidia-core/lig-build.hh"
+#include "lidia-core/lbg-molfile.hh"
 
 // #include "some-coot-utils.hh"
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 #include "wmolecule.hh"
 
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 #include "flev-annotations.hh"
 
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "graphics-c-interface-functions.hh"
 #endif 
 
@@ -613,7 +613,7 @@ public:
                                          // of the primary residues.
    };
 
-#ifdef MAKE_ENTERPRISE_TOOLS   
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS   
    class alert_info_t {
    public:
       std::string smarts;
@@ -756,7 +756,7 @@ private:
       alert_group = NULL; // group for alert annotations
       show_alerts_user_control = false; // no pattern matching available
       geom_p = NULL; // no (static) geometry passed/set
-#ifdef MAKE_ENTERPRISE_TOOLS   
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS   
       show_alerts_user_control = true;
       bond_pick_pending = false;
       atom_pick_pending = false;
@@ -904,7 +904,7 @@ private:
    convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
 	   const coot::flev_attached_hydrogens_t &ah) const;
    
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
    RDKit::Bond::BondType convert_bond_type(const lig_build::bond_t::bond_type_t &t) const;
    RDKit::Bond::BondDir  convert_bond_dir(const lig_build::bond_t::bond_type_t &t) const;
    
@@ -1069,9 +1069,9 @@ public:
    void handle_key_press_button_toggle(int key, bool ctrl_is_pressed);
    
    // and the version of that not going via an intermediate molfile_molecule_t
-#ifdef MAKE_ENTERPRISE_TOOLS   
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS   
    widgeted_molecule_t import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const;
-#endif // MAKE_ENTERPRISE_TOOLS   
+#endif // MAKE_ENHANCED_LIGAND_TOOLS   
 
    static void on_sbase_search_result_button_clicked(GtkButton *button, gpointer user_data);
    static gboolean watch_for_mdl_from_coot(gpointer user_data);
@@ -1097,7 +1097,7 @@ public:
    // non-enterprise path
    void update_statusbar_smiles_string() const;
    void update_statusbar_smiles_string(const std::string &smiles_string) const;
-#ifdef MAKE_ENTERPRISE_TOOLS
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
    RDKit::RWMol rdkit_mol(const widgeted_molecule_t &mol) const;
    // do these need to be RWMols?
    void update_statusbar_smiles_string(const RDKit::ROMol &rdkm) const;
@@ -1114,9 +1114,9 @@ public:
 #endif
    // although these depend on/manipulate rdkit-based entities - they
    // only clear them up, not generate them, so, in order that we
-   // don't complicated lbg-callbacks.cc with MAKE_ENTERPRISE_TOOLS
+   // don't complicated lbg-callbacks.cc with MAKE_ENHANCED_LIGAND_TOOLS
    // dependencies, let's put those functions outside the
-   // MAKE_ENTERPRISE_TOOLS dependency here.
+   // MAKE_ENHANCED_LIGAND_TOOLS dependency here.
    void clear_canvas_alerts();
    bool show_alerts_user_control; 
    
@@ -1161,6 +1161,18 @@ public:
    // drag and drop callbacks
    int handle_lbg_drag_and_drop_string(const std::string &uri);
    int handle_lbg_drag_and_drop_single_item(const std::string &uri);
+   int handle_lbg_drag_and_drop_chemspider_image(const std::string &uri);
+   int handle_lbg_drag_and_drop_chemspider_structure(const std::string &uri);
+   int handle_lbg_drag_and_drop_pubchem_image(const std::string &uri);
+   int handle_lbg_drag_and_drop_filesystem_file(const std::string &uri);
+   int handle_lbg_drag_and_drop_drugbank(const std::string &uri,
+					 const std::string &url_file_name_file);
+   int handle_lbg_drag_and_drop_mol_file(const std::string &uri_clean,
+					 const std::string &url_file_name_file);
+   std::string get_id_string(const std::string &s, int prefix_len, int max_len) const;
+   int get_chemspider_mol(const std::string &id_string);
+   int get_pubchem_mol(const std::string &id_string);
+
 
    // we want to use curl functions, but they are declared - and
    // stored in the src functions.  We can't move them down the
@@ -1177,8 +1189,8 @@ public:
 
    // handle PRODRG output
    // 
-   void (*prodrg_import_func_ptr) (std::string file_name);
-   void set_prodrg_import_function(void (*f) (std::string)) {
+   void (*prodrg_import_func_ptr) (std::string file_name_in, std::string comp_id);
+   void set_prodrg_import_function(void (*f) (std::string, std::string)) {
       prodrg_import_func_ptr = f;
    }
    // handle SBase input, i.e. when a user clicks on a sbase-search
@@ -1189,9 +1201,9 @@ public:
       sbase_import_func_ptr = f;
    }
 
-   void import_prodrg_output(const std::string &prodrg_mdl_file_name) {
+   void import_prodrg_output(const std::string &prodrg_mdl_file_name, const std::string &comp_id) {
       if (prodrg_import_func_ptr) {
-	 prodrg_import_func_ptr(prodrg_mdl_file_name);
+	 prodrg_import_func_ptr(prodrg_mdl_file_name, comp_id);
       } else {
 	 std::cout << "WARNING:: No prodrg_import_func_ptr set" << std::endl;
       } 
@@ -1229,7 +1241,7 @@ lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 		bool use_graphics_interface_flag,
 		bool stand_alone_flag_in,
 		int (*get_url_func_pointer) (const char *s1, const char *s2),
-		void (*prodrg_import_function_pointer) (std::string file_name),
+		void (*prodrg_import_function_pointer) (std::string file_name_in, std::string comp_id),
 		void (*sbase_import_function_pointer) (std::string comp_id),
 		std::string (*get_drug_mdl_file_function_pointer) (std::string drug_name)
 		);

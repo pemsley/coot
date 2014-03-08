@@ -3,7 +3,7 @@
 #ifndef HAVE_VECTOR
 #include <vector>
 #endif // HAVE_VECTOR
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 
 namespace coot {
 

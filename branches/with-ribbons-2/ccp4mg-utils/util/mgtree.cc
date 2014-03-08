@@ -1500,7 +1500,6 @@ void TreeVertex::GetDescendants(std::vector<int> &desc_vertices, const std::vect
   if(!skipFirstCheck&&std::binary_search(stop_nodes.begin(),stop_nodes.end(),GetID())){
       return;
   }
-  TreeVertex *child;
   for(int i=0;i<GetNumberOfChildren();i++){
     int childID = children[i]->GetID();
     if(!std::binary_search(stop_nodes.begin(),stop_nodes.end(),childID)){
@@ -1555,7 +1554,7 @@ void TreeVertex::GetDescendants(std::vector<int> &desc_vertices, const TreeVerte
   }
 }
  
-int TreeVertex::GetNumberOfDescendants(void) const {
+size_t TreeVertex::GetNumberOfDescendants(void) const {
   int ndescendants = 0;
   ndescendants += GetNumberOfChildren();
   TreeVertex *child;

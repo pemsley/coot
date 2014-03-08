@@ -26,7 +26,7 @@ AC_DEFUN([AM_WITH_CCP4SRS],
 AC_ARG_WITH(ccp4srs-prefix, 
 	AC_HELP_STRING( [--with-ccp4srs-prefix=PFX], [Prefix where CCP4SRS has been installed] ),
 	[ with_ccp4srs_prefix="$withval" ],
- with_ccp4srs_prefix="")
+          with_ccp4srs_prefix="")
 
 AC_MSG_CHECKING([for CCP4SRS])
 
@@ -35,17 +35,10 @@ if test x$with_ccp4srs_prefix != x; then
    CCP4SRS_CXXFLAGS="-DHAVE_CCP4SRS"
    CCP4SRS_LIBS="-L$with_ccp4srs_prefix/$acl_libdirstem -lccp4srs"
 
-ac_mmdb_dirs='
-.
-include
-'
-
-   for ac_dir in $ac_mmdb_dirs; do
-      if test -r "$with_ccp4srs_prefix/$ac_dir/ccp4srs_types.h"; then
-         ac_CCP4SRS_CXXFLAGS="-I$with_ccp4srs_prefix/$ac_dir"
-         break
-      fi
-   done
+   if test -r "$with_ccp4srs_prefix/include/ccp4srs/ccp4srs_types.h"; then
+      ac_CCP4SRS_CXXFLAGS="-I$with_ccp4srs_prefix/include"
+      break
+   fi
 
   CCP4SRS_CXXFLAGS="$CCP4SRS_CXXFLAGS $ac_CCP4SRS_CXXFLAGS"
   

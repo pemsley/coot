@@ -46,35 +46,36 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 
 #include "clipper/ccp4/ccp4_map_io.h"
 
-#include "Bond_lines.h"
+#include "coords/Cartesian.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb-crystal.h"
+#include "coords/Bond_lines.h"
 #include "gtk-manual.h"
 
-#include "mini-mol.hh"
-#include "CalphaBuild.hh"
+#include "mini-mol/mini-mol.hh"
+#include "build/CalphaBuild.hh"
 #include "coot-render.hh"
-#include "coot-surface.hh"
+#include "coot-surface/coot-surface.hh"
 #include "coot-align.hh"
-#include "coot-fasta.hh"
-#include "coot-shelx.hh"
-#include "coot-utils.hh"
+#include "utils/coot-fasta.hh"
+#include "coot-utils/coot-shelx.hh"
+#include "utils/coot-utils.hh"
 
 // for ribbons
 #include "cdisplayobject.h"
 #include "CParamsManager.h"
 
-#include "protein_db_utils.h"
-
-using namespace std; // Hmmm.. I don't approve, FIXME
+#include "protein_db/protein_db_utils.h"
 
 #include "select-atom-info.hh"
-#include "coot-coord-utils.hh"
-#include "coot-coord-extras.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-coord-extras.hh"
 
-#include "protein-geometry.hh"
+#include "geometry/protein-geometry.hh"
 
-#include "simple-restraint.hh" // for extra restraints.
+#include "ideal/simple-restraint.hh" // for extra restraints.
 
-#include "rotamer.hh" // in ligand, for rotamer probabilty tables
+#include "ligand/rotamer.hh" // in ligand, for rotamer probabilty tables
 
 
 #include "validation-graphs.hh"  // GTK things, now part of
@@ -82,14 +83,18 @@ using namespace std; // Hmmm.. I don't approve, FIXME
 				 // to be part of graphics_info_t before the 
                                  // array->vector change-over.
 
-#include "dipole.hh"
-#include "density-contour-triangles.hh"
+#include "ligand/dipole.hh"
+#include "density-contour/density-contour-triangles.hh"
 
 #include "gl-bits.hh"
-#include "flev-annotations.hh" // animated ligand interactions
+#include "lbg/flev-annotations.hh" // animated ligand interactions
+
+#include "pick.h"
 
 #include "dots-representation.hh"
 #include "named-rotamer-score.hh"
+
+#include "c-interface-sequence.hh"
 
 namespace molecule_map_type {
    enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3,
@@ -116,11 +121,11 @@ namespace coot {
 
    class new_centre_info_t {
    public:
-      coot::new_ligand_position_type type;
+      new_ligand_position_type type;
       clipper::Coord_orth position;
       std::string info_string;
       residue_spec_t residue_spec;
-      new_centre_info_t(coot::new_ligand_position_type pt,
+      new_centre_info_t(new_ligand_position_type pt,
 			const clipper::Coord_orth &pos,
 			const residue_spec_t &res_spec_in) {
 	 type = pt;
@@ -137,10 +142,11 @@ namespace coot {
       model_view_residue_button_info_t(const std::string &lab,
 				       CResidue *res) {
 	 button_label = lab;
-	 residue = res;
+	 residue_spec = res;
       } 
       std::string button_label;
-      CResidue *residue;
+      // CResidue *residue; No. This can go out of date.
+      residue_spec_t residue_spec;
    };
 
    class model_view_atom_tree_item_info_t {
@@ -149,10 +155,11 @@ namespace coot {
       model_view_atom_tree_item_info_t(const std::string &label,
 				       CResidue *res) {
 	 button_label = label;
-	 residue = res;
+	 residue_spec = res;
       }
       std::string button_label;
-      CResidue *residue;
+      // CResidue *residue;
+      residue_spec_t residue_spec;
    };
 
    class model_view_atom_tree_chain_t {
@@ -351,7 +358,7 @@ namespace coot {
       bool check_for_order_switch(CResidue *residue_ref,
 				  CResidue *residue_new,
 				  const std::string &link_type,
-				  const coot::protein_geometry &geom) const;
+				  const protein_geometry &geom) const;
    public:
       // this can throw a std::runtime_error
       dict_link_info_t (CResidue *residue_ref, CResidue *residue_new,
@@ -362,13 +369,13 @@ namespace coot {
    };
 
 
-   class go_to_residue_string_info_t {
+   class goto_residue_string_info_t {
    public:
-      bool resno_is_set;
+      bool res_no_is_set;
       bool chain_id_is_set;
-      int resno;
+      int res_no;
       std::string chain_id;
-      go_to_residue_string_info_t(const std::string &go_to_residue_string, CMMDBManager *mol);
+      goto_residue_string_info_t(const std::string &goto_residue_string, CMMDBManager *mol);
    }; 
 
    class atom_attribute_setting_help_t {
@@ -578,9 +585,32 @@ namespace coot {
 	    esd = e;
 	 }
       };
+
+      class extra_parallel_planes_restraints_representation_t {
+      public:
+	 clipper::Coord_orth ring_centre;
+	 clipper::Coord_orth plane_projection_point;
+	 clipper::Coord_orth normal; // for the ring plane
+	 double ring_radius;
+	 double pp_radius; // projection point
+	 extra_parallel_planes_restraints_representation_t(const clipper::Coord_orth &rc,
+							   const clipper::Coord_orth &ppp,
+							   const clipper::Coord_orth &norm,
+							   double r1, double r2) {
+	    ring_centre = rc;
+	    plane_projection_point = ppp;
+	    normal = norm;
+	    ring_radius = r1;
+	    pp_radius = r2;
+	 }
+      };
+
+      
       std::vector<extra_bond_restraints_respresentation_t> bonds;
+      std::vector<extra_parallel_planes_restraints_representation_t> parallel_planes;
       void clear() {
 	 bonds.clear();
+	 parallel_planes.clear();
       }
       void add_bond(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2) {
 	 extra_bond_restraints_respresentation_t br(pt1, pt2, -1, -1);
@@ -592,6 +622,10 @@ namespace coot {
 	 extra_bond_restraints_respresentation_t br(pt1, pt2, d, e);
 	 bonds.push_back(br);
       }
+
+      // maybe extra parameters are needed here (e.g. for colouring later, perhaps).
+      void add_parallel_plane(const lsq_plane_info_t &pi_1,
+			      const lsq_plane_info_t &pi_2);
    };
 
    // ------------ molecule probability scoring ------------
@@ -631,8 +665,104 @@ namespace coot {
       }
    };
 
+   // e.g. 
+   // "Mg" -> <"  MG", "MG">
+   // "I"  -> <"   I", "IOD">
+   // 
+   class atom_name_bits_t {
+   public:
+      atom_name_bits_t() { filled = false; }
+      bool filled;
+      std::string atom_name;
+      std::string element_name;
+      std::string res_name;
+      atom_name_bits_t(const std::string &type) {
+	 filled = false;
+	 if (type == "Br") {
+	    atom_name = "BR  ";
+	    element_name = "BR";
+	    res_name = "BR";
+	    filled = true;
+	 }
+	 if (type == "Ca") {
+	    atom_name = "CA  ";
+	    element_name = "CA";
+	    res_name = "CA";
+	    filled = true;
+	 }
+	 if (type == "Na") {
+	    atom_name = "NA  ";
+	    element_name = "NA";
+	    res_name = "NA";
+	    filled = true;
+	 }
+	 if (type == "Cl") {
+	    atom_name = "CL  ";
+	    element_name = "CL";
+	    res_name = "CL";
+	    filled = true;
+	 }
+	 if (type == "I") {
+	    atom_name = "I   ";
+	    element_name = "I";
+	    res_name = "IOD";
+	    filled = true;
+	 }
+	 if (type == "Mg") {
+	    atom_name = "MG  ";
+	    element_name = "MG";
+	    res_name = "MG";
+	    filled = true;
+	 }
+	 if (! filled) {
+	    // make up (guess) the residue type and element
+	    std::string at_name = util::upcase(type);
+        atom_name = at_name;
+        res_name = at_name;
+        element_name = at_name;
+	    if (type.length() > 4)
+	       atom_name = at_name.substr(0,4);
+	    if (type.length() > 3)
+	       res_name = at_name.substr(0,3);
+	    if (type.length() > 2)
+	       element_name = at_name.substr(0,2);
+	    filled = true;
+	 }
+      }
+      void SetAtom(CAtom *at, CResidue *res) {
+	 if (filled) { 
+	    at->SetAtomName(atom_name.c_str());
+	    at->SetElementName(element_name.c_str());
+	    res->SetResName(res_name.c_str());
+	 }
+      } 
+   };
+
+   class fragment_info_t {
+   public:
+      class fragment_range_t {
+      public:
+	 residue_spec_t start_res;
+	 residue_spec_t end_res;
+	 fragment_range_t(const residue_spec_t &r1, const residue_spec_t &r2) {
+	    start_res = r1;
+	    end_res = r2;
+	 }
+      };
+      std::string chain_id;
+      std::vector<fragment_range_t> ranges;
+      fragment_info_t() {}
+      fragment_info_t(const std::string chain_id_in) { chain_id = chain_id_in; } 
+      void add_range(const fragment_range_t &r) {
+	 ranges.push_back(r);
+      } 
+   };
+
 } // namespace coot
 
+
+bool trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
+			    const std::pair<clipper::RTop_orth, float> &b);
 
 
 // Forward declaration
@@ -669,6 +799,7 @@ class molecule_class_info_t {
    float map_mean_;
    float map_max_;
    float map_min_;
+   float sharpen_b_factor_;
    short int is_dynamically_transformed_map_flag;
    coot::ghost_molecule_display_t map_ghost_info;
 
@@ -776,7 +907,7 @@ class molecule_class_info_t {
    // to get colours for elements
    std::vector<float> get_atom_colour_from_element(const char *element);
    // difference map negative level colour relative to positive level:
-   float rotate_colour_map_for_difference_map; // 120.0 default colour_map_rotation
+   float rotate_colour_map_for_difference_map; // 240.0 default colour_map_rotation
 
    float get_clash_score(const coot::minimol::molecule &a_rotamer) const;
    std::pair<double, clipper::Coord_orth> get_minimol_pos(const coot::minimol::molecule &a_rotamer) const; 
@@ -798,7 +929,8 @@ class molecule_class_info_t {
 
    // return status and a chain id [status = 0 when there are 26 chains...]
    // 
-   std::pair<short int, std::string> unused_chain_id() const;
+   std::pair<bool, std::string> unused_chain_id() const;
+   coot::atom_name_bits_t atom_name_to_atom_name_plus_res_name() const;
 
    int set_coot_save_index(const std::string &s); 
 
@@ -888,7 +1020,9 @@ class molecule_class_info_t {
 		  PCResidue *SelResidues, int nSelResidues,
 		  const std::string &target,
 		  realtype wgap,
-		  realtype wspace) const;
+		  realtype wspace,
+		  bool is_nucleic_acid_flag = false,
+		  bool console_output = true) const;
 
 
    std::string
@@ -1047,6 +1181,7 @@ public:        //                      public
       // clipper leak message?
       drawit = 0;
       drawit_for_extra_restraints = false;
+      drawit_for_parallel_plane_restraints = false;
       draw_it_for_map = 0;  // don't display this thing on a redraw!
       draw_it_for_map_standard_lines = 0;
 
@@ -1071,7 +1206,9 @@ public:        //                      public
       // while zero maps, don't need to intialise the arrays (xmap_is_filled)
       max_xmaps = 0;
       nx_map_is_filled = 0;
-      is_patterson = 0; 
+      is_patterson = 0;
+      draw_vectors = NULL;
+      diff_map_draw_vectors = NULL;
       
       //
       xskel_is_filled = 0; // not filled.
@@ -1113,9 +1250,10 @@ public:        //                      public
       // backup on by default, turned off for dummy atoms (baton building)
       backup_this_molecule = 1;
 
-      // Map sutff
+      // Map stuff
       map_max_ = 100.0;
       map_min_ = -100.0;
+      sharpen_b_factor_ = 0.0;
 
       // fourier (for phase recombination (potentially) in refmac:
       fourier_weight_label = ""; // unset initially.
@@ -1352,8 +1490,13 @@ public:        //                      public
    }
 
    // pass 0 or 1
-   void set_extra_restraints_are_displayed(int state) {
+   void set_display_extra_restraints(int state) {
       drawit_for_extra_restraints = state; 
+   }
+   
+   // pass 0 or 1
+   void set_display_parallel_plane_restraints(int state) {
+      drawit_for_parallel_plane_restraints = state; 
    }
 
    void delete_extra_restraints_for_residue(const coot::residue_spec_t &rs);
@@ -1705,7 +1848,7 @@ public:        //                      public
    //
 
    // a generic function to convert from a residue_spec_vec to a
-   // selection handle. Caller creates teh SelHnd_selection so that it
+   // selection handle. Caller creates the SelHnd_selection so that it
    // is clearer where the SelHnd_selection should be deleted.
    //
    void fill_residue_selection(int SelHnd_selection,
@@ -1833,6 +1976,9 @@ public:        //                      public
 
    //
    float map_sigma() const { return map_sigma_; }
+
+   //
+   float sharpen_b_factor() const { return sharpen_b_factor_; }
 
    // for debugging.
    int test_function();
@@ -1972,7 +2118,8 @@ public:        //                      public
    // by alignment (against asigned pir seq file) return, "HIS", "ALA" etc, if we can.
    std::pair<bool, std::string> find_terminal_residue_type(const std::string &chain_id, int resno,
 							   realtype alignment_wgap,
-							   realtype alignment_wspace) const;
+							   realtype alignment_wspace,
+							   bool is_nucleic_acid_flag = false) const;
 
 
    // These create an object that is not specific to a molecule, there
@@ -2200,7 +2347,7 @@ public:        //                      public
    //
    int intelligent_this_residue_atom(CResidue *res_p) const;
    coot::atom_spec_t intelligent_this_residue_atom(const coot::residue_spec_t &rs) const;
-   CAtom *intelligent_this_residue_mmdb_atom(CResidue *res_p) const;
+   CAtom *intelligent_this_residue_mmdb_atom(CResidue *res_p) const; // has null res_p protection.
 
    // pointer atoms:
    void add_pointer_atom(coot::Cartesian pos);
@@ -2224,7 +2371,7 @@ public:        //                      public
    // Are we looking back along the chain (i.e. we are building forward (direction = 1))
    // or building backward (direction = 0)? 
    // 
-   std::vector<clipper::Coord_orth> previous_baton_atom(const CAtom* latest_atom_addition,
+   std::vector<clipper::Coord_orth> previous_baton_atom(CAtom* latest_atom_addition,
 							short int direction) const;
 
    clipper::Xmap<coot::SkeletonTreeNode> skeleton_treenodemap;
@@ -2541,6 +2688,7 @@ public:        //                      public
 
    // So that we can move around all the atoms of a ligand (typically)
    void translate_by(float x, float y, float z);
+   void translate_by_internal(const clipper::Coord_orth &co, CResidue *residue_p);
    void transform_by(mat44 mat); // can't make this const: mmdb probs.
    void transform_by(const clipper::RTop_orth &rtop);
    void transform_by(const clipper::RTop_orth &rtop, CResidue *res);
@@ -2640,7 +2788,9 @@ public:        //                      public
 
    void assign_sequence_from_file(const std::string &filename);
 
-   void assign_sequence_from_string(const std::string &chain_id, const std::string &seq);
+   // Apply to NCS-related chains too, if present
+   void assign_sequence_to_NCS_related_chains_from_string(const std::string &chain_id, const std::string &seq);
+   void assign_sequence_from_string_simple(const std::string &chain_id, const std::string &seq);
 
    void delete_all_sequences_from_molecule();
 
@@ -2888,6 +3038,7 @@ public:        //                      public
    short int symmetry_rotate_colour_map_flag; // do we want symmetry of other
 						     // molecules to have a different
 						     // colour [MOL]?
+   void move_reference_chain_to_symm_chain_position(coot::Symm_Atom_Pick_Info_t naii);
 
    // ncs control
    void fill_ncs_control_frame(GtkWidget *dialog) const; // called for every coords mol
@@ -3053,9 +3204,9 @@ public:        //                      public
 				     const clipper::Xmap<float> &xmap,
 				     float map_sigma,
 				     int n_trials,
-				     float jiggle_scale_factor);
-
-
+				     float jiggle_scale_factor,
+				     bool use_biased_density_scoring);
+   
    // return a fitted molecule
    coot::minimol::molecule rigid_body_fit(const coot::minimol::molecule &mol_in,
 					  const clipper::Xmap<float> &xmap,
@@ -3085,9 +3236,11 @@ public:        //                      public
    // ---- extra restraints (currently only bonds) -----------
    //
    bool drawit_for_extra_restraints;
+   bool drawit_for_parallel_plane_restraints;
    coot::extra_restraints_t extra_restraints;
    coot::extra_restraints_representation_t extra_restraints_representation;
    void draw_extra_restraints_representation();
+   void draw_parallel_plane_restraints_representation();
    
    // return an index of the new restraint
    int add_extra_bond_restraint(coot::atom_spec_t atom_1,
@@ -3112,6 +3265,7 @@ public:        //                      public
    void remove_extra_torsion_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2,
                                       coot::atom_spec_t atom_3, coot::atom_spec_t atom_4);
    void update_extra_restraints_representation(); // called from make_bonds_type_checked()
+   void update_extra_restraints_representation_parallel_planes();
    void add_refmac_extra_restraints(const std::string &file_name);
    void clear_extra_restraints();
 
@@ -3189,6 +3343,9 @@ public:        //                      public
    void make_link(const coot::atom_spec_t &spec_1, const coot::atom_spec_t &spec_2,
 		  const std::string &link_name, float length,
 		  const coot::protein_geometry &geom);
+   void delete_any_link_containing_residue(const coot::residue_spec_t &res_spec);
+   void delete_link(CLink *link, CModel *model_p);
+
 
    // ------------ watson crick pair additions  ---------
    int watson_crick_pair_for_residue_range(const std::string &chain_id,
@@ -3209,6 +3366,8 @@ public:        //                      public
    residue_centre(const std::string &chain_id, int resno, const std::string &ins_code) const;
    // which calls:
    std::pair<bool, clipper::Coord_orth> residue_centre(CResidue *residue_p) const;
+   // related (distance between residue_centres), return negative number if not valid:
+   float distance_between_residues(CResidue *r1, CResidue *r2) const;
 
    // ------------------- ligand centre ---------------------
    // we want a button that goes to the ligand when we click it.
@@ -3255,6 +3414,7 @@ public:        //                      public
    // multi-residue torsion map fitting interface
    void multi_residue_torsion_fit(const std::vector<coot::residue_spec_t> &residue_specs,
 				  const clipper::Xmap<float> &xmap,
+				  int n_trials,
 				  coot::protein_geometry *geom_p);
 
 
@@ -3264,6 +3424,13 @@ public:        //                      public
 			    clipper::Coord_orth centre,
 			    const std::string &file_name) const;
 
+   // shift "bottom left" to the origin and make sure that it's on a grid that is
+   // "nice" (acceptable?) for molrep
+   // 
+   int export_map_fragment_with_origin_shift(float radius,
+					     clipper::Coord_orth centre,
+					     const std::string &file_name) const;
+
    coot::residue_spec_t get_residue_by_type(const std::string &residue_type) const;
 
    std::vector<coot::residue_spec_t> het_groups() const;
@@ -3272,7 +3439,62 @@ public:        //                      public
    CAtom *get_centre_atom_from_sequence_triplet(const std::string &seq_trip) const;
    // which uses (like align's make_model_string).  Ignores waters.
    // The length of the string is guaranteed to the the length of the vector.
-   std::pair<std::string, std::vector<CResidue *> > sequence_from_chain(CChain *chain_p) const; 
+   std::pair<std::string, std::vector<CResidue *> > sequence_from_chain(CChain *chain_p) const;
+
+   std::vector<coot::chain_mutation_info_container_t>
+   sequence_comparison_to_chains(const std::string &sequence) const;
+
+   void rotate_residue(coot::residue_spec_t rs,
+		       const clipper::Coord_orth &around_vec,
+		       const clipper::Coord_orth &origin_offset,
+		       double angle);
+
+
+   // for morphing
+   class morph_rtop_triple {
+   public:
+      bool valid;
+      clipper::Coord_orth co;
+      clipper::RTop_orth rtop;
+   public:
+      morph_rtop_triple() { valid = false; }
+      morph_rtop_triple(bool valid_in,
+		  const clipper::Coord_orth &co_in,
+		  const clipper::RTop_orth &rtop_in) {
+	 valid = valid_in;
+	 co = co_in;
+	 rtop = rtop_in;
+      }
+      morph_rtop_triple(const clipper::Coord_orth &co_in,
+		  const std::pair<bool, clipper::RTop_orth> &rtop_in) {
+	 valid = rtop_in.first;
+	 co = co_in;
+	 rtop = rtop_in.second;
+      }
+   };
+
+
+   // model morphing (average the atom shift by using shifts of the
+   // atoms within shift_average_radius A of the central residue)
+   // 
+   int morph_fit_all(const clipper::Xmap<float> &xmap_in, float shift_average_radius);
+   int morph_fit_residues(std::vector<std::pair<CResidue *, std::vector<CResidue *> > > moving_residues,
+			  const clipper::Xmap<float> &xmap_in, float transformation_average_radius);
+   int morph_fit_residues(const std::vector<coot::residue_spec_t> &residue_specs,
+			  const clipper::Xmap<float> &xmap_in, float transformation_average_radius);
+   int morph_fit_chain(const std::string &chain_id,
+		       const clipper::Xmap<float> &xmap_in, float transformation_average_radius);
+   void morph_show_shifts(const std::map<CResidue *, morph_rtop_triple> &simple_shifts,
+			  const std::map<CResidue *, morph_rtop_triple> &smooth_shifts) const;
+   // I fail to make a function that does a good "average" of RTops,
+   // so do it long-hand by generating sets of coordinates by applying
+   // each rtop to each atom - weights are transfered in the second part of the pair
+   void morph_residue_atoms_by_average_rtops(CResidue *this_residue,
+					     const std::vector<std::pair<clipper::RTop_orth, float> > &rtops);
+
+   // fragment info for Alan:
+   std::vector<coot::fragment_info_t> get_fragment_info(bool screen_output_also) const;
+
    
 };
 

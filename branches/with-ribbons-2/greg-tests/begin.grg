@@ -82,9 +82,13 @@
 
 (define (bond-length-from-atoms atom-1 atom-2)
   (if (not (list? atom-1))
-      (format #t "   WARNING:: bond-length-from-atoms: atom-1 not a list: ~s~%" atom-1)
+      (begin
+	(format #t "   WARNING:: bond-length-from-atoms: atom-1 not a list: ~s~%" atom-1)
+	#f)
       (if (not (list? atom-2))
-	  (format #t "   WARNING:: bond-length-from-atoms: atom-2 not a list: ~s~%" atom-2)
+	  (begin
+	    (format #t "   WARNING:: bond-length-from-atoms: atom-2 not a list: ~s~%" atom-2)
+	    #f)
 	  (bond-length (list-ref atom-1 2)
 		       (list-ref atom-2 2)))))
 
@@ -299,3 +303,5 @@
 		  
 
 (set-console-display-commands-hilights 0 0 0)
+;; in fact, shut up altogether.
+(set-console-display-commands-state 0)

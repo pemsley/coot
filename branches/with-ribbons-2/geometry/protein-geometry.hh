@@ -54,7 +54,7 @@
 
 #include "clipper/core/coords.h"
 
-#include "atom-quads.hh"
+#include "mini-mol/atom-quads.hh"
 
 namespace coot {
 
@@ -429,7 +429,7 @@ namespace coot {
    // 
    class dictionary_residue_restraints_t {
       bool has_partial_charges_flag;
-      bool filled_with_sbase_data_flag; // if set, this means that
+      bool filled_with_bond_order_data_only_flag; // if set, this means that
 					// there is only bond orders
 					// (at the moment) and atom
 					// names.
@@ -439,22 +439,33 @@ namespace coot {
 	 has_partial_charges_flag = 0;
 	 // comp_id = comp_id_in;
 	 read_number = read_number_in;
-	 filled_with_sbase_data_flag = 0;
+	 filled_with_bond_order_data_only_flag = 0;
       }
       dictionary_residue_restraints_t() {
 	 // comp_id = ""; /* things are unset */
-	 filled_with_sbase_data_flag = 0;
+	 filled_with_bond_order_data_only_flag = 0;
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
       }
       dictionary_residue_restraints_t(bool constructor_for_sbase_restraints) {
 	 // comp_id = ""; /* things are unset */
-	 filled_with_sbase_data_flag = 1;
+	 filled_with_bond_order_data_only_flag = 1;
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
       }
+      // fake a dictionary (bond and angle restraints) from the
+      // coordinates in the residue.  Fake up some bond and angle
+      // esds.
+      dictionary_residue_restraints_t(CResidue *residue_p);
+      
       std::string cif_file_name;
       void clear_dictionary_residue();
+      bool is_filled() const {
+	 if (bond_restraint.size() > 0)
+	    if (atom_info.size() > 0)
+	       return true;
+	 return false;
+      } 
       dict_chem_comp_t residue_info;
       std::vector <dict_atom> atom_info;
       // std::string comp_id; // i.e. residue type name
@@ -501,7 +512,7 @@ namespace coot {
 
       std::vector<std::string> get_attached_H_names(const std::string &atom_name) const;
 
-      bool is_from_sbase_data() const { return filled_with_sbase_data_flag; }
+      bool is_bond_order_data_only() const { return filled_with_bond_order_data_only_flag; }
 
       std::vector<std::string> neighbours(const std::string &atom_name, bool allow_hydrogen_neighbours_flag) const;
 
@@ -702,6 +713,7 @@ namespace coot {
       std::vector <dict_link_chiral_restraint_t>  link_chiral_restraint;
       int assign_link_chiral_volume_targets(); // return the number of link targets made.
       bool has_unassigned_chiral_volumes() const;
+      bool empty() const { return link_id.empty(); }
    };
 
    class simple_cif_reader {
@@ -1778,8 +1790,11 @@ namespace coot {
       // 
       int init_refmac_mon_lib(std::string filename, int read_number_in);
 
-      int size() const { return dict_res_restraints.size(); }
+      unsigned int size() const { return dict_res_restraints.size(); }
       const dictionary_residue_restraints_t & operator[](int i) const {
+	 // debugging SRS compilation
+	 // std::cout << "const operator[] for a geom " << i << " of size "
+	 //           << dict_res_restraints.size() << std::endl;
 	 return dict_res_restraints[i]; }
       const dictionary_residue_link_restraints_t & link(int i) const {
 	 return dict_link_res_restraints[i]; }
@@ -1837,8 +1852,8 @@ namespace coot {
 
       // Return success status in first (0 is fail) and the second is
       // a whole residue's restraints so that we can use it to test if
-      // an atom is a hydrogen.  Must have a full entry (not from
-      // sbase) for the first of the returned pair to be true.
+      // an atom is a hydrogen.  Must have a full entry (not minimal
+      // for the first of the returned pair to be true.
       // 
       std::pair<bool, dictionary_residue_restraints_t>
       get_monomer_restraints(const std::string &monomer_type) const;
@@ -2026,6 +2041,10 @@ namespace coot {
 
       void read_energy_lib(const std::string &file_name);
 
+      // the saved mon lib di (so that we can easily read it in again)
+      // or better have a function to get the directory!?
+      std::string saved_mon_lib_dir;
+
       // return HB_UNASSIGNED when not found
       // 
       int get_h_bond_type(const std::string &atom_name, const std::string &monomer_name) const;
@@ -2141,9 +2160,6 @@ namespace coot {
       
 
 #endif // HAVE_CCP4SRS      
-
-      // the saved mon lib dir
-      std::string saved_mon_lib_dir;
 	 
    };
 

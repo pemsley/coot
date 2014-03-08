@@ -20,19 +20,15 @@
  */
 
 
-#include <vector>
-#include <string>
-
-// clipper coords
-#include "clipper/core/coords.h"
-#include "mini-mol.hh"
-
 // for directory reading
 #include <sys/types.h>   
 #include <dirent.h>     
-// #include <unistd.h> not needed?
 
-// #include <string.h> // for string matching // needed?
+#include <vector>
+#include <string>
+
+#include "clipper/core/coords.h"
+#include "mini-mol/mini-mol.hh"
 
 namespace coot { 
 

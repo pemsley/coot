@@ -51,35 +51,34 @@
 #endif
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
-
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "clipper/core/map_utils.h" // Map_stats
-#include "graphical_skel.h"
+#include "skeleton/graphical_skel.h"
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 #include "interface.h"
 
 #include "molecule-class-info.h"
-#include "BuildCas.h"
+#include "skeleton/BuildCas.h"
 
 #include "gl-matrix.h" // for baton rotation
 #include "trackball.h" // for baton rotation
 
-#include "bfkurt.hh"
+#include "analysis/bfkurt.hh"
 
 #include "globjects.h"
-#include "ligand.hh"
+#include "ligand/ligand.hh"
 #include "graphics-info.h"
 
-#include "dunbrack.hh"
+#include "ligand/dunbrack.hh"
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 //temp
 #include "cmtz-interface.hh"
@@ -1322,7 +1321,7 @@ graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_
 void 
 graphics_info_t::clear_up_moving_atoms() { 
 
-   std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms..." << std::endl;
+   // std::cout << "INFO:: graphics_info_t::clear_up_moving_atoms..." << std::endl;
    moving_atoms_asc_type = coot::NEW_COORDS_UNSET; // unset
    in_moving_atoms_drag_atom_mode_flag = 0; // no more dragging atoms
    have_fixed_points_sheared_drag_flag = 0;
@@ -1343,9 +1342,8 @@ graphics_info_t::clear_up_moving_atoms() {
 	 std::cout << "ignoring " << std::endl;
       }
    } else {
-      std::cout << "WARNING:: attempting to delete NULL moving_atoms_asc.atom_selection"
-		<< std::endl;
-      std::cout << "Ignoring. " << std::endl;
+      // std::cout << "WARNING:: Ignoring attempt to delete NULL moving_atoms_asc.atom_selection"
+      // << std::endl;
    }
    if (moving_atoms_asc->mol != NULL) {
       if (moving_atoms_asc->n_selected_atoms > 0) { 
@@ -1389,25 +1387,32 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    //
 
    // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
-   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
    // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES;
-
+   coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
+   
    if (do_torsion_restraints) {
       if (use_only_extra_torsion_restraints_for_torsions_flag) { 
-	 flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+	 flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
       } else {
 	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
+	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
       }
    }
 
    if (do_rama_restraints)
-      flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+      // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+      flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
    
    if (do_torsion_restraints && do_rama_restraints) { 
       if (use_only_extra_torsion_restraints_for_torsions_flag) { 
-	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
       } else {
-	 flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+	 // This changes the function to using torsions (for non-peptide torsions)
+	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
       }
    }
 	    
@@ -2226,16 +2231,17 @@ graphics_info_t::display_geometry_distance() {
    add_status_bar_text(s);
 }
 
-void 
+double 
 graphics_info_t::display_geometry_distance_symm(int imol1, const coot::Cartesian &p1,
 						int imol2, const coot::Cartesian &p2) { 
+
 
    coot::simple_distance_object_t p(imol1, clipper::Coord_orth(p1.x(), p1.y(), p1.z()),
 				    imol2, clipper::Coord_orth(p2.x(), p2.y(), p2.z()));
    distance_object_vec->push_back(p);
    graphics_draw();
-   std::cout << "Distance: " << (p1-p2).length() << std::endl;
-
+   double d =  (p1-p2).length();
+   return d;
 } 
 
 void
@@ -2698,7 +2704,7 @@ graphics_info_t::start_baton_here() {
 // baton_next_ca_options) and display it.
 // 
 void
-graphics_info_t::baton_next_directions(int imol_for_skel, const CAtom *latest_atom,
+graphics_info_t::baton_next_directions(int imol_for_skel, CAtom *latest_atom,
 				       const coot::Cartesian &baton_root,
 				       const clipper::Coord_grid &cg_start,
 				       short int use_cg_start) {

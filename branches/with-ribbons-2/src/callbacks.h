@@ -3050,6 +3050,11 @@ on_get_pdb_and_map_using_eds1_activate (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 
 void
+on_fetch_pdb_and_map_using_pdbredo1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
 on_ligand_big_blob_dialog_destroy      (GtkObject       *object,
                                         gpointer         user_data);
 

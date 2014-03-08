@@ -39,8 +39,8 @@
 #include <vector>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
 
 #include "simple-restraint.hh"
 

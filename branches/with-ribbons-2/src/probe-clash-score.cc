@@ -12,8 +12,8 @@
 #include <algorithm>
 #include <map>
 
-#include "coot-coord-utils.hh"
-#include "coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "utils/coot-utils.hh"
 
 #include "guile-fixups.h"
 #include "c-interface-ligands-swig.hh"
@@ -95,10 +95,7 @@ coot::probe_clash_score_t::probe_clash_score_t(const std::string &dots_file_name
 		  }
 	       }
 
-	       if (! c_type) {
-		  std::cout << "null c_type!" << std::endl;
-	       } else { 
-
+	       if (1) {
 		  if (offset > 0) { 
 		     // std::cout << "scanning |" << contact_type1+offset << std::endl;
 		     

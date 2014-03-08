@@ -183,6 +183,51 @@ def manual_ncs_ghosts(imol, resno_start, resno_end, chain_id_list):
             close_molecule(imol_copy)
             set_draw_ncs_ghosts(imol, 1)
 
+# Update NCS ghosts based on local environment (residues within 6A of
+# (and including) the active residue).
+#
+# Typically one would bind this function to a key.
+#
+def update_ncs_ghosts_by_local_sphere():
+    """Update NCS ghosts based on local environment (residues within 6A of
+    (and including) the active residue).
+    
+    Typically one would bind this function to a key."""
+
+    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+                               aa_atom_name, aa_alt_conf]:
+        # clear_ncs_ghost_matrices(aa_imol)
+        ghost_ncs_chain_ids = ncs_chain_ids(aa_imol)
+        if (isinstance(ghost_ncs_chain_ids, list)):
+            ghost_chain_id_list = ghost_ncs_chain_ids[0]
+            if (isinstance(ghost_chain_id_list, list)):
+                clear_ncs_ghost_matrices(aa_imol)
+                for chain_id in ghost_chain_id_list[1]:
+                    imol_copy = copy_molecule(aa_imol)
+                    set_mol_displayed(imol_copy, 0)
+                    set_mol_active(imol_copy, 0)
+                    clear_lsq_matches()
+                    active_residue_spec = [aa_chain_id, aa_res_no, aa_ins_code]
+                    near_residues = residues_near_residue(aa_imol,
+                                                          active_residue_spec,
+                                                          6)
+                    sphere_residues = [active_residue_spec, near_residues]
+                    for residue_spec in sphere_residues:
+                        res_no = residue_spec2res_no(residue_spec)
+                        add_lsq_match(res_no, res_no, ghost_chain_id_list[0],
+                                      res_no, res_no, chain_id, 1)
+
+                    rtop = apply_lsq_matches(aa_imol, imol_copy)
+                    close_molecule(imol_copy)
+                    if not rtop:
+                        print "Failed to get LSQ matching matrix", chain_id
+                    else:
+                        master = ghost_chain_id_list[0]
+                        if (isinstance(master, str)):
+                            args = [aa_imol, chain_id, master] + rtop[0] + rtop[1]
+                            add_ncs_matrix(*args)
+
+            
 # Return the first master chain id (usually there is only one of course) or False
 #
 def ncs_master_chain_id(imol):

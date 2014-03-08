@@ -27,16 +27,12 @@ lib_LTLIBRARIES=libcoot-ideal.la
 
 EXTRA_DIST = notes Makefile.simple molmantest.cc test-indexing.hh test-indexing.cc
 
-include_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh regularize-minimol.hh lograma.h
+pkginclude_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh regularize-minimol.hh lograma.h \
+	parallel-planes.hh
+pkgincludedir = $(includedir)/coot/ideal
 
 INCLUDES = \
-	-I$(top_srcdir)/compat     \
-	-I$(top_srcdir)/coords     \
-	-I$(top_srcdir)/utils      \
-	-I$(top_srcdir)/lidia-core \
-	-I$(top_srcdir)/coot-utils \
-	-I$(top_srcdir)/mini-mol   \
-	-I$(top_srcdir)/geometry   \
+	-I$(top_srcdir) \
 	$(CLIPPER_CXXFLAGS)        \
 	$(MMDB_CXXFLAGS)
 
@@ -76,16 +72,16 @@ libcoot_ideal_la_LIBADD =                 \
 libcoot_ideal_la_SOURCES = simple-restraint.cc chirals.cc  extra-restraints.cc \
 	pepflip.cc regularize-minimol.cc lograma.cpp \
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
-	coot-compare-residues.hh coot-compare-residues.cc
+	coot-compare-residues.hh coot-compare-residues.cc link-restraints.cc parallel-planes.cc
 
-noinst_PROGRAMS =  with-geometry with-map logramatest
-# bin_PROGRAMS = 
+noinst_PROGRAMS =  with-geometry logramatest
+bin_PROGRAMS = mini-rsr
 
 logramatest_SOURCES = logramatest.cpp
 
 with_geometry_SOURCES = with-geometry.cc
 
-with_map_SOURCES = with-map.cc
+mini_rsr_SOURCES = mini-rsr.cc
 
 # test_indexing_SOURCES = test-indexing.cc
 
@@ -104,11 +100,12 @@ with_geometry_LDADD = \
 	$(top_builddir)/utils/libcoot-utils.la             \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+	$(GLOB_LIBS) \
 	$(RDKIT_LIBS) \
         $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 # add libcoot-map-utils for  the debugging density_around_point function
-with_map_LDADD =  \
+mini_rsr_LDADD =  \
         ./libcoot-ideal.la                                 \
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
@@ -121,6 +118,7 @@ with_map_LDADD =  \
 	$(top_builddir)/utils/libcoot-utils.la        \
         $(top_builddir)/compat/libcoot-compat.la           \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
+	$(GLOB_LIBS) \
 	$(RDKIT_LIBS) \
         $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 

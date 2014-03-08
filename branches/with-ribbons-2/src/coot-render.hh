@@ -7,7 +7,7 @@
 #include <vector>
 #endif // HAVE_VECTOR
 
-#include "Cartesian.h"
+#include "coords/Cartesian.h"
 #include "gl-matrix.h"
 
 #include "generic-display-object.hh"

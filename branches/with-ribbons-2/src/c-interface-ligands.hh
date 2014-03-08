@@ -26,11 +26,11 @@
 
 #include <mmdb/mmdb_manager.h>
 #include "clipper/core/coords.h"
-#include "coot-coord-utils.hh"
-#include "protein-geometry.hh"
-#include "lbg-shared.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "geometry/protein-geometry.hh"
+#include "lidia-core/lbg-shared.hh"
 
-#include "flev-annotations.hh"
+#include "lbg/flev-annotations.hh"
 
 namespace coot { 
 

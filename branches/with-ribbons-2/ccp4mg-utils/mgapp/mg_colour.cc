@@ -946,16 +946,16 @@ CColourSchemes::CColourSchemes () {
 //----------------------------------------------------------------------
   int RC;
 
-  char *atmtyps[7] = {"*"," C"," O", " N", " S"," H"," P" };
-  char *atmcols[7] = { "grey","green", "red", "blue" , "yellow", "grey","magenta" };
-  char *restyps[35] = { "*","PHE", "TRP", "TYR", "PRO", "VAL",
+  const char *atmtyps[7] = {"*"," C"," O", " N", " S"," H"," P" };
+  const char *atmcols[7] = { "grey","green", "red", "blue" , "yellow", "grey","magenta" };
+  const char *restyps[35] = { "*","PHE", "TRP", "TYR", "PRO", "VAL",
 		     "ALA", "ILE", "LEU", "SER", "THR",
 		     "ASN", "GLN", "ARG", "LYS", "ASP",
 		     "GLU", "CYS", "MET", "GLY", "HIS",
 		     "A",   "T"  , "G"  , "C"  , "U",
 		     "DA",   "DT"  , "DG"  , "DC"  ,
 		     "ADE", "THY", "GUA", "CYT", "URA" } ;
-  char *rescols[35] = {  "grey","magenta", "magenta", "magenta", "coral", "coral",
+  const char *rescols[35] = {  "grey","magenta", "magenta", "magenta", "coral", "coral",
 		      "coral", "coral", "coral", "cyan", "cyan",
 		      "cyan", "cyan",  "blue", "blue", "red",
 		      "red", "yellow", "yellow", "white", "light blue",
@@ -965,53 +965,53 @@ CColourSchemes::CColourSchemes () {
 
   //Secondary structure colouring
   int secstrcods [7] = { SSE_None, SSE_Strand, SSE_Bulge, SSE_3Turn, SSE_4Turn, SSE_5Turn, SSE_Helix };
-  char *secstrcol[7] = { "grey", "blue", "blue", "pink", "tan", "coral","red" }; 
+  const char *secstrcol[7] = { "grey", "blue", "blue", "pink", "tan", "coral","red" }; 
 
   //Default Bvalue blue->red in range 0->40
   // and red->white in range 40->80
   // and colour below and above that range green and white
   realtype bvalrngs [5] = { 0.0, 0.0, 50.0, 100.0 ,0.0} ;
-  char *bvalcol[5] = { "green", "blue","red", "white", "yellow" };
+  const char *bvalcol[5] = { "green", "blue","red", "white", "yellow" };
 
   //Default Res SAS red->blue in range 0->200
   // and colour below and above that range white and yellow
   realtype rsasrngs [5] = { 0.0, 0.0, 50.0, 200.0 ,0.0} ;
-  char *rsascol[5] = { "green", "blue","white", "red", "yellow" };
+  const char *rsascol[5] = { "green", "blue","white", "red", "yellow" };
 
   //Default Atom SAS red->blue in range 0->60
   // and colour below and above that range white and yellow
   realtype asasrngs [5] = { 0.0, 0.0, 10.0, 20.0 ,0.0} ;
-  char *asascol[5] = { "green", "blue","white", "red", "yellow" };
+  const char *asascol[5] = { "green", "blue","white", "red", "yellow" };
 
   //Default Res Contact red->blue in range 0->100
   // and colour below and above that range white and yellow
   realtype rconrngs [5] = { 0.0, 0.0, 25.0, 100.0 ,0.0} ;
-  char *rconcol[5] = { "green", "blue","white", "red", "yellow" };
+  const char *rconcol[5] = { "green", "blue","white", "red", "yellow" };
 
   //Default Atom Contact red->blue in range 0->50
   // and colour below and above that range white and yellow
   realtype aconrngs [5] = { 0.0, 0.0, 10.0, 50.0 ,0.0} ;
-  char *aconcol[5] = { "green", "blue","white", "red", "yellow" };
+  const char *aconcol[5] = { "green", "blue","white", "red", "yellow" };
 
   //Default Occupancy red->white in range 0->1
   // and colour below and above that range blue and yellow
   realtype occrngs [4] = { 0.0, -0.0001, 1.0001 , 0.0} ;
-  char *occcol[4] = { "green", "red","white", "yellow" };
+  const char *occcol[4] = { "green", "red","white", "yellow" };
 
   //Default Charge blue->white in range -1->0
   //white-> red in range 0->1
   // and colour below and above that range cyan and yellow
   realtype chgrngs [5] = { 0.0, -1.0 , 0.0, 1.0 , 0.0} ;
-  char *chgcol[5] = { "green","red", "white","blue","yellow" };
+  const char *chgcol[5] = { "green","red", "white","blue","yellow" };
 
   //Default ThroughChain
   realtype thrurngs [7] = { 0.0, 0.0, 0.25, 0.5, 0.75, 1.0 , 0.0} ;
-  char *thrucol[7] = { "white", "red", "yellow", "green","blue","purple", "white" };
+  const char *thrucol[7] = { "white", "red", "yellow", "green","blue","purple", "white" };
 
   // Main-side chain colouring
-  char *grptyps[3] = { "AMINO_MAIN", "AMINO_SIDE", "OTHER" };
+  const char *grptyps[3] = { "AMINO_MAIN", "AMINO_SIDE", "OTHER" };
   //char *grptxts[3] = { "main chain", "side chain", "other" };
-  char *grpcols[3] = { "red", "blue", "white" };
+  const char *grpcols[3] = { "red", "blue", "white" };
 
   AtomType = new CColourScheme();
   RC = AtomType->SetSchemeString ( 7, atmtyps, atmcols);
@@ -1125,7 +1125,7 @@ int CColourScheme::SetSchemeInt ( const std::vector<int>& typ , const std::vecto
   return 0;
 }
 
-int CColourScheme::SetSchemeInt ( int n, int typ[] , char *cols[] ) {
+int CColourScheme::SetSchemeInt ( int n, int typ[] , const char *cols[] ) {
   nTypes = n;
   itypes = std::vector<int> (nTypes);
   colours = std::vector<std::string> (nTypes);
@@ -1148,7 +1148,7 @@ int CColourScheme::SetSchemeFloat ( const std::vector<float>& typ , const std::v
   mode = "float";
   return 0;
 }
-int CColourScheme::SetSchemeFloat ( int n, realtype typ[] , char *cols[] ) {
+int CColourScheme::SetSchemeFloat ( int n, realtype typ[] , const char *cols[] ) {
   nTypes = n;
   ranges = std::vector<float> (nTypes);
   colours = std::vector<std::string> (nTypes);
@@ -1174,7 +1174,7 @@ int CColourScheme::SetSchemeString ( const std::vector<std::string>& typ , const
   return 0;
 }
 
-int CColourScheme::SetSchemeString ( int n, char *typ[] , char *cols[] ) {
+int CColourScheme::SetSchemeString ( int n, const char *typ[] , const char *cols[] ) {
   nTypes = n;
   strtypes = std::vector<std::string> (nTypes);
   colours = std::vector<std::string> (nTypes);
@@ -1279,3 +1279,22 @@ std::vector<double> CColourScheme::GetRGB(double value) {
   return col;
 }
 
+DoubleColourSliderInfo::DoubleColourSliderInfo(const std::string &lowCol, const std::string &hiCol, float lowVal, float hiVal, int _mode, int wheelDir, const std::string &nonCol){
+  lowerColour = lowCol;
+  upperColour = hiCol;
+  nonAlignedColour = nonCol;
+  lowerValue = lowVal;
+  upperValue = hiVal;
+  mode = _mode;
+  wheelDirection = wheelDir;
+}
+
+DoubleColourSliderInfo::DoubleColourSliderInfo(){
+  lowerColour = std::string("yellow");
+  upperColour = std::string("red");
+  nonAlignedColour = std::string("white");
+  lowerValue = 0;
+  upperValue = 1;
+  mode = RGBCOLOURREP;
+  wheelDirection = COLOUR_WHEEL_CLOCK;
+}

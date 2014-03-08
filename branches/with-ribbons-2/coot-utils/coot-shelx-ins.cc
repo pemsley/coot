@@ -27,13 +27,13 @@
 #include "clipper/core/spacegroup.h"
 #include "clipper/core/coords.h"
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "coot-shelx.hh"
 #include <iostream>
 #include <fstream>
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 enum { NONE=0, ONE_HALF=6, ONE_THIRD=4, ONE_QUARTER=3, ONE_SIXTH=2, TWO_THIRDS=8,
        THREE_QUARTERS=9, FIVE_SIXTHS=10, MINUS_ONE_HALF= -6, MINUS_ONE_THIRD = -4,
@@ -108,12 +108,15 @@ coot::ShelxIns::read_file(const std::string &filename) {
       short int encountered_atoms_flag = 0;
       short int post_atoms_flag = 0; // we have got past atoms?, old, not useful?
       short int post_END_flag = 0;   // END marks the end of atoms, I hope.
+      int udd_non_riding_atom_flag_handle = mol->RegisterUDInteger(UDR_ATOM, "non_riding_atom");
+
+      // class variables
       udd_afix_handle = mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
-//       std::cout << "DEBUG:: registered shelx afix and got back handle: "
-// 		<< udd_afix_handle << std::endl;
-      int have_udd_atoms = 0;
+      udd_riding_atom_negative_u_value_handle = mol->RegisterUDReal(UDR_ATOM, "riding_atom_negative_u");
+      
+      bool have_udd_atoms = false;
       if (udd_afix_handle>=0)  {
-	 have_udd_atoms = 1;
+	 have_udd_atoms = true;
       }
       // float u_to_b = 8.0 * M_PI * M_PI;  // perhaps this should be a function
       int current_afix = -1; // undefined initially.  AFIX is
@@ -350,8 +353,12 @@ coot::ShelxIns::read_file(const std::string &filename) {
 							   (card_word_0.substr(0, 4) == "L.S.") ||
 							   (card_word_0.substr(0, 4) == "SUMP") ||
 							   (card_word_0.substr(0, 4) == "BOND") ||
+							   (card_word_0.substr(0, 4) == "RIGU") ||
+							   (card_word_0.substr(0, 4) == "CONF") ||
+							   (card_word_0.substr(0, 4) == "MPLA") ||
 							   (card_word_0.substr(0, 4) == "HOPE") ||
 							   (card_word_0.substr(0, 4) == "EXTI") ||
+							   (card_word_0.substr(0, 4) == "XNPD") ||
 							   (card_word_0.substr(0, 4) == "WPDB")) { 
 						      } else {
 							 if (card_word_0.substr(0, 4) == "LATT") {
@@ -392,8 +399,12 @@ coot::ShelxIns::read_file(const std::string &filename) {
 									} else {
 									   if (! post_END_flag) { 
 									      // it's an atom
-									      CAtom *at = make_atom(card, altconf, udd_afix_handle,
-												    have_udd_atoms, current_afix, cell);
+									      CAtom *at = make_atom(card, altconf,
+												    udd_afix_handle,
+												    udd_non_riding_atom_flag_handle,
+												    udd_riding_atom_negative_u_value_handle,
+												    have_udd_atoms, current_afix,
+												    cell, atom_vector);
 									      if (at)
 										 atom_vector.push_back(at);
 									      else
@@ -504,14 +515,14 @@ coot::ShelxIns::read_file(const std::string &filename) {
 	 bool spacegroup_ok = true;
 	 try {
 	    space_group.init(clipper::Spgr_descr(symmetry_ops, clipper::Spgr_descr::Symops));
-	 } catch ( clipper::Message_base exc ) {
+	 } catch (const clipper::Message_base &exc) {
 	    std::cout << "Oops, trouble.  No such spacegroup\n";
 	    spacegroup_ok = false;
 	 }
 
 	 if (spacegroup_ok) {
-	    std::cout << "INFO:: set space group to \"" << space_group.descr().symbol_xhm() << "\""
-		      << std::endl;
+	    // std::cout << "INFO:: set space group to \"" << space_group.descr().symbol_xhm() << "\""
+	    // << std::endl;
 	    cpstr sg = space_group.descr().symbol_xhm().c_str();
 	    mol->SetSpaceGroup(sg);
 	    char *spg = mol->GetSpaceGroup();
@@ -606,16 +617,19 @@ coot::ShelxIns::read_file(const std::string &filename) {
       if (resi_count > 10)
 	 ri.is_protein_flag = 1;
       return ri;
-   }
-   else 
+   } else {
       return coot::shelx_read_file_info_t(istate, udd_afix_handle, mol);
+   }
 }
 
 
 CAtom *
 coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string &altconf,
-			  int udd_afix_handle, int have_udd_atoms, int current_afix,
-			  clipper::Cell &cell) const {
+			  int udd_afix_handle,
+			  int udd_non_riding_atom_flag_handle,
+			  int udd_riding_atom_negative_u_value_handle,
+			  bool have_udd_atoms, int current_afix,
+			  clipper::Cell &cell, const std::vector<CAtom *> &atom_vector) const {
 
    CAtom *at = new CAtom;  // returned
 
@@ -637,32 +651,66 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
       at->x = atof(card.words[2].c_str());
       at->y = atof(card.words[3].c_str());
       at->z = atof(card.words[4].c_str());
-      float occupancy = 11.0;
+      float occupancy = 1.0;
       float b_synth= 10.0;
-   
-      if (card.words.size() > 5)
-	 occupancy = atof(card.words[5].c_str()); // 11.0
-      at->SetCoordinates(atof(card.words[2].c_str()),
-			 atof(card.words[3].c_str()),
-			 atof(card.words[4].c_str()),
-			 occupancy, b_synth);
-      at->SetElementName(element.c_str());
-      // char *altloc = new char(2);
-      strncpy(at->altLoc, altconf.c_str(), 2);
+
+      std::cout << "------------------------- here 1 occupancy " << occupancy << std::endl;
+
+      try { 
+	 if (card.words.size() > 5)
+	    occupancy = util::string_to_float(card.words[5]); // 11.0
+	 
+	 at->SetCoordinates(util::string_to_float(card.words[2].c_str()),
+			    util::string_to_float(card.words[3].c_str()),
+			    util::string_to_float(card.words[4].c_str()),
+			    occupancy, b_synth);
+	 std::cout << "------------------------- here 2 occupancy " << occupancy << std::endl;
+	 at->SetElementName(element.c_str());
+	 strncpy(at->altLoc, altconf.c_str(), 2);
+      }
+      catch (const std::runtime_error &rte) {
+	 // do nothing
+      }
       if (card.words.size() >= 5) {
+	 
 // 	 for (unsigned int iword=0; iword<card.words.size(); iword++) {
 // 	    std::cout << "    " << iword << " " << card.words[iword] << std::endl;
 // 	 }
+
+	 // What makes an atom non-riding?
+	 // 
+	 // I'm guessing that there is an anisotropic U or sing U > 0
+	 
 	 if (card.words.size() > 6) {
 	    if (card.words.size() < 8) {
 	       // isotropic temperature factor
-	       float b_factor_from_card = atof(card.words[6].c_str());
-	       if (b_factor_from_card > 0.0 ) { 
-		  at->tempFactor = u_to_b*b_factor_from_card;
+	       realtype u_factor_from_card = atof(card.words[6].c_str());
+	       if (u_factor_from_card > 0.0 ) { 
+		  at->tempFactor = u_to_b * u_factor_from_card;
 		  at->WhatIsSet = at->WhatIsSet | 4; // is isotropic
+		  at->PutUDData(udd_non_riding_atom_flag_handle, 1);
+	       } else {
+		  // negative U:
+		  // 
+		  // If U is between -0.5 and -5.0 then apply riding U rule
+		  // 
+		  if ((u_factor_from_card <= -0.5) && (u_factor_from_card >= -5.0)) {
+		     // Find previous non-riding atom and use that to determine b for this atom
+
+		     CAtom *prev = previous_non_riding_atom(atom_vector, udd_non_riding_atom_flag_handle);
+		     if (prev) {
+			int status = at->PutUDData(udd_riding_atom_negative_u_value_handle, u_factor_from_card);
+			at->tempFactor = prev->tempFactor * -u_factor_from_card;
+		     } else {
+			// Don't know what to do.  Does this ever happen?
+			at->tempFactor = u_factor_from_card;
+		     } 
+		     // 
+		  } else {
+		     // Don't know what to do.  Does this ever happen?
+		     at->tempFactor = u_factor_from_card;
+		  }
 	       }
-	       else
-		  at->tempFactor = b_factor_from_card; 
 	    } else {
 	       if (card.words.size() > 11) {
 		  // anisotropic temperature factor
@@ -698,6 +746,7 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 		  float u_synth = (at->u11 + at->u22 + at->u33)/3.0;
 		  at->WhatIsSet |= ASET_tempFactor; // has synthetic B factor
 		  at->tempFactor = 8.0 * M_PI * M_PI * u_synth;
+		  at->PutUDData(udd_non_riding_atom_flag_handle, 1);
 	       }
 	    }
 	 } else {
@@ -1020,11 +1069,11 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
    int istat = 0;
    std::string message;
    CMMDBManager *mol = reshelx(mol_in);
-   
+
+   int udd_riding_atom_negative_u_value_handle_local = mol->GetUDDHandle(UDR_ATOM, "riding_atom_negative_u");
+
    float u_to_b = 8.0 * M_PI * M_PI;  // perhaps this should be a function
 
-//    std::cout << "DEBUG:: in write_ins_file_internal have_cell_flag: "
-// 	     << have_cell_flag << std::endl;
    if (have_cell_flag) { // Need cell for orth->frac convertion for atoms
       
       std::ofstream f(filename.c_str());
@@ -1049,8 +1098,8 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 	       // BL says:: maybe only if size unit > sfac !?! or absolute value?!
 	       // lets say only when positive (FIXME!?)
 	       if (sfac.size() >= unit.size()) {
-		  std::cout << "INFO :: padding UNIT card from size "
-			    << unit.size() << " to " << sfac.size() << std::endl;
+		  // std::cout << "INFO :: padding UNIT card from size "
+		  // << unit.size() << " to " << sfac.size() << std::endl;
 		  for (unsigned int iextra=0; iextra<(sfac.size() - unit.size()); iextra++) {
 		     f << " 0"; // pad with 0s, like GMS suggests, 20080601
 		  }
@@ -1124,8 +1173,9 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 			      f << " ";
 			   f << resno << "   " << residue_p->GetResName() << "\n";
 			}
-			catch (std::ios::failure &e) { 
-			   std::cout << "WARNING:: IOS exception caught on RESI start " << e.what() << std::endl;
+			catch (const std::ios::failure &e) { 
+			   std::cout << "WARNING:: IOS exception caught on RESI start "
+				     << e.what() << std::endl;
 			}
 		     }
 			
@@ -1154,16 +1204,7 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 			      }
 			      current_afix = ic;
 			   } else {
-			      std::string s =  "WARNING:: failed to get AFIX handle for ";
-			      s += at->GetChainID();
-			      s += " "; 
-			      s += at->GetSeqNum();
-			      s += " ";
-			      s += at->GetResName();
-			      s += " ";
-			      s += at->GetAtomName();
-			      s += " ,";
-			      s += at->altLoc;
+			      std::string s = message_for_atom("WARNING:: failed to get AFIX handle for ", at);
 			      afix_failure_vec.push_back(s);
 			   }
 			
@@ -1182,7 +1223,6 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 							at->u12, at->u13, at->u23);
 			      clipper::U_aniso_frac caf = cao.u_aniso_frac(cell);
 
-			   
 			      std::string at_name(at->name);
 			      f.setf(std::ios::fixed);
 			      f.precision(9);
@@ -1191,9 +1231,9 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 			      f << cf.u() << "  " << cf.v() << "   " << cf.w() << " "
 			        << site_occ_factor << "    =\n     ";
 			      f.precision(5);
-			      // 			   f << at->u11 << "  " << at->u22 << "  " << at->u33 << "  "
-			      // 			     << at->u23 << "  " << at->u13 << "  " << at->u12
-			      // 			     << "\n";
+			      // f << at->u11 << "  " << at->u22 << "  " << at->u33 << "  "
+			      //   << at->u23 << "  " << at->u13 << "  " << at->u12
+			      //   << "\n";
 			      f << caf(0,0)*a*a << "  " << caf(1,1)*b*b << "  " << caf(2,2)*c*c
 			        << "  "
 			        << caf(1,2)*b*c << "  " << caf(0,2)*a*c << "  " << caf(0,1)*a*b
@@ -1205,25 +1245,38 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 				 float b_factor = at->tempFactor;
 				 f.setf(std::ios::fixed);
 				 f.precision(9);
-				 if (b_factor > 0.0) // (riding?) hydrogens are not (-1.2)
-				    b_factor /= u_to_b;
-				 f << coot::util::remove_leading_spaces(at_name)
-				   << "   " << sfac_index << "  "
-				   << cf.u() << "  " << cf.v() << "   " << cf.w() << " "
-				   << site_occ_factor << "    "
-				   << b_factor << "\n";
+
+				 realtype negative_u;
+				 int status_2 = at->GetUDData(udd_riding_atom_negative_u_value_handle_local,
+							      negative_u);
+
+				 if (status_2 == UDDATA_Ok) {
+				    f << coot::util::remove_leading_spaces(at_name)
+				      << "   " << sfac_index << "  "
+				      << cf.u() << "  " << cf.v() << "   " << cf.w() << " "
+				      << site_occ_factor << "    "
+				      << negative_u << "\n";
+				 } else {
+				    if (b_factor > 0.0) // (riding?) hydrogens are not (-1.2)
+				       b_factor /= u_to_b;
+				    f << coot::util::remove_leading_spaces(at_name)
+				      << "   " << sfac_index << "  "
+				      << cf.u() << "  " << cf.v() << "   " << cf.w() << " "
+				      << site_occ_factor << "    "
+				      << b_factor << "\n";
+				 }
 			      }
 			   }
 			   current_altloc = this_altloc;
 			}
-			catch (std::ios::failure &e) { 
+			catch (const std::ios::failure &e) { 
 			   std::cout << "WARNING:: IOS exception caught: " << e.what() << std::endl;
 			}
 		     }
 		     try { 
 			f << " \n"; // end of a RESI
 		     } 
-		     catch (std::ios::failure &e) { 
+		     catch (const std::ios::failure &e) { 
 			std::cout << "WARNING:: IOS exception caught on end of a RESI " << e.what() << std::endl;
 		     }
 		  }
@@ -1246,7 +1299,7 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 	    try { 
 	       f << post_atom_lines[i] << "\n";
 	    }
-	    catch (std::ios::failure &e) { 
+	    catch (const std::ios::failure &e) { 
 	       std::cout << "WARNING:: IOS exception caught in post atom lines " << e.what() << std::endl;
 	    }
 	 }
@@ -1265,6 +1318,33 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
    delete mol;
    return std::pair<int, std::string>(istat, message);
 }
+
+std::string
+coot::ShelxIns::message_for_atom(const std::string &in_string, CAtom *at) const {
+
+   std::string s = in_string;
+   s += "\""; 
+   s += at->GetChainID();
+   s += "\""; 
+   s += " "; 
+   s += coot::util::int_to_string(at->GetSeqNum());
+   s += " ";
+   s += "\""; 
+   s += at->GetResName();
+   s += "\""; 
+   s += " ";
+   s += "\""; 
+   s += at->GetAtomName();
+   s += "\"";
+   if (std::string(at->altLoc).length()) {
+      s += " ,";
+      s += "\""; 
+      s += at->altLoc;
+      s += "\"";
+   }
+   return s;
+}
+
 
 void
 coot::ShelxIns::write_sfac_line(std::ostream &f) const {
@@ -1967,13 +2047,15 @@ coot::unshelx(CMMDBManager *shelx_mol) {
       mol = new CMMDBManager;
       int udd_afix_handle_shelx = shelx_mol->GetUDDHandle(UDR_ATOM, "shelx afix");
       int udd_afix_handle = mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
+      int udd_riding_atom_negative_u_value_handle_shelx = shelx_mol->GetUDDHandle(UDR_ATOM, "riding_atom_negative_u");
+      int udd_riding_atom_negative_u_value_handle_local =  mol->RegisterUDInteger(UDR_ATOM, "riding_atom_negative_u");
       CModel *model_p = new CModel;
       mol->AddModel(model_p);
       CChain *shelx_chain_p = shelx_model_p->GetChain(0);
       int nres = shelx_chain_p->GetNumberOfResidues();
       bool need_new_chain = 1;
       int ires_prev = -1000;
-      bool made_afix_transfer_message = 0;
+      bool made_afix_transfer_message = false;
       for (int ires=0; ires<nres; ires++) {
 
 	 CResidue *shelx_residue_p = shelx_chain_p->GetResidue(ires);
@@ -2007,19 +2089,23 @@ coot::unshelx(CMMDBManager *shelx_mol) {
 	    for (int iat=0; iat<copy_natoms; iat++) {
 	       int afix;
 	       int istatus = shelx_residue_atoms[iat]->GetUDData(udd_afix_handle_shelx, afix);
+	       // istatus can fail and that's OK...
 	       if (istatus == UDDATA_Ok) { 
 		  copy_residue_atoms[iat]->PutUDData(udd_afix_handle, afix);
-	       } else {
-		  if (! made_afix_transfer_message) { 
-		     std::cout << "ERROR transfering afix" << std::endl;
-		     made_afix_transfer_message = 1;
-		  }
-	       } 
+	       }
+	       realtype negative_u_value;
+	       int istatus_2 = shelx_residue_atoms[iat]->GetUDData(udd_riding_atom_negative_u_value_handle_shelx,
+								   negative_u_value);
+	       // transfer of negative_u_value often fails (it's missing from original molecule) and that's OK
+	       if (istatus_2 == UDDATA_Ok) { 
+		  int istatus_3 = copy_residue_atoms[iat]->PutUDData(udd_riding_atom_negative_u_value_handle_local,
+								     negative_u_value);
+	       }
 	    }
 	 } else {
 	    std::cout << "ERROR transfering afix: bad copy number of atoms "
 		      << shelx_natoms << " " << copy_natoms << std::endl;
-	 } 
+	 }
 
 	 ires_prev = shelx_residue_p->GetSeqNum(); // set up for next round
       }
@@ -2066,15 +2152,20 @@ coot::reshelx(CMMDBManager *mol) {
 
    CMMDBManager *shelx_mol = new CMMDBManager;
 
-
    int imod = 1;
    CModel *shelx_model_p = new CModel;
    shelx_mol->AddModel(shelx_model_p);
    CChain *shelx_chain_p = new CChain;
    shelx_model_p->AddChain(shelx_chain_p);
-   bool made_afix_transfer_message = 0;
+   bool made_afix_transfer_message = false;
    
    int udd_afix_handle = mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+   int udd_riding_atom_negative_u_value_handle = mol->GetUDDHandle(UDR_ATOM, "riding_atom_negative_u");
+
+   // local register for shelx_mol
+   int udd_riding_atom_negative_u_value_handle_local =
+       shelx_mol->RegisterUDInteger(UDR_ATOM, "riding_atom_negative_u");
+   int udd_afix_handle_local = shelx_mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
    
    // run over chains of the existing mol
    CModel *model_p = mol->GetModel(imod);
@@ -2106,12 +2197,19 @@ coot::reshelx(CMMDBManager *mol) {
 	       int afix;
 	       int istatus = unshelxed_residue_atoms[iat]->GetUDData(udd_afix_handle, afix);
 	       if (istatus == UDDATA_Ok) { 
-		  copy_residue_atoms[iat]->PutUDData(udd_afix_handle, afix);
+		  copy_residue_atoms[iat]->PutUDData(udd_afix_handle_local, afix);
 	       } else {
 		  if (!made_afix_transfer_message) { 
-		     std::cout << "ERROR transfering afix back" << std::endl;
+		     std::cout << "ERROR transfering AFIX back" << std::endl;
 		     made_afix_transfer_message = 1;
 		  }
+	       }
+	       realtype negative_u;
+	       int istatus_2 =
+		  unshelxed_residue_atoms[iat]->GetUDData(udd_riding_atom_negative_u_value_handle, negative_u);
+	       if (istatus_2 == UDDATA_Ok) {
+		  int istatus_3 =
+		     copy_residue_atoms[iat]->PutUDData(udd_riding_atom_negative_u_value_handle_local, negative_u);
 	       } 
 	    }
 	 } else {

@@ -55,7 +55,7 @@
 #undef DATADIR
 #endif // DATADIR
 #endif /* MINGW */
-#include "sleep-fixups.h"
+#include "compat/sleep-fixups.h"
 
 // Here we used to define GTK_ENABLE_BROKEN if defined(WINDOWS_MINGW)
 // Now we don't want to enable broken stuff.  That is not the way.
@@ -91,23 +91,22 @@
 #include <string>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
-#include "read-sm-cif.hh"
-
-#include "Cartesian.h"
-#include "Bond_lines.h"
-#include "coot-utils.hh"
-#include "coot-map-utils.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/read-sm-cif.hh"
+#include "coot-utils/coot-map-utils.hh"
 #include "coot-database.hh"
 #include "coot-fileselections.h"
 
 // #include "xmap-interface.h"
 #include "graphics-info.h"
 
-#include "BuildCas.h"
+#include "skeleton/BuildCas.h"
 
 #include "trackball.h" // adding exportable rotate interface
 
@@ -135,12 +134,12 @@
 #endif // USE_PYTHON
 
 #ifdef HAVE_GOOCANVAS
-#include "goocanvas.h"
-#include "wmolecule.hh"
-#include "goograph.hh"
+#include <goocanvas.h>
+#include "lbg/wmolecule.hh"
+#include "goograph/goograph.hh"
 #endif
 
-#include "simple-restraint.hh"  // for multi-residue torsion map fitting.
+#include "ideal/simple-restraint.hh"  // for multi-residue torsion map fitting.
 
 #include "cc-interface-network.hh"
 
@@ -150,10 +149,8 @@ int test_function(int i, int j) {
 
    // Is this the function you are really looking for (these days)?
 
-   if (1) {
-      curl_make_a_post();
-   } 
-   
+
+
 
    if (0) {
 
@@ -173,7 +170,7 @@ int test_function(int i, int j) {
 	       // do we need to send over the base atom too?  Or just say
 	       // that it's the first atom in moving_mol?
 	       // 
-	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, g.Geom_p());
+	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, 400, g.Geom_p());
 
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 
@@ -380,10 +377,75 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
 
+   if (1) {
+
+      int imol = scm_to_int(i_scm); // map molecule
+      if (! is_valid_model_molecule(imol)) {
+	 std::cout << "Not a valid model molecule " << imol << std::endl;
+      } else { 
+	 CResidue *residue_p = g.molecules[imol].get_residue("A", 844, "");
+	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
+	 for (unsigned int i=0; i<gdc.geometry_distortion.size(); i++) { 
+	    // std::cout << "geom distortion: " << i << " " << gdc.geometry_distortion[i] << std::endl;
+	    coot::simple_restraint &rest = gdc.geometry_distortion[i].restraint;
+	    if (rest.restraint_type == coot::BOND_RESTRAINT) {
+	       CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+	       CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+	       if (at_1 && at_2) {
+		  clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+		  clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+		  double d = sqrt((p2-p1).lengthsq());
+		  double distortion = d - rest.target_value;
+		  double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
+		  std::cout <<  "bond" << at_1->name << " to " << at_2->name << " d: " << d
+			    << " target_value: " << rest.target_value << " sigma: " << rest.sigma
+			    << " length-devi " << distortion << " penalty-score " << pen_score << std::endl;
+	       } 
+	    }
+
+	    if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
+	       CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+	       CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+	       CAtom *at_3 = residue_p->GetAtom(rest.atom_index_3);
+	       if (at_1 && at_2 && at_2) {
+		  clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+		  clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+		  clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+		  double angle_rad = clipper::Coord_orth::angle(p1, p2, p3);
+		  double angle = clipper::Util::rad2d(angle_rad);
+		  double distortion = angle - rest.target_value;
+		  double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
+		  std::cout <<  "angle"
+			    << at_1->name << " -- "
+			    << at_2->name << " -- "
+			    << at_3->name << " angle: " << angle
+			    << " target_value: " << rest.target_value << " sigma: " << rest.sigma
+			    << " angle-devi " << distortion << " penalty-score " << pen_score << std::endl;
+	       }
+	    }
+	 }
+      }
+
+      // now test making a dictionary
+      int imol_2 = scm_to_int(j_scm);
+      std::cout << "here with imol_2 " << imol_2 << std::endl;
+      if (is_valid_model_molecule(imol_2)) {
+	 CResidue *residue_2_p = g.molecules[imol].get_residue("C", 3, "");
+	 std::cout << "here with residue_2_p " << residue_2_p << std::endl;
+	 if (residue_2_p) {
+	    coot::dictionary_residue_restraints_t rest(residue_2_p);
+	 } 
+      }
+   }
+
+   if (0) {
+      std::cout << "size of a molecule " << sizeof(molecule_class_info_t) << std::endl;
+   } 
+
 #ifdef USE_LIBCURL
 
-   if (1) {
-      curl_make_a_post();
+   if (0) {
+      curl_test_make_a_post();
    } 
 
 #endif    
@@ -429,7 +491,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	       std::cout << "round " << iround << std::endl;
 	       CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 	       
-	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, g.Geom_p());
+	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, 400, g.Geom_p());
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 	       std::pair<CMMDBManager *, int> new_mol =
 		  coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
@@ -442,7 +504,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 				  active_atom.second.second.chain.c_str(),
 				  active_atom.second.second.resno,
 				  active_atom.second.second.insertion_code.c_str(),
-				  "NAG", "ASN-NAG");
+				  "NAG", "ASN-NAG", 400);
 	       
 	       delete moving_mol;
 	       graphics_draw();
@@ -483,7 +545,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 	       std::cout << "round " << iround << std::endl;
 	       CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 	       
-	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, g.Geom_p());
+	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, 400, g.Geom_p());
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 	       std::pair<CMMDBManager *, int> new_mol =
              coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
@@ -493,10 +555,10 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 	       int imol_new = g.create_molecule();
 	       g.molecules[imol_new].install_model(imol_new, asc_new, name, 1, shelx_flag);
 	       add_linked_residue(imol_new,
-                              active_atom.second.second.chain.c_str(),
-                              active_atom.second.second.resno,
-                              active_atom.second.second.insertion_code.c_str(),
-                              "NAG", "ASN-NAG");
+				  active_atom.second.second.chain.c_str(),
+				  active_atom.second.second.resno,
+				  active_atom.second.second.insertion_code.c_str(),
+				  "NAG", "ASN-NAG", 400);
 	       
 	       delete moving_mol;
 	       graphics_draw();

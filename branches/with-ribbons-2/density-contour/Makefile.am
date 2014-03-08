@@ -18,13 +18,14 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-COORD_INCLUDES = -I$(top_srcdir)/coords
+COORD_INCLUDES = -I$(top_srcdir)
 
 INCLUDES = $(COORD_INCLUDES) $(CLIPPER_CXXFLAGS) 
 
 lib_LTLIBRARIES = libcoot-isosurface.la
 
-include_HEADERS = Vectors.h CIsoSurface.h density-contour-triangles.hh
+pkginclude_HEADERS = Vectors.h CIsoSurface.h density-contour-triangles.hh
+pkgincludedir = $(includedir)/coot/density-contour
 
 libcoot_isosurface_la_SOURCES = Vectors.cpp CIsoSurface.cpp density-contour-triangles.cc
 

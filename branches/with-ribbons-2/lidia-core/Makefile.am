@@ -17,19 +17,18 @@
 
 lib_LTLIBRARIES=libcoot-lidia-core.la
 
-include_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh \
+pkginclude_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh \
 	rdkit-interface.hh use-rdkit.hh cod-types.hh
+pkgincludedir = $(includedir)/coot/lidia-core
+
 
 #  20110408 I add a CResidue,dictionary_residue_restraints_t constructor to molfile_molecule_t
 # simple
 #INCLUDES = $(CLIPPER_CXXFLAGS)
 #
 INCLUDES = \
-	 -I$(top_srcdir)/geometry       \
-	 -I$(top_srcdir)/mini-mol       \
-	 -I$(top_srcdir)/coot-utils     \
-	 -I$(top_srcdir)/utils          \
-	$(ENTERPRISE_TOOLS_CFLAGS)      \
+	 -I$(top_srcdir) \
+	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
 	$(RDKIT_CXXFLAGS) 		\
         $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 

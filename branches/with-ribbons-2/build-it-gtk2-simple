@@ -328,7 +328,27 @@
 # 4.94 20130123 Move pre-release and release server-dir to Cambridge.
 # 4.95 20130128 Refmac dictionary to 5.39
 # 4.96 20130228 New mmdb version - 1.25.0
-script_version=4.96
+# 4.97 20130424 Rework (fix typo) for python include directory slimming.
+# 4.98 20130424 Remove ssh copying
+# 4.99 20130424 swig 1.3.29 is broken no matter what the architecture.
+# 5.00 20130425 CXX testing updates (for ubuntu).
+# 5.01 20130429 mmdb version bump 1.25.2
+# 5.02 20130502 better diagnostic for goocanvas compile
+# 5.03 20130503 Remove SWIG version test (now it is not needed to build source)
+# 5.04 20130514 Add COOT_BUILD_INFO_STRING.
+# 5.05 20130604 For Release 0.7.1, change release vs pre-release logic 
+#               (MRC server).
+# 5.06 20130612 More tinkering to get the correct version for release from the server.
+# 5.07 20130707 Adjustment to build stable logic.
+# 5.08 20130716 Move source server to personal/pemsley.
+# 5.09 20130818 Use ssm-1.3
+# 5.10 20130824 debugging publish
+# 5.11 20130826 Allow build without guile; name directory for building.
+# 5.12 20130909 LD_LIBRARY_PATH changes/fixup.
+# 5.13 20130910 Force -O usage for guile compilation.
+# 5.14 20130920 Publish logs.
+script_version=5.14
+
 
 
 # :: NOTE:: 
@@ -353,13 +373,22 @@ script_version=4.96
 # At the moment, if you build with Gtk2, you build with python, hence $build_type 
 # is the same thing.
 # 
-if [ "$1" = "python" ] ; then 
-   ENABLE_PYTHON_COOT=yes
-   build_type=gtk2-python
-else 
+if [ "$1" = "no-python" ] ; then 
    ENABLE_PYTHON_COOT=no
+   ENABLE_GUILE_COOT=yes
    build_type=gtk2
+else 
+   if [ "$1" = "no-guile" ] ; then 
+      ENABLE_PYTHON_COOT=yes
+      ENABLE_GUILE_COOT=no
+      build_type=gtk2-noguile
+   else
+      ENABLE_PYTHON_COOT=yes
+      ENABLE_GUILE_COOT=yes
+      build_type=gtk2-python
+   fi
 fi
+
 
 # Set the host and the OS.
 # Fairly fundamental.
@@ -387,7 +416,7 @@ AUTOBUILD_INSTALLED=${AUTOBUILD_INSTALLED:=${HOME}/autobuild/${OS}-${HOST}}
 # 
 # AUTOBUILD_BUILD=${HOME}/autobuild
 # I'm putting my build on "scratch space"
-AUTOBUILD_BUILD=${AUTOBUILD_BUILD:=/y/work/emsley/autobuild}
+AUTOBUILD_BUILD=${AUTOBUILD_BUILD:=$HOME/autobuild}
 
 # This is where the build logs go:
 # suggested value:
@@ -411,7 +440,7 @@ build_coot_prerelease=${build_coot_prerelease:=1}
 check_dependencies_in_install_only=1
 
 # get build specials, e.g. change the compiler or the compiler options
-# (e.g build for debugging), extra libraries etc setup LD_LIBRARY_DIR
+# (e.g build for debugging), extra libraries etc setup LD_LIBRARY_PATH
 # (or whatever) to include the autobuild library dir so that
 # intermediate (configure compile) programs run and the addition to
 # the path of GNU make and wget.
@@ -435,7 +464,15 @@ NIGHTLY_DEST_DIR=${NIGHTLY_DEST_DIR:=${HOME}/public_html/software/binaries/night
 # for a stable release, they go somewhere else:
 #
 STABLE_DEST_DIR=${STABLE_DEST_DIR:=${HOME}/public_html/software/binaries/stable}
+# this is given args: arg1(dir) arg2(file-name)
+BINARY_INSTALL_CMD=www-placement
 
+
+# how do we transfer the file on the build host to the web server?
+# Some systems we can simply copy the files.  For others, we now have
+# this "publish" mechanism (to be overwritten as needed)
+publish=${publish:=:}
+publish_logs=${publish_logs:=:}
 
 # When we fail to extract the correct tar file from the web site, what
 # shall we build instead?
@@ -467,7 +504,7 @@ function mkdir_maybe {
 }
 
 # Give args: prefix-dir and (based on is-static-flag) either
-# "clear-static" or "clear-dynamic" #
+# "clear-static" or "clear-dynamic"
 #
 function post_install_slim {
 
@@ -482,9 +519,10 @@ function post_install_slim {
     mkdir_maybe $cleaned_dir
     mkdir_maybe $cleaned_dir/bin
     mkdir_maybe $cleaned_dir/lib
+    # and this for pyconfig.h
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
        mkdir_maybe $cleaned_dir/include
-       mkdir_maybe $cleaned_dir/include/python$pver
+       mkdir_maybe $cleaned_dir/include/$python_version
     fi
 
     lib_sos=`cd $fat_dir && ls -1 lib/lib*.so*`
@@ -503,12 +541,11 @@ function post_install_slim {
 	bin/guile bin/density-score-by-residue bin/density-score-by-residue-real \
         bin/curl $keep_lib_archs"
 
-
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
         # 20090427 remove python and python config from bin dir (as it
         #  interfers with system python)
         file_list="$file_list html  \
-                   lib/$python_version include/python$pver"
+                   lib/$python_version include/$python_version"
     fi
     echo rsyncing... 
     for file in $file_list ;
@@ -521,6 +558,7 @@ function post_install_slim {
           echo $fat_dir/$file does not exist
        fi
     done
+    echo done rsyncing.
 }
 
 
@@ -659,7 +697,7 @@ function my_exit {
 function test_coot { 
 
 echo testing with greg
-echo testing with greg &>2
+echo testing with greg >&2
 echo currently we are here:
 pwd
 date
@@ -732,7 +770,7 @@ fi
 function test_coot_python { 
 
 echo testing with python unittest
-echo testing with python unittest &>2
+echo testing with python unittest >&2
 
 echo currently we are here:
 pwd
@@ -911,25 +949,27 @@ if test "$OS" = "Linux" ; then
 fi
 
 if test $OS = Linux ; then 
-  which rpm > /dev/null
-  have_rpm=$?
-  if  [ $have_rpm = 0 ] ; then 
-      for i in fedora redhat centos openSUSE ; do
-	dist=`rpm -q --qf '%{name}' ${i}-release`
-	if test $? = 0 ; then
-	  dist_name=`echo ${dist} | sed s/\-release//g`
-	  dist_ver=`rpm -q --qf '%{version}' ${i}-release`
-	  break
-	else
-	  dist_name='unknown'
-	fi
+
+  if rpm -a ; then
+      for i in fedora-release redhat-release redhat-release-workstation centos-release sl-release openSUSE-release ; do
+        dist=`rpm -q --qf '%{name}' ${i}`
+        echo  dist is $dist
+        dist=`rpm -q --qf '%{name}' ${i}`
+        if test $? = 0 ; then
+          dist_name=$(echo ${dist} | sed -e 's/\-release//g' -e 's/\-workstation//g')
+          dist_ver=$(rpm -q --qf '%{version}' ${i})
+          break
+        else
+          dist_name='unknown'
+        fi
       done
    else
       dist_name='unknown'
    fi
 
   case ${dist_name} in
-    redhat )
+
+    redhat* )
     case ${dist_ver} in
       [0-9] | [0-9].[0-9]* )
         systype=${architecture}-redhat-${dist_ver}
@@ -948,9 +988,15 @@ if test $OS = Linux ; then
       ;;
     esac
     ;;
+
     fedora | centos | openSUSE )
       systype=${architecture}-${dist_name}-${dist_ver}
     ;;
+
+
+    sl ) 
+      systype=${architecture}-scientific-linux-${dist_ver}
+      ;; 
 
 
     * )
@@ -1096,17 +1142,35 @@ fi
 
 
 if [ -n "$CXX" ] ; then
+
 	# CXX was set
-	gxxtest=`$CXX-$CXX --version | awk 'NR==1 {print $2}'`
+	gxxtest=$($CXX --version | awk 'NR==1 {print $2}')
+        # typically gxxtest is set to "(GCC)", but not on Ubuntu, where the line is:
+	# g++ (Ubuntu 4.4.3-4ubuntu5.1) 4.4.3
+        # Scientific Linux:
+        # g++ (GCC) 4.4.6 20120305 (Red Hat 4.4.6-4)
+        # RHEL 6:
+        # g++ (GCC) 4.4.7 20120313 (Red Hat 4.4.7-3)
+        echo gxxtest: $gxxtest
 	if [ "$gxxtest" != "(GCC)" ] ; then
-	   # but not g++ 
-	   w=$CXX-`$CXX -v`
-	      if [ $? -ne 0 ] ; then
-	    	 w="missing_cxx_version"
-	      fi
+
+             # but not g++ (?).  Maybe it was Ubuntu...
+
+             case "$gxxtest" in
+                *[Uu]buntu*) 
+                   w=$($CXX --version | head -1 | awk '{print $3}' | tr -d ')')
+                   ;;
+	   
+                *) 
+                   w=$CXX-$($CXX -v | head -1 | sed 's/ / /g')
+   	           if [ $? -ne 0 ] ; then
+	    	      w="missing_cxx_version"
+	           fi
+                   ;; 
+             esac
 	else 
            # g++
-           w=$CXX-`$CXX --version | awk 'NR==1 {print $3}'`
+           w=$CXX-$($CXX --version | awk 'NR==1 {print $3}')
 	fi
 else
 	# CXX not set
@@ -1226,6 +1290,13 @@ if [ $? -ne 0 ] ; then
    my_exit 2
 fi
 
+echo testing awk type \(prefer GNU awk\)
+if awk --version ; then
+   echo good, you have an awk from GNU.
+else
+   echo WARNING:: awk is not a GNU awk, trouble ahead possibly.
+fi
+
 
 if [ ! -e "$AUTOBUILD_BUILD" ] ; then
    mkdir "$AUTOBUILD_BUILD" 
@@ -1241,17 +1312,18 @@ if [ $? -ne 0 ] ; then
 	echo $AUTOBUILD_BUILD failed for some reason. Now in `pwd`
 fi
 # for ccp4 (20051104) compatibility, we can't use colons in the date string
-date=`date -u +'%Y-%m-%d__T%H_%M_%S'`
+date=$(date -u +'%Y-%m-%d__T%H_%M_%S')
 echo Date: $date
 
 # now in $AUTOBUILD_BUILD
-mkdir ${HOST}_$date
+BUILDING_DIR=${BUILDING_DIR:=${HOST}_$date}
+mkdir $BUILDING_DIR
 if [ $? -ne 0 ] ; then
-	echo mkdir  ${HOST}_$date failed for some reason. Now in `pwd`
+	echo mkdir  $BUILDING_DIR failed for some reason. Now in `pwd`
 fi
-cd ${HOST}_$date
+cd $BUILDING_DIR
 if [ $? -ne 0 ] ; then
-	echo cd ${HOST}_$date failed for some reason. Now in `pwd`
+	echo cd $BUILDING_DIR failed for some reason. Now in `pwd`
 fi
 build_dir=`pwd`
 
@@ -1277,13 +1349,20 @@ coot_version=$fallback_coot_version
 pre_release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/
 pre_release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/pre-releases/
 pre_release_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/source/pre-releases/
+pre_release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/pre-releases
+#
 release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software
 release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/releases
 release_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/source/releases/
+release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/releases
+#
+extras_place=http://www2.mrc-lmb.cam.ac.uk/Groups/murshudov/coot/dependencies
+extras_place=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
+
 
 ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
 ${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
-pre_release_files_html=""
+pre_release_files_html="none"
 if [ $build_coot_prerelease = 1 ]  ; then 
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
 fi
@@ -1291,41 +1370,17 @@ if [ $build_coot_prerelease = yes ]  ; then
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
 fi
 
-coot_version_tmp=$(awk  ' /a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+coot_version_tmp=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
 $pre_release_files_html | tail -1)
+
+echo pre_release_files_html $pre_release_files_html
+echo coot_version_tmp : $coot_version_tmp :
 
 if [ -z "$coot_version_tmp" ] ; then
     echo clever coot_version extraction failed, using default.
 else 
     coot_version=$coot_version_tmp
-    echo setting coot_version to $coot_version from extraction
-fi
-
-
-# Are we doing a pre-release in York or biop?
-#
-# problem here? generic_prefix is not yet set.  What happens to coot_prefix?
-#
-domainname=`domainname`
-coot_prefix=
-if test -z "$build_coot_prerelease" ; then
-   if [ "$domainname" = "yorksbl" ] ; then
-       # we are in York, let's try the pre-release coot...
-       echo we are in York
-       build_coot_prerelease=1
-   fi
-   if [ "$domainname" = "biop" ] ; then
-      build_coot_prerelease=1
-   fi
-fi
-
-if [ "$domainname" = "yorksbl" ] ; then
-   # we are in York, let's test.  Always.
-   echo we are in York
-   run_tests=true
-fi
-if [ "$domainname" = "biop" ] ; then
-   run_tests=true
+    echo clever coot_version succeeded, setting coot_version to $coot_version from extraction
 fi
 
 
@@ -1339,29 +1394,37 @@ fi
 # directory later on.
 coot_prerelease_exists=
 
+# coot_version_pre no longer has .tar.gz extension
+
 if test "$build_coot_prerelease" = 1 ; then 
 
-   ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir
-   coot_version_pre=$(awk  ' /a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; print file}' \
+   ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
+   coot_version_pre=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
        ${AUTOBUILD_SOURCES}/index.html | tail -1)
 
    echo INFO:: building pre-release and coot_version_pre is $coot_version_pre
    if [ -z "$coot_version_pre" ] ; then
       # this path when there are no pre-releases to be built, i.e. build the latest release.
       echo trying to build pre-release coot, but failed to find pre-release version
+      echo make a stable release then
+      build_coot_prerelease=
       BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
       mkdir -p ${BINARY_TAR_DEST_DIR}/holding
+
+      ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
+      echo examining release server files ${AUTOBUILD_SOURCES}/index.html
+      coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
+          ${AUTOBUILD_SOURCES}/index.html | tail -1)
+      echo coot_version $coot_version
+
+
    else
       build_coot_prerelease=1  # belt and braces
       coot_prerelease_exists=1
       # tinker with coot_prefix, it is generic_prefix with pre-release added to prefix dir
-      if [ $ENABLE_PYTHON_COOT = yes ] ; then 
-         coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2-python ${config_extras:-}"
-      else
-         coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2 ${config_extras:-}"
-      fi
-      coot_source_tar_file=$pre_release_server_dir/$coot_version_pre
-      echo DEBUG:: set coot_source_tar_file to $pre_release_server_dir/$coot_version_pre
+      coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-${build_type} ${config_extras:-}"
+      coot_source_tar_file=${pre_release_server_dir}/$coot_version_pre.tar.gz
+      echo DEBUG:: set coot_source_tar_file to $coot_source_tar_file
       coot_version=`echo $coot_version_pre | sed s/\.tar.gz//`
       BINARY_TAR_DEST_DIR=$NIGHTLY_DEST_DIR
       mkdir -p ${NIGHTLY_DEST_DIR}
@@ -1370,12 +1433,35 @@ if test "$build_coot_prerelease" = 1 ; then
    fi
 else 
     # this is a stable release
+
+    echo ============= This is a stable build ==============
+
+    ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
+    echo examining release server files ${AUTOBUILD_SOURCES}/index.html
+    coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { asort(files, indices) ; for (file in files) { final=file } ; print final } ' \
+        ${AUTOBUILD_SOURCES}/index.html | tail -1)
+    if test -z "$coot_version" ; then
+       # maybe it wasn't GNU awk (we can't sort the associative array), this will pick a "random" arry key -> coot_version
+       coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
+        ${AUTOBUILD_SOURCES}/index.html | tail -1)
+    fi
+    echo coot_version $coot_version
+
     BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
     mkdir -p ${BINARY_TAR_DEST_DIR}
     mkdir -p ${BINARY_TAR_DEST_DIR}/holding
 fi
 
 echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_DIR
+
+
+
+echo coot_version_pre is $coot_version_pre
+echo build_coot_prerelease: $build_coot_prerelease
+echo release_server_dir $release_server_dir 
+echo coot_version $coot_version
+
+
 
 # set the build prefix for installed stuff.  Put everything in the
 # pre-release directory if we are building a pre-release.
@@ -1387,38 +1473,20 @@ echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_
 #
 if [ "$build_coot_prerelease" = 1 ] ; then 
     if [ "$coot_prerelease_exists" = 1 ] ; then 
-      if [ $ENABLE_PYTHON_COOT = yes ] ; then 
-         generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2-python ${config_extras:-}"
-         coot_prefix="$generic_prefix"
-         install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-gtk2-python
-      else 
-         generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2 ${config_extras:-}"
-         coot_prefix="$generic_prefix"
-         install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-gtk2
-      fi
+      generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-${build_type} ${config_extras:-}"
+      coot_prefix="$generic_prefix"
+      install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-${build_type}
     else 
       # don't use pre-release
-      if [ $ENABLE_PYTHON_COOT = yes ] ; then 
-         generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2-python ${config_extras:-}"
-         coot_prefix="$generic_prefix"
-         install_top_dir=${AUTOBUILD_INSTALLED}-gtk2-python
-      else 
-         generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2 ${config_extras:-}"
-         coot_prefix="$generic_prefix"
-         install_top_dir=${AUTOBUILD_INSTALLED}-gtk2
-      fi
+      generic_prefix="--prefix=$AUTOBUILD_INSTALLED-${build_type} ${config_extras:-}"
+      coot_prefix="$generic_prefix"
+      install_top_dir=${AUTOBUILD_INSTALLED}-${build_type}
     fi
 else 
    # not pre-release
-   if [ $ENABLE_PYTHON_COOT = yes ] ; then 
-      generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2-python ${config_extras:-}"
-      install_top_dir=${AUTOBUILD_INSTALLED}-gtk2-python
-      coot_prefix="$generic_prefix"
-   else 
-      generic_prefix="--prefix=$AUTOBUILD_INSTALLED-gtk2 ${config_extras:-}"
-      install_top_dir=${AUTOBUILD_INSTALLED}-gtk2
-      coot_prefix="$generic_prefix"
-   fi
+   generic_prefix="--prefix=$AUTOBUILD_INSTALLED-${build_type} ${config_extras:-}"
+   install_top_dir=${AUTOBUILD_INSTALLED}-${build_type}
+   coot_prefix="$generic_prefix"
 fi
 PATH=$install_top_dir/bin:$PATH
 
@@ -1457,30 +1525,41 @@ if [ ! -e "$install_top_dir/lib" ] ; then
         fi
 fi
 #
-# append or set LD_LIBRARY_PATH
+# append or set LD_LIBRARY_PATH.
+#
+# this can be problematic for a distributable tar build because this can cause linkage
+# against ccp4's libxml2! Hmm!
+# 
 #
 if [ -z "$LD_LIBRARY_PATH" ] ; then
-	LD_LIBRARY_PATH=$install_top_dir/lib
+    LD_LIBRARY_PATH=$install_top_dir/lib
+    export LD_LIBRARY_PATH
 else
-        LD_LIBRARY_PATH=$install_top_dir/lib:$LD_LIBRARY_PATH
+    LD_LIBRARY_PATH=$install_top_dir/lib:$LD_LIBRARY_PATH
+    export LD_LIBRARY_PATH
 fi
-export LD_LIBRARY_PATH
+
+
+
 #for Macs:
-if [ -z "$LD_LIBRARY_PATH" ] ; then
-	DYLD_LIBRARY_PATH=$install_top_dir/lib
-else
-        DYLD_LIBRARY_PATH=$install_top_dir/lib:$LD_LIBRARY_PATH
+if test "$OS" = "Darwin" ; then
+   if [ -z "$DYLD_LIBRARY_PATH" ] ; then
+      DYLD_LIBRARY_PATH=$install_top_dir/lib
+      export DYLD_LIBRARY_PATH
+   else
+      DYLD_LIBRARY_PATH=$install_top_dir/lib:$LD_LIBRARY_PATH
+      export DYLD_LIBRARY_PATH
+   fi
 fi
-export DYLD_LIBRARY_PATH
 
 #
 # IRIX64 (on batman at least) does not seem to use LD_LIBRARY_PATH, 
 # it uses, instead, LD_LIBRARYN32_PATH.  So we set that for all
 # systems, hoping that it won't do any harm on other systems.
 #
-#
-LD_LIBRARYN32_PATH=$LD_LIBRARY_PATH
-export LD_LIBRARYN32_PATH
+# This surely is no longer used - PE 20130909
+# LD_LIBRARYN32_PATH=$LD_LIBRARY_PATH
+# export LD_LIBRARYN32_PATH
 
 
 
@@ -1508,35 +1587,6 @@ fi
 echo ccp4_system_type $ccp4_system_type
 
 
-# check for swig
-#
-echo this swig:
-which swig
-have_swig=$?
-if [ $have_swig = 0 ] ; then
-    swig -version
-    if [ "$architecture" = x86_64 ] ; then 
-       swig_version=`swig -version | awk 'NF { print $NF; exit }'`
-       # also 1.3.29 is broken? Lothar Esser, Andrew Sharff, too.
-       if [ "$swig_version" = 1.3.34  -o "$swig_version" = 1.3.29 ] ; then
-          echo oops this swig is broken.  Need to upgrade to 1.3.36 or later
-          my_exit 2
-       else 
-          echo system has swig.  Good.
-       fi
-    else 
-       # 32 bit
-       if [ "$swig_version" = 1.3.29 ] ; then
-          echo oops this swig is broken.  Need to upgrade to 1.3.36 or later
-          my_exit 2
-       else 
-          echo system is not 64 bit, no known swig problems $swig_version
-       fi
-    fi
-else
-   echo swig required - not found.
-   my_exit 2
-fi
 
 # clean up old test status:
 echo build-in-progress @`date +"%a_%d_%b_%H:%M"` > $LOGS/$build_type-build-status
@@ -1557,7 +1607,6 @@ build_mmdb=0
 build_ssmlib=0
 build_fftw=0
 build_clipper=
-# build_gtk=0
 build_guile=0
 build_guile_www=0
 build_guile_gui=0
@@ -1682,9 +1731,6 @@ export PKG_CONFIG_PATH
 echo  PKG_CONFIG_PATH is now $PKG_CONFIG_PATH
 
 
-# is the system gtk+2 new enough?  Needs to be 2.8 or better
-build_gtk=
-
 # Do we have freetype2?  cairo depends on it.
 if pkg-config freetype2 ; then
    build_freetype2=
@@ -1714,13 +1760,8 @@ needed_gtk_version=2.10
 pkg-config --atleast-version=$needed_gtk_version gtk+-2.0
 gtk_pkg_config_status=$?
 if [ "$gtk_pkg_config_status" = 0 ] ; then 
-   build_gtk=
    echo :::::::: gtk version is at least $needed_gtk_version
    echo :::::::: gtk version is `pkg-config --modversion gtk+-2.0`
-else 
-   # no recent/good gtk
-   echo :::::::: gtk and dependencies need to be built
-   build_gtk=1
 fi 
 
 # guilegtk2.1 need version 2.8 of gtk to compile out of the box.  If
@@ -1764,6 +1805,10 @@ else
     echo libtool should be built
 fi
 
+# ========== guile etc ==========
+# FIXME indent
+
+if [ $ENABLE_GUILE_COOT = yes ] ; then 
 
 # using install_top_dir's libgmp causes selinux problems on some systems.  Therefore, if 
 # libgmp-dev is installed in the system lib dir /usr/$acl_libdirstem/libgmp.so.la we should 
@@ -1873,13 +1918,15 @@ else
    build_greg=1
 fi
 
+fi #  ENABLE_GUILE_COOT
+
 # ============= python ================
 #
 # python_version is the filename of the python executable.  For python
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7
+pver=2.7.5
 
 if [ $ENABLE_PYTHON_COOT = yes ] ; then 
    $install_top_dir/bin/python -V
@@ -1975,24 +2022,13 @@ fi
 # ##############################################################
 
 build_gtkglext=1
-if [ "$build_gtk" = "" ] ; then 
-   if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
-      echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.so
-      build_gtkglext=
-   fi
-   if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.la ; then
-      echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.la
-      build_gtkglext=
-   fi
-else 
-   if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
-      echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.so
-      build_gtkglext=
-   fi
-   if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.la ; then
-      echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.la
-      build_gtkglext=
-   fi
+if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
+   echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.so
+   build_gtkglext=
+fi
+if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.la ; then
+   echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.la
+   build_gtkglext=
 fi
 if test -z "$build_gtkglext" ; then
    echo installation has gtkglext
@@ -2036,24 +2072,21 @@ fi
 # ##############################################################
 
 # test for gnomecanvas here
-if [ "$build_gtk" = "" ] ; then 
-   pkg-config --modversion libgnomecanvas-2.0
-    if [ $? = 0 ] ; then 
-       gnome_canvas_result=`pkg-config --modversion libgnomecanvas-2.0`
-       case ${gnome_canvas_result} in
-           2.*) 
-            echo system has libgnomecanvas-2.0
-            ;; 
-           *)
-             echo system does not have libgnomecanvas-2.0
-             my_exit 2
-             ;; 
-       esac
-   else 
-      echo pkg-config does not find libgnomecanvas-2.0.  Exiting.
-   fi
+pkg-config --modversion libgnomecanvas-2.0
+if [ $? = 0 ] ; then 
+    gnome_canvas_result=`pkg-config --modversion libgnomecanvas-2.0`
+    case ${gnome_canvas_result} in
+        2.*) 
+         echo system has libgnomecanvas-2.0
+         ;; 
+        *)
+          echo system does not have libgnomecanvas-2.0
+          my_exit 2
+          ;; 
+    esac
 else 
-   echo gnomecanvas need to be built
+   echo pkg-config does not find libgnomecanvas-2.0.  Exiting.
+   my_exit 2
 fi
 
 # ##############################################################
@@ -2117,7 +2150,7 @@ else
     build_mmdb=1
 fi
 
-if [ -e $install_top_dir/include/ssm_align.h ] ; then
+if [ -e $install_top_dir/include/ssm/ssm_align.h ] ; then
    if [ "$build_mmdb" = 1 ] ; then
       build_ssmlib=1
    else 
@@ -2179,6 +2212,10 @@ fi
 # -----------------------------------------------------------------------------
 # -----------------------------------------------------------------------------
 #
+
+extras_place=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
+
+#
 # libccp4c:
 if test -n "$build_ccp4c" ; then 
     echo BUILDING: libccp4c
@@ -2224,7 +2261,9 @@ mmdb_version=1.23.2
 mmdb_version=1.24
 mmdb_version=1.24.2
 mmdb_version=1.25.0
-mmdb_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/dependencies
+mmdb_version=1.25.2
+mmdb_version=1.25.3
+mmdb_server_dir=ftp://ftp.ccp4.ac.uk/opensource
 echo ${WGET} $mmdb_server_dir/mmdb-$mmdb_version.tar.gz
 ${WGET} $mmdb_server_dir/mmdb-$mmdb_version.tar.gz
 
@@ -2260,12 +2299,18 @@ if test -n "$build_ssmlib" ; then
    echo BUILDING SSMlib:
 #
 ssmlib_version=0.0-pre-2-ysbl
-${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
+#${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
+#${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
+# ${WGET} $extras_place/SSMlib-$ssmlib_version.tar.gz
+${WGET} ftp://ftp.ccp4.ac.uk/opensource/ssm-1.3.tar.bz2
 (
 date
-gzip -dc ${AUTOBUILD_SOURCES}/SSMlib-$ssmlib_version.tar.gz | tar xf -
-cd SSMlib-$ssmlib_version
-./configure $generic_prefix --with-mmdb-prefix=$install_top_dir
+# gzip -dc ${AUTOBUILD_SOURCES}/ssm-1.3.tar.bz2 | tar xf -
+tar xf ${AUTOBUILD_SOURCES}/ssm-1.3.tar.bz2
+cd ssm-1.3
+# ./configure $generic_prefix --with-mmdb-prefix=$install_top_dir
+# grrr
+./configure $generic_prefix CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib
 $MAKE
 $MAKE install
 ) >  $HOSTLOGDIR/02-ssmlib.txt 2>&1
@@ -2321,10 +2366,11 @@ if test -n "$build_clipper" ; then
     # 20110921 hack in a temporary solution, while Kevin's new clipper
     # is not available yet from his site.
     clipper_hack_version=2.1-110915-fixup-2
-    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-$clipper_hack_version.tar.gz
+    clipper_hack_version=2.1-140110-fixup
+    ${WGET} $extras_place/clipper-$clipper_hack_version.tar.gz
 
     if [ "$need_clipper_contrib_patch" = true ] ; then
-       ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper_test_contrib.cpp.patch
+       ${WGET} $extras_place/clipper_test_contrib.cpp.patch
     fi
     (
     
@@ -2471,21 +2517,26 @@ if [ "$build_gtkglext" = 1 ] ; then
         echo version of gtk is old, no need to patch gtkglext.
      fi
 
-     ./configure $generic_prefix
-     if [ "$update_libtool" = 1 ] ; then
-        cp $install_top_dir/bin/libtool .
+     if ./configure $generic_prefix ; then 
+        if [ "$update_libtool" = 1 ] ; then
+           cp $install_top_dir/bin/libtool .
+        fi
+        # do this on 64 bit systems. FIXME
+        # Use uname -p being x84_64
+        #      sed -i 's#sys_lib_search_path_spec="#sys_lib_search_path_spec="/usr/lib64#' libtool
+        $MAKE
+        status=$?
+        if [ "$status" != 0 ] ; then
+           echo make of gtkglext failed
+        else
+           $MAKE install
+        fi
+     else 
+        echo gtkglext configure failed
+        echo here is config.log
+        cat config.log
      fi
-     # do this on 64 bit systems. FIXME
-     # Use uname -p being x84_64
-     #      sed -i 's#sys_lib_search_path_spec="#sys_lib_search_path_spec="/usr/lib64#' libtool
-     $MAKE
-     status=$?
-     if [ "$status" != 0 ] ; then
-        echo make of gtkglext failed
-     else
-        $MAKE install
-     fi
-    ) > $HOSTLOGDIR/06-pre-gtkglext.txt 2>&1
+     ) > $HOSTLOGDIR/06-pre-gtkglext.txt 2>&1
     # capture the status from the subshell, if an error, exit the main shell too.
     status=$?
     if [ $status = 2 ] ; then 
@@ -2505,13 +2556,18 @@ if [ "$build_goocanvas" != "no" ] ; then
      pwd
      gzip -dc ${AUTOBUILD_SOURCES}/goocanvas-1.0.0.tar.gz | tar xf -
      cd goocanvas-1.0.0
-     ./configure $generic_prefix
-     if ! $MAKE ; then
-        echo make of goocanvas failed
+     if ./configure $generic_prefix ; then
+        if ! $MAKE ; then
+           echo make of goocanvas failed
+        else 
+	    $MAKE install
+        fi
      else 
-	 $MAKE install
+        echo goocanvas configure failed
+        echo here is config.log
+        cat config.log
      fi
-     ) > $HOSTLOGDIR/06-pre-goocanvas.txt
+     ) > $HOSTLOGDIR/06-pre-goocanvas.txt 2>&1
 fi
 
 
@@ -2539,6 +2595,7 @@ if test -n "$build_python" ; then
    cd Python-$pver
 
    echo INFO:: ./configure $generic_prefix $python_spec_flags for python
+   # BL comment may need --enable-shared for python-config to pick up ldflags properly!?
    ./configure $generic_prefix $python_spec_flags
    echo INFO:: make for python
    $MAKE 
@@ -2692,11 +2749,12 @@ fi
 
 if test -n "$build_gmp" ; then
     echo BUILDING gmp:
-    gmp_version=4.2.4
-    ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.gz
+    # gmp_version=4.2.4
+    gmp_version=5.1.2
+    ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.bz2
     (date
      pwd
-     gzip -dc ${AUTOBUILD_SOURCES}/gmp-$gmp_version.tar.gz | tar xf -
+     tar xf ${AUTOBUILD_SOURCES}/gmp-$gmp_version.tar.bz2
      cd gmp-$gmp_version
      ./configure $generic_prefix
      $MAKE
@@ -2764,6 +2822,38 @@ else
 fi 
 
 
+# $ guile
+# Backtrace:
+# In unknown file:
+#    ?: 133* [#<procedure #f ()>]
+#    ?: 134* [load-file #<primitive-procedure primitive-load> ...]
+#    ?: 135* [save-module-excursion #<procedure #f ()>]
+#    ?: 136  (let (# #) (dynamic-wind # thunk #))
+#    ?: 137  [dynamic-wind #<procedure #f ()> #<procedure #f ()> #<procedure #f ()>]
+#    ?: 138* [#<procedure #f ()>]
+#    ?: 139* [primitive-load "/home/xxx/autobuild/Linux-host-pre-release-gtk2-python/share/guile/1.8/ice-9/debug.scm"]
+# In /home/xxx/autobuild/Linux-host-pre-release-gtk2-python/share/guile/1.8/ice-9/debug.scm:
+#   22: 140* (define-module (ice-9 debug) :export ...)
+# In unknown file:
+#    ?: 141* [copy-tree ...
+#    ?: 142* [apply #<procedure #f args> (# :export #)]
+#    ?: 143  [#<procedure #f args> (ice-9 debug) :export ...]
+#    ?: 144  (quasiquote (eval-case (# #) (else #)))
+#    ?: 145* [compile-define-module-args (# :export #)]
+#    ?: 146  [loop ((quote #)) (:export (frame-number->index trace untrace ...))]
+#      ...
+#    ?: 147  [loop ((quote (ice-9 debug))) ...
+#    ?: 148* [cons ...
+#    ?: 149* [keyword-like-symbol->keyword :export]
+#    ?: 150  [symbol->keyword ...
+#    ?: 151* [string->symbol ...
+#    ?: 152* (substring (symbol->string sym) 1)
+#
+# then compile guile with -O (it defaults to -O2 if you do not add this, I think)
+# 20130910 force -O2 for every target.
+
+# <unnamed port>: In expression (substring (symbol->string sym) 1):
+# <unnamed port>: Stack overflow
 
 if test -n "$build_guile" ; then 
     echo BUILDING guile:
@@ -2787,12 +2877,13 @@ cd guile-${guile_version}
 # at least - I presume others also).
 
 if [ "$need_guile_unused_values_patch" = true ] ; then 
-   additional_unused_arg=-Wno-unused-but-set-variable
+   # 20130820-PE Ubuntu 12.04 also needs -Wno-unused-result
+   additional_unused_arg="-Wno-unused-but-set-variable -Wno-unused-result"
 else
    additional_unused_arg=
 fi
 # arg to guile's configure
-./configure $generic_prefix CFLAGS="-I$install_top_dir/include $additional_unused_arg-O" LDFLAGS=-L$install_top_dir/lib CPPFLAGS=-P
+./configure $generic_prefix CFLAGS="-I$install_top_dir/include $additional_unused_arg -O" LDFLAGS=-L$install_top_dir/lib CPPFLAGS=-P
 # Multilib fix for procedures.txt
 echo =========== post-configure patching threads.doc ====================
 perl -pi -e 's|threads.doc||' `find . -name Makefile`
@@ -2955,8 +3046,6 @@ else
 fi
 
 
-
-
 ###############################################################################
 ##########         build idn                                      #############
 ###############################################################################
@@ -2997,7 +3086,8 @@ if test -n "$build_curl" ; then
    # get libcurl from here: 
    # libcurl_version=7.19.7
    # libcurl_version=7.25.0
-   libcurl_version=7.27.0
+   # libcurl_version=7.27.0
+   libcurl_version=7.32.0
    ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
 
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
@@ -3075,7 +3165,11 @@ else
 fi
 
 
-echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT
+###############################################################################
+##########         get Coot                                       #############
+###############################################################################
+#
+echo BUILDING coot: version $coot_version, guile=$ENABLE_GUILE_COOT, python=$ENABLE_PYTHON_COOT
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
    ${WGET} $release_server_dir/$coot_version.tar.gz 
@@ -3128,7 +3222,9 @@ if test -n "$gtk_installed" ; then
     coot_extra_args="$coot_extra_args --with-gtk-prefix=$install_top_dir"
 fi
 
-scripting="--with-guile --with-guile-gtk --with-guile-gtk-prefix=$install_top_dir"
+if [ "$ENABLE_GUILE_COOT" != "no" ] ; then 
+    scripting="--with-guile --with-guile-gtk --with-guile-gtk-prefix=$install_top_dir"
+fi
 
 # if ENABLE_PYTHON_COOT is not set, then we choose a day of the week
 # to build a python version.
@@ -3202,32 +3298,35 @@ if [ $architecture = x86_64 ] ; then
    #   unset CXXFLAGS
 fi
 
+cbis_d=$(date +'%a %d %b %H%M.%S %Z %Y')
+if finger ; then
+   cbis_n=$(finger $USER | head -1 | sed 's/.*Name: //')
+   coot_build_info_string="built by: $cbis_n build-host: $HOST on: $cbis_d"
+else
+   coot_build_info_string="build-host: $HOST on: $cbis_d"
+fi
+
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
 echo ./configure $coot_prefix \
-   --with-gtkcanvas-prefix=$install_top_dir \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
-      --with-gtkgl-prefix=$install_top_dir  \
       $goocanvas_args     \
-      --with-gtk2         \
        $glut_prefix       \
       $scripting          \
       $python_scripting   \
       $shared_static_flag \
-      $coot_optim_args   \
+      $coot_optim_args    \
       $coot_extra_args
 
 ./configure $coot_prefix \
-   --with-gtkcanvas-prefix=$install_top_dir \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
-      --with-gtkgl-prefix=$install_top_dir  \
-      --with-gtk2         \
       $goocanvas_args     \
-       $glut_prefix       \
+      $glut_prefix        \
+      COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       $scripting          \
       $python_scripting   \
       $shared_static_flag \
@@ -3300,12 +3399,13 @@ refmac_mon_lib=refmac_dictionary_v5.29.tar.gz
 refmac_mon_lib=refmac_dictionary_v5.37.tar.gz
 refmac_mon_lib=refmac_dictionary_v5.38.tar.gz
 refmac_mon_lib=refmac_dictionary_v5.39.tar.gz
+refmac_mon_lib=refmac_dictionary_v5.41.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
 else 
     echo INSTALLING refmac monomer library...
-    echo INSTALLING refmac monomer library... &>2
+    echo INSTALLING refmac monomer library... >&2
     $WGET $mon_lib_dir/$refmac_mon_lib
     mkdir -p $install_top_dir/share/coot/lib/data
     tar xzCf $install_top_dir/share/coot/lib/data $AUTOBUILD_SOURCES/$refmac_mon_lib
@@ -3314,7 +3414,7 @@ if [ -e $install_top_dir/share/coot/reference-structures ] ; then
     echo INFO:: installation has reference structures
 else 
     echo GETTING reference structures tar...
-    echo GETTING reference structures tar... &>2
+    echo GETTING reference structures tar... >&2
     $WGET $extra_dir/reference-structures.tar.gz
     if [ -e $AUTOBUILD_SOURCES/reference-structures.tar.gz ] ; then
        echo INSTALLING reference structures...
@@ -3348,8 +3448,13 @@ if [ -e $LOGS/$build_type-test-status ] ; then
    rm $LOGS/$build_type-test-status
 fi
 # run test
-test_coot > $LOGS/$build_type-test.log 2>&1
-r=$?
+echo running tests...
+if [ "$ENABLE_GUILE_COOT" = "yes" ] ; then 
+    test_coot > $LOGS/$build_type-test.log 2>&1
+    r=$?
+else
+    r=0
+fi
 # run python tests too, maybe (i.e. if we build with python)
 if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
     test_coot_python > $LOGS/$build_type-test-python.log 2>&1
@@ -3399,32 +3504,48 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
                echo second coot test passed
                echo ========================
                echo pass-2nd-test > $LOGS/$build_type-test-status
-               # copy over to York if we are in biop
 
 	       mv $holding_tar_file $bin_tar_file
 	       mv $holding_tar_file.md5sum $bin_tar_file.md5sum
-               # copy file to pre-release dir if needed
-               ssh_copy $bin_tar_file
-	       echo copying over $bin_tar_file to biop
-               ssh_copy_to_biop $bin_tar_file
-	       echo copying over logs to biop
-               ssh_copy_logs_to_biop $HOME/public_html/build-logs/$OS-$HOST/ public_html/emsley/build-logs
 
                # update the description of the latest binary tar file for
                # this build-type.
                binary_type_latest=$BINARY_TAR_DEST_DIR/type-binary-${OS}-${systype}${python_tag}${gtk2}-latest.txt
 	       echo $coot_version > $binary_type_latest
-               ssh_copy $binary_type_latest
-               ssh_copy_to_biop $binary_type_latest
 
                # update the ChangeLog, README and RELEASE-NOTES
                cd "$build_dir"
                cd $coot_dir_name
                echo INFO:: in "$build_dir"/$coot_dir_name and about to copy over README and RELEASE-NOTES to $BINARY_TAR_DEST_DIR
                cp ChangeLog $BINARY_TAR_DEST_DIR
+               cp README    coot-README
                cp README    $BINARY_TAR_DEST_DIR/coot-README
                cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
                cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
+
+	       echo about to publish files:
+
+	       # only copy over the binary files if they are not there
+	       # already (checked by publish executable).
+	       #
+	       echo $publish $bin_tar_file
+	       $publish $bin_tar_file
+	       echo $publish $bin_tar_file.md5sum
+	       $publish $bin_tar_file.md5sum
+	       echo $publish $binary_type_latest
+	       $publish $binary_type_latest
+	       echo $publish --no-server-check ChangeLog
+	       $publish --no-server-check ChangeLog
+	       echo $publish --no-server-check coot-README
+	       $publish --no-server-check coot-README
+               if [ -z "$build_coot_prerelease" ] ; then 
+   	          echo $publish  --no-server-check RELEASE-NOTES
+	          $publish --no-server-check RELEASE-NOTES
+               else 
+   	          echo $publish  --no-server-check $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
+	          $publish --no-server-check $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
+               fi
+
 	       echo done copy of README and RELEASE-NOTES
 	    else 
                echo ========================
@@ -3458,6 +3579,8 @@ else
       fi
    fi
 fi
+
+$publish_logs $LOGS
 
 
 echo finished.

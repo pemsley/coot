@@ -76,7 +76,8 @@ void CHBond::InitParams() {
 //-------------------------------------------------------------------
   //params
   min_D_A = 2.0;
-  max_D_A = 3.9;
+  max_D_A = 3.6;
+  max_D_A_S = 3.9;
   max_H_A = 2.5;
   min_DD_D_A = 90 * PI/180.0;
   min_D_A_AA = 90 * PI/180.0;
@@ -91,11 +92,12 @@ void CHBond::SetParams(int nv, double *value) {
 
   min_D_A = value[0];
   max_D_A = value[1];
-  max_H_A = value[2];
-  min_DD_D_A = value[3] * PI/180.0;
-  min_D_A_AA = value[4] * PI/180.0;
-  min_H_A_AA = value[5] * PI/180.0;
-  min_D_H_A = value[6] * PI/180.0;
+  max_D_A_S = value[2];
+  max_H_A = value[3];
+  min_DD_D_A = value[4] * PI/180.0;
+  min_D_A_AA = value[5] * PI/180.0;
+  min_H_A_AA = value[6] * PI/180.0;
+  min_D_H_A = value[7] * PI/180.0;
 
 }
 
@@ -237,8 +239,11 @@ int CHBond::Calculate0(int model)  {
     // Find close contacts beteen donors and acceptors
     mat44 * TMatrix=0;
 
+    realtype max_D = max_D_A;
+    if(max_D_A_S>max_D)
+      max_D = max_D_A_S;
     molHnds[0]->SeekContacts ( donorAtoms,nDonors,acceptorAtoms,nAcceptors,
-        min_D_A,max_D_A,0,contacts,ncontacts, 0,TMatrix, 0 , 0);
+        min_D_A,max_D,0,contacts,ncontacts, 0,TMatrix, 0 , 0);
 
     //cout << "ncontacts " << ncontacts << endl;
     if ( !contacts ||  ncontacts <= 0 ) {
@@ -340,12 +345,19 @@ int CHBond::Calculate0(int model)  {
             }
 	  }
   	  if  ( donor_angles_OK > 0) {
-            if (loop==1)
-              hbonds.AddConnection(acceptorAtoms[contacts[n].id2],
-               donorAtoms[contacts[n].id1],FloatToString(contacts[n].dist,"%.1f"));
-            else
-              hbonds.AddConnection(donorAtoms[contacts[n].id1],
-             acceptorAtoms[contacts[n].id2],FloatToString(contacts[n].dist,"%.1f"));
+            if (loop==1){
+              if(
+                 (((strcmp(acceptorAtoms[contacts[n].id2]->element," S"))==0||(strcmp(donorAtoms[contacts[n].id1]->element," S")==0))&&contacts[n].dist<=max_D_A_S)
+               ||(((strcmp(acceptorAtoms[contacts[n].id2]->element," S"))!=0&&(strcmp(donorAtoms[contacts[n].id1]->element," S")!=0))&&contacts[n].dist<=max_D_A)
+               )
+              hbonds.AddConnection(acceptorAtoms[contacts[n].id2],donorAtoms[contacts[n].id1],FloatToString(contacts[n].dist,"%.1f"));
+            }else{
+              if(
+                 (((strcmp(acceptorAtoms[contacts[n].id2]->element," S"))==0||(strcmp(donorAtoms[contacts[n].id1]->element," S")==0))&&contacts[n].dist<=max_D_A_S)
+               ||(((strcmp(acceptorAtoms[contacts[n].id2]->element," S"))!=0&&(strcmp(donorAtoms[contacts[n].id1]->element," S")!=0))&&contacts[n].dist<=max_D_A)
+               )
+              hbonds.AddConnection(donorAtoms[contacts[n].id1],acceptorAtoms[contacts[n].id2],FloatToString(contacts[n].dist,"%.1f"));
+            }
           }
         }
       }

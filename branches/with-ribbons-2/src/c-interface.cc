@@ -56,7 +56,7 @@
 #undef DATADIR
 #endif // DATADIR
 #endif /* MINGW */
-#include "sleep-fixups.h"
+#include "compat/sleep-fixups.h"
 
 // Here we used to define GTK_ENABLE_BROKEN if defined(WINDOWS_MINGW)
 // Now we don't want to enable broken stuff.  That is not the way.
@@ -94,21 +94,21 @@
 #include <string>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
-#include "Cartesian.h"
-#include "Bond_lines.h"
-#include "coot-utils.hh"
-#include "coot-map-utils.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 #include "coot-database.hh"
 #include "coot-fileselections.h"
 
 // #include "xmap-interface.h"
 #include "graphics-info.h"
 
-#include "BuildCas.h"
+#include "skeleton/BuildCas.h"
 
 #include "trackball.h" // adding exportable rotate interface
 
@@ -1482,6 +1482,83 @@ float density_at_point(int imol, float x, float y, float z) {
    }
    return r;
 }
+
+
+#ifdef USE_GUILE
+float density_score_residue_scm(int imol, SCM residue_spec_scm, int imol_map) {
+
+   float v = 0.0;
+   if (is_valid_map_molecule(imol_map)) { 
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t g;
+	 coot::residue_spec_t residue_spec = residue_spec_from_scm(residue_spec_scm);
+	 CResidue *r = g.molecules[imol].get_residue(residue_spec);
+	 if (r) {
+	    PPCAtom residue_atoms = 0;
+	    int n_residue_atoms;
+	    r->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	       CAtom *at = residue_atoms[iat];
+	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
+	       v += d_at * at->occupancy;
+	    }
+	 } 
+      }
+   }
+   return v;
+}
+#endif 
+
+#ifdef USE_PYTHON
+float density_score_residue_py(int imol, PyObject *residue_spec_py, int imol_map) {
+
+   float v = 0.0;
+   if (is_valid_map_molecule(imol_map)) { 
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t g;
+	 coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
+	 CResidue *r = g.molecules[imol].get_residue(residue_spec);
+	 if (r) {
+	    PPCAtom residue_atoms = 0;
+	    int n_residue_atoms;
+	    r->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	       CAtom *at = residue_atoms[iat];
+	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
+	       v += d_at * at->occupancy;
+	    }
+	 } 
+      }
+   }
+   return v; 
+} 
+#endif 
+
+/*! \brief simple density score for given residue (over-ridden by scripting function) */
+float density_score_residue(int imol, const char *chain_id, int res_no, const char *ins_code, int imol_map) {
+   
+   float v = 0.0;
+   if (is_valid_map_molecule(imol_map)) { 
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t g;
+	 coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
+	 CResidue *r = g.molecules[imol].get_residue(residue_spec);
+	 if (r) {
+	    PPCAtom residue_atoms = 0;
+	    int n_residue_atoms;
+	    r->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	       CAtom *at = residue_atoms[iat];
+	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
+	       v += d_at * at->occupancy;
+	    }
+	 } 
+      }
+   }
+   return v;
+
+}
+
 
 #ifdef USE_GUILE
 SCM map_sigma_scm(int imol) {
@@ -3992,7 +4069,7 @@ gchar *get_text_for_phs_cell_chooser(int imol, char *field) {
    gchar *retval = NULL;
    retval = (gchar *) malloc(12); 
    int ihave_cell = 0; 
-   float cell[6];
+   realtype cell[6];
    const char *spgrp = NULL; 
 
    if (imol >= 0) { 
@@ -4002,12 +4079,11 @@ gchar *get_text_for_phs_cell_chooser(int imol, char *field) {
 
 	       ihave_cell = 1; 
 
-	       cell[0] = g.molecules[imol].atom_sel.mol->get_cell().a;
-	       cell[1] = g.molecules[imol].atom_sel.mol->get_cell().b;
-	       cell[2] = g.molecules[imol].atom_sel.mol->get_cell().c;
-	       cell[3] = g.molecules[imol].atom_sel.mol->get_cell().alpha;
-	       cell[4] = g.molecules[imol].atom_sel.mol->get_cell().beta;
-	       cell[5] = g.molecules[imol].atom_sel.mol->get_cell().gamma;
+	       realtype vol;
+	       int orthcode;
+	       g.molecules[imol].atom_sel.mol->GetCell(cell[0], cell[1], cell[2],
+						       cell[3], cell[4], cell[5],
+						       vol, orthcode);
 	       spgrp   = g.molecules[imol].atom_sel.mol->GetSpaceGroup(); 
 
 	    } else { 
@@ -5857,6 +5933,7 @@ run_state_file() {
    int status = stat(filename.c_str(), &buf);
    if (status == 0) { 
       run_guile_script(filename.c_str());
+      graphics_info_t::state_file_was_run_flag = true;
    }
 #else 
 #ifdef USE_PYTHON
@@ -5865,6 +5942,7 @@ run_state_file() {
    int status = stat(filename.c_str(), &buf);
    if (status == 0) { 
       run_python_script(filename.c_str());
+      graphics_info_t::state_file_was_run_flag = true;
    }
 #endif
 #endif
@@ -5879,6 +5957,7 @@ run_state_file_py() {
    int status = stat(filename.c_str(), &buf);
    if (status == 0) { 
       run_python_script(filename.c_str());
+      graphics_info_t::state_file_was_run_flag = true;
    }
 }
 #endif // USE_PYTHON
@@ -5907,6 +5986,7 @@ run_state_file_maybe() {
       if (status == 0) { 
 	 if (g.run_state_file_status == 2) {
 	    run_script(filename.c_str());
+	    graphics_info_t::state_file_was_run_flag = true;
 	 } else {
 	    if (graphics_info_t::use_graphics_interface_flag) { 
 	       GtkWidget *dialog = wrapped_create_run_state_file_dialog();

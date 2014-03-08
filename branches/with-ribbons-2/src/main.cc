@@ -58,7 +58,7 @@
 
 #include <GL/glut.h> // for glutInit()
 
-#include "lbg.hh"
+// #include "lbg/lbg.hh"
 
 #include "interface.h"
 #ifndef HAVE_SUPPORT_H
@@ -82,15 +82,15 @@
 #include <string>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
 #include "clipper/core/test_core.h"
 #include "clipper/contrib/test_contrib.h"
 
-#include "Cartesian.h"
-#include "Bond_lines.h"
+#include "coords/Cartesian.h"
+#include "coords/Bond_lines.h"
 
 #include "command-line.hh"
 
@@ -106,12 +106,12 @@
 #undef DATADIR
 #endif // DATADIR
 #endif
-#include "sleep-fixups.h"
+#include "compat/sleep-fixups.h"
 
 #include "c-interface.h"
 #include "cc-interface.hh"
 
-#include "rgbreps.h"
+#include "coot-surface/rgbreps.h"
 
 #include "coot-database.hh"
 
@@ -291,27 +291,19 @@ main (int argc, char *argv[]) {
 #endif // USE_LIBGLADE
      
      std::string version_string = VERSION;
-     gchar *main_title;
-#ifdef WINDOWS_MINGW
-     main_title = g_strconcat("WinCoot ", version_string.c_str(), NULL);
-#else
-     main_title = g_strconcat("Coot ", version_string.c_str(), NULL);
-#endif
-     gtk_window_set_title (GTK_WINDOW (window1), _(main_title));
-     g_free(main_title);
-
-     // Trying to put a pixmap into the menu bar...
-     GtkWidget *reset_view1 = lookup_widget(window1, "reset_view1");
-     if (! reset_view1) {
-	std::cout << "ERROR:: failed to find reset_view1" << std::endl;
-     } else {
-	//      GtkWidget *box = gtk_hbox_new(FALSE, 0);
-	//      GtkWidget *pixmap = create_pixmap (box, "recentre.xpm");
-	//      gtk_box_pack_start (GTK_BOX (box),
-	// 			 pixmap, FALSE, FALSE, 3);
-	//      gtk_container_add(GTK_CONTAINER(reset_view1), box);
-	//      gtk_widget_show(box);
+     std::string main_title = "Coot " + version_string;
+     // if this is a pre-release, stick in the revision number too
+     if (version_string.find("-pre") != std::string::npos) {
+	main_title += " (revision ";
+	main_title += coot::util::int_to_string(svn_revision());
+	main_title += ")";
      }
+     
+#ifdef WINDOWS_MINGW
+     main_title = "Win" + main_title;
+#endif
+
+     gtk_window_set_title(GTK_WINDOW (window1), main_title.c_str());
 
      glarea = gl_extras(lookup_widget(window1, "vbox1"),
 			cld.hardware_stereo_flag);
@@ -488,10 +480,7 @@ main (int argc, char *argv[]) {
        if (coot_dot_py_checked) {
 	 std::cout << "INFO:: importing coot.py from " << coot_dot_py_checked
 		   << std::endl;
-	 //run_python_script(coot_dot_py_checked);
-	 // not a const argument?  Dear oh dear....
 	 int err = import_python_module("coot", 0);
-	 //PyRun_SimpleString((char *)simple.c_str());
 	 if (err == -1) {
 	   std::cout << "ERROR:: could not import coot.py" << std::endl;
 	 } else {
@@ -926,40 +915,6 @@ void add_ligand_builder_menu_item_maybe() {
       }
    }
 
-}
-
-void
-start_ligand_builder_gui(GtkMenuItem     *menuitem,
-			 gpointer         user_data) {
-
-#ifdef HAVE_GOOCANVAS
-   lig_build::molfile_molecule_t mm;
-   CMMDBManager *mol = NULL;
-   std::string molecule_file_name = "coot-lidia.mol"; // non-null file name passed to lbg, used
-					  	      // in save function
-   std::string view_name;
-   std::pair<bool, coot::residue_spec_t> dummy_pair(0, coot::residue_spec_t());
-   bool use_graphics_interface_flag = 1;
-   bool stand_alone_flag = 0;
-   int imol_dummy = -1;
-
-   int (*get_url_func_pointer) (const char *s1, const char *s2) = NULL;
-#ifdef USE_LIBCURL
-   get_url_func_pointer= coot_get_url;
-#endif    
-
-   lbg(mm, dummy_pair, mol, view_name, molecule_file_name, imol_dummy,
-       graphics_info_t::Geom_p(),
-       use_graphics_interface_flag, stand_alone_flag,
-       get_url_func_pointer,
-       prodrg_import_function,
-       sbase_import_function,
-       get_drug_mdl_via_wikipedia_and_drugbank
-       );
-#else
-   std::cout << "No goocanvas" << std::endl;
-#endif // HAVE_GOOCANVAS
-   
 }
 
 void 

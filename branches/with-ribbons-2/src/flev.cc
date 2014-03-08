@@ -28,17 +28,17 @@
 // For reasons I don't understand, this should come near the top of
 // includes, otherwise we get RDKit dcgettext() include file problems.
 //
-#include "lbg.hh"
+#include "lbg/lbg.hh"
 
 #include "c-interface-ligands.hh"
-#include "mmdb-extras.h"
-#include "mmdb.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
 
 #include "graphics-info.h"
 #include "c-interface.h"
-#include "lbg-graph.hh"
+#include "geometry/lbg-graph.hh"
 
-#include "coot-h-bonds.hh"
+#include "coot-utils/coot-h-bonds.hh"
 
 #include "flev.hh"
 
@@ -431,7 +431,7 @@ void fle_view_with_rdkit_to_png(int imol, const char *chain_id, int res_no, cons
 
 void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *file_format, const char *output_image_file_name) { 
    
-#ifndef MAKE_ENTERPRISE_TOOLS
+#ifndef MAKE_ENHANCED_LIGAND_TOOLS
 # else
 
    double weight_for_3d_distances = 0.4; // for 3d distances
@@ -506,7 +506,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 		  CResidue *residue_flat =
 		     coot::make_residue(rdkm, mol_2d_depict_conformer, "XXX");
 		  CMMDBManager *mol_for_flat_residue =
-		     coot::util::create_mmdbmanager_from_residue(NULL, residue_flat);
+		     coot::util::create_mmdbmanager_from_residue(residue_flat);
 
 		  if (0) 
 		     for (unsigned int iat=0; iat<m.atoms.size(); iat++)
@@ -598,7 +598,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 	 }
       }
    }
-#endif // MAKE_ENTERPRISE_TOOLS   
+#endif // MAKE_ENHANCED_LIGAND_TOOLS   
 }
 
 void fle_view_set_water_dist_max(float dist_max) { 

@@ -35,7 +35,7 @@
 #include <stdexcept>
 
 #include "clipper/core/xmap.h"
-#include "CIsoSurface.h"
+#include "density-contour/CIsoSurface.h"
 
 #include "clipper/core/hkl_compute.h"
 #include "clipper/clipper-phs.h"
@@ -52,7 +52,7 @@
 // #include "xmap-utils.h"
 // #include "coot-coord-utils.hh"
 
-#include "coot-map-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 
 #include "molecule-class-info.h"
 #include <mmdb/mmdb_align.h>
@@ -502,20 +502,37 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 				      int nSelResidues,
 				      const std::string &target,
 				      realtype wgap,
-				      realtype wspace) const {
+				      realtype wspace,
+				      bool is_nucleic_acid_flag,
+				      bool console_output) const {
 
    coot::chain_mutation_info_container_t ch_info(chain_id);
+   bool debug = false;
 
-   std::cout << "\n\n-------------------------------------------------" << std::endl;
-   std::cout << "        chain " << chain_id << std::endl;
-   std::cout << "-------------------------------------------------\n\n" << std::endl;
 
+   if (console_output || debug) { 
+      std::cout << "\n----- input to align_on_chain() -----------------" << std::endl;
+      std::cout << "        chain " << chain_id << std::endl;
+      if (0)
+	 for (int i=0; i<nSelResidues; i++)
+	    std::cout << "        sel-residue: " << coot::residue_spec_t(SelResidues[i])
+		      << std::endl;
+	 
+      std::cout << "        target " <<  target << std::endl;
+      std::cout << "        wgap  " << wgap << std::endl;
+      std::cout << "        is_nucleic_acid_flag " << is_nucleic_acid_flag << std::endl;
+      std::cout << "        console_output " << console_output << std::endl;
+      std::cout << "---------------------------------------------------" << std::endl;
+   }
+   
    std::vector<std::pair<CResidue *, int> > vseq =
       coot::util::sort_residues_by_seqno(SelResidues, nSelResidues);
 
    std::string model = coot::util::model_sequence(vseq);
-   std::cout << "INFO:: input model  sequence:" << model  << std::endl;
-   std::cout << "INFO:: input target sequence:" << target  << std::endl;
+   if (console_output || debug) { 
+      std::cout << "INFO:: input model  sequence: " << model  << std::endl;
+      std::cout << "INFO:: input target sequence: " << target  << std::endl;
+   }
 
    CAlignment align;
 
@@ -524,7 +541,6 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    // when there is a deletion at the N-term of my model (rnase).
    // 
    // align.SetScores(0.5, -0.2);; // 2.0, -1 are the defaults.
-   
 
    // It seems to me now that it is the gap (and space) penalty that
    // is the important issue.
@@ -537,23 +553,35 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 
    std::string stripped_target = coot::util::remove_whitespace(target);
 
-   std::cout << "INFO:: align with gap penalty: " << wgap << " and extension penalty: "
-	     << wspace << std::endl;
+   if (debug)
+      std::cout << "debug:::: Align() with gap penalty: " << wgap
+		<< " and extension penalty: " << wspace << std::endl;
+   
    align.SetAffineModel(wgap, wspace);
    align.Align(model.c_str(), stripped_target.c_str());
 
    ch_info.alignedS = align.GetAlignedS();
    ch_info.alignedT = align.GetAlignedT();
+
+   if (debug) { 
+      std::cout << "debug:::: Align() on model  " << model << std::endl;
+      std::cout << "debug:::: Align() on target " << stripped_target << std::endl;
+      std::cout << "debug:::: Align() GetAlignedS:  " << ch_info.alignedS << std::endl;
+      std::cout << "debug:::: Align() GetAlignedT:  " << ch_info.alignedT << std::endl;
+   }
+   
    ch_info.alignedS_label = name_;
    ch_info.alignedT_label = "target sequence:";
+   ch_info.alignment_score = std::pair<bool, float> (true, align.GetScore());
+
+   if (console_output) { 
+      std::cout << ">  ";
+      std::cout << name_ << std::endl;
+      std::cout << align.GetAlignedS() << std::endl;
+      std::cout << "> target seq: \n" << align.GetAlignedT() << std::endl;
+      std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
+   }
    
-
-   std::cout << ">  ";
-   std::cout << name_ << std::endl;
-   std::cout << align.GetAlignedS() << std::endl;
-   std::cout << "> target seq: \n" << align.GetAlignedT() << std::endl;
-   std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
-
    // Before the use of SetAffineModel()
    // we got something like:
    // DVSGTVCLSALPPEATDTLNLIASDGPFPYSQD----F--------Q-------NRESVLPTQSYGYYHEYTVITP
@@ -588,95 +616,127 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    std::string s=align.GetAlignedS();
    std::string t=align.GetAlignedT();
 
-   // we need to match the poistion in SelResidues to the position
+   // we need to match the position in SelResidues to the position
    // after alignment (it has had "-"s inserted into it).
    std::vector<int> selindex(s.length());
    int sel_offset = 0;
    for (unsigned int iseq_indx=0; iseq_indx<s.length(); iseq_indx++) {
-      selindex[iseq_indx] = iseq_indx - sel_offset;
-//       std::cout << "assigned: selindex[" << iseq_indx << "]=" << selindex[iseq_indx]
-//  		<< std::endl;
+      int trial_idx = iseq_indx - sel_offset;
+      if (trial_idx < nSelResidues)
+	 selindex[iseq_indx] = trial_idx;
+      else 
+	 selindex[iseq_indx] = -1; // something bad happened in the setting of selindex values.
+
+      if (debug)
+	 std::cout << "assigned: selindex[" << iseq_indx << "]=" << selindex[iseq_indx]
+		   << std::endl;
+
+      // for next round
       if (s[iseq_indx] == '-')
 	 sel_offset++;
    }
 
    if (s.length() == t.length()) {
 
-//       for (unsigned int iseq_indx=0; iseq_indx<s.length(); iseq_indx++) {
-// 	 std::cout << "   " << iseq_indx << " " << s[iseq_indx] << std::endl;
-//       }
+      if (debug) { 
+	 for (unsigned int iseq_indx=0; iseq_indx<s.length(); iseq_indx++) 
+	    std::cout << "   s array: " << iseq_indx << " " << s[iseq_indx] << std::endl;
+
+	 if (debug)
+	    for (unsigned int i=0; i<selindex.size(); i++)
+	       std::cout << "    selindex [" << i << "] is " << selindex[i] << "\n";
+
+       
+	 for (unsigned int i=0; i<s.length(); i++) {
+	    if (selindex[i] > -1)
+	       std::cout << "   sequence-check: " << i << " " << t[i] << " " << s[i] << " "
+			 << coot::util::three_letter_to_one_letter(SelResidues[selindex[i]]->GetResName())
+			 << std::endl;
+	    else 
+	       std::cout << "   sequence-check: " << i << " target " << t[i] << " seq " << s[i] << " -1" << std::endl;
+	 }
+      }
       
-      // std::vector<int> resno_offsets(s.length(), 0);
-      
-//       std::cout << "DEBUG:: s.length() " << s.length() << std::endl;
-//       std::cout << "DEBUG:: nSelResidues " << nSelResidues << std::endl;
+      std::cout << "DEBUG:: s.length() " << s.length() << std::endl;
+      std::cout << "DEBUG:: nSelResidues " << nSelResidues << std::endl;
 
       std::string inscode("");
       int ires = 0;
-      int ires_running = 0;
+      int res_no_running = 0;
       
       for (unsigned int iseq_indx=0; iseq_indx<s.length(); iseq_indx++) {
 
-	 if (s[iseq_indx] != '-') { 
-	    ires_running = SelResidues[selindex[iseq_indx]]->GetSeqNum();
-	    if (0)
-	       std::cout << "DEBUG:: outer: ===  just set ires to " << ires << " because "
-			 << "s[" << iseq_indx << "] was " << s[iseq_indx] << std::endl;
-	 }
-	 
-	 if (s[iseq_indx] != t[iseq_indx]) {
+	 int res_idx = selindex[iseq_indx];
 
-	    // These only make sense when the aligned residue (in s) was not "-"
-	    if (s[iseq_indx] != '-') { 
-	       ires            = SelResidues[selindex[iseq_indx]]->GetSeqNum();
-	       inscode = SelResidues[selindex[iseq_indx]]->GetInsCode();
-	    }
+	 if (res_idx != -1) {
 
-	    //	    std::cout << "DEBUG:: ires: " << ires << std::endl;
+	    // sane res_index
 	    
-	    // Case 1: (simple mutate)
-	    if ((s[iseq_indx] != '-') && t[iseq_indx] != '-') {
-// 	       std::cout << "mutate res number " << ires << " "
-// 			 << s[iseq_indx] << " to " << t[iseq_indx] << std::endl;
-	       std::string target_type =
-		  coot::util::single_letter_to_3_letter_code(t[iseq_indx]);
-	       coot::residue_spec_t res_spec(ires);
-	       ch_info.add_mutation(res_spec, target_type);
+	    if (s[iseq_indx] != '-') {
+	       if (debug)
+		  std::cout << "DEBUG:: just set res_idx to " << res_idx << " because "
+			    << "selindex[" << iseq_indx << "] was " << selindex[iseq_indx]
+			    << " of " << nSelResidues << " selected residues" << std::endl;
+	       res_no_running = SelResidues[res_idx]->GetSeqNum();
 	    }
+	 
+	    if (s[iseq_indx] != t[iseq_indx]) {
 
-	    // Case 2: model had insertion
-	    if ((s[iseq_indx] != '-') && t[iseq_indx] == '-') {
+	       // These only make sense when the aligned residue (in s) was not "-"
+	       if (s[iseq_indx] != '-') { 
+		  ires            = SelResidues[selindex[iseq_indx]]->GetSeqNum();
+		  inscode = SelResidues[selindex[iseq_indx]]->GetInsCode();
+	       }
 
-// 	       for (unsigned int i=iseq_indx+1; i<s.length(); i++)
-// 		  resno_offsets[i] -= 1;
+	       //	    std::cout << "DEBUG:: ires: " << ires << std::endl;
+	    
+	       // Case 1: (simple mutate)
+	       if ((s[iseq_indx] != '-') && t[iseq_indx] != '-') {
+		  // 	       std::cout << "mutate res number " << ires << " "
+		  // 			 << s[iseq_indx] << " to " << t[iseq_indx] << std::endl;
+		  std::string target_type =
+		     coot::util::single_letter_to_3_letter_code(t[iseq_indx]);
+		  coot::residue_spec_t res_spec(ires);
+		  ch_info.add_mutation(res_spec, target_type);
+	       }
+
+	       // Case 2: model had insertion
+	       if ((s[iseq_indx] != '-') && t[iseq_indx] == '-') {
+
+		  // 	       for (unsigned int i=iseq_indx+1; i<s.length(); i++)
+		  // 		  resno_offsets[i] -= 1;
 	       
-	       coot::residue_spec_t res_spec(ires);
-	       if (0)
-		  std::cout << "DEBUG:: Delete residue number " << iseq_indx << " "
-			    << s[iseq_indx] << " " << res_spec << std::endl;
+		  coot::residue_spec_t res_spec(ires);
+		  if (0)
+		     std::cout << "DEBUG:: Delete residue number " << iseq_indx << " "
+			       << s[iseq_indx] << " " << res_spec << std::endl;
 	       
-	       ch_info.add_deletion(res_spec);
+		  ch_info.add_deletion(res_spec);
+	       }
+
+	       // Case 3: model has a deletion
+	       if ((s[iseq_indx] == '-') && t[iseq_indx] != '-') {
+		  // 	       for (unsigned int i=iseq_indx+1; i<s.length(); i++)
+		  // 		  resno_offsets[i] += 1;
+		  // ires will be for the previous residue.  It was not
+		  // set for this one.
+
+		  // 20090902
+		  coot::residue_spec_t res_spec(res_no_running + 1);
+		  res_no_running++; // for next insertion
+	       
+		  std::string target_type(1, t[iseq_indx]);
+
+		  if (! is_nucleic_acid_flag)
+		     target_type = coot::util::single_letter_to_3_letter_code(t[iseq_indx]);
+	       
+		  ch_info.add_insertion(res_spec, target_type);
+		  if (0) 
+		     std::cout << "DEBUG:: Insert residue  " << res_spec << " " << target_type
+			       << " " << iseq_indx << " " << t[iseq_indx]
+			       << " with ires " << ires << std::endl;
+	       }
 	    }
-
-	    // Case 3: model has a deletion
-	    if ((s[iseq_indx] == '-') && t[iseq_indx] != '-') {
-// 	       for (unsigned int i=iseq_indx+1; i<s.length(); i++)
-// 		  resno_offsets[i] += 1;
-	       // ires will be for the previous residue.  It was not
-	       // set for this one.
-	       
-	       // 20090902
-	       coot::residue_spec_t res_spec(ires_running+1);
-	       ires_running++; // for next insertion
-	       
-	       std::string target_type =
-		  coot::util::single_letter_to_3_letter_code(t[iseq_indx]);
-	       ch_info.add_insertion(res_spec, target_type);
-	       if (0) 
-		  std::cout << "DEBUG:: Insert residue  " << res_spec << " " << target_type
-			    << " " << iseq_indx << " " << t[iseq_indx]
-			    << " with ires " << ires << std::endl;
-	    } 
 	 }
       }
    }
@@ -710,8 +770,8 @@ molecule_class_info_t::try_align_on_all_chains(const std::string &target, float 
 	 std::string chain_id = chain_p->GetChainID();
 
 	 // Only try to align if this chain does not have an assigned
-	 // sequence already.  Slightly awkward in c++ - we want a
-	 // scheme 'map'.
+	 // sequence already.  
+	 //
 	 bool already_assigned = false;
 	 for (unsigned int ii=0; ii<input_sequence.size(); ii++) {
 	    if (input_sequence[ii].first == chain_id) {
@@ -796,13 +856,11 @@ molecule_class_info_t::residue_mismatches(realtype alignment_wgap, realtype alig
 std::pair<bool, std::string>
 molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, int resno,
 						  realtype alignment_wgap,
-						  realtype alignment_wspace) const {
+						  realtype alignment_wspace,
+						  bool is_nucleic_acid_flag) const {
 
 
-   std::cout << "DEBUG:: ==== finding terminal residue type of chaind " << chain_id << " with resno "
-	     << resno << std::endl;
-
-   bool found = 0;
+   bool found = false;
    std::string type = "None";
    std::string target = "";
 
@@ -817,12 +875,12 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
    
       CMMDBManager *mol = atom_sel.mol;
       if (mol) { 
-	 int selHnd = mol->NewSelection();
+	 int selHnd = mol->NewSelection(); // d
 	 PCResidue *SelResidues = NULL;
 	 int nSelResidues;
    
 	 mol->Select(selHnd, STYPE_RESIDUE, 0,
-		     (char *) chain_id.c_str(),
+		     chain_id.c_str(),
 		     ANY_RES, "*",
 		     ANY_RES, "*",
 		     "*",  // residue name
@@ -836,16 +894,16 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
 	    
 	    coot::chain_mutation_info_container_t mi =
 	       align_on_chain(chain_id, SelResidues, nSelResidues, target,
-			      alignment_wgap, alignment_wspace); 
-	    mi.print();
+			      alignment_wgap, alignment_wspace, is_nucleic_acid_flag); 
+	    // mi.print();
 
 	    coot::residue_spec_t search_spec(chain_id, resno);
 	    try {
 	       type = mi.get_residue_type(search_spec);
-	       found = 1;
+	       found = true;
 	    }
-	    catch (std::runtime_error mess) {
-	       std::cout << " failed to find " << search_spec
+	    catch (const std::runtime_error &mess) {
+	       std::cout << "WARNING:: on catch() failed to find " << search_spec
 			 << " for an insertion " << mess.what() << std::endl;
 	    } 
 	 }
@@ -853,8 +911,6 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
       }
    }
 
-   std::cout << "DEBUG:: ==== finding terminal residue type returns " << found << " with type "
-	     << type << std::endl;
    return std::pair<bool, std::string> (found, type);
 }
 
@@ -1528,4 +1584,35 @@ molecule_class_info_t::remove_ter_atoms(const coot::residue_spec_t &spec) {  // 
 	 }
       }
    }
-} 
+}
+
+
+
+// Not a mutate function, (merely) a function that sees how close the
+// sequence match is to each of the chains.
+std::vector<coot::chain_mutation_info_container_t>
+molecule_class_info_t::sequence_comparison_to_chains(const std::string &target_sequence) const {
+
+   std::vector<coot::chain_mutation_info_container_t> mutation_info_vec;
+   if (atom_sel.mol) {
+      CModel *model_p = atom_sel.mol->GetModel(1);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (unsigned int ich=0; ich<n_chains; ich++) {
+	    CChain *chain_p = model_p->GetChain(ich);
+	    std::string chain_id = chain_p->GetChainID();
+	    realtype wgap   =  0.0;    //defaults
+	    realtype wspace = -1.0;
+	    int nSelResidues;
+	    PPCResidue SelResidues = 0;
+	    chain_p->GetResidueTable(SelResidues, nSelResidues);
+	    bool console_output = false;
+	    coot::chain_mutation_info_container_t mutation_info =
+	       align_on_chain(chain_id, SelResidues, nSelResidues, target_sequence, wgap, wspace, 
+			      console_output);
+	    mutation_info_vec.push_back(mutation_info);
+	 }
+      }
+   }
+   return mutation_info_vec;
+}

@@ -1,4 +1,4 @@
- 
+
 
 # -*-shell-script-*-s
 # Prerequisites: sed, GNU make, libtool, wget
@@ -229,9 +229,19 @@
 #              use make -r flag for coot (speed up)
 # 1.9  24/01/13 Move pre-release and release server-dir to Cambridge.
 # 1.10 04/02/13 Refmac dictionary 5.39
-#               href tp get pre release version
+#               href to get pre release version
 # 1.11 28/02/13 New mmdb version - 1.25.0
-script_version=1.11
+# 1.12 28/04/13 mmdb version bump 1.25.2
+#               update to LMB-MRC download locations
+# 1.13 14/05/13 Add COOT_BUILD_INFO_STRING
+# 1.14 14/05/13 remove install_top_dir before stable install
+# 1.15 06/06/13 For Release 0.7.1, change release vs pre-release logic
+#               (MRC server)
+# 1.16 18/06/13 More tinkering to get correct version for release from server.
+# 1.17 08/07/13 Adjust to build stable logic.
+# 1.18 18/08/13 Use ssm-1.3 and update mmdb tar server spec.
+# 1.19 04/09/13 Enable veryclean build, i.e. remove build dir, by flag
+script_version=1.19
 
 # :: NOTE:: 
 # this "strange" construction of variable names: x=${x:=thing} sets the 
@@ -272,6 +282,15 @@ if [ "$2" = "clean" ] ; then
     make_clean_coot=yes
 fi
 
+# better do with argv/case or similar
+make_from_scratch=
+if [ "$1" = "veryclean" ] ; then 
+    make_from_scratch=yes
+fi
+if [ "$2" = "veryclean" ] ; then 
+    make_from_scratch=yes
+fi
+
 
 # Set the host and the OS.
 # Fairly fundamental.
@@ -299,7 +318,7 @@ AUTOBUILD_INSTALLED=${AUTOBUILD_INSTALLED:=${HOME}/autobuild/${OS}-${HOST}}
 # 
 # AUTOBUILD_BUILD=${HOME}/autobuild
 # I'm putting my build on "scratch space"
-AUTOBUILD_BUILD=${AUTOBUILD_BUILD:=/home/bernhard/autobuild}
+AUTOBUILD_BUILD=${AUTOBUILD_BUILD:=$HOME/autobuild}
 
 # This is where the build logs go:
 # suggested value:
@@ -353,7 +372,7 @@ STABLE_DEST_DIR=${STABLE_DEST_DIR:=${HOME}/public_html/software/binaries/stable}
 # When we fail to extract the correct tar file from the web site, what
 # shall we build instead?
 #
-fallback_coot_version=coot-0.6.2
+fallback_coot_version=coot-0.7
 
 # ----------------------------------------------------------------
 #   End of tinkering with parameters.
@@ -419,6 +438,7 @@ function post_install_slim {
           echo $fat_dir/$file does not exist
        fi
     done
+    echo done rsyncing
 }
 
 
@@ -616,7 +636,7 @@ if test "$run_tests" = true ; then
       return 1
    fi
 else 
-   echo run_tests is not true, not testing
+   echo run_tests is not true, not testing in python
    return 1
 fi
 
@@ -988,7 +1008,7 @@ if [ $? -ne 0 ] ; then
 	echo $AUTOBUILD_BUILD failed for some reason. Now in `pwd`
 fi
 # for ccp4 (20051104) compatibility, we can't use colons in the date string
-date=`date -u +'%Y-%m-%d__T%H_%M_%S'`
+date=$(date -u +'%Y-%m-%d__T%H_%M_%S')
 echo Date: $date
 
 # now in $AUTOBUILD_BUILD
@@ -1023,15 +1043,22 @@ coot_version=$fallback_coot_version
 pre_release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/pre-release/
 pre_release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/pre-releases/
 pre_release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/pre-releases/
-pre_release_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/source/pre-releases/
+pre_release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/pre-releases/
+pre_release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/pre-releases/
+#
 release_server_dir=http://www.ysbl.york.ac.uk/~emsley/software/
 release_server_dir=http://www.biop.ox.ac.uk/coot/software/source/releases/
 release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/releases
-release_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/source/releases/
+release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/releases/
+release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/releases/
+#
+extras_place=http://www2.mrc-lmb.cam.ac.uk/Groups/murshudov/coot/dependencies
+extras_place=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
+
 
 ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
 ${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir
-pre_release_files_html=""
+pre_release_files_html="none"
 if [ $build_coot_prerelease = 1 ]  ; then 
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
 fi
@@ -1039,43 +1066,19 @@ if [ $build_coot_prerelease = yes ]  ; then
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
 fi
 
-coot_version_tmp=$(awk ' /a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+coot_version_tmp=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
 $pre_release_files_html | tail -1)
+
+echo pre_release_files_html $pre_release_files_html
+echo coot_version_tmp : $coot_version_tmp :
 
 if [ -z "$coot_version_tmp" ] ; then
     echo clever coot_version extraction failed, using default.
 else 
     coot_version=$coot_version_tmp
-    echo setting coot_version to $coot_version from extraction
+    echo clever coot_version succeeded, setting coot_version to $coot_version from extraction
 fi
 
-
-# are we doing a pre-release in York?
-#
-# problem here? generic_prefix is not yet set.  What happens to coot_prefix?
-#
-#domainname=`domainname`
-domainname="yorksbl"
-coot_prefix=
-if test -z "$build_coot_prerelease" ; then
-   if [ "$domainname" = "yorksbl" ] ; then
-       # we are in York, let's try the pre-release coot...
-       echo we are in York
-       build_coot_prerelease=1
-   fi
-fi
-
-if [ "$domainname" = "yorksbl" ] ; then
-   # we are in York, let's test.  Always.
-   echo we are in York
-   run_tests=true
-fi
-
-if [ "$domainname" = "biop" ] ; then
-    run_tests=true
-
-fi
-echo BUILDING prelease variable $build_coot_prerelease
 
 # override the switch which turns off the building of the pre-release here:
 # build_coot_prerelease=1
@@ -1087,28 +1090,39 @@ echo BUILDING prelease variable $build_coot_prerelease
 # directory later on.
 coot_prerelease_exists=
 
+# coot_version_pre no longer has .tar.gz extension
+
 if test "$build_coot_prerelease" = 1 ; then 
 
    ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir
-   coot_version_pre=`egrep href ${AUTOBUILD_SOURCES}/index.html | sed -e 's/.*="//' -e 's/">.*//' | awk ' /^coot-[0-9]\.[0-9]+.*-pre.*\.tar\.gz$/ {  
-   last=$0 }
-END {
-   print last
-}
-'`
+
+   coot_version_pre=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
+       ${AUTOBUILD_SOURCES}/index.html | tail -1)
+
    echo INFO:: building pre-release and coot_version_pre is $coot_version_pre
    if [ -z "$coot_version_pre" ] ; then
+      # this path when there are no pre-releases to be built, i.e. build the latest release.
       echo trying to build pre-release coot, but failed to find pre-release version
-      # this may actually be a stable release here
-      build_coot_prerelease=0
+      echo make a stable release then
+      build_coot_prerelease=
       BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
       mkdir -p ${BINARY_TAR_DEST_DIR}
+      mkdir -p ${BINARY_TAR_DEST_DIR}/holding  # not needed?!
+
+      ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
+      echo examining release server files ${AUTOBUILD_SOURCES}/index.html
+      coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { if (file>final) { final=file } } ; print final } ' \
+        ${AUTOBUILD_SOURCES}/index.html | tail -1)
+      echo coot_version $coot_version
+
+
    else
       build_coot_prerelease=1  # belt and braces
       coot_prerelease_exists=1
       # tinker with coot_prefix, it is generic_prefix with pre-release added to prefix dir
       coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-gtk2${build_type} ${config_extras:-}"
-      coot_source_tar_file=$pre_release_server_dir/$coot_version_pre
+      coot_source_tar_file=${pre_release_server_dir}$coot_version_pre.tar.gz
+      echo DEBUG:: set coot_source_tar_file to $coot_source_tar_file
       coot_version=`echo $coot_version_pre | sed s/\.tar.gz//`
       BINARY_TAR_DEST_DIR=$NIGHTLY_DEST_DIR
       mkdir -p ${NIGHTLY_DEST_DIR}
@@ -1116,11 +1130,31 @@ END {
    fi
 else 
     # this is a stable release
+
+    echo ============= This is a stable build ==============
+
+    ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
+    echo examining release server files ${AUTOBUILD_SOURCES}/index.html
+    # somehow these are in the wrong order, so pick up the 'largest' hope
+    # this logis is ok!?
+    coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { if (file>final) { final=file } } ; print final } ' \
+        ${AUTOBUILD_SOURCES}/index.html | tail -1)
+    echo coot_version $coot_version
+
     BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
     mkdir -p ${BINARY_TAR_DEST_DIR}
 fi
 
 echo INFO:: binary tar destination dir: BINARY_TAR_DEST_DIR is $BINARY_TAR_DEST_DIR
+
+
+
+echo coot_version_pre is $coot_version_pre
+echo build_coot_prerelease: $build_coot_prerelease
+echo release_server_dir $release_server_dir 
+echo coot_version $coot_version
+
+
 
 # set the build prefix for installed stuff.  Put everything in the
 # pre-release directory if we are building a pre-release.
@@ -1164,15 +1198,15 @@ if [ "$check_dependencies_in_install_only" = 1 ] ; then
    installed_check_maybe_prefix=$install_top_dir/bin/
 fi
 
-# Stable release only! (Windows!)
-# Remove install_top_dir if exists and we make a stable release, i.e.
+# Remove install_top_dir if exists and flag set to do so
 # start from scratch
-# not always....
-#if [ "$build_coot_prerelease" != 1 ] ; then 
-#    if [ -e "$install_top_dir" ] ; then
-#        rm -fr $install_top_dir
-#    fi
-#fi
+wincoot_exe=WinCoot-${wincoot_version}.exe
+if [ "$make_from_scratch" = "yes" ] ; then
+    if [ -e "$install_top_dir" ] ; then
+        echo clean out everything from $install_top_dir
+        rm -fr $install_top_dir
+    fi
+fi
 
 # we need to export this for net-http, because it doesn't set
 # variables from configure, we rely on a shell (environment) variable.
@@ -1365,13 +1399,18 @@ fi
 
 
 # test for pkg-config
-which pkg-config
-if pkg-config --atleast-pkgconfig-version 0.16 ; then
-   build_pkg_config=
-   echo pkg-config is new enough `pkg-config --version`
-else 
+if type pkg-config ; then
+   if pkg-config --atleast-pkgconfig-version 0.16 ; then
+      build_pkg_config=
+      echo pkg-config is new enough `pkg-config --version`
+   else 
+      build_pkg_config=1
+      echo pkg-config should be built \(but won\'t be\).
+   fi
+else
+   echo pkg-config doesn\'t exist.
+   echo so should be build
    build_pkg_config=1
-   echo pkg-config should be built
 fi
 
 # This allows standard pkg-config to find gtkglext and several other things.
@@ -1869,7 +1908,7 @@ else
     build_mmdb=1
 fi
 
-if [ -e $install_top_dir/include/ssm_align.h ] ; then
+if [ -e $install_top_dir/include/ssm/ssm_align.h ] ; then
    if [ "$build_mmdb" = 1 ] ; then
       build_ssmlib=1
    else 
@@ -1935,9 +1974,12 @@ fi
 if test -n "$build_ccp4c" ; then 
     echo BUILDING: libccp4c
     # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
-    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
-    ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
-    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/ccp4-libs-underlay-2.tar.gz
+    #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
+    #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
+    #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/ccp4-libs-underlay-2.tar.gz
+    ${WGET} $extras_place/libccp4c-5.0.2-ysbl-3.tar.gz
+    ${WGET} $extras_place/martyn-extras.tar.gz
+    ${WGET} $extras_place/ccp4-libs-underlay-2.tar.gz
     ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/ccp4_library_utils.c.patch
     ( 
     date
@@ -1976,7 +2018,9 @@ mmdb_version=1.23.2
 mmdb_version=1.24
 mmdb_version=1.24.2
 mmdb_version=1.25.0
-mmdb_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/dependencies
+mmdb_version=1.25.2
+mmdb_version=1.25.3
+mmdb_server_dir=ftp://ftp.ccp4.ac.uk/opensource
 echo ${WGET} $mmdb_server_dir/mmdb-$mmdb_version.tar.gz
 ${WGET} $mmdb_server_dir/mmdb-$mmdb_version.tar.gz
 
@@ -2001,12 +2045,17 @@ if test -n "$build_ssmlib" ; then
 #
 # wget  http://www.ysbl.york.ac.uk/~emsley/software/extras/SSMlib-0.0-pre-1-ysbl.tar.gz
 ssmlib_version=0.0-pre-2-ysbl
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/SSMlib-$ssmlib_version.tar.gz
+#${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
+# ${WGET} $extras_place/SSMlib-$ssmlib_version.tar.gz
+${WGET} ftp://ftp.ccp4.ac.uk/opensource/ssm-1.3.tar.bz2
 (
 date
-gzip -dc ${AUTOBUILD_SOURCES}/SSMlib-$ssmlib_version.tar.gz | tar xf -
-cd SSMlib-$ssmlib_version
-./configure $generic_prefix --with-mmdb-prefix=$install_top_dir
+# gzip -dc ${AUTOBUILD_SOURCES}/SSMlib-$ssmlib_version.tar.gz | tar xf -
+tar xfj ${AUTOBUILD_SOURCES}/ssm-1.3.tar.bz2
+cd ssm-1.3
+# ./configure $generic_prefix --with-mmdb-prefix=$install_top_dir
+# grrr PE I agree
+./configure $generic_prefix CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib
 $MAKE
 $MAKE install
 ) >  $HOSTLOGDIR/02-ssmlib.txt 2>&1
@@ -2019,8 +2068,10 @@ fi
 if test -n "$build_fftw" ; then
     echo BUILDING fftw:
 #
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/fftw-2.1.5.tar.gz
-${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/fftw-configure-stuff.tar.gz
+#${WGET} http://www.ysbl.york.ac.uk/~emsley/software/fftw-2.1.5.tar.gz
+#${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/fftw-configure-stuff.tar.gz
+${WGET} $extras_place/fftw-2.1.5.tar.gz
+#${WGET} $extras_place/fftw-configure-stuff.tar.gz
 (
 date
 pwd
@@ -2053,18 +2104,20 @@ if test -n "$build_clipper" ; then
     #clipper_version=2.1-091215-ac
     clipper_version=2.1-100511-ac
     clipper_dir_version=2.1
-    ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
+    #${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
     # 20110921 hack in a temporary solution, while Kevin's new clipper
     # is not available yet from his site.
-    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-2.1-110915-fixup.tar.gz
+    #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-2.1-110915-fixup.tar.gz
     # fix threading on windows, i.e. disable
     ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper-2.1.thread.patch
     # PE 20110921 hack in a temporary solution, while Kevin's new clipper
     # is not available yet from his site.
     clipper_hack_version=2.1-110915-fixup-2
-    ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/clipper-$clipper_hack_version.tar.gz
+    clipper_hack_version=2.1-140110-fixup
+    ${WGET} $extras_place/clipper-$clipper_hack_version.tar.gz
     if [ "$need_clipper_contrib_patch" = true ] ; then
-       ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
+       #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/clipper_test_contrib.cpp.patch
+       ${WGET} $extras_place/clipper_test_contrib.cpp.patch
     fi 
     (
     # temp hack
@@ -2156,7 +2209,7 @@ ${WGET} http://www.opengl.org/registry/api/glext.h
 ${WGET} http://www.opengl.org/registry/api/glxext.h
 ${WGET} http://www.opengl.org/registry/api/wglext.h
 cp ${AUTOBUILD_SOURCES}/glext.h  $install_top_dir/include/GL
-cp ${AUTOBUILD_SOURCES}/gxlext.h $install_top_dir/include/GL
+cp ${AUTOBUILD_SOURCES}/glxext.h $install_top_dir/include/GL
 cp ${AUTOBUILD_SOURCES}/wglext.h $install_top_dir/include/GL
 cd ${AUTOBUILD_SOURCES}
 ) >  $HOSTLOGDIR/05-freeglut.txt 2>&1
@@ -2347,7 +2400,7 @@ if test -n "$build_gtk" ; then
       7z x -y ${AUTOBUILD_SOURCES}/libtiff_${libtiff_version}_win32.zip
       7z x -y ${AUTOBUILD_SOURCES}/zlib_${zlib_version}_win32.zip
       7z x -y ${AUTOBUILD_SOURCES}/zlib-dev_${zlib_version}_win32.zip
-      cp  libjpeg-8.dll libjpeg-uchar-boolean-8.dll
+      cp  bin/libjpeg-8.dll bin/libjpeg-uchar-boolean-8.dll
       cd -
    else
        echo NOT BUILDING libpng
@@ -2512,7 +2565,8 @@ if test -n "$build_gtkglext" ; then
         if pkg-config gtk+-2.0 --atleast-version 2.20 ; then
            patch_file=gtk-gtkglwidget.c-for-modern-gtk.patch
         fi
-        ${WGET}   http://lmb.bioch.ox.ac.uk/coot/software/extras/$patch_file
+        #${WGET}   http://lmb.bioch.ox.ac.uk/coot/software/extras/$patch_file
+        ${WGET}   $extras_place/gtkglext-$gtkglext_version.tar.gz
 
         if patch -p0 < ${AUTOBUILD_SOURCES}/$patch_file ; then 
             echo gtkglext patched good.
@@ -2622,8 +2676,18 @@ cd $install_top_dir/bin
 py_dll_dir=`pwd -W`
 py_dll_dir=${py_dll_dir//\//\\}
 
+global_py_inst_dir=${AUTOBUILD_BUILD}/${HOST}/${python_version}
+saved_global_py_inst_dir=$global_py_inst_dir
+mkdir $global_py_inst_dir
+cd $global_py_inst_dir
+global_py_inst_dir=`pwd -W`
+# convert / to \ for windows file names
+global_py_inst_dir=${global_py_inst_dir//\//\\}
+cd -
+
 echo py_inst_dir is: $py_inst_dir
 echo py_dll_dir is: $py_dll_dir
+echo global_py_inst_dir is :$global_py_inst_dir
 
 if test -n "$build_python" ; then 
     echo BUILDING Python ${pver}:
@@ -2634,75 +2698,72 @@ ${WGET} http://www.python.org/ftp/python/$pver/python-$pver.msi
 (
 date
 pwd
-# FIXME only works if not installed before. //fa may do reinstall/repair
-# better uninstall?!
-echo msiexec /i python-$pver.msi TARGETDIR=$py_inst_dir DLLDIR=$py_dll_dir ALLUSERS=1 /qn
-msiexec //i python-$pver.msi TARGETDIR=$py_inst_dir DLLDIR=$py_dll_dir ALLUSERS=1 //qn
-status=$?
-copy_python=0
-if [ "$status" != 0 ] ; then
-   echo problem installing python
-   echo '  may be already installed elsewhere?! lets find out'
-   copy_python=1
-fi
-# see if python works, i.e. test as above for version
-python_version_installed=`python -V 2>&1`
+
+# New method:
+# install python in ${AUTOBUILD_BUILD}/${HOST}
+# copy from there, whenever needed.
+# Needs occasional uninstall of old pythons....
+# 
+echo checking for python now
+
+# check if python is installed (correct version)
+python_version_installed=`${saved_global_py_inst_dir}/python -V 2>&1`
 python_target_version="Python $pver"
-if [ $python_version_installed == $python_target_version ] ; then
-   echo python installation successful, we have now $python_target_version 
-else
-   # new python not installed, so copy from old python
-   echo python installation failed, try to copy?
+echo now compare $python_version_installed with $python_target_version
+if [ "$python_version_installed" == "$python_target_version" ] ; then
+   echo $python_target_version already installed just copy files
    copy_python=1
+else
+   # new python needs to be installed, please go ahead!!! put ddl in same dir
+   echo msiexec /i python-$pver.msi TARGETDIR=$global_py_inst_dir DLLDIR=$global_py_inst_dir ALLUSERS=1 /qn
+   msiexec //i python-$pver.msi TARGETDIR=$global_py_inst_dir DLLDIR=$global_py_inst_dir ALLUSERS=1 //qn
+   status=$?
+   if [ "$status" != 0 ] ; then
+      echo problem installing python
+      echo '  may be already installed elsewhere?! But we dont know!?'
+      copy_python=1
+      my_exit 2
+   else
+      echo python installation seems successfull, continue
+   fi
 fi
 
 if test -n "$copy_python" ; then
-   # in a simple minded approach we say we install a guile version 
-   # and have python already installed earlier in the non-guile version
-   if [ "$ENABLE_GUILE_COOT" = "yes" ] ; then
-     dll_location=${install_top_dir%$build_type}/bin/python${pver_short/./}.dll
-     echo dll to search for is $dll_location
-     if [ -e ${dll_location} ] ; then
        # have an installed dll in non-guile dir, so just copy everything over
-       echo copy everything over from ${install_top_dir%$build_type}
+       echo copy everything over from ${AUTOBUILD_BUILD}/${HOST}
        # what do we need
        # 1. python.xx
        # 2. pythonXX.dll
        # 3. includes (pyg*)
        # 4. pkg-config (pyg*)
-       echo copy dir: cp -r ${install_top_dir%$build_type}/${python_version} ${install_top_dir}
-       cp -r ${install_top_dir%$build_type}/${python_version} ${install_top_dir}
-       echo copy dll: cp $dll_location ${install_top_dir}/bin
-       cp $dll_location ${install_top_dir}/bin
+       echo copy dir: cp -r ${saved_global_py_inst_dir} ${install_top_dir}
+       cp -r ${saved_global_py_inst_dir} ${install_top_dir}
+       dll_name=${global_py_inst_dir}/python${pver_short/./}.dll
+       echo copy dll: cp $dll_name ${install_top_dir}/bin
+       cp $dll_name ${install_top_dir}/bin
        # pygobject
        echo copy pygobject things
        mkdir $install_top_dir/include/pygtk-2.0
-       cp    $install_top_dir/$python_version/include/pygtk-2.0/pygobject.h $install_top_dir/include/pygtk-2.0/
-       cp    $install_top_dir/$python_version/Lib/pkgconfig/pygobject-2.0.pc $install_top_dir/lib/pkgconfig/
+       cp    ${global_py_inst_dir}/include/pygtk-2.0/pygobject.h $install_top_dir/include/pygtk-2.0/
+       cp    ${global_py_inst_dir}/Lib/pkgconfig/pygobject-2.0.pc $install_top_dir/lib/pkgconfig/
        # pycairo
        echo copy pycairo things
-       cp -r $install_top_dir/$python_version/include/pycairo $install_top_dir/include/
-       cp    $install_top_dir/$python_version/Lib/pkgconfig/pycairo.pc $install_top_dir/lib/pkgconfig/
+       cp -r ${global_py_inst_dir}/include/pycairo $install_top_dir/include/
+       cp    ${global_py_inst_dir}/Lib/pkgconfig/pycairo.pc $install_top_dir/lib/pkgconfig/
        # pygtk
        echo copy pygtk things
-       cp -r $install_top_dir/$python_version/include/pygtk-2.0/pygtk $install_top_dir/include/pygtk-2.0/
-       cp    $install_top_dir/$python_version/Lib/pkgconfig/pygtk-2.0.pc $install_top_dir/lib/pkgconfig/
+       cp -r ${global_py_inst_dir}/include/pygtk-2.0/pygtk $install_top_dir/include/pygtk-2.0/
+       cp    ${global_py_inst_dir}/Lib/pkgconfig/pygtk-2.0.pc $install_top_dir/lib/pkgconfig/
        copy_python=2
-     else
-       echo Cannot find a previously installed python version in ${dll_location}
-     fi
-   else
-     echo 'Dont have guile enabled so cannot find a python installation (stupid me)'
-   fi
 fi
 echo $copy_python > $HOME/python_copied.tmp
 ) >  $HOSTLOGDIR/07-python.txt 2>&1
 
 if [ $(cat $HOME/python_copied.tmp) == 2 ] ; then
    echo copied python, so dont install pygobject etc.
-   build_pygobject=0
-   build_pycairo=0
-   build_pygtk=0
+   build_pygobject=
+   build_pycairo=
+   build_pygtk=
 fi
 rm $HOME/python_copied.tmp
 
@@ -2745,12 +2806,12 @@ if test -n "$build_pygobject" ; then
    date
    cd ${AUTOBUILD_SOURCES}
    # FIXME may need uninstall too!!!
-   msiexec //i pygobject-$pygobject_version.win32-py$pver_short.msi TARGETDIR=$py_inst_dir ALLUSERS=1 //qn
+   msiexec //i pygobject-$pygobject_version.win32-py$pver_short.msi TARGETDIR=$global_py_inst_dir ALLUSERS=1 //qn
    cd -
    # copy pkgconfig and include files
    mkdir_maybe $install_top_dir/include/pygtk-2.0
-   cp    $install_top_dir/$python_version/include/pygtk-2.0/pygobject.h $install_top_dir/include/pygtk-2.0/
-   cp    $install_top_dir/$python_version/Lib/pkgconfig/pygobject-2.0.pc $install_top_dir/lib/pkgconfig/
+   cp    $global_py_inst_dir/include/pygtk-2.0/pygobject.h $install_top_dir/include/pygtk-2.0/
+   cp    $global_py_inst_dir/Lib/pkgconfig/pygobject-2.0.pc $install_top_dir/lib/pkgconfig/
 ) > $HOSTLOGDIR/07-pygobject.txt 2>&1
 else 
    echo not building pygobject:
@@ -2768,11 +2829,11 @@ if test -n "$build_pycairo" ; then
    date
    #${AUTOBUILD_SOURCES}/pycairo-$pycairo_version.win32-py2.5.exe
    cd ${AUTOBUILD_SOURCES}
-   msiexec //i pycairo-$pycairo_version.win32-py$pver_short.msi TARGETDIR=$py_inst_dir ALLUSERS=1 //qn
+   msiexec //i pycairo-$pycairo_version.win32-py$pver_short.msi TARGETDIR=$global_py_inst_dir ALLUSERS=1 //qn
    cd -
    # copy pkgconfig and include files
-   cp -r $install_top_dir/$python_version/include/pycairo $install_top_dir/include/
-   cp    $install_top_dir/$python_version/Lib/pkgconfig/pycairo.pc $install_top_dir/lib/pkgconfig/
+   cp -r $global_py_inst_dir/include/pycairo $install_top_dir/include/
+   cp    $global_py_inst_dir/Lib/pkgconfig/pycairo.pc $install_top_dir/lib/pkgconfig/
 ) > $HOSTLOGDIR/07-pycairo.txt 2>&1
 else 
    echo not building pycairo:
@@ -2791,24 +2852,25 @@ if test -n "$build_pygtk" ; then
    ${WGET} http://ftp.gnome.org/pub/GNOME/binaries/win32/pygtk/2.16/pygtk-$py_gtk_version.win32-py$pver_short.exe
    (
    date
-   #${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py2.5.exe
+   ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
    #msiexec //i ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.msi TARGETDIR=$py_inst_dir ALLUSERS=1 //qn
    # 
    # no msi installer for this version, so we use 7z to unpack and install
+   # but this does nto work, some post stuff required
    mkdir ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short
-   echo do: 7z x -aoa${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
-   7z x -aoa${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
-   echo do: cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/DATA/* $install_top_dir/$python_version/
-   cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/DATA/* $install_top_dir/$python_version/
-   echo do: cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/PLATLIB/* $install_top_dir/$python_version/Lib/site-packages/
-   cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/PLATLIB/* $install_top_dir/$python_version/Lib/site-packages/
-   echo do: $install_top_dir/$python_version/python ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/SCRIPTS/pygtk_postinstall.py -install
-   $install_top_dir/$python_version/python ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/SCRIPTS/pygtk_postinstall.py -install
+   #echo do: 7z x -y -o${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
+   #7z x -y -o${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short.exe
+   #echo do: cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/DATA/* $install_top_dir/$python_version/
+   #cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/DATA/* $install_top_dir/$python_version/
+   #echo do: cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/PLATLIB/* $install_top_dir/$python_version/Lib/site-packages/
+   #cp -r ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/PLATLIB/* $install_top_dir/$python_version/Lib/site-packages/
+   #echo do: $install_top_dir/$python_version/python ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/SCRIPTS/pygtk_postinstall.py -install
+   #$install_top_dir/$python_version/python ${AUTOBUILD_SOURCES}/pygtk-$py_gtk_version.win32-py$pver_short/SCRIPTS/pygtk_postinstall.py -install
    # the latter will give error since it cannot make shortcuts
 
    # copy pkgconfig and include files
-   cp -r $install_top_dir/$python_version/include/pygtk-2.0/pygtk $install_top_dir/include/pygtk-2.0/
-   cp    $install_top_dir/$python_version/Lib/pkgconfig/pygtk-2.0.pc $install_top_dir/lib/pkgconfig/
+   cp -r $global_py_inst_dir/include/pygtk-2.0/pygtk $install_top_dir/include/pygtk-2.0/
+   cp    $global_py_inst_dir/Lib/pkgconfig/pygtk-2.0.pc $install_top_dir/lib/pkgconfig/
 ) > $HOSTLOGDIR/07-pygtk.txt 2>&1
 else 
    echo not building pytgtk
@@ -2819,9 +2881,18 @@ fi
 # N.B. pkgconfig on windows doesnt pick up prefix in *.pc file
 # well, actually overwrites it if 'usual' parent path (i.e. lib)
 if test -n "$build_python" ; then 
-   cp -r $install_top_dir/$python_version/DLLs $install_top_dir/bin
-   cp -r $install_top_dir/$python_version/Lib  $install_top_dir/bin
+   echo now copy over DLLs, Lib and $python_version
+   cp -r $global_py_inst_dir/DLLs $install_top_dir/bin
+   cp -r $global_py_inst_dir/Lib  $install_top_dir/bin
+   echo cp -r $saved_global_py_inst_dir  $install_top_dir/
+   cp -r $saved_global_py_inst_dir  $install_top_dir/
+   dll_name=${global_py_inst_dir}/python${pver_short/./}.dll
+   echo copy dll: cp $dll_name ${install_top_dir}/bin
+   cp $dll_name ${install_top_dir}/bin
 fi
+
+# be save and go back to build_dir
+cd ${build_dir}
 
 # Now we need:
 #  * guile
@@ -3016,7 +3087,8 @@ if test -n "$build_guile_gui" ; then
 #
 guile_gui_version=0.3
 #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/guile-gui-0.2.tar.gz
-${WGET} http://lmb.bioch.ox.ac.uk/coot/extras/guile-gui-${guile_gui_version}.tar.gz
+#${WGET} http://lmb.bioch.ox.ac.uk/coot/extras/guile-gui-${guile_gui_version}.tar.gz
+${WGET} $extras_place/guile-gui-0.3.tar.gz
 #${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-gui-0.2.patch
 ( 
 date
@@ -3066,7 +3138,8 @@ if test -n "$build_curl" ; then
 (
    # get libcurl from here: 
    #libcurl_version=7.19.7
-   libcurl_version=7.27.0
+   # libcurl_version=7.27.0
+   libcurl_version=7.32.0
    ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
 
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
@@ -3097,6 +3170,7 @@ gsl_version=1.8
 ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-bin.zip
 ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-lib.zip
 ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gsl-config
+${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gsl.m4
 ( 
 cd $install_top_dir
 date
@@ -3108,6 +3182,8 @@ cp ${AUTOBUILD_SOURCES}/gsl-config bin/
 sed "s?^prefix=.*?prefix=$install_top_dir?" bin/gsl-config >gsl-config.tmp
 mv gsl-config.tmp bin/gsl-config
 status=$?
+# and there is no gsl.m4, so copy that
+cp ${AUTOBUILD_SOURCES}/gsl.m4 $install_top_dir/share/aclocal
 if [ "$status" != 0 ] ; then 
     echo ERROR:: GSL make failed.
     exit 2
@@ -3122,7 +3198,12 @@ else
 fi
 
 
+###############################################################################
+##########         get Coot                                       #############
+###############################################################################
+#
 echo BUILDING coot: version $coot_version, python=$ENABLE_PYTHON_COOT guile=$ENABLE_GUILE_COOT
+wincoot_version=${coot_version/coot-}
 if [ "$build_coot_prerelease" != 1 ] ; then 
    # normal release coot
    ${WGET} $release_server_dir/$coot_version.tar.gz
@@ -3277,8 +3358,15 @@ if [ $architecture = x86_64 ] ; then
    export CXXFLAGS="-g -O"
 fi
 
-# this is a quick fix, and shoudl be done properly at some point
-coot_optim_args="-build=i686-pc-mingw32"
+cbis_n=$(cmd /c "net user $USERNAME | FIND 'Full Name'")
+if [ -z $cbis_n ] ; then
+  cbis_n=$USERNAME
+fi
+cbis_d=$(date +'%a %d %b %H%M.%S %Z %Y')
+coot_build_info_string="built by: $cbis_n build-host: $HOST on: $cbis_d"
+
+# this is a quick fix, and should be done properly at some point
+coot_optim_args="-build=i686-pc-mingw32 --with-glob-prefix=/usr"
 
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
@@ -3286,8 +3374,8 @@ echo ./configure $coot_prefix \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
-      --with-gtk2         \
-       $glut_prefix       \
+      $glut_prefix        \
+      COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       $scripting          \
       $python_scripting   \
       $shared_static_flag \
@@ -3298,7 +3386,6 @@ echo ./configure $coot_prefix \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
-      --with-gtk2         \
        $glut_prefix       \
       $scripting          \
       $python_scripting   \
@@ -3324,6 +3411,7 @@ rm src/coot_wrap_python_pre_gtk2.cc
 # make a clean version?!
 if [ "$make_clean_coot" = "yes" ] ; then
     $MAKE clean
+    echo make clean
 fi
 
 #$MAKE
@@ -3359,7 +3447,6 @@ if [ $coot_build_status != 0 ] ; then
     my_exit 2 $coot_revision
 else 
     # and finally write a coot-version file for the installer
-    wincoot_version=${coot_version/coot-}
     echo '!define WinCootVersion "'${wincoot_version}'"' >$install_top_dir/coot-version
 
     echo coot build was good.
@@ -3371,14 +3458,12 @@ echo done coot build.
 # now, do we need to add the extra data files, the refmac monomer
 # library and the reference structures?
 
-#extra_dir=http://www.ysbl.york.ac.uk/~emsley/software/extras
-extra_dir=http://www.biop.ox.ac.uk/coot/software/dependencies
 # 8/5/11 change to Garib's new dicionary.
 #refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
 # mon_lib_dir=http://www.ysbl.york.ac.uk/~garib/refmac/data/refmac_experimental
 mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/content/refmac/Dictionary
 
-refmac_mon_lib=refmac_dictionary_v5.39.tar.gz
+refmac_mon_lib=refmac_dictionary_v5.41.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
@@ -3391,9 +3476,15 @@ fi
 if [ -e $install_top_dir/share/coot/reference-structures ] ; then
     echo INFO:: installation has reference structures
 else 
-    echo INSTALLING reference structures...
-    $WGET $extra_dir/reference-structures.tar.gz
-    tar xzCf $install_top_dir/share/coot $AUTOBUILD_SOURCES/reference-structures.tar.gz
+    echo GETTING reference structures tar...
+    echo GETTING reference structures tar... &>2
+    ${WGET} $extras_place/reference-structures.tar.gz
+    if [ -e $AUTOBUILD_SOURCES/reference-structures.tar.gz ] ; then
+       echo INSTALLING reference structures...
+       tar xzCf $install_top_dir/share/coot $AUTOBUILD_SOURCES/reference-structures.tar.gz
+    else 
+       echo FAIL wget for reference-structures.tar.gz failed.
+    fi
 fi
 
 # clear up the library dependencies
@@ -3421,6 +3512,18 @@ if [ -e $LOGS/gtk2${build_type}-test-status.log ] ; then
    rm $LOGS/gtk2${build_type}-test-status.log
 fi
 # run tests
+echo running tests...
+
+if test "$run_tests" = true ; then
+   # download the test data to make sure we have the latest version.
+   echo downloading test data...
+   ${WGET} http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/data/greg-data.tar.gz
+   echo "   done."
+   cd ~/data
+   gzip -cd ${AUTOBUILD_SOURCES}/greg-data.tar.gz | tar xf - 
+   cd -
+fi
+
 test_coot_python > $LOGS/gtk2${build_type}-test.log 2>&1
 coot_test_status=$?
 gtk2=-gtk2

@@ -59,12 +59,12 @@ class Displayobject{
   virtual const std::vector<SimpleText*> &GetTextPrimitives() const;
   virtual const std::vector<BillboardPrimitive*> &GetBillboardPrimitives() const;
   virtual const std::vector<BillboardPrimitive*> &GetImposterPrimitives() const;
-  virtual const unsigned GetNumberOfPrimitives() const { return prims.size();} ;
-  virtual const unsigned GetNumberOfSurfacePrimitives() const { return surf_prims.size();} ;
-  virtual const unsigned GetNumberOfImagePrimitives() const { return image_prims.size();} ;
-  virtual const unsigned GetNumberOfTextPrimitives() const { return text_prims.size();} ;
-  virtual const unsigned GetNumberOfBillboardPrimitives() const { return bill_prims.size();} ;
-  virtual const unsigned GetNumberOfImposterPrimitives() const { return imposter_prims.size();} ;
+  virtual const size_t GetNumberOfPrimitives() const { return prims.size();} ;
+  virtual const size_t GetNumberOfSurfacePrimitives() const { return surf_prims.size();} ;
+  virtual const size_t GetNumberOfImagePrimitives() const { return image_prims.size();} ;
+  virtual const size_t GetNumberOfTextPrimitives() const { return text_prims.size();} ;
+  virtual const size_t GetNumberOfBillboardPrimitives() const { return bill_prims.size();} ;
+  virtual const size_t GetNumberOfImposterPrimitives() const { return imposter_prims.size();} ;
   std::vector<matrix> symm_mat;
   std::vector<int> symm_nos;
   std::vector<Cartesian> unit_cell;
@@ -122,7 +122,7 @@ class Displayobject{
   void draw_surf_prims(double *override_colour=0, int transparent=0,int selective_override=0) const ;
   void draw(double *override_colour=0, int transparent=0,int selective_override=0) const ;
   std::vector<Primitive *> GetTransparentPrimitives();
-  void draw_text(const Quat &quat_in, double radius, double ox, double oy, double oz, double fontScaling=1.0);
+  void draw_text(const Quat &quat_in, double radius, double ox, double oy, double oz, double fontScaling=1.0,int nCustomPlanes=0);
   void draw_text_background(const Quat &quat_in, double radius, double ox, double oy, double oz, double fontScaling=1.0);
   void draw_billboards(const Quat &quat_in, double radius, double ox, double oy, double oz);
   void draw_images(void);

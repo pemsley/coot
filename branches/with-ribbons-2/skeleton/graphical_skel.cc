@@ -2,11 +2,12 @@
 // mmdb atom usage includes:
 #include <string>
 #include <vector>
-#include <map> // associative array
+#include <map> 
 
-#include "Cartesian.h"
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
+
+#include "coords/Cartesian.h"
+#include "coords/mmdb-extras.h"
 
 #include "graphical_skel.h"
 

@@ -106,12 +106,12 @@ std::string to_string(const std::pair<symm_trans_t, Cell_Translation> &sts);
 
 class molecule_extents_t { 
 
-   // coordinates of the most limitting atoms in the faces. 
+   // coordinates of the most limiting atoms in the faces. 
    //
    coot::Cartesian front, back, left, right, top, bottom, centre;
    // front, back, minimum and maximum in z;
    // left, right, minimum and maximum in x;
-   // top, bottom, minimum and maximum in y;
+   // bottom, top  minimum and maximum in y;
 
    PPCAtom extents_selection;
    float expansion_size_;
@@ -136,8 +136,12 @@ class molecule_extents_t {
    // expansion_size is typically the symmetry radius
    molecule_extents_t(atom_selection_container_t, float expansion_size);
    ~molecule_extents_t();
-   coot::Cartesian get_front(); 
-   coot::Cartesian get_back(); 
+   coot::Cartesian get_front() const; 
+   coot::Cartesian get_back()  const; 
+   coot::Cartesian get_left() const; 
+   coot::Cartesian get_right()  const; 
+   coot::Cartesian get_top() const; 
+   coot::Cartesian get_bottom()  const; 
 
    Cell_Translation 
       coord_to_unit_cell_translations(coot::Cartesian point,

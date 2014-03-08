@@ -3982,13 +3982,14 @@ INFO::
         To correct the transparency, duplicate layer, bucket fill with white 
         the bottom layer, merge and bevel 6.
    o svn add the new splash screen pixmap
-   o Fix the old-coot timer in scheme/coot-gui.scm
+   o No longer: (Fix the old-coot timer in scheme/coot-gui.scm)
    o Fix the release name in the About dialog (aboutdialog)
          and copyright years.
    o commit
    o Passes build (build-latest) on cycle? 
         OK, disable the build-latest cron-job 
    o clear out pre-releases
+   o check for updates - needs consideration?
    o Build binaries on some hosts
    o Mail mailing list
    o Update latest version info on coot web page.
@@ -6479,8 +6480,33 @@ valgrind:
 
  valgrind --leak-check=full --suppressions=../../coot/trunk/guile.supp --suppressions=../../coot/trunk/valgrind-python.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-real 
 
+ valgrind --leak-check=full --suppressions=../../coot/trunk/guile.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-real 
+
+
   Where are the python suppressions?
 
+   http://stackoverflow.com/questions/16659781/memory-leaks-in-gtk-hello-world-program
+
+   For debugging glib/gtk programs I would use this command:
+
+   G_SLICE=debug-blocks valgrind --tool=memcheck --leak-check=full <gtk program>
+   G_SLICE=debug-blocks will turn off gtk's advanced memory management to allow valgrind to show correct results.
+   --leak-check=full will show stack traces for the leaked memory blocks.
+
+   You can also use --show-reachable=yes to see stack traces for all
+   memory blocks that haven't been free when the program exits.
+
+   There is also the massif valgrind tool that tracks memory usage to
+   show which parts of the program are using the most memory.
+
+   Run program under massif:
+
+   G_SLICE=always-malloc valgrind --tool=massif --detailed-freq=2 --max-snapshots=400 --num-callers=20 <gtk program>
+
+   Show results:
+
+   ms_print massif.out.<pid>
+     
 ----
 Mon Apr  9 16:45:32 BST 2012
 
@@ -6915,29 +6941,9 @@ Fri Oct 26 14:07:13 EDT 2012
 
 Dave:
    rotamers buttons should have name, not chi1!
-Jeff
-   tell me about the geometry of this residue, bond angle deviantions
-   etc (as a table sorted on Z?)
 
-   building a loop: I have a number of resdues, I want to see the
-   geometric distrtions of the residues (c.f. how king does it with
-   red springs for bonds, and fan for angles?)
+* it does have the rotamer name (now)
 
-For presentation next time:
-
-   Add "it takes a brain to validate" slide	
-   figure for bond and angle restraints, 
-   Dig out the bayes slide, mention validation
-     introduce probability and likelihood 
-   
-Does zero-occupancy-residue-range work?
-
-
-----
-Fri Oct 26 14:07:13 EDT 2012
-
-Dave:
-   rotamers buttons should have name, not chi1!
 Jeff
    tell me about the geometry of this residue, bond angle deviantions
    etc (as a table sorted on Z?)
@@ -6986,6 +6992,74 @@ Thu Feb 21 12:34:18 GMT 2013
 
 OXT on multi-residue torsion:  OXT is left behind on rotation
 
+----
+Wed Apr 17 16:47:04 UYT 2013
+
+
+   o sc: lawerence and colman jmb 1993
+
+   might be worth a look.
+
+
+----
+Thu May 16 13:29:43 BST 2013
+
+   Find areas of a map that should have model but do not:
+   
+   o make a partial model, run refmac, make a map, low res filter it,
+     mask out the protein parts that we have, fill big blobs with dummy atoms - zero occ
+     (these should be added to the partial model for sending back to
+     refmac).  Make dummy atoms 1.5A apart.
+
+   -> resulting map should have better density for the missing domain.  Does it?
+
+
+-----
+Thu Jun 27 15:40:01 BST 2013
+
+    from chimera:
+
+    create a new map by placing target points in the map (position
+    them like go to blob) then mask a map around these atoms.
+
+    Hmm... this is basically how Water+ works.  No point in making
+    another interface.
+
+
+------
+Sat Oct  5 09:29:10 BST 2013
+
+   Problems with python's pip:
+tiresias ~/compile/pip-1.4.1> pip install tornado
+Traceback (most recent call last):
+  File "/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/bin/pip", line 9, in <module>
+    load_entry_point('pip==1.4.1', 'console_scripts', 'pip')()
+  File "build/bdist.linux-x86_64/egg/pkg_resources.py", line 357, in load_entry_point
+    """Yield named metadata resource as list of non-blank non-comment lines
+  File "build/bdist.linux-x86_64/egg/pkg_resources.py", line 2394, in load_entry_point
+    
+  File "build/bdist.linux-x86_64/egg/pkg_resources.py", line 2108, in load
+    parse_map = classmethod(parse_map)
+  File "/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/python2.7/site-packages/pip-1.4.1-py2.7.egg/pip/__init__.py", line 10, in <module>
+    from pip.util import get_installed_distributions, get_prog
+  File "/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/python2.7/site-packages/pip-1.4.1-py2.7.egg/pip/util.py", line 17, in <module>
+    from pip.vendor.distlib import version
+  File "/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/python2.7/site-packages/pip-1.4.1-py2.7.egg/pip/vendor/distlib/version.py", line 13, in <module>
+    from .compat import string_types
+  File "/home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/python2.7/site-packages/pip-1.4.1-py2.7.egg/pip/vendor/distlib/compat.py", line 31, in <module>
+    from urllib2 import (Request, urlopen, URLError, HTTPError,
+ImportError: cannot import name HTTPSHandler
+
+https://plus.google.com/117010240131763942181/posts/h3AzbmSQU6r
+
+ install openssl-devel, then re-make python
+
+
+-----
+Sat Feb  8 22:57:51 GMT 2014
+
+   Gaussian Legendre Integration:
+   http://www.holoborodko.com/pavel/numerical-methods/numerical-integration/
 
 ------
 

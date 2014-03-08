@@ -6,11 +6,11 @@
 (define (launch-jligand-function)
 
   (start-jligand-listener)
-  (if (not (file-exists? *jligand-jar*))
+  (if (not (command-in-path? "jligand"))
 
       ;; Boo.  Give us a warning dialog
       ;; 
-      (let ((s (string-append "jligand java jar file: " *jligand-jar* " not found"))
+      (let ((s (string-append "jligand not found in path"))
 	    ;; make an extra message telling us that JLIGAND_HOME is
 	    ;; not set if it is not set.
 	    (env-message (if (string? *jligand-home-env*) 
@@ -20,7 +20,7 @@
       
       ;; OK, it does exist - run it!
       ;;
-      (let ((s (string-append-with-spaces (cons *java-command* (append *jligand-args* (list "&"))))))
+      (let ((s "jligand -coot &"))
 	(system s)
 	;; beam in a new menu to the menu bar:
 	(let* ((jligand-menu (coot-menubar-menu "JLigand")))

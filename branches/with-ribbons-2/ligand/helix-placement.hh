@@ -20,8 +20,8 @@
 
 #include "clipper/core/coords.h"
 #include "clipper/core/xmap.h"
-#include "mini-mol.hh"
-#include "coot-map-utils.hh"
+#include "mini-mol/mini-mol.hh"
+#include "coot-utils/coot-map-utils.hh"
 
 namespace coot {
 
@@ -143,9 +143,20 @@ namespace coot {
       
       // Kevin's engine: do MR-like search on the surface of a
       // cylinder, not just the eigen vectors
+      //
+      // For triming and growing we grow into density that is at least
+      // density_level_for_trim.
+      //
+      // For scoring (and to help not to build into "U" sites) we use
+      // high_density_turning_point (that is we begin to score
+      // progressively badly when the density is higher than
+      // high_density_turning_point) i.e. high_density_turning_point
+      // is the top of the "triangle".
+      // 
       helix_placement_info_t place_alpha_helix_near_kc_version(const clipper::Coord_orth &pt,
 							       int n_helix_residues_start,
 							       float density_level_for_trim,
+							       float high_density_turning_point,
 							       float b_factor) const;
 
       // and now for strands, we use much of the same code, including

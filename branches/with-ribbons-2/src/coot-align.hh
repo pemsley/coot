@@ -1,5 +1,7 @@
+#ifndef COOT_ALIGN_HH
+#define COOT_ALIGN_HH
 
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 namespace coot {
 
@@ -25,6 +27,7 @@ namespace coot {
       std::string alignedT;
       std::string alignedS_label;
       std::string alignedT_label;
+      std::pair<bool, float> alignment_score;
       std::vector<mutate_insertion_range_info_t> insertions;
       std::vector<std::pair<residue_spec_t, std::string> > single_insertions;
       std::vector<residue_spec_t> deletions;
@@ -32,7 +35,9 @@ namespace coot {
       chain_mutation_info_container_t(const std::string &chain_id_in) {
 	 chain_id = chain_id_in;
       }
-      chain_mutation_info_container_t() { }
+      chain_mutation_info_container_t() {
+	 alignment_score = std::pair<bool, float> (0,0);
+      }
       void add_deletion(const residue_spec_t &res_spec) {
 	 residue_spec_t r = res_spec;
 	 r.chain = chain_id; // in case it was not set by the function
@@ -59,6 +64,10 @@ namespace coot {
       std::string get_residue_type(const residue_spec_t &spec) const;
       
       void print() const;
+
+      double dissimilarity_score() const;
    };
 
 }
+
+#endif // COOT_ALIGN_HH

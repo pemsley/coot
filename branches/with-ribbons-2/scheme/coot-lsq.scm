@@ -52,7 +52,7 @@
 			   (list-ref m 3)
 			   (list-ref m 4)
 			   (list-ref m 5)
-			   (list-ref m 6)
+	; 		   (list-ref m 6)
 			   match-type)))
 	(format #t "Wrong number of elements in match (was ~s should be 7)~%"
 		(length m)))))

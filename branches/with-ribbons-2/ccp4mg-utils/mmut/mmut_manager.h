@@ -38,6 +38,8 @@ DefineStreamFunctions(CMMUTManager) ;
 
 class CMMUTManager : public CMMDBManager  {
 
+    std::vector<matrix> biomatrices;
+    bool doneBiomolecule;
   public :
 
     CMMUTManager();
@@ -83,7 +85,7 @@ class CMMUTManager : public CMMDBManager  {
 
     Boolean isMainChain(PCAtom p_atom);
     Boolean doAltLocMatch ( PCAtom pa1, PCAtom pa2 ); 
-    int NameComparison ( const char *name , int ntypes , char *types[] );
+    int NameComparison ( const char *name , int ntypes , const char *types[] );
     std::string  TrimString(pstr inp);
     std::string AtomLabel(PCAtom p_atom, int mask[]);
     Boolean ChainIDisDigit(PCChain p_ch);
@@ -96,7 +98,7 @@ class CMMUTManager : public CMMDBManager  {
     //int ApplyTransform(int selHnd,double rotmat[],double transv[]);
 
     //Editor
-    int WriteSelection (int selHnd,char *file, char *format="PDB");
+    int WriteSelection (int selHnd,char *file, const char *format="PDB");
     int PutSelectedAtoms (int selHnd , const PCMMDBManager mmdb2);
     int CopySelection (int selHnd,const PCMMDBManager mmdb2);
     int FindCloseAtomPairs ( int selHnd, double min_distance, 
@@ -114,6 +116,48 @@ class CMMUTManager : public CMMDBManager  {
 
    std::vector<double> GetCellInfo();
    std::string MMUTGetSpaceGroup();
+
+   std::string SelectionToSCOP(int selHnd);
+
+   std::vector<matrix> GetBiomoleculeAsMatrices(int nBiomol,int nModel=1);
+   
+   static CMMDBManager* GetCAModel(CMMDBManager *molHnd);
+   int GenerateTransformedChain(const char *chainID, realtype *vmat, CMMDBManager *molHnd2);
+
+   int RemoveSmallHelices(int model,int minHelices=4);
+
+   void  SelectAminoNotHet (
+             int   selHnd,   // must be obtained from NewSelection()
+             int   selType,  // selection type STYPE_XXXXX
+             int   iModel,   // model number; iModel=0 means
+                             // 'any model'
+             cpstr Chains,   // may be several chains "A,B,W"; "*"
+                             // means 'any chain' (in selected
+                             // model(s))
+             int   ResNo1,   // starting residue sequence number
+             cpstr Ins1,     // starting residue insertion code; "*"
+                             // means 'any code'
+             int   ResNo2,   // ending residue sequence number.
+             cpstr Ins2,     // ending residue insertion code; "*"
+                             // means 'any code'. Combination of
+                             // ResNo1=ResNo2=ANY_RES and
+                             // Ins1=Ins2="*" means 'any residue'
+                             // (in selected chain(s))
+             cpstr RNames,   // may be several residue names
+                             // "ALA,GLU,CIS"; "*" means
+                             // 'any residue name'
+             cpstr ANames,   // may be several names "CA,CB"; "*"
+                             // means 'any atom' (in selected
+                             // residue(s))
+             cpstr Elements, // may be several element types
+                             // 'H,C,O,CU'; "*" means 'any element'
+             cpstr altLocs,  // may be several alternative
+                             // locations 'A,B'; "*" means
+                             // 'any alternative location'
+             int selKey=SKEY_OR // selection key
+           );
+   bool isNTerminusBound(PCResidue res);
+   bool isPeptideBound(PCResidue res);
 
    private: 
 

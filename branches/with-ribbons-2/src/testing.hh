@@ -23,11 +23,11 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "mmdb-extras.h"
-#include "mmdb.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
 
-#include "protein-geometry.hh"
-#include "coot-coord-extras.hh"
+#include "geometry/protein-geometry.hh"
+#include "coot-utils/coot-coord-extras.hh"
 
 
 #define BUILT_IN_TESTING
@@ -91,6 +91,8 @@ int test_multi_residue_torsion();
 int test_torsions_from_residue_selection();
 int test_read_prosmart_distance_restraints();
 int test_dreiding_torsion_energy();
+int test_parallel_plane_restraints();
+int test_map_tools();
 
 // uses greg data test data
 int test_phi_psi_values();

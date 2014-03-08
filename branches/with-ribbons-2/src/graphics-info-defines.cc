@@ -282,16 +282,18 @@ graphics_info_t::check_if_in_user_defined_define(GdkEventButton *event) {
       if (nearest_atom_index_info.success == GL_TRUE) {
 	 in_user_defined_define--;
 	 int im = nearest_atom_index_info.imol;
-	 CAtom *at = molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index];
 	 molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
-	 coot::atom_spec_t spec(at);
-	 spec.int_user_data = im;
-	 user_defined_atom_pick_specs.push_back(spec);
-	 graphics_draw(); // let's see the label
-	 if (in_user_defined_define == 0) {
-	    run_user_defined_click_func(); // uses user_defined_atom_pick_specs
-	    normal_cursor();
-	 } 
+	 CAtom *at = molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index];
+	 if (at) { 
+	    coot::atom_spec_t spec(at);
+	    spec.int_user_data = im;
+	    user_defined_atom_pick_specs.push_back(spec);
+	    graphics_draw(); // let's see the label
+	    if (in_user_defined_define == 0) {
+	       run_user_defined_click_func(); // uses user_defined_atom_pick_specs
+	    }
+	 }
+	 normal_cursor();
       }
    } 
 } 
@@ -1088,7 +1090,7 @@ graphics_info_t::check_if_in_terminal_residue_define(GdkEventButton *event) {
 	 // residue type (string).
 
 	 std::string term_type = g.molecules[naii.imol].get_term_type(naii.atom_index);
-	 const CResidue *res_p = g.molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->GetResidue();
+	 CResidue *res_p = g.molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->GetResidue();
 	 std::string chain_id(g.molecules[naii.imol].atom_sel.atom_selection[naii.atom_index]->GetChainID());
 	 CAtom *at = g.molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
 
@@ -1099,8 +1101,7 @@ graphics_info_t::check_if_in_terminal_residue_define(GdkEventButton *event) {
 	 if (add_terminal_residue_do_post_refine) {
 	    add_it_now_flag = 1;
 	 }
-	 CResidue *r = (CResidue *) res_p;
-	 if (!coot::util::is_nucleotide_by_dict_dynamic_add(r, Geom_p())) {
+	 if (!coot::util::is_nucleotide_by_dict_dynamic_add(res_p, Geom_p())) {
 	    g.execute_add_terminal_residue(naii.imol,
 					   term_type,
 					   res_p,
@@ -1108,7 +1109,7 @@ graphics_info_t::check_if_in_terminal_residue_define(GdkEventButton *event) {
 					   g.add_terminal_residue_type,  // eg. "ALA" or "UNK"
 					   add_it_now_flag);
 	 } else {
-	    g.execute_simple_nucleotide_addition(naii.imol, term_type, r, chain_id);
+	    g.execute_simple_nucleotide_addition(naii.imol, term_type, res_p, chain_id);
 	 }
 	 g.in_terminal_residue_define = 0;
 	 pick_pending_flag = 0;

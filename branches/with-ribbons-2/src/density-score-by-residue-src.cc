@@ -30,10 +30,10 @@
 #endif
 
 #ifdef __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #else
 #define __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #undef __GNU_LIBRARY__
 #endif
 
@@ -42,13 +42,14 @@
 #include <string>
 #include <vector>
 
-#include "coot-coord-utils.hh"
-#include "coot-map-utils.hh"
 
 #include <mmdb/mmdb_align.h>
 #include <mmdb/mmdb_tables.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
+
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
 
 class scored_atom_t {
 public:

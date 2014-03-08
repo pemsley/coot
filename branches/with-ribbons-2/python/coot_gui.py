@@ -2258,14 +2258,14 @@ def views_panel_gui():
 # BL says:: add the decisption condition!!
       buttons.append([button_label, "go_to_view_number(" + str(button_number) + ",0)", desciption])
 
-      if len(buttons) > 1:
-         def view_button_func():
-            import time
-            go_to_first_view(1)
-            time.sleep(1)
-            play_views()
-         view_button = ["  Play Views ", lambda func: view_button_func()]
-         buttons.insert(0,view_button)
+   if len(buttons) > 1:
+      def view_button_func():
+         import time
+         go_to_first_view(1)
+         time.sleep(1)
+         play_views()
+      view_button = ["  Play Views ", lambda func: view_button_func()]
+      buttons.insert(0,view_button)
 
    views_vbox = dialog_box_of_buttons("Views", [200,140], buttons, "  Close  ")
    views_dialog_vbox = views_vbox
@@ -3879,22 +3879,31 @@ def map_sharpening_gui(imol):
    window.show_all()
 
 
-# Associate the contents of a PIR file with a molecule. Select file from a GUI.
+# Associate the contents of a sequence file with a chain.
+# Select file from a GUI.
+# File format can be Fasta (default) or PIR
 #
-def associate_pir_with_molecule_gui(do_alignment=False):
+def associate_sequence_with_chain_gui(sequence_format="FASTA",
+                                      do_alignment=False):
 
    def associate_func(imol, chain_id, pir_file_name):
       #print "assoc seq:", imol, chain_id, pir_file_name
-      associate_pir_file(imol, chain_id, pir_file_name)
+      if (sequence_format == "FASTA"):
+         associate_fasta_file(imol, chain_id, pir_file_name)
+      elif (sequence_format == "PIR"):
+         associate_pir_file(imol, chain_id, pir_file_name)
+      else:
+         info_dialog("BL INFO:: wrong sequence input format.")
+         return
       if do_alignment:
          alignment_mismatches_gui(imol)
       
    generic_chooser_entry_and_file_selector(
-      "Associate Sequence to Model: ",
+      "Associate Sequence with Chain: ",
       valid_model_molecule_qm,
       "Chain ID",
       "",
-      "Select PIR file",
+      "Select " + sequence_format +" file",
       lambda imol, chain_id, pir_file_name:
       associate_func(imol, chain_id, pir_file_name))
 
@@ -4011,7 +4020,7 @@ def wrapper_alignment_mismatches_gui(imol):
    if seq_info:
       alignment_mismatches_gui(imol)
    else:
-      associate_pir_with_molecule_gui(True)
+      associate_sequence_with_molecule_gui(True)
 
 
 # Multiple residue ranges gui
@@ -4889,6 +4898,9 @@ def min_max_residues_from_atom_specs(specs):
       return [min_res_no, max_res_no, chain_id]
    else:
       return False
+
+global db_loop_preserve_residue_names
+db_loop_preserve_residue_names = False
                
 def click_protein_db_loop_gui():
 
@@ -4903,7 +4915,7 @@ def click_protein_db_loop_gui():
          else:
             loop_mols = protein_db_loops(imol, residue_specs,
                                          imol_refinement_map(),
-                                         10)
+                                         10, db_loop_preserve_residue_names)
             imol_loop_orig = loop_mols[0][0]
             imol_loops_consolidated = loop_mols[0][1]
             loop_mols = loop_mols[1]
@@ -5028,7 +5040,42 @@ def select_atom_alt_conf_occ_gui():
         ins_code  = args[0][4]
         scale_alt_conf_occ_gui(imol, chain_id, res_no, ins_code)
     user_defined_click(1, helper_function)
-    
+
+
+def toggle_backrub_rotamers(widget=None):
+   """Toggle function to swtich on and off backrub rotamer fitting.
+   
+   Keyword arguments:
+   widget -- can be passed from the toolbutton
+
+   """
+
+   if widget:
+      if widget.get_active():
+         # the button is toggled on
+         set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
+         print "BL INFO:: Using Backrub rotamers now!"
+      else:
+         set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
+         print "BL INFO:: NOT using Backrub rotamers any more!"
+
+   else:
+      # non graphical - but wont be able to run if this is not loaded.
+      mode = rotamer_search_mode_state()
+      if (mode == ROTAMERSEARCHLOWRES):
+         set_rotamer_search_mode(ROTAMERSEARCHHIGHRES)
+         print "BL INFO:: NOT using Backrub rotamers any more!"
+      if (mode == ROTAMERSEARCHHIGHRES or
+          mode == ROTAMERSEARCHAUTOMATIC):
+         set_rotamer_search_mode(ROTAMERSEARCHLOWRES)
+         print "BL INFO:: Using Backrub rotamers now!"
+         
+         
+      # no alternative for now
+      # need to be able to get the state of search mode.
+      # easily added. FIXME
+      print "BL WARNING:: no widget"
+   
 
 def toggle_wiimote(widget=None):
    """a toggle function to connect and disconnect from a Wiimote

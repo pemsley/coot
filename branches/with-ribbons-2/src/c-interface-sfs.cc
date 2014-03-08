@@ -33,7 +33,7 @@
 #include "clipper/cif/cif_data_io.h"
 #include "clipper/ccp4/ccp4_mtz_io.h"
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 
 /* ------------------------------------------------------------------------- */
 /*                      mmCIF sfs -> MTZ conversion                          */

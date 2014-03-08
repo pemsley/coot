@@ -21,13 +21,13 @@
  */
 
 #include <stdexcept>
-#include "coot-utils.hh"  // needed, it seems for the case where GSL
+#include "utils/coot-utils.hh"  // needed, it seems for the case where GSL
 			  // is not defined.
 
-#include "coot-coord-extras.hh"
+#include "coot-utils/coot-coord-extras.hh"
+#include "ideal/regularize-minimol.hh"
 
 #include "wligand.hh"
-#include "regularize-minimol.hh"
 
 // Ligand installation from coordinates (an minimol), number of trials.
 //
@@ -257,8 +257,8 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	 }
 	 catch (std::runtime_error rte) {
 	    std::cout << "ERROR: in install_simple_wiggly_ligands() " << rte.what() << std::endl;
-	 } 
-      } 
+	 }
+      }
    } // samples for loop
    
    return returned_tors_molecules_info;

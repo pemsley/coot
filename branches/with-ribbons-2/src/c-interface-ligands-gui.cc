@@ -30,7 +30,9 @@
 #if defined _MSC_VER
 #include <windows.h>
 #endif
- 
+
+#include "lbg/lbg.hh" // it matters where this is - rdkit issues...
+
 #include "globjects.h" //includes gtk/gtk.h
 
 #include "callbacks.h"
@@ -42,17 +44,17 @@
 #include <string>
 
 #include <mmdb/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "cc-interface.hh"
-#include "coot-coord-utils.hh"
-#include "peak-search.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/peak-search.hh"
 
-#include "wligand.hh"
+#include "ligand/wligand.hh"
 
 #include "guile-fixups.h"
 
@@ -661,3 +663,52 @@ void set_ligand_cluster_sigma_level_from_widget(GtkWidget *button) {
 		<< "the ligand search sigma level" 
 		<< std::endl;
 } 
+
+
+
+// The name has beend changed because the function we want at the
+// scripting layer (start_ligand_builder_gui()) should not need
+// arguments.
+// 
+void
+start_ligand_builder_gui_internal(GtkMenuItem     *menuitem,
+				  gpointer         user_data) {
+
+      start_ligand_builder_gui();
+}
+
+void
+start_ligand_builder_gui() { 
+
+   if (graphics_info_t::use_graphics_interface_flag) { 
+
+#ifdef HAVE_GOOCANVAS
+      lig_build::molfile_molecule_t mm;
+      CMMDBManager *mol = NULL;
+      std::string molecule_file_name = "coot-lidia.mol"; // non-null file name passed to lbg, used
+      // in save function
+      std::string view_name;
+      std::pair<bool, coot::residue_spec_t> dummy_pair(0, coot::residue_spec_t());
+      bool use_graphics_interface_flag = 1;
+      bool stand_alone_flag = 0;
+      int imol_dummy = -1;
+
+      int (*get_url_func_pointer) (const char *s1, const char *s2) = NULL;
+#ifdef USE_LIBCURL
+      get_url_func_pointer= coot_get_url;
+#endif    
+
+      lbg(mm, dummy_pair, mol, view_name, molecule_file_name, imol_dummy,
+	  graphics_info_t::Geom_p(),
+	  use_graphics_interface_flag, stand_alone_flag,
+	  get_url_func_pointer,
+	  prodrg_import_function,
+	  sbase_import_function,
+	  get_drug_mdl_via_wikipedia_and_drugbank
+	  );
+#else
+      std::cout << "No goocanvas" << std::endl;
+#endif // HAVE_GOOCANVAS
+
+   }
+}

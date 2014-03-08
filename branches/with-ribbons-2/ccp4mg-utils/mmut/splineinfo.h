@@ -39,4 +39,6 @@ struct SplineInfo {
 SplineInfo GetSplineInfo(CMMDBManager *molH, int atom_selHnd, const AtomColourVector &atm_col_vect, int spline_accu , int udd_chain = -1, int udd_CA = -1, int flatten_beta_sheet =0, int flatten_loop=0, int smooth_helix=0, double trace_cutoff=5.0, double loop_frac=1.0, int customWidthUDD=-1);
 int GetCAFromSelection(CMMANManager *molH, int atom_selHnd_in);
 std::vector<std::vector <Cartesian> > GetExternalCartesians(CMMDBManager *molhnd, const std::vector<std::vector<int> > &conn_lists, int side_to_ribbon=0, int side_to_worm=0, double trace_cutoff=5.0);
+std::vector<std::vector<Cartesian> > GetExternalCartesiansWithSplineInfo(PCMMDBManager molhnd, const std::vector<std::vector<int> > &ext_conn_lists, const SplineInfo &splineinfo_ribbon, const SplineInfo &splineinfo_worm, int side_to_ribbon=0, int side_to_worm=0, double trace_cutoff=5.0);
+SplineInfo GetRibbonOrWormSplineInfo(CMMDBManager *molhnd, int side_to_ribbon_worm, bool isribbon);
 #endif

@@ -31,32 +31,31 @@
 
 #include <GL/glut.h> // needed for GLUT_ELAPSED_TIME
 
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 #include "clipper/core/ramachandran.h"
 #include "clipper/ccp4/ccp4_map_io.h"
 
-#include "coot-coord-utils.hh"
-#include "coot-rama.hh"
-#include "primitive-chi-angles.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-rama.hh"
+#include "ligand/primitive-chi-angles.hh"
 
-#include "wligand.hh"
-#include "simple-restraint.hh"
-#include "ligand.hh"
-#include "chi-angles.hh"
+#include "ligand/wligand.hh"
+#include "ideal/simple-restraint.hh"
+#include "ligand/ligand.hh"
+#include "ligand/chi-angles.hh"
 
 #ifdef HAVE_GSL
 #else
-#include "coot-utils.hh" // usually include from simple-restraint.hh
+#include "utils/coot-utils.hh" // usually include from simple-restraint.hh
 #endif
 
-#include "coot-rama.hh"
+#include "coot-utils/coot-rama.hh"
+#include "coot-utils/coot-shelx.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 
-#include "coot-shelx.hh"
-#include "coot-coord-utils.hh"
-
-#include "coot-map-utils.hh"
-#include "dipole.hh"
+#include "ligand/dipole.hh"
 
 #include "graphics-info.h"
 
@@ -68,7 +67,7 @@
 
 #include "c-interface.h"
 
-#include "coot-h-bonds.hh"
+#include "coot-utils/coot-h-bonds.hh"
 
 #ifdef HAVE_CCP4SRS
 #include <ccp4srs/ccp4srs_defs.h>
@@ -293,8 +292,9 @@ int test_internal_single() {
       // status = test_multi_residue_torsion();
       // status = test_torsions_from_residue_selection();
       // status = test_read_prosmart_distance_restraints();
-      status = test_dreiding_torsion_energy();
-      
+      // status = test_dreiding_torsion_energy();
+      // status = test_parallel_plane_restraints();
+      status = test_map_tools();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -1388,7 +1388,7 @@ int test_ligand_conformer_torsion_angles() {
    return 1;
 }
 
-#include "peak-search.hh"
+#include "coot-utils/peak-search.hh"
 int test_peaksearch_non_close_peaks() {
 
    clipper::Xmap<float> xmap;

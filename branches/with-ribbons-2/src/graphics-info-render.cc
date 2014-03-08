@@ -36,7 +36,7 @@
 #include "graphics-info.h"
 #include "coot-render.hh"
 
-#include "ppmutil.h"
+#include "ccp4mg-utils/ppmutil.h"
 
 
 // raster3d

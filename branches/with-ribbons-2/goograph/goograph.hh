@@ -29,7 +29,7 @@
 
 #include <gtk/gtk.h>
 #include <goocanvas.h>
-#include "lig-build.hh"
+#include "lidia-core/lig-build.hh"
 
 namespace coot {
 

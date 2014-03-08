@@ -40,43 +40,45 @@
 #include <stdexcept>
 
 #include <string.h> // strcmp
+
 #include <mmdb/mmdb_manager.h>
 #include <mmdb/mmdb_tables.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
-#include "mmdb-crystal.h"
+
+#include <clipper/ccp4/ccp4_mtz_io.h>
+#include <clipper/ccp4/ccp4_map_io.h>
+#include <clipper/core/xmap.h>
+#include <clipper/cns/cns_map_io.h>
+#include <clipper/core/hkl_compute.h>
+#include <clipper/core/map_utils.h> // Map_stats
+#include <clipper/core/resol_basisfn.h>
+#include <clipper/core/resol_targetfn.h>
+#include <clipper/mmdb/clipper_mmdb.h>
+#include <clipper/clipper-phs.h>
+#include <clipper/contrib/sfcalc_obs.h>
+#include <clipper/contrib/sfscale.h>
+#include <clipper/contrib/sfweight.h>
+
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coords/mmdb-crystal.h"
 #include "gtk-manual.hh"
 
-#include "clipper/ccp4/ccp4_mtz_io.h"
-#include "clipper/ccp4/ccp4_map_io.h"
-#include "clipper/core/xmap.h"
-#include "clipper/cns/cns_map_io.h"
-#include "clipper/core/hkl_compute.h"
-#include "clipper/core/map_utils.h" // Map_stats
-#include "clipper/core/resol_basisfn.h"
-#include "clipper/core/resol_targetfn.h"
-#include "clipper/mmdb/clipper_mmdb.h"
-#include "clipper/clipper-phs.h"
-#include "clipper/contrib/sfcalc_obs.h"
-#include "clipper/contrib/sfscale.h"
-#include "clipper/contrib/sfweight.h"
-
-#include "coot-sysdep.h"
+#include "compat/coot-sysdep.h"
 
 // For stat, mkdir:
 #include <sys/types.h>
 #include <sys/stat.h>
 
-#include "Bond_lines.h"
+#include "coords/Bond_lines.h"
 
 #include "gl-matrix.h"
 #include "graphics-info.h"
 
-#include "Bond_lines_ext.h"  
+#include "coords/Bond_lines_ext.h"  
 #include "globjects.h" // for set_bond_colour(), r_50
 
-#include "coot-coord-utils.hh"
-#include "coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "utils/coot-utils.hh"
 
 #include <GL/glut.h> // needed (only?) for wirecube
 
@@ -84,9 +86,9 @@
 #include "clipper/core/map_interp.h"
 #endif 
 
-#include "ligand.hh"
-#include "residue_by_phi_psi.hh"
-#include "mini-mol-utils.hh"
+#include "ligand/ligand.hh"
+#include "ligand/residue_by_phi_psi.hh"
+#include "mini-mol/mini-mol-utils.hh"
 
 // for debugging
 #include "c-interface.h"
@@ -138,7 +140,6 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 				    
    // Read in pdb, [shelx files use the read_shelx_ins_file method]
    //
-
    atom_sel = get_atom_selection(filename, convert_to_v2_atom_names_flag);
 
    if (atom_sel.read_success == 1) {
@@ -462,10 +463,10 @@ molecule_class_info_t::install_model(int imol_no_in,
 
    atom_sel = asc;
 
-   CMMDBCryst *cryst_p =  (atom_sel.mol)->get_cell_p();
+   //    CMMDBCryst *cryst_p =  (atom_sel.mol)->get_cell_p();
    mat44 my_matt;
    
-   int err = cryst_p->GetTMatrix(my_matt, 0, 0, 0, 0);
+   int err = asc.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
    if (err != 0) {
       std::cout << "!! Warning:: No symmetry available for this molecule"
 		<< std::endl;
@@ -892,7 +893,75 @@ molecule_class_info_t::draw_extra_restraints_representation() {
 	 }
       }
    }
-} 
+
+   draw_parallel_plane_restraints_representation();
+}
+
+void
+molecule_class_info_t::draw_parallel_plane_restraints_representation() {
+
+   if (drawit) {
+      if (drawit_for_extra_restraints) {
+	 if (extra_restraints_representation.parallel_planes.size() > 0) { 
+	    glLineWidth(2.0);
+	    glColor3f(0.55, 0.55, 0.3);
+	    glBegin(GL_LINES);
+	    for (unsigned int i=0; i<extra_restraints_representation.parallel_planes.size(); i++) {
+	       const coot::extra_restraints_representation_t::extra_parallel_planes_restraints_representation_t &r =
+		  extra_restraints_representation.parallel_planes[i];
+
+	       clipper::Coord_orth arb(0.2, 0.8, 0.1);
+	       clipper::Coord_orth cr(clipper::Coord_orth::cross(r.normal, arb).unit());
+	       clipper::Coord_orth first_pt = r.ring_centre + r.ring_radius * cr;
+	       clipper::Coord_orth first_pt_pp = r.plane_projection_point + r.pp_radius * cr;
+	       // std::cout << i << " r.plane_projection_point: " << r.plane_projection_point.format() << std::endl;
+
+	       unsigned int n_steps = 32;
+	       double step_frac = 1/double(n_steps);
+	       clipper::Coord_orth pt_1;
+	       clipper::Coord_orth pt_2;
+	       for (unsigned int istep=0; istep<n_steps; istep++) {
+		  double angle_1 = step_frac * 2.0 * M_PI * istep;
+		  double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
+		  pt_1 = coot::util::rotate_round_vector(r.normal, first_pt, r.ring_centre, angle_1);
+		  pt_2 = coot::util::rotate_round_vector(r.normal, first_pt, r.ring_centre, angle_2);
+		  glVertex3f(pt_1.x(), pt_1.y(), pt_1.z());
+		  glVertex3f(pt_2.x(), pt_2.y(), pt_2.z());
+	       }
+
+	       n_steps = 16;
+	       step_frac = 1/double(n_steps);
+	       for (unsigned int istep=0; istep<n_steps; istep++) {
+		  double angle_1 = step_frac * 2.0 * M_PI * istep;
+		  double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
+		  pt_1 = coot::util::rotate_round_vector(r.normal, first_pt_pp, r.plane_projection_point, angle_1);
+		  pt_2 = coot::util::rotate_round_vector(r.normal, first_pt_pp, r.plane_projection_point, angle_2);
+		  glVertex3f(pt_1.x(), pt_1.y(), pt_1.z());
+		  glVertex3f(pt_2.x(), pt_2.y(), pt_2.z());
+	       }
+
+	       // now the lines between planes
+	       glVertex3d(r.ring_centre.x(), r.ring_centre.y(), r.ring_centre.z());
+	       glVertex3d(r.plane_projection_point.x(), r.plane_projection_point.y(), r.plane_projection_point.z());
+	    }
+	    glEnd();
+	 }
+
+	 // points
+	 float zsc = graphics_info_t::zoom;
+	 glPointSize(120.0/zsc);
+	 glBegin(GL_POINTS);
+	 for (unsigned int i=0; i<extra_restraints_representation.parallel_planes.size(); i++) {
+	    const coot::extra_restraints_representation_t::extra_parallel_planes_restraints_representation_t &r =
+	       extra_restraints_representation.parallel_planes[i];
+	    glVertex3d(r.plane_projection_point.x(), r.plane_projection_point.y(), r.plane_projection_point.z());
+	 }
+	 glEnd();
+      }
+   } 
+}
+
+
 
 //
 void
@@ -1693,7 +1762,8 @@ molecule_class_info_t::zero_occupancy_spots() const {
    if (bonds_box.n_zero_occ_spot > 0) { 
 
       glColor3f(0.8, 0.7, 0.7);
-      glPointSize(6.5);
+      float zsc = graphics_info_t::zoom;
+      glPointSize(145.0/zsc);
       glBegin(GL_POINTS); 
       for (int i=0; i<bonds_box.n_zero_occ_spot; i++) { 
 	 glVertex3f(bonds_box.zero_occ_spot[i].x(),
@@ -1835,7 +1905,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
 	 if (bonds_box.bonds_[i].thin_lines_flag)
 	    zsc *= 0.5;
-
+ 
 	 glBegin(GL_QUADS); 
 	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 	    
@@ -2538,11 +2608,11 @@ molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag) {
 void
 molecule_class_info_t::set_have_unit_cell_flag_maybe() {
    
-   CMMDBCryst *cryst_p = atom_sel.mol->get_cell_p();
+   // CMMDBCryst *cryst_p = atom_sel.mol->get_cell_p();
 
    mat44 my_matt;
 
-   int err = cryst_p->GetTMatrix(my_matt, 0, 0, 0, 0);
+   int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
 
    if (err != 0) {
       have_unit_cell = 0;
@@ -2915,7 +2985,7 @@ void
 molecule_class_info_t::update_extra_restraints_representation() {
 
    extra_restraints_representation.clear();
-   
+
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
       CAtom *at_1 = NULL;
       CAtom *at_2 = NULL;
@@ -2980,6 +3050,80 @@ molecule_class_info_t::update_extra_restraints_representation() {
 	 extra_restraints_representation.add_bond(p1, p2, res.bond_dist, res.esd);
       } 
    }
+
+   update_extra_restraints_representation_parallel_planes();
+}
+
+void
+molecule_class_info_t::update_extra_restraints_representation_parallel_planes() {
+
+   std::string s = "Mol " + coot::util::int_to_string(imol_no) + "Parallel-Plane-Restraints";
+   coot::generic_display_object_t rest_rep(s);
+
+   // needed for parallel plane restraints atom name lookup.
+   const coot::protein_geometry &geom = *graphics_info_t::Geom_p();  // pass this?
+
+   for (unsigned int i=0; i<extra_restraints.parallel_plane_restraints.size(); i++) {
+      const coot::parallel_planes_t &pp = extra_restraints.parallel_plane_restraints[i];
+      CResidue *r_1 = get_residue(pp.plane_1_atoms.res_spec);
+      CResidue *r_2 = get_residue(pp.plane_2_atoms.res_spec);
+      if (r_1 && r_2) {
+	
+	 std::string res_type_1 = r_1->GetResName();
+	 std::string res_type_2 = r_2->GetResName();
+	 std::pair<bool, coot::dictionary_residue_restraints_t> dri_1 = geom.get_monomer_restraints(res_type_1);
+	 std::pair<bool, coot::dictionary_residue_restraints_t> dri_2 = geom.get_monomer_restraints(res_type_2);
+	 
+	 std::vector<clipper::Coord_orth> p_1_positions;
+	 std::vector<clipper::Coord_orth> p_2_positions;
+	 
+	 PPCAtom residue_atoms = 0;
+	 int n_residue_atoms;
+	 r_1->GetAtomTable(residue_atoms, n_residue_atoms);
+
+	 // first plane
+	 for (unsigned int i_rest_at=0; i_rest_at<pp.plane_1_atoms.atom_names.size(); i_rest_at++) {
+	    std::string plane_atom_expanded_name =
+	       dri_1.second.atom_name_for_tree_4c(pp.plane_1_atoms.atom_names[i_rest_at]);
+	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	       CAtom *at = residue_atoms[iat];
+	       std::string atom_name(at->name);
+	       std::string alt_conf(at->altLoc);
+	       if (plane_atom_expanded_name == atom_name) {
+		  if (pp.plane_1_atoms.alt_conf == alt_conf) {
+		     p_1_positions.push_back(clipper::Coord_orth(at->x, at->y, at->z));
+		  }
+	       }
+	    }
+	 }
+	 // second plane
+	 residue_atoms = 0;
+	 r_2->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (unsigned int i_rest_at=0; i_rest_at<pp.plane_2_atoms.atom_names.size(); i_rest_at++) {
+	    std::string plane_atom_expanded_name =
+	       dri_2.second.atom_name_for_tree_4c(pp.plane_2_atoms.atom_names[i_rest_at]);
+	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	       CAtom *at = residue_atoms[iat];
+	       std::string atom_name(at->name);
+	       std::string alt_conf(at->altLoc);
+	       if (plane_atom_expanded_name == atom_name) {
+		  if (pp.plane_2_atoms.alt_conf == alt_conf) {
+		     p_2_positions.push_back(clipper::Coord_orth(at->x, at->y, at->z));
+		  }
+	       }
+	    }
+	 }
+
+	 if (p_1_positions.size() > 2) { 
+	    if (p_2_positions.size() > 2) { 
+	       coot::lsq_plane_info_t pi_1(p_1_positions);
+	       coot::lsq_plane_info_t pi_2(p_2_positions);
+
+	       extra_restraints_representation.add_parallel_plane(pi_1, pi_2);
+	    }
+	 }
+      } 
+   }
 } 
 
 
@@ -2989,7 +3133,7 @@ int
 molecule_class_info_t::export_coordinates(std::string filename) const { 
 
    //
-   int err = atom_sel.mol->WritePDBASCII((char *)filename.c_str()); 
+   int err = atom_sel.mol->WritePDBASCII(filename.c_str()); 
    
    if (err) { 
       std::cout << "WARNING:: export coords: There was an error in writing "
@@ -3010,10 +3154,10 @@ molecule_class_info_t::export_coordinates(std::string filename) const {
 }
 
 // Perhaps this should be a util function?
-CMMDBManager
-*molecule_class_info_t::get_residue_range_as_mol(const std::string &chain_id,
-						 int resno_start,
-						 int resno_end) const {
+CMMDBManager *
+molecule_class_info_t::get_residue_range_as_mol(const std::string &chain_id,
+						int resno_start,
+						int resno_end) const {
 
    int imod = 1;
 
@@ -3136,13 +3280,13 @@ molecule_class_info_t::atom_spec_to_atom_index(std::string chain, int resno,
    int iatom_index = -1; 
    int selHnd = atom_sel.mol->NewSelection();
 
-   atom_sel.mol->SelectAtoms(selHnd, 0, (char *) chain.c_str(), 
-			    resno, "*", // start, insertion code
-			    resno, "*", // end, insertion code
-			    "*", // residue name
-			    (char *) atom_name.c_str(),
-			    "*", // elements
-			    "*"); // alt locs
+   atom_sel.mol->SelectAtoms(selHnd, 0, chain.c_str(), 
+			     resno, "*", // start, insertion code
+			     resno, "*", // end, insertion code
+			     "*", // residue name
+			     atom_name.c_str(),
+			     "*", // elements
+			     "*"); // alt locs
 
    int nSelAtoms;
    PPCAtom local_SelAtom; 
@@ -3160,7 +3304,7 @@ molecule_class_info_t::atom_spec_to_atom_index(std::string chain, int resno,
 				ANY_RES, "*", // start, insertion code
 				ANY_RES, "*", // end, insertion code
 				"*", // residue name
-				(char *) atom_name.c_str(),
+				atom_name.c_str(),
 				"*", // elements
 				"*"); // alt locs
 
@@ -4364,6 +4508,10 @@ molecule_class_info_t::close_yourself() {
       delete [] xmap_list;
       xmap_list = NULL;
       xmap_is_filled[0] = 0;
+      delete [] draw_vectors;
+      delete [] diff_map_draw_vectors;
+      draw_vectors = NULL;
+      diff_map_draw_vectors = NULL;
       max_xmaps = 0;
    }
 
@@ -4690,24 +4838,24 @@ molecule_class_info_t::intelligent_this_residue_atom(const coot::residue_spec_t 
 //
 CAtom *
 molecule_class_info_t::intelligent_this_residue_mmdb_atom(CResidue *res_p) const {
-   PPCAtom residue_atoms;
-   int nResidueAtoms;
+
+   CAtom *null_at = NULL;
    
-   res_p->GetAtomTable(residue_atoms, nResidueAtoms);
-   for (int i=0; i<nResidueAtoms; i++) {
-      std::string atom_name(residue_atoms[i]->name);
-      if (atom_name == " CA ") {
-	 return residue_atoms[i];
+   if (res_p) { 
+      PPCAtom residue_atoms = 0;
+      int nResidueAtoms;
+      res_p->GetAtomTable(residue_atoms, nResidueAtoms);
+      if (nResidueAtoms > 0) {
+	 for (int i=0; i<nResidueAtoms; i++) {
+	    std::string atom_name(residue_atoms[i]->name);
+	    if (atom_name == " CA ") {
+	       return residue_atoms[i];
+	    }
+	 }
+	 return residue_atoms[0]; // ok, so any atom will do
       }
    }
-
-   if (nResidueAtoms > 0) {
-      return residue_atoms[0];
-   }
-
-   // failure
-   return NULL;
-
+   return null_at;
 }
 
 // Return pointer to atom " CA ", or the first atom in the residue, or
@@ -4720,16 +4868,14 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
    CAtom *at = NULL; 
 
    if (atom_sel.n_selected_atoms > 0) { 
-      int selHnd = atom_sel.mol->NewSelection();
+      int selHnd = atom_sel.mol->NewSelection(); // d
       PPCResidue SelResidue;
       int nSelResidues;
 
-      char *ins_code_search = (char *) ins_code.c_str(); // bleugh (as usual)
-      
       atom_sel.mol->Select (selHnd, STYPE_RESIDUE, 0,
-			    (char *)chain_id.c_str(), 
-			    resno, ins_code_search,
-			    resno, ins_code_search,
+			    chain_id.c_str(), 
+			    resno, ins_code.c_str(),
+			    resno, ins_code.c_str(),
 			    "*",  // residue name
 			    "*",  // Residue must contain this atom name?
 			    "*",  // Residue must contain this Element?
@@ -4750,8 +4896,9 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
 	    std::cout << "INFO:: No atoms in residue" << std::endl;
 	 } else {
 	    short int found_it = 0;
+	    std::string CA = " CA "; // PDBv3 FIXME
 	    for (int i=0; i<nResidueAtoms; i++) { 
-	       if (std::string(residue_atoms[i]->name) == std::string(" CA ")) { 
+	       if (std::string(residue_atoms[i]->name) == CA) { 
 		  at = residue_atoms[i];
 		  found_it = 1;
 		  break;
@@ -4761,7 +4908,7 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
 	       at = residue_atoms[0];
 	 }
       }
-      atom_sel.mol->DeleteSelection(selHnd); // Safe to put it here?
+      atom_sel.mol->DeleteSelection(selHnd); 
    }
    return at;
 }
@@ -4892,18 +5039,20 @@ molecule_class_info_t::add_pointer_atom(coot::Cartesian pos) {
 void 
 molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::string &type) { 
 
-   short int single_atom = 1; // true
+   bool single_atom = true; 
 
-   std::cout << "INFO:: adding atom of type " << type << " at " << pos << std::endl;
+   // std::cout << "INFO:: adding atom of type " << type << " at " << pos << std::endl;
    make_backup();
 
    // we get a chain pointer or NULL, if there is not yet a chain only
    // of the given type:
-   CChain *single_type = coot::util::chain_only_of_type(atom_sel.mol, type);
+   coot::atom_name_bits_t bits(type);
+   CChain *single_type = coot::util::chain_only_of_type(atom_sel.mol, bits.res_name);
+   // std::cout << "DEBUG:: single_type returned " << single_type << std::endl;
 
    // We do different things (e.g adding the chain) if this is a new
    // chain or a pre-existing one, let's set a flag.
-   short int pre_existing_chain_flag;
+   bool pre_existing_chain_flag;
    CChain *chain_p;
    if (single_type) {
       chain_p = single_type;
@@ -4986,93 +5135,42 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
   	 // Not water
 	 std::string element = "";
 
-	 if (mol_chain_id.first || pre_existing_chain_flag) { 
+	 if (mol_chain_id.first || pre_existing_chain_flag) {
 
-	    if (type == "Br") { 
-	       atom_p->SetAtomName("BR  ");
-	       atom_p->SetElementName("BR");
-	       res_p->SetResName("BR");
-	       element = "BR";
-	    } else { 
-	       if (type == "Ca") { 
-		  atom_p->SetAtomName("CA  ");
-		  atom_p->SetElementName("CA");
-		  res_p->SetResName("CA");
-		  element = "CA";
-	       } else { 
-		  if (type == "Na") { 
-		     atom_p->SetAtomName("NA  ");
-		     atom_p->SetElementName("NA");
-		     res_p->SetResName("NA");
-		     element = "NA";
-		  } else { 
-		     if (type == "Cl") { 
-			atom_p->SetAtomName("CL  ");
-			atom_p->SetElementName("CL");
-			res_p->SetResName("CL");
-			element = "CL";
-		     } else { 
-			if (type == "Mg") { 
-			   atom_p->SetAtomName("MG  ");
-			   atom_p->SetElementName("MG");
-			   res_p->SetResName("MG");
-			   element = "MG";
-			} else { 
+	    if (bits.filled) {
+	       bits.SetAtom(atom_p, res_p);
 
-			   // User Typed atom:
+	       res_p->AddAtom(atom_p);
+	       std::cout << atom_p << " added to molecule" << std::endl;
+	       if (! pre_existing_chain_flag) { 
+		  chain_p->SetChainID(mol_chain_id.second.c_str());
+		  atom_sel.mol->GetModel(1)->AddChain(chain_p);
+	       }
+	       std::pair<short int, int> ires_prev_pair = coot::util::max_resno_in_chain(chain_p);
+	       int previous_max = 0;
+	       if (ires_prev_pair.first) { // was not an empty chain
+		  previous_max =  ires_prev_pair.second;
+		  res_p->seqNum = previous_max + 1;
+	       } else {
 
-			   // make up (guess) the residue type and element
-			   std::string at_name = coot::util::upcase(type);
-			   std::string ele     = coot::util::upcase(type);
-			   std::string resname = coot::util::upcase(type);
-			   if (type.length() > 4)
-			      at_name = at_name.substr(0,4);
-			   if (type.length() > 3)
-			      resname = at_name.substr(0,3);
-			   if (type.length() > 2)
-			      ele = at_name.substr(0,2);
+		  // was an empty chain.  Handle the shelx case:
 
-			   element = ele;
-			   atom_p->SetAtomName(at_name.c_str());
-			   atom_p->SetElementName(ele.c_str());
-			   res_p->SetResName(resname.c_str());
-			} 
+		  if (! is_from_shelx_ins_flag) { 
+		     res_p->seqNum = 1 ; // start of a new chain.
+		  } else {
+		     // in a shelx molecule, we can't make the residue
+		     // number 1 because there are no chains.  We need to
+		     // make the residue number bigger than the biggest
+		     // residue number so far.
+		     std::pair<short int, int> ires_prev_pair =
+			coot::util::max_resno_in_molecule(atom_sel.mol);
+		     if (ires_prev_pair.first) {
+			res_p->seqNum = ires_prev_pair.second + 1;
+		     } else {
+			res_p->seqNum = 1;
 		     }
 		  }
 	       }
-	    }
-
-	    res_p->AddAtom(atom_p);
-	    std::cout << atom_p << " added to molecule" << std::endl;
-	    if (! pre_existing_chain_flag) { 
-	       chain_p->SetChainID(mol_chain_id.second.c_str());
-	       atom_sel.mol->GetModel(1)->AddChain(chain_p);
-	    }
-	    std::pair<short int, int> ires_prev_pair = coot::util::max_resno_in_chain(chain_p);
-	    int previous_max = 0;
-	    if (ires_prev_pair.first) { // was not an empty chain
-	       previous_max =  ires_prev_pair.second;
-	       res_p->seqNum = previous_max + 1;
-	    } else {
-
-	       // was an empty chain.  Handle the shelx case:
-
-	       if (! is_from_shelx_ins_flag) { 
-		  res_p->seqNum = 1 ; // start of a new chain.
-	       } else {
-		  // in a shelx molecule, we can't make the residue
-		  // number 1 because there are no chains.  We need to
-		  // make the residue number bigger than the biggest
-		  // residue number so far.
-		  std::pair<short int, int> ires_prev_pair =
-		     coot::util::max_resno_in_molecule(atom_sel.mol);
-		  if (ires_prev_pair.first) {
-		     res_p->seqNum = ires_prev_pair.second + 1;
-		  } else {
-		     res_p->seqNum = 1;
-		  }
-	       }
-	       
 	    }
 
 	    // Add this element to the sfac (redundancy check in the addition function
@@ -5120,14 +5218,15 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
    // or we could just use update_molecule_after_additions() there.
 }
 
+
 // return status [1 means "usable"] and a chain id [status = 0 when
 // there are 2*26 chains...]
 // 
-std::pair<short int, std::string>
+std::pair<bool, std::string>
 molecule_class_info_t::unused_chain_id() const { 
-   
+
    std::string r("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
-   std::pair<short int, std::string> s(0,""); 
+   std::pair<bool, std::string> s(false,""); 
    CChain *chain_p;
    if (atom_sel.n_selected_atoms > 0) { 
       CModel *model_p = atom_sel.mol->GetModel(1);
@@ -5136,17 +5235,18 @@ molecule_class_info_t::unused_chain_id() const {
    
       for (int ich=0; ich<nchains; ich++) {
 	 chain_p = model_p->GetChain(ich);
-	 idx = r.find(std::string(chain_p->GetChainID()));
-	 // 	 while (idx != std::string::npos) { 
-	    r = r.substr(0, idx) + r.substr(idx+1);
-	    idx = r.find(std::string(chain_p->GetChainID()));
-	    s.first = 1;
-	    // 	 } // Take out the while, as per Ezra's suggestion.
+	 std::string this_chain_id = chain_p->GetChainID();
+	 std::string::size_type idx = r.find(this_chain_id);
+	 if (idx != std::string::npos) {
+	    r.erase(idx,1);
+	 } 
       }
-      std::string tstring = r.substr(0,1);
-      s.second = tstring;
+      if (r.length()) { 
+	 s.first = true;
+	 s.second = r.substr(0,1);
+      }
    } else {
-      s.first = 1;
+      s.first = true;
       s.second = "A";
    } 
    return s;
@@ -5410,7 +5510,7 @@ molecule_class_info_t::add_baton_atom(coot::Cartesian pos,
 // in the back() slot of the vector.
 // 
 std::vector<clipper::Coord_orth>
-molecule_class_info_t::previous_baton_atom(const CAtom* latest_atom_addition,
+molecule_class_info_t::previous_baton_atom(CAtom* latest_atom_addition,
 					   short int direction) const {
    std::vector<clipper::Coord_orth> positions;
    int direction_sign = +1; 
@@ -5422,9 +5522,9 @@ molecule_class_info_t::previous_baton_atom(const CAtom* latest_atom_addition,
       direction_sign = -1; // building backward, look in positive
 			   // direction for previously build atoms.
    }
-   int ires_last_atom = ((CAtom *) latest_atom_addition)->GetSeqNum();
+   int ires_last_atom = latest_atom_addition->GetSeqNum();
 
-   char *chain = ((CAtom *) latest_atom_addition)->GetChainID();
+   char *chain = latest_atom_addition->GetChainID();
    // does the CA for the (ires_last_atom-2) exist?
    int selHnd = atom_sel.mol->NewSelection();
 	 
@@ -5480,7 +5580,7 @@ molecule_class_info_t::previous_baton_atom(const CAtom* latest_atom_addition,
    
 } 
 
-#include "CalphaBuild.hh"
+#include "build/CalphaBuild.hh"
 
 std::vector<coot::scored_skel_coord>
 molecule_class_info_t::next_ca_by_skel(const std::vector<clipper::Coord_orth> &previous_ca_positions,
@@ -6249,7 +6349,7 @@ molecule_class_info_t::get_standard_residue_instance(const std::string &residue_
 					   "*", // Chain(s) it's "A" in this case.
 					   ANY_RES,"*",  // starting res
 					   ANY_RES,"*",  // ending res
-					   (char *) residue_type.c_str(),  // residue name
+					   residue_type.c_str(),  // residue name
 					   "*",  // Residue must contain this atom name?
 					   "*",  // Residue must contain this Element?
 					   "*",  // altLocs
@@ -6434,7 +6534,7 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
       // We need to create a new chain.
       chain_p = new CChain;
       atom_sel.mol->GetModel(1)->AddChain(chain_p);
-      std::pair<short int, std::string> u = unused_chain_id();
+      std::pair<bool, std::string> u = unused_chain_id();
       if (u.first)
 	 chain_p->SetChainID(u.second.c_str());
       else 
@@ -7051,7 +7151,24 @@ molecule_class_info_t::translate_by(float x, float y, float z) {
       make_bonds_type_checked();
       have_unsaved_changes_flag = 1;
    }
-} 
+}
+
+void
+molecule_class_info_t::translate_by_internal(const clipper::Coord_orth &co, CResidue *residue_p) {
+
+   if (residue_p) {
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 CAtom *at = residue_atoms[iat];
+	 at->x += co.x();
+	 at->y += co.y();
+	 at->z += co.z();
+      }
+   }
+}
+
 
 // Sets coot_save_index maybe (using set_coot_save_index()).
 // 
@@ -7200,12 +7317,20 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
    std::cout << "INFO:: coordinates transformed by orthonal matrix: \n"
 	     << rtop.format() << std::endl;
    if (have_unit_cell) {
-      clipper::Cell cell(clipper::Cell_descr(atom_sel.mol->get_cell().a,
-					     atom_sel.mol->get_cell().b,
-					     atom_sel.mol->get_cell().c,
-					     clipper::Util::d2rad(atom_sel.mol->get_cell().alpha),
-					     clipper::Util::d2rad(atom_sel.mol->get_cell().beta),
-					     clipper::Util::d2rad(atom_sel.mol->get_cell().gamma))); 
+
+      realtype cell_params[6];
+      realtype vol;
+      int orthcode;
+      atom_sel.mol->GetCell(cell_params[0], cell_params[1], cell_params[2],
+			    cell_params[3], cell_params[4], cell_params[5],
+			    vol, orthcode);
+      
+      clipper::Cell cell(clipper::Cell_descr(cell_params[0],
+					     cell_params[1],
+					     cell_params[2],
+					     clipper::Util::d2rad(cell_params[3]),
+					     clipper::Util::d2rad(cell_params[4]),
+					     clipper::Util::d2rad(cell_params[5]))); 
       std::cout << "INFO:: fractional coordinates matrix:" << std::endl;
       std::cout << rtop.rtop_frac(cell).format() << std::endl;
    } else {
