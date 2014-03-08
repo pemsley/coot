@@ -51,30 +51,7 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
       if (residue_p) {
 	 try {
 	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, *g.Geom_p());
-	    RDKit::ROMol *rdk_mol_with_no_Hs_ro = RDKit::MolOps::removeHs(rdkm);
-	    RDKit::RWMol rdk_mol_with_no_Hs = *rdk_mol_with_no_Hs_ro;
-
-	    // clear out any cached properties
-	    rdk_mol_with_no_Hs.clearComputedProps();
-	    // clean up things like nitro groups
- 	    RDKit::MolOps::cleanUp(rdk_mol_with_no_Hs);
- 	    // update computed properties on atoms and bonds:
- 	    rdk_mol_with_no_Hs.updatePropertyCache();
- 	    RDKit::MolOps::Kekulize(rdk_mol_with_no_Hs);
- 	    RDKit::MolOps::assignRadicals(rdk_mol_with_no_Hs);
-	    
-	    // then do aromaticity perception
-	    // RDKit::MolOps::setAromaticity(rdkm);
-    
-	    // set conjugation
-	    RDKit::MolOps::setConjugation(rdk_mol_with_no_Hs);
-	       
-	    // set hybridization
-	    RDKit::MolOps::setHybridization(rdk_mol_with_no_Hs); // non-linear ester bonds, yay!
-
-	    // remove bogus chirality specs:
-	    RDKit::MolOps::cleanupChirality(rdk_mol_with_no_Hs);
-
+	    RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
 
 	    if (0) {  // debugging
 	       // what are the bond types after sanitization/kekulization?

@@ -342,35 +342,7 @@ graphics_ligand_molecule::setup_from(CResidue *residue_p,
 	 } else {
 	    const coot::dictionary_residue_restraints_t &restraints = p.second;
 	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints, alt_conf);
-	    RDKit::ROMol *rdk_mol_with_no_Hs_ro = RDKit::MolOps::removeHs(rdkm);
-	    RDKit::RWMol rdk_mol_with_no_Hs = *rdk_mol_with_no_Hs_ro;
-
-	    if (0) { // debug
-	       RDKit::MolToMolFile(rdkm, "pre-mol.mol");
-	       RDKit::MolToMolFile(*rdk_mol_with_no_Hs_ro, "mol-no-H.mol");
-	    }
-
-	    // clear out any cached properties
-	    rdk_mol_with_no_Hs.clearComputedProps();
-	    // clean up things like nitro groups
-	    RDKit::MolOps::cleanUp(rdk_mol_with_no_Hs);
-	    // update computed properties on atoms and bonds:
-	    rdk_mol_with_no_Hs.updatePropertyCache();
-	    RDKit::MolOps::Kekulize(rdk_mol_with_no_Hs);
-	    RDKit::MolOps::assignRadicals(rdk_mol_with_no_Hs);
-	    
-	    // then do aromaticity perception...
-	    // (why is this commented out?)
-	    // RDKit::MolOps::setAromaticity(rdkm);
-    
-	    // set conjugation
-	    RDKit::MolOps::setConjugation(rdk_mol_with_no_Hs);
-	       
-	    // set hybridization
-	    RDKit::MolOps::setHybridization(rdk_mol_with_no_Hs); 
-
-	    // remove bogus chirality specs:
-	    RDKit::MolOps::cleanupChirality(rdk_mol_with_no_Hs);
+	    RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
 
 	    double weight_for_3d_distances = 0.005;
 	    int mol_2d_depict_conformer =

@@ -1292,6 +1292,8 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
 
 // a wrapper for the above, matching hydrogens names to the
 // dictionary.  Add atoms to residue_p, return success status.
+//
+// This calles undelocalise.  Is that what we want to do?
 // 
 std::pair<bool, std::string>
 coot::add_hydrogens_with_rdkit(CResidue *residue_p,
@@ -1334,31 +1336,28 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 	    std::string alt_conf = residue_alt_confs[i_alt_conf];
 	    RDKit::RWMol m_no_Hs = rdkit_mol(residue_p, restraints, residue_alt_confs[i_alt_conf]);
 	    int n_mol_atoms = m_no_Hs.getNumAtoms();
-	    // std::cout << ".......  pre H addition mol has " << n_mol_atoms
-	    // << " atoms" << std::endl;
 
 	    coot::undelocalise(&m_no_Hs);
-	 
 	    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
 	       RDKit::ATOM_SPTR at_p = m_no_Hs[iat];
 	       at_p->calcImplicitValence(true);
 	    }
 
-	    // std::cout << "MolOps:: adding hydrogens " << std::endl;
-	    RDKit::ROMol *m_pre = RDKit::MolOps::addHs(m_no_Hs, 0, 1);
+	    bool explicit_only = false;
+	    bool add_coords = true;
+	    RDKit::ROMol m_no_Hs_ro(m_no_Hs);
+	    RDKit::ROMol *m_pre = RDKit::MolOps::addHs(m_no_Hs_ro, explicit_only, add_coords);
 	    RDKit::RWMol m(*m_pre);
-	    // std::cout << "....... post H addition mol has " << m_pre->getNumAtoms()
-	    // << std::endl;
-	    int n_atoms_new = m_pre->getNumAtoms();
-	    int n_conf = m_pre->getNumConformers();
+	    // I think m_pre should be deleted.
+	    delete m_pre;
+	    int n_atoms_new = m.getNumAtoms();
+	    int n_conf = m.getNumConformers();
 
 	    double vdwThresh=10.0;
 	    int confId = 0;
 	    bool ignoreInterfragInteractions=true;
 	    int maxIters = 500;
 
-	    // std::cout << "==== constructForceField()......" << std::endl;
-	 
 	    ForceFields::ForceField *ff =
 	       RDKit::UFF::constructForceField(m, vdwThresh, confId,
 					       ignoreInterfragInteractions);
@@ -1366,22 +1365,19 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 	    for (unsigned int iat=0; iat<n_mol_atoms; iat++)
 	       ff->fixedPoints().push_back(iat);
 
-	    // std::cout << "==== ff->initialize() ......" << std::endl;
 	    ff->initialize();
-	    // std::cout << "==== ff->minimize() ......" << std::endl;
 	    int res=ff->minimize(maxIters);
-	    // std::cout << "rdkit minimize() returns " << res << std::endl;
 	    delete ff;
 	 
 
 	    if (! n_conf) {
 	       std::cout << "ERROR:: mol with Hs: no conformers" << std::endl;
 	    } else { 
-	       RDKit::Conformer conf = m_pre->getConformer(0);
+	       RDKit::Conformer conf = m.getConformer(0);
 	       std::vector<std::string> H_names_already_added;
 	 
 	       for (unsigned int iat=0; iat<n_atoms_new; iat++) {
-		  RDKit::ATOM_SPTR at_p = (*m_pre)[iat];
+		  RDKit::ATOM_SPTR at_p = m[iat];
 		  RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
 		  std::string name = "";
 		  try {
@@ -1498,6 +1494,36 @@ coot::infer_H_name(int iat,
    // std::cout << "returning infered H name :" << r << ":" << std::endl;
    return r;
 }
+
+RDKit::RWMol
+coot::remove_Hs_and_clean(const RDKit::ROMol rdkm, bool set_aromaticity) {
+
+   RDKit::ROMol *rdk_mol_with_no_Hs_ro = RDKit::MolOps::removeHs(rdkm);
+   RDKit::RWMol rdk_mol_with_no_Hs = *rdk_mol_with_no_Hs_ro;
+
+   // clear out any cached properties
+   rdk_mol_with_no_Hs.clearComputedProps();
+   // clean up things like nitro groups
+   RDKit::MolOps::cleanUp(rdk_mol_with_no_Hs);
+   rdk_mol_with_no_Hs.updatePropertyCache();
+   RDKit::MolOps::Kekulize(rdk_mol_with_no_Hs);
+   RDKit::MolOps::assignRadicals(rdk_mol_with_no_Hs);
+	    
+   if (set_aromaticity)
+      RDKit::MolOps::setAromaticity(rdk_mol_with_no_Hs);
+    
+   // set conjugation
+   RDKit::MolOps::setConjugation(rdk_mol_with_no_Hs);
+	       
+   // set hybridization
+   RDKit::MolOps::setHybridization(rdk_mol_with_no_Hs); // non-linear ester bonds, yay!
+
+   // remove bogus chirality specs:
+   RDKit::MolOps::cleanupChirality(rdk_mol_with_no_Hs);
+
+   return rdk_mol_with_no_Hs;
+} 
+
 
 
 // tweak rdkmol.
