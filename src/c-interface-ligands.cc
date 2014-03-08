@@ -2653,48 +2653,46 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 		  }
 	       }
 	       if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
-		  if (gdc.geometry_distortion[i].distortion_score > 10) { // arbitrons
-		     CAtom *at_c = residue_p->GetAtom(rest.atom_index_centre);
-		     CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
-		     CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
-		     CAtom *at_3 = residue_p->GetAtom(rest.atom_index_3);
-		     if (at_c && at_1 && at_2 && at_3) {
-			clipper::Coord_orth pc(at_c->x, at_c->y, at_c->z);
-			clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
-			clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
-			clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
-			clipper::Coord_orth bl_1 = 0.6 * pc + 0.4 * p1;
-			clipper::Coord_orth bl_2 = 0.6 * pc + 0.4 * p2;
-			clipper::Coord_orth bl_3 = 0.6 * pc + 0.4 * p3;
-			double distortion = sqrt(fabs(gdc.geometry_distortion[i].distortion_score));
-			coot::colour_holder ch(distortion, 0.1, 5, "");
+		  CAtom *at_c = residue_p->GetAtom(rest.atom_index_centre);
+		  CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+		  CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+		  CAtom *at_3 = residue_p->GetAtom(rest.atom_index_3);
+		  if (at_c && at_1 && at_2 && at_3) {
+		     clipper::Coord_orth pc(at_c->x, at_c->y, at_c->z);
+		     clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+		     clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+		     clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+		     clipper::Coord_orth bl_1 = 0.6 * pc + 0.4 * p1;
+		     clipper::Coord_orth bl_2 = 0.6 * pc + 0.4 * p2;
+		     clipper::Coord_orth bl_3 = 0.6 * pc + 0.4 * p3;
+		     double distortion = sqrt(fabs(gdc.geometry_distortion[i].distortion_score));
+		     coot::colour_holder ch(distortion, 0.1, 5, "");
+		     to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						bl_1.x(), bl_1.y(), bl_1.z(),
+						bl_2.x(), bl_2.y(), bl_2.z());
+		     to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						bl_1.x(), bl_1.y(), bl_1.z(),
+						bl_3.x(), bl_3.y(), bl_3.z());
+		     to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						bl_2.x(), bl_2.y(), bl_2.z(),
+						bl_3.x(), bl_3.y(), bl_3.z());
+		     // return (if possible) the atom attached to
+		     // at_c that is not at_1, at_2 or at_3.
+		     CAtom *at_4th = coot::chiral_4th_atom(residue_p, at_c, at_1, at_2, at_3);
+		     if (at_4th) {
+			clipper::Coord_orth p4(at_4th->x, at_4th->y, at_4th->z);
+			clipper::Coord_orth bl_4 = 0.6 * pc + 0.4 * p4;
 			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
 						   bl_1.x(), bl_1.y(), bl_1.z(),
-						   bl_2.x(), bl_2.y(), bl_2.z());
-			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						   bl_1.x(), bl_1.y(), bl_1.z(),
-						   bl_3.x(), bl_3.y(), bl_3.z());
+						   bl_4.x(), bl_4.y(), bl_4.z());
 			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
 						   bl_2.x(), bl_2.y(), bl_2.z(),
-						   bl_3.x(), bl_3.y(), bl_3.z());
-			// return (if possible) the atom attached to
-			// at_c that is not at_1, at_2 or at_3.
-			CAtom *at_4th = coot::chiral_4th_atom(residue_p, at_c, at_1, at_2, at_3);
-			if (at_4th) {
-			   clipper::Coord_orth p4(at_4th->x, at_4th->y, at_4th->z);
-			   clipper::Coord_orth bl_4 = 0.6 * pc + 0.4 * p4;
-			   to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						      bl_1.x(), bl_1.y(), bl_1.z(),
-						      bl_4.x(), bl_4.y(), bl_4.z());
-			   to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						      bl_2.x(), bl_2.y(), bl_2.z(),
-						      bl_4.x(), bl_4.y(), bl_4.z());
-			   to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
-						      bl_3.x(), bl_3.y(), bl_3.z(),
-						      bl_4.x(), bl_4.y(), bl_4.z());
+						   bl_4.x(), bl_4.y(), bl_4.z());
+			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						   bl_3.x(), bl_3.y(), bl_3.z(),
+						   bl_4.x(), bl_4.y(), bl_4.z());
 			   
-			} 
-		     }
+		     } 
 		  }
 	       }
 	    }
