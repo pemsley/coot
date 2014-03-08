@@ -60,6 +60,8 @@ PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2);
 //
 void
 print_residue_distortions(int imol, std::string chain_id, int res_no, std::string ins_code);
+void
+display_residue_distortions(int imol, std::string chain_id, int res_no, std::string ins_code);
 
 void
 write_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::string ins_code, std::string cif_file_name);

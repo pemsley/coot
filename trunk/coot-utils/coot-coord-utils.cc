@@ -7219,3 +7219,46 @@ coot::arc_info_type::arc_info_type(CAtom *at_1, CAtom *at_2, CAtom *at_3) {
    
 }
 
+
+clipper::Coord_orth
+coot::co(CAtom *at) {
+   return clipper::Coord_orth(at->x, at->y, at->z);
+}
+
+
+
+// 
+CAtom *
+coot::chiral_4th_atom(CResidue *residue_p, CAtom *at_centre,
+		      CAtom *at_1, CAtom *at_2, CAtom *at_3) {
+
+   CAtom *rat = NULL;
+   double d_crit = 10.7;
+
+   // this is a bit heavyweight in retrospect, - I could have just
+   // used a "best-dist".  But it works.
+   // 
+   std::map<double, CAtom *> atoms;
+   
+   double d_sqrd = d_crit * d_crit;
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+   clipper::Coord_orth p_c = co(at_centre);
+   std::string alt_conf = at_centre->altLoc;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      CAtom *at = residue_atoms[iat];
+      if (at != at_centre && at != at_1 && at != at_2 && at != at_3) { 
+	 clipper::Coord_orth pt = co(at);
+	 double d = (p_c - pt).clipper::Coord_orth::lengthsq();
+	 if (d < d_crit)
+	    atoms[d] = at;
+      }
+   }
+   
+   if (atoms.size())
+      rat = atoms.begin()->second;
+
+   return rat;
+} 
+
