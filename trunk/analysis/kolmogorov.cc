@@ -116,7 +116,7 @@ nicholls::get_KS(const std::vector<double> &v1_in, const std::vector<double> &v2
    std::sort(v2.begin(),v2.end());
    unsigned int n1 = v1.size();
    unsigned int n2 = v2.size();
-   if(n1==0 || n2==0) return -1.0;
+   if (n1==0 || n2==0) return -1.0;
    double tmp = 0.0;
    double result = 0.0;
    unsigned int i = 1;
@@ -169,14 +169,14 @@ nicholls::get_KL(const std::vector<double> &v1, const std::vector<double> &v2) {
    std::vector<double> P;
    std::vector<double> Q;
    unsigned int bin_no;
-   for(unsigned int i=0; i<n1; i++){
+   for (unsigned int i=0; i<n1; i++){
       bin_no = (unsigned int) floor(v1[i]/BIN_SIZE);
       while (P.size()<=bin_no) {
 	 P.push_back(0.0);
       }
       P[bin_no] += SCALE1;
    }
-   for(unsigned int i=0; i<n2; i++){
+   for (unsigned int i=0; i<n2; i++){
       bin_no = (unsigned int)floor(v2[i]/BIN_SIZE);
       while(Q.size()<=bin_no){
 	 Q.push_back(0.0);

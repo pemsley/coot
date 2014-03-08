@@ -3989,7 +3989,7 @@ molecule_class_info_t::fill_raster_model_info() {
       }
       // restore bond_box_type
       if (restore_bonds) {
-        bonds_box_type == coot::NORMAL_BONDS;
+        bonds_box_type = coot::NORMAL_BONDS;
         makebonds();
       }
 
