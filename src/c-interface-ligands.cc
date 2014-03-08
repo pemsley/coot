@@ -2565,12 +2565,148 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 		   << "   sum of angle distortions penalties:  " << sum_penalties_angles << "\n"
 		   << "   average bond  distortion penalty:    " << av_penalty_bond  << "\n"
 		   << "   average angle distortion penalty:    " << av_penalty_angle << "\n"
-		   << "   total distortion penalty:            " << sum_penalties_bonds+sum_penalties_angles << "\n"
+		   << "   total distortion penalty:            " << sum_penalties_bonds+sum_penalties_angles
+		   << "\n"
 		   << "   average distortion penalty:          " << av_penalty_total
 		   << std::endl;
       }
    }
-} 
+}
+
+// Returning void ATM.  We should return an interesting object at some
+// stage. Perhaps a coot::geometry_distortion_info_container_t?
+//
+void
+display_residue_distortions(int imol, std::string chain_id, int res_no, std::string ins_code) {
+
+   if (! is_valid_model_molecule(imol)) {
+      std::cout << "Not a valid model molecule " << imol << std::endl;
+   } else {
+      graphics_info_t g;
+      CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      if (! residue_p) {
+	 std::cout << "Residue not found in molecule " << imol << " "
+		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
+      } else { 
+	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
+	 if (gdc.geometry_distortion.size()) {
+
+	    std::string name = std::string("Ligand Distortion of ");
+	    name += residue_p->GetChainID();
+	    name += " ";
+	    name += coot::util::int_to_string(residue_p->GetSeqNum());
+	    name += " ";
+	    name += residue_p->GetResName();
+	    int new_obj = new_generic_object_number(name.c_str());
+	    for (unsigned int i=0; i<gdc.geometry_distortion.size(); i++) {
+	       coot::simple_restraint &rest = gdc.geometry_distortion[i].restraint;
+	       if (rest.restraint_type == coot::BOND_RESTRAINT) {
+		  CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+		  CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+		  if (at_1 && at_2) {
+		     clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+		     clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+		     double d = sqrt((p2-p1).lengthsq());
+		     double distortion = d - rest.target_value;
+		     double pen_score = fabs(distortion/rest.sigma);
+		     coot::colour_holder ch(distortion, 0.1, 5, "");
+		     to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						p1.x(), p1.y(), p1.z(),
+						p2.x(), p2.y(), p2.z());
+		  }
+	       }
+
+	       if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
+		  CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+		  CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+		  CAtom *at_3 = residue_p->GetAtom(rest.atom_index_3);
+		  if (at_1 && at_2 && at_3) {
+		     clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+		     clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+		     clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+		     double angle_rad = clipper::Coord_orth::angle(p1, p2, p3);
+		     double angle = clipper::Util::rad2d(angle_rad);
+		     double distortion = fabs(angle - rest.target_value);
+		     coot::colour_holder ch(distortion, 0.1, 5, "");
+
+		     try {
+			float radius = 0.5;
+			float radius_inner = 0.06;
+			coot::arc_info_type angle_info(at_1, at_2, at_3);
+			to_generic_object_add_arc(new_obj, ch.hex().c_str(),
+						  radius, radius_inner,
+						  angle_info.start,
+						  angle_info.end,
+						  angle_info.start_point.x(),
+						  angle_info.start_point.y(),
+						  angle_info.start_point.z(),
+						  angle_info.start_dir.x(),
+						  angle_info.start_dir.y(),
+						  angle_info.start_dir.z(),
+						  angle_info.normal.x(),
+						  angle_info.normal.y(),
+						  angle_info.normal.z());
+		     }
+		     catch (std::runtime_error rte) {
+			std::cout << "WARNING:: " << rte.what() << std::endl;
+		     }
+		  }
+	       }
+	       if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+		  if (gdc.geometry_distortion[i].distortion_score > 10) { // arbitrons
+		     CAtom *at_c = residue_p->GetAtom(rest.atom_index_centre);
+		     CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+		     CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+		     CAtom *at_3 = residue_p->GetAtom(rest.atom_index_3);
+		     if (at_c && at_1 && at_2 && at_3) {
+			clipper::Coord_orth pc(at_c->x, at_c->y, at_c->z);
+			clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+			clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+			clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+			clipper::Coord_orth bl_1 = 0.6 * pc + 0.4 * p1;
+			clipper::Coord_orth bl_2 = 0.6 * pc + 0.4 * p2;
+			clipper::Coord_orth bl_3 = 0.6 * pc + 0.4 * p3;
+			double distortion = sqrt(fabs(gdc.geometry_distortion[i].distortion_score));
+			coot::colour_holder ch(distortion, 0.1, 5, "");
+			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						   bl_1.x(), bl_1.y(), bl_1.z(),
+						   bl_2.x(), bl_2.y(), bl_2.z());
+			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						   bl_1.x(), bl_1.y(), bl_1.z(),
+						   bl_3.x(), bl_3.y(), bl_3.z());
+			to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						   bl_2.x(), bl_2.y(), bl_2.z(),
+						   bl_3.x(), bl_3.y(), bl_3.z());
+			// return (if possible) the atom attached to
+			// at_c that is not at_1, at_2 or at_3.
+			CAtom *at_4th = coot::chiral_4th_atom(residue_p, at_c, at_1, at_2, at_3);
+			if (at_4th) {
+			   clipper::Coord_orth p4(at_4th->x, at_4th->y, at_4th->z);
+			   clipper::Coord_orth bl_4 = 0.6 * pc + 0.4 * p4;
+			   to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						      bl_1.x(), bl_1.y(), bl_1.z(),
+						      bl_4.x(), bl_4.y(), bl_4.z());
+			   to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						      bl_2.x(), bl_2.y(), bl_2.z(),
+						      bl_4.x(), bl_4.y(), bl_4.z());
+			   to_generic_object_add_line(new_obj, ch.hex().c_str(), 2,
+						      bl_3.x(), bl_3.y(), bl_3.z(),
+						      bl_4.x(), bl_4.y(), bl_4.z());
+			   
+			} 
+		     }
+		  }
+	       }
+	    }
+	    set_display_generic_object(new_obj, 1);
+	    graphics_draw();
+	 }
+      }
+   }
+}
+
+
+
 
 
 void

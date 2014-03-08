@@ -151,6 +151,26 @@ coot::colour_holder::colour_holder(const std::string &hex_colour_string) {
    } 
 }
 
+// // dum is a holder for a colour map selection.
+// // 
+coot::colour_holder::colour_holder(double value, double min_z, double max_z,
+				   const std::string &dum) {
+
+   float this_z = value;
+   float range = max_z - min_z;
+   float f = (this_z-min_z)/range;
+   if (f > 1.0) f = 1.0;
+   if (f < 0.0) f = 0.0;
+
+   blue = 0.0;
+   blue = 0.25 - (f-0.5)*(f-0.5);
+   red = pow(f, 0.2);
+   green = pow(1 - f, 0.2);
+
+} 
+
+
+
 std::ostream&
 coot::operator<< (std::ostream& s, const coot::colour_holder &ch) {
 

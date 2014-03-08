@@ -129,7 +129,9 @@ namespace coot {
    // 
    // double torsion() do this by making an atom_quad.
 
-
+   // must be a valid pointer.
+   clipper::Coord_orth co(CAtom *at);
+   
    class lsq_range_match_info_t {
    public:
       int model_number_reference; // usually 0, meaning unset.
@@ -488,6 +490,13 @@ namespace coot {
       bool move_moving_residue();
    };
 
+   // Return the 4th atom attached to at_centre that is not any of the arguments.
+   // Checked by sane distance.  Return the closes atom.
+   // 
+   // Can return null if no close atoms.
+   // 
+   CAtom *chiral_4th_atom(CResidue *residue_p, CAtom *at_centre,
+			  CAtom *at_1, CAtom *at_2, CAtom *at_3);
 
    namespace util {
 

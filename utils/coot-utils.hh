@@ -170,6 +170,8 @@ namespace coot {
 	 blue = 0.5;
       }
       colour_holder(const std::string &hex_colour_string);
+      colour_holder(double value, double min, double max,
+		    const std::string &dum); // somewhere between green and red
       std::string hex() const;
       friend std::ostream& operator<< (std::ostream& s, const colour_holder &ch);
    };
