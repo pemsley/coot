@@ -107,7 +107,9 @@ namespace coot {
       clipper::Coord_orth tf (const coot::node_info &ni) const {
 	 if (ni.symm_trans_needed_flag == 0) { 
 	    return atoms[ni.index].pos;
-	 }
+	 } else {
+	    clipper::Coord_orth(0,0,0); // 20140308 : make compiler happy.
+	 } 
       }
 
 //       short int is_possible_ca_c_n_c(const std::vector<std::vector<coot::node_info> > &t,

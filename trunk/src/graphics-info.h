@@ -3795,7 +3795,7 @@ string   static std::string sessionid;
      int found_index = -1;
 
      if (0) // debug
-       for (unsigned int i=0; i<restraints_editors.size(); i++) 
+       for (unsigned int i=0; i<restraints_editors.size(); i++) { 
 	 if (restraints_editors[i].is_valid()) 
 	   std::cout << " debug:: in get_restraints_editor() a stored restraints editor number "
 		     << i << " of " << restraints_editors.size() << ": "
@@ -3805,8 +3805,9 @@ string   static std::string sessionid;
 	   std::cout << " debug:: in get_restraints_editor() a stored restraints editor number "
 		     << i << " of " << restraints_editors.size() << ": "
 		     << "NULL" << std::endl;
+       }
 
-
+     
      for (unsigned int i=0; i<restraints_editors.size(); i++) { 
        if (restraints_editors[i].is_valid()) { 
          if (restraints_editors[i].matches_dialog(w)) { 

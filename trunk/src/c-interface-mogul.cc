@@ -338,7 +338,7 @@ coot::on_mogul_bonds_selection_changed(GtkTreeSelection *treeselection,
       for (unsigned int i=0; i<mmres_p->n_atoms(); i++) {
 	 const minimol::atom &at = mmres_p->atoms[i];
 	 if (at.name == atom_id_1) {
-	    pos_1 == at.pos;
+	    pos_1 = at.pos;
 	    x  = at.pos.x();
 	    y  = at.pos.y();
 	    zz = at.pos.z();
@@ -482,7 +482,7 @@ coot::on_mogul_angles_selection_changed(GtkTreeSelection *treeselection,
       for (unsigned int i=0; i<mmres_p->n_atoms(); i++) {
 	 const minimol::atom &at = mmres_p->atoms[i];
 	 if (at.name == atom_id_1) {
-	    pos_1 == at.pos;
+	    pos_1 = at.pos;
 	    x  = at.pos.x();
 	    y  = at.pos.y();
 	    zz = at.pos.z();
