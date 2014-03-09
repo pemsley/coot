@@ -680,7 +680,8 @@ lbg_info_t::clear_and_redraw(const lig_build::pos_t &delta) {
       render_from_molecule(new_mol);
       update_descriptor_attributes();
    } else {
-      std::cout << "==== delta is zero path ==== " << std::endl;
+      // this path gets called when the "Env Residues" button is pressed.
+      // std::cout << "==== delta is zero path ==== " << std::endl;
       widgeted_molecule_t saved_mol = mol;
       render_from_molecule(saved_mol);
       update_descriptor_attributes();

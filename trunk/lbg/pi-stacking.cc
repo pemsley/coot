@@ -9,7 +9,8 @@
 #include "geometry/protein-geometry.hh"
 #include "coot-utils/residue-and-atom-specs.hh"
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#include "lidia-core/use-rdkit.hh"
+// #include "lidia-core/use-rdkit.hh"
+#include "lidia-core/rdkit-interface.hh"
 #endif
 #include "pi-stacking.hh"
 
@@ -160,22 +161,24 @@ coot::pi_stacking_container_t::get_aromatic_ring_list(const RDKit::ROMol &mol_in
    RDKit::RWMol mol(mol_in);
    RDKit::MolOps::cleanUp(mol);
    RDKit::MolOps::setAromaticity(mol);
+
+   // coot::debug_rdkit_molecule(&mol);
    
    std::vector<std::vector<std::string> > ring_list;
    RDKit::RingInfo *ri = mol.getRingInfo(); // don't delete 
    if (! ri->isInitialized()) {
    } else {
       const std::vector<std::vector<int> > &bond_rings = ri->bondRings();
-      std::cout << "==== found " << bond_rings.size() << " bond rings" << std::endl;
       for (unsigned int ibr=0; ibr<bond_rings.size(); ibr++) {
 	 bool all_aromatic = true;
-	 for (unsigned int ib=0; ib<bond_rings[ibr].size(); ib++) { 
-	    if (! mol.getBondWithIdx(ib)->getIsAromatic()) {
+	 for (unsigned int ib=0; ib<bond_rings[ibr].size(); ib++) {
+	    const RDKit::Bond *bond_p = mol.getBondWithIdx(bond_rings[ibr][ib]);
+	    if (! bond_p->getIsAromatic()) {
 	       all_aromatic = false;
 	    }
 	    
-	    int idx_1 = mol.getBondWithIdx(ib)->getBeginAtomIdx();
-	    int idx_2 = mol.getBondWithIdx(ib)->getEndAtomIdx();
+	    int idx_1 = bond_p->getBeginAtomIdx();
+	    int idx_2 = bond_p->getEndAtomIdx();
 	    std::string at_name_1;
 	    std::string at_name_2;
 
@@ -187,24 +190,41 @@ coot::pi_stacking_container_t::get_aromatic_ring_list(const RDKit::ROMol &mol_in
 	       std::cout << "kee " << kee.what() << std::endl;
 	       
 	    } 
-
-	    std::cout << "   " << bond_rings[ibr][ib]
-		      << at_name_1 << " " << at_name_2 << " ("
-		      << mol.getBondWithIdx(ib)->getIsAromatic() << ")";
 	 }
-	 std::cout << std::endl;
+	 // std::cout << std::endl;
 
 	 
 	 if (all_aromatic) {
-	    std::cout << "That was an aromatic ring" << std::endl;
 	    std::vector<std::string> ring_atom_names;
 	    for (unsigned int ib=0; ib<bond_rings[ibr].size(); ib++) {
-	       int idx_1 = mol.getBondWithIdx(ib)->getBeginAtomIdx();
-	       int idx_2 = mol.getBondWithIdx(ib)->getEndAtomIdx();
+	       const RDKit::Bond *bond_p = mol.getBondWithIdx(bond_rings[ibr][ib]);
+	       int idx_1 = bond_p->getBeginAtomIdx();
+	       int idx_2 = bond_p->getEndAtomIdx();
+	       std::string at_name_1;
+	       std::string at_name_2;
+	       try { 
+		  mol[idx_1]->getProp("name", at_name_1);
+		  mol[idx_2]->getProp("name", at_name_2);
+	       }
+	       catch (const KeyErrorException &kee) {
+		  // std::cout << "kee " << kee.what() << std::endl;
+	       }
+	       if (!at_name_1.empty() && !at_name_2.empty()) {
+		  if (std::find(ring_atom_names.begin(),
+				ring_atom_names.end(),
+				at_name_1) == ring_atom_names.end())
+		     ring_atom_names.push_back(at_name_1);
+		  if (std::find(ring_atom_names.begin(),
+				ring_atom_names.end(),
+				at_name_2) == ring_atom_names.end())
+		     ring_atom_names.push_back(at_name_2);
+	       }
 	    }
+	    if (ring_atom_names.size() > 0)
+	       ring_list.push_back(ring_atom_names);
 	 } 
       }
-   } 
+   }
    return ring_list;
 }
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
