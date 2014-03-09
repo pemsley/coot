@@ -3186,6 +3186,16 @@ coot::dictionary_residue_restraints_t::get_ligand_ring_list() const {
    return ring_list;
 }
 
+bool
+coot::dictionary_residue_restraints_t::ligand_has_aromatic_bonds_p() const {
+
+   for (unsigned int irest=0; irest<bond_restraint.size(); irest++)
+      if (bond_restraint[irest].type() == "aromatic")
+	 return true;
+   return false;
+}
+
+
 std::vector<std::vector<std::string> >
 coot::dictionary_residue_restraints_t::get_ligand_aromatic_ring_list() const {
 

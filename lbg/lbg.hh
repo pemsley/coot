@@ -53,14 +53,13 @@
 
 #include "lidia-core/lig-build.hh"
 #include "lidia-core/lbg-molfile.hh"
-
-// #include "some-coot-utils.hh"
 #include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 #include "wmolecule.hh"
 
-#include "coot-utils/coot-coord-utils.hh"
 #include "flev-annotations.hh"
+#include "pi-stacking.hh"
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "graphics-c-interface-functions.hh"

@@ -72,12 +72,14 @@ namespace coot {
 						       const protein_geometry &geom,
 						       float water_dist_max,
 						       float h_bond_dist_max);
-   
+
+#ifdef VERY_OLD_FLEV_FUNCTIONS // don't compile (because putting pi_stacking_container_t into headers is tricky)
    void write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 			  const std::vector<coot::fle_ligand_bond_t> &bonds_to_ligand,
 			  const std::vector<coot::solvent_exposure_difference_helper_t> &sed,
 			  const pi_stacking_container_t &stacking,
 			  CResidue *res_flat);
+#endif    
 
    bool standard_residue_name_p(const std::string &rn);
 

@@ -22,6 +22,11 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "lidia-core/use-rdkit.hh"
+#endif 
+
+
 #include "testing.hh"
 
 #ifdef BUILT_IN_TESTING
@@ -71,7 +76,10 @@
 
 #ifdef HAVE_CCP4SRS
 #include <ccp4srs/ccp4srs_defs.h>
-#endif 
+#endif
+
+#include "lbg/pi-stacking.hh"
+
 
 bool close_float_p(float f1, float f2) {
 

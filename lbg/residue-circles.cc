@@ -80,27 +80,22 @@ lbg_info_t::optimise_residue_circles::optimise_residue_circles(const std::vector
       n_steps = 60;
 
    do {
-	 iter++;
-	 status = gsl_multimin_fdfminimizer_iterate (s);
+      iter++;
+      status = gsl_multimin_fdfminimizer_iterate(s);
 	 
-	 if (status)
-	    break;
+      if (status)
+	 break;
 	 
-	 status = gsl_multimin_test_gradient (s->gradient, 1e-3);
+      status = gsl_multimin_test_gradient (s->gradient, 2e-3);
 	 
-	 if (status == GSL_SUCCESS)
-	    printf ("Minimum found at:\n");
-	 
-// 	 printf ("iteration: %d %.5f %.5f %10.5f\n", int(iter),
-// 		 gsl_vector_get (s->x, 0), 
-// 		 gsl_vector_get (s->x, 1), 
-// 		 s->f);
-
+      if (status == GSL_SUCCESS)
+	 std::cout << "INFO:: Success:: Minimum found at iter " << iter << "\n";
 	 
    } while (status == GSL_CONTINUE && iter < n_steps);
 
-   std::cout << "============= terminating at iter " << iter << " with status "
-	     << status;
+   if (0) 
+      std::cout << "============= terminating at iter " << iter << " with status "
+		<< status;
    if (status == GSL_ENOPROG)
       std::cout << " NO_PROGRESS";
    std::cout << " ============ " << std::endl;
