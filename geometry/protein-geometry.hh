@@ -1127,7 +1127,7 @@ namespace coot {
    
    class energy_lib_atom {
    public:
-      enum { HB_UNASSIGNED=-1, HB_NEITHER, HB_DONOR, HB_ACCEPTOR, HB_BOTH, HB_HYDROGEN };
+      enum hb_t { HB_UNASSIGNED=-1, HB_NEITHER, HB_DONOR, HB_ACCEPTOR, HB_BOTH, HB_HYDROGEN };
       std::string type;
       realtype weight;
       int hb_type;

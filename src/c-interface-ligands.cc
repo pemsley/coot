@@ -53,6 +53,7 @@
 #include "cc-interface.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/peak-search.hh"
+#include "coot-utils/coot-h-bonds.hh"
 
 // #include "coot-compare-residues.hh"
 
@@ -2710,52 +2711,127 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 void
 write_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::string ins_code, std::string cif_file_name) {
 
-   graphics_info_t g;
-   CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
-   if (! residue_p) {
-      std::cout << "Residue not found in molecule " << imol << " "
-		<< coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
-   } else {
-      CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
-      if (mol) { 
-	 coot::dictionary_residue_restraints_t d(mol);
-	 d.write_cif(cif_file_name);
+   if (is_valid_model_molecule(imol)) { 
+      graphics_info_t g;
+      CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      if (! residue_p) {
+	 std::cout << "Residue not found in molecule " << imol << " "
+		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
+      } else {
+	 CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
+	 if (mol) { 
+	    coot::dictionary_residue_restraints_t d(mol);
+	    d.write_cif(cif_file_name);
+	 }
+	 delete mol;
       }
-      delete mol;
-   } 
+   }
 } 
 
 void 
 add_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::string ins_code) {
 
    graphics_info_t g;
-   CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
-   if (! residue_p) {
-      std::cout << "Residue not found in molecule " << imol << " "
-		<< coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
-   } else {
-      CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
-      if (mol) { 
-	 coot::dictionary_residue_restraints_t d(mol);
-	 std::cout << "INFO:: replacing restraints for type \""
-		   << d.residue_info.comp_id << "\"" << std::endl;
-	 g.Geom_p()->replace_monomer_restraints(d.residue_info.comp_id, d);
+   if (is_valid_model_molecule(imol)) { 
+      CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      if (! residue_p) {
+	 std::cout << "Residue not found in molecule " << imol << " "
+		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
+      } else {
+	 CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
+	 if (mol) { 
+	    coot::dictionary_residue_restraints_t d(mol);
+	    std::cout << "INFO:: replacing restraints for type \""
+		      << d.residue_info.comp_id << "\"" << std::endl;
+	    g.Geom_p()->replace_monomer_restraints(d.residue_info.comp_id, d);
 
-	 if (0) { 
-	    std::pair<bool, coot::dictionary_residue_restraints_t>
-	       r = g.Geom_p()->get_monomer_restraints(d.residue_info.comp_id);
-	    if (! r.first) {
-	       std::cout << "-------------------- problem retrieving restraints " << std::endl;
-	    } else {
-	       std::cout << "-------------------- got restraints " << std::endl;
-	       for (unsigned int ib=0; ib<r.second.bond_restraint.size(); ib++) {
-		  const coot::dict_bond_restraint_t &rest = r.second.bond_restraint[ib];
-		  std::cout << ib << "   " << rest.atom_id_1_4c() << " " << rest.atom_id_2_4c() << " "
-			    << rest.value_dist() << std::endl;
+	    if (0) { 
+	       std::pair<bool, coot::dictionary_residue_restraints_t>
+		  r = g.Geom_p()->get_monomer_restraints(d.residue_info.comp_id);
+	       if (! r.first) {
+		  std::cout << "-------------------- problem retrieving restraints " << std::endl;
+	       } else {
+		  std::cout << "-------------------- got restraints " << std::endl;
+		  for (unsigned int ib=0; ib<r.second.bond_restraint.size(); ib++) {
+		     const coot::dict_bond_restraint_t &rest = r.second.bond_restraint[ib];
+		     std::cout << ib << "   " << rest.atom_id_1_4c() << " " << rest.atom_id_2_4c() << " "
+			       << rest.value_dist() << std::endl;
+		  }
 	       }
 	    }
 	 }
+	 delete mol;
       }
-      delete mol;
    } 
 } 
+
+
+void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::string chain_id, int res_no,
+								std::string ins_code) {
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      if (! residue_p) {
+	 std::cout << "Residue not found in molecule " << imol << " "
+		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
+      } else {
+	 coot::h_bonds hb;
+	 CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+	 int SelHnd_lig = mol->NewSelection();
+	 mol->SelectAtoms(SelHnd_lig, 0, chain_id.c_str(),
+			  res_no, ins_code.c_str(),
+			  res_no, ins_code.c_str(),
+			  "*", "*", "*", "*");
+	 
+	 std::pair<bool, int> status = hb.check_hb_status(SelHnd_lig, mol, *g.Geom_p());
+	 if (! status.first) { 
+	    std::cout << "WARNING:: ===================== no HB status on atoms of ligand! ======="
+		      << "=========" << std::endl;
+	 } else {
+	    // happy path
+	    std::string name = "HB Acceptor/Donor/Both/H for ";
+	    name += residue_p->GetChainID();
+	    name += " ";
+	    name += coot::util::int_to_string(residue_p->GetSeqNum());
+	    name += " ";
+	    name += residue_p->GetInsCode();
+	    coot::generic_display_object_t features_obj(name);
+	    PPCAtom residue_atoms = 0;
+	    int n_residue_atoms;
+	    mol->GetSelIndex(SelHnd_lig, residue_atoms, n_residue_atoms);
+	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	       CAtom *at = residue_atoms[iat];
+	       int hb_type = coot::energy_lib_atom::HB_UNASSIGNED;
+	       at->GetUDData(status.second, hb_type);
+	       if (hb_type != coot::energy_lib_atom::HB_UNASSIGNED) { 
+		  clipper::Coord_orth centre = coot::co(at);
+		  coot::generic_display_object_t::sphere_t sphere(centre, 0.5);
+		  if (hb_type == coot::energy_lib_atom::HB_DONOR) {
+		     sphere.col = coot::colour_t(0.2, 0.6, 0.7);
+		  } 
+		  if (hb_type == coot::energy_lib_atom::HB_ACCEPTOR) {
+		     sphere.col = coot::colour_t(0.8, 0.2, 0.2);
+		  } 
+		  if (hb_type == coot::energy_lib_atom::HB_BOTH) {
+		     sphere.col = coot::colour_t(0.8, 0.2, 0.8);
+		  } 
+		  if (hb_type == coot::energy_lib_atom::HB_HYDROGEN) {
+		     sphere.radius = 0.35;
+		  }
+		  if (hb_type == coot::energy_lib_atom::HB_DONOR    ||
+		      hb_type == coot::energy_lib_atom::HB_ACCEPTOR ||
+		      hb_type == coot::energy_lib_atom::HB_BOTH     ||
+		      hb_type == coot::energy_lib_atom::HB_HYDROGEN) { 
+		     features_obj.spheres.push_back(sphere);
+		  }
+	       }
+	    }
+	    features_obj.is_displayed_flag = true;
+	    g.generic_objects_p->push_back(features_obj);
+	    graphics_draw();
+	 }
+	 mol->DeleteSelection(SelHnd_lig);
+      }
+   }
+} 
+

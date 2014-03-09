@@ -207,12 +207,9 @@ void chemical_features::show(const RDKit::ROMol &rdkm, std::string name) {
       RDKit::FeatSPtr feat_ptr = *it;
       boost::shared_ptr<RDKit::MolChemicalFeature> sp = *it;
       RDGeom::Point3D pos = sp.get()->getPos();
-      // std::cout << "feature pos: " << pos << std::endl;
       clipper::Coord_orth centre(pos.x, pos.y, pos.z);
       coot::generic_display_object_t::sphere_t sphere(centre, 0.5);
       std::string family = sp.get()->getFamily();
-      // std::cout << "family: " << sp.get()->getFamily() << std::endl;
-      // std::cout << "   type: " << sp.get()->getType() << std::endl;
       coot::colour_t col;
       if (family == "Hydrophobe")
 	 col = coot::colour_t(0.4, 0.6, 0.4);
@@ -273,7 +270,6 @@ void chemical_features::show(const RDKit::ROMol &rdkm, std::string name) {
    }
    g.generic_objects_p->push_back(features_obj);
    // this is hacky.
-   int iobj = g.generic_objects_p->size() -1;
    g.generic_objects_p->back().is_displayed_flag = true;
 }
 

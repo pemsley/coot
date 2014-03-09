@@ -978,8 +978,12 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
       
       coot::h_bonds hb;
       // std::vector<coot::h_bond> hbonds = hb.get(SelHnd_lig, SelHnd_all, m.second, geom);
-      std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, m.second, geom,
-								      h_bond_dist_max);
+      std::pair<bool, int> status = hb.check_hb_status(SelHnd_lig, m.second, geom);
+      if (! status.first)
+	 std::cout << "WARNING:: ===================== no HB status on atoms of ligand! ======="
+		   << "=========" << std::endl;
+      std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, m.second,
+								      geom, h_bond_dist_max);
 
       if (debug)
 	 std::cout << "DEBUG:: get_fle_ligand_bonds from h_bonds class found "

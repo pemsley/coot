@@ -352,7 +352,7 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManage
 	       at_1->GetUDData(hb_type_udd_handle, hb_type_1);
 	       at_2->GetUDData(hb_type_udd_handle, hb_type_2);
 
-	       if (0)
+	       if (0) // checking this? Are the types HB_UNASSIGNED?
 		  std::cout << "debug:: in get_mcdonald_and_thornton() "
 			    << coot::atom_spec_t(at_1) << " "
 			    << coot::atom_spec_t(at_2) << "   "
@@ -766,3 +766,30 @@ coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, CMMDBManager *mol)
    return atom_map;
 }
 
+
+// check that some (formally, at least one) of the atoms have a
+// defined HB status (energy_lib_atom hb_t).
+// 
+// return the hb_type_udd_handle as second.
+// 
+std::pair<bool, int>
+coot::h_bonds::check_hb_status(int selhnd, CMMDBManager *mol, const protein_geometry &geom) {
+
+   bool status = false;
+   PPCAtom residue_atoms = 0;
+   int n_residue_atoms;
+
+   int hb_type = energy_lib_atom::HB_UNASSIGNED;
+   int hb_type_udd_handle = mark_donors_and_acceptors(selhnd, -1, mol, geom); // using UDD data
+
+   mol->GetSelIndex(selhnd, residue_atoms, n_residue_atoms);
+   for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      CAtom *at = residue_atoms[iat];
+      at->GetUDData(hb_type_udd_handle, hb_type);
+      if (0)
+	 std::cout << "   " << atom_spec_t(at) << " " << hb_type << std::endl;
+      if (hb_type != energy_lib_atom::HB_UNASSIGNED)
+	 status = true;
+   }
+   return std::pair<bool, int> (status, hb_type_udd_handle);
+}
