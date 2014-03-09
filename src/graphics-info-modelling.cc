@@ -2031,26 +2031,23 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 					      const std::string &res_type_in,
 					      short int immediate_addition_flag) {
 
-
+   // Calling function also does a check for a map, I think.
+   
    std::string res_type = res_type_in; // const
    int imol_map = Imol_Refinement_Map();
    if (imol_map == -1) { 
-      if (1) { 
-	 show_select_map_dialog();
-      } else { 
-	 // just shove it on without a map
-	 if (molecules[imol].has_model()) {
-	    // float phi = graphics_info_t::terminal_residue_addition_direct_phi;
-	    // float psi = graphics_info_t::terminal_residue_addition_direct_psi;
-	    CMMDBManager *orig_mol = graphics_info_t::molecules[imol].atom_sel.mol;
-	    //	    CResidue *res_new = add_terminal_residue_directly(terminus_type, res_p,
-	    // chain_id, res_type, phi, psi);
-	    CResidue *res_new = 0;
-	    CMMDBManager *new_mol = coot::util::create_mmdbmanager_from_residue(res_new);
-	    if (new_mol) { 
-	       atom_selection_container_t extra_residue_asc = make_asc(new_mol);
-	       graphics_info_t::molecules[imol].add_coords(extra_residue_asc);
-	    }
+      // just shove it on without a map
+      if (molecules[imol].has_model()) {
+	 // float phi = graphics_info_t::terminal_residue_addition_direct_phi;
+	 // float psi = graphics_info_t::terminal_residue_addition_direct_psi;
+	 CMMDBManager *orig_mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 //	    CResidue *res_new = add_terminal_residue_directly(terminus_type, res_p,
+	 // chain_id, res_type, phi, psi);
+	 CResidue *res_new = 0;
+	 CMMDBManager *new_mol = coot::util::create_mmdbmanager_from_residue(res_new);
+	 if (new_mol) { 
+	    atom_selection_container_t extra_residue_asc = make_asc(new_mol);
+	    graphics_info_t::molecules[imol].add_coords(extra_residue_asc);
 	 }
       }
    } else { 

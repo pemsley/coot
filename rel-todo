@@ -3,49 +3,39 @@
 
 ---- 
 
+   o Top right exit should not write a state file.
+
+       --no-state-file should not write a state file.
+
+    But what about starting with interactive no to state-file reading?
+
+    That also should write a state file. (user can use quick-save-as
+    if they want)
+
+   o column types are not set in mtz file written by mmcif_sfs_to_mtz().
+
+   o Conside change to configure.ac ::: 1
+
+   o in FLEV, find pi-pi stacking interactions, if needed use an
+     RDKit molecule to find aromatic systems in the ligand.
+
+   o in FLEV 2D, click on a bond -> 3d view centre to middle of those
+     2 interacting atom
+
    o Lots of testing of add other solvent molecules, jiggle-fit, in
      low-resolution maps, perhaps?
 
-   o SWIG is defined when using SWIG and SWIGIMPORTED is used when
-     imported via %import.  Change coot-utils/residue-and-atom-specs.hh 
-     http://www.swig.org/Doc1.3/Preprocessor.html
+   o Charge function in Lidia 
 
    o Update RDKit for Bill.
 
+* Done.  Needs Bill to confirm
+
    o conditional SWIG - at compile time - for ENHANCED_LIGAND.
 
-   o split out the cif parsing functions of protein-geometry.
-     also link functions to another file?
-
-
-   o test that code block at 2040 in graphics-info-modelling.cc works as expected.
-   o Program terminated with signal 11, Segmentation fault.
-    in molecule-class-info.cc
-#0  0x0000000000811a11 in molecule_class_info_t::intelligent_this_residue_mmdb_atom (this=<value optimized out>, res_p=<value optimized out>) at molecule-class-info.cc:4722
-#1  0x000000000075d80f in graphics_info_t::residue_tree_selection_func (selection=<value optimized out>, model=<value optimized out>, path=<value optimized out>, path_currently_selected=<value optimized out>, data=<value optimized out>) at graphics-info-navigation-gtk2.cc:224
-
-   o Tricky ligand problem: 4cje, use Residue -> 2D and prodrg to
-     generate restraints.  After normal "Apply" (and import) the
-     resulting ligand has hydrogens on the wrong way round.  Why
-     didn't the refinment fix this?  What is the pathology?
-
-     Hydrogens on the wrong way round like this means that the ligand
-     fitting failed.  I corrected them by hand and the ligand fitting
-     worked nicely (except a rotation round an acyl bond).
-
-     I want to see mark-up of restraints violation (not mogul).  I hope that the
-     incorrect orientation of the isobutyl should then be apparent.
-
-     Also give me a table of restraints violation for a given residue,
-     bond and angles at least (worse than xx z?).
-
-   o To explain the update to helix fitting in EM maps, we need to
-     find the distribution of (n rms) density of atom in refined maps.  
-     Maybe there is a relationship to resolution.  Try a few 100 structures. 
+* Done?  Needs to be checked - e.g. by Garib.  Maybe I can do it?
 
    o hydrogenate the N terminus of tutorial-modern, what is happening to H3?
-
-   o column types are not set in mtz file written by mmcif_sfs_to_mtz().
 
    o save_state_file() needs to write a python file when called from
      python (redefine save_save_file_py()).
@@ -61,218 +51,38 @@
 
    o add surface and ball and stick ligand to tutorial.
 
-   o hydrophobicity surface for next year.
-
-   o Remove -lXmu and see what happens.
+   o hydrophobicity surface for next year (that's 2014, right?)
 
    o Reconsider descision to disallow reading of molecules with
-     different residues but the same residue number and insetion code.
+     different residues but the same residue number and insertion code.
 
    o Don't display Save Molecule dialog if there are no molecules to save.
      Use the status bar.
 
-   o Top right exit should not write a state file.
-
-       --no-state-file should not write a state file.
-
-    But what about starting with interactive no to state-file reading?
-
-    That also should write a state file. (user can use quick-save-as
-    if they want)
-
-   o patch dictionary for chiral link restraint for NAG-ASN
-
-   o Quick notebook: (what was changed on this residue? on previous rounds?)
-
-   o drag and drop SMILES strings into lidia
-
-   o render the SMILES string in this file
-
-   o Lidia: Need atom label CH3 (or CH2) at end of bonds
-
-   o validate real metals for coordination (instead of only waters)?
-
    o Felix Frolow: (copy-residue-range-from-ncs-master-to-chains 0 "A" 1 500 (list "B" "C" "D" "E")) 
      but master chain is not A.
-
-   o What about placement of RNA rotamers?
-
-   o Change to configure.ac ::: 1
-
-   o extend lidia to represent carbohydrates. Low priority. Should be
-     done in RDKit, I think (Haworth projections)
-
-   o in FLEV, find pi-pi stacking interactions, if needed use an
-     RDKit molecule to find aromatic systems in the ligand.
-
-   o in FLEV 2D, click on a bond -> 3d view centre to middle of those
-     2 interacting atom
 
    o When (for example) with-ssmlib-prefix is specified, but the
      include/libs are not found, then we should exit configure with 
      an error
 
-   o Repeat B-form DNA in 10.5 bp, not 11.
-
    o interesting ligand series examples: 4cie..s 4cj4..5 4cje..p
-
-
-   o Bernie notes:
-
-1.) when downloading a non existing (sf) cif file I get clipper fatal
-crash. I guess this should be protected. Not sure but this may be a
-clipper issue (havent investigated further for now)
-
- >
-Reading cif file: coot-download/1ASD.cif
-CIFfile: set_cell_symm_reso_by_cif: Could not read:
-coot-download/1ASD.cif dirty
-  mmCIF file?
-terminate called after throwing an instance of 'clipper::Message_fatal'
- >
-
-2.) scheme script (now) does not download sf but coordinate cif (feature?)
-
-3.) When using an actual cif (3sdf) I get the following (clipper) error.
-Again maybe a clipper thingy (and not much further investigated - hence
-email to you):
-
- >
-Reading cif file: coot-download/3sdf.cif
-
-Program received signal SIGSEGV, Segmentation fault.
-0x00a26e34 in _fu17232___ZNSs4_Rep20_S_empty_rep_storageE ()
-     at cif_data_io.cpp:346
-346
-f_sigf_ano_i->data_import(HKL(h,k,l), x_anom
-);
-(gdb) bt
-#0  0x00a26e34 in _fu17232___ZNSs4_Rep20_S_empty_rep_storageE ()
-     at cif_data_io.cpp:346
-#1  0x00644340 in molecule_class_info_t::make_map_from_cif_generic (
-     this=0x1275dde8, imol_in=1, cif_file_name=..., SelAtom=...,
-     is_2fofc_type=0) at ../../coot/src/molecule-class-info-maps.cc:2059
-#2  0x00644955 in molecule_class_info_t::make_map_from_cif (this=0x1275dde8,
-     imol_no_in=1, cif_file_name=..., SelAtom=...)
-     at ../../coot/src/molecule-class-info-maps.cc:2034
-#3  0x00644a4d in molecule_class_info_t::make_map_from_cif (this=0x1275dde8,
-     imol_no_in=1, cif_file_name=..., imol_coords=0)
-     at ../../coot/src/molecule-class-info-maps.cc:2001
-#4  0x004bc2bb in _fu1361___ZSt4cout () at
-../../coot/src/c-interface.cc:6270
-#5  0x006e20f6 in _wrap_read_cif_data (args=0x1782f7b0)
-     at coot_wrap_python_gtk2.cc:31126
- >
-
-  * this all looks like use of the wrong library.  I tried these files
-    and it works as expected for me.
-
 
   * Wish: highlight bond/atom/angles of restraints selected in
     Restraints editor [DB via BL].
-
-   o Deal with LEU nomenclature error problem on list recently (Dirk K.).
-
-   o Fix nomenclature error hydrogens on PHE and TYR - others also?   
-
-* Done - LEUs and VALs need doing also.
-
 
    o George S. Riding atom U problem
 
 * Needs B factor from U checked.  And integrated into test/test-data.
 
 
-   o Charge function in Lidia 
-
-
-Zohar Baram
-
-I was trying to delete an atom and coot crushed with this message:
-
-
-[New Thread 16507]
-[Thread debugging using libthread_db enabled]
-Core was generated by `/software/graphics/COOT/coot-0.7-centos5/bin/coot-real'.
-Program terminated with signal 11, Segmentation fault.
-#0  0x0000000000890be1 in size (this=0x8d2a920, atom_1=..., atom_2=...) at
-/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h:591
-        in
-/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h
-#0  0x0000000000890be1 in size (this=0x8d2a920, atom_1=..., atom_2=...) at
-/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h:591
-#1  compare (this=0x8d2a920, atom_1=..., atom_2=...) at
-/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h:1927
-#2  operator==<char, std::char_traits<char>, std::allocator<char> > (this=0x8d2a920,
-atom_1=..., atom_2=...) at
-/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h:2139
-#3  operator== (this=0x8d2a920, atom_1=..., atom_2=...) at
-../coot-utils/coot-coord-utils.hh:156
-#4  molecule_class_info_t::remove_extra_bond_restraint (this=0x8d2a920, atom_1=...,
-atom_2=...) at molecule-class-info-refine.cc:46
-#5  0x00000000005fd14f in delete_extra_restraint_scm (imol=0, restraint_spec=<value
-optimized out>) at c-interface-refine.cc:607
-#6  0x0000000000680113 in _wrap_delete_extra_restraint_scm (s_0=<value optimized
-out>, s_1=0x2aaaaedf7e50) at coot_wrap_guile_gtk2.cc:19903
-#7  0x00002b4c77256f84 in deval () from
-/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
-#8  0x00002b4c77252ec0 in scm_dapply () from
-/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
-#9  0x00002b4c77252f2f in scm_apply () from
-/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
-#10 0x00002b4c77253bbc in scm_apply_1 () from
-/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
-#11 0x00000000006f0852 in graphics_info_t::run_user_defined_click_func
-(this=0x7fffad49550f) at graphics-info.cc:4983
-#12 0x000000000071ad34 in graphics_info_t::check_if_in_user_defined_define
-(this=0x7fffad49550f, event=<value optimized out>) at graphics-info-defines.cc:290
-#13 0x00000000007214b7 in graphics_info_t::check_if_in_range_defines(GdkEventButton
-*, const ._196 &) (this=0x1aa616b1, event=0x7fe4279, state=@0x1) at
-graphics-info-defines.cc:240
-#14 0x00000000006e6d1e in glarea_button_press (widget=<value optimized out>,
-event=0x9660ed0) at globjects.cc:4016
-#15 0x0000003c75953f33 in ?? () from /usr/lib64/libgtk-x11-2.0.so.0
-#16 0x0000003b7fe0bb3e in g_closure_invoke () from /lib64/libgobject-2.0.so.0
-#17 0x0000003b7fe20e23 in ?? () from /lib64/libgobject-2.0.so.0
-#18 0x0000003b7fe21f4a in g_signal_emit_valist () from /lib64/libgobject-2.0.so.0
-#19 0x0000003b7fe225f3 in g_signal_emit () from /lib64/libgobject-2.0.so.0
-#20 0x0000003c75a76a9f in ?? () from /usr/lib64/libgtk-x11-2.0.so.0
-#21 0x0000003c7594acaa in gtk_propagate_event () from /usr/lib64/libgtk-x11-2.0.so.0
-#22 0x0000003c7594be1c in gtk_main_do_event () from /usr/lib64/libgtk-x11-2.0.so.0
-#23 0x0000003c7605ffdc in ?? () from /usr/lib64/libgdk-x11-2.0.so.0
-#24 0x0000003b7f238f0e in g_main_context_dispatch () from /lib64/libglib-2.0.so.0
-#25 0x0000003b7f23c938 in ?? () from /lib64/libglib-2.0.so.0
-#26 0x0000003b7f23cd55 in g_main_loop_run () from /lib64/libglib-2.0.so.0
-#27 0x0000003c7594c307 in gtk_main () from /usr/lib64/libgtk-x11-2.0.so.0
-#28 0x0000000000528e6a in c_inner_main (closure=0x7fffad496070, argc=<value
-optimized out>, argv=0x7fffad4965d8) at c-inner-main.c:311
-#29 0x00002b4c7726dd86 in invoke_main_func () from
-/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
-#30 0x00002b4c77244aa2 in c_body () from
-/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
-#31 0x00002b4c772a94c1 in scm_c_catch () from
-/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
-#32 0x00002b4c77244e3f in scm_i_with_continuation_barrier () from
-/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
-#33 0x00002b4c77244edd in scm_c_with_continuation_barrier () from
-/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
-#34 0x00002b4c772a84c8 in scm_i_with_guile_and_parent () from
-/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
-#35 0x00002b4c772a8554 in scm_with_guile () from
-/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
-#36 0x00002b4c7726dd4b in scm_boot_guile () from
-/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
-#37 0x00000000005287d1 in c_wrapper_scm_boot_guile (argc=447092401, argv=0x7fe4279,
-pcld=0x0) at c-inner-main.c:366
-#38 0x000000000051d0a8 in main (argc=1, argv=0x7fffad4965d8) at main.cc:620
-
-   * possibly fixed by adding CAtom * -> atom spec protection
-
-   * possibly fixed by replacing with residue spec usage.
-
-
    o bundle coot.probe and coot.reduce in the binaries
 
+   o what's this: 
+
+     Ooops fixed atom dialog has gone!
+
+     (I had indeed dismissed the Fixed Atom Dialog)  
 
 -------
    is this an (mmdb) problem?
@@ -415,6 +225,230 @@ Done, code fixed. new is not needed.
      This might help the lib dependencies of the executables there.
 
 * Done.
+
+
+Zohar Baram
+
+I was trying to delete an atom and coot crushed with this message:
+
+
+[New Thread 16507]
+[Thread debugging using libthread_db enabled]
+Core was generated by `/software/graphics/COOT/coot-0.7-centos5/bin/coot-real'.
+Program terminated with signal 11, Segmentation fault.
+#0  0x0000000000890be1 in size (this=0x8d2a920, atom_1=..., atom_2=...) at
+/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h:591
+        in
+/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h
+#0  0x0000000000890be1 in size (this=0x8d2a920, atom_1=..., atom_2=...) at
+/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h:591
+#1  compare (this=0x8d2a920, atom_1=..., atom_2=...) at
+/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h:1927
+#2  operator==<char, std::char_traits<char>, std::allocator<char> > (this=0x8d2a920,
+atom_1=..., atom_2=...) at
+/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h:2139
+#3  operator== (this=0x8d2a920, atom_1=..., atom_2=...) at
+../coot-utils/coot-coord-utils.hh:156
+#4  molecule_class_info_t::remove_extra_bond_restraint (this=0x8d2a920, atom_1=...,
+atom_2=...) at molecule-class-info-refine.cc:46
+#5  0x00000000005fd14f in delete_extra_restraint_scm (imol=0, restraint_spec=<value
+optimized out>) at c-interface-refine.cc:607
+#6  0x0000000000680113 in _wrap_delete_extra_restraint_scm (s_0=<value optimized
+out>, s_1=0x2aaaaedf7e50) at coot_wrap_guile_gtk2.cc:19903
+#7  0x00002b4c77256f84 in deval () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#8  0x00002b4c77252ec0 in scm_dapply () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#9  0x00002b4c77252f2f in scm_apply () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#10 0x00002b4c77253bbc in scm_apply_1 () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#11 0x00000000006f0852 in graphics_info_t::run_user_defined_click_func
+(this=0x7fffad49550f) at graphics-info.cc:4983
+#12 0x000000000071ad34 in graphics_info_t::check_if_in_user_defined_define
+(this=0x7fffad49550f, event=<value optimized out>) at graphics-info-defines.cc:290
+#13 0x00000000007214b7 in graphics_info_t::check_if_in_range_defines(GdkEventButton
+*, const ._196 &) (this=0x1aa616b1, event=0x7fe4279, state=@0x1) at
+graphics-info-defines.cc:240
+#14 0x00000000006e6d1e in glarea_button_press (widget=<value optimized out>,
+event=0x9660ed0) at globjects.cc:4016
+#15 0x0000003c75953f33 in ?? () from /usr/lib64/libgtk-x11-2.0.so.0
+#16 0x0000003b7fe0bb3e in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#17 0x0000003b7fe20e23 in ?? () from /lib64/libgobject-2.0.so.0
+#18 0x0000003b7fe21f4a in g_signal_emit_valist () from /lib64/libgobject-2.0.so.0
+#19 0x0000003b7fe225f3 in g_signal_emit () from /lib64/libgobject-2.0.so.0
+#20 0x0000003c75a76a9f in ?? () from /usr/lib64/libgtk-x11-2.0.so.0
+#21 0x0000003c7594acaa in gtk_propagate_event () from /usr/lib64/libgtk-x11-2.0.so.0
+#22 0x0000003c7594be1c in gtk_main_do_event () from /usr/lib64/libgtk-x11-2.0.so.0
+#23 0x0000003c7605ffdc in ?? () from /usr/lib64/libgdk-x11-2.0.so.0
+#24 0x0000003b7f238f0e in g_main_context_dispatch () from /lib64/libglib-2.0.so.0
+#25 0x0000003b7f23c938 in ?? () from /lib64/libglib-2.0.so.0
+#26 0x0000003b7f23cd55 in g_main_loop_run () from /lib64/libglib-2.0.so.0
+#27 0x0000003c7594c307 in gtk_main () from /usr/lib64/libgtk-x11-2.0.so.0
+#28 0x0000000000528e6a in c_inner_main (closure=0x7fffad496070, argc=<value
+optimized out>, argv=0x7fffad4965d8) at c-inner-main.c:311
+#29 0x00002b4c7726dd86 in invoke_main_func () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#30 0x00002b4c77244aa2 in c_body () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#31 0x00002b4c772a94c1 in scm_c_catch () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#32 0x00002b4c77244e3f in scm_i_with_continuation_barrier () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#33 0x00002b4c77244edd in scm_c_with_continuation_barrier () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#34 0x00002b4c772a84c8 in scm_i_with_guile_and_parent () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#35 0x00002b4c772a8554 in scm_with_guile () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#36 0x00002b4c7726dd4b in scm_boot_guile () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#37 0x00000000005287d1 in c_wrapper_scm_boot_guile (argc=447092401, argv=0x7fe4279,
+pcld=0x0) at c-inner-main.c:366
+#38 0x000000000051d0a8 in main (argc=1, argv=0x7fffad4965d8) at main.cc:620
+
+   * possibly fixed by adding CAtom * -> atom spec protection
+
+   * possibly fixed by replacing with residue spec usage.
+
+
+   o SWIG is defined when using SWIG and SWIGIMPORTED is used when
+     imported via %import.  Change coot-utils/residue-and-atom-specs.hh 
+     http://www.swig.org/Doc1.3/Preprocessor.html
+
+* Done.
+
+   o split out the cif parsing functions of protein-geometry.
+     also link functions to another file?
+
+* Done.
+
+   o test that code block at 2040 in graphics-info-modelling.cc works as expected.
+
+* It doesn't.  do_add_terminal_residue() does a check for a map first.
+
+
+
+   o Program terminated with signal 11, Segmentation fault.
+    in molecule-class-info.cc
+#0  0x0000000000811a11 in molecule_class_info_t::intelligent_this_residue_mmdb_atom (this=<value optimized out>, res_p=<value optimized out>) at molecule-class-info.cc:4722
+#1  0x000000000075d80f in graphics_info_t::residue_tree_selection_func (selection=<value optimized out>, model=<value optimized out>, path=<value optimized out>, path_currently_selected=<value optimized out>, data=<value optimized out>) at graphics-info-navigation-gtk2.cc:224
+
+* Can't see the problem.  Didn't try hard.
+
+   o Tricky ligand problem: 4cje, use Residue -> 2D and prodrg to
+     generate restraints.  After normal "Apply" (and import) the
+     resulting ligand has hydrogens on the wrong way round.  Why
+     didn't the refinment fix this?  What is the pathology?
+
+* How much do I care really?  PRODRG is practically dead now.
+
+
+     Hydrogens on the wrong way round like this (i.e. the wrong side
+     of the chiral centre) means that the subsequent ligand
+     fitting failed.  I corrected them by hand and the ligand fitting
+     worked nicely (except a rotation round an acyl bond).
+
+     I want to see mark-up of restraints violation (not mogul).  I hope that the
+     incorrect orientation of the isobutyl should then be apparent.
+
+* It is, very clearly.
+
+     Also give me a table of restraints violation for a given residue,
+     bond and angles at least (worse than xx z?).
+
+* Done.  Useful.
+
+   o To explain the update to helix fitting in EM maps, we need to
+     find the distribution of (n rms) density of atom in refined maps.  
+     Maybe there is a relationship to resolution.  Try a few 100 structures. 
+
+Not now.
+
+   o Remove -lXmu and see what happens.
+
+* Punt.
+
+   o patch dictionary for chiral link restraint for NAG-ASN
+
+* Punt.
+
+   o Quick notebook: (what was changed on this residue? on previous rounds?)
+
+* Punt.
+
+   o drag and drop SMILES strings into lidia
+
+* Punt.
+
+   o render the SMILES string in this file
+
+* Punt
+
+   o Lidia: Need atom label CH3 (or CH2) at end of bonds
+
+* Punt
+
+   o validate real metals for coordination (instead of only waters)?
+
+* Punt http://www.ncbi.nlm.nih.gov/pubmed/24356774
+
+   o What about placement of RNA rotamers?
+
+* Punt. Tricky.
+
+   o extend lidia to represent carbohydrates. Low priority. Should be
+     done in RDKit, I think (Haworth projections)
+
+* Punt.
+
+   o Repeat B-form DNA in 10.5 bp, not 11.
+
+* Punt.
+
+
+   o Bernie notes:
+
+   1.) when downloading a non existing (sf) cif file I get clipper fatal
+   crash. I guess this should be protected. Not sure but this may be a
+   clipper issue (havent investigated further for now)
+
+
+   Reading cif file: coot-download/1ASD.cif
+   CIFfile: set_cell_symm_reso_by_cif: Could not read:
+   coot-download/1ASD.cif dirty
+     mmCIF file?
+   terminate called after throwing an instance of 'clipper::Message_fatal'
+
+* Old clipper, it seems.
+
+
+   2.) scheme script (now) does not download sf but coordinate cif (feature?)
+
+* Fixed.
+
+   3.) When using an actual cif (3sdf) I get the following (clipper) error.
+   Again maybe a clipper thingy (and not much further investigated - hence
+   email to you):
+
+   Reading cif file: coot-download/3sdf.cif
+
+   Program received signal SIGSEGV, Segmentation fault.
+   0x00a26e34 in _fu17232___ZNSs4_Rep20_S_empty_rep_storageE ()
+        at cif_data_io.cpp:346
+
+  * this all looks like use of the wrong library.  I tried these files
+    and it works as expected for me.
+
+  * I agree. :)
+
+   o Deal with LEU nomenclature error problem on list recently (Dirk K.).
+
+* Punt.
+
+   o Fix nomenclature error hydrogens on PHE and TYR - others also?   
+
+* Done - LEUs and VALs need doing also.
 
 -----
 
