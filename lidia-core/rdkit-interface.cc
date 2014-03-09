@@ -2226,7 +2226,7 @@ coot::debug_rdkit_molecule(RDKit::ROMol *rdkm) {
       int n = at_p->getAtomicNum();
       std::string element = tbl->getElementSymbol(n);
       unsigned int degree = rdkm->getAtomDegree(at_p);
-      std::cout << "   " << iat << " ele: " << element;
+      std::cout << "   " << iat << " ele: " << std::setw(2) << std::right << element;
       if (! name.empty())
 	 std::cout << " name :" << name << ":";
       std::cout << " degree: " << degree << std::endl;

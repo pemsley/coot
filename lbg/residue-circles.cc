@@ -75,7 +75,7 @@ lbg_info_t::optimise_residue_circles::optimise_residue_circles(const std::vector
    s = gsl_multimin_fdfminimizer_alloc (T, n_var);
    gsl_multimin_fdfminimizer_set (s, &my_func, x, 1, 1e-4);
    size_t iter = 0;
-   int n_steps = 250; // increase?
+   int n_steps = 400; // increase?
    if (show_dynamics)
       n_steps = 60;
 
@@ -98,17 +98,8 @@ lbg_info_t::optimise_residue_circles::optimise_residue_circles(const std::vector
 		<< status;
    if (status == GSL_ENOPROG)
       std::cout << " NO_PROGRESS";
-   std::cout << " ============ " << std::endl;
 
    for (unsigned int i=0; i<current_circles.size(); i++) {
-      if (0) {
-	 if (i==0) { 
-	    std::cout << "replacing " << current_circles[i].pos.x << " with "
-		      << gsl_vector_get(s->x, 2*i  ) << "    ";
-	    std::cout << "replacing " << current_circles[i].pos.y << " with "
-		      << gsl_vector_get(s->x, 2*i+1) << std::endl;
-	 }
-      }
       current_circles[i].pos.x = gsl_vector_get(s->x, 2*i  );
       current_circles[i].pos.y = gsl_vector_get(s->x, 2*i+1);
    }

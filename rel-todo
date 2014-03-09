@@ -12,15 +12,15 @@
     That also should write a state file. (user can use quick-save-as
     if they want)
 
-   o column types are not set in mtz file written by mmcif_sfs_to_mtz().
-
-   o Conside change to configure.ac ::: 1
-
-   o in FLEV, find pi-pi stacking interactions, if needed use an
-     RDKit molecule to find aromatic systems in the ligand.
-
    o in FLEV 2D, click on a bond -> 3d view centre to middle of those
      2 interacting atom
+
+   o column types are not set in mtz file written by mmcif_sfs_to_mtz().
+
+   o Consider change to configure.ac ::: 1
+
+   o in FLEV the carboxylate of ligand Q31 doesn't make a H-bond to
+     the mainchain.  Why not?
 
    o Lots of testing of add other solvent molecules, jiggle-fit, in
      low-resolution maps, perhaps?
@@ -449,6 +449,11 @@ Not now.
    o Fix nomenclature error hydrogens on PHE and TYR - others also?   
 
 * Done - LEUs and VALs need doing also.
+
+   o in FLEV, find pi-pi stacking interactions, if needed use an
+     RDKit molecule to find aromatic systems in the ligand.
+
+* Done. At last.  Cool.
 
 -----
 
