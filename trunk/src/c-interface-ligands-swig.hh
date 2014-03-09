@@ -63,10 +63,13 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 void
 display_residue_distortions(int imol, std::string chain_id, int res_no, std::string ins_code);
 
+void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::string chain_id, int res_no,
+								std::string ins_code);
 void
 write_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::string ins_code, std::string cif_file_name);
 void 
 add_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::string ins_code);
+
 
 
 #endif // C_INTERFACE_LIGANDS_SWIG_HH

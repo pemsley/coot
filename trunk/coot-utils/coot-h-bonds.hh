@@ -125,6 +125,14 @@ namespace coot {
       get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManager *mol,
 				const protein_geometry &geom,
 				realtype max_dist =3.9);
+
+      // Check that some (formally, at least one) of the atoms have a defined HB status
+      // (energy_lib_atom hb_t).
+      // 
+      // Return the hb_type_udd_handle as second.
+      // 
+      std::pair<bool, int>
+      check_hb_status(int selhnd, CMMDBManager *mol, const protein_geometry &geom); 
       
       class atom_sorter {
 	 CAtom *at;
