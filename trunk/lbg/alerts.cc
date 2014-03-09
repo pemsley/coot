@@ -20,13 +20,7 @@
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
-// Now this is in lbg.hh (for make check reasons) we don't need to include it here
-// #ifdef USE_PYTHON
-// #include <Python.h>
-// #endif
-
 #include "lbg.hh"
-
 
 #ifdef USE_PYTHON
 void

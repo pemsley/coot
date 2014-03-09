@@ -1,4 +1,13 @@
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#ifdef USE_PYTHON
+#ifndef HAVE_PYTHON
+#define HAVE_PYTHON
+#include <Python.h>
+#endif
+#endif 
+#endif 
+
 #include <string>
 #include <vector>
 

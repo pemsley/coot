@@ -19,7 +19,7 @@ AM_CXXFLAGS = \
 bin_PROGRAMS = lidia
 
 libcoot_lidia_la_SOURCES = lbg.cc wmolecule.cc  \
-    lbg-search.cc  residue-circles.cc \
+    lbg-search.cc  residue-circles.cc pi-stacking.cc \
     flev-annotations.cc lbg-drag-and-drop.cc qed-interface.cc alerts.cc alerts-list.cc
 
 libcoot_lidia_la_LIBADD = \

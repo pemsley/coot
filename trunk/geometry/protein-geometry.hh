@@ -593,6 +593,8 @@ namespace coot {
 
       std::vector<std::vector<std::string> > get_ligand_ring_list() const;
 
+      bool ligand_has_aromatic_bonds_p() const;
+
       std::vector<std::vector<std::string> > get_ligand_aromatic_ring_list() const;
 
       std::vector<std::string> get_attached_H_names(const std::string &atom_name) const;
