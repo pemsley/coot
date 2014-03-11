@@ -25,10 +25,16 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+
 // For reasons I don't understand, this should come near the top of
 // includes, otherwise we get RDKit dcgettext() include file problems.
 //
+// 20140311: also, we want to include pi-stacking explicitly here
+// because we need it to compile flev if we don't HAVE_GOOCANVAS
+// (pi-stacking.hh is included from lbg.hh if HAVE_GOOCANVAS).
+// 
 #include "lbg/lbg.hh"
+#include "lbg/pi-stacking.hh"
 
 #include "c-interface-ligands.hh"
 #include "coords/mmdb-extras.h"
