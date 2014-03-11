@@ -52,7 +52,6 @@
 
 #include "rgbreps.h"
 
-using namespace std;
 
 unsigned int RGBReps::GetNumberOfColours(){
   return colours.size();
@@ -61,8 +60,8 @@ unsigned int RGBReps::GetNumberOfColours(){
 std::string RGBReps::GetNameOfColour(unsigned int i){
   /* Return name of colour as in order of input file */
   if(i>=colours.size()){
-     cerr << "ERROR:: colour out of range in GetNameOfColour, returning default "
-	  << i << " " << GetNumberOfColours() << "\n";
+     std::cerr << "ERROR:: colour out of range in GetNameOfColour, returning default "
+	       << i << " " << GetNumberOfColours() << "\n";
     return std::string("default");
   }
   return colours_name_map[i];
@@ -95,8 +94,8 @@ std::vector<int>  RGBReps::GetColourNumbers(std::vector<std::string> names ) {
 std::vector<double> RGBReps::GetColour(unsigned int i){
   /* Return colours in order of input file */
   if(i>=colours.size()){
-     cerr << "ERROR in RGBReps::GetColour Warning colour out of range, returning default "
-	  << i << " " << GetNumberOfColours() << "\n";
+     std::cerr << "ERROR in RGBReps::GetColour Warning colour out of range, returning default "
+	       << i << " " << GetNumberOfColours() << "\n";
      std::vector<double> col(4); 
      col[0] = col[1] = col[2] = col[3] = 255;
     return col;
@@ -140,7 +139,7 @@ double* RGBReps::GetColourP(unsigned int i){
   /* Return colours in order of input file */
   double* col = new double[4]; 
   if(i>=colours.size()){
-    cerr << "RGBReps::GetColourP Warning colour out of range, returning default " << i << " " << GetNumberOfColours() << "\n";
+     std::cerr << "RGBReps::GetColourP Warning colour out of range, returning default " << i << " " << GetNumberOfColours() << "\n";
     col[0] = col[1] = col[2] = col[3] = 255;
     return col;
   }
@@ -155,8 +154,8 @@ std::vector<double> RGBReps::GetColourHSV(unsigned int i){
   /* Return colours in order of input file */
   std::vector <double> col(4); 
   if(i>=colours.size()){
-     cerr << "RGBReps::GetColourHSV Warning colour out of range, returning default "
-	  << i << " " << GetNumberOfColours() << "\n";
+     std::cerr << "RGBReps::GetColourHSV Warning colour out of range, returning default "
+	       << i << " " << GetNumberOfColours() << "\n";
      col[0] = col[1] = col[2] = col[3] = 255;
      return col;
   }
@@ -176,7 +175,7 @@ std::vector<double> RGBReps::GetColour(const std::string &name){
   /* Return colours BY NAME */
   
   if(string_colours[name].size()==0){
-    cerr << "RGBReps::GetColour(const std::string &name) Warning unknown colour name, returning default " << name << " " << GetNumberOfColours() << "\n";
+    std::cerr << "RGBReps::GetColour(const std::string &name) Warning unknown colour name, returning default " << name << " " << GetNumberOfColours() << "\n";
     std::vector<double> col(4); 
     col[0] = col[1] = col[2] = col[3] = 255;
     return col;
@@ -209,9 +208,9 @@ void RGBReps::SetFile(std::ifstream &infile){
   RGBReps::BuildRGBReps(infile);
 }
 
-void RGBReps::DeleteColour(string colour){
+void RGBReps::DeleteColour(std::string colour){
   if(string_colours[colour].size()==0){
-    cerr << "RGBReps::DeleteColour Warning unknown colour name, deleting nothing\n";
+    std::cerr << "RGBReps::DeleteColour Warning unknown colour name, deleting nothing\n";
     return;
   }
 
@@ -220,7 +219,7 @@ void RGBReps::DeleteColour(string colour){
   std::vector<std::string> colours_name_map_tmp;
   std::vector<std::vector<double> > colours_tmp;
 
-  vector<std::string>::const_iterator col_name_iter=colours_name_map.begin();
+  std::vector<std::string>::const_iterator col_name_iter=colours_name_map.begin();
   std::vector<std::vector<double> >::const_iterator col_iter = colours.begin();
 
   while(col_name_iter!=colours_name_map.end()){
@@ -237,17 +236,17 @@ void RGBReps::DeleteColour(string colour){
 
 }
 
-void RGBReps::ChangeColour(string colour, double r, double g, double b, double a){
+void RGBReps::ChangeColour(std::string colour, double r, double g, double b, double a){
   if(string_colours[colour].size()!=0){
     AddColour(colour,r,g,b,a);
   }else{
-    cerr << "Colour " <<  colour << " does not exist cannot change\n";
+    std::cerr << "Colour " <<  colour << " does not exist cannot change\n";
   }
 }
 
-void RGBReps::AddColour(string colour, double r, double g, double b, double a){
-  vector<double> rgba(4);
-  vector<double> hsva;
+void RGBReps::AddColour(std::string colour, double r, double g, double b, double a){
+  std::vector<double> rgba(4);
+  std::vector<double> hsva;
   rgba[0] = r;
   rgba[1] = g;
   rgba[2] = b;
@@ -263,7 +262,7 @@ void RGBReps::AddColour(string colour, double r, double g, double b, double a){
     colours_name_map.push_back(colour);
   }else{
     int i = 0;
-    vector<std::string>::const_iterator col_name_iter=colours_name_map.begin();
+    std::vector<std::string>::const_iterator col_name_iter=colours_name_map.begin();
     while(col_name_iter!=colours_name_map.end()){
       if(colour==*col_name_iter){
 	colours[i] = rgba; 
@@ -275,20 +274,20 @@ void RGBReps::AddColour(string colour, double r, double g, double b, double a){
   string_colours[colour] = rgba;
 }
 
-void RGBReps::BuildRGBReps(ifstream &infile){
+void RGBReps::BuildRGBReps(std::ifstream &infile){
 
-  string colour;
-  string red, green, blue, alpha;
+  std::string colour;
+  std::string red, green, blue, alpha;
   char buf[1024];
-  string word;
+  std::string word;
 
   colours.clear();
   string_colours.clear();
 
-  vector<double> rgba(4);
+  std::vector<double> rgba(4);
 
   while(infile.getline(buf,1024)){
-    word = string(buf);
+    word = std::string(buf);
     colour = word.substr(0,word.find(','));
     word = word.substr(word.find(',')+1);
     red = word.substr(0,word.find(','));
@@ -305,7 +304,7 @@ void RGBReps::BuildRGBReps(ifstream &infile){
     rgba[3] = atof(alpha.c_str());
     
     colours.push_back(rgba);
-    vector<double> hsva = rgbtohsv(rgba);
+    std::vector<double> hsva = rgbtohsv(rgba);
     hsv.push_back(hsva);
     string_colours[colour] = rgba;
     colours_name_map.push_back(colour);
@@ -325,14 +324,14 @@ void RGBReps::BuildRGBReps(ifstream &infile){
 std::vector<double> RGBReps::rgbtohsv ( std::vector<double> rgb) {
   //-------------------------------------------------------------------------
   double s,h,v;
-  vector<double> hsv(4);
+  std::vector<double> hsv(4);
 
   hsv[3] = rgb[3];
 
-  double maxrgb = max(rgb[0],rgb[1]);
-         maxrgb = max(maxrgb,rgb[2]);
-  double minrgb = min(rgb[0],rgb[1]);
-         minrgb = min(minrgb,rgb[2]);
+  double maxrgb = std::max(rgb[0],rgb[1]);
+         maxrgb = std::max(maxrgb,rgb[2]);
+  double minrgb = std::min(rgb[0],rgb[1]);
+         minrgb = std::min(minrgb,rgb[2]);
   
   v = maxrgb;
   double delta = maxrgb - minrgb;
@@ -444,10 +443,10 @@ double *RGBReps::rgbtohsv ( double *rgb) {
   double *hsv = new double[4];
   hsv[3] = rgb[3];
 
-  double maxrgb = max(rgb[0],rgb[1]);
-         maxrgb = max(maxrgb,rgb[2]);
-  double minrgb = min(rgb[0],rgb[1]);
-         minrgb = min(minrgb,rgb[2]);
+  double maxrgb = std::max(rgb[0],rgb[1]);
+         maxrgb = std::max(maxrgb,rgb[2]);
+  double minrgb = std::min(rgb[0],rgb[1]);
+         minrgb = std::min(minrgb,rgb[2]);
   
   v = maxrgb;
   double delta = maxrgb - minrgb;

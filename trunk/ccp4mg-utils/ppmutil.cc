@@ -161,8 +161,6 @@ static int have_tiff;
 static int have_xpm;
 #endif
 
-using namespace std;
-
 void make_little_endian(void *ptr, size_t size){
 #if defined(__osf__) || defined(linux )
   return;

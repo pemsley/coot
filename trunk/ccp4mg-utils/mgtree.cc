@@ -35,8 +35,6 @@
 #define M_PI 3.141592653589793238462643
 #endif
 
-using namespace std;
-
 int TreeVertex::FindDepth(void) const {
   TreeVertex* par;
   int depth=0;
