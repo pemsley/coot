@@ -226,19 +226,19 @@ int CXXTorusElement::upload(CXXSurface *aSurface){
 	{
 		int triangleBuffer[flatTriangles.size()*3];// = new int[flatTriangles.size()*3];
 		int nToDraw = 0;
-        list<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >::iterator trianglesEnd(flatTriangles.end());
-        for (list<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >::iterator triangle=flatTriangles.begin();
-             triangle != trianglesEnd;
-             ++triangle){
-            CXXTriangle &flatTriangle(*triangle);
-			if (flatTriangle.doDraw()){
-				for (unsigned int j=0; j<3; j++){
-					//Note the 2-j, this changes the sense of the triangle to reflect the fact that we
-					//actually visualise the inside of the torus
-					triangleBuffer[(3*nToDraw)+j] = flatTriangle[j] + oldVertexCount;
-				}
-				nToDraw++;
-			}
+		list<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >::iterator trianglesEnd(flatTriangles.end());
+		for (list<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >::iterator triangle=flatTriangles.begin();
+		     triangle != trianglesEnd;
+		     ++triangle){
+		   CXXTriangle &flatTriangle(*triangle);
+		   if (flatTriangle.doDraw()){
+		      for (unsigned int j=0; j<3; j++){
+			 //Note the 2-j, this changes the sense of the triangle to reflect the fact that we
+			 //actually visualise the inside of the torus
+			 triangleBuffer[(3*nToDraw)+j] = flatTriangle[j] + oldVertexCount;
+		      }
+		      nToDraw++;
+		   }
 		}
 		aSurface->extendTriangles(triangleBuffer, nToDraw);
 		//delete [] triangleBuffer;
@@ -256,11 +256,17 @@ void CXXTorusElement::addEdgeVertex(CXXCircleNode &aNode){
 	if (omega < omega2){
 		//This vertex falls somewhere in the range of the segment:  find which of the edgeTriagles it falls within
 		int triangleFound = 0;
-		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle> >::iterator matchingTriangle;
-		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle> >::iterator edgeTrianglesEnd = edgeTriangles.end();
-		for (list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle> >::iterator triangle = edgeTriangles.begin();
-             triangle != edgeTrianglesEnd && !triangleFound;
-             ++triangle){
+// 		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle> >::iterator matchingTriangle;
+// 		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle> >::iterator edgeTrianglesEnd = edgeTriangles.end();
+
+		// from the header:
+		// list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle *> > edgeTriangles;
+		
+		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle *> >::iterator matchingTriangle;
+		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle *> >::iterator edgeTrianglesEnd = edgeTriangles.end();
+		for (list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle *> >::iterator triangle = edgeTriangles.begin();
+		     triangle != edgeTrianglesEnd && !triangleFound;
+		     ++triangle){
 
 			CXXTriangle &theFlatTriangle(**triangle);
 			double omegaStart = nodes[theFlatTriangle[1]].getOmega();
