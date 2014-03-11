@@ -15,6 +15,9 @@
    o in FLEV 2D, click on a bond -> 3d view centre to middle of those
      2 interacting atom
 
+   o in findwaters, allow the user to change the distance limits: 
+     set_water_to_protein_distance_limits()
+
    o column types are not set in mtz file written by mmcif_sfs_to_mtz().
 
    o Consider change to configure.ac ::: 1

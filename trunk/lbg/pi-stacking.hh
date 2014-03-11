@@ -1,4 +1,7 @@
 
+#ifndef PI_STACKING_HH
+#define PI_STACKING_HH
+
 namespace coot {
 
    class pi_stacking_instance_t {
@@ -105,3 +108,5 @@ namespace coot {
    };
 
 }
+
+#endif // PI_STACKING_HH
