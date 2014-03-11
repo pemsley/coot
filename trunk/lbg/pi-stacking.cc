@@ -583,6 +583,7 @@ coot::pi_stacking_container_t::ring_atom_names(const std::string &residue_name) 
 
    if ((residue_name == "DA") ||   // or RNA equivalent
        (residue_name == "Ad") ||
+       (residue_name == "A") ||
        (residue_name == "Ar")) { 
       std::vector<std::string> v;
       v.push_back(" C5 ");
@@ -602,6 +603,7 @@ coot::pi_stacking_container_t::ring_atom_names(const std::string &residue_name) 
        
    if ((residue_name == "DG") ||   // or RNA equivalent
        (residue_name == "Gd") ||
+       (residue_name == "G") ||
        (residue_name == "Gr")) { 
       std::vector<std::string> v;
       v.push_back(" C5 ");
@@ -620,6 +622,7 @@ coot::pi_stacking_container_t::ring_atom_names(const std::string &residue_name) 
    }
 
    if ((residue_name == "DC") ||   // or RNA equivalent
+       (residue_name == "C") ||
        (residue_name == "Cd") ||
        (residue_name == "Cr")) { 
       std::vector<std::string> v;
@@ -633,6 +636,33 @@ coot::pi_stacking_container_t::ring_atom_names(const std::string &residue_name) 
    }
    
    if ((residue_name == "DT") ||   // or RNA equivalent
+       (residue_name == "Td") ||
+       (residue_name == "Tr")) { 
+      std::vector<std::string> v;
+      v.push_back(" N1 ");
+      v.push_back(" C2 ");
+      v.push_back(" N3 ");
+      v.push_back(" C4 ");
+      v.push_back(" C5 ");
+      v.push_back(" C6 ");
+      v_outer.push_back(v);
+   }
+
+   if ((residue_name == "DU") ||   // or RNA equivalent
+       (residue_name == "U") ||
+       (residue_name == "Ud") ||
+       (residue_name == "Ur")) { 
+      std::vector<std::string> v;
+      v.push_back(" N1 ");
+      v.push_back(" C2 ");
+      v.push_back(" N3 ");
+      v.push_back(" C4 ");
+      v.push_back(" C5 ");
+      v.push_back(" C6 ");
+      v_outer.push_back(v);
+   }
+   if ((residue_name == "DT") ||   // or RNA equivalent
+       (residue_name == "T") ||
        (residue_name == "Td") ||
        (residue_name == "Tr")) { 
       std::vector<std::string> v;
