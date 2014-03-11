@@ -3483,7 +3483,7 @@ int cns_file_has_phases_p(const char *cns_file_name) {
 	 std::cout << "WARNING:: oops! failed to open " << cns_file_name << std::endl;
       } else { 
 	 char buf[4096];
-	 for ( int i = 0; i < 4096; i++ ) buf[i] = toupper(fgetc(file));
+	 for ( int i = 0; i < 4096; i++ ) buf[i] = std::toupper(fgetc(file));
 	 fclose( file );
 	 buf[4095] = 0;
 	 if ( strstr( buf, "ALPHA" ) != NULL && strstr( buf, "BETA"  ) != NULL &&
