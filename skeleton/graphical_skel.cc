@@ -11,8 +11,6 @@
 
 #include "graphical_skel.h"
 
-using namespace std; 
-
 // 
 graphical_bonds_container
 GraphicalSkel::make_graphical_bonds(const clipper::Xmap<float> &map,
@@ -222,7 +220,7 @@ GraphicalSkel::Pprune(const clipper::Xmap<float> &map,
    while (n_skelled != 0) {
       level++; 
       n_skelled = Ptip_convert(map, l1, level, cut_off);
-      cout << "n_skelled: " << n_skelled << " at level " << level << endl;
+      std::cout << "n_skelled: " << n_skelled << " at level " << level << std::endl;
    }
 
    // now convert the stuff that didn't already get moved

@@ -83,9 +83,6 @@
 #include "c-interface.h" // for the mapview callback in button_press()
 
 
-using namespace std;
-
-
 void
 coot::rama_plot::init(int imol_in, const std::string &mol_name_in, float level_prefered, float level_allowed, float block_size, short int is_kleywegt_plot_flag_in) {
 
@@ -2129,7 +2126,7 @@ coot::rama_plot::draw_axes() {
    canvas_item_vec.push_back(item);
 
    // Ticks
-   vector<canvas_tick_t> pnts;
+   std::vector<canvas_tick_t> pnts;
 
    // x axis
    pnts.push_back(canvas_tick_t(0,-180.0,180.0));
@@ -2173,7 +2170,7 @@ coot::rama_plot::draw_axes() {
 
    // x axis
 
-   vector<int> tick_text;
+   std::vector<int> tick_text;
    tick_text.push_back(-180); 
    tick_text.push_back(-120); 
    tick_text.push_back(-60); 
@@ -2238,24 +2235,24 @@ coot::rama_plot::rama_get_mmdb_manager(std::string pdb_name) {
 
    MMDBManager = new CMMDBManager;
 
-   cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
+   std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
    err = MMDBManager->ReadCoorFile((char *)pdb_name.c_str());
    
    if (err) {
       // does_file_exist(pdb_name.c_str());
-      cout << "There was an error reading " << pdb_name.c_str() << ". \n";
-      cout << "ERROR " << err << " READ: "
-	   << GetErrorDescription(err) << endl;
+      std::cout << "There was an error reading " << pdb_name.c_str() << ". \n";
+      std::cout << "ERROR " << err << " READ: "
+		<< GetErrorDescription(err) << std::endl;
       //
       // This makes my stomach churn too. Sorry.
       // 
       MMDBManager->GetInputBuffer(error_buf, error_count);
       if (error_count >= 0) { 
-	 cout << "         LINE #" << error_count << "\n     "
-	      << error_buf << endl << endl;
+	 std::cout << "         LINE #" << error_count << "\n     "
+		   << error_buf << std::endl << std::endl;
       } else {
 	 if (error_count == -1) { 
-	    cout << "       CIF ITEM: " << error_buf << endl << endl;
+	    std::cout << "       CIF ITEM: " << error_buf << std::endl << std::endl;
 	 }
       }
 
@@ -2264,16 +2261,16 @@ coot::rama_plot::rama_get_mmdb_manager(std::string pdb_name) {
       // we read the coordinate file OK.
       //
       switch (MMDBManager->GetFileType())  {
-      case MMDB_FILE_PDB    :  cout << " PDB"         ;
+      case MMDB_FILE_PDB    :  std::cout << " PDB"         ;
 	 break;
-      case MMDB_FILE_CIF    :  cout << " mmCIF"       ; 
+      case MMDB_FILE_CIF    :  std::cout << " mmCIF"       ; 
 	 break;
-      case MMDB_FILE_Binary :  cout << " MMDB binary" ;
+      case MMDB_FILE_Binary :  std::cout << " MMDB binary" ;
 	 break;
       default:
-	 cout << " Unknown (report as a bug!)\n";
+	 std::cout << " Unknown (report as a bug!)\n";
       }
-      cout << " file " << pdb_name.c_str() << " has been read.\n";
+      std::cout << " file " << pdb_name.c_str() << " has been read.\n";
    }
    
     return MMDBManager;

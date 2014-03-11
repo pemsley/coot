@@ -1,9 +1,6 @@
 
 #include <iostream>
 
-using namespace std; 
-
-
 // fortran indexing.  The (key and ptr) arrays need to be of size
 // n+1, since we use key[n].
 //
@@ -18,7 +15,7 @@ shsorti(float *key, int *ptr, int n) {
    int p1, p2; 
 
    while (l<n) l *=2;
-   cout << "l set to " << l << endl;
+   std::cout << "l set to " << l << std::endl;
       
    while (l > 1) {
       l /= 2;
@@ -30,8 +27,8 @@ shsorti(float *key, int *ptr, int n) {
 
 	    if (key[p2] >= key[p1]) break;
 	    
-	    cout << "assigning ptr [" << i1 << "] as " << p2 << endl;
-	    cout << "assigning ptr [" << i2 << "] as " << p1 << endl;
+	    std::cout << "assigning ptr [" << i1 << "] as " << p2 << std::endl;
+	    std::cout << "assigning ptr [" << i2 << "] as " << p1 << std::endl;
 	    ptr[i1] = p2;
 	    ptr[i2] = p1;
 	 }
