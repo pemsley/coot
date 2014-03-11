@@ -42,8 +42,6 @@
 #include <string.h>  // strncpy
 #include <sys/types.h>  // for stating
 #include <sys/stat.h>
-#include <ctype.h>  // for toupper
-
 
 #include <iostream>
 #include <vector>
@@ -3602,7 +3600,7 @@ molecule_class_info_t::assign_fasta_sequence(const std::string &chain_id, const 
       // std::cout << "checking character: " << seq_in[i] << std::endl;
 
       if (found_newline && found_greater) {
-	 t = toupper(seq_in[i]);
+	 t = std::toupper(seq_in[i]);
 	 if (is_fasta_aa(t)) {
 	    // 	    std::cout << "adding character: " << seq_in[i] << std::endl;
 	    seq += t;
@@ -3651,7 +3649,7 @@ molecule_class_info_t::assign_pir_sequence(const std::string &chain_id, const st
       // std::cout << "checking character: " << seq_in[i] << std::endl;
 
       if (found_newline && found_greater && found_textdescr) {
-	 t = toupper(seq_in[i]);
+	 t = std::toupper(seq_in[i]);
 	 if (is_pir_aa(t)) {
 	    // 	    std::cout << "adding character: " << seq_in[i] << std::endl;
 	    seq += t;
