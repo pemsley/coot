@@ -18,6 +18,7 @@ compare_dictionaries(const std::string &type,
 		     double angle_tolerance,
 		     double angle_esd_tolerance,
 		     bool compare_hydrogens,
+		     bool output_energy_types,
 		     bool quiet) {
 
    int status = 0;
@@ -48,6 +49,11 @@ compare_dictionaries(const std::string &type,
 	 status = 1;
       } else {
 	 // Happy path
+
+	 if (output_energy_types)
+	    std::cout << "Comparing dictionaries:: " << file_name_1 << " vs. " << file_name_2
+		      << std::endl;
+
 	 //
 	 // if compare_status is true, they matched.
 	 bool compare_status = r1.second.compare(r2.second,
@@ -56,6 +62,7 @@ compare_dictionaries(const std::string &type,
 						 angle_tolerance,
 						 angle_esd_tolerance,
 						 compare_hydrogens,
+						 output_energy_types,
 						 quiet);
 	 status = !compare_status; // invert for unix return value (0 happy)
       }
@@ -74,6 +81,7 @@ void print_help(std::string cmd) {
       "        --bond-length-esd-tol\n" << 
       "        --angle-tol\n" << 
       "        --angle-esd-tol\n" << 
+      "        --full     output comp_ids, filename and energy types also\n" << 
       "        --include-hydrogens (default: geometry excludes hydrogens)\n" << 
       std::endl;
    
@@ -84,6 +92,7 @@ int main(int argc, char **argv) {
    int status = 0;
    bool quiet = false;
    bool compare_hydrogens = false;
+   bool output_energy_types = false; // and comp_id
 
    if (argc < 4) {
       print_help(argv[0]);
@@ -104,6 +113,7 @@ int main(int argc, char **argv) {
 	 {"Hs",    0, 0, 0},
 	 {"help",    0, 0, 0},
 	 {"quiet",   0, 0, 0},
+	 {"full",    0, 0, 0},
 	 {"type",    1, 0, 0},
 	 {"dict-1",  1, 0, 0},
 	 {"dict-2",  1, 0, 0},
@@ -178,6 +188,9 @@ int main(int argc, char **argv) {
 	       if (arg_str == "Hs") { 
 		  compare_hydrogens = true;
 	       }
+	       if (arg_str == "full") { 
+		  output_energy_types = true;
+	       }
 	    }
 	    break;
 
@@ -202,6 +215,7 @@ int main(int argc, char **argv) {
 					     angle_tolerance,
 					     angle_esd_tolerance,
 					     compare_hydrogens,
+					     output_energy_types,
 					     quiet);
 	    }
 	 }

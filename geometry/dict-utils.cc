@@ -14,7 +14,11 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 					       double angle_tolerance,
 					       double angle_esd_tolerance,
 					       bool compare_hydrogens,
+					       bool output_energy_types,
 					       bool quiet) const {
+
+   std::cout << "debug:: using bond_length_tolerance " << bond_length_tolerance << std::endl;
+   std::cout << "debug:: using angle_tolerance       " << angle_tolerance << std::endl;
 
    std::map<std::string, bool> hydrogen_status;
    for (unsigned int iat=0; iat<atom_info.size(); iat++) {
@@ -32,45 +36,49 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 		<< r.residue_info.comp_id << "\"" << std::endl;
       residue_info_matches = false;
    }
+   std::string comp_id_s;
+   if (output_energy_types)
+      comp_id_s = std::string(" ") + residue_info.comp_id + std::string(" ");
+   
    if (r.residue_info.three_letter_code != residue_info.three_letter_code) {
-      std::cout << "Residue-Info:: mismatch three_letter_code "
+      std::cout << "Residue-Info:: " << comp_id_s << " mismatch three_letter_code "
 		<< residue_info.three_letter_code << " vs "
 		<< r.residue_info.three_letter_code
 		<< std::endl;
       residue_info_matches = false;
    }
    if (r.residue_info.name != residue_info.name) {
-      std::cout << "Residue-Info:: mismatch name \""
+      std::cout << "Residue-Info:: " << comp_id_s << " mismatch name \""
 		<< residue_info.name << "\" vs \"" << r.residue_info.name << "\""
 		<< std::endl;
       residue_info_matches = false;
    }
    if (r.residue_info.group != residue_info.group) {
-      std::cout << "Residue-Info:: mismatch group "
+      std::cout << "Residue-Info:: " << comp_id_s << " mismatch group "
 		<< residue_info.group << " vs " << r.residue_info.group << std::endl;
       residue_info_matches = false;
    }
    if (compare_hydrogens) { 
       if (r.residue_info.number_atoms_all != residue_info.number_atoms_all) {
-	 std::cout << "Residue-Info:: mismatch number_atoms_all "
+	 std::cout << "Residue-Info:: " << comp_id_s << " mismatch number_atoms_all "
 		   << residue_info.number_atoms_all << " " << r.residue_info.number_atoms_all
 		   << std::endl;
 	 residue_info_matches = false;
       }
    }
    if (r.residue_info.number_atoms_nh != residue_info.number_atoms_nh) {
-      std::cout << "Residue-Info:: mismatch number_atoms_nh "
+      std::cout << "Residue-Info:: " << comp_id_s << " mismatch number_atoms_nh "
 		<< residue_info.number_atoms_nh << " " << r.residue_info.number_atoms_nh
 		<< std::endl;
       residue_info_matches = false;
    }
    if (residue_info_matches)
       if (! quiet)
-	 std::cout << "Residue-Info::     all residue attributes match " << std::endl;
+	 std::cout << "Residue-Info:: " << comp_id_s << "     all residue attributes match " << std::endl;
 
    // atom info
    if (atom_info.size() != r.atom_info.size()) {
-      std::cout << "Atom-Info:: mismatch number of atoms " << atom_info.size() << " vs "
+      std::cout << "Atom-Info:: " << comp_id_s << " mismatch number of atoms " << atom_info.size() << " vs "
 	 << r.atom_info.size() << std::endl;
    }
    for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
@@ -83,13 +91,13 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	    const std::string &atom_id_test = r.atom_info[jat].atom_id;
 	    if (atom_id_test == atom_id_refr) {
 	       if (atom_info[iat].type_symbol != r.atom_info[jat].type_symbol) {
-		  std::cout << "Atom-Info:: " << atom_id_refr << " type_symbol mismatch "
+		  std::cout << "Atom-Info:: " << comp_id_s << " " << atom_id_refr << " type_symbol mismatch "
 			    << atom_info[iat].type_symbol << " vs "
 			    << r.atom_info[jat].type_symbol << " "
 			    << std::endl;
 	       }
 	       if (atom_info[iat].type_energy != r.atom_info[jat].type_energy) {
-		  std::cout << "Atom-Info:: " << atom_info[iat].atom_id_4c
+		  std::cout << "Atom-Info:: " << comp_id_s << " " << atom_info[iat].atom_id_4c
 			    << " type_energy mismatch "
 			    << atom_info[iat].type_energy << " vs "
 			    << r.atom_info[jat].type_energy << " "
@@ -105,7 +113,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    std::vector<bond_mismatch_t> bond_length_mismatches;
    std::vector<bond_mismatch_t> bond_esd_mismatches;
    if (bond_restraint.size() != r.bond_restraint.size())
-      std::cout << "Bond-Restraint:: mismatch number of restraints "
+      std::cout << "Bond-Restraint:: " << comp_id_s << " mismatch number of restraints "
 		<< bond_restraint.size() << " " << r.bond_restraint.size()
 		<< std::endl;
    bool bonds_match = true;
@@ -128,7 +136,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	    std::string up_1 = coot::util::upcase(type_1);
 	    std::string up_2 = coot::util::upcase(type_2);
 	    if (up_1 != up_2) {
-	       std::cout << "Bond-Restraint:: mismatch bond order  between "
+	       std::cout << "Bond-Restraint:: " << comp_id_s << " mismatch bond order  between "
 			 << bond_restraint[ib].atom_id_1() << " "
 			 << bond_restraint[ib].atom_id_2() << " "
 			 << bond_restraint[ib].type() << " vs "
@@ -146,7 +154,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    std::cout << std::internal;
    
    for (unsigned int ib=0; ib<bond_length_mismatches.size(); ib++) {
-      if (bond_length_mismatches[ib].abs_diff > bond_length_tolerance) {
+      if (bond_length_mismatches[ib].abs_diff >= bond_length_tolerance) {
 	 bool at_1_is_hydrogen = false;
 	 bool at_2_is_hydrogen = false;
 	 std::map<std::string, bool>::const_iterator it_1, it_2;
@@ -156,13 +164,19 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	 if (it_2 != hydrogen_status.end()) at_2_is_hydrogen = it_2->second;
 	 
 	 if (compare_hydrogens || (!at_1_is_hydrogen && !at_2_is_hydrogen)) { 
-	    std::cout << "Bond-Restraint:: mismatch bond length between     "
+	    std::cout << "Bond-Restraint:: " << comp_id_s << " mismatch bond length between     "
 		      << bond_length_mismatches[ib].atom_id_1 << " "
 		      << bond_length_mismatches[ib].atom_id_2 << "  "
 		      << bond_length_mismatches[ib].dist_1 << " vs "
 		      << bond_length_mismatches[ib].dist_2 << "  delta: ";
 	    std::cout.width(6);
-	    std::cout << bond_length_mismatches[ib].diff << "\n";
+	    std::cout << std::right << bond_length_mismatches[ib].diff;
+	    if (output_energy_types)
+	       std::cout << " " << std::left << std::setw(4)
+			 << r.type_energy(bond_length_mismatches[ib].atom_id_1)
+			 << " " << std::setw(4)
+			 << r.type_energy(bond_length_mismatches[ib].atom_id_2);
+	    std::cout << "\n";
 	    bonds_match = false;
 	 }
       }
@@ -177,7 +191,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	 if (it_1 != hydrogen_status.end()) at_1_is_hydrogen = it_1->second;
 	 if (it_2 != hydrogen_status.end()) at_2_is_hydrogen = it_2->second;
 	 if (compare_hydrogens || (!at_1_is_hydrogen && !at_2_is_hydrogen)) { 
-	    std::cout << "Bond-Restraint:: mismatch bond length esd between "
+	    std::cout << "Bond-Restraint:: " << comp_id_s << " mismatch bond length esd between "
 		      << bond_esd_mismatches[ib].atom_id_1 << " "
 		      << bond_esd_mismatches[ib].atom_id_2 << "  "
 		      << bond_esd_mismatches[ib].dist_1 << " vs "
@@ -190,13 +204,13 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    }
    if (bonds_match)
       if (! quiet)
-	 std::cout << "Bond-Restraint::   all bonds  match within tolerance "
+	 std::cout << "Bond-Restraint:: " << comp_id_s << "   all bonds  match within tolerance "
 		   << std::endl;
 
    // -------------------------  angle restraints -------------------
    // 
    if (angle_restraint.size() != r.angle_restraint.size())
-      std::cout << "Angle-Restraint:: mismatch number of restraints "
+      std::cout << "Angle-Restraint:: " << comp_id_s << " mismatch number of restraints "
 		<< angle_restraint.size() << " " << r.angle_restraint.size()
 		<< std::endl;
    std::vector<angle_mismatch_t> angle_mismatches;
@@ -241,14 +255,22 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	    
 	 if (compare_hydrogens || (!at_1_is_hydrogen && !at_2_is_hydrogen && !at_3_is_hydrogen)) { 
 	 
-	    std::cout << "Angle-Restraint:: mismatch angle between     "
+	    std::cout << "Angle-Restraint:: " << comp_id_s << " mismatch angle between     "
 		      << angle_mismatches[ia].atom_id_1 << " "
 		      << angle_mismatches[ia].atom_id_2 << "  "
 		      << angle_mismatches[ia].atom_id_3 << "  "
 		      << angle_mismatches[ia].angle_1 << " vs "
 		      << angle_mismatches[ia].angle_2 << "  delta: ";
 	    std::cout.width(6);
-	    std::cout << angle_mismatches[ia].diff << "\n";
+	    std::cout << std::right << angle_mismatches[ia].diff;
+	    if (output_energy_types)
+	       std::cout << " " << std::left << std::setw(4)
+			 << r.type_energy(angle_mismatches[ia].atom_id_1)
+			 << " " << std::setw(4)
+			 << r.type_energy(angle_mismatches[ia].atom_id_2)
+			 << " " << std::setw(4)
+			 << r.type_energy(angle_mismatches[ia].atom_id_3);
+	    std::cout << "\n";
 	    angles_match = false;
 	 }
       }
@@ -269,7 +291,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	    
 	 if (compare_hydrogens || (!at_1_is_hydrogen && !at_2_is_hydrogen && !at_3_is_hydrogen)) { 
 	 
-	    std::cout << "Angle-Restraint:: mismatch angle esd between "
+	    std::cout << "Angle-Restraint:: " << comp_id_s << " mismatch angle esd between "
 		      << angle_esd_mismatches[ia].atom_id_1 << " "
 		      << angle_esd_mismatches[ia].atom_id_2 << "  "
 		      << angle_esd_mismatches[ia].atom_id_3 << "  "
@@ -286,7 +308,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 
    if (angles_match)
       if (! quiet)
-	 std::cout << "Angle-Restraint::  all angles match within tolerance "
+	 std::cout << "Angle-Restraint:: " << comp_id_s << "  all angles match within tolerance "
 		   << std::endl;
 
    // ------------------------- torsion restraints -------------------
@@ -294,7 +316,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    // ------------------------- chiral restraints -------------------
    // 
    if (chiral_restraint.size() != r.chiral_restraint.size())
-      std::cout << "Chiral-Restraint:: mismatch number of restraints "
+      std::cout << "Chiral-Restraint:: " << comp_id_s << " mismatch number of restraints "
 		<< chiral_restraint.size() << " " << r.chiral_restraint.size()
 		<< std::endl;
    bool chirals_match = true;
@@ -303,7 +325,8 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	 if (chiral_restraint[i].matches_names(r.chiral_restraint[j])) {
 	    if (chiral_restraint[i].is_a_both_restraint() !=
 		r.chiral_restraint[j].is_a_both_restraint()) {
-	       std::cout << "Chiral-Restraint:: id " << chiral_restraint[i].Chiral_Id()
+	       std::cout << "Chiral-Restraint:: " << comp_id_s << " id "
+			 << chiral_restraint[i].Chiral_Id()
 			 << " mismatch 'both' type " 
 			 << chiral_restraint[i].volume_sign << " vs "
 			 << r.chiral_restraint[j].volume_sign
@@ -312,7 +335,8 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	    } else {
 	       if (chiral_restraint[i].volume_sign !=
 		   r.chiral_restraint[j].volume_sign) {
-		  std::cout << "Chiral-Restraint:: id " << chiral_restraint[i].Chiral_Id()
+		  std::cout << "Chiral-Restraint:: " << comp_id_s << " id "
+			    << chiral_restraint[i].Chiral_Id()
 			    << " mismatch volume sign " 
 			    << chiral_restraint[i].volume_sign << " vs "
 			    << r.chiral_restraint[j].volume_sign
@@ -325,12 +349,13 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    }
    if (chirals_match)
       if (! quiet)
-	 std::cout << "Chiral-Restraint:: all chiral restraints match" << std::endl;
+	 std::cout << "Chiral-Restraint:: " << comp_id_s << " all chiral restraints match"
+		   << std::endl;
    
 
    // -------------------------  plane restraints -------------------
    if (plane_restraint.size() != r.plane_restraint.size())
-      std::cout << "Plane-Restraint:: mismatch number of restraints "
+      std::cout << "Plane-Restraint:: " << comp_id_s << " mismatch number of restraints "
 		<< plane_restraint.size() << " " << r.plane_restraint.size()
 		<< std::endl;
    bool planes_match = false;
@@ -346,7 +371,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       if (matched_this_plane) {
 	 n_planes_matched++;
       } else { 
-	 std::cout << "Plane-Restraint:: no match for plane restraints "
+	 std::cout << "Plane-Restraint:: " << comp_id_s << " no match for plane restraints "
 		   << plane_restraint[i].plane_id << std::endl;
       }
    }
@@ -356,9 +381,9 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    //
    if (planes_match) {
       if (! quiet)
-	 std::cout << "Plane-Restraint::  all plane restraints match" << std::endl;
+	 std::cout << "Plane-Restraint:: " << comp_id_s << "  all plane restraints match" << std::endl;
    } else {
-      std::cout << "Plane-Restraint:: plane restraints do not match" << std::endl;
+      std::cout << "Plane-Restraint:: " << comp_id_s << " plane restraints do not match" << std::endl;
    }
 
 
@@ -368,10 +393,12 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    double sum = 0;
    double max_pos_diff = 0;
    double max_neg_diff = 0;
+   double sum_fabs = 0;
    if (bond_length_mismatches.size() > 0) { 
       for (unsigned int ib=0; ib<bond_length_mismatches.size(); ib++) { 
 	 sum      += bond_length_mismatches[ib].diff;
 	 sum_sqrd += bond_length_mismatches[ib].diff * bond_length_mismatches[ib].diff;
+	 sum_fabs += bond_length_mismatches[ib].abs_diff;
 	 if (bond_length_mismatches[ib].diff > 0) { 
 	    if (bond_length_mismatches[ib].diff > max_pos_diff)
 	       max_pos_diff = bond_length_mismatches[ib].diff;
@@ -382,16 +409,18 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       }
       double inv_N = 1.0/double(bond_length_mismatches.size());
       double average = sum * inv_N;
+      double mean_fabs = sum_fabs * inv_N;
       double var     = sum_sqrd * inv_N - average * average;
       if (var < 0) var = 0;
       std::cout << "\nBond Length Difference Statistics Summary::\n";
-      std::cout << "            Mean:         " << std::setw(6) << average      << " A\n";
-      std::cout << "            Std. Dev:     " << std::setw(6) << sqrt(var)    << " A\n";
+      std::cout << "            Mean:           " << std::setw(6) << average      << " A\n";
+      std::cout << "            Std. Dev:       " << std::setw(6) << sqrt(var)    << " A\n";
+      std::cout << "            Mean Abs Values " << std::setw(6) << mean_fabs    << " A\n";
       std::cout << std::right;
-      std::cout << "            Max Pos Diff: ";
+      std::cout << "            Max Pos Diff:   ";
       std::cout.width(6); // affects the next thing written out
       std::cout << max_pos_diff << " A\n";
-      std::cout << "            Max Neg Diff: ";
+      std::cout << "            Max Neg Diff:   ";
       std::cout.width(6);
       std::cout << max_neg_diff << " A\n";
    }
