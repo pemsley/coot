@@ -624,6 +624,7 @@ namespace coot {
 		   double angle_tolerance,
 		   double angle_esd_tolerance,
 		   bool compare_hydrogens=false,
+		   bool output_energy_types=false,
 		   bool quiet=false) const;
       
    };
