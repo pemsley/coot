@@ -3,6 +3,11 @@
 
 ---- 
 
+   o Jim Brannigan wants to see alt conf phi/psi angles in Residue Info.
+
+   o in FLEV 2D, click on a bond -> 3d view centre to middle of those
+     2 interacting atom
+
    o Top right exit should not write a state file.
 
        --no-state-file should not write a state file.
@@ -11,9 +16,6 @@
 
     That also should write a state file. (user can use quick-save-as
     if they want)
-
-   o in FLEV 2D, click on a bond -> 3d view centre to middle of those
-     2 interacting atom
 
    o in findwaters, allow the user to change the distance limits: 
      set_water_to_protein_distance_limits()
@@ -24,6 +26,9 @@
 
    o in FLEV the carboxylate of ligand Q31 doesn't make a H-bond to
      the mainchain.  Why not?
+
+* Done.  Now the question is why the chemical features on the
+  carboxylate are asymmetric.  undelocalize()?
 
    o Lots of testing of add other solvent molecules, jiggle-fit, in
      low-resolution maps, perhaps?
