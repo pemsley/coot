@@ -339,6 +339,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 		     // ----------- residue infos ----------
 		     // 
 		     coot::pi_stacking_container_t pi_stack_info(p.second, filtered_residues, res_ref);
+		     
 #ifdef VERY_OLD_FLEV_FUNCTIONS		     
 		     write_fle_centres(centres, bonds_to_ligand, sed, pi_stack_info, flat_res);
 #endif		     
@@ -560,6 +561,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 		  //
 		  coot::pi_stacking_container_t
 		     pi_stack_info(p.second, filtered_residues, res_ref, rdkm);
+
 		     
 		  // ----------- ligand atom infos ------
 		  // 

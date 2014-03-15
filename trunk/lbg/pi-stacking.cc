@@ -74,7 +74,7 @@ coot::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t 
 
 	    if (debug) {
 	       std::string res_name(residues[ires]->GetResName());
-	       std::cout << "==== Environment residue " << coot::residue_spec_t(residues[ires])
+	       std::cout << "   ==== Environment residue " << coot::residue_spec_t(residues[ires])
 			 << " " << res_name << std::endl;
 	    }
 
@@ -85,7 +85,7 @@ coot::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t 
 	       get_pi_overlap_to_ligand_ring(residues[ires], ligand_ring_pi_pts.second);
 
 	    if (debug) 
-	       std::cout << "   protein cation:ligand ring: Overlaps:  score "
+	       std::cout << "    protein cation:ligand ring: Overlaps:  score "
 			 << pi_overlap_1.first << " type: " << pi_overlap_1.second << "  score: "
 			 << pi_overlap_2.first << " type: " << pi_overlap_2.second << std::endl;
 
@@ -277,15 +277,33 @@ coot::pi_stacking_container_t::get_ligand_cations(CResidue *res_ref,
 	 // how many bonds does this N have?
 	 int n_bonds = 0;
 	 std::string atom_name(residue_atoms[iat]->name);
-	 for (unsigned int ibond=0; ibond<monomer_restraints.bond_restraint.size(); ibond++) { 
-	    if ((monomer_restraints.bond_restraint[ibond].atom_id_1_4c() == atom_name) || (monomer_restraints.bond_restraint[ibond].atom_id_2_4c() == atom_name)) {
-	       if (monomer_restraints.bond_restraint[ibond].type() == "single")
-		  n_bonds++;
-	       if (monomer_restraints.bond_restraint[ibond].type() == "double")
-		  n_bonds += 2;
-	       if (monomer_restraints.bond_restraint[ibond].type() == "triple")
-		  n_bonds += 3;
-	    } 
+	 for (unsigned int ibond=0; ibond<monomer_restraints.bond_restraint.size(); ibond++) {
+	    const dict_bond_restraint_t &br = monomer_restraints.bond_restraint[ibond];
+	    if (br.atom_id_1_4c() == atom_name) { 
+	       std::string other_atom_name = br.atom_id_2_4c();
+	       CAtom *at = res_ref->GetAtom(other_atom_name.c_str());
+	       if (at) { 
+		  if (br.type() == "single")
+		     n_bonds++;
+		  if (br.type() == "double")
+		     n_bonds += 2;
+		  if (br.type() == "triple")
+		     n_bonds += 3;
+	       }
+	    }
+
+	    if (br.atom_id_2_4c() == atom_name) {
+	       std::string other_atom_name = br.atom_id_1_4c();
+	       CAtom *at = res_ref->GetAtom(other_atom_name.c_str());
+	       if (at) { 
+		  if (br.type() == "single")
+		     n_bonds++;
+		  if (br.type() == "double")
+		     n_bonds += 2;
+		  if (br.type() == "triple")
+		     n_bonds += 3;
+	       }
+	    }
 	 }
 
 	 if (n_bonds > 3) { // i.e. 4
@@ -637,6 +655,7 @@ coot::pi_stacking_container_t::ring_atom_names(const std::string &residue_name) 
    
    if ((residue_name == "DT") ||   // or RNA equivalent
        (residue_name == "Td") ||
+       (residue_name == "T") ||
        (residue_name == "Tr")) { 
       std::vector<std::string> v;
       v.push_back(" N1 ");
@@ -738,8 +757,14 @@ coot::pi_stacking_container_t::overlap_of_cation_pi(const clipper::Coord_orth &l
 
 std::ostream&
 coot::operator<<(std::ostream& s, const pi_stacking_instance_t &stack) {
-
-   s << "[" << stack.type << " " << coot::residue_spec_t(stack.res) << " "
+   
+   std::string st_type = "UNKNOWN";
+   if (stack.type == pi_stacking_instance_t::NO_STACKING)        st_type = "NO_STACKING";
+   if (stack.type == pi_stacking_instance_t::PI_PI_STACKING)     st_type = "PI_PI_STACKING";
+   if (stack.type == pi_stacking_instance_t::PI_CATION_STACKING) st_type = "PI_CATION_STACKING";
+   if (stack.type == pi_stacking_instance_t::CATION_PI_STACKING) st_type = "CATION_PI_STACKING";
+   
+   s << "[" << st_type << " " << coot::residue_spec_t(stack.res) << " "
      << stack.overlap_score << " ligand-atom-name :"
      <<  stack.ligand_cationic_atom_name
      << ": ";

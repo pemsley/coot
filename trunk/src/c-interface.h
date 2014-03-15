@@ -6968,7 +6968,7 @@ int sprout_hydrogens(int imol, const char *chain_id, int res_no, const char *ins
 
 
 /*  ----------------------------------------------------------------------- */
-/*               LSQ-improve               */
+/*               LSQ-improve                                                */
 /*  ----------------------------------------------------------------------- */
 /*! \name LSQ-improve */
 /* \{ */
@@ -6992,9 +6992,9 @@ void lsq_improve(int imol_ref, const char *ref_selection,
 
 /*  ----------------------------------------------------------------------- */
 /* Multirefine interface (because in guile-gtk there is no way to
-		    insert toolbuttons into the toolbar) so this
-		    rather kludgy interface.  It should go when we
-		    move to guile-gnome, I think. */
+   insert toolbuttons into the toolbar) so this
+   rather kludgy interface.  It should go when we
+   move to guile-gnome, I think.                                            */
 /*  ----------------------------------------------------------------------- */
 void toolbar_multi_refine_stop();
 void toolbar_multi_refine_continue();
@@ -7008,7 +7008,7 @@ void toolbar_multi_refine_button_set_sensitive(const char *button_type, short in
 
 
 /*  ----------------------------------------------------------------------- */
-/*                         single-model view */
+/*                         single-model view                                */
 /*  ----------------------------------------------------------------------- */
 /*! \name single-model view */
 /* \{ */
@@ -7038,7 +7038,7 @@ int single_model_view_prev_model_number(int imol);
 void run_update_self_maybe(); /* called when --update-self given at command line */
 
 /*  ----------------------------------------------------------------------- */
-/*                    keyboarding mode  */
+/*                    keyboarding mode                                      */
 /*  ----------------------------------------------------------------------- */
 void show_go_to_residue_keyboarding_mode_window();
 void    handle_go_to_residue_keyboarding_mode(const gchar *text);
