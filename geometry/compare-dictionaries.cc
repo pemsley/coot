@@ -103,9 +103,9 @@ int main(int argc, char **argv) {
       std::string file_name_2;
 
       double bond_length_tolerance = 0.01;
-      double bond_esd_tolerance    = 0.005;
-      double angle_tolerance       = 0.3;
-      double angle_esd_tolerance   = 0.15;
+      double bond_esd_tolerance    = 0.01;
+      double angle_tolerance       = 1;
+      double angle_esd_tolerance   = 1;
       
       const char *optstr = "q";
       struct option long_options[] = {
