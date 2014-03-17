@@ -70,7 +70,7 @@ coot::util::emma::sfs_from_boxed_molecule(CMMDBManager *mol_orig, float border) 
 				     z_range + 2*border, nr, nr, nr);
       cell = clipper::Cell(cell_descr);
       spacegroup = clipper::Spacegroup::p1();
-      reso = clipper::Resolution(2.0);
+      reso = clipper::Resolution(3.0);
 
       // calculate structure factors
       hkl_info = clipper::HKL_info(spacegroup, cell, reso);
@@ -131,7 +131,7 @@ void
 coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
 
    // sfs from map
-   clipper::Resolution reso(2.5);
+   clipper::Resolution reso(3);
    clipper::HKL_info hkl_info(xmap.spacegroup(), xmap.cell(), reso);
    hkl_info.generate_hkl_list();
    clipper::HKL_data< clipper::datatypes::F_phi<double> > map_fphidata(hkl_info);
@@ -285,7 +285,7 @@ void
 coot::util::emma::overlap_simple(const clipper::Xmap<float> &xmap) const {
 
    // sfs from map
-   clipper::Resolution reso(2.0);
+   clipper::Resolution reso(3.0);
    clipper::HKL_info hkl_info(xmap.spacegroup(), xmap.cell(), reso);
    hkl_info.generate_hkl_list();
    clipper::HKL_data< clipper::datatypes::F_phi<double> > map_fphidata(hkl_info);

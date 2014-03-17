@@ -403,9 +403,9 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	       mapout.close_write();
 	       
 	       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-	       coot::util::emma sphd(mol, 15); // 5 is border
-	       // sphd.overlap_simple(mf.xmap);
-	       sphd.overlap(mf.xmap);
+	       coot::util::emma sphd(mol, 5); // 5 is border
+	       sphd.overlap_simple(mf.xmap);
+	       // sphd.overlap(mf.xmap);
 	    }
 	 }
       }
