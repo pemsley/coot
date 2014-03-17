@@ -57,7 +57,7 @@ int mmcif_sfs_to_mtz(const char *cif_file_name, const char *mtz_out_file_name) {
    clipper::CIFfile cif;
 
    try { 
-      cif.open_read (cif_file_name);
+      cif.open_read(cif_file_name);
       cif.import_hkl_info(hkl_info);
       cif.import_hkl_data(f_sigf);
       cif.import_hkl_data(f_sigf_anom);
@@ -81,8 +81,8 @@ int mmcif_sfs_to_mtz(const char *cif_file_name, const char *mtz_out_file_name) {
 	    mtz.open_write(mtz_out_file_name);
 	    mtz.export_hkl_info(hkl_info);
 
-	    std::cout << ":::::::::::::::::::::::::: debug:: i_sigi and free_r_flags num obs "
-		      << i_sigi.num_obs() << " " << free_r_flags.num_obs() << std::endl;
+// 	    std::cout << ":::::::::::::::::::::::::: debug:: i_sigi and free_r_flags num obs "
+// 		      << i_sigi.num_obs() << " " << free_r_flags.num_obs() << std::endl;
 	    if (i_sigi.num_obs())
 	       mtz.export_hkl_data(i_sigi,       "/*/*/I" );
 	    if (i_sigi_anom.num_obs())
