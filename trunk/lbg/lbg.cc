@@ -3200,6 +3200,11 @@ lbg_info_t::write_pdf(const std::string &file_name) const {
    std::pair<lig_build::pos_t, lig_build::pos_t> extents = mol.ligand_extents();
    double pos_x = (extents.second.x + 220.0);
    double pos_y = (extents.second.y + 220.0);
+
+   if (key_group) {
+      pos_y += 240;
+      pos_x += 50;
+   } 
    surface = cairo_pdf_surface_create(file_name.c_str(), pos_x, pos_y);
    cr = cairo_create (surface);
 
@@ -3230,8 +3235,8 @@ lbg_info_t::write_png(const std::string &file_name) {
    // goo_canvas_update(GOO_CANVAS(canvas));
    // render_from_molecule(mol);
    
-   int size_x = (int)extents.second.x + 220; // or so... (ideally should reside circle-based).
-   int size_y = (int)extents.second.y + 220;
+   int size_x = int(extents.second.x) + 220; // or so... (ideally should reside circle-based).
+   int size_y = int(extents.second.y) + 220;
    
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size_x, size_y);
    cairo_t *cr = cairo_create (surface);
@@ -5404,6 +5409,18 @@ lbg_info_t::get_residue_circle_colour(const std::string &residue_type) const {
       stroke_colour = blue;
    if (residue_type == "HIS")
       stroke_colour = blue;
+
+   // Bases
+   if (residue_type == "U")  fill_colour = purple;
+   if (residue_type == "T")  fill_colour = purple;
+   if (residue_type == "C")  fill_colour = purple;
+   if (residue_type == "A")  fill_colour = purple;
+   if (residue_type == "G")  fill_colour = purple;
+   if (residue_type == "DT")  fill_colour = purple;
+   if (residue_type == "DC")  fill_colour = purple;
+   if (residue_type == "DA")  fill_colour = purple;
+   if (residue_type == "DG")  fill_colour = purple;
+   
 
    // metals
    if (residue_type == "ZN") 
