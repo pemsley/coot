@@ -3,6 +3,21 @@
 
 ---- 
 
+   o Refining 55A SAH in 3NPN, it should not try to get dictionary up
+     and downstrean neighbour if the residue's group is "monomer".
+
+   o Add button that adds refmac hydrogens: 
+     MAKE HOUT YES
+
+   o in the mmcif to mtz reader, if there are 2 cells, use the first
+     one, not the last one!  --- needs a clipper patch --- bleugh.
+
+   o I want to be able to set the path for reduce and probe in my
+     .coot.py file (not .coot)
+
+   o Lots of testing of add other solvent molecules, jiggle-fit, in
+     low-resolution maps, perhaps?
+
    o Jim Brannigan wants to see alt conf phi/psi angles in Residue Info.
 
    o in FLEV 2D, click on a bond -> 3d view centre to middle of those
@@ -27,11 +42,22 @@
    o in FLEV the carboxylate of ligand Q31 doesn't make a H-bond to
      the mainchain.  Why not?
 
-* Done.  Now the question is why the chemical features on the
-  carboxylate are asymmetric.  undelocalize()?
+   o new molecule from atom selection (Copy Fragment) should generate
+     a PDB file that has a CRYST1 card.
+
+   o the question is why the chemical features on the
+      carboxylate are asymmetric.  undelocalize()?
 
    o Lots of testing of add other solvent molecules, jiggle-fit, in
      low-resolution maps, perhaps?
+
+     Hydrogens on the wrong way round like this means that the ligand
+     fitting failed.  I corrected them by hand and the ligand fitting
+     worked nicely (except a rotation round an acyl bond).
+
+   o Lots of testing of add other solvent molecules, jiggle-fit, in
+     low-resolution maps, perhaps?
+
 
    o Charge function in Lidia 
 
@@ -462,6 +488,10 @@ Not now.
      RDKit molecule to find aromatic systems in the ligand.
 
 * Done. At last.  Cool.
+
+   o Why doesn't the key get written to the pdf file in LIDIA?
+
+* Done.
 
 -----
 
