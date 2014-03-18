@@ -50,9 +50,17 @@ compare_dictionaries(const std::string &type,
       } else {
 	 // Happy path
 
-	 if (output_energy_types)
+	 if (output_energy_types) { 
 	    std::cout << "Comparing dictionaries:: " << file_name_1 << " vs. " << file_name_2
 		      << std::endl;
+	    
+	    // Needs to be done in a directory that knows about RDKit
+	    // (which currently geometry is not).
+	    // 
+	    // RDKit::RWMol m = rdkit_mol(r1.second);
+	    // std::vector<std::string> cod_name = get_cod_atom_types(m);
+	 } 
+
 
 	 //
 	 // if compare_status is true, they matched.
