@@ -39,17 +39,24 @@ void molecule_from_comp_id(const std::string &comp_id) {
 		  std::string name;
 		  RDKit::ATOM_SPTR at_p = rdkm[iat];
 		  at_p->getProp("name", name);
-		  std::cout << iat << "   \"" << name << "\"" << std::endl;
+		  std::cout << iat << "   \"" << name << "\"\n";
 	       }
-	       catch (KeyErrorException &err) {
+	       catch (const KeyErrorException &err) {
 		  std::cout << "caught no-name exception in rdkit_mol H-block" << std::endl;
 	       }
 	    }
 	       
 	    std::vector<std::string> v = cod::get_cod_atom_types(rdkm);
 	    std::cout << "PE-TYPES:: -------- got " << v.size() << " atoms " << std::endl;
-	    for (unsigned int i=0; i<v.size(); i++) { 
-	       std::cout << "   " << i << " " << v[i] << "" << std::endl;
+	    for (unsigned int iat=0; iat<v.size(); iat++) {
+	       std::string name;
+	       try { 
+		  RDKit::ATOM_SPTR at_p = rdkm[iat];
+		  at_p->getProp("name", name);
+	       }
+	       catch (const KeyErrorException &err) { } 
+	       std::cout << " " << std::right << std::setw(3) << iat << " " << name << " " << v[iat]
+			 << "\n";
 	    }
 	 }
       }

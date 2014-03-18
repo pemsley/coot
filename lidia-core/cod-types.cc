@@ -9,7 +9,7 @@
 
 // can throw a std::runtime_error
 std::vector<std::string>
-cod::get_cod_atom_types(RDKit::ROMol &rdkm) {
+cod::get_cod_atom_types(RDKit::ROMol &rdkm, bool add_name_as_property) {
 
    std::vector<std::string> v;
 
@@ -66,6 +66,8 @@ cod::get_cod_atom_types(RDKit::ROMol &rdkm) {
    for(ai=rdkm.beginAtoms(); ai!=rdkm.endAtoms(); ai++) {
       std::string s = get_cod_atom_type(0, *ai, rdkm);
       v.push_back(s);
+      if (add_name_as_property)
+	 (*ai)->setProp("CODAtomName", s);
    }
    
    if (v.size() != rdkm.getNumAtoms())

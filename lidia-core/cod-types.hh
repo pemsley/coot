@@ -15,7 +15,7 @@ namespace cod {
    // (throw an error if it can't do so).
    //
    // rdkit_mol is not const because there is no const beginAtoms() operator.
-   std::vector<std::string> get_cod_atom_types(RDKit::ROMol &rdkit_mol);
+   std::vector<std::string> get_cod_atom_types(RDKit::ROMol &rdkit_mol, bool add_name_as_property=false);
    
    // can throw a std::runtime_error
    std::string get_cod_atom_type(RDKit::Atom *atom_base_p, // the parent of atom_p (if any)
