@@ -271,7 +271,7 @@ coot::atom_quad::angle_2() const {  // angle 1-2-3 in degrees
 double
 coot::atom_quad::angle_3() const { // angle 2-3-4 in degrees
 
-   if (atom_2 && atom_3 && atom_3) { 
+   if (atom_2 && atom_3 && atom_4) { 
       clipper::Coord_orth pt_2(atom_2->x, atom_2->y, atom_2->z);
       clipper::Coord_orth pt_3(atom_3->x, atom_3->y, atom_3->z);
       clipper::Coord_orth pt_4(atom_4->x, atom_4->y, atom_4->z);
