@@ -243,7 +243,7 @@ void do_refine(short int state) {
           imol_map = g.Imol_Refinement_Map();
       }
       if (imol_map >= 0) {
-	 if (g.molecules[imol_map].has_map()) { 
+	 if (g.molecules[imol_map].has_xmap()) { 
 	    std::cout << "click on 2 atoms (in the same molecule)" << std::endl; 
 	    g.pick_cursor_maybe();
 	    g.pick_pending_flag = 1;

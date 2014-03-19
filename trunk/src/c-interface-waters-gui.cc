@@ -123,7 +123,7 @@ void execute_find_blobs_from_widget(GtkWidget *dialog) {
       GtkWidget *map_button;
       short int found_active_button_for_map = 0;
       for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-	 if (graphics_info_t::molecules[imol].has_map()) { 
+	 if (graphics_info_t::molecules[imol].has_xmap()) { 
 	    std::string map_str = "find_blobs_map_radiobutton_";
 	    map_str += graphics_info_t::int_to_string(imol);
 	    map_button = lookup_widget(dialog, map_str.c_str());
@@ -181,65 +181,61 @@ void execute_find_blobs_from_widget(GtkWidget *dialog) {
 void execute_find_blobs(int imol_model, int imol_for_map,
 			float sigma_cut_off, short int interactive_flag) { 
 
-   if (imol_model >= 0) { 
-      if (imol_model < graphics_info_t::n_molecules()) { 
-	 if (graphics_info_t::molecules[imol_model].has_model()) { 
+   if (is_valid_model_molecule(imol_model)) { 
+      if (is_valid_map_molecule(imol_for_map)) { 
 
-	    // check imol_for_map here.. FIXME
+	 coot::ligand lig;
+	 graphics_info_t g;
+	 int n_cycles = 1;
 
-	    coot::ligand lig;
-	    graphics_info_t g;
-	    int n_cycles = 1;
+	 short int mask_waters_flag; // treat waters like other atoms?
+	 mask_waters_flag = g.find_ligand_mask_waters_flag;
+	 // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
 
-	    short int mask_waters_flag; // treat waters like other atoms?
-	    mask_waters_flag = g.find_ligand_mask_waters_flag;
-	    // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
+	 lig.import_map_from(g.molecules[imol_for_map].xmap, 
+			     g.molecules[imol_for_map].map_sigma());
+	 // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
+	 lig.set_map_atom_mask_radius(1.9); // Angstrom
+	 lig.mask_map(g.molecules[imol_model].atom_sel.mol, mask_waters_flag);
+	 std::cout << "using sigma cut off " << sigma_cut_off << std::endl;
 
-	    lig.import_map_from(g.molecules[imol_for_map].xmap_list[0], 
-				g.molecules[imol_for_map].map_sigma());
-	    // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
-	    lig.set_map_atom_mask_radius(1.9); // Angstrom
-	    lig.mask_map(g.molecules[imol_model].atom_sel.mol, mask_waters_flag);
-	    std::cout << "using sigma cut off " << sigma_cut_off << std::endl;
+	 lig.water_fit(sigma_cut_off, n_cycles);
 
-	    lig.water_fit(sigma_cut_off, n_cycles);
+	 // water fit makes big blobs
+	 // *g.ligand_big_blobs = lig.big_blobs(); old style indirect method
+	 // to move to point
+	 int n_big_blobs = lig.big_blobs().size();
 
-	    // water fit makes big blobs
-	    // *g.ligand_big_blobs = lig.big_blobs(); old style indirect method
-                                        	    // to move to point
-	    int n_big_blobs = lig.big_blobs().size();
+	 if (interactive_flag) { 
+	    if ( n_big_blobs > 0 ) {
 
-	    if (interactive_flag) { 
-	       if ( n_big_blobs > 0 ) {
-
-		  GtkWidget *dialog = create_ligand_big_blob_dialog();
-		  GtkWidget *main_window = lookup_widget(graphics_info_t::glarea, "window1");
-		  gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
-		  GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
-		  if (vbox) { 
-		     std::string label;
-		     for(int i=0; i< n_big_blobs; i++) {
-			label = "Blob ";
-			label += graphics_info_t::int_to_string(i + 1);
-			GtkWidget *button = gtk_button_new_with_label(label.c_str());
-			//	 gtk_widget_ref(button);
-			clipper::Coord_orth *c = new clipper::Coord_orth;
-			*c = lig.big_blobs()[i].first;
-			gtk_signal_connect (GTK_OBJECT(button), "clicked", 
-					    GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
-					    c);
-			gtk_widget_show(button);
-			gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
-			gtk_container_set_border_width(GTK_CONTAINER(button), 2);
-		     }
+	       GtkWidget *dialog = create_ligand_big_blob_dialog();
+	       GtkWidget *main_window = lookup_widget(graphics_info_t::glarea, "window1");
+	       gtk_window_set_transient_for(GTK_WINDOW(dialog), GTK_WINDOW(main_window));
+	       GtkWidget *vbox = lookup_widget(dialog, "ligand_big_blob_vbox");
+	       if (vbox) { 
+		  std::string label;
+		  for(int i=0; i< n_big_blobs; i++) {
+		     label = "Blob ";
+		     label += graphics_info_t::int_to_string(i + 1);
+		     GtkWidget *button = gtk_button_new_with_label(label.c_str());
+		     //	 gtk_widget_ref(button);
+		     clipper::Coord_orth *c = new clipper::Coord_orth;
+		     *c = lig.big_blobs()[i].first;
+		     gtk_signal_connect (GTK_OBJECT(button), "clicked", 
+					 GTK_SIGNAL_FUNC(on_big_blob_button_clicked),
+					 c);
+		     gtk_widget_show(button);
+		     gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
+		     gtk_container_set_border_width(GTK_CONTAINER(button), 2);
 		  }
-		  gtk_widget_show(dialog);
-	       } else { 
-		  std::cout << "Coot found no blobs" << std::endl;
-		  GtkWidget *dialog = create_ligand_no_blobs_dialog();
-		  gtk_widget_show(dialog);
-	       } 
-	    }
+	       }
+	       gtk_widget_show(dialog);
+	    } else { 
+	       std::cout << "Coot found no blobs" << std::endl;
+	       GtkWidget *dialog = create_ligand_no_blobs_dialog();
+	       gtk_widget_show(dialog);
+	    } 
 	 }
       }
    }
@@ -315,7 +311,7 @@ execute_find_waters(GtkWidget *dialog_ok_button) {
 
    // Find the active map radiobutton:
    for (int imol=0; imol<g.n_molecules(); imol++) {
-      if (g.molecules[imol].has_map()) {
+      if (g.molecules[imol].has_xmap()) {
 	 std::string map_str = "find_waters_map_radiobutton_";
 	 map_str += g.int_to_string(imol);
 	 dialog_button = lookup_widget(dialog_ok_button, map_str.c_str());
@@ -449,7 +445,7 @@ void find_waters(int imol_for_map,
 	 // ignore the waters that already exist.
 	 // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
 
-	 lig.import_map_from(g.molecules[imol_for_map].xmap_list[0], 
+	 lig.import_map_from(g.molecules[imol_for_map].xmap, 
 			     g.molecules[imol_for_map].map_sigma());
 	 // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
 	 lig.set_map_atom_mask_radius(1.9); // Angstroms

@@ -47,8 +47,7 @@ molecule_class_info_t::export_map_fragment(float radius,
 					   clipper::Coord_orth comg,
 					   const std::string &file_name) const {
 
-   if (has_map()) {
-      clipper::Xmap<float> &xmap = xmap_list[0];
+   if (has_xmap()) {
       clipper::Cell cell = xmap.cell();
       clipper::Grid_sampling grid = xmap.grid_sampling();
 

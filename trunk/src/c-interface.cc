@@ -1677,7 +1677,7 @@ int has_unit_cell_state(int imol) {
    if (imol >= 0) { 
       if (imol < graphics_info_t::n_molecules()) { 
 	 if (graphics_info_t::molecules[imol].has_model() ||
-	     graphics_info_t::molecules[imol].has_map()) {
+	     graphics_info_t::molecules[imol].has_xmap()) {
 	    istate = graphics_info_t::molecules[imol].have_unit_cell;
 	 }
       }
@@ -1907,7 +1907,7 @@ get_map_colour(int imol) {
    colour = (gdouble *) malloc(4*sizeof(gdouble));
 
    if (imol < graphics_info_t::n_molecules()) { 
-      if (graphics_info_t::molecules[imol].has_map()) { 
+      if (graphics_info_t::molecules[imol].has_xmap()) {
 	 colour[0] = graphics_info_t::molecules[imol].map_colour[0][0]; 
 	 colour[1] = graphics_info_t::molecules[imol].map_colour[0][1]; 
 	 colour[2] = graphics_info_t::molecules[imol].map_colour[0][2];
@@ -3476,16 +3476,11 @@ skel_greer_on() {
    graphics_info_t g; 
    
    for (int imol=0; imol<g.n_molecules(); imol++) {
-      for (int imap=0; imap<g.molecules[imol].max_xmaps; imap++) {
 
-	 if (g.molecules[imol].xmap_is_filled[imap] &&
-	     g.molecules[imol].xmap_is_diff_map[imap] != 1) {
-
-	    g.molecules[imol].greer_skeleton_draw_on = 1;
-	    // g.molecules[imol].update_skeleton(); // withdrawn
-	    i_skel_set = 1;
-	    break;
-	 }
+      if (g.molecules[imol].has_xmap() &&
+	  ! g.molecules[imol].xmap_is_diff_map) {
+	 g.molecules[imol].greer_skeleton_draw_on = 1;
+	 i_skel_set = 1;
       }
       if (i_skel_set) break;
    }
@@ -3496,13 +3491,10 @@ void
 skel_greer_off() {
 
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-      for (int imap=0; imap<graphics_info_t::molecules[imol].max_xmaps; imap++) {
-
-	 if (graphics_info_t::molecules[imol].xmap_is_filled[imap] &&
-	     graphics_info_t::molecules[imol].xmap_is_diff_map[imap] != 1) {
-
+      
+      if (graphics_info_t::molecules[imol].has_xmap() &&
+	  ! graphics_info_t::molecules[imol].xmap_is_diff_map) {
 	    graphics_info_t::molecules[imol].greer_skeleton_draw_on = 0;
-	 }
       }
    }
 }
@@ -3861,9 +3853,9 @@ read_phs_and_make_map_with_reso_limits(int imol_ref, const char* phs_filename,
 	 } catch ( std::runtime_error except ) {
 	    std::cout << "WARNING:: Cant get spacegroup from coordinates!\n";
 	    // get the cell/symm from a map:
-	    if (g.molecules[imol_ref].has_map()) {
-	       cell = g.molecules[imol_ref].xmap_list[0].cell();
-	       spacegroup = g.molecules[imol_ref].xmap_list[0].spacegroup(); 
+	    if (g.molecules[imol_ref].has_xmap()) {
+	       cell = g.molecules[imol_ref].xmap.cell();
+	       spacegroup = g.molecules[imol_ref].xmap.spacegroup(); 
 	       got_cell_symm_flag = 1;
 	    }
 	 }
@@ -3940,9 +3932,9 @@ read_phs_and_make_map_using_cell_symm_from_mol(const char *phs_filename_str, int
 	 } catch ( std::runtime_error except ) {
 	    std::cout << "WARNING:: Cant get spacegroup from coordinates!\n";
 	    // get the cell/symm from a map:
-	    if (g.molecules[imol_ref].has_map()) {
-	       cell = g.molecules[imol_ref].xmap_list[0].cell();
-	       spacegroup = g.molecules[imol_ref].xmap_list[0].spacegroup(); 
+	    if (g.molecules[imol_ref].has_xmap()) {
+	       cell = g.molecules[imol_ref].xmap.cell();
+	       spacegroup = g.molecules[imol_ref].xmap.spacegroup(); 
 	       got_cell_symm_flag = 1;
 	    }
 	 }
@@ -3990,9 +3982,9 @@ read_phs_and_make_map_using_cell_symm_from_mol_using_implicit_phs_filename(int i
 	 } catch ( std::runtime_error except ) {
 	    std::cout << "WARNING:: Cant get spacegroup from coordinates!\n";
 	    // get the cell/symm from a map:
-	    if (g.molecules[imol_ref].has_map()) {
-	       cell = g.molecules[imol_ref].xmap_list[0].cell();
-	       spacegroup = g.molecules[imol_ref].xmap_list[0].spacegroup(); 
+	    if (g.molecules[imol_ref].has_xmap()) {
+	       cell = g.molecules[imol_ref].xmap.cell();
+	       spacegroup = g.molecules[imol_ref].xmap.spacegroup(); 
 	       got_cell_symm_flag = 1;
 	    }
 	 }
@@ -4088,22 +4080,19 @@ gchar *get_text_for_phs_cell_chooser(int imol, char *field) {
 
 	    } else { 
 
-	       if (g.molecules[imol].max_xmaps > 0) { 
+	       ihave_cell = 1; 
 
-		  ihave_cell = 1; 
+	       clipper::Spacegroup spacegroup = g.molecules[imol].xmap.spacegroup(); 
+	       clipper::Cell       ccell      = g.molecules[imol].xmap.cell();
 
-		  clipper::Spacegroup spacegroup = g.molecules[imol].xmap_list[0].spacegroup(); 
-		  clipper::Cell       ccell      = g.molecules[imol].xmap_list[0].cell();
+	       cell[0] = g.molecules[imol].xmap.cell().a(); 
+	       cell[1] = g.molecules[imol].xmap.cell().b(); 
+	       cell[2] = g.molecules[imol].xmap.cell().c(); 
+	       cell[3] = g.molecules[imol].xmap.cell().alpha() * RADTODEG; 
+	       cell[4] = g.molecules[imol].xmap.cell().beta()  * RADTODEG; 
+	       cell[5] = g.molecules[imol].xmap.cell().gamma() * RADTODEG; 
 
-		  cell[0] = g.molecules[imol].xmap_list[0].cell().a(); 
-		  cell[1] = g.molecules[imol].xmap_list[0].cell().b(); 
-		  cell[2] = g.molecules[imol].xmap_list[0].cell().c(); 
-		  cell[3] = g.molecules[imol].xmap_list[0].cell().alpha() * RADTODEG; 
-		  cell[4] = g.molecules[imol].xmap_list[0].cell().beta()  * RADTODEG; 
-		  cell[5] = g.molecules[imol].xmap_list[0].cell().gamma() * RADTODEG; 
-
-		  spgrp = spacegroup.descr().symbol_hm().c_str(); 
-	       } 
+	       spgrp = spacegroup.descr().symbol_hm().c_str(); 
 	    } 
    
 
@@ -4672,16 +4661,11 @@ void set_skeletonization_level_from_widget(const char *txt) {
 
          
    for (int imol=0; imol<g.n_molecules(); imol++) {
-      for (int imap=0; imap<g.molecules[imol].max_xmaps; imap++) {
-	 
-	 if (g.molecules[imol].xmap_is_filled[imap] &&
-	     g.molecules[imol].xmap_is_diff_map[imap] != 1) {
-
-	    // 
-	    g.molecules[imol].update_clipper_skeleton();
-
-	 } 
-      }
+      if (g.molecules[imol].has_xmap() &&
+	  g.molecules[imol].xmap_is_diff_map != 1) {
+	 // 
+	 g.molecules[imol].update_clipper_skeleton();
+      } 
    }
    graphics_draw();
 }
@@ -4723,15 +4707,10 @@ void set_skeleton_box_size(float f) {
    add_to_history(command_strings);
       
    for (int imol=0; imol<g.n_molecules(); imol++) {
-      for (int imap=0; imap<g.molecules[imol].max_xmaps; imap++) {
-	 
-	 if (g.molecules[imol].xmap_is_filled[imap] &&
-	     g.molecules[imol].xmap_is_diff_map[imap] != 1) {
-
-	    // 
-	    g.molecules[imol].update_clipper_skeleton();
-
-	 } 
+      if (g.molecules[imol].has_xmap() &&
+	  g.molecules[imol].xmap_is_diff_map != 1) {
+	 // 
+	 g.molecules[imol].update_clipper_skeleton();
       }
    }
    graphics_draw();
@@ -4791,12 +4770,10 @@ void add_map_display_control_widgets() {
 
    graphics_info_t g; 
 
-   for (int ii=0; ii<g.n_molecules(); ii++) {
-      if (g.molecules[ii].max_xmaps > 0){ 
-	 
+   for (int ii=0; ii<g.n_molecules(); ii++)
+      if (g.molecules[ii].has_xmap() || g.molecules[ii].has_nxmap())
 	 g.molecules[ii].update_map_in_display_control_widget(); 
-      } 
-   }
+
 }
 
 
@@ -4805,8 +4782,7 @@ void add_mol_display_control_widgets() {
    graphics_info_t g; 
    
    for (int ii=0; ii<g.n_molecules(); ii++) {
-      if (! (g.molecules[ii].atom_sel.atom_selection == NULL)) { 
-	 
+      if (g.molecules[ii].has_model()) { 
 	 g.molecules[ii].new_coords_mol_in_display_control_widget(); 
       } 
    } 

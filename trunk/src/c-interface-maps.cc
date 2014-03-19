@@ -49,9 +49,10 @@ void set_display_lists_for_maps(int istat) {
    graphics_info_t::display_lists_for_maps_flag = istat;
 
    if (graphics_info_t::use_graphics_interface_flag) {
-     for (int i=0; i<graphics_info_t::n_molecules(); i++)
-       if (graphics_info_t::molecules[i].has_map())
-	 graphics_info_t::molecules[i].update_map();
+      for (int i=0; i<graphics_info_t::n_molecules(); i++)
+	 if (graphics_info_t::molecules[i].has_xmap() ||
+	     graphics_info_t::molecules[i].has_nxmap())
+	    graphics_info_t::molecules[i].update_map();
    }
    std::string cmd = "set-display-lists-for-maps";
    std::vector<coot::command_arg_t> args;
@@ -583,7 +584,7 @@ int set_map_is_difference_map(int imol) {
 
    int istatus = 0;
    if (imol< graphics_n_molecules()) { 
-      if (graphics_info_t::molecules[imol].has_map()) { 
+      if (graphics_info_t::molecules[imol].has_xmap()) { 
 	 graphics_info_t::molecules[imol].set_map_is_difference_map();
 	 istatus = 1;
 	 graphics_draw();
@@ -662,7 +663,7 @@ int another_level_from_map_molecule_number(int imap) {
       if (istat != -1) { 
 
 	 float map_sigma = graphics_info_t::molecules[istat].map_sigma();
-	 float current_contour_level = graphics_info_t::molecules[istat].contour_level[0];
+	 float current_contour_level = graphics_info_t::molecules[istat].contour_level;
 	 graphics_info_t::molecules[istat].set_contour_level(current_contour_level +
 							     map_sigma*1.0);
 	 graphics_info_t::molecules[istat].update_map();
@@ -878,20 +879,17 @@ void change_contour_level(short int is_increment) { // else is decrement.
    if (is_valid_map_molecule(s)) {
       
       if (g.molecules[s].is_difference_map_p()) {
-	 g.molecules[s].contour_level[0] +=
-	    g.diff_map_iso_level_increment;
+	 g.molecules[s].contour_level += g.diff_map_iso_level_increment;
       } else {
 	 // normal case
 	 if (is_increment) { 
-	    g.molecules[s].contour_level[0] += g.iso_level_increment;
+	    g.molecules[s].contour_level += g.iso_level_increment;
 	 } else {
-	    g.molecules[s].contour_level[0] -= g.iso_level_increment;
+	    g.molecules[s].contour_level -= g.iso_level_increment;
 	 }
       }
       g.molecules[s].update_map();
       graphics_draw();
-//       std::cout << "contour level of molecule [" << s << "]:  "
-// 		<< g.molecules[s].contour_level[0] << std::endl;
    }
 } 
 
@@ -936,125 +934,6 @@ void set_scrollable_map(int imol) {
      
 }
 
-// For some as yet unknown reason, this code is executed when we
-// select skeleton off.
-// (After it has run, skel_foadi_off is executed).
-// 
-void
-skel_foadi_on() {
-
-   int i_found_skeletonizable_map = 0;
-   graphics_info_t g;
-
-   // we use break so that we get only one skeleton. 
-   
-   for (int imol=0; imol<g.n_molecules(); imol++) {
-      for (int imap=0; imap<g.molecules[imol].max_xmaps; imap++) {
-
-	 if (g.molecules[imol].xmap_is_filled[imap] &&
-	     g.molecules[imol].xmap_is_diff_map[imap] != 1) {
-
-	    i_found_skeletonizable_map = 1;
-
-	    // so that we don't do this when the skeleton is on already:
-	    //
-	    if (g.molecules[imol].fc_skeleton_draw_on == 0) {
-	       g.molecules[imol].fc_skeleton_draw_on = 1;
-
-	       mean_and_variance<float> mv = 
-		  map_density_distribution(g.molecules[imol].xmap_list[imap],0); 
-
-	       cout << "Mean and sigma of map: " << mv.mean 
-		    << " and " << sqrt(mv.variance) << endl; 
-
-	       float map_cutoff = mv.mean + 1.5*sqrt(mv.variance); 
-	       g.skeleton_level = map_cutoff; 
-	    
-	       // derived from sktest:
-	       // 
-	       g.molecules[imol].xskel_cowtan.init(g.molecules[imol].xmap_list[imap].spacegroup(), 
-						   g.molecules[imol].xmap_list[imap].cell(),
-						   g.molecules[imol].xmap_list[imap].grid_sampling());
-
-	       cout << "INFO:: making skeleton cowtan..." << endl; 
-	       GraphicalSkel cowtan(g.molecules[imol].xmap_list[0],
-				    g.molecules[imol].xskel_cowtan); //fill xskel_cowtan
-
-	       g.molecules[imol].xskel_is_filled = 1; // TRUE
-
-	       // various experiments....
-
-	       // cowtan.tip_filter(xmap_list[0], &xskl); // tinker with xskel_cowtan
-
-	       //cowtan.prune(g.molecules[imol].xmap_list[imap],
-	       //	 &g.molecules[imol].xskel_cowtan);
-
-	       //
-	       cout << "INFO:: pruning cowtan..." << endl; 
-	       //
-	       cowtan.Pprune(g.molecules[imol].xmap_list[imap],
-			     &g.molecules[imol].xskel_cowtan,
-			     map_cutoff);
-
-
-	       // --------------------------------------------------------------
-	       // --------------------------------------------------------------
-	       // 	    cout << "cuckoo code:" << endl; 
-
-	       // 	    BuildCas bc(g.molecules[imol].xmap_list[imap], map_cutoff); 
-
-	       // 	    // mark segments by connectivity
-	       // 	    // 
-	       // 	    int nsegments = bc.count_and_mark_segments(g.molecules[imol].xskel_cowtan, 
-	       // 						       g.molecules[imol].xmap_list[imap],
-	       // 						       map_cutoff); 
-
-	       // 	    cout << "There were " << nsegments << "segment in cuckoo map" << endl; 
-	       // 	    // now transfer the segment map to xskel_cowtan
-	       // 	    // 
-	       // 	    bc.transfer_segment_map(&g.molecules[imol].xskel_cowtan);
-	    
-
-
-	       // --------------------------------------------------------------
-	       // --------------------------------------------------------------
-
-
-	       // now display the skeleton
-	    
-	       g.molecules[imol].update_clipper_skeleton();
-
-	       // now create a new molecule and put the bonds
-	       // into it
-	       // 
-	       // g.n_molecules++;
-	       // 	    std::cout << "g.n_molecules is now " << g.n_molecules << endl;
-
-	       // 
-	       break;   // only do one (the first one). 
-	    }
-	 }
-      }
-      if (i_found_skeletonizable_map) break;
-   }
-   graphics_draw();
-}
-
-void
-skel_foadi_off() {
-
-   for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-      for (int imap=0; imap<graphics_info_t::molecules[imol].max_xmaps; imap++) {
-	 
-	 if (graphics_info_t::molecules[imol].xmap_is_filled[imap] &&
-	     graphics_info_t::molecules[imol].xmap_is_diff_map[imap] != 1) {
-	    
-	    graphics_info_t::molecules[imol].fc_skeleton_draw_on = 0;
-	 }
-      }
-   }
-}
-
 
 int 
 skeletonize_map(int prune_flag, int imol) {
@@ -1077,36 +956,24 @@ do_skeleton_prune() {
    graphics_info_t g;
    float map_cutoff  = g.skeleton_level;
 
-   // we use break so that we get only one skeleton. 
-   short int done_skel = 0;
-   
    for (int imol=0; imol<g.n_molecules(); imol++) {
-      for (int imap=0; imap<g.molecules[imol].max_xmaps; imap++) {
-
-	 if (g.molecules[imol].xmap_is_filled[imap] &&
-	     g.molecules[imol].xmap_is_diff_map[imap] != 1) {
+      if (g.molecules[imol].has_xmap() &&
+	  !g.molecules[imol].xmap_is_diff_map) {
 	    
-	    if (g.molecules[imol].xskel_is_filled == 1) { 
+	 if (g.molecules[imol].xskel_is_filled == 1) { 
 	       
-	       BuildCas bc(g.molecules[imol].xmap_list[imap], map_cutoff); 
+	    BuildCas bc(g.molecules[imol].xmap, map_cutoff); 
 
+	    // mark segments by connectivity
+	    // 
+	    int nsegments = bc.count_and_mark_segments(g.molecules[imol].xskel_cowtan, 
+						       g.molecules[imol].xmap,
+						       map_cutoff); 
 
-	       // mark segments by connectivity
-	       // 
-	       int nsegments = bc.count_and_mark_segments(g.molecules[imol].xskel_cowtan, 
-							  g.molecules[imol].xmap_list[imap],
-							  map_cutoff); 
-
-	       cout << "INFO:: There were " << nsegments << " different segments" << endl; 
-	       
-	       bc.transfer_segment_map(&g.molecules[imol].xskel_cowtan);
-	       g.molecules[imol].update_clipper_skeleton();
-	       done_skel = 1;
-	       break;
-	    }
+	    bc.transfer_segment_map(&g.molecules[imol].xskel_cowtan);
+	    g.molecules[imol].update_clipper_skeleton();
 	 }
       }
-      if (done_skel) break;
    }
 } 
 #ifdef USE_GUILE
@@ -1152,7 +1019,7 @@ void check_for_dark_blue_density() {
 
    if (graphics_info_t::use_graphics_interface_flag) {
       for (int i=0; i<graphics_info_t::n_molecules(); i++) { 
-	 if (graphics_info_t::molecules[i].has_map()) { 
+	 if (graphics_info_t::molecules[i].has_xmap()) { 
 	    if (graphics_info_t::molecules[i].is_displayed_p()) {
 	       if (background_is_black_p()) { 
 		  if (graphics_info_t::molecules[i].map_is_too_blue_p()) {
@@ -1203,7 +1070,8 @@ void set_contour_by_sigma_step_by_mol(float f, short int state, int imol) {
    
    if (imol < graphics_info_t::n_molecules()) { 
       if (imol >= 0) { 
-	 if (graphics_info_t::molecules[imol].has_map()) {
+	 if (graphics_info_t::molecules[imol].has_xmap()) {
+	    // NXMAP-FIXME
 	    graphics_info_t::molecules[imol].set_contour_by_sigma_step(f, state);
 	 }
       }
@@ -1218,7 +1086,7 @@ int export_map(int imol, const char *filename) {
       try { 
 	 clipper::CCP4MAPfile mapout;
 	 mapout.open_write(std::string(filename));
-	 mapout.export_xmap(graphics_info_t::molecules[imol].xmap_list[0]);
+	 mapout.export_xmap(graphics_info_t::molecules[imol].xmap);
 	 mapout.close_write();
 	 rv = 1;
       }
@@ -1268,7 +1136,7 @@ void segment_map(int imol_map, float low_level) {
    int max_segments = 300;
    
    if (is_valid_map_molecule(imol_map)) {
-      clipper::Xmap<float> &xmap_in = graphics_info_t::molecules[imol_map].xmap_list[0];
+      clipper::Xmap<float> &xmap_in = graphics_info_t::molecules[imol_map].xmap;
       coot::util::segment_map s;
       std::pair<int, clipper::Xmap<int> > segmented_map = s.segment(xmap_in, low_level);
       float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
@@ -1299,7 +1167,7 @@ void segment_map_multi_scale(int imol_map, float low_level, float b_factor_inc, 
 
    int max_segments = 300;
    if (is_valid_map_molecule(imol_map)) {
-      clipper::Xmap<float> &xmap_in = graphics_info_t::molecules[imol_map].xmap_list[0];
+      clipper::Xmap<float> &xmap_in = graphics_info_t::molecules[imol_map].xmap;
       coot::util::segment_map s;
       std::pair<int, clipper::Xmap<int> > segmented_map = s.segment(xmap_in, low_level, b_factor_inc, n_rounds);
       float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
@@ -1365,7 +1233,7 @@ int transform_map_raw(int imol,
 	 
       
       clipper::Xmap<float> new_map =
-	 coot::util::transform_map(graphics_info_t::molecules[imol].xmap_list[0],
+	 coot::util::transform_map(graphics_info_t::molecules[imol].xmap,
 				   new_space_group, new_cell,
 				   rtop, pt, box_size);
 
@@ -1394,8 +1262,8 @@ int difference_map(int imol1, int imol2, float map_scale) {
    if (is_valid_map_molecule(imol1)) {
       if (is_valid_map_molecule(imol2)) {
  	 std::pair<clipper::Xmap<float>, float> dm =
- 	    coot::util::difference_map(graphics_info_t::molecules[imol1].xmap_list[0],
- 				       graphics_info_t::molecules[imol2].xmap_list[0],
+ 	    coot::util::difference_map(graphics_info_t::molecules[imol1].xmap,
+ 				       graphics_info_t::molecules[imol2].xmap,
  				       map_scale);
 	 int imol = graphics_info_t::create_molecule();
 	 std::string name = "difference-map";
@@ -1418,8 +1286,8 @@ int reinterp_map(int map_no, int reference_map_no) {
       if (is_valid_map_molecule(reference_map_no)) {
 	 graphics_info_t g;
 	 clipper::Xmap<float> new_map =
-	    coot::util::reinterp_map(g.molecules[map_no].xmap_list[0],
-				     g.molecules[reference_map_no].xmap_list[0]);
+	    coot::util::reinterp_map(g.molecules[map_no].xmap,
+				     g.molecules[reference_map_no].xmap);
 	 int imol = graphics_info_t::create_molecule();
 	 std::string name = "map ";
 	 name += coot::util::int_to_string(map_no);
@@ -1455,7 +1323,7 @@ int average_map_scm(SCM map_number_and_scales) {
 	       int map_number = scm_to_int(map_number_scm);
 	       if (is_valid_map_molecule(map_number)) {
 		  float scale = scm_to_double(map_scale_scm);
-		  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap_list[0], scale);
+		  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
 		  maps_and_scales_vec.push_back(p);
 	       } else {
 		  std::cout << "Invalid map number " << map_number << std::endl;
@@ -1506,7 +1374,7 @@ int average_map_py(PyObject *map_number_and_scales) {
 	       int map_number = PyInt_AsLong(map_number_py);
 	       if (is_valid_map_molecule(map_number)) {
 		  float scale = PyFloat_AsDouble(map_scale_py);
-		  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap_list[0], scale);
+		  std::pair<clipper::Xmap<float>, float> p(graphics_info_t::molecules[map_number].xmap, scale);
 		  maps_and_scales_vec.push_back(p);
 	       } else {
 		  std::cout << "Invalid map number " << map_number << std::endl;
@@ -1552,7 +1420,7 @@ int make_variance_map(std::vector<int> map_molecule_number_vec) {
       int imol = map_molecule_number_vec[i];
       if (is_valid_map_molecule(imol)) {
 	 float scale = 1.0;
-	 xmaps.push_back(std::pair<clipper::Xmap<float>, float> (graphics_info_t::molecules[imol].xmap_list[0], scale));
+	 xmaps.push_back(std::pair<clipper::Xmap<float>, float> (graphics_info_t::molecules[imol].xmap, scale));
       } 
    }
    std::cout << "debug:: map_molecule_number_vec size " << map_molecule_number_vec.size() << std::endl;
@@ -1627,7 +1495,7 @@ float map_to_model_correlation(int imol, const std::vector<coot::residue_spec_t>
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
 	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-	 clipper::Xmap<float> xmap_reference = graphics_info_t::molecules[imol_map].xmap_list[0];
+	 clipper::Xmap<float> xmap_reference = graphics_info_t::molecules[imol_map].xmap;
 	 ret_val = coot::util::map_to_model_correlation(mol, specs, atom_mask_mode,
 							atom_radius, xmap_reference);
       }
@@ -1671,7 +1539,7 @@ map_to_model_correlation_per_residue(int imol, const std::vector<coot::residue_s
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
 	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-	 clipper::Xmap<float> xmap_reference = graphics_info_t::molecules[imol_map].xmap_list[0];
+	 clipper::Xmap<float> xmap_reference = graphics_info_t::molecules[imol_map].xmap;
 	 v = coot::util::map_to_model_correlation_per_residue(mol, specs, atom_mask_mode, atom_radius, xmap_reference);
       }
    }

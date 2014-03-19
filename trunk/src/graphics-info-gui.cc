@@ -805,7 +805,7 @@ graphics_info_t::show_select_map_dialog() {
       // 
       if (imol_map == -1) { 
 	 for (int imol=0; imol<n_molecules(); imol++) { 
-	    if (molecules[imol].has_map()) {
+	    if (molecules[imol].has_xmap()) {
 	       imol_refinement_map = imol;
 	       break;
 	    }
@@ -989,7 +989,7 @@ graphics_info_t::skeleton_map_select(GtkWidget *item, GtkPositionType pos) {
    //
    GtkWidget *on_button  = lookup_widget(item, "skeleton_on_radiobutton");
    GtkWidget *off_button = lookup_widget(item, "skeleton_off_radiobutton");
-   if (graphics_info_t::molecules[g.map_for_skeletonize].has_map()) {
+   if (graphics_info_t::molecules[g.map_for_skeletonize].has_xmap()) {
       if (graphics_info_t::molecules[g.map_for_skeletonize].fc_skeleton_draw_on) {
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(on_button), TRUE);
       } else {
@@ -1127,7 +1127,7 @@ graphics_info_t::set_contour_sigma_button_and_entry(GtkWidget *window, int imol)
    GtkWidget *checkbutton = lookup_widget(window, "single_map_sigma_checkbutton");
 
    if (imol < n_molecules()) { 
-      if (molecules[imol].has_map()) { 
+      if (molecules[imol].has_xmap()) {
 	 float v = molecules[imol].contour_sigma_step;
 	 gtk_entry_set_text(GTK_ENTRY(entry), float_to_string(v).c_str());
 	 if (molecules[imol].contour_by_sigma_flag) { 
@@ -1139,7 +1139,7 @@ graphics_info_t::set_contour_sigma_button_and_entry(GtkWidget *window, int imol)
 	 
 	 GtkWidget *level_entry =
 	    lookup_widget(window, "single_map_properties_contour_level_entry");
-	 float lev = molecules[imol].contour_level[0];
+	 float lev = molecules[imol].contour_level;
 	 gtk_entry_set_text(GTK_ENTRY(level_entry), float_to_string(lev).c_str());
       }
    }
@@ -3097,7 +3097,7 @@ graphics_info_t::check_waters_by_difference_map(int imol_waters, int imol_diff_m
    if (is_valid_model_molecule(imol_waters)) {
       if (is_valid_map_molecule(imol_diff_map)) { 
 	 if (molecules[imol_diff_map].is_difference_map_p()) {
-	    std::vector <coot::atom_spec_t> v = molecules[imol_waters].check_waters_by_difference_map(molecules[imol_diff_map].xmap_list[0], check_waters_by_difference_map_sigma_level);
+	    std::vector <coot::atom_spec_t> v = molecules[imol_waters].check_waters_by_difference_map(molecules[imol_diff_map].xmap, check_waters_by_difference_map_sigma_level);
 	    if (interactive_flag) { 
 	       GtkWidget *w = wrapped_create_checked_waters_by_variance_dialog(v, imol_waters);
 	       gtk_widget_show(w);

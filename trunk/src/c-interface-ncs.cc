@@ -373,7 +373,7 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, int over
 	    } else {
 	       imol = graphics_info_t::create_molecule();
 	    } 
-	    g.molecules[imol].install_ghost_map(g.molecules[imol_map].xmap_list[0],
+	    g.molecules[imol].install_ghost_map(g.molecules[imol_map].xmap,
 						ncs_map_name, // was local_ncs_ghosts[ighost].name?
 						local_ncs_ghosts[ighost],
 						g.molecules[imol_map].is_difference_map_p(),
@@ -385,7 +385,7 @@ int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, int over
 	 if (graphics_info_t::ncs_maps_do_average_flag) {
         std:: string imol_map_name = coot::util::int_to_string(imol_map);
 	    std::vector<std::pair<clipper::Xmap<float>, std::string> > xmaps  = 
-          g.molecules[imol_model].ncs_averaged_maps(g.molecules[imol_map].xmap_list[0], homology_lev, imol_map_name);
+          g.molecules[imol_model].ncs_averaged_maps(g.molecules[imol_map].xmap, homology_lev, imol_map_name);
 	    std::cout << "INFO:: made " << xmaps.size() << " averaged map(s)" << std::endl;
 	    for (unsigned int i=0; i<xmaps.size(); i++) {
 	       std::string name;
@@ -435,7 +435,7 @@ int make_dynamically_transformed_ncs_maps_by_widget(GtkWidget *dialog) {
    GtkWidget *map_button;
    short int found_active_button_for_map = 0;
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-      if (graphics_info_t::molecules[imol].has_map()) {
+      if (graphics_info_t::molecules[imol].has_xmap()) {
 	 std::string map_str = "ncs_maps_maps_radiobutton_";
 	 map_str += graphics_info_t::int_to_string(imol);
 	 map_button = lookup_widget(dialog, map_str.c_str());

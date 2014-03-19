@@ -16,8 +16,8 @@ molecule_class_info_t::export_map_fragment_with_origin_shift(float radius,
    // centre is the centre of the map of this molecule (that we are extracting from)
 
    int r = 0;
-   if (has_map()) {
-      clipper::Xmap<float>  &xmap = xmap_list[0];
+   if (has_xmap()) {
+      clipper::Xmap<float>  &xmap = xmap;
       clipper::Cell          xmap_cell = xmap.cell();
       clipper::Grid_sampling xmap_grid_sampling = xmap.grid_sampling();
       clipper::Coord_orth centre_moved = centre_moved - clipper::Coord_orth(0.1, 0.1, 0.1);

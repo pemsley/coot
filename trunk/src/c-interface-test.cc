@@ -159,7 +159,7 @@ int test_function(int i, int j) {
 
       if (is_valid_model_molecule(i)) { 
 	 if (is_valid_map_molecule(j)) { 
-	    const clipper::Xmap<float> &xmap = g.molecules[j].xmap_list[0];
+	    const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
 	    CMMDBManager *mol = g.molecules[i].atom_sel.mol;
 	    std::vector<coot::residue_spec_t> v;
 	    v.push_back(coot::residue_spec_t("G", 160, ""));
@@ -390,7 +390,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       if (is_valid_model_molecule(imol)) { 
 	 if (is_valid_map_molecule(imol_map)) { 
 
-	    const clipper::Xmap<float> &m = g.molecules[imol_map].xmap_list[0];
+	    const clipper::Xmap<float> &m = g.molecules[imol_map].xmap;
 	    clipper::Coord_orth c(0,0,0); // (set-rotation-centre -15 -4 21)
 	    coot::util::map_fragment_info_t mf(m, c, 50, true);
 
@@ -482,7 +482,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	    v.push_back(coot::residue_spec_t(spec));
 	    int n_rounds = 10;
 	    CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
-	    const clipper::Xmap<float> &xmap = g.molecules[j].xmap_list[0];
+	    const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
 	    for (unsigned int iround=0; iround<n_rounds; iround++) {
 	       std::cout << "round " << iround << std::endl;
 	       CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
@@ -536,7 +536,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
          v.push_back(coot::residue_spec_t(spec));
          int n_rounds = 10;
          CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
-         const clipper::Xmap<float> &xmap = g.molecules[j].xmap_list[0];
+         const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
          for (unsigned int iround=0; iround<n_rounds; iround++) {
 	       std::cout << "round " << iround << std::endl;
 	       CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);

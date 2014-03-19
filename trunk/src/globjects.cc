@@ -3548,7 +3548,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    int s = graphics_info_t::scroll_wheel_map;
    if (s < graphics_info_t::n_molecules()) { 
       if (s >= 0) { 
-	 if (! graphics_info_t::molecules[s].has_map()) {
+	 if (! graphics_info_t::molecules[s].has_xmap()) {  // NXMAP-FIXME
 	    s = -1; // NO MAP
 	 }
       }
@@ -3615,10 +3615,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 	 
 	 if (istate)
 	    graphics_info_t::molecules[s].update_map();
-// 	 std::cout << "contour level of molecule [" << s << "]:  "
-// 		   << graphics_info_t::molecules[s].contour_level[0] << std::endl;
-	 
-	 g.set_density_level_string(s, g.molecules[s].contour_level[0]);
+	 g.set_density_level_string(s, g.molecules[s].contour_level);
 	 g.display_density_level_this_image = 1;
 	 
 	 g.graphics_draw();
@@ -3637,10 +3634,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 	 graphics_info_t::molecules[s].change_contour(1); // positive change
       
 	 graphics_info_t::molecules[s].update_map();
-// 	 std::cout << "contour level of molecule [" << s << "]:  "
-// 		   << graphics_info_t::molecules[s].contour_level[0] << std::endl;
-
-	 g.set_density_level_string(s, g.molecules[s].contour_level[0]);
+	 g.set_density_level_string(s, g.molecules[s].contour_level);
 	 g.display_density_level_this_image = 1;
 
 	 g.graphics_draw();
@@ -4253,7 +4247,7 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
 	    short int istate = info.molecules[s].change_contour(1);
 
 	    if (istate) { 
-	       info.set_density_level_string(s, info.molecules[s].contour_level[0]);
+	       info.set_density_level_string(s, info.molecules[s].contour_level);
 	       info.display_density_level_this_image = 1;
 
 	       // if (gtk_events_pending() == 0 ) { // there is always this event
@@ -4287,7 +4281,7 @@ void handle_scroll_density_level_event(int scroll_up_down_flag) {
 
 	    happened = info.molecules[s].change_contour(-1);
 
-	    info.set_density_level_string(s, info.molecules[s].contour_level[0]);
+	    info.set_density_level_string(s, info.molecules[s].contour_level);
 	    info.display_density_level_this_image = 1;
 	    if (happened) { 
 	       info.molecules[s].update_map();

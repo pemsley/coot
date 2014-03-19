@@ -1280,9 +1280,10 @@ public:
      bool v = 0;
      if (imol >= 0) {
        if (imol < n_molecules()) {
-	 if (molecules[imol].has_map()) {
+	 if (molecules[imol].has_xmap()) {
 	   v = 1;
 	 }
+	 // NXMAP-FIXME // do I want to check for nxmap here too?
        }
      }
      return v;

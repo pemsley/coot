@@ -1712,7 +1712,7 @@ molecule_class_info_t::delete_hydrogens(){  // return status of atoms deleted (0
 
 
 
-// best fit rotamer stuff
+// best fit rotamer stuff.
 float
 molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
 					     int resno,
@@ -1731,19 +1731,19 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
 				   // into backrub mode if automatic
 				   // is selected.
 
-   bool do_backrub = 0;
+   bool do_backrub = false;
    if (rotamer_search_mode == ROTAMERSEARCHLOWRES)
-      do_backrub = 1;
+      do_backrub = true;
 
    if (rotamer_search_mode == ROTAMERSEARCHAUTOMATIC) {
-      if (imol_map >= 0) {
-	 if (imol_map < graphics_info_t::molecules.size()) {
-	    if (graphics_info_t::molecules[imol_map].has_map()) {
-	       float r = graphics_info_t::molecules[imol_map].data_resolution();
-	       if (r > backrub_reso_limit) 
-		  do_backrub = 1;
-	    }
+      if (1) { // test imol_map. Yuck.
+	 if (graphics_info_t::molecules[imol_map].has_xmap()) {
+	    float r = graphics_info_t::molecules[imol_map].data_resolution();
+	    if (r > backrub_reso_limit) 
+	       do_backrub = 1;
 	 }
+	 if (graphics_info_t::molecules[imol_map].has_nxmap())
+	    do_backrub = 1;
       }
    }
 
@@ -1859,7 +1859,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 
 			// now do "ligand" fitting setup and run:
 			coot::ligand lig;
-			lig.import_map_from(graphics_info_t::molecules[imol_map].xmap_list[0]);
+			lig.import_map_from(graphics_info_t::molecules[imol_map].xmap);
 			// short int mask_water_flag = 0;
 			lig.set_acceptable_fit_fraction(0.5);  // at least half of the atoms
                                  			       // have to be fitted into
@@ -2081,7 +2081,8 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
    int imol_map = g.Imol_Refinement_Map();
    if (imol_map >= 0) {
       if (imol_map < graphics_info_t::molecules.size()) {
-	 if (graphics_info_t::molecules[imol_map].has_map()) {
+	 if (graphics_info_t::molecules[imol_map].has_xmap() ||
+	     graphics_info_t::molecules[imol_map].has_nxmap()) {
 	    CResidue *res = get_residue(chain_id, res_no, ins_code);
 	    if (! res) {
 	       std::cout << "   WARNING:: residue in molecule :" << chain_id << ": "
@@ -2101,7 +2102,7 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 		     CResidue *next_res = coot::util::next_residue(res);
 		     CMMDBManager *mol = atom_sel.mol;
 		     coot::backrub br(chain_id, res, prev_res, next_res, alt_conf, mol,
-				      g.molecules[imol_map].xmap_list[0]);
+				      g.molecules[imol_map].xmap);
 		     std::pair<coot::minimol::molecule,float> m = br.search(rest);
 		     score = m.second;
 		     status = 1;
@@ -3541,20 +3542,22 @@ molecule_class_info_t::cell_text_with_embeded_newline() const {
 
    std::string s;
 
-   if (has_map()) { 
+   // NXMAP-FIXME.
+
+   if (has_xmap()) { 
 
       s = "   ";
-      s += graphics_info_t::float_to_string(xmap_list[0].cell().descr().a());
+      s += graphics_info_t::float_to_string(xmap.cell().descr().a());
       s += " ";
-      s += graphics_info_t::float_to_string(xmap_list[0].cell().descr().b());
+      s += graphics_info_t::float_to_string(xmap.cell().descr().b());
       s += " ";
-      s += graphics_info_t::float_to_string(xmap_list[0].cell().descr().c());
+      s += graphics_info_t::float_to_string(xmap.cell().descr().c());
       s += "\n   ";
-      s += graphics_info_t::float_to_string(clipper::Util::rad2d(xmap_list[0].cell().descr().alpha()));
+      s += graphics_info_t::float_to_string(clipper::Util::rad2d(xmap.cell().descr().alpha()));
       s += " ";
-      s += graphics_info_t::float_to_string(clipper::Util::rad2d(xmap_list[0].cell().descr().beta()));
+      s += graphics_info_t::float_to_string(clipper::Util::rad2d(xmap.cell().descr().beta()));
       s += " ";
-      s += graphics_info_t::float_to_string(clipper::Util::rad2d(xmap_list[0].cell().descr().gamma()));
+      s += graphics_info_t::float_to_string(clipper::Util::rad2d(xmap.cell().descr().gamma()));
    }
    return s;
 } 
@@ -4017,9 +4020,9 @@ molecule_class_info_t::fill_raster_model_info() {
 // 
 coot::ray_trace_molecule_info
 molecule_class_info_t::fill_raster_map_info(short int lev) const {
-
+   
    coot::ray_trace_molecule_info rtmi;
-   if (has_map()) {
+   if (has_xmap()) {   // NXMAP-FIXME
 
       rtmi.bond_colour.resize(3);
       if (draw_it_for_map) {
@@ -4216,7 +4219,7 @@ molecule_class_info_t::score_residue_range_fit_to_map(int resno1, int resno2,
 		<< "score_residue_range_fit_to_map\n";
    } else {
       f = coot::util::map_score(local_SelAtom, nSelAtoms,
-				graphics_info_t::molecules[imol_for_map].xmap_list[0],
+				graphics_info_t::molecules[imol_for_map].xmap,
 				0 // not score by atom type
 				);
       std::cout << "score for residue range " << resno1 << " " << resno2
@@ -4253,7 +4256,7 @@ molecule_class_info_t::fit_residue_range_to_map_by_simplex(int resno1, int resno
    } else {
       make_backup();
       coot::util::fit_to_map_by_simplex_rigid(local_SelAtom, nSelAtoms,
-					      graphics_info_t::molecules[imol_for_map].xmap_list[0]);
+					      graphics_info_t::molecules[imol_for_map].xmap);
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();
    }
@@ -7987,9 +7990,9 @@ molecule_class_info_t::get_symop_strings() const {
       }
    } else {
       // map
-      int n = xmap_list[0].spacegroup().num_symops();
+      int n = xmap.spacegroup().num_symops();
       for (int i=0; i<n; i++) {
-	 r.push_back(xmap_list[0].spacegroup().symop(i).format());
+	 r.push_back(xmap.spacegroup().symop(i).format());
       }
    } 
    return r;
@@ -8016,32 +8019,23 @@ molecule_class_info_t::make_map_from_cns_data(const clipper::Spacegroup &sg,
    cns.import_hkl_data(fphidata); 
    cns.close_read(); 
 
-   if (max_xmaps == 0) {
-      xmap_list = new clipper::Xmap<float>[10];
-      xmap_is_filled   = new int[10];
-      xmap_is_diff_map = new int[10];
-      contour_level    = new float[10];
-   }
-
-   max_xmaps++; 
-
    std::string mol_name = cns_data_filename;
 
    initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
 
    cout << "initializing map..."; 
-   xmap_list[0].init(mydata.spacegroup(), 
+   xmap.init(mydata.spacegroup(), 
 		     mydata.cell(), 
 		     clipper::Grid_sampling(mydata.spacegroup(),
 					    mydata.cell(), 
 					    mydata.resolution()));
    cout << "done."<< endl; 
    cout << "doing fft..." ; 
-   xmap_list[0].fft_from( fphidata );                  // generate map
+   xmap.fft_from( fphidata );                  // generate map
    cout << "done." << endl;
    update_map_in_display_control_widget();
    
-   mean_and_variance<float> mv = map_density_distribution(xmap_list[0],0);
+   mean_and_variance<float> mv = map_density_distribution(xmap,0);
 
    cout << "Mean and sigma of map from CNS file: " << mv.mean 
 	<< " and " << sqrt(mv.variance) << endl;
@@ -8050,9 +8044,8 @@ molecule_class_info_t::make_map_from_cns_data(const clipper::Spacegroup &sg,
    map_mean_ = mv.mean;
    map_sigma_ = sqrt(mv.variance);
 
-   xmap_is_diff_map[0] = 0; 
-   xmap_is_filled[0] = 1; 
-   contour_level[0] = nearest_step(mv.mean + 1.5*sqrt(mv.variance), 0.05);
+   xmap_is_diff_map = 0; 
+   contour_level = nearest_step(mv.mean + 1.5*sqrt(mv.variance), 0.05);
 
    // what is this graphics_info_t doing here.
 //    graphics_info_t g; 
@@ -8103,19 +8096,18 @@ molecule_class_info_t::find_peak_along_line_favour_front(const clipper::Coord_or
    clipper::Coord_orth pbest;
    int istep_max = 500;
    bool point_set = 0;
-   float contour_lev = contour_level[0];
 
    for (int istep=0; istep<=istep_max; istep++) {
       float fr = float(istep)/float(istep_max);
       clipper::Coord_orth pc = p1 + fr*(p2-p1);
       float d = density_at_point(pc);
-      if (d > contour_lev) {
+      if (d > contour_level) {
 	 // OK, so the point we want is somewhere in this peak
 	 for (int jstep=istep; jstep<=istep_max; jstep++) {
 	    fr = float(jstep)/float(istep_max);
 	    pc = p1 + fr*(p2-p1);
 	    d = density_at_point(pc);
-	    if (d > contour_lev) {
+	    if (d > contour_level) {
 	       if (d> best_score) {
 		  best_score = d;
 		  pbest = pc;
@@ -8132,7 +8124,7 @@ molecule_class_info_t::find_peak_along_line_favour_front(const clipper::Coord_or
       
    if (! point_set) {
       std::string mess("No peak above ");
-      mess += coot::util::float_to_string(contour_lev);
+      mess += coot::util::float_to_string(contour_level);
       mess += " found.";
       throw std::runtime_error(mess);
    } 
@@ -8230,10 +8222,10 @@ molecule_class_info_t::replace_models(std::deque<CModel *> model_list) {
 int
 molecule_class_info_t::scale_cell(float fac_u, float fac_v, float fac_w) {
 
-   int retval = 0;
+   int retval = 0;  // NXMAP-FIXME
 
-   if (has_map()) { 
-      clipper::Cell cell_orig = xmap_list[0].cell();
+   if (has_xmap()) { 
+      clipper::Cell cell_orig = xmap.cell();
       clipper::Cell_descr cell_d(cell_orig.a() * fac_u, 
 				 cell_orig.b() * fac_v,
 				 cell_orig.c() * fac_w,
@@ -8242,14 +8234,14 @@ molecule_class_info_t::scale_cell(float fac_u, float fac_v, float fac_w) {
 				 cell_orig.gamma());
 
       clipper::Cell new_cell(cell_d);
-      clipper::Spacegroup new_spg(xmap_list[0].spacegroup());
+      clipper::Spacegroup new_spg(xmap.spacegroup());
       clipper::Xmap_base::Map_reference_index ix;
-      clipper::Grid_sampling gs = xmap_list[0].grid_sampling();
+      clipper::Grid_sampling gs = xmap.grid_sampling();
       clipper::Xmap<float> new_map(new_spg, new_cell, gs);
-      for (ix = xmap_list[0].first(); !ix.last(); ix.next() ) {
- 	 new_map[ix] = xmap_list[0][ix];
+      for (ix = xmap.first(); !ix.last(); ix.next() ) {
+ 	 new_map[ix] = xmap[ix];
       }
-      xmap_list[0] = new_map;
+      xmap = new_map;
       update_map();
    }
    return retval; 

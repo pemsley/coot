@@ -807,7 +807,7 @@ graphics_info_t::displayed_map_imols() const {
 
    std::vector<int> is;
    for (int i=0; i<n_molecules(); i++) {
-      if (molecules[i].has_map()) { 
+      if (molecules[i].has_xmap()) { 
 	 if (molecules[i].is_displayed_p()) {
 	    is.push_back(i);
 	 }
@@ -1009,9 +1009,9 @@ graphics_info_t::skeletonize_map(short int prune_it, int imol) {
 	 g.molecules[imol].fc_skeleton_draw_on = 1;
 
 	 //       mean_and_variance<float> mv = 
-	 // 	 map_density_distribution(g.molecules[imol].xmap_list[0],0); 
+	 // 	 map_density_distribution(g.molecules[imol].xmap,0); 
 
-	 clipper::Map_stats stats(g.molecules[imol].xmap_list[0]);
+	 clipper::Map_stats stats(g.molecules[imol].xmap);
 
 	 std::cout << "Mean and sigma of map: " << stats.mean() << " and " 
 		   << stats.std_dev() << std::endl; 
@@ -1021,35 +1021,35 @@ graphics_info_t::skeletonize_map(short int prune_it, int imol) {
 	    
 	 // derived from sktest:
 	 // 
-	 g.molecules[imol].xskel_cowtan.init(g.molecules[imol].xmap_list[0].spacegroup(), 
-					     g.molecules[imol].xmap_list[0].cell(),
-					     g.molecules[imol].xmap_list[0].grid_sampling());
+	 g.molecules[imol].xskel_cowtan.init(g.molecules[imol].xmap.spacegroup(), 
+					     g.molecules[imol].xmap.cell(),
+					     g.molecules[imol].xmap.grid_sampling());
       
 	 std::cout << "INFO:: making skeleton cowtan..." << std::endl; 
-	 GraphicalSkel cowtan(g.molecules[imol].xmap_list[0],
+	 GraphicalSkel cowtan(g.molecules[imol].xmap,
 			      g.molecules[imol].xskel_cowtan); //fill xskel_cowtan
 
 	 g.molecules[imol].xskel_is_filled = 1; // TRUE
       
 	 // various experiments....
       
-	 // cowtan.tip_filter(xmap_list[0], &xskl); // tinker with xskel_cowtan
+	 // cowtan.tip_filter(xmap, &xskl); // tinker with xskel_cowtan
       
 	 //cowtan.prune(g.molecules[imol].xmap_list[imap],
 	 //	 &g.molecules[imol].xskel_cowtan);
       
 	 //
-	 cowtan.Pprune(g.molecules[imol].xmap_list[0],
+	 cowtan.Pprune(g.molecules[imol].xmap,
 		       &g.molecules[imol].xskel_cowtan,
 		       map_cutoff);
 
 	 if (prune_it) { 
-	    BuildCas bc(g.molecules[imol].xmap_list[0], map_cutoff); 
+	    BuildCas bc(g.molecules[imol].xmap, map_cutoff); 
 
 	    // mark segments by connectivity
 	    // 
 	    int nsegments = bc.count_and_mark_segments(g.molecules[imol].xskel_cowtan, 
-						       g.molecules[imol].xmap_list[0],
+						       g.molecules[imol].xmap,
 						       map_cutoff); 
 	 
 	    cout << "INFO:: There were " << nsegments << " different segments" << endl; 
@@ -1083,7 +1083,7 @@ graphics_info_t::set_initial_map_for_skeletonize() {
    
    if (graphics_info_t::map_for_skeletonize == -1) { 
       for (int imol=0; imol<n_molecules();imol++) { 
-	 if (graphics_info_t::molecules[imol].has_map()) { 
+	 if (graphics_info_t::molecules[imol].has_xmap()) { 
 	    graphics_info_t::map_for_skeletonize = imol;
 	    break;
 	 } 
@@ -2483,7 +2483,7 @@ graphics_info_t::Imol_Refinement_Map() const {
    if (imol_refinement_map != -1) { // has been set already (or was reset)
       if (imol_refinement_map < n_molecules())
 	 if (imol_refinement_map >= 0)
-	    if (molecules[imol_refinement_map].has_map())
+	    if (molecules[imol_refinement_map].has_xmap())
 	       return imol_refinement_map;
    }
 
@@ -2492,7 +2492,7 @@ graphics_info_t::Imol_Refinement_Map() const {
    // 
    std::vector<int> direct_maps;
    for (int imol=0; imol<n_molecules(); imol++) { 
-      if (molecules[imol].has_map()) {
+      if (molecules[imol].has_xmap()) {
 	 if (! molecules[imol].is_difference_map_p()) { 
 	    direct_maps.push_back(imol);
 	 }
@@ -2511,7 +2511,7 @@ int
 graphics_info_t::set_imol_refinement_map(int imol) {
 
    int r = -1;
-   if (molecules[imol].has_map()) { 
+   if (molecules[imol].has_xmap()) { 
       imol_refinement_map = imol;
       r = imol;
    }
@@ -2529,7 +2529,7 @@ graphics_info_t::add_vector_to_RotationCentre(const coot::Cartesian &vec) {
 
    if (GetActiveMapDrag() == 1) {
       for (int ii=0; ii<n_molecules(); ii++) { 
-	 if (molecules[ii].has_map()) { 
+	 if (molecules[ii].has_xmap()) { 
 	    molecules[ii].update_map(); // to take account
 	                                // of new rotation centre.
 	 }
@@ -3859,7 +3859,7 @@ graphics_info_t::set_last_map_colour(double f1, double f2, double f3) const {
 
    int imap = -1; 
    for (int i=0; i<n_molecules(); i++) { 
-      if (molecules[i].has_map()) { 
+      if (molecules[i].has_xmap()) { 
 	 imap = i;
       }
    }
@@ -3891,7 +3891,7 @@ graphics_info_t::set_last_map_contour_level(float level) {
 
    int imap = -1; 
    for (int i=0; i<n_molecules(); i++) { 
-      if (molecules[i].has_map()) { 
+      if (molecules[i].has_xmap()) { 
 	 imap = i;
       }
    }
@@ -3908,7 +3908,7 @@ graphics_info_t::set_last_map_contour_level_by_sigma(float f) {
 
    int imap = -1; 
    for (int i=0; i<n_molecules(); i++) { 
-      if (molecules[i].has_map()) { 
+      if (molecules[i].has_xmap()) { 
 	 imap = i;
       }
    }
@@ -3927,7 +3927,7 @@ graphics_info_t::set_last_map_sigma_step(float f) {
 
    int imap = -1;
    for (int i=0; i<n_molecules(); i++) { 
-      if (molecules[i].has_map()) { 
+      if (molecules[i].has_xmap()) { 
 	 imap = i;
       }
    }

@@ -50,7 +50,7 @@ score_rotamers(int imol,
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
 	 graphics_info_t g;
-	 clipper::Xmap<float> xmap = g.molecules[imol_map].xmap_list[0];
+	 const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
 	 v = graphics_info_t::molecules[imol].score_rotamers(chain_id, res_no, ins_code,
 							     alt_conf,
 							     clash_flag, lowest_probability,

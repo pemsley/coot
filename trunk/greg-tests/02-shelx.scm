@@ -234,9 +234,13 @@
      (close-molecule imol-insulin-res)
 
      (if (valid-model-molecule? imol-insulin-res)
-	 #f
+	 (begin
+	   (format #t "imol-insulin-res: ~s is still valid after closure!~%" imol-insulin-res)
+	   #f)
 	 (if (valid-map-molecule? imol-insulin-map)
-	     #f
+	     (begin 
+	       (format #t "imol-insulin-map: ~s is still valid after closure!~%" imol-insulin-res)
+	       #f)
 	     #t))))
 
 

@@ -111,7 +111,7 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
    int menu_index = 0;
    
    for (int i=0; i<n_molecules(); i++) {
-      if (molecules[i].xmap_is_filled[0] == 1) {
+      if (is_valid_map_molecule(i)) { 
 	 char s[200];
 	 snprintf(s,199,"%d", i);
 	 std::string ss(s);
@@ -152,7 +152,7 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
    int menu_index = 0;
    
    for (int i=0; i<n_molecules(); i++) {
-      if (molecules[i].xmap_is_filled[0] == 1) {
+      if (is_valid_map_molecule(i)) {
 	 char s[200];
 	 snprintf(s,199,"%d", i);
 	 std::string ss(s);
@@ -206,7 +206,7 @@ graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_me
    
    for (int imap=0; imap<map_molecule_numbers.size(); imap++) {
       int i = map_molecule_numbers[imap];
-      if (molecules[i].xmap_is_filled[0] == 1) {
+      if (is_valid_map_molecule(imap)) { // NXMAP-FIXME
 	 char s[200];
 	 snprintf(s,199,"%d", i);
 	 std::string ss(s);

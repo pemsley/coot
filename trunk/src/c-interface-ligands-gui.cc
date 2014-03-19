@@ -220,7 +220,7 @@ int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
       std::cout << "disaster! find_ligand map vbox not found " << std::endl;
    } else { 
       for (int imol=0; imol<g.n_molecules(); imol++) {
-	 if (g.molecules[imol].has_map()) {
+	 if (g.molecules[imol].has_xmap()) {
 
 	    if ((!diff_maps_only_flag) ||
 		g.molecules[imol].is_difference_map_p()) {
@@ -470,7 +470,7 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
    // Find the first active map radiobutton
    found_active_button_for_map = 0;
    for (int imol=0; imol<g.n_molecules(); imol++) {
-      if (g.molecules[imol].xmap_is_filled[0]) { 
+      if (g.molecules[imol].has_xmap()) { 
 	 std::string map_str = "find_ligand_map_radiobutton_";
 	 map_str += g.int_to_string(imol);
 	 ligand_button = lookup_widget(button, map_str.c_str());

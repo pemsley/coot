@@ -351,7 +351,7 @@ check_waters_baddies(int imol, float b_factor_lim, float map_sigma_lim, float mi
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int imol_for_map = g.Imol_Refinement_Map();
-      v = g.molecules[imol].find_water_baddies(b_factor_lim, g.molecules[imol_for_map].xmap_list[0], g.molecules[imol_for_map].map_sigma(), map_sigma_lim, min_dist, max_dist, part_occ_contact_flag, zero_occ_flag, logical_operator_and_or_flag);
+      v = g.molecules[imol].find_water_baddies(b_factor_lim, g.molecules[imol_for_map].xmap, g.molecules[imol_for_map].map_sigma(), map_sigma_lim, min_dist, max_dist, part_occ_contact_flag, zero_occ_flag, logical_operator_and_or_flag);
       if (graphics_info_t::use_graphics_interface_flag) { 
 	 GtkWidget *w = wrapped_checked_waters_baddies_dialog(imol,
 							      b_factor_lim,
@@ -386,7 +386,7 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 	 } else {
 
 	    std::vector<coot::atom_spec_t> baddies =
-	       g.molecules[imol].find_water_baddies(b_factor_lim, graphics_info_t::molecules[imol_for_map].xmap_list[0], graphics_info_t::molecules[imol_for_map].map_sigma(), map_sigma_lim, min_dist, max_dist, part_occ_contact_flag, zero_occ_flag, logical_operator_and_or_flag);
+	       g.molecules[imol].find_water_baddies(b_factor_lim, graphics_info_t::molecules[imol_for_map].xmap, graphics_info_t::molecules[imol_for_map].map_sigma(), map_sigma_lim, min_dist, max_dist, part_occ_contact_flag, zero_occ_flag, logical_operator_and_or_flag);
 
 	    // User data is used to keyboard up and down baddie water
 	    // list (in graphics_info_t::checked_waters_next_baddie).
@@ -476,7 +476,7 @@ void delete_checked_waters_baddies(int imol, float b_factor_lim, float map_sigma
       } else {
 	 std::vector<coot::atom_spec_t> baddies =
 	    graphics_info_t::molecules[imol].find_water_baddies(b_factor_lim,
-								graphics_info_t::molecules[imol_for_map].xmap_list[0],
+								graphics_info_t::molecules[imol_for_map].xmap,
 								graphics_info_t::molecules[imol_for_map].map_sigma(),
 								map_sigma_lim,
 								min_dist,
@@ -1002,18 +1002,18 @@ difference_map_peaks(int imol, int imol_coords,
       if (graphics_info_t::molecules[imol].is_difference_map_p()) {
 
 	 // c.f. trace-high-res.cc
-	 coot::peak_search ps(graphics_info_t::molecules[imol].xmap_list[0]);
+	 coot::peak_search ps(graphics_info_t::molecules[imol].xmap);
 	 ps.set_max_closeness(max_closeness);
 	 std::vector<std::pair<clipper::Coord_orth, float> > centres;
 
 	 if (is_valid_model_molecule(imol_coords)) {
 	    centres =
-	       ps.get_peaks(graphics_info_t::molecules[imol].xmap_list[0],
+	       ps.get_peaks(graphics_info_t::molecules[imol].xmap,
 			    graphics_info_t::molecules[imol_coords].atom_sel.mol,
 			    n_sigma, do_positive_level_flag, do_negative_levels_flag);
 	 } else { 
 	    centres =
-	       ps.get_peaks(graphics_info_t::molecules[imol].xmap_list[0],
+	       ps.get_peaks(graphics_info_t::molecules[imol].xmap,
 			    n_sigma, do_positive_level_flag, do_negative_levels_flag);
 	 }
 	 
@@ -1118,7 +1118,7 @@ void difference_map_peaks_by_widget(GtkWidget *dialog) {
    
    GtkWidget *map_button;
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-      if (graphics_info_t::molecules[imol].has_map()) {
+      if (graphics_info_t::molecules[imol].has_xmap()) {
 	 if (graphics_info_t::molecules[imol].is_difference_map_p()) {
 	    std::string map_str = "generate_diff_map_peaks_map_radiobutton_";
 	    map_str += graphics_info_t::int_to_string(imol);

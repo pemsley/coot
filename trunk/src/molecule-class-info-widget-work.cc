@@ -46,8 +46,7 @@ extern "C" {
 void
 molecule_class_info_t::update_map_colour_menu_maybe(int imol)
 {
-   for (int jj=0; jj<max_xmaps; jj++){ 
-   }
+   // or maybe not.
 }
 
 void 
@@ -59,7 +58,7 @@ molecule_class_info_t::handle_map_colour_change(gdouble *map_col,
    map_colour[0][1] = map_col[1];
    map_colour[0][2] = map_col[2];
 
-   if (xmap_is_diff_map[0]) { 
+   if (xmap_is_diff_map) { 
       std::vector<float> orig_colours(3);
       orig_colours[0] = map_colour[0][0];
       orig_colours[1] = map_colour[0][1];
