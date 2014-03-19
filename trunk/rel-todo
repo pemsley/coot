@@ -3,6 +3,8 @@
 
 ---- 
 
+   o highly coordinates waters should check metal atoms too.
+
    o Refining 55A SAH in 3NPN, it should not try to get dictionary up
      and downstrean neighbour if the residue's group is "monomer".
 

@@ -247,7 +247,7 @@ namespace coot {
 	 std::string get_spacegroup() const;
 
 	 void transform(const clipper::RTop_orth &rtop);
-	 // apply a shift of -pos before transforming (then apply shift back again)b
+	 // apply a shift of -pos before transforming (then apply shift back again)
 	 void transform(const clipper::RTop_orth &rtop, const clipper::Coord_orth &pos);
 
 	 // get the RTop that transforms this molecule onto mol_ref.

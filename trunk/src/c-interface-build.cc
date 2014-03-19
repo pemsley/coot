@@ -6284,6 +6284,23 @@ int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residu
    return success;
 }
 
+int fit_by_secondary_structure_elements(int imol, const std::string &chain_id) {
+
+   graphics_info_t g;
+   int success = 0;
+   int imol_ref_map = g.Imol_Refinement_Map();
+   if (is_valid_map_molecule(imol_ref_map)) {
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t g;
+	 const clipper::Xmap<float> &xmap = g.molecules[imol_ref_map].xmap_list[0];
+	 success = g.molecules[imol].fit_by_secondary_structure_elements(chain_id, xmap);
+	 graphics_draw();
+      }
+   }
+   return success;
+} 
+
+
 
 
 void set_secondary_structure_restraints_type(int itype) {

@@ -712,6 +712,8 @@ int morph_fit_residues_py( int imol, PyObject *residue_specs, float transformati
 int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residue_specs,
 		       float transformation_averaging_radius);
 
+int fit_by_secondary_structure_elements(int imol, const std::string &chain_id);
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  check water baddies                                     */
