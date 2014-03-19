@@ -624,6 +624,119 @@ molecule_class_info_t::morph_show_shifts(const std::map<CResidue *, morph_rtop_t
    f.close();
 }
 
+int
+molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &chain_id, const clipper::Xmap<float> &xmap_in) {
+
+   int status = 0;
+
+   int imodel = 1;
+   if (atom_sel.mol) {
+      CModel *model_p = atom_sel.mol->GetModel(imodel);
+      if (model_p) {
+
+	 make_backup();
+	 bool model_changed = false;
+
+	 int nhelix = model_p->GetNumberOfHelices();
+	 int nsheet = model_p->GetNumberOfSheets();
+	 std::cout << "INFO:: There are " << nhelix << " helices and "
+		   << nsheet << " sheets\n";
+	 PCHelix helix_p;
+	 PCSheet sheet_p;
+	 PCStrand strand_p;
+
+	 for (int ih=1; ih<=nhelix; ih++) {
+	    helix_p = model_p->GetHelix(ih);
+	    if (helix_p) {
+	       std::cout << helix_p->serNum << " " << helix_p->helixID << " "
+			 << helix_p->initChainID << " " << helix_p->initSeqNum
+			 << " " << helix_p->endChainID << " " << helix_p->endSeqNum << " length "
+			 << helix_p->length << " " << helix_p->comment << std::endl;
+
+	       coot::minimol::fragment f(chain_id);
+
+	       CChain *chain_p = model_p->GetChain(chain_id.c_str());
+
+	       if (chain_p) { 
+
+		  std::vector<CResidue *> added_residues;
+		  for (int res_no=helix_p->initSeqNum; res_no<=helix_p->endSeqNum; res_no++) {
+		     CResidue *residue_p = chain_p->GetResidue(res_no, "");
+		     if (residue_p) { 
+			f.addresidue(coot::minimol::residue(residue_p), false);
+			added_residues.push_back(residue_p);
+		     } else {
+			std::cout << "Null residue for " << chain_id << " " << res_no << std::endl;
+		     } 
+		  }
+
+		  if (!added_residues.size()) {
+		     std::cout << "no added residues for helix "
+			       << helix_p->helixID << " "
+			       << helix_p->initChainID << " " << helix_p->initSeqNum << " "
+			       << helix_p->endChainID << " " << helix_p->endSeqNum << " length "
+			       << helix_p->length << " "
+			       << helix_p->comment << std::endl;
+		  } else { 
+		     coot::minimol::molecule m(f);
+		     std::pair<bool, clipper::Coord_orth> sse_centre = coot::centre_of_residues(added_residues);
+
+		     if (sse_centre.first) { 
+		     
+			std::cout << "---- local centre is at " << sse_centre.second.format() << std::endl;
+		     
+			// returns the local rtop (relative to local centre) to move m into map.
+			// 
+			std::pair<bool, clipper::RTop_orth> rtop = coot::get_rigid_body_fit_rtop(&m, sse_centre.second, xmap_in);
+			if (rtop.first) {
+			   std::cout << "Got and RTop for helix " << chain_id << " "
+				     << helix_p->initSeqNum << " -- " << helix_p->endSeqNum
+				     << std::endl;
+			   std::cout << rtop.second.format() << std::endl;
+			   m.transform(rtop.second);
+			   clipper::Mat33<double> mat(1,0,0,0,1,0,0,0,1);
+			   clipper::RTop_orth rtop_synth(mat, sse_centre.second);
+			   m.transform(rtop_synth);
+
+			   atom_selection_container_t asc = make_asc(m.pcmmdbmanager());
+			   replace_fragment(asc);
+			}
+		     }
+		  }
+	       }
+
+	    } else {
+	       std::cout << "ERROR: no helix!?" << std::endl;
+	    }
+	 }
+
+
+	 for (int is=1; is<=nsheet; is++) {
+	    sheet_p = model_p->GetSheet(is);
+
+	    int nstrand = sheet_p->nStrands;
+	    for (int istrand=0; istrand<nstrand; istrand++) {
+	       strand_p = sheet_p->Strand[istrand];
+	       if (strand_p) { 
+		  std::cout << strand_p->sheetID << " " << strand_p->strandNo << " "
+			    << strand_p->initChainID << " " << strand_p->initSeqNum
+			    << " " << strand_p->endChainID << " " << strand_p->endSeqNum
+			    << std::endl;
+	       }
+	    }
+	 }
+
+	 if (model_changed) {
+	    atom_sel.mol->FinishStructEdit();
+	    have_unsaved_changes_flag = 1;
+	    make_bonds_type_checked();
+	 } 
+      }
+   }
+   return status;
+} 
+
+
 
 // maybe extra parameters are needed here (e.g. for colouring later, perhaps).
 void

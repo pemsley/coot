@@ -288,6 +288,8 @@ namespace coot {
    // 
    std::pair<bool, clipper::Coord_orth> centre_of_molecule(CMMDBManager *mol);
 
+   std::pair<bool, clipper::Coord_orth> centre_of_residues(const std::vector<CResidue *> &residues);
+
    // convert atoms in residue to HETATMs if residue is not of
    // standard PDB type
    int hetify_residue_atoms_as_needed(CResidue *res);

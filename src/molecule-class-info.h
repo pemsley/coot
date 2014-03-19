@@ -3402,6 +3402,9 @@ public:        //                      public
    void morph_residue_atoms_by_average_rtops(CResidue *this_residue,
 					     const std::vector<std::pair<clipper::RTop_orth, float> > &rtops);
 
+   int fit_by_secondary_structure_elements(const std::string &chain_id, const clipper::Xmap<float> &xmap_in);
+
+
    // fragment info for Alan:
    std::vector<coot::fragment_info_t> get_fragment_info(bool screen_output_also) const;
 

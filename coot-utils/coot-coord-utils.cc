@@ -7022,14 +7022,49 @@ coot::centre_of_molecule(CMMDBManager *mol) {
       }
       
       if (n_atoms > 0) {
-	 status = 1;
+	 status = true;
 	 double dna = static_cast<double> (n_atoms);
 	 centre = clipper::Coord_orth(xs/dna, ys/dna, zs/dna);
       }
    }
 
    return std::pair<bool, clipper::Coord_orth> (status, centre);
-} 
+}
+
+
+std::pair<bool, clipper::Coord_orth>
+coot::centre_of_residues(const std::vector<CResidue *> &residues) {
+
+   bool status = false;
+   clipper::Coord_orth centre(0,0,0);
+   int n_atoms = 0;
+   double xs=0, ys=0, zs=0;
+
+   for (unsigned int ires=0; ires<residues.size(); ires++) {
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residues[ires]->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	 xs += residue_atoms[iat]->x;
+	 ys += residue_atoms[iat]->y;
+	 zs += residue_atoms[iat]->z;
+	 std::cout << "atom "  << n_atoms << " " << atom_spec_t(residue_atoms[iat]) << " "
+		   << residue_atoms[iat]->x << " "
+		   << residue_atoms[iat]->y << " "
+		   << residue_atoms[iat]->z << std::endl;
+	 n_atoms++;
+      }
+   }
+
+   if (n_atoms) {
+      status = true;
+      double dna = static_cast<double> (n_atoms);
+      centre = clipper::Coord_orth(xs/dna, ys/dna, zs/dna);
+      std::cout << "n_atoms: " << n_atoms << " at " << centre.format() << std::endl;
+   } 
+   return std::pair<bool, clipper::Coord_orth> (status, centre);
+}
+
 
 CResidue *
 coot::nearest_residue_by_sequence(CMMDBManager *mol,
