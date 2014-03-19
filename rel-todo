@@ -3,6 +3,8 @@
 
 ---- 
 
+   o imol_map should not be passed to molecule_class_info_t::auto_fit_best_rotamer().
+
    o highly coordinates waters should check metal atoms too.
 
    o Refining 55A SAH in 3NPN, it should not try to get dictionary up

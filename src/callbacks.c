@@ -1254,7 +1254,8 @@ on_foadi_off_activate                  (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 /*    printf("skel_foadi OFF\n");  */
-   skel_foadi_off(); 
+
+/*   skel_foadi_off(); dead */ 
 
 }
 

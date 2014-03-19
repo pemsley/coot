@@ -265,7 +265,7 @@ int copy_molecule(int imol) {
       int new_mol_number = graphics_info_t::create_molecule();
       std::string label = "Copy_of_";
       label += graphics_info_t::molecules[imol].name_;
-      graphics_info_t::molecules[new_mol_number].new_map(graphics_info_t::molecules[imol].xmap_list[0], label);
+      graphics_info_t::molecules[new_mol_number].new_map(graphics_info_t::molecules[imol].xmap, label);
       if (graphics_info_t::molecules[imol].is_difference_map_p()) {
 	 graphics_info_t::molecules[new_mol_number].set_map_is_difference_map();
       }
@@ -793,7 +793,7 @@ void spin_search_by_atom_vectors(int imol_map, int imol, const std::string &chai
 
       if (is_valid_model_molecule(imol)) {
 
-	 graphics_info_t::molecules[imol].spin_search(graphics_info_t::molecules[imol_map].xmap_list[0],
+	 graphics_info_t::molecules[imol].spin_search(graphics_info_t::molecules[imol_map].xmap,
 						      chain_id, resno, ins_code,
 						      direction_atoms, moving_atoms_list);
 	 graphics_draw();
@@ -4160,8 +4160,8 @@ trim_molecule_by_map(int imol_coords, int imol_map,
    graphics_info_t g;
    if (is_valid_model_molecule(imol_coords)) { 
       if (is_valid_map_molecule(imol_map)) {
-	 if (g.molecules[imol_map].has_map()) { 
-	    int iv = g.molecules[imol_coords].trim_by_map(g.molecules[imol_map].xmap_list[0], 
+	 if (g.molecules[imol_map].has_xmap()) { 
+	    int iv = g.molecules[imol_coords].trim_by_map(g.molecules[imol_map].xmap, 
 							  map_level,
 							  delete_or_zero_occ_flag);
 	    if (iv) 
@@ -4195,7 +4195,7 @@ fit_residue_range_to_map_by_simplex(int res1, int res2, char *altloc,
    if (is_valid_model_molecule(imol)) {
       if (graphics_info_t::molecules[imol].has_model()) {
 	 if (is_valid_map_molecule(imol_for_map)) { 
-	    if (graphics_info_t::molecules[imol_for_map].has_map()) { 
+	    if (graphics_info_t::molecules[imol_for_map].has_xmap()) { 
 	       graphics_info_t::molecules[imol].fit_residue_range_to_map_by_simplex(res1, res2, altloc, chain_id, imol_for_map);
 	    } else {
 	       std::cout << "No map for molecule " << imol_for_map << std::endl;
@@ -4225,7 +4225,7 @@ score_residue_range_fit_to_map(int res1, int res2, char *altloc,
    if (is_valid_model_molecule(imol)) {
       if (graphics_info_t::molecules[imol].has_model()) {
 	 if (is_valid_map_molecule(imol_for_map)) {
-	    if (graphics_info_t::molecules[imol_for_map].has_map()) { 
+	    if (graphics_info_t::molecules[imol_for_map].has_xmap()) { 
 	       f = graphics_info_t::molecules[imol].score_residue_range_fit_to_map(res1, res2, altloc, chain_id, imol_for_map);
 	    } else {
 	       std::cout << "No map for molecule " << imol_for_map << std::endl;
@@ -4942,7 +4942,7 @@ int n_symops(int imol) {
    };
 
    if (is_valid_map_molecule(imol)) {
-      r = graphics_info_t::molecules[imol].xmap_list[0].spacegroup().num_symops();
+      r = graphics_info_t::molecules[imol].xmap.spacegroup().num_symops();
    } 
    return r;
 }
@@ -5021,7 +5021,7 @@ void assign_sequence(int imol_coords, int imol_map, const char *chain_id) {
 
    if (is_valid_model_molecule(imol_coords))
       if (is_valid_map_molecule(imol_map))
-	 graphics_info_t::molecules[imol_coords].assign_sequence(graphics_info_t::molecules[imol_map].xmap_list[0], std::string(chain_id));
+	 graphics_info_t::molecules[imol_coords].assign_sequence(graphics_info_t::molecules[imol_map].xmap, std::string(chain_id));
 
   std::string cmd = "assign-sequence";
   std::vector<coot::command_arg_t> args;
@@ -5601,7 +5601,7 @@ int place_helix_here() {
       // g.helix_placement_cb_density_descrimination_ratio
       // defaults to 1.0.
       int imol = -1;
-      clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
       coot::helix_placement p(xmap);
 
       // test
@@ -5684,7 +5684,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
    if (imol_map != -1) {
 
       float s = graphics_info_t::molecules[imol_map].map_sigma();
-      coot::helix_placement p(graphics_info_t::molecules[imol_map].xmap_list[0]);
+      coot::helix_placement p(graphics_info_t::molecules[imol_map].xmap);
       coot::helix_placement_info_t si =
 	 p.place_strand(pt, n_residues, n_sample_strands, s * graphics_info_t::place_helix_here_fudge_factor);
       if (si.success) {
@@ -5813,8 +5813,7 @@ int find_secondary_structure_local(
       if ( use_strand )
 	tgtvec.push_back( SSfind::Target(tb[strand_target%4],strand_length) );
       coot::fast_secondary_structure_search ssfind;
-      ssfind( graphics_info_t::molecules[imol_map].xmap_list[0], pt,
-	      0.0, tgtvec );
+      ssfind( graphics_info_t::molecules[imol_map].xmap, pt, 0.0, tgtvec );
       if (ssfind.success) {
 	 atom_selection_container_t asc = make_asc(ssfind.mol.pcmmdbmanager());
 	 imol = g.create_molecule();
@@ -5894,7 +5893,7 @@ int find_nucleic_acids_local( float radius )
 
    // build the model
    Coot_nucleic_acid_build nafind( nafile );
-   bool success = nafind.build( mol, graphics_info_t::molecules[imol_map].xmap_list[0], pt, radius );
+   bool success = nafind.build( mol, graphics_info_t::molecules[imol_map].xmap, pt, radius );
    graphics_info_t::molecules[imol].update_molecule_after_additions();
 
    if (success) {
@@ -5938,7 +5937,7 @@ int fffear_search(int imol_model, int imol_map) {
       } else {
 	 coot::util::fffear_search f(graphics_info_t::molecules[imol_model].atom_sel.mol,
 				     graphics_info_t::molecules[imol_model].atom_sel.SelectionHandle,
-				     graphics_info_t::molecules[imol_map].xmap_list[0],
+				     graphics_info_t::molecules[imol_map].xmap,
 				     angular_resolution);
 
 	 imol_new = graphics_info_t::create_molecule();
@@ -6225,7 +6224,7 @@ int morph_fit_all(int imol, float transformation_averaging_radius) {
    int imol_ref_map = g.Imol_Refinement_Map();
    if (is_valid_map_molecule(imol_ref_map)) {
       if (is_valid_model_molecule(imol)) {
-	 success = g.molecules[imol].morph_fit_all(g.molecules[imol_ref_map].xmap_list[0],
+	 success = g.molecules[imol].morph_fit_all(g.molecules[imol_ref_map].xmap,
 						   transformation_averaging_radius);
 	 graphics_draw();
       }
@@ -6241,7 +6240,7 @@ int morph_fit_chain(int imol, std::string chain_id, float transformation_averagi
    if (is_valid_map_molecule(imol_ref_map)) {
       if (is_valid_model_molecule(imol)) {
 	 success = g.molecules[imol].morph_fit_chain(chain_id,
-						     g.molecules[imol_ref_map].xmap_list[0],
+						     g.molecules[imol_ref_map].xmap,
 						     transformation_averaging_radius);
 	 graphics_draw();
       }
@@ -6275,7 +6274,7 @@ int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residu
    if (is_valid_map_molecule(imol_ref_map)) {
       if (is_valid_model_molecule(imol)) {
 	 graphics_info_t g;
-	 const clipper::Xmap<float> &xmap = g.molecules[imol_ref_map].xmap_list[0];
+	 const clipper::Xmap<float> &xmap = g.molecules[imol_ref_map].xmap;
 	 success = g.molecules[imol].morph_fit_residues(residue_specs, xmap,
 							transformation_averaging_radius);
 	 graphics_draw();
@@ -6292,7 +6291,7 @@ int fit_by_secondary_structure_elements(int imol, const std::string &chain_id) {
    if (is_valid_map_molecule(imol_ref_map)) {
       if (is_valid_model_molecule(imol)) {
 	 graphics_info_t g;
-	 const clipper::Xmap<float> &xmap = g.molecules[imol_ref_map].xmap_list[0];
+	 const clipper::Xmap<float> &xmap = g.molecules[imol_ref_map].xmap;
 	 success = g.molecules[imol].fit_by_secondary_structure_elements(chain_id, xmap);
 	 graphics_draw();
       }
@@ -7017,7 +7016,7 @@ int laplacian (int imol) {
 
    int iret = -1;
    if (is_valid_map_molecule(imol)) {
-      clipper::Xmap<float> xmap = coot::util::laplacian_transform(graphics_info_t::molecules[imol].xmap_list[0]);
+      clipper::Xmap<float> xmap = coot::util::laplacian_transform(graphics_info_t::molecules[imol].xmap);
       int new_molecule_number = graphics_info_t::create_molecule();
       std::string label = "Laplacian of ";
       label += graphics_info_t::molecules[imol].name_;
@@ -7174,7 +7173,7 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
 	 coot::residue_spec_t rs(chain_id, resno, ins_code);
 	 float map_sigma = g.molecules[imol_map].map_sigma();
 	 g.molecules[imol].fit_to_map_by_random_jiggle(rs,
-						       g.molecules[imol_map].xmap_list[0],
+						       g.molecules[imol_map].xmap,
 						       map_sigma,
 						       n_trials, jiggle_scale_factor);
 	 graphics_draw();
@@ -7197,7 +7196,7 @@ float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_
 	 int n_atoms = g.molecules[imol].atom_sel.n_selected_atoms;
 	 bool use_biased_density_scoring = false; // not for all-molecule
 	 g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
-						       g.molecules[imol_map].xmap_list[0],
+						       g.molecules[imol_map].xmap,
 						       map_sigma,
 						       n_trials, jiggle_scale_factor,
 						       use_biased_density_scoring);
@@ -7231,7 +7230,7 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
 	 if (n_atoms) { 
 	    bool use_biased_density_scoring = false; // not for all-molecule
 	    g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
-							  g.molecules[imol_map].xmap_list[0],
+							  g.molecules[imol_map].xmap,
 							  map_sigma,
 							  n_trials, jiggle_scale_factor,
 							  use_biased_density_scoring);
@@ -7270,7 +7269,7 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
       if (! new_res_spec.unset_p()) { 
 	 if (is_valid_map_molecule(imol_refinement_map())) {
 	    const clipper::Xmap<float> &xmap =
-	       g.molecules[imol_refinement_map()].xmap_list[0];
+	       g.molecules[imol_refinement_map()].xmap;
 	    std::vector<coot::residue_spec_t> residue_specs;
 	    residue_specs.push_back(res_spec);
 	    residue_specs.push_back(new_res_spec);
@@ -7308,7 +7307,7 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 	 r = scm_residue(new_res_spec);
 	 if (is_valid_map_molecule(imol_refinement_map())) {
 	    const clipper::Xmap<float> &xmap =
-	       g.molecules[imol_refinement_map()].xmap_list[0];
+	       g.molecules[imol_refinement_map()].xmap;
 	    std::vector<coot::residue_spec_t> residue_specs;
 	    residue_specs.push_back(res_spec);
 	    residue_specs.push_back(new_res_spec);
@@ -7354,7 +7353,7 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
 	 r = py_residue(new_res_spec);
 	 if (is_valid_map_molecule(imol_refinement_map())) {
 	    const clipper::Xmap<float> &xmap =
-	       g.molecules[imol_refinement_map()].xmap_list[0];
+	       g.molecules[imol_refinement_map()].xmap;
 	    std::vector<coot::residue_spec_t> residue_specs;
 	    residue_specs.push_back(res_spec);
 	    residue_specs.push_back(new_res_spec);
@@ -7466,7 +7465,7 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 	    std::sort(rs.begin(), rs.end());
 	    int first_res_no = rs[0].resno;
 	    
-	    clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+	    clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
 
 	    std::vector<ProteinDB::Chain> chains =
 	       graphics_info_t::molecules[imol_coords].protein_db_loops(residue_specs, nfrags, xmap);

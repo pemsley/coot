@@ -1132,16 +1132,6 @@ public:        //                      public
       drawit_for_parallel_plane_restraints = false;
       draw_it_for_map = 0;  // don't display this thing on a redraw!
       draw_it_for_map_standard_lines = 0;
-
-      // don't do these things when we have a shallow copy constructor.
-      if (0) { 
-	 if (has_map()) {
-	    clipper::Xmap<float> x;
-	    xmap_list[0] = x;
-	    delete [] xmap_list;
-	    xmap_list = 0;
-	 }
-      }
    }
 
    void setup_internal() { 
@@ -1149,11 +1139,7 @@ public:        //                      public
       atom_sel.n_selected_atoms = 0;
       atom_sel.mol = NULL;
 
-      xmap_list = 0;
-      xmap_is_filled = NULL;
       // while zero maps, don't need to intialise the arrays (xmap_is_filled)
-      max_xmaps = 0;
-      nx_map_is_filled = 0;
       is_patterson = 0;
       draw_vectors = NULL;
       diff_map_draw_vectors = NULL;
@@ -1697,16 +1683,13 @@ public:        //                      public
    // 
    // We use xmap_is_filled[0] to see if this molecule is a map. 
    // 
-   clipper::Xmap<float>* xmap_list;
-   int   *xmap_is_filled;
-   int    max_xmaps;
-   int   *xmap_is_diff_map;
-   clipper::NXmap<float> nx_map;
-   bool nx_map_is_filled;
+   clipper::Xmap<float> xmap;
+   bool xmap_is_diff_map;
+   clipper::NXmap<float> nxmap;
    bool is_patterson;  // for (at least) contour level protection
    
 
-   float *contour_level; 
+   float contour_level; 
    short int contour_by_sigma_flag;
    float contour_sigma_step;
    // 
@@ -2044,31 +2027,11 @@ public:        //                      public
    graphical_bonds_container make_symmetry_environment_bonds_box(int atom_index,
 								 coot::protein_geometry *protein_geom_p) const;
 
-   // instead of using xmap_is_filled[0] and atom_sel.n_selected_atoms
-   // directly, lets provide these functions:
+   bool has_xmap() const { return ! xmap.is_null(); }
 
-   bool has_map() const {
+   bool has_nxmap() const { return ! nxmap.is_null(); }
 
-     if (!xmap_is_filled) {
-       // If you see this, then a molecule is being displayed before
-       // it is initialized, somehow.
-       std::cout << "!!! Bogus bogus bogus bogus bogus bogus bogus!!!!!! " << std::endl;
-       std::cout << "!!! molecule number apparently: " << imol_no << std::endl;
-       return 0;
-     } else {
-       if (xmap_is_filled[0])
-	 return 1;
-       else
-	 return 0;
-     }
-   }
-
-   bool has_model() const {
-      if (atom_sel.n_selected_atoms > 0)
-	 return 1;
-      else
-	 return 0;
-   }
+   bool has_model() const { return (atom_sel.n_selected_atoms > 0); }
 
    // for use when we want to tell the difference between a molecule
    // with no atoms that is open and one that is closed. I guess that
@@ -2090,7 +2053,7 @@ public:        //                      public
 	    i = 0;
 	 }
       } else {
-	 if (has_map()) {
+	 if (has_xmap()) { // NXMAP-FIXME
 	    if (draw_it_for_map) {
 	       i = 1;
 	    } else {
@@ -2401,7 +2364,7 @@ public:        //                      public
    // more refmac stuff
    //
    int write_pdb_file(const std::string &filename); // not const because of shelx/name manip
-   short int Have_sensible_refmac_params() const { return has_map() && have_sensible_refmac_params; }
+   short int Have_sensible_refmac_params() const { return has_xmap() && have_sensible_refmac_params; }
    short int Have_refmac_phase_params()    const { return have_refmac_phase_params; }
    void increment_refmac_count() { refmac_count++; }
    int Refmac_count() const { return refmac_count; }
@@ -2618,10 +2581,12 @@ public:        //                      public
    std::string dotted_chopped_name() const;
 
    float get_contour_level() const {
-      if (! has_map())
+      if (! has_xmap()) { 
 	 return 0;
-      else
-	 return contour_level[0];
+      } else {
+	 // NXMAP-FIXME 
+	 return contour_level;
+      }
    }
 	 
 	 

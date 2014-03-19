@@ -2385,9 +2385,9 @@ void fill_single_map_properties_dialog(GtkWidget *window, int imol) {
 
    cell_text_string = graphics_info_t::molecules[imol].cell_text_with_embeded_newline();
    spgr_text_string = "   ";
-   spgr_text_string += graphics_info_t::molecules[imol].xmap_list[0].spacegroup().descr().symbol_hm();
+   spgr_text_string += graphics_info_t::molecules[imol].xmap.spacegroup().descr().symbol_hm();
    spgr_text_string += "  [";
-   spgr_text_string += graphics_info_t::molecules[imol].xmap_list[0].spacegroup().descr().symbol_hall();
+   spgr_text_string += graphics_info_t::molecules[imol].xmap.spacegroup().descr().symbol_hall();
    spgr_text_string += "]";
 
    gtk_label_set_text(GTK_LABEL(cell_text), cell_text_string.c_str());
@@ -4467,7 +4467,7 @@ void write_ccp4mg_picture_description(const char *filename) {
 	    std::string phi = g.molecules[imol].save_phi_col;
 	    std::string f   = g.molecules[imol].save_f_col;
 	    std::string w   = g.molecules[imol].save_weight_col;
-	    float lev       = g.molecules[imol].contour_level[0];
+	    float lev       = g.molecules[imol].contour_level;
 	    float r         = g.box_radius;
 	    // first create a colour
 	    map_colour_stream << "   coot_mapcolour" << imol << " = ["<<

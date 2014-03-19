@@ -411,7 +411,7 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 
 	 // this is where regularize and refine differ:
 	 if (imol_for_map != -1)
-	    restraints.add_map(molecules[imol_for_map].xmap_list[0],
+	    restraints.add_map(molecules[imol_for_map].xmap,
 			       geometry_vs_map_weight);
 
 	 atom_selection_container_t local_moving_atoms_asc =
@@ -738,7 +738,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 						       fixed_atom_specs);
 
 	       if (use_map_flag) { 
-		  clipper::Xmap<float> &xmap = molecules[Imol_Refinement_Map()].xmap_list[0];
+		  clipper::Xmap<float> &xmap = molecules[Imol_Refinement_Map()].xmap;
 		  restraints.add_map(xmap, weight);
 	       }
 
@@ -1634,9 +1634,9 @@ graphics_info_t::refine_residue_range(int imol,
 	 std::cout << "FYI: chain ids are: \"" << chain_id_1
 		   << "\" and \"" << chain_id_2 << "\"" << std::endl;
       } else {
-	 if (molecules[imol_map].has_map()) {  // it may have been
-					       // closed after it was
-					       // selected.
+	 if (molecules[imol_map].has_xmap()) {  // it may have been
+					        // closed after it was
+					        // selected.
 	    short int simple_water = 0;
 	    if (resno_1 == resno_2) {
 	       if (is_water_like_flag) {
@@ -1867,7 +1867,7 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
    } 
    
    coot::ligand lig;
-   lig.import_map_from(molecules[imol_ref_map].xmap_list[0], 
+   lig.import_map_from(molecules[imol_ref_map].xmap, 
 		       molecules[imol_ref_map].map_sigma());
    
    lig.install_ligand(range_mol);
@@ -2104,7 +2104,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	     terminus_type == "singleton")
 	    masked_map_val = 0.0; 
 	 addres.set_masked_map_value(masked_map_val);   
-	 addres.import_map_from(molecules[imol_map].xmap_list[0], 
+	 addres.import_map_from(molecules[imol_map].xmap,
 				molecules[imol_map].map_sigma());
 
 	 // This masked map will be the one that is used for rigid

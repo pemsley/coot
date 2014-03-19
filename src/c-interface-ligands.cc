@@ -557,7 +557,7 @@ execute_ligand_search_internal() {
       // (but pre-idealized).
       wlig.set_debug_wiggly_ligands();
    } 
-   wlig.import_map_from(g.molecules[g.find_ligand_map_mol()].xmap_list[0]);
+   wlig.import_map_from(g.molecules[g.find_ligand_map_mol()].xmap);
    std::vector<std::pair<int, bool> > ligands = g.find_ligand_ligand_mols();
 
    for(unsigned int i=0; i<ligands.size(); i++) {
@@ -903,8 +903,8 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
 	 std::cout << "No such molecule (no coords) at molecule number " << map_mol_no << std::endl;
       } else { 
       
-	 if (!g.molecules[map_mol_no].has_map()) {
-	    std::cout << "No map in molecule number " << map_mol_no << std::endl;
+	 if (!g.molecules[map_mol_no].has_xmap()) {
+	    std::cout << "No xmap in molecule number " << map_mol_no << std::endl;
 	 } else {
 	    
 	    if (! g.molecules[coord_mol_no].has_model()) {
@@ -912,7 +912,7 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
 	    } else {
 	       short int mask_waters_flag; // treat the waters like protein atoms?
 	       mask_waters_flag = graphics_info_t::find_ligand_mask_waters_flag;
-	       lig.import_map_from(g.molecules[map_mol_no].xmap_list[0]);
+	       lig.import_map_from(g.molecules[map_mol_no].xmap);
 	       int selectionhandle = g.molecules[coord_mol_no].atom_sel.mol->NewSelection();
 
 	       if (graphics_info_t::map_mask_atom_radius > 0) {
@@ -952,7 +952,7 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
       if (is_valid_model_molecule(coords_mol_no)) {
 	 // std::cout << "making lig..." << std::endl;
 	 coot::ligand lig;
-	 lig.import_map_from(g.molecules[map_mol_no].xmap_list[0]);
+	 lig.import_map_from(g.molecules[map_mol_no].xmap);
 
 	 if (graphics_info_t::map_mask_atom_radius > 0) {
 	    lig.set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
@@ -1373,7 +1373,7 @@ PyObject *map_peaks_py(int imol_map, float n_sigma) {
    PyObject *r = Py_False;
 
    if (is_valid_map_molecule(imol_map)) {
-      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
       int do_positive_levels_flag = 1;
       int also_negative_levels_flag = 0;
       coot::peak_search ps(xmap);
@@ -1412,10 +1412,10 @@ PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y,
 
       graphics_info_t g;
       CMMDBManager *mol = coot::util::create_mmdbmanager_from_atom(at);
-      mol->SetSpaceGroup(g.molecules[imol_map].xmap_list[0].spacegroup().symbol_hm().c_str());
-      coot::util::set_mol_cell(mol, g.molecules[imol_map].xmap_list[0].cell());
+      mol->SetSpaceGroup(g.molecules[imol_map].xmap.spacegroup().symbol_hm().c_str());
+      coot::util::set_mol_cell(mol, g.molecules[imol_map].xmap.cell());
       
-      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
       int do_positive_levels_flag = 1;
       int also_negative_levels_flag = 0;
       coot::peak_search ps(xmap);
@@ -1456,7 +1456,7 @@ SCM map_peaks_scm(int imol_map, float n_sigma) {
 
    if (is_valid_map_molecule(imol_map)) {
       r = SCM_EOL;
-      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
       int do_positive_levels_flag = 1;
       int also_negative_levels_flag = 0;
       coot::peak_search ps(xmap);
@@ -1492,10 +1492,10 @@ SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, floa
       at->SetElementName(" C");
 
       CMMDBManager *mol = coot::util::create_mmdbmanager_from_atom(at);
-      mol->SetSpaceGroup(g.molecules[imol_map].xmap_list[0].spacegroup().symbol_hm().c_str());
-      coot::util::set_mol_cell(mol, g.molecules[imol_map].xmap_list[0].cell());
+      mol->SetSpaceGroup(g.molecules[imol_map].xmap.spacegroup().symbol_hm().c_str());
+      coot::util::set_mol_cell(mol, g.molecules[imol_map].xmap.cell());
       
-      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
       int do_positive_levels_flag = 1;
       int also_negative_levels_flag = 0;
       coot::peak_search ps(xmap);
@@ -1980,7 +1980,7 @@ multi_residue_torsion_fit(int imol, const std::vector<coot::residue_spec_t> &res
       if (is_valid_map_molecule(imol_refinement_map())) {
 	 graphics_info_t g;
 	 const clipper::Xmap<float> &xmap =
-	    g.molecules[imol_refinement_map()].xmap_list[0];
+	    g.molecules[imol_refinement_map()].xmap;
 	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 	 graphics_draw();
       }
@@ -2002,7 +2002,7 @@ SCM multi_residue_torsion_fit_scm(int imol, SCM residues_specs_scm, int n_trials
 	 std::vector<coot::residue_spec_t> residue_specs =
 	    scm_to_residue_specs(residues_specs_scm);
 	 const clipper::Xmap<float> &xmap =
-	    g.molecules[imol_refinement_map()].xmap_list[0];
+	    g.molecules[imol_refinement_map()].xmap;
 	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 	 graphics_draw();
 	 r = SCM_BOOL_T; // we did something at least.
@@ -2024,10 +2024,8 @@ PyObject *multi_residue_torsion_fit_py(int imol, PyObject *residues_specs_py, in
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map())) {
 	 graphics_info_t g;
-	 std::vector<coot::residue_spec_t> residue_specs =
-       py_to_residue_specs(residues_specs_py);
-	 const clipper::Xmap<float> &xmap =
-	    g.molecules[imol_refinement_map()].xmap_list[0];
+	 std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(residues_specs_py);
+	 const clipper::Xmap<float> &xmap = g.molecules[imol_refinement_map()].xmap;
 	 g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 	 graphics_draw();
 	 r = Py_True; // we did something at least.

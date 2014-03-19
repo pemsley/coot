@@ -79,7 +79,7 @@ graphics_info_t::raster3d(std::string filename) {
 	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info());
 	 }
       }
-      if (molecules[imol].has_map()) {
+      if (molecules[imol].has_xmap()) {  // NXMAP-FIXME
 	 rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(1));
 	 if (molecules[imol].is_difference_map_p()) { 
 	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(-1));
@@ -149,7 +149,7 @@ graphics_info_t::povray(std::string filename) {
 	    //rt.set_camera_location(far_eye);
 	 }
       }
-      if (molecules[imol].has_map()) {
+      if (molecules[imol].has_xmap()) {  // NXMAP-FIXME.
 	 rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(1));
 	 if (molecules[imol].is_difference_map_p()) { 
 	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(-1));
@@ -214,7 +214,7 @@ graphics_info_t::renderman(std::string filename) {
 	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info());
 	 }
       }
-      if (molecules[imol].has_map()) {
+      if (molecules[imol].has_xmap()) { // NXMAP-FIXME
 	 rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(1));
 	 if (molecules[imol].is_difference_map_p()) { 
 	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(-1));

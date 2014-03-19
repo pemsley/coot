@@ -3625,7 +3625,8 @@ new_close_molecules(GtkWidget *window) {
    GtkWidget *checkbutton;
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) { 
       if (graphics_info_t::molecules[imol].has_model() || 
-	  graphics_info_t::molecules[imol].has_map()) { 
+	  graphics_info_t::molecules[imol].has_xmap()  ||
+	  graphics_info_t::molecules[imol].has_nxmap()) {
 	 std::string button_name("delete_molecule_checkbutton_");
 	 button_name += graphics_info_t::int_to_string(imol);
 	 checkbutton = lookup_widget(vbox, button_name.c_str());
@@ -3641,6 +3642,7 @@ new_close_molecules(GtkWidget *window) {
 // 	       std::cout << "DEBUG:: graphics_info_t::sequence_view_is_displayed["
 // 			 << imol << "] is "
 // 			 << graphics_info_t::sequence_view_is_displayed[imol] << std::endl;
+	       
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 	       GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
 	       if (w) {
@@ -3717,7 +3719,8 @@ GtkWidget *wrapped_create_new_close_molecules_dialog() {
    GtkWidget *frame;
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) { 
       if (graphics_info_t::molecules[imol].has_model() || 
-	  graphics_info_t::molecules[imol].has_map()) { 
+	  graphics_info_t::molecules[imol].has_xmap() ||
+	  graphics_info_t::molecules[imol].has_nxmap()) { // NXMAP-FIXME, check
 	 std::string button_name("delete_molecule_checkbutton_");
 	 std::string mol_name("   ");
 	 mol_name += graphics_info_t::int_to_string(imol);
@@ -3841,14 +3844,12 @@ void fill_close_option_menu_with_all_molecule_options(GtkWidget *optionmenu) {
    for (int imol=0; imol<g.n_molecules(); imol++) {
       
       if (g.molecules[imol].atom_sel.n_selected_atoms > 0 ||
-	  g.molecules[imol].xmap_is_filled[0]) {
+	  g.molecules[imol].has_xmap() || g.molecules[imol].has_nxmap()) {
 	 char s[200];
 	 snprintf(s,199,"%d",imol);
 	 std::string ss(s);
 	 ss += " ";
 	 ss += g.molecules[imol].name_;
-	 // char *txt = (char *)malloc(ss.length()+1);
-	 // snprintf(txt, 3, "%d", imol); 
 	 menuitem = gtk_menu_item_new_with_label (ss.c_str());
 	 gtk_signal_connect (GTK_OBJECT (menuitem), "activate",
 			     GTK_SIGNAL_FUNC(close_molecule_item_select),
@@ -4352,7 +4353,8 @@ void add_on_map_colour_choices(GtkWidget *menu) {
 			    my_delete_menu_items,
 			    (gpointer) sub_menu);
       for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-	 if (graphics_info_t::molecules[imol].has_map()) {
+	 if (graphics_info_t::molecules[imol].has_xmap() ||
+	     graphics_info_t::molecules[imol].has_nxmap()) { // NXMAP-FIXME
 	    std::string name;
 	    name = graphics_info_t::molecules[imol].dotted_chopped_name();
 	    add_map_colour_mol_menu_item(imol, name, sub_menu, callback);
@@ -4434,7 +4436,8 @@ void add_on_map_scroll_whell_choices(GtkWidget *menu) {
 			    my_delete_menu_items,
 			    (gpointer) sub_menu);
       for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
-	 if (graphics_info_t::molecules[imol].has_map()) {
+	 if (graphics_info_t::molecules[imol].has_xmap() ||
+	     graphics_info_t::molecules[imol].has_nxmap()) { // NXMAP-FIXME, check
 	    std::string name;
 	    name = graphics_info_t::molecules[imol].dotted_chopped_name();
 	    add_map_scroll_wheel_mol_menu_item(imol, name, sub_menu, callback);

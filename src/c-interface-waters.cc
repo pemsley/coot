@@ -453,7 +453,7 @@ void split_water(int imol, const char *chain_id, int res_no, const char *ins_cod
    if (is_valid_model_molecule(imol)) {
       int imol_map = imol_refinement_map();
       if (is_valid_map_molecule(imol_map)) {
-	 const clipper::Xmap<float> xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+	 const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
 	 float sigma = graphics_info_t::molecules[imol_map].map_sigma();
 	 graphics_info_t::molecules[imol].split_water(chain_id, res_no, ins_code, xmap, sigma);
       } else {
@@ -480,7 +480,7 @@ find_blobs(int imol_model, int imol_map, float sigma_cut_off) {
 	 
 	 coot::ligand lig;
 	 
-	 lig.import_map_from(g.molecules[imol_map].xmap_list[0], 
+	 lig.import_map_from(g.molecules[imol_map].xmap, 
 			     g.molecules[imol_map].map_sigma());
 	 lig.set_map_atom_mask_radius(1.9); // Angstrom
 	 lig.mask_map(g.molecules[imol_model].atom_sel.mol, mask_waters_flag);

@@ -288,10 +288,12 @@ molecule_class_info_t::space_group() const {
 std::pair<bool, clipper::Cell>
 molecule_class_info_t::cell() const {
 
+   // NXMAP-FIXME
+   
    clipper::Cell cell;
    std::pair<bool, clipper::Cell> p(0, cell);
-   if (has_map()) {
-      p = std::pair<bool, clipper::Cell> (1, xmap_list[0].cell());
+   if (has_xmap()) {
+      p = std::pair<bool, clipper::Cell> (1, xmap.cell());
    } 
 
    if (has_model()) { 
@@ -356,7 +358,7 @@ molecule_class_info_t::size_of_molecule() const {
 
 
 std::string
-molecule_class_info_t::show_spacegroup() const { 
+molecule_class_info_t::show_spacegroup() const {
 
    std::string s("No spacegroup");
    
@@ -366,8 +368,8 @@ molecule_class_info_t::show_spacegroup() const {
 	 s = st;
    }
    
-   if (has_map()) 
-      s = xmap_list[0].spacegroup().symbol_hm();
+   if (has_xmap()) 
+      s = xmap.spacegroup().symbol_hm();
 
    return s;
 }
@@ -1017,43 +1019,38 @@ molecule_class_info_t::draw_coord_unit_cell(const coot::colour_holder &cell_colo
 void
 molecule_class_info_t::draw_map_unit_cell(const coot::colour_holder &cell_colour) {
 
-   if (has_map()) { 
+   if (has_xmap()) { 
       if (show_unit_cell_flag == 1) {
       
-	 if ( max_xmaps > 0 ) {
-	    if ( xmap_is_filled[0] ) {
-
-	       if (draw_it_for_map) { 
+	 if (draw_it_for_map) { 
 	    
-		  // rsc = real_space_corners
-		  float rsc[8][3];
+	    // rsc = real_space_corners
+	    float rsc[8][3];
 	    
-		  glLineWidth(2.0);
-		  glColor3f(cell_colour.red, cell_colour.green, cell_colour.blue);
+	    glLineWidth(2.0);
+	    glColor3f(cell_colour.red, cell_colour.green, cell_colour.blue);
 	    
-		  float corners[8][3] = {
-		     {0,0,0}, //0 
-		     {0,0,1}, //1 
-		     {0,1,0}, //2 
-		     {0,1,1}, //3 
-		     {1,0,0}, //4 
-		     {1,0,1}, //5 
-		     {1,1,0}, //6 
-		     {1,1,1}};//7 
+	    float corners[8][3] = {
+	       {0,0,0}, //0 
+	       {0,0,1}, //1 
+	       {0,1,0}, //2 
+	       {0,1,1}, //3 
+	       {1,0,0}, //4 
+	       {1,0,1}, //5 
+	       {1,1,0}, //6 
+	       {1,1,1}};//7 
 	    
-		  for (int ii=0; ii<8; ii++) {
+	    for (int ii=0; ii<8; ii++) {
 	       
-		     clipper::Coord_frac c_f(corners[ii][0],corners[ii][1],corners[ii][2]);
+	       clipper::Coord_frac c_f(corners[ii][0],corners[ii][1],corners[ii][2]);
 	       
-		     clipper::Coord_orth c_o = c_f.coord_orth( xmap_list[0].cell());
+	       clipper::Coord_orth c_o = c_f.coord_orth(xmap.cell());
 	       
-		     rsc[ii][0] = c_o.x();
-		     rsc[ii][1] = c_o.y();
-		     rsc[ii][2] = c_o.z();
-		  }
-		  draw_unit_cell_internal(rsc); 
-	       }
+	       rsc[ii][0] = c_o.x();
+	       rsc[ii][1] = c_o.y();
+	       rsc[ii][2] = c_o.z();
 	    }
+	    draw_unit_cell_internal(rsc); 
 	 }
       }
    }
@@ -1161,13 +1158,6 @@ molecule_class_info_t::initialize_coordinate_things_on_read_molecule(std::string
 void
 molecule_class_info_t::initialize_coordinate_things_on_read_molecule_internal(std::string molecule_name,
 									      short int is_undo_or_redo) {
-
-   // we use xmap_is_filled[0] to see if this molecule is a map
-   //
-   // FIXME.  Delete these lines, max_xmaps should be used instead.
-   //
-   xmap_is_filled = new int[10];
-   xmap_is_filled[0] = 0;
 
    //
    name_ = molecule_name;
@@ -1331,13 +1321,9 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
    // Map initialization:
    n_draw_vectors = 0;
    n_diff_map_draw_vectors = 0;
-   xmap_is_filled = new int[10];
 
    // give it some memory:
-   xmap_is_diff_map = new int[10];
-   xmap_is_diff_map[0] = is_diff_map;  // and set the first (only) one. 
-
-   contour_level = new float[10];
+   xmap_is_diff_map = false;
 
    draw_vectors = NULL;
    diff_map_draw_vectors = NULL;
@@ -4464,16 +4450,25 @@ molecule_class_info_t::close_yourself() {
 
    // Deletion causing problems on application closure
 
-   short int was_map = 0;
-   short int was_coords = 0;
+   bool was_map    = false;
+   bool was_xmap   = false;
+   bool was_nxmap  = false;
+   bool was_coords = false;
 
    name_ = ""; // not "Baton Atoms" or anything now.
    
    if (atom_sel.n_selected_atoms > 0)
       was_coords = 1;
 
-   if (xmap_is_filled[0])
-      was_map = 1;
+   if (has_xmap()) {
+      was_xmap = true;
+      was_map = true;
+   } 
+
+   if (has_nxmap()) { 
+      was_map = true;
+      was_nxmap = true;
+   } 
 
    // delete from display manager combo box
    // 
@@ -4493,26 +4488,31 @@ molecule_class_info_t::close_yourself() {
 	 gtk_widget_destroy(display_frame);
 
       }
-   } else {
-      // std::cout << "close: display_control_window is not active" << std::endl;
    }
 
    if (was_coords) { 
       atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
       delete atom_sel.mol;
-      // atom_sel.mol = 0; done later
    }
 
-   if (was_map) {
+   if (was_xmap) {
       fc_skeleton_draw_on = 0; // turn off the skeleton
-      delete [] xmap_list;
-      xmap_list = NULL;
-      xmap_is_filled[0] = 0;
       delete [] draw_vectors;
       delete [] diff_map_draw_vectors;
       draw_vectors = NULL;
       diff_map_draw_vectors = NULL;
-      max_xmaps = 0;
+      clipper::Xmap<float> empty;
+      xmap = empty; // clear xmap
+   }
+
+   if (was_nxmap) {
+      fc_skeleton_draw_on = 0; // turn off the skeleton
+      delete [] draw_vectors;
+      delete [] diff_map_draw_vectors;
+      draw_vectors = NULL;
+      diff_map_draw_vectors = NULL;
+      clipper::NXmap<float> empty;
+      nxmap = empty; // clear nxmap
    }
 
    bonds_box.clear_up();
@@ -5603,7 +5603,7 @@ molecule_class_info_t::next_ca_by_skel(const std::vector<clipper::Coord_orth> &p
 				  coord_grid_start,
 				  use_coord_grid_start_flag,
 				  ca_ca_bond_length,
-				  xskel_cowtan, xmap_list[0],
+				  xskel_cowtan, xmap,
 				  map_cut_off,
 				  skeleton_treenodemap);
    } else {
@@ -7051,7 +7051,7 @@ std::vector<float>
 molecule_class_info_t::map_colours() const {
 
    std::vector<float> v;
-   if (has_map()) {
+   if (has_xmap()) {                        // NXMAP-FIXME
       if (is_difference_map_p()) {
 	 v.resize(6,0.3);
 	 v[0] = map_colour[0][0];
@@ -7445,16 +7445,16 @@ molecule_class_info_t::transform_zone_by(const std::string &chain_id, int resno_
 
 void
 molecule_class_info_t::set_contour_level(float f) {
-   if (has_map()) { 
-      contour_level[0] = f;
+   if (has_xmap()  || has_nxmap()) { 
+      contour_level = f;
       update_map();
    }
 }
 
 void
 molecule_class_info_t::set_contour_level_by_sigma(float f) {
-   if (has_map()) { 
-      contour_level[0] = f * map_sigma_;
+   if (has_xmap() || has_nxmap()) { 
+      contour_level = f * map_sigma_;
       update_map();
    }
 }
@@ -7465,7 +7465,7 @@ molecule_class_info_t::get_map_contour_strings() const {
    std::vector <std::string> s; 
    s.push_back("set-last-map-contour-level");
    char cs[100];
-   snprintf(cs, 99, "%e", contour_level[0]);
+   snprintf(cs, 99, "%e", contour_level);
    s.push_back(cs);
 
    return s;

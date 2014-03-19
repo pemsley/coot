@@ -1233,7 +1233,7 @@ graphics_info_t::density_fit_from_mol(const atom_selection_container_t &asc,
    std::vector<coot::geometry_graph_block_info_generic> drv;
    std::string altconf("");  // use this (e.g. "A") or "".
    
-   if (imol_map < n_molecules() && graphics_info_t::molecules[imol_map].has_map()) { 
+   if (imol_map < n_molecules() && graphics_info_t::molecules[imol_map].has_xmap()) { 
       int n_models = asc.mol->GetNumberOfModels();
    
       if (n_models > 0) { 
@@ -1304,7 +1304,7 @@ graphics_info_t::density_fit_from_residues(PCResidue *SelResidues, int nSelResid
    float distortion_max = 100.0;
    if (nSelResidues > 0) {
       int max_resno = -9999;
-      double max_grid_factor = coot::util::max_gridding(molecules[imol_for_map].xmap_list[0]);
+      double max_grid_factor = coot::util::max_gridding(molecules[imol_for_map].xmap);
 
       for (int ir=0; ir<nSelResidues; ir++) {
 	 int this_resno = SelResidues[ir]->GetSeqNum();
@@ -1319,7 +1319,7 @@ graphics_info_t::density_fit_from_residues(PCResidue *SelResidues, int nSelResid
 	 double residue_density_score =
 	    coot::util::map_score(residue_atoms,
 				  n_residue_atoms,
-				  molecules[imol_for_map].xmap_list[0], 1);
+				  molecules[imol_for_map].xmap, 1);
 	 double occ_sum = coot::util::occupancy_sum(residue_atoms, n_residue_atoms);
 	 if (occ_sum > 0) {
 	    residue_density_score /= occ_sum;

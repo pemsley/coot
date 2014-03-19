@@ -53,7 +53,7 @@ PyObject *map_peaks_near_point_from_list_py(int imol_map, PyObject *peak_list, f
       }
          
       // find all peaks close to (x,y,z)
-      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap_list[0];
+      const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
       clipper::Coord_orth center (x,y,z);
       coot::peak_search ps(xmap);
       std::vector<clipper::Coord_orth> close_peaks = 

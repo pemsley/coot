@@ -959,37 +959,20 @@ molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std
 					 float sigma_in) {
 
    std::cout << "INFO:: installing ghost map with name :" << name_in << std::endl;
-//    std::cout << "INFO::  max_xmaps :" << max_xmaps << std::endl;
-//    std::cout << "INFO::  xmap_list :" << xmap_list << std::endl;
 
    is_dynamically_transformed_map_flag = 1;
-
-   if (max_xmaps == 0) {
-      // std::cout << "DEBUG:: making space for xmap_list etc" << std::endl;
-      xmap_list        = new clipper::Xmap<float>[1];
-   }
-   // std::cout << "INFO:: instaled xmap_list :" << xmap_list << std::endl;
-   xmap_list[0] = map_in; 
-   max_xmaps++;
+   xmap = map_in;
+   
    initialize_map_things_on_read_molecule(name_in,
 					  is_diff_map_flag,
 					  swap_difference_map_colours_flag);
-   xmap_is_filled[0] = 1; // must come after init.. - urgh.
    update_map_in_display_control_widget();
-   
    map_ghost_info = ghost_info;
    
    // fill class variables
    map_mean_ = 0.0;
    map_sigma_ = sigma_in;
-
-   if (1) {
-      // if the following line is uncommented, we get a crash
-      // contour_level = new float[10];
-
-      contour_level[0]  = 0.2;
-      // contour_level[0] = nearest_step(map_mean_ + 1.5*map_sigma_, 0.05);
-   }
+   contour_level  = 0.2;
    update_map();
 
    std::cout << "Done install_ghost_map" << std::endl;

@@ -2569,9 +2569,6 @@ void set_residue_name(int imol, const char *chain_id, int res_no, const char *in
 void skel_greer_on(); 
 void skel_greer_off(); 
 
-void skel_foadi_on(); 
-void skel_foadi_off(); 
-
 void skeletonize_map_by_optionmenu(GtkWidget *optionmenu);
 void skeletonize_map_single_map_maybe(GtkWidget *window, int imol); 
 

@@ -233,7 +233,8 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    int molecule_count = 0;
    int scroll_wheel_map_for_state = -1; // unset
    for (int i=0; i<n_molecules(); i++) {
-      if (molecules[i].has_map() || molecules[i].has_model()) { 
+      // NXMAP-FIXME
+      if (molecules[i].has_xmap() || molecules[i].has_nxmap() || molecules[i].has_model()) { 
 	 // i.e. it was not Closed...
 	 command_strings = molecules[i].save_state_command_strings();
 	 if (command_strings.size() > 0) {
@@ -458,7 +459,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
 	    // Maps:
 	    // 
-	    if (molecules[i].has_map()) { 
+	    if (molecules[i].has_xmap()) {  // NXMAP-FIXME
 	       command_strings = molecules[i].set_map_colour_strings();
 	       commands.push_back(state_command(command_strings, il));
 	       command_strings = molecules[i].get_map_contour_strings();
@@ -636,7 +637,7 @@ graphics_info_t::save_state_data_and_models(short int lang_flag) const {
 
    std::vector<std::string> v;
    for (int i=0; i<n_molecules(); i++) {
-      if (molecules[i].has_map() || molecules[i].has_model()) {
+      if (molecules[i].has_xmap() || molecules[i].has_nxmap() || molecules[i].has_model()) {
 	 // don't tell us that there are molecules in the state file
 	 // that can't be read from a file (i.e. if
 	 // save_state_command_strings() is blank).

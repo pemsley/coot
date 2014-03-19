@@ -224,7 +224,7 @@ int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spe
 	       if (seq.size() > 0) { 
 
 		  // and apply
-		  sequencer.sequence_chain(graphics_info_t::molecules[imol_map].xmap_list[0],
+		  sequencer.sequence_chain(graphics_info_t::molecules[imol_map].xmap,
 					   seq, *mmdb_info.first, chain_id);
 		  std::string bestseq = sequencer.best_sequence();
 		  std::string fullseq = sequencer.full_sequence();
