@@ -628,14 +628,17 @@ int
 molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &chain_id, const clipper::Xmap<float> &xmap_in) {
 
    int status = 0;
+   float local_radius = 12;
 
    int imodel = 1;
+   bool simple_move = false;
+   
    if (atom_sel.mol) {
       CModel *model_p = atom_sel.mol->GetModel(imodel);
       if (model_p) {
 
 	 make_backup();
-	 bool model_changed = false;
+	 bool model_changed = true;
 
 	 int nhelix = model_p->GetNumberOfHelices();
 	 int nsheet = model_p->GetNumberOfSheets();
@@ -651,50 +654,15 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 	    for (int ih=1; ih<=nhelix; ih++) {
 	       helix_p = model_p->GetHelix(ih);
 	       if (helix_p) {
-		  coot::minimol::fragment f(chain_id);
-		  std::vector<CResidue *> added_residues;
-		  for (int res_no=helix_p->initSeqNum; res_no<=helix_p->endSeqNum; res_no++) {
-		     CResidue *residue_p = chain_p->GetResidue(res_no, "");
-		     if (residue_p) { 
-			f.addresidue(coot::minimol::residue(residue_p), false);
-			added_residues.push_back(residue_p);
-		     } else {
-			std::cout << "Null residue for " << chain_id << " " << res_no << std::endl;
-		     } 
-		  }
 
-		  if (!added_residues.size()) {
-		     std::cout << "no added residues for helix "
-			       << helix_p->helixID << " " << helix_p->initChainID << " " << helix_p->initSeqNum << " "
-			       << helix_p->endChainID << " " << helix_p->endSeqNum << std::endl;
-		  } else { 
-		     coot::minimol::molecule m(f);
-		     std::pair<bool, clipper::Coord_orth> sse_centre = coot::centre_of_residues(added_residues);
-		     if (sse_centre.first) { 
-		     
-			// returns the local rtop (relative to local centre) to move m into map.
-			// 
-			std::pair<bool, clipper::RTop_orth> rtop = coot::get_rigid_body_fit_rtop(&m, sse_centre.second, xmap_in);
-			if (rtop.first) {
-			   if (0)
-			      std::cout << "Got and RTop for helix " << chain_id << " "
-					<< helix_p->initSeqNum << " -- " << helix_p->endSeqNum
-					<< std::endl;
-			   for (unsigned int ires=0; ires<added_residues.size(); ires++)
-			      rtop_map[added_residues[ires]] = rtop.second;
-
-			   if (0) { 
-			      // simple move the coordinates
-			      m.transform(rtop.second);
-			      clipper::Mat33<double> mat(1,0,0,0,1,0,0,0,1);
-			      clipper::RTop_orth rtop_synth(mat, sse_centre.second);
-			      m.transform(rtop_synth);
-			      atom_selection_container_t asc = make_asc(m.pcmmdbmanager());
-			      replace_fragment(asc);
-			   }
-			}
-		     }
-		  }
+		  std::map<CResidue *, clipper::RTop_orth> rtops_fragment = 
+		     fit_by_secondary_structure_fragment(chain_p, chain_id, helix_p->initSeqNum, helix_p->endSeqNum,
+							 xmap_in, simple_move);
+		  // add rtops_fragment bits to overall rtops_map;
+		  std::map<CResidue *, clipper::RTop_orth>::const_iterator it;
+		  for (it=rtops_fragment.begin(); it!=rtops_fragment.end(); it++)
+		     rtop_map[it->first] = it->second;
+			  
 	       } else {
 		  std::cout << "ERROR: no helix!?" << std::endl;
 	       }
@@ -707,20 +675,37 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 	       for (int istrand=0; istrand<nstrand; istrand++) {
 		  strand_p = sheet_p->Strand[istrand];
 		  if (strand_p) { 
-		     std::cout << "---- handle strand ------ : " << strand_p->sheetID << " " << strand_p->strandNo << " "
-			       << strand_p->initChainID << " " << strand_p->initSeqNum
-			       << " " << strand_p->endChainID << " " << strand_p->endSeqNum
+		     std::cout << "---- handle strand ------ id: " << strand_p->sheetID << " # "
+			       << strand_p->strandNo << " " << strand_p->initChainID << " "
+			       << strand_p->initSeqNum << " "
+			       << strand_p->endChainID << " "
+			       << strand_p->endSeqNum
 			       << std::endl;
 		     
 		     if (std::string(strand_p->initChainID) == chain_id) {
 			if (std::string(strand_p->endChainID) == chain_id) {
-			   std::cout << "---------- strand matches chain id " << std::endl;
-			   
+			   std::map<CResidue *, clipper::RTop_orth> rtops_fragment = 
+			      fit_by_secondary_structure_fragment(chain_p, chain_id,
+								  strand_p->initSeqNum, strand_p->endSeqNum,
+								  xmap_in, simple_move);
+
+			   // add rtops_fragment bits to overall rtops_map;
+			   std::map<CResidue *, clipper::RTop_orth>::const_iterator it;
+			   for (it=rtops_fragment.begin(); it!=rtops_fragment.end(); it++)
+			      rtop_map[it->first] = it->second;
 			}
 		     }
 		  }
 	       }
 	    }
+
+
+	    if (1) { // debug
+	       std::map<CResidue *, clipper::RTop_orth>::const_iterator it;
+	       for (it=rtop_map.begin(); it!=rtop_map.end(); it++)
+		  std::cout << "   " << coot::residue_spec_t(it->first ) << " has an RTop\n";
+	    } 
+
 
 
 	    // OK, so now some residues (those in SSE) have rtops
@@ -731,11 +716,35 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 	    int nres = chain_p->GetNumberOfResidues();
 	    CResidue *residue_p;
 	    CAtom *at;
+	    std::map<CResidue *, clipper::Coord_orth> residue_centres;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       int n_atoms = residue_p->GetNumberOfAtoms();
+	       std::vector<CResidue *> env_residues =
+		  coot::residues_near_residue(residue_p, atom_sel.mol, local_radius);
+	       for (unsigned int ires=0; ires<env_residues.size(); ires++) { 
+		  if (residue_centres.find(env_residues[ires]) == residue_centres.end()) {
+		     std::pair<bool, clipper::Coord_orth> pp = coot::util::get_residue_centre(env_residues[ires]);
+		     if (pp.first)
+			residue_centres[env_residues[ires]] = pp.second;
+		  } 
+	       }
+
+	       
 	       for (int iat=0; iat<n_atoms; iat++) {
 		  at = residue_p->GetAtom(iat);
+		  for (unsigned int ier=0; ier<env_residues.size(); ier++) { 
+		     std::map<CResidue *, clipper::Coord_orth>::const_iterator it;
+		     it = residue_centres.find(env_residues[ier]);
+		     if (it != residue_centres.end()) {
+			const clipper::Coord_orth &pt_e_r = it->second;
+			clipper::Coord_orth pt_atom = coot::co(at);
+			double d_sqrd = (pt_e_r - pt_atom).lengthsq();
+			if (d_sqrd < 1.0) d_sqrd = 1.0;
+			double d = sqrt(d_sqrd);
+			
+		     } 
+		  }
 	       }
 	    }
 
@@ -750,6 +759,66 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
    }
    return status;
 }
+
+std::map<CResidue *, clipper::RTop_orth>
+molecule_class_info_t::fit_by_secondary_structure_fragment(CChain *chain_p,
+							   const std::string &chain_id,
+							   int initSeqNum,
+							   int endSeqNum,
+							   const clipper::Xmap<float> &xmap_in,
+							   bool simple_move) {
+
+   
+   std::map<CResidue *, clipper::RTop_orth> rtop_map;
+   
+   coot::minimol::fragment f(chain_id);
+   std::vector<CResidue *> added_residues;
+   for (int res_no=initSeqNum; res_no<=endSeqNum; res_no++) {
+      CResidue *residue_p = chain_p->GetResidue(res_no, "");
+      if (residue_p) { 
+	 f.addresidue(coot::minimol::residue(residue_p), false);
+	 added_residues.push_back(residue_p);
+      } else {
+	 std::cout << "Null residue for " << chain_id << " " << res_no << std::endl;
+      } 
+   }
+
+   if (!added_residues.size()) {
+      std::cout << "no added residues for helix " << chain_id << " " 
+		<< initSeqNum << " " << endSeqNum << std::endl;
+   } else {
+      coot::minimol::molecule m(f);
+      std::pair<bool, clipper::Coord_orth> sse_centre = coot::centre_of_residues(added_residues);
+      if (sse_centre.first) { 
+		     
+	 // returns the local rtop (relative to local centre) to move m into map.
+	 //
+	 std::pair<bool, clipper::RTop_orth> rtop =
+	    coot::get_rigid_body_fit_rtop(&m, sse_centre.second, xmap_in);
+	 
+	 if (rtop.first) {
+	    if (0)
+	       std::cout << "Got and RTop for SSE " << chain_id << " "
+			 << initSeqNum << " -- " << endSeqNum
+			 << std::endl;
+	    for (unsigned int ires=0; ires<added_residues.size(); ires++)
+	       rtop_map[added_residues[ires]] = rtop.second;
+
+	    if (simple_move) { 
+	       // simple move the coordinates
+	       m.transform(rtop.second);
+	       clipper::Mat33<double> mat(1,0,0,0,1,0,0,0,1);
+	       clipper::RTop_orth rtop_synth(mat, sse_centre.second);
+	       m.transform(rtop_synth);
+	       atom_selection_container_t asc = make_asc(m.pcmmdbmanager());
+	       replace_fragment(asc);
+	    }
+	 }
+      }
+   }
+   return rtop_map;
+} 
+
 
 
 

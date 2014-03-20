@@ -3368,6 +3368,11 @@ public:        //                      public
 					     const std::vector<std::pair<clipper::RTop_orth, float> > &rtops);
 
    int fit_by_secondary_structure_elements(const std::string &chain_id, const clipper::Xmap<float> &xmap_in);
+   std::map<CResidue *, clipper::RTop_orth>
+   fit_by_secondary_structure_fragment(CChain *chain_p, const std::string &chain_id,
+				       int initSeqNum, int endSeqNum,
+				       const clipper::Xmap<float> &xmap_in,
+				       bool simple_move);
 
 
    // fragment info for Alan:
