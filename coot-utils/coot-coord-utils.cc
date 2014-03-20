@@ -7048,10 +7048,6 @@ coot::centre_of_residues(const std::vector<CResidue *> &residues) {
 	 xs += residue_atoms[iat]->x;
 	 ys += residue_atoms[iat]->y;
 	 zs += residue_atoms[iat]->z;
-	 std::cout << "atom "  << n_atoms << " " << atom_spec_t(residue_atoms[iat]) << " "
-		   << residue_atoms[iat]->x << " "
-		   << residue_atoms[iat]->y << " "
-		   << residue_atoms[iat]->z << std::endl;
 	 n_atoms++;
       }
    }
