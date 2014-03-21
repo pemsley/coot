@@ -131,6 +131,8 @@ namespace coot {
 
    // must be a valid pointer.
    clipper::Coord_orth co(CAtom *at);
+   //
+   void update_position(CAtom *at, const clipper::Coord_orth &pos);
    
    class lsq_range_match_info_t {
    public:

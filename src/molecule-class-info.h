@@ -3367,8 +3367,15 @@ public:        //                      public
    void morph_residue_atoms_by_average_rtops(CResidue *this_residue,
 					     const std::vector<std::pair<clipper::RTop_orth, float> > &rtops);
 
-   int fit_by_secondary_structure_elements(const std::string &chain_id, const clipper::Xmap<float> &xmap_in);
-   std::map<CResidue *, clipper::RTop_orth>
+   int fit_by_secondary_structure_elements(const std::string &chain_id,
+					   const clipper::Xmap<float> &xmap_in);
+   
+   // Return a map of RTops for the residues in the fragment (and the
+   // local fragment centre by which we need to move atoms when
+   // applying the RTops (and move the atoms back from the origin
+   // after of course).
+   // 
+   std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >
    fit_by_secondary_structure_fragment(CChain *chain_p, const std::string &chain_id,
 				       int initSeqNum, int endSeqNum,
 				       const clipper::Xmap<float> &xmap_in,

@@ -843,7 +843,7 @@ coot::util::quaternion::normalize() {
    sum_sq += q2*q2;
    sum_sq += q3*q3;
    if (sum_sq > 0.0) {
-      double f = 1.0/sum_sq;
+      double f = sqrt(1.0/sum_sq);
       q0 *= f;
       q1 *= f;
       q2 *= f;
@@ -882,89 +882,92 @@ coot::util::quaternion::centroid_rtop(const std::vector<std::pair<clipper::RTop_
    if (! robust_filter) { 
       return centroid_rtop(rtops);
    } else {
-      clipper::Coord_orth sum_trn(0,0,0);
-      for (unsigned int i=0; i<rtops.size(); i++) { 
-	 quaternion q(rtops[i].first.rot());
-	 q0 += rtops[i].second * q.q0;
-	 q1 += rtops[i].second * q.q1;
-	 q2 += rtops[i].second * q.q2;
-	 q3 += rtops[i].second * q.q3;
-	 sum_trn += rtops[i].first.trn();
-      }
-      normalize();
-
-      double inv_n = 1.0/double(rtops.size());
-      clipper::Coord_orth t(sum_trn.x() * inv_n, sum_trn.y() * inv_n, sum_trn.z() * inv_n);
-
-
-      double sum_rotation_distance_sq = 0.0;
-      double sum_translation_distance_sq = 0.0;
-      std::vector<w_rtop_orth> deviance(rtops.size());
-      for (unsigned int i=0; i<rtops.size(); i++) {
-	 // rotation
-	 quaternion q(rtops[i].first.rot());
-	 double d0 = q0 - rtops[i].second * q.q0;
-	 double d1 = q1 - rtops[i].second * q.q1;
-	 double d2 = q2 - rtops[i].second * q.q2;
-	 double d3 = q3 - rtops[i].second * q.q3;
-	 double d = d0*d0 + d1*d1 + d2*d2 + d3*d3;
-	 sum_rotation_distance_sq += d;
-	 
-	 // translation
-	 clipper::Coord_orth wpt(rtops[i].second * clipper::Coord_orth(rtops[i].first.trn()));
-	 double dt = (t-wpt).lengthsq();
-	 sum_translation_distance_sq += dt;
-	 if (0)
-	    std::cout << "for irtop " << i << " added rotation distance_sq " << d 
-		      << " and translation distance "<< dt << std::endl;
-	 deviance[i].rtop   = rtops[i].first;
-	 deviance[i].weight = rtops[i].second;
-	 deviance[i].deviance = d * 1.888 + dt;
-      }
-
-      std::sort(deviance.begin(), deviance.end(), deviance_sorter);
-      for (unsigned int i=0; i<deviance.size(); i++)
-	 if (0) 
-	    std::cout << "        deviance " << i << " " << deviance[i].weight << " "
-		      << deviance[i].deviance << std::endl;
-      std::vector<float> iqr_data(deviance.size());
-      for (unsigned int i=0; i<deviance.size(); i++)
-	 iqr_data[i] = deviance[i].deviance;
-      stats_data sd(iqr_data);
-      
-      clipper::Coord_orth sum_trn_filtered_dev(0,0,0);
-      int n = 0;
-
-      for (unsigned int i=0; i<deviance.size(); i++) {
-	 if (deviance[i].deviance < sd.mean + 0.5 * sd.iqr) {
-	    n++;
-	    quaternion q(rtops[i].first.rot());
-	    q0 += deviance[i].weight * q.q0;
-	    q1 += deviance[i].weight * q.q1;
-	    q2 += deviance[i].weight * q.q2;
-	    q3 += deviance[i].weight * q.q3;
-	    sum_trn_filtered_dev += deviance[i].weight * deviance[i].rtop.trn();
-	 }
-      }
-
-//       std::cout << "rejecting deviances more than " << sd.mean + 0.5 * sd.iqr
-// 		<< " leaves " << n << " from " << rtops.size() 
-// 		<< std::endl;
-      
-      if (n > 0) {
-
-	 normalize();
-	 double inv_n = 1.0/double(n);
-	 clipper::Mat33<double> m = matrix();
-	 clipper::Coord_orth td(sum_trn_filtered_dev.x() * inv_n,
-				sum_trn_filtered_dev.y() * inv_n,
-				sum_trn_filtered_dev.z() * inv_n);
-	 return clipper::RTop_orth(m, td);
+      if (rtops.size() < 2) {
+	 return centroid_rtop(rtops);
       } else { 
+	 clipper::Coord_orth sum_trn(0,0,0);
+	 for (unsigned int i=0; i<rtops.size(); i++) { 
+	    quaternion q(rtops[i].first.rot());
+	    q0 += rtops[i].second * q.q0;
+	    q1 += rtops[i].second * q.q1;
+	    q2 += rtops[i].second * q.q2;
+	    q3 += rtops[i].second * q.q3;
+	    sum_trn += rtops[i].first.trn();
+	 }
+	 normalize();
+
+	 double inv_n = 1.0/double(rtops.size());
+	 clipper::Coord_orth t(sum_trn.x() * inv_n, sum_trn.y() * inv_n, sum_trn.z() * inv_n);
+
+	 double sum_rotation_distance_sq = 0.0;
+	 double sum_translation_distance_sq = 0.0;
+	 std::vector<w_rtop_orth> deviance(rtops.size());
+	 for (unsigned int i=0; i<rtops.size(); i++) {
+	    // rotation
+	    quaternion q(rtops[i].first.rot());
+	    double d0 = q0 - rtops[i].second * q.q0;
+	    double d1 = q1 - rtops[i].second * q.q1;
+	    double d2 = q2 - rtops[i].second * q.q2;
+	    double d3 = q3 - rtops[i].second * q.q3;
+	    double d = d0*d0 + d1*d1 + d2*d2 + d3*d3;
+	    sum_rotation_distance_sq += d;
+	 
+	    // translation
+	    clipper::Coord_orth wpt(rtops[i].second * clipper::Coord_orth(rtops[i].first.trn()));
+	    double dt = (t-wpt).lengthsq();
+	    sum_translation_distance_sq += dt;
+	    if (0)
+	       std::cout << "for irtop " << i << " added rotation distance_sq " << d 
+			 << " and translation distance "<< dt << std::endl;
+	    deviance[i].rtop   = rtops[i].first;
+	    deviance[i].weight = rtops[i].second;
+	    deviance[i].deviance = d * 1.888 + dt;
+	 }
+
+	 std::sort(deviance.begin(), deviance.end(), deviance_sorter);
+	 for (unsigned int i=0; i<deviance.size(); i++)
+	    if (0) 
+	       std::cout << "        deviance " << i << " " << deviance[i].weight << " "
+			 << deviance[i].deviance << std::endl;
+	 std::vector<float> iqr_data(deviance.size());
+	 for (unsigned int i=0; i<deviance.size(); i++)
+	    iqr_data[i] = deviance[i].deviance;
+	 stats_data sd(iqr_data);
+      
+	 clipper::Coord_orth sum_trn_filtered_dev(0,0,0);
+	 int n = 0;
+
+	 for (unsigned int i=0; i<deviance.size(); i++) {
+	    if (deviance[i].deviance < sd.mean + 0.5 * sd.iqr) {
+	       n++;
+	       quaternion q(rtops[i].first.rot());
+	       q0 += deviance[i].weight * q.q0;
+	       q1 += deviance[i].weight * q.q1;
+	       q2 += deviance[i].weight * q.q2;
+	       q3 += deviance[i].weight * q.q3;
+	       sum_trn_filtered_dev += deviance[i].weight * deviance[i].rtop.trn();
+	    }
+	 }
+
+	 //       std::cout << "rejecting deviances more than " << sd.mean + 0.5 * sd.iqr
+	 // 		<< " leaves " << n << " from " << rtops.size() 
+	 // 		<< std::endl;
+      
+	 if (n > 0) {
+
+	    normalize();
+	    double inv_n = 1.0/double(n);
+	    clipper::Mat33<double> m = matrix();
+	    clipper::Coord_orth td(sum_trn_filtered_dev.x() * inv_n,
+				   sum_trn_filtered_dev.y() * inv_n,
+				   sum_trn_filtered_dev.z() * inv_n);
+	    return clipper::RTop_orth(m, td);
+	 } else { 
        
-	 // unfiltered
-	 clipper::Mat33<double> m = matrix();
-	 return clipper::RTop_orth(m, t);
+	    // unfiltered
+	    clipper::Mat33<double> m = matrix();
+	    return clipper::RTop_orth(m, t);
+	 }
       }
    } 
 }
@@ -7056,7 +7059,6 @@ coot::centre_of_residues(const std::vector<CResidue *> &residues) {
       status = true;
       double dna = static_cast<double> (n_atoms);
       centre = clipper::Coord_orth(xs/dna, ys/dna, zs/dna);
-      std::cout << "n_atoms: " << n_atoms << " at " << centre.format() << std::endl;
    } 
    return std::pair<bool, clipper::Coord_orth> (status, centre);
 }
@@ -7255,6 +7257,14 @@ clipper::Coord_orth
 coot::co(CAtom *at) {
    return clipper::Coord_orth(at->x, at->y, at->z);
 }
+
+
+void
+coot::update_position(CAtom *at, const clipper::Coord_orth &pos) {
+   at->x = pos.x();
+   at->y = pos.y();
+   at->z = pos.z();
+} 
 
 
 

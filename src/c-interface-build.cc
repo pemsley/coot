@@ -6278,7 +6278,11 @@ int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residu
 	 success = g.molecules[imol].morph_fit_residues(residue_specs, xmap,
 							transformation_averaging_radius);
 	 graphics_draw();
+      } else {
+	 std::cout << "WARNING:: no valid map. Stopping now" << std::endl;
       }
+   } else {
+      std::cout << "WARNING:: " << imol << " is not a valid model molecule " << std::endl;
    }
    return success;
 }
@@ -6294,8 +6298,12 @@ int fit_by_secondary_structure_elements(int imol, const std::string &chain_id) {
 	 const clipper::Xmap<float> &xmap = g.molecules[imol_ref_map].xmap;
 	 success = g.molecules[imol].fit_by_secondary_structure_elements(chain_id, xmap);
 	 graphics_draw();
+      } else {
+	 std::cout << "WARNING:: no valid map. Stopping now" << std::endl;
       }
-   }
+   } else {
+      std::cout << "WARNING:: " << imol << " is not a valid model molecule " << std::endl;
+   } 
    return success;
 } 
 
