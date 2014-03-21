@@ -414,7 +414,8 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std:
 		     std::pair<clipper::RTop_orth, float> p(it_for_neighb->second.rtop, weight);
 		     rtops.push_back(p);
 		     if (0)
-			std::cout << "adding rtop for " << coot::residue_spec_t(neighb_residues[i_n_res]) << "\n"
+			std::cout << "adding rtop for "
+				  << coot::residue_spec_t(neighb_residues[i_n_res]) << "\n"
 				  << it_for_neighb->second.rtop.format() << std::endl;
 		  }
 	       }
@@ -625,10 +626,11 @@ molecule_class_info_t::morph_show_shifts(const std::map<CResidue *, morph_rtop_t
 }
 
 int
-molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &chain_id, const clipper::Xmap<float> &xmap_in) {
+molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &chain_id,
+							   const clipper::Xmap<float> &xmap_in) {
 
    int status = 0;
-   float local_radius = 6;
+   float local_radius = 16;
 
    int imodel = 1;
    bool simple_move = false;
@@ -649,20 +651,26 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 	 CChain *chain_p = model_p->GetChain(chain_id.c_str());
 	 if (chain_p) { 
 
-	    std::map<CResidue *, clipper::RTop_orth> rtop_map; // store the RTops for some residues
+	    // store the RTops for some residues (we also need the
+	    // local around which the rtop_orth is performed)
+	    // 
+	    std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtop_map; 
+
+	    std::cout << "INFO:: " << nhelix << " helices" << std::endl;
+	    std::cout << "INFO:: " << nsheet << " sheets"  << std::endl;
 
 	    for (int ih=1; ih<=nhelix; ih++) {
 	       helix_p = model_p->GetHelix(ih);
 	       if (helix_p) {
 
-		  std::map<CResidue *, clipper::RTop_orth> rtops_fragment = 
+		  std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtops_fragment = 
 		     fit_by_secondary_structure_fragment(chain_p, chain_id, helix_p->initSeqNum, helix_p->endSeqNum,
 							 xmap_in, simple_move);
 		  // add rtops_fragment bits to overall rtops_map;
-		  std::map<CResidue *, clipper::RTop_orth>::const_iterator it;
+		  std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it;
 		  for (it=rtops_fragment.begin(); it!=rtops_fragment.end(); it++)
 		     rtop_map[it->first] = it->second;
-			  
+
 	       } else {
 		  std::cout << "ERROR: no helix!?" << std::endl;
 	       }
@@ -684,14 +692,14 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 		     
 		     if (std::string(strand_p->initChainID) == chain_id) {
 			if (std::string(strand_p->endChainID) == chain_id) {
-			   std::map<CResidue *, clipper::RTop_orth> rtops_fragment = 
+			   std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtops_fragment = 
 			      fit_by_secondary_structure_fragment(chain_p, chain_id,
 								  strand_p->initSeqNum,
 								  strand_p->endSeqNum,
 								  xmap_in, simple_move);
 
 			   // add rtops_fragment bits to overall rtops_map;
-			   std::map<CResidue *, clipper::RTop_orth>::const_iterator it;
+			   std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it;
 			   for (it=rtops_fragment.begin(); it!=rtops_fragment.end(); it++)
 			      rtop_map[it->first] = it->second;
 			}
@@ -700,51 +708,109 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 	       }
 	    }
 
-
-	    if (1) { // debug
-	       std::map<CResidue *, clipper::RTop_orth>::const_iterator it;
-	       for (it=rtop_map.begin(); it!=rtop_map.end(); it++)
-		  std::cout << "   " << coot::residue_spec_t(it->first ) << " has an RTop\n";
-	    } 
-
-
-
 	    // OK, so now some residues (those in SSE) have rtops
 	    //
 	    // Now run over the residues and atoms of the chain and apply
 	    // the local weighted average of the RTops to the coordinates
 	    //
+	    // The residues in a given SSE all have the same RTop_orth.
+	    //
 	    int nres = chain_p->GetNumberOfResidues();
 	    CResidue *residue_p;
 	    CAtom *at;
 	    std::map<CResidue *, clipper::Coord_orth> residue_centres;
-	    for (int ires=0; ires<nres; ires++) { 
-	       residue_p = chain_p->GetResidue(ires);
-	       int n_atoms = residue_p->GetNumberOfAtoms();
-	       std::vector<CResidue *> env_residues =
-		  coot::residues_near_residue(residue_p, atom_sel.mol, local_radius);
-	       for (unsigned int ires=0; ires<env_residues.size(); ires++) { 
-		  if (residue_centres.find(env_residues[ires]) == residue_centres.end()) {
-		     std::pair<bool, clipper::Coord_orth> pp =
-			coot::util::get_residue_centre(env_residues[ires]);
-		     if (pp.first)
-			residue_centres[env_residues[ires]] = pp.second;
-		  } 
-	       }
+	    for (int ires=0; ires<nres; ires++) {
 
-	       for (int iat=0; iat<n_atoms; iat++) {
-		  at = residue_p->GetAtom(iat);
-		  for (unsigned int ier=0; ier<env_residues.size(); ier++) { 
-		     std::map<CResidue *, clipper::Coord_orth>::const_iterator it;
-		     it = residue_centres.find(env_residues[ier]);
-		     if (it != residue_centres.end()) {
-			const clipper::Coord_orth &pt_e_r = it->second;
-			clipper::Coord_orth pt_atom = coot::co(at);
-			double d_sqrd = (pt_e_r - pt_atom).lengthsq();
-			if (d_sqrd < 1.0) d_sqrd = 1.0;
-			double d = sqrt(d_sqrd);
-			
-		     } 
+	       residue_p = chain_p->GetResidue(ires);
+	       std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it_ss =
+		  rtop_map.find(residue_p);
+	       if (it_ss != rtop_map.end()) {
+		  
+		  // OK this was a residue in a SSE.  We know how to move these atoms (i.e. use their own
+		  // RTop, not morphing). This block is what Israel Sanchez-Fernandez wanted.
+		  // 
+		  PPCAtom residue_atoms = 0;
+		  int n_residue_atoms;
+		  residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+		  clipper::Coord_orth centre = it_ss->second.first;
+		  for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+		     CAtom *at = residue_atoms[iat];
+		     clipper::Coord_orth pt_1 = coot::co(at);
+		     clipper::Coord_orth pt_2 = pt_1 - centre;
+		     clipper::Coord_orth pt_3 = pt_2.transform(it_ss->second.second);
+		     clipper::Coord_orth pt_4 = pt_3 + centre;
+		     coot::update_position(at, pt_4);
+		  }
+		  
+	       } else {
+
+		  // ------------------------------------------------------------------
+		  //    morph:  move the atoms in these residues based on the RTops of
+		  //            the residues in their environments.
+		  // ------------------------------------------------------------------
+
+		  int n_atoms = residue_p->GetNumberOfAtoms();
+
+		  // get the centre of this residue (residue_p) from
+		  // the centre cache (if not in the cache, add it to
+		  // the cache).
+		  clipper::Coord_orth this_residue_centre(0,0,0);
+		  if (residue_centres.find(residue_p) == residue_centres.end()) {
+		     std::pair<bool, clipper::Coord_orth> pp = coot::util::get_residue_centre(residue_p);
+		     if (pp.first) {
+			this_residue_centre = pp.second;
+			residue_centres[residue_p] = pp.second;
+		     }
+		  } else {
+		     this_residue_centre = residue_centres[residue_p];
+		  } 
+
+		  // get the centre of the environment residues from
+		  // the cache (if not in the cache, add them to the
+		  // cache).
+		  std::vector<CResidue *> env_residues =
+		     coot::residues_near_residue(residue_p, atom_sel.mol, local_radius);
+		  for (unsigned int ires=0; ires<env_residues.size(); ires++) { 
+		     if (residue_centres.find(env_residues[ires]) == residue_centres.end()) {
+			std::pair<bool, clipper::Coord_orth> pp =
+			   coot::util::get_residue_centre(env_residues[ires]);
+			if (pp.first)
+			   residue_centres[env_residues[ires]] = pp.second;
+		     }
+		  }
+
+		  for (int iat=0; iat<n_atoms; iat++) {
+		     at = residue_p->GetAtom(iat);
+		     clipper::Coord_orth pt_atom = coot::co(at);
+		     std::vector<std::pair<clipper::RTop_orth, float> > rtops_for_atom;
+		     for (unsigned int ier=0; ier<env_residues.size(); ier++) { 
+			std::map<CResidue *, clipper::Coord_orth>::const_iterator it;
+			it = residue_centres.find(env_residues[ier]);
+			if (it != residue_centres.end()) {
+			   const clipper::Coord_orth &pt_e_r = it->second;
+			   double d_sqrd = (pt_e_r - pt_atom).lengthsq();
+			   if (d_sqrd < 1.0) d_sqrd = 1.0;
+			   double d = sqrt(d_sqrd);
+			   double w = 1.0/d;
+			   std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it_rtop =
+			      rtop_map.find(env_residues[ier]);
+			   if (it_rtop != rtop_map.end()) { 
+			      std::pair<clipper::RTop_orth, float> p(it_rtop->second.second, w);
+			      rtops_for_atom.push_back(p);
+			   } 
+			}
+		     }
+
+		     if (rtops_for_atom.size()) { 
+			coot::util::quaternion q(0,0,0,0);
+			bool robust_filter = true;
+			clipper::RTop_orth rtop_for_atom = q.centroid_rtop(rtops_for_atom, robust_filter);
+			clipper::Coord_orth p_1 = coot::co(at);
+			clipper::Coord_orth p_2 = p_1 - this_residue_centre;
+			clipper::Coord_orth p_3 = p_2.transform(rtop_for_atom);
+			clipper::Coord_orth p_4 = p_3 + this_residue_centre;
+			coot::update_position(at, p_4);
+		     }
 		  }
 	       }
 	    }
@@ -761,7 +827,7 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
    return status;
 }
 
-std::map<CResidue *, clipper::RTop_orth>
+std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >
 molecule_class_info_t::fit_by_secondary_structure_fragment(CChain *chain_p,
 							   const std::string &chain_id,
 							   int initSeqNum,
@@ -770,7 +836,7 @@ molecule_class_info_t::fit_by_secondary_structure_fragment(CChain *chain_p,
 							   bool simple_move) {
 
    
-   std::map<CResidue *, clipper::RTop_orth> rtop_map;
+   std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtop_map;
    
    coot::minimol::fragment f(chain_id);
    std::vector<CResidue *> added_residues;
@@ -802,8 +868,10 @@ molecule_class_info_t::fit_by_secondary_structure_fragment(CChain *chain_p,
 	       std::cout << "Got and RTop for SSE " << chain_id << " "
 			 << initSeqNum << " -- " << endSeqNum
 			 << std::endl;
-	    for (unsigned int ires=0; ires<added_residues.size(); ires++)
-	       rtop_map[added_residues[ires]] = rtop.second;
+	    for (unsigned int ires=0; ires<added_residues.size(); ires++) {
+	       std::pair<clipper::Coord_orth, clipper::RTop_orth> p(sse_centre.second, rtop.second);
+	       rtop_map[added_residues[ires]] = p;
+	    }
 
 	    if (simple_move) { 
 	       // simple move the coordinates

@@ -2,7 +2,17 @@
  0.8
 
 ---- 
+
+   o auto open mtz opens diff map strangely.
+
+   o chiral centre inverter in C++
+  
    o GPCR ligand analysis.
+
+   o Oliver Smart: invert chiral centre on glycerol 3 phosphate
+
+   o When the spacegroup is P1 or 0, and the cell has 90 degrees, the
+     calculation of the sigma should ignore zero values.
 
    o imol_map should not be passed to molecule_class_info_t::auto_fit_best_rotamer().
 
