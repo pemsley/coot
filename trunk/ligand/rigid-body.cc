@@ -79,7 +79,8 @@ coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xma
 	 for (int i=0; i<atoms.size(); i++) {
 	    double z = coot::util::atomic_number(atoms[i]->element, atom_list);
 	    if (z < 0.0) {
-	       std::cout << "Unknown element :" << atoms[i]->element << ": " << std::endl;
+	       std::cout << "Unknown Z for element :" << atoms[i]->element << ": for atom name :"
+			 << atoms[i]->name << ": " << i << " of " << atoms.size() << std::endl;
 	       z = 6.0; // as for carbon
 	    } 
 	    atom_z_weights[i] = z;

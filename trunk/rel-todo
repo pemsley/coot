@@ -2,6 +2,7 @@
  0.8
 
 ---- 
+   o GPCR ligand analysis.
 
    o imol_map should not be passed to molecule_class_info_t::auto_fit_best_rotamer().
 

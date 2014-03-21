@@ -628,7 +628,7 @@ int
 molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &chain_id, const clipper::Xmap<float> &xmap_in) {
 
    int status = 0;
-   float local_radius = 12;
+   float local_radius = 6;
 
    int imodel = 1;
    bool simple_move = false;
@@ -686,7 +686,8 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 			if (std::string(strand_p->endChainID) == chain_id) {
 			   std::map<CResidue *, clipper::RTop_orth> rtops_fragment = 
 			      fit_by_secondary_structure_fragment(chain_p, chain_id,
-								  strand_p->initSeqNum, strand_p->endSeqNum,
+								  strand_p->initSeqNum,
+								  strand_p->endSeqNum,
 								  xmap_in, simple_move);
 
 			   // add rtops_fragment bits to overall rtops_map;
@@ -724,13 +725,13 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 		  coot::residues_near_residue(residue_p, atom_sel.mol, local_radius);
 	       for (unsigned int ires=0; ires<env_residues.size(); ires++) { 
 		  if (residue_centres.find(env_residues[ires]) == residue_centres.end()) {
-		     std::pair<bool, clipper::Coord_orth> pp = coot::util::get_residue_centre(env_residues[ires]);
+		     std::pair<bool, clipper::Coord_orth> pp =
+			coot::util::get_residue_centre(env_residues[ires]);
 		     if (pp.first)
 			residue_centres[env_residues[ires]] = pp.second;
 		  } 
 	       }
 
-	       
 	       for (int iat=0; iat<n_atoms; iat++) {
 		  at = residue_p->GetAtom(iat);
 		  for (unsigned int ier=0; ier<env_residues.size(); ier++) { 
