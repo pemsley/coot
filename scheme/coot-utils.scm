@@ -3070,19 +3070,27 @@
   ;; return #f if current-res-name is not a string of 1, 2 or 3
   ;; characters.
   ;; 
+  ;; 20140321 This used to return #f when current-res-name was 1XX.
+  ;; Now it returned LIG, which is not great, but better than it was.
+  ;; 
   (define (new-res-name current-res-name)
 
-    (define (generate-name current-res-name) 
+    (define (generate-name current-res-name)
+      (format #t "----- generate new name from current-res-name: ~s~%" current-res-name)
       (if (not (string? current-res-name))
 	  #f
 	  (cond
 	   ((= (string-length current-res-name) 3)
-	    (let ((one (substring current-res-name 0 1))
-		  (two (substring current-res-name 1 2))
+	    (let ((one   (substring current-res-name 0 1))
+		  (two   (substring current-res-name 1 2))
 		  (three (substring current-res-name 2 3)))
 	      (let ((n-1 (string->number one))
 		    (n-2 (string->number two))
 		    (n-3 (string->number three)))
+
+		;; LLL LLN LNN
+		;;
+		;; others LNL NNN NNL NLN NLL 
 
 		(cond
 		 ;; "LIG" -> "LI2", "LI9" -> "L10"
@@ -3104,6 +3112,31 @@
 			  (string-append one (number->string (+ n-2 1) "0"))
 			  ;; "L99" -> #f
 			  #f)))
+
+		 ((and (not (number? n-1))
+		       (number? n-2)
+		       (not (number? n-3)))
+		  "LIG")
+
+		 ((and (number? n-1)
+		       (number? n-2)
+		       (number? n-3))
+		  "LIG")
+
+		 ((and (number? n-1)
+		       (number? n-2)
+		       (not (number? n-3)))
+		  "LIG")
+
+		 ((and (number? n-1)
+		       (not (number? n-2))
+		       (number? n-3))
+		  "LIG")
+
+		 ((and (number? n-1)
+		       (not (number? n-2))
+		       (not (number? n-3)))
+		  "LIG")
 
 		 ;; LIG -> LI2
 		 ((and (not (number? n-1))
@@ -3184,27 +3217,43 @@
 
 		       
 		       (let ((new-residue-name (new-res-name res-name)))
-			 (let ((new-mol (new-molecule-by-atom-selection 
-					 aa-imol (string-append "//"
-								aa-chain-id
-								"/"
-								(number->string aa-res-no)
 
-								aa-ins-code))))
-			   ;; switch the comp-id three-letter-code and name
-			   ;; 
-			   (let ((chem-comp (assoc "_chem_comp" restraints)))
-			     (if chem-comp
-				 (begin
-				   (list-set! (cdr chem-comp) 0 new-residue-name) ;; comp_id
-				   (list-set! (cdr chem-comp) 1 new-residue-name) ;; 3-letter-code
-				   (list-set! (cdr chem-comp) 2 new-residue-name) ;; name
-				   )))
+			 ;; Now new-res-name should not return #f, so
+			 ;; this is belt and braces protection.
+			 ;; 
+			 (if (not (string? new-residue-name))
+			     (begin
+			       (format #t "ERROR:: Ooops new-residue-name: ~s not a string ~%" 
+				       new-residue-name)
+			       #f)
 
-			   (set-monomer-restraints new-residue-name restraints)
-			   (set-residue-name new-mol aa-chain-id aa-res-no aa-ins-code new-residue-name)
-			   (regularize-zone new-mol aa-chain-id aa-res-no aa-res-no aa-alt-conf)
-			   )))))))))))
+			     ;; Happy Path
+			     ;; 
+			     (let ((new-mol (new-molecule-by-atom-selection 
+					     aa-imol (string-append "//"
+								    aa-chain-id
+								    "/"
+								    (number->string aa-res-no)
+
+								    aa-ins-code))))
+			       ;; switch the comp-id three-letter-code and name
+			       ;; 
+			       (let ((chem-comp (assoc "_chem_comp" restraints)))
+				 (if chem-comp
+				     (begin
+				       (list-set! (cdr chem-comp) 0 new-residue-name) ;; comp_id
+				       (list-set! (cdr chem-comp) 1 new-residue-name) ;; 3-letter-code
+				       (list-set! (cdr chem-comp) 2 new-residue-name) ;; name
+				       )))
+
+			       (format #t "restraints: ~s~%" restraints)
+			       (format #t "new-residue-name: ~s~%" new-residue-name)
+			       (format #t " ------------ pre set-monomer-restraints ~%")
+			       (set-monomer-restraints new-residue-name restraints)
+			       (format #t " ------------ post set-monomer-restraints ~%")
+			       (set-residue-name new-mol aa-chain-id aa-res-no aa-ins-code new-residue-name)
+			       (regularize-zone new-mol aa-chain-id aa-res-no aa-res-no aa-alt-conf)
+			       ))))))))))))
 
 (define (residue-is-close-to-screen-centre? imol chain-id res-no ins-code)
   (define (square x) (* x x))
