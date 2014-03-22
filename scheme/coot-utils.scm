@@ -3109,7 +3109,7 @@
 		  (if (< n-3 9)
 		      (string-append one two (number->string (+ n-3 1)))
 		      (if (< n-2 9)
-			  (string-append one (number->string (+ n-2 1) "0"))
+			  (string-append one (number->string (+ n-2 1)) "0")
 			  ;; "L99" -> #f
 			  #f)))
 
