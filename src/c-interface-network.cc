@@ -78,7 +78,10 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
       curl_easy_setopt(c, CURLOPT_URL, url);
       curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
       curl_easy_setopt(c, CURLOPT_CONNECTTIMEOUT, 10);
-      curl_easy_setopt(c, CURLOPT_USERAGENT, "Coot-0.7 http://wwwlmb.ox.ac.uk/coot");
+      std::string user_agent_str = "Coot-";
+      user_agent_str += VERSION;
+      user_agent_str += " http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/";
+      curl_easy_setopt(c, CURLOPT_USERAGENT, user_agent_str.c_str());
       curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, write_coot_curl_data_to_file);
       curl_easy_setopt(c, CURLOPT_WRITEDATA, &p_for_write);
       std::pair <CURL *, std::string> p(c,file_name);
@@ -134,7 +137,7 @@ std::string coot_get_url_as_string_internal(const char *url) {
    std::string user_agent = PACKAGE;
    user_agent += " ";
    user_agent += VERSION;
-   user_agent += " http://wwwlmb.ox.ac.uk/coot";
+   user_agent += " http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/";
 
    long int no_signal = 1; 
    CURL *c = curl_easy_init();

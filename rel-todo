@@ -3,6 +3,10 @@
 
 ---- 
 
+   o invert chiral centre 
+
+   o Difference maps peaks dialog
+
    o auto open mtz opens diff map strangely.
 
    o chiral centre inverter in C++
@@ -17,6 +21,8 @@
    o imol_map should not be passed to molecule_class_info_t::auto_fit_best_rotamer().
 
    o highly coordinates waters should check metal atoms too.
+
+   o auto-open mtz should also open xxx.F_phi.F and xxx.F_phi.phi
 
    o Refining 55A SAH in 3NPN, it should not try to get dictionary up
      and downstrean neighbour if the residue's group is "monomer".
