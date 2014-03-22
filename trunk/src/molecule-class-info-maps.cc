@@ -1383,14 +1383,6 @@ molecule_class_info_t::restore_previous_map_colour() {
 }
 
 
-
-// Where is this used?
-int
-molecule_class_info_t::next_free_map() {
-
-   return 0; // placeholder FIXME.
-}
-
 void
 molecule_class_info_t::set_initial_contour_level() {
 

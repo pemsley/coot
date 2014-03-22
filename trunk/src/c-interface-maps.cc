@@ -146,7 +146,7 @@ int make_and_draw_map(const char* mtz_file_name,
 		      const char *f_col, const char *phi_col,
 		      const char *weight_col, int use_weights,
 		      int is_diff_map) {
-    
+
    graphics_info_t g;
    int imol = -1; // failure initially.
    struct stat buf;
@@ -299,7 +299,7 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
       else
 	 map_type = "conventional";
       
-      std::cout << "making " << map_type << " map from MTZ filename "
+      std::cout << "INFO:: making " << map_type << " map from MTZ filename "
 		<< mtz_file_name << " using " << f_col << " "
 		<< phi_col << std::endl;
 
@@ -453,6 +453,7 @@ int auto_read_make_and_draw_maps(const char *mtz_file_name) {
 	 int imol = -1;
 	 int w = (cols_w[ic] != "" ) ? 1 : 0;
 	 int d = (cols_d[ic] != "+") ? 1 : 0;
+
 	 if ( valid_labels( mtz_file_name, cols_f[ic].c_str(),
 			    cols_p[ic].c_str(), cols_w[ic].c_str(), w ) )
 	    imol = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name, 
@@ -912,10 +913,6 @@ void set_on_off_skeleton_radio_buttons(GtkWidget *skeleton_frame) {
 
    graphics_info_t g;
    g.set_on_off_skeleton_radio_buttons(skeleton_frame);
-}
-
-int next_map_for_molecule(int imol) { /* return a map number */
-   return graphics_info_t::molecules[imol].next_free_map();
 }
 
 // imol is used imap is ignored.
