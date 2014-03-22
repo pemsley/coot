@@ -3047,7 +3047,7 @@ def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
 # of the mdl mol file from drugbank. Or False/undefined on fail.  
 # Test result with string?.
 # 
-def get_drug_via_wikipedia(drug_name):
+def get_drug_via_wikipedia(drug_name_in):
 
 
     import urllib2
@@ -3061,28 +3061,31 @@ def get_drug_via_wikipedia(drug_name):
         drug_bank_id = False
         query_ele = tree.find("query")
         rev_iter = query_ele.getiterator("rev")
-        rev_text = rev_iter[0].text
-        # seems to be in some strange format!?
-        decode_text = rev_text.encode('ascii', 'ignore')
-        for line in decode_text.split("\n"):
-            # if key in line: # too simple, we need a regular expresssion search
-            if key_re.search(line):
-                if (redirect == False):
-                   drug_bank_id = line.split(" ")[-1]
-                   if not drug_bank_id:
-                      # we can get an empty string
-                      drug_bank_id = False
-                else:
+	if len(rev_iter) > 0:
+	   rev_text = rev_iter[0].text
+	   # seems to be in some strange format!?
+	   decode_text = rev_text.encode('ascii', 'ignore')
+	   for line in decode_text.split("\n"):
+	      # if key in line: # too simple, we need a regular expresssion search
+	      if key_re.search(line):
+                 if (redirect == False):
+		    drug_bank_id = line.split(" ")[-1]
+		    if not drug_bank_id:
+                       # we can get an empty string
+                       drug_bank_id = False
+		 else:
                     # a REDIRECT was found
-                    drug_bank_id = line[line.find("[[")+2:line.find("]]")]
+		    drug_bank_id = line[line.find("[[")+2:line.find("]]")]
+	else:
+	    print 'Oops! len rev_text is 0'
 
         return drug_bank_id
             
-
     
     file_name = False
-    if isinstance(drug_name, str):
-        if len(drug_name) > 0:
+    if isinstance(drug_name_in, str):
+        if len(drug_name_in) > 0:
+	    drug_name = drug_name_in.lower()
             url = "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles=" + \
                   drug_name + \
                   "&prop=revisions&rvprop=content"
@@ -3113,7 +3116,7 @@ def get_drug_via_wikipedia(drug_name):
                     coot_get_url(pc_mol_uri, file_name)
                     
             else:
-                db_mol_uri = "http://www.drugbank.ca/drugs/" + \
+                db_mol_uri = "http://www.drugbank.ca/structures/structures/small_molecule_drugs/" + \
                              mol_name + ".mol"
                 file_name = mol_name + ".mol"
                 coot_get_url(db_mol_uri, file_name)

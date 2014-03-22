@@ -3268,6 +3268,12 @@ lbg_info_t::save_molecule() {
    }
 }
 
+// What happens when this fails?  File name is missing?
+// File is null?
+// File is not a molecule format?
+//
+// 20140322: Let's throw a runtime_error.
+// 
 void
 lbg_info_t::import_mol_from_file(const std::string &file_name) {
 
@@ -3300,25 +3306,32 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 
 	 // strict_parsing is not in the MolFileToMol() interface for old RDKits.
 	 RDKit::RWMol *m = RDKit::MolFileToMol(file_name, sanitize, removeHs);
-	 
-	 int n_bonds = m->getNumBonds();
-	 for (unsigned int ib=0; ib<n_bonds; ib++) {
-	    const RDKit::Bond *bond_p = m->getBondWithIdx(ib);
-	    int idx_1 = bond_p->getBeginAtomIdx();
-	    int idx_2 = bond_p->getEndAtomIdx();
-	    lig_build::bond_t::bond_type_t bt = coot::convert_bond_type(bond_p->getBondType());
+
+	 if (!m) {
+	    std::string s = "Null molecule from MolFile file \"";
+	    s += file_name;
+	    s += "\"";
+	    throw std::runtime_error(s);
+	 } else { 
+	    int n_bonds = m->getNumBonds();
+	    for (unsigned int ib=0; ib<n_bonds; ib++) {
+	       const RDKit::Bond *bond_p = m->getBondWithIdx(ib);
+	       int idx_1 = bond_p->getBeginAtomIdx();
+	       int idx_2 = bond_p->getEndAtomIdx();
+	       lig_build::bond_t::bond_type_t bt = coot::convert_bond_type(bond_p->getBondType());
 	    
-	    try { 
-	       RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
-	       if (bond_dir != RDKit::Bond::NONE) {
-		  if (bond_dir == RDKit::Bond::BEGINWEDGE)
-		     std::cout << "out bond" << std::endl;
-		  if (bond_dir == RDKit::Bond::BEGINDASH)
-		     std::cout << "in bond" << std::endl;
+	       try { 
+		  RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
+		  if (bond_dir != RDKit::Bond::NONE) {
+		     if (bond_dir == RDKit::Bond::BEGINWEDGE)
+			std::cout << "out bond" << std::endl;
+		     if (bond_dir == RDKit::Bond::BEGINDASH)
+			std::cout << "in bond" << std::endl;
+		  }
 	       }
-	    }
-	    catch (...) {
-	       std::cout << "WARNING:: problem. scrambled input molecule? numbers of atoms: ";
+	       catch (...) {
+		  std::cout << "WARNING:: problem. scrambled input molecule? numbers of atoms: ";
+	       }
 	    }
 	 }
 	 

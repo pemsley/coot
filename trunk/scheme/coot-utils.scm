@@ -3273,7 +3273,7 @@
 ;; If you are debugging this function, you probably want to be looking
 ;; at handle-rev-string or drugbox->drugitem.
 ;; 
-(define (get-drug-via-wikipedia drug-name)
+(define (get-drug-via-wikipedia drug-name-in)
 
   ;; To Bernie: I imagine that this would be confusing.  I don't think
   ;; that this is the way a clever scheme xml programmer would do
@@ -3355,7 +3355,9 @@
 
 		      ;; normal path hopefully
 		      ;; 
-		      (let ((db-mol-uri (string-append "http://www.drugbank.ca/drugs/" dbi ".mol"))
+		      (let ((db-mol-uri (string-append 
+					 "http://www.drugbank.ca/structures/structures/small_molecule_drugs/" 
+					 dbi ".mol"))
 			    (file-name (string-append dbi ".mol")))
 			;; (format #t "getting url: ~s~%" db-mol-uri)
 			(coot-get-url db-mol-uri file-name)
@@ -3479,9 +3481,11 @@
 
   ;; main line
 
-  (if (string? drug-name)
-      (if (> (string-length drug-name) 0)
-	  (let* ((url (string-append 
+  (if (string? drug-name-in)
+      (if (> (string-length drug-name-in) 0)
+	  ;; we need to downcase the drug name for wikipedia
+	  (let* ((drug-name (string-downcase drug-name-in))
+		 (url (string-append 
 		       ;; "http://en.wikipedia.org/wiki/" 
 		       "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles="
 		       drug-name
