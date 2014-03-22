@@ -14,6 +14,23 @@
 
 #include "molecule-class-info.h"
 
+class atom_morph_info_t {
+public:
+   double weight;
+   clipper::Coord_orth residue_centre;
+   clipper::RTop_orth residue_rtop;
+   atom_morph_info_t(const clipper::RTop_orth &rtop_in,
+		     const clipper::Coord_orth &co_in,
+		     double w_in) {
+      weight = w_in;
+      residue_rtop = rtop_in;
+      residue_centre = co_in;
+   }
+   std::pair<clipper::RTop_orth, float> rtop_and_weight() const {
+      return std::pair<clipper::RTop_orth, float> (residue_rtop, weight);
+   } 
+};
+
 // return an index of the new restraint
 int
 molecule_class_info_t::add_extra_bond_restraint(coot::atom_spec_t atom_1,
@@ -782,7 +799,8 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 		  for (int iat=0; iat<n_atoms; iat++) {
 		     at = residue_p->GetAtom(iat);
 		     clipper::Coord_orth pt_atom = coot::co(at);
-		     std::vector<std::pair<clipper::RTop_orth, float> > rtops_for_atom;
+		     // std::tuple<clipper::RTop_orth, clipper::Coord_orth, float> 
+		     std::vector<atom_morph_info_t> rtops_for_atom;
 		     for (unsigned int ier=0; ier<env_residues.size(); ier++) { 
 			std::map<CResidue *, clipper::Coord_orth>::const_iterator it;
 			it = residue_centres.find(env_residues[ier]);
@@ -795,16 +813,21 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 			   std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it_rtop =
 			      rtop_map.find(env_residues[ier]);
 			   if (it_rtop != rtop_map.end()) { 
-			      std::pair<clipper::RTop_orth, float> p(it_rtop->second.second, w);
-			      rtops_for_atom.push_back(p);
+			      atom_morph_info_t t(it_rtop->second.second, pt_e_r, w);
+			      rtops_for_atom.push_back(t);
 			   } 
 			}
 		     }
 
-		     if (rtops_for_atom.size()) { 
+		     if (rtops_for_atom.size()) {
+
+			std::vector<std::pair<clipper::RTop_orth,float> > rtop_pairs_for_atom(rtops_for_atom.size());
+			for (unsigned int i=0; i<rtops_for_atom.size(); i++)
+			   rtop_pairs_for_atom[i] = rtops_for_atom[i].rtop_and_weight();
+			
 			coot::util::quaternion q(0,0,0,0);
 			bool robust_filter = true;
-			clipper::RTop_orth rtop_for_atom = q.centroid_rtop(rtops_for_atom, robust_filter);
+			clipper::RTop_orth rtop_for_atom = q.centroid_rtop(rtop_pairs_for_atom, robust_filter);
 			clipper::Coord_orth p_1 = coot::co(at);
 			clipper::Coord_orth p_2 = p_1 - this_residue_centre;
 			clipper::Coord_orth p_3 = p_2.transform(rtop_for_atom);
