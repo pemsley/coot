@@ -713,8 +713,6 @@ int molecule_has_hydrogens_raw(int imol);
    non-valid passed imol. */
 int own_molecule_number(int imol);
 
-int next_map_for_molecule(int imol); /* return a map number */
-
 /*! \brief Spin spin spin (or not) */
 void toggle_idle_spin_function(); 
 

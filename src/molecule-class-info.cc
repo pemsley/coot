@@ -1322,8 +1322,7 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
    n_draw_vectors = 0;
    n_diff_map_draw_vectors = 0;
 
-   // give it some memory:
-   xmap_is_diff_map = false;
+   xmap_is_diff_map = is_diff_map;
 
    draw_vectors = NULL;
    diff_map_draw_vectors = NULL;
