@@ -85,6 +85,7 @@ int test_residue_atom_renaming();
 int test_mcd_and_thornton_h_bonds();
 int test_COO_mod();
 int test_remove_whitespace();
+int test_new_comp_id();
 int test_position_residue_by_internal_coords();
 int test_beam_in_residue();
 int test_multi_residue_torsion();
