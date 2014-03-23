@@ -348,7 +348,9 @@ namespace coot {
       int volume_sign;  // +/- 1, checked by is_bad_chiral_atom_p and
 			// set by nomenclature checking
       enum { CHIRAL_RESTRAINT_BOTH = -2,
-	     CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED = -3 };
+	     CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED = -3,
+	     CHIRAL_RESTRAINT_POSITIVE = 1,
+	     CHIRAL_RESTRAINT_NEGATIVE = -1};
       
       dict_chiral_restraint_t() {};
       dict_chiral_restraint_t(const std::string &chiral_id_in,
@@ -384,6 +386,16 @@ namespace coot {
       bool is_a_both_restraint() const { return is_both_flag; } 
       bool has_unassigned_chiral_volume() const {
 	 return (volume_sigma_ < 0.0) ? 1 : 0;
+      }
+      void invert_target_volume() {
+	 if (volume_sign == CHIRAL_RESTRAINT_POSITIVE) {
+	    volume_sign = CHIRAL_RESTRAINT_NEGATIVE;
+	    target_volume_ = -target_volume_;
+	 }
+	 if (volume_sign == CHIRAL_RESTRAINT_NEGATIVE) { 
+	    volume_sign = CHIRAL_RESTRAINT_POSITIVE;
+	    target_volume_ = -target_volume_;
+	 }
       }
       bool matches_names(const dict_chiral_restraint_t &r) const {
 	 if (atom_id_c_4c() != r.atom_id_c_4c()) { 

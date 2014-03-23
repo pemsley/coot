@@ -1620,3 +1620,65 @@ molecule_class_info_t::get_fragment_info(bool screen_output_also) const {
    }
    return v;
 } 
+
+// return a new residue and dictionary in due course.
+// return a null residue on failure
+std::pair<CResidue *, coot::dictionary_residue_restraints_t>
+molecule_class_info_t::invert_chiral_centre(const std::string &chain_id, int res_no,
+					    const std::string &ins_code,
+					    const std::string &atom_name,
+					    const coot::protein_geometry &geom) {
+
+   CAtom *chiral_atom = NULL;
+   CResidue *residue_p = get_residue(chain_id, res_no, ins_code);
+
+   coot::dictionary_residue_restraints_t new_restraints;
+   CResidue *new_residue = 0;
+   
+   if (residue_p) {
+
+      PPCAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	 CAtom *at = residue_atoms[iat];
+	 if (std::string(at->name) == atom_name) {
+	    chiral_atom = at;
+	    break;
+	 } 
+      }
+
+      if (chiral_atom) { 
+	 std::string comp_id = residue_p->GetResName();
+	 std::pair<bool, coot::dictionary_residue_restraints_t> rest =
+	    geom.get_monomer_restraints(comp_id);
+	 if (rest.first) {
+	    std::vector<coot::dict_chiral_restraint_t> cr = rest.second.chiral_restraint;
+	    for (unsigned int ir=0; ir<cr.size(); ir++) { 
+	       if (cr[ir].atom_id_c_4c() == atom_name) {
+		  if (cr[ir].volume_sign == coot::dict_chiral_restraint_t::CHIRAL_RESTRAINT_POSITIVE ||
+		      cr[ir].volume_sign == coot::dict_chiral_restraint_t::CHIRAL_RESTRAINT_NEGATIVE) {
+		     std::string new_name = coot::suggest_new_comp_id(rest.second.residue_info.comp_id);
+		     if (! new_name.empty()) { 
+			new_restraints = rest.second;
+			new_restraints.residue_info.comp_id = new_name;
+			new_restraints.residue_info.three_letter_code = new_name;
+			new_restraints.residue_info.name = coot::util::remove_trailing_whitespace(new_restraints.residue_info.name);
+			new_restraints.residue_info.name += " with inverted ";
+			new_restraints.residue_info.name += atom_name;
+			new_restraints.residue_info.name += " chiral centre";
+			new_restraints.chiral_restraint[ir].invert_target_volume();
+			new_residue = coot::util::deep_copy_this_residue(residue_p);
+			new_residue->SetResName(new_name.c_str());
+			break;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return std::pair<CResidue *, coot::dictionary_residue_restraints_t> (new_residue,
+									new_restraints);
+
+}

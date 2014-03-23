@@ -2833,3 +2833,33 @@ void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::s
    }
 } 
 
+// create a new dictionary entry and molecule.
+void
+invert_chiral_centre(int imol,
+		     std::string chain_id,
+		     int res_no,
+		     std::string ins_code,
+		     std::string atom_name) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::pair<CResidue *, coot::dictionary_residue_restraints_t> rr = 
+	 g.molecules[imol].invert_chiral_centre(chain_id, res_no, ins_code, atom_name,
+						*g.Geom_p());
+      if (rr.first) {
+	 // add new restraints to dictionary
+	 std::string new_type = rr.second.residue_info.comp_id;
+	 g.Geom_p()->replace_monomer_restraints(new_type, rr.second);
+	 // add a new molecule from this residue
+	 CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(rr.first);
+	 // I think we can delete residue now that we have made mol.
+	 delete rr.first;
+	 rr.first = NULL;
+	 int g_mol = g.create_molecule();
+	 atom_selection_container_t asc = make_asc(mol);
+	 std::string label = "New Residue " + new_type;
+	 g.molecules[g_mol].install_model(g_mol, asc, label, 1);
+	 graphics_draw();
+      } 
+   }
+}
