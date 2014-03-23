@@ -4180,8 +4180,6 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
 							  const std::string &residue_type,
 							  float phi, float psi) {
 
-   std::cout << "DEUBG:: add_terminal_residue_using_phi_psi() " << res_no << std::endl;
-
    int status = 0;
    CResidue *res = get_residue(chain_id, res_no, "");
    if (! res) {

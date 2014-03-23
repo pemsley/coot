@@ -1195,3 +1195,85 @@ coot::gauss_legendre_t::fill_weight_abscicca(int N) {
    weight_abscissa_[16] = std::pair<double, double>(0.0271524594117541,  0.9894009349916499);
 
 } 
+
+
+// return empty string on failure
+// 
+std::string
+coot::suggest_new_comp_id(const std::string &comp_id_in) {
+
+   std::string r;
+   if (comp_id_in.length() != 3) {
+      r = comp_id_in + "1";
+   } else {
+      char s[3];
+      for (unsigned int i=0; i<3; i++)
+	 s[i] = comp_id_in[i];
+      std::vector<bool> is_numeral(3, false);
+      std::vector<int> n(3, -1);
+      for (unsigned int i=0; i<3; i++) { 
+	 if (s[i] >= 48 && s[i] <58) {
+	    is_numeral[i] = true;
+	    n[i] = s[i] - 48;
+	 }
+      }
+      if (is_numeral[0] && is_numeral[1] && is_numeral[2]) {
+	 if (n[2]<9) {
+	    r =  s[0];
+	    r += s[1];
+	    r += s[2]+1;
+	 } else {
+	    if (n[1]<9) {
+	       r =  s[0];
+	       r += s[1]+1;
+	       r += "0";
+	    }
+	 }
+      }
+      if (is_numeral[0] && is_numeral[1] && !is_numeral[2]) {
+	    r =  s[0];
+	    r += s[1];
+	    r += "2";
+      }
+      if (is_numeral[0] && !is_numeral[1] && is_numeral[2]) {
+	 r =  s[0];
+	 r += s[1];
+	 r += s[2]+1;
+      }
+      
+      if (is_numeral[0] && !is_numeral[1] && !is_numeral[2]) {
+	 r =  s[0];
+	 r += s[1];
+	 r += "2";
+      }
+      if (!is_numeral[0] && is_numeral[1] && is_numeral[2]) {
+	 if (n[2]<9) {
+	    r =  s[0];
+	    r += s[1];
+	    r += s[2]+1;
+	 } else {
+	    if (n[1]<9) {
+	       r =  s[0];
+	       r += s[1]+1;
+	       r += "0";
+	    }
+	 }
+      }
+      if (!is_numeral[0] && is_numeral[1] && !is_numeral[2]) {
+	 r =  s[0];
+	 r += s[1];
+	 r += "2";
+      }
+      if (!is_numeral[0] && !is_numeral[1] && is_numeral[2]) {
+	    r =  s[0];
+	    r += s[1];
+	    r += s[2]+1;
+      }
+      if (!is_numeral[0] && !is_numeral[1] && !is_numeral[2]) {
+	 r =  s[0];
+	 r += s[1];
+	 r += "2";
+      }
+   }
+   return r;
+} 

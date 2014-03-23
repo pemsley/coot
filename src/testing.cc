@@ -212,6 +212,7 @@ int greg_internal_tests() {
    functions.push_back(named_func(test_lsq_plane, "test lsq plane"));
    functions.push_back(named_func(test_COO_mod, "test COO modification"));
    functions.push_back(named_func(test_remove_whitespace, "remove whitespace"));
+   functions.push_back(named_func(test_new_comp_id, "New comp_ids are sane"));
 
    // restore this at some stage
    // functions.push_back(named_func(test_copy_cell_symm_orig_scale_headers, "test copy cell, symm, orig, scale cards"));
@@ -2616,6 +2617,34 @@ int test_COO_mod() {
    return status;
 }
 
+// I'm not going to fight the tab key
+// 
+ int test_new_comp_id() {
+
+    int status = 1;
+
+    std::vector<std::pair<std::string, std::string> > comp_ids;
+    comp_ids.push_back(std::pair<std::string, std::string> ("L19", "L20"));
+    comp_ids.push_back(std::pair<std::string, std::string> ("LIG", "LI2"));
+    comp_ids.push_back(std::pair<std::string, std::string> ("L01", "L02"));
+    comp_ids.push_back(std::pair<std::string, std::string> ("119", "120"));
+    comp_ids.push_back(std::pair<std::string, std::string> ("120", "121"));
+    comp_ids.push_back(std::pair<std::string, std::string> ("D99", "")); // failure case
+
+    for (unsigned int i=0; i<comp_ids.size(); i++) {
+       std::string n = coot::suggest_new_comp_id(comp_ids[i].first);
+       if (n != comp_ids[i].second) {
+	  std::cout << "New comp_id fail on " << comp_ids[i].first << " wanted " << comp_ids[i].second
+	  << " but got \"" << n << "\"" << std::endl;
+	  status = 0; // fail
+	  break;
+       }
+    }
+    return status;
+ } 
+
+ 
+
 int test_remove_whitespace() {
 
    std::string s = "";
@@ -2821,6 +2850,8 @@ test_torsions_from_residue_selection() {
    return status;
 }
 
+
+
 int
 test_read_prosmart_distance_restraints() {
 
@@ -2831,7 +2862,7 @@ test_read_prosmart_distance_restraints() {
    add_refmac_extra_restraints(imol, file_name.c_str());
 
    return status;
-} 
+}
 
 
 #endif // BUILT_IN_TESTING

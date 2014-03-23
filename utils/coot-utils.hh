@@ -49,8 +49,10 @@ namespace coot {
       };
 
       bool is_sequence_triplet(const std::string &s);
-
    }
+
+   // return empty string on failure
+   std::string suggest_new_comp_id(const std::string &comp_id_in);
 
    std::pair<std::string, std::string> get_userid_name_pair();
 
