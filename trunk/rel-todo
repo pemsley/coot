@@ -2,21 +2,12 @@
  0.8
 
 ---- 
-
-   o invert chiral centre 
-
-   o Difference maps peaks dialog
-
-   o auto open mtz opens diff map strangely.
-
    o chiral centre inverter in C++
   
    o GPCR ligand analysis.
 
-   o Oliver Smart: invert chiral centre on glycerol 3 phosphate
-
    o When the spacegroup is P1 or 0, and the cell has 90 degrees, the
-     calculation of the sigma should ignore zero values.
+     calculation of the sigma should ignore "zero" values.
 
    o imol_map should not be passed to molecule_class_info_t::auto_fit_best_rotamer().
 
@@ -81,10 +72,6 @@
 
 
    o Charge function in Lidia 
-
-   o Update RDKit for Bill.
-
-* Done.  Needs Bill to confirm
 
    o conditional SWIG - at compile time - for ENHANCED_LIGAND.
 
@@ -513,6 +500,27 @@ Not now.
    o Why doesn't the key get written to the pdf file in LIDIA?
 
 * Done.
+
+
+   o invert chiral centre 
+
+ * Done.
+
+   o Difference maps peaks dialog
+
+* Done.
+
+   o auto open mtz opens diff map strangely.
+
+* Done.
+
+   o Oliver Smart: invert chiral centre on glycerol 3 phosphate
+
+* Done.
+
+   o Update RDKit for Bill.
+
+* Done.  
 
 -----
 
