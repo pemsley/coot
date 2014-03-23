@@ -3385,6 +3385,11 @@ public:        //                      public
    // fragment info for Alan:
    std::vector<coot::fragment_info_t> get_fragment_info(bool screen_output_also) const;
 
+   std::pair<CResidue *, coot::dictionary_residue_restraints_t>
+   invert_chiral_centre(const std::string &chain_id, int res_no,
+			const std::string &ins_code,
+			const std::string &atom_name,
+			const coot::protein_geometry &geom);
    
 };
 

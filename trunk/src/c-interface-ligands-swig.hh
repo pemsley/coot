@@ -71,5 +71,7 @@ void
 add_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::string ins_code);
 
 
+void
+invert_chiral_centre(int imol, std::string chain_id, int res_no, std::string ins_code, std::string atom_name);
 
 #endif // C_INTERFACE_LIGANDS_SWIG_HH
