@@ -103,8 +103,11 @@ map_density_distribution(const clipper::Xmap<T> &map, bool write_output_flag, bo
       std::cout << "INFO:: ignoring " << bin[ibin_max_counts]
 		<< " of " << n << " counts ( = " << std::setprecision(2)
 		<< 100*float(bin[ibin_max_counts])/float(n) << "%)"
+		<< " with values around "
+		<< std::setprecision(4)
+		<< (static_cast<double>(ibin_max_counts) + 0.5) * range /double(nbins) + min
 		<< " from bin " << ibin_max_counts << " of "
-		<< nbins << std::setprecision(4) << std::endl;
+		<< nbins<< std::endl;
       for (unsigned int i=0; i<bin.size(); i++) {
 	 if (i != ibin_max_counts) { 
 	    double v = (static_cast<double>(i) + 0.5) * range /double(nbins) + min;
