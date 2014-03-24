@@ -1886,6 +1886,11 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
   map_mean_ = mv.mean;
   map_sigma_ = sqrt(mv.variance);
 
+  original_fphis_filled = 1;
+  original_fphis.init(fphidata.spacegroup(),fphidata.cell(),fphidata.hkl_sampling());
+  original_fphis = fphidata;
+  
+
   xmap_is_diff_map = 0; 
   update_map_in_display_control_widget();
   contour_level = nearest_step(mv.mean + 1.5*sqrt(mv.variance), 0.05);
