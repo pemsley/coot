@@ -1651,12 +1651,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 	file.open_read(filename);
 
 	em = is_em_map(file);
-	std::cout << "is_em_map() returns " << em << std::endl;
 	
 	if (1) { 
 	
 	   clipper::Grid_sampling fgs = file.grid_sampling();
-	   std::cout << "========== file grid sampling: " << fgs.format() << std::endl;
 	   try {
 	      file.import_xmap(xmap);
 	   }
