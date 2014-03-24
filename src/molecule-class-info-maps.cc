@@ -1700,21 +1700,6 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
       mean_and_variance<float> mv = map_density_distribution(xmap, true, true);
 
-
-      if (1) {
-	 clipper::Xmap_base::Map_reference_index ix;
-	 long count = 0;
-	 long nzeros = 0;
-	 for (ix=xmap.first(); !ix.last(); ix.next()) {
-	    count++;
-	    if (xmap[ix] < 0.01 && xmap[ix] > -0.01)
-	       nzeros++;
-	 }
-	 std::cout << "----------------------- INFO:: " << nzeros << " of " << count
-		   << " grid points are less than zero " << double(nzeros)/double(count)
-		   << std::endl;
-      } 
-
       float mean = mv.mean; 
       float var = mv.variance;
       contour_level    = nearest_step(mean + 1.5*sqrt(var), 0.05);
