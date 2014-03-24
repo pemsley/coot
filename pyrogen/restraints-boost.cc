@@ -49,7 +49,7 @@ coot::regularize_with_dict(RDKit::ROMol &mol_in, PyObject *restraints_py, const 
       std::cout << "WARNING:: bad residue " << std::endl;
    } else {
       // deep copy residue and add to new molecule.
-      CMMDBManager *cmmdbmanager = util::create_mmdbmanager_from_residue(NULL, residue_p);
+      CMMDBManager *cmmdbmanager = util::create_mmdbmanager_from_residue(residue_p);
       CResidue *new_residue_p = coot::util::get_first_residue(cmmdbmanager);
       PPCAtom residue_atoms = 0;
       int n_residue_atoms;

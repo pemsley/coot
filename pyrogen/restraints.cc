@@ -787,7 +787,7 @@ coot::write_pdb_from_mol(PyObject *rdkit_mol_py,
    if (! res) {
       std::cout << "in write_pdb_from_mol() failed to make residue" << std::endl;
    } else {
-      CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(NULL, res);
+      CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(res);
       mol->WritePDBASCII(file_name.c_str());
       delete mol;
    }
@@ -845,7 +845,7 @@ coot::regularize_inner(RDKit::ROMol &mol,
       monomer_restraints_from_python(restraints_py);
    CResidue *residue_p = coot::make_residue(mol, 0, res_name);
    // remove this NULL at some stage (soon)
-   CMMDBManager *cmmdbmanager = coot::util::create_mmdbmanager_from_residue(NULL, residue_p);
+   CMMDBManager *cmmdbmanager = coot::util::create_mmdbmanager_from_residue(residue_p);
    simple_refine(residue_p, cmmdbmanager, dict_restraints);
    return std::pair<CMMDBManager *, CResidue *> (cmmdbmanager, residue_p);
 } 
