@@ -218,7 +218,7 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       xmap.fft_from(fphis);
 
       float old_sigma = map_sigma_;
-      mean_and_variance<float> mv = map_density_distribution(xmap, 0);
+      mean_and_variance<float> mv = map_density_distribution(xmap, false);
       map_mean_  = mv.mean; 
       map_sigma_ = sqrt(mv.variance);
       map_max_   = mv.max_density;
@@ -977,7 +977,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 //   map_mean_ = stats.mean();
 	 //   map_sigma_ = stats.std_dev();
 
-	 mean_and_variance<float> mv = map_density_distribution(xmap, 0);
+	 mean_and_variance<float> mv = map_density_distribution(xmap, false, false);
 
 	 save_mtz_file_name = mtz_file_name;
 	 save_f_col = f_col;
@@ -1642,6 +1642,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       std::cout << "INFO:: map file type was determined to be CNS type\n";
 
    short int bad_read = 0;
+   bool em = false;
 
    if ( map_file_type == CCP4 ) {
      std::cout << "attempting to read CCP4 map: " << filename << std::endl;
@@ -1649,7 +1650,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
      try {
 	file.open_read(filename);
 
-	// if (! is_em_map(file)) {  // activate later
+	em = is_em_map(file);
+	std::cout << "is_em_map() returns " << em << std::endl;
 	
 	if (1) { 
 	
@@ -1696,7 +1698,22 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       initialize_map_things_on_read_molecule(filename, is_diff_map_flag, 
 					     graphics_info_t::swap_difference_map_colours);
 
-      mean_and_variance<float> mv = map_density_distribution(xmap, 1); 
+      mean_and_variance<float> mv = map_density_distribution(xmap, true, true);
+
+
+      if (1) {
+	 clipper::Xmap_base::Map_reference_index ix;
+	 long count = 0;
+	 long nzeros = 0;
+	 for (ix=xmap.first(); !ix.last(); ix.next()) {
+	    count++;
+	    if (xmap[ix] < 0.01 && xmap[ix] > -0.01)
+	       nzeros++;
+	 }
+	 std::cout << "----------------------- INFO:: " << nzeros << " of " << count
+		   << " grid points are less than zero " << double(nzeros)/double(count)
+		   << std::endl;
+      } 
 
       float mean = mv.mean; 
       float var = mv.variance;
@@ -1737,7 +1754,11 @@ bool
 molecule_class_info_t::is_em_map(const clipper::CCP4MAPfile &file) const {
 
    bool is_em = false;
-   
+
+   // Even if mapdump says that the spacegroup is 0, file.spacegroup()
+   // will be "P1".  So this returns true for maps with spacegroup 0
+   // (and 90 degrees)
+
    if (file.spacegroup().num_symops() == 1) { // P1
       if (((file.cell().descr().alpha() - M_PI/2) <  0.0001) && 
 	  ((file.cell().descr().alpha() - M_PI/2) > -0.0001) &&
@@ -1760,7 +1781,7 @@ molecule_class_info_t::new_map(const clipper::Xmap<float> &map_in, std::string n
    // sets name_ to name_in:
    initialize_map_things_on_read_molecule(name_in, 0, 0); // not a diff_map
 
-   mean_and_variance<float> mv = map_density_distribution(xmap, 1); 
+   mean_and_variance<float> mv = map_density_distribution(xmap, true); 
 
    float mean = mv.mean; 
    float var = mv.variance; 
@@ -1873,7 +1894,7 @@ molecule_class_info_t::make_map_from_phs_using_reso(std::string phs_filename,
   xmap.fft_from(fphidata);                  // generate map
   std::cout << "done." << std::endl;
 
-  mean_and_variance<float> mv = map_density_distribution(xmap,0);
+  mean_and_variance<float> mv = map_density_distribution(xmap, false);
 
   cout << "Mean and sigma of map from PHS file: " << mv.mean 
        << " and " << sqrt(mv.variance) << endl;
@@ -2199,7 +2220,7 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
    xmap.fft_from( map_fphidata ); // generate map
    cout << "done." << endl;
 
-   mean_and_variance<float> mv = map_density_distribution(xmap,0);
+   mean_and_variance<float> mv = map_density_distribution(xmap, false);
 
    cout << "Mean and sigma of map " << mol_name << " " << mv.mean 
 	<< " and " << sqrt(mv.variance) << endl; 
@@ -2396,7 +2417,7 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 	    else 
 	       xmap_is_diff_map = 0;
 
-	    mean_and_variance<float> mv = map_density_distribution(xmap,0);
+	    mean_and_variance<float> mv = map_density_distribution(xmap, false);
 
 	    cout << "Mean and sigma of map from CIF file (make_map_from_cif): "
 		 << mv.mean << " and " << sqrt(mv.variance) << endl; 
@@ -2552,7 +2573,7 @@ molecule_class_info_t::make_map_from_cif_nfofc(int imol_no_in,
 	 xmap.fft_from( fphidata );                  // generate map
 	 std::cout << "done." << std::endl;
 
-	 mean_and_variance<float> mv = map_density_distribution(xmap,0);
+	 mean_and_variance<float> mv = map_density_distribution(xmap, false);
 
 	 std::cout << "Mean and sigma of map from CIF file (make_map_from_cif_nfofc): "
 		   << mv.mean << " and " << sqrt(mv.variance) << std::endl; 
@@ -2739,7 +2760,7 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
   xmap.fft_from( fphidata );                  // generate map
   cout << "done." << endl;
 
-  mean_and_variance<float> mv = map_density_distribution(xmap,0);
+  mean_and_variance<float> mv = map_density_distribution(xmap, false);
 
   cout << "Mean and sigma of map from PHS file: " << mv.mean 
        << " and " << sqrt(mv.variance) << endl;
