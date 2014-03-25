@@ -206,7 +206,8 @@ lbg_info_t::get_pubchem_sid_mol(const std::string &id_string) {
 int
 lbg_info_t::get_pubchem_mol_generic(const std::string &id_string, const std::string &id_type) {
 
-   std::cout << "-------------- get_pubchem_mol called with " << id_string << std::endl;
+   std::cout << "INFO:: get_pubchem_mol:: called with " << id_string << " and type "
+	     << id_type  << std::endl;
    int handled = FALSE;
    if (id_string.length() > 0) {
       std::string local_file = id_string + ".mol";
