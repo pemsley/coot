@@ -2,6 +2,13 @@
  0.8
 
 ---- 
+
+   o The test-mogl.scm script needs to be updated.
+
+   o graphs should auto-determine if they have integer values for the
+     y-values and if so, don't put ticks and labels in non-integer
+     positions.
+
    o chiral centre inverter in C++
   
    o GPCR ligand analysis.

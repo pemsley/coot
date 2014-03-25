@@ -66,7 +66,7 @@ coot::goograph::init() {
 
    canvas = NULL;
    dialog = NULL;
-   
+
    dialog_width_orig = 600;
    dialog_height_orig = 500;
 
@@ -240,6 +240,7 @@ coot::goograph::draw_ticks() {
 
 void
 coot::goograph::draw_y_ticks(int tick_type, double tick_major_step, double tick_step, double tick_length_multiplier) {
+
    draw_ticks_generic(Y_AXIS, tick_type, tick_major_step, tick_step, tick_length_multiplier);
 }
 
@@ -258,6 +259,18 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
    double extents_min = 0.0;
    double data_extents_min = 0.0;
    double extents_max = 0.0;
+
+   bool tick_y_integers_only = false;
+
+   if (axis == Y_AXIS) {
+      tick_y_integers_only = true;
+      for (unsigned int i=0; i<traces.size(); i++) { 
+	 if (! traces[i].y_data_are_ints) {
+	    tick_y_integers_only = false;
+	    break;
+	 } 
+      }
+   }
 
    // extents not set, no data yet.
    if (extents_min_x > extents_max_x)
@@ -298,7 +311,6 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	 if (tick_type == MINOR_TICK) { 
 	    extents_min -= tick_major_step;
 	    while (extents_min < data_extents_min) { 
-	       // std::cout << "here 1.2 " << extents_min << " " << tick_step << std::endl;
 	       extents_min += tick_step;
 	    }
 	 }
@@ -311,6 +323,8 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 
       bool do_tick = true;
       if (tick_type == MINOR_TICK) {
+	 if (tick_y_integers_only)
+	    do_tick = false;
 	 // if the minor tick overlaps a major tick then don't display
 	 // it (set do_tick to false).
 	 for (double tick_pos_inner = tick_major_start;
@@ -322,6 +336,13 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	    }
 	 }
       }
+      if (tick_type == MAJOR_TICK) {
+	 if (tick_y_integers_only) {
+	    if (fabs(nearbyint(tick_pos)-tick_pos)>0.1)
+	       do_tick = false;
+	 }
+      }
+      
       if (do_tick) {
 	 lig_build::pos_t A_axis;
 	 lig_build::pos_t B_axis;
@@ -371,6 +392,9 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	    std::string grey = "#333333";
 	    std::string txt =
 	       coot::util::float_to_unspaced_string_using_dec_pl(tick_pos, n_dec_pl);
+	    if (tick_y_integers_only)
+	       txt = coot::util::int_to_string(int(nearbyint(tick_pos)));
+		  
 	    GooCanvasItem *text = goo_canvas_text_new(root, txt.c_str(),
 						      wB.x - tick_label_x_off,
 						      wB.y - tick_label_y_off,
@@ -526,7 +550,7 @@ coot::goograph::set_data(int trace_id, const std::vector<std::pair<double, doubl
    if (is_valid_trace(trace_id)) {
       std::vector<std::pair<double, double> > sorted_data = data_in;
       std::sort(sorted_data.begin(), sorted_data.end());
-      traces[trace_id].data = sorted_data;
+      traces[trace_id].set_data(sorted_data);
 
       if (data_in.size()) { 
 	 double max_x = -10000000;
@@ -560,6 +584,22 @@ coot::goograph::set_data(int trace_id, const std::vector<std::pair<double, doubl
       }
    }
 }
+
+void
+coot::graph_trace_info_t::set_data(const std::vector<std::pair<double, double> > &data_in) {
+
+   data = data_in;
+   
+   // check y data for ints
+   y_data_are_ints = true;
+   for (unsigned int i=0; i<data.size(); i++) { 
+      if (fabs(data[i].second-nearbyint(data[i].second)) > 0.000001) {
+	 y_data_are_ints = false;
+	 break;
+      }
+   }
+}
+
 
 // return closes multiple of 0.1, 0.2, 0.5, 1, 2, 5, 10, 20, 50, 100...
 double
@@ -644,7 +684,7 @@ coot::goograph::plot_bar_graph(int trace_id) {
 
    GooCanvasItem *root = goo_canvas_get_root_item(canvas);
    if (is_valid_trace(trace_id)) { 
-      const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
+      const std::vector<std::pair<double, double> > &data = traces[trace_id].get_data();
       std::string colour = traces[trace_id].colour;
       if (colour.empty())
 	 colour = "#70e070";
@@ -681,7 +721,7 @@ void
 coot::goograph::plot_line_graph(int trace_id) {
 
    if (is_valid_trace(trace_id)) { 
-      const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
+      const std::vector<std::pair<double, double> > &data = traces[trace_id].get_data();
       std::string colour = traces[trace_id].colour;
       bool dashed = traces[trace_id].dashed;
       if (data.size()) { 
@@ -713,7 +753,7 @@ void
 coot::goograph::plot_smoothed_line_graph(int trace_id) {
 
    if (is_valid_trace(trace_id)) {
-      const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
+      const std::vector<std::pair<double, double> > &data = traces[trace_id].get_data();
       std::string colour = traces[trace_id].colour;
       bool dashed = traces[trace_id].dashed;
       if (data.size()) { 
@@ -764,7 +804,7 @@ double
 coot::goograph::median_bin_width(int trace_id) const {
 
    double bw = 0.1;
-   const std::vector<std::pair<double, double> > &data = traces[trace_id].data;
+   const std::vector<std::pair<double, double> > &data = traces[trace_id].get_data();
    std::vector<double> x(data.size(), 0);
    std::sort(x.begin(), x.end());
    if (data.size() > 1) {
