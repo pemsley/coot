@@ -87,6 +87,8 @@ namespace coot {
 					    const std::string &splitter);
       std::vector<std::string> split_string_no_blanks(const std::string &string_in,
 						      const std::string &splitter=" ");
+      // can throw a std::runtime_error exception.  If this returns, it guarantees a useful result.
+      std::pair<std::string, long> extract_number_string(const std::string &s_in);
 
       std::string plain_text_to_sequence(const std::string &s);
       std::string plain_text_to_pir(const std::string &title, const std::string &sequence, short int il);

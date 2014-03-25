@@ -1170,7 +1170,9 @@ public:
 					 const std::string &url_file_name_file);
    std::string get_id_string(const std::string &s, int prefix_len, int max_len) const;
    int get_chemspider_mol(const std::string &id_string);
-   int get_pubchem_mol(const std::string &id_string);
+   int get_pubchem_sid_mol(const std::string &id_string);
+   int get_pubchem_cid_mol(const std::string &id_string);
+   int get_pubchem_mol_generic(const std::string &id_string, const std::string &id_type);
 
 
    // we want to use curl functions, but they are declared - and

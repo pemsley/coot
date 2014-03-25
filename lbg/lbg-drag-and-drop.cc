@@ -99,6 +99,18 @@ lbg_info_t::handle_lbg_drag_and_drop_single_item(const std::string &uri) {
 	    // pubchem structure image
 	    handled = handle_lbg_drag_and_drop_pubchem_image(uri);
 	 }
+	 
+	 std::string::size_type ipos = uri.find("id=");
+	 std::string::size_type i_w  = uri.find("window.open");
+	 std::string::size_type i_j  = uri.find("javascript");
+	 std::string::size_type i_o  = uri.find("open");
+	 if (ipos != std::string::npos &&
+	     i_w  != std::string::npos &&
+	     i_j  != std::string::npos &&
+	     i_o  != std::string::npos) {
+	    std::cout << "------------------ trying pubchem_image " << std::endl;
+	    handled = handle_lbg_drag_and_drop_pubchem_image(uri);
+	 }
       }
    }
    
@@ -180,16 +192,31 @@ lbg_info_t::get_chemspider_mol(const std::string &id_string) {
 } 
 
 int
-lbg_info_t::get_pubchem_mol(const std::string &id_string) {
+lbg_info_t::get_pubchem_cid_mol(const std::string &id_string) {
+
+   return get_pubchem_mol_generic(id_string, "cid");
+}
+
+int
+lbg_info_t::get_pubchem_sid_mol(const std::string &id_string) {
+
+   return get_pubchem_mol_generic(id_string, "sid");
+}
+
+int
+lbg_info_t::get_pubchem_mol_generic(const std::string &id_string, const std::string &id_type) {
 
    std::cout << "-------------- get_pubchem_mol called with " << id_string << std::endl;
    int handled = FALSE;
    if (id_string.length() > 0) {
       std::string local_file = id_string + ".mol";
       std::string file_name = coot::util::append_dir_file("coot-download", local_file);
-      std::string pc_mol_url = "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?cid=";
+      std::string pc_mol_url = "http://pubchem.ncbi.nlm.nih.gov/summary/summary.cgi?";
+      pc_mol_url += id_type;
+      pc_mol_url += "=";
       pc_mol_url += id_string;
       pc_mol_url += "&disopt=DisplaySDF";
+      std::cout << "getting url: " << pc_mol_url << std::endl;
       get_url_func_ptr(pc_mol_url.c_str(), file_name.c_str());
       import_mol_from_file(file_name);
       handled = TRUE;
@@ -215,9 +242,30 @@ lbg_info_t::handle_lbg_drag_and_drop_pubchem_image(const std::string &uri) {
 
    int handled = FALSE;
    if (uri.length() > 58) {
+
+      // I think that this no longer matches
       if (uri.substr(0,58) == "javascript: void window.open('/image/structurefly.cgi?cid=") {
 	 std::string id_string = get_id_string(uri, 58, 13);
-	 handled = get_pubchem_mol(id_string);
+	 handled = get_pubchem_cid_mol(id_string);
+      }
+
+      std::string types[] = { "sid", "cid" };
+
+      for (unsigned int itype=0; itype<2; itype++) {
+	 std::string test_string = types[itype] + std::string("=");
+	 std::string::size_type ipos = uri.find(test_string);
+	 if (ipos != std::string::npos) { 
+	    if (uri.length() > (ipos + (4+2))) {
+	       try {
+		  std::pair<std::string, long> id = coot::util::extract_number_string(uri.substr(ipos+4));
+		  handled = get_pubchem_mol_generic(id.first, types[itype]);
+	       }
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "failed to extract number from " << uri.substr(ipos+4)
+			    << std::endl;
+	       } 
+	    }
+	 }
       }
    }
    return handled;

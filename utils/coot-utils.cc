@@ -1277,3 +1277,31 @@ coot::suggest_new_comp_id(const std::string &comp_id_in) {
    }
    return r;
 } 
+
+
+// can throw a std::runtime_error exception.  If this returns, it guarantees a useful result.
+//
+// This doesn't deal with large numbers or negative numbers.
+// 
+std::pair<std::string, long>
+coot::util::extract_number_string(const std::string &s) {
+
+   std::pair<std::string, long> r("", 0);
+
+   std::string::size_type len = s.length();
+   for (std::string::size_type i=0; i<s.size(); i++) {
+      if (is_number(s[i])) {
+	 r.first += s[i];
+      } else {
+	 break;
+      }
+   }
+   if (r.first.length() == 0) {
+      std::string mess("No number");
+      throw(std::runtime_error(mess));
+   } else {
+      // string_to_long?
+      r.second = string_to_int(r.first);
+   } 
+   return r;
+} 
