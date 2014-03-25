@@ -34,17 +34,21 @@
 namespace coot {
 
    class graph_trace_info_t {
+      std::vector<std::pair<double, double> > data;
    public:
       enum {PLOT_TYPE_LINE, PLOT_TYPE_BAR, PLOT_TYPE_SMOOTHED_LINE};
       int plot_type;
       std::string colour;
       double line_width;
       bool dashed;
+      bool y_data_are_ints;
       graph_trace_info_t () {
 	 dashed = false;
+	 y_data_are_ints;
 	 plot_type = PLOT_TYPE_LINE;
       }
-      std::vector<std::pair<double, double> > data;
+      void set_data(const std::vector<std::pair<double, double> > &data_in);
+      const std::vector<std::pair<double, double> > &get_data() const { return data; }
    };
 
    class goograph {
