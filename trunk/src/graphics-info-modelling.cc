@@ -301,12 +301,11 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	 icheck_atoms = Geom_p()->atoms_match_dictionary(residues, check_hydrogens_too_flag, false);
 
       if (! icheck_atoms.first) {
-	 std::cout << "Fail atom check" << std::endl;
+	 std::cout << "WARNING:: Fail atom check" << std::endl;
 	 info_dialog_refinement_non_matching_atoms(icheck_atoms.second);
 	 return rr; // fail
       } else { 
 
-	 std::cout << "DEBUG:: pre copy_mol_and_refine_inner() geom has size " << Geom_p()->size() << std::endl;
 	 return copy_mol_and_refine_inner(imol_for_atoms,
 					  resno_1, resno_2,
 					  nSelResidues, SelResidues,
