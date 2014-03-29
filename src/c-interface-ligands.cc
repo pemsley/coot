@@ -1714,6 +1714,12 @@ SCM comp_id_to_name_scm(const char *comp_id) {
    SCM r = SCM_BOOL_F;
    graphics_info_t g;
    std::pair<bool, std::string> name = g.Geom_p()->get_monomer_name(comp_id);
+
+   if (! name.first) {
+      g.Geom_p()->try_dynamic_add(comp_id, g.cif_dictionary_read_number);
+      g.cif_dictionary_read_number++;
+      name = g.Geom_p()->get_monomer_name(comp_id);
+   }
    if (name.first) {
       r = scm_makfrom0str(name.second.c_str());
    }
