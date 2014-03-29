@@ -4,6 +4,7 @@ import xml.etree.ElementTree as et
 import string
 import math
 import types
+import gzip
 
 class PDB_Entry:
 
@@ -483,14 +484,14 @@ class ModelledSubgroup:
 
 # return validation info, which wraps entry_validation_info
 #
-def parse_wwpdb_validataion_xml(xml_file_name):
+def parse_wwpdb_validataion_xml(xml_string):
 
     try: 
-	tree = et.parse(xml_file_name)
-	root = tree.getroot()
+	tree = et.fromstring(xml_string)
 	modelled_subgroups = []
-	for child in root:
+	for child in tree:
 	    if child.tag == 'Entry':
+                xml_file_name = 'Fake-XML-Filename'
 		entry_info = PDB_Entry(child.attrib, xml_file_name)
 	    if child.tag == 'ModelledSubgroup':
 		subgroup = ModelledSubgroup(child)
@@ -541,7 +542,7 @@ class validation_entry_to_canvas:
 	    window.add(self.vbox)
 	    window.show_all()
 	    da.connect("expose-event", self.on_drawing_area_expose)
-	    close_button.connect("clicked", lambda w: gtk.main_quit())
+	    close_button.connect("clicked", lambda w: "close window")
 	    self.pangolayout = da.create_pango_layout("")
 
     def setup_colour_bar_buff(self):
@@ -825,29 +826,61 @@ def validation_to_gui(entry_validation_info, subgroups):
 
 def sort_subgroups(subgroups):
     return subgroups
+
+def pdb_validate(accession_code):
+
+    try:
+        if (len(accession_code) == 4):
+            middle_letters = accession_code[1] + accession_code[2]
+            gz_file_name = "pdb-validation-" + accession_code + ".xml.gz"
+            url = 'http://ftp.ebi.ac.uk/pub/databases/pdb/validation_reports/'
+            url += middle_letters
+            url += '/'
+            url += accession_code
+            url += '/'
+            url += accession_code
+            url += '_validation.xml.gz'
+            print 'get url', url
+            status = coot_get_url(url, gz_file_name)
+            # turn the gz_file_name into a string
+            gz = gzip.open(gz_file_name)
+            xml_string = gz.read()
+            vi = parse_wwpdb_validataion_xml(xml_string)
+            if vi:
+                entry_validation_info = vi[0]
+                subgroups = vi[1]
+                ss = sort_subgroups(subgroups)
+                validation_to_gui(entry_validation_info, ss)
+        else:
+            print 'WARNING:: invalid accession code', accession_code
+    except KeyError as e:
+        print "Failure to get validation for ", accession_code
     
 
     
-xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
-
-xml_list = ["1FV2.xml"]
-xml_list = ["2PE5.xml"]
-xml_list = ["1HAK.xml"]
-xml_list = ["1CBS.xml"]
-xml_list = ["1CBS-1.xml"]
-xml_list = ["2FGG.xml"]
-# xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
-# xml_list = ["3NPQ.xml"] # DNA only?
 # xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
 
-for xml_file in xml_list:
-    vi = parse_wwpdb_validataion_xml(xml_file)
-    if vi:
-	entry_validation_info = vi[0]
-	subgroups = vi[1]
-	ss = sort_subgroups(subgroups)
-	validation_to_gui(entry_validation_info, ss)
+# xml_list = ["1FV2.xml"]
+# xml_list = ["2PE5.xml"]
+# xml_list = ["1HAK.xml"]
+# xml_list = ["1CBS.xml"]
+# xml_list = ["1CBS-1.xml"]
+# xml_list = ["2FGG.xml"]
+# # xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
+# # xml_list = ["3NPQ.xml"] # DNA only?
+# # xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
 
-# coot_real_exit(0)
-gtk.main()
+# for xml_file in xml_list:
+#     vi = parse_wwpdb_validataion_xml(xml_file)
+#     if vi:
+# 	entry_validation_info = vi[0]
+# 	subgroups = vi[1]
+# 	ss = sort_subgroups(subgroups)
+# 	validation_to_gui(entry_validation_info, ss)
+
+# # coot_real_exit(0)
+# gtk.main()
+
+# pdb_validate('1cbs')
+
 
