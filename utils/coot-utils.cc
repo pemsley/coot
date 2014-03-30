@@ -489,11 +489,11 @@ coot::util::is_fasta_aa(const std::string &a_in) {
 }
 
 std::string
-coot::util::single_quote(const std::string &s) {
+coot::util::single_quote(const std::string &s, const std::string &quote_char) {
 
-   std::string r("\"");
+   std::string r = quote_char;
    r += s;
-   r += "\"";
+   r += quote_char;
    return r;
 }
 

@@ -3,6 +3,16 @@
 
 ---- 
 
+   o fit_to_map_by_random_jiggle should return a valid value.
+
+   o drag and drop SMILES strings into lidia
+
+   o OS: when map sharpening is selected but no map has been set, coot
+     crashes with the following segfault:
+
+     DEBUG:: imol from fill_option_menu_with_map_options() -1
+     /usr/local/bin/coot: line 10: 15221 Segmentation fault: 11  /Library/Coot/bin/coot-real "$@"
+
    o The test-mogl.scm script needs to be updated.
 
    o graphs should auto-determine if they have integer values for the
@@ -426,9 +436,6 @@ Not now.
 
 * Punt.
 
-   o drag and drop SMILES strings into lidia
-
-* Punt.
 
    o render the SMILES string in this file
 
@@ -507,7 +514,6 @@ Not now.
    o Why doesn't the key get written to the pdf file in LIDIA?
 
 * Done.
-
 
    o invert chiral centre 
 

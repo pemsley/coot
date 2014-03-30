@@ -93,7 +93,7 @@ namespace coot {
       std::string plain_text_to_sequence(const std::string &s);
       std::string plain_text_to_pir(const std::string &title, const std::string &sequence, short int il);
       short int is_fasta_aa(const std::string &s); // single letter code
-      std::string single_quote(const std::string &s);
+      std::string single_quote(const std::string &s, const std::string &quote_char="\"");
       // return 0 on success, something else on failure
       int create_directory(const std::string &dir_name);
       std::string file_name_directory(const std::string &file_name);
