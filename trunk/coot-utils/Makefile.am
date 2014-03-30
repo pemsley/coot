@@ -53,11 +53,13 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc hole.cc read-sm-cif.cc \
 	bonded-pairs.cc helix-analysis.cc elastic.cc
 
+#    $(top_builddir)/mini-mol/libcoot-mini-mol.la 
+#    $(top_builddir)/utils/libcoot-utils.la 
+#    $(CLIPPER_LIBS) $(MMDB_LIBS)
+
 # clean
 libcoot_coord_utils_la_LIBADD = \
-    $(top_builddir)/geometry/libcoot-geometry.la \
-    $(top_builddir)/utils/libcoot-utils.la \
-    $(CLIPPER_LIBS) $(MMDB_LIBS)
+    $(top_builddir)/geometry/libcoot-geometry.la
 
 # shelx
 libcoot_shelx_la_SOURCES = coot-shelx-ins.cc
@@ -72,10 +74,12 @@ libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
 	coot-tree-extras.cc water-coordination.cc lsq-improve.cc coot-coord-utils-glyco.cc
 
 # needs more, mini-mol, geometry
+#     $(top_builddir)/mini-mol/libcoot-mini-mol.la
+#    $(top_builddir)/utils/libcoot-utils.la
+
 libcoot_coord_extras_la_LIBADD = \
-   libcoot-coord-utils.la \
-    $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-    $(top_builddir)/utils/libcoot-utils.la
+   libcoot-coord-utils.la 
+
 
 # for (map) things that need to link mmdb and clipper:
 libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc \
@@ -88,12 +92,12 @@ libcoot_map_utils_la_LIBADD = \
 # for map things that need mmdb, clipper, gsl and other things
 libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc
 
+#   $(top_builddir)/utils/libcoot-utils.la 
+
 # and mini-mol (just one).
 libcoot_map_heavy_la_LIBADD = \
    libcoot-map-utils.la \
    libcoot-coord-utils.la \
-   $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-   $(top_builddir)/utils/libcoot-utils.la \
    $(GSL_LIBS)
 
 
@@ -111,36 +115,43 @@ check_PROGRAMS = test-tt-morph
 # test_agg_clust_LDADD =     $(top_builddir)/utils/libcoot-utils.la $(CLIPPER_LIBS)
 
 
+#	$(top_builddir)/geometry/libcoot-geometry.la 
+#        $(top_builddir)/mini-mol/libcoot-mini-mol.la 
+#        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
+
 
 testshelxreader_SOURCES = test-shelx-reader.cc
 testshelxreader_LDADD =          \
 	./libcoot-shelx.la       \
-	./libcoot-coord-utils.la \
-	$(top_builddir)/geometry/libcoot-geometry.la \
-        $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
+	./libcoot-coord-utils.la 
+
+#	$(top_builddir)/geometry/libcoot-geometry.la 
+#       $(top_builddir)/mini-mol/libcoot-mini-mol.la 
+#       $(top_builddir)/utils/libcoot-utils.la
 
 testcootutils_SOURCES = test-utils.cc
 testcootutils_LDADD =            \
 	./libcoot-shelx.la       \
 	./libcoot-coord-extras.la\
 	./libcoot-coord-utils.la \
-	$(top_builddir)/geometry/libcoot-geometry.la \
-        $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
+        $(GLOB_LIBS)
+
+#	$(top_builddir)/geometry/libcoot-geometry.la 
+#       $(top_builddir)/mini-mol/libcoot-mini-mol.la 
+#       $(top_builddir)/utils/libcoot-utils.la 
 
 test_h_bonds_SOURCES = test-h-bonds.cc
 test_h_bonds_LDADD = \
 	 ./libcoot-coord-utils.la \
-	$(top_builddir)/geometry/libcoot-geometry.la \
-        $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
+        $(GLOB_LIBS)
 
 test_hole_SOURCES = test-hole.cc
-test_hole_LDADD = ./libcoot-coord-utils.la \
-	$(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
-	$(top_builddir)/geometry/libcoot-geometry.la \
-        $(top_builddir)/mini-mol/libcoot-mini-mol.la 
+test_hole_LDADD = ./libcoot-coord-utils.la
+
+# \
+#	$(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
+#	$(top_builddir)/geometry/libcoot-geometry.la \
+#        $(top_builddir)/mini-mol/libcoot-mini-mol.la 
 
 test_tt_morph_SOURCES = test-morph.cc
 
