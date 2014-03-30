@@ -5,7 +5,23 @@ rdkit typos, cleanUp() description in MolOps.h
 
 ==============================================
 
+----
+Fri Mar 28 22:38:12 GMT 2014
 
+   Import 16X to 2D.  Try to correct the wedge bond, but on clicking
+   on Single Bond then the bond, only the wedge direction is changed.
+
+
+----
+Sat Mar 29 12:54:00 GMT 2014
+
+   Residue -> 2D should charge the O of a carboxylate that has
+   delocalized bonds to the oxygen, i.e.
+   -O(-), not -OH
+
+  e.g 114.
+
+-------
 test ligands:
 2z7l A 1001 S91
 3hec A 1    STI
