@@ -3,15 +3,22 @@
 
 ---- 
 
+   o As one scetches a molecule in lbg, coot should search (with SRS)
+   the current dictionary and let you know if the thing that you are
+   sketching is in the dictionary (or maybe there should be a button
+   to check (which will be easier)).
+ 
+   o why is there an H1 on the N01 in N01 in the pyrogen cif dictionary?
+
+   o remove atom name quotes from dictionary.
+
+   o latest python is 2.7.6 now?
+
+   o nuclsq for base pair and stacking restraints.
+
    o fit_to_map_by_random_jiggle should return a valid value.
 
    o drag and drop SMILES strings into lidia
-
-   o OS: when map sharpening is selected but no map has been set, coot
-     crashes with the following segfault:
-
-     DEBUG:: imol from fill_option_menu_with_map_options() -1
-     /usr/local/bin/coot: line 10: 15221 Segmentation fault: 11  /Library/Coot/bin/coot-real "$@"
 
    o The test-mogl.scm script needs to be updated.
 
@@ -22,9 +29,6 @@
    o chiral centre inverter in C++
   
    o GPCR ligand analysis.
-
-   o When the spacegroup is P1 or 0, and the cell has 90 degrees, the
-     calculation of the sigma should ignore "zero" values.
 
    o imol_map should not be passed to molecule_class_info_t::auto_fit_best_rotamer().
 
@@ -534,6 +538,20 @@ Not now.
    o Update RDKit for Bill.
 
 * Done.  
+
+   o OS: when map sharpening is selected but no map has been set, coot
+     crashes with the following segfault:
+
+     DEBUG:: imol from fill_option_menu_with_map_options() -1
+     /usr/local/bin/coot: line 10: 15221 Segmentation fault: 11  /Library/Coot/bin/coot-real "$@"
+
+* Fixed when SRS is not used.   
+
+
+   o When the spacegroup is P1 or 0, and the cell has 90 degrees, the
+     calculation of the sigma should ignore "zero" values.
+
+* Done.
 
 -----
 

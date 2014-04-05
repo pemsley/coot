@@ -156,7 +156,22 @@ coot::basic_dict_restraint_t::basic_dict_restraint_t(const std::string &at1,
 }
 
 
-
+// for CGraph CEdge usage
+//
+// if the bond type is "deloc" then return a single bond.  This
+// doesn't matter (at the moment) because the code using this doesn't
+// care about the bond order, it only cares about connectivity (or so
+// I think).
+// 
+int
+coot::dict_bond_restraint_t::mmdb_bond_type() const {
+   int bt = 1;
+   if (type_ == "double")
+      bt = 2;
+   if (type_ == "triple")
+      bt = 3;
+   return bt;
+}
 
 
 void
@@ -476,14 +491,241 @@ coot::protein_geometry::delete_atom_positions(const std::string &comp_id, int po
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
 	 for (unsigned int iat=0; iat<dict_res_restraints[i].atom_info.size(); iat++) { 
-	    if (pos_type == coot::dict_atom::IDEAL_MODEL_POS)
+	    if (pos_type == dict_atom::IDEAL_MODEL_POS)
 	       dict_res_restraints[i].atom_info[iat].pdbx_model_Cartn_ideal.first = false;
-	    if (pos_type == coot::dict_atom::REAL_MODEL_POS)
+	    if (pos_type == dict_atom::REAL_MODEL_POS)
 	       dict_res_restraints[i].atom_info[iat].model_Cartn.first = false;
 	 }
       }
    }
 } 
+
+// the input from_tos should be 4 character atom names. PDBv3 FIXME
+void
+coot::dictionary_residue_restraints_t::atom_id_swap(const std::vector< std::pair<std::string, std::string> > &from_tos) {
+
+   std::vector<std::pair<int, std::string> > alter_idx;
+   // find the set of difference to apply (by filling alter_idx), then apply them
+
+   // -------------- Atoms ---------------------------------
+   // 
+   for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (atom_info[iat].atom_id_4c == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(iat, from_tos[j].second));
+	 }
+      }
+   }
+
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++) {
+      std::string was = atom_info[alter_idx[idx].first].atom_id_4c;
+      atom_info[alter_idx[idx].first].atom_id_4c = alter_idx[idx].second;
+      atom_info[alter_idx[idx].first].atom_id    = util::remove_whitespace(alter_idx[idx].second);
+   } 
+   alter_idx.clear();
+
+   // -------------- Atom Tree ------------------------------
+   // 
+   for (unsigned int iat=0; iat<tree.size(); iat++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (tree[iat].atom_id == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(iat, from_tos[j].second));
+	 }
+      }
+   }
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
+      tree[alter_idx[idx].first].atom_id = alter_idx[idx].second;
+   alter_idx.clear();
+   
+   
+   // -------------- Bonds 1st atom --------------------------
+   //
+   for (unsigned int ib=0; ib<bond_restraint.size(); ib++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (bond_restraint[ib].atom_id_1_4c() == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(ib, from_tos[j].second));
+	 }
+      }
+   }
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
+      bond_restraint[alter_idx[idx].first].set_atom_1_atom_id(util::remove_whitespace(alter_idx[idx].second));
+   alter_idx.clear();
+   
+   // -------------- Bonds 2nd atom --------------------------
+   //
+   for (unsigned int ib=0; ib<bond_restraint.size(); ib++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (bond_restraint[ib].atom_id_2_4c() == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(ib, from_tos[j].second));
+	 }
+      }
+   }
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
+      bond_restraint[alter_idx[idx].first].set_atom_2_atom_id(util::remove_whitespace(alter_idx[idx].second));
+   alter_idx.clear();
+
+   
+   // -------------- Angles 1st atom ------------------------
+   //
+   for (unsigned int ia=0; ia<angle_restraint.size(); ia++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (angle_restraint[ia].atom_id_1_4c() == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(ia, from_tos[j].second));
+	 }
+      }
+   }
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
+      angle_restraint[alter_idx[idx].first].set_atom_1_atom_id(alter_idx[idx].second);
+   alter_idx.clear();
+
+   // -------------- Angles 2nd atom ------------------------
+   //
+   for (unsigned int ia=0; ia<angle_restraint.size(); ia++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (angle_restraint[ia].atom_id_2_4c() == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(ia, from_tos[j].second));
+	 }
+      }
+   }
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
+      angle_restraint[alter_idx[idx].first].set_atom_2_atom_id(alter_idx[idx].second);
+   alter_idx.clear();
+
+   // -------------- Angles 3rd atom ------------------------
+   //
+   for (unsigned int ia=0; ia<angle_restraint.size(); ia++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (angle_restraint[ia].atom_id_3_4c() == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(ia, from_tos[j].second));
+	 }
+      }
+   }
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
+      angle_restraint[alter_idx[idx].first].set_atom_3_atom_id(alter_idx[idx].second);
+   alter_idx.clear();
+
+   // -------------- Torsion 1st atom ------------------------
+   //
+   for (unsigned int it=0; it<torsion_restraint.size(); it++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (torsion_restraint[it].atom_id_1_4c() == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(it, from_tos[j].second));
+	 }
+      }
+   }
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
+      torsion_restraint[alter_idx[idx].first].set_atom_1_atom_id(alter_idx[idx].second);
+   alter_idx.clear();
+   
+
+   // -------------- Torsion 2nd atom ------------------------
+   //
+   for (unsigned int it=0; it<torsion_restraint.size(); it++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (torsion_restraint[it].atom_id_2_4c() == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(it, from_tos[j].second));
+	 }
+      }
+   }
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
+      torsion_restraint[alter_idx[idx].first].set_atom_2_atom_id(alter_idx[idx].second);
+   alter_idx.clear();
+
+   // -------------- Torsion 3rd atom ------------------------
+   //
+   for (unsigned int it=0; it<torsion_restraint.size(); it++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (torsion_restraint[it].atom_id_3_4c() == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(it, from_tos[j].second));
+	 }
+      }
+   }
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
+      torsion_restraint[alter_idx[idx].first].set_atom_3_atom_id(alter_idx[idx].second);
+   alter_idx.clear();
+
+   // -------------- Torsion 4th atom ------------------------
+   //
+   for (unsigned int it=0; it<torsion_restraint.size(); it++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (torsion_restraint[it].atom_id_4_4c() == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(it, from_tos[j].second));
+	 }
+      }
+   }
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
+      torsion_restraint[alter_idx[idx].first].set_atom_4_atom_id(alter_idx[idx].second);
+   alter_idx.clear();
+
+   // -------------- Chiral Centre atom ------------------------
+   //
+   for (unsigned int ic=0; ic<chiral_restraint.size(); ic++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (chiral_restraint[ic].atom_id_c_4c() == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(ic, from_tos[j].second));
+	 }
+      }
+   }
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
+      chiral_restraint[alter_idx[idx].first].set_atom_c_atom_id(alter_idx[idx].second);
+   alter_idx.clear();
+
+   // -------------- Chiral 1st atom ------------------------
+   //
+   for (unsigned int ic=0; ic<chiral_restraint.size(); ic++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (chiral_restraint[ic].atom_id_1_4c() == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(ic, from_tos[j].second));
+	 }
+      }
+   }
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
+      chiral_restraint[alter_idx[idx].first].set_atom_1_atom_id(alter_idx[idx].second);
+   alter_idx.clear();
+   
+   // -------------- Chiral 2nd atom ------------------------
+   //
+   for (unsigned int ic=0; ic<chiral_restraint.size(); ic++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (chiral_restraint[ic].atom_id_2_4c() == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(ic, from_tos[j].second));
+	 }
+      }
+   }
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
+      chiral_restraint[alter_idx[idx].first].set_atom_2_atom_id(alter_idx[idx].second);
+   alter_idx.clear();
+   
+   // -------------- Chiral 3rd atom ------------------------
+   //
+   for (unsigned int ic=0; ic<chiral_restraint.size(); ic++) { 
+      for (unsigned int j=0; j<from_tos.size(); j++) { 
+	 if (chiral_restraint[ic].atom_id_3_4c() == from_tos[j].first) {
+	    alter_idx.push_back(std::pair<int, std::string>(ic, from_tos[j].second));
+	 }
+      }
+   }
+   for (unsigned int idx=0; idx<alter_idx.size(); idx++)
+      chiral_restraint[alter_idx[idx].first].set_atom_3_atom_id(alter_idx[idx].second);
+   alter_idx.clear();
+   
+   // -------------- Planes ------------------------
+   // 
+   for (unsigned int ip=0; ip<plane_restraint.size(); ip++) { 
+      dict_plane_restraint_t &pr = plane_restraint[ip];
+      alter_idx.clear();
+      for (unsigned int iat=0; iat<pr.n_atoms(); iat++) { 
+	 for (unsigned int j=0; j<from_tos.size(); j++) {
+	    if (pr.atom_id(iat) == from_tos[j].first)
+	       alter_idx.push_back(std::pair<int, std::string>(iat, from_tos[j].second));
+	 }
+      }
+      if (alter_idx.size())
+	 pr.set_atom_ids(alter_idx);
+   }
+   
+   
+}
 
 
 
@@ -2292,6 +2534,30 @@ coot::dictionary_residue_restraints_t::is_hydrogen(const std::string &atom_name)
    return r;
 }
 
+bool
+coot::dictionary_residue_restraints_t::is_hydrogen(unsigned int idx) const {
+
+   bool r = false;
+   if (idx < atom_info.size()) {
+      const std::string &ele = atom_info[idx].type_symbol;
+      if (ele == " H" || ele == "H" || ele == "D")
+	 r = true;
+   } 
+   return r;
+}
+
+unsigned int
+coot::dictionary_residue_restraints_t::number_of_non_hydrogen_atoms() const {
+
+   unsigned int r = 0;
+   for (unsigned int iat=0; iat<atom_info.size(); iat++) {
+      if (! is_hydrogen(iat))
+	 r++;
+   }
+   return r;
+}
+
+
 // c.f. dict_torsion_restraint_t::is_ring_torsion()
 bool
 coot::dictionary_residue_restraints_t::is_ring_torsion(const coot::atom_name_quad &quad) const {
@@ -2699,7 +2965,7 @@ coot::protein_geometry::matching_names(const std::string &test_string,
 }
 
 void
-coot::dictionary_residue_restraints_t::remove_redundant_plane_resetraints() {
+coot::dictionary_residue_restraints_t::remove_redundant_plane_restraints() {
 
 
    bool match = true; // synthetic first value

@@ -39,6 +39,7 @@
 #include <stdexcept>
 
 #include <mmdb/mmdb_mmcif.h>
+#include <mmdb/mmdb_graph.h>
 
 #ifdef HAVE_CCP4SRS
 #ifndef CCP4SRS_BASE_H
@@ -144,7 +145,8 @@ namespace coot {
       std::string atom_id_2_4c() const {
 	 return atom_id_mmdb_expand(atom_id_2_);
       }
-      
+      void set_atom_id_1(const std::string &id) { atom_id_1_ = id; } 
+      void set_atom_id_2(const std::string &id) { atom_id_2_ = id; } 
    }; 
 
    class dict_bond_restraint_t : public basic_dict_restraint_t {
@@ -177,6 +179,7 @@ namespace coot {
       }
       
       std::string type() const { return type_; }
+      int mmdb_bond_type() const; // for CGraph CEdge usage 
       // can throw a std::runtime_error exception (if target values not set)
       double value_dist() const {
 	 if (have_target_values)
@@ -199,7 +202,9 @@ namespace coot {
 	    if (atom_id_2() == r.atom_id_1())
 	       return true;
 	 return false;
-      } 
+      }
+      void set_atom_1_atom_id(const std::string &id) { set_atom_id_1(id); }
+      void set_atom_2_atom_id(const std::string &id) { set_atom_id_2(id); }
       friend std::ostream& operator<<(std::ostream &s, const dict_bond_restraint_t &rest);
    };
    std::ostream& operator<<(std::ostream &s, const dict_bond_restraint_t &rest);
@@ -237,6 +242,9 @@ namespace coot {
 	       return true;
 	 return false;
       } 
+      void set_atom_1_atom_id(const std::string &id) { set_atom_id_1(id); }
+      void set_atom_2_atom_id(const std::string &id) { set_atom_id_2(id); }
+      void set_atom_3_atom_id(const std::string &id) { atom_id_3_ = id; }
 
       friend std::ostream& operator<<(std::ostream &s, const dict_angle_restraint_t &rest);
    };
@@ -287,6 +295,10 @@ namespace coot {
       bool is_ring_torsion(const std::vector<std::vector<std::string> > &ring_atoms_sets) const;
       // hack for mac, ostream problems
       std::string format() const;
+      void set_atom_1_atom_id(const std::string &id) { set_atom_id_1(id); }
+      void set_atom_2_atom_id(const std::string &id) { set_atom_id_2(id); }
+      void set_atom_3_atom_id(const std::string &id) { atom_id_3_ = id; }
+      void set_atom_4_atom_id(const std::string &id) { atom_id_4_ = id; }
    };
    std::ostream& operator<<(std::ostream &s, const dict_torsion_restraint_t &rest); 
 
@@ -324,6 +336,10 @@ namespace coot {
       bool matches_names(const dict_plane_restraint_t &r) const;
       void push_back_atom(const std::string &at) { atom_ids.push_back(at); }
       friend std::ostream&  operator<<(std::ostream &s, dict_plane_restraint_t rest);
+      void set_atom_ids(const std::vector<std::pair<int, std::string> > &from_tos) {
+	 for (unsigned int i=0; i<from_tos.size(); i++)
+	    atom_ids[from_tos[i].first] = from_tos[i].second;
+      }
    };
 
    std::ostream&  operator<<(std::ostream &s, dict_plane_restraint_t rest);
@@ -379,6 +395,11 @@ namespace coot {
       std::string atom_id_2_4c() const { return atom_id_mmdb_expand(local_atom_id_2);}
       std::string atom_id_3_4c() const { return atom_id_mmdb_expand(local_atom_id_3);}
       std::string atom_id_c_4c() const { return atom_id_mmdb_expand(local_atom_id_centre);}
+      void set_atom_1_atom_id(const std::string &id) { local_atom_id_1 = id; }
+      void set_atom_2_atom_id(const std::string &id) { local_atom_id_2 = id; }
+      void set_atom_3_atom_id(const std::string &id) { local_atom_id_3 = id; }
+      void set_atom_c_atom_id(const std::string &id) { local_atom_id_centre = id; }
+      
       double assign_chiral_volume_target(const std::vector <dict_bond_restraint_t> &bonds,
 					 const std::vector <dict_angle_restraint_t> &angles);
       double target_volume() const { return target_volume_;}
@@ -529,6 +550,12 @@ namespace coot {
 					// there is only bond orders
 					// (at the moment) and atom
 					// names.
+      std::vector<std::pair<std::string, std::string> >
+      extra_name_swaps_from_name_clash(const std::vector<std::pair<std::string, std::string> > &change_name) const;
+      std::string invent_new_name(const std::string &ele) const;
+      void change_names(CResidue *residue_p, const std::vector<std::pair<std::string, std::string> > &change_name) const;
+
+      
    public:
       dictionary_residue_restraints_t(std::string comp_id_in,
 				      int read_number_in) {
@@ -562,9 +589,13 @@ namespace coot {
 	    if (atom_info.size() > 0)
 	       return true;
 	 return false;
-      } 
+      }
       dict_chem_comp_t residue_info;
       std::vector <dict_atom> atom_info;
+      unsigned int number_of_atoms() const { return atom_info.size(); }
+      unsigned int number_of_non_hydrogen_atoms() const;
+      // if the name matches a from (first), change it to the second
+      void atom_id_swap(const std::vector<std::pair<std::string, std::string> > &from_tos);
       // std::string comp_id; // i.e. residue type name
       std::string comp_id() const { return residue_info.comp_id; }
       std::vector <dict_chem_comp_tree_t> tree;
@@ -577,6 +608,7 @@ namespace coot {
       pdbx_chem_comp_descriptor_container_t descriptors;
       // Return 1 for hydrogen or deuterium, 0 for not found or not a hydrogen.
       bool is_hydrogen(const std::string &atom_name) const;
+      bool is_hydrogen(unsigned int ) const; // the index of an atom in atom_info is passed.
       int assign_chiral_volume_targets(); // return the number of targets made.
       bool has_unassigned_chiral_volumes() const;
       bool has_partial_charges() const;
@@ -626,7 +658,7 @@ namespace coot {
       void conservatively_replace_with_angles(const dictionary_residue_restraints_t &new_restraints);
 
       //
-      void remove_redundant_plane_resetraints();
+      void remove_redundant_plane_restraints();
       bool is_redundant_plane_resetraints(std::vector<dict_plane_restraint_t>::iterator it);
 
       // quiet means don't tell me about matches
@@ -638,6 +670,19 @@ namespace coot {
 		   bool compare_hydrogens=false,
 		   bool output_energy_types=false,
 		   bool quiet=false) const;
+
+      // return a dictionary that is a copy of this dictionary, but
+      // trying to match the names of the atoms of ref.  Do graph
+      // matching to find the set of atom names that match/need to be
+      // changed.
+      // 
+      dictionary_residue_restraints_t match_to_reference(const dictionary_residue_restraints_t &ref,
+							 CResidue *residue_p);
+
+      // make a CGraph from the atom_info and bond restraints.
+      //
+      // Caller disposes of the memory with a delete().
+      CGraph *make_graph(bool use_hydrogen) const;
       
    };
 
@@ -2255,6 +2300,8 @@ namespace coot {
 							       const std::string &bond_order,
 							       bool at_1_deloc_or_arom,
 							       bool at_2_deloc_or_arom) const;
+
+
 
 #ifdef HAVE_CCP4SRS
       match_results_t residue_from_best_match(CGraph &graph1, CGraph &graph2,
