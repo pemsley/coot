@@ -288,7 +288,7 @@
             <child>
               <object class="GtkLabel" id="label7">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">Get Drug:</property>
+                <property name="label" translatable="yes">Get Molecule:</property>
               </object>
               <packing>
                 <property name="position">0</property>

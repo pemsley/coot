@@ -455,6 +455,53 @@ overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref
    return graph_info;
 }
 
+// Read cif_dict_in, match the atoms there-in to those of the dictionary of reference_comp_id.
+// Write a new dictionary to cif_dict_out.
+// 
+// Return 1 if was successful in doing the atom matching and writing the cif file.
+int
+match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::string ins_code,
+			     std::string cif_dict_in,
+			     std::string cif_dict_out,
+			     std::string cif_dict_comp_id,
+			     std::string reference_comp_id) {
+
+   if (coot::file_exists(cif_dict_in)) {
+      coot::protein_geometry geom_local;
+      geom_local.try_dynamic_add(reference_comp_id, 0);
+      std::pair<short int, coot::dictionary_residue_restraints_t> rp_1 =
+	 geom_local.get_monomer_restraints(reference_comp_id);
+      if (rp_1.first) {
+	 coot::protein_geometry geom_matcher;
+	 int n_bonds = geom_matcher.init_refmac_mon_lib(cif_dict_in, 0);
+	 if (n_bonds == 0) {
+	    std::cout << "No bonds from " << cif_dict_in << std::endl;
+	 } else { 
+	    std::pair<short int, coot::dictionary_residue_restraints_t> rp_2 =
+	       geom_matcher.get_monomer_restraints(cif_dict_comp_id);
+	    if (rp_2.first) {
+	       CResidue *residue_p = NULL; // for the moment
+	       std::cout << "------ about to match " << rp_1.second.residue_info.comp_id << " to "
+			 << rp_2.second.residue_info.comp_id << std::endl;
+	       coot::dictionary_residue_restraints_t new_dict =
+		  rp_2.second.match_to_reference(rp_1.second, residue_p);
+	       new_dict.write_cif(cif_dict_out);
+	    } else {
+	       std::cout << " not bonds from " << cif_dict_in << std::endl;
+	    }
+	 }
+      } else {
+	 std::cout << "----- No  restraints for " << reference_comp_id << std::endl;
+      } 
+   } else {
+      std::cout << "WARNING:: " << cif_dict_in << " file not found" << std::endl;
+   } 
+
+   int result = 0;
+
+   return result;
+
+} 
 
 
 
@@ -2869,3 +2916,4 @@ invert_chiral_centre(int imol,
       } 
    }
 }
+

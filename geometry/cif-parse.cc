@@ -2752,7 +2752,7 @@ coot::protein_geometry::init_standard() {
       energy_cif_file_name = std::string(cmld) + "/ener_lib.cif";
    }
    
-   init_refmac_mon_lib(mon_lib_cif, coot::protein_geometry::MON_LIB_LIST_CIF);
+   init_refmac_mon_lib(mon_lib_cif, protein_geometry::MON_LIB_LIST_CIF);
    // now the protein monomers:
    read_number = 1;
    std::vector <std::string> protein_mono = standard_protein_monomer_files();
@@ -2776,7 +2776,7 @@ coot::protein_geometry::refmac_monomer(const std::string &s, // dir
 				       const std::string &protein_mono) { // extra path to file
    
    std::string filename = s; 
-   filename = coot::util::append_dir_file(s, protein_mono);
+   filename = util::append_dir_file(s, protein_mono);
    struct stat buf;
    int istat = stat(filename.c_str(), &buf);
    if (istat == 0) { 
@@ -2852,7 +2852,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       s = residue_info.three_letter_code.c_str();
       mmCIFLoop->PutString(s, "three_letter_code", i);
       std::string raw_name = residue_info.name.c_str();
-      std::string quoted_name = coot::util::single_quote(raw_name, "'");
+      std::string quoted_name = util::single_quote(raw_name, "'");
       mmCIFLoop->PutString(quoted_name.c_str(), "name", i);
       s =  residue_info.group.c_str();
       mmCIFLoop->PutString(s, "group", i);
@@ -2888,9 +2888,10 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	 rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
 	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
 	    for (int i=0; i<atom_info.size(); i++) {
+	       const dict_atom &ai = atom_info[i];
 	       const char *ss =  residue_info.comp_id.c_str();
 	       mmCIFLoop->PutString(ss, "comp_id", i);
-	       ss = atom_info[i].atom_id.c_str();
+	       ss = util::remove_whitespace(ai.atom_id).c_str();
 	       mmCIFLoop->PutString(ss, "atom_id", i);
 	       ss = atom_info[i].type_symbol.c_str();
 	       mmCIFLoop->PutString(ss, "type_symbol", i);
@@ -2922,9 +2923,11 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       // std::cout << "ading bond number " << i << std::endl;
 	       const char *ss = residue_info.comp_id.c_str();
 	       mmCIFLoop->PutString(ss, "comp_id", i);
-	       ss = bond_restraint[i].atom_id_1_4c().c_str();
+	       std::string id_1 = util::remove_whitespace(bond_restraint[i].atom_id_1_4c());
+	       std::string id_2 = util::remove_whitespace(bond_restraint[i].atom_id_2_4c());
+	       ss = id_1.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_1", i);
-	       ss = bond_restraint[i].atom_id_2_4c().c_str();
+	       ss = id_2.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_2", i);
 	       ss = bond_restraint[i].type().c_str();
 	       mmCIFLoop->PutString(ss, "type", i);
@@ -2951,18 +2954,21 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	    // std::cout << " number of angles: " << angle_restraint.size() << std::endl;
 	    for (int i=0; i<angle_restraint.size(); i++) {
 	       // std::cout << "ading angle number " << i << std::endl;
-	       char *ss = (char *) residue_info.comp_id.c_str();
+	       std::string id_1 = util::remove_whitespace(angle_restraint[i].atom_id_1_4c());
+	       std::string id_2 = util::remove_whitespace(angle_restraint[i].atom_id_2_4c());
+	       const char *ss = residue_info.comp_id.c_str();
 	       mmCIFLoop->PutString(ss, "comp_id", i);
-	       ss = (char *) angle_restraint[i].atom_id_1_4c().c_str();
+	       ss = id_1.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_1", i);
-	       ss = (char *) angle_restraint[i].atom_id_2_4c().c_str();
+	       ss = id_2.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_2", i);
 
 	       // bug fix(!) intermediate value my_ss clears up casting
 	       // problem (inheritance-related?) on writing.
-	       std::string my_ss = angle_restraint[i].atom_id_3_4c();
-	       ss = (char *) my_ss.c_str();
+	       std::string my_ss = util::remove_whitespace(angle_restraint[i].atom_id_3_4c());
+	       ss = my_ss.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_3", i);
+	       
 	       float v = angle_restraint[i].angle();
 	       mmCIFLoop->PutReal(v, "value_angle", i);
 	       v = angle_restraint[i].esd();
@@ -2979,17 +2985,21 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	    // std::cout << " number of torsions: " << torsion_restraint.size() << std::endl;
 	    for (int i=0; i<torsion_restraint.size(); i++) {
 	       // std::cout << "ading torsion number " << i << std::endl;
-	       char *ss = (char *) residue_info.comp_id.c_str();
+	       std::string id_1 = util::remove_whitespace(torsion_restraint[i].atom_id_1_4c());
+	       std::string id_2 = util::remove_whitespace(torsion_restraint[i].atom_id_2_4c());
+	       std::string id_3 = util::remove_whitespace(torsion_restraint[i].atom_id_3_4c());
+	       std::string id_4 = util::remove_whitespace(torsion_restraint[i].atom_id_4_4c());
+	       const char *ss = residue_info.comp_id.c_str();
 	       mmCIFLoop->PutString(ss, "comp_id", i);
-	       ss = (char *) torsion_restraint[i].id().c_str();
+	       ss = torsion_restraint[i].id().c_str();
 	       mmCIFLoop->PutString(ss, "id", i);
-	       ss = (char *) torsion_restraint[i].atom_id_1_4c().c_str();
+	       ss = id_1.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_1", i);
-	       ss = (char *) torsion_restraint[i].atom_id_2_4c().c_str();
+	       ss = id_2.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_2", i);
-	       ss = (char *) torsion_restraint[i].atom_id_3_4c().c_str();
+	       ss = id_3.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_3", i);
-	       ss = (char *) torsion_restraint[i].atom_id_4_4c().c_str();
+	       ss = id_4.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_4", i);
 	       float v = torsion_restraint[i].angle();
 	       mmCIFLoop->PutReal(v, "value_angle", i);
@@ -3010,16 +3020,20 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	    for (int i=0; i<chiral_restraint.size(); i++) {
 	       // std::cout << "ading chiral number " << i << std::endl;
 	       const char *ss = residue_info.comp_id.c_str();
+	       std::string id_c = util::remove_whitespace(chiral_restraint[i].atom_id_c_4c());
+	       std::string id_1 = util::remove_whitespace(chiral_restraint[i].atom_id_1_4c());
+	       std::string id_2 = util::remove_whitespace(chiral_restraint[i].atom_id_2_4c());
+	       std::string id_3 = util::remove_whitespace(chiral_restraint[i].atom_id_3_4c());
 	       mmCIFLoop->PutString(ss, "comp_id", i);
 	       ss = chiral_restraint[i].Chiral_Id().c_str();
 	       mmCIFLoop->PutString(ss, "id", i);
-	       ss = chiral_restraint[i].atom_id_c_4c().c_str();
+	       ss = id_c.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_centre", i);
-	       ss = chiral_restraint[i].atom_id_1_4c().c_str();
+	       ss = id_1.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_1", i);
-	       ss = chiral_restraint[i].atom_id_2_4c().c_str();
+	       ss = id_2.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_2", i);
-	       ss = chiral_restraint[i].atom_id_3_4c().c_str();
+	       ss = id_3.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_3", i);
 	       int sign = chiral_restraint[i].volume_sign;
 	       ss = "both";
@@ -3045,7 +3059,8 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 		  mmCIFLoop->PutString(ss, "comp_id", icount);
 		  ss = plane_restraint[i].plane_id.c_str();
 		  mmCIFLoop->PutString(ss, "plane_id", icount);
-		  ss = plane_restraint[i].atom_id(iat).c_str();
+		  std::string id = util::remove_whitespace(plane_restraint[i].atom_id(iat));
+		  ss = id.c_str();
 		  mmCIFLoop->PutString(ss, "atom_id", icount);
 		  float v = plane_restraint[i].dist_esd();
 		  mmCIFLoop->PutReal(v, "dist_esd", icount);
@@ -3071,11 +3086,11 @@ coot::protein_geometry::hydrogens_connect_file(const std::string &resname,
 					       const std::string &filename) const {
 
    bool r = 0;
-   std::pair<short int, coot::dictionary_residue_restraints_t> p =
+   std::pair<short int, dictionary_residue_restraints_t> p =
       get_monomer_restraints(resname);
 
    if (p.first) {
-      std::vector<coot::dict_bond_restraint_t> bv = p.second.bond_restraint;
+      std::vector<dict_bond_restraint_t> bv = p.second.bond_restraint;
       if (bv.size() > 0) {
 	 // try to open the file then:
 	 std::ofstream connect_stream(filename.c_str());
@@ -3218,7 +3233,7 @@ coot::protein_geometry::pdbx_chem_comp_descriptor(PCMMCIFLoop mmCIFLoop) {
       if (s) type = s;
       
       if (ierr_tot == 0) {
-	 coot::pdbx_chem_comp_descriptor_item descr(type, program, program_version, descriptor);
+	 pdbx_chem_comp_descriptor_item descr(type, program, program_version, descriptor);
 	 add_pdbx_descriptor(comp_id, descr);
       }
    }

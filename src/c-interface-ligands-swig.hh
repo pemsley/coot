@@ -70,8 +70,19 @@ write_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::s
 void 
 add_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::string ins_code);
 
-
 void
 invert_chiral_centre(int imol, std::string chain_id, int res_no, std::string ins_code, std::string atom_name);
+
+// Read cif_dict_in, match the atoms there-in to those of the dictionary of reference_comp_id.
+// Write a new dictionary to cif_dict_out.
+// 
+// Return 1 if was successful in doing the atom matching and writing the cif file.
+int
+match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::string ins_code,
+			     std::string cif_dict_in,
+			     std::string cif_dict_out,
+			     std::string cif_dict_comp_id,
+			     std::string reference_comp_id);
+
 
 #endif // C_INTERFACE_LIGANDS_SWIG_HH

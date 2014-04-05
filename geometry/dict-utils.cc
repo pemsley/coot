@@ -527,7 +527,300 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	       status = true;
    
    return status;
+}
+
+// return a dictionary that is a copy of this dictionary, but
+// trying to match the names of the atoms of ref.  Do graph
+// matching to find the set of atom names that match/need to be
+// changed.
+// 
+coot::dictionary_residue_restraints_t
+coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary_residue_restraints_t &ref,
+							  CResidue *residue_p) {
+   dictionary_residue_restraints_t dict = *this;
+   typedef std::pair<std::string, std::string> SP;
+   std::vector<SP> change_name;
+
+   bool use_hydrogens = true;
+   int n_atoms = atom_info.size();
+   if (use_hydrogens == false)
+      n_atoms = number_of_non_hydrogen_atoms();
+   
+   CGraph *g_1 = make_graph(use_hydrogens);
+   CGraph *g_2 = ref.make_graph(use_hydrogens);
+
+   if (0) { 
+      std::cout << "this-name:::::::::::::::::::" << residue_info.comp_id << std::endl;
+      std::cout << " ref-name:::::::::::::::::::" << ref.residue_info.comp_id << std::endl;
+      g_1->Print();
+      g_2->Print();
+   }
+   
+   g_1->SetName (residue_info.name.c_str());
+   g_2->MakeVertexIDs();
+
+   Boolean use_bond_order = false;
+
+   g_1->MakeSymmetryRelief(False);
+   
+   CGraphMatch match;
+   int minMatch = static_cast<int>(0.9*float(n_atoms));
+
+   Boolean vertext_type = True;
+   std::string s;
+   if (!use_hydrogens)
+      s = " non-hydrogen";
+   std::cout << "MatchGraphs() with minMatch " << minMatch << " with "
+	     << n_atoms << s << " atoms" << std::endl;
+   int build_result_1 = g_1->Build(False);
+
+   if (build_result_1 != 0) {
+      std::cout << "Bad graph build result_1" << std::endl;
+   } else {
+      int build_result_2 = g_2->Build(use_bond_order);
+      if (build_result_1 != 0) {
+	 std::cout << "Bad graph build result_2" << std::endl;
+      } else { 
+	 match.MatchGraphs(g_1, g_2, minMatch, vertext_type);
+	 int n_match = match.GetNofMatches();
+	 if (n_match > 0) {
+	    if (0) 
+	       std::cout << "found " << n_match << " matches" << std::endl;
+
+	    int imatch_best = 0;
+	    for (int imatch=0; imatch<n_match; imatch++) {
+	       int nv;
+	       realtype p1, p2;
+	       ivector FV1, FV2;
+	       match.GetMatch(imatch, FV1, FV2, nv, p1, p2); // n p1 p2 set
+	       int n_type_match = 0;
+	       for (int ipair=1; ipair<=nv; ipair++) {
+		  CVertex *V1 = g_1->GetVertex ( FV1[ipair] );
+		  CVertex *V2 = g_2->GetVertex ( FV2[ipair] );
+		  if ((!V1) || (!V2))  {
+		     std::cout << "Can't get vertices for match " << ipair << std::endl;
+		  } else {
+		     const int &type_1 = V1->GetType();
+		     const int &type_2 = V2->GetType();
+		     if (type_1 == type_2) {
+			std::string v1_name(V1->GetName());
+			std::string v2_name(V2->GetName());
+			if (imatch == imatch_best)
+			   if (0) 
+			      std::cout << " imatch_best " << imatch
+					<< " atom " << V1->GetName() << " in graph_1 matches atom "
+					<< V2->GetName() << " in graph_2" << std::endl;
+			if (imatch == imatch_best) { 
+			   if (v1_name != v2_name) {
+			      change_name.push_back(SP(v1_name, v2_name));
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (0) { 
+      std::cout << "----- accumulated ------ " << change_name.size() << " name changes "
+		<< " --------- " << std::endl;
+      for (unsigned int i=0; i<change_name.size(); i++) { 
+	 std::cout << i << "  " << change_name[i].first << " -> " << change_name[i].second
+		   << std::endl;
+      }
+   }
+
+   // do any of the target (to) names exist in dict already?  If so,
+   // we will need to invent a new name for those already-existing
+   // atoms.
+   std::vector<SP> more_swaps_from_name_clashes = extra_name_swaps_from_name_clash(change_name);
+   for (unsigned int ii=0; ii<more_swaps_from_name_clashes.size(); ii++)
+      change_name.push_back(more_swaps_from_name_clashes[ii]);
+
+   // do the swap
+   dict.atom_id_swap(change_name);
+
+   delete g_1;
+   delete g_2;
+
+   // also header info.
+   dict.residue_info.comp_id           = ref.residue_info.comp_id;
+   dict.residue_info.three_letter_code = ref.residue_info.three_letter_code;
+   dict.residue_info.name              = ref.residue_info.name;
+   dict.residue_info.group             = ref.residue_info.group;
+
+   // change the residue atom names too (if non-NULL).
+   change_names(residue_p, change_name);
+   
+   return dict;
+}
+
+void
+coot::dictionary_residue_restraints_t::change_names(CResidue *residue_p,
+						    const std::vector<std::pair<std::string, std::string> > &change_name) const {
+
+   if (residue_p) {
+      PPCAtom res_selection = NULL;
+      int num_residue_atoms;
+      residue_p->GetAtomTable(res_selection, num_residue_atoms);
+      for (unsigned int iat=0; iat<num_residue_atoms; iat++) {
+	 CAtom *at = res_selection[iat];
+	 std::string atom_name = at->name;
+	 for (unsigned int j=0; j<change_name.size(); j++) { 
+	    if (change_name[j].first == atom_name) {
+	       // 4 chars?
+	       at->SetAtomName(change_name[j].second.c_str());
+	    } 
+	 }
+      }
+   }
+}
+
+
+// do any of the target (to) names exist in dict already (and that to
+// name is not assigned to be replaced)?  If so, we will need to
+// invent a new name for those already-existing atoms.
+// 
+std::vector<std::pair<std::string, std::string> >
+coot::dictionary_residue_restraints_t::extra_name_swaps_from_name_clash(const std::vector<std::pair<std::string, std::string> > &change_name) const {
+
+   typedef std::pair<std::string, std::string> SP;
+   std::vector<SP> r;
+   for (unsigned int i=0; i<change_name.size(); i++) {
+      for (unsigned int j=0; j<atom_info.size(); j++) {
+	 const std::string &to_name = change_name[i].second;
+	 // if it is an atom name that already exists in this residue...
+	 if (to_name == atom_info[j].atom_id) {
+	    // and if that atom name is not assigned to be changed... 
+	    bool found = false;
+	    for (unsigned int k=0; k<change_name.size(); k++) {
+	       if (change_name[k].first == to_name) {
+		  found == true;
+		  break;
+	       }
+	    }
+	    if (! found) {
+	       // not assigned to be changed...
+	       //
+	       // so invent a new name.
+	       std::string ele = "C";
+	       for (unsigned int jj=0; jj<atom_info.size(); jj++) { 
+		  if (atom_info[jj].atom_id == to_name) {
+		     ele = atom_info[jj].type_symbol;
+		     break;
+		  } 
+	       }
+	       
+	       std::string invented_name = invent_new_name(ele);
+	       SP p(to_name, invented_name);
+	       r.push_back(p);
+	    } 
+	 }
+      }
+   }
+
+   return r;
+}
+
+std::string
+coot::dictionary_residue_restraints_t::invent_new_name(const std::string &ele) const {
+
+   std::string new_name("XXX");
+   std::string a("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+   bool found = false;
+
+   std::vector<std::string> monomer_atom_names(atom_info.size());
+   for (unsigned int iat=0; iat<atom_info.size(); iat++)
+      monomer_atom_names[iat] = atom_info[iat].atom_id;
+   
+   for (unsigned int i=0; i<a.size(); i++) { 
+      for (unsigned int j=0; j<a.size(); j++) {
+	 std::string test_atom_name = "";
+	 if (ele.length() == 1) { 
+	    test_atom_name = " ";
+	    test_atom_name += ele;
+	 } else {
+	    test_atom_name = ele;
+	 }
+	 test_atom_name += a[i];
+	 test_atom_name += a[j];
+	 if (std::find(monomer_atom_names.begin(), monomer_atom_names.end(), test_atom_name)
+	     == monomer_atom_names.end()) {
+	    found = true;
+	    new_name = test_atom_name;
+	 }
+	 if (found)
+	    break;
+      }
+      if (found)
+	 break;
+   }
+   return new_name;
 } 
+
+
+
+CGraph *
+coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const { 
+
+   std::map<std::string, unsigned int> name_map;
+
+   
+   // mol atom indexing -> graph vertex indexing (we need this because
+   // (perhaps) not all atoms in the atom_info are atoms in the graph).
+   //
+   // This contains the atom indices of of atom_info (0-indexed).  An
+   // mmdb graph is 1-indexed.
+   // 
+   int vertex_indexing[atom_info.size()];
+   
+   CGraph *graph = new CGraph;
+   int i_atom = 0;
+   for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
+      std::string ele  = atom_info[iat].type_symbol;
+      if (use_hydrogens || (ele != " H" && ele != "H")) { 
+	 std::string name = atom_info[iat].atom_id_4c;
+	 CVertex *v = new CVertex(ele.c_str(), name.c_str());
+	 graph->AddVertex(v);
+	 name_map[name] = i_atom;
+	 i_atom++;
+      }
+   }
+
+   for (unsigned int ib=0; ib<bond_restraint.size(); ib++) {
+      const dict_bond_restraint_t &br = bond_restraint[ib];
+      int mmdb_bond_type = br.mmdb_bond_type();
+      if (mmdb_bond_type != -1) {
+	 std::map<std::string, unsigned int>::const_iterator it_1;
+	 std::map<std::string, unsigned int>::const_iterator it_2;
+	 it_1 = name_map.find(br.atom_id_1_4c());
+	 it_2 = name_map.find(br.atom_id_2_4c());
+
+	 if (it_1 == name_map.end()) {
+	    if (use_hydrogens || !is_hydrogen(br.atom_id_1_4c()))
+	       std::cout << "Not found in name map atom 1 :" << br.atom_id_1() << ":" << std::endl;
+	 } else { 
+	    if (it_2 == name_map.end()) {
+	       if (use_hydrogens || !is_hydrogen(br.atom_id_2_4c()))
+		  std::cout << "Not found in name map atom 2 :" << br.atom_id_2() << ":" << std::endl;
+	    } else {
+	       if (use_hydrogens || (!is_hydrogen(br.atom_id_1_4c()) &&
+				     !is_hydrogen(br.atom_id_2_4c()))) {
+		  CEdge *e = new CEdge(it_1->second + 1,  // 1-indexed
+				       it_2->second + 1,
+				       mmdb_bond_type);
+		  graph->AddEdge(e);
+	       }
+	    }
+	 }
+      }
+   }
+   return graph;
+}
+
+
 
 
 // 1mzt
