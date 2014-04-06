@@ -3,6 +3,9 @@
 
 ---- 
 
+   o where does the extra hydrogen come when making a pyrogen
+     dictionary for MFX?
+
    o As one scetches a molecule in lbg, coot should search (with SRS)
    the current dictionary and let you know if the thing that you are
    sketching is in the dictionary (or maybe there should be a button

@@ -17,8 +17,8 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 					       bool output_energy_types,
 					       bool quiet) const {
 
-   std::cout << "debug:: using bond_length_tolerance " << bond_length_tolerance << std::endl;
-   std::cout << "debug:: using angle_tolerance       " << angle_tolerance << std::endl;
+   std::cout << "Info:: using bond_length_tolerance " << bond_length_tolerance << " A" << std::endl;
+   std::cout << "Info:: using angle_tolerance       " << angle_tolerance << " degrees " << std::endl;
 
    std::map<std::string, bool> hydrogen_status;
    for (unsigned int iat=0; iat<atom_info.size(); iat++) {
@@ -81,6 +81,57 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       std::cout << "Atom-Info:: " << comp_id_s << " mismatch number of atoms " << atom_info.size() << " vs "
 	 << r.atom_info.size() << std::endl;
    }
+
+
+   // check for atoms that are in this atom_info, but not in r.
+   //
+   // check for atoms that are in r, but not in this atom info.
+   //
+   std::vector<std::string> missing_atoms;
+   for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
+      const std::string &atom_id_refr = atom_info[iat].atom_id;
+      bool found = false;
+      for (unsigned int jat=0; jat<r.atom_info.size(); jat++) {
+	 if (r.atom_info[jat].atom_id == atom_id_refr) {
+	    found = true;
+	    break;
+	 } 
+      }
+      if (! found)
+	 missing_atoms.push_back(atom_id_refr);
+   }
+   if (missing_atoms.size()) {
+      std::string s = "s";
+      if (missing_atoms.size() == 1) s = "";
+      std::cout << "Atom-Info:: atom" << s << " in dict-1, but not dict-2: ";
+      for (unsigned int i=0; i<missing_atoms.size(); i++)
+	 std::cout << missing_atoms[i] << " ";
+      std::cout << std::endl;
+   }
+   missing_atoms.clear();
+   
+   for (unsigned int iat=0; iat<r.atom_info.size(); iat++) { 
+      const std::string &atom_id_refr = r.atom_info[iat].atom_id;
+      bool found = false;
+      for (unsigned int jat=0; jat<atom_info.size(); jat++) {
+	 if (atom_info[jat].atom_id == atom_id_refr) {
+	    found = true;
+	    break;
+	 } 
+      }
+      if (! found)
+	 missing_atoms.push_back(atom_id_refr);
+   }
+   if (missing_atoms.size()) {
+      std::string s = "s";
+      if (missing_atoms.size() == 1) s = "";
+      std::cout << "Atom-Info:: atom" << s << " in dict-2, but not dict-1: ";
+      for (unsigned int i=0; i<missing_atoms.size(); i++)
+	 std::cout << missing_atoms[i] << " ";
+      std::cout << std::endl;
+   }
+
+   
    for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
       const std::string &atom_id_refr = atom_info[iat].atom_id;
       if (0) 
@@ -564,7 +615,8 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    g_1->MakeSymmetryRelief(False);
    
    CGraphMatch match;
-   int minMatch = static_cast<int>(0.9*float(n_atoms));
+   int minMatch = static_cast<int>(0.9*float(n_atoms)) - 3;
+   // minMatch = n_atoms;
 
    Boolean vertext_type = True;
    std::string s;
@@ -583,9 +635,9 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
       } else { 
 	 match.MatchGraphs(g_1, g_2, minMatch, vertext_type);
 	 int n_match = match.GetNofMatches();
+	 if (1) 
+	    std::cout << "found " << n_match << " matches" << std::endl;
 	 if (n_match > 0) {
-	    if (0) 
-	       std::cout << "found " << n_match << " matches" << std::endl;
 
 	    int imatch_best = 0;
 	    for (int imatch=0; imatch<n_match; imatch++) {
@@ -593,6 +645,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	       realtype p1, p2;
 	       ivector FV1, FV2;
 	       match.GetMatch(imatch, FV1, FV2, nv, p1, p2); // n p1 p2 set
+	       // std::cout << "   imatch " << imatch << " " << nv << std::endl;
 	       int n_type_match = 0;
 	       for (int ipair=1; ipair<=nv; ipair++) {
 		  CVertex *V1 = g_1->GetVertex ( FV1[ipair] );
@@ -615,44 +668,48 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 			      change_name.push_back(SP(v1_name, v2_name));
 			   }
 			}
-		     }
+		     } else {
+			std::cout << "imatch " << imatch <<  "excluding match between "
+				  << V1->GetName() << " and "
+				  << V2->GetName() << " because types are " << type_1
+				  << " and " << type_2 << std::endl;
+		     } 
 		  }
 	       }
 	    }
+
+	    if (0) { 
+	       std::cout << "----- accumulated ------ " << change_name.size() << " name changes "
+			 << " --------- " << std::endl;
+	       for (unsigned int i=0; i<change_name.size(); i++) { 
+		  std::cout << i << "  " << change_name[i].first << " -> " << change_name[i].second
+			    << std::endl;
+	       }
+	    }
+	    // also header info.
+	    dict.residue_info.comp_id           = ref.residue_info.comp_id;
+	    dict.residue_info.three_letter_code = ref.residue_info.three_letter_code;
+	    dict.residue_info.name              = ref.residue_info.name;
+	    dict.residue_info.group             = ref.residue_info.group;
+
+	    // change the residue atom names too (if non-NULL).
+	    change_names(residue_p, change_name);
+
+	    // do any of the target (to) names exist in dict already?  If so,
+	    // we will need to invent a new name for those already-existing
+	    // atoms.
+	    std::vector<SP> more_swaps_from_name_clashes = extra_name_swaps_from_name_clash(change_name);
+	    for (unsigned int ii=0; ii<more_swaps_from_name_clashes.size(); ii++)
+	       change_name.push_back(more_swaps_from_name_clashes[ii]);
+
+	    // do the swap
+	    dict.atom_id_swap(change_name);
 	 }
       }
    }
 
-   if (0) { 
-      std::cout << "----- accumulated ------ " << change_name.size() << " name changes "
-		<< " --------- " << std::endl;
-      for (unsigned int i=0; i<change_name.size(); i++) { 
-	 std::cout << i << "  " << change_name[i].first << " -> " << change_name[i].second
-		   << std::endl;
-      }
-   }
-
-   // do any of the target (to) names exist in dict already?  If so,
-   // we will need to invent a new name for those already-existing
-   // atoms.
-   std::vector<SP> more_swaps_from_name_clashes = extra_name_swaps_from_name_clash(change_name);
-   for (unsigned int ii=0; ii<more_swaps_from_name_clashes.size(); ii++)
-      change_name.push_back(more_swaps_from_name_clashes[ii]);
-
-   // do the swap
-   dict.atom_id_swap(change_name);
-
    delete g_1;
    delete g_2;
-
-   // also header info.
-   dict.residue_info.comp_id           = ref.residue_info.comp_id;
-   dict.residue_info.three_letter_code = ref.residue_info.three_letter_code;
-   dict.residue_info.name              = ref.residue_info.name;
-   dict.residue_info.group             = ref.residue_info.group;
-
-   // change the residue atom names too (if non-NULL).
-   change_names(residue_p, change_name);
    
    return dict;
 }
