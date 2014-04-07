@@ -447,6 +447,13 @@ def make_restraints_from_pdbx_cif(cif_file_name_in, comp_id, sdf_file_name, pdb_
    return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name)
 
 
+def n_hydrogens(mol):
+    n_H = 0
+    for atom in mol.GetAtoms():
+	if atom.GetAtomicNum() == 1:
+	    n_H += 1
+    return n_H
+	
    
 def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
 
@@ -455,18 +462,16 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
    except KeyError:
       print 'caught key error in trying to get _Name in make_restraints() for m'
       compound_name = '.'
-      
-   m_H = AllChem.AddHs(m)
+
+   m_H = m
+   if n_hydrogens(m) == 0:
+       m_H = AllChem.AddHs(m)
    
    AllChem.EmbedMolecule(m_H)
    AllChem.UFFOptimizeMolecule(m_H)
 
    atom_names = add_atom_names(m_H)
 
-   for atom in m_H.GetAtoms():
-      name   = atom.GetProp('name')
-      # print 'in p2.py make_restraints()', atom, ' of m_H 3 has name ', name
-   
    m_H.SetProp('comp_id', comp_id)
    m_H.SetProp('name', compound_name)
    all_set = set_atom_types(m_H)

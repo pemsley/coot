@@ -529,7 +529,10 @@ coot::add_chem_comp_planes(const RDKit::ROMol &mol, coot::dictionary_residue_res
 
    add_chem_comp_aromatic_planes(mol, restraints);
    add_chem_comp_deloc_planes(mol, restraints);
-   restraints->remove_redundant_plane_resetraints();
+
+   // FIXME.  Function no longer exists (it was blank anyway)
+   // 
+   // restraints->remove_redundant_plane_resetraints();
 
 }
 
