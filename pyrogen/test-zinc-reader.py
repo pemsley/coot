@@ -117,9 +117,10 @@ if __name__ == "__main__":
 
     if factory:
 
-        gzf = '/extra/paule/zinc/23_p0.0.sdf.gz'
+        gzf = '/home/paule/zinc/data/23_p0.0.sdf.gz'
         f = 'x3.sdf'
         f = 'x2.sdf'
+	f = '/home/paule/data/zinc/a1.sdf'
         # f = 'x1.sdf'
         
         # read_zinc_sdf(Chem.ForwardSDMolSupplier(gzip.open(gzf)), factory)
