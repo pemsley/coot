@@ -56,6 +56,18 @@ coot::util::water_coordination_t::water_coordination_t(CMMDBManager *mol, realty
 		     "*"    // alt loc.
 		     );
 
+   mol->SelectAtoms (SelHnd_waters, 0, "*",
+		     ANY_RES, // starting resno, an int
+		     "*", // any insertion code
+		     ANY_RES, // ending resno
+		     "*", // ending insertion code
+		     "*", // residue name
+		     "*",   // atname
+		     "MG,CA,K,NA,LI,RB,BE,BA,FR,CS,SR",   // metals
+		     "*" ,   // alt loc.
+		     SKEY_OR);
+   
+
    // c.f. addSymmetry_whole_chain() in Bond-lines.cc 
    
    mol->SelectAtoms (SelHnd, 0, "*",
