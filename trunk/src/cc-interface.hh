@@ -573,6 +573,9 @@ SCM residues_near_position_scm(int imol, SCM pos, float radius);
 //! the result and apply them to the molecule of the active residue.
 void hydrogenate_region(float radius);
 
+//! Add hydrogens to imol from the given pdb file
+void add_hydrogens_from_file(int imol, std::string pdb_with_Hs_file_name);
+
 /* Here the Python code for ATOM INFO */
 
 //! \brief output atom info in a python list for use in scripting:

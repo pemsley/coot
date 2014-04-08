@@ -3221,9 +3221,43 @@ write_residue_range_to_pdb_file(int imol, const char *chain_id,
    args.push_back(coot::util::single_quote(chain_id));
    args.push_back(resno_start);
    args.push_back(resno_end);
+   args.push_back(coot::util::single_quote(filename));
    add_to_history_typed(cmd, args);
    return istat;
 }
+
+int write_chain_to_pdb_file(int imol, const char *chain_id, const char *filename) {
+
+   int istat = 0;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+      int SelHnd = mol->NewSelection(); // d
+      mol->SelectAtoms(SelHnd, 1,
+		       chain_id, 
+		       ANY_RES, "*",
+		       ANY_RES, "*",
+		       "*", // any residue name
+		       "*", // atom name
+		       "*", // elements
+		       "*",  // alt loc.
+		       SKEY_NEW);
+      CMMDBManager *new_mol = coot::util::create_mmdbmanager_from_atom_selection(mol, SelHnd);
+      if (new_mol) {
+	 istat = new_mol->WritePDBASCII(filename);
+	 delete new_mol;
+      }
+      mol->DeleteSelection(SelHnd);
+   } 
+   std::string cmd = "write-chain-to-pdb-file";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(coot::util::single_quote(filename));
+   add_to_history_typed(cmd, args);
+   return istat;
+} 
+
 
 /*! \brief save all modified coordinates molecules to the default
   names and save the state too. */
@@ -6838,9 +6872,18 @@ int residue_has_hetatms(int imol, const char * chain_id, int resno, const char *
    } 
    return r;
    
-} 
+}
 
 
+//! Add hydrogens to imol from the given pdb file
+void add_hydrogens_from_file(int imol, std::string pdb_with_Hs_file_name) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.molecules[imol].add_hydrogens_from_file(pdb_with_Hs_file_name);
+      graphics_draw();
+   }
+}
 
 
 
