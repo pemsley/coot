@@ -349,6 +349,12 @@
 	;; ---------------------------------------------------------------------
 
 	(add-simple-coot-menu-menuitem
+	 submenu-models "Add Hydrogens using Refmac"
+	 (lambda ()
+	   (using-active-atom
+	    (add-hydrogens-using-refmac aa-imol))))
+	 
+	(add-simple-coot-menu-menuitem
 	 submenu-models "Add Other Solvent Molecules..."
 	 (lambda ()
 	   (solvent-ligands-gui)))

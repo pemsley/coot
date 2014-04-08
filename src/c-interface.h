@@ -1720,6 +1720,10 @@ int write_residue_range_to_pdb_file(int imol, const char *chainid,
 				    int resno_start, int resno_end, 
 				    const char *filename);
 
+/*  return 0 on success, -1 on error. */
+int write_chain_to_pdb_file(int imol, const char *chainid, const char *filename);
+
+
 /*! \brief save all modified coordinates molecules to the default
   names and save the state too. */
 int quick_save(); 

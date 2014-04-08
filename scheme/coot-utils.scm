@@ -121,6 +121,53 @@
   (= (molecule-has-hydrogens-raw imol) 1))
 
 
+(define (add-hydrogens-using-refmac imol)
+  (let ((out-file-name (append-dir-file "coot-refmac"
+					(string-append (molecule-name-stub imol 0)
+						       "-needs-H.pdb")))
+	(in-file-name (append-dir-file "coot-refmac"
+				       (string-append (molecule-name-stub imol 0)
+						      "-with-H.pdb"))))
+    (make-directory-maybe "coot-refmac")
+    (write-pdb-file imol out-file-name)
+    (add-hydrogens-using-refmac-inner imol in-file-name out-file-name)))
+
+
+(define (add-hydrogens-to-chain-using-refmac imol chain-id)
+  (let ((out-file-name (append-dir-file "coot-refmac"
+					(string-append (molecule-name-stub imol 0)
+						       "-chain-"
+						       chain-id
+						       "-needs-H.pdb")))
+	(in-file-name (append-dir-file "coot-refmac"
+				       (string-append (molecule-name-stub imol 0)
+						      "-chain-"
+						      chain-id
+						      "-with-H.pdb"))))
+    (make-directory-maybe "coot-refmac")
+    (write-chain-to-pdb-file imol chain-id out-file-name)
+    (add-hydrogens-using-refmac-inner imol in-file-name out-file-name)))
+
+
+;; out-file-name has been written, in-file-name needs to be read.
+;; 
+(define (add-hydrogens-using-refmac-inner imol in-file-name out-file-name)
+
+    (let ((goosh-status (goosh-command
+			 "refmac5"
+			 (list "XYZIN" out-file-name  ;; yes (coot out)
+			       "XYZOUT" in-file-name)
+			 (list "MAKE HOUT YES" "END")
+			 "refmac-H-addition.log"
+			 #f)))
+      (if (not (ok-goosh-status? goosh-status))
+	  (begin 
+	    (format #f "WARNING:: problem running refmac5 on ~s~%" out-file-name)
+	    #f)
+	  (add-hydrogens-from-file imol in-file-name))))
+
+
+
 ;; set this to a function accepting two argument (the molecule number
 ;; and the manipulation mode) and it will be run after a model
 ;; manipulation.

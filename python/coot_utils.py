@@ -250,6 +250,41 @@ class UsingActiveAtom:
 def molecule_has_hydrogens(imol):
     return (molecule_has_hydrogens_raw(imol) == 1)
 
+def add_hydrogens_using_refmac(imol):
+    out_file_name = os.path.join("coot-refmac",
+				 molecule_name_stub(imol, 0) + '-needs-H.pdb') 
+    in_file_name = os.path.join("coot-refmac",
+				molecule_name_stub(imol, 0) + '-with-H.pdb')
+    make_directory_maybe('coot-refmac')
+    write_pdb_file(imol, out_file_name)
+    return add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name)
+
+
+def add_hydrogens_to_chain_using_refmac(imol, chain_id):
+    out_file_name = os.path.join("coot-refmac",
+				 molecule_name_stub(imol, 0) + '-chain-' + chain_id + '-needs-H.pdb') 
+    in_file_name = os.path.join("coot-refmac",
+				molecule_name_stub(imol, 0) + '-chain-' + chain_id + '-with-H.pdb')
+    make_directory_maybe('coot-refmac')
+    write_chain_to_pdb_file(imol, chain_id, out_file_name)
+    return add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name)
+    
+
+def add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name):
+
+    status = popen_command("refmac5",
+			   ['XYZIN', out_file_name, 'XYZOUT', in_file_name],
+			   ['MAKE HOUT YES'],
+			   'refmac-H-addition.log', 0)
+    try:
+	if (status == 0):
+	    # all good
+	    return add_hydrogens_from_file(imol, in_file_name)
+    except:
+	return False
+	
+	      
+
 # set this to a function accepting two argument (the molecule number
 # and the manipulation mode) and it will be run after a model
 # manipulation.
