@@ -120,6 +120,8 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
 
 void smiles_to_ligand_builder(const char *smiles_string) {
 
+   bool debug = false;
+
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS   
    try {
       
@@ -145,17 +147,19 @@ void smiles_to_ligand_builder(const char *smiles_string) {
 	 int iconf = RDDepict::compute2DCoords(*rdk_mol, 0, true);
 	 
 	 lig_build::molfile_molecule_t m = coot::make_molfile_molecule(*rdk_mol, iconf);
-   
-	 std::cout << " molfile contains " << m.atoms.size() << " atoms " << std::endl;
-	 for (unsigned int i=0; i<m.atoms.size(); i++) {
-	    std::cout << "   " << i << "   name: " << m.atoms[i].name << " element: "
-		      << m.atoms[i].element << " position: "
-		      << m.atoms[i].atom_position.format() << " " << std::endl;
-	 }
-	 std::cout << " molfile contains " << m.bonds.size() << " atoms " << std::endl;
-	 for (unsigned int i=0; i<m.bonds.size(); i++) { 
-	    std::cout << "   " << m.bonds[i].index_1 << " " << m.bonds[i].index_2 << " type: "
-		      << m.bonds[i].bond_type << std::endl;
+
+	 if (debug) { 
+	    std::cout << " molfile contains " << m.atoms.size() << " atoms " << std::endl;
+	    for (unsigned int i=0; i<m.atoms.size(); i++) {
+	       std::cout << "   " << i << "   name: " << m.atoms[i].name << " element: "
+			 << m.atoms[i].element << " position: "
+			 << m.atoms[i].atom_position.format() << " " << std::endl;
+	    }
+	    std::cout << " molfile contains " << m.bonds.size() << " bonds " << std::endl;
+	    for (unsigned int i=0; i<m.bonds.size(); i++) { 
+	       std::cout << "   " << m.bonds[i].index_1 << " " << m.bonds[i].index_2 << " type: "
+			 << m.bonds[i].bond_type << std::endl;
+	    }
 	 }
    
 	 CMMDBManager *mol = NULL;
