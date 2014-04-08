@@ -705,7 +705,7 @@
                     <child>
                       <object class="GtkMenuItem" id="lbg_get_drug_menuitem">
                         <property name="visible">True</property>
-                        <property name="label" translatable="yes">Get Drug...</property>
+                        <property name="label" translatable="yes">Get Molecule...</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_lbg_get_drug_menuitem_activate"/>
                       </object>

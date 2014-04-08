@@ -3,47 +3,34 @@
 
 ---- 
 
-   o where does the extra hydrogen come when making a pyrogen
-     dictionary for MFX?
-
    o As one scetches a molecule in lbg, coot should search (with SRS)
    the current dictionary and let you know if the thing that you are
    sketching is in the dictionary (or maybe there should be a button
    to check (which will be easier)).
- 
-   o why is there an H1 on the N01 in N01 in the pyrogen cif dictionary?
-
-   o remove atom name quotes from dictionary.
-
-   o latest python is 2.7.6 now?
-
-   o nuclsq for base pair and stacking restraints.
 
    o fit_to_map_by_random_jiggle should return a valid value.
 
    o drag and drop SMILES strings into lidia
 
-   o The test-mogl.scm script needs to be updated.
+* Nope.  Cut and paste would be better.  And paste into SMILES entry
+  (where we can edit it) - Pressing return does "Apply this SMILES"
+
+   o The test-mogl.scm script needs to be updated. Do this at work.
 
    o graphs should auto-determine if they have integer values for the
      y-values and if so, don't put ticks and labels in non-integer
      positions.
 
-   o chiral centre inverter in C++
+   o chiral centre inverter in C++. Needs a gui presence.
   
-   o GPCR ligand analysis.
+   o GPCR ligand analysis.  
 
    o imol_map should not be passed to molecule_class_info_t::auto_fit_best_rotamer().
-
-   o highly coordinates waters should check metal atoms too.
 
    o auto-open mtz should also open xxx.F_phi.F and xxx.F_phi.phi
 
    o Refining 55A SAH in 3NPN, it should not try to get dictionary up
      and downstrean neighbour if the residue's group is "monomer".
-
-   o Add button that adds refmac hydrogens: 
-     MAKE HOUT YES
 
    o in the mmcif to mtz reader, if there are 2 cells, use the first
      one, not the last one!  --- needs a clipper patch --- bleugh.
@@ -553,6 +540,38 @@ Not now.
 
    o When the spacegroup is P1 or 0, and the cell has 90 degrees, the
      calculation of the sigma should ignore "zero" values.
+
+* Done.
+
+   o Add button that adds refmac hydrogens: 
+     MAKE HOUT YES
+
+* Done.
+
+
+   o where does the extra hydrogen come when making a pyrogen
+     dictionary for MFX?
+
+   o why is there an H1 on the N01 in N01 in the pyrogen cif dictionary?
+
+* From "AllChem.AddHs()". Fixed.
+
+ 
+   o remove atom name quotes from dictionary.
+
+* Done.
+
+   o nuclsq for base pair and stacking restraints.
+
+* Not discussed in the documentation.
+
+   o latest python is 2.7.6 now?
+
+* Yes. Added to builder.
+
+   o highly coordinates waters should check metal atoms too.
+     water-coordination.cc: How do you select metals? Check the element? 
+     MG|CA|K|NA|LI|RB|BE|BA|FR|CS|SR
 
 * Done.
 
