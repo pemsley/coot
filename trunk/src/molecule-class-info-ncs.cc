@@ -1427,8 +1427,9 @@ void
 molecule_class_info_t::update_strict_ncs_symmetry(const coot::Cartesian &centre_point,
 						  const molecule_extents_t &extents) {
 
-   std::cout << "update ncs symmetry for " << strict_ncs_matrices.size()
-	     << " NCS matrices" << std::endl;
+   if (0) 
+      std::cout << "DEBUG:: Update ncs symmetry for " << strict_ncs_matrices.size()
+		<< " NCS matrices" << std::endl;
 
    // We need to convert from internal coot_mat44 to mat44s, then do
    // similar things to update_symmetry()
@@ -1444,10 +1445,11 @@ molecule_class_info_t::update_strict_ncs_symmetry(const coot::Cartesian &centre_
 
 
    // guarenteed to be at least one.
-   std::cout << "There were " << ncs_mat_indices.size() << " touching molecules\n";
+   if (0) 
+      std::cout << "There were " << ncs_mat_indices.size() << " touching molecules\n";
 
    Bond_lines_container bonds;
-   strict_ncs_bonds_box.resize(0);
+   strict_ncs_bonds_box.clear();
    strict_ncs_bonds_box =
       bonds.add_NCS(atom_sel,
 		    centre_point,
@@ -1456,8 +1458,6 @@ molecule_class_info_t::update_strict_ncs_symmetry(const coot::Cartesian &centre_
 		    symmetry_as_calphas,
 		    symmetry_whole_chain_flag);
 
-   std::cout << "strict_ncs_bonds_box size " << strict_ncs_bonds_box.size() << std::endl;
-					
 }
 
 
@@ -2406,3 +2406,56 @@ molecule_class_info_t::ncs_master_chains() const {
    }
    return s;
 }
+
+void
+molecule_class_info_t::add_strict_ncs_from_mtrix_from_file(const std::string &file_name) {
+   
+   std::vector<clipper::RTop_orth> mv = coot::mtrix_info(file_name);
+   for (unsigned int i=0; i<mv.size(); i++) {
+      const clipper::RTop_orth &rt = mv[i];
+
+      // rt.rot()(0,0), rt.rot()(0,1), rt.rot()(0,2), 
+      // rt.rot()(1,0), rt.rot()(1,1), rt.rot()(1,2), 
+      // rt.rot()(2,0), rt.rot()(2,1), rt.rot()(2,2),
+      // rt.trn()[0],   rt.trn()[1],   rt.trn()[2]);
+      
+      coot::coot_mat44 cm44;
+      
+      cm44.m[0].v4[0] = rt.rot()(0,0);
+      cm44.m[0].v4[1] = rt.rot()(0,1);
+      cm44.m[0].v4[2] = rt.rot()(0,2);
+      cm44.m[1].v4[0] = rt.rot()(1,0);
+      cm44.m[1].v4[1] = rt.rot()(1,1);
+      cm44.m[1].v4[2] = rt.rot()(1,2);
+      cm44.m[2].v4[0] = rt.rot()(2,0);
+      cm44.m[2].v4[1] = rt.rot()(2,1);
+      cm44.m[2].v4[2] = rt.rot()(2,2);
+      // translation
+      cm44.m[0].v4[3] = rt.trn()[0];
+      cm44.m[1].v4[3] = rt.trn()[1];
+      cm44.m[2].v4[3] = rt.trn()[2];
+      // sensibles
+      cm44.m[3].v4[0] = 0.0;
+      cm44.m[3].v4[1] = 0.0;
+      cm44.m[3].v4[2] = 0.0;
+      cm44.m[3].v4[3] = 1.0;
+
+      add_strict_ncs_matrix( "A", "A", cm44);
+   }
+}
+
+
+void
+molecule_class_info_t::add_strict_ncs_from_mtrix_from_self_file() {
+
+   if (has_model()) {
+      std::string file_name = name_;
+      if (coot::file_exists(file_name)) {
+	 add_strict_ncs_from_mtrix_from_file(file_name);
+      } else {
+	 std::cout << "WARNING:: in add_strict_ncs_from_mtrix_from_self_file() "
+		   << "file " << file_name << " not found" << std::endl;
+      }
+   }
+}
+

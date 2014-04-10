@@ -1320,6 +1320,8 @@ namespace coot {
    };
 
 
+   std::vector<clipper::RTop_orth> mtrix_info(const std::string &file_name);
+
 } // namespace coot
 
 #endif // HAVE_COOT_COORD_UTILS_HH
