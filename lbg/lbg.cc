@@ -3057,7 +3057,6 @@ lbg_info_t::get_stroke_colour(int i, int n) const {
 void
 lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
-   // std::cout << "render_from_molecule... " << std::endl;
 
    make_saves_mutex = 0; // stop saving changes (restored at end)
    clear();
@@ -3078,6 +3077,11 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 						    mol_in.atoms[iat].element,
 						    mol_in.atoms[iat].charge,
 						    ci);
+	 if (0) 
+	    std::cout << "render from molecule " << iat
+		      << " id: " << mol_in.atoms[iat].atom_id
+		      << " name: " << mol_in.atoms[iat].atom_name
+		      << " charge:" << mol_in.atoms[iat].charge << std::endl;
 	 double sa = mol_in.atoms[iat].get_solvent_accessibility();
 	 new_atom.set_atom_name(mol_in.atoms[iat].get_atom_name());
 
