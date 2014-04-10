@@ -1323,14 +1323,17 @@ coot_real_exit(int retval) {
 
 void
 coot_no_state_real_exit(int retval) {
+
+   // this is called (only) from on_window1_delete_event()
    coot_save_state_and_exit(retval, 0);
 }
 
 void
 coot_save_state_and_exit(int retval, int save_state_flag) {
 
-   if (save_state_flag)
+   if (save_state_flag) { 
       save_state(); // we get error message in save_state()
+   } 
 
    // save the history
    graphics_info_t g;

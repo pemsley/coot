@@ -2879,6 +2879,7 @@ save_state() {
 
 void
 save_state_file(const char *filename) {
+
    graphics_info_t g;
    g.save_state_file(std::string(filename));
    std::string cmd = "save-state-file";
