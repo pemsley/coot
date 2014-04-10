@@ -5,9 +5,12 @@
 
    o carboylates in FLEV.  Why OH, not O- (as it is in the thumbnail?)
 
+* Done - because widgeted_molecule_t constructor from a lig_build::molfile_molecule_t
+  didn't set the atom formal charge.
+
    o is 4CJN published yet?
 
-   o As one scetches a molecule in lbg, coot should search (with SRS)
+   o As one sketches a molecule in lbg, coot should search (with SRS)
    the current dictionary and let you know if the thing that you are
    sketching is in the dictionary (or maybe there should be a button
    to check (which will be easier)).

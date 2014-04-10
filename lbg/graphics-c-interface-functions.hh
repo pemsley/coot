@@ -19,7 +19,6 @@ extern "C" {
    void all_additional_representations_off_except(int imol, int representation_number,
 						  short int ball_and_sticks_off_too_flag);
 
-
 }
 
 // c++ functions
@@ -34,3 +33,4 @@ void add_animated_ligand_interation(int imol,
 				    // type etc.
 				    );
 
+void set_rotation_centre(const clipper::Coord_orth &pos);

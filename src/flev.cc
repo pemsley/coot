@@ -643,7 +643,8 @@ coot::operator<<(std::ostream &s, fle_residues_helper_t fler) {
 
    s << fler.is_set;
    if (fler.is_set) {
-      s << " " << fler.centre.format() << " " << fler.spec << " " << fler.residue_name;
+      s << " " << fler.transformed_relative_centre.format() << " "
+	<< fler.spec << " " << fler.residue_name;
    }
    return s;
 }
@@ -676,20 +677,40 @@ coot::get_flev_residue_centres(CResidue *residue_ligand_3d,
       for (unsigned int ires=0; ires<residues.size(); ires++) { 
 	 CResidue *res_copy = coot::util::deep_copy_this_residue(residues[ires]);
 	 std::string res_name = residues[ires]->GetResName();
-	 coot::util::transform_atoms(res_copy, lsq_mat.second);
-	 std::pair<bool, clipper::Coord_orth> c =
+	 std::pair<bool, clipper::Coord_orth> absolute_centre =
 	    coot::util::get_residue_centre(res_copy);
-	 if (c.first) {
-	    coot::fle_residues_helper_t fle_centre(c.second,
-						   coot::residue_spec_t(residues[ires]),
-						   res_name);
-	    centres[ires] = fle_centre;
+	 if (absolute_centre.first) { 
+	    coot::util::transform_atoms(res_copy, lsq_mat.second);
+	    std::pair<bool, clipper::Coord_orth> c =
+	       coot::util::get_residue_centre(res_copy);
+	    if (c.first) {
+	       coot::fle_residues_helper_t fle_centre(c.second,
+						      coot::residue_spec_t(residues[ires]),
+						      res_name);
+
+	       // Setting the interaction position to the residue
+	       // centre is a hack.  What we need to be is the middle
+	       // of the hydrogen bond or the middle of the pi-pi
+	       // stacking (for instance).  To do that we need to know
+	       // what positions of the interacting in the ligand (and
+	       // of the residue).  Tricky from here?
+	       // 
+	       fle_centre.set_interaction_position(absolute_centre.second);
+	       centres[ires] = fle_centre;
+	    } else {
+	       std::cout << "WARNING:: get_flev_residue_centres() failed to get residue centre for "
+			 << coot::residue_spec_t(res_copy) << std::endl;
+	    }
 	 } else {
 	    std::cout << "WARNING:: get_flev_residue_centres() failed to get residue centre for "
 		      << coot::residue_spec_t(res_copy) << std::endl;
 	 }
 	 delete res_copy;
       }
+   }
+   for (unsigned int ic=0; ic<centres.size(); ic++) { 
+      std::cout << "centre " << ic << " has TR_centre "
+		<< centres[ic].transformed_relative_centre.format() << std::endl;
    }
    return centres;
 } 

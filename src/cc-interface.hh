@@ -111,6 +111,8 @@ std::string menu_item_label(GtkWidget *menu_item);
 /*                       go to atom   :                                    */
 /*  ---------------------------------------------------------------------- */
 
+void set_rotation_centre(const clipper::Coord_orth &pos);
+
 #ifdef USE_GUILE
 // Bernie, no need to pythonize this, it's just to test the return
 // values on pressing "next residue" and "previous residue" (you can
