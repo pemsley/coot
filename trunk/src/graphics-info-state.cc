@@ -44,7 +44,6 @@
 int
 graphics_info_t::save_state_file(const std::string &filename) {
 
-   // std::cout << "saving state" << std::endl;
    std::vector<std::string> commands;
    short int il = coot::SCRIPT_UNSET; // il: interface language, with some initial bogus value
 
@@ -62,7 +61,9 @@ graphics_info_t::save_state_file(const std::string &filename) {
 int
 graphics_info_t::save_state_file(const std::string &filename, short int il) {
 
-   // std::cout << "DEBUG:: ============================== saving state " << il << std::endl;
+   // std::cout << "DEBUG:: ============================== saving state " << il
+   //           << std::endl;
+   
    std::vector<std::string> commands;
    
    std::string comment_str;
@@ -721,11 +722,24 @@ int
 graphics_info_t::save_state() {
 
    int r = 0;
+
+   // 20140410:
+   // 
+   // This is a mess (but better than it was yesterday).  This needs a
+   // re-think about when the state file is written (and when
+   // run_state_file_status is set/unset).
+
+   //    std::cout << "in save_state() run_state_file_status was " << run_state_file_status
+   // << std::endl;
+   
    if (run_state_file_status) {
       short int il = coot::SCHEME_SCRIPT;
 #ifdef USE_GUILE
-      if (state_file_was_run_flag) 
+      if (1) { // was state_file_was_run_flag
 	 r = save_state_file(save_state_file_name, il);
+      } else {
+	 // std::cout << "state_file_was_run_flag was false" << std::endl;
+      }
 #endif // USE_GUILE
       
 #ifdef USE_PYTHON
