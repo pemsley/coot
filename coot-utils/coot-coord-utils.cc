@@ -7303,3 +7303,68 @@ coot::chiral_4th_atom(CResidue *residue_p, CAtom *at_centre,
    return rat;
 } 
 
+
+
+
+
+#include <fstream>
+
+std::vector<clipper::RTop_orth>
+coot::mtrix_info(const std::string &file_name) {
+
+   // This is a placeholder for std::vector<clipper::RTop_orth mtrix_inf(CMMDBManager *mol)
+   
+   std::vector<clipper::RTop_orth> r;
+
+   if (file_exists(file_name)) {
+      std::ifstream f(file_name.c_str());
+      if (f) {
+	 std::vector<std::string> lines;
+	 std::string line;;
+	 while (std::getline(f, line)) {
+	    if (line.length() > 10) {
+	       if (line.substr(0,5) == "MTRIX") {
+		  // std::cout << "found " << line << std::endl;
+		  lines.push_back(line);
+	       }
+	    }
+	 }
+	 if (lines.size() > 0) {
+	    clipper::Mat33<double> rot_running;
+	    clipper::Coord_orth trn_running;
+	    for (unsigned int i=0; i<lines.size(); i++) {
+	       const std::string &line = lines[i];
+	       char line_char = line[5];
+	       int line_n = line_char - 48;
+	       if ((line_n > 0) && (line_n < 4)) {
+		  std::vector<std::string> bits = util::split_string_no_blanks(line);
+		  if (bits.size() > 5) {
+		     try {
+			int rtop_index = util::string_to_int(bits[1]);
+			float f0 = util::string_to_float(bits[2]);
+			float f1 = util::string_to_float(bits[3]);
+			float f2 = util::string_to_float(bits[4]);
+			float ft = util::string_to_float(bits[5]);
+			rot_running(line_n-1, 0) = f0;
+			rot_running(line_n-1, 1) = f1;
+			rot_running(line_n-1, 2) = f2;
+			trn_running[line_n-1] = ft;
+			if (line_n == 3) {
+			   clipper::RTop_orth rt(rot_running, trn_running);
+			   // std::cout << "adding\n" << rt.format() << std::endl;
+			   r.push_back(rt);
+			} 
+		     }
+		     catch (const std::runtime_error &rte) {
+			std::cout << "failed to parse " << line<< std::endl;
+		     } 
+		  }
+	       }
+	    }
+	 } 
+      }
+   }
+   std::cout << "INFO:: Founds " << r.size() << " MTRIX matrices" << std::endl;
+   return r;
+
+} 

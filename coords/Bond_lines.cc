@@ -2409,7 +2409,14 @@ Bond_lines_container::add_NCS(const atom_selection_container_t &SelAtom,
 
    std::vector<std::pair<graphical_bonds_container, symm_trans_t> > r;
    for (unsigned int i=0; i<strict_ncs_mats.size(); i++) {
-      r.push_back(std::pair<graphical_bonds_container, symm_trans_t> (add_NCS_molecule(SelAtom, point, symm_distance, strict_ncs_mats[i], symmetry_as_ca_flag, symmetry_whole_chain_flag), strict_ncs_mats[i].second));
+      std::pair<graphical_bonds_container, symm_trans_t>
+	 p(add_NCS_molecule(SelAtom, point,
+			    symm_distance,
+			    strict_ncs_mats[i],
+			    symmetry_as_ca_flag,
+			    symmetry_whole_chain_flag),
+	   strict_ncs_mats[i].second);
+      r.push_back(p);
    }
    return r;
 }
@@ -2430,7 +2437,9 @@ Bond_lines_container::add_NCS_molecule(const atom_selection_container_t &SelAtom
    } else { 
       if (symmetry_whole_chain_flag) {
 	 gbc = add_NCS_molecule_whole_chain(SelAtom, point, symm_distance, strict_ncs_mat);
-      } else { 
+      } else {
+
+	 std::cout << "in strict ncs section " << std::endl;
    
 	 m[0][0] = strict_ncs_mat.first.m[0].v4[0];
 	 m[0][1] = strict_ncs_mat.first.m[0].v4[1];
@@ -2450,6 +2459,7 @@ Bond_lines_container::add_NCS_molecule(const atom_selection_container_t &SelAtom
 	 m[3][3] = strict_ncs_mat.first.m[3].v4[3];
 
 	 // gbc = make_graphical_symmetry_bonds();
+	 
       }
    }
    return gbc;

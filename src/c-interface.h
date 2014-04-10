@@ -5835,6 +5835,7 @@ int add_strict_ncs_matrix(int imol,
 			  float m21, float m22, float m23, 
 			  float m31, float m32, float m33, 
 			  float t1,  float t2,  float t3);
+int add_strict_ncs_from_mtrix_from_self_file(int imol);
 
 /*! \brief return the state of NCS ghost molecules for molecule number imol   */
 int show_strict_ncs_state(int imol);

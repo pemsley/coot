@@ -1948,8 +1948,7 @@ molecule_class_info_t::display_symmetry_bonds() {
    // which would change the line width.
    // 
    glLineWidth(bond_width);
-   
-   Lines_list ll;
+
    if ((show_symmetry == 1) && (graphics_info_t::show_symmetry == 1)) {
       int isymop;
 
@@ -1964,20 +1963,18 @@ molecule_class_info_t::display_symmetry_bonds() {
 	       set_symm_bond_colour_mol_and_symop(icol, isymop);
 	       int linesdrawn = 0;
 	    
-	       ll = symmetry_bonds_box[isym].first.symmetry_bonds_[icol];
+	          Lines_list &ll = symmetry_bonds_box[isym].first.symmetry_bonds_[icol];
 	 
 	       glBegin(GL_LINES); 
 	       for (int j=0; j< symmetry_bonds_box[isym].first.symmetry_bonds_[icol].num_lines; j++) {
 
-		  // pair = ll.pair_list[j];
-	    
 		  glVertex3f(ll.pair_list[j].positions.getStart().get_x(),
 			     ll.pair_list[j].positions.getStart().get_y(),
 			     ll.pair_list[j].positions.getStart().get_z());
 		  glVertex3f(ll.pair_list[j].positions.getFinish().get_x(),
 			     ll.pair_list[j].positions.getFinish().get_y(),
 			     ll.pair_list[j].positions.getFinish().get_z());
-		  if ( (++linesdrawn & 1023) == 0) {
+		  if ( (++linesdrawn & 60023) == 0) {
 		     glEnd();
 		     glBegin(GL_LINES);
 		     linesdrawn = 0;
@@ -1992,27 +1989,35 @@ molecule_class_info_t::display_symmetry_bonds() {
 	 // isn -> i_strict_ncs
 	 for (unsigned int isn=0; isn<strict_ncs_bonds_box.size(); isn++) {
 
-// 	    std::cout << "here 1 "
-// 		      << isn << " " 
-// 		      << strict_ncs_bonds_box[isn].first.symmetry_has_been_created
-// 		      << " \n" ;
+	    const graphical_bonds_container &gbc = strict_ncs_bonds_box[isn].first;
 
-	    if (strict_ncs_bonds_box[isn].first.symmetry_has_been_created == 1) {
-	 
-	       for (int icol=0; icol<strict_ncs_bonds_box[isn].first.num_colours; icol++) {
-	 
-// 		  std::cout << "here 3 - isn: " << isn << " "
-// 			    << "icol: " << icol << " num lines: "
-// 			    << strict_ncs_bonds_box[isn].first.symmetry_bonds_[icol].num_lines
-// 			    << "\n" ;
+	    if (0) 
+	       std::cout << "here 3: isn "
+			 << isn << " created_flag: " 
+			 << gbc.symmetry_has_been_created << " "
+			 << "\n" ;
+
+	    if (gbc.symmetry_has_been_created == 1) {
+
+	       if (0) 
+		  std::cout << "num_colours: " << gbc.num_colours
+			    << std::endl;
+	       
+	       for (int icol=0; icol<gbc.num_colours; icol++) {
+
+		  if (0)
+		     std::cout << "here 4 - isn: " << isn << " "
+			       << "icol: " << icol << " num lines: "
+			       << gbc.symmetry_bonds_[icol].num_lines
+			       << "\n" ;
 	       
 		  set_symm_bond_colour_mol_and_symop(icol, isn);
 		  int linesdrawn = 0;
 	    
-		  ll = strict_ncs_bonds_box[isn].first.symmetry_bonds_[icol];
+		  Lines_list &ll = gbc.symmetry_bonds_[icol];
 	 
 		  glBegin(GL_LINES); 
-		  for (int j=0; j< strict_ncs_bonds_box[isn].first.symmetry_bonds_[icol].num_lines; j++) {
+		  for (int j=0; j< gbc.symmetry_bonds_[icol].num_lines; j++) {
 
 		     // pair = ll.pair_list[j];
 	    
@@ -2022,7 +2027,7 @@ molecule_class_info_t::display_symmetry_bonds() {
 		     glVertex3f(ll.pair_list[j].positions.getFinish().get_x(),
 				ll.pair_list[j].positions.getFinish().get_y(),
 				ll.pair_list[j].positions.getFinish().get_z());
-		     if ( (++linesdrawn & 1023) == 0) {
+		     if ( (++linesdrawn & 60023) == 0) {
 			glEnd();
 			glBegin(GL_LINES);
 			linesdrawn = 0;

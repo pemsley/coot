@@ -108,14 +108,23 @@ int add_strict_ncs_matrix(int imol,
       std::string tch = target_chain_id;
       std::string chain_id = this_chain_id;
 
-      graphics_info_t::molecules[imol].add_strict_ncs_matrix(chain_id,
-							     tch,
-							     cm44);
+      graphics_info_t::molecules[imol].add_strict_ncs_matrix(chain_id, tch, cm44);
 
       graphics_draw();
    }
    return istat;
 }
+
+int add_strict_ncs_from_mtrix_from_self_file(int imol) {
+
+   int istat = 0; 
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.molecules[imol].add_strict_ncs_from_mtrix_from_self_file();
+   }
+   return istat;
+}
+
 
 
 GtkWidget *wrapped_create_ncs_maps_dialog() {

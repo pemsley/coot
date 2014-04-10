@@ -2792,6 +2792,9 @@ public:        //                      public
 
    short int show_strict_ncs_flag;
 
+   void add_strict_ncs_from_mtrix_from_file(const std::string &file_name);
+   void add_strict_ncs_from_mtrix_from_self_file();
+
    // Not 'const' because we can do a fill_ghost_info if the NCS ghosts
    // do not have rtops.
    coot::ncs_differences_t ncs_chain_differences(std::string master_chain_id, 

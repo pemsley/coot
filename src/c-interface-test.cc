@@ -381,9 +381,24 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
 
+   if (1) {
+      int imol = 0;
+      std::string file_name = "with-mtrix.pdb";
+      // file_name = "coot-download/pdb1qex.ent";
+      std::vector<clipper::RTop_orth> mv = coot::mtrix_info(file_name);
+      for (unsigned int i=0; i<mv.size(); i++) {
+	 const clipper::RTop_orth &rt = mv[i];
+	 add_strict_ncs_matrix(imol, "A", "A",
+			       rt.rot()(0,0), rt.rot()(0,1), rt.rot()(0,2), 
+			       rt.rot()(1,0), rt.rot()(1,1), rt.rot()(1,2), 
+			       rt.rot()(2,0), rt.rot()(2,1), rt.rot()(2,2),
+			       rt.trn()[0],   rt.trn()[1],   rt.trn()[2]);
+      }
+   }
+
    // ------------------------ spherical density overlap -------------------------
    // 
-   if (1) { 
+   if (0) {
       int imol = scm_to_int(i_scm); // map molecule
       int imol_map = scm_to_int(j_scm); // map molecule
 

@@ -3,6 +3,10 @@
 
 ---- 
 
+   o carboylates in FLEV.  Why OH, not O- (as it is in the thumbnail?)
+
+   o is 4CJN published yet?
+
    o As one scetches a molecule in lbg, coot should search (with SRS)
    the current dictionary and let you know if the thing that you are
    sketching is in the dictionary (or maybe there should be a button
@@ -15,11 +19,17 @@
 * Nope.  Cut and paste would be better.  And paste into SMILES entry
   (where we can edit it) - Pressing return does "Apply this SMILES"
 
+  The problem is that the SMILES string is written to the status bar.
+  Do we want another bar that has the SMILES string in it? And move
+  the status bar down?
+
    o The test-mogl.scm script needs to be updated. Do this at work.
 
    o graphs should auto-determine if they have integer values for the
      y-values and if so, don't put ticks and labels in non-integer
      positions.
+
+* Done.
 
    o chiral centre inverter in C++. Needs a gui presence.
   
