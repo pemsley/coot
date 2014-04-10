@@ -260,22 +260,23 @@ public:
 	     PI_CATION_STACKING, // for cations on the protein residues (ligand pi)
 	     CATION_PI_STACKING, // for cations on the ligand (protein TRY, PRO, TRP)
       };
-      double pos_x; // input coordinate reference frame
-      double pos_y;
-      double pos_z;
+
+      clipper::Coord_orth trans_rel_pos_3d;
+      clipper::Coord_orth residue_centre_real;
+      
       lig_build::pos_t pos; // coordinate system of the ligand atoms
       coot::residue_spec_t spec;
       std::string residue_type;
       std::string residue_label;
       std::vector<bond_to_ligand_t> bonds_to_ligand;
       double water_dist_to_protein; 
-      residue_circle_t(const double &x_in, const double &y_in, const double &z_in,
+      residue_circle_t(const clipper::Coord_orth &pos_in,
+		       const clipper::Coord_orth &click_pos_in,
 		       coot::residue_spec_t spec_in,
 		       const std::string &type_in,
 		       const std::string &label_in) {
-	 pos_x = x_in;
-	 pos_y = y_in;
-	 pos_z = z_in;
+	 trans_rel_pos_3d = pos_in;
+	 residue_centre_real = click_pos_in;
 	 spec = spec_in;
 	 residue_type = type_in;
 	 residue_label = label_in;
@@ -873,9 +874,13 @@ private:
 				     const lig_build::pos_t &ligand_centre,
 				     GooCanvasItem *group);
    std::string get_residue_solvent_exposure_fill_colour(double radius_extra) const;
+   
+   // click_pos is where we recentre in 3D graphics when the annotation
+   // (line) is clicked.
    void draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
 				     const lig_build::pos_t &residue_pos,
-				     int stacking_type);
+				     int stacking_type,
+				     const clipper::Coord_orth &click_pos);
    void handle_read_draw_coords_mol_and_solv_acc(const std::string &coot_pdb_file,
 						 const std::string &coot_mdl_file,
 						 const std::string &sa_file);

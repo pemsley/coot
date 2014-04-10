@@ -104,18 +104,27 @@ namespace coot {
    class fle_residues_helper_t {
    public:
       bool is_set;
-      clipper::Coord_orth centre;
+      clipper::Coord_orth transformed_relative_centre;
+      clipper::Coord_orth interaction_position; // when the user
+						// clicks on the
+						// interaction of this
+						// residue, this is
+						// where we go.
       residue_spec_t spec;
       std::string residue_name;
       fle_residues_helper_t() { is_set = 0; }
-      fle_residues_helper_t(const clipper::Coord_orth &pt,
+      fle_residues_helper_t(const clipper::Coord_orth &t_r_pt,
 			    const residue_spec_t &spec_in,
 			    const std::string &res_name_in) {
-	 centre = pt;
+	 transformed_relative_centre = t_r_pt;
 	 spec = spec_in;
 	 residue_name = res_name_in;
 	 is_set = 1;
+	 interaction_position = clipper::Coord_orth(0,0,0);
       }
+      void set_interaction_position(const clipper::Coord_orth &p) {
+	 interaction_position = p;
+      } 
    };
    std::ostream& operator<<(std::ostream &s, fle_residues_helper_t fler);
 

@@ -1365,6 +1365,11 @@ PyObject *chain_fragments_py(int imol, short int screen_output_also) {
 #endif // USE_PYTHON
 
 
+void set_rotation_centre(const clipper::Coord_orth &pos) {
+   graphics_info_t g;
+   g.setRotationCentre(coot::Cartesian(pos));
+}
+
 
 #ifdef USE_GUILE
 // Bernie, no need to pythonize this, it's just to test the return

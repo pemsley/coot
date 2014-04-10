@@ -422,11 +422,12 @@ on_canvas_button_press(GooCanvasItem  *item,
       button_1_is_pressed = true;
 
    if (! event) {
-      std::cout << "on_canvas_button_press_new() error NULL event!" << std::endl;
+      std::cout << "on_canvas_button_press() error NULL event!" << std::endl;
    } else { 
       x_as_int = int(event->x);
       y_as_int = int(event->y);
    }
+
 
    if (! target_item) { 
       lbg_info_t *l =
@@ -444,14 +445,18 @@ on_canvas_button_press(GooCanvasItem  *item,
    } else {
 
       coot::residue_spec_t *spec_p =
-	 (coot::residue_spec_t *) g_object_get_data (G_OBJECT (target_item), "spec");
+	 static_cast<coot::residue_spec_t *>(g_object_get_data (G_OBJECT (target_item), "spec"));
+      clipper::Coord_orth *pos_p =
+	 static_cast<clipper::Coord_orth *> (g_object_get_data (G_OBJECT (target_item), "position"));
+      
       lbg_info_t *l = NULL;
       if (item)
 	 l = static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
+
    
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS      
       if (spec_p) { 
-	 std::cout << "clicked on " << *spec_p << std::endl;
+	 std::cout << "on_canvas_button_press(): clicked on " << *spec_p << std::endl;
 	 if (event->type==GDK_2BUTTON_PRESS) { // double click
 	    int imol = spec_p->int_user_data;
 	    if (! l) {
@@ -466,17 +471,22 @@ on_canvas_button_press(GooCanvasItem  *item,
 	       }
 	    }
 	 } 
-      } else {
-	 // std::cout << "null spec" << std::endl;
       }
+
+      if (pos_p) {
+	 set_rotation_centre(*pos_p);  // see graphics-c-interface-functions.hh
+      } 
+
 #endif       
 
       if (!l) {
-	 // std::cout << "null lbg-info from target_item" << std::endl;
+	 std::cout << "null lbg-info from target_item" << std::endl;
       } else {
 
 	 bool handled = false;
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+	 // did we pick on a molecule bond (does not consider annotation bonds).
 	 handled = l->handle_bond_picking_maybe();
 #endif
 
@@ -489,9 +499,10 @@ on_canvas_button_press(GooCanvasItem  *item,
 	    l->set_mouse_pos_at_click(x_as_int, y_as_int); // save for dragging
 	 
 	    if (0) 
-	       std::cout << "   on click: scale_correction  " << l->mol.scale_correction.first
-			 << " " << l->mol.scale_correction.second
-			 << " centre_correction " << l->mol.centre_correction << std::endl;
+	       std::cout << "   on click: scale_correction  "
+			 << l->mol.scale_correction.first  << " "
+			 << l->mol.scale_correction.second << " centre_correction "
+			 << l->mol.centre_correction << std::endl;
       
 	    if (l->in_delete_mode_p()) { 
 	       l->handle_item_delete(event);
@@ -5083,11 +5094,12 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 		  double pos_x = lig_build::string_to_float(words[1]);
 		  double pos_y = lig_build::string_to_float(words[2]);
 		  double pos_z = lig_build::string_to_float(words[3]);
+		  clipper::Coord_orth cp(pos_x, pos_y, pos_z);
 		  std::string res_type = words[4];
 		  std::string label = words[5];
 		  coot::residue_spec_t dum_spec;
-		  residue_circle_t rc(pos_x, pos_y, pos_z, dum_spec, res_type, label);
-		  clipper::Coord_orth cp(pos_x, pos_y, pos_z);
+		  clipper::Coord_orth dum_click_pos(0,0,0);
+		  residue_circle_t rc(cp, dum_click_pos, dum_spec, res_type, label);
 		  lig_build::pos_t pos = mol.input_coords_to_canvas_coords(cp);
 		  if (res_type == "HOH") {
 		     if (words.size() > 7) {
@@ -5241,13 +5253,13 @@ on_residue_circle_clicked(GooCanvasItem  *item,
    
       if (spec_p) { 
       
-	 std::cout << "clicked on " << *spec_p << std::endl;
+	 std::cout << "on_residue_circle_clicked(): clicked on " << *spec_p << std::endl;
       
       } else {
-	 std::cout << "null spec" << std::endl;
+	 std::cout << "on_residue_circle_clicked(): null spec" << std::endl;
       }
    } else {
-      std::cout << "NULL target item" << std::endl;
+      std::cout << "on_residue_circle_clicked(): NULL target item" << std::endl;
    } 
 
    return r;
@@ -5287,6 +5299,15 @@ lbg_info_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle
    // Capitalise the residue type (takes less space than upper case).
    std::string rt = residue_circle.residue_type.substr(0,1);
    rt += coot::util::downcase(residue_circle.residue_type.substr(1));
+   
+   // correct that if we are looking at dna: DA, DT, DC, DG
+   if (residue_circle.residue_type == "DA" ||
+       residue_circle.residue_type == "DT" || 
+       residue_circle.residue_type == "DC" || 
+       residue_circle.residue_type == "DG") {
+      rt = "d";
+      rt += residue_circle.residue_type.substr(1);
+   } 
 
    // fill colour and stroke colour of the residue circle
    std::pair<std::string, std::string> col = get_residue_circle_colour(residue_circle.residue_type);
@@ -5818,24 +5839,22 @@ lbg_info_t::ligand_grid::substitution_value(double r_squared, double bash_dist) 
    }
 }
 
-
-
-
 void
 lbg_info_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) {
 
-
    for (unsigned int ires=0; ires<rc.size(); ires++) {
       int st = rc[ires].get_stacking_type();
+      clipper::Coord_orth click_pos = rc[ires].residue_centre_real;
+	 
       if (rc[ires].has_ring_stacking_interaction()) {
+	 
 	 std::vector<std::string> ligand_ring_atom_names =
 	    rc[ires].get_ligand_ring_atom_names();
 	 if ((st == lbg_info_t::residue_circle_t::PI_PI_STACKING) ||
 	     (st == lbg_info_t::residue_circle_t::PI_CATION_STACKING)) {
-	     
 	    try {
 	       lig_build::pos_t lc = mol.get_ring_centre(ligand_ring_atom_names);
-	       draw_annotated_stacking_line(lc, rc[ires].pos, st);
+	       draw_annotated_stacking_line(lc, rc[ires].pos, st, click_pos);
 	    }
 	    catch (const std::runtime_error &rte) {
 	       std::cout << rte.what() << std::endl;
@@ -5845,15 +5864,18 @@ lbg_info_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) 
       if (st == lbg_info_t::residue_circle_t::CATION_PI_STACKING) {
 	 std::string at_name = rc[ires].get_ligand_cation_atom_name();
 	 lig_build::pos_t atom_pos = mol.get_atom_canvas_position(at_name);
-	 draw_annotated_stacking_line(atom_pos, rc[ires].pos, st);
+	 draw_annotated_stacking_line(atom_pos, rc[ires].pos, st, click_pos);
       }
    }
 }
 
+// click_pos is where we recentre in 3D graphics when the annotation
+// (line) is clicked.
 void
 lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
 					 const lig_build::pos_t &residue_pos,
-					 int stacking_type) {	
+					 int stacking_type,
+					 const clipper::Coord_orth &click_pos) {	
 
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
@@ -5925,19 +5947,23 @@ lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_cen
 	    double theta_0 = theta_deg_0 * DEG_TO_RAD;
 	    lig_build::pos_t pt_0 =
 	       hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_0), cos(theta_0)) * r;
-	    goo_canvas_polyline_new_line(group,
-					 pt_1.x, pt_1.y,
-					 pt_0.x, pt_0.y,
-					 "line_width", 1.8,
-					 NULL);
+	    GooCanvasItem *line = goo_canvas_polyline_new_line(group,
+							       pt_1.x, pt_1.y,
+							       pt_0.x, pt_0.y,
+							       "line_width", 1.8,
+							       NULL);
+	    clipper::Coord_orth *pos_l = new clipper::Coord_orth(click_pos);
+	    g_object_set_data_full(G_OBJECT(line), "position", pos_l, g_free);
 	 }
 	 // Now the circle in the annotation aromatic ring:
-	 goo_canvas_ellipse_new(group,
-				hex_and_ring_centre[ir].x,
-				hex_and_ring_centre[ir].y,
-				4.0, 4.0,
-				"line_width", 1.0,
-				NULL);
+	 GooCanvasItem *ring = goo_canvas_ellipse_new(group,
+						      hex_and_ring_centre[ir].x,
+						      hex_and_ring_centre[ir].y,
+						      4.0, 4.0,
+						      "line_width", 1.0,
+						      NULL);
+	 clipper::Coord_orth *pos_r = new clipper::Coord_orth(click_pos);
+	 g_object_set_data_full(G_OBJECT(ring), "position", pos_r, g_free);
       }
       
       if (do_anion) {
@@ -5952,6 +5978,8 @@ lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_cen
 						     "font", "Sans 12",
 						     "fill_color", stroke_colour.c_str(),
 						     NULL);
+	 clipper::Coord_orth *pos_p = new clipper::Coord_orth(click_pos);
+	 g_object_set_data_full(G_OBJECT(text_1), "position", pos_p, g_free);
       }
    }
 
@@ -5976,14 +6004,26 @@ lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_cen
 				   "stroke-color", stroke_colour.c_str(),
 				   NULL);
 
+   clipper::Coord_orth *pos_1 = new clipper::Coord_orth(click_pos);
+   clipper::Coord_orth *pos_2 = new clipper::Coord_orth(click_pos);
+   g_object_set_data_full(G_OBJECT(item_1), "position", pos_1, g_free);
+   g_object_set_data_full(G_OBJECT(item_2), "position", pos_2, g_free);
+   
    // Now the circle blob at the centre of the aromatic ligand ring:
-   if (stacking_type != lbg_info_t::residue_circle_t::CATION_PI_STACKING)
-      goo_canvas_ellipse_new(group,
-			     B.x, B.y,
-			     3.0, 3.0,
-			     "line_width", 1.0,
-			     "fill_color", stroke_colour.c_str(),
-			     NULL);
+   if (stacking_type != lbg_info_t::residue_circle_t::CATION_PI_STACKING) { 
+      GooCanvasItem *item_o = goo_canvas_ellipse_new(group,
+						     B.x, B.y,
+						     3.0, 3.0,
+						     "line_width", 1.0,
+						     "fill_color", stroke_colour.c_str(),
+						     NULL);
+      clipper::Coord_orth *pos_o = new clipper::Coord_orth(click_pos);
+      g_object_set_data_full(G_OBJECT(item_o), "position", pos_o, g_free);
+   }
+
+   clipper::Coord_orth *pos_p = new clipper::Coord_orth(click_pos);
+   g_object_set_data_full(G_OBJECT(group), "position", pos_p, g_free);
+
 
 }
 
@@ -6519,16 +6559,16 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
       label += coot::util::int_to_string(centres[i].spec.resno);
       label += centres[i].spec.insertion_code;
       
-      residue_circle_t circle(centres[i].centre.x(),
-			      centres[i].centre.y(),
-			      centres[i].centre.z(),
+      clipper::Coord_orth cp(centres[i].transformed_relative_centre.x(),
+			     centres[i].transformed_relative_centre.y(),
+			     centres[i].transformed_relative_centre.z());
+
+      residue_circle_t circle(cp,
+			      centres[i].interaction_position,
 			      centres[i].spec,
 			      centres[i].residue_name,
 			      label);
       
-      clipper::Coord_orth cp(centres[i].centre.x(),
-			     centres[i].centre.y(),
-			     centres[i].centre.z());
       lig_build::pos_t pos = mol.input_coords_to_canvas_coords(cp);
       circle.set_canvas_pos(pos);
       if (centres[i].residue_name == "HOH") {
