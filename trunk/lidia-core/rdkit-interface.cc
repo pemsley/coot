@@ -2226,10 +2226,12 @@ coot::debug_rdkit_molecule(RDKit::ROMol *rdkm) {
       int n = at_p->getAtomicNum();
       std::string element = tbl->getElementSymbol(n);
       unsigned int degree = rdkm->getAtomDegree(at_p);
+      int f_c = at_p->getFormalCharge();
       std::cout << "   " << iat << " ele: " << std::setw(2) << std::right << element;
       if (! name.empty())
 	 std::cout << " name :" << name << ":";
-      std::cout << " degree: " << degree << std::endl;
+      std::cout << " degree: " << degree;
+      std::cout << " formal-charge: " << f_c << std::endl;
    }
 
    int n_bonds = rdkm->getNumBonds();

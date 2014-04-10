@@ -87,7 +87,7 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 	 clipper::Coord_orth pt = mol_in.atoms[iat].atom_position;
 	 lig_build::pos_t pos = input_coords_to_canvas_coords(pt);
 	 std::string element = mol_in.atoms[iat].element;
-	 int charge = 0;
+	 int charge = mol_in.atoms[iat].formal_charge;
 	 GooCanvasItem *ci = NULL;
 	 widgeted_atom_t at(pos, element, charge, ci);
 
