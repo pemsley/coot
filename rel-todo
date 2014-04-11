@@ -3,61 +3,17 @@
 
 ---- 
 
-   o carboylates in FLEV.  Why OH, not O- (as it is in the thumbnail?)
+   o Add pdb_valid() when getting a structure
 
-* Done - because widgeted_molecule_t constructor from a lig_build::molfile_molecule_t
-  didn't set the atom formal charge.
+   o Try glyco tree builder 528 on 4lxr. 
 
-   o is 4CJN published yet?
-
-   o As one sketches a molecule in lbg, coot should search (with SRS)
-   the current dictionary and let you know if the thing that you are
-   sketching is in the dictionary (or maybe there should be a button
-   to check (which will be easier)).
-
-   o fit_to_map_by_random_jiggle should return a valid value.
-
-   o drag and drop SMILES strings into lidia
-
-* Nope.  Cut and paste would be better.  And paste into SMILES entry
-  (where we can edit it) - Pressing return does "Apply this SMILES"
-
-  The problem is that the SMILES string is written to the status bar.
-  Do we want another bar that has the SMILES string in it? And move
-  the status bar down?
-
-   o The test-mogl.scm script needs to be updated. Do this at work.
-
-   o graphs should auto-determine if they have integer values for the
-     y-values and if so, don't put ticks and labels in non-integer
-     positions.
-
-* Done.
-
-   o chiral centre inverter in C++. Needs a gui presence.
-  
-   o GPCR ligand analysis.  
-
-   o imol_map should not be passed to molecule_class_info_t::auto_fit_best_rotamer().
-
-   o auto-open mtz should also open xxx.F_phi.F and xxx.F_phi.phi
-
-   o Refining 55A SAH in 3NPN, it should not try to get dictionary up
-     and downstrean neighbour if the residue's group is "monomer".
-
-   o in the mmcif to mtz reader, if there are 2 cells, use the first
-     one, not the last one!  --- needs a clipper patch --- bleugh.
+   o in FLEV 2D, click on a bond -> 3d view centre to middle of those
+     2 interacting atom
 
    o I want to be able to set the path for reduce and probe in my
      .coot.py file (not .coot)
 
-   o Lots of testing of add other solvent molecules, jiggle-fit, in
-     low-resolution maps, perhaps?
-
-   o Jim Brannigan wants to see alt conf phi/psi angles in Residue Info.
-
-   o in FLEV 2D, click on a bond -> 3d view centre to middle of those
-     2 interacting atom
+   o is 4CJN published yet?
 
    o Top right exit should not write a state file.
 
@@ -70,6 +26,27 @@
 
    o in findwaters, allow the user to change the distance limits: 
      set_water_to_protein_distance_limits()
+
+   o fit_to_map_by_random_jiggle should return a valid value.
+
+   o The test-mogl.scm script needs to be updated. Do this at work.
+
+   o chiral centre inverter in C++. Needs a gui presence.
+  
+   o imol_map should not be passed to molecule_class_info_t::auto_fit_best_rotamer().
+
+   o auto-open mtz should also open xxx.F_phi.F and xxx.F_phi.phi
+
+   o Refining 55A SAH in 3NPN, it should not try to get dictionary up
+     and downstrean neighbour if the residue's group is "monomer".
+
+   o in the mmcif to mtz reader, if there are 2 cells, use the first
+     one, not the last one!  --- needs a clipper patch --- bleugh.
+
+   o Lots of testing of add other solvent molecules, jiggle-fit, in
+     low-resolution maps, perhaps?
+
+   o Jim Brannigan wants to see alt conf phi/psi angles in Residue Info.
 
    o column types are not set in mtz file written by mmcif_sfs_to_mtz().
 
@@ -93,7 +70,6 @@
 
    o Lots of testing of add other solvent molecules, jiggle-fit, in
      low-resolution maps, perhaps?
-
 
    o Charge function in Lidia 
 
@@ -587,6 +563,37 @@ Not now.
      MG|CA|K|NA|LI|RB|BE|BA|FR|CS|SR
 
 * Done.
+
+   o carboylates in FLEV.  Why OH, not O- (as it is in the thumbnail?)
+
+* Done - because widgeted_molecule_t constructor from a lig_build::molfile_molecule_t
+  didn't set the atom formal charge.
+
+   o drag and drop SMILES strings into lidia
+
+* Nope.  Cut and paste would be better.  And paste into SMILES entry
+  (where we can edit it) - Pressing return does "Apply this SMILES"
+
+  The problem is that the SMILES string is written to the status bar.
+  Do we want another bar that has the SMILES string in it? And move
+  the status bar down?
+
+   o As one sketches a molecule in lbg, coot should search (with SRS)
+     the current dictionary and let you know if the thing that you are
+     sketching is in the dictionary (or maybe there should be a button
+     to check (which will be easier)).
+
+* Punt 
+
+   o graphs should auto-determine if they have integer values for the
+     y-values and if so, don't put ticks and labels in non-integer
+     positions.
+
+* Done.
+
+   o GPCR ligand analysis.  
+
+Punt.
 
 -----
 

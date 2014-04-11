@@ -61,24 +61,28 @@
   (lambda (id url-string data-type . imol-coords-arg-list)
 
     (format #t "DEBUG:: in get-url-str: ~s ~s ~s~%" id url-string data-type)
-    
-    (if (eq? data-type 'pdb)
-	(begin
-	  (let ((pdb-file-name (string-append coot-tmp-dir "/" id ".pdb" "."
-					      pdbe-file-name-tail)))
-	    (check-dir-and-get-url coot-tmp-dir pdb-file-name url-string)
-	    (handle-read-draw-molecule pdb-file-name))))
 
-    (if (eq? data-type 'sfs)
-	(begin
-	  (let ((sfs-file-name (string-append coot-tmp-dir "/" id ".cif"))
-		(imol (get-ebi-pdb id)))
-	    
-	    (if (and (number? imol)
-		     (not (= imol -1)))
-		(begin
-		  (check-dir-and-get-url coot-tmp-dir sfs-file-name url-string)
-		  (read-cif-data sfs-file-name (car imol-coords-arg-list)))))))))
+    (cond 
+    
+     ((eq? data-type 'pdb)
+      (let ((pdb-file-name (string-append coot-tmp-dir "/" id ".pdb" "."
+					  pdbe-file-name-tail)))
+	(check-dir-and-get-url coot-tmp-dir pdb-file-name url-string)
+	(handle-read-draw-molecule pdb-file-name)))
+
+     ((eq? data-type 'sfs)
+      (let ((sfs-file-name (string-append coot-tmp-dir "/" id ".cif"))
+	    (imol (get-ebi-pdb id)))
+	
+	(if (and (number? imol)
+		 (not (= imol -1)))
+	    (begin
+	      (check-dir-and-get-url coot-tmp-dir sfs-file-name url-string)
+	      (read-cif-data sfs-file-name (car imol-coords-arg-list))))))
+
+    (else 
+     "unknown"))))
+
 	    
 
 (define get-ebi-pdb-and-sfs 
@@ -108,6 +112,8 @@
 ;; 
 (define (get-ebi-pdb id)
 
+  (format #t "======= id: ~s~%" id)
+
   (let* ((down-id (string-downcase id))
 	 (url-str (string-append
 		   pdbe-server
@@ -116,7 +122,20 @@
 		   "/"
 		   down-id ".ent")))
     
-    (get-url-str id url-str 'pdb)))
+    (let ((url-status (get-url-str id url-str 'pdb)))
+
+      ;; e.g. http://ftp.ebi.ac.uk/pub/databases/pdb + 
+      ;;      /validation_reports/cb/1cbs/1cbs_validation.xml.gz
+
+      (format #t "--------- get-url-str returned: url-status: ~s~%" url-status)
+
+      (if (valid-model-molecule? url-status)
+	  (let ((python-string (string-append
+				"pdb_validate(\""
+				down-id "\"," (number->string url-status)
+				")")))
+	    (run-python-command python-string))))))
+
 
 ;(ebi-get-pdb "1crn")
 

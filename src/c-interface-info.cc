@@ -1056,13 +1056,25 @@ coot::residue_spec_t residue_spec_from_scm(SCM residue_in) {
 
 #ifdef USE_PYTHON
 coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
-   PyObject *chain_id_py = PyList_GetItem(residue_in, 0);
-   PyObject *resno_py    = PyList_GetItem(residue_in, 1);
-   PyObject *ins_code_py = PyList_GetItem(residue_in, 2);
-   std::string chain_id = PyString_AsString(chain_id_py);
-   std::string ins_code = PyString_AsString(ins_code_py);
-   int resno            = PyInt_AsLong(resno_py);
-   coot::residue_spec_t rspec(chain_id, resno, ins_code);
+
+   // What about make_residue_spec_py()?
+
+   coot::residue_spec_t rspec; // default
+
+   if (PyList_Check(residue_in)) { 
+
+      if (PyList_Size(residue_in) == 3) { 
+	 PyObject *chain_id_py = PyList_GetItem(residue_in, 0);
+	 PyObject *resno_py    = PyList_GetItem(residue_in, 1);
+	 PyObject *ins_code_py = PyList_GetItem(residue_in, 2);
+	 std::string chain_id  = PyString_AsString(chain_id_py);
+	 std::string ins_code  = PyString_AsString(ins_code_py);
+	 long resno            = PyInt_AsLong(resno_py);
+	 std::cout << "making spec from " << chain_id << " " << resno
+		   << " :" << ins_code << ":" << std::endl;
+	 rspec = coot::residue_spec_t(chain_id, resno, ins_code);
+      }
+   }
    return rspec;
 }
 #endif // USE_PYTHON
@@ -1569,9 +1581,12 @@ int set_go_to_atom_from_res_spec_scm(SCM residue_spec_scm) {
 #ifdef USE_PYTHON
 int set_go_to_atom_from_res_spec_py(PyObject *residue_spec_py) {
 
-   coot::residue_spec_t spec = residue_spec_from_py(residue_spec_py);
-   return set_go_to_atom_from_res_spec(spec);
-
+   std::pair<bool, coot::residue_spec_t> spec = make_residue_spec_py(residue_spec_py);
+   if (spec.first) { 
+      return set_go_to_atom_from_res_spec(spec.second);
+   } else { 
+      return -1;
+   }
 } 
 #endif 
 

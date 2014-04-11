@@ -10,7 +10,7 @@ class PDB_Entry:
 
     def __init__(self, entry_attrib, xml_file_name):
 	self.xml_file_name = xml_file_name
-	self.accession_code        = False
+	self.pdbid                 = False
 	self.Fo_Fc_correlation     = False
 	self.IoverSigma            = False
 	self.numMillerIndices      = False
@@ -54,7 +54,7 @@ class PDB_Entry:
 	self.RestypesNotcheckedForBondAngleGeometry    = False
 
 	try:
-	    self.accession_code = entry_attrib['accession_code']
+	    self.pdbid = entry_attrib['pdbid']
 	except KeyError as e:
 	    pass
 	
@@ -484,7 +484,7 @@ class ModelledSubgroup:
 
 # return validation info, which wraps entry_validation_info
 #
-def parse_wwpdb_validataion_xml(xml_string):
+def parse_wwpdb_validation_xml(xml_string):
 
     try: 
 	tree = et.fromstring(xml_string)
@@ -523,8 +523,8 @@ class validation_entry_to_canvas:
 	if self.entry_validation_info != False:
 	    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
 	    title = "PDB Validation Report for " # ...
-	    if self.entry_validation_info.accession_code:
-		 title += self.entry_validation_info.accession_code
+	    if self.entry_validation_info.pdbid:
+		 title += self.entry_validation_info.pdbid
 	    else:
 		 title += self.entry_validation_info.xml_file_name
 	    window.set_title(title)
@@ -785,10 +785,12 @@ class validation_entry_to_canvas:
         pangolayout.set_text('Value')
         da.window.draw_layout(gc, 470, y_level, pangolayout)
 
-def add_residue_buttons(subgroups, vbox):
+def add_residue_buttons(subgroups, vbox, imol):
 
     def go_to_residue(button, residue_spec):
-	print "go to ", residue_spec
+	# print "go to imol ", imol, "residue", residue_spec
+	set_go_to_atom_molecule(imol)
+	set_go_to_atom_from_res_spec(residue_spec)
 	
     if vbox:
 	vbox_residue_buttons = gtk.VBox(False, 0)
@@ -812,22 +814,28 @@ def add_residue_buttons(subgroups, vbox):
 		    ri_string += '    '
 		    ri_string += p_i
 		residue_button = gtk.Button(ri_string)
-		residue_spec = [group.chain, group.resnum, group.icode ]
-		residue_button.connect("clicked", go_to_residue, residue_spec)
-		vbox_residue_buttons.pack_start(residue_button, False, 2)
-		residue_button.show()
+		if group.icode == ' ':
+		    group.icode = ''
+		try:
+		    r_n = int(group.resnum)
+		    residue_spec = [group.chain, r_n, group.icode ]
+		    residue_button.connect("clicked", go_to_residue, residue_spec)
+		    vbox_residue_buttons.pack_start(residue_button, False, 2)
+		    residue_button.show()
+		except ValueError:
+		    print 'problem parsing', group.chain, group.resnum, group.icode
 	vbox.pack_start(scrolled_win, True, 2)
 	scrolled_win.show()
 	vbox_residue_buttons.show()
 
-def validation_to_gui(entry_validation_info, subgroups):
+def validation_to_gui(entry_validation_info, subgroups, imol):
     vi = validation_entry_to_canvas(entry_validation_info)
-    add_residue_buttons(subgroups, vi.vbox)
+    add_residue_buttons(subgroups, vi.vbox, imol)
 
 def sort_subgroups(subgroups):
     return subgroups
 
-def pdb_validate(accession_code):
+def pdb_validate(accession_code, imol):
 
     try:
         if (len(accession_code) == 4):
@@ -845,12 +853,12 @@ def pdb_validate(accession_code):
             # turn the gz_file_name into a string
             gz = gzip.open(gz_file_name)
             xml_string = gz.read()
-            vi = parse_wwpdb_validataion_xml(xml_string)
+            vi = parse_wwpdb_validation_xml(xml_string)
             if vi:
                 entry_validation_info = vi[0]
                 subgroups = vi[1]
                 ss = sort_subgroups(subgroups)
-                validation_to_gui(entry_validation_info, ss)
+                validation_to_gui(entry_validation_info, ss, imol)
         else:
             print 'WARNING:: invalid accession code', accession_code
     except KeyError as e:
