@@ -4,6 +4,7 @@
 #include "coot-utils/coot-coord-utils.hh"
 #include "simple-restraint.hh"
 #include "coot-compare-residues.hh"
+#include "compat/coot-sysdep.h"
 
 
 bool

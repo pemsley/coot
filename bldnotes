@@ -105,6 +105,7 @@ scripting exercise
 	Preferences could include all (almost) default
 	settings from globjects e.g.
 	add zero occ box size??
+	set_default_initial_contour_level_for_map
 
    o make auto_read column labels public and expandable (cf pdb, mtz extension
 	list)
@@ -205,6 +206,7 @@ scripting exercise
    o reset (cap) ANISO 
 
    o change kleywegt chains in plot
+	(only display single chains in Ramachandran - same dropdown?!)
 
    o print Ramachandran outliers
 
@@ -244,7 +246,7 @@ scripting exercise
 
    o Go to Atom does not update when open and new molecule gets created
 
-   o delete chain function (in scripting I guess)
+   o delete chain (model) function (in scripting I guess)
 
    o pick pointer disappears when using delete hydrogens (maybe in others too)
 	when keeping dialog open

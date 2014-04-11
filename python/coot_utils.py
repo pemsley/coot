@@ -3066,6 +3066,7 @@ def set_use_curl(status):
 # redo it.  This is temporary then
 def chiral_centre_inverter():
     # just to do something. Wait until this is in c++ code...
+    info_dialog("BL waiting for PE to put in C++ code.\n")
     return False
 
 def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):

@@ -239,7 +239,7 @@
 	   #f)
 	 (if (valid-map-molecule? imol-insulin-map)
 	     (begin 
-	       (format #t "imol-insulin-map: ~s is still valid after closure!~%" imol-insulin-res)
+	       (format #t "imol-insulin-map: ~s is still valid after closure!~%" imol-insulin-map)
 	       #f)
 	     #t))))
 
