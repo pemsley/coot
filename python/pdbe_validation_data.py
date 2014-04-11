@@ -542,7 +542,7 @@ class validation_entry_to_canvas:
 	    window.add(self.vbox)
 	    window.show_all()
 	    da.connect("expose-event", self.on_drawing_area_expose)
-	    close_button.connect("clicked", lambda w: "close window")
+	    close_button.connect("clicked", lambda a : window.destroy())
 	    self.pangolayout = da.create_pango_layout("")
 
     def setup_colour_bar_buff(self):
@@ -848,7 +848,6 @@ def pdb_validate(accession_code, imol):
             url += '/'
             url += accession_code
             url += '_validation.xml.gz'
-            print 'get url', url
             status = coot_get_url(url, gz_file_name)
             # turn the gz_file_name into a string
             gz = gzip.open(gz_file_name)
