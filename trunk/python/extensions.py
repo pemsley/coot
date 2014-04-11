@@ -531,11 +531,11 @@ if (have_coot_python):
 
      # --- I --------
 
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "Invert This Chiral Centre",
-       lambda func:
-          chiral_centre_inverter())
+     #add_simple_coot_menu_menuitem(
+     #  submenu_models,
+     #  "Invert This Chiral Centre",
+     #  lambda func:
+     #     chiral_centre_inverter())
      
 
      # --- J --------

@@ -118,7 +118,7 @@ class ShelxTestFunctions(unittest.TestCase):
         # Now check return status on a bogus molecule.  The Happy Path.
         #
         self.failUnless(valid_model_molecule_qm(imol_rnase),
-                        "   imol-rnase not valid.")
+                        "   imol_rnase not valid.")
         rnase_ins = "rnase.ins"
         status = write_shelx_ins_file(imol_rnase, rnase_ins)
         self.failUnlessEqual(status, 1,
@@ -215,8 +215,12 @@ class ShelxTestFunctions(unittest.TestCase):
         close_molecule(imol_insulin_map)
         close_molecule(imol_insulin_res)
 
-        self.failIf(valid_model_molecule_qm(imol_insulin_res))
-        self.failIf(valid_map_molecule_qm(imol_insulin_map))
+        self.failIf(valid_model_molecule_qm(imol_insulin_res),
+                    "imol_insulin_res: %s is still valid after closure!"
+                    %imol_insulin_res)
+        self.failIf(valid_map_molecule_qm(imol_insulin_map),
+                    "imol_insulin_map: %s is still valid after closure!"
+                    %imol_insulin_map)
 
 
     def test11_0(self):
