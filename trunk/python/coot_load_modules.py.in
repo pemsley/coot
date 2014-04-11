@@ -83,6 +83,7 @@ post_list = ["coot_gui.py",
             "shelx_extensions.py",
             "clear_backup.py",
             "coot_toolbuttons.py",
+	    "pdbe_validation_data.py",
             "rcrane_loader.py"]
 
 # list of modules not available on Windows
