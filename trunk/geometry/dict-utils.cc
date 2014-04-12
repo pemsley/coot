@@ -89,16 +89,18 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    //
    std::vector<std::string> missing_atoms;
    for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
-      const std::string &atom_id_refr = atom_info[iat].atom_id;
-      bool found = false;
-      for (unsigned int jat=0; jat<r.atom_info.size(); jat++) {
-	 if (r.atom_info[jat].atom_id == atom_id_refr) {
-	    found = true;
-	    break;
-	 } 
+      if (compare_hydrogens || ! is_hydrogen(atom_info[iat].atom_id_4c)) { 
+	 const std::string &atom_id_refr = atom_info[iat].atom_id;
+	 bool found = false;
+	 for (unsigned int jat=0; jat<r.atom_info.size(); jat++) {
+	    if (r.atom_info[jat].atom_id == atom_id_refr) {
+	       found = true;
+	       break;
+	    } 
+	 }
+	 if (! found)
+	    missing_atoms.push_back(atom_id_refr);
       }
-      if (! found)
-	 missing_atoms.push_back(atom_id_refr);
    }
    if (missing_atoms.size()) {
       std::string s = "s";
@@ -111,16 +113,18 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    missing_atoms.clear();
    
    for (unsigned int iat=0; iat<r.atom_info.size(); iat++) { 
-      const std::string &atom_id_refr = r.atom_info[iat].atom_id;
-      bool found = false;
-      for (unsigned int jat=0; jat<atom_info.size(); jat++) {
-	 if (atom_info[jat].atom_id == atom_id_refr) {
-	    found = true;
-	    break;
-	 } 
+      if (compare_hydrogens || ! r.is_hydrogen(r.atom_info[iat].atom_id_4c)) { 
+	 const std::string &atom_id_refr = r.atom_info[iat].atom_id;
+	 bool found = false;
+	 for (unsigned int jat=0; jat<atom_info.size(); jat++) {
+	    if (atom_info[jat].atom_id == atom_id_refr) {
+	       found = true;
+	       break;
+	    } 
+	 }
+	 if (! found)
+	    missing_atoms.push_back(atom_id_refr);
       }
-      if (! found)
-	 missing_atoms.push_back(atom_id_refr);
    }
    if (missing_atoms.size()) {
       std::string s = "s";
@@ -589,10 +593,12 @@ coot::dictionary_residue_restraints_t
 coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary_residue_restraints_t &ref,
 							  CResidue *residue_p) {
    dictionary_residue_restraints_t dict = *this;
+   bool debug = false;
    typedef std::pair<std::string, std::string> SP;
    std::vector<SP> change_name;
+   std::vector<std::string> same_name;
 
-   bool use_hydrogens = true;
+   bool use_hydrogens = false;
    int n_atoms = atom_info.size();
    if (use_hydrogens == false)
       n_atoms = number_of_non_hydrogen_atoms();
@@ -600,23 +606,26 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    CGraph *g_1 = make_graph(use_hydrogens);
    CGraph *g_2 = ref.make_graph(use_hydrogens);
 
-   if (0) { 
+   if (1) {
       std::cout << "this-name:::::::::::::::::::" << residue_info.comp_id << std::endl;
       std::cout << " ref-name:::::::::::::::::::" << ref.residue_info.comp_id << std::endl;
       g_1->Print();
       g_2->Print();
    }
    
-   g_1->SetName (residue_info.name.c_str());
+   g_1->SetName ("thing 1 ");
+   g_1->MakeVertexIDs();
+   
+   g_2->SetName ("thing 2 ");
    g_2->MakeVertexIDs();
 
    Boolean use_bond_order = false;
 
    g_1->MakeSymmetryRelief(False);
+   g_2->MakeSymmetryRelief(False);
    
    CGraphMatch match;
-   int minMatch = static_cast<int>(0.9*float(n_atoms)) - 3;
-   // minMatch = n_atoms;
+   int minMatch = n_atoms;
 
    Boolean vertext_type = True;
    std::string s;
@@ -659,14 +668,16 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 			std::string v1_name(V1->GetName());
 			std::string v2_name(V2->GetName());
 			if (imatch == imatch_best)
-			   if (0) 
-			      std::cout << " imatch_best " << imatch
+			   if (debug)
+			      std::cout << ":::: imatch_best " << imatch
 					<< " atom " << V1->GetName() << " in graph_1 matches atom "
 					<< V2->GetName() << " in graph_2" << std::endl;
 			if (imatch == imatch_best) { 
 			   if (v1_name != v2_name) {
 			      change_name.push_back(SP(v1_name, v2_name));
-			   }
+			   } else {
+			      same_name.push_back(v1_name);
+			   } 
 			}
 		     } else {
 			std::cout << "imatch " << imatch <<  "excluding match between "
@@ -678,8 +689,10 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	       }
 	    }
 
-	    if (0) { 
+	    if (debug) {
 	       std::cout << "----- accumulated ------ " << change_name.size() << " name changes "
+			 << "(and " << same_name.size() << " matches of atoms with the same name)"
+			 << " for " << n_atoms << " atoms"
 			 << " --------- " << std::endl;
 	       for (unsigned int i=0; i<change_name.size(); i++) { 
 		  std::cout << i << "  " << change_name[i].first << " -> " << change_name[i].second
@@ -863,6 +876,7 @@ coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const {
 	       if (use_hydrogens || !is_hydrogen(br.atom_id_2_4c()))
 		  std::cout << "Not found in name map atom 2 :" << br.atom_id_2() << ":" << std::endl;
 	    } else {
+
 	       if (use_hydrogens || (!is_hydrogen(br.atom_id_1_4c()) &&
 				     !is_hydrogen(br.atom_id_2_4c()))) {
 		  CEdge *e = new CEdge(it_1->second + 1,  // 1-indexed
