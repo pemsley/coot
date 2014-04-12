@@ -3,8 +3,6 @@
 
 ---- 
 
-   o Add pdb_valid() when getting a structure
-
    o Try glyco tree builder 528 on 4lxr. 
 
    o in FLEV 2D, click on a bond -> 3d view centre to middle of those
@@ -594,6 +592,12 @@ Not now.
    o GPCR ligand analysis.  
 
 Punt.
+
+   o Add pdb_validate() when getting a structure
+
+   o close button on pdb_validate()
+
+* Done.
 
 -----
 
