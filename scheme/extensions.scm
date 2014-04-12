@@ -1048,6 +1048,8 @@
 	   (generic-single-entry "Get PDBe accession code"
 				 "" " Get it "
 				 (lambda (text)
+				   ;; fire off something that is controlled by a time-out -
+				   ;; doesn't return a useful value.
 				   (pdbe-get-pdb-and-sfs-cif 'include-sfs text)))))
 
 

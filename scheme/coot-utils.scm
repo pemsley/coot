@@ -3652,3 +3652,15 @@
 
 
 
+
+(define (pdb-validate accession-code imol)
+
+  (let* ((down-id (string-downcase accession-code))
+	 (python-string (string-append
+			 "pdb_validate(\""
+			 down-id "\"," (number->string imol)
+			 ")")))
+    (format #t "--------- run this python-string: ~s~%" python-string)
+    (run-python-command python-string)))
+
+
