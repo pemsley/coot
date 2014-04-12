@@ -127,14 +127,8 @@
       ;; e.g. http://ftp.ebi.ac.uk/pub/databases/pdb + 
       ;;      /validation_reports/cb/1cbs/1cbs_validation.xml.gz
 
-      (format #t "--------- get-url-str returned: url-status: ~s~%" url-status)
-
       (if (valid-model-molecule? url-status)
-	  (let ((python-string (string-append
-				"pdb_validate(\""
-				down-id "\"," (number->string url-status)
-				")")))
-	    (run-python-command python-string))))))
+	  (pdb-validate down-id url-status)))))
 
 
 ;(ebi-get-pdb "1crn")
