@@ -7345,6 +7345,8 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 
    int n_trials = 10000;
    SCM r = SCM_BOOL_F;
+   bool do_fit_and_refine = true;
+   
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
@@ -7354,28 +7356,30 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 	 g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
 					      link_type, g.Geom_p());
 
-      if (! new_res_spec.unset_p()) {
-	 r = scm_residue(new_res_spec);
-	 if (is_valid_map_molecule(imol_refinement_map())) {
-	    const clipper::Xmap<float> &xmap =
-	       g.molecules[imol_refinement_map()].xmap;
-	    std::vector<coot::residue_spec_t> residue_specs;
-	    residue_specs.push_back(res_spec);
-	    residue_specs.push_back(new_res_spec);
-	    int n_trials = 1000;
+      if (do_fit_and_refine) { 
+	 if (! new_res_spec.unset_p()) {
+	    r = scm_residue(new_res_spec);
+	    if (is_valid_map_molecule(imol_refinement_map())) {
+	       const clipper::Xmap<float> &xmap =
+		  g.molecules[imol_refinement_map()].xmap;
+	       std::vector<coot::residue_spec_t> residue_specs;
+	       residue_specs.push_back(res_spec);
+	       residue_specs.push_back(new_res_spec);
+	       int n_trials = 1000;
 
-	    // 2 rounds of fit then refine
-	    for (int ii=0; ii<2; ii++) { 
-	       g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
+	       // 2 rounds of fit then refine
+	       for (int ii=0; ii<2; ii++) { 
+		  g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 
-	       // refine and re-torsion-fit
-	       int mode = graphics_info_t::refinement_immediate_replacement_flag;
-	       std::string alt_conf;
-	       graphics_info_t::refinement_immediate_replacement_flag = 1;
-	       refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
-	       accept_regularizement();
-	       remove_initial_position_restraints(imol, residue_specs);
-	       graphics_info_t::refinement_immediate_replacement_flag = mode;
+		  // refine and re-torsion-fit
+		  int mode = graphics_info_t::refinement_immediate_replacement_flag;
+		  std::string alt_conf;
+		  graphics_info_t::refinement_immediate_replacement_flag = 1;
+		  refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
+		  accept_regularizement();
+		  remove_initial_position_restraints(imol, residue_specs);
+		  graphics_info_t::refinement_immediate_replacement_flag = mode;
+	       }
 	    }
 	 }
       }
