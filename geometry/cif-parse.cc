@@ -2836,10 +2836,11 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	 printf ( " **** error: mmCIFStruct is NULL - report as a bug\n" );
       }
    } else {
-      if (rc==CIFRC_Created) 
-	 printf ( " -- new structure created\n" );
-      else 
+      if (rc==CIFRC_Created) { 
+	 // printf ( " -- new structure created\n" );
+      } else { 
 	 printf(" -- structure was already in mmCIF, it will be extended\n");
+      }
       std::cout << "SUMMARY:: rc CIFRC_Ok or newly created. " << std::endl;
 
       PCMMCIFLoop mmCIFLoop = new CMMCIFLoop; // 20100212
