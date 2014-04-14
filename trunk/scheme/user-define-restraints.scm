@@ -524,4 +524,3 @@
 				       (add-refmac-extra-restraints imol "tmp.rst")
 
 				       ))))))))))
-

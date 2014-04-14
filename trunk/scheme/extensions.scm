@@ -56,6 +56,13 @@
 
 
 
+(define (add-plugin-user-defined-restraints)
+  (if (defined? 'coot-main-menubar)
+      (let ((menu (coot-menubar-menu "Restraints")))
+	(load-by-search "user-define-restraints.scm"))))
+
+
+
 (if (defined? 'coot-main-menubar)
     ;; ---------------------------------------------
     ;;           extensions
@@ -1387,6 +1394,11 @@
 	 submenu-plugins "SHELX..." 
 	 (lambda ()
 	   (add-plugin-shelx)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-plugins "User-defined Restraints..." 
+	 (lambda ()
+	   (add-plugin-user-defined-restraints)))
 
 
 
