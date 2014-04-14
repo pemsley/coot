@@ -5116,6 +5116,49 @@ def toggle_wiimote(widget=None):
       # no alternative for now (could just go by state and change back and forth)
       print "BL WARNING:: no widget"
 
+# Simple minded dialog, search disk or not?
+# Could/should be expaded to browse for exe and to select which 
+# disks to search for.
+#
+def search_disk_dialog(program_name, path_ls):
+
+   # graphics
+   ret = False
+   label_text = "Couldn't find %s in default path" %(program_name)
+   for path in path_ls:
+      label_text += " and "
+      label_text += path
+   label_text += "\n\nShall we search the whole disk?\n"
+
+   try:
+      dialog = gtk.Dialog("Search whole disk dialog", None,
+                          gtk.DIALOG_MODAL | gtk.DIALOG_NO_SEPARATOR,
+                          (gtk.STOCK_YES, gtk.RESPONSE_ACCEPT,
+                           gtk.STOCK_NO, gtk.RESPONSE_REJECT))
+      ifont = gtk.gdk.Font("fixed")
+      label = gtk.Label(label_text)
+      dialog.vbox.pack_end(label, True, True, 0)
+      dialog.show_all()
+      result = dialog.run()
+      if result == gtk.RESPONSE_ACCEPT:
+         ret = True
+      else:
+         ret = False
+      dialog.destroy()
+   except:
+      # no graphics
+      label_text += "[y/N] >"
+      result =""
+      while result.lower() not in ['y', 'yes', 'n', 'no']:
+         result = raw_input(label_text)
+      if result.lower() in ['y', 'yes']:
+         ret = True
+      else:
+         ret = False
+
+   return ret
+
+      
    
 # let the c++ part of mapview know that this file was loaded:
 set_found_coot_python_gui()

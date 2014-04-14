@@ -1128,7 +1128,7 @@ if (have_coot_python):
        lambda func: generic_single_entry("Get PDBe accession code",
                                          "", " Get it ",
                                          lambda text:
-                                         pdbe_get_pdb_and_sfs_cif("include-sfs", text)))
+                                         pdbe_get_pdb_and_sfs_cif("include-sfs", text.rstrip())))
 
      # ---------------------------------------------------------------------
      #     Tutorial data

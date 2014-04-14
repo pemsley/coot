@@ -115,11 +115,12 @@ def get_url_str(id, url_string, data_type, imol_coords_arg_list):
          read_cif_data(sfs_file_name, imol_coords_arg_list) 
 
 # Get the pdb and sfs. @var{id} is the accession code
+#
 def get_ebi_pdb_and_sfs(id):
+
     import operator,string
 
     imol_coords = get_ebi_pdb(id)
-#    print "BL DEBUG:: imol_coords is (3)", imol_coords
     if (not operator.isNumberType(imol_coords)):
        print "Failed at reading coordinates. imol-coords was ",imol_coords
 
@@ -130,7 +131,6 @@ def get_ebi_pdb_and_sfs(id):
        url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + \
                  "r" + down_id + "sf." + \
                  pdbe_file_name_tail
-#       print "BL DEBUG:: get_url_str with",id,url_str,"sfs",imol_coords
        get_url_str(id, url_str, "sfs", imol_coords)
 
 # Return a molecule number on success
@@ -139,10 +139,15 @@ def get_ebi_pdb_and_sfs(id):
 def get_ebi_pdb(id):
     import urllib, string
 
+    print "======= id:", id
     down_id = string.lower(id)
     url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + down_id + \
               "." + pdbe_file_name_tail
     imol_coords = get_url_str(id, url_str, "pdb", None)
+    # e.g. http://ftp.ebi.ac.uk/pub/databases/pdb + 
+    #      /validation_reports/cb/1cbs/1cbs_validation.xml.gz
+    if valid_model_molecule_qm(imol_coords):
+        pdb_validate(down_id, imol_coords)
     return imol_coords
 
 
