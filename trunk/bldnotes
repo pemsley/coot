@@ -386,6 +386,14 @@ low importance
 
 **** Python ****
 
+   o find_exe/command_in_path
+	- more generic with respect to extensions (Win mainly)
+	- take all drive letters (Win only)
+	- move graphics in right place
+
+* Done (mostly), could expand on the graphics part and add a file storage
+  for found/defined exes
+
    o export COOT_PYTHON_DIR
 
 * Done? but useful? CHECK

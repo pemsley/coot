@@ -593,32 +593,65 @@ def shell_command_to_string(cmd):
 # adapted from find_exe
 # this finds absolute file names too
 #
-def command_in_path_qm(cmd):
+def command_in_path_qm(cmd, only_extension_here=None,
+                       add_extensions_here=[]):
 
-  # test for command (see goosh-command-with-file-input description)
-  # 
+    exe_path = find_exe(cmd, "PATH", no_disk_search=True,
+                        screen_info=False,
+                        only_extension=only_extension_here,
+                        add_extensions=add_extensions_here)
+    
+    if exe_path:
+        return True
+    else:
+        return False
+    
+
+
+def command_in_path_qm_old_version(cmd, only_extension="", add_extensions=[]):
+    # test for command (see goosh-command-with-file-input description)
+    # 
     import os, string
 
-    file_ext = file_name_extension(cmd)
-    if ((file_ext <> 'exe') and (os.name == 'nt')):
-    	cmd += ".exe"
     # we shall check for full path names first
     if (os.path.isfile(cmd)):
-     return True
+        return True
     else:
-     try:
-       primary_path = os.environ["PATH"]
-       for path in string.split(primary_path, os.pathsep):
-           program_exe = os.path.join(path,cmd)
-#           print "BL DEBUG:: program_exe is", program_exe
-           if (os.path.isfile(program_exe)):
-               return True
-               break
-           else:
-               pass
-       return False
-     except:
-       print "BL WARNING:: couldnt open $PATH"  # this shouldnt happen
+        extensions = []
+        cmd_noext = cmd
+        # some windows magic
+        if (os.name == 'nt'):
+            file_ext = file_name_extension(cmd)
+            cmd_noext = strip_extension(cmd)
+            if (file_ext):
+                extensions = [file_ext]
+            else:
+                tmp_ext = os.environ["PATHEXT"].split(os.pathsep)
+                # list of extensions (no dot) only
+                extensions = map(lambda ext: ext[1:], tmp_ext)
+
+        if only_extension:
+            extensions = [only_extension]
+        if add_extensions:
+            extensions += add_extensions
+
+        program_names = [cmd_noext]
+        if extensions:
+            program_names += map(lambda ext: cmd_noext + "." + ext,
+                                 extensions)
+        
+        try:
+            primary_path = os.environ["PATH"]
+            for cmd_name in program_names:
+                for path in string.split(primary_path, os.pathsep):
+                    program_exe = os.path.join(path, cmd_name)
+                    #           print "BL DEBUG:: program_exe is", program_exe
+                    if (os.path.isfile(program_exe)):
+                        return True
+            return False
+        except:
+            print "BL WARNING:: couldnt open $PATH"  # this shouldnt happen
+            return False
 
        
 global gtk_thread_return_value
@@ -3325,70 +3358,36 @@ def reset_b_factor_active_residue():
 
 # BL module to find exe files
 # we need this for popen as it requires the full path of the exe file
-# we use arguments (min 1, no max?!:
+# we use arguments and keyword:
 #
-# 1.) program_name	: name of exe to find
+# program_name	: name of exe to find
 #
-# 2-x.) path_names	: path name to search (usually "PATH", then maybe CCP4_BIN, ...,
+# args (i.e. path_names) : path name to search (usually "PATH", then maybe CCP4_BIN, ...,
 #                         can be a single path as well)
+# kwargs        : for some extra argumentsto
+#        add_extensions=[list]   pass extra extensions to be tested
+#        only_extension=str      use only this one to test
+#        no_disk_search=bool     Dont bother searching the disk
+#        screen_info=bool        print info etc in console
 #
 # then we search everywhere
 #
-# on OS where which is available we use this first, rather than searching in PATH etc.
-# (FIXME)
+# on OS where "which" is available we use this first, rather than
+# searching in PATH etc.
+# 
 # returns full path of exe when successful, False otherwise
 #
-def find_exe(*args):
+def find_exe(program_name, *args, **kwargs):
 
     import os, string
 
     global search_disk
     search_disk = None
-
-    def search_disk_dialog():
-
-        ret = False
-        label_text = "Couldn't find %s in default path" %(program_name)
-        for path in path_ls:
-            label_text += " and "
-            label_text += path
-        label_text += "\n\nShall we search the whole disk?\n"
-
-        try:
-            import pygtk, gtk, pango
-
-            dialog = gtk.Dialog("Search whole disk dialog", None,
-                                gtk.DIALOG_MODAL | gtk.DIALOG_NO_SEPARATOR,
-                                (gtk.STOCK_YES, gtk.RESPONSE_ACCEPT,
-                                 gtk.STOCK_NO, gtk.RESPONSE_REJECT))
-            ifont = gtk.gdk.Font("fixed")
-            label = gtk.Label(label_text)
-            dialog.vbox.pack_end(label, True, True, 0)
-            dialog.show_all()
-            result = dialog.run()
-            if result == gtk.RESPONSE_ACCEPT:
-                ret = True
-            else:
-                ret = False
-            dialog.destroy()
-        except:
-            # no graphics
-            label_text += "[y/N] >"
-            result =""
-            while result.lower() not in ['y', 'yes', 'n', 'no']:
-                result = raw_input(label_text)
-            if result.lower() in ['y', 'yes']:
-                ret = True
-            else:
-                ret = False
-            
-        return ret
-
-    program_name = args[0]
+    info = True
 
     # we shall check for full path names first
     if (os.path.isfile(program_name)):
-        return program_name
+        return os.path.abspath(program_name)
 
     # if Unix we use which and python's command module to locate the
     # executable (indepent if PATH was given); commands only available on
@@ -3400,70 +3399,91 @@ def find_exe(*args):
         if (os.path.isfile(program_exe)):
             return program_exe
 
-    # should actually check before!!
     if (len(args) > 0):
-        #program_name = args[0]
-        if (len(args) > 1):
-            path_ls = args[1:len(args)]
-        else:
-            # no extra PATH given, should at least check in dir and in PATH
-            path_ls = ["PATH", "."]
+        path_ls = args
+    else:
+        # no extra PATH given, should at least check in this dir
+        # and in PATH
+        path_ls = ["PATH", os.getcwd()]
 
-        # setting of OS specific path properties
-        if (os.name == 'nt'):
-            drive = "C:\\"
-            file_ext = file_name_extension(program_name)
-            if (file_ext <> 'exe'):
-       		extension = ".exe"
-            else:
-       		extension = ""
+    # setting of OS specific path properties
+    extensions = []
+    drives_ls = ["/"]
+    program_name_noext = program_name
+    # some windows magic
+    if (os.name == 'nt'):
+        drives_ls = [c+':\\' for c in string.lowercase if os.path.isdir(c+':\\')]
+        program_name_noext = strip_extension(program_name)
+        file_ext = file_name_extension(program_name)
+        # if extenion is explicitly given - only use this one
+        # otherwise try all possible ones on Windows, i.e PATHEXT
+        if (file_ext):
+            extensions = [file_ext]
         else:
-            extension = ""
-            drive = "/"
+            tmp_ext = os.environ["PATHEXT"].split(os.pathsep)
+            # list of extensions (no dot) only
+            extensions = map(lambda ext: ext[1:], tmp_ext)
 
-        program_name_noext = program_name
-        program_name += extension
-        
+    
+    if "only_extension" in kwargs:
+        if kwargs["only_extension"]:
+            extensions = kwargs["only_extension"]
+    if "add_extension" in kwargs:
+        extensions += kwargs["add_extensions"]
+    if "screen_info" in kwargs:
+        info = kwargs["screen_info"]
+
+    program_names = [program_name_noext]
+    if extensions:
+        program_names += map(lambda ext: program_name_noext + "." + ext,
+                             extensions)
+
+    for file_name in program_names:
         # search the extra Paths
         for search_path in path_ls:
-            
+        
             if (os.path.isdir(search_path)):
                 # we have a single file name, not environ var
-                program_exe = os.path.join(search_path, program_name)
+                program_exe = os.path.join(search_path, file_name)
                 if (os.path.isfile(program_exe)):
-                    print "BL INFO:: We found ", program_exe
+                    if info:
+                        print "BL INFO:: We found ", program_exe
                     return program_exe
             else:
                 try:
                     primary_path = os.environ[search_path]
                     for path in string.split(primary_path, os.pathsep):
-                        program_exe = os.path.join(path, program_name)
+                        program_exe = os.path.join(path, file_name)
                         if (os.path.isfile(program_exe)):
-                            print "BL INFO:: We found ", program_exe
+                            if info:
+                                print "BL INFO:: We found ", program_exe
                             return program_exe
                 except:
-                    print "BL WARNING:: %s not defined!" %search_path
+                    if info:
+                        print "BL WARNING:: %s not defined!" %search_path
             
-        # BL says: before we search everywhere we might want to ask
-        # the user if he actually wishes to do so!
-        # lets insert a small pygtk dialog and ask!
-        # only if graphics
-        search_disk = False
-        if (use_gui_qm):
-            search_disk = search_disk_dialog()
-        if search_disk:
-            # search everywhere 
+    # BL says: before we search everywhere we might want to ask
+    # the user if he actually wishes to do so!
+    # lets insert a small pygtk dialog and ask!
+    # only if graphics
+    if "no_disk_search" in kwargs:
+        no_search = kwargs["no_disk_search"]
+    search_disk = False
+    if (use_gui_qm and not no_search):
+        search_disk = search_disk_dialog(program_name, path_ls)
+    if search_disk:
+        # search everywhere
+        for drive in drives_ls:
             for root, dir, file in os.walk(drive):
                 program_exe = os.path.join(root, program_name)
                 if (os.path.isfile(program_exe)):
                     return program_exe
-        else:
+    else:
+        if info:
             print "BL INFO:: we don't search the whole disk for", program_name_noext
             
-    else:
-        print "INFO:: wrong number of arguments! You need at least to give a filename"
-
-    print "BL WARNING:: We cannot find %s anywhere! Program %s won't run!" %(program_name_noext, program_name_noext)
+    if info:
+        print "BL WARNING:: We cannot find %s anywhere! Program %s won't run!" %(program_name_noext, program_name_noext)
     return False
 
 # for running online docs
