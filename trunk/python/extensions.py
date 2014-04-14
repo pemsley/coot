@@ -55,6 +55,16 @@ if (have_coot_python):
        add_simple_coot_menu_menuitem(menu, "Highly coordinated waters...",
                                      lambda func: water_coordination_gui())
 
+
+     # --------------------------------------------------
+     #           user_define_restraints plugin
+     # --------------------------------------------------
+
+     def add_plugin_user_defined_restraints():
+       menu = coot_menubar_menu("Restraints")
+       load_from_search_load_path("user_define_restraints.py")
+     
+
      
      # ---------------------------------------------
      #           extensions
@@ -1494,7 +1504,11 @@ if (have_coot_python):
        submenu_plugins, "SHELX...",
        lambda func: add_plugin_shelx())
 
+     add_simple_coot_menu_menuitem(
+       submenu_plugins, "User-defined Restraints...",
+       lambda func: add_plugin_user_defined_restraints())
 
+     
      # ---------------------------------------------------------------------
      #     Settings
      # ---------------------------------------------------------------------
