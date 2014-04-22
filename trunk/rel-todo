@@ -3,6 +3,23 @@
 
 ---- 
 
+    on mogul validation of MFX the 3rd time (after deleting hydrogens)
+
+       (why does the residue pointer recover in 3?)
+
+#0  __strlen_sse2 () at ../sysdeps/x86_64/multiarch/../strlen.S:31
+#1  0x00007f0eff2bfa20 in std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) ()
+   from /usr/lib/libstdc++.so.6
+#2  0x0000000000594b56 in coot::fill_mogul_bonds_tab (mogul_bonds_treeview=<value optimised out>, mogul_results_dialog=<value optimised out>, m=..., 
+    r=<value optimised out>) at ../../coot/trunk/src/c-interface-mogul.cc:269
+#3  0x00000000005980ad in wrapped_create_mogul_geometry_dialog (m=..., residue=0x51d8c20) at ../../coot/trunk/src/c-interface-mogul.cc:221
+#4  0x000000000059814f in show_mogul_geometry_dialog (m=..., residue=0xffffffffffffffff) at ../../coot/trunk/src/c-interface-mogul.cc:170
+#5  0x0000000000598398 in mogul_markup (imol=<value optimised out>, chain_id=0x5b91c90 "", res_no=1, ins_code=0x5c23550 "", 
+    mogul_out_file_name=<value optimised out>) at ../../coot/trunk/src/c-interface-mogul.cc:30
+
+
+   o fit_to_map_by_random_jiggle should return a valid value.
+
    o Try glyco tree builder 528 on 4lxr. 
 
    o in FLEV 2D, click on a bond -> 3d view centre to middle of those

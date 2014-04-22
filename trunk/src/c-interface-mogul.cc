@@ -365,7 +365,7 @@ coot::on_mogul_bonds_selection_changed(GtkTreeSelection *treeselection,
 
 	 GtkWidget *mogul_geometry_dialog = static_cast<GtkWidget *> (user_data); // the results table, I mean.
 	 if (mogul_geometry_dialog) {
-	    std::cout << "in on_mogul_bonds_selection_changed() updating histogram dialog " << std::endl;
+	    // std::cout << "in on_mogul_bonds_selection_changed() updating histogram dialog " << std::endl;
 	    update_mogul_histogram_dialog(mogul_geometry_dialog, *mogul_p, atom_ids, mmres_p, altconf);
 	 } else {
 	    std::cout << "null mogul_geometry_dialog" << std::endl;
