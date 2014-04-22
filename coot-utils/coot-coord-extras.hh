@@ -61,7 +61,7 @@ namespace coot {
 
       std::vector<std::vector<int> >
       get_contact_indices_from_restraints(CResidue *residue,
-					  const coot::dictionary_residue_restraints_t &restraints,
+					  const dictionary_residue_restraints_t &restraints,
 					  bool regular_residue_flag,
 					  bool add_reverse_contacts);
 
@@ -69,7 +69,7 @@ namespace coot {
       std::vector<std::vector<int> >
       get_contact_indices_for_PRO_residue(PPCAtom residue_atom,
 					  int nResidueAtoms, 
-					  coot::protein_geometry *geom_p);
+					  protein_geometry *geom_p);
 
       class missing_atom_info {
       public:
@@ -116,8 +116,8 @@ namespace coot {
       };
 
       // do we need to pass read number to this function too?
-      bool is_nucleotide_by_dict_dynamic_add(CResidue *residue_p, coot::protein_geometry *geom_p);
-      bool is_nucleotide_by_dict(CResidue *residue_p, const coot::protein_geometry &geom);
+      bool is_nucleotide_by_dict_dynamic_add(CResidue *residue_p, protein_geometry *geom_p);
+      bool is_nucleotide_by_dict(CResidue *residue_p, const protein_geometry &geom);
    }
 
    CResidue *GetResidue(const minimol::residue &r); // For use with wiggly
@@ -226,8 +226,8 @@ namespace coot {
 
       map_index_t get_index(CAtom *atom) const;
 
-      bool in_forward_atoms(const coot::map_index_t &bond_atom_index,
-			    const coot::map_index_t &fixed) const;
+      bool in_forward_atoms(const map_index_t &bond_atom_index,
+			    const map_index_t &fixed) const;
       
 
       // factored out:
@@ -418,9 +418,9 @@ namespace coot {
 							const atom_name_quad &reference,
 							const std::string &alt_conf);
       // return in radians
-      std::pair<bool, double> get_torsion(int torsion_type, const coot::atom_name_quad &quad) const;
+      std::pair<bool, double> get_torsion(int torsion_type, const atom_name_quad &quad) const;
       // return in radians
-      std::pair<bool, double> get_torsion(CResidue *res, const coot::atom_name_quad &quad) const;
+      std::pair<bool, double> get_torsion(CResidue *res, const atom_name_quad &quad) const;
       
    public: 
       match_torsions(CResidue *res_moving, CResidue *res_ref,
@@ -535,7 +535,7 @@ namespace coot {
       clipper::Coord_orth get_O6_position_from_template() const;
       //
       // simply get the attached residue, don't handle the positioning
-      // of the O6 on the residue to whcih we are adding.
+      // of the O6 on the residue to which we are adding.
       CResidue *get_residue_raw() const; 
       
    public:
@@ -599,7 +599,7 @@ namespace coot {
    std::ostream& operator<<(std::ostream &o, const linked_residue_t &lr);
 
    class glyco_tree_t {
-      coot::protein_geometry *geom_p;
+      protein_geometry *geom_p;
       bool is_pyranose(CResidue *r) const; 
       tree<linked_residue_t> find_rooted_tree(CResidue *residue_root_p,
 					      const std::vector<CResidue *> &residues) const;
@@ -609,20 +609,18 @@ namespace coot {
       void compare_vs_allowed_trees(const tree<linked_residue_t> &tr) const;
       bool compare_trees(const tree<linked_residue_t> &tree_for_testing,
 			 const tree<linked_residue_t> &tree_reference) const;
-      tree<coot::linked_residue_t> oligomannose_tree() const;
-      tree<coot::linked_residue_t>      complex_tree() const;
-      tree<coot::linked_residue_t>       hybrid_tree() const;
+      tree<linked_residue_t> oligomannose_tree() const;
+      tree<linked_residue_t>      complex_tree() const;
+      tree<linked_residue_t>       hybrid_tree() const;
       static bool residue_comparitor(CResidue *res1, CResidue *res2) {
 	 return (residue_spec_t(res1) < residue_spec_t(res2));
       } 
       
    public:
-      glyco_tree_t(CResidue *residue_p, CMMDBManager *mol, coot::protein_geometry *geom_p_in);
+      glyco_tree_t(CResidue *residue_p, CMMDBManager *mol, protein_geometry *geom_p_in);
       void print(const tree<linked_residue_t> &glyco_tree) const;
 
    }; 
-   
-
 }
 
 #endif // HAVE_COOT_COORD_EXTRAS_HH
