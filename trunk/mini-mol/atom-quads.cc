@@ -280,8 +280,21 @@ coot::atom_quad::angle_3() const { // angle 2-3-4 in degrees
    } else {
       throw std::runtime_error("quad::torsion() Null atom(s)");
    }
-
 }
+
+coot::atom_name_quad
+coot::atom_quad::get_atom_name_quad() const {
+
+   if (atom_1 && atom_2 && atom_3 && atom_4) {
+      return coot::atom_name_quad(atom_1->name,
+				  atom_2->name,
+				  atom_3->name,
+				  atom_4->name);
+   } else {
+      throw std::runtime_error("atom_quad::atom_name_quad() Null atom(s)");
+   }
+} 
+
 
 double
 coot::atom_name_quad::torsion(CResidue *residue) const {

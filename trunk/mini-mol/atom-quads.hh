@@ -159,7 +159,9 @@ namespace coot {
       double chiral_volume() const;
       atom_quad reverse() const {
 	 return atom_quad(atom_4, atom_3, atom_2, atom_1);
-      } 
+      }
+      // Can throw a std::runtime_error if any of the atoms are null.
+      atom_name_quad get_atom_name_quad() const;
    }; 
    std::ostream& operator<<(std::ostream &o, const atom_quad &q);
 

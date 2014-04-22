@@ -59,39 +59,6 @@ This model can then be validated and refined with Refmac for several
 rounds.  With some experience you should be able to get an R-factor of
 less than 20\% in less than 30 minutes.
 
-\section{Skeletonization and Baton Building}
-
-
-You can calculate the map skeleton in Coot directly:
-
-\textsf{Calculate $\rightarrow$ Map Skeleton\ldots $\rightarrow$ On.}
-
-This can be used to ``baton build'' a map.  You can turn off the
-coordinates and try it if you like (the Baton Building window can be
-found by clicking \textsf{``Ca Baton Mode\ldots''} in the Other
-Modelling Tools dialog.
-  
-I suggest you use Go To Atom and start residue 2 A. This allows you to
-build the complete A chain in the correct direction and you can
-directly compare it to the real structure afterward\footnote{if don't
-  follow this instruction, you could well build a symmetry related
-  molecule, which is perfectly valid, of course, just that the
-  comparison versus the correct structure will be more difficult.}.
-Once you are at residue 2A, use the Display Manager to turn off the
-``{\small\texttt{tutorial-modern.pdb}}'' and don't look at it again
-until you have finished building, validating and refining.
-  
-Remember, when you start, you are placing a CA at the baton
-\emph{tip} and at the start you are placing atom CA 1.  This might
-seem that you are ``double-backing'' on yourself - which can be
-confusing the first time.
-
-So build from the N-terminus to the C (it takes about 15 minutes or
-so).  There are 96 residues to build.
-
-Note that you need at least 6 CA baton points for CA Zone to Mainchain
-to work\footnote{otherwise it silently fails - more feedback will be
-  added in later versions.}
 
 \section{Key Bindings}
 
@@ -182,6 +149,39 @@ By zooming out and eyeballing the density, check for unassigned density.
   (you may not see many symmetry related atoms, it depends on where in
   the unit cell you are)]}
 
+\section{Skeletonization and Baton Building}
+
+
+You can calculate the map skeleton in Coot directly:
+
+\textsf{Calculate $\rightarrow$ Map Skeleton\ldots $\rightarrow$ On.}
+
+This can be used to ``baton build'' a map.  You can turn off the
+coordinates and try it if you like (the Baton Building window can be
+found by clicking \textsf{``Ca Baton Mode\ldots''} in the Other
+Modelling Tools dialog.
+  
+I suggest you use Go To Atom and start residue 2 A. This allows you to
+build the complete A chain in the correct direction and you can
+directly compare it to the real structure afterward\footnote{if don't
+  follow this instruction, you could well build a symmetry related
+  molecule, which is perfectly valid, of course, just that the
+  comparison versus the correct structure will be more difficult.}.
+Once you are at residue 2A, use the Display Manager to turn off the
+``{\small\texttt{tutorial-modern.pdb}}'' and don't look at it again
+until you have finished building, validating and refining.
+  
+Remember, when you start, you are placing a CA at the baton
+\emph{tip} and at the start you are placing atom CA 1.  This might
+seem that you are ``double-backing'' on yourself - which can be
+confusing the first time.
+
+So build from the N-terminus to the C (it takes about 15 minutes or
+so).  There are 96 residues to build.
+
+Note that you need at least 6 CA baton points for CA Zone to Mainchain
+to work\footnote{otherwise it silently fails - more feedback will be
+  added in later versions.}
 
 \section{Build another molecule}
 

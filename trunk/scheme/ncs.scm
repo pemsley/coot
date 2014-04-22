@@ -242,6 +242,7 @@
 				(format #t "Failed to get LSQ matching matrix ~s~%" chain-id))
 			      (begin
 				(let ((master (car ghost-chain-id-list)))
+				  (format #t "chain-id ~s master ~s  rtop: ~s~%" chain-id master rtop)
 				  (if (string? master)
 				      (apply add-ncs-matrix aa-imol chain-id master (apply append rtop))))))))))
 		  (cdr ghost-chain-id-list)))))))))
