@@ -25,14 +25,16 @@ if COOT_USE_PYTHON
 WITH_PYTHON_CFLAGS=-DUSE_PYTHON
 endif
 
-lib_LTLIBRARIES= libcoot-coord-utils.la  libcoot-shelx.la libcoot-coord-extras.la libcoot-map-utils.la libcoot-map-heavy.la
+lib_LTLIBRARIES= libcoot-coord-utils.la  libcoot-shelx.la libcoot-coord-extras.la \
+	libcoot-map-utils.la libcoot-map-heavy.la
 
 pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	residue-and-atom-specs.hh \
 	coot-coord-utils.hh coot-map-utils.hh coot-coord-extras.hh \
 	coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh \
 	coot-rama.hh xmap-stats.hh coot-h-bonds.hh lsq-improve.hh coot-hole.hh \
-	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh emma.hh
+	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh emma.hh \
+	glyco-z.hh
 pkgincludedir = $(includedir)/coot/coot-utils
 
 
@@ -164,6 +166,6 @@ test_spherical_SOURCES = test-spherical.cc
 test_spherical_LDADD   = ./libcoot-coord-utils.la $(GSL_LIBS)
 
 glyco_z_SOURCES = glyco-z.cc
-glyco_z_LDADD   = $(MMDB_LIBS)
+glyco_z_LDADD   = ./libcoot-coord-utils.la
 
 #    $(MMDB_LIBS)

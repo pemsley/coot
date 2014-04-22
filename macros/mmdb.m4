@@ -77,7 +77,9 @@ done
  # SGI compiler CC (CXX=CC) needs -lm to link maths library, but 
  # GCC c++ does not.
  #
- ac_MMDB_LDOPTS="-L$mmdb_prefix/$acl_libdirstem -L$mmdb_prefix -lmmdb -lm"
+ # not libdirstem because mmdb is in lib no matter what.
+ #  ac_MMDB_LDOPTS="-L$mmdb_prefix/$acl_libdirstem -L$mmdb_prefix -lmmdb -lm"
+ ac_MMDB_LDOPTS="-L$mmdb_prefix/lib -lmmdb -lm"
 else
  # the compiler looks in the "standard" places for MMDB.  In real life,
  # it would be quite unlikely that MMDB would be installed in /usr/include, 

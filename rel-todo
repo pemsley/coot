@@ -3,6 +3,16 @@
 
 ---- 
 
+   o ALPHA2-3 link refinement is broken?
+
+   o build NH4 in lbg.  Is the N charged in the resulting mol file?
+
+   0 4gos is great for carbohydrate building (Andre L. example).  Also
+     the BMA fails to build in corectly.  It's a ligand LSQ fit
+     problem, I think. When this works, put it in the GUI.
+
+   o check that FE-CYS link "just works" in sphere refine.
+
     on mogul validation of MFX the 3rd time (after deleting hydrogens)
 
        (why does the residue pointer recover in 3?)

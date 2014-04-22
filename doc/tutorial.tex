@@ -979,9 +979,9 @@ The defaults should be fine...
 \end{itemize}
 
 
-\section{Use the EDS}
+\section{Use the EDS and PDB\_REDO}
 
-\begin{trivlist}
+\begin{itemize}
 \item Let's validate a structure deposited in the PDB.
 
 \item Use a web browser and go to \texttt{http://eds.bmc.uu.se/eds/}.  Use
@@ -992,18 +992,23 @@ protein/ligand/author.
   
 \item Get the accession code and paste it into the entry box that pops
   up.
+
+\item Similarly, we can retrieve files from the PDB\_REDO server -
+  this actually refines the deposited structure against the deposited
+  data, which often results in a better map and model.
   
 \item Use the validation tools in Coot to examine how good a PDB file
   this is... 
 
 \item \emph{[the Difference Map Peaks can be interesting]}
 
-\end{trivlist}
+\end{itemize}
 
 
 \subsection{Make a (Pretty?) Picture}
 
-(Depends on the appropriate supporting software being available):
+(Depends on the appropriate supporting software\footnote{Ethan
+  Merritt's Raster3D} being available):
 
 \begin{itemize}
 \item Arrange a nice view
