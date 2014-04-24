@@ -34,7 +34,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh \
 	coot-rama.hh xmap-stats.hh coot-h-bonds.hh lsq-improve.hh coot-hole.hh \
 	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh emma.hh \
-	glyco-z.hh
+	glyco-torsions.hh
 pkgincludedir = $(includedir)/coot/coot-utils
 
 
@@ -104,7 +104,7 @@ libcoot_map_heavy_la_LIBADD = \
 
 
 # test-agg-clust
-noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic test-spherical glyco-z
+noinst_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic test-spherical glyco-torsions
 
 check_PROGRAMS = test-tt-morph
 
@@ -165,7 +165,7 @@ test_elastic_LDADD   = ./libcoot-coord-utils.la $(GLOB_LIBS)
 test_spherical_SOURCES = test-spherical.cc
 test_spherical_LDADD   = ./libcoot-coord-utils.la $(GSL_LIBS)
 
-glyco_z_SOURCES = glyco-z.cc
-glyco_z_LDADD   = ./libcoot-coord-utils.la
+glyco_torsions_SOURCES = test-glyco-torsions.cc glyco-torsions.cc
+glyco_torsions_LDADD   = ./libcoot-coord-utils.la
 
 #    $(MMDB_LIBS)
