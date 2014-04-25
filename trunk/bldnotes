@@ -16,6 +16,8 @@ FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
 
 -- before 0.8
 
+Coot use qtrview!
+
 Windows:
  o distribute src code!!!
  o change runwincoot.bat to (win)coot.bat
@@ -106,6 +108,7 @@ scripting exercise
 	settings from globjects e.g.
 	add zero occ box size??
 	set_default_initial_contour_level_for_map
+	set_label_on_recentre_flag(state)
 
    o make auto_read column labels public and expandable (cf pdb, mtz extension
 	list)
@@ -605,6 +608,12 @@ low importance
 
    o include Sphere refinement
 
+
+**** general ideas things to test ****
+
+   o solvent region noise estimation (sigma/abs)
+
+   o 2nd derivative maps! (usefull?)
 
 ---------------
 * DONE THINGS *

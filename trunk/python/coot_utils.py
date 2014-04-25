@@ -3435,8 +3435,10 @@ def find_exe(program_name, *args, **kwargs):
 
     program_names = [program_name_noext]
     if extensions:
-        program_names += map(lambda ext: program_name_noext + "." + ext,
+        program_names = map(lambda ext: program_name_noext + "." + ext,
                              extensions)
+        # usually we want to have the one with extension, if there is one
+        program_names += [program_name_noext]
 
     for file_name in program_names:
         # search the extra Paths

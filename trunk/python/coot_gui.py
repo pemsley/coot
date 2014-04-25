@@ -185,7 +185,8 @@ def coot_gui(own_gtk_main=False):
                           entry_text + "\n")
        while gtk.events_pending():
          gtk.main_iteration(False)
-       his = False
+       # save to history by default now!? only in severe cases we dont
+       his = True
        res = None
        try:
              res = eval(entry_text)
