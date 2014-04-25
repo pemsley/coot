@@ -1,4 +1,5 @@
 
+#include <algorithm>
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 
@@ -28,6 +29,16 @@ namespace coot {
       }
 
       atom_by_torsion_base_t() {}
+      // this only works for carbohydrate atom names (which are "sensible")
+      std::string filled_atom_name() const {
+	 std::string r = "XXXX";
+	 std::string::size_type l = atom_name.length();
+	 if (l == 1) r = " " + atom_name + "  ";
+	 if (l == 2) r = " " + atom_name + " ";
+	 if (l == 3) r = " " + atom_name;
+	 return r;
+      }
+      bool operator==(const atom_by_torsion_base_t &a) { return (a.atom_name == atom_name); } 
    }; 
 
    class atom_by_torsion_t : public atom_by_torsion_base_t {
@@ -65,7 +76,7 @@ namespace coot {
       void add(const atom_by_torsion_base_t &at) {
 	 atom_torsions.push_back(at);
       }
-      bool filled() { return (atom_torsions.size()); }
+      virtual bool filled() const { return (atom_torsions.size()); }
    };
 
    class link_by_torsion_t : public link_by_torsion_base_t {
@@ -83,23 +94,24 @@ namespace coot {
 
       link_by_torsion_t(const std::string &file_name) { read(file_name); }
    
-      //    // old
-      //    link_by_torsion_t(const std::string &n,
-      // 		     int new_res_no_in,
-      // 		     const link_by_torsion_base_t &lbtb,
-      // 		     CResidue *ref_res_p, CResidue *ext_res_p)
-      //       : link_by_torsion_base_t(lbtb) {
-      //       new_residue_type = n;
-      //       new_res_no = new_res_no_in;
-      //       init(ref_res_p, ext_res_p);
-      //    }
-   
+      bool filled() const { return (geom_atom_torsions.size()); }
       // caller deletes
       CResidue *make_residue(CResidue *base_residue_p) const;
-      void add(const atom_by_torsion_t &at) { geom_atom_torsions.push_back(at); }
+      // add new atom if it is not there already
+      void add(const atom_by_torsion_t &at) {
+	 std::vector<atom_by_torsion_t>::iterator it;
+	 it = std::find(geom_atom_torsions.begin(), geom_atom_torsions.end(), at);
+	 if (it == geom_atom_torsions.end())
+	    geom_atom_torsions.push_back(at);
+      }
+      void add(const link_by_torsion_t &l) {
+	 for (unsigned int i=0; i<l.geom_atom_torsions.size(); i++)
+	    add(l.geom_atom_torsions[i]);
+      }
       void print() const;
       void write(const std::string &file_name) const;
       void read(const std::string &file_name); // read what is written by write() function
+      void set_new_residue_number(int n) { new_res_no = n; }
 
       // helper function
       static std::pair<CResidue *, CResidue *> get_residue_pair(CMMDBManager *mol);
@@ -117,7 +129,8 @@ namespace coot {
    
    link_by_torsion_base_t mannose_decorations(); // need GLC NAG
    link_by_torsion_base_t glucose_decorations(); 
-   link_by_torsion_base_t NAG_decorations(); 
+   link_by_torsion_base_t NAG_decorations();
+   link_by_torsion_base_t get_decoroations(const std::string &comp_id);
    
 
 } // namespace coot

@@ -103,9 +103,11 @@ coot::link_by_torsion_t::make_residue(CResidue *base_residue_p) const {
 	 const atom_by_torsion_t &gat = geom_atom_torsions[i];
 	 clipper::Coord_orth p = geom_atom_torsions[i].pos(base_residue_p, r);
 	 CAtom *atom = new CAtom(r); // does an add atom
-	 atom->SetAtomName(gat.atom_name.c_str());
+	 std::string f = gat.filled_atom_name(); // FIXME PDBv3 the function call is not needed
+	 atom->SetAtomName(f.c_str());
 	 atom->SetElementName(gat.element.c_str());
 	 atom->SetCoordinates(p.x(), p.y(), p.z(), 1.0, 30);
+	 atom->Het = 1;
 	 if (0) 
 	    std::cout << "   " << gat.atom_name << " " << p.format()  << std::endl;
       }
@@ -313,7 +315,11 @@ coot::link_by_torsion_base_t coot::glucose_decorations() {
 coot::link_by_torsion_base_t coot::NAG_decorations() {
    link_by_torsion_base_t l;
    std::vector<atom_by_torsion_base_t> ats;
-   ats.push_back(atom_by_torsion_base_t("O2", "O", BS(false, "C2"), BS(false, "C1"), BS(true,  "O6")));
+   ats.push_back(atom_by_torsion_base_t("N2", "N", BS(false, "C2"), BS(false, "C1"), BS(false,  "O5")));
+   ats.push_back(atom_by_torsion_base_t("C7", "C", BS(false, "N2"), BS(false, "C2"), BS(false,  "C1")));
+   ats.push_back(atom_by_torsion_base_t("C8", "C", BS(false, "C7"), BS(false, "N2"), BS(false,  "C2")));
+   ats.push_back(atom_by_torsion_base_t("O7", "O", BS(false, "C7"), BS(false, "N2"), BS(false,  "C2")));
+   
    ats.push_back(atom_by_torsion_base_t("O3", "O", BS(false, "C3"), BS(false, "C2"), BS(false, "C1")));
    ats.push_back(atom_by_torsion_base_t("O4", "O", BS(false, "C4"), BS(false, "C3"), BS(false, "C2")));
    ats.push_back(atom_by_torsion_base_t("C6", "C", BS(false, "C5"), BS(false, "C4"), BS(false, "C3")));
@@ -321,6 +327,17 @@ coot::link_by_torsion_base_t coot::NAG_decorations() {
    for (unsigned int i=0; i<ats.size(); i++) l.add(ats[i]);
    return l;
 }
+
+coot::link_by_torsion_base_t
+coot::get_decoroations(const std::string &new_comp_id) {
+   
+   if (new_comp_id == "MAN") return mannose_decorations();
+   if (new_comp_id == "GLC") return glucose_decorations();
+   if (new_comp_id == "NAG") return NAG_decorations();
+   link_by_torsion_base_t empty;
+   return empty;
+} 
+
 
 
 // When the link type is xxx1-Y, then we can simply add up the torsions.
@@ -434,6 +451,8 @@ coot::link_by_torsion_t::read(const std::string &file_name) {
    if (! file_exists(file_name)) {
       std::cout << "ERROR:: file not found " << file_name << std::endl;
       return;
+   } else {
+      std::cout << "reading " << file_name << std::endl;
    } 
 
    std::ifstream f(file_name.c_str());
@@ -468,6 +487,7 @@ coot::link_by_torsion_t::read(const std::string &file_name) {
 		     atom_by_torsion_base_t ba(new_atom_name, new_atom_ele,
 					       a[1], a[2], a[3]);
 		     atom_by_torsion_t abt(ba, bl_fs, angle_fs, torsion_fs);
+		     // std::cout << "adding " << abt << std::endl;
 		     add(abt);
 		  }
 		  catch (const std::runtime_error &rte) {
@@ -478,6 +498,7 @@ coot::link_by_torsion_t::read(const std::string &file_name) {
 	 }
       }
    }
+   // std::cout << "finished read() with " << geom_atom_torsions.size() << " torsions" << std::endl;
    if (geom_atom_torsions.size() == 0) 
       std::cout << "After read()ing, we have " << geom_atom_torsions.size()
 		<< " atom torsions" << std::endl;

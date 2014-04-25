@@ -28,13 +28,40 @@ int main(int argc, char **argv) {
 	       CMMDBManager *mol = new CMMDBManager;
 	       std::string pdb_file_name =
 		  "pdb-templates/pyranose-pyranose-via-" + link_type + ".pdb";
-	       
-	       mol->ReadPDBASCII(pdb_file_name.c_str());
-	       CResidue *base_residue_p = coot::util::get_first_residue(mol);
-	       CResidue *r = l.make_residue(base_residue_p);
-	       if (r) {
-		  CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(r);
-		  mol->WritePDBASCII("new-residue.pdb");
+
+	       if (link_type == "NAG-ASN")
+		  pdb_file_name = "pdb-templates/ASN-NAG-via-NAG-ASN.pdb";
+
+	       if (! coot::file_exists(pdb_file_name)) {
+		  std::cout << "ERROR:: pdb file " << pdb_file_name << " does not exist"
+			    << std::endl;
+	       } else { 
+		  mol->ReadPDBASCII(pdb_file_name.c_str());
+		  CResidue *base_residue_p = coot::util::get_first_residue(mol);
+		  if (! base_residue_p) {
+		     std::cout << "ERROR:: no base residue " << link_type << " in " << file_name
+			       << std::endl;
+		  } else {
+		     std::string decor_file_name = new_residue_type + "-decorations.tab";
+		     if (! coot::file_exists(decor_file_name)) {
+			std::cout << "No file " << decor_file_name << std::endl;
+		     } else { 
+			coot::link_by_torsion_t decor(decor_file_name);
+			if (! decor.filled()) {
+			   std::cout << "Decorations not filled from " << decor_file_name
+				     << std::endl;
+			} else { 
+			   l.add(decor);
+			   l.set_new_residue_number(1);
+			   CResidue *r = l.make_residue(base_residue_p);
+			   if (r) {
+			      CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(r);
+			      std::string output_pdb_file_name = "output-" + new_residue_type + ".pdb";
+			      mol->WritePDBASCII(output_pdb_file_name.c_str());
+			   }
+			}
+		     }
+		  }
 	       }
 	    }
 	 }
@@ -46,32 +73,42 @@ int main(int argc, char **argv) {
 	 std::string file_name = argv[1];
 	 std::string link_type = argv[2]; // e.g. "ALPHA1-6";
 	 std::string new_residue_type = "MAN";
+	 if (argc == 4)
+	    new_residue_type = argv[3];
       
 	 CMMDBManager *mol = new CMMDBManager;
 	 int status = mol->ReadPDBASCII(file_name.c_str());
 	 if (status != Error_NoError) {
 	    std::cout << "ERROR:: on reading " << file_name << std::endl;
 	 } else {
+	    std::cout << "INFO:: No error no reading " << file_name << std::endl;
 	    std::pair<CResidue *, CResidue *> p = coot::link_by_torsion_t::get_residue_pair(mol);
-	    if (p.first && p.second) {
-
+	    if (! p.first || !p.second) {
+	       std::cout << "Failed to get residue pair from " << file_name << std::endl;
+	    } else { 
 	       // generate link torsions, write link torsions
+	       std::cout << "INFO:: Getting names for link_type " << link_type << std::endl;
 	       coot::link_by_torsion_base_t to_core = coot::get_names_for_link_type(link_type);
 	       if (! to_core.filled()) {
-		  std::cout << "ERROR:: " << link_type << std::endl;
+		  std::cout << "ERROR:: failed to get names for " << link_type << std::endl;
 	       } else {
 		  coot::link_by_torsion_t l_to_core(to_core, p.first, p.second);
-		  if (l_to_core.filled()) {
+		  if (! l_to_core.filled()) {
+		     std::cout << "ERROR:: failed to fill link to core params for "
+			       << link_type << std::endl;
+		  } else { 
 		     std::string file_name = "link-by-torsion-to-pyranose-core-" + link_type + ".tab";
 		     l_to_core.write(file_name);
-		  }
-
-		  // and the decorations on the core:
-		  coot::link_by_torsion_base_t decor = coot::mannose_decorations();
-		  coot::link_by_torsion_t l_decor(decor, p.first, p.second);
-		  if (l_decor.filled()) {
-		     std::string file_name =  new_residue_type + "decorations.tab";
-		     l_decor.write(file_name);
+		     
+		     // and the decorations on the core:
+		     coot::link_by_torsion_base_t decor = coot::get_decoroations(new_residue_type);
+		     coot::link_by_torsion_t l_decor(decor, p.first, p.second);
+		     if (! l_decor.filled()) {
+			std::cout << "ERROR:: No decorations for " << new_residue_type << std::endl;
+		     } else { 
+			std::string file_name =  new_residue_type + "-decorations.tab";
+			l_decor.write(file_name);
+		     }
 		  }
 	       }
 	    }
