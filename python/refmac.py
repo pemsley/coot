@@ -81,48 +81,60 @@ def split_label(label):
     return label[label.rfind("/")+1:len(label)]
 
 # BL says: for loggraph we use a function
+# Modernisation: Actually we first try to run qtrview, but if this is not
+# available we run loggraph.
+# 
 def run_loggraph(logfile):
-    import os
-    # this is the easy code, with no exception handling, so commented out (next 3 lines):
-    # loggraph_exe = os.path.join(os.environ['CCP4I_TOP'],'bin/loggraph.tcl')
-    # bltwish_exe = os.path.join(os.environ['CCP4I_TCLTK'],'bltwish')
-    # os.spawnl(os.P_NOWAIT, bltwish_exe , bltwish_exe , loggraph_exe , logfile)
     
-    # now lets check properly if the executables are there:
-    # 1st check TCL
-    ccp4i_tcltk = os.getenv('CCP4I_TCLTK')
-    if not ccp4i_tcltk:
-        print "BL ERROR:: We cannot allocate $CCP4I_TCLTK so no wish available"
+    import os
+
+    # Modern: try qtrview first
+    if command_in_path_qm("logview"):
+        log_view = find_exe("logview")
+        run_concurrently(log_view, [logfile])
     else:
-        wish_command = "wish"
-        if is_windows():
-            # Windows
-            wish_command += '.exe'
-        wish_exe = os.path.join(ccp4i_tcltk, wish_command)
-        if (not os.path.isfile(wish_exe)):
-            # some windows machines have CCP4I_TCLTK not including bin
-            wish_exe_win_alt = os.path.join(ccp4i_tcltk,
-                                            "bin",
-                                            wish_command)
-            if (os.path.isfile(wish_exe_win_alt)):
-                wish_exe = wish_exe_win_alt
-            # maybe we want to check for bltwish instead then?!
-            
-        if (not os.path.isfile(wish_exe)):
-            print "BL ERROR:: We have $CCP4I_TCLTK but we cannot find wish"
+        # no qtrtview (which can be run easily on the command line
+
+        # this is the easy code, with no exception handling, so commented out (next 3 lines):
+        # loggraph_exe = os.path.join(os.environ['CCP4I_TOP'],'bin/loggraph.tcl')
+        # bltwish_exe = os.path.join(os.environ['CCP4I_TCLTK'],'bltwish')
+        # os.spawnl(os.P_NOWAIT, bltwish_exe , bltwish_exe , loggraph_exe , logfile)
+
+        # now lets check properly if the executables are there:
+        # 1st check TCL
+        ccp4i_tcltk = os.getenv('CCP4I_TCLTK')
+        if not ccp4i_tcltk:
+            print "BL ERROR:: We cannot allocate $CCP4I_TCLTK so no wish available"
         else:
-            # now that we have tcl + wish we check for loggraph.tcl
-            ccp4i_top = os.getenv('CCP4I_TOP')
-            if not ccp4i_top:
-                print "BL ERROR:: We cannot allocate $CCP4I_TOP so no loggraph available"
+            wish_command = "wish"
+            if is_windows():
+                # Windows
+                wish_command += '.exe'
+            wish_exe = os.path.join(ccp4i_tcltk, wish_command)
+            if (not os.path.isfile(wish_exe)):
+                # some windows machines have CCP4I_TCLTK not including bin
+                wish_exe_win_alt = os.path.join(ccp4i_tcltk,
+                                                "bin",
+                                                wish_command)
+                if (os.path.isfile(wish_exe_win_alt)):
+                    wish_exe = wish_exe_win_alt
+                # maybe we want to check for bltwish instead then?!
+
+            if (not os.path.isfile(wish_exe)):
+                print "BL ERROR:: We have $CCP4I_TCLTK but we cannot find wish"
             else:
-                loggraph_exe = os.path.join(ccp4i_top, "bin", "loggraph.tcl")
-                if not os.path.isfile(loggraph_exe):
-                    print "BL ERROR:: We have $CCP4I_TOP but we cannot find loggraph.tcl"
+                # now that we have tcl + wish we check for loggraph.tcl
+                ccp4i_top = os.getenv('CCP4I_TOP')
+                if not ccp4i_top:
+                    print "BL ERROR:: We cannot allocate $CCP4I_TOP so no loggraph available"
                 else:
-                    # print 'BL DEBUG:: We have allocated everything to run loggraph and shall do that now'
-                    #os.spawnl(os.P_NOWAIT, bltwish_exe , bltwish_exe , loggraph_exe , logfile)
-                    run_concurrently(wish_exe, [loggraph_exe, logfile])
+                    loggraph_exe = os.path.join(ccp4i_top, "bin", "loggraph.tcl")
+                    if not os.path.isfile(loggraph_exe):
+                        print "BL ERROR:: We have $CCP4I_TOP but we cannot find loggraph.tcl"
+                    else:
+                        # print 'BL DEBUG:: We have allocated everything to run loggraph and shall do that now'
+                        #os.spawnl(os.P_NOWAIT, bltwish_exe , bltwish_exe , loggraph_exe , logfile)
+                        run_concurrently(wish_exe, [loggraph_exe, logfile])
 
                     
 # make_molecules_flag is synonymous with continue after refmac run, i.e.
