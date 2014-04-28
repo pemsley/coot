@@ -543,18 +543,33 @@
 	      ,(colourize ((record-accessor rec-type 'test-status) binary-record))
 	      ))))
 		 
+  ;; --------------------------------
+  ;; This for 2-column table
+  ;; --------------------------------
+  
+;   ;; main-line of make-builds-table-from-records
+;   `(table
+;     (@ border 1)
+;     ,(let ((now-time (current-time)))
+;       (map (lambda (record-pair)
+; 	      (append
+; 	       `(tr
+; 		 (td ,(format-binary-cell (car  record-pair) now-time))
+; 		 (td ,(format-binary-cell (cadr record-pair) now-time)))
+; 	       (list "\n"))) ; ease of reading
+; 	    (pair-up records)))))
 
-  ;; main-line of make-builds-table-from-records
+  ;; --------------------------------
+  ;; 1-column table
+  ;; --------------------------------
   `(table
     (@ border 1)
     ,(let ((now-time (current-time)))
-       (map (lambda (record-pair)
-	      (append
+        (map (lambda (record)
 	       `(tr
-		 (td ,(format-binary-cell (car  record-pair) now-time))
-		 (td ,(format-binary-cell (cadr record-pair) now-time)))
-	       (list "\n"))) ; ease of reading
-	    (pair-up records)))))
+		 (td ,(format-binary-cell record now-time))))
+	     records))))
+
     
 
 
