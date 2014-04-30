@@ -81,10 +81,16 @@ namespace coot {
 
    class link_by_torsion_t : public link_by_torsion_base_t {
       void init(CResidue *ref_res_p, CResidue *ext_res_p);
+      std::string link_type_to_file_name(const std::string &link_type) const;
+      std::string comp_id_to_decoration_file_name(const std::string &link_type) const;
    public:
       std::string new_residue_type;
       int new_res_no;
       std::vector<atom_by_torsion_t> geom_atom_torsions;
+
+      link_by_torsion_t(const std::string &link_type,
+			const std::string &new_residue_comp_id);
+      
       link_by_torsion_t() {}
       link_by_torsion_t(const link_by_torsion_base_t &lbtb,
 			CResidue *ref_res_p, CResidue *ext_res_p) :

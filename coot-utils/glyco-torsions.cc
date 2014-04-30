@@ -19,6 +19,7 @@
 
 #include <iomanip>
 #include <fstream>
+#include "utils/coot-utils.hh"
 #include "glyco-torsions.hh"
 
 std::ostream&
@@ -90,6 +91,52 @@ coot::atom_by_torsion_t::pos(CResidue *base_residue_p, CResidue *ext_residue_p) 
       throw std::runtime_error(m);
    }
 }
+
+coot::link_by_torsion_t::link_by_torsion_t(const std::string &link_type,
+					   const std::string &new_residue_comp_id_in) {
+
+   new_residue_type = new_residue_comp_id_in;
+   new_res_no = 1; // FIXME
+
+   std::string fn = link_type_to_file_name(link_type);
+   read(fn);
+
+   // now handle the decorations
+   // 
+   std::string decor_file_name = comp_id_to_decoration_file_name(new_residue_comp_id_in);
+   if (! file_exists(decor_file_name)) {
+      std::cout << "No file " << decor_file_name << std::endl;
+   } else { 
+      coot::link_by_torsion_t decor(decor_file_name);
+      if (! decor.filled()) {
+	 std::cout << "Decorations not filled from " << decor_file_name
+		   << std::endl;
+      } else { 
+	 add(decor);
+      }
+   }
+}
+
+std::string
+coot::link_by_torsion_t::link_type_to_file_name(const std::string &link_type) const {
+
+   std::string p = package_data_dir();
+   // std::string d = util::append_dir_dir(p, "pdb-templates"); not yet
+   std::string f = "link-by-torsion-to-pyranose-core-" + link_type + ".tab";
+   std::string ff = util::append_dir_file(p,f);
+
+   return ff;
+} 
+
+std::string
+coot::link_by_torsion_t::comp_id_to_decoration_file_name(const std::string &comp_id) const {
+
+   std::string p = package_data_dir();
+   std::string f = new_residue_type + "-decorations.tab";
+   std::string ff = util::append_dir_file(p,f);
+
+   return ff;
+} 
    
 CResidue *
 coot::link_by_torsion_t::make_residue(CResidue *base_residue_p) const {
@@ -98,7 +145,7 @@ coot::link_by_torsion_t::make_residue(CResidue *base_residue_p) const {
    if (geom_atom_torsions.size()) {
       r = new CResidue;
       r->SetResName(new_residue_type.c_str());
-      r->seqNum = new_res_no;; 
+      r->seqNum = new_res_no;
       for (unsigned int i=0; i<geom_atom_torsions.size(); i++) {
 	 const atom_by_torsion_t &gat = geom_atom_torsions[i];
 	 clipper::Coord_orth p = geom_atom_torsions[i].pos(base_residue_p, r);
@@ -332,6 +379,7 @@ coot::link_by_torsion_base_t
 coot::get_decoroations(const std::string &new_comp_id) {
    
    if (new_comp_id == "MAN") return mannose_decorations();
+   if (new_comp_id == "BMA") return mannose_decorations();
    if (new_comp_id == "GLC") return glucose_decorations();
    if (new_comp_id == "NAG") return NAG_decorations();
    link_by_torsion_base_t empty;
@@ -487,7 +535,6 @@ coot::link_by_torsion_t::read(const std::string &file_name) {
 		     atom_by_torsion_base_t ba(new_atom_name, new_atom_ele,
 					       a[1], a[2], a[3]);
 		     atom_by_torsion_t abt(ba, bl_fs, angle_fs, torsion_fs);
-		     // std::cout << "adding " << abt << std::endl;
 		     add(abt);
 		  }
 		  catch (const std::runtime_error &rte) {

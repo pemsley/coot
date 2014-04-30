@@ -3275,10 +3275,17 @@ public:        //                      public
    // return the spec of the new residue (possibly unset).
    // 
    coot::residue_spec_t
-   add_linked_residue(const coot::residue_spec_t &spec_in,
-		      const std::string &new_residue_comp_id,
-		      const std::string &link_type,
-		      coot::protein_geometry *geom_p);
+   add_linked_residue_by_beam_in(const coot::residue_spec_t &spec_in,
+				 const std::string &new_residue_comp_id,
+				 const std::string &link_type,
+				 coot::protein_geometry *geom_p);
+   
+   // 20140429 As above, but using the atom-by-torsion template method
+   coot::residue_spec_t
+   add_linked_residue_by_atom_torsions(const coot::residue_spec_t &spec_in,
+				       const std::string &new_residue_comp_id,
+				       const std::string &link_type,
+				       coot::protein_geometry *geom_p);
 
    // n-models
    int n_models() const;

@@ -7313,9 +7313,12 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
       g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
       g.cif_dictionary_read_number++;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
+// 	 g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
+// 					      link_type, g.Geom_p());
+      // 20140429
       coot::residue_spec_t new_res_spec =
-	 g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
-					      link_type, g.Geom_p());
+	 g.molecules[imol].add_linked_residue_by_atom_torsions(res_spec, new_residue_comp_id,
+							       link_type, g.Geom_p());
 
       if (! new_res_spec.unset_p()) { 
 	 if (is_valid_map_molecule(imol_refinement_map())) {
@@ -7345,16 +7348,19 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 
    int n_trials = 10000;
    SCM r = SCM_BOOL_F;
-   bool do_fit_and_refine = true;
+   bool do_fit_and_refine = graphics_info_t::linked_residue_fit_and_refine_state;
+   // do_fit_and_refine = true;
    
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
       g.cif_dictionary_read_number++;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
+
+      // 20140429
       coot::residue_spec_t new_res_spec =
-	 g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
-					      link_type, g.Geom_p());
+	 g.molecules[imol].add_linked_residue_by_atom_torsions(res_spec, new_residue_comp_id,
+							       link_type, g.Geom_p());
 
       if (do_fit_and_refine) { 
 	 if (! new_res_spec.unset_p()) {
@@ -7371,14 +7377,16 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 	       for (int ii=0; ii<2; ii++) { 
 		  g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 
-		  // refine and re-torsion-fit
-		  int mode = graphics_info_t::refinement_immediate_replacement_flag;
-		  std::string alt_conf;
-		  graphics_info_t::refinement_immediate_replacement_flag = 1;
-		  refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
-		  accept_regularizement();
-		  remove_initial_position_restraints(imol, residue_specs);
-		  graphics_info_t::refinement_immediate_replacement_flag = mode;
+		  if (0) { 
+		     // refine and re-torsion-fit
+		     int mode = graphics_info_t::refinement_immediate_replacement_flag;
+		     std::string alt_conf;
+		     graphics_info_t::refinement_immediate_replacement_flag = 1;
+		     refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
+		     accept_regularizement();
+		     remove_initial_position_restraints(imol, residue_specs);
+		     graphics_info_t::refinement_immediate_replacement_flag = mode;
+		  }
 	       }
 	    }
 	 }
@@ -7400,9 +7408,10 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
       g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
       g.cif_dictionary_read_number++;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
+      // 20140429
       coot::residue_spec_t new_res_spec =
-	 g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
-					      link_type, g.Geom_p());
+	 g.molecules[imol].add_linked_residue_by_atom_torsions(res_spec, new_residue_comp_id,
+							       link_type, g.Geom_p());
 
       if (! new_res_spec.unset_p()) {
 	 r = py_residue(new_res_spec);
@@ -7423,6 +7432,11 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
    return r;
 } 
 #endif 
+
+void set_add_linked_residue_do_fit_and_refine(int state) {
+
+   graphics_info_t::linked_residue_fit_and_refine_state = state;
+} 
 
 
 
