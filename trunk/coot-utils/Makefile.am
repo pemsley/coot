@@ -53,7 +53,7 @@ AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(COOT_WINDOWS_CFLAGS) \
 # for pure coordinates (mmdb) things
 libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc hole.cc read-sm-cif.cc \
-	bonded-pairs.cc helix-analysis.cc elastic.cc
+	bonded-pairs.cc helix-analysis.cc elastic.cc glyco-torsions.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la 
 #    $(top_builddir)/utils/libcoot-utils.la 
@@ -165,7 +165,7 @@ test_elastic_LDADD   = ./libcoot-coord-utils.la $(GLOB_LIBS)
 test_spherical_SOURCES = test-spherical.cc
 test_spherical_LDADD   = ./libcoot-coord-utils.la $(GSL_LIBS)
 
-glyco_torsions_SOURCES = test-glyco-torsions.cc glyco-torsions.cc
+glyco_torsions_SOURCES = test-glyco-torsions.cc
 glyco_torsions_LDADD   = ./libcoot-coord-utils.la
 
 #    $(MMDB_LIBS)

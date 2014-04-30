@@ -1152,10 +1152,10 @@ molecule_class_info_t::add_residue(CResidue *new_res,
 // Add a LINK record if link_type is not blank (link_type is for example "NAG-ASN")
 // 
 coot::residue_spec_t
-molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
-					  const std::string &new_residue_comp_id,
-					  const std::string &link_type,
-					  coot::protein_geometry *geom_p) {
+molecule_class_info_t::add_linked_residue_by_beam_in(const coot::residue_spec_t &spec_in,
+						     const std::string &new_residue_comp_id,
+						     const std::string &link_type,
+						     coot::protein_geometry *geom_p) {
 
    coot::residue_spec_t new_residue_spec;   
    CResidue *residue_ref = get_residue(spec_in);
@@ -1167,19 +1167,16 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
 	 // deleting a link mod atom, for example). So we need a FinishStructEdit() here
 	 atom_sel.mol->FinishStructEdit();
 
-	 if (1) { // tmp indentation for testing.
-      
-	    std::pair<bool, CResidue *> status_pair = add_residue(result, spec_in.chain);
+	 std::pair<bool, CResidue *> status_pair = add_residue(result, spec_in.chain);
 
-	    if (status_pair.first) {
-	       new_residue_spec = coot::residue_spec_t(status_pair.second);
-	       coot::dict_link_info_t link_info(residue_ref, status_pair.second,
-						link_type, *geom_p);
-	       make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist, *geom_p);
-	    }
-	    // we no longer need result here, I think, so it can be deleted.
+	 if (status_pair.first) {
+	    new_residue_spec = coot::residue_spec_t(status_pair.second);
+	    coot::dict_link_info_t link_info(residue_ref, status_pair.second,
+					     link_type, *geom_p);
+	    make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist, *geom_p);
 	 }
 	 
+	 delete result; // no longer needed, we've made (and added) a copy of it.
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
@@ -1187,6 +1184,42 @@ molecule_class_info_t::add_linked_residue(const coot::residue_spec_t &spec_in,
    }
    return new_residue_spec;
 }
+
+#include "coot-utils/glyco-torsions.hh"
+
+// 20140429
+// 
+// Add a LINK record if link_type is not blank (link_type is for example "NAG-ASN")
+// 
+coot::residue_spec_t
+molecule_class_info_t::add_linked_residue_by_atom_torsions(const coot::residue_spec_t &spec_in,
+							   const std::string &new_residue_comp_id,
+							   const std::string &link_type,
+							   coot::protein_geometry *geom_p) {
+   coot::residue_spec_t new_residue_spec;   
+   CResidue *residue_ref = get_residue(spec_in);
+   if (residue_ref) {
+      try {
+	 coot::link_by_torsion_t l(link_type, new_residue_comp_id);
+	 CResidue *result = l.make_residue(residue_ref);
+	 atom_sel.mol->FinishStructEdit();
+	 std::pair<bool, CResidue *> status_pair = add_residue(result, spec_in.chain);
+	 if (status_pair.first) {
+	    new_residue_spec = coot::residue_spec_t(status_pair.second);
+	    coot::dict_link_info_t link_info(residue_ref, status_pair.second,
+					     link_type, *geom_p);
+	    make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist, *geom_p);
+	 }
+      } 
+      catch (const std::runtime_error &rte) {
+	 std::cout << "WARNING:: " << rte.what() << std::endl;
+      }
+   }
+   return new_residue_spec;
+   
+
+}
+
 
 // this can throw a std::runtime_error
 coot::dict_link_info_t::dict_link_info_t(CResidue *residue_ref,

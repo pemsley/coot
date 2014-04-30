@@ -3,6 +3,8 @@
 
 ---- 
 
+   o go to atom Atom list for residue with insertion codes: e.g. H 60 in 3biu.
+
    o ALPHA2-3 link refinement is broken?
 
    o build NH4 in lbg.  Is the N charged in the resulting mol file?

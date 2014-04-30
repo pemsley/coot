@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
 	 if (status != Error_NoError) {
 	    std::cout << "ERROR:: on reading " << file_name << std::endl;
 	 } else {
-	    std::cout << "INFO:: No error no reading " << file_name << std::endl;
+	    std::cout << "INFO:: read " << file_name << " OK " << std::endl;
 	    std::pair<CResidue *, CResidue *> p = coot::link_by_torsion_t::get_residue_pair(mol);
 	    if (! p.first || !p.second) {
 	       std::cout << "Failed to get residue pair from " << file_name << std::endl;

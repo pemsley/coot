@@ -6918,6 +6918,7 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
 				const char *new_residue_comp_id, const char *link_type);
 #endif 
 #endif 		       
+void set_add_linked_residue_do_fit_and_refine(int state);
 
 /*  ----------------------------------------------------------------------- */
 /*               Flattened Ligand Environment View  Interface               */

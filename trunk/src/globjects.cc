@@ -1272,6 +1272,9 @@ float graphics_info_t::mogul_max_badness = 5.0;   // The z value colour at which
                                                   // Some might say that 5.0 is to liberal (it allow
                                                   // too much badness, that is).
 
+// Glyco fit and refine
+bool graphics_info_t::linked_residue_fit_and_refine_state = true;
+
 // 
 std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::user_name_passwd_map;
 

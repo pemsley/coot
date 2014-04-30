@@ -5219,8 +5219,9 @@ molecule_class_info_t::copy_and_add_residue_to_chain(CChain *this_model_chain,
 	 int new_res_resno = 9999;
 	 if (max_res_info.first)
 	    new_res_resno = max_res_info.second;
+	 residue_copy->seqNum = new_res_resno; // try changin the seqNum before AddResidue().
 	 this_model_chain->AddResidue(residue_copy);
-	 residue_copy->seqNum = new_res_resno;
+	 // residue_copy->seqNum = new_res_resno;
 	 res_copied = residue_copy;
       }
    }

@@ -3519,7 +3519,6 @@ public:
 					  float fvalue1, float fvalue2, float fvalue3);
    void preferences_internal_change_value(int preference_type, int ivalue1, int ivalue);
   
-#if (GTK_MAJOR_VERSION > 1)
    static void preferences_model_toolbar_icon_toggled(GtkCellRendererToggle *button,
 					      gchar *path,
 		    			      gpointer data);
@@ -3540,7 +3539,7 @@ public:
    void fill_preferences_toolbar_icons(GtkWidget *preferences,
 				       GtkWidget *scrolled_window,
 				       int toolbar_index);
-#endif // GTK_MAJOR_VERSION
+
    void show_hide_toolbar_icon_pos(int pos, int show_hide_flag, int toolbar_index);
    std::vector<int> get_model_toolbar_icons_list();
    std::vector<int> get_main_toolbar_icons_list();
@@ -3896,6 +3895,8 @@ string   static std::string sessionid;
    static float place_helix_here_fudge_factor;
 
    coot::geometry_distortion_info_container_t geometric_distortions(CResidue *residue_p);
+
+   static bool linked_residue_fit_and_refine_state;
 
 };
 
