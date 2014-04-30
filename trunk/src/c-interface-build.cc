@@ -7349,8 +7349,7 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
    int n_trials = 10000;
    SCM r = SCM_BOOL_F;
    bool do_fit_and_refine = graphics_info_t::linked_residue_fit_and_refine_state;
-   // do_fit_and_refine = true;
-   
+
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
@@ -7377,16 +7376,14 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 	       for (int ii=0; ii<2; ii++) { 
 		  g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 
-		  if (0) { 
-		     // refine and re-torsion-fit
-		     int mode = graphics_info_t::refinement_immediate_replacement_flag;
-		     std::string alt_conf;
-		     graphics_info_t::refinement_immediate_replacement_flag = 1;
-		     refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
-		     accept_regularizement();
-		     remove_initial_position_restraints(imol, residue_specs);
-		     graphics_info_t::refinement_immediate_replacement_flag = mode;
-		  }
+		  // refine and re-torsion-fit
+		  int mode = graphics_info_t::refinement_immediate_replacement_flag;
+		  std::string alt_conf;
+		  graphics_info_t::refinement_immediate_replacement_flag = 1;
+		  refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
+		  accept_regularizement();
+		  remove_initial_position_restraints(imol, residue_specs);
+		  graphics_info_t::refinement_immediate_replacement_flag = mode;
 	       }
 	    }
 	 }
