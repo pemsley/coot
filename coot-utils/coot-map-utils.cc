@@ -1449,13 +1449,14 @@ coot::util::calc_atom_map(CMMDBManager *mol,
 //    }
 
    for (unsigned int iat=0; iat<n_atoms; iat++) {
+      float rescale_b_u = 1/(8*M_PI*M_PI);
       CAtom *at = sel_atoms[iat];
       clipper::Coord_orth pt(at->x, at->y, at->z);
       std::string ele(at->element);
       clipper::Atom cat;
       cat.set_element(ele);
       cat.set_coord_orth(pt);
-      cat.set_u_iso(at->tempFactor);
+      cat.set_u_iso(at->tempFactor * rescale_b_u);
       cat.set_occupancy(at->occupancy);
       l.push_back(cat);
    }
@@ -1463,12 +1464,14 @@ coot::util::calc_atom_map(CMMDBManager *mol,
    try {
 
       clipper::Atom_list al(l);
-      if (0) { // debug
+      if (0) { 
 	 std::cout << "======================= al size(): " << al.size() << std::endl;
-	 std::cout << "here are some atoms" << std::endl;
-	 for (unsigned int iat=0; iat<5; iat++)
+	 std::cout << "in calc_atom_map() here are some atoms" << std::endl;
+	 for (unsigned int iat=0; iat<10; iat++)
 	    std::cout << "           "
-		      << al[iat].coord_orth().format() << " "
+		      << al[iat].coord_orth().format() << " u: "
+		      << al[iat].u_iso() // u should be b/(8*pi*pi)
+		      << " ele: "
 		      << al[iat].element() << std::endl;
       }
       clipper::EDcalc_iso<float> e;
@@ -1499,9 +1502,11 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 
    float ret_val = -2;
    int SelHnd = mol->NewSelection(); // d
+   bool debug = false;
 
-   if (0) { 
-      std::cout << "INFO:: map_to_model_correlation:: there are " << specs.size() << " residues " << std::endl;
+   if (debug) { 
+      std::cout << "INFO:: map_to_model_correlation:: there are " << specs.size() << " residues "
+		<< std::endl;
       for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++)
 	 std::cout << "   " << specs[ilocal] << std::endl;
    }
@@ -1566,18 +1571,18 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
 
       // debugging atom selection
-      if (0) {
+      if (debug) {
 	 std::cout << "debug:: selected " << n_atoms << " atoms " << std::endl;
 	 for (unsigned int iat=0; iat<n_atoms; iat++)
-	    std::cout << "    " << iat << " " << atom_selection[iat]->name << " "
-		      << atom_selection[iat] << std::endl;
+	    std::cout << "    " << iat << ": " << atom_selection[iat]->name << " "
+		      << atom_spec_t(atom_selection[iat]) << std::endl;
       }
 
       // atom selection grid:
       //
       // 
       std::pair<clipper::Coord_orth, clipper::Coord_orth> selection_extents = util::extents(mol, specs);
-      if (0) 
+      if (debug) 
 	 std::cout << "INFO:: mol residue set extents: "
 		   << selection_extents.first.format() << " to "
 		   << selection_extents.second.format() << std::endl;
@@ -1590,7 +1595,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 							   selection_extents.second.z()+3).coord_frac(masked_map.cell());
       clipper::Grid_map selection_grid(ex_pt_1_fc.coord_grid(masked_map.grid_sampling()),
 				       ex_pt_2_fc.coord_grid(masked_map.grid_sampling()));
-      if (0) {
+      if (debug) {
 	 std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
 	 std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
 	 std::cout << "INFO:: Selection grid: " << selection_grid.format() << std::endl;
@@ -1678,6 +1683,11 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 		  if (! clipper::Util::is_nan(x)) {
 		     y = reference_map[iw];
 		     if (! clipper::Util::is_nan(y)) {
+			if (0) 
+			   std::cout << "xy-pair: " << x << " " << y << " "
+				     << iw.coord().u() << " "
+				     << iw.coord().v() << " "
+				     << iw.coord().w() << "\n";
 			sum_x  += x;
 			sum_y  += y;
 			sum_xy += x * y;
@@ -1695,7 +1705,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 	 }
       }
 
-      if (0) { 
+      if (debug) { 
 	 // just checking that the maps are what we expect them to be...
 	 clipper::CCP4MAPfile mapout;
 	 mapout.open_write("calc.map");
@@ -1711,7 +1721,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       double top = double(n) * sum_xy - sum_x * sum_y;
       double b_1 = double(n) * sum_x_sqd - sum_x * sum_x;
       double b_2 = double(n) * sum_y_sqd - sum_y * sum_y;
-      if (0) { 
+      if (debug) { 
 	 std::cout << ".... n is " << n << std::endl;
 	 std::cout << ".... sum_xy is " << sum_xy << std::endl;
 	 std::cout << ".... sum_x is " << sum_x << std::endl;
@@ -1725,7 +1735,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       if (b_2 < 0) b_2 = 0;
 
       double c = top/(sqrt(b_1) * sqrt(b_2));
-      if (0)
+      if (debug)
 	 std::cout << "INFO:: map vs model correlation: " << c << std::endl;
       ret_val = c;
    }
@@ -1905,6 +1915,7 @@ coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
       for (ix = contributor_map.first(); !ix.last(); ix.next()) {
 	 if (! contributor_map[ix].unset_p()) {
 	    if (contributor_map[ix].int_user_data != MANY_CONTRIBUTORS) {
+	       // std::cout << "xy-pair " << calc_map[ix] << " " << reference_map[ix] << "\n";
 	       map_stats[contributor_map[ix]].add_xy(calc_map[ix], reference_map[ix]);
 	    }
 	 }
