@@ -632,7 +632,10 @@ def list_of_toolbar_functions():
         ["Validation",
          ["Interactive dots", toggle_interactive_probe_dots,
           "Show dots after refinement and for chi/rotamer changes",
-          "probe-clash.svg", True, True]
+          "probe-clash.svg", True, True],
+         ["Local probe dots", "probe_local_sphere_active_atom()",
+          "Show probe dots for active atom in 4A radius.",
+          "probe-clash.svg"]
          ],
         ["Building",
          ["Ligand Builder", "start_ligand_builder_gui()", "Ligand Builder", "go-to-ligand.svg"],
