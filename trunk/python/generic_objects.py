@@ -482,6 +482,14 @@ def probe_local_sphere(imol, radius):
   get_probe_dots_from(pdb_name, pt, radius)
   close_molecule(imol_new)
 
+
+def probe_local_sphere_active_atom(radius=4.0):
+  
+  with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                             aa_ins_code, aa_atom_name, aa_alt_conf]:
+    probe_local_sphere(aa_imol, radius)
+
+  
 # add in the conn files by concatting.
 #
 def write_pdb_file_for_molprobity(imol, pdb_name):
@@ -517,7 +525,7 @@ def write_pdb_file_for_molprobity(imol, pdb_name):
         fn_all.write(data)
     fn_all.close()
 
-# not sure if the following shoudl reside here?!
+# not sure if the following ones should reside here?! Maybe rather in coot_gui?
 
 # a toggle function for the main toolbar to switch on probe dots post refine
 # and for chis/rotamers
@@ -542,4 +550,4 @@ def toggle_interactive_probe_dots(widget=None):
   else:
     # no alternative for now (could just go by state and change back and forth)
     print "BL WARNING:: no widget"
-  
+
