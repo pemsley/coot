@@ -1496,10 +1496,12 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 			   GTK_SIGNAL_FUNC(key_release_event), NULL);
 
 	// setup drag and drop
-	int n_dnd_targets = 2;
+	int n_dnd_targets = 4;
 	GtkTargetEntry target_list[] = {
-	   { (gchar *) "STRING",     0, TARGET_STRING },
-	   { (gchar *) "text/plain", 0, TARGET_STRING }}; // deprecated conversions from string constant
+	   { (gchar *) "text/uri-list", 0, TEXT_URI },
+	   { (gchar *) "_NETSCAPE_URL", 0, TEXT_URL },
+	   { (gchar *) "STRING",        0, TARGET_STRING },
+	   { (gchar *) "text/plain",    0, TARGET_STRING }}; // deprecated conversions from string constant
                                                 // to char *.  GTK+ problem AFAICS.
 	GtkDestDefaults dest_defaults = GTK_DEST_DEFAULT_ALL; // we don't need ALL, but this
 	                                                      // removes int->GtkDestDefaults

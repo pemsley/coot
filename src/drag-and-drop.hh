@@ -10,7 +10,7 @@
 
 BEGIN_C_DECLS
 
-enum { TARGET_STRING };
+enum { TARGET_STRING, TEXT_URL, TEXT_URI };
 
 gboolean
 on_gl_canvas_drag_drop(GtkWidget *widget,
