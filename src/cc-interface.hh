@@ -1158,13 +1158,20 @@ int handle_drag_and_drop_string(const std::string &uri);
 //! \name Map to Model Correlation
 //! \{
 
+// Don't count the grid points of residues_specs that are in grid
+// points of (potentially overlapping) neighbour_residue_spec.
+// 
 #ifdef USE_GUILE
-SCM map_to_model_correlation_scm(int imol, SCM residue_specs,
+SCM map_to_model_correlation_scm(int imol,
+				 SCM residue_specs,
+				 SCM neighb_residue_specs,
 				 unsigned short int atom_mask_mode,
 				 int imol_map);
 #endif
 #ifdef USE_PYTHON
-PyObject *map_to_model_correlation_py(int imol, PyObject *residue_specs,
+PyObject *map_to_model_correlation_py(int imol,
+				      PyObject *residue_specs,
+				      PyObject *neighb_residue_specs,
 				      unsigned short int atom_mask_mode,
 				      int imol_map);
 #endif
@@ -1177,7 +1184,9 @@ PyObject *map_to_model_correlation_py(int imol, PyObject *residue_specs,
 // 4: main-chain atoms if is standard amino-acid, else nothing
 // 5: side-chain atoms if is standard amino-acid, else nothing
 // 
-float map_to_model_correlation(int imol, const std::vector<coot::residue_spec_t> &specs,
+float map_to_model_correlation(int imol, 
+			       const std::vector<coot::residue_spec_t> &residue_specs,
+			       const std::vector<coot::residue_spec_t> &neigh_residue_specs,
 			       unsigned short int atom_mask_mode,
 			       int imol_map);
 
