@@ -28,6 +28,7 @@
 #include "clipper/core/hkl_compute.h"
 #include "clipper/mmdb/clipper_mmdb.h"
 #include "clipper/ccp4/ccp4_mtz_io.h"
+#include "clipper/ccp4/ccp4_map_io.h"
 #include "clipper/contrib/skeleton.h"
 #include <clipper/contrib/edcalc.h>
 
@@ -1484,7 +1485,6 @@ coot::util::calc_atom_map(CMMDBManager *mol,
    return xmap;
 }
 
-#include "clipper/ccp4/ccp4_map_io.h"
 
 // 0: all-atoms
 // 1: main-chain atoms if is standard amino-acid, else all atoms
@@ -1496,6 +1496,7 @@ coot::util::calc_atom_map(CMMDBManager *mol,
 float
 coot::util::map_to_model_correlation(CMMDBManager *mol,
 				     const std::vector<residue_spec_t> &specs,
+				     const std::vector<residue_spec_t> &specs_for_masking_neighbs,
 				     unsigned short int atom_mask_mode,
 				     float atom_radius,
 				     const clipper::Xmap<float> &reference_map) {
@@ -1551,6 +1552,13 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 		       "*", // alt loc.
 		       SKEY_OR
 		       );
+   }
+
+   std::vector<CResidue *> neighb_residues;
+   for (unsigned int inb=0; inb<specs_for_masking_neighbs.size(); inb++) { 
+      CResidue *r = get_residue(specs_for_masking_neighbs[inb], mol);
+      if (r)
+	 neighb_residues.push_back(r);
    }
 
    clipper::Xmap<float> calc_map =
@@ -1639,6 +1647,57 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 	 }
       }
 
+      // masked map is 1 over the atoms of the selected residues (specs).
+      // 
+      // Now we need to (potentially) cut into that near the atoms of neighb_residues.
+      //
+      for (unsigned int ir=0; ir<neighb_residues.size(); ir++) { 
+	 PPCAtom residue_atoms = 0;
+	 int n_residue_atoms;
+	 CResidue *residue_p = neighb_residues[ir];
+	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	    CAtom *at = residue_atoms[iat];
+	    clipper::Coord_orth pt = co(at);
+
+	    clipper::Coord_frac cf = pt.coord_frac(masked_map.cell());
+	    clipper::Coord_frac box0(
+				     cf.u() - atom_radius/masked_map.cell().descr().a(),
+				     cf.v() - atom_radius/masked_map.cell().descr().b(),
+				     cf.w() - atom_radius/masked_map.cell().descr().c());
+
+	    clipper::Coord_frac box1(
+				     cf.u() + atom_radius/masked_map.cell().descr().a(),
+				     cf.v() + atom_radius/masked_map.cell().descr().b(),
+				     cf.w() + atom_radius/masked_map.cell().descr().c());
+
+	    clipper::Grid_map grid(box0.coord_grid(masked_map.grid_sampling()),
+				   box1.coord_grid(masked_map.grid_sampling()));
+
+	    float atom_radius_sq = atom_radius * atom_radius;
+
+	    clipper::Xmap_base::Map_reference_coord ix(masked_map, grid.min() ), iu, iv, iw;
+	    for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) { 
+	       for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
+		  for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+		     if ( (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - pt).lengthsq() < atom_radius_sq) {
+			if (masked_map[iw] == 1) {
+			   masked_map[iw] = 0;
+			   if (0)
+			      std::cout << "cutting into mask at point " 
+					<< iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()).format()
+					<< " for neighb atom at: " << pt.format() << " " 
+					<< (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - pt).lengthsq() 
+					<< std::endl;
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+      
+
       double sum_x  = 0;
       double sum_y  = 0;
       double sum_x_sqd  = 0;
@@ -1683,7 +1742,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 		  if (! clipper::Util::is_nan(x)) {
 		     y = reference_map[iw];
 		     if (! clipper::Util::is_nan(y)) {
-			if (0) 
+			if (0)
 			   std::cout << "xy-pair: " << x << " " << y << " "
 				     << iw.coord().u() << " "
 				     << iw.coord().v() << " "

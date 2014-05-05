@@ -1483,7 +1483,9 @@ int make_variance_map_py(PyObject *map_molecule_number_list) {
 // 2: side-chain atoms if is standard amino-acid, else all atoms
 // 3: side-chain atoms-exclusing CB if is standard amino-acid, else all atoms
 // 
-float map_to_model_correlation(int imol, const std::vector<coot::residue_spec_t> &specs,
+float map_to_model_correlation(int imol,
+			       const std::vector<coot::residue_spec_t> &specs,
+			       const std::vector<coot::residue_spec_t> &neighb_specs,
 			       unsigned short int atom_mask_mode,
 			       int imol_map) {
 
@@ -1493,7 +1495,8 @@ float map_to_model_correlation(int imol, const std::vector<coot::residue_spec_t>
       if (is_valid_map_molecule(imol_map)) {
 	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 clipper::Xmap<float> xmap_reference = graphics_info_t::molecules[imol_map].xmap;
-	 ret_val = coot::util::map_to_model_correlation(mol, specs, atom_mask_mode,
+	 ret_val = coot::util::map_to_model_correlation(mol, specs, neighb_specs,
+							atom_mask_mode,
 							atom_radius, xmap_reference);
       }
    }
@@ -1503,24 +1506,31 @@ float map_to_model_correlation(int imol, const std::vector<coot::residue_spec_t>
    
 
 #ifdef USE_GUILE
-SCM map_to_model_correlation_scm(int imol, SCM residue_specs,
+SCM map_to_model_correlation_scm(int imol,
+				 SCM residue_specs,
+				 SCM neighb_residue_specs,
 				 unsigned short int atom_mask_mode,
 				 int imol_map) {
 
-   std::vector<coot::residue_spec_t> residues = scm_to_residue_specs(residue_specs);
-   float c = map_to_model_correlation(imol, residues, atom_mask_mode, imol_map);
+   std::vector<coot::residue_spec_t> residues    = scm_to_residue_specs(residue_specs);
+   std::vector<coot::residue_spec_t> nb_residues = scm_to_residue_specs(neighb_residue_specs);
+   float c = map_to_model_correlation(imol, residues, nb_residues, atom_mask_mode, imol_map);
    SCM ret_val = scm_double2num(c);
    return ret_val;
 }
 #endif 
 
 #ifdef USE_PYTHON
-PyObject *map_to_model_correlation_py(int imol, PyObject *residue_specs,
+PyObject *map_to_model_correlation_py(int imol,
+				      PyObject *residue_specs,
+				      PyObject *neighb_residue_specs,
 				      unsigned short int atom_mask_mode,
 				      int imol_map) {
 
-   std::vector<coot::residue_spec_t> residues = py_to_residue_specs(residue_specs);
-   double c = map_to_model_correlation(imol, residues, atom_mask_mode, imol_map);
+   std::vector<coot::residue_spec_t> residues    = py_to_residue_specs(residue_specs);
+   std::vector<coot::residue_spec_t> nb_residues = py_to_residue_specs(neighb_residue_specs);
+   float c = map_to_model_correlation(imol, residues, nb_residues,
+				      atom_mask_mode, imol_map);
    return PyFloat_FromDouble(c);
 }
 #endif 

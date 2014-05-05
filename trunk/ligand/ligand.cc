@@ -2008,9 +2008,14 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
 	 residue_spec_t spec(lig_mol[0].fragment_id,
 			     lig_mol[0].min_res_no(), "");
 	 specs.push_back(spec);
-	 short int mode = 0; // all atoms 
-	 double c = util::map_to_model_correlation(mol, specs, mode, 1.5,
-						   xmap_pristine);
+	 short int mode = 0; // all atoms
+	 std::vector<residue_spec_t> neighb_specs; // Dummy value currently.
+	                                           // Don't count grid points of the spec residues
+	                                           // that are part of other residues in
+	                                           // the region.
+	                                                
+	 double c = util::map_to_model_correlation(mol, specs, neighb_specs,
+						   mode, 1.5, xmap_pristine);
 
 	 std::cout << "----- in get_correl() constructed spec for i "
 		   << i << " " << spec
@@ -2049,8 +2054,12 @@ coot::ligand::get_correl(const minimol::molecule &lig_mol) const {
    residue_spec_t spec(lig_mol[0].fragment_id,
 		       lig_mol[0].min_res_no(), "");
    specs.push_back(spec);
+   std::vector<residue_spec_t> neighb_specs; // Dummy (empty) value currently.
+	                                     // Don't count grid points of the spec residues
+	                                     // that are part of other residues in
+	                                     // the region.
    short int mode = 0; // all atoms 
-   double c = util::map_to_model_correlation(mol, specs, mode, 1.5, xmap_pristine);
+   double c = util::map_to_model_correlation(mol, specs, neighb_specs, mode, 1.5, xmap_pristine);
    if (0)
       std::cout << "----- in get_correl() constructed spec " << spec
 		<< " which has correlation " << c << std::endl;

@@ -170,7 +170,8 @@ namespace coot {
       // 3: side-chain atoms-exclusing CB if is standard amino-acid, else all atoms
       // 
       float map_to_model_correlation(CMMDBManager *mol,
-				     const std::vector<residue_spec_t> &specs,
+				     const std::vector<residue_spec_t> &specs_for_correl,
+				     const std::vector<residue_spec_t> &specs_for_masking_neighbs,
 				     unsigned short int atom_mask_mode,
 				     float atom_radius, // for masking 
 				     const clipper::Xmap<float> &xmap_from_sfs);
