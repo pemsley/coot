@@ -661,7 +661,7 @@ namespace coot {
 	    filled = true;
 	 }
 	 if (type == "I") {
-	    atom_name = "I   ";
+	    atom_name = " I  ";
 	    element_name = "I";
 	    res_name = "IOD";
 	    filled = true;
