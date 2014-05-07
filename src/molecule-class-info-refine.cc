@@ -84,7 +84,7 @@ molecule_class_info_t::add_refmac_extra_restraints(const std::string &file_name)
    coot::extra_restraints_t r;
    r.read_refmac_extra_restraints(file_name);
    extra_restraints.add_restraints(r);
-   std::cout << "in add_refmac_extra_restraints we have " << extra_restraints.bond_restraints.size()
+   std::cout << "INFO:: add_refmac_extra_restraints(): have " << extra_restraints.bond_restraints.size()
 	     << " bond restraints " << std::endl;
    update_extra_restraints_representation();
 }
@@ -194,7 +194,19 @@ molecule_class_info_t::delete_extra_restraints_worse_than(const double &n_sigma)
    if (post_n != pre_n)
       update_extra_restraints_representation();
    std::cout << "INFO deleted : " << pre_n - post_n << " of " << pre_n << " extra bond restraints" << std::endl;
-} 
+}
+
+void
+molecule_class_info_t::set_extra_restraints_prosmart_sigma_limits(double limit_low, double limit_high) {
+
+   extra_restraints_representation.prosmart_restraint_display_limit_low  = limit_low;
+   extra_restraints_representation.prosmart_restraint_display_limit_high = limit_high;
+   
+   // and redraw
+
+   update_extra_restraints_representation();
+}
+
 
 
 void

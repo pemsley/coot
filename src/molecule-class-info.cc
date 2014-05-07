@@ -863,7 +863,7 @@ molecule_class_info_t::draw_extra_restraints_representation() {
    if (drawit) {
       if (drawit_for_extra_restraints) {
 	 if (extra_restraints_representation.bonds.size() > 0) { 
-	    glLineWidth(2.0);
+	    glLineWidth(1.0);
 	    glColor3f(0.6, 0.6, 0.8);
 	    
 	    glBegin(GL_LINES);
@@ -2974,6 +2974,14 @@ molecule_class_info_t::get_fixed_atoms() const {
 void
 molecule_class_info_t::update_extra_restraints_representation() {
 
+   update_extra_restraints_representation_bonds();
+   update_extra_restraints_representation_parallel_planes();
+   
+}
+
+void
+molecule_class_info_t::update_extra_restraints_representation_bonds() {
+
    extra_restraints_representation.clear();
 
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
@@ -3037,11 +3045,18 @@ molecule_class_info_t::update_extra_restraints_representation() {
       } 
 
       if (ifound_1 && ifound_2) {
-	 extra_restraints_representation.add_bond(p1, p2, res.bond_dist, res.esd);
+
+	 // if the distance (actually, n-sigma) is within limits, draw it.
+	 //
+	 double dist_sq = (p1-p2).lengthsq();
+	 double dist = sqrt(dist_sq);
+	 double this_n_sigma = (dist - res.bond_dist)/res.esd;
+
+	 if (this_n_sigma >= extra_restraints_representation.prosmart_restraint_display_limit_high ||
+	     this_n_sigma <= extra_restraints_representation.prosmart_restraint_display_limit_low)
+	    extra_restraints_representation.add_bond(p1, p2, res.bond_dist, res.esd);
       } 
    }
-
-   update_extra_restraints_representation_parallel_planes();
 }
 
 void

@@ -380,7 +380,16 @@ int parallel_plane_restraints_are_shown(int imol) {
    if (is_valid_model_molecule(imol))
       r = graphics_info_t::molecules[imol].drawit_for_parallel_plane_restraints;
    return r;
+}
+
+/*! \brief often we don't want to see all prosmart restraints, just the (big) violations */
+void set_extra_restraints_prosmart_sigma_limits(int imol, double limit_low, double limit_high) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_extra_restraints_prosmart_sigma_limits(limit_low, limit_high);
+   } 
 } 
+
 
 
 

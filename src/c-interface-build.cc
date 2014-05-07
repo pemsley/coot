@@ -7269,7 +7269,7 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
 	 PPCAtom atom_selection = 0;
 	 int n_atoms;
 
-	 int SelHnd = mol->NewSelection();
+	 int SelHnd = mol->NewSelection(); // d
 
 	 mol->SelectAtoms(SelHnd, 0,
 			  chain_id,

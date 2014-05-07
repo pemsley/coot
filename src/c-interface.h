@@ -3633,6 +3633,9 @@ void add_refmac_extra_restraints(int imol, const char *file_name);
 void set_show_extra_restraints(int imol, int state);
 int extra_restraints_are_shown(int imol);
 
+/*! \brief often we don't want to see all prosmart restraints, just the (big) violations */
+void set_extra_restraints_prosmart_sigma_limits(int imol, double limit_high, double limit_low);
+
 void set_show_parallel_plane_restraints(int imol, int state);
 int parallel_plane_restraints_are_shown(int imol);
 
