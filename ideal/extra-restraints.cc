@@ -275,7 +275,13 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 	       at_2->GetUDData(udd_atom_index_handle, index_2);
 	       if ((index_1 != -1) && (index_2 != -1)) { 
 		  std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
-		  add(BOND_RESTRAINT, index_1, index_2, fixed_flags,
+
+		  // Currently makes things crash horribly.  No time to investigate ATM.		  
+// 		  add_geman_mcclure_distance(GEMAN_MCCLURE_DISTANCE_RESTRAINT, index_1, index_2, fixed_flags,
+// 					     extra_restraints.bond_restraints[i].bond_dist,
+// 					     extra_restraints.bond_restraints[i].esd);
+
+ 		  add(BOND_RESTRAINT, index_1, index_2, fixed_flags,
 		      extra_restraints.bond_restraints[i].bond_dist,
 		      extra_restraints.bond_restraints[i].esd,
 		      1.2 /* dummy value */);
