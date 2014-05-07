@@ -563,9 +563,16 @@ namespace coot {
 	 }
       };
 
+      extra_restraints_representation_t() {
+	 prosmart_restraint_display_limit_high = 0;
+	 prosmart_restraint_display_limit_low  = 0;
+      }
       
       std::vector<extra_bond_restraints_respresentation_t> bonds;
+      double prosmart_restraint_display_limit_high; // show only those below this
+      double prosmart_restraint_display_limit_low;  // and above this (n-sigma)
       std::vector<extra_parallel_planes_restraints_representation_t> parallel_planes;
+      
       void clear() {
 	 bonds.clear();
 	 parallel_planes.clear();
@@ -3119,6 +3126,7 @@ public:        //                      public
    coot::extra_restraints_representation_t extra_restraints_representation;
    void draw_extra_restraints_representation();
    void draw_parallel_plane_restraints_representation();
+   void set_extra_restraints_prosmart_sigma_limits(double limit_low, double limit_high);   
    
    // return an index of the new restraint
    int add_extra_bond_restraint(coot::atom_spec_t atom_1,
@@ -3143,6 +3151,7 @@ public:        //                      public
    void remove_extra_torsion_restraint(coot::atom_spec_t atom_1, coot::atom_spec_t atom_2,
                                       coot::atom_spec_t atom_3, coot::atom_spec_t atom_4);
    void update_extra_restraints_representation(); // called from make_bonds_type_checked()
+   void update_extra_restraints_representation_bonds();
    void update_extra_restraints_representation_parallel_planes();
    void add_refmac_extra_restraints(const std::string &file_name);
    void clear_extra_restraints();
