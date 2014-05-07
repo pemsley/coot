@@ -382,15 +382,33 @@ int parallel_plane_restraints_are_shown(int imol) {
    return r;
 }
 
+void set_extra_restraints_representation_for_bonds_go_to_CA(int imol, short int state) {
+
+   if (is_valid_model_molecule(imol))
+      graphics_info_t::molecules[imol].set_extra_restraints_representation_for_bonds_go_to_CA(state);
+   graphics_draw();
+} 
+
+
 /*! \brief often we don't want to see all prosmart restraints, just the (big) violations */
 void set_extra_restraints_prosmart_sigma_limits(int imol, double limit_low, double limit_high) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].set_extra_restraints_prosmart_sigma_limits(limit_low, limit_high);
-   } 
+   }
+   graphics_draw();
 } 
 
 
+void generate_local_self_restraints(int imol, const char *chain_id, float local_dist_max) {
+
+   if (is_valid_model_molecule(imol)) {
+      // like prosmart self restraints
+      graphics_info_t::molecules[imol].generate_local_self_restraints(local_dist_max, chain_id,
+								      *graphics_info_t::Geom_p());
+   } 
+   graphics_draw();
+} 
 
 
 

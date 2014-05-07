@@ -3590,7 +3590,30 @@ coot::protein_geometry::get_bonded_neighbours(const std::string &residue_name,
       throw std::runtime_error(m);
    } 
    return v;
+}
+
+std::vector<std::pair<std::string, std::string> >
+coot::protein_geometry::get_bonded_and_1_3_angles(const std::string &comp_id) const {
+
+   std::vector<std::pair<std::string, std::string> > v;
+   int idx = get_monomer_restraints_index(comp_id, true);
+   if (idx != -1) {
+      const dictionary_residue_restraints_t &rest = dict_res_restraints[idx];
+      for (unsigned int i=0; i<rest.bond_restraint.size(); i++) {
+	 std::pair<std::string, std::string> p(rest.bond_restraint[i].atom_id_1_4c(),
+					       rest.bond_restraint[i].atom_id_2_4c());
+	 v.push_back(p);
+      }
+      for (unsigned int i=0; i<rest.angle_restraint.size(); i++) {
+	 std::pair<std::string, std::string> p(rest.angle_restraint[i].atom_id_1_4c(),
+					       rest.angle_restraint[i].atom_id_3_4c());
+	 v.push_back(p);
+      }
+   }
+   return v;
 } 
+
+
 
 // return "" on not found
 std::string

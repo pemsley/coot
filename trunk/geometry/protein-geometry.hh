@@ -2202,10 +2202,13 @@ namespace coot {
       // Find the bonded neighbours of the given atoms - throw an
       // exception if residue name is not in dictionary.
       // 
-      std::vector<std::string> get_bonded_neighbours(const std::string &residue_name,
+      std::vector<std::string> get_bonded_neighbours(const std::string &comp_id,
 						     const std::string &atom_name_1,
 						     const std::string &atom_name_2,
 						     bool also_2nd_order_neighbs_flag=0) const;
+
+      std::vector<std::pair<std::string, std::string> >
+      get_bonded_and_1_3_angles(const std::string &comp_id) const;
 
       // add a monomer restraints description.
       //
