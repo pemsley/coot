@@ -208,6 +208,138 @@ molecule_class_info_t::set_extra_restraints_prosmart_sigma_limits(double limit_l
 }
 
 
+// make them yourself - easy as pie.
+void
+molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
+						      const std::string &chain_id,
+						      const coot::protein_geometry &geom) {
+
+
+   // clear what's already there - if anything
+   extra_restraints.bond_restraints.clear();
+   
+   // Find all the contacts in chain_id that are less than or equal to local_dist_max
+   // that are not bonded or related by an angle.
+
+   int selHnd = atom_sel.mol->NewSelection(); // d
+
+   atom_sel.mol->SelectAtoms(selHnd, 0, chain_id.c_str(), 
+			     ANY_RES, "*", // start, insertion code
+			     ANY_RES, "*", // end, insertion code
+			     "*", // residue name
+			     "*",
+			     "*", // elements
+			     "*"); // alt locs
+   int nSelAtoms;
+   PPCAtom SelAtom; 
+   atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
+
+   // bonded_neighbours in this case, means bonded or angle-related
+   // bonded_neighbours["ALA"] -> all bond pairs and 1-3 angles
+   std::map<std::string, std::vector<std::pair<std::string, std::string> > > bonded_neighbours;
+
+   // now find contacts:
+   // 
+   PSContact pscontact = NULL;
+   int n_contacts;
+   long i_contact_group = 1;
+   mat44 my_matt;
+   CSymOps symm;
+   for (int i=0; i<4; i++) 
+      for (int j=0; j<4; j++) 
+	 my_matt[i][j] = 0.0;      
+   for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+   // 
+   atom_sel.mol->SeekContacts(SelAtom,   nSelAtoms,
+			      SelAtom,   nSelAtoms,
+			      0.1, local_dist_max, // min, max distances
+			      0,        // seqDist 0 -> in same res also
+			      pscontact, n_contacts,
+			      0, &my_matt, i_contact_group);
+
+   if (n_contacts > 0) {
+      if (pscontact) {
+	 for (int i=0; i<n_contacts; i++) {
+	    CAtom *at_1 = SelAtom[pscontact[i].id1];
+	    CAtom *at_2 = SelAtom[pscontact[i].id2];
+	    std::string ele_1 = at_1->element;
+	    std::string ele_2 = at_2->element;
+	    if (ele_1 != " H" && ele_2 != " H") { 
+	       bool ignore_this = false; // set for bonded and angled atoms
+	       bool in_same_res = false;
+	       if (at_1->residue == at_2->residue)
+		  in_same_res = true;
+	    
+	       if (in_same_res) {
+		  std::string comp_id = at_1->residue->GetResName();
+		  std::string at_name_1 = at_1->GetAtomName();
+		  std::string at_name_2 = at_2->GetAtomName();
+
+		  // This is slow
+		  // if (geom.are_bonded_or_angle_related(comp_id, at_name_1, at_name_2))
+		  // ignore_this = true;
+		  //
+
+		  std::map<std::string, std::vector<std::pair<std::string, std::string> > >::const_iterator it;
+		  it = bonded_neighbours.find(comp_id);
+		  std::vector<std::pair<std::string, std::string> > bps;
+		  if (it == bonded_neighbours.end()) {
+		     bps = geom.get_bonded_and_1_3_angles(comp_id);
+		     bonded_neighbours[comp_id] = bps;
+		  } else {
+		     bps = it->second;
+		  }
+
+		  for (unsigned int ipr=0; ipr<bps.size(); ipr++) { 
+		     if (at_name_1 == bps[ipr].first) { 
+			if (at_name_2 == bps[ipr].second) {
+			   ignore_this = true;
+			   break;
+			}
+		     }
+		     if (at_name_2 == bps[ipr].first) { 
+			if (at_name_1 == bps[ipr].second) {
+			   ignore_this = true;
+			   break;
+			}
+		     }
+		  }
+	       } else {
+		  std::string at_name_1 = at_1->GetAtomName();
+		  std::string at_name_2 = at_2->GetAtomName();
+		  // by hand (hmmm)
+		  // PDBv3 FIXME
+		  if ((at_name_1 == " N  " && at_name_2 == " C  ") ||
+		      (at_name_1 == " C  " && at_name_2 == " N  ") ||
+		      (at_name_1 == " N  " && at_name_2 == " O  ") ||
+		      (at_name_1 == " N  " && at_name_2 == " CA ") ||
+		      (at_name_1 == " O  " && at_name_2 == " N  ") ||
+		      (at_name_1 == " CA " && at_name_2 == " N  ")) {
+		     ignore_this = true;
+		  }
+	       }
+
+	       if (! ignore_this) {
+		  clipper::Coord_orth p1 = coot::co(at_1);
+		  clipper::Coord_orth p2 = coot::co(at_2);
+		  double dist = sqrt((p1-p2).lengthsq());
+		  double esd  = 0.5;
+		  coot::extra_restraints_t::extra_bond_restraint_t br(coot::atom_spec_t(at_1),
+								      coot::atom_spec_t(at_2),
+								      dist, esd);
+		  extra_restraints.bond_restraints.push_back(br);
+	       } 
+	    }
+	 }
+      }
+   }
+   if (extra_restraints.bond_restraints.size())
+       update_extra_restraints_representation();
+       
+   atom_sel.mol->DeleteSelection(selHnd);
+} 
+
+
 
 void
 molecule_class_info_t::clear_extra_restraints() {

@@ -1187,6 +1187,7 @@ public:        //                      public
       draw_it_for_map = 0;
       draw_it_for_map_standard_lines = 1;
       drawit_for_extra_restraints = true;
+      extra_restraints_representation_for_bonds_go_to_CA = false;
 
       // backup on by default, turned off for dummy atoms (baton building)
       backup_this_molecule = 1;
@@ -3123,6 +3124,13 @@ public:        //                      public
    bool drawit_for_extra_restraints;
    bool drawit_for_parallel_plane_restraints;
    coot::extra_restraints_t extra_restraints;
+   bool extra_restraints_representation_for_bonds_go_to_CA;
+   void set_extra_restraints_representation_for_bonds_go_to_CA(bool val) {
+      if (val != extra_restraints_representation_for_bonds_go_to_CA) { 
+	 extra_restraints_representation_for_bonds_go_to_CA = val;
+	 update_extra_restraints_representation();
+      } 
+   } 
    coot::extra_restraints_representation_t extra_restraints_representation;
    void draw_extra_restraints_representation();
    void draw_parallel_plane_restraints_representation();
@@ -3154,6 +3162,10 @@ public:        //                      public
    void update_extra_restraints_representation_bonds();
    void update_extra_restraints_representation_parallel_planes();
    void add_refmac_extra_restraints(const std::string &file_name);
+   // make them yourself - easy as pie.
+   void generate_local_self_restraints(float local_dist_max,
+				       const std::string &chain_id,
+				       const coot::protein_geometry &geom);
    void clear_extra_restraints();
 
    // --------- (transparent) solid rendering of density ------------------

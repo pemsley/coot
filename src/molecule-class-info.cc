@@ -2974,6 +2974,7 @@ molecule_class_info_t::get_fixed_atoms() const {
 void
 molecule_class_info_t::update_extra_restraints_representation() {
 
+   extra_restraints_representation.clear();
    update_extra_restraints_representation_bonds();
    update_extra_restraints_representation_parallel_planes();
    
@@ -2981,8 +2982,6 @@ molecule_class_info_t::update_extra_restraints_representation() {
 
 void
 molecule_class_info_t::update_extra_restraints_representation_bonds() {
-
-   extra_restraints_representation.clear();
 
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
       CAtom *at_1 = NULL;
@@ -3052,9 +3051,31 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 	 double dist = sqrt(dist_sq);
 	 double this_n_sigma = (dist - res.bond_dist)/res.esd;
 
+	 if (0) 
+	    std::cout << "comparing this_n_sigma " << this_n_sigma << " with "
+		      << extra_restraints_representation.prosmart_restraint_display_limit_low << " "
+		      << extra_restraints_representation.prosmart_restraint_display_limit_high << " and to-CA-mode "
+		      << extra_restraints_representation_for_bonds_go_to_CA
+		      << "\n";
+
 	 if (this_n_sigma >= extra_restraints_representation.prosmart_restraint_display_limit_high ||
-	     this_n_sigma <= extra_restraints_representation.prosmart_restraint_display_limit_low)
-	    extra_restraints_representation.add_bond(p1, p2, res.bond_dist, res.esd);
+	     this_n_sigma <= extra_restraints_representation.prosmart_restraint_display_limit_low) { 
+	    if (extra_restraints_representation_for_bonds_go_to_CA) {
+	       if (at_1->residue != at_2->residue) {
+		  int idx_1 = intelligent_this_residue_atom(at_1->residue);
+		  int idx_2 = intelligent_this_residue_atom(at_2->residue);
+		  if (idx_1 >= 0 && idx_2 >= 0) {
+		     clipper::Coord_orth ca_p1 = coot::co(atom_sel.atom_selection[idx_1]);
+		     clipper::Coord_orth ca_p2 = coot::co(atom_sel.atom_selection[idx_2]);
+		     // hack a distance.
+		     double d = sqrt((ca_p2-ca_p1).lengthsq());
+		     extra_restraints_representation.add_bond(ca_p1, ca_p2, d, res.esd);
+		  }
+	       } 
+	    } else { 
+	       extra_restraints_representation.add_bond(p1, p2, res.bond_dist, res.esd);
+	    }
+	 }
       } 
    }
 }

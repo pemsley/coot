@@ -3636,8 +3636,11 @@ int extra_restraints_are_shown(int imol);
 /*! \brief often we don't want to see all prosmart restraints, just the (big) violations */
 void set_extra_restraints_prosmart_sigma_limits(int imol, double limit_high, double limit_low);
 
+void generate_local_self_restraints(int imol, const char *chain_id, float local_dist_max);
+
 void set_show_parallel_plane_restraints(int imol, int state);
 int parallel_plane_restraints_are_shown(int imol);
+void set_extra_restraints_representation_for_bonds_go_to_CA(int imol, short int state);
 
 
 #ifdef __cplusplus
