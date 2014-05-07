@@ -389,7 +389,6 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
 	 for (unsigned int iquad=0; iquad<n_quads; iquad++)
 	    best_quads[iquad] = quads[iquad].torsion();
       
-	 double frac = 360.0/(float) RAND_MAX;
 	 for (unsigned int itrial=0; itrial<n_trials; itrial++) {
 
 	    if (0)

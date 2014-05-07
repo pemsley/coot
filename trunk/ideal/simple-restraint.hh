@@ -182,9 +182,10 @@ namespace coot {
    
    // restraint types:
    // 
-   enum {BOND_RESTRAINT, ANGLE_RESTRAINT, TORSION_RESTRAINT, PLANE_RESTRAINT,
-         NON_BONDED_CONTACT_RESTRAINT, CHIRAL_VOLUME_RESTRAINT, RAMACHANDRAN_RESTRAINT,
-         START_POS_RESTRAINT, PARALLEL_PLANES_RESTRAINT};
+   enum {BOND_RESTRAINT=1, ANGLE_RESTRAINT=2, TORSION_RESTRAINT=4, PLANE_RESTRAINT=8,
+         NON_BONDED_CONTACT_RESTRAINT=16, CHIRAL_VOLUME_RESTRAINT=32, RAMACHANDRAN_RESTRAINT=64,
+         START_POS_RESTRAINT=128, PARALLEL_PLANES_RESTRAINT=256,
+	 GEMAN_MCCLURE_DISTANCE_RESTRAINT=512};
 
    enum pseudo_restraint_bond_type {NO_PSEUDO_BONDS, HELIX_PSEUDO_BONDS,
 				    STRAND_PSEUDO_BONDS};
@@ -219,7 +220,8 @@ namespace coot {
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 127,
 				BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 187,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 191,
-				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES = 255
+				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES = 255,
+				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+512
 				
    };
 
@@ -227,7 +229,11 @@ namespace coot {
 					 OMEGA_PHI_PSI_TORSION = 3 };
 					 
    enum { BONDS_MASK = 1,  ANGLES_MASK = 2, TORSIONS_MASK = 4, PLANES_MASK = 8, 
-          NON_BONDED_MASK = 16, CHIRAL_VOLUME_MASK = 32, RAMA_PLOT_MASK = 64, PARALLEL_PLANES_MASK = 128};
+          NON_BONDED_MASK = 16,
+	  CHIRAL_VOLUME_MASK = 32,
+	  RAMA_PLOT_MASK = 64,
+	  PARALLEL_PLANES_MASK = 256,
+	  GEMAN_MCCLURE_DISTANCE_MASK = 512 };
 
 
    class ramachandran_restraint_flanking_residues_helper_t {
@@ -602,7 +608,10 @@ namespace coot {
 
    double distortion_score(const gsl_vector *v, void *params); 
    double distortion_score_bond(const simple_restraint &bond_restraint,
-				    const gsl_vector *v); 
+				const gsl_vector *v); 
+   double distortion_score_geman_mcclure_distance(const simple_restraint &bond_restraint,
+						  const gsl_vector *v,
+						  const double &alpha); 
    double distortion_score_angle(const simple_restraint &angle_restraint,
 				 const gsl_vector *v);
    // torsion score can throw a std::runtime_error if there is a problem calculating the torsion.
@@ -646,6 +655,8 @@ namespace coot {
    void my_df (const gsl_vector *v, void *params, gsl_vector *df); 
    // just the bond terms: 
    void my_df_bonds(const gsl_vector *v, void *params, gsl_vector *df); 
+   // just the bond terms: 
+   void my_df_geman_mcclure_distances(const gsl_vector *v, void *params, gsl_vector *df); 
    // just the angle terms: 
    void my_df_angles(const gsl_vector *v, void *params, gsl_vector *df); 
    //  just the torsion terms:
@@ -1189,6 +1200,15 @@ namespace coot {
 	 }
       }
       
+      void add_geman_mcclure_distance(short int rest_type, int atom_1, int atom_2, 
+				      const std::vector<bool> &fixed_atom_flags,
+				      float tar, float sig) { 
+
+	 if (sig > 0.0) { 
+	    simple_restraint r(rest_type, atom_1, atom_2, fixed_atom_flags, tar, sig, -1);
+	    restraints_vec.push_back(r);
+	 }
+      }
 
 
       // atom indexing stuff
@@ -1859,6 +1879,9 @@ namespace coot {
       // But what about the mod_OXT code?  How does that fit in here?
       //
       void apply_link_chem_mods(const protein_geometry &geom);
+      
+      double geman_mcclure_alpha; // = 0.02 or something set in init_shared_pre(). // needed for derivative calculation
+                                                                                   // (which is not done in this class)
       
       // more debugging interface:
       //
