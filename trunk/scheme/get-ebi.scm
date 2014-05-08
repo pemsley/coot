@@ -134,15 +134,10 @@
 ;(ebi-get-pdb "1crn")
 
 
-;;
-;; Get data and pdb for accession code id from the Electron Density
-;; Server.
+;; Return a list of molecules (i.e. the model molecule and the 2 maps).
 ;; 
-;; @var{id} is the accession code.
+;; or, if it didn't work then return #f
 ;; 
-;; 20050725 EDS code
-;; 
-
 (define (get-eds-pdb-and-mtz id)
 
   ;; Gerard DVD Kleywegt says we can find the coords/mtz thusly:
@@ -181,7 +176,9 @@
 		      (close-molecule imol-map)
 		      (close-molecule imol-map-d)
 		      #f)
-		    (list imol imol-map imol-map-d)))))))
+
+		    (begin
+		      (list imol imol-map imol-map-d))))))))
 
 
   (define eds-site "http://eds.bmc.uu.se/eds")
@@ -199,7 +196,10 @@
   ;; main line
   ;; 
   (let ((cached-status (get-cached-eds-files id)))
-    (if (not cached-status)
+    (if (list? cached-status)
+
+	cached-status ;; a list of molecules
+
 	(let ((r (coot-mkdir coot-tmp-dir)))
 
 	  (if (eq? #f r)
@@ -236,12 +236,14 @@
 		  (format #t "INFO:: read mtz   status: ~s~%" s2)
 		  
 		  (let ((r-imol (handle-read-draw-molecule dir-target-pdb-file))
-			(sc-map (make-and-draw-map dir-target-mtz-file "2FOFCWT" "PH2FOFCWT" "" 0 0)))
-		    (make-and-draw-map dir-target-mtz-file  "FOFCWT"  "PHFOFCWT" "" 0 1)
-		    (set-scrollable-map sc-map)
+			(map-1 (make-and-draw-map dir-target-mtz-file "2FOFCWT" "PH2FOFCWT" "" 0 0))
+			(map-2 (make-and-draw-map dir-target-mtz-file  "FOFCWT"  "PHFOFCWT" "" 0 1)))
+		    (set-scrollable-map map-1)
 		    (if (valid-model-molecule? r-imol)
-			r-imol
+			(list r-imol map-1 map-2)
 			#f)))))))))
+
+
 
 
 (define (get-pdb-redo text) 
