@@ -321,11 +321,13 @@
       (gtk-box-pack-start vbox scrolled-win #t #t 5)
       (gtk-box-pack-start vbox hbox-buttons #f #f 5)
       ;; if in MRC show the send-mail button, else show the text.
-      (let ((domainname (string->list-of-strings (shell-command-to-string "domainname"))))
-	(if (or (string=? "mrc-lmb" domainname)
-		(string? (getenv "COOT_DEV_TEST")))
-	    (gtk-box-pack-start hbox-buttons send-button #t #f 5)
-	    (gtk-box-pack-start hbox-buttons send-label #t #f 5)))
+      (let ((domainname-list (string->list-of-strings (shell-command-to-string "domainname"))))
+	(if (> (length domainname-list) 0)
+	    (let ((domainname (car domainname-list)))
+	      (if (or (string=? "mrc-lmb" domainname)
+		      (string? (getenv "COOT_DEV_TEST")))
+		  (gtk-box-pack-start hbox-buttons send-button #t #f 5)
+		  (gtk-box-pack-start hbox-buttons send-label #t #f 5)))))
       (gtk-box-pack-start hbox-buttons cancel-button #t #f 5)
       (gtk-text-insert text #f "black" "white" text-string -1)
 
