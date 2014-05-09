@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 4921 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
+scripts      rev 5042 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
 tests        rev 4921 update
 build-it-win rev 4739 (check 0.8 pre builder, add publishing?!)
 
@@ -15,8 +15,6 @@ FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
 
 
 -- before 0.8
-
-Coot use qtrview!
 
 Windows:
  o distribute src code!!!
@@ -194,11 +192,14 @@ scripting exercise
 
    o display python/guile info in about dialog
 
+* Done (may be done nice?!)
+
    o fix icons for CENTOS, Red hat etc. (replace with fixed_icons.tgz?)
 
    o pisa: - H-bonds always displayed 
 	   - ignores alt-conf for H-bonds (gives warning in get atom spec)
  	   - works only for v 1.13 and above (python)
+ 	   - use qtpisa?!
 
    o accept_regularizement does not effect the gui(s ?)
 
@@ -403,13 +404,12 @@ low importance
 
    o make variables e.g. ROTAMERSEARCHMODE... work to be set
 	not possible I think. Cannot overload function/variable in python
+	could use lower case function!? May be confusing...
 
    o streamline generic_entry functions, one generic one should be enough!
 
    o associate sequence: tick box for all chains
 
-   o toolbutton for local probe dots
- 
    o List of 3d annotations e.g. for delete
 
    o make rotamer and auto-zone fit protein function!?
@@ -488,9 +488,11 @@ low importance
 
 **** Windows ****
 
-   o Add Documents\ and Settings to favourites in filechooser
+   o Add Documents\ and Settings//My Documents to favourites in filechooser
 
    o fix dragNdrop for filenames with spaces!!
+
+* Done for main window - still needed for Lidia!
 
    o write proper path in state file if file is absolute (i.e. include drive letter)
 
@@ -931,5 +933,11 @@ Osaka 2010
 
 * Done
 
+   o Coot use qtrview!
 
+* Done (python)
 
+   o toolbutton for local probe dots
+
+* Done
+ 
