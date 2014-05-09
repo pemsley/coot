@@ -3,6 +3,10 @@
 
 ---- 
 
+   o Fix the button labels in Close molecule dialog
+
+   o Auto-open XXX.F_phi.F and XXX.F_phi.phi
+
    o go to atom Atom list for residue with insertion codes: e.g. H 60 in 3biu.
 
    o ALPHA2-3 link refinement is broken?

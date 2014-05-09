@@ -1180,17 +1180,13 @@ void post_other_modelling_tools_dialog() {
 
 } 
 
-
 void set_auto_read_column_labels(const char *fwt, const char *phwt, 
 				 int is_for_diff_map_flag) {
 
-   if (is_for_diff_map_flag) {
-      graphics_info_t::auto_read_MTZ_DELFWT_col = fwt;
-      graphics_info_t::auto_read_MTZ_PHDELWT_col = phwt;
-   } else {
-      graphics_info_t::auto_read_MTZ_FWT_col = fwt;
-      graphics_info_t::auto_read_MTZ_PHWT_col = phwt;
-   }
+   
+   coot::mtz_column_trials_info_t n(fwt, phwt, is_for_diff_map_flag);
+   graphics_info_t::user_defined_auto_mtz_pairs.push_back(n);
+
    std::string cmd = "set-auto-read-column-labels";
    std::vector<coot::command_arg_t> args;
    args.push_back(fwt);

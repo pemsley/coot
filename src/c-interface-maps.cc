@@ -395,8 +395,134 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
    return imol;
 }
 
+#include "cmtz-interface.hh"
 
 int auto_read_make_and_draw_maps(const char *mtz_file_name) {
+
+   int imol = -1;
+   
+   if (! coot::file_exists(mtz_file_name)) {
+      std::cout << "WARNING:: file " << mtz_file_name << " does not exist" << std::endl;
+   } else { 
+      if ( is_mtz_file_p(mtz_file_name) ) {
+	 imol = auto_read_make_and_draw_maps_from_mtz(mtz_file_name);
+      } else {
+	 imol = auto_read_make_and_draw_maps_from_cns(mtz_file_name);
+      }
+   }
+   return imol;
+} 
+
+int auto_read_make_and_draw_maps_from_cns(const char *mtz_file_name) {
+
+   int imol1 = -1;
+   int imol2 = -1;
+   if (coot::util::file_name_extension(mtz_file_name) != ".mtz") { 
+      
+      // Otherwise try extended CNS format
+      graphics_info_t g;
+      float msr = graphics_info_t::map_sampling_rate;
+      imol1 = g.create_molecule();
+      bool success;
+      success = g.molecules[imol1].map_fill_from_cns_hkl( mtz_file_name, "F2", 0, msr );
+      if (success) { 
+	 imol2 = g.create_molecule();
+	 success = g.molecules[imol2].map_fill_from_cns_hkl( mtz_file_name, "F1", 1, msr );
+	 if (success) { 
+	    g.scroll_wheel_map = imol1;
+	    g.activate_scroll_radio_button_in_display_manager(imol1);
+	 } else {
+	    g.erase_last_molecule();
+	 } 
+      } else {
+	 g.erase_last_molecule();
+      }
+   }
+   return imol2;
+}
+
+int auto_read_make_and_draw_maps_from_mtz(const char *mtz_file_name) {
+
+   int imol1 = -1;
+   int imol2 = -1;
+   graphics_info_t g;
+
+   std::vector<coot::mtz_column_trials_info_t> auto_mtz_pairs;
+
+   // built-ins
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FWT",     "PHWT",      false));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("DELFWT",  "PHDELWT",   true ));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("2FOFCWT", "PH2FOFCWT", false));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FOFCWT",  "PHFOFCWT",  true ));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FDM",     "PHIDM",     false));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FAN",     "PHAN",      false));
+
+   for (unsigned int i=0; i<g.user_defined_auto_mtz_pairs.size(); i++)
+      auto_mtz_pairs.push_back(g.user_defined_auto_mtz_pairs[i]);
+   
+   std::vector<int> imols;
+
+   for (unsigned int i=0; i<auto_mtz_pairs.size(); i++) {
+      const coot::mtz_column_trials_info_t &b = auto_mtz_pairs[i];
+      if (valid_labels(mtz_file_name, b.f_col.c_str(), b.phi_col.c_str(), "", 0)) {
+	 int imol = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name, 
+								   b.f_col.c_str(),
+								   b.phi_col.c_str(),
+								   "",
+								   0,  //    use_weights
+								   b.is_diff_map,   // is_diff_map,
+								   0,     //   short int have_refmac_params,
+								   "",    //   const char *fobs_col,
+								   "",    //   const char *sigfobs_col,
+								   "",    //   const char *r_free_col,
+								   0,     //   short int sensible_f_free_col,
+								   0,     //   short int is_anomalous_flag,
+								   0,     //   short int use_reso_limits,
+								   0,     //   float low_reso_limit,
+								   0);    //   float high_reso_limit
+	 if (is_valid_model_molecule(imol))
+	    imols.push_back(imol);
+      }
+   }
+
+   coot::mtz_column_types_info_t r = coot::get_mtz_columns(mtz_file_name);
+   for (unsigned int i=0; i<r.f_cols.size(); i++) {
+      std::string s = r.f_cols[i].column_label;
+      std::string::size_type idx = s.find(".F_phi.F");
+      if (idx != std::string::npos) {
+	 std::string prefix = s.substr(0, idx);
+	 std::string trial_phi_col = prefix + ".F_phi.phi";
+	 for (unsigned int j=0; j<r.phi_cols.size(); j++) {
+	    if (r.phi_cols[j].column_label == trial_phi_col) {
+	       std::string f_col   = r.f_cols[i].column_label;
+	       std::string phi_col = r.phi_cols[j].column_label;
+	       int imol = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name, 
+									 f_col.c_str(),
+									 phi_col.c_str(),
+									 "",
+									 0,     //   use_weights
+									 0,     //   is_diff_map,
+									 0,     //   short int have_refmac_params,
+									 "",    //   const char *fobs_col,
+									 "",    //   const char *sigfobs_col,
+									 "",    //   const char *r_free_col,
+									 0,     //   short int sensible_f_free_col,
+									 0,     //   short int is_anomalous_flag,
+									 0,     //   short int use_reso_limits,
+									 0,     //   float low_reso_limit,
+									 0);    //   float high_reso_limit
+	    }
+	 }
+      }
+   }
+
+   
+   return imol2;
+}
+
+
+int auto_read_make_and_draw_maps_old(const char *mtz_file_name) {
+
 
    int imol1 = -1;
    int imol2 = -1;
@@ -425,12 +551,16 @@ int auto_read_make_and_draw_maps(const char *mtz_file_name) {
 
       // make a list of column names to try: F, phase, and difference map flag
       std::vector<std::string> cols_f(2), cols_p(2), cols_w(2), cols_d(2);
+
+      /* no longer compile this bit
       cols_f[0] = graphics_info_t::auto_read_MTZ_FWT_col;
       cols_p[0] = graphics_info_t::auto_read_MTZ_PHWT_col;
       cols_d[0] = "+";
       cols_f[1] = graphics_info_t::auto_read_MTZ_DELFWT_col;
       cols_p[1] = graphics_info_t::auto_read_MTZ_PHDELWT_col;
       cols_d[1] = "-";
+      */
+      
       for ( int ic = 0; ic < nc; ic++ ) {
 	 std::string s( coldefs[ic] );
 	 int c1 = s.find( "," );

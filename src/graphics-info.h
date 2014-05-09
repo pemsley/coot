@@ -92,6 +92,8 @@
 
 #include "coot-database.hh"
 
+#include "mtz-columns-auto-read.hh"
+
 #ifdef USE_LIBCURL
 #ifndef HAVE_CURL_H
 #define HAVE_CURL_H
@@ -3589,10 +3591,14 @@ public:
    void undo_last_move(); 
 
    // ---- auto read MTZ file ---
-   static std::string auto_read_MTZ_FWT_col;
-   static std::string auto_read_MTZ_PHWT_col;
-   static std::string auto_read_MTZ_DELFWT_col;
-   static std::string auto_read_MTZ_PHDELWT_col;
+
+   // kill these off when the new system works.
+/*    static std::string auto_read_MTZ_FWT_col; */
+/*    static std::string auto_read_MTZ_PHWT_col; */
+/*    static std::string auto_read_MTZ_DELFWT_col; */
+/*    static std::string auto_read_MTZ_PHDELWT_col; */
+
+   static std::vector<coot::mtz_column_trials_info_t> user_defined_auto_mtz_pairs;
 
    // ---- cis trans conversion ---
    void cis_trans_conversion(CAtom *at, int imol, short int is_N_flag);

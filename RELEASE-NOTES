@@ -1,4 +1,7 @@
 
+
+  o BUG-FIX: Iodines are written to the correct column (Steven Sheriff)
+
 ------
 
   Release 0.7.1

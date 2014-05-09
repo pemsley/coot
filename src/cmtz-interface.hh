@@ -7,6 +7,9 @@
 
 namespace coot {
 
+   // --------------------- This is messy ----------------------------
+   // what was I thinking?
+
    class mtz_type_label {
    public:
       char column_type; 
@@ -71,7 +74,8 @@ namespace coot {
    std::vector<std::string> get_f_cols(const std::string &mtz_file_name); 
    std::vector<std::string> get_phi_cols(const std::string &mtz_file_name); 
    std::vector<std::string> get_weight_cols(const std::string &mtz_file_name); 
-   std::vector<std::string> get_d_cols(const std::string &mtz_file_name); 
+   std::vector<std::string> get_d_cols(const std::string &mtz_file_name);
+
 
 }
 

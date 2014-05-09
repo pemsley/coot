@@ -1532,6 +1532,9 @@ and DELFWT/PHDELFWT) can be changed using ...[something]
 */
 int auto_read_make_and_draw_maps(const char *filename); 
 /*! \brief set the flag to do a difference map (too) on auto-read MTZ */
+int auto_read_make_and_draw_maps_from_mtz(const char *filename); 
+int auto_read_make_and_draw_maps_from_cns(const char *filename); 
+
 void set_auto_read_do_difference_map_too(int i);
 /*! \brief return the flag to do a difference map (too) on auto-read MTZ 
 
