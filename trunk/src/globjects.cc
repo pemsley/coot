@@ -1208,10 +1208,13 @@ std::string graphics_info_t::save_state_file_name = "0-coot.state.py";
 #endif
 
 // auto-read mtz columns
-std::string graphics_info_t::auto_read_MTZ_FWT_col = "FWT";
-std::string graphics_info_t::auto_read_MTZ_PHWT_col = "PHWT";
-std::string graphics_info_t::auto_read_MTZ_DELFWT_col = "DELFWT";
-std::string graphics_info_t::auto_read_MTZ_PHDELWT_col = "PHDELWT";
+// std::string graphics_info_t::auto_read_MTZ_FWT_col = "FWT";
+// std::string graphics_info_t::auto_read_MTZ_PHWT_col = "PHWT";
+// std::string graphics_info_t::auto_read_MTZ_DELFWT_col = "DELFWT";
+// std::string graphics_info_t::auto_read_MTZ_PHDELWT_col = "PHDELWT";
+
+std::vector<coot::mtz_column_trials_info_t> graphics_info_t::user_defined_auto_mtz_pairs;
+
 
 // fffearing
 float graphics_info_t::fffear_angular_resolution = 15.0; // degrees
