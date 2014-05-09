@@ -14,6 +14,7 @@ public:
    T range; 
    T max_density;
    T min_density;
+   std::vector<int> bins;
    
    // Fix this in a spare moment: 
    //
