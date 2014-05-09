@@ -833,7 +833,7 @@ coot::operator<<(std::ostream &s, geometry_distortion_info_t gdi) {
 
 
 std::ostream &
-coot::operator<<(std::ostream &s, simple_restraint r) {
+coot::operator<<(std::ostream &s, const simple_restraint &r) {
 
    s << "{restraint: ";
    if (r.restraint_type == coot::BOND_RESTRAINT)
