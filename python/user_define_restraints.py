@@ -480,6 +480,24 @@ if (have_coot_python):
                                         add_refmac_extra_restraints(imol, file_name)))
 
     
+    def set_prosmart_sigma_limit_func(low, high):
+      with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                 aa_ins_code, aa_atom_name, aa_alt_conf]:
+        set_extra_restraints_prosmart_sigma_limits(aa_imol, low, high)
+    
+    add_simple_coot_menu_menuitem(
+      menu,
+      "ProSMART restraints interesting limit to 0.5...",
+      lambda func: set_prosmart_sigma_limit_func(-0.5, 0.5)
+      )
+
+    add_simple_coot_menu_menuitem(
+      menu,
+      "ProSMART restraints interesting limit to 2.5...",
+      lambda func: set_prosmart_sigma_limit_func(-2.5, 2.5)
+      )
+
+
     def set_prosmart_display_func(state):
       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                  aa_ins_code, aa_atom_name, aa_alt_conf]:

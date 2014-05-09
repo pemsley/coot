@@ -356,8 +356,8 @@ if (have_coot_python):
 
 
      def set_diff_map_func(imol):
-	print "setting map number %s to be a difference map" %imol
-        set_map_is_difference_map(imol)
+       print "setting map number %s to be a difference map" %imol
+       set_map_is_difference_map(imol)
         
      add_simple_coot_menu_menuitem(
        submenu_maps,
@@ -383,6 +383,17 @@ if (have_coot_python):
      #     Molecule functions/Modelling
      #
      #---------------------------------------------------------------------
+
+     def add_hydrogens_refmac_func():
+       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
+         add_hydrogens_using_refmac(aa_imol)
+     
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Add Hydrogens using Refmac",
+       lambda func: add_hydrogens_refmac_func())
+
 
      add_simple_coot_menu_menuitem(
        submenu_models,

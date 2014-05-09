@@ -177,6 +177,7 @@ def manual_ncs_ghosts(imol, resno_start, resno_end, chain_id_list):
                     print "Failed to get LSQ matching matrix", chain_id
                 else:
                     master = chain_id_list[0]
+                    print "chain_id %s master %s rtop: %s" %(chain_id, master, rtop)
                     if master:  # should be string or False, so ok I belive
                         args = [imol, chain_id, master] + rtop[0] + rtop[1]
                         add_ncs_matrix(*args)

@@ -112,7 +112,8 @@ def get_url_str(id, url_string, data_type, imol_coords_arg_list):
        imol_coords = imol_coords_arg_list
        if (operator.isNumberType(imol_coords) and imol_coords>=-1):
          check_dir_and_get_url(coot_tmp_dir, sfs_file_name, url_string)
-         read_cif_data(sfs_file_name, imol_coords_arg_list) 
+         read_cif_data(sfs_file_name, imol_coords_arg_list)
+         # do we need to return something here too?!
 
 # Get the pdb and sfs. @var{id} is the accession code
 #
@@ -151,8 +152,8 @@ def get_ebi_pdb(id):
     return imol_coords
 
 
-# Get data and pdb for accession code id from the Electron Density
-# Server.
+# Return a list of molecules (i.e. the model molecule and the 2 maps).
+# or, if it didn't work then return False
 #
 # @var{id} is the accession code.
 #
@@ -220,8 +221,9 @@ def get_eds_pdb_and_mtz(id):
     # main line
     #
     cached_status = get_cached_eds_files(id)
-    if not cached_status:
-        
+    if isinstance(cached_status, list):
+        return cached_status
+    else:
         r = coot_mkdir(coot_tmp_dir)
 
         if (r):
@@ -256,12 +258,12 @@ def get_eds_pdb_and_mtz(id):
             # maybe should then not load the map!?
 
             r_imol = handle_read_draw_molecule(dir_target_pdb_file)
-            sc_map = make_and_draw_map(dir_target_mtz_file, "2FOFCWT", "PH2FOFCWT","",0,0)
-            make_and_draw_map(dir_target_mtz_file, "FOFCWT", "PHFOFCWT",
+            map_1 = make_and_draw_map(dir_target_mtz_file, "2FOFCWT", "PH2FOFCWT","",0,0)
+            map_2 = make_and_draw_map(dir_target_mtz_file, "FOFCWT", "PHFOFCWT",
                               "", 0, 1)
-            set_scrollable_map(sc_map)
+            set_scrollable_map(map_1)
             if (valid_model_molecule_qm(r_imol)):
-                return r_imol
+                return [r_imol, map_1, map_2]
             else:
                 return False
 
