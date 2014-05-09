@@ -482,9 +482,9 @@ namespace coot {
 					   const std::string &atom_2_type, 
 					   const protein_geometry &geom);       
       
-      friend std::ostream &operator<<(std::ostream &s, simple_restraint r);
+      friend std::ostream &operator<<(std::ostream &s, const simple_restraint &r);
    };
-   std::ostream &operator<<(std::ostream &s, simple_restraint r);
+   std::ostream &operator<<(std::ostream &s, const simple_restraint &r);
 
    // We need something to quickly convert between atom name,
    // sequence number, chain id to index into the atom selection
