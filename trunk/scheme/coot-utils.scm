@@ -3355,6 +3355,9 @@
   (define (drugbox->pubchem s)
     (drugbox->drugitem "PubChem  *=" s))
 	
+  (define (drugbox->chemspider s)
+    (drugbox->drugitem "ChemSpiderID  *=" s))
+	
 
   ;; With some clever coding, these handle-***-value functions could
   ;; be consolidated.  There is likely something clever in Python to
@@ -3389,7 +3392,22 @@
 			;; try pubchem as a fallback
 			(let ((pc (drugbox->pubchem rev-string)))
 			  (if (not (string? pc))
-			      #f
+			      
+			      ;; OK, try chemspider extraction
+			      (let ((cs (drugbox->chemspider rev-string)))
+				(if (not (string? cs))
+				    #f
+
+				    ;; chemspider extraction worked
+				    (let ((cs-mol-url
+					   (string-append "http://www.chemspider.com/"
+							  "FilesHandler.ashx?type=str&striph=yes&id="
+							  cs))
+					  (file-name (string-append "cs-" cs ".mol")))
+				      (coot-get-url cs-mol-url file-name)
+				      file-name)))
+
+			      ;; pubchem extraction worked
 			      (let ((pc-mol-url
 				     (string-append "http://pubchem.ncbi.nlm.nih.gov"
 						    "/summary/summary.cgi?cid=" 
