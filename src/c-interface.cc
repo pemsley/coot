@@ -4956,9 +4956,7 @@ void set_mol_active(int imol, int state) {
 int mol_is_displayed(int imol) { 
 
    graphics_info_t g; 
-
-   return g.molecules[imol].drawit; 
-
+   return g.molecules[imol].draw_it; 
 } 
 
 int mol_is_active(int imol) { 

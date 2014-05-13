@@ -371,14 +371,14 @@ void set_show_parallel_plane_restraints(int imol, int state) {
 int extra_restraints_are_shown(int imol) {
    int r = 0;
    if (is_valid_model_molecule(imol))
-      r = graphics_info_t::molecules[imol].drawit_for_extra_restraints;
+      r = graphics_info_t::molecules[imol].draw_it_for_extra_restraints;
    return r;
 }
 
 int parallel_plane_restraints_are_shown(int imol) {
    int r = 0;
    if (is_valid_model_molecule(imol))
-      r = graphics_info_t::molecules[imol].drawit_for_parallel_plane_restraints;
+      r = graphics_info_t::molecules[imol].draw_it_for_parallel_plane_restraints;
    return r;
 }
 

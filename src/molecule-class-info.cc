@@ -216,7 +216,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 	 make_bonds_type_checked();
       }
 
-      drawit = 1;
+      draw_it = 1;
       if (g.show_symmetry == 1) {
 	 if (show_symmetry) {  // internal
 	    update_symmetry();
@@ -510,7 +510,7 @@ molecule_class_info_t::install_model(int imol_no_in,
 void
 molecule_class_info_t::label_atoms(int brief_atom_labels_flag) {
 
-   if (drawit) {
+   if (draw_it) {
       
       if (has_model()) { 
 
@@ -588,7 +588,7 @@ molecule_class_info_t::anisotropic_atoms() {
 
    if (has_model()) { 
       graphics_info_t g;
-      if (drawit) {
+      if (draw_it) {
 	 if (g.show_aniso_atoms_flag == 1 ) {
 	    glPushMatrix();
 
@@ -790,7 +790,7 @@ molecule_class_info_t::update_symmetry() {
 
       // don't do stuff until we have read in a molecule.
       //
-      if (drawit == 1) {
+      if (draw_it == 1) {
       
 	 molecule_extents_t extents(atom_sel, g.symmetry_search_radius);
 	 graphics_info_t g;
@@ -860,8 +860,8 @@ molecule_class_info_t::update_symmetry() {
 void
 molecule_class_info_t::draw_extra_restraints_representation() {
 
-   if (drawit) {
-      if (drawit_for_extra_restraints) {
+   if (draw_it) {
+      if (draw_it_for_extra_restraints) {
 	 if (extra_restraints_representation.bonds.size() > 0) { 
 	    glLineWidth(1.0);
 	    glColor3f(0.6, 0.6, 0.8);
@@ -902,8 +902,8 @@ molecule_class_info_t::draw_extra_restraints_representation() {
 void
 molecule_class_info_t::draw_parallel_plane_restraints_representation() {
 
-   if (drawit) {
-      if (drawit_for_extra_restraints) {
+   if (draw_it) {
+      if (draw_it_for_extra_restraints) {
 	 if (extra_restraints_representation.parallel_planes.size() > 0) { 
 	    glLineWidth(2.0);
 	    glColor3f(0.55, 0.55, 0.3);
@@ -977,7 +977,7 @@ molecule_class_info_t::draw_coord_unit_cell(const coot::colour_holder &cell_colo
 
       if (show_unit_cell_flag == 1) {
 
-	 if (drawit) { 
+	 if (draw_it) { 
 	 
 	    if (have_unit_cell == 1) {
 
@@ -1163,7 +1163,7 @@ molecule_class_info_t::initialize_coordinate_things_on_read_molecule_internal(st
    name_ = molecule_name;
 
    // 
-   drawit = 1; // by default, display it, we change change this later, if we want.
+   draw_it = 1; // by default, display it, we change change this later, if we want.
 
    //
    if (! is_undo_or_redo) { 
@@ -1177,7 +1177,7 @@ molecule_class_info_t::initialize_coordinate_things_on_read_molecule_internal(st
 
    if (! is_undo_or_redo) { 
       // std::cout << "DEBUG:: not an undo/redo!\n";
-      new_coords_mol_in_display_control_widget(); // uses drawit
+      new_coords_mol_in_display_control_widget(); // uses draw_it
    }
 }
 
@@ -1718,7 +1718,7 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots) {
    //
 
    if (has_model()) { 
-      if (drawit == 1) {
+      if (draw_it == 1) {
 	 if (!cootsurface) { 
 	    if (do_zero_occ_spots)
 	       zero_occupancy_spots();
@@ -2109,7 +2109,7 @@ molecule_class_info_t::delete_dipole(int dipole_number) {
 void
 molecule_class_info_t::draw_dipoles() const {
 
-   if (! drawit)
+   if (! draw_it)
       return;
    
    if (dipoles.size() > 0) { 
@@ -4555,7 +4555,7 @@ molecule_class_info_t::close_yourself() {
 
    bonds_box.clear_up();
    // symmetry_bonds_box?  (It is a vector of pairs)
-   drawit = 0;
+   draw_it = 0;
    draw_it_for_map = 0;
    draw_it_for_map_standard_lines = 0;
 

@@ -3968,47 +3968,48 @@ molecule_class_info_t::fill_raster_model_info() {
 
    coot::ray_trace_molecule_info rtmi;
    if (has_model()) {
-     int restore_bonds = 0;
-     graphics_info_t g;
-     if (g.raster3d_water_sphere_flag &&
-         bonds_box_type == coot::NORMAL_BONDS) {
-       // remove waters
-       bonds_no_waters_representation();
-       restore_bonds = 1;
-     }
-      for (int i=0; i<bonds_box.num_colours; i++) {
-	 set_bond_colour_by_mol_no(i); //sets bond_colour_internal
-	 for (int j=0; j<bonds_box.bonds_[i].num_lines; j++) {
-	    rtmi.bond_lines.push_back(std::pair<coot::Cartesian, coot::Cartesian>(bonds_box.bonds_[i].pair_list[j].positions.getStart(), bonds_box.bonds_[i].pair_list[j].positions.getFinish()));
+      if (draw_it) { 
+	 int restore_bonds = 0;
+	 graphics_info_t g;
+	 if (g.raster3d_water_sphere_flag && bonds_box_type == coot::NORMAL_BONDS) {
+	    // remove waters
+	    bonds_no_waters_representation();
+	    restore_bonds = 1;
+	 }
+	 for (int i=0; i<bonds_box.num_colours; i++) {
+	    set_bond_colour_by_mol_no(i); //sets bond_colour_internal
+	    for (int j=0; j<bonds_box.bonds_[i].num_lines; j++) {
+	       rtmi.bond_lines.push_back(std::pair<coot::Cartesian, coot::Cartesian>(bonds_box.bonds_[i].pair_list[j].positions.getStart(), bonds_box.bonds_[i].pair_list[j].positions.getFinish()));
+	       coot::colour_t c;
+	       c.col.resize(3);
+	       c.col[0] = bond_colour_internal[0];
+	       c.col[1] = bond_colour_internal[1];
+	       c.col[2] = bond_colour_internal[2];
+	       rtmi.bond_colour.push_back(c);
+	    }
+	 }
+	 // restore bond_box_type
+	 if (restore_bonds) {
+	    bonds_box_type = coot::NORMAL_BONDS;
+	    makebonds();
+	 }
+
+	 std::cout << " There are " << bonds_box.n_atom_centres_
+		   << " atom centres in this bonds_box\n";
+      
+	 for (int i=0; i<bonds_box.n_atom_centres_; i++) {
 	    coot::colour_t c;
 	    c.col.resize(3);
+	    set_bond_colour_by_mol_no(bonds_box.atom_centres_colour_[i]); //sets bond_colour_internal
 	    c.col[0] = bond_colour_internal[0];
 	    c.col[1] = bond_colour_internal[1];
 	    c.col[2] = bond_colour_internal[2];
-	    rtmi.bond_colour.push_back(c);
+	    // here is the place to add tiny rastered hydrogen balls.
+	    rtmi.atom.push_back(std::pair<coot::Cartesian, coot::colour_t> (bonds_box.atom_centres_[i].second, c));
 	 }
+	 rtmi.molecule_name = name_;
+	 rtmi.molecule_number = imol_no;
       }
-      // restore bond_box_type
-      if (restore_bonds) {
-        bonds_box_type = coot::NORMAL_BONDS;
-        makebonds();
-      }
-
-      std::cout << " There are " << bonds_box.n_atom_centres_
-		<< " atom centres in this bonds_box\n";
-      
-      for (int i=0; i<bonds_box.n_atom_centres_; i++) {
-	 coot::colour_t c;
-	 c.col.resize(3);
-	 set_bond_colour_by_mol_no(bonds_box.atom_centres_colour_[i]); //sets bond_colour_internal
-	 c.col[0] = bond_colour_internal[0];
-	 c.col[1] = bond_colour_internal[1];
-	 c.col[2] = bond_colour_internal[2];
-	 // here is the place to add tiny rastered hydrogen balls.
-	 rtmi.atom.push_back(std::pair<coot::Cartesian, coot::colour_t> (bonds_box.atom_centres_[i].second, c));
-      }
-      rtmi.molecule_name = name_;
-      rtmi.molecule_number = imol_no;
    }
    std::cout << "DEBUG:: Done fill_raster_model_info for "
 	     << imol_no << std::endl;
@@ -6035,7 +6036,7 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	       g.setRotationCentre(::centre_of_molecule(atom_sel)); 
 	 // std::cout << " ##### done setting rotation centre in read_shelx_ins_file" << std::endl;
 
-	 drawit = 1;
+	 draw_it = 1;
 	 if (graphics_info_t::show_symmetry == 1) {
 	    update_symmetry();
 	 }
@@ -6070,7 +6071,7 @@ bool
 molecule_class_info_t::has_display_list_objects() {
 
    bool r = 0;
-   if (drawit) { 
+   if (draw_it) { 
       if (display_list_tags.size() > 0) {
 	 r = 1;
       }
@@ -6086,7 +6087,7 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
 //    std::cout << "draw_display_list_objects() add_reps.size() " << add_reps.size() << std::endl;
    
    int n_objects = 0;
-   if (drawit) { 
+   if (draw_it) { 
       if (display_list_tags.size() > 0) { 
 	 glEnable(GL_LIGHTING);
 	 std::vector<coot::display_list_object_info>::const_iterator it;
@@ -7822,7 +7823,7 @@ molecule_class_info_t::fill_partial_residue(coot::residue_spec_t &residue_spec,
 void
 molecule_class_info_t::draw_dots() {
 
-   if (drawit) { 
+   if (draw_it) { 
       for (int iset=0; iset<dots.size(); iset++) {
 	 if (dots[iset].is_open_p() == 1) {
 	    glPointSize(2);

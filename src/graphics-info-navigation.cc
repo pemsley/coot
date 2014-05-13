@@ -118,7 +118,7 @@ int graphics_info_t::go_to_atom_residue() {
       for (int imol=0; imol<n_molecules(); imol++) {
 	 if (molecules[imol].atom_sel.n_selected_atoms > 0) {
 
-	    if (molecules[imol].drawit) {
+	    if (molecules[imol].draw_it) {
 
 	       go_to_atom_residue_ = molecules[imol].atom_sel.atom_selection[0]->GetSeqNum();
 	       go_to_atom_chain_   = std::string(molecules[imol].atom_sel.atom_selection[0]->GetChainID());
