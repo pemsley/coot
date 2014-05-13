@@ -1134,9 +1134,9 @@ public:        //                      public
 
       // give back the memory from the map, so that we don't get
       // clipper leak message?
-      drawit = 0;
-      drawit_for_extra_restraints = false;
-      drawit_for_parallel_plane_restraints = false;
+      draw_it = 0;
+      draw_it_for_extra_restraints = false;
+      draw_it_for_parallel_plane_restraints = false;
       draw_it_for_map = 0;  // don't display this thing on a redraw!
       draw_it_for_map_standard_lines = 0;
    }
@@ -1183,10 +1183,10 @@ public:        //                      public
       greer_skeleton_draw_on = 0;
 
       // Don't draw it initially.
-      drawit = 0;
+      draw_it = 0;
       draw_it_for_map = 0;
       draw_it_for_map_standard_lines = 1;
-      drawit_for_extra_restraints = true;
+      draw_it_for_extra_restraints = true;
       extra_restraints_representation_for_bonds_go_to_CA = false;
 
       // backup on by default, turned off for dummy atoms (baton building)
@@ -1361,17 +1361,20 @@ public:        //                      public
    
 
    atom_selection_container_t atom_sel;
-   int drawit; // used by Molecule Display control, toggled using
-	       // toggle fuctions. 
+
+   // Shall we draw anything for this molecule?
+   // 
+   int draw_it; // used by Molecule Display control, toggled using
+	                  // toggle fuctions. 
    bool draw_it_for_map;
-   bool draw_it_for_map_standard_lines; // was drawit_for_map
+   bool draw_it_for_map_standard_lines; // was draw_it_for_map
    int pickable_atom_selection;  // ditto (toggling).
    
    std::string show_spacegroup() const;
 
    void set_mol_is_displayed(int state) {
       if (atom_sel.n_selected_atoms > 0) {
-	 drawit = state;
+	 draw_it = state;
       }
    }
 
@@ -1406,12 +1409,12 @@ public:        //                      public
 
    // pass 0 or 1
    void set_display_extra_restraints(int state) {
-      drawit_for_extra_restraints = state; 
+      draw_it_for_extra_restraints = state; 
    }
    
    // pass 0 or 1
    void set_display_parallel_plane_restraints(int state) {
-      drawit_for_parallel_plane_restraints = state; 
+      draw_it_for_parallel_plane_restraints = state; 
    }
 
    void delete_extra_restraints_for_residue(const coot::residue_spec_t &rs);
@@ -2055,7 +2058,7 @@ public:        //                      public
    bool is_displayed_p() const {
       bool i;
       if (has_model()) {
-	 if (drawit) {
+	 if (draw_it) {
 	    i = 1;
 	 } else {
 	    i = 0;
@@ -3121,8 +3124,8 @@ public:        //                      public
 
    // ---- extra restraints (currently only bonds) -----------
    //
-   bool drawit_for_extra_restraints;
-   bool drawit_for_parallel_plane_restraints;
+   bool draw_it_for_extra_restraints;
+   bool draw_it_for_parallel_plane_restraints;
    coot::extra_restraints_t extra_restraints;
    bool extra_restraints_representation_for_bonds_go_to_CA;
    void set_extra_restraints_representation_for_bonds_go_to_CA(bool val) {

@@ -251,7 +251,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 	       commands.push_back(state_command(display_strings, il));
 	    }
 	    if (molecules[i].has_model()) {
-	       if (! molecules[i].drawit) {
+	       if (! molecules[i].draw_it) {
 		  display_strings.clear();
 		  display_strings.push_back("set-mol-displayed");
 		  display_strings.push_back(int_to_string(molecule_count));
