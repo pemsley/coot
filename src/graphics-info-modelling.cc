@@ -420,27 +420,30 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES; 
-	 coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
+	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
 	 // flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED; 20071124
 	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-	 flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
+	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
+	 coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
 
 	 short int do_residue_internal_torsions = 0;
 
 	 if (do_torsion_restraints) { 
 	    do_residue_internal_torsions = 1;
 	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS; // fail
-	    flags = coot::BONDS_ANGLES_AND_TORSIONS; // OK
-	    flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES;  // OK
+	    // flags = coot::BONDS_ANGLES_AND_TORSIONS; // OK
+	    // flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES;  // OK
 	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED; // fail
-	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS; // fail [ 20131109 - eh? ]
-	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
-	 } 
+	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS; // fail [ 20131109 - eh? ]
+	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
+	    flags = coot::TYPICAL_RESTRAINTS_WITH_TORSIONS;
+	 }
 
 	 if (do_rama_restraints) 
 	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
-	    flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
-
+	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
+	    flags = coot::ALL_RESTRAINTS;
+	 
 
 	 // coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 

@@ -324,7 +324,7 @@ coot::restraints_container_t::init_shared_pre(CMMDBManager *mol_in) {
    do_numerical_gradients_flag = 0;
    verbose_geometry_reporting = 0;
    have_oxt_flag = 0; // set in mark_OXT()
-   geman_mcclure_alpha = 0.02; // Is this a good value? Talk to Rob. FIXME.
+   geman_mcclure_alpha = 1; // Is this a good value? Talk to Rob. FIXME.
    mol = mol_in;
 } 
 
@@ -1287,13 +1287,13 @@ coot::distortion_score_geman_mcclure_distance(const coot::simple_restraint &rest
    
    double weight = 1.0/(restraint.sigma * restraint.sigma);
 
-   // Let z = (boi - bi)^2
-   // so S_i = 1/\sigma^2 * z
+   // Let z = (boi - bi)^2/sigma^2
+   // so S_i = z/(alpha+z)
    // 
    double bit = clipper::Coord_orth::length(a1,a2) - restraint.target_value;
-   double z = bit*bit;
+   double z = bit*bit * weight;
    
-   return weight * z/(alpha + z);
+   return z/(alpha + z);
 }
 
 double
@@ -2036,6 +2036,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    int n_chiral_volumes = 0;
    int n_rama_restraints = 0;
    int n_start_pos_restraints = 0;
+   int n_geman_mcclure_distance = 0;
 
    double bond_distortion = 0; 
    double gm_distortion = 0; 
@@ -2058,7 +2059,8 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       }
       
       if (restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK) { 
-	 if ( (*this)[i].restraint_type == coot:: GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+	 if ( (*this)[i].restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+	    n_geman_mcclure_distance++;
 	    gm_distortion += coot::distortion_score_geman_mcclure_distance((*this)[i], v, geman_mcclure_alpha);
 	 }
       }
@@ -2238,6 +2240,21 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "Start pos: ";
       s += coot::util::float_to_string_using_dec_pl(sspd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Start_pos", s, sspd));
+   } 
+   if (n_geman_mcclure_distance == 0) {
+      std::cout << "GemanMcCl:  N/A " << std::endl;
+   } else {
+      double spd = gm_distortion/double(n_geman_mcclure_distance);
+      double sspd = 0.0;
+      if (spd > 0.0)
+	 sspd = sqrt(spd);
+      std::cout << "GemanMcCl:  " << sspd << " " << n_geman_mcclure_distance << std::endl;
+      r += "GemanMcCl:  ";
+      r += coot::util::float_to_string_using_dec_pl(sspd, 3);
+      r += "\n";
+      std::string s = "GemanMcCl: ";
+      s += coot::util::float_to_string_using_dec_pl(sspd, 3);
+      lights_vec.push_back(coot::refinement_lights_info_t("GemanMcCl", s, sspd));
    } 
    return lights_vec;
 } 
@@ -2628,15 +2645,11 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
       
 	 if ( rest.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) { 
 
-	    target_val = rest.target_value;
-	    
-	    // what is the index of x_k?
-	    idx = 3*( rest.atom_index_1 );
-
+	    idx = 3*rest.atom_index_1;
 	    clipper::Coord_orth a1(gsl_vector_get(v,idx), 
 				   gsl_vector_get(v,idx+1), 
 				   gsl_vector_get(v,idx+2));
-	    idx = 3*((*restraints)[i].atom_index_2); 
+	    idx = 3*rest.atom_index_2;
 	    clipper::Coord_orth a2(gsl_vector_get(v,idx), 
 				   gsl_vector_get(v,idx+1), 
 				   gsl_vector_get(v,idx+2));
@@ -2644,76 +2657,50 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
 	    // what is b_i?
 	    // b_i = clipper::Coord_orth::length(a1,a2);
 	    b_i_sqrd = (a1-a2).lengthsq();
-
 	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
-
-	    weight = 1/( rest.sigma * rest.sigma );
 
 	    if (b_i_sqrd < rest.target_value * rest.target_value) {
 
+	       weight = 1.0/(rest.sigma * rest.sigma);
 	       double b_i = sqrt(b_i_sqrd);
+	       
 	       // double constant_part = 2.0*weight*(b_i - target_val)/b_i;
-	       double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
+	       // double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
 
-	       // geman-mcclure part of the derivative: a/(a+z) (where z = Delta(bond)^2)
-	       double gm = restraints->geman_mcclure_alpha/(restraints->geman_mcclure_alpha * b_i_sqrd);
-		  
-	       x_k_contrib = constant_part*(a1.x()-a2.x()) * gm;
-	       y_k_contrib = constant_part*(a1.y()-a2.y()) * gm;
-	       z_k_contrib = constant_part*(a1.z()-a2.z()) * gm;
+	       const double &alpha = restraints->geman_mcclure_alpha;
+	       double b_diff = b_i - rest.target_value;
+	       double z_i = b_diff * b_diff * weight;
+	       double d_Si_d_zi =  alpha / ((alpha + z_i) * (alpha + z_i));
+	       double d_zi_d_bi = 2.0 * weight * b_diff;
+	       double d_bi_d_xm_multiplier = 1.0/b_i;
 
-	       x_l_contrib = constant_part*(a2.x()-a1.x()) * gm;
-	       y_l_contrib = constant_part*(a2.y()-a1.y()) * gm;
-	       z_l_contrib = constant_part*(a2.z()-a1.z()) * gm;
+	       double constant_part = d_Si_d_zi * d_zi_d_bi * d_bi_d_xm_multiplier;
 
+	       // The final part is dependent on the coordinates:
+ 	       x_k_contrib = constant_part*(a1.x()-a2.x());
+	       y_k_contrib = constant_part*(a1.y()-a2.y());
+ 	       z_k_contrib = constant_part*(a1.z()-a2.z());
+ 	       x_l_contrib = constant_part*(a2.x()-a1.x());
+ 	       y_l_contrib = constant_part*(a2.y()-a1.y());
+ 	       z_l_contrib = constant_part*(a2.z()-a1.z());
+	       
 	       if (! rest.fixed_atom_flags[0]) { 
 		  idx = 3*(rest.atom_index_1 - 0); 
-		  // std::cout << " nbc  first non-fixed  idx is " << idx << std::endl; 
 		  gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_k_contrib); 
 		  gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_k_contrib); 
 		  gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_k_contrib); 
-	       } else {
-		  // debug
-		  if (0) { 
-		     idx = 3*(rest.atom_index_1 - 0); 
-		     std::cout << "NBC  Fixed atom[0] "
-			       << restraints->get_atom((*restraints)[i].atom_index_1)->GetSeqNum() << " " 
-			       << restraints->get_atom((*restraints)[i].atom_index_1)->name << " " 
-			       << ", Not adding " << x_k_contrib << " "
-			       << y_k_contrib << " "
-			       << z_k_contrib << " to "
-			       << gsl_vector_get(df, idx) << " "
-			       << gsl_vector_get(df, idx+1) << " "
-			       << gsl_vector_get(df, idx+2) << std::endl;
-		  }
 	       }
 
 	       if (! rest.fixed_atom_flags[1]) { 
 		  idx = 3*(rest.atom_index_2 - 0); 
-		  // std::cout << " nbc  second non-fixed idx is " << idx << std::endl; 
 		  gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_l_contrib); 
 		  gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_l_contrib); 
 		  gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_l_contrib); 
-	       } else {
-		  // debug
-		  if (0) { 
-		     idx = 3*(rest.atom_index_2 - 0); 
-		     std::cout << "NBC  Fixed atom[1] "
-			       << restraints->get_atom(rest.atom_index_2)->GetSeqNum() << " " 
-			       << restraints->get_atom(rest.atom_index_2)->name << " " 
-			       << ", Not adding " << x_k_contrib << " "
-			       << y_k_contrib << " "
-			       << z_k_contrib << " to "
-			       << gsl_vector_get(df, idx) << " "
-			       << gsl_vector_get(df, idx+1) << " "
-			       << gsl_vector_get(df, idx+2) << std::endl;
-		  }
 	       } 
 	    }
 	 }
       }
    }
-   
 }
    
 
