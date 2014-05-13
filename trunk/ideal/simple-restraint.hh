@@ -213,15 +213,18 @@ namespace coot {
 				BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS = 59,
 				BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED = 31,
 				BONDS_ANGLES_TORSIONS_PLANES_AND_CHIRALS = 47,
-				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS = 63,
 				BONDS_ANGLES_PLANES_AND_CHIRALS = 43,
-				BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 123,
-				BONDS_ANGLES_TORSIONS_PLANES_CHIRALS_AND_RAMA = 111,
+				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS = 63,
+				
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 127,
+				
 				BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 187,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 191,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES = 255,
-				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+512
+				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+512,
+				TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+256+512,
+				TYPICAL_RESTRAINTS_WITH_TORSIONS = 1+2+4+8+16+32+128+256+512,
+				ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512
 				
    };
 
@@ -291,13 +294,36 @@ namespace coot {
 	 sigma = sig; 
 	 target_value = tar; 
 	 fixed_atom_flags = fixed_atom_flags_in;
-	 is_user_defined_restraint = 0;
+	 is_user_defined_restraint = false;
 	 
+	 // This finds a coding error
 	 if (rest_type != BOND_RESTRAINT) { 
 	    std::cout << "BOND ERROR" << std::endl; 
 	    exit(1); 
 	 }
       };
+
+      // Geman-McClure distance (no obs)
+      simple_restraint(short int rest_type, int atom_1, int atom_2, 
+		       const std::vector<bool> &fixed_atom_flags_in,
+		       float tar, float sig){
+	 
+	 restraint_type = rest_type; 
+	 atom_index_1 = atom_1; 
+	 atom_index_2 = atom_2;
+	 observed_value = -1;  // not given or used
+	 sigma = sig; 
+	 target_value = tar; 
+	 fixed_atom_flags = fixed_atom_flags_in;
+	 is_user_defined_restraint = true;
+
+	 // This finds a coding error
+	 if (rest_type != GEMAN_MCCLURE_DISTANCE_MASK) { 
+	    std::cout << "BOND ERROR" << std::endl; 
+	    exit(1); 
+	 }
+      };
+      
     
       // Angle
       simple_restraint(short int rest_type, int atom_1, int atom_2, 
@@ -1205,7 +1231,7 @@ namespace coot {
 				      float tar, float sig) { 
 
 	 if (sig > 0.0) { 
-	    simple_restraint r(rest_type, atom_1, atom_2, fixed_atom_flags, tar, sig, -1);
+	    simple_restraint r(rest_type, atom_1, atom_2, fixed_atom_flags, tar, sig);
 	    restraints_vec.push_back(r);
 	 }
       }

@@ -314,7 +314,7 @@ main(int argc, char **argv) {
 		  flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
 	    } else { 
 	       if (inputs.use_rama_targets)
-		  flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+		  flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
 	    }
 
 	    coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;

@@ -170,11 +170,14 @@ void
 coot::restraints_container_t::add_extra_restraints(const extra_restraints_t &extra_restraints,
 						   const protein_geometry &geom) {
 
-   
-   std::cout << "---------------- in add_extra_restraints() bond "
-	     << extra_restraints.bond_restraints.size() << " pp restraints " << std::endl;
-   std::cout << "---------------- in add_extra_restraints() par-plan "
-	     << extra_restraints.parallel_plane_restraints.size() << " pp restraints " << std::endl;
+
+   if (0) { 
+      std::cout << "--------------------- in add_extra_restraints() bond "
+		<< extra_restraints.bond_restraints.size() << " pp restraints " << std::endl;
+      std::cout << "--------------------- in add_extra_restraints() par-plan "
+		<< extra_restraints.parallel_plane_restraints.size() << " pp restraints "
+		<< std::endl;
+   }
    
    add_extra_bond_restraints(extra_restraints);
    add_extra_angle_restraints(extra_restraints);
@@ -186,6 +189,7 @@ coot::restraints_container_t::add_extra_restraints(const extra_restraints_t &ext
 void
 coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t &extra_restraints) {
 
+   int n_extra_bond_restraints = 0;
    // don't add the restraint if both the residues are fixed.
    // 
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
@@ -279,15 +283,16 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 	       if ((index_1 != -1) && (index_2 != -1)) { 
 		  std::vector<bool> fixed_flags = make_fixed_flags(index_1, index_2);
 
-		  // Currently makes things crash horribly.  No time to investigate ATM.		  
-// 		  add_geman_mcclure_distance(GEMAN_MCCLURE_DISTANCE_RESTRAINT, index_1, index_2, fixed_flags,
-// 					     extra_restraints.bond_restraints[i].bond_dist,
-// 					     extra_restraints.bond_restraints[i].esd);
+ 		  add_geman_mcclure_distance(GEMAN_MCCLURE_DISTANCE_RESTRAINT, index_1, index_2, fixed_flags,
+ 					     extra_restraints.bond_restraints[i].bond_dist,
+ 					     extra_restraints.bond_restraints[i].esd);
+		  n_extra_bond_restraints++;
 
- 		  add(BOND_RESTRAINT, index_1, index_2, fixed_flags,
-		      extra_restraints.bond_restraints[i].bond_dist,
-		      extra_restraints.bond_restraints[i].esd,
-		      1.2 /* dummy value */);
+		  if (0) 
+		     add(BOND_RESTRAINT, index_1, index_2, fixed_flags,
+			 extra_restraints.bond_restraints[i].bond_dist,
+			 extra_restraints.bond_restraints[i].esd,
+			 1.2 /* dummy value */);
                   
 		  //mark these atoms as bonded so that we don't add a non-bonded restraint between them
 		  bonded_atom_indices[index_1].push_back(index_2);
@@ -297,6 +302,9 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 	 } 
       } 
    }
+   if (0) 
+      std::cout << "INFO:: --------------------------  made " << n_extra_bond_restraints
+		<< " extra bond restraints" << std::endl;
 }
 
 void
