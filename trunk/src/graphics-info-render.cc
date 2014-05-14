@@ -74,15 +74,19 @@ graphics_info_t::raster3d(std::string filename) {
    for (int imol=0; imol<n_molecules(); imol++) {
       std::cout << " molecule " << imol << " in  raytrace" << std::endl;
       
-      if (molecules[imol].has_model()) {
-	 if (molecules[imol].is_displayed_p()) { 
+      if (molecules[imol].is_displayed_p()) { 
+	 if (molecules[imol].has_model()) {
 	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info());
 	 }
-      }
-      if (molecules[imol].has_xmap()) {  // NXMAP-FIXME
-	 rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(1));
-	 if (molecules[imol].is_difference_map_p()) { 
-	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(-1));
+	 coot::ray_trace_molecule_info rai = molecules[imol].fill_raster_additional_info();
+	 rt.rt_mol_info.push_back(rai);
+
+	 if (molecules[imol].has_xmap()) {  // NXMAP-FIXME
+	    // map and skeleton
+	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(1));
+	    if (molecules[imol].is_difference_map_p()) { 
+	       rt.rt_mol_info.push_back(molecules[imol].fill_raster_map_info(-1));
+	    }
 	 }
       }
    }
@@ -512,7 +516,7 @@ coot::ray_trace_molecule_info::render_molecule(std::ofstream &render_stream,
    }
 
    for (unsigned int ib=0; ib<bone_lines.size(); ib++) {
-      render_stream << "5" << "\n";
+      render_stream << "5\n";
       // coord1 radius coord2 dummy colour
       render_stream << "  " 
 		    << bone_lines[ib].first.x() << " "
@@ -526,6 +530,23 @@ coot::ray_trace_molecule_info::render_molecule(std::ofstream &render_stream,
 		    << bones_colour.col[0] << " "
 		    << bones_colour.col[1] << " "
 		    << bones_colour.col[2] << "\n";
+   }
+
+   std::cout << "velr size " << velr.size() << std::endl;
+   for (unsigned int i=0; i<velr.size(); i++) {
+      const extra_line_representation &l = velr[i];
+      render_stream << "5\n";
+      render_stream << l.p1.x() << " "
+		    << l.p1.y() << " "
+		    << l.p1.z() << " "
+		    << l.thickness << " "
+		    << l.p2.x() << " "
+		    << l.p2.y() << " "
+		    << l.p2.z() << " "
+		    << l.thickness << " "
+		    << l.c.col[0] << " "
+		    << l.c.col[1] << " "
+		    << l.c.col[2] << "\n";
    }
 
 }

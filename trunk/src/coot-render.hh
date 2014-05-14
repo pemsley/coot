@@ -26,6 +26,23 @@ namespace coot {
       float zoom;
    public:
 
+      class extra_line_representation {
+      public:
+	 Cartesian p1;
+	 Cartesian p2;
+	 colour_t c;
+	 double thickness;
+	 extra_line_representation(const Cartesian &p1_in,
+				   const Cartesian &p2_in,
+				   const colour_t &col_in,
+				   const double &t) {
+	    p1 = p1_in;
+	    p2 = p2_in;
+	    c = col_in;
+	    thickness = t;
+	 }
+      };
+
       colour_t bones_colour;
       std::vector<std::pair<Cartesian, Cartesian> > density_lines;
       colour_t density_colour;
@@ -34,6 +51,9 @@ namespace coot {
       std::vector<std::pair<Cartesian, Cartesian> > bone_lines;
       std::vector<colour_t> bond_colour;
       std::vector<std::pair<Cartesian, colour_t> > atom;
+
+      // extra restraints representation
+      std::vector<extra_line_representation> velr;
       std::string molecule_name;
       int molecule_number;
       void render_molecule(std::ofstream &render_stream,
@@ -53,6 +73,11 @@ namespace coot {
 			   float zoom,
 			   const Cartesian &view_centre,
 			   const Cartesian &front_clipping_plane_point);
+      void add_extra_representation_line(const Cartesian &c1, const Cartesian &c2,
+					 const colour_t &c, const double &thick) {
+	 extra_line_representation el(c1, c2, c, thick);
+	 velr.push_back(el);
+      }
    };
 
    class raytrace_info_t {

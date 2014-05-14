@@ -4079,6 +4079,39 @@ molecule_class_info_t::fill_raster_map_info(short int lev) const {
    return rtmi;
 }
 
+coot::ray_trace_molecule_info
+molecule_class_info_t::fill_raster_additional_info() const {
+
+   coot::ray_trace_molecule_info rti;
+
+   if (draw_it) {
+      if (draw_it_for_extra_restraints) {
+	 for (unsigned int ib=0; ib<extra_restraints_representation.bonds.size(); ib++) {
+	    const coot::extra_restraints_representation_t::extra_bond_restraints_respresentation_t &res =
+	       extra_restraints_representation.bonds[ib];
+
+	    // red if actual distance is greater than target
+	    // 
+	    double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
+	    
+	    if (res.esd > 0) {
+	       double b = (res.target_dist*res.target_dist - d_sqd)/res.esd * 0.005;
+	       if (b >  0.4999) b =  0.4999;
+	       if (b < -0.4999) b = -0.4999;
+	       double b_green = b;
+	       if (b > 0) b_green *= 0.2;
+	       coot::colour_t c(0.5-b, 0.5+b_green*0.9, 0.5+b);
+	       coot::Cartesian p1(res.first);
+	       coot::Cartesian p2(res.second);
+	       rti.add_extra_representation_line(p1, p2, c, 0.01);
+	    }
+	 }
+      }
+   }
+   return rti;
+} 
+
+
 
 int
 molecule_class_info_t::trim_by_map(const clipper::Xmap<float> &xmap_in,

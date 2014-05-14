@@ -2684,6 +2684,7 @@ public:        //                      public
    // render option (other functions)
    coot::ray_trace_molecule_info fill_raster_model_info(); // messes with bond_colour_internal
    coot::ray_trace_molecule_info fill_raster_map_info(short int lev) const;
+   coot::ray_trace_molecule_info fill_raster_additional_info() const;
 
    // return a list of bad chiral volumes for this molecule:
    std::pair<std::vector<std::string>, std::vector<coot::atom_spec_t> > bad_chiral_volumes() const;
