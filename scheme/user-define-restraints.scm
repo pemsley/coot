@@ -272,7 +272,7 @@
 
 ;; target is my molecule, ref is the homologous (high-res) model
 ;; 
-(define (run-prosmart imol-target imol-ref)
+(define (run-prosmart imol-target imol-ref include-side-chains?)
   (let ((dir-stub "coot-ccp4"))
     (make-directory-maybe dir-stub)
     (let ((target-pdb-file-name (append-dir-file dir-stub 
@@ -290,8 +290,11 @@
       (write-pdb-file imol-target target-pdb-file-name)
       (write-pdb-file imol-ref reference-pdb-file-name)
       (goosh-command "prosmart" 
-		     (list "-p1" target-pdb-file-name
-			   "-p2" reference-pdb-file-name)
+		     (let ((l (list "-p1" target-pdb-file-name
+				    "-p2" reference-pdb-file-name)))
+		       (if include-side-chains? 
+			   (append l (list "-side"))
+			   l))
 		     '()
 		     (append-dir-file dir-stub "prosmart.log")
 		     #f)
@@ -406,16 +409,18 @@
 	       (chooser-hint-text-1 " Target molecule ")
 	       (chooser-hint-text-2 " Reference (high-res) molecule ")
 	       (go-button (gtk-button-new-with-label " ProSMART "))
-	       (cancel-button (gtk-button-new-with-label " Cancel ")))
+	       (cancel-button (gtk-button-new-with-label " Cancel "))
+	       (check-button (gtk-check-button-new-with-label "Include Side-chains")))
 			  
 	   (let ((option-menu-mol-list-pair-tar (generic-molecule-chooser 
 						 vbox chooser-hint-text-1))
 		 (option-menu-mol-list-pair-ref (generic-molecule-chooser 
 						 vbox chooser-hint-text-2)))
 
-	     (gtk-box-pack-start vbox h-sep #f #f 2)
-	     (gtk-box-pack-start vbox hbox #f #f 2)
-	     (gtk-box-pack-start hbox go-button #f #f 6)
+	     (gtk-box-pack-start vbox check-button  #f #f 2)
+	     (gtk-box-pack-start vbox h-sep         #f #f 2)
+	     (gtk-box-pack-start vbox hbox          #f #f 2)
+	     (gtk-box-pack-start hbox go-button     #f #f 6)
 	     (gtk-box-pack-start hbox cancel-button #f #f 6)
 	     (gtk-container-add window vbox)
 
@@ -430,8 +435,9 @@
 						 option-menu-mol-list-pair-tar))
 					 (imol-ref
 					  (apply get-option-menu-active-molecule
-						 option-menu-mol-list-pair-ref)))
-				     (run-prosmart imol-tar imol-ref)
+						 option-menu-mol-list-pair-ref))
+					 (do-side-chains? (gtk-toggle-button-get-active check-button)))
+				     (run-prosmart imol-tar imol-ref do-side-chains?)
 				     (gtk-widget-destroy window))))
 	     (gtk-widget-show-all window)))))
 
@@ -469,6 +475,18 @@
          (using-active-atom
           (set-show-extra-restraints aa-imol 1))))
 
+      (add-simple-coot-menu-menuitem
+       menu "Extra Restraints to CA"
+       (lambda ()
+         (using-active-atom
+          (set-extra-restraints-representation-for-bonds-go-to-CA aa-imol 1))))
+
+
+      (add-simple-coot-menu-menuitem
+       menu "Extra Restraints Standard Representation"
+       (lambda ()
+         (using-active-atom
+          (set-extra-restraints-representation-for-bonds-go-to-CA aa-imol 0))))
 
       (add-simple-coot-menu-menuitem
        menu "Delete an Extra Restraint..."
