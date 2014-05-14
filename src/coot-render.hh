@@ -188,6 +188,7 @@ namespace coot {
 
       int povray_ray_trace(std::string filename);
       int render_ray_trace(std::string filename);
+      int render_ray_trace(std::string filename, int resolution_multiplier);
       int renderman_render(std::string filename);
       
    };
