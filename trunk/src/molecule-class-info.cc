@@ -864,6 +864,10 @@ molecule_class_info_t::draw_extra_restraints_representation() {
       if (draw_it_for_extra_restraints) {
 	 if (extra_restraints_representation.bonds.size() > 0) { 
 	    glLineWidth(1.0);
+	    if (extra_restraints_representation_for_bonds_go_to_CA) { 
+	       glLineWidth(3.0);
+	    } else {
+	    } 
 	    glColor3f(0.6, 0.6, 0.8);
 	    
 	    glBegin(GL_LINES);

@@ -235,6 +235,12 @@ graphics_info_t::renderman(std::string filename) {
 int 
 coot::raytrace_info_t::render_ray_trace(std::string filename) {
 
+   return render_ray_trace(filename, 1);
+}
+   
+int
+coot::raytrace_info_t::render_ray_trace(std::string filename, int reso_multiplier) {
+
    int istat = 1;
    std::ofstream render_stream(filename.c_str());
 
@@ -255,6 +261,10 @@ coot::raytrace_info_t::render_ray_trace(std::string filename) {
       nxtiles = int(float(window_width)/8.0);
       nytiles = int(float(window_height)/8.0);
 
+      if (reso_multiplier != 1) { 
+	 nxtiles *= reso_multiplier;
+	 nytiles *= reso_multiplier;
+      }
 
       std::cout << "using tiles: " << nxtiles << " " << nytiles << std::endl;
    
@@ -532,7 +542,8 @@ coot::ray_trace_molecule_info::render_molecule(std::ofstream &render_stream,
 		    << bones_colour.col[2] << "\n";
    }
 
-   std::cout << "velr size " << velr.size() << std::endl;
+   // Extra Restraints (Bond lines)
+   // 
    for (unsigned int i=0; i<velr.size(); i++) {
       const extra_line_representation &l = velr[i];
       render_stream << "5\n";
