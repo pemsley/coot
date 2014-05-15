@@ -92,7 +92,7 @@
 
 #include "coot-database.hh"
 
-#include "mtz-columns-auto-read.hh"
+#include "mtz-column-auto-read.hh"
 
 #ifdef USE_LIBCURL
 #ifndef HAVE_CURL_H
@@ -2889,6 +2889,7 @@ public:
    std::string save_molecule_dir(int imol) const;
    int apply_undo(); 
    int apply_redo();
+   int apply_undo_or_redo(bool is_undo);
    void activate_redo_button();
    // used by option menu item callback which sets the molecule for undoing
    void set_undo_molecule_number(int i) { undo_molecule = i; }
