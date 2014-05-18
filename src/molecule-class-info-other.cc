@@ -4090,7 +4090,7 @@ molecule_class_info_t::fill_raster_additional_info() const {
 
 	 double thickness = 0.012;
 	 if (extra_restraints_representation_for_bonds_go_to_CA)
-	    thickness = 0.1;
+	    thickness = 0.08;
 	 
 	 for (unsigned int ib=0; ib<extra_restraints_representation.bonds.size(); ib++) {
 	    const coot::extra_restraints_representation_t::extra_bond_restraints_respresentation_t &res =
