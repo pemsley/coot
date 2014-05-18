@@ -3073,10 +3073,34 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 		     clipper::Coord_orth ca_p2 = coot::co(atom_sel.atom_selection[idx_2]);
 		     // hack a distance.
 		     double d = sqrt((ca_p2-ca_p1).lengthsq());
-		     extra_restraints_representation.add_bond(ca_p1, ca_p2, d, res.esd);
+
+		     // undashed:
+		     // extra_restraints_representation.add_bond(ca_p1, ca_p2, d, res.esd);
+
+		     // dashed:
+		     //
+		     double dash_density = 4.0;
+		     int n_dashes = int(dash_density * d);
+		     bool visible = true;
+		     for (unsigned int idash=0; idash<(n_dashes-1); idash++) {
+			std::cout << "idash " << idash << " n_dashes " << n_dashes << " visible "
+				  << visible << std::endl;
+			if (visible) { 
+			   double frac_s = double(idash  )/double(n_dashes);
+			   double frac_e = double(idash+1)/double(n_dashes);
+			   clipper::Coord_orth dash_pos_1 = ca_p1 + frac_s * (ca_p2 - ca_p1);
+			   clipper::Coord_orth dash_pos_2 = ca_p1 + frac_e * (ca_p2 - ca_p1);
+			   std::cout << "   " << dash_pos_1.format() << " " << dash_pos_2.format() << " "
+				     << d << " " << res.esd << std::endl;
+			   double fake_d = d/double(n_dashes);
+			   extra_restraints_representation.add_bond(dash_pos_1, dash_pos_2, fake_d, res.esd);
+			}
+			visible = !visible;
+		     }
 		  }
 	       } 
-	    } else { 
+	    } else {
+	       // Normal case
 	       extra_restraints_representation.add_bond(p1, p2, res.bond_dist, res.esd);
 	    }
 	 }
