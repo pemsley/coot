@@ -3412,7 +3412,7 @@ def find_exe(program_name, *args, **kwargs):
     program_name_noext = program_name
     # some windows magic
     if (os.name == 'nt'):
-        drives_ls = [c+':\\' for c in string.lowercase if os.path.isdir(c+':\\')]
+        drives_ls = get_windows_drives()
         program_name_noext = strip_extension(program_name)
         file_ext = file_name_extension(program_name)
         # if extenion is explicitly given - only use this one
@@ -3762,6 +3762,20 @@ def set_alt_conf_occ(imol, chain_id, res_no, ins_code, alt_conf_list):
 # simplyfy check for windows
 def is_windows():
     return os.name == 'nt'
+
+# find all windows drives
+#
+def get_windows_drives():
+    from ctypes import windll
+    drives = []
+    bitmask = windll.kernel32.GetLogicalDrives()
+    for letter in string.uppercase:
+        if bitmask & 1:
+            drives.append(letter + ":\\")
+        bitmask >>= 1
+
+    return drives
+
 
 # clean up pdb file (imol)
 # a wrapper for fix_nomenclature errors, sort chains, residues, merge

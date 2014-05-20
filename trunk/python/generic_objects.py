@@ -483,7 +483,7 @@ def probe_local_sphere(imol, radius):
   close_molecule(imol_new)
 
 
-def probe_local_sphere_active_atom(radius=4.0):
+def probe_local_sphere_active_atom(radius=5.0):
   
   with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                              aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -508,7 +508,7 @@ def write_pdb_file_for_molprobity(imol, pdb_name):
     f_name = os.path.join("coot-molprobity", "conn-" + res_name + ".txt")
     status = write_connectivity(res_name, f_name)
     if (status == 1):
-      con_file_names.append(f_name)
+      conn_file_names.append(f_name)
 
   # now, add (append) each of the con-file-names to the end of
   # pdb-name
