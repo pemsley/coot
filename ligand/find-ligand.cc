@@ -297,10 +297,16 @@ main(int argc, char **argv) {
  		  // std::cout << "------------ argc: " << argc << " n_used_args: " 
 		  // << n_used_args << std::endl;
 
-		  for (int i=n_used_args; i<(argc-1); i++) {
-		    // std::cout << "----- pushing back ligand file name :" << argv[i] << ":" 
-		    // << std::endl;
-		    lig_files.push_back(argv[i]);
+		  // 20140520 What was I thinking?  The last argument
+		  // is the one where the ligand pdb file is.  Now we
+		  // check all the arguments.
+		  // 
+		  // for (int i=n_used_args; i<(argc-1); i++)
+		  
+		  for (int i=n_used_args; i<argc; i++) {
+		     std::cout << "----- pushing back ligand file name \"" << argv[i] << "\"" 
+			       << std::endl;
+		     lig_files.push_back(argv[i]);
 		  }
 		  do_it = true;
 	       }
