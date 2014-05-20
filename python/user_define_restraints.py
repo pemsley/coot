@@ -265,9 +265,13 @@ def extra_restraints2refmac_restraints_file(imol, file_name):
 
 # target is my molecule, ref is the homologous (high-res) model
 #
-def run_prosmart(imol_target, imol_ref):
+# extra arg: include_side_chains=False
+#
+def run_prosmart(imol_target, imol_ref, include_side_chains=False):
   """
   target is my molecule, ref is the homologous (high-res) model
+
+  extra arg: include_side_chains=False
   """
 
   dir_stub = "coot-ccp4"
@@ -286,9 +290,12 @@ def run_prosmart(imol_target, imol_ref):
   write_pdb_file(imol_ref, reference_pdb_file_name)
   prosmart_exe = find_exe("prosmart")
   if prosmart_exe:
+    l = ["-p1", target_pdb_file_name,
+         "-p2", reference_pdb_file_name]
+    if include_side_chains:
+      l += ["-side"]
     popen_command(prosmart_exe,
-                  ["-p1", target_pdb_file_name,
-                   "-p2", reference_pdb_file_name],
+                  l,
                   [],
                   os.path.join(dir_stub, "prosmart.log"),
                   False)
@@ -434,7 +441,8 @@ if (have_coot_python):
       def go_button_cb(*args):
         imol_tar = get_option_menu_active_molecule(*option_menu_mol_list_pair_tar)
         imol_ref = get_option_menu_active_molecule(*option_menu_mol_list_pair_ref)
-        run_prosmart(imol_tar, imol_ref)
+        do_side_chains = check_button.get_active()
+        run_prosmart(imol_tar, imol_ref, do_side_chains)
         window.destroy()
       window = gtk.Window(gtk.WINDOW_TOPLEVEL)
       hbox = gtk.HBox(False, 0)
@@ -444,12 +452,14 @@ if (have_coot_python):
       chooser_hint_text_2 = " Reference (high-res) molecule "
       go_button = gtk.Button(" ProSMART ")
       cancel_button = gtk.Button("  Cancel  ")
+      check_button = gtk.CheckButton("Include Side-chains")
 
       option_menu_mol_list_pair_tar = generic_molecule_chooser(vbox,
                                                                chooser_hint_text_1)
       option_menu_mol_list_pair_ref = generic_molecule_chooser(vbox,
                                                                chooser_hint_text_2)
 
+      vbox.pack_start(check_button, False, False, 2)
       vbox.pack_start(h_sep, False, False, 2)
       vbox.pack_start(hbox, False, False, 2)
       hbox.pack_start(go_button, False, False, 6)
@@ -514,8 +524,23 @@ if (have_coot_python):
       "Display ProSMART Extra Restraints...",
       lambda func: set_prosmart_display_func(1)
       )
-    
-    
+
+
+    def set_prosmart_display_CA_func(state):
+      with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                 aa_ins_code, aa_atom_name, aa_alt_conf]:
+        set_extra_restraints_representation_for_bonds_go_to_CA(aa_imol, state)
+      
+    add_simple_coot_menu_menuitem(
+      menu,
+      "Extra Restraints to CA",
+      lambda func: set_prosmart_display_CA_func(1))
+
+    add_simple_coot_menu_menuitem(
+      menu,
+      "Extra Restraints Standard Representation",
+      lambda func: set_prosmart_display_CA_func(0))
+
     add_simple_coot_menu_menuitem(
       menu,
       "Delete an Extra Restraint...",
