@@ -1759,7 +1759,7 @@ molecule_class_info_t::deuterium_spots() const {
 
    if (bonds_box.n_deuterium_spots > 0) { 
 
-      glColor3f(0.9, 0.4, 0.2);
+      glColor3f(1.0, 0.2, 0.4);
       float zsc = graphics_info_t::zoom;
       glPointSize(165.0/zsc);
       glBegin(GL_POINTS); 
