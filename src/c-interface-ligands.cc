@@ -481,8 +481,9 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 	       geom_matcher.get_monomer_restraints(cif_dict_comp_id);
 	    if (rp_2.first) {
 	       CResidue *residue_p = NULL; // for the moment
-	       std::cout << "------ about to match " << rp_2.second.residue_info.comp_id << " to "
-			 << rp_1.second.residue_info.comp_id << " names" << std::endl;
+	       // std::cout << "------ about to match "
+	       // << rp_2.second.residue_info.comp_id << " to "
+	       // << rp_1.second.residue_info.comp_id << " names" << std::endl;
 	       coot::dictionary_residue_restraints_t new_dict =
 		  rp_2.second.match_to_reference(rp_1.second, residue_p);
 	       new_dict.write_cif(cif_dict_out);
@@ -491,7 +492,7 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 	    }
 	 }
       } else {
-	 std::cout << "----- No  restraints for " << reference_comp_id << std::endl;
+	 std::cout << "WARNING:: No restraints for " << reference_comp_id << std::endl;
       } 
    } else {
       std::cout << "WARNING:: " << cif_dict_in << " file not found" << std::endl;
