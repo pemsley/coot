@@ -3,6 +3,10 @@
 
 ---- 
 
+   o change the front-page icons on the glade file.
+
+   o Pavel message: Map D to H so that you can refine proteins vs neutron data.
+
    o lidia_LDFLAGS = -Wl,--export-dynamic, what is -module flag and look up export_dynamic_flag_spec
 
    o Oliver Clark HOLE radius bug
