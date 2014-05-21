@@ -606,7 +606,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    CGraph *g_1 = make_graph(use_hydrogens);
    CGraph *g_2 = ref.make_graph(use_hydrogens);
 
-   if (1) {
+   if (0) {
       std::cout << "this-name:::::::::::::::::::" << residue_info.comp_id << std::endl;
       std::cout << " ref-name:::::::::::::::::::" << ref.residue_info.comp_id << std::endl;
       g_1->Print();
@@ -631,7 +631,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    std::string s;
    if (!use_hydrogens)
       s = " non-hydrogen";
-   std::cout << "MatchGraphs() with minMatch " << minMatch << " with "
+   std::cout << "INFO:: Matching Graphs with minMatch " << minMatch << " with "
 	     << n_atoms << s << " atoms" << std::endl;
    int build_result_1 = g_1->Build(False);
 
@@ -644,7 +644,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
       } else { 
 	 match.MatchGraphs(g_1, g_2, minMatch, vertext_type);
 	 int n_match = match.GetNofMatches();
-	 if (1) 
+	 if (debug) 
 	    std::cout << "found " << n_match << " matches" << std::endl;
 	 if (n_match > 0) {
 
@@ -670,7 +670,8 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 			if (imatch == imatch_best)
 			   if (debug)
 			      std::cout << ":::: imatch_best " << imatch
-					<< " atom " << V1->GetName() << " in graph_1 matches atom "
+					<< " atom " << V1->GetName()
+					<< " in graph_1 matches atom "
 					<< V2->GetName() << " in graph_2" << std::endl;
 			if (imatch == imatch_best) { 
 			   if (v1_name != v2_name) {
@@ -690,13 +691,14 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	    }
 
 	    if (debug) {
-	       std::cout << "----- accumulated ------ " << change_name.size() << " name changes "
-			 << "(and " << same_name.size() << " matches of atoms with the same name)"
+	       std::cout << "----- accumulated ------ " << change_name.size()
+			 << " name changes " << "(and " << same_name.size()
+			 << " matches of atoms with the same name)"
 			 << " for " << n_atoms << " atoms"
 			 << " --------- " << std::endl;
 	       for (unsigned int i=0; i<change_name.size(); i++) { 
-		  std::cout << i << "  " << change_name[i].first << " -> " << change_name[i].second
-			    << std::endl;
+		  std::cout << i << "  " << change_name[i].first << " -> "
+			    << change_name[i].second << std::endl;
 	       }
 	    }
 	    // also header info.
