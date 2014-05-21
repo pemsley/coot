@@ -167,8 +167,10 @@ class graphical_bonds_container {
    int symmetry_has_been_created;
    Lines_list *symmetry_bonds_;
 
-   coot::Cartesian *zero_occ_spot;
-   int n_zero_occ_spot;
+   coot::Cartesian *zero_occ_spots_ptr;
+   coot::Cartesian *deuterium_spots_ptr;
+   int n_zero_occ_spots;
+   int n_deuterium_spots;
 
    std::pair<bool,coot::Cartesian> *atom_centres_;
    int n_atom_centres_;
@@ -180,8 +182,10 @@ class graphical_bonds_container {
       bonds_ = NULL;
       symmetry_has_been_created = 0; 
       symmetry_bonds_ = NULL; 
-      zero_occ_spot = NULL;
-      n_zero_occ_spot = 0;
+      zero_occ_spots_ptr = NULL;
+      n_zero_occ_spots = 0;
+      deuterium_spots_ptr = NULL;
+      n_deuterium_spots = 0;
       atom_centres_colour_ = NULL;
       atom_centres_ = NULL; 
       n_atom_centres_ = 0;
@@ -209,9 +213,12 @@ class graphical_bonds_container {
       symmetry_bonds_ = NULL;
       atom_centres_ = NULL;
       atom_centres_colour_ = NULL;
-      if (n_zero_occ_spot) 
-	 delete [] zero_occ_spot;
-      n_zero_occ_spot = 0;
+      if (n_zero_occ_spots) 
+	 delete [] zero_occ_spots_ptr;
+      if (n_deuterium_spots)
+	 delete [] deuterium_spots_ptr;
+      n_zero_occ_spots = 0;
+      n_deuterium_spots = 0;
       n_atom_centres_ = 0;
    }
 
@@ -232,8 +239,10 @@ class graphical_bonds_container {
 
       symmetry_bonds_ = NULL; 
       symmetry_has_been_created = 0; 
-      zero_occ_spot = NULL;
-      n_zero_occ_spot = 0;
+      zero_occ_spots_ptr = NULL;
+      n_zero_occ_spots = 0;
+      deuterium_spots_ptr = NULL;
+      n_deuterium_spots = 0;
       atom_centres_colour_ = NULL;
       atom_centres_ = NULL; 
       n_atom_centres_ = 0;
@@ -265,6 +274,7 @@ class graphical_bonds_container {
    }
 
    void add_zero_occ_spots(const std::vector<coot::Cartesian> &spots);
+   void add_deuterium_spots(const std::vector<coot::Cartesian> &spots);
    void add_atom_centres(const std::vector<std::pair<bool,coot::Cartesian> > &centres,
 			 const std::vector<int> &colours);
    bool have_rings() const { return rings.size();
@@ -366,6 +376,7 @@ class Bond_lines_container {
 		     const std::pair<symm_trans_t, Cell_Translation> &symm_trans) const;
 
    void add_zero_occ_spots(const atom_selection_container_t &SelAtom);
+   void add_deuterium_spots(const atom_selection_container_t &SelAtom);
    void add_atom_centres(const atom_selection_container_t &SelAtom, int atom_colour_type);
    int add_ligand_bonds(const atom_selection_container_t &SelAtom, 
 			PPCAtom ligand_atoms_selection,
@@ -403,7 +414,8 @@ class Bond_lines_container {
 
  protected:
    std::vector<Bond_lines> bonds; 
-   std::vector<coot::Cartesian>  zero_occ_spot;
+   std::vector<coot::Cartesian>  zero_occ_spots;
+   std::vector<coot::Cartesian>  deuterium_spots;
    std::vector<std::pair<bool, coot::Cartesian> >  atom_centres;
    std::vector<int>        atom_centres_colour;
    void addBond(int colour, const coot::Cartesian &first, const coot::Cartesian &second,

@@ -1543,6 +1543,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    }
 
    add_zero_occ_spots(SelAtom);
+   add_deuterium_spots(SelAtom);
    add_atom_centres(SelAtom, atom_colour_type);
 }
 
@@ -2003,7 +2004,7 @@ Bond_lines_container::addSymmetry(const atom_selection_container_t &SelAtom,
 	 int ncontacts;
 
 	 if (SelAtom.n_selected_atoms > 0) { 
-	    PCAtom point_atom_p = new CAtom;
+	    CAtom *point_atom_p = new CAtom;
 	    point_atom_p->SetCoordinates(point.get_x(), point.get_y(),
 					 point.get_z(), 1.0, 99.9);
 
@@ -2804,7 +2805,8 @@ Bond_lines_container::make_graphical_bonds(bool thinning_flag) const {
 	    box.bonds_[i].thin_lines_flag = 1;
 	 } 
    }
-   box.add_zero_occ_spots(zero_occ_spot);
+   box.add_zero_occ_spots(zero_occ_spots);
+   box.add_deuterium_spots(deuterium_spots);
    box.add_atom_centres(atom_centres, atom_centres_colour);
    box.rings = rings;
    return box;
@@ -4110,6 +4112,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
       asc.mol->DeleteSelection(SelectionHandle);
    }
    add_zero_occ_spots(asc);
+   add_deuterium_spots(asc);
    int atom_colour_type = coot::COLOUR_BY_CHAIN;
    add_atom_centres(asc, atom_colour_type);
 }
@@ -4425,6 +4428,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 			  atom_colour_type,
 			  have_udd_atoms, udd_handle);
    add_zero_occ_spots(asc);
+   add_deuterium_spots(asc);
    atom_colour_type = coot::COLOUR_BY_CHAIN;
    add_atom_centres(asc, atom_colour_type);
 }
@@ -4595,6 +4599,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
       }
    }
    add_zero_occ_spots(asc);
+   add_deuterium_spots(asc);
    int atom_colour_type = coot::COLOUR_BY_CHAIN;
    add_atom_centres(asc, atom_colour_type);
 }
@@ -4603,7 +4608,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 void
 Bond_lines_container::add_zero_occ_spots(const atom_selection_container_t &SelAtom) {
 
-   zero_occ_spot.resize(0);
+   zero_occ_spots.clear();
 
    for (int i=0; i<SelAtom.n_selected_atoms; i++) { 
       if (SelAtom.atom_selection[i]->occupancy < 0.01 &&
@@ -4613,13 +4618,28 @@ Bond_lines_container::add_zero_occ_spots(const atom_selection_container_t &SelAt
 	 std::string ele(SelAtom.atom_selection[i]->element);
 	 if (do_bonds_to_hydrogens ||
 	     ((do_bonds_to_hydrogens == 0) && (! is_hydrogen(ele)))) {
-	    zero_occ_spot.push_back(coot::Cartesian(SelAtom.atom_selection[i]->x,
-						    SelAtom.atom_selection[i]->y,
-						    SelAtom.atom_selection[i]->z));
+	    zero_occ_spots.push_back(coot::Cartesian(SelAtom.atom_selection[i]->x,
+						     SelAtom.atom_selection[i]->y,
+						     SelAtom.atom_selection[i]->z));
 	 }
       }
    }
 }
+
+void
+Bond_lines_container::add_deuterium_spots(const atom_selection_container_t &SelAtom) {
+
+   deuterium_spots.clear();
+
+   for (int i=0; i<SelAtom.n_selected_atoms; i++) { 
+      std::string ele(SelAtom.atom_selection[i]->element);
+      if (do_bonds_to_hydrogens && ele == " D")
+	 deuterium_spots.push_back(coot::Cartesian(SelAtom.atom_selection[i]->x,
+						   SelAtom.atom_selection[i]->y,
+						   SelAtom.atom_selection[i]->z));
+   }
+}
+
 
 void
 Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom,
@@ -4650,15 +4670,29 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
 void
 graphical_bonds_container::add_zero_occ_spots(const std::vector<coot::Cartesian> &spots) { 
 
-   n_zero_occ_spot = spots.size();
+   n_zero_occ_spots = spots.size();
 
-   if (n_zero_occ_spot > 0) {
-      zero_occ_spot = new coot::Cartesian[n_zero_occ_spot];
-      for (int j=0; j<n_zero_occ_spot; j++) { 
-	 zero_occ_spot[j] = spots[j];
+   if (n_zero_occ_spots > 0) {
+      zero_occ_spots_ptr = new coot::Cartesian[n_zero_occ_spots];
+      for (int j=0; j<n_zero_occ_spots; j++) { 
+	 zero_occ_spots_ptr[j] = spots[j];
       }
    }
 }
+
+
+void
+graphical_bonds_container::add_deuterium_spots(const std::vector<coot::Cartesian> &spots) { 
+
+   n_deuterium_spots = spots.size();
+
+   if (n_deuterium_spots > 0) {
+      deuterium_spots_ptr = new coot::Cartesian[n_deuterium_spots];
+      for (int j=0; j<n_deuterium_spots; j++)
+	 deuterium_spots_ptr[j] = spots[j];
+   }
+}
+
 
 void
 graphical_bonds_container::add_atom_centres(const std::vector<std::pair<bool,coot::Cartesian> > &centres,

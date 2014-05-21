@@ -2136,11 +2136,12 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
-   bool debug = 0;
+   bool debug = true;
    if (debug) {
       std::cout << "=== atoms_match_dictionary() with these residue atom names ======= " << std::endl;
       for (int i=0; i<n_residue_atoms; i++) {
-	 std::cout << i << "  :" << residue_atoms[i]->name << ":" << std::endl;
+	 std::cout << i << "  :" << residue_atoms[i]->name << ": and ele "
+		   << residue_atoms[i]->element << std::endl;
       } 
       std::cout << "=== atoms_match_dictionary() with these residue atom names ======= " << std::endl;
       for (unsigned int irat=0; irat<restraints.atom_info.size(); irat++) {
@@ -2157,9 +2158,9 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
 
 	 bool found = 0;
 	 // PDBv3 FIXME
-	 if (ele == " H")
-	    if (check_hydrogens_too_flag == 0)
-	       found = 1;
+	 if (ele == " H" || ele == " D")
+	    if (check_hydrogens_too_flag == false)
+	       found = true;
 
 	 if (! found) {
 	    for (unsigned int irestraint_atom_name=0; irestraint_atom_name<restraints.atom_info.size(); irestraint_atom_name++) {

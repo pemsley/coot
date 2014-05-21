@@ -292,7 +292,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 
       // 20100201
       
-      bool check_hydrogens_too_flag = 0;
+      bool check_hydrogens_too_flag = false;
       // convert to CResidues vector
       std::vector<CResidue *> residues;
       for (int ires=0; ires<nSelResidues; ires++)
@@ -718,7 +718,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
 	    // Now we want to do an atom name check.  This stops exploding residues.
 	    //
-	    bool check_hydrogens_too_flag = 0;
+	    bool check_hydrogens_too_flag = false;
 	    std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
 	       icheck_atoms = Geom_p()->atoms_match_dictionary(residues, check_hydrogens_too_flag, false); 
 	    

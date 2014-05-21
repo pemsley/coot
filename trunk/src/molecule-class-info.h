@@ -1428,6 +1428,7 @@ public:        //                      public
 
    void draw_molecule(short int do_zero_occ_spots);
    void zero_occupancy_spots() const;
+   void deuterium_spots() const;
    void set_occupancy_residue_range(const std::string &chain_id, int ires1, int ires2, float occ_val);
 
    void set_b_factor_residue_range(const std::string &chain_id, int ires1, int ires2, float b_val);

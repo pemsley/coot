@@ -1715,23 +1715,14 @@ int molecule_class_info_t::remove_atom_label(char *chain_id, int iresno, char *a
 void
 molecule_class_info_t::draw_molecule(short int do_zero_occ_spots) {
 
-
-   //
-   //
-   //  We also need a c++ object to store molecular information
-   //
-
    if (has_model()) { 
       if (draw_it == 1) {
 	 if (!cootsurface) { 
-	    if (do_zero_occ_spots)
-	       zero_occupancy_spots();
+	    deuterium_spots();
+ 	    if (do_zero_occ_spots)
+ 	       zero_occupancy_spots();
 	    display_bonds();
 	    draw_fixed_atom_positions();
-
-	    // ghosts
-// 	    std::cout << "debug ghosts: " << show_ghosts_flag << " " << ncs_ghosts.size()
-// 		      << std::endl;
 	    if (show_ghosts_flag) {
 	       if (ncs_ghosts.size() > 0) {
 		  for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
@@ -1748,20 +1739,39 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots) {
 void
 molecule_class_info_t::zero_occupancy_spots() const {
 
-   if (bonds_box.n_zero_occ_spot > 0) { 
+   if (bonds_box.n_zero_occ_spots > 0) { 
 
       glColor3f(0.8, 0.7, 0.7);
       float zsc = graphics_info_t::zoom;
       glPointSize(145.0/zsc);
       glBegin(GL_POINTS); 
-      for (int i=0; i<bonds_box.n_zero_occ_spot; i++) { 
-	 glVertex3f(bonds_box.zero_occ_spot[i].x(),
-		    bonds_box.zero_occ_spot[i].y(),
-		    bonds_box.zero_occ_spot[i].z());
+      for (int i=0; i<bonds_box.n_zero_occ_spots; i++) { 
+	 glVertex3f(bonds_box.zero_occ_spots_ptr[i].x(),
+		    bonds_box.zero_occ_spots_ptr[i].y(),
+		    bonds_box.zero_occ_spots_ptr[i].z());
       }
       glEnd();
    }
 }
+
+void
+molecule_class_info_t::deuterium_spots() const {
+
+   if (bonds_box.n_deuterium_spots > 0) { 
+
+      glColor3f(0.9, 0.4, 0.2);
+      float zsc = graphics_info_t::zoom;
+      glPointSize(165.0/zsc);
+      glBegin(GL_POINTS); 
+      for (int i=0; i<bonds_box.n_deuterium_spots; i++) { 
+	 glVertex3f(bonds_box.deuterium_spots_ptr[i].x(),
+		    bonds_box.deuterium_spots_ptr[i].y(),
+		    bonds_box.deuterium_spots_ptr[i].z());
+      }
+      glEnd();
+   }
+}
+
 
 void
 molecule_class_info_t::draw_fixed_atom_positions() const {
