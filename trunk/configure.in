@@ -41,10 +41,9 @@ AC_ISC_POSIX
 AC_PROG_CC
 AM_PROG_CC_STDC
 AC_HEADER_STDC
-AC_PROG_LIBTOOL
 
 AC_PROG_CXX
-# AM_PROG_LIBTOOL
+# AM_PROG_LIBTOOL that's old style. Now we use LT_INIT
 LT_INIT
 # AC_PROG_INTLTOOL, no, not today.  Mac compilation problems, no perl/ XML or something.
 
@@ -55,6 +54,10 @@ AC_OPENMP
 AC_LIB_PREPARE_MULTILIB
 
 AC_SUBST(COOT_STDTYPES)
+
+EXPORT_DYNAMIC_FLAG_SPEC=$export_dynamic_flag_spec
+AC_SUBST(EXPORT_DYNAMIC_FLAG_SPEC)
+
 
 dnl We need to put a PKG_CHECK_MODULES in early so that pkg-config is
 dnl setup first (it seems to be a side-effect of using PKG_CHECK_MODULES), 

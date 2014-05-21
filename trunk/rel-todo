@@ -3,6 +3,8 @@
 
 ---- 
 
+   o lidia_LDFLAGS = -Wl,--export-dynamic, what is -module flag and look up export_dynamic_flag_spec
+
    o Oliver Clark HOLE radius bug
 
    o Fix the button labels in Close molecule dialog
