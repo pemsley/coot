@@ -44,8 +44,14 @@ AC_HEADER_STDC
 
 AC_PROG_CXX
 # AM_PROG_LIBTOOL that's old style. Now we use LT_INIT
-LT_INIT
+#LT_INIT
 # AC_PROG_INTLTOOL, no, not today.  Mac compilation problems, no perl/ XML or something.
+# BL says Lets do some testing and use old style if needed
+AC_MSG_CHECKING([which libtool initialization strategy to adopt])
+AC_MSG_RESULT([m4_ifset([LT_INIT],[LT-INIT],[AC-PROG-LIBTOOL])])
+m4_ifset([LT_INIT],
+[LT_INIT],
+[AC_PROG_LIBTOOL])
 
 AC_CHECK_HEADERS([sys/stdtypes.h], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=1"], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=0"])
 
