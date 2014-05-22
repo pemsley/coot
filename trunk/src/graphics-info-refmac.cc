@@ -206,7 +206,7 @@ graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_me
    
    for (int imap=0; imap<map_molecule_numbers.size(); imap++) {
       int i = map_molecule_numbers[imap];
-      if (is_valid_map_molecule(imap)) { // NXMAP-FIXME
+     if (is_valid_map_molecule(i)) { // NXMAP-FIXME
 	 char s[200];
 	 snprintf(s,199,"%d", i);
 	 std::string ss(s);
@@ -218,7 +218,7 @@ graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_me
 			    GINT_TO_POINTER(i));
 	 gtk_menu_append(GTK_MENU(menu), menuitem);
 	 gtk_widget_show(menuitem);
-	 if (i == imol_active_position)
+	 if (imap == imol_active_position)
 	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
 	 menu_index++; // setup for next round
       }
