@@ -47,7 +47,7 @@ pkgincludedir = $(includedir)/coot/lbg
 # I don't understand.  Maybe the setting of wl should be done in configure?  But then
 # I have to force the output of libtool.  Bleugh.  Hmm...
 # Anyway, thankyou Gary Vaughan.
-wl=-Wl
+wl=-Wl,
 lidia_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 
 # res spec output operator means we include libcoot-coord-utils
