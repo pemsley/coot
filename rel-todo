@@ -3,6 +3,8 @@
 
 ---- 
 
+   o convert the residue too in match_residue_and_dictionary().  It should have a test :-)
+
    o change the front-page icons on the glade file.
 
    o Pavel message: Map D to H so that you can refine proteins vs neutron data.
