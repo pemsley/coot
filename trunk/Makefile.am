@@ -88,17 +88,22 @@ EXTRA_DIST = 		\
 # 	  $(INSTALL_DATA) $(srcdir)/windows/syminfo.lib $(DESTDIR)$(pkgdatadir); \
 # 	fi
 
-dist-hook:
-	if test -d $(srcdir)/pixmaps; then \
-	  mkdir $(distdir)/pixmaps; \
-	  for pixmap in $(srcdir)/pixmaps/*; do \
-	    if test -f $$pixmap; then \
-	      cp -p $$pixmap $(distdir)/pixmaps; \
-	    fi \
-	  done \
-	fi
+# 20140523 Surely this is not needed now?  I have a Makefile in pixmaps.
+#
+#dist-hook:
+#	if test -d $(srcdir)/pixmaps; then \
+#	  mkdir $(distdir)/pixmaps; \
+#	  for pixmap in $(srcdir)/pixmaps/*; do \
+#	    if test -f $$pixmap; then \
+#	      cp -p $$pixmap $(distdir)/pixmaps; \
+#	    fi \
+#	  done \
+#	fi
 
 subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = cootrc standard-residues.pdb colours.def \
 	mtrix-to-ncs-matrix.awk syminfo.lib
 
+
+appdatadir = ${datarootdir}/appdata
+dist_appdata_DATA = coot.appdata.xml
