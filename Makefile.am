@@ -107,3 +107,8 @@ subpkgdata_DATA = cootrc standard-residues.pdb colours.def \
 
 appdatadir = ${datarootdir}/appdata
 dist_appdata_DATA = coot.appdata.xml
+
+applicationdir = ${datarootdir}/applications
+dist_application_DATA = coot.desktop
+
+

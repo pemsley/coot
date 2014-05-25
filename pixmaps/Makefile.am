@@ -63,3 +63,6 @@ diff-map.png	      plane-distances.png	   unknown-blob.svg               \
 diff-map.svg	      plane-distances.svg	   water-diff-map.svg             \
 display-manager.png   pointer-distances.png	   water-drop.svg                 \
 display-manager.svg   pointer-distances.svg
+
+dist_icons_DATA = coot.png
+iconsdir = ${datarootdir}/icons/hicolor/48x48/apps
