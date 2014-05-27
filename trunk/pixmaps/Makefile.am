@@ -15,6 +15,10 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
+# desktop icons go in icons.  Application icons go here.
+# 
+SUBDIRS = icons
+
 cootpixmapdir = $(pkgdatadir)/pixmaps
 
 # no longer use xpms.
@@ -64,5 +68,7 @@ diff-map.svg	      plane-distances.svg	   water-diff-map.svg             \
 display-manager.png   pointer-distances.png	   water-drop.svg                 \
 display-manager.svg   pointer-distances.svg
 
-dist_icons_DATA = coot.png
-iconsdir = ${datarootdir}/icons/hicolor/48x48/apps
+
+# This is done by the Makefile in icons now.
+# dist_icons_DATA = coot.png
+# iconsdir = ${datarootdir}/icons/hicolor/48x48/apps
