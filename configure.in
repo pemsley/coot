@@ -324,6 +324,7 @@ src/coot
 python/coot_load_modules.py
 data/Makefile
 pixmaps/Makefile
+pixmaps/icons/Makefile
 rama-data/Makefile
 auxil/Makefile
 auxil/catcheck/Makefile	
