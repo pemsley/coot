@@ -43,21 +43,13 @@
 
 #include <glob.h>
 
-// These 2 are for getpwnam
-#include <sys/types.h>
-
 #include <ctype.h>  // for toupper
 
+#include <sys/types.h>  // for getpwnam
 #include <sys/stat.h>   // for mkdir
-#include <sys/types.h>
-#if defined WINDOWS_MINGW
-#include <unistd.h>   // BL says: in windows needed for mkdir
-#endif // MINGW
-
-// #include "clipper/core/hkl_compute.h"
+#include <unistd.h> // Also needed for mkdir on Fedora?
 
 #include "coot-utils.hh"
-
 
 
 std::string
