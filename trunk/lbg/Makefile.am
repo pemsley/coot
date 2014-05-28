@@ -75,9 +75,8 @@ test_lbg_functions_LDADD = \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
-	$(RDKIT_LIBS)
-
-
+	$(RDKIT_LIBS) \
+	$(PYTHON_LIBS)
 
 
 appicondir=$(pkgdatadir)/pixmaps
