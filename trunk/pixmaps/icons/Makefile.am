@@ -2,7 +2,7 @@
 EXTRA_DIST = hicolor_apps_48x48_coot.png   \
 	     hicolor_apps_64x64_coot.png   \
 	     hicolor_apps_256x256_coot.png \
-	     hicolor_apps_scalable_coot.png
+	     hicolor_apps_scalable_coot.svg
 
 install-data-local:
 	for icon in $(EXTRA_DIST); do \
