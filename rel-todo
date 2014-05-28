@@ -3,6 +3,12 @@
 
 ---- 
 
+   o remove the need for this patch:
+     http://pkgs.fedoraproject.org/cgit/coot.git/tree/coot-user-manual.texi.patch
+
+   o can I fix the need for this patch? 
+     http://pkgs.fedoraproject.org/cgit/coot.git/tree/coot-guile.patch
+
    o convert the residue too in match_residue_and_dictionary().  It should have a test :-)
 
    o change the front-page icons on the glade file.
