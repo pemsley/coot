@@ -6442,8 +6442,13 @@ molecule_class_info_t::set_occupancy_residue_range(const std::string &chain_id, 
 		<< " to " << ires2 << " in this molecule: ("
 		<<  imol_no << ") " << name_ << std::endl; 
    } else {
-      for (int i=0; i<nSelAtoms; i++)
-	 SelAtoms[i]->occupancy = occ_val;
+      for (int i=0; i<nSelAtoms; i++) {
+         SelAtoms[i]->occupancy = occ_val;
+         if (SelAtoms[i]->WhatIsSet | ASET_Occupancy) {
+            // ASET_Occupancy not set in mmdb yet
+            SelAtoms[i]->WhatIsSet |= ASET_Occupancy;
+         }
+      }
       atom_sel.mol->DeleteSelection(SelHnd);
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();
@@ -6479,8 +6484,13 @@ molecule_class_info_t::set_b_factor_residue_range(const std::string &chain_id,
 		<< " to " << ires2 << " in this molecule: ("
 		<<  imol_no << ") " << name_ << std::endl; 
    } else {
-      for (int i=0; i<nSelAtoms; i++)
-	 SelAtoms[i]->tempFactor = b_val;
+      for (int i=0; i<nSelAtoms; i++) {
+         SelAtoms[i]->tempFactor = b_val;
+         if (SelAtoms[i]->WhatIsSet | ASET_tempFactor) {
+            // ASET_tempFactor not set in mmdb yet
+            SelAtoms[i]->WhatIsSet |= ASET_tempFactor;
+         }
+      }
       atom_sel.mol->DeleteSelection(SelHnd);
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();
