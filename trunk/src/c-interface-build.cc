@@ -3998,12 +3998,28 @@ void set_find_hydrogen_torsions(short int state) {
 
 void set_graphics_edit_current_chi(int ichi) { /* button callback */
 
-   graphics_info_t::edit_chi_current_chi = 0;
-   graphics_info_t::in_edit_chi_mode_flag = 0; // off
+   graphics_info_t g;
+   graphics_info_t::edit_chi_current_chi = ichi;
+   if (ichi == 0) {
+      graphics_info_t::in_edit_chi_mode_flag = 0; // off
+   } else {
+      graphics_info_t::in_edit_chi_mode_flag = 1; // on
+      g.setup_flash_bond_internal(ichi-1);
+   }
+
 }
 
 void unset_moving_atom_move_chis() { 
    graphics_info_t::moving_atoms_move_chis_flag = 0; // keyboard 1,2,3
+						     // etc cant put
+						     // graphics/mouse
+						     // into rotate
+						     // chi mode.
+} 
+
+// BL says:: maybe this should rather go via a set state function!?
+void set_moving_atom_move_chis() { 
+   graphics_info_t::moving_atoms_move_chis_flag = 1; // keyboard 1,2,3
 						     // etc cant put
 						     // graphics/mouse
 						     // into rotate

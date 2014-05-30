@@ -5498,6 +5498,7 @@ void rotate_chi(float am);
 void set_find_hydrogen_torsions(short int state);
 void set_graphics_edit_current_chi(int ichi); /* button callback */
 void unset_moving_atom_move_chis();
+void set_moving_atom_move_chis();
 
 /*! \brief display the edit chi angles gui for the given residue 
 

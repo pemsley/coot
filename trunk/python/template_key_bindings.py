@@ -104,6 +104,8 @@ def edit_chi_angles_key_func():
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         edit_chi_angles(aa_imol, aa_chain_id, aa_res_no,
                         aa_ins_code, aa_alt_conf)
+        set_moving_atom_move_chis()
+        set_graphics_edit_current_chi(1)
 add_key_binding("Edit Chi Angles", "X", lambda: edit_chi_angles_key_func())
 
 def jiggle_fit_residue_key():
