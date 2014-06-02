@@ -318,7 +318,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 		  if (bond_het_residue_by_dictionary) {
 		     
 		     std::string res_name = atom_p_1->GetResName();
-		     if (res_name == "HOH")
+		     if (res_name == "HOH" || res_name == "DOD")
 			add_bond_by_dictionary_maybe(atom_p_1, atom_p_2, &hoh_residues);
 		     
 		  } else { 
@@ -356,7 +356,8 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 			      
 				 std::string resname_1 = atom_p_1->GetResName();
 				 std::string resname_2 = atom_p_2->GetResName();
-				 if (resname_1 == "HOH" || resname_2 == "HOH") {
+				 if (resname_1 == "HOH" || resname_2 == "HOH" ||
+                                     resname_1 == "DOD" || resname_2 == "DOD") {
 				    add_half_bonds(atom_1_pos, atom_2_pos,
 						   atom_selection_1[contact[i].id1],
 						   atom_selection_2[contact[i].id2],
@@ -924,7 +925,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, C
 				       } 
 				    } else {
 				       if (do_bonds_to_hydrogens) { 
-					  if (res_name == "HOH") {
+					  if (res_name == "HOH" || res_name == "DOD") {
 					     add_half_bonds(p1, p2,
 							    residue_atoms[iat],
 							    residue_atoms[jat],
