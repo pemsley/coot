@@ -3,6 +3,9 @@
 
 ---- 
 
+   o modified residue (e.g. oxidised Cys).  Mutate it back to CYS.
+     It's still a HETATM.
+
    o remove the need for this patch:
      http://pkgs.fedoraproject.org/cgit/coot.git/tree/coot-user-manual.texi.patch
 
