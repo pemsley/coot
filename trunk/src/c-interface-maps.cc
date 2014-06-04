@@ -166,14 +166,14 @@ int make_and_draw_map(const char* mtz_file_name,
       }
    } else {
 
-      std::cout << "valid_labels(" << mtz_file_name << ","
-		<< f_col << "," 
-		<< phi_col << "," 
-		<< weight_col << "," 
-		<< use_weights << ") returns "
-		<< valid_labels(mtz_file_name, f_col, phi_col, weight_col, use_weights)
-		<< std::endl;
-	 
+      if (0)
+	 std::cout << "valid_labels(" << mtz_file_name << ","
+		   << f_col << "," 
+		   << phi_col << "," 
+		   << weight_col << "," 
+		   << use_weights << ") returns "
+		   << valid_labels(mtz_file_name, f_col, phi_col, weight_col, use_weights)
+		   << std::endl;
 
       if (valid_labels(mtz_file_name, f_col, phi_col, weight_col, use_weights)) { 
       

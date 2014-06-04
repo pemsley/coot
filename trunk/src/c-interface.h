@@ -5284,6 +5284,12 @@ int mutate(int imol, const char *chain_id, int ires, const char *inscode,  const
 /*! \brief mutate a base. return success status, 1 for a good mutate. */
 int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code, const char *res_type);
 
+/* push the residues along a bit
+
+e.g. if nudge_by is 1, then the sidechain of residue 20 is moved up
+onto what is currently residue 21.  The mainchain numbering and atoms is not changed. */
+int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start, int res_no_range_end, int nudge_by);
+
 
 /*! \brief Do you want Coot to automatically run a refinement after
   every mutate and autofit?

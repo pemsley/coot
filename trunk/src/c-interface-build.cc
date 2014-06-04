@@ -2645,13 +2645,13 @@ int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code
 // Does not cause a make_backup().
 //
 int
-mutate_single_residue_by_serial_number(int ires, const char *chain_id, int imol,
+mutate_single_residue_by_serial_number(int ires_serial, const char *chain_id, int imol,
 			   char target_res_type) {
 
    std::string target_as_str = coot::util::single_letter_to_3_letter_code(target_res_type);
    std::cout << "INFO:: mutate target_res_type :" << target_as_str << ":" << std::endl;
       
-   return mutate_internal(ires, chain_id, imol, target_as_str);
+   return mutate_internal(ires_serial, chain_id, imol, target_as_str);
 
 }
 
@@ -2680,6 +2680,25 @@ int mutate_single_residue_by_seqno(int ires, const char *inscode,
    }
    return status;
 }
+
+/* push the residues along a bit
+
+e.g. if nudge_by is 1, then the sidechain of residue 20 is moved up
+onto what is currently residue 21.  The mainchain numbering and atoms is not changed. */
+int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start,
+			   int res_no_range_end,
+			   int nudge_by) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = graphics_info_t::molecules[imol].nudge_residue_sequence(chain_id,
+								       res_no_range_start,
+								       res_no_range_end,
+								       nudge_by);
+   }
+   return status;
+} 
+
 
 
 // return -1 on error:

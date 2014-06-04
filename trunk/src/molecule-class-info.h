@@ -2196,10 +2196,18 @@ public:        //                      public
    // that is doing multiple mutations and therefore doesn't do a
    // backup.  However, backup should be done in the wrapping function
    //
-   int mutate_single_multipart(int ires, const char *chain_id,
+   int mutate_single_multipart(int ires, const std::string &chain_id,
 			       const std::string &target_res_type);
+
+   // mutate and autofit the residues
+   // 
+   int nudge_residue_sequence(const std::string &chain_id,
+			      int resno_range_start,
+			      int resno_range_end,
+			      int offset);
+   
    //
-   // and the functions that it uses:
+   // and the functions that mutate functions uses:
    // (which returns success status - up from get_ori_to_this_res):
    //
    short int move_std_residue(CResidue* moving_residue, const CResidue *reference_residue) const;
@@ -2490,8 +2498,7 @@ public:        //                      public
    CResidue *last_residue_in_chain(CChain *chain_p) const;
 
    // 
-   int residue_serial_number(int reso, const std::string &insertion_code,
-			     const std::string &chain_id) const;  
+   int residue_serial_number(const std::string &chain_id, int reso, const std::string &insertion_code) const;
 
    // cell and symmetry swapping
    // 
