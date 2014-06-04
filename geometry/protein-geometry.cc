@@ -2136,7 +2136,7 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
-   bool debug = true;
+   bool debug = false;
    if (debug) {
       std::cout << "=== atoms_match_dictionary() with these residue atom names ======= " << std::endl;
       for (int i=0; i<n_residue_atoms; i++) {
