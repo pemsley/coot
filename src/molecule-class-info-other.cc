@@ -2704,10 +2704,10 @@ molecule_class_info_t::residue_has_oxt_p(CResidue *residue) const {
 } 
 
 
-
+// return -1 on a problem.
 int
-molecule_class_info_t::residue_serial_number(int resno, const std::string &insertion_code,
-					     const std::string &chain_id) const {
+molecule_class_info_t::residue_serial_number(const std::string &chain_id,
+					     int resno, const std::string &insertion_code) const {
 
    int iserial = -1;
    CResidue *res = get_residue(chain_id, resno, insertion_code);

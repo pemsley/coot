@@ -1389,7 +1389,9 @@ molecule_class_info_t::apply_sequence(int imol_map, CMMDBManager *poly_ala_mol,
 // return success on residue type match
 // success: 1, failure: 0.
 int 
-molecule_class_info_t::mutate_single_multipart(int ires_serial, const char *chain_id, const std::string &target_res_type) {
+molecule_class_info_t::mutate_single_multipart(int ires_serial,
+					       const std::string &chain_id,
+					       const std::string &target_res_type) {
 
    int istat = 0;
    if (atom_sel.n_selected_atoms > 0) {
@@ -1616,3 +1618,65 @@ molecule_class_info_t::sequence_comparison_to_chains(const std::string &target_s
    }
    return mutation_info_vec;
 }
+
+
+// mutate and autofit the residues
+// 
+int
+molecule_class_info_t::nudge_residue_sequence(const std::string &chain_id,
+					      int res_no_range_start,
+					      int res_no_range_end,
+					      int nudge_by) {
+
+   int status = 0;
+
+   // we want to call this multiple times:
+   // mutate_single_multipart(ires_serial, chain_id, const std::string &target_res_type)
+
+
+   if (res_no_range_start < res_no_range_end) {
+      // given 20, 22: we want a range of 2 and to mutate 20,21,22 (3 residues)
+      int range = res_no_range_end - res_no_range_start;
+
+      
+      // first get the sequence of the residues as they currently are.
+      bool status = true;
+      std::vector<std::string> current_types;
+      for (unsigned int i=0; i<=range; i++) {
+	 CResidue *r = get_residue(chain_id, res_no_range_start+i, "");
+	 if (! r) {
+	    status = false;
+	    break;
+	 } else {
+	    current_types.push_back(r->GetResName());
+	 }
+      }
+
+      if (status && current_types.size() == (range+1)) {
+
+	 make_backup();
+
+	 for (unsigned int i_offset=0; i_offset<=range; i_offset++) {
+	    int i_serial_no = residue_serial_number(chain_id, res_no_range_start+i_offset, "");
+	    if (i_serial_no != -1) {
+	       int new_type_idx = i_offset - nudge_by;
+	       if (new_type_idx >= 0 && new_type_idx < current_types.size()) {
+		  std::string new_res_type = current_types[new_type_idx];
+		  mutate_single_multipart(i_serial_no, chain_id, new_res_type);
+	       }
+	    }
+	 }
+
+	 atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+	 atom_sel.mol->FinishStructEdit();
+	 have_unsaved_changes_flag = 1; 
+	 make_bonds_type_checked();
+
+      } else {
+	 std::cout << "WARNING:: Null residue in nudge range " << std::endl;
+      } 
+   } else {
+      std::cout << "WARNING:: bad sequence numbering" << std::endl;
+   } 
+   return status;
+} 
