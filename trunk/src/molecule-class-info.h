@@ -1409,7 +1409,9 @@ public:        //                      public
 
    // pass 0 or 1
    void set_display_extra_restraints(int state) {
-      draw_it_for_extra_restraints = state; 
+      draw_it_for_extra_restraints = state;
+      if (state)
+	 update_extra_restraints_representation();
    }
    
    // pass 0 or 1
@@ -2204,7 +2206,8 @@ public:        //                      public
    int nudge_residue_sequence(const std::string &chain_id,
 			      int resno_range_start,
 			      int resno_range_end,
-			      int offset);
+			      int offset,
+			      short int nudge_residue_numbers_also);
    
    //
    // and the functions that mutate functions uses:

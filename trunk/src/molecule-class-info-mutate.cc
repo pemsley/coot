@@ -1626,7 +1626,8 @@ int
 molecule_class_info_t::nudge_residue_sequence(const std::string &chain_id,
 					      int res_no_range_start,
 					      int res_no_range_end,
-					      int nudge_by) {
+					      int nudge_by,
+					      short int nudge_residue_numbers_also) {
 
    int status = 0;
 
@@ -1663,6 +1664,25 @@ molecule_class_info_t::nudge_residue_sequence(const std::string &chain_id,
 	       if (new_type_idx >= 0 && new_type_idx < current_types.size()) {
 		  std::string new_res_type = current_types[new_type_idx];
 		  mutate_single_multipart(i_serial_no, chain_id, new_res_type);
+	       }
+	    }
+	 }
+
+	 // if nudge_residue_numbers_also (as is often the case,
+	 // because the residue number is correct, but the residues
+	 // are out of position by one along the chain):
+
+	 if (nudge_residue_numbers_also) {
+	    
+	    std::vector<CResidue *> delete_these; // due to overlapping numbers
+	    for (unsigned int i_offset=0; i_offset<=range; i_offset++) {
+	       
+	    }
+	 
+	    for (unsigned int i_offset=0; i_offset<=range; i_offset++) {
+	       CResidue *r = get_residue(chain_id, res_no_range_start+i_offset, "");
+	       if (r) {
+		  r->seqNum -= nudge_by;
 	       }
 	    }
 	 }
