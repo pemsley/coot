@@ -84,7 +84,7 @@
 
 
 ;; 20090517: thinking about making the fit-protein function
-;; interuptable with a toolbar button press.  How do we do that? 
+;; interruptible with a toolbar button press.  How do we do that? 
 ;; fit-protein needs to be split into 2 parts, one, that generates a
 ;; list of residues specs the other that does a refinement given a
 ;; residue spec, then we run and idle function that calls
@@ -136,6 +136,13 @@
 			    (cons (list imol (car chain-list) res-no ins-code) spec-list))
 		      ;; bad ins-code mean no such residue 
 		      (loop chain-list (cdr serial-number-list) spec-list))))))))))
+
+(define (fit-protein-make-specs-from-residue-range imol chain-id res-no-start res-no-end)
+  (if (not (valid-model-molecule? imol))
+      '()
+      (if (not (> res-no-end res-no-start))
+	  '()
+	  (map (lambda(res-no) (list chain-id res-no "")) (range res-no-start (+ res-no-end 1))))))
 
     
 (define (fit-protein-fit-function res-spec imol-map)
