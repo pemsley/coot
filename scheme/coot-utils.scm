@@ -204,6 +204,9 @@
        (else 
 	(loop (cdr ls) acc))))))
 
+(define (model-molecule-number-list)
+  (filter valid-model-molecule? (molecule-number-list)))
+
 ;; first n fields of ls. if length ls is less than n, return ls.
 ;; if ls is not a list, return ls.  If n is negative, return ls.
 ;; 

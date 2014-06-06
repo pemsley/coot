@@ -1107,6 +1107,15 @@ Punted from 0.6:
 * Yes, but Punt.
 
 
+   o put in additional restraints into Raster3D output.  On a white background with density.
+
+* Punted
+
+   o How does segmentation work on the ribosome map?  Pintilie(sp?) review of map segmentations.
+
+* Punted.
+
+
 
    o 	We need to activate this: graphics_info_t::execute_add_terminal_residue
         // just shove it on without a map (i.e. add a residue with no map)
@@ -1240,6 +1249,11 @@ Punted from 0.6:
    interactions with Environment distances.  Different rules for
    hydrogenated molecule.  See the problem by turning up the Max Dist
    to 4 with a hydrogenated complex.
+
+   o Helix fitting at low res: can you do a better job at reducing the ambiguity?
+
+* Punted
+
 
 
 ------
