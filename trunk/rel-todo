@@ -3,34 +3,7 @@
 
 ---- 
 
-   o remove this debugging
-
-=== atoms_match_dictionary() with these residue atom names ======= 
-0  : O2A: and ele  O
-1  : PA : and ele  P
-2  : O1A: and ele  O
-3  : O3A: and ele  O
-4  : PB : and ele  P
-5  : O1B: and ele  O
-6  : O2B: and ele  O
-
-* Done.
-
-   o put in additional restraints into Raster3D output.  On a white background with density.
-
-   o Helix fitting at low res: can you do a better job at reducing the ambiguity?
-
-   o How does segmentation work on the ribosome map?  Pintilie(sp?) review of map segmentations.
-
-   o Steven Sheriff:
-
-     I noticed the following about symmetry labeled atoms:
-
-     The new style could use one more piece of punctuation, e.g. CA/36
-     THR/CX,Y,Z + (0 0 -1) & {0 0 0} would be more readable with some
-     sort of punctuation (a space, a comma, a semi-colon, a colon)
-     between the atom label and the symmetry label, e.g. CA/36 THR/C
-     X,Y,Z + (0 0 -1) & {0 0 0}
+   o change the front-page icons on the glade file.
 
    o Promote to the gui Sloop (db loop)
 
@@ -63,13 +36,9 @@ DEBUG:: apply_undo: (end) history_index: 47 max_history_index: 49
 
    o convert the residue too in match_residue_and_dictionary().  It should have a test :-)
 
-   o change the front-page icons on the glade file.
+* It actually does.  Still needs a test though.
 
    o Pavel message: Map D to H so that you can refine proteins vs neutron data.
-
-   o lidia_LDFLAGS = -Wl,--export-dynamic, what is -module flag and look up export_dynamic_flag_spec
-
-* Done - the second part anyway.
 
    o Oliver Clark HOLE radius bug
 
@@ -705,6 +674,36 @@ Punt.
    o Auto-open XXX.F_phi.F and XXX.F_phi.phi
 
 * Done
+
+
+   o remove this debugging
+
+=== atoms_match_dictionary() with these residue atom names ======= 
+0  : O2A: and ele  O
+1  : PA : and ele  P
+2  : O1A: and ele  O
+3  : O3A: and ele  O
+4  : PB : and ele  P
+5  : O1B: and ele  O
+6  : O2B: and ele  O
+
+* Done.
+
+   o Steven Sheriff:
+
+     I noticed the following about symmetry labeled atoms:
+
+     The new style could use one more piece of punctuation, e.g. CA/36
+     THR/CX,Y,Z + (0 0 -1) & {0 0 0} would be more readable with some
+     sort of punctuation (a space, a comma, a semi-colon, a colon)
+     between the atom label and the symmetry label, e.g. CA/36 THR/C
+     X,Y,Z + (0 0 -1) & {0 0 0}
+
+* Done.
+
+   o lidia_LDFLAGS = -Wl,--export-dynamic, what is -module flag and look up export_dynamic_flag_spec
+
+* Done - the second part anyway.
 
 -----
 
