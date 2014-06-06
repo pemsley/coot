@@ -2997,13 +2997,20 @@ molecule_class_info_t::update_extra_restraints_representation() {
 void
 molecule_class_info_t::update_extra_restraints_representation_bonds() {
 
+   // extra_restraints_representation.clear() should be called before calling this function.
+
+   // make things redraw fast - this is a hack for morph-and-refine.
+   
+   if (! draw_it_for_extra_restraints || ! draw_it)
+      return;
+   
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
       CAtom *at_1 = NULL;
       CAtom *at_2 = NULL;
       clipper::Coord_orth p1(0,0,0);
       clipper::Coord_orth p2(0,0,0);
-      bool ifound_1 = 0;
-      bool ifound_2 = 0;
+      bool ifound_1 = false;
+      bool ifound_2 = false;
       int ifast_index_1 = extra_restraints.bond_restraints[i].atom_1.int_user_data;
       int ifast_index_2 = extra_restraints.bond_restraints[i].atom_2.int_user_data;
       const coot::extra_restraints_t::extra_bond_restraint_t &res =
@@ -3016,7 +3023,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 	    at_1 = atom_sel.atom_selection[ifast_index_1];
 	    if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
 	       p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
-	       ifound_1 = 1;
+	       ifound_1 = true;
 	    }
 	 }
       }
@@ -3026,7 +3033,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 	    at_1 = atom_sel.atom_selection[idx];
 	    if (extra_restraints.bond_restraints[i].atom_1.matches_spec(at_1)) {
 	       p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
-	       ifound_1 = 1;
+	       ifound_1 = true;
 	    }
 	 }
       }
@@ -3038,7 +3045,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 	    at_2 = atom_sel.atom_selection[ifast_index_2];
 	    if (extra_restraints.bond_restraints[i].atom_2.matches_spec(at_2)) {
 	       p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
-	       ifound_2 = 1;
+	       ifound_2 = true;
 	    }
 	 }
       }
@@ -3052,6 +3059,8 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 	    }
 	 }
       }
+
+      // std::cout << "debug ifound_1 and ifound_2 " << ifound_1 << " " << ifound_2 << std::endl;
 
       if (! ifound_1) {
 	 std::cout << "no spec for " << extra_restraints.bond_restraints[i].atom_1 << std::endl;
@@ -3093,8 +3102,9 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 		     int n_dashes = int(dash_density * d);
 		     bool visible = true;
 		     for (unsigned int idash=0; idash<(n_dashes-1); idash++) {
-			std::cout << "idash " << idash << " n_dashes " << n_dashes << " visible "
-				  << visible << std::endl;
+			if (0)
+			   std::cout << "idash " << idash << " n_dashes " << n_dashes << " visible "
+				     << visible << std::endl;
 			if (visible) { 
 			   double frac_s = double(idash  )/double(n_dashes);
 			   double frac_e = double(idash+1)/double(n_dashes);
@@ -3110,7 +3120,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 		  }
 	       } 
 	    } else {
-	       // Normal case
+	       // Normal case - not CA exception
 	       extra_restraints_representation.add_bond(p1, p2, res.bond_dist, res.esd);
 	    }
 	 }

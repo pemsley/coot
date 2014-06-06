@@ -5288,7 +5288,7 @@ int mutate_base(int imol, const char *chain_id, int res_no, const char *ins_code
 
 e.g. if nudge_by is 1, then the sidechain of residue 20 is moved up
 onto what is currently residue 21.  The mainchain numbering and atoms is not changed. */
-int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start, int res_no_range_end, int nudge_by);
+int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start, int res_no_range_end, int nudge_by, short int nudge_residue_numbers_also);
 
 
 /*! \brief Do you want Coot to automatically run a refinement after

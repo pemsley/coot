@@ -2687,14 +2687,15 @@ e.g. if nudge_by is 1, then the sidechain of residue 20 is moved up
 onto what is currently residue 21.  The mainchain numbering and atoms is not changed. */
 int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start,
 			   int res_no_range_end,
-			   int nudge_by) {
+			   int nudge_by,
+			   short int nudge_residue_numbers_also) {
 
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       status = graphics_info_t::molecules[imol].nudge_residue_sequence(chain_id,
 								       res_no_range_start,
 								       res_no_range_end,
-								       nudge_by);
+								       nudge_by, nudge_residue_numbers_also);
    }
    return status;
 } 
