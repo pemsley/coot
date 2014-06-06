@@ -21,6 +21,7 @@
 
 #include <algorithm> // for sorting.
 #include <queue>
+#include <fstream>
 
 #include <gsl/gsl_sf_bessel.h>
 
@@ -1707,28 +1708,12 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       double x;
       int n = 0;
       
-      // scan all map:
-//       for (ix = reference_map.first(); !ix.last(); ix.next()) {
-// 	 double x = calc_map[ix];
-// 	 if (! clipper::Util::is_nan(x)) { 
-// 	    y = reference_map[ix];
-// 	    if (! clipper::Util::is_nan(y)) { 
-// 	       if (masked_map[ix]) {
-// 		  sum_x  += x;
-// 		  sum_y  += y;
-// 		  sum_xy += x * y;
-// 		  sum_x_sqd += x*x;
-// 		  sum_y_sqd += y*y;
-// 		  n++;
-// 	       }
-// 	    } else {
-// 	       std::cout << "ERROR:: oops (reference) map density for " << ix.coord().format()
-// 			 << " is nan " << std::endl;
-// 	    } 
-// 	 } else {
-// 	    std::cout << "ERROR:: oops calc density for " << ix.coord().format() << " is nan "
-// 		      << std::endl;
-// 	 }
+
+      bool debug_grid_points = true;
+
+//       std::ofstream gp;
+//       if (debug_grid_points) {
+// 	 gp = std::ifstream("xy-points.tab");
 //       }
 
       // scan the selection grid
@@ -1764,6 +1749,9 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 	 }
       }
 
+//       if (debug_grid_points)
+// 	 gp.close();
+      
       if (debug) { 
 	 // just checking that the maps are what we expect them to be...
 	 clipper::CCP4MAPfile mapout;
