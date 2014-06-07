@@ -79,7 +79,7 @@ def fit_protein(imol):
 	  turn_on_backup(imol)
 
 # Paul: 20090517: thinking about making the fit-protein function
-# interuptable with a toolbar button press.  How do we do that? 
+# interruptible with a toolbar button press.  How do we do that? 
 # fit_protein needs to be split into 2 parts, one, that generates a
 # list of residues specs the other that does a refinement given a
 # residue spec, then we run and idle function that calls
@@ -137,6 +137,17 @@ def fit_protein_make_specs(imol, chain_specifier):
                     pass
         return spec_list
 
+    
+def fit_protein_make_specs_from_residue_range(imol, chain_id,
+                                              res_no_start, res_no_end):
+    if valid_model_molecule_qm(imol):
+        if res_no_end > res_no_start:
+            ret = map(lambda res_no: [chain_id, res_no, ""],
+                      range(res_no_start, res_no_end + 1 ))
+            return ret
+    return []
+    
+    
 def fit_protein_fit_function(res_spec, imol_map):
 
     imol     = res_spec[0]

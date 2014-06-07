@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 5042 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
+scripts      rev 5089 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
 tests        rev 4921 update
 build-it-win rev 4739 (check 0.8 pre builder, add publishing?!)
 
@@ -390,6 +390,8 @@ low importance
 
 **** Python ****
 
+   o residue type selection convert to upper case (maybe best a combobox)
+
    o find_exe/command_in_path
 	- more generic with respect to extensions (Win mainly)
 	- take all drive letters (Win only)
@@ -487,6 +489,8 @@ low importance
 
 
 **** Windows ****
+
+   o fix runwincoot.bat when PYTHONPATH points to a pygtk installation.
 
    o Add Documents\ and Settings//My Documents to favourites in filechooser
 
