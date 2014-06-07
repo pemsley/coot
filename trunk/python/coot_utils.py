@@ -320,6 +320,8 @@ def molecule_number_list():
             ret.append(mol_no)
     return ret
 
+def model_molecule_number_list():
+    return filter(valid_model_molecule_qm, molecule_number_list())
 
 # Test for prefix-dir (1) being a string (2) existing (3) being a
 # directory (4-6) modifiable by user (ie. u+rwx).  prefix_dir must be a
