@@ -3,6 +3,23 @@
 
 ---- 
 
+
+   o why does 201 and 202 disconnect in chain-N-with-FUC-reordered-with-link.pdb?
+
+     - Because the PDB file is wrong (for a BETA1-3 link) the linking
+       atom should be on "residue-1" not "residue-2" as it is here.
+
+   o FUC - alpha1-2 - b- galact beta-1-4 NAG
+
+                           beta-1-3 NAG
+
+
+   o We need FUC decorations and GAL (beta galactose) decorations
+
+*Done.  Needs a test.
+
+   o Add Delete Link function (like add link)
+
    o change the front-page icons on the glade file.
 
    o Promote to the gui Sloop (db loop)
@@ -26,7 +43,7 @@ DEBUG:: apply_undo: (end) history_index: 47 max_history_index: 49
    o chiral centre inverter in C++  
 
    o modified residue (e.g. oxidised Cys).  Mutate it back to CYS.
-     It's still a HETATM.
+     It's still HETATMs.
 
    o remove the need for this patch:
      http://pkgs.fedoraproject.org/cgit/coot.git/tree/coot-user-manual.texi.patch
