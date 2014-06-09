@@ -6,7 +6,9 @@ int main(int argc, char **argv) {
    if (argc <= 2) {
       std::cout << "Usage: " << argv[0] << " template-pdb link-type new-comp-id (generate mode)\n";
       std::cout << "   or: " << argv[0] << " test link-type new-comp-id \n";
-   } else { 
+   } else {
+
+      InitMatType();
 
       if (std::string(argv[1]) == "test") {
 
@@ -36,7 +38,10 @@ int main(int argc, char **argv) {
 		  std::cout << "ERROR:: pdb file " << pdb_file_name << " does not exist"
 			    << std::endl;
 	       } else { 
-		  mol->ReadPDBASCII(pdb_file_name.c_str());
+		  int err = mol->ReadPDBASCII(pdb_file_name.c_str());
+		  int cr = mol->CrystReady();
+		  std::cout << "INFO:: read " << pdb_file_name << " gives code " << err
+			    << " and cryst status: " << cr << std::endl;
 		  CResidue *base_residue_p = coot::util::get_first_residue(mol);
 		  if (! base_residue_p) {
 		     std::cout << "ERROR:: no base residue " << link_type << " in " << file_name
@@ -70,6 +75,8 @@ int main(int argc, char **argv) {
 
 	 // make the link-by-torsion reference files
 
+	 std::cout << "--- generate mode --- " << std::endl;
+
 	 std::string file_name = argv[1];
 	 std::string link_type = argv[2]; // e.g. "ALPHA1-6";
 	 std::string new_residue_type = "MAN";
@@ -81,6 +88,9 @@ int main(int argc, char **argv) {
 	 if (status != Error_NoError) {
 	    std::cout << "ERROR:: on reading " << file_name << std::endl;
 	 } else {
+	    int cr = mol->CrystReady();
+	    std::cout << "INFO:: read " << file_name << " gives code " << status
+		      << " and cryst status: " << cr << "\n";
 	    std::cout << "INFO:: read " << file_name << " OK " << std::endl;
 	    std::pair<CResidue *, CResidue *> p = coot::link_by_torsion_t::get_residue_pair(mol);
 	    if (! p.first || !p.second) {
@@ -101,10 +111,12 @@ int main(int argc, char **argv) {
 		     l_to_core.write(file_name);
 		     
 		     // and the decorations on the core:
-		     coot::link_by_torsion_base_t decor = coot::get_decoroations(new_residue_type);
+		     coot::link_by_torsion_base_t decor = coot::get_decorations(new_residue_type);
 		     coot::link_by_torsion_t l_decor(decor, p.first, p.second);
 		     if (! l_decor.filled()) {
-			std::cout << "ERROR:: No decorations for " << new_residue_type << std::endl;
+			std::cout << "ERROR:: No decorations for "
+				  << new_residue_type << ", i.e. needs coot::" <<  new_residue_type
+				  << "_decorations() function to be written" << std::endl;
 		     } else { 
 			std::string file_name =  new_residue_type + "-decorations.tab";
 			l_decor.write(file_name);

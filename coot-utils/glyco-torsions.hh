@@ -135,8 +135,10 @@ namespace coot {
    
    link_by_torsion_base_t mannose_decorations(); // need GLC NAG
    link_by_torsion_base_t glucose_decorations(); 
+   link_by_torsion_base_t galactose_decorations();
+   link_by_torsion_base_t fucose_decorations();
    link_by_torsion_base_t NAG_decorations();
-   link_by_torsion_base_t get_decoroations(const std::string &comp_id);
+   link_by_torsion_base_t get_decorations(const std::string &comp_id);
    
 
 } // namespace coot

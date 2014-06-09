@@ -336,6 +336,7 @@ coot::link_by_torsion_base_t coot::pyranose_link_2_3_to_core() {
 coot::link_by_torsion_base_t coot::mannose_decorations() {
    link_by_torsion_base_t l;
    std::vector<atom_by_torsion_base_t> ats;
+   // I don't like this depending on O6 of the previous residue
    ats.push_back(atom_by_torsion_base_t("O2", "O", BS(false, "C2"), BS(false, "C1"), BS(true,  "O6")));
    ats.push_back(atom_by_torsion_base_t("O3", "O", BS(false, "C3"), BS(false, "C2"), BS(false, "C1")));
    ats.push_back(atom_by_torsion_base_t("O4", "O", BS(false, "C4"), BS(false, "C3"), BS(false, "C2")));
@@ -349,7 +350,34 @@ coot::link_by_torsion_base_t coot::mannose_decorations() {
 coot::link_by_torsion_base_t coot::glucose_decorations() {
    link_by_torsion_base_t l;
    std::vector<atom_by_torsion_base_t> ats;
+   // I don't like this depending on O6 of the previous residue
    ats.push_back(atom_by_torsion_base_t("O2", "O", BS(false, "C2"), BS(false, "C1"), BS(true,  "O6")));
+   ats.push_back(atom_by_torsion_base_t("O3", "O", BS(false, "C3"), BS(false, "C2"), BS(false, "C1")));
+   ats.push_back(atom_by_torsion_base_t("O4", "O", BS(false, "C4"), BS(false, "C3"), BS(false, "C2")));
+   ats.push_back(atom_by_torsion_base_t("C6", "C", BS(false, "C5"), BS(false, "C4"), BS(false, "C3")));
+   ats.push_back(atom_by_torsion_base_t("O6", "O", BS(false, "C6"), BS(false, "C5"), BS(false, "C4")));
+   for (unsigned int i=0; i<ats.size(); i++) l.add(ats[i]);
+   return l;
+}
+
+
+coot::link_by_torsion_base_t coot::fucose_decorations() {
+   link_by_torsion_base_t l;
+   std::vector<atom_by_torsion_base_t> ats;
+   ats.push_back(atom_by_torsion_base_t("O2", "O", BS(false, "C2"), BS(false, "C1"), BS(true,  "O3")));
+   ats.push_back(atom_by_torsion_base_t("O3", "O", BS(false, "C3"), BS(false, "C2"), BS(false, "C1")));
+   ats.push_back(atom_by_torsion_base_t("O4", "O", BS(false, "C4"), BS(false, "C3"), BS(false, "C2")));
+   ats.push_back(atom_by_torsion_base_t("C6", "C", BS(false, "C5"), BS(false, "C4"), BS(false, "C3")));
+   ats.push_back(atom_by_torsion_base_t("O6", "O", BS(false, "C6"), BS(false, "C5"), BS(false, "C4")));
+   for (unsigned int i=0; i<ats.size(); i++) l.add(ats[i]);
+   return l;
+}
+
+coot::link_by_torsion_base_t coot::galactose_decorations() {
+   link_by_torsion_base_t l;
+   std::vector<atom_by_torsion_base_t> ats;
+   // O4 of previous residue, from an 1-4 link.
+   ats.push_back(atom_by_torsion_base_t("O2", "O", BS(false, "C2"), BS(false, "C1"), BS(true,  "O4")));
    ats.push_back(atom_by_torsion_base_t("O3", "O", BS(false, "C3"), BS(false, "C2"), BS(false, "C1")));
    ats.push_back(atom_by_torsion_base_t("O4", "O", BS(false, "C4"), BS(false, "C3"), BS(false, "C2")));
    ats.push_back(atom_by_torsion_base_t("C6", "C", BS(false, "C5"), BS(false, "C4"), BS(false, "C3")));
@@ -376,16 +404,17 @@ coot::link_by_torsion_base_t coot::NAG_decorations() {
 }
 
 coot::link_by_torsion_base_t
-coot::get_decoroations(const std::string &new_comp_id) {
+coot::get_decorations(const std::string &new_comp_id) {
    
    if (new_comp_id == "MAN") return mannose_decorations();
    if (new_comp_id == "BMA") return mannose_decorations();
    if (new_comp_id == "GLC") return glucose_decorations();
+   if (new_comp_id == "FUC") return glucose_decorations();
+   if (new_comp_id == "GAL") return galactose_decorations();
    if (new_comp_id == "NAG") return NAG_decorations();
    link_by_torsion_base_t empty;
    return empty;
 } 
-
 
 
 // When the link type is xxx1-Y, then we can simply add up the torsions.
@@ -411,6 +440,7 @@ coot::get_names_for_link_type(const std::string &link_type) {
    if (link_type == "ALPHA1-2") r = pyranose_link_1_2_to_core();
    if (link_type == "ALPHA1-3") r = pyranose_link_1_3_to_core();
    if (link_type == "ALPHA2-3") r = pyranose_link_2_3_to_core();
+   if (link_type == "BETA1-3")  r = pyranose_link_1_3_to_core();
    if (link_type == "BETA1-4")  r = pyranose_link_1_4_to_core();
    if (link_type == "NAG-ASN")  r = asn_pyranose_link_to_core();
    return r;
