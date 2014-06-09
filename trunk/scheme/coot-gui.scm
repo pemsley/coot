@@ -1083,14 +1083,21 @@
 	(interesting-things-gui
 	 title
 	 (map (lambda (residue-cpmd centre-atom)
-		(let* ((residue (cdr residue-cpmd))
-		       (label (string-append 
-			       (car residue) " "
-			       (number->string (car (cdr residue))) " "
-			       (car (cdr (cdr residue))) " "
-			       (car centre-atom) " "
-			       (car (cdr centre-atom)))))
-		       (append (list label imol) residue centre-atom)))
+		;; see (from above) that centre-atom can be false
+		(if centre-atom 
+		    (let* ((residue (cdr residue-cpmd))
+			   (label (string-append 
+				   (car residue) " "
+				   (number->string (car (cdr residue))) " "
+				   (car (cdr (cdr residue))) " "
+				   (car centre-atom) " "
+				   (car (cdr centre-atom)))))
+		      (append (list label imol) residue centre-atom))
+
+		    ;; protection from centre-atom being false.
+		    ;; 
+		    ;; make a synthetic baddie
+		    (list "[oops - why did this happen?]" 0 0 0)))
 	      residues centre-atoms)))))
 
 
