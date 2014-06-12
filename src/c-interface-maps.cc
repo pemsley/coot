@@ -336,8 +336,10 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 	   // save at least the mtz file from where the map comes
 	   g.molecules[imol].store_refmac_mtz_filename(std::string(mtz_file_name));
 	 }
-	 g.scroll_wheel_map = imol;
-	 g.activate_scroll_radio_button_in_display_manager(imol);
+         if (! is_diff_map) {
+	   g.scroll_wheel_map = imol;
+	   g.activate_scroll_radio_button_in_display_manager(imol);
+	 }
 	 graphics_draw();
       } else {
 	 std::cout << "WARNING:: label(s) not found in MTZ file " 
