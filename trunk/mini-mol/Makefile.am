@@ -30,7 +30,7 @@ INCLUDES =  \
 
 AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS)
 
-noinst_PROGRAMS = testminimol
+check_PROGRAMS = testminimol
 
 testminimol_SOURCES = testminimol.cc
 

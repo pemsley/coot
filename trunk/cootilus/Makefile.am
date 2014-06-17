@@ -26,7 +26,7 @@ cootilus_demo_SOURCES = cootilus-demo.cpp
 
 cootilus_demo_LDADD = ./libcootilus.la $(CLIPPER_LIBS) $(MMDB_LIBS) 
 
-noinst_PROGRAMS = cootilus-demo
+check_PROGRAMS = cootilus-demo
 
 lib_LTLIBRARIES=libcootilus.la
 

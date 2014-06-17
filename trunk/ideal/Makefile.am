@@ -74,7 +74,7 @@ libcoot_ideal_la_SOURCES = simple-restraint.cc chirals.cc  extra-restraints.cc \
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
 	coot-compare-residues.hh coot-compare-residues.cc link-restraints.cc parallel-planes.cc
 
-noinst_PROGRAMS =  with-geometry logramatest
+check_PROGRAMS =  with-geometry logramatest
 bin_PROGRAMS = mini-rsr
 
 logramatest_SOURCES = logramatest.cpp

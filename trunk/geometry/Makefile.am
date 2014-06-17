@@ -53,7 +53,7 @@ libcoot_geometry_la_LIBADD = \
 
 # libcoot_geometry_la_CXXFLAGS = -g -O1
 
-noinst_PROGRAMS = test-geometry test-read-components
+check_PROGRAMS = test-geometry test-read-components
 
 bin_PROGRAMS = compare-dictionaries
 

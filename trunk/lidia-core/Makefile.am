@@ -47,7 +47,7 @@ libcoot_lidia_core_la_LIBADD =                        \
 
 # test_molfile_LDADD: libcoot-lidia-core.la
 
-noinst_PROGRAMS = test-cod-atom-types
+check_PROGRAMS = test-cod-atom-types
 test_cod_atom_types_SOURCES = test-cod-atom-types.cc
 
 test_cod_atom_types_LDADD = libcoot-lidia-core.la \

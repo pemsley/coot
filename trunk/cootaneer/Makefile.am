@@ -26,7 +26,7 @@ cootaneer_demo_SOURCES = cootaneer-demo.cpp
 
 cootaneer_demo_LDADD = ./libcootaneer.la $(CLIPPER_LIBS) $(MMDB_LIBS) 
 
-noinst_PROGRAMS = cootaneer-demo
+check_PROGRAMS = cootaneer-demo
 
 lib_LTLIBRARIES=libcootaneer.la
 

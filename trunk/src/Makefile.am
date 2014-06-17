@@ -209,10 +209,7 @@ INCLUDES = \
 
 bin_PROGRAMS = coot-real density-score-by-residue-real fix-nomenclature-errors
 dist_bin_SCRIPTS = coot density-score-by-residue
-noinst_PROGRAMS = test-coot-align test-cholesky
-#check_PROGRAMS = test-coot-align test-choleksy
-# check_PROGRAMS = test-lbg-graph
-# testmap write_map testcartesian graphics_crash_test test_cholesky test-command-line
+check_PROGRAMS = test-coot-align test-cholesky
 
 #coot: coot.in
 #	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@

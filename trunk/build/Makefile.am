@@ -28,7 +28,7 @@ INCLUDES =  \
 	$(CLIPPER_CXXFLAGS) \
 	$(MMDB_CXXFLAGS)
 
-noinst_PROGRAMS = testcabuild
+check_PROGRAMS = testcabuild
 
 testcabuild_SOURCES = testcabuild.cc
 

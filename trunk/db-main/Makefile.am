@@ -19,7 +19,7 @@ libcoot_db_main_la_LIBADD  = \
 	$(top_builddir)/utils/libcoot-utils.la \
         $(CLIPPER_LIBS) $(MMDB_LIBS)
 
-noinst_PROGRAMS = testdbmain train-pepflip
+check_PROGRAMS = testdbmain train-pepflip
 
 testdbmain_SOURCES = testdbmain.cc
 
