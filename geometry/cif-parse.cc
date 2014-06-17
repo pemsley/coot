@@ -1383,7 +1383,7 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
 
       s = mmCIFLoop->GetString("comp_id",j,ierr);
       ierr_tot += ierr;
-      ierr_tot_for_ccd =+ ierr;
+      ierr_tot_for_ccd += ierr;
       if (s) { 
 	 comp_id = s;
 	 for (int id=(dict_res_restraints.size()-1); id >=0; id--) {
@@ -1396,13 +1396,13 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
 
       s = mmCIFLoop->GetString("atom_id_1", j, ierr);
       ierr_tot += ierr;
-      ierr_tot_for_ccd =+ ierr;
+      ierr_tot_for_ccd += ierr;
       if (s) 
 	 atom_id_1 = get_padded_name(s, comp_id_index);
 
       s = mmCIFLoop->GetString("atom_id_2", j, ierr);
       ierr_tot += ierr;
-      ierr_tot_for_ccd =+ ierr;
+      ierr_tot_for_ccd += ierr;
       if (s) 
 	 atom_id_2 = get_padded_name(s, comp_id_index);
 
@@ -1434,7 +1434,7 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
 	 } 
       } 
       ierr_tot += ierr;
-      ierr_tot_for_ccd =+ ierr;
+      ierr_tot_for_ccd += ierr;
 
 
       ierr = mmCIFLoop->GetReal(value_dist, "value_dist", j);
