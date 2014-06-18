@@ -76,11 +76,14 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
    CResidue *r = geom.get_residue(comp_id, idealized);
 
    std::pair<bool, dictionary_residue_restraints_t> rest = geom.get_monomer_restraints(comp_id);
-   if (rest.first) { 
+   if (rest.first) {
    
       if (r) {
 	 // makes a 3d conformer
-	 bool sanitize = false;
+
+	 // 20140618: This was false - now try true so that it processes 110 (i.e. no more
+	 //           valence error).
+	 bool sanitize = true;
 	 RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", sanitize);
 	 RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
 
