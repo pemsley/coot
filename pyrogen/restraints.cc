@@ -62,7 +62,7 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
 	 at_p->getProp("name", name);
 	 atom_names.push_back(name);
       }
-      catch (KeyErrorException kee) {
+      catch (const KeyErrorException &kee) {
 	 std::cout << "caught no-name for atom exception in mogul_out_to_mmcif_dict_by_mol(): "
 		   <<  kee.what() << std::endl;
       } 
@@ -200,7 +200,7 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	    } 
 	 
 	 }
-	 catch (KeyErrorException kee) {
+	 catch (const KeyErrorException &kee) {
 	    std::cout << "WARNING:: caugh KeyErrorException in add_bonds_to_hydrogens() "
 		      << std::endl;
 	 }
@@ -297,7 +297,7 @@ coot::fill_with_energy_lib_angles(const RDKit::ROMol &mol,
 			       << rte.what() << std::endl;
 		  } 
 	       }
-	       catch (KeyErrorException kee) {
+	       catch (const KeyErrorException &kee) {
 		  std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_angles() "
 			    << std::endl;
 	       }
@@ -437,7 +437,7 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 			   done_torsion[torsion_key_name_2] = true;
 			}
 		     }
-		     catch (KeyErrorException kee) {
+		     catch (const KeyErrorException &kee) {
 			std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_angles() "
 				  << std::endl;
 		     }
@@ -515,7 +515,7 @@ coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_rest
 	 
 	 restraints->atom_info.push_back(atom);
       }
-      catch (KeyErrorException kee) {
+      catch (const KeyErrorException &kee) {
 	 std::cout << "WARNING:: caught property exception in add_chem_comp_atoms()"
 		   << iat << std::endl;
       }
@@ -530,9 +530,9 @@ coot::add_chem_comp_planes(const RDKit::ROMol &mol, coot::dictionary_residue_res
    add_chem_comp_aromatic_planes(mol, restraints);
    add_chem_comp_deloc_planes(mol, restraints);
 
-   // FIXME.  Function no longer exists (it was blank anyway)
-   // 
-   // restraints->remove_redundant_plane_resetraints();
+   add_chem_comp_sp2_N_planes(mol, restraints);
+
+   restraints->remove_redundant_plane_restraints();
 
 }
 
@@ -583,7 +583,7 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_re
 		     if (atom_plane == plane_id)
 			add_atom_to_plane = false;
 		  }
-		  catch (KeyErrorException kee) {
+		  catch (const KeyErrorException &kee) {
 		     add_atom_to_plane = true;
 		  }
 		  // the following exception is needed for my Ubuntu 10.04 machine, don't know why:
@@ -636,7 +636,7 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_re
 				  plane_restraint_atoms.end())
 				 plane_restraint_atoms.push_back(attached_atom_name);
 			   }
-			   catch (KeyErrorException kee) {
+			   catch (const KeyErrorException &kee) {
 			      // do nothing then (no name found)
 			   }
 			}
@@ -652,7 +652,7 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_re
 	       // maybe this should be in above clause for aesthetic reasons?
 	       n_planes++;
 	    }
-	    catch (KeyErrorException kee) {
+	    catch (const KeyErrorException &kee) {
 	       // this should not happen
 	       std::cout << "WARNING:: add_chem_comp_planes() failed to get atom name "
 			 << std::endl;
@@ -715,7 +715,7 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 	       }
 	    }
 
-	    catch (KeyErrorException kee) {
+	    catch (const KeyErrorException &kee) {
 	       std::cout << "ERROR:: in add_chem_comp_planes_deloc failed to get atom name"
 			 << std::endl;
 	    } 
@@ -726,7 +726,58 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 } 
 
 
-   
+void
+coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+
+   typedef std::pair<std::string, double> d_pat;
+   std::vector<d_pat> patterns;
+   patterns.push_back(d_pat("[c,C][N^2;H2]([H])[H]", 0.02));  // N6 on Adenosine.
+                                                              // Should the Hs be replaced by *s?
+   int n_planes = 1; // counter for output text
+   for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
+      RDKit::ROMol *query = RDKit::SmartsToMol(patterns[ipat].first);
+      std::vector<RDKit::MatchVectType>  matches;
+      bool recursionPossible = true;
+      bool useChirality = true;
+      bool uniquify = true;
+      int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      std::cout << "Matched " << matched << " sp2 N planes" << std::endl;
+      for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
+	 if (matches[imatch].size() > 0) {
+	    std::cout << "matched sp2 N plane pattern: " << patterns[ipat].first << std::endl;
+	    std::string plane_id = "plane-sp2-N-";
+	    char s[100];
+	    snprintf(s,99,"%d", n_planes);
+	    plane_id += std::string(s);
+	    try {
+	       std::vector<std::string> atom_names;
+	       for (unsigned int ii=0; ii<matches[imatch].size(); ii++) {
+		  RDKit::ATOM_SPTR at_p = mol[matches[imatch][ii].second];
+
+		  // Unlike aromatics, the atoms of this type of plane
+		  // can be in more than one plane.
+
+		  std::string name = "";
+		  at_p->getProp("name", name);
+		  at_p->setProp("plane_id", plane_id);
+		  atom_names.push_back(name);
+	       }
+	       if (atom_names.size() > 3) { 
+		  realtype dist_esd = patterns[ipat].second;
+		  coot::dict_plane_restraint_t res(plane_id, atom_names, dist_esd);
+		  restraints->plane_restraint.push_back(res);
+	       }
+	    }
+	    catch (const KeyErrorException &kee) {
+		  
+	    }
+	    n_planes++;
+	 }
+      }
+   }
+}
+
+
 int 
 coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
    
@@ -758,7 +809,7 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 	    restraints->chiral_restraint.push_back(chiral);
 	    n_chirals++;
 	 }
-	 catch (KeyErrorException kee) {
+	 catch (const KeyErrorException &kee) {
 	    std::cout << "caught no-name for atom exception in chiral assignment(): "
 		      <<  kee.what() << std::endl;
 	 }

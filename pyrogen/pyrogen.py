@@ -117,16 +117,17 @@ def is_comp_id(comp_id):
 
 def is_mdl_file(file_name):
     bits = file_name.rsplit(".")
-    if len(bits) > 1:
-       if (bits[1] == 'mol'):
+    if (len(bits) < 2):
+       return False
+    else:
+       idx = len(bits) - 1
+       if (bits[idx] == 'mol'):
           return True
        else:
-          if (bits[1] == 'mdl'):
+          if (bits[idx] == 'mdl'):
              return True
           else:
              return False
-    else:
-        return False
         
 
 # return the contents of file_name
@@ -457,11 +458,16 @@ def n_hydrogens(mol):
    
 def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
 
+   
    try:
       compound_name = m.GetProp('_Name');
    except KeyError:
       print 'caught key error in trying to get _Name in make_restraints() for m'
       compound_name = '.'
+   except AttributeError:
+      print 'problem with molecule m in make_restraints()'
+      return
+   
 
    m_H = m
    if n_hydrogens(m) == 0:
@@ -486,8 +492,8 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
       # we don't want to do this now - we will write out results
       # post-mogul regularizement usually.
       # coot.write_pdb_from_mol(m_H, comp_id, pdb_out_file_name)
-      mogul_ins_file_name = 'mogul.ins'
-      mogul_out_file_name = 'mogul.out'
+      mogul_ins_file_name = 'mogul-' + comp_id + '.ins'
+      mogul_out_file_name = 'mogul-' + comp_id + '.out'
       bor = make_restraints_for_bond_orders(m_H)
       # print "we got this bor: ", bor
       # coot.write_restraints(bor, comp_id, 'bond-orders.cif')
@@ -544,7 +550,9 @@ if __name__ == "__main__":
 
     # python p2.py "O=C(C1=CC=CN(C1=O)Cc2ccccc2)N" LIG --no-mogul
     
-    if len(sys.argv) > 2:
+    if len(sys.argv) < 3:
+       print 'Usage: pyrogen SMILES-or-file comp-id [--no-mogul]'
+    else:
         smiles_or_mdl_string = sys.argv[1]
         smiles_string = ''
         is_mdl_file_flag = False
@@ -556,8 +564,8 @@ if __name__ == "__main__":
 
         # mogul handling
         if len(sys.argv) == 4:
-            if sys.argv[3] == '--no-mogul':
-                run_mogul = False
+           if sys.argv[3] == '--no-mogul':
+              run_mogul = False
 
         sdf_file_name = file_stub + ".sdf"
         cif_restraints_file_name = file_stub + '-pyrogen.cif'
