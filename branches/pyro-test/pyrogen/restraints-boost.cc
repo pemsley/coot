@@ -75,19 +75,21 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 
    CResidue *r = geom.get_residue(comp_id, idealized);
 
-   if (r) {
-      // makes a 3d conformer
-      RDKit::RWMol mol_rw = coot::rdkit_mol_sanitized(r, geom);
-      RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
+   std::pair<bool, dictionary_residue_restraints_t> rest = geom.get_monomer_restraints(comp_id);
+   if (rest.first) { 
+   
+      if (r) {
+	 // makes a 3d conformer
+	 bool sanitize = false;
+	 RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", sanitize);
+	 RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
 
-      // debug.  OK, so the bond orders are undelocalized here.
-      debug_rdkit_molecule(&mol_rw);
+	 // debug.  OK, so the bond orders are undelocalized here.
+	 debug_rdkit_molecule(&mol_rw);
       
-      return m;
-   } else {
-      // makes a 2d conformer
-      std::pair<bool, dictionary_residue_restraints_t> rest = geom.get_monomer_restraints(comp_id);
-      if (rest.first) { 
+	 return m;
+      } else {
+	 // makes a 2d conformer
 	 RDKit::RWMol mol_rw = coot::rdkit_mol(rest.second);
 	 RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
 	 bool canon_orient = false;
