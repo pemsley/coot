@@ -2811,6 +2811,25 @@ coot::protein_geometry::refmac_monomer(const std::string &s, // dir
    return read_number;
 }
 
+// quote atom name as needed - i.e. CA -> CA, CA' -> "CA'"
+std::string 
+coot::dictionary_residue_restraints_t::quoted_atom_name(const std::string &an) const {
+
+   std::string n = an;
+   bool has_quotes = false;
+
+   for (unsigned int i=0; i<an.size(); i++) {
+      if (an[i] == '\'') {
+	 has_quotes = true;
+	 break;
+      } 
+   }
+   if (has_quotes)
+      n = "\"" + an + "\"";
+
+   return n;
+}
+
 void
 coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) const {
 
@@ -2893,7 +2912,8 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       const char *ss =  residue_info.comp_id.c_str();
 	       mmCIFLoop->PutString(ss, "comp_id", i);
 	       ss = util::remove_whitespace(ai.atom_id).c_str();
-	       mmCIFLoop->PutString(ss, "atom_id", i);
+	       std::string qan = quoted_atom_name(ss);
+	       mmCIFLoop->PutString(qan.c_str(), "atom_id", i);
 	       ss = atom_info[i].type_symbol.c_str();
 	       mmCIFLoop->PutString(ss, "type_symbol", i);
 	       ss = atom_info[i].type_energy.c_str();
@@ -2926,9 +2946,11 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       mmCIFLoop->PutString(ss, "comp_id", i);
 	       std::string id_1 = util::remove_whitespace(bond_restraint[i].atom_id_1_4c());
 	       std::string id_2 = util::remove_whitespace(bond_restraint[i].atom_id_2_4c());
-	       ss = id_1.c_str();
+	       std::string qan_1 = quoted_atom_name(id_1);
+	       std::string qan_2 = quoted_atom_name(id_2);
+	       ss = qan_1.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_1", i);
-	       ss = id_2.c_str();
+	       ss = qan_2.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_2", i);
 	       ss = bond_restraint[i].type().c_str();
 	       mmCIFLoop->PutString(ss, "type", i);
@@ -2957,17 +2979,20 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       // std::cout << "ading angle number " << i << std::endl;
 	       std::string id_1 = util::remove_whitespace(angle_restraint[i].atom_id_1_4c());
 	       std::string id_2 = util::remove_whitespace(angle_restraint[i].atom_id_2_4c());
+	       std::string qan_1 = quoted_atom_name(id_1);
+	       std::string qan_2 = quoted_atom_name(id_2);
 	       const char *ss = residue_info.comp_id.c_str();
 	       mmCIFLoop->PutString(ss, "comp_id", i);
-	       ss = id_1.c_str();
+	       ss = qan_1.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_1", i);
-	       ss = id_2.c_str();
+	       ss = qan_2.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_2", i);
 
 	       // bug fix(!) intermediate value my_ss clears up casting
 	       // problem (inheritance-related?) on writing.
 	       std::string my_ss = util::remove_whitespace(angle_restraint[i].atom_id_3_4c());
-	       ss = my_ss.c_str();
+	       std::string qan_3 = quoted_atom_name(my_ss);
+	       ss = qan_3.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_3", i);
 	       
 	       float v = angle_restraint[i].angle();
@@ -2990,17 +3015,21 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       std::string id_2 = util::remove_whitespace(torsion_restraint[i].atom_id_2_4c());
 	       std::string id_3 = util::remove_whitespace(torsion_restraint[i].atom_id_3_4c());
 	       std::string id_4 = util::remove_whitespace(torsion_restraint[i].atom_id_4_4c());
+	       std::string qan_1 = quoted_atom_name(id_1);
+	       std::string qan_2 = quoted_atom_name(id_2);
+	       std::string qan_3 = quoted_atom_name(id_3);
+	       std::string qan_4 = quoted_atom_name(id_4);
 	       const char *ss = residue_info.comp_id.c_str();
 	       mmCIFLoop->PutString(ss, "comp_id", i);
 	       ss = torsion_restraint[i].id().c_str();
 	       mmCIFLoop->PutString(ss, "id", i);
-	       ss = id_1.c_str();
+	       ss = qan_1.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_1", i);
-	       ss = id_2.c_str();
+	       ss = qan_2.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_2", i);
-	       ss = id_3.c_str();
+	       ss = qan_3.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_3", i);
-	       ss = id_4.c_str();
+	       ss = qan_4.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_4", i);
 	       float v = torsion_restraint[i].angle();
 	       mmCIFLoop->PutReal(v, "value_angle", i);
@@ -3025,16 +3054,20 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       std::string id_1 = util::remove_whitespace(chiral_restraint[i].atom_id_1_4c());
 	       std::string id_2 = util::remove_whitespace(chiral_restraint[i].atom_id_2_4c());
 	       std::string id_3 = util::remove_whitespace(chiral_restraint[i].atom_id_3_4c());
+	       std::string qan_c = quoted_atom_name(id_c);
+	       std::string qan_1 = quoted_atom_name(id_1);
+	       std::string qan_2 = quoted_atom_name(id_2);
+	       std::string qan_3 = quoted_atom_name(id_3);
 	       mmCIFLoop->PutString(ss, "comp_id", i);
 	       ss = chiral_restraint[i].Chiral_Id().c_str();
 	       mmCIFLoop->PutString(ss, "id", i);
-	       ss = id_c.c_str();
+	       ss = qan_c.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_centre", i);
-	       ss = id_1.c_str();
+	       ss = qan_1.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_1", i);
-	       ss = id_2.c_str();
+	       ss = qan_2.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_2", i);
-	       ss = id_3.c_str();
+	       ss = qan_3.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_3", i);
 	       int sign = chiral_restraint[i].volume_sign;
 	       ss = "both";
@@ -3060,9 +3093,12 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 		  mmCIFLoop->PutString(ss, "comp_id", icount);
 		  ss = plane_restraint[i].plane_id.c_str();
 		  mmCIFLoop->PutString(ss, "plane_id", icount);
+		  
 		  std::string id = util::remove_whitespace(plane_restraint[i].atom_id(iat));
-		  ss = id.c_str();
+		  std::string qan = quoted_atom_name(id);
+		  ss = qan.c_str();
 		  mmCIFLoop->PutString(ss, "atom_id", icount);
+		  
 		  float v = plane_restraint[i].dist_esd();
 		  mmCIFLoop->PutReal(v, "dist_esd", icount);
 		  icount++;

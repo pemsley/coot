@@ -624,6 +624,8 @@ namespace coot {
       void write_cif(const std::string &filename) const;
       // look up the atom id in the atom_info (dict_atom vector)
       std::string atom_name_for_tree_4c(const std::string &atom_id) const;
+      // quote atom name as needed - i.e. CA -> CA, CA' -> "CA'"
+      std::string quoted_atom_name(const std::string &an) const;
 
       // look up the atom id in the atom_info (dict_atom vector).
       // Return "" on no atom found with name atom_name;
