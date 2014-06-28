@@ -288,18 +288,28 @@ def get_pdb_redo(text):
                    "/" + text + "/" + text + "_final"
             pdb_file_name = text + "_final.pdb"
             mtz_file_name = text + "_final.mtz"
+            py_file_name = text + ".py"
             url_pdb = stub + ".pdb"
             url_mtz = stub + ".mtz"
+            url_py = stub + ".py"
 
             print "getting", url_pdb
             net_get_url(url_pdb, pdb_file_name)
             print "getting", url_mtz
             net_get_url(url_mtz, mtz_file_name)
-
-            read_pdb(pdb_file_name)
-            print "make-and-draw-map with", mtz_file_name
-            make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
-
+            print "getting", url_py
+            net_get_url(url_py, py_file_name)
+            
+            status_imol = read_pdb(pdb_file_name)
+            if status_imol < 0:
+                print "BL INFO:: problem opening pdb file. Most likely \
+                something went wrong in the download"
+            else:
+                print "make-and-draw-map with", mtz_file_name
+                make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
+                make_and_draw_map(mtz_file_name, "DELFWT", "PHDELWT", "", 0, 1)
+                execfile(py_file_name)
+            
 
 # BL says: to test, some examples
 
