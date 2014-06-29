@@ -274,8 +274,8 @@ def set_atom_types(mol):
         ('HCR6', '[H][cr6;H1]', 0),
         ('HCR5', '[H][cr5;H1]', 0), # connected to aromatic ring C with 1 H
         ('HNR5', '[H][nr5;H1]', 0), # connected to aromatic ring C with 1 H
-        ('HNR5', '[H][Nr5;H1]', 0), # guess based on above
-        ('HNR6', '[H][Nr6;H1]', 0), # connected to aromatic ring C with 1 H
+        ('HNR5', '[H][Nr5;H1]', 0), # guess based on above, connected to aromatic N in a 5-ring
+        ('HNR6', '[H][nr6;H1]', 0), # connected to aromatic 6-ring N with 1 H
         ('HNR6', '[H][NR6;H1]', 0), # guess based on above
 
         # HCR missing - no examples (and how is it different to HCR1?)
@@ -283,7 +283,7 @@ def set_atom_types(mol):
         ('HNH1', '[H][NH1]',    0),
         ('HOH1', '[H][OH1]',    0),
         ('HOH2', '[H][OH2][H]', (0,2)), # H of HOH - water
-        ('HCH',  '[H]',         0),
+        ('H',    '[H]',         0),
         
         # Nitrogen, SP3
 
