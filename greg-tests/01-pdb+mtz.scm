@@ -1515,7 +1515,7 @@
 	      (low-values (map (lambda(pt) 
 				 (apply density-at-point imol-masked pt)) low-pts)))
 
-	  (format #t "   high-values: ~s  low values: ~s~%" 
+	  (format #t "   high-values: ~s  low values: ~s~%~!" 
 		  high-values low-values)
 
 
@@ -1543,7 +1543,7 @@
 		  (diff-low-values (map (lambda(pt) 
 					  (apply density-at-point diff-map pt)) low-pts)))
 	   
-	      (format #t "   diff-high-values: ~s  diff-low-values: ~s~%" 
+	      (format #t "   diff-high-values: ~s  diff-low-values: ~s~%~!" 
 		      diff-high-values diff-low-values)
 
 	      (if (not (< (apply + diff-high-values) 0.04)) 
