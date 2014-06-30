@@ -872,8 +872,8 @@ coot::trans_selection_t::point_is_in_box(const coot::Cartesian &point) const {
 }
 
 
-ostream & operator<<(ostream &s, symm_trans_t t) {
-   s << "symm: " << t.symm_as_string << " trans: "
+ostream & operator<<(ostream &s, const symm_trans_t &t) {
+   s << "symm: " << t.symm_as_string << " (op-idx: "  << t.isym() << ") trans: "
      << t.x_shift_ << " " << t.y_shift_ << " " << t.z_shift_;
    return s;
 }

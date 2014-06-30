@@ -67,7 +67,7 @@ class symm_trans_t {
       { symm_no = n; x_shift_ = x; y_shift_ = y; z_shift_ = z;};
    symm_trans_t() {};
 
-   friend ostream & operator<<(ostream &s, symm_trans_t);
+   friend ostream & operator<<(ostream &s, const symm_trans_t &st);
 
    int isym() const { return symm_no;};
    int x()    const { return x_shift_;};

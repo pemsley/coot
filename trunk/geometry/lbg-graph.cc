@@ -97,7 +97,7 @@ coot::aromatic_graph_t::ring_list() {
    
    
    return indexes_to_names(filtered_rings); // converts rings to
-					       // name from indices.
+					    // name from indices.
 }
 
 
@@ -128,8 +128,8 @@ coot::aromatic_graph_t::next_vertex(int start_vertex, const std::vector<int> &pa
    std::vector<int> neighbour_vertices = get_neighbours_of_vertex_excluding_path(this_vertex, path);
 
    if (0) {  // debug;
-      std::cout << "next_vertex() start_vertex: " << start_vertex << " depth: " << depth << " this_vertex: "
-		<< this_vertex << " path (";
+      std::cout << "next_vertex() start_vertex: " << start_vertex << " depth: "
+		<< depth << " this_vertex: " << this_vertex << " path (";
       for (unsigned int ip=0; ip<path.size(); ip++)
 	 std::cout << path[ip] << ",";
       std::cout << ")" << std::endl;
@@ -259,15 +259,15 @@ coot::aromatic_graph_t::add_path_maybe(std::vector<int> circular_path) {
    for (unsigned int i=0; i<rings.size(); i++) { 
       std::vector<int> ring = rings[i];
       if (circular_path.size() == ring.size()) {
-	 bool jfound = 1;
+	 bool jfound = true;
 	 for (unsigned int j=0; j<circular_path.size(); j++) { 
 	    if (circular_path[j] != ring[j]) {
-	       jfound = 0;
+	       jfound = false;
 	       break;
 	    }
 	 }
 	 if (jfound) {
-	    ifound = 1;
+	    ifound = true;
 	    break;
 	 } 
       }

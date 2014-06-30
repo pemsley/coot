@@ -247,7 +247,11 @@ main(int argc, char **argv) {
 
 	 float input_sigma_level = atof(sigma_str.c_str());
 	 short int use_weights = 0;
-	 short int is_diff_map = 0; 
+	 short int is_diff_map = 0;
+	 bool set_wpdl = false;
+	 float wpdl_max = 3.2; // defaults in ligand() constructor
+	 float wpdl_min = 2.4; //            ""
+	 
 	 coot::ligand lig;
 	 if (have_map) {
 	    clipper::CCP4MAPfile file;
@@ -275,7 +279,6 @@ main(int argc, char **argv) {
 		  coot::util::reinterp_map_fine_gridding(xmap);
 	       lig.import_map_from(fine_xmap);
 	    } 
-
 	 }
 
 	 if (! do_flood_flag) { 
@@ -295,8 +298,12 @@ main(int argc, char **argv) {
 		  lig.mask_by_atoms(pdb_file_name);
 		  if (lig.masking_molecule_has_atoms()) { 
 		     // lig.output_map("find-waters-masked.map");
-		     // 		  std::cout << "DEBUG:: in findwaters: using input_sigma_level: "
+		     // std::cout << "DEBUG:: in findwaters: using input_sigma_level: "
 		     // 			    << input_sigma_level << std::endl;
+
+		     if (set_wpdl)
+			lig.set_water_to_protein_distance_limits(wpdl_max, wpdl_max);
+		     
 		     lig.water_fit(input_sigma_level, 3); // e.g. 2.0 sigma for 3 cycles 
 		     coot::minimol::molecule water_mol = lig.water_mol();
 		     water_mol.write_file(output_pdb, 20.0);
@@ -321,7 +328,7 @@ main(int argc, char **argv) {
 								 remove_or_zero_occ_flag,
 								 waters_only_flag);
 		  std::cout << "INFO:: " << n_atoms << " waters removed" << std::endl;
-		  asc.mol->WritePDBASCII((char *)output_pdb.c_str());
+		  asc.mol->WritePDBASCII(output_pdb.c_str());
 	       }
 	    }
 	 } else {

@@ -1115,7 +1115,19 @@ Punted from 0.6:
 
 * Punted.
 
+   o Add Delete Link function (like add link)
 
+* Punted.
+
+   o remove the need for this patch:
+     http://pkgs.fedoraproject.org/cgit/coot.git/tree/coot-user-manual.texi.patch
+
+* Punted.
+
+   o can I fix the need for this patch? 
+     http://pkgs.fedoraproject.org/cgit/coot.git/tree/coot-guile.patch
+
+* Punted.
 
    o 	We need to activate this: graphics_info_t::execute_add_terminal_residue
         // just shove it on without a map (i.e. add a residue with no map)

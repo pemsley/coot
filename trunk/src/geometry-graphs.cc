@@ -305,11 +305,11 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
       }
 
       if (dc.geometry_distortion[i].restraint.restraint_type == coot::PLANE_RESTRAINT) {
-	 int n_atoms = dc.geometry_distortion[i].restraint.atom_index.size();
+	 int n_atoms = dc.geometry_distortion[i].restraint.plane_atom_index.size();
 	 if (n_atoms > 0) { 
 	    double factor = 1/double(n_atoms);
-	    for (unsigned int iat=0; iat<dc.geometry_distortion[i].restraint.atom_index.size(); iat++) {
-	       idx_1 = dc.geometry_distortion[i].restraint.atom_index[iat];
+	    for (unsigned int iat=0; iat<dc.geometry_distortion[i].restraint.plane_atom_index.size(); iat++) {
+	       idx_1 = dc.geometry_distortion[i].restraint.plane_atom_index[iat].first;
 	       occ_1 = sane_occupancy(dc.atom[idx_1]->occupancy);
 	       coot::geometry_distortion_info_t extra_distortion = dc.geometry_distortion[i];
 	       coot::residue_spec_t rs_1(dc.atom[idx_1]->GetResidue());
@@ -388,8 +388,8 @@ coot::geometry_graphs::make_distortion_string(const coot::geometry_distortion_in
       s += coot::util::float_to_string(sqrt(geometry_distortion.distortion_score));
    }
    if (geometry_distortion.restraint.restraint_type == coot::PLANE_RESTRAINT) {
-      if (geometry_distortion.restraint.atom_index.size() > 0) {
-	 int idx = geometry_distortion.restraint.atom_index[0];
+      if (geometry_distortion.restraint.plane_atom_index.size() > 0) {
+	 int idx = geometry_distortion.restraint.plane_atom_index[0].first;
 	 s += dc.atom[idx]->GetChainID();
 	 s += " ";
 	 s += coot::util::int_to_string(dc.atom[idx]->GetSeqNum());
@@ -398,8 +398,8 @@ coot::geometry_graphs::make_distortion_string(const coot::geometry_distortion_in
 	 s += " ";
       }
       s = "Plane: ";
-      for (unsigned int iat=0; iat<geometry_distortion.restraint.atom_index.size(); iat++) {
-	 int idx = geometry_distortion.restraint.atom_index[iat];
+      for (unsigned int iat=0; iat<geometry_distortion.restraint.plane_atom_index.size(); iat++) {
+	 int idx = geometry_distortion.restraint.plane_atom_index[iat].first;
 	 s += dc.atom[idx]->name;
 	 s += " ";
       }
@@ -542,9 +542,9 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal_linear(const c
       }
 
       if (dc.geometry_distortion[i].restraint.restraint_type == coot::PLANE_RESTRAINT) {
-	 double factor = 1/double(dc.geometry_distortion[i].restraint.atom_index.size());
-	 for (unsigned int iat=0; iat<dc.geometry_distortion[i].restraint.atom_index.size(); iat++) {
-	    idx1 = dc.geometry_distortion[i].restraint.atom_index[iat];
+	 double factor = 1/double(dc.geometry_distortion[i].restraint.plane_atom_index.size());
+	 for (unsigned int iat=0; iat<dc.geometry_distortion[i].restraint.plane_atom_index.size(); iat++) {
+	    idx1 = dc.geometry_distortion[i].restraint.plane_atom_index[iat].first;
 	    if (idx1 >= 0) { 
 	       this_resno1 = dc.atom[idx1]->GetSeqNum();
 	       occ1 = sane_occupancy(dc.atom[idx1]->occupancy);

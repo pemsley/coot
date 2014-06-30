@@ -262,8 +262,9 @@ namespace coot {
    
       int atom_index_1, atom_index_2, atom_index_3, atom_index_4, atom_index_5, atom_index_6;
       int atom_index_centre;
-      std::vector <int> atom_index; // atom_index can return negative (-1) for planes
-      std::vector <int> atom_index_other_plane; // for the second plane in parallel planes
+      // index and weight
+      std::vector <std::pair<int, double> > plane_atom_index; // atom_index values can return negative (-1) for planes
+      std::vector <std::pair<int, double> > atom_index_other_plane; // for the second plane in parallel planes
       double target_value; 
       double sigma; 
       float observed_value;    
@@ -390,26 +391,52 @@ namespace coot {
 	 }
       }
       
-      // Plane
+      // Old Plane
       simple_restraint(short int restraint_type_in,
 		       const std::vector<int> &atom_index_in,
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       float sig) {
 	 
-	 restraint_type = restraint_type_in; 
-	 //
 	 // Check restraint_type?
 	 // Currently the only thing with an std::vector <int>
 	 // atom_index_in is a plane restraint.  This could well
 	 // change in the future.
 	 // 
-	 atom_index = atom_index_in;
+	 restraint_type = restraint_type_in;
+
+	 plane_atom_index.resize(atom_index_in.size());
+	 for (unsigned int i=0; i<atom_index_in.size(); i++)
+	    plane_atom_index[i] = std::pair<int, double> (atom_index_in[i], sig);
+	 
 	 target_value = 0.0; // not needed for planes
 	 sigma = sig;
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
       }
 
+      // modern (atoms individually weighted) Plane
+      // 
+      simple_restraint(short int restraint_type_in,
+		       const std::vector<std::pair<int, double> > &atom_index_sigma_in,
+		       const std::vector<bool> &fixed_atom_flags_in) {
+
+	 //
+	 // Check restraint_type?
+	 // Currently the only thing with an std::vector <int>
+	 // atom_index_in is a plane restraint.  This could well
+	 // change in the future.
+	 //
+	 restraint_type = restraint_type_in; 
+
+	 plane_atom_index = atom_index_sigma_in;
+	 
+	 target_value = 0.0; // not needed for planes
+	 sigma = 0.02; // hack 
+	 fixed_atom_flags = fixed_atom_flags_in;
+	 is_user_defined_restraint = 0;
+	 
+      }
+      
 
       // Parallel planes (actually angle-between-planes,typically-zero)
       simple_restraint(short int restraint_type_in,
@@ -420,8 +447,15 @@ namespace coot {
 		       double target_angle_in,
 		       double sigma_in) {
 	 restraint_type = restraint_type_in; 
-	 atom_index = atom_index_plane_1_in;
-	 atom_index_other_plane = atom_index_plane_2_in;
+	 // atom_index = atom_index_plane_1_in;
+	 // atom_index_other_plane = atom_index_plane_2_in;
+	 plane_atom_index.resize(atom_index_plane_1_in.size());
+	 atom_index_other_plane.resize(atom_index_plane_2_in.size());
+	 for (unsigned int i=0; i<atom_index_plane_1_in.size(); i++)
+	    plane_atom_index[i] = std::pair<int, double> (atom_index_plane_1_in[i], sigma_in);
+	 for (unsigned int i=0; i<atom_index_plane_2_in.size(); i++)
+	    atom_index_other_plane[i] = std::pair<int, double> (atom_index_plane_2_in[i], sigma_in);
+	 
 	 fixed_atom_flags             = fixed_atom_flags_plane_1_in;
 	 fixed_atom_flags_other_plane = fixed_atom_flags_plane_2_in;
 	 target_value = target_angle_in;
@@ -666,8 +700,8 @@ namespace coot {
    distortion_score_plane_internal(const simple_restraint &plane_restraint,
 				   const gsl_vector *v);
    plane_distortion_info_t
-   distortion_score_2_planes(const std::vector<int> &atom_index_set_1,
-			     const std::vector<int> &atom_index_set_2,
+   distortion_score_2_planes(const std::vector<std::pair<int, double> > &atom_index_set_1,
+			     const std::vector<std::pair<int, double> > &atom_index_set_2,
 			     const double &restraint_sigma,
 			     const gsl_vector *v);
 
@@ -1191,16 +1225,14 @@ namespace coot {
       } 
 
       // construct a restraint and add it to restraints_vec
-      // 
-      void add_plane(const std::vector<int> atom_index_in,
-		     const std::vector<bool> &fixed_atom_flags,
-		     float sigma) {
-	 if (sigma > 0.0) { 
-	    restraints_vec.push_back(simple_restraint(PLANE_RESTRAINT, 
-						      atom_index_in, 
-						      fixed_atom_flags, 
-						      sigma));
-	 }
+      //
+      // this assumes the sigmas in atom_index_sigma_in are sensible - so the calling 
+      // routines needs to make sure that this is the case.
+      void add_plane(const std::vector<std::pair<int, double> > atom_index_sigma_in,
+		     const std::vector<bool> &fixed_atom_flags) {
+	 restraints_vec.push_back(simple_restraint(PLANE_RESTRAINT,
+						   atom_index_sigma_in, 
+						   fixed_atom_flags));
       }
       
       //used for start pos restraints

@@ -456,7 +456,7 @@ class Bond_lines_container {
 				     CAtom *atom_p_2,
 				     std::vector<std::pair<bool, CResidue *> > *het_residues);
 
-
+   
 
 public:
    enum bond_representation_type { COLOUR_BY_OCCUPANCY, COLOUR_BY_B_FACTOR}; 
@@ -565,7 +565,7 @@ public:
    // arguments as above.
    // 
    // FYI: there is only one element to symm_trans, the is called from
-   // them addSymmetry_vector_symms wrapper
+   // the addSymmetry_vector_symms wrapper
    graphical_bonds_container
       addSymmetry(const atom_selection_container_t &SelAtom,
 		  coot::Cartesian point,
@@ -581,7 +581,7 @@ public:
 			    short int symmetry_as_ca_flag); 
 
    // FYI: there is only one element to symm_trans, the is called from
-   // them addSymmetry_vector_symms wrapper
+   // the addSymmetry_vector_symms wrapper
    graphical_bonds_container
       addSymmetry_calphas(const atom_selection_container_t &SelAtom,
 			  const coot::Cartesian &point,
@@ -589,7 +589,7 @@ public:
 			  const std::vector<std::pair<symm_trans_t, Cell_Translation> > &symm_trans);
 
    // FYI: there is only one element to symm_trans, the is called from
-   // them addSymmetry_vector_symms wrapper
+   // the addSymmetry_vector_symms wrapper
    graphical_bonds_container
      addSymmetry_whole_chain(const atom_selection_container_t &SelAtom,
 			     const coot::Cartesian &point,
@@ -607,7 +607,8 @@ public:
 			       const std::vector<std::pair<symm_trans_t, Cell_Translation> > &symm_trans,
 			       short int symmetry_as_ca_flag,
 			       short int symmetry_whole_chain_flag,
-			       short int draw_hydrogens_flag);
+			       short int draw_hydrogens_flag,
+			       bool do_intermolecular_symmetry_bonds);
 
    std::vector<std::pair<graphical_bonds_container, symm_trans_t> >
       add_NCS(const atom_selection_container_t &SelAtom,
@@ -694,6 +695,35 @@ public:
    bool have_rings() const {
       return rings.size();
    }
+
+   class symmetry_atom_bond {
+   public:
+      // bond between at_1 and symmetry relataed copy of at_2
+      CAtom *at_1;
+      CAtom *at_2;
+      symm_trans_t st;
+      Cell_Translation ct;
+      symmetry_atom_bond(CAtom *at_1_in, CAtom *at_2_in,
+			 const symm_trans_t &st_in,
+			 const Cell_Translation &ct_in) {
+	 at_1 = at_1_in;
+	 at_2 = at_2_in;
+	 ct = ct_in;
+	 st = st_in;
+      }
+      // modify m
+      int GetTMatrix(CMMDBManager *mol, mat44 *m) const {
+	 return mol->GetTMatrix(*m, st.isym(), st.x(), st.y(), st.z());
+      } 
+   };
+
+   std::vector<symmetry_atom_bond> find_intermolecular_symmetry(const atom_selection_container_t &SelAtom) const;
+
+   graphical_bonds_container
+   intermolecular_symmetry_graphical_bonds(CMMDBManager *mol,
+					   const std::vector <symmetry_atom_bond> &sabv,
+					   const std::pair<symm_trans_t, Cell_Translation> &symm_trans);
+
 
 };
 

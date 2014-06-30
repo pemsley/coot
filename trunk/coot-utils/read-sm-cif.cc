@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <string.h> // for strncpy
 
 #include <mmdb/mmdb_manager.h>
 #include <clipper/core/clipper_util.h>
@@ -125,18 +126,19 @@ std::vector<CAtom *>
 coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const {
 
    std::vector<CAtom *> atom_vec;
-   const char *loopTagsAtom[6] = { "_atom_site_label",
+   const char *loopTagsAtom[8] = { "_atom_site_label",
 				   "_atom_site_type_symbol",
 				   "_atom_site_fract_x",
 				   "_atom_site_fract_y",
-				   "_atom_site_fract_z", ""};
+				   "_atom_site_fract_z",
+				   "_atom_site_disorder_assembly",
+				   "_atom_site_disorder_group",
+				   ""};
    const char *loopTagsAniso[2] = { "_atom_site_aniso_label", ""};
 
 
    int ierr = 0;
    pstr S = NULL;
-   // PCMMCIFLoop loop = data->FindLoop((pstr *) loopTagsAtom);
-   // PCMMCIFLoop loop = data->FindLoop(loopTagsAtom);
    PCMMCIFLoop loop = data->FindLoop(PSTR_CAST_HACK loopTagsAtom);
    if (loop) {
       int ll = loop->GetLoopLength();
@@ -147,7 +149,9 @@ coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const
 	 realtype xf,yf,zf, occ, tf;
 	 realtype x,y,z;
 	 int ierr_tot = 0;
-	 
+	 char *disorder_assembly = NULL;
+	 char *disorder_group = NULL;
+	 std::string alt_loc;
 	    
 	 for (unsigned int il=0; il<ll; il++) {
 
@@ -161,6 +165,19 @@ coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const
 	    ierr_tot += ierr;
 	    loop->GetReal(zf, loopTagsAtom[4], il, ierr);
 	    ierr_tot += ierr;
+
+	    // this may not exist
+	    alt_loc.clear();
+	    disorder_group  = loop->GetString(loopTagsAtom[6], il, ierr);
+	    if (! ierr) {
+	       if (disorder_group == NULL) { 
+		  // std::cout << "disorder_group NULL" << std::endl;
+	       } else { 
+		  std::cout << "disorder_group " << disorder_group << std::endl;
+		  alt_loc = disorder_group;
+	       }
+	    } 
+	    
 
 	    occ = 1; // hack
 	    tf = 10.0;
@@ -184,10 +201,14 @@ coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const
 	       // label -> 4c atom name conversion? 
 	       at->SetAtomName(label);
 	       std::pair<std::string, int> ele = symbol_to_element(symbol);
+	       
+	       if (alt_loc.length())
+		  strncpy(at->altLoc, alt_loc.c_str(), (alt_loc.size()+1)); // shove.
+
 	       if (1)
 		  std::cout << " found atom: \"" << label << "\" symbol: \"" << symbol
-			    << "\" ele: \"" << ele.first << "\" " << ele.second << " "
-			    << cf.format() << std::endl;
+			    << "\" ele: \"" << ele.first << "\" " << ele.second << " alt-loc \""
+			    << alt_loc << "\" " << cf.format() << std::endl;
 	       at->SetElementName(ele.first.c_str());
 	       at->Het = 1; // all SM cifs atoms are HETATMs :)
 	       atom_vec.push_back(at);

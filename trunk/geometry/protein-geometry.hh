@@ -307,7 +307,7 @@ namespace coot {
    // ------------------------------------------------------------------------
    // 
    class dict_plane_restraint_t : public basic_dict_restraint_t {
-      std::vector<std::string> atom_ids;
+      std::vector<std::pair<std::string, float> > atom_ids;
       double dist_esd_;  // despite separate entries for each atom in
 			// the dictionary, I decide that it is
 			// sensible to say that all atoms in a plane
@@ -318,27 +318,35 @@ namespace coot {
 			     const std::string &atom_id_in,
 			     double dist_esd_in) {
 	 plane_id = plane_id_in;
-	 dist_esd_ = dist_esd_in;
-	 atom_ids.push_back(atom_id_in);
+	 atom_ids.push_back(std::pair<std::string, float> (atom_id_in, dist_esd_in));
       };
       dict_plane_restraint_t(const std::string &plane_id_in,
 			     const std::vector<std::string> &plane_atom_ids,
 			     double dist_esd_in) {
 	 plane_id = plane_id_in;
-	 dist_esd_ = dist_esd_in;
-	 atom_ids = plane_atom_ids;
+
+	 atom_ids.resize(plane_atom_ids.size());
+	 for (unsigned int i=0; i<plane_atom_ids.size(); i++)
+	    atom_ids[i] = std::pair<std::string, float> (plane_atom_ids[i], dist_esd_in);
+
       };
       std::string plane_id; // or int plane_id number 1, 2 3.
-      double dist_esd() const { return dist_esd_; }
-      std::string atom_id(int i) const { return atom_id_mmdb_expand(atom_ids[i]); }
+      double dist_esd(int i) const { return atom_ids[i].second; }
+      std::string atom_id(int i) const { return atom_id_mmdb_expand(atom_ids[i].first); }
       int n_atoms() const { return atom_ids.size(); }
-      const std::string &operator[](int i) const { return atom_ids[i];}
+      const std::pair<std::string, float> &operator[](int i) const { return atom_ids[i];}
       bool matches_names(const dict_plane_restraint_t &r) const;
-      void push_back_atom(const std::string &at) { atom_ids.push_back(at); }
+      void push_back_atom(const std::string &at, float esd) {
+	 atom_ids.push_back(std::pair<std::string, float> (at, esd));
+      }
       friend std::ostream&  operator<<(std::ostream &s, dict_plane_restraint_t rest);
       void set_atom_ids(const std::vector<std::pair<int, std::string> > &from_tos) {
 	 for (unsigned int i=0; i<from_tos.size(); i++)
-	    atom_ids[from_tos[i].first] = from_tos[i].second;
+	    atom_ids[from_tos[i].first].first = from_tos[i].second;
+      }
+      void set_dist_esd(unsigned int idx, double sigma_in) {
+	 if (idx < atom_ids.size())
+	    atom_ids[idx].second = sigma_in;
       }
    };
 
@@ -662,6 +670,8 @@ namespace coot {
       //
       void remove_redundant_plane_restraints();
       bool is_redundant_plane_resetraints(std::vector<dict_plane_restraint_t>::iterator it);
+      void reweight_subplanes(); // if an atom is in more than one plane restraint, then
+                                 // reduce its esd.
 
       // quiet means don't tell me about matches
       bool compare(const dictionary_residue_restraints_t &new_restraints,

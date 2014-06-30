@@ -881,18 +881,19 @@ coot::protein_geometry::mon_lib_add_plane(const std::string &comp_id,
 					  const std::string &plane_id,
 					  const std::string &atom_id,
 					  const realtype &dist_esd) {
-   
-//    std::cout << "adding plane " << comp_id <<  " " << plane_id
-// 	     << " " << atom_id << endl;
 
-   short int ifound = 0;
+   if (0)
+      std::cout << "adding plane " << comp_id <<  " " << plane_id
+		<< " " << atom_id << std::endl;
+
+   bool ifound = false;
 
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) { 
       if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
 	 for (unsigned int ip=0; ip<dict_res_restraints[i].plane_restraint.size(); ip++) {
 	    if (dict_res_restraints[i].plane_restraint[ip].plane_id == plane_id) { 
-	       ifound = 1;
-	       dict_res_restraints[i].plane_restraint[ip].push_back_atom(atom_id);
+	       ifound = true;
+	       dict_res_restraints[i].plane_restraint[ip].push_back_atom(atom_id, dist_esd);
 	       break;
 	    }
 	 }
@@ -900,7 +901,7 @@ coot::protein_geometry::mon_lib_add_plane(const std::string &comp_id,
 	    // we have comp_id, but no planes of that id.
 	    coot::dict_plane_restraint_t res(plane_id, atom_id, dist_esd);
 	    dict_res_restraints[i].plane_restraint.push_back(res);
-	    ifound = 1;
+	    ifound = true;
 	 }
       }
    } 
@@ -1416,13 +1417,23 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
 	    if (s) { // just in case (should not be needed).
 	       std::string ss(s);
 	       // convert from Chemical Component Dictionary value_order to
-	       // refmac monomer library chem_comp_bond types. 
+	       // refmac monomer library chem_comp_bond types - 
+	       // or FeiDrg output.
 	       if (ss == "SING")
 		  type = "single";
 	       if (ss == "DOUB")
 		  type = "double";
 	       if (ss == "TRIP")
 		  type = "triple";
+	       if (ss == "TRIPLE")
+		  type = "triple";
+
+	       if (ss == "SINGLE")
+		  type = "single";
+	       if (ss == "DOUBLE")
+		  type = "double";
+	       if (ss == "DELOC")
+		  type = "deloc";
 	       
 	       // Chemical Chemical Dictionary also has an aromatic flag, so
 	       // we can have bonds that are (for example) "double"
@@ -1435,7 +1446,6 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
       } 
       ierr_tot += ierr;
       ierr_tot_for_ccd += ierr;
-
 
       ierr = mmCIFLoop->GetReal(value_dist, "value_dist", j);
       ierr_tot += ierr;
@@ -3099,7 +3109,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 		  ss = qan.c_str();
 		  mmCIFLoop->PutString(ss, "atom_id", icount);
 		  
-		  float v = plane_restraint[i].dist_esd();
+		  float v = plane_restraint[i].dist_esd(iat);
 		  mmCIFLoop->PutReal(v, "dist_esd", icount);
 		  icount++;
 	       }

@@ -3544,13 +3544,14 @@ SCM monomer_restraints(const char *monomer_type) {
       for (unsigned int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
 	 coot::dict_plane_restraint_t plane_restraint = restraints.plane_restraint[iplane];
 	 SCM atom_list = SCM_EOL;
-	 for (int iat=0; iat<plane_restraint.n_atoms(); iat++) { 
-	    std::string at = plane_restraint[iat];
+	 for (int iat=0; iat<plane_restraint.n_atoms(); iat++) {
+
+	    std::string at = plane_restraint[iat].first;
 	    atom_list = scm_cons(scm_makfrom0str(at.c_str()), atom_list);
 	 }
 	 atom_list = scm_reverse(atom_list);
 
-	 double esd = plane_restraint.dist_esd();
+	 double esd = plane_restraint.dist_esd(0); // fixme
 	 SCM plane_id_scm = scm_makfrom0str(plane_restraint.plane_id.c_str());
 
 	 SCM plane_restraint_scm = SCM_EOL;
@@ -3752,10 +3753,10 @@ PyObject *monomer_restraints_py(const char *monomer_type) {
       for (unsigned int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
 	 PyObject *atom_list = PyList_New(restraints.plane_restraint[iplane].n_atoms());
 	 for (int iat=0; iat<restraints.plane_restraint[iplane].n_atoms(); iat++) { 
-	    std::string at = restraints.plane_restraint[iplane][iat];
+	    std::string at = restraints.plane_restraint[iplane][iat].first;
 	    PyList_SetItem(atom_list, iat, PyString_FromString(at.c_str()));
 	 }
-	 double esd = restraints.plane_restraint[iplane].dist_esd();
+	 double esd = restraints.plane_restraint[iplane].dist_esd(0);
 	 PyObject *plane_restraint = PyList_New(3);
 	 PyList_SetItem(plane_restraint, 0, PyString_FromString(restraints.plane_restraint[iplane].plane_id.c_str()));
 	 PyList_SetItem(plane_restraint, 1, atom_list);
@@ -4052,8 +4053,10 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 				 double esd           = scm_to_double(esd_scm);
 				 if (atom_names.size() > 0) { 
 				    coot::dict_plane_restraint_t rest(plane_id, atom_names[0], esd);
-				    for (unsigned int i=1; i<atom_names.size(); i++)
-				       rest.push_back_atom(atom_names[i]);
+
+				    for (unsigned int i=1; i<atom_names.size(); i++) {
+				       rest.push_back_atom(atom_names[i], esd);
+				    } 
 				    plane_restraints.push_back(rest);
 				    // std::cout << "plane restraint: " << rest << std::endl;
 				 }
@@ -4376,8 +4379,10 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 				 float esd = PyFloat_AsDouble(esd_py);
 				 if (atoms.size() > 0) { 
 				    coot::dict_plane_restraint_t rest(plane_id, atoms[0], esd);
-				    for (int i=1; i<atoms.size(); i++)
-				       rest.push_back_atom(atoms[i]);
+				    for (int i=1; i<atoms.size(); i++) {
+				       double esd = 0.02;
+				       rest.push_back_atom(atoms[i], esd);
+				    }
 				    plane_restraints.push_back(rest);
 				 }
 			      }
