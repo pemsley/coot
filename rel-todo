@@ -3,6 +3,13 @@
 
 ---- 
 
+   o remove graphics_info_t from molecule_class_info_t::update_symmetry().
+
+   o Tim G: AFIX problems.
+
+   o can you make the double-line filter in contouring faster: using
+     an index hash? (use long long) Write a test - scroll up and down
+     a 20A sphere, say.
 
    o does drag and drop urls work? I mean, say from my tutorial web page?
 
@@ -10,19 +17,50 @@
 
    o why does 201 and 202 disconnect in chain-N-with-FUC-reordered-with-link.pdb?
 
-     - Because the PDB file is wrong (for a BETA1-3 link) the linking
-       atom should be on "residue-1" not "residue-2" as it is here.
+   o test water_to_protein_distance_limits() use in find-waters
+
+   o I think that there was a bug in coot::dict_plane_restraint_t::matches_names()
+     Have a second look.  Test.
+
+   o set_monomer_restraints() for planes needs some thought about how
+     to handle individual atom esds.
+
+   o get flavin.mol - and write a python script to show the bond
+     properties (including aromaticity of bonds).  C10-C4X should be
+     aromatic, shouldn't it?
+
+   o a nice function - for ligand presentation (and rendering) is to
+     find the screen centre and view quaternion that orients the ligand
+     nicely.
+
+   o Look at the colours against a light background.  Is the
+     "against_a_dark_backround?" code working correctly?
+
+   o PDB_REDO should load the difference map too.
+
+   o in findwaters, allow the user to change the distance limits: 
+     set_water_to_protein_distance_limits()
+
+   o Fix the button labels in Close molecule dialogs.
+
+* Done? Check.  The menu item should say "Delete molecule/map" not "Close..." 
+
+   o fit_to_map_by_random_jiggle should return a valid value.
+
+   o ALPHA2-3 link refinement is broken?
+
+   o go to atom Atom list for residue with insertion codes: e.g. H 60 in 3biu.
 
    o FUC - alpha1-2 - b- galact beta-1-4 NAG
 
-                           beta-1-3 NAG
+                          beta-1-3 NAG
 
 
    o We need FUC decorations and GAL (beta galactose) decorations
 
 *Done.  Needs a test.
 
-   o Add Delete Link function (like add link)
+   o Try glyco tree builder 528 on 4lxr. 
 
 
    o change the front-page icons on the glade file.
@@ -45,18 +83,14 @@ There was a coordinates read error
 DEBUG:: apply_undo: (end) history_index: 47 max_history_index: 49
 /home/ming/data/Programs/coot-0.8/bin/coot: line 259:  4354 Segmentation fault 
 
+* Fixed - needs a test.
+
    o chiral centre inverter in C++  
 
    o why is one of the N+ in the nitros chiral in the thumbnail of 128?
 
    o modified residue (e.g. oxidised Cys).  Mutate it back to CYS.
      It's still HETATMs.
-
-   o remove the need for this patch:
-     http://pkgs.fedoraproject.org/cgit/coot.git/tree/coot-user-manual.texi.patch
-
-   o can I fix the need for this patch? 
-     http://pkgs.fedoraproject.org/cgit/coot.git/tree/coot-guile.patch
 
    o convert the residue too in match_residue_and_dictionary().  It should have a test :-)
 
@@ -65,12 +99,6 @@ DEBUG:: apply_undo: (end) history_index: 47 max_history_index: 49
    o Pavel message: Map D to H so that you can refine proteins vs neutron data.
 
    o Oliver Clark HOLE radius bug
-
-   o Fix the button labels in Close molecule dialog
-
-   o go to atom Atom list for residue with insertion codes: e.g. H 60 in 3biu.
-
-   o ALPHA2-3 link refinement is broken?
 
    o build NH4 in lbg.  Is the N charged in the resulting mol file?
 
@@ -95,10 +123,6 @@ DEBUG:: apply_undo: (end) history_index: 47 max_history_index: 49
     mogul_out_file_name=<value optimised out>) at ../../coot/trunk/src/c-interface-mogul.cc:30
 
 
-   o fit_to_map_by_random_jiggle should return a valid value.
-
-   o Try glyco tree builder 528 on 4lxr. 
-
    o in FLEV 2D, click on a bond -> 3d view centre to middle of those
      2 interacting atom
 
@@ -116,8 +140,7 @@ DEBUG:: apply_undo: (end) history_index: 47 max_history_index: 49
     That also should write a state file. (user can use quick-save-as
     if they want)
 
-   o in findwaters, allow the user to change the distance limits: 
-     set_water_to_protein_distance_limits()
+* Improved now?  Needs checking.
 
    o fit_to_map_by_random_jiggle should return a valid value.
 
@@ -728,6 +751,12 @@ Punt.
    o lidia_LDFLAGS = -Wl,--export-dynamic, what is -module flag and look up export_dynamic_flag_spec
 
 * Done - the second part anyway.
+
+
+   o why does 201 and 202 disconnect in chain-N-with-FUC-reordered-with-link.pdb?
+
+     - Because the PDB file is wrong (for a BETA1-3 link) the linking
+       atom should be on "residue-1" not "residue-2" as it is here.
 
 -----
 

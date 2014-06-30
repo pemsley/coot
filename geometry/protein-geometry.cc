@@ -254,9 +254,9 @@ coot::dict_plane_restraint_t::matches_names(const coot::dict_plane_restraint_t &
       return false;
    
    for (unsigned int i=0; i<atom_ids.size(); i++) {
-      const std::string &ref_atom = atom_ids[i];
+      const std::string &ref_atom = atom_ids[i].first;
       for (unsigned int j=0; j<r.atom_ids.size(); j++) { 
-	 if (atom_ids[j] == ref_atom) {
+	 if (r.atom_ids[j].first == ref_atom) {
 	    n_found++;
 	    break;
 	 }
@@ -1047,10 +1047,10 @@ std::ostream& coot::operator<<(std::ostream &s, const coot::dict_chem_comp_t &re
 
 std::ostream& coot::operator<<(std::ostream&s, coot::dict_plane_restraint_t rest) {
 
-   s << "[plane-restraint: " << rest.plane_id << " " << rest.dist_esd() << " {"
+   s << "[plane-restraint: " << rest.plane_id << " " << " {"
      << rest.n_atoms() << " atoms} ";
    for (unsigned int iatom=0; iatom<rest.n_atoms(); iatom++) {
-      s << ":" << rest[iatom] << ": ";
+      s << ":" << rest[iatom].first << " " << rest[iatom].second << ": ";
    }
    s << "]";
    return s;
@@ -3011,7 +3011,57 @@ coot::dictionary_residue_restraints_t::is_redundant_plane_resetraints(std::vecto
       }
    }
    return match;
-} 
+}
+
+// if an atom is in more than one plane restraint, then
+// reduce its esd.
+void coot::dictionary_residue_restraints_t::reweight_subplanes() {
+
+   std::map<std::string, int> name_map;
+   std::vector<dict_plane_restraint_t>::iterator it;
+   for (it=plane_restraint.begin(); it!=plane_restraint.end(); it++) {
+      for (unsigned int i=0; i<it->n_atoms(); i++) {
+	 const std::string &atom_name = it->atom_id(i);
+	 name_map[atom_name]++;
+      }
+   }
+
+   std::map<std::string, int>::iterator it_names;
+   for(it_names=name_map.begin(); it_names!=name_map.end(); it_names++) {
+      if (it_names->second != 1) {
+	 // reweight.
+	 double w_multiplier = sqrt(double(it_names->second));
+	 const std::string &atom_name = it_names->first;
+	 for (it=plane_restraint.begin(); it!=plane_restraint.end(); it++) {
+	    for (unsigned int i=0; i<it->n_atoms(); i++) {
+	       if (it->atom_id(i) == atom_name) {
+		  it->set_dist_esd(i, it->dist_esd(i) * w_multiplier);
+	       }
+	    }
+	 }
+      }
+   }
+
+   for (unsigned int i=0; i<plane_restraint.size(); i++) {
+      const dict_plane_restraint_t &rest_1 = plane_restraint[i];
+      for (unsigned int j=0; j<plane_restraint.size(); j++) {
+	 const dict_plane_restraint_t &rest_2 = plane_restraint[j];
+	 if (i != j) {
+	    for (unsigned int ii=0; ii<rest_1.n_atoms(); ii++) {
+	       int n_match = 0;
+	       for (unsigned int jj=0; jj<rest_1.n_atoms(); jj++) {
+		  if (rest_1.atom_id(ii) == rest_2.atom_id(jj)) {
+		     
+		  } 
+	       }
+	    }
+	 }
+      }
+   }
+
+   
+}
+
 
 
 

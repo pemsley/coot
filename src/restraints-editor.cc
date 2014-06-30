@@ -527,16 +527,17 @@ coot::restraints_editor::fill_plane_tree_data(GtkWidget *restraints_editor_dialo
 
 	  for (unsigned int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
 	     gtk_tree_store_append(tree_store_planes, &toplevel, NULL);
-	     
+
+	     // HACK HACK! // FIXME
   	     gtk_tree_store_set(tree_store_planes, &toplevel,
-  				esd_col_no, restraints.plane_restraint[iplane].dist_esd(),
+  				esd_col_no, restraints.plane_restraint[iplane].dist_esd(0),
   				-1);
  	     gtk_tree_store_set(tree_store_planes, &toplevel,
  				0, restraints.plane_restraint[iplane].plane_id.c_str(),
  				-1);
 	     for (int iat=0; iat<restraints.plane_restraint[iplane].n_atoms(); iat++) { 
  		gtk_tree_store_set(tree_store_planes, &toplevel,
- 				   iat+1, restraints.plane_restraint[iplane][iat].c_str(),
+ 				   iat+1, restraints.plane_restraint[iplane][iat].first.c_str(),
  				   -1);
 	     }
 	  }

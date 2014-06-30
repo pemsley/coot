@@ -1975,6 +1975,95 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    // std::cout << "returning from Bond_lines_container (symm env) constructor \n" ;
 }
 
+
+// What are the bonds to the symmetry-related copies of this molecule?
+// 
+std::vector<Bond_lines_container::symmetry_atom_bond>
+Bond_lines_container::find_intermolecular_symmetry(const atom_selection_container_t &SelAtom) const {
+
+   std::vector<symmetry_atom_bond> sabv;
+
+   int n_symm = SelAtom.mol->GetNumberOfSymOps();
+
+   // std::cout << "in find_intermolecular_symmetry() n_symm is " << n_symm << std::endl;
+
+   int shift_lim = 1;
+   mat44 my_matt;
+   realtype max_bond_dist = 2.25; // I guess
+
+   for (int x_shift= -shift_lim; x_shift <= shift_lim; x_shift++) { 
+      for (int y_shift= -shift_lim; y_shift <= shift_lim; y_shift++) { 
+	 for (int z_shift= -shift_lim; z_shift <= shift_lim; z_shift++) {
+	    for (int i_symm=0; i_symm < n_symm; i_symm++) {
+	       if (! (x_shift == 0 && y_shift == 0 && z_shift == 0 && i_symm == 0)) {
+		  int i_status = SelAtom.mol->GetTMatrix(my_matt, i_symm, x_shift, y_shift, z_shift);
+
+		  if (i_status == 0) {
+		     // Happy
+		     
+		     PSContact contact = NULL;
+		     int ncontacts = 0;
+		     long i_contact_group = 1;
+		     
+		     SelAtom.mol->SeekContacts(SelAtom.atom_selection, SelAtom.n_selected_atoms,
+					       SelAtom.atom_selection, SelAtom.n_selected_atoms,
+					       0.01, max_bond_dist,
+					       0,
+					       contact, ncontacts,
+					       0, &my_matt, i_contact_group);
+		     if (ncontacts) {
+
+			symm_trans_t st(i_symm, x_shift, y_shift, z_shift);
+			for (int i=0; i< ncontacts; i++) {
+			   CAtom *at_1 = SelAtom.atom_selection[contact[i].id1];
+			   CAtom *at_2 = SelAtom.atom_selection[contact[i].id2];
+
+			   std::string ele_1 = at_1->element;
+			   std::string ele_2 = at_2->element;
+
+			   if (ele_1 == " H" || ele_1 == "H") max_bond_dist -= 0.8;
+			   if (ele_2 == " H" || ele_2 == "H") max_bond_dist -= 0.8;
+			   
+			   st.symm_as_string = SelAtom.mol->GetSymOp(i_symm);
+
+			   if (0) { //debug
+			      int ierr = SelAtom.mol->GetTMatrix(my_matt, st.isym(),
+								 st.x(), st.y(), st.z());
+			      if (! ierr) {
+				 CAtom t_atom2;
+				 t_atom2.Copy(at_2);
+				 t_atom2.Transform(my_matt);
+				 coot::Cartesian atom_1_pt(at_1->x, at_1->y, at_1->z);
+				 coot::Cartesian atom_2_pt(at_2->x, at_2->y, at_2->z);
+				 coot::Cartesian t_atom_2_pt(t_atom2.x, t_atom2.y, t_atom2.z);
+				 std::cout << "store at_1: " << atom_1_pt << " ";
+				 std::cout << "at_2: " << atom_2_pt << " ";
+				 std::cout << "t-at_2: " << t_atom_2_pt << " ";
+				 std::cout << st << " delta ";
+				 std::cout << (t_atom_2_pt - atom_1_pt).amplitude() << "\n";
+			      }
+			   }
+			   
+			   Cell_Translation ct(0,0,0); // here for the ride only, ATM.
+			   symmetry_atom_bond sab(at_1, at_2, st, ct);
+			   sabv.push_back(sab);
+			}
+
+			delete [] contact;
+			contact = NULL;
+		     } 
+		  } else {
+		     std::cout << "unhappy call of GetTMatrix() " << std::endl;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   std::cout << "found " << sabv.size() << " symmetry-atom-bonds" << std::endl;
+   return sabv;
+}
+
 // This *looks* like a kludge - symm_trans is forced into a vector.
 // But it is not a kludge. addSymmetry needs to take a vector, because
 // it's needed for CA symm addition too.
@@ -2080,7 +2169,7 @@ Bond_lines_container::addSymmetry(const atom_selection_container_t &SelAtom,
 }
 
 // FYI: there is only one element to symm_trans, the is called from
-// them addSymmetry_vector_symms wrapper
+// the addSymmetry_vector_symms wrapper
 graphical_bonds_container
 Bond_lines_container::addSymmetry_whole_chain(const atom_selection_container_t &SelAtom,
 					      const coot::Cartesian &point,
@@ -2254,33 +2343,89 @@ Bond_lines_container::addSymmetry_with_mmdb(const atom_selection_container_t &Se
    return gbc; 
 }
 
-// symmetry with colour-by-symmetry-operator:
+
 std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > >
 Bond_lines_container::addSymmetry_vector_symms(const atom_selection_container_t &SelAtom,
-	    coot::Cartesian point,
-	    float symm_distance,
-	    const std::vector<std::pair<symm_trans_t, Cell_Translation> > &symm_trans,
-	    short int symmetry_as_ca_flag,
-            short int symmetry_whole_chain_flag,
-	    short int draw_hydrogens_flag) {
+					       coot::Cartesian point,
+					       float symm_distance,
+					       const std::vector<std::pair<symm_trans_t, Cell_Translation> > &symm_trans,
+					       short int symmetry_as_ca_flag,
+					       short int symmetry_whole_chain_flag,
+					       short int draw_hydrogens_flag,
+					       bool do_intermolecular_symmetry_bonds) {
 
    std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > r;
    do_bonds_to_hydrogens = draw_hydrogens_flag;
+   std::vector <symmetry_atom_bond> sabv;
+   if (do_intermolecular_symmetry_bonds)
+      // heavyweight.
+      sabv = find_intermolecular_symmetry(SelAtom);
 
    for (unsigned int i=0; i<symm_trans.size(); i++) {
-      std::pair<symm_trans_t, Cell_Translation>  this_symm_trans = symm_trans[i];
+      const std::pair<symm_trans_t, Cell_Translation>  &st = symm_trans[i];
       std::vector<std::pair<symm_trans_t, Cell_Translation> > this_symm_trans_vec;
-      this_symm_trans_vec.push_back(this_symm_trans);
+      this_symm_trans_vec.push_back(st);
       r.push_back(std::pair<graphical_bonds_container,
 		  std::pair<symm_trans_t, Cell_Translation > > (addSymmetry(SelAtom, 
 									    point, symm_distance,
 									    this_symm_trans_vec,
 									    symmetry_as_ca_flag,
 									    symmetry_whole_chain_flag), 
-								symm_trans[i]));
+								st));
+
+      if (do_intermolecular_symmetry_bonds) { 
+	 graphical_bonds_container int_sym_gbc = intermolecular_symmetry_graphical_bonds(SelAtom.mol, sabv, st);
+	 std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation > > p(int_sym_gbc, st);
+	 r.push_back(p);
+      }
    }
+
    return r;
 }
+
+graphical_bonds_container
+Bond_lines_container::intermolecular_symmetry_graphical_bonds(CMMDBManager *mol, 
+							      const std::vector <Bond_lines_container::symmetry_atom_bond> &sabv,
+							      const std::pair<symm_trans_t, Cell_Translation> &symm_trans) {
+
+   graphical_bonds_container gbc;
+   mat44 my_matt;
+
+   if (0)
+      std::cout << "in intermolecular_symmetry_graphical_bonds() running through " << sabv.size()
+		<< " symmetry atom bonds " << std::endl;
+
+   for (unsigned int i=0; i<sabv.size(); i++) {
+
+      coot::Cartesian atom_1_pt(sabv[i].at_1->x, sabv[i].at_1->y, sabv[i].at_1->z);
+      
+      int ierr = sabv[i].GetTMatrix(mol, &my_matt); // check that my_matt gets changed to something sensible
+
+      if (! ierr) { 
+      
+	 coot::Cartesian atom_2_pt(sabv[i].at_2->x, sabv[i].at_2->y, sabv[i].at_2->z);
+	 CAtom t_atom2;
+	 t_atom2.Copy(sabv[i].at_2);
+	 t_atom2.Transform(my_matt);
+	 coot::Cartesian t_atom_2_pt(t_atom2.x, t_atom2.y, t_atom2.z);
+
+	 if (0) 
+	    std::cout << "gbc int-symm bond: atom_1: " << atom_1_pt << " atom_2: "
+		      << atom_2_pt << " t_atom2 " << t_atom_2_pt << " "
+		      << symm_trans.first << " " << " delta "
+		      << (t_atom_2_pt - atom_1_pt).amplitude() << "\n";
+	 
+	 addBond(0, atom_1_pt, t_atom_2_pt);
+
+      } else {
+	 std::cout << "intermolecular_symmetry_graphical_bonds GetTMatrix() problem."
+		   << std::endl;
+      } 
+   }
+
+   gbc = make_graphical_symmetry_bonds();
+   return gbc;
+} 
 
 
 

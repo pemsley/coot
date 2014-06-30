@@ -1546,10 +1546,10 @@
 	      (format #t "   diff-high-values: ~s  diff-low-values: ~s~%~!" 
 		      diff-high-values diff-low-values)
 
-	      (if (not (< (apply + diff-high-values) 0.04)) 
+	      (if (not (< (apply + diff-high-values) 0.06)) 
 		  (begin
 		    (format #t "Bad diff high values: value: ~s target: ~s~%"
-			    (apply + diff-high-values)  0.04)
+			    (apply + diff-high-values)  0.06)
 		    (throw 'fail)))
 	      
 	      (if (not (< (apply + diff-low-values) -5))

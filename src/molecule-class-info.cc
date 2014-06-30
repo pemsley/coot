@@ -783,7 +783,7 @@ molecule_class_info_t::update_symmetry() {
    graphics_info_t g;
 
    // a bit of a hack...
-   int shift_search_size = graphics_info_t::symmetry_shift_search_size;
+   int shift_search_size = g.symmetry_shift_search_size;
       
    if ((graphics_info_t::show_symmetry == 1) &&
        (show_symmetry == 1)) {
@@ -793,9 +793,7 @@ molecule_class_info_t::update_symmetry() {
       if (draw_it == 1) {
       
 	 molecule_extents_t extents(atom_sel, g.symmetry_search_radius);
-	 graphics_info_t g;
 	 coot::Cartesian point = g.RotationCentre();
-
       
 	 // cout << "extents " << extents << endl;
 	 // cout << "point:  " << point << endl;
@@ -832,6 +830,8 @@ molecule_class_info_t::update_symmetry() {
 // 	       std::cout << "box " << ibox << "/" << symm_trans_boxes.size()
 // 			 << " " << symm_trans_boxes[ibox] << "\n";
 
+	    bool do_intermolecular_symmetry_bonds = false; // for now
+
 	    symmetry_bonds_box = 
 	       bonds.addSymmetry_vector_symms(atom_sel,
 					      point,
@@ -839,7 +839,8 @@ molecule_class_info_t::update_symmetry() {
 					      symm_trans_boxes,
 					      symmetry_as_calphas,
 					      symmetry_whole_chain_flag,
-					      draw_hydrogens_flag);
+					      draw_hydrogens_flag,
+					      do_intermolecular_symmetry_bonds);
 	    
 	 } else {
 	    Bond_lines_container bonds(NO_SYMMETRY_BONDS);
@@ -1977,7 +1978,7 @@ molecule_class_info_t::display_symmetry_bonds() {
 	       set_symm_bond_colour_mol_and_symop(icol, isymop);
 	       int linesdrawn = 0;
 	    
-	          Lines_list &ll = symmetry_bonds_box[isym].first.symmetry_bonds_[icol];
+	       Lines_list &ll = symmetry_bonds_box[isym].first.symmetry_bonds_[icol];
 	 
 	       glBegin(GL_LINES); 
 	       for (int j=0; j< symmetry_bonds_box[isym].first.symmetry_bonds_[icol].num_lines; j++) {
