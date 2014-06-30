@@ -1293,7 +1293,7 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
 // a wrapper for the above, matching hydrogens names to the
 // dictionary.  Add atoms to residue_p, return success status.
 //
-// This calles undelocalise.  Is that what we want to do?
+// This calls undelocalise.  Is that what we want to do?
 // 
 std::pair<bool, std::string>
 coot::add_hydrogens_with_rdkit(CResidue *residue_p,

@@ -4,6 +4,10 @@
 ---- 
 
 
+   o does drag and drop urls work? I mean, say from my tutorial web page?
+
+   o if you have a wedge bond in lbg, try to make it a single bond.
+
    o why does 201 and 202 disconnect in chain-N-with-FUC-reordered-with-link.pdb?
 
      - Because the PDB file is wrong (for a BETA1-3 link) the linking
@@ -19,6 +23,7 @@
 *Done.  Needs a test.
 
    o Add Delete Link function (like add link)
+
 
    o change the front-page icons on the glade file.
 
@@ -41,6 +46,8 @@ DEBUG:: apply_undo: (end) history_index: 47 max_history_index: 49
 /home/ming/data/Programs/coot-0.8/bin/coot: line 259:  4354 Segmentation fault 
 
    o chiral centre inverter in C++  
+
+   o why is one of the N+ in the nitros chiral in the thumbnail of 128?
 
    o modified residue (e.g. oxidised Cys).  Mutate it back to CYS.
      It's still HETATMs.

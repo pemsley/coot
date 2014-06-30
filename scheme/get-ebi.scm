@@ -112,7 +112,7 @@
 ;; 
 (define (get-ebi-pdb id)
 
-  (format #t "======= id: ~s~%" id)
+  ;; (format #t "======= id: ~s~%" id)
 
   (let* ((down-id (string-downcase id))
 	 (url-str (string-append

@@ -104,6 +104,7 @@ coot::mogul::parse(const std::string &file_name) {
 coot::mogul_item
 coot::mogul::parse_item_line(const std::vector<std::string> &bits, int n_idx) const {
 
+   //         0        1            2         3    4     5         6                 7       8       9                  10                    11         12
    // Fragment Type,Atom Indices,Query Value,Hits,Mean,Median,Standard Deviation,|z-score|,d(min),Distribution Minimum,Distribution Maximum,Bin Width,Number of Bins
 
    mogul_item r;
@@ -121,20 +122,52 @@ coot::mogul::parse_item_line(const std::vector<std::string> &bits, int n_idx) co
       float min     = 0;
       float max     = 0;
 
-      // std::cout << "got " << indices.size() << " indices and n_idx is  " << n_idx << std::endl;
+      if (debug) {
+
+	 // if query value is blank then that's because mogul didn't
+	 // write one out because it thought that the input as in 2d.
+	 
+	 std::cout << "got " << bits.size() << " bits " << std::endl;
+	 for (unsigned int i=0; i<bits.size() && i<13; i++) { 
+	    std::cout << i << ":  " << bits[i];
+	    if (i ==  0) std::cout << "    -> Type";
+	    if (i ==  1) std::cout << "    -> Atom-indices";
+	    if (i ==  2) std::cout << "    -> Model-Value";
+	    if (i ==  3) std::cout << "    -> Hits";
+	    if (i ==  4) std::cout << "    -> Mean";
+	    if (i ==  5) std::cout << "    -> Median";
+	    if (i ==  6) std::cout << "    -> St-dev";
+	    if (i ==  7) std::cout << "    -> |z|";
+	    if (i ==  8) std::cout << "    -> d(min)";
+	    if (i ==  9) std::cout << "    -> min";
+	    if (i == 10) std::cout << "    -> max";
+	    if (i == 11) std::cout << "    -> bin_width";
+	    if (i == 12) std::cout << "    -> n_bins";
+	    std::cout << "\n";
+	 }
+	 std::cout << "got " << indices.size() << " indices and n_idx is  " << n_idx << std::endl;
+      }
+
+      
       
       if (indices.size() > 1) {
-	 // std::cout << "model  value from :" << bits[2] << ":" << std::endl;
-	 // std::cout << "counts value from :" << bits[3] << ":" << std::endl;
+	 if (debug) { 
+	    std::cout << "model  value from :" << bits[2] << ":" << std::endl;
+	    std::cout << "counts value from :" << bits[3] << ":" << std::endl;
+	 } 
 	 float model_value = coot::util::string_to_float(bits[2]);
 	 int counts    = coot::util::string_to_int(bits[3]);
 
-	 // std::cout << "   model_value: " << model_value << std::endl;
-	 // std::cout << "   counts: " << counts << std::endl;
+	 if (debug) { 
+	    std::cout << "   model_value: " << model_value << std::endl;
+	    std::cout << "   counts: " << counts << std::endl;
+	 }
 
 	 if (counts > 0) {
 
-	    if (indices.size() == 2 || indices.size() == 3) { 
+	    if (indices.size() == 2 || indices.size() == 3) {
+	       if (debug)
+		  std::cout << "indices.size() is " << indices.size() << std::endl;
 	       mean    = coot::util::string_to_float(bits[4]);
 	       median  = coot::util::string_to_float(bits[5]);
 	       min     = coot::util::string_to_float(bits[9]);
@@ -145,10 +178,15 @@ coot::mogul::parse_item_line(const std::vector<std::string> &bits, int n_idx) co
 	       }
 	       
 	    } else {
-	       dmin    = coot::util::string_to_float(bits[8]);
-	       // std::cout << "got dmin " << dmin << " from :" << dmin << ":" << std::endl;
+// 	       dmin    = coot::util::string_to_float(bits[8]);
+// 	       if (debug)
+// 		  std::cout << "got dmin " << dmin << " from :" << dmin << ":" << std::endl;
 	    } 
 	 
+	    if (debug)
+	       std::cout << "indices.size() is " << indices.size() << " and n_idx is "
+			 << n_idx << std::endl;
+	    
 	    if (n_idx == 2) {
 	       if (indices.size() == 2) { 
 		  r = mogul_item(indices[0], indices[1], model_value,
