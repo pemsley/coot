@@ -3362,7 +3362,8 @@ date
 #      CXXFLAGS="-g -O"
 # consider getting rid of $shared_static_flag, which does a --disable-shared.
 # i.e. we should keep and use shared libs
-coot_optim_args=
+coot_optim_args="-g -O -static-libstdc++ -static-libgcc"
+
 if [ $architecture = x86_64 ] ; then 
    # This could well be too general a test, certainly on 64 bit CentOS 5 we need this, 
    # and possibly on 64 bit Gutsy.

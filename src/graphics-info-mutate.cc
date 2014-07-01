@@ -23,6 +23,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "compat/coot-sysdep.h"
+
 // For stat, mkdir:
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -60,8 +62,6 @@
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "molecule-class-info.h"
-
-#include "compat/coot-sysdep.h"
 
 #include "graphics-info.h"
 #include "manipulation-modes.hh"

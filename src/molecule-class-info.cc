@@ -25,6 +25,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "compat/coot-sysdep.h"
+
 #include <stdlib.h>
 
 #ifndef _MSC_VER
@@ -62,8 +64,6 @@
 #include "coords/mmdb.h"
 #include "coords/mmdb-crystal.h"
 #include "gtk-manual.hh"
-
-#include "compat/coot-sysdep.h"
 
 // For stat, mkdir:
 #include <sys/types.h>

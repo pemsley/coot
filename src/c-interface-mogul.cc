@@ -3,6 +3,9 @@
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "compat/coot-sysdep.h"
+
+
 #include "utils/coot-utils.hh"
 #include "analysis/mogul-interface.hh"
 

@@ -24,6 +24,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "compat/coot-sysdep.h"
+
 #ifndef HAVE_STRING
 #define HAVE_STRING
 #include <string>
@@ -52,8 +54,6 @@
 #endif
 
 #include "guile-fixups.h"
-
-#include "compat/coot-sysdep.h"
 
 
 #include <mmdb/mmdb_manager.h>

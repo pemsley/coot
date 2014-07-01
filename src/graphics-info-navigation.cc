@@ -22,6 +22,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "compat/coot-sysdep.h"
+
 #if defined(_MSC_VER)
 #if defined _MSC_VER
 #include <windows.h>

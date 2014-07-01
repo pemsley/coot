@@ -22,6 +22,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "compat/coot-sysdep.h"
+
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/use-rdkit.hh"
 #endif 
@@ -35,8 +37,6 @@
 #include <sstream>
 
 #include <GL/glut.h> // needed for GLUT_ELAPSED_TIME
-
-#include "compat/coot-sysdep.h"
 
 #include "clipper/core/ramachandran.h"
 #include "clipper/ccp4/ccp4_map_io.h"

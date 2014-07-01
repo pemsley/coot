@@ -21,6 +21,7 @@
 
 // window magic jiggery pokery
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
+#define WIN32_LEAN_AND_MEAN
 #define AddAtomA AddAtom
 #define GetAtomNameA GetAtomName
 #undef V_UNKNOWN
