@@ -1269,10 +1269,14 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         print "   diff-high-values: %s  diff-low-values: %s" %(diff_high_values, diff_low_values)
 
-        self.failUnless((sum(diff_high_values) < 0.04),
-                        "Bad diff low values")
+        sum_diff_high_values = sum(diff_high_values) 
+        self.failUnless((sum_diff_high_values < 0.06),
+                        "Bad diff high values: value %f target: %f"
+                        %(sum_diff_high_values, 0.06))
 
-        self.failUnless((sum(diff_low_values) < -5), "Bad diff high values")
+        sum_diff_low_values = sum(diff_low_values)
+        self.failUnless((sum_diff_low_values < -5),
+                        "Bad diff low values %s" %sum_diff_low_values)
 
 
     def test29_1(self):
