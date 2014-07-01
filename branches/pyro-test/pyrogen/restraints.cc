@@ -527,7 +527,10 @@ coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_rest
 void
 coot::add_chem_comp_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
 
-   add_chem_comp_aromatic_planes(mol, restraints);
+   bool quartet_planes = false;
+   bool quartet_hydrogen_planes = true;
+   
+   add_chem_comp_aromatic_planes(mol, restraints, quartet_planes, quartet_hydrogen_planes);
    add_chem_comp_deloc_planes(mol, restraints);
    restraints->remove_redundant_plane_restraints();
    restraints->reweight_subplanes();
@@ -537,7 +540,9 @@ coot::add_chem_comp_planes(const RDKit::ROMol &mol, coot::dictionary_residue_res
 // what fun!
 // C++ smarts
 void
-coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol,
+				    coot::dictionary_residue_restraints_t *restraints,
+				    bool quartet_planes, bool quartet_hydrogen_planes) {
 
    std::vector<std::string> patterns;
 
@@ -551,7 +556,7 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_re
    patterns.push_back("a1aaaa1");
    patterns.push_back("[*;^2]1[*;^2][*;^2][A;^2][*;^2]1"); // non-aromatic 5-ring
 
-   int n_planes = 1; 
+   int plane_id_idx = 1; 
    for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
       RDKit::ROMol *query = RDKit::SmartsToMol(patterns[ipat]);
       std::vector<RDKit::MatchVectType>  matches;
@@ -562,10 +567,7 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_re
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
 	    std::cout << "matched aromatic plane pattern: " << patterns[ipat] << std::endl;
-	    std::string plane_id = "plane-arom-";
-	    char s[100];
-	    snprintf(s,99,"%d", n_planes);
-	    plane_id += std::string(s);
+	    std::string plane_id = "plane-arom-" + util::int_to_string(plane_id_idx);
 	    std::vector<std::string> plane_restraint_atoms; 
 	    try {
 	       for (unsigned int ii=0; ii<matches[imatch].size(); ii++) {
@@ -579,7 +581,7 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_re
 
 		  // add the atom to the plane if the plane that it is
 		  // already in is not this plane.
-
+		  // 
 		  try {
 		     std::string atom_plane;
 		     at_p->getProp("plane_id", atom_plane);
@@ -589,10 +591,11 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_re
 		  catch (const KeyErrorException &kee) {
 		     add_atom_to_plane = true;
 		  }
-		  // the following exception is needed for my Ubuntu 10.04 machine, don't know why:
-		  // fixes:
+		  // the following exception is needed for my Ubuntu 10.04 machine, 
+		  // don't know why: fixes:
 		  // terminate called after throwing an instance of 'KeyErrorException'
                   //   what():  std::exception
+		  // 
 		  catch (const std::exception &stde) {
 		     add_atom_to_plane = true;
 		  }
@@ -653,7 +656,7 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_re
 		  restraints->plane_restraint.push_back(rest);
 	       } 
 	       // maybe this should be in above clause for aesthetic reasons?
-	       n_planes++;
+	       plane_id_idx++;
 	    }
 	    catch (const KeyErrorException &kee) {
 	       // this should not happen
