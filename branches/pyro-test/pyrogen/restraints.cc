@@ -194,7 +194,7 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	       dict_bond_restraint_t bondr(atom_name_1, atom_name_2, bond_type, bond.length, bond.esd);
 	       restraints->bond_restraint.push_back(bondr);
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       std::cout << "WARNING:: error in adding bond restraint for bond number "
 			 << ib << " " << rte.what() << std::endl;
 	    } 
@@ -289,7 +289,7 @@ coot::fill_with_energy_lib_angles(const RDKit::ROMol &mol,
 			done_angle[angle_key_name_2] = true;
 		     }
 		  }
-		  catch (std::runtime_error rte) {
+		  catch (const std::runtime_error &rte) {
 		     std::cout << "WARNING:: error in adding angle restraint for atoms "
 			       << at_1->getIdx() << " "
 			       << at_2->getIdx() << " "
@@ -426,7 +426,7 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 				 restraints->torsion_restraint.push_back(torsionr);
 			      }
 			   }
-			   catch (std::runtime_error rte) {
+			   catch (const std::runtime_error &rte) {
 			      energy_lib_torsion tors; // default torsion.
 			      // what are the hybridization states of at_2 and at_3?
 			      RDKit::Atom::HybridizationType ht_2 = at_2->getHybridization();
@@ -529,11 +529,9 @@ coot::add_chem_comp_planes(const RDKit::ROMol &mol, coot::dictionary_residue_res
 
    add_chem_comp_aromatic_planes(mol, restraints);
    add_chem_comp_deloc_planes(mol, restraints);
-
-   add_chem_comp_sp2_N_planes(mol, restraints);
-
    restraints->remove_redundant_plane_restraints();
-
+   restraints->reweight_subplanes();
+   add_chem_comp_sp2_N_planes(mol, restraints);
 }
 
 // what fun!
@@ -542,8 +540,13 @@ void
 coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
 
    std::vector<std::string> patterns;
-   patterns.push_back("a12aaaaa1aaaa2");
-   patterns.push_back("a12aaaaa1aaa2");
+
+   // I am not sure that fused ring systems are a good idea.
+   // 
+   //    patterns.push_back("a12aaaaa1aaaa2");
+
+   patterns.push_back("a12aaaaa1aaa2"); // 6-5 is OK, I think
+   
    patterns.push_back("a1aaaaa1");
    patterns.push_back("a1aaaa1");
    patterns.push_back("[*;^2]1[*;^2][*;^2][A;^2][*;^2]1"); // non-aromatic 5-ring
@@ -575,7 +578,7 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_re
 		  bool add_atom_to_plane = true;
 
 		  // add the atom to the plane if the plane that it is
-		  // already is not this plane.
+		  // already in is not this plane.
 
 		  try {
 		     std::string atom_plane;
@@ -590,7 +593,7 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_re
 		  // fixes:
 		  // terminate called after throwing an instance of 'KeyErrorException'
                   //   what():  std::exception
-		  catch (std::exception stde) {
+		  catch (const std::exception &stde) {
 		     add_atom_to_plane = true;
 		  }
 

@@ -245,9 +245,7 @@ monomer_restraints_from_python(PyObject *restraints) {
 			      std::string plane_id = PyString_AsString(plane_id_py);
 			      float esd = PyFloat_AsDouble(esd_py);
 			      if (atoms.size() > 0) { 
-				 coot::dict_plane_restraint_t rest(plane_id, atoms[0], esd);
-				 for (int i=1; i<atoms.size(); i++)
-				    rest.push_back_atom(atoms[i]);
+				 coot::dict_plane_restraint_t rest(plane_id, atoms, esd);
 				 plane_restraints.push_back(rest);
 			      }
 			   }
@@ -403,14 +401,28 @@ PyObject *coot::monomer_restraints_to_python(const dictionary_residue_restraints
       for (unsigned int iplane=0; iplane<restraints.plane_restraint.size(); iplane++) {
 	 PyObject *atom_list = PyList_New(restraints.plane_restraint[iplane].n_atoms());
 	 for (int iat=0; iat<restraints.plane_restraint[iplane].n_atoms(); iat++) { 
-	    std::string at = restraints.plane_restraint[iplane][iat];
-	    PyList_SetItem(atom_list, iat, PyString_FromString(at.c_str()));
+	    const std::string &at = restraints.plane_restraint[iplane][iat].first;
+	    double atom_esd = restraints.plane_restraint[iplane][iat].second;
+	    PyObject *atom_pair_list = PyList_New(2);
+	    PyObject *n = PyString_FromString(at.c_str());
+	    PyObject *e = PyFloat_FromDouble(atom_esd);
+	    PyList_SetItem(atom_pair_list, 0, n);
+	    PyList_SetItem(atom_pair_list, 1, e);
+	    // PyList_SetItem(atom_list, iat, n);
+	    PyList_SetItem(atom_list, iat, atom_pair_list);
 	 }
-	 double esd = restraints.plane_restraint[iplane].dist_esd();
-	 PyObject *plane_restraint = PyList_New(3);
+
+	 // HACK HACK! // FIXME
+// 	 double esd = restraints.plane_restraint[iplane].dist_esd(0);
+// 	 PyObject *plane_restraint = PyList_New(3);
+// 	 PyList_SetItem(plane_restraint, 0, PyString_FromString(restraints.plane_restraint[iplane].plane_id.c_str()));
+// 	 PyList_SetItem(plane_restraint, 1, atom_list);
+// 	 PyList_SetItem(plane_restraint, 2, PyFloat_FromDouble(esd));
+// 	 PyList_SetItem(plane_restraints_list, iplane, plane_restraint);
+	 
+	 PyObject *plane_restraint = PyList_New(2);
 	 PyList_SetItem(plane_restraint, 0, PyString_FromString(restraints.plane_restraint[iplane].plane_id.c_str()));
 	 PyList_SetItem(plane_restraint, 1, atom_list);
-	 PyList_SetItem(plane_restraint, 2, PyFloat_FromDouble(esd));
 	 PyList_SetItem(plane_restraints_list, iplane, plane_restraint);
       }
 
