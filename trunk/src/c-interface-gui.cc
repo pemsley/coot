@@ -28,6 +28,9 @@
 #endif
 #endif
 
+#include "compat/coot-sysdep.h"
+
+
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
 #include <vector>

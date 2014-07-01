@@ -31,6 +31,8 @@
 #endif
 #endif
 
+#include "compat/coot-sysdep.h"
+
 #include <stdlib.h>
 #include <string.h> // strncpy, strncmp
 #include <iostream>

@@ -33,9 +33,9 @@ else
        fi
     done
 
-    if test $sys = MINGW32_NT-5.1 ; then
+    if [ $sys = MINGW32_NT-5.1 ] || [ $sys = MINGW32_NT-6.1 ] ; then
 	echo We have WIN
-	aclocal_extras="-I /usr/local/share/aclocal -I $HOME/coot/share/aclocal"
+	aclocal_extras="-I /usr/local/share/aclocal -I /mingw/share/aclocal"
 	fi
     echo aclocal -I macros $aclocal_extras
     aclocal -I macros $aclocal_extras

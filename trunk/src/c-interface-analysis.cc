@@ -21,6 +21,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "compat/coot-sysdep.h"
+
 #include "libgtkgraph/gtkgraph.h"
 
 #ifdef HAVE_GOOCANVAS

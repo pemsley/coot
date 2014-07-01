@@ -25,6 +25,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "compat/coot-sysdep.h"
+
 
 // For reasons I don't understand, this should come near the top of
 // includes, otherwise we get RDKit dcgettext() include file problems.

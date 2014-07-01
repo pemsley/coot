@@ -22,6 +22,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "compat/coot-sysdep.h"
+
 // for stat()
 #include <sys/types.h>
 #include <sys/stat.h>

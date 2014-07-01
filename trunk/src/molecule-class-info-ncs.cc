@@ -26,6 +26,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "compat/coot-sysdep.h"
+
 
 #ifdef _MSC_VER
 #include <windows.h>
@@ -42,8 +44,6 @@
 #include "coords/mmdb.h"
 #include "coords/mmdb-crystal.h"
 #include "molecule-class-info.h"
-
-#include "compat/coot-sysdep.h"
 
 #include "coot-utils/coot-map-utils.hh"
 #include "xmap-utils.h"

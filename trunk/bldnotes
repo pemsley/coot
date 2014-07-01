@@ -390,6 +390,8 @@ low importance
 
 **** Python ****
 
+   o add other solvent molecule -> dont import cif again?!
+
    o residue type selection convert to upper case (maybe best a combobox)
 
    o find_exe/command_in_path

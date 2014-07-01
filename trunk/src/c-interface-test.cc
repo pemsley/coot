@@ -32,6 +32,8 @@
 #endif
 #endif
 
+#include "compat/coot-sysdep.h"
+
 #include <stdlib.h>
 #include <iostream>
 #include <fstream>

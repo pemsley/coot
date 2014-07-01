@@ -3,6 +3,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "compat/coot-sysdep.h"
+
 #include "graphics-info.h"
 #include "cc-interface.hh" // for pythonize_command_name()
 #include "c-interface-scm.hh"

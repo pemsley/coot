@@ -23,6 +23,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "compat/coot-sysdep.h"
+
 #ifdef USE_GUILE
 #include <libguile.h>
 #endif

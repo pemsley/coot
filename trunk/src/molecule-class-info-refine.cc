@@ -1,4 +1,6 @@
 
+#include "compat/coot-sysdep.h"
+
 #include <map>
 #include <algorithm>
 

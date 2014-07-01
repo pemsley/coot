@@ -22,6 +22,8 @@
 #include "Python.h"
 #endif // USE_PYTHON
 
+#include "compat/coot-sysdep.h"
+
 #include <gtk/gtk.h>
 
 #include <sys/types.h> // for stating

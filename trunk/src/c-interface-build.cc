@@ -27,6 +27,8 @@
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "compat/coot-sysdep.h"
+
 #include <stdlib.h>
 #include <iostream>
 #include <vector>
@@ -79,14 +81,6 @@
 #include "coot-utils/coot-map-heavy.hh"  // for fffear
 
 #include "guile-fixups.h"
-
-// Including python needs to come after graphics-info.h, because
-// something in Python.h (2.4 - chihiro) is redefining FF1 (in
-// ssm_superpose.h) to be 0x00004000 (Grrr).
-//
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif // USE_PYTHON
 
 
 #include "c-interface.h"
