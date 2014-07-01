@@ -3026,40 +3026,45 @@ void coot::dictionary_residue_restraints_t::reweight_subplanes() {
       }
    }
 
-   std::map<std::string, int>::iterator it_names;
-   for(it_names=name_map.begin(); it_names!=name_map.end(); it_names++) {
-      if (it_names->second != 1) {
-	 // reweight.
-	 double w_multiplier = sqrt(double(it_names->second));
-	 const std::string &atom_name = it_names->first;
-	 for (it=plane_restraint.begin(); it!=plane_restraint.end(); it++) {
-	    for (unsigned int i=0; i<it->n_atoms(); i++) {
-	       if (it->atom_id(i) == atom_name) {
-		  it->set_dist_esd(i, it->dist_esd(i) * w_multiplier);
-	       }
-	    }
-	 }
-      }
-   }
+//    std::map<std::string, int>::iterator it_names;
+//    for(it_names=name_map.begin(); it_names!=name_map.end(); it_names++) {
+//       if (it_names->second != 1) {
+// 	 // reweight.
+// 	 double w_multiplier = sqrt(double(it_names->second));
+// 	 const std::string &atom_name = it_names->first;
+// 	 for (it=plane_restraint.begin(); it!=plane_restraint.end(); it++) {
+// 	    for (unsigned int i=0; i<it->n_atoms(); i++) {
+// 	       if (it->atom_id(i) == atom_name) {
+// 		  it->set_dist_esd(i, it->dist_esd(i) * w_multiplier);
+// 	       }
+// 	    }
+// 	 }
+//       }
+//    }
+
 
    for (unsigned int i=0; i<plane_restraint.size(); i++) {
-      const dict_plane_restraint_t &rest_1 = plane_restraint[i];
+      dict_plane_restraint_t &rest_1 = plane_restraint[i];
       for (unsigned int j=0; j<plane_restraint.size(); j++) {
-	 const dict_plane_restraint_t &rest_2 = plane_restraint[j];
+	 dict_plane_restraint_t &rest_2 = plane_restraint[j];
 	 if (i != j) {
+	    std::cout << "Here with plane restraints indices " << i << " " << j << std::endl;
+	    std::vector<int> matchers_1;
 	    for (unsigned int ii=0; ii<rest_1.n_atoms(); ii++) {
-	       int n_match = 0;
-	       for (unsigned int jj=0; jj<rest_1.n_atoms(); jj++) {
+	       for (unsigned int jj=0; jj<rest_2.n_atoms(); jj++) {
 		  if (rest_1.atom_id(ii) == rest_2.atom_id(jj)) {
-		     
-		  } 
+		     matchers_1.push_back(ii);
+		  }
+	       }
+	    }
+	    if (matchers_1.size() > 3) {
+	       for (unsigned int im=0; im<matchers_1.size(); im++) {
+		  rest_1.set_dist_esd(matchers_1[im], rest_1.dist_esd(matchers_1[im]) * 1.4142);
 	       }
 	    }
 	 }
       }
    }
-
-   
 }
 
 
