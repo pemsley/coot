@@ -3258,8 +3258,17 @@ def file_to_preferences(filename):
     """
 
     import shutil
-    
-    ref_py = os.path.join(get_pkgdatadir(), "python", filename)
+
+    # depending on where/how Coot was build pkgdatadir may not be available
+    # or point the wrong way
+    pgkdata_dir = get_pkgdatadir()
+    if os.path.isdir(pkgdatadir):
+        ref_py = os.path.join(pkgdatadir, "python", filename)
+    else:
+        # dont have accessible pkgdata_dir, so guess install place
+        python_dir = os.getenv("COOT_PYTHON_DIR")
+        if os.path.isdir(python_dir) :
+            ref_py = os.path.join(python_dir, "python", filename)
     if not os.path.exists(ref_py):
         add_status_bar_text("Missing reference template key bindings.")
     else:
@@ -3472,6 +3481,8 @@ def find_exe(program_name, *args, **kwargs):
     # only if graphics
     if "no_disk_search" in kwargs:
         no_search = kwargs["no_disk_search"]
+    else:
+        no_search = False
     search_disk = False
     if (use_gui_qm and not no_search):
         search_disk = search_disk_dialog(program_name, path_ls)

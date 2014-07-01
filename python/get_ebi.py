@@ -140,7 +140,7 @@ def get_ebi_pdb_and_sfs(id):
 def get_ebi_pdb(id):
     import urllib, string
 
-    print "======= id:", id
+    # print "======= id:", id
     down_id = string.lower(id)
     url_str = pdbe_server + "/" + pdbe_pdb_file_dir + "/" + down_id + \
               "." + pdbe_file_name_tail
@@ -242,9 +242,14 @@ def get_eds_pdb_and_mtz(id):
                 pre_download_info = coot_get_url_as_string(eds_info_page)
                 # print "INFO:: --------------- pre-download-info:", pre_download_info
                 bad_map_status = "No reliable map available" in pre_download_info
+                if "There is no structure factor entry" in pre_download_info:
+                    print "BL WARNING:: no sfs available for entry %s, so wont download." %id
+                    # no pdb and no mtz
+                    return False
             except:
                 print "BL ERROR:: could not get pre_download_info from", eds_core
-                bad_map_status = True
+                # we probably wont get anything else, so bail out.
+                return False
             s1 = coot_urlretrieve(model_url, dir_target_pdb_file)
             print "INFO:: read model status: ",s1
             s2 = coot_urlretrieve(mtz_url, dir_target_mtz_file)
