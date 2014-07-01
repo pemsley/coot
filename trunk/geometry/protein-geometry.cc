@@ -3048,7 +3048,6 @@ void coot::dictionary_residue_restraints_t::reweight_subplanes() {
       for (unsigned int j=0; j<plane_restraint.size(); j++) {
 	 dict_plane_restraint_t &rest_2 = plane_restraint[j];
 	 if (i != j) {
-	    std::cout << "Here with plane restraints indices " << i << " " << j << std::endl;
 	    std::vector<int> matchers_1;
 	    for (unsigned int ii=0; ii<rest_1.n_atoms(); ii++) {
 	       for (unsigned int jj=0; jj<rest_2.n_atoms(); jj++) {
