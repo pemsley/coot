@@ -32,7 +32,9 @@ namespace coot {
    // alter restraints
    void add_chem_comp_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
    // alter restraints
-   void add_chem_comp_aromatic_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   void add_chem_comp_aromatic_planes(const RDKit::ROMol &mol,
+				      coot::dictionary_residue_restraints_t *restraints,
+				      bool quartet_planes, bool quartet_hydrogen_planes);
    // alter restraints
    void add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
    // alter restraints
