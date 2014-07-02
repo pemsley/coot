@@ -8,6 +8,8 @@ from rdkit.Chem import AllChem
 import coot_libs as coot
 import restraints_boost as coot_boost
 
+from optparse import OptionParser
+
 from jay_util import *
 
 global run_mogul
@@ -430,7 +432,8 @@ def make_restraints_from_mdl(mol_file_name, comp_id, sdf_file_name, pdb_out_file
    m = Chem.MolFromMolFile(mol_file_name)
    return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name)
 
-def make_restraints_from_pdbx_cif(cif_file_name_in, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
+def make_restraints_from_pdbx_cif(cif_file_name_in, comp_id, sdf_file_name, pdb_out_file_name,
+                                  mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
 
    # later: embed the compound_name name into m.
    m = coot_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
@@ -445,7 +448,8 @@ def make_restraints_from_pdbx_cif(cif_file_name_in, comp_id, sdf_file_name, pdb_
 #       name = atom.GetProp('name')
 #       print 'in p2.py make_restraints_from_pdbx_cif()', atom, ' of m has name ', name
 
-   return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name)
+   return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name,
+                          quartet_planes, quartet_hydrogen_planes)
 
 
 def n_hydrogens(mol):
@@ -456,9 +460,9 @@ def n_hydrogens(mol):
     return n_H
 	
    
-def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
+def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name,
+                    quartet_planes, quartet_hydrogen_planes):
 
-   
    try:
       compound_name = m.GetProp('_Name');
    except KeyError:
@@ -519,7 +523,8 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
       mogul_state = execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
       if mogul_state:
          restraints = coot.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
-                                                          compound_name, m_H, bor, mmcif_dict_name)
+                                                          compound_name, m_H, bor, mmcif_dict_name,
+                                                          quartet_planes, quartet_hydrogen_planes)
          coot.regularize_and_write_pdb(m_H, restraints, comp_id, pdb_out_file_name)
          # new_mol = coot_boost.regularize(m_H)
          new_mol = coot_boost.regularize_with_dict(m_H, restraints, comp_id)
@@ -527,7 +532,8 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
 
       else:
          # we need ENERGY_LIB_CIF set to run mmcif_dict_from_mol() correctly
-         restraints = coot.mmcif_dict_from_mol(comp_id, compound_name, m_H, mmcif_dict_name)
+         restraints = coot.mmcif_dict_from_mol(comp_id, compound_name, m_H, mmcif_dict_name,
+                                               quartet_planes, quartet_hydrogen_planes)
          if restraints == None:
             print "No restraints"
          coot.write_pdb_from_mol(m_H, comp_id, pdb_out_file_name)
@@ -538,6 +544,9 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
 
 
 if __name__ == "__main__":
+
+    quartet_planes = True
+    quartet_hydrogen_planes = True
 
     smiles_string = "CC"
     sdf_file_name = 'test.sdf'
@@ -591,7 +600,8 @@ if __name__ == "__main__":
               if (extension == '.cif'):
 
                  make_restraints_from_pdbx_cif(smiles_or_mdl_string, comp_id, sdf_file_name,
-                                               pdb_out_file_name, cif_restraints_file_name);
+                                               pdb_out_file_name, cif_restraints_file_name,
+                                               quartet_planes, quartet_hydrogen_planes)
 
               else:
 
