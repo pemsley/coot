@@ -833,7 +833,7 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 		  neighbours.push_back(std::pair<int, string> (idx_1, ""));
 	    }
 
-	    std::cout << "centre idx " << iat << " neighbours size: " << neighbours.size() << std::endl;
+	    // std::cout << "centre idx " << iat << " neighbours size: " << neighbours.size() << std::endl;
 
 	    std::sort(neighbours.begin(), neighbours.end()); // how does this work? :-)
 
@@ -842,8 +842,8 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 	       for (unsigned int in=0; in<neighbours.size(); in++) {
 		  std::string name;
 		  mol[neighbours[in].first]->getProp("name", name); // already inside a try
-		  std::cout << "got name " << name << " for atom index "
-			    << neighbours[in].first << std::endl;
+		  // std::cout << "got name " << name << " for atom index "
+		  // << neighbours[in].first << std::endl;
 		  neighbours[in].second = name;
 	       }
 
