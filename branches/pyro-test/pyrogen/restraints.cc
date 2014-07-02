@@ -585,62 +585,69 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol,
    }
 
    if (quartet_hydrogen_planes) {
+      add_quartet_hydrogen_planes(mol, restraints);
+   }
+}
 
-      int h_plane_quartet_id_idx = 1; // for the first
+// modify restraints
+void
+coot::add_quartet_hydrogen_planes(const RDKit::ROMol &mol,
+				  coot::dictionary_residue_restraints_t *restraints) { 
+
+   int h_plane_quartet_id_idx = 1; // for the first
       
-      // Find hydrogens that are connected to an sp2 atom and make a
-      // plane of the sp2 atom and its neighbours (including this
-      // hydrogen of course).
-      int n_atoms = mol.getNumAtoms();
-      for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
-	 RDKit::ATOM_SPTR at_1 = mol[iat_1];
-	 if (at_1->getAtomicNum() == 1) {
-	    std::vector<unsigned int> quartet_indices;
+   // Find hydrogens that are connected to an sp2 atom and make a
+   // plane of the sp2 atom and its neighbours (including this
+   // hydrogen of course).
+   int n_atoms = mol.getNumAtoms();
+   for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
+      RDKit::ATOM_SPTR at_1 = mol[iat_1];
+      if (at_1->getAtomicNum() == 1) {
+	 std::vector<unsigned int> quartet_indices;
 
-	    RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
-	    boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_1);
-	    while(nbr_idx_1 != end_nbrs_1){
-	       const RDKit::ATOM_SPTR at_centre = mol[*nbr_idx_1];
+	 RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
+	 boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_1);
+	 while(nbr_idx_1 != end_nbrs_1){
+	    const RDKit::ATOM_SPTR at_centre = mol[*nbr_idx_1];
 	       
-	       if (at_centre->getHybridization() == RDKit::Atom::SP2) {
+	    if (at_centre->getHybridization() == RDKit::Atom::SP2) {
 
-		  quartet_indices.push_back(*nbr_idx_1);
-		  RDKit::ROMol::ADJ_ITER nbr_idx_2, end_nbrs_2;
-		  boost::tie(nbr_idx_2, end_nbrs_2) = mol.getAtomNeighbors(at_centre);
-		  while(nbr_idx_2 != end_nbrs_2){
-		     quartet_indices.push_back(*nbr_idx_2);
-		     ++nbr_idx_2;
-		  }
-	       }
-	       ++nbr_idx_1;
-	    }
-
-	    // OK! We found a H-quartet. Add it.
-
-	    if (quartet_indices.size() == 4) {
-	       try {
-		  std::vector<std::string> quartet_names;
-		  for (unsigned int jj=0; jj<quartet_indices.size(); jj++) {
-		     std::string name;
-		     mol[quartet_indices[jj]]->getProp("name", name);
-		     if (0)
-			std::cout << "Quartet " << h_plane_quartet_id_idx << ": "
-				  << quartet_indices[jj] << " " << name << std::endl;
-		     quartet_names.push_back(name);
-		  }
-		  std::string quartet_plane_id = "H-quartet-" + util::int_to_string(h_plane_quartet_id_idx);
-		  double dist_esd = 0.02;
-		  coot::dict_plane_restraint_t rest(quartet_plane_id, quartet_names, dist_esd);
-		  restraints->plane_restraint.push_back(rest);
-		  std::cout << "pushing back plane restraint " << quartet_plane_id << std::endl;
-		  h_plane_quartet_id_idx++;
-	       }
-	       catch (const KeyErrorException &kee) {
-		  std::cout << "Badness missing atom name in H-quartet" << std::endl;
+	       quartet_indices.push_back(*nbr_idx_1);
+	       RDKit::ROMol::ADJ_ITER nbr_idx_2, end_nbrs_2;
+	       boost::tie(nbr_idx_2, end_nbrs_2) = mol.getAtomNeighbors(at_centre);
+	       while(nbr_idx_2 != end_nbrs_2){
+		  quartet_indices.push_back(*nbr_idx_2);
+		  ++nbr_idx_2;
 	       }
 	    }
-	 } 
-      }
+	    ++nbr_idx_1;
+	 }
+
+	 // OK! We found a H-quartet. Add it.
+
+	 if (quartet_indices.size() == 4) {
+	    try {
+	       std::vector<std::string> quartet_names;
+	       for (unsigned int jj=0; jj<quartet_indices.size(); jj++) {
+		  std::string name;
+		  mol[quartet_indices[jj]]->getProp("name", name);
+		  if (0)
+		     std::cout << "Quartet " << h_plane_quartet_id_idx << ": "
+			       << quartet_indices[jj] << " " << name << std::endl;
+		  quartet_names.push_back(name);
+	       }
+	       std::string quartet_plane_id = "H-quartet-" + util::int_to_string(h_plane_quartet_id_idx);
+	       double dist_esd = 0.02;
+	       coot::dict_plane_restraint_t rest(quartet_plane_id, quartet_names, dist_esd);
+	       restraints->plane_restraint.push_back(rest);
+	       std::cout << "pushing back plane restraint " << quartet_plane_id << std::endl;
+	       h_plane_quartet_id_idx++;
+	    }
+	    catch (const KeyErrorException &kee) {
+	       std::cout << "Badness missing atom name in H-quartet" << std::endl;
+	    }
+	 }
+      } 
    } 
 }
 
