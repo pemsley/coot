@@ -23,7 +23,8 @@ namespace coot {
 				int n_atoms_all,
 				int n_atoms_non_hydrogen,
 				PyObject *bond_order_restraints_py,
-				const std::string &mmcif_out_file_name);
+				const std::string &mmcif_out_file_name,
+				bool quartet_planes, bool quartet_hydrogen_planes);
 
    // return restraints
    PyObject *mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
@@ -31,19 +32,22 @@ namespace coot {
 					    const std::string &compound_name,
 					    PyObject *rdkit_mol,
 					    PyObject *bond_order_restraints_py,
-					    const std::string &mmcif_out_file_name);
+					    const std::string &mmcif_out_file_name,
+					    bool quartet_planes, bool quartet_hydrogen_planes);
 
    PyObject *
    mmcif_dict_from_mol(const std::string &comp_id,
 		       const std::string &compound_name,
 		       PyObject *rdkit_mol,
-		       const std::string &mmcif_out_file_name);
+		       const std::string &mmcif_out_file_name,
+		       bool quartet_planes, bool quartet_hydrogen_planes);
    
    // which is a wrapper for:
    coot::dictionary_residue_restraints_t
    mmcif_dict_from_mol_inner(const std::string &comp_id,
 			     const std::string &compound_name,
-			     PyObject *rdkit_mol);
+			     PyObject *rdkit_mol,
+			     bool quartet_planes, bool quartet_hydrogen_planes);
    
    void write_restraints(PyObject *restraints_py,
 			 const std::string &monomer_type,

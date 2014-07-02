@@ -19,7 +19,8 @@ coot::mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 			      int n_atoms_all,
 			      int n_atoms_non_hydrogen,
 			      PyObject *bond_order_restraints_py,
-			      const std::string &cif_file_name) {
+			      const std::string &cif_file_name,
+			      bool quartet_planes, bool quartet_hydrogen_planes) {
 
    coot::mogul mogul(mogul_file_name);
    coot::dictionary_residue_restraints_t bond_order_restraints = 
@@ -41,8 +42,9 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
 				     const std::string &compound_name,
 				     PyObject *rdkit_mol_py,
 				     PyObject *bond_order_restraints_py,
-				     const std::string &mmcif_out_file_name) {
-
+				     const std::string &mmcif_out_file_name,
+				     bool quartet_planes, bool quartet_hydrogen_planes) {
+   
    // Thanks Uwe H.
    RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
    coot::dictionary_residue_restraints_t bond_order_restraints = 
@@ -78,7 +80,8 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
 
 
    dictionary_residue_restraints_t restraints = mmcif_dict_from_mol_inner(comp_id, compound_name,
-									  rdkit_mol_py);
+									  rdkit_mol_py,
+									  quartet_planes, quartet_hydrogen_planes);
    restraints.conservatively_replace_with(mogul_restraints);
    restraints.write_cif(mmcif_out_file_name);
 
@@ -92,10 +95,11 @@ PyObject *
 coot::mmcif_dict_from_mol(const std::string &comp_id,
 			  const std::string &compound_name,
 			  PyObject *rdkit_mol_py,
-			  const std::string &mmcif_out_file_name) {
+			  const std::string &mmcif_out_file_name,
+			  bool quartet_planes, bool quartet_hydrogen_planes) {
 
    coot::dictionary_residue_restraints_t restraints =
-      mmcif_dict_from_mol_inner(comp_id, compound_name, rdkit_mol_py);
+      mmcif_dict_from_mol_inner(comp_id, compound_name, rdkit_mol_py, quartet_planes, quartet_hydrogen_planes);
    if (restraints.is_filled()) { 
       restraints.write_cif(mmcif_out_file_name);
       return monomer_restraints_to_python(restraints);
@@ -110,7 +114,8 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
 coot::dictionary_residue_restraints_t
 coot::mmcif_dict_from_mol_inner(const std::string &comp_id,
 				const std::string &compound_name,
-				PyObject *rdkit_mol_py) { 
+				PyObject *rdkit_mol_py,
+				bool quartet_planes, bool quartet_hydrogen_planes) { 
 
    coot::dictionary_residue_restraints_t restraints (comp_id, 1);
    
@@ -152,7 +157,7 @@ coot::mmcif_dict_from_mol_inner(const std::string &comp_id,
       if (n_chirals) 
 	 restraints.assign_chiral_volume_targets();
 
-      coot::add_chem_comp_planes(mol, &restraints);
+      coot::add_chem_comp_planes(mol, &restraints, quartet_planes, quartet_hydrogen_planes);
    }
    return restraints;
 }
@@ -526,11 +531,9 @@ coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_rest
 // what fun!
 // C++ smarts
 void
-coot::add_chem_comp_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+coot::add_chem_comp_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints,
+			   bool quartet_planes, bool quartet_hydrogen_planes) {
 
-   bool quartet_planes = false;
-   bool quartet_hydrogen_planes = true;
-   
    add_chem_comp_aromatic_planes(mol, restraints, quartet_planes, quartet_hydrogen_planes);
    add_chem_comp_deloc_planes(mol, restraints);
    restraints->remove_redundant_plane_restraints();
@@ -579,12 +582,17 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol,
 		  restraints->plane_restraint.push_back(plr);
 		  plane_id_idx++;
 	       }
-	    }
+	    } else {
+	       // Don't add hydrogen quartets (that's done later)
+	       int n_added =
+		  add_chem_comp_aromatic_plane_quartet_planes(matches[imatch], mol, restraints, plane_id_idx);
+	       plane_id_idx += n_added;
+	    } 
 	 }
       }
    }
 
-   if (quartet_hydrogen_planes) {
+   if (quartet_hydrogen_planes || quartet_planes) {
       add_quartet_hydrogen_planes(mol, restraints);
    }
 }
@@ -612,7 +620,7 @@ coot::add_quartet_hydrogen_planes(const RDKit::ROMol &mol,
 	       
 	    if (at_centre->getHybridization() == RDKit::Atom::SP2) {
 
-	       quartet_indices.push_back(*nbr_idx_1);
+	       quartet_indices.push_back(*nbr_idx_1); // the idx of atom to which the H is connected
 	       RDKit::ROMol::ADJ_ITER nbr_idx_2, end_nbrs_2;
 	       boost::tie(nbr_idx_2, end_nbrs_2) = mol.getAtomNeighbors(at_centre);
 	       while(nbr_idx_2 != end_nbrs_2){
@@ -767,7 +775,66 @@ coot::add_chem_comp_aromatic_plane_all_plane(const RDKit::MatchVectType &match,
 
    std::cout << "returning plane_restraint with " << plane_restraint.n_atoms() << " atoms" << std::endl;
    return plane_restraint;
+}
+
+
+// Return the number of added planes.
+// 
+// Don't add hydrogen quartets (that's done later).
+// 
+int
+coot::add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &match,
+						  const RDKit::ROMol &mol,
+						  coot::dictionary_residue_restraints_t *restraints,
+						  int plane_id_idx_in) {
+   int n_planes = 0;
+   try {
+      for (unsigned int ii=0; ii<match.size(); ii++) {
+	 RDKit::ATOM_SPTR at_p = mol[match[ii].second];
+	 if (at_p->getAtomicNum() != 1) {
+	    
+	    // What are the neighbour of this atom? Are there more
+	    // than 2 of them?  If so, let's make a plane restraint.
+
+	    std::vector<unsigned int> quartet_indices;
+	    quartet_indices.push_back(ii);
+	    RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
+	    boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);
+	    while(nbr_idx_1 != end_nbrs_1){
+	       const RDKit::ATOM_SPTR at_neighb = mol[*nbr_idx_1];
+	       if (at_neighb->getAtomicNum() != 1) {
+		  quartet_indices.push_back(*nbr_idx_1);
+	       }
+	       ++nbr_idx_1;
+	    }
+	    if (quartet_indices.size() > 3) {
+	       std::string plane_id = "quartet-plane-" + util::int_to_string(plane_id_idx_in + n_planes);
+	       std::vector<std::string> plane_restraint_atoms;
+	       for (unsigned int i=0; i<quartet_indices.size(); i++) {
+		  std::string name;
+		  mol[quartet_indices[i]]->getProp("name", name);
+		  if (! name.empty())
+		     plane_restraint_atoms.push_back(name);
+	       }
+	       if (plane_restraint_atoms.size() > 3) { 
+		  realtype dist_esd = 0.014;
+		  coot::dict_plane_restraint_t rest(plane_id, plane_restraint_atoms, dist_esd);
+		  restraints->plane_restraint.push_back(rest);
+		  n_planes++;
+	       }
+	    } 
+	 } 
+      }
+   }
+   catch (const KeyErrorException &kee) {
+      // this should not happen
+      std::cout << "WARNING:: add_chem_comp_aromatic_plane_quartet_planes() failed to get atom name "
+		<< std::endl;
+   }
+
+   return n_planes;
 } 
+
 
 
 void
