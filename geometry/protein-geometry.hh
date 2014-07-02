@@ -334,6 +334,7 @@ namespace coot {
       double dist_esd(int i) const { return atom_ids[i].second; }
       std::string atom_id(int i) const { return atom_id_mmdb_expand(atom_ids[i].first); }
       int n_atoms() const { return atom_ids.size(); }
+      bool empty() const { return (atom_ids.size() == 0); }
       const std::pair<std::string, float> &operator[](int i) const { return atom_ids[i];}
       bool matches_names(const dict_plane_restraint_t &r) const;
       void push_back_atom(const std::string &at, float esd) {

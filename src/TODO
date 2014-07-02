@@ -556,3 +556,8 @@ Sat Feb 15 10:33:59 GMT 2003
 
     Make it scriptable too (for other colours).
 
+
+----
+Sat Jun 21 17:43:21 HKT 2014
+
+    remove graphics_info_t from molecule_class_info_t::update_symmetry().

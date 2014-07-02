@@ -2975,6 +2975,7 @@ coot::dictionary_residue_restraints_t::remove_redundant_plane_restraints() {
       std::vector<dict_plane_restraint_t>::iterator it;
       for (it=plane_restraint.begin(); it!=plane_restraint.end(); it++) { 
 	 if (is_redundant_plane_resetraints(it)) {
+	    // std::cout << "erase redundant plane " << it->plane_id << std::endl;
 	    plane_restraint.erase(it);
 	    match = true;
 	    break;
