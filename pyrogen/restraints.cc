@@ -432,6 +432,7 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 			      RDKit::Atom::HybridizationType ht_2 = at_2->getHybridization();
 			      RDKit::Atom::HybridizationType ht_3 = at_2->getHybridization();
 			      
+			      // ... something here?
 			   } 
 			   done_torsion[torsion_key_name_1] = true;
 			   done_torsion[torsion_key_name_2] = true;
@@ -579,71 +580,78 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol,
 
 		  bool add_atom_to_plane = true;
 
-		  // add the atom to the plane if the plane that it is
-		  // already in is not this plane.
-		  // 
-		  try {
-		     std::string atom_plane;
-		     at_p->getProp("plane_id", atom_plane);
-		     if (atom_plane == plane_id)
-			add_atom_to_plane = false;
-		  }
-		  catch (const KeyErrorException &kee) {
-		     add_atom_to_plane = true;
-		  }
-		  // the following exception is needed for my Ubuntu 10.04 machine, 
-		  // don't know why: fixes:
-		  // terminate called after throwing an instance of 'KeyErrorException'
-                  //   what():  std::exception
-		  // 
-		  catch (const std::exception &stde) {
-		     add_atom_to_plane = true;
-		  }
+		  if ((at_p->getAtomicNum() != 1) || !quartet_hydrogen_planes) {
 
-		  if (add_atom_to_plane) {
-		     
-		     std::string name = "";
-		     at_p->getProp("name", name);
-		     // add name if it is not already in the vector
-		     if (std::find(plane_restraint_atoms.begin(), plane_restraint_atoms.end(), name) ==
-			 plane_restraint_atoms.end())
-			plane_restraint_atoms.push_back(name);
-		     at_p->setProp("plane_id", plane_id);
-
-		     // debug
-		     if (0) { 
-			std::string plane_id_lookup_debug; 
-			at_p->getProp("plane_id", plane_id_lookup_debug);
-			std::cout << "debug:: set atom " << name << " to plane_id " << plane_id_lookup_debug << std::endl;
-		     }
-
-		     // run through neighours, because neighours of
-		     // aromatic system atoms are in the plane too.
+		     // add the atom to the plane if the plane that it is
+		     // already in is not this plane.
 		     // 
-		     RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
-		     boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);
-		     std::vector<RDKit::ATOM_SPTR> attached_atoms;
-		     while(nbr_idx_1 != end_nbrs_1) {
-			const RDKit::ATOM_SPTR at_2 = mol[*nbr_idx_1];
-			attached_atoms.push_back(at_2);
-			++nbr_idx_1;
+		     try {
+			std::string atom_plane;
+			at_p->getProp("plane_id", atom_plane);
+			if (atom_plane == plane_id)
+			   add_atom_to_plane = false;
 		     }
-		     if (attached_atoms.size() == 3) {
+		     catch (const KeyErrorException &kee) {
+			add_atom_to_plane = true;
+		     }
+		     // the following exception is needed for my Ubuntu 10.04 machine, 
+		     // don't know why: fixes:
+		     // terminate called after throwing an instance of 'KeyErrorException'
+		     //   what():  std::exception
+		     // 
+		     catch (const std::exception &stde) {
+			add_atom_to_plane = true;
+		     }
+
+		     if (add_atom_to_plane) {
+		     
+			std::string name = "";
+			at_p->getProp("name", name);
+			// add name if it is not already in the vector
+			if (std::find(plane_restraint_atoms.begin(), plane_restraint_atoms.end(), name) ==
+			    plane_restraint_atoms.end())
+			   plane_restraint_atoms.push_back(name);
+			at_p->setProp("plane_id", plane_id);
+
+			// debug
+			if (0) { 
+			   std::string plane_id_lookup_debug; 
+			   at_p->getProp("plane_id", plane_id_lookup_debug);
+			   std::cout << "debug:: set atom " << name << " to plane_id "
+				     << plane_id_lookup_debug << std::endl;
+			}
+
+			// run through neighours, because neighours of
+			// aromatic system atoms are in the plane too.
+			// 
+			RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
+			boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);
+			std::vector<RDKit::ATOM_SPTR> attached_atoms;
+			while(nbr_idx_1 != end_nbrs_1) {
+			   const RDKit::ATOM_SPTR at_2 = mol[*nbr_idx_1];
+			   // add if not a hydrogen or we are not doing quartet hydrogen planes
+			   if (at_2->getAtomicNum() != 1 || !quartet_hydrogen_planes)
+			      attached_atoms.push_back(at_2);
+			   ++nbr_idx_1;
+			}
+			if (attached_atoms.size() == 3) {
 			
-			// Yes, there was something
-			for (unsigned int iattached=0; iattached<attached_atoms.size(); iattached++) { 
-			   
-			   try {
-			      std::string attached_atom_name;
-			      attached_atoms[iattached]->getProp("name", attached_atom_name);
-			      // add it if it is not already in a plane,
-			      // 
-			      if (std::find(plane_restraint_atoms.begin(), plane_restraint_atoms.end(), attached_atom_name) ==
-				  plane_restraint_atoms.end())
-				 plane_restraint_atoms.push_back(attached_atom_name);
-			   }
-			   catch (const KeyErrorException &kee) {
-			      // do nothing then (no name found)
+			   // Yes, there was something
+			   for (unsigned int iattached=0; iattached<attached_atoms.size(); iattached++) { 
+			      try {
+				 std::string attached_atom_name;
+				 attached_atoms[iattached]->getProp("name", attached_atom_name);
+				 // add it if it is not already in a plane,
+				 // 
+				 if (std::find(plane_restraint_atoms.begin(),
+					       plane_restraint_atoms.end(),
+					       attached_atom_name) ==
+				     plane_restraint_atoms.end())
+				    plane_restraint_atoms.push_back(attached_atom_name);
+			      }
+			      catch (const KeyErrorException &kee) {
+				 // do nothing then (no name found)
+			      }
 			   }
 			}
 		     }
@@ -666,6 +674,65 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol,
 	 }
       }
    }
+
+   if (quartet_hydrogen_planes) {
+
+      int h_plane_quartet_id_idx = 1; // for the first
+      
+      // Find hydrogens that are connected to an sp2 atom and make a
+      // plane of the sp2 atom and its neighbours (including this
+      // hydrogen of course).
+      int n_atoms = mol.getNumAtoms();
+      for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
+	 RDKit::ATOM_SPTR at_1 = mol[iat_1];
+	 if (at_1->getAtomicNum() == 1) {
+	    std::vector<unsigned int> quartet_indices;
+
+	    RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
+	    boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_1);
+	    while(nbr_idx_1 != end_nbrs_1){
+	       const RDKit::ATOM_SPTR at_centre = mol[*nbr_idx_1];
+	       
+	       if (at_centre->getHybridization() == RDKit::Atom::SP2) {
+
+		  quartet_indices.push_back(*nbr_idx_1);
+		  RDKit::ROMol::ADJ_ITER nbr_idx_2, end_nbrs_2;
+		  boost::tie(nbr_idx_2, end_nbrs_2) = mol.getAtomNeighbors(at_centre);
+		  while(nbr_idx_2 != end_nbrs_2){
+		     quartet_indices.push_back(*nbr_idx_2);
+		     ++nbr_idx_2;
+		  }
+	       }
+	       ++nbr_idx_1;
+	    }
+
+	    // OK! We found a H-quartet. Add it.
+
+	    if (quartet_indices.size() == 4) {
+	       try {
+		  std::vector<std::string> quartet_names;
+		  for (unsigned int jj=0; jj<quartet_indices.size(); jj++) {
+		     std::string name;
+		     mol[quartet_indices[jj]]->getProp("name", name);
+		     if (0)
+			std::cout << "Quartet " << h_plane_quartet_id_idx << ": "
+				  << quartet_indices[jj] << " " << name << std::endl;
+		     quartet_names.push_back(name);
+		  }
+		  std::string quartet_plane_id = "H-quartet-" + util::int_to_string(h_plane_quartet_id_idx);
+		  double dist_esd = 0.02;
+		  coot::dict_plane_restraint_t rest(quartet_plane_id, quartet_names, dist_esd);
+		  restraints->plane_restraint.push_back(rest);
+		  std::cout << "pushing back plane restraint " << quartet_plane_id << std::endl;
+		  h_plane_quartet_id_idx++;
+	       }
+	       catch (const KeyErrorException &kee) {
+		  std::cout << "Badness missing atom name in H-quartet" << std::endl;
+	       }
+	    }
+	 } 
+      }
+   } 
 }
 
 void
