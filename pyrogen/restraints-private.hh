@@ -42,6 +42,11 @@ namespace coot {
 								 const RDKit::ROMol &mol,
 								 int plane_id_idx,
 								 bool quartet_hydrogen_planes);
+   // and
+   // modify restraints
+   void add_quartet_hydrogen_planes(const RDKit::ROMol &mol,
+				    coot::dictionary_residue_restraints_t *restraints);
+
 
    // alter restraints
    void add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
