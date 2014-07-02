@@ -1,9 +1,9 @@
 
-
 #include <boost/python.hpp>
 #include "restraints.hh"
 #include "py-restraints.hh"
 #include <lidia-core/rdkit-interface.hh>
+#include <utils/coot-utils.hh>
 #include <coot-utils/coot-coord-utils.hh> 
 
 // for minimization
@@ -784,6 +784,7 @@ coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 }
 
 
+// alter restraints.
 int 
 coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
    
@@ -799,21 +800,74 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 
       // do I need to check the atom order here, like I do in rdkit-interface.cc?
       if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CCW)
-	 vol_sign = 1;
-      if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CW)
 	 vol_sign = -1;
+      if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CW)
+	 vol_sign = 1;
 
       if (chiral_tag != RDKit::Atom::CHI_UNSPECIFIED) { 
 	 try { 
 	    std::string chiral_centre;
 	    at_p->getProp("name", chiral_centre);
-	    std::string n1, n2, n3; // these need setting, c.f. rdkit-interface.cc?
-	    std::string chiral_id = "chiral_" + std::string("1");
-	    coot::dict_chiral_restraint_t chiral(chiral_id,
-						 chiral_centre,
-						 n1, n2, n3, vol_sign);
-	    restraints->chiral_restraint.push_back(chiral);
-	    n_chirals++;
+	    std::string n1, n2, n3; // these need setting, c.f. get_chiral_tag() in rdkit-interface.cc?
+
+	    // The refmac monomer library and the rdkit (SMILES-based)
+	    // representation of chirality is quite different.
+
+	    // in SMILES the chiral centre has 4 substituents A[B@C](D)E
+	    // Looking down the AB bond, C, D, and E are ordered clockwise (@).
+	    //
+	    // So we need to find the 4 neighbours of B: B should have
+	    // an index below A, (similar reason for the others).
+	    //
+	    std::vector<std::pair<int, string> > neighbours;
+
+	    int n_bonds = mol.getNumBonds();
+	    for (unsigned int ib=0; ib<n_bonds; ib++) {
+	       const RDKit::Bond *bond_p = mol.getBondWithIdx(ib);
+	       int idx_1 = bond_p->getBeginAtomIdx();
+	       int idx_2 = bond_p->getEndAtomIdx();
+
+	       if (idx_1 == iat)
+		  neighbours.push_back(std::pair<int, string> (idx_2, ""));
+	       if (idx_2 == iat)
+		  neighbours.push_back(std::pair<int, string> (idx_1, ""));
+	    }
+
+	    std::cout << "centre idx " << iat << " neighbours size: " << neighbours.size() << std::endl;
+
+	    std::sort(neighbours.begin(), neighbours.end()); // how does this work? :-)
+
+	    if (neighbours.size() == 4) {
+
+	       for (unsigned int in=0; in<neighbours.size(); in++) {
+		  std::string name;
+		  mol[neighbours[in].first]->getProp("name", name); // already inside a try
+		  std::cout << "got name " << name << " for atom index "
+			    << neighbours[in].first << std::endl;
+		  neighbours[in].second = name;
+	       }
+
+	       std::string chiral_id = "chiral_" + util::int_to_string(n_chirals+1);
+	       // Neighbour[1] is the hydrogen.  I should test that is the case before continuing.
+	       if (mol[neighbours[1].first]->getAtomicNum() == 1) {
+		  if (!chiral_centre.empty() &&
+		      !neighbours[0].second.empty() &&
+		      !neighbours[2].second.empty() &&
+		      !neighbours[3].second.empty()) {
+		     coot::dict_chiral_restraint_t chiral(chiral_id,
+							  chiral_centre,
+							  neighbours[0].second,
+							  neighbours[2].second,
+							  neighbours[3].second, vol_sign);
+		     restraints->chiral_restraint.push_back(chiral);
+		     n_chirals++;
+		  }
+	       } else {
+		  std::cout << "Chiral problem: neighbour[1] was not a hydrogen" << std::endl;
+	       } 
+	    } else {
+	       std::cout << "oops - found " << neighbours.size() << " neighbours" << std::endl;
+	    } 
 	 }
 	 catch (const KeyErrorException &kee) {
 	    std::cout << "caught no-name for atom exception in chiral assignment(): "
