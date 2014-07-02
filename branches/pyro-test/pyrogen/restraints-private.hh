@@ -1,4 +1,6 @@
 
+#include <GraphMol/Substruct/SubstructMatch.h>
+
 namespace coot {
 
    // private (no SWIG interface)
@@ -35,6 +37,12 @@ namespace coot {
    void add_chem_comp_aromatic_planes(const RDKit::ROMol &mol,
 				      coot::dictionary_residue_restraints_t *restraints,
 				      bool quartet_planes, bool quartet_hydrogen_planes);
+   // which calls:
+   dict_plane_restraint_t add_chem_comp_aromatic_plane_all_plane(const RDKit::MatchVectType &match,
+								 const RDKit::ROMol &mol,
+								 int plane_id_idx,
+								 bool quartet_hydrogen_planes);
+
    // alter restraints
    void add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
    // alter restraints
