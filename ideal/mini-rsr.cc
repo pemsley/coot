@@ -491,6 +491,7 @@ get_input_details(int argc, char **argv) {
 	    } 
 	    if (arg_str == "mapin") { 
 	       d.map_file_name = optarg;
+               d.given_map_flag = 1;
 	    }
 	    if (arg_str == "chain-id") { 
 	       d.chain_id = optarg;
