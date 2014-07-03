@@ -394,6 +394,7 @@ def test_for_mogul():
       return True # OK, really
 
 # this can throw a TypeError
+#
 def get_smiles_from_comp_id(comp_id):
    global smiles_dict
    if (not smiles_dict):
@@ -416,13 +417,17 @@ def read_smiles_tab(file_name):
     except IOError as e:
        smiles_dict = True # we've tested for it
        return False
+
+def get_smiles_from_file(file_name):
+    f = open(file_name)
+    return f.readline()
    
 
-def make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
+def make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
 
    if (not (test_for_mogul())): return False
    m = Chem.MolFromSmiles(smiles_string)
-   return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name)
+   return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes)
 
 def make_restraints_from_mdl(mol_file_name, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
 
@@ -541,9 +546,7 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
       return mogul_state
 
 
-
-
-if __name__ == "__main__":
+def old_main():
 
     quartet_planes = True
     quartet_hydrogen_planes = True
@@ -562,11 +565,11 @@ if __name__ == "__main__":
     if len(sys.argv) < 3:
        print 'Usage: pyrogen SMILES-or-file comp-id [--no-mogul]'
     else:
-        smiles_or_mdl_string = sys.argv[1]
+        smiles_or_file = sys.argv[1]
         smiles_string = ''
         is_mdl_file_flag = False
         # if smiles_string ends in .smi, read it as if it was a file
-        if is_mdl_file(smiles_or_mdl_string):
+        if is_mdl_file(smiles_or_file):
            is_mdl_file_flag = True
             
         file_stub = sys.argv[2] # e.g. "LIG"
@@ -581,14 +584,14 @@ if __name__ == "__main__":
         pdb_out_file_name        = file_stub + '-pyrogen.pdb'
         comp_id = file_stub
 
-        if is_mdl_file(smiles_or_mdl_string):
-           status = make_restraints_from_mdl(smiles_or_mdl_string, comp_id, sdf_file_name,
+        if is_mdl_file(smiles_or_file):
+           status = make_restraints_from_mdl(smiles_or_file, comp_id, sdf_file_name,
                                              pdb_out_file_name, cif_restraints_file_name)
         else:
 
-           if is_comp_id(smiles_or_mdl_string):
+           if is_comp_id(smiles_or_file):
               try:
-                 smiles_string = get_smiles_from_comp_id(smiles_or_mdl_string)
+                 smiles_string = get_smiles_from_comp_id(smiles_or_file)
                  status = make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name,
                                                       pdb_out_file_name, cif_restraints_file_name)
               except TypeError, ex:
@@ -596,19 +599,70 @@ if __name__ == "__main__":
                  pass
            else:
 
-              extension = os.path.splitext(smiles_or_mdl_string)[1]
+              extension = os.path.splitext(smiles_or_file)[1]
               if (extension == '.cif'):
 
-                 make_restraints_from_pdbx_cif(smiles_or_mdl_string, comp_id, sdf_file_name,
+                 make_restraints_from_pdbx_cif(smiles_or_file, comp_id, sdf_file_name,
                                                pdb_out_file_name, cif_restraints_file_name,
                                                quartet_planes, quartet_hydrogen_planes)
 
               else:
-
                  smiles_string = smiles_or_mdl_string
-                 if is_smiles_file(smiles_or_mdl_string):
-                    smiles_string = read_file(smiles_or_mdl_string)
+                 if is_smiles_file(smiles_or_file):
+                    smiles_string = read_file(smiles_or_file)
                  status = make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name,
                                                       pdb_out_file_name, cif_restraints_file_name)
 
 
+if __name__ == "__main__":
+
+    parser = OptionParser()
+    parser.add_option("-m", "--mmcif", dest="mmcif_file",
+		      help="Read mmcif FILE", metavar="FILE")
+    parser.add_option("-s", "--sdf", dest="sdf_file",
+		      help="Read sdf/mol FILE", metavar="FILE")
+    parser.add_option("-t", "--type", dest="comp_id", default='LIG',
+		      help="Create restraints for this type")
+    parser.add_option("-4", "--quartet-planes", dest="quartet_planes",
+		      default=False,
+		      help="Use 4-atom plane restraints")
+    parser.add_option("-n", "--quartet-hydrogen-planes", dest="quartet_hydrogen_planes",
+		      default=True,
+		      help="Use 4-atom hydrogen plane restraints")
+    parser.add_option("", "--no-mogul", dest="use_mogul",
+		      default=True)
+    
+    (options, args) = parser.parse_args()
+
+
+    print 'options:', options
+    
+    pdb_out_file_name        = options.comp_id + '-pyrogen.pdb'
+    cif_restraints_file_name = options.comp_id + '-pyrogen.cif'
+    sdf_file_name            = options.comp_id + "-pyrogen.sdf"
+
+    if options.mmcif_file != None:
+	make_restraints_from_pdbx_cif(options.mmcif_file, options.comp_id, options.mmcif_file,
+				      pdb_out_file_name, cif_restraints_file_name,
+				      options.quartet_planes, options.quartet_hydrogen_planes)
+    else:
+	if options.sdf_file != None:
+           status = make_restraints_from_mdl(options.sdf_file, comp_id, sdf_file_name,
+                                             pdb_out_file_name, cif_restraints_file_name)
+
+        else:
+	    if len(args) > 0:
+		smi_raw = args[0]
+		print 'smi_raw', smi_raw
+		extension = os.path.splitext(smi_raw)[1]
+		print 'extension :' + extension + ':'
+		smiles_string = ''
+		if extension == '.smi':
+		    smiles_string = get_smiles_from_file(smi_raw)
+		else:
+		    smiles_string = smi_raw
+		status = make_restraints_from_smiles(smiles_string, options.comp_id, sdf_file_name,
+						     pdb_out_file_name, cif_restraints_file_name,
+						     options.quartet_planes, options.quartet_hydrogen_planes)
+	    
+	
