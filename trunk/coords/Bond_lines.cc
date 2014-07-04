@@ -1148,12 +1148,12 @@ Bond_lines_container::add_link_bond(CModel *model_p, int atom_colour_type,
    if (0) 
       std::cout << "calling add_link_bond_templ with LINKR "
 		<< "\"" << linkr->chainID1 << "\""
-		<< " " << linkr->seqNum1   << " "
+		<< " "  << linkr->seqNum1   << " "
 		<< "\"" << linkr->seqNum1  << "\""
 		<< "\"" << linkr->atName1  << "\""
 		<< " to " 
 		<< "\"" << linkr->chainID2 << "\""
-		<< " " << linkr->seqNum2  << " "
+		<< " "  << linkr->seqNum2  << " "
 		<< "\"" << linkr->atName2  << "\""
 		<< std::endl;
    add_link_bond_templ(model_p, atom_colour_type, linkr);
