@@ -143,3 +143,24 @@ PyObject *score_rotamers_py(int imol,
 } 
 #endif
 
+
+void
+print_glyco_tree(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      CResidue *r = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+	 
+      if (r) {
+
+	 std::vector<std::string> types_with_no_dictionary =
+	    g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+	 for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
+	    g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+
+	 coot::glyco_tree_t t(r, mol, g.Geom_p());
+
+      } 
+   } 
+} 
