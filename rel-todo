@@ -3,6 +3,9 @@
 
 ---- 
 
+   o Fix:
+     coords/mmdb-extras.h:112: warning: comparison between signed and unsigned integer expressions
+
    o remove graphics_info_t from molecule_class_info_t::update_symmetry().
 
    o Tim G: AFIX problems.
