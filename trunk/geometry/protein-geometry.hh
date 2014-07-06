@@ -670,7 +670,8 @@ namespace coot {
 
       //
       void remove_redundant_plane_restraints();
-      bool is_redundant_plane_resetraints(std::vector<dict_plane_restraint_t>::iterator it);
+      bool is_redundant_plane_restraint(std::vector<dict_plane_restraint_t>::iterator it) const;
+      bool is_redundant_plane_restraint(unsigned int idx) const;
       void reweight_subplanes(); // if an atom is in more than one plane restraint, then
                                  // reduce its esd.
 

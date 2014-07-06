@@ -2970,12 +2970,19 @@ coot::dictionary_residue_restraints_t::remove_redundant_plane_restraints() {
 
 
    bool match = true; // synthetic first value
+
+   // erase_if usage would be more elegant here.
+   //
+   // This might be better done with indices, then we can remove the
+   // higher planes (rather than the lower ones)
+   // 
    while (match) {
+
       match = false;
       std::vector<dict_plane_restraint_t>::iterator it;
       for (it=plane_restraint.begin(); it!=plane_restraint.end(); it++) { 
-	 if (is_redundant_plane_resetraints(it)) {
-	    // std::cout << "erase redundant plane " << it->plane_id << std::endl;
+	 if (is_redundant_plane_restraint(it)) {
+	    std::cout << "   erase plane " << it->plane_id << std::endl;
 	    plane_restraint.erase(it);
 	    match = true;
 	    break;
@@ -2984,30 +2991,43 @@ coot::dictionary_residue_restraints_t::remove_redundant_plane_restraints() {
    }
 } 
 
-// it the plane restraint of it_ref redundant?
+// is the plane restraint of it_ref redundant? (i.e. has an exact copy
+// (i.e. do all the atom names match? another plane in the list?
+// 
 bool
-coot::dictionary_residue_restraints_t::is_redundant_plane_resetraints(std::vector<dict_plane_restraint_t>::iterator it_ref) {
+coot::dictionary_residue_restraints_t::is_redundant_plane_restraint(std::vector<dict_plane_restraint_t>::iterator it_ref) const {
 
    bool match = false;
-   std::vector<dict_plane_restraint_t>::iterator it_this;
-   for (it_this=plane_restraint.begin(); it_this!=plane_restraint.end(); it_this++) {
+   std::vector<dict_plane_restraint_t>::const_iterator it_this;
+   for (it_this=plane_restraint.begin(); it_this!=it_ref; it_this++) {
       
-      if (it_this != it_ref) {
-	 if (it_this->n_atoms() >= it_ref->n_atoms()) {
+      if (it_this->n_atoms() >= it_ref->n_atoms()) {
 	 
-	    // do all of the atoms in this_rest have matchers in ref_rest?
-	    //
-	    int n_match = 0;
+	 // do all of the atoms in this_rest have matchers in ref_rest?
+	 //
+	 int n_match = 0;
+	 for (unsigned int i=0; i<it_ref->n_atoms(); i++) {
 	    for (unsigned int j=0; j<it_this->n_atoms(); j++) {
-	       for (unsigned int i=0; i<it_ref->n_atoms(); i++) {
-		  if (it_this->atom_id(j) == it_ref->atom_id(i)) {
-		     n_match++;
-		     break;
-		  }
+	       if (it_this->atom_id(j) == it_ref->atom_id(i)) {
+		  n_match++;
+		  break;
 	       }
 	    }
-	    if (n_match == it_ref->n_atoms())
-	       match = true;
+	 }
+	 if (n_match == it_ref->n_atoms()) {
+	    if (0) { 
+	       std::cout << "test plane     " << it_ref->plane_id << " matches list plane id "
+			 << it_this->plane_id << " ref plane: ";
+	       for (unsigned int iat=0; iat<it_ref->n_atoms(); iat++)
+		  std::cout << " " << it_ref->atom_id(iat);
+	       std::cout << " vs list-plane ";
+	       for (unsigned int iat=0; iat<it_this->n_atoms(); iat++)
+		  std::cout << " " << it_this->atom_id(iat);
+
+	       std::cout << std::endl;
+	    } 
+	    match = true;
+	    break;
 	 }
       }
    }
