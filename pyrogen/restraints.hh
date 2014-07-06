@@ -14,7 +14,24 @@
 #include "restraints-private.hh"
 
 
-namespace coot { 
+namespace coot {
+
+   class quartet_set {
+   public:
+      quartet_set() {
+	 idx.resize(4,0);
+      }
+      quartet_set(const std::vector<unsigned int> &q_in) {
+	 unsigned int n_max = 4;
+	 idx.resize(4,0);
+	 if (q_in.size() < n_max)
+	    n_max = q_in.size();
+	 for (unsigned int i=0; i<n_max; i++)
+	    idx[i] = q_in[i];
+      } 
+      std::vector<unsigned int> idx;
+      const unsigned int & operator[](unsigned int i) const { return idx[i]; }
+   };
 
    void mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 				const std::string &comp_id,

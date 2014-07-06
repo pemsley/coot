@@ -645,10 +645,19 @@ coot::add_quartet_hydrogen_planes(const RDKit::ROMol &mol,
 		  quartet_names.push_back(name);
 	       }
 	       std::string quartet_plane_id = "H-quartet-" + util::int_to_string(h_plane_quartet_id_idx);
+
+	       if (0) { // debug
+		  std::cout << "Adding plane " << quartet_plane_id << " with atoms ";
+		  for (unsigned int iat=0; iat<quartet_names.size(); iat++) { 
+		     std::cout << quartet_names[iat] << " ";
+		  }
+		  std::cout << std::endl;
+	       }
+
+	       
 	       double dist_esd = 0.02;
 	       coot::dict_plane_restraint_t rest(quartet_plane_id, quartet_names, dist_esd);
 	       restraints->plane_restraint.push_back(rest);
-	       std::cout << "pushing back plane restraint " << quartet_plane_id << std::endl;
 	       h_plane_quartet_id_idx++;
 	    }
 	    catch (const KeyErrorException &kee) {
@@ -773,7 +782,7 @@ coot::add_chem_comp_aromatic_plane_all_plane(const RDKit::MatchVectType &match,
 		<< std::endl;
    } 
 
-   std::cout << "returning plane_restraint with " << plane_restraint.n_atoms() << " atoms" << std::endl;
+   // std::cout << "returning plane_restraint with " << plane_restraint.n_atoms() << " atoms" << std::endl;
    return plane_restraint;
 }
 
@@ -787,17 +796,27 @@ coot::add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &ma
 						  const RDKit::ROMol &mol,
 						  coot::dictionary_residue_restraints_t *restraints,
 						  int plane_id_idx_in) {
+
+   std::vector<quartet_set> quartet_sets_vec;
+   
    int n_planes = 0;
    try {
       for (unsigned int ii=0; ii<match.size(); ii++) {
 	 RDKit::ATOM_SPTR at_p = mol[match[ii].second];
 	 if (at_p->getAtomicNum() != 1) {
+
+	    if (0) {
+	       std::string name;
+	       at_p->getProp("name", name);
+	       std::cout << "--------- considering core atom " << match[ii].second
+			 << " " << name << std::endl;
+	    }
 	    
 	    // What are the neighbour of this atom? Are there more
 	    // than 2 of them?  If so, let's make a plane restraint.
 
 	    std::vector<unsigned int> quartet_indices;
-	    quartet_indices.push_back(ii);
+	    quartet_indices.push_back(match[ii].second);
 	    RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
 	    boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);
 	    while(nbr_idx_1 != end_nbrs_1){
@@ -807,23 +826,115 @@ coot::add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &ma
 	       }
 	       ++nbr_idx_1;
 	    }
+
+	    
 	    if (quartet_indices.size() > 3) {
-	       std::string plane_id = "quartet-plane-" + util::int_to_string(plane_id_idx_in + n_planes);
-	       std::vector<std::string> plane_restraint_atoms;
-	       for (unsigned int i=0; i<quartet_indices.size(); i++) {
-		  std::string name;
-		  mol[quartet_indices[i]]->getProp("name", name);
-		  if (! name.empty())
-		     plane_restraint_atoms.push_back(name);
+
+	       if (0) {  // debug
+		  std::cout << "debug quartet_indices.size() 3 legs path: "
+			    << quartet_indices.size() << std::endl;
+		  for (unsigned int jj=0; jj<quartet_indices.size(); jj++) { 
+		     std::string name;
+		     mol[quartet_indices[jj]]->getProp("name", name);
+		     std::cout << "   " << name;
+		  }
+		  std::cout << std::endl;
 	       }
-	       if (plane_restraint_atoms.size() > 3) { 
-		  realtype dist_esd = 0.014;
-		  coot::dict_plane_restraint_t rest(plane_id, plane_restraint_atoms, dist_esd);
-		  restraints->plane_restraint.push_back(rest);
-		  n_planes++;
+
+
+	       quartet_set q(quartet_indices);
+	       quartet_sets_vec.push_back(q);
+
+	    } else {
+
+	       // We need neighbours of neighbours then:
+	       //
+	       std::vector<unsigned int> quartet_indices;
+	       quartet_indices.push_back(match[ii].second);
+	       
+	       RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
+	       boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);
+	       while(nbr_idx_1 != end_nbrs_1){
+		  if (mol[*nbr_idx_1]->getAtomicNum() != 1) {
+		     quartet_indices.push_back(*nbr_idx_1);
+		  }
+		  ++nbr_idx_1;
+	       }
+
+
+	       // OK quartet_indices should be 3 now.  Root atom and
+	       // its two neighbours.
+	       //
+	       if (0) {  // debug
+		  std::cout << "debug quartet_indices.size() (should be 3): "
+			    << quartet_indices.size() << std::endl;
+		  for (unsigned int jj=0; jj<quartet_indices.size(); jj++) { 
+		     std::string name;
+		     mol[quartet_indices[jj]]->getProp("name", name);
+		     std::cout << "   " << name;
+		  }
+		  std::cout << std::endl;
+	       }
+
+	       // Now neighbours, then neighbours of neighbours
+	       //
+	       boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);
+	       while(nbr_idx_1 != end_nbrs_1){
+		  const RDKit::ATOM_SPTR at_1 = mol[*nbr_idx_1];
+		  if (at_1->getAtomicNum() != 1) {
+
+		     RDKit::ROMol::ADJ_ITER nbr_idx_2, end_nbrs_2;
+		     boost::tie(nbr_idx_2, end_nbrs_2) = mol.getAtomNeighbors(at_1);
+		     while(nbr_idx_2 != end_nbrs_2){
+
+			if (mol[*nbr_idx_2]->getAtomicNum() != 1) {
+			   std::vector<unsigned int> local_quartet = quartet_indices;
+
+			   // Add this atom if it's not already in the quartet
+			   if (std::find(local_quartet.begin(),
+					 local_quartet.end(),
+					 *nbr_idx_2) == local_quartet.end()) {
+			      local_quartet.push_back(*nbr_idx_2);
+			      quartet_sets_vec.push_back(local_quartet);
+			   }
+			}
+			++nbr_idx_2;
+		     }
+		  }
+		  ++nbr_idx_1;
 	       }
 	    } 
 	 } 
+      }
+
+      // std::cout << "got quartet_sets_vec.size(): " << quartet_sets_vec.size() << std::endl;
+      n_planes = quartet_sets_vec.size();
+
+      for (unsigned int i=0; i<quartet_sets_vec.size(); i++) { 
+	 const quartet_set &q = quartet_sets_vec[i];
+	 std::vector<std::string> atom_names;
+	 for (unsigned int iat=0; iat<4; iat++) { 
+	    const RDKit::ATOM_SPTR at = mol[q[iat]];
+	    std::string name;
+	    at->getProp("name", name);
+	    atom_names.push_back(name);
+	 }
+	 if (atom_names.size() > 3) {
+	    double esd = 0.14;
+	    std::string plane_id = "quartet-plane-" + util::int_to_string(plane_id_idx_in+i);
+
+	    if (0) { // debug
+	       std::cout << "Adding plane " << plane_id << " with atoms ";
+	       for (unsigned int iat=0; iat<atom_names.size(); iat++) { 
+		  std::cout << atom_names[iat] << " ";
+	       }
+	       std::cout << std::endl;
+	    } 
+	    
+	    dict_plane_restraint_t pr(plane_id, atom_names, esd);
+	    restraints->plane_restraint.push_back(pr);
+	    n_planes++;
+	 }
       }
    }
    catch (const KeyErrorException &kee) {

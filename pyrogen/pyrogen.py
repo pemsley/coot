@@ -437,8 +437,8 @@ def make_restraints_from_mdl(mol_file_name, comp_id, sdf_file_name, pdb_out_file
    m = Chem.MolFromMolFile(mol_file_name)
    return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name)
 
-def make_restraints_from_pdbx_cif(cif_file_name_in, comp_id, sdf_file_name, pdb_out_file_name,
-                                  mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
+def make_restraints_from_pdbx(cif_file_name_in, comp_id, sdf_file_name, pdb_out_file_name,
+                              mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
 
    # later: embed the compound_name name into m.
    m = coot_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
@@ -602,9 +602,9 @@ def old_main():
               extension = os.path.splitext(smiles_or_file)[1]
               if (extension == '.cif'):
 
-                 make_restraints_from_pdbx_cif(smiles_or_file, comp_id, sdf_file_name,
-                                               pdb_out_file_name, cif_restraints_file_name,
-                                               quartet_planes, quartet_hydrogen_planes)
+                 make_restraints_from_pdbx(smiles_or_file, comp_id, sdf_file_name,
+                                           pdb_out_file_name, cif_restraints_file_name,
+                                           quartet_planes, quartet_hydrogen_planes)
 
               else:
                  smiles_string = smiles_or_mdl_string
@@ -612,7 +612,8 @@ def old_main():
                     smiles_string = read_file(smiles_or_file)
                  status = make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name,
                                                       pdb_out_file_name, cif_restraints_file_name)
-
+   
+   
 
 if __name__ == "__main__":
 
@@ -625,12 +626,18 @@ if __name__ == "__main__":
 		      help="Create restraints for this type")
     parser.add_option("-4", "--quartet-planes", dest="quartet_planes",
 		      default=False,
-		      help="Use 4-atom plane restraints")
-    parser.add_option("-n", "--quartet-hydrogen-planes", dest="quartet_hydrogen_planes",
+		      help="Use 4-atom plane restraints",
+                      action="store_true")
+    parser.add_option("-c", "--consolidated-hydrogens", dest="quartet_hydrogen_planes",
 		      default=True,
-		      help="Use 4-atom hydrogen plane restraints")
-    parser.add_option("", "--no-mogul", dest="use_mogul",
-		      default=True)
+		      help="Use 4-atom hydrogen plane restraints",
+                      action="store_false")
+    parser.add_option("-n", "--no-mogul", dest="use_mogul",
+		      default=True, action="store_false")
+    parser.add_option("-q", "--quiet",
+                  action="store_false", dest="verbose", default=True,
+                  help="don't print status messages to stdout")
+
     
     (options, args) = parser.parse_args()
 
@@ -641,10 +648,16 @@ if __name__ == "__main__":
     cif_restraints_file_name = options.comp_id + '-pyrogen.cif'
     sdf_file_name            = options.comp_id + "-pyrogen.sdf"
 
+    # this is a bit ugly, perhaps.  this value is inspected inside
+    # the following functions
+    #
+    if options.use_mogul == False:
+       run_mogul = False
+
     if options.mmcif_file != None:
-	make_restraints_from_pdbx_cif(options.mmcif_file, options.comp_id, options.mmcif_file,
-				      pdb_out_file_name, cif_restraints_file_name,
-				      options.quartet_planes, options.quartet_hydrogen_planes)
+	make_restraints_from_pdbx(options.mmcif_file, options.comp_id, sdf_file_name,
+                                  pdb_out_file_name, cif_restraints_file_name,
+                                  options.quartet_planes, options.quartet_hydrogen_planes)
     else:
 	if options.sdf_file != None:
            status = make_restraints_from_mdl(options.sdf_file, comp_id, sdf_file_name,
@@ -665,4 +678,3 @@ if __name__ == "__main__":
 						     pdb_out_file_name, cif_restraints_file_name,
 						     options.quartet_planes, options.quartet_hydrogen_planes)
 	    
-	
