@@ -851,10 +851,10 @@ namespace coot {
 	 void add(const contact_atom_t &con_at) {
 	    contact_atoms.push_back(con_at);
 	 }
-	 bool has_contacts(int n_contacts, double dist_max) const {
+	 bool has_contacts(unsigned int n_contacts, double dist_max) const {
 	    bool r = 0; 
 	    if (size() >= n_contacts) {
-	       int n_local = 0;
+	       unsigned int n_local = 0;
 	       for (unsigned int i=0; i<contact_atoms.size(); i++) {
 		  if (contact_atoms[i].dist <= dist_max) {
 		     n_local++;
