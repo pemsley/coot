@@ -12,10 +12,11 @@
 
 
 install_top_dir=$(HOME)/autobuild/build-coot+rdkit-pre-release-gtk2-python
-
+top_builddir=..
+INSTALL_SH = $(top_builddir)/install-sh
 
 prfx = $(install_top_dir)
-CXX = g++ -Wreturn-type
+CXX = g++ -Wall -Wno-unused
 HACK_INCLUDES = -I../coot/analysis
 INCLUDES = -I$(prfx)/include/python2.7 -I$(prfx)/include/coot -I$(prfx)/include $(HACK_INCLUDES) -I$(prfx)/include/rdkit
 LIBS=$(prfx)/lib/libcoot-ideal.la \
@@ -24,6 +25,7 @@ LIBS=$(prfx)/lib/libcoot-ideal.la \
      $(prfx)/lib/libcoot-analysis.la \
      $(prfx)/lib/libcoot-lidia-core.la \
 	 -L$(prfx)/lib -lGraphMol -lboost_python -lpython2.7
+EXTRA_DIST = pyrogen.py
 
 libs: _coot_libs.so restraints_boost.so
 
@@ -86,3 +88,7 @@ inandout-defs.o: inandout-defs.cc inandout.cc inandout.hh
 inandout.so: inandout.o inandout-defs.o
 	libtool --mode=link g++ -shared -fPIC $^ -o $@ $(LIBS)
 
+
+install:
+	$(INSTALL_SH) _coot_libs.so restraints_boost.so $(install_top_dir)/lib
+	$(INSTALL_SH) pyrogen.py $(install_top_dir)/share/coot/python

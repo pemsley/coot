@@ -52,8 +52,8 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
 
    mogul mogul(mogul_file_name);
    std::vector<std::string> atom_names;
-   int n_atoms_all = mol.getNumAtoms();
-   int n_atoms_non_hydrogen = 0;
+   unsigned int n_atoms_all = mol.getNumAtoms();
+   unsigned int n_atoms_non_hydrogen = 0;
 
    for (unsigned int iat=0; iat<n_atoms_all; iat++) { 
       RDKit::ATOM_SPTR at_p = mol[iat];
@@ -129,8 +129,8 @@ coot::mmcif_dict_from_mol_inner(const std::string &comp_id,
 
       // number of atom first
       // 
-      int n_atoms_all = mol.getNumAtoms();
-      int n_atoms_non_hydrogen = 0;
+      unsigned int n_atoms_all = mol.getNumAtoms();
+      unsigned int n_atoms_non_hydrogen = 0;
       for (unsigned int iat=0; iat<n_atoms_all; iat++)
 	 if (mol[iat]->getAtomicNum() != 1)
 	    n_atoms_non_hydrogen++;
@@ -167,7 +167,7 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 				 const coot::energy_lib_t &energy_lib,
 				 coot::dictionary_residue_restraints_t *restraints) {
    
-   int n_bonds = mol.getNumBonds();
+   unsigned int n_bonds = mol.getNumBonds();
    for (unsigned int ib=0; ib<n_bonds; ib++) {
       const RDKit::Bond *bond_p = mol.getBondWithIdx(ib);
       int idx_1 = bond_p->getBeginAtomIdx();
@@ -245,7 +245,7 @@ coot::fill_with_energy_lib_angles(const RDKit::ROMol &mol,
 				  const coot::energy_lib_t &energy_lib,
 				  coot::dictionary_residue_restraints_t *restraints) {
    
-   int n_atoms = mol.getNumAtoms();
+   unsigned int n_atoms = mol.getNumAtoms();
    std::map<std::string, bool> done_angle;
    for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
       RDKit::ATOM_SPTR at_1 = mol[iat_1];
@@ -322,9 +322,9 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 				    const coot::energy_lib_t &energy_lib,
 				    coot::dictionary_residue_restraints_t *restraints) {
    
-   int n_atoms = mol.getNumAtoms();
-   int tors_no = 1; // incremented on addition
-   int const_no = 1; // incremented on addition.  When const_no is incremented, tors_no is not.
+   unsigned int n_atoms = mol.getNumAtoms();
+   unsigned int tors_no = 1; // incremented on addition
+   unsigned int const_no = 1; // incremented on addition.  When const_no is incremented, tors_no is not.
    std::map<std::string, bool> done_torsion;
    
    for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
@@ -466,7 +466,7 @@ coot::is_const_torsion(const RDKit::ROMol &mol,
 
    bool status = false;
    
-   int n_bonds = mol.getNumBonds();
+   unsigned int n_bonds = mol.getNumBonds();
    for (unsigned int ib=0; ib<n_bonds; ib++) {
       const RDKit::Bond *bond_p = mol.getBondWithIdx(ib);
       RDKit::Atom *bond_at_1 = bond_p->getBeginAtom();
@@ -496,7 +496,7 @@ void
 coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
 
    int iconf = 0;
-   int n_atoms = mol.getNumAtoms();
+   unsigned int n_atoms = mol.getNumAtoms();
    for (unsigned int iat=0; iat<n_atoms; iat++) { 
       RDKit::ATOM_SPTR at_p = mol[iat];
       try {
@@ -607,7 +607,7 @@ coot::add_quartet_hydrogen_planes(const RDKit::ROMol &mol,
    // Find hydrogens that are connected to an sp2 atom and make a
    // plane of the sp2 atom and its neighbours (including this
    // hydrogen of course).
-   int n_atoms = mol.getNumAtoms();
+   unsigned int n_atoms = mol.getNumAtoms();
    for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
       RDKit::ATOM_SPTR at_1 = mol[iat_1];
       if (at_1->getAtomicNum() == 1) {
@@ -1072,7 +1072,7 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 
    int n_chirals = 0;
 
-   int n_atoms = mol.getNumAtoms();
+   unsigned int n_atoms = mol.getNumAtoms();
    for (unsigned int iat=0; iat<n_atoms; iat++) { 
       RDKit::ATOM_SPTR at_p = mol[iat];
       RDKit::Atom::ChiralType chiral_tag = at_p->getChiralTag();
@@ -1101,11 +1101,11 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 	    //
 	    std::vector<std::pair<int, string> > neighbours;
 
-	    int n_bonds = mol.getNumBonds();
+	    unsigned int n_bonds = mol.getNumBonds();
 	    for (unsigned int ib=0; ib<n_bonds; ib++) {
 	       const RDKit::Bond *bond_p = mol.getBondWithIdx(ib);
-	       int idx_1 = bond_p->getBeginAtomIdx();
-	       int idx_2 = bond_p->getEndAtomIdx();
+	       unsigned int idx_1 = bond_p->getBeginAtomIdx();
+	       unsigned int idx_2 = bond_p->getEndAtomIdx();
 
 	       if (idx_1 == iat)
 		  neighbours.push_back(std::pair<int, string> (idx_2, ""));
