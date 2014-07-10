@@ -105,6 +105,8 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
    std::string uri = uri_in;
    std::string url = uri_in;
 
+   // std::cout << ":::::::::::::::: handle_drag_and_drop_string(" << uri_in << ")" << std::endl;
+
    if (! tried_already) {
       // OK, was it an HTTP type string?
       if (url.length() > 9) {
@@ -116,6 +118,15 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
 	       // std::cout << "extra \\n" << std::endl;
 	       url = url.substr(0, l-1);
 	    }
+
+	    l = url.length();
+	    int c = url[l-1];
+	    if (url[l-1] == '\r') { 
+	       // std::cout << "extra \\r" << std::endl;
+	       url = url.substr(0, l-1);
+	    }
+	    
+	    
 	    int status = make_directory_maybe("coot-download");
 	    if (status == 0) { // OK, we made it (or had it)
 	       std::string url_file_name_file = url;
