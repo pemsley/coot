@@ -25,7 +25,7 @@ lib_coot_libs_la_SOURCES = wrap-coot-libs.cc \
 
 librestraints_boost_la_SOURCES = restraints-boost.cc restraints.hh
 
-wrap-coot-libs.cc: wrap-coot-libs.i restraints.hh
+wrap-coot-libs.cc: wrap-coot-libs.i $(top_srcdir)/pyrogen/restraints.hh
 	swig $(INCLUDES) -o wrap-coot-libs.cc -python -shadow -c++ $(top_srcdir)/pyrogen/wrap-coot-libs.i
 
 # Hmmm....
