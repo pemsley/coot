@@ -10,7 +10,7 @@ namespace std {
 };
 
 %{
-#include "restraints.hh"
+#include "pyrogen/restraints.hh"
 %} 
 
-%include "restraints.hh"
+%include "pyrogen/restraints.hh"
