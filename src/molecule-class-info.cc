@@ -735,19 +735,20 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i) {
 	 if (i == YELLOW_BOND) { 
 	    std::vector<float> rgb_new = rotate_rgb(rgb, rotation_size);
 	    bond_colour_internal = rgb_new;
-	    glColor3f(rgb_new[0],rgb_new[1], rgb_new[2]);
+	    if (graphics_info_t::use_graphics_interface_flag)
+	       glColor3f(rgb_new[0],rgb_new[1], rgb_new[2]);
 	 } else {
 	    bond_colour_internal = rgb;
-	    glColor3f(rgb[0],rgb[1], rgb[2]);
+	    if (graphics_info_t::use_graphics_interface_flag)
+	       glColor3f(rgb[0],rgb[1], rgb[2]);
 	 }
       } else {
 //  	 std::cout << "DEBUG: rotating coordinates colour map by "
 //  		   << rotation_size * 360.0 << " degrees " << std::endl;
 	 std::vector<float> rgb_new = rotate_rgb(rgb, rotation_size);
 	 bond_colour_internal = rgb_new;
-	 if (graphics_info_t::use_graphics_interface_flag) { 
+	 if (graphics_info_t::use_graphics_interface_flag)
 	    glColor3f(rgb_new[0], rgb_new[1], rgb_new[2]);
-	 }
       }
    }
 }
