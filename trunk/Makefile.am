@@ -32,7 +32,7 @@ SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-
         coot-utils surface coot-surface lidia-core \
 	coords angles skeleton ccp4mg-utils density-contour \
 	db-main ideal ligand high-res build greg-tests python-tests \
-	analysis  tw libgtkgraph lbg cootaneer cootilus goograph src data \
+	analysis  tw libgtkgraph lbg cootaneer cootilus goograph pyrogen src data \
         rama-data doc rcrane pixmaps
 
 # po, no po today.
