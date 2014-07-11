@@ -3,6 +3,10 @@
 
 ---- 
 
+   o Fix: 
+
+     Running python commands from the command line
+
    o Fix:
      coords/mmdb-extras.h:112: warning: comparison between signed and unsigned integer expressions
 
