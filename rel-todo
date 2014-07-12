@@ -3,6 +3,8 @@
 
 ---- 
 
+   o readlink -f on Mac: Marcin message
+
    o Fix: 
 
      Running python commands from the command line

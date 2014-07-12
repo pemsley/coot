@@ -327,6 +327,7 @@ pixmaps/Makefile
 pixmaps/icons/Makefile
 rama-data/Makefile
 pyrogen/Makefile
+pyrogen/pyrogen
 auxil/Makefile
 auxil/catcheck/Makefile	
 auxil/rama/Makefile	
