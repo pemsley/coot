@@ -54,6 +54,7 @@ coot::regularize_with_dict(RDKit::ROMol &mol_in, PyObject *restraints_py, const 
       PPCAtom residue_atoms = 0;
       int n_residue_atoms;
       new_residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      std::cout << "---- simple_refine() called from regularize_with_dict()" << std::endl;
       simple_refine(new_residue_p, cmmdbmanager, dict_restraints);
       int iconf = 0;
       update_coords(m, iconf, new_residue_p);
@@ -88,7 +89,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	 RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
 
 	 // debug.  OK, so the bond orders are undelocalized here.
-	 debug_rdkit_molecule(&mol_rw);
+	 // debug_rdkit_molecule(&mol_rw);
       
 	 return m;
       } else {
