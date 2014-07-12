@@ -211,9 +211,6 @@ bin_PROGRAMS = coot-real density-score-by-residue-real fix-nomenclature-errors
 dist_bin_SCRIPTS = coot density-score-by-residue
 check_PROGRAMS = test-coot-align test-cholesky
 
-#coot: coot.in
-#	cd $(top_builddir) && $(SHELL) ./config.status $(subdir)/$@
-
 fix_nomenclature_errors_SOURCES = \
 	fix-nomenclature.cc    \
 	coot-nomenclature.hh   \
