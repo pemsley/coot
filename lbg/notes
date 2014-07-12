@@ -1,9 +1,9 @@
 
-==============================================
+---
+Tue Jul  8 13:53:16 BST 2014
 
-rdkit typos, cleanUp() description in MolOps.h
-
-==============================================
+   I want to see the atom indices (mdl mol) in lbg - makes debugging
+   bond orders easier.
 
 ----
 Fri Mar 28 22:38:12 GMT 2014
@@ -1018,6 +1018,7 @@ Thu Mar 14 18:27:07 GMT 2013
 
    it would be nice to have a function lidia_render_molecule(const ROMol &mol, std::string file_name)
    or some such.
+
 
 
 -----
