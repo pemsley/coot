@@ -44,11 +44,12 @@ librestraints_boost_la_LIBADD = libcoot_py_restraints.la \
                                 $(top_builddir)/coords/libcoot-coords.la           \
                                 $(RDKIT_LIBS) -lboost_python
 
-# I am not sure that you can do this.  This makes two 'all' targets in
-# the Makefile.  Need to investigate the correct way of adding extra
-# rules to Makefile.am
+# The creation of _coot_libs.so restraints_boost.so from libtool libraries is a bit of a hack
 #
-all: all-am _coot_libs.so restraints_boost.so
+all-local: _coot_libs.so restraints_boost.so
+
+install-exec-local: _coot_libs.so restraints_boost.so
+	$(INSTALL) $^ $(libdir)
 
 _coot_libs.so: .libs/lib_coot_libs.so.0.0.0
 	cp $^ $@
