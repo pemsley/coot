@@ -1,0 +1,9 @@
+
+current_exe_dir=$(dirname $0)
+prfx=$(readlink -f $(dirname "$current_exe_dir"))
+
+export PYTHONPATH=$prfx/share/coot/python:$prfx/lib
+export LD_LIBRARY_PATH=$prfx/lib
+export PATH=$prfx/bin:$PATH
+
+python -m pyrogen $*
