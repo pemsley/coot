@@ -121,8 +121,22 @@ coot::mmcif_dict_from_mol_inner(const std::string &comp_id,
    
    RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
 
+   // Was there a user over-ride?
+   std::string env_as_string;
    const char *env = getenv("ENERGY_LIB_CIF");
+
+   // To CCP4 standard place then:
    if (! env) {
+      const char *env_1 = getenv("CLIBD");
+      if (env_1) {
+	 env_as_string = std::string(env_1) + "/monomers/ener_lib.cif";
+      } else {
+	 // Coot standard place then
+	 env_as_string = std::string(PKGDATADIR) + "/monomers/ener_lib.cif";
+      }
+   }
+
+   if (env_as_string.empty()) {
       // restraints.is_fillled() is false
       std::cout << "ERROR:: no ENERGY_LIB_CIF env var" << std::endl;
    } else {
@@ -135,7 +149,7 @@ coot::mmcif_dict_from_mol_inner(const std::string &comp_id,
 	 if (mol[iat]->getAtomicNum() != 1)
 	    n_atoms_non_hydrogen++;
       
-      coot::energy_lib_t energy_lib(env);
+      coot::energy_lib_t energy_lib(env_as_string);
 
       // fill with ener_lib values and then add mogul updates.
       // 
@@ -1200,7 +1214,7 @@ coot::regularize_and_write_pdb(PyObject *rdkit_mol, PyObject *restraints_py,
 }
 
 
-// return a new rdkit molecule
+// update the passed rdkit molecule
 void
 coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
 			   const std::string &res_name) {
@@ -1240,6 +1254,10 @@ coot::regularize_inner(RDKit::ROMol &mol,
    CResidue *residue_p = coot::make_residue(mol, 0, res_name);
    // remove this NULL at some stage (soon)
    CMMDBManager *cmmdbmanager = coot::util::create_mmdbmanager_from_residue(residue_p);
+   std::cout << "------------------ simple_refine() called from restraints.cc:regularize_inner() "
+	     << std::endl;
    simple_refine(residue_p, cmmdbmanager, dict_restraints);
+   std::cout << "------------------ simple_refine() finished" << std::endl;
    return std::pair<CMMDBManager *, CResidue *> (cmmdbmanager, residue_p);
 } 
+

@@ -1170,7 +1170,6 @@ template<class T>
 void
 Bond_lines_container::add_link_bond_templ(CModel *model_p, int atom_colour_type, T *link) {
 
-
    PCAtom atom_1 = NULL;
    PCAtom atom_2 = NULL;
    int n_chains = model_p->GetNumberOfChains();

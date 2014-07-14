@@ -1,5 +1,5 @@
 
-%module coot_libs
+%module pyrogen_swig
 
 %include "std_string.i"
 %include "std_vector.i"

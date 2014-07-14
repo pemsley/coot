@@ -5,7 +5,7 @@ from subprocess import call
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
-import coot_libs as coot
+import pyrogen_swig as pysw
 import restraints_boost as coot_boost
 
 from optparse import OptionParser
@@ -427,7 +427,7 @@ def get_smiles_from_file(file_name):
 
 def make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
 
-   if (not (test_for_mogul())): return False
+   if not test_for_mogul(): return False
    m = Chem.MolFromSmiles(smiles_string)
    return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes)
 
@@ -451,10 +451,6 @@ def make_restraints_from_pdbx(cif_file_name_in, comp_id, sdf_file_name, pdb_out_
    except KeyError:
       print 'caught KeyError in make_restraints_from_pdbx_cif() trying GetProp _Name'
 
-#    for atom in m.GetAtoms():
-#       name = atom.GetProp('name')
-#       print 'in p2.py make_restraints_from_pdbx_cif()', atom, ' of m has name ', name
-
    return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name,
                           quartet_planes, quartet_hydrogen_planes)
 
@@ -465,7 +461,7 @@ def n_hydrogens(mol):
 	if atom.GetAtomicNum() == 1:
 	    n_H += 1
     return n_H
-	
+
    
 def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name,
                     quartet_planes, quartet_hydrogen_planes):
@@ -475,14 +471,16 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
    except KeyError:
       print 'caught key error in trying to get _Name in make_restraints() for m'
       compound_name = '.'
-   except AttributeError:
-      print 'problem with molecule m in make_restraints()'
+   except AttributeError as e:
+      print 'AttributeError: problem with molecule in make_restraints()', e, 'for', m
       return
-   
 
    m_H = m
    if n_hydrogens(m) == 0:
        m_H = AllChem.AddHs(m)
+
+   zw_mols = coot_boost.hydrogen_exchanges(m_H)
+   print ':::::::::::::::::::::::::: zw_mols:', zw_mols
    
    AllChem.EmbedMolecule(m_H)
    AllChem.UFFOptimizeMolecule(m_H)
@@ -529,92 +527,21 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
 
       mogul_state = execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
       if mogul_state:
-         restraints = coot.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
+         restraints = pysw.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
                                                           compound_name, m_H, bor, mmcif_dict_name,
                                                           quartet_planes, quartet_hydrogen_planes)
-         coot.regularize_and_write_pdb(m_H, restraints, comp_id, pdb_out_file_name)
-         # new_mol = coot_boost.regularize(m_H)
-         new_mol = coot_boost.regularize_with_dict(m_H, restraints, comp_id)
-         # coot.write_pdb_from_mol(new_mol, comp_id, "test-LIG.pdb")
+         pysw.regularize_and_write_pdb(m_H, restraints, comp_id, pdb_out_file_name)
 
       else:
-         # we need ENERGY_LIB_CIF set to run mmcif_dict_from_mol() correctly
-         restraints = coot.mmcif_dict_from_mol(comp_id, compound_name, m_H, mmcif_dict_name,
+
+         restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, m_H, mmcif_dict_name,
                                                quartet_planes, quartet_hydrogen_planes)
          if restraints == None:
             print "No restraints"
-         coot.write_pdb_from_mol(m_H, comp_id, pdb_out_file_name)
+         pysw.write_pdb_from_mol(m_H, comp_id, pdb_out_file_name)
          return True # hacked in value
       return mogul_state
 
-
-def old_main():
-
-    quartet_planes = True
-    quartet_hydrogen_planes = True
-
-    smiles_string = "CC"
-    sdf_file_name = 'test.sdf'
-    cif_restraints_file_name = "restraints.cif"
-    pdb_out_file_name = "out.pdb"
-    comp_id = "XXX"
-    smiles_string = 'Cc1ccccc1'
-    smiles_string = 'Oc1ccccc1'
-    smiles_string = 'O=C(O)c1ccc(O)cc1'
-
-    # python p2.py "O=C(C1=CC=CN(C1=O)Cc2ccccc2)N" LIG --no-mogul
-    
-    if len(sys.argv) < 3:
-       print 'Usage: pyrogen SMILES-or-file comp-id [--no-mogul]'
-    else:
-        smiles_or_file = sys.argv[1]
-        smiles_string = ''
-        is_mdl_file_flag = False
-        # if smiles_string ends in .smi, read it as if it was a file
-        if is_mdl_file(smiles_or_file):
-           is_mdl_file_flag = True
-            
-        file_stub = sys.argv[2] # e.g. "LIG"
-
-        # mogul handling
-        if len(sys.argv) == 4:
-           if sys.argv[3] == '--no-mogul':
-              run_mogul = False
-
-        sdf_file_name = file_stub + ".sdf"
-        cif_restraints_file_name = file_stub + '-pyrogen.cif'
-        pdb_out_file_name        = file_stub + '-pyrogen.pdb'
-        comp_id = file_stub
-
-        if is_mdl_file(smiles_or_file):
-           status = make_restraints_from_mdl(smiles_or_file, comp_id, sdf_file_name,
-                                             pdb_out_file_name, cif_restraints_file_name)
-        else:
-
-           if is_comp_id(smiles_or_file):
-              try:
-                 smiles_string = get_smiles_from_comp_id(smiles_or_file)
-                 status = make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name,
-                                                      pdb_out_file_name, cif_restraints_file_name)
-              except TypeError, ex:
-                 print "Type Error", ex
-                 pass
-           else:
-
-              extension = os.path.splitext(smiles_or_file)[1]
-              if (extension == '.cif'):
-
-                 make_restraints_from_pdbx(smiles_or_file, comp_id, sdf_file_name,
-                                           pdb_out_file_name, cif_restraints_file_name,
-                                           quartet_planes, quartet_hydrogen_planes)
-
-              else:
-                 smiles_string = smiles_or_mdl_string
-                 if is_smiles_file(smiles_or_file):
-                    smiles_string = read_file(smiles_or_file)
-                 status = make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name,
-                                                      pdb_out_file_name, cif_restraints_file_name)
-   
    
 
 if __name__ == "__main__":
@@ -642,10 +569,7 @@ if __name__ == "__main__":
                   action="store_false", dest="verbose", default=True,
                   help="don't print status messages to stdout")
 
-    
     (options, args) = parser.parse_args()
-
-
     # print 'DEBUG:: options:', options
     
     pdb_out_file_name        = options.comp_id + '-pyrogen.pdb'
@@ -666,7 +590,6 @@ if __name__ == "__main__":
 	if options.sdf_file != None:
            status = make_restraints_from_mdl(options.sdf_file, comp_id, sdf_file_name,
                                              pdb_out_file_name, cif_restraints_file_name)
-
         else:
 
 	    if options.show_tautomers:
@@ -675,16 +598,14 @@ if __name__ == "__main__":
 		    mol = Chem.MolFromSmiles(smi_raw)
 		    results = tautomer.enumerate_tautomers(mol)
 		    for m in results:
-			print Chem.MolToSmiles(m)
+			print Chem.MolToSmiles(m), 'score:', tautomer.tautomer_score(m)
 		else:
 		    print 'Need to provide SMILES molecule in tautomer mode'
 
 	    else: 
 		if len(args) > 0:
 		    smi_raw = args[0]
-		    print 'smi_raw', smi_raw
 		    extension = os.path.splitext(smi_raw)[1]
-		    print 'extension :' + extension + ':'
 		    smiles_string = ''
 		    if extension == '.smi':
 			smiles_string = get_smiles_from_file(smi_raw)
