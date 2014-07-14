@@ -72,6 +72,37 @@ tautomer_scores = [
 for tscore in tautomer_scores:
     tscore['smarts'] = Chem.MolFromSmarts(tscore['smarts'])
 
+def tautomer_score(mol):
+
+    smiles = Chem.MolToSmiles(mol, isomericSmiles=True)
+    log.debug('Tautomer: %s', smiles)
+    score = 0
+    # Add aromatic ring scores
+    ssr = Chem.GetSymmSSSR(mol)
+    for ring in ssr:
+        btypes = {mol.GetBondBetweenAtoms(*pair).GetBondType() for pair in _pairwise(ring)}
+        elements = {mol.GetAtomWithIdx(idx).GetAtomicNum() for idx in ring}
+        if btypes == {BondType.AROMATIC}:
+            log.debug('Score +100 (aromatic ring)')
+            score += 100
+            if elements == {6}:
+                log.debug('Score +150 (carbocyclic aromatic ring)')
+                score += 150
+    # Add SMARTS scores
+    for tscore in tautomer_scores:
+        for match in mol.GetSubstructMatches(tscore['smarts']):
+            log.debug('Score %+d (%s)', tscore['score'], tscore['name'])
+            score += tscore['score']
+    # Add (P,S,Se,Te)-H scores
+    for atom in mol.GetAtoms():
+        if atom.GetAtomicNum() in {15, 16, 34, 52}:
+            hs = atom.GetTotalNumHs()
+            if hs:
+                log.debug('Score %+d (%s-H bonds)', -hs, atom.GetSymbol())
+                score -= hs
+
+    return score
+
 
 def canonical_tautomer(mol, max_tautomers=1000):
     """Enumerate all possible tautomers and return a canonical tautomer based on a scoring system.
