@@ -66,7 +66,7 @@ _pyrogen_swig.so: .libs/lib_pyrogen_swig.so.0.0.0
 restraints_boost.so: .libs/librestraints_boost.so.0.0.0
 	cp $^ $@
 
-wrap-coot-libs.cc: wrap-coot-libs.i $(top_srcdir)/pyrogen/restraints.hh
+wrap-coot-libs.cc: $(top_srcdir)/pyrogen/wrap-coot-libs.i $(top_srcdir)/pyrogen/restraints.hh
 	swig $(INCLUDES) -o wrap-coot-libs.cc -python -shadow -c++ $(top_srcdir)/pyrogen/wrap-coot-libs.i
 
 
