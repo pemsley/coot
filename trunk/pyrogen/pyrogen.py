@@ -6,7 +6,7 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 
 import pyrogen_swig as pysw
-import restraints_boost as coot_boost
+import libpyrogen_boost as pyrogen_boost
 
 from optparse import OptionParser
 
@@ -443,7 +443,7 @@ def make_restraints_from_pdbx(cif_file_name_in, comp_id, sdf_file_name, pdb_out_
                               mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
 
    # later: embed the compound_name name into m.
-   m = coot_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
+   m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
 
    name = ''
    try:
@@ -479,7 +479,7 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
    if n_hydrogens(m) == 0:
        m_H = AllChem.AddHs(m)
 
-   zw_mols = coot_boost.hydrogen_exchanges(m_H)
+   zw_mols = pyrogen_boost.hydrogen_exchanges(m_H)
    print ':::::::::::::::::::::::::: zw_mols:', zw_mols
    
    AllChem.EmbedMolecule(m_H)

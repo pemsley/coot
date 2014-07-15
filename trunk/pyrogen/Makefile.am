@@ -36,7 +36,7 @@ dist_bin_SCRIPTS = pyrogen
 
 # lib_LIBRARIES=_pyrogen_swig.so restraints_boost.so
 
-lib_LTLIBRARIES=libcoot_py_restraints.la lib_pyrogen_swig.la librestraints_boost.la
+lib_LTLIBRARIES=libcoot_py_restraints.la lib_pyrogen_swig.la libpyrogen_boost.la
 
 
 # this is a bona fide library
@@ -55,26 +55,26 @@ lib_pyrogen_swig_la_LIBADD = libcoot_py_restraints.la \
                           $(RDKIT_LIBS) -lboost_python $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 # hack library (what's the proper way to make restraint_boost.so?)
-librestraints_boost_la_SOURCES = restraints-boost.cc restraints.hh
+libpyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh
 
-librestraints_boost_la_LIBADD = libcoot_py_restraints.la \
+libpyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
                                 $(top_builddir)/ideal/libcoot-ideal.la             \
                                 $(top_builddir)/geometry/libcoot-geometry.la       \
                                 $(top_builddir)/coords/libcoot-coords.la           \
                                 $(RDKIT_LIBS) -lboost_python
 
-# The creation of _pyrogen_swig.so restraints_boost.so from libtool libraries is a bit of a hack
+# The creation of _pyrogen_swig.so libpyrogen_boost.so from libtool libraries is a bit of a hack
 #
-all-local: _pyrogen_swig.so restraints_boost.so
+all-local: _pyrogen_swig.so
 
-install-exec-local: _pyrogen_swig.so restraints_boost.so
+install-exec-local: _pyrogen_swig.so 
 	$(INSTALL) $^ $(libdir)
 
 _pyrogen_swig.so: .libs/lib_pyrogen_swig.so.0.0.0
 	cp $^ $@
 
-restraints_boost.so: .libs/librestraints_boost.so.0.0.0
-	cp $^ $@
+# restraints_boost.so: .libs/librestraints_boost.so.0.0.0
+# 	cp $^ $@
 
 endif
 endif
