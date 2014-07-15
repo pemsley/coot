@@ -44,7 +44,7 @@ libcoot_py_restraints_la_SOURCES = py-restraints.cc py-restraints.hh
 libcoot_py_restraints_la_LIBADD =  $(top_builddir)/geometry/libcoot-geometry.la
 
 # hack library (what's the proper way to make _pyrogen_swig.so?)
-lib_pyrogen_swig_la_SOURCES = wrap-coot-libs.cc restraints.cc restraints.hh          
+lib_pyrogen_swig_la_SOURCES = wrap-coot-libs.cc restraints.cc restraints.hh restraints-private.hh
 
 lib_pyrogen_swig_la_LIBADD = libcoot_py_restraints.la \
                           $(top_builddir)/ideal/libcoot-ideal.la             \
