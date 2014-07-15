@@ -709,7 +709,7 @@
 	      `("Source code: "
 		(a (@ href ,source-code-url) ,source-code-file-name)
 		" "
-		(a (@ href "latest-coot-build.log") "source build log")
+		;; (a (@ href "latest-coot-build.log") "source build log")
 		" "
 		,(let ((s (get-running-status-contents)))
 		   (if (string? s)
