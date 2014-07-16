@@ -548,11 +548,11 @@ if __name__ == "__main__":
 
     parser = OptionParser()
     parser.add_option("-m", "--mmcif", dest="mmcif_file",
-		      help="Read mmcif FILE", metavar="FILE")
+		      help="Make restraints from input mmcif FILE", metavar="FILE")
     parser.add_option("-s", "--sdf", dest="sdf_file",
-		      help="Read sdf/mol FILE", metavar="FILE")
+		      help="Make restraints from input sdf/mol FILE", metavar="FILE")
     parser.add_option("-t", "--type", dest="comp_id", default='LIG',
-		      help="Create restraints for this type")
+		      help="Create restraints for this type. Default is LIG")
     parser.add_option("-4", "--quartet-planes", dest="quartet_planes",
 		      default=False,
 		      help="Use 4-atom plane restraints",
@@ -565,16 +565,23 @@ if __name__ == "__main__":
 		      default=True, action="store_false")
     parser.add_option("-T", "--tautomers", dest="show_tautomers",
 		      default=False, action="store_true")
+    parser.add_option('-o', '--output-postfix', default='pyrogen',
+                      dest='output_postfix',
+                      help='string to add to output file names, default is "pyrogen"')
     parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,
-                  help="don't print status messages to stdout")
+                  help="print less messages")
+    # how do you get the -h text to add that a SMILES string can be
+    # read from a .smi file?
+    #
+    # is the -4 argument working correctly?
 
     (options, args) = parser.parse_args()
     # print 'DEBUG:: options:', options
     
-    pdb_out_file_name        = options.comp_id + '-pyrogen.pdb'
-    cif_restraints_file_name = options.comp_id + '-pyrogen.cif'
-    sdf_file_name            = options.comp_id + "-pyrogen.sdf"
+    pdb_out_file_name        = options.comp_id + '-' + options.output_postfix + '.pdb'
+    cif_restraints_file_name = options.comp_id + '-' + options.output_postfix + '.cif'
+    sdf_file_name            = options.comp_id + '-' + options.output_postfix + '.sdf'
 
     # this is a bit ugly, perhaps.  this value is inspected inside
     # the following functions
