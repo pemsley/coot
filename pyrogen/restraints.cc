@@ -988,7 +988,8 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
       int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
-	    std::cout << "matched deloc plane pattern: " << patterns[ipat].first << std::endl;
+	    if (0) // debug
+	       std::cout << "matched deloc plane pattern: " << patterns[ipat].first << std::endl;
 	    std::vector<std::string> atom_names;
 	    std::string plane_id = "plane-deloc-";
 	    char s[100];
@@ -1041,7 +1042,8 @@ coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_resid
       bool useChirality = true;
       bool uniquify = true;
       int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
-      std::cout << "Matched " << matched << " sp2 N planes" << std::endl;
+      if (0) // debug
+	 std::cout << "Matched " << matched << " sp2 N planes" << std::endl;
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
 	    std::cout << "matched sp2 N plane pattern: " << patterns[ipat].first << std::endl;

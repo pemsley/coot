@@ -1,6 +1,7 @@
 
 import sys
 import os
+import copy
 from subprocess import call
 from rdkit import Chem
 from rdkit.Chem import AllChem
@@ -479,37 +480,40 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
    if n_hydrogens(m) == 0:
        m_H = AllChem.AddHs(m)
 
-   zw_mols = pyrogen_boost.hydrogen_exchanges(m_H)
-   print ':::::::::::::::::::::::::: zw_mols:', zw_mols
+   # simple sane pH H-exchanges
+   # 
+   zw_mol = pyrogen_boost.hydrogen_exchanges(m_H)
+   #  print '::::: zw_mol:', Chem.MolToSmiles(zw_mol)
+   sane_H_mol = copy.deepcopy(zw_mol)
    
-   AllChem.EmbedMolecule(m_H)
-   AllChem.UFFOptimizeMolecule(m_H)
+   AllChem.EmbedMolecule(sane_H_mol)
+   AllChem.UFFOptimizeMolecule(sane_H_mol)
 
-   atom_names = add_atom_names(m_H)
+   atom_names = add_atom_names(sane_H_mol)
 
-   m_H.SetProp('comp_id', comp_id)
-   m_H.SetProp('name', compound_name)
-   all_set = set_atom_types(m_H)
+   sane_H_mol.SetProp('comp_id', comp_id)
+   sane_H_mol.SetProp('name', compound_name)
+   all_set = set_atom_types(sane_H_mol)
 
    if (all_set != True):
       return False
    else:
-      Chem.AllChem.ComputeGasteigerCharges(m_H)
+      Chem.AllChem.ComputeGasteigerCharges(sane_H_mol)
 
-      mb = Chem.MolToMolBlock(m_H)
+      mb = Chem.MolToMolBlock(sane_H_mol)
       print >> file(sdf_file_name,'w'), mb
       # we don't want to do this now - we will write out results
       # post-mogul regularizement usually.
-      # coot.write_pdb_from_mol(m_H, comp_id, pdb_out_file_name)
+      # coot.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
       mogul_ins_file_name = 'mogul-' + comp_id + '.ins'
       mogul_out_file_name = 'mogul-' + comp_id + '.out'
-      bor = make_restraints_for_bond_orders(m_H)
+      bor = make_restraints_for_bond_orders(sane_H_mol)
       # print "we got this bor: ", bor
       # coot.write_restraints(bor, comp_id, 'bond-orders.cif')
 
       # print out the set types:
       print '--- Atom Props ---'
-      for atom in m_H.GetAtoms():
+      for atom in sane_H_mol.GetAtoms():
          charge = atom.GetProp('_GasteigerCharge') # string?
          name   = atom.GetProp('name')
          try:
@@ -528,17 +532,17 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
       mogul_state = execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
       if mogul_state:
          restraints = pysw.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
-                                                          compound_name, m_H, bor, mmcif_dict_name,
+                                                          compound_name, sane_H_mol, bor, mmcif_dict_name,
                                                           quartet_planes, quartet_hydrogen_planes)
-         pysw.regularize_and_write_pdb(m_H, restraints, comp_id, pdb_out_file_name)
+         pysw.regularize_and_write_pdb(sane_H_mol, restraints, comp_id, pdb_out_file_name)
 
       else:
 
-         restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, m_H, mmcif_dict_name,
+         restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol, mmcif_dict_name,
                                                quartet_planes, quartet_hydrogen_planes)
          if restraints == None:
             print "No restraints"
-         pysw.write_pdb_from_mol(m_H, comp_id, pdb_out_file_name)
+         pysw.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
          return True # hacked in value
       return mogul_state
 
