@@ -6752,7 +6752,18 @@ void spin_zoom_trans(int axis, int nsteps, float stepsize, float zoom_by,
       graphics_draw();
    }
    graphics_info_t::smooth_scroll = sss;
+}
+
+void translate_scene_x(int nsteps) {
+   std::cout << "placeholder" << std::endl;
 } 
+
+void translate_scene_y(int nsteps) {
+   std::cout << "placeholder" << std::endl;
+}
+void translate_scene_z(int nsteps) {
+   std::cout << "placeholder" << std::endl;
+}
 
 
 

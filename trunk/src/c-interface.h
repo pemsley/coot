@@ -4260,6 +4260,22 @@ void spin_zoom_trans(int axis, int nstep, float stepsize, float zoom_by,
 
 /* \} */
 
+
+/*  ----------------------------------------------------------------------- */
+/*                  scene rotation                                          */
+/*  ----------------------------------------------------------------------- */
+/* section Screen Translation */
+/*! \name  Screen Translation */
+/* \{ */
+/*! \brief translate rotation centre relative to screen axes for nsteps */
+void translate_scene_x(int nsteps); 
+/*! \brief translate rotation centre relative to screen axes for nsteps */
+void translate_scene_y(int nsteps);
+/*! \brief translate rotation centre relative to screen axes for nsteps */
+void translate_scene_z(int nsteps);
+/* \} */
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  Views                                                   */
 /*  ----------------------------------------------------------------------- */
