@@ -3311,7 +3311,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       break;
    case GDK_KP_Down:
    case GDK_KP_Page_Down:
-      keypad_translate_xyz(3, 1);
+      keypad_translate_xyz(3, -1);
       handled = TRUE; 
       break;
    case GDK_KP_Up:

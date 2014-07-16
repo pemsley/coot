@@ -2870,7 +2870,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       } else { 
 	 printf(" -- structure was already in mmCIF, it will be extended\n");
       }
-      std::cout << "SUMMARY:: rc CIFRC_Ok or newly created. " << std::endl;
+      // std::cout << "SUMMARY:: rc CIFRC_Ok or newly created. " << std::endl;
 
       PCMMCIFLoop mmCIFLoop = new CMMCIFLoop; // 20100212
       // data_comp_list, id, three_letter_code, name group etc:
@@ -3119,8 +3119,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       // delete mmCIFLoop; // crashed when enabled?
       
-      mmCIFFile->WriteMMCIFFile(filename.c_str());
-
+      int status = mmCIFFile->WriteMMCIFFile(filename.c_str());
+      std::cout << "INFO:: write mmCIF \"" << filename << "\" status: "
+		<< status << std::endl;
    }
    delete mmCIFFile; // deletes all its attributes too.
 }
