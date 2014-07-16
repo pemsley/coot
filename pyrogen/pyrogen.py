@@ -550,7 +550,8 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
 
 if __name__ == "__main__":
 
-    parser = OptionParser()
+    parser = OptionParser(usage='pyrogen [options] file-or-SMILES'+
+                          '\n       file can be .smi .sdf or .mol')
     parser.add_option("-m", "--mmcif", dest="mmcif_file",
 		      help="Make restraints from input mmcif FILE", metavar="FILE")
     parser.add_option("-s", "--sdf", dest="sdf_file",
