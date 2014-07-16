@@ -19,7 +19,9 @@
 # 02110-1301, USA
 
 if COOT_USE_PYTHON
-pythondir = $(pkgdatadir)/python
+
+# This gets set if I use AM_PATH_PYTHON in configure.in?
+# pythondir = $(pkgdatadir)/python
 python_SCRIPTS = coot.py
 endif
 
