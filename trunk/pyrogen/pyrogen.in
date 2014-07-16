@@ -1,9 +1,12 @@
 
 current_exe_dir=$(dirname $0)
+
+# Does readlink -f work on MacOSX? Possibly not. I don't know what to
+# do about it yet.
 prfx=$(readlink -f $(dirname "$current_exe_dir"))
 
 export PYTHONPATH=$prfx/share/coot/python:$prfx/lib
-export LD_LIBRARY_PATH=$prfx/lib
+export LD_LIBRARY_PATH=$prfx/share/coot/python:$prfx/lib
 export PATH=$prfx/bin:$PATH
 
 python -m pyrogen $*
