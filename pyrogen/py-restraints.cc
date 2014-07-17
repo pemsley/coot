@@ -222,6 +222,41 @@ monomer_restraints_from_python(PyObject *restraints) {
 	    int n_planes = PyObject_Length(plane_restraint_list);
 	    for (int i_plane=0; i_plane<n_planes; i_plane++) {
 	       PyObject *plane_restraint = PyList_GetItem(plane_restraint_list, i_plane);
+
+	       // per-atom restraints: a plane-name and list of [atom-name, esd]s.
+	       // 
+	       if (PyObject_Length(plane_restraint) == 2) {
+		  PyObject *plane_id_py =        PyList_GetItem(plane_restraint, 0);
+		  PyObject *atom_esd_pair_list = PyList_GetItem(plane_restraint, 1);
+		  if (PyString_Check(plane_id_py)) {
+		     if (PyList_Check(atom_esd_pair_list)) { 
+			std::string plane_id = PyString_AsString(plane_id_py);
+			int n_atoms = PyObject_Length(atom_esd_pair_list);
+			std::vector<std::pair<std::string, double> > atom_name_esd_pair_vec;
+			for (unsigned int iat=0; iat<n_atoms; iat++) {
+			   PyObject *nep = PyList_GetItem(atom_esd_pair_list, iat);
+			   if (PyList_Check(nep)) { 
+			      PyObject *atom_name_py = PyList_GetItem(nep, 0);
+			      PyObject *esd_py       = PyList_GetItem(nep, 1);
+			      if (PyString_Check(atom_name_py)) {
+				 if (PyFloat_Check(esd_py)) {
+				    std::string atom_name = PyString_AsString(atom_name_py);
+				    float esd = PyFloat_AsDouble(esd_py);
+				    std::pair<std::string, double> p(atom_name, esd);
+				    atom_name_esd_pair_vec.push_back(p);
+				 }
+			      }
+			   }
+			}
+			if (atom_name_esd_pair_vec.size() > 3) {
+			   coot::dict_plane_restraint_t rest(plane_id, atom_name_esd_pair_vec);
+			   plane_restraints.push_back(rest);
+			} 
+		     }
+		  }
+	       } 
+
+	       // old style: [plane-id, atom-list, esd] 
 	       if (PyObject_Length(plane_restraint) == 3) {
 		  std::vector<std::string> atoms;
 		  PyObject *plane_id_py = PyList_GetItem(plane_restraint, 0);

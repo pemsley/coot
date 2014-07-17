@@ -239,7 +239,7 @@ namespace coot {
 	 if (atom_id_1() == r.atom_id_3())
 	    if (atom_id_2() == r.atom_id_2())
 	       if (atom_id_3() == r.atom_id_1())
-	       return true;
+		  return true;
 	 return false;
       } 
       void set_atom_1_atom_id(const std::string &id) { set_atom_id_1(id); }
@@ -307,13 +307,18 @@ namespace coot {
    // ------------------------------------------------------------------------
    // 
    class dict_plane_restraint_t : public basic_dict_restraint_t {
-      std::vector<std::pair<std::string, float> > atom_ids;
+      std::vector<std::pair<std::string, double> > atom_ids;
       double dist_esd_;  // despite separate entries for each atom in
 			// the dictionary, I decide that it is
 			// sensible to say that all atoms in a plane
 			// have the same esd deviation from the plane.
    public:
       dict_plane_restraint_t() {};
+      dict_plane_restraint_t(const std::string &plane_id_in,
+			     const std::vector<std::pair<std::string, double> > &atom_esds_ins) {
+	 plane_id = plane_id_in;
+	 atom_ids = atom_esds_ins;
+      } 
       dict_plane_restraint_t(const std::string &plane_id_in,
 			     const std::string &atom_id_in,
 			     double dist_esd_in) {
@@ -335,7 +340,7 @@ namespace coot {
       std::string atom_id(int i) const { return atom_id_mmdb_expand(atom_ids[i].first); }
       int n_atoms() const { return atom_ids.size(); }
       bool empty() const { return (atom_ids.size() == 0); }
-      const std::pair<std::string, float> &operator[](int i) const { return atom_ids[i];}
+      std::pair<std::string, double> operator[](unsigned int i) const { return atom_ids[i];}
       bool matches_names(const dict_plane_restraint_t &r) const;
       void push_back_atom(const std::string &at, float esd) {
 	 atom_ids.push_back(std::pair<std::string, float> (at, esd));

@@ -65,5 +65,7 @@ dist_bin_SCRIPTS = pyrogen
 pyrogen_SCRIPTS = pyrogen.py jay_util.py tautomer.py pyrogen_swig.py
 pyrogendir=$(pkgdatadir)/python
 
+# clean needs to remove _pyrogen_swig.so
+
 endif
 endif
