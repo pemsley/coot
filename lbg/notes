@@ -1,5 +1,12 @@
 
----
+----
+Thu Jul 17 11:44:52 BST 2014
+
+   Drag and drop a DB molecule from drugbank and write out the mol file.
+   The header is lost.
+
+
+----
 Tue Jul  8 13:53:16 BST 2014
 
    I want to see the atom indices (mdl mol) in lbg - makes debugging

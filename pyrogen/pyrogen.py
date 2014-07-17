@@ -432,13 +432,13 @@ def make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name, pdb_out_f
    m = Chem.MolFromSmiles(smiles_string)
    return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes)
 
-def make_restraints_from_mdl(mol_file_name, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name):
+def make_restraints_from_mdl(mol_file_name, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
 
    if (not (test_for_mogul())): return False
 
    compound_name = '.'
    m = Chem.MolFromMolFile(mol_file_name)
-   return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name)
+   return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes)
 
 def make_restraints_from_pdbx(cif_file_name_in, comp_id, sdf_file_name, pdb_out_file_name,
                               mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
@@ -600,8 +600,9 @@ if __name__ == "__main__":
                                   options.quartet_planes, options.quartet_hydrogen_planes)
     else:
 	if options.sdf_file != None:
-           status = make_restraints_from_mdl(options.sdf_file, comp_id, sdf_file_name,
-                                             pdb_out_file_name, cif_restraints_file_name)
+           status = make_restraints_from_mdl(options.sdf_file, options.comp_id, sdf_file_name,
+                                             pdb_out_file_name, cif_restraints_file_name,
+					     options.quartet_planes, options.quartet_hydrogen_planes)
         else:
 
 	    if options.show_tautomers:
