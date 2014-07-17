@@ -1256,10 +1256,7 @@ coot::regularize_inner(RDKit::ROMol &mol,
    CResidue *residue_p = coot::make_residue(mol, 0, res_name);
    // remove this NULL at some stage (soon)
    CMMDBManager *cmmdbmanager = coot::util::create_mmdbmanager_from_residue(residue_p);
-   std::cout << "------------------ simple_refine() called from restraints.cc:regularize_inner() "
-	     << std::endl;
    simple_refine(residue_p, cmmdbmanager, dict_restraints);
-   std::cout << "------------------ simple_refine() finished" << std::endl;
    return std::pair<CMMDBManager *, CResidue *> (cmmdbmanager, residue_p);
 } 
 
