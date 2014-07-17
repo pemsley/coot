@@ -97,7 +97,7 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
 			  PyObject *rdkit_mol_py,
 			  const std::string &mmcif_out_file_name,
 			  bool quartet_planes, bool quartet_hydrogen_planes) {
-
+   
    coot::dictionary_residue_restraints_t restraints =
       mmcif_dict_from_mol_inner(comp_id, compound_name, rdkit_mol_py, quartet_planes, quartet_hydrogen_planes);
    if (restraints.is_filled()) { 
@@ -115,7 +115,7 @@ coot::dictionary_residue_restraints_t
 coot::mmcif_dict_from_mol_inner(const std::string &comp_id,
 				const std::string &compound_name,
 				PyObject *rdkit_mol_py,
-				bool quartet_planes, bool quartet_hydrogen_planes) { 
+				bool quartet_planes, bool quartet_hydrogen_planes) {
 
    coot::dictionary_residue_restraints_t restraints (comp_id, 1);
    

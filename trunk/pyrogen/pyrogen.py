@@ -175,10 +175,10 @@ def set_atom_type(match, match_atom_index, mol, atom_type):
             # print "   oops - atom ", mol.GetAtomWithIdx(this_atom).GetProp("name"), " already has type ", current_type
         except KeyError:
             mol.GetAtomWithIdx(this_atom).SetProp("atom_type", atom_type)
-            # print "    set atom number ", this_atom, " having name \"", mol.GetAtomWithIdx(this_atom).GetProp("name"), "\" as type ", atom_type
-            name = mol.GetAtomWithIdx(this_atom).GetProp("name");
-            print '    set atom number %s having name %s with type %s ' % (str(this_atom).rjust(2),
-                                                                           repr(name), repr(atom_type))
+            name = mol.GetAtomWithIdx(this_atom).GetProp("name")
+	    if False:
+		print '    set atom number %s having name %s with type %s ' % (str(this_atom).rjust(2),
+									       repr(name), repr(atom_type))
     except TypeError:
         for match_atom in match_atom_index:
             set_atom_type(match, match_atom, mol, atom_type)
@@ -362,8 +362,9 @@ def set_atom_types(mol):
         pattern = Chem.MolFromSmarts(smarts)
         if mol.HasSubstructMatch(pattern):
             matches = mol.GetSubstructMatches(pattern)
-            print "SMARTS ", smarts
-            print "  ", atom_type, ": ", matches
+	    if False:
+		print "SMARTS ", smarts
+		print "  ", atom_type, ": ", matches
             for match in matches:
                 set_atom_type(match, match_atom_index, mol, atom_type)
         else:
@@ -512,7 +513,9 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
       # coot.write_restraints(bor, comp_id, 'bond-orders.cif')
 
       # print out the set types:
-      print '--- Atom Props ---'
+      print_atom_props = False
+      if print_atom_props:
+	  print '--- Atom Props ---'
       for atom in sane_H_mol.GetAtoms():
          charge = atom.GetProp('_GasteigerCharge') # string?
          name   = atom.GetProp('name')
@@ -521,11 +524,12 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
             is_aromatic = atom.GetIsAromatic()
             hybrid      = atom.GetHybridization()
             f_charge    = float(charge)
-            print "  atom: %s %s type: %s arom: %s hybrid: %s charge: %6.3f" % (name, atom.GetSymbol(),
-                                                                                atom_type.ljust(4),
-                                                                                str(is_aromatic).ljust(5),
-                                                                                str(hybrid).rjust(3),
-                                                                                f_charge)
+	    if print_atom_props:
+		print "  atom: %s %s type: %s arom: %s hybrid: %s charge: %6.3f" % (name, atom.GetSymbol(),
+										    atom_type.ljust(4),
+										    str(is_aromatic).ljust(5),
+										    str(hybrid).rjust(3),
+										    f_charge)
          except KeyError:
             print "miss", name, atom.GetSymbol(), charge
 
@@ -534,16 +538,19 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
          restraints = pysw.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
                                                           compound_name, sane_H_mol, bor, mmcif_dict_name,
                                                           quartet_planes, quartet_hydrogen_planes)
+	 print ':::::::::::::::::::::: calling pysw.regularize_and_write_pdb() with restraints:', restraints
          pysw.regularize_and_write_pdb(sane_H_mol, restraints, comp_id, pdb_out_file_name)
 
       else:
 
-         restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol, mmcif_dict_name,
-                                               quartet_planes, quartet_hydrogen_planes)
-         if restraints == None:
-            print "No restraints"
-         pysw.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
-         return True # hacked in value
+	  print "::::::::::::::::: calling pysw.mmcif_dict_from_mol"
+	  restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol, mmcif_dict_name,
+						quartet_planes, quartet_hydrogen_planes)
+	  if restraints == None:
+	      print "No restraints"
+	      return True # hacked in value
+	  
+	  pysw.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
       return mogul_state
 
    
@@ -562,9 +569,9 @@ if __name__ == "__main__":
 		      default=False,
 		      help="Use 4-atom plane restraints",
                       action="store_true")
-    parser.add_option("-c", "--consolidated-hydrogens", dest="quartet_hydrogen_planes",
-		      default=True,
-		      help="Use 4-atom hydrogen plane restraints",
+    parser.add_option("-c", "--quartet-hydrogens", dest="quartet_hydrogen_planes",
+		      default=False,
+		      help="Use 4-atom hydrogen plane restraints. This is forced when using --quartet-planes",
                       action="store_false")
     parser.add_option("-n", "--no-mogul", dest="use_mogul",
 		      default=True, action="store_false")
