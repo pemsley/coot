@@ -538,7 +538,6 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
          restraints = pysw.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
                                                           compound_name, sane_H_mol, bor, mmcif_dict_name,
                                                           quartet_planes, quartet_hydrogen_planes)
-	 print ':::::::::::::::::::::: calling pysw.regularize_and_write_pdb() with restraints:', restraints
          pysw.regularize_and_write_pdb(sane_H_mol, restraints, comp_id, pdb_out_file_name)
 
       else:
