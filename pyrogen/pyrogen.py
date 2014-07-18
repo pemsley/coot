@@ -542,7 +542,6 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
 
       else:
 
-	  print "::::::::::::::::: calling pysw.mmcif_dict_from_mol"
 	  restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol, mmcif_dict_name,
 						quartet_planes, quartet_hydrogen_planes)
 	  if restraints == None:
@@ -557,7 +556,7 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
 if __name__ == "__main__":
 
     parser = OptionParser(usage='pyrogen [options] file-or-SMILES'+
-                          '\n       file can be .smi .sdf or .mol')
+                          '\n       if file-or-SMILES end in .smi it is treated as a file')
     parser.add_option("-m", "--mmcif", dest="mmcif_file",
 		      help="Make restraints from input mmcif FILE", metavar="FILE")
     parser.add_option("-s", "--sdf", dest="sdf_file",
@@ -566,11 +565,11 @@ if __name__ == "__main__":
 		      help="Create restraints for this type. Default is LIG")
     parser.add_option("-4", "--quartet-planes", dest="quartet_planes",
 		      default=False,
-		      help="Use 4-atom plane restraints",
-                      action="store_true")
+		      help="Use 4-atom plane restraints,\n                    " +
+                      "forces --quartet-hydrogens", action="store_true")
     parser.add_option("-c", "--quartet-hydrogens", dest="quartet_hydrogen_planes",
 		      default=False,
-		      help="Use 4-atom hydrogen plane restraints. This is forced when using --quartet-planes",
+		      help="Use 4-atom hydrogen plane restraints.",
                       action="store_false")
     parser.add_option("-n", "--no-mogul", dest="use_mogul",
 		      default=True, action="store_false")
