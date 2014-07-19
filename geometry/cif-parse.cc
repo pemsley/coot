@@ -3120,8 +3120,11 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       // delete mmCIFLoop; // crashed when enabled?
       
       int status = mmCIFFile->WriteMMCIFFile(filename.c_str());
-      std::cout << "INFO:: write mmCIF \"" << filename << "\" status: "
-		<< status << std::endl;
+      if (status == 0) 
+	 std::cout << "INFO:: wrote mmCIF \"" << filename << "\"" << std::endl;
+      else 
+	 std::cout << "INFO:: on write mmCIF \"" << filename << "\" status: "
+		   << status << std::endl;
    }
    delete mmCIFFile; // deletes all its attributes too.
 }

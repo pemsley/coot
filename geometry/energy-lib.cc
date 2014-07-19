@@ -35,7 +35,7 @@ coot::protein_geometry::read_energy_lib(const std::string &file_name) {
 
 
 void
-coot::energy_lib_t::read(const std::string &file_name) {
+coot::energy_lib_t::read(const std::string &file_name, bool print_info_message_flag) {
 
    struct stat buf;
    int istat = stat(file_name.c_str(), &buf);
@@ -54,8 +54,9 @@ coot::energy_lib_t::read(const std::string &file_name) {
       std::cout <<  "CIF error rc=" << ierr << " reason:" << 
 	 GetCIFMessage (err_buff,ierr) << std::endl;
    } else {
-      std::cout << "There are " << ciffile.GetNofData() << " data in "
-		<< file_name << std::endl;
+      if (print_info_message_flag)
+	 std::cout << "There are " << ciffile.GetNofData() << " data in "
+		   << file_name << std::endl;
       for(int idata=0; idata<ciffile.GetNofData(); idata++) { 
 	 PCMMCIFData data = ciffile.GetCIFData(idata);
 	 // if (std::string(data->GetDataName()).substr(0,5) == "_lib_atom") {

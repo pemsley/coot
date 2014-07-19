@@ -7110,5 +7110,19 @@ Tue Jul  8 11:03:33 BST 2014
 
   http://stackoverflow.com/questions/14036311/official-boost-library-support-for-android-and-ios
 
+---
+Sat Jul 19 13:17:01 BST 2014
+
+   std::setw() before strings
+   std::cout.width() before numbers
+
+
+---
+Sat Jul 19 13:31:04 BST 2014
+
+ ipython:
+
+ http://archive.ipython.org/release/2.1.0/ipython-2.1.0.tar.gz
+
 ------
 

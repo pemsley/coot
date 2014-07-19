@@ -1485,7 +1485,8 @@ namespace coot {
       energy_lib_torsion get_torsion(const std::string &atom_type_2,
 				     const std::string &atom_type_3) const;
       
-      void read(const std::string &file_name);
+      void read(const std::string &file_name,
+		bool print_info_message_flag=false);
       void add_energy_lib_atom(    const energy_lib_atom    &atom);
       void add_energy_lib_bond(    const energy_lib_bond    &bond);
       void add_energy_lib_angle(   const energy_lib_angle   &angle);

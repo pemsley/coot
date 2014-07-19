@@ -585,7 +585,23 @@ coot::add_chem_comp_aromatic_planes(const RDKit::ROMol &mol,
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
 
-	    std::cout << "INFO:: matched aromatic plane pattern: " << patterns[ipat] << std::endl;
+	    std::cout << "INFO:: matched aromatic plane: " << std::setw(14) << std::right
+		      << patterns[ipat];
+	    std::cout << " ("; 
+	    for (unsigned int iat=0; iat<matches[imatch].size(); iat++) { 
+	       unsigned int atom_idx = matches[imatch][iat].second;
+	       try {
+		  RDKit::ATOM_SPTR at_p = mol[atom_idx];
+		  std::string atom_name;
+		  at_p->getProp("name", atom_name);
+		  std::cout << " " << atom_name;
+	       }
+	       catch (const KeyErrorException &kee) {
+		  std::cout << " " << atom_idx;
+	       } 
+	    }
+	    std::cout << " )";
+	    std::cout << std::endl; 
 
 	    if (! quartet_planes) { 
 	       dict_plane_restraint_t plr =
@@ -780,8 +796,6 @@ coot::add_chem_comp_aromatic_plane_all_plane(const RDKit::MatchVectType &match,
 	 }
       }
 
-      std::cout << "add_chem_comp_aromatic_plane_all_plane() atoms.size() " << plane_restraint_atoms.size()
-		<< std::endl;
       // make a plane restraint with those atoms in then
       if (plane_restraint_atoms.size() > 3) {
 	 realtype dist_esd = 0.02;
@@ -1159,7 +1173,18 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 		     n_chirals++;
 		  }
 	       } else {
-		  std::cout << "Chiral problem: neighbour[1] was not a hydrogen" << std::endl;
+		  std::cout << "Chiral problem:: neighbour[1] was not a hydrogen" << std::endl;
+		  std::cout << "                 ";
+		  for (unsigned int in=0; in<neighbours.size(); in++) {
+		     std::string name;
+		     mol[neighbours[in].first]->getProp("name", name);
+		     std::cout << name << " ";
+		  }
+		  std::cout << "indices: ";
+		  for (unsigned int in=0; in<neighbours.size(); in++)
+		     std::cout << " " << neighbours[in].first;
+		  std::cout << std::endl;
+		  
 	       } 
 	    } else {
 	       std::cout << "oops - found " << neighbours.size() << " neighbours" << std::endl;
@@ -1198,7 +1223,9 @@ coot::write_pdb_from_mol(PyObject *rdkit_mol_py,
       std::cout << "in write_pdb_from_mol() failed to make residue" << std::endl;
    } else {
       CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(res);
-      mol->WritePDBASCII(file_name.c_str());
+      int status = mol->WritePDBASCII(file_name.c_str());
+      if (status == 0)
+	 std::cout << "INFO:: wrote PDB   \"" << file_name << "\"" << std::endl;
       delete mol;
    }
 }
@@ -1211,7 +1238,9 @@ coot::regularize_and_write_pdb(PyObject *rdkit_mol, PyObject *restraints_py,
 			       const std::string &pdb_file_name) {
 
    std::pair<CMMDBManager *, CResidue *> mol_res = regularize_inner(rdkit_mol, restraints_py, res_name);
-   mol_res.first->WritePDBASCII(pdb_file_name.c_str());
+   int status = mol_res.first->WritePDBASCII(pdb_file_name.c_str());
+   if (status == 0)
+      std::cout << "INFO:: wrote PDB   \"" << pdb_file_name << "\"" << std::endl;
    
 }
 
