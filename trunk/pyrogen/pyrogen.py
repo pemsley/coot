@@ -427,16 +427,16 @@ def get_smiles_from_file(file_name):
     smi = f.readline()
     return smi
 
-def make_drawing(smiles_string, comp_id, output_postfix):
+def make_drawing(mol, comp_id, output_postfix):
 
    output_file_name = comp_id + "-" + output_postfix + '.png'
    try:
       from rdkit.Chem import Draw
-      m = Chem.MolFromSmiles(smiles_string)
-      Draw.MolToFile(m, output_file_name)
+      Draw.MolToFile(mol, output_file_name)
    except ImportError as e:
       print 'ImportError:', e
-   
+   except ValueError as e:
+      print 'ValueError in make_drawing():',e
 
 def make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
 
@@ -444,13 +444,17 @@ def make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name, pdb_out_f
    m = Chem.MolFromSmiles(smiles_string)
    return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes)
 
+# return the molecule and return value from make_restraints
+# 
 def make_restraints_from_mdl(mol_file_name, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
 
-   if (not (test_for_mogul())): return False
+   if (not (test_for_mogul())): return False, False
 
    compound_name = '.'
    m = Chem.MolFromMolFile(mol_file_name)
-   return make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes)
+   return m, make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name,
+			     quartet_planes, quartet_hydrogen_planes)
+
 
 def make_restraints_from_pdbx(cif_file_name_in, comp_id, sdf_file_name, pdb_out_file_name,
                               mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
@@ -549,13 +553,16 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
       mogul_state = execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
       if mogul_state:
          restraints = pysw.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
-                                                          compound_name, sane_H_mol, bor, mmcif_dict_name,
-                                                          quartet_planes, quartet_hydrogen_planes)
+                                                          compound_name, sane_H_mol, bor,
+							  mmcif_dict_name,
+                                                          quartet_planes,
+							  quartet_hydrogen_planes)
          pysw.regularize_and_write_pdb(sane_H_mol, restraints, comp_id, pdb_out_file_name)
 
       else:
 
-	  restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol, mmcif_dict_name,
+	  restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol,
+						mmcif_dict_name,
 						quartet_planes, quartet_hydrogen_planes)
 	  if restraints == None:
 	      print "No restraints"
@@ -622,9 +629,13 @@ if __name__ == "__main__":
                                   options.quartet_planes, options.quartet_hydrogen_planes)
     else:
 	if options.sdf_file != None:
-           status = make_restraints_from_mdl(options.sdf_file, options.comp_id, sdf_file_name,
-                                             pdb_out_file_name, cif_restraints_file_name,
-					     options.quartet_planes, options.quartet_hydrogen_planes)
+	   (mol, results) = make_restraints_from_mdl(options.sdf_file, options.comp_id, sdf_file_name,
+					  pdb_out_file_name, cif_restraints_file_name,
+					  options.quartet_planes,
+					  options.quartet_hydrogen_planes)
+	   if options.drawing:
+	       make_drawing(mol, options.comp_id, options.output_postfix)
+
         else:
 
 	    if options.show_tautomers:
@@ -646,8 +657,11 @@ if __name__ == "__main__":
 			smiles_string = get_smiles_from_file(smi_raw)
 		    else:
 			smiles_string = smi_raw
-		    status = make_restraints_from_smiles(smiles_string, options.comp_id, sdf_file_name,
-							 pdb_out_file_name, cif_restraints_file_name,
-							 options.quartet_planes, options.quartet_hydrogen_planes)
+		    status = make_restraints_from_smiles(smiles_string, options.comp_id,
+							 sdf_file_name, pdb_out_file_name,
+							 cif_restraints_file_name,
+							 options.quartet_planes,
+							 options.quartet_hydrogen_planes)
                     if options.drawing:
-                       make_drawing(smiles_string, options.comp_id, options.output_postfix)
+		       mol = Chem.MolFromSmiles(smiles_string)
+                       make_drawing(mol, options.comp_id, options.output_postfix)
