@@ -134,21 +134,22 @@ coot::hydrogen_exchanges(const RDKit::ROMol &mol) {
    int matched_cooh = RDKit::SubstructMatch(mol,*query_cooh,matches_cooh,uniquify,recursionPossible, useChirality);
    int matched_n    = RDKit::SubstructMatch(mol,*query_n,   matches_n,   uniquify,recursionPossible, useChirality);
 
-   std::cout << "COOH-NH2 hydrogen_exchanges(): matches " << matches_cooh.size() << " " << matches_n.size()
-	     << std::endl;
+   if (0) 
+      std::cout << "COOH-NH2 hydrogen_exchanges(): matches " << matches_cooh.size() << " "
+		<< matches_n.size() << std::endl;
    
    if (matches_cooh.size()) { 
       if (matches_n.size()) {
 	 for (unsigned int imatch_cooh=0; imatch_cooh<matches_cooh.size(); imatch_cooh++) { 
 	    for (unsigned int imatch_n=0; imatch_n<matches_n.size(); imatch_n++) {
-	       std::cout << "matches_cooh: ";
+	       std::cout << "INFO:: hydrogen exchanges matches_cooh: ";
 	       for (unsigned int i=0; i<matches_cooh[imatch_cooh].size(); i++) { 
 		  std::cout << " [" << matches_cooh[imatch_cooh][i].first 
 			    << " "  << matches_cooh[imatch_cooh][i].second
 			    << "]";
 	       }
 	       std::cout << std::endl;
-	       std::cout << "matches_n: ";
+	       std::cout << "INFO:: hydrogen exchanges matches_n: ";
 	       for (unsigned int i=0; i<matches_n[imatch_n].size(); i++) { 
 		  std::cout << " [" << matches_n[imatch_n][i].first 
 			    << " "  << matches_n[imatch_n][i].second
@@ -187,7 +188,7 @@ coot::hydrogen_exchanges(const RDKit::ROMol &mol) {
 
    RDKit::MolOps::sanitizeMol(*r);
    RDKit::ROMol *ro_mol = new RDKit::ROMol(*r);
-   if (1)
+   if (0)
       std::cout << "hydrogen_exchanges returns mol: " << RDKit::MolToSmiles(*ro_mol) << std::endl;
    delete r;
    return ro_mol;

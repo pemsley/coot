@@ -424,7 +424,18 @@ def read_smiles_tab(file_name):
 
 def get_smiles_from_file(file_name):
     f = open(file_name)
-    return f.readline()
+    smi = f.readline()
+    return smi
+
+def make_drawing(smiles_string, comp_id, output_postfix):
+
+   output_file_name = comp_id + "-" + output_postfix + '.png'
+   try:
+      from rdkit.Chem import Draw
+      m = Chem.MolFromSmiles(smiles_string)
+      Draw.MolToFile(m, output_file_name)
+   except ImportError as e:
+      print 'ImportError:', e
    
 
 def make_restraints_from_smiles(smiles_string, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
@@ -471,10 +482,12 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
    try:
       compound_name = m.GetProp('_Name');
    except KeyError:
-      print 'caught key error in trying to get _Name in make_restraints() for m'
+      # this happens all the time when we start from a SMILES, users don't need to see it.
+      # print 'caught key error in trying to get _Name in make_restraints() for m'
       compound_name = '.'
    except AttributeError as e:
-      print 'AttributeError: problem with molecule in make_restraints()', e, 'for', m
+      # Do we need to see this? Perhaps make_restraints() needs to return a status.
+      # print 'AttributeError: problem with molecule in make_restraints()', e, ' on object:', m
       return
 
    m_H = m
@@ -556,7 +569,8 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
 if __name__ == "__main__":
 
     parser = OptionParser(usage='pyrogen [options] file-or-SMILES'+
-                          '\n       if file-or-SMILES end in .smi it is treated as a file')
+                          '\n       if file-or-SMILES ends in ".smi" or ".smiles" ' +
+                          'then it is treated as a file')
     parser.add_option("-m", "--mmcif", dest="mmcif_file",
 		      help="Make restraints from input mmcif FILE", metavar="FILE")
     parser.add_option("-s", "--sdf", dest="sdf_file",
@@ -578,6 +592,9 @@ if __name__ == "__main__":
     parser.add_option('-o', '--output-postfix', default='pyrogen',
                       dest='output_postfix',
                       help='string to add to output file names, default is "pyrogen"')
+    parser.add_option('-d', '--drawing', dest='drawing',
+                      help='Output a chemical diagram',
+                      action='store_true')
     parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,
                   help="print less messages")
@@ -625,11 +642,12 @@ if __name__ == "__main__":
 		    smi_raw = args[0]
 		    extension = os.path.splitext(smi_raw)[1]
 		    smiles_string = ''
-		    if extension == '.smi':
+		    if extension == '.smi' or extension == '.smiles':
 			smiles_string = get_smiles_from_file(smi_raw)
 		    else:
 			smiles_string = smi_raw
 		    status = make_restraints_from_smiles(smiles_string, options.comp_id, sdf_file_name,
 							 pdb_out_file_name, cif_restraints_file_name,
 							 options.quartet_planes, options.quartet_hydrogen_planes)
-	    
+                    if options.drawing:
+                       make_drawing(smiles_string, options.comp_id, options.output_postfix)
