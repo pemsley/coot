@@ -3250,7 +3250,7 @@ lbg_info_t::write_png(const std::string &file_name) {
    // goo_canvas_update(GOO_CANVAS(canvas));
    // render_from_molecule(mol);
    
-   int size_x = int(extents.second.x) + 220; // or so... (ideally should reside circle-based).
+   int size_x = int(extents.second.x) + 220; // or so... (ideally should residue circle-based).
    int size_y = int(extents.second.y) + 220;
    
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size_x, size_y);

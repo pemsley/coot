@@ -3894,9 +3894,24 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
       mark_OXT(geom);
       iret += make_monomer_restraints(geom, do_residue_internal_torsions);
 
-      iret += make_link_restraints(geom, do_rama_plot_restraints);
+      bool do_link_restraints = true;
+      bool do_flank_restraints = true;
+
+      if (! from_residue_vector) {
+	 if (istart_res == iend_res)
+	    do_link_restraints = false;
+	 if (! istart_minus_flag && !iend_plus_flag)
+	    do_flank_restraints = false;
+      }
+
+      if (do_link_restraints)
+	 iret += make_link_restraints(geom, do_rama_plot_restraints);
+      
       //  don't do torsions, ramas maybe.   
-      coot::bonded_pair_container_t bpc = make_flanking_atoms_restraints(geom, do_rama_plot_restraints);
+      coot::bonded_pair_container_t bpc;
+
+      if (do_flank_restraints)
+	 bpc = make_flanking_atoms_restraints(geom, do_rama_plot_restraints);
       iret += bpc.size();
       int iret_prev = restraints_vec.size();
 
@@ -6886,7 +6901,7 @@ coot::simple_refine(CResidue *residue_p,
    if (residue_p) {
       if (mol) {
    
-	 coot::protein_geometry geom;
+	 protein_geometry geom;
 	 geom.replace_monomer_restraints("LIG", dict_restraints);
    
 	 short int have_flanking_residue_at_start = 0;
@@ -6909,8 +6924,9 @@ coot::simple_refine(CResidue *residue_p,
 						 mol,
 						 fixed_atom_specs);
    
-	 coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-	 coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+	 // restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+	 restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
+	 pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 	 restraints.make_restraints(geom, flags, 0, 0, 0, pseudos);
 	 restraints.minimize(flags, 3000, 1);
       }
