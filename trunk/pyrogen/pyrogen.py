@@ -576,7 +576,7 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
 if __name__ == "__main__":
 
     parser = OptionParser(usage='pyrogen [options] file-or-SMILES'+
-                          '\n       if file-or-SMILES ends in ".smi" or ".smiles" ' +
+                          '\n       if file-or-SMILES has extension ".smi" or ".smiles" ' +
                           'then it is treated as a file')
     parser.add_option("-m", "--mmcif", dest="mmcif_file",
 		      help="Make restraints from input mmcif FILE", metavar="FILE")
@@ -588,19 +588,21 @@ if __name__ == "__main__":
 		      default=False,
 		      help="Use 4-atom plane restraints,\n                    " +
                       "forces --quartet-hydrogens", action="store_true")
-    parser.add_option("-c", "--quartet-hydrogens", dest="quartet_hydrogen_planes",
+    parser.add_option("-H", "--quartet-hydrogens", dest="quartet_hydrogen_planes",
 		      default=False,
-		      help="Use 4-atom hydrogen plane restraints.",
-                      action="store_false")
+		      help="Use 4-atom hydrogen plane restraints",
+                      action="store_true")
     parser.add_option("-n", "--no-mogul", dest="use_mogul",
-		      default=True, action="store_false")
+		      default=True, action="store_false",
+                      help='Don\'t run CSD Mogul to update bond and angle restraints')
     parser.add_option("-T", "--tautomers", dest="show_tautomers",
-		      default=False, action="store_true")
+		      default=False, action="store_true",
+                      help='Show SMILES for tautomers, don\'t generate restraints')
     parser.add_option('-o', '--output-postfix', default='pyrogen',
                       dest='output_postfix',
                       help='string to add to output file names, default is "pyrogen"')
     parser.add_option('-d', '--drawing', dest='drawing',
-                      help='Output a chemical diagram',
+                      help='Additionally output a chemical diagram PNG',
                       action='store_true')
     parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,

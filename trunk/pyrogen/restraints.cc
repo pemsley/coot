@@ -165,7 +165,6 @@ coot::mmcif_dict_from_mol_inner(const std::string &comp_id,
       coot::fill_with_energy_lib_bonds(mol, energy_lib, &restraints); // alter restraints
       coot::fill_with_energy_lib_angles(mol, energy_lib, &restraints); // alter restraints
       coot::fill_with_energy_lib_torsions(mol, energy_lib, &restraints); // alter restraints
-      // and angles and torsions
 
       int n_chirals = coot::assign_chirals(mol, &restraints); // alter restraints
       if (n_chirals) 
