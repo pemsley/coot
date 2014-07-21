@@ -523,8 +523,12 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
       # we don't want to do this now - we will write out results
       # post-mogul regularizement usually.
       # coot.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
-      mogul_ins_file_name = 'mogul-' + comp_id + '.ins'
-      mogul_out_file_name = 'mogul-' + comp_id + '.out'
+
+
+      # check that pyrogen-mogul dir exists
+      
+      mogul_ins_file_name = 'pyrogen-mogul/mogul-' + comp_id + '.ins'
+      mogul_out_file_name = 'pyrogen-mogul/mogul-' + comp_id + '.out'
       bor = make_restraints_for_bond_orders(sane_H_mol)
       # print "we got this bor: ", bor
       # coot.write_restraints(bor, comp_id, 'bond-orders.cif')
@@ -575,6 +579,10 @@ def make_restraints(m, comp_id, sdf_file_name, pdb_out_file_name, mmcif_dict_nam
 
 if __name__ == "__main__":
 
+    def checked_mkdir(dirname):
+       if not os.path.exists(dirname):
+          os.makedirs(dirname)
+
     parser = OptionParser(usage='pyrogen [options] file-or-SMILES'+
                           '\n       if file-or-SMILES has extension ".smi" or ".smiles" ' +
                           'then it is treated as a file')
@@ -624,6 +632,9 @@ if __name__ == "__main__":
     #
     if options.use_mogul == False:
        run_mogul = False
+
+    if run_mogul:
+       checked_mkdir('pyrogen-mogul')
 
     if options.mmcif_file != None:
 	make_restraints_from_pdbx(options.mmcif_file, options.comp_id, sdf_file_name,
