@@ -6,6 +6,7 @@ from subprocess import call
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
+import coot_svn_repo_revision
 import pyrogen_swig as pysw
 import libpyrogen_boost as pyrogen_boost
 
@@ -14,6 +15,9 @@ from optparse import OptionParser
 import tautomer
 
 from jay_util import *
+
+global pyrogen_version
+pyrogen_version = "0.0-pre"
 
 global run_mogul
 global smiles_dict
@@ -583,6 +587,15 @@ if __name__ == "__main__":
        if not os.path.exists(dirname):
           os.makedirs(dirname)
 
+    def smiles_from(smi_raw):
+       extension = os.path.splitext(smi_raw)[1]
+       smiles_string = ''
+       if extension == '.smi' or extension == '.smiles':
+          smiles_string = get_smiles_from_file(smi_raw)
+       else:
+         smiles_string = smi_raw
+       return smiles_string
+
     parser = OptionParser(usage='pyrogen [options] file-or-SMILES'+
                           '\n       if file-or-SMILES has extension ".smi" or ".smiles" ' +
                           'then it is treated as a file')
@@ -611,7 +624,9 @@ if __name__ == "__main__":
                       help='string to add to output file names, default is "pyrogen"')
     parser.add_option('-d', '--drawing', dest='drawing',
                       help='Additionally output a chemical diagram PNG',
-                      action='store_true')
+                      action='store_true', default=False)
+    parser.add_option('-v', '--version', dest='show_version', default=False,
+                      action='store_true', help='Print version information')
     parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,
                   help="print less messages")
@@ -622,6 +637,9 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
     # print 'DEBUG:: options:', options
+
+    if options.show_version:
+       print 'pyrogen-' + pyrogen_version, "revision", coot_svn_repo_revision.revision_number()
     
     pdb_out_file_name        = options.comp_id + '-' + options.output_postfix + '.pdb'
     cif_restraints_file_name = options.comp_id + '-' + options.output_postfix + '.cif'
@@ -653,28 +671,24 @@ if __name__ == "__main__":
 
 	    if options.show_tautomers:
 		if len(args) > 0:
-		    smi_raw = args[0]
-		    mol = Chem.MolFromSmiles(smi_raw)
-		    results = tautomer.enumerate_tautomers(mol)
-		    for m in results:
-			print Chem.MolToSmiles(m), 'score:', tautomer.tautomer_score(m)
-		else:
-		    print 'Need to provide SMILES molecule in tautomer mode'
+                   smi_raw = args[0]
+                   smiles = smiles_from(smi_raw)
+                   mol = Chem.MolFromSmiles(smiles)
+                   results = tautomer.enumerate_tautomers(mol)
+                   for m in results:
+                      print Chem.MolToSmiles(m), 'score:', tautomer.tautomer_score(m)
+                else:
+                   print 'Need to provide SMILES molecule in tautomer mode'
 
 	    else: 
 		if len(args) > 0:
-		    smi_raw = args[0]
-		    extension = os.path.splitext(smi_raw)[1]
-		    smiles_string = ''
-		    if extension == '.smi' or extension == '.smiles':
-			smiles_string = get_smiles_from_file(smi_raw)
-		    else:
-			smiles_string = smi_raw
-		    status = make_restraints_from_smiles(smiles_string, options.comp_id,
-							 sdf_file_name, pdb_out_file_name,
-							 cif_restraints_file_name,
-							 options.quartet_planes,
-							 options.quartet_hydrogen_planes)
-                    if options.drawing:
-		       mol = Chem.MolFromSmiles(smiles_string)
-                       make_drawing(mol, options.comp_id, options.output_postfix)
+		   smi_raw = args[0]
+                   smiles = smiles_from(smi_raw)
+		   status = make_restraints_from_smiles(smiles, options.comp_id,
+                                                        sdf_file_name, pdb_out_file_name,
+                                                        cif_restraints_file_name,
+                                                        options.quartet_planes,
+                                                        options.quartet_hydrogen_planes)
+                   if options.drawing:
+                      mol = Chem.MolFromSmiles(smiles_string)
+                      make_drawing(mol, options.comp_id, options.output_postfix)
