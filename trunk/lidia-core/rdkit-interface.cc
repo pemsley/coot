@@ -2213,7 +2213,7 @@ coot::charge_phosphates(RDKit::RWMol *rdkm) {
 
 
 void
-coot::debug_rdkit_molecule(RDKit::ROMol *rdkm) {
+coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
 
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
    std::cout << "---- Atoms: " << rdkm->getNumAtoms() << std::endl;

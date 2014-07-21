@@ -98,7 +98,7 @@ namespace coot {
 			    const std::vector<std::string> &H_names_already_added);
 
    // print out the atom names RDKit bond types
-   void debug_rdkit_molecule(RDKit::ROMol *rdkm);
+   void debug_rdkit_molecule(const RDKit::ROMol *rdkm);
    //
    void undelocalise(RDKit::RWMol *rdkm); // fiddle with rdkm
    void undelocalise_phosphates(RDKit::ROMol *rdkm);
