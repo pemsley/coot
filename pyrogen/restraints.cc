@@ -1107,7 +1107,6 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
       RDKit::Atom::ChiralType chiral_tag = at_p->getChiralTag();
       // std::cout << "atom " << iat << " chiral tag: " << chiral_tag << std::endl;
 
-      // do I need to check the atom order here, like I do in rdkit-interface.cc?
       if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CCW)
 	 vol_sign = -1;
       if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CW)
@@ -1146,6 +1145,10 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 
 	    std::sort(neighbours.begin(), neighbours.end()); // how does this work? :-)
 
+	    // it sorts of the first index first, and if that is a
+	    // match, sorts on the second, I think, neighbours is now
+	    // sorted so that the low indices are first.
+
 	    if (neighbours.size() == 4) {
 
 	       for (unsigned int in=0; in<neighbours.size(); in++) {
@@ -1183,7 +1186,7 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 		  for (unsigned int in=0; in<neighbours.size(); in++)
 		     std::cout << " " << neighbours[in].first;
 		  std::cout << std::endl;
-		  
+		  // debug_rdkit_molecule(&mol);
 	       } 
 	    } else {
 	       std::cout << "oops - found " << neighbours.size() << " neighbours" << std::endl;
