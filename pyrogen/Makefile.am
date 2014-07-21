@@ -62,7 +62,7 @@ libpyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
 
 dist_bin_SCRIPTS = pyrogen
 
-dist_pyrogen_SCRIPTS = pyrogen.py jay_util.py tautomer.py pyrogen_swig.py
+dist_pyrogen_SCRIPTS = pyrogen.py jay_util.py tautomer.py pyrogen_swig.py coot_svn_repo_revision.py
 pyrogendir=$(pkgdatadir)/python
 
 # clean needs to remove _pyrogen_swig.so

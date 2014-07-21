@@ -19,9 +19,16 @@ print "}"                      > svn_revision_cc
 print ""                       > svn_revision_cc  
 }'
 
+awk -v rev_no=$rev_no '
+BEGIN {o = "pyrogen/coot_svn_repo_revision.py"
+   print "def revision_number():" > o
+   print "    return", rev_no            > o
+}'		
+
 if test ! -e src/svn-revision.cc ; then
    echo Missing src/svn-revision.cc
 else 
    tail -4 src/svn-revision.cc | head -1 | awk '{split($2, arr, ";"); print arr[1]}'
 fi
+
 
