@@ -1176,7 +1176,8 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 		  }
 	       } else {
 		  std::cout << "Chiral problem:: neighbour[1] was not a hydrogen" << std::endl;
-		  std::cout << "                 ";
+		  std::cout << "       chiral centre atom idx " << iat << " name "
+			    << chiral_centre << ": neighbs " ;
 		  for (unsigned int in=0; in<neighbours.size(); in++) {
 		     std::string name;
 		     mol[neighbours[in].first]->getProp("name", name);
