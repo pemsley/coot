@@ -1161,11 +1161,11 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 
 	       std::string chiral_id = "chiral_" + util::int_to_string(n_chirals+1);
 	       // Neighbour[1] is the hydrogen.  I should test that is the case before continuing.
-	       if (mol[neighbours[1].first]->getAtomicNum() == 1) {
-		  if (!chiral_centre.empty() &&
-		      !neighbours[0].second.empty() &&
-		      !neighbours[2].second.empty() &&
-		      !neighbours[3].second.empty()) {
+	       if (!chiral_centre.empty() &&
+		   !neighbours[0].second.empty() &&
+		   !neighbours[2].second.empty() &&
+		   !neighbours[3].second.empty()) {
+		  if (mol[neighbours[1].first]->getAtomicNum() == 1) {
 		     coot::dict_chiral_restraint_t chiral(chiral_id,
 							  chiral_centre,
 							  neighbours[0].second,
@@ -1173,21 +1173,39 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 							  neighbours[3].second, vol_sign);
 		     restraints->chiral_restraint.push_back(chiral);
 		     n_chirals++;
+		  
+		  } else {
+
+		     // maybe the hydrogen is in last place - which
+		     // means that the chiral sign gets inverted.
+		     // This is a dicey hack.
+		     //
+		     if (mol[neighbours[3].first]->getAtomicNum() == 1) {
+			coot::dict_chiral_restraint_t chiral(chiral_id,
+							     chiral_centre,
+							     neighbours[0].second,
+							     neighbours[1].second,
+							     neighbours[2].second, -vol_sign);
+			restraints->chiral_restraint.push_back(chiral);
+			n_chirals++;
+			
+		     } else { 
+		  
+			std::cout << "Chiral problem:: neighbour[1] was not a hydrogen" << std::endl;
+			std::cout << "       chiral centre atom idx " << iat << " name "
+				  << chiral_centre << ": neighbs " ;
+			for (unsigned int in=0; in<neighbours.size(); in++) {
+			   std::string name;
+			   mol[neighbours[in].first]->getProp("name", name);
+			   std::cout << name << " ";
+			}
+			std::cout << "indices: ";
+			for (unsigned int in=0; in<neighbours.size(); in++)
+			   std::cout << " " << neighbours[in].first;
+			std::cout << std::endl;
+			// debug_rdkit_molecule(&mol);
+		     }
 		  }
-	       } else {
-		  std::cout << "Chiral problem:: neighbour[1] was not a hydrogen" << std::endl;
-		  std::cout << "       chiral centre atom idx " << iat << " name "
-			    << chiral_centre << ": neighbs " ;
-		  for (unsigned int in=0; in<neighbours.size(); in++) {
-		     std::string name;
-		     mol[neighbours[in].first]->getProp("name", name);
-		     std::cout << name << " ";
-		  }
-		  std::cout << "indices: ";
-		  for (unsigned int in=0; in<neighbours.size(); in++)
-		     std::cout << " " << neighbours[in].first;
-		  std::cout << std::endl;
-		  // debug_rdkit_molecule(&mol);
 	       } 
 	    } else {
 	       std::cout << "oops - found " << neighbours.size() << " neighbours" << std::endl;
