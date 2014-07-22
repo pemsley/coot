@@ -3876,7 +3876,7 @@ coot::restraints_container_t::const_test_function(const coot::protein_geometry &
 int
 coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom,
 					      coot::restraint_usage_Flags flags_in, 
-					      short int do_residue_internal_torsions,
+					      bool do_residue_internal_torsions,
 					      float rama_plot_target_weight,
 					      bool do_rama_plot_restraints, 
 					      coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds) {
@@ -6925,9 +6925,10 @@ coot::simple_refine(CResidue *residue_p,
 						 fixed_atom_specs);
    
 	 // restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-	 restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_PLANES_AND_NON_BONDED;
+	 restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
 	 pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
-	 restraints.make_restraints(geom, flags, 0, 0, 0, pseudos);
+	 bool do_internal_torsions = true;
+	 restraints.make_restraints(geom, flags, do_internal_torsions, 0, 0, pseudos);
 	 restraints.minimize(flags, 3000, 1);
       }
    }
