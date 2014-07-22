@@ -979,7 +979,7 @@ namespace coot {
 	    n_chiral_restr += r.n_chiral_restr;
 	    n_torsion_restr += r.n_torsion_restr;
 	 }
-	 void report(short int do_residue_internal_torsions) {
+	 void report(bool do_residue_internal_torsions) {
 	    std::cout << "created " << n_bond_restraints   << " bond       restraints " << std::endl;
 	    std::cout << "created " << n_angle_restraints  << " angle      restraints " << std::endl;
 	    std::cout << "created " << n_plane_restraints  << " plane      restraints " << std::endl;
@@ -1857,7 +1857,7 @@ namespace coot {
       // restraints, protein_geometry geom.
       int make_restraints(const coot::protein_geometry &geom,
 			  coot::restraint_usage_Flags flags,
-			  short int do_residue_internal_torsions,
+			  bool do_residue_internal_torsions,
 			  float rama_plot_target_weight,
 			  bool do_rama_plot_retraints, 
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds);
