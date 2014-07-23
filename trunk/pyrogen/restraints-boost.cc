@@ -91,7 +91,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 
    std::pair<bool, dictionary_residue_restraints_t> rest = geom.get_monomer_restraints(comp_id);
    if (rest.first) {
-   
+
       if (r) {
 	 // makes a 3d conformer
 
@@ -99,6 +99,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	 //           valence error).
 	 bool sanitize = true;
 	 RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", sanitize);
+	 RDKit::MolOps::assignStereochemistry(mol_rw);;
 	 RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
 
 	 // debug.  OK, so the bond orders are undelocalized here.
@@ -106,6 +107,13 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
       
 	 return m;
       } else {
+
+	 // Are you here unexpectedly?  That's because the input cif dictionary doesn't have
+	 // _chem_comp_atom.x{yz} or model_Cartn_x{yz} or pdbx_model_Cartn_x{yz}_ideal for
+	 // the given comp_id.
+	 // 
+	 std::cout << "INFO:: No 3d coords in dictionary : using 2d from dictionary bonds and angles."
+		   << std::endl;
 	 // makes a 2d conformer
 	 RDKit::RWMol mol_rw = coot::rdkit_mol(rest.second);
 	 RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
