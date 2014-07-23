@@ -476,6 +476,17 @@ def make_restraints_from_pdbx(cif_file_name_in, comp_id, mogul_dir, name_stub, p
    # later: embed the compound_name name into m.
    m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
 
+   if False:  # debugging
+      for atom in m.GetAtoms():
+         try:
+            name   = atom.GetProp('name')
+            chir   = atom.GetProp('_CIPCode')
+            print ' atom', atom, 'name', name, 'chir', chir
+         except KeyError as e:
+            print 'pyrogen.py:: atom', atom, " with name ", name, ' has no _CIPCode property'
+            pass
+
+
    # maybe user didn't select the correct comp_id for the given dictionary mmcif
    if m.GetNumAtoms() == 0:
       print 'No atoms for comp_id', comp_id
@@ -485,11 +496,11 @@ def make_restraints_from_pdbx(cif_file_name_in, comp_id, mogul_dir, name_stub, p
       name = ''
       try:
          name = m.GetProp('_Name')
-      except KeyError:
-         print 'caught KeyError in make_restraints_from_pdbx_cif() trying GetProp _Name'
-         
          return make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name,
                                 quartet_planes, quartet_hydrogen_planes)
+      except KeyError:
+         print 'caught KeyError in make_restraints_from_pdbx_cif() trying GetProp _Name'
+
 
 
 def n_hydrogens(mol):
@@ -502,6 +513,10 @@ def n_hydrogens(mol):
    
 def make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name,
                     quartet_planes, quartet_hydrogen_planes):
+
+   # pH-dependent protonation or deprotonation
+   #
+   do_hydrogen_atoms_shift = True
 
    try:
       compound_name = m.GetProp('_Name');
@@ -518,12 +533,12 @@ def make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_d
    if n_hydrogens(m) == 0:
        m_H = AllChem.AddHs(m)
 
-   # simple sane pH H-exchanges
-   # 
-   zw_mol = pyrogen_boost.hydrogen_exchanges(m_H)
-   #  print '::::: zw_mol:', Chem.MolToSmiles(zw_mol)
-   sane_H_mol = copy.deepcopy(zw_mol)
-   
+   if do_hydrogen_atoms_shift:
+      # simple sane pH H-exchanges
+      sane_H_mol = pyrogen_boost.hydrogen_exchanges(m_H)
+   else:
+      sane_H_mol = m_H
+ 
    AllChem.EmbedMolecule(sane_H_mol)
    AllChem.UFFOptimizeMolecule(sane_H_mol)
 
@@ -545,12 +560,6 @@ def make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_d
 
       mb = Chem.MolToMolBlock(sane_H_mol)
       print >> file(sdf_file_name,'w'), mb
-      # we don't want to do this now - we will write out results
-      # post-mogul regularizement usually.
-      # coot.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
-
-
-      # check that pyrogen-mogul dir exists
       
       bor = make_restraints_for_bond_orders(sane_H_mol)
 
@@ -669,7 +678,11 @@ if __name__ == "__main__":
        run_mogul = False
 
     if run_mogul:
-       checked_mkdir(options.mogul_dir)
+       if len(options.mogul_dir) > 0:
+          if options.mogul_dir[0] == '-':
+             print 'Stop:: you probably didn\'t mean that you wanted',options.mogul_dir, 'as your tmp directory.'
+             exit(1)
+          checked_mkdir(options.mogul_dir)
 
     if options.mmcif_file != None:
 	make_restraints_from_pdbx(options.mmcif_file, options.comp_id, options.mogul_dir, name_stub,

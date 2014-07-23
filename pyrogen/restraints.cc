@@ -426,15 +426,11 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 				 std::string tors_id;
 				 if (! is_const) { 
 				    tors_id = "var_";
-				    char s[100];
-				    snprintf(s,99,"%d", tors_no);
-				    tors_id += std::string(s);
+				    tors_id += util::int_to_string(tors_no);
 				    tors_no++;
 				 } else {
 				    tors_id = "CONST_";
-				    char s[100];
-				    snprintf(s,99,"%d", const_no);
-				    tors_id += std::string(s);
+				    tors_id += util::int_to_string(tors_no);
 				    const_no++;
 				 }
 				 dict_torsion_restraint_t torsionr(tors_id,
@@ -490,7 +486,7 @@ coot::is_const_torsion(const RDKit::ROMol &mol,
 	 if (torsion_at_3 == bond_at_2)
 	    found_torsion_bond = true;
       if (torsion_at_2 == bond_at_2)
-	 if (torsion_at_3 == bond_at_2)
+	 if (torsion_at_3 == bond_at_1)
 	    found_torsion_bond = true;
 
       if (found_torsion_bond) { 
@@ -1108,11 +1104,11 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
       // std::cout << "atom " << iat << " chiral tag: " << chiral_tag << std::endl;
 
       if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CCW)
-	 vol_sign = -1;
+	 vol_sign = dict_chiral_restraint_t::CHIRAL_RESTRAINT_NEGATIVE;
       if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CW)
-	 vol_sign = 1;
+	 vol_sign = dict_chiral_restraint_t::CHIRAL_RESTRAINT_POSITIVE;
 
-      if (chiral_tag != RDKit::Atom::CHI_UNSPECIFIED) { 
+      if (chiral_tag != RDKit::Atom::CHI_UNSPECIFIED) {
 	 try { 
 	    std::string chiral_centre;
 	    at_p->getProp("name", chiral_centre);
@@ -1215,7 +1211,7 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 	    std::cout << "caught no-name for atom exception in chiral assignment(): "
 		      <<  kee.what() << std::endl;
 	 }
-      }
+      } 
    }
    return n_chirals;
 }

@@ -2930,15 +2930,15 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       mmCIFLoop->PutString(ss, "type_energy", i);
 	       if (atom_info[i].partial_charge.first) {
 		  float v = atom_info[i].partial_charge.second;
-		  mmCIFLoop->PutReal(v, "partial_charge", i);
+		  mmCIFLoop->PutReal(v, "partial_charge", i, 4);
 	       }
 	       if (add_coordinates) {
 		  float x = atom_info[i].model_Cartn.second.x();
 		  float y = atom_info[i].model_Cartn.second.y();
 		  float z = atom_info[i].model_Cartn.second.z();
-		  mmCIFLoop->PutReal(x, "x", i);
-		  mmCIFLoop->PutReal(y, "y", i);
-		  mmCIFLoop->PutReal(z, "z", i);
+		  mmCIFLoop->PutReal(x, "x", i, 6);
+		  mmCIFLoop->PutReal(y, "y", i, 6);
+		  mmCIFLoop->PutReal(z, "z", i, 6);
 	       } 
 	    }
 	 }
@@ -3110,7 +3110,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 		  mmCIFLoop->PutString(ss, "atom_id", icount);
 		  
 		  float v = plane_restraint[i].dist_esd(iat);
-		  mmCIFLoop->PutReal(v, "dist_esd", icount);
+		  mmCIFLoop->PutReal(v, "dist_esd", icount, 4);
 		  icount++;
 	       }
 	    }
