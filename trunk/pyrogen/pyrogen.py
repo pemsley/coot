@@ -476,14 +476,20 @@ def make_restraints_from_pdbx(cif_file_name_in, comp_id, mogul_dir, name_stub, p
    # later: embed the compound_name name into m.
    m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
 
-   name = ''
-   try:
-      name = m.GetProp('_Name')
-   except KeyError:
-      print 'caught KeyError in make_restraints_from_pdbx_cif() trying GetProp _Name'
+   # maybe user didn't select the correct comp_id for the given dictionary mmcif
+   if m.GetNumAtoms() == 0:
+      print 'No atoms for comp_id', comp_id
+      return
+   else :
 
-   return make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name,
-                          quartet_planes, quartet_hydrogen_planes)
+      name = ''
+      try:
+         name = m.GetProp('_Name')
+      except KeyError:
+         print 'caught KeyError in make_restraints_from_pdbx_cif() trying GetProp _Name'
+         
+         return make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name,
+                                quartet_planes, quartet_hydrogen_planes)
 
 
 def n_hydrogens(mol):

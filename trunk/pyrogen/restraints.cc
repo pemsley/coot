@@ -947,7 +947,7 @@ coot::add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &ma
 	    atom_names.push_back(name);
 	 }
 	 if (atom_names.size() > 3) {
-	    double esd = 0.14;
+	    double esd = 0.014;
 	    std::string plane_id = "quartet-plane-" + util::int_to_string(plane_id_idx_in+i);
 
 	    if (0) { // debug
