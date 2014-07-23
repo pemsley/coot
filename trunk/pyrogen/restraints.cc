@@ -339,6 +339,7 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
    unsigned int tors_no = 1; // incremented on addition
    unsigned int const_no = 1; // incremented on addition.  When const_no is incremented, tors_no is not.
    std::map<std::string, bool> done_torsion;
+   bool debug = false;
    
    for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
       RDKit::ATOM_SPTR at_1 = mol[iat_1];
@@ -387,14 +388,28 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 			torsion_key_name_1  = atom_name_2;
 			torsion_key_name_1 += "-";
 			torsion_key_name_1 += atom_name_3;
+			
 			torsion_key_name_2  = atom_name_3;
 			torsion_key_name_2 += "-";
 			torsion_key_name_2 += atom_name_2;
 
+			bool done_this_already = true;
 			if (done_torsion.find(torsion_key_name_1) == done_torsion.end() &&
-			    done_torsion.find(torsion_key_name_2) == done_torsion.end()) {
+			    done_torsion.find(torsion_key_name_2) == done_torsion.end())
+			   done_this_already = false;
 
-			   if (0) // debug
+			if (debug) { 
+			   std::cout << "considering torsion keys \"" << torsion_key_name_1 << "\" and \""
+				     << torsion_key_name_2 << "\"";
+			   if (done_this_already)
+			      std::cout << " done already" << std::endl;
+			   else
+			      std::cout << std::endl;
+			}
+
+			if (! done_this_already) {
+
+			   if (debug) 
 			      std::cout << "torsion-atoms..... "
 					<< at_1->getIdx() << " "
 					<< at_2->getIdx() << " "
@@ -411,14 +426,18 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 			   // atom types).  In that case, we will catch a runtime_error.
 			   // What to do then is not clear to me yet.
 			   // 
-			   try { 
+			   try {
+			      if (debug)
+				 std::cout << "trying to get torsion-from-lib for " << atom_type_2
+					   << "---" << atom_type_3 << std::endl;
 			      energy_lib_torsion tors =
 				 energy_lib.get_torsion(atom_type_2, atom_type_3);
-
+			      
 			      bool is_const = is_const_torsion(mol, at_2.get(), at_3.get());
 
-			      if (0)
-				 std::cout << "       got torsion " << tors << "  is_const: "
+			      if (debug)
+				 std::cout << "    torsion between a " << atom_type_2 << " and a "
+					   << atom_type_3 << " gave torsion " << tors << "  is_const: "
 					   << is_const << std::endl;
 
 			      if (tors.period != 0) { 
@@ -430,7 +449,7 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 				    tors_no++;
 				 } else {
 				    tors_id = "CONST_";
-				    tors_id += util::int_to_string(tors_no);
+				    tors_id += util::int_to_string(const_no);
 				    const_no++;
 				 }
 				 dict_torsion_restraint_t torsionr(tors_id,
@@ -441,12 +460,53 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 			      }
 			   }
 			   catch (const std::runtime_error &rte) {
-			      energy_lib_torsion tors; // default torsion.
-			      // what are the hybridization states of at_2 and at_3?
+
+			      if (debug)
+				 std::cout << "failed  to get torsion-from-lib for " << atom_type_2
+					   << " to " << atom_type_3 << std::endl;
+			      
+			      // default
+			      double angle = 180;
+			      double esd = 20;
+			      int period = 1;
+			      
+			      bool is_const = is_const_torsion(mol, at_2.get(), at_3.get());
 			      RDKit::Atom::HybridizationType ht_2 = at_2->getHybridization();
 			      RDKit::Atom::HybridizationType ht_3 = at_2->getHybridization();
+
+			      if (ht_2 == RDKit::Atom::SP3 || ht_2 == RDKit::Atom::SP3) {
+				 period = 3;
+				 if (is_const) esd = 2;
+			      }
+
+			      if (ht_2 == RDKit::Atom::SP2 && ht_3 == RDKit::Atom::SP2) {
+				 period = 2;
+				 if (is_const) esd = 2;
+			      } 
+
+			      if (ht_2 == RDKit::Atom::SP || ht_2 == RDKit::Atom::SP) {
+				 is_const = 1;
+				 esd = 2;
+			      }
+
+			      std::string tors_id("var_");
+			      if (is_const) {
+				 tors_id="CONST_";
+				 tors_id+=util::int_to_string(const_no);
+				 const_no++;
+			      } else {
+				 tors_id+=util::int_to_string(tors_no);
+				 tors_no++;
+			      }
+
+			      dict_torsion_restraint_t torsionr(tors_id,
+								atom_name_1, atom_name_2,
+								atom_name_3, atom_name_4,
+								angle, esd, period);
+			      if (debug)
+				 std::cout << "fallback pushback::" << torsionr << std::endl;
+			      restraints->torsion_restraint.push_back(torsionr);
 			      
-			      // ... something here?
 			   } 
 			   done_torsion[torsion_key_name_1] = true;
 			   done_torsion[torsion_key_name_2] = true;
@@ -473,6 +533,9 @@ coot::is_const_torsion(const RDKit::ROMol &mol,
 		       const RDKit::Atom *torsion_at_2,
 		       const RDKit::Atom *torsion_at_3) {
 
+   // is the bond between the 2 central atoms of the torsion a double bond?
+   // (or triple or atromatic).  If so, then this is a const torsion
+
    bool status = false;
    
    unsigned int n_bonds = mol.getNumBonds();
@@ -490,9 +553,13 @@ coot::is_const_torsion(const RDKit::ROMol &mol,
 	    found_torsion_bond = true;
 
       if (found_torsion_bond) { 
-	 if (bond_p->getBondType() == RDKit::Bond::AROMATIC) status = true;
-	 if (bond_p->getBondType() == RDKit::Bond::DOUBLE)   status = true;
-	 if (bond_p->getBondType() == RDKit::Bond::TRIPLE)   status = true;
+	 if (bond_p->getBondType() == RDKit::Bond::AROMATIC)    status = true;
+	 if (bond_p->getBondType() == RDKit::Bond::DOUBLE)      status = true;
+	 if (bond_p->getBondType() == RDKit::Bond::TRIPLE)      status = true;
+	 if (bond_p->getBondType() == RDKit::Bond::QUADRUPLE)   status = true;
+	 if (bond_p->getBondType() == RDKit::Bond::ONEANDAHALF) status = true;
+	 if (bond_p->getBondType() == RDKit::Bond::TWOANDAHALF) status = true;
+	 break;
       }
    }
 

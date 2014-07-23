@@ -218,8 +218,8 @@ coot::operator<<(std::ostream &s, const energy_lib_torsion &torsion) {
 
    s << "[" << " atom-types: \""
      << torsion.atom_type_1 << "\" \"" << torsion.atom_type_2 << "\" "
-     << torsion.atom_type_3 << "\" \"" << torsion.atom_type_4 << "\" "
-     << torsion.spring_constant << " " << torsion.angle << " " << torsion.period
+     << torsion.atom_type_3 << "\" \"" << torsion.atom_type_4 << "\" spring-k "
+     << torsion.spring_constant << " angle: " << torsion.angle << " per: " << torsion.period
      << "]";
    return s;
 } 
