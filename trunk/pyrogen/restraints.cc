@@ -474,7 +474,7 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 			      RDKit::Atom::HybridizationType ht_2 = at_2->getHybridization();
 			      RDKit::Atom::HybridizationType ht_3 = at_2->getHybridization();
 
-			      if (ht_2 == RDKit::Atom::SP3 || ht_2 == RDKit::Atom::SP3) {
+			      if (ht_2 == RDKit::Atom::SP3 || ht_3 == RDKit::Atom::SP3) {
 				 period = 3;
 				 if (is_const) esd = 2;
 			      }
@@ -484,7 +484,7 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 				 if (is_const) esd = 2;
 			      } 
 
-			      if (ht_2 == RDKit::Atom::SP || ht_2 == RDKit::Atom::SP) {
+			      if (ht_2 == RDKit::Atom::SP || ht_3 == RDKit::Atom::SP) {
 				 is_const = 1;
 				 esd = 2;
 			      }
