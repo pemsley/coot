@@ -76,7 +76,8 @@ coot::rdkit_mol(CResidue *residue_p,
    
    if (debug)
       std::cout << "==================== here in rdkit_mol() with restraints that have "
-		<< restraints.bond_restraint.size() << " bond restraints" << std::endl;
+		<< restraints.bond_restraint.size() << " bond restraints with do_undelocalize "
+		<< do_undelocalize << std::endl;
    
    RDKit::RWMol m;
 
