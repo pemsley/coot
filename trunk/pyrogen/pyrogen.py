@@ -477,7 +477,6 @@ def make_restraints_from_pdbx(cif_file_name_in, comp_id, mogul_dir, name_stub, p
                               mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
 
    m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
-   print 'mol from pyrogen_boost.rdkit_mol_chem_comp_pdbx()', m
 
    if False:  # debugging
       for atom in m.GetAtoms():
@@ -700,7 +699,6 @@ if __name__ == "__main__":
 	mol = make_restraints_from_pdbx(options.mmcif_file, options.comp_id, options.mogul_dir,
 					file_name_stub, pdb_out_file_name, cif_restraints_file_name,
 					options.quartet_planes, options.quartet_hydrogen_planes)
-	print 'mol from make_restraints_from_pdbx():', mol
 	
 	if options.drawing:
 	    # make_picture() by default draws the first conformer in the given molecule.
