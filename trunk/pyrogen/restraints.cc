@@ -159,7 +159,7 @@ coot::mmcif_dict_from_mol_inner(const std::string &comp_id,
       restraints.residue_info.number_atoms_all = n_atoms_all;
       restraints.residue_info.number_atoms_nh = n_atoms_non_hydrogen;
       restraints.residue_info.group = "non-polymer";
-      restraints.residue_info.description_level = "Partial";
+      restraints.residue_info.description_level = "."; // default is full <smiley>
       
       coot::add_chem_comp_atoms(mol, &restraints); // alter restraints
       coot::fill_with_energy_lib_bonds(mol, energy_lib, &restraints); // alter restraints
@@ -232,14 +232,14 @@ coot::convert_to_energy_lib_bond_type(RDKit::Bond::BondType bt) {
    std::string r = "unset";
 
    if (bt == RDKit::Bond::UNSPECIFIED) r = "unset";
-   if (bt == RDKit::Bond::SINGLE) r = "single";
-   if (bt == RDKit::Bond::DOUBLE) r = "double";
-   if (bt == RDKit::Bond::TRIPLE) r = "triple";
-   if (bt == RDKit::Bond::QUADRUPLE) r = "quadruple";
-   if (bt == RDKit::Bond::QUINTUPLE) r = "quintuple";
-   if (bt == RDKit::Bond::HEXTUPLE) r = "hextuple";
+   if (bt == RDKit::Bond::SINGLE)      r = "single";
+   if (bt == RDKit::Bond::DOUBLE)      r = "double";
+   if (bt == RDKit::Bond::TRIPLE)      r = "triple";
+   if (bt == RDKit::Bond::QUADRUPLE)   r = "quadruple";
+   if (bt == RDKit::Bond::QUINTUPLE)   r = "quintuple";
+   if (bt == RDKit::Bond::HEXTUPLE)    r = "hextuple";
    if (bt == RDKit::Bond::ONEANDAHALF) r = "deloc";
-   if (bt == RDKit::Bond::AROMATIC) r = "aromatic";
+   if (bt == RDKit::Bond::AROMATIC)    r = "aromatic";
    
 //       TWOANDAHALF,
 //       THREEANDAHALF,
@@ -1252,9 +1252,10 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 			restraints->chiral_restraint.push_back(chiral);
 			n_chirals++;
 			
-		     } else { 
+		     } else {
 		  
-			std::cout << "Chiral problem:: neighbour[1] was not a hydrogen" << std::endl;
+			std::cout << "Chiral problem:: neighbour[1] or [3] was not a hydrogen"
+				  << std::endl;
 			std::cout << "       chiral centre atom idx " << iat << " name "
 				  << chiral_centre << ": neighbs " ;
 			for (unsigned int in=0; in<neighbours.size(); in++) {

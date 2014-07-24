@@ -608,6 +608,7 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 
    // debugging
    bool debug = false;
+   
    if (debug) { 
       std::cout << "   mon_lib_add_atom  " << comp_id << " atom-id:" << atom_id << ": :"
 		<< atom_id_4c << ": " << type_symbol << " " << type_energy << " ("
@@ -615,10 +616,12 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
    } 
 
    coot::dict_atom at_info(atom_id, atom_id_4c, type_symbol, type_energy, partial_charge);
-//    std::cout << "mon_lib_add_atom " << model_pos.first << " "
-// 	     << model_pos.second.format() << std::endl;
-//    std::cout << "mon_lib_add_atom " << model_pos_ideal.first << " "
-// 	     << model_pos_ideal.second.format() << std::endl;
+   if (debug) { 
+      std::cout << "mon_lib_add_atom " << model_pos.first << " "
+		<< model_pos.second.format() << std::endl;
+      std::cout << "mon_lib_add_atom " << model_pos_ideal.first << " "
+		<< model_pos_ideal.second.format() << std::endl;
+   }
    
    if (model_pos.first)
       at_info.add_pos(coot::dict_atom::REAL_MODEL_POS, model_pos);
@@ -1189,11 +1192,11 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	 if (ierr_optional_x == 0)
 	    if (ierr_optional_y == 0)
 	       if (ierr_optional_z == 0) { 
+		  model_Cartn = std::pair<bool, clipper::Coord_orth>(1, clipper::Coord_orth(x,y,z));
 		  if (close_float_p(x, 0.0))
 		     if (close_float_p(z, 0.0))
 			if (close_float_p(z, 0.0))
 			   n_origin_model_atoms++;
-		  model_Cartn = std::pair<bool, clipper::Coord_orth>(1, clipper::Coord_orth(x,y,z));
 	       }
 
 	 // Try simple x, y, z (like the refmac dictionary that Garib sent has)
@@ -1205,11 +1208,11 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	    if (ierr_optional_x == 0)
 	       if (ierr_optional_y == 0)
 		  if (ierr_optional_z == 0) {
+		     model_Cartn = std::pair<bool, clipper::Coord_orth>(true, clipper::Coord_orth(x,y,z));
 		     if (close_float_p(x, 0.0))
 			if (close_float_p(z, 0.0))
 			   if (close_float_p(z, 0.0))
 			      n_origin_model_atoms++;
-		     model_Cartn = std::pair<bool, clipper::Coord_orth>(1, clipper::Coord_orth(x,y,z));
 		  }
 	 }
 
@@ -1245,6 +1248,8 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 			 << ":" << atom_id << ":  "
 			 << ":" << padded_name << ":  "
 			 << ":" << type_symbol << ":  "
+			 << model_Cartn.second.format() << " "
+			 << pdbx_model_Cartn_ideal.second.format()
 			 << std::endl;
 	    mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
 			     partial_charge, model_Cartn, pdbx_model_Cartn_ideal);

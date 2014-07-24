@@ -3355,22 +3355,24 @@ coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_f
    bool r = have_dictionary_for_residue_type(comp_id, 42);
 
    bool make_hetatoms = ! coot::util::is_standard_residue_name(comp_id);
-   
+
+
    std::vector<CAtom *> atoms;
    for (int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
 
-	 std::vector<coot::dict_atom> atom_info = dict_res_restraints[i].atom_info;
+	 const std::vector<coot::dict_atom> &atom_info = dict_res_restraints[i].atom_info;
+	 
 	 int atom_index = 0;
 	 for (unsigned int iat=0; iat<atom_info.size(); iat++) {
 	    
 
 	    clipper::Coord_orth p(0,0,0);
-	    bool flag_and_have_coords = 0;
+	    bool flag_and_have_coords = false;
 
 	    if (idealised_flag && atom_info[iat].pdbx_model_Cartn_ideal.first) {
 	       p = atom_info[iat].pdbx_model_Cartn_ideal.second;
-	       flag_and_have_coords = 1;
+	       flag_and_have_coords = true;
 	    }
 
 	    if (! flag_and_have_coords) { 
@@ -3379,10 +3381,10 @@ coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_f
 	       // 
 	       if (atom_info[iat].model_Cartn.first) {
 		  p = atom_info[iat].model_Cartn.second;
-		  flag_and_have_coords = 1;
+		  flag_and_have_coords = true;
 	       }
 	    }
-	    
+
 	    if (flag_and_have_coords) { 
 	       CAtom *atom = new CAtom;
 	       realtype occ = 1.0;

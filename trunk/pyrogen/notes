@@ -2,3 +2,8 @@
 pH transformations: 
 
 https://github.com/baoilleach/openbabel-svn-mirror/blob/master/data/phmodel.txt
+
+---
+
+   
+  pyrogen -p -m thing.cif i.e. without specifying -t
