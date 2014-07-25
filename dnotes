@@ -7124,5 +7124,11 @@ Sat Jul 19 13:31:04 BST 2014
 
  http://archive.ipython.org/release/2.1.0/ipython-2.1.0.tar.gz
 
+---
+Fri Jul 25 13:56:46 BST 2014
+
+  Store the bond order as an enum, not a string.  That makes
+  convert_bond_type() conversion to rdkit type easier.
+
 ------
 

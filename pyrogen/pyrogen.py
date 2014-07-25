@@ -498,11 +498,11 @@ def make_restraints_from_pdbx(cif_file_name_in, comp_id, mogul_dir, name_stub, p
       name = ''
       try:
          name = m.GetProp('_Name')
-         return make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name,
-                                quartet_planes, quartet_hydrogen_planes)
       except KeyError:
          print 'caught KeyError in make_restraints_from_pdbx_cif() trying GetProp _Name'
-	 return False
+         
+      return make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name,
+                             quartet_planes, quartet_hydrogen_planes)
 
 
 def n_hydrogens(mol):

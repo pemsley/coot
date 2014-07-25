@@ -38,7 +38,14 @@ _pyrogen_swig_la_LIBADD = libcoot_py_restraints.la \
 			  $(top_builddir)/geometry/libcoot-geometry.la       \
                           $(RDKIT_LIBS) -lboost_python $(CLIPPER_LIBS) $(MMDB_LIBS)
 
-_pyrogen_swig_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
+# What does this do? If we add it, we don't get this message:
+#  `_pyrogen_swig.la' is not a standard libtool library name
+# pyrogen/Makefile.am:30: did you mean `lib_pyrogen_swig.la'?
+# I doubt the need for the other args, so just use -module for now.
+#
+# _pyrogen_swig_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
+#
+_pyrogen_swig_la_LDFLAGS = -module
 
 
 # These get installed in libdir - libpyrogen_boost.la needs to be
@@ -68,7 +75,7 @@ pyrogendir=$(pkgdatadir)/python
 # clean needs to remove _pyrogen_swig.so
 #
 clean-local: 
-	rm _pyrogen_swig.so
+	rm -f _pyrogen_swig.so
 
 endif
 endif
