@@ -55,7 +55,7 @@ libcoot_geometry_la_LIBADD = \
 
 check_PROGRAMS = test-geometry test-read-components
 
-bin_PROGRAMS = compare-dictionaries
+bin_PROGRAMS = compare-dictionaries make-shelx-restraints
 
 test_geometry_SOURCES = test-geometry.cc
 
@@ -74,8 +74,13 @@ test_read_components_LDADD =  \
 
 compare_dictionaries_SOURCES = compare-dictionaries.cc
 
-# why is $(top_builddir)/utils/libcoot-utils.la needed? libcoot_geometry_la_LIBADD should handle this 
-# for us... I don't understand.
+# why is $(top_builddir)/utils/libcoot-utils.la needed? 
+# libcoot_geometry_la_LIBADD should handle this for us... I don't
+# understand.
 compare_dictionaries_LDADD = ./libcoot-geometry.la \
          $(top_builddir)/utils/libcoot-utils.la    
+
+make_shelx_restraints_SOURCES = make-shelx-restraints.cc
+
+make_shelx_restraints_LDADD = ./libcoot-geometry.la
 
