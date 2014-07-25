@@ -46,6 +46,7 @@ void output_dangs(const coot::dictionary_residue_restraints_t &rest,
 		  std::ofstream &f) {
 
    // we have to convert angles to 1-3 distances.  Need to find bonds
+   // of the angle atoms.
    
    for (unsigned int i=0; i<rest.angle_restraint.size(); i++) { 
       const coot::dict_angle_restraint_t &r = rest.angle_restraint[i];
