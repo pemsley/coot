@@ -678,6 +678,9 @@ coot::set_3d_conformer_state(RDKit::RWMol *mol) {
 
 RDKit::Bond::BondType
 coot::convert_bond_type(const std::string &t) {
+
+   // It was a mistake to store the bond order as a string, wasn't it?
+   
    RDKit::Bond::BondType bt = RDKit::Bond::UNSPECIFIED;
    if (t == "single")
       bt = RDKit::Bond::SINGLE;
@@ -690,6 +693,10 @@ coot::convert_bond_type(const std::string &t) {
    if (t == "deloc")
       bt = RDKit::Bond::ONEANDAHALF;
    if (t == "aromatic")
+      bt = RDKit::Bond::AROMATIC;
+   if (t == "arom")
+      bt = RDKit::Bond::AROMATIC;
+   if (t == "aromat")
       bt = RDKit::Bond::AROMATIC;
    
    if (0) { // debug

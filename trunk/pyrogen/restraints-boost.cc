@@ -115,11 +115,16 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	 std::cout << "INFO:: No 3d coords in dictionary : using 2d from dictionary bonds and angles."
 		   << std::endl;
 	 // makes a 2d conformer
+
+	 // Bleugh.  We deal with mol vs m badly here.  
+	 // 
 	 RDKit::RWMol mol_rw = coot::rdkit_mol(rest.second);
+	 RDKit::MolOps::sanitizeMol(mol_rw);
 	 RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
 	 bool canon_orient = false;
-	 bool clear_confs = false;
+	 bool clear_confs  = false;
 	 int iconf = RDDepict::compute2DCoords(*m, NULL, canon_orient, clear_confs, 10, 20);
+	 delete mol;
 	 return m;
       }
    } 
