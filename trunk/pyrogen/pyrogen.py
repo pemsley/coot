@@ -687,10 +687,15 @@ if __name__ == "__main__":
 
     if options.show_version:
        print 'pyrogen-' + pyrogen_version, "revision", coot_svn_repo_revision.revision_number()
-    
-    pdb_out_file_name        = options.comp_id + '-' + options.output_postfix + '.pdb'
-    cif_restraints_file_name = options.comp_id + '-' + options.output_postfix + '.cif'
-    file_name_stub           = options.comp_id + '-' + options.output_postfix
+
+    comp_id = "LIG"
+    if options.mmcif_file != None:
+	if options.comp_id == 'default':
+	    comp_id = 'TRY_ALL_COMP_IDS'
+	    
+    pdb_out_file_name        = comp_id + '-' + options.output_postfix + '.pdb'
+    cif_restraints_file_name = comp_id + '-' + options.output_postfix + '.cif'
+    file_name_stub           = comp_id + '-' + options.output_postfix
 
     # this is a bit ugly, perhaps.  this value is inspected inside
     # the following functions
@@ -705,31 +710,27 @@ if __name__ == "__main__":
              exit(1)
           checked_mkdir(options.mogul_dir)
 
-    if options.mmcif_file != None:
-	if options.comp_id == 'default':
-	    comp_id = 'TRY_ALL_COMP_IDS'
-	mol = make_restraints_from_mmcif_dict(options.mmcif_file, comp_id, options.mogul_dir,
-					      options.output_postfix,
-					      options.quartet_planes, options.quartet_hydrogen_planes)
+       mol = make_restraints_from_mmcif_dict(options.mmcif_file, comp_id, options.mogul_dir,
+					     options.output_postfix,
+					     options.quartet_planes, options.quartet_hydrogen_planes)
 	
-	if options.drawing:
+       if options.drawing:
 	    # make_picture() by default draws the first conformer in the given molecule.
 	    # For mol, that is a 3D conformer.  We want to draw a nice 2D diagram
 	    #
 	    mol_for_drawing = Chem.RemoveHs(mol, implicitOnly=False)
 	    conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
-	    make_picture(mol_for_drawing, conf2D_id, options.comp_id, options.output_postfix)
+	    make_picture(mol_for_drawing, conf2D_id, comp_id, options.output_postfix)
+	    
     else:
-	if options.comp_id == 'default':
-	    comp_id = 'LIG'
 	if options.sdf_file != None:
-	   (mol, results) = make_restraints_from_mdl(options.sdf_file, options.comp_id,
+	   (mol, results) = make_restraints_from_mdl(options.sdf_file, comp_id,
                                                      options.mogul_dir, file_name_stub,
                                                      pdb_out_file_name, cif_restraints_file_name,
                                                      options.quartet_planes,
                                                      options.quartet_hydrogen_planes)
 	   if options.drawing:
-	       make_picture(mol, -1, options.comp_id, options.output_postfix)
+	       make_picture(mol, -1, comp_id, options.output_postfix)
 
         else:
 
@@ -744,7 +745,7 @@ if __name__ == "__main__":
                       s = Chem.MolToSmiles(m),
                       print s, 'score:', tautomer.tautomer_score(m)
                       if options.drawing:
-                         file_name = options.comp_id + '-tautomer-' + str(i)
+                         file_name = comp_id + '-tautomer-' + str(i)
                          file_name += '-' + options.output_postfix + '.png'
                          make_picture_to_file(m, -1, file_name)
                 else:
@@ -754,7 +755,7 @@ if __name__ == "__main__":
 		if len(args) > 0:
 		   smi_raw = args[0]
                    smiles = smiles_from(smi_raw)
-		   status = make_restraints_from_smiles(smiles, options.comp_id, options.compound_name,
+		   status = make_restraints_from_smiles(smiles, comp_id, options.compound_name,
                                                         options.mogul_dir, file_name_stub,
                                                         pdb_out_file_name,
                                                         cif_restraints_file_name,
@@ -762,4 +763,4 @@ if __name__ == "__main__":
                                                         options.quartet_hydrogen_planes)
                    if options.drawing:
                       mol = Chem.MolFromSmiles(smiles)
-                      make_picture(mol, -1, options.comp_id, options.output_postfix)
+                      make_picture(mol, -1, comp_id, options.output_postfix)
