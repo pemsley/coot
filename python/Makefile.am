@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-pythondir = $(pkgdatadir)/python
+# pythondir = $(pkgdatadir)/python
 
 
 # how are these generated?  AFAICS, they are not.  comment out for now
@@ -32,7 +32,7 @@ pythondir = $(pkgdatadir)/python
 
 #endif
 
-dist_python_DATA = \
+pkgpython_SCRIPTS = \
                         coot_utils.py        get_ebi.py      mutate.py        \
    background_demo.py   hello.py             raster3d.py                      \
    brute_lsqman.py                                           refmac.py        \

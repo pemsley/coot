@@ -463,9 +463,13 @@ main (int argc, char *argv[]) {
 
      // First load coot.py, then load the standard startup files, 
      // then load 0-coot.state.py
+
+// OLD     
+//      std::string pydirectory = PKGDATADIR;
+//      pydirectory += "/python";
+
+     std::string pydirectory = PKGPYTHONDIR;
      
-     std::string pydirectory = PKGDATADIR;
-     pydirectory += "/python";
      char *pydirectory_cs = getenv("COOT_PYTHON_DIR");
      
      if (pydirectory_cs) { 

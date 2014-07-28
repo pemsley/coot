@@ -132,7 +132,16 @@ coot_python_dir = os.getenv('COOT_PYTHON_DIR')
 if coot_python_dir:
     search_load_path = coot_python_dir
 else:
-    search_load_path = "@prefix@/share/coot/python"
+    # old 
+    # search_load_path = "@prefix@/share/coot/python"
+
+    # this is a bit ugly - I'm hacking in the python site packages path
+    #
+    # this is what I want to do:
+    search_load_path = "@pkgpythondir@"
+    # 
+    # hack
+    search_load_path = "@prefix@/lib/python2.7/site-packages/coot"
 
 
 def load_from_search_load_path(file):

@@ -22,7 +22,7 @@ if COOT_USE_PYTHON
 
 # This gets set if I use AM_PATH_PYTHON in configure.in?
 # pythondir = $(pkgdatadir)/python
-python_SCRIPTS = coot.py
+pkgpython_SCRIPTS = coot.py
 endif
 
 
@@ -163,6 +163,7 @@ AM_CFLAGS = \
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	-DPACKAGE_LOCALE_DIR='"$(pkgdatadir)/locale"' \
+	-DPKGPYTHONDIR='"$(pkgpythondir)"' \
 	-DDATADIR='"$(datadir)"'    \
         -DCOOT_SYS_BUILD_TYPE='"$(COOT_SYS_BUILD_TYPE)"' \
         -DCOOT_BUILD_INFO_STRING='"$(COOT_BUILD_INFO_STRING)"' \

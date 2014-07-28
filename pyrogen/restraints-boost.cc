@@ -28,17 +28,12 @@ namespace coot {
    RDKit::ROMol *hydrogen_exchanges(const RDKit::ROMol &r);
 }
 
+
 BOOST_PYTHON_MODULE(libpyrogen_boost) {
    def("regularize",               coot::regularize,               return_value_policy<manage_new_object>());
    def("regularize_with_dict",     coot::regularize_with_dict,     return_value_policy<manage_new_object>());
    def("rdkit_mol_chem_comp_pdbx", coot::rdkit_mol_chem_comp_pdbx, return_value_policy<manage_new_object>());
    def("hydrogen_exchanges",       coot::hydrogen_exchanges,       return_value_policy<manage_new_object>());
-
-   // to_python_converter<std::vector<std::string,class std::allocator<std::string> >, VecToList<std::string> >();
-   // def("getListValue", getListValue);
-
-   // class_<RDKit::RWMol, RDKit::RWMol*>("RDKit::RWMol");
-
 }
 
 
@@ -129,9 +124,8 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
       }
    } 
    return mol;
-} 
-
-
+}
+     
 RDKit::ROMol *
 coot::hydrogen_exchanges(const RDKit::ROMol &mol) {
 

@@ -473,36 +473,46 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
 
 
 # return mol - mol gets used to make a depiction.
-def make_restraints_from_pdbx(cif_file_name_in, comp_id, mogul_dir, name_stub, pdb_out_file_name,
-                              mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
+def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir, output_postfix,
+				    quartet_planes, quartet_hydrogen_planes):
 
-   m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
+   if comp_id == "TRY_ALL_COMP_IDS":
+      types = pysw.types_from_mmcif_dictionary(cif_file_name_in);
+      for type in types:
+         make_restraints_from_mmcif_dict(cif_file_name_in, type, mogul_dir, output_postfix,
+					 quartet_planes, quartet_hydrogen_planes)
+   else:
+      file_name_stub           = comp_id + '-' + output_postfix 
+      pdb_out_file_name        = file_name_stub + '.pdb'
+      cif_restraints_file_name = file_name_stub + '.cif'
+      m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
 
-   if False:  # debugging
-      for atom in m.GetAtoms():
-         try:
-            name   = atom.GetProp('name')
-            chir   = atom.GetProp('_CIPCode')
-            print ' atom', atom, 'name', name, 'chir', chir
-         except KeyError as e:
-            print 'pyrogen.py:: atom', atom, " with name ", name, ' has no _CIPCode property'
-            pass
+      if False:  # debugging
+	  for atom in m.GetAtoms():
+	      try:
+		  name   = atom.GetProp('name')
+		  chir   = atom.GetProp('_CIPCode')
+		  print ' atom', atom, 'name', name, 'chir', chir
+	      except KeyError as e:
+		  print 'pyrogen.py:: atom', atom, " with name ", name, ' has no _CIPCode property'
+		  pass
 
 
-   # maybe user didn't select the correct comp_id for the given dictionary mmcif
-   if m.GetNumAtoms() == 0:
-      print 'No atoms for comp_id', comp_id
-      return False
-   else :
+      # maybe user didn't select the correct comp_id for the given dictionary mmcif
+      if m.GetNumAtoms() == 0:
+	  print 'No atoms for comp_id', comp_id
+	  return False
+      else :
 
-      name = ''
-      try:
-         name = m.GetProp('_Name')
-      except KeyError:
-         print 'caught KeyError in make_restraints_from_pdbx_cif() trying GetProp _Name'
-         
-      return make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name,
-                             quartet_planes, quartet_hydrogen_planes)
+	  name = ''
+	  try:
+	      name = m.GetProp('_Name')
+	  except KeyError:
+	      print 'caught KeyError in make_restraints_from_mmcif_dict() trying GetProp _Name'
+
+	  return make_restraints(m, comp_id, mogul_dir, file_name_stub,
+				 pdb_out_file_name, cif_restraints_file_name,
+				 quartet_planes, quartet_hydrogen_planes)
 
 
 def n_hydrogens(mol):
@@ -639,7 +649,7 @@ if __name__ == "__main__":
 		      help="Make restraints from input mmcif FILE", metavar="FILE")
     parser.add_option("-s", "--sdf", dest="sdf_file",
 		      help="Make restraints from input sdf/mol FILE", metavar="FILE")
-    parser.add_option("-t", "--type", dest="comp_id", default='LIG',
+    parser.add_option("-t", "--type", dest="comp_id", default='default',
 		      help="Create restraints for this type. Default is LIG")
     parser.add_option("-4", "--quartet-planes", dest="quartet_planes",
 		      default=False,
@@ -696,9 +706,11 @@ if __name__ == "__main__":
           checked_mkdir(options.mogul_dir)
 
     if options.mmcif_file != None:
-	mol = make_restraints_from_pdbx(options.mmcif_file, options.comp_id, options.mogul_dir,
-					file_name_stub, pdb_out_file_name, cif_restraints_file_name,
-					options.quartet_planes, options.quartet_hydrogen_planes)
+	if options.comp_id == 'default':
+	    comp_id = 'TRY_ALL_COMP_IDS'
+	mol = make_restraints_from_mmcif_dict(options.mmcif_file, comp_id, options.mogul_dir,
+					      options.output_postfix,
+					      options.quartet_planes, options.quartet_hydrogen_planes)
 	
 	if options.drawing:
 	    # make_picture() by default draws the first conformer in the given molecule.
@@ -708,6 +720,8 @@ if __name__ == "__main__":
 	    conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
 	    make_picture(mol_for_drawing, conf2D_id, options.comp_id, options.output_postfix)
     else:
+	if options.comp_id == 'default':
+	    comp_id = 'LIG'
 	if options.sdf_file != None:
 	   (mol, results) = make_restraints_from_mdl(options.sdf_file, options.comp_id,
                                                      options.mogul_dir, file_name_stub,

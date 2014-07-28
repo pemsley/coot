@@ -84,5 +84,7 @@ namespace coot {
 			   const std::string &res_name,
 			   const std::string &file_name);
 
+   PyObject *types_from_mmcif_dictionary(const std::string &file_name);
+
 }
 
