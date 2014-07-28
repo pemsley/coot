@@ -23,6 +23,7 @@ if COOT_USE_PYTHON
 # This gets set if I use AM_PATH_PYTHON in configure.in?
 # pythondir = $(pkgdatadir)/python
 pkgpython_SCRIPTS = coot.py
+python_SCRIPTS = coot.pth
 endif
 
 
