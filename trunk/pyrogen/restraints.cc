@@ -89,6 +89,25 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
       
 }
 
+PyObject *
+coot::types_from_mmcif_dictionary(const std::string &file_name) {
+
+   coot::protein_geometry geom;
+   geom.set_verbose(false);
+   int read_number = 0;
+   geom.init_refmac_mon_lib(file_name, read_number);
+
+   std::vector<std::string> types = geom.monomer_types();
+
+   PyObject *l = PyList_New(types.size());
+   for (unsigned int i=0; i<types.size(); i++) { 
+      PyObject *o = PyString_FromString(types[i].c_str());
+      PyList_SetItem(l, i, o);
+   }
+   return l;
+} 
+
+
 // write restraints and return restraints
 // 
 PyObject *

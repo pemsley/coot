@@ -233,6 +233,10 @@ DEBUG:: apply_undo: (end) history_index: 47 max_history_index: 49
      an error
 
    o interesting ligand series examples: 4cie..s 4cj4..5 4cje..p
+     "The Sample Challange". Journal of Computer-aided molecular design.  Tom Peat.
+     Anthony Nicholls (Open Eye) behind this.
+
+     Also look at trypsin for the sample challenge.  Does it look like benzamidine?
 
      2xx series, e.g. 2xx7, 2xx8, 2xxh, 2xxi, 2xxj
 
