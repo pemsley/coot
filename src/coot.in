@@ -149,16 +149,10 @@ COOT_PIXMAPS_DIR=$COOT_PREFIX/share/coot/pixmaps
 COOT_DATA_DIR=$COOT_PREFIX/share/coot
 COOT_RESOURCES_FILE=$COOT_PREFIX/share/coot/cootrc
 COOT_REF_STRUCTS=$COOT_PREFIX/share/coot/reference-structures
-COOT_PYTHON_DIR=$COOT_PREFIX/share/coot/python
-#PYTHONPATH=$COOT_PREFIX/share/coot/python
-if [ -z "$PYTHONPATH" ] ; then
-    PYTHONPATH=$COOT_PREFIX/share/coot/python
-else
-    PYTHONPATH=$COOT_PREFIX/share/coot/python:${PYTHONPATH}
-fi
-
 systype=`uname`
 
+# is this still needed?
+#
 if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then 
     PYTHONHOME=$COOT_PREFIX/bin
     # for MinGW we only use Coot's pythonpath otherwise too complicated
@@ -177,8 +171,6 @@ export LC_ALL
 export LC_NUMERIC
 
 
-
-# GUILE_VERSION=1.6
 
 # Reluctantly, I kludge in 1.8 to the GUILE_LOAD_PATH because I don't
 # know why it is failing to be set correctly from Coot's configure in
