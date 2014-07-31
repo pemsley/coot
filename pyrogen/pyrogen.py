@@ -476,8 +476,10 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
 def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir, output_postfix,
 				    quartet_planes, quartet_hydrogen_planes):
 
-   print 'in make_restraints_from_mmcif_dict() comp_id is ', comp_id
-   print 'in make_restraints_from_mmcif_dict() cif_file_name_in is ', cif_file_name_in
+#    print 'in make_restraints_from_mmcif_dict() comp_id is ', comp_id
+#    print 'in make_restraints_from_mmcif_dict() cif_file_name_in is ', cif_file_name_in
+
+   if not test_for_mogul(): return False
 
    if comp_id == "TRY_ALL_COMP_IDS":
       types = pysw.types_from_mmcif_dictionary(cif_file_name_in)
