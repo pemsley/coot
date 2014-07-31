@@ -2002,9 +2002,11 @@ coot::protein_geometry::standard_protein_monomer_files() const {
 }
 
 
+// optional arg: bool try_autoload_if_needed=true
 bool
 coot::protein_geometry::have_dictionary_for_residue_type(const std::string &monomer_type,
-							 int read_number_in) { 
+							 int read_number_in,
+							 bool try_autoload_if_needed) { 
 
    bool ifound = 0;
    int ndict = dict_res_restraints.size();
@@ -2052,7 +2054,8 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    }
 
    if (ifound == 0) {
-      ifound = try_dynamic_add(monomer_type, read_number);
+      if (try_autoload_if_needed)
+	 ifound = try_dynamic_add(monomer_type, read_number);
    }
    return ifound;
 }
@@ -3346,13 +3349,15 @@ coot::protein_geometry::get_group(const std::string &res_name_in) const {
    return group;
 }
 
+// optional arg: bool try_autoload_if_needed=true.
 CResidue *
-coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_flag) {
+coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_flag,
+				    bool try_autoload_if_needed) {
 
    CResidue *residue_p = NULL;
 
-   // force use of try_dynamic_add (if needed).
-   bool r = have_dictionary_for_residue_type(comp_id, 42);
+   // might use try_dynamic_add (if needed).
+   bool r = have_dictionary_for_residue_type(comp_id, 42, try_autoload_if_needed);
 
    bool make_hetatoms = ! coot::util::is_standard_residue_name(comp_id);
 

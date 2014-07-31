@@ -710,10 +710,12 @@ if __name__ == "__main__":
     if options.show_version:
        print 'pyrogen-' + pyrogen_version, "revision", coot_svn_repo_revision.revision_number()
 
-    comp_id = "LIG"
+    comp_id = options.comp_id
     if options.mmcif_file != None:
 	if options.comp_id == 'default':
 	    comp_id = 'TRY_ALL_COMP_IDS'
+
+    print 'here with comp_id', comp_id
 	    
     pdb_out_file_name        = comp_id + '-' + options.output_postfix + '.pdb'
     cif_restraints_file_name = comp_id + '-' + options.output_postfix + '.cif'
@@ -745,9 +747,8 @@ if __name__ == "__main__":
 	    else:
 		if options.mmcif_file != None:
 		    types = pysw.types_from_mmcif_dictionary(options.mmcif_file)
-		    print '----------------- types:', types
+		    print '-- tautomer mode: mmcif file types:', types
 		    for type in types:
-			print 'calling pyrogen_boost.rdkit_mol_chem_comp_pdbx() with ', options.mmcif_file, type
 			mol_local = pyrogen_boost.rdkit_mol_chem_comp_pdbx(options.mmcif_file, type)
 			score_and_print_tautomers(mol_local, type, options.output_postfix, options.drawing)
 
@@ -761,13 +762,14 @@ if __name__ == "__main__":
 						  options.output_postfix,
 						  options.quartet_planes, options.quartet_hydrogen_planes)
 
-	    if options.drawing:
-		# make_picture() by default draws the first conformer in the given molecule.
-		# For mol, that is a 3D conformer.  We want to draw a nice 2D diagram
-		#
-		mol_for_drawing = Chem.RemoveHs(mol, implicitOnly=False)
-		conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
-		make_picture(mol_for_drawing, conf2D_id, comp_id, options.output_postfix)
+	    if mol:
+		if options.drawing:
+		    # make_picture() by default draws the first conformer in the given molecule.
+		    # For mol, that is a 3D conformer.  We want to draw a nice 2D diagram
+		    #
+		    mol_for_drawing = Chem.RemoveHs(mol, implicitOnly=False)
+		    conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
+		    make_picture(mol_for_drawing, conf2D_id, comp_id, options.output_postfix)
 
 	else:
 

@@ -79,8 +79,9 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
    int read_number = 0;
    geom.init_refmac_mon_lib(chem_comp_dict_file_name, read_number);
    bool idealized = false;
-
-   CResidue *r = geom.get_residue(comp_id, idealized);
+   bool try_autoload_if_needed = false;
+   
+   CResidue *r = geom.get_residue(comp_id, idealized, try_autoload_if_needed);
 
    std::pair<bool, dictionary_residue_restraints_t> rest = geom.get_monomer_restraints(comp_id);
    if (rest.first) {
