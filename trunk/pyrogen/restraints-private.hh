@@ -79,5 +79,8 @@ namespace coot {
    std::string convert_to_energy_lib_bond_type(RDKit::Bond::BondType bt);
 
 
+   int assign_chirals_rdkit_tags(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   int assign_chirals_mmcif_tags(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   
 }
 

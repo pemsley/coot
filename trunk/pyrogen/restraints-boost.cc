@@ -23,8 +23,6 @@ namespace coot {
    // a molecule with atoms that do not have positions.
    RDKit::ROMol *rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 					  const std::string &comp_id);
-   
-   // std::vector<RDKit::RWMol *> hydrogen_exchanges(const RDKit::ROMol &r);
    RDKit::ROMol *hydrogen_exchanges(const RDKit::ROMol &r);
 }
 

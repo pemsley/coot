@@ -476,8 +476,11 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
 def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir, output_postfix,
 				    quartet_planes, quartet_hydrogen_planes):
 
+   print 'in make_restraints_from_mmcif_dict() comp_id is ', comp_id
+   print 'in make_restraints_from_mmcif_dict() cif_file_name_in is ', cif_file_name_in
+
    if comp_id == "TRY_ALL_COMP_IDS":
-      types = pysw.types_from_mmcif_dictionary(cif_file_name_in);
+      types = pysw.types_from_mmcif_dictionary(cif_file_name_in)
       for type in types:
          make_restraints_from_mmcif_dict(cif_file_name_in, type, mogul_dir, output_postfix,
 					 quartet_planes, quartet_hydrogen_planes)
@@ -620,6 +623,23 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
 	  
       return sane_H_mol
 
+
+def score_and_print_tautomers(mol, comp_id, output_postfix, do_drawings):
+    results = tautomer.enumerate_tautomers(mol)
+    for i in range(len(results)):
+	m = results[i]
+	s = Chem.MolToSmiles(m)
+	print "comp_id :", comp_id, ": SMILES", s, 'score:', tautomer.tautomer_score(m)
+	if do_drawings:
+	    file_name = comp_id + '-tautomer-' + str(i)
+	    file_name += '-' + options.output_postfix + '.png'
+	    conf = m.GetConformer(0)
+	    if conf.Is3D():
+		mol_for_drawing = Chem.RemoveHs(m, implicitOnly=False)
+		conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
+		make_picture_to_file(mol_for_drawing, conf2D_id, file_name)
+	    else:
+		make_picture_to_file(m, -1, file_name)
    
 
 if __name__ == "__main__":
@@ -702,7 +722,6 @@ if __name__ == "__main__":
     #
     if options.use_mogul == False:
        run_mogul = False
-
     if run_mogul:
        if len(options.mogul_dir) > 0:
           if options.mogul_dir[0] == '-':
@@ -710,57 +729,66 @@ if __name__ == "__main__":
              exit(1)
           checked_mkdir(options.mogul_dir)
 
-       mol = make_restraints_from_mmcif_dict(options.mmcif_file, comp_id, options.mogul_dir,
-					     options.output_postfix,
-					     options.quartet_planes, options.quartet_hydrogen_planes)
-	
-       if options.drawing:
-	    # make_picture() by default draws the first conformer in the given molecule.
-	    # For mol, that is a 3D conformer.  We want to draw a nice 2D diagram
-	    #
-	    mol_for_drawing = Chem.RemoveHs(mol, implicitOnly=False)
-	    conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
-	    make_picture(mol_for_drawing, conf2D_id, comp_id, options.output_postfix)
-	    
+
+
+    if options.show_tautomers:
+	mol = False
+	if len(args) > 0:
+	    smi_raw = args[0]
+	    smiles = smiles_from(smi_raw)
+	    mol = Chem.MolFromSmiles(smiles)
+	else:
+	    if options.sdf_file != None:
+		mol = Chem.MolFromMolFile(options.sdf)
+	    else:
+		if options.mmcif_file != None:
+		    types = pysw.types_from_mmcif_dictionary(options.mmcif_file)
+		    print '----------------- types:', types
+		    for type in types:
+			print 'calling pyrogen_boost.rdkit_mol_chem_comp_pdbx() with ', options.mmcif_file, type
+			mol_local = pyrogen_boost.rdkit_mol_chem_comp_pdbx(options.mmcif_file, type)
+			score_and_print_tautomers(mol_local, type, options.output_postfix, options.drawing)
+
+	if mol:
+	    score_and_print_tautomers(mol, options.drawing, options.comp_id, options.output_postfix)
+
     else:
-	if options.sdf_file != None:
-	   (mol, results) = make_restraints_from_mdl(options.sdf_file, comp_id,
-                                                     options.mogul_dir, file_name_stub,
-                                                     pdb_out_file_name, cif_restraints_file_name,
-                                                     options.quartet_planes,
-                                                     options.quartet_hydrogen_planes)
-	   if options.drawing:
-	       make_picture(mol, -1, comp_id, options.output_postfix)
 
-        else:
+	if options.mmcif_file:
+	    mol = make_restraints_from_mmcif_dict(options.mmcif_file, comp_id, options.mogul_dir,
+						  options.output_postfix,
+						  options.quartet_planes, options.quartet_hydrogen_planes)
 
-	    if options.show_tautomers:
+	    if options.drawing:
+		# make_picture() by default draws the first conformer in the given molecule.
+		# For mol, that is a 3D conformer.  We want to draw a nice 2D diagram
+		#
+		mol_for_drawing = Chem.RemoveHs(mol, implicitOnly=False)
+		conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
+		make_picture(mol_for_drawing, conf2D_id, comp_id, options.output_postfix)
+
+	else:
+
+	    if options.sdf_file != None:
+		(mol, results) = make_restraints_from_mdl(options.sdf_file, comp_id,
+							  options.mogul_dir, file_name_stub,
+							  pdb_out_file_name, cif_restraints_file_name,
+							  options.quartet_planes,
+							  options.quartet_hydrogen_planes)
+		if options.drawing:
+		    make_picture(mol, -1, comp_id, options.output_postfix)
+
+	    else:
+
 		if len(args) > 0:
-                   smi_raw = args[0]
-                   smiles = smiles_from(smi_raw)
-                   mol = Chem.MolFromSmiles(smiles)
-                   results = tautomer.enumerate_tautomers(mol)
-                   for i in range(len(results)):
-                      m = results[i]
-                      s = Chem.MolToSmiles(m),
-                      print s, 'score:', tautomer.tautomer_score(m)
-                      if options.drawing:
-                         file_name = comp_id + '-tautomer-' + str(i)
-                         file_name += '-' + options.output_postfix + '.png'
-                         make_picture_to_file(m, -1, file_name)
-                else:
-                   print 'Need to provide SMILES molecule in tautomer mode'
-
-	    else: 
-		if len(args) > 0:
-		   smi_raw = args[0]
-                   smiles = smiles_from(smi_raw)
-		   status = make_restraints_from_smiles(smiles, comp_id, options.compound_name,
-                                                        options.mogul_dir, file_name_stub,
-                                                        pdb_out_file_name,
-                                                        cif_restraints_file_name,
-                                                        options.quartet_planes,
-                                                        options.quartet_hydrogen_planes)
-                   if options.drawing:
-                      mol = Chem.MolFromSmiles(smiles)
-                      make_picture(mol, -1, comp_id, options.output_postfix)
+		    smi_raw = args[0]
+		    smiles = smiles_from(smi_raw)
+		    status = make_restraints_from_smiles(smiles, comp_id, options.compound_name,
+							 options.mogul_dir, file_name_stub,
+							 pdb_out_file_name,
+							 cif_restraints_file_name,
+							 options.quartet_planes,
+							 options.quartet_hydrogen_planes)
+		    if options.drawing:
+			mol = Chem.MolFromSmiles(smiles)
+			make_picture(mol, -1, comp_id, options.output_postfix)

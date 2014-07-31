@@ -1183,10 +1183,57 @@ coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_resid
    }
 }
 
-
 // alter restraints.
 int 
 coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+
+   int n_chirals = assign_chirals_mmcif_tags(mol, restraints);
+   if (! n_chirals) {
+      n_chirals = assign_chirals_rdkit_tags(mol, restraints);
+   }
+   return n_chirals;
+}
+
+// alter restraints.
+int 
+coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+
+   int n_chirals = 0;
+
+   unsigned int n_atoms = mol.getNumAtoms();
+   for (unsigned int iat=0; iat<n_atoms; iat++) { 
+      RDKit::ATOM_SPTR at_p = mol[iat];
+      try {
+	 std::string ch;
+	 std::string chiral_centre, n1, n2, n3;
+	 at_p->getProp("name", chiral_centre);
+	 at_p->getProp("mmcif_chiral_type", ch);
+	 at_p->getProp("mmcif_chiral_N1", n1);
+	 at_p->getProp("mmcif_chiral_N2", n2);
+	 at_p->getProp("mmcif_chiral_N3", n3);
+	 int cv = dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED;
+	 if (ch == "positive")
+	    cv = dict_chiral_restraint_t::CHIRAL_RESTRAINT_POSITIVE;
+	 if (ch == "negative")
+	    cv = dict_chiral_restraint_t::CHIRAL_RESTRAINT_NEGATIVE;
+	 if (ch == "negative")
+	    cv = dict_chiral_restraint_t::CHIRAL_RESTRAINT_BOTH;
+	 
+	 std::string chiral_id = "chiral_" + util::int_to_string(n_chirals+1);
+	 dict_chiral_restraint_t cr(chiral_id, chiral_centre, n1, n2, n3, cv);
+	 n_chirals++;
+      }
+      catch (const KeyErrorException &kee) {
+	 // it's OK for this to happen.  Most atoms are not chiral.
+	 // Most input molecules are not from mmcif files.
+      }
+   }
+   return n_chirals;
+}
+ 
+// alter restraints.
+int 
+coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
    
    int vol_sign = coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED;
 
@@ -1251,12 +1298,12 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 	       }
 
 	       std::string chiral_id = "chiral_" + util::int_to_string(n_chirals+1);
-	       // Neighbour[1] is the hydrogen.  I should test that is the case before continuing.
+	       // Neighbour[1] is the hydrogen, we presume. 
 	       if (!chiral_centre.empty() &&
 		   !neighbours[0].second.empty() &&
 		   !neighbours[2].second.empty() &&
 		   !neighbours[3].second.empty()) {
-		  if (mol[neighbours[1].first]->getAtomicNum() == 1) {
+		  if (1) {
 		     coot::dict_chiral_restraint_t chiral(chiral_id,
 							  chiral_centre,
 							  neighbours[0].second,
@@ -1264,41 +1311,9 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 							  neighbours[3].second, vol_sign);
 		     restraints->chiral_restraint.push_back(chiral);
 		     n_chirals++;
-		  
-		  } else {
-
-		     // maybe the hydrogen is in last place - which
-		     // means that the chiral sign gets inverted.
-		     // This is a dicey hack.
-		     //
-		     if (mol[neighbours[3].first]->getAtomicNum() == 1) {
-			coot::dict_chiral_restraint_t chiral(chiral_id,
-							     chiral_centre,
-							     neighbours[0].second,
-							     neighbours[1].second,
-							     neighbours[2].second, -vol_sign);
-			restraints->chiral_restraint.push_back(chiral);
-			n_chirals++;
-			
-		     } else {
-		  
-			std::cout << "Chiral problem:: neighbour[1] or [3] was not a hydrogen"
-				  << std::endl;
-			std::cout << "       chiral centre atom idx " << iat << " name "
-				  << chiral_centre << ": neighbs " ;
-			for (unsigned int in=0; in<neighbours.size(); in++) {
-			   std::string name;
-			   mol[neighbours[in].first]->getProp("name", name);
-			   std::cout << name << " ";
-			}
-			std::cout << "indices: ";
-			for (unsigned int in=0; in<neighbours.size(); in++)
-			   std::cout << " " << neighbours[in].first;
-			std::cout << std::endl;
-			// debug_rdkit_molecule(&mol);
-		     }
 		  }
-	       } 
+	       }
+
 	    } else {
 	       std::cout << "oops - found " << neighbours.size() << " neighbours" << std::endl;
 	    } 
