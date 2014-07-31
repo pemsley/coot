@@ -32,7 +32,7 @@
 
 #endif
 
-pkgpython_SCRIPTS = \
+dist_pkgpython_SCRIPTS = \
                         coot_utils.py        get_ebi.py      mutate.py        \
    background_demo.py   hello.py             raster3d.py                      \
    brute_lsqman.py                                           refmac.py        \
