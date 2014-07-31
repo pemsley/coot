@@ -2087,7 +2087,8 @@ namespace coot {
       // this function is no longer const because it can run try_dynamic_add
       //
       bool have_dictionary_for_residue_type(const std::string &monomer_type,
-					    int read_number);
+					    int read_number,
+					    bool try_autoload_if_needed=true);
 
       // this is const because there is no dynamic add.
       //
@@ -2167,7 +2168,8 @@ namespace coot {
       // residue.  Something to do with atom indexing on checking
       // in...?
       // 
-      CResidue *get_residue(const std::string &comp_id, bool idealised_flag);
+      CResidue *get_residue(const std::string &comp_id, bool idealised_flag,
+			    bool try_autoload_if_needed=true);
 
       // Thow a std::runtime_error exception if we can't get the group of r
       std::string get_group(CResidue *r) const;

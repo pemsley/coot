@@ -3,6 +3,20 @@
 
 ---- 
 
+   o give me a function:
+
+     distance_pairs(imol, chain_id_1, chain_id_2, bin_width)
+
+      or maybe use atom selction in the general case
+
+    which returns a histogram of the distances.
+
+    bin_width is typically 1A.   
+
+   give me an interface so that I can mmake a graph of this - and
+   compare it to my own data.
+                              - Thomas Grant
+
    o readlink -f on Mac: Marcin message
 
    o Fix: 
@@ -10,7 +24,9 @@
      Running python commands from the command line
 
    o Fix:
-     coords/mmdb-extras.h:112: warning: comparison between signed and unsigned integer expressions
+ 
+    coords/mmdb-extras.h:112: warning: comparison between signed and
+    unsigned integer expressions
 
    o remove graphics_info_t from molecule_class_info_t::update_symmetry().
 
