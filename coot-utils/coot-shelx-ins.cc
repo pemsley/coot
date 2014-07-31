@@ -186,21 +186,55 @@ coot::ShelxIns::read_file(const std::string &filename) {
 				 } else {
 				    if (card.words[1] == "4") {
 				       altconf = "D";
-				    } else { 
-				       // negative PARTS: shelxl
-				       // generation of special position
-				       // constraints suppressed.
-				       if (card.words[1] == "-1") {
-					  altconf = "a";
-				       } else { 
-					  if (card.words[1] == "-2") {
-					     altconf = "b";
-					  } else { 
-					     if (card.words[1] == "-3") {
-						altconf = "c";
+				    } else {
+				       if (card.words[1] == "5") {
+					  altconf = "E";
+				       } else {
+					  if (card.words[1] == "6") {
+					     altconf = "F";
+					  } else {
+					     if (card.words[1] == "7") {
+						altconf = "G";
 					     } else {
-						if (card.words[1] == "-4") {
-						   altconf = "d";
+						if (card.words[1] == "8") {
+						   altconf = "H";
+						} else {
+						   
+						   // negative PARTS: shelxl
+						   // generation of special position
+						   // constraints suppressed.
+						   
+						   if (card.words[1] == "-1") {
+						      altconf = "a";
+						   } else { 
+						      if (card.words[1] == "-2") {
+							 altconf = "b";
+						      } else { 
+							 if (card.words[1] == "-3") {
+							    altconf = "c";
+							 } else {
+							    if (card.words[1] == "-4") {
+							       altconf = "d";
+							    } else {
+							       if (card.words[1] == "-5") {
+								  altconf = "e";
+							       } else {
+								  if (card.words[1] == "-6") {
+								     altconf = "f";
+								  } else {
+								     if (card.words[1] == "-7") {
+									altconf = "g";
+								     } else {
+									if (card.words[1] == "-8") {
+									   altconf = "h";
+									}
+								     }
+								  }
+							       }
+							    }
+							 }
+						      }
+						   }
 						}
 					     }
 					  }
@@ -1410,10 +1444,30 @@ coot::ShelxIns::altloc_to_part_no(const std::string &altloc) const {
       return 3;
    if (altloc == "D")
       return 4;
+   if (altloc == "E")
+      return 5;
+   if (altloc == "F")
+      return 6;
+   if (altloc == "G")
+      return 7;
+   if (altloc == "H")
+      return 8;
    if (altloc == "a")
       return -1;
    if (altloc == "b")
       return -2;
+   if (altloc == "c")
+      return -3;
+   if (altloc == "d")
+      return -4;
+   if (altloc == "e")
+      return -5;
+   if (altloc == "f")
+      return -6;
+   if (altloc == "g")
+      return -7;
+   if (altloc == "h")
+      return -8;
    return ipart;
 
 }
