@@ -321,7 +321,9 @@
     ;; return last char of string:
     (define (last-char s)
       (let ((l (string-length s)))
-	(substring s (- l 1) l)))
+	(if (= l 0)
+	    ""
+	    (substring s (- l 1) l))))
 
     ;; return a  chain resno inscode atom-name altconf list
     ;; 
