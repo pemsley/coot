@@ -627,6 +627,7 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
 
 
 def score_and_print_tautomers(mol, comp_id, output_postfix, do_drawings):
+
     results = tautomer.enumerate_tautomers(mol)
     for i in range(len(results)):
 	m = results[i]
@@ -635,7 +636,11 @@ def score_and_print_tautomers(mol, comp_id, output_postfix, do_drawings):
 	if do_drawings:
 	    file_name = comp_id + '-tautomer-' + str(i)
 	    file_name += '-' + options.output_postfix + '.png'
-	    conf = m.GetConformer(0)
+	    n = m.GetNumConformers()
+	    conf_id = 0
+	    if n == 0:
+		conf_id = AllChem.Compute2DCoords(m)
+	    conf = m.GetConformer(conf_id)
 	    if conf.Is3D():
 		mol_for_drawing = Chem.RemoveHs(m, implicitOnly=False)
 		conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
@@ -715,8 +720,6 @@ if __name__ == "__main__":
 	if options.comp_id == 'default':
 	    comp_id = 'TRY_ALL_COMP_IDS'
 
-    print 'here with comp_id', comp_id
-	    
     pdb_out_file_name        = comp_id + '-' + options.output_postfix + '.pdb'
     cif_restraints_file_name = comp_id + '-' + options.output_postfix + '.cif'
     file_name_stub           = comp_id + '-' + options.output_postfix
@@ -753,7 +756,7 @@ if __name__ == "__main__":
 			score_and_print_tautomers(mol_local, type, options.output_postfix, options.drawing)
 
 	if mol:
-	    score_and_print_tautomers(mol, options.drawing, options.comp_id, options.output_postfix)
+	    score_and_print_tautomers(mol, options.comp_id, options.output_postfix, options.drawing)
 
     else:
 
