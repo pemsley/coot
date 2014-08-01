@@ -1196,7 +1196,8 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
 
 // alter restraints.
 int 
-coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol,
+				coot::dictionary_residue_restraints_t *restraints) {
 
    int n_chirals = 0;
 
@@ -1207,7 +1208,7 @@ coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol, coot::dictionary_residu
 	 std::string ch;
 	 std::string chiral_centre, n1, n2, n3;
 	 at_p->getProp("name", chiral_centre);
-	 at_p->getProp("mmcif_chiral_type", ch);
+	 at_p->getProp("mmcif_chiral_volume_sign", ch);
 	 at_p->getProp("mmcif_chiral_N1", n1);
 	 at_p->getProp("mmcif_chiral_N2", n2);
 	 at_p->getProp("mmcif_chiral_N3", n3);
@@ -1216,14 +1217,16 @@ coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol, coot::dictionary_residu
 	    cv = dict_chiral_restraint_t::CHIRAL_RESTRAINT_POSITIVE;
 	 if (ch == "negative")
 	    cv = dict_chiral_restraint_t::CHIRAL_RESTRAINT_NEGATIVE;
-	 if (ch == "negative")
+	 if (ch == "both")
 	    cv = dict_chiral_restraint_t::CHIRAL_RESTRAINT_BOTH;
 	 
 	 std::string chiral_id = "chiral_" + util::int_to_string(n_chirals+1);
 	 dict_chiral_restraint_t cr(chiral_id, chiral_centre, n1, n2, n3, cv);
+	 restraints->chiral_restraint.push_back(cr);
 	 n_chirals++;
       }
       catch (const KeyErrorException &kee) {
+	 // std::cout << "oops catch exception " << kee.what() << std::endl;
 	 // it's OK for this to happen.  Most atoms are not chiral.
 	 // Most input molecules are not from mmcif files.
       }
@@ -1233,7 +1236,8 @@ coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol, coot::dictionary_residu
  
 // alter restraints.
 int 
-coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
+				coot::dictionary_residue_restraints_t *restraints) {
    
    int vol_sign = coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED;
 

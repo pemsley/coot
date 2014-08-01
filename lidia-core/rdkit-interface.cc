@@ -218,11 +218,12 @@ coot::rdkit_mol(CResidue *residue_p,
 			std::string bc("positive");
 			if (cr.volume_sign == dict_chiral_restraint_t::CHIRAL_RESTRAINT_NEGATIVE)
 			   bc = "negative";
-			rdkit_at->setProp("mmcif_chiral_type", bc);
+
+			rdkit_at->setProp("mmcif_chiral_volume_sign", bc);
 
 		     } else {
 			std::string bc("both");
-			rdkit_at->setProp("mmcif_chiral_type", bc);
+			rdkit_at->setProp("mmcif_chiral_volume_sign", bc);
 		     } 
 		  }
 	       } 

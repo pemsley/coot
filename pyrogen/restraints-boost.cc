@@ -93,8 +93,29 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	 //           valence error).
 	 bool sanitize = true;
 	 RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", sanitize);
-	 RDKit::MolOps::assignStereochemistry(mol_rw);;
+
+	 RDKit::MolOps::assignStereochemistry(mol_rw);
 	 RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
+
+	 // Here test that the propety mmcif_chiral_volume_sign has
+	 // been set on atoms of mol_rw and m
+	 //
+	 if (0) { 
+	    for (unsigned int iat=0; iat<m->getNumAtoms(); iat++) { 
+	       RDKit::ATOM_SPTR at_p = (*m)[iat];
+	       try {
+		  std::string name;
+		  std::string cv;
+		  at_p->getProp("name", name);
+		  at_p->getProp("mmcif_chiral_volume_sign", cv);
+		  std::cout << "m: name " << name << " " << cv << std::endl;
+	       }
+	       catch (const KeyErrorException &err) {
+		  std::cout << "m: no name or cv " << std::endl;
+	       }
+	    }
+	 }
+
 
 	 // debug.  OK, so the bond orders are undelocalized here.
 	 // debug_rdkit_molecule(&mol_rw);
