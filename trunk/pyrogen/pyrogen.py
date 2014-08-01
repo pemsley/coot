@@ -441,7 +441,8 @@ def make_picture_to_file(mol, conf_id, output_file_name):
    try:
       from rdkit.Chem import Draw
       import Image
-      Draw.MolToFile(mol, size=(300,300), fileName=output_file_name, confId=conf_id)
+      state = Draw.MolToFile(mol, size=(300,300), fileName=output_file_name, confId=conf_id)
+      # print 'INFO:: wrote PNG   "' + output_file_name + '"'
 
       # img = Draw.MolToImage(mol, fitImage=True, size=(900,900))
       # img2 = img.resize((300, 300), Image.ANTIALIAS)
@@ -472,20 +473,52 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
 			     quartet_planes, quartet_hydrogen_planes)
 
 
-# return mol - mol gets used to make a depiction.
+# return a list of (mol, comp_id) pairs for every ligand in the cif
+# file.  Often only one of course.
+#
 def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir, output_postfix,
 				    quartet_planes, quartet_hydrogen_planes):
 
-#    print 'in make_restraints_from_mmcif_dict() comp_id is ', comp_id
-#    print 'in make_restraints_from_mmcif_dict() cif_file_name_in is ', cif_file_name_in
-
-   if not test_for_mogul(): return False
+   if not test_for_mogul():
+       return [(None, None)]
 
    if comp_id == "TRY_ALL_COMP_IDS":
       types = pysw.types_from_mmcif_dictionary(cif_file_name_in)
+      l = []
       for type in types:
-         make_restraints_from_mmcif_dict(cif_file_name_in, type, mogul_dir, output_postfix,
-					 quartet_planes, quartet_hydrogen_planes)
+	    t_mol = make_restraints_from_mmcif_dict_single(cif_file_name_in, type, mogul_dir,
+							   output_postfix,
+							   quartet_planes,
+							   quartet_hydrogen_planes)
+	    l.append((t_mol, type))
+      return l
+   else:
+       # just the one
+       m = make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir, output_postfix,
+						  quartet_planes, quartet_hydrogen_planes)
+       return [(m, comp_id)]
+
+# return a mol, given a sensible comp_id.
+#
+# Return None on failure
+#
+def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir, output_postfix,
+					   quartet_planes, quartet_hydrogen_planes):
+
+   # print 'in make_restraints_from_mmcif_dict() comp_id is ', comp_id
+   # print 'in make_restraints_from_mmcif_dict() cif_file_name_in is ', cif_file_name_in
+
+   if not test_for_mogul():
+       return [(None, None)]
+
+   if comp_id == "TRY_ALL_COMP_IDS":
+      types = pysw.types_from_mmcif_dictionary(cif_file_name_in)
+      l = []
+      for type in types:
+	    t_mol = make_restraints_from_mmcif_dict(cif_file_name_in, type, mogul_dir, output_postfix,
+						    quartet_planes, quartet_hydrogen_planes)
+	    l.append((t_mol, type))
+      return l
    else:
       file_name_stub           = comp_id + '-' + output_postfix 
       pdb_out_file_name        = file_name_stub + '.pdb'
@@ -518,6 +551,8 @@ def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir, output
 	  return make_restraints(m, comp_id, mogul_dir, file_name_stub,
 				 pdb_out_file_name, cif_restraints_file_name,
 				 quartet_planes, quartet_hydrogen_planes)
+
+      
 
 
 def n_hydrogens(mol):
@@ -716,6 +751,8 @@ if __name__ == "__main__":
        print 'pyrogen-' + pyrogen_version, "revision", coot_svn_repo_revision.revision_number()
 
     comp_id = options.comp_id
+    if options.comp_id == 'default':
+	comp_id = 'LIG'
     if options.mmcif_file != None:
 	if options.comp_id == 'default':
 	    comp_id = 'TRY_ALL_COMP_IDS'
@@ -737,7 +774,6 @@ if __name__ == "__main__":
           checked_mkdir(options.mogul_dir)
 
 
-
     if options.show_tautomers:
 	mol = False
 	if len(args) > 0:
@@ -756,23 +792,32 @@ if __name__ == "__main__":
 			score_and_print_tautomers(mol_local, type, options.output_postfix, options.drawing)
 
 	if mol:
-	    score_and_print_tautomers(mol, options.comp_id, options.output_postfix, options.drawing)
+	    score_and_print_tautomers(mol, comp_id, options.output_postfix, options.drawing)
 
     else:
 
 	if options.mmcif_file:
-	    mol = make_restraints_from_mmcif_dict(options.mmcif_file, comp_id, options.mogul_dir,
-						  options.output_postfix,
-						  options.quartet_planes, options.quartet_hydrogen_planes)
+	    mol_pairs = make_restraints_from_mmcif_dict(options.mmcif_file, comp_id, options.mogul_dir,
+							options.output_postfix,
+							options.quartet_planes,
+							options.quartet_hydrogen_planes)
 
-	    if mol:
-		if options.drawing:
-		    # make_picture() by default draws the first conformer in the given molecule.
-		    # For mol, that is a 3D conformer.  We want to draw a nice 2D diagram
-		    #
-		    mol_for_drawing = Chem.RemoveHs(mol, implicitOnly=False)
-		    conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
-		    make_picture(mol_for_drawing, conf2D_id, comp_id, options.output_postfix)
+	    # this needs to be in a try block, I suppose, for example if the mmcif file
+	    # does not exist.
+	    
+	    for mol_info in mol_pairs:
+		(mol, comp_id) = mol_info
+		if not mol:
+		    print 'No molecule'
+		else:
+		    # Happy path
+		    if options.drawing:
+			# make_picture() by default draws the first conformer in the given molecule.
+			# For mol, that is a 3D conformer.  We want to draw a nice 2D diagram
+			#
+			mol_for_drawing = Chem.RemoveHs(mol, implicitOnly=False)
+			conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
+			make_picture(mol_for_drawing, conf2D_id, comp_id, options.output_postfix)
 
 	else:
 
