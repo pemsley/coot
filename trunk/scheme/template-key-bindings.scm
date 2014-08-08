@@ -108,6 +108,7 @@
 
 (add-key-binding "accept baton position" "A" accept-baton-position)
 
+(add-key-binding "Cootilus here" "N" (lambda () (find-nucleic-acids-local 6.0)))
 
 ;; not sure about this one :-)
 ;; (add-key-binding "Delete this water" "D" (lambda () (apply delete-atom (active-residue))))

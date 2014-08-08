@@ -4106,6 +4106,24 @@ on_model_refine_dialog_fast_sss_button_clicked
                                         gpointer         user_data);
 
 void
+on_other_tools_build_na_button_clicked (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_build_na_dialog_radius_entry_activate
+                                        (GtkEntry        *entry,
+                                        gpointer         user_data);
+
+void
+on_build_na_dialog_cancelbutton_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_build_na_dialog_okbutton_clicked    (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
 on_fast_sss_dialog_citation_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);

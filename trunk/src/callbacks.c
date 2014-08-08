@@ -11485,6 +11485,68 @@ on_model_refine_dialog_fast_sss_button_clicked
 }
 
 
+void
+on_other_tools_build_na_button_clicked (GtkButton       *button,
+                                        gpointer         user_data)
+{
+   GtkWidget *w;
+   w = create_build_na_dialog();
+   gtk_widget_show(w);
+}
+
+
+void
+on_build_na_dialog_cancelbutton_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+   GtkWidget *w;
+   w = lookup_widget(GTK_WIDGET(button), "build_na_dialog");
+   gtk_widget_destroy(w);
+
+}
+
+
+void
+on_build_na_dialog_okbutton_clicked    (GtkButton       *button,
+                                        gpointer         user_data)
+{
+   GtkWidget *w;
+   GtkEntry *entry;
+   const char *text;
+   float r;
+   w = lookup_widget(GTK_WIDGET(button), "build_na_dialog");
+   entry = (GTK_ENTRY(lookup_widget(GTK_WIDGET(button), 
+                                    "build_na_dialog_radius_entry")));
+   text = gtk_entry_get_text(entry);
+   r = atof(text);
+   find_nucleic_acids_local(r);
+   gtk_widget_destroy(w);
+
+}
+
+
+void
+on_build_na_dialog_radius_entry_activate
+                                        (GtkEntry        *entry,
+                                        gpointer         user_data)
+{
+   /* BL note:: this is almost a repetetion of 
+      on_build_na_dialog_okbutton_clicked
+      we could/should have a function for this?!
+    */
+   GtkWidget *w;
+   const char *text;
+   float r;
+   w = lookup_widget(GTK_WIDGET(entry), "build_na_dialog");
+   text = gtk_entry_get_text(entry);
+   r = atof(text);
+   find_nucleic_acids_local(r);
+   gtk_widget_destroy(w);
+
+}
+
+
 #if (GTK_MAJOR_VERSION >1)
 void
 on_coot_references_coot_toolbutton_clicked
