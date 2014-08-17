@@ -348,7 +348,8 @@
 # 5.13 20130910 Force -O usage for guile compilation.
 # 5.14 20130920 Publish logs.
 # 5.15 20140408 New version of Python.
-script_version=5.15
+# 51.6 20140817 Python version to 2.7.8
+script_version=5.16
 
 
 
@@ -1927,7 +1928,7 @@ fi #  ENABLE_GUILE_COOT
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7.6
+pver=2.7.8
 
 if [ $ENABLE_PYTHON_COOT = yes ] ; then 
    $install_top_dir/bin/python -V
