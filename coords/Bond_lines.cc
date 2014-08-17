@@ -312,8 +312,9 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 		  bool bond_het_residue_by_dictionary =
 		     add_bond_by_dictionary_maybe(atom_p_1, atom_p_2, &het_residues); // add to het_residues maybe
 
-		  // std::cout << "bond_het_residue_by_dictionary returns " << bond_het_residue_by_dictionary
-		  // << std::endl;
+		  if (0)
+		     std::cout << atom_p_1 <<  " " << atom_p_2 << " bonded by dictionary: "
+			       << bond_het_residue_by_dictionary << std::endl;
 		  
 		  if (bond_het_residue_by_dictionary) {
 		     
@@ -476,9 +477,10 @@ Bond_lines_container::add_bond_by_dictionary_maybe(CAtom *atom_p_1,
 				 
 		  if (it_2 == het_residues->end()) {
 		     
-		     // if (geom->have_dictionary_for_residue_type_no_dynamic_add(atom_p_1->residue->GetResName())) {
 		     if (geom->have_at_least_minimal_dictionary_for_residue_type(atom_p_1->residue->GetResName())) {
+
 			if (geom->atoms_match_dictionary(atom_p_1->residue, true, true).first) {
+
 			   het_residues->push_back(tp1);
 			   bond_het_residue_by_dictionary = true;
 			} else {
@@ -1486,7 +1488,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 		     } else {
 			std::string ele = non_Hydrogen_atoms[i]->element;
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
-			    || ele == "Cl" || ele == "Br" 
+			    || ele == "Cl" || ele == "Br"  || ele == "MO"
 			    || ele == "PT" || ele == "RU" 
 			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG"
 			    || ele == "PD" || ele == "PB" || ele == "AG") {
@@ -1657,6 +1659,8 @@ Bond_lines_container::handle_long_bonded_atom(PCAtom atom,
       bond_limit = 2.4;
    if (element == "HG")
       bond_limit = 2.4;
+   if (element == "MO")
+      bond_limit = 2.3; // Oxygen to Molybdenum, guess from 8M0
    if (element == " I")
       bond_limit = 2.3; // C-I is 2.13 according to wikipedia
    float  bl2 = bond_limit * bond_limit;
@@ -4215,14 +4219,13 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 		  CResidue *atom_residue_p = atom_selection[i]->residue;
 		  if (atom_residue_p) {
 		     std::string resname = atom_selection[i]->GetResName();
-		     if (1 &&
-			 (resname == "MSE" || resname == "MET" || resname == "MSO"
-			  || resname == "CYS" )) {
+		     if (resname == "MSE" || resname == "MET"
+			 || resname == "MSO" || resname == "CYS") {
 			handle_MET_or_MSE_case(atom_selection[i], uddHnd, col);
 		     } else {
 			std::string ele = atom_selection[i]->element;
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
-			    || ele == "Cl" || ele == "Br" 
+			    || ele == "Cl" || ele == "Br" || ele == "MO"
 			    || ele == "PT" || ele == "RU" 
 			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG"
 			    || ele == "PD" || ele == "PB" || ele == "AG") {
@@ -4520,7 +4523,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 		     } else {
 			std::string ele = atom_selection[i]->element;
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
-			    || ele == "Cl" || ele == "Br" 
+			    || ele == "Cl" || ele == "Br"  || ele == "MO"
 			    || ele == "PT" || ele == "RU" 
 			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG"
 			    || ele == "PD" || ele == "PB" || ele == "AG") {
