@@ -1418,37 +1418,37 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
       // perhaps it was in the dictionary as "value_order"?
       if (ierr) {
 	 s = mmCIFLoop->GetString("value_order", j, ierr);
-	 if (! ierr) {
-	    if (s) { // just in case (should not be needed).
-	       std::string ss(s);
-	       // convert from Chemical Component Dictionary value_order to
-	       // refmac monomer library chem_comp_bond types - 
-	       // or FeiDrg output.
-	       if (ss == "SING")
-		  type = "single";
-	       if (ss == "DOUB")
-		  type = "double";
-	       if (ss == "TRIP")
-		  type = "triple";
-	       if (ss == "TRIPLE")
-		  type = "triple";
+      }
+      if (! ierr) {
+	 if (s) { // just in case (should not be needed).
+	    std::string ss(s);
+	    // convert from Chemical Component Dictionary value_order to
+	    // refmac monomer library chem_comp_bond types - 
+	    // or FeiDrg output.
+	    if (ss == "SING")
+	       type = "single";
+	    if (ss == "DOUB")
+	       type = "double";
+	    if (ss == "TRIP")
+	       type = "triple";
+	    if (ss == "TRIPLE")
+	       type = "triple";
 
-	       if (ss == "SINGLE")
-		  type = "single";
-	       if (ss == "DOUBLE")
-		  type = "double";
-	       if (ss == "DELOC")
-		  type = "deloc";
+	    if (ss == "SINGLE")
+	       type = "single";
+	    if (ss == "DOUBLE")
+	       type = "double";
+	    if (ss == "DELOC")
+	       type = "deloc";
 	       
-	       // Chemical Chemical Dictionary also has an aromatic flag, so
-	       // we can have bonds that are (for example) "double"
-	       // "aromatic" Hmm!  Food for thought.
+	    // Chemical Chemical Dictionary also has an aromatic flag, so
+	    // we can have bonds that are (for example) "double"
+	    // "aromatic" Hmm!  Food for thought.
 	       
-	       // Metal bonds are "SING" (i.e. CCD doesn't have metal
-	       // bonds).
-	    }
-	 } 
-      } 
+	    // Metal bonds are "SING" (i.e. CCD doesn't have metal
+	    // bonds).
+	 }
+      }
       ierr_tot += ierr;
       ierr_tot_for_ccd += ierr;
 
@@ -1459,6 +1459,7 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
       ierr_tot += ierr;
 
       if (ierr_tot == 0) {
+
 	 mon_lib_add_bond(comp_id, atom_id_1, atom_id_2,
 			  type, value_dist, value_dist_esd); 
 	 nbond++;
