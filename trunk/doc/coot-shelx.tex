@@ -11,7 +11,7 @@
 
 \begin{document}
 
-\title{Coot for SHELXL Tutorial}
+\title{``Coot for SHELXL'' Tutorial}
 \author{Paul Emsley \& Judit \'{E} Debreczeni}
 
 \maketitle
@@ -20,21 +20,19 @@
 \pagebreak
 \section{Introduction}
 
-This is an extended description of the presentation of Coot at the ACA
-meeting in Salt Lake City, 2007.
+This is an extended description of the presentations of Coot at the ACA
+meeting in Salt Lake City, 2007 and 2014 IUCr meeting in Montreal.
 
 It should also serve as a tutorial for Coot specific for use with
 SHELXL. As such, it is intended for those already familiar with the
 basics of SHELXL refinement\footnote{If this is not the case you might
-  want to give these a good
-  read:\\http://shelx.uni-ac.gwdg.de/SHELX/shelx.pdf and
+  want to read the
+  following:\\http://shelx.uni-ac.gwdg.de/SHELX/shelx.pdf and
   http://shelx.uni-ac.gwdg.de/SHELX/pn1a.htm}, and would like to use
 Coot as a model building and validation tool between SHELXL refinement
 cycles. This is, however, no substitute for the standard Coot
-tutorial\footnote{http://www.ysbl.york.ac.uk/$\sim$emsley/coot/tutorial-2.pdf}.
+tutorial\footnote{http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/tutorials/tutorial.pdf}.
 
-Some of the SHELXL-related functionalities of Coot will only work in
-version 0.4 or higher.
 
 \section{A SHELXL Project}
 Refinement in SHELXL requires two files:
@@ -56,7 +54,8 @@ and will produce the following:
   parameters,
 \item {\bf \texttt{pdb}} -- pdb style coordinate output if WPDB card was given.
 \end{itemize}
-All extensions are appended to a common root, e.g. \texttt{\emph{my-project}.ins,\\\emph{my-project}.fcf} etc.
+All extensions are appended to a common root, e.g.
+\texttt{\emph{my-project}.ins,\\\emph{my-project}.fcf} etc.
 
 \subsection{Reading and writing SHELX coordinate files}
 Coordinate files in SHELX format (\texttt{ins} and \texttt{res}) are
@@ -121,11 +120,6 @@ However, not all SHELX commands are interpreted.
   also accessible through the SHELX menu (after running the
   script\linebreak[4]\texttt{shelx-extension.scm}).
 
-  %% I found that button a bit dull, so took the liberty and made a
-  %% chooser-entry thingy for this in the shelx-extensions -- much
-  %% more useful, isn't it?  Do I need to say anything about the
-  %% reshelx process?
-
 \end{itemize}
 
 To make SHELXL coordinate formats filterable in the file selection
@@ -135,11 +129,9 @@ included in the\linebreak[4]\texttt{.coot} file.
 
 \subsection{Reading \texttt{fcf} files}
 
-Coot can open \texttt{fcf} files and calculate electron density maps
-on the fly. More precisely, it converts \texttt{fcf} into mmCIF
-format, loads that and calculates\linebreak[4]$\sigma$-A-weighted
-electron density and difference maps. The new mmCIF is saved
-as\linebreak[4]\texttt{\emph{my-project}.fcf.cif}.
+Coot can open \texttt{fcf} files and calculate
+calculates\linebreak[4]$\sigma$-A-weighted electron density and
+difference maps.
 
 \subsection{Reading \texttt{lst} files}
 % needs chain unsplitting. -- Urgh? Don't get it.
@@ -157,7 +149,7 @@ alternatively, \texttt{shelx-extensions.scm} provides a GUI option:
 \subsection{Opening SHELXL projects} 
 
 % Yet another undocumented thing.
-Due to SHELXL's conservative file naming convention, it is
+As a consequence of SHELXL's file naming convention, it is
 straight-forward to open all relevant files of a project
 (\texttt{res}, \texttt{fcf} and \texttt{lst}) in one go. This can be
 done using \texttt{(read-shelx-project \emph{file-name})} where
@@ -231,7 +223,7 @@ electron density map and maybe fix problematic parts of the structure.
   with negative density on the hydrogen atoms and positive between
   them) by middle-clicking on it (Figure \ref{fig:hydrogen-badness}).
 
-"Yuck! Hydrogens in wrong place!" --- you might say.
+"Hydrogens in wrong place!" --- you might say.
 
 \item Indeed, these hydrogens are incorrectly set: they are exactly 60
   degrees off. Let's get rid of them. Select
@@ -294,7 +286,7 @@ and click the \textsf{Display} button next to \textsf{03srv.fcf.cif Difference S
 \end{figure}
 
 SHELXL has set the hydrogens correctly and we see no difference
-density around C2BA. Well done.
+density around \texttt{C2BA}. Well done.
 
 \item Can you fix any other hydrogens? (Sure you can. C9AA has similar
   issues, for instance.) This will be your homework.
