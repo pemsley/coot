@@ -2170,6 +2170,9 @@ public:
 		       std::string altconf, // use this altconf or "" atoms.
 		       std::string chain_id_1);
 
+   // no refinement, simple copy, can return -1 for a problem.
+   int copy_model_molecule(int imol);
+
    bool check_for_no_restraints_object(std::string &resname_1, std::string &resname_2) const;
    bool check_for_single_hetatom(CResidue *res_p) const;
 
@@ -3638,6 +3641,8 @@ public:
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec(int imol);
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec_internal(int imol);
+   // this can return -1 if there is no active atom molecule.
+   int copy_active_atom_molecule();
 
    // ---- open url
    // Hmm.. do we need a vector here?

@@ -7130,5 +7130,41 @@ Fri Jul 25 13:56:46 BST 2014
   Store the bond order as an enum, not a string.  That makes
   convert_bond_type() conversion to rdkit type easier.
 
+
+----
+ 3b75
+
+ hba1c - or something like that.
+
+----
+IUCr Note
+
+   o Sameer: java to javascript compiler - used to make javascript astexviewer
+
+
+----
+IUCr Note: 
+
+   Put the mogul/refmac colour annotations over the lbg representation
+   of the figure.  Make it interactive.
+
+
+----
+Tue Aug 12 14:32:32 EDT 2014
+
+   Sameer: Make the FLEV output as coordinates so that we can use it
+   to make a figure and make it interactive.
+
+---
+
+   Scoring Protein-Ligand Complex interactions:
+
+   http://pubs.acs.org/doi/abs/10.1021/jm050436v
+
+   Improving the scoring of torsion? KDE by CCDC
+
+   http://pubs.acs.org/doi/abs/10.1021/ci500156d
+
+
 ------
 

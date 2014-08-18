@@ -35,6 +35,8 @@
 #include "skeleton/graphical_skel.h"
 #include "coot-utils/xmap-stats.hh"
 
+#include "goograph/goograph.hh"
+
 #include "c-interface-mmdb.hh"
 #include "c-interface-python.hh"
 
@@ -1708,6 +1710,53 @@ map_to_model_correlation_per_residue_scm(int imol, SCM specs_scm, unsigned short
    return r;
 }
 #endif
+
+#ifdef USE_GUILE
+
+SCM qq_plot_map_and_model_scm(int imol, 
+			      SCM residue_specs_scm,
+			      SCM neighb_residue_specs_scm,
+			      unsigned short int atom_mask_mode,
+			      int imol_map) { 
+   
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) { 
+	 std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(residue_specs_scm);
+	 std::vector<coot::residue_spec_t> nb_residues = scm_to_residue_specs(neighb_residue_specs_scm);
+	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+	 if (mol) { 
+	    std::vector<std::pair<double, double> > v =
+	       coot::util::qq_plot_for_map_over_model(mol, specs, nb_residues, atom_mask_mode, xmap);
+
+	    if (0)
+	       for (unsigned int i=0; i<v.size(); i++)
+		  std::cout << "     " << v[i].first << "    " << v[i].second << std::endl;
+
+	    // Goograph
+	    coot::goograph *g = new coot::goograph;
+	    int trace = g->trace_new();
+	    g->set_plot_title("Difference Map QQ Plot");
+	    g->set_axis_label(coot::goograph::X_AXIS, "Reference Normal Quantile");
+	    g->set_axis_label(coot::goograph::Y_AXIS, "Difference Map Quantile");
+	    g->set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_SCATTER);
+	    g->set_data(trace, v);
+	    std::pair<double, double> mmx = g->min_max_x();
+	    std::pair<double, double> mmy = g->min_max_y();
+	    lig_build::pos_t p1(mmx.first,  mmx.first);
+	    lig_build::pos_t p2(mmy.second, mmy.second);
+	    if (mmy.first  > mmx.first)  p1 = lig_build::pos_t(mmy.first,  mmy.first);
+	    if (mmy.second > mmx.second) p2 = lig_build::pos_t(mmy.second, mmy.second);
+	    g->add_annotation_line(p1, p2, "#444444", 1, false, false, false);
+	    g->show_dialog();
+	 }
+      }
+   }
+   return r;
+}
+#endif
+
 
 #ifdef USE_PYTHON
 PyObject *

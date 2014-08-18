@@ -688,8 +688,6 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
       float occupancy = 1.0;
       float b_synth= 10.0;
 
-      // std::cout << "------------------------- here 1 occupancy " << occupancy << std::endl;
-
       try { 
 	 if (card.words.size() > 5)
 	    occupancy = util::string_to_float(card.words[5]); // 11.0
@@ -698,7 +696,6 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 			    util::string_to_float(card.words[3].c_str()),
 			    util::string_to_float(card.words[4].c_str()),
 			    occupancy, b_synth);
-	 // std::cout << "------------------------- here 2 occupancy " << occupancy << std::endl;
 	 at->SetElementName(element.c_str());
 	 strncpy(at->altLoc, altconf.c_str(), 2);
       }
@@ -873,15 +870,19 @@ coot::ShelxIns::read_line(std::ifstream &f) {
 }
 
 CResidue *
-coot::ShelxIns::add_shelx_residue(const std::vector<CAtom *> &atom_vector,
+coot::ShelxIns::add_shelx_residue(std::vector<CAtom *> &atom_vector,
 				  const std::string &current_res_name,
 				  int &current_res_no) const {
    
    CResidue *residue = new CResidue;
    residue->SetResName(current_res_name.c_str());
    residue->seqNum = current_res_no;
-   for (unsigned int i=0; i<atom_vector.size(); i++)
+   bool srn = util::is_standard_residue_name(current_res_name);
+   for (unsigned int i=0; i<atom_vector.size(); i++) {
+      if (! srn)
+	 atom_vector[i]->Het = 1;
       residue->AddAtom(atom_vector[i]);
+   } 
    return residue;
 }
 

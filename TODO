@@ -1272,6 +1272,9 @@ Punted from 0.6:
 
    Release 0.9, Facelift-release [Dec 2013]
 
+   o Tim Gruene: I have 2 maps, same grid etc, contour one map and
+     colour by the values in the other - in a rainbow sort of way. 
+
    o Handle Oxidized cysine - with a modification
 
    o Alex Luso: Thu 14 May 01:42:09 2009 BST

@@ -1507,8 +1507,8 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
    bool debug = false;
 
    if (debug) { 
-      std::cout << "INFO:: map_to_model_correlation:: there are " << specs.size() << " residues "
-		<< std::endl;
+      std::cout << "INFO:: map_to_model_correlation:: there are " << specs.size()
+		<< " residues " << std::endl;
       for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++)
 	 std::cout << "   " << specs[ilocal] << std::endl;
    }
@@ -1989,6 +1989,148 @@ coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
    }
    mol->DeleteSelection(SelHnd);
    return v;
+}
+
+
+
+// should this be here, or is it heavy?
+//
+// Input maps is a difference map, return a vector of doubles for a plot
+// 
+std::vector<std::pair<double, double> >
+coot::util::qq_plot_for_map_over_model(CMMDBManager *mol,
+				       const std::vector<coot::residue_spec_t> &specs,
+				       const std::vector<coot::residue_spec_t> &nb_residues,
+				       int atom_mask_mode,
+				       const clipper::Xmap<float> &xmap) {
+
+   // We need to get the grid points of the input (difference) map.
+   // To do so, this is like the correlation operation.
+
+   // First, identify parts of the map which correspond to the atom
+   // selection (that are not covered by the neighbouring reisdues.
+
+   std::vector<CResidue *> neighb_residues;
+   for (unsigned int i=0; i<nb_residues.size(); i++) { 
+      CResidue *r = get_residue(nb_residues[i], mol);
+      if (r)
+	 neighb_residues.push_back(r);
+   }
+
+   // We must delete the selection!
+   // 
+   int SelHnd = specs_to_atom_selection(specs, mol, atom_mask_mode); // d
+   PPCAtom sel_atoms = 0;
+   int n_atoms;
+   mol->GetSelIndex(SelHnd, sel_atoms, n_atoms);
+
+   clipper::Xmap<short int> mask(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
+   clipper::Xmap<short int>::Map_reference_index inx;
+   for (inx = mask.first(); !inx.last(); inx.next())
+      mask[inx] = 0;
+
+   int n_points_masked = 0;
+   for (unsigned int iat=0; iat<n_atoms; iat++) { 
+      CAtom *at = sel_atoms[iat];
+      clipper::Coord_orth c_o = co(at);
+      float radius = 1.5 + at->tempFactor*1.5/80.0; // should be some function of tempFactor;
+      float radius_sq = radius * radius;
+
+      clipper::Coord_frac cf = c_o.coord_frac(xmap.cell());
+      clipper::Coord_frac box0(cf.u() - radius/xmap.cell().descr().a(),
+			       cf.v() - radius/xmap.cell().descr().b(),
+			       cf.w() - radius/xmap.cell().descr().c());
+
+      clipper::Coord_frac box1(cf.u() + radius/xmap.cell().descr().a(),
+			       cf.v() + radius/xmap.cell().descr().b(),
+			       cf.w() + radius/xmap.cell().descr().c());
+
+      clipper::Grid_map grid(box0.coord_grid(xmap.grid_sampling()),
+			     box1.coord_grid(xmap.grid_sampling()));
+
+      clipper::Xmap_base::Map_reference_coord ix(xmap, grid.min()), iu, iv, iw;
+      for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+	 for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
+	    for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+	       // sample a sphere
+	       if ( (iw.coord().coord_frac(xmap.grid_sampling()).coord_orth(xmap.cell()) - c_o).lengthsq() < radius_sq) {
+		  mask[iw] = 1;
+		  n_points_masked++;
+	       }
+	    }
+	 }
+      }
+   }
+
+   mol->DeleteSelection(SelHnd);
+
+   std::vector<double> map_points;
+   for (inx = mask.first(); !inx.last(); inx.next()) {
+      if (mask[inx]) {
+	 float v = xmap[inx];
+	 map_points.push_back(v);
+      } 
+   } 
+
+   std::cout << "map_points.size(): " << map_points.size() << " n_points_masked "
+	     << n_points_masked << std::endl;
+
+   qq_plot_t qq(map_points);
+   return qq.qq_norm();
+}
+
+// caller deletes the selection!
+int
+coot::util::specs_to_atom_selection(const std::vector<coot::residue_spec_t> &specs,
+				    CMMDBManager *mol,
+				    int atom_mask_mode) {
+
+   int SelHnd = -1;
+   if (mol) {
+      SelHnd = mol->NewSelection();
+      for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++) {
+
+	 std::string res_name_selection  = "*";
+	 std::string atom_name_selection = "*";
+
+	 if (atom_mask_mode != 0) { // main chain for standard amino acids
+	    CResidue *res = get_residue(specs[ilocal], mol);
+	    if (res) {
+	       std::string residue_name(res->GetResName());
+	       if (is_standard_residue_name(residue_name)) { 
+
+		  // PDBv3 FIXME
+		  // 
+		  if (atom_mask_mode == 1)
+		     atom_name_selection = " N  , H  , HA , CA , C  , O  ";
+		  if (atom_mask_mode == 2)
+		     atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
+		  if (atom_mask_mode == 3)
+		     atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
+	       } else {
+		  if (atom_mask_mode == 4)
+		     atom_name_selection = "%%%%%%"; // nothing (perhaps use "")
+		  if (atom_mask_mode == 5)
+		     atom_name_selection = "%%%%%%"; // nothing
+	       }
+	    }
+	 }
+
+	 mol->SelectAtoms(SelHnd, 1,
+			  specs[ilocal].chain.c_str(),
+			  specs[ilocal].resno,
+			  specs[ilocal].insertion_code.c_str(),
+			  specs[ilocal].resno,
+			  specs[ilocal].insertion_code.c_str(),
+			  res_name_selection.c_str(),
+			  atom_name_selection.c_str(), 
+			  "*", // elements
+			  "*", // alt loc.
+			  SKEY_OR
+			  );
+      }
+   }
+   return SelHnd;
 }
 
 

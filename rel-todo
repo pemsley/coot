@@ -3,6 +3,22 @@
 
 ---- 
 
+   o Update the Coot Shelx Tutorial 
+
+- mostly done?
+
+   o Ethan Merrit: 4l2e ligand what is lldf from the VTF validation
+     report?
+
+   o Make Marcin's APPLE OpenGL include patch.
+
+   o build NAG-NAG on 3bt1 on 172U ASN.
+
+   o Glyco should be a plug-in
+
+   o Think about orienting a ligand for nice graphics view.  Attach it
+     to the GUI Ligand button.
+
    o give me a function:
 
      distance_pairs(imol, chain_id_1, chain_id_2, bin_width)
