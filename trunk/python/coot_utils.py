@@ -3267,7 +3267,7 @@ def file_to_preferences(filename):
     else:
         # dont have accessible pkgdata_dir, so guess install place
         python_dir = os.getenv("COOT_PYTHON_DIR")
-        if os.path.isdir(python_dir) :
+        if os.path.isdir(python_dir):
             ref_py = os.path.join(python_dir, "python", filename)
     if not os.path.exists(ref_py):
         add_status_bar_text("Missing reference template key bindings.")

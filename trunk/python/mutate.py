@@ -69,7 +69,8 @@ def mutate_residue_range(imol,chain_id,start_res_no,stop_res_no,sequence):
    else:
        backup_mode = backup_state(imol)
        turn_off_backup(imol)
-       multi_mutate(mutate_single_residue_by_seqno, imol, start_res_no, chain_id, sequence)
+       multi_mutate(mutate_single_residue_by_seqno, imol,
+                    start_res_no, chain_id, sequence)
        set_have_unsaved_changes(imol)
        if (backup_mode == 1) :
            turn_on_backup(imol)
@@ -106,10 +107,12 @@ def mutate_and_autofit_residue_range(imol,chain_id,start_res_no,stop_res_no,sequ
 # mutate and autofit whole chain
 #
 # This presumes a protein sequence (not nucleic acid).
-def mutate_and_auto_fit(residue_number,chain_id,mol,mol_for_map,residue_type):
+def mutate_and_auto_fit(residue_number, chain_id, mol, mol_for_map,
+                        residue_type):
 
-   mutate(residue_number,chain_id,mol,residue_type)
-   auto_fit_best_rotamer(residue_number,"","",chain_id,mol,mol_for_map,0,0.5)
+   mutate(mol, chain_id, residue_number, "", residue_type)
+   auto_fit_best_rotamer(residue_number, "", "", chain_id,
+                         mol, mol_for_map, 0, 0.5)
 
 # a short-hand for mutate-and-auto-fit
 def maf(*args):
@@ -173,8 +176,12 @@ def mutate_nucleotide_range(imol, chain_id, resno_start, resno_end, sequence):
 # inconvenient single letter code)
 #
 # Here residue-type is the 3-letter code
+# BL says:: not working, since mutate expects a 3 letter code. Maybe
+# this function should work the other way round, i.e. take a 1 letter code
+# and translate to 1 letter code for "new" mutate function.
 #
-def mutate_residue_redundant(residue_number,chain_id,imol,residue_type,insertion_code):
+def mutate_residue_redundant(residue_number, chain_id, imol,
+                             residue_type, insertion_code):
 
     ins_code = insertion_code
     dic_type_1lc = {"ALA": "A", "ARG": "R", "ASN": "N", "ASP": "D",
@@ -187,7 +194,7 @@ def mutate_residue_redundant(residue_number,chain_id,imol,residue_type,insertion
     else:
        # if not standard aa then set it to Ala
        res_type_1lc = "A"
-    mutate(residue_number,ins_code,chain_id,imol,res_type_1lc)
+    mutate(imol, chain_id, residue_number, "", res_type_1lc)
 
 # Prompted by Tim Gruene's email to CCP4bb 20060201.  
 # Turn all residues (including GLY) of imol to ALA.
