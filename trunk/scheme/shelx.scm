@@ -282,7 +282,7 @@
 		      ; running shelxl creates stub.res
 		      (goosh-command "shelxl" (list stub) '() log-filename #t)
 		      ; it isn't a pdb file, but coot knows what to do.
-		      (let ((imol-res (read-pdb res-filename)))
+		      (let ((imol-res (handle-read-draw-molecule-with-recentre res-filename 0)))
 			(handle-shelx-fcf-file fcf-filename)
 			(read-shelx-lst-file lst-filename imol-res))))))))))
 
