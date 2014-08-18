@@ -507,9 +507,22 @@ namespace coot {
       class stats_data {
       public:
 	 stats_data(const std::vector<float> &d);
+	 stats_data(const std::vector<double> &d);
 	 float mean;
 	 float sd;
 	 float iqr;
+      };
+
+      class qq_plot_t {
+	 std::vector<double> data;
+	 int n_bins;
+	 double gaussian(const double &mean, const double &sd, const double &v);
+      public:
+	 qq_plot_t(const std::vector<double> &d){
+	    data = d;
+	    n_bins = 50;
+	 }
+	 std::vector<std::pair<double, double> > qq_norm(); // sorts data.
       };
 
       float interquartile_range(const std::vector<float> &v);

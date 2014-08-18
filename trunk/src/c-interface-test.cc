@@ -384,6 +384,9 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (1) {
+   }
+
+   if (0) {
       int imol = 0;
       std::string file_name = "with-mtrix.pdb";
       // file_name = "coot-download/pdb1qex.ent";

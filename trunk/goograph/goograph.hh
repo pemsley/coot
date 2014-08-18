@@ -36,7 +36,7 @@ namespace coot {
    class graph_trace_info_t {
       std::vector<std::pair<double, double> > data;
    public:
-      enum {PLOT_TYPE_LINE, PLOT_TYPE_BAR, PLOT_TYPE_SMOOTHED_LINE};
+      enum {PLOT_TYPE_LINE, PLOT_TYPE_BAR, PLOT_TYPE_SMOOTHED_LINE, PLOT_TYPE_SCATTER};
       int plot_type;
       std::string colour;
       double line_width;
@@ -137,6 +137,7 @@ namespace coot {
       void plot_bar_graph(int trace_id);
       void plot_line_graph(int trace_id);
       void plot_smoothed_line_graph(int trace_id);
+      void plot_scatter_plot(int trace_id);
       static void goograph_close_callback(GtkWidget *button,
 					  GtkWidget *dialog);
       static gint reshape(GtkWidget *widget, GdkEventConfigure *event);
@@ -152,8 +153,6 @@ namespace coot {
 			      double tick_step,
 			      double tick_length_multiplier);
       lig_build::pos_t world_to_canvas(const lig_build::pos_t &p) const {
-// 	 return lig_build::pos_t(canvas_offset_x + (p.x-extents_min_x)*data_scale_x,
-// 				 canvas_offset_y - (p.y-extents_min_y)*data_scale_y);
 	 return lig_build::pos_t((canvas_offset_x + (p.x-extents_min_x)*data_scale_x) * dialog_width / dialog_width_orig,
 				 (canvas_offset_y - (p.y-extents_min_y)*data_scale_y) * dialog_height/ dialog_height_orig);
       }
@@ -210,6 +209,12 @@ namespace coot {
       void set_data(int trace_id, const std::vector<std::pair<double, double> > &data);
       int trace_new();
       void plot_trace(int trace_id);
+      std::pair<double, double> min_max_x() const {
+	 return std::pair<double, double> (extents_min_x, extents_max_x);
+      } 
+      std::pair<double, double> min_max_y() const {
+	 return std::pair<double, double> (extents_min_y, extents_max_y);
+      }
       void add_annotation_line(const lig_build::pos_t &pos_1,
 			       const lig_build::pos_t &pos_2,
 			       const std::string &colour,

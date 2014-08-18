@@ -1213,6 +1213,11 @@ SCM
 map_to_model_correlation_per_residue_scm(int imol, SCM residue_specs,
 					 unsigned short int atom_mask_mode,
 					 int imol_map);
+SCM qq_plot_map_and_model_scm(int imol, 
+			      SCM residue_specs_scm,
+			      SCM neigh_residue_specs_scm,
+			      unsigned short int atom_mask_mode,
+			      int imol_map);
 #endif
 
 #ifdef USE_PYTHON

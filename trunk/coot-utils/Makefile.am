@@ -61,7 +61,8 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 
 # clean
 libcoot_coord_utils_la_LIBADD = \
-    $(top_builddir)/geometry/libcoot-geometry.la
+    $(top_builddir)/geometry/libcoot-geometry.la \
+    $(GSL_LIBS)
 
 # shelx
 libcoot_shelx_la_SOURCES = coot-shelx-ins.cc
@@ -134,6 +135,7 @@ testcootutils_LDADD =            \
 	./libcoot-shelx.la       \
 	./libcoot-coord-extras.la\
 	./libcoot-coord-utils.la \
+	$(GSL_LIBS) \
         $(GLOB_LIBS)
 
 #	$(top_builddir)/geometry/libcoot-geometry.la 

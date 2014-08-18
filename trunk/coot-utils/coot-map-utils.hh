@@ -213,6 +213,19 @@ namespace coot {
       };
 
 
+      // should this be here, or is it heavy?
+      std::vector<std::pair<double, double> >
+      qq_plot_for_map_over_model(CMMDBManager *mol,
+				 const std::vector<coot::residue_spec_t> &specs,
+				 const std::vector<coot::residue_spec_t> &nb_residues,
+				 int atom_mask_mode,
+				 const clipper::Xmap<float> &xmap);
+
+      // caller deletes the selection!
+      int
+      specs_to_atom_selection(const std::vector<coot::residue_spec_t> &specs,
+			      CMMDBManager *mol,
+			      int atom_mask_mode);
 
       // return a map and its standard deviation.  scale is applied to
       // map_in_2 before substraction.

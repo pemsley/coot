@@ -651,6 +651,8 @@ coot::goograph::set_trace_type(int trace_id, int plot_type, bool dashed) {
 	 traces[trace_id].plot_type = plot_type;
       if (plot_type == coot::graph_trace_info_t::PLOT_TYPE_SMOOTHED_LINE)
 	 traces[trace_id].plot_type = plot_type;
+      if (plot_type == coot::graph_trace_info_t::PLOT_TYPE_SCATTER)
+	 traces[trace_id].plot_type = plot_type;
       traces[trace_id].dashed = dashed;
    } 
 }
@@ -667,17 +669,64 @@ void
 coot::goograph::plot_trace(int trace_id) {
 
    if (is_valid_trace(trace_id)) {
-      if (traces[trace_id].plot_type == coot::graph_trace_info_t::PLOT_TYPE_BAR) {
+      if (traces[trace_id].plot_type == graph_trace_info_t::PLOT_TYPE_BAR) {
 	 plot_bar_graph(trace_id);
       }
-      if (traces[trace_id].plot_type == coot::graph_trace_info_t::PLOT_TYPE_LINE) {
+      if (traces[trace_id].plot_type == graph_trace_info_t::PLOT_TYPE_LINE) {
 	 plot_line_graph(trace_id);
       }
-      if (traces[trace_id].plot_type == coot::graph_trace_info_t::PLOT_TYPE_SMOOTHED_LINE) {
+      if (traces[trace_id].plot_type == graph_trace_info_t::PLOT_TYPE_SMOOTHED_LINE) {
 	 plot_smoothed_line_graph(trace_id);
+      }
+      if (traces[trace_id].plot_type == graph_trace_info_t::PLOT_TYPE_SCATTER) {
+	 plot_scatter_plot(trace_id);
       }
    } 
 }
+
+void
+coot::goograph::plot_scatter_plot(int trace_id) {
+
+   GooCanvasItem *root = goo_canvas_get_root_item(canvas);
+   if (is_valid_trace(trace_id)) { 
+      const std::vector<std::pair<double, double> > &data = traces[trace_id].get_data();
+      std::string colour = traces[trace_id].colour;
+      if (colour.empty())
+	 colour = "#70e070";
+      double mbw = median_bin_width(trace_id);
+      double line_width = 1.0;
+      double radius = 3; 
+
+      for (unsigned int i=0; i<data.size(); i++) {
+	 
+	 // double width  = mbw * data_scale_x;
+	 // double height = -(data[i].second - extents_min_y) * data_scale_y;
+	 // lig_build::pos_t A(data[i].first-mbw*0.5, extents_min_y);
+	 // 	    goo_canvas_ci(root,
+	 // 				wA.x, wA.y,
+	 // 				width, height, 
+	 // 				"line-width", 1.0,
+	 // 				"fill_color", colour.c_str(),
+	 // 				"stroke-color", "#333333",
+	 // 			  NULL);
+
+	 
+	 lig_build::pos_t p(data[i].first, data[i].second);
+	 lig_build::pos_t wA = world_to_canvas(p);
+
+	 GooCanvasItem *ring =
+	 goo_canvas_ellipse_new(root, wA.x, wA.y,
+				radius, radius,
+				"line_width", line_width,
+				// "fill-color-rgba", 0xffbb3350,
+				NULL);
+	 
+	 items.push_back(ring);
+    	 
+      }
+   }
+}
+
 
 void
 coot::goograph::plot_bar_graph(int trace_id) {

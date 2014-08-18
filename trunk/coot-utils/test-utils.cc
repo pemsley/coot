@@ -306,7 +306,45 @@ int test_helix_analysis() {
    }
    delete mol;
    return 0;
-} 
+}
+
+#include <fstream>
+
+int test_qq_plot() {
+
+   int status = 0;
+
+   std::string file_name = "random-300.tab";
+
+   std::ifstream f(file_name.c_str());
+
+   if (f) { 
+
+      std::vector<double> data;
+      std::string line;
+      while (std::getline(f, line)) {
+	 std::vector<std::string> bits = coot::util::split_string_no_blanks(line, " ");
+	 for (unsigned int ibit=0; ibit<bits.size(); ibit++) { 
+	    try {
+	       double v = coot::util::string_to_float(bits[ibit]);
+	       data.push_back(v);
+	    }
+	    catch (const std::runtime_error &rte) {
+	       std::cout << "   " << rte.what() << std::endl;
+	    } 
+	 }
+      }
+
+      coot::util::qq_plot_t qq(data);
+      std::vector<std::pair<double, double> > qqd = qq.qq_norm();
+
+      for (unsigned int i=0; i<qqd.size(); i++) { 
+	 std::cout << "plot " << i << " " << "   " << qqd[i].first << "   "
+		   << qqd[i].second << std::endl;
+      }
+   }
+   return status;
+}
 
 
 int main(int argv, char **argc) {
@@ -327,8 +365,11 @@ int main(int argv, char **argc) {
    if (0)
       test_glyco_tree();
 
-   if (1)
+   if (0)
       test_helix_analysis();
+
+   if (1)
+      test_qq_plot();
    
    return 0;
 }

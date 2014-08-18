@@ -1935,6 +1935,7 @@ int read_small_molecule_data_cif(const char *file_name) {
       std::pair<clipper::Xmap<float>, clipper::Xmap<float> > maps = smcif.sigmaa_maps();
       if (not (maps.first.is_null())) {
 	 g.molecules[imol].new_map(maps.first, file_name);
+	 g.scroll_wheel_map = imol;
 	 int imol_diff = g.create_molecule();
 	 g.molecules[imol_diff].new_map(maps.second, file_name);
 	 g.molecules[imol_diff].set_map_is_difference_map();

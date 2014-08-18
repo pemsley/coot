@@ -223,8 +223,14 @@ namespace coot {
       shelx_card_info_t read_card(std::ifstream &f);
       shelx_card_info_t read_card_extended(std::ifstream &f);
       int get_sfac_index(const std::string &element) const; // -1 on not found
-      int altloc_to_part_no(const std::string &altloc) const; 
-      CResidue *add_shelx_residue(const std::vector<CAtom *> &atom_vector,
+      int altloc_to_part_no(const std::string &altloc) const;
+
+      // As you add the atoms, check the residue name for being
+      // standard, and use that to decide if the atom is Het or not.
+      // And that means that the passed atom_vector needs to be a
+      // reference (or a pointer, but we don't do that here) and no
+      // longer const.
+      CResidue *add_shelx_residue(std::vector<CAtom *> &atom_vector,
 				  const std::string &current_res_name,
 				  int &current_res_no) const;
       void save_fvars(const shelx_card_info_t &card);

@@ -26,6 +26,12 @@
 #include <stdexcept>
 
 #include <string.h> // for strcpy
+
+#ifdef HAVE_GSL
+#include <gsl/gsl_cdf.h>
+#include <gsl/gsl_statistics_double.h>
+#endif // HAVE_GSL
+
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include <mmdb/mmdb_tables.h>  // for Get1LetterCode()
@@ -769,7 +775,7 @@ coot::util::stats_data::stats_data(const std::vector<float> &v) {
    double sum_sq = 0;
    for (unsigned int i=0; i<v.size(); i++) { 
       sum += v[i];
-      sum_sq += v[i] * v[1];
+      sum_sq += v[i] * v[i];
    }
    if (v.size() > 0) { 
       mean = sum/double(v.size());
@@ -778,6 +784,77 @@ coot::util::stats_data::stats_data(const std::vector<float> &v) {
       sd = sqrt(var);
       iqr = interquartile_range(v);
    }
+}
+
+coot::util::stats_data::stats_data(const std::vector<double> &v) {
+
+   mean = 0;
+   sd = 0;
+   iqr = 0;
+   double sum = 0;
+   double sum_sq = 0;
+   for (unsigned int i=0; i<v.size(); i++) {
+      sum += v[i];
+      sum_sq += (v[i] * v[i]);
+   }
+   if (v.size() > 0) { 
+      mean = sum/double(v.size());
+      double var = sum_sq/double(v.size()) - mean * mean;
+      if (var < 0) var = 0;
+      sd = sqrt(var);
+      std::vector<float> vf(v.size());
+      for (unsigned int i=0; i<v.size(); i++) vf[i] = v[i];
+      iqr = interquartile_range(vf);
+   }
+}
+
+std::vector<std::pair<double, double> >
+coot::util::qq_plot_t::qq_norm() {
+   
+   std::vector<std::pair<double, double> > v;
+
+#ifdef HAVE_GSL   
+   std::sort(data.begin(), data.end());
+   size_t stride = 1;
+   double sorted_data[data.size()];
+   for (unsigned int i=0; i<data.size(); i++) { 
+      sorted_data[i] = data[i];
+   }
+   stats_data sd = stats_data(data);
+
+   // debugging
+   std::vector<double> save_gs;
+   std::vector<double> save_qs;
+   
+
+   // frac goes between 0 and 1.
+   for (double frac=0.01; frac<1; frac+= 0.01) {
+
+      double g = gsl_cdf_gaussian_Pinv(frac, sd.sd);
+      double q = gsl_stats_quantile_from_sorted_data(sorted_data, stride,
+						     data.size(), frac);
+
+      // mean correction (gs would otherwise have mean 0)
+      double g_mc = g + sd.mean;
+      if (0) 
+	 std::cout << "debug:: g " << g << " from frac " << frac
+		   << " and sd " << sd.sd << std::endl;
+
+      std::pair<double, double> p(g_mc, q);
+      v.push_back(p);
+      save_gs.push_back(g_mc);
+      save_qs.push_back(q);
+   }
+
+   stats_data gs_data(save_gs);
+   stats_data qs_data(save_qs);
+   
+   std::cout << "debug:: gs: mean " << gs_data.mean << " sd " <<  gs_data.sd  << std::endl;
+   std::cout << "debug:: qs: mean " << qs_data.mean << " sd " <<  qs_data.sd  << std::endl;
+   std::cout << "debug:: sd: mean " << sd.mean << " sd " <<  sd.sd  << std::endl;
+   
+#endif // HAVE_GSL   
+   return v;
 }
 
 

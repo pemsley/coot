@@ -59,7 +59,12 @@ int main (int argc, char **argv) {
 //        data[i].second *= 83;
 //        data[i].second += 0.6;
 //     }
-   
+
+   // Note that this the goograph here is always in scope!
+   //
+   // However, more typoical usage would need new and a pointer to
+   // stay in scope.
+   // 
    coot::goograph g;
    int trace = g.trace_new();
    g.set_plot_title("Angle distribution");
@@ -68,6 +73,7 @@ int main (int argc, char **argv) {
    g.set_axis_label(coot::goograph::X_AXIS, "Angle");
    g.set_axis_label(coot::goograph::Y_AXIS, "Counts");
    g.set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_BAR);
+   g.set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_SCATTER);
 
    double f = 1;
    double fy = 1;

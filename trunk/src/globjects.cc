@@ -3669,8 +3669,12 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       
    case GDK_c:
    case GDK_C:
-      g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag; 
-      g.crosshairs_text();
+      if (graphics_info_t::control_is_pressed) {
+	 g.copy_active_atom_molecule();
+      } else {
+	 g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag; 
+	 g.crosshairs_text();
+      }
       g.graphics_draw();
       break;
 

@@ -538,6 +538,37 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 #endif // HAVE_GSL
 }
 
+int
+graphics_info_t::copy_active_atom_molecule() {
+
+   int imol = -1;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
+   if (aa.first) {
+      imol = copy_model_molecule(aa.second.first);
+   } 
+   return imol;
+}
+
+int
+graphics_info_t::copy_model_molecule(int imol) {
+   int iret = -1;
+   if (is_valid_model_molecule(imol)) { 
+      int new_mol_number = graphics_info_t::create_molecule();
+      CMMDBManager *m = graphics_info_t::molecules[imol].atom_sel.mol;
+      CMMDBManager *n = new CMMDBManager;
+      n->Copy(m, MMDBFCM_All);
+      atom_selection_container_t asc = make_asc(n);
+      std::string label = "Copy_of_";
+      label += graphics_info_t::molecules[imol].name_;
+      graphics_info_t::molecules[new_mol_number].install_model(new_mol_number, asc, label, 1);
+      update_go_to_atom_window_on_new_mol();
+      iret = new_mol_number;
+   }
+   return iret;
+}
+
+
+
 
 coot::refinement_results_t
 graphics_info_t::update_refinement_atoms(int n_restraints,

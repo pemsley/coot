@@ -1403,6 +1403,12 @@ molecule_class_info_t::set_initial_contour_level() {
 	 level = graphics_info_t::default_sigma_level_for_map * map_sigma_;
       }
    }
+
+   if (0) 
+      std::cout << "..... in set_initial_contour_level() xmap_is_diff_map is " << xmap_is_diff_map
+		<< " and map_sigma_ is " << map_sigma_ << " and default sigma leve is "
+		<< graphics_info_t::default_sigma_level_for_fofc_map << " and map_mean is "
+		<< map_mean_ << std::endl;
    contour_level = level;
 }
 
