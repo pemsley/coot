@@ -612,8 +612,15 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
       mogul_out_file_name = os.path.join(mogul_dir, file_name_stub + '-mogul.out')
       Chem.AllChem.ComputeGasteigerCharges(sane_H_mol)
 
-      mb = Chem.MolToMolBlock(sane_H_mol)
-      print >> file(sdf_file_name,'w'), mb
+      if not os.path.isdir(mogul_dir):
+	  checked_mkdir(mogul_dir)
+	  if os.path.isdir(mogul_dir):
+	      mb = Chem.MolToMolBlock(sane_H_mol)
+	      print >> file(sdf_file_name,'w'), mb
+      else:
+	  mb = Chem.MolToMolBlock(sane_H_mol)
+	  print >> file(sdf_file_name,'w'), mb
+
       
       bor = make_restraints_for_bond_orders(sane_H_mol)
 
