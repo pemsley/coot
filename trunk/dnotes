@@ -7118,7 +7118,9 @@ Sat Jul 19 13:17:01 BST 2014
 
 
 ---
-Sat Jul 19 13:31:04 BST 2014
+Sat Jul 19 13:31:04
+
+ BST 2014
 
  ipython:
 
@@ -7129,6 +7131,17 @@ Fri Jul 25 13:56:46 BST 2014
 
   Store the bond order as an enum, not a string.  That makes
   convert_bond_type() conversion to rdkit type easier.
+
+---
+Sun Aug 17 18:10:34 BST 2014
+
+   4mt6 good example for morphing - based no what though? Hmm.
+
+
+----
+Wed Aug 20 00:01:56 BST 2014
+
+when compiling guile-dbi, rename src/guile-dbi.x so that it gets rebuilt.
 
 
 ----

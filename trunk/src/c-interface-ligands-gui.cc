@@ -59,6 +59,8 @@
 
 #include "ligand/wligand.hh"
 
+#include "c-interface-ligands-swig.hh"
+
 #include "guile-fixups.h"
 
 /* in here we check if libcheck is available (if scripting is available) */
@@ -715,3 +717,83 @@ start_ligand_builder_gui() {
 
    }
 }
+
+
+// for "better than the median", percentile_limit should be 0.5 (of course).
+#ifdef USE_GUILE
+void gui_ligand_metrics_scm(SCM ligand_metrics, double percentile_limit) {
+
+   if (scm_is_true(scm_list_p(ligand_metrics))) { 
+      SCM lm_len_scm = scm_length(ligand_metrics);
+      int lm_len     = scm_to_int(lm_len_scm);
+   
+      if (lm_len == 3) {  // currently 3
+	 double d = scm_to_double(scm_list_ref(ligand_metrics, SCM_MAKINUM(0)));
+	 double m = scm_to_double(scm_list_ref(ligand_metrics, SCM_MAKINUM(1)));
+	 int    n_bumps = scm_to_int(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
+	 // coot::probe_clash_score_t cs = probe_clash_score_from_scm(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
+	 coot::probe_clash_score_t cs(n_bumps, -1, -1, -1, -1);
+	 coot::ligand_report_t lr(d, m, cs);
+	 gui_ligand_metrics(lr, percentile_limit);
+      }
+   }
+
+} 
+#endif // USE_GUILE
+
+
+void gui_ligand_metrics(const coot::ligand_report_t &lr, double percentile_limit) {
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      GtkWidget *w = create_ligand_check_dialog();
+
+      GtkWidget *mogul_tick_w  = lookup_widget(w, "image_tick_mogul");
+      GtkWidget *mogul_cross_w = lookup_widget(w, "image_cross_mogul");
+      GtkWidget *mogul_incom_w = lookup_widget(w, "image_incomplete_mogul");
+      
+      GtkWidget *density_tick_w  = lookup_widget(w, "image_tick_density");
+      GtkWidget *density_cross_w = lookup_widget(w, "image_cross_density");
+      GtkWidget *density_incom_w = lookup_widget(w, "image_incomplete_density");
+
+      GtkWidget *bumps_tick_w  = lookup_widget(w, "image_tick_bumps");
+      GtkWidget *bumps_cross_w = lookup_widget(w, "image_cross_bumps");
+      GtkWidget *bumps_incom_w = lookup_widget(w, "image_incomplete_bumps");
+
+      std::cout << "lr.mogul_percentile " << lr.mogul_percentile << std::endl;
+      std::cout << "lr.density_correlation_percentile " << lr.density_correlation_percentile << std::endl;
+      std::cout << "percentile_limit " << percentile_limit << std::endl;
+
+      if (lr.mogul_percentile < percentile_limit) {
+	 // bad ligand
+	 gtk_widget_hide(mogul_tick_w);
+	 gtk_widget_hide(mogul_incom_w);
+      } else {
+	 // happy ligand
+	 gtk_widget_hide(mogul_cross_w);
+	 gtk_widget_hide(mogul_incom_w);
+      } 
+      
+      if (lr.density_correlation_percentile < percentile_limit) {
+	 // bad ligand
+	 gtk_widget_hide(density_tick_w);
+	 gtk_widget_hide(density_incom_w);
+      } else {
+	 // happy
+	 gtk_widget_hide(density_cross_w);
+	 gtk_widget_hide(density_incom_w);
+      } 
+
+      if (lr.pcs.n_bad_overlaps > 0) {
+	 // bad bumps
+	 gtk_widget_hide(bumps_tick_w);
+	 gtk_widget_hide(bumps_incom_w);
+      } else {
+	 // happy bumps
+	 gtk_widget_hide(bumps_cross_w);
+	 gtk_widget_hide(bumps_incom_w);
+      } 
+
+      
+      gtk_widget_show(w);
+   }
+} 

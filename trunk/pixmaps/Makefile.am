@@ -66,7 +66,8 @@ density-fit.svg       pink-pointer.svg		   unknown-blob.png               \
 diff-map.png	      plane-distances.png	   unknown-blob.svg               \
 diff-map.svg	      plane-distances.svg	   water-diff-map.svg             \
 display-manager.png   pointer-distances.png	   water-drop.svg                 \
-display-manager.svg   pointer-distances.svg
+display-manager.svg   pointer-distances.svg \
+koppi-green-tick-64.png rygle-red-cross-64.png forest51690-dwcheckno-incomplete-64.png
 
 
 # This is done by the Makefile in icons now.

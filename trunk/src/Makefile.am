@@ -351,6 +351,7 @@ coot_real_SOURCES = \
 	lbg-interface.hh 	 \
 	lbg-callbacks-outer.cc 	 \
 	lbg-interface.cc 	 \
+	ligand-check.hh          \
 	molecule-class-info.cc 	 \
 	molecule-class-info-maps.cc 	\
 	molecule-class-info-maps-2.cc 	\

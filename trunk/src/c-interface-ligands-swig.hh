@@ -4,10 +4,13 @@
 #define C_INTERFACE_LIGANDS_SWIG_HH
 
 #include "probe-clash-score.hh"
+#include "ligand-check.hh"
 
 // We don't need to SWIG this one...
 std::pair<CResidue *, int>
 new_molecule_sans_biggest_ligand(int imol);
+// or this one
+void gui_ligand_metrics(const coot::ligand_report_t &lr, double percentile_limit);
 
 
 #ifdef USE_GUILE
@@ -18,6 +21,8 @@ new_molecule_sans_biggest_ligand(int imol);
 // (or scheme false).
 // 
 SCM new_molecule_sans_biggest_ligand_scm(int imol);
+void gui_ligand_metrics_scm(SCM ligand_metrics, double percentile_limit);
+
 #endif
 
 

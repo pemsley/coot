@@ -88,6 +88,19 @@ namespace coot {
       probe_clash_score_t() {
 	 filled = false;
       }
+      probe_clash_score_t(int n_bad_overlaps_in,
+			  int n_hydrogen_bonds_in,
+			  int n_small_overlaps_in,
+			  int n_close_contacts_in,
+			  int n_wide_contacts_in) {
+
+	 n_bad_overlaps   = n_bad_overlaps_in;
+	 n_hydrogen_bonds = n_hydrogen_bonds_in;
+	 n_small_overlaps = n_small_overlaps_in;
+	 n_close_contacts = n_close_contacts_in;
+	 n_wide_contacts  = n_wide_contacts_in;
+	 filled = true;
+      } 
       probe_clash_score_t(const std::string &dots_file_name);
    }; 
 
@@ -113,6 +126,8 @@ namespace coot {
 // n_wide_contacts)
 // 
 SCM probe_clash_score_scm(const std::string &dots_file_name);
+SCM probe_clash_score_as_scm(const coot::probe_clash_score_t &p);
+coot::probe_clash_score_t probe_clash_score_from_scm(SCM p);
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
