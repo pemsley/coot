@@ -168,7 +168,13 @@ SCM
 probe_clash_score_scm(const std::string &dots_file_name) { 
 
    SCM r = SCM_BOOL_F;
-   coot::probe_clash_score_t p(dots_file_name); 
+   coot::probe_clash_score_t p(dots_file_name);
+   return probe_clash_score_as_scm(p);
+}
+
+SCM probe_clash_score_as_scm(const coot::probe_clash_score_t &p) {
+
+   SCM r = SCM_BOOL_F;
    if (p.filled) {
       r = scm_list_5(SCM_MAKINUM(p.n_bad_overlaps),
 		     SCM_MAKINUM(p.n_hydrogen_bonds),
@@ -177,7 +183,36 @@ probe_clash_score_scm(const std::string &dots_file_name) {
 		     SCM_MAKINUM(p.n_wide_contacts));
    }
    return r;
-} 
+}
+
+// p is a list of 5 ints.  Convert that to a probe_clash_score_t
+// 
+coot::probe_clash_score_t
+probe_clash_score_from_scm(SCM p) {
+
+   coot::probe_clash_score_t pcs;
+   std::cout << "debug:: probe_clash_score_from_scm() here 1 " << std::endl;
+   if (scm_is_true(scm_list_p(p))) {
+      SCM p_len_scm = scm_length(p);
+      int p_len = scm_to_int(p_len_scm);
+      std::cout << "debug:: probe_clash_score_from_scm() here 2 " << p_len << std::endl;
+      if (p_len == 5) {
+	 SCM n_bo_scm = scm_list_ref(p, SCM_MAKINUM(0));
+	 SCM n_hb_scm = scm_list_ref(p, SCM_MAKINUM(1));
+	 SCM n_so_scm = scm_list_ref(p, SCM_MAKINUM(2));
+	 SCM n_cc_scm = scm_list_ref(p, SCM_MAKINUM(3));
+	 SCM n_wc_scm = scm_list_ref(p, SCM_MAKINUM(4));
+	 int n_bo = scm_to_int(n_bo_scm);
+	 int n_hb = scm_to_int(n_hb_scm);
+	 int n_so = scm_to_int(n_so_scm);
+	 int n_cc = scm_to_int(n_cc_scm);
+	 int n_wc = scm_to_int(n_cc_scm);
+	 std::cout << "debug:: probe_clash_score_from_scm() here 3 " << n_bo << std::endl;
+	 pcs = coot::probe_clash_score_t(n_bo, n_hb, n_so, n_cc, n_wc);
+      }
+   }
+   return pcs;
+}
 
 #endif // USE_GUILE
 

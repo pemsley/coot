@@ -3,9 +3,13 @@
 
 ---- 
 
+   o for ligand check, turn off flips in reduce.
+
+     Have you added ligand-check.hh to Makefile.am and svn repo?
+
    o Update the Coot Shelx Tutorial 
 
-- mostly done?
+     - mostly done?
 
    o Ethan Merrit: 4l2e ligand what is lldf from the VTF validation
      report?

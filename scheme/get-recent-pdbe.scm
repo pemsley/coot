@@ -643,9 +643,15 @@
 ;		 (pdb-url (string-append 
 ;			   "http://www.ebi.ac.uk/pdbe-srv/view/files/"
 ;			   entry-id coords-type))
+
+;		 (pdb-url (string-append 
+;			   "http://www.ebi.ac.uk/pdbe/entry-files/pdb"
+;			   entry-id coords-type))
+
 		 (pdb-url (string-append 
 			   "http://www.ebi.ac.uk/pdbe/entry-files/pdb"
 			   entry-id coords-type))
+
 		 (sfs-cif-url (string-append
 			       "http://www.ebi.ac.uk/pdbe/entry-files/r"
 			       entry-id "sf.ent"))
