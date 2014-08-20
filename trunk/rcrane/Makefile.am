@@ -17,8 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-# rcranedir = $(pythondir)/rcrane
-rcranedir = $(pkgdatadir)/python/rcrane
+rcranedir = $(pythondir)/coot/rcrane
 
 rcranedatadir = $(rcranedir)/data
 
