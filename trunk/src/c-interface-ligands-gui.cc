@@ -741,6 +741,26 @@ void gui_ligand_metrics_scm(SCM ligand_metrics, double percentile_limit) {
 } 
 #endif // USE_GUILE
 
+// for "better than the median", percentile_limit should be 0.5 (of course).
+#ifdef USE_PYTHON
+void gui_ligand_metrics_py(PyObject *ligand_metrics, double percentile_limit) {
+
+   if (PyList_Check(ligand_metrics)) { 
+      Py_ssize_t lm_len = PyList_Size(ligand_metrics);
+   
+      if (lm_len == 3) {  // currently 3
+         double d = PyFloat_AsDouble(PyList_GetItem(ligand_metrics, 0));
+         double m = PyFloat_AsDouble(PyList_GetItem(ligand_metrics, 1));
+         int n_bumps = PyLong_AsLong(PyList_GetItem(ligand_metrics, 2));
+         // coot::probe_clash_score_t cs = probe_clash_score_from_scm(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
+         coot::probe_clash_score_t cs(n_bumps, -1, -1, -1, -1);
+         coot::ligand_report_t lr(d, m, cs);
+         gui_ligand_metrics(lr, percentile_limit);
+      }
+   }
+
+}
+#endif // USE_PYTHON
 
 void gui_ligand_metrics(const coot::ligand_report_t &lr, double percentile_limit) {
 

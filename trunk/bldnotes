@@ -1,7 +1,7 @@
  -*-text-*-
 
-scripts      rev 5089 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
-tests        rev 4921 update
+scripts      rev 5209 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
+tests        rev 5015 update
 build-it-win rev 4739 (check 0.8 pre builder, add publishing?!)
 
 -------------------------------------------------------
@@ -389,6 +389,8 @@ low importance
 
 
 **** Python ****
+
+   o if there is no python scripting. Dont load python scripts etc.
 
    o add other solvent molecule -> dont import cif again?!
 

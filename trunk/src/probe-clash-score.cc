@@ -167,7 +167,6 @@ probe_clash_score(const std::string &dots_file_name) {
 SCM 
 probe_clash_score_scm(const std::string &dots_file_name) { 
 
-   SCM r = SCM_BOOL_F;
    coot::probe_clash_score_t p(dots_file_name);
    return probe_clash_score_as_scm(p);
 }
@@ -221,8 +220,13 @@ probe_clash_score_from_scm(SCM p) {
 PyObject * 
 probe_clash_score_py(const std::string &dots_file_name) { 
 
-   PyObject *r = Py_False;
    coot::probe_clash_score_t p(dots_file_name); 
+   return probe_clash_score_as_py(p);
+} 
+
+PyObject *probe_clash_score_as_py(const coot::probe_clash_score_t &p) {
+
+   PyObject *r = Py_False;
    if (p.filled) {
       r = PyList_New(5);
       PyList_SetItem(r, 0, PyInt_FromLong(p.n_bad_overlaps));
@@ -235,6 +239,34 @@ probe_clash_score_py(const std::string &dots_file_name) {
       Py_XINCREF(r);
    }
    return r;
-} 
+}
+
+// p is a list of 5 ints.  Convert that to a probe_clash_score_t
+// 
+coot::probe_clash_score_t
+probe_clash_score_from_py(PyObject *p) {
+
+   coot::probe_clash_score_t pcs;
+   std::cout << "debug:: probe_clash_score_from_py() here 1 " << std::endl;
+   if (PyList_Check(p)) {
+      Py_ssize_t p_len = PyList_Size(p);
+      std::cout << "debug:: probe_clash_score_from_py() here 2 " << p_len << std::endl;
+      if (p_len == 5) {
+         PyObject *n_bo_py = PyList_GetItem(p, 0);
+         PyObject *n_hb_py = PyList_GetItem(p, 1);
+         PyObject *n_so_py = PyList_GetItem(p, 2);
+         PyObject *n_cc_py = PyList_GetItem(p, 3);
+         PyObject *n_wc_py = PyList_GetItem(p, 4);
+         int n_bo = PyLong_AsLong(n_bo_py);
+         int n_hb = PyLong_AsLong(n_hb_py);
+         int n_so = PyLong_AsLong(n_so_py);
+         int n_cc = PyLong_AsLong(n_cc_py);
+         int n_wc = PyLong_AsLong(n_wc_py);
+         std::cout << "debug:: probe_clash_score_from_py() here 3 " << n_bo << std::endl;
+         pcs = coot::probe_clash_score_t(n_bo, n_hb, n_so, n_cc, n_wc);
+      }
+   }
+   return pcs;
+}
 
 #endif // USE_PYTHON

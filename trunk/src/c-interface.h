@@ -3809,7 +3809,7 @@ double add_geometry_distance(int imol_1, float x_1, float y_1, float z_1, int im
 double add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom_spec_2);
 #endif
 #ifdef USE_PYTHON
-void add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol_2, PyObject *atom_spec_2);
+double add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol_2, PyObject *atom_spec_2);
 #endif
 #endif /* __cplusplus */
 
@@ -4528,6 +4528,8 @@ void match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_r
 #ifdef USE_PYTHON
 PyObject *overlap_ligands_py(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
 PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
+PyObject *compare_ligand_atom_types_py(int imol_ligand, int imol_ref, const char *chain_id_ref,
+				  int resno_ref);
 #endif /* PYTHON*/
 #endif	/* __cplusplus */
 

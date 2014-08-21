@@ -57,6 +57,7 @@ movie_file_name_prefix = movie_file_name_prefix_py
 execute_ligand_search  = execute_ligand_search_py
 overlap_ligands        = overlap_ligands_py
 analyse_ligand_differences = analyse_ligand_differences_py
+compare_ligand_atom_types = compare_ligand_atom_types_py
 additional_representation_info = additional_representation_info_py
 rigid_body_refine_by_residue_ranges = rigid_body_refine_by_residue_ranges_py
 find_terminal_residue_type = find_terminal_residue_type_py
@@ -153,6 +154,7 @@ make_link              = make_link_py
 link_info              = link_info_py
 map_to_model_correlation = map_to_model_correlation_py
 map_to_model_correlation_per_residue = map_to_model_correlation_per_residue_py
+qq_plot_map_and_model  = qq_plot_map_and_model_py
 align_to_closest_chain = align_to_closest_chain_py
 key_sym_code           = key_sym_code_py
 screen_vectors         = screen_vectors_py
@@ -160,6 +162,8 @@ get_residue_by_type    = get_residue_by_type_py
 score_rotamers         = score_rotamers_py
 
 # c-interface-ligands-swig.hh:
+new_molecule_sans_biggest_ligand = new_molecule_sans_biggest_ligand_py
+gui_ligand_metrics     = gui_ligand_metrics_py
 residues_torsions_match = residues_torsions_match_py
 kolmogorov_smirnov     = kolmogorov_smirnov_py
 kullback_liebler       = kullback_liebler_py
@@ -169,6 +173,10 @@ morph_fit_residues     = morph_fit_residues_py
 density_score_residue  = density_score_residue_py
 align_to_closest_chain = align_to_closest_chain_py
 active_atom_spec       = active_atom_spec_py
+
+# probe-clash-score.hh
+probe_clash_score      = probe_clash_score_py
+probe_clash_score_as   = probe_clash_score_as_py
 
 # curl and hence coot_get_url_as_string are conditionally compiled.
 try:
