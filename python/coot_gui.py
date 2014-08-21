@@ -1387,7 +1387,8 @@ def interesting_residues_gui(imol, title, interesting_residues):
               residue_cpmd[2] + " " +
               centre_atom[0] + " " + centre_atom[1],
               imol, residue_cpmd[0], residue_cpmd[1], residue_cpmd[2],
-              centre_atom[0], centre_atom[1]],
+              centre_atom[0], centre_atom[1]] if centre_atom else
+              ["[oops - why did this happen?]", 0, 0, 0, 0, 0, 0],
              residues, centre_atoms))
       
    else:

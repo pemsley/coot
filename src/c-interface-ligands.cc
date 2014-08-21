@@ -354,6 +354,80 @@ compare_ligand_atom_types_scm(int imol_ligand, int imol_ref, const char *chain_i
 }
 #endif   
 
+#ifdef USE_PYTHON
+// For testing that pyrogen generates consistent atom types.  Not
+// useful for general public.
+// 
+PyObject *
+compare_ligand_atom_types_py(int imol_ligand, int imol_ref, const char *chain_id_ref,
+                             int resno_ref) {
+
+   PyObject *py_status = Py_False;
+   bool match_hydrogens_also = false;
+   bool apply_rtop_flag = true;
+
+   if (! is_valid_model_molecule(imol_ligand)) {
+      std::cout << "WARNING:: not a valid model molecule (ligand) " << imol_ligand << std::endl;
+   } else { 
+      if (! is_valid_model_molecule(imol_ref)) {
+	 std::cout << "WARNING:: not a valid model molecule (ref) " << imol_ligand << std::endl;
+      } else { 
+
+	 graphics_info_t g;
+	 CResidue *res_ref = g.molecules[imol_ref].get_residue(chain_id_ref, resno_ref, "");
+	 CResidue *res_mov = g.molecules[imol_ligand].get_first_residue();
+
+     if (! res_ref) {
+        std::cout << "WARNING failed to find reference residue" << std::endl;
+     } else { 
+        if (! res_mov) {
+           std::cout << "WARNING failed to find moving residue" << std::endl;
+        } else {
+   
+           coot::graph_match_info_t rtop_info =
+              coot::graph_match(res_mov, res_ref, apply_rtop_flag, match_hydrogens_also);
+
+	       // work atom-names then ref atom-names
+	       std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > matches = rtop_info.matching_atom_names;
+
+	       std::cout << "found " << matches.size() << " graph matched atoms" << std::endl;
+	       std::string rn1 = res_mov->GetResName();
+	       std::string rn2 = res_ref->GetResName();
+
+	       if (matches.size()) {
+              int n_fail = 0;
+
+              for (unsigned int i=0; i<matches.size(); i++) { 
+                 std::string energy_type_1 = g.Geom_p()->get_type_energy(matches[i].first.first,  rn1);
+                 std::string energy_type_2 = g.Geom_p()->get_type_energy(matches[i].second.first, rn2);
+
+                 std::string extra_space = "";
+                 if (i<10) extra_space = " ";
+                 std::cout << "   " << extra_space << i << " names: \""
+                           << matches[i].second.first << "\" \""
+                           << matches[i].first.first << "\" ->  "
+                           << "\"" << energy_type_2 << "\"  and  \"" << energy_type_1 << "\"";
+                 if (energy_type_1 != energy_type_2) { 
+                    std::cout << "   #### fail " << std::endl;
+                    n_fail++;
+                 } else { 
+                    std::cout << std::endl;
+                 }
+              }
+              py_status = PyLong_FromLong(n_fail);
+	       }
+	    }
+	 }
+      }
+   }
+   if (PyBool_Check(py_status)) {
+      Py_XINCREF(py_status);
+   }
+   return py_status;
+   
+}
+#endif // USE_PYTHON
+
 coot::graph_match_info_t
 overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref,
 			 int resno_ref, bool apply_rtop_flag) {
@@ -2287,6 +2361,23 @@ SCM new_molecule_sans_biggest_ligand_scm(int imol) {
    return r;
 }
 #endif
+
+#ifdef USE_PYTHON
+PyObject *new_molecule_sans_biggest_ligand_py(int imol) {
+
+   PyObject *r = Py_False;
+   std::pair<CResidue *, int> res = new_molecule_sans_biggest_ligand(imol);
+   if (res.first) {
+      r = PyList_New(2);
+      PyList_SetItem(r, 0, PyLong_FromLong(res.second));
+      PyList_SetItem(r, 1, py_residue(res.first));
+   }
+   if (PyBool_Check(r)) {
+      Py_INCREF(r);
+   }
+   return r;
+}
+#endif // USE_PYTHON
 
 
 std::pair<CResidue *, int>

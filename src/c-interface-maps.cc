@@ -1777,5 +1777,53 @@ map_to_model_correlation_per_residue_py(int imol, PyObject *specs_py, unsigned s
    }
    return r;
 }
-#endif
+
+PyObject *qq_plot_map_and_model_py(int imol, 
+                                   PyObject *residue_specs_py,
+                                   PyObject *neighb_residue_specs_py,
+                                   unsigned short int atom_mask_mode,
+                                   int imol_map) { 
+   
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) { 
+         std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_py);
+         std::vector<coot::residue_spec_t> nb_residues = py_to_residue_specs(neighb_residue_specs_py);
+         CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+         const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+         if (mol) { 
+            std::vector<std::pair<double, double> > v =
+               coot::util::qq_plot_for_map_over_model(mol, specs, nb_residues, atom_mask_mode, xmap);
+
+            if (0)
+               for (unsigned int i=0; i<v.size(); i++)
+                  std::cout << "     " << v[i].first << "    " << v[i].second << std::endl;
+            
+            // Goograph
+            coot::goograph *g = new coot::goograph;
+            int trace = g->trace_new();
+            g->set_plot_title("Difference Map QQ Plot");
+            g->set_axis_label(coot::goograph::X_AXIS, "Reference Normal Quantile");
+            g->set_axis_label(coot::goograph::Y_AXIS, "Difference Map Quantile");
+            g->set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_SCATTER);
+            g->set_data(trace, v);
+            std::pair<double, double> mmx = g->min_max_x();
+            std::pair<double, double> mmy = g->min_max_y();
+            lig_build::pos_t p1(mmx.first,  mmx.first);
+            lig_build::pos_t p2(mmy.second, mmy.second);
+            if (mmy.first  > mmx.first)  p1 = lig_build::pos_t(mmy.first,  mmy.first);
+            if (mmy.second > mmx.second) p2 = lig_build::pos_t(mmy.second, mmy.second);
+            g->add_annotation_line(p1, p2, "#444444", 1, false, false, false);
+            g->show_dialog();
+         }
+      }
+   }
+   // BL wonders:: always return false?
+   if (PyBool_Check(r)) {
+      Py_XINCREF(r);
+   }
+   return r;
+}
+
+#endif // USE_PYTHON
 

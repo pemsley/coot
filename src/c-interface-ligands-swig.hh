@@ -25,6 +25,11 @@ void gui_ligand_metrics_scm(SCM ligand_metrics, double percentile_limit);
 
 #endif
 
+#ifdef USE_PYTHON
+PyObject *new_molecule_sans_biggest_ligand_py(int imol);
+void gui_ligand_metrics_py(PyObject *ligand_metrics, double percentile_limit);
+#endif
+
 
 coot::probe_clash_score_t
 probe_clash_score(const std::string &dots_file_name);

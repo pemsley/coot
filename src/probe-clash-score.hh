@@ -136,6 +136,8 @@ coot::probe_clash_score_t probe_clash_score_from_scm(SCM p);
 // n_wide_contacts)
 // 
 PyObject *probe_clash_score_py(const std::string &dots_file_name);
+PyObject *probe_clash_score_as_py(const coot::probe_clash_score_t &p);
+coot::probe_clash_score_t probe_clash_score_from_py(PyObject *p);
 #endif // USE_PYTHON
 
 

@@ -1224,6 +1224,11 @@ SCM qq_plot_map_and_model_scm(int imol,
 PyObject *map_to_model_correlation_per_residue_py(int imol, PyObject *residue_specs,
 						  unsigned short int atom_mask_mode,
 						  int imol_map);
+PyObject *qq_plot_map_and_model_py(int imol, 
+			      PyObject *residue_specs_py,
+			      PyObject *neigh_residue_specs_py,
+			      unsigned short int atom_mask_mode,
+			      int imol_map);
 #endif
 
 //! \}

@@ -334,7 +334,7 @@ def shelxl_refine_inner(imol, hkl_file_in_maybe, func, shelxh_flag):
                   os.path.isfile(res_filename) and
                   os.path.isfile(fcf_filename)):
                   # it isn't a pdb file, but Coot knows what to do.
-                  imol_res = read_pdb(res_filename)
+                  imol_res = handle_read_draw_molecule_with_recentre(res_filename, 0)
                   handle_shelx_fcf_file(fcf_filename)
                   read_shelx_lst_file(lst_filename, imol_res)
               else:
