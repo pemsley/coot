@@ -11490,10 +11490,9 @@ on_other_tools_build_na_button_clicked (GtkButton       *button,
                                         gpointer         user_data)
 {
    GtkWidget *w;
-/*    w = create_build_na_dialog(); */
-/*    gtk_widget_show(w); */
+   w = create_build_na_dialog();
+   gtk_widget_show(w); 
 
-   printf("create_build_na_dialog() gets trashed on making new source from glade.  create_build_na_dialog needs to be in coot-gtk2.glade\n");
 }
 
 
