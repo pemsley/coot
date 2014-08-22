@@ -153,6 +153,8 @@ coot::mmcif_dict_from_mol_inner(const std::string &comp_id,
 	 // Coot standard place then
 	 env_as_string = std::string(PKGDATADIR) + "/lib/data/monomers/ener_lib.cif";
       }
+   } else {
+      env_as_string = env;
    }
 
    if (env_as_string.empty()) {
