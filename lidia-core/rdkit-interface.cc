@@ -652,8 +652,8 @@ coot::rdkit_mol_sanitize(RDKit::RWMol &mol) {
    // then do aromaticity perception
    RDKit::MolOps::setAromaticity(mol);
 
-   std::cout << "-------- coot::rdkit_mol_sanitize() mol: " << std::endl;
-   debug_rdkit_molecule(&mol);
+   // std::cout << "-------- coot::rdkit_mol_sanitize() mol: " << std::endl;
+   // debug_rdkit_molecule(&mol);
     
    // set conjugation
    RDKit::MolOps::setConjugation(mol);
@@ -914,7 +914,7 @@ coot::mogulify_mol(RDKit::RWMol &mol) {
 
    // charge_guanidinos(&mol);
    mogulify_nitro_groups(&mol);
-   debug_rdkit_molecule(&mol);
+   // debug_rdkit_molecule(&mol);
 }
 
 void
