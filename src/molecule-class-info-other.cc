@@ -3964,20 +3964,21 @@ molecule_class_info_t::is_pir_aa(const std::string &a) const {
 
 // render option (other functions)
 coot::ray_trace_molecule_info
-molecule_class_info_t::fill_raster_model_info() {
+molecule_class_info_t::fill_raster_model_info(bool against_a_dark_background) {
+
 
    coot::ray_trace_molecule_info rtmi;
    if (has_model()) {
       if (draw_it) { 
 	 int restore_bonds = 0;
-	 graphics_info_t g;
+	 graphics_info_t g; // bleugh
 	 if (g.raster3d_water_sphere_flag && bonds_box_type == coot::NORMAL_BONDS) {
 	    // remove waters
 	    bonds_no_waters_representation();
 	    restore_bonds = 1;
 	 }
 	 for (int i=0; i<bonds_box.num_colours; i++) {
-	    set_bond_colour_by_mol_no(i); //sets bond_colour_internal
+	    set_bond_colour_by_mol_no(i, against_a_dark_background); //sets bond_colour_internal
 	    for (int j=0; j<bonds_box.bonds_[i].num_lines; j++) {
 	       rtmi.bond_lines.push_back(std::pair<coot::Cartesian, coot::Cartesian>(bonds_box.bonds_[i].pair_list[j].positions.getStart(), bonds_box.bonds_[i].pair_list[j].positions.getFinish()));
 	       coot::colour_t c;
@@ -4000,7 +4001,8 @@ molecule_class_info_t::fill_raster_model_info() {
 	 for (int i=0; i<bonds_box.n_atom_centres_; i++) {
 	    coot::colour_t c;
 	    c.col.resize(3);
-	    set_bond_colour_by_mol_no(bonds_box.atom_centres_colour_[i]); //sets bond_colour_internal
+	    //sets bond_colour_internal
+	    set_bond_colour_by_mol_no(bonds_box.atom_centres_colour_[i], against_a_dark_background); 
 	    c.col[0] = bond_colour_internal[0];
 	    c.col[1] = bond_colour_internal[1];
 	    c.col[2] = bond_colour_internal[2];
@@ -6197,6 +6199,9 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 					   coot::display_list_object_info dloi,
 					   const coot::protein_geometry *geom) {
 
+   // hack
+   bool against_a_dark_background = true;
+
    // std::cout << "molecule make_ball_and_stick(B) called ..." << std::endl;
    
    // Use draw hydrogens flag that has been set already for this molecule.
@@ -6260,7 +6265,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       
       for (int ii=0; ii<bonds_box_local.num_colours; ii++) {
 	 ll = bonds_box_local.bonds_[ii];
-	 set_bond_colour_by_mol_no(ii);
+	 set_bond_colour_by_mol_no(ii, against_a_dark_background);
 
 	 GLfloat bgcolor[4]={bond_colour_internal[0],
 			     bond_colour_internal[1],
@@ -6351,7 +6356,8 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	       local_sphere_size = 0.11; // small (and cute)
 	    if (bonds_box_local.atom_centres_colour_[i] == HYDROGEN_GREY_BOND)
 	       local_sphere_size *= 0.5;
-	    set_bond_colour_by_mol_no(bonds_box_local.atom_centres_colour_[i]);
+	    set_bond_colour_by_mol_no(bonds_box_local.atom_centres_colour_[i],
+				      against_a_dark_background);
 	    glPushMatrix();
 	    GLfloat bgcolor[4]={bond_colour_internal[0],
 				bond_colour_internal[1],
@@ -6373,7 +6379,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       }
 
       if (bonds_box_local.have_rings()) {
-	 set_bond_colour_by_mol_no(0);
+	 set_bond_colour_by_mol_no(0, against_a_dark_background);
 	 for (unsigned int ir=0; ir<bonds_box_local.rings.size(); ir++) { 
 	    glPushMatrix();
 
