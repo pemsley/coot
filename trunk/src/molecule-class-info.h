@@ -1303,9 +1303,10 @@ public:        //                      public
       imol_no = i;
       *imol_no_ptr = i;
    }; 
-   void set_bond_colour_by_mol_no(int icolour);  // not const because
-						 // we also set
-						 // bond_colour_internal.
+   void set_bond_colour_by_mol_no(int icolour,
+				  bool against_a_dark_background);  // not const because
+					   	                    // we also set
+						                    // bond_colour_internal.
 
    void set_bond_colour_by_colour_wheel_position(int i, int bond_type);
 
@@ -1428,7 +1429,7 @@ public:        //                      public
    short int have_unit_cell;
    void set_have_unit_cell_flag_maybe();
 
-   void draw_molecule(short int do_zero_occ_spots);
+   void draw_molecule(short int do_zero_occ_spots, bool against_a_dark_background);
    void zero_occupancy_spots() const;
    void deuterium_spots() const;
    void set_occupancy_residue_range(const std::string &chain_id, int ires1, int ires2, float occ_val);
@@ -1614,9 +1615,9 @@ public:        //                      public
 
    // These are not const because set_bond_colour_by_mol_no() gets called.
    // maybe needs fixing.  Similarly  set_symm_bond_colour_mol_and_symop().
-   void display_bonds();
+   void display_bonds(bool against_a_dark_background);
    void display_symmetry_bonds();
-   void display_bonds(const graphical_bonds_container &bonds_box, float bond_width_in);
+   void display_bonds(const graphical_bonds_container &bonds_box, float bond_width_in, bool against_a_dark_background);
    void display_ghost_bonds(int ighost);
 
 
@@ -2693,7 +2694,7 @@ public:        //                      public
 
 
    // render option (other functions)
-   coot::ray_trace_molecule_info fill_raster_model_info(); // messes with bond_colour_internal
+   coot::ray_trace_molecule_info fill_raster_model_info(bool against_a_dark_background); // messes with bond_colour_internal
    coot::ray_trace_molecule_info fill_raster_map_info(short int lev) const;
    coot::ray_trace_molecule_info fill_raster_additional_info() const;
 

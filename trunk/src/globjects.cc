@@ -1937,7 +1937,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       gl_context = GL_CONTEXT_SECONDARY;
 
    gl_context_info_t gl_info(graphics_info_t::glarea, graphics_info_t::glarea_2);
-   
+
+   bool is_bb = background_is_black_p();
+
 
 // void glDepthRange(GLclampd near, GLclampd far); Defines an encoding
 // for z coordinates that's performed during the viewport
@@ -2088,7 +2090,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 	 // Molecule stuff
 	 //
-	 graphics_info_t::molecules[ii].draw_molecule(graphics_info_t::draw_zero_occ_spots_flag);
+	 graphics_info_t::molecules[ii].draw_molecule(graphics_info_t::draw_zero_occ_spots_flag, is_bb);
 
 	 //
 	 graphics_info_t::molecules[ii].draw_dipoles();
@@ -4397,6 +4399,8 @@ set_bond_colour(int i) {
 	 glColor3f (0.7, 0.8, 0.8);
       }
    } else {
+      // Are you sure that this is begin executed (and the colour-state not overwritten?)
+      // How about set_bond_colour_by_mol_no()?
       switch (i) {
       case GREEN_BOND:
 	 glColor3f (0.05, 0.6, 0.05);

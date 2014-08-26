@@ -69,16 +69,16 @@ graphics_info_t::raster3d(std::string filename) {
    rt.set_view_matrix(m);
 
    rt.add_display_objects(*generic_objects_p);
-
    rt.set_raster3d_enable_shadows(raster3d_enable_shadows);
+   bool is_bb = background_is_black_p();
 
    std::cout << "Generating raytrace molecule objects..." << std::endl;
    for (int imol=0; imol<n_molecules(); imol++) {
       std::cout << " molecule " << imol << " in  raytrace" << std::endl;
-      
+
       if (molecules[imol].is_displayed_p()) { 
 	 if (molecules[imol].has_model()) {
-	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info());
+	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info(is_bb));
 	 }
 	 coot::ray_trace_molecule_info rai = molecules[imol].fill_raster_additional_info();
 	 rt.rt_mol_info.push_back(rai);
@@ -138,13 +138,14 @@ graphics_info_t::povray(std::string filename) {
    eye *= 1.015;
    rt.set_front_clipping_plane_point(eye);
    rt.set_camera_location(far_eye);
+   bool is_bb = background_is_black_p();
    
    for (int imol=0; imol<n_molecules(); imol++) {
       std::cout << " molecule " << imol << " in  raytrace" << std::endl;
       
       if (molecules[imol].has_model()) {
 	 if (molecules[imol].is_displayed_p()) { 
-	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info());
+	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info(is_bb));
 	    //coot::Cartesian eye_centre = eye - rt.view_centre;
 	    //eye_centre *= 7.5;
 	    //coot::Cartesian far_eye = rt.view_centre - eye_centre;
@@ -187,7 +188,9 @@ graphics_info_t::renderman(std::string filename) {
    if (glarea) {
       width = glarea->allocation.width;
       height = glarea->allocation.height;
-   } 
+   }
+   bool is_bb = background_is_black_p(); 
+
    coot::raytrace_info_t rt(RotationCentre(), zoom, background,
 			    width, height,
 			    clipping_front,
@@ -217,7 +220,7 @@ graphics_info_t::renderman(std::string filename) {
       
       if (molecules[imol].has_model()) {
 	 if (molecules[imol].is_displayed_p()) { 
-	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info());
+	    rt.rt_mol_info.push_back(molecules[imol].fill_raster_model_info(is_bb));
 	 }
       }
       if (molecules[imol].has_xmap()) { // NXMAP-FIXME
