@@ -160,6 +160,9 @@ if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then
     PYTHONPATH=$COOT_PREFIX/share/coot/python
 else
     PYTHONHOME=$COOT_PREFIX
+    # now python files are in a canonical location, let's use COOT_PYTHON_DIR 
+    # (which overrides PKGPYTHONDIR) to find them
+    COOT_PYTHON_DIR=$COOT_PREFIX/lib/python2.7/site-packages/coot
 fi
 
 # Added 20090429 - take this out when trying internationalization.
