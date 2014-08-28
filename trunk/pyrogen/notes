@@ -9,3 +9,28 @@ https://github.com/baoilleach/openbabel-svn-mirror/blob/master/data/phmodel.txt
 
 * Done.
 
+----
+Thu Jul 24 18:53:31 BST 2014
+
+$ pyrogen -p -t LIG -m drugbank-3/LIG-DB00483.cif
+****
+Invariant Violation
+
+Violation occurred on line 1609 in file /home/emsley/github/rdkit/Code/GraphMol/Depictor/EmbeddedFrag.cpp
+Failed Expression: deg == 1
+****
+
+Traceback (most recent call last):
+  File "/home/emsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/python2.7/runpy.py", line 162, in _run_module_as_main
+    "__main__", fname, loader, pkg_name)
+  File "/home/emsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/lib/python2.7/runpy.py", line 72, in _run_code
+    exec code in run_globals
+  File "/home/emsley/Projects/build-enhanced-ligand/pyrogen/pyrogen.py", line 701, in <module>
+    options.quartet_planes, options.quartet_hydrogen_planes)
+  File "/home/emsley/Projects/build-enhanced-ligand/pyrogen/pyrogen.py", line 479, in make_restraints_from_pdbx
+    m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
+RuntimeError: Invariant Violation
+
+  should I worry about that?
+
+------
