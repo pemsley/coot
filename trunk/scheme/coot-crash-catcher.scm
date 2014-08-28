@@ -282,7 +282,7 @@
 
   (let ((info-list (list "\n------------------------------------\n" 
 			 (let ((u (getenv "USER")))
-			   (format #f "user: ~s ~s~%" s (getpwnam u)))
+			   (format #f "user: ~s ~s~%" u (getpwnam u)))
 			 (format #f "hostname: ~s~%" (run-command/strings "hostname" '() '()))
 			 (format #f "exe-name: ~s~%" coot-exe)
 			 (format #f "version-full: ~s~%" 
