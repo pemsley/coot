@@ -1595,15 +1595,18 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 	 std::cout << "INFO:: mol residue set extents: "
 		   << selection_extents.first.format() << " to "
 		   << selection_extents.second.format() << std::endl;
+
+      // double border = 4.1;
+      double border = 3;
       
-      clipper::Coord_frac ex_pt_1_fc = clipper::Coord_orth(selection_extents.first.x()-3,
-							   selection_extents.first.y()-3,
-							   selection_extents.first.z()-3).coord_frac(masked_map.cell());
-      clipper::Coord_frac ex_pt_2_fc = clipper::Coord_orth(selection_extents.second.x()+3,
-							   selection_extents.second.y()+3,
-							   selection_extents.second.z()+3).coord_frac(masked_map.cell());
-      clipper::Grid_map selection_grid(ex_pt_1_fc.coord_grid(masked_map.grid_sampling()),
-				       ex_pt_2_fc.coord_grid(masked_map.grid_sampling()));
+      clipper::Coord_frac ex_pt_1_fc = clipper::Coord_orth(selection_extents.first.x()-border,
+							   selection_extents.first.y()-border,
+							   selection_extents.first.z()-border).coord_frac(masked_map.cell());
+      clipper::Coord_frac ex_pt_2_fc = clipper::Coord_orth(selection_extents.second.x()+border,
+							   selection_extents.second.y()+border,
+							   selection_extents.second.z()+border).coord_frac(masked_map.cell());
+      clipper::Grid_map selection_grid(ex_pt_1_fc.coord_grid(reference_map.grid_sampling()),
+				       ex_pt_2_fc.coord_grid(reference_map.grid_sampling()));
       if (debug) {
 	 std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
 	 std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
@@ -1631,6 +1634,12 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 	 float atom_radius_sq = atom_radius * atom_radius;
 
 	 clipper::Xmap_base::Map_reference_coord ix(masked_map, grid.min() ), iu, iv, iw;
+
+	 if (debug) {
+	    std::cout << "INFO:: box grid: " << grid.format() << std::endl;
+	    std::cout << "INFO:: iu range: " << iu.coord().u() << " to " << grid.max().u() << std::endl;
+	 }
+	 
 	 for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) { 
 	    for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
 	       for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
