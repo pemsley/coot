@@ -3243,11 +3243,13 @@ def get_SMILES_for_comp_id_from_pdbe(comp_id):
         # something probably went wrong if we got to here
         return False
 
-# load the redefining functions
-try:
-    load_from_search_load_path("redefine_functions.py")
-except:
-    pass
+# # load the redefining functions
+# try:
+#     load_from_search_load_path("redefine_functions.py")
+#     # import redefine_functions
+# except:
+#     print "load_from_search_load_path() of redefine_functions.py failed"
+#     pass
 
 # Add file with filename to preferences directory
 #
@@ -3295,6 +3297,7 @@ def file_to_preferences(filename):
 # sequence, but also we can try ton find the residue type of a
 # residue in the middle of the chain that is modelled as an ALA, say.
 #
+# PE comment - not sure why needed.
 find_aligned_residue_type = find_terminal_residue_type
 
 def using_gui():

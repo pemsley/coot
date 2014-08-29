@@ -62,6 +62,7 @@
 
 #include "ligand/wligand.hh"
 
+#include "c-interface-ligands-swig.hh"
 #include "guile-fixups.h"
 
 #ifdef HAVE_GOOCANVAS
@@ -2347,8 +2348,6 @@ int het_group_n_atoms(const char *comp_id) {
    int r = g.Geom_p()->n_non_hydrogen_atoms(comp_id);
    return r;
 }
-
-#include "c-interface-ligands-swig.hh"
 
 #ifdef USE_GUILE
 SCM new_molecule_sans_biggest_ligand_scm(int imol) {

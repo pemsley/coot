@@ -84,6 +84,7 @@ fi
 
 AM_PATH_LIBPNG
 
+AM_PATH_SQLITE3
 
 dnl =========================== crystallographic libraries ================================
 dnl Check for gpp4

@@ -4528,8 +4528,7 @@ void match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_r
 #ifdef USE_PYTHON
 PyObject *overlap_ligands_py(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
 PyObject *analyse_ligand_differences_py(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
-PyObject *compare_ligand_atom_types_py(int imol_ligand, int imol_ref, const char *chain_id_ref,
-				  int resno_ref);
+PyObject *compare_ligand_atom_types_py(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
 #endif /* PYTHON*/
 #endif	/* __cplusplus */
 

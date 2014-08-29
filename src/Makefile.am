@@ -177,8 +177,6 @@ AM_CXXFLAGS = \
 	$(COOT_GSL_FLAGS) $(OPENMP_CFLAGS)
 
 
-
-
 # SWIG_FLAGS is something of a misnomer.  It actually defines
 # COOT_USE_GTK2_INTERFACE, which is needed to correctly declare the
 # correct callbacks in both GTK1 and GTK2 regimes.
@@ -205,7 +203,8 @@ INCLUDES = \
 	$(GSL_CFLAGS)			\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(PYGTK_CFLAGS)                 \
-	$(GLOB_CFLAGS)                 \
+	$(GLOB_CFLAGS)                  \
+	$(SQLITE3_CFLAGS)               \
 	$(CURL_CFLAGS)                 
 
 #	$(WITH_SCRIPT_CFLAGS) 
@@ -471,6 +470,7 @@ coot_real_LDADD =  $(OPENMP_CFLAGS)     \
 		$(LIBGLADE_LIBS)	\
 	  	$(RDKIT_LIBS)	        \
 		$(GOOCANVAS_LIBS)       \
+		$(SQLITE3_LIBS)         \
 		@GTK_LIBS@
 
 #                -lglade-2.0

@@ -3,9 +3,20 @@
 
 ---- 
 
+   o make refmac from recent pdbe work with intensities.
+
+   o lbg: get molecule needs to get comp-id (3 letter codes) (if caps
+     or numbers)
+
+   o coot crash catcher in the lab for new-coot.
+
+* Done.  Needs testing.
+
    o for ligand check, turn off flips in reduce.
 
      Have you added ligand-check.hh to Makefile.am and svn repo?
+
+* Yes.
 
    o Update the Coot Shelx Tutorial 
 

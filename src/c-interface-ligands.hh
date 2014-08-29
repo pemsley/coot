@@ -31,6 +31,7 @@
 #include "lidia-core/lbg-shared.hh"
 
 #include "lbg/flev-annotations.hh"
+#include "ligand-check.hh"
 
 namespace coot { 
 
@@ -99,6 +100,13 @@ namespace coot {
    void write_ligand_atom_accessibilities(const std::vector<std::pair<coot::atom_spec_t, float> > &sav,
 					  const coot::flev_attached_hydrogens_t &attached_hydrogens,
 					  CResidue *reference_residue);
+
+   void ligand_check_dialog(residue_spec_t spec,
+			    const ligand_report_absolute_t &lr,
+			    double percentile_limit);
+   void ligand_check_percentiles_dialog(residue_spec_t spec,
+					const ligand_report_percentiles_t &lr,
+					double percentile_limit);
 
 } // namespace coot
 
