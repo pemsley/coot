@@ -789,7 +789,7 @@ if __name__ == "__main__":
 	    mol = Chem.MolFromSmiles(smiles)
 	else:
 	    if options.sdf_file != None:
-		mol = Chem.MolFromMolFile(options.sdf)
+		mol = Chem.MolFromMolFile(options.sdf_file)
 	    else:
 		if options.mmcif_file != None:
 		    types = pysw.types_from_mmcif_dictionary(options.mmcif_file)

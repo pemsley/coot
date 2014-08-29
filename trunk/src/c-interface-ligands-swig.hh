@@ -9,8 +9,6 @@
 // We don't need to SWIG this one...
 std::pair<CResidue *, int>
 new_molecule_sans_biggest_ligand(int imol);
-// or this one
-void gui_ligand_metrics(const coot::ligand_report_t &lr, double percentile_limit);
 
 
 #ifdef USE_GUILE
@@ -21,13 +19,13 @@ void gui_ligand_metrics(const coot::ligand_report_t &lr, double percentile_limit
 // (or scheme false).
 // 
 SCM new_molecule_sans_biggest_ligand_scm(int imol);
-void gui_ligand_metrics_scm(SCM ligand_metrics, double percentile_limit);
+void gui_ligand_metrics_scm(SCM ligand_spec, SCM ligand_metrics, double percentile_limit);
 
 #endif
 
 #ifdef USE_PYTHON
 PyObject *new_molecule_sans_biggest_ligand_py(int imol);
-void gui_ligand_metrics_py(PyObject *ligand_metrics, double percentile_limit);
+void gui_ligand_metrics_py(PyObject *ligand_spec, PyObject *ligand_metrics, double percentile_limit);
 #endif
 
 

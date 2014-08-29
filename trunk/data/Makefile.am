@@ -18,4 +18,5 @@
 cootdatadir = $(pkgdatadir)/data
 
 dist_cootdata_DATA = \
-	tutorial-modern.pdb rnasa-1.8-all_refmac1.mtz
+	tutorial-modern.pdb rnasa-1.8-all_refmac1.mtz ligands.db
+

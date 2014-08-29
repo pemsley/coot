@@ -23,6 +23,10 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#ifdef USE_SQLITE3
+#include <sqlite3.h>
+#endif // USE_SQLITE
+
 #include "compat/coot-sysdep.h"
 
 
@@ -59,6 +63,7 @@
 
 #include "ligand/wligand.hh"
 
+#include "c-interface-ligands.hh"
 #include "c-interface-ligands-swig.hh"
 
 #include "guile-fixups.h"
@@ -721,7 +726,7 @@ start_ligand_builder_gui() {
 
 // for "better than the median", percentile_limit should be 0.5 (of course).
 #ifdef USE_GUILE
-void gui_ligand_metrics_scm(SCM ligand_metrics, double percentile_limit) {
+void gui_ligand_metrics_scm(SCM ligand_spec, SCM ligand_metrics, double percentile_limit) {
 
    if (scm_is_true(scm_list_p(ligand_metrics))) { 
       SCM lm_len_scm = scm_length(ligand_metrics);
@@ -733,8 +738,12 @@ void gui_ligand_metrics_scm(SCM ligand_metrics, double percentile_limit) {
 	 int    n_bumps = scm_to_int(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
 	 // coot::probe_clash_score_t cs = probe_clash_score_from_scm(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
 	 coot::probe_clash_score_t cs(n_bumps, -1, -1, -1, -1);
-	 coot::ligand_report_t lr(d, m, cs);
-	 gui_ligand_metrics(lr, percentile_limit);
+	 coot::ligand_report_absolute_t lr(d, m, cs);
+
+	 coot::residue_spec_t spec = residue_spec_from_scm(ligand_spec);
+
+	 coot::ligand_check_dialog(spec, lr, percentile_limit);
+	 
       }
    }
 
@@ -743,7 +752,7 @@ void gui_ligand_metrics_scm(SCM ligand_metrics, double percentile_limit) {
 
 // for "better than the median", percentile_limit should be 0.5 (of course).
 #ifdef USE_PYTHON
-void gui_ligand_metrics_py(PyObject *ligand_metrics, double percentile_limit) {
+void gui_ligand_metrics_py(PyObject *ligand_spec, PyObject *ligand_metrics, double percentile_limit) {
 
    if (PyList_Check(ligand_metrics)) { 
       Py_ssize_t lm_len = PyList_Size(ligand_metrics);
@@ -754,15 +763,186 @@ void gui_ligand_metrics_py(PyObject *ligand_metrics, double percentile_limit) {
          int n_bumps = PyLong_AsLong(PyList_GetItem(ligand_metrics, 2));
          // coot::probe_clash_score_t cs = probe_clash_score_from_scm(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
          coot::probe_clash_score_t cs(n_bumps, -1, -1, -1, -1);
-         coot::ligand_report_t lr(d, m, cs);
-         gui_ligand_metrics(lr, percentile_limit);
+         coot::ligand_report_absolute_t lr(d, m, cs);
+
+	 coot::residue_spec_t spec = residue_spec_from_py(ligand_spec);
+	 coot::ligand_check_dialog(spec, lr, percentile_limit);
       }
    }
 
 }
 #endif // USE_PYTHON
 
-void gui_ligand_metrics(const coot::ligand_report_t &lr, double percentile_limit) {
+int
+coot::ligands_db_sql_callback(void *param, int argc, char **argv, char **azColName) {
+
+   // move all this into
+   // 
+   // ligand_report_percentiles_t::db_percentiles(argc, argv, azColName)
+
+   try {
+
+      coot::ligand_report_percentiles_t *lrp =
+	 static_cast<ligand_report_percentiles_t *> (param);
+      
+      for(int i=0; i<argc; i++) {
+	 // printf("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+	 std::string col_name(azColName[i]);
+	 if (col_name == "density_correlation") {
+	    std::string v(argv[i]);
+	    double d = coot::util::string_to_float(v);
+	    lrp->density_correlation_vec.push_back(d);
+	 }
+	 if (col_name == "mogul_z_worst") {
+	    std::string v(argv[i]);
+	    double d = coot::util::string_to_float(v);
+	    lrp->mogul_z_worst_vec.push_back(d);
+	 }
+	 if (col_name == "contact_score_clash") {
+	    std::string v(argv[i]);
+	    int b = coot::util::string_to_int(v);
+	    lrp->bad_contacts_vec.push_back(b);
+	 }
+      }
+   }
+   catch (const std::runtime_error &rte) {
+      std::cout << "problem converting a number" << std::endl;
+   }
+   // printf("\n");
+   return 0;
+}
+
+
+coot::ligand_report_percentiles_t
+coot::ligand_report_absolute_t::make_percentiles() const {
+
+   coot::ligand_report_percentiles_t lrp(-1, -1, -1);
+
+#ifdef USE_SQLITE3
+
+   std::string pkg_data_dir = PKGDATADIR;
+   std::string ligands_db_file_name = "ligands.db";
+   std::string d = coot::util::append_dir_file(pkg_data_dir, "data");
+   std::string f = coot::util::append_dir_file(d, ligands_db_file_name);
+
+   // hack, for testing ligands.db in the working directory.
+   // f = ligands_db_file_name;
+
+   if (! coot::file_exists(f)) {
+      std::cout << "WARNING:: No such file: " << f << std::endl;
+   } else { 
+      sqlite3 *db;
+      char *zErrMsg = 0;
+      const char *something;
+  
+      int rc = sqlite3_open(f.c_str(), &db);
+      if (rc) {
+	 fprintf(stderr, "Can't open database: %s\n", sqlite3_errmsg(db));
+	 sqlite3_close(db);
+      }
+
+      // Ugly. Unsafe? (because "this" is a const pointer, and we cast
+      // away the constness (we can't even use static_cast because
+      // that won't let us cast away constness).
+      // 
+      void *this_ptr = (void *) (&lrp);
+
+      rc = sqlite3_exec(db, "SELECT * FROM ligands ;",
+			ligands_db_sql_callback,
+			this_ptr, &zErrMsg);
+      if( rc!=SQLITE_OK ) {
+	 fprintf(stderr, "SQL error: %s\n", zErrMsg);
+	 sqlite3_free(zErrMsg);
+      }
+      sqlite3_close(db);
+
+      std::cout << "info:: density_correlation_vec.size() "
+		<< lrp.density_correlation_vec.size() << std::endl;
+      std::cout << "info:: mogul_z_worst_vec.size() "
+		<< lrp.mogul_z_worst_vec.size() << std::endl;
+      std::cout << "info:: bad_contacts_vec.size() "
+		<< lrp.bad_contacts_vec.size() << std::endl;
+
+      std::sort(lrp.density_correlation_vec.begin(), lrp.density_correlation_vec.end());
+      std::sort(lrp.mogul_z_worst_vec.begin(),       lrp.mogul_z_worst_vec.end());
+      std::sort(lrp.bad_contacts_vec.begin(),        lrp.bad_contacts_vec.end());
+
+      
+      std::vector<double>::iterator it_d, it_m;
+      std::vector<int>::iterator it_b;
+
+      // high is good
+      it_d = std::lower_bound(lrp.density_correlation_vec.begin(),
+			      lrp.density_correlation_vec.end(),
+			      density_correlation);
+
+      // low is good, need to reverse for percentiles
+      it_m = std::lower_bound(lrp.mogul_z_worst_vec.begin(),
+	 		      lrp.mogul_z_worst_vec.end(),
+			      mogul_z_score);
+
+      // low is good, need to reverse for percentiles
+       it_b = std::lower_bound(lrp.bad_contacts_vec.begin(),
+ 			      lrp.bad_contacts_vec.end(),
+ 			      pcs.n_bad_overlaps);
+
+      std::cout << "density: lower_bound at position of " << density_correlation
+		<< " is "
+		<< (it_d - lrp.density_correlation_vec.begin())
+		<< " of " << lrp.density_correlation_vec.size()
+		<< '\n';
+			      
+      std::cout << "mogul:   lower_bound at position of " << mogul_z_score
+		<< " is "
+		<< (it_m - lrp.mogul_z_worst_vec.begin())
+		<< " of " << lrp.mogul_z_worst_vec.size()
+		<< '\n';
+
+      std::cout << "bad-contacts: lower_bound at position of " << pcs.n_bad_overlaps
+		<< " is "
+		<< (it_b - lrp.bad_contacts_vec.begin())
+		<< " of " << lrp.bad_contacts_vec.size()
+		<< '\n';
+
+      double frac_d =
+	 double(it_d - lrp.density_correlation_vec.begin())/
+	 double(lrp.density_correlation_vec.size());
+      double frac_m = 1 - 
+	 double(it_m - lrp.mogul_z_worst_vec.begin())/
+	 double(lrp.mogul_z_worst_vec.size());
+      double frac_b = 1 - 
+	 double(it_b - lrp.bad_contacts_vec.begin())/
+	 double(lrp.bad_contacts_vec.size());
+
+      lrp.density_correlation_percentile = frac_d;
+      lrp.mogul_percentile = frac_m;
+      lrp.probe_clash_percentile = frac_b;
+
+      std::cout << "lrp: density_correlation_percentile " << lrp.density_correlation_percentile << std::endl;
+      std::cout << "lrp: mogul_percentile " << lrp.mogul_percentile << std::endl;
+      std::cout << "lrp: probe_clash_percentile " << lrp.probe_clash_percentile << std::endl;
+
+   }
+#endif // USE_SQLITE   
+   return lrp;
+}
+
+
+void coot::ligand_check_dialog(coot::residue_spec_t spec,
+			       const coot::ligand_report_absolute_t &lr, double percentile_limit) {
+
+   // convert from absolute metrics to percentiles and then make a gui.
+
+   coot::ligand_report_percentiles_t lrp = lr.make_percentiles();
+   ligand_check_percentiles_dialog(spec, lrp, percentile_limit);
+}
+
+
+
+void
+coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
+				      const coot::ligand_report_percentiles_t &lr,
+				      double percentile_limit) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
       GtkWidget *w = create_ligand_check_dialog();
@@ -780,13 +960,23 @@ void gui_ligand_metrics(const coot::ligand_report_t &lr, double percentile_limit
       GtkWidget *bumps_incom_w = lookup_widget(w, "image_incomplete_bumps");
 
       std::cout << "lr.mogul_percentile " << lr.mogul_percentile << std::endl;
-      std::cout << "lr.density_correlation_percentile " << lr.density_correlation_percentile << std::endl;
+      std::cout << "lr.density_correlation_percentile "
+		<< lr.density_correlation_percentile << std::endl;
+      std::cout << "lr.probe_clash_percentile "
+		<< lr.probe_clash_percentile << std::endl;
       std::cout << "percentile_limit " << percentile_limit << std::endl;
 
       if (lr.mogul_percentile < percentile_limit) {
 	 // bad ligand
-	 gtk_widget_hide(mogul_tick_w);
-	 gtk_widget_hide(mogul_incom_w);
+	 if (lr.mogul_percentile < 0) {
+	    // test failed 
+	    gtk_widget_hide(mogul_tick_w);
+	    gtk_widget_hide(mogul_cross_w);
+	 } else {
+	    // ligand failed test
+	    gtk_widget_hide(mogul_tick_w);
+	    gtk_widget_hide(mogul_incom_w);
+	 } 
       } else {
 	 // happy ligand
 	 gtk_widget_hide(mogul_cross_w);
@@ -795,18 +985,30 @@ void gui_ligand_metrics(const coot::ligand_report_t &lr, double percentile_limit
       
       if (lr.density_correlation_percentile < percentile_limit) {
 	 // bad ligand
-	 gtk_widget_hide(density_tick_w);
-	 gtk_widget_hide(density_incom_w);
+	 if (lr.density_correlation_percentile < percentile_limit) {
+	    // test failed
+	    gtk_widget_hide(density_tick_w);
+	    gtk_widget_hide(density_cross_w);
+	 } else {
+	    // ligand failed test
+	    gtk_widget_hide(density_tick_w);
+	    gtk_widget_hide(density_incom_w);
+	 } 
       } else {
 	 // happy
 	 gtk_widget_hide(density_cross_w);
 	 gtk_widget_hide(density_incom_w);
       } 
 
-      if (lr.pcs.n_bad_overlaps > 0) {
+      if (lr.probe_clash_percentile < percentile_limit) {
 	 // bad bumps
-	 gtk_widget_hide(bumps_tick_w);
-	 gtk_widget_hide(bumps_incom_w);
+	 if (lr.probe_clash_percentile < 0) { 
+	    gtk_widget_hide(bumps_tick_w);
+	    gtk_widget_hide(bumps_cross_w);
+	 } else { 
+	    gtk_widget_hide(bumps_tick_w);
+	    gtk_widget_hide(bumps_incom_w);
+	 }
       } else {
 	 // happy bumps
 	 gtk_widget_hide(bumps_cross_w);
@@ -816,4 +1018,6 @@ void gui_ligand_metrics(const coot::ligand_report_t &lr, double percentile_limit
       
       gtk_widget_show(w);
    }
-} 
+
+}
+

@@ -2,6 +2,10 @@
 #ifndef PROBE_CLASH_SCORE_HH
 #define PROBE_CLASH_SCORE_HH
 
+#ifdef USE_GUILE
+#include <libguile.h>     
+#endif // USE_GUILE
+
 #include "coot-utils/coot-coord-utils.hh"
 
 namespace coot {
