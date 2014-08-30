@@ -35,7 +35,6 @@ coot::mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 
 }
 
-   
 PyObject *
 coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
 				     const std::string &comp_id,
@@ -1196,6 +1195,8 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
    return n_chirals;
 }
 
+#include "rdkit/RDBoost/Exceptions.h"
+   
 // alter restraints.
 int 
 coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol,
@@ -1228,10 +1229,18 @@ coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol,
 	 n_chirals++;
       }
       catch (const KeyErrorException &kee) {
-	 // std::cout << "oops catch exception " << kee.what() << std::endl;
 	 // it's OK for this to happen.  Most atoms are not chiral.
 	 // Most input molecules are not from mmcif files.
+	 
+	 std::cout << "oops caught exception " << kee.key() << " "
+		   << kee.what() << std::endl;
       }
+      // This shouldn't be needed because the exception should only be
+      // KeyErrorException, and that should be caught by the block above.
+      catch (const std::runtime_error &rte) {
+	 std::cout << "assign_chirals_mmcif_tags() strange - caught runtime_error "
+		   << rte.what() << std::endl;
+      } 
    }
    return n_chirals;
 }

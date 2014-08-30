@@ -116,7 +116,6 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	    }
 	 }
 
-
 	 // debug.  OK, so the bond orders are undelocalized here.
 	 // debug_rdkit_molecule(&mol_rw);
       
