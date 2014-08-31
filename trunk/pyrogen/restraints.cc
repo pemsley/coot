@@ -239,7 +239,7 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	 
 	 }
 	 catch (const KeyErrorException &kee) {
-	    std::cout << "WARNING:: caugh KeyErrorException in add_bonds_to_hydrogens() "
+	    std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_bonds() "
 		      << std::endl;
 	 }
       }
@@ -1238,8 +1238,10 @@ coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol,
       // This shouldn't be needed because the exception should only be
       // KeyErrorException, and that should be caught by the block above.
       catch (const std::runtime_error &rte) {
-	 std::cout << "assign_chirals_mmcif_tags() strange - caught runtime_error "
-		   << rte.what() << std::endl;
+
+	 if (0)
+	    std::cout << "assign_chirals_mmcif_tags() strange - caught runtime_error "
+		      << rte.what() << std::endl;
       } 
    }
    return n_chirals;

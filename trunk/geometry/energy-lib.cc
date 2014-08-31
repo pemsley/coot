@@ -267,6 +267,8 @@ coot::energy_lib_t::add_energy_lib_bonds(PCMMCIFLoop mmCIFLoop) {
       }
 
       if (ierr_tot == 0) {
+	 // one bond (ST-OS) is delocal, not deloc
+	 if (type == "delocal") type = "deloc";
 	 coot::energy_lib_bond bond(atom_type_1, atom_type_2, type, spring_const,
 				    length, value_esd);
 	 add_energy_lib_bond(bond);
@@ -529,15 +531,20 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
    try {
       return get_bond(energy_type_1, energy_type_2, bond_type, false);
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       try { 
 	 return get_bond(energy_type_2, energy_type_1, bond_type, false);
-      } 
-      catch (std::runtime_error rte) {
+      }
+      catch (const std::runtime_error &rte) {
+
+	 if (1)
+	    std::cout << "INFO:: falling back to permissive search for bond "
+		      << energy_type_1 << " " << energy_type_2 << std::endl;
+      
 	 try { 
 	    return get_bond(energy_type_1, energy_type_2, bond_type, true);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    return get_bond(energy_type_2 , energy_type_1, bond_type, true);
 	 }
       }
