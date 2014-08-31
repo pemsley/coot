@@ -32,11 +32,10 @@ if test x$with_coot_database != x; then
    # include files in /usr/include, so we don't need to specify that
    echo Linking with MYSQL database
 else 
-   echo Not using database
+   echo Not using MySQL database
    coot_database=false
 fi
 
-# echo ............. in coot-database: MYSQL_LIBS=$MYSQL_LIBS
 AC_SUBST(MYSQL_LIBS)
 AC_SUBST(MYSQL_CFLAGS)
 ])

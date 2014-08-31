@@ -1720,6 +1720,9 @@ SCM qq_plot_map_and_model_scm(int imol,
 			      int imol_map) { 
    
    SCM r = SCM_BOOL_F;
+
+#ifdef HAVE_GOOCANVAS
+   
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) { 
 	 std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(residue_specs_scm);
@@ -1753,6 +1756,7 @@ SCM qq_plot_map_and_model_scm(int imol,
 	 }
       }
    }
+#endif // HAVE_GOOCANVAS   
    return r;
 }
 #endif
@@ -1785,6 +1789,7 @@ PyObject *qq_plot_map_and_model_py(int imol,
                                    int imol_map) { 
    
    PyObject *r = Py_False;
+#ifdef HAVE_GOOCANVAS   
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) { 
          std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_py);
@@ -1818,7 +1823,10 @@ PyObject *qq_plot_map_and_model_py(int imol,
          }
       }
    }
-   // BL wonders:: always return false?
+
+#endif // HAVE_GOOCANVAS   
+   // BL wonders:: always return false?,
+   // PE:: Yes for the moment, nothing interesting is returned.
    if (PyBool_Check(r)) {
       Py_XINCREF(r);
    }
