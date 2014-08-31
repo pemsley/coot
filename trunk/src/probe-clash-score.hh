@@ -2,10 +2,13 @@
 #ifndef PROBE_CLASH_SCORE_HH
 #define PROBE_CLASH_SCORE_HH
 
+#include <algorithm> // for find
+
 #ifdef USE_GUILE
 #include <libguile.h>     
 #endif // USE_GUILE
 
+#include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 
 namespace coot {
@@ -20,7 +23,7 @@ namespace coot {
 	    std::string res_no_str = s.substr(2, 4);
 	    std::string atom_name_local = s.substr(11, 4);
 	    try {
-	       int resno_local = coot::util::string_to_int(res_no_str);
+	       int resno_local = util::string_to_int(res_no_str);
 	       if (chain_local[0] == ' ') { 
 		  if (chain_local.length() > 1)
 		     chain = std::string(chain_local.substr(1));
