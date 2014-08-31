@@ -33,4 +33,16 @@ RuntimeError: Invariant Violation
 
   should I worry about that?
 
+
+----
+Sun Aug 31 21:00:03 BST 2014
+
+
+-m 313.cif
+
+[20:57:58] UFFTYPER: Unrecognized atom type: S_5+4 (6)
+
+What is this telling me?
+
+
 ------
