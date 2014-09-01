@@ -20,10 +20,9 @@
 
 if COOT_USE_PYTHON
 
-# This gets set if I use AM_PATH_PYTHON in configure.in?
-# pythondir = $(pkgdatadir)/python
-pkgpython_SCRIPTS = coot.py
+dist_pkgpython_SCRIPTS = coot.py
 dist_python_SCRIPTS = coot.pth
+
 endif
 
 
@@ -94,7 +93,7 @@ COOT_EXTRA_LIBS = \
 #
 EXTRA_DIST = \
 	coot.i post-glade add-c-extern.sh blank.cc fix-gettext.sh \
-	mol-hierachy.cc coot.py  coot_gtk2.py \
+	mol-hierachy.cc \
 	junk.cc coot.defs coot-dox.cfg post-gtk2-glade.sh \
         post-process-coot-wrap-guile.sh \
         post-process-coot-wrap-python.sh \
@@ -129,20 +128,12 @@ coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h      \
                               $(top_srcdir)/src/c-interface-ligands-swig.hh \
 			      $(top_srcdir)/src/sdf-interface.hh   \
                               $(top_srcdir)/src/c-interface-mogul.hh
-	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i && mv coot.py coot_gtk2.py
+	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
 
 coot_wrap_python_gtk2.cc: coot_wrap_python_pre_gtk2.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
 
 coot_gtk2.py: coot_wrap_python_pre_gtk2.cc
-
-# coot.py is different for the GTK1 and GTK2 versions.
-#
-if USING_GTK2_VERSION
-coot.py: coot_gtk2.py
-	cp coot_gtk2.py coot.py
-endif
-
 
 
 #libcoot_wrap.so: coot_wrap.o

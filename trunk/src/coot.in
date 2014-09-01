@@ -151,19 +151,23 @@ COOT_RESOURCES_FILE=$COOT_PREFIX/share/coot/cootrc
 COOT_REF_STRUCTS=$COOT_PREFIX/share/coot/reference-structures
 systype=`uname`
 
-# is this still needed?
-#
-if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then 
-    PYTHONHOME=$COOT_PREFIX/bin
-    # for MinGW we only use Coot's pythonpath otherwise too complicated
-    # i'm probably the only one using it anyway...
-    PYTHONPATH=$COOT_PREFIX/share/coot/python
-else
-    PYTHONHOME=$COOT_PREFIX
-    # now python files are in a canonical location, let's use COOT_PYTHON_DIR 
-    # (which overrides PKGPYTHONDIR) to find them
-    COOT_PYTHON_DIR=$COOT_PREFIX/lib/python2.7/site-packages/coot
-fi
+# # is this still needed?  I think not.
+# #
+# if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then 
+
+#     PYTHONHOME=$COOT_PREFIX
+#     # for MinGW we only use Coot's pythonpath otherwise too complicated
+#     # i'm probably the only one using it anyway...
+#     # PYTHONPATH=$COOT_PREFIX/share/coot/python
+#     COOT_PYTHON_DIR=$COOT_PREFIX/lib/python2.7/site-packages/coot
+# else
+#     PYTHONHOME=$COOT_PREFIX
+#     # now python files are in a canonical location, let's use COOT_PYTHON_DIR 
+#     # (which overrides PKGPYTHONDIR) to find them
+#     COOT_PYTHON_DIR=$COOT_PREFIX/lib/python2.7/site-packages/coot
+# fi
+
+COOT_PYTHON_DIR=$COOT_PREFIX/lib/python2.7/site-packages/coot
 
 # Added 20090429 - take this out when trying internationalization.
 LANG=C
@@ -232,8 +236,8 @@ export COOT_PREFIX
 export COOT_STANDARD_RESIDUES
 # export COOT_REFMAC_LIB_DIR
 export COOT_PYTHON_DIR
-export PYTHONPATH
-export PYTHONHOME
+# export PYTHONPATH
+# export PYTHONHOME
 export COOT_SCHEME_DIR
 export COOT_REF_STRUCTS
 export COOT_RESOURCES_FILE
