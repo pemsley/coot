@@ -1268,10 +1268,37 @@ Punted from 0.6:
 * Punted
 
 
+   o make refmac from recent pdbe work with intensities.
+
+* No. Punt. run-refmac will need to be substantially reworked (command line args)
+
+
 
 ------
 
    Release 0.9, Facelift-release [Dec 2013]
+
+
+
+   o lbg: get molecule needs to get comp-id (3 letter codes) (if caps
+     or numbers)
+
+* Nice but punt.
+
+   o give me a function:
+
+     distance_pairs(imol, chain_id_1, chain_id_2, bin_width)
+
+      or maybe use atom selction in the general case
+
+    which returns a histogram of the distances.
+
+    bin_width is typically 1A.   
+
+   give me an interface so that I can mmake a graph of this - and
+   compare it to my own data.
+                              - Thomas Grant
+
 
    o Tim Gruene: I have 2 maps, same grid etc, contour one map and
      colour by the values in the other - in a rainbow sort of way. 

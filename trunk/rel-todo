@@ -3,20 +3,13 @@
 
 ---- 
 
-   o make refmac from recent pdbe work with intensities.
-
-   o lbg: get molecule needs to get comp-id (3 letter codes) (if caps
-     or numbers)
-
    o coot crash catcher in the lab for new-coot.
 
 * Done.  Needs testing.
 
    o for ligand check, turn off flips in reduce.
 
-     Have you added ligand-check.hh to Makefile.am and svn repo?
-
-* Yes.
+* There are no FLIP args, maybe it's on by default? 
 
    o Update the Coot Shelx Tutorial 
 
@@ -34,25 +27,7 @@
    o Think about orienting a ligand for nice graphics view.  Attach it
      to the GUI Ligand button.
 
-   o give me a function:
-
-     distance_pairs(imol, chain_id_1, chain_id_2, bin_width)
-
-      or maybe use atom selction in the general case
-
-    which returns a histogram of the distances.
-
-    bin_width is typically 1A.   
-
-   give me an interface so that I can mmake a graph of this - and
-   compare it to my own data.
-                              - Thomas Grant
-
    o readlink -f on Mac: Marcin message
-
-   o Fix: 
-
-     Running python commands from the command line
 
    o Fix:
  
@@ -817,6 +792,12 @@ Punt.
 
      - Because the PDB file is wrong (for a BETA1-3 link) the linking
        atom should be on "residue-1" not "residue-2" as it is here.
+
+   o Fix: 
+
+     Running python commands from the command line
+
+* Done.
 
 -----
 
