@@ -1,0 +1,60 @@
+\input texinfo   @c -*-texinfo-*-
+@c @input palatino
+
+@c %**start of header
+@setfilename coot-scheme.info
+@settitle The Coot Scheme Manual
+@c %**end of header
+
+@dircategory The molecular graphics application Coot
+@direntry
+* Coot: (coot-scheme).  The Coot Scheme Manual.
+@end direntry
+
+
+
+@c Part 2: Summary Description and Copyright
+
+@c A real manual includes more text here, according to the license under
+@c which it is distributed. See GNU Sample Texts.
+
+
+@c Copyright @copyright{} 2002, 2003, 2004, 2005, 2006 Paul Emsley
+
+@c Part 3: Titlepage, Contents, Copyright
+
+@c The titlepage segment does not appear in the online output, only in the
+@c printed manual. We use the @insertcopying command to include the
+@c permission text from the previous section, instead of writing it out
+@c again; it is output on the back of the title page. The @contents command
+@c generates a table of contents.
+
+@titlepage
+@title The Coot Scheme Manual
+
+@flushright
+Paul Emsley 
+@email{emsley@@ysbl.york.ac.uk}
+@end flushright
+
+     
+@c The following two commands start the copyright page.
+@page
+@vskip 0pt plus 1filll
+@c @copying is not understood by tex2dvi on bubbles - Grrr!
+@c @insertcopying
+@end titlepage
+     
+@c Output the table of contents at the beginning.
+@contents
+
+@node    Scheme Functions
+@chapter Scheme Functions
+
+@include coot-scheme-functions.texi
+
+@printindex cp
+@printindex fn
+ 
+@bye
+

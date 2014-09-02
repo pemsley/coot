@@ -1,0 +1,6 @@
+
+CXXFLAGS=-I../lbg $(RDKIT_CXXFLAGS)
+
+ff-bits: ff-bits.cc
+
+make-3d-from-smiles: make-3d-from-smiles.cc

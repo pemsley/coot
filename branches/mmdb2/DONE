@@ -1,0 +1,139 @@
+
+------
+
+    Release 0.4, Dec 2007
+
+
+   o Richardson rotamers
+
+   o Try again to add chiral volumes to the geometry target function
+
+   o Add Chiral centre inversion and cis peptide generation check 
+     after refinement or regularization.
+
+   o Make the Omega Angle Plot update properly
+
+   o Add Chiral Volume Outliers to Omega Angle Plot
+
+   o Post-install slim the binaries
+
+   o Do the strand restraints work well under refinement?
+  
+   o Add planar peptide restraints as default
+
+   o Add atom selection by sphere 
+
+   o Add map masking by variable radius about atom (selection)
+
+   o Cootaneer
+
+   o Activate test suite
+
+   o Faster bonding of multiple models e.g. 1O5P.pdb.  It should take
+     1 or 2 seconds.
+
+
+-----
+
+   Release 0.5 Dec - estimated for 15 August 2008.
+
+   o To make the test non-tedious, especially on slow computers, we
+     need a set-atoms-attributes that takes a list of attribute sets.
+     No need to re-calulate the bonding for each atom move.
+     No need to redraw, except once at the end.
+
+   o Make a new dialog: clear up old/backup files on exit.
+     86400 seconds per day
+
+   o Kleywegt plot should not draw ("wrapped") long arrows
+
+   o Torsion General
+
+   o Lars Prade crash.  Try doing actions in a directory that you can't
+     write to.  Test Geometry validation.
+
+   o work in the svn-revision.cc.  svn-revision.cc should be in
+     Makefile.am, and be part of the tar file.  It should be generated
+     after every time we do a svn update or commit.
+
+   o On pressing the filter button we get this ugliness:
+
+** (lt-coot-real:8759): WARNING **: Widget not found: coords_fileselection1
+
+** (lt-coot-real:8759): WARNING **: Widget not found: dataset_fileselection1
+
+** (lt-coot-real:8759): WARNING **: Widget not found: coords_fileselection1
+
+** (lt-coot-real:8759): WARNING **: Widget not found: dataset_fileselection1
+
+     on_filename_filter_toggle_button_toggled() looks up the
+     fileselection by going through all names of file selections. This
+     is ugly (gives terminal warnings).  Make the user data also encode 
+     information about which fileselection this is (in 1000s, say).
+
+   o Dynamic distances on moving atom/fragments
+
+   o Make build-it-gtk2 and use it.
+
+   o Correct CISPEP if needed cards on writing pdb.
+
+   o Mutate should not change the order of the atoms in the pdb.
+     http://bmerc-www.bu.edu/needle-doc/latest/atom-format.html
+
+   o Fix this:  
+      ./configure: line 26927: ./po/POTFILES.in: No such file or directory
+      (it comes from building from the tar file)
+
+   o Kevin's Ramachandran Refinement target
+
+   o Use Eugene's new LINK-reading code.
+
+   o Fix Charlie Bond's shelx ins writing bug ("shelx woe", 10 sept 2007)
+
+   o Valgrind long/multiple fit-proteins
+
+   o "Thick bonds" for ligands etc
+
+   o Insertion codes for intelligent next atom
+
+   o Add some SHELX reading to the test suite.  Insulin for starters.
+     Check that the space groups agree.
+
+   o graphics::molecules should be a std::vector
+
+   o Copy fragment (new-molecule-by-atom-selection) does not
+     recalculate the NCS.  It should.
+
+   o test/fix hardware stereo in Gtk2 mode.  Also side-by-side  
+     problem described (for example) by Randy Read.
+
+   o NCS Ligands: if we find a ligand C in molecule A, we should look
+     for a similar blob near molecule B and try to fit the same kind of
+     ligand there as well [JED]
+
+   o If we have guile scripting in configure, then we should check for
+     net-http and goosh have been installed.  If not, fail gracefully,
+     not obscurely at run time!  
+     net-http and goosh to go into Coot directly?  Maybe not, the get 
+     installed in a different place.  Hmm.
+
+   o The default occupancy for new atoms in a shelx molecule should be
+     11.0.  Is it? [JED]
+
+   o How about a post-swig command to add #ifdef USE_PYTHON around 
+     coot_wrap_python.cc (or is it coot_wrap_python_pre.cc?)
+
+   o Check Richardson Rotatmer library is correctly used for GLN, ASN, PRO.
+     Ask about Rotamer misses.  Well, the dictionary is fine. Why does
+     molprobity web site gives less bad rotamers then? (First: Does it?).
+     Yes it does: e.g. for 1sar molprobity notes only these:
+     "Bad rotamer B  47 GLN (0.3%)" 
+     "Bad rotamer A  91 LEU (0.4%)" 
+     "Bad rotamer A  13 PRO (0.9%)" 
+     "Bad rotamer B  41 GLU (0.7%)" 
+
+     There are 10 times more for Coot.  
+     (fix-nomenclature-errors doesn't fix anything)
+
+   o NCS differences graph (use master chain)
+

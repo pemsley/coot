@@ -1,0 +1,803 @@
+ 
+ 0.8
+
+---- 
+
+   o coot crash catcher in the lab for new-coot.
+
+* Done.  Needs testing.
+
+   o for ligand check, turn off flips in reduce.
+
+* There are no FLIP args, maybe it's on by default? 
+
+   o Update the Coot Shelx Tutorial 
+
+     - mostly done?
+
+   o Ethan Merrit: 4l2e ligand what is lldf from the VTF validation
+     report?
+
+   o Make Marcin's APPLE OpenGL include patch.
+
+   o build NAG-NAG on 3bt1 on 172U ASN.
+
+   o Glyco should be a plug-in
+
+   o Think about orienting a ligand for nice graphics view.  Attach it
+     to the GUI Ligand button.
+
+   o readlink -f on Mac: Marcin message
+
+   o Fix:
+ 
+    coords/mmdb-extras.h:112: warning: comparison between signed and
+    unsigned integer expressions
+
+   o remove graphics_info_t from molecule_class_info_t::update_symmetry().
+
+   o Tim G: AFIX problems.
+
+   o can you make the double-line filter in contouring faster: using
+     an index hash? (use long long) Write a test - scroll up and down
+     a 20A sphere, say.
+
+   o does drag and drop urls work? I mean, say from my tutorial web page?
+
+   o if you have a wedge bond in lbg, try to make it a single bond.
+
+   o why does 201 and 202 disconnect in chain-N-with-FUC-reordered-with-link.pdb?
+
+   o test water_to_protein_distance_limits() use in find-waters
+
+   o I think that there was a bug in coot::dict_plane_restraint_t::matches_names()
+     Have a second look.  Test.
+
+   o set_monomer_restraints() for planes needs some thought about how
+     to handle individual atom esds.
+
+   o get flavin.mol - and write a python script to show the bond
+     properties (including aromaticity of bonds).  C10-C4X should be
+     aromatic, shouldn't it?
+
+   o a nice function - for ligand presentation (and rendering) is to
+     find the screen centre and view quaternion that orients the ligand
+     nicely.
+
+   o Look at the colours against a light background.  Is the
+     "against_a_dark_backround?" code working correctly?
+
+   o PDB_REDO should load the difference map too.
+
+   o in findwaters, allow the user to change the distance limits: 
+     set_water_to_protein_distance_limits()
+
+   o Fix the button labels in Close molecule dialogs.
+
+* Done? Check.  The menu item should say "Delete molecule/map" not "Close..." 
+
+   o fit_to_map_by_random_jiggle should return a valid value.
+
+   o ALPHA2-3 link refinement is broken?
+
+   o go to atom Atom list for residue with insertion codes: e.g. H 60 in 3biu.
+
+   o FUC - alpha1-2 - b- galact beta-1-4 NAG
+
+                          beta-1-3 NAG
+
+
+   o We need FUC decorations and GAL (beta galactose) decorations
+
+*Done.  Needs a test.
+
+   o Try glyco tree builder 528 on 4lxr. 
+
+
+   o change the front-page icons on the glade file.
+
+   o Promote to the gui Sloop (db loop)
+
+   o Ming Sun:
+
+Reading coordinate file: coot-backup/_data_ming_Coot_CCP4_refine_coot-coot-0.pdb_Mon_Mar_24_16:07:46_2014_modification_47.pdb.gz
+
+gzip: stdout: Broken pipe
+gzip: stdout: Broken pipe
+gzip: stdout: Broken pipe
+There was an error reading coot-backup/_data_ming_Plasmodium_Coot_CCP4_refine_coot-coot-0.pdb_Mon_Mar_24_16:07:46_2014_modification_47.pdb.gz.
+ERROR 39 READ: Duplicate sequence number and insertion code.
+         LINE #9316
+     ATOM   9310  N   PHE D 189    -265.099 147.312 221.215  1.00 20.00      G    N 
+Spacegroup: P 1
+There was a coordinates read error
+DEBUG:: apply_undo: (end) history_index: 47 max_history_index: 49
+/home/ming/data/Programs/coot-0.8/bin/coot: line 259:  4354 Segmentation fault 
+
+* Fixed - needs a test.
+
+   o chiral centre inverter in C++  
+
+   o why is one of the N+ in the nitros chiral in the thumbnail of 128?
+
+   o modified residue (e.g. oxidised Cys).  Mutate it back to CYS.
+     It's still HETATMs.
+
+   o convert the residue too in match_residue_and_dictionary().  It should have a test :-)
+
+* It actually does.  Still needs a test though.
+
+   o Pavel message: Map D to H so that you can refine proteins vs neutron data.
+
+   o Oliver Clark HOLE radius bug
+
+   o build NH4 in lbg.  Is the N charged in the resulting mol file?
+
+   o 4gos is great for carbohydrate building (Andre L. example).  Also
+     the BMA fails to build in corectly.  It's a ligand LSQ fit
+     problem, I think. When this works, put it in the GUI.
+
+   o check that FE-CYS link "just works" in sphere refine.
+
+    on mogul validation of MFX the 3rd time (after deleting hydrogens)
+
+       (why does the residue pointer recover in 3?)
+
+#0  __strlen_sse2 () at ../sysdeps/x86_64/multiarch/../strlen.S:31
+#1  0x00007f0eff2bfa20 in std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) ()
+   from /usr/lib/libstdc++.so.6
+#2  0x0000000000594b56 in coot::fill_mogul_bonds_tab (mogul_bonds_treeview=<value optimised out>, mogul_results_dialog=<value optimised out>, m=..., 
+    r=<value optimised out>) at ../../coot/trunk/src/c-interface-mogul.cc:269
+#3  0x00000000005980ad in wrapped_create_mogul_geometry_dialog (m=..., residue=0x51d8c20) at ../../coot/trunk/src/c-interface-mogul.cc:221
+#4  0x000000000059814f in show_mogul_geometry_dialog (m=..., residue=0xffffffffffffffff) at ../../coot/trunk/src/c-interface-mogul.cc:170
+#5  0x0000000000598398 in mogul_markup (imol=<value optimised out>, chain_id=0x5b91c90 "", res_no=1, ins_code=0x5c23550 "", 
+    mogul_out_file_name=<value optimised out>) at ../../coot/trunk/src/c-interface-mogul.cc:30
+
+
+   o in FLEV 2D, click on a bond -> 3d view centre to middle of those
+     2 interacting atom
+
+   o I want to be able to set the path for reduce and probe in my
+     .coot.py file (not .coot)
+
+   o is 4CJN published yet?
+
+   o Top right exit should not write a state file.
+
+       --no-state-file should not write a state file.
+
+    But what about starting with interactive no to state-file reading?
+
+    That also should write a state file. (user can use quick-save-as
+    if they want)
+
+* Improved now?  Needs checking.
+
+   o fit_to_map_by_random_jiggle should return a valid value.
+
+   o The test-mogl.scm script needs to be updated. Do this at work.
+
+   o chiral centre inverter in C++. Needs a gui presence.
+  
+   o imol_map should not be passed to molecule_class_info_t::auto_fit_best_rotamer().
+
+   o auto-open mtz should also open xxx.F_phi.F and xxx.F_phi.phi
+
+   o Refining 55A SAH in 3NPN, it should not try to get dictionary up
+     and downstrean neighbour if the residue's group is "monomer".
+
+   o in the mmcif to mtz reader, if there are 2 cells, use the first
+     one, not the last one!  --- needs a clipper patch --- bleugh.
+
+   o Lots of testing of add other solvent molecules, jiggle-fit, in
+     low-resolution maps, perhaps?
+
+   o Jim Brannigan wants to see alt conf phi/psi angles in Residue Info.
+
+   o column types are not set in mtz file written by mmcif_sfs_to_mtz().
+
+   o Consider change to configure.ac ::: 1
+
+   o in FLEV the carboxylate of ligand Q31 doesn't make a H-bond to
+     the mainchain.  Why not?
+
+   o new molecule from atom selection (Copy Fragment) should generate
+     a PDB file that has a CRYST1 card.
+
+   o the question is why the chemical features on the
+      carboxylate are asymmetric.  undelocalize()?
+
+   o Lots of testing of add other solvent molecules, jiggle-fit, in
+     low-resolution maps, perhaps?
+
+     Hydrogens on the wrong way round like this means that the ligand
+     fitting failed.  I corrected them by hand and the ligand fitting
+     worked nicely (except a rotation round an acyl bond).
+
+   o Lots of testing of add other solvent molecules, jiggle-fit, in
+     low-resolution maps, perhaps?
+
+   o Charge function in Lidia 
+
+   o conditional SWIG - at compile time - for ENHANCED_LIGAND.
+
+* Done?  Needs to be checked - e.g. by Garib.  Maybe I can do it?
+
+   o hydrogenate the N terminus of tutorial-modern, what is happening to H3?
+
+   o save_state_file() needs to write a python file when called from
+     python (redefine save_save_file_py()).
+
+   o Re-write ligand fitting tutorial using UJ6 from 4cgf (needs
+     flexible fitting and consideration of chirality)
+
+   o sharpen a Patterson. Kevin message
+
+   o GLC pyranose 1-4 linked template.
+
+   o PISA Interfaces surface colours are wrong. 
+
+   o add surface and ball and stick ligand to tutorial.
+
+   o hydrophobicity surface for next year (that's 2014, right?)
+
+   o Reconsider descision to disallow reading of molecules with
+     different residues but the same residue number and insertion code.
+
+   o Don't display Save Molecule dialog if there are no molecules to save.
+     Use the status bar.
+
+   o Felix Frolow: (copy-residue-range-from-ncs-master-to-chains 0 "A" 1 500 (list "B" "C" "D" "E")) 
+     but master chain is not A.
+
+   o When (for example) with-ssmlib-prefix is specified, but the
+     include/libs are not found, then we should exit configure with 
+     an error
+
+   o interesting ligand series examples: 4cie..s 4cj4..5 4cje..p
+     "The Sample Challange". Journal of Computer-aided molecular design.  Tom Peat.
+     Anthony Nicholls (Open Eye) behind this.
+
+     Also look at trypsin for the sample challenge.  Does it look like benzamidine?
+
+     2xx series, e.g. 2xx7, 2xx8, 2xxh, 2xxi, 2xxj
+
+  * Wish: highlight bond/atom/angles of restraints selected in
+    Restraints editor [DB via BL].
+
+   o George S. Riding atom U problem
+
+* Needs B factor from U checked.  And integrated into test/test-data.
+
+
+   o bundle coot.probe and coot.reduce in the binaries
+
+   o what's this: 
+
+     Ooops fixed atom dialog has gone!
+
+     (I had indeed dismissed the Fixed Atom Dialog)  
+
+-------
+   is this an (mmdb) problem?
+
+==7937== Invalid read of size 4
+==7937==    at 0xC1E18E3: PyObject_Free (obmalloc.c:969)
+==7937==    by 0xC1ACC15: code_dealloc (codeobject.c:317)
+==7937==    by 0xC25974C: load_source_module (import.c:1100)
+==7937==    by 0xC25A4E0: import_submodule (import.c:2700)
+==7937==    by 0xC25A753: load_next (import.c:2515)
+==7937==    by 0xC25AD7F: PyImport_ImportModuleLevel (import.c:2224)
+==7937==    by 0xC23D10E: builtin___import__ (bltinmodule.c:49)
+==7937==    by 0xC194952: PyObject_Call (abstract.c:2529)
+==7937==    by 0xC23D5F2: PyEval_CallObjectWithKeywords (ceval.c:3890)
+==7937==    by 0xC241AB5: PyEval_EvalFrameEx (ceval.c:2333)
+==7937==    by 0xC24597D: PyEval_EvalCodeEx (ceval.c:3253)
+==7937==    by 0xC245A91: PyEval_EvalCode (ceval.c:667)
+==7937==  Address 0x1a586020 is 6 bytes after a block of size 26 alloc'd
+==7937==    at 0x4A085BC: operator new(unsigned long) (vg_replace_malloc.c:298)
+==7937==    by 0x325EC9C3C8: std::string::_Rep::_S_create(unsigned long, unsigned long, std::allocator<char> const&) (in /usr/lib64/libstdc++.so.6.0.13)
+==7937==    by 0x325EC9DDA9: std::string::_M_mutate(unsigned long, unsigned long, unsigned long) (in /usr/lib64/libstdc++.so.6.0.13)
+==7937==    by 0x325EC9DF6B: std::string::_M_replace_safe(unsigned long, unsigned long, char const*, unsigned long) (in /usr/lib64/libstdc++.so.6.0.13)
+==7937==    by 0x7029CEB: coot::protein_geometry::add_chem_mod_atom(CMMCIFLoop*) (basic_string.h:975)
+==7937==    by 0x702A442: coot::protein_geometry::add_mod(CMMCIFData*) (chem_mods.cc:163)
+==7937==    by 0x700A166: coot::protein_geometry::init_refmac_mon_lib(std::string, int) (protein-geometry.cc:239)
+==7937==    by 0x700CE24: coot::protein_geometry::init_standard() (protein-geometry.cc:3757)
+==7937==    by 0x4DB09C: graphics_info_t::init() (graphics-info.h:910)
+==7937==    by 0x4D682B: main (main.cc:274)
+==7937== 
+
+
+
+-----
+
+   o with --no-graphics, don't try to start coot crash catcher
+ 
+* Done.
+
+   o look at 3owu for symmetry expansion (symmetry lies over main
+     molecule?)
+
+* No, that's fine (maybe wrong code?)
+
+   o guile without guile-gui  (#f Unbound variable: ~S (place-strand-here-gui) #f))
+
+* Fixed.
+
+   o libtool usage goo-canvas check.
+
+* Fixed.
+
+   o Fix CA mode with MSEs
+
+* Done.
+
+   o Strange canvas scrolling with big RNA 
+
+* added a hack.
+
+   o sequence assignment for placement of RNA.
+
+* Done.
+
+   o sort out the FAQ (Bernie message)
+
+* Done.
+
+   o need a test to see if hydrogens are properly swapped on a
+     nomenclature change on a TYR.
+
+* Done.
+
+   o hydrogens are corrected also on nomenclature correction?
+
+* Done.
+
+   o Ligand fitting is broken.  Why does it work with 
+     (set-find-ligand-multi-solutions-per-cluster 0.88 0.88)
+
+* Fixed.  Bug in extents code.
+
+   o recent structure browser data download.
+
+* Fixed.
+
+   o mtz-file-name->colummn-labels
+
+* Done.
+
+   o PDB-redo into coot File menu.
+
+* Done.
+
+   o get drug: suvorexant - what's going wrong?
+
+* Varibility in drugbox formatting.
+
+   o drag and drop - same reason.
+
+* PubChem added.
+
+   o Does rubber-banding in sphere-refine mode move the fixed environment residues?
+   o Are active residues bumping off environment residues in sphere-refine mode?
+	
+* Fixed. 
+
+   o 1r9f fails to load from PDBe.
+
+* "H 3 2" fixed in (my patched) clipper.
+
+  o Markus Rudolf: atom names are not preserved on reading mol2 files.
+ 
+     rdkit-interface.cc: lig_build::molfile_molecule_t
+     coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf)
+     needs to (also) try to use _Name atom property.
+ 
+* Fixed.  _TriposAtomName is what I wanted.
+
+   o link for test data
+
+* Done.
+
+
+   o question for Eugene: 
+
+      If I do:
+  
+      PCMMCIFLoop mmCIFLoop = new CMMCIFLoop; // 20100212
+      rc = mmCIFData->AddLoop("_chem_comp", mmCIFLoop);
+
+      then should I delete mmCIFLoop before it goes out of scope?
+
+Done, code fixed. new is not needed.
+
+
+   o Remove coords include/lib usage in geometry:
+     chem_mods.cc:#include "coords/Cartesian.h"
+     protein-geometry.cc:#include "coords/Cartesian.h"
+
+     This might help the lib dependencies of the executables there.
+
+* Done.
+
+
+Zohar Baram
+
+I was trying to delete an atom and coot crushed with this message:
+
+
+[New Thread 16507]
+[Thread debugging using libthread_db enabled]
+Core was generated by `/software/graphics/COOT/coot-0.7-centos5/bin/coot-real'.
+Program terminated with signal 11, Segmentation fault.
+#0  0x0000000000890be1 in size (this=0x8d2a920, atom_1=..., atom_2=...) at
+/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h:591
+        in
+/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h
+#0  0x0000000000890be1 in size (this=0x8d2a920, atom_1=..., atom_2=...) at
+/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h:591
+#1  compare (this=0x8d2a920, atom_1=..., atom_2=...) at
+/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h:1927
+#2  operator==<char, std::char_traits<char>, std::allocator<char> > (this=0x8d2a920,
+atom_1=..., atom_2=...) at
+/usr/lib/gcc/x86_64-redhat-linux/4.1.2/../../../../include/c++/4.1.2/bits/basic_string.h:2139
+#3  operator== (this=0x8d2a920, atom_1=..., atom_2=...) at
+../coot-utils/coot-coord-utils.hh:156
+#4  molecule_class_info_t::remove_extra_bond_restraint (this=0x8d2a920, atom_1=...,
+atom_2=...) at molecule-class-info-refine.cc:46
+#5  0x00000000005fd14f in delete_extra_restraint_scm (imol=0, restraint_spec=<value
+optimized out>) at c-interface-refine.cc:607
+#6  0x0000000000680113 in _wrap_delete_extra_restraint_scm (s_0=<value optimized
+out>, s_1=0x2aaaaedf7e50) at coot_wrap_guile_gtk2.cc:19903
+#7  0x00002b4c77256f84 in deval () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#8  0x00002b4c77252ec0 in scm_dapply () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#9  0x00002b4c77252f2f in scm_apply () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#10 0x00002b4c77253bbc in scm_apply_1 () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#11 0x00000000006f0852 in graphics_info_t::run_user_defined_click_func
+(this=0x7fffad49550f) at graphics-info.cc:4983
+#12 0x000000000071ad34 in graphics_info_t::check_if_in_user_defined_define
+(this=0x7fffad49550f, event=<value optimized out>) at graphics-info-defines.cc:290
+#13 0x00000000007214b7 in graphics_info_t::check_if_in_range_defines(GdkEventButton
+*, const ._196 &) (this=0x1aa616b1, event=0x7fe4279, state=@0x1) at
+graphics-info-defines.cc:240
+#14 0x00000000006e6d1e in glarea_button_press (widget=<value optimized out>,
+event=0x9660ed0) at globjects.cc:4016
+#15 0x0000003c75953f33 in ?? () from /usr/lib64/libgtk-x11-2.0.so.0
+#16 0x0000003b7fe0bb3e in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#17 0x0000003b7fe20e23 in ?? () from /lib64/libgobject-2.0.so.0
+#18 0x0000003b7fe21f4a in g_signal_emit_valist () from /lib64/libgobject-2.0.so.0
+#19 0x0000003b7fe225f3 in g_signal_emit () from /lib64/libgobject-2.0.so.0
+#20 0x0000003c75a76a9f in ?? () from /usr/lib64/libgtk-x11-2.0.so.0
+#21 0x0000003c7594acaa in gtk_propagate_event () from /usr/lib64/libgtk-x11-2.0.so.0
+#22 0x0000003c7594be1c in gtk_main_do_event () from /usr/lib64/libgtk-x11-2.0.so.0
+#23 0x0000003c7605ffdc in ?? () from /usr/lib64/libgdk-x11-2.0.so.0
+#24 0x0000003b7f238f0e in g_main_context_dispatch () from /lib64/libglib-2.0.so.0
+#25 0x0000003b7f23c938 in ?? () from /lib64/libglib-2.0.so.0
+#26 0x0000003b7f23cd55 in g_main_loop_run () from /lib64/libglib-2.0.so.0
+#27 0x0000003c7594c307 in gtk_main () from /usr/lib64/libgtk-x11-2.0.so.0
+#28 0x0000000000528e6a in c_inner_main (closure=0x7fffad496070, argc=<value
+optimized out>, argv=0x7fffad4965d8) at c-inner-main.c:311
+#29 0x00002b4c7726dd86 in invoke_main_func () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#30 0x00002b4c77244aa2 in c_body () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#31 0x00002b4c772a94c1 in scm_c_catch () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#32 0x00002b4c77244e3f in scm_i_with_continuation_barrier () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#33 0x00002b4c77244edd in scm_c_with_continuation_barrier () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#34 0x00002b4c772a84c8 in scm_i_with_guile_and_parent () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#35 0x00002b4c772a8554 in scm_with_guile () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#36 0x00002b4c7726dd4b in scm_boot_guile () from
+/software/graphics/COOT/coot-0.7-centos5/lib/libguile.so.17
+#37 0x00000000005287d1 in c_wrapper_scm_boot_guile (argc=447092401, argv=0x7fe4279,
+pcld=0x0) at c-inner-main.c:366
+#38 0x000000000051d0a8 in main (argc=1, argv=0x7fffad4965d8) at main.cc:620
+
+   * possibly fixed by adding CAtom * -> atom spec protection
+
+   * possibly fixed by replacing with residue spec usage.
+
+
+   o SWIG is defined when using SWIG and SWIGIMPORTED is used when
+     imported via %import.  Change coot-utils/residue-and-atom-specs.hh 
+     http://www.swig.org/Doc1.3/Preprocessor.html
+
+* Done.
+
+   o split out the cif parsing functions of protein-geometry.
+     also link functions to another file?
+
+* Done.
+
+   o test that code block at 2040 in graphics-info-modelling.cc works as expected.
+
+* It doesn't.  do_add_terminal_residue() does a check for a map first.
+
+
+
+   o Program terminated with signal 11, Segmentation fault.
+    in molecule-class-info.cc
+#0  0x0000000000811a11 in molecule_class_info_t::intelligent_this_residue_mmdb_atom (this=<value optimized out>, res_p=<value optimized out>) at molecule-class-info.cc:4722
+#1  0x000000000075d80f in graphics_info_t::residue_tree_selection_func (selection=<value optimized out>, model=<value optimized out>, path=<value optimized out>, path_currently_selected=<value optimized out>, data=<value optimized out>) at graphics-info-navigation-gtk2.cc:224
+
+* Can't see the problem.  Didn't try hard.
+
+   o Tricky ligand problem: 4cje, use Residue -> 2D and prodrg to
+     generate restraints.  After normal "Apply" (and import) the
+     resulting ligand has hydrogens on the wrong way round.  Why
+     didn't the refinment fix this?  What is the pathology?
+
+* How much do I care really?  PRODRG is practically dead now.
+
+
+     Hydrogens on the wrong way round like this (i.e. the wrong side
+     of the chiral centre) means that the subsequent ligand
+     fitting failed.  I corrected them by hand and the ligand fitting
+     worked nicely (except a rotation round an acyl bond).
+
+     I want to see mark-up of restraints violation (not mogul).  I hope that the
+     incorrect orientation of the isobutyl should then be apparent.
+
+* It is, very clearly.
+
+     Also give me a table of restraints violation for a given residue,
+     bond and angles at least (worse than xx z?).
+
+* Done.  Useful.
+
+   o To explain the update to helix fitting in EM maps, we need to
+     find the distribution of (n rms) density of atom in refined maps.  
+     Maybe there is a relationship to resolution.  Try a few 100 structures. 
+
+Not now.
+
+   o Remove -lXmu and see what happens.
+
+* Punt.
+
+   o patch dictionary for chiral link restraint for NAG-ASN
+
+* Punt.
+
+   o Quick notebook: (what was changed on this residue? on previous rounds?)
+
+* Punt.
+
+
+   o render the SMILES string in this file
+
+* Punt
+
+   o Lidia: Need atom label CH3 (or CH2) at end of bonds
+
+* Punt
+
+   o validate real metals for coordination (instead of only waters)?
+
+* Punt http://www.ncbi.nlm.nih.gov/pubmed/24356774
+
+   o What about placement of RNA rotamers?
+
+* Punt. Tricky.
+
+   o extend lidia to represent carbohydrates. Low priority. Should be
+     done in RDKit, I think (Haworth projections)
+
+* Punt.
+
+   o Repeat B-form DNA in 10.5 bp, not 11.
+
+* Punt.
+
+
+   o Bernie notes:
+
+   1.) when downloading a non existing (sf) cif file I get clipper fatal
+   crash. I guess this should be protected. Not sure but this may be a
+   clipper issue (havent investigated further for now)
+
+
+   Reading cif file: coot-download/1ASD.cif
+   CIFfile: set_cell_symm_reso_by_cif: Could not read:
+   coot-download/1ASD.cif dirty
+     mmCIF file?
+   terminate called after throwing an instance of 'clipper::Message_fatal'
+
+* Old clipper, it seems.
+
+
+   2.) scheme script (now) does not download sf but coordinate cif (feature?)
+
+* Fixed.
+
+   3.) When using an actual cif (3sdf) I get the following (clipper) error.
+   Again maybe a clipper thingy (and not much further investigated - hence
+   email to you):
+
+   Reading cif file: coot-download/3sdf.cif
+
+   Program received signal SIGSEGV, Segmentation fault.
+   0x00a26e34 in _fu17232___ZNSs4_Rep20_S_empty_rep_storageE ()
+        at cif_data_io.cpp:346
+
+  * this all looks like use of the wrong library.  I tried these files
+    and it works as expected for me.
+
+  * I agree. :)
+
+   o Deal with LEU nomenclature error problem on list recently (Dirk K.).
+
+* Punt.
+
+   o Fix nomenclature error hydrogens on PHE and TYR - others also?   
+
+* Done - LEUs and VALs need doing also.
+
+   o in FLEV, find pi-pi stacking interactions, if needed use an
+     RDKit molecule to find aromatic systems in the ligand.
+
+* Done. At last.  Cool.
+
+   o Why doesn't the key get written to the pdf file in LIDIA?
+
+* Done.
+
+   o invert chiral centre 
+
+ * Done.
+
+   o Difference maps peaks dialog
+
+* Done.
+
+   o auto open mtz opens diff map strangely.
+
+* Done.
+
+   o Oliver Smart: invert chiral centre on glycerol 3 phosphate
+
+* Done.
+
+   o Update RDKit for Bill.
+
+* Done.  
+
+   o OS: when map sharpening is selected but no map has been set, coot
+     crashes with the following segfault:
+
+     DEBUG:: imol from fill_option_menu_with_map_options() -1
+     /usr/local/bin/coot: line 10: 15221 Segmentation fault: 11  /Library/Coot/bin/coot-real "$@"
+
+* Fixed when SRS is not used.   
+
+
+   o When the spacegroup is P1 or 0, and the cell has 90 degrees, the
+     calculation of the sigma should ignore "zero" values.
+
+* Done.
+
+   o Add button that adds refmac hydrogens: 
+     MAKE HOUT YES
+
+* Done.
+
+
+   o where does the extra hydrogen come when making a pyrogen
+     dictionary for MFX?
+
+   o why is there an H1 on the N01 in N01 in the pyrogen cif dictionary?
+
+* From "AllChem.AddHs()". Fixed.
+
+ 
+   o remove atom name quotes from dictionary.
+
+* Done.
+
+   o nuclsq for base pair and stacking restraints.
+
+* Not discussed in the documentation.
+
+   o latest python is 2.7.6 now?
+
+* Yes. Added to builder.
+
+   o highly coordinates waters should check metal atoms too.
+     water-coordination.cc: How do you select metals? Check the element? 
+     MG|CA|K|NA|LI|RB|BE|BA|FR|CS|SR
+
+* Done.
+
+   o carboylates in FLEV.  Why OH, not O- (as it is in the thumbnail?)
+
+* Done - because widgeted_molecule_t constructor from a lig_build::molfile_molecule_t
+  didn't set the atom formal charge.
+
+   o drag and drop SMILES strings into lidia
+
+* Nope.  Cut and paste would be better.  And paste into SMILES entry
+  (where we can edit it) - Pressing return does "Apply this SMILES"
+
+  The problem is that the SMILES string is written to the status bar.
+  Do we want another bar that has the SMILES string in it? And move
+  the status bar down?
+
+   o As one sketches a molecule in lbg, coot should search (with SRS)
+     the current dictionary and let you know if the thing that you are
+     sketching is in the dictionary (or maybe there should be a button
+     to check (which will be easier)).
+
+* Punt 
+
+   o graphs should auto-determine if they have integer values for the
+     y-values and if so, don't put ticks and labels in non-integer
+     positions.
+
+* Done.
+
+   o GPCR ligand analysis.  
+
+Punt.
+
+   o Add pdb_validate() when getting a structure
+
+   o close button on pdb_validate()
+
+* Done.
+
+   o Auto-open XXX.F_phi.F and XXX.F_phi.phi
+
+* Done
+
+
+   o remove this debugging
+
+=== atoms_match_dictionary() with these residue atom names ======= 
+0  : O2A: and ele  O
+1  : PA : and ele  P
+2  : O1A: and ele  O
+3  : O3A: and ele  O
+4  : PB : and ele  P
+5  : O1B: and ele  O
+6  : O2B: and ele  O
+
+* Done.
+
+   o Steven Sheriff:
+
+     I noticed the following about symmetry labeled atoms:
+
+     The new style could use one more piece of punctuation, e.g. CA/36
+     THR/CX,Y,Z + (0 0 -1) & {0 0 0} would be more readable with some
+     sort of punctuation (a space, a comma, a semi-colon, a colon)
+     between the atom label and the symmetry label, e.g. CA/36 THR/C
+     X,Y,Z + (0 0 -1) & {0 0 0}
+
+* Done.
+
+   o lidia_LDFLAGS = -Wl,--export-dynamic, what is -module flag and look up export_dynamic_flag_spec
+
+* Done - the second part anyway.
+
+
+   o why does 201 and 202 disconnect in chain-N-with-FUC-reordered-with-link.pdb?
+
+     - Because the PDB file is wrong (for a BETA1-3 link) the linking
+       atom should be on "residue-1" not "residue-2" as it is here.
+
+   o Fix: 
+
+     Running python commands from the command line
+
+* Done.
+
+-----
+

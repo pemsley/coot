@@ -1,0 +1,399 @@
+
+% 10pt is the smallest font for article
+\documentclass{article}
+
+\usepackage{graphicx}
+\usepackage{epsf}
+\usepackage{a4wide}
+\usepackage{palatino}
+\usepackage{euler}
+\usepackage{url}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{1.2ex} 
+% for simple code
+\usepackage{fancyvrb}
+\DefineVerbatimEnvironment{code}{Verbatim}{fontsize=\small}
+
+% for python stuff
+\usepackage{color}
+\usepackage{listings}
+\usepackage{textcomp}
+\usepackage{setspace}
+\usepackage{palatino}
+
+\renewcommand{\lstlistlistingname}{Code Listings}
+\renewcommand{\lstlistingname}{Code Listing}
+\definecolor{gray}{gray}{0.5}
+\definecolor{green}{rgb}{0,0.5,0}
+
+\lstnewenvironment{python}[1][]{
+\lstset{
+language=python,
+basicstyle=\ttfamily\small\setstretch{1},
+stringstyle=\color{red},
+showstringspaces=false,
+alsoletter={1234567890},
+otherkeywords={\ , \}, \{},
+keywordstyle=\color{blue},
+emph={access,and,break,class,continue,def,del,elif,else,%
+except,exec,finally,for,from,global,if,import,in,is,%
+lambda,not,or,pass,print,raise,return,try,while},
+emphstyle=\color{black}\bfseries,
+emph={[2]True, False, None, self},
+emphstyle=[2]\color{green},
+emph={[3]from, import, as},
+emphstyle=[3]\color{blue},
+upquote=true,
+morecomment=[s]{"""}{"""},
+commentstyle=\color{gray}\slshape,
+emph={[4]1, 2, 3, 4, 5, 6, 7, 8, 9, 0},
+emphstyle=[4]\color{blue},
+literate=*{:}{{\textcolor{blue}:}}{1}%
+{=}{{\textcolor{blue}=}}{1}%
+{-}{{\textcolor{blue}-}}{1}%
+{+}{{\textcolor{blue}+}}{1}%
+{*}{{\textcolor{blue}*}}{1}%
+{!}{{\textcolor{blue}!}}{1}%
+{(}{{\textcolor{blue}(}}{1}%
+{)}{{\textcolor{blue})}}{1}%
+{[}{{\textcolor{blue}[}}{1}%
+{]}{{\textcolor{blue}]}}{1}%
+{<}{{\textcolor{blue}<}}{1}%
+{>}{{\textcolor{blue}>}}{1},%
+framexleftmargin=1mm, framextopmargin=1mm, frame=shadowbox, rulesepcolor=\color{blue},#1
+}}
+{}
+%end python stuff
+
+
+% for scheme code based on python thingy (very simple)
+\lstnewenvironment{guile}[1][]{
+\lstset{
+%language=guile,
+basicstyle=\ttfamily\small\setstretch{1},
+framexleftmargin=1mm, framextopmargin=1mm, frame=shadowbox, rulesepcolor=\color{green},#1
+}}
+{}
+% end scheme
+
+
+\newcommand {\atilde} {$_{\char '176}$} % tilde(~) character
+
+\title{Coot Scripting Tutorial}
+
+\author{Pythonic HowTos, Examples, Tutorials}
+
+\date{\today}
+
+\begin{document}
+\maketitle
+\tableofcontents
+%\listoffigures
+
+
+\newpage
+
+\section{Introduction to Scripting in Coot}
+
+\begin{code}
+  c+=1
+\end{code}
+
+\begin{verbatim}
+(insert literal text)
+\end{verbatim}
+
+How do we write stuff here:
+green boxes: guile code
+blue boxes:  python code
+
+\subsection{Python Basics}
+
+\subsection{Moving between Python and Scheme/Guile}
+The following is (almost as is) described on the Coot WIKI (\url{http://strucbio.biologie.uni-konstanz.de/ccp4wiki/index.php/COOT#Python_to_Scheme_and_return}.
+Python scripting is different to the (default) scheme scripting which is mainly described in Paul Emsley's documentation \footnote{although it's mentioned somewhere, fairly hidden; Needs reference FIXME}. In order to ``translate'' the commands you have to change them in the following way:
+
+ GUILE scripting: (guile-command argument1 argument2 ...)
+
+ PYTHON scripting: python\_command(argument1, argument2, ...)
+
+
+\subsubsection{Simple rules for Scheme to Python translations}
+Here some simple rules how to translate from Scheme to Python. To translate the other way around, i.e. Python to Scheme, just turn the rules around:
+\begin{enumerate}
+   \item replace all '-' with '\_' (except in equation when you need arithmetic '-' minus signs)
+   \item move the brackets around the argument(s)
+   \item separate multiple arguments by commas rather than spaces
+   \item replace 'define' for functions with 'def' and for assignments with an '='
+   \item Make sure to use indentation for the function content [Python is indentation sensitive] and a ':' after the function definition. 
+\end{enumerate}
+Some additional/advanced(?) rules:
+\begin{enumerate}
+   \item \#f $\Rightarrow$ False
+   \item \#t $\Rightarrow$ True
+   \item (set! variable value) $\Rightarrow$ variable=value 
+\end{enumerate}
+
+\subsubsection{A simple example}
+
+In Scheme we may have the following script:
+
+\begin{guile}
+(define mol2-pdbFile "somePDBfile.pdb" )
+(define mol2-model (read-pdb mol2-pdbFile))
+(define (read-mol-again)
+        (clear-and-update-model-molecule-from-file mol2-model mol2-pdbFile))
+(read-mol-again)
+\end{guile}
+
+Which will translate into Python:
+
+\begin{python}
+ mol2_pdbFile = "somePDBfile.pdb"
+ mol2_model = read_pdb(mol2_pdbFile)
+ def read_mol_again():
+     clear_and_update_model_molecule_from_file(mol2_model, mol2_pdbFile)
+ read_mol_again()
+\end{python}
+
+\subsubsection{Running a Scheme/Python command from Python/Scheme}
+
+As of Coot 0.5 (and if you have both scripting languages available) you an use the following commands to run a script or command in the other language:
+\begin{code}
+ (run-python-command "python_command(arg1, arg2, ...)")    [from guile/scheme]
+
+ run_scheme_command("(scheme-command arg1 arg2 ...)")      [from python]
+\end{code}
+
+
+\subsection{Script execution and file structure}
+
+\section{Internal and external functions}
+\subsection{Source/internal functions}
+\subsection{Provided scripting functions}
+
+\section{HowTos and Examples}
+
+\subsection{Add an Extension/Plugin}
+Coot 'plugins' are fairly easy. Although we usually not necessarily call 
+them plugins (rather scripts, extensions, ...). Here's what to do (*):
+
+1.) write an extension script which will give you new Menu item with 
+plugin entries which will execute functions, e.g. (simplified)
+
+\begin{python}
+plugin_menu = coot_menubar_menu("My Plugins")
+add_simple_coot_menu_menuitem(plugin_menu, "Run plugin 1",
+                                lambda func: plugin1())
+\end{python}
+
+2.) Have your plugin being able to be execute by the function 'plugin1', 
+possibly merge into one file (my\_plugin.py), i.e.
+
+\begin{python}
+def plugin1():
+    here some code to plugin or call plugin...
+
+plugin_menu = .... (from above)
+\end{python}
+
+3.) Place the python script in a directory so that Coot will read it on 
+startup, i.e. either:
+- include in $HOME/.coot.py
+- place the file into $HOME/.coot-preference
+- put the file into whatever directory and set env variable 
+COOT\_PYTHON\_EXTRAS\_DIR to point to that directory
+
+or run manually with Calculate->Scripting->Run Script
+
+4.) Done
+
+\subsection{Make Keybindings}
+
+\subsection{Add Toolbuttons}
+\label{sec:button}
+At the moment it is not trivial to add the two functions you suggest 
+(*), but here are a few ways how in general to add buttons to the toolbar:
+
+- add you favourite function to the list 'list\_of\_toolbar\_functions' in 
+python/coot\_toolbuttons.py and the use the Toolbar Manager
+
+- use 'Add a user-defined Button' and specify your favourite function
+
+- use the function coot\_toolbar\_button in e.g. \$HOME/.coot/.py to add 
+your favourite function [e.g. coot\_toolbar\_button("Sphere Refine", 
+"sphere\_refine()", "reset-view.svg")  \# note: all strings, icon -last arg- is optional)
+
+Note: you have to define your favourite function somewhere too (use Run 
+Script, .coot.py, .coot-preference, or COOT\_PYTHON\_EXTRAS\_DIR ... for 
+this)!!!
+
+
+\subsection{User defined clicks}
+
+\subsection{Example 1: Setting zero occupancies}
+Imagine you want to have a function to set the occupancy of an atom, a whole 
+residue, or a residue range to zero. Here we will use simple functions to 
+program short-cuts for these and we will bind this functions to keys, buttons, clicks etc..
+
+\subsubsection{Existing functions}
+There are a few build-in functions which can manipulate occpancies. To set 
+occupancies to zero in a residue range you can use:
+
+\begin{code}
+ zero_occpancy_residue_range(imol, chain_id, resno_start, resno_end)
+\end{code}
+
+To manipulate occupancies more specific and fine tuned, the following function
+can be used:
+
+\begin{code}
+ set_atom_atributes(atom_attributes_settings_list)
+\end{code}
+
+where the list is\footnote{``occ'' and occupancy value may be substitutet 
+with different other atom attributes, e.g. ``alt-conf''}:
+
+\begin{code}
+ atom_attribute_settings_list = [[imol, chain_id, res_no, ins_code, atom_name,
+                                alt_conf, "occ", occ_value], [...], ...]
+\end{code}
+
+
+\subsubsection{Function to set occupancies of active residue to zero}
+We can use zero\_occupancy\_residue\_range with just one residue. The 
+information about the active residue we get from active\_residue().
+Note: the function does not need to take arguments.
+
+\begin{python}
+def my_zero_occ_active_residue():
+    active_atom = active_residue()
+    # this returns False if no residue or the following list of residue
+    # properties (includes atom_name of closest atom):
+    # [imol, chain_id, res_no, ins_code, atom_name, alt_conf]
+    if not active_atom:
+        print 'no active atom'   # bail out
+    else:
+        # we found an active residue, get variables from list elements
+        # not all needed now actually
+        imol      = active_atom[0]
+        chain_id  = active_atom[1]
+        res_no    = active_atom[2]
+        ins_code  = active_atom[3]
+        atom_name = active_atom[4]
+        alt_conf  = active_atom[5]
+        zero_occupancy_residue_range(imol, chain_id, res_no, res_no, ins_code)
+
+# to run just type
+my_zero_occ_active_residue()
+\end{python}
+
+\subsubsection{Bind function to keyboard key}
+So the function is done, but not very convienently accessible since we have
+to type it in. So let's bind it to a key. For this we use the function:
+\begin{code}
+ add_key_binding(name, key, function)
+\end{code}
+So we can write simply:
+\begin{python}
+def my_zero_occ_active_residue():
+    active_atom = active_residue()
+    ... from above
+add_key_binding("Set occupancy of active residue to zero", "O",
+                lambda func: my_zero_occ_active_residue())
+\end{python}
+If you load/run this in Coot pressing the ``O'' key will set the occupancy of
+the active residue to 0 (zero).
+
+\subsubsection{Make a button for it}
+For the ones rather using the mouse than keyboard short-cuts, let's make a 
+button for our function to set the occupancy of the active residue to zero.
+To do so we can use either method described above (\ref{sec:button}), but 
+first let's use the pure scripting variant with the function:
+
+\begin{code}
+ coot_toolbar_button(button_label, callback_function[, gtk_icon]) 
+\end{code}
+
+where button\_label is the text appearing on the button and callback\_function
+\footnote{Note: this is a string here!} 
+the function we want to call, i.e. ``my\_zero\_occ\_active\_active\_residue()''.
+The optional argument gtk\_icon specifies a gtk-stock icon to be shown on the
+button. Here e.g. we could use ``gtk-remove''. Putting it together the script 
+could look something like this:
+\begin{python}
+def my_zero_occ_active_residue():
+    active_atom = active_residue()
+    ... from above
+coot_toolbar_button("Set occupancy of active residue to zero",
+                    "my_zero_occ_active_residue()", "gtk-remove") 
+\end{python}
+If you run this script an extra button should appear at the main toolbar
+at the top of the Coot window.
+% put in coot_toolbuttons.py in preferences dir!?
+
+For completeness we look at the way to add a button with the toolbar 
+wizard as well. To get to the wizard right-mouse-click on the main toolbar.
+A context menu will pop up where you select: ``Add a user-defined Button...''.
+The toolbar assistent (wizard) will open.
+\begin{figure}[htbp]
+  \begin{center}
+    \leavevmode
+    \includegraphics[width=70mm]{images/toolbar_assistent1.png}
+    \caption{Coot Toolbar Assistent}{Give your button a name and press 
+    ``Forward''}
+    \label{fig:assistent1}
+  \end{center}
+\end{figure}
+
+Now give the function which should be executed
+
+\begin{figure}[htbp]
+  \begin{center}
+    \leavevmode
+    \includegraphics[width=70mm]{images/toolbar_assistent2.png}
+    \caption{Coot Toolbar Assistent}{The function to be called, i.e. my\_zero\_occ\_active\_residue() and press ``Forward'' again}
+    \label{fig:assistent2}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{center}
+    \leavevmode
+    \includegraphics[width=70mm]{images/toolbar_assistent3.png}
+    \caption{Coot Toolbar Assistent}{Select if the function sould be saved to preferences and press ``Forward'' again. The function would be saved in the filecoot\_toolbuttons.py in the directory \$HOME/.coot-preferences/. The next time you load Coot the button will appear again.}
+    \label{fig:assistent3}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{center}
+    \leavevmode
+    \includegraphics[width=70mm]{images/toolbar_assistent4.png}
+    \caption{Coot Toolbar Assistent}{Select (or not) an icon for the button.}
+    \label{fig:assistent3}
+  \end{center}
+\end{figure}
+
+\begin{figure}[htbp]
+  \begin{center}
+    \leavevmode
+    \includegraphics[width=70mm]{images/toolbar_assistent4b.png}
+    \caption{Coot Toolbar Assistent}{A small selection of icons...}
+    \label{fig:assistent3}
+  \end{center}
+\end{figure}
+
+After the final ``Forward'' you will get an extra toolbutton on the main
+toolbar ready to use.
+
+\section{Excercises}
+
+
+
+\section*{Colophon}
+
+This document is written using XEmacs 21.5 in \LaTeX{} using AUC\TeX{}
+and is distributed with the Coot source code.
+
+\end{document}

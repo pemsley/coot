@@ -1,0 +1,104 @@
+
+ awk '/accepted / {print $5}' h.log | sort -n | uniq -c
+Here is the table of depth (col 2) vs number at that that depth
+    (col. 1)
+
+      1	0
+     13	1
+      5	2
+      4	3
+      2	4
+      1	5
+      1	7
+      1	9
+      1	11
+      3	12
+     19	13
+     20	14
+     13	15
+      9	16
+      2	17
+
+This is for a skeleton depth search start of 20.
+
+Lots at depth 1 interestingly.  I wonder why that is.  Going round
+loops, perhaps.  Needs checking.
+
+GraphicalSkel input map: 64.897 78.323 38.792 1.5708 1.5708 1.5708 
+Grid...Nuvw = ( 108, 132,  64)
+So a grid every 0.6.  If this was a straight line, we would expect
+    3.8/0.6 = 6.333 skeleton points.
+
+    20 - 6.333 = 13.3333, this is about where the peak is.  But there
+    are points closer than that, presumably because they come from a
+    2.5A point:
+
+    2.5/0.6 = 4.1666
+    20 - 4.1666 = 15.83333.  There are quite a few there.
+
+    And the even shallower depths I guess come from our skeleton point
+    being advanced along the chain compared to the accepted baton tip.
+
+    I am tempted to remove clustering.  I wonder if it will slow down
+    the search too much with forward scoring (skeleton searching in
+    particular). Hmm...
+
+    
+It seems that points at "skeleton mainchain" level should have
+    increased weighting.
+
+Also, branch points should have increased weighting.
+
+If clustering, you should change .near_grid_point to the closest one
+    in the set to the extended position.
+
+
+
+Thought:  in the recursive skeleton check, sort the neighbours using
+    the distance (in grid or cartesian?) to the target as the
+    criterion.  Short distances at the top of the list.
+
+Thought: Baton Atoms should have symmetry and cell that can be got
+    from the map.  This means that symmetry can be updated as you
+    build so that you don't build into a symmetry related molecule.
+    
+Thought: Need symmetry as C-alpha button.
+
+Thought: How about an "Auto" button that places Ca's when there is little
+    ambiguity about where the next Ca should go (i.e. there is a
+    user-setable criterion for the ratio of the best score to the next
+    best score (if it exists)). 
+
+
+---
+Tue Jul 29 21:14:13 BST 2003
+
+    Prolines are difficult.
+
+    See the picture.  
+
+    The autobuilt Ca of the residue before the proline (a GLY (groan))
+    is way off the skeleton, which makes us advance to far and miss
+    the branch point on the proline (which may have saved us -
+    actally, the branch point is from the N-atom, so it may not have).
+    We want to put the PRO Ca *past* the branch point.  But we
+    massively jump over it and put it at the C of the next peptide.
+
+    The Ca of the next (PHE) is nice and clear, but we are too far
+    advanced to see it (maybe not).  Anyway, the Ca position that we
+    place for the PRO is in about the right direction from the
+    previous Ca, but pokes miles into no-where due to extension, I
+    guess.  Sigh.  Extension is not the right thing in this case.
+
+    Question: what is the density at that point?
+
+    Answer: very low.
+
+
+---
+Wed Jul 30 13:24:48 BST 2003
+
+Thought: Given the map and the skeleton, find the density at each of
+    the skeleton points and store the mean and rms of that as class
+    variables.  We can use them to determine if our extended baton tip
+    is "unreasonably out of density".

@@ -1,0 +1,6 @@
+   atom C1 C based-on 1 O2 1 C2 1 C1 bond-length: 1.40027 angle: 116.59375 tors:  -88.70097
+   atom C2 C based-on 0 C1 1 O2 1 C2 bond-length: 1.52828 angle: 108.97854 tors: -167.92080
+   atom C3 C based-on 0 C2 0 C1 1 O2 bond-length: 1.53113 angle: 109.43967 tors:  -65.46398
+   atom C4 C based-on 0 C3 0 C2 0 C1 bond-length: 1.53168 angle: 110.41140 tors:  -55.25104
+   atom C5 C based-on 0 C4 0 C3 0 C2 bond-length: 1.53367 angle: 110.70023 tors:   53.04303
+   atom O5 O based-on 0 C5 0 C4 0 C3 bond-length: 1.44505 angle: 110.31958 tors:  -52.76743

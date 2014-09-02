@@ -1,0 +1,1451 @@
+
+
+
+------
+
+
+   o Does is_mainchain_atom() working for mainchain hydrogens?  
+     You mean is_main_chain_p().  Yes it is.
+     ::: 1
+
+   o need (residues-near-point imol radius) function.  ::: 1
+
+* Done.  With test.  Needs python version filled.
+
+   o Dynamic distances define need a pick cursor. ::: 1
+
+* Easy.  Done 
+
+   o rotamer-score function needs to be filled ::: 1
+
+* Done.  Added test.
+
+   o Move widget functions in c-interface-build.cc to
+     c-interface-gui.cc (or consider new c-interface-build-gui.cc). ::: 1
+
+* Done with the c-interface-build-gui.cc option.
+
+   o Give the user a chance to edit the ins file before it is sent off
+     for refinement [Tobias Beck].  Not doing so, as currently,
+     practically makes the shelxl refine in Coot useless if the user
+     needs to modify the file.  Fire up a text widget with the .ins file
+     in it.  ::: 2
+
+* Done.  Quite easy.
+
+   o Rotamer plots need to update on multiple do/undos. ::: 1
+
+* Done. Easy - just call update_geometry_graphs() with an asc on
+  apply_undo().
+
+   o enable --splash-screen  ::: 1
+
+* Easy.  Create a function, added to the bottom of gtk-manual.cc.
+  Tricky thing was to edit support.c to check this directory and
+  absolute path name.  Will the changes to support.c remain intact?
+  Or does support.c get overwritten?  Maybe, on using post-glade.  OK,
+  I have turned off the writing of support files in glade.
+
+   o Consider setting the "handled" flag only for key pressed that did
+     something, e.g. we could then use the "B" and "S" keys, because they
+     are not often used.  Maybe "A" too. ::: 1
+
+* Done.
+
+   o The lib dir should be set with AC_CHECK_LIB, not just "lib". Tim
+     Fenn. ::: 2
+ 
+* Let's hear from Tim Fenn.  OK, he replied.  Non-trivial. 
+  OK, done I think.  I used AC_LIB_PREPARE_MULTILIB and $acl_libdirstem.
+  I am presuming that does what he wanted.  On re-reading, perhaps
+  not (but only perhaps).
+
+   o add a mechanism where we can register functions to run after
+     refinement and/or regularization. 
+  
+     or deleting things says JED.  In fact, a funtion to run that is
+      attached to a molecule (somehow) on any
+      update/change/manipulation. ::: 2
+
+* Done for scm, I added manipulation-modes.hh so that the
+  MOVINGATOMS, DELETED and MUTATED variables were available from
+  scheme, (an _ in MOVING_ATOMS means that fails to be exported).
+
+   o colour by B-factor CA mode, (CA + Ligs atom sel should be used
+     for B-factor colouring mode).  Don't forget picking
+     (grphics-info-pick c.f. CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR)
+     ::: 1
+
+* Done.
+
+
+   o Use write_connectivity to generate ligand hydrogens. Use reduce
+     and probe to make ligand interactions. It might be needed to ask
+     Eugene about this.  Typical example is I have a model/PDB of
+     protein and a model/PDB that has CONECT cards (written by
+     write-connectivity and then appened to the PDB file).  I want to
+     merge ligand with its connectivity to the protein molecule.  Or
+     generate the connectivity and add it directly to the ligand
+     molecule without going via a file and file append.
+
+     I went for the separate file and append option with goosh-command
+     and cat.  Works nicely. 
+     ::: 1
+
+* Well, that it works nicely was nothing to do with me, as it turns
+  out, and everything to do with new probe (I suppose).  I doesn't
+  need CONECT cards to do the ligand hydrogen contacts now.
+
+
+   o need a function (bound to Shift D) to update dots centred around
+     this point.  interactive-probe does something like we want, but
+     with the filenames already written to disk.  We need to protect
+     interactive-probe by checking a global flag that is set the
+     first time we run interactive-probe (i.e. we test for
+     command-in-path? only once) ::: 1
+
+* This turned out to be much harder that I'd supposed.  First, I
+  needed to turn off the Shifted key bindings (now D is different to
+  d).  Next, I had to write a new routine probe-local-sphere which
+  uses get-probe-dots-from.  There was a problem because if the atom
+  selection radius and the probe radius are the same, then sometimes
+  the middle atom of a bonded angle set is missing (outside the
+  sphere) and that leads to bad clashes.  So I had to update
+  new-molecule-by-sphere-selection to allow the writing of whole
+  residues optionally.  This prevents the missing middle atom problem
+  and now the probe-local-sphere works nicely. There is a problem of
+  alt confs here though.  The alt conf specifier in
+  deep_copy_this_residue() is checked "by hand" so "*" doesn't work.
+  Maybe deep_copy_this_residue() [mmdb-extras, I think] should be
+  changed so that it does.
+
+
+   o Display ligand diapoles using charges from cif file. ::: 4
+
+* There was a problem in orienting the dipole arrow.  Talk with Kevin
+  fixed that.  I needed a dummy point to fill the rotation matrix.
+
+
+   o Why does NAG not refine? e.g. 1h4p. ::: 2
+     
+* Actually it refines fine.  The problem is that 1h4p has residues out
+  of order which mess up the residue selection. Let's add a function
+  that test if residues are number in increasing order for a
+  particular chain.  Let's use that function and if they are not in
+  order, then add that to the warning text of the
+  no_restraints_dialog.  OK, needs testing on a PDB file that has an
+  unknown monomer but residues are not out of order.  OK, tested. Fine.
+
+
+   o geometry graph for residues at a gap - makes an inappropriate
+     link - e.g. 45-47 - it should check by distance.  Make sure that
+     a gap between a refined residue and a flank is handled properly
+     (i.e. there should be no flanking restraints in that direction).
+     ::: 1 [JED]
+
+* Seems good now (including flanking refine). 20080112.
+
+   o find-waters --mapin 3bwp.map ... fails to run (silently) but
+     using --hklin, --f and --phi worked. ::: 1
+
+* Done.  'if' logic messed up. 20080112.
+
+   o reset view behaves strangely sometimes? ::: 1
+
+* Done.  A fixed value was being used in
+  setRotationCentreAndZoom(). 20080112
+
+   o Add a test for clear of generic object. ::: 1
+
+* Done.  There was a bug in indexing of the generic object
+  array. 20080112
+
+   o Art authors: 
+       world in connect-to-world is "cartoon globe" by lunanaut
+       computer mouse for scroll wheel by crispy.
+
+* Done.
+
+   o write_residue_range_to_pdb_file need to write the correct chain
+     ::: 1
+
+* Done.
+
+   o Refine CL - should behave sensibly - possibly looking at
+     neighbours e.g. sphere refine ::: 2
+
+* Done.
+
+   o Add terminal residue does not respect the default B factor [Pete
+     Meyer] ::: 1
+
+   o add the ability to turn off shadows in raster3d output ::: 1
+
+* Done.
+
+   o displaying additional representations turns symmetry equivalent
+     atoms into fat bonds. [JED] ::: 1
+
+* Done.
+
+   o Add a GUI for mutate-by-overlap acting on active-residue.
+     Simple, use generic-single-entry ::: 1
+
+* Done for scm.
+
+   o Make it more clear that the SMILES interface uses libcheck.
+     (perhaps grey out the function if libcheck is not available).
+     ::: 1
+
+* Done.
+
+   o When a new residue is created (e.g. HOH) it should be checked
+     against standard PDB residue types and if not found, then the
+     atoms in the residue should be marked as HETATMs (set atom->Het).
+     [ David Mathog noted problem]
+
+     http://www.wwpdb.org/documentation/Format_v32_letter.pdf
+
+     Consider hetify_residue_atoms_maybe(residue_p) which checks the
+     residue name against standard pdb residue names, and if not
+     there, then hetifies the atoms.
+
+     Need to call this when reading the monomer-XXX.pdb output of
+     libcheck.
+
+     ::: 2
+
+* Done.
+
+   o A dipole for a selection of residues. Needs a test. ::: 2
+
+* Done.
+
+   o Check that sort chain ids does indeed sort the chain ids and does
+     not change the order of the atoms in the molecule.  Convert to minimol 
+     and sort the chains there - make sure that cell and symm are transfered.
+     [Steven Sheriff, Bob Nolte] ::: 1
+
+* Done.
+
+   o sphere-refine in a region with undisplayed add-reps -> add reps
+     displayed. ::: 1
+
+* Done.  one liner: in update_additional_representations():
+	 display_list_tags[handle].display_it = add_reps[i].show_it;
+
+
+   o is -oldpdb in the input to reduce?
+
+* It is now.
+
+   o Rotate Translate: Add an additional GUI (possibly in the toolbar)
+     to specify the type of R/T entity, a zone (default) a chain, a
+     whole molecule. Include adding to the GUI the ability to swap
+     rot_trans_object_type modes.  ::: 5
+
+* Done.
+
+   o Seg Ids (Mailing list issue):
+
+      At least in these two situations, I think that COOT could make a
+      very educated guess as to the correct SEGID.
+
+       * In mutate (simple or otherwise), COOT could carry over what
+         existed for the residue being mutated
+
+       * In "insert after terminal residue" COOT could carry over what
+         exists for the terminal residue
+
+      These might not always be correct, but they should be 99+% of
+      the time.
+
+     Also mails from Phil Evans, Stephen Graham, Early April 2008
+     about SEG ids.  Doing a NCS loop with Seg ids.  Doing a mutation
+     with Segids (might be the same issue).  The segid for the new
+     atoms should be inherited from those of the rest of the residue
+     (if they are consistent). ::: 6
+
+* mutate done (needs a test?).  But what about ncs-copy-residue-range? 
+  Done, needs test. And what about add_terminal_residue, which uses
+  NEW_COORDS_INSERT, I think.  It does. Coded, needs a test
+  (set-atom-string-attribute now can take a "segid" tag), so we're 
+  all set to make a test.  Done.
+
+
+   o When you mutate an RNA base, it does it fine on the
+     screen. However, when it writes out the file, it changes, e.g., Cr
+     to Cd  [VR] ::: 1
+
+* Done.  Test added.
+
+   o Add user-define clicks ::: 1
+
+* Done (Scheme version anyway)
+   o Bill: This might be hard to implement, but in case it isn't, I
+     thought it might be worth suggesting...
+
+     It would be great to be able to click on a nucleotide base in a
+     single strand of DNA or RNA and generate its W/C partner...  ::: 4
+ 
+* Not so hard - generate a WC pair (just one base, double
+  stranded). Fit the base atoms of one of those to the
+  clicked-on-residue. Use the matrix to move the other residue.
+  Bingo.  Needs atom-by-atom matching in the least-squares procedure -
+  may need thinking about that. Bernhard mentioned that he would
+  be looking at atom matching in lsq, so I will leave it for now.
+  The base-pairing files are in ligand dir now.
+
+  Done now.
+
+   o Export the ligand fitting from a position (rather than searching
+     the whole map to find cluster site). ::: 2
+
+* Done.
+
+   o redo sequence view ::: 10
+
+* Done.  Maybe it will need enhancements later, but this is what I
+  wanted to achieve for now.
+
+
+   o crash: coot-download a structure 1ucs.  create a map from mtz,
+     create another map from mtz (I meant to change the limits, but
+     forgot). Delete that new map (using the button on display
+     control). mtz read same mtz with reso limits -> crash.
+
+ gtk_radio_button_set_group: assertion `!g_slist_find (group, radio_button)' failed
+
+#0  0x034e2ce7 in gtk_radio_button_set_group () from /usr/lib/libgtk-x11-2.0.so.0
+#1  0x034e2f61 in gtk_radio_button_new_with_label () from /usr/lib/libgtk-x11-2.0.so.0
+#2  0x082e3bae in display_control_map_combo_box (display_control_window_glade=0x95e0cc0,
+    name=0x8a035c4 "1ucs_sigmaa.mtz 2FOFCWT PH2FOFCWT 50.00  0.80", n=6) at ../../coot/src/gtk-manual.cc:1187
+#3  0x0837219d in molecule_class_info_t::update_map_in_display_control_widget (this=0x9bafa30) at ../../coot/src/molecule-class-info-maps.cc:131
+#4  0x0835a3cb in molecule_class_info_t::initialize_map_things_on_read_molecule (this=0x9bafa30, molecule_name=@0xbfb67fac,
+    is_diff_map=-1078562068, swap_difference_map_colours=0) at ../../coot/src/molecule-class-info.cc:1250
+#5  0x0837b39b in molecule_class_info_t::map_fill_from_mtz_with_reso_limits (this=0x9bafa30, mtz_file_name=@0xbfb68140, f_col=@0xbfb6813c,
+    phi_col=@0xbfb68138, weight_col=@0xbfb68134, use_weights=0, is_anomalous_flag=0, is_diff_map=0, use_reso_limits=1, low_reso_limit=50,
+    high_reso_limit=0.800000012, map_sampling_rate=1.5) at ../../coot/src/molecule-class-info-maps.cc:488
+#6  0x0813e8f2 in make_and_draw_map_with_reso_with_refmac_params (
+    mtz_file_name=0x9bdaa74 "/home/paule/Projects/build-coot-fc4-gtk2/src/coot-download/1ucs_sigmaa.mtz",
+    f_col=0x9bf9b14 "/unknown/unknown221007/2FOFCWT", phi_col=0x9bf72c4 "/unknown/unknown221007/PH2FOFCWT", weight_col=0x84d9204 "", use_weights=0,
+    is_diff_map=0, have_refmac_params=0, fobs_col=0x84d9204 "", sigfobs_col=0x84d9204 "", r_free_col=0x84d9204 "", sensible_r_free_col=0,
+    is_anomalous_flag=0, use_reso_limits=1, low_reso_limit=50, high_reso_limit=0.800000012) at ../../coot/src/c-interface.cc:1131
+#7  0x0815508c in handle_column_label_make_fourier (column_label_window=0x9c21060) at ../../coot/src/c-interface-gui.cc:364
+
+and again, similar, this time I shut and open the dialog (not sure if
+I deleted after I opened again though).
+
+#0  0x034e2ce7 in gtk_radio_button_set_group () from /usr/lib/libgtk-x11-2.0.so.0
+#1  0x034e2f61 in gtk_radio_button_new_with_label () from /usr/lib/libgtk-x11-2.0.so.0
+#2  0x082e38ca in display_control_map_combo_box (display_control_window_glade=0x9855550,
+    name=0x987df5c "1ucs_sigmaa.mtz 2FOFCWT PH2FOFCWT 50.00  1.20", n=5) at ../../coot/src/gtk-manual.cc:1187
+#3  0x08371ec9 in molecule_class_info_t::update_map_in_display_control_widget (this=0x9e98c58) at ../../coot/src/molecule-class-info-maps.cc:131
+#4  0x0835a0f7 in molecule_class_info_t::initialize_map_things_on_read_molecule (this=0x9e98c58, molecule_name=@0xbfb254ac,
+    is_diff_map=-1078835220, swap_difference_map_colours=0) at ../../coot/src/molecule-class-info.cc:1250
+#5  0x0837b0c7 in molecule_class_info_t::map_fill_from_mtz_with_reso_limits (this=0x9e98c58, mtz_file_name=@0xbfb25640, f_col=@0xbfb2563c,
+    phi_col=@0xbfb25638, weight_col=@0xbfb25634, use_weights=0, is_anomalous_flag=0, is_diff_map=0, use_reso_limits=1, low_reso_limit=50,
+    high_reso_limit=1.20000005, map_sampling_rate=5) at ../../coot/src/molecule-class-info-maps.cc:488
+#6  0x0813e8fe in make_and_draw_map_with_reso_with_refmac_params (
+    mtz_file_name=0x987f6c4 "/home/paule/Projects/build-coot-fc4-gtk2/src/coot-download/1ucs_sigmaa.mtz",
+    f_col=0x9876fe4 "/unknown/unknown221007/2FOFCWT", phi_col=0x9872294 "/unknown/unknown221007/PH2FOFCWT", weight_col=0x84d8e84 "", use_weights=0,
+    is_diff_map=0, have_refmac_params=0, fobs_col=0x84d8e84 "", sigfobs_col=0x84d8e84 "", r_free_col=0x84d8e84 "", sensible_r_free_col=0,
+    is_anomalous_flag=0, use_reso_limits=1, low_reso_limit=50, high_reso_limit=1.20000005) at ../../coot/src/c-interface.cc:1131
+#7  0x08155098 in handle_column_label_make_fourier (column_label_window=0x990f2e8) at ../../coot/src/c-interface-gui.cc:364
+
+
+This time I think I did not delete the map using the display control
+button, but I did use the Close molecule button!  Hmm!
+
+
+#0  0x034e2ce7 in gtk_radio_button_set_group () from /usr/lib/libgtk-x11-2.0.so.0
+#1  0x034e2f61 in gtk_radio_button_new_with_label () from /usr/lib/libgtk-x11-2.0.so.0
+#2  0x082e38ca in display_control_map_combo_box (display_control_window_glade=0xa878b68,
+    name=0xa8bff4c "1ucs_sigmaa.mtz 2FOFCWT PH2FOFCWT 50.00  1.80", n=5) at ../../coot/src/gtk-manual.cc:1187
+#3  0x08371ec9 in molecule_class_info_t::update_map_in_display_control_widget (this=0xa97ac80) at ../../coot/src/molecule-class-info-maps.cc:131
+#4  0x0835a0f7 in molecule_class_info_t::initialize_map_things_on_read_molecule (this=0xa97ac80, molecule_name=@0xbfae6e2c,
+    is_diff_map=-1079090836, swap_difference_map_colours=0) at ../../coot/src/molecule-class-info.cc:1250
+#5  0x0837b0c7 in molecule_class_info_t::map_fill_from_mtz_with_reso_limits (this=0xa97ac80, mtz_file_name=@0xbfae6fc0, f_col=@0xbfae6fbc,
+    phi_col=@0xbfae6fb8, weight_col=@0xbfae6fb4, use_weights=0, is_anomalous_flag=0, is_diff_map=0, use_reso_limits=1, low_reso_limit=50,
+    high_reso_limit=1.79999995, map_sampling_rate=5) at ../../coot/src/molecule-class-info-maps.cc:488
+#6  0x0813e8fe in make_and_draw_map_with_reso_with_refmac_params (
+    mtz_file_name=0xa88b9ac "/home/paule/Projects/build-coot-fc4-gtk2/src/coot-download/1ucs_sigmaa.mtz",
+    f_col=0xa8b3fac "/unknown/unknown221007/2FOFCWT", phi_col=0xa8b8a74 "/unknown/unknown221007/PH2FOFCWT", weight_col=0x84d8e84 "", use_weights=0,
+    is_diff_map=0, have_refmac_params=0, fobs_col=0x84d8e84 "", sigfobs_col=0x84d8e84 "", r_free_col=0x84d8e84 "", sensible_r_free_col=0,
+    is_anomalous_flag=0, use_reso_limits=1, low_reso_limit=50, high_reso_limit=1.79999995) at ../../coot/src/c-interface.cc:1131
+#7  0x08155098 in handle_column_label_make_fourier (column_label_window=0xa85e0e8) at ../../coot/src/c-interface-gui.cc:364
+
+    ::: 2
+
+* Fixed now that we don't handle the scroll group directly.
+
+   o When reading in a dictionary twice, does it add or replace?  Why
+     do I see 20 non-const non-H torsions in 3GP when using flexible
+     ligands? ::: 2
+
+* Done.
+   o Check that ncs-chain-skip works for NCS heterodimer.  Use 3FCS.
+     [Jianghai Zhu] ::: 1
+
+   o "Fit ligand here" which gets a monomer then does a ligand search
+     based on the blob at the current position. ::: 8
+
+* I added a function to find a blob close to the given postion, then
+  add it as a cluster.  That was fun. It made the cluster correctly,
+  same as reference (blob 2).  Then trying to do wiggly ligands there
+  I ran in to the problem.  I was wondering why I was getting a poor
+  solution, the ribose was always rotated (compared to the reference
+  and correct solution).  Why?  The torsion was wrong.  In the
+  dictionary we have
+
+ 3GP      var_2    C8     N9     C1*    C2*      -78.375    2.000   1
+
+  There is a torsion round N9 C1 - and in the wiggly ligand models it
+  was always wrong.  It turns out that wiggly ligands was setting the
+  torsion of the C8 N9 C1* H1* instead.  Hopelessly wrong.  To fix
+  this needs a re-write of the torsion setting code. Sigh.  Strange
+  that I haven't notice this before.  Waiting for Stuart to fix
+  SetDihedralAngle().
+
+* Done.  For now.
+
+
+   o Crash [JED] 
+Using host libthread_db library "/lib/tls/libthread_db.so.1".
+Core was generated by `/apps/xtal/coot/current/linux/bin/coot-real'.
+Program terminated with signal 11, Segmentation fault.
+#0  safe_python_command_with_return (python_cmd=@0xbfffa5c0) at
+c-interface.cc:5998
+	in c-interface.cc
+#0  safe_python_command_with_return (python_cmd=@0xbfffa5c0) at
+c-interface.cc:5998
+#1  0x082138c9 in graphics_info_t::run_post_manipulation_hook_py
+(this=0xbfffa657, imol=3, mode=4) at graphics-info.cc:1112
+#2  0x082135e3 in graphics_info_t::run_post_manipulation_hook
+(this=0xbfffa657, imol=3, mode=4) at graphics-info.cc:1076
+#3  0x082135b5 in graphics_info_t::accept_moving_atoms
+(this=0xbfffa657) at graphics-info.cc:1066
+#4  0x0814c261 in accept_regularizement () at c-interface-build.cc:4916
+#5  0x085d426d in _wrap_accept_regularizement () at coot_wrap_guile.cc:14653
+#6  0x400a430a in scm_deval () from
+/apps/xtal/coot/current/linux/lib/libguile.so.12
+#7  0x400a60e4 in scm_dapply () from
+/apps/xtal/coot/current/linux/lib/libguile.so.12
+#8  0x4009ee48 in scm_apply () from
+/apps/xtal/coot/current/linux/lib/libguile.so.12
+
+    This may be fixed now.  We fixed it when Bernhard came round after
+    CCP4 dev meeting.
+
+      ::: 1
+
+   o Tobias Beck:
+
+In /net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/guile/gtk-1.2/gtk.scm:
+ 127: 0* [apply #<procedure #f ()> ()]
+In unknown file:
+   ?: 1  [#<procedure #f ()>]
+In /net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/coot/scheme/extensions.scm:
+ 625: 2  (let ((txt #) (imol #)) (if (number? imol) (if # # ...)) ...)
+ 628: 3* (if (number? imol) (if (= (string-length txt) 0) (shelxl-refine imol) ...))
+ 629: 4  (if (= (string-length txt) 0) (shelxl-refine imol) (shelxl-refine imol txt))
+In /net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/coot/scheme/shelx.scm:
+   ...
+ 145: 5  [shelxl-refine-inner 0 ...
+/net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/coot/scheme/shelx.scm:145:7: While evaluating arguments to shelxl-refine-inner in expression (shelxl-refine-inner imol hkl-file-in-maybe ...):
+/net/home/xtal/Building/coot/coot-Linux-i686-ubuntu-8.04.2-gtk1/share/coot/scheme/shelx.scm:145:7: Unbound variable: hkl-file-in-maybe 
+
+    ::: 1
+
+* Done.
+
+   o Build with new mmdb 1.20.    ::: 1
+
+* Done. 1.21 actually.
+
+
+
+   o Crash from Joel Bard:
+#0  on_background_white1_activate (menuitem=0x6e8e020, user_data=0x0)
+    at callbacks.c:2028
+#1  0x000000322120b16a in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#2  0x000000322121b3bd in g_signal_override_class_closure ()
+   from /lib64/libgobject-2.0.so.0
+#3  0x000000322121c826 in g_signal_emit_valist ()
+   from /lib64/libgobject-2.0.so.0
+#4  0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
+#5  0x00002afe90a4716d in gtk_radio_menu_item_new_with_label_from_widget ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#6  0x000000322120b16a in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#7  0x000000322121b80d in g_signal_override_class_closure ()
+   from /lib64/libgobject-2.0.so.0
+#8  0x000000322121c826 in g_signal_emit_valist ()
+   from /lib64/libgobject-2.0.so.0
+#9  0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
+#10 0x00000000005832d5 in on_background_colour1_activate (menuitem=0x6e8a580, 
+    user_data=<value optimized out>) at callbacks.c:5853
+#11 0x000000322120b16a in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#12 0x000000322121b3bd in g_signal_override_class_closure ()
+   from /lib64/libgobject-2.0.so.0
+#13 0x000000322121c826 in g_signal_emit_valist ()
+   from /lib64/libgobject-2.0.so.0
+---Type <return> to continue, or q <return> to quit---
+#14 0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
+#15 0x00002afe90b1445a in gtk_widget_activate ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#16 0x00002afe90a1fff1 in gtk_menu_shell_append ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#17 0x00002afe90a184e6 in gtk_menu_reorder_child ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#18 0x00002afe90a12fbd in gtk_marshal_BOOLEAN__VOID ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#19 0x000000322120b220 in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#20 0x000000322121b9dd in g_signal_override_class_closure ()
+   from /lib64/libgobject-2.0.so.0
+#21 0x000000322121c5ef in g_signal_emit_valist ()
+   from /lib64/libgobject-2.0.so.0
+#22 0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
+#23 0x00002afe90b1078e in gtk_widget_get_default_style ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#24 0x00002afe90a12fbd in gtk_marshal_BOOLEAN__VOID ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#25 0x000000322120b16a in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#26 0x000000322121b9dd in g_signal_override_class_closure ()
+   from /lib64/libgobject-2.0.so.0
+#27 0x000000322121c5ef in g_signal_emit_valist ()
+---Type <return> to continue, or q <return> to quit---
+   from /lib64/libgobject-2.0.so.0
+#28 0x000000322121ca03 in g_signal_emit () from /lib64/libgobject-2.0.so.0
+#29 0x00002afe90b1078e in gtk_widget_get_default_style ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#30 0x00002afe90a0d705 in gtk_main_do_event ()
+   from /usr/lib64/libgtk-x11-2.0.so.0
+#31 0x00000032236468cc in gdk_add_client_message_filter ()
+   from /usr/lib64/libgdk-x11-2.0.so.0
+#32 0x000000321fe2cf44 in g_main_context_dispatch ()
+   from /lib64/libglib-2.0.so.0
+#33 0x000000321fe2fd7d in g_main_context_check () from /lib64/libglib-2.0.so.0
+#34 0x000000321fe3008a in g_main_loop_run () from /lib64/libglib-2.0.so.0
+#35 0x00002afe90a0da53 in gtk_main () from /usr/lib64/libgtk-x11-2.0.so.0
+#36 0x00000000004a344b in c_inner_main (closure=<value optimized out>, 
+    argc=<value optimized out>, argv=0x7fff21675878) at c-inner-main.c:306
+#37 0x00002afe8d2fdca6 in invoke_main_func ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+#38 0x00002afe8d2d4a72 in c_body ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+#39 0x00002afe8d339466 in scm_c_catch ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+#40 0x00002afe8d2d4e12 in scm_i_with_continuation_barrier ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+---Type <return> to continue, or q <return> to quit---
+#41 0x00002afe8d2d4eb0 in scm_c_with_continuation_barrier ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+#42 0x00002afe8d338488 in scm_i_with_guile_and_parent ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+#43 0x00002afe8d338514 in scm_with_guile ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+#44 0x00002afe8d2fdc6b in scm_boot_guile ()
+   from /d00/coot/bleeding_edge_coot/lib/libguile.so.17
+#45 0x00000000004a2d73 in c_wrapper_scm_boot_guile (argc=115925024, argv=0x0)
+    at c-inner-main.c:326
+#46 0x000000000049978b in main (argc=3, argv=0x7fff21675878) at main.cc:569
+Current language:  auto; currently c
+
+     ::: 1
+
+* anti-aliasing code re-worked.  I investigated, but couldn't see the
+  cause of this.  Maybe I'll have to come back to it :(
+
+   o Is the TER atoms remove from the "added-to-residue" on terminal
+     residue addition?   ::: 1
+
+* Yes it is.  Still have starred atoms though.
+
+     o Steven Sheriff: fix up the difference map peaks so that I don't
+       get two that are close together.  Done - test written.  Seems good, 
+       needs a manual check. ::: 1
+
+* Done.
+    
+
+     o  Wuyi> It supposed to ask for a pdb but nothing happened. I
+        even loaded the pdb first. The coot 0.5.2 on Ubuntu works fine
+        on same files.
+
+
+> Wuyi Meng wrote:
+>>
+>> Hi Paul,
+>>
+>> I am having trouble to read phs file created from hkl2map. I am
+>> running OSX 10.5.6 on an Intel MacBook Pro, both coot 0.6 pre or 0.5.2
+>> have the error message:
+>>
+>> "
+>>>>>>>>
+>>>>>>>> CCP4 library signal mtz:File not identified as MTZ (Error)
+>>
+>>         raised in MtzGet <<<<<<
+>> CCP4MTZfile: open_read - File missing or corrupted:
+>> /Users/meng/tan/tan_i.phs
+>> INFO:: not an mtz file: /Users/meng/tan/tan_i.phs
+>>>>>>>>
+>>>>>>>> CCP4 library signal mtz:File not identified as MTZ (Error)
+>>
+>>         raised in MtzGet <<<<<<
+>> CCP4MTZfile: open_read - File missing or corrupted:
+>> /Users/meng/tan/tan_i.phs
+>> INFO:: not an mtz file: /Users/meng/tan/tan_i.phs
+>> INFO:: data file /Users/meng/tan/tan_i.phs is not a valid mtz file
+>> /Users/meng/tan/tan_i.phs is a .phs file
+>> " 
+
+      ::: 2 
+
+* Fixed.  I did nothing.  User updated, maybe Bill fixed it.
+
+   o sequence view fails to start at the correct residue when using
+    chains starting at 120, 150 or so?] Use offset-resno-test.pdb
+    ::: 2
+   
+* Done.
+
+     o Steven Sheriff:
+
+        In v0.5.2 and earlier (at least back to v0.3 something or
+        other), when one adds water molecules in the vicinity of one
+        another Measures->Environment Distance... usually does not
+        pick up the distances between newly added water molecules
+        (unfortunately, I don't think this is a 100% failure, which,
+        of course, will make it much more difficult to debug).
+
+      ::: 1
+
+* Done - worked around a seqDist problem (mmdb bug) in SeekContacts().
+
+
+   o make reading a dirty cif file report the bad line number. ::: 1
+
+* It seems that that this was already in place.
+
+   o Reading in a map messes with the scroll button in the display
+     menu (possibly). JED.
+    ::: 1 
+
+* Fixed.
+
+
+   o JED: File -> Coordinates, resize window big. Cancel File ->
+     Coordinates, resize window to small -> Fail.  ::: 1
+
+* Done. Use gtk_window_set_default_size() not gtk_widget_set_size_request().
+
+
+   o documetation for Torsion General. ::: 0.3
+   You need to click on the torsion-general icon, then click 4 atoms
+   that describe the torsion - the first atom will be the base (non
+   moving) part of the atom tree, on clicking the 4th atom a dialog
+   will pop up with a "Reverse" button [1].  Move this dialog out of
+   the way and then left mouse click and drag in the main window will
+   rotate the "top" part of the residue round the clicked atoms 2 and
+   3.  When you are happy, click "Accept".
+
+
+    o An interface to make dotted lines (generic objects).  Tobias Beck ::: 1
+
+* Done.  It was easy.  Reduce to 1 point.
+
+   o Ramachandran Plots need a molecule name/number title [Wendy
+     Offen] ::: 1
+
+* Done - a while ago.
+
+   o crash when adding a view annoation (first I added an annotation
+     to view 4 (which didn't exist))   ::: 1
+
+* Done - a while ago also.
+
+
+   o (reorder-chains 0) -> 
+
+     bad atom (occ b element expression) 
+     object: (1.0 17.4099998474121 " C" "")
+     etc...
+     ::: 1
+
+* Done - using scm_is_string().  Not sure if this is in 1.6.
+
+   o When starting up with --no-state-script, don't write a state
+     script on closing.  ::: 0.5
+
+* Done.
+
+   o > I was wondering if there's a way to avoid that a new "symmetry
+       controller" window opens every time I click on the "symmetry by
+       molecule..." button of the "Show symmetry?" dialog, rather than
+       just bringing to the front an already opened one.
+                                         Sebastiano Pasqualato  ::: 1
+
+
+* Done.
+
+   o normal usage (the start up script doesn't seem to be the issue)
+** (lt-coot-real:1937): WARNING **: Widget not found: map_scroll_button_3
+   This happens on opening the Display Manager (with 2 maps (2 and 3)
+   and 2 pdbs (0 and 1).  (but also I'd done (pointer-atom-molecule)
+   but (molecule-number-list was (0 1 2 3)), so that is probably not
+   relevant.)
+    ::: 1
+
+    o On map masking, on pressing the "Mask" button with inversion enabled:
+
+** (lt-coot-real:9413): WARNING **: Widget not found: map_scroll_button_3
+changed active state to #t
+debug:: invert-mask? is #t
+INFO:: Masking around 0 atoms
+
+Elsewhere: 
+
+** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_4
+
+** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_5
+
+** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_4
+
+** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_5
+
+** (lt-coot-real:5745): WARNING **: Widget not found: map_scroll_button_5
+
+             ::: 1
+
+ * Done.  It was get_radio_button_in_scroll_group() looking for
+   map_scroll_button buttons that did not yet exist.
+
+
+   o put density-score-by-residue into distro tar file
+     Done.  Needs checking. ::: 1
+
+
+* It certainly did need checking.  On bubbles the previous binary
+  density-score-by-residue was added to the source tar file instead of
+  the script in the source src dir.
+
+
+  
+   o Remove debugging:
+     DEBUG:: on ok button pressed, active index 0
+
+* Done - callbacks.c
+
+   o fix-nomenclature-errors added to GUI ::: 1
+
+* Done.
+
+
+   o Ingo K.: try to pepflip a peptide with alt conf "B" - it flips
+     the "A" version.  ::: 1
+
+* Done.  Big rewrite of pepflip and small rewrite of get-atom.
+
+
+   o Time Grune: When you read in a shelx ins file, it ignores the
+     "Recentre" check button on the file selection dialog.  ::: 1
+
+* Done.
+
+
+   o Investigate interupting long fitting/Post MR tools [JED request] 
+     Add a stop button to the toolbar perhaps.
+     ::: 2
+
+* gtk-toolbar-insert and gtk-toolbutton-new are not available in
+  guile-gtk-2.0, or so it currently seems to me.  This can't be done
+  from scripting then. Hmm... [Probably possible in python].  Does
+  this mean I should consider looking at guile-gnome?  Or how about
+  coot-add-main-toolbar-stop-toolbutton which gets passed a function
+  to call when the button is clicked.  Need to think about how the
+  button goes away without being clicked.  Pass back the widget?
+  Seems complex - how about just destroy-toolbar-stop-toolbutton. Yes.
+  Should those refinement scripts be run as idle functions then?  
+
+  Done, at least in scheme.
+
+   o Tim Gruene: When you add a terminal residue to a .ins molecule,
+     then the main chain atoms have occupancy 1.0.  ::: 1
+
+   o Refining a GLC gives:
+
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+There are 2 data in /home/paule/autobuild/Linux-kalypso-pre-release-gtk2/share/coot/lib/data/monomers/g/GLC-b-D.cif
+WARNING: residue type GLC not found in restraints dictionary (chiral)
+c-interface clear_up_moving_atoms...   
+     ::: 2
+
+
+   o What happened to WC partner (watson_crick_pair())? Other Modelling Tools "Base Pair"
+    ::: 0.2
+ 
+*  Other Modelling Tools.
+
+
+   o Add cancel button to rama refine ::: 1
+
+* Done.
+
+
+   o Rama-refine rnase: Does it work properly?  (possibly more work
+     here.) ::: 1
+
+* It's fine.
+
+
+
+   o Look at 1y7l difference map. Peaks 12 and 13 are too close to
+     each other? 1.12A. ::: 1 
+
+* max_closeness was 1.0.  I changed it to 2.0
+
+   o CA+Ligands has gone into CA by B-factor mode.  Don't like - it 
+     should be just the same as CA mode. There is a mix up over what
+     bond_colour_type means. ::: 1  
+
+* Bernhard quick-fixed - rev 1918.
+
+
+
+   o centos build crash:
+
+   1. 0.6-pre-1 (revision 2061) [with guile 1.8.6 embedded] [with
+   python 2.6.0 embedded]
+
+   Using host libthread_db library "/lib/tls/libthread_db.so.1".
+   Core was generated by
+   `/x/coot-Linux-i386-centos-4-gtk2-python/bin/coot-real'.
+   Program terminated with signal 11, Segmentation fault.
+   #0  0x40a4b3ea in gtk_widget_ref () from /usr/lib/libgtk-x11-2.0.so.0
+   #0  0x40a4b3ea in gtk_widget_ref () from /usr/lib/libgtk-x11-2.0.so.0
+   #1  0x082db532 in create_window1 () at gtk2-interface.c:2607
+   #2  0x08106ea7 in main (argc=1, argv=0xbfe30334) at main.cc:264
+
+   1962 runs just fine.
+
+   ::: 1 
+
+* Fixed.
+
+
+   o Go To Atom residue tree does not update properly (JED)
+   Do this:
+   - read in a pdb file
+   - open the go to atom window
+   - read in another pdb file (with different chains etc)
+   - try to set the go to atom molecule in the dropdown to the new one
+   -> the chain/atom tree won't update, only on multiple changing back
+      and forth between go to atom molecules. 
+   ::: 1
+
+* Done.
+
+   o Move Koala to gcc 4.1.2 20080704 (RH 4.1.2-44) or better.  See
+     Esser build log problems.  ::: 2
+
+* Fixed, well Lothar has it building.
+
+
+   o Some tests for rigid body fitting many residue.  Consider
+     residues with TERs and alt confs. [Bob Nolte] ::: 2 
+
+* I did it by hand.  TERs are excluded in construction of a minimol
+  molecule from a CMMDBManager now.  rigid body fitting an alt conf
+  seems fine.
+
+
+   o Job for Bernie?  Tool bar in text mode does not show text for 
+     the new rotate/translate toolbar menu button.
+
+* Done (in glade-2)
+
+
+   o Document the post-manipulation-hook.  How, for example, might you
+     use it to move the residue added on a "Add Terminal residue"? 
+     [Ethan Merritt] ::: 1
+
+* Done.
+
+   o Move Koala to gcc 4.1.2 20080704 (RH 4.1.2-44) or better.  See
+     Esser build log problems.  ::: 2
+
+* Not fully done, but Lothar can build coot now.
+
+
+   o Add terminal residue has disconnected atoms.  Why? This is an
+     extremely deeply-buried problem. ::: 4
+
+ * Done by Bernhard (and Eugene).
+
+   o Fix Pukka Puckers ::: 4
+
+* Done.
+
+   o Tweak the go-to-blob algorithm to much favour blobs at the front.
+     Especially those above the displayed contour level. Does this
+     work with the refinement map?  What happens when the refinement
+     map is not defined?  ::: 1
+
+* Done.
+
+
+   o Integrate scripting functions into main documentation somehow.
+     Well, you can look at this, if it is hard, punt it.  
+     ::: 3
+
+* It looks like it can be done using @html, @end html stripping out the
+  body etc tags. Ugly though.  Include files need to be in source doc
+  directory.  Call it xxx.html.texi and add @html tags in there.
+
+  Actually, there is a better way, use the JED conversion script.
+
+  Done.  At last.  What an effort.
+
+
+   o Backrub-based auto-fit rotamer search.  Question: how do I test
+     this? Synthetic map?  How does it work when we do this for an alt
+     conf too?  ::: 5
+
+* Done.  Actually quite easy.
+
+
+   o get-monomer fails for JED.  Why? ::: 1
+
+* It apparently no longer does.  Yeay.
+
+
+   o multiple residue ranges, glycosylation, covalent bond entities,
+     make sure it works with alt confs and residues with TER atoms.  
+
+     Sphere refinement on N-linked NAG glycans work fine (e.g. 1pp4).
+
+     OK, sphere refinement on a residue next to a residue with an alt
+     conf fails (E_NOPROGRESS).  
+
+     Sphere refinement on a resiude with an alt conf ignores the
+     centre residue and refines the residues around it). Hard.
+
+     ::: 10
+
+* What else is there to do here?  Write a test.
+
+   o File differences mentioned by Bill?  
+
+* Not need now
+
+
+   o Why is the brief text for have_unsaved_changes_p() not showing in
+     the on-line documentation?  ::: 0.5
+
+* Because it was including the wrong file.
+
+   o Distances should undisplay when the molecule to which they relate
+   (either of them) is undisplayed.  ::: 1 
+
+* Done.
+
+
+   o symmetry molecule by symop.  Check that pre_shift_to_origin_abc
+     is applied the right way (currently I think that it is not (not
+     at least with the new-molecule-by-symop usage in
+     extensions)). ::: 1
+
+* Seems OK now.
+
+
+   o Move "Add strand here" next to "add Helix here" ::: 0.5
+
+* Done.
+
+   o Fix this: 
+
+** (coot-real:16099): WARNING **: Widget not found: preferences_font_size_small_radionbutton
+
+(coot-real:16099): Gtk-CRITICAL **: gtk_toggle_button_set_active: assertion `GTK_IS_TOGGLE_BUTTON (toggle_button)' failed
+
+    ::: 0.5
+
+* Done.  typo.
+
+
+   o What about if there are python and scheme bindings to a
+     particular key?  graphics-general-key-press-hook should return the
+     status of the key being found and the binding function used.  Then
+     if not, we can run the python function [JED]. ::: 0.5
+
+* No, I am not going to do that, key bindings are either all python or all scheme.
+
+   o Make sure that .coot.py keybindings appear in the keybindings
+     GUI. Get Python working first. Hmm. ::: 0.1
+
+* No.
+
+   o Geometric distortions graph for alt confs - currently broken? ::: 1
+ 
+* Can't find it if it is.
+
+
+   o Environment distances should go off when the molecule to which
+     the relate is undisplayed. ::: 1
+
+* Done.
+
+
+   o pir sequence assignment should overwrite the seqence (if
+     possible) not add to the sequences.  
+     ::: 1
+
+* Done.
+
+   o Regularize monomer-3GP. Turn on torsion angle restraints.
+     Regularize again. Look at above var_2 torsion.  After
+     minimization, torsion is 171.09 degrees.  Wrong.  The minimizer
+     doesn't terminate though. Use libcheck_3GP-torsion-filtered.cif 
+
+     20090723 on trying again torsion is -115.  [Target is -78].
+     Still doesn't terminate properly though.
+     chisq torsions: 45.3986 Hmm.
+
+     On using torsion in refinement and using just the N9-C1 torsion,
+     and 6 or so rounds, it terminates correctly.  However, torsion is
+     -157.9 and chi-sq 24.6.
+
+     ::: 4
+
+* Fixed.  It was a circular symmetry bug.
+
+
+   o JED data mmCIF data file, scroll button is wrong ::: 1
+
+* Done.
+
+
+   o Communication with PISA.  Get PISA on jackal.  I'd like show the
+     interface with molprobity dots.  pisa-interaction ::: 8
+
+
+* Done.  Well pisa-interaction (which is interfaces) not done
+  properly, but what I have (the assemblies interface) I like now.
+  Could do with more feedback, perhaps.
+
+   o Torsion general is broken? Yes (argh!)
+     Am I using the right version of mgtree?
+     ::: 8
+
+* Done - yay!
+
+   o Fix the documentation generation - coot.html ::: 2 
+
+* Done - now part of the source bulid.
+
+   o OXT atoms are added after TER atoms? ::: 1
+
+* Done.
+
+   o Fix ligand chi angles.  
+
+     Try rotating round CA-CB in a modified CYS (after clicking on a
+     CA). [Ian Tickle]
+
+     ::: 4
+
+* Done - works fine.
+
+   o Read a map, Sharpen map -> crash ::: 1
+
+* Fixed.
+
+   o Can you fix the geometry analysis plot so that the correct
+     largest geometric outlier is shown? (puntable) ::: 1 
+
+* Looks OK, after some consideration.
+
+   o Try different rotamers on Add Alt Conf. Ashley Pike and others
+     ::: 1
+
+* Done.
+
+   o Addition representations: "All off" button needed.  ::: 1
+
+   o Water removing problem from Takaaki Fukami ::: 1
+
+* Can't reproduce.  Added index protection.
+
+   o ^G I1  -> spins instead ::: 0.5
+
+* Done.
+
+   o Put "Set Matrix" under the R/RC button dialog. ::: 0.5
+
+* Done
+
+   o Can you fix the bonding of the oxygens in tlc 2AB? ::: 1
+
+* Yes.  Not too hard.
+
+   o Difference map peak in large continuous ligand needs filtering,
+     if possible (making clusters?) - puntable ::: 2
+
+* Done - It is much better now. It does seem to fail a bit, but not
+  much (2 peaks in the ligands site).
+
+   o Average maps function (take a list of maps). ::: 1
+
+* Done.  In scripting anyway.
+
+
+   o Add clash score to backrub rotamer - consider making dist_crit
+     smaller. Test with residue A19 in low res map ::: 2
+
+* Done.
+
+   o "make check" should be clean. ::: 1
+
+* Done.
+ 
+   o Get News seems to be failing for me -> nothing. ::: 1
+
+* Done.
+
+   o Insert reference into docs: "The Backrub Motion: How Protein Backbone Shrugs
+     When a Sidechain Dances" Structure, Volume 14, Issue 2, Pages
+     265-274 I. Davis, W. Arendall III, D. Richardson, J. Richardson
+     ::: 0.2
+
+* Done.
+
+   o COOT_SYS_BUILD_TYPE is wrong on Ubuntu 64 ::: 1
+
+* Done.
+
+   o Need to fix up assign sequence and add-terminal-residue so that
+     the sequence offset is taken into account properly. ::: 2 
+ 
+* Done.  Using running sequence number.
+
+   o Multi-refinement falls over at the end sometimes - missing
+     residue? ::: 1
+
+* Done.
+
+
+   o Align and mutate is crashing: 
+
+#6  0x00000000006cf4a4 in molecule_class_info_t::align_and_mutate (this=0x1a3, chain_id=
+        {static npos = 18446744073709551615, _M_dataplus = {<std::allocator<char>> = {<__gnu_cxx::new_allocator<char>> = {<No data fields>}, <No data fields>}, _M_p = 0x1a989f0 "P%G�%@>\222|\177"}}, fasta_seq=<value optimized out>)
+    at ../../coot/src/molecule-class-info-mutate.cc:425
+#7  0x00000000005d5a7e in graphics_info_t::mutate_chain (this=<value optimized out>, imol=<value optimized out>, 
+    chain_id=@0x7fffa0e7b110, seq=@0x7fffa0e7b0f0) at ../../coot/src/graphics-info-mutate.cc:302
+#8  0x0000000000503726 in do_align_mutate_sequence (w=0xe56430) at ../../coot/src/c-interface-gui.cc:5073
+#9  0x000000000055250d in on_align_and_mutate_ok_button_clicked (button=<value optimized out>, user_data=<value optimized out>)
+    at ../../coot/src/callbacks.c:7977
+#10 0x00007f7c8e0ab27d in g_closure_invoke () from /usr/lib/libgobject-2.0.so.0
+#11 0x00007f7c8e0c0e3b in ?? () from /usr/lib/libgobject-2.0.so.0
+
+    ::: 0.5 
+
+* Fixed.
+
+   o Pukka-puckers? should now use the N1/9-C1* bond not the base plane. 
+     What is the critical distance, now that we are not using
+     out-of-plane distance? 3.0 says Jeff.
+     ::: 2
+
+
+   o With align and mutate so that the sequence offset is taken into
+     account properly.  Check that the subsequent refinement of
+     residues only refines the insertions and mutations, not the whole
+     structure - consider using interruptible-fit-protein or something
+     like that were the specs are passed (interruptible-fit-protein
+     may need to be refactored). ::: 4
+
+* Done.  Harder that I thought.
+ 
+
+   o In Align vs PIR, the resulting dialogs tries to go to the CA atom
+     of the residue to delete, this doesn't work for phosphates,
+     waters etc.  Do better at getting a sensible atom name to go to.
+     ::: 1
+
+* Done.
+
+   o audit strncpy()s. ::: 1
+
+   o audit GtkPositionType usage for use with strings.
+
+src/c-interface-build-gui.cc      done
+src/c-interface.cc:               done moved to -gui.cc
+src/c-interface-gui.cc            done
+src/c-interface-superpose.cc:     done
+src/c-interface-validate.cc:	  done
+src/cmtz-interface.cc:            done - hideous code.
+src/graphics-info.cc:             done
+src/graphics-info-modelling.cc:   done
+src/graphics-info-refmac.cc:      done
+src/graphics-info-superpose.cc:   done
+src/gtk-manual.cc:                done
+
+   o Autofit rotamers for Leucines is doing the right thing?  Test on
+     2dk2-overlayed-fix-up-mutated-close.pdb.  It seems not.  Other
+     residue types suspicious ::: 2
+
+* Done
+
+
+   o Random-looking crash on multi-refine with Ramachandran
+     optimisation. ::: 1
+
+* Can't reproduce.
+
+ 
+   o On update the rotamer plot with waters in the chain (e.g. 2qlu)
+     lots of text complaints in the terminal about quads for waters. :: 0.5
+
+* Done
+
+
+   o On refining (Key T) the green spot disappears from the Rama plot.
+     Also disappears on click click refinement. ::: 1
+
+* Done.
+
+   o Does PISA (interface) work on various computers? ::: 2
+
+* Needs bug fix.  OK, now need moving to Extensions.
+
+   o sulfur-sulfur bonding  ::: 0.5
+
+* Done. 
+
+   o In the Display Manager "Show Additional Representations" needs to
+     be hidden when the addition representation vbox is hidden (and
+     shown when the vbox is shown)  ::: 0.5
+
+* Done.
+
+   o binary in output on many delete waters. ::: 1
+
+* Done.
+
+   o transformed maps take on the cell+symmetry of the reference
+     coordinates.  If reference coords do not have cell and symmetry,
+     stop.  Needs symmetry operators to symbol interconversions.
+     ::: 2
+
+* Done.
+
+   o transformed maps take on the symmetry of the reference coordinates 
+     ::: 1
+
+   o Crash on Mac on closing 
+     (set-go-to-atom-molecule 4) after the (post-go-to-atom-window)
+     should change the Go To atom dialog.
+     ::: 2
+
+* Done. Yay!
+
+   o Fix problem of Go To Atom dialog displaying the wrong molecule
+     number on post-go-to-atom-window (see dnotes).  ::: 1
+
+* Done. I hope.
+ 
+   o Occupances on alt confed residues are wrong.  Make a test ::: 2
+
+* Done.
+
+   o Add jiggle-fit for ligands ::: 3
+
+* Done.
+
+   o delete_atom() needs investigating.  Spews binary? ::: 1
+
+* Fixed.  Was dereferencing out out date char * pointers.
+
+   o If you set a view name it gets ignored in the current views panel
+     (but the name is OK if the views panel is closed and re-opened) 
+     ::: 1
+
+* Done. One liner (typo, probably).
+
+
+   o Stereo (hardware, side by side) Add-reps.  Need to update the
+     display list objects when the GL context changes. Need to store a
+     GL display list number for the alternate GL context in side by
+     side mode? 
+
+     When switching stereo contexts creating a new GL context, we need
+     to run update_additional_representations() for each model molecule.
+     ::: 3
+
+* I won't waste time fixing this exactly.  I am happy that we get 2
+  representations of ball-and-stick objects in side-by-side stereo now.
+
+   o dictionary for LEU, chi angles wrong, chiral centre for CG should
+     be negative, not both. Check other residues,
+     THR VAL LEU ASP ASN GLU GLN ILE ::: 2
+
+* Done.
+
+   o Pierre Aller rotamer bug.  who knows how long this will take?
+     Horrific. ::: 1
+
+* Gone away.
+
+
+   o Put the GNU GPLv3 in the GUI ::: 0.5
+ 
+* Done.
+
+  o add-view-description fails.  Needs fixing. ::: 0.3
+
+* Done.
+
+  o assign-pir-sequence: does it say to which molecule it has been
+    assigned?
+
+* Done
+
+    assign_sequence() needs to be in the history 
+
+* Done.
+   
+    ::: 0.3
+
+
+  o Use positive/negative/both or whatever (what is -2?) in edit restraints
+    chirality [Andrew Leslie]
+
+   ::: 0.5
+
+  o where are the links in 1e3z.pdb?  do we get links from 1OHY.pdb?
+    mmdb version problem perhaps.
+
+    Fine, it seems like an mmdb bug.  ::: 0.2
+
+  o Distances in the SSM align output are wrong.  e.g. Frank's test.
+    ::: 2
+
+* Done.
+
+  o Add the alignment for post-ssm superposition - put it in a gui
+    too?  ::: 3
+
+* Done.  Not a GUI atm.
+
+  o Environment distances: examine the residue type, look it up in the
+    dictionary: only if this residue and that residue are not a
+    polymer should you not draw the lines (don't rely on the residue
+    numbering).  JED ::: 1
+
+* Done.
+
+  o Test CNS data sharpening ::: 1
+
+* Done.
+
+  o Gap penalty too low in alignment?  OK, I can't seem to change the
+    results, no matter what gap penalty and extension penalty I
+    use.  ::: 2
+
+* Done, it seems to me.  Bob's example now looks good.
+
+  o Try: All Molecule -> Stepped refine on a CA-only molecule.  That
+    seems OK, how about "Fit Protein"? OK, it's Fit Protein that is
+    the problem ::: 0.5
+
+* Done.  Check that there are more than 3 atoms in the residue before
+  trying to rotamer and refine it.
+
+  o Replace with new dictionary. ::: 0.2
+
+* Done.
+
+  o Kevin Keating map peak position problem :: 2
+
+* Done? Needs testing.
+
+  o nudge monomer/residue (Ctrl-arrow keys) to move residue at centre
+    up/down left/right. Has to be done internally, I think, but
+    compare with function in nudge-screen-centre-gui.  Puntable, but
+    cool. ::: 1
+
+* Done.  It is cool.
+
+  o density-fit graph should update on deleting a residue (and water) ::: 1
+
+* Done
+
+  o Backrub rotamers compensatory peptide rotation ::: 2
+
+* Done.
+
+
+  o Deleting molecules and running refmac somehow causes a crash? ::: 2
+
+    1: deleting the go-to-atom molecule in the close molecule dialog
+       does not delete/update the residue and atom tree.  It should.
+
+       Fixed
+
+    2: deleting the go-to-atom molecule in the Display Manager does
+       not change the internal go-to-atom molecule, even though the Go To
+       Atom dialog moves on to the next molecule.
+
+       Is this true?  No.  
+
+       But, the option menu of the GoToAtom dialog does not change on
+       deleting the Go To Atom molecule using the Display Manager.
+
+     ::: 2
+
+* Done.   
+
+  o Fix refmac interface crash (needs python, I guess) on Bill's
+    stand-alone Coot 0.6-pre build:
+    In run refmac: Choose MTZ file for Refmac -> dialog -> open -> crash.
+    ::: 2
+
+* Bernhard has fixed this already?  Probably not, he says.  Can't
+  reproduce.  Shelving for now.
+
+  o In editing the comp-id (or 3letter code) in the restraints editor,
+    we should generate a new dictionary entry, not the same as we
+    started with. ::: 1
+
+* Done.
+
+  o GTT dict from Adrian?  I am confused.  The current dictionary for
+    GTT has the same chiral centre sign as LYS has at CA1.  Keep the 
+    original one for now. ::: 0.2
+
+* Considered.  Nothing changed currently.
+
+
+  o A function that associates the current chain with the lastest pir
+    file. ::: 0.5  
+
+* Done.  Sent.
+
+  o Fix NAN crash in Refinement of AUC in gold-lysozyme. Rick comment.
+    Data on stick (Icanmakecootcrash). Not reproducable on ubuntu
+    laptop. Not reproducable on 64 bit ubuntu either. Needs Bill's
+    standalone Mac binary ::: 4
+
+* Not fixing this now.
+
+  o Add in Dale's BCL dictionary.  ::: 0.2
+
+* Done.
+
+-----
