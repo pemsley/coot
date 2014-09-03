@@ -24,7 +24,7 @@
 
 #include <map>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "clipper/core/coords.h"
 #include "coot-utils/coot-coord-utils.hh"
 #include "geometry/protein-geometry.hh"

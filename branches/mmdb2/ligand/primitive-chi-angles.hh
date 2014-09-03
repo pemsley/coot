@@ -6,7 +6,7 @@
 
 #include "clipper/core/coords.h"
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "mini-mol/atom-quads.hh"
 
 namespace coot {

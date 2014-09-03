@@ -72,7 +72,7 @@
 #include "drag-and-drop.hh"
 #include "interface.h"
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 #include "coords/mmdb-crystal.h"

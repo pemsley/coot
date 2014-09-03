@@ -14,7 +14,7 @@
 #include <map>
 #include <math.h>
 #ifndef  __MMDB_Manager__
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #endif
 #include "CXXCoord.h"
 using namespace std;

@@ -22,7 +22,7 @@
 #include <string>
 #include <GL/gl.h>
 #include <GL/glut.h> // for GLUT bitmap fonts, maybe deletable.
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "graphics-ligand-view.hh"
 
 #include "compat/coot-sysdep.h"

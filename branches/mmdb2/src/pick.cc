@@ -34,7 +34,7 @@
 #include <GL/gl.h>
 #include <GL/glu.h>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
 #include "coords/cos-sin.h"
 #include "coords/mmdb-extras.h"

@@ -12,7 +12,7 @@
 #include <vector>
 #endif // HAVE_VECTOR
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
 namespace coot_extras { 
 

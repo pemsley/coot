@@ -23,7 +23,7 @@
 #include <string.h>
 #include <string>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "clipper/core/spacegroup.h"
 #include "clipper/core/coords.h"
 

@@ -33,7 +33,7 @@
 #endif // HAVE_STRING
 
 #include "clipper/core/xmap.h"
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "geometry/protein-geometry.hh"
 
 namespace coot {

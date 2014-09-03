@@ -28,7 +28,7 @@
 #include "clipper/core/hkl_data.h"
 #include "clipper/contrib/sfcalc_obs.h"
 #include "coot-coord-utils.hh"
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
 namespace coot {
 
