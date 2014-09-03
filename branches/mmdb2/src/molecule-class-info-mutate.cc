@@ -56,7 +56,7 @@
 #include "coot-utils/coot-map-utils.hh"
 
 #include "molecule-class-info.h"
-#include <mmdb/mmdb_align.h>
+#include <mmdb2/mmdb_align.h>
 #include <mmdb2/mmdb_tables.h>
 
 int

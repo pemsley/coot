@@ -72,7 +72,7 @@
 #include "molecule-class-info.h"
 
 #ifdef HAVE_SSMLIB
-#include <ssm/ssm_align.h>
+#include <ssm-dev/ssm_align.h>
 #endif
 
 #include "db-main/db-main.hh"

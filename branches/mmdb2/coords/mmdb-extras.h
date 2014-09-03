@@ -48,13 +48,6 @@ using namespace std;  // ugh.  This should not be here.  FIXME
 #include <mmdb2/mmdb_manager.h>
 #endif
 
-class Mymmdb::Manager : public mmdb::Manager { 
- public: 
-  const CMMDBCryst& get_cell() { return Cryst; } 
-  CMMDBCryst* get_cell_p() { return & Cryst; } 
-}; 
-
-
 #include "geometry/protein-geometry.hh"
 
 // we need this for bonded_pair_container_t.
@@ -76,14 +69,14 @@ public:
    int UDDOldAtomIndexHandle; // ditto. // set initially to -1 in make_asc
 
    atom_selection_container_t(mmdb::Manager *mol_in, int selhnd) {
-      // one day this casting should go away...
-      mol =  (Mymmdb::Manager *) mol_in;
-      atom_selection = NULL;
-      mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
-      SelectionHandle = selhnd;
-      UDDAtomIndexHandle = -1;
-      UDDOldAtomIndexHandle = -1;
-      read_success = 1;
+
+     mol = mol_in;
+     atom_selection = NULL;
+     mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
+     SelectionHandle = selhnd;
+     UDDAtomIndexHandle = -1;
+     UDDOldAtomIndexHandle = -1;
+     read_success = 1;
    }
 
    atom_selection_container_t() {
@@ -198,12 +191,12 @@ namespace coot {
 
   public:
     std::vector<contacts_pair> contacts;
-    contact_info(PSContact con_in, int nc) {
+    contact_info(mmdb::Contact *con_in, int nc) {
       for (int i=0; i<nc; i++) { 
 	contacts.push_back(contacts_pair(con_in[i].id1, con_in[i].id2));
       }
     }
-    contact_info(mmdb::PPAtom atom_selection, PSContact con_in, int nc) {
+    contact_info(mmdb::PPAtom atom_selection, mmdb::Contact *con_in, int nc) {
       setup_atom_radii();
       for (int i=0; i<nc; i++) { 
 	mmdb::Atom *at_1 = atom_selection[con_in[i].id1];
