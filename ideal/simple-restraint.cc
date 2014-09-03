@@ -586,7 +586,7 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(const coot:
       residues_for_fixed_atoms[i]->GetAtomTable(residue_atoms, n_res_atoms);
       for (unsigned int iat=0; iat<n_res_atoms; iat++) { 
 	 mmdb::Atom *at = residue_atoms[iat];
-	 if (! at->GetUDData(udd_atom_index_handle, idx) == UDDATA_Ok) {
+	 if (! at->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) {
 	    std::cout << "ERROR:: bad UDD for atom " << iat << std::endl;
 	 } else {
 	    if (std::find(fixed_atom_indices.begin(),
@@ -5287,7 +5287,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
 
 	// set atom_index
 	ierr = res_selection_local[iat]->GetUDData(udd_atom_index_handle, atom_index);
-	if (ierr != UDDATA_Ok) { 
+	if (ierr != mmdb::UDDATA_Ok) { 
 	   std::cout << "ERROR:: in getting UDDATA res_selection_local, ierr=" 
 		     << ierr << " "
 		     << res_selection_local[iat]->GetSeqNum() << " " 
@@ -5661,8 +5661,8 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 		     // set the UDD flag for this residue being bonded/angle with 
 		     // the other
 
-		     if (udd_get_data_status_1 == UDDATA_Ok &&
-			 udd_get_data_status_2 == UDDATA_Ok) { 
+		     if (udd_get_data_status_1 == mmdb::UDDATA_Ok &&
+			 udd_get_data_status_2 == mmdb::UDDATA_Ok) { 
 		  
 			bonded_atom_indices[index1].push_back(index2);
 			bonded_atom_indices[index2].push_back(index1);

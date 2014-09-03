@@ -1175,10 +1175,10 @@ coot::get_covalent_bonds_by_distance(mmdb::Manager *mol,
    std::vector<coot::fle_ligand_bond_t> v;
    int SelHnd_local = mol->NewSelection();
    mol->SelectAtoms(SelHnd_local, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
-   mol->Select(SelHnd_local, STYPE_ATOM, 0, ligand_spec.chain.c_str(),
+   mol->Select(SelHnd_local, mmdb::STYPE_ATOM, 0, ligand_spec.chain.c_str(),
 	       ligand_spec.resno, ligand_spec.insertion_code.c_str(),
 	       ligand_spec.resno, ligand_spec.insertion_code.c_str(),
-	       "*", "*", "*", "*", SKEY_XOR);
+	       "*", "*", "*", "*", mmdb::SKEY_XOR);
 
    // now find contacts:
    // 

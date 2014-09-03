@@ -303,13 +303,13 @@ coot::deep_copy_this_residue_and_make_asc(mmdb::Manager *orig_mol,
 	    }
 // 	 if (do_shelx_afix_data_flag) {
 // 	    int ic;
-// 	    if (residue_atoms[iat]->GetUDData(udd_afix_handle, ic) == UDDATA_Ok) {
+// 	    if (residue_atoms[iat]->GetUDData(udd_afix_handle, ic) == mmdb::UDDATA_Ok) {
 // 	       std::cout << "Copying afix handle " << ic << " from " << residue_atoms[iat]
 // 			 << "\n                        to " << atom_p << std::endl;
 // 	       int istat = atom_p->PutUDData(udd_afix_handle, ic);
-// 	       if (istat != UDDATA_Ok) { 
+// 	       if (istat != mmdb::UDDATA_Ok) { 
 // 		  std::cout << "Opps! putuddata returns status " << istat << " vs "
-// 			    << UDDATA_Ok << std::endl;
+// 			    << mmdb::UDDATA_Ok << std::endl;
 // 	       }
 // 	    }
 // 	 }
@@ -331,7 +331,7 @@ coot::deep_copy_this_residue_and_make_asc(mmdb::Manager *orig_mol,
 // 	     << udd_afix_handle_inter << std::endl;
    for (int i=0; i<asc.n_selected_atoms; i++) {
       int afix_number = -1;
-      if (asc.atom_selection[i]->GetUDData(udd_afix_handle_inter, afix_number) == UDDATA_Ok)
+      if (asc.atom_selection[i]->GetUDData(udd_afix_handle_inter, afix_number) == mmdb::UDDATA_Ok)
 	 std::cout << asc.atom_selection[i] << " has afix number " << afix_number
 		   << std::endl;
 //       else
@@ -858,7 +858,7 @@ coot::add_atom_index_udd_as_old(atom_selection_container_t asc) {
 	 if (uddHnd >= 0) { 
 	    asc.UDDOldAtomIndexHandle = uddHnd;
 	    for (int i=0; i<asc.n_selected_atoms; i++) { 
-	       if (asc.atom_selection[i]->GetUDData(asc.UDDAtomIndexHandle, old_atom_index) == UDDATA_Ok) { 
+	       if (asc.atom_selection[i]->GetUDData(asc.UDDAtomIndexHandle, old_atom_index) == mmdb::UDDATA_Ok) { 
 		  asc.atom_selection[i]->PutUDData(uddHnd, old_atom_index);
 	       }
 	    }

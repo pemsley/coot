@@ -74,7 +74,7 @@ int CMolColour::SetSelHandle(int selHndin) {
   // No selection specified so select all
   if ( selHnd <= 0 ) {
     selHnd = molHnd->NewSelection();
-    RC = molHnd->Select ( selHnd,STYPE_ATOM,"*/*/*/*",mmdb::SKEY_NEW );
+    RC = molHnd->Select ( selHnd,mmdb::STYPE_ATOM,"*/*/*/*",mmdb::SKEY_NEW );
   }
  
   Clear();

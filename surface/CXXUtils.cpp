@@ -109,7 +109,7 @@ int CXXUtils::selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::st
 	selKey = selKeyRequest;
 	char *pstring = (char *) malloc (sizeof(selectionString.c_str())+1);
 	strcpy (pstring, selectionString.c_str());
-	allAtomsManager_in->Select ( selHnd, STYPE_ATOM, pstring, selKey);
+	allAtomsManager_in->Select ( selHnd, mmdb::STYPE_ATOM, pstring, selKey);
 	mmdb::PPAtom SelAtoms; 
 	int nSelAtoms;
 	allAtomsManager_in->GetSelIndex(selHnd, SelAtoms, nSelAtoms);

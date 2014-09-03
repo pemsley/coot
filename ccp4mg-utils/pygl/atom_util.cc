@@ -306,7 +306,7 @@ int AtomColourVector::SetupResidueColourVector( mmdb::PManager molHnd,
 
 
   CAselHnd = molHnd->NewSelection();
-  molHnd->Select(CAselHnd,STYPE_ATOM,0,"*",
+  molHnd->Select(CAselHnd,mmdb::STYPE_ATOM,0,"*",
 		 mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","CA","C","*",mmdb::SKEY_NEW);
 
   if (interpolation_mode == NOCOLOURREP ) {

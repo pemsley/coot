@@ -1309,7 +1309,7 @@ graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_
       if (at_d_i.atom) {
 	 int atom_index;
 	 if (at_d_i.atom->GetUDData(g.molecules[imol_moving_atoms].atom_sel.UDDAtomIndexHandle,
-				    atom_index) == UDDATA_Ok) {
+				    atom_index) == mmdb::UDDATA_Ok) {
 	    g.mol_no_for_environment_distances = imol_moving_atoms;
 	    g.update_environment_distances_maybe(atom_index, imol_moving_atoms);
 	 }

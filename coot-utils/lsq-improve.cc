@@ -52,8 +52,8 @@ coot::lsq_improve::lsq_improve(mmdb::Manager *mol_ref, const std::string &ref_se
 
 	 // now apply the passed selections
 	 // 
-	 mol->Select(sel_hnd_1, STYPE_ATOM,    ref_selection_string.c_str(), SKEY_OR);
-	 mol->Select(sel_hnd_2, STYPE_ATOM, moving_selection_string.c_str(), SKEY_OR);
+	 mol->Select(sel_hnd_1, mmdb::STYPE_ATOM,    ref_selection_string.c_str(), SKEY_OR);
+	 mol->Select(sel_hnd_2, mmdb::STYPE_ATOM, moving_selection_string.c_str(), SKEY_OR);
 
 	 mmdb::PPAtom atom_sel_1=NULL;
 	 mmdb::PPAtom atom_sel_2=NULL;

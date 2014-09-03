@@ -800,7 +800,7 @@ double CXXQADSurface::getAtomRadius(mmdb::PAtom theAtom){
 	double theRadius;
 	if (iRadiusHandle>0){
 		int success = theAtom->GetUDData (iRadiusHandle, theRadius);
-		if (success != UDDATA_Ok) theRadius = getVdWaalsRadius(theAtom->element);
+		if (success != mmdb::UDDATA_Ok) theRadius = getVdWaalsRadius(theAtom->element);
 	}
 	else theRadius = getVdWaalsRadius(theAtom->element);
 	return theRadius;

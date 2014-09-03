@@ -207,7 +207,7 @@ int superpose_with_atom_selection(int imol1, int imol2,
 	 graphics_info_t g;
 	 atom_selection_container_t asc_ref = graphics_info_t::molecules[imol1].atom_sel;
 	 asc_ref.SelectionHandle = asc_ref.mol->NewSelection();
-	 asc_ref.mol->Select(asc_ref.SelectionHandle, STYPE_ATOM,
+	 asc_ref.mol->Select(asc_ref.SelectionHandle, mmdb::STYPE_ATOM,
 			     (char *)mmdb_atom_sel_str_1, mmdb::SKEY_NEW);
 	 asc_ref.atom_selection = NULL;
 	 asc_ref.mol->GetSelIndex(asc_ref.SelectionHandle,
@@ -215,7 +215,7 @@ int superpose_with_atom_selection(int imol1, int imol2,
 
 	 atom_selection_container_t asc_mov = graphics_info_t::molecules[imol2].atom_sel;
 	 asc_mov.SelectionHandle = asc_mov.mol->NewSelection();
-	 asc_mov.mol->Select(asc_mov.SelectionHandle, STYPE_ATOM,
+	 asc_mov.mol->Select(asc_mov.SelectionHandle, mmdb::STYPE_ATOM,
 			     (char *)mmdb_atom_sel_str_2, mmdb::SKEY_NEW);
 	 asc_mov.atom_selection = NULL;
 	 asc_mov.mol->GetSelIndex(asc_mov.SelectionHandle,

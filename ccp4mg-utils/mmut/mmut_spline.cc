@@ -98,13 +98,13 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
 
 
   int atom_selHnd = molH->NewSelection();
-  molH->Select(atom_selHnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
-  molH->Select(atom_selHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+  molH->Select(atom_selHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
+  molH->Select(atom_selHnd,mmdb::STYPE_ATOM,atom_selHnd_in,SKEY_AND);
 
   // Find all CA - to use as quick check if atom is in this set
   CAselHnd = molH->NewSelection();
-  molH->Select(CAselHnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","CA","C","*",mmdb::SKEY_NEW);
-  molH->Select(CAselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+  molH->Select(CAselHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","CA","C","*",mmdb::SKEY_NEW);
+  molH->Select(CAselHnd,mmdb::STYPE_ATOM,atom_selHnd_in,SKEY_AND);
   molH->ExcludeOverlappedAtoms(CAselHnd,0.8);
 
   //if (atom_colour_vector)
@@ -223,10 +223,10 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
    if(cavertices[ii].size()>1){
     
     int CA_this_chain_selHnd = molH->NewSelection();
-    molH->Select(CA_this_chain_selHnd,STYPE_ATOM,0,cavertices[ii][0]->GetChainID(),
+    molH->Select(CA_this_chain_selHnd,mmdb::STYPE_ATOM,0,cavertices[ii][0]->GetChainID(),
 		 mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","CA","C","*",mmdb::SKEY_NEW);
     molH->ExcludeOverlappedAtoms(CA_this_chain_selHnd,0.8);
-    //molH->Select(CA_this_chain_selHnd,STYPE_ATOM,atom_selHnd,SKEY_AND);
+    //molH->Select(CA_this_chain_selHnd,mmdb::STYPE_ATOM,atom_selHnd,SKEY_AND);
 
     molH->GetSelIndex ( CA_this_chain_selHnd, CA_atomTable, CA_nAtoms );
     //std::cout << "Selected " << CA_nAtoms << " CA atoms\n"; std::cout.flush();
@@ -276,10 +276,10 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
    next_atoms.push_back(0);
    if(cavertices[ii].size()>1){
     int CA_this_chain_selHnd = molH->NewSelection();
-    molH->Select(CA_this_chain_selHnd,STYPE_ATOM,0,cavertices[ii].back()->GetChainID(),
+    molH->Select(CA_this_chain_selHnd,mmdb::STYPE_ATOM,0,cavertices[ii].back()->GetChainID(),
 		 mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","CA","C","*",mmdb::SKEY_NEW);
     molH->ExcludeOverlappedAtoms(CA_this_chain_selHnd,0.8);
-    //molH->Select(CA_this_chain_selHnd,STYPE_ATOM,atom_selHnd,SKEY_AND);
+    //molH->Select(CA_this_chain_selHnd,mmdb::STYPE_ATOM,atom_selHnd,SKEY_AND);
 
     molH->GetSelIndex ( CA_this_chain_selHnd, CA_atomTable, CA_nAtoms );
     //std::cout << "Sequence number of last atom " << cavertices[ii].back()->GetResidueNo() << "\n";
@@ -1073,8 +1073,8 @@ std::vector<std::vector<Cartesian> > GetExternalCartesians(mmdb::PManager molhnd
         atom = atomTable[*this_ext_iter];
         pCA =  atom->GetResidue()->GetAtom("CA");
         if((!strncmp((atom)->GetResidue()->name,"PRO",3)) && pCA != NULL &&
-             pCA->GetUDData(udd_CA,idx) == UDDATA_Ok && 
-             pCA->GetUDData(udd_chain,ids) == UDDATA_Ok && 
+             pCA->GetUDData(udd_CA,idx) == mmdb::UDDATA_Ok && 
+             pCA->GetUDData(udd_chain,ids) == mmdb::UDDATA_Ok && 
              idx >= 0 && 
              (!strncmp(atom->name," N",2)) && 
              unsigned(ids) < splineinfo.splines.size() &&
@@ -1084,9 +1084,9 @@ std::vector<std::vector<Cartesian> > GetExternalCartesians(mmdb::PManager molhnd
 					   splineinfo.splines[ids][idx].get_y(),
                                            splineinfo.splines[ids][idx].get_z() ));
         }else if ((!isworm) && 
-                   atom->GetUDData(udd_CA,idx) == UDDATA_Ok && 
+                   atom->GetUDData(udd_CA,idx) == mmdb::UDDATA_Ok && 
                    idx >= 0 && 
-                   atom->GetUDData(udd_chain,ids) == UDDATA_Ok &&
+                   atom->GetUDData(udd_chain,ids) == mmdb::UDDATA_Ok &&
                    unsigned(ids) < splineinfo.splines.size() &&
                    unsigned(idx * spline_accu) < (splineinfo.splines[ids].size()) ) {
           // Get the coords out of the SplineInfo

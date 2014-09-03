@@ -34,7 +34,7 @@
 
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
-#include <mmdb2/mmdb_tables.h>  // for Get1LetterCode()
+#include <mmdb2/mmdb_tables.h>  // for mmdb::Get1LetterCode()
 #include <mmdb2/mmdb_math_graph.h> // for graph matching
 
 #include "compat/coot-sysdep.h"
@@ -2979,7 +2979,7 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
 // 	    for (int iat=0; iat<n_atoms; iat++) {
 // 	       at = residue_p->GetAtom(iat);
 // 	       int check_afix_number;
-// 	       if (at->GetUDData(afix_handle_new_mol, check_afix_number) == UDDATA_Ok) {
+// 	       if (at->GetUDData(afix_handle_new_mol, check_afix_number) == mmdb::UDDATA_Ok) {
 // 		  std::cout << "atom " << at << " has afix handle " << check_afix_number
 // 			    << std::endl;
 // 	       } else {
@@ -3321,7 +3321,7 @@ coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_
    int orthcode;
    orig_mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
    atoms_mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
-   cpstr sg = orig_mol->GetSpaceGroup();
+   mmdb::cpstr sg = orig_mol->GetSpaceGroup();
    if (sg) { 
      atoms_mol->SetSpaceGroup(sg);
    }
@@ -3338,11 +3338,11 @@ coot::util::create_mmdbmanager_from_inverted_atom_selection(mmdb::Manager *orig_
    // logical NOT of the SelectionHandle selection.
    // 
    // So we need to select everything in orig_mol and then use
-   // SKEY_XOR to get a selection that is the NOT ofthe
+   // mmdb::SKEY_XOR to get a selection that is the NOT ofthe
    // SelectionHandle selection.
 
-   orig_mol->Select(SelectionHandle, STYPE_ATOM, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
-		    "*", "*", "*", "*", SKEY_XOR);
+   orig_mol->Select(SelectionHandle, mmdb::STYPE_ATOM, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
+		    "*", "*", "*", "*", mmdb::SKEY_XOR);
    mmdb::Manager *new_mol =
       coot::util::create_mmdbmanager_from_atom_selection(orig_mol, SelectionHandle);
    return new_mol;
@@ -3504,7 +3504,7 @@ coot::util::deep_copy_this_residue_with_atom_index_and_afix_transfer(mmdb::Manag
 	 atom_p->PutUDData(atom_index_udd_handle, mol_atom_index);
 	 // and shelx afix data:
 	 if (mol_afix_handle >= 0) {
-	    if (residue_atoms[iat]->GetUDData(mol_afix_handle, afix_number) == UDDATA_Ok) { 
+	    if (residue_atoms[iat]->GetUDData(mol_afix_handle, afix_number) == mmdb::UDDATA_Ok) { 
 // 	       std::cout << "DEBUG:: Transfering udd afix: " << afix_number
 // 			 << " using std mol_udd_handle " << mol_afix_handle
 // 			 << " to new atom with afix_udd_handle: " << afix_udd_handle
@@ -3871,7 +3871,7 @@ coot::util::three_letter_to_one_letter(const std::string &resname) {
    }
    
    if (! done_locally) { 
-      Get1LetterCode(resname.c_str(), r);
+      mmdb::Get1LetterCode(resname.c_str(), r);
       n = r[0];
    }
    return n;
@@ -4115,7 +4115,7 @@ coot::util::model_sequence(const std::vector<std::pair<mmdb::Residue *, int> > &
       std::string this_residue = "X";
       std::string res_name = sa[i].first->GetResName();
       if (res_name != "HOH") { 
-	 Get1LetterCode(res_name.c_str(), r);
+	 mmdb::Get1LetterCode(res_name.c_str(), r);
 	 this_residue = r[0];
 	 s += this_residue;
       }
@@ -4158,8 +4158,8 @@ coot::util::omega_torsion(mmdb::Residue *C_residue, mmdb::Residue *N_residue, co
    double omega = 0;
    short int istatus = 0; // initially unset
    mmdb::PPAtom C_residue_atoms = NULL;
-   int nmmdb::ResidueAtoms;
-   C_residue->GetAtomTable(C_residue_atoms, nmmdb::ResidueAtoms);
+   int nCResidueAtoms;
+   C_residue->GetAtomTable(C_residue_atoms, nCResidueAtoms);
    mmdb::Atom *C_residue_CA_atom_p = NULL;
    mmdb::Atom *C_residue_C_atom_p = NULL; 
 
@@ -4169,7 +4169,7 @@ coot::util::omega_torsion(mmdb::Residue *C_residue, mmdb::Residue *N_residue, co
    mmdb::Atom *N_residue_CA_atom_p = NULL;
    mmdb::Atom *N_residue_N_atom_p = NULL;
 
-   for (int i=0; i<nmmdb::ResidueAtoms; i++) {
+   for (int i=0; i<nCResidueAtoms; i++) {
       std::string atom_name = C_residue_atoms[i]->name;
       std::string altconf_atom = C_residue_atoms[i]->altLoc;
       if (atom_name == " CA ")
@@ -7034,25 +7034,25 @@ coot::util::sse_to_string(int sse) {
 
    std::string r;
    switch (sse)  {
-   case SSE_None: 
+   case mmdb::SSE_None: 
       r = "None";
       break;
-   case SSE_Strand:
+   case mmdb::SSE_Strand:
       r = "Strand";
       break;
-   case SSE_Bulge:  
+   case mmdb::SSE_Bulge:  
       r = "Bulge";
       break;
-   case SSE_3Turn:  
+   case mmdb::SSE_3Turn:  
       r = "Turn";
       break;
-   case SSE_4Turn:  
+   case mmdb::SSE_4Turn:  
       r = "4Turn";
       break;
-   case SSE_5Turn:  
+   case mmdb::SSE_5Turn:  
       r = "5Turn";
       break;
-   case SSE_Helix:  
+   case mmdb::SSE_Helix:  
       r = "Helix";
       break;
    default:

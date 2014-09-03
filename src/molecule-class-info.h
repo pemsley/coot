@@ -1031,7 +1031,7 @@ class molecule_class_info_t {
      int idx = -1;
      if (has_model()) { 
        int ic = -1;
-       if (atom->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == UDDATA_Ok) {
+       if (atom->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
 	 idx = ic;
        }
      }

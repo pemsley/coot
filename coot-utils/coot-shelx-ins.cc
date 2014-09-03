@@ -557,7 +557,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 	 if (spacegroup_ok) {
 	    // std::cout << "INFO:: set space group to \"" << space_group.descr().symbol_xhm() << "\""
 	    // << std::endl;
-	    cpstr sg = space_group.descr().symbol_xhm().c_str();
+	    mmdb::cpstr sg = space_group.descr().symbol_xhm().c_str();
 	    mol->SetSpaceGroup(sg);
 	    char *spg = mol->GetSpaceGroup();
 	    if (spg) { 
@@ -1227,7 +1227,7 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
 			   int sfac_index = get_sfac_index(at->element);
 
 			   // AFIX comes before PART
-			   if (at->GetUDData(udd_afix_handle, ic) == UDDATA_Ok) {
+			   if (at->GetUDData(udd_afix_handle, ic) == mmdb::UDDATA_Ok) {
 			      if (ic != current_afix) { 
 				 f << "AFIX ";
 				 // a bit of formatting to match SHELX format for AFIX
@@ -1285,7 +1285,7 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
 				 int status_2 = at->GetUDData(udd_riding_atom_negative_u_value_handle_local,
 							      negative_u);
 
-				 if (status_2 == UDDATA_Ok) {
+				 if (status_2 == mmdb::UDDATA_Ok) {
 				    f << coot::util::remove_leading_spaces(at_name)
 				      << "   " << sfac_index << "  "
 				      << cf.u() << "  " << cf.v() << "   " << cf.w() << " "
@@ -2145,14 +2145,14 @@ coot::unshelx(mmdb::Manager *shelx_mol) {
 	       int afix;
 	       int istatus = shelx_residue_atoms[iat]->GetUDData(udd_afix_handle_shelx, afix);
 	       // istatus can fail and that's OK...
-	       if (istatus == UDDATA_Ok) { 
+	       if (istatus == mmdb::UDDATA_Ok) { 
 		  copy_residue_atoms[iat]->PutUDData(udd_afix_handle, afix);
 	       }
 	       mmdb::realtype negative_u_value;
 	       int istatus_2 = shelx_residue_atoms[iat]->GetUDData(udd_riding_atom_negative_u_value_handle_shelx,
 								   negative_u_value);
 	       // transfer of negative_u_value often fails (it's missing from original molecule) and that's OK
-	       if (istatus_2 == UDDATA_Ok) { 
+	       if (istatus_2 == mmdb::UDDATA_Ok) { 
 		  int istatus_3 = copy_residue_atoms[iat]->PutUDData(udd_riding_atom_negative_u_value_handle_local,
 								     negative_u_value);
 	       }
@@ -2188,7 +2188,7 @@ coot::unshelx(mmdb::Manager *shelx_mol) {
       int orthcode;
       shelx_mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
       mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
-      cpstr sg = shelx_mol->GetSpaceGroup();
+      mmdb::cpstr sg = shelx_mol->GetSpaceGroup();
       // Don't mess around with copying the string here!
       // SetSpaceGroup() copies the string.
        if (sg)                   
@@ -2251,7 +2251,7 @@ coot::reshelx(mmdb::Manager *mol) {
 	    for (int iat=0; iat<copy_natoms; iat++) {
 	       int afix;
 	       int istatus = unshelxed_residue_atoms[iat]->GetUDData(udd_afix_handle, afix);
-	       if (istatus == UDDATA_Ok) { 
+	       if (istatus == mmdb::UDDATA_Ok) { 
 		  copy_residue_atoms[iat]->PutUDData(udd_afix_handle_local, afix);
 	       } else {
 		  if (!made_afix_transfer_message) { 
@@ -2262,7 +2262,7 @@ coot::reshelx(mmdb::Manager *mol) {
 	       mmdb::realtype negative_u;
 	       int istatus_2 =
 		  unshelxed_residue_atoms[iat]->GetUDData(udd_riding_atom_negative_u_value_handle, negative_u);
-	       if (istatus_2 == UDDATA_Ok) {
+	       if (istatus_2 == mmdb::UDDATA_Ok) {
 		  int istatus_3 =
 		     copy_residue_atoms[iat]->PutUDData(udd_riding_atom_negative_u_value_handle_local, negative_u);
 	       } 
@@ -2280,7 +2280,7 @@ coot::reshelx(mmdb::Manager *mol) {
    int orthcode;
    mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
    shelx_mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
-   cpstr sg = mol->GetSpaceGroup();
+   mmdb::cpstr sg = mol->GetSpaceGroup();
 
    if (sg)  
       shelx_mol->SetSpaceGroup(sg); 

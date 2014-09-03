@@ -634,7 +634,7 @@ write_atom_selection_file(atom_selection_container_t asc,
       if (udd_old > 0 && udd_new > 0) { 
 	 for (int i=0; i<asc.n_selected_atoms; i++) {
 	    str = 0; 
-	    if (asc.atom_selection[i]->GetUDData(udd_old, str) == UDDATA_Ok) {
+	    if (asc.atom_selection[i]->GetUDData(udd_old, str) == mmdb::UDDATA_Ok) {
 // 	       std::cout << "pre  UDD: " << asc.atom_selection[i]
 // 			  << " gave udd str: " << str << std::endl;
 	       asc.atom_selection[i]->SetAtomName(str);
@@ -648,7 +648,7 @@ write_atom_selection_file(atom_selection_container_t asc,
       if (udd_old > 0 && udd_new > 0) { 
       	 for (int i=0; i<asc.n_selected_atoms; i++) {
 	    str = 0; 
-      	    if (asc.atom_selection[i]->GetUDData(udd_new, str) == UDDATA_Ok) { 
+      	    if (asc.atom_selection[i]->GetUDData(udd_new, str) == mmdb::UDDATA_Ok) { 
        	       asc.atom_selection[i]->SetAtomName(str);
 //        	       std::cout << "post UDD: " << asc.atom_selection[i]
 //        			 << " gave udd str: " << str << std::endl;

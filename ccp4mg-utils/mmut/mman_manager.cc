@@ -194,8 +194,8 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
 
   
   //int selH = NewSelection();
-  //Select(selH,STYPE_ATOM,"/*/*/(ASP,ASN,LYS,TYR,LEU,GLU,GLN,HIS,SER,PHE,TRP,PRO,ARG,MET,CYS)/1HB,1HD1,1HE2,1HH1",mmdb::SKEY_NEW);
-  //Select(selH,STYPE_ATOM,"/*/*/(A,C,T,G,U)/C2*",SKEY_OR);
+  //Select(selH,mmdb::STYPE_ATOM,"/*/*/(ASP,ASN,LYS,TYR,LEU,GLU,GLN,HIS,SER,PHE,TRP,PRO,ARG,MET,CYS)/1HB,1HD1,1HE2,1HH1",mmdb::SKEY_NEW);
+  //Select(selH,mmdb::STYPE_ATOM,"/*/*/(A,C,T,G,U)/C2*",SKEY_OR);
   //int nat;
   //mmdb::PPAtom selat;
   //GetSelIndex(selH, selat, nat );
@@ -1099,7 +1099,7 @@ int CMMANManager::LoadUDDData( const int property ) {
 
   // Loop over all atoms to do a copy 
   selHnd = NewSelection();
-  Select(selHnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,
+  Select(selHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,
          "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
   GetSelIndex(selHnd,atomTable,nAtoms);
  
@@ -1235,7 +1235,7 @@ int CMMANManager::IfSymmetryNeighbours(int selHnd, int model, int nsym,
   } 
 
   modelSelHnd = NewSelection();
-  Select(modelSelHnd,STYPE_ATOM,model,"*",mmdb::ANY_RES,
+  Select(modelSelHnd,mmdb::STYPE_ATOM,model,"*",mmdb::ANY_RES,
        "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
   GetSelIndex(modelSelHnd,modelAtoms,nModelAtoms);
   if ( nModelAtoms <= 0 ) {
@@ -1291,9 +1291,9 @@ int CMMANManager::CopyModel(int model) {
     RC = p_res2[ia]->PutUDData(udd_sbaseCompoundID, eType);
   }  
 
-  Select(selHnd1,STYPE_ATOM,model,"*",mmdb::ANY_RES, 
+  Select(selHnd1,mmdb::STYPE_ATOM,model,"*",mmdb::ANY_RES, 
        "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
-  Select(selHnd2,STYPE_ATOM,new_model->GetSerNum(),"*",mmdb::ANY_RES, 
+  Select(selHnd2,mmdb::STYPE_ATOM,new_model->GetSerNum(),"*",mmdb::ANY_RES, 
        "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
   GetSelIndex(selHnd1, p_atom1, nat1);
   GetSelIndex(selHnd2, p_atom2, nat2);
@@ -1612,10 +1612,10 @@ int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
   for(int imodel=1;imodel<=nmodels;imodel++){
  
     // Copy the selection
-    Select(tmpHnd1,STYPE_ATOM,imodel,"*", mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
-    Select(tmpHnd1,STYPE_ATOM,selHnd,SKEY_AND);
-    Select(tmpHnd2,STYPE_ATOM,imodel,"*", mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
-    Select(tmpHnd2,STYPE_ATOM,selHnd,SKEY_AND);
+    Select(tmpHnd1,mmdb::STYPE_ATOM,imodel,"*", mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
+    Select(tmpHnd1,mmdb::STYPE_ATOM,selHnd,SKEY_AND);
+    Select(tmpHnd2,mmdb::STYPE_ATOM,imodel,"*", mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
+    Select(tmpHnd2,mmdb::STYPE_ATOM,selHnd,SKEY_AND);
     selAtoms1 = NULL;
     selAtoms2 = NULL;
     
@@ -1639,7 +1639,7 @@ int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
         // beware each contact listed twice
         if ( iser1 > iser2 ) {
           iser2 = iser1;
-          SelectAtoms(selHnd,iser1,iser2,SKEY_XOR);
+          SelectAtoms(selHnd,iser1,iser2,mmdb::SKEY_XOR);
           ndel++;
         }
       } }
@@ -1728,7 +1728,7 @@ int CMMANManager::SetTransform ( const mmdb::realtype rot ,const std::vector<flo
       selHnd = selHndin;
     } else {
       selHnd = NewSelection();
-      Select(selHnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,
+      Select(selHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,
        "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
     }
     GetSelIndex(selHnd,atomTable,nAtoms);
@@ -1920,7 +1920,7 @@ int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd,
   int centralHnd = NewSelection();
   mmdb::PPAtom centralAtoms;
   int centralNAtoms;
-  Select(centralHnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,
+  Select(centralHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,
        "*",mmdb::ANY_RES, "*","*","CA","C","*",mmdb::SKEY_NEW);
   GetSelIndex(centralHnd,centralAtoms,centralNAtoms);
   //cout << "centralNAtoms " << centralNAtoms << endl;
@@ -2021,12 +2021,12 @@ int CMMANManager::CopyCoordinates(const mmdb::PManager fromMolHnd,int fromModel)
     toSelHnd = -1;
   } else { 
     toSelHnd = NewSelection();
-    Select(toSelHnd,STYPE_ATOM,1,"*",mmdb::ANY_RES,
+    Select(toSelHnd,mmdb::STYPE_ATOM,1,"*",mmdb::ANY_RES,
        "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
     GetSelIndex(toSelHnd,toAtoms,toNat);
   }
   fromSelHnd = fromMolHnd->NewSelection();
-  fromMolHnd->Select(fromSelHnd,STYPE_ATOM,fromModel,"*",mmdb::ANY_RES,
+  fromMolHnd->Select(fromSelHnd,mmdb::STYPE_ATOM,fromModel,"*",mmdb::ANY_RES,
        "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
   fromMolHnd->GetSelIndex(fromSelHnd,fromAtoms,fromNat);
   if (fromNat != toNat ) {
@@ -2062,12 +2062,12 @@ int CMMANManager::LoadSerial(const mmdb::PManager fromMolHnd ) {
   int toSelHnd,fromSelHnd, toNat, fromNat;
 
   toSelHnd = NewSelection();
-  Select(toSelHnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,
+  Select(toSelHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,
      "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
   GetSelIndex(toSelHnd,toAtoms,toNat);
 
   fromSelHnd = fromMolHnd->NewSelection();
-  fromMolHnd->Select(fromSelHnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,
+  fromMolHnd->Select(fromSelHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,
        "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
   fromMolHnd->GetSelIndex(fromSelHnd,fromAtoms,fromNat);
   if (fromNat != toNat ) {

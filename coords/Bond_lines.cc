@@ -196,7 +196,7 @@ Bond_lines_container::try_set_b_factor_scale(mmdb::Manager *mol) {
    // std::cout << "debug:: Got b factor udd handle: " << udd_b_factor_handle << std::endl;
    if (udd_b_factor_handle > 0) {
       mmdb::realtype scale;
-      if (mol->GetUDData(udd_b_factor_handle, scale) == UDDATA_Ok) {
+      if (mol->GetUDData(udd_b_factor_handle, scale) == mmdb::UDDATA_Ok) {
 	 b_factor_scale = scale;
       }
    }
@@ -1465,7 +1465,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
 	 for (int i=0; i<n_non_H; i++) {
       
-	    if (non_Hydrogen_atoms[i]->GetUDData(uddHnd, ic) == UDDATA_Ok) {
+	    if (non_Hydrogen_atoms[i]->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
 	       if ((ic == 0) ||
 		   ((!strcmp(non_Hydrogen_atoms[i]->element, " S")) && (ic != BONDED_WITH_HETATM_BOND)) ||
 		   ((!strcmp(non_Hydrogen_atoms[i]->element, "SE")) && (ic != BONDED_WITH_HETATM_BOND)) ||
@@ -1510,7 +1510,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 	 // Make the stars...
 	 // 
 	 for (int i=0; i<n_non_H; i++) {
-	    if (non_Hydrogen_atoms[i]->GetUDData(uddHnd, ic) == UDDATA_Ok) {
+	    if (non_Hydrogen_atoms[i]->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
 	       if (ic == 0) {
 		  // no contact found
 		  col = atom_colour(non_Hydrogen_atoms[i], atom_colour_type);
@@ -1528,7 +1528,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
 	 if (do_bonds_to_hydrogens && (n_H > 0)) {
 	    for (int i=0; i<n_H; i++) {
-	       if (Hydrogen_atoms[i]->GetUDData(uddHnd, ic) == UDDATA_Ok) {
+	       if (Hydrogen_atoms[i]->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
 		  if (ic == NO_BOND) {
 	       
 		     // no contact found
@@ -3278,7 +3278,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 						if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
 						   if (atom_colours_udd > 0) {
 						      mmdb::realtype f;
-						      if (at_1->GetUDData(atom_colours_udd, f) == UDDATA_Ok) {
+						      if (at_1->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
 							 col = atom_colour_map.index_for_rainbow(f);
 						      } else {
 							 col = 0;
@@ -3345,11 +3345,11 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 			// 
 			// then it has a bond, if not we need to mark it as a star.
 		     
-			if (udd_status != UDDATA_Ok || udd_value == 0) {
+			if (udd_status != mmdb::UDDATA_Ok || udd_value == 0) {
 			   int col = 0;
 			   if (atom_colours_udd > 0) {
 			      mmdb::realtype f;
-			      if (at->GetUDData(atom_colours_udd, f) == UDDATA_Ok)
+			      if (at->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok)
 				 col = atom_colour_map.index_for_chain(chain_p->GetChainID());
 			   }
 			   if (bond_colour_type == Bond_lines_container::COLOUR_BY_B_FACTOR)
@@ -3502,7 +3502,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal_old(atom_selection_container_t S
 				 if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
 				    if (atom_colours_udd > 0) {
 				       mmdb::realtype f;
-				       if (Ca_selection[contact[i].id1]->GetUDData(atom_colours_udd, f) == UDDATA_Ok) {
+				       if (Ca_selection[contact[i].id1]->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
 					  col = atom_colour_map.index_for_rainbow(f);
 				       } else {
 					  col = 0;
@@ -3837,7 +3837,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    if (residue_p) { 
-	       if (residue_p->GetUDData(udd_has_ca_handle, ic) == UDDATA_Ok) { 
+	       if (residue_p->GetUDData(udd_has_ca_handle, ic) == mmdb::UDDATA_Ok) { 
 		  if (ic == 0) {
 		     // Residue was not rendered as CA, needs normal bonds
 		     std::string resname(residue_p->name);
@@ -3890,7 +3890,7 @@ Bond_lines_container::do_normal_bonds_no_water(const atom_selection_container_t 
 
    atom_selection_container_t asc = asc_in;
 
-   // Now make a new atom selection that excludes WAT and HOH by using SKEY_XOR
+   // Now make a new atom selection that excludes WAT and HOH by using mmdb::SKEY_XOR
    int newSelectionHandle = asc.mol->NewSelection();
    asc.SelectionHandle = newSelectionHandle;
    std::string solvent_res = "WAT,HOH";
@@ -3901,11 +3901,11 @@ Bond_lines_container::do_normal_bonds_no_water(const atom_selection_container_t 
 			mmdb::ANY_RES, "*",
 			"*", "*", "*", "*");
 
-   asc.mol->Select(asc.SelectionHandle, STYPE_ATOM, 0, "*",
+   asc.mol->Select(asc.SelectionHandle, mmdb::STYPE_ATOM, 0, "*",
 		   mmdb::ANY_RES, "*",
 		   mmdb::ANY_RES, "*",
 		   solvent_res.c_str(), "*", "*", "*",
-		   SKEY_XOR);
+		   mmdb::SKEY_XOR);
 
    asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
    // std::cout << "after water selection: n_selected_atoms: " << asc.n_selected_atoms << std::endl;
@@ -4200,7 +4200,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 	 int ic; // changed by reference;
 	 int col;
 	 for (int i=0; i<n_selected_atoms; i++) { 
-	    if ( atom_selection[i]->GetUDData(uddHnd, ic) != UDDATA_Ok ) {
+	    if ( atom_selection[i]->GetUDData(uddHnd, ic) != mmdb::UDDATA_Ok ) {
 	       std::cout << "ERROR:: do_colour_by_chain_bonds() failed to get ic bond info"
 			 << std::endl;
 	    } else { 
@@ -4243,7 +4243,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 	 // Make the stars...
 	 // 
 	 for (int i=0; i<n_selected_atoms; i++) {
-	    if (atom_selection[i]->GetUDData(uddHnd, ic) == UDDATA_Ok) {
+	    if (atom_selection[i]->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
 	       if (ic == NO_BOND) {
 		  // no contact found
 		  col = atom_colour(atom_selection[i], atom_colour_type);
@@ -4492,7 +4492,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 	 int col;
 	 int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY; // the atoms connected to the SE (say) are Cs.
 	 for (int i=0; i<n_selected_atoms; i++) { 
-	    if ( atom_selection[i]->GetUDData(uddHnd, ic) != UDDATA_Ok ) {
+	    if ( atom_selection[i]->GetUDData(uddHnd, ic) != mmdb::UDDATA_Ok ) {
 	       std::cout << "ERROR:: do_colour_by_chain_bonds() failed to get ic bond info"
 			 << std::endl;
 	    } else { 
@@ -4542,7 +4542,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 	 // Make the stars...
 	 // 
 	 for (int i=0; i<n_selected_atoms; i++) {
-	    if (atom_selection[i]->GetUDData(uddHnd, ic) == UDDATA_Ok) {
+	    if (atom_selection[i]->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
 	       if (ic == NO_BOND) {
 		  // no contact found
 		  col = atom_colour(atom_selection[i], atom_colour_type);
@@ -4731,7 +4731,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 	    int ic; // changed by reference;
 	    int col;
 	    for (int i=0; i<n_selected_atoms; i++) { 
-	       if ( atom_selection[i]->GetUDData(uddHnd,ic) == UDDATA_Ok ) {
+	       if ( atom_selection[i]->GetUDData(uddHnd,ic) == mmdb::UDDATA_Ok ) {
 		  if (ic == 0) {
 		     std::string segid(atom_selection[i]->GetChainID());
 		     col = atom_colour_map.index_for_chain(segid);

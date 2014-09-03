@@ -722,7 +722,7 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_
 	       std::string restype = residue_p->name;
 	       //
 	       istate = residue_p->GetUDData(udd_assigned_handle, iassigned);
-	       if (istate == UDDATA_Ok) {
+	       if (istate == mmdb::UDDATA_Ok) {
 		  //std::cout << "UDdata was OK for " << residue_p->GetChainID() << " "
 		  // 			    << residue_p->GetSeqNum() << std::endl;
 		  // std::cout << "data: " << iassigned << std::endl;

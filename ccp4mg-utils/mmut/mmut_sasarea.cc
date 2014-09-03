@@ -196,8 +196,8 @@ int CSASArea::Calculate_Contact ( void )  {
 			      nSelAtoms1,0.0,10.0,mmdb::SKEY_NEW);
 
 
-  molHnds[0]->Select(local_selHnd,STYPE_ATOM,tmp_selHnd,mmdb::SKEY_NEW);
-  molHnds[0]->Select(local_selHnd,STYPE_ATOM,selHnds[0],SKEY_AND);
+  molHnds[0]->Select(local_selHnd,mmdb::STYPE_ATOM,tmp_selHnd,mmdb::SKEY_NEW);
+  molHnds[0]->Select(local_selHnd,mmdb::STYPE_ATOM,selHnds[0],SKEY_AND);
 
   // Diagnostic
   //molHnds[0]->GetSelIndex(local_selHnd,tmpAtoms,nTmp);
