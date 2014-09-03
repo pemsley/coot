@@ -1282,7 +1282,7 @@ coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 	    int n_links = model_p->GetNumberOfLinks();
 
 	    for (int i_link=1; i_link<=n_links; i_link++) {
-	       PCLink link = model_p->GetLink(i_link);
+	       mmdb::PLink link = model_p->GetLink(i_link);
 
 	       // Ligand then Protein
 	       if (residue_ligand_chain_id == link->chainID1) {

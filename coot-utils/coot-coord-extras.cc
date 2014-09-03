@@ -746,7 +746,7 @@ coot::linkrs_in_atom_selection(mmdb::Manager *mol, mmdb::PPAtom atom_selection, 
 	     << " and " << model_p->GetNumberOfLinks() << " LINK records"
 	     << std::endl;
    for (unsigned int ilink=0; ilink<n_linkrs; ilink++) { 
-      PCLinkR linkr = model_p->GetLinkR(ilink);
+      mmdb::PLinkR linkr = model_p->GetLinkR(ilink);
       coot::residue_spec_t link_spec_1(linkr->chainID1,
 				       linkr->seqNum1,
 				       linkr->insCode1);

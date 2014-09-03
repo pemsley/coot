@@ -44,7 +44,7 @@
 #include <string.h> // strcmp
 
 #include <mmdb2/mmdb_manager.h>
-#include <mmdb/mmdb_tables.h>
+#include <mmdb2/mmdb_tables.h>
 
 #include <clipper/ccp4/ccp4_mtz_io.h>
 #include <clipper/ccp4/ccp4_map_io.h>

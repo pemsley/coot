@@ -34,7 +34,7 @@
 
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
-#include <mmdb/mmdb_tables.h>  // for Get1LetterCode()
+#include <mmdb2/mmdb_tables.h>  // for Get1LetterCode()
 #include <mmdb2/mmdb_math_graph.h> // for graph matching
 
 #include "compat/coot-sysdep.h"
@@ -4424,7 +4424,7 @@ coot::lsq_plane_info_t::lsq_plane_info_t(const std::vector<clipper::Coord_orth> 
 
 
 std::pair<coot::atom_spec_t, coot::atom_spec_t>
-coot::link_atoms(CLink *link) {
+coot::link_atoms(mmdb::Link *link) {
 
    atom_spec_t a1(link->chainID1, link->seqNum1, link->insCode1, link->atName1, link->aloc1);
    atom_spec_t a2(link->chainID2, link->seqNum2, link->insCode2, link->atName2, link->aloc2);

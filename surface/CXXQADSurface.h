@@ -2,7 +2,7 @@
 #include <vector>
 #include "clipper/clipper.h"
 #include <mmdb2/mmdb_manager.h>
-#include <mmdb/mmdb_tables.h>
+#include <mmdb2/mmdb_tables.h>
 #include <mmdb/mmdb_uddata.h>
 #include <math.h>
 #include "CXXCircle.h"
