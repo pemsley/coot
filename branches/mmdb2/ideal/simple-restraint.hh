@@ -1476,20 +1476,20 @@ namespace coot {
 					       const protein_geometry &geom) const;
    
       int add_link_bond(std::string link_type,
-			mmdb::PResidue first, Pmmdb::Residue second,
+			mmdb::PResidue first, mmdb::PResidue second,
 			short int is_fixed_first_res,
 			short int is_fixed_second_res,
 			const coot::protein_geometry &geom);
 
       int add_link_angle(std::string link_type,
-			 mmdb::PResidue first, Pmmdb::Residue second,
+			 mmdb::PResidue first, mmdb::PResidue second,
 			 short int is_fixed_first_res,
 			 short int is_fixed_second_res,
 			 const coot::protein_geometry &geom);
 
       int add_link_torsion(std::string link_type,
 			   int phi_psi_restraints_type,
-			   mmdb::PResidue first, Pmmdb::Residue second,
+			   mmdb::PResidue first, mmdb::PResidue second,
 			   short int is_fixed_first, short int is_fixed_second,
 			   const coot::protein_geometry &geom);
 
@@ -1503,7 +1503,7 @@ namespace coot {
 		   const coot::protein_geometry &geom);
 
       int add_link_plane(std::string link_type,
-			 mmdb::PResidue first, Pmmdb::Residue second,
+			 mmdb::PResidue first, mmdb::PResidue second,
 			 short int is_fixed_first_res,
 			 short int is_fixed_second_res,
 			 const coot::protein_geometry &geom);
@@ -1514,7 +1514,7 @@ namespace coot {
 			      const coot::protein_geometry &geom);
 
       int add_link_plane_tmp(std::string link_type,
-			 mmdb::PResidue first, Pmmdb::Residue second,
+			 mmdb::PResidue first, mmdb::PResidue second,
 			 short int is_fixed_first_res,
 			 short int is_fixed_second_res,
 			 const coot::protein_geometry &geom);

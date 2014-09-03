@@ -4503,7 +4503,7 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
 	 mmdb::Residue *res_p = new mmdb::Residue;
 	 mmdb::Atom *atom_p = new mmdb::Atom;
 	 // mmdb::Chain *chain_p = atom_sel.mol->GetChain(1,0);
-	 Pmmdb::Chain chain_p = atom_sel.mol->GetChain(1,atom->GetChainID());
+	 mmdb::PChain chain_p = atom_sel.mol->GetChain(1,atom->GetChainID());
 	 chain_p->AddResidue(res_p);
 	 atom_p->SetAtomName(atom->name);
 	 atom_p->SetCoordinates(atom->x, atom->y, atom->z,

@@ -267,10 +267,6 @@ coot::dict_plane_restraint_t::matches_names(const coot::dict_plane_restraint_t &
    return status;
 }
 
-// for debugging
-#ifndef  __MMDB_Graph__
-#include <mmdb/mmdb_graph.h>
-#endif
 
 // constructor.  Caller should make sure that there are no bonds
 // before constructing this (mol->RemoveBonds());
@@ -285,8 +281,8 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
 
    filled_with_bond_order_data_only_flag = false;
    if (residue_p) {
-      Pmmdb::Model   model;
-      Pmmdb::Chain   chain;
+      mmdb::PModel   model;
+      mmdb::PChain   chain;
       // mmdb::PResidue res = 0;
       CGraph    graph;
       PPCVertex V;

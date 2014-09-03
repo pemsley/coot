@@ -256,7 +256,7 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
 }
 
 //-----------------------------------------------------------------------
-int CMMANManager::EditBonds (int mode, mmdb::PAtom p_atom1, Pmmdb::Atom p_atom2) {
+int CMMANManager::EditBonds (int mode, mmdb::PAtom p_atom1, mmdb::PAtom p_atom2) {
 //-----------------------------------------------------------------------
   if (!p_bonds) return 1;
   if (mode < 0) 
@@ -881,7 +881,7 @@ std::string CMMANManager::ListSecStructure (int mask_in[] , mmdb::PAtom pAtom) {
 
 
 //----------------------------------------------------------------------
-int CMMANManager::TestBonding ( mmdb::PAtom patom1, Pmmdb::Atom patom2, int max ) {
+int CMMANManager::TestBonding ( mmdb::PAtom patom1, mmdb::PAtom patom2, int max ) {
 //----------------------------------------------------------------------
 // For pair of atoms return 2=bonded, 3=1,3 liked, 4=1-4 linked, 
 // 5=compatible Hbond types
@@ -1177,7 +1177,7 @@ int CMMANManager::GenerateSymmetryModel(int model,int nsym,int i,int j,int k) {
 //------------------------------------------------------------------------
   // Apply transformation
   int new_model;
-  Pmmdb::Model p_model;
+  mmdb::PModel p_model;
   mat44 TMatrix;
 
   new_model =  CopyModel(model);
@@ -1191,7 +1191,7 @@ int CMMANManager::ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,int 
 //------------------------------------------------------------------------
   // Apply transformation
   mat44 TMatrix, invTMatrix, multTMatrix;
-  Pmmdb::Model p_model;
+  mmdb::PModel p_model;
 
   p_model = GetModel(model);
   if (p_model == NULL) return 1;
@@ -1260,7 +1260,7 @@ int CMMANManager::IfSymmetryNeighbours(int selHnd, int model, int nsym,
 //------------------------------------------------------------------------
 int CMMANManager::CopyModel(int model) {
 //------------------------------------------------------------------------
-  Pmmdb::Model new_model;
+  mmdb::PModel new_model;
   
   new_model = new mmdb::Model();
   new_model->Copy(GetModel(model));
@@ -1361,7 +1361,7 @@ int CMMANManager::SelectChainTermini( void ) {
   Return a selection handle for set of CA atoms of N/C chain termini residues
   This is used for labelling the termini
   */
-  PPmmdb::Chain chainTable = NULL;
+  Pmmdb::PChain chainTable = NULL;
   mmdb::PPResidue resTable = NULL;
   int nChains,nRes,iser1,iser2;
 
@@ -1476,7 +1476,7 @@ bool CMMANManager::isAminoacid (mmdb::PResidue pres) {
     return pres->isAminoacid();
   } else {
     if ( pres->chain->GetModel()->GetSerNum()>1) {
-      Pmmdb::Chain pc = NULL;
+      mmdb::PChain pc = NULL;
       if (GetModel(1) != NULL) pc = GetModel(1)->GetChain(pres->chain->GetChainID());
       if (!pc)  return  pres->isAminoacid();
       mmdb::PResidue pres1= pc->GetResidue(pres->seqNum,pres->insCode);
@@ -1855,7 +1855,7 @@ int CMMANManager::TransformToSuperposeAtoms (  mmdb::PPAtom A1, int nA, mmdb::PP
   return rv;
 }
 //----------------------------------------------------------------------------
-double CMMANManager::DeltaResidueOrientation (mmdb::PResidue pRes,Pmmdb::Residue pResFx) {
+double CMMANManager::DeltaResidueOrientation (mmdb::PResidue pRes,mmdb::PResidue pResFx) {
 //-----------------------------------------------------------------------------
   // Create selection of atoms that will be superposed
   mmdb::PAtom mvAtoms[5];

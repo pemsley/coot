@@ -335,7 +335,7 @@ void
 graphics_info_t::make_and_print_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 							 atom_selection_container_t asc_ref,
 							 atom_selection_container_t asc_mov,
-							 mmdb::PAtom *atom_selection1, Pmmdb::Atom *atom_selection2,
+							 mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
 							 int n_selected_atoms_1, int n_selected_atoms_2) const {
 
    std::pair<std::string, std::string> aligned_sequences =
@@ -398,7 +398,7 @@ std::pair<std::string, std::string>
 graphics_info_t::get_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 						       atom_selection_container_t asc_ref,
 						       atom_selection_container_t asc_mov,
-						       mmdb::PAtom *atom_selection1, Pmmdb::Atom *atom_selection2,
+						       mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
 						       int n_selected_atoms_1, int n_selected_atoms_2) const {
 
    std::string s;
@@ -487,7 +487,7 @@ void
 graphics_info_t::print_ssm_sequence_alignment(ssm::Align *SSMAlign,
 					      atom_selection_container_t asc_ref,
 					      atom_selection_container_t asc_mov,
-					      mmdb::PAtom *atom_selection1, Pmmdb::Atom *atom_selection2,
+					      mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
 					      int n_selected_atoms_1, int n_selected_atoms_2,
 					      short int move_copy_of_imol2_flag) {
 

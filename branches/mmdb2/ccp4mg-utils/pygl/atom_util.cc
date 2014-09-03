@@ -31,7 +31,7 @@
 #include "atom_util.h"
 #include "rgbreps.h"
 
-mmdb::PPAtom GetAtomPair(const std::vector<std::pair<mmdb::PAtom,Pmmdb::Atom> > &pair, int i){
+mmdb::PPAtom GetAtomPair(const std::vector<std::pair<mmdb::PAtom,mmdb::PAtom> > &pair, int i){
   mmdb::PPAtom atom_pair = new mmdb::PAtom[2];
   atom_pair[0] = pair[i].first;
   atom_pair[1] = pair[i].second;

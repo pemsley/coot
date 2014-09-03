@@ -38,7 +38,7 @@ void molman(Mymmdb::Manager *mol) {
 		<< nchains << " chains"  << std::endl;
       for (int ichain=0; ichain<nchains; ichain++) {
 	 int nres = mol->GetNumberOfResidues(imodel,ichain);
-	 Pmmdb::Chain chn = mol->GetChain(imodel, ichain);
+	 mmdb::PChain chn = mol->GetChain(imodel, ichain);
 	 std::string chain_name = chn->GetChainID();
 	 std::cout << "   chain: " << chain_name << " " << ichain
 		   << " has " << nres << " residues" << std::endl;

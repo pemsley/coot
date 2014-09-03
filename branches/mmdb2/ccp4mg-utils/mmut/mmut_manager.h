@@ -56,11 +56,11 @@ class CMMUTManager : public mmdb::Manager  {
     pstr GetSequence(int selHnd);
     int *AtomicComposition(int selHnd);
     int *ResidueComposition(int selHnd);
-    mmdb::PResidue NextResidue( Pmmdb::Residue pRes ,int increment=1);
+    mmdb::PResidue NextResidue( mmdb::PResidue pRes ,int increment=1);
 
-    mmdb::realtype  BondLength(mmdb::PAtom A, Pmmdb::Atom B);
-    mmdb::realtype  BondAngle(mmdb::PAtom A, Pmmdb::Atom B, Pmmdb::Atom C);
-    mmdb::realtype  TorsionAngle(mmdb::PAtom A, Pmmdb::Atom B, Pmmdb::Atom C, Pmmdb::Atom D);
+    mmdb::realtype  BondLength(mmdb::PAtom A, mmdb::PAtom B);
+    mmdb::realtype  BondAngle(mmdb::PAtom A, mmdb::PAtom B, mmdb::PAtom C);
+    mmdb::realtype  TorsionAngle(mmdb::PAtom A, mmdb::PAtom B, mmdb::PAtom C, mmdb::PAtom D);
     mmdb::realtype  MolWeight(int selHnd);
     mmdb::realtype  MolWeightWithH(int selHnd);
     mmdb::realtype *GetBValues(int selHnd);
@@ -68,11 +68,11 @@ class CMMUTManager : public mmdb::Manager  {
     mmdb::realtype *Extent(int selHnd);
 
     Boolean isMainChain(mmdb::PAtom p_atom);
-    Boolean doAltLocMatch ( mmdb::PAtom pa1, Pmmdb::Atom pa2 ); 
+    Boolean doAltLocMatch ( mmdb::PAtom pa1, mmdb::PAtom pa2 ); 
     int NameComparison (const char *name , int ntypes , const char *types[] );
     std::string  TrimString(pstr inp);
     std::string AtomLabel(mmdb::PAtom p_atom, int mask[]);
-    Boolean ChainIDisDigit(Pmmdb::Chain p_ch);
+    Boolean ChainIDisDigit(mmdb::PChain p_ch);
     const char* AtomLabel_atom1(mmdb::PAtom p_atom);
     const char* AtomLabel_atom(mmdb::PAtom p_atom);
     const char* AtomLabel_residue(mmdb::PAtom p_atom);

@@ -504,7 +504,7 @@ int CMMUTManager::TotalNumRes(int selHnd){
 }
 
 
-mmdb::realtype CMMUTManager::BondLength(mmdb::PAtom A, Pmmdb::Atom B){
+mmdb::realtype CMMUTManager::BondLength(mmdb::PAtom A, mmdb::PAtom B){
 
   mmdb::realtype length;
 
@@ -517,7 +517,7 @@ mmdb::realtype CMMUTManager::BondLength(mmdb::PAtom A, Pmmdb::Atom B){
   return length;
 }
 
-mmdb::realtype CMMUTManager::BondAngle(mmdb::PAtom A, Pmmdb::Atom B, Pmmdb::Atom C){
+mmdb::realtype CMMUTManager::BondAngle(mmdb::PAtom A, mmdb::PAtom B, mmdb::PAtom C){
 
   mmdb::realtype abx = (B->x-A->x);
   mmdb::realtype aby = (B->y-A->y);
@@ -541,7 +541,7 @@ mmdb::realtype CMMUTManager::BondAngle(mmdb::PAtom A, Pmmdb::Atom B, Pmmdb::Atom
   return  acos((bcsq + absq - acsq)/(2*bc*ab));
 }
 
-mmdb::realtype CMMUTManager::TorsionAngle(mmdb::PAtom A, Pmmdb::Atom B, Pmmdb::Atom C, Pmmdb::Atom D){
+mmdb::realtype CMMUTManager::TorsionAngle(mmdb::PAtom A, mmdb::PAtom B, mmdb::PAtom C, mmdb::PAtom D){
 
   /* Should really move all this vector manipulation stuff 
    * somewhere more general. In fact should use vectors ... */
@@ -597,7 +597,7 @@ Boolean CMMUTManager::isMainChain(mmdb::PAtom p_atom) {
   } 
 }
 //-----------------------------------------------------------------
-Boolean CMMUTManager::doAltLocMatch ( mmdb::PAtom pa1, Pmmdb::Atom pa2 ) {
+Boolean CMMUTManager::doAltLocMatch ( mmdb::PAtom pa1, mmdb::PAtom pa2 ) {
 //-----------------------------------------------------------------
  if ( strlen (pa1->altLoc) == 0 ||
         strlen (pa2->altLoc) == 0 ||
@@ -690,7 +690,7 @@ const char* CMMUTManager::AtomLabel_chain(mmdb::PAtom p_atom) {
 }
 
 //--------------------------------------------------------------------
-Boolean CMMUTManager::ChainIDisDigit(Pmmdb::Chain p_ch) {
+Boolean CMMUTManager::ChainIDisDigit(mmdb::PChain p_ch) {
 //--------------------------------------------------------------------
    const char *digits[10] = { "0", "1", "2", "3", "4","5", "6", "7", "8", "9"  };
   if ( NameComparison(p_ch->GetChainID(),10,digits) >= 0 ) {
@@ -874,13 +874,13 @@ int CMMUTManager::CopySelection (int selHnd , const mmdb::PManager mmdb2 ) {
 //-------------------------------------------------------------------------
   int          RC,i,j,k;
   int          nChains,nResidues,nAtoms;
-  PPmmdb::Chain     chain;
+  Pmmdb::PChain     chain;
   mmdb::PPResidue   res;
   mmdb::PPAtom      atom;
 
   mmdb::PResidue newRes = 0;
-  Pmmdb::Chain newChain = 0;
-  Pmmdb::Model newModel = 0;
+  mmdb::PChain newChain = 0;
+  mmdb::PModel newModel = 0;
 
   int nAcopied=0, nRcopied=0, nCcopied=0, nMcopied=0;
 
@@ -937,9 +937,9 @@ int CMMUTManager::CopySelection (int selHnd , const mmdb::PManager mmdb2 ) {
 }
 
 //-----------------------------------------------------------------------
-mmdb::PResidue CMMUTManager::NextResidue( Pmmdb::Residue pRes ,int increment) {
+mmdb::PResidue CMMUTManager::NextResidue( mmdb::PResidue pRes ,int increment) {
 //-----------------------------------------------------------------------
-  Pmmdb::Chain pc = pRes->GetChain();
+  mmdb::PChain pc = pRes->GetChain();
   int resno = pc->GetResidueNo(pRes->GetSeqNum(),pRes->GetInsCode());
   if (resno < pc->GetNumberOfResidues()) {
     return pc->GetResidue(resno+increment);

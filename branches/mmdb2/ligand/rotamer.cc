@@ -728,7 +728,7 @@ coot::rotamer::GetResidue_old(int i_rot) const {
       }
 
       int nres_atoms = nResidueAtoms;
-      mmdb::PAtom *ordered_residue_atoms_ppcatom = new Pmmdb::Atom[nres_atoms];
+      mmdb::PAtom *ordered_residue_atoms_ppcatom = new mmdb::PAtom[nres_atoms];
       for(int i=0; i<nResidueAtoms; i++)
 	 ordered_residue_atoms_ppcatom[i] = ordered_atoms[i];
       

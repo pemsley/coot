@@ -323,7 +323,7 @@ void CXXSphereElement::initWith(const CXXCircleNode &aNode, double delta,
 	}
 }
 
-void CXXSphereElement::initWith(const CXXCoord &aCentre, mmdb::PAtom atomI, Pmmdb::Atom atomJ, Pmmdb::Atom atomK, 
+void CXXSphereElement::initWith(const CXXCoord &aCentre, mmdb::PAtom atomI, mmdb::PAtom atomJ, mmdb::PAtom atomK, 
 								double delta, double radius_in, const bool *includeAtoms){
 	
 	int UseOrGenerate = CXXSphereElement::GenerateCircles;

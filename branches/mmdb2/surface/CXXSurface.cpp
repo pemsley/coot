@@ -717,7 +717,7 @@ int CXXSurface::colorByColourArray(const std::vector<double*> &colours, mmdb::Ma
         SelAtom[i]->PutUDData(udd,i);
     
     for (int i=0; i< int(vertices.size()); i++){
-        mmdb::PAtom theAtom = (Pmmdb::Atom) vertices[i].pointer(pointers["atom"]);
+        mmdb::PAtom theAtom = (mmdb::PAtom) vertices[i].pointer(pointers["atom"]);
         if (theAtom != 0){
             int atomid;
             theAtom->GetUDData(udd,atomid);

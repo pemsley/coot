@@ -170,7 +170,7 @@ public:
 	
 	int addVertex(const CXXCircleNode &aCircle);
 
-	void initWith(const CXXCoord &aCentre, mmdb::PAtom atomI, Pmmdb::Atom atomJ, Pmmdb::Atom atomK, 
+	void initWith(const CXXCoord &aCentre, mmdb::PAtom atomI, mmdb::PAtom atomJ, mmdb::PAtom atomK, 
 									double delta, double radius_in, const bool *includeAtoms);
 		
 };

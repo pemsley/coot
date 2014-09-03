@@ -88,8 +88,8 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
   mmdb::PPAtom selAtom = NULL;
   mmdb::PPAtom selAtom0 = NULL;
   mmdb::PPResidue selRes = NULL;
-  Pmmdb::Chain pCh;
-  Pmmdb::Model pMdl;
+  mmdb::PChain pCh;
+  mmdb::PModel pMdl;
   PCSBStructure pSbRes=NULL;
   ivector nMatchAtom = NULL;
   imatrix matchAtom = NULL;
@@ -128,7 +128,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
   if (nModels>1) {
     lastModel = nModels;
     firstModel = 0;
-    Pmmdb::Model pMdl = NULL;
+    mmdb::PModel pMdl = NULL;
     while ( firstModel < lastModel && pMdl == NULL ) {
       firstModel++;
       pMdl = molHnds[0]->GetModel(firstModel);
@@ -384,7 +384,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
 
 
 //-----------------------------------------------------------
-void CMolBonds::AddConnection ( mmdb::PAtom pa1 , Pmmdb::Atom pa2) {
+void CMolBonds::AddConnection ( mmdb::PAtom pa1 , mmdb::PAtom pa2) {
 //-----------------------------------------------------------
   
   //cout << "AddConnection " <<  GetMolHnd(0)->AtomLabel_atom(pa1) << " " 
@@ -412,7 +412,7 @@ void CMolBonds::AddConnection ( mmdb::PAtom pa1 , Pmmdb::Atom pa2) {
 
 
 //-----------------------------------------------------------
-int CMolBonds::DeleteConnection ( mmdb::PAtom pa1 , Pmmdb::Atom pa2) {
+int CMolBonds::DeleteConnection ( mmdb::PAtom pa1 , mmdb::PAtom pa2) {
 //-----------------------------------------------------------
 // Delete the connection between two atom - need to zap
 // from the bond list of both atoms
@@ -604,7 +604,7 @@ int CMolBonds::IntraResContacts ( mmdb::PResidue pRes, int nAlt,
 }
 
 //---------------------------------------------------------------------
-bool CMolBonds::ltBondDistance ( mmdb::PAtom pa1, Pmmdb::Atom pa2, mmdb::realtype dist ) {
+bool CMolBonds::ltBondDistance ( mmdb::PAtom pa1, mmdb::PAtom pa2, mmdb::realtype dist ) {
 //---------------------------------------------------------------------
   PCLibElement la1,la2;
   mmdb::realtype rmax;
@@ -619,7 +619,7 @@ bool CMolBonds::ltBondDistance ( mmdb::PAtom pa1, Pmmdb::Atom pa2, mmdb::realtyp
 }
 
 //----------------------------------------------------------------------
-bool CMolBonds::isInterResBond ( mmdb::PAtom pa1, Pmmdb::Atom pa2 ) {
+bool CMolBonds::isInterResBond ( mmdb::PAtom pa1, mmdb::PAtom pa2 ) {
 //----------------------------------------------------------------------
   int type1,type2,n;
   AtomName a1,a2;

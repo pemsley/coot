@@ -63,7 +63,7 @@ class CMMANManager : public CMMUTManager  {
 
     //Bonds
     std::string GetMolBonds (std::string monlib_file="");
-    int EditBonds (int mode, mmdb::PAtom p_atom1, Pmmdb::Atom p_atom2);
+    int EditBonds (int mode, mmdb::PAtom p_atom1, mmdb::PAtom p_atom2);
 
     //Sbase and Atom Energy types
     pstr GetSbaseCompoundID(mmdb::PAtom atom);
@@ -87,7 +87,7 @@ class CMMANManager : public CMMUTManager  {
     std::string AtomLabel(mmdb::PAtom p_atom,int mask[]);
     void ListBonds(int selHnd,int natoms,mmdb::PPAtom selAtom);
     std::string ListSecStructure (int mask_in[], mmdb::PAtom pAtom=NULL );
-    int TestBonding ( mmdb::PAtom patom1, Pmmdb::Atom patom2, int max=5);
+    int TestBonding ( mmdb::PAtom patom1, mmdb::PAtom patom2, int max=5);
     int RestoreData (mmdb::PManager restore_molHnd, int mode=MMAN_COORDINATES);
     int LoadUDDData( const int property=PROPERTY_B );
 
@@ -120,7 +120,7 @@ class CMMANManager : public CMMUTManager  {
     std::string GetTransformString();
     bool GetIsTransformed() { return isTransformed; }
     int TransformToSuperposeAtoms (  mmdb::PPAtom A1, int nA, mmdb::PPAtom A2 );
-    double DeltaResidueOrientation (mmdb::PResidue pRes, Pmmdb::Residue pResFx);
+    double DeltaResidueOrientation (mmdb::PResidue pRes, mmdb::PResidue pResFx);
     int TransformToSuperposeCloseAtoms(PCMMANManager fxMolHnd, int fxSelHnd , mmdb::realtype central_cutoff, mmdb::realtype cutoff, int mvSuperposeHnd,int fxSuperposeHnd);
     int CopyCoordinates(const mmdb::PManager fromMolHnd,int fromModel=1);
     int LoadSerial(const mmdb::PManager fromMolHnd );

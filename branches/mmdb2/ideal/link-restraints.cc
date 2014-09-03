@@ -43,7 +43,7 @@
 // Residue 1 of the link is the first atom of the link
 int
 coot::restraints_container_t::add_link_bond(std::string link_type,
-					    mmdb::PResidue first, Pmmdb::Residue second,
+					    mmdb::PResidue first, mmdb::PResidue second,
 					    short int is_fixed_first,
 					    short int is_fixed_second,
 					    const coot::protein_geometry &geom) {
@@ -153,7 +153,7 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 // relationship.  Residue 1 of the link was the first atom of the link
 int
 coot::restraints_container_t::add_link_angle(std::string link_type,
-					     mmdb::PResidue first, Pmmdb::Residue second,
+					     mmdb::PResidue first, mmdb::PResidue second,
 					     short int is_fixed_first,  // residue
 					     short int is_fixed_second, // residue
 					     const coot::protein_geometry &geom) {
@@ -308,7 +308,7 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 int
 coot::restraints_container_t::add_link_torsion(std::string link_type,
 					       int phi_psi_restraints_type,
-					       mmdb::PResidue first, Pmmdb::Residue second,
+					       mmdb::PResidue first, mmdb::PResidue second,
 					       short int is_fixed_first, short int is_fixed_second,
 					       const coot::protein_geometry &geom) {
 
@@ -1121,7 +1121,7 @@ coot::restraints_container_t::general_link_find_close_link_inner(std::vector<std
 }
 
 int coot::restraints_container_t::add_link_plane(std::string link_type,
-						 mmdb::PResidue first, Pmmdb::Residue second,
+						 mmdb::PResidue first, mmdb::PResidue second,
 						 short int is_fixed_first_res,
 						 short int is_fixed_second_res,
 						 const coot::protein_geometry &geom) {

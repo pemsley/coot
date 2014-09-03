@@ -341,7 +341,7 @@ void Connectivity2::Clear(void){
  
 }
 
-void Connectivity2::AddConnection( mmdb::PAtom p_atom1, Pmmdb::Atom p_atom2,
+void Connectivity2::AddConnection( mmdb::PAtom p_atom1, mmdb::PAtom p_atom2,
                     const std::string &label_in, int tag) {
 
   if (data_mode != CONN_ATOM_ATOM ) return; 
@@ -408,7 +408,7 @@ void Connectivity2::AddConnection(  mmdb::PAtom p_atom1, double xyz[3] ,
 }
 
 void Connectivity2::InsertConnection( bool replace, unsigned int position,
-                    mmdb::PAtom p_atom1, Pmmdb::Atom p_atom2, 
+                    mmdb::PAtom p_atom1, mmdb::PAtom p_atom2, 
                     const std::string &label_in, int tag) {
 
   if (data_mode != CONN_ATOM_ATOM ) return; 
@@ -546,7 +546,7 @@ void Connectivity2::InsertConnection(  bool replace, unsigned int position,
 }
 
 
-void Connectivity2::AddUniqueConnection( mmdb::PAtom p_atom1, Pmmdb::Atom p_atom2,
+void Connectivity2::AddUniqueConnection( mmdb::PAtom p_atom1, mmdb::PAtom p_atom2,
                     const std::string &label_in,int tag){
   std::vector<unsigned int> hits;
   if (data_mode != CONN_ATOM_ATOM ) return; 
@@ -686,7 +686,7 @@ void Connectivity2::RemoveConnection( mmdb::PAtom p_atom1, int position ) {
   DeleteConnections(indices);
 }
 
-void Connectivity2::RemoveConnection( mmdb::PAtom p_atom1, Pmmdb::Atom p_atom2 ) {
+void Connectivity2::RemoveConnection( mmdb::PAtom p_atom1, mmdb::PAtom p_atom2 ) {
   std::vector<unsigned int> indices = FindConnections(p_atom1,p_atom2);
   //cout << "RemoveConnection indices " << indices << endl;
   DeleteConnections(indices);
@@ -989,7 +989,7 @@ int Connectivity2::AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager 
 }
 
 //----------------------------------------------------------------------------
-int Connectivity2::AddRangeConnections(int set, mmdb::PResidue res1,Pmmdb::Residue res2, 
+int Connectivity2::AddRangeConnections(int set, mmdb::PResidue res1,mmdb::PResidue res2, 
 			     mmdb::PResidue mres1, 
 			     const std::vector<std::string>&  mainchain_name,
                                        int tag ) {
@@ -1080,7 +1080,7 @@ int Connectivity2::AddCloseRangeConnections(int set,mmdb::PResidue res1,
 
 
   // Loop over residues in known model
-  Pmmdb::Chain pChn = res1->GetChain();
+  mmdb::PChain pChn = res1->GetChain();
   mmdb::PAtom pCentralAtom;
   mmdb::PResidue closeRes;
   mmdb::PAtom fxAtom,closeAtom;
