@@ -102,18 +102,18 @@ PCSASArea CMMANManager::GetSASArea ( int selHndin ) {
   if ( !p_sas ) 
     p_sas = new CSASArea( dynamic_cast<PCMMUTManager>(this),selHndin );
 
-  udd_atomSAS = GetUDDHandle( UDR_ATOM,"atom_sas");
+  udd_atomSAS = GetUDDHandle( mmdb::UDR_ATOM,"atom_sas");
   if (udd_atomSAS <= 0 )
-    udd_atomSAS = RegisterUDReal ( UDR_ATOM,"atom_sas" );
+    udd_atomSAS = RegisterUDReal ( mmdb::UDR_ATOM,"atom_sas" );
   //cout << "udd_atomSAS " << udd_atomSAS << endl;
   if ( udd_atomSAS <= 0 ) {
     printf ( "ERROR registering UDD atom SAS data.\n" );
     return NULL;
   }
 
-  udd_resSAS = GetUDDHandle( UDR_RESIDUE,"residue_sas");
+  udd_resSAS = GetUDDHandle( mmdb::UDR_RESIDUE,"residue_sas");
   if (udd_resSAS <= 0 )
-    udd_resSAS = RegisterUDReal ( UDR_RESIDUE,"residue_sas" );
+    udd_resSAS = RegisterUDReal ( mmdb::UDR_RESIDUE,"residue_sas" );
   if ( udd_resSAS <= 0 ) {
     printf ( "ERROR registering UDD residue SAS data.\n" );
     return NULL;
@@ -163,7 +163,7 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
     GetAtomTable1(atomTable,natoms);
 
   if ( udd_sbaseCompoundID < 0 ) {
-    udd_sbaseCompoundID = RegisterUDString(UDR_RESIDUE,"sbaseCompoundID" );
+    udd_sbaseCompoundID = RegisterUDString(mmdb::UDR_RESIDUE,"sbaseCompoundID" );
     if ( udd_sbaseCompoundID < 0 ) {
       printf ( "ERROR registering sbase CompoundID data.\n" );
       return "";
@@ -171,7 +171,7 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
   }
 
   if (udd_sbaseAtomOrdinal < 0) {
-    udd_sbaseAtomOrdinal = RegisterUDInteger(UDR_ATOM,"sbaseAtomOrdinal" );
+    udd_sbaseAtomOrdinal = RegisterUDInteger(mmdb::UDR_ATOM,"sbaseAtomOrdinal" );
     if ( udd_sbaseAtomOrdinal < 0 ) {
       printf ( "ERROR registering sbase AtomOrdinal data.\n" );
       return "";
@@ -179,7 +179,7 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
   }
 
   if (udd_atomEnergyType < 0) {
-    udd_atomEnergyType = RegisterUDInteger(UDR_ATOM,"atomEnergyType" );
+    udd_atomEnergyType = RegisterUDInteger(mmdb::UDR_ATOM,"atomEnergyType" );
     if ( udd_atomEnergyType < 0 ) {
        printf ( "ERROR registering atom EnergyType data.\n" );
        return "";
@@ -288,7 +288,7 @@ int CMMANManager::SetupAtomEnergyTypes () {
   int atomOrdinal;
   PCSBAtom p_sbase_atom;
 
-  udd_atomEnergyType = RegisterUDInteger(UDR_ATOM,"atomEnergyType" );
+  udd_atomEnergyType = RegisterUDInteger(mmdb::UDR_ATOM,"atomEnergyType" );
   if ( udd_atomEnergyType < 0 ) {
     printf ( "ERROR registering atomEnergyType data.\n" );
     return 1;
@@ -513,9 +513,9 @@ int CMMANManager::LoadCharge(std::string loadfrom ) {
 
 
   if (useUDD) {
-    udd = GetUDDHandle( UDR_ATOM,"atom_charge");
+    udd = GetUDDHandle( mmdb::UDR_ATOM,"atom_charge");
     if (udd <= 0 )
-      udd = RegisterUDReal ( UDR_ATOM,"atom_charge" );
+      udd = RegisterUDReal ( mmdb::UDR_ATOM,"atom_charge" );
     //cout << "udd " << udd << endl;
     if ( udd <= 0 ) {
       printf ( "ERROR registering UDD atom charge data.\n" );
@@ -599,7 +599,7 @@ std::string CMMANManager::PrintCharges(void) {
   int i,nat,udd;
 
   if (useUDD) {
-    udd = GetUDDHandle( UDR_ATOM,"atom_charge");
+    udd = GetUDDHandle( mmdb::UDR_ATOM,"atom_charge");
     if (udd <= 0 ) {
       output << "No charges loaded";
       return output.str();
@@ -1051,10 +1051,10 @@ int CMMANManager::LoadUDDData( const int property ) {
 
   switch (property) {
   case PROPERTY_SEC:
-    udd = GetUDDHandle ( UDR_RESIDUE,"tmp_res_int" );
+    udd = GetUDDHandle ( mmdb::UDR_RESIDUE,"tmp_res_int" );
     if (udd <= 0 ) {
       udd = -1;
-      udd = RegisterUDInteger ( UDR_RESIDUE,"tmp_res_int" );
+      udd = RegisterUDInteger ( mmdb::UDR_RESIDUE,"tmp_res_int" );
       if (udd <= 0 ) return udd;
     }
     selHnd = NewSelection();
@@ -1070,29 +1070,29 @@ int CMMANManager::LoadUDDData( const int property ) {
     break;
 
   case PROPERTY_ATOM_SAS:
-    udd = GetUDDHandle( UDR_ATOM,"atom_sas");
+    udd = GetUDDHandle( mmdb::UDR_ATOM,"atom_sas");
     return udd;
     break;
   case PROPERTY_RES_SAS:
-    udd = GetUDDHandle( UDR_RESIDUE,"residue_sas");
+    udd = GetUDDHandle( mmdb::UDR_RESIDUE,"residue_sas");
     return udd;
     break;
   case PROPERTY_ATOM_CONTACT:
-    udd = GetUDDHandle( UDR_ATOM,"atom_contact");
+    udd = GetUDDHandle( mmdb::UDR_ATOM,"atom_contact");
     return udd;
     break;
   case PROPERTY_RES_CONTACT:
-    udd = GetUDDHandle( UDR_RESIDUE,"residue_contact");
+    udd = GetUDDHandle( mmdb::UDR_RESIDUE,"residue_contact");
     return udd;
     break; 
   }
 
 
   //Copy some data such as b or x into a UDD
-  udd = GetUDDHandle ( UDR_ATOM,"tmp_atom_real" );
+  udd = GetUDDHandle ( mmdb::UDR_ATOM,"tmp_atom_real" );
   if (udd <= 0 ) {
     udd = -1;
-    udd = RegisterUDReal ( UDR_ATOM,"tmp_atom_real" );
+    udd = RegisterUDReal ( mmdb::UDR_ATOM,"tmp_atom_real" );
     if (udd <= 0 ) return udd;
   }
   //cout << "Property udd " << udd << endl;
@@ -1306,10 +1306,10 @@ int CMMANManager::CopyModel(int model) {
     RC = p_atom2[ia]->PutUDData(udd_sbaseAtomOrdinal, eType);
   }
 
-  udd = GetUDDHandle ( UDR_ATOM,"tmp_atom_int" );
+  udd = GetUDDHandle ( mmdb::UDR_ATOM,"tmp_atom_int" );
   if (udd <= 0 ) {
     udd = -1;
-    udd = RegisterUDInteger( UDR_ATOM,"tmp_atom_int" );
+    udd = RegisterUDInteger( mmdb::UDR_ATOM,"tmp_atom_int" );
   }
 
   // Put incremental index in udd 
@@ -2079,8 +2079,8 @@ int CMMANManager::LoadSerial(const mmdb::PManager fromMolHnd ) {
   }
 
   // Get a UDD identifier
-  int udd_serial =  GetUDDHandle( UDR_ATOM,"atomSerial");
-  if (udd_serial<=0)  udd_serial = RegisterUDInteger(UDR_ATOM,"atomSerial" );
+  int udd_serial =  GetUDDHandle( mmdb::UDR_ATOM,"atomSerial");
+  if (udd_serial<=0)  udd_serial = RegisterUDInteger(mmdb::UDR_ATOM,"atomSerial" );
   if ( udd_serial < 0 ) {
      printf ( "ERROR registering atom serial data.\n" );
      return -1;

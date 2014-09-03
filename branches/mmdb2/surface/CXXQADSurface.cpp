@@ -796,7 +796,7 @@ int CXXQADSurface::calculateAveragedNormals(){
 
 double CXXQADSurface::getAtomRadius(mmdb::PAtom theAtom){
 	//Here get handle of a radius data type from MMDB if such has been stored
-	int iRadiusHandle = theMMDBManager->GetUDDHandle(UDR_ATOM, "PerAtomRadius");
+	int iRadiusHandle = theMMDBManager->GetUDDHandle(mmdb::UDR_ATOM, "PerAtomRadius");
 	double theRadius;
 	if (iRadiusHandle>0){
 		int success = theAtom->GetUDData (iRadiusHandle, theRadius);

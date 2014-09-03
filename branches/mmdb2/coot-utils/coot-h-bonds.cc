@@ -604,7 +604,7 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manag
    int n_sel_2_atoms;
    mol->GetSelIndex   (selHnd_1, sel_1_atoms, n_sel_1_atoms);
    mol->GetSelIndex   (selHnd_2, sel_2_atoms, n_sel_2_atoms);
-   int udd_h_bond_type_handle = mol->RegisterUDInteger(UDR_ATOM, "hb_type");
+   int udd_h_bond_type_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "hb_type");
 
    for (unsigned int i=0; i<n_sel_1_atoms; i++) { 
       std::string name = sel_1_atoms[i]->name;

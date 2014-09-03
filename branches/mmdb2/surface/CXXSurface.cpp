@@ -707,10 +707,10 @@ int CXXSurface::colorByColourArray(const std::vector<double*> &colours, mmdb::Ma
     mmdb::PPAtom SelAtom;
     molHnd->GetSelIndex(selHnd, SelAtom, nSelAtoms);
     
-    int udd = molHnd->GetUDDHandle ( UDR_ATOM,"tmp_atom_int" );
+    int udd = molHnd->GetUDDHandle ( mmdb::UDR_ATOM,"tmp_atom_int" );
     if (udd <= 0 ) {
         udd = -1;
-        udd = molHnd->RegisterUDInteger ( UDR_ATOM,"tmp_atom_int" );
+        udd = molHnd->RegisterUDInteger ( mmdb::UDR_ATOM,"tmp_atom_int" );
         if (udd <= 0 ) return udd;
     }
     for(int i=0; i<nSelAtoms; i++)
@@ -953,7 +953,7 @@ int CXXSurface::upLoadSphere(CXXSphereElement &theSphere, double probeRadius, co
 
 double CXXSurface::getAtomRadius(mmdb::PAtom theAtom){
     //Here get handle of a radius data type from MMDB if such has been stored
-    int iRadiusHandle = allAtomsManager->GetUDDHandle(UDR_ATOM, "PerAtomRadius");
+    int iRadiusHandle = allAtomsManager->GetUDDHandle(mmdb::UDR_ATOM, "PerAtomRadius");
     double theRadius;
     if (iRadiusHandle>0){
         int success = theAtom->GetUDData (iRadiusHandle, theRadius);

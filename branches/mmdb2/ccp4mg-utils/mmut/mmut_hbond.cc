@@ -380,10 +380,10 @@ int CHBond::LoadUDDHBType(PCMMUTManager molH ) {
   int udd;
   //char *foo;
 
-  udd = molH->GetUDDHandle ( UDR_ATOM,"hbtype" );
+  udd = molH->GetUDDHandle ( mmdb::UDR_ATOM,"hbtype" );
   if (udd <= 0 ) {
     udd = -1;
-    udd = molH->RegisterUDInteger ( UDR_ATOM,"hbtype" );
+    udd = molH->RegisterUDInteger ( mmdb::UDR_ATOM,"hbtype" );
     if (udd <= 0 ) return udd;
   }
   //cout << "HBond udd " << udd << endl;

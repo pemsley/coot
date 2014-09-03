@@ -191,7 +191,7 @@ Bond_lines_container::Bond_lines_container (const atom_selection_container_t &Se
 void
 Bond_lines_container::try_set_b_factor_scale(mmdb::Manager *mol) {
 
-   int udd_b_factor_handle =  mol->GetUDDHandle(UDR_HIERARCHY,
+   int udd_b_factor_handle =  mol->GetUDDHandle(mmdb::UDR_HIERARCHY,
 						coot::b_factor_bonds_scale_handle_name.c_str());
    // std::cout << "debug:: Got b factor udd handle: " << udd_b_factor_handle << std::endl;
    if (udd_b_factor_handle > 0) {
@@ -1360,7 +1360,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    // UserDefinedData "found bond".
    // 
 
-   int uddHnd = SelAtom.mol->RegisterUDInteger(UDR_ATOM, "found bond");
+   int uddHnd = SelAtom.mol->RegisterUDInteger(mmdb::UDR_ATOM, "found bond");
    bool have_udd_atoms = 1;
    if (uddHnd<0)  {
       std::cout << " atom bonding registration failed.\n";
@@ -3176,7 +3176,7 @@ void
 Bond_lines_container::do_Ca_bonds(atom_selection_container_t SelAtom,
 				  float min_dist, float max_dist) {
 
-   udd_has_ca_handle = SelAtom.mol->RegisterUDInteger (UDR_RESIDUE, "has CA");
+   udd_has_ca_handle = SelAtom.mol->RegisterUDInteger (mmdb::UDR_RESIDUE, "has CA");
    if (!udd_has_ca_handle) {
       std::cout << "ERROR getting udd_has_ca_handle\n";
    }
@@ -3211,7 +3211,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
    if (bond_colour_type == coot::COLOUR_BY_RAINBOW)
       atom_colours_udd = set_rainbow_colours(SelAtom.mol);
    
-   int udd_has_bond_handle = SelAtom.mol->RegisterUDInteger(UDR_ATOM, "found-backbone-bond");
+   int udd_has_bond_handle = SelAtom.mol->RegisterUDInteger(mmdb::UDR_ATOM, "found-backbone-bond");
    for (int i=0; i<SelAtom.n_selected_atoms; i++)
       SelAtom.atom_selection[i]->PutUDData(udd_has_bond_handle, 0);
    
@@ -3554,7 +3554,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal_old(atom_selection_container_t S
 int
 Bond_lines_container::set_rainbow_colours(mmdb::Manager *mol) {
 
-   int udd_handle = mol->RegisterUDReal(UDR_ATOM, "rainbow circle point");
+   int udd_handle = mol->RegisterUDReal(mmdb::UDR_ATOM, "rainbow circle point");
    if (udd_handle > 0) { 
 
       int n_models = mol->GetNumberOfModels();
@@ -3796,7 +3796,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
    mmdb::Model *model_p = SelAtom.mol->GetModel(1);
    if (model_p) {
       int istat;
-      udd_has_ca_handle = SelAtom.mol->RegisterUDInteger (UDR_RESIDUE, "has CA");
+      udd_has_ca_handle = SelAtom.mol->RegisterUDInteger (mmdb::UDR_RESIDUE, "has CA");
       int nchains = model_p->GetNumberOfChains();
       mmdb::Residue *residue_p;
       mmdb::Chain   *chain_p;
@@ -4110,7 +4110,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
       // whenever we find a contact for an atom, we mark it with
       // UserDefinedData "found bond".
       // 
-      int uddHnd = asc.mol->RegisterUDInteger ( UDR_ATOM,"found bond" );
+      int uddHnd = asc.mol->RegisterUDInteger ( mmdb::UDR_ATOM,"found bond" );
       if (uddHnd<0)  {
 	 std::cout << " atom bonding registration failed.\n";
       } else {
@@ -4330,7 +4330,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 			    contact, ncontacts,
 			    0, &my_matt, i_contact_group);
 
-      int uddHnd = asc.mol->RegisterUDInteger (UDR_ATOM, "found bond");
+      int uddHnd = asc.mol->RegisterUDInteger (mmdb::UDR_ATOM, "found bond");
       if (uddHnd<0)  {
 	 std::cout << " atom bonding registration failed.\n";
       } else {
@@ -4653,7 +4653,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 	 // whenever we find a contact for an atom, we mark it with
 	 // UserDefinedData "found bond".
 	 // 
-	 int uddHnd = asc.mol->RegisterUDInteger (UDR_ATOM, "found bond");
+	 int uddHnd = asc.mol->RegisterUDInteger (mmdb::UDR_ATOM, "found bond");
 	 if (uddHnd<0)  {
 	    std::cout << " atom bonding registration failed.\n";
 	 } else {

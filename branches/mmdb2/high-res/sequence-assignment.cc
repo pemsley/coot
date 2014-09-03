@@ -774,7 +774,7 @@ coot::sequence_assignment::side_chain_score_t::mark_unassigned_residues() {
    // only
 
    int istate;
-   udd_assigned_handle = mol->RegisterUDInteger (UDR_RESIDUE, "assigned residue info");
+   udd_assigned_handle = mol->RegisterUDInteger (mmdb::UDR_RESIDUE, "assigned residue info");
    if (!udd_assigned_handle) {
       std::cout << "ERROR getting udd_assigned_handle\n";
    } 

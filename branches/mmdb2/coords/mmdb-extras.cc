@@ -146,7 +146,7 @@ make_asc(mmdb::Manager *mol) {
    int nSelAtoms;
    asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
 
-   int uddHnd = mol->RegisterUDInteger(UDR_ATOM , "atom index");
+   int uddHnd = mol->RegisterUDInteger(mmdb::UDR_ATOM , "atom index");
    if (uddHnd < 0) {
       std::cout << " atom index registration failed.\n";
    } else {
@@ -326,7 +326,7 @@ coot::deep_copy_this_residue_and_make_asc(mmdb::Manager *orig_mol,
 							1, 0, 0, altconf, chain_id1, 1);
 
    atom_selection_container_t asc = make_asc(mol_i.first);
-   int udd_afix_handle_inter = mol_i.first->GetUDDHandle(UDR_ATOM, "shelx afix");
+   int udd_afix_handle_inter = mol_i.first->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
 //    std::cout << "DEBUG:: deep_copy_this_residue_and_make_asc got udd_afix_handle_inter : "
 // 	     << udd_afix_handle_inter << std::endl;
    for (int i=0; i<asc.n_selected_atoms; i++) {
@@ -854,7 +854,7 @@ coot::add_atom_index_udd_as_old(atom_selection_container_t asc) {
    int old_atom_index;
    if (asc.n_selected_atoms > 0) {
       if (asc.UDDAtomIndexHandle >= 0) { 
-	 int uddHnd = asc.mol->RegisterUDInteger(UDR_ATOM , "old atom index");
+	 int uddHnd = asc.mol->RegisterUDInteger(mmdb::UDR_ATOM , "old atom index");
 	 if (uddHnd >= 0) { 
 	    asc.UDDOldAtomIndexHandle = uddHnd;
 	    for (int i=0; i<asc.n_selected_atoms; i++) { 

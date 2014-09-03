@@ -23,7 +23,7 @@ int CXXUtils::assignCharge(mmdb::PManager theManager, int selHnd, CXXChargeTable
 
 int CXXUtils::assignUnitedAtomRadius  (mmdb::PManager theManager, int selHnd) {
 	// Add a radius property to the atoms
-	int iRadiusHandle = theManager->RegisterUDReal(UDR_ATOM, "PerAtomRadius");
+	int iRadiusHandle = theManager->RegisterUDReal(mmdb::UDR_ATOM, "PerAtomRadius");
 	if (!iRadiusHandle) {
 		printf ( " registration failed.\n" );
 		exit ( 1 );
