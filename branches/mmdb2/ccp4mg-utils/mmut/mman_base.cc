@@ -338,7 +338,7 @@ int CMMANBase::GetSelection ( const int iset, mmdb::PPResidue &resTable,
   else if ( selHnds[iset] >= 0 ) {
     // The atom selection handle is already defined 
     resSelHnds[iset] = molHnds[iset]->NewSelection();
-    molHnds[iset]->Select(resSelHnds[iset], mmdb::STYPE_RESIDUE, selHnds[iset], SKEY_OR);
+    molHnds[iset]->Select(resSelHnds[iset], mmdb::STYPE_RESIDUE, selHnds[iset], mmdb::SKEY_OR);
     GetOneModel( iset ,resSelHnds[iset], resTable, nRes, model );     
   }
   // Return all residues by default for first set or if previous

@@ -388,7 +388,7 @@ int replace_fragment(int imol_target, int imol_fragment,
       if (is_valid_model_molecule(imol_fragment)) {
 	 mmdb::Manager *mol = graphics_info_t::molecules[imol_fragment].atom_sel.mol;
 	 int SelHnd = mol->NewSelection();
-	 mol->Select(SelHnd, mmdb::STYPE_ATOM, mmdb_atom_selection_str, SKEY_OR);
+	 mol->Select(SelHnd, mmdb::STYPE_ATOM, mmdb_atom_selection_str, mmdb::SKEY_OR);
 	 mmdb::Manager *mol_new =
 	    coot::util::create_mmdbmanager_from_atom_selection(mol, SelHnd);
 	 atom_selection_container_t asc = make_asc(mol_new);
@@ -4918,7 +4918,7 @@ new_molecule_by_symmetry_with_atom_selection(int imol,
       int SelectionHandle = mol_orig->NewSelection();
       mol_orig->Select(SelectionHandle, mmdb::STYPE_ATOM,
 		       mmdb_atom_selection_string,
-		       SKEY_OR);
+		       mmdb::SKEY_OR);
 
       mmdb::Manager *mol =
 	 coot::util::create_mmdbmanager_from_atom_selection(mol_orig, SelectionHandle);
@@ -6493,7 +6493,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
       int SelectionHandle = mol_orig->NewSelection();
       mol_orig->Select(SelectionHandle, mmdb::STYPE_ATOM,
 		       atom_selection_str, 
-		       SKEY_OR);
+		       mmdb::SKEY_OR);
       mmdb::Manager *mol =
 	 coot::util::create_mmdbmanager_from_atom_selection(mol_orig,
 							    SelectionHandle);
@@ -6558,13 +6558,13 @@ int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, f
       mmdb::Manager *mol = NULL;
       if (allow_partial_residues_flag) { 
 	 mol_orig->SelectSphere(SelectionHandle, mmdb::STYPE_ATOM,
-				x, y, z, r, SKEY_OR);
+				x, y, z, r, mmdb::SKEY_OR);
 	 mol = coot::util::create_mmdbmanager_from_atom_selection(mol_orig,
 								  SelectionHandle);
       } else {
 	 graphics_info_t g;
 	 mol_orig->SelectSphere(SelectionHandle, mmdb::STYPE_RESIDUE,
-				x, y, z, r, SKEY_OR);
+				x, y, z, r, mmdb::SKEY_OR);
 	 std::string alt_conf = "";
 
 	 // convert for mmdb residue list to std::vector or residues.

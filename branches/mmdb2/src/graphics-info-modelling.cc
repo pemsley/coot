@@ -882,7 +882,7 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 			   "*", // atom name
 			   "*", // elements
 			   "*",  // alt loc.	
-			   SKEY_OR);
+			   mmdb::SKEY_OR);
    }
 
    local_moving_atoms_asc.mol = (Mymmdb::Manager *) residues_mol;

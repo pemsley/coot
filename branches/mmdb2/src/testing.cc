@@ -2761,7 +2761,7 @@ int test_multi_residue_torsion() {
       specs[0] = coot::residue_spec_t("A", 131, "");
       specs[1] = coot::residue_spec_t("A", 361, "");
       for (unsigned int i=0; i<2; i++) {
-	 specs[i].select_atoms(mol, selhnd, SKEY_OR); 
+	 specs[i].select_atoms(mol, selhnd, mmdb::SKEY_OR); 
       }
 
       mmdb::PPAtom atom_selection;
@@ -2832,7 +2832,7 @@ test_torsions_from_residue_selection() {
       specs[0] = coot::residue_spec_t("A", 121, "");
       specs[1] = coot::residue_spec_t("A", 200, "");
       for (unsigned int i=0; i<2; i++) {
-	 specs[i].select_atoms(mol, selhnd, SKEY_OR); 
+	 specs[i].select_atoms(mol, selhnd, mmdb::SKEY_OR); 
       }
 
       mmdb::PPAtom atom_selection;

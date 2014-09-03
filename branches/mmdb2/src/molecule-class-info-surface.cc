@@ -124,7 +124,7 @@ molecule_class_info_t::fill_residue_selection(int SelHnd_selection,
 				res_specs_vec[ir].resno,
 				res_specs_vec[ir].insertion_code.c_str(),
 				no_waters.c_str(),
-				"*", "*", "*", SKEY_OR);
+				"*", "*", "*", mmdb::SKEY_OR);
    }
 
    mmdb::PPAtom atoms = NULL;

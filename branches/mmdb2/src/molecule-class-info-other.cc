@@ -6211,7 +6211,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       int SelHnd = atom_sel.mol->NewSelection();
       atom_sel.mol->Select(SelHnd, mmdb::STYPE_ATOM,
 			   atom_selection_str.c_str(),
-			   SKEY_OR);
+			   mmdb::SKEY_OR);
       int n_selected_atoms;
       mmdb::PPAtom atom_selection = NULL;
       atom_sel.mol->GetSelIndex(SelHnd, atom_selection, n_selected_atoms);
@@ -7945,7 +7945,7 @@ molecule_class_info_t::make_dots(const std::string &atom_selection_str,
       int SelHnd = atom_sel.mol->NewSelection(); // yes, deleted.
       atom_sel.mol->Select(SelHnd, mmdb::STYPE_ATOM,
 			   atom_selection_str.c_str(),
-			   SKEY_OR);
+			   mmdb::SKEY_OR);
       int n_selected_atoms;
       mmdb::PPAtom atom_selection = NULL;
       atom_sel.mol->GetSelIndex(SelHnd, atom_selection, n_selected_atoms);
