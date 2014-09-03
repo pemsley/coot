@@ -69,7 +69,7 @@ coot::SortableChainsmmdb::Manager::SortChains() {
 	 // model_p->Chain[ichain] = chain_ids[ichain].first;
       }
    }
-   PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    FinishStructEdit();
 }
 
@@ -140,8 +140,8 @@ void test_lsq_improve() {
    std::string ref_pdb = "tutorial-modern.pdb";
    std::string mov_pdb = "1py3-matched-A6-13.pdb";
 
-   int err_1 = mol_1->ReadCoorFile(ref_pdb.c_str());
-   int err_2 = mol_2->ReadCoorFile(mov_pdb.c_str());
+   mmdb::ERROR_CODE err_1 = mol_1->ReadCoorFile(ref_pdb.c_str());
+   mmdb::ERROR_CODE err_2 = mol_2->ReadCoorFile(mov_pdb.c_str());
 
    if (err_1) {
       std::cout << "There was an error reading " << ref_pdb << ".\n";

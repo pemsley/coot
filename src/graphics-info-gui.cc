@@ -2469,7 +2469,7 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 		  chain->AddResidue(res2);
 		  model->AddChain(chain);
 		  mol->AddModel(model);
-		  mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+		  mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 		  mol->FinishStructEdit();
 		  imol_moving_atoms = imol;
 		  moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;

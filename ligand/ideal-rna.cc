@@ -155,7 +155,7 @@ coot::ideal_rna::make_molecule() {
       }
       mol->AddModel(model_p);
       mol->FinishStructEdit();
-      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       
    } else {
       std::cout << "WARNING:: Bad standard residue Ur/Td" << std::endl;

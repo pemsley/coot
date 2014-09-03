@@ -95,7 +95,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
       std::string current_res_name;
       int current_res_no = 0; // shelx default 
       clipper::Spacegroup space_group;
-      InitMatType();
+      mmdb::InitMatType();
       mol = new mmdb::Manager;
       mmdb::Model *model = new mmdb::Model;
       mmdb::Chain *chain = new mmdb::Chain;
@@ -579,7 +579,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
       mol->AddModel(model);
       // we do these things below.      
 //       mol->FinishStructEdit();
-//       mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+//       mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 
       if (cell_local.size() != 6) { // found a cell?
 	 std::cout << "WARNING:: no cell found in shelx file\n";
@@ -636,7 +636,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 	 }
       }
       mol->FinishStructEdit();
-      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       // mol->WritePDBASCII("testing.pdb");
       // write_ins_file(mol, "new.res");
    }
@@ -2179,7 +2179,7 @@ coot::unshelx(mmdb::Manager *shelx_mol) {
 	 }
       }
       mol->FinishStructEdit();
-      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       
 
       // need to copy over cell and symmetry info:
@@ -2286,7 +2286,7 @@ coot::reshelx(mmdb::Manager *mol) {
       shelx_mol->SetSpaceGroup(sg); 
    
    shelx_mol->FinishStructEdit();
-   shelx_mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   shelx_mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    return shelx_mol;
 }
 

@@ -3248,7 +3248,7 @@ molecule_class_info_t::export_coordinates(std::string filename) const {
    if (err) { 
       std::cout << "WARNING:: export coords: There was an error in writing "
 		<< filename << std::endl; 
-      std::cout << GetErrorDescription(err) << std::endl;
+      std::cout << mmdb::GetErrorDescription(err) << std::endl;
       graphics_info_t g;
       std::string s = "ERROR:: writing coordinates file ";
       s += filename;
@@ -3310,7 +3310,7 @@ molecule_class_info_t::get_residue_range_as_mol(const std::string &chain_id,
    chain_new->SetChainID(chain_id.c_str());
    model_new->AddChain(chain_new);
    mol_new->AddModel(model_new);
-   mol_new->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   mol_new->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    mol_new->FinishStructEdit();
    return mol_new;
 } 
@@ -4516,12 +4516,12 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
 			 atom->GetInsCode());
 	 
 	 // add to end:
-	 atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+	 atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	 atom_sel.mol->FinishStructEdit();
       }
    }
 
-   atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();
    std::cout << "INFO:: " << n_atom << " atoms added to molecule." << std::endl;
 
@@ -5146,7 +5146,7 @@ molecule_class_info_t::add_pointer_atom(coot::Cartesian pos) {
       res_p->SetResName("HOH");
       coot::hetify_residue_atoms(res_p);
 
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
       std::cout << atom_p << " added to molecule" << std::endl;
@@ -5231,7 +5231,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	    res_p->AddAtom(atom_p);
 	    w->AddResidue(res_p);
 	    std::cout << atom_p << " added to molecule" << std::endl;
-	    atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+	    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	    atom_sel.mol->FinishStructEdit();
 	    atom_sel = make_asc(atom_sel.mol);
 	    have_unsaved_changes_flag = 1;
@@ -5247,7 +5247,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	    }
 	    res_p->seqNum = 1; // start of a new chain.
 	    chain_p->AddResidue(res_p);
-	    atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+	    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	    atom_sel.mol->FinishStructEdit();
 	    atom_sel = make_asc(atom_sel.mol);
 	    have_unsaved_changes_flag = 1;
@@ -5301,7 +5301,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	       shelxins.add_sfac(element);
 	    } 
 	    chain_p->AddResidue(res_p);
-	    atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+	    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	    atom_sel.mol->FinishStructEdit();
 	    atom_sel = make_asc(atom_sel.mol);
 	    have_unsaved_changes_flag = 1;
@@ -5329,7 +5329,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 	 res_p->seqNum = previous_max + 1;
 	 
 	 chain_p->AddResidue(res_p);
-	 atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+	 atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	 atom_sel.mol->FinishStructEdit();
 	 atom_sel = make_asc(atom_sel.mol);
 	 have_unsaved_changes_flag = 1;
@@ -5617,7 +5617,7 @@ molecule_class_info_t::add_baton_atom(coot::Cartesian pos,
    res_p->seqNum = this_res_seqnum;
    res_p->SetResName("ALA");
 
-   atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();
    atom_sel = make_asc(atom_sel.mol);
    std::cout << atom_p << " added to molecule" << std::endl;
@@ -5769,7 +5769,7 @@ molecule_class_info_t::add_dummy_atom(coot::Cartesian pos) {
    res_p->seqNum = ires_prev + 1;
    res_p->SetResName("DUM");
 
-   atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();
    atom_sel = make_asc(atom_sel.mol);
    // std::cout << atom_p << " added to molecule" << std::endl;
@@ -6833,7 +6833,7 @@ molecule_class_info_t::append_to_molecule(const coot::minimol::molecule &water_m
 void
 molecule_class_info_t::update_molecule_after_additions() {
 
-   atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel = make_asc(atom_sel.mol); // does the udd stuff too.
    have_unsaved_changes_flag = 1;
    make_bonds_type_checked();
@@ -7046,7 +7046,7 @@ molecule_class_info_t::add_multiple_dummies(mmdb::Chain *chain_p,
    // points too.  This sets atom_sel.SelectionHandle properly, which
    // is needed in close_yourself, where a DeleteSelection() is done
    // to give back the memory.
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1; 
@@ -7080,7 +7080,7 @@ molecule_class_info_t::add_multiple_dummies(const std::vector<coot::Cartesian> &
 	       res_p->seqNum = i + 1;
 	       res_p->SetResName("DUM");
 	    }
-	    atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+	    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	    atom_sel.mol->FinishStructEdit();
 	    atom_sel = make_asc(atom_sel.mol);
 	    have_unsaved_changes_flag = 1; 
@@ -7424,7 +7424,7 @@ molecule_class_info_t::transform_by(mat44 mat) {
 	 atom_sel.atom_selection[i]->y = trans_pos.y();
 	 atom_sel.atom_selection[i]->z = trans_pos.z();
       } 
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();
@@ -7471,7 +7471,7 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
 	 atom_sel.atom_selection[i]->y = trans_pos.y();
 	 atom_sel.atom_selection[i]->z = trans_pos.z();
       }
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();
@@ -7486,7 +7486,7 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop, mmdb::Residu
 	     << rtop.format() << std::endl;
    if (has_model()) {
       transform_by_internal(rtop, residue_moving);
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();
@@ -7557,7 +7557,7 @@ molecule_class_info_t::transform_zone_by(const std::string &chain_id, int resno_
    }
 
    if (transformed_something) {
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();

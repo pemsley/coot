@@ -4745,7 +4745,7 @@ void save_symmetry_coords(int imol,
 	       asc.atom_selection[i]->y = trans_pos.y();
 	       asc.atom_selection[i]->z = trans_pos.z();
 	    } 
-	    asc.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+	    asc.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	    asc.mol->FinishStructEdit();
 	    
         mmdb_manager_delete_conect(mol2);

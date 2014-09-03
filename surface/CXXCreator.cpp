@@ -11,7 +11,7 @@
 #include <algorithm>
 
 CXXCreator::CXXCreator (pstr thePdb) {
-	InitMatType();
+	mmdb::InitMatType();
 
 	int RC;
 	

@@ -235,7 +235,7 @@ molecule_class_info_t::mutate_internal(mmdb::Residue *residue, mmdb::Residue *st
 
    coot::util::mutate_internal(residue, std_residue, alt_conf, is_from_shelx_ins_flag);
 
-   atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();
 
    // regenerate atom selection
@@ -382,7 +382,7 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	    }
 	 }
       }
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       
 
@@ -439,7 +439,7 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	    }
 	 }
       }
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       
 
@@ -1015,7 +1015,7 @@ molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::st
       }
    }
    if (istat) { 
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
       make_bonds_type_checked();
@@ -1135,7 +1135,7 @@ molecule_class_info_t::exchange_chain_ids_for_seg_ids() {
 
    // Let's just imagine that it always happens...
    have_unsaved_changes_flag = 1;
-   atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();
    atom_sel = make_asc(atom_sel.mol);
    make_bonds_type_checked();
@@ -1326,7 +1326,7 @@ molecule_class_info_t::apply_sequence(int imol_map, mmdb::Manager *poly_ala_mol,
    poly_ala_mol->DeleteSelection(selHnd);
 
    if (have_changes) {
-      poly_ala_mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      poly_ala_mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       poly_ala_mol->FinishStructEdit();
 
       // now fiddle with atom_sel.mol, deleting r_del residues and
@@ -1479,7 +1479,7 @@ molecule_class_info_t::delete_all_except_res(mmdb::Residue *res) {
 	    }
 	 }
       }
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
       atom_sel = make_asc(atom_sel.mol);
@@ -1536,7 +1536,7 @@ molecule_class_info_t::remove_TER_internal(mmdb::Residue *res_p) {
       }
    }
    if (deleted) { 
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
    }
 }
@@ -1688,7 +1688,7 @@ molecule_class_info_t::nudge_residue_sequence(const std::string &chain_id,
 	    }
 	 }
 
-	 atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+	 atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	 atom_sel.mol->FinishStructEdit();
 	 have_unsaved_changes_flag = 1; 
 	 make_bonds_type_checked();

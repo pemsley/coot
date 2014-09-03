@@ -59,7 +59,7 @@ mmdb_utils::is_hydrogen(const std::string &ele) {
 atom_selection_container_t
 get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
-   int err;
+   mmdb::ERROR_CODE err;
    mmdb::Manager* MMDBManager;
 
    // Needed for the error message printing: 
@@ -70,7 +70,7 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
    //   Make routine initializations
    //
-   InitMatType();
+   mmdb::InitMatType();
 
    atom_selection_container_t asc;
 
@@ -147,7 +147,7 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 	     // does_file_exist(pdb_name.c_str());
 	     cout << "There was an error reading " << pdb_name.c_str() << ". \n";
 	     cout << "ERROR " << err << " READ: "
-		  << GetErrorDescription(err) << endl;
+		  << mmdb::GetErrorDescription(err) << endl;
 	     //
 	     MMDBManager->GetInputBuffer(error_buf, error_count);
 	     if (error_count >= 0) { 

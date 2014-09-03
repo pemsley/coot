@@ -146,7 +146,7 @@ void cut_residues(atom_selection_container_t asc, const std::vector<scored_chain
    }
    
    if (made_a_deletion) {
-	 asc.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+	 asc.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
          asc.mol->FinishStructEdit();
    }
    asc.mol->WritePDBASCII(pdb_out_filename.c_str());

@@ -2961,8 +2961,7 @@ mmdb::Manager *
 lbg_info_t::get_cmmdbmanager(const std::string &file_name) const {
 
    mmdb::Manager *mol = new CMMDBManager;
-
-   int err = mol->ReadCoorFile(file_name.c_str());
+   mmdb::ERROR_CODE err = mol->ReadCoorFile(file_name.c_str());
    if (err) {
       std::cout << "WARNING:: Problem reading coordinates file " << file_name << std::endl;
       delete mol;

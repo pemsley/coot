@@ -164,7 +164,7 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 		  }
 	       }
 
-	       molci.atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+	       molci.atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	       molci.atom_sel.mol->FinishStructEdit();
 	       
 	       rasc = make_asc(molci.atom_sel.mol);

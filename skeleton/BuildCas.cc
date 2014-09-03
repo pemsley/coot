@@ -119,7 +119,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 
    //   Make routine initializations
    //
-   InitMatType();
+   mmdb::InitMatType();
 
    // MyMMDBManager = new Mymmdb::Manager();
    // MMDBManager = new Mymmdb::Manager;
@@ -247,7 +247,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 
    MMDBManager->AddModel(model_p);
    
-   MMDBManager->PDBCleanup ( PDBCLEAN_SERIAL | PDBCLEAN_INDEX );
+   MMDBManager->PDBCleanup ( mmdb::PDBCLEAN_SERIAL | mmdb::PDBCLEAN_INDEX );
 
    /*
    MMDBManager->SetCell(l1.cell().descr().a(),
@@ -3300,7 +3300,7 @@ BuildCas::export_coordinates(atom_selection_container_t asc,
    
    if (err) { 
       std::cout << "There was an error in writing " << filename << endl; 
-      std::cout << GetErrorDescription(err) << endl; 
+      std::cout << mmdb::GetErrorDescription(err) << endl; 
    } 
 
 } 

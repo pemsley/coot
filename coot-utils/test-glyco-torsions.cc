@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
       std::cout << "   or: " << argv[0] << " test link-type new-comp-id \n";
    } else {
 
-      InitMatType();
+      mmdb::InitMatType();
 
       if (std::string(argv[1]) == "test") {
 

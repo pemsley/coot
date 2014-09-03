@@ -18,14 +18,14 @@ int main(int argc, char **argv) {
       int  error_count;
       char error_buf[500];
 
-      InitMatType();
+      mmdb::InitMatType();
 
       mmdb::Manager *m = new CMMDBManager;
-      int err = m->ReadCoorFile(file_name.c_str());
+      mmdb::ERROR_CODE err = m->ReadCoorFile(file_name.c_str());
       if (err) {
 	 std::cout << "There was an error reading " << file_name.c_str() << ".\n";
 	 std::cout << "ERROR " << err << " READ: "
-		   << GetErrorDescription(err) << std::endl;
+		   << mmdb::GetErrorDescription(err) << std::endl;
 	 m->GetInputBuffer(error_buf, error_count);
 	 if (error_count >= 0) { 
 	    std::cout << " LINE #" << error_count << "\n " << error_buf << std::endl;

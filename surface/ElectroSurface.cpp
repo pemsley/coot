@@ -23,7 +23,7 @@ int main (int argc, char * const argv[]) {
 	int RC;
 	string insrf, outsrf;
 	
-	InitMatType();
+	mmdb::InitMatType();
 	
 	std::string inputCoordinateName = " ";
 	std::string inputSurfaceName = " ";

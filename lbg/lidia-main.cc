@@ -58,7 +58,7 @@ void set_rotation_centre(const clipper::Coord_orth &pos) {}
 int
 main(int argc, char *argv[]) {
 
-   InitMatType(); // mmdb program. 
+   mmdb::InitMatType(); // mmdb program. 
 
 #ifdef USE_PYTHON
    Py_Initialize();

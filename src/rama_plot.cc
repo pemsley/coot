@@ -2220,7 +2220,7 @@ coot::rama_plot::draw_axes() {
 mmdb::Manager *
 coot::rama_plot::rama_get_mmdb_manager(std::string pdb_name) {
 
-   int err;
+   mmdb::ERROR_CODE err;
    mmdb::Manager* MMDBManager;
 
    // Needed for the error message printing: 
@@ -2231,7 +2231,7 @@ coot::rama_plot::rama_get_mmdb_manager(std::string pdb_name) {
 
    //   Make routine initializations
    //
-   InitMatType();
+   mmdb::InitMatType();
 
    MMDBManager = new mmdb::Manager;
 
@@ -2242,7 +2242,7 @@ coot::rama_plot::rama_get_mmdb_manager(std::string pdb_name) {
       // does_file_exist(pdb_name.c_str());
       std::cout << "There was an error reading " << pdb_name.c_str() << ". \n";
       std::cout << "ERROR " << err << " READ: "
-		<< GetErrorDescription(err) << std::endl;
+		<< mmdb::GetErrorDescription(err) << std::endl;
       //
       // This makes my stomach churn too. Sorry.
       // 
