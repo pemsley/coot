@@ -93,10 +93,12 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
       if (ierr!=mmdb::mmcif::CIFRC_Ok) {
 	 std::cout << "dirty mmCIF file? " << ciffilename.c_str() << std::endl;
 	 std::cout << "    Bad mmdb::mmcif::CIFRC_Ok on ReadMMCIFFile" << std::endl;
-	 std::cout << "    " << mmdb::GetErrorDescription(ierr) << std::endl;
-	 char        err_buff[1000];
-	 std::cout <<  "CIF error rc=" << ierr << " reason:" << 
-	    GetCIFMessage (err_buff,ierr) << std::endl;
+
+	 // FIXME boring	 
+// 	 std::cout << "    " << mmdb::GetErrorDescription(ierr) << std::endl;
+// 	 char        err_buff[1000];
+// 	 std::cout <<  "CIF error rc=" << ierr << " reason:" << 
+// 	    GetCIFMessage (err_buff,ierr) << std::endl;
 
       } else {
 	 if (verbose_mode)
@@ -142,7 +144,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	    std::vector<std::string> comp_ids_for_chirals;
 	    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
 
-	       PCMMCIFCategory cat = data->GetCategory(icat);
+	       mmdb::mmcif::PCategory cat = data->GetCategory(icat);
 	       std::string cat_name(cat->GetCategoryName());
 	       
 	       // All catagories have loops (AFAICS). 
@@ -1781,7 +1783,7 @@ coot::protein_geometry::add_chem_mods(mmdb::mmcif::PData data) {
    int n_mods = 0;
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
-      PCMMCIFCategory cat = data->GetCategory(icat);
+      mmdb::mmcif::PCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
       mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
             
@@ -1803,7 +1805,7 @@ coot::protein_geometry::add_synonyms(mmdb::mmcif::PData data) {
 
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
-      PCMMCIFCategory cat = data->GetCategory(icat);
+      mmdb::mmcif::PCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
       mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
             
@@ -1908,7 +1910,7 @@ coot::protein_geometry::init_links(mmdb::mmcif::PData data) {
    int r = 0; 
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
-      PCMMCIFCategory cat = data->GetCategory(icat);
+      mmdb::mmcif::PCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
 
       // std::cout << "DEBUG:: init_link is handling " << cat_name << std::endl;
@@ -2849,7 +2851,7 @@ coot::dictionary_residue_restraints_t::quoted_atom_name(const std::string &an) c
 void
 coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) const {
 
-   Pmmdb::mmcif::File mmCIFFile = new mmdb::mmcif::File(); // d
+   mmdb::mmcif::File *mmCIFFile = new mmdb::mmcif::File(); // d
       
    mmdb::mmcif::PData   mmCIFData = NULL;
    mmdb::mmcif::PStruct mmCIFStruct;
@@ -2859,11 +2861,11 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
    int rc;
 
-   rc = mmCIFFile->AddMMCIFData("comp_list");
+   rc = mmCIFFile->AddCIFData("comp_list");
    mmCIFData = mmCIFFile->GetCIFData("comp_list");
    rc = mmCIFData->AddStructure ("_chem_comp", mmCIFStruct);
-   // std::cout << "rc on AddStructure returned " << rc << std::endl;
-   if (rc!=mmdb::mmcif::CIFRC_Ok && rc!=CIFRC_Created)  {
+
+   if (rc!=mmdb::mmcif::CIFRC_Ok && rc!=mmdb::mmcif::CIFRC_Created)  {
       // badness!
       std::cout << "rc not mmdb::mmcif::CIFRC_Ok " << rc << std::endl;
       printf ( " **** error: attempt to retrieve Loop as a Structure.\n" );
@@ -2871,14 +2873,14 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	 printf ( " **** error: mmCIFStruct is NULL - report as a bug\n" );
       }
    } else {
-      if (rc==CIFRC_Created) { 
+      if (rc == mmdb::mmcif::CIFRC_Created) {
 	 // printf ( " -- new structure created\n" );
       } else { 
 	 printf(" -- structure was already in mmCIF, it will be extended\n");
       }
       // std::cout << "SUMMARY:: rc mmdb::mmcif::CIFRC_Ok or newly created. " << std::endl;
 
-      mmdb::mmcif::PLoop mmCIFLoop = new CMMCIFLoop; // 20100212
+      mmdb::mmcif::Loop *mmCIFLoop = new mmdb::mmcif::Loop; // 20100212
       // data_comp_list, id, three_letter_code, name group etc:
 
       rc = mmCIFData->AddLoop("_chem_comp", mmCIFLoop);
@@ -2906,7 +2908,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       std::string comp_monomer_name = "comp_";
       comp_monomer_name += residue_info.comp_id.c_str(); 
-      rc = mmCIFFile->AddMMCIFData(comp_monomer_name.c_str());
+      rc = mmCIFFile->AddCIFData(comp_monomer_name.c_str());
       mmCIFData = mmCIFFile->GetCIFData(comp_monomer_name.c_str());
 
       // shall we add coordinates too?
@@ -2922,7 +2924,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       
       if (atom_info.size()) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
-	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    for (int i=0; i<atom_info.size(); i++) {
 	       const dict_atom &ai = atom_info[i];
 	       const char *ss =  residue_info.comp_id.c_str();
@@ -2954,7 +2956,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       if (bond_restraint.size()) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_bond", mmCIFLoop);
-	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
 	    for (int i=0; i<bond_restraint.size(); i++) {
 	       // std::cout << "ading bond number " << i << std::endl;
@@ -2989,7 +2991,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       if (angle_restraint.size()) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_angle", mmCIFLoop);
-	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of angles: " << angle_restraint.size() << std::endl;
 	    for (int i=0; i<angle_restraint.size(); i++) {
 	       // std::cout << "ading angle number " << i << std::endl;
@@ -3023,7 +3025,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       if (torsion_restraint.size() > 0) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_tor", mmCIFLoop);
-	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of torsions: " << torsion_restraint.size() << std::endl;
 	    for (int i=0; i<torsion_restraint.size(); i++) {
 	       // std::cout << "ading torsion number " << i << std::endl;
@@ -3061,7 +3063,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       // 
       if (chiral_restraint.size() > 0) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_chir", mmCIFLoop);
-	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of chirals: " << chiral_restraint.size() << std::endl;
 	    for (int i=0; i<chiral_restraint.size(); i++) {
 	       // std::cout << "ading chiral number " << i << std::endl;
@@ -3099,7 +3101,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       // plane loop
       if (plane_restraint.size() > 0) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_plane_atom", mmCIFLoop);
-	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of planes: " << plane_restraint.size() << std::endl;
 	    int icount = 0;
 	    for (int i=0; i<plane_restraint.size(); i++) {
@@ -3235,7 +3237,7 @@ coot::simple_cif_reader::simple_cif_reader(const std::string &cif_dictionary_fil
          
 	    mmdb::mmcif::PData data = ciffile.GetCIFData(idata);
 	    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
-	       PCMMCIFCategory cat = data->GetCategory(icat);
+	       mmdb::mmcif::PCategory cat = data->GetCategory(icat);
 	       std::string cat_name(cat->GetCategoryName());
 	       mmdb::mmcif::PLoop mmCIFLoop =
 		  data->GetLoop(cat_name.c_str() );
