@@ -3027,7 +3027,7 @@ void write_header_secondary_structure_info(int imol, const char *file_name) {
 
    if (is_valid_model_molecule(imol)) { 
       CFile f;
-      Boolean Text = True;
+      bool Text = True;
       f.assign(file_name, Text);
       if (f.rewrite()) { 
 	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;

@@ -201,7 +201,7 @@ void update_preference_gui() {
   float fval1;
   float fval2;
   float fval3;
-  std::vector<int> ivector;
+  std::vector<int> mmdb::ivector;
   unsigned short int v = 4;
   graphics_info_t g;
   

@@ -67,12 +67,12 @@ class CMMUTManager : public mmdb::Manager  {
     mmdb::realtype *CentreOfMass(int selHnd);
     mmdb::realtype *Extent(int selHnd);
 
-    Boolean isMainChain(mmdb::PAtom p_atom);
-    Boolean doAltLocMatch ( mmdb::PAtom pa1, mmdb::PAtom pa2 ); 
+    bool isMainChain(mmdb::PAtom p_atom);
+    bool doAltLocMatch ( mmdb::PAtom pa1, mmdb::PAtom pa2 ); 
     int NameComparison (const char *name , int ntypes , const char *types[] );
     std::string  TrimString(pstr inp);
     std::string AtomLabel(mmdb::PAtom p_atom, int mask[]);
-    Boolean ChainIDisDigit(mmdb::PChain p_ch);
+    bool ChainIDisDigit(mmdb::PChain p_ch);
     const char* AtomLabel_atom1(mmdb::PAtom p_atom);
     const char* AtomLabel_atom(mmdb::PAtom p_atom);
     const char* AtomLabel_residue(mmdb::PAtom p_atom);

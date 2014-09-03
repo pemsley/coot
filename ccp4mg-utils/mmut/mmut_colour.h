@@ -35,7 +35,7 @@ public:
   ~CColours();
     
   static int SetColours(int n, const char *cols[] );
-  static int GetCode ( int nAppCol, psvector appCol, ivector code );
+  static int GetCode ( int nAppCol, psvector appCol, mmdb::ivector code );
 
   protected:
   static int nColours;
@@ -61,12 +61,12 @@ public:
   int defColour;
   int nTypes;
   psvector types;
-  ivector itypes; 
+  mmdb::ivector itypes; 
   rvector ranges;
-  ivector bins;
-  ivector iranges;
+  mmdb::ivector bins;
+  mmdb::ivector iranges;
   psvector colours;
-  ivector codes;
+  mmdb::ivector codes;
   void FreeMemory();
 };
 
@@ -130,7 +130,7 @@ private:
 
   // the derived data
   int natoms;
-  ivector colour;
+  mmdb::ivector colour;
 
   int Clear();
   int ReColour ();

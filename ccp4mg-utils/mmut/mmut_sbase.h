@@ -271,14 +271,14 @@ public:
   std::string ListAtomType ( PCMMUTManager molHnd, mmdb::PResidue pRes,
   int udd_sbaseCompoundID, int udd_sbaseAtomOrdinal, int udd_atomEnergyType );
   //int GraphSearch ( mmdb::PResidue pRes, PCSBStructure &pSbaseRes,
-  //     int &nAtom, ivector &nMatchAtom, imatrix &matchAtom  );
+  //     int &nAtom, mmdb::ivector &nMatchAtom, imatrix &matchAtom  );
 
   PCSBStructure GetStructure ( const ResName resNam , LoadedPCSBStructure monlib, const bool unremediated=false);
   int LoadMonomerLibrary( char* filename, LoadedPCSBStructure &monlib);
   PCSBStructure LoadCifMonomer ( const ResName resNam , const Pmmdb::mmcif::File file, const bool unscramble=true );
-  int MatchGraphs(mmdb::PResidue pRes,int Hflag, Boolean Cflag, const pstr altLoc, 
+  int MatchGraphs(mmdb::PResidue pRes,int Hflag, bool Cflag, const pstr altLoc, 
 		  PCSBStructure pSbaseRes, int &nMatched,
-		  ivector match, int minMatchSize );
+		  mmdb::ivector match, int minMatchSize );
   //PCLibAtom LibAtom (char *);
   int LibAtom(char*);
   int LibAtom(char *, char *);

@@ -928,7 +928,7 @@ graphics_info_t::show_hide_toolbar_icon_pos(int pos, int show_hide_flag, int too
 std::vector<int>
 graphics_info_t::get_model_toolbar_icons_list() {
 
-  std::vector<int> ivector;
+  std::vector<int> mmdb::ivector;
   std::vector<coot::preferences_icon_info_t> all_items =*model_toolbar_icons;
   int icon_pos;
 
@@ -936,12 +936,12 @@ graphics_info_t::get_model_toolbar_icons_list() {
     coot::preferences_icon_info_t item = all_items[i];
     if (item.show_hide_flag == 1) {
       icon_pos = item.icon_pos;
-      ivector.push_back(icon_pos);
+      mmdb::ivector.push_back(icon_pos);
     }
 
   }
   
-  return ivector;
+  return mmdb::ivector;
 }
 
 
@@ -953,7 +953,7 @@ graphics_info_t::update_toolbar_icons(GtkTreeModel *model, int toolbar_index) {
   gint col_index;
   GtkTreeIter iter;
 
-  std::vector<int> ivector;
+  std::vector<int> mmdb::ivector;
   std::vector<coot::preferences_icon_info_t>* pall_items;
 
   if (toolbar_index == MODEL_TOOLBAR) {

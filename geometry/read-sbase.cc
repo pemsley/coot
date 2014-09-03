@@ -441,14 +441,14 @@ coot::protein_geometry::residue_from_best_match(mmdb::math::Graph &graph1, mmdb:
       r.comp_id = graph2.GetName();
       int n;
       mmdb::realtype p1, p2;
-      ivector FV1, FV2;
+      mmdb::ivector FV1, FV2;
       match.GetMatch(imatch, FV1, FV2, n, p1, p2); // n p1 p2 set
       if (0)
 	 std::cout << "   match " << imatch << " " << " set n pairs " << n << std::endl;
       int n_type_match = 0;
       for (int ipair=1; ipair<=n; ipair++) {
-	 PCVertex V1 = graph1.GetVertex ( FV1[ipair] );
-	 PCVertex V2 = graph2.GetVertex ( FV2[ipair] );
+	 Pmmdb::math::Vertex V1 = graph1.GetVertex ( FV1[ipair] );
+	 Pmmdb::math::Vertex V2 = graph2.GetVertex ( FV2[ipair] );
 	 if ((!V1) || (!V2))  {
 	    std::cout << "Can't get vertices for match " << ipair << std::endl;
 	 } else {

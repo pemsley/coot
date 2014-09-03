@@ -75,7 +75,7 @@ public :
   int nAtoms;
   int nRes;
   psvector  sbaseCompoundID;
-  ivector sbaseAtomIndex;
+  mmdb::ivector sbaseAtomIndex;
 
   // Structures for holding the selected bonds
   int nB;

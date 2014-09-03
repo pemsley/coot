@@ -1232,7 +1232,7 @@ int Connectivity2::MatchGraphs(mmdb::PResidue pRes1,const pstr altLoc1,
   
   Pmmdb::math::Graph G2,G1;
   Pmmdb::math::GraphMatch U = NULL;
-  ivector      F1,F2;
+  mmdb::ivector      F1,F2;
   mmdb::realtype     p1,p2;
   int     htype;
   int nInResidue1,nInResidue2,minMatch;

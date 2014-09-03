@@ -455,7 +455,7 @@ mmdb::realtype CMMANManager::GetAtomVDWRadius(mmdb::PAtom p_atom) {
 
 //--------------------------------------------------------------------------
 int CMMANManager::GetAtomTypeData ( int selHnd, int type,
-                                ivector &dataout, int &nat ) {
+                                mmdb::ivector &dataout, int &nat ) {
 //--------------------------------------------------------------------------
   mmdb::PPAtom atomTable;
   int i;
@@ -1577,13 +1577,13 @@ int CMMANManager::GetRestypeCode ( mmdb::PResidue pres ) {
 
 }
 
-int CMMANManager::SetCustomRestype ( const std::string &resname , const int &restype , Boolean clear ) {
+int CMMANManager::SetCustomRestype ( const std::string &resname , const int &restype , bool clear ) {
   //cout << "SetCustomRestype " << resname << " " << restype << endl;
   if (clear) customResTypes.clear();
   customResTypes[resname]=restype;
   return customResTypes.size();
 }
-int CMMANManager::SetCustomResSynonym ( const std::string &resname , const std::string &alias , Boolean clear ) {
+int CMMANManager::SetCustomResSynonym ( const std::string &resname , const std::string &alias , bool clear ) {
   if (clear) customResSynonym.clear();
   customResSynonym[resname]=alias;
   return customResSynonym.size();

@@ -54,7 +54,7 @@ lbg_info_t::search() const {
       if (! mol.atoms[iat].is_closed()) {
 	 std::string ele = mol.atoms[iat].element;
 	 std::string name = mol.atoms[iat].get_atom_id();
-	 CVertex *v = new CVertex(ele.c_str(), name.c_str());
+	 mmdb::math::Vertex *v = new mmdb::math::Vertex(ele.c_str(), name.c_str());
 	 vertex_indexing[n_atoms] = iat;
 	 graph->AddVertex(v);
 	 n_atoms++;
@@ -69,7 +69,7 @@ lbg_info_t::search() const {
 	 if (mmdb_bond_type != UNASSIGNED_INDEX) {
 	    int ind_1 = mol.bonds[ib].get_atom_1_index();  
 	    int ind_2 = mol.bonds[ib].get_atom_2_index();
- 	    CEdge *e = new CEdge(vertex_indexing[ind_1] + 1,  // 1-indexed
+ 	    mmdb::math::Edge *e = new mmdb::math::Edge(vertex_indexing[ind_1] + 1,  // 1-indexed
  				 vertex_indexing[ind_2] + 1,
  				 mmdb_bond_type);
 	    graph->AddEdge(e);

@@ -90,7 +90,7 @@ void CSecStructure::SetParams (int nv,double *value, int niv,int *ivalue) {
 
 //------------------------------------------------------------------
 int CSecStructure::GetSecondaryStructure ( int &nresout,
-		  ivector &secstrout, imatrix &hbondsout, int imodel ) {
+		  mmdb::ivector &secstrout, imatrix &hbondsout, int imodel ) {
 //------------------------------------------------------------------
   int RC;
   if (!secstr || !hbonds || nRes < 0 ) 
@@ -490,7 +490,7 @@ std::string CSecStructure::Print (int imodel) {
 }
  
 //-----------------------------------------------------------------------
-Boolean CSecStructure::IsHBond ( mmdb::PResidue PCRes1, mmdb::PResidue PCRes2 ) {
+bool CSecStructure::IsHBond ( mmdb::PResidue PCRes1, mmdb::PResidue PCRes2 ) {
 //-----------------------------------------------------------------------
   mmdb::PAtom        NAtom, OAtom , mmdb::Atom;
   mmdb::realtype	dx,dy,dz;

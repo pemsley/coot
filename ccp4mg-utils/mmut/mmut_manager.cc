@@ -586,7 +586,7 @@ mmdb::realtype CMMUTManager::TorsionAngle(mmdb::PAtom A, mmdb::PAtom B, mmdb::PA
 }
 
 //----------------------------------------------------------------------------
-Boolean CMMUTManager::isMainChain(mmdb::PAtom p_atom) {
+bool CMMUTManager::isMainChain(mmdb::PAtom p_atom) {
 //----------------------------------------------------------------------------
    const char *mainchAtoms[5] = { "CA", "N", "C", "O", "HA" };
    if ( NameComparison(p_atom->name,5,mainchAtoms) >= 0 ) {
@@ -597,7 +597,7 @@ Boolean CMMUTManager::isMainChain(mmdb::PAtom p_atom) {
   } 
 }
 //-----------------------------------------------------------------
-Boolean CMMUTManager::doAltLocMatch ( mmdb::PAtom pa1, mmdb::PAtom pa2 ) {
+bool CMMUTManager::doAltLocMatch ( mmdb::PAtom pa1, mmdb::PAtom pa2 ) {
 //-----------------------------------------------------------------
  if ( strlen (pa1->altLoc) == 0 ||
         strlen (pa2->altLoc) == 0 ||
@@ -690,7 +690,7 @@ const char* CMMUTManager::AtomLabel_chain(mmdb::PAtom p_atom) {
 }
 
 //--------------------------------------------------------------------
-Boolean CMMUTManager::ChainIDisDigit(mmdb::PChain p_ch) {
+bool CMMUTManager::ChainIDisDigit(mmdb::PChain p_ch) {
 //--------------------------------------------------------------------
    const char *digits[10] = { "0", "1", "2", "3", "4","5", "6", "7", "8", "9"  };
   if ( NameComparison(p_ch->GetChainID(),10,digits) >= 0 ) {

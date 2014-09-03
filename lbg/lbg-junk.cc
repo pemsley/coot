@@ -221,7 +221,7 @@ lbg_info_t::residue_from_best_match(mmdb::math::Graph &graph1, mmdb::math::Graph
       std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > matching_atoms; 
       int n;
       mmdb::realtype p1, p2;
-      ivector FV1, FV2;
+      mmdb::ivector FV1, FV2;
       match.GetMatch(imatch, FV1, FV2, n, p1, p2); // n p1 p2 set
       // 	    For understanding only.  
       // 	    std::cout << "Match number: " << imatch << "  " << p1*100 << "% "
@@ -229,8 +229,8 @@ lbg_info_t::residue_from_best_match(mmdb::math::Graph &graph1, mmdb::math::Graph
       std::vector<clipper::Coord_orth> coords_1_local;
       std::vector<clipper::Coord_orth> coords_2_local;
       for (int ipair=1; ipair<=n; ipair++) {
-	 PCVertex V1 = graph1.GetVertex ( FV1[ipair] );
-	 PCVertex V2 = graph2.GetVertex ( FV2[ipair] );
+	 Pmmdb::math::Vertex V1 = graph1.GetVertex ( FV1[ipair] );
+	 Pmmdb::math::Vertex V2 = graph2.GetVertex ( FV2[ipair] );
 	 if ((!V1) || (!V2))  {
 	    std::cout << "Can't get vertices for match "
 		      << ipair << std::endl;

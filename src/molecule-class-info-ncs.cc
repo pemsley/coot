@@ -573,7 +573,7 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
 	 // add residue_matches
 	 // 
 	 // int      selHndCa1,selHndCa2; // selection handles to used C-alphas
-	 // ivector  Ca1,Ca2;      // C-alpha correspondence vectors
+	 // mmdb::ivector  Ca1,Ca2;      // C-alpha correspondence vectors
 	 // Ca1[i] corresponds to a[i], where a is
 	 // selection identified by selHndCa1
 	 mmdb::PAtom *atom_selection1 = NULL;

@@ -619,21 +619,21 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    g_2->SetName ("thing 2 ");
    g_2->MakeVertexIDs();
 
-   Boolean use_bond_order = false;
+   bool use_bond_order = false;
 
-   g_1->MakeSymmetryRelief(False);
-   g_2->MakeSymmetryRelief(False);
+   g_1->MakeSymmetryRelief(false);
+   g_2->MakeSymmetryRelief(false);
    
    mmdb::math::GraphMatch match;
    int minMatch = n_atoms;
 
-   Boolean vertext_type = True;
+   bool vertext_type = true;
    std::string s;
    if (!use_hydrogens)
       s = " non-hydrogen";
    std::cout << "INFO:: Matching Graphs with minMatch " << minMatch << " with "
 	     << n_atoms << s << " atoms" << std::endl;
-   int build_result_1 = g_1->Build(False);
+   int build_result_1 = g_1->Build(false);
 
    if (build_result_1 != 0) {
       std::cout << "Bad graph build result_1" << std::endl;
@@ -652,13 +652,13 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	    for (int imatch=0; imatch<n_match; imatch++) {
 	       int nv;
 	       mmdb::realtype p1, p2;
-	       ivector FV1, FV2;
+	       mmdb::ivector FV1, FV2;
 	       match.GetMatch(imatch, FV1, FV2, nv, p1, p2); // n p1 p2 set
 	       // std::cout << "   imatch " << imatch << " " << nv << std::endl;
 	       int n_type_match = 0;
 	       for (int ipair=1; ipair<=nv; ipair++) {
-		  CVertex *V1 = g_1->GetVertex ( FV1[ipair] );
-		  CVertex *V2 = g_2->GetVertex ( FV2[ipair] );
+		  mmdb::math::Vertex *V1 = g_1->GetVertex ( FV1[ipair] );
+		  mmdb::math::Vertex *V2 = g_2->GetVertex ( FV2[ipair] );
 		  if ((!V1) || (!V2))  {
 		     std::cout << "Can't get vertices for match " << ipair << std::endl;
 		  } else {
@@ -854,7 +854,7 @@ coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const {
       std::string ele  = atom_info[iat].type_symbol;
       if (use_hydrogens || (ele != " H" && ele != "H")) { 
 	 std::string name = atom_info[iat].atom_id_4c;
-	 CVertex *v = new CVertex(ele.c_str(), name.c_str());
+	 mmdb::math::Vertex *v = new mmdb::math::Vertex(ele.c_str(), name.c_str());
 	 graph->AddVertex(v);
 	 name_map[name] = i_atom;
 	 i_atom++;
@@ -881,7 +881,7 @@ coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const {
 
 	       if (use_hydrogens || (!is_hydrogen(br.atom_id_1_4c()) &&
 				     !is_hydrogen(br.atom_id_2_4c()))) {
-		  CEdge *e = new CEdge(it_1->second + 1,  // 1-indexed
+		  mmdb::math::Edge *e = new mmdb::math::Edge(it_1->second + 1,  // 1-indexed
 				       it_2->second + 1,
 				       mmdb_bond_type);
 		  graph->AddEdge(e);

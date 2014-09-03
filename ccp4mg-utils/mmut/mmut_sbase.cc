@@ -904,7 +904,7 @@ std::string CMGSBase::AssignAtomType ( mmdb::PResidue pRes,
   const char *nucl_flags[] = { "+","r","d" }; 
   int n_nucleic_acid = 5;
 
-  ivector imatch;
+  mmdb::ivector imatch;
 
   int tolMatch;
   int Hflag;
@@ -1230,14 +1230,14 @@ std::string CMGSBase::AssignAtomType ( mmdb::PResidue pRes,
 }
 
 
-int CMGSBase::MatchGraphs(mmdb::PResidue pRes,int Hflag, Boolean Cflag, 
+int CMGSBase::MatchGraphs(mmdb::PResidue pRes,int Hflag, bool Cflag, 
                           const pstr altLoc, 
                           PCSBStructure pSbaseRes, int &nMatched,
-			  ivector match, int tolMatch ) {
+			  mmdb::ivector match, int tolMatch ) {
   
   Pmmdb::math::Graph G,G1;
   Pmmdb::math::GraphMatch U;
-  ivector      F1,F2;
+  mmdb::ivector      F1,F2;
   mmdb::realtype     p1,p2;
   int     rc,htype;
   int nInResidue,minMatch,natMatch;
@@ -1277,7 +1277,7 @@ int CMGSBase::MatchGraphs(mmdb::PResidue pRes,int Hflag, Boolean Cflag,
   std::vector<int> ia_revert;
   for (int ia=0;ia<pSbaseRes->nAtoms;ia++) {
     if (Hflag<=0 || strcmp(pSbaseRes->Atom[ia]->element," H") != 0 ) {
-      G1->AddVertex ( new CVertex(
+      G1->AddVertex ( new mmdb::math::Vertex(
                  getElementNo(pSbaseRes->Atom[ia]->element),
                  pSbaseRes->Atom[ia]->pdb_name) );
       ia_index.push_back(++nn);
@@ -1292,7 +1292,7 @@ int CMGSBase::MatchGraphs(mmdb::PResidue pRes,int Hflag, Boolean Cflag,
     ia1 = pSbaseRes->Bond[ib]->atom1 - 1;
     ia2 = pSbaseRes->Bond[ib]->atom2 - 1;
     if ( ia_index[ia1] >= 0 && ia_index[ia2] >= 0 ) {
-      G1->AddEdge ( new CEdge(ia_index[ia1],ia_index[ia2], BOND_SINGLE) );
+      G1->AddEdge ( new mmdb::math::Edge(ia_index[ia1],ia_index[ia2], BOND_SINGLE) );
       //cout << "Edge " << ia_index[ia1] << " " << ia_index[ia2] << endl;
     }
   }
