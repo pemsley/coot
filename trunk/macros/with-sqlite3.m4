@@ -6,16 +6,14 @@ AC_ARG_WITH(sqlite3-prefix,[  --with-sqlite3-prefix=PFX   Prefix where SQLITE3 i
 
     AC_MSG_CHECKING([for SQLite3])
 
-    `${PKG_CONFIG} sqlite3`
-    have_sqlite=$?
-    if test "$have_sqlite" = 1; then
-      SQLITE3_CFLAGS=""
-      SQLITE3_LIBS=""
-      coot_use_sqlite3=no
+    if ${PKG_CONFIG} sqlite3 ; then 
+       SQLITE3_CFLAGS="-DUSE_SQLITE3 $($PKG_CONFIG --cflags sqlite3)"
+       SQLITE3_LIBS="$($PKG_CONFIG --libs sqlite3)"
+       coot_use_sqlite3=yes
     else
-      SQLITE3_CFLAGS="-DUSE_SQLITE3 $($PKG_CONFIG --cflags sqlite3)"
-      SQLITE3_LIBS=$($PKG_CONFIG --libs sqlite3)
-      coot_use_sqlite3=yes
+       SQLITE3_CFLAGS=""
+       SQLITE3_LIBS=""
+       coot_use_sqlite3=no
     fi
 
    AC_MSG_RESULT($coot_use_sqlite3)
