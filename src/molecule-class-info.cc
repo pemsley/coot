@@ -4182,8 +4182,8 @@ molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_sele
    int afix_handle_this_mol = -1;
    int afix_handle_intermediate_mol = -1;
 
-   afix_handle_this_mol    = atom_sel.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
-   afix_handle_intermediate_mol = asc.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+   afix_handle_this_mol    = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
+   afix_handle_intermediate_mol = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
 
 //    std::cout << "DEBUG in insert_coords_atoms_into_residue_internal afix handles:"
 // 	     << afix_handle_this_mol << " " << afix_handle_intermediate_mol << std::endl;
@@ -5987,10 +5987,8 @@ molecule_class_info_t::make_backup() { // changes history details
 	    // Writing out a modified binary mmdb like this results in the
 	    // file being unreadable (crash in mmdb read).
 	    // 
-	    // int istat = atom_sel.mol->WriteMMDBF((char *)backup_file_name.c_str(), gz);
 	    int istat;
 	    if (! is_from_shelx_ins_flag) {
-	       // istat = atom_sel.mol->WritePDBASCII((char *)backup_file_name.c_str(), gz);
 	       istat = write_atom_selection_file(atom_sel, backup_file_name, gz);
 	       // WriteMMDBF returns 0 on success, else mmdb:Error_CantOpenFile (15)
 	       if (istat) { 
@@ -7704,8 +7702,8 @@ molecule_class_info_t::set_b_factor_bonds_scale_factor(float f) {
    if (atom_sel.mol) {
       // bleugh, casting.
       int udd_handle =
-	 atom_sel.mol->RegisterUDReal(UDR_HIERARCHY,
-				      (char *) coot::b_factor_bonds_scale_handle_name.c_str());
+	 atom_sel.mol->RegisterUDReal(mmdb::UDR_HIERARCHY,
+				      coot::b_factor_bonds_scale_handle_name.c_str());
       if (udd_handle > 0) {
 // 	 std::cout << "Adding b-factor scale " << f << " with handle "
 // 		   << udd_handle << std::endl;
@@ -7713,7 +7711,8 @@ molecule_class_info_t::set_b_factor_bonds_scale_factor(float f) {
 
 	 // test getting the uddata:
 	 int udd_b_factor_handle =
-	    atom_sel.mol->GetUDDHandle(UDR_HIERARCHY, (char *) coot::b_factor_bonds_scale_handle_name.c_str());
+	    atom_sel.mol->GetUDDHandle(mmdb::UDR_HIERARCHY,
+				       coot::b_factor_bonds_scale_handle_name.c_str());
 // 	 std::cout << "debug:: test Got b factor udd handle: "
 // 		   << udd_b_factor_handle << std::endl;
 	 if (udd_b_factor_handle > 0) {

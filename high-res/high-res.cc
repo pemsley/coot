@@ -370,7 +370,7 @@ coot::high_res::buccafilter_neighbours() {
 
       // mark each atom with a group (cluster) id.  Initially set the
       // group id to -1 (unset).
-      int uddhandle = asc.mol->RegisterUDInteger(UDR_ATOM,
+      int uddhandle = asc.mol->RegisterUDInteger(mmdb::UDR_ATOM,
 						 "buccaneer filter group");
       for (int i=0; i<asc.n_selected_atoms; i++) {
 	 int istat = asc.atom_selection[i]->PutUDData(uddhandle, -1);
@@ -506,7 +506,7 @@ coot::high_res::buccafilter() {
    
       int ich1;
       int ich2;
-      int uddhandle = asc.mol->RegisterUDInteger(UDR_ATOM, "delete me flag");
+      int uddhandle = asc.mol->RegisterUDInteger(mmdb::UDR_ATOM, "delete me flag");
       for (int iat=0; iat<asc.n_selected_atoms; iat++)
 	 asc.atom_selection[iat]->PutUDData(uddhandle, 0);
    

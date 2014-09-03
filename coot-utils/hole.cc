@@ -28,7 +28,7 @@ coot::hole::assign_vdw_radii(const coot::protein_geometry &geom) {
 
    double radius; 
    
-   radius_handle = mol->RegisterUDReal(UDR_ATOM, "atom_radius");
+   radius_handle = mol->RegisterUDReal(mmdb::UDR_ATOM, "atom_radius");
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = mol->GetModel(imod);
       mmdb::Chain *chain_p;

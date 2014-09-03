@@ -108,11 +108,11 @@ coot::ShelxIns::read_file(const std::string &filename) {
       short int encountered_atoms_flag = 0;
       short int post_atoms_flag = 0; // we have got past atoms?, old, not useful?
       short int post_END_flag = 0;   // END marks the end of atoms, I hope.
-      int udd_non_riding_atom_flag_handle = mol->RegisterUDInteger(UDR_ATOM, "non_riding_atom");
+      int udd_non_riding_atom_flag_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "non_riding_atom");
 
       // class variables
-      udd_afix_handle = mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
-      udd_riding_atom_negative_u_value_handle = mol->RegisterUDReal(UDR_ATOM, "riding_atom_negative_u");
+      udd_afix_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "shelx afix");
+      udd_riding_atom_negative_u_value_handle = mol->RegisterUDReal(mmdb::UDR_ATOM, "riding_atom_negative_u");
       
       bool have_udd_atoms = false;
       if (udd_afix_handle>=0)  {
@@ -1105,7 +1105,7 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
    std::string message;
    mmdb::Manager *mol = reshelx(mol_in);
 
-   int udd_riding_atom_negative_u_value_handle_local = mol->GetUDDHandle(UDR_ATOM, "riding_atom_negative_u");
+   int udd_riding_atom_negative_u_value_handle_local = mol->GetUDDHandle(mmdb::UDR_ATOM, "riding_atom_negative_u");
 
    float u_to_b = 8.0 * M_PI * M_PI;  // perhaps this should be a function
 
@@ -2100,10 +2100,10 @@ coot::unshelx(mmdb::Manager *shelx_mol) {
 		<< std::endl;
    } else {
       mol = new mmdb::Manager;
-      int udd_afix_handle_shelx = shelx_mol->GetUDDHandle(UDR_ATOM, "shelx afix");
-      int udd_afix_handle = mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
-      int udd_riding_atom_negative_u_value_handle_shelx = shelx_mol->GetUDDHandle(UDR_ATOM, "riding_atom_negative_u");
-      int udd_riding_atom_negative_u_value_handle_local =  mol->RegisterUDInteger(UDR_ATOM, "riding_atom_negative_u");
+      int udd_afix_handle_shelx = shelx_mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
+      int udd_afix_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "shelx afix");
+      int udd_riding_atom_negative_u_value_handle_shelx = shelx_mol->GetUDDHandle(mmdb::UDR_ATOM, "riding_atom_negative_u");
+      int udd_riding_atom_negative_u_value_handle_local =  mol->RegisterUDInteger(mmdb::UDR_ATOM, "riding_atom_negative_u");
       mmdb::Model *model_p = new mmdb::Model;
       mol->AddModel(model_p);
       mmdb::Chain *shelx_chain_p = shelx_model_p->GetChain(0);
@@ -2214,13 +2214,13 @@ coot::reshelx(mmdb::Manager *mol) {
    shelx_model_p->AddChain(shelx_chain_p);
    bool made_afix_transfer_message = false;
    
-   int udd_afix_handle = mol->GetUDDHandle(UDR_ATOM, "shelx afix");
-   int udd_riding_atom_negative_u_value_handle = mol->GetUDDHandle(UDR_ATOM, "riding_atom_negative_u");
+   int udd_afix_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
+   int udd_riding_atom_negative_u_value_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "riding_atom_negative_u");
 
    // local register for shelx_mol
    int udd_riding_atom_negative_u_value_handle_local =
-       shelx_mol->RegisterUDInteger(UDR_ATOM, "riding_atom_negative_u");
-   int udd_afix_handle_local = shelx_mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
+       shelx_mol->RegisterUDInteger(mmdb::UDR_ATOM, "riding_atom_negative_u");
+   int udd_afix_handle_local = shelx_mol->RegisterUDInteger(mmdb::UDR_ATOM, "shelx afix");
    
    // run over chains of the existing mol
    mmdb::Model *model_p = mol->GetModel(imod);

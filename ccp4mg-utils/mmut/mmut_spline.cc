@@ -1045,10 +1045,10 @@ std::vector<std::vector<Cartesian> > GetExternalCartesians(mmdb::PManager molhnd
     // Create a spline through all atoms 
     // Set up UDD for GetSplineInfo to load with index to spline data
     // for each selected residue
-    udd_chain = molhnd->GetUDDHandle ( UDR_ATOM,"tmp_atom_int" );
-    if (udd_chain<=0) udd_chain = molhnd->RegisterUDInteger(UDR_ATOM,"tmp_atom_int" );
-    udd_CA = molhnd->GetUDDHandle ( UDR_ATOM,"tmp_atom_int1" );
-    if (udd_CA<=0) udd_CA = molhnd->RegisterUDInteger(UDR_ATOM,"tmp_atom_int1" );
+    udd_chain = molhnd->GetUDDHandle ( mmdb::UDR_ATOM,"tmp_atom_int" );
+    if (udd_chain<=0) udd_chain = molhnd->RegisterUDInteger(mmdb::UDR_ATOM,"tmp_atom_int" );
+    udd_CA = molhnd->GetUDDHandle ( mmdb::UDR_ATOM,"tmp_atom_int1" );
+    if (udd_CA<=0) udd_CA = molhnd->RegisterUDInteger(mmdb::UDR_ATOM,"tmp_atom_int1" );
     for (int i=0;i<nAtoms;i++)atomTable[i]->PutUDData(udd_CA,-1);
 
     SplineInfo splineinfo;

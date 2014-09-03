@@ -414,9 +414,9 @@ fix_wrapped_names(atom_selection_container_t asc) {
 
    int n_changed = 0;
    int uddHnd_old =
-      asc.mol->RegisterUDString(UDR_ATOM , "initial hydrogen name");
+      asc.mol->RegisterUDString(mmdb::UDR_ATOM , "initial hydrogen name");
    int uddHnd_new =
-      asc.mol->RegisterUDString(UDR_ATOM , "new hydrogen name");
+      asc.mol->RegisterUDString(mmdb::UDR_ATOM , "new hydrogen name");
 //    std::cout << "udd_old: create time " << uddHnd_old << std::endl;
 //    std::cout << "udd_new: create time " << uddHnd_new << std::endl;
 
@@ -626,8 +626,8 @@ write_atom_selection_file(atom_selection_container_t asc,
       // when we read in the pdb file and then put them put them back
       // to how they currently are!
 
-      int udd_old = mol->GetUDDHandle(UDR_ATOM, "initial hydrogen name");
-      int udd_new = mol->GetUDDHandle(UDR_ATOM, "new hydrogen name");
+      int udd_old = mol->GetUDDHandle(mmdb::UDR_ATOM, "initial hydrogen name");
+      int udd_new = mol->GetUDDHandle(mmdb::UDR_ATOM, "new hydrogen name");
 //       std::cout << "udd_old: " << udd_old << std::endl;
 //       std::cout << "udd_new: " << udd_new << std::endl;
       char *str = 0; 

@@ -4328,7 +4328,7 @@ molecule_class_info_t::split_residue(int atom_index, int alt_conf_split_type) {
 
       int udd_afix_handle = -1; // don't use value
       if (is_from_shelx_ins_flag)
-	 udd_afix_handle = atom_sel.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+	 udd_afix_handle = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
 
       std::pair<mmdb::Residue *, atom_selection_container_t> p =
 	 coot::deep_copy_this_residue_and_make_asc(atom_sel.mol, res, altconf, 1,
@@ -4348,7 +4348,7 @@ molecule_class_info_t::split_residue(int atom_index, int alt_conf_split_type) {
 // 	 std::cout << "residue mol " << residue_mol.atom_selection[i] << std::endl;
 //       } 
 
-//       int udd_afix_handle_inter = residue_mol.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+//       int udd_afix_handle_inter = residue_mol.mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
 //       std::cout << "DEBUG:: split_residue got udd_afix_handle_inter : "
 // 		<< udd_afix_handle_inter << std::endl;
 //       for (int i=0; i<residue_mol.n_selected_atoms; i++) {
@@ -4576,7 +4576,7 @@ molecule_class_info_t::split_residue_internal(mmdb::Residue *residue, const std:
       asc = make_asc(mov_mol);
    } else {
       asc = residue_mol;
-      int udd_afix_handle = atom_sel.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+      int udd_afix_handle = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
 //       std::cout << "DEBUG:: split_residue_internal got udd_afix_handle : "
 // 		<< udd_afix_handle << std::endl;
       for (int i=0; i<asc.n_selected_atoms; i++) {
@@ -4679,7 +4679,7 @@ molecule_class_info_t::split_residue_then_rotamer(mmdb::Residue *residue, const 
    if (use_residue_mol_flag) {
       //       std::cout << "DEBUG:: in split_residue_then_rotamer shelxl path " << std::endl;
       mov_mol_asc = residue_mol_asc;
-      int udd_afix_handle = residue_mol_asc.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+      int udd_afix_handle = residue_mol_asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
       for (int i=0; i<residue_mol_asc.n_selected_atoms; i++) {
 	 int afix_number = -1;
 	 if (residue_mol_asc.atom_selection[i]->GetUDData(udd_afix_handle, afix_number) == UDDATA_Ok)
@@ -5985,7 +5985,7 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
       istat = -1;
    } else {
 
-      int udd_afix_handle = p.mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+      int udd_afix_handle = p.mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
       // std::cout << "DEBUG:: in  get_atom_selection udd_afix_handle is "
       // << udd_afix_handle << " and srf.udd_afix_handle was "
       // << udd_afix_handle << std::endl;

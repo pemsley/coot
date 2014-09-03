@@ -2926,11 +2926,11 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
    // So let's try setting whole_res_flag to 1 for flanking residues.
 
    mmdb::Residue *r;
-   int atom_index_handle = residues_mol->RegisterUDInteger(UDR_ATOM, "mol's atom index");
-   int afix_handle_orig = orig_mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+   int atom_index_handle = residues_mol->RegisterUDInteger(mmdb::UDR_ATOM, "mol's atom index");
+   int afix_handle_orig = orig_mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
    int afix_handle_new_mol = -1;
    if (afix_handle_orig >= 0)
-      afix_handle_new_mol = residues_mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
+      afix_handle_new_mol = residues_mol->RegisterUDInteger(mmdb::UDR_ATOM, "shelx afix");
 
    for (int ires=start_offset; ires<(nSelResidues + end_offset); ires++) { 
 
@@ -2961,7 +2961,7 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
    residues_mol->FinishStructEdit();
 
    if (afix_handle_orig >= 0) { 
-      afix_handle_new_mol = residues_mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+      afix_handle_new_mol = residues_mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
       int imod = 1;
       
       mmdb::Model *model_p = residues_mol->GetModel(imod);
@@ -2991,7 +2991,7 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
       }
    }
 
-//    int udd_afix_handle_inter = residues_mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+//    int udd_afix_handle_inter = residues_mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
 //    std::cout << "DEBUG:: about to return from create_mmdbmanager_from_res_selection, "
 // 	     << "udd_afix_handle_inter : " << udd_afix_handle_inter << std::endl;
 
@@ -3157,11 +3157,11 @@ std::pair<mmdb::Manager *, int>
 coot::util::create_mmdbmanager_from_mmdbmanager(mmdb::Manager *mol_in) { 
 
    mmdb::Manager *residues_mol = new mmdb::Manager;
-   int atom_index_handle = residues_mol->RegisterUDInteger(UDR_ATOM, "mol's atom index");
-   int afix_handle_orig = mol_in->GetUDDHandle(UDR_ATOM, "shelx afix");
+   int atom_index_handle = residues_mol->RegisterUDInteger(mmdb::UDR_ATOM, "mol's atom index");
+   int afix_handle_orig = mol_in->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
    int afix_handle_new_mol = -1;
    if (afix_handle_orig >= 0)
-      afix_handle_new_mol = residues_mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
+      afix_handle_new_mol = residues_mol->RegisterUDInteger(mmdb::UDR_ATOM, "shelx afix");
 
    std::string altconf = ""; // dummy
    short int whole_res_flag = 1;
@@ -3486,11 +3486,11 @@ coot::util::deep_copy_this_residue_with_atom_index_and_afix_transfer(mmdb::Manag
    mmdb::Atom *atom_p;
 
    // We are not passed the handle, we have to look it up.
-   int mol_atom_index_handle = std_mol->GetUDDHandle(UDR_ATOM, "atom index");
+   int mol_atom_index_handle = std_mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
    int mol_afix_handle = -1;
    int afix_number;
    if (afix_udd_handle >= 0) {
-      mol_afix_handle = std_mol->GetUDDHandle(UDR_ATOM, "shelx afix");
+      mol_afix_handle = std_mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
    }
       
    for(int iat=0; iat<nResidueAtoms; iat++) {

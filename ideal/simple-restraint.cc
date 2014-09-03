@@ -351,7 +351,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
    // 20131213-PE: I dont see the point of udd_bond_angle.
    // 
    if (mol) { 
-      udd_bond_angle = mol->RegisterUDInteger (UDR_ATOM, "bond or angle");
+      udd_bond_angle = mol->RegisterUDInteger (mmdb::UDR_ATOM, "bond or angle");
       if (udd_bond_angle < 0) { 
 	 std::cout << "ERROR:: can't make udd_handle in init_from_mol\n";
       } else { 
@@ -365,7 +365,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
    // that get_asc_index returns)
    // 
    if (mol) { 
-      udd_atom_index_handle = mol->RegisterUDInteger ( UDR_ATOM, "atom_array_index");
+      udd_atom_index_handle = mol->RegisterUDInteger ( mmdb::UDR_ATOM, "atom_array_index");
       if (udd_atom_index_handle < 0) { 
 	 std::cout << "ERROR:: can't make udd_handle in init_from_mol\n";
       } else { 
