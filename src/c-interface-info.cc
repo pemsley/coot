@@ -292,17 +292,17 @@ void output_residue_info_dialog(int imol, int atom_index) {
 
 	       graphics_info_t g;
 	       output_residue_info_as_text(atom_index, imol);
-	       PCAtom picked_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
+	       Pmmdb::Atom picked_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
 
 	       std::string residue_name = picked_atom->GetResName();
    
-	       PPCAtom atoms;
+	       mmdb::PPAtom atoms;
 	       int n_atoms;
 
 	       picked_atom->residue->GetAtomTable(atoms,n_atoms);
 	       GtkWidget *widget = wrapped_create_residue_info_dialog();
 
-	       CResidue *residue = picked_atom->residue; 
+	       mmdb::Residue *residue = picked_atom->residue; 
 	       coot::residue_spec_t *res_spec_p =
 		  new coot::residue_spec_t(residue->GetChainID(),
 					   residue->GetSeqNum(),
@@ -385,12 +385,12 @@ residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_c
    
    if (is_valid_model_molecule(imol)) {
       int atom_index = -1;
-      CResidue *res = graphics_info_t::molecules[imol].residue_from_external(resno, ins_code, chain_id);
-      PPCAtom residue_atoms;
+      mmdb::Residue *res = graphics_info_t::molecules[imol].residue_from_external(resno, ins_code, chain_id);
+      mmdb::PPAtom residue_atoms;
       int n_residue_atoms;
       res->GetAtomTable(residue_atoms, n_residue_atoms);
       if (n_residue_atoms > 0) {
-	 CAtom *at = residue_atoms[0];
+	 mmdb::Atom *at = residue_atoms[0];
 	 int handle = graphics_info_t::molecules[imol].atom_sel.UDDAtomIndexHandle;
 	 int ierr = at->GetUDData(handle, atom_index);
 	 if (ierr == UDDATA_Ok) { 
@@ -430,7 +430,7 @@ void output_residue_info_as_text(int atom_index, int imol) {
    // (heh - it is).
    // 
    graphics_info_t g;
-   PCAtom picked_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
+   Pmmdb::Atom picked_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
    
    g.flash_selection(imol, 
 		     picked_atom->residue->seqNum,
@@ -440,7 +440,7 @@ void output_residue_info_as_text(int atom_index, int imol) {
 		     picked_atom->altLoc,
 		     picked_atom->residue->GetChainID());
 
-   PPCAtom atoms;
+   mmdb::PPAtom atoms;
    int n_atoms;
 
    picked_atom->residue->GetAtomTable(atoms,n_atoms);
@@ -509,7 +509,7 @@ output_atom_info_as_text(int imol, const char *chain_id, int resno,
 							std::string(atname),
 							std::string(altconf));
       
-      CAtom *atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[index];
+      mmdb::Atom *atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[index];
       std::cout << "(" << imol << ") " 
 		<< atom->name << "/"
 		<< atom->GetModelNum()
@@ -564,7 +564,7 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol) {
   std::string ai;
   ai = "";
   if (is_valid_model_molecule(imol)) {      
-    CAtom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
+    mmdb::Atom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
     std::string alt_conf_bit("");
     if (strncmp(at->altLoc, "", 1))
       alt_conf_bit=std::string(",") + std::string(at->altLoc);
@@ -608,7 +608,7 @@ atom_info_as_text_for_statusbar(int atom_index, int imol,
   std::string ai;
   ai = "";
   if (is_valid_model_molecule(imol)) {      
-    CAtom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
+    mmdb::Atom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
     std::string alt_conf_bit("");
     if (strncmp(at->altLoc, "", 1))
       alt_conf_bit=std::string(",") + std::string(at->altLoc);
@@ -666,7 +666,7 @@ SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 								       std::string(atname),
 								       std::string(altconf));
       if (index > -1) { 
-	 CAtom *atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[index];
+	 mmdb::Atom *atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[index];
 
 	 r = SCM_EOL;
 
@@ -712,7 +712,7 @@ PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
                                                                        std::string(atname),
                                                                        std::string(altconf));
       if (index > -1) { 
-         CAtom *atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[index];
+         mmdb::Atom *atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[index];
 
 	 r = PyList_New(6);
 	 PyList_SetItem(r, 0, PyFloat_FromDouble(atom->occupancy));
@@ -920,7 +920,7 @@ SCM residues_near_position_scm(int imol, SCM pt_in_scm, float radius) {
 	 clipper::Coord_orth pt(x,y,z);
 	 
 	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-	 std::vector<CResidue *> v = coot::residues_near_position(pt, mol, radius);
+	 std::vector<mmdb::Residue *> v = coot::residues_near_position(pt, mol, radius);
 	 for (unsigned int i=0; i<v.size(); i++) {
 	    SCM r_scm = scm_residue(coot::residue_spec_t(v[i]));
 	    r = scm_cons(r_scm, r);
@@ -951,7 +951,7 @@ PyObject *residues_near_position_py(int imol, PyObject *pt_in_py, float radius) 
 	clipper::Coord_orth pt(x,y,z);
 	 
 	CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-	std::vector<CResidue *> v = coot::residues_near_position(pt, mol, radius);
+	std::vector<mmdb::Residue *> v = coot::residues_near_position(pt, mol, radius);
 	for (unsigned int i=0; i<v.size(); i++) {
 	  PyObject *r_py = py_residue(coot::residue_spec_t(v[i]));
 	  PyList_Append(r, r_py);
@@ -1096,8 +1096,8 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int imod = 1;
       
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
@@ -1105,8 +1105,8 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 	 std::string chain_id_mol(chain_p->GetChainID());
 	 if (chain_id_mol == std::string(chain_id)) { 
 	    int nres = chain_p->GetNumberOfResidues();
-	    PCResidue residue_p;
-	    CAtom *at;
+	    Pmmdb::Residue residue_p;
+	    mmdb::Atom *at;
 
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
@@ -1171,8 +1171,8 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int imod = 1;
       
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
@@ -1180,8 +1180,8 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
          std::string chain_id_mol(chain_p->GetChainID());
          if (chain_id_mol == std::string(chain_id)) { 
             int nres = chain_p->GetNumberOfResidues();
-            PCResidue residue_p;
-            CAtom *at;
+            Pmmdb::Residue residue_p;
+            mmdb::Atom *at;
 
             // why use this bizarre contrivance to get a null list for
             // starting? I must be missing something.
@@ -1276,8 +1276,8 @@ SCM residue_name(int imol, const char* chain_id, int resno, const char *ins_code
       int imod = 1;
       bool have_resname_flag = 0;
       
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
@@ -1285,7 +1285,7 @@ SCM residue_name(int imol, const char* chain_id, int resno, const char *ins_code
 	 std::string chain_id_mol(chain_p->GetChainID());
 	 if (chain_id_mol == std::string(chain_id)) { 
 	    int nres = chain_p->GetNumberOfResidues();
-	    PCResidue residue_p;
+	    Pmmdb::Residue residue_p;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       if (residue_p->GetSeqNum() == resno) { 
@@ -1315,8 +1315,8 @@ PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char 
       int imod = 1;
       bool have_resname_flag = 0;
       
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
@@ -1324,7 +1324,7 @@ PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char 
          std::string chain_id_mol(chain_p->GetChainID());
          if (chain_id_mol == std::string(chain_id)) { 
             int nres = chain_p->GetNumberOfResidues();
-            PCResidue residue_p;
+            Pmmdb::Residue residue_p;
             for (int ires=0; ires<nres; ires++) { 
                residue_p = chain_p->GetResidue(ires);
                if (residue_p->GetSeqNum() == resno) { 
@@ -1410,7 +1410,7 @@ SCM goto_next_atom_maybe(const char *chain_id, int resno, const char *ins_code,
 								atom_name, ins_code, rc);
 
       if (atom_index != -1) {
-	 CAtom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
+	 mmdb::Atom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
 
 	 std::string next_chain_id  = next_atom->GetChainID();
 	 std::string next_atom_name = next_atom->name;
@@ -1443,7 +1443,7 @@ SCM goto_prev_atom_maybe(const char *chain_id, int resno, const char *ins_code,
 								    atom_name, ins_code, rc);
 
       if (atom_index != -1) {
-	 CAtom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
+	 mmdb::Atom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
 
 	 std::string next_chain_id  = next_atom->GetChainID();
 	 std::string next_atom_name = next_atom->name;
@@ -1479,7 +1479,7 @@ PyObject *goto_next_atom_maybe_py(const char *chain_id, int resno, const char *i
 	 graphics_info_t::molecules[imol].intelligent_next_atom(chain_id, resno,
 								    atom_name, ins_code, rc);
       if (atom_index != -1) {
-	 CAtom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
+	 mmdb::Atom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
 
 	 std::string next_chain_id  = next_atom->GetChainID();
 	 std::string next_atom_name = next_atom->name;
@@ -1515,7 +1515,7 @@ PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *i
 								    atom_name, ins_code, rc);
 
       if (atom_index != -1) {
-	 CAtom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
+	 mmdb::Atom *next_atom = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
 
 	 std::string next_chain_id  = next_atom->GetChainID();
 	 std::string next_atom_name = next_atom->name;
@@ -2320,8 +2320,8 @@ add_atom_geometry_distance_scm(int imol_1, SCM atom_spec_1, int imol_2, SCM atom
 	 graphics_info_t g;
 	 coot::atom_spec_t spec_1 = atom_spec_from_scm_expression(atom_spec_1);
 	 coot::atom_spec_t spec_2 = atom_spec_from_scm_expression(atom_spec_2);
-	 CAtom *at_1 = g.molecules[imol_1].get_atom(spec_1);
-	 CAtom *at_2 = g.molecules[imol_2].get_atom(spec_2);
+	 mmdb::Atom *at_1 = g.molecules[imol_1].get_atom(spec_1);
+	 mmdb::Atom *at_2 = g.molecules[imol_2].get_atom(spec_2);
 	 if (! at_1) {
 	    std::cout << "WARNING:: atom not found from spec " << spec_1 << std::endl;
 	 } else { 
@@ -2351,8 +2351,8 @@ double add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol
 	 graphics_info_t g;
 	 coot::atom_spec_t spec_1 = atom_spec_from_python_expression(atom_spec_1);
 	 coot::atom_spec_t spec_2 = atom_spec_from_python_expression(atom_spec_2);
-	 CAtom *at_1 = g.molecules[imol_1].get_atom(spec_1);
-	 CAtom *at_2 = g.molecules[imol_2].get_atom(spec_2);
+	 mmdb::Atom *at_1 = g.molecules[imol_1].get_atom(spec_1);
+	 mmdb::Atom *at_2 = g.molecules[imol_2].get_atom(spec_2);
 	 if (! at_1) {
 	    std::cout << "WARNING:: atom not found from spec " << spec_1 << std::endl;
 	 } else { 
@@ -4856,7 +4856,7 @@ SCM link_info_scm(int imol) {
 
 	 for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
 
-	    CModel *model_p = mol->GetModel(imod);
+	    mmdb::Model *model_p = mol->GetModel(imod);
 	    int n_links = model_p->GetNumberOfLinks();
 	    if (n_links > 0) { 
 	       for (int i_link=1; i_link<=n_links; i_link++) {
@@ -4889,7 +4889,7 @@ PyObject *link_info_py(int imol) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       if (mol) {
 	 for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-	    CModel *model_p = mol->GetModel(imod);
+	    mmdb::Model *model_p = mol->GetModel(imod);
 	    int n_links = model_p->GetNumberOfLinks();
 	    if (n_links > 0) { 
 	       for (int i_link=1; i_link<=n_links; i_link++) {

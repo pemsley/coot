@@ -28,7 +28,7 @@ class CXXSphereElement;
 
 class CXXNewHood{
 private:
-	PCAtom theAtomI;
+	Pmmdb::Atom theAtomI;
 	const CXXBall *theBall;
 	double theRadius;
 	double theProbeRadius;
@@ -37,13 +37,13 @@ private:
 	void init();
 public:
 	CXXNewHood();
-	CXXNewHood(PCAtom centralAtom, double radiusOfAtom1, double probeRadius);
+	CXXNewHood(Pmmdb::Atom centralAtom, double radiusOfAtom1, double probeRadius);
 	CXXNewHood(const CXXCircleNode &aNode, double probeRadius);
 	
-	int addAtom(PCAtom candidate, double radiusOfAtom2);
+	int addAtom(Pmmdb::Atom candidate, double radiusOfAtom2);
 	int findSegments();
 	
-	void initWith(PCAtom atomI, double radiusOfAtom1, double probeRadius) {
+	void initWith(Pmmdb::Atom atomI, double radiusOfAtom1, double probeRadius) {
 		theAtomI= atomI;
 		theRadius = radiusOfAtom1 + probeRadius;
 		theProbeRadius = probeRadius;
@@ -52,7 +52,7 @@ public:
     void initWith(const CXXCircleNode &aNode, double probeRadius);
 	void initWith(const CXXBall *aBall);
     
-	const PCAtom getAtomI() const;
+	const Pmmdb::Atom getAtomI() const;
 	double getRadius() const;
 	double getProbeRadius() const;
 	int getNCircles() const;

@@ -34,16 +34,16 @@ coot::dipole::dipole() {
 // Thow an exception on failure to make a dipole
 // 
 coot::dipole::dipole(const coot::dictionary_residue_restraints_t &rest,
-		     CResidue *residue_p) {
+		     mmdb::Residue *residue_p) {
    
    
-   std::vector<std::pair<coot::dictionary_residue_restraints_t, CResidue *> > dict_res_pairs;
-   std::pair<coot::dictionary_residue_restraints_t, CResidue *> p(rest, residue_p);
+   std::vector<std::pair<coot::dictionary_residue_restraints_t, mmdb::Residue *> > dict_res_pairs;
+   std::pair<coot::dictionary_residue_restraints_t, mmdb::Residue *> p(rest, residue_p);
    dict_res_pairs.push_back(p);
    init(dict_res_pairs);
 }
 
-coot::dipole::dipole(std::vector<std::pair<coot::dictionary_residue_restraints_t, CResidue *> > dict_res_pairs) {
+coot::dipole::dipole(std::vector<std::pair<coot::dictionary_residue_restraints_t, mmdb::Residue *> > dict_res_pairs) {
    init(dict_res_pairs);
 }
 
@@ -51,7 +51,7 @@ coot::dipole::dipole(std::vector<std::pair<coot::dictionary_residue_restraints_t
 // fill_charged_atoms to work for the partially charged surface.
 // 
 void
-coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, CResidue *> > dict_res_pairs) {
+coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, mmdb::Residue *> > dict_res_pairs) {
 
    dipole_is_good_flag = 0;
 
@@ -62,10 +62,10 @@ coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, 
    int n_points = 0;
 
    for (unsigned int ires=0; ires<dict_res_pairs.size(); ires++) {
-      CResidue *residue_p = dict_res_pairs[ires].second;
+      mmdb::Residue *residue_p = dict_res_pairs[ires].second;
       coot::dictionary_residue_restraints_t rest = dict_res_pairs[ires].first;
 
-      PPCAtom SelAtoms;
+      mmdb::PPAtom SelAtoms;
       int nSelAtoms;
       residue_p->GetAtomTable(SelAtoms, nSelAtoms);
 
@@ -85,7 +85,7 @@ coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, 
 	 mess += "s";
       mess += " ";
       for (unsigned int i=0; i<dict_res_pairs.size(); i++) {
-         CResidue *residue_p = dict_res_pairs[i].second;
+         mmdb::Residue *residue_p = dict_res_pairs[i].second;
          mess += residue_p->GetChainID();
          mess += " ";
          mess += residue_p->GetSeqNum();
@@ -102,7 +102,7 @@ coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, 
 					sum_y*multiplier,
 					sum_z*multiplier);
    
-   std::vector<std::pair<CAtom *, float> > charged_ats = charged_atoms(dict_res_pairs);
+   std::vector<std::pair<mmdb::Atom *, float> > charged_ats = charged_atoms(dict_res_pairs);
    std::vector<std::pair<float, clipper::Coord_orth> > charged_points(charged_ats.size());
    for (unsigned int i=0; i<charged_ats.size(); i++) {
       clipper::Coord_orth p(charged_ats[i].first->x,
@@ -128,7 +128,7 @@ coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, 
 	 mess += "s";
       mess += " ";
       for (unsigned int i=0; i<dict_res_pairs.size(); i++) {
-         CResidue *residue_p = dict_res_pairs[i].second;
+         mmdb::Residue *residue_p = dict_res_pairs[i].second;
          mess += residue_p->GetChainID();
          mess += " ";
          mess += coot::util::int_to_string(residue_p->GetSeqNum());
@@ -143,33 +143,33 @@ coot::dipole::init(std::vector<std::pair<coot::dictionary_residue_restraints_t, 
 } 
 
 void
-coot::dipole::fill_charged_atoms(CResidue *residue_p,
+coot::dipole::fill_charged_atoms(mmdb::Residue *residue_p,
 				 const coot::dictionary_residue_restraints_t &rest) {
 
-   std::vector<std::pair<CAtom *, float> > v = charged_atoms(residue_p, rest);
+   std::vector<std::pair<mmdb::Atom *, float> > v = charged_atoms(residue_p, rest);
    for (unsigned int i=0; i<v.size(); i++) {
       v[i].first->charge = v[i].second;
    }
 }
 
-std::vector<std::pair<CAtom *, float> >
-coot::dipole::charged_atoms(CResidue *residue_p,
+std::vector<std::pair<mmdb::Atom *, float> >
+coot::dipole::charged_atoms(mmdb::Residue *residue_p,
 			    const coot::dictionary_residue_restraints_t &rest) const {
 
-   std::vector<std::pair<CAtom *, float> > charged_ats;
-   PPCAtom SelAtoms;
+   std::vector<std::pair<mmdb::Atom *, float> > charged_ats;
+   mmdb::PPAtom SelAtoms;
    int nSelAtoms;
    residue_p->GetAtomTable(SelAtoms, nSelAtoms);
    int n_dict_atom = rest.atom_info.size();
 	 	 
    for (int i_res_at=0; i_res_at<nSelAtoms; i_res_at++) {
       bool found_match = 0;
-      CAtom *at = SelAtoms[i_res_at];
+      mmdb::Atom *at = SelAtoms[i_res_at];
       std::string atom_name = at->name;
       for (int j=0; j<n_dict_atom; j++) {
 	 if (rest.atom_info[j].partial_charge.first) {
 	    if (atom_name == rest.atom_info[j].atom_id_4c) {
-	       std::pair<CAtom *, float> p(at, rest.atom_info[j].partial_charge.second);
+	       std::pair<mmdb::Atom *, float> p(at, rest.atom_info[j].partial_charge.second);
 	       charged_ats.push_back(p);
 	       break; 
 	    }
@@ -184,15 +184,15 @@ coot::dipole::charged_atoms(CResidue *residue_p,
 
 
 
-std::vector<std::pair<CAtom *, float> >
-coot::dipole::charged_atoms(std::vector<std::pair<coot::dictionary_residue_restraints_t, CResidue *> > dict_res_pairs) const {
+std::vector<std::pair<mmdb::Atom *, float> >
+coot::dipole::charged_atoms(std::vector<std::pair<coot::dictionary_residue_restraints_t, mmdb::Residue *> > dict_res_pairs) const {
 
-   std::vector<std::pair<CAtom *, float> > charged_ats;
+   std::vector<std::pair<mmdb::Atom *, float> > charged_ats;
 
    for (unsigned int i=0; i<dict_res_pairs.size(); i++) {
-      CResidue *residue_p = dict_res_pairs[i].second;
+      mmdb::Residue *residue_p = dict_res_pairs[i].second;
       coot::dictionary_residue_restraints_t rest = dict_res_pairs[i].first;
-      std::vector<std::pair<CAtom *, float> > residue_charged_ats = charged_atoms(residue_p, rest);
+      std::vector<std::pair<mmdb::Atom *, float> > residue_charged_ats = charged_atoms(residue_p, rest);
       for (unsigned int j=0; j<residue_charged_ats.size(); j++) {
          charged_ats.push_back(residue_charged_ats[j]);
       }

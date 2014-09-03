@@ -57,17 +57,17 @@ public:
 	static int ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &ballPntrs, 
                             std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &contextBallPntrs, 
 							std::map<const CXXBall*, std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > > &contactMap);
-	virtual PCAtom getAtomI() const = 0;
+	virtual Pmmdb::Atom getAtomI() const = 0;
 };
 
 class CXXAtomBall: public CXXBall {
 private:
-	PCAtom theAtom;
+	Pmmdb::Atom theAtom;
 	double theRadius;
 	static double mostRecentDelta;
 	static CXXSphereElement unitSphereAtOrigin;
 public:
-	CXXAtomBall(PCAtom theAtom_in, const double &radius_in) : theAtom (theAtom_in), theRadius(radius_in){
+	CXXAtomBall(Pmmdb::Atom theAtom_in, const double &radius_in) : theAtom (theAtom_in), theRadius(radius_in){
 		theCoord=CXXCoord(theAtom->x, theAtom->y, theAtom->z);
 	};
 	virtual const double &getRadius() const{
@@ -86,16 +86,16 @@ public:
 		theSphere.translateBy (theCoord);
 		theSphere.setAtom(theAtom);
 	};	
-    virtual PCAtom getAtomI() const{
+    virtual Pmmdb::Atom getAtomI() const{
         return theAtom;
     };
 };
 
 class CXXReentrantProbeBall : public CXXBall {
 private:
-	PCAtom theAtomI;
-	PCAtom theAtomJ;
-	PCAtom theAtomK;
+	Pmmdb::Atom theAtomI;
+	Pmmdb::Atom theAtomJ;
+	Pmmdb::Atom theAtomK;
 	bool includeAtoms[3];
 	double theRadius;
 	static CXX::CXXAlloc<CXXReentrantProbeBall> allocator;
@@ -118,20 +118,20 @@ public:
                            delta, theRadius, includeAtoms);
 		
 	};
-    virtual CAtom *getAtomI() const{
+    virtual mmdb::Atom *getAtomI() const{
         return theAtomI;
     };
-    CAtom *getAtomJ() const {
+    mmdb::Atom *getAtomJ() const {
         return theAtomJ;
     };
-    CAtom *getAtomK() const {
+    mmdb::Atom *getAtomK() const {
         return theAtomK;
     };
     static bool equalsPntr(const CXXBall* &ball1, const CXXBall* &ball2){
         const CXXReentrantProbeBall &node1(*static_cast<const CXXReentrantProbeBall *>(ball1));
         const CXXReentrantProbeBall &node2(*static_cast<const CXXReentrantProbeBall *>(ball2));
-        std::vector<CAtom *>ijkCentral(3);
-        std::vector<CAtom *>ijkOther(3);
+        std::vector<mmdb::Atom *>ijkCentral(3);
+        std::vector<mmdb::Atom *>ijkOther(3);
         ijkCentral[0] = node1.getAtomI();
         ijkCentral[1] = node1.getAtomJ();
         ijkCentral[2] = node1.getAtomK();

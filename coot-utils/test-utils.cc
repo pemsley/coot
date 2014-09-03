@@ -53,15 +53,15 @@ void
 coot::SortableChainsCMMDBManager::SortChains() {
 
    for (int imod=1; imod<=GetNumberOfModels(); imod++) { 
-      CModel *model_p = GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = GetModel(imod);
+      mmdb::Chain *chain_p;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
-      std::vector<std::pair<CChain *, std::string> > chain_ids(nchains);
+      std::vector<std::pair<mmdb::Chain *, std::string> > chain_ids(nchains);
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 std::string chain_id = chain_p->GetChainID();
-	 chain_ids[ichain] = std::pair<CChain *, std::string> (chain_p, chain_id);
+	 chain_ids[ichain] = std::pair<mmdb::Chain *, std::string> (chain_p, chain_id);
       }
       // now chain_ids is full
       std::sort(chain_ids.begin(), chain_ids.end(), sort_chains_util);
@@ -274,7 +274,7 @@ int test_glyco_tree() {
    coot::residue_spec_t spec("", 1, "");
    
    mol->ReadCoorFile(file_name.c_str());
-   CResidue *r = coot::util::get_residue(spec, mol);
+   mmdb::Residue *r = coot::util::get_residue(spec, mol);
    if (! r) {
       std::cout << "No residue " << spec << std::endl;
    } else {
@@ -296,7 +296,7 @@ int test_helix_analysis() {
    // coot::residue_spec_t spec("B", 201, "");
    
    mol->ReadCoorFile(file_name.c_str());
-   CResidue *r = coot::util::get_residue(spec, mol);
+   mmdb::Residue *r = coot::util::get_residue(spec, mol);
    if (! r) {
       std::cout << "No residue " << spec << std::endl;
    } else {

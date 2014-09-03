@@ -16,7 +16,7 @@
 using namespace std;
 class CXXSphereNode;
 class CXXSphereElement;
-class CAtom;
+class mmdb::Atom;
 class CXXCircle;
  
 class CXXSphereTriangleEdge{

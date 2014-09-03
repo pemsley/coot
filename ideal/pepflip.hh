@@ -71,7 +71,7 @@ namespace coot {
    // 
    std::vector<clipper::Coord_orth> 
    flip_internal(const std::vector<clipper::Coord_orth> &ca,
-		 const std::vector<CAtom *> &atoms); 
+		 const std::vector<mmdb::Atom *> &atoms); 
    
 
 }

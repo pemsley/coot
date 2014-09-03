@@ -31,7 +31,7 @@
 // Just because I am lazy, setup wth the first atom names that match -
 // don't consider alt confs.
 // 
-coot::atom_quad::atom_quad(CResidue *first, CResidue *second, const std::string &link) {
+coot::atom_quad::atom_quad(mmdb::Residue *first, mmdb::Residue *second, const std::string &link) {
 
    // Fixup needed for PDBv3.
    //
@@ -123,7 +123,7 @@ coot::atom_quad::filled_p() const { // ! were there any nulls?
 // a bit strange :-)
 // 
 coot::atom_quad
-coot::atom_quad::setup_chiral_quad(CResidue *residue_with_O, CResidue *residue_with_chiral_centre,
+coot::atom_quad::setup_chiral_quad(mmdb::Residue *residue_with_O, mmdb::Residue *residue_with_chiral_centre,
 				   const std::string &O_name,
 				   const std::vector<std::string> &chiral_atom_names) const {
 
@@ -135,7 +135,7 @@ coot::atom_quad::setup_chiral_quad(CResidue *residue_with_O, CResidue *residue_w
    std::string atom_4_name = chiral_atom_names[2]; // chiral atom
 
    if (O_name != "") { 
-      PPCAtom residue_atoms = NULL;
+      mmdb::PPAtom residue_atoms = NULL;
       int n_residue_atoms;
       residue_with_O->GetAtomTable(residue_atoms, n_residue_atoms);
       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
@@ -152,7 +152,7 @@ coot::atom_quad::setup_chiral_quad(CResidue *residue_with_O, CResidue *residue_w
       residue_atoms = NULL;
       residue_with_chiral_centre->GetAtomTable(residue_atoms, n_residue_atoms);
       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	 CAtom *at = residue_atoms[iat];
+	 mmdb::Atom *at = residue_atoms[iat];
 	 std::string atom_name(at->name);
 	 if (atom_name == atom_4_name) {
 	    if (! quad.atom_4)
@@ -201,11 +201,11 @@ coot::operator<<(std::ostream &o, const coot::atom_quad &q) {
 
 // can throw an exception
 double 
-coot::atom_index_quad::torsion(CResidue *residue_p) const {
+coot::atom_index_quad::torsion(mmdb::Residue *residue_p) const {
 
    double angle = 0;
    int n_residues_atoms;
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residues_atoms);
    return torsion(residue_atoms, n_residues_atoms);
 }
@@ -215,7 +215,7 @@ coot::atom_index_quad::torsion(CResidue *residue_p) const {
 // residue.
 // 
 double
-coot::atom_index_quad::torsion(PPCAtom atom_selection, int n_selected_atoms) const {
+coot::atom_index_quad::torsion(mmdb::PPAtom atom_selection, int n_selected_atoms) const {
 
    double angle = 0;
    for (unsigned int i=0; i<n_selected_atoms; i++) {
@@ -297,14 +297,14 @@ coot::atom_quad::get_atom_name_quad() const {
 
 
 double
-coot::atom_name_quad::torsion(CResidue *residue) const {
+coot::atom_name_quad::torsion(mmdb::Residue *residue) const {
 
    double r = -999.9;
 
-   CAtom *at_0 = residue->GetAtom(atom_name_[0].c_str());
-   CAtom *at_1 = residue->GetAtom(atom_name_[1].c_str());
-   CAtom *at_2 = residue->GetAtom(atom_name_[2].c_str());
-   CAtom *at_3 = residue->GetAtom(atom_name_[3].c_str());
+   mmdb::Atom *at_0 = residue->GetAtom(atom_name_[0].c_str());
+   mmdb::Atom *at_1 = residue->GetAtom(atom_name_[1].c_str());
+   mmdb::Atom *at_2 = residue->GetAtom(atom_name_[2].c_str());
+   mmdb::Atom *at_3 = residue->GetAtom(atom_name_[3].c_str());
 
    if (at_0 && at_1 && at_2 && at_3) {
       clipper::Coord_orth pt_0(at_0->x, at_0->y, at_0->z);

@@ -31,12 +31,12 @@ namespace coot {
 
    // can throw an runtime_error exception (e.g. residue not in dictionary)
    //
-   RDKit::RWMol rdkit_mol_sanitized(CResidue *residue_p, const protein_geometry &geom);
-   RDKit::RWMol rdkit_mol(CResidue *residue_p, const protein_geometry &geom);
+   RDKit::RWMol rdkit_mol_sanitized(mmdb::Residue *residue_p, const protein_geometry &geom);
+   RDKit::RWMol rdkit_mol(mmdb::Residue *residue_p, const protein_geometry &geom);
    RDKit::RWMol rdkit_mol(const dictionary_residue_restraints_t &restraints); // fill the coord from
                                                                               // the dictionary if
                                                                               // you can.
-   RDKit::RWMol rdkit_mol(CResidue *residue_p, const dictionary_residue_restraints_t &restraints,
+   RDKit::RWMol rdkit_mol(mmdb::Residue *residue_p, const dictionary_residue_restraints_t &restraints,
 			  const std::string &alt_conf="",
 			  bool undelocalise=true);
    RDKit::RWMol remove_Hs_and_clean(const RDKit::ROMol m, bool set_aromaticity=false);
@@ -73,7 +73,7 @@ namespace coot {
    //
    // resulting residues has chain id of "" and residue number 1.
    //
-   CResidue *make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name);
+   mmdb::Residue *make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name);
    dictionary_residue_restraints_t make_dictionary(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name);
 
    
@@ -88,7 +88,7 @@ namespace coot {
    // message pair
    // 
    std::pair<bool, std::string>
-   add_hydrogens_with_rdkit(CResidue *residue_p,
+   add_hydrogens_with_rdkit(mmdb::Residue *residue_p,
 			    const dictionary_residue_restraints_t &restraints);
 
    std::string infer_H_name(int iat,
@@ -138,13 +138,13 @@ namespace coot {
 
    // used in the rdkit_mol() "constructor".
    // 
-   RDKit::Atom::ChiralType get_chiral_tag(CResidue *residue_p,
+   RDKit::Atom::ChiralType get_chiral_tag(mmdb::Residue *residue_p,
 					  const dictionary_residue_restraints_t &restraints,
-					  CAtom *atom_p);
+					  mmdb::Atom *atom_p);
 
    // update the atom positions of the rdkit_molecule from residue_p
    // 
-   void update_coords(RDKit::RWMol *mol, int iconf, CResidue *residue_p);
+   void update_coords(RDKit::RWMol *mol, int iconf, mmdb::Residue *residue_p);
 
    // return a copy of the input molecule having deleted the atoms of the R-group
    //

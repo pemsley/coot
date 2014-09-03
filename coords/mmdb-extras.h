@@ -68,7 +68,7 @@ class atom_selection_container_t {
 public:
    CMMDBManager *mol;
    int n_selected_atoms; 
-   PPCAtom atom_selection; 
+   mmdb::PPAtom atom_selection; 
    std::string read_error_message;
    int read_success;
    int SelectionHandle;
@@ -154,16 +154,16 @@ namespace coot {
   // caller should delete the chain of this residue (which will
   // implicitly delete this residue too).
   // 
-  CResidue *
-  deep_copy_this_residue(CResidue *residue, 
+  mmdb::Residue *
+  deep_copy_this_residue(mmdb::Residue *residue, 
 			 const std::string &altconf, 
 			 short int whole_residue_flag,
 			 int atom_index_handle,
 			 bool embed_in_chain_flag=true);
 
-  std::pair<CResidue *, atom_selection_container_t>
+  std::pair<mmdb::Residue *, atom_selection_container_t>
     deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
-					CResidue *residue, 
+					mmdb::Residue *residue, 
 					const std::string &altconf, 
 					short int whole_residue_flag,
 					int atom_index_handle, 
@@ -171,7 +171,7 @@ namespace coot {
 
   // 13 14 15 20 21 22  -> 1
   // 13 14 15 20 22 21  -> 0
-  short int progressive_residues_in_chain_check(const CChain *chain_p); 
+  short int progressive_residues_in_chain_check(const mmdb::Chain *chain_p); 
 
   class contact_info {
 
@@ -190,7 +190,7 @@ namespace coot {
     realtype get_radius(const std::string &element) const;
 
     void contacts_from_monomer_restraints(const atom_selection_container_t asc, 
-			    std::map<CResidue *, dictionary_residue_restraints_t> &res_restraints); // non-const for map [] usage
+			    std::map<mmdb::Residue *, dictionary_residue_restraints_t> &res_restraints); // non-const for map [] usage
 
     void setup_from_monomer_restraints(const atom_selection_container_t &asc, 
 				       coot::protein_geometry *geom_p);
@@ -203,11 +203,11 @@ namespace coot {
 	contacts.push_back(contacts_pair(con_in[i].id1, con_in[i].id2));
       }
     }
-    contact_info(PPCAtom atom_selection, PSContact con_in, int nc) {
+    contact_info(mmdb::PPAtom atom_selection, PSContact con_in, int nc) {
       setup_atom_radii();
       for (int i=0; i<nc; i++) { 
-	CAtom *at_1 = atom_selection[con_in[i].id1];
-	CAtom *at_2 = atom_selection[con_in[i].id2];
+	mmdb::Atom *at_1 = atom_selection[con_in[i].id1];
+	mmdb::Atom *at_2 = atom_selection[con_in[i].id2];
 	std::string ele_1 = at_1->element;
 	std::string ele_2 = at_2->element;
 	realtype dx = at_1->x - at_2->x;
@@ -243,7 +243,7 @@ namespace coot {
 
     contact_info(const atom_selection_container_t &asc,
 		 protein_geometry *geom_p, 
-		 const std::vector<std::pair<CAtom *, CAtom *> > &link_bond_atoms);
+		 const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &link_bond_atoms);
 
     // like above, but we have link atom quads (selhnd is a selection
     // handle - usually all atoms in mol, but not necessarily).
@@ -270,7 +270,7 @@ namespace coot {
 
   // Typically this is used on an asc (moving atoms) to get the N of a
   // peptide (say).  Return NULL on atom not found.
-  CAtom *get_first_atom_with_atom_name(const std::string &atomname, 
+  mmdb::Atom *get_first_atom_with_atom_name(const std::string &atomname, 
 				       const atom_selection_container_t &asc); 
 
   // tinker with asc

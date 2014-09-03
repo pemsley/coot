@@ -34,7 +34,7 @@ class symm_atom_info_t {
    int success;
    int atom_index;
    symm_trans_t symm_trans;
-   PPCAtom trans_sel;
+   mmdb::PPAtom trans_sel;
    int n_trans_sel;
    int imol;
 
@@ -43,11 +43,11 @@ class symm_atom_info_t {
 namespace coot { 
   class clip_hybrid_atom { 
   public:
-    CAtom *atom;
+    mmdb::Atom *atom;
     // clipper::Coord_orth pos;
     coot::Cartesian pos;
     clip_hybrid_atom() { atom = NULL; }
-    clip_hybrid_atom(CAtom *mmdb_atom_p, const coot::Cartesian &p) { 
+    clip_hybrid_atom(mmdb::Atom *mmdb_atom_p, const coot::Cartesian &p) { 
       atom = mmdb_atom_p;
       pos = p;
     } 
@@ -91,7 +91,7 @@ coot::CartesianPair
 screen_x_to_real_space_vector(GtkWidget *widget);
 coot::Cartesian screen_z_to_real_space_vector(GtkWidget *widget);
 
-std::string make_symm_atom_label_string(PCAtom atom, symm_trans_t symm_trans);
+std::string make_symm_atom_label_string(Pmmdb::Atom atom, symm_trans_t symm_trans);
 
 coot::Symm_Atom_Pick_Info_t symmetry_atom_pick();
 // used by symmetry_atom_pick():
@@ -107,8 +107,8 @@ fill_hybrid_atoms(std::vector<coot::clip_hybrid_atom> *hybrid_atoms,
 
 
 // now in molecule_class_info, where they should have been.
-/* std::string make_atom_label_string(PCAtom atom); */
-/* std::string make_atom_label_string_old(PCAtom atom); */
+/* std::string make_atom_label_string(Pmmdb::Atom atom); */
+/* std::string make_atom_label_string_old(Pmmdb::Atom atom); */
 
 
 

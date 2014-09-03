@@ -230,27 +230,27 @@ namespace coot {
       // And that means that the passed atom_vector needs to be a
       // reference (or a pointer, but we don't do that here) and no
       // longer const.
-      CResidue *add_shelx_residue(std::vector<CAtom *> &atom_vector,
+      mmdb::Residue *add_shelx_residue(std::vector<mmdb::Atom *> &atom_vector,
 				  const std::string &current_res_name,
 				  int &current_res_no) const;
       void save_fvars(const shelx_card_info_t &card);
-      CAtom *make_atom(const coot::shelx_card_info_t &card, const std::string &altconf,
+      mmdb::Atom *make_atom(const coot::shelx_card_info_t &card, const std::string &altconf,
 		       int udd_afix_handle,
 		       int udd_riding_atom_flag_handle,
 		       int udd_riding_atom_negative_u_value_handle,
 		       bool have_udd_atoms, int current_afix,
-		       clipper::Cell &cell, const std::vector<CAtom *> &atom_vector) const;
+		       clipper::Cell &cell, const std::vector<mmdb::Atom *> &atom_vector) const;
       std::pair<int, std::string> write_ins_file_internal(CMMDBManager *mol_in,
 							  const std::string &filename) const;
       
-      CAtom *previous_non_riding_atom(const std::vector<CAtom *> &atom_vector,
+      mmdb::Atom *previous_non_riding_atom(const std::vector<mmdb::Atom *> &atom_vector,
 				      int udd_non_riding_atom_flag_handle) const {
 
 	 if (atom_vector.size()==0) {
 	    return NULL;
 	 } else { 
 	    for (int i=atom_vector.size()-1;  i>=0; i--) {
-	       CAtom *at = atom_vector[i];
+	       mmdb::Atom *at = atom_vector[i];
 	       int ic = -1; // is riding atom flag
 	       if (at->GetUDData(udd_non_riding_atom_flag_handle, ic) == UDDATA_Ok) {
 		  if (ic==1)
@@ -265,7 +265,7 @@ namespace coot {
 	    return NULL;
 	 }
       }
-      std::string message_for_atom(const std::string &in_string, CAtom *at) const;
+      std::string message_for_atom(const std::string &in_string, mmdb::Atom *at) const;
 
       
    public:

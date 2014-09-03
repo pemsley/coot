@@ -431,7 +431,7 @@ SCM  nearest_residue_by_sequence_scm(int imol, const char* chain_id, int resno, 
    if (is_valid_model_molecule(imol)) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       coot::residue_spec_t spec(chain_id, resno, ins_code);
-      CResidue *residue_p = coot::nearest_residue_by_sequence(mol, spec);
+      mmdb::Residue *residue_p = coot::nearest_residue_by_sequence(mol, spec);
       if (residue_p) {
 	 r = scm_residue(residue_p);
       }
@@ -461,7 +461,7 @@ PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int res
    if (is_valid_model_molecule(imol)) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       coot::residue_spec_t spec(chain_id, resno, ins_code);
-      CResidue *residue_p = coot::nearest_residue_by_sequence(mol, spec);
+      mmdb::Residue *residue_p = coot::nearest_residue_by_sequence(mol, spec);
       if (residue_p) {
 	 r = py_residue(residue_p);
       }

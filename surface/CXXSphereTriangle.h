@@ -26,13 +26,13 @@ private:
 	double theRadius;
 	CXXCoord theCentre;
 	CXXSphereElement *theSphereElement;
-	class CAtom *theAtom;
+	class mmdb::Atom *theAtom;
 public:
 		CXXSphereTriangle();
 	CXXSphereTriangle(CXXSphereElement *se, int *vertices, int *edges, 
 					  double aRadius, CXXCoord &aCentre);
 	CXXSphereTriangle(CXXSphereElement *se, int *vertices, int *edges, 
-					  double aRadius, CXXCoord &aCentre, CAtom *anAtom);
+					  double aRadius, CXXCoord &aCentre, mmdb::Atom *anAtom);
 	//~CXXSphereTriangle();
 	
 	int vertex(int) const;
@@ -41,9 +41,9 @@ public:
 	const CXXCoord &centre() const;
 	CXXSphereElement *sphereElement() const;
 	int bisect(double);
-	CAtom *getAtom() const;
+	mmdb::Atom *getAtom() const;
 	
-	int setAtom(CAtom *anAtom);
+	int setAtom(mmdb::Atom *anAtom);
 	int setEdge(int i, int);
 	int setVertex(int i, int);
 	int setSphereElement(CXXSphereElement *se);

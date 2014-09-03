@@ -1490,13 +1490,13 @@ float density_score_residue_scm(int imol, SCM residue_spec_scm, int imol_map) {
       if (is_valid_model_molecule(imol)) {
 	 graphics_info_t g;
 	 coot::residue_spec_t residue_spec = residue_spec_from_scm(residue_spec_scm);
-	 CResidue *r = g.molecules[imol].get_residue(residue_spec);
+	 mmdb::Residue *r = g.molecules[imol].get_residue(residue_spec);
 	 if (r) {
-	    PPCAtom residue_atoms = 0;
+	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    r->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
-	       CAtom *at = residue_atoms[iat];
+	       mmdb::Atom *at = residue_atoms[iat];
 	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
 	       v += d_at * at->occupancy;
 	    }
@@ -1515,13 +1515,13 @@ float density_score_residue_py(int imol, PyObject *residue_spec_py, int imol_map
       if (is_valid_model_molecule(imol)) {
 	 graphics_info_t g;
 	 coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
-	 CResidue *r = g.molecules[imol].get_residue(residue_spec);
+	 mmdb::Residue *r = g.molecules[imol].get_residue(residue_spec);
 	 if (r) {
-	    PPCAtom residue_atoms = 0;
+	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    r->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
-	       CAtom *at = residue_atoms[iat];
+	       mmdb::Atom *at = residue_atoms[iat];
 	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
 	       v += d_at * at->occupancy;
 	    }
@@ -1540,13 +1540,13 @@ float density_score_residue(int imol, const char *chain_id, int res_no, const ch
       if (is_valid_model_molecule(imol)) {
 	 graphics_info_t g;
 	 coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
-	 CResidue *r = g.molecules[imol].get_residue(residue_spec);
+	 mmdb::Residue *r = g.molecules[imol].get_residue(residue_spec);
 	 if (r) {
-	    PPCAtom residue_atoms = 0;
+	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    r->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
-	       CAtom *at = residue_atoms[iat];
+	       mmdb::Atom *at = residue_atoms[iat];
 	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
 	       v += d_at * at->occupancy;
 	    }
@@ -4184,7 +4184,7 @@ int set_go_to_atom_chain_residue_atom_name(const char *t1, int iresno, const cha
    graphics_info_t g; 
    int success = set_go_to_atom_chain_residue_atom_name_no_redraw(t1, iresno, t3, 1);
    if (success) { 
-      CAtom *at = 0; // passed but not used, it seems.
+      mmdb::Atom *at = 0; // passed but not used, it seems.
       GtkWidget *window = graphics_info_t::go_to_atom_window;
       if (window)
 	 g.update_widget_go_to_atom_values(window, at);
@@ -4203,7 +4203,7 @@ int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id,
    g.set_go_to_atom_chain_residue_atom_name(chain_id, resno, ins_code, atom_name, alt_conf);
    int success = g.try_centre_from_new_go_to_atom();
    if (success) { 
-      CAtom *at = 0; // passed but not used, it seems.
+      mmdb::Atom *at = 0; // passed but not used, it seems.
       GtkWidget *window = graphics_info_t::go_to_atom_window;
       if (window)
 	 g.update_widget_go_to_atom_values(window, at);
@@ -4240,7 +4240,7 @@ int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno,
 					       altloc.c_str());
 
    }
-   CAtom *at = 0; // passed but not used, it seems.
+   mmdb::Atom *at = 0; // passed but not used, it seems.
    GtkWidget *window = graphics_info_t::go_to_atom_window;
    if (window)
       g.update_widget_go_to_atom_values(window, at);
@@ -6134,14 +6134,14 @@ void print_sequence_chain(int imol, const char *chain_id) {
    if (is_valid_model_molecule(imol)) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int imod = 1;
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 if (std::string(chain_p->GetChainID()) == chain_id) { 
 	    int nres = chain_p->GetNumberOfResidues();
-	    PCResidue residue_p;
+	    Pmmdb::Residue residue_p;
 	    int residue_count_block = 0;
 	    int residue_count_line = 0;
 	    if (nres > 0 ) {
@@ -6181,7 +6181,7 @@ void do_sequence_view(int imol) {
    if (is_valid_model_molecule(imol)) {
       bool do_old_style = 0; 
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      std::vector<CResidue *> r = coot::util::residues_with_insertion_codes(mol);
+      std::vector<mmdb::Residue *> r = coot::util::residues_with_insertion_codes(mol);
       if (r.size() > 0) {
 	 do_old_style = 1;
       } else {

@@ -134,7 +134,7 @@ int CMMANBase::SetSelHandle (const int iset, const int selHndin ,
 //------------------------------------------------------------------
   int is=0;
   int tmpHnd,tmpNAtoms;
-  PPCAtom tmpAtoms;
+  mmdb::PPAtom tmpAtoms;
   AltLoc aL;
 
   //cout << "CMMANBase::SetSelHandle " << own_selHnds << endl; 
@@ -218,7 +218,7 @@ int CMMANBase::SetSelHandle (const int selHndin ) {
 
 //--------------------------------------------------------------------
 int  CMMANBase::GetOneModel(const int iset, const int selHin, 
-          PPCAtom &atomTable , int &nAtoms, const int model) {
+          mmdb::PPAtom &atomTable , int &nAtoms, const int model) {
 //--------------------------------------------------------------------
   // If model > 0 return the selected atoms in the appropriate NMR model
   int selH;
@@ -248,7 +248,7 @@ int  CMMANBase::GetOneModel(const int iset, const int selHin,
 }
 //--------------------------------------------------------------------
 int  CMMANBase::GetOneModel(const int iset, const int selHin, 
-     PPCResidue &resTable , int &nRes, const int model) {
+     mmdb::PPResidue &resTable , int &nRes, const int model) {
 //--------------------------------------------------------------------
   int nMod;
   int selH;
@@ -279,14 +279,14 @@ int  CMMANBase::GetOneModel(const int iset, const int selHin,
 }
 
 //------------------------------------------------------------------
-int CMMANBase::GetSelection ( PPCAtom &atomTable , int &nAtoms,
+int CMMANBase::GetSelection ( mmdb::PPAtom &atomTable , int &nAtoms,
                        const int model ) {
 //------------------------------------------------------------------
   return GetSelection (0,atomTable,nAtoms, model);
 }
 
 //------------------------------------------------------------------
-int CMMANBase::GetSelection ( const int iset ,PPCAtom &atomTable ,
+int CMMANBase::GetSelection ( const int iset ,mmdb::PPAtom &atomTable ,
                       int &nAtoms, const int model ) {
 //------------------------------------------------------------------
   nAtoms = 0;
@@ -318,14 +318,14 @@ int CMMANBase::GetSelection ( const int iset ,PPCAtom &atomTable ,
 }
 
 //------------------------------------------------------------------
-int CMMANBase::GetSelection ( PPCResidue &resTable, int &nRes,
+int CMMANBase::GetSelection ( mmdb::PPResidue &resTable, int &nRes,
                       const int model ) {
 //------------------------------------------------------------------
   return GetSelection(0,resTable,nRes, model);
 }
 
 //------------------------------------------------------------------
-int CMMANBase::GetSelection ( const int iset, PPCResidue &resTable,
+int CMMANBase::GetSelection ( const int iset, mmdb::PPResidue &resTable,
                           int &nRes, const int model ) {
 //------------------------------------------------------------------
   nRes = 0;

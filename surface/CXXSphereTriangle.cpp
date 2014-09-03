@@ -26,7 +26,7 @@ CXXSphereTriangle::CXXSphereTriangle(CXXSphereElement *se, int *inputVertices, i
 }
 
 CXXSphereTriangle::CXXSphereTriangle(CXXSphereElement *se, int *inputVertices, int *inputEdges, 
-									 double inRad, CXXCoord &incent, CAtom *anAtom){
+									 double inRad, CXXCoord &incent, mmdb::Atom *anAtom){
 	theAtom = anAtom;
 	theSphereElement = se;
 	for (int i=0; i<3; i++){
@@ -149,11 +149,11 @@ int CXXSphereTriangle::setRadius(const double rad){
 	return 0;
 }
 
-CAtom *CXXSphereTriangle::getAtom() const {
+mmdb::Atom *CXXSphereTriangle::getAtom() const {
 	return theAtom;
 }
 
-int CXXSphereTriangle::setAtom(CAtom *anAtom) {
+int CXXSphereTriangle::setAtom(mmdb::Atom *anAtom) {
 	theAtom = anAtom;
 	return 0;
 }

@@ -477,7 +477,7 @@ void surface::ColourSurface(CMMDBManager *molHnd, int selHnd, AtomColourVector *
 		return;
 	}
 	int nSelAtoms;
-	PPCAtom SelAtom;
+	mmdb::PPAtom SelAtom;
 	molHnd->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 	
 	std::vector < double*> colours;

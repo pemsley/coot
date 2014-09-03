@@ -23,7 +23,7 @@ coot::test_elastic() {
 		    "*"  // altLocs
 		    );
 
-   PPCAtom atom_selection = NULL;
+   mmdb::PPAtom atom_selection = NULL;
    int n_selected_atoms;
    mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
 

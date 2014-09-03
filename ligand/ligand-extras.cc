@@ -33,7 +33,7 @@
 #include "clipper/core/map_interp.h"
 
 #include "utils/coot-utils.hh"
-#include "ligand.hh" // has mmdb-manager because PPCAtom is part
+#include "ligand.hh" // has mmdb-manager because mmdb::PPAtom is part
                      // of mask_map interface.
 
 #include <mmdb/mmdb_coormngr.h> // for GetMassCenter

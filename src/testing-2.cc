@@ -24,9 +24,9 @@ int test_dreiding_torsion_energy() {
    testing_data t;
 
    int imod = 1;
-   CResidue *residue_p = test_get_residue(atom_sel.mol, "B", 1);
+   mmdb::Residue *residue_p = test_get_residue(atom_sel.mol, "B", 1);
    if (residue_p) {
-      PPCAtom residue_atoms = 0;
+      mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       std::string comp_id = residue_p->GetResName();

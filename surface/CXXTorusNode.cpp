@@ -47,11 +47,11 @@ const double CXXTorusNode::getTheta() const{
 const double CXXTorusNode::getOmega() const{
 	return omega;
 }
-int CXXTorusNode::setAtom(CAtom *anAtom){
+int CXXTorusNode::setAtom(mmdb::Atom *anAtom){
 	theAtom = anAtom;
 	return 0;
 }
-CAtom *CXXTorusNode::getAtom() const{
+mmdb::Atom *CXXTorusNode::getAtom() const{
 	return theAtom;
 }
 

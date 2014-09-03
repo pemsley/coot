@@ -15,11 +15,11 @@ namespace coot {
 
    class h_bond {
    public:
-      CAtom *hb_hydrogen; // McDonald and Thornton H-bond algorithm
-      CAtom *donor;
-      CAtom *acceptor;
-      CAtom *donor_neigh;
-      CAtom *acceptor_neigh;
+      mmdb::Atom *hb_hydrogen; // McDonald and Thornton H-bond algorithm
+      mmdb::Atom *donor;
+      mmdb::Atom *acceptor;
+      mmdb::Atom *donor_neigh;
+      mmdb::Atom *acceptor_neigh;
       double angle_1;  // degrees
       double angle_2;
       double angle_3;
@@ -42,7 +42,7 @@ namespace coot {
 	 hydrogen_is_ligand_atom = 0; // no hydrogen
 	 bond_has_hydrogen_flag = 0;
       }
-      h_bond(CAtom *d, CAtom *a) {
+      h_bond(mmdb::Atom *d, mmdb::Atom *a) {
 	 hb_hydrogen = NULL;
 	 donor = d;
 	 acceptor = a;
@@ -63,7 +63,7 @@ namespace coot {
       //
       // pass ligand_atom_is_H_flag as 1 when ligand atom is the H.
       // 
-      h_bond(CAtom *h, CAtom *a, bool ligand_atom_is_H_flag) {
+      h_bond(mmdb::Atom *h, mmdb::Atom *a, bool ligand_atom_is_H_flag) {
 	 hb_hydrogen = h;
 	 bond_has_hydrogen_flag = 1;
 	 acceptor = a;
@@ -101,19 +101,19 @@ namespace coot {
       
       // What is the nearest neighbour of the atoms in mol?
       // 
-      std::map<CAtom *,  std::vector<std::pair<CAtom *, float> > >
+      std::map<mmdb::Atom *,  std::vector<std::pair<mmdb::Atom *, float> > >
       make_neighbour_map(int selHnd_1, int selHnd_2, CMMDBManager *mol);
       
       std::pair<bool, h_bond> 
-      make_h_bond_from_ligand_hydrogen(CAtom *at_1, // H on ligand
-				       CAtom *at_2, // acceptor on residue
-				       const std::vector<std::pair<CAtom *, float> > &nb_1,
-				       const std::vector<std::pair<CAtom *, float> > &nb_2) const;
+      make_h_bond_from_ligand_hydrogen(mmdb::Atom *at_1, // H on ligand
+				       mmdb::Atom *at_2, // acceptor on residue
+				       const std::vector<std::pair<mmdb::Atom *, float> > &nb_1,
+				       const std::vector<std::pair<mmdb::Atom *, float> > &nb_2) const;
       std::pair<bool, h_bond> 
-      make_h_bond_from_environment_residue_hydrogen(CAtom *at_1, // acceptor on ligand
-						    CAtom *at_2, // H on residue
-						    const std::vector<std::pair<CAtom *, float> > &nb_1,
-						    const std::vector<std::pair<CAtom *, float> > &nb_2) const;
+      make_h_bond_from_environment_residue_hydrogen(mmdb::Atom *at_1, // acceptor on ligand
+						    mmdb::Atom *at_2, // H on residue
+						    const std::vector<std::pair<mmdb::Atom *, float> > &nb_1,
+						    const std::vector<std::pair<mmdb::Atom *, float> > &nb_2) const;
       
    public:
       h_bonds() {}
@@ -135,15 +135,15 @@ namespace coot {
       check_hb_status(int selhnd, CMMDBManager *mol, const protein_geometry &geom); 
       
       class atom_sorter {
-	 CAtom *at;
+	 mmdb::Atom *at;
 	 coot::residue_spec_t at_res_spec;
       public:
-	 atom_sorter(CAtom *at_in) {
+	 atom_sorter(mmdb::Atom *at_in) {
 	    at = at_in;
 	    at_res_spec = coot::residue_spec_t(at);
 	 }
-	 bool operator()(const std::pair<CAtom *, float> &p1,
-			 const std::pair<CAtom *, float> &p2) const {
+	 bool operator()(const std::pair<mmdb::Atom *, float> &p1,
+			 const std::pair<mmdb::Atom *, float> &p2) const {
 	    
 	    coot::residue_spec_t n1_res_spec(p1.first);
 	    coot::residue_spec_t n2_res_spec(p2.first);

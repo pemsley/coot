@@ -74,7 +74,7 @@ void
 debug_atom_selection_container(atom_selection_container_t asc) {
 
    //
-   PCAtom ap;
+   Pmmdb::Atom ap;
    
    cout << "DEBUG: asc " << "mol=" << asc.mol << endl;
    cout << "DEBUG: asc " << "n_selected_atoms=" << asc.n_selected_atoms << endl;
@@ -167,11 +167,11 @@ make_asc(CMMDBManager *mol) {
 // whole_residue_flag: only copy atoms that are either in this altLoc,
 // or has an altLoc of "".
 //
-// This always returns a CResidue pointer pointing to a allocated
+// This always returns a mmdb::Residue pointer pointing to a allocated
 // residue.  It may not have any atoms in it though.
 // 
-CResidue *
-coot::deep_copy_this_residue(CResidue *residue,
+mmdb::Residue *
+coot::deep_copy_this_residue(mmdb::Residue *residue,
 			     const std::string &altconf,
 			     short int whole_residue_flag,
 			     int atom_index_handle,
@@ -191,29 +191,29 @@ coot::deep_copy_this_residue(CResidue *residue,
    //
    // 
 
-   CResidue *rres = 0; 
-   PPCAtom residue_atoms;
+   mmdb::Residue *rres = 0; 
+   mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
    residue->GetAtomTable(residue_atoms, nResidueAtoms);
-   CAtom *atom_p;
+   mmdb::Atom *atom_p;
 
    if (nResidueAtoms > 0) { 
       // 
-      CChain   *chain_p = NULL;
-      rres = new CResidue();
+      mmdb::Chain   *chain_p = NULL;
+      rres = new mmdb::Residue();
       rres->SetResID(residue->GetResName(),
 		     residue->GetSeqNum(),
 		     residue->GetInsCode());
       
       int n_added_atoms = 0; 
       for(int iat=0; iat<nResidueAtoms; iat++) {
-	 CAtom *at = residue_atoms[iat];
+	 mmdb::Atom *at = residue_atoms[iat];
 	 if (at) { // can have been deleted
 	    if (! at->isTer()) { 
 	       std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
 	       if (whole_residue_flag ||
 		   this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
-		  atom_p = new CAtom;
+		  atom_p = new mmdb::Atom;
 		  atom_p->Copy(residue_atoms[iat]);
 		  int i_add = rres->AddAtom(atom_p);
 		  n_added_atoms++;
@@ -229,7 +229,7 @@ coot::deep_copy_this_residue(CResidue *residue,
 	 // As normal
 	 
 	 if (embed_in_chain_flag) { 
-	    chain_p = new CChain;
+	    chain_p = new mmdb::Chain;
 	    chain_p->SetChainID(residue->GetChainID());
 	    chain_p->AddResidue(rres);
 	 }
@@ -258,9 +258,9 @@ coot::deep_copy_this_residue(CResidue *residue,
 // whole_residue_flag: only copy atoms that are either in this altLoc,
 // or has an altLoc of "".
 // 
-std::pair<CResidue *, atom_selection_container_t>
+std::pair<mmdb::Residue *, atom_selection_container_t>
 coot::deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
-					  CResidue *residue,
+					  mmdb::Residue *residue,
 					  const std::string &altconf,
 					  short int whole_residue_flag,
 					  int atom_index_handle,
@@ -269,22 +269,22 @@ coot::deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
 //    std::cout << "DEbbug:: in deep_copy_this_residue_and_make_asc is "
 // 	     << udd_afix_handle << std::endl;
 
-   // Horrible casting to CResidue because GetSeqNum and GetAtomTable
+   // Horrible casting to mmdb::Residue because GetSeqNum and GetAtomTable
    // are not const functions.
    // 
-   CResidue *rres = new CResidue;
-   CChain   *chain_p = new CChain;
-   std::string chain_id1 = ((CResidue *)residue)->GetChainID();
+   mmdb::Residue *rres = new mmdb::Residue;
+   mmdb::Chain   *chain_p = new mmdb::Chain;
+   std::string chain_id1 = ((mmdb::Residue *)residue)->GetChainID();
    chain_p->SetChainID(chain_id1.c_str());
-   rres->seqNum = ((CResidue *)residue)->GetSeqNum();
+   rres->seqNum = ((mmdb::Residue *)residue)->GetSeqNum();
    /* Copy insertion code - a char[10] */
    memcpy(rres->insCode, residue->insCode, sizeof(InsCode));
    memcpy(rres->name, residue->name, sizeof(ResName));
    
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
    residue->GetAtomTable(residue_atoms, nResidueAtoms);
-   CAtom *atom_p;
+   mmdb::Atom *atom_p;
    short int do_shelx_afix_data_flag = 0;
    if (udd_afix_handle >= 0)
       do_shelx_afix_data_flag = 1;
@@ -294,7 +294,7 @@ coot::deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
 	 std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
 	 if (whole_residue_flag ||
 	     this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
-	    atom_p = new CAtom;
+	    atom_p = new mmdb::Atom;
 	    atom_p->Copy(residue_atoms[iat]);
 	    int i_add = rres->AddAtom(atom_p);
 	    if (atom_index_handle > -1 ) { 
@@ -319,8 +319,8 @@ coot::deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
    chain_p->AddResidue(rres);
 
    // urgh.  This consting business makes a mess.
-   CResidue *r = (CResidue *)residue;
-   PCResidue *SelResidues = &r;
+   mmdb::Residue *r = (mmdb::Residue *)residue;
+   Pmmdb::Residue *SelResidues = &r;
    std::pair<CMMDBManager *, int> mol_i =
       coot::util::create_mmdbmanager_from_res_selection(orig_mol, SelResidues,
 							1, 0, 0, altconf, chain_id1, 1);
@@ -339,20 +339,20 @@ coot::deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
 // 		   << " Failed get udd afix number in deep_copy_this_residue_and_make_asc"
 // 		   << std::endl;
    }
-   return std::pair<CResidue *, atom_selection_container_t>(rres, asc);
+   return std::pair<mmdb::Residue *, atom_selection_container_t>(rres, asc);
 }
 
 
 short int
-coot::progressive_residues_in_chain_check(const CChain *chain_p) {
+coot::progressive_residues_in_chain_check(const mmdb::Chain *chain_p) {
 
-   int nres = ((CChain*)chain_p)->GetNumberOfResidues();
-   CResidue *res_p;
+   int nres = ((mmdb::Chain*)chain_p)->GetNumberOfResidues();
+   mmdb::Residue *res_p;
    int previous_seq_num = -9999;
    int this_seq_no;
 
    for (int ires=0; ires<nres; ires++) { 
-      res_p = ((CChain*)chain_p)->GetResidue(ires);
+      res_p = ((mmdb::Chain*)chain_p)->GetResidue(ires);
       if (res_p) {
 	 this_seq_no = res_p->GetSeqNum();
 	 if ( ! (this_seq_no >= (previous_seq_num+1)) )
@@ -410,17 +410,17 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
 				 coot::protein_geometry *geom_p,
 				 const coot::bonded_pair_container_t &bonded_pairs) {
 
-   std::vector<CResidue *> residues;
-   std::map<CResidue *, std::vector<int> > atoms_in_residue;
+   std::vector<mmdb::Residue *> residues;
+   std::map<mmdb::Residue *, std::vector<int> > atoms_in_residue;
 
    // fill residues and atoms_in_residue
    for (unsigned int i=0; i<asc.n_selected_atoms; i++) {
-      CResidue *r = asc.atom_selection[i]->residue;
+      mmdb::Residue *r = asc.atom_selection[i]->residue;
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	 residues.push_back(r);
       atoms_in_residue[r].push_back(i);
    }
-   std::map<CResidue *, coot::dictionary_residue_restraints_t> res_restraints;
+   std::map<mmdb::Residue *, coot::dictionary_residue_restraints_t> res_restraints;
    for (unsigned int ires=0; ires<residues.size(); ires++) { 
       std::string rn = residues[ires]->GetResName();
       std::pair<bool, coot::dictionary_residue_restraints_t> rest = 
@@ -437,8 +437,8 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
 
    // now handle the bonded_pairs (they have residue_1, residue_2 and a link name)
    for (unsigned int ib=0; ib<bonded_pairs.bonded_residues.size(); ib++) {
-      CResidue *res_1 = bonded_pairs.bonded_residues[ib].res_1;
-      CResidue *res_2 = bonded_pairs.bonded_residues[ib].res_2;
+      mmdb::Residue *res_1 = bonded_pairs.bonded_residues[ib].res_1;
+      mmdb::Residue *res_2 = bonded_pairs.bonded_residues[ib].res_2;
       if (std::find(residues.begin(), residues.end(), res_1) != residues.end()) { 
 	 if (std::find(residues.begin(), residues.end(), res_2) != residues.end()) {
 	    // OK, both residues were in the atom selection (as it should be)
@@ -502,16 +502,16 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
 
 void
 coot::contact_info::contacts_from_monomer_restraints(const atom_selection_container_t asc,
-				       std::map<CResidue *, coot::dictionary_residue_restraints_t> &res_restraints) {
+				       std::map<mmdb::Residue *, coot::dictionary_residue_restraints_t> &res_restraints) {
    
    // make contacts from monomer restraints
    // 
    for (unsigned int iat=0; iat<asc.n_selected_atoms; iat++) {
-      CAtom *at_1 = asc.atom_selection[iat];
+      mmdb::Atom *at_1 = asc.atom_selection[iat];
       std::string atom_name_1 = at_1->name;
       for (unsigned int jat=0; jat<asc.n_selected_atoms; jat++) {
 	 // if they are in the same residue...
-	 CAtom *at_2 = asc.atom_selection[jat];
+	 mmdb::Atom *at_2 = asc.atom_selection[jat];
 	 if (at_1->residue == at_2->residue) { 
 	    std::string atom_name_2 = at_2->name;
 	    // was there a bond between them?
@@ -544,17 +544,17 @@ void
 coot::contact_info::setup_from_monomer_restraints(const atom_selection_container_t &asc,
 						  coot::protein_geometry *geom_p) {
 
-   std::vector<CResidue *> residues;
-   std::map<CResidue *, std::vector<int> > atoms_in_residue;
+   std::vector<mmdb::Residue *> residues;
+   std::map<mmdb::Residue *, std::vector<int> > atoms_in_residue;
 
    // fill residues and atoms_in_residue
    for (unsigned int i=0; i<asc.n_selected_atoms; i++) {
-      CResidue *r = asc.atom_selection[i]->residue;
+      mmdb::Residue *r = asc.atom_selection[i]->residue;
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	 residues.push_back(r);
       atoms_in_residue[r].push_back(i);
    }
-   std::map<CResidue *, coot::dictionary_residue_restraints_t> res_restraints;
+   std::map<mmdb::Residue *, coot::dictionary_residue_restraints_t> res_restraints;
    for (unsigned int ires=0; ires<residues.size(); ires++) { 
       std::string rn = residues[ires]->GetResName();
       std::pair<bool, coot::dictionary_residue_restraints_t> rest = 
@@ -571,7 +571,7 @@ coot::contact_info::setup_from_monomer_restraints(const atom_selection_container
 
 coot::contact_info::contact_info(const atom_selection_container_t &asc,
 				 coot::protein_geometry *geom_p, 
-				 const std::vector<std::pair<CAtom *, CAtom *> > &link_bond_atoms) {
+				 const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &link_bond_atoms) {
 
 
    setup_from_monomer_restraints(asc, geom_p);
@@ -607,8 +607,8 @@ coot::contact_info::contact_info(CMMDBManager *mol, int selhnd,
    // now the bond between monomers (middle atoms must be in different residues).
    for (unsigned int itor=0; itor<link_torsions.size(); itor++) { 
       bool ifound = false;
-      CResidue *r1 = link_torsions[itor].atom_2->residue;
-      CResidue *r2 = link_torsions[itor].atom_3->residue;
+      mmdb::Residue *r1 = link_torsions[itor].atom_2->residue;
+      mmdb::Residue *r2 = link_torsions[itor].atom_3->residue;
       if (r1 != r2) {
 	 for (unsigned int i=0; i<asc.n_selected_atoms; i++) {
 	    if (asc.atom_selection[i] == link_torsions[itor].atom_2) {
@@ -830,11 +830,11 @@ coot::contact_info::print() const {
 // Typically this is used on an asc (moving atoms) to get the N of a
 // peptide (say).  Return NULL on atom not found.
 // 
-CAtom *
+mmdb::Atom *
 coot::get_first_atom_with_atom_name(const std::string &atomname, 
 				    const atom_selection_container_t &asc) { 
 
-   CAtom *atom = NULL;
+   mmdb::Atom *atom = NULL;
 
    for (int i=0; i<asc.n_selected_atoms; i++) { 
       std::string name(asc.atom_selection[i]->name);

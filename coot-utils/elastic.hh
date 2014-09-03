@@ -10,10 +10,10 @@
 namespace coot { 
    class elastic_network_item_t {
    public:
-      CAtom *at_1;
-      CAtom *at_2;
+      mmdb::Atom *at_1;
+      mmdb::Atom *at_2;
       double spring_constant;
-      elastic_network_item_t(CAtom *at1, CAtom *at2, double c) {
+      elastic_network_item_t(mmdb::Atom *at1, mmdb::Atom *at2, double c) {
 	 at_1 = at1;
 	 at_2 = at2;
 	 spring_constant = c;

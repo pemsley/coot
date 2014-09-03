@@ -122,10 +122,10 @@ coot::smcif::get_space_group(const std::vector<std::string> &symm_strings) const
    return std::pair<bool,clipper::Spacegroup>(status, space_group);
 }
 
-std::vector<CAtom *>
+std::vector<mmdb::Atom *>
 coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const {
 
-   std::vector<CAtom *> atom_vec;
+   std::vector<mmdb::Atom *> atom_vec;
    const char *loopTagsAtom[8] = { "_atom_site_label",
 				   "_atom_site_type_symbol",
 				   "_atom_site_fract_x",
@@ -194,7 +194,7 @@ coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const
 
 	    
 	    if (ierr_tot == 0) {
-	       CAtom *at = new CAtom;
+	       mmdb::Atom *at = new mmdb::Atom;
 	       clipper::Coord_frac cf(xf,yf,zf);
 	       clipper::Coord_orth co = cf.coord_orth(cell);
 	       at->SetCoordinates(co.x(), co.y(),co.z(), occ, tf);
@@ -261,7 +261,7 @@ coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const
       double c = cell.c();
       for (unsigned int ianiso=0; ianiso<u_aniso_vec.size(); ianiso++) { 
 	 for (unsigned int iat=0; iat<atom_vec.size(); iat++) {
-	    CAtom *at = atom_vec[iat];
+	    mmdb::Atom *at = atom_vec[iat];
 	    if (u_aniso_vec[ianiso].label == std::string(at->GetAtomName())) {
 	       clipper::U_aniso_frac caf(u11/(a*a), u22/(b*b), u33/(c*c),
 					 u12/(a*b), u13/(a*c), u23/(b*c));
@@ -362,15 +362,15 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 		  std::pair<bool, clipper::Spacegroup> spg_pair = get_space_group(symm_strings);
 		  if (spg_pair.first == true) { 
 
-		     std::vector<CAtom *> atoms = read_coordinates(data, cell, spg_pair.second);
+		     std::vector<mmdb::Atom *> atoms = read_coordinates(data, cell, spg_pair.second);
 		     std::cout << "read " << atoms.size() << " atoms" << std::endl;
 
 		     if (atoms.size()) {
 
 			mol = new CMMDBManager;
-			CModel *model_p = new CModel;
-			CChain *chain_p = new CChain;
-			CResidue *residue_p = new CResidue;
+			mmdb::Model *model_p = new mmdb::Model;
+			mmdb::Chain *chain_p = new mmdb::Chain;
+			mmdb::Residue *residue_p = new mmdb::Residue;
 			chain_p->SetChainID("");
 			residue_p->seqNum = 1;
 			residue_p->SetResName("XXX");

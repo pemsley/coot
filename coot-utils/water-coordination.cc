@@ -38,9 +38,9 @@ coot::util::water_coordination_t::water_coordination_t(CMMDBManager *mol, realty
 	 my_matt[i][j] = 0.0;      
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
-   PCAtom *water_selection = NULL;
+   Pmmdb::Atom *water_selection = NULL;
    int n_water_atoms;
-   PCAtom *atom_selection = NULL;
+   Pmmdb::Atom *atom_selection = NULL;
    int n_selected_atoms;
    int SelHnd = mol->NewSelection();
    int SelHnd_waters = mol->NewSelection();
@@ -108,7 +108,7 @@ coot::util::water_coordination_t::water_coordination_t(CMMDBManager *mol, realty
 }
 
 
-coot::util::contact_atoms_info_t::contact_atom_t::contact_atom_t(CAtom *contactor, CAtom *central_atom) {
+coot::util::contact_atoms_info_t::contact_atom_t::contact_atom_t(mmdb::Atom *contactor, mmdb::Atom *central_atom) {
 
    clipper::Coord_orth co_1(   contactor->x,    contactor->y,    contactor->z);
    clipper::Coord_orth co_2(central_atom->x, central_atom->y, central_atom->z);
@@ -119,7 +119,7 @@ coot::util::contact_atoms_info_t::contact_atom_t::contact_atom_t(CAtom *contacto
 // But don't add them if they are not matching alt confs
 // 
 void
-coot::util::water_coordination_t::add_contact(CAtom *atom_central, CAtom *atom_contactor) {
+coot::util::water_coordination_t::add_contact(mmdb::Atom *atom_central, mmdb::Atom *atom_contactor) {
 
    std::string alt_conf_1 = atom_contactor->altLoc;
    std::string alt_conf_2 = atom_central->altLoc;
@@ -219,8 +219,8 @@ coot::util::water_coordination_t::sort_contacts_func(const coot::util::contact_a
 
 void
 coot::util::water_coordination_t::add_contacts(CMMDBManager *mol, 
-					       PCAtom *water_selection, int n_water_atoms, 
-					       PCAtom *atom_selection, int n_selected_atoms,
+					       Pmmdb::Atom *water_selection, int n_water_atoms, 
+					       Pmmdb::Atom *atom_selection, int n_selected_atoms,
 					       realtype min_dist, realtype max_dist,
 					       const mat44 &my_mat) {
 

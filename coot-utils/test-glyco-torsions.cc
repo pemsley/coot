@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
 		  int cr = mol->CrystReady();
 		  std::cout << "INFO:: read " << pdb_file_name << " gives code " << err
 			    << " and cryst status: " << cr << std::endl;
-		  CResidue *base_residue_p = coot::util::get_first_residue(mol);
+		  mmdb::Residue *base_residue_p = coot::util::get_first_residue(mol);
 		  if (! base_residue_p) {
 		     std::cout << "ERROR:: no base residue " << link_type << " in " << file_name
 			       << std::endl;
@@ -58,7 +58,7 @@ int main(int argc, char **argv) {
 			} else { 
 			   l.add(decor);
 			   l.set_new_residue_number(1);
-			   CResidue *r = l.make_residue(base_residue_p);
+			   mmdb::Residue *r = l.make_residue(base_residue_p);
 			   if (r) {
 			      CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(r);
 			      std::string output_pdb_file_name = "output-" + new_residue_type + ".pdb";
@@ -92,7 +92,7 @@ int main(int argc, char **argv) {
 	    std::cout << "INFO:: read " << file_name << " gives code " << status
 		      << " and cryst status: " << cr << "\n";
 	    std::cout << "INFO:: read " << file_name << " OK " << std::endl;
-	    std::pair<CResidue *, CResidue *> p = coot::link_by_torsion_t::get_residue_pair(mol);
+	    std::pair<mmdb::Residue *, mmdb::Residue *> p = coot::link_by_torsion_t::get_residue_pair(mol);
 	    if (! p.first || !p.second) {
 	       std::cout << "Failed to get residue pair from " << file_name << std::endl;
 	    } else { 

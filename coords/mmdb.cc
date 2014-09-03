@@ -242,11 +242,11 @@ fix_nucleic_acid_residue_names(atom_selection_container_t asc) {
       int n_models = asc.mol->GetNumberOfModels();
       for (int imod=1; imod<=n_models; imod++) { 
 
-	 CModel *model_p = asc.mol->GetModel(imod);
+	 mmdb::Model *model_p = asc.mol->GetModel(imod);
 	 // model can legitimately be null if that particular model
 	 // number was not in the PDB file.
 	 if (model_p) { 
-	    CChain *chain_p;
+	    mmdb::Chain *chain_p;
 	    // run over chains of the existing mol
 	    int nchains = model_p->GetNumberOfChains();
 	    if (nchains <= 0) { 
@@ -262,7 +262,7 @@ fix_nucleic_acid_residue_names(atom_selection_container_t asc) {
 		     std::cout << "NULL chain in ... " << std::endl;
 		  } else { 
 		     int nres = chain_p->GetNumberOfResidues();
-		     PCResidue residue_p;
+		     Pmmdb::Residue residue_p;
 		     for (int ires=0; ires<nres; ires++) { 
 			residue_p = chain_p->GetResidue(ires);
 			std::string residue_name(residue_p->name);
@@ -289,11 +289,11 @@ fix_nucleic_acid_residue_names(atom_selection_container_t asc) {
    return istat;
 }
 
-int fix_nucleic_acid_residue_name(CResidue *r) {
+int fix_nucleic_acid_residue_name(mmdb::Residue *r) {
 
    int istat=0;
 
-   PCAtom *residue_atoms;
+   Pmmdb::Atom *residue_atoms;
    int n_residue_atoms;
    bool found_o2_star = 0;
 
@@ -339,9 +339,9 @@ int fix_nucleic_acid_residue_name(CResidue *r) {
 // " H5'" -> "H5*1"
 // "H5''" -> "H5*2"
 void
-convert_to_old_nucleotide_atom_names(CResidue *r) {
+convert_to_old_nucleotide_atom_names(mmdb::Residue *r) {
 
-   PCAtom *residue_atoms;
+   Pmmdb::Atom *residue_atoms;
    int n_residue_atoms;
    r->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int i=0; i<n_residue_atoms; i++) {
@@ -482,16 +482,16 @@ void
 fix_element_name_lengths(CMMDBManager *mol) {
 
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-      CModel *model_p = mol->GetModel(imod);
+      mmdb::Model *model_p = mol->GetModel(imod);
       if (model_p) { 
-	 CChain *chain_p;
+	 mmdb::Chain *chain_p;
 	 int n_chains = model_p->GetNumberOfChains();
 	 for (int ichain=0; ichain<n_chains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    if (chain_p) {
 	       int nres = chain_p->GetNumberOfResidues();
-	       CResidue *residue_p;
-	       CAtom *at;
+	       mmdb::Residue *residue_p;
+	       mmdb::Atom *at;
 	       for (int ires=0; ires<nres; ires++) { 
 		  residue_p = chain_p->GetResidue(ires);
 		  if (residue_p) { 
@@ -521,7 +521,7 @@ centre_of_molecule(atom_selection_container_t SelAtom) {
 
    coot::Cartesian centre; // defaults construction at (0,0,0).
    coot::Cartesian rs;     // running sum
-   PCAtom atom;
+   Pmmdb::Atom atom;
 
    if (SelAtom.n_selected_atoms > 0) { 
       for (int i=0; i< SelAtom.n_selected_atoms; i++) {
@@ -543,7 +543,7 @@ centre_of_molecule(atom_selection_container_t SelAtom) {
 
 // should be a const reference in an ideal world.
 //
-ostream& operator<<(ostream& s, CAtom &atom) {
+ostream& operator<<(ostream& s, mmdb::Atom &atom) {
 
    //
    s << atom.GetModelNum() << "/" << atom.GetChainID() << "/"
@@ -558,7 +558,7 @@ ostream& operator<<(ostream& s, CAtom &atom) {
   
 // needs <iostream.h>
 // 
-ostream& operator<<(ostream& s, PCAtom atom) {
+ostream& operator<<(ostream& s, Pmmdb::Atom atom) {
 
    //
    if (atom) { 
@@ -670,14 +670,14 @@ void
 coot::delete_hydrogens_from_mol(CMMDBManager *mol) {
 
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
-	 CResidue *residue_p;
-	 CAtom *at;
+	 mmdb::Residue *residue_p;
+	 mmdb::Atom *at;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    int n_atoms = residue_p->GetNumberOfAtoms();
@@ -704,14 +704,14 @@ coot::delete_aniso_records_from_atoms(CMMDBManager *mol) {
 
    std::cout << "ASET_Anis_tFac " << ASET_Anis_tFac << " " << ~ASET_Anis_tFac << std::endl;
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
-	 CResidue *residue_p;
-	 CAtom *at;
+	 mmdb::Residue *residue_p;
+	 mmdb::Atom *at;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    int n_atoms = residue_p->GetNumberOfAtoms();
@@ -745,7 +745,7 @@ coot::mol_to_asc_rdkit(const std::string &file_name) {
       }
 
       if (m) {
-	 CResidue *res = coot::make_residue(*m, 0, res_name);
+	 mmdb::Residue *res = coot::make_residue(*m, 0, res_name);
 	 if (res) { 
 	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(res);
 	    asc = make_asc(mol);
@@ -781,9 +781,9 @@ coot::mdl_mol_to_asc(const lig_build::molfile_molecule_t &m) {
    asc.n_selected_atoms = 0;
 
    if (m.atoms.size()) { 
-      CResidue *residue_p = new CResidue;
+      mmdb::Residue *residue_p = new mmdb::Residue;
       for (unsigned int iat=0; iat<m.atoms.size(); iat++) {
-	 CAtom *at = new CAtom;
+	 mmdb::Atom *at = new mmdb::Atom;
 	 at->SetCoordinates(m.atoms[iat].atom_position.x(),
 			    m.atoms[iat].atom_position.y(),
 			    m.atoms[iat].atom_position.z(),
@@ -793,8 +793,8 @@ coot::mdl_mol_to_asc(const lig_build::molfile_molecule_t &m) {
 	 residue_p->AddAtom(at);
       }
 
-      CChain *chain_p = new CChain;
-      CModel *model_p = new CModel;
+      mmdb::Chain *chain_p = new mmdb::Chain;
+      mmdb::Model *model_p = new mmdb::Model;
 
       chain_p->SetChainID("A");
       residue_p->SetResID("UNL", 1, ""); // insertion code of blank

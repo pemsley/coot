@@ -65,9 +65,9 @@ molecule_class_info_t::add_extra_angle_restraint(coot::atom_spec_t atom_1,
 						   coot::atom_spec_t atom_3,
 						   double angle, double esd) {
 
-   CAtom *at_1 = get_atom(atom_1);
-   CAtom *at_2 = get_atom(atom_2);
-   CAtom *at_3 = get_atom(atom_3);
+   mmdb::Atom *at_1 = get_atom(atom_1);
+   mmdb::Atom *at_2 = get_atom(atom_2);
+   mmdb::Atom *at_3 = get_atom(atom_3);
    if (at_1) {
       int atom_index = -1;
       at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
@@ -115,7 +115,7 @@ int
 molecule_class_info_t::add_extra_start_pos_restraint(coot::atom_spec_t atom_1,
 						double esd) {
    int r = -1; // unset
-   CAtom *at_1 = get_atom(atom_1);
+   mmdb::Atom *at_1 = get_atom(atom_1);
    if (at_1) {
       int atom_index = -1;
       at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index

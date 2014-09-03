@@ -43,7 +43,7 @@ CXXCreator::CXXCreator (PCMMDBManager theMMDBManager, int selHnd, int context_se
         
         int neighbour_selhnd;
         int nSelAtomsNeighbours;
-        PPCAtom SelAtomNeighbours;
+        mmdb::PPAtom SelAtomNeighbours;
 
         //theMMDBManager->Select(neighbour_selhnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
 
@@ -108,7 +108,7 @@ CXXCoord CXXCreator::getAtomCoord(int atomNr) {
 		throw theException;
 	}
 	if(SelAtom){
-	PCAtom theAtom = SelAtom[atomNr];
+	Pmmdb::Atom theAtom = SelAtom[atomNr];
         if(theAtom){
 	theCoord.setX(theAtom->x);
 	theCoord.setY(theAtom->y);
@@ -127,7 +127,7 @@ double CXXCreator::getAtomRadius(int atomNr) {
 		throw theException;
 	}
 	if(SelAtom){
-	PCAtom theAtom = SelAtom[atomNr];
+	Pmmdb::Atom theAtom = SelAtom[atomNr];
 	if(theAtom){
 	radius = getVdWaalsRadius(theAtom->element);
 	}
@@ -144,7 +144,7 @@ string CXXCreator::getAtomElement(int atomNr) {
 		CXXException theException = CXXException("ERROR in: CXXCoord::getAtomElement(atomNr) - atomNr out of range");
 		throw theException;
 	}
-	PCAtom theAtom = SelAtom[atomNr];
+	Pmmdb::Atom theAtom = SelAtom[atomNr];
 	
 	theElement = theAtom->element;
 	
@@ -159,7 +159,7 @@ string CXXCreator::getAtomName(int atomNr) {
 		CXXException theException = CXXException("ERROR in: CXXCoord::getAtomName(atomNr) - atomNr out of range");
 		throw theException;
 	}
-	PCAtom theAtom = SelAtom[atomNr];
+	Pmmdb::Atom theAtom = SelAtom[atomNr];
 	theName = theAtom->name;
 	
 	
@@ -176,7 +176,7 @@ string CXXCreator::getAtomResidueName(int atomNr) {
 		CXXException theException = CXXException("ERROR in: CXXCoord::getAtomResidue(atomNr) - atomNr out of range");
 		throw theException;
 	}
-	PCAtom theAtom = SelAtom[atomNr];
+	Pmmdb::Atom theAtom = SelAtom[atomNr];
 	name = theAtom->GetResName();
 	theResidueName = name;
 	
@@ -191,7 +191,7 @@ double CXXCreator::lookUpCharge(int atomNr) {
 	double theCharge = 0.0;
 
 	if(SelAtom){
-	   PCAtom theAtom = SelAtom[atomNr];
+	   Pmmdb::Atom theAtom = SelAtom[atomNr];
 	   if(theAtom){
 	      theCharge = SelAtom[atomNr]->charge;
 	   }

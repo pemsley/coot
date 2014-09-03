@@ -236,8 +236,8 @@ lbg_info_t::residue_from_best_match(CGraph &graph1, CGraph &graph2,
 		      << ipair << std::endl;
 	 } else  {
 
-	    CAtom *at1 = NULL; // = cleaned_res_moving->atom[V1->GetUserID()];
-	    CAtom *at2 = NULL; // = cleaned_res_reference->atom[V2->GetUserID()];
+	    mmdb::Atom *at1 = NULL; // = cleaned_res_moving->atom[V1->GetUserID()];
+	    mmdb::Atom *at2 = NULL; // = cleaned_res_reference->atom[V2->GetUserID()];
 	    coords_1_local.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
 	    coords_2_local.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
 	    std::pair<std::string, std::string> atom_info_1(at1->name, at1->altLoc);

@@ -36,14 +36,14 @@
 namespace coot { 
 
    void write_solvent_accessibilities(const std::vector<std::pair<coot::atom_spec_t, float> > &sav,
-				      CResidue *reference_residue);
+				      mmdb::Residue *reference_residue);
 
    
-   std::map<std::string, std::string> make_flat_ligand_name_map(CResidue *flat_res);
+   std::map<std::string, std::string> make_flat_ligand_name_map(mmdb::Residue *flat_res);
 
    // return 100 if no other contact found (strange!)
    // 
-   double find_water_protein_length(CResidue *ligand_residue, CMMDBManager *mol);
+   double find_water_protein_length(mmdb::Residue *ligand_residue, CMMDBManager *mol);
 
 
    std::vector<fle_ligand_bond_t> get_covalent_bonds(CMMDBManager *mol,
@@ -57,17 +57,17 @@ namespace coot {
 						     int SelHnd_all,
 						     const residue_spec_t &ligand_spec,
 						     const protein_geometry &geom);
-   std::vector<fle_ligand_bond_t> get_covalent_bonds_by_links(CResidue *residue_ligand_p,
+   std::vector<fle_ligand_bond_t> get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 							      CMMDBManager *mol);
 
-   std::vector<fle_ligand_bond_t> get_metal_bonds(CResidue *ligand_res,
-						  const std::vector<CResidue *> &residues);
+   std::vector<fle_ligand_bond_t> get_metal_bonds(mmdb::Residue *ligand_res,
+						  const std::vector<mmdb::Residue *> &residues);
 
 
    // uses the coot::h_bond class (which uses the dictionary).
    // 
-   std::vector<fle_ligand_bond_t> get_fle_ligand_bonds(CResidue *res_ref,
-						       const std::vector<CResidue *> &residues,
+   std::vector<fle_ligand_bond_t> get_fle_ligand_bonds(mmdb::Residue *res_ref,
+						       const std::vector<mmdb::Residue *> &residues,
 						       CMMDBManager *mol,
 						       const std::map<std::string, std::string> &name_map,
 						       const protein_geometry &geom,
@@ -79,7 +79,7 @@ namespace coot {
 			  const std::vector<coot::fle_ligand_bond_t> &bonds_to_ligand,
 			  const std::vector<coot::solvent_exposure_difference_helper_t> &sed,
 			  const pi_stacking_container_t &stacking,
-			  CResidue *res_flat);
+			  mmdb::Residue *res_flat);
 #endif    
 
    bool standard_residue_name_p(const std::string &rn);
@@ -89,8 +89,8 @@ namespace coot {
    std::vector<std::pair<std::string, int> >
    get_prodrg_hybridizations(const std::string &prodrg_log_file_name);
 
-   std::vector<std::pair<CAtom *, std::vector<clipper::Coord_orth> > >
-   get_cannonball_vectors(CResidue *ligand_res_3d,
+   std::vector<std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > >
+   get_cannonball_vectors(mmdb::Residue *ligand_res_3d,
 			  const coot::dictionary_residue_restraints_t &monomer_restraints);
 
    enum { H_IS_RIDING, H_IS_ROTATABLE }; // shared between named_torsion_t and flev_attached_hydrogens_t.
@@ -99,7 +99,7 @@ namespace coot {
    // the reference_residue is the flat residue
    void write_ligand_atom_accessibilities(const std::vector<std::pair<coot::atom_spec_t, float> > &sav,
 					  const coot::flev_attached_hydrogens_t &attached_hydrogens,
-					  CResidue *reference_residue);
+					  mmdb::Residue *reference_residue);
 
    void ligand_check_dialog(residue_spec_t spec,
 			    const ligand_report_absolute_t &lr,

@@ -53,7 +53,7 @@ public :
   int SetFlagBulge ( int flag );
   std::string Print(int imodel = 0);
   void ClearMemory();
-  PPCAtom* GetHBondAtoms(int imodel=0);
+  mmdb::PPAtom* GetHBondAtoms(int imodel=0);
 
  private:
 
@@ -65,12 +65,12 @@ public :
   int nRes;
   imatrix hbonds;
   ivector secstr;
-  PPCAtom *hbond_atoms;
+  mmdb::PPAtom *hbond_atoms;
      
   int hbondsN;  //The first element dimension of hbonds - required for freeing memory
   void InitParams();
   int CalculateSecondaryStructure(int imodel = 0);
   int InitMemory( int nRes );
-  Boolean IsHBond ( PCResidue PCRes1, PCResidue PCRes );
+  Boolean IsHBond ( Pmmdb::Residue PCRes1, Pmmdb::Residue PCRes );
 };
 #endif

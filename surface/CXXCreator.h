@@ -59,7 +59,7 @@ private:
 	// Matter
 	PCMMDBManager  theMMDBManager;
 	int  nSelAtoms;
-	PPCAtom SelAtom;
+	mmdb::PPAtom SelAtom;
 	
 	// private read accessors
 	double lookUpCharge(int atomNr);

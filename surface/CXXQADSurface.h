@@ -34,7 +34,7 @@ private:
 		double sample;
 	double probeRadius;
 	double atomRadius;
-	PPCAtom	selectedAtoms;
+	mmdb::PPAtom	selectedAtoms;
 	int nSelectedAtoms;
 	clipper::Xmap<double> theDoubleMap;	
 	clipper::Xmap<int> theFlagMap;	
@@ -79,7 +79,7 @@ private:
 	int calculateAveragedNormals();
 	double maxAtomRadius;
 	double fastGetAtomRadius(int iAtom) {return atomRadii[iAtom];}
-	double getAtomRadius(PCAtom);
+	double getAtomRadius(Pmmdb::Atom);
 	int transformTriTable();	
 	int setInaccessibleDistanceSq();
 	int sqrtDistanceSq();

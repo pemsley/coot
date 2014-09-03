@@ -200,7 +200,7 @@ namespace coot {
 			     clipper::Xmap<float> *xmap_p);  // alter xmap_p
       void mask_around_coord(const clipper::Coord_orth &co, float atom_radius,
 			     clipper::Xmap<int> *xmap_p);  // alter xmap_p, template?
-      int make_selected_atoms(PPCAtom *atoms_p, CMMDBManager *mol); 
+      int make_selected_atoms(mmdb::PPAtom *atoms_p, CMMDBManager *mol); 
 
       // for graphics "refine one residue" fitting, we don't want to
       // test orientations other than the first (identity) one.

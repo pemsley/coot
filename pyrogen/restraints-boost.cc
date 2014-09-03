@@ -48,14 +48,14 @@ coot::regularize_with_dict(RDKit::ROMol &mol_in, PyObject *restraints_py, const 
    coot::dictionary_residue_restraints_t dict_restraints = 
       monomer_restraints_from_python(restraints_py);
    RDKit::RWMol *m = new RDKit::RWMol(mol_in);
-   CResidue *residue_p = make_residue(mol_in, 0, comp_id);
+   mmdb::Residue *residue_p = make_residue(mol_in, 0, comp_id);
    if (! residue_p) {
       std::cout << "WARNING:: bad residue " << std::endl;
    } else {
       // deep copy residue and add to new molecule.
       CMMDBManager *cmmdbmanager = util::create_mmdbmanager_from_residue(residue_p);
-      CResidue *new_residue_p = coot::util::get_first_residue(cmmdbmanager);
-      PPCAtom residue_atoms = 0;
+      mmdb::Residue *new_residue_p = coot::util::get_first_residue(cmmdbmanager);
+      mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       new_residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       std::cout << "------------------ simple_refine() called from "
@@ -81,7 +81,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
    bool idealized = false;
    bool try_autoload_if_needed = false;
    
-   CResidue *r = geom.get_residue(comp_id, idealized, try_autoload_if_needed);
+   mmdb::Residue *r = geom.get_residue(comp_id, idealized, try_autoload_if_needed);
 
    std::pair<bool, dictionary_residue_restraints_t> rest = geom.get_monomer_restraints(comp_id);
    if (rest.first) {

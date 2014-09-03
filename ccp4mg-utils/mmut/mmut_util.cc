@@ -95,7 +95,7 @@ void printintpp(int **a, int rows, int cols){
 
 }
 
-std::vector<Cartesian> PPCAtomsToCartesians(int natoms, PPCAtom atoms){
+std::vector<Cartesian> mmdb::PPAtomsToCartesians(int natoms, mmdb::PPAtom atoms){
 
   std::vector<Cartesian> carts(natoms);
 

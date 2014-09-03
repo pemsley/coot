@@ -252,7 +252,7 @@ namespace coot {
 
    class intermediate_atom_distance_t {
      Cartesian static_position;
-     CAtom *dynamic_atom;
+     mmdb::Atom *dynamic_atom;
      bool static_pos_filled_flag;
      
    public: 
@@ -265,7 +265,7 @@ namespace coot {
        static_position = pt;
        static_pos_filled_flag = 1;
      }
-     intermediate_atom_distance_t(CAtom *at) { 
+     intermediate_atom_distance_t(mmdb::Atom *at) { 
        dynamic_atom = at;
        static_pos_filled_flag = 0;
      }
@@ -274,7 +274,7 @@ namespace coot {
      bool atom_is_filled() const {
        return (dynamic_atom != 0);
      }
-     void add_atom(CAtom *at) {
+     void add_atom(mmdb::Atom *at) {
        dynamic_atom = at;
      }
      void add_static_point(Cartesian &pt) {
@@ -588,7 +588,7 @@ class graphics_info_t {
    // coot::rotamer_probability_info_t get_rotamer_probability(...)
 
    static atom_selection_container_t *moving_atoms_asc;
-   CResidue *get_first_res_of_moving_atoms();
+   mmdb::Residue *get_first_res_of_moving_atoms();
    static int imol_moving_atoms;
    static int imol_refinement_map;
    static int moving_atoms_n_cis_peptides; 
@@ -669,7 +669,7 @@ class graphics_info_t {
    // baton tip (is the baton root)
    static std::vector<clipper::Coord_orth> *baton_previous_ca_positions; // up to 3.
    coot::Cartesian non_skeleton_tip_pos() const; 
-   void baton_next_directions(int imol_for_skel, CAtom *atom, const coot::Cartesian& pos,
+   void baton_next_directions(int imol_for_skel, mmdb::Atom *atom, const coot::Cartesian& pos,
 			      const clipper::Coord_grid &cg_start,
 			      short int use_cg_start);
    coot::Cartesian baton_tip_by_ca_option(int index) const;
@@ -825,7 +825,7 @@ class graphics_info_t {
 			       int resno_1,
 			       int resno_2,
 			       int nSelResidues,
-			       PCResidue *SelResidues,
+			       Pmmdb::Residue *SelResidues,
 			       const std::string &chain_id_1,
 			       const std::string &altconf,
 			       short int have_flanking_residue_at_start,
@@ -1632,7 +1632,7 @@ public:
 
    void update_things_on_move();
    void update_things_on_move_and_redraw();
-   void update_ramachandran_plot_point_maybe(int imol, CAtom *atom);
+   void update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom);
    void update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec);
    void update_ramachandran_plot_point_maybe(int imol, atom_selection_container_t moving_atoms);
    
@@ -1813,11 +1813,11 @@ public:
 
    int try_centre_from_new_go_to_atom();
 
-   void update_widget_go_to_atom_values(GtkWidget *window, CAtom *atom);
-   void make_synthetic_select_on_residue_list(GtkWidget *residue_list, CAtom *atom_p) const;
+   void update_widget_go_to_atom_values(GtkWidget *window, mmdb::Atom *atom);
+   void make_synthetic_select_on_residue_list(GtkWidget *residue_list, mmdb::Atom *atom_p) const;
 
-   void make_synthetic_select_on_residue_tree(GtkWidget *residue_list, CAtom *atom_p) const;
-   void make_synthetic_select_on_residue_tree_gtk1(GtkWidget *residue_list, CAtom *atom_p) const;
+   void make_synthetic_select_on_residue_tree(GtkWidget *residue_list, mmdb::Atom *atom_p) const;
+   void make_synthetic_select_on_residue_tree_gtk1(GtkWidget *residue_list, mmdb::Atom *atom_p) const;
 
    void update_go_to_atom_window_on_changed_mol(int imol); 
    void update_go_to_atom_window_on_new_mol(); 
@@ -1929,7 +1929,7 @@ public:
 
    pick_info find_atom_index_from_goto_info(int imol);
    // int find_atom_index_in_moving_atoms(char *chain_id, int resno, char *atom_name) const;
-   CAtom *find_atom_in_moving_atoms(const coot::atom_spec_t &at) const;
+   mmdb::Atom *find_atom_in_moving_atoms(const coot::atom_spec_t &at) const;
 
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick() const;
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const;
@@ -2039,7 +2039,7 @@ public:
 
    static short int in_torsion_general_define;
    // static int rot_trans_atom_index_rotation_origin_atom; old naive way.
-   static CAtom *rot_trans_rotation_origin_atom; // "Eugene's way"
+   static mmdb::Atom *rot_trans_rotation_origin_atom; // "Eugene's way"
 
    static short int in_user_defined_define; 
 
@@ -2050,7 +2050,7 @@ public:
    static int save_coordinates_in_original_dir_flag;
 
    // Was private, but need to be used by auto_fit_best_rotamer() scripting function.
-   void update_geometry_graphs(PCResidue *SelResidues, int nSelResidues, int imol_coords, int imol_map);
+   void update_geometry_graphs(Pmmdb::Residue *SelResidues, int nSelResidues, int imol_coords, int imol_map);
    void delete_residue_from_geometry_graphs(int imol, coot::residue_spec_t res_spec); 
 
 
@@ -2174,24 +2174,24 @@ public:
    int copy_model_molecule(int imol);
 
    bool check_for_no_restraints_object(std::string &resname_1, std::string &resname_2) const;
-   bool check_for_single_hetatom(CResidue *res_p) const;
+   bool check_for_single_hetatom(mmdb::Residue *res_p) const;
 
 
    // void (int imol,
-   // const std::vector<CResidue *> &residues); 
+   // const std::vector<mmdb::Residue *> &residues); 
 
 
    // return 0 if any of the residues in selection don't have (at least) bond 
    // restraints.  Try to auto-load the dictionary cifs and try again.
    // The vector is a list of residues for which no restraints could be found.
    std::pair<int, std::vector<std::string> >
-   check_dictionary_for_residue_restraints(PCResidue *SelResidues, int nSelResidues);
+   check_dictionary_for_residue_restraints(Pmmdb::Residue *SelResidues, int nSelResidues);
    std::pair<int, std::vector<std::string> >
-   check_dictionary_for_residue_restraints(const std::vector<CResidue *> &residues);
+   check_dictionary_for_residue_restraints(const std::vector<mmdb::Residue *> &residues);
 
    // called by copy_mol_and_refine and copy_mol_and_regularize
    // 
-   CMMDBManager *create_mmdbmanager_from_res_selection(PCResidue *SelResidues, 
+   CMMDBManager *create_mmdbmanager_from_res_selection(Pmmdb::Residue *SelResidues, 
 						       int nSelResidues, 
 						       int have_flanking_residue_at_start,
 						       int have_flanking_residue_at_end, 
@@ -2200,35 +2200,35 @@ public:
 						       short int residue_from_alt_conf_split_flag,
 						       int imol); // imol is for uddatom index
 
-   // called by simple_refine_residues (a refinement from a vector of CResidues).
+   // called by simple_refine_residues (a refinement from a vector of mmdb::Residues).
    // 
    // The returned mol should have flanking residues too.
    //
    // return also a vector of residues that correspond to the residues
    // that were input - the non-fixed residues.
    // 
-   std::pair<CMMDBManager *, std::vector<CResidue *> >
-   create_mmdbmanager_from_res_vector(const std::vector<CResidue *> &residues,
+   std::pair<CMMDBManager *, std::vector<mmdb::Residue *> >
+   create_mmdbmanager_from_res_vector(const std::vector<mmdb::Residue *> &residues,
 				      int imol, // for uddatom index.
 				      CMMDBManager *mol,
 				      std::string alt_conf);
 
-   // simple CResidue * interface to refinement.  20081216
+   // simple mmdb::Residue * interface to refinement.  20081216
    coot::refinement_results_t
      generate_molecule_and_refine(int imol,  // needed for UDD Atom handle transfer
-				  const std::vector<CResidue *> &residues,
+				  const std::vector<mmdb::Residue *> &residues,
 				  const char *alt_conf,
 				  CMMDBManager *mol, 
 				  bool use_map_flag);
 
    coot::refinement_results_t
      refine_residues_vec(int imol, 
-			 const std::vector<CResidue *> &residues,
+			 const std::vector<mmdb::Residue *> &residues,
 			 const char *alt_conf,
 			 CMMDBManager *mol);
    coot::refinement_results_t
      regularize_residues_vec(int imol, 
-			     const std::vector<CResidue *> &residues,
+			     const std::vector<mmdb::Residue *> &residues,
 			     const char *alt_conf,
 			     CMMDBManager *mol);
 			       
@@ -2302,7 +2302,7 @@ public:
    density_fit_from_mol(const atom_selection_container_t &asc, int imol_moving_atoms,
 			int imol_for_map);
    std::vector<coot::geometry_graph_block_info_generic>
-   density_fit_from_residues(PCResidue *SelResidues, int nSelResidues,
+   density_fit_from_residues(Pmmdb::Residue *SelResidues, int nSelResidues,
 			     int imol_moving_atoms,
 			     int imol_for_map) const;
 
@@ -2312,7 +2312,7 @@ public:
    std::vector<coot::geometry_graph_block_info_generic>
      rotamers_from_mol(const atom_selection_container_t &asc, int imol_moving_atoms);
    std::vector<coot::geometry_graph_block_info_generic>
-     rotamers_from_residue_selection(PCResidue *SelResidues,
+     rotamers_from_residue_selection(Pmmdb::Residue *SelResidues,
 				   int nSelResidues, int imol); 
 
    std::vector<coot::geometry_graph_block_info_generic> ncs_diffs_from_mol(int imol);
@@ -2322,7 +2322,7 @@ public:
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
    // now used for rotamer_score (from c-interface.h), so it is now not GTK2-only 20090817
-   coot::rotamer_probability_info_t get_rotamer_probability(CResidue *res,
+   coot::rotamer_probability_info_t get_rotamer_probability(mmdb::Residue *res,
 							    const std::string &alt_conf,
 							    CMMDBManager *mol,
 							    float lowest_probability,
@@ -2575,12 +2575,12 @@ public:
 
    void execute_add_terminal_residue(int imol, 
 				     const std::string &terminus,
-				     CResidue *res_p,
+				     mmdb::Residue *res_p,
 				     const std::string &chain_id, 
 				     const std::string &res_type,
 				     short int immediate_addition_flag);
    void execute_simple_nucleotide_addition(int imol, const std::string &term_type, 
-					   CResidue *res_p, const std::string &chain_id);
+					   mmdb::Residue *res_p, const std::string &chain_id);
 
    static short int add_terminal_residue_immediate_addition_flag;
    static short int refinement_immediate_replacement_flag;  // don't dialog me please
@@ -2641,9 +2641,9 @@ public:
    // 
    static void fill_output_residue_info_widget(GtkWidget *widget, int imol,
 					       std::string residue_name,
-					       PPCAtom atoms, int n_atoms);
+					       mmdb::PPAtom atoms, int n_atoms);
    static void fill_output_residue_info_widget_atom(GtkWidget *widget,
-						    int imol, PCAtom atom, int iat);
+						    int imol, Pmmdb::Atom atom, int iat);
    // and the keypres callbacks for the above
    static gboolean on_residue_info_occ_entry_key_release_event (GtkWidget       *widget,
 								GdkEventKey     *event,
@@ -3102,20 +3102,20 @@ public:
    // (used by rotate_chi)
    // We need to pass the asc for the mol because we need it for seekcontacts()
    // 
-   short int update_residue_by_chi_change(CResidue *residue,
+   short int update_residue_by_chi_change(mmdb::Residue *residue,
 					  atom_selection_container_t &asc,
 					  int chi, double diff);
    // temporary storage, during the change-over
-   short int update_residue_by_chi_change_old(CResidue *residue,
+   short int update_residue_by_chi_change_old(mmdb::Residue *residue,
 					  atom_selection_container_t &asc,
 					  int chi, double diff);
    // this can throw an exception.
-   std::pair<std::string, std::string> get_chi_atom_names(CResidue *residue,
+   std::pair<std::string, std::string> get_chi_atom_names(mmdb::Residue *residue,
 							  const coot::dictionary_residue_restraints_t &rest,
 							  int nth_chi) const;
 
 
-   std::vector<std::vector<int> > get_contact_indices_from_restraints(CResidue *residue, 
+   std::vector<std::vector<int> > get_contact_indices_from_restraints(mmdb::Residue *residue, 
 								      const atom_selection_container_t &asc, 
 								      short int is_regular_residue_flag) const;
 
@@ -3191,8 +3191,8 @@ public:
 
    static void drag_intermediate_atom(const coot::atom_spec_t &atom_spec, const clipper::Coord_orth &pt);
    static void mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec, bool state);
-   // static std::vector<CAtom *> fixed_intermediate_atoms;
-   static bool fixed_atom_for_refinement_p(CAtom *);  // examines the imol_moving_atoms molecule
+   // static std::vector<mmdb::Atom *> fixed_intermediate_atoms;
+   static bool fixed_atom_for_refinement_p(mmdb::Atom *);  // examines the imol_moving_atoms molecule
                                                       // for correspondence
 
    // mol is new (not from molecules[imol]) molecule for the moving atoms.
@@ -3201,7 +3201,7 @@ public:
 						    int resno_1, 
 						    int resno_2) const;
    atom_selection_container_t make_moving_atoms_asc(CMMDBManager *mol,
-						    const std::vector<CResidue *> &residues) const;
+						    const std::vector<mmdb::Residue *> &residues) const;
    // so that we know that fixed_points_sheared_drag_1 and
    // fixed_points_sheared_drag_2 are sensible:
    // 
@@ -3315,16 +3315,16 @@ public:
    void print_ssm_sequence_alignment(ssm::Align *SSMAlign,
 				     atom_selection_container_t asc_ref,
 				     atom_selection_container_t asc_mov,
-				     PCAtom *atom_selection1, 
-				     PCAtom *atom_selection2, 
+				     Pmmdb::Atom *atom_selection1, 
+				     Pmmdb::Atom *atom_selection2, 
 				     int n_selected_atoms_1, int n_selected_atoms_2, 
 				     short int move_copy_of_imol2_flag);
 
    void make_and_print_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 							 atom_selection_container_t asc_ref,
 							 atom_selection_container_t asc_mov,
-							 PCAtom *atom_selection1, 
-							 PCAtom *atom_selection2, 
+							 Pmmdb::Atom *atom_selection1, 
+							 Pmmdb::Atom *atom_selection2, 
 							 int n_selected_atoms_1, int n_selected_atoms_2) const;
    // 
    void print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const;
@@ -3333,7 +3333,7 @@ public:
       get_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 					   atom_selection_container_t asc_ref,
 					   atom_selection_container_t asc_mov,
-					   PCAtom *atom_selection1, PCAtom *atom_selection2,
+					   Pmmdb::Atom *atom_selection1, Pmmdb::Atom *atom_selection2,
 					   int n_selected_atoms_1, int n_selected_atoms_2) const;
 
 #endif  // HAVE_SSMLIB
@@ -3605,7 +3605,7 @@ public:
    static std::vector<coot::mtz_column_trials_info_t> user_defined_auto_mtz_pairs;
 
    // ---- cis trans conversion ---
-   void cis_trans_conversion(CAtom *at, int imol, short int is_N_flag);
+   void cis_trans_conversion(mmdb::Atom *at, int imol, short int is_N_flag);
 
    // symmetry control dialog:
    GtkWidget *wrapped_create_symmetry_controller_dialog() const;
@@ -3684,7 +3684,7 @@ public:
    
    // --- keyboarding the Go To Atom (or residue, really)
    static void apply_go_to_residue_keyboading_string(const std::string &text);
-   void apply_go_to_residue_keyboading_string_inner(int imol, CAtom *new_centre_atom);
+   void apply_go_to_residue_keyboading_string_inner(int imol, mmdb::Atom *new_centre_atom);
    // go to the middle residue of the first occurance of the sequence triplet if you can
    // seq_trip is of course something like "ACE"
    // return the "found the triplet and moved there" status: 0 for fail.
@@ -3878,7 +3878,7 @@ string   static std::string sessionid;
    // bottom left ligand view 
    void setup_graphics_ligand_view_aa();
    void setup_graphics_ligand_view_aa(int imol); // only allow imol to be potential active residue.
-   void setup_graphics_ligand_view(int imol, CResidue *residue, const std::string &alt_conf);
+   void setup_graphics_ligand_view(int imol, mmdb::Residue *residue, const std::string &alt_conf);
    // which stores in:
    static graphics_ligand_molecule graphics_ligand_mol;
 
@@ -3906,7 +3906,7 @@ string   static std::string sessionid;
    // place helix here fudge factor (for EM maps?)
    static float place_helix_here_fudge_factor;
 
-   coot::geometry_distortion_info_container_t geometric_distortions(CResidue *residue_p);
+   coot::geometry_distortion_info_container_t geometric_distortions(mmdb::Residue *residue_p);
 
    static bool linked_residue_fit_and_refine_state;
 
@@ -3933,7 +3933,7 @@ GtkWidget *wrapped_create_accept_reject_refinement_dialog();
 void update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 					      coot::accept_reject_text_type text_type,
 					      const coot::refinement_results_t &rr);
-GtkWidget *wrapped_create_multi_residue_torsion_dialog(const std::vector<std::pair<CAtom *, CAtom *> > &pairs);
+GtkWidget *wrapped_create_multi_residue_torsion_dialog(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &pairs);
 
 // Some currently useless Perspective View definition
 // 

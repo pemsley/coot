@@ -34,7 +34,7 @@ namespace coot {
    class torsion_general {
       enum setup_params { NO, YES, FAIL=-1 };
       bool setup_correctly;
-      CResidue *residue_p;
+      mmdb::Residue *residue_p;
       CMMDBManager *mol;
       std::vector<atom_spec_t> user_defined_torsion_atoms;
       std::vector<int> clicked_atom_indices;
@@ -44,7 +44,7 @@ namespace coot {
       int atom_index(const coot::atom_spec_t &spec) const;
       std::vector<std::vector<int> > get_contact_indices() const;
    public:
-      torsion_general(CResidue *res, CMMDBManager *residue_mol_in,
+      torsion_general(mmdb::Residue *res, CMMDBManager *residue_mol_in,
 		      const std::vector<atom_spec_t> &user_defined_torsion_atoms_in);
       int change_by(double diff, Tree *tree); // tree is modified
       Tree GetTree() const;

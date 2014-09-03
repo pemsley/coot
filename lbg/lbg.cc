@@ -133,7 +133,7 @@ lbg(lig_build::molfile_molecule_t mm,
 	       if (ligand_spec_pair.first)
 		  lbg->set_ligand_spec(ligand_spec_pair.second);
 
-	       CResidue *residue_p = coot::util::get_first_residue(mol);
+	       mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
 	       if (residue_p) {
 		  std::string res_name = residue_p->GetResName();
 		  gtk_label_set_text(GTK_LABEL(lbg->lbg_toolbar_layout_info_label), res_name.c_str());

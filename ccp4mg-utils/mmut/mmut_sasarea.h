@@ -68,7 +68,7 @@ private:
   int WodakAndJanin( realtype *radwithhoh,int imodel);
   int SurfacePoints( realtype *radwithhoh,int imodel);
   int ResSASArea (int imodel);
-  //int GetAtomTypes(int natoms, PPCAtom selected_atoms, 
+  //int GetAtomTypes(int natoms, mmdb::PPAtom selected_atoms, 
     //	int iatom_types[], int iatom_types_lookup[] );
   void  SortAB(realtype *arci, realtype *arcf, int &karc);
   void ArcLap(realtype *arci, realtype *arcf, int &karc);

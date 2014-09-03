@@ -81,7 +81,7 @@ namespace coot {
 	    }
 	 } 
       } 
-      double torsion(CResidue *residue) const;
+      double torsion(mmdb::Residue *residue) const;
       friend std::ostream& operator<<(std::ostream &o, const atom_name_quad &q);
    };
    std::ostream& operator<<(std::ostream &o, const atom_name_quad &q);
@@ -110,29 +110,29 @@ namespace coot {
       // 
       // Can throw an exception on not all indices found
       // 
-      double torsion(CResidue *res) const;
+      double torsion(mmdb::Residue *res) const;
 
       // as above, but we reference atoms in a selection rather than a
       // residue.
       // 
-      double torsion(PPCAtom atom_selection, int n_selected_atoms) const;
+      double torsion(mmdb::PPAtom atom_selection, int n_selected_atoms) const;
       
       friend std::ostream& operator<<(std::ostream &o, const atom_index_quad &q);
    };
    std::ostream& operator<<(std::ostream &o, const atom_index_quad &q);
 
    class atom_quad {
-      atom_quad setup_chiral_quad(CResidue *residue_with_O, CResidue *residue_with_chiral_centre,
+      atom_quad setup_chiral_quad(mmdb::Residue *residue_with_O, mmdb::Residue *residue_with_chiral_centre,
 				  const std::string &O_name,
 				  const std::vector<std::string> &chiral_atom_names) const;
       
    public:
-      CAtom *atom_1;
-      CAtom *atom_2;
-      CAtom *atom_3;
-      CAtom *atom_4;
+      mmdb::Atom *atom_1;
+      mmdb::Atom *atom_2;
+      mmdb::Atom *atom_3;
+      mmdb::Atom *atom_4;
       std::string name;
-      atom_quad(CAtom *atom_1_in, CAtom *atom_2_in, CAtom *atom_3_in, CAtom *atom_4_in) {
+      atom_quad(mmdb::Atom *atom_1_in, mmdb::Atom *atom_2_in, mmdb::Atom *atom_3_in, mmdb::Atom *atom_4_in) {
 	 atom_1 = atom_1_in;
 	 atom_2 = atom_2_in;
 	 atom_3 = atom_3_in;
@@ -146,7 +146,7 @@ namespace coot {
 	 atom_4 = NULL;
 	 name = "";
       }
-      atom_quad(CResidue *first, CResidue *second, const std::string &link);
+      atom_quad(mmdb::Residue *first, mmdb::Residue *second, const std::string &link);
       bool filled_p() const; // ! were there any nulls?
       
       friend std::ostream& operator<<(std::ostream &o, const atom_quad &q);
@@ -172,10 +172,10 @@ namespace coot {
       double angle_esd;
       std::string residue_name; // set in the case of monomer torsions.
       torsion_atom_quad() : atom_quad() {}
-      torsion_atom_quad(CAtom *atom_1_in,
-			CAtom *atom_2_in,
-			CAtom *atom_3_in,
-			CAtom *atom_4_in,
+      torsion_atom_quad(mmdb::Atom *atom_1_in,
+			mmdb::Atom *atom_2_in,
+			mmdb::Atom *atom_3_in,
+			mmdb::Atom *atom_4_in,
 			double angle_in, double angle_esd_in, int period_in) :
 	 atom_quad(atom_1_in, atom_2_in, atom_3_in, atom_4_in) {
 	 period = period_in;

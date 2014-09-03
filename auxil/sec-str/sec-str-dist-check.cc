@@ -10,7 +10,7 @@ int main(int argc, char **argv) {
       std::string filename = argv[1];
       CMMDBManager *mol = get_mol(filename);
       if (mol) { 
-	 CModel *model_p = mol->GetModel(1);
+	 mmdb::Model *model_p = mol->GetModel(1);
 	 int status = model_p->CalcSecStructure(1);
 	 if (status == SSERC_Ok) {
 	    std::cout << "INFO:: SSE status was OK\n";
@@ -34,17 +34,17 @@ int main(int argc, char **argv) {
 //   Helix  stats: 3.56436 +/- 0.333756
 // 
 void
-distance_checks(CModel *model_p) {
+distance_checks(mmdb::Model *model_p) {
 
    int imod = 1;
       
-   CChain *chain_p;
+   mmdb::Chain *chain_p;
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
-      PCResidue residue_p_1;
-      PCResidue residue_p_2;
+      Pmmdb::Residue residue_p_1;
+      Pmmdb::Residue residue_p_2;
       for (int ires=0; ires<(nres-1); ires++) {
 	 residue_p_1 = chain_p->GetResidue(ires);
 	 residue_p_2 = chain_p->GetResidue(ires+1);
@@ -74,7 +74,7 @@ distance_checks(CModel *model_p) {
    }
 }
 
-int SSE(CResidue *res) {
+int SSE(mmdb::Residue *res) {
    return res->SSE;
 } 
 
@@ -94,11 +94,11 @@ CMMDBManager *get_mol(const std::string &filename) {
 
 // return -1 on failure
 // 
-float oxygen_check(CResidue *residue_p_1, CResidue *residue_p_2) {
+float oxygen_check(mmdb::Residue *residue_p_1, mmdb::Residue *residue_p_2) {
 
    int n_atoms_1 = residue_p_1->GetNumberOfAtoms();
    int n_atoms_2 = residue_p_2->GetNumberOfAtoms();
-   CAtom *at, *at2;
+   mmdb::Atom *at, *at2;
    float d = -1;
    short int done_it = 0; 
    

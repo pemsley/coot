@@ -173,7 +173,7 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 	 if (is_valid_model_molecule(imol_ref)) { 
 	    graphics_info_t g;
 	    CMMDBManager *mol_ref = g.molecules[imol_ref].atom_sel.mol;
-	    CResidue *res_ref = coot::util::get_residue(chain_id_ref,
+	    mmdb::Residue *res_ref = coot::util::get_residue(chain_id_ref,
 							resno_ref, "",
 							mol_ref);
 	    if (res_ref) {
@@ -304,8 +304,8 @@ compare_ligand_atom_types_scm(int imol_ligand, int imol_ref, const char *chain_i
       } else { 
 
 	 graphics_info_t g;
-	 CResidue *res_ref = g.molecules[imol_ref].get_residue(chain_id_ref, resno_ref, "");
-	 CResidue *res_mov = g.molecules[imol_ligand].get_first_residue();
+	 mmdb::Residue *res_ref = g.molecules[imol_ref].get_residue(chain_id_ref, resno_ref, "");
+	 mmdb::Residue *res_mov = g.molecules[imol_ligand].get_first_residue();
 
 	 if (! res_ref) {
 	    std::cout << "WARNING failed to find reference residue" << std::endl;
@@ -375,8 +375,8 @@ compare_ligand_atom_types_py(int imol_ligand, int imol_ref, const char *chain_id
       } else { 
 
 	 graphics_info_t g;
-	 CResidue *res_ref = g.molecules[imol_ref].get_residue(chain_id_ref, resno_ref, "");
-	 CResidue *res_mov = g.molecules[imol_ligand].get_first_residue();
+	 mmdb::Residue *res_ref = g.molecules[imol_ref].get_residue(chain_id_ref, resno_ref, "");
+	 mmdb::Residue *res_mov = g.molecules[imol_ligand].get_first_residue();
 
      if (! res_ref) {
         std::cout << "WARNING failed to find reference residue" << std::endl;
@@ -435,11 +435,11 @@ overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref
 
    coot::graph_match_info_t graph_info;
    
-   CResidue *residue_moving = 0;
-   CResidue *residue_reference = 0;
+   mmdb::Residue *residue_moving = 0;
+   mmdb::Residue *residue_reference = 0;
 
    // running best ligands:
-   CResidue *best_residue_moving = NULL;
+   mmdb::Residue *best_residue_moving = NULL;
    double best_score = 99999999.9; // low score good.
    clipper::RTop_orth best_rtop;
    
@@ -454,13 +454,13 @@ overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref
    CMMDBManager *mol_ref    = graphics_info_t::molecules[imol_ref].atom_sel.mol;
    
    for (int imod=1; imod<=mol_moving->GetNumberOfModels(); imod++) { 
-      CModel *model_p = mol_moving->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol_moving->GetModel(imod);
+      mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
-	 PCResidue residue_p;
+	 Pmmdb::Residue residue_p;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    if (residue_p) { 
@@ -479,14 +479,14 @@ overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref
 	 std::cout << "Oops.  Failed to find moving residue" << std::endl;
       } else { 
 	 int imodel_ref = 1;
-	 CModel *model_ref_p = mol_ref->GetModel(imodel_ref);
-	 CChain *chain_p;
+	 mmdb::Model *model_ref_p = mol_ref->GetModel(imodel_ref);
+	 mmdb::Chain *chain_p;
 	 int nchains = model_ref_p->GetNumberOfChains();
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_ref_p->GetChain(ichain);
 	    if (std::string(chain_p->GetChainID()) == std::string(chain_id_ref)) { 
 	       int nres = chain_p->GetNumberOfResidues();
-	       PCResidue residue_p;
+	       Pmmdb::Residue residue_p;
 	       for (int ires=0; ires<nres; ires++) { 
 		  residue_p = chain_p->GetResidue(ires);
 		  if (residue_p) {
@@ -558,7 +558,7 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 	    std::pair<short int, coot::dictionary_residue_restraints_t> rp_2 =
 	       geom_matcher.get_monomer_restraints(cif_dict_comp_id);
 	    if (rp_2.first) {
-	       CResidue *residue_p = NULL; // for the moment
+	       mmdb::Residue *residue_p = NULL; // for the moment
 	       // std::cout << "------ about to match "
 	       // << rp_2.second.residue_info.comp_id << " to "
 	       // << rp_1.second.residue_info.comp_id << " names" << std::endl;
@@ -1258,8 +1258,8 @@ on_monomer_lib_search_results_button_press (GtkButton *button,
 // 
 // atom_selection_container_t rigid_body_asc;
 
-//       std::vector<CAtom *> atoms;
-//       CAtom *at;
+//       std::vector<mmdb::Atom *> atoms;
+//       mmdb::Atom *at;
 
 //       for (int n=0; n<g.molecules[imol].atom_sel.n_selected_atoms; n++) {
 // 	 at = g.molecules[imol].atom_sel.atom_selection[n];
@@ -1280,7 +1280,7 @@ on_monomer_lib_search_results_button_press (GtkButton *button,
 // 	 }
 //       }
 
-//       PPCAtom atom_selection = new CAtom *[atoms.size()];
+//       mmdb::PPAtom atom_selection = new mmdb::Atom *[atoms.size()];
 //       for (int i=0; i<atoms.size(); i++) 
 // 	 atom_selection[i] = atoms[i];
 
@@ -1531,7 +1531,7 @@ PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y,
 
    if (is_valid_map_molecule(imol_map)) {
 
-      CAtom *at = new CAtom;
+      mmdb::Atom *at = new mmdb::Atom;
       at->SetCoordinates(x,y,z, 1.0, 10.0);
       at->SetAtomName(" CA ");
       at->SetElementName(" C");
@@ -1612,7 +1612,7 @@ SCM map_peaks_near_point_scm(int imol_map, float n_sigma, float x, float y, floa
    if (is_valid_map_molecule(imol_map)) {
 
       graphics_info_t g;
-      CAtom *at = new CAtom;
+      mmdb::Atom *at = new mmdb::Atom;
       at->SetCoordinates(x,y,z,1.0,10.0);
       at->SetAtomName(" CA ");
       at->SetElementName(" C");
@@ -1810,11 +1810,11 @@ int get_ccp4srs_monomer_and_dictionary(const char *comp_id) {
    int imol = -1;
 
    graphics_info_t g;
-   CResidue *residue_p = g.Geom_p()->get_ccp4srs_residue(comp_id);
+   mmdb::Residue *residue_p = g.Geom_p()->get_ccp4srs_residue(comp_id);
    if (residue_p) {
       CMMDBManager *mol = new CMMDBManager;
-      CModel *model_p = new CModel;
-      CChain *chain_p = new CChain;
+      mmdb::Model *model_p = new mmdb::Model;
+      mmdb::Chain *chain_p = new mmdb::Chain;
       residue_p->SetResID(comp_id, 1, "");
       chain_p->AddResidue(residue_p);
       chain_p->SetChainID("A");
@@ -1920,7 +1920,7 @@ void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int r
 	      std::cout << "Not a valid model number " << imol_reference << std::endl;
       } else {
 	 graphics_info_t g;
-	 CResidue *res_ref =
+	 mmdb::Residue *res_ref =
 	    g.molecules[imol_reference].get_residue(chain_id_reference, resno_reference, ins_code_reference);
 	 if (! res_ref) {
 	    std::cout << "No reference residue " << chain_id_reference << " " << resno_reference
@@ -2353,7 +2353,7 @@ int het_group_n_atoms(const char *comp_id) {
 SCM new_molecule_sans_biggest_ligand_scm(int imol) {
 
    SCM r = SCM_BOOL_F;
-   std::pair<CResidue *, int> res = new_molecule_sans_biggest_ligand(imol);
+   std::pair<mmdb::Residue *, int> res = new_molecule_sans_biggest_ligand(imol);
    if (res.first) {
       r = scm_list_2(SCM_MAKINUM(res.second), scm_residue(res.first));
    }
@@ -2365,7 +2365,7 @@ SCM new_molecule_sans_biggest_ligand_scm(int imol) {
 PyObject *new_molecule_sans_biggest_ligand_py(int imol) {
 
    PyObject *r = Py_False;
-   std::pair<CResidue *, int> res = new_molecule_sans_biggest_ligand(imol);
+   std::pair<mmdb::Residue *, int> res = new_molecule_sans_biggest_ligand(imol);
    if (res.first) {
       r = PyList_New(2);
       PyList_SetItem(r, 0, PyLong_FromLong(res.second));
@@ -2379,15 +2379,15 @@ PyObject *new_molecule_sans_biggest_ligand_py(int imol) {
 #endif // USE_PYTHON
 
 
-std::pair<CResidue *, int>
+std::pair<mmdb::Residue *, int>
 new_molecule_sans_biggest_ligand(int imol) {
 
-   CResidue *res = NULL;
+   mmdb::Residue *res = NULL;
    int imol_new = -1;
    if (is_valid_model_molecule(imol)) {
 
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      CResidue *r = coot::util::get_biggest_hetgroup(mol);
+      mmdb::Residue *r = coot::util::get_biggest_hetgroup(mol);
       if (r) {
 
 	 // copy mol, create a new molecule and delete the residue
@@ -2404,7 +2404,7 @@ new_molecule_sans_biggest_ligand(int imol) {
 	 update_go_to_atom_window_on_new_mol();
       }
    }
-   return std::pair<CResidue *, int> (res, imol_new);
+   return std::pair<mmdb::Residue *, int> (res, imol_new);
 }
 
 
@@ -2423,8 +2423,8 @@ residues_torsions_match_scm(int imol_1, SCM res_1,
 	 coot::residue_spec_t rs1 = residue_spec_from_scm(res_1);
 	 coot::residue_spec_t rs2 = residue_spec_from_scm(res_2);
 	 if (!rs1.unset_p() && !rs2.unset_p()) {
-	    CResidue *r_1 = g.molecules[imol_1].get_residue(rs1);
-	    CResidue *r_2 = g.molecules[imol_2].get_residue(rs2);
+	    mmdb::Residue *r_1 = g.molecules[imol_1].get_residue(rs1);
+	    mmdb::Residue *r_2 = g.molecules[imol_2].get_residue(rs2);
 	    if (r_1 && r_2) {
 	       CMMDBManager *mol1 = g.molecules[imol_1].atom_sel.mol;
 	       CMMDBManager *mol2 = g.molecules[imol_2].atom_sel.mol;
@@ -2454,8 +2454,8 @@ residues_torsions_match_py(int imol_1, PyObject *res_1,
 	 coot::residue_spec_t rs1 = residue_spec_from_py(res_1);
 	 coot::residue_spec_t rs2 = residue_spec_from_py(res_2);
 	 if (!rs1.unset_p() && !rs2.unset_p()) {
-	    CResidue *r_1 = g.molecules[imol_1].get_residue(rs1);
-	    CResidue *r_2 = g.molecules[imol_2].get_residue(rs2);
+	    mmdb::Residue *r_1 = g.molecules[imol_1].get_residue(rs1);
+	    mmdb::Residue *r_2 = g.molecules[imol_2].get_residue(rs2);
 	    if (r_1 && r_2) {
 	       CMMDBManager *mol1 = g.molecules[imol_1].atom_sel.mol;
 	       CMMDBManager *mol2 = g.molecules[imol_2].atom_sel.mol;
@@ -2599,7 +2599,7 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
       std::cout << "Not a valid model molecule " << imol << std::endl;
    } else {
       graphics_info_t g;
-      CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (! residue_p) {
 	 std::cout << "Residue not found in molecule " << imol << " "
 		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
@@ -2616,8 +2616,8 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 	    coot::simple_restraint &rest = gdc.geometry_distortion[i].restraint;
 	    if (rest.restraint_type == coot::BOND_RESTRAINT) {
 	       n_restraints_bonds++;
-	       CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
-	       CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+	       mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+	       mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
 	       if (at_1 && at_2) {
 		  clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
 		  clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
@@ -2638,9 +2638,9 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 
 	    if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
 	       n_restraints_angles++;
-	       CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
-	       CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
-	       CAtom *at_3 = residue_p->GetAtom(rest.atom_index_3);
+	       mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+	       mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+	       mmdb::Atom *at_3 = residue_p->GetAtom(rest.atom_index_3);
 	       if (at_1 && at_2 && at_3) {
 		  clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
 		  clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
@@ -2665,10 +2665,10 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 
 	    if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
 	       if (gdc.geometry_distortion[i].distortion_score > 10) { // arbitrons
-		  CAtom *at_c = residue_p->GetAtom(rest.atom_index_centre);
-		  CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
-		  CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
-		  CAtom *at_3 = residue_p->GetAtom(rest.atom_index_3);
+		  mmdb::Atom *at_c = residue_p->GetAtom(rest.atom_index_centre);
+		  mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+		  mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+		  mmdb::Atom *at_3 = residue_p->GetAtom(rest.atom_index_3);
 		  if (at_c && at_1 && at_2 && at_3) {
 		     std::cout << "   chiral volume problem centred at: "
 			       << at_c->name << " with neighbours "
@@ -2730,7 +2730,7 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
       std::cout << "Not a valid model molecule " << imol << std::endl;
    } else {
       graphics_info_t g;
-      CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (! residue_p) {
 	 std::cout << "Residue not found in molecule " << imol << " "
 		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
@@ -2748,8 +2748,8 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 	    for (unsigned int i=0; i<gdc.geometry_distortion.size(); i++) {
 	       coot::simple_restraint &rest = gdc.geometry_distortion[i].restraint;
 	       if (rest.restraint_type == coot::BOND_RESTRAINT) {
-		  CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
-		  CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+		  mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+		  mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
 		  if (at_1 && at_2) {
 		     clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
 		     clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
@@ -2764,9 +2764,9 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 	       }
 
 	       if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
-		  CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
-		  CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
-		  CAtom *at_3 = residue_p->GetAtom(rest.atom_index_3);
+		  mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+		  mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+		  mmdb::Atom *at_3 = residue_p->GetAtom(rest.atom_index_3);
 		  if (at_1 && at_2 && at_3) {
 		     clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
 		     clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
@@ -2800,10 +2800,10 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 		  }
 	       }
 	       if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
-		  CAtom *at_c = residue_p->GetAtom(rest.atom_index_centre);
-		  CAtom *at_1 = residue_p->GetAtom(rest.atom_index_1);
-		  CAtom *at_2 = residue_p->GetAtom(rest.atom_index_2);
-		  CAtom *at_3 = residue_p->GetAtom(rest.atom_index_3);
+		  mmdb::Atom *at_c = residue_p->GetAtom(rest.atom_index_centre);
+		  mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+		  mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+		  mmdb::Atom *at_3 = residue_p->GetAtom(rest.atom_index_3);
 		  if (at_c && at_1 && at_2 && at_3) {
 		     clipper::Coord_orth pc(at_c->x, at_c->y, at_c->z);
 		     clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
@@ -2825,7 +2825,7 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 						bl_3.x(), bl_3.y(), bl_3.z());
 		     // return (if possible) the atom attached to
 		     // at_c that is not at_1, at_2 or at_3.
-		     CAtom *at_4th = coot::chiral_4th_atom(residue_p, at_c, at_1, at_2, at_3);
+		     mmdb::Atom *at_4th = coot::chiral_4th_atom(residue_p, at_c, at_1, at_2, at_3);
 		     if (at_4th) {
 			clipper::Coord_orth p4(at_4th->x, at_4th->y, at_4th->z);
 			clipper::Coord_orth bl_4 = 0.6 * pc + 0.4 * p4;
@@ -2859,7 +2859,7 @@ write_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::s
 
    if (is_valid_model_molecule(imol)) { 
       graphics_info_t g;
-      CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (! residue_p) {
 	 std::cout << "Residue not found in molecule " << imol << " "
 		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
@@ -2879,7 +2879,7 @@ add_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::str
 
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) { 
-      CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (! residue_p) {
 	 std::cout << "Residue not found in molecule " << imol << " "
 		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
@@ -2916,7 +2916,7 @@ void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::s
 								std::string ins_code) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (! residue_p) {
 	 std::cout << "Residue not found in molecule " << imol << " "
 		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
@@ -2942,11 +2942,11 @@ void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::s
 	    name += " ";
 	    name += residue_p->GetInsCode();
 	    coot::generic_display_object_t features_obj(name);
-	    PPCAtom residue_atoms = 0;
+	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    mol->GetSelIndex(SelHnd_lig, residue_atoms, n_residue_atoms);
 	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
-	       CAtom *at = residue_atoms[iat];
+	       mmdb::Atom *at = residue_atoms[iat];
 	       int hb_type = coot::energy_lib_atom::HB_UNASSIGNED;
 	       at->GetUDData(status.second, hb_type);
 	       if (hb_type != coot::energy_lib_atom::HB_UNASSIGNED) { 
@@ -2991,7 +2991,7 @@ invert_chiral_centre(int imol,
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      std::pair<CResidue *, coot::dictionary_residue_restraints_t> rr = 
+      std::pair<mmdb::Residue *, coot::dictionary_residue_restraints_t> rr = 
 	 g.molecules[imol].invert_chiral_centre(chain_id, res_no, ins_code, atom_name,
 						*g.Geom_p());
       if (rr.first) {

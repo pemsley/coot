@@ -101,12 +101,12 @@ namespace exptl {
       std::string fixed_font_str;
       int pixels_per_letter;
       void mol_to_canvas(CMMDBManager *mol, int lowest_resno, double x_offset);
-      void chain_to_canvas(CChain *chain_p, int position_number, int lowest_resno, double x_offset);
+      void chain_to_canvas(mmdb::Chain *chain_p, int position_number, int lowest_resno, double x_offset);
       void origin_marker();
       int tick_start_number(int l) const;
       int pixels_per_chain;
-      bool add_text_and_rect(CResidue *residue_p, int pos_number, int lowest_resno, double x_offset);
-      std::string colour_by_secstr(CResidue *residue_p) const;
+      bool add_text_and_rect(mmdb::Residue *residue_p, int pos_number, int lowest_resno, double x_offset);
+      std::string colour_by_secstr(mmdb::Residue *residue_p) const;
       int points_max; 
       
    public:

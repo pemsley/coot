@@ -3,13 +3,13 @@
 #include <string.h>
 
 int CXXUtils::assignCharge(PCMMDBManager theManager, int selHnd, CXXChargeTable *theChargeTable){
-	CAtom **SelAtom;
+	mmdb::Atom **SelAtom;
 	int nSelAtoms;
 	theManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 	
 	//Assign atom charges
 	for (int iAtom = 0; iAtom < nSelAtoms; iAtom++) {
-		CAtom *theAtom = SelAtom[iAtom];
+		mmdb::Atom *theAtom = SelAtom[iAtom];
 		string atomName(theAtom->name);
 		string residueName(theAtom->residue->name);
 		double theAtomCharge;
@@ -33,12 +33,12 @@ int CXXUtils::assignUnitedAtomRadius  (PCMMDBManager theManager, int selHnd) {
 		exit ( 2 );
 	}
 	
-	CAtom **SelAtom;
+	mmdb::Atom **SelAtom;
 	int nSelAtoms;
 	theManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 	
 	for (int iAtom = 0; iAtom < nSelAtoms; iAtom++) {
-		CAtom *anAtom = SelAtom[iAtom];
+		mmdb::Atom *anAtom = SelAtom[iAtom];
 		string atomName(anAtom->name);
 		string residueName(anAtom->residue->name);
 		int unassigned = 1;
@@ -110,7 +110,7 @@ int CXXUtils::selectionStringToSelHnd(PCMMDBManager allAtomsManager_in, std::str
 	char *pstring = (char *) malloc (sizeof(selectionString.c_str())+1);
 	strcpy (pstring, selectionString.c_str());
 	allAtomsManager_in->Select ( selHnd, STYPE_ATOM, pstring, selKey);
-	PPCAtom SelAtoms; 
+	mmdb::PPAtom SelAtoms; 
 	int nSelAtoms;
 	allAtomsManager_in->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
 	cout << "Selection now contains " << nSelAtoms << " atoms\n";
@@ -119,13 +119,13 @@ int CXXUtils::selectionStringToSelHnd(PCMMDBManager allAtomsManager_in, std::str
 }
 
 int CXXUtils::unCharge(PCMMDBManager theManager, int selHnd){
-	CAtom **SelAtom;
+	mmdb::Atom **SelAtom;
 	int nSelAtoms;
 	theManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 	
 	//Assign atom charges
 	for (int iAtom = 0; iAtom < nSelAtoms; iAtom++) {
-		CAtom *theAtom = SelAtom[iAtom];
+		mmdb::Atom *theAtom = SelAtom[iAtom];
 		theAtom->charge = 0.;
 	}
 	return 0;

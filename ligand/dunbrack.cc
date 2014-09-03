@@ -30,7 +30,7 @@
 
 // #include "clipper/core/coords.h"
 
-// coot::dunbrack::dunbrack(CResidue *residue_in,
+// coot::dunbrack::dunbrack(mmdb::Residue *residue_in,
 // 			 CMMDBManager *mol_in,
 // 			 float lowest_prob) {
 

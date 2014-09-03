@@ -28,7 +28,7 @@
 
 // Throw an exception if it is not possible to generate pucker info
 // 
-coot::pucker_analysis_info_t::pucker_analysis_info_t(CResidue *res_p,
+coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
 						     std::string altconf_in) {
 
    C1_prime = 0;
@@ -40,7 +40,7 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(CResidue *res_p,
    assign_base_atom_coords(res_p); // and C1_prime and N1_or_9 if possible
 
    
-   std::vector<CAtom *> atoms(5);
+   std::vector<mmdb::Atom *> atoms(5);
    std::vector<coot::pucker_analysis_info_t::PUCKERED_ATOM_T> possible_puckers;
    possible_puckers.push_back(coot::pucker_analysis_info_t::C1_PRIME);
    possible_puckers.push_back(coot::pucker_analysis_info_t::C2_PRIME);
@@ -48,7 +48,7 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(CResidue *res_p,
    possible_puckers.push_back(coot::pucker_analysis_info_t::C4_PRIME);
    possible_puckers.push_back(coot::pucker_analysis_info_t::O4_PRIME);
 
-   PPCAtom residue_atoms = NULL;
+   mmdb::PPAtom residue_atoms = NULL;
    int n_residue_atoms;
    res_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int i=0; i<n_residue_atoms; i++) {
@@ -80,7 +80,7 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(CResidue *res_p,
       // oop: out of plane distance
       std::vector<std::pair<float, float> > pucker_distortion_and_oop_d(5);
       for (int i_oop_atom=0; i_oop_atom<5; i_oop_atom++) {
-	 std::vector<CAtom *> plane_atom;
+	 std::vector<mmdb::Atom *> plane_atom;
 	 std::vector<clipper::Coord_orth> plane_atom_coords;
 	 for (int i=0; i<5; i++) {
 	    if (i != i_oop_atom) {
@@ -121,7 +121,7 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(CResidue *res_p,
 
 
 void
-coot::pucker_analysis_info_t::assign_base_atom_coords(CResidue *residue_p) {
+coot::pucker_analysis_info_t::assign_base_atom_coords(mmdb::Residue *residue_p) {
 
    std::vector<std::string> cytidine_base_names;
    std::vector<std::string> uracil_base_names;
@@ -181,7 +181,7 @@ coot::pucker_analysis_info_t::assign_base_atom_coords(CResidue *residue_p) {
    thymine_base_names.push_back(" C5M");
 
 
-   PPCAtom residue_atoms = NULL;
+   mmdb::PPAtom residue_atoms = NULL;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
@@ -251,10 +251,10 @@ coot::pucker_analysis_info_t::assign_base_atom_coords(CResidue *residue_p) {
 // Throw an exception if we can't do this.
 // 
 float 
-coot::pucker_analysis_info_t::phosphate_distance_to_base_plane(CResidue *following_res) {
+coot::pucker_analysis_info_t::phosphate_distance_to_base_plane(mmdb::Residue *following_res) {
 
    float oop = 0.0;
-   PPCAtom residue_atoms = NULL;
+   mmdb::PPAtom residue_atoms = NULL;
    int n_residue_atoms;
    bool found = 0;
 
@@ -296,7 +296,7 @@ coot::pucker_analysis_info_t::phosphate_distance_to_base_plane(CResidue *followi
 
 // Throw an exception if the reference atoms are not found.
 float 
-coot::pucker_analysis_info_t::phosphate_distance(CResidue *following_res) {
+coot::pucker_analysis_info_t::phosphate_distance(mmdb::Residue *following_res) {
 
    if (! C1_prime) { 
       std::string mess = "C1*/C1' not found in this residue";
@@ -325,7 +325,7 @@ coot::pucker_analysis_info_t::phosphate_distance(CResidue *following_res) {
    
    
    float d = 0.0;
-   PPCAtom residue_atoms = NULL;
+   mmdb::PPAtom residue_atoms = NULL;
    int n_residue_atoms;
    bool found = 0;
    following_res->GetAtomTable(residue_atoms, n_residue_atoms);

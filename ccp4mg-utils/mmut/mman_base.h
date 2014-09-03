@@ -37,14 +37,14 @@ class CMMANBase {
 
   int SetSelHandle ( const int selHndin);
   int SetSelHandle ( const int iset, const int selHndin, const PCMMUTManager molHndin=NULL);
-  int GetSelection (PPCAtom &atomTable, int & nAtoms, const int model = 0 );
-  int GetSelection (const int iset, PPCAtom &atomTable, int & nAtoms ,const int model = 0);
-  int GetSelection (const int iset,PPCResidue &resTable, int & nRes, const int model = 0 );
-  int GetSelection ( PPCResidue &resTable, int & nRes, const int model = 0 );
+  int GetSelection (mmdb::PPAtom &atomTable, int & nAtoms, const int model = 0 );
+  int GetSelection (const int iset, mmdb::PPAtom &atomTable, int & nAtoms ,const int model = 0);
+  int GetSelection (const int iset,mmdb::PPResidue &resTable, int & nRes, const int model = 0 );
+  int GetSelection ( mmdb::PPResidue &resTable, int & nRes, const int model = 0 );
   void ClearSelection (const int iset=-1, const int clear_selHnd=1);
-  int  GetOneModel(const int iset,const int selH, PPCAtom &atomTable ,
+  int  GetOneModel(const int iset,const int selH, mmdb::PPAtom &atomTable ,
                         int &nAtoms, const int model);
-  int  GetOneModel(const int iset,const int selH, PPCResidue &resTable ,
+  int  GetOneModel(const int iset,const int selH, mmdb::PPResidue &resTable ,
                          int &nRes, const int model);
   void SetExclusions(const int ex_solvent, const int ex_hydrogen, const int ex_alternate, const char* use_al="");
 

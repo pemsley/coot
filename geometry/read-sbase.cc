@@ -66,16 +66,16 @@ coot::protein_geometry::read_ccp4srs_residues() {
 
 // Here res_name is the tlc/comp_id.
 // 
-CResidue *
+mmdb::Residue *
 coot::protein_geometry::get_ccp4srs_residue(const std::string &res_name) const {
 
-   CResidue *residue_p = NULL;
+   mmdb::Residue *residue_p = NULL;
 
 #ifdef HAVE_CCP4SRS   
    if (SBase) {
       CCP4SRSMonomer *monomer_p = SBase->getMonomer(res_name.c_str());
       if (monomer_p) {
-	 residue_p = new CResidue;
+	 residue_p = new mmdb::Residue;
 	 for (int iat=0; iat<monomer_p->n_atoms(); iat++) {
 	    CCP4SRSAtom *at = monomer_p->atom(iat);
 
@@ -95,7 +95,7 @@ coot::protein_geometry::get_ccp4srs_residue(const std::string &res_name) const {
 	    }
 
 	    if (add_atom_ok) { 
-	       CAtom *new_atom = new CAtom;
+	       mmdb::Atom *new_atom = new mmdb::Atom;
 	       new_atom->SetCoordinates(at->x(), at->y(), at->z(), 1.0, 30.0);
 	       new_atom->SetAtomName(new_atom_name.c_str());
 	       new_atom->SetElementName(at->element());

@@ -2141,7 +2141,7 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 	 CMMDBManager *mmdb = SelAtom.mol;
 	    
 	 // get a list of all the atoms
-	 clipper::mmdb::PPCAtom psel;
+	 clipper::mmdb::mmdb::PPAtom psel;
 	 int hndl, nsel;
 	 hndl = mmdb->NewSelection();
 	 mmdb->SelectAtoms( hndl, 0, 0, SKEY_NEW );
@@ -2985,9 +2985,9 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
 						   float jiggle_scale_factor) {
 
    float v = -101.0;
-   CResidue *residue_p = get_residue(spec);
+   mmdb::Residue *residue_p = get_residue(spec);
    if (residue_p) {
-      PPCAtom residue_atoms = 0;
+      mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       bool use_biased_density_scoring = true;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -3010,7 +3010,7 @@ trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 
 // called by above and split_water.
 float
-molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
+molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 						   int n_atoms,
 						   const clipper::Xmap<float> &xmap,
 						   float map_sigma,
@@ -3023,14 +3023,14 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
       n_trials = 1;
    
    // set atoms so that we can get an initial score.
-   std::vector<CAtom *> initial_atoms(n_atoms);
-   std::vector<CAtom> direct_initial_atoms(n_atoms);
+   std::vector<mmdb::Atom *> initial_atoms(n_atoms);
+   std::vector<mmdb::Atom> direct_initial_atoms(n_atoms);
    for (int iat=0; iat<n_atoms; iat++)
       initial_atoms[iat] = atom_selection[iat];
    
 
    // We have to make a copy because direct_initial_atoms goes out of
-   // scope and destroys the CAtoms (we don't want to take the
+   // scope and destroys the mmdb::Atoms (we don't want to take the
    // contents of the atom_selection out when we do that).
    // 
    for (int iat=0; iat<n_atoms; iat++)
@@ -3078,7 +3078,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(PPCAtom atom_selection,
    for (int itrial=0; itrial<n_trials; itrial++) {
 
       float annealing_factor = 1 - float(itrial)/float(n_trials);
-      std::pair<clipper::RTop_orth, std::vector<CAtom> > jiggled_atoms =
+      std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
 	 coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
       coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
       float this_score = density_scoring_function(jiggled_mol, atom_numbers, xmap);

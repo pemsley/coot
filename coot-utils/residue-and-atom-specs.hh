@@ -15,7 +15,7 @@ namespace coot {
       int model_number;
       atom_spec_t() {
 	 chain = "unset";
-	 resno = MinInt4;
+	 resno = mmdb::MinInt4;
 	 insertion_code = "";
 	 model_number = -1;
 	 int_user_data = -1;
@@ -34,7 +34,7 @@ namespace coot {
 	 int_user_data = -1;
       }
       // This presumes at is a member of a coordinate hierarchy.
-      atom_spec_t(CAtom *at) {
+      atom_spec_t(mmdb::Atom *at) {
 	 if (at) { 
 	    chain          = at->GetChainID();
 	    resno          = at->GetSeqNum();
@@ -44,7 +44,7 @@ namespace coot {
 	    alt_conf       = at->altLoc;
 	 } else {
 	    chain = "unset";
-	    resno = MinInt4;
+	    resno = mmdb::MinInt4;
 	    insertion_code = "";
 	    model_number = -1;
 	    int_user_data = -1;
@@ -52,7 +52,7 @@ namespace coot {
 	 int_user_data = -1; // mark as "unset" (better than not setting it)
       }
       // This presumes at is a member of a coordinate hierarchy.
-      atom_spec_t(CAtom *at, const std::string &user_data_string) {
+      atom_spec_t(mmdb::Atom *at, const std::string &user_data_string) {
 	 model_number = at->GetModelNum();
 	 chain = at->GetChainID();
 	 resno = at->GetSeqNum();
@@ -63,7 +63,7 @@ namespace coot {
       }
 
       bool empty() const {
-	 if (resno == MinInt4)
+	 if (resno == mmdb::MinInt4)
 	    return true;
 	 else
 	    return false;
@@ -81,7 +81,7 @@ namespace coot {
 
       // Presumes that atom can get to SeqNum() and InsCode()? Need
       // tested against a residue not in a hierarchy.
-      bool matches_spec(CAtom *atom) const;
+      bool matches_spec(mmdb::Atom *atom) const;
 
 #ifndef SWIG
       bool operator==(const atom_spec_t &matcher) const {
@@ -162,7 +162,7 @@ namespace coot {
 	 int_user_data = -1;
       }
       residue_spec_t(const std::string &chain_in, int r) {
-	 model_number = MinInt4;
+	 model_number = mmdb::MinInt4;
 	 resno = r;
 	 chain = chain_in;
 	 insertion_code = "";
@@ -179,17 +179,17 @@ namespace coot {
       }
       residue_spec_t(const std::string &chain_in, int r,
 		     const std::string &ins_code_in) {
-	 model_number = MinInt4;
+	 model_number = mmdb::MinInt4;
 	 resno = r;
 	 chain = chain_in;
 	 insertion_code = ins_code_in;
 	 int_user_data = -1;
       }
-      residue_spec_t(CResidue *res) {
+      residue_spec_t(mmdb::Residue *res) {
 	 if (! res) {
 	    chain = "";
-	    model_number = MinInt4;
-	    resno = MinInt4;
+	    model_number = mmdb::MinInt4;
+	    resno = mmdb::MinInt4;
 	    insertion_code = "";
 	 } else { 
 	    chain = res->GetChainID();
@@ -200,7 +200,7 @@ namespace coot {
 	 int_user_data = -1;
       } 
       residue_spec_t(const atom_spec_t &atom_spec) { 
-	 model_number = MinInt4;
+	 model_number = mmdb::MinInt4;
          chain = atom_spec.chain;
          resno = atom_spec.resno;
          insertion_code = atom_spec.insertion_code;
@@ -208,27 +208,27 @@ namespace coot {
       }
       // This one for coot_wrap_guile
       residue_spec_t() {
-	 model_number = MinInt4;
-	 resno = MinInt4;
+	 model_number = mmdb::MinInt4;
+	 resno = mmdb::MinInt4;
 	 chain = "";
 	 insertion_code = "";
 	 int_user_data = -1;
       }
       bool unset_p() const {
 	 bool u = true;
-	 if (resno != MinInt4)
+	 if (resno != mmdb::MinInt4)
 	    u = false;
 	 return u;
       }
       residue_spec_t next() const {
 	 residue_spec_t r = *this;
-	 if (resno != MinInt4)
+	 if (resno != mmdb::MinInt4)
 	    r.resno += 1;
 	 return r;
       }
       residue_spec_t previous() const {
 	 residue_spec_t r = *this;
-	 if (resno != MinInt4)
+	 if (resno != mmdb::MinInt4)
 	    r.resno -= 1;
 	 return r;
       }

@@ -61,11 +61,11 @@ namespace coot {
 	 is_filled = true;
       }
       atom_by_torsion_t(const atom_by_torsion_base_t &names,
-			CResidue *residue_1_p,  // reference/lower
-			CResidue *residue_2_p);
+			mmdb::Residue *residue_1_p,  // reference/lower
+			mmdb::Residue *residue_2_p);
       
       bool filled() const { return is_filled; }
-      clipper::Coord_orth pos(CResidue *base, CResidue *extending) const;
+      clipper::Coord_orth pos(mmdb::Residue *base, mmdb::Residue *extending) const;
       friend std::ostream& operator<<(std::ostream &o, const atom_by_torsion_t &atb);
    };
 
@@ -80,7 +80,7 @@ namespace coot {
    };
 
    class link_by_torsion_t : public link_by_torsion_base_t {
-      void init(CResidue *ref_res_p, CResidue *ext_res_p);
+      void init(mmdb::Residue *ref_res_p, mmdb::Residue *ext_res_p);
       std::string link_type_to_file_name(const std::string &link_type) const;
       std::string comp_id_to_decoration_file_name(const std::string &link_type) const;
    public:
@@ -93,7 +93,7 @@ namespace coot {
       
       link_by_torsion_t() {}
       link_by_torsion_t(const link_by_torsion_base_t &lbtb,
-			CResidue *ref_res_p, CResidue *ext_res_p) :
+			mmdb::Residue *ref_res_p, mmdb::Residue *ext_res_p) :
 	 link_by_torsion_base_t(lbtb) {
 	 init(ref_res_p, ext_res_p);
       }
@@ -102,7 +102,7 @@ namespace coot {
    
       bool filled() const { return (geom_atom_torsions.size()); }
       // caller deletes
-      CResidue *make_residue(CResidue *base_residue_p) const;
+      mmdb::Residue *make_residue(mmdb::Residue *base_residue_p) const;
       // add new atom if it is not there already
       void add(const atom_by_torsion_t &at) {
 	 std::vector<atom_by_torsion_t>::iterator it;
@@ -120,7 +120,7 @@ namespace coot {
       void set_new_residue_number(int n) { new_res_no = n; }
 
       // helper function
-      static std::pair<CResidue *, CResidue *> get_residue_pair(CMMDBManager *mol);
+      static std::pair<mmdb::Residue *, mmdb::Residue *> get_residue_pair(CMMDBManager *mol);
 
    };
 

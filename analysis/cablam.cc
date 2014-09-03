@@ -27,23 +27,23 @@ coot::cablam::get_closest_CA_CA_approach(const coot::torsion_atom_quad &quad) co
 } 
 
 
-coot::cablam::cablam(PCResidue *residues, int n_sel_residues) {
+coot::cablam::cablam(Pmmdb::Residue *residues, int n_sel_residues) {
 
-   std::map<CResidue *, torsion_atom_quad> residue_quads;
+   std::map<mmdb::Residue *, torsion_atom_quad> residue_quads;
 
    for (unsigned int ires=1; ires<n_sel_residues; ires++) {
 
       if (ires < n_sel_residues) { 
-	 CResidue *res_p = residues[ires-1];
-	 CResidue *res_t = residues[ires];
+	 mmdb::Residue *res_p = residues[ires-1];
+	 mmdb::Residue *res_t = residues[ires];
 
 	 // set the 4 atoms for a given residue n:  (n-1)Ca, nCA, nC, nO
 	 // in that order
 	 // 
-	 CAtom *n_p_CA = res_p->GetAtom(" CA ");
-	 CAtom *n_t_CA = res_t->GetAtom(" CA ");
-	 CAtom *n_t_C  = res_t->GetAtom(" C  ");
-	 CAtom *n_t_O  = res_t->GetAtom(" O  ");
+	 mmdb::Atom *n_p_CA = res_p->GetAtom(" CA ");
+	 mmdb::Atom *n_t_CA = res_t->GetAtom(" CA ");
+	 mmdb::Atom *n_t_C  = res_t->GetAtom(" C  ");
+	 mmdb::Atom *n_t_O  = res_t->GetAtom(" O  ");
 
 	 if (n_p_CA && n_t_CA && n_t_C && n_t_O) {
 
@@ -62,8 +62,8 @@ coot::cablam::cablam(PCResidue *residues, int n_sel_residues) {
    }
 
    for (unsigned int ires=1; ires<n_sel_residues; ires++) {
-      std::map<CResidue *, torsion_atom_quad>::const_iterator it_this;
-      std::map<CResidue *, torsion_atom_quad>::const_iterator it_prev;
+      std::map<mmdb::Residue *, torsion_atom_quad>::const_iterator it_this;
+      std::map<mmdb::Residue *, torsion_atom_quad>::const_iterator it_prev;
 
       it_prev = residue_quads.find(residues[ires-1]);
       it_this = residue_quads.find(residues[ires]);

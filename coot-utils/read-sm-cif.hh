@@ -8,7 +8,7 @@ namespace coot {
       clipper::Cell get_cell(PCMMCIFData data) const;
       clipper::Cell get_cell_for_data(PCMMCIFData data) const;
       std::pair<bool,clipper::Spacegroup> get_space_group(const std::vector<std::string> &symm_strings) const;
-      std::vector<CAtom *> read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const;
+      std::vector<mmdb::Atom *> read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const;
       std::pair<bool,clipper::Spacegroup> get_space_group(PCMMCIFData data) const;
       std::pair<bool,clipper::Spacegroup> get_space_group(PCMMCIFData data, const std::string &symm_tag) const;
 

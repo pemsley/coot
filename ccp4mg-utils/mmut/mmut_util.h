@@ -78,6 +78,6 @@ void printrealpp(realtype **a, int rows, int cols);
 void printintp(int *a, int size);
 void printintpp(int **a, int rows, int cols);
 
-std::vector<Cartesian> PPCAtomsToCartesians(int natoms, PPCAtom atoms);
+std::vector<Cartesian> mmdb::PPAtomsToCartesians(int natoms, mmdb::PPAtom atoms);
 
 #endif

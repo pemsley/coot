@@ -31,11 +31,11 @@ int CXXTriangle::setDoDraw(const int yesNo) {
 	return shouldBeDrawn;
 }
 
-CAtom *CXXTriangle::getAtom() const {
+mmdb::Atom *CXXTriangle::getAtom() const {
 	return theAtom;
 }
 
-void CXXTriangle::setAtom(CAtom *anAtom) {
+void CXXTriangle::setAtom(mmdb::Atom *anAtom) {
 	theAtom = anAtom;
 }
 

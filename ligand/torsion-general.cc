@@ -22,7 +22,7 @@
 
 #include "torsion-general.hh"
 
-coot::torsion_general::torsion_general(CResidue *res, CMMDBManager *residue_mol_in,
+coot::torsion_general::torsion_general(mmdb::Residue *res, CMMDBManager *residue_mol_in,
 				       const std::vector<atom_spec_t> &user_defined_torsion_atoms_in) {
    setup_correctly = NO;
    mol = residue_mol_in;
@@ -65,7 +65,7 @@ coot::torsion_general::GetTree() const {
    Tree tree;
    if (setup_correctly) {
 
-      PPCAtom residue_atoms;
+      mmdb::PPAtom residue_atoms;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       std::vector< ::Cartesian > coords;
@@ -90,7 +90,7 @@ coot::torsion_general::change_by(double diff, Tree *tree) {
 // 	     << std::endl;
    if (setup_correctly) {
 
-      PPCAtom residue_atoms;
+      mmdb::PPAtom residue_atoms;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       std::vector< ::Cartesian > coords;
@@ -159,7 +159,7 @@ coot::torsion_general::atom_index(const coot::atom_spec_t &spec) const {
    int r = FAIL;
 
    if (residue_p) {
-      PPCAtom residue_atoms;
+      mmdb::PPAtom residue_atoms;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {
@@ -197,11 +197,11 @@ coot::torsion_general::get_contact_indices() const {
 	 my_matt[i][j] = 0.0;      
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int n_residue_atoms;
-   PPCAtom non_H_residue_atoms;
+   mmdb::PPAtom non_H_residue_atoms;
    int n_non_H_residue_atoms = 0;
-   PPCAtom H_residue_atoms;
+   mmdb::PPAtom H_residue_atoms;
    int n_H_residue_atoms = 0;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
@@ -221,8 +221,8 @@ coot::torsion_general::get_contact_indices() const {
 	 n_non_H_residue_atoms++;
       }
    }
-   non_H_residue_atoms = new PCAtom[n_non_H_residue_atoms];
-   H_residue_atoms = new PCAtom[n_H_residue_atoms];
+   non_H_residue_atoms = new Pmmdb::Atom[n_non_H_residue_atoms];
+   H_residue_atoms = new Pmmdb::Atom[n_H_residue_atoms];
    std::vector<int>     H_atom_orig_indcies(    n_H_residue_atoms);
    std::vector<int> non_H_atom_orig_indcies(n_non_H_residue_atoms);
    int iH=0;

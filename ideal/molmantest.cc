@@ -38,12 +38,12 @@ void molman(MyCMMDBManager *mol) {
 		<< nchains << " chains"  << std::endl;
       for (int ichain=0; ichain<nchains; ichain++) {
 	 int nres = mol->GetNumberOfResidues(imodel,ichain);
-	 PCChain chn = mol->GetChain(imodel, ichain);
+	 Pmmdb::Chain chn = mol->GetChain(imodel, ichain);
 	 std::string chain_name = chn->GetChainID();
 	 std::cout << "   chain: " << chain_name << " " << ichain
 		   << " has " << nres << " residues" << std::endl;
 	 for (int ires=0; ires<nres; ires++) {
-	    PCResidue res = mol->GetResidue(imodel,ichain,ires);
+	    Pmmdb::Residue res = mol->GetResidue(imodel,ichain,ires);
 	    int natoms = res->GetNumberOfAtoms();
 	    int seqno  = res->GetSeqNum();
 	    std::cout << "      residue " << ires << ", seqno "

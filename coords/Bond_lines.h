@@ -79,14 +79,14 @@ namespace coot {
   };
 
    class model_bond_atom_info_t {
-      std::vector<PCAtom> hydrogen_atoms_;
-      std::vector<PCAtom> non_hydrogen_atoms_;
+      std::vector<Pmmdb::Atom> hydrogen_atoms_;
+      std::vector<Pmmdb::Atom> non_hydrogen_atoms_;
    public:
-      PPCAtom     Hydrogen_atoms() const;
-      PPCAtom non_Hydrogen_atoms() const;
+      mmdb::PPAtom     Hydrogen_atoms() const;
+      mmdb::PPAtom non_Hydrogen_atoms() const;
       int n_H() const { return hydrogen_atoms_.size(); }
       int n_non_H() const { return non_hydrogen_atoms_.size(); }
-      void add_atom(CAtom *atom) {
+      void add_atom(mmdb::Atom *atom) {
 	 std::string element = atom->element;
 	 if (element == " H" || element == " D") {
 	    hydrogen_atoms_.push_back(atom);
@@ -344,9 +344,9 @@ class Bond_lines_container {
    } 
 
    void construct_from_atom_selection(const atom_selection_container_t &asc,
-				      const PPCAtom atom_selection_1,
+				      const mmdb::PPAtom atom_selection_1,
 				      int n_selected_atoms_1,
-				      const PPCAtom atom_selection_2,
+				      const mmdb::PPAtom atom_selection_2,
 				      int n_selected_atoms_2,
 				      float min_dist, float max_dist,
 				      int atom_colour_type,
@@ -354,57 +354,57 @@ class Bond_lines_container {
 				      bool have_udd_atoms,
 				      int udd_handle);
    
-   void construct_from_model_links(CModel *model, int atom_colour_type);
+   void construct_from_model_links(mmdb::Model *model, int atom_colour_type);
    // which wraps...
-   void add_link_bond(CModel *model_p, int atom_colour_type, CLink *link);
-   void add_link_bond(CModel *model_p, int atom_colour_type, CLinkR *linkr);
+   void add_link_bond(mmdb::Model *model_p, int atom_colour_type, CLink *link);
+   void add_link_bond(mmdb::Model *model_p, int atom_colour_type, CLinkR *linkr);
 
-   template<class T> void add_link_bond_templ(CModel *model_p, int atom_colour_type, T *link);
+   template<class T> void add_link_bond_templ(mmdb::Model *model_p, int atom_colour_type, T *link);
 
    // now wit optional arg.  If atom_colour_type is set, then use/fill
    // it to get colour indices from chainids.
-   void handle_MET_or_MSE_case (PCAtom mse_atom, int udd_handle, int atom_colour_type,
+   void handle_MET_or_MSE_case (Pmmdb::Atom mse_atom, int udd_handle, int atom_colour_type,
 				coot::my_atom_colour_map_t *atom_colour_map = 0);
-   void handle_long_bonded_atom(PCAtom     atom, int udd_handle, int atom_colour_type,
+   void handle_long_bonded_atom(Pmmdb::Atom     atom, int udd_handle, int atom_colour_type,
 				coot::my_atom_colour_map_t *atom_colour_map = 0);
 
    // void check_atom_limits(atom_selection_container_t SelAtoms) const;
    
    void write(std::string) const;
 
-   PPCAtom trans_sel(atom_selection_container_t AtomSel, 
+   mmdb::PPAtom trans_sel(atom_selection_container_t AtomSel, 
 		     const std::pair<symm_trans_t, Cell_Translation> &symm_trans) const;
 
    void add_zero_occ_spots(const atom_selection_container_t &SelAtom);
    void add_deuterium_spots(const atom_selection_container_t &SelAtom);
    void add_atom_centres(const atom_selection_container_t &SelAtom, int atom_colour_type);
    int add_ligand_bonds(const atom_selection_container_t &SelAtom, 
-			PPCAtom ligand_atoms_selection,
+			mmdb::PPAtom ligand_atoms_selection,
 			int n_ligand_atoms);
 
-   bool draw_these_residue_contacts(CResidue *this_residue, CResidue *env_residue,
+   bool draw_these_residue_contacts(mmdb::Residue *this_residue, mmdb::Residue *env_residue,
 				    coot::protein_geometry *protein_geom);
 
    // abstract this out of construct_from_atom_selection for cleanliness.
    // 
-   void mark_atoms_as_bonded(CAtom *atom_p_1, CAtom *atom_p_2, bool have_udd_atoms, int udd_handle, bool done_bond_udd_handle) const;
+   void mark_atoms_as_bonded(mmdb::Atom *atom_p_1, mmdb::Atom *atom_p_2, bool have_udd_atoms, int udd_handle, bool done_bond_udd_handle) const;
    
 
    void add_half_bonds(const coot::Cartesian &atom_1,
 		       const coot::Cartesian &atom_2,
-		       CAtom *at_1,
-		       CAtom *at_2,
+		       mmdb::Atom *at_1,
+		       mmdb::Atom *at_2,
 		       int atom_colour_type);
 
    // double and delocalized bonds (default (no optional arg) is double).
    // 
-   void add_double_bond(int iat_1, int iat_2, PPCAtom atoms, int n_atoms, int atom_colour_type,
+   void add_double_bond(int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints,
 			bool is_deloc=0);
    // used by above, can throw an exception
-   clipper::Coord_orth get_neighb_normal(int iat_1, int iat_2, PPCAtom atoms, int n_atoms, 
+   clipper::Coord_orth get_neighb_normal(int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, 
 	 				 bool also_2nd_order_neighbs=0) const;
-   void add_triple_bond(int iat_1, int iat_2, PPCAtom atoms, int n_atoms, int atom_colour_type,
+   void add_triple_bond(int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints);
 
 
@@ -429,7 +429,7 @@ class Bond_lines_container {
 			const coot::Cartesian &end,
 			int half_bond_type_flag);
    void addAtom(int colour, const coot::Cartesian &pos);
-   int atom_colour(CAtom *at, int bond_colour_type, coot::my_atom_colour_map_t *atom_colour_map = 0);
+   int atom_colour(mmdb::Atom *at, int bond_colour_type, coot::my_atom_colour_map_t *atom_colour_map = 0);
    void bonds_size_colour_check(int icol) {
       int bonds_size = bonds.size();
       if (icol >= bonds_size) 
@@ -443,18 +443,18 @@ class Bond_lines_container {
 
    void try_set_b_factor_scale(CMMDBManager *mol);
    graphical_bonds_container make_graphical_bonds(bool thinning_flag) const;
-   void add_bonds_het_residues(const std::vector<std::pair<bool, CResidue *> > &het_residues, int atom_colour_t, short int have_udd_atoms, int udd_handle);
-   void het_residue_aromatic_rings(CResidue *res, const coot::dictionary_residue_restraints_t &restraints, int col);
+   void add_bonds_het_residues(const std::vector<std::pair<bool, mmdb::Residue *> > &het_residues, int atom_colour_t, short int have_udd_atoms, int udd_handle);
+   void het_residue_aromatic_rings(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &restraints, int col);
    // pass a list of atom name that are part of the aromatic ring system.
-   void add_aromatic_ring_bond_lines(const std::vector<std::string> &ring_atom_names, CResidue *res, int col);
+   void add_aromatic_ring_bond_lines(const std::vector<std::string> &ring_atom_names, mmdb::Residue *res, int col);
    bool invert_deloc_bond_displacement_vector(const clipper::Coord_orth &vect,
-					      int iat_1, int iat_2, PPCAtom residue_atoms, int n_atoms,
+					      int iat_1, int iat_2, mmdb::PPAtom residue_atoms, int n_atoms,
 					      const std::vector<coot::dict_bond_restraint_t> &bond_restraints) const;
 
    // add to het_residues maybe
-   bool add_bond_by_dictionary_maybe(CAtom *atom_p_1,
-				     CAtom *atom_p_2,
-				     std::vector<std::pair<bool, CResidue *> > *het_residues);
+   bool add_bond_by_dictionary_maybe(mmdb::Atom *atom_p_1,
+				     mmdb::Atom *atom_p_2,
+				     std::vector<std::pair<bool, mmdb::Residue *> > *het_residues);
 
    
 
@@ -500,7 +500,7 @@ public:
    // It is used for the environment bonds box.
    // 
    Bond_lines_container(const atom_selection_container_t &SelAtom,
-			PPCAtom residue_atoms,
+			mmdb::PPAtom residue_atoms,
 			int n_residue_atoms,
 			coot::protein_geometry *protein_geom, // modifiable, currently
 			bool residue_is_water_flag,
@@ -511,7 +511,7 @@ public:
    // same as above, except this does symmetry contacts too.
    // 
    Bond_lines_container(const atom_selection_container_t &SelAtom,
-			PPCAtom residue_atoms,
+			mmdb::PPAtom residue_atoms,
 			int n_residue_atoms,
 			float min_dist,
 			float max_dist, 
@@ -685,7 +685,7 @@ public:
 						   float min_dist, float max_dist); 
 
    atom_selection_container_t
-      ContactSel(PPCAtom trans_sel, PSContact contact, int ncontacts) const;
+      ContactSel(mmdb::PPAtom trans_sel, PSContact contact, int ncontacts) const;
    void do_symmetry_Ca_bonds(atom_selection_container_t SelAtom,
 			     symm_trans_t symm_trans);
 
@@ -699,11 +699,11 @@ public:
    class symmetry_atom_bond {
    public:
       // bond between at_1 and symmetry relataed copy of at_2
-      CAtom *at_1;
-      CAtom *at_2;
+      mmdb::Atom *at_1;
+      mmdb::Atom *at_2;
       symm_trans_t st;
       Cell_Translation ct;
-      symmetry_atom_bond(CAtom *at_1_in, CAtom *at_2_in,
+      symmetry_atom_bond(mmdb::Atom *at_1_in, mmdb::Atom *at_2_in,
 			 const symm_trans_t &st_in,
 			 const Cell_Translation &ct_in) {
 	 at_1 = at_1_in;

@@ -57,7 +57,7 @@ namespace coot {
       // atom selection. There should be a version of SeekContacts
       // that does not need a CMMDBManager... Grumble grumble...
       //
-      dunbrack(CResidue *residue,
+      dunbrack(mmdb::Residue *residue,
 	       const std::string &alt_conf_in,
 	       CMMDBManager *mol,
 	       float lowest_probability) :
@@ -70,7 +70,7 @@ namespace coot {
 				 // after add_all_rotamers().
       }
 
-      dunbrack(CResidue *residue,
+      dunbrack(mmdb::Residue *residue,
 	       const std::string &alt_conf_in,
 	       CMMDBManager *mol,
 	       float lowest_probability,
@@ -88,7 +88,7 @@ namespace coot {
 
       // For use with Z-score (which is analysis only: we don't move anything)
       // 
-      dunbrack(CResidue *residue, const std::string &alt_conf_in) :
+      dunbrack(mmdb::Residue *residue, const std::string &alt_conf_in) :
 	 rotamer(residue, alt_conf_in, 0) {}
       
       // Return NULL if no residues available for this residue type

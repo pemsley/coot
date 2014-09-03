@@ -86,7 +86,7 @@ coot::dots_representation_info_t::add_dots(int SelHnd, CMMDBManager *mol,
 					   const coot::colour_t &single_colour,
 					   bool use_single_colour) {
 
-   PPCAtom atoms = NULL;
+   mmdb::PPAtom atoms = NULL;
    int n_atoms;
 
    double phi_step = 5.0 * (M_PI/180.0);
@@ -110,7 +110,7 @@ coot::dots_representation_info_t::add_dots(int SelHnd, CMMDBManager *mol,
 
 
    int n_atoms_exclude = 0;
-   PPCAtom atoms_exclude = NULL;
+   mmdb::PPAtom atoms_exclude = NULL;
    int SelHnd_exclude = 0;
    if (mol_exclude) {
       SelHnd_exclude = mol_exclude->NewSelection();

@@ -117,8 +117,8 @@ int CContact::Calculate(bool separate_models )  {
 //-------------------------------------------------------------------
 int CContact::Calculate0(int model)  {
 //-------------------------------------------------------------------
-  PPCAtom selAtoms;
-  PPCAtom selAtoms2;
+  mmdb::PPAtom selAtoms;
+  mmdb::PPAtom selAtoms2;
   int nSelAtoms,nSelAtoms2; 
 
   realtype min_cutoff,max_cutoff,frac;
@@ -212,8 +212,8 @@ std::string CContact::Print(bool geometry) {
 //-----------------------------------------------------------------------
 
   std::ostringstream output;
-  std::vector<PCAtom>::iterator i = close_contacts.pAtom1.begin();
-  std::vector<PCAtom>::iterator j = close_contacts.pAtom2.begin();
+  std::vector<Pmmdb::Atom>::iterator i = close_contacts.pAtom1.begin();
+  std::vector<Pmmdb::Atom>::iterator j = close_contacts.pAtom2.begin();
   std::string first,second;
   realtype dist,vdw1,vdw2,sum_vdw,frac;
   output.setf(ios::fixed);

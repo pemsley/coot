@@ -56,29 +56,29 @@ class CMMUTManager : public CMMDBManager  {
     pstr GetSequence(int selHnd);
     int *AtomicComposition(int selHnd);
     int *ResidueComposition(int selHnd);
-    PCResidue NextResidue( PCResidue pRes ,int increment=1);
+    Pmmdb::Residue NextResidue( Pmmdb::Residue pRes ,int increment=1);
 
-    realtype  BondLength(PCAtom A, PCAtom B);
-    realtype  BondAngle(PCAtom A, PCAtom B, PCAtom C);
-    realtype  TorsionAngle(PCAtom A, PCAtom B, PCAtom C, PCAtom D);
+    realtype  BondLength(Pmmdb::Atom A, Pmmdb::Atom B);
+    realtype  BondAngle(Pmmdb::Atom A, Pmmdb::Atom B, Pmmdb::Atom C);
+    realtype  TorsionAngle(Pmmdb::Atom A, Pmmdb::Atom B, Pmmdb::Atom C, Pmmdb::Atom D);
     realtype  MolWeight(int selHnd);
     realtype  MolWeightWithH(int selHnd);
     realtype *GetBValues(int selHnd);
     realtype *CentreOfMass(int selHnd);
     realtype *Extent(int selHnd);
 
-    Boolean isMainChain(PCAtom p_atom);
-    Boolean doAltLocMatch ( PCAtom pa1, PCAtom pa2 ); 
+    Boolean isMainChain(Pmmdb::Atom p_atom);
+    Boolean doAltLocMatch ( Pmmdb::Atom pa1, Pmmdb::Atom pa2 ); 
     int NameComparison (const char *name , int ntypes , const char *types[] );
     std::string  TrimString(pstr inp);
-    std::string AtomLabel(PCAtom p_atom, int mask[]);
-    Boolean ChainIDisDigit(PCChain p_ch);
-    const char* AtomLabel_atom1(PCAtom p_atom);
-    const char* AtomLabel_atom(PCAtom p_atom);
-    const char* AtomLabel_residue(PCAtom p_atom);
-    const char* AtomLabel_chain(PCAtom p_atom);
-    const char* AtomLabel_residue1(PCResidue p_res);
-    const char* AtomLabel_mask(PCAtom p_atom, int mask[]);
+    std::string AtomLabel(Pmmdb::Atom p_atom, int mask[]);
+    Boolean ChainIDisDigit(Pmmdb::Chain p_ch);
+    const char* AtomLabel_atom1(Pmmdb::Atom p_atom);
+    const char* AtomLabel_atom(Pmmdb::Atom p_atom);
+    const char* AtomLabel_residue(Pmmdb::Atom p_atom);
+    const char* AtomLabel_chain(Pmmdb::Atom p_atom);
+    const char* AtomLabel_residue1(Pmmdb::Residue p_res);
+    const char* AtomLabel_mask(Pmmdb::Atom p_atom, int mask[]);
     //int ApplyTransform(int selHnd,double rotmat[],double transv[]);
 
     //Editor

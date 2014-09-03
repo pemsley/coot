@@ -175,8 +175,8 @@ void density_score_molecule(std::string pdb_filename,
       int n_models = asc.mol->GetNumberOfModels();
       for (int imod=1; imod<=n_models; imod++) { 
       
-	 CModel *model_p = asc.mol->GetModel(imod);
-	 CChain *chain_p;
+	 mmdb::Model *model_p = asc.mol->GetModel(imod);
+	 mmdb::Chain *chain_p;
 	 // run over chains of the existing mol
 	 int nchains = model_p->GetNumberOfChains();
 	 if (nchains <= 0) { 
@@ -192,14 +192,14 @@ void density_score_molecule(std::string pdb_filename,
 		  std::cout << "NULL chain in ... " << std::endl;
 	       } else { 
 		  int nres = chain_p->GetNumberOfResidues();
-		  PCResidue residue_p;
+		  Pmmdb::Residue residue_p;
 		  std::vector<scored_residue_t> scored_res;
 		  
 		  // For each residue in chain
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);
 		     int nResidueAtoms;
-		     PPCAtom residue_atoms;
+		     mmdb::PPAtom residue_atoms;
 
 		     residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
 

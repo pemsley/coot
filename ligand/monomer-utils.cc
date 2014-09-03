@@ -26,26 +26,26 @@
 #include "monomer-utils.hh"
 
 
-CResidue *
-coot::deep_copy_residue(CResidue *residue) {
+mmdb::Residue *
+coot::deep_copy_residue(mmdb::Residue *residue) {
 
-   // Horrible casting to CResidue because GetSeqNum and GetAtomTable
+   // Horrible casting to mmdb::Residue because GetSeqNum and GetAtomTable
    // are not const functions.
    // 
-   CResidue *rres = new CResidue;
-   CChain   *chain_p = new CChain;
-   chain_p->SetChainID(((CResidue *)residue)->GetChainID());
+   mmdb::Residue *rres = new mmdb::Residue;
+   mmdb::Chain   *chain_p = new mmdb::Chain;
+   chain_p->SetChainID(((mmdb::Residue *)residue)->GetChainID());
    rres->SetResID(residue->GetResName(),
 		  residue->GetSeqNum(),
 		  residue->GetInsCode());
 
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
-   ((CResidue *)residue)->GetAtomTable(residue_atoms, nResidueAtoms);
-   CAtom *atom_p;
+   ((mmdb::Residue *)residue)->GetAtomTable(residue_atoms, nResidueAtoms);
+   mmdb::Atom *atom_p;
    
    for(int iat=0; iat<nResidueAtoms; iat++) { 
-      atom_p = new CAtom;
+      atom_p = new mmdb::Atom;
       atom_p->Copy(residue_atoms[iat]);
       // std::cout << "DEBUG:: " << atom_p << std::endl;
       rres->AddAtom(atom_p);
@@ -106,7 +106,7 @@ coot::monomer_utils::getcontacts(const atom_selection_container_t &asc) const {
 
 std::vector<coot::atom_index_pair> 
 coot::monomer_utils::get_atom_index_pairs(const std::vector<coot::atom_name_pair> &atom_name_pairs_in,
-				     const PPCAtom atoms, int nresatoms) const {
+				     const mmdb::PPAtom atoms, int nresatoms) const {
 
    int i_store_index;
    std::vector<coot::atom_index_pair> index_pairs;
@@ -144,7 +144,7 @@ coot::monomer_utils::get_atom_index_pairs(const std::vector<coot::atom_name_pair
 
 std::vector<coot::atom_index_quad>
 coot::monomer_utils::get_atom_index_quads(const std::vector<coot::atom_name_quad> &atom_name_quads_in,
-					  const PPCAtom atoms, int nresatoms) const {
+					  const mmdb::PPAtom atoms, int nresatoms) const {
 
    std::vector<coot::atom_index_quad> v;
    for (int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
@@ -198,11 +198,11 @@ coot::monomer_utils::get_atom_index_quads(const std::vector<coot::atom_name_quad
 
 // [1-indexed]
 std::vector<std::pair<int, float> >
-coot::monomer_utils::get_chi_angles(CResidue *residue) const {
+coot::monomer_utils::get_chi_angles(mmdb::Residue *residue) const {
    
    std::vector<std::pair<int, float> > v;
    std::vector<coot::atom_index_quad> quads = get_quads(atom_name_quad_list, residue);
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
    
@@ -219,8 +219,8 @@ coot::monomer_utils::get_chi_angles(CResidue *residue) const {
 
 std::vector<coot::atom_index_quad>
 coot::monomer_utils::get_quads(const std::vector<coot::atom_name_quad> &atom_name_quads,
-			       CResidue *residue) const {
-   PPCAtom residue_atoms = 0;
+			       mmdb::Residue *residue) const {
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
    return get_atom_index_quads(atom_name_quads, residue_atoms, n_residue_atoms);
@@ -237,6 +237,6 @@ clipper::Coord_orth coot::monomer_utils::coord_orth_to_cart(const Cartesian &c) 
 } 
 
 clipper::Coord_orth
-coot::monomer_utils::atom_to_co(CAtom *at) const {
+coot::monomer_utils::atom_to_co(mmdb::Atom *at) const {
    return clipper::Coord_orth(at->x, at->y, at->z);
 }

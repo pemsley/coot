@@ -34,8 +34,8 @@
 #include "coot-align.hh"
 
 void do_alignment(atom_selection_container_t asc);
-coot::chain_mutation_info_container_t align_on_chain(CChain *chain_p, PCResidue *SelResidues, int nSelResidues, const std::string &target);
-std::string make_model_string(PCResidue *SelResidues, int nSelResidues);
+coot::chain_mutation_info_container_t align_on_chain(mmdb::Chain *chain_p, Pmmdb::Residue *SelResidues, int nSelResidues, const std::string &target);
+std::string make_model_string(Pmmdb::Residue *SelResidues, int nSelResidues);
 
 int
 main(int argc, char **argv) {
@@ -73,8 +73,8 @@ do_alignment(atom_selection_container_t asc) {
    int n_models = mol->GetNumberOfModels();
    // int max_chain_length = coot::util::max_number_of_residues_in_chain(mol);
    for (int imodel = 1; imodel <= n_models; imodel++) { 
-      CModel *model_p = mol->GetModel(imodel);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imodel);
+      mmdb::Chain *chain_p;
       const char *chain_id;
       int n_chains = model_p->GetNumberOfChains();
 
@@ -85,7 +85,7 @@ do_alignment(atom_selection_container_t asc) {
 	 if (m.first) {
 	    // int offset = m.second;
 	    int selHnd = mol->NewSelection();
-	    PCResidue *SelResidues = NULL;
+	    Pmmdb::Residue *SelResidues = NULL;
 	    int nSelResidues;
 
 	    mol->Select(selHnd, STYPE_RESIDUE, 0,
@@ -111,7 +111,7 @@ do_alignment(atom_selection_container_t asc) {
 }
 
 coot::chain_mutation_info_container_t
-align_on_chain(CChain *chain_p, PCResidue *SelResidues, int nSelResidues,
+align_on_chain(mmdb::Chain *chain_p, Pmmdb::Residue *SelResidues, int nSelResidues,
 	       const std::string &target)  {
 
    coot::chain_mutation_info_container_t ch_info(chain_p->GetChainID());
@@ -203,7 +203,7 @@ align_on_chain(CChain *chain_p, PCResidue *SelResidues, int nSelResidues,
    return ch_info;
 }
 
-std::string make_model_string(PCResidue *SelResidues, int nSelResidues) {
+std::string make_model_string(Pmmdb::Residue *SelResidues, int nSelResidues) {
 
    std::string s;
    std::string this_residue;

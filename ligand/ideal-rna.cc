@@ -44,7 +44,7 @@ CMMDBManager *
 coot::ideal_rna::make_molecule() {
 
    CMMDBManager *mol = 0; 
-   CResidue *ur;
+   mmdb::Residue *ur;
    bool is_dna_flag;
    coot::ideal_rna::form_t form_flag = A_FORM;
 
@@ -81,21 +81,21 @@ coot::ideal_rna::make_molecule() {
    if (ur) {
 
       mol = new CMMDBManager;
-      CModel *model_p = new CModel;
-      CChain *sense_chain_p = new CChain;
+      mmdb::Model *model_p = new mmdb::Model;
+      mmdb::Chain *sense_chain_p = new mmdb::Chain;
       sense_chain_p->SetChainID("A");
       model_p->AddChain(sense_chain_p);
 
       clipper::Mat33<double> antisense_base_mat(1, 0, 0, 0, -1, 0, 0, 0, -1);
       clipper::RTop_orth antisense_base_rtop(antisense_base_mat,
 					     clipper::Coord_orth(0,0,0));
-      CResidue *antisense_ref = coot::util::deep_copy_this_residue(ur);
+      mmdb::Residue *antisense_ref = coot::util::deep_copy_this_residue(ur);
       // now transform antisense base to the right place:
       coot::util::transform_atoms(antisense_ref, antisense_base_rtop);
       for(int iseq=0; iseq<seq.length(); iseq++) {
 	 if (is_valid_base(seq[iseq])) {
 	    // sense residue
-	    CResidue *res = coot::util::deep_copy_this_residue(ur);
+	    mmdb::Residue *res = coot::util::deep_copy_this_residue(ur);
 	    res->seqNum = 1 + iseq ;
 	    clipper::RTop_orth o = n_turns(iseq, seq.length(), form_flag);
 	    coot::util::transform_atoms(res, o);
@@ -113,13 +113,13 @@ coot::ideal_rna::make_molecule() {
       }
 
       if (! single_stranged_flag) { 
-	 CChain *antisense_chain_p = new CChain;
+	 mmdb::Chain *antisense_chain_p = new mmdb::Chain;
 	 // People complain that the resdiues of the antisense chain
 	 // appear in the pdb file in the wrong order (high residue
 	 // numbers first). So lets just make a vector of them, push
 	 // them back and add them backwards at the end.
 	 //
-	 std::vector<CResidue *> residues_v;
+	 std::vector<mmdb::Residue *> residues_v;
 	 antisense_chain_p->SetChainID("B");
 
 	 model_p->AddChain(antisense_chain_p);
@@ -127,7 +127,7 @@ coot::ideal_rna::make_molecule() {
 	    if (is_valid_base(seq[iseq])) { 
 
 	       // antisense residue
-	       CResidue *res = coot::util::deep_copy_this_residue(antisense_ref);
+	       mmdb::Residue *res = coot::util::deep_copy_this_residue(antisense_ref);
 	       res->seqNum = seq.length() - iseq;
 	       // antisense_chain_p->AddResidue(res);  "backwards in pdb"
 	       clipper::RTop_orth o = n_turns(iseq, seq.length(), form_flag);
@@ -166,17 +166,17 @@ coot::ideal_rna::make_molecule() {
 
 // Fix up to v3 names, that is.
 void
-coot::ideal_rna::fix_up_residue_and_atom_names(CResidue *residue_p, bool is_dna_flag) { 
+coot::ideal_rna::fix_up_residue_and_atom_names(mmdb::Residue *residue_p, bool is_dna_flag) { 
 
    std::string res_name = residue_p->GetResName();
    std::string new_name = residue_name_old_to_new(res_name, is_dna_flag);
    residue_p->SetResName(new_name.c_str());
 
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-      CAtom *at = residue_atoms[iat];
+      mmdb::Atom *at = residue_atoms[iat];
       std::string atom_name = at->name;
       if (atom_name.length() > 3) {
 	 if (atom_name[3] == '*') { 
@@ -194,7 +194,7 @@ coot::ideal_rna::fix_up_residue_and_atom_names(CResidue *residue_p, bool is_dna_
    // fix the atom name C5M->C7 on a T in DNA [Grr, !@#$!@#$% PDB...]
    if (new_name == "DT") {
       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	 CAtom *at = residue_atoms[iat];
+	 mmdb::Atom *at = residue_atoms[iat];
 	 std::string atom_name = at->name;
 	 if (atom_name == " C5M") {
 	    at->SetAtomName(" C7 ");
@@ -296,7 +296,7 @@ coot::ideal_rna::antisense_base(char base, bool is_dna_flag) const {
 // Get a deep copy:
 // return NULL on failure
 // 
-CResidue *
+mmdb::Residue *
 coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type_in,
 					       CMMDBManager *standard_residues) const {
 
@@ -306,7 +306,7 @@ coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type_i
    std::string residue_name = residue_name_from_type(residue_type_in);
    // std::cout << "in :" << residue_type_in << ": out :" << residue_name << ":" << std::endl;
 
-   CResidue *std_residue = 0;
+   mmdb::Residue *std_residue = 0;
    int selHnd = standard_residues->NewSelection();
    standard_residues->Select (selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
 			      "*",
@@ -318,7 +318,7 @@ coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type_i
 			      "*",  // altLocs
 			      SKEY_NEW // selection key
 			      );
-   PPCResidue SelResidue;
+   mmdb::PPResidue SelResidue;
    int nSelResidues;
    standard_residues->GetSelIndex(selHnd, SelResidue, nSelResidues);
    
@@ -402,7 +402,7 @@ coot::ideal_rna::residue_name_old_to_new(const std::string &residue_type_in, boo
 
 // return a status: 0 for bad, 1 for good.
 int 
-coot::ideal_rna::mutate_res(CResidue *res, char base, bool is_dna_flag) const {
+coot::ideal_rna::mutate_res(mmdb::Residue *res, char base, bool is_dna_flag) const {
 
    // we need to get instances of bases from the standard residues
    int status = 0;
@@ -430,7 +430,7 @@ coot::ideal_rna::mutate_res(CResidue *res, char base, bool is_dna_flag) const {
    }
 
    if (residue_type != "None") {
-      CResidue *std_res = get_standard_residue_instance(residue_type, standard_residues);
+      mmdb::Residue *std_res = get_standard_residue_instance(residue_type, standard_residues);
       if (std_res) {
 	 coot::util::mutate_base(res, std_res, 1);
 	 status = 1;
@@ -440,10 +440,10 @@ coot::ideal_rna::mutate_res(CResidue *res, char base, bool is_dna_flag) const {
 }
 
 void
-coot::ideal_rna::delete_o2_prime(CResidue *res) const {
+coot::ideal_rna::delete_o2_prime(mmdb::Residue *res) const {
 
    int natoms;
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    short int deleted = 0;
 
    if (res) { 
@@ -466,7 +466,7 @@ coot::ideal_rna::delete_o2_prime(CResidue *res) const {
 
 // Tinker with res
 void
-coot::ideal_rna::add_o2_prime(CResidue *res) const {
+coot::ideal_rna::add_o2_prime(mmdb::Residue *res) const {
 
    if (res) {
       std::vector<clipper::Coord_orth> mov_pts; // in order
@@ -481,10 +481,10 @@ coot::ideal_rna::add_o2_prime(CResidue *res) const {
       clipper::Coord_orth o2p(8.870, -5.158, 3.018);
 
       int natoms;
-      PPCAtom residue_atoms;
-      CAtom *c1p = NULL;
-      CAtom *c2p = NULL;
-      CAtom *c3p = NULL;
+      mmdb::PPAtom residue_atoms;
+      mmdb::Atom *c1p = NULL;
+      mmdb::Atom *c2p = NULL;
+      mmdb::Atom *c3p = NULL;
       res->GetAtomTable(residue_atoms, natoms);
       for (int i=0; i<natoms; i++) {
 	 std::string atname(residue_atoms[i]->name);
@@ -510,7 +510,7 @@ coot::ideal_rna::add_o2_prime(CResidue *res) const {
 	 std::string new_atom_name = " O2*";
 	 std::string new_atom_ele = " O";
 
-	 CAtom *new_at = new CAtom;
+	 mmdb::Atom *new_at = new mmdb::Atom;
 	 new_at->SetCoordinates(pos.x(), pos.y(), pos.z(), new_atom_occ, new_atom_b_factor);
 	 new_at->SetAtomName(new_atom_name.c_str());
 	 new_at->SetElementName(new_atom_ele.c_str());

@@ -244,16 +244,16 @@ int test_phi_psi_values() {
    int status = 0;
    if (atom_sel.read_success > 0) {
       int imod = 1;
-      CModel *model_p = atom_sel.mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
 	 for (int ires=1; ires<(nres-1); ires++) {
-	    CResidue *prev_res = chain_p->GetResidue(ires-1);
-	    CResidue *this_res = chain_p->GetResidue(ires);
-	    CResidue *next_res = chain_p->GetResidue(ires+1);
+	    mmdb::Residue *prev_res = chain_p->GetResidue(ires-1);
+	    mmdb::Residue *this_res = chain_p->GetResidue(ires);
+	    mmdb::Residue *next_res = chain_p->GetResidue(ires+1);
 	    try { 
 	       coot::util::phi_psi_t pp(prev_res, this_res, next_res);
 	       n_phi_psi++;
@@ -349,15 +349,15 @@ int test_alt_conf_rotamers() {
 
    int imod = 1;
    if (atom_sel.read_success > 0) { 
-      CModel *model_p = atom_sel.mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 std::string chain_id = chain_p->GetChainID();
 	 if (chain_id == "B") {
 	    int nres = chain_p->GetNumberOfResidues();
-	    PCResidue residue_p;
+	    Pmmdb::Residue residue_p;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       int resno = residue_p->GetSeqNum();
@@ -501,7 +501,7 @@ int test_wiggly_ligands () {
 // 
 residue_selection_t
 testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
-					   PCResidue *SelResidues,
+					   Pmmdb::Residue *SelResidues,
 					   int nSelResidues,
 					   const std::string &chain_id,
 					   int resno_mid,
@@ -579,7 +579,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 
    int post_refine_selHnd = residues_mol_pair.first->NewSelection();
    int post_refine_nSelResidues; 
-   PCResidue *post_refine_SelResidues = NULL;
+   Pmmdb::Residue *post_refine_SelResidues = NULL;
    residues_mol_pair.first->Select(post_refine_selHnd, STYPE_RESIDUE, 0,
 				   chn,
 				   resno_mid-side_step, "",
@@ -630,7 +630,7 @@ int test_ramachandran_probabilities() {
    for (int i=0; i<resnos.size(); i++) { 
       int selHnd = atom_sel.mol->NewSelection();
       int nSelResidues; 
-      PCResidue *SelResidues = NULL;
+      Pmmdb::Residue *SelResidues = NULL;
       atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
 			   chn,
 			   resnos[i]-2, "",
@@ -869,11 +869,11 @@ int test_peptide_link() {
    if (! asc.read_success)
       return 0;
 
-   std::vector<std::pair<bool,CResidue *> > residues;
+   std::vector<std::pair<bool,mmdb::Residue *> > residues;
    CMMDBManager *mol = asc.mol;
    int imod = 1;
-   CModel *model_p = mol->GetModel(imod);
-   CChain *chain_p;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
    // run over chains of the existing mol
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
@@ -881,12 +881,12 @@ int test_peptide_link() {
       int nres = chain_p->GetNumberOfResidues();
       std::string chain_id = chain_p->GetChainID();
       if (chain_id == "B") { 
-	 PCResidue residue_p;
+	 Pmmdb::Residue residue_p;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    int resno = residue_p->GetSeqNum();
 	    if ((resno == 1455) || (resno == 1456))
-	       residues.push_back(std::pair<bool, CResidue *>(0, residue_p));
+	       residues.push_back(std::pair<bool, mmdb::Residue *>(0, residue_p));
 	 }
       }
    }
@@ -948,7 +948,7 @@ restr_res_vector() {
 //    f = "6_7.pdb";
    atom_selection_container_t asc = get_atom_selection(f, 1);
 
-   std::vector<std::pair<bool,CResidue *> > residues;
+   std::vector<std::pair<bool,mmdb::Residue *> > residues;
    CMMDBManager *mol = asc.mol;
    std::cout << "restr_res_vector: mol: " << mol << std::endl;
    std::vector<coot::atom_spec_t> fixed_atom_specs;
@@ -957,8 +957,8 @@ restr_res_vector() {
       return 0;
    
    int imod = 1;
-   CModel *model_p = mol->GetModel(imod);
-   CChain *chain_p;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
    // run over chains of the existing mol
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
@@ -966,12 +966,12 @@ restr_res_vector() {
       int nres = chain_p->GetNumberOfResidues();
       std::string chain_id = chain_p->GetChainID();
       if (chain_id == "B") { 
-	 PCResidue residue_p;
+	 Pmmdb::Residue residue_p;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    int resno = residue_p->GetSeqNum();
 	    if ((resno == 7) || (resno == 96))
-	       residues.push_back(std::pair<bool, CResidue *>(0, residue_p));
+	       residues.push_back(std::pair<bool, mmdb::Residue *>(0, residue_p));
 	 }
       }
    }
@@ -1010,15 +1010,15 @@ test_add_atom() {
    int ires_count = 0;
    
    int imod = 1;
-   CModel *model_p = asc.mol->GetModel(imod);
-   CChain *chain_p;
+   mmdb::Model *model_p = asc.mol->GetModel(imod);
+   mmdb::Chain *chain_p;
    // run over chains of the existing mol
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
-      PCResidue residue_p;
-      CAtom *at;
+      Pmmdb::Residue residue_p;
+      mmdb::Atom *at;
       while (ires_count<n_test_residues) {
 	 residue_p = chain_p->GetResidue(ires_count);
 	 ires_count++;
@@ -1056,7 +1056,7 @@ test_add_atom() {
 		  bond_length = 1.492;
 		  angle = 104.500;
 	       }
-	       CAtom *ref_atom = residue_p->GetAtom(ref_atom_name.c_str());
+	       mmdb::Atom *ref_atom = residue_p->GetAtom(ref_atom_name.c_str());
 	       if (!ref_atom) {
 		  std::cout << "   Failed to find reference CG in residue "
 			    << coot::residue_spec_t(residue_p) << std::endl;
@@ -1069,7 +1069,7 @@ test_add_atom() {
 						     " XX ", " C", 1.0, 20.0);
 		  if (status) {
 		     clipper::Coord_orth ref_pt(ref_atom->x, ref_atom->y, ref_atom->z);
-		     CAtom *new_atom = residue_p->GetAtom(" XX ");
+		     mmdb::Atom *new_atom = residue_p->GetAtom(" XX ");
 		     if (! new_atom) {
 			std::cout << "   Failed to find reference CG in residue "
 				  << coot::residue_spec_t(residue_p) << std::endl;
@@ -1116,13 +1116,13 @@ test_dipole() {
    if (rp.first) { 
    
       int imod = 1;
-      CModel *model_p = atom_sel.mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
-	 PCResidue residue_p;
+	 Pmmdb::Residue residue_p;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    if (std::string(residue_p->GetResName()) == res_type) { 
@@ -1179,18 +1179,18 @@ int test_segid_exchange() {
    atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
    bool ifound = 0;
 
-   std::vector<CResidue *> residues;
+   std::vector<mmdb::Residue *> residues;
 
    int imod = 1;
    if (atom_sel.read_success > 0) { 
-      CModel *model_p = atom_sel.mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 std::string chain_id = chain_p->GetChainID();
 	 int nres = chain_p->GetNumberOfResidues();
-	 PCResidue residue_p;
+	 Pmmdb::Residue residue_p;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    residues.push_back(residue_p);
@@ -1202,9 +1202,9 @@ int test_segid_exchange() {
       }
 
       if (residues.size() == 3) {
-	 PPCAtom residue_atoms_1;
-	 PPCAtom residue_atoms_2;
-	 PPCAtom residue_atoms_3;
+	 mmdb::PPAtom residue_atoms_1;
+	 mmdb::PPAtom residue_atoms_2;
+	 mmdb::PPAtom residue_atoms_3;
 	 int n_residue_atoms_1;
 	 int n_residue_atoms_2;
 	 int n_residue_atoms_3;
@@ -1213,7 +1213,7 @@ int test_segid_exchange() {
 	 
 	 residues[0]->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
 	 for (int iat=0; iat<n_residue_atoms_1; iat++) {
-	    CAtom *at = residue_atoms_1[iat];
+	    mmdb::Atom *at = residue_atoms_1[iat];
 	    at->SetAtomName(at->GetIndex(),
 			    at->serNum,
 			    at->GetAtomName(),
@@ -1227,7 +1227,7 @@ int test_segid_exchange() {
 	 
 	 residues[1]->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
 	 for (int iat=0; iat<n_residue_atoms_2; iat++) {
-	    CAtom *at = residue_atoms_2[iat];
+	    mmdb::Atom *at = residue_atoms_2[iat];
 	    std::string this_seg_id = at->segID;
 	    if (this_seg_id != new_seg_id) {
 	       std::cout << "   Failed to copy seg id.  Was :"
@@ -1245,7 +1245,7 @@ int test_segid_exchange() {
 	 std::cout << "   Test with a rogue segid " << std::endl;
 	 // Add a rogue:
 	 // 
-	 CAtom *at = residue_atoms_1[2];
+	 mmdb::Atom *at = residue_atoms_1[2];
 	 at->SetAtomName(at->GetIndex(),
 			 at->serNum,
 			 at->GetAtomName(),
@@ -1257,7 +1257,7 @@ int test_segid_exchange() {
 
 	 std::vector<std::string> orig_seg_ids;
 	 for (int iat=0; iat<n_residue_atoms_2; iat++) {
-	    CAtom *at = residue_atoms_2[iat];
+	    mmdb::Atom *at = residue_atoms_2[iat];
 	    std::string this_seg_id = at->segID;
 	    orig_seg_ids.push_back(this_seg_id);
 	 }
@@ -1265,7 +1265,7 @@ int test_segid_exchange() {
 	 coot::copy_segid(residues[0], residues[2]);
 	 bool fail_this = 0;
 	 for (int iat=0; iat<n_residue_atoms_2; iat++) {
-	    CAtom *at = residue_atoms_2[iat];
+	    mmdb::Atom *at = residue_atoms_2[iat];
 	    std::string this_seg_id = at->segID;
 	    if (this_seg_id != orig_seg_ids[iat]) {
 	       std::cout << "  Failed: segid changed when it shouldn't"
@@ -1486,7 +1486,7 @@ int test_coot_atom_tree() {
    std::cout << "Atom tree test" << std::endl;
    int r = 0;
    coot::dictionary_residue_restraints_t rest("XXX",0);
-   CResidue *res = 0;
+   mmdb::Residue *res = 0;
 
    // test that the exception is thrown by setting b = 1 there, don't continue if not
    bool b = 0;
@@ -1506,7 +1506,7 @@ int test_coot_atom_tree() {
    // (this test might not be necessary later).
    //
    b = 0;
-   res = new CResidue;
+   res = new mmdb::Residue;
    try { 
       coot::atom_tree_t tree(rest, res, "");
    }
@@ -1563,7 +1563,7 @@ int test_coot_atom_tree() {
 	 if (!atom_sel.read_success) {
 	    std::cout << "monomer-3GP.pdb not read successfully." << std::endl;
 	 } else { 
-	    CResidue *res = test_get_residue(atom_sel.mol, "A", 1);
+	    mmdb::Residue *res = test_get_residue(atom_sel.mol, "A", 1);
 	    if (res) {
           geom_stat = geom.init_refmac_mon_lib(greg_test("libcheck_3GP.cif"), 0);
 	       std::pair<short int, coot::dictionary_residue_restraints_t> p = 
@@ -1635,9 +1635,9 @@ test_coot_atom_tree_2() {
    names.push_back(std::pair<std::string, clipper::Coord_orth> (" CZ ", clipper::Coord_orth(0,-1,0)));
    names.push_back(std::pair<std::string, clipper::Coord_orth> (" CG ", clipper::Coord_orth(0.5,1.5,0)));
 		   
-   CResidue *residue_p = new CResidue;
+   mmdb::Residue *residue_p = new mmdb::Residue;
    for (int i=0; i<5; i++) {
-      CAtom *at = new CAtom();
+      mmdb::Atom *at = new mmdb::Atom();
       at->SetAtomName(names[i].first.c_str());
       at->SetCoordinates(names[i].second.x(), names[i].second.y(), names[i].second.z(), 1.0, 20.0);
       residue_p->AddAtom(at);
@@ -1675,11 +1675,11 @@ test_coot_atom_tree_proline() {
    int r = 0; 
    std::string filename = greg_test("tutorial-modern.pdb");
    atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
-   CResidue *res_pro = test_get_residue(atom_sel.mol, "A", 12);
+   mmdb::Residue *res_pro = test_get_residue(atom_sel.mol, "A", 12);
    if (res_pro) {
       coot::protein_geometry geom;
       geom.init_standard();
-      PPCAtom residue_atoms;
+      mmdb::PPAtom residue_atoms;
       int n_residue_atoms;
       res_pro->GetAtomTable(residue_atoms, n_residue_atoms);
       std::vector<clipper::Coord_orth> before_pos(n_residue_atoms);
@@ -1721,22 +1721,22 @@ test_coot_atom_tree_proline() {
 
 
 // can return null;
-CResidue *test_get_residue(CMMDBManager *mol, const std::string &chain_id_ref, int resno_ref) {
+mmdb::Residue *test_get_residue(CMMDBManager *mol, const std::string &chain_id_ref, int resno_ref) {
 
-   CResidue *residue_p = 0;
+   mmdb::Residue *residue_p = 0;
    
    int imod = 1;
-   CResidue *res = 0;
+   mmdb::Residue *res = 0;
 
-   CModel *model_p = mol->GetModel(imod);
-   CChain *chain_p;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       std::string chain_id = chain_p->GetChainID();
       if (chain_id == chain_id_ref) {
 	 int nres = chain_p->GetNumberOfResidues();
-	 PCResidue res;
+	 Pmmdb::Residue res;
 	 for (int ires=0; ires<nres; ires++) { 
 	    res = chain_p->GetResidue(ires);
 	    int resno = res->GetSeqNum();
@@ -1754,7 +1754,7 @@ CResidue *test_get_residue(CMMDBManager *mol, const std::string &chain_id_ref, i
 
 
 bool test_tree_rotation(const coot::dictionary_residue_restraints_t &rest,
-			CResidue *res,
+			mmdb::Residue *res,
 			const std::string &rotate_atom_1,
 			const std::string &rotate_atom_2,
 			bool reverse_flag) {
@@ -1763,7 +1763,7 @@ bool test_tree_rotation(const coot::dictionary_residue_restraints_t &rest,
    
    bool r = 0;
    coot::atom_tree_t tree(rest, res, "");
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int n_residue_atoms;
    res->GetAtomTable(residue_atoms, n_residue_atoms);
    std::vector<clipper::Coord_orth> before_pos(n_residue_atoms);
@@ -1850,7 +1850,7 @@ test_rotate_round_vector() {
    std::string rotate_atom_1 = " N9 ";
    std::string rotate_atom_2 = " C1*";
 
-   CResidue *residue_p = test_get_residue(atom_sel.mol, "A", 1);
+   mmdb::Residue *residue_p = test_get_residue(atom_sel.mol, "A", 1);
 
    if (! residue_p) {
       std::cout << "residue not found for test_rotate_round_vector()" << std::endl;
@@ -1859,7 +1859,7 @@ test_rotate_round_vector() {
       std::vector<int> exclude_atoms;
       clipper::Coord_orth rotate_pt_1;
       clipper::Coord_orth rotate_pt_2;
-      PPCAtom residue_atoms;
+      mmdb::PPAtom residue_atoms;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_residue_atoms; iat++) {
@@ -2158,7 +2158,7 @@ int test_previous_water() {
    mci.delete_atom("D", 162, "", " O  ", "");
    coot::Cartesian rc(0,0,0); // hack?
    int iprev = mci.intelligent_previous_atom("D", 162, " O  ", "", rc);
-   CAtom *at = mci.atom_sel.atom_selection[iprev];
+   mmdb::Atom *at = mci.atom_sel.atom_selection[iprev];
    std::cout << "previous atom: " << at << std::endl;
    if (std::string(at->GetChainID()) == "D")
       if (at->GetSeqNum() == 161)
@@ -2314,8 +2314,8 @@ int test_flev_aromatics() {
    std::string filename = "test-with-5GP-with-ideal-A37-PHE.pdb";
    // std::string filename = "coot-download/1x8b.pdb";
    atom_selection_container_t atom_sel = get_atom_selection(greg_test(filename), 1);
-   CResidue *res_ref = coot::util::get_residue("C", 1, "", atom_sel.mol);
-   // CResidue *res_ref = coot::util::get_residue("A", 901, "", atom_sel.mol);
+   mmdb::Residue *res_ref = coot::util::get_residue("C", 1, "", atom_sel.mol);
+   // mmdb::Residue *res_ref = coot::util::get_residue("A", 901, "", atom_sel.mol);
    if (! res_ref) {
       std::cout << "failed to get reference residue in test_flev_aromatics()" << std::endl;
       return 0;
@@ -2326,7 +2326,7 @@ int test_flev_aromatics() {
       // read_cif_dictionary("coot-ccp4/.coot-to-lbg-lib");
       std::cout << "DEBUG:: dynamic_add_status " << dynamic_add_status << std::endl;
       float residues_near_radius = 4.0;
-      std::vector<CResidue *> residues =
+      std::vector<mmdb::Residue *> residues =
 	 coot::residues_near_residue(res_ref, atom_sel.mol, residues_near_radius);
       std::pair<bool, coot::dictionary_residue_restraints_t> p = 
 	 t.geom.get_monomer_restraints("5GP");
@@ -2479,15 +2479,15 @@ int test_residue_atom_renaming() {
    std::vector<std::string> orig_atom_names;
    std::vector<std::string> curr_atom_names;
 
-   CResidue *res_ref = atom_sel_ref.mol->GetResidue(1, "", 1, "");
-   CResidue *res_mov = atom_sel_mov.mol->GetResidue(1, "", 1, "");
+   mmdb::Residue *res_ref = atom_sel_ref.mol->GetResidue(1, "", 1, "");
+   mmdb::Residue *res_mov = atom_sel_mov.mol->GetResidue(1, "", 1, "");
 
    if (! res_ref || ! res_mov) {
       std::cout << "test_residue_atom_renaming(): failed to get residues "
 		<< res_ref << " " << res_mov << std::endl;
    } else {
       // normal path
-      PPCAtom residue_atoms = 0;
+      mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       res_mov->GetAtomTable(residue_atoms, n_residue_atoms);
       orig_atom_names.resize(n_residue_atoms);
@@ -2573,7 +2573,7 @@ int test_COO_mod() {
 
       // refine ...
       
-      PCResidue *SelResidues = new PCResidue[1];
+      Pmmdb::Residue *SelResidues = new Pmmdb::Residue[1];
       SelResidues[0] = asc.atom_selection[0]->residue;
       
       residue_selection_t result =
@@ -2698,8 +2698,8 @@ int test_position_residue_by_internal_coords() {
 	 CMMDBManager *r_mol = new CMMDBManager;
 	 r_mol->ReadPDBASCII("coot-ccp4/monomer-ASN.pdb");
    
-	 CResidue *r = coot::util::get_first_residue(r_mol);
-	 CResidue *m = t.geom.get_ccp4srs_residue("NAG");
+	 mmdb::Residue *r = coot::util::get_first_residue(r_mol);
+	 mmdb::Residue *m = t.geom.get_ccp4srs_residue("NAG");
 
 	 if (! r_mol) {
 	    std::cout << "Failed to get ASN molecule " << std::endl;
@@ -2735,10 +2735,10 @@ int test_beam_in_residue() {
    int status = 0;
    CMMDBManager *r_mol = new CMMDBManager;
    r_mol->ReadPDBASCII("coot-ccp4/monomer-ASN.pdb");
-   CResidue *r = coot::util::get_first_residue(r_mol);
+   mmdb::Residue *r = coot::util::get_first_residue(r_mol);
    if (r) {
       coot::beam_in_linked_residue lr(r, "NAG-ASN", "NAG", &t.geom);
-      CResidue *result = lr.get_residue();
+      mmdb::Residue *result = lr.get_residue();
       if (result) {
 	 status = 1;
       } 
@@ -2754,7 +2754,7 @@ int test_multi_residue_torsion() {
    t.geom.try_dynamic_add("NAG", 1);
    CMMDBManager *mol = new CMMDBManager;
    mol->ReadPDBASCII("ASN-NAG-pair.pdb");
-   CResidue *res_1 = coot::util::get_first_residue(mol);
+   mmdb::Residue *res_1 = coot::util::get_first_residue(mol);
    if (res_1) {
       coot::residue_spec_t specs[2];
       int selhnd = mol->NewSelection();
@@ -2764,24 +2764,24 @@ int test_multi_residue_torsion() {
 	 specs[i].select_atoms(mol, selhnd, SKEY_OR); 
       }
 
-      PPCAtom atom_selection;
+      mmdb::PPAtom atom_selection;
       int n_selected_atoms;
       mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
 
-      // now we need to add the link, we need a CResidue * for the
+      // now we need to add the link, we need a mmdb::Residue * for the
       // second residue to do that.
       //
       int selhnd_res2 = mol->NewSelection();
       mol->Select(selhnd_res2, STYPE_RESIDUE, 1, "A",
 		  361, "", 361, "", "*", "*", "*", "*", SKEY_NEW);
       int nSelResidues;
-      PPCResidue SelResidues;
+      mmdb::PPResidue SelResidues;
       mol->GetSelIndex(selhnd_res2, SelResidues, nSelResidues);
       
       if (nSelResidues != 1) {
 	 std::cout << "problem in test_multi_residue_torsion" << std::endl;
       } else {
-	 CResidue *res_2 = SelResidues[0];
+	 mmdb::Residue *res_2 = SelResidues[0];
 	 coot::bonded_pair_t bp(res_1, res_2, 0, 0, "NAG-ASN");
 	 coot::bonded_pair_container_t bpc;
 	 bpc.try_add(bp);
@@ -2823,7 +2823,7 @@ test_torsions_from_residue_selection() {
 				   // with added refmac LINKRs (refmac
 				   // deletes HETATMs so we can't use
 				   // the unmodified refmac results.
-   CResidue *res_1 = coot::util::get_first_residue(mol);
+   mmdb::Residue *res_1 = coot::util::get_first_residue(mol);
    if (! res_1) {
       std::cout << "no res_1" << std::endl;
    } else { 
@@ -2835,11 +2835,11 @@ test_torsions_from_residue_selection() {
 	 specs[i].select_atoms(mol, selhnd, SKEY_OR); 
       }
 
-      PPCAtom atom_selection;
+      mmdb::PPAtom atom_selection;
       int n_selected_atoms;
       mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
 
-      std::vector<std::pair<CAtom *, CAtom *> > v = 
+      std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v = 
 	 coot::torsionable_bonds(mol, atom_selection, n_selected_atoms, &t.geom);
 
       // tidy up

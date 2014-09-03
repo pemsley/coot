@@ -55,7 +55,7 @@ namespace coot {
 	 atom(std::string atom_name, std::string ele, float x, float y, float z, const std::string &altloc, float occupancy, float dbf);
 	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc, float dbf);
 	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc, float occupancy, float b_factor);
-	 atom(CAtom *at);
+	 atom(mmdb::Atom *at);
 	 atom() {}
 	 std::string altLoc;
 	 float occupancy;
@@ -74,10 +74,10 @@ namespace coot {
 	    seqnum = i;
 	    name = resname;
 	    ins_code = "";}
-	 residue(CResidue *residue_p);
-	 residue(CResidue *residue_p,
+	 residue(mmdb::Residue *residue_p);
+	 residue(mmdb::Residue *residue_p,
 		 const std::vector<std::string> &keep_only_these_atoms);
-	 residue(){ seqnum = MinInt4; /* unset */ }; // for resizing the residues in fragment
+	 residue(){ seqnum = mmdb::MinInt4; /* unset */ }; // for resizing the residues in fragment
 	 int seqnum;
 	 std::string ins_code;
 	 std::string name;
@@ -98,7 +98,7 @@ namespace coot {
 	 void delete_atom_indices(const std::vector<int> &atom_indices);
 	 // throw an exception if atoms not found
 	 double get_torsion(coot::atom_name_quad &quad) const;
-	 bool is_undefined() const { if (seqnum == MinInt4) return 1; else return 0; };
+	 bool is_undefined() const { if (seqnum == mmdb::MinInt4) return 1; else return 0; };
 	 void write_file(const std::string &file_name) const;
       };
 
@@ -154,7 +154,7 @@ namespace coot {
 	 short int setup(CMMDBManager *mmdb_mol_in);
 	 short int have_spacegroup;
 	 short int have_cell;
-	 std::pair<bool, int> min_resno_in_chain(CChain *chain_p) const; 
+	 std::pair<bool, int> min_resno_in_chain(mmdb::Chain *chain_p) const; 
       public:
 	 molecule() {have_cell = 0; have_spacegroup = 0;};
 	 // 
@@ -169,8 +169,8 @@ namespace coot {
 	 // to generate the molecule hierachy, but use the atom vector
 	 // to set the positions of the atoms.  Used in rigid body
 	 // fitting of atoms moved with an atom selection (jiggle_fit)
-	 molecule(PPCAtom atom_selection, int n_residues_atoms,
-		  const std::vector<CAtom> &atoms);
+	 molecule(mmdb::PPAtom atom_selection, int n_residues_atoms,
+		  const std::vector<mmdb::Atom> &atoms);
 	 
 	 
 	 short int init(CMMDBManager *mmdb_mol_in) {return setup(mmdb_mol_in);}

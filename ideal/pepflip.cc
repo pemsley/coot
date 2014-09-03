@@ -79,17 +79,17 @@ coot::pepflip_standard(CMMDBManager *mol,
    second_atoms.push_back(" N  ");
    second_atoms.push_back(" H  ");
 
-   CAtom *ca1 = NULL;
-   CAtom *ca2 = NULL;
+   mmdb::Atom *ca1 = NULL;
+   mmdb::Atom *ca2 = NULL;
 
-   CResidue *first_res = coot::util::get_residue(chain_id, resno, ins_code, mol);
-   std::vector<CAtom *> flipping_atoms;
+   mmdb::Residue *first_res = coot::util::get_residue(chain_id, resno, ins_code, mol);
+   std::vector<mmdb::Atom *> flipping_atoms;
    if (first_res) {
       coot::residue_spec_t rs(first_res);
-      CResidue *second_res = coot::util::get_following_residue(rs, mol);
+      mmdb::Residue *second_res = coot::util::get_following_residue(rs, mol);
       if (second_res) {
-	 PCAtom *first_residue_atoms = NULL;
-	 PCAtom *second_residue_atoms = NULL;
+	 Pmmdb::Atom *first_residue_atoms = NULL;
+	 Pmmdb::Atom *second_residue_atoms = NULL;
 	 int n_first_residue_atoms; 
 	 int n_second_residue_atoms;
 	 first_res->GetAtomTable(first_residue_atoms, n_first_residue_atoms);
@@ -156,16 +156,16 @@ coot::pepflip_internal_to_residue(CMMDBManager *mol,
 				  const std::string &altconf) {
 
    int status = 0;
-   CResidue *residue_p = coot::util::get_residue(chain_id, resno, ins_code, mol);
+   mmdb::Residue *residue_p = coot::util::get_residue(chain_id, resno, ins_code, mol);
    if (residue_p) {
-      CAtom *c_at  = NULL;
-      CAtom *o_at  = NULL;
-      CAtom *ca_at = NULL;
-      PPCAtom residue_atoms = 0;
+      mmdb::Atom *c_at  = NULL;
+      mmdb::Atom *o_at  = NULL;
+      mmdb::Atom *ca_at = NULL;
+      mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	 CAtom *at = residue_atoms[iat];
+	 mmdb::Atom *at = residue_atoms[iat];
 	 std::string atom_name(at->name);
 	 std::string atom_alt_conf(at->altLoc);
 	 // PDBv3 FIXME
@@ -197,7 +197,7 @@ coot::pepflip_internal_to_residue(CMMDBManager *mol,
 
 std::vector<clipper::Coord_orth> 
 coot::flip_internal(const std::vector<clipper::Coord_orth> &ca_in,
-		    const std::vector<CAtom *> &atoms) {
+		    const std::vector<mmdb::Atom *> &atoms) {
 
    std::vector<clipper::Coord_orth> atoms_orth(atoms.size()); // returned thing
    std::vector<clipper::Coord_orth> cas = ca_in;

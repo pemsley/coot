@@ -8,8 +8,8 @@
 
 
 bool
-coot::compare_residue_torsions(CMMDBManager *mol1, CResidue *res_1,
-			       CMMDBManager *mol2, CResidue *res_2,
+coot::compare_residue_torsions(CMMDBManager *mol1, mmdb::Residue *res_1,
+			       CMMDBManager *mol2, mmdb::Residue *res_2,
 			       double tolerance,
 			       coot::protein_geometry *geom_p) {
 
@@ -22,8 +22,8 @@ coot::compare_residue_torsions(CMMDBManager *mol1, CResidue *res_1,
 
    if (restraints.first) {
 
-      PPCAtom residue_atoms_1 = 0;
-      PPCAtom residue_atoms_2 = 0;
+      mmdb::PPAtom residue_atoms_1 = 0;
+      mmdb::PPAtom residue_atoms_2 = 0;
       int n_residue_atoms_1;
       int n_residue_atoms_2;
       res_1->GetAtomTable(residue_atoms_1, n_residue_atoms_1);

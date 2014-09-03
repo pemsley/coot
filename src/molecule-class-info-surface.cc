@@ -127,7 +127,7 @@ molecule_class_info_t::fill_residue_selection(int SelHnd_selection,
 				"*", "*", "*", SKEY_OR);
    }
 
-   PPCAtom atoms = NULL;
+   mmdb::PPAtom atoms = NULL;
    int n_atoms;
    atom_sel.mol->GetSelIndex(SelHnd_selection, atoms, n_atoms);
    std::cout << "debug:: fill_residue_selection selected "

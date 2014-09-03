@@ -11,11 +11,11 @@
 #define CXXTorusNode_included
 #include "CXXCoord.h"
 
-class CAtom;
+class mmdb::Atom;
 
 class CXXTorusNode{
 private:
-	CAtom *theAtom;
+	mmdb::Atom *theAtom;
 	double theta;
 	double omega;
 	CXXCoord crd;
@@ -29,8 +29,8 @@ public:
 	const double getTheta() const;
 	const double getOmega() const;
 	int setCoord(const CXXCoord &);
-	int setAtom(CAtom *anAtom);
-	CAtom *getAtom() const;
+	int setAtom(mmdb::Atom *anAtom);
+	mmdb::Atom *getAtom() const;
 };
 
 #endif

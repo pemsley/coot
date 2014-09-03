@@ -31,7 +31,7 @@ nodeNumber(0)
 {
 }
 
-CXXCircle::CXXCircle (CXXNewHood *aHood, PCAtom atom2, double radiusOfAtom2, double probeRadius) :
+CXXCircle::CXXCircle (CXXNewHood *aHood, Pmmdb::Atom atom2, double radiusOfAtom2, double probeRadius) :
 theAtomJ(atom2),
 theBallJ(0),
 theParent(aHood),
@@ -276,7 +276,7 @@ double CXXCircle::getRadiusOfSphere() const{
 double CXXCircle::getRadiusOfSecondSphere() const{
 	return radiusOfSecondSphere;
 }
-const PCAtom CXXCircle::getAtomJ() const{
+const Pmmdb::Atom CXXCircle::getAtomJ() const{
 	return theAtomJ;
 }
 
@@ -444,7 +444,7 @@ int CXXCircle::newIdentifyArcs(){
 	
 	//If this is an intact orbit, then atomK will be zero, and the first two nodes are trivially the start and
 	//Stop points
-	PCAtom atomK(theNodes.begin()->getAtomK());
+	Pmmdb::Atom atomK(theNodes.begin()->getAtomK());
 	if (!atomK && theNodes.size()>1){
 		theStarts.push_back(&(*theNodes.begin()));
 		theStops.push_back(&theNodes.back());

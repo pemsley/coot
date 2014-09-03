@@ -129,8 +129,8 @@ int graphics_info_t::go_to_atom_residue() {
 
 	       // and set the atom name by intelligent atom:
 	       //
-	       CResidue *res = molecules[imol].atom_sel.atom_selection[0]->residue;
-	       CAtom *atom = molecules[imol].intelligent_this_residue_mmdb_atom(res);
+	       mmdb::Residue *res = molecules[imol].atom_sel.atom_selection[0]->residue;
+	       mmdb::Atom *atom = molecules[imol].intelligent_this_residue_mmdb_atom(res);
 	       go_to_atom_atom_name_ = std::string(atom->name);
 	       break;
 	    }
@@ -325,7 +325,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
       } 
 
       if (atom_index != -1) {
-	 CAtom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
+	 mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
 
 	 go_to_atom_chain_       = next_atom->GetChainID();
 	 go_to_atom_atom_name_   = next_atom->name;
@@ -378,7 +378,7 @@ graphics_info_t::set_go_to_residue_intelligent(const std::string &chain_id, int 
    // (either " CA ", or the first atom in the residue or "no-residue"
    // (error-flag)).
 
-   CAtom *at = molecules[go_to_atom_molecule()].atom_intelligent(chain_id, resno, ins_code);
+   mmdb::Atom *at = molecules[go_to_atom_molecule()].atom_intelligent(chain_id, resno, ins_code);
 
    if (at) { 
       go_to_atom_chain_ = chain_id;
@@ -398,7 +398,7 @@ graphics_info_t::set_go_to_residue_intelligent(const std::string &chain_id, int 
 // and atom list (like Jan wants) rather than just the entry widgets.
 // 
 void
-graphics_info_t::update_widget_go_to_atom_values(GtkWidget *window, CAtom *atom)  {
+graphics_info_t::update_widget_go_to_atom_values(GtkWidget *window, mmdb::Atom *atom)  {
 
    std::string res_str   = int_to_string(go_to_atom_residue_);
    res_str += go_to_atom_inscode_; 
@@ -445,7 +445,7 @@ graphics_info_t::update_widget_go_to_atom_values(GtkWidget *window, CAtom *atom)
 // attached (it should do) and check *those* items.
 // 
 void
-graphics_info_t::make_synthetic_select_on_residue_tree(GtkWidget *residue_tree, CAtom *atom_p) const {
+graphics_info_t::make_synthetic_select_on_residue_tree(GtkWidget *residue_tree, mmdb::Atom *atom_p) const {
 
 #if (GTK_MAJOR_VERSION == 1)
 
@@ -525,7 +525,7 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 				      ); 
 
 	    int nSelAtoms; 
-	    PPCAtom local_SelAtom = NULL;
+	    mmdb::PPAtom local_SelAtom = NULL;
 
 	    // modify nSelAtoms
 	    // 
@@ -611,7 +611,7 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 					 "*"  // alt loc.
 					 );
 	       int nSelAtoms_check;
-	       PPCAtom local_SelAtom_check;
+	       mmdb::PPAtom local_SelAtom_check;
 	       AtomSel.mol->GetSelIndex(selHnd_check,
 					local_SelAtom_check, nSelAtoms_check);
 
@@ -937,7 +937,7 @@ graphics_info_t::active_atom_spec_internal(int imol_only) {
    graphics_info_t g;
    float dist_best = 999999999.9;
    int imol_closest = -1;
-   CAtom *at_close = 0;
+   mmdb::Atom *at_close = 0;
    
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
 
@@ -980,7 +980,7 @@ graphics_info_t::apply_go_to_residue_keyboading_string(const std::string &ks) {
    if (aas.first) {
       if (! coot::sequence::is_sequence_triplet(ks)) { 
 	 int imol = aas.second.first;
-	 CAtom *new_centre_atom = g.molecules[imol].get_atom(ks, aas.second.second, rc);
+	 mmdb::Atom *new_centre_atom = g.molecules[imol].get_atom(ks, aas.second.second, rc);
 	 if (new_centre_atom) {
 	    g.apply_go_to_residue_keyboading_string_inner(imol,new_centre_atom);
 	 } else {
@@ -998,7 +998,7 @@ graphics_info_t::apply_go_to_residue_keyboading_string(const std::string &ks) {
 }
 
 void
-graphics_info_t::apply_go_to_residue_keyboading_string_inner(int imol, CAtom *new_centre_atom) {
+graphics_info_t::apply_go_to_residue_keyboading_string_inner(int imol, mmdb::Atom *new_centre_atom) {
 
    if (new_centre_atom) {
       int index;
@@ -1055,7 +1055,7 @@ int graphics_info_t::apply_go_to_residue_from_sequence_triplet(int imol, const s
    int status = 0;
 
    if (is_valid_model_molecule(imol)) { 
-      CAtom *new_centre_atom = graphics_info_t::molecules[imol].get_centre_atom_from_sequence_triplet(seq_trip);
+      mmdb::Atom *new_centre_atom = graphics_info_t::molecules[imol].get_centre_atom_from_sequence_triplet(seq_trip);
       std::cout << "INFO:: new centre atom: " << new_centre_atom << std::endl;
       if (new_centre_atom)
 	 apply_go_to_residue_keyboading_string_inner(imol, new_centre_atom);
