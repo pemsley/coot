@@ -340,38 +340,19 @@ coot::db_main::get_reference_pdb_list() const {
 bool
 coot::matches_pdb_name(std::string file_str) { 
 
-   short int match_flag = 0; 
+   bool match_flag = false; 
 
-   // We have to cast to (char *) here because it seems to me a bug in
-   // the library.  The function strchr accepts const char *, but the
-   // function that it calls FirstOccurence (and similarly
-   // LastOccurence) are typed with char *.  Crapness.
-   // 
-   char *f_pt = strrchr( (char *) file_str.c_str(), '.');
+   // did it end in: .pdb .pdb.gz or was it pdb*.gz?
 
-   if (f_pt == NULL) return 0;
+   std::string::size_type t1 = file_str.find_last_of(".pdb");
+   std::string::size_type t2 = file_str.find_last_of(".pdb.gz");
+   std::string::size_type t3 = file_str.find_last_of("pdb");
+   std::string::size_type t4 = file_str.find_last_of(".gz");
 
-   if (! (strncmp(f_pt, ".pdb",    4))) { 
-      match_flag = 1; 
-   } else { 
-      
-      char *f_pt1 = strchr((char *) file_str.c_str(), '.'); 
-
-      if (! (strncmp(f_pt1, ".pdb.gz", 7))) { 
-	 match_flag = 1;
-
-      } else { 
-	 
-	 // was it a pdb CD entries thing?
-	 // e.g. pdb1ge0.gz
-	 //
-	 
-	 if ( (! strncmp(f_pt, ".gz", 3)) && 
-	      (! strncmp((char *) file_str.c_str(), "pdb", 3))) { 
-	    match_flag = 1; 
-	 }
-      }
-   }
+   if (t1 != std::string::npos) match_flag = true;
+   if (t2 != std::string::npos) match_flag = true;
+   if (t3 != std::string::npos && t4 != std::string::npos) match_flag = true;
+   
    return match_flag; 
 }
 

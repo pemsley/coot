@@ -2707,12 +2707,7 @@ Bond_lines_container::ContactSel(mmdb::PPAtom trans_sel,
 
    // We need to sort the contacts.
    // 
-   // If we were an Object Oriented Programmer, we would expect to
-   // sort contacts with contact->Sort().  Does that work with mmdb?
-   // 
-   // Hah, you're kidding me, right?  Grumble...
-   //
-   SortContacts(contact, ncontacts, CNSORT_2INC);
+   SortContacts(contact, ncontacts, mmdb::CNSORT_2INC);
    //
    int id2, last_id2 = -1;
    int n_contact_atoms = 0;
@@ -3443,11 +3438,11 @@ Bond_lines_container::do_Ca_or_P_bonds_internal_old(atom_selection_container_t S
 	       if (udd_has_ca_handle >= 1) {
 		  istat = Ca_selection [ contact[i].id1 ]->residue->PutUDData(udd_has_ca_handle,
 									      BONDED_WITH_STANDARD_ATOM_BOND);
- 		  if (istat == mmdb:UDDATA_WrongUDRType)
+ 		  if (istat == mmdb::UDDATA_WrongUDRType)
  		     std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in do_Ca_bonds 1" << std::endl;
 		  istat = Ca_selection [ contact[i].id2 ]->residue->PutUDData(udd_has_ca_handle,
 									      BONDED_WITH_STANDARD_ATOM_BOND);
- 		  if (istat == mmdb:UDDATA_WrongUDRType)
+ 		  if (istat == mmdb::UDDATA_WrongUDRType)
  		     std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in do_Ca_bonds 2" << std::endl;
 	       }
 	    
@@ -3566,7 +3561,7 @@ Bond_lines_container::set_rainbow_colours(mmdb::Manager *mol) {
 	       mmdb::Chain *chain_p = model_p->GetChain(ich);
 	       int nres = chain_p->GetNumberOfResidues();
 	       int seq_no_max = mmdb::MinInt4;
-	       int seq_no_min = MaxInt4;
+	       int seq_no_min = mmdb::MaxInt4;
 	    
 	       for (int ires=0; ires<nres; ires++) { 
 		  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
@@ -3583,7 +3578,7 @@ Bond_lines_container::set_rainbow_colours(mmdb::Manager *mol) {
 		     } 
 		  }
 	       }
-	       if ((seq_no_max != mmdb::MinInt4) && (seq_no_min != MaxInt4)) {
+	       if ((seq_no_max != mmdb::MinInt4) && (seq_no_min != mmdb::MaxInt4)) {
 	       
 		  for (int ires=0; ires<nres; ires++) { 
 		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
@@ -3807,7 +3802,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 	    residue_p = chain_p->GetResidue(ires);
 	    if (residue_p) {
 	       istat = residue_p->PutUDData(udd_has_ca_handle, 0);
-	       if (istat == mmdb:UDDATA_WrongUDRType) {
+	       if (istat == mmdb::UDDATA_WrongUDRType) {
 		  std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in "
 			    << "do_Ca_plus_ligands_bonds" << std::endl;
 	       }

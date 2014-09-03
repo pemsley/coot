@@ -76,9 +76,9 @@ coot::db_strands::get_reference_strands(int n_strands, int strand_length) {
 	    int status = model_p->CalcSecStructure(1); // Hmm. Used to have an atomselhnd arg.
 #else 	    
 	    int status = model_p->CalcSecStructure(1);
-	    // int status = SSERC_Ok;
+
 #endif // HAVE_MMDB_WITH_CISPEP
-	    if (status == SSERC_Ok) {
+	    if (status == mmdb::SSERC_Ok) {
 	       std::cout << "INFO:: SSE status was OK\n";
 	       std::vector<coot::minimol::molecule> v_strand = 
 		  strand_analysis(model_p, mol, filename, strand_length);
@@ -171,15 +171,15 @@ coot::db_strands::strand_analysis(mmdb::Model *model_p, mmdb::Manager *mol,
 
    std::vector<coot::minimol::molecule> rv;
 
-   PCSheets sheets = model_p->GetSheets();
+   mmdb::Sheets *sheets = model_p->GetSheets();
    std::cout << "has " << sheets->nSheets << " sheets" << std::endl;
    for (int isheet=0; isheet<sheets->nSheets; isheet++) {
-      CSheet *sheet = sheets->Sheet[isheet];
+      mmdb::Sheet *sheet = sheets->sheet[isheet];
       int nstrands = sheet->nStrands;
       std::cout << "   Sheet " << isheet << " has " << nstrands
 		<< " strands " << std::endl;
       for (int istrand=0; istrand<nstrands; istrand++) {
-	 CStrand *strand = sheet->Strand[istrand];
+	 mmdb::Strand *strand = sheet->strand[istrand];
 	 if (strand) { 
 	    std::cout << "      strand " << strand->strandNo << " from "
 		      << strand->initChainID << " " << strand->initSeqNum

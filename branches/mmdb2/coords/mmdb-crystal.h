@@ -165,7 +165,7 @@ class molecule_extents_t {
 
    // use extents to fill transsel, use cryst from mol (not coords of mol)
    coot::trans_selection_t trans_sel_o(mmdb::Manager *mol, const symm_trans_t &symm_trans) const;
-   mmdb::PPAtom trans_sel(mmdb::CMMDBCryst *my_cryst, symm_trans_t symm_trans) const;
+   mmdb::PPAtom trans_sel(mmdb::Cryst *my_cryst, symm_trans_t symm_trans) const;
    mmdb::PPAtom trans_sel(mmdb::Manager *mol, const symm_trans_t &symm_trans) const;
    mmdb::PPAtom trans_sel(mmdb::Manager *mol, mmdb::mat44 my_mat,
 		     int x_shift, int y_shift, int z_shift) const;

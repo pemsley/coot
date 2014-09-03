@@ -364,7 +364,7 @@ class BuildCas {
   coot::Cartesian
     move_by_symmetry(coot::Cartesian target_point, 
 		     coot::Cartesian middle_mol, 
-		     mmdb::CMMDBCryst *cryst_p) const ; 
+		     mmdb::Cryst *cryst_p) const ; 
 
   atom_selection_container_t 
    build_big_ball(const clipper::Xmap<float> &map, 

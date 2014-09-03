@@ -115,7 +115,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
    // we need a MyMMDBManager (not just an mmdb::Manager) because it
    // become part of an atom_selection_container_t. 
    // 
-   Mymmdb::Manager* MMDBManager;
+   mmdb::Manager *MMDBManager;
 
    //   Make routine initializations
    //
@@ -147,7 +147,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
    clmmdb->set_spacegroup(spg);
    clmmdb->set_cell(cell);
 
-   MMDBManager = reinterpret_cast<Mymmdb::Manager*>(clmmdb);
+   MMDBManager = clmmdb;
 
 //    cout << "step 0: " << endl; 
 //    cout << "DEBUG: There are "
@@ -1546,7 +1546,7 @@ BuildCas::build_big_ball(const clipper::Xmap<float> &map,
 coot::Cartesian
 BuildCas::move_by_symmetry(coot::Cartesian middle_mol, 
 			   coot::Cartesian target_point,
-			   mmdb::CMMDBCryst *cryst_p) const {
+			   mmdb::Cryst *cryst_p) const {
 
    float current_min_dist = (middle_mol - target_point).amplitude(); 
    float test_dist; 
@@ -3296,11 +3296,10 @@ void
 BuildCas::export_coordinates(atom_selection_container_t asc, 
 			     std::string filename) const { 
 
-   int err = asc.mol->WritePDBASCII((char *)filename.c_str()); 
+   int err = asc.mol->WritePDBASCII(filename.c_str()); 
    
    if (err) { 
       std::cout << "There was an error in writing " << filename << endl; 
-      std::cout << mmdb::GetErrorDescription(err) << endl; 
    } 
 
 } 
