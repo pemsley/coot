@@ -342,8 +342,8 @@ coot::multi_residue_torsion_fit_map(mmdb::Manager *mol,
       int n_selected_atoms;
       int selhnd = mol->NewSelection(); // d
       mol->SelectAtoms(selhnd, 0, "*",
-		       ANY_RES, "*",
-		       ANY_RES, "*",
+		       mmdb::ANY_RES, "*",
+		       mmdb::ANY_RES, "*",
 		       "*", "*", "*", "*"); 
       mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
       std::vector<std::pair<mmdb::Atom *, float> > atoms(n_selected_atoms); // for density fitting

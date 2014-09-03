@@ -192,11 +192,11 @@ int CSASArea::Calculate_Contact ( void )  {
   tmp_selHnd=molHnds[0]->NewSelection();
   local_selHnd = molHnds[0]->NewSelection();
   // Initially select whole res 
-  molHnds[0]->SelectNeighbours(tmp_selHnd,STYPE_RESIDUE,selAtoms1,
-			      nSelAtoms1,0.0,10.0,SKEY_NEW);
+  molHnds[0]->SelectNeighbours(tmp_selHnd,mmdb::STYPE_RESIDUE,selAtoms1,
+			      nSelAtoms1,0.0,10.0,mmdb::SKEY_NEW);
 
 
-  molHnds[0]->Select(local_selHnd,STYPE_ATOM,tmp_selHnd,SKEY_NEW);
+  molHnds[0]->Select(local_selHnd,STYPE_ATOM,tmp_selHnd,mmdb::SKEY_NEW);
   molHnds[0]->Select(local_selHnd,STYPE_ATOM,selHnds[0],SKEY_AND);
 
   // Diagnostic

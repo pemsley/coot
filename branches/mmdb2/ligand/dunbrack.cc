@@ -160,7 +160,7 @@ coot::dunbrack::getcontacts(const atom_selection_container_t &asc) const {
       max_dist = 2.0;
    long i_contact_group = 1;
    mmdb::mat44 my_matt;
-   CSymOps symm;
+   mmdb::SymOps symm;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;      

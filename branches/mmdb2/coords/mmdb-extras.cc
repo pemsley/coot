@@ -134,9 +134,9 @@ make_asc(mmdb::Manager *mol) {
    
    asc.SelectionHandle = mol->NewSelection();
    asc.mol->SelectAtoms (asc.SelectionHandle, 0, "*",
-		     ANY_RES, // starting resno, an int
+		     mmdb::ANY_RES, // starting resno, an int
 		     "*", // any insertion code
-		     ANY_RES, // ending resno
+		     mmdb::ANY_RES, // ending resno
 		     "*", // ending insertion code
 		     "*", // any residue name
 		     "*", // atom name
@@ -668,7 +668,7 @@ coot::getcontacts(const atom_selection_container_t &asc) {
    float max_dist = 2.4; // long!  Filtered later.
    long i_contact_group = 1;
    mmdb::mat44 my_matt;
-   CSymOps symm;
+   mmdb::SymOps symm;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;      

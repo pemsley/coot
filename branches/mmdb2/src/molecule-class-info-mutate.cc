@@ -70,12 +70,12 @@ molecule_class_info_t::mutate(int resno, const std::string &insertion_code,
    int nSelResidues;
    mmdb::PPResidue SelResidues;
    int SelHnd = atom_sel.mol->NewSelection();
-   atom_sel.mol->Select(SelHnd, STYPE_RESIDUE, 1,
+   atom_sel.mol->Select(SelHnd, mmdb::STYPE_RESIDUE, 1,
 			(char *) chain_id.c_str(),
 			resno, (char *) insertion_code.c_str(),
 			resno, (char *) insertion_code.c_str(),
 			"*", "*", "*", "*",
-			SKEY_NEW);
+			mmdb::SKEY_NEW);
 
    atom_sel.mol->GetSelIndex ( SelHnd, SelResidues,nSelResidues );
 
@@ -139,15 +139,15 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
    }
 
    int selHnd = g.standard_residues_asc.mol->NewSelection(); // deleted at end.
-   g.standard_residues_asc.mol->Select ( selHnd,STYPE_RESIDUE, 1, // .. TYPE, iModel
+   g.standard_residues_asc.mol->Select ( selHnd,mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 					 "*", // Chain(s) it's "A" in this case.
-					 ANY_RES,"*",  // starting res
-					 ANY_RES,"*",  // ending res
+					 mmdb::ANY_RES,"*",  // starting res
+					 mmdb::ANY_RES,"*",  // ending res
 					 (char *) residue_type.c_str(),  // residue name
 					 "*",  // Residue must contain this atom name?
 					 "*",  // Residue must contain this Element?
 					 "*",  // altLocs
-					 SKEY_NEW // selection key
+					 mmdb::SKEY_NEW // selection key
 					 );
    
    g.standard_residues_asc.mol->GetSelIndex ( selHnd, SelResidue,nSelResidues );
@@ -310,12 +310,12 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	 int SelectionHandle = atom_sel.mol->NewSelection();
 	 mmdb::PResidue *local_residues;
 	 int local_n_selected_residues;
-	 atom_sel.mol->Select(SelectionHandle, STYPE_RESIDUE, 0,
+	 atom_sel.mol->Select(SelectionHandle, mmdb::STYPE_RESIDUE, 0,
 			      chain_id.c_str(),
 			      rs.resno, rs.insertion_code.c_str(),
 			      rs.resno, rs.insertion_code.c_str(),
 			      "*", "*", "*", "*",
-			      SKEY_NEW
+			      mmdb::SKEY_NEW
 			      );
 	 atom_sel.mol->GetSelIndex(SelectionHandle, local_residues,
 				   local_n_selected_residues);
@@ -347,12 +347,12 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	 int SelectionHandle = atom_sel.mol->NewSelection();
 	 mmdb::PResidue *local_residues;
 	 int local_n_selected_residues;
-	 atom_sel.mol->Select(SelectionHandle, STYPE_RESIDUE, 0,
+	 atom_sel.mol->Select(SelectionHandle, mmdb::STYPE_RESIDUE, 0,
 			      chain_id.c_str(),
-			      ANY_RES, "*",
-			      ANY_RES, "*",
+			      mmdb::ANY_RES, "*",
+			      mmdb::ANY_RES, "*",
 			      "*", "*", "*", "*",
-			      SKEY_NEW
+			      mmdb::SKEY_NEW
 			      );
 	 atom_sel.mol->GetSelIndex(SelectionHandle, local_residues,
 				   local_n_selected_residues);
@@ -393,12 +393,12 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	 int SelectionHandle = atom_sel.mol->NewSelection();
 	 mmdb::PResidue *local_residues;
 	 int local_n_selected_residues;
-	 atom_sel.mol->Select(SelectionHandle, STYPE_RESIDUE, 0,
+	 atom_sel.mol->Select(SelectionHandle, mmdb::STYPE_RESIDUE, 0,
 			      (char *) chain_id.c_str(),
 			      rs.resno, (char *) rs.insertion_code.c_str(),
 			      rs.resno, (char *) rs.insertion_code.c_str(),
 			      "*", "*", "*", "*",
-			      SKEY_NEW
+			      mmdb::SKEY_NEW
 			      );
 	 atom_sel.mol->GetSelIndex(SelectionHandle, local_residues,
 				   local_n_selected_residues);
@@ -469,15 +469,15 @@ molecule_class_info_t::align_and_mutate(const std::string chain_id,
       mmdb::PResidue *SelResidues = NULL;
       int nSelResidues;
    
-      mol->Select(selHnd, STYPE_RESIDUE, 0,
+      mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 		  (char *) chain_id.c_str(),
-		  ANY_RES, "*",
-		  ANY_RES, "*",
+		  mmdb::ANY_RES, "*",
+		  mmdb::ANY_RES, "*",
 		  "*",  // residue name
 		  "*",  // Residue must contain this atom name?
 		  "*",  // Residue must contain this Element?
 		  "*",  // altLocs
-		  SKEY_NEW // selection key
+		  mmdb::SKEY_NEW // selection key
 		  );
       mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
       if (nSelResidues > 0) {
@@ -880,15 +880,15 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
 	 mmdb::PResidue *SelResidues = NULL;
 	 int nSelResidues;
    
-	 mol->Select(selHnd, STYPE_RESIDUE, 0,
+	 mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 		     chain_id.c_str(),
-		     ANY_RES, "*",
-		     ANY_RES, "*",
+		     mmdb::ANY_RES, "*",
+		     mmdb::ANY_RES, "*",
 		     "*",  // residue name
 		     "*",  // Residue must contain this atom name?
 		     "*",  // Residue must contain this Element?
 		     "*",  // altLocs
-		     SKEY_NEW // selection key
+		     mmdb::SKEY_NEW // selection key
 		     );
 	 mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 	 if (nSelResidues > 0) {
@@ -1268,15 +1268,15 @@ molecule_class_info_t::apply_sequence(int imol_map, mmdb::Manager *poly_ala_mol,
    make_backup();
 
    int selHnd = poly_ala_mol->NewSelection();
-   poly_ala_mol->Select(selHnd, STYPE_RESIDUE, 1,
+   poly_ala_mol->Select(selHnd, mmdb::STYPE_RESIDUE, 1,
 			"*",
-			ANY_RES, "*",
-			ANY_RES, "*",
+			mmdb::ANY_RES, "*",
+			mmdb::ANY_RES, "*",
 			"*",  // residue name
 			"*",  // Residue must contain this atom name?
 			"*",  // Residue must contain this Element?
 			"*",  // altLocs
-			SKEY_NEW // selection key
+			mmdb::SKEY_NEW // selection key
 			);
    mmdb::PResidue *SelResidues = 0; 
    int nSelResidues;

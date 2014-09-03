@@ -36,18 +36,18 @@ void
 coot::util::emma::sfs_from_boxed_molecule(mmdb::Manager *mol_orig, float border) {
 
    mmdb::Manager *mol = new mmdb::Manager;
-   mol->Copy(mol_orig, MMDBFCM_All);
+   mol->Copy(mol_orig, mmdb::MMDBFCM_All);
    mmdb::PPAtom atom_selection = 0;
    int n_selected_atoms;
    // now do selection
    int SelHnd = mol->NewSelection(); // d
    mol->SelectAtoms(SelHnd, 1, "*",
-		    ANY_RES, "*",
-		    ANY_RES, "*",
+		    mmdb::ANY_RES, "*",
+		    mmdb::ANY_RES, "*",
 		    "*", "*", 
 		    "*", // elements
 		    "*", // alt loc.
-		    SKEY_NEW);
+		    mmdb::SKEY_NEW);
    mol->GetSelIndex(SelHnd, atom_selection, n_selected_atoms);
 
    std::pair<bool, clipper::Coord_orth> centre = centre_of_molecule(mol);

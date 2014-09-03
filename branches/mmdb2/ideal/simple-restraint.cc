@@ -88,15 +88,15 @@ coot::restraints_container_t::restraints_container_t(atom_selection_container_t 
 
    // -------- Find the max and min res no -----------------------------
    int selHnd = mol->NewSelection();
-   mol->Select(selHnd, STYPE_RESIDUE, 1,
+   mol->Select(selHnd, mmdb::STYPE_RESIDUE, 1,
 	       chain_id.c_str(),
-	       ANY_RES, "*",
-	       ANY_RES, "*",
+	       mmdb::ANY_RES, "*",
+	       mmdb::ANY_RES, "*",
 	       "*",  // residue name
 	       "*",  // Residue must contain this atom name?
 	       "*",  // Residue must contain this Element?
 	       "*",  // altLocs
-	       SKEY_NEW // selection key
+	       mmdb::SKEY_NEW // selection key
 	       );
    mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
@@ -120,9 +120,9 @@ coot::restraints_container_t::restraints_container_t(atom_selection_container_t 
    atom = NULL;
    mol->SelectAtoms(SelHnd, 0,
 		    chain_id.c_str(),
-		    ANY_RES, // starting resno, an int
+		    mmdb::ANY_RES, // starting resno, an int
 		    "*", // any insertion code
-		    ANY_RES, // ending resno
+		    mmdb::ANY_RES, // ending resno
 		    "*", // ending insertion code
 		    "*", // any residue name
 		    "*", // atom name
@@ -897,7 +897,7 @@ coot::restraints_container_t::omega_trans_distortions(int mark_cis_peptides_as_b
 
    for (int i=istart_res; i<iend_res; i++) {
       int selHnd1 = mol->NewSelection();
-      mol->Select(selHnd1, STYPE_RESIDUE, 1,
+      mol->Select(selHnd1, mmdb::STYPE_RESIDUE, 1,
 		  chain_id.c_str(),
 		  i, "*",
 		  i, "*",
@@ -905,12 +905,12 @@ coot::restraints_container_t::omega_trans_distortions(int mark_cis_peptides_as_b
 		  "*",  // Residue must contain this atom name?
 		  "*",  // Residue must contain this Element?
 		  "*",  // altLocs
-		  SKEY_NEW // selection key
+		  mmdb::SKEY_NEW // selection key
 		  );
       mol->GetSelIndex(selHnd1, first, nfirst);
 
       int selHnd2 = mol->NewSelection();
-      mol->Select(selHnd2, STYPE_RESIDUE, 1,
+      mol->Select(selHnd2, mmdb::STYPE_RESIDUE, 1,
 		  chain_id.c_str(),
 		  i+1, "*",
 		  i+1, "*",
@@ -918,7 +918,7 @@ coot::restraints_container_t::omega_trans_distortions(int mark_cis_peptides_as_b
 		  "*",  // Residue must contain this atom name?
 		  "*",  // Residue must contain this Element?
 		  "*",  // altLocs
-		  SKEY_NEW // selection key
+		  mmdb::SKEY_NEW // selection key
 		  );
       mol->GetSelIndex(selHnd2, second, nnext);
 
@@ -4099,7 +4099,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
    int n_res_2_atoms;
    int index1 = -1; 
    int index2 = -1; 
-   mol->Select (selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
+   mol->Select (selHnd, mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 		chain_id_save.c_str(), // Chain(s)
 		istart_res, "*", // starting res
 		iend_res,   "*", // ending   res
@@ -4107,7 +4107,7 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints() {
 		"*",  // Residue must contain this atom name?
 		"*",  // Residue must contain this Element?
 		"",  // altLocs
-		SKEY_NEW // selection key
+		mmdb::SKEY_NEW // selection key
 		);
    mol->GetSelIndex(selHnd, SelResidue, nSelResidues);
    if (nSelResidues > 0) {
@@ -4191,7 +4191,7 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
    int index1 = -1; 
    int index2 = -1; 
    int index3 = -1; 
-   mol->Select (selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
+   mol->Select (selHnd, mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 		chain_id_save.c_str(), // Chain(s)
 		istart_res, "*", // starting res
 		iend_res,   "*", // ending   res
@@ -4199,7 +4199,7 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 		"*",  // Residue must contain this atom name?
 		"*",  // Residue must contain this Element?
 		"",  // altLocs
-		SKEY_NEW // selection key
+		mmdb::SKEY_NEW // selection key
 		);
    mol->GetSelIndex(selHnd, SelResidue, nSelResidues);
    if (nSelResidues > 0) {
@@ -4336,7 +4336,7 @@ coot::restraints_container_t::make_monomer_restraints_by_linear(const coot::prot
    int nSelResidues;
    coot::restraints_container_t::restraint_counts_t sum;
 
-   mol->Select (selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
+   mol->Select (selHnd, mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 		chain_id_save.c_str(), // Chain(s)
 		istart_res, "*", // starting res
 		iend_res,   "*", // ending   res
@@ -4344,7 +4344,7 @@ coot::restraints_container_t::make_monomer_restraints_by_linear(const coot::prot
 		"*",  // Residue must contain this atom name?
 		"*",  // Residue must contain this Element?
 		"*",  // altLocs
-		SKEY_NEW // selection key
+		mmdb::SKEY_NEW // selection key
 		);
    SelResidue_active = NULL;
    mol->GetSelIndex (selHnd, SelResidue_active, nSelResidues);
@@ -4804,7 +4804,7 @@ int coot::restraints_container_t::make_flanking_atoms_rama_restraints(const prot
 	 int selHnd = mol->NewSelection();
 	 mmdb::PPResidue SelResidue = NULL;
 	 int nSelResidues;
-	 mol->Select (selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
+	 mol->Select (selHnd, mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 		      chain_id_save.c_str(), // Chain(s)
 		      vrrfr[iround].resno_first,   "*",  // starting res
 		      vrrfr[iround].resno_third,   "*",  // ending res
@@ -4812,7 +4812,7 @@ int coot::restraints_container_t::make_flanking_atoms_rama_restraints(const prot
 		      "*",  // Residue must contain this atom name?
 		      "*",  // Residue must contain this Element?
 		      "*",  // altLocs
-		      SKEY_NEW); // selection key 
+		      mmdb::SKEY_NEW); // selection key 
 	 mol->GetSelIndex ( selHnd, SelResidue,nSelResidues );
 	 // std::cout << "DEBUG:: GetSelIndex (make_flanking_atoms_rama_restraints) returned " 
 	 // << nSelResidues << " residues (for flanking rama restraints)" << std::endl;
@@ -4881,7 +4881,7 @@ coot::restraints_container_t::bonded_flanking_residues_by_linear(const coot::pro
    mmdb::PPResidue SelResidue = NULL;
    int nSelResidues;
    int selHnd = mol->NewSelection();
-   mol->Select (selHnd,STYPE_RESIDUE, 1, // .. TYPE, iModel
+   mol->Select (selHnd,mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 		chain_id_save.c_str(), // Chain(s)
 		istart_res-1,   "*",  // starting res
 		istart_res,     "*",  // ending res
@@ -4889,7 +4889,7 @@ coot::restraints_container_t::bonded_flanking_residues_by_linear(const coot::pro
 		"*",  // Residue must contain this atom name?
 		"*",  // Residue must contain this Element?
 		"*",  // altLocs
-		SKEY_NEW); // selection key 
+		mmdb::SKEY_NEW); // selection key 
    mol->GetSelIndex (selHnd, SelResidue, nSelResidues);
    std::cout << "INFO:: GetSelIndex (make_flanking_atoms_restraints) returned " 
 	     << nSelResidues << " residues (flanking restraints)" << std::endl;
@@ -4906,7 +4906,7 @@ coot::restraints_container_t::bonded_flanking_residues_by_linear(const coot::pro
    // And now again for the C-terminal flanking residue:
    // 
    selHnd = mol->NewSelection();
-   mol->Select (selHnd,STYPE_RESIDUE, 1, // .. TYPE, iModel
+   mol->Select (selHnd,mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 		chain_id_save.c_str(), // Chain(s)
 		iend_res,   "*",  // starting res
 		iend_res+1, "*",  // ending res
@@ -4914,7 +4914,7 @@ coot::restraints_container_t::bonded_flanking_residues_by_linear(const coot::pro
 		"*",  // Residue must contain this atom name?
 		"*",  // Residue must contain this Element?
 		"*",  // altLocs
-		SKEY_NEW); // selection key 
+		mmdb::SKEY_NEW); // selection key 
    mol->GetSelIndex (selHnd, SelResidue, nSelResidues);
    std::cout << "INFO:: GetSelIndex (make_flanking_atoms_restraints) returned " 
 	     << nSelResidues << " residues (flanking restraints)" << std::endl;

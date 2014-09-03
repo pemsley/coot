@@ -34,8 +34,8 @@ int main(int argc, char **argv) {
 
 	 int SelHnd = m->NewSelection();
 	 m->SelectAtoms(SelHnd, 0, "*",
-			ANY_RES, "*",
-			ANY_RES, "*",
+			mmdb::ANY_RES, "*",
+			mmdb::ANY_RES, "*",
 			"*", "*", "*", "*");
 
 	 // energy lib:

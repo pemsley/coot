@@ -74,7 +74,7 @@ int CMolColour::SetSelHandle(int selHndin) {
   // No selection specified so select all
   if ( selHnd <= 0 ) {
     selHnd = molHnd->NewSelection();
-    RC = molHnd->Select ( selHnd,STYPE_ATOM,"*/*/*/*",SKEY_NEW );
+    RC = molHnd->Select ( selHnd,STYPE_ATOM,"*/*/*/*",mmdb::SKEY_NEW );
   }
  
   Clear();
@@ -286,7 +286,7 @@ int CMolColour::ByChain( ) {
 
   molHnd->GetSelIndex (selHnd, selAtoms, natoms );
   chnHnd = molHnd->NewSelection(); 
-  molHnd->Select(chnHnd,STYPE_CHAIN,selHnd,SKEY_NEW);
+  molHnd->Select(chnHnd,STYPE_CHAIN,selHnd,mmdb::SKEY_NEW);
   molHnd->GetSelIndex (chnHnd, selChains, nChains );
   if ( nChains <= 0 ) return 1;
 

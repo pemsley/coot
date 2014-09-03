@@ -285,7 +285,7 @@ main(int argc, char **argv) {
 	    for (unsigned int iop=0; iop<possible_rtops.size(); iop++) { 
 	       clipper::RTop_orth rtop = possible_rtops[iop];
 	       mmdb::Manager *new_mol = new mmdb::Manager;
-	       new_mol->Copy(atom_sel.mol, MMDBFCM_All);
+	       new_mol->Copy(atom_sel.mol, mmdb::MMDBFCM_All);
 	       // now apply rtop to all atoms of new_mol:
 	       int imod = 1;
 	       
@@ -324,7 +324,7 @@ main(int argc, char **argv) {
 	    for (unsigned int iop=0; iop<p.size(); iop++) {
 	       clipper::RTop_orth rtop = p[iop].second;
 	       mmdb::Manager *new_mol = new mmdb::Manager;
-	       new_mol->Copy(atom_sel.mol, MMDBFCM_All);
+	       new_mol->Copy(atom_sel.mol, mmdb::MMDBFCM_All);
 	       // now apply rtop to all atoms of new_mol:
 	       int imod = 1;
 	       

@@ -186,7 +186,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    int SelHnd_first = mol->NewSelection(); // d
    int n_residue_first;
    mmdb::PResidue *residue_first = NULL;
-   mol->Select(SelHnd_first, STYPE_RESIDUE, 0,
+   mol->Select(SelHnd_first, mmdb::STYPE_RESIDUE, 0,
 	       chain_id_1.c_str(),
 	       resno_1, inscode_1.c_str(),
 	       resno_1, inscode_1.c_str(),
@@ -194,7 +194,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	       "*",  // Residue must contain this atom name?
 	       "*",  // Residue must contain this Element?
 	       "*",  // altLocs
-	       SKEY_NEW); // selection key
+	       mmdb::SKEY_NEW); // selection key
    mol->GetSelIndex(SelHnd_first, residue_first, n_residue_first);
    std::string group = "L-peptide";
    if (n_residue_first > 0) {
@@ -250,7 +250,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    int selHnd = mol->NewSelection();
    int nSelResidues; 
    mmdb::PResidue *SelResidues = NULL;
-   mol->Select(selHnd, STYPE_RESIDUE, 0,
+   mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 	       chain_id_1.c_str(),
 	       iselection_resno_start, "*",
 	       iselection_resno_end, "*",
@@ -258,7 +258,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 	       "*",  // Residue must contain this atom name?
 	       "*",  // Residue must contain this Element?
 	       "*",  // altLocs
-	       SKEY_NEW // selection key
+	       mmdb::SKEY_NEW // selection key
 	       );
    molecules[imol].atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
@@ -556,7 +556,7 @@ graphics_info_t::copy_model_molecule(int imol) {
       int new_mol_number = graphics_info_t::create_molecule();
       mmdb::Manager *m = graphics_info_t::molecules[imol].atom_sel.mol;
       mmdb::Manager *n = new mmdb::Manager;
-      n->Copy(m, MMDBFCM_All);
+      n->Copy(m, mmdb::MMDBFCM_All);
       atom_selection_container_t asc = make_asc(n);
       std::string label = "Copy_of_";
       label += graphics_info_t::molecules[imol].name_;
@@ -1940,9 +1940,9 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
 
       // 	 int SelHnd = rigid_body_asc.mol->NewSelection();
       // 	 rigid_body_asc.mol->SelectAtoms(SelHnd, 0, "*",
-      // 					 ANY_RES, // starting resno, an int
+      // 					 mmdb::ANY_RES, // starting resno, an int
       // 					 "*", // any insertion code
-      // 					 ANY_RES, // ending resno
+      // 					 mmdb::ANY_RES, // ending resno
       // 					 "*", // ending insertion code
       // 					 "*", // any residue name
       // 					 "*", // atom name
@@ -2176,7 +2176,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 							  terminal_at->x,
 							  terminal_at->y,
 							  terminal_at->z,
-							  radius, SKEY_NEW);
+							  radius, mmdb::SKEY_NEW);
 	       molecules[imol].atom_sel.mol->GetSelIndex(SelHndSphere, atom_sel, n_selected_atoms);
 	       int invert_flag = 0;
 	       addres.mask_map(molecules[imol].atom_sel.mol, SelHndSphere, invert_flag);
@@ -2243,9 +2243,9 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 
 	       int SelHnd = terminal_res_asc.mol->NewSelection();
 	       terminal_res_asc.mol->SelectAtoms(SelHnd, 0, "*",
-						 ANY_RES, // starting resno, an int
+						 mmdb::ANY_RES, // starting resno, an int
 						 "*", // any insertion code
-						 ANY_RES, // ending resno
+						 mmdb::ANY_RES, // ending resno
 						 "*", // ending insertion code
 						 "*", // any residue name
 						 "*", // atom name
@@ -2482,8 +2482,8 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
    // We use the rot_trans_object_type to distinguish.
 
    const char *chain_id = "*";
-   int resno_1 = ANY_RES;
-   int resno_2 = ANY_RES;
+   int resno_1 = mmdb::ANY_RES;
+   int resno_2 = mmdb::ANY_RES;
    std::string insertion_code_selection = "*"; // reset on start and stop residue in range being the same
    bool good_settings = 0; // fail initially
    mmdb::Atom *atom1 = molecules[imol_rot_trans_object].atom_sel.atom_selection[rot_trans_atom_index_1];
@@ -2555,14 +2555,14 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       // No! It cannot point to the same mmdb::Atoms.
       // rt_asc.mol = molecules[imol_rot_trans_object].atom_sel.mol; 
       // Mymmdb::Manager *mol = new Mymmdb::Manager;
-      // mol->Copy(molecules[imol_rot_trans_object].atom_sel.mol, MMDBFCM_All);
+      // mol->Copy(molecules[imol_rot_trans_object].atom_sel.mol, mmdb::MMDBFCM_All);
       // how about we instead use:
       // mmdb::Manager *mol = create_mmdbmanager_from_res_selection();
       //
       mmdb::PResidue *sel_residues = NULL;
       int n_sel_residues;
       int selHnd = molecules[imol_rot_trans_object].atom_sel.mol->NewSelection();
-      molecules[imol_rot_trans_object].atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
+      molecules[imol_rot_trans_object].atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 							    chain_id,
 							    resno_1, insertion_code_selection.c_str(),
 							    resno_2, insertion_code_selection.c_str(),
@@ -2570,7 +2570,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 							    "*",  // Residue must contain this atom name?
 							    "*",  // Residue must contain this Element?
 							    "*",  // altLocs
-							    SKEY_NEW // selection key
+							    mmdb::SKEY_NEW // selection key
 							    );
       molecules[imol_rot_trans_object].atom_sel.mol->GetSelIndex(selHnd, sel_residues, n_sel_residues);
 

@@ -227,8 +227,8 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
    int selHnd = atom_sel.mol->NewSelection(); // d
 
    atom_sel.mol->SelectAtoms(selHnd, 0, chain_id.c_str(), 
-			     ANY_RES, "*", // start, insertion code
-			     ANY_RES, "*", // end, insertion code
+			     mmdb::ANY_RES, "*", // start, insertion code
+			     mmdb::ANY_RES, "*", // end, insertion code
 			     "*", // residue name
 			     "*",
 			     "*", // elements
@@ -247,7 +247,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
    int n_contacts;
    long i_contact_group = 1;
    mmdb::mat44 my_matt;
-   CSymOps symm;
+   mmdb::SymOps symm;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;      

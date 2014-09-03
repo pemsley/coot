@@ -500,15 +500,15 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 	       // 
 	       // 
 	       // 
-	       asc.mol->Select(selHnd, STYPE_RESIDUE, imod,
+	       asc.mol->Select(selHnd, mmdb::STYPE_RESIDUE, imod,
 			       chain_id,
-			       ANY_RES, "*",
-			       ANY_RES, "*",
+			       mmdb::ANY_RES, "*",
+			       mmdb::ANY_RES, "*",
 			       "*",  // residue name
 			       "*",  // Residue must contain this atom name?
 			       "*",  // Residue must contain this Element?
 			       "*",  // altLocs
-			       SKEY_NEW // selection key
+			       mmdb::SKEY_NEW // selection key
 			       );
 	       asc.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 	       std::pair<int, std::vector<std::string> > icheck = 
@@ -741,15 +741,15 @@ graphics_info_t::omega_graphs(int imol) {
 			mmdb::PResidue *SelResidues = NULL;
 			int nSelResidues;
 
-			mol->Select(selHnd, STYPE_RESIDUE, 0,
+			mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 				    chain_id,
-				    ANY_RES, "*",
-				    ANY_RES, "*",
+				    mmdb::ANY_RES, "*",
+				    mmdb::ANY_RES, "*",
 				    "*",  // residue name
 				    "*",  // Residue must contain this atom name?
 				    "*",  // Residue must contain this Element?
 				    "*",  // altLocs
-				    SKEY_NEW // selection key
+				    mmdb::SKEY_NEW // selection key
 				    );
 			mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
@@ -834,15 +834,15 @@ graphics_info_t::rotamer_graphs(int imol) {
 			   mmdb::PResidue *SelResidues = NULL;
 			   int nSelResidues;
 
-			   mol->Select(selHnd, STYPE_RESIDUE, 0,
+			   mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 				       chain_id,
-				       ANY_RES, "*",
-				       ANY_RES, "*",
+				       mmdb::ANY_RES, "*",
+				       mmdb::ANY_RES, "*",
 				       "*",  // residue name
 				       "*",  // Residue must contain this atom name?
 				       "*",  // Residue must contain this Element?
 				       "*",  // altLocs
-				       SKEY_NEW // selection key
+				       mmdb::SKEY_NEW // selection key
 				       );
 			   mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
@@ -974,15 +974,15 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 	    mmdb::PResidue *SelResidues = NULL;
 	    int nSelResidues;
 
-	    mol->Select(selHnd, STYPE_RESIDUE, 0,
+	    mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 			chain_id,
-			ANY_RES, "*",
-			ANY_RES, "*",
+			mmdb::ANY_RES, "*",
+			mmdb::ANY_RES, "*",
 			"*",  // residue name
 			"*",  // Residue must contain this atom name?
 			"*",  // Residue must contain this Element?
 			"*",  // altLocs
-			SKEY_NEW // selection key 
+			mmdb::SKEY_NEW // selection key 
 			);
 	    mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
@@ -1179,15 +1179,15 @@ graphics_info_t::density_fit_graphs(int imol) {
 			   mmdb::PResidue *SelResidues = NULL;
 			   int nSelResidues;
 			   
-			   mol->Select(selHnd, STYPE_RESIDUE, 0,
+			   mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 				       chain_id,
-				       ANY_RES, "*",
-				       ANY_RES, "*",
+				       mmdb::ANY_RES, "*",
+				       mmdb::ANY_RES, "*",
 				       "*",  // residue name
 				       "*",  // Residue must contain this atom name?
 				       "*",  // Residue must contain this Element?
 				       "*",  // altLocs
-				       SKEY_NEW // selection key
+				       mmdb::SKEY_NEW // selection key
 				       );
 			   mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 			   
@@ -1260,15 +1260,15 @@ graphics_info_t::density_fit_from_mol(const atom_selection_container_t &asc,
 	       int nSelResidues;
 	       mmdb::PResidue *SelResidues = NULL;
 	    
-	       asc.mol->Select(selHnd, STYPE_RESIDUE, 0,
+	       asc.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 			       chain_id,
-			       ANY_RES, "*",
-			       ANY_RES, "*",
+			       mmdb::ANY_RES, "*",
+			       mmdb::ANY_RES, "*",
 			       "*",  // residue name
 			       "*",  // Residue must contain this atom name?
 			       "*",  // Residue must contain this Element?
 			       "*",  // altLocs
-			       SKEY_NEW // selection key
+			       mmdb::SKEY_NEW // selection key
 			       );
 	       asc.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 

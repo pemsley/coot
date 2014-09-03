@@ -110,7 +110,7 @@ int main (int argc, char * const argv[]) {
 		
 		//make new selection containing all atoms for now
 		selHnd = theMMDBManager->NewSelection();
-		theMMDBManager->SelectAtoms( selHnd, 0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*" );	
+		theMMDBManager->SelectAtoms( selHnd, 0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*" );	
 		
 		//Add united Atom Radius
 		CXXUtils::assignUnitedAtomRadius(theMMDBManager, selHnd);

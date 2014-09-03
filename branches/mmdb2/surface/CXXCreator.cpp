@@ -45,7 +45,7 @@ CXXCreator::CXXCreator (mmdb::PManager theMMDBManager, int selHnd, int context_s
         int nSelAtomsNeighbours;
         mmdb::PPAtom SelAtomNeighbours;
 
-        //theMMDBManager->Select(neighbour_selhnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
+        //theMMDBManager->Select(neighbour_selhnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
 
         /* 35 angstroms seems overly generous, but I still get incorrect charges with ca 25 angstroms. */
         if (context_selHnd>0) {
@@ -81,7 +81,7 @@ void CXXCreator::init(){
 int CXXCreator::selectAllAtoms(){
 		//make new selection. First create new selection handle...
 	int selHnd = theMMDBManager->NewSelection();
-	theMMDBManager->SelectAtoms( selHnd, 0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*" );	
+	theMMDBManager->SelectAtoms( selHnd, 0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*" );	
 	
 	// first select all atoms in the pdb
 	// !! WARNING: This does not exclude HETATOM records - how do deal with this ??

@@ -643,13 +643,13 @@ void build_beta_surface(CMMANManager *molH, int atom_selHnd_in, Displayobject &o
   int nAtoms;
 
   int atom_selHnd = molH->NewSelection();
-  molH->Select(atom_selHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
+  molH->Select(atom_selHnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
   molH->Select(atom_selHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
   molH->ExcludeOverlappedAtoms(atom_selHnd,0.8);
 
   // Find all CA - to use as quick check if atom is in this set
   CAselHnd = molH->NewSelection();
-  molH->Select(CAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","CA","C","*",SKEY_NEW);
+  molH->Select(CAselHnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","CA","C","*",mmdb::SKEY_NEW);
   molH->Select(CAselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
   molH->ExcludeOverlappedAtoms(CAselHnd,0.8);
   molH->GetSelIndex ( atom_selHnd, atomTable, nAtoms );
@@ -1631,8 +1631,8 @@ void DrawBaseBlock(PolyCollection *polys, mmdb::PResidue res1, double *col1, con
 void DrawBaseBlocks(Displayobject &obj, CMMANManager *molHnd, int selHnd, mmdb::PPAtom selAtoms, int nSelAtoms, AtomColourVector *atom_colour_vector,const CParamsManager &params ){
   PolyCollection *polys = new PolyCollection();
   int C5sel = molHnd->NewSelection();
-  molHnd->Select(C5sel,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5*","C","*",SKEY_NEW);
-  molHnd->Select(C5sel,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5'","C","*",SKEY_OR);
+  molHnd->Select(C5sel,STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","C5*","C","*",mmdb::SKEY_NEW);
+  molHnd->Select(C5sel,STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","C5'","C","*",SKEY_OR);
   for(int ii=0;ii<nSelAtoms;ii++){
     if(selAtoms[ii]->isInSelection(C5sel)){
       mmdb::PResidue res = selAtoms[ii]->GetResidue();

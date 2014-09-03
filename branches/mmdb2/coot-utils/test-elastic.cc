@@ -15,8 +15,8 @@ coot::test_elastic() {
 
    mol->SelectAtoms(selhnd, 0,
 		    "*",
-		    ANY_RES, "*",
-		    ANY_RES, "*",
+		    mmdb::ANY_RES, "*",
+		    mmdb::ANY_RES, "*",
 		    "*",  // residue name
 		    "*",  // Residue must contain this atom name?
 		    "*",  // Residue must contain this Element?

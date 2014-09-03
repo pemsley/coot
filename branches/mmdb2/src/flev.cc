@@ -998,7 +998,7 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
    if (m.first) { 
       int SelHnd_all = m.second->NewSelection(); // d
       int SelHnd_lig = m.second->NewSelection(); // d
-      m.second->SelectAtoms(SelHnd_all, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
+      m.second->SelectAtoms(SelHnd_all, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
       m.second->SelectAtoms(SelHnd_lig, 0, ligand_spec.chain.c_str(),
 			    ligand_spec.resno, ligand_spec.insertion_code.c_str(),
 			    ligand_spec.resno, ligand_spec.insertion_code.c_str(),
@@ -1174,7 +1174,7 @@ coot::get_covalent_bonds_by_distance(mmdb::Manager *mol,
    
    std::vector<coot::fle_ligand_bond_t> v;
    int SelHnd_local = mol->NewSelection();
-   mol->SelectAtoms(SelHnd_local, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
+   mol->SelectAtoms(SelHnd_local, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
    mol->Select(SelHnd_local, STYPE_ATOM, 0, ligand_spec.chain.c_str(),
 	       ligand_spec.resno, ligand_spec.insertion_code.c_str(),
 	       ligand_spec.resno, ligand_spec.insertion_code.c_str(),
@@ -1186,7 +1186,7 @@ coot::get_covalent_bonds_by_distance(mmdb::Manager *mol,
    int n_contacts;
    long i_contact_group = 1;
    mmdb::mat44 my_matt;
-   CSymOps symm;
+   mmdb::SymOps symm;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;      
@@ -1737,7 +1737,7 @@ coot::flev_attached_hydrogens_t::cannonballs(mmdb::Residue *ligand_residue_3d,
    int n_contacts;
    long i_contact_group = 1;
    mmdb::mat44 my_matt;
-   CSymOps symm;
+   mmdb::SymOps symm;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;      
@@ -1753,8 +1753,8 @@ coot::flev_attached_hydrogens_t::cannonballs(mmdb::Residue *ligand_residue_3d,
    int n_non_hydrogen_atoms;
       
       
-   mol->SelectAtoms(SelHnd_H,     0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", " H", "*");
-   mol->SelectAtoms(SelHnd_non_H, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "!H", "*");
+   mol->SelectAtoms(SelHnd_H,     0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", " H", "*");
+   mol->SelectAtoms(SelHnd_non_H, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "!H", "*");
       
    mol->GetSelIndex(SelHnd_H, hydrogen_selection, n_hydrogen_atoms);
    mol->GetSelIndex(SelHnd_non_H, non_hydrogen_selection, n_non_hydrogen_atoms);

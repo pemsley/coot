@@ -2282,7 +2282,7 @@ coot::atom_selection_info_t::select_atoms(mmdb::Manager *mol) const {
    }
    if (type == BY_STRING) {
       SelHnd = mol->NewSelection();
-      mol->Select(SelHnd, STYPE_ATOM, atom_selection_str.c_str(), SKEY_NEW);
+      mol->Select(SelHnd, STYPE_ATOM, atom_selection_str.c_str(), mmdb::SKEY_NEW);
    } 
    return SelHnd;
 }
@@ -2331,7 +2331,7 @@ coot::additional_representations_t::fill_bonds_box() {
       if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING) {
 	 mol->Select(atom_sel.SelectionHandle, STYPE_ATOM, 
 		     atom_sel_info.atom_selection_str.c_str(),
-		     SKEY_NEW);
+		     mmdb::SKEY_NEW);
       
       }
       mol->GetSelIndex(atom_sel.SelectionHandle,
@@ -3412,8 +3412,8 @@ molecule_class_info_t::atom_spec_to_atom_index(std::string chain, int resno,
       selHnd = atom_sel.mol->NewSelection();
       
       atom_sel.mol->SelectAtoms(selHnd, 0, "*",
-				ANY_RES, "*", // start, insertion code
-				ANY_RES, "*", // end, insertion code
+				mmdb::ANY_RES, "*", // start, insertion code
+				mmdb::ANY_RES, "*", // end, insertion code
 				"*", // residue name
 				atom_name.c_str(),
 				"*", // elements
@@ -3666,7 +3666,7 @@ molecule_class_info_t::atom_index_first_atom_in_residue_internal(const std::stri
    int selHnd = atom_sel.mol->NewSelection();
    int nSelResidues;
    mmdb::PPResidue SelResidues;
-   atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 1,
+   atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 1,
 			chain_id.c_str(), 
 			iresno, ins_code.c_str(),
 			iresno, ins_code.c_str(),
@@ -3674,7 +3674,7 @@ molecule_class_info_t::atom_index_first_atom_in_residue_internal(const std::stri
 			"*",  // Residue must contain this atom name?
 			"*",  // Residue must contain this Element?
 			"*",  // altLocs
-			SKEY_NEW // selection key
+			mmdb::SKEY_NEW // selection key
 			);
    atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
    if (nSelResidues > 0) {
@@ -4199,7 +4199,7 @@ molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_sele
       int selHnd = atom_sel.mol->NewSelection();
       int nSelResidues;
       mmdb::PPResidue SelResidues;
-      atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 1,
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 1,
 			   chain_id, 
 			   resno, "*",
 			   resno, "*",
@@ -4207,7 +4207,7 @@ molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_sele
 			   "*",  // Residue must contain this atom name?
 			   "*",  // Residue must contain this Element?
 			   "*",  // altLocs
-			   SKEY_NEW // selection key
+			   mmdb::SKEY_NEW // selection key
 			   );
       atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
       
@@ -4536,7 +4536,7 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
    
    // and in with the new:
    int selHnd = atom_sel.mol->NewSelection(); 
-   atom_sel.mol->SelectAtoms(selHnd, 0,"*",ANY_RES,"*",ANY_RES,
+   atom_sel.mol->SelectAtoms(selHnd, 0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,
 			    "*","*",  // EndInsertionCode, RNames
 			    "*","*",  // ANames, Elements
 			    "*" );    // Alternate locations.
@@ -4995,7 +4995,7 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
       mmdb::PPResidue SelResidue;
       int nSelResidues;
 
-      atom_sel.mol->Select (selHnd, STYPE_RESIDUE, 0,
+      atom_sel.mol->Select (selHnd, mmdb::STYPE_RESIDUE, 0,
 			    chain_id.c_str(), 
 			    resno, ins_code.c_str(),
 			    resno, ins_code.c_str(),
@@ -5003,7 +5003,7 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
 			    "*",  // Residue must contain this atom name?
 			    "*",  // Residue must contain this Element?
 			    "*",  // altLocs
-			    SKEY_NEW // selection key
+			    mmdb::SKEY_NEW // selection key
 			    );
 
       atom_sel.mol->GetSelIndex(selHnd, SelResidue, nSelResidues);
@@ -6468,15 +6468,15 @@ molecule_class_info_t::get_standard_residue_instance(const std::string &residue_
 //      std::cout << "DEBUG:: There are " << g.standard_residues_asc.n_selected_atoms
 // 	       << " atoms in standard_residues_asc" << std::endl;
      int selHnd = g.standard_residues_asc.mol->NewSelection();
-     g.standard_residues_asc.mol->Select ( selHnd,STYPE_RESIDUE, 1, // .. TYPE, iModel
+     g.standard_residues_asc.mol->Select ( selHnd,mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 					   "*", // Chain(s) it's "A" in this case.
-					   ANY_RES,"*",  // starting res
-					   ANY_RES,"*",  // ending res
+					   mmdb::ANY_RES,"*",  // starting res
+					   mmdb::ANY_RES,"*",  // ending res
 					   residue_type.c_str(),  // residue name
 					   "*",  // Residue must contain this atom name?
 					   "*",  // Residue must contain this Element?
 					   "*",  // altLocs
-					   SKEY_NEW // selection key
+					   mmdb::SKEY_NEW // selection key
 					   );
      // get the standard orientation residue for this residue type
      mmdb::PPResidue SelResidue;

@@ -31,7 +31,7 @@ coot::util::water_coordination_t::water_coordination_t(mmdb::Manager *mol, mmdb:
    mmdb::realtype max_dist = radius;
    
    mmdb::mat44 my_matt;
-   CSymOps symm;
+   mmdb::SymOps symm;
 
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
@@ -46,9 +46,9 @@ coot::util::water_coordination_t::water_coordination_t(mmdb::Manager *mol, mmdb:
    int SelHnd_waters = mol->NewSelection();
 
    mol->SelectAtoms (SelHnd_waters, 0, "*",
-		     ANY_RES, // starting resno, an int
+		     mmdb::ANY_RES, // starting resno, an int
 		     "*", // any insertion code
-		     ANY_RES, // ending resno
+		     mmdb::ANY_RES, // ending resno
 		     "*", // ending insertion code
 		     "HOH", // residue name
 		     "*",   // atname
@@ -57,9 +57,9 @@ coot::util::water_coordination_t::water_coordination_t(mmdb::Manager *mol, mmdb:
 		     );
 
    mol->SelectAtoms (SelHnd_waters, 0, "*",
-		     ANY_RES, // starting resno, an int
+		     mmdb::ANY_RES, // starting resno, an int
 		     "*", // any insertion code
-		     ANY_RES, // ending resno
+		     mmdb::ANY_RES, // ending resno
 		     "*", // ending insertion code
 		     "*", // residue name
 		     "*",   // atname
@@ -71,9 +71,9 @@ coot::util::water_coordination_t::water_coordination_t(mmdb::Manager *mol, mmdb:
    // c.f. addSymmetry_whole_chain() in Bond-lines.cc 
    
    mol->SelectAtoms (SelHnd, 0, "*",
-		     ANY_RES, // starting resno, an int
+		     mmdb::ANY_RES, // starting resno, an int
 		     "*", // any insertion code
-		     ANY_RES, // ending resno
+		     mmdb::ANY_RES, // ending resno
 		     "*", // ending insertion code
 		     "*", // any residue name
 		     "*",

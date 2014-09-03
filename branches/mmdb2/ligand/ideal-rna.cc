@@ -308,15 +308,15 @@ coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type_i
 
    mmdb::Residue *std_residue = 0;
    int selHnd = standard_residues->NewSelection();
-   standard_residues->Select (selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
+   standard_residues->Select (selHnd, mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 			      "*",
-			      ANY_RES, "*",  // starting res
-			      ANY_RES, "*",  // ending res
+			      mmdb::ANY_RES, "*",  // starting res
+			      mmdb::ANY_RES, "*",  // ending res
 			      residue_name.c_str(),  // residue name
 			      "*",  // Residue must contain this atom name?
 			      "*",  // Residue must contain this Element?
 			      "*",  // altLocs
-			      SKEY_NEW // selection key
+			      mmdb::SKEY_NEW // selection key
 			      );
    mmdb::PPResidue SelResidue;
    int nSelResidues;

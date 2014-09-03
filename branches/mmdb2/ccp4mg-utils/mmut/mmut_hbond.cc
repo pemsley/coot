@@ -158,7 +158,7 @@ int CHBond::Calculate0(int model)  {
   // For two sets of atoms - do the sets overlap?
   if (nLoops == 2 && molHnds[0] == molHnds[1]) {
     selHndOverlap = molHnds[0]->NewSelection();
-    molHnds[0]->Select ( selHndOverlap,STYPE_ATOM,selHnds[0],SKEY_NEW );    
+    molHnds[0]->Select ( selHndOverlap,STYPE_ATOM,selHnds[0],mmdb::SKEY_NEW );    
     molHnds[0]->Select ( selHndOverlap,STYPE_ATOM,selHnds[1],SKEY_AND );    
     molHnds[0]->GetSelIndex(selHndOverlap,overlapAtoms,nOverlap);
     //cout << "nOverlap " << nOverlap << endl;
@@ -196,19 +196,19 @@ int CHBond::Calculate0(int model)  {
     //cout << "molHndA " << molHndA << " selHndA " << selHndA << endl;
 
   selHndDonors = molHndD->NewSelection();
-  molHndD->Select ( selHndDonors,STYPE_ATOM,selHndD,SKEY_NEW );
+  molHndD->Select ( selHndDonors,STYPE_ATOM,selHndD,mmdb::SKEY_NEW );
   if (model > 0 && model <= molHndD->GetNumberOfModels() )
-    molHndD->Select (selHndDonors,STYPE_ATOM,model,"*",ANY_RES,
-         "*",ANY_RES, "*","*","*","*","*",SKEY_AND);
+    molHndD->Select (selHndDonors,STYPE_ATOM,model,"*",mmdb::ANY_RES,
+         "*",mmdb::ANY_RES, "*","*","*","*","*",SKEY_AND);
   molHndD->SelectUDD (selHndDonors,STYPE_ATOM,uddD,
             HBTYPE_DONOR,HBTYPE_BOTH,SKEY_AND);
   molHndD->GetSelIndex(selHndDonors,donorAtoms,nDonors);
 
   selHndAcceptors = molHndA->NewSelection();
-  molHndA->Select ( selHndAcceptors,STYPE_ATOM,selHndA,SKEY_NEW );
+  molHndA->Select ( selHndAcceptors,STYPE_ATOM,selHndA,mmdb::SKEY_NEW );
   if (model > 0 && model <= molHndA->GetNumberOfModels() )
-    molHndA->Select (selHndAcceptors,STYPE_ATOM,model,"*",ANY_RES,
-         "*",ANY_RES, "*","*","*","*","*",SKEY_AND);
+    molHndA->Select (selHndAcceptors,STYPE_ATOM,model,"*",mmdb::ANY_RES,
+         "*",mmdb::ANY_RES, "*","*","*","*","*",SKEY_AND);
   molHndA->SelectUDD (selHndAcceptors,STYPE_ATOM,uddA,
            HBTYPE_BOTH,HBTYPE_ACCEPTOR,SKEY_AND);
   molHndA->GetSelIndex(selHndAcceptors,acceptorAtoms,nAcceptors);
@@ -216,7 +216,7 @@ int CHBond::Calculate0(int model)  {
 
   // And are there any actual real hydrogen atoms?
   selHndHydrogens = molHndD->NewSelection();
-  molHndD->Select ( selHndHydrogens,STYPE_ATOM,selHndD,SKEY_NEW );    
+  molHndD->Select ( selHndHydrogens,STYPE_ATOM,selHndD,mmdb::SKEY_NEW );    
   molHndD->SelectUDD (selHndHydrogens,STYPE_ATOM,uddD,
             HBTYPE_HYDROGEN,HBTYPE_HYDROGEN,SKEY_AND);
 

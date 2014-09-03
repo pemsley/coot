@@ -220,7 +220,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 
    // matrix stuff
    mmdb::mat44 my_matt;
-   CSymOps symm;
+   mmdb::SymOps symm;
 
    // update my_matt;  You can't do this if you haven't set the space group.
    // 
@@ -2840,7 +2840,7 @@ Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
 
    // model 1
    // Note that now we force the resname to be CYS and atom name to be SG
-   SelAtom.mol->SelectAtoms(selHnd2, imodel,"*", ANY_RES, "*", ANY_RES, "*",
+   SelAtom.mol->SelectAtoms(selHnd2, imodel,"*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
 			    "CYS"," SG ","S","*" );
 
    SelAtom.mol->GetSelIndex(selHnd2, Sulfur_selection, n_sulfurs);
@@ -3403,7 +3403,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal_old(atom_selection_container_t S
    if (! strcmp(backbone_atom_id, " P  "))
       ele = "P";
    
-   SelAtom.mol->SelectAtoms(selHnd_ca, 0,"*",ANY_RES,"*",ANY_RES,"*",
+   SelAtom.mol->SelectAtoms(selHnd_ca, 0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*",
 			    "*", backbone_atom_id, ele,"*" );
 
    SelAtom.mol->GetSelIndex(selHnd_ca, Ca_selection, n_ca);
@@ -3897,13 +3897,13 @@ Bond_lines_container::do_normal_bonds_no_water(const atom_selection_container_t 
    
    // We need to select all atoms here first, or crash when going back to all-atom view.
    asc.mol->SelectAtoms(asc.SelectionHandle, 0, "*",
-			ANY_RES, "*",
-			ANY_RES, "*",
+			mmdb::ANY_RES, "*",
+			mmdb::ANY_RES, "*",
 			"*", "*", "*", "*");
 
    asc.mol->Select(asc.SelectionHandle, STYPE_ATOM, 0, "*",
-		   ANY_RES, "*",
-		   ANY_RES, "*",
+		   mmdb::ANY_RES, "*",
+		   mmdb::ANY_RES, "*",
 		   solvent_res.c_str(), "*", "*", "*",
 		   SKEY_XOR);
 
@@ -3996,7 +3996,7 @@ Bond_lines_container::do_symmetry_Ca_bonds(atom_selection_container_t SelAtom,
    
    int selHnd_ca = SelAtom.mol->NewSelection();
 
-   SelAtom.mol->SelectAtoms(selHnd_ca, 0, "*",ANY_RES,"*",ANY_RES,"*",
+   SelAtom.mol->SelectAtoms(selHnd_ca, 0, "*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*",
 			    "*"," CA ","C","*" );
    
    SelAtom.mol->GetSelIndex(selHnd_ca, trans_ca_selection, n_ca);
@@ -4064,7 +4064,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 
    // matrix stuff
    mmdb::mat44 my_matt;
-   CSymOps symm;
+   mmdb::SymOps symm;
 
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
@@ -4084,9 +4084,9 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
       // make a new atom selection, based on the model.
       int SelectionHandle = asc.mol->NewSelection();
       asc.mol->SelectAtoms (SelectionHandle, imodel, "*",
-			    ANY_RES, // starting resno, an int
+			    mmdb::ANY_RES, // starting resno, an int
 			    "*", // any insertion code
-			    ANY_RES, // ending resno
+			    mmdb::ANY_RES, // ending resno
 			    "*", // ending insertion code
 			    "*", // any residue name
 			    "*", // atom name
@@ -4288,7 +4288,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 
    // matrix stuff
    mmdb::mat44 my_matt;
-   CSymOps symm;
+   mmdb::SymOps symm;
    int col = 0; // atom (segment) colour
    coot::my_atom_colour_map_t atom_colour_map;
 
@@ -4310,9 +4310,9 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
       // make a new atom selection, based on the model.
       int SelectionHandle = asc.mol->NewSelection(); // d
       asc.mol->SelectAtoms (SelectionHandle, imodel, "*",
-			    ANY_RES, // starting resno, an int
+			    mmdb::ANY_RES, // starting resno, an int
 			    "*", // any insertion code
-			    ANY_RES, // ending resno
+			    mmdb::ANY_RES, // ending resno
 			    "*", // ending insertion code
 			    "*", // any residue name
 			    "*", // atom name
@@ -4604,7 +4604,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 
    // matrix stuff
    mmdb::mat44 my_matt;
-   CSymOps symm;
+   mmdb::SymOps symm;
 
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
@@ -4628,9 +4628,9 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 	 // make a new atom selection, based on the model.
 	 int SelectionHandle = asc.mol->NewSelection(); // d
 	 asc.mol->SelectAtoms (SelectionHandle, imodel, "*",
-			       ANY_RES, // starting resno, an int
+			       mmdb::ANY_RES, // starting resno, an int
 			       "*", // any insertion code
-			       ANY_RES, // ending resno
+			       mmdb::ANY_RES, // ending resno
 			       "*", // ending insertion code
 			       "*", // any residue name
 			       "*", // atom name

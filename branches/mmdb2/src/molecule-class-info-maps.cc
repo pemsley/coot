@@ -2144,7 +2144,7 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 	 clipper::mmdb::mmdb::PPAtom psel;
 	 int hndl, nsel;
 	 hndl = mmdb->NewSelection();
-	 mmdb->SelectAtoms( hndl, 0, 0, SKEY_NEW );
+	 mmdb->SelectAtoms( hndl, 0, 0, mmdb::SKEY_NEW );
 	 mmdb->GetSelIndex( hndl, psel, nsel );
 	 clipper::MMDBAtom_list atoms( psel, nsel );
 	 mmdb->DeleteSelection( hndl );

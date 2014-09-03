@@ -311,7 +311,7 @@ add_ligand_delete_residue_copy_molecule(int imol_ligand_new,
 	       
 	 } else { 
 	    mmdb::Manager *n = new mmdb::Manager;
-	    n->Copy(g.molecules[imol_current].atom_sel.mol, MMDBFCM_All);
+	    n->Copy(g.molecules[imol_current].atom_sel.mol, mmdb::MMDBFCM_All);
 
 	    // now find the residue in imol_ligand_current.
 	    // and replace its atoms.
@@ -3241,13 +3241,13 @@ int write_chain_to_pdb_file(int imol, const char *chain_id, const char *filename
       int SelHnd = mol->NewSelection(); // d
       mol->SelectAtoms(SelHnd, 1,
 		       chain_id, 
-		       ANY_RES, "*",
-		       ANY_RES, "*",
+		       mmdb::ANY_RES, "*",
+		       mmdb::ANY_RES, "*",
 		       "*", // any residue name
 		       "*", // atom name
 		       "*", // elements
 		       "*",  // alt loc.
-		       SKEY_NEW);
+		       mmdb::SKEY_NEW);
       mmdb::Manager *new_mol = coot::util::create_mmdbmanager_from_atom_selection(mol, SelHnd);
       if (new_mol) {
 	 istat = new_mol->WritePDBASCII(filename);
@@ -4709,7 +4709,7 @@ void save_symmetry_coords(int imol,
       if (imol < graphics_info_t::n_molecules()) { 
 	 if (graphics_info_t::molecules[imol].has_model()) { 
 	    mmdb::Manager *mol2 = new mmdb::Manager;
-	    mol2->Copy(graphics_info_t::molecules[imol].atom_sel.mol, MMDBFCM_All);
+	    mol2->Copy(graphics_info_t::molecules[imol].atom_sel.mol, mmdb::MMDBFCM_All);
 	    
 	    atom_selection_container_t asc = make_asc(mol2);
 	    mmdb::mat44 mat;
@@ -6436,8 +6436,8 @@ int new_molecule_by_residue_type_selection(int imol_orig, const char *residue_ty
       mmdb::Manager *mol_orig = graphics_info_t::molecules[imol_orig].atom_sel.mol;
       int SelectionHandle = mol_orig->NewSelection();
       mol_orig->SelectAtoms(SelectionHandle, 0, "*",
-			    ANY_RES, "*",
-			    ANY_RES, "*",
+			    mmdb::ANY_RES, "*",
+			    mmdb::ANY_RES, "*",
 			    (char *) residue_type,
 			    "*", "*", "*");
       mmdb::Manager *mol =
@@ -6563,7 +6563,7 @@ int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, f
 								  SelectionHandle);
       } else {
 	 graphics_info_t g;
-	 mol_orig->SelectSphere(SelectionHandle, STYPE_RESIDUE,
+	 mol_orig->SelectSphere(SelectionHandle, mmdb::STYPE_RESIDUE,
 				x, y, z, r, SKEY_OR);
 	 std::string alt_conf = "";
 
@@ -7295,9 +7295,9 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
 
 	 mol->SelectAtoms(SelHnd, 0,
 			  chain_id,
-			  ANY_RES, "*",
-			  ANY_RES, "*",
-			  "*","*","*","*",SKEY_NEW);
+			  mmdb::ANY_RES, "*",
+			  mmdb::ANY_RES, "*",
+			  "*","*","*","*",mmdb::SKEY_NEW);
 	 
 	 mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
 	 if (n_atoms) { 
