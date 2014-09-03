@@ -603,8 +603,8 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    if (use_hydrogens == false)
       n_atoms = number_of_non_hydrogen_atoms();
    
-   CGraph *g_1 = make_graph(use_hydrogens);
-   CGraph *g_2 = ref.make_graph(use_hydrogens);
+   mmdb::math::Graph *g_1 = make_graph(use_hydrogens);
+   mmdb::math::Graph *g_2 = ref.make_graph(use_hydrogens);
 
    if (0) {
       std::cout << "this-name:::::::::::::::::::" << residue_info.comp_id << std::endl;
@@ -624,7 +624,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    g_1->MakeSymmetryRelief(False);
    g_2->MakeSymmetryRelief(False);
    
-   CGraphMatch match;
+   mmdb::math::GraphMatch match;
    int minMatch = n_atoms;
 
    Boolean vertext_type = True;
@@ -834,7 +834,7 @@ coot::dictionary_residue_restraints_t::invent_new_name(const std::string &ele) c
 
 
 
-CGraph *
+mmdb::math::Graph *
 coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const { 
 
    std::map<std::string, unsigned int> name_map;
@@ -848,7 +848,7 @@ coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const {
    // 
    int vertex_indexing[atom_info.size()];
    
-   CGraph *graph = new CGraph;
+   mmdb::math::Graph *graph = new mmdb::math::Graph;
    int i_atom = 0;
    for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
       std::string ele  = atom_info[iat].type_symbol;

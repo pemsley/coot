@@ -792,8 +792,8 @@ private:
    float search_similarity;
    
 #ifdef HAVE_CCP4SRS   
-   coot::match_results_t residue_from_best_match(CGraph &graph_1, CGraph &graph_2,
-						 CGraphMatch &match, int n_match, 
+   coot::match_results_t residue_from_best_match(mmdb::math::Graph &graph_1, mmdb::math::Graph &graph_2,
+						 mmdb::math::GraphMatch &match, int n_match, 
 						 CCP4SRSMonomer *monomer_p) const;
 #endif   
    void display_search_results(const std::vector<coot::match_results_t> &v) const;

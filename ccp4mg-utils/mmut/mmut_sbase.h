@@ -172,14 +172,14 @@ class MGCLink {
  public:
   MGCLink();
   ~MGCLink();
-  int GetCif(PCMMCIFLoop Loop, int N);
+  int GetCif(mmdb::mmcif::PLoop Loop, int N);
   void Print();
   
   //protected:
   CompoundID id;
   MGCLinkGroup lg1;
   MGCLinkGroup lg2;
-  int GetCifBond ( PCMMCIFData dataBlock );
+  int GetCifBond ( mmdb::mmcif::PData dataBlock );
  
   //int cifGroupCode( pstr cifGroup);
  
@@ -193,7 +193,7 @@ class CLibElement {
   CLibElement();
   CLibElement ( pstr el, int atomIndex );
   static void Justify(pstr el, pstr elo);
-  int GetCif (PCMMCIFLoop Loop, int N, CMGSBase *p_sbase);
+  int GetCif (mmdb::mmcif::PLoop Loop, int N, CMGSBase *p_sbase);
   void SetDefaultLibAtom( CMGSBase *p_sbase);
   Element name;
   Element bad_name;
@@ -209,7 +209,7 @@ class CLibAtom {
  public:
   CLibAtom();
   ~CLibAtom();
-  int GetCif(PCMMCIFLoop Loop, int N);
+  int GetCif(mmdb::mmcif::PLoop Loop, int N);
 
   char type [energy_type_len+1];
   int hbType;
@@ -235,7 +235,7 @@ class CLibBond {
  public:
   CLibBond();
   ~CLibBond();
-  int GetCif (PCMMCIFLoop Loop, int N);
+  int GetCif (mmdb::mmcif::PLoop Loop, int N);
   
   char atomType1[energy_type_len+1];
   char atomType2[energy_type_len+1];
@@ -297,7 +297,7 @@ public:
   char user_monomers_dir[500];
   int InitSBase(char *sb);
   void CreateLibElements();
-  //int MatchGraphs  (PCGraph G1, PCGraph G2);
+  //int MatchGraphs  (Pmmdb::math::Graph G1, Pmmdb::math::Graph G2);
     
   int graphSearchMode;
   static PCSBase SBase;
@@ -312,7 +312,7 @@ public:
   // This needs to be reinitiallised for each new loaded structure
   std::map<std::string,int> reported_errors;
   
-  PCMMCIFData CIF;
+  mmdb::mmcif::PData CIF;
   int nLinks;
   // Ooch again!
   MGCLink *link[100];

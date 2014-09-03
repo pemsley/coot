@@ -143,7 +143,7 @@ coot::operator<<(std::ostream &s, const coot::chem_mod_chir &a) {
 
 
 int
-coot::protein_geometry::add_mod(PCMMCIFData data) {
+coot::protein_geometry::add_mod(mmdb::mmcif::PData data) {
 
    int status = 0;
 
@@ -152,7 +152,7 @@ coot::protein_geometry::add_mod(PCMMCIFData data) {
       
       PCMMCIFCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
-      PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str()) ;
+      mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str()) ;
             
       if (mmCIFLoop == NULL) { 
 	 std::cout << "null loop" << std::endl; 
@@ -178,7 +178,7 @@ coot::protein_geometry::add_mod(PCMMCIFData data) {
 }
 
 void
-coot::protein_geometry::add_chem_mod_atom( PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::add_chem_mod_atom( mmdb::mmcif::PLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
 
@@ -257,7 +257,7 @@ coot::protein_geometry::add_chem_mod_atom( PCMMCIFLoop mmCIFLoop) {
 } 
 
 void
-coot::protein_geometry::add_chem_mod_bond( PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::add_chem_mod_bond( mmdb::mmcif::PLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
 
@@ -311,7 +311,7 @@ coot::protein_geometry::add_chem_mod_bond( PCMMCIFLoop mmCIFLoop) {
 }
 
 void
-coot::protein_geometry::add_chem_mod_tree( PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::add_chem_mod_tree( mmdb::mmcif::PLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
 
@@ -367,7 +367,7 @@ coot::protein_geometry::add_chem_mod_tree( PCMMCIFLoop mmCIFLoop) {
 }
 
 void
-coot::protein_geometry::add_chem_mod_angle(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::add_chem_mod_angle(mmdb::mmcif::PLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
 
@@ -423,7 +423,7 @@ coot::protein_geometry::add_chem_mod_angle(PCMMCIFLoop mmCIFLoop) {
 }
 
 void
-coot::protein_geometry::add_chem_mod_tor(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::add_chem_mod_tor(mmdb::mmcif::PLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
 
@@ -490,7 +490,7 @@ coot::protein_geometry::add_chem_mod_tor(PCMMCIFLoop mmCIFLoop) {
 }
 
 void
-coot::protein_geometry::add_chem_mod_chir(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::add_chem_mod_chir(mmdb::mmcif::PLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
 
@@ -556,7 +556,7 @@ coot::protein_geometry::add_chem_mod_chir(PCMMCIFLoop mmCIFLoop) {
 
 
 void
-coot::protein_geometry::add_chem_mod_plane(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::add_chem_mod_plane(mmdb::mmcif::PLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
 

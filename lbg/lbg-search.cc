@@ -43,7 +43,7 @@ lbg_info_t::search() const {
 
    mmdb::Residue *res = 0;
    
-   CGraph *graph = new CGraph;
+   mmdb::math::Graph *graph = new mmdb::math::Graph;
    int n_atoms = 0;
 
    // mol atom indexing -> graph vertex indexing
@@ -129,8 +129,8 @@ lbg_info_t::get_search_similarity() const {
 
 #ifdef HAVE_CCP4SRS   
 coot::match_results_t
-lbg_info_t::residue_from_best_match(CGraph &graph_1, CGraph &graph_2,
-				    CGraphMatch &match, int n_match, 
+lbg_info_t::residue_from_best_match(mmdb::math::Graph &graph_1, mmdb::math::Graph &graph_2,
+				    mmdb::math::GraphMatch &match, int n_match, 
 				    CCP4SRSMonomer *monomer_p) const {
 
    coot::match_results_t r("","",NULL);

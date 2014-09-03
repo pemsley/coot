@@ -2069,8 +2069,8 @@ coot::graph_match(mmdb::Residue *res_moving,
    bool success = 0;
    std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > best_matching_atoms;
 
-   CGraph graph1;
-   CGraph graph2;
+   mmdb::math::Graph graph1;
+   mmdb::math::Graph graph2;
 
    // These are deleted at the end
    // 
@@ -2136,7 +2136,7 @@ coot::graph_match(mmdb::Residue *res_moving,
 	 if (min_n > minMatch)
 	    minMatch = min_n;
 	 
-	 CGraphMatch match;
+	 mmdb::math::GraphMatch match;
 
 	 std::cout << "INFO:: match.MatchGraphs must match at least "
 		   << minMatch << " atoms."

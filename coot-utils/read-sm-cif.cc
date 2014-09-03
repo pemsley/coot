@@ -38,7 +38,7 @@
 // This can throw a std::runtime_error.
 // 
 clipper::Cell
-coot::smcif::get_cell(PCMMCIFData data) const {
+coot::smcif::get_cell(mmdb::mmcif::PData data) const {
 
    pstr cell_a = NULL;
    pstr cell_b = NULL;
@@ -123,7 +123,7 @@ coot::smcif::get_space_group(const std::vector<std::string> &symm_strings) const
 }
 
 std::vector<mmdb::Atom *>
-coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const {
+coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const {
 
    std::vector<mmdb::Atom *> atom_vec;
    const char *loopTagsAtom[8] = { "_atom_site_label",
@@ -139,7 +139,7 @@ coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const
 
    int ierr = 0;
    pstr S = NULL;
-   PCMMCIFLoop loop = data->FindLoop(PSTR_CAST_HACK loopTagsAtom);
+   mmdb::mmcif::PLoop loop = data->FindLoop(PSTR_CAST_HACK loopTagsAtom);
    if (loop) {
       int ll = loop->GetLoopLength();
       if (ll >= 0) {
@@ -313,7 +313,7 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 
    mmdb::Manager *mol = NULL;
    pstr S = NULL;
-   PCMMCIFData data = new CMMCIFData();
+   mmdb::mmcif::PData data = new CMMCIFData();
    data->SetFlag (CIFFL_SuggestCategories);
    int ierr = data->ReadMMCIFData (file_name.c_str());
    if (ierr) {
@@ -340,8 +340,8 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 	 const char *loopTag1[2] = { "_symmetry_equiv_pos_as_xyz",
 				     ""};
 
-	 // PCMMCIFLoop loop = data->FindLoop((pstr *) loopTag1);
-	 PCMMCIFLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag1);
+	 // mmdb::mmcif::PLoop loop = data->FindLoop((pstr *) loopTag1);
+	 mmdb::mmcif::PLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag1);
 	 if (loop) {
 	    int ll = loop->GetLoopLength();
 	    // std::cout << "loop length: " << ll << std::endl;
@@ -423,7 +423,7 @@ coot::smcif::get_resolution(const clipper::Cell &cell,
    int h,k,l;
    pstr S = NULL;
    clipper::ftype slim = 0.0;
-   PCMMCIFData data = new CMMCIFData();
+   mmdb::mmcif::PData data = new CMMCIFData();
    data->SetFlag (CIFFL_SuggestCategories);
    int ierr = data->ReadMMCIFData (file_name.c_str());
    if (ierr) {
@@ -435,7 +435,7 @@ coot::smcif::get_resolution(const clipper::Cell &cell,
 				      "_refln_index_l",
 				      ""};
       
-      PCMMCIFLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag_data);
+      mmdb::mmcif::PLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag_data);
       if (loop) {
 	 int ll = loop->GetLoopLength();
 	 if (ll > 0) {
@@ -462,7 +462,7 @@ std::pair<bool,clipper::Spacegroup>
 coot::smcif::get_space_group(const std::string &file_name) const {
 
    std::pair<bool,clipper::Spacegroup> s;
-   PCMMCIFData data = new CMMCIFData();
+   mmdb::mmcif::PData data = new CMMCIFData();
    data->SetFlag (CIFFL_SuggestCategories);
    int ierr = data->ReadMMCIFData (file_name.c_str());
    if (! ierr) {
@@ -479,7 +479,7 @@ clipper::Cell
 coot::smcif::get_cell_for_data(const std::string &file_name) const {
 
    clipper::Cell c;
-   PCMMCIFData data = new CMMCIFData();
+   mmdb::mmcif::PData data = new CMMCIFData();
    data->SetFlag (CIFFL_SuggestCategories);
    int ierr = data->ReadMMCIFData (file_name.c_str());
    if (! ierr) {
@@ -493,7 +493,7 @@ coot::smcif::get_cell_for_data(const std::string &file_name) const {
 void
 coot::smcif::setup_hkls(const std::string &file_name) {
 
-   PCMMCIFData data = new CMMCIFData();
+   mmdb::mmcif::PData data = new CMMCIFData();
    data->SetFlag (CIFFL_SuggestCategories);
 
    int ierr = data->ReadMMCIFData (file_name.c_str());
@@ -506,7 +506,7 @@ coot::smcif::setup_hkls(const std::string &file_name) {
 				      "_refln_index_l",
 				      ""};
       
-      PCMMCIFLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag_data);
+      mmdb::mmcif::PLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag_data);
       if (loop) {
 	 clipper::HKL_data_base* f_sigf_input;
 	 int ll = loop->GetLoopLength();
@@ -565,7 +565,7 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 	    myfsigf.init(mydata, data_cell);
 	    my_fphi.init(mydata, data_cell);
 
-	    PCMMCIFData data = new CMMCIFData();
+	    mmdb::mmcif::PData data = new CMMCIFData();
 	    data->SetFlag (CIFFL_SuggestCategories);
 
 	    int ierr = data->ReadMMCIFData (file_name.c_str());
@@ -588,7 +588,7 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 // 						"_refln_B_calc",
 					       ""};
       
-	       PCMMCIFLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag_data);
+	       mmdb::mmcif::PLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag_data);
 	       if (loop) {
 		  clipper::HKL_data_base* f_sigf_input;
 		  int ll = loop->GetLoopLength();
@@ -674,7 +674,7 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 }
 
 clipper::Cell
-coot::smcif::get_cell_for_data(PCMMCIFData data) const {
+coot::smcif::get_cell_for_data(mmdb::mmcif::PData data) const {
 
    clipper::Cell cell;
 
@@ -734,7 +734,7 @@ coot::smcif::get_cell_for_data(PCMMCIFData data) const {
 
 
 std::pair<bool,clipper::Spacegroup> 
-coot::smcif::get_space_group(PCMMCIFData data) const {
+coot::smcif::get_space_group(mmdb::mmcif::PData data) const {
 
    // George is going to update shelxl (or may already have done so) to
    // output _space_group_symop_operation_xyz instead of
@@ -751,7 +751,7 @@ coot::smcif::get_space_group(PCMMCIFData data) const {
 }
 
 std::pair<bool,clipper::Spacegroup> 
-coot::smcif::get_space_group(PCMMCIFData data, const std::string &symm_tag) const {
+coot::smcif::get_space_group(mmdb::mmcif::PData data, const std::string &symm_tag) const {
 
    bool state = false;
    clipper::Spacegroup spg;
@@ -763,7 +763,7 @@ coot::smcif::get_space_group(PCMMCIFData data, const std::string &symm_tag) cons
    const char *loopTag1[2] = { symm_tag.c_str(), ""};
    int n_tags = 1;
 
-   PCMMCIFLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag1);
+   mmdb::mmcif::PLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag1);
    // std::cout << "loop: " << loop << std::endl;
    if (loop) {
       int ll = loop->GetLoopLength();

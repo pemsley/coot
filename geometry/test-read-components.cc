@@ -31,7 +31,7 @@ void read_components_file(std::string cif_dictionary_filename) {
 		<< " data in " << cif_dictionary_filename << std::endl; 
       
       for(int idata=0; idata<ciffile.GetNofData(); idata++) {
-	 PCMMCIFData data = ciffile.GetCIFData(idata);
+	 mmdb::mmcif::PData data = ciffile.GetCIFData(idata);
 	 std::string s = data->GetDataName();
 	 // std::cout << idata << " " << s << std::endl;
       }

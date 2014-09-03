@@ -353,8 +353,8 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
   // Load the monomer info from CIF file
   //std::cout << "CMGSBase::LoadCifMonomer " << mon << "\n"; std::cout.flush();
   int RC,N;
-  PCMMCIFLoop Loop;
-  PCMMCIFData dataBlock;
+  mmdb::mmcif::PLoop Loop;
+  mmdb::mmcif::PData dataBlock;
   char dataName[200];
   char id[100];
   char comp_group[100];
@@ -713,8 +713,8 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
 //------------------------------------------------------------------
   PCSBStructure pStruct;
   PCMMCIFFile file;
-  PCMMCIFLoop Loop;
-  PCMMCIFData dataBlock;
+  mmdb::mmcif::PLoop Loop;
+  mmdb::mmcif::PData dataBlock;
   int RC,N;
   char id[500];
   char code[500];
@@ -1235,8 +1235,8 @@ int CMGSBase::MatchGraphs(mmdb::PResidue pRes,int Hflag, Boolean Cflag,
                           PCSBStructure pSbaseRes, int &nMatched,
 			  ivector match, int tolMatch ) {
   
-  PCGraph G,G1;
-  PCGraphMatch U;
+  Pmmdb::math::Graph G,G1;
+  Pmmdb::math::GraphMatch U;
   ivector      F1,F2;
   mmdb::realtype     p1,p2;
   int     rc,htype;
@@ -1254,7 +1254,7 @@ int CMGSBase::MatchGraphs(mmdb::PResidue pRes,int Hflag, Boolean Cflag,
   // Using LibCheck/Refmac libraries - need to do it manually
   // Create a graph of the model residue             
   //cout << " MatchGraphs " <<   pRes->name << " " << pRes->GetNumberOfAtoms() << " atoms in dbase frag " << pSbaseRes->nAtoms << endl;                                                               
-  G = new CGraph ( pRes,altLoc );
+  G = new mmdb::math::Graph ( pRes,altLoc );
   if (Hflag>=1) {
     htype = getElementNo(pstr("H"));
     if (Hflag==2)  G->HideType    ( htype );
@@ -1271,7 +1271,7 @@ int CMGSBase::MatchGraphs(mmdb::PResidue pRes,int Hflag, Boolean Cflag,
   }
 
   // Create a graph of the SBase monomer
-  G1 = new CGraph();
+  G1 = new mmdb::math::Graph();
   std::vector<int> ia_index;
   int nn = 0;
   std::vector<int> ia_revert;
@@ -1308,7 +1308,7 @@ int CMGSBase::MatchGraphs(mmdb::PResidue pRes,int Hflag, Boolean Cflag,
     minMatch = nInResidue;
 
   // Try matching the two graphs
-  U = new CGraphMatch();
+  U = new mmdb::math::GraphMatch();
   U->MatchGraphs ( G,G1,minMatch );
 
   
@@ -1380,9 +1380,9 @@ int CMGSBase::LoadSynonyms( pstr filename ) {
 //-------------------------------------------------------------------
   int RC;
   CFile f;
-  PCMMCIFLoop Loop=NULL;
+  mmdb::mmcif::PLoop Loop=NULL;
   PCMMCIFFile file;
-  PCMMCIFData dataBlock;
+  mmdb::mmcif::PData dataBlock;
   ResName id,alt_id;
   std::string str_id, str_alt_id;
 
@@ -1417,9 +1417,9 @@ int CMGSBase::LoadMonLib (pstr filename ) {
   // Load the monomer link info from CIF file
   int RC,n;
   CFile f;
-  PCMMCIFLoop Loop1=NULL;
+  mmdb::mmcif::PLoop Loop1=NULL;
   PCMMCIFFile file;
-  PCMMCIFData dataBlock;
+  mmdb::mmcif::PData dataBlock;
   char dataName[200];
 
  
@@ -1478,7 +1478,7 @@ MGCLink::~MGCLink() {
 }
 
 //----------------------------------------------------------------
-int  MGCLink::GetCif(  PCMMCIFLoop Loop1, int N ) {
+int  MGCLink::GetCif(  mmdb::mmcif::PLoop Loop1, int N ) {
 //----------------------------------------------------------------
   int RC;
   pstr cmp,modif,grp;
@@ -1504,10 +1504,10 @@ int  MGCLink::GetCif(  PCMMCIFLoop Loop1, int N ) {
 }
 
 //---------------------------------------------------------------
-int MGCLink::GetCifBond (PCMMCIFData dataBlock ){
+int MGCLink::GetCifBond (mmdb::mmcif::PData dataBlock ){
 //---------------------------------------------------------------
   int RC;
-  PCMMCIFLoop Loop;
+  mmdb::mmcif::PLoop Loop;
   pstr at;
 
   Loop = dataBlock->GetLoop ( CIFCAT_LINK_BOND );
@@ -1620,7 +1620,7 @@ int CMGSBase::LoadEnerLib (pstr filename ) {
 //------------------------------------------------------------------
   // Load the monomer link info from CIF file
   int RC;
-  PCMMCIFLoop Loop1;
+  mmdb::mmcif::PLoop Loop1;
   CIF =  new CMMCIFData();
   RC = CIF->ReadMMCIFData ( filename );
   if ( RC ) {
@@ -1690,7 +1690,7 @@ int CMGSBase::LoadEleLib (pstr filename ) {
 //------------------------------------------------------------------
   // Load the monomer link info from CIF file
   int RC;
-  PCMMCIFLoop Loop2;
+  mmdb::mmcif::PLoop Loop2;
   CIF =  new CMMCIFData();
   RC = CIF->ReadMMCIFData ( filename );
   if ( RC ) {
@@ -1904,7 +1904,7 @@ CLibAtom::~CLibAtom() {
 }
 
 //---------------------------------------------------------------
-int CLibAtom::GetCif( PCMMCIFLoop Loop, int N ) {
+int CLibAtom::GetCif( mmdb::mmcif::PLoop Loop, int N ) {
 //----------------------------------------------------------------
   int RC;
   char hbtype[10];
@@ -1955,7 +1955,7 @@ CLibBond::~CLibBond() {
 }
 
 //---------------------------------------------------------------
-int CLibBond::GetCif( PCMMCIFLoop Loop, int N ) {
+int CLibBond::GetCif( mmdb::mmcif::PLoop Loop, int N ) {
 //----------------------------------------------------------------
   int RC;
   char bt[10];
@@ -2018,7 +2018,7 @@ void CLibElement::Justify( pstr el, pstr elo ) {
   
 }
 //---------------------------------------------------------------
-int CLibElement::GetCif( PCMMCIFLoop Loop, int N,  CMGSBase *p_sbase ) {
+int CLibElement::GetCif( mmdb::mmcif::PLoop Loop, int N,  CMGSBase *p_sbase ) {
 //----------------------------------------------------------------
   int RC;
   char type [energy_type_len+1];

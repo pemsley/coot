@@ -1230,8 +1230,8 @@ int Connectivity2::MatchGraphs(mmdb::PResidue pRes1,const pstr altLoc1,
                                int Hflag,int tag,float fracMinMatch,
                                bool keepmatch )  {
   
-  PCGraph G2,G1;
-  PCGraphMatch U = NULL;
+  Pmmdb::math::Graph G2,G1;
+  Pmmdb::math::GraphMatch U = NULL;
   ivector      F1,F2;
   mmdb::realtype     p1,p2;
   int     htype;
@@ -1243,7 +1243,7 @@ int Connectivity2::MatchGraphs(mmdb::PResidue pRes1,const pstr altLoc1,
   std::vector <int> best_matches;
   std::vector <int>:: iterator i;
    
-  G1 = new CGraph ( pRes1,altLoc1 );
+  G1 = new mmdb::math::Graph ( pRes1,altLoc1 );
   if (Hflag>=1) {
     htype = getElementNo(pstr("H"));
     if (Hflag==2)  G1->HideType    ( htype );
@@ -1255,7 +1255,7 @@ int Connectivity2::MatchGraphs(mmdb::PResidue pRes1,const pstr altLoc1,
     delete G1;
     return -1;
   }
-  G2 = new CGraph ( pRes2,altLoc2 );
+  G2 = new mmdb::math::Graph ( pRes2,altLoc2 );
   if (Hflag>=1) {
     htype = getElementNo(pstr("H"));
     if (Hflag==2)  G2->HideType    ( htype );
@@ -1274,7 +1274,7 @@ int Connectivity2::MatchGraphs(mmdb::PResidue pRes1,const pstr altLoc1,
   for (int ifrac=9;ifrac>=1;ifrac--) {
     minMatch = (ifrac*min(nInResidue1,nInResidue2))/10;
     //cout << "minMatch " << minMatch <<endl;
-    U = new CGraphMatch();
+    U = new mmdb::math::GraphMatch();
     U->MatchGraphs ( G1,G2,minMatch ); 
     nMatched =  U->GetNofMatches();
     if (nMatched>0) break;

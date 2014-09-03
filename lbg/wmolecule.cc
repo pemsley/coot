@@ -1138,8 +1138,8 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
 
    PCMMCIFFile mmCIFFile = new CMMCIFFile();
 
-   PCMMCIFData   mmCIFData = NULL;
-   PCMMCIFStruct mmCIFStruct;
+   mmdb::mmcif::PData   mmCIFData = NULL;
+   mmdb::mmcif::PStruct mmCIFStruct;
    char S[2000];
 
    int rc = mmCIFFile->AddMMCIFData("comp_list");
@@ -1163,7 +1163,7 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
       int n_non_H_atoms = atoms.size();
       std::string description_level = "M";
 
-      PCMMCIFLoop mmCIFLoop = new CMMCIFLoop; // 20100212
+      mmdb::mmcif::PLoop mmCIFLoop = new CMMCIFLoop; // 20100212
 
       rc = mmCIFData->AddLoop("_chem_comp", mmCIFLoop);
       int i=0;
