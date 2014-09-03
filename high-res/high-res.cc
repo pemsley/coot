@@ -89,7 +89,7 @@ coot::high_res::get_middle_pos(const coot::minimol::molecule &minimol_mol) const
    atom_selection_container_t asc = make_asc(mol);
    
    int err = mol->GetTMatrix(my_matt, 0, 0, 0, 0);
-   if (err != SYMOP_Ok) {
+   if (err != mmdb::SYMOP_Ok) {
       cout << "!! Warning:: No symmetry available for this molecule"
 	   << endl;
    } else { 
@@ -129,13 +129,14 @@ coot::high_res::get_middle_pos(const coot::minimol::molecule &minimol_mol) const
    return r;
 }
 
+// needed?
+#include "coords/coot-close.hh"
 
 void
 coot::high_res::fill_globular_protein(const coot::minimol::molecule &mol, 
 				      const clipper::Coord_orth &target_pos_in,
 				      mmdb::Manager *mmdb_mol) { 
 
-   std::cout << "DEBUG:: ##################### globular_molecule making" << std::endl;
    clipper::Coord_orth sum_atoms = target_pos_in;
    clipper::Coord_orth target_pos = target_pos_in;
    // now a bit of jiggery pokery
@@ -157,10 +158,9 @@ coot::high_res::fill_globular_protein(const coot::minimol::molecule &mol,
 	   ires++) {
 	 for (int iat=0; iat<mol[ifrag][ires].n_atoms(); iat++) {
 
-	    t = closest_approach(mol[ifrag][ires][iat].pos, 
-				 target_pos,
-				 mmdb_mol);
-
+	    t = ::closest_approach(mol[ifrag][ires][iat].pos, 
+				   target_pos, mmdb_mol);
+	    
 // 	    std::cout << "MOVING start pos " 
 // 		      << mol[ifrag][ires][iat].pos.x() << " " 
 // 		      << mol[ifrag][ires][iat].pos.y() << " " 
@@ -374,7 +374,7 @@ coot::high_res::buccafilter_neighbours() {
 						 "buccaneer filter group");
       for (int i=0; i<asc.n_selected_atoms; i++) {
 	 int istat = asc.atom_selection[i]->PutUDData(uddhandle, -1);
-	 if (istat == mmdb:UDDATA_WrongUDRType) {
+	 if (istat == mmdb::UDDATA_WrongUDRType) {
 	    std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in "
 		      << "buccafilter" << std::endl;
 	 }
