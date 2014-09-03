@@ -64,7 +64,7 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
 
    // matrix stuff
    mmdb::mat44 my_matt;
-   CSymOps symm;
+   mmdb::SymOps symm;
 
    // update my_matt;  You can't do this if you haven't set the space group.
    // 
@@ -135,7 +135,7 @@ Bond_lines_ext::find_molecule_middle(atom_selection_container_t SelAtom,
 
    // matrix stuff
    mmdb::mat44 my_matt;
-   CSymOps symm;
+   mmdb::SymOps symm;
 
    // update my_matt;  You can't do this if you haven't set the space group.
    // 

@@ -243,7 +243,7 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 
 	    if (move_copy_of_imol2_flag) { 
 	       mol2 = new mmdb::Manager;
-	       mol2->Copy(asc_mov.mol, MMDBFCM_All);
+	       mol2->Copy(asc_mov.mol, mmdb::MMDBFCM_All);
 	       std::string name = "Copy_of_";
 	       name += moving_mol_name;
 	       int imol2_new = graphics_info_t::create_molecule();

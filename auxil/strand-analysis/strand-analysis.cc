@@ -214,13 +214,13 @@ coot::strands_t::strand_analysis(mmdb::Model *model_p, mmdb::Manager *mol,
 	    // GetSelIndex().
 	    //
 	    int SelHnd = mol->NewSelection();
-	    mol->Select(SelHnd, STYPE_RESIDUE, 1,
+	    mol->Select(SelHnd, mmdb::STYPE_RESIDUE, 1,
 			strand->initChainID,
 			strand->initSeqNum, strand->initICode,
 			strand->endSeqNum, strand->endICode,
 			"*", "*", 
 			"*", "*",
-			SKEY_NEW);
+			mmdb::SKEY_NEW);
 	    std::pair<bool, clipper::RTop_orth> ori = orient_strand_on_z(SelHnd, mol);
 	    if (ori.first)
 	       apply_rtop_to_strand(SelHnd, mol, ori.second);

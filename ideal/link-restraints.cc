@@ -541,7 +541,7 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
 //    double td;
 
 
-   mol->Select ( selHnd,STYPE_RESIDUE, 1, // .. TYPE, iModel
+   mol->Select ( selHnd,mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 		 chain_id_save.c_str(), // Chain(s)
 		 istart_res, "*",  // starting res
 		 iend_res,   "*",  // ending res
@@ -549,7 +549,7 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
 		 "*",  // Residue must contain this atom name?
 		 "*",  // Residue must contain this Element?
 		 "*",  // altLocs
-		 SKEY_NEW // selection key
+		 mmdb::SKEY_NEW // selection key
 		 );
    mol->GetSelIndex(selHnd, SelResidue, nSelResidues);
    std::cout << "INFO:: GetSelIndex (make_link_restraints) returned " << nSelResidues

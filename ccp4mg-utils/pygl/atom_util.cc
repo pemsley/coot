@@ -299,7 +299,7 @@ int AtomColourVector::SetupResidueColourVector( mmdb::PManager molHnd,
 
   // Diagnostic - how mant residues?
   //int res_selHnd = molHnd->NewSelection();
-  //molHnd->Select(res_selHnd,STYPE_RESIDUE,selHnd,SKEY_NEW);
+  //molHnd->Select(res_selHnd,mmdb::STYPE_RESIDUE,selHnd,mmdb::SKEY_NEW);
   //mmdb::PPResidue resTable;
   //int nRes;
   //molHnd->GetSelIndex ( res_selHnd, resTable, nRes );
@@ -307,7 +307,7 @@ int AtomColourVector::SetupResidueColourVector( mmdb::PManager molHnd,
 
   CAselHnd = molHnd->NewSelection();
   molHnd->Select(CAselHnd,STYPE_ATOM,0,"*",
-		 ANY_RES,"*",ANY_RES,"*","*","CA","C","*",SKEY_NEW);
+		 mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","CA","C","*",mmdb::SKEY_NEW);
 
   if (interpolation_mode == NOCOLOURREP ) {
     if ( nAtoms != int(icolour.size())) {

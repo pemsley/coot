@@ -21,7 +21,7 @@ namespace CXXUtils{
 	
 	int assignUnitedAtomRadius(mmdb::PManager, int selHnd);
 	int assignCharge(mmdb::PManager theManager, int selHnd, CXXChargeTable *theChargeTable);
-	int selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::string selectionString, int existingSelection=-1, int selKeyRequest=SKEY_NEW);
+	int selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::string selectionString, int existingSelection=-1, int selKeyRequest=mmdb::SKEY_NEW);
 	int unCharge(mmdb::PManager theManager,int selHnd);
 	void reformatAtomRadii();
 	

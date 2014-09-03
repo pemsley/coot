@@ -286,8 +286,8 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
   //INTER-residue bonds
 
   selH = molHnds[0]->NewSelection();
-  molHnds[0]->SelectAtoms(selH,iMod,"*", ANY_RES,"*", ANY_RES,"*","*","*","*","*",SKEY_NEW);
-  molHnds[0]->SelectAtoms(selH,iMod,"*", ANY_RES,"*", ANY_RES,"*","*","*","H","*",SKEY_CLR);
+  molHnds[0]->SelectAtoms(selH,iMod,"*", mmdb::ANY_RES,"*", mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
+  molHnds[0]->SelectAtoms(selH,iMod,"*", mmdb::ANY_RES,"*", mmdb::ANY_RES,"*","*","*","H","*",SKEY_CLR);
   selAtom0 = NULL;
   molHnds[0]->GetSelIndex ( selH,selAtom0,nAtoms );
 
@@ -335,8 +335,8 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
       for (nm = firstModel+1; nm <= lastModel; nm++) {
       if (molHnds[0]->GetModel(nm) != NULL) {
         //nb = 0;
-        molHnds[0]->SelectAtoms(selH,nm,"*", ANY_RES,"*", ANY_RES,"*","*","*","*","*",SKEY_NEW);
-        molHnds[0]->SelectAtoms(selH,nm,"*", ANY_RES,"*", ANY_RES,"*","*","*","H","*",SKEY_CLR);
+        molHnds[0]->SelectAtoms(selH,nm,"*", mmdb::ANY_RES,"*", mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
+        molHnds[0]->SelectAtoms(selH,nm,"*", mmdb::ANY_RES,"*", mmdb::ANY_RES,"*","*","*","H","*",SKEY_CLR);
         selAtom0 = NULL;
         molHnds[0]->GetSelIndex ( selH,selAtom0,nAtoms );
         //cout << "selAtom0 " << nm << " nAtoms " << nAtoms << " nContacts " << nContacts << endl;

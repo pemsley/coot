@@ -580,7 +580,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
    int post_refine_selHnd = residues_mol_pair.first->NewSelection();
    int post_refine_nSelResidues; 
    mmdb::PResidue *post_refine_SelResidues = NULL;
-   residues_mol_pair.first->Select(post_refine_selHnd, STYPE_RESIDUE, 0,
+   residues_mol_pair.first->Select(post_refine_selHnd, mmdb::STYPE_RESIDUE, 0,
 				   chn,
 				   resno_mid-side_step, "",
 				   resno_mid+side_step, "",
@@ -588,7 +588,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 				   "*",  // Residue must contain this atom name?
 				   "*",  // Residue must contain this Element?
 				   "",   // altLocs
-				   SKEY_NEW // selection key
+				   mmdb::SKEY_NEW // selection key
 				   );
    residues_mol_pair.first->GetSelIndex(post_refine_selHnd,
 					post_refine_SelResidues,
@@ -631,7 +631,7 @@ int test_ramachandran_probabilities() {
       int selHnd = atom_sel.mol->NewSelection();
       int nSelResidues; 
       mmdb::PResidue *SelResidues = NULL;
-      atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 			   chn,
 			   resnos[i]-2, "",
 			   resnos[i]+2, "",
@@ -639,7 +639,7 @@ int test_ramachandran_probabilities() {
 			   "*",  // Residue must contain this atom name?
 			   "*",  // Residue must contain this Element?
 			   "",   // altLocs
-			   SKEY_NEW // selection key
+			   mmdb::SKEY_NEW // selection key
 			   );
       atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
@@ -2542,7 +2542,7 @@ int test_mcd_and_thornton_h_bonds() {
 
       int SelHnd_all = asc.mol->NewSelection();
       int SelHnd_lig = asc.mol->NewSelection();
-      asc.mol->SelectAtoms(SelHnd_all, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
+      asc.mol->SelectAtoms(SelHnd_all, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
       asc.mol->SelectAtoms(SelHnd_lig, 0, "A", 97, "", 97, "", "*", "*", "*", "*");
 
       coot::h_bonds hb;
@@ -2772,8 +2772,8 @@ int test_multi_residue_torsion() {
       // second residue to do that.
       //
       int selhnd_res2 = mol->NewSelection();
-      mol->Select(selhnd_res2, STYPE_RESIDUE, 1, "A",
-		  361, "", 361, "", "*", "*", "*", "*", SKEY_NEW);
+      mol->Select(selhnd_res2, mmdb::STYPE_RESIDUE, 1, "A",
+		  361, "", 361, "", "*", "*", "*", "*", mmdb::SKEY_NEW);
       int nSelResidues;
       mmdb::PPResidue SelResidues;
       mol->GetSelIndex(selhnd_res2, SelResidues, nSelResidues);

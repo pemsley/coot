@@ -10,7 +10,7 @@ coot::dots_representation_info_t::dots_representation_info_t(mmdb::Manager *mol)
 
    is_closed = 0;
    int SelHnd = mol->NewSelection();
-   mol->SelectAtoms(SelHnd, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
+   mol->SelectAtoms(SelHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
    mmdb::Manager *dum = NULL;
    colour_t dummy_col;
    add_dots(SelHnd, mol, dum, 1.0, dummy_col, false);
@@ -22,7 +22,7 @@ coot::dots_representation_info_t::dots_representation_info_t(mmdb::Manager *mol,
 
    is_closed = 0;
    int SelHnd = mol->NewSelection();
-   mol->SelectAtoms(SelHnd, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
+   mol->SelectAtoms(SelHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
    colour_t dummy_col;
    add_dots(SelHnd, mol, mol_exclude, 1.0, dummy_col, false);
    mol->DeleteSelection(SelHnd);
@@ -114,7 +114,7 @@ coot::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
    int SelHnd_exclude = 0;
    if (mol_exclude) {
       SelHnd_exclude = mol_exclude->NewSelection();
-      mol_exclude->SelectAtoms(SelHnd_exclude, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
+      mol_exclude->SelectAtoms(SelHnd_exclude, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
       mol_exclude->GetSelIndex(SelHnd_exclude, atoms_exclude, n_atoms_exclude);
       radius_exclude.resize(n_atoms_exclude);
       for (unsigned int iat=0; iat<n_atoms_exclude; iat++) {

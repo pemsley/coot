@@ -109,13 +109,13 @@ coot::hole::make_atom_selection(int selhnd, const clipper::Coord_orth &pt,
    // what protein atoms are within radius_prev of pt?
 
    mol->SelectAtoms(selhnd, 0, "*",
-		    ANY_RES, "*", ANY_RES, "*",
+		    mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
 		    "!HOH", // residue names
 		    "*", // atom names
 		    "H,C,O,N,S", // elements
 		    "*", "*", "*", // altlocs, segments, charges
 		    -1, -1, // occupancy (no limits)
-		    pt.x(), pt.y(), pt.z(), radius_prev, SKEY_NEW);
+		    pt.x(), pt.y(), pt.z(), radius_prev, mmdb::SKEY_NEW);
 
    if (0) {
       mmdb::PPAtom atom_selection = 0;

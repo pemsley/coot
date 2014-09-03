@@ -601,9 +601,9 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 
 	       int selHnd_check = AtomSel.mol->NewSelection(); 
 	       AtomSel.mol->SelectAtoms (selHnd_check, 0, "*",
-					 ANY_RES, // starting resno, an int
+					 mmdb::ANY_RES, // starting resno, an int
 					 "*", // any insertion code
-					 ANY_RES, // ending resno
+					 mmdb::ANY_RES, // ending resno
 					 "*", // ending insertion code
 					 "*", // any residue name
 					 "*", // atom name

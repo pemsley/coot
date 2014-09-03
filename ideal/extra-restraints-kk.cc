@@ -45,7 +45,7 @@ coot::restraints_container_t::add_extra_start_pos_restraints(const extra_restrai
 
 	 // bleugh.
 	 int selHnd = mol->NewSelection();
-	 mol->Select (selHnd, STYPE_RESIDUE, 1,       // .. TYPE, iModel
+	 mol->Select (selHnd, mmdb::STYPE_RESIDUE, 1,       // .. TYPE, iModel
 		      chain_id_save.c_str(), // Chain(s)
 		      istart_res, "*", // starting res
 		      iend_res,   "*", // ending   res
@@ -53,7 +53,7 @@ coot::restraints_container_t::add_extra_start_pos_restraints(const extra_restrai
 		      "*",  // Residue must contain this atom name?
 		      "*",  // Residue must contain this Element?
 		      "*",  // altLocs
-		      SKEY_NEW // selection key
+		      mmdb::SKEY_NEW // selection key
 		      );
 	 int nSelResidues_local = 0;
 	 mmdb::PPResidue SelResidue_local= 0;
@@ -136,7 +136,7 @@ coot::restraints_container_t::add_extra_angle_restraints(const extra_restraints_
 	 
 	 // bleugh.
 	 int selHnd = mol->NewSelection();
-	 mol->Select (selHnd, STYPE_RESIDUE, 1,       // .. TYPE, iModel
+	 mol->Select (selHnd, mmdb::STYPE_RESIDUE, 1,       // .. TYPE, iModel
 		      chain_id_save.c_str(), // Chain(s)
 		      istart_res, "*", // starting res
 		      iend_res,   "*", // ending   res
@@ -144,7 +144,7 @@ coot::restraints_container_t::add_extra_angle_restraints(const extra_restraints_
 		      "*",  // Residue must contain this atom name?
 		      "*",  // Residue must contain this Element?
 		      "*",  // altLocs
-		      SKEY_NEW // selection key
+		      mmdb::SKEY_NEW // selection key
 		      );
 	 int nSelResidues_local = 0;
 	 mmdb::PPResidue SelResidue_local= 0;

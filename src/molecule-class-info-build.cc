@@ -155,7 +155,7 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
 		  int selHnd = atom_sel.mol->NewSelection(); // d 
 		  int nSelResidues;
 		  mmdb::PPResidue SelResidues;
-		  atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 1,
+		  atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 1,
 				       chain_id, 
 				       resno, ins_code,
 				       resno, ins_code,
@@ -163,7 +163,7 @@ molecule_class_info_t::add_hydrogens_from_file(const std::string &reduce_pdb_out
 				       "*",  // Residue must contain this atom name?
 				       "*",  // Residue must contain this Element?
 				       "*",  // altLocs
-				       SKEY_NEW // selection key
+				       mmdb::SKEY_NEW // selection key
 				       );
 		  atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 	       

@@ -98,12 +98,12 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
 
 
   int atom_selHnd = molH->NewSelection();
-  molH->Select(atom_selHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
+  molH->Select(atom_selHnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
   molH->Select(atom_selHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
 
   // Find all CA - to use as quick check if atom is in this set
   CAselHnd = molH->NewSelection();
-  molH->Select(CAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","CA","C","*",SKEY_NEW);
+  molH->Select(CAselHnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","CA","C","*",mmdb::SKEY_NEW);
   molH->Select(CAselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
   molH->ExcludeOverlappedAtoms(CAselHnd,0.8);
 
@@ -224,7 +224,7 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
     
     int CA_this_chain_selHnd = molH->NewSelection();
     molH->Select(CA_this_chain_selHnd,STYPE_ATOM,0,cavertices[ii][0]->GetChainID(),
-		 ANY_RES,"*",ANY_RES,"*","*","CA","C","*",SKEY_NEW);
+		 mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","CA","C","*",mmdb::SKEY_NEW);
     molH->ExcludeOverlappedAtoms(CA_this_chain_selHnd,0.8);
     //molH->Select(CA_this_chain_selHnd,STYPE_ATOM,atom_selHnd,SKEY_AND);
 
@@ -277,7 +277,7 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
    if(cavertices[ii].size()>1){
     int CA_this_chain_selHnd = molH->NewSelection();
     molH->Select(CA_this_chain_selHnd,STYPE_ATOM,0,cavertices[ii].back()->GetChainID(),
-		 ANY_RES,"*",ANY_RES,"*","*","CA","C","*",SKEY_NEW);
+		 mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","CA","C","*",mmdb::SKEY_NEW);
     molH->ExcludeOverlappedAtoms(CA_this_chain_selHnd,0.8);
     //molH->Select(CA_this_chain_selHnd,STYPE_ATOM,atom_selHnd,SKEY_AND);
 

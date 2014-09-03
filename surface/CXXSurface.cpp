@@ -967,7 +967,7 @@ int CXXSurface::selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::
     int selHnd = allAtomsManager_in->NewSelection();
     char *pstring = (char *) malloc (sizeof(selectionString.c_str())+1);
     strcpy (pstring, selectionString.c_str());
-    allAtomsManager_in->Select ( selHnd, STYPE_ATOM, pstring, SKEY_NEW);
+    allAtomsManager_in->Select ( selHnd, STYPE_ATOM, pstring, mmdb::SKEY_NEW);
     free (pstring);
     return selHnd;
 }

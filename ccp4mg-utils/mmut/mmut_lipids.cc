@@ -25,18 +25,18 @@ int  MMUTLipidAnalyse(CMMANManager *molHnd, int selHnd_in, int minimum_chain_len
   mmdb::PPAtom atomTable_all=0;
   
   int selHnd = molHnd->NewSelection();
-  molHnd->Select  (selHnd,STYPE_ATOM,selHnd_in,SKEY_NEW);
+  molHnd->Select  (selHnd,STYPE_ATOM,selHnd_in,mmdb::SKEY_NEW);
 
   int selHnd_all = molHnd->NewSelection();
-  molHnd->Select  (selHnd_all,STYPE_ATOM,selHnd,SKEY_NEW);
+  molHnd->Select  (selHnd_all,STYPE_ATOM,selHnd,mmdb::SKEY_NEW);
   molHnd->GetSelIndex ( selHnd_all, atomTable_all, nAtoms_all );
   if(nAtoms_all==0) return 0;
 
   molHnd->GetSelIndex ( selHnd, atomTable, nAtoms );
   if(nAtoms==0) return 0;
   char* chainID = atomTable[0]->GetChainID();
-  molHnd->Select  (selHnd,STYPE_ATOM,1,chainID,ANY_RES,"*",ANY_RES,"*","*","*","C","*",SKEY_AND);
-  molHnd->Select  (selHnd,STYPE_ATOM,1,chainID,ANY_RES,"*",ANY_RES,"*",excluded_residues,"*","*","*",SKEY_XOR);
+  molHnd->Select  (selHnd,STYPE_ATOM,1,chainID,mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","C","*",SKEY_AND);
+  molHnd->Select  (selHnd,STYPE_ATOM,1,chainID,mmdb::ANY_RES,"*",mmdb::ANY_RES,"*",excluded_residues,"*","*","*",SKEY_XOR);
   atomTable=0;
   molHnd->GetSelIndex ( selHnd, atomTable, nAtoms );
   
@@ -74,18 +74,18 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
   mmdb::PPAtom atomTable_all=0;
   
   int selHnd = molHnd->NewSelection();
-  molHnd->Select  (selHnd,STYPE_ATOM,selHnd_in,SKEY_NEW);
+  molHnd->Select  (selHnd,STYPE_ATOM,selHnd_in,mmdb::SKEY_NEW);
 
   int selHnd_all = molHnd->NewSelection();
-  molHnd->Select  (selHnd_all,STYPE_ATOM,1,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
-  //molHnd->Select  (selHnd_all,STYPE_ATOM,selHnd,SKEY_NEW);
+  molHnd->Select  (selHnd_all,STYPE_ATOM,1,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
+  //molHnd->Select  (selHnd_all,STYPE_ATOM,selHnd,mmdb::SKEY_NEW);
   molHnd->GetSelIndex ( selHnd_all, atomTable_all, nAtoms_all );
   if(nAtoms_all==0) return lipids;
 
   molHnd->GetSelIndex ( selHnd, atomTable, nAtoms );
   if(nAtoms==0) return lipids;
-  molHnd->Select  (selHnd,STYPE_ATOM,1,"*",ANY_RES,"*",ANY_RES,"*","*","*","C","*",SKEY_AND);
-  molHnd->Select  (selHnd,STYPE_ATOM,1,"*",ANY_RES,"*",ANY_RES,"*",excluded_residues,"*","*","*",SKEY_CLR);
+  molHnd->Select  (selHnd,STYPE_ATOM,1,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","C","*",SKEY_AND);
+  molHnd->Select  (selHnd,STYPE_ATOM,1,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*",excluded_residues,"*","*","*",SKEY_CLR);
   atomTable=0;
   molHnd->GetSelIndex ( selHnd, atomTable, nAtoms );
   

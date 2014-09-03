@@ -164,7 +164,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 //      std::cout << "Searching for residue number " << ires_matcher << " "
 //		<< match.matcher_chain_id << " in matcher molecule" << std::endl;
       
-      mol1->Select (SelHnd_res1, STYPE_RESIDUE,
+      mol1->Select (SelHnd_res1, mmdb::STYPE_RESIDUE,
 		    match.model_number_reference,
 		    match.reference_chain_id.c_str(), // Chain(s)
 		    ires, "*",  // starting res
@@ -173,9 +173,9 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 		    "*",  // Residue must contain this atom name?
 		    "*",  // Residue must contain this Element?
 		    "*",  // altLocs
-		    SKEY_NEW // selection key
+		    mmdb::SKEY_NEW // selection key
 		    );
-      mol2->Select (SelHnd_res2, STYPE_RESIDUE, // .. TYPE, 
+      mol2->Select (SelHnd_res2, mmdb::STYPE_RESIDUE, // .. TYPE, 
 		    match.model_number_matcher,
 		    match.matcher_chain_id.c_str(), // Chain(s)
 		    ires_matcher, "*",  // starting res
@@ -184,7 +184,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 		    "*",  // Residue must contain this atom name?
 		    "*",  // Residue must contain this Element?
 		    "*",  // altLocs
-		    SKEY_NEW // selection key
+		    mmdb::SKEY_NEW // selection key
 		    );
 
       mol1->GetSelIndex(SelHnd_res1, SelResidue_1, nSelResidues_1);

@@ -86,7 +86,7 @@ coot::monomer_utils::getcontacts(const atom_selection_container_t &asc) const {
    float max_dist = 1.9; // CB->SG CYS 1.8A
    long i_contact_group = 1;
    mmdb::mat44 my_matt;
-   CSymOps symm;
+   mmdb::SymOps symm;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;      

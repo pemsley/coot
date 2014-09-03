@@ -660,15 +660,15 @@ coot::sequence_assignment::side_chain_score_t::cache_standard_residues() {
 	 coot::sequence_assignment::side_chain_name_index idx =
 	    coot::sequence_assignment::side_chain_name_index(i);
 	 std::string residue_type = side_chain_name_index_to_name(idx);
-	 st_res_asc.mol->Select (selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
+	 st_res_asc.mol->Select (selHnd, mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 				 "*", // Chain(s) it's "A" in this case.
-				 ANY_RES,"*",  // starting res
-				 ANY_RES,"*",  // ending res
+				 mmdb::ANY_RES,"*",  // starting res
+				 mmdb::ANY_RES,"*",  // ending res
 				 (char *) residue_type.c_str(),  // residue name
 				 "*",  // Residue must contain this atom name?
 				 "*",  // Residue must contain this Element?
 				 "*",  // altLocs
-				 SKEY_NEW // selection key
+				 mmdb::SKEY_NEW // selection key
 				 );
 	 st_res_asc.mol->GetSelIndex(selHnd, SelResidue, nSelResidues);
 	 if (nSelResidues < 0) {

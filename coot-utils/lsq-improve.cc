@@ -60,9 +60,9 @@ coot::lsq_improve::lsq_improve(mmdb::Manager *mol_ref, const std::string &ref_se
 	 int n_sel_1;
 	 int n_sel_2;
 	 mol->SelectAtoms (sel_hnd_1, 1, "*",
-			   ANY_RES, // starting resno, an int
+			   mmdb::ANY_RES, // starting resno, an int
 			   "*", // any insertion code
-			   ANY_RES, // ending resno
+			   mmdb::ANY_RES, // ending resno
 			   "*", // ending insertion code
 			   "*", // any residue name
 			   "*", // atom name
@@ -72,9 +72,9 @@ coot::lsq_improve::lsq_improve(mmdb::Manager *mol_ref, const std::string &ref_se
 			   );
    
 	 mol->SelectAtoms (sel_hnd_2, 2, "*",
-			   ANY_RES, // starting resno, an int
+			   mmdb::ANY_RES, // starting resno, an int
 			   "*", // any insertion code
-			   ANY_RES, // ending resno
+			   mmdb::ANY_RES, // ending resno
 			   "*", // ending insertion code
 			   "*", // any residue name
 			   "*", // atom name
@@ -89,7 +89,7 @@ coot::lsq_improve::lsq_improve(mmdb::Manager *mol_ref, const std::string &ref_se
 	 // throw an exception here if n_sel_1 or n_sel_1 are 2 or less.
 
 	 mol_initial_copy = new mmdb::Manager;
-	 mol_initial_copy->Copy(mol, MMDBFCM_All);
+	 mol_initial_copy->Copy(mol, mmdb::MMDBFCM_All);
       }
    }
 }

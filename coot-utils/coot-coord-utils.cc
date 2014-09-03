@@ -191,7 +191,7 @@ coot::residue_spec_t::select_atoms(mmdb::Manager *mol, int selhnd,
 mmdb::Manager *
 coot::util::copy_molecule(mmdb::Manager *mol) {
    mmdb::Manager *n = new mmdb::Manager;
-   n->Copy(mol, MMDBFCM_All);
+   n->Copy(mol, mmdb::MMDBFCM_All);
    return n;
 }
 
@@ -387,9 +387,9 @@ coot::residues_near_residue(mmdb::Residue *res_ref,
 
       int SelectionHandle = mol->NewSelection(); // d
       mol->SelectAtoms (SelectionHandle, 0, "*",
-			ANY_RES, // starting resno, an int
+			mmdb::ANY_RES, // starting resno, an int
 			"*", // any insertion code
-			ANY_RES, // ending resno
+			mmdb::ANY_RES, // ending resno
 			"*", // ending insertion code
 			"*", // any residue name
 			"*", // atom name
@@ -410,12 +410,12 @@ coot::residues_near_residue(mmdb::Residue *res_ref,
 
       if (n_res_atoms > 0) {
 
-	 PSContact pscontact = NULL;
+	 mmdb::Contact *pscontact = NULL;
 	 int n_contacts;
 	 float min_dist = 0.01;
 	 long i_contact_group = 1;
 	 mmdb::mat44 my_matt;
-	 CSymOps symm;
+	 mmdb::SymOps symm;
 	 for (int i=0; i<4; i++) 
 	    for (int j=0; j<4; j++) 
 	       my_matt[i][j] = 0.0;      
@@ -1706,7 +1706,7 @@ coot::util::get_fragment_from_atom_spec(const coot::atom_spec_t &atom_spec,
       int nSelResidues;
       int selHnd = mol_in->NewSelection();
 
-      mol_in->Select(selHnd, STYPE_RESIDUE, 1,
+      mol_in->Select(selHnd, mmdb::STYPE_RESIDUE, 1,
 		     atom_spec.chain.c_str(),
 		     resno_bot, "",
 		     resno_top, "",
@@ -1714,7 +1714,7 @@ coot::util::get_fragment_from_atom_spec(const coot::atom_spec_t &atom_spec,
 		     "*",  // Residue must contain this atom name?
 		     "*",  // Residue must contain this Element?
 		     "*",  // altLocs
-		     SKEY_NEW // selection key
+		     mmdb::SKEY_NEW // selection key
 		     );
       mol_in->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
@@ -2110,8 +2110,8 @@ coot::graph_match(mmdb::Residue *res_moving,
       // clear to my why we don't want to do this all the time.
       // Anyway...
       // 
-      graph1.MakeSymmetryRelief ( False );
-      graph2.MakeSymmetryRelief ( False );
+      graph1.MakeSymmetryRelief ( false );
+      graph2.MakeSymmetryRelief ( false );
    } 
 
    int build_status1 = graph1.Build(1);
@@ -2142,7 +2142,7 @@ coot::graph_match(mmdb::Residue *res_moving,
 	 std::cout << "INFO:: match.MatchGraphs must match at least "
 		   << minMatch << " atoms."
 		   << std::endl;
-	 bool vertext_type = True;
+	 bool vertext_type = true;
 	 match.MatchGraphs(&graph1, &graph2, minMatch, vertext_type);
 	 int n_match = match.GetNofMatches();
 	 std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
@@ -2165,8 +2165,8 @@ coot::graph_match(mmdb::Residue *res_moving,
 	    std::vector<clipper::Coord_orth> coords_1_local;
 	    std::vector<clipper::Coord_orth> coords_2_local;
 	    for (int ipair=1; ipair<=n; ipair++) {
-	       Pmmdb::math::Vertex V1 = graph1.GetVertex ( FV1[ipair] );
-	       Pmmdb::math::Vertex V2 = graph2.GetVertex ( FV2[ipair] );
+	       mmdb::math::PVertex V1 = graph1.GetVertex ( FV1[ipair] );
+	       mmdb::math::PVertex V2 = graph2.GetVertex ( FV2[ipair] );
 	       if ((!V1) || (!V2))  {
 		  std::cout << "Can't get vertices for match "
 			    << ipair << std::endl;
@@ -3243,7 +3243,7 @@ coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_
       //      add a copy of this atom to that new residue
       // 
       atoms_mol->Select (atom_residue_selection_handle,
-			STYPE_RESIDUE, 0, // .. TYPE, iModel
+			mmdb::STYPE_RESIDUE, 0, // .. TYPE, iModel
 			at->GetChainID(), // Chain(s)
 			at->GetSeqNum(), at->GetInsCode(),  // starting res
 			at->GetSeqNum(), at->GetInsCode(),  // ending res
@@ -3251,7 +3251,7 @@ coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_
 			"*",  // Residue must contain this atom name?
 			"*",  // Residue must contain this Element?
 			"*",  // altLocs
-			SKEY_NEW // selection key
+			mmdb::SKEY_NEW // selection key
 			);
       mmdb::PResidue *sel_residues;
       int n_sel_residues;
@@ -3269,13 +3269,13 @@ coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_
 	 atoms_mol->Select (atom_chain_selection_handle,
 			   STYPE_CHAIN, 0, // .. TYPE, iModel
 			    at->GetChainID(), // Chain(s)
-			    ANY_RES, "*",  // starting res
-			    ANY_RES, "*",  // ending res
+			    mmdb::ANY_RES, "*",  // starting res
+			    mmdb::ANY_RES, "*",  // ending res
 			    "*",  // residue name
 			    "*",  // Residue must contain this atom name?
 			    "*",  // Residue must contain this Element?
 			    "*",  // altLocs
-			    SKEY_NEW // selection key
+			    mmdb::SKEY_NEW // selection key
 			    );
 	 mmdb::PChain *sel_chains;
 	 int n_sel_chains;
@@ -3341,7 +3341,7 @@ coot::util::create_mmdbmanager_from_inverted_atom_selection(mmdb::Manager *orig_
    // SKEY_XOR to get a selection that is the NOT ofthe
    // SelectionHandle selection.
 
-   orig_mol->Select(SelectionHandle, STYPE_ATOM, 0, "*", ANY_RES, "*", ANY_RES, "*",
+   orig_mol->Select(SelectionHandle, STYPE_ATOM, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
 		    "*", "*", "*", "*", SKEY_XOR);
    mmdb::Manager *new_mol =
       coot::util::create_mmdbmanager_from_atom_selection(orig_mol, SelectionHandle);
@@ -3896,7 +3896,7 @@ coot::util::extents(mmdb::Manager *mol) {
 
 
    int selHnd = mol->NewSelection();
-   mol->SelectAtoms(selHnd, 0, "*", ANY_RES, "*", ANY_RES, "*",
+   mol->SelectAtoms(selHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
 		    "*", "*", "*", "*");
    std::pair<clipper::Coord_orth, clipper::Coord_orth> p =
       coot::util::extents(mol, selHnd);
@@ -6125,7 +6125,7 @@ coot::mol_by_symmetry(mmdb::Manager *mol,
    bool verbose_output = 0; // should be a passed param?
    
    mmdb::Manager *mol2 = new mmdb::Manager;
-   mol2->Copy(mol, MMDBFCM_All);
+   mol2->Copy(mol, mmdb::MMDBFCM_All);
 
    // Usually gets filled by GetTMatrix().
    mmdb::mat44 mat_origin_shift; // shift needed to get close to the origin.
@@ -6304,9 +6304,9 @@ coot::close_residues_from_different_molecules_t::close_residues(mmdb::Manager *m
       int SelectionHandle_1 = combined_mol->NewSelection();
       mmdb::PPAtom atom_selection_1 = NULL;
       combined_mol->SelectAtoms (SelectionHandle_1, 1, "*",
-				 ANY_RES, // starting resno, an int
+				 mmdb::ANY_RES, // starting resno, an int
 				 "*", // any insertion code
-				 ANY_RES, // ending resno
+				 mmdb::ANY_RES, // ending resno
 				 "*", // ending insertion code
 				 "*", // any residue name
 				 "*", // atom name
@@ -6319,9 +6319,9 @@ coot::close_residues_from_different_molecules_t::close_residues(mmdb::Manager *m
       int SelectionHandle_2 = combined_mol->NewSelection();
       mmdb::PPAtom atom_selection_2;
       combined_mol->SelectAtoms (SelectionHandle_2, 2, "*",
-				 ANY_RES, // starting resno, an int
+				 mmdb::ANY_RES, // starting resno, an int
 				 "*", // any insertion code
-				 ANY_RES, // ending resno
+				 mmdb::ANY_RES, // ending resno
 				 "*", // ending insertion code
 				 "*", // any residue name
 				 "*", // atom name
@@ -6345,7 +6345,7 @@ coot::close_residues_from_different_molecules_t::close_residues(mmdb::Manager *m
       int n_contacts;
       long i_contact_group = 1;
       mmdb::mat44 my_matt;
-      CSymOps symm;
+      mmdb::SymOps symm;
       for (int i=0; i<4; i++) 
 	 for (int j=0; j<4; j++) 
 	    my_matt[i][j] = 0.0;      

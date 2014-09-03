@@ -1050,8 +1050,8 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
 	       if (!mask_waters_flag)
 		  rnames = "!HOH,WAT"; // treat waters differently to regular atoms.
 	       g.molecules[coord_mol_no].atom_sel.mol->SelectAtoms(selectionhandle, 0, "*",
-								   ANY_RES, "*",
-								   ANY_RES, "*",
+								   mmdb::ANY_RES, "*",
+								   mmdb::ANY_RES, "*",
 								   (char *) rnames.c_str(),
 								   "*", "*", "*");
 	       
@@ -1086,7 +1086,7 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
 	 int selectionhandle = g.molecules[coords_mol_no].atom_sel.mol->NewSelection();
 	 g.molecules[coords_mol_no].atom_sel.mol->Select(selectionhandle, STYPE_ATOM,
 							 (char *) mmdb_atom_selection,
-							 SKEY_NEW);
+							 mmdb::SKEY_NEW);
 	 lig.mask_map(g.molecules[coords_mol_no].atom_sel.mol, selectionhandle, invert_flag);
 	 imol_new_map = graphics_info_t::create_molecule();
 	 g.molecules[imol_new_map].new_map(lig.masked_map(), "Generic Masked Map");
@@ -2395,7 +2395,7 @@ new_molecule_sans_biggest_ligand(int imol) {
 	 //
 	 res = r;
 	 mmdb::Manager *new_mol = new mmdb::Manager;
-	 new_mol->Copy(mol, MMDBFCM_All);
+	 new_mol->Copy(mol, mmdb::MMDBFCM_All);
 	 atom_selection_container_t asc = make_asc(new_mol);
 	 std::string label = "Copy_of_";
 	 label += graphics_info_t::molecules[imol].name_;

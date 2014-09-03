@@ -167,10 +167,10 @@ int CMMANBase::SetSelHandle (const int iset, const int selHndin ,
   if ( own_selHnds ) {
     selHnds[iset] = molHnds[iset]->NewSelection();
     if (selHndin >= 0 ) 
-      molHnds[iset]->Select(selHnds[iset],STYPE_ATOM,selHndin,SKEY_NEW);
+      molHnds[iset]->Select(selHnds[iset],STYPE_ATOM,selHndin,mmdb::SKEY_NEW);
     else
       // Select all atoms
-      molHnds[iset]->SelectAtoms(selHnds[iset],0,0,SKEY_NEW);
+      molHnds[iset]->SelectAtoms(selHnds[iset],0,0,mmdb::SKEY_NEW);
 
     if (exclude_solvent>0) {
       molHnds[iset]->Select(selHnds[iset],STYPE_ATOM,
@@ -184,19 +184,19 @@ int CMMANBase::SetSelHandle (const int iset, const int selHndin ,
     if ( exclude_alternate ) {
       // Alternate conformations - ??
       tmpHnd = molHnds[iset]->NewSelection();
-      molHnds[iset]->Select(tmpHnd,STYPE_ATOM,selHnds[iset],SKEY_NEW);
+      molHnds[iset]->Select(tmpHnd,STYPE_ATOM,selHnds[iset],mmdb::SKEY_NEW);
       molHnds[iset]->Select(tmpHnd,STYPE_ATOM,"/*/*/*/*:",SKEY_CLR);
       molHnds[iset]->GetSelIndex ( tmpHnd,tmpAtoms, tmpNAtoms );
       while (tmpNAtoms > 0) {
         strncpy(aL,tmpAtoms[0]->altLoc,20);
         //cout << "tmpNAtoms " << tmpNAtoms << " *" << aL << "*" << endl;
-        molHnds[iset]->Select(tmpHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,
+        molHnds[iset]->Select(tmpHnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,
 		    "*","*","*","*",aL,SKEY_CLR);
         molHnds[iset]->GetSelIndex ( tmpHnd,tmpAtoms, tmpNAtoms );
         if ( strcmp(aL,use_altLoc) != 0 ) {
           //cout << "Removing " << aL << endl; 
-          molHnds[iset]->Select(selHnds[iset],STYPE_ATOM,0,"*",ANY_RES,
-             "*",ANY_RES, "*","*","*","*",aL,SKEY_CLR);
+          molHnds[iset]->Select(selHnds[iset],STYPE_ATOM,0,"*",mmdb::ANY_RES,
+             "*",mmdb::ANY_RES, "*","*","*","*",aL,SKEY_CLR);
         }
       }
       molHnds[iset]->DeleteSelection ( tmpHnd );
@@ -235,7 +235,7 @@ int  CMMANBase::GetOneModel(const int iset, const int selHin,
     molHnds[iset]->Select (nmrSelHnds[iset], STYPE_ATOM,selH,SKEY_OR);
     //molHnds[iset]->GetSelIndex ( nmrSelHnds[iset], atomTable, nAtoms );
     //cout << "GetOneModel initial model " << model << " nAtoms " << nAtoms << endl;
-    molHnds[iset]->Select (nmrSelHnds[iset],STYPE_ATOM,model,"*",ANY_RES,"*",ANY_RES,
+    molHnds[iset]->Select (nmrSelHnds[iset],STYPE_ATOM,model,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,
 		    "*","*","*","*","*",SKEY_AND);
     molHnds[iset]->GetSelIndex ( nmrSelHnds[iset], atomTable, nAtoms );
     //cout << "GetOneModel model " << model << " nAtoms " << nAtoms << endl;
@@ -265,9 +265,9 @@ int  CMMANBase::GetOneModel(const int iset, const int selHin,
   if ( model > 0 && model <= molHnds[iset]->GetNumberOfModels() ) { 
     if (nmrResSelHnds[iset] >= 0) molHnds[iset]->DeleteSelection(nmrResSelHnds[iset]);
     nmrResSelHnds[iset] = molHnds[iset]->NewSelection();
-    molHnds[iset]->Select (nmrResSelHnds[iset], STYPE_RESIDUE,selH,SKEY_OR); 
-    molHnds[iset]->Select (nmrResSelHnds[iset],STYPE_RESIDUE,model,"*",ANY_RES,"*",
-		    ANY_RES,"*","*","*","*","*",SKEY_AND);
+    molHnds[iset]->Select (nmrResSelHnds[iset], mmdb::STYPE_RESIDUE,selH,SKEY_OR); 
+    molHnds[iset]->Select (nmrResSelHnds[iset],mmdb::STYPE_RESIDUE,model,"*",mmdb::ANY_RES,"*",
+		    mmdb::ANY_RES,"*","*","*","*","*",SKEY_AND);
     molHnds[iset]->GetSelIndex ( nmrResSelHnds[iset], resTable, nRes );
   }
   else {
@@ -296,8 +296,8 @@ int CMMANBase::GetSelection ( const int iset ,mmdb::PPAtom &atomTable ,
   }
   else if ( iset == 0 || selMode[iset] == SELECT_ALL ) {
     selHnds[iset] = molHnds[iset]->NewSelection();
-    molHnds[iset]->Select (selHnds[iset],STYPE_ATOM,0,"*",ANY_RES,"*",
-		ANY_RES,"*","*","*","*","*",SKEY_OR);
+    molHnds[iset]->Select (selHnds[iset],STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",
+		mmdb::ANY_RES,"*","*","*","*","*",SKEY_OR);
     GetOneModel(iset,selHnds[iset],atomTable,nAtoms,model);
     //cout << "GetSelection new selHnd  " << selHnds[iset] << atomTable[1] << endl;
   } else if ( selHnds[iset-1] <= 0 || molHnds[iset] != molHnds[iset-1] ) 
@@ -338,15 +338,15 @@ int CMMANBase::GetSelection ( const int iset, mmdb::PPResidue &resTable,
   else if ( selHnds[iset] >= 0 ) {
     // The atom selection handle is already defined 
     resSelHnds[iset] = molHnds[iset]->NewSelection();
-    molHnds[iset]->Select(resSelHnds[iset], STYPE_RESIDUE, selHnds[iset], SKEY_OR);
+    molHnds[iset]->Select(resSelHnds[iset], mmdb::STYPE_RESIDUE, selHnds[iset], SKEY_OR);
     GetOneModel( iset ,resSelHnds[iset], resTable, nRes, model );     
   }
   // Return all residues by default for first set or if previous
   // set is undefined
   else if ( iset == 0 || selMode[iset] == SELECT_ALL || selHnds[iset-1] < 0 ) {
     resSelHnds[iset] = molHnds[iset]->NewSelection();
-    molHnds[iset]->Select(resSelHnds[iset],STYPE_RESIDUE, 0, "*",ANY_RES,
-       "*", ANY_RES, "*","*","*","*","*",SKEY_OR);
+    molHnds[iset]->Select(resSelHnds[iset],mmdb::STYPE_RESIDUE, 0, "*",mmdb::ANY_RES,
+       "*", mmdb::ANY_RES, "*","*","*","*","*",SKEY_OR);
     GetOneModel( iset ,resSelHnds[iset], resTable, nRes, model );
   }
   else {
@@ -356,13 +356,13 @@ int CMMANBase::GetSelection ( const int iset, mmdb::PPResidue &resTable,
     // from the atom selection
     if ( resSelHnds[iset-1] < 0 ) {
       resSelHnds[iset-1] = molHnds[iset-1]->NewSelection();
-      molHnds[iset]->Select(resSelHnds[iset-1], STYPE_RESIDUE, selHnds[iset-1], SKEY_NEW);
+      molHnds[iset]->Select(resSelHnds[iset-1], mmdb::STYPE_RESIDUE, selHnds[iset-1], mmdb::SKEY_NEW);
     }
     // The second set is either the same as or an exclusive or of the first
     if (selMode[iset] == SELECT_SAME ) 
        GetOneModel( iset ,resSelHnds[iset-1], resTable, nRes, model );
     else if (selMode[iset] == SELECT_NOT ) {
-      molHnds[iset]->Select(resSelHnds[iset], STYPE_RESIDUE, resSelHnds[iset-1], SKEY_XOR)
+      molHnds[iset]->Select(resSelHnds[iset], mmdb::STYPE_RESIDUE, resSelHnds[iset-1], SKEY_XOR)
 ;
       GetOneModel( iset ,resSelHnds[iset], resTable, nRes, model );
     } 

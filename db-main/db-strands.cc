@@ -192,13 +192,13 @@ coot::db_strands::strand_analysis(mmdb::Model *model_p, mmdb::Manager *mol,
 	    // GetSelIndex().
 	    //
 	    int SelHnd = mol->NewSelection();
-	    mol->Select(SelHnd, STYPE_RESIDUE, 1,
+	    mol->Select(SelHnd, mmdb::STYPE_RESIDUE, 1,
 			strand->initChainID,
 			strand->initSeqNum, strand->initICode,
 			strand->endSeqNum, strand->endICode,
 			"*", "*", 
 			"*", "*",
-			SKEY_NEW);
+			mmdb::SKEY_NEW);
 	    mmdb::PPResidue SelResidues = 0;
 	    int nSelResidues;
 	    mol->GetSelIndex(SelHnd, SelResidues, nSelResidues);

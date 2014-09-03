@@ -954,7 +954,7 @@ int Connectivity2::AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager 
       modno = selAtoms[0]->GetModel()->GetSerNum();
     }
     selHnd2=molHnd2->NewSelection();
-    molHnd2->SelectAtoms (selHnd2,modno,"*", ANY_RES,"*", ANY_RES,"*","*","*","*","*",SKEY_NEW);
+    molHnd2->SelectAtoms (selHnd2,modno,"*", mmdb::ANY_RES,"*", mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
   } else {
     selHnd2 = selHnd2_in;
   }
@@ -1072,8 +1072,8 @@ int Connectivity2::AddCloseRangeConnections(int set,mmdb::PResidue res1,
   mmdb::PPAtom centralAtoms;
   mmdb::PAtom pat1,pat2;
   int centralNAtoms;
-  M2->Select(centralHnd,STYPE_ATOM,0,"*",ANY_RES,
-       "*",ANY_RES, "*","*",(char*)(centralAtom.c_str()),"*","*",SKEY_NEW);
+  M2->Select(centralHnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,
+       "*",mmdb::ANY_RES, "*","*",(char*)(centralAtom.c_str()),"*","*",mmdb::SKEY_NEW);
   M2->GetSelIndex(centralHnd,centralAtoms,centralNAtoms);
   //cout << "AddCloseRangeConnections centralNAtoms " << centralNAtoms << endl;
   int mainchain_max= mainchain_name.size();

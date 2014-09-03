@@ -275,7 +275,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
    
    int selHnd = MMDBManager->NewSelection();
    int nSelAtoms;
-   MMDBManager->SelectAtoms(selHnd, 0,"*",ANY_RES,"*",ANY_RES,
+   MMDBManager->SelectAtoms(selHnd, 0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,
 			    "*","*",  // EndInsertionCode, RNames
 			    "*","*",  // ANames, Elements
 			    "*" );    // Alternate locations.

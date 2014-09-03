@@ -142,8 +142,8 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
    // 
    mol->SelectAtoms(SelectionHandle, imod,
 		    (char *) chain_id.c_str(),
-		    ANY_RES, "*",
-		    ANY_RES, "*",
+		    mmdb::ANY_RES, "*",
+		    mmdb::ANY_RES, "*",
 		    "*", "*", "*", "*");
    
    asc.mol->GetSelIndex(SelectionHandle, asc.atom_selection,
@@ -262,8 +262,8 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 		  int nSelAtoms;
 		  atom_sel.mol->SelectAtoms(iselhnd, imod,
 					    chain_p->GetChainID(),
-					    ANY_RES, "*",
-					    ANY_RES, "*",
+					    mmdb::ANY_RES, "*",
+					    mmdb::ANY_RES, "*",
 					    "*", "*", "*", "*");
 		  atom_sel.mol->GetSelIndex(iselhnd, atom_selection, nSelAtoms);
 		  chain_atom_selection_handles[ichain] = iselhnd;
@@ -824,7 +824,7 @@ molecule_class_info_t::ncs_averaged_maps(const clipper::Xmap<float> &xmap_in,
 	 SelectionHandle[iref] = atom_sel.mol->NewSelection();
 	 atom_sel.mol->SelectAtoms(SelectionHandle[iref], 0,
 				   (char *) reference_ids[iref].c_str(),
-				   ANY_RES, "*", ANY_RES, "*",
+				   mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
 				   "*", "*", "*", "*");
 	 std::pair<clipper::Coord_orth, clipper::Coord_orth> extents_pair =
 	    coot::util::extents(atom_sel.mol, SelectionHandle[iref]);
@@ -995,8 +995,8 @@ molecule_class_info_t::add_ncs_ghost(const std::string &chain_id,
    int imod = 1;
    atom_sel.mol->SelectAtoms(selHnd, imod,
 			     (char *) chain_id.c_str(),
-			     ANY_RES, "*",
-			     ANY_RES, "*", "*", "*", "*", "*");
+			     mmdb::ANY_RES, "*",
+			     mmdb::ANY_RES, "*", "*", "*", "*", "*");
    ncs_ghosts_have_rtops_flag = 1;
 
    ghost.update_bonds(atom_sel.mol);
@@ -1283,7 +1283,7 @@ molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *
 	    int nSelResidues = 0;
 	    int selHnd_res = atom_sel.mol->NewSelection();
 	    mmdb::PPResidue SelResidues;
-	    atom_sel.mol->Select(selHnd_res, STYPE_RESIDUE, 1,
+	    atom_sel.mol->Select(selHnd_res, mmdb::STYPE_RESIDUE, 1,
 				 to_chain->GetChainID(),
 				 resno, ins_code,
 				 resno, ins_code,
@@ -1291,7 +1291,7 @@ molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *
 				 "*",  // Residue must contain this atom name?
 				 "*",  // Residue must contain this Element?
 				 "*",  // altLocs
-				 SKEY_NEW // selection key
+				 mmdb::SKEY_NEW // selection key
 				 );
 	    atom_sel.mol->GetSelIndex(selHnd_res, SelResidues, nSelResidues);
 
@@ -1756,8 +1756,8 @@ molecule_class_info_t::set_ncs_master_chain(const std::string &new_master_chain_
 		  int nSelAtoms;
 		  atom_sel.mol->SelectAtoms(iselhnd, imod,
 					    chain_p->GetChainID(),
-					    ANY_RES, "*",
-					    ANY_RES, "*",
+					    mmdb::ANY_RES, "*",
+					    mmdb::ANY_RES, "*",
 					    "*", "*", "*", "*");
 		  atom_sel.mol->GetSelIndex(iselhnd, atom_selection, nSelAtoms);
 		  chain_atom_selection_handles[ichain] = iselhnd;

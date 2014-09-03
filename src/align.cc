@@ -88,15 +88,15 @@ do_alignment(atom_selection_container_t asc) {
 	    mmdb::PResidue *SelResidues = NULL;
 	    int nSelResidues;
 
-	    mol->Select(selHnd, STYPE_RESIDUE, 0,
+	    mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 			chain_id,
-			ANY_RES, "*",
-			ANY_RES, "*",
+			mmdb::ANY_RES, "*",
+			mmdb::ANY_RES, "*",
 			"*",  // residue name
 			"*",  // Residue must contain this atom name?
 			"*",  // Residue must contain this Element?
 			"*",  // altLocs
-			SKEY_NEW // selection key
+			mmdb::SKEY_NEW // selection key
 			);
 	    mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 

@@ -1425,7 +1425,7 @@ coot::rama_plot::make_phi_psi_pair(mmdb::Manager *mol1,
    r.is_valid_pair_flag = 0;
    
    int selHnd1 = mol1->NewSelection();
-   mol1->Select ( selHnd1, STYPE_RESIDUE, 1, // .. TYPE, iModel
+   mol1->Select ( selHnd1, mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 		  (char *) chain_id1.c_str(), // Chain id
 		  i_seq_num-1,"*",  // starting res
 		  i_seq_num+1,"*",  // ending res
@@ -1433,7 +1433,7 @@ coot::rama_plot::make_phi_psi_pair(mmdb::Manager *mol1,
 		  "*",  // Residue must contain this atom name?
 		  "*",  // Residue must contain this Element?
 		  "*",  // altLocs
-		  SKEY_NEW // selection key
+		  mmdb::SKEY_NEW // selection key
 		  );
    mol1->GetSelIndex (selHnd1, SelResidue1, nSelResidues1);
    int i_seq_num2 = i_seq_num;
@@ -1441,7 +1441,7 @@ coot::rama_plot::make_phi_psi_pair(mmdb::Manager *mol1,
       i_seq_num2 = get_seqnum_2(i_seq_num);
    if (nSelResidues1 == 3) {
       int selHnd2 = mol2->NewSelection();
-      mol2->Select ( selHnd2, STYPE_RESIDUE, 1, // .. TYPE, iModel
+      mol2->Select ( selHnd2, mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 		     (char *) chain_id2.c_str(), // Chain id
 		     i_seq_num2-1,"*",  // starting res
 		     i_seq_num2+1,"*",  // ending res
@@ -1449,7 +1449,7 @@ coot::rama_plot::make_phi_psi_pair(mmdb::Manager *mol1,
 		     "*",  // Residue must contain this atom name?
 		     "*",  // Residue must contain this Element?
 		     "*",  // altLocs
-		     SKEY_NEW // selection key
+		     mmdb::SKEY_NEW // selection key
 		     );
       mol2->GetSelIndex (selHnd2, SelResidue2, nSelResidues2);
       if (nSelResidues2 == 3) {
@@ -1753,26 +1753,26 @@ coot::rama_plot::draw_2_phi_psi_sets_on_canvas(mmdb::Manager *mol1,
    int selhnd_1 = mol1->NewSelection();
    int selhnd_2 = mol2->NewSelection();
 
-   mol1->Select(selhnd_1, STYPE_RESIDUE, 0,
+   mol1->Select(selhnd_1, mmdb::STYPE_RESIDUE, 0,
 		chainid1.c_str(),
-		ANY_RES, "*",
-		ANY_RES, "*",
+		mmdb::ANY_RES, "*",
+		mmdb::ANY_RES, "*",
 		"*",  // residue name
 		"*",  // Residue must contain this atom name?
 		"*",  // Residue must contain this Element?
 		"*",   // altLocs
-		SKEY_NEW // selection key
+		mmdb::SKEY_NEW // selection key
 		);
 
-   mol2->Select(selhnd_2, STYPE_RESIDUE, 0,
+   mol2->Select(selhnd_2, mmdb::STYPE_RESIDUE, 0,
 		chainid2.c_str(),
-		ANY_RES, "*",
-		ANY_RES, "*",
+		mmdb::ANY_RES, "*",
+		mmdb::ANY_RES, "*",
 		"*",  // residue name
 		"*",  // Residue must contain this atom name?
 		"*",  // Residue must contain this Element?
 		"*",   // altLocs
-		SKEY_NEW // selection key
+		mmdb::SKEY_NEW // selection key
 		);
    
    generate_phi_psis_by_selection(mol1, 1, selhnd_1);

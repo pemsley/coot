@@ -1707,7 +1707,7 @@ int test_torsion_derivs() {
    int selHnd = atom_sel.mol->NewSelection();
    int nSelResidues; 
    mmdb::PResidue *SelResidues = NULL;
-   atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
+   atom_sel.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 			chn,
 			resno-1, "",
 			resno+1, "",
@@ -1715,7 +1715,7 @@ int test_torsion_derivs() {
 			"*",  // Residue must contain this atom name?
 			"*",  // Residue must contain this Element?
 			"",   // altLocs
-			SKEY_NEW // selection key
+			mmdb::SKEY_NEW // selection key
 			);
    atom_sel.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
    

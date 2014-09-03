@@ -13,15 +13,15 @@ int main(int argc, char **argv) {
       int n_selected_residues;
       mmdb::PResidue *SelResidues = 0;
       int selHnd = asc.mol->NewSelection();
-      asc.mol->Select ( selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
+      asc.mol->Select ( selHnd, mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 			"*", // Chain id
-			ANY_RES,"*",  // starting res
-			ANY_RES,"*",  // ending res
+			mmdb::ANY_RES,"*",  // starting res
+			mmdb::ANY_RES,"*",  // ending res
 			"*",  // residue name
 			"*",  // Residue must contain this atom name?
 			"*",  // Residue must contain this Element?
 			"*",  // altLocs
-			SKEY_NEW // selection key
+			mmdb::SKEY_NEW // selection key
 			);
       asc.mol->GetSelIndex (selHnd, SelResidues, n_selected_residues);
 

@@ -21,7 +21,7 @@ coot::elastic_network_model_t::elastic_network_model_t(mmdb::Manager *mol,
       int n_contacts;
       long i_contact_group = 1;
       mmdb::mat44 my_matt;
-      CSymOps symm;
+      mmdb::SymOps symm;
       for (int i=0; i<4; i++) 
 	 for (int j=0; j<4; j++) 
 	    my_matt[i][j] = 0.0;      

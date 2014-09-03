@@ -153,8 +153,8 @@ molecule_class_info_t::make_surface(const std::vector<coot::residue_spec_t> &res
 
    atom_sel.mol->SelectAtoms(SelHnd_protein, 0,
 			     "*",
-			     ANY_RES, "*",
-			     ANY_RES, "*",
+			     mmdb::ANY_RES, "*",
+			     mmdb::ANY_RES, "*",
 			     "!HOH",    // RNames
 			     "*", "*",  // ANames, Elements
 			     "*" );     // Alternate locations.

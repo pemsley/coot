@@ -68,8 +68,8 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
 	 mmdb::PPAtom atom_selection = 0;
 	 int n_selected_atoms;
 	 moving_mol->SelectAtoms(selhnd, 0, "*",
-				 ANY_RES, "*",
-				 ANY_RES, "*",
+				 mmdb::ANY_RES, "*",
+				 mmdb::ANY_RES, "*",
 				 "*", // residue name
 				 "*",
 				 "*", 

@@ -599,7 +599,7 @@ write_atom_selection_file(atom_selection_container_t asc,
 
       if (! write_hydrogens) {
 	 mmdb::Manager *n = new mmdb::Manager;
-	 n->Copy(mol, MMDBFCM_All);
+	 n->Copy(mol, mmdb::MMDBFCM_All);
 	 coot::delete_hydrogens_from_mol(n);
 	 mol = n;
 	 mol_needs_deleting = true;
@@ -607,7 +607,7 @@ write_atom_selection_file(atom_selection_container_t asc,
 
       if (! write_aniso_records) {
 	 mmdb::Manager *n = new mmdb::Manager;
-	 n->Copy(mol, MMDBFCM_All);
+	 n->Copy(mol, mmdb::MMDBFCM_All);
 	 coot::delete_aniso_records_from_atoms(n);
 	 mol = n;
 	 mol_needs_deleting = true;
@@ -615,7 +615,7 @@ write_atom_selection_file(atom_selection_container_t asc,
 
       if (! write_conect_records) {
 	 mmdb::Manager *n = new mmdb::Manager;
-	 n->Copy(mol, MMDBFCM_All);
+	 n->Copy(mol, mmdb::MMDBFCM_All);
 	 // Eugene's magic code
 	 n->Delete ( MMDBFCM_SC );
 	 mol = n;

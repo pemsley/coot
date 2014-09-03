@@ -47,9 +47,9 @@ void water_coordination_check(mmdb::Manager *mol, float max_dist) {
    mmdb::PAtom *whole_protein_atom_sel;
    int SelectionHandle = mol->NewSelection();
    mol->SelectAtoms (SelectionHandle, 0, "*",
-		     ANY_RES, // starting resno, an int
+		     mmdb::ANY_RES, // starting resno, an int
 		     "*", // any insertion code
-		     ANY_RES, // ending resno
+		     mmdb::ANY_RES, // ending resno
 		     "*", // ending insertion code
 		     "*", // any residue name
 		     "*", // atom name
@@ -62,9 +62,9 @@ void water_coordination_check(mmdb::Manager *mol, float max_dist) {
    mmdb::PAtom *waters_atom_sel = 0;
    int SelectionHandle_waters = mol->NewSelection();
    mol->SelectAtoms (SelectionHandle_waters, 0, "*",
-		     ANY_RES, // starting resno, an int
+		     mmdb::ANY_RES, // starting resno, an int
 		     "*", // any insertion code
-		     ANY_RES, // ending resno
+		     mmdb::ANY_RES, // ending resno
 		     "*", // ending insertion code
 		     "WAT,HOH", // any residue name
 		     "*", // atom name
