@@ -155,7 +155,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 // 	<< " sym ops" << endl; 
 
 //    for (int isym = 0; isym < MMDBManager->get_cell_p()->GetNumberOfSymOps(); isym++) {
-//       mat44 my_matt;
+//       mmdb::mat44 my_matt;
 //       int err2 = MMDBManager->get_cell_p()->GetTMatrix(my_matt, isym, 0, 0, 0); 
       
 //       if (err2 != 0) {
@@ -189,7 +189,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 // 	<< " sym ops" << endl; 
 
 //    for (int isym = 0; isym < MMDBManager->get_cell_p()->GetNumberOfSymOps(); isym++) {
-//       mat44 my_matt;
+//       mmdb::mat44 my_matt;
 //       int err2 = MMDBManager->get_cell_p()->GetTMatrix(my_matt, isym, 0, 0, 0); 
       
 //       if (err2 != 0) {
@@ -306,7 +306,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 //    cout << "DEBUG: There are "
 // 	<< atom_selection_container.mol->get_cell_p()->GetNumberOfSymOps()
 // 	<< " sym ops" << endl; 
-//    mat44 my_matt;
+//    mmdb::mat44 my_matt;
 //    for (int isym = 0; isym < atom_selection_container.mol->get_cell_p()->GetNumberOfSymOps(); isym++) {
 //       int err1 = atom_selection_container.mol->get_cell_p()->GetTMatrix(my_matt, isym, 0, 0, 0); 
 //       int err2 = MMDBManager->get_cell_p()->GetTMatrix(my_matt, isym, 0, 0, 0); 
@@ -379,7 +379,7 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 
    // vector <Cartesian_and_Grid> big_ball_l; // of points, _l local, no shadowing
    vector <coot::Cartesian> big_ball_l; // of points, _l local, no shadowing
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    PSContact contact;
    int ncontacts;
    
@@ -1550,7 +1550,7 @@ BuildCas::move_by_symmetry(coot::Cartesian middle_mol,
 
    float current_min_dist = (middle_mol - target_point).amplitude(); 
    float test_dist; 
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    mmdb::PAtom atom = new mmdb::Atom;
    mmdb::PAtom trans_atom = new mmdb::Atom; 
 

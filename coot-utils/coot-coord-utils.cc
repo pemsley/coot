@@ -413,7 +413,7 @@ coot::residues_near_residue(mmdb::Residue *res_ref,
 	 int n_contacts;
 	 float min_dist = 0.01;
 	 long i_contact_group = 1;
-	 mat44 my_matt;
+	 mmdb::mat44 my_matt;
 	 CSymOps symm;
 	 for (int i=0; i<4; i++) 
 	    for (int j=0; j<4; j++) 
@@ -605,7 +605,7 @@ coot::closest_approach(mmdb::Manager *mol,
 //    mmdb::realtype dist_closest = 9999999999.9;
 //    PSContact contact = NULL;
 //    long i_contact_group = 0;
-//    mat44 my_matt;
+//    mmdb::mat44 my_matt;
 //    for (int i=0; i<4; i++) 
 //       for (int j=0; j<4; j++) 
 // 	 my_matt[i][j] = 0.0;      
@@ -728,7 +728,7 @@ coot::angle(mmdb::Atom *at_1, mmdb::Atom *at_2, mmdb::Atom *at_3) {
 
 
 clipper::RTop_orth
-coot::util::matrix_convert(mat44 mat) {
+coot::util::matrix_convert(mmdb::mat44 mat) {
    
    clipper::Mat33<double> clipper_mat(mat[0][0], mat[0][1], mat[0][2],
 				      mat[1][0], mat[1][1], mat[1][2],
@@ -3143,7 +3143,7 @@ coot::util::chain_id_residue_vec_helper_t::residues_sort_func(mmdb::Residue *fir
 
 bool
 coot::mol_has_symmetry(mmdb::Manager *mol) {
-   mat44 test_mat;
+   mmdb::mat44 test_mat;
    int i_symm_err = mol->GetTMatrix(test_mat, 0, 0, 0, 0);
    return i_symm_err;
 } 
@@ -6127,7 +6127,7 @@ coot::mol_by_symmetry(mmdb::Manager *mol,
    mol2->Copy(mol, MMDBFCM_All);
 
    // Usually gets filled by GetTMatrix().
-   mat44 mat_origin_shift; // shift needed to get close to the origin.
+   mmdb::mat44 mat_origin_shift; // shift needed to get close to the origin.
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 mat_origin_shift[i][j] = 0.0;
@@ -6343,7 +6343,7 @@ coot::close_residues_from_different_molecules_t::close_residues(mmdb::Manager *m
       PSContact pscontact = NULL;
       int n_contacts;
       long i_contact_group = 1;
-      mat44 my_matt;
+      mmdb::mat44 my_matt;
       CSymOps symm;
       for (int i=0; i<4; i++) 
 	 for (int j=0; j<4; j++) 
@@ -6702,7 +6702,7 @@ coot::util::get_cell_symm(mmdb::Manager *mol) {
 
    // Now clipperize the variables.
 
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    int err = mol->GetTMatrix(my_matt, 0, 0, 0, 0);
    if (err != 0) {
       std::string mess = "No symmetry available";

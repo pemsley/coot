@@ -113,7 +113,7 @@ class CMMANManager : public CMMUTManager  {
     int SetTransform ( const std::vector<float>& transf , const std::vector<float>& transl , const bool reset);
     int SetTransform ( const mmdb::realtype rot ,const std::vector<float>& axis, const int selHnd = -1 );
     int SetTransform ( const matrix tMat, const bool reset);
-    int SetTransform ( mat44 &TMatrix , const bool reset);
+    int SetTransform ( mmdb::mat44 &TMatrix , const bool reset);
     int ReApplyTransform( const bool reset=0);
     void UnSetTransform(bool apply_inverse=1);
     std::vector<float> GetTransform();
@@ -151,7 +151,7 @@ class CMMANManager : public CMMUTManager  {
     std::map<std::string,std::string> customResSynonym;
 
     bool isTransformed,transform_com_set ;
-    mat44 current_transform;
+    mmdb::mat44 current_transform;
     mmdb::realtype transform_com[3];
 
     bool unremediated;

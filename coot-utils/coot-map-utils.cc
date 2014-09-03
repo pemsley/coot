@@ -322,7 +322,7 @@ coot::util::max_gridding(const clipper::Xmap<float> &xmap) {
 }
 
 clipper::RTop_orth
-coot::util::make_rtop_orth_from(mat44 mat) {
+coot::util::make_rtop_orth_from(mmdb::mat44 mat) {
 
    clipper::Mat33<double> clipper_mat(mat[0][0], mat[0][1], mat[0][2],
 				      mat[1][0], mat[1][1], mat[1][2],

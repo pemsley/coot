@@ -34,7 +34,7 @@ namespace coot {
 
    namespace util { 
 
-      clipper::RTop_orth make_rtop_orth_from(mat44 mat);
+      clipper::RTop_orth make_rtop_orth_from(mmdb::mat44 mat);
       
       float density_at_point(const clipper::Xmap<float> &map_in,
 			     const clipper::Coord_orth &co);

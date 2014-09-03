@@ -339,8 +339,8 @@ molecule_class_info_t::move_reference_chain_to_symm_chain_position(coot::Symm_At
 
       make_backup();
 
-      mat44 my_matt;
-      mat44 pre_shift_matt;
+      mmdb::mat44 my_matt;
+      mmdb::mat44 pre_shift_matt;
       
       int err_1 = atom_sel.mol->GetTMatrix(my_matt,
 					   naii.symm_trans.isym(),

@@ -246,7 +246,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
    PSContact pscontact = NULL;
    int n_contacts;
    long i_contact_group = 1;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    CSymOps symm;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 

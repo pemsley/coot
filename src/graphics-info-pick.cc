@@ -309,8 +309,8 @@ graphics_info_t::fill_hybrid_atoms(std::vector<coot::clip_hybrid_atom> *hybrid_a
    // 
    // Either that or make which_box return clipper symop.  Yes, I like that.
    // 
-   mat44 my_matt;
-   mat44 mol_to_origin_mat;
+   mmdb::mat44 my_matt;
+   mmdb::mat44 mol_to_origin_mat;
 
    asc.mol->GetTMatrix(mol_to_origin_mat, 0, 
 		       -symm_trans.second.us,

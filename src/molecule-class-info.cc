@@ -166,7 +166,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
       
       // CMMDBCryst *cryst_p =  (atom_sel.mol)->get_cell_p();
       
-      mat44 my_matt;
+      mmdb::mat44 my_matt;
 
       // 
       // 
@@ -466,7 +466,7 @@ molecule_class_info_t::install_model(int imol_no_in,
    atom_sel = asc;
 
    //    CMMDBCryst *cryst_p =  (atom_sel.mol)->get_cell_p();
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    
    int err = asc.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
    if (err != 0) {
@@ -2650,7 +2650,7 @@ molecule_class_info_t::set_have_unit_cell_flag_maybe() {
    
    // CMMDBCryst *cryst_p = atom_sel.mol->get_cell_p();
 
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
 
    int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
 
@@ -7098,7 +7098,7 @@ molecule_class_info_t::get_cell_and_symm() const {
 
    std::pair<std::vector<float>, std::string> cell_spgr;
    
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    if (atom_sel.mol) { 
       int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
       if (err != 0) {
@@ -7393,7 +7393,7 @@ molecule_class_info_t::set_coot_save_index(const std::string &filename) {
 
 
 void
-molecule_class_info_t::transform_by(mat44 mat) { 
+molecule_class_info_t::transform_by(mmdb::mat44 mat) { 
 
 #ifdef HAVE_GSL
    if (has_model()) { 

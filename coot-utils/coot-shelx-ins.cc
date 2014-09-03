@@ -1064,7 +1064,7 @@ bool
 coot::ShelxIns::try_assign_cell(mmdb::Manager *mol) {
 
    if (!have_cell_flag) {
-      mat44 my_matt;
+      mmdb::mat44 my_matt;
       int err = mol->GetTMatrix(my_matt, 0, 0, 0, 0);
       if (err != 0) {
 	 std::cout << "!! Warning:: No symmetry available for this template molecule"

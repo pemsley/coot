@@ -159,7 +159,7 @@ coot::dunbrack::getcontacts(const atom_selection_container_t &asc) const {
    if (Residue_Type() == "MSE")
       max_dist = 2.0;
    long i_contact_group = 1;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    CSymOps symm;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 

@@ -6005,7 +6005,7 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	 short int is_undo_or_redo = 0;
 	 graphics_info_t g;
 
-	 mat44 my_matt;
+	 mmdb::mat44 my_matt;
 	 int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
 	 if (err != SYMOP_Ok) {
 	    cout << "!! Warning:: No symmetry available for this molecule"
@@ -8036,7 +8036,7 @@ molecule_class_info_t::get_symop_strings() const {
    std::vector<std::string> r;
    if (atom_sel.mol) {
       // coords
-      mat44 my_matt;
+      mmdb::mat44 my_matt;
       int ierr = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
       if (ierr == 0) {
 	 // Good, we have symm info

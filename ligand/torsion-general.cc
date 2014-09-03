@@ -190,7 +190,7 @@ coot::torsion_general::get_contact_indices() const {
    if (std::string(residue_p->GetResName()) == "MSE")
       max_dist = 2.0;
    long i_contact_group = 1;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    CSymOps symm;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 

@@ -77,7 +77,7 @@ void water_coordination_check(mmdb::Manager *mol, float max_dist) {
    std::cout << "All Atoms: " << nSelAtoms_all << "   waters: " << nSelAtoms_waters
 	     << std::endl;
 
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;

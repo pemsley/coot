@@ -36,7 +36,7 @@ namespace coot {
 	 index = index_in;
 	 symm_trans_needed_flag = 1;
 
-	 mat44 my_matt;
+	 mmdb::mat44 my_matt;
 	 mol->GetTMatrix(my_matt, isym, ix, iy, iz);
 	 for (int i=0; i<4; i++) 
 	    for (int j=0; j<4; j++) 

@@ -235,7 +235,7 @@ int CHBond::Calculate0(int model)  {
   //cout << " nDonors " << nDonors << " nAcceptors " << nAcceptors << endl;
   if ( nDonors > 0 && nAcceptors > 0 ) {
     // Find close contacts beteen donors and acceptors
-    mat44 * TMatrix=0;
+    mmdb::mat44 * TMatrix=0;
 
     molHnds[0]->SeekContacts ( donorAtoms,nDonors,acceptorAtoms,nAcceptors,
         min_D_A,max_D_A,0,contacts,ncontacts, 0,TMatrix, 0 , 0);

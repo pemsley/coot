@@ -712,7 +712,7 @@ public:
 	 st = st_in;
       }
       // modify m
-      int GetTMatrix(mmdb::Manager *mol, mat44 *m) const {
+      int GetTMatrix(mmdb::Manager *mol, mmdb::mat44 *m) const {
 	 return mol->GetTMatrix(*m, st.isym(), st.x(), st.y(), st.z());
       } 
    };
