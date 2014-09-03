@@ -71,6 +71,6 @@ public :
   void InitParams();
   int CalculateSecondaryStructure(int imodel = 0);
   int InitMemory( int nRes );
-  Boolean IsHBond ( mmdb::PResidue PCRes1, Pmmdb::Residue PCRes );
+  Boolean IsHBond ( mmdb::PResidue PCRes1, mmdb::PResidue PCRes );
 };
 #endif

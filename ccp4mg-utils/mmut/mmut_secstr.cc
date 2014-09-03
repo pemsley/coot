@@ -490,7 +490,7 @@ std::string CSecStructure::Print (int imodel) {
 }
  
 //-----------------------------------------------------------------------
-Boolean CSecStructure::IsHBond ( mmdb::PResidue PCRes1, Pmmdb::Residue PCRes2 ) {
+Boolean CSecStructure::IsHBond ( mmdb::PResidue PCRes1, mmdb::PResidue PCRes2 ) {
 //-----------------------------------------------------------------------
   mmdb::PAtom        NAtom, OAtom , mmdb::Atom;
   mmdb::realtype	dx,dy,dz;

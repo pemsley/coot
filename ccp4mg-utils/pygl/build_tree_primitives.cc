@@ -1303,7 +1303,7 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CPar
 
 }
 
-std::vector<Cartesian> GetLineThroughBasePairs(mmdb::PResidue res1, Pmmdb::Residue res2){
+std::vector<Cartesian> GetLineThroughBasePairs(mmdb::PResidue res1, mmdb::PResidue res2){
   int natoms1;
   mmdb::PPAtom atoms1=0;
   res1->GetAtomTable1(atoms1,natoms1);
@@ -1391,7 +1391,7 @@ std::vector<Cartesian> GetLineThroughBasePairs(mmdb::PResidue res1, Pmmdb::Resid
 Cartesian GetClosestSplinePoint(const std::vector<Cartesian> &carts, const SplineInfo &splineinfo);
 Cartesian GetClosestSplinePoint(const Cartesian &cart, const SplineInfo &splineinfo);
 
-std::vector<Cartesian> GetBasePairEnds(mmdb::PResidue res1, Pmmdb::Residue res2, const SplineInfo &splineinfo){
+std::vector<Cartesian> GetBasePairEnds(mmdb::PResidue res1, mmdb::PResidue res2, const SplineInfo &splineinfo){
   std::vector<Cartesian> carts(2);
   mmdb::PAtom c11 = res1->GetAtom("C1\'");
   mmdb::PAtom c21 = res1->GetAtom("C2\'");
@@ -1815,7 +1815,7 @@ Cartesian GetClosestSplinePoint(const std::vector<Cartesian> &carts, const Splin
 }
 
 void DrawBasePairs(Displayobject &obj, const CNABasePairs &bp, const SplineInfo &splineinfo, const CParamsManager &params){
-  std::vector<std::pair<mmdb::PResidue,Pmmdb::Residue> > base_pairs = bp.GetPairs();
+  std::vector<std::pair<mmdb::PResidue,mmdb::PResidue> > base_pairs = bp.GetPairs();
   std::vector<std::pair<double*,double*> > colours = bp.GetColours();
   PolyCollection *polys = new PolyCollection();
   double cylinders_size = params.GetFloat("nucleic_stick_width");

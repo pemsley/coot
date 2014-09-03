@@ -849,7 +849,7 @@ molecule_class_info_t::get_term_type_old(int atom_index) {
 
    char *chainid = atom_sel.atom_selection[atom_index]->GetChainID();
    int ires_atom = atom_sel.atom_selection[atom_index]->GetSeqNum();
-   Pmmdb::Chain chain = atom_sel.mol->GetChain(1,chainid);
+   mmdb::PChain chain = atom_sel.mol->GetChain(1,chainid);
    int nres = chain->GetNumberOfResidues();
    int lowest_res_no = 99999;
    int highest_res_no = -99999;
@@ -915,7 +915,7 @@ molecule_class_info_t::get_term_type(int atom_index) {
    //
    // char *chainid = atom_sel.atom_selection[atom_index]->GetChainID();
    int ires_atom = atom_sel.atom_selection[atom_index]->GetSeqNum();
-   Pmmdb::Chain chain = atom_sel.atom_selection[atom_index]->GetChain();
+   mmdb::PChain chain = atom_sel.atom_selection[atom_index]->GetChain();
    int nres = chain->GetNumberOfResidues();
 
    // including tests needed for single missing residue:
@@ -3846,7 +3846,7 @@ molecule_class_info_t::residue_type_next_residue_by_alignment(const coot::residu
 	       std::vector<mmdb::PResidue> frag_residues =
 		  coot::util::get_residues_in_fragment(clicked_residue_chain_p, clicked_residue);
 	       // copy from vector to array
-	       mmdb::PResidue *SelResidues = new Pmmdb::Residue[frag_residues.size()];
+	       mmdb::PResidue *SelResidues = new mmdb::PResidue[frag_residues.size()];
 	       for (unsigned int ires=0; ires<frag_residues.size(); ires++)
 		  SelResidues[ires] = frag_residues[ires];
 
@@ -4560,7 +4560,7 @@ molecule_class_info_t::split_residue_internal(mmdb::Residue *residue, const std:
 					      short int use_residue_mol_flag) {
 
    std::pair<bool,std::string> p(0,"");
-   mmdb::PResidue *SelResidues = new Pmmdb::Residue;
+   mmdb::PResidue *SelResidues = new mmdb::PResidue;
    std::string ch(residue->GetChainID());
    
    SelResidues = &residue; // just one

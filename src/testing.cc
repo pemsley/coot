@@ -2573,7 +2573,7 @@ int test_COO_mod() {
 
       // refine ...
       
-      mmdb::PResidue *SelResidues = new Pmmdb::Residue[1];
+      mmdb::PResidue *SelResidues = new mmdb::PResidue[1];
       SelResidues[0] = asc.atom_selection[0]->residue;
       
       residue_selection_t result =

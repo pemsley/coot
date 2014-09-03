@@ -2470,7 +2470,7 @@ Bond_lines_container::addSymmetry_calphas(const atom_selection_container_t &SelA
       for (int imodel=1; imodel<=nmodels; imodel++) {
 	 int nchains = SelAtom.mol->GetNumberOfChains(imodel);
 	 for (int ichain=0; ichain<nchains; ichain++) {
-	    Pmmdb::Chain chain = SelAtom.mol->GetChain(imodel, ichain);
+	    mmdb::PChain chain = SelAtom.mol->GetChain(imodel, ichain);
 	    int nres = chain->GetNumberOfResidues();
 	    for (int ires=0; ires<(nres-1); ires++) {
 	       // std::cout << "residue " << ires << " to  " << ires+1 << std::endl;
@@ -3872,7 +3872,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
       add_bonds_het_residues(het_residues, het_atoms_colour_type, have_udd_atoms, udd_handle);
       
       if (ligand_atoms.size() > 0) { 
-	 mmdb::PAtom *ligand_atoms_selection = new Pmmdb::Atom[ligand_atoms.size()];
+	 mmdb::PAtom *ligand_atoms_selection = new mmdb::PAtom[ligand_atoms.size()];
 	 for(unsigned int iat=0; iat<ligand_atoms.size(); iat++) { 
 	    ligand_atoms_selection[iat] = ligand_atoms[iat];
 	 }

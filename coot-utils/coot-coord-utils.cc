@@ -35,7 +35,7 @@
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include <mmdb/mmdb_tables.h>  // for Get1LetterCode()
-#include <mmdb/mmdb_graph.h> // for graph matching
+#include <mmdb2/mmdb_math_graph.h> // for graph matching
 
 #include "compat/coot-sysdep.h"
 
@@ -3276,7 +3276,7 @@ coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_
 			    "*",  // altLocs
 			    SKEY_NEW // selection key
 			    );
-	 Pmmdb::Chain *sel_chains;
+	 mmdb::PChain *sel_chains;
 	 int n_sel_chains;
 	 atoms_mol->GetSelIndex(atom_chain_selection_handle, sel_chains,
 				n_sel_chains);

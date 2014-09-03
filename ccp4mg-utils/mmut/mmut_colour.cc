@@ -280,7 +280,7 @@ int CMolColour::ByChain( ) {
   int natoms;
   int i,j;
   int chnHnd, nChains;
-  PPmmdb::Chain selChains;
+  Pmmdb::PChain selChains;
   ivector cols;
   int ic = firstChainColour;
 

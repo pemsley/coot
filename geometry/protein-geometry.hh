@@ -38,8 +38,8 @@
 #include <map>
 #include <stdexcept>
 
-#include <mmdb/mmdb_mmcif.h>
-#include <mmdb/mmdb_graph.h>
+#include <mmdb2/mmdb_utils.h>
+#include <mmdb2/mmdb_math_graph.h>
 
 #ifdef HAVE_CCP4SRS
 #ifndef CCP4SRS_BASE_H

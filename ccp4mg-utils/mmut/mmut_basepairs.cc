@@ -120,7 +120,7 @@ void CNABasePairs::Calculate(CMMANManager *molHnd, int selHnd, mmdb::PPAtom selA
             double *col1 = plane_res_colours[ii];
             double *col2 = plane_res_colours[jj];
 	    //std::cout << res1->GetResidueNo() << ", "  << res2->GetResidueNo() << "\n";
-            base_pairs.push_back(std::pair<mmdb::PResidue,Pmmdb::Residue>(res1,res2));
+            base_pairs.push_back(std::pair<mmdb::PResidue,mmdb::PResidue>(res1,res2));
             colours.push_back(std::pair<double*,double*>(col1,col2));
             have_pair = true;
             min_dot = dot;
@@ -137,7 +137,7 @@ void CNABasePairs::Calculate(CMMANManager *molHnd, int selHnd, mmdb::PPAtom selA
   }
 }
 
-mmdb::PResidue CNABasePairs::GetPairedResidue(const Pmmdb::Residue res_in) const {
+mmdb::PResidue CNABasePairs::GetPairedResidue(const mmdb::PResidue res_in) const {
   return res_in;
 }
 

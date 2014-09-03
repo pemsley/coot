@@ -100,22 +100,22 @@ class Connectivity2 {
 
   Connectivity2(int data_mode=CONN_ATOM_ATOM,int crystal_axes=0,int tagged=0);
   ~Connectivity2();
-  void AddConnection(mmdb::PAtom p_atom1,Pmmdb::Atom p_atom2, const std::string &label_in="", int tag=-1);
+  void AddConnection(mmdb::PAtom p_atom1,mmdb::PAtom p_atom2, const std::string &label_in="", int tag=-1);
   void AddConnection( double xyz1[3] ,  double xyz2[3] , const std::string &label_in,int tag=-1);
   void AddConnection(  mmdb::PAtom p_atom1, double xyz2[3] ,
     const std::string &label_in, int tag=-1);
-  void InsertConnection(bool replace, unsigned int position,mmdb::PAtom p_atom1,Pmmdb::Atom p_atom2, const std::string &label_in="", int tag=-1);
+  void InsertConnection(bool replace, unsigned int position,mmdb::PAtom p_atom1,mmdb::PAtom p_atom2, const std::string &label_in="", int tag=-1);
   void InsertConnection( bool replace, unsigned int position, double xyz1[3] ,  double xyz2[3] , const std::string &label_in,int tag=-1);
   void InsertConnection(  bool replace, unsigned int position, mmdb::PAtom p_atom1, double xyz2[3] ,
     const std::string &label_in, int tag=-1);
-  void AddUniqueConnection(mmdb::PAtom p_atom1,Pmmdb::Atom p_atom2, const std::string &label_in="",int tag = -1);
+  void AddUniqueConnection(mmdb::PAtom p_atom1,mmdb::PAtom p_atom2, const std::string &label_in="",int tag = -1);
   void UpdateCoordinates(bool label_dist=false);
-  void RemoveConnection(mmdb::PAtom p_atom1,Pmmdb::Atom p_atom);
+  void RemoveConnection(mmdb::PAtom p_atom1,mmdb::PAtom p_atom);
   void RemoveConnection(mmdb::PAtom p_atom1,int position);
   void DeleteConnection(int index);
   void DeleteConnections();
   int GetNofConnections() { return  connected.size(); }
-  std::vector<unsigned int> FindConnections(mmdb::PAtom p_atom1,Pmmdb::Atom p_atom,bool switchpos=1);
+  std::vector<unsigned int> FindConnections(mmdb::PAtom p_atom1,mmdb::PAtom p_atom,bool switchpos=1);
   std::vector<unsigned int> FindConnections(mmdb::PAtom p_atom1, int position=0);
   int FindNofConnections(mmdb::PAtom p_atom1,int position=0);
   void Clear(void);	
@@ -130,7 +130,7 @@ class Connectivity2 {
   int GetTag(int iV);
   int SetTag(int iV,int i);
   int AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager molHnd2,int selHnd2_in,mmdb::realtype  dist1, mmdb::realtype  dist2, int  seqDist, int inter_model=0, int closest_bonding=5, int handle_hbond=0 );
-  int AddRangeConnections(int set, mmdb::PResidue res1,Pmmdb::Residue res2, 
+  int AddRangeConnections(int set, mmdb::PResidue res1,mmdb::PResidue res2, 
 		 mmdb::PResidue mres1, 
 		 const std::vector<std::string>& mainchain_name,
 			        int tag );

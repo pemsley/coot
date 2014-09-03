@@ -67,7 +67,7 @@ void Replace(std::vector<Cartesian> &old_vec, const std::vector<Cartesian> &new_
    old_vec.insert(old_vec.begin()+start,new_vec.begin(),new_vec.begin()+end-start);
 }
 
-std::vector<Cartesian> GetBasePairEnds(mmdb::PResidue res1, Pmmdb::Residue res2);
+std::vector<Cartesian> GetBasePairEnds(mmdb::PResidue res1, mmdb::PResidue res2);
 
 SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVector *atom_colour_vector,int spline_accu, int udd_chain, int udd_CA, int flatten_beta_sheet, int flatten_loop,int smooth_helix){
 
@@ -318,7 +318,7 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
   //std::cout << "splineinfo.colours.back().size(): " << splineinfo.colours.back().size() << "\n";
 
   //CNABasePairs bp(molH,atom_selHnd,atomTable,nAtoms,0);
-  //std::vector<std::pair<mmdb::PResidue,Pmmdb::Residue> > base_pairs = bp.GetPairs();
+  //std::vector<std::pair<mmdb::PResidue,mmdb::PResidue> > base_pairs = bp.GetPairs();
 
   splineinfo.nacolours.push_back(std::vector<Cartesian>(0));
   mmdb::PAtom c5prev = 0;
