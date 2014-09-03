@@ -4,7 +4,7 @@
 
 
 void
-coot::helix_params_container_t::make(CMMDBManager *mol_in, const std::string chain_id,
+coot::helix_params_container_t::make(mmdb::Manager *mol_in, const std::string chain_id,
 				     int resno_helix_start, int resno_helix_end) {
 
    mol = mol_in;

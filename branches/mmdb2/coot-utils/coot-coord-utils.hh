@@ -73,8 +73,8 @@ namespace coot {
    // for canonical_base_name();
    enum base_t { RNA, DNA };
 
-   // Perhaps this should be a class function of a class derived from CMMDBManager?
-   int write_coords_pdb(CMMDBManager *mol, const std::string &file_name);
+   // Perhaps this should be a class function of a class derived from mmdb::Manager?
+   int write_coords_pdb(mmdb::Manager *mol, const std::string &file_name);
 
    std::string pad_atom_name(const std::string &atom_name_in,
 			     const std::string &element);
@@ -209,7 +209,7 @@ namespace coot {
 			 const std::pair<mmdb::Chain *, std::string> &b);
 
    // return -1 on badness
-   int get_selection_handle(CMMDBManager *mol, const atom_spec_t &at);
+   int get_selection_handle(mmdb::Manager *mol, const atom_spec_t &at);
 
    // Return the lsq deviation of the pt atom and (in second) the rms
    // deviation of the atoms in the plane (not the including pt of
@@ -288,14 +288,14 @@ namespace coot {
 
    // return success status as first element
    // 
-   std::pair<bool, clipper::Coord_orth> centre_of_molecule(CMMDBManager *mol);
+   std::pair<bool, clipper::Coord_orth> centre_of_molecule(mmdb::Manager *mol);
 
    std::pair<bool, clipper::Coord_orth> centre_of_residues(const std::vector<mmdb::Residue *> &residues);
 
    // convert atoms in residue to HETATMs if residue is not of
    // standard PDB type
    int hetify_residue_atoms_as_needed(mmdb::Residue *res);
-   int hetify_residues_as_needed(CMMDBManager *mol);
+   int hetify_residues_as_needed(mmdb::Manager *mol);
 
    // convert atoms in residue to HETATMs.  Return the number of HET
    // atoms.
@@ -306,14 +306,14 @@ namespace coot {
    // specified by res_in.
    // 
    std::vector<residue_spec_t> residues_near_residue(const residue_spec_t &res_in,
-						     CMMDBManager *mol,
+						     mmdb::Manager *mol,
 						     float radius);
 
-   std::vector<mmdb::Residue *> residues_near_residue(mmdb::Residue *res_ref, CMMDBManager *mol,
+   std::vector<mmdb::Residue *> residues_near_residue(mmdb::Residue *res_ref, mmdb::Manager *mol,
 						 float radius);
 
    std::vector<mmdb::Residue *> residues_near_position(const clipper::Coord_orth &pt,
-						  CMMDBManager *mol,
+						  mmdb::Manager *mol,
 						  double radius);
 
    // a trivial class to hold the residue and the solvent exposure,
@@ -338,7 +338,7 @@ namespace coot {
    // res_ref.
    //
    std::vector<mmdb::Residue *> filter_residues_by_solvent_contact(mmdb::Residue *res_ref,
-							      CMMDBManager *mol,
+							      mmdb::Manager *mol,
 							      const std::vector<mmdb::Residue *> &residues,
 							      const double &water_dist_max);
 
@@ -357,16 +357,16 @@ namespace coot {
 
    // Return a pair, the bool of which is set if the float is sensible.
    // 
-   std::pair<bool,float> closest_approach(CMMDBManager *mol,
+   std::pair<bool,float> closest_approach(mmdb::Manager *mol,
 					  mmdb::Residue *r1, mmdb::Residue *r2);
 
-   mmdb::Residue *nearest_residue_by_sequence(CMMDBManager *mol,
+   mmdb::Residue *nearest_residue_by_sequence(mmdb::Manager *mol,
 					 const residue_spec_t &spec);
 
   // create a new molecule.  rtop_frac comes from the symmetry
   // operator.  If pre_shift_abc is not of size 3 then don't apply it
   // (if it is, do so, of course).
-  CMMDBManager *mol_by_symmetry(CMMDBManager *mol, 
+  mmdb::Manager *mol_by_symmetry(CMMDBManager *mol, 
 				clipper::Cell cell,
 				clipper::RTop_frac rtop_frac,
 				std::vector<int> pre_shift_abc);
@@ -375,11 +375,11 @@ namespace coot {
       // Interacting Residues: Return all residues of mol1, mol2 that
       // have atoms that are closer that dist to atoms of mol2/mol1.
       //
-      CMMDBManager *combined_mol;
+      mmdb::Manager *combined_mol;
    public:
       close_residues_from_different_molecules_t() {};
       std::pair<std::vector<mmdb::Residue *>, std::vector<mmdb::Residue *> >
-	 close_residues(CMMDBManager *mol1, CMMDBManager *mol2, float dist);
+	 close_residues(mmdb::Manager *mol1, CMMDBManager *mol2, float dist);
       void clean_up() { delete combined_mol; } 
    };
 
@@ -387,10 +387,10 @@ namespace coot {
    // Fiddle with mol. 
    // 
    // sort chains in lexographical order
-   void sort_chains(CMMDBManager *mol);
+   void sort_chains(mmdb::Manager *mol);
 
    // sort residues
-   void sort_residues(CMMDBManager *mol);
+   void sort_residues(mmdb::Manager *mol);
 
 
    // Pukka puckers?
@@ -474,7 +474,7 @@ namespace coot {
 
 
    //
-   bool mol_has_symmetry(CMMDBManager *mol);
+   bool mol_has_symmetry(mmdb::Manager *mol);
 
 
    // This class doesn't work with alt confs - it just finds the first
@@ -737,11 +737,11 @@ namespace coot {
       // 
       mmdb::Residue *get_residue(const std::string &chain_id, int res_no,
 			    const std::string &insertion_code,
-			    CMMDBManager *mol);
+			    mmdb::Manager *mol);
 
-      mmdb::Residue *get_first_residue(CMMDBManager *mol);
+      mmdb::Residue *get_first_residue(mmdb::Manager *mol);
 
-      mmdb::Residue *get_biggest_hetgroup(CMMDBManager *mol);
+      mmdb::Residue *get_biggest_hetgroup(mmdb::Manager *mol);
 
       // Trivial helper function.
       // Can return NULL.
@@ -749,14 +749,14 @@ namespace coot {
       // Typically called with nth is 1, 2 or 3.
       // Will return 0 if called with nth is 0.
       // i.e. if you want the first residue in mol, nth is 1.
-      mmdb::Residue *get_nth_residue(int nth, CMMDBManager *mol);
+      mmdb::Residue *get_nth_residue(int nth, mmdb::Manager *mol);
 
       // convenience interface to above
-      mmdb::Residue *get_residue(const residue_spec_t &rs, CMMDBManager *mol);
+      mmdb::Residue *get_residue(const residue_spec_t &rs, mmdb::Manager *mol);
 
       // Return NULL on atom not found in this molecule
       //
-      mmdb::Atom *get_atom(const atom_spec_t &spec, CMMDBManager *mol);
+      mmdb::Atom *get_atom(const atom_spec_t &spec, mmdb::Manager *mol);
 
       // can throw an exception if atom_p is NULL
       clipper::Coord_orth get_coords(mmdb::Atom *at);
@@ -764,17 +764,17 @@ namespace coot {
       // Return NULL on residue not found in this molecule.
       // 
       mmdb::Residue *get_following_residue(const residue_spec_t &rs, 
-				      CMMDBManager *mol);
+				      mmdb::Manager *mol);
 
       std::pair<bool, clipper::Coord_orth> get_residue_centre(mmdb::Residue *res);
       
       std::vector<std::string> get_residue_alt_confs(mmdb::Residue *res);
 
 
-      std::vector<std::string> residue_types_in_molecule(CMMDBManager *mol);
+      std::vector<std::string> residue_types_in_molecule(mmdb::Manager *mol);
       // non-standard means not one of the standard protein amino acid
       // residues.
-      std::vector<std::string> non_standard_residue_types_in_molecule(CMMDBManager *mol);
+      std::vector<std::string> non_standard_residue_types_in_molecule(mmdb::Manager *mol);
       // a utility function 
       std::vector<std::string> standard_residue_types();
 
@@ -783,12 +783,12 @@ namespace coot {
       std::vector<std::string> residue_types_in_chain(mmdb::Chain *chain_p);
       std::vector<std::string> residue_types_in_residue_vec(const std::vector<mmdb::Residue *> &residues);
 
-      std::vector<std::string> chains_in_molecule(CMMDBManager *mol);
-      int number_of_residues_in_molecule(CMMDBManager *mol);
+      std::vector<std::string> chains_in_molecule(mmdb::Manager *mol);
+      int number_of_residues_in_molecule(mmdb::Manager *mol);
       // Return -1 on badness
-      int max_number_of_residues_in_chain(CMMDBManager *mol);
+      int max_number_of_residues_in_chain(mmdb::Manager *mol);
       // Return NULL on no such chain:
-      mmdb::Chain *chain_only_of_type(CMMDBManager *mol, const std::string &residue_type);
+      mmdb::Chain *chain_only_of_type(mmdb::Manager *mol, const std::string &residue_type);
 
       clipper::RTop_orth matrix_convert(mat44 mat);
 
@@ -797,19 +797,19 @@ namespace coot {
       // So that we can calculate the length of the graph x axis - there may
       // be gaps, which is why max_number_of_residues_in_chain would fail.
       // 
-      int max_min_max_residue_range(CMMDBManager *mol);
+      int max_min_max_residue_range(mmdb::Manager *mol);
 
       // return first == 0 if residues not found in chain
       std::pair<bool, int> min_resno_in_chain(mmdb::Chain *chain_p);
       std::pair<bool, int> max_resno_in_chain(mmdb::Chain *chain_p);
-      std::pair<bool, int> max_resno_in_molecule(CMMDBManager *mol);
+      std::pair<bool, int> max_resno_in_molecule(mmdb::Manager *mol);
       
 
       // Return -1 on badness (actually, number of chains in the last model)
-      int number_of_chains(CMMDBManager *mol);
+      int number_of_chains(mmdb::Manager *mol);
 
       // The sum of all occupancies:
-      float occupancy_sum(Pmmdb::Atom *atoms, int n_atoms); 
+      float occupancy_sum(mmdb::PAtom *atoms, int n_atoms); 
 
       float median_temperature_factor(mmdb::PPAtom atom_selection,
 				      int n_atoms,
@@ -918,16 +918,16 @@ namespace coot {
 	 std::vector<contact_atoms_info_t> atom_contacts;
 	 void add_contact(mmdb::Atom *atom_contactor, mmdb::Atom *atom_central);
 	 
-	 void add_contacts(CMMDBManager *mol,
-			   Pmmdb::Atom *water_selection, int n_water_atoms, 
-			   Pmmdb::Atom *atom_selection, int n_selected_atoms,
-			   realtype min_dist, realtype max_dist,
+	 void add_contacts(mmdb::Manager *mol,
+			   mmdb::PAtom *water_selection, int n_water_atoms, 
+			   mmdb::PAtom *atom_selection, int n_selected_atoms,
+			   mmdb::realtype min_dist, realtype max_dist,
 			   const mat44 &my_mat);
 	 void sort_contacts(std::vector<contact_atoms_info_t> *v) const;
 	 static bool sort_contacts_func(const contact_atoms_info_t &first,
 					const contact_atoms_info_t &second);
       public:
-	 water_coordination_t(CMMDBManager *mol, realtype radius_limit);
+	 water_coordination_t(mmdb::Manager *mol, mmdb::realtype radius_limit);
 	 water_coordination_t() {}; 
 
 	 // I don't know what the "get" interface to
@@ -945,11 +945,11 @@ namespace coot {
       };
 
       // a simple full copy, caller deletes.
-      CMMDBManager *copy_molecule(CMMDBManager *mol);
+      mmdb::Manager *copy_molecule(CMMDBManager *mol);
 
       // copy cell, symm, origin and scale cards from m1 to m2 (if possible)
       // return success status.
-      bool copy_cell_and_symm_headers(CMMDBManager *m1, CMMDBManager *m2);
+      bool copy_cell_and_symm_headers(mmdb::Manager *m1, CMMDBManager *m2);
 
       // adjust the atoms of residue_p
       void delete_alt_confs_except(mmdb::Residue *residue_p, const std::string &alt_conf);
@@ -966,9 +966,9 @@ namespace coot {
       // 
       // We pass the original molecule because here we do atom index transfer.
       // 
-      std::pair<CMMDBManager *, int>
-      create_mmdbmanager_from_res_selection(CMMDBManager *orig_mol, 
-					    Pmmdb::Residue *SelResidues, 
+      std::pair<mmdb::Manager *, int>
+      create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol, 
+					    mmdb::PResidue *SelResidues, 
 					    int nSelResidues, 
 					    int have_flanking_residue_at_start,
 					    int have_flanking_residue_at_end, 
@@ -978,10 +978,10 @@ namespace coot {
 
       // We don't mess with the chain ids (give as we get), but also
       // return the handle for the atom index transfer.
-      std::pair<CMMDBManager *, int> create_mmdbmanager_from_mmdbmanager(CMMDBManager *);
+      std::pair<mmdb::Manager *, int> create_mmdbmanager_from_mmdbmanager(CMMDBManager *);
 
 
-     std::pair<bool, CMMDBManager *>
+     std::pair<bool, mmdb::Manager *>
      create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec);
 
       // ignore atom index transfer, return NULL on error.
@@ -989,30 +989,30 @@ namespace coot {
       // create a copy of res and add it to a newly created molecule.
       // Return the new molecule. Return NULL on error.
       //
-      CMMDBManager *create_mmdbmanager_from_residue(mmdb::Residue *res);
+      mmdb::Manager *create_mmdbmanager_from_residue(mmdb::Residue *res);
 
-      CMMDBManager *create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
+      mmdb::Manager *create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
 							   int SelectionHandle,
 							   bool invert_selection_flag=0);
       // uses the following:
-      CMMDBManager *create_mmdbmanager_from_atom_selection_straight(CMMDBManager *orig_mol,
+      mmdb::Manager *create_mmdbmanager_from_atom_selection_straight(CMMDBManager *orig_mol,
 								    int SelectionHandle);
       // Beware: This destroys (inverts) the atom selection as passed.
-      CMMDBManager *create_mmdbmanager_from_inverted_atom_selection(CMMDBManager *orig_mol,
+      mmdb::Manager *create_mmdbmanager_from_inverted_atom_selection(CMMDBManager *orig_mol,
 								    int SelectionHandle);
 
-      CMMDBManager *create_mmdbmanager_from_atom(mmdb::Atom *at);
+      mmdb::Manager *create_mmdbmanager_from_atom(mmdb::Atom *at);
 
       // a new residue for each point.  Caller deletes.
       // 
-      CMMDBManager *create_mmdbmanager_from_points(const std::vector<clipper::Coord_orth> &pts);
+      mmdb::Manager *create_mmdbmanager_from_points(const std::vector<clipper::Coord_orth> &pts);
 
       // calling function deletes
       // 
-      CMMDBManager *create_mmdbmanager_from_residue_specs(const std::vector<residue_spec_t> &r1,
-							  CMMDBManager *mol);
+      mmdb::Manager *create_mmdbmanager_from_residue_specs(const std::vector<residue_spec_t> &r1,
+							  mmdb::Manager *mol);
 
-      void add_copy_of_atom(CMMDBManager *mol, mmdb::Atom *atom);
+      void add_copy_of_atom(mmdb::Manager *mol, mmdb::Atom *atom);
 
       // return success status, 1 is good, 0 is fail.  Use clipper::Coord_orth constructor
       // 
@@ -1044,7 +1044,7 @@ namespace coot {
       mmdb::Residue *copy_and_delete_hydrogens(mmdb::Residue *residue_in);
       
       // utility function for above:
-      mmdb::Residue* deep_copy_this_residue_with_atom_index_and_afix_transfer(CMMDBManager *std_mol, 
+      mmdb::Residue* deep_copy_this_residue_with_atom_index_and_afix_transfer(mmdb::Manager *std_mol, 
 									 const mmdb::Residue *residue,
 									 const std::string &altconf,
 									 short int whole_residue_flag,
@@ -1055,22 +1055,22 @@ namespace coot {
       // Fragments are marked by consecutively numbered residues.  A
       // gap in the sequence numbers marks the end/beginning of a
       // fragment.
-      std::vector<Pmmdb::Residue> get_residues_in_fragment(mmdb::Chain *clicked_residue_chain_p,
+      std::vector<mmdb::PResidue> get_residues_in_fragment(mmdb::Chain *clicked_residue_chain_p,
 						      residue_spec_t clicked_residue);
 
       // deleted by calling process
-      std::pair<CMMDBManager *, std::vector<residue_spec_t> > 
-      get_fragment_from_atom_spec(const atom_spec_t &atom_spec, CMMDBManager *mol);
+      std::pair<mmdb::Manager *, std::vector<residue_spec_t> > 
+      get_fragment_from_atom_spec(const atom_spec_t &atom_spec, mmdb::Manager *mol);
 
 
       // transform atoms in residue
       void transform_atoms(mmdb::Residue *res, const clipper::RTop_orth &rtop);
 
       // transform all the atom in mol
-      void transform_mol(CMMDBManager *mol, const clipper::RTop_orth &rtop);
+      void transform_mol(mmdb::Manager *mol, const clipper::RTop_orth &rtop);
 
       // transform the atom selection (provided by handle SelHnd) in mol
-      void transform_selection(CMMDBManager *mol, int SelHnd, const clipper::RTop_orth &rtop);
+      void transform_selection(mmdb::Manager *mol, int SelHnd, const clipper::RTop_orth &rtop);
 
 
       // Rotate position round vector, return a position.
@@ -1119,7 +1119,7 @@ namespace coot {
       // for sequence/sequence alignment
       //
       // Take into account the insertion code too:
-      std::vector<std::pair<mmdb::Residue *, int> > sort_residues_by_seqno(Pmmdb::Residue *residues,
+      std::vector<std::pair<mmdb::Residue *, int> > sort_residues_by_seqno(mmdb::PResidue *residues,
 								      int nResidues);
 
       // Use the results of the above to give us a sequence string:
@@ -1128,10 +1128,10 @@ namespace coot {
 			    const std::pair<mmdb::Residue *, int> &b);
 
       // extents
-      std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(CMMDBManager *mol);
-      std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(CMMDBManager *mol,
+      std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(mmdb::Manager *mol);
+      std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(mmdb::Manager *mol,
 								  int SelectionHandle);
-      std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(CMMDBManager *mol,
+      std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(mmdb::Manager *mol,
 								  const std::vector<residue_spec_t> &specs);
       
       // pair.second = 0 for failure
@@ -1145,13 +1145,13 @@ namespace coot {
       
 
       // residues with insertion codes
-      std::vector<mmdb::Residue *> residues_with_insertion_codes(CMMDBManager *mol); 
+      std::vector<mmdb::Residue *> residues_with_insertion_codes(mmdb::Manager *mol); 
 
       // LSQing
       //
       std::pair<short int, clipper::RTop_orth>
-      get_lsq_matrix(CMMDBManager *mol1,
-		     CMMDBManager *mol2,
+      get_lsq_matrix(mmdb::Manager *mol1,
+		     mmdb::Manager *mol2,
 		     const std::vector<lsq_range_match_info_t> &matches,
 		     int every_nth,
 		     bool summary_to_screen=1);
@@ -1159,8 +1159,8 @@ namespace coot {
       // On useful return, first.length == second.length and first.length > 0.
       // 
       std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> > 
-      get_matching_indices(CMMDBManager *mol1,
-			   CMMDBManager *mol2,
+      get_matching_indices(mmdb::Manager *mol1,
+			   mmdb::Manager *mol2,
 			   const lsq_range_match_info_t &match,
 			   int every_nth);
 
@@ -1231,27 +1231,27 @@ namespace coot {
       // flips and how they could be identified by B factor
       // outlierness.
       std::vector<std::pair<atom_spec_t, std::string> >
-      gln_asn_b_factor_outliers(CMMDBManager *mol);
+      gln_asn_b_factor_outliers(mmdb::Manager *mol);
 
       // return the number of cis peptides in mol:
-      int count_cis_peptides(CMMDBManager *mol);
+      int count_cis_peptides(mmdb::Manager *mol);
 
       // more info on the real cis peptides derived from atom positions:
       std::vector<cis_peptide_info_t>
-      cis_peptides_info_from_coords(CMMDBManager *mol);
+      cis_peptides_info_from_coords(mmdb::Manager *mol);
 
       // remove wrong cis_peptides
-      void remove_wrong_cis_peptides(CMMDBManager *mol);
+      void remove_wrong_cis_peptides(mmdb::Manager *mol);
 
       // move hetgroups round protein.  Find the centres of each
       // hetgroup and move it to the protein.  Waters are handled individually.
       // Fiddle with mol.
       //
-      void move_hetgroups_around_protein(CMMDBManager *mol);
+      void move_hetgroups_around_protein(mmdb::Manager *mol);
 
       // move waters round protein, fiddle with mol.
       // return the number of moved waters.
-      int move_waters_around_protein(CMMDBManager *mol);
+      int move_waters_around_protein(mmdb::Manager *mol);
       // above uses this more primitive interface
       // 
       std::vector<std::pair<mmdb::Atom *, clipper::Coord_orth> >
@@ -1265,10 +1265,10 @@ namespace coot {
       // not-able-to-extract-cell/symm-info.  (In such a case, we convert a
       // clipper::Message_base to a std::runtime_error).
       // 
-      std::pair<clipper::Cell, clipper::Spacegroup> get_cell_symm(CMMDBManager *mol);
+      std::pair<clipper::Cell, clipper::Spacegroup> get_cell_symm(mmdb::Manager *mol);
 
       // shove a cell from a clipper cell into the passed mol.
-      bool set_mol_cell(CMMDBManager *mol, clipper::Cell cell);
+      bool set_mol_cell(mmdb::Manager *mol, clipper::Cell cell);
 
 
       // caller must check that others has some points in it.
@@ -1281,7 +1281,7 @@ namespace coot {
       //
       // Throw an exception (e.g. no cell or symmetry).
       // 
-      clipper::Coord_frac shift_to_origin(CMMDBManager *mol);
+      clipper::Coord_frac shift_to_origin(mmdb::Manager *mol);
       clipper::Coord_frac shift_to_origin(const std::vector<clipper::Coord_orth> &protein_coords,
 					  clipper::Cell cell,
 					  clipper::Spacegroup spacegroup);
@@ -1295,17 +1295,17 @@ namespace coot {
       // Return the median position.  Throw an exception on failure
       // (e.g no atoms).
       // 
-      clipper::Coord_orth median_position(CMMDBManager *mol);
+      clipper::Coord_orth median_position(mmdb::Manager *mol);
       // also throws an exception
       clipper::Coord_orth median_position(const std::vector<clipper::Coord_orth> &pts);
 
-      void shift(CMMDBManager *mol, clipper::Coord_orth pt);
+      void shift(mmdb::Manager *mol, clipper::Coord_orth pt);
       //
       clipper::Coord_orth
       translate_close_to_origin(const clipper::Coord_orth water_pos_pre,
 				const clipper::Cell &cell);
 
-      void translate_close_to_origin(CMMDBManager *mol);
+      void translate_close_to_origin(mmdb::Manager *mol);
 
       // Print secondary structure info:
       void print_secondary_structure_info(mmdb::Model *model_p);

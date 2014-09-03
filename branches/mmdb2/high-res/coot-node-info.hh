@@ -29,7 +29,7 @@ namespace coot {
       short int symm_trans_needed_flag;
       int index;
       clipper::RTop_orth rtop;
-      node_info(CMMDBManager *mol, int index_in, int isym, int ix, int iy, int iz) {
+      node_info(mmdb::Manager *mol, int index_in, int isym, int ix, int iy, int iz) {
 
 	 // construct the RTop_orth rtop here:
 	 // 

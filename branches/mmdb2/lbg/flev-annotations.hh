@@ -44,7 +44,7 @@ namespace coot {
       std::vector<std::pair<std::string, std::string> > atoms_with_rotating_hydrogens;
       bool add_named_torsion(mmdb::Atom *h_at, mmdb::Atom *at,
 			     const dictionary_residue_restraints_t &restraints,
-			     CMMDBManager *mol,
+			     mmdb::Manager *mol,
 			     int hydrogen_type); // fill named_torsions
       std::vector<std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > >
       named_hydrogens_to_reference_ligand(mmdb::Residue *ligand_residue_3d,
@@ -86,14 +86,14 @@ namespace coot {
 
       // fill the named_torsions vector
       void cannonballs(mmdb::Residue *ligand_residue_3d,
-		       CMMDBManager *mol,
+		       mmdb::Manager *mol,
 		       const coot::dictionary_residue_restraints_t &restraints);
       
       // apply those cannonball direction onto the real reference ligand:
       void distances_to_protein(mmdb::Residue *residue_reference,
-				CMMDBManager *mol_reference);
+				mmdb::Manager *mol_reference);
       void distances_to_protein_using_correct_Hs(mmdb::Residue *residue_reference,
-						 CMMDBManager *mol_reference,
+						 mmdb::Manager *mol_reference,
 						 const protein_geometry &geom);
 
       std::map<std::string, std::vector<coot::bash_distance_t> > atom_bashes;

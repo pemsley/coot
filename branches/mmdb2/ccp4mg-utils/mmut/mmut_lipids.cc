@@ -223,8 +223,8 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
     stop_nodes.push_back(std::vector<TreeVertex*>(0));
     int branch_start = branches[ii][0];
     int branch_end = branches[ii].back();
-    Pmmdb::Atom branch_start_atom = atomTable[branch_start];
-    Pmmdb::Atom branch_end_atom = atomTable[branch_end];
+    mmdb::PAtom branch_start_atom = atomTable[branch_start];
+    mmdb::PAtom branch_end_atom = atomTable[branch_end];
     //std::cout << "branch start/end: " << branch_start << " " << branch_end << "\n";
     //std::cout << "atom serial numbers: " << branch_start_atom->serNum << " " << branch_end_atom->serNum << "\n";
     int end_index = -1;
@@ -252,8 +252,8 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
     head_group_chain_ids[ii] = -1;
     int branch_start = branches[ii][0];
     int branch_end = branches[ii].back();
-    Pmmdb::Atom branch_start_atom = atomTable[branch_start];
-    Pmmdb::Atom branch_end_atom = atomTable[branch_end];
+    mmdb::PAtom branch_start_atom = atomTable[branch_start];
+    mmdb::PAtom branch_end_atom = atomTable[branch_end];
     //std::cout << "branch start/end: " << branch_start << " " << branch_end << "\n";
     //std::cout << "atom serial numbers: " << branch_start_atom->serNum << " " << branch_end_atom->serNum << "\n";
     //std::cout << "atoms: " << branch_start_atom->name << " " << branch_end_atom->name << "\n";
@@ -392,7 +392,7 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
       //ivector ivec = new int[head_groups[jj].size()];
       for(unsigned ii=0;ii<head_groups[jj].size();ii++){
         //ivec[ii] = serNums[head_groups[jj][ii]->GetID()];
-        Pmmdb::Atom at = atomTable_all[head_groups[jj][ii]->GetID()];
+        mmdb::PAtom at = atomTable_all[head_groups[jj][ii]->GetID()];
         head_carts.back().push_back(Cartesian(at->x,at->y,at->z));
 	head_serNums.back().push_back(serNums[head_groups[jj][ii]->GetID()]);
       }
@@ -421,7 +421,7 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
     //tails_selhnds.push_back(tail_selhnd);
     //ivector ivec = new int[branches[jj].size()+extra_branch_nodes[jj].size()];
     for(unsigned ii=0;ii<branches[jj].size();ii++){
-      Pmmdb::Atom at = atomTable[branches[jj][ii]];
+      mmdb::PAtom at = atomTable[branches[jj][ii]];
       //ivec[ii] = at->serNum;
       tail_carts.back().push_back(Cartesian(at->x,at->y,at->z));
       //std::cout << "Branch: " << at->name << " " << tail_carts.back().back() << "\n";
@@ -431,7 +431,7 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
     if(tail_serNums.back().size()>0) std::reverse(tail_serNums.back().begin(),tail_serNums.back().end());
     for(unsigned ii=0;ii<extra_branch_nodes[jj].size();ii++){
       //ivec[ii+branches[jj].size()] = atomTable_all[extra_branch_nodes[jj][ii]->GetID()]->serNum;
-      Pmmdb::Atom at = atomTable_all[extra_branch_nodes[jj][ii]->GetID()];
+      mmdb::PAtom at = atomTable_all[extra_branch_nodes[jj][ii]->GetID()];
       char elname = at->element[1];
       if(elname=='C'){ // But what if this atom is a side branch off the main branch?
         tail_carts.back().push_back(Cartesian(at->x,at->y,at->z));
@@ -460,8 +460,8 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
       //std::cout << "Chain " << ii << " is without a head\n";
       int branch_start = branches[ii][0];
       int branch_end = branches[ii].back();
-      Pmmdb::Atom branch_start_atom = atomTable[branch_start];
-      Pmmdb::Atom branch_end_atom = atomTable[branch_end];
+      mmdb::PAtom branch_start_atom = atomTable[branch_start];
+      mmdb::PAtom branch_end_atom = atomTable[branch_end];
       int end_index = -1;
       int start_index = -1;
       for(int jj=0;jj<nAtoms_all;jj++){

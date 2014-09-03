@@ -36,7 +36,7 @@ main(int argc, char **argv) {
 
    if (argc > 1) {
       std::string pdb_name(argv[1]);
-      CMMDBManager mol;
+      mmdb::Manager mol;
       coot::minimol::molecule myminimol;
       myminimol.read_file(pdb_name);
       
@@ -74,7 +74,7 @@ main(int argc, char **argv) {
    // Does mmdb unmangle hydrogen names?  No, it turns out.
    // 
 //    if (0) { 
-//       CMMDBManager *mol = new CMMDBManager;
+//       mmdb::Manager *mol = new CMMDBManager;
 //       mol->ReadCoorFile("prodrg.pdb");
 //       int imod = 1;
 //       mmdb::Model *model_p = mol->GetModel(imod);

@@ -889,7 +889,7 @@ coot::add_chem_comp_aromatic_plane_all_plane(const RDKit::MatchVectType &match,
 
       // make a plane restraint with those atoms in then
       if (plane_restraint_atoms.size() > 3) {
-	 realtype dist_esd = 0.02;
+	 mmdb::realtype dist_esd = 0.02;
 	 coot::dict_plane_restraint_t rest(plane_id, plane_restraint_atoms, dist_esd);
 	 plane_restraint = rest;
       } 
@@ -1115,7 +1115,7 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 		  atom_names.push_back(name);
 	       }
 	       if (atom_names.size() > 3) { 
-		  realtype dist_esd = patterns[ipat].second;
+		  mmdb::realtype dist_esd = patterns[ipat].second;
 		  coot::dict_plane_restraint_t res(plane_id, atom_names, dist_esd);
 		  restraints->plane_restraint.push_back(res);
 	       }
@@ -1170,7 +1170,7 @@ coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 		  atom_names.push_back(name);
 	       }
 	       if (atom_names.size() > 3) { 
-		  realtype dist_esd = patterns[ipat].second;
+		  mmdb::realtype dist_esd = patterns[ipat].second;
 		  coot::dict_plane_restraint_t res(plane_id, atom_names, dist_esd);
 		  restraints->plane_restraint.push_back(res);
 	       }
@@ -1367,7 +1367,7 @@ coot::write_pdb_from_mol(PyObject *rdkit_mol_py,
    if (! res) {
       std::cout << "in write_pdb_from_mol() failed to make residue" << std::endl;
    } else {
-      CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(res);
+      mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(res);
       int status = mol->WritePDBASCII(file_name.c_str());
       if (status == 0)
 	 std::cout << "INFO:: wrote PDB   \"" << file_name << "\"" << std::endl;
@@ -1382,7 +1382,7 @@ coot::regularize_and_write_pdb(PyObject *rdkit_mol, PyObject *restraints_py,
 			       const std::string &res_name,
 			       const std::string &pdb_file_name) {
 
-   std::pair<CMMDBManager *, mmdb::Residue *> mol_res = regularize_inner(rdkit_mol, restraints_py, res_name);
+   std::pair<mmdb::Manager *, mmdb::Residue *> mol_res = regularize_inner(rdkit_mol, restraints_py, res_name);
    int status = mol_res.first->WritePDBASCII(pdb_file_name.c_str());
    if (status == 0)
       std::cout << "INFO:: wrote PDB   \"" << pdb_file_name << "\"" << std::endl;
@@ -1398,7 +1398,7 @@ coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
    
    RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
    
-   std::pair<CMMDBManager *, mmdb::Residue *> regular =
+   std::pair<mmdb::Manager *, mmdb::Residue *> regular =
       regularize_inner(rdkit_mol_py, restraints_py, res_name);
 
    if (regular.second) { 
@@ -1410,7 +1410,7 @@ coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
    }
 } 
 
-std::pair<CMMDBManager *, mmdb::Residue *>
+std::pair<mmdb::Manager *, mmdb::Residue *>
 coot::regularize_inner(PyObject *rdkit_mol_py,
 		       PyObject *restraints_py,
 		       const std::string &res_name) {
@@ -1420,7 +1420,7 @@ coot::regularize_inner(PyObject *rdkit_mol_py,
 }
 
 
-std::pair<CMMDBManager *, mmdb::Residue *>
+std::pair<mmdb::Manager *, mmdb::Residue *>
 coot::regularize_inner(RDKit::ROMol &mol,
 		       PyObject *restraints_py,
 		       const std::string &res_name) {
@@ -1429,8 +1429,8 @@ coot::regularize_inner(RDKit::ROMol &mol,
       monomer_restraints_from_python(restraints_py);
    mmdb::Residue *residue_p = coot::make_residue(mol, 0, res_name);
    // remove this NULL at some stage (soon)
-   CMMDBManager *cmmdbmanager = coot::util::create_mmdbmanager_from_residue(residue_p);
+   mmdb::Manager *cmmdbmanager = coot::util::create_mmdbmanager_from_residue(residue_p);
    simple_refine(residue_p, cmmdbmanager, dict_restraints);
-   return std::pair<CMMDBManager *, mmdb::Residue *> (cmmdbmanager, residue_p);
+   return std::pair<mmdb::Manager *, mmdb::Residue *> (cmmdbmanager, residue_p);
 } 
 

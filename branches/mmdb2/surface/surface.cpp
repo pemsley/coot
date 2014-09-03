@@ -194,7 +194,7 @@ surface::~surface (){
 	freeResources();
 }
 
-surface::surface (CMMDBManager *theManager, int selHnd) : Primitive() {
+surface::surface (mmdb::Manager *theManager, int selHnd) : Primitive() {
 //	std::cout << " EP 2"; std::cout.flush();
 	initArrays();
 	style = CCP4MG_SURFACE_SOLID;
@@ -204,7 +204,7 @@ surface::surface (CMMDBManager *theManager, int selHnd) : Primitive() {
 	theSurface->report();
 }
 
-surface::surface (CMMDBManager *theManager, int selHnd, int contextSelHnd) : Primitive() {
+surface::surface (mmdb::Manager *theManager, int selHnd, int contextSelHnd) : Primitive() {
 //	std::cout << " EP 3"; std::cout.flush();
 	initArrays();
 	style = CCP4MG_SURFACE_SOLID;
@@ -471,7 +471,7 @@ void add_surface(surface *surf, Displayobject &obj){
 }
 
 
-void surface::ColourSurface(CMMDBManager *molHnd, int selHnd, AtomColourVector *atomColourVector){
+void surface::ColourSurface(mmdb::Manager *molHnd, int selHnd, AtomColourVector *atomColourVector){
 	if (iEval == 0) {
 		iEval++;
 		return;
@@ -497,7 +497,7 @@ void surface::ColourSurface(CMMDBManager *molHnd, int selHnd, AtomColourVector *
 	
 }
 
-int surface::evaluatePhiAndColourWithDefaultScheme(CMMDBManager *theManager, const int selHnd, int contains_hydrogen ){
+int surface::evaluatePhiAndColourWithDefaultScheme(mmdb::Manager *theManager, const int selHnd, int contains_hydrogen ){
 	CColourScheme defaultScheme;
 	std::vector<float> typ;
 	typ.push_back(-0.2); typ.push_back(-0.2);  typ.push_back(0.0);  typ.push_back(0.2); typ.push_back(0.2);
@@ -508,7 +508,7 @@ int surface::evaluatePhiAndColourWithDefaultScheme(CMMDBManager *theManager, con
 }
 
 
-int surface::evaluatePhiAndColourWithScheme(CMMDBManager *theManager, const int selHnd, CColourScheme &colourScheme , int contains_hydrogen) {
+int surface::evaluatePhiAndColourWithScheme(mmdb::Manager *theManager, const int selHnd, CColourScheme &colourScheme , int contains_hydrogen) {
 	//Instantiate and calculate electrostatic potential
 	// contains_hydrogen = 0 => no hydrogen
 	// contains_hydrogen = 0 => some H atoms in structure (currently no checks if all present)

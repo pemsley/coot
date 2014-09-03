@@ -52,7 +52,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     short int have_disulfide_residues,
 						     const std::string &altloc,
 						     const char *chain_id,
-						     CMMDBManager *mol_in, 
+						     mmdb::Manager *mol_in, 
 						     const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
 
    from_residue_vector = 0;
@@ -83,7 +83,7 @@ coot::restraints_container_t::restraints_container_t(atom_selection_container_t 
    istart_res = 999999;
    iend_res = -9999999;
 
-   Pmmdb::Residue *SelResidues = NULL;
+   mmdb::PResidue *SelResidues = NULL;
    int nSelResidues;
 
    // -------- Find the max and min res no -----------------------------
@@ -142,9 +142,9 @@ coot::restraints_container_t::restraints_container_t(atom_selection_container_t 
    }
 }
 
-coot::restraints_container_t::restraints_container_t(Pmmdb::Residue *SelResidues, int nSelResidues,
+coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues, int nSelResidues,
 						     const std::string &chain_id,
-						     CMMDBManager *mol_in) { 
+						     mmdb::Manager *mol_in) { 
    
    include_map_terms_flag = 0;
    from_residue_vector = 0;
@@ -185,7 +185,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     short int have_disulfide_residues,
 						     const std::string &altloc,
 						     const char *chain_id,
-						     CMMDBManager *mol, // const in an ideal world
+						     mmdb::Manager *mol, // const in an ideal world
 						     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
 						     const clipper::Xmap<float> &map_in,
 						     float map_weight_in) {
@@ -211,7 +211,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 // residues).
 coot::restraints_container_t::restraints_container_t(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
 						     const coot::protein_geometry &geom,
-						     CMMDBManager *mol,
+						     mmdb::Manager *mol,
 						     const std::vector<atom_spec_t> &fixed_atom_specs) {
 
    from_residue_vector = 1;
@@ -239,7 +239,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 					    short int have_disulfide_residues,
 					    const std::string &altloc,
 					    const char *chain_id,
-					    CMMDBManager *mol_in, 
+					    mmdb::Manager *mol_in, 
 					    const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
 
    init_shared_pre(mol_in);
@@ -319,7 +319,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 }
 
 void
-coot::restraints_container_t::init_shared_pre(CMMDBManager *mol_in) {
+coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
 
    do_numerical_gradients_flag = 0;
    verbose_geometry_reporting = 0;
@@ -432,7 +432,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 void
 coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
 						    const coot::protein_geometry &geom,
-						    CMMDBManager *mol,
+						    mmdb::Manager *mol,
 						    const std::vector<atom_spec_t> &fixed_atom_specs) {
 
    init_shared_pre(mol);
@@ -445,7 +445,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    // debug:
    if (0) { 
       for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
-	 Pmmdb::Atom *res_atom_selection = NULL;
+	 mmdb::PAtom *res_atom_selection = NULL;
 	 int n_res_atoms;
 	 residues_vec[ir].second->GetAtomTable(res_atom_selection, n_res_atoms);
 	 std::cout << "debug:: =============== in init_from_residue_vec() residue "
@@ -540,7 +540,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    
    for (unsigned int i=0; i<all_residues.size(); i++)
       n_atoms += all_residues[i]->GetNumberOfAtoms();
-   atom = new Pmmdb::Atom[n_atoms];
+   atom = new mmdb::PAtom[n_atoms];
    int atom_index = 0;
    for (unsigned int i=0; i<all_residues.size(); i++) {
       mmdb::PPAtom residue_atoms = 0;
@@ -889,8 +889,8 @@ coot::restraints_container_t::omega_trans_distortions(int mark_cis_peptides_as_b
    // we need to pick out the CA and C of this and N and Ca of next.
 
    // now add data to dc.omega_distortions.
-   Pmmdb::Residue *first = NULL;
-   Pmmdb::Residue *second = NULL;
+   mmdb::PResidue *first = NULL;
+   mmdb::PResidue *second = NULL;
    int nfirst, nnext;
 //    int ifirst;
 //    int inext;
@@ -5600,7 +5600,7 @@ coot::restraints_container_t::is_a_moving_residue_p(mmdb::Residue *r) const {
 int
 coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 					int i_no_res_atoms,
-					Pmmdb::Residue SelRes,
+					mmdb::PResidue SelRes,
 					const coot::protein_geometry &geom) {
 
    int n_bond_restr = 0;
@@ -5710,7 +5710,7 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 int
 coot::restraints_container_t::add_angles(int idr, mmdb::PPAtom res_selection,
 					 int i_no_res_atoms,
-					 Pmmdb::Residue SelRes,
+					 mmdb::PResidue SelRes,
 					 const coot::protein_geometry &geom) {
 
    int n_angle_restr = 0;
@@ -5807,7 +5807,7 @@ coot::restraints_container_t::add_angles(int idr, mmdb::PPAtom res_selection,
 int
 coot::restraints_container_t::add_torsions(int idr, mmdb::PPAtom res_selection,
 					   int i_no_res_atoms,
-					   Pmmdb::Residue SelRes,
+					   mmdb::PResidue SelRes,
 					   const coot::protein_geometry &geom) {
 
    int n_torsion_restr = 0; 
@@ -5914,7 +5914,7 @@ coot::restraints_container_t::add_torsions(int idr, mmdb::PPAtom res_selection,
 int
 coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
 					  int i_no_res_atoms,
-					  Pmmdb::Residue SelRes,
+					  mmdb::PResidue SelRes,
 					  const coot::protein_geometry &geom) { 
 
    int n_chiral_restr = 0;
@@ -6014,7 +6014,7 @@ coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
 coot::restraints_container_t::restraint_counts_t 
 coot::restraints_container_t::apply_mods(int idr, mmdb::PPAtom res_selection,
 					  int i_no_res_atoms,
-					  Pmmdb::Residue residue_p,
+					  mmdb::PResidue residue_p,
 					 const coot::protein_geometry &geom) {
    
    coot::restraints_container_t::restraint_counts_t mod_counts;
@@ -6036,7 +6036,7 @@ void
 coot::restraints_container_t::apply_mod(const std::string &mod_name,
 					const coot::protein_geometry &geom,
 					int idr,
-					Pmmdb::Residue residue_p) {
+					mmdb::PResidue residue_p) {
 
    std::map<std::string, coot::protein_geometry::chem_mod>::const_iterator it = 
       geom.mods.find(mod_name);
@@ -6059,7 +6059,7 @@ coot::restraints_container_t::apply_mod(const std::string &mod_name,
 
 void
 coot::restraints_container_t::apply_mod_bond(const coot::chem_mod_bond &mod_bond,
-					     Pmmdb::Residue residue_p) {
+					     mmdb::PResidue residue_p) {
 
    if (mod_bond.function == coot::CHEM_MOD_FUNCTION_ADD) {
       mod_bond_add(mod_bond, residue_p);
@@ -6074,7 +6074,7 @@ coot::restraints_container_t::apply_mod_bond(const coot::chem_mod_bond &mod_bond
 
 void
 coot::restraints_container_t::mod_bond_add(const coot::chem_mod_bond &mod_bond,
-					   Pmmdb::Residue residue_p) {
+					   mmdb::PResidue residue_p) {
 
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
@@ -6113,7 +6113,7 @@ coot::restraints_container_t::mod_bond_add(const coot::chem_mod_bond &mod_bond,
 
 void
 coot::restraints_container_t::mod_bond_change(const coot::chem_mod_bond &mod_bond,
-					      Pmmdb::Residue residue_p) {
+					      mmdb::PResidue residue_p) {
 
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
       if (restraints_vec[i].restraint_type == coot::BOND_RESTRAINT) {
@@ -6145,7 +6145,7 @@ coot::restraints_container_t::mod_bond_change(const coot::chem_mod_bond &mod_bon
 
 void
 coot::restraints_container_t::mod_bond_delete(const coot::chem_mod_bond &mod_bond,
-					      Pmmdb::Residue residue_p) {
+					      mmdb::PResidue residue_p) {
 
 
    std::vector<coot::simple_restraint>::iterator it;
@@ -6176,7 +6176,7 @@ coot::restraints_container_t::mod_bond_delete(const coot::chem_mod_bond &mod_bon
 
 void
 coot::restraints_container_t::apply_mod_angle(const coot::chem_mod_angle &mod_angle,
-					     Pmmdb::Residue residue_p) {
+					     mmdb::PResidue residue_p) {
 
    if (mod_angle.function == coot::CHEM_MOD_FUNCTION_ADD) {
       mod_angle_add(mod_angle, residue_p);
@@ -6191,7 +6191,7 @@ coot::restraints_container_t::apply_mod_angle(const coot::chem_mod_angle &mod_an
 
 void
 coot::restraints_container_t::mod_angle_add(const coot::chem_mod_angle &mod_angle,
-					    Pmmdb::Residue residue_p) {
+					    mmdb::PResidue residue_p) {
 
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
@@ -6241,7 +6241,7 @@ coot::restraints_container_t::mod_angle_add(const coot::chem_mod_angle &mod_angl
 
 void
 coot::restraints_container_t::mod_angle_change(const coot::chem_mod_angle &mod_angle,
-					       Pmmdb::Residue residue_p) {
+					       mmdb::PResidue residue_p) {
 
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
       if (restraints_vec[i].restraint_type == coot::ANGLE_RESTRAINT) {
@@ -6279,7 +6279,7 @@ coot::restraints_container_t::mod_angle_change(const coot::chem_mod_angle &mod_a
 
 void
 coot::restraints_container_t::mod_angle_delete(const coot::chem_mod_angle &mod_angle,
-					       Pmmdb::Residue residue_p) {
+					       mmdb::PResidue residue_p) {
 
 
    std::vector<coot::simple_restraint>::iterator it;
@@ -6314,7 +6314,7 @@ coot::restraints_container_t::mod_angle_delete(const coot::chem_mod_angle &mod_a
 
 void
 coot::restraints_container_t::apply_mod_plane(const coot::chem_mod_plane &mod_plane,
-					      Pmmdb::Residue residue_p) {
+					      mmdb::PResidue residue_p) {
 
    if (mod_plane.function == coot::CHEM_MOD_FUNCTION_ADD) {
       mod_plane_add(mod_plane, residue_p);
@@ -6327,7 +6327,7 @@ coot::restraints_container_t::apply_mod_plane(const coot::chem_mod_plane &mod_pl
 
 void
 coot::restraints_container_t::mod_plane_add(const coot::chem_mod_plane &mod_plane,
-					    Pmmdb::Residue residue_p) {
+					    mmdb::PResidue residue_p) {
    
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
@@ -6372,7 +6372,7 @@ coot::restraints_container_t::mod_plane_add(const coot::chem_mod_plane &mod_plan
 
 void
 coot::restraints_container_t::mod_plane_delete(const coot::chem_mod_plane &mod_plane,
-					       Pmmdb::Residue residue_p) {
+					       mmdb::PResidue residue_p) {
 
    std::vector<coot::simple_restraint>::iterator it;
    
@@ -6450,7 +6450,7 @@ coot::restraints_container_t::get_chiral_hydrogen_index(int indexc, int index1, 
 int
 coot::restraints_container_t::add_planes(int idr, mmdb::PPAtom res_selection,
 					 int i_no_res_atoms,
-					 Pmmdb::Residue SelRes,
+					 mmdb::PResidue SelRes,
 					 const coot::protein_geometry &geom) {
 
 //    std::cout << "There are " << geom[idr].plane_restraint.size()
@@ -6531,9 +6531,9 @@ coot::restraints_container_t::add_planes(int idr, mmdb::PPAtom res_selection,
 // make RAMACHANDRAN_RESTRAINTs, not TORSION_RESTRAINTs these days.
 int
 coot::restraints_container_t::add_rama(std::string link_type,
-				       Pmmdb::Residue prev_res,
-				       Pmmdb::Residue this_res,
-				       Pmmdb::Residue post_res,
+				       mmdb::PResidue prev_res,
+				       mmdb::PResidue this_res,
+				       mmdb::PResidue post_res,
 				       bool is_fixed_first,
 				       bool is_fixed_second,
 				       bool is_fixed_third,
@@ -6895,7 +6895,7 @@ coot::restraints_container_t::info() const {
 
 void
 coot::simple_refine(mmdb::Residue *residue_p,
-		    CMMDBManager *mol,
+		    mmdb::Manager *mol,
 		    const coot::dictionary_residue_restraints_t &dict_restraints) {
 
    if (residue_p) {

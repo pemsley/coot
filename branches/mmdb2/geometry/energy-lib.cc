@@ -107,11 +107,11 @@ coot::energy_lib_t::add_energy_lib_atoms(PCMMCIFLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
       std::string type;
-      realtype weight = -1;
+      mmdb::realtype weight = -1;
       int hb_type = coot::energy_lib_atom::HB_UNASSIGNED;
-      realtype vdw_radius = -1;
-      realtype vdwh_radius = -1; // with implicit hydrogen, I presume
-      realtype ion_radius = -1;
+      mmdb::realtype vdw_radius = -1;
+      mmdb::realtype vdwh_radius = -1; // with implicit hydrogen, I presume
+      mmdb::realtype ion_radius = -1;
       std::string element;
       int valency = -1;
       int sp_hybridisation = -1;
@@ -233,9 +233,9 @@ coot::energy_lib_t::add_energy_lib_bonds(PCMMCIFLoop mmCIFLoop) {
       std::string atom_type_1;
       std::string atom_type_2;
       std::string type;
-      realtype spring_const;
-      realtype length;
-      realtype value_esd; 
+      mmdb::realtype spring_const;
+      mmdb::realtype length;
+      mmdb::realtype value_esd; 
       int ierr;
       int ierr_tot = 0;
 
@@ -290,10 +290,10 @@ coot::energy_lib_t::add_energy_lib_angles(PCMMCIFLoop mmCIFLoop) {
       std::string atom_type_2;
       std::string atom_type_3;
       std::string type;
-      realtype spring_const;
-      realtype value = 90.0;
-      realtype value_esd = 1.8; // some arbitrary default!
-      realtype ktheta = 45;
+      mmdb::realtype spring_const;
+      mmdb::realtype value = 90.0;
+      mmdb::realtype value_esd = 1.8; // some arbitrary default!
+      mmdb::realtype ktheta = 45;
       int ierr;
       int ierr_tot = 0;
 
@@ -353,8 +353,8 @@ coot::energy_lib_t::add_energy_lib_torsions(PCMMCIFLoop mmCIFLoop) {
       std::string atom_type_3;
       std::string atom_type_4;
       std::string label;
-      realtype constant = 0;
-      realtype angle;
+      mmdb::realtype constant = 0;
+      mmdb::realtype angle;
       int period;
       int ierr;
       int ierr_tot = 0;

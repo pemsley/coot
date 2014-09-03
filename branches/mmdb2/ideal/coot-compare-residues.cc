@@ -8,8 +8,8 @@
 
 
 bool
-coot::compare_residue_torsions(CMMDBManager *mol1, mmdb::Residue *res_1,
-			       CMMDBManager *mol2, mmdb::Residue *res_2,
+coot::compare_residue_torsions(mmdb::Manager *mol1, mmdb::Residue *res_1,
+			       mmdb::Manager *mol2, mmdb::Residue *res_2,
 			       double tolerance,
 			       coot::protein_geometry *geom_p) {
 

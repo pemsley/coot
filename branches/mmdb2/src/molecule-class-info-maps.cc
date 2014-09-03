@@ -2138,7 +2138,7 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 	 std::cout << "sigmaa and scaling..." << std::endl;
 
 	 // need an mmdb
-	 CMMDBManager *mmdb = SelAtom.mol;
+	 mmdb::Manager *mmdb = SelAtom.mol;
 	    
 	 // get a list of all the atoms
 	 clipper::mmdb::mmdb::PPAtom psel;
@@ -3139,7 +3139,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       std::cout << "INFO:: Improved fit from " << initial_score << " to "
 		<< best_score << std::endl;
       if (! best_molecule.is_empty()) {
-	 CMMDBManager *mol = best_molecule.pcmmdbmanager();
+	 mmdb::Manager *mol = best_molecule.pcmmdbmanager();
 	 if (mol) {
 	    
 	    atom_selection_container_t asc_ligand = make_asc(mol);

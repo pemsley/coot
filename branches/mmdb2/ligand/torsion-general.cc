@@ -22,7 +22,7 @@
 
 #include "torsion-general.hh"
 
-coot::torsion_general::torsion_general(mmdb::Residue *res, CMMDBManager *residue_mol_in,
+coot::torsion_general::torsion_general(mmdb::Residue *res, mmdb::Manager *residue_mol_in,
 				       const std::vector<atom_spec_t> &user_defined_torsion_atoms_in) {
    setup_correctly = NO;
    mol = residue_mol_in;
@@ -221,8 +221,8 @@ coot::torsion_general::get_contact_indices() const {
 	 n_non_H_residue_atoms++;
       }
    }
-   non_H_residue_atoms = new Pmmdb::Atom[n_non_H_residue_atoms];
-   H_residue_atoms = new Pmmdb::Atom[n_H_residue_atoms];
+   non_H_residue_atoms = new mmdb::PAtom[n_non_H_residue_atoms];
+   H_residue_atoms = new mmdb::PAtom[n_H_residue_atoms];
    std::vector<int>     H_atom_orig_indcies(    n_H_residue_atoms);
    std::vector<int> non_H_atom_orig_indcies(n_non_H_residue_atoms);
    int iH=0;

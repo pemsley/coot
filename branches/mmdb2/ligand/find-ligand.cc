@@ -525,7 +525,7 @@ main(int argc, char **argv) {
 		  m = wlig.get_solution(isol, iclust);
 		  if (! m.is_empty()) {
 		     float bf = 30;
-		     CMMDBManager *ligand_mol = m.pcmmdbmanager();
+		     mmdb::Manager *ligand_mol = m.pcmmdbmanager();
 		     coot::hetify_residues_as_needed(ligand_mol);
 
 		     std::string file_name = "fitted-ligand-" +

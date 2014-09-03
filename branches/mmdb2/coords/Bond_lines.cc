@@ -189,13 +189,13 @@ Bond_lines_container::Bond_lines_container (const atom_selection_container_t &Se
 }
 
 void
-Bond_lines_container::try_set_b_factor_scale(CMMDBManager *mol) {
+Bond_lines_container::try_set_b_factor_scale(mmdb::Manager *mol) {
 
    int udd_b_factor_handle =  mol->GetUDDHandle(UDR_HIERARCHY,
 						coot::b_factor_bonds_scale_handle_name.c_str());
    // std::cout << "debug:: Got b factor udd handle: " << udd_b_factor_handle << std::endl;
    if (udd_b_factor_handle > 0) {
-      realtype scale;
+      mmdb::realtype scale;
       if (mol->GetUDData(udd_b_factor_handle, scale) == UDDATA_Ok) {
 	 b_factor_scale = scale;
       }
@@ -1172,8 +1172,8 @@ template<class T>
 void
 Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int atom_colour_type, T *link) {
 
-   Pmmdb::Atom atom_1 = NULL;
-   Pmmdb::Atom atom_2 = NULL;
+   mmdb::PAtom atom_1 = NULL;
+   mmdb::PAtom atom_2 = NULL;
    int n_chains = model_p->GetNumberOfChains();
    for (int ich=0; ich<n_chains; ich++) {
       mmdb::Chain *chain_p = model_p->GetChain(ich);
@@ -1275,7 +1275,7 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int atom_colour_
 mmdb::PPAtom
 coot::model_bond_atom_info_t::Hydrogen_atoms() const {
 
-   mmdb::PPAtom H_atoms = new Pmmdb::Atom[hydrogen_atoms_.size()];
+   mmdb::PPAtom H_atoms = new mmdb::PAtom[hydrogen_atoms_.size()];
    for (int i=0; i<hydrogen_atoms_.size(); i++) {
       H_atoms[i] = hydrogen_atoms_[i];
    }
@@ -1285,7 +1285,7 @@ coot::model_bond_atom_info_t::Hydrogen_atoms() const {
 mmdb::PPAtom
 coot::model_bond_atom_info_t::non_Hydrogen_atoms() const {
 
-   mmdb::PPAtom non_H_atoms = new Pmmdb::Atom[non_hydrogen_atoms_.size()];
+   mmdb::PPAtom non_H_atoms = new mmdb::PAtom[non_hydrogen_atoms_.size()];
    for (int i=0; i<non_hydrogen_atoms_.size(); i++) {
       non_H_atoms[i] = non_hydrogen_atoms_[i];
    }
@@ -1377,8 +1377,8 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    // consider a vector (over all models) of these:
    // 
    // class model_bond_atom_info_t {
-   //       std::vector<Pmmdb::Atom> hydrogen_atoms_;
-   //       std::vector<Pmmdb::Atom> non_hydrogen_atoms_;
+   //       std::vector<mmdb::PAtom> hydrogen_atoms_;
+   //       std::vector<mmdb::PAtom> non_hydrogen_atoms_;
    //    public:
    //    mmdb::PPAtom     Hydrogen_atoms();
    //    mmdb::PPAtom non_Hydrogen_atoms();
@@ -1556,7 +1556,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 }
 
 void
-Bond_lines_container::handle_MET_or_MSE_case(Pmmdb::Atom mse_atom,
+Bond_lines_container::handle_MET_or_MSE_case(mmdb::PAtom mse_atom,
 					     int udd_handle, 
 					     int atom_colour_type,
 					     coot::my_atom_colour_map_t *atom_colour_map_p) {
@@ -1634,7 +1634,7 @@ Bond_lines_container::handle_MET_or_MSE_case(Pmmdb::Atom mse_atom,
 }
 
 void
-Bond_lines_container::handle_long_bonded_atom(Pmmdb::Atom atom,
+Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
 					      int udd_handle,
 					      int atom_colour_type,
 					      coot::my_atom_colour_map_t *atom_colour_map_p) {
@@ -1998,7 +1998,7 @@ Bond_lines_container::find_intermolecular_symmetry(const atom_selection_containe
 
    int shift_lim = 1;
    mat44 my_matt;
-   realtype max_bond_dist = 2.25; // I guess
+   mmdb::realtype max_bond_dist = 2.25; // I guess
 
    for (int x_shift= -shift_lim; x_shift <= shift_lim; x_shift++) { 
       for (int y_shift= -shift_lim; y_shift <= shift_lim; y_shift++) { 
@@ -2225,7 +2225,7 @@ Bond_lines_container::addSymmetry_whole_chain(const atom_selection_container_t &
 	 // Here we want to get a selection of all atoms that have
 	 // been translated to this symm_trans, then calculate bonds
 	 // on them.
-	 mmdb::Atom **transsel = new Pmmdb::Atom[SelAtom.n_selected_atoms];
+	 mmdb::Atom **transsel = new mmdb::PAtom[SelAtom.n_selected_atoms];
 	 for (int i=0; i<SelAtom.n_selected_atoms; i++) {
 	    transsel[i] = new mmdb::Atom;
 	    transsel[i]->Copy(SelAtom.atom_selection[i]);
@@ -2275,7 +2275,7 @@ Bond_lines_container::addSymmetry_with_mmdb(const atom_selection_container_t &Se
       int ncontacts;
 
       if (SelAtom.n_selected_atoms > 0) { 
-	 Pmmdb::Atom point_atom_p = new mmdb::Atom;
+	 mmdb::PAtom point_atom_p = new mmdb::Atom;
 	 point_atom_p->SetCoordinates(point.get_x(), point.get_y(),
 				      point.get_z(), 1.0, 99.9);
 
@@ -2393,7 +2393,7 @@ Bond_lines_container::addSymmetry_vector_symms(const atom_selection_container_t 
 }
 
 graphical_bonds_container
-Bond_lines_container::intermolecular_symmetry_graphical_bonds(CMMDBManager *mol, 
+Bond_lines_container::intermolecular_symmetry_graphical_bonds(mmdb::Manager *mol, 
 							      const std::vector <Bond_lines_container::symmetry_atom_bond> &sabv,
 							      const std::pair<symm_trans_t, Cell_Translation> &symm_trans) {
 
@@ -2475,8 +2475,8 @@ Bond_lines_container::addSymmetry_calphas(const atom_selection_container_t &SelA
 	    for (int ires=0; ires<(nres-1); ires++) {
 	       // std::cout << "residue " << ires << " to  " << ires+1 << std::endl;
 	       // one residue to the next...
-	       Pmmdb::Residue res1 = chain->GetResidue(ires);
-	       Pmmdb::Residue res2 = chain->GetResidue(ires+1);
+	       mmdb::PResidue res1 = chain->GetResidue(ires);
+	       mmdb::PResidue res2 = chain->GetResidue(ires+1);
 
 	       // Search through the atoms of each residue looking for CAs:
 	       std::vector<mmdb::Atom *> ca_this;
@@ -2652,7 +2652,7 @@ Bond_lines_container::add_NCS_molecule_whole_chain(const atom_selection_containe
       // Here we want to get a selection of all atoms that have
       // been translated to this symm_trans, then calculate bonds
       // on them.
-      mmdb::Atom **transsel = new Pmmdb::Atom[SelAtom.n_selected_atoms];
+      mmdb::Atom **transsel = new mmdb::PAtom[SelAtom.n_selected_atoms];
       for (int i=0; i<SelAtom.n_selected_atoms; i++) {
 	 transsel[i] = new mmdb::Atom;
 	 transsel[i]->Copy(SelAtom.atom_selection[i]);
@@ -2723,7 +2723,7 @@ Bond_lines_container::ContactSel(mmdb::PPAtom trans_sel,
 
    // You might ask: where does this get deleted?  It does get deleted: giveback_1
    // 
-   TransSel.atom_selection = new Pmmdb::Atom[ncontacts]; // 
+   TransSel.atom_selection = new mmdb::PAtom[ncontacts]; // 
 
    for (int icon=0; icon<ncontacts; icon++) {
       // use sorted contacts
@@ -2785,7 +2785,7 @@ Bond_lines_container::trans_sel(atom_selection_container_t AtomSel,
    //	<< " atoms" << endl;
    // 
    // 
-   mmdb::PPAtom trans_selection = new Pmmdb::Atom[AtomSel.n_selected_atoms];
+   mmdb::PPAtom trans_selection = new mmdb::PAtom[AtomSel.n_selected_atoms];
    for (int ii=0; ii<AtomSel.n_selected_atoms; ii++) {
 
       trans_selection[ii] = new mmdb::Atom;
@@ -3277,7 +3277,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 					     } else {
 						if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
 						   if (atom_colours_udd > 0) {
-						      realtype f;
+						      mmdb::realtype f;
 						      if (at_1->GetUDData(atom_colours_udd, f) == UDDATA_Ok) {
 							 col = atom_colour_map.index_for_rainbow(f);
 						      } else {
@@ -3348,7 +3348,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 			if (udd_status != UDDATA_Ok || udd_value == 0) {
 			   int col = 0;
 			   if (atom_colours_udd > 0) {
-			      realtype f;
+			      mmdb::realtype f;
 			      if (at->GetUDData(atom_colours_udd, f) == UDDATA_Ok)
 				 col = atom_colour_map.index_for_chain(chain_p->GetChainID());
 			   }
@@ -3501,7 +3501,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal_old(atom_selection_container_t S
 			      else
 				 if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
 				    if (atom_colours_udd > 0) {
-				       realtype f;
+				       mmdb::realtype f;
 				       if (Ca_selection[contact[i].id1]->GetUDData(atom_colours_udd, f) == UDDATA_Ok) {
 					  col = atom_colour_map.index_for_rainbow(f);
 				       } else {
@@ -3552,7 +3552,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal_old(atom_selection_container_t S
 
 
 int
-Bond_lines_container::set_rainbow_colours(CMMDBManager *mol) {
+Bond_lines_container::set_rainbow_colours(mmdb::Manager *mol) {
 
    int udd_handle = mol->RegisterUDReal(UDR_ATOM, "rainbow circle point");
    if (udd_handle > 0) { 
@@ -3872,7 +3872,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
       add_bonds_het_residues(het_residues, het_atoms_colour_type, have_udd_atoms, udd_handle);
       
       if (ligand_atoms.size() > 0) { 
-	 Pmmdb::Atom *ligand_atoms_selection = new Pmmdb::Atom[ligand_atoms.size()];
+	 mmdb::PAtom *ligand_atoms_selection = new Pmmdb::Atom[ligand_atoms.size()];
 	 for(unsigned int iat=0; iat<ligand_atoms.size(); iat++) { 
 	    ligand_atoms_selection[iat] = ligand_atoms[iat];
 	 }

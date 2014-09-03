@@ -122,7 +122,7 @@ input_data_t get_input_details(int argc, char **argv);
 
 
 std::vector<std::pair<bool,mmdb::Residue *> >
-fill_residues(const std::string &chain_id, int resno_start, int resno_end, CMMDBManager *mol) {
+fill_residues(const std::string &chain_id, int resno_start, int resno_end, mmdb::Manager *mol) {
 
    std::vector<std::pair<bool,mmdb::Residue *> > v;
    

@@ -448,7 +448,7 @@ coot::get_names_for_link_type(const std::string &link_type) {
    
 // static
 std::pair<mmdb::Residue *, mmdb::Residue *>
-coot::link_by_torsion_t::get_residue_pair(CMMDBManager *mol) {
+coot::link_by_torsion_t::get_residue_pair(mmdb::Manager *mol) {
 
    std::pair<mmdb::Residue *, mmdb::Residue *> r(NULL, NULL);
    int imod = 1;

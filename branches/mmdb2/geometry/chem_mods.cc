@@ -191,7 +191,7 @@ coot::protein_geometry::add_chem_mod_atom( PCMMCIFLoop mmCIFLoop) {
       std::string new_atom_id;
       std::string new_type_symbol;
       std::string new_type_energy;
-      realtype new_partial_charge;
+      mmdb::realtype new_partial_charge;
       
       char *s;
 
@@ -269,8 +269,8 @@ coot::protein_geometry::add_chem_mod_bond( PCMMCIFLoop mmCIFLoop) {
       std::string atom_id_1;
       std::string atom_id_2;
       std::string new_type;
-      realtype new_value_dist;
-      realtype new_value_dist_esd;
+      mmdb::realtype new_value_dist;
+      mmdb::realtype new_value_dist_esd;
       
       char *s;
 
@@ -379,8 +379,8 @@ coot::protein_geometry::add_chem_mod_angle(PCMMCIFLoop mmCIFLoop) {
       std::string atom_id_1;
       std::string atom_id_2;
       std::string atom_id_3;
-      realtype new_value_angle;
-      realtype new_value_angle_esd;
+      mmdb::realtype new_value_angle;
+      mmdb::realtype new_value_angle_esd;
       
       char *s;
 
@@ -436,8 +436,8 @@ coot::protein_geometry::add_chem_mod_tor(PCMMCIFLoop mmCIFLoop) {
       std::string atom_id_2;
       std::string atom_id_3;
       std::string atom_id_4;
-      realtype new_value_angle;
-      realtype new_value_angle_esd;
+      mmdb::realtype new_value_angle;
+      mmdb::realtype new_value_angle_esd;
       int new_period;
       
       char *s;
@@ -567,7 +567,7 @@ coot::protein_geometry::add_chem_mod_plane(PCMMCIFLoop mmCIFLoop) {
       std::string plane_id;
       std::string function;
       std::string atom_id;
-      realtype new_dist_esd;
+      mmdb::realtype new_dist_esd;
       
       char *s;
 

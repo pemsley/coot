@@ -87,10 +87,10 @@ namespace coot {
       std::ostream& operator<<(std::ostream &s, phi_psi_t v);
 
       // throw an exception on failure to get angles or nSelResidues is not 3.
-      phi_psi_t ramachandran_angles(Pmmdb::Residue *SelResidues, int nSelResidues);
+      phi_psi_t ramachandran_angles(mmdb::PResidue *SelResidues, int nSelResidues);
 
       // used by ramachandran_angles:
-      std::pair<bool, phi_psi_t> get_phi_psi(Pmmdb::Residue *SelResidue);
+      std::pair<bool, phi_psi_t> get_phi_psi(mmdb::PResidue *SelResidue);
       std::pair<bool, phi_psi_t> get_phi_psi(mmdb::Residue *residue_0,
 					     mmdb::Residue *residue_1,
 					     mmdb::Residue *residue_2);

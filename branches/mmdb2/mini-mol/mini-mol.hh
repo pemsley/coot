@@ -151,7 +151,7 @@ namespace coot {
       class molecule {
 	 // Return status.  If good, return 0 else (if bad) return 1.
 	 // 
-	 short int setup(CMMDBManager *mmdb_mol_in);
+	 short int setup(mmdb::Manager *mmdb_mol_in);
 	 short int have_spacegroup;
 	 short int have_cell;
 	 std::pair<bool, int> min_resno_in_chain(mmdb::Chain *chain_p) const; 
@@ -162,7 +162,7 @@ namespace coot {
 	 molecule(const std::vector<clipper::Coord_orth> &atom_list,
 		  const std::string &residue_type, std::string atom_name,
 		  std::string chain_id);
-	 molecule(CMMDBManager *mmdb_mol_in);
+	 molecule(mmdb::Manager *mmdb_mol_in);
 	 molecule(const fragment &frag);
 
 	 // Ridiculous synthetic constructor.  Use the atom selection
@@ -173,7 +173,7 @@ namespace coot {
 		  const std::vector<mmdb::Atom> &atoms);
 	 
 	 
-	 short int init(CMMDBManager *mmdb_mol_in) {return setup(mmdb_mol_in);}
+	 short int init(mmdb::Manager *mmdb_mol_in) {return setup(mmdb_mol_in);}
 
 	 // for setting the mmdb cell and symm
 	 std::string mmdb_spacegroup;
@@ -181,7 +181,7 @@ namespace coot {
 	 // this is mmdb, use the cell angles in degrees.
 	 void set_cell(float a[6]);
 	 // cell angles in degrees:
-	 void set_cell(std::vector<realtype> c);
+	 void set_cell(std::vector<mmdb::realtype> c);
 	 void set_cell(const clipper::Cell &cell);
 	 void set_spacegroup(const std::string &spacegroup);
 
@@ -198,14 +198,14 @@ namespace coot {
 	 std::string name;
 	 std::vector<fragment> fragments;
 
-	 // We create (with new) a full mmdb CMMDBManager and pass
+	 // We create (with new) a full mmdb mmdb::Manager and pass
 	 // back the pointer to it.  You are responsible for deleting
 	 // it.
 	 //
 	 // Note that the b-factor is not an attribute of a minimol
 	 // atom, so we need to pass it. 
 	 // 
-	 PCMMDBManager pcmmdbmanager() const;
+	 mmdb::PManager pcmmdbmanager() const;
 	 void delete_molecule();
 	 const fragment& operator[](int i) const {return fragments[i];}
 	 fragment&       operator[](int i)       {return fragments[i];}

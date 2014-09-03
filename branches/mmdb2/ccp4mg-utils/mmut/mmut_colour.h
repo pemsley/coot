@@ -55,7 +55,7 @@ public:
   ~CColourScheme();
   int SetScheme ( int n, const char *typs[], const char *cols[]);
   int SetScheme ( int n,  int ityps[], const char *cols[]);
-  int SetScheme ( int n, realtype rngs[], int bns[], const char *cols[]);	
+  int SetScheme ( int n, mmdb::realtype rngs[], int bns[], const char *cols[]);	
 
  protected:
   int defColour;
@@ -102,7 +102,7 @@ public :
   \param selHndin A handle for the MMDB selection - i.e. the molecule object
   \param scheme A pointer to the CColourSchemes class which has the definition of the colour schemes.  There is only one instance of this class created by the MG. 
   */
-  CMolColour( PCMMDBManager molHndin , int selHndin ,
+  CMolColour( mmdb::PManager molHndin , int selHndin ,
     PCColourSchemes scheme);
  
  // Destructor
@@ -119,7 +119,7 @@ public :
 private:
 
   // the input data
-  PCMMDBManager molHnd;
+  mmdb::PManager molHnd;
   CColourSchemes *colourSchemes;
   int selHnd;
 

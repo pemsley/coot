@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
 
    if (argc > 1) { 
       std::string filename = argv[1];
-      CMMDBManager *mol = get_mol(filename);
+      mmdb::Manager *mol = get_mol(filename);
       if (mol) { 
 	 water_coordination_check(mol, 3.2);
       }
@@ -19,9 +19,9 @@ int main(int argc, char **argv) {
    return 0;
 }
 
-CMMDBManager *get_mol(const std::string &filename) {
+mmdb::Manager *get_mol(const std::string &filename) {
 
-   CMMDBManager *MMDBManager = new CMMDBManager();
+   mmdb::Manager *MMDBManager = new CMMDBManager();
    int err = MMDBManager->ReadCoorFile((char *)filename.c_str());
    if (err) {
       std::cout << "Error reading " << filename << std::endl;
@@ -37,14 +37,14 @@ contact_info_t::contacts_less(const contact_info_t &a, const contact_info_t &b) 
    return (b.contact_indices.size() < a.contact_indices.size());
 } 
 
-void water_coordination_check(CMMDBManager *mol, float max_dist) {
+void water_coordination_check(mmdb::Manager *mol, float max_dist) {
 
    // Make 2 atom selections,
    //    1) the whole molecule
    //    2) the waters
    // Then do a distance check between them:
 
-   Pmmdb::Atom *whole_protein_atom_sel;
+   mmdb::PAtom *whole_protein_atom_sel;
    int SelectionHandle = mol->NewSelection();
    mol->SelectAtoms (SelectionHandle, 0, "*",
 		     ANY_RES, // starting resno, an int
@@ -59,7 +59,7 @@ void water_coordination_check(CMMDBManager *mol, float max_dist) {
    int nSelAtoms_all;
    mol->GetSelIndex(SelectionHandle, whole_protein_atom_sel, nSelAtoms_all);
 
-   Pmmdb::Atom *waters_atom_sel = 0;
+   mmdb::PAtom *waters_atom_sel = 0;
    int SelectionHandle_waters = mol->NewSelection();
    mol->SelectAtoms (SelectionHandle_waters, 0, "*",
 		     ANY_RES, // starting resno, an int

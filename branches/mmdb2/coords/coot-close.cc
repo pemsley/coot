@@ -37,7 +37,7 @@
 clipper::Coord_orth
 closest_approach(const clipper::Coord_orth &moving_point, 
 		 const clipper::Coord_orth &reference_point,
-		 CMMDBManager *mol) { 
+		 mmdb::Manager *mol) { 
 
    clipper::Coord_orth pos(-1.0, -1.0, -1.0);
    clipper::Coord_orth trans_pos;
@@ -83,7 +83,7 @@ closest_approach(const clipper::Coord_orth &moving_point,
 clipper::RTop_orth
 closest_approach_transformation(const clipper::Coord_orth &moving_point, 
 				const clipper::Coord_orth &reference_point,
-				CMMDBManager *mol) {
+				mmdb::Manager *mol) {
 
    clipper::RTop_orth r;
    clipper::Coord_orth trans_pos;

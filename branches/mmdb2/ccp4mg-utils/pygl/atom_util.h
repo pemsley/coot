@@ -33,8 +33,8 @@ enum enum_ColourWheelDirection { COLOUR_WHEEL_CLOCK, COLOUR_WHEEL_ANTICLOCK };
 
 std::vector <Cartesian> CartesiansFromAtoms(mmdb::PPAtom clip_atoms, int nclip_atoms);
 int TreeCartesiansToAtoms(Tree *tree, mmdb::PPAtom clip_atoms, int nclip_atoms);
-mmdb::PPAtom GetAtomPair(const std::vector<std::pair<Pmmdb::Atom,Pmmdb::Atom> > &pair, int i);
-std::vector<std::vector <Cartesian> > GetExternalCartesians(CMMDBManager *molhnd, const std::vector<std::vector<int> > &conn_lists, int side_to_ribbon=0, int side_to_worm=0);
+mmdb::PPAtom GetAtomPair(const std::vector<std::pair<mmdb::PAtom,Pmmdb::Atom> > &pair, int i);
+std::vector<std::vector <Cartesian> > GetExternalCartesians(mmdb::Manager *molhnd, const std::vector<std::vector<int> > &conn_lists, int side_to_ribbon=0, int side_to_worm=0);
 
 class AtomColourVector {
  private:
@@ -60,7 +60,7 @@ class AtomColourVector {
   double* GetRGB(int i);
   double* GetResRGB(int i);
   std::vector<double*> GetRGBVector();
-  int SetupResidueColourVector( PCMMDBManager molhnd, int selHnd );
+  int SetupResidueColourVector( mmdb::PManager molhnd, int selHnd );
   void UnSetResidueColourVector();
 };
   

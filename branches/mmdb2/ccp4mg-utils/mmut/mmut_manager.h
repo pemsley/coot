@@ -32,7 +32,7 @@
 DefineClass(CMMUTManager);
 DefineStreamFunctions(CMMUTManager) ;
 
-class CMMUTManager : public CMMDBManager  {
+class CMMUTManager : public mmdb::Manager  {
 
   public :
 
@@ -48,7 +48,7 @@ class CMMUTManager : public CMMDBManager  {
     void PrintSequence(int selHnd);
     void PrintBValues(int selHnd);
     //void PrintLengthsAndAngles(int selHnd);
-    //void PrintLengthsAndAngles(realtype min, realtype max);
+    //void PrintLengthsAndAngles(mmdb::realtype min, realtype max);
  
     int NumberOfHydrogens(int selHnd);
     int ResNoLookup(pstr resname);
@@ -56,35 +56,35 @@ class CMMUTManager : public CMMDBManager  {
     pstr GetSequence(int selHnd);
     int *AtomicComposition(int selHnd);
     int *ResidueComposition(int selHnd);
-    Pmmdb::Residue NextResidue( Pmmdb::Residue pRes ,int increment=1);
+    mmdb::PResidue NextResidue( Pmmdb::Residue pRes ,int increment=1);
 
-    realtype  BondLength(Pmmdb::Atom A, Pmmdb::Atom B);
-    realtype  BondAngle(Pmmdb::Atom A, Pmmdb::Atom B, Pmmdb::Atom C);
-    realtype  TorsionAngle(Pmmdb::Atom A, Pmmdb::Atom B, Pmmdb::Atom C, Pmmdb::Atom D);
-    realtype  MolWeight(int selHnd);
-    realtype  MolWeightWithH(int selHnd);
-    realtype *GetBValues(int selHnd);
-    realtype *CentreOfMass(int selHnd);
-    realtype *Extent(int selHnd);
+    mmdb::realtype  BondLength(mmdb::PAtom A, Pmmdb::Atom B);
+    mmdb::realtype  BondAngle(mmdb::PAtom A, Pmmdb::Atom B, Pmmdb::Atom C);
+    mmdb::realtype  TorsionAngle(mmdb::PAtom A, Pmmdb::Atom B, Pmmdb::Atom C, Pmmdb::Atom D);
+    mmdb::realtype  MolWeight(int selHnd);
+    mmdb::realtype  MolWeightWithH(int selHnd);
+    mmdb::realtype *GetBValues(int selHnd);
+    mmdb::realtype *CentreOfMass(int selHnd);
+    mmdb::realtype *Extent(int selHnd);
 
-    Boolean isMainChain(Pmmdb::Atom p_atom);
-    Boolean doAltLocMatch ( Pmmdb::Atom pa1, Pmmdb::Atom pa2 ); 
+    Boolean isMainChain(mmdb::PAtom p_atom);
+    Boolean doAltLocMatch ( mmdb::PAtom pa1, Pmmdb::Atom pa2 ); 
     int NameComparison (const char *name , int ntypes , const char *types[] );
     std::string  TrimString(pstr inp);
-    std::string AtomLabel(Pmmdb::Atom p_atom, int mask[]);
+    std::string AtomLabel(mmdb::PAtom p_atom, int mask[]);
     Boolean ChainIDisDigit(Pmmdb::Chain p_ch);
-    const char* AtomLabel_atom1(Pmmdb::Atom p_atom);
-    const char* AtomLabel_atom(Pmmdb::Atom p_atom);
-    const char* AtomLabel_residue(Pmmdb::Atom p_atom);
-    const char* AtomLabel_chain(Pmmdb::Atom p_atom);
-    const char* AtomLabel_residue1(Pmmdb::Residue p_res);
-    const char* AtomLabel_mask(Pmmdb::Atom p_atom, int mask[]);
+    const char* AtomLabel_atom1(mmdb::PAtom p_atom);
+    const char* AtomLabel_atom(mmdb::PAtom p_atom);
+    const char* AtomLabel_residue(mmdb::PAtom p_atom);
+    const char* AtomLabel_chain(mmdb::PAtom p_atom);
+    const char* AtomLabel_residue1(mmdb::PResidue p_res);
+    const char* AtomLabel_mask(mmdb::PAtom p_atom, int mask[]);
     //int ApplyTransform(int selHnd,double rotmat[],double transv[]);
 
     //Editor
     int WriteSelection (int selHnd,char *file, char *format="PDB");
-    int PutSelectedAtoms (int selHnd , const PCMMDBManager mmdb2);
-    int CopySelection (int selHnd,const PCMMDBManager mmdb2);
+    int PutSelectedAtoms (int selHnd , const mmdb::PManager mmdb2);
+    int CopySelection (int selHnd,const mmdb::PManager mmdb2);
     int FindCloseAtomPairs ( int selHnd, double min_distance, 
 			     double max_distance);
    private: 

@@ -198,8 +198,8 @@ int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spe
 
 	    std::string chain_id = atom_spec.chain;
 
-	    CMMDBManager *mol = graphics_info_t::molecules[imol_model].atom_sel.mol;
-	    std::pair<CMMDBManager *, std::vector<coot::residue_spec_t> > mmdb_info =
+	    mmdb::Manager *mol = graphics_info_t::molecules[imol_model].atom_sel.mol;
+	    std::pair<mmdb::Manager *, std::vector<coot::residue_spec_t> > mmdb_info =
 	       coot::util::get_fragment_from_atom_spec(atom_spec, mol);
 
 	    if (!mmdb_info.first) {
@@ -209,8 +209,8 @@ int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spe
 	       // mmdb needs a spacegroup, it seems, or crash in sequence_chain().
 	       // OK.  Let's bolt one in.
 	       //
-	       realtype a[6];
-	       realtype vol;
+	       mmdb::realtype a[6];
+	       mmdb::realtype vol;
 	       int orthcode;
 	       mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
 	       char *sg = mol->GetSpaceGroup();
@@ -429,7 +429,7 @@ SCM  nearest_residue_by_sequence_scm(int imol, const char* chain_id, int resno, 
 
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       coot::residue_spec_t spec(chain_id, resno, ins_code);
       mmdb::Residue *residue_p = coot::nearest_residue_by_sequence(mol, spec);
       if (residue_p) {
@@ -459,7 +459,7 @@ PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int res
 
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       coot::residue_spec_t spec(chain_id, resno, ins_code);
       mmdb::Residue *residue_p = coot::nearest_residue_by_sequence(mol, spec);
       if (residue_p) {

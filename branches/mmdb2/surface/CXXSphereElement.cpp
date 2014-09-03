@@ -39,7 +39,7 @@ theAtom(0)
 CXXSphereElement::~CXXSphereElement(){
 }
 */
-CXXSphereElement::CXXSphereElement (Pmmdb::Atom anAtom, double del) : 
+CXXSphereElement::CXXSphereElement (mmdb::PAtom anAtom, double del) : 
 theAtom(anAtom), 
 deltaRadians(del)
 {
@@ -323,7 +323,7 @@ void CXXSphereElement::initWith(const CXXCircleNode &aNode, double delta,
 	}
 }
 
-void CXXSphereElement::initWith(const CXXCoord &aCentre, Pmmdb::Atom atomI, Pmmdb::Atom atomJ, Pmmdb::Atom atomK, 
+void CXXSphereElement::initWith(const CXXCoord &aCentre, mmdb::PAtom atomI, Pmmdb::Atom atomJ, Pmmdb::Atom atomK, 
 								double delta, double radius_in, const bool *includeAtoms){
 	
 	int UseOrGenerate = CXXSphereElement::GenerateCircles;

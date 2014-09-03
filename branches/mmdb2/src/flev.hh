@@ -3,9 +3,9 @@ namespace coot {
    
    std::vector<fle_residues_helper_t>
    get_flev_residue_centres(mmdb::Residue *reference_residue,
-			    CMMDBManager *mol_containing_residue_ligand, 
+			    mmdb::Manager *mol_containing_residue_ligand, 
 			    std::vector<mmdb::Residue *> residues,
-			    CMMDBManager *flat_mol);
+			    mmdb::Manager *flat_mol);
 
    // return a vector of the same size as filtered_residues.
    // 

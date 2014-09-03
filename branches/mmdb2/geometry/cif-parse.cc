@@ -387,8 +387,8 @@ coot::protein_geometry::chem_comp_tor_structure(PCMMCIFStruct structure) {
    std::pair<bool, std::string> atom_id_3(0, "");
    std::pair<bool, std::string> atom_id_4(0, "");
    std::pair<bool, int> period(0, 0);
-   std::pair<bool, realtype> value_angle(0, 0);
-   std::pair<bool, realtype> value_angle_esd(0, 0);
+   std::pair<bool, mmdb::realtype> value_angle(0, 0);
+   std::pair<bool, mmdb::realtype> value_angle_esd(0, 0);
    
    for (int itag=0; itag<n_tags; itag++) {
       std::string tag = structure->GetTag(itag);
@@ -602,7 +602,7 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const std::string &atom_id_4c,
 					 const std::string &type_symbol,
 					 const std::string &type_energy,
-					 const std::pair<bool, realtype> &partial_charge,
+					 const std::pair<bool, mmdb::realtype> &partial_charge,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos_ideal) { 
 
@@ -703,7 +703,7 @@ coot::protein_geometry::mon_lib_add_bond(std::string comp_id,
 				   std::string atom_id_1,
 				   std::string atom_id_2,
 				   std::string type,
-				   realtype value_dist, realtype value_dist_esd) {
+				   mmdb::realtype value_dist, realtype value_dist_esd) {
 
 //     std::cout << "adding bond for " << comp_id << " " << atom_id_1
 // 	      << " " << atom_id_2 << " " << type << " " << value_dist
@@ -785,8 +785,8 @@ coot::protein_geometry::mon_lib_add_angle(std::string comp_id,
 				    std::string atom_id_1,
 				    std::string atom_id_2,
 				    std::string atom_id_3,
-				    realtype value_angle,
-				    realtype value_angle_esd) {
+				    mmdb::realtype value_angle,
+				    mmdb::realtype value_angle_esd) {
 
 //    std::cout << "adding angle " << comp_id <<  " " << atom_id_1
 // 	     << " " << atom_id_2 << " " << atom_id_3 << " "
@@ -806,8 +806,8 @@ coot::protein_geometry::mon_lib_add_torsion(std::string comp_id,
 					    std::string atom_id_2,
 					    std::string atom_id_3,
 					    std::string atom_id_4,
-					    realtype value_angle,
-					    realtype value_angle_esd,
+					    mmdb::realtype value_angle,
+					    mmdb::realtype value_angle_esd,
 					    int period) {
 
    if (0)
@@ -883,7 +883,7 @@ void
 coot::protein_geometry::mon_lib_add_plane(const std::string &comp_id,
 					  const std::string &plane_id,
 					  const std::string &atom_id,
-					  const realtype &dist_esd) {
+					  const mmdb::realtype &dist_esd) {
 
    if (0)
       std::cout << "adding plane " << comp_id <<  " " << plane_id
@@ -1113,7 +1113,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
       std::string atom_id;
       std::string type_symbol; 
       std::string type_energy = "unset";
-      std::pair<bool, realtype> partial_charge(0,0);
+      std::pair<bool, mmdb::realtype> partial_charge(0,0);
 
       std::pair<bool, int> pdbx_align(0, 0);
       int xalign;
@@ -1170,7 +1170,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	       pdbx_stereo_config_flag = std::pair<bool, std::string> (1, s);
 	 }
 
-	 realtype x,y,z;
+	 mmdb::realtype x,y,z;
 	 pdbx_model_Cartn_ideal.first = 0;
 	 int ierr_optional_x = mmCIFLoop->GetReal(x, "pdbx_model_Cartn_x_ideal", j);
 	 int ierr_optional_y = mmCIFLoop->GetReal(y, "pdbx_model_Cartn_y_ideal", j);
@@ -1219,7 +1219,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	 // It's possible that this data type is not in the cif file,
 	 // so don't fail if we can't read it.
 
-	 realtype tmp_var;
+	 mmdb::realtype tmp_var;
 	 ierr = mmCIFLoop->GetReal(tmp_var, "partial_charge", j);
 	 if (ierr == 0) {
 	    partial_charge = std::pair<bool, float>(1, tmp_var);
@@ -1367,7 +1367,7 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
    std::string comp_id;
    std::string atom_id_1, atom_id_2;
    std::string type;
-   realtype value_dist = -1.0, value_dist_esd = -1.0;
+   mmdb::realtype value_dist = -1.0, value_dist_esd = -1.0;
 
    char *s; 
    int nbond = 0;
@@ -1488,7 +1488,7 @@ coot::protein_geometry::comp_angle(PCMMCIFLoop mmCIFLoop) {
 
    std::string comp_id;
    std::string atom_id_1, atom_id_2, atom_id_3;
-   realtype value_angle, value_angle_esd;
+   mmdb::realtype value_angle, value_angle_esd;
    int comp_id_index = -1;
 
    char *s; 
@@ -1554,7 +1554,7 @@ coot::protein_geometry::comp_torsion(PCMMCIFLoop mmCIFLoop) {
 
    std::string comp_id, id;
    std::string atom_id_1, atom_id_2, atom_id_3, atom_id_4;
-   realtype value_angle, value_angle_esd;
+   mmdb::realtype value_angle, value_angle_esd;
    int period;
 
    char *s; 
@@ -1731,7 +1731,7 @@ coot::protein_geometry::comp_plane(PCMMCIFLoop mmCIFLoop) {
 
    std::string comp_id;
    std::string atom_id, plane_id;
-   realtype dist_esd; 
+   mmdb::realtype dist_esd; 
 
    char *s; 
    int ierr;
@@ -2036,7 +2036,7 @@ coot::protein_geometry::link_bond(PCMMCIFLoop mmCIFLoop) {
    std::string link_id;
    std::string atom_id_1, atom_id_2;
    std::string type;
-   realtype value_dist, value_dist_esd;
+   mmdb::realtype value_dist, value_dist_esd;
    int atom_1_comp_id, atom_2_comp_id;
 
    char *s;
@@ -2088,7 +2088,7 @@ coot::protein_geometry::link_angle(PCMMCIFLoop mmCIFLoop) {
    std::string link_id;
    std::string atom_id_1, atom_id_2, atom_id_3;
    std::string type;
-   realtype value_angle, value_angle_esd;
+   mmdb::realtype value_angle, value_angle_esd;
    int atom_1_comp_id, atom_2_comp_id, atom_3_comp_id;
 
    char *s;
@@ -2144,7 +2144,7 @@ coot::protein_geometry::link_torsion(PCMMCIFLoop mmCIFLoop) {
 
    std::string link_id;
    std::string  atom_id_1, atom_id_2, atom_id_3, atom_id_4;
-   realtype value_angle, value_angle_esd;
+   mmdb::realtype value_angle, value_angle_esd;
    int atom_1_comp_id, atom_2_comp_id, atom_3_comp_id, atom_4_comp_id;
    char *s;
    int ierr;
@@ -2275,7 +2275,7 @@ coot::protein_geometry::link_plane(PCMMCIFLoop mmCIFLoop) {
 
    std::string link_id;
    std::string atom_id, plane_id;
-   realtype dist_esd;
+   mmdb::realtype dist_esd;
    int atom_comp_id;
 
    char *s; 
@@ -2320,8 +2320,8 @@ coot::protein_geometry::link_add_bond(const std::string &link_id,
 				      int atom_2_comp_id,
 				      const std::string &atom_id_1,
 				      const std::string &atom_id_2,
-				      realtype value_dist,
-				      realtype value_dist_esd) {
+				      mmdb::realtype value_dist,
+				      mmdb::realtype value_dist_esd) {
 
    dict_link_bond_restraint_t lbr(atom_1_comp_id,
 				  atom_2_comp_id,
@@ -2360,8 +2360,8 @@ coot::protein_geometry::link_add_angle(const std::string &link_id,
 				       const std::string &atom_id_1,
 				       const std::string &atom_id_2,
 				       const std::string &atom_id_3,
-				       realtype value_dist,
-				       realtype value_dist_esd) {
+				       mmdb::realtype value_dist,
+				       mmdb::realtype value_dist_esd) {
    
    dict_link_angle_restraint_t lar(atom_1_comp_id,
 				   atom_2_comp_id,
@@ -2396,8 +2396,8 @@ coot::protein_geometry::link_add_torsion(const std::string &link_id,
 					 const std::string &atom_id_2,
 					 const std::string &atom_id_3,
 					 const std::string &atom_id_4,
-					 realtype value_dist,
-					 realtype value_dist_esd,
+					 mmdb::realtype value_dist,
+					 mmdb::realtype value_dist_esd,
 					 int period,
 					 const std::string &id) {  // e.g. phi, psi, omega
 

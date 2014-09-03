@@ -57,17 +57,17 @@ public:
 	static int ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &ballPntrs, 
                             std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &contextBallPntrs, 
 							std::map<const CXXBall*, std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > > &contactMap);
-	virtual Pmmdb::Atom getAtomI() const = 0;
+	virtual mmdb::PAtom getAtomI() const = 0;
 };
 
 class CXXAtomBall: public CXXBall {
 private:
-	Pmmdb::Atom theAtom;
+	mmdb::PAtom theAtom;
 	double theRadius;
 	static double mostRecentDelta;
 	static CXXSphereElement unitSphereAtOrigin;
 public:
-	CXXAtomBall(Pmmdb::Atom theAtom_in, const double &radius_in) : theAtom (theAtom_in), theRadius(radius_in){
+	CXXAtomBall(mmdb::PAtom theAtom_in, const double &radius_in) : theAtom (theAtom_in), theRadius(radius_in){
 		theCoord=CXXCoord(theAtom->x, theAtom->y, theAtom->z);
 	};
 	virtual const double &getRadius() const{
@@ -86,16 +86,16 @@ public:
 		theSphere.translateBy (theCoord);
 		theSphere.setAtom(theAtom);
 	};	
-    virtual Pmmdb::Atom getAtomI() const{
+    virtual mmdb::PAtom getAtomI() const{
         return theAtom;
     };
 };
 
 class CXXReentrantProbeBall : public CXXBall {
 private:
-	Pmmdb::Atom theAtomI;
-	Pmmdb::Atom theAtomJ;
-	Pmmdb::Atom theAtomK;
+	mmdb::PAtom theAtomI;
+	mmdb::PAtom theAtomJ;
+	mmdb::PAtom theAtomK;
 	bool includeAtoms[3];
 	double theRadius;
 	static CXX::CXXAlloc<CXXReentrantProbeBall> allocator;

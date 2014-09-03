@@ -121,8 +121,8 @@ int CContact::Calculate0(int model)  {
   mmdb::PPAtom selAtoms2;
   int nSelAtoms,nSelAtoms2; 
 
-  realtype min_cutoff,max_cutoff,frac;
-  realtype vdw1,vdw2;
+  mmdb::realtype min_cutoff,max_cutoff,frac;
+  mmdb::realtype vdw1,vdw2;
   PSContact contacts = NULL;
   int ncontacts;
 
@@ -212,10 +212,10 @@ std::string CContact::Print(bool geometry) {
 //-----------------------------------------------------------------------
 
   std::ostringstream output;
-  std::vector<Pmmdb::Atom>::iterator i = close_contacts.pAtom1.begin();
-  std::vector<Pmmdb::Atom>::iterator j = close_contacts.pAtom2.begin();
+  std::vector<mmdb::PAtom>::iterator i = close_contacts.pAtom1.begin();
+  std::vector<mmdb::PAtom>::iterator j = close_contacts.pAtom2.begin();
   std::string first,second;
-  realtype dist,vdw1,vdw2,sum_vdw,frac;
+  mmdb::realtype dist,vdw1,vdw2,sum_vdw,frac;
   output.setf(ios::fixed);
   output.setf(ios::showpoint);
   output.setf(ios::left,ios::adjustfield);

@@ -27,16 +27,16 @@ namespace coot {
    class db_strands {
       std::string ref_str_dir_str;
       std::vector<std::string> get_reference_pdb_list() const;
-      CMMDBManager * get_mol(const std::string &filename) const;
+      mmdb::Manager * get_mol(const std::string &filename) const;
       std::vector<coot::minimol::molecule>
-      strand_analysis(mmdb::Model *model_p, CMMDBManager *mol,
+      strand_analysis(mmdb::Model *model_p, mmdb::Manager *mol,
 		      const std::string &filename, int strand_length) const;
       std::pair<bool, clipper::RTop_orth>
-      orient_strand_on_z(int SelHnd, CMMDBManager *mol) const;
-      void apply_rtop_to_strand(int SelHnd, CMMDBManager *mol,
+      orient_strand_on_z(int SelHnd, mmdb::Manager *mol) const;
+      void apply_rtop_to_strand(int SelHnd, mmdb::Manager *mol,
 				const clipper::RTop_orth &rtop) const;
       std::vector<clipper::Coord_orth> z_control_points(int nres) const;
-      void trim_to_mainchain(CMMDBManager *mol) const;
+      void trim_to_mainchain(mmdb::Manager *mol) const;
       
    public:
       db_strands();

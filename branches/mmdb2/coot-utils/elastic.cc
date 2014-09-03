@@ -5,10 +5,10 @@
 #include "utils/coot-utils.hh" // for random()
 #include "elastic.hh"
 
-coot::elastic_network_model_t::elastic_network_model_t(CMMDBManager *mol,
+coot::elastic_network_model_t::elastic_network_model_t(mmdb::Manager *mol,
 						       int SelectionHandle,
-						       realtype min_dist,
-						       realtype max_dist,
+						       mmdb::realtype min_dist,
+						       mmdb::realtype max_dist,
 						       int max_n_distances) {
 
    if (mol) { 

@@ -26,7 +26,7 @@
 
 namespace coot {
    // we need standard residues to make the ideal RNA
-   mmdb::Residue * watson_crick_partner(mmdb::Residue *res_ref, CMMDBManager *standard_residues);
+   mmdb::Residue * watson_crick_partner(mmdb::Residue *res_ref, mmdb::Manager *standard_residues);
    std::pair<bool, clipper::RTop_orth> 
       base_pair_match_matix(mmdb::Residue *res_ref, mmdb::Residue *res_moving);
 

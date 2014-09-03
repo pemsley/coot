@@ -15,7 +15,7 @@ CXXCreator::CXXCreator (pstr thePdb) {
 
 	int RC;
 	
-	theMMDBManager = new CMMDBManager();
+	theMMDBManager = new mmdb::Manager();
 	theMMDBManager->SetFlag( MMDBF_PrintCIFWarnings );
 	
 	
@@ -31,13 +31,13 @@ CXXCreator::CXXCreator (pstr thePdb) {
 	theMMDBManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 }
 
-CXXCreator::CXXCreator (PCMMDBManager theMMDBManager_in) {
+CXXCreator::CXXCreator (mmdb::PManager theMMDBManager_in) {
 	theMMDBManager = theMMDBManager_in;
 	int selHnd = selectAllAtoms();
 	theMMDBManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 }
 
-CXXCreator::CXXCreator (PCMMDBManager theMMDBManager, int selHnd, int context_selHnd ) {
+CXXCreator::CXXCreator (mmdb::PManager theMMDBManager, int selHnd, int context_selHnd ) {
 	init();
 	theMMDBManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
         
@@ -108,7 +108,7 @@ CXXCoord CXXCreator::getAtomCoord(int atomNr) {
 		throw theException;
 	}
 	if(SelAtom){
-	Pmmdb::Atom theAtom = SelAtom[atomNr];
+	mmdb::PAtom theAtom = SelAtom[atomNr];
         if(theAtom){
 	theCoord.setX(theAtom->x);
 	theCoord.setY(theAtom->y);
@@ -127,7 +127,7 @@ double CXXCreator::getAtomRadius(int atomNr) {
 		throw theException;
 	}
 	if(SelAtom){
-	Pmmdb::Atom theAtom = SelAtom[atomNr];
+	mmdb::PAtom theAtom = SelAtom[atomNr];
 	if(theAtom){
 	radius = getVdWaalsRadius(theAtom->element);
 	}
@@ -144,7 +144,7 @@ string CXXCreator::getAtomElement(int atomNr) {
 		CXXException theException = CXXException("ERROR in: CXXCoord::getAtomElement(atomNr) - atomNr out of range");
 		throw theException;
 	}
-	Pmmdb::Atom theAtom = SelAtom[atomNr];
+	mmdb::PAtom theAtom = SelAtom[atomNr];
 	
 	theElement = theAtom->element;
 	
@@ -159,7 +159,7 @@ string CXXCreator::getAtomName(int atomNr) {
 		CXXException theException = CXXException("ERROR in: CXXCoord::getAtomName(atomNr) - atomNr out of range");
 		throw theException;
 	}
-	Pmmdb::Atom theAtom = SelAtom[atomNr];
+	mmdb::PAtom theAtom = SelAtom[atomNr];
 	theName = theAtom->name;
 	
 	
@@ -176,7 +176,7 @@ string CXXCreator::getAtomResidueName(int atomNr) {
 		CXXException theException = CXXException("ERROR in: CXXCoord::getAtomResidue(atomNr) - atomNr out of range");
 		throw theException;
 	}
-	Pmmdb::Atom theAtom = SelAtom[atomNr];
+	mmdb::PAtom theAtom = SelAtom[atomNr];
 	name = theAtom->GetResName();
 	theResidueName = name;
 	
@@ -191,7 +191,7 @@ double CXXCreator::lookUpCharge(int atomNr) {
 	double theCharge = 0.0;
 
 	if(SelAtom){
-	   Pmmdb::Atom theAtom = SelAtom[atomNr];
+	   mmdb::PAtom theAtom = SelAtom[atomNr];
 	   if(theAtom){
 	      theCharge = SelAtom[atomNr]->charge;
 	   }

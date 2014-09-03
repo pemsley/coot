@@ -105,9 +105,9 @@ namespace coot {
 #endif // HAVE_GSL      
 
       class fffear_search {
-	 int fill_nxmap     (CMMDBManager *mol, int SelectionHandle,
+	 int fill_nxmap     (mmdb::Manager *mol, int SelectionHandle,
 			      const clipper::Coord_orth &low_left);
-	 int fill_nxmap_mask(CMMDBManager *mol, int SelectionHandle,
+	 int fill_nxmap_mask(mmdb::Manager *mol, int SelectionHandle,
 			      const clipper::Coord_orth &low_left);
 	 void generate_search_rtops(float angular_resolution); // fill ops (e.g. 10 degrees)
 	 double min_molecule_radius_; 
@@ -131,7 +131,7 @@ namespace coot {
       public:
 	 clipper::NXmap<float> nxmap;
 	 clipper::NXmap<float> nxmap_mask;
-	 fffear_search(CMMDBManager *mol, int SelectionHandle, const clipper::Xmap<float> &xmap,
+	 fffear_search(mmdb::Manager *mol, int SelectionHandle, const clipper::Xmap<float> &xmap,
 		       float angular_resolution, bool translation_search_only=false);
 	 std::vector<std::pair<clipper::RTop_orth, float> > get_scored_transformations() const;
 	 clipper::RTop_orth get_best_transformation() const;

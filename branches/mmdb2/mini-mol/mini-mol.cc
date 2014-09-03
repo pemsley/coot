@@ -28,7 +28,7 @@
 
 #include "compat/coot-sysdep.h"
 
-coot::minimol::molecule::molecule(CMMDBManager *mol) {
+coot::minimol::molecule::molecule(mmdb::Manager *mol) {
    setup(mol);
 }
 
@@ -178,7 +178,7 @@ coot::minimol::molecule::min_resno_in_chain(mmdb::Chain *chain_p) const {
 // Return status.  If good, return 0 else (if bad) return 1.
 //
 short int
-coot::minimol::molecule::setup(CMMDBManager *mol) {
+coot::minimol::molecule::setup(mmdb::Manager *mol) {
 
    short int istat = 0;
    if (mol == NULL) {
@@ -228,7 +228,7 @@ coot::minimol::molecule::setup(CMMDBManager *mol) {
 		     std::pair<short int, int> min_info = min_resno_in_chain(chain_p);
 		     if (min_info.first) { 
 			fragments[ifrag].resize_for(nres, min_info.second);
-			Pmmdb::Residue residue_p;
+			mmdb::PResidue residue_p;
 			mmdb::Atom *at;
 			for (int ires=0; ires<nres; ires++) { 
 			   residue_p = chain_p->GetResidue(ires);
@@ -262,8 +262,8 @@ coot::minimol::molecule::setup(CMMDBManager *mol) {
 	    }
 	 }
       }
-      realtype cell[6];
-      realtype vol;
+      mmdb::realtype cell[6];
+      mmdb::realtype vol;
       int orthcode;
       mol->GetCell(cell[0], cell[1], cell[2],
 		   cell[3], cell[4], cell[5], vol, orthcode);
@@ -421,7 +421,7 @@ coot::minimol::molecule::set_cell(const clipper::Cell &cell) {
 }
 
 void
-coot::minimol::molecule::set_cell(std::vector<realtype> c) {
+coot::minimol::molecule::set_cell(std::vector<mmdb::realtype> c) {
 
    if (c.size() == 6) {
       have_cell = 1; 
@@ -442,7 +442,7 @@ coot::minimol::molecule::set_spacegroup(const std::string &spacegroup_in) {
 int
 coot::minimol::molecule::read_file(std::string pdb_filename) {
 
-   CMMDBManager mol;
+   mmdb::Manager mol;
    int ierr = mol.ReadCoorFile((char *)pdb_filename.c_str());
    if (ierr) {
       std::cout << "There was an error reading " << pdb_filename << ". \n";
@@ -470,7 +470,7 @@ int
 coot::minimol::molecule::write_file(std::string pdb_filename, float atoms_b_factor) const {
    
    // std::cout << "\nDEBUG:: write_file " << pdb_filename << std::endl;
-   PCMMDBManager newmol = pcmmdbmanager();
+   mmdb::PManager newmol = pcmmdbmanager();
 
    int ierr = newmol->WritePDBASCII((char *)pdb_filename.c_str());
    // std::cout << "DEBUG:: write_file " << pdb_filename << " done\n " << std::endl;
@@ -812,13 +812,13 @@ coot::minimol::molecule::zone_info() const {
 }
 
 
-// We create (with new) a full mmdb CMMDBManager and pass back the
+// We create (with new) a full mmdb mmdb::Manager and pass back the
 // pointer to it.  You are responsible for deleting it.
 //
-PCMMDBManager 
+mmdb::PManager 
 coot::minimol::molecule::pcmmdbmanager() const {
 
-   PCMMDBManager mol = new CMMDBManager;
+   mmdb::PManager mol = new mmdb::Manager;
    InitMatType();
 
    // we have to add to the mmdb mol atom by atom
@@ -886,8 +886,8 @@ coot::minimol::molecule::pcmmdbmanager() const {
       
       mol->SetCell(mmdb_cell[0], mmdb_cell[1], mmdb_cell[2],
 		   mmdb_cell[3], mmdb_cell[4], mmdb_cell[5], 1);
-      realtype cell[6];
-      realtype vol;
+      mmdb::realtype cell[6];
+      mmdb::realtype vol;
       int orthcode;
       mol->GetCell(cell[0], cell[1], cell[2], cell[3],
 		   cell[4], cell[5], vol, orthcode); 

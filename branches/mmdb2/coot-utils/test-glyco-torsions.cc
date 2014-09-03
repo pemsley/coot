@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
 	       l.new_residue_type = new_residue_type;
 
 	       // Get a base residue
-	       CMMDBManager *mol = new CMMDBManager;
+	       mmdb::Manager *mol = new CMMDBManager;
 	       std::string pdb_file_name =
 		  "pdb-templates/pyranose-pyranose-via-" + link_type + ".pdb";
 
@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
 			   l.set_new_residue_number(1);
 			   mmdb::Residue *r = l.make_residue(base_residue_p);
 			   if (r) {
-			      CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(r);
+			      mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(r);
 			      std::string output_pdb_file_name = "output-" + new_residue_type + ".pdb";
 			      mol->WritePDBASCII(output_pdb_file_name.c_str());
 			   }
@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
 	 if (argc == 4)
 	    new_residue_type = argv[3];
       
-	 CMMDBManager *mol = new CMMDBManager;
+	 mmdb::Manager *mol = new CMMDBManager;
 	 int status = mol->ReadPDBASCII(file_name.c_str());
 	 if (status != Error_NoError) {
 	    std::cout << "ERROR:: on reading " << file_name << std::endl;

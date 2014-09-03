@@ -399,7 +399,7 @@ int CXXSurface::writeAsGrasp (const std::string &path)
 	return 0;
 }
 
-CXXSurface::CXXSurface (PCMMDBManager allAtomsManager_in, const std::string selectionString,
+CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const std::string selectionString,
 						const std::string contextString){
 	double delta = 30. * 2. * M_PI / 360.;
 	double probeRadius = 1.4;
@@ -408,20 +408,20 @@ CXXSurface::CXXSurface (PCMMDBManager allAtomsManager_in, const std::string sele
 	calculateFromAtoms( allAtomsManager_in,  selectionString,  contextString, probeRadius, delta,blend_edges);
 }
 
-CXXSurface::CXXSurface (PCMMDBManager allAtomsManager_in, const std::string selectionString,
+CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const std::string selectionString,
                         const std::string contextString, const double delta, const double probeRadius,  const bool blend_edges){
 	init();
 	calculateFromAtoms( allAtomsManager_in,  selectionString,  contextString, probeRadius, delta, blend_edges);
 }
 
-CXXSurface::CXXSurface (PCMMDBManager allAtomsManager_in, const std::string selectionString){
+CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const std::string selectionString){
 	double delta = 30. * 2. * M_PI / 360.;
 	double probeRadius = 1.4;
     bool blend_edges = false;
 	calculateFromAtoms( allAtomsManager_in,  selectionString, probeRadius, delta,blend_edges);
 }
 
-CXXSurface::CXXSurface (PCMMDBManager allAtomsManager_in, const int selHnd){
+CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const int selHnd){
 	double delta = 30. * 2. * M_PI / 360.;
 	double probeRadius = 1.4;
     bool blend_edges = false;
@@ -429,33 +429,33 @@ CXXSurface::CXXSurface (PCMMDBManager allAtomsManager_in, const int selHnd){
 	calculateFromAtoms( allAtomsManager_in,  selHnd,  selHnd, probeRadius, delta,blend_edges);
 }
 
-CXXSurface::CXXSurface (PCMMDBManager allAtomsManager_in, const int selHnd, const double delta, const double probeRadius, const bool blend_edges){
+CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const int selHnd, const double delta, const double probeRadius, const bool blend_edges){
 	init();
 	calculateFromAtoms( allAtomsManager_in,  selHnd,  selHnd, probeRadius, delta,blend_edges);
 }
 
-CXXSurface::CXXSurface (PCMMDBManager allAtomsManager_in, const int selHnd, const int contextSelHnd, 
+CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, 
                         const double delta, const double probeRadius,const bool blend_edges ){
 	init();
 	calculateFromAtoms( allAtomsManager_in,  selHnd,  contextSelHnd, probeRadius, delta,blend_edges);
 }
 
-int CXXSurface::calculateFromAtoms(PCMMDBManager allAtomsManager_in, const std::string selectionString, const double probeRadius, const double delta, const bool blend_edges){
+int CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const std::string selectionString, const double probeRadius, const double delta, const bool blend_edges){
 	int selHnd = selectionStringToSelHnd(allAtomsManager_in, selectionString);
 	return calculateFromAtoms(allAtomsManager_in, selHnd, selHnd, probeRadius, delta,blend_edges);
 }
 
-int CXXSurface::calculateFromAtoms(PCMMDBManager allAtomsManager_in, const std::string selectionString, const std::string contextString, const double probeRadius, const double delta , const bool blend_edges ){
+int CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const std::string selectionString, const std::string contextString, const double probeRadius, const double delta , const bool blend_edges ){
 	int selHnd = selectionStringToSelHnd(allAtomsManager_in, selectionString);
 	int contextHnd = selectionStringToSelHnd(allAtomsManager_in, contextString);
 	return calculateFromAtoms(allAtomsManager_in, selHnd, contextHnd, probeRadius, delta,blend_edges );
 }
 
-int CXXSurface::calculateFromAtoms(PCMMDBManager allAtomsManager_in, const int selHnd, const double probeRadius, const double delta, const bool blend_edges){
+int CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const double probeRadius, const double delta, const bool blend_edges){
 	return calculateFromAtoms(allAtomsManager_in, selHnd, selHnd, probeRadius, delta,blend_edges);
 }
 
-int CXXSurface::calculateVDWFromAtoms(PCMMDBManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
+int CXXSurface::calculateVDWFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
 	allAtomsManager = allAtomsManager_in;	
 	
 	int  nSelAtoms;
@@ -466,7 +466,7 @@ int CXXSurface::calculateVDWFromAtoms(PCMMDBManager allAtomsManager_in, const in
 	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
 		vdwBallPntrs.push_back(new CXXAtomBall(SelAtom[atomNr], getAtomRadius(SelAtom[atomNr])));
 	}
-	map<Pmmdb::Atom, const CXXBall *> mainAtoms;
+	map<mmdb::PAtom, const CXXBall *> mainAtoms;
 	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
 		mainAtoms[vdwBallPntrs[atomNr]->getAtomI()] = vdwBallPntrs[atomNr]; 
 	}
@@ -480,7 +480,7 @@ int CXXSurface::calculateVDWFromAtoms(PCMMDBManager allAtomsManager_in, const in
 	int nUniqueContextAtoms = 0;
 	int nSharedContextAtoms = 0;
 	for (int atomNr = 0;atomNr < nContextSelAtoms; atomNr++) { 
-		map<Pmmdb::Atom, const CXXBall *>::iterator equivalentMainAtom = mainAtoms.find(ContextSelAtom[atomNr]);
+		map<mmdb::PAtom, const CXXBall *>::iterator equivalentMainAtom = mainAtoms.find(ContextSelAtom[atomNr]);
 		if (equivalentMainAtom != mainAtoms.end()){
 			contextBallPntrs.push_back(equivalentMainAtom->second);
 			nSharedContextAtoms++;
@@ -497,7 +497,7 @@ int CXXSurface::calculateVDWFromAtoms(PCMMDBManager allAtomsManager_in, const in
 		if (vdwBallPntrs[i]) delete vdwBallPntrs[i];
 	}
 	for (int i=0; i<contextBallPntrs.size(); i++){
-		map<Pmmdb::Atom, const CXXBall *>::iterator equivalentMainAtom = mainAtoms.find(ContextSelAtom[i]);
+		map<mmdb::PAtom, const CXXBall *>::iterator equivalentMainAtom = mainAtoms.find(ContextSelAtom[i]);
 		if (equivalentMainAtom == mainAtoms.end()){
 			if (contextBallPntrs[i]) delete contextBallPntrs[i];
 		}
@@ -507,7 +507,7 @@ int CXXSurface::calculateVDWFromAtoms(PCMMDBManager allAtomsManager_in, const in
 	
 } 
 
-int CXXSurface::calculateAccessibleFromAtoms(PCMMDBManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
+int CXXSurface::calculateAccessibleFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
 	allAtomsManager = allAtomsManager_in;	
 	
 	int  nSelAtoms;
@@ -518,7 +518,7 @@ int CXXSurface::calculateAccessibleFromAtoms(PCMMDBManager allAtomsManager_in, c
 	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
 		vdwBallPntrs.push_back(new CXXAtomBall(SelAtom[atomNr], probeRadius+getAtomRadius(SelAtom[atomNr])));
 	}
-	map<Pmmdb::Atom, const CXXBall *> mainAtoms;
+	map<mmdb::PAtom, const CXXBall *> mainAtoms;
 	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
 		mainAtoms[vdwBallPntrs[atomNr]->getAtomI()] = vdwBallPntrs[atomNr]; 
 	}
@@ -532,7 +532,7 @@ int CXXSurface::calculateAccessibleFromAtoms(PCMMDBManager allAtomsManager_in, c
 	int nUniqueContextAtoms = 0;
 	int nSharedContextAtoms = 0;
 	for (int atomNr = 0;atomNr < nContextSelAtoms; atomNr++) { 
-		map<Pmmdb::Atom, const CXXBall *>::iterator equivalentMainAtom = mainAtoms.find(ContextSelAtom[atomNr]);
+		map<mmdb::PAtom, const CXXBall *>::iterator equivalentMainAtom = mainAtoms.find(ContextSelAtom[atomNr]);
 		if (equivalentMainAtom != mainAtoms.end()){
 			contextBallPntrs.push_back(equivalentMainAtom->second);
 			nSharedContextAtoms++;
@@ -549,7 +549,7 @@ int CXXSurface::calculateAccessibleFromAtoms(PCMMDBManager allAtomsManager_in, c
 		if (vdwBallPntrs[i]) delete vdwBallPntrs[i];
 	}
 	for (int i=0; i<contextBallPntrs.size(); i++){
-		map<Pmmdb::Atom, const CXXBall *>::iterator equivalentMainAtom = mainAtoms.find(ContextSelAtom[i]);
+		map<mmdb::PAtom, const CXXBall *>::iterator equivalentMainAtom = mainAtoms.find(ContextSelAtom[i]);
 		if (equivalentMainAtom == mainAtoms.end()){
 			if (contextBallPntrs[i]) delete contextBallPntrs[i];
 		}
@@ -558,7 +558,7 @@ int CXXSurface::calculateAccessibleFromAtoms(PCMMDBManager allAtomsManager_in, c
 	return 0;
 } 
 
-int CXXSurface::calculateFromAtoms(PCMMDBManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
+int CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
 	allAtomsManager = allAtomsManager_in;	
 	
 	int  nSelAtoms;
@@ -592,7 +592,7 @@ int CXXSurface::calculateFromAtoms(PCMMDBManager allAtomsManager_in, const int s
 	
 #pragma omp parallel for default(none) shared(nSelAtoms, SelAtom, cout, unitSphereAtOrigin, vdwBallPntrs, contactMap, ContextSelAtom, splitReentrantProbes) schedule(dynamic, 100) //num_threads(2)
 	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
-		Pmmdb::Atom centralAtom = static_cast<const CXXAtomBall *>(vdwBallPntrs[atomNr])->getAtomI();		
+		mmdb::PAtom centralAtom = static_cast<const CXXAtomBall *>(vdwBallPntrs[atomNr])->getAtomI();		
 		if (!(atomNr%100) || atomNr==nSelAtoms-1) {
 #pragma omp critical(cout)
 			cout << "Dealing with atom number " <<atomNr <<endl;
@@ -653,7 +653,7 @@ int CXXSurface::calculateFromAtoms(PCMMDBManager allAtomsManager_in, const int s
     return 0;
 }
 
-int CXXSurface::assignAtom (PCMMDBManager allAtomsManager_in, int selHnd){
+int CXXSurface::assignAtom (mmdb::PManager allAtomsManager_in, int selHnd){
     void **pointerBuffer;
     mmdb::PPAtom selAtom;
     int nSelAtoms;
@@ -689,7 +689,7 @@ int CXXSurface::assignAtom (PCMMDBManager allAtomsManager_in, int selHnd){
 }
 
 
-int CXXSurface::colorByColourArray(const std::vector<double*> &colours, CMMDBManager *molHnd, int selHnd){
+int CXXSurface::colorByColourArray(const std::vector<double*> &colours, mmdb::Manager *molHnd, int selHnd){
     double greyColour[] = {0.5,0.5,0.5};
     double Colour[] = {0.5,0.5,0.5};
     
@@ -717,7 +717,7 @@ int CXXSurface::colorByColourArray(const std::vector<double*> &colours, CMMDBMan
         SelAtom[i]->PutUDData(udd,i);
     
     for (int i=0; i< int(vertices.size()); i++){
-        Pmmdb::Atom theAtom = (Pmmdb::Atom) vertices[i].pointer(pointers["atom"]);
+        mmdb::PAtom theAtom = (Pmmdb::Atom) vertices[i].pointer(pointers["atom"]);
         if (theAtom != 0){
             int atomid;
             theAtom->GetUDData(udd,atomid);
@@ -734,7 +734,7 @@ int CXXSurface::colorByColourArray(const std::vector<double*> &colours, CMMDBMan
 }
 
 int CXXSurface::colorByAssignedAtom(){
-    Pmmdb::Atom theAtom;
+    mmdb::PAtom theAtom;
     double redColour[] = {1.,0.,0.};
     double greenColour[] = {0.,1.,0.};
     double blueColour[] = {0.,0.,1.};
@@ -752,7 +752,7 @@ int CXXSurface::colorByAssignedAtom(){
     delete [] colourBuffer;
     
     for (int i=0; i< int(vertices.size()); i++){
-        theAtom = (Pmmdb::Atom) vertices[i].pointer(pointers["atom"]);
+        theAtom = (mmdb::PAtom) vertices[i].pointer(pointers["atom"]);
         if (theAtom != 0){
             switch (theAtom->name[1]){
                 case 'C':
@@ -905,7 +905,7 @@ int CXXSurface::upLoadSphere(CXXSphereElement &theSphere, double probeRadius, co
         int iDraw = 0;
         for (unsigned int i=0; i< theSphere.nVertices(); i++){
             if (uniqueAndDrawn[i]){
-                Pmmdb::Atom anAtom;
+                mmdb::PAtom anAtom;
                 if ((anAtom = theSphere.vertex(i).getAtom())!=0 ){
                     atomBuffer[iDraw] = (void *) anAtom;
                 }
@@ -951,7 +951,7 @@ int CXXSurface::upLoadSphere(CXXSphereElement &theSphere, double probeRadius, co
     return 0;
 }
 
-double CXXSurface::getAtomRadius(Pmmdb::Atom theAtom){
+double CXXSurface::getAtomRadius(mmdb::PAtom theAtom){
     //Here get handle of a radius data type from MMDB if such has been stored
     int iRadiusHandle = allAtomsManager->GetUDDHandle(UDR_ATOM, "PerAtomRadius");
     double theRadius;
@@ -963,7 +963,7 @@ double CXXSurface::getAtomRadius(Pmmdb::Atom theAtom){
     return theRadius;
 }
 
-int CXXSurface::selectionStringToSelHnd(PCMMDBManager allAtomsManager_in, std::string selectionString){
+int CXXSurface::selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::string selectionString){
     int selHnd = allAtomsManager_in->NewSelection();
     char *pstring = (char *) malloc (sizeof(selectionString.c_str())+1);
     strcpy (pstring, selectionString.c_str());
@@ -972,7 +972,7 @@ int CXXSurface::selectionStringToSelHnd(PCMMDBManager allAtomsManager_in, std::s
     return selHnd;
 }
 
-CMMDBManager *CXXSurface::getMMDBManager() const{
+mmdb::Manager *CXXSurface::getMMDBManager() const{
     return allAtomsManager;
 }
 
@@ -988,7 +988,7 @@ int CXXSurface::setCoord(const string &name, int iVertex, const CXXCoord &crd){
     return vertices.size();
 }
 
-int CXXSurface::getIntegerUDDataOfAtom(Pmmdb::Atom theAtom, int handle){
+int CXXSurface::getIntegerUDDataOfAtom(mmdb::PAtom theAtom, int handle){
     int result;
     int rc = theAtom->GetUDData(handle, result);
     switch (rc)  {

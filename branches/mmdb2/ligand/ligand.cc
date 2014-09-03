@@ -71,7 +71,7 @@
 
 
 std::pair<coot::minimol::molecule, coot::minimol::molecule>
-coot::make_mols_from_atom_selection_string(CMMDBManager *mol,
+coot::make_mols_from_atom_selection_string(mmdb::Manager *mol,
 					   std::string atom_selection_string,
 					   bool fill_masking_molecule_flag) {
    int SelHnd = mol->NewSelection();
@@ -80,10 +80,10 @@ coot::make_mols_from_atom_selection_string(CMMDBManager *mol,
    int n_selected_atoms;
    mol->GetSelIndex(SelHnd, atom_selection, n_selected_atoms);
 
-   CMMDBManager *mol_from_selected =
+   mmdb::Manager *mol_from_selected =
       coot::util::create_mmdbmanager_from_atom_selection(mol, SelHnd);
    // atom selection in mol gets inverted by this function:
-   CMMDBManager *mol_from_non_selected =
+   mmdb::Manager *mol_from_non_selected =
       coot::util::create_mmdbmanager_from_atom_selection(mol, SelHnd, 1);
 
    coot::minimol::molecule range_mol  = coot::minimol::molecule(mol_from_selected);
@@ -293,7 +293,7 @@ coot::ligand::map_fill_from_mtz(std::string mtz_file_name,
 // The interface used by c-interface.cc's execute_ligand_search():
 // 
 void 
-coot::ligand::mask_map(CMMDBManager *mol, short int mask_waters_flag) {
+coot::ligand::mask_map(mmdb::Manager *mol, short int mask_waters_flag) {
 
    float atom_radius = map_atom_mask_radius; // Angstroems
 
@@ -304,7 +304,7 @@ coot::ligand::mask_map(CMMDBManager *mol, short int mask_waters_flag) {
    
    // xmap_pre_cluster = xmap; // copy to the map that (will be) masked not clustered.
 
-   realtype xmc, ymc, zmc; // filled by reference
+   mmdb::realtype xmc, ymc, zmc; // filled by reference
    GetMassCenter (atoms, n_atoms, xmc, ymc, zmc);
    protein_centre = clipper::Coord_orth(xmc, ymc, zmc);
    std::cout << "INFO:: Protein centre at: " << protein_centre.format() << std::endl; 
@@ -330,7 +330,7 @@ coot::ligand::mask_map(CMMDBManager *mol, short int mask_waters_flag) {
 }
 
 void
-coot::ligand::mask_map(CMMDBManager *mol, 
+coot::ligand::mask_map(mmdb::Manager *mol, 
 		       int SelectionHandle,
 		       short int invert_flag) { 
    // if invert_flag is 0 put the map to 0
@@ -552,7 +552,7 @@ coot::ligand::set_masked_map_value(float v) {
 }
 
 int
-coot::ligand::make_selected_atoms(mmdb::PPAtom *atoms_p, CMMDBManager *mol) {
+coot::ligand::make_selected_atoms(mmdb::PPAtom *atoms_p, mmdb::Manager *mol) {
 
    int selHnd = mol->NewSelection();
    mol->SelectAtoms (selHnd, 0, "*",
@@ -1746,7 +1746,7 @@ coot::ligand::make_ligand_properties(int ilig) {
 
 
 void
-coot::ligand::install_ligand(CMMDBManager *mol) {
+coot::ligand::install_ligand(mmdb::Manager *mol) {
 
    int ilig = initial_ligand.size();
    initial_ligand.resize(ilig+1);
@@ -2003,7 +2003,7 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
       if (i < n_sol) {
 
 	 const minimol::molecule &lig_mol = final_ligand[iclust][i].first;
-	 CMMDBManager *mol = lig_mol.pcmmdbmanager(); // d
+	 mmdb::Manager *mol = lig_mol.pcmmdbmanager(); // d
 	 std::vector<residue_spec_t> specs;
 	 residue_spec_t spec(lig_mol[0].fragment_id,
 			     lig_mol[0].min_res_no(), "");
@@ -2049,7 +2049,7 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
 double
 coot::ligand::get_correl(const minimol::molecule &lig_mol) const {
 
-   CMMDBManager *mol = lig_mol.pcmmdbmanager();
+   mmdb::Manager *mol = lig_mol.pcmmdbmanager();
    std::vector<residue_spec_t> specs;
    residue_spec_t spec(lig_mol[0].fragment_id,
 		       lig_mol[0].min_res_no(), "");
@@ -2089,14 +2089,14 @@ coot::ligand::limit_solutions(unsigned int iclust,
 
    if (filter_by_torsion_match) {
       // make a vector of final solution mmdb::Residues:
-      std::vector<std::pair<mmdb::Residue *, CMMDBManager *>  >
+      std::vector<std::pair<mmdb::Residue *, mmdb::Manager *>  >
 	 final_solution_residues(final_ligand[iclust].size());
       for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
-	 CMMDBManager *mol = get_solution(iclust, i).pcmmdbmanager();
+	 mmdb::Manager *mol = get_solution(iclust, i).pcmmdbmanager();
 	 if (mol) {
 	    mmdb::Residue *r = util::get_first_residue(mol);
 	    if (r) {
-	       std::pair<mmdb::Residue *, CMMDBManager *> p(r, mol);
+	       std::pair<mmdb::Residue *, mmdb::Manager *> p(r, mol);
 	       final_solution_residues[i] = p;
 	    }
 	 }
@@ -2783,7 +2783,7 @@ coot::ligand::cluster_centres() const {
 
 
 void
-coot::ligand::import_reference_coords(CMMDBManager *mol) {
+coot::ligand::import_reference_coords(mmdb::Manager *mol) {
 
 }
 

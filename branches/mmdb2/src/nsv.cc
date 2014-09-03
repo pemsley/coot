@@ -46,7 +46,7 @@
 
 #include "canvas-fixes.hh"
 
-exptl::nsv::nsv(CMMDBManager *mol,
+exptl::nsv::nsv(mmdb::Manager *mol,
 		const std::string &molecule_name,
 		int molecule_number_in,
 		bool use_graphics_interface_in) {
@@ -55,7 +55,7 @@ exptl::nsv::nsv(CMMDBManager *mol,
    nsv(mol, molecule_name, molecule_number_in, use_graphics_interface_in);
 }
 
-exptl::nsv::nsv(CMMDBManager *mol,
+exptl::nsv::nsv(mmdb::Manager *mol,
 		const std::string &molecule_name,
 		int molecule_number_in,
 		bool use_graphics_interface_in,
@@ -128,7 +128,7 @@ exptl::nsv::on_nsv_dialog_destroy (GtkObject *obj,
 
 
 void
-exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
+exptl::nsv::setup_canvas(mmdb::Manager *mol, GtkWidget *scrolled_window) {
 
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
    fixed_font_str = "monospace";
@@ -286,7 +286,7 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 }
 
 void
-exptl::nsv::mol_to_canvas(CMMDBManager *mol, int lowest_resno, double x_offset) {
+exptl::nsv::mol_to_canvas(mmdb::Manager *mol, int lowest_resno, double x_offset) {
 
    int imod = 1;
    mmdb::Model *model_p = mol->GetModel(imod);
@@ -476,7 +476,7 @@ exptl::nsv::rect_event (GtkObject *obj,
 
 
 std::vector<exptl::nsv::chain_length_residue_units_t> 
-exptl::nsv::get_residue_counts(CMMDBManager *mol) const {
+exptl::nsv::get_residue_counts(mmdb::Manager *mol) const {
 
    std::vector<exptl::nsv::chain_length_residue_units_t> chain_length_residue_units;
    int imod = 1;
@@ -489,7 +489,7 @@ exptl::nsv::get_residue_counts(CMMDBManager *mol) const {
 			       // insertion codes and gaps.
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
-      Pmmdb::Residue residue_p = 0;
+      mmdb::PResidue residue_p = 0;
       mmdb::Atom *at;
       int lowest_resno = 9999999;
       int highest_resno = -9999999;

@@ -112,26 +112,26 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 				    short int diff_residue_flag,
 				    std::string molecule_name) const
 {
-   // we need a MyMMDBManager (not just an CMMDBManager) because it
+   // we need a MyMMDBManager (not just an mmdb::Manager) because it
    // become part of an atom_selection_container_t. 
    // 
-   MyCMMDBManager* MMDBManager;
+   Mymmdb::Manager* MMDBManager;
 
    //   Make routine initializations
    //
    InitMatType();
 
-   // MyMMDBManager = new MyCMMDBManager();
-   // MMDBManager = new MyCMMDBManager;
+   // MyMMDBManager = new Mymmdb::Manager();
+   // MMDBManager = new Mymmdb::Manager;
 
    // There were problems converting between clipper space group
    // and mmdb space group (in the commented out code, in the case
    // of "R 3 2" - which mmdb did not recognise.
    //
-   // So, we use a clipper::MMDB which is a wrapper for CMMDBManager
+   // So, we use a clipper::MMDB which is a wrapper for mmdb::Manager
    // (and other things). 
    //
-   // We create a "new" object so that it (the CMMDBManager) does not
+   // We create a "new" object so that it (the mmdb::Manager) does not
    // get destroyed, but note that we cannot now delete the clipper::MMDB
    // (which is not ideal).
    //
@@ -140,14 +140,14 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
    // 
    
 //    clipper::MMDB* clmmdb = new clipper::MMDB( spg, cell );
-//    MMDBManager = reinterpret_cast<MyCMMDBManager*>(clmmdb->pcmmdbmanager());
+//    MMDBManager = reinterpret_cast<Mymmdb::Manager*>(clmmdb->pcmmdbmanager());
 
    clipper::MMDBManager *clmmdb;
    clmmdb = new clipper::MMDBManager;
    clmmdb->set_spacegroup(spg);
    clmmdb->set_cell(cell);
 
-   MMDBManager = reinterpret_cast<MyCMMDBManager*>(clmmdb);
+   MMDBManager = reinterpret_cast<Mymmdb::Manager*>(clmmdb);
 
 //    cout << "step 0: " << endl; 
 //    cout << "DEBUG: There are "
@@ -215,7 +215,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 	    chain_p->AddResidue ( res_p );
       }
    
-      Pmmdb::Atom atom = new mmdb::Atom;
+      mmdb::PAtom atom = new mmdb::Atom;
 
       atom->SetCoordinates(c[ii].x(), c[ii].y(), c[ii].z(), 1.0, 99);
       atom->SetResidue(res_p); 
@@ -385,7 +385,7 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
    
    if (AtomSel.n_selected_atoms > 0) { 
       
-      Pmmdb::Atom point_atom_p = new mmdb::Atom;
+      mmdb::PAtom point_atom_p = new mmdb::Atom;
       point_atom_p->SetCoordinates(current_point.get_x(),
 				   current_point.get_y(),
 				   current_point.get_z(), 1.0, 99.9);
@@ -409,7 +409,7 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 		  
 		  // cout << "Here: " << ix << " " << iy << " " << iz << " " << isym << endl; 
 
-		  mmdb::PPAtom trans_selection = new Pmmdb::Atom[AtomSel.n_selected_atoms];
+		  mmdb::PPAtom trans_selection = new mmdb::PAtom[AtomSel.n_selected_atoms];
 		  for (int ii=0; ii<AtomSel.n_selected_atoms; ii++) {
 		     
 		     trans_selection[ii] = new mmdb::Atom;
@@ -435,7 +435,7 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 		     for (int ii=0; ii<ncontacts; ii++) {
 			
 			// consider pushing back contact[ii].id2, with 
-			// vector <Pmmdb::Atom> big_ball;
+			// vector <mmdb::PAtom> big_ball;
 			// 
 			coot::Cartesian a(trans_selection [ contact[ii].id2 ]->x,
 				    trans_selection [ contact[ii].id2 ]->y,
@@ -1463,7 +1463,7 @@ BuildCas::fit_next_in_segment(const clipper::Xmap<float> &map) {
 // Given a vector of cartesians, return a vector of cartesians that
 // are "close to" a target point (start_point).
 //
-// If were were using mmdb (i.e. Pmmdb::Atoms, this function may be faster -
+// If were were using mmdb (i.e. mmdb::PAtoms, this function may be faster -
 // consider recoding if this function is slow).
 //
 // We naively check all points in the big_ball.
@@ -1551,8 +1551,8 @@ BuildCas::move_by_symmetry(coot::Cartesian middle_mol,
    float current_min_dist = (middle_mol - target_point).amplitude(); 
    float test_dist; 
    mat44 my_matt;
-   Pmmdb::Atom atom = new mmdb::Atom;
-   Pmmdb::Atom trans_atom = new mmdb::Atom; 
+   mmdb::PAtom atom = new mmdb::Atom;
+   mmdb::PAtom trans_atom = new mmdb::Atom; 
 
    // we will use mmdb atoms to have the symmetry applied to it.
    // 

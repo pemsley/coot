@@ -40,9 +40,9 @@ namespace coot {
       std::string seq;
       short int single_stranged_flag;
       mmdb::Residue * get_standard_residue_instance(const std::string &residue_type,
-					       CMMDBManager *standard_residues) const;
+					       mmdb::Manager *standard_residues) const;
       clipper::RTop_orth n_turns(int nbase, int n_in_chain, coot::ideal_rna::form_t form_flag) const;
-      CMMDBManager *standard_residues;
+      mmdb::Manager *standard_residues;
       bool is_valid_base(char base) const;
       char antisense_base(char base, bool is_dna_flag) const;
       int mutate_res(mmdb::Residue *res, char base, bool is_dna_flag) const;
@@ -62,10 +62,10 @@ namespace coot {
    public:
       ideal_rna(const std::string &RNA_or_DNA, const std::string &form,
 		short int single_stranged_flag,
-		const std::string &sequence, CMMDBManager *standard_residues);
+		const std::string &sequence, mmdb::Manager *standard_residues);
       void use_v3_names() { use_standard_refmac_names = 0; }
 
-      CMMDBManager *make_molecule();
+      mmdb::Manager *make_molecule();
 
    };
 

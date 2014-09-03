@@ -214,7 +214,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
    if (flat.read_success) {
       if (is_valid_model_molecule(imol_ligand_fragment)) {
 
-	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 mmdb::Residue  *res_ref = coot::util::get_residue(chain_id, res_no, ins_code, mol);
 	 mmdb::Residue *flat_res = coot::util::get_residue("", 1, "", flat.mol); // prodrg attribs
 
@@ -236,7 +236,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 	 if (res_ref) { 
 	    
 	    std::string ligand_res_name(res_ref->GetResName());
-	    CMMDBManager *ligand_mol =
+	    mmdb::Manager *ligand_mol =
 	       graphics_info_t::molecules[imol_ligand_fragment].atom_sel.mol;
 	    int every_nth = 1;
 	    std::vector<coot::lsq_range_match_info_t> matches;
@@ -439,7 +439,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 
    if (is_valid_model_molecule(imol)) { 
       mmdb::Residue  *res_ref = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
-      CMMDBManager *mol_for_res_ref = g.molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol_for_res_ref = g.molecules[imol].atom_sel.mol;
       if (res_ref) {
 	 std::string ligand_res_name(res_ref->GetResName());
 
@@ -502,7 +502,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 
 		  mmdb::Residue *residue_flat =
 		     coot::make_residue(rdkm, mol_2d_depict_conformer, "XXX");
-		  CMMDBManager *mol_for_flat_residue =
+		  mmdb::Manager *mol_for_flat_residue =
 		     coot::util::create_mmdbmanager_from_residue(residue_flat);
 
 		  if (0) 
@@ -654,9 +654,9 @@ coot::operator<<(std::ostream &s, fle_residues_helper_t fler) {
 
 std::vector<coot::fle_residues_helper_t>
 coot::get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,
-			       CMMDBManager *mol_containing_residue_ligand, 
+			       mmdb::Manager *mol_containing_residue_ligand, 
 			       std::vector<mmdb::Residue *> residues,
-			       CMMDBManager *flat_mol) {
+			       mmdb::Manager *flat_mol) {
 
    std::vector<coot::fle_residues_helper_t> centres;
 
@@ -963,7 +963,7 @@ coot::write_ligand_atom_accessibilities(const std::vector<std::pair<coot::atom_s
 std::vector<coot::fle_ligand_bond_t>
 coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 			   const std::vector<mmdb::Residue *> &residues,
-			   CMMDBManager *mol, 
+			   mmdb::Manager *mol, 
 			   const std::map<std::string, std::string> &name_map,
 			   const coot::protein_geometry &geom,
 			   float water_dist_max,
@@ -992,7 +992,7 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
    std::vector<mmdb::Residue *> rv = residues;
    rv.push_back(ligand_res);
 
-   std::pair<bool, CMMDBManager *> m = coot::util::create_mmdbmanager_from_residue_vector(rv);
+   std::pair<bool, mmdb::Manager *> m = coot::util::create_mmdbmanager_from_residue_vector(rv);
    coot::residue_spec_t ligand_spec(ligand_res);
 
    if (m.first) { 
@@ -1162,7 +1162,7 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 
 
 std::vector<coot::fle_ligand_bond_t>
-coot::get_covalent_bonds_by_distance(CMMDBManager *mol,
+coot::get_covalent_bonds_by_distance(mmdb::Manager *mol,
 				     int SelHnd_lig,
 				     int SelHnd_all,
 				     const residue_spec_t &ligand_spec,
@@ -1200,9 +1200,9 @@ coot::get_covalent_bonds_by_distance(CMMDBManager *mol,
    int n_other_atoms;
    mol->GetSelIndex(SelHnd_local, other_atom_selection, n_other_atoms);
 
-   realtype min_dist = 0.1;
-   realtype max_dist = 2.3; //  even S-S is shorter than this, I think
-   realtype cno_max_dist = 1.8;
+   mmdb::realtype min_dist = 0.1;
+   mmdb::realtype max_dist = 2.3; //  even S-S is shorter than this, I think
+   mmdb::realtype cno_max_dist = 1.8;
 
    mol->SeekContacts(lig_atom_selection,   n_lig_atoms,
 		     other_atom_selection, n_other_atoms,
@@ -1262,7 +1262,7 @@ coot::get_covalent_bonds_by_distance(CMMDBManager *mol,
 
 std::vector<coot::fle_ligand_bond_t>
 coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
-				  CMMDBManager *mol) {
+				  mmdb::Manager *mol) {
 
    std::vector<coot::fle_ligand_bond_t> v;
 
@@ -1427,7 +1427,7 @@ coot::is_a_metal(mmdb::Residue *res) {
 // return 100 if no other contact found (strange!)
 // 
 double
-coot::find_water_protein_length(mmdb::Residue *ligand_residue, CMMDBManager *mol) {
+coot::find_water_protein_length(mmdb::Residue *ligand_residue, mmdb::Manager *mol) {
 
    double dist = 100;
 
@@ -1727,7 +1727,7 @@ coot::flev_attached_hydrogens_t::cannonballs(mmdb::Residue *ligand_residue_3d,
 
 void
 coot::flev_attached_hydrogens_t::cannonballs(mmdb::Residue *ligand_residue_3d,
-					     CMMDBManager *mol, 
+					     mmdb::Manager *mol, 
 					     const coot::dictionary_residue_restraints_t &restraints) {
 
    if (! mol)
@@ -1831,7 +1831,7 @@ coot::flev_attached_hydrogens_t::cannonballs(mmdb::Residue *ligand_residue_3d,
 bool
 coot::flev_attached_hydrogens_t::add_named_torsion(mmdb::Atom *h_at, mmdb::Atom *at,
 						   const coot::dictionary_residue_restraints_t &restraints,
-						   CMMDBManager *mol, // 3d prodrg ligand mol
+						   mmdb::Manager *mol, // 3d prodrg ligand mol
 						   int hydrogen_type)  {
 
    bool found_torsion_for_this_H = 0;
@@ -2014,7 +2014,7 @@ coot::flev_attached_hydrogens_t::named_hydrogens_to_reference_ligand(mmdb::Resid
 // apply those cannonball directions onto the real reference ligand:
 void
 coot::flev_attached_hydrogens_t::distances_to_protein(mmdb::Residue *residue_reference, 
-						      CMMDBManager *mol_reference) {
+						      mmdb::Manager *mol_reference) {
 
    float radius = 6.0;
    std::vector<mmdb::Residue *> env_residues =
@@ -2107,7 +2107,7 @@ coot::flev_attached_hydrogens_t::distances_to_protein(mmdb::Residue *residue_ref
 // 
 void
 coot::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Residue *ligand_residue,
-								       CMMDBManager *mol,
+								       mmdb::Manager *mol,
 								       const coot::protein_geometry &geom) {
 
    // the constructor (called just before this) should fill

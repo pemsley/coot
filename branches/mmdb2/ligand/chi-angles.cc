@@ -458,7 +458,7 @@ coot::chi_angles::change_by(int ichi, double diff, coot::protein_geometry* geom_
 	 
 	 if (n && ca && cb && cg && cd) {
 	    
-	    ordered_residue_atoms = new Pmmdb::Atom[nResidueAtoms];
+	    ordered_residue_atoms = new mmdb::PAtom[nResidueAtoms];
 	    ordered_residue_atoms[0] = n;
 	    ordered_residue_atoms[1] = ca;
 	    ordered_residue_atoms[2] = cb;

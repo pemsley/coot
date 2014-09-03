@@ -85,8 +85,8 @@ private:
 public:
 		surface(); 
 		~surface();
-		surface(CMMDBManager *theManager, int selHnd); 
-		surface(CMMDBManager *theManager, int selHnd, int contextSelHnd); 
+		surface(mmdb::Manager *theManager, int selHnd); 
+		surface(mmdb::Manager *theManager, int selHnd, int contextSelHnd); 
 		surface(const std::string &fileName);
 		void draw(double *override_colour=0, int selective_override=0);
 		void drawElement(int element);
@@ -95,11 +95,11 @@ public:
 		void set_draw_colour(GLfloat *col=0);
 		void DrawPovray(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin);
 		void DrawPostScript(std::ofstream &fp, const Quat &quat, double radius, double ox, double oy, double oz, const matrix &objrotmatrix, const Cartesian &objorigin, double xoff, double yoff, double xscale, double yscale, double xscaleps, const Volume &v);
-		void ColourSurface(CMMDBManager *theManager, int selHnd, AtomColourVector *atm_col_vec);
+		void ColourSurface(mmdb::Manager *theManager, int selHnd, AtomColourVector *atm_col_vec);
 		std::string report() { return theSurface->report(); }
 		
-		int evaluatePhiAndColourWithScheme(CMMDBManager *theManager, const int selHnd, CColourScheme &colourScheme, int contains_hydrogen);
-		int evaluatePhiAndColourWithDefaultScheme(CMMDBManager *theManager, const int selHnd,int contains_hydrogen );
+		int evaluatePhiAndColourWithScheme(mmdb::Manager *theManager, const int selHnd, CColourScheme &colourScheme, int contains_hydrogen);
+		int evaluatePhiAndColourWithDefaultScheme(mmdb::Manager *theManager, const int selHnd,int contains_hydrogen );
 		int interpolateIntoMap(const std::string &coordinateType, 
 							   const std::string &scalarType, 
 							   const clipper::NXmap<double> &aMap);

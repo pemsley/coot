@@ -25,7 +25,7 @@
 
 #include "coot-atom-graph.hh"
 
-coot::atom_graph::atom_graph(CMMDBManager *mol,
+coot::atom_graph::atom_graph(mmdb::Manager *mol,
 			     const std::vector<std::vector<coot::node_info> > &connection_indices, 
 			     const std::vector<clipper::Coord_orth> &coords) { 
 
@@ -50,7 +50,7 @@ coot::atom_graph::atom_graph(CMMDBManager *mol,
 
       // assign cell and space group spgr
       cell.resize(6);
-      realtype vol;
+      mmdb::realtype vol;
       int orthcode;
       mol->GetCell(cell[0], cell[1], cell[2], cell[3], cell[4], cell[5], vol, orthcode);
       spgr = mol->GetSpaceGroup();

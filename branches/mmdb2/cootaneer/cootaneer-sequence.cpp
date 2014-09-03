@@ -14,7 +14,7 @@ Coot_sequence::Coot_sequence( std::string filename )
 }
 
 
-std::pair<std::string,double> Coot_sequence::sequence_chain( const clipper::Xmap<float>& xmap, const std::vector<std::pair<std::string,std::string> >& sequence, CMMDBManager& mmdb, std::string chain_id )
+std::pair<std::string,double> Coot_sequence::sequence_chain( const clipper::Xmap<float>& xmap, const std::vector<std::pair<std::string,std::string> >& sequence, mmdb::Manager& mmdb, std::string chain_id )
 {
   // convert the sequence to minimol form
   clipper::MMoleculeSequence seq;

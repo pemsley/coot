@@ -8,7 +8,7 @@
 
 clipper::Coord_orth
 get_coords_centre(const std::vector<coot::residue_spec_t> &residues,
-		  CMMDBManager *mol) {
+		  mmdb::Manager *mol) {
    
    clipper::Coord_orth sum(0,0,0);
    int n_pt=0;
@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
       
       InitMatType();
       
-      CMMDBManager *mol = new CMMDBManager;
+      mmdb::Manager *mol = new CMMDBManager;
       int err = mol->ReadCoorFile(file_name.c_str());
       if (err) {
 	 std::cout << "There was an error reading " << file_name.c_str() << ".\n";

@@ -7,11 +7,11 @@
 #include "bfkurt.hh"
 
 
-coot_extras::b_factor_analysis::b_factor_analysis(const CMMDBManager *mol_in, bool is_mol_from_shelx_flag_in) { 
+coot_extras::b_factor_analysis::b_factor_analysis(const mmdb::Manager *mol_in, bool is_mol_from_shelx_flag_in) { 
 
    // for each chain, we want a vector of residues, which contain the kertosis
    // 
-   CMMDBManager *mol = (CMMDBManager *) mol_in; // ghastly.
+   mmdb::Manager *mol = (CMMDBManager *) mol_in; // ghastly.
    is_mol_from_shelx_flag = is_mol_from_shelx_flag_in;
    
    // recall kurtosis, $k$ of $N$ observations:
@@ -34,7 +34,7 @@ coot_extras::b_factor_analysis::b_factor_analysis(const CMMDBManager *mol_in, bo
 		  int nres = chain_p->GetNumberOfResidues();
 		  if (nres > 0) {
 		     for (int ires=0; ires<nres; ires++) { 
-			Pmmdb::Residue residue_p = chain_p->GetResidue(ires);
+			mmdb::PResidue residue_p = chain_p->GetResidue(ires);
 			if (residue_p) { 
 			   std::string res_name(residue_p->GetResName());
 			   if (res_name != "HOH" && 

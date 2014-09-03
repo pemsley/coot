@@ -28,7 +28,7 @@
 // 
 coot::ideal_rna::ideal_rna(const std::string &RNA_or_DNA, const std::string &form,
 			   short int single_stranged_flag_in,
-			   const std::string &sequence, CMMDBManager *standard_residues_in) {
+			   const std::string &sequence, mmdb::Manager *standard_residues_in) {
 
    RNA_or_DNA_ = RNA_or_DNA;
    form_ = form;
@@ -40,10 +40,10 @@ coot::ideal_rna::ideal_rna(const std::string &RNA_or_DNA, const std::string &for
 } 
 
 // return a null pointer on something bad happened.
-CMMDBManager *
+mmdb::Manager *
 coot::ideal_rna::make_molecule() {
 
-   CMMDBManager *mol = 0; 
+   mmdb::Manager *mol = 0; 
    mmdb::Residue *ur;
    bool is_dna_flag;
    coot::ideal_rna::form_t form_flag = A_FORM;
@@ -80,7 +80,7 @@ coot::ideal_rna::make_molecule() {
 
    if (ur) {
 
-      mol = new CMMDBManager;
+      mol = new mmdb::Manager;
       mmdb::Model *model_p = new mmdb::Model;
       mmdb::Chain *sense_chain_p = new mmdb::Chain;
       sense_chain_p->SetChainID("A");
@@ -298,7 +298,7 @@ coot::ideal_rna::antisense_base(char base, bool is_dna_flag) const {
 // 
 mmdb::Residue *
 coot::ideal_rna::get_standard_residue_instance(const std::string &residue_type_in,
-					       CMMDBManager *standard_residues) const {
+					       mmdb::Manager *standard_residues) const {
 
    // convert new names: "A", "DA" to old ones (the ones in the
    // standard residues file), "Ar", "Ad"

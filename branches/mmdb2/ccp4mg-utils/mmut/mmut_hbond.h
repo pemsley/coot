@@ -55,13 +55,13 @@ private:
   //the algorithm parameters parameters
   
   // Params
-  realtype min_D_A;
-  realtype max_D_A;
-  realtype max_H_A;
-  realtype min_DD_D_A;
-  realtype min_D_A_AA;
-  realtype min_H_A_AA;
-  realtype min_D_H_A;
+  mmdb::realtype min_D_A;
+  mmdb::realtype max_D_A;
+  mmdb::realtype max_H_A;
+  mmdb::realtype min_DD_D_A;
+  mmdb::realtype min_D_A_AA;
+  mmdb::realtype min_H_A_AA;
+  mmdb::realtype min_D_H_A;
 
 };
 

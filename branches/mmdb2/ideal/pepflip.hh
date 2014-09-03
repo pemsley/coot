@@ -46,21 +46,21 @@ namespace coot {
    // Typically, one would copy one's mol (and save it) before calling
    // this.
    // 
-   int pepflip(CMMDBManager *mol,
+   int pepflip(mmdb::Manager *mol,
 	       const std::string &chain_id,
 	       int resno, 
 	       const std::string &inscode,
 	       const std::string &altconf);
 
    // Rotates around CA-CA vector
-   int pepflip_standard(CMMDBManager *mol,
+   int pepflip_standard(mmdb::Manager *mol,
 			const std::string &chain_id,
 			int resno, 
 			const std::string &inscode,
 			const std::string &altconf);
 
    // Rotates around CA-CA vector
-   int pepflip_internal_to_residue(CMMDBManager *mol,
+   int pepflip_internal_to_residue(mmdb::Manager *mol,
 				   const std::string &chain_id,
 				   int resno, 
 				   const std::string &inscode,

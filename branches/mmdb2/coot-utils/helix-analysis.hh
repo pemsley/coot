@@ -32,12 +32,12 @@ namespace coot {
    class helix_params_container_t {
       // get the set of atoms starting from the given residue serial number.
       atom_quad get_quad(const std::string &atom_name, mmdb::Chain *chain_p, int res_serial_no);
-      CMMDBManager *mol;
+      mmdb::Manager *mol;
 	 
    public:
       helix_params_container_t() {}
       std::vector<helix_params_t> params;
-      void make(CMMDBManager *mol, const std::string chain_id, int resno_start, int resno_end);
+      void make(mmdb::Manager *mol, const std::string chain_id, int resno_start, int resno_end);
    };
 
 }

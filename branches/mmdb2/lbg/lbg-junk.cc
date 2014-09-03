@@ -220,7 +220,7 @@ lbg_info_t::residue_from_best_match(CGraph &graph1, CGraph &graph2,
    for (int imatch=0; imatch<n_match; imatch++) {
       std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > matching_atoms; 
       int n;
-      realtype p1, p2;
+      mmdb::realtype p1, p2;
       ivector FV1, FV2;
       match.GetMatch(imatch, FV1, FV2, n, p1, p2); // n p1 p2 set
       // 	    For understanding only.  

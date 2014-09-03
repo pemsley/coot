@@ -36,10 +36,10 @@ public:
   CMolBondParams(CMGSBase *sbase);
   ~CMolBondParams();
 protected:
-  realtype interResCut;
-  realtype intraResCut;
-  realtype maxBondRad;
-  realtype maxBondRadFactor;
+  mmdb::realtype interResCut;
+  mmdb::realtype intraResCut;
+  mmdb::realtype maxBondRad;
+  mmdb::realtype maxBondRadFactor;
   CMGSBase *sbase;
 
 };
@@ -61,12 +61,12 @@ public :
   void AddConnection (int ia1, int ia2, mmdb::PPAtom selAtom1, mmdb::PPAtom selAtom2,
                        int offset1 =0 , int offset2 = 0);
   void AddConnection (int ia1, int ia2, mmdb::PPAtom selAtom,int offset=0);
-  void AddConnection (Pmmdb::Atom pa1, Pmmdb::Atom pa2);
-  int DeleteConnection ( Pmmdb::Atom pa1 , Pmmdb::Atom pa2);
+  void AddConnection (mmdb::PAtom pa1, Pmmdb::Atom pa2);
+  int DeleteConnection ( mmdb::PAtom pa1 , Pmmdb::Atom pa2);
 
-  bool isInterResBond ( Pmmdb::Atom p1, Pmmdb::Atom p2);
-  int IntraResContacts ( Pmmdb::Residue p1, int nAlt,  mmdb::PPAtom modelSelAtom[]=NULL, int nSelAtom[]=NULL, int firstModel=0, int lastModel=0);
-  bool ltBondDistance ( Pmmdb::Atom pa1, Pmmdb::Atom pa2, realtype dist);
+  bool isInterResBond ( mmdb::PAtom p1, Pmmdb::Atom p2);
+  int IntraResContacts ( mmdb::PResidue p1, int nAlt,  mmdb::PPAtom modelSelAtom[]=NULL, int nSelAtom[]=NULL, int firstModel=0, int lastModel=0);
+  bool ltBondDistance ( mmdb::PAtom pa1, Pmmdb::Atom pa2, mmdb::realtype dist);
 
  private:
  

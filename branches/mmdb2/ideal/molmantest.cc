@@ -28,7 +28,7 @@
 #include "mmdb.h"
 
 
-void molman(MyCMMDBManager *mol) {
+void molman(Mymmdb::Manager *mol) {
 
    int nmodels = mol->GetNumberOfModels();
    std::cout << "models: " << nmodels << std::endl;
@@ -43,7 +43,7 @@ void molman(MyCMMDBManager *mol) {
 	 std::cout << "   chain: " << chain_name << " " << ichain
 		   << " has " << nres << " residues" << std::endl;
 	 for (int ires=0; ires<nres; ires++) {
-	    Pmmdb::Residue res = mol->GetResidue(imodel,ichain,ires);
+	    mmdb::PResidue res = mol->GetResidue(imodel,ichain,ires);
 	    int natoms = res->GetNumberOfAtoms();
 	    int seqno  = res->GetSeqNum();
 	    std::cout << "      residue " << ires << ", seqno "

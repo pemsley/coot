@@ -35,7 +35,7 @@
 //
 // mol is manipulated.
 int
-coot::pepflip(CMMDBManager *mol,
+coot::pepflip(mmdb::Manager *mol,
 	      const std::string &chain_id,
 	      int resno, 
 	      const std::string &ins_code, 
@@ -50,7 +50,7 @@ coot::pepflip(CMMDBManager *mol,
 
    
 int
-coot::pepflip_standard(CMMDBManager *mol,
+coot::pepflip_standard(mmdb::Manager *mol,
 	      const std::string &chain_id,
 	      int resno, 
 	      const std::string &ins_code, 
@@ -88,8 +88,8 @@ coot::pepflip_standard(CMMDBManager *mol,
       coot::residue_spec_t rs(first_res);
       mmdb::Residue *second_res = coot::util::get_following_residue(rs, mol);
       if (second_res) {
-	 Pmmdb::Atom *first_residue_atoms = NULL;
-	 Pmmdb::Atom *second_residue_atoms = NULL;
+	 mmdb::PAtom *first_residue_atoms = NULL;
+	 mmdb::PAtom *second_residue_atoms = NULL;
 	 int n_first_residue_atoms; 
 	 int n_second_residue_atoms;
 	 first_res->GetAtomTable(first_residue_atoms, n_first_residue_atoms);
@@ -149,7 +149,7 @@ coot::pepflip_standard(CMMDBManager *mol,
 
    
 int
-coot::pepflip_internal_to_residue(CMMDBManager *mol,
+coot::pepflip_internal_to_residue(mmdb::Manager *mol,
 				  const std::string &chain_id,
 				  int resno, 
 				  const std::string &ins_code, 

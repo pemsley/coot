@@ -82,7 +82,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
    coot::shelx_card_info_t card;
    int istate = 0;
    udd_afix_handle = -1;
-   CMMDBManager *mol = NULL;
+   mmdb::Manager *mol = NULL;
    std::ifstream f(filename.c_str());
    int latt = 0;  // special not-set value
    int resi_count = 0; // use to determine if this is a protein
@@ -96,7 +96,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
       int current_res_no = 0; // shelx default 
       clipper::Spacegroup space_group;
       InitMatType();
-      mol = new CMMDBManager;
+      mol = new mmdb::Manager;
       mmdb::Model *model = new mmdb::Model;
       mmdb::Chain *chain = new mmdb::Chain;
       chain->SetChainID("");
@@ -604,7 +604,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 		     std::cout << "NULL chain in ... " << std::endl;
 		  } else { 
 		     int nres = chain_p->GetNumberOfResidues();
-		     Pmmdb::Residue residue_p;
+		     mmdb::PResidue residue_p;
 		     mmdb::Atom *at;
 		     for (int ires=0; ires<nres; ires++) { 
 			residue_p = chain_p->GetResidue(ires);
@@ -641,7 +641,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
       // write_ins_file(mol, "new.res");
    }
 
-   CMMDBManager *shelx_mol = 0;
+   mmdb::Manager *shelx_mol = 0;
    if (mol) // maybe file not found?
       shelx_mol = unshelx(mol);
 
@@ -715,7 +715,7 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 	 if (card.words.size() > 6) {
 	    if (card.words.size() < 8) {
 	       // isotropic temperature factor
-	       realtype u_factor_from_card = atof(card.words[6].c_str());
+	       mmdb::realtype u_factor_from_card = atof(card.words[6].c_str());
 	       if (u_factor_from_card > 0.0 ) { 
 		  at->tempFactor = u_to_b * u_factor_from_card;
 		  at->WhatIsSet = at->WhatIsSet | 4; // is isotropic
@@ -1061,7 +1061,7 @@ coot::ShelxIns::make_atom_element(const std::string &atom_name_in,
 
 
 bool
-coot::ShelxIns::try_assign_cell(CMMDBManager *mol) {
+coot::ShelxIns::try_assign_cell(mmdb::Manager *mol) {
 
    if (!have_cell_flag) {
       mat44 my_matt;
@@ -1070,8 +1070,8 @@ coot::ShelxIns::try_assign_cell(CMMDBManager *mol) {
 	 std::cout << "!! Warning:: No symmetry available for this template molecule"
 		   << std::endl;
       } else {
-	 realtype a[6];
-	 realtype vol;
+	 mmdb::realtype a[6];
+	 mmdb::realtype vol;
 	 int orthcode;
 	 mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
 	 
@@ -1089,7 +1089,7 @@ coot::ShelxIns::try_assign_cell(CMMDBManager *mol) {
 }
 
 std::pair<int, std::string>
-coot::ShelxIns::write_ins_file(CMMDBManager *mol_in,
+coot::ShelxIns::write_ins_file(mmdb::Manager *mol_in,
 					const std::string &filename) {
    if (!have_cell_flag) { // Need cell for orth->frac convertion for atoms
       have_cell_flag = try_assign_cell(mol_in);
@@ -1098,12 +1098,12 @@ coot::ShelxIns::write_ins_file(CMMDBManager *mol_in,
 } 
 
 std::pair<int, std::string>
-coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
+coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
 					const std::string &filename) const {
 
    int istat = 0;
    std::string message;
-   CMMDBManager *mol = reshelx(mol_in);
+   mmdb::Manager *mol = reshelx(mol_in);
 
    int udd_riding_atom_negative_u_value_handle_local = mol->GetUDDHandle(UDR_ATOM, "riding_atom_negative_u");
 
@@ -1189,7 +1189,7 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 		  std::cout << "NULL chain in ... " << std::endl;
 	       } else { 
 		  int nres = chain_p->GetNumberOfResidues();
-		  Pmmdb::Residue residue_p;
+		  mmdb::PResidue residue_p;
 		  mmdb::Atom *at;
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);
@@ -1281,7 +1281,7 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 				 f.setf(std::ios::fixed);
 				 f.precision(9);
 
-				 realtype negative_u;
+				 mmdb::realtype negative_u;
 				 int status_2 = at->GetUDData(udd_riding_atom_negative_u_value_handle_local,
 							      negative_u);
 
@@ -2076,11 +2076,11 @@ coot::ShelxIns::shelx_occ_to_fvar(float shelx_occ) {
 // Convert the single chained mol into a mol with multiple chains.
 // 
 // return null on no conversion.
-CMMDBManager *
-coot::unshelx(CMMDBManager *shelx_mol) {
+mmdb::Manager *
+coot::unshelx(mmdb::Manager *shelx_mol) {
 
    int skip_chain_step = 21;
-   CMMDBManager *mol = 0;
+   mmdb::Manager *mol = 0;
 
    if (!shelx_mol) {
       std::cout << "ERROR:: Null shelx_mol" << std::endl;
@@ -2099,7 +2099,7 @@ coot::unshelx(CMMDBManager *shelx_mol) {
 		<< nchains << " chains and there should be just 1 "
 		<< std::endl;
    } else {
-      mol = new CMMDBManager;
+      mol = new mmdb::Manager;
       int udd_afix_handle_shelx = shelx_mol->GetUDDHandle(UDR_ATOM, "shelx afix");
       int udd_afix_handle = mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
       int udd_riding_atom_negative_u_value_handle_shelx = shelx_mol->GetUDDHandle(UDR_ATOM, "riding_atom_negative_u");
@@ -2133,11 +2133,11 @@ coot::unshelx(CMMDBManager *shelx_mol) {
 
 	 // apply the shelx afix numbers:
 	 int shelx_natoms;
-	 Pmmdb::Atom *shelx_residue_atoms = NULL;
+	 mmdb::PAtom *shelx_residue_atoms = NULL;
 	 shelx_residue_p->GetAtomTable(shelx_residue_atoms, shelx_natoms);
 
 	 int copy_natoms;
-	 Pmmdb::Atom *copy_residue_atoms = NULL;
+	 mmdb::PAtom *copy_residue_atoms = NULL;
 	 copy_residue_p->GetAtomTable(copy_residue_atoms, copy_natoms);
 
 	 if (shelx_natoms == copy_natoms) { 
@@ -2148,7 +2148,7 @@ coot::unshelx(CMMDBManager *shelx_mol) {
 	       if (istatus == UDDATA_Ok) { 
 		  copy_residue_atoms[iat]->PutUDData(udd_afix_handle, afix);
 	       }
-	       realtype negative_u_value;
+	       mmdb::realtype negative_u_value;
 	       int istatus_2 = shelx_residue_atoms[iat]->GetUDData(udd_riding_atom_negative_u_value_handle_shelx,
 								   negative_u_value);
 	       // transfer of negative_u_value often fails (it's missing from original molecule) and that's OK
@@ -2171,7 +2171,7 @@ coot::unshelx(CMMDBManager *shelx_mol) {
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 chain_p->TrimResidueTable();
-	 Pmmdb::Residue residue_p;
+	 mmdb::PResidue residue_p;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    if (residue_p) 
@@ -2183,8 +2183,8 @@ coot::unshelx(CMMDBManager *shelx_mol) {
       
 
       // need to copy over cell and symmetry info:
-      realtype a[6];
-      realtype vol;
+      mmdb::realtype a[6];
+      mmdb::realtype vol;
       int orthcode;
       shelx_mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
       mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
@@ -2202,10 +2202,10 @@ coot::unshelx(CMMDBManager *shelx_mol) {
 // don't need to change the residue numbers back when re-export to
 // shelx format.  Which means that the ShelxIns ins_info is not used.
 // Hmmm... does that work OK?
-CMMDBManager *
-coot::reshelx(CMMDBManager *mol) {
+mmdb::Manager *
+coot::reshelx(mmdb::Manager *mol) {
 
-   CMMDBManager *shelx_mol = new CMMDBManager;
+   mmdb::Manager *shelx_mol = new CMMDBManager;
 
    int imod = 1;
    mmdb::Model *shelx_model_p = new mmdb::Model;
@@ -2231,7 +2231,7 @@ coot::reshelx(CMMDBManager *mol) {
       int residue_offset = 0; // no need to mess with the residue numbers, I think.
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
-      Pmmdb::Residue residue_p;
+      mmdb::PResidue residue_p;
       for (int ires=0; ires<nres; ires++) { 
 	 residue_p = chain_p->GetResidue(ires);
 	 mmdb::Residue *copy_residue_p = coot::util::deep_copy_this_residue(residue_p);
@@ -2240,11 +2240,11 @@ coot::reshelx(CMMDBManager *mol) {
 
 	 // apply the shelx afix numbers:
 	 int unshelxed_natoms;
-	 Pmmdb::Atom *unshelxed_residue_atoms = NULL;
+	 mmdb::PAtom *unshelxed_residue_atoms = NULL;
 	 residue_p->GetAtomTable(unshelxed_residue_atoms, unshelxed_natoms);
 
 	 int copy_natoms;
-	 Pmmdb::Atom *copy_residue_atoms = NULL;
+	 mmdb::PAtom *copy_residue_atoms = NULL;
 	 copy_residue_p->GetAtomTable(copy_residue_atoms, copy_natoms);
 
 	 if (unshelxed_natoms == copy_natoms) { 
@@ -2259,7 +2259,7 @@ coot::reshelx(CMMDBManager *mol) {
 		     made_afix_transfer_message = 1;
 		  }
 	       }
-	       realtype negative_u;
+	       mmdb::realtype negative_u;
 	       int istatus_2 =
 		  unshelxed_residue_atoms[iat]->GetUDData(udd_riding_atom_negative_u_value_handle, negative_u);
 	       if (istatus_2 == UDDATA_Ok) {
@@ -2275,8 +2275,8 @@ coot::reshelx(CMMDBManager *mol) {
    }
 
    // need to copy over cell and symmetry info:
-   realtype a[6];
-   realtype vol;
+   mmdb::realtype a[6];
+   mmdb::realtype vol;
    int orthcode;
    mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
    shelx_mol->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);

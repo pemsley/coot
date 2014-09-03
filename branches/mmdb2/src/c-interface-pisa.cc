@@ -55,15 +55,15 @@ int pisa_interaction(int imol_1, int imol_2) {
    if (is_valid_model_molecule(imol_1)) { 
       if (is_valid_model_molecule(imol_2)) {
 
-	 CMMDBManager *mol1 = graphics_info_t::molecules[imol_1].atom_sel.mol;
-	 CMMDBManager *mol2 = graphics_info_t::molecules[imol_2].atom_sel.mol;
+	 mmdb::Manager *mol1 = graphics_info_t::molecules[imol_1].atom_sel.mol;
+	 mmdb::Manager *mol2 = graphics_info_t::molecules[imol_2].atom_sel.mol;
 
 	 coot::close_residues_from_different_molecules_t cr;
 	 std::pair<std::vector<mmdb::Residue *>, std::vector<mmdb::Residue *> > res_pair = 
 	    cr.close_residues(mol1, mol2, dist);
 
 	 if (res_pair.first.size() > 0) { 
-	    std::pair<bool, CMMDBManager *> nm =
+	    std::pair<bool, mmdb::Manager *> nm =
 	       coot::util::create_mmdbmanager_from_residue_vector(res_pair.first);
 	    if (nm.second) {
 	       int imol = graphics_info_t::create_molecule();
@@ -79,7 +79,7 @@ int pisa_interaction(int imol_1, int imol_2) {
 	 }
 	 
 	 if (res_pair.second.size() > 0) { 
-	    std::pair<bool, CMMDBManager *> nm =
+	    std::pair<bool, mmdb::Manager *> nm =
 	       coot::util::create_mmdbmanager_from_residue_vector(res_pair.second);
 	    if (nm.second) {
 	       int imol = graphics_info_t::create_molecule();
@@ -917,8 +917,8 @@ make_complementary_dotted_surfaces(int imol_1, int imol_2,
    
    // make synthetic molecules, dots where each residue contains one atom (dot).
    // then call std::pair<std::vector<mmdb::Residue *>, std::vector<mmdb::Residue *> >
-   // coot::close_residues_from_different_molecules_t::close_residues(CMMDBManager *mol1,
-   //                                                                 CMMDBManager *mol2,
+   // coot::close_residues_from_different_molecules_t::close_residues(mmdb::Manager *mol1,
+   //                                                                 mmdb::Manager *mol2,
    //                                                                 float dist)
    // 
    // consider making the dots generation a member function of dots_representation_info_t
@@ -930,11 +930,11 @@ make_complementary_dotted_surfaces(int imol_1, int imol_2,
 
    if (is_valid_model_molecule(imol_1)) { 
       if (is_valid_model_molecule(imol_2)) {
-	 CMMDBManager *mol_1 = graphics_info_t::molecules[imol_1].atom_sel.mol;
-	 CMMDBManager *mol_2 = graphics_info_t::molecules[imol_2].atom_sel.mol;
+	 mmdb::Manager *mol_1 = graphics_info_t::molecules[imol_1].atom_sel.mol;
+	 mmdb::Manager *mol_2 = graphics_info_t::molecules[imol_2].atom_sel.mol;
 
-	 CMMDBManager *frag_mol_1 = coot::util::create_mmdbmanager_from_residue_specs(r1, mol_1);
-	 CMMDBManager *frag_mol_2 = coot::util::create_mmdbmanager_from_residue_specs(r2, mol_2);
+	 mmdb::Manager *frag_mol_1 = coot::util::create_mmdbmanager_from_residue_specs(r1, mol_1);
+	 mmdb::Manager *frag_mol_2 = coot::util::create_mmdbmanager_from_residue_specs(r2, mol_2);
 
 	 std::pair<bool, clipper::Coord_orth> c_1 = coot::centre_of_molecule(frag_mol_1);
 	 std::pair<bool, clipper::Coord_orth> c_2 = coot::centre_of_molecule(frag_mol_2);

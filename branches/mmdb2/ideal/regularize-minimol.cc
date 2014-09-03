@@ -36,7 +36,7 @@ coot::regularize_minimol_molecule(const coot::minimol::molecule &molin,
    // 
 
    coot::minimol::molecule m;
-   PCMMDBManager mol = molin.pcmmdbmanager(); 
+   mmdb::PManager mol = molin.pcmmdbmanager(); 
 
    int resno_1;
    int resno_2;

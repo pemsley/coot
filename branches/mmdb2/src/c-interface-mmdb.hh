@@ -32,18 +32,18 @@
 // return 0 on failure.  An atom with an atom name of "" and element
 // of "" is converted to a Ter atom.
 // 
-CMMDBManager *
+mmdb::Manager *
 mmdb_manager_from_scheme_expression(SCM molecule_expression);
 SCM display_scm(SCM o);
 
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
-CMMDBManager * mmdb_manager_from_python_expression(PyObject *molecule_expression);
+mmdb::Manager * mmdb_manager_from_python_expression(PyObject *molecule_expression);
 std::deque<mmdb::Model *> mmdb_models_from_python_expression(PyObject *molecule_expression);
 #endif // PYTHON
 #endif 
 
 // Delete the CONECT records from the MMDBManager? Depending on 
 // write_conect_records_flag
-void mmdb_manager_delete_conect(CMMDBManager *mol);
+void mmdb_manager_delete_conect(mmdb::Manager *mol);

@@ -116,7 +116,7 @@ void remarks_dialog(int imol) {
 
    if (graphics_info_t::use_graphics_interface_flag) { 
       if (is_valid_model_molecule(imol)) {
-	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 if (mol) {
 	    CTitleContainer *tc_p = mol->GetRemarks();
 	    int l = tc_p->Length();

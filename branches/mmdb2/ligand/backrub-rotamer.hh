@@ -47,7 +47,7 @@ namespace coot {
       std::string chain_id;
       float score_fragment(minimol::fragment &frag) const;
       clipper::Xmap<float> xmap;
-      CMMDBManager *stored_mol;
+      mmdb::Manager *stored_mol;
       minimol::residue
       make_residue_include_only(mmdb::Residue *orig_prev_residue,
 				const std::vector<std::string> &prev_res_atoms) const;
@@ -90,7 +90,7 @@ namespace coot {
 	      mmdb::Residue *prev_r,
 	      mmdb::Residue *next_r,
 	      const std::string &alt_conf_in,
-	      CMMDBManager *mol_in,
+	      mmdb::Manager *mol_in,
 	      const clipper::Xmap<float> &xmap_in) {
 	 orig_this_residue = this_r;
 	 orig_prev_residue = prev_r;

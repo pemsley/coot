@@ -25,7 +25,7 @@
 #include "residue_by_phi_psi.hh"
 
 
-coot::residue_by_phi_psi::residue_by_phi_psi(const CMMDBManager *mol_in,
+coot::residue_by_phi_psi::residue_by_phi_psi(const mmdb::Manager *mol_in,
 					     const std::string &terminus,
 					     const mmdb::Residue *res_p,
 					     const std::string &chain_id_in, 

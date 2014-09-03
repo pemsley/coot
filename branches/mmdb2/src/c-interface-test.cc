@@ -162,7 +162,7 @@ int test_function(int i, int j) {
       if (is_valid_model_molecule(i)) { 
 	 if (is_valid_map_molecule(j)) { 
 	    const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
-	    CMMDBManager *mol = g.molecules[i].atom_sel.mol;
+	    mmdb::Manager *mol = g.molecules[i].atom_sel.mol;
 	    std::vector<coot::residue_spec_t> v;
 	    v.push_back(coot::residue_spec_t("G", 160, ""));
 	    v.push_back(coot::residue_spec_t("G", 847, ""));
@@ -170,7 +170,7 @@ int test_function(int i, int j) {
 	    int n_rounds = 10;
 	    for (unsigned int iround=0; iround<n_rounds; iround++) { 
    
-	       CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
+	       mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 
 	       // do we need to send over the base atom too?  Or just say
 	       // that it's the first atom in moving_mol?
@@ -179,7 +179,7 @@ int test_function(int i, int j) {
 
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 
-	       std::pair<CMMDBManager *, int> new_mol =
+	       std::pair<mmdb::Manager *, int> new_mol =
 		  coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
 	       atom_selection_container_t asc_new = make_asc(new_mol.first);
 	       std::string name = "test-" + coot::util::int_to_string(iround);
@@ -224,7 +224,7 @@ int test_function(int i, int j) {
       graphics_info_t g;
       if (pp.first) {
 	 mmdb::Residue *residue = g.molecules[pp.second.first].get_residue(pp.second.second);
-	 CMMDBManager *mol = g.molecules[pp.second.first].atom_sel.mol;
+	 mmdb::Manager *mol = g.molecules[pp.second.first].atom_sel.mol;
 	 if (residue) {
 	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
 	       g.Geom_p()->get_monomer_restraints(residue->GetResName());
@@ -239,7 +239,7 @@ int test_function(int i, int j) {
    if (0) {
 
       if (is_valid_model_molecule(0)) {
-	 CMMDBManager *mol = graphics_info_t::molecules[0].atom_sel.mol;
+	 mmdb::Manager *mol = graphics_info_t::molecules[0].atom_sel.mol;
 	 std::vector<std::string> h;
 	 CTitleContainer *tc_p = mol->GetRemarks();
 	 int l = tc_p->Length();
@@ -422,7 +422,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	       mapout.export_xmap(mf.xmap);
 	       mapout.close_write();
 	       
-	       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	       coot::util::emma sphd(mol, 5); // 5 is border
 	       sphd.overlap_simple(mf.xmap);
 	       // sphd.overlap(mf.xmap);
@@ -445,7 +445,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	 if (! residue_2_p) {
 	    std::cout << " residue not found " << std::endl;
 	 } else {
-	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(residue_2_p);
+	    mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_2_p);
 	    if (mol) { 
 	       coot::dictionary_residue_restraints_t rest(mol);
 	       rest.write_cif("testing.cif");
@@ -501,15 +501,15 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	    std::vector<coot::residue_spec_t> v;
 	    v.push_back(coot::residue_spec_t(spec));
 	    int n_rounds = 10;
-	    CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+	    mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 	    const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
 	    for (unsigned int iround=0; iround<n_rounds; iround++) {
 	       std::cout << "round " << iround << std::endl;
-	       CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
+	       mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 	       
 	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, 400, g.Geom_p());
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
-	       std::pair<CMMDBManager *, int> new_mol =
+	       std::pair<mmdb::Manager *, int> new_mol =
 		  coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
 	       atom_selection_container_t asc_new = make_asc(new_mol.first);
 	       std::string name = "test-" + coot::util::int_to_string(iround);
@@ -555,15 +555,15 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
          std::vector<coot::residue_spec_t> v;
          v.push_back(coot::residue_spec_t(spec));
          int n_rounds = 10;
-         CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
          const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
          for (unsigned int iround=0; iround<n_rounds; iround++) {
 	       std::cout << "round " << iround << std::endl;
-	       CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
+	       mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 	       
 	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, 400, g.Geom_p());
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
-	       std::pair<CMMDBManager *, int> new_mol =
+	       std::pair<mmdb::Manager *, int> new_mol =
              coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
 	       atom_selection_container_t asc_new = make_asc(new_mol.first);
 	       std::string name = "test-" + coot::util::int_to_string(iround);
@@ -601,7 +601,7 @@ void glyco_tree_test() {
       int imol = pp.second.first;
       graphics_info_t g;
       mmdb::Residue *residue_p = g.molecules[imol].get_residue(pp.second.second);
-      CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 
       std::vector<std::string> types_with_no_dictionary =
 	 g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());

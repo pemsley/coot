@@ -825,7 +825,7 @@ class graphics_info_t {
 			       int resno_1,
 			       int resno_2,
 			       int nSelResidues,
-			       Pmmdb::Residue *SelResidues,
+			       mmdb::PResidue *SelResidues,
 			       const std::string &chain_id_1,
 			       const std::string &altconf,
 			       short int have_flanking_residue_at_start,
@@ -2050,7 +2050,7 @@ public:
    static int save_coordinates_in_original_dir_flag;
 
    // Was private, but need to be used by auto_fit_best_rotamer() scripting function.
-   void update_geometry_graphs(Pmmdb::Residue *SelResidues, int nSelResidues, int imol_coords, int imol_map);
+   void update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol_coords, int imol_map);
    void delete_residue_from_geometry_graphs(int imol, coot::residue_spec_t res_spec); 
 
 
@@ -2185,13 +2185,13 @@ public:
    // restraints.  Try to auto-load the dictionary cifs and try again.
    // The vector is a list of residues for which no restraints could be found.
    std::pair<int, std::vector<std::string> >
-   check_dictionary_for_residue_restraints(Pmmdb::Residue *SelResidues, int nSelResidues);
+   check_dictionary_for_residue_restraints(mmdb::PResidue *SelResidues, int nSelResidues);
    std::pair<int, std::vector<std::string> >
    check_dictionary_for_residue_restraints(const std::vector<mmdb::Residue *> &residues);
 
    // called by copy_mol_and_refine and copy_mol_and_regularize
    // 
-   CMMDBManager *create_mmdbmanager_from_res_selection(Pmmdb::Residue *SelResidues, 
+   mmdb::Manager *create_mmdbmanager_from_res_selection(mmdb::PResidue *SelResidues, 
 						       int nSelResidues, 
 						       int have_flanking_residue_at_start,
 						       int have_flanking_residue_at_end, 
@@ -2207,10 +2207,10 @@ public:
    // return also a vector of residues that correspond to the residues
    // that were input - the non-fixed residues.
    // 
-   std::pair<CMMDBManager *, std::vector<mmdb::Residue *> >
+   std::pair<mmdb::Manager *, std::vector<mmdb::Residue *> >
    create_mmdbmanager_from_res_vector(const std::vector<mmdb::Residue *> &residues,
 				      int imol, // for uddatom index.
-				      CMMDBManager *mol,
+				      mmdb::Manager *mol,
 				      std::string alt_conf);
 
    // simple mmdb::Residue * interface to refinement.  20081216
@@ -2218,19 +2218,19 @@ public:
      generate_molecule_and_refine(int imol,  // needed for UDD Atom handle transfer
 				  const std::vector<mmdb::Residue *> &residues,
 				  const char *alt_conf,
-				  CMMDBManager *mol, 
+				  mmdb::Manager *mol, 
 				  bool use_map_flag);
 
    coot::refinement_results_t
      refine_residues_vec(int imol, 
 			 const std::vector<mmdb::Residue *> &residues,
 			 const char *alt_conf,
-			 CMMDBManager *mol);
+			 mmdb::Manager *mol);
    coot::refinement_results_t
      regularize_residues_vec(int imol, 
 			     const std::vector<mmdb::Residue *> &residues,
 			     const char *alt_conf,
-			     CMMDBManager *mol);
+			     mmdb::Manager *mol);
 			       
 
    // on reading a pdb file, we get a list of residues, use these to
@@ -2302,7 +2302,7 @@ public:
    density_fit_from_mol(const atom_selection_container_t &asc, int imol_moving_atoms,
 			int imol_for_map);
    std::vector<coot::geometry_graph_block_info_generic>
-   density_fit_from_residues(Pmmdb::Residue *SelResidues, int nSelResidues,
+   density_fit_from_residues(mmdb::PResidue *SelResidues, int nSelResidues,
 			     int imol_moving_atoms,
 			     int imol_for_map) const;
 
@@ -2312,7 +2312,7 @@ public:
    std::vector<coot::geometry_graph_block_info_generic>
      rotamers_from_mol(const atom_selection_container_t &asc, int imol_moving_atoms);
    std::vector<coot::geometry_graph_block_info_generic>
-     rotamers_from_residue_selection(Pmmdb::Residue *SelResidues,
+     rotamers_from_residue_selection(mmdb::PResidue *SelResidues,
 				   int nSelResidues, int imol); 
 
    std::vector<coot::geometry_graph_block_info_generic> ncs_diffs_from_mol(int imol);
@@ -2324,7 +2324,7 @@ public:
    // now used for rotamer_score (from c-interface.h), so it is now not GTK2-only 20090817
    coot::rotamer_probability_info_t get_rotamer_probability(mmdb::Residue *res,
 							    const std::string &alt_conf,
-							    CMMDBManager *mol,
+							    mmdb::Manager *mol,
 							    float lowest_probability,
 							    short int add_extra_PHE_and_TYR_rotamers_flag);
 
@@ -2643,7 +2643,7 @@ public:
 					       std::string residue_name,
 					       mmdb::PPAtom atoms, int n_atoms);
    static void fill_output_residue_info_widget_atom(GtkWidget *widget,
-						    int imol, Pmmdb::Atom atom, int iat);
+						    int imol, mmdb::PAtom atom, int iat);
    // and the keypres callbacks for the above
    static gboolean on_residue_info_occ_entry_key_release_event (GtkWidget       *widget,
 								GdkEventKey     *event,
@@ -2803,8 +2803,8 @@ public:
    // align and mutate
    static int         align_and_mutate_imol;
    static std::string align_and_mutate_chain_from_optionmenu;
-   static realtype alignment_wgap;
-   static realtype alignment_wspace;
+   static mmdb::realtype alignment_wgap;
+   static mmdb::realtype alignment_wspace;
 
    void mutate_chain(int imol, const std::string &chain_id,
 		     const std::string &seq, bool do_auto_fit_flag, 
@@ -3197,10 +3197,10 @@ public:
 
    // mol is new (not from molecules[imol]) molecule for the moving atoms.
    // 
-   atom_selection_container_t make_moving_atoms_asc(CMMDBManager *mol, 
+   atom_selection_container_t make_moving_atoms_asc(mmdb::Manager *mol, 
 						    int resno_1, 
 						    int resno_2) const;
-   atom_selection_container_t make_moving_atoms_asc(CMMDBManager *mol,
+   atom_selection_container_t make_moving_atoms_asc(mmdb::Manager *mol,
 						    const std::vector<mmdb::Residue *> &residues) const;
    // so that we know that fixed_points_sheared_drag_1 and
    // fixed_points_sheared_drag_2 are sensible:
@@ -3315,16 +3315,16 @@ public:
    void print_ssm_sequence_alignment(ssm::Align *SSMAlign,
 				     atom_selection_container_t asc_ref,
 				     atom_selection_container_t asc_mov,
-				     Pmmdb::Atom *atom_selection1, 
-				     Pmmdb::Atom *atom_selection2, 
+				     mmdb::PAtom *atom_selection1, 
+				     mmdb::PAtom *atom_selection2, 
 				     int n_selected_atoms_1, int n_selected_atoms_2, 
 				     short int move_copy_of_imol2_flag);
 
    void make_and_print_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 							 atom_selection_container_t asc_ref,
 							 atom_selection_container_t asc_mov,
-							 Pmmdb::Atom *atom_selection1, 
-							 Pmmdb::Atom *atom_selection2, 
+							 mmdb::PAtom *atom_selection1, 
+							 mmdb::PAtom *atom_selection2, 
 							 int n_selected_atoms_1, int n_selected_atoms_2) const;
    // 
    void print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const;
@@ -3333,7 +3333,7 @@ public:
       get_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 					   atom_selection_container_t asc_ref,
 					   atom_selection_container_t asc_mov,
-					   Pmmdb::Atom *atom_selection1, Pmmdb::Atom *atom_selection2,
+					   mmdb::PAtom *atom_selection1, Pmmdb::Atom *atom_selection2,
 					   int n_selected_atoms_1, int n_selected_atoms_2) const;
 
 #endif  // HAVE_SSMLIB

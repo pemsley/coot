@@ -28,9 +28,9 @@ namespace coot {
       std::vector<elastic_network_item_t> d;
    public:
       elastic_network_model_t() {}
-      elastic_network_model_t(CMMDBManager *mol, int atom_selection_handle,
-			      realtype min_dist,
-			      realtype max_dist,
+      elastic_network_model_t(mmdb::Manager *mol, int atom_selection_handle,
+			      mmdb::realtype min_dist,
+			      mmdb::realtype max_dist,
 			      int max_n_distances);
    };
 

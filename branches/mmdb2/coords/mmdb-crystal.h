@@ -117,7 +117,7 @@ class molecule_extents_t {
    float expansion_size_;
    // Grrr.. we cant have a function that returns an mmdb symmetry matrix.
    // So modify it in place.
-   void shift_matrix(CMMDBManager *mol,
+   void shift_matrix(mmdb::Manager *mol,
 		     mat44 my_matt,
 		     int x_shift, int y_shift, int z_shift,
 		     mat44 new_matrix) const;
@@ -164,10 +164,10 @@ class molecule_extents_t {
    // new style
 
    // use extents to fill transsel, use cryst from mol (not coords of mol)
-   coot::trans_selection_t trans_sel_o(CMMDBManager *mol, const symm_trans_t &symm_trans) const;
+   coot::trans_selection_t trans_sel_o(mmdb::Manager *mol, const symm_trans_t &symm_trans) const;
    mmdb::PPAtom trans_sel(CMMDBCryst *my_cryst, symm_trans_t symm_trans) const;
-   mmdb::PPAtom trans_sel(CMMDBManager *mol, const symm_trans_t &symm_trans) const;
-   mmdb::PPAtom trans_sel(CMMDBManager *mol, mat44 my_mat,
+   mmdb::PPAtom trans_sel(mmdb::Manager *mol, const symm_trans_t &symm_trans) const;
+   mmdb::PPAtom trans_sel(mmdb::Manager *mol, mat44 my_mat,
 		     int x_shift, int y_shift, int z_shift) const;
 
 

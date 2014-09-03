@@ -88,8 +88,8 @@ namespace exptl {
       int molecule_number;
       GtkCanvas *canvas;
       std::vector<GtkCanvasItem *> canvas_item_vec;
-      void setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window);
-      std::vector<chain_length_residue_units_t> get_residue_counts(CMMDBManager *mol) const;
+      void setup_canvas(mmdb::Manager *mol, GtkWidget *scrolled_window);
+      std::vector<chain_length_residue_units_t> get_residue_counts(mmdb::Manager *mol) const;
       bool use_graphics_interface_flag;
       static void on_nsv_close_button_clicked (GtkButton *button,
 					       gpointer         user_data);
@@ -100,7 +100,7 @@ namespace exptl {
       void draw_axes(std::vector<chain_length_residue_units_t>, int l, int b, double x_offset);
       std::string fixed_font_str;
       int pixels_per_letter;
-      void mol_to_canvas(CMMDBManager *mol, int lowest_resno, double x_offset);
+      void mol_to_canvas(mmdb::Manager *mol, int lowest_resno, double x_offset);
       void chain_to_canvas(mmdb::Chain *chain_p, int position_number, int lowest_resno, double x_offset);
       void origin_marker();
       int tick_start_number(int l) const;
@@ -110,16 +110,16 @@ namespace exptl {
       int points_max; 
       
    public:
-      nsv(CMMDBManager *mol,
+      nsv(mmdb::Manager *mol,
 	  const std::string &molecule_name,
 	  int molecule_number_in,
 	  bool use_graphics_interface);
-      nsv(CMMDBManager *mol,
+      nsv(mmdb::Manager *mol,
 	  const std::string &molecule_name,
 	  int molecule_number_in,
 	  bool use_graphics_interface,
 	  int canvas_pixel_limit);
-      void regenerate(CMMDBManager *mol);
+      void regenerate(mmdb::Manager *mol);
       GtkWidget *Canvas() const { return GTK_WIDGET(canvas); }
       // default is 22500 
       void set_points_max(int v) { points_max = v; }

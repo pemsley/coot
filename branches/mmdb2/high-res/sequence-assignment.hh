@@ -144,7 +144,7 @@ namespace coot {
       class side_chain_score_t {
 
 	 // create a copy of the generate scores input data
-	 CMMDBManager *mol;
+	 mmdb::Manager *mol;
 	 clipper::Xmap<float> *xmap;
 	 std::vector <mmdb::Residue *> standard_residues;
 	 
@@ -218,7 +218,7 @@ namespace coot {
 	 void add_fasta_sequence(const std::string &sequence_chain_id_in,
 				 const std::string &seq);
 	 void slider() const;
-	 void generate_scores(CMMDBManager *mol,
+	 void generate_scores(mmdb::Manager *mol,
 			      const clipper::Xmap<float> &xmap);
 
 	 void test_residue_range_marking();

@@ -34,8 +34,8 @@
 #include "coot-align.hh"
 
 void do_alignment(atom_selection_container_t asc);
-coot::chain_mutation_info_container_t align_on_chain(mmdb::Chain *chain_p, Pmmdb::Residue *SelResidues, int nSelResidues, const std::string &target);
-std::string make_model_string(Pmmdb::Residue *SelResidues, int nSelResidues);
+coot::chain_mutation_info_container_t align_on_chain(mmdb::Chain *chain_p, mmdb::PResidue *SelResidues, int nSelResidues, const std::string &target);
+std::string make_model_string(mmdb::PResidue *SelResidues, int nSelResidues);
 
 int
 main(int argc, char **argv) {
@@ -69,7 +69,7 @@ do_alignment(atom_selection_container_t asc) {
 
    std::string target("DTSGTVCLSLPPEAIASDGPFPYSQDGTERFDSCVNCAWQRTGVVFQNRESVLPTQSYGYYHEYTVITP");
 
-   CMMDBManager *mol = asc.mol;
+   mmdb::Manager *mol = asc.mol;
    int n_models = mol->GetNumberOfModels();
    // int max_chain_length = coot::util::max_number_of_residues_in_chain(mol);
    for (int imodel = 1; imodel <= n_models; imodel++) { 
@@ -85,7 +85,7 @@ do_alignment(atom_selection_container_t asc) {
 	 if (m.first) {
 	    // int offset = m.second;
 	    int selHnd = mol->NewSelection();
-	    Pmmdb::Residue *SelResidues = NULL;
+	    mmdb::PResidue *SelResidues = NULL;
 	    int nSelResidues;
 
 	    mol->Select(selHnd, STYPE_RESIDUE, 0,
@@ -111,7 +111,7 @@ do_alignment(atom_selection_container_t asc) {
 }
 
 coot::chain_mutation_info_container_t
-align_on_chain(mmdb::Chain *chain_p, Pmmdb::Residue *SelResidues, int nSelResidues,
+align_on_chain(mmdb::Chain *chain_p, mmdb::PResidue *SelResidues, int nSelResidues,
 	       const std::string &target)  {
 
    coot::chain_mutation_info_container_t ch_info(chain_p->GetChainID());
@@ -127,8 +127,8 @@ align_on_chain(mmdb::Chain *chain_p, Pmmdb::Residue *SelResidues, int nSelResidu
    CAlignment align;
 
    // default values (it seems)
-   realtype wgap = 0.0;
-   realtype wspace = -1.0;
+   mmdb::realtype wgap = 0.0;
+   mmdb::realtype wspace = -1.0;
 
    std::string stripped_target = coot::util::remove_whitespace(target);
    
@@ -203,7 +203,7 @@ align_on_chain(mmdb::Chain *chain_p, Pmmdb::Residue *SelResidues, int nSelResidu
    return ch_info;
 }
 
-std::string make_model_string(Pmmdb::Residue *SelResidues, int nSelResidues) {
+std::string make_model_string(mmdb::PResidue *SelResidues, int nSelResidues) {
 
    std::string s;
    std::string this_residue;

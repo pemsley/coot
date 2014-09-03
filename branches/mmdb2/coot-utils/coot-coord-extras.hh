@@ -42,7 +42,7 @@ namespace coot {
       // geom_p gets updated to include the residue restraints if necessary
       // 
       std::pair<int, std::vector<std::string> >
-      check_dictionary_for_residues(Pmmdb::Residue *SelResidues, int nSelResidues,
+      check_dictionary_for_residues(mmdb::PResidue *SelResidues, int nSelResidues,
 				    protein_geometry *geom_p, int read_number);
 
       // We also now pass regular_residue_flag so that the indexing of the
@@ -309,7 +309,7 @@ namespace coot {
       // 
       atom_tree_t(const std::vector<std::vector<int> > &contact_indices,
 		  int base_atom_index, 
-		  CMMDBManager *mol,
+		  mmdb::Manager *mol,
 		  int selection_handle);
       
 
@@ -458,7 +458,7 @@ namespace coot {
    // only uses the LINKR records in the first model.
    //
    bonded_pair_container_t    
-   linkrs_in_atom_selection(CMMDBManager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
+   linkrs_in_atom_selection(mmdb::Manager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
 			    protein_geometry *geom_p);
 
    
@@ -507,7 +507,7 @@ namespace coot {
       // return success status (0 = fail).
       std::vector<std::string> make_reference_atom_names(const std::string &comp_id) const;
       // get the given residue from the template coordinates
-      mmdb::Residue *get_residue(const std::string &comp_id, CMMDBManager*mol) const;
+      mmdb::Residue *get_residue(const std::string &comp_id, mmdb::Manager*mol) const;
       std::vector<mmdb::Atom *> get_atoms(mmdb::Residue *residue_p,
 				     const std::vector<std::string> &names) const;
       bool setup_by_comp_id(const std::string &comp_id_ref,
@@ -617,7 +617,7 @@ namespace coot {
       } 
       
    public:
-      glyco_tree_t(mmdb::Residue *residue_p, CMMDBManager *mol, protein_geometry *geom_p_in);
+      glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol, protein_geometry *geom_p_in);
       void print(const tree<linked_residue_t> &glyco_tree) const;
 
    }; 

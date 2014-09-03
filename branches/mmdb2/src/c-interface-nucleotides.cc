@@ -243,7 +243,7 @@ int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
 			       down_sequence,
 			       graphics_info_t::standard_residues_asc.mol);
 	    ir.use_v3_names();
-	    CMMDBManager *mol = ir.make_molecule();
+	    mmdb::Manager *mol = ir.make_molecule();
 
 	    if (mol) {
 	       std::pair<bool, clipper::Coord_orth> cm = coot::centre_of_molecule(mol);
@@ -303,7 +303,7 @@ int watson_crick_pair(int imol, const char *chain_id, int resno) {
 	 mmdb::Residue *res_wc =
 	    coot::watson_crick_partner(res, graphics_info_t::standard_residues_asc.mol);
 	 if (res_wc) {
-	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(res_wc);
+	    mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(res_wc);
 	    if (mol) {
 	       graphics_info_t g;
 	       int imol_new = g.create_molecule();

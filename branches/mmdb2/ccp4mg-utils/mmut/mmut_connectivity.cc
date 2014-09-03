@@ -100,7 +100,7 @@ std::vector<int> Connectivity::Getmmdb::AtomIndex(void){
 }
 
 mmdb::PPAtom Connectivity::GetAtoms(void) const {
-  mmdb::PPAtom atoms = new Pmmdb::Atom[GetNumberOfAtoms()];
+  mmdb::PPAtom atoms = new mmdb::PAtom[GetNumberOfAtoms()];
   int i,j=0;
 
   for(i=0;i<nSelAtomsTot;i++){
@@ -185,8 +185,8 @@ void Connectivity::AddContacts(PCMMANManager molhnd, int selhnd,
 }
 
 void Connectivity::AddTrace(PCMMANManager molhnd, const mmdb::PPAtom selAtoms,
-              const int nSelAtoms, realtype cutoff ) {
-  realtype cutoff2,dist;
+              const int nSelAtoms, mmdb::realtype cutoff ) {
+  mmdb::realtype cutoff2,dist;
 
   // Create a trace through a list of atoms - only allow connection between 
   // consecutive atoms which are within cutoff distance of each other
@@ -341,7 +341,7 @@ void Connectivity2::Clear(void){
  
 }
 
-void Connectivity2::AddConnection( Pmmdb::Atom p_atom1, Pmmdb::Atom p_atom2,
+void Connectivity2::AddConnection( mmdb::PAtom p_atom1, Pmmdb::Atom p_atom2,
                     const std::string &label_in, int tag) {
 
   if (data_mode != CONN_ATOM_ATOM ) return; 
@@ -376,7 +376,7 @@ void Connectivity2::AddConnection( double xyz1[3] ,  double xyz2[3] ,
 
 }
 
-void Connectivity2::AddConnection(  Pmmdb::Atom p_atom1, double xyz[3] ,
+void Connectivity2::AddConnection(  mmdb::PAtom p_atom1, double xyz[3] ,
     const std::string &label_in, int tag ){
 
   if (data_mode != CONN_ATOM_POINT && 
@@ -408,13 +408,13 @@ void Connectivity2::AddConnection(  Pmmdb::Atom p_atom1, double xyz[3] ,
 }
 
 void Connectivity2::InsertConnection( bool replace, unsigned int position,
-                    Pmmdb::Atom p_atom1, Pmmdb::Atom p_atom2, 
+                    mmdb::PAtom p_atom1, Pmmdb::Atom p_atom2, 
                     const std::string &label_in, int tag) {
 
   if (data_mode != CONN_ATOM_ATOM ) return; 
 
-  std::vector<Pmmdb::Atom> new_atoms1;
-  std::vector<Pmmdb::Atom> new_atoms2;
+  std::vector<mmdb::PAtom> new_atoms1;
+  std::vector<mmdb::PAtom> new_atoms2;
   std::vector<SimpleConnection> new_conns;
   std::vector<int> new_tags;
   std::vector<bool> new_selected;
@@ -491,7 +491,7 @@ void Connectivity2::InsertConnection( bool replace, unsigned int position,
 }
 
 void Connectivity2::InsertConnection(  bool replace, unsigned int position,
-     Pmmdb::Atom p_atom1, double xyz[3] ,
+     mmdb::PAtom p_atom1, double xyz[3] ,
     const std::string &label_in, int tag ){
 
   if (data_mode != CONN_ATOM_POINT && 
@@ -499,7 +499,7 @@ void Connectivity2::InsertConnection(  bool replace, unsigned int position,
       data_mode != CONN_ATOM_DISP  ) return; 
   Cartesian p1,p2,pp;
 
-  std::vector<Pmmdb::Atom> new_atoms1;
+  std::vector<mmdb::PAtom> new_atoms1;
   std::vector<Cartesian> new_xyz;
   std::vector<SimpleConnection> new_conns;
   std::vector<int> new_tags;
@@ -546,7 +546,7 @@ void Connectivity2::InsertConnection(  bool replace, unsigned int position,
 }
 
 
-void Connectivity2::AddUniqueConnection( Pmmdb::Atom p_atom1, Pmmdb::Atom p_atom2,
+void Connectivity2::AddUniqueConnection( mmdb::PAtom p_atom1, Pmmdb::Atom p_atom2,
                     const std::string &label_in,int tag){
   std::vector<unsigned int> hits;
   if (data_mode != CONN_ATOM_ATOM ) return; 
@@ -578,8 +578,8 @@ void Connectivity2::UpdateCoordinates(bool label_dist) {
   std::vector<SimpleConnection> new_conns;
 
   std::vector<SimpleConnection>::iterator old_conn=connected.begin();
-  std::vector<Pmmdb::Atom>::iterator at1=pAtom1.begin();
-  std::vector<Pmmdb::Atom>::iterator at2;
+  std::vector<mmdb::PAtom>::iterator at1=pAtom1.begin();
+  std::vector<mmdb::PAtom>::iterator at2;
   std::vector<Cartesian>::iterator  xyz;
 
   switch (data_mode) {
@@ -634,8 +634,8 @@ void Connectivity2::UpdateCoordinates(bool label_dist) {
  
 void Connectivity2::DeleteConnections(std::vector<unsigned int> indices, bool all){
 
-  std::vector<Pmmdb::Atom> new_atoms1;
-  std::vector<Pmmdb::Atom> new_atoms2;
+  std::vector<mmdb::PAtom> new_atoms1;
+  std::vector<mmdb::PAtom> new_atoms2;
   std::vector<Cartesian> new_xyz;
   std::vector<SimpleConnection> new_conns;
   std::vector<int> new_tags;
@@ -681,25 +681,25 @@ void Connectivity2::DeleteConnections( ) {
 }
 
 
-void Connectivity2::RemoveConnection( Pmmdb::Atom p_atom1, int position ) {
+void Connectivity2::RemoveConnection( mmdb::PAtom p_atom1, int position ) {
   std::vector<unsigned int> indices = FindConnections(p_atom1,position);
   DeleteConnections(indices);
 }
 
-void Connectivity2::RemoveConnection( Pmmdb::Atom p_atom1, Pmmdb::Atom p_atom2 ) {
+void Connectivity2::RemoveConnection( mmdb::PAtom p_atom1, Pmmdb::Atom p_atom2 ) {
   std::vector<unsigned int> indices = FindConnections(p_atom1,p_atom2);
   //cout << "RemoveConnection indices " << indices << endl;
   DeleteConnections(indices);
 }
   
-std::vector<unsigned int> Connectivity2::FindConnections( Pmmdb::Atom p_atom1,
-                  Pmmdb::Atom p_atom2, bool switchpos ) {
+std::vector<unsigned int> Connectivity2::FindConnections( mmdb::PAtom p_atom1,
+                  mmdb::PAtom p_atom2, bool switchpos ) {
   // return index of all connections between the two specified atoms
   // If switch true then atoms could be inverted order
   std::vector <unsigned int> indices;
   if(nAtomSets<2) return indices;
-  std::vector<Pmmdb::Atom>::iterator i=pAtom1.begin();
-  std::vector<Pmmdb::Atom>::iterator j=pAtom2.begin();
+  std::vector<mmdb::PAtom>::iterator i=pAtom1.begin();
+  std::vector<mmdb::PAtom>::iterator j=pAtom2.begin();
 
   int n = 0;
   while(i!=pAtom1.end()){
@@ -722,12 +722,12 @@ std::vector<unsigned int> Connectivity2::FindConnections( Pmmdb::Atom p_atom1,
   return indices;
 }
 
-int Connectivity2::FindNofConnections( Pmmdb::Atom p_atom1 ,int position) {
+int Connectivity2::FindNofConnections( mmdb::PAtom p_atom1 ,int position) {
   std::vector <unsigned int> indices = FindConnections(p_atom1 ,position);
   return indices.size();
 }
 
-std::vector <unsigned int> Connectivity2::FindConnections( Pmmdb::Atom p_atom1 ,
+std::vector <unsigned int> Connectivity2::FindConnections( mmdb::PAtom p_atom1 ,
          int position) {
   
   //cout << "FindConnections " << p_atom1 << " " << position << endl;
@@ -735,7 +735,7 @@ std::vector <unsigned int> Connectivity2::FindConnections( Pmmdb::Atom p_atom1 ,
   std::vector <unsigned int> indices;
   if (nAtomSets<1) return indices;
   if ( position == 1 || nAtomSets<=1) {
-    std::vector<Pmmdb::Atom>::iterator i=pAtom1.begin();
+    std::vector<mmdb::PAtom>::iterator i=pAtom1.begin();
     while(i!=pAtom1.end()){
       if (*i == p_atom1 ) indices.push_back(n);
       i++;
@@ -743,7 +743,7 @@ std::vector <unsigned int> Connectivity2::FindConnections( Pmmdb::Atom p_atom1 ,
     }
   } 
   else if ( position == 2 ) {
-    std::vector<Pmmdb::Atom>::iterator i=pAtom2.begin();
+    std::vector<mmdb::PAtom>::iterator i=pAtom2.begin();
     while(i!=pAtom2.end()){
       if ( *i == p_atom1) indices.push_back(n);
       i++;
@@ -751,8 +751,8 @@ std::vector <unsigned int> Connectivity2::FindConnections( Pmmdb::Atom p_atom1 ,
     }
   } 
   else {
-    std::vector<Pmmdb::Atom>::iterator i=pAtom1.begin();
-    std::vector<Pmmdb::Atom>::iterator j=pAtom2.begin();
+    std::vector<mmdb::PAtom>::iterator i=pAtom1.begin();
+    std::vector<mmdb::PAtom>::iterator j=pAtom2.begin();
     while(i!=pAtom1.end()){
       if (*i == p_atom1 || *j ==  p_atom1) indices.push_back(n);
       i++;
@@ -764,13 +764,13 @@ std::vector <unsigned int> Connectivity2::FindConnections( Pmmdb::Atom p_atom1 ,
   return indices;
 }
 
-realtype* Connectivity2::Extent() {
+mmdb::realtype* Connectivity2::Extent() {
   /*
   Find the max/min of x/y/z of all vector ends
   */
   double coord;
-  realtype *com;
-  com = new realtype[6];
+  mmdb::realtype *com;
+  com = new mmdb::realtype[6];
   com[0] = 9999999.9;
   com[1] = 9999999.9;
   com[2] = 9999999.9;
@@ -847,7 +847,7 @@ Cartesian Connectivity2::GetCoordinate ( int i, int j) {
 }
 
 
-Pmmdb::Atom Connectivity2::GetAtom ( int i, int j) {
+mmdb::PAtom Connectivity2::GetAtom ( int i, int j) {
   if ( i < 0 ) return NULL;
   if (j==1 || data_mode == CONN_POINT_ATOM) {
    if (i < int(pAtom1.size())) return pAtom1[i];
@@ -889,8 +889,8 @@ std::string Connectivity2::Print ( const std::string &tag1, const std::string &t
   output.setf(ios::showpoint);
   output.setf(ios::left,ios::adjustfield);
   output.precision(1);
-  std::vector<Pmmdb::Atom>::iterator i;
-  std::vector<Pmmdb::Atom>::iterator j;
+  std::vector<mmdb::PAtom>::iterator i;
+  std::vector<mmdb::PAtom>::iterator j;
   
   if ( nAtomSets>=1 && pAtom1.size() < 1)  return output.str();
 
@@ -935,7 +935,7 @@ std::string Connectivity2::Print ( const std::string &tag1, const std::string &t
  
 }
 
-int Connectivity2::AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager molHnd2,int selHnd2_in,realtype  dist1, realtype  dist2, int  seqDist , int inter_model, int closest_bonding, int handle_hbond) {
+int Connectivity2::AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager molHnd2,int selHnd2_in,mmdb::realtype  dist1, realtype  dist2, int  seqDist , int inter_model, int closest_bonding, int handle_hbond) {
   // closest_bonding -- min 'bonding' number allowed from TestBonding 
   // -- can be 0, 2=bonded, 3=1-3bonded 1-4 = 1-4 bonded
   // handle_hbond - flag treatment of HBond -- not implemented yet
@@ -989,8 +989,8 @@ int Connectivity2::AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager 
 }
 
 //----------------------------------------------------------------------------
-int Connectivity2::AddRangeConnections(int set, Pmmdb::Residue res1,Pmmdb::Residue res2, 
-			     Pmmdb::Residue mres1, 
+int Connectivity2::AddRangeConnections(int set, mmdb::PResidue res1,Pmmdb::Residue res2, 
+			     mmdb::PResidue mres1, 
 			     const std::vector<std::string>&  mainchain_name,
                                        int tag ) {
 //----------------------------------------------------------------------------
@@ -998,8 +998,8 @@ int Connectivity2::AddRangeConnections(int set, Pmmdb::Residue res1,Pmmdb::Resid
   // Match the range of residue res1->res2 (not necessarilly input
   // in correct sequence order) to mres1 (equivalent of res1)
   // selection_mode: CA/main/all etc
-  Pmmdb::Residue r1,r2;
-  Pmmdb::Atom pat1,pat2;
+  mmdb::PResidue r1,r2;
+  mmdb::PAtom pat1,pat2;
   int nconn = 0;
   int mainchain_max= mainchain_name.size();
 
@@ -1053,8 +1053,8 @@ int Connectivity2::AddRangeConnections(int set, Pmmdb::Residue res1,Pmmdb::Resid
 
 
 //----------------------------------------------------------------------------
-int Connectivity2::AddCloseRangeConnections(int set,Pmmdb::Residue res1,
-                    Pmmdb::Residue res2,PCMMANManager M2, 
+int Connectivity2::AddCloseRangeConnections(int set,mmdb::PResidue res1,
+                    mmdb::PResidue res2,PCMMANManager M2, 
                     double central_cutoff, double cutoff, 
 		    const std::vector<std::string>& mainchain_name,
                     const std::string &centralAtom, int tag ) {
@@ -1070,7 +1070,7 @@ int Connectivity2::AddCloseRangeConnections(int set,Pmmdb::Residue res1,
   //Get the 'central' atoms in the 'unknown' model (without range selected)
   int centralHnd = M2->NewSelection();
   mmdb::PPAtom centralAtoms;
-  Pmmdb::Atom pat1,pat2;
+  mmdb::PAtom pat1,pat2;
   int centralNAtoms;
   M2->Select(centralHnd,STYPE_ATOM,0,"*",ANY_RES,
        "*",ANY_RES, "*","*",(char*)(centralAtom.c_str()),"*","*",SKEY_NEW);
@@ -1081,9 +1081,9 @@ int Connectivity2::AddCloseRangeConnections(int set,Pmmdb::Residue res1,
 
   // Loop over residues in known model
   Pmmdb::Chain pChn = res1->GetChain();
-  Pmmdb::Atom pCentralAtom;
-  Pmmdb::Residue closeRes;
-  Pmmdb::Atom fxAtom,closeAtom;
+  mmdb::PAtom pCentralAtom;
+  mmdb::PResidue closeRes;
+  mmdb::PAtom fxAtom,closeAtom;
   int ifres,ilres,ncontacts,best_match;
   double score,best_score;
 
@@ -1169,7 +1169,7 @@ int Connectivity2::AddCloseRangeConnections(int set,Pmmdb::Residue res1,
 
 int Connectivity2::GetSelection ( int mode) {
   PCMMUTManager M1;
-  std::vector<Pmmdb::Atom>::iterator i;
+  std::vector<mmdb::PAtom>::iterator i;
 
   if ( pAtom1.size() < 1)  return -1;
  
@@ -1199,9 +1199,9 @@ int Connectivity2::Superpose(int fixed) {
 //-------------------------------------------------------------------------
   // Apply lsq fit of 'moving' set of atoms on 'fixed' atoms
   if ( pAtom1.size() < 3)  return -1;
-  std::vector<Pmmdb::Atom>::iterator i;
-  mmdb::PPAtom A1 = new Pmmdb::Atom[pAtom1.size()];
-  mmdb::PPAtom A2 = new Pmmdb::Atom[pAtom2.size()];
+  std::vector<mmdb::PAtom>::iterator i;
+  mmdb::PPAtom A1 = new mmdb::PAtom[pAtom1.size()];
+  mmdb::PPAtom A2 = new mmdb::PAtom[pAtom2.size()];
   i=pAtom1.begin(); int j = 0;
   while(i!=pAtom1.end()){  A1[j++] = *i; i++; }
   i=pAtom2.begin(); j = 0;
@@ -1225,15 +1225,15 @@ int Connectivity2::Superpose(int fixed) {
 }
 
 
-int Connectivity2::MatchGraphs(Pmmdb::Residue pRes1,const pstr altLoc1,
-                               Pmmdb::Residue pRes2,const pstr altLoc2,
+int Connectivity2::MatchGraphs(mmdb::PResidue pRes1,const pstr altLoc1,
+                               mmdb::PResidue pRes2,const pstr altLoc2,
                                int Hflag,int tag,float fracMinMatch,
                                bool keepmatch )  {
   
   PCGraph G2,G1;
   PCGraphMatch U = NULL;
   ivector      F1,F2;
-  realtype     p1,p2;
+  mmdb::realtype     p1,p2;
   int     htype;
   int nInResidue1,nInResidue2,minMatch;
   mmdb::PPAtom atoms1,atoms2;
@@ -1321,8 +1321,8 @@ int Connectivity2::MatchGraphs(Pmmdb::Residue pRes1,const pstr altLoc1,
     // Multiple best graph matches - decide by superposing and
     // chosing match with best lsq fit
     if (best_matches.size()>1 && maxM>3 ) {
-      mmdb::PPAtom A1 = new Pmmdb::Atom[maxM];
-      mmdb::PPAtom A2 = new Pmmdb::Atom[maxM];
+      mmdb::PPAtom A1 = new mmdb::PAtom[maxM];
+      mmdb::PPAtom A2 = new mmdb::PAtom[maxM];
       for (int j=0;j<natMatch;j++) {
         A1[j] = new mmdb::Atom();
         A2[j] = new mmdb::Atom();

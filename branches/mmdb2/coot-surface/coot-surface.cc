@@ -37,7 +37,7 @@
 // protein), sometimes not (e.g. surface on a ligand).
 // 
 void
-coot::surface::fill_from(CMMDBManager *mol, int selHnd, float col_scale, bool assign_charges) {
+coot::surface::fill_from(mmdb::Manager *mol, int selHnd, float col_scale, bool assign_charges) {
 
 
    // debug::
@@ -94,7 +94,7 @@ coot::surface::fill_from(CMMDBManager *mol, int selHnd, float col_scale, bool as
 }
 
 void
-coot::surface::fill_surface(CMMDBManager *mol, int SelHnd_selection, int SelHnd_all,
+coot::surface::fill_surface(mmdb::Manager *mol, int SelHnd_selection, int SelHnd_all,
 			    float col_scale, bool assign_charges) {
 
    // e.g. selection handles: residues_of_the_active_site, residues_of_the_chain
@@ -210,13 +210,13 @@ coot::surface::transparent_draw(float opacity) {
 
 // colscale is by default 0.2.
 void
-coot::surface::evaluateElectrostaticPotential(CMMDBManager *theManager, int selHnd, float col_scale) {
+coot::surface::evaluateElectrostaticPotential(mmdb::Manager *theManager, int selHnd, float col_scale) {
   iEval = 0;
   evaluatePhiAndColourWithDefaultScheme(theManager, selHnd, col_scale);
 }
 
 int
-coot::surface::evaluatePhiAndColourWithDefaultScheme(CMMDBManager *theManager, const int selHnd,
+coot::surface::evaluatePhiAndColourWithDefaultScheme(mmdb::Manager *theManager, const int selHnd,
 						     float col_scale){
    std::cout << "In evaluatePhiAndColourWithDefaultScheme with col_scale: "
 	     << col_scale << std::endl;
@@ -237,14 +237,14 @@ coot::surface::evaluatePhiAndColourWithDefaultScheme(CMMDBManager *theManager, c
    return evaluatePhiAndColourWithScheme(theManager, selHnd, defaultScheme);
 }
 
-int coot::surface::evaluatePhiAndColourWithScheme(CMMDBManager *theManager, const int selHnd, CColourScheme &colourScheme){
+int coot::surface::evaluatePhiAndColourWithScheme(mmdb::Manager *theManager, const int selHnd, CColourScheme &colourScheme){
   cout << "In evaluatePhiAndColourWithScheme\n"; cout.flush();
   //Instantiate and calculate electrostatic potential
   CXXCreator theCreator(theManager, selHnd);
   theCreator.calculate();	
   
-  realtype a, b, c;
-  realtype al, be, ga, vol;
+  mmdb::realtype a, b, c;
+  mmdb::realtype al, be, ga, vol;
   int ncode; 
   theManager->GetCell(a, b, c, al, be, ga, vol, ncode);
   clipper::Cell cell(clipper::Cell_descr(a, b, c, 

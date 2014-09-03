@@ -28,10 +28,10 @@
 
 #include "lsq-improve.hh"
 
-coot::lsq_improve::lsq_improve(CMMDBManager *mol_ref, const std::string &ref_selection_string,
-			       CMMDBManager *mol_moving, const std::string &moving_selection_string) {
+coot::lsq_improve::lsq_improve(mmdb::Manager *mol_ref, const std::string &ref_selection_string,
+			       mmdb::Manager *mol_moving, const std::string &moving_selection_string) {
 
-   mol = new CMMDBManager;
+   mol = new mmdb::Manager;
    mol_initial_copy = NULL; // reset later hopefully.
    crit_close = 6; // A
    n_res_for_frag = 6;
@@ -88,7 +88,7 @@ coot::lsq_improve::lsq_improve(CMMDBManager *mol_ref, const std::string &ref_sel
 
 	 // throw an exception here if n_sel_1 or n_sel_1 are 2 or less.
 
-	 mol_initial_copy = new CMMDBManager;
+	 mol_initial_copy = new mmdb::Manager;
 	 mol_initial_copy->Copy(mol, MMDBFCM_All);
       }
    }
@@ -96,7 +96,7 @@ coot::lsq_improve::lsq_improve(CMMDBManager *mol_ref, const std::string &ref_sel
 
 // return the number of Atoms
 int 
-coot::lsq_improve::CAs_to_model(CMMDBManager *mol_in, int model_number) {
+coot::lsq_improve::CAs_to_model(mmdb::Manager *mol_in, int model_number) {
 
    int n_atoms = 0; // increment and return
    if (mol_in) { 
@@ -187,9 +187,9 @@ coot::lsq_improve::get_new_matches(int round_number, int round_max,
    //    0             10         1
    //    5             10         1 - (1-0.3)*round_number/round_max
    //   10             10         0.3
-   realtype min_dist = 0.3;
-   realtype multiplier = 1.0 - (1.0 - min_dist)*realtype(round_number)/realtype(round_max);
-   realtype max_dist = crit_close * multiplier;
+   mmdb::realtype min_dist = 0.3;
+   mmdb::realtype multiplier = 1.0 - (1.0 - min_dist)*realtype(round_number)/realtype(round_max);
+   mmdb::realtype max_dist = crit_close * multiplier;
 
    std::cout << "   round " << round_number << " multiplier  " << multiplier
 	     << "  max_dist " << max_dist << std::endl;

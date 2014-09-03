@@ -150,7 +150,7 @@ int CSecStructure::InitMemory( int nres ) {
   hbond_atoms = new mmdb::PPAtom[nres];
   hbondsN = nres;
   for ( i = 0; i < nres; i++) {
-     hbond_atoms[i] = new Pmmdb::Atom[6];
+     hbond_atoms[i] = new mmdb::PAtom[6];
      for ( j = 0; j < 6; j++) hbond_atoms[i][j] = 0;
      for ( j = 0; j <= 2; j++) hbonds[i][j] = 0;
   }
@@ -204,7 +204,7 @@ int CSecStructure::CalculateSecondaryStructure (int imodel ) {
   //cout << "CalculateSecondaryStructure " << imodel << " " << nres << " " << selRes[0]->GetModel()->GetSerNum() << endl;
 
   // Create array of pointers to CA atoms in amino acids 
-  mmdb::PPAtom selCa = new Pmmdb::Atom[nres];
+  mmdb::PPAtom selCa = new mmdb::PAtom[nres];
   for ( i = 0; i < nres; i++ ) {
     if ( selRes[i]->isAminoacid() ) {
       namino++; 
@@ -217,7 +217,7 @@ int CSecStructure::CalculateSecondaryStructure (int imodel ) {
         
   // Second copy of the same data
   nres2 = nres;
-  mmdb::PPAtom selCa2 = new Pmmdb::Atom[nres];
+  mmdb::PPAtom selCa2 = new mmdb::PAtom[nres];
   for ( i = 0; i < nres; i++ ) selCa2[i] = selCa[i];
 
   // Find all close Ca's - i.e. find the contacts between the two
@@ -431,7 +431,7 @@ std::string CSecStructure::Print (int imodel) {
   std::ostringstream output;
   int           nr;
   mmdb::PPResidue    selRes;
-  Pmmdb::Residue     j;
+  mmdb::PResidue     j;
   std::string resid;
     int first_model=1;
   int last_model=1;
@@ -490,10 +490,10 @@ std::string CSecStructure::Print (int imodel) {
 }
  
 //-----------------------------------------------------------------------
-Boolean CSecStructure::IsHBond ( Pmmdb::Residue PCRes1, Pmmdb::Residue PCRes2 ) {
+Boolean CSecStructure::IsHBond ( mmdb::PResidue PCRes1, Pmmdb::Residue PCRes2 ) {
 //-----------------------------------------------------------------------
-  Pmmdb::Atom        NAtom, OAtom , mmdb::Atom;
-  realtype	dx,dy,dz;
+  mmdb::PAtom        NAtom, OAtom , mmdb::Atom;
+  mmdb::realtype	dx,dy,dz;
    
 // This probably need the option of supporting alternative criteria
 

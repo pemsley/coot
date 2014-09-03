@@ -37,7 +37,7 @@
   \param scheme A pointer to the CColourSchemes class which has the definition of the colour schemes.  There is only one instance of this class created by the MG. 
   */
 //-----------------------------------------------------------------------
-CMolColour::CMolColour(PCMMDBManager molHndin, int selHndin,
+CMolColour::CMolColour(mmdb::PManager molHndin, int selHndin,
 		        PCColourSchemes schemein ) {
 //-----------------------------------------------------------------------
   //data  - needs initiallising BEFORE SetSelHandle
@@ -452,7 +452,7 @@ CColourSchemes::CColourSchemes () :
 
   //Default Bvalue blue->red in 10 bins between 0->100
   // and colour below and above that range white and yellow
-  realtype bvalrngs [4] = { NULL, 0.0,50.0 , NULL} ;
+  mmdb::realtype bvalrngs [4] = { NULL, 0.0,50.0 , NULL} ;
   int bvalbns[4] = { 1, 10, 1, NULL };
   const char *bvalcol[4] = { "white", "blue","red", "yellow" };
   
@@ -530,7 +530,7 @@ int CColourScheme::SetScheme (int n, int typs[], const char *cols[] ) {
 }
 
 //-----------------------------------------------------------------------
-int CColourScheme::SetScheme (int n, realtype rngs[], int bns[], const char *cols[]){
+int CColourScheme::SetScheme (int n, mmdb::realtype rngs[], int bns[], const char *cols[]){
 //-----------------------------------------------------------------------
   // Set colour scheme which is dependent value of a string attribute
   int RC,i;

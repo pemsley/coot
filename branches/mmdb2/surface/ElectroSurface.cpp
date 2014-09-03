@@ -19,7 +19,7 @@ using namespace clipper;
 int usage (string arg);
 
 int main (int argc, char * const argv[]) {
-	PCMMDBManager  theMMDBManager;
+	mmdb::PManager  theMMDBManager;
 	int RC;
 	string insrf, outsrf;
 	
@@ -96,7 +96,7 @@ int main (int argc, char * const argv[]) {
 	if (inputCoordinateName != " "){
 		char *fn = new char[(strlen(inputCoordinateName.c_str())+1)];
 		strcpy (fn, inputCoordinateName.c_str());
-		theMMDBManager = new CMMDBManager();
+		theMMDBManager = new mmdb::Manager();
 		theMMDBManager->SetFlag( MMDBF_PrintCIFWarnings );
 		RC = theMMDBManager->ReadCoorFile (fn);
 		// if RC > 0 reading in file has failed - say so and quit

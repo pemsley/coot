@@ -626,7 +626,7 @@ int clear_and_update_model_molecule_from_file(int molecule_number,
    int imol = -1;
    if (is_valid_model_molecule(molecule_number)) {
       atom_selection_container_t asc = get_atom_selection(file_name, 1);
-      CMMDBManager *mol = asc.mol;
+      mmdb::Manager *mol = asc.mol;
       graphics_info_t::molecules[molecule_number].replace_molecule(mol);
       imol = molecule_number;
       graphics_draw();
@@ -3203,7 +3203,7 @@ char *centre_of_mass_string(int imol) {
 #ifdef USE_GUILE
    char *s = 0; // guile/SWIG sees this as #f
    if (is_valid_model_molecule(imol)) {
-      realtype x, y, z;
+      mmdb::realtype x, y, z;
       GetMassCenter(graphics_info_t::molecules[imol].atom_sel.atom_selection,
 		    graphics_info_t::molecules[imol].atom_sel.n_selected_atoms,
 		    x, y, z);
@@ -3224,7 +3224,7 @@ char *centre_of_mass_string(int imol) {
 #ifdef USE_PYTHON
    char *s = 0; // should do for python too
    if (is_valid_model_molecule(imol)) {
-      realtype x, y, z;
+      mmdb::realtype x, y, z;
       GetMassCenter(graphics_info_t::molecules[imol].atom_sel.atom_selection,
 		    graphics_info_t::molecules[imol].atom_sel.n_selected_atoms,
 		    x, y, z);
@@ -3251,7 +3251,7 @@ char *centre_of_mass_string_py(int imol) {
 
    char *s = 0; // should do for python too
    if (is_valid_model_molecule(imol)) {
-      realtype x, y, z;
+      mmdb::realtype x, y, z;
       GetMassCenter(graphics_info_t::molecules[imol].atom_sel.atom_selection,
 		    graphics_info_t::molecules[imol].atom_sel.n_selected_atoms,
 		    x, y, z);
@@ -4059,7 +4059,7 @@ gchar *get_text_for_phs_cell_chooser(int imol, char *field) {
    gchar *retval = NULL;
    retval = (gchar *) malloc(12); 
    int ihave_cell = 0; 
-   realtype cell[6];
+   mmdb::realtype cell[6];
    const char *spgrp = NULL; 
 
    if (imol >= 0) { 
@@ -4069,7 +4069,7 @@ gchar *get_text_for_phs_cell_chooser(int imol, char *field) {
 
 	       ihave_cell = 1; 
 
-	       realtype vol;
+	       mmdb::realtype vol;
 	       int orthcode;
 	       g.molecules[imol].atom_sel.mol->GetCell(cell[0], cell[1], cell[2],
 						       cell[3], cell[4], cell[5],
@@ -5588,7 +5588,7 @@ SCM cis_peptides(int imol) {
 
    if (is_valid_model_molecule(imol)) {
 
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<coot::util::cis_peptide_info_t> v =
 	 coot::util::cis_peptides_info_from_coords(mol);
 
@@ -5631,7 +5631,7 @@ PyObject *cis_peptides_py(int imol) {
 
    if (is_valid_model_molecule(imol)) {
 
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<coot::util::cis_peptide_info_t> v =
 	 coot::util::cis_peptides_info_from_coords(mol);
 
@@ -6132,7 +6132,7 @@ void print_sequence_chain(int imol, const char *chain_id) {
 
    std::string seq;
    if (is_valid_model_molecule(imol)) {
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int imod = 1;
       mmdb::Model *model_p = mol->GetModel(imod);
       mmdb::Chain *chain_p;
@@ -6141,7 +6141,7 @@ void print_sequence_chain(int imol, const char *chain_id) {
 	 chain_p = model_p->GetChain(ichain);
 	 if (std::string(chain_p->GetChainID()) == chain_id) { 
 	    int nres = chain_p->GetNumberOfResidues();
-	    Pmmdb::Residue residue_p;
+	    mmdb::PResidue residue_p;
 	    int residue_count_block = 0;
 	    int residue_count_line = 0;
 	    if (nres > 0 ) {
@@ -6180,7 +6180,7 @@ void do_sequence_view(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       bool do_old_style = 0; 
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<mmdb::Residue *> r = coot::util::residues_with_insertion_codes(mol);
       if (r.size() > 0) {
 	 do_old_style = 1;

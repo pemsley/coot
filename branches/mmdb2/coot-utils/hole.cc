@@ -5,7 +5,7 @@
 #include "coot-coord-utils.hh"
 #include "coot-hole.hh"
 
-coot::hole::hole(CMMDBManager *mol_in, 
+coot::hole::hole(mmdb::Manager *mol_in, 
 		 const clipper::Coord_orth &from_pt_in,
 		 const clipper::Coord_orth &to_pt_in,
 		 const coot::protein_geometry &geom) {
@@ -60,7 +60,7 @@ coot::hole::assign_vdw_radii(const coot::protein_geometry &geom) {
 	       } else {
 		  std::string ele = at->element;
 		  // make a reasonable default
-		  realtype radius = 1.7;
+		  mmdb::realtype radius = 1.7;
  		  if (ele == " N")
  		     radius = 1.55;
  		  if (ele == " 0")
@@ -93,7 +93,7 @@ coot::hole::debug_atom_radii() const {
 	    std::string residue_name = residue_p->GetResName();
 	    for (int iat=0; iat<n_atoms; iat++) {
 	       at = residue_p->GetAtom(iat);
-	       realtype radius;
+	       mmdb::realtype radius;
 	       at->GetUDData(radius_handle, radius);
 	       std::cout << "   " << coot::atom_spec_t(at) << " with radius " << radius<< std::endl;
 	    }
@@ -271,7 +271,7 @@ coot::hole::sphere_size(const clipper::Coord_orth &pt, int selhnd) const {
    
    double largest_possible_sphere = 99999;
    bool was_set = 0;
-   realtype atom_vdw_radius;
+   mmdb::realtype atom_vdw_radius;
 
    for (unsigned int iat=0; iat<n_selected_atoms; iat++) {
       clipper::Coord_orth atom_pos(atom_selection[iat]->x,

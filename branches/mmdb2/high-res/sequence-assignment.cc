@@ -500,7 +500,7 @@ coot::sequence_assignment::scored_chain_info_t::slider_hit(const std::vector<std
 } 
 
 void
-coot::sequence_assignment::side_chain_score_t::generate_scores(CMMDBManager *mol_in,
+coot::sequence_assignment::side_chain_score_t::generate_scores(mmdb::Manager *mol_in,
 							       const clipper::Xmap<float> &xmap) {
 
    // How do I approach this, then?
@@ -651,7 +651,7 @@ coot::sequence_assignment::side_chain_score_t::cache_standard_residues() {
    atom_selection_container_t st_res_asc = read_standard_residues();
    mmdb::Residue *res;
    int nSelResidues;
-   Pmmdb::Residue *SelResidue = NULL;
+   mmdb::PResidue *SelResidue = NULL;
    
    if (st_res_asc.read_success) {
       standard_residues.resize(20);
@@ -708,9 +708,9 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    int nres = chain_p->GetNumberOfResidues();
-	    Pmmdb::Residue residue_p;
-	    Pmmdb::Residue stop_residue;
-	    Pmmdb::Residue previous_residue = NULL;
+	    mmdb::PResidue residue_p;
+	    mmdb::PResidue stop_residue;
+	    mmdb::PResidue previous_residue = NULL;
 	    int consecutive_ala_count = 0;
 	    std::string chain_id = chain_p->GetChainID();
 	    int iassigned;
@@ -799,9 +799,9 @@ coot::sequence_assignment::side_chain_score_t::mark_unassigned_residues() {
 	       std::cout << "NULL chain in ... " << std::endl;
 	    } else { 
 	       int nres = chain_p->GetNumberOfResidues();
-	       Pmmdb::Residue residue_p;
-	       Pmmdb::Residue save_res1 = 0; // unset
-	       Pmmdb::Residue save_res2 = 0; // unset
+	       mmdb::PResidue residue_p;
+	       mmdb::PResidue save_res1 = 0; // unset
+	       mmdb::PResidue save_res2 = 0; // unset
 	       int consecutive_ala_count = 0;
 	       for (int ires=0; ires<nres; ires++) { 
 		  residue_p = chain_p->GetResidue(ires);
@@ -986,7 +986,7 @@ coot::sequence_assignment::side_chain_score_t::best_rotamer_score(const clipper:
 	 std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
 	 rotamer_res = d.GetResidue(rest, i);
 	 int n_selected_atoms;
-	 Pmmdb::Atom *residue_atoms;
+	 mmdb::PAtom *residue_atoms;
 	 rotamer_res->GetAtomTable(residue_atoms, n_selected_atoms);
 	 score_this_rotamer = coot::util::map_score(residue_atoms, n_selected_atoms,
 						    xmap, 1);

@@ -57,7 +57,7 @@ private:
 	CXXChargeTable theChargeTable;
 
 	// Matter
-	PCMMDBManager  theMMDBManager;
+	mmdb::PManager  theMMDBManager;
 	int  nSelAtoms;
 	mmdb::PPAtom SelAtom;
 	
@@ -83,8 +83,8 @@ private:
 public:
 	
 	CXXCreator (pstr thePdb);   // reads a pdb from file to make creator 
-	CXXCreator (PCMMDBManager theManager); //can also be created from an MMDBManager ...
-	CXXCreator (PCMMDBManager theManager, int selHnd, int context_selHnd=-1); //can also be created from an MMDBManager + selHnd
+	CXXCreator (mmdb::PManager theManager); //can also be created from an MMDBManager ...
+	CXXCreator (mmdb::PManager theManager, int selHnd, int context_selHnd=-1); //can also be created from an MMDBManager + selHnd
 
 	int setParameters( double IonicStrength, double Temperature, double gridSpacing);
 	
