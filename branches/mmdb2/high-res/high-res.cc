@@ -401,7 +401,7 @@ coot::high_res::buccafilter_neighbours() {
       for (int iat=0; iat<asc.n_selected_atoms; iat++) {
 	 // Tinker with the UDD of the atom selection
 	 ierr = asc.atom_selection[iat]->GetUDData(uddhandle, ic);
-	 if (ierr == UDDATA_Ok) {
+	 if (ierr == mmdb::UDDATA_Ok) {
 	    if (ic == -1) {
 	       char *at_name = asc.atom_selection[iat]->name;
 	       std::string atom_name(at_name);

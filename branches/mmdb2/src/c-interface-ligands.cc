@@ -1084,7 +1084,7 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
 	    lig.set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
 	 }
 	 int selectionhandle = g.molecules[coords_mol_no].atom_sel.mol->NewSelection();
-	 g.molecules[coords_mol_no].atom_sel.mol->Select(selectionhandle, STYPE_ATOM,
+	 g.molecules[coords_mol_no].atom_sel.mol->Select(selectionhandle, mmdb::STYPE_ATOM,
 							 (char *) mmdb_atom_selection,
 							 mmdb::SKEY_NEW);
 	 lig.mask_map(g.molecules[coords_mol_no].atom_sel.mol, selectionhandle, invert_flag);

@@ -214,7 +214,7 @@ std::string make_model_string(mmdb::PResidue *SelResidues, int nSelResidues) {
       this_residue = "X";
       pstr rn = SelResidues[i]->GetResName();
       std::string residue_name(rn);
-      Get1LetterCode(rn, r);
+      mmdb::Get1LetterCode(rn, r);
       this_residue = r[0];
       if (residue_name != "HOH") 
 	 s += this_residue;

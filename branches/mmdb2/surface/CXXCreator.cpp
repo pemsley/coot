@@ -45,13 +45,13 @@ CXXCreator::CXXCreator (mmdb::PManager theMMDBManager, int selHnd, int context_s
         int nSelAtomsNeighbours;
         mmdb::PPAtom SelAtomNeighbours;
 
-        //theMMDBManager->Select(neighbour_selhnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
+        //theMMDBManager->Select(neighbour_selhnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
 
         /* 35 angstroms seems overly generous, but I still get incorrect charges with ca 25 angstroms. */
         if (context_selHnd>0) {
           neighbour_selhnd = theMMDBManager->NewSelection();
-          theMMDBManager->SelectNeighbours(neighbour_selhnd,STYPE_ATOM,SelAtom,nSelAtoms,0.0,35.0,SKEY_OR);
-          theMMDBManager->Select(neighbour_selhnd,STYPE_ATOM,context_selHnd,SKEY_AND);
+          theMMDBManager->SelectNeighbours(neighbour_selhnd,mmdb::STYPE_ATOM,SelAtom,nSelAtoms,0.0,35.0,SKEY_OR);
+          theMMDBManager->Select(neighbour_selhnd,mmdb::STYPE_ATOM,context_selHnd,SKEY_AND);
 	  theMMDBManager->GetSelIndex(neighbour_selhnd, SelAtomNeighbours, nSelAtomsNeighbours);
           //theMMDBManager->DeleteSelection(neighbour_selhnd);
           SelAtom = SelAtomNeighbours;

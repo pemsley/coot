@@ -520,7 +520,7 @@ coot::restraints_container_t::add_extra_parallel_plane_restraints(const extra_re
 		  if (plane_atom_expanded_name == atom_name) {
 		     if (r.plane_1_atoms.alt_conf == alt_conf) {
 			int idx = -1;
-			if (at->GetUDData(udd_atom_index_handle, idx) == UDDATA_Ok) { 
+			if (at->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) { 
 			   if (idx != -1) {
 			      plane_1_atom_indices.push_back(idx);
 			      if (0)
@@ -549,7 +549,7 @@ coot::restraints_container_t::add_extra_parallel_plane_restraints(const extra_re
 		  if (plane_atom_expanded_name == atom_name) {
 		     if (r.plane_2_atoms.alt_conf == alt_conf) {
 			int idx = -1;
-			if (at->GetUDData(udd_atom_index_handle, idx) == UDDATA_Ok) { 
+			if (at->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) { 
 			   if (idx != -1) {
 			      plane_2_atom_indices.push_back(idx);
 			      if (0)

@@ -1072,7 +1072,7 @@ int Connectivity2::AddCloseRangeConnections(int set,mmdb::PResidue res1,
   mmdb::PPAtom centralAtoms;
   mmdb::PAtom pat1,pat2;
   int centralNAtoms;
-  M2->Select(centralHnd,STYPE_ATOM,0,"*",mmdb::ANY_RES,
+  M2->Select(centralHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,
        "*",mmdb::ANY_RES, "*","*",(char*)(centralAtom.c_str()),"*","*",mmdb::SKEY_NEW);
   M2->GetSelIndex(centralHnd,centralAtoms,centralNAtoms);
   //cout << "AddCloseRangeConnections centralNAtoms " << centralNAtoms << endl;
@@ -1188,7 +1188,7 @@ int Connectivity2::GetSelection ( int mode) {
 
   while((mode==1&&i<pAtom1.end())||(mode==2&&i<pAtom2.end())) { 
     //cout << " Connectivity2::GetSelection " << (*i)->GetSeqNum()<< " "<< (*i)->GetInsCode() << " " << (*i)->name << " " << (*i)->altLoc << endl;
-    M1->Select(selHnd,STYPE_ATOM,(*i)->GetModelNum(),(*i)->GetChainID(),(*i)->GetSeqNum(),(*i)->GetInsCode(),(*i)->GetSeqNum(),(*i)->GetInsCode(),"*",(*i)->name,"*",(*i)->altLoc,SKEY_OR);
+    M1->Select(selHnd,mmdb::STYPE_ATOM,(*i)->GetModelNum(),(*i)->GetChainID(),(*i)->GetSeqNum(),(*i)->GetInsCode(),(*i)->GetSeqNum(),(*i)->GetInsCode(),"*",(*i)->name,"*",(*i)->altLoc,SKEY_OR);
     i++;
   }
 

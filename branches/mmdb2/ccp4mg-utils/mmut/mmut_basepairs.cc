@@ -33,8 +33,8 @@ void CNABasePairs::Calculate(CMMANManager *molHnd, int selHnd, mmdb::PPAtom selA
   
   int C5sel = molHnd->NewSelection();
   
-  molHnd->Select(C5sel,STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","C5*","C","*",mmdb::SKEY_NEW);
-  molHnd->Select(C5sel,STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","C5'","C","*",SKEY_OR);
+  molHnd->Select(C5sel,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","C5*","C","*",mmdb::SKEY_NEW);
+  molHnd->Select(C5sel,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","C5'","C","*",SKEY_OR);
 
   std::vector<std::pair<mmdb::PResidue,Plane> > plane_res_pairs;
   std::vector<double*> plane_res_colours;

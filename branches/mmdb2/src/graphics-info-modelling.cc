@@ -872,7 +872,7 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
       const char *chain_id = residues[ir]->GetChainID();
       const char *inscode = residues[ir]->GetInsCode();
       int resno = residues[ir]->GetSeqNum();
-      residues_mol->Select(SelHnd, STYPE_ATOM,
+      residues_mol->Select(SelHnd, mmdb::STYPE_ATOM,
 			   0, chain_id,
 			   resno, // starting resno, an int
 			   inscode, // any insertion code
@@ -2018,7 +2018,7 @@ graphics_info_t::set_residue_range_refine_atoms(const std::string &chain_id,
 // 	 std::cout << "DEBUG:: in set_residue_range_refine_atoms nselatoms (1) "
 // 		   << nselatoms << std::endl;
 	 if (nselatoms > 0) {
-	    if (selatoms[0]->GetUDData(molecules[imol].atom_sel.UDDAtomIndexHandle, ind_1) == UDDATA_Ok) {
+	    if (selatoms[0]->GetUDData(molecules[imol].atom_sel.UDDAtomIndexHandle, ind_1) == mmdb::UDDATA_Ok) {
 	       residue_range_atom_index_1 = ind_1;
 	    }
 	 }
@@ -2041,7 +2041,7 @@ graphics_info_t::set_residue_range_refine_atoms(const std::string &chain_id,
 // 	 std::cout << "DEBUG:: in set_residue_range_refine_atoms nselatoms (2) "
 // 		   << nselatoms << std::endl;
 	 if (nselatoms > 0) {
-	    if (selatoms[0]->GetUDData(molecules[imol].atom_sel.UDDAtomIndexHandle, ind_2) == UDDATA_Ok) {
+	    if (selatoms[0]->GetUDData(molecules[imol].atom_sel.UDDAtomIndexHandle, ind_2) == mmdb::UDDATA_Ok) {
 	       residue_range_atom_index_2 = ind_2;
 	    }
 	 }
@@ -2172,7 +2172,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       }
 
 	    if (terminal_at) { 
-	       molecules[imol].atom_sel.mol->SelectSphere(SelHndSphere, STYPE_ATOM,
+	       molecules[imol].atom_sel.mol->SelectSphere(SelHndSphere, mmdb::STYPE_ATOM,
 							  terminal_at->x,
 							  terminal_at->y,
 							  terminal_at->z,

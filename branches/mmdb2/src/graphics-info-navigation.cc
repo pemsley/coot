@@ -549,7 +549,7 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 	       std::string target_altconf = go_to_atom_atom_altLoc_;
 	       for (int iat=0; iat<nSelAtoms; iat++) {
 		  if (target_altconf == local_SelAtom[iat]->altLoc) { 
-		     if (local_SelAtom[iat]->GetUDData(AtomSel.UDDAtomIndexHandle, ic) == UDDATA_Ok) {
+		     if (local_SelAtom[iat]->GetUDData(AtomSel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
 			pi.success = GL_TRUE; 
 			pi.atom_index = ic;
 			break;
@@ -571,7 +571,7 @@ graphics_info_t::find_atom_index_from_goto_info(int imol) {
 	       // The altconf didn't match, so try an atom that is the same except for the altconf:
 	       // 
 	       if (pi.success != GL_TRUE) {
-		  if (local_SelAtom[0]->GetUDData(AtomSel.UDDAtomIndexHandle, ic) == UDDATA_Ok) {
+		  if (local_SelAtom[0]->GetUDData(AtomSel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
 		     pi.success = GL_TRUE; 
 		     pi.atom_index = ic;
 		  } else {
@@ -1020,7 +1020,7 @@ graphics_info_t::apply_go_to_residue_keyboading_string_inner(int imol, mmdb::Ato
 
       // from setRotationCentre (if used with atom index)
       // to get update on distances, labels etc.
-      if (new_centre_atom->GetUDData(molecules[imol].atom_sel.UDDAtomIndexHandle, index) == UDDATA_Ok) {
+      if (new_centre_atom->GetUDData(molecules[imol].atom_sel.UDDAtomIndexHandle, index) == mmdb::UDDATA_Ok) {
         if (environment_show_distances) {
           mol_no_for_environment_distances = imol;
           update_environment_graphics_object(index, imol);

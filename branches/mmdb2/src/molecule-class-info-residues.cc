@@ -44,7 +44,7 @@
 #include "graphics-info.h"  // for rama probablity definitions
 
 #include <mmdb2/mmdb_manager.h>
-#include <mmdb2/mmdb_tables.h>  // for Get1LetterCode()
+#include <mmdb2/mmdb_tables.h>  // for mmdb::Get1LetterCode()
 #include "coords/mmdb-extras.h"
 #include "coords/Cartesian.h"
 #include "coords/mmdb-crystal.h"
@@ -1490,7 +1490,7 @@ molecule_class_info_t::sequence_from_chain(mmdb::Chain *chain_p) const {
 	 std::string this_residue = "X";
 	 pstr rn = residues[i]->GetResName();
 	 std::string residue_name(residues[i]->GetResName());
-	 Get1LetterCode(rn, r); // mmdb
+	 mmdb::Get1LetterCode(rn, r); // mmdb
 	 this_residue = r[0];
 	 if (residue_name != "HOH") {
 	    s += this_residue;

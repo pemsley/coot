@@ -75,7 +75,7 @@ coot::make_mols_from_atom_selection_string(mmdb::Manager *mol,
 					   std::string atom_selection_string,
 					   bool fill_masking_molecule_flag) {
    int SelHnd = mol->NewSelection();
-   mol->Select(SelHnd, STYPE_ATOM, atom_selection_string.c_str(), mmdb::SKEY_NEW);
+   mol->Select(SelHnd, mmdb::STYPE_ATOM, atom_selection_string.c_str(), mmdb::SKEY_NEW);
    mmdb::PPAtom atom_selection = NULL;
    int n_selected_atoms;
    mol->GetSelIndex(SelHnd, atom_selection, n_selected_atoms);

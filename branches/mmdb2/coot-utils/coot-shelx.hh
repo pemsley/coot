@@ -252,7 +252,7 @@ namespace coot {
 	    for (int i=atom_vector.size()-1;  i>=0; i--) {
 	       mmdb::Atom *at = atom_vector[i];
 	       int ic = -1; // is riding atom flag
-	       if (at->GetUDData(udd_non_riding_atom_flag_handle, ic) == UDDATA_Ok) {
+	       if (at->GetUDData(udd_non_riding_atom_flag_handle, ic) == mmdb::UDDATA_Ok) {
 		  if (ic==1)
 		     return at;
 	       } else {

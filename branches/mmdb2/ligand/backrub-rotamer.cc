@@ -54,7 +54,7 @@ coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
    float rrr = rr + 6.0; // guess
    int SelectionHandle = stored_mol->NewSelection();
    
-   stored_mol->SelectSphere(SelectionHandle, STYPE_ATOM, rc.x(), rc.y(), rc.z(), rrr, SKEY_OR);
+   stored_mol->SelectSphere(SelectionHandle, mmdb::STYPE_ATOM, rc.x(), rc.y(), rc.z(), rrr, SKEY_OR);
    mmdb::PPAtom sphere_atoms = 0;
    int n_sphere_atoms = 0;
    stored_mol->GetSelIndex(SelectionHandle, sphere_atoms, n_sphere_atoms);

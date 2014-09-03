@@ -393,7 +393,7 @@ residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_c
 	 mmdb::Atom *at = residue_atoms[0];
 	 int handle = graphics_info_t::molecules[imol].atom_sel.UDDAtomIndexHandle;
 	 int ierr = at->GetUDData(handle, atom_index);
-	 if (ierr == UDDATA_Ok) { 
+	 if (ierr == mmdb::UDDATA_Ok) { 
 	    if (atom_index != -1) { 
 	       output_residue_info_dialog(imol, atom_index);
 	    }

@@ -4353,7 +4353,7 @@ molecule_class_info_t::split_residue(int atom_index, int alt_conf_split_type) {
 // 		<< udd_afix_handle_inter << std::endl;
 //       for (int i=0; i<residue_mol.n_selected_atoms; i++) {
 // 	 int afix_number = -1;
-// 	 if (residue_mol.atom_selection[i]->GetUDData(udd_afix_handle_inter, afix_number) == UDDATA_Ok)
+// 	 if (residue_mol.atom_selection[i]->GetUDData(udd_afix_handle_inter, afix_number) == mmdb::UDDATA_Ok)
 // 	    std::cout << residue_mol.atom_selection[i] << " has afix number " << afix_number
 // 		      << std::endl;
 // 	 else
@@ -4581,7 +4581,7 @@ molecule_class_info_t::split_residue_internal(mmdb::Residue *residue, const std:
 // 		<< udd_afix_handle << std::endl;
       for (int i=0; i<asc.n_selected_atoms; i++) {
 	 int afix_number = -1;
-	 if (asc.atom_selection[i]->GetUDData(udd_afix_handle, afix_number) == UDDATA_Ok)
+	 if (asc.atom_selection[i]->GetUDData(udd_afix_handle, afix_number) == mmdb::UDDATA_Ok)
 	    std::cout << asc.atom_selection[i] << " has afix number " << afix_number << std::endl;
 // 	 else
 // 	    std::cout << asc.atom_selection[i]
@@ -4682,7 +4682,7 @@ molecule_class_info_t::split_residue_then_rotamer(mmdb::Residue *residue, const 
       int udd_afix_handle = residue_mol_asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
       for (int i=0; i<residue_mol_asc.n_selected_atoms; i++) {
 	 int afix_number = -1;
-	 if (residue_mol_asc.atom_selection[i]->GetUDData(udd_afix_handle, afix_number) == UDDATA_Ok)
+	 if (residue_mol_asc.atom_selection[i]->GetUDData(udd_afix_handle, afix_number) == mmdb::UDDATA_Ok)
 	    std::cout << residue_mol_asc.atom_selection[i] << " has afix number " << afix_number
 		      << std::endl;
 // 	 else
@@ -6209,7 +6209,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
    int i = -1;
    if (has_model()) {
       int SelHnd = atom_sel.mol->NewSelection();
-      atom_sel.mol->Select(SelHnd, STYPE_ATOM,
+      atom_sel.mol->Select(SelHnd, mmdb::STYPE_ATOM,
 			   atom_selection_str.c_str(),
 			   SKEY_OR);
       int n_selected_atoms;
@@ -6520,7 +6520,7 @@ molecule_class_info_t::set_b_factor_atom_selection(const atom_selection_containe
     mmdb::Atom *atom = asc.atom_selection[i];
     if (moving_atoms) {
       if (asc.UDDOldAtomIndexHandle >= 0) { // OK for fast atom indexing
-	if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == UDDATA_Ok) {
+	if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == mmdb::UDDATA_Ok) {
 	  if (tmp_index >= 0) { 
 	    if (moving_atom_matches(atom, tmp_index)) { 
 	      idx = tmp_index;
@@ -7943,7 +7943,7 @@ molecule_class_info_t::make_dots(const std::string &atom_selection_str,
 
    if (has_model()) {
       int SelHnd = atom_sel.mol->NewSelection(); // yes, deleted.
-      atom_sel.mol->Select(SelHnd, STYPE_ATOM,
+      atom_sel.mol->Select(SelHnd, mmdb::STYPE_ATOM,
 			   atom_selection_str.c_str(),
 			   SKEY_OR);
       int n_selected_atoms;

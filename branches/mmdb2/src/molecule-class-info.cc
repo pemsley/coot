@@ -2282,7 +2282,7 @@ coot::atom_selection_info_t::select_atoms(mmdb::Manager *mol) const {
    }
    if (type == BY_STRING) {
       SelHnd = mol->NewSelection();
-      mol->Select(SelHnd, STYPE_ATOM, atom_selection_str.c_str(), mmdb::SKEY_NEW);
+      mol->Select(SelHnd, mmdb::STYPE_ATOM, atom_selection_str.c_str(), mmdb::SKEY_NEW);
    } 
    return SelHnd;
 }
@@ -2329,7 +2329,7 @@ coot::additional_representations_t::fill_bonds_box() {
 			  "*", "*", "*", "*");
       }
       if (atom_sel_info.type == coot::atom_selection_info_t::BY_STRING) {
-	 mol->Select(atom_sel.SelectionHandle, STYPE_ATOM, 
+	 mol->Select(atom_sel.SelectionHandle, mmdb::STYPE_ATOM, 
 		     atom_sel_info.atom_selection_str.c_str(),
 		     mmdb::SKEY_NEW);
       
@@ -3442,7 +3442,7 @@ molecule_class_info_t::atom_to_atom_index(mmdb::Atom *at) const {
 
    int iatom_index_udd = -1;
    int ic;
-   if (at->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == UDDATA_Ok) {
+   if (at->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
       iatom_index_udd = ic;
    }
    if (iatom_index_udd == -1)
@@ -3552,7 +3552,7 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
       
       int iatom_index_udd = -1;
       int ic;
-      if (local_SelAtom[idx]->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == UDDATA_Ok) {
+      if (local_SelAtom[idx]->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
 	 iatom_index_udd = ic;
       }
       iatom_index = iatom_index_udd;
@@ -3686,7 +3686,7 @@ molecule_class_info_t::atom_index_first_atom_in_residue_internal(const std::stri
 	 for (int iatom=0; iatom<natoms; iatom++) {
 	    if (test_alt_conf_flag == 0
 		|| alt_conf == residue_atoms[iatom]->altLoc) { 
-	       if (residue_atoms[iatom]->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == UDDATA_Ok) {
+	       if (residue_atoms[iatom]->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
 		  index = ic;
 		  break;
 	       }
@@ -3746,7 +3746,7 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 // 				    atom->residue->seqNum,
 // 				    std::string(atom->name));
 	 if (asc.UDDOldAtomIndexHandle >= 0) { // OK for fast atom indexing
-	    if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == UDDATA_Ok) {
+	    if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == mmdb::UDDATA_Ok) {
 	       if (tmp_index >= 0) { 
 		  if (moving_atom_matches(atom, tmp_index)) { 
 		     // std::cout << "DEBUG:: successfully found old atom index" << std::endl;
@@ -4230,7 +4230,7 @@ molecule_class_info_t::insert_coords_atoms_into_residue_internal(const atom_sele
 	 int afix_number; // set by getUDD
 	 if (afix_handle_intermediate_mol > -1) {
 	    int ierr = at->GetUDData(afix_handle_intermediate_mol, afix_number);
-	    if (ierr == UDDATA_Ok) {
+	    if (ierr == mmdb::UDDATA_Ok) {
 	       if (afix_handle_this_mol > -1) {
 		  t->PutUDData(afix_handle_this_mol, afix_number);
 	       } else {
@@ -7717,7 +7717,7 @@ molecule_class_info_t::set_b_factor_bonds_scale_factor(float f) {
 // 		   << udd_b_factor_handle << std::endl;
 	 if (udd_b_factor_handle > 0) {
 	    mmdb::realtype scale;
-	    if (atom_sel.mol->GetUDData(udd_b_factor_handle, scale) == UDDATA_Ok) {
+	    if (atom_sel.mol->GetUDData(udd_b_factor_handle, scale) == mmdb::UDDATA_Ok) {
 // 	       std::cout << " test got b factor scale: " << scale << std::endl;
 	    } else {
  	       std::cout << "ERROR:: bad get b factor scale " << std::endl;
