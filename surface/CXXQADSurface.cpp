@@ -31,7 +31,7 @@ CXXQADSurface::CXXQADSurface(mmdb::PManager theMMDBManager_in, int selHndl_in,
 	}
 	
 	//Pre identify all contacts 
-	PSContact contacts;
+	mmdb::Contact *contacts = NULL;
 	contacts = 0;
 	int nContacts = 0;
 	cout << "Off to precalculate contacts..."; cout.flush();
@@ -800,9 +800,9 @@ double CXXQADSurface::getAtomRadius(mmdb::PAtom theAtom){
 	double theRadius;
 	if (iRadiusHandle>0){
 		int success = theAtom->GetUDData (iRadiusHandle, theRadius);
-		if (success != mmdb::UDDATA_Ok) theRadius = getVdWaalsRadius(theAtom->element);
+		if (success != mmdb::UDDATA_Ok) theRadius = mmdb::getVdWaalsRadius(theAtom->element);
 	}
-	else theRadius = getVdWaalsRadius(theAtom->element);
+	else theRadius = mmdb::getVdWaalsRadius(theAtom->element);
 	return theRadius;
 }
 

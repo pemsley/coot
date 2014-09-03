@@ -10,13 +10,13 @@
 #include "CXXCreator.h"
 #include <algorithm>
 
-CXXCreator::CXXCreator (pstr thePdb) {
+CXXCreator::CXXCreator (mmdb::pstr thePdb) {
 	mmdb::InitMatType();
 
 	int RC;
 	
 	theMMDBManager = new mmdb::Manager();
-	theMMDBManager->SetFlag( MMDBF_PrintCIFWarnings );
+	theMMDBManager->SetFlag( mmdb::MMDBF_PrintCIFWarnings );
 	
 	
 	RC = theMMDBManager->ReadCoorFile (thePdb);
@@ -50,8 +50,8 @@ CXXCreator::CXXCreator (mmdb::PManager theMMDBManager, int selHnd, int context_s
         /* 35 angstroms seems overly generous, but I still get incorrect charges with ca 25 angstroms. */
         if (context_selHnd>0) {
           neighbour_selhnd = theMMDBManager->NewSelection();
-          theMMDBManager->SelectNeighbours(neighbour_selhnd,mmdb::STYPE_ATOM,SelAtom,nSelAtoms,0.0,35.0,SKEY_OR);
-          theMMDBManager->Select(neighbour_selhnd,mmdb::STYPE_ATOM,context_selHnd,SKEY_AND);
+          theMMDBManager->SelectNeighbours(neighbour_selhnd,mmdb::STYPE_ATOM,SelAtom,nSelAtoms,0.0,35.0,mmdb::SKEY_OR);
+          theMMDBManager->Select(neighbour_selhnd,mmdb::STYPE_ATOM,context_selHnd,mmdb::SKEY_AND);
 	  theMMDBManager->GetSelIndex(neighbour_selhnd, SelAtomNeighbours, nSelAtomsNeighbours);
           //theMMDBManager->DeleteSelection(neighbour_selhnd);
           SelAtom = SelAtomNeighbours;
@@ -129,7 +129,7 @@ double CXXCreator::getAtomRadius(int atomNr) {
 	if(SelAtom){
 	mmdb::PAtom theAtom = SelAtom[atomNr];
 	if(theAtom){
-	radius = getVdWaalsRadius(theAtom->element);
+	   radius = mmdb::getVdWaalsRadius(theAtom->element);
 	}
 	}
 	return radius;
@@ -169,7 +169,7 @@ string CXXCreator::getAtomName(int atomNr) {
 
 string CXXCreator::getAtomResidueName(int atomNr) {
 	
-	pstr name;
+        mmdb::pstr name;
 	string theResidueName;
 	
 	if (atomNr >= nSelAtoms) {
@@ -335,7 +335,7 @@ double CXXCreator::getGridVolumeOfAtom(CXXCoord gridOrigin, CXXCoord xGridVector
 		
 		double atomRadius;
 		atomRadius = getAtomRadius(atomNr);
-		double volume = 4.0*Pi*atomRadius*atomRadius*atomRadius/3.0;
+		double volume = 4.0*mmdb::Pi*atomRadius*atomRadius*atomRadius/3.0;
 		return volume;
 	}
 	
@@ -765,7 +765,7 @@ charge(i,j,k)/h =   dielGrid(i-1,j,k,0)[potentialGrid(i,j,k) - potentialGrid(i-1
 	// Use approximate formula to derive spectral radius of this problem based on dimensions of grid
 	
 	double lambda = 0;
-	lambda = 1.0/3.0* (cos(Pi/(space->getDimI())) + cos(Pi/(space->getDimJ())) + cos(Pi/(space->getDimK())) );
+	lambda = 1.0/3.0* (cos(mmdb::Pi/(space->getDimI())) + cos(mmdb::Pi/(space->getDimJ())) + cos(mmdb::Pi/(space->getDimK())) );
 	std::cout << "\nSpecctral radius of problem approximated as: " << lambda << "\n";
 	
 	// caclculating initial over relaxation parameter
