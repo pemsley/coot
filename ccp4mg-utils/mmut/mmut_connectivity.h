@@ -62,7 +62,7 @@ class Connectivity {
   Connectivity();
   ~Connectivity();
   void AddBonds(CMMANManager *molhnd, int selhnd, const mmdb::PPAtom SelAtoms_in, const int nSelAtoms_in, int all_selHnd);
-  void AddContacts(CMMANManager *molhnd, int selhnd, const mmdb::PPAtom SelAtoms_in, const int nSelAtoms_in, const PSContact contacts_in, const int ncontacts_in);
+  void AddContacts(CMMANManager *molhnd, int selhnd, const mmdb::PPAtom SelAtoms_in, const int nSelAtoms_in, const mmdb::Contact *contacts_in, const int ncontacts_in);
   void AddTrace(PCMMANManager molhnd, const mmdb::PPAtom selAtoms, const int nSelAtoms,
 		mmdb::realtype cutoff );
   std::vector<std::vector<int> > GetConnectivityLists(void) const;

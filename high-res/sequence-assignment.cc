@@ -831,25 +831,25 @@ coot::sequence_assignment::side_chain_score_t::mark_unassigned_residues() {
 		     // mark up this residue and if this is the third, the previous 2
 		     //
 		     istate = residue_p->PutUDData(udd_assigned_handle, 1);
-		     if (istate == UDDATA_WrongUDRType)
-			std::cout << "ERROR::  UDDATA_WrongUDRType in find_unassigned_regions 1" << std::endl;
+		     if (istate == mmdb:UDDATA_WrongUDRType)
+			std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in find_unassigned_regions 1" << std::endl;
 
 		     // if this is the 3rd mark the previous 2:
 		     if (consecutive_ala_count == 3) {
 			istate = save_res1->PutUDData(udd_assigned_handle, 1);
-			if (istate == UDDATA_WrongUDRType)
-			   std::cout << "ERROR::  UDDATA_WrongUDRType in find_unassigned_regions 2" << std::endl;
+			if (istate == mmdb:UDDATA_WrongUDRType)
+			   std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in find_unassigned_regions 2" << std::endl;
 			istate = save_res2->PutUDData(udd_assigned_handle, 1);
-			if (istate == UDDATA_WrongUDRType)
-			   std::cout << "ERROR::  UDDATA_WrongUDRType in find_unassigned_regions 3" << std::endl;
+			if (istate == mmdb:UDDATA_WrongUDRType)
+			   std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in find_unassigned_regions 3" << std::endl;
 		     }
 		     
 		  } else {
 
 		     // set UDD as not unassigned.
 		     istate = residue_p->PutUDData(udd_assigned_handle, 0);
-		     if (istate == UDDATA_WrongUDRType)
-			std::cout << "ERROR::  UDDATA_WrongUDRType in find_unassigned_regions 4" << std::endl;
+		     if (istate == mmdb:UDDATA_WrongUDRType)
+			std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in find_unassigned_regions 4" << std::endl;
 		  }
 	       }
 	    }

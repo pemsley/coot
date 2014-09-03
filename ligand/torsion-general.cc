@@ -182,7 +182,7 @@ std::vector<std::vector<int> >
 coot::torsion_general::get_contact_indices() const {
 
    std::vector<std::vector<int> > v;
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    float min_dist = 0.1;
    float max_dist = 1.9; // CB->SG CYS 1.8A

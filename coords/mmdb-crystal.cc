@@ -566,14 +566,14 @@ molecule_extents_t::coord_to_unit_cell_translations(coot::Cartesian point,
    // mmdb::Manager::Orth2Frac Orthogonal-to-fractional transformation
    // of coordinates and mmdb::Manager::Frac2Orth.
    //
-   // mind-bogglingly ugly code necessary to use an CMMDBCryst (we can't just use
+   // mind-bogglingly ugly code necessary to use an mmdb::CMMDBCryst (we can't just use
    // the simple object because the destructor will crush it).
    // 
-   // PCMMDBCryst my_cryst_p = (CMMDBCryst *) &(AtomSel.mol->get_cell());
+   // Pmmdb::CMMDBCryst my_cryst_p = (mmdb::CMMDBCryst *) &(AtomSel.mol->get_cell());
 
    mmdb::realtype u, v, w;
 
-   // 20031105 Well, we don't need PCMMDBCryst my_cryst_p, we can use
+   // 20031105 Well, we don't need Pmmdb::CMMDBCryst my_cryst_p, we can use
    // the function at the mmdb manager level
    // AtomSel.mol->Orth2Frac(point.get_x(), point.get_y(), point.get_z(),
    //                        u, v, w);
@@ -596,7 +596,7 @@ molecule_extents_t::coord_to_unit_cell_translations(coot::Cartesian point,
 // pass a reference to the object, const means that we do not modify
 // the Object.
 //
-// I want to use const CMMDBCryst &my_cryst, because the argument is
+// I want to use const mmdb::CMMDBCryst &my_cryst, because the argument is
 // not modified, and the only reason I am passing a reference is
 // because I can't pass the object, because MMDB crushes it with its
 // (IMHO) bogus constructors/destructors (grrr).  But I can't use
@@ -619,12 +619,12 @@ molecule_extents_t::coord_to_unit_cell_translations(coot::Cartesian point,
 //
 //
 // 20031105: Actually, a lot of this irritation is misplaced.  You
-// don't need to have access to PCMMDBCryst, you can do it through the
+// don't need to have access to Pmmdb::CMMDBCryst, you can do it through the
 // MMDBManager top-level.  Not elegant, obviously, but not worth the
 // rant.
 // 
 mmdb::PPAtom 
-molecule_extents_t::trans_sel(CMMDBCryst *my_cryst,
+molecule_extents_t::trans_sel(mmdb::CMMDBCryst *my_cryst,
 			      symm_trans_t symm_trans) const {
 
    mmdb::Atom atom;
@@ -999,7 +999,7 @@ translated_atoms(atom_selection_container_t AtomSel,
 				      symm_trans.y(), symm_trans.z());
    
    if (err != 0) {
-      cout << "!!!!!!!!!!!!!! something BAD with CMMDBCryst.GetTMatrix"
+      cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
 	   << endl;
    }
       
@@ -1023,7 +1023,7 @@ coot::Cartesian translate_atom(atom_selection_container_t AtomSel, int ii,
    //
    mmdb::mat44 my_matt;
    
-   // CMMDBCryst *cryst_p = (CMMDBCryst *) &AtomSel.mol->get_cell();
+   // mmdb::CMMDBCryst *cryst_p = (mmdb::CMMDBCryst *) &AtomSel.mol->get_cell();
    
    int err = AtomSel.mol->GetTMatrix(my_matt,
 				     symm_trans.isym(),
@@ -1032,7 +1032,7 @@ coot::Cartesian translate_atom(atom_selection_container_t AtomSel, int ii,
 				     symm_trans.z());
    
    if (err != 0) {
-      cout << "!!!!!!! something BAD with CMMDBCryst.GetTMatrix in "
+      cout << "!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix in "
 	   << "coot::Cartesian translate_atom(..)" 
 	   << endl;
    }
@@ -1055,7 +1055,7 @@ translate_atom_with_pre_shift(atom_selection_container_t AtomSel, int ii,
    mmdb::mat44 my_matt;
    mmdb::mat44 pre_shift_matt;
    
-   // CMMDBCryst *cryst_p = (CMMDBCryst *) &AtomSel.mol->get_cell();
+   // mmdb::CMMDBCryst *cryst_p = (mmdb::CMMDBCryst *) &AtomSel.mol->get_cell();
    
    int err = AtomSel.mol->GetTMatrix(my_matt,
 				     symm_trans.first.isym(),
@@ -1069,7 +1069,7 @@ translate_atom_with_pre_shift(atom_selection_container_t AtomSel, int ii,
 				      -symm_trans.second.ws);
    
    if (err != 0) {
-      cout << "!!!!!!! something BAD with CMMDBCryst.GetTMatrix in "
+      cout << "!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix in "
 	   << "coot::Cartesian translate_atom(..)" 
 	   << endl;
    }

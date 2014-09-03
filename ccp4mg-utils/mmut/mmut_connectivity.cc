@@ -162,7 +162,7 @@ void Connectivity::AddBonds(PCMMANManager molhnd, int selhnd,
 
 void Connectivity::AddContacts(PCMMANManager molhnd, int selhnd,
      const mmdb::PPAtom SelAtoms_in, const int nSelAtoms_in,
-     const PSContact contacts_in, const int ncontacts_in){
+     const mmdb::Contact *contacts_in, const int ncontacts_in){
 
   std::vector<std::vector<int> > atom_connectivity;
 
@@ -941,7 +941,7 @@ int Connectivity2::AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager 
   // handle_hbond - flag treatment of HBond -- not implemented yet
   mmdb::PPAtom selAtoms,selAtoms2;
   int selHnd2,nat1,nat2;
-  PSContact  contacts = NULL;
+  mmdb::Contact * contacts = NULL;
   int ncontacts=0, nb_contacts=0;
   int bond,modno;
 
@@ -1101,7 +1101,7 @@ int Connectivity2::AddCloseRangeConnections(int set,mmdb::PResidue res1,
 
     pCentralAtom = pChn->GetResidue(ir)->GetAtom(centralAtom.c_str(),"*","*");
     if (pCentralAtom) {
-      PSContact contact= NULL;
+      mmdb::Contact *contact= NULL;
       ncontacts = 0;
       M2->SeekContacts (pCentralAtom,centralAtoms,centralNAtoms,
 		    0.0, central_cutoff,0,contact,ncontacts,-1);

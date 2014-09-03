@@ -81,7 +81,7 @@ class molecule_extents_t {
    std::vector<symm_trans_t> which_box(Cartesian point,PCMMANManager molhnd, mmdb::PPAtom SelAtoms, int nSelAtoms, Cartesian tl, Cartesian tr, Cartesian br, Cartesian bl);
    std::vector<symm_trans_t> GetUnitCellOps(PCMMANManager molhnd, int xshifts, int yshifts, int zshifts) ;
 
-   mmdb::PPAtom trans_sel(CMMDBCryst *my_cryst, symm_trans_t symm_trans) const;
+   mmdb::PPAtom trans_sel(mmdb::CMMDBCryst *my_cryst, symm_trans_t symm_trans) const;
 
    bool point_is_in_box(Cartesian point, mmdb::PPAtom TransSel) const;
 
@@ -108,7 +108,7 @@ class Symmetry {
     Cartesian tr;
     Cartesian br;
     Cartesian bl;
-    PCMMDBCryst my_cryst_p;
+    Pmmdb::CMMDBCryst my_cryst_p;
     std::vector<mmdb::PPAtom> symmetries;
     void clear_symmetries();
   public:

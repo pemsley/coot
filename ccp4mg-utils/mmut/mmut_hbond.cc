@@ -125,7 +125,7 @@ int CHBond::Calculate0(int model)  {
   int uddD = -1, uddA = -1,selHndD = -1, selHndA = -1;
   PCMMUTManager molHndD = 0,molHndA = 0;
   int selHndDonors,selHndAcceptors,selHndHydrogens,selHndOverlap = -1;
-  PSContact contacts = NULL;
+  mmdb::Contact *contacts = NULL;
   int ncontacts;
   int nOverlap = 0;
  

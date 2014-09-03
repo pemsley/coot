@@ -2817,7 +2817,7 @@ graphics_info_t::baton_build_atoms_molecule() const {
    //
    int  imol_for_skel = imol_for_skeleton();
    if (imol_for_skel >= 0) {
-      // CMMDBCryst *cryst = new CMMDBCryst;
+      // mmdb::CMMDBCryst *cryst = new mmdb::CMMDBCryst;
       MMDBManager->SetCell(molecules[imol_for_skel].xskel_cowtan.cell().descr().a(),
 			   molecules[imol_for_skel].xskel_cowtan.cell().descr().b(),
 			   molecules[imol_for_skel].xskel_cowtan.cell().descr().c(),

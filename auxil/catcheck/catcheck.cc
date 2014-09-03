@@ -83,7 +83,7 @@ void water_coordination_check(mmdb::Manager *mol, float max_dist) {
 	 my_matt[i][j] = 0.0;
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
    long i_contact_group = 1;
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts;
    
    mol->SeekContacts(whole_protein_atom_sel, nSelAtoms_all,

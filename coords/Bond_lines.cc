@@ -214,7 +214,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 						    bool have_udd_atoms,
 						    int udd_handle) {
 
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts;
    long i_contact_group = 1;
 
@@ -1747,7 +1747,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    for_GL_solid_model_rendering = 0;
    
    int ncontacts;
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    // initialize each colour in the Bond_lines_container
    //
    if (bonds.size() == 0) {
@@ -2010,7 +2010,7 @@ Bond_lines_container::find_intermolecular_symmetry(const atom_selection_containe
 		  if (i_status == 0) {
 		     // Happy
 		     
-		     PSContact contact = NULL;
+		     mmdb::Contact *contact = NULL;
 		     int ncontacts = 0;
 		     long i_contact_group = 1;
 		     
@@ -2099,7 +2099,7 @@ Bond_lines_container::addSymmetry(const atom_selection_container_t &SelAtom,
       } else {
 	 
       
-	 PSContact contact = NULL;
+	 mmdb::Contact *contact = NULL;
 	 int ncontacts;
 
 	 if (SelAtom.n_selected_atoms > 0) { 
@@ -2188,7 +2188,7 @@ Bond_lines_container::addSymmetry_whole_chain(const atom_selection_container_t &
    graphical_bonds_container gbc;
    mmdb::mat44 my_matt;
    mmdb::mat44 identity_matt;
-   //   PSContact contact = NULL;
+   //   mmdb::Contact *contact = NULL;
    // int ncontacts;
    // long i_contact_group = 1;
 
@@ -2216,7 +2216,7 @@ Bond_lines_container::addSymmetry_whole_chain(const atom_selection_container_t &
 					 symm_trans[ii].first.z());
 
       if (ierr != 0) {
-	 std::cout << "!!!!!!!! something BAD with CMMDBCryst.GetTMatrix"
+	 std::cout << "!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
 	      << std::endl;
       }
       
@@ -2271,7 +2271,7 @@ Bond_lines_container::addSymmetry_with_mmdb(const atom_selection_container_t &Se
 
    } else {
       
-      PSContact contact;
+      mmdb::Contact *contact;
       int ncontacts;
 
       if (SelAtom.n_selected_atoms > 0) { 
@@ -2462,7 +2462,7 @@ Bond_lines_container::addSymmetry_calphas(const atom_selection_container_t &SelA
 			      -symm_trans[ii].second.ws);
       
       if (err != 0) {
-	 cout << "!!!!!!!!!!!!!! something BAD with CMMDBCryst.GetTMatrix"
+	 cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
 	      << endl;
       }
       
@@ -2703,7 +2703,7 @@ Bond_lines_container::add_NCS_molecule_calphas(const atom_selection_container_t 
 //
 atom_selection_container_t
 Bond_lines_container::ContactSel(mmdb::PPAtom trans_sel,
-				 PSContact contact, int ncontacts) const {
+				 mmdb::Contact *contact, int ncontacts) const {
 
    // We need to sort the contacts.
    // 
@@ -2742,7 +2742,7 @@ Bond_lines_container::ContactSel(mmdb::PPAtom trans_sel,
 }
 
 
-// See above comments re const CMMDBCryst &.
+// See above comments re const mmdb::CMMDBCryst &.
 // 
 mmdb::PPAtom
 Bond_lines_container::trans_sel(atom_selection_container_t AtomSel,
@@ -2756,7 +2756,7 @@ Bond_lines_container::trans_sel(atom_selection_container_t AtomSel,
 				     symm_trans.first.y(), symm_trans.first.z());
 
    if (err != 0) {
-      cout << "!!!!!!!!!!!!!! something BAD with CMMDBCryst.GetTMatrix"
+      cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
 	   << endl;
    }
    
@@ -2824,7 +2824,7 @@ Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
    mmdb::PPAtom Sulfur_selection;
    int n_sulfurs;
    mmdb::mat44 my_matt;
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts = 0; // initially no S contacts.
    long i_contact_group = 1;
    int col; 
@@ -3390,7 +3390,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal_old(atom_selection_container_t S
    mmdb::mat44 my_matt;
    int ncontacts;
    long i_contact_group = 1;
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int col;
 
    for (int i=0; i<4; i++) 
@@ -3443,12 +3443,12 @@ Bond_lines_container::do_Ca_or_P_bonds_internal_old(atom_selection_container_t S
 	       if (udd_has_ca_handle >= 1) {
 		  istat = Ca_selection [ contact[i].id1 ]->residue->PutUDData(udd_has_ca_handle,
 									      BONDED_WITH_STANDARD_ATOM_BOND);
- 		  if (istat == UDDATA_WrongUDRType)
- 		     std::cout << "ERROR::  UDDATA_WrongUDRType in do_Ca_bonds 1" << std::endl;
+ 		  if (istat == mmdb:UDDATA_WrongUDRType)
+ 		     std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in do_Ca_bonds 1" << std::endl;
 		  istat = Ca_selection [ contact[i].id2 ]->residue->PutUDData(udd_has_ca_handle,
 									      BONDED_WITH_STANDARD_ATOM_BOND);
- 		  if (istat == UDDATA_WrongUDRType)
- 		     std::cout << "ERROR::  UDDATA_WrongUDRType in do_Ca_bonds 2" << std::endl;
+ 		  if (istat == mmdb:UDDATA_WrongUDRType)
+ 		     std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in do_Ca_bonds 2" << std::endl;
 	       }
 	    
 	       // this +/- 1 residue test
@@ -3632,25 +3632,25 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
       if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) { 
 	 int sse = at->residue->SSE;
 	 switch (sse)  {
-	 case SSE_None: 
+	 case mmdb::SSE_None: 
 	    col = 0;
 	    break;
-	 case SSE_Strand:
+	 case mmdb::SSE_Strand:
 	    col = 1;
 	   break;
-	 case SSE_Bulge:  
+	 case mmdb::SSE_Bulge:  
 	    col = 1;
 	    break;
-	 case SSE_3Turn:  
+	 case mmdb::SSE_3Turn:  
 	    col = 2;
 	    break;
-	 case SSE_4Turn:  
+	 case mmdb::SSE_4Turn:  
 	    col = 2;
 	    break;
-	 case SSE_5Turn:  
+	 case mmdb::SSE_5Turn:  
 	    col = 2;
 	    break;
-	 case SSE_Helix:  
+	 case mmdb::SSE_Helix:  
 	    col = 2;
 	    break;
 	 default:
@@ -3807,8 +3807,8 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 	    residue_p = chain_p->GetResidue(ires);
 	    if (residue_p) {
 	       istat = residue_p->PutUDData(udd_has_ca_handle, 0);
-	       if (istat == UDDATA_WrongUDRType) {
-		  std::cout << "ERROR::  UDDATA_WrongUDRType in "
+	       if (istat == mmdb:UDDATA_WrongUDRType) {
+		  std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in "
 			    << "do_Ca_plus_ligands_bonds" << std::endl;
 	       }
 	    }
@@ -3981,7 +3981,7 @@ Bond_lines_container::do_symmetry_Ca_bonds(atom_selection_container_t SelAtom,
    mmdb::mat44 my_matt;
    int ncontacts;
    long i_contact_group = 1;
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int col;
 
    // adjust my_matt to the symm_trans:
@@ -3990,7 +3990,7 @@ Bond_lines_container::do_symmetry_Ca_bonds(atom_selection_container_t SelAtom,
 				     symm_trans.y(), symm_trans.z());
 
    if (err != 0) {
-      cout << "!!!!!!!!!!!!!! something BAD with CMMDBCryst.GetTMatrix"
+      cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
 	   << endl;
    }
    
@@ -4051,7 +4051,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
       return;
    }
 
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts;
    long i_contact_group = 1;
 
@@ -4282,7 +4282,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 			  // atom_selection_container_t &SelAtom, int
 			  // do_disulphide_bonds_in, int
 			  // do_bonds_to_hydrogens_in)
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts;
    long i_contact_group = 1;
 
@@ -4591,7 +4591,7 @@ void
 Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container_t &asc,
 						  int draw_hydrogens_flag) { 
 
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts;
    long i_contact_group = 1;
 

@@ -1182,7 +1182,7 @@ coot::get_covalent_bonds_by_distance(mmdb::Manager *mol,
 
    // now find contacts:
    // 
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    long i_contact_group = 1;
    mmdb::mat44 my_matt;
@@ -1733,7 +1733,7 @@ coot::flev_attached_hydrogens_t::cannonballs(mmdb::Residue *ligand_residue_3d,
    if (! mol)
       return;
    
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    long i_contact_group = 1;
    mmdb::mat44 my_matt;

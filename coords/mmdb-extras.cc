@@ -130,7 +130,7 @@ atom_selection_container_t
 make_asc(mmdb::Manager *mol) {
 
    atom_selection_container_t asc;
-   asc.mol = (Mymmdb::Manager *) mol;
+   asc.mol = mol;
    
    asc.SelectionHandle = mol->NewSelection();
    asc.mol->SelectAtoms (asc.SelectionHandle, 0, "*",
@@ -662,7 +662,7 @@ coot::getcontacts(const atom_selection_container_t &asc) {
    
    // std::cout << "DEBUG:: getcontacts() in mmdb-extras" << std::endl;
 
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    float min_dist = 0.1;
    float max_dist = 2.4; // long!  Filtered later.

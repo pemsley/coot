@@ -958,7 +958,7 @@ int CMMUTManager::FindCloseAtomPairs ( int selHnd, double min_distance,
 // Originally implemented to help fing SSbonds
   mmdb::PPAtom selAtoms,selAtoms2;
   int nSelAtoms,nSelAtoms2;
-  PSContact contact = NULL; 
+  mmdb::Contact *contact = NULL; 
   int ncontacts; 
 
   GetSelIndex ( selHnd, selAtoms, nSelAtoms);
