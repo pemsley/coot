@@ -1551,7 +1551,7 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
 		       atom_name_selection.c_str(), 
 		       "*", // elements
 		       "*", // alt loc.
-		       SKEY_OR
+		       mmdb::SKEY_OR
 		       );
    }
 
@@ -1873,7 +1873,7 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
 		       atom_name_selection.c_str(), 
 		       "*", // elements
 		       "*", // alt loc.
-		       SKEY_OR
+		       mmdb::SKEY_OR
 		       );
       if (0) { // debugging selection
 	 mmdb::PPAtom atom_selection = 0;
@@ -2135,7 +2135,7 @@ coot::util::specs_to_atom_selection(const std::vector<coot::residue_spec_t> &spe
 			  atom_name_selection.c_str(), 
 			  "*", // elements
 			  "*", // alt loc.
-			  SKEY_OR
+			  mmdb::SKEY_OR
 			  );
       }
    }

@@ -6341,7 +6341,7 @@ coot::close_residues_from_different_molecules_t::close_residues(mmdb::Manager *m
       //
       // OK, now we can run SeekContacts();
 
-      PSContact pscontact = NULL;
+      mmdb::Contact *pscontact = NULL;
       int n_contacts;
       long i_contact_group = 1;
       mmdb::mat44 my_matt;
@@ -6992,9 +6992,9 @@ coot::util::print_secondary_structure_info(mmdb::Model *model_p) {
    int nsheet = model_p->GetNumberOfSheets();
    std::cout << "INFO:: There are " << nhelix << " helices and "
 	     << nsheet << " sheets\n";
-   PCHelix helix_p;
-   PCSheet sheet_p;
-   PCStrand strand_p;
+   mmdb::PHelix helix_p;
+   mmdb::PSheet sheet_p;
+   mmdb::PStrand strand_p;
 
    std::cout << "               Helix info: " << std::endl;
    std::cout << "------------------------------------------------\n";
@@ -7016,7 +7016,7 @@ coot::util::print_secondary_structure_info(mmdb::Model *model_p) {
 
       int nstrand = sheet_p->nStrands;
       for (int istrand=0; istrand<nstrand; istrand++) {
-	 strand_p = sheet_p->Strand[istrand];
+	 strand_p = sheet_p->strand[istrand];
 	 if (strand_p) { 
 	    std::cout << strand_p->sheetID << " " << strand_p->strandNo << " "
 		      << strand_p->initChainID << " " << strand_p->initSeqNum
@@ -7195,7 +7195,7 @@ coot::util::copy_cell_and_symm_headers(mmdb::Manager *m1, mmdb::Manager *m2) {
       //       m2->SetSpaceGroup(sg);
       //       m2->SetCell(a[0], a[1], a[2], a[3], a[4], a[5]);
       
-      m2->Copy(m1, MMDBFCM_Cryst);
+      m2->Copy(m1, mmdb::MMDBFCM_Cryst);
       r = 1;
    }
    return r;
