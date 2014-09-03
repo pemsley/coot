@@ -97,11 +97,11 @@ coot::ShelxIns::read_file(const std::string &filename) {
       clipper::Spacegroup space_group;
       InitMatType();
       mol = new CMMDBManager;
-      CModel *model = new CModel;
-      CChain *chain = new CChain;
+      mmdb::Model *model = new mmdb::Model;
+      mmdb::Chain *chain = new mmdb::Chain;
       chain->SetChainID("");
       model->AddChain(chain);
-      std::vector<CAtom *> atom_vector;
+      std::vector<mmdb::Atom *> atom_vector;
       std::vector<std::string> symm_vec;
       std::vector<double> cell_local;
       std::string altconf;
@@ -147,7 +147,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 	       encountered_atoms_flag = 1;
 	       resi_count++;
 	       if (atom_vector.size() > 0) { 
-		  CResidue *residue =
+		  mmdb::Residue *residue =
 		     add_shelx_residue(atom_vector,
 				       current_res_name,
 				       current_res_no);
@@ -310,7 +310,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 				    if (card_word_0 == "HKLF") {
 				       post_atoms_flag = 1;
 				       post_atom_lines.push_back(card.card); // special case, first post atom line
-				       CResidue *residue = add_shelx_residue(atom_vector,
+				       mmdb::Residue *residue = add_shelx_residue(atom_vector,
 									     current_res_name,
 									     current_res_no);
 				       chain->AddResidue(residue);
@@ -322,7 +322,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 				       } else {
 					  if (card_word_0.substr(0, 3) == "END") {
 					     // handle END
-					     CResidue *residue = add_shelx_residue(atom_vector,
+					     mmdb::Residue *residue = add_shelx_residue(atom_vector,
 										   current_res_name,
 										   current_res_no);
 					     chain->AddResidue(residue);
@@ -433,7 +433,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 									} else {
 									   if (! post_END_flag) { 
 									      // it's an atom
-									      CAtom *at = make_atom(card, altconf,
+									      mmdb::Atom *at = make_atom(card, altconf,
 												    udd_afix_handle,
 												    udd_non_riding_atom_flag_handle,
 												    udd_riding_atom_negative_u_value_handle,
@@ -587,8 +587,8 @@ coot::ShelxIns::read_file(const std::string &filename) {
 	 int n_models = mol->GetNumberOfModels();
 	 for (int imod=1; imod<=n_models; imod++) { 
       
-	    CModel *model_p = mol->GetModel(imod);
-	    CChain *chain_p;
+	    mmdb::Model *model_p = mol->GetModel(imod);
+	    mmdb::Chain *chain_p;
 	    // run over chains of the existing mol
 	    int nchains = model_p->GetNumberOfChains();
 	    if (nchains <= 0) { 
@@ -604,8 +604,8 @@ coot::ShelxIns::read_file(const std::string &filename) {
 		     std::cout << "NULL chain in ... " << std::endl;
 		  } else { 
 		     int nres = chain_p->GetNumberOfResidues();
-		     PCResidue residue_p;
-		     CAtom *at;
+		     Pmmdb::Residue residue_p;
+		     mmdb::Atom *at;
 		     for (int ires=0; ires<nres; ires++) { 
 			residue_p = chain_p->GetResidue(ires);
 			int n_atoms = residue_p->GetNumberOfAtoms();
@@ -657,15 +657,15 @@ coot::ShelxIns::read_file(const std::string &filename) {
 }
 
 
-CAtom *
+mmdb::Atom *
 coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string &altconf,
 			  int udd_afix_handle,
 			  int udd_non_riding_atom_flag_handle,
 			  int udd_riding_atom_negative_u_value_handle,
 			  bool have_udd_atoms, int current_afix,
-			  clipper::Cell &cell, const std::vector<CAtom *> &atom_vector) const {
+			  clipper::Cell &cell, const std::vector<mmdb::Atom *> &atom_vector) const {
 
-   CAtom *at = new CAtom;  // returned
+   mmdb::Atom *at = new mmdb::Atom;  // returned
 
    // local
    int sfac_index;
@@ -728,7 +728,7 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 		  if ((u_factor_from_card <= -0.5) && (u_factor_from_card >= -5.0)) {
 		     // Find previous non-riding atom and use that to determine b for this atom
 
-		     CAtom *prev = previous_non_riding_atom(atom_vector, udd_non_riding_atom_flag_handle);
+		     mmdb::Atom *prev = previous_non_riding_atom(atom_vector, udd_non_riding_atom_flag_handle);
 		     if (prev) {
 			int status = at->PutUDData(udd_riding_atom_negative_u_value_handle, u_factor_from_card);
 			at->tempFactor = prev->tempFactor * -u_factor_from_card;
@@ -869,12 +869,12 @@ coot::ShelxIns::read_line(std::ifstream &f) {
    return shelx_card_info; 
 }
 
-CResidue *
-coot::ShelxIns::add_shelx_residue(std::vector<CAtom *> &atom_vector,
+mmdb::Residue *
+coot::ShelxIns::add_shelx_residue(std::vector<mmdb::Atom *> &atom_vector,
 				  const std::string &current_res_name,
 				  int &current_res_no) const {
    
-   CResidue *residue = new CResidue;
+   mmdb::Residue *residue = new mmdb::Residue;
    residue->SetResName(current_res_name.c_str());
    residue->seqNum = current_res_no;
    bool srn = util::is_standard_residue_name(current_res_name);
@@ -1176,8 +1176,8 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 	 std::vector<std::string> afix_failure_vec;
 	 for (int imod=1; imod<=n_models; imod++) { 
       
-	    CModel *model_p = mol->GetModel(imod);
-	    CChain *chain_p;
+	    mmdb::Model *model_p = mol->GetModel(imod);
+	    mmdb::Chain *chain_p;
 	    // run over chains of the existing mol
 	    int nchains = model_p->GetNumberOfChains();
 	    for (int ichain=0; ichain<nchains; ichain++) {
@@ -1189,8 +1189,8 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 		  std::cout << "NULL chain in ... " << std::endl;
 	       } else { 
 		  int nres = chain_p->GetNumberOfResidues();
-		  PCResidue residue_p;
-		  CAtom *at;
+		  Pmmdb::Residue residue_p;
+		  mmdb::Atom *at;
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);
 		     
@@ -1355,7 +1355,7 @@ coot::ShelxIns::write_ins_file_internal(CMMDBManager *mol_in,
 }
 
 std::string
-coot::ShelxIns::message_for_atom(const std::string &in_string, CAtom *at) const {
+coot::ShelxIns::message_for_atom(const std::string &in_string, mmdb::Atom *at) const {
 
    std::string s = in_string;
    s += "\""; 
@@ -2088,8 +2088,8 @@ coot::unshelx(CMMDBManager *shelx_mol) {
    }
    
    int imod = 1;
-   CModel *shelx_model_p = shelx_mol->GetModel(imod);
-   CChain *chain_p = NULL;
+   mmdb::Model *shelx_model_p = shelx_mol->GetModel(imod);
+   mmdb::Chain *chain_p = NULL;
    std::string r("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
    int r_index = 0;
    // run over chains of the existing mol
@@ -2104,23 +2104,23 @@ coot::unshelx(CMMDBManager *shelx_mol) {
       int udd_afix_handle = mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
       int udd_riding_atom_negative_u_value_handle_shelx = shelx_mol->GetUDDHandle(UDR_ATOM, "riding_atom_negative_u");
       int udd_riding_atom_negative_u_value_handle_local =  mol->RegisterUDInteger(UDR_ATOM, "riding_atom_negative_u");
-      CModel *model_p = new CModel;
+      mmdb::Model *model_p = new mmdb::Model;
       mol->AddModel(model_p);
-      CChain *shelx_chain_p = shelx_model_p->GetChain(0);
+      mmdb::Chain *shelx_chain_p = shelx_model_p->GetChain(0);
       int nres = shelx_chain_p->GetNumberOfResidues();
       bool need_new_chain = 1;
       int ires_prev = -1000;
       bool made_afix_transfer_message = false;
       for (int ires=0; ires<nres; ires++) {
 
-	 CResidue *shelx_residue_p = shelx_chain_p->GetResidue(ires);
+	 mmdb::Residue *shelx_residue_p = shelx_chain_p->GetResidue(ires);
 	 int resno = shelx_residue_p->GetSeqNum();
 	 if (resno > (ires_prev + skip_chain_step))
 	    // this is a new chain
 	    need_new_chain = 1;
 	 
 	 if (need_new_chain) {
-	    chain_p = new CChain;
+	    chain_p = new mmdb::Chain;
 	    std::string new_chain_id = r.substr(r_index, 1);
 	    r_index++;
 	    chain_p->SetChainID(new_chain_id.c_str());
@@ -2128,16 +2128,16 @@ coot::unshelx(CMMDBManager *shelx_mol) {
 	    need_new_chain = 0;
 	 }
 	 
-	 CResidue *copy_residue_p = coot::util::deep_copy_this_residue(shelx_residue_p);
+	 mmdb::Residue *copy_residue_p = coot::util::deep_copy_this_residue(shelx_residue_p);
 	 chain_p->AddResidue(copy_residue_p);
 
 	 // apply the shelx afix numbers:
 	 int shelx_natoms;
-	 PCAtom *shelx_residue_atoms = NULL;
+	 Pmmdb::Atom *shelx_residue_atoms = NULL;
 	 shelx_residue_p->GetAtomTable(shelx_residue_atoms, shelx_natoms);
 
 	 int copy_natoms;
-	 PCAtom *copy_residue_atoms = NULL;
+	 Pmmdb::Atom *copy_residue_atoms = NULL;
 	 copy_residue_p->GetAtomTable(copy_residue_atoms, copy_natoms);
 
 	 if (shelx_natoms == copy_natoms) { 
@@ -2171,7 +2171,7 @@ coot::unshelx(CMMDBManager *shelx_mol) {
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 chain_p->TrimResidueTable();
-	 PCResidue residue_p;
+	 Pmmdb::Residue residue_p;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    if (residue_p) 
@@ -2208,9 +2208,9 @@ coot::reshelx(CMMDBManager *mol) {
    CMMDBManager *shelx_mol = new CMMDBManager;
 
    int imod = 1;
-   CModel *shelx_model_p = new CModel;
+   mmdb::Model *shelx_model_p = new mmdb::Model;
    shelx_mol->AddModel(shelx_model_p);
-   CChain *shelx_chain_p = new CChain;
+   mmdb::Chain *shelx_chain_p = new mmdb::Chain;
    shelx_model_p->AddChain(shelx_chain_p);
    bool made_afix_transfer_message = false;
    
@@ -2223,28 +2223,28 @@ coot::reshelx(CMMDBManager *mol) {
    int udd_afix_handle_local = shelx_mol->RegisterUDInteger(UDR_ATOM, "shelx afix");
    
    // run over chains of the existing mol
-   CModel *model_p = mol->GetModel(imod);
-   CChain *chain_p;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
       // int residue_offset = ichain*ins_info.new_chain_offset;
       int residue_offset = 0; // no need to mess with the residue numbers, I think.
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
-      PCResidue residue_p;
+      Pmmdb::Residue residue_p;
       for (int ires=0; ires<nres; ires++) { 
 	 residue_p = chain_p->GetResidue(ires);
-	 CResidue *copy_residue_p = coot::util::deep_copy_this_residue(residue_p);
+	 mmdb::Residue *copy_residue_p = coot::util::deep_copy_this_residue(residue_p);
 	 copy_residue_p->seqNum = residue_p->GetSeqNum() + residue_offset;
 	 shelx_chain_p->AddResidue(copy_residue_p);
 
 	 // apply the shelx afix numbers:
 	 int unshelxed_natoms;
-	 PCAtom *unshelxed_residue_atoms = NULL;
+	 Pmmdb::Atom *unshelxed_residue_atoms = NULL;
 	 residue_p->GetAtomTable(unshelxed_residue_atoms, unshelxed_natoms);
 
 	 int copy_natoms;
-	 PCAtom *copy_residue_atoms = NULL;
+	 Pmmdb::Atom *copy_residue_atoms = NULL;
 	 copy_residue_p->GetAtomTable(copy_residue_atoms, copy_natoms);
 
 	 if (unshelxed_natoms == copy_natoms) { 

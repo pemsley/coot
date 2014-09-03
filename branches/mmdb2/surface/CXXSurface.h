@@ -40,7 +40,7 @@ private:
     int init();
     int nTriangles;
     char fileName[512];
-    double getAtomRadius(PCAtom);
+    double getAtomRadius(Pmmdb::Atom);
     
 public:
     CXXSurface ();
@@ -111,7 +111,7 @@ public:
  	
     int upLoadSphere(CXXSphereElement &theSphere, double probeRadius, const int sense);
     int selectionStringToSelHnd(PCMMDBManager, const std::string selectionString);
-    int getIntegerUDDataOfAtom(PCAtom theAtom, int handle);
+    int getIntegerUDDataOfAtom(Pmmdb::Atom theAtom, int handle);
     int operator == (const CXXSurface &comparator) const{
         return (this == &comparator);
     } 

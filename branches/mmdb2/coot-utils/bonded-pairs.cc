@@ -3,7 +3,7 @@
 #include "bonded-pairs.hh"
 
 bool
-coot::bonded_pair_container_t::linked_already_p(CResidue *r1, CResidue *r2) const {
+coot::bonded_pair_container_t::linked_already_p(mmdb::Residue *r1, mmdb::Residue *r2) const {
 
    bool r = 0;
    for (unsigned int i=0; i<bonded_residues.size(); i++) {
@@ -120,14 +120,14 @@ coot::bonded_pair_container_t::apply_chem_mods(const protein_geometry &geom) {
 
 
 void
-coot::bonded_pair_t::delete_atom(CResidue *res, const std::string &atom_name) {
+coot::bonded_pair_t::delete_atom(mmdb::Residue *res, const std::string &atom_name) {
    
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    bool deleted = false;
    res->GetAtomTable(residue_atoms, n_residue_atoms);
    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-      CAtom *at = residue_atoms[iat];
+      mmdb::Atom *at = residue_atoms[iat];
       if (at) {  // unneeded precaution?
 	 std::string at_name(at->name);
 	 if (at_name == atom_name) {

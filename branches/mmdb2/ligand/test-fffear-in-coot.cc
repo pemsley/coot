@@ -289,15 +289,15 @@ main(int argc, char **argv) {
 	       // now apply rtop to all atoms of new_mol:
 	       int imod = 1;
 	       
-	       CModel *model_p = new_mol->GetModel(imod);
-	       CChain *chain_p;
+	       mmdb::Model *model_p = new_mol->GetModel(imod);
+	       mmdb::Chain *chain_p;
 	       // run over chains of the existing mol
 	       int nchains = model_p->GetNumberOfChains();
 	       for (int ichain=0; ichain<nchains; ichain++) {
 		  chain_p = model_p->GetChain(ichain);
 		  int nres = chain_p->GetNumberOfResidues();
-		  PCResidue residue_p;
-		  CAtom *at;
+		  Pmmdb::Residue residue_p;
+		  mmdb::Atom *at;
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);
 		     int n_atoms = residue_p->GetNumberOfAtoms();
@@ -328,15 +328,15 @@ main(int argc, char **argv) {
 	       // now apply rtop to all atoms of new_mol:
 	       int imod = 1;
 	       
-	       CModel *model_p = new_mol->GetModel(imod);
-	       CChain *chain_p;
+	       mmdb::Model *model_p = new_mol->GetModel(imod);
+	       mmdb::Chain *chain_p;
 	       // run over chains of the existing mol
 	       int nchains = model_p->GetNumberOfChains();
 	       for (int ichain=0; ichain<nchains; ichain++) {
 		  chain_p = model_p->GetChain(ichain);
 		  int nres = chain_p->GetNumberOfResidues();
-		  PCResidue residue_p;
-		  CAtom *at;
+		  Pmmdb::Residue residue_p;
+		  mmdb::Atom *at;
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);
 		     int n_atoms = residue_p->GetNumberOfAtoms();

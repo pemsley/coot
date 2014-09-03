@@ -12,7 +12,7 @@ coot::elastic_network_model_t::elastic_network_model_t(CMMDBManager *mol,
 						       int max_n_distances) {
 
    if (mol) { 
-      PPCAtom atom_selection = NULL;
+      mmdb::PPAtom atom_selection = NULL;
       int n_selected_atoms;
       mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
       // std::cout << "selected " << n_selected_atoms << " atoms " << std::endl;

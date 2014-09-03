@@ -161,8 +161,8 @@ int CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCir
                 for (int iCentralProbe = 0; iCentralProbe < centralBin.size(); iCentralProbe++){
 					CXXCircleNode &centralProbeRef(*centralBin[iCentralProbe]);
 
-					std::vector<CAtom *> ijkCentral(3);
-					std::vector<CAtom *> ijkOther(3);
+					std::vector<mmdb::Atom *> ijkCentral(3);
+					std::vector<mmdb::Atom *> ijkOther(3);
 
 					ijkCentral[0] = centralProbeRef.getAtomI();
 					ijkCentral[1] = centralProbeRef.getAtomJ();
@@ -236,8 +236,8 @@ bool CXXCircleNode::equals(CXXCircleNode &node1, CXXCircleNode &node2){
 }
 
 bool CXXCircleNode::equalsPntr(CXXCircleNode* &node1, CXXCircleNode* &node2){
-    std::vector<CAtom *>ijkCentral(3);
-    std::vector<CAtom *>ijkOther(3);
+    std::vector<mmdb::Atom *>ijkCentral(3);
+    std::vector<mmdb::Atom *>ijkOther(3);
     ijkCentral[0] = node1->getAtomI();
     ijkCentral[1] = node1->getAtomJ();
     ijkCentral[2] = node1->getAtomK();

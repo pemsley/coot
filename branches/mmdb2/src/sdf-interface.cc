@@ -48,7 +48,7 @@ bool residue_to_sdf_file(int imol, const char *chain_id, int res_no, const char 
    bool success = true; 
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
-      CResidue *residue_p =
+      mmdb::Residue *residue_p =
 	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (residue_p) {
 	 try {
@@ -93,7 +93,7 @@ bool residue_to_mdl_file_for_mogul(int imol, const char *chain_id,
    bool success = false;
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
-      CResidue *residue_p =
+      mmdb::Residue *residue_p =
 	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (residue_p) {
 	 try {
@@ -137,7 +137,7 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
    bool success = false; 
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
-      CResidue *residue_p =
+      mmdb::Residue *residue_p =
 	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (! residue_p) {
 	 std::cout << "Residue not found in molecule " << imol << std::endl;

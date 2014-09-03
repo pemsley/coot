@@ -20,9 +20,9 @@ int  MMUTLipidAnalyse(CMMANManager *molHnd, int selHnd_in, int minimum_chain_len
   std::vector<int> head_group_chain_ids;
 
   int nAtoms;
-  PPCAtom atomTable=0;
+  mmdb::PPAtom atomTable=0;
   int nAtoms_all;
-  PPCAtom atomTable_all=0;
+  mmdb::PPAtom atomTable_all=0;
   
   int selHnd = molHnd->NewSelection();
   molHnd->Select  (selHnd,STYPE_ATOM,selHnd_in,SKEY_NEW);
@@ -47,7 +47,7 @@ int  MMUTLipidAnalyse(CMMANManager *molHnd, int selHnd_in, int minimum_chain_len
   conn.AddBonds(molHnd,selHnd,atomTable,nAtoms,0);
   std::vector<std::vector<int> > conn_lists = conn.GetConnectivityLists();
   Tree tree;
-  std::vector<Cartesian> carts = PPCAtomsToCartesians(nAtoms,atomTable);
+  std::vector<Cartesian> carts = mmdb::PPAtomsToCartesians(nAtoms,atomTable);
   tree.SetCoords(carts, 0,conn_lists);
  
   branches = tree.FindLongBranches(minimum_chain_length);
@@ -69,9 +69,9 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
   std::vector<int> head_group_chain_ids;
 
   int nAtoms;
-  PPCAtom atomTable=0;
+  mmdb::PPAtom atomTable=0;
   int nAtoms_all;
-  PPCAtom atomTable_all=0;
+  mmdb::PPAtom atomTable_all=0;
   
   int selHnd = molHnd->NewSelection();
   molHnd->Select  (selHnd,STYPE_ATOM,selHnd_in,SKEY_NEW);
@@ -97,7 +97,7 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
   conn.AddBonds(molHnd,selHnd,atomTable,nAtoms,0);
   std::vector<std::vector<int> > conn_lists = conn.GetConnectivityLists();
   Tree tree;
-  std::vector<Cartesian> carts = PPCAtomsToCartesians(nAtoms,atomTable);
+  std::vector<Cartesian> carts = mmdb::PPAtomsToCartesians(nAtoms,atomTable);
   tree.SetCoords(carts, 0,conn_lists);
  
   branches = tree.FindLongBranches(minimum_chain_length);
@@ -109,7 +109,7 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
   conn_all.AddBonds(molHnd,selHnd_all,atomTable_all,nAtoms_all,0);
   std::vector<std::vector<int> > conn_lists_all = conn_all.GetConnectivityLists();
   Tree tree_all;
-  std::vector<Cartesian> carts_all = PPCAtomsToCartesians(nAtoms_all,atomTable_all);
+  std::vector<Cartesian> carts_all = mmdb::PPAtomsToCartesians(nAtoms_all,atomTable_all);
   tree_all.SetCoords(carts_all, 0,conn_lists_all);
  
 
@@ -223,8 +223,8 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
     stop_nodes.push_back(std::vector<TreeVertex*>(0));
     int branch_start = branches[ii][0];
     int branch_end = branches[ii].back();
-    PCAtom branch_start_atom = atomTable[branch_start];
-    PCAtom branch_end_atom = atomTable[branch_end];
+    Pmmdb::Atom branch_start_atom = atomTable[branch_start];
+    Pmmdb::Atom branch_end_atom = atomTable[branch_end];
     //std::cout << "branch start/end: " << branch_start << " " << branch_end << "\n";
     //std::cout << "atom serial numbers: " << branch_start_atom->serNum << " " << branch_end_atom->serNum << "\n";
     int end_index = -1;
@@ -252,8 +252,8 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
     head_group_chain_ids[ii] = -1;
     int branch_start = branches[ii][0];
     int branch_end = branches[ii].back();
-    PCAtom branch_start_atom = atomTable[branch_start];
-    PCAtom branch_end_atom = atomTable[branch_end];
+    Pmmdb::Atom branch_start_atom = atomTable[branch_start];
+    Pmmdb::Atom branch_end_atom = atomTable[branch_end];
     //std::cout << "branch start/end: " << branch_start << " " << branch_end << "\n";
     //std::cout << "atom serial numbers: " << branch_start_atom->serNum << " " << branch_end_atom->serNum << "\n";
     //std::cout << "atoms: " << branch_start_atom->name << " " << branch_end_atom->name << "\n";
@@ -392,7 +392,7 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
       //ivector ivec = new int[head_groups[jj].size()];
       for(unsigned ii=0;ii<head_groups[jj].size();ii++){
         //ivec[ii] = serNums[head_groups[jj][ii]->GetID()];
-        PCAtom at = atomTable_all[head_groups[jj][ii]->GetID()];
+        Pmmdb::Atom at = atomTable_all[head_groups[jj][ii]->GetID()];
         head_carts.back().push_back(Cartesian(at->x,at->y,at->z));
 	head_serNums.back().push_back(serNums[head_groups[jj][ii]->GetID()]);
       }
@@ -421,7 +421,7 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
     //tails_selhnds.push_back(tail_selhnd);
     //ivector ivec = new int[branches[jj].size()+extra_branch_nodes[jj].size()];
     for(unsigned ii=0;ii<branches[jj].size();ii++){
-      PCAtom at = atomTable[branches[jj][ii]];
+      Pmmdb::Atom at = atomTable[branches[jj][ii]];
       //ivec[ii] = at->serNum;
       tail_carts.back().push_back(Cartesian(at->x,at->y,at->z));
       //std::cout << "Branch: " << at->name << " " << tail_carts.back().back() << "\n";
@@ -431,7 +431,7 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
     if(tail_serNums.back().size()>0) std::reverse(tail_serNums.back().begin(),tail_serNums.back().end());
     for(unsigned ii=0;ii<extra_branch_nodes[jj].size();ii++){
       //ivec[ii+branches[jj].size()] = atomTable_all[extra_branch_nodes[jj][ii]->GetID()]->serNum;
-      PCAtom at = atomTable_all[extra_branch_nodes[jj][ii]->GetID()];
+      Pmmdb::Atom at = atomTable_all[extra_branch_nodes[jj][ii]->GetID()];
       char elname = at->element[1];
       if(elname=='C'){ // But what if this atom is a side branch off the main branch?
         tail_carts.back().push_back(Cartesian(at->x,at->y,at->z));
@@ -460,8 +460,8 @@ std::vector<MMUTLipid> MMUTLipidCalculate(CMMANManager *molHnd, int selHnd_in, i
       //std::cout << "Chain " << ii << " is without a head\n";
       int branch_start = branches[ii][0];
       int branch_end = branches[ii].back();
-      PCAtom branch_start_atom = atomTable[branch_start];
-      PCAtom branch_end_atom = atomTable[branch_end];
+      Pmmdb::Atom branch_start_atom = atomTable[branch_start];
+      Pmmdb::Atom branch_end_atom = atomTable[branch_end];
       int end_index = -1;
       int start_index = -1;
       for(int jj=0;jj<nAtoms_all;jj++){

@@ -57,7 +57,7 @@
 #include "clipper/core/hkl_compute.h"
 #include "clipper/core/map_utils.h" // Map_stats
 
-#define UNSET MinInt4
+#define UNSET mmdb::MinInt4
 
 #ifndef  __MMDB_MMCIF__
 #include <mmdb/mmdb_mmcif.h>
@@ -92,9 +92,9 @@ public:
       is_debug_mode = false;
       given_map_flag = false;
       radius = 4.2;
-      residues_around = MinInt4;
-      resno_start = MinInt4;
-      resno_end = MinInt4;
+      residues_around = mmdb::MinInt4;
+      resno_start = mmdb::MinInt4;
+      resno_end = mmdb::MinInt4;
       f_col = "FWT";
       phi_col = "PHWT";
    }
@@ -121,28 +121,28 @@ public:
 input_data_t get_input_details(int argc, char **argv);
 
 
-std::vector<std::pair<bool,CResidue *> >
+std::vector<std::pair<bool,mmdb::Residue *> >
 fill_residues(const std::string &chain_id, int resno_start, int resno_end, CMMDBManager *mol) {
 
-   std::vector<std::pair<bool,CResidue *> > v;
+   std::vector<std::pair<bool,mmdb::Residue *> > v;
    
    int imod = 1;
-   CModel *model_p = mol->GetModel(imod);
-   CChain *chain_p;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       std::string this_chain_id = chain_p->GetChainID();
       if (this_chain_id == chain_id) { 
 	 int nres = chain_p->GetNumberOfResidues();
-	 CResidue *residue_p;
-	 CAtom *at;
+	 mmdb::Residue *residue_p;
+	 mmdb::Atom *at;
 	 for (int ires=0; ires<nres; ires++) {
 	    residue_p = chain_p->GetResidue(ires);
 	    int this_res_no = residue_p->GetSeqNum();
 	    if (this_res_no >= resno_start) {
 	       if (this_res_no <= resno_end) { 
-		  std::pair<bool, CResidue *> p(0, residue_p);
+		  std::pair<bool, mmdb::Residue *> p(0, residue_p);
 		  v.push_back(p);
 	       }
 	    }
@@ -260,21 +260,21 @@ main(int argc, char **argv) {
 	 if (map_is_good) { 
 	    std::string altloc("");
 
-	    std::vector<std::pair<bool,CResidue *> > local_residues;
+	    std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
 
-	    if ((inputs.resno_start != MinInt4) && inputs.resno_end != MinInt4)
+	    if ((inputs.resno_start != mmdb::MinInt4) && inputs.resno_end != MinInt4)
 	       local_residues =
 		  fill_residues(chain_id, inputs.resno_start, inputs.resno_end, asc.mol);
 
-	    if (inputs.residues_around != MinInt4) {
+	    if (inputs.residues_around != mmdb::MinInt4) {
 	       coot::residue_spec_t res_spec(inputs.chain_id, inputs.residues_around);
-	       CResidue *res_ref = coot::util::get_residue(res_spec, asc.mol);
+	       mmdb::Residue *res_ref = coot::util::get_residue(res_spec, asc.mol);
 	       if (res_ref) { 
-		  std::vector<CResidue *> residues =
+		  std::vector<mmdb::Residue *> residues =
 		     coot::residues_near_residue(res_ref, asc.mol, inputs.radius);
-		  local_residues.push_back(std::pair<bool,CResidue *>(true, res_ref));
+		  local_residues.push_back(std::pair<bool,mmdb::Residue *>(true, res_ref));
 		  for (unsigned int i=0; i<residues.size(); i++) {
-		     std::pair<bool, CResidue *> p(true, residues[i]);
+		     std::pair<bool, mmdb::Residue *> p(true, residues[i]);
 		     local_residues.push_back(p);
 		  }
 	       }
@@ -577,7 +577,7 @@ get_input_details(int argc, char **argv) {
    }
 
    if (d.input_pdb_file_name != "" && d.output_pdb_file_name != "") { 
-      if ((d.resno_start != UNSET && d.resno_end != UNSET) || (d.residues_around != MinInt4)) { 
+      if ((d.resno_start != UNSET && d.resno_end != UNSET) || (d.residues_around != mmdb::MinInt4)) { 
 	 if (d.chain_id != "") { 
 	    if ( (d.map_file_name != "") || (d.mtz_file_name != "" && d.f_col != "" && d.phi_col != "") ) { 
 	       d.is_good = 1;

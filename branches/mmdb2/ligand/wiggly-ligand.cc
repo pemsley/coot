@@ -229,7 +229,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       }
       catch (std::runtime_error rte) {
 	 try { 
-	    CResidue *r = coot::GetResidue(ligand_residue);
+	    mmdb::Residue *r = coot::GetResidue(ligand_residue);
 	    bool add_reverse_contacts = 1;
 	    std::vector<std::vector<int> > contact_indices =
 	       coot::util::get_contact_indices_from_restraints(r, pg, 1, add_reverse_contacts);

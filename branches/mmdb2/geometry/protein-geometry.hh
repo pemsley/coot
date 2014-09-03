@@ -514,14 +514,14 @@ namespace coot {
 
       class atom_pair_t {
       public:
-	 CAtom *at_1;
-	 CAtom *at_2;
+	 mmdb::Atom *at_1;
+	 mmdb::Atom *at_2;
 	 atom_pair_t() {
 	    at_1 = 0;
 	    at_2 = 0;
 	 }
-	 atom_pair_t(CAtom *a1, CAtom *a2) { at_1 = a1; at_2 = a2; }
-	 bool operator==(const std::pair<CAtom *, CAtom *> &t) {
+	 atom_pair_t(mmdb::Atom *a1, mmdb::Atom *a2) { at_1 = a1; at_2 = a2; }
+	 bool operator==(const std::pair<mmdb::Atom *, mmdb::Atom *> &t) {
 	    if (t.first == at_1) {
 	       if (t.second == at_2) {
 		  return true;
@@ -533,8 +533,8 @@ namespace coot {
 	    }
 	 }
 	 // return null if they both match.
-	 CAtom *shared_atom(const atom_pair_t &pair_in) {
-	    CAtom *shared_atom = NULL;
+	 mmdb::Atom *shared_atom(const atom_pair_t &pair_in) {
+	    mmdb::Atom *shared_atom = NULL;
 	    if (pair_in.at_1 == at_1) {
 	       if (pair_in.at_2 != at_2) {
 		  shared_atom = at_1;
@@ -558,7 +558,7 @@ namespace coot {
 	    return shared_atom;
 	 }
       };
-      void init(CResidue *r);
+      void init(mmdb::Residue *r);
       bool has_partial_charges_flag;
       bool filled_with_bond_order_data_only_flag; // if set, this means that
 					// there is only bond orders
@@ -567,7 +567,7 @@ namespace coot {
       std::vector<std::pair<std::string, std::string> >
       extra_name_swaps_from_name_clash(const std::vector<std::pair<std::string, std::string> > &change_name) const;
       std::string invent_new_name(const std::string &ele) const;
-      void change_names(CResidue *residue_p, const std::vector<std::pair<std::string, std::string> > &change_name) const;
+      void change_names(mmdb::Residue *residue_p, const std::vector<std::pair<std::string, std::string> > &change_name) const;
 
       
    public:
@@ -593,7 +593,7 @@ namespace coot {
       // fake a dictionary (bond and angle restraints) from the
       // coordinates in the residue.  Fake up some bond and angle
       // esds.
-      dictionary_residue_restraints_t(CResidue *residue_p);
+      dictionary_residue_restraints_t(mmdb::Residue *residue_p);
       dictionary_residue_restraints_t(CMMDBManager *mol); // mol contains one residue in a hierarchy
       
       std::string cif_file_name;
@@ -696,7 +696,7 @@ namespace coot {
       // changed.
       // 
       dictionary_residue_restraints_t match_to_reference(const dictionary_residue_restraints_t &ref,
-							 CResidue *residue_p);
+							 mmdb::Residue *residue_p);
 
       // make a CGraph from the atom_info and bond restraints.
       //
@@ -1505,9 +1505,9 @@ namespace coot {
    class glycosidic_distance {
    public:
       double distance;
-      CAtom *at1;
-      CAtom *at2;
-      glycosidic_distance(CAtom *at1_in, CAtom *at2_in, double d) {
+      mmdb::Atom *at1;
+      mmdb::Atom *at2;
+      glycosidic_distance(mmdb::Atom *at1_in, mmdb::Atom *at2_in, double d) {
 	 at1 = at1_in;
 	 at2 = at2_in;
 	 distance = d;
@@ -1528,9 +1528,9 @@ namespace coot {
       bool success;
       std::string name;
       std::string comp_id;
-      CResidue *res;
+      mmdb::Residue *res;
       // clipper::RTop_orth
-      match_results_t(const std::string &comp_id_in, const std::string &name_in, CResidue *res_in) {
+      match_results_t(const std::string &comp_id_in, const std::string &name_in, mmdb::Residue *res_in) {
 	 name = name_in;
 	 comp_id = comp_id_in;
 	 res = res_in;
@@ -1895,7 +1895,7 @@ namespace coot {
       int init_ccp4srs(const std::string &sbase_monomer_dir); // inits CCP4SRS
       void read_ccp4srs_residues();
       // return NULL on unable to make residue
-      CResidue *get_ccp4srs_residue(const std::string &res_name) const;
+      mmdb::Residue *get_ccp4srs_residue(const std::string &res_name) const;
 
       // return a vector of compound ids and compound names for
       // compounds that contain compound_name_substring.
@@ -2110,12 +2110,12 @@ namespace coot {
       // atom names that dont't match.
       //
       std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
-      atoms_match_dictionary(const std::vector<CResidue *> &residues,
+      atoms_match_dictionary(const std::vector<mmdb::Residue *> &residues,
 			     bool check_hydrogens_too_flag,
 			     bool apply_bond_distance_check) const;
 
       std::pair<bool, std::vector<std::string> >
-      atoms_match_dictionary(CResidue *res,
+      atoms_match_dictionary(mmdb::Residue *res,
 			     bool check_hydrogens_too_flag,
 			     bool apply_bond_distance_check) const;
 
@@ -2123,13 +2123,13 @@ namespace coot {
       // atoms whose names do not match.
       // 
       std::pair<bool, std::vector<std::string> >
-      atoms_match_dictionary(CResidue *res,
+      atoms_match_dictionary(mmdb::Residue *res,
 			     bool check_hydrogens_too_flag,
 			     bool apply_bond_distance_check,
 			     const dictionary_residue_restraints_t &restraints) const;
 
       bool
-      atoms_match_dictionary_bond_distance_check(CResidue *residue_p,
+      atoms_match_dictionary_bond_distance_check(mmdb::Residue *residue_p,
 						 bool check_hydrogens_too_flag,
 						 const dictionary_residue_restraints_t &restraints) const;
 
@@ -2162,17 +2162,17 @@ namespace coot {
       // Used by above (or maybe you just want a residue?)
       // (Can return NULL).
       // 
-      // Something strange happens with internal-to-a-CResidue atom
+      // Something strange happens with internal-to-a-mmdb::Residue atom
       // indexing when I tried to use this.  The problem was resoloved
       // by using mol_from_dictionary() above and getting the first
       // residue.  Something to do with atom indexing on checking
       // in...?
       // 
-      CResidue *get_residue(const std::string &comp_id, bool idealised_flag,
+      mmdb::Residue *get_residue(const std::string &comp_id, bool idealised_flag,
 			    bool try_autoload_if_needed=true);
 
       // Thow a std::runtime_error exception if we can't get the group of r
-      std::string get_group(CResidue *r) const;
+      std::string get_group(mmdb::Residue *r) const;
       // and the string version of this
       std::string get_group(const std::string &res_name) const;
 
@@ -2198,10 +2198,10 @@ namespace coot {
       // return "" on failure.
       // no order switch is considered.
       // 
-      std::string find_glycosidic_linkage_type(CResidue *first, CResidue *second) const;
+      std::string find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second) const;
 
       std::pair<std::string, bool>
-      find_glycosidic_linkage_type_with_order_switch(CResidue *first, CResidue *second) const;
+      find_glycosidic_linkage_type_with_order_switch(mmdb::Residue *first, mmdb::Residue *second) const;
 
       // can throw a std::runtime_error
       chem_link get_chem_link(const std::string &link_id);
@@ -2307,10 +2307,10 @@ namespace coot {
 
       // can thow a std::runtime_error
       double dreiding_torsion_energy(const std::string &comp_id,
-				     CAtom *atom_1,
-				     CAtom *atom_2,
-				     CAtom *atom_3,
-				     CAtom *atom_4) const;
+				     mmdb::Atom *atom_1,
+				     mmdb::Atom *atom_2,
+				     mmdb::Atom *atom_3,
+				     mmdb::Atom *atom_4) const;
       double dreiding_torsion_energy(const std::string &comp_id, const atom_quad &quad) const;
       double dreiding_torsion_energy(double phi, int sp_a1, int sp_a2,
 				     const std::string &bond_order,

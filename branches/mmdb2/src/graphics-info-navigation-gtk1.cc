@@ -52,14 +52,14 @@
 #include "graphics-info.h"
 
 void
-graphics_info_t::make_synthetic_select_on_residue_tree_gtk1(GtkWidget *residue_tree, CAtom *atom_p) const {
+graphics_info_t::make_synthetic_select_on_residue_tree_gtk1(GtkWidget *residue_tree, mmdb::Atom *atom_p) const {
 
    std::cout << "synthetic select on next item in residue tree!\n";
    bool count_subtree_flag;
    int n_list = 0;
    int found_index = 0;
 
-   CResidue *residue_p = atom_p->residue;
+   mmdb::Residue *residue_p = atom_p->residue;
    coot::model_view_atom_tree_item_info_t *item_data;
       if (residue_p) {
 
@@ -83,7 +83,7 @@ graphics_info_t::make_synthetic_select_on_residue_tree_gtk1(GtkWidget *residue_t
 	    
 	    item_data = (coot::model_view_atom_tree_item_info_t *) gtk_object_get_user_data(GTK_OBJECT(sub_children->data));
 
-	    CResidue *item_residue = item_data->residue;
+	    mmdb::Residue *item_residue = item_data->residue;
 
 	    if (item_residue == residue_p) {
 // 	       std::cout << "found residue in tree! " << sub_children << " "
@@ -350,7 +350,7 @@ graphics_info_t::on_go_to_atom_residue_tree_selection_changed_gtk1 (GtkList *gtk
 // 	 std::cout << "getting at from molecule:" << g.go_to_atom_molecule() << std::endl;
 // 	 std::cout << "residue has n atoms:" << item_data->residue->GetNumberOfAtoms()
 // 		   << std::endl;
-	 CAtom *at = graphics_info_t::molecules[g.go_to_atom_molecule()].intelligent_this_residue_mmdb_atom(item_data->residue);
+	 mmdb::Atom *at = graphics_info_t::molecules[g.go_to_atom_molecule()].intelligent_this_residue_mmdb_atom(item_data->residue);
 	 // std::cout << "residue tree selection changed: got at:" << at << std::endl;
 	 if (at) {
 	    // We only want to do this if this was a real event, not a

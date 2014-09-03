@@ -31,14 +31,14 @@
 #include "atom_util.h"
 #include "rgbreps.h"
 
-PPCAtom GetAtomPair(const std::vector<std::pair<PCAtom,PCAtom> > &pair, int i){
-  PPCAtom atom_pair = new PCAtom[2];
+mmdb::PPAtom GetAtomPair(const std::vector<std::pair<Pmmdb::Atom,Pmmdb::Atom> > &pair, int i){
+  mmdb::PPAtom atom_pair = new Pmmdb::Atom[2];
   atom_pair[0] = pair[i].first;
   atom_pair[1] = pair[i].second;
   return atom_pair;
 }
 
-std::vector <Cartesian> CartesiansFromAtoms(PPCAtom clip_atoms, int nclip_atoms){
+std::vector <Cartesian> CartesiansFromAtoms(mmdb::PPAtom clip_atoms, int nclip_atoms){
   std::vector <Cartesian> clip_pos;
 
   for(int i=0;i<nclip_atoms;i++){
@@ -48,7 +48,7 @@ std::vector <Cartesian> CartesiansFromAtoms(PPCAtom clip_atoms, int nclip_atoms)
   return clip_pos;
 }
 
-int TreeCartesiansToAtoms(Tree *tree, PPCAtom clip_atoms, int nclip_atoms){
+int TreeCartesiansToAtoms(Tree *tree, mmdb::PPAtom clip_atoms, int nclip_atoms){
 
   std::vector<Cartesian> coords = tree->GetAllCartesians();
 
@@ -286,9 +286,9 @@ int AtomColourVector::SetupResidueColourVector( PCMMDBManager molHnd,
   for any given residue index
   */
  
-  PPCAtom pAtoms;
+  mmdb::PPAtom pAtoms;
   int CAselHnd,nAtoms,idx;
-  PCResidue pRes;
+  Pmmdb::Residue pRes;
 
   
   molHnd->GetSelIndex ( selHnd,pAtoms,nAtoms);
@@ -300,7 +300,7 @@ int AtomColourVector::SetupResidueColourVector( PCMMDBManager molHnd,
   // Diagnostic - how mant residues?
   //int res_selHnd = molHnd->NewSelection();
   //molHnd->Select(res_selHnd,STYPE_RESIDUE,selHnd,SKEY_NEW);
-  //PPCResidue resTable;
+  //mmdb::PPResidue resTable;
   //int nRes;
   //molHnd->GetSelIndex ( res_selHnd, resTable, nRes );
 

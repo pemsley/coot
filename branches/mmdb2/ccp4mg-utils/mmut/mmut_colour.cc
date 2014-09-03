@@ -144,7 +144,7 @@ int CMolColour::GetAtomColourVector ( int &nat, int *icol ) {
 int CMolColour::Print( ) {
 //-----------------------------------------------------------------------
   int i;
-  PPCAtom selAtoms;
+  mmdb::PPAtom selAtoms;
 
   if ( !colour ) ReColour();
 
@@ -214,7 +214,7 @@ int CMolColour::ReColour() {
 int CMolColour::OneColour( ) {
 //-----------------------------------------------------------------------
   int i;
-  PPCAtom selAtoms;
+  mmdb::PPAtom selAtoms;
 
   molHnd->GetSelIndex (selHnd, selAtoms, natoms );
   FreeVectorMemory( colour,0);
@@ -230,7 +230,7 @@ int CMolColour::OneColour( ) {
 //-----------------------------------------------------------------------
 int CMolColour::ByAtomType( ) {
 //-----------------------------------------------------------------------
-  PPCAtom selAtoms;
+  mmdb::PPAtom selAtoms;
   int i,j;
 
   molHnd->GetSelIndex (selHnd, selAtoms, natoms );
@@ -253,7 +253,7 @@ int CMolColour::ByAtomType( ) {
 //-----------------------------------------------------------------------
 int CMolColour::ByResidueType( ) {
 //-----------------------------------------------------------------------
-  PPCAtom selAtoms;
+  mmdb::PPAtom selAtoms;
   int i,j;
  
   molHnd->GetSelIndex (selHnd, selAtoms, natoms );
@@ -276,11 +276,11 @@ int CMolColour::ByResidueType( ) {
 //-----------------------------------------------------------------------
 int CMolColour::ByChain( ) {
 //-----------------------------------------------------------------------
-  PPCAtom selAtoms;
+  mmdb::PPAtom selAtoms;
   int natoms;
   int i,j;
   int chnHnd, nChains;
-  PPCChain selChains;
+  PPmmdb::Chain selChains;
   ivector cols;
   int ic = firstChainColour;
 
@@ -323,7 +323,7 @@ int CMolColour::SecondaryStructure( ) {
 //-----------------------------------------------------------------------
 int CMolColour::BValue () {
 //-----------------------------------------------------------------------
-  PPCAtom selAtoms;
+  mmdb::PPAtom selAtoms;
   int i,j;
   float frac;
   ivector colourbin;

@@ -28,10 +28,10 @@ namespace coot {
 
    class richardson_rotamer : public rotamer {
    public:
-      richardson_rotamer(CResidue *res, const std::string &alt_conf_in) : 
+      richardson_rotamer(mmdb::Residue *res, const std::string &alt_conf_in) : 
 	 rotamer(res, alt_conf_in, 0) {};
       
-      richardson_rotamer(CResidue *res,
+      richardson_rotamer(mmdb::Residue *res,
 			 const std::string &alt_conf,
 			 CMMDBManager *mol,
 			 float lowest_probability,

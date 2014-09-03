@@ -591,7 +591,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 // 
 coot::dictionary_residue_restraints_t
 coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary_residue_restraints_t &ref,
-							  CResidue *residue_p) {
+							  mmdb::Residue *residue_p) {
    dictionary_residue_restraints_t dict = *this;
    bool debug = false;
    typedef std::pair<std::string, std::string> SP;
@@ -730,15 +730,15 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 }
 
 void
-coot::dictionary_residue_restraints_t::change_names(CResidue *residue_p,
+coot::dictionary_residue_restraints_t::change_names(mmdb::Residue *residue_p,
 						    const std::vector<std::pair<std::string, std::string> > &change_name) const {
 
    if (residue_p) {
-      PPCAtom res_selection = NULL;
+      mmdb::PPAtom res_selection = NULL;
       int num_residue_atoms;
       residue_p->GetAtomTable(res_selection, num_residue_atoms);
       for (unsigned int iat=0; iat<num_residue_atoms; iat++) {
-	 CAtom *at = res_selection[iat];
+	 mmdb::Atom *at = res_selection[iat];
 	 std::string atom_name = at->name;
 	 for (unsigned int j=0; j<change_name.size(); j++) { 
 	    if (change_name[j].first == atom_name) {

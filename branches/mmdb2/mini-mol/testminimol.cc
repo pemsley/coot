@@ -77,15 +77,15 @@ main(int argc, char **argv) {
 //       CMMDBManager *mol = new CMMDBManager;
 //       mol->ReadCoorFile("prodrg.pdb");
 //       int imod = 1;
-//       CModel *model_p = mol->GetModel(imod);
-//       CChain *chain_p;
+//       mmdb::Model *model_p = mol->GetModel(imod);
+//       mmdb::Chain *chain_p;
 //       // run over chains of the existing mol
 //       int nchains = model_p->GetNumberOfChains();
 //       for (int ichain=0; ichain<nchains; ichain++) {
 // 	 chain_p = model_p->GetChain(ichain);
 // 	 int nres = chain_p->GetNumberOfResidues();
-// 	 CResidue *residue_p;
-// 	 CAtom *at;
+// 	 mmdb::Residue *residue_p;
+// 	 mmdb::Atom *at;
 // 	 for (int ires=0; ires<nres; ires++) { 
 // 	    residue_p = chain_p->GetResidue(ires);
 // 	    int n_atoms = residue_p->GetNumberOfAtoms();

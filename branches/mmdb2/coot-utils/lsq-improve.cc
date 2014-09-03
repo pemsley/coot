@@ -55,8 +55,8 @@ coot::lsq_improve::lsq_improve(CMMDBManager *mol_ref, const std::string &ref_sel
 	 mol->Select(sel_hnd_1, STYPE_ATOM,    ref_selection_string.c_str(), SKEY_OR);
 	 mol->Select(sel_hnd_2, STYPE_ATOM, moving_selection_string.c_str(), SKEY_OR);
 
-	 PPCAtom atom_sel_1=NULL;
-	 PPCAtom atom_sel_2=NULL;
+	 mmdb::PPAtom atom_sel_1=NULL;
+	 mmdb::PPAtom atom_sel_2=NULL;
 	 int n_sel_1;
 	 int n_sel_2;
 	 mol->SelectAtoms (sel_hnd_1, 1, "*",
@@ -101,30 +101,30 @@ coot::lsq_improve::CAs_to_model(CMMDBManager *mol_in, int model_number) {
    int n_atoms = 0; // increment and return
    if (mol_in) { 
       int imod = 1;
-      CModel *model_p = mol_in->GetModel(imod);
+      mmdb::Model *model_p = mol_in->GetModel(imod);
       if (!model_p) {
 	 std::cout << "Oops no MODEL 1 in input molecule for synthmol model-no "
 		   << model_number << std::endl;
       } else {
 
-	 CModel *model_new = new CModel;
+	 mmdb::Model *model_new = new mmdb::Model;
 	 mol->AddModel(model_new);
 	 int nchains = model_p->GetNumberOfChains();
 	 for (int ichain=0; ichain<nchains; ichain++) {
-	    CChain *chain_p = model_p->GetChain(ichain);
-	    CChain *chain_new = new CChain(model_new, chain_p->GetChainID());
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    mmdb::Chain *chain_new = new mmdb::Chain(model_new, chain_p->GetChainID());
 	    model_new->AddChain(chain_new);
 	    int nres = chain_p->GetNumberOfResidues();
 	    for (int ires=0; ires<nres; ires++) { 
-	       CResidue *residue_p = chain_p->GetResidue(ires);
-	       CAtom *at = residue_p->GetAtom(" CA ");
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       mmdb::Atom *at = residue_p->GetAtom(" CA ");
 	       if (at) {
-		  CResidue *residue_new = new CResidue(chain_new);
+		  mmdb::Residue *residue_new = new mmdb::Residue(chain_new);
 		  chain_new->AddResidue(residue_new);
 		  residue_new->SetResName(residue_p->GetResName());
 		  residue_new->seqNum = residue_p->GetSeqNum();
 		  strncpy(residue_new->insCode, residue_p->GetInsCode(), 3);
-		  CAtom *atom_new = new CAtom(residue_new);
+		  mmdb::Atom *atom_new = new mmdb::Atom(residue_new);
 		  residue_new->AddAtom(atom_new);
 		  atom_new->Copy(at);
 		  n_atoms++;
@@ -173,8 +173,8 @@ coot::lsq_improve::get_new_matches(int round_number, int round_max,
 
    std::vector<coot::lsq_range_match_info_t> r;
 
-   PPCAtom atom_sel_1;
-   PPCAtom atom_sel_2;
+   mmdb::PPAtom atom_sel_1;
+   mmdb::PPAtom atom_sel_2;
    int n_sel_1;
    int n_sel_2;
    mol->GetSelIndex(sel_hnd_1, atom_sel_1, n_sel_1);
@@ -211,8 +211,8 @@ coot::lsq_improve::get_new_matches(int round_number, int round_max,
    
    if (ncontacts) {
       for (int icon=0; icon<ncontacts; icon++) {
-	 CAtom *atom_ref = atom_sel_1[contact[icon].id1];
-	 CAtom *atom_mov = atom_sel_2[contact[icon].id2];
+	 mmdb::Atom *atom_ref = atom_sel_1[contact[icon].id1];
+	 mmdb::Atom *atom_mov = atom_sel_2[contact[icon].id2];
 	 coot::residue_spec_t r_1(atom_ref);
 	 coot::residue_spec_t r_2(atom_mov);
 	 contact_residues[r_1].push_back(r_2);

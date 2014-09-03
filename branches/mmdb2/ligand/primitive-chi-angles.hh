@@ -56,19 +56,19 @@ namespace coot {
 
    class primitive_chi_angles {
       std::string residue_name;
-      CResidue *residue;
+      mmdb::Residue *residue;
       std::vector<atom_name_quad> get_atom_name_quads() const;
       std::vector<coot::atom_index_quad>
       get_quads(const std::vector<coot::atom_name_quad> &atom_name_quads,
-                CResidue *residue) const;
+                mmdb::Residue *residue) const;
       std::vector<coot::alt_confed_atom_index_quad>
       get_quads_using_altconfs(const std::vector<coot::atom_name_quad> &atom_name_quads,
-			       CResidue *residue) const;
-      clipper::Coord_orth atom_to_co(CAtom *at) const;
+			       mmdb::Residue *residue) const;
+      clipper::Coord_orth atom_to_co(mmdb::Atom *at) const;
       std::vector<residue_named_chi_angle_atom_name_quad_set_t> chi_angle_atoms_for_residue_type;
       std::vector<coot::atom_index_quad>
       get_atom_index_quads(const std::vector<coot::atom_name_quad> &atom_name_pairs,
-                           const PPCAtom atoms, int nresatoms) const;
+                           const mmdb::PPAtom atoms, int nresatoms) const;
       void setup_chi_atom_quads();
       void add_chi_quad(const std::string &residue_type,
                         const std::string &atom_name_1,
@@ -77,7 +77,7 @@ namespace coot {
                         const std::string &atom_name_4);
 
    public:
-      primitive_chi_angles(CResidue *res_in) {
+      primitive_chi_angles(mmdb::Residue *res_in) {
 	 residue = res_in;
 	 if (residue)
 	    residue_name = residue->GetResName();

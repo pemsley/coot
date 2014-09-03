@@ -150,7 +150,7 @@ int CSASArea::Calculate_Contact ( void )  {
 //-------------------------------------------------------------------
   int rv,i,j;
   int tmp_selHnd,local_selHnd, nSelAtoms,nSelAtoms1;
-  PPCAtom selAtoms,selAtoms1;
+  mmdb::PPAtom selAtoms,selAtoms1;
   rvector radwithhoh;
 
   if ( !selHnds[0] || ! selHnds[1]) return 1;
@@ -167,8 +167,8 @@ int CSASArea::Calculate_Contact ( void )  {
   // Initialise UDD
   int nchains = molHnds[0]->GetNumberOfChains(0);
   int nr0,nat0,nat_set;
-  PPCResidue resTable;
-  PPCAtom atomTable;
+  mmdb::PPResidue resTable;
+  mmdb::PPAtom atomTable;
   for (int ic=0;ic<nchains;ic++) {
     resTable = NULL;
     molHnds[0]->GetResidueTable(0,ic,resTable,nr0);
@@ -266,13 +266,13 @@ int CSASArea::Calculate0 (int imodel)  {
 //-------------------------------------------------------------------
 
   int RC = 0, i,j,nat;
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   rvector radwithhoh;
 
   // Initiallise mmdb udd
   int nr0,nat0;
-  PPCAtom atomTable;
-  PPCResidue resTable;
+  mmdb::PPAtom atomTable;
+  mmdb::PPResidue resTable;
   int im,fm,lm,nchains;
   int nat_set = 0;
 
@@ -371,7 +371,7 @@ int CSASArea::LeeAndRichards(realtype *radwithhoh,int imodel,int imode,
   realtype alpha, beta, ti, tf;
   realtype aarea,carea,aarea0;
   int skip_plane;
-  PPCAtom selected_atoms, tmp_sel_atoms[2];
+  mmdb::PPAtom selected_atoms, tmp_sel_atoms[2];
   int natoms_sel, tmp_natoms[2];
 
   if (imode == 0) {
@@ -387,7 +387,7 @@ int CSASArea::LeeAndRichards(realtype *radwithhoh,int imodel,int imode,
     molHnds[1]->GetSelIndex(selHnds[1],tmp_sel_atoms[1],tmp_natoms[1]);
     //cout << "tmp_natoms " << tmp_natoms[0] << " " << tmp_natoms[1] << endl;
     natoms_sel = tmp_natoms[0]+tmp_natoms[1];
-    selected_atoms= new PCAtom[natoms_sel];
+    selected_atoms= new Pmmdb::Atom[natoms_sel];
     for (i=0;i<tmp_natoms[0];i++) selected_atoms[i] = tmp_sel_atoms[0][i];
     j = tmp_natoms[0];
     for (i=0;i<tmp_natoms[1];i++) {
@@ -611,7 +611,7 @@ int CSASArea::LeeAndRichards(realtype *radwithhoh,int imodel,int imode,
 int CSASArea::WodakAndJanin(realtype *radwithhoh,int imodel){
 //-------------------------------------------------------------------------
 
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelection ( selected_atoms, natoms_sel,imodel);
   // This doesn't seem to want to work
@@ -680,7 +680,7 @@ int CSASArea::WodakAndJanin(realtype *radwithhoh,int imodel){
 int CSASArea::SurfacePoints(realtype *radwithhoh,int imodel) {
 //-------------------------------------------------------------------------
 
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelection ( selected_atoms, natoms_sel,imodel);
   PCBrick brick;
@@ -865,8 +865,8 @@ int CSASArea::ResSASArea (int imodel) {
   // Sum over all atoms in a residue for residue SAS area
   realtype sas,tot;
   int nr0,nat0, ntot, RC;
-  PPCAtom atomTable;
-  PPCResidue resTable;
+  mmdb::PPAtom atomTable;
+  mmdb::PPResidue resTable;
   int first_model=1;
   int last_model=1;
   if (imodel == 0 && molHnds[0]->GetNumberOfModels() > 1) {
@@ -908,8 +908,8 @@ int CSASArea::ResSASArea (int imodel) {
 //-----------------------------------------------------------------------
 std::string CSASArea::Print(int imodel, string selection1, int set_selHnd1, string selection2, int set_selHnd2 ) {
 //-----------------------------------------------------------------------
-  PPCAtom selected_atoms;
-  PPCResidue selected_res;
+  mmdb::PPAtom selected_atoms;
+  mmdb::PPResidue selected_res;
   int RC,i,natoms_sel,nres_sel;
   realtype sas,total, set_total1,set_total2 ;
   std::ostringstream output;

@@ -48,7 +48,7 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
    
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
-      CResidue *residue_p =
+      mmdb::Residue *residue_p =
 	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (residue_p) {
 	 try {

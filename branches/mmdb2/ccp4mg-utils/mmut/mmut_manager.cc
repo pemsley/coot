@@ -58,10 +58,10 @@ int const nhydro[nResNames] = { // No of hydrogen atoms in the 27 residues.
 
 void CMMUTManager::ListAtomInfo (int selHnd) {
 
-  PCAtom atom;
+  Pmmdb::Atom atom;
   int i;
 
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
 
@@ -90,7 +90,7 @@ realtype CMMUTManager::MolWeight(int selHnd){
 
   int l;
 
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
 
@@ -125,7 +125,7 @@ int CMMUTManager::NumberOfHydrogens(int selHnd){
   int nh=0;
   int i;
 
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
 
@@ -145,7 +145,7 @@ int CMMUTManager::NumberOfHydrogens(int selHnd){
 realtype* CMMUTManager::CentreOfMass(int selHnd) {
 //----------------------------------------------------------------------------
 
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
 
@@ -183,7 +183,7 @@ realtype* CMMUTManager::CentreOfMass(int selHnd) {
 realtype* CMMUTManager::Extent(int selHnd) {
 //-------------------------------------------------------------------------
 
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
 
@@ -224,7 +224,7 @@ int* CMMUTManager::AtomicComposition(int selHnd){
 	
   int l;
 
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
 
@@ -246,7 +246,7 @@ void CMMUTManager::PrintAtomicComposition(int selHnd){
   int m;
   int *atomic_comp;
 
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
 
@@ -261,7 +261,7 @@ void CMMUTManager::PrintAtomicComposition(int selHnd){
 
 int* CMMUTManager::ResidueComposition(int selHnd) {
 	
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
 
@@ -308,7 +308,7 @@ int* CMMUTManager::ResidueComposition(int selHnd) {
 
 pstr CMMUTManager::GetSequence(int selHnd){
 	
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
 
@@ -356,7 +356,7 @@ pstr CMMUTManager::GetSequence(int selHnd){
 
 void CMMUTManager::PrintResidueComposition(int selHnd){
 
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
 
@@ -377,7 +377,7 @@ void CMMUTManager::PrintResidueComposition(int selHnd){
 
 void CMMUTManager::PrintSequence(int selHnd){
 
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
 
@@ -402,12 +402,12 @@ realtype* CMMUTManager::GetBValues(int selHnd){
 
   // Handling anisotropic bvalues disabled to get compile working
   // Cryst class is protested
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
 
   realtype b;
-  PCAtom atom;
+  Pmmdb::Atom atom;
   int i,k;
   int natomsres;
 
@@ -454,7 +454,7 @@ realtype* CMMUTManager::GetBValues(int selHnd){
 
 void CMMUTManager::PrintBValues(int selHnd){
 
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
 
@@ -488,7 +488,7 @@ void CMMUTManager::PrintBValues(int selHnd){
 
 int CMMUTManager::TotalNumRes(int selHnd){
 
-  PPCAtom selected_atoms;
+  mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelIndex ( selHnd, selected_atoms, natoms_sel);
 
@@ -504,7 +504,7 @@ int CMMUTManager::TotalNumRes(int selHnd){
 }
 
 
-realtype CMMUTManager::BondLength(PCAtom A, PCAtom B){
+realtype CMMUTManager::BondLength(Pmmdb::Atom A, Pmmdb::Atom B){
 
   realtype length;
 
@@ -517,7 +517,7 @@ realtype CMMUTManager::BondLength(PCAtom A, PCAtom B){
   return length;
 }
 
-realtype CMMUTManager::BondAngle(PCAtom A, PCAtom B, PCAtom C){
+realtype CMMUTManager::BondAngle(Pmmdb::Atom A, Pmmdb::Atom B, Pmmdb::Atom C){
 
   realtype abx = (B->x-A->x);
   realtype aby = (B->y-A->y);
@@ -541,7 +541,7 @@ realtype CMMUTManager::BondAngle(PCAtom A, PCAtom B, PCAtom C){
   return  acos((bcsq + absq - acsq)/(2*bc*ab));
 }
 
-realtype CMMUTManager::TorsionAngle(PCAtom A, PCAtom B, PCAtom C, PCAtom D){
+realtype CMMUTManager::TorsionAngle(Pmmdb::Atom A, Pmmdb::Atom B, Pmmdb::Atom C, Pmmdb::Atom D){
 
   /* Should really move all this vector manipulation stuff 
    * somewhere more general. In fact should use vectors ... */
@@ -586,7 +586,7 @@ realtype CMMUTManager::TorsionAngle(PCAtom A, PCAtom B, PCAtom C, PCAtom D){
 }
 
 //----------------------------------------------------------------------------
-Boolean CMMUTManager::isMainChain(PCAtom p_atom) {
+Boolean CMMUTManager::isMainChain(Pmmdb::Atom p_atom) {
 //----------------------------------------------------------------------------
    const char *mainchAtoms[5] = { "CA", "N", "C", "O", "HA" };
    if ( NameComparison(p_atom->name,5,mainchAtoms) >= 0 ) {
@@ -597,7 +597,7 @@ Boolean CMMUTManager::isMainChain(PCAtom p_atom) {
   } 
 }
 //-----------------------------------------------------------------
-Boolean CMMUTManager::doAltLocMatch ( PCAtom pa1, PCAtom pa2 ) {
+Boolean CMMUTManager::doAltLocMatch ( Pmmdb::Atom pa1, Pmmdb::Atom pa2 ) {
 //-----------------------------------------------------------------
  if ( strlen (pa1->altLoc) == 0 ||
         strlen (pa2->altLoc) == 0 ||
@@ -655,7 +655,7 @@ std::string  CMMUTManager::TrimString(pstr input) {
 }
 
 //--------------------------------------------------------------------
-const char* CMMUTManager::AtomLabel_atom1(PCAtom p_atom) {
+const char* CMMUTManager::AtomLabel_atom1(Pmmdb::Atom p_atom) {
 //--------------------------------------------------------------------
   int mask[10] = { 0,0,1,1,1,1,1,1,0,0 };
   if (GetNumberOfModels()>1) mask[1]=1;
@@ -664,7 +664,7 @@ const char* CMMUTManager::AtomLabel_atom1(PCAtom p_atom) {
 }
 
 //--------------------------------------------------------------------
-const char* CMMUTManager::AtomLabel_atom(PCAtom p_atom) {
+const char* CMMUTManager::AtomLabel_atom(Pmmdb::Atom p_atom) {
 //--------------------------------------------------------------------
   int mask[10] = { 0,0,1,1,1,1,1,1,0,0 };
   if (GetNumberOfModels()>1) mask[1]=1;
@@ -673,7 +673,7 @@ const char* CMMUTManager::AtomLabel_atom(PCAtom p_atom) {
 }
 
 //--------------------------------------------------------------------
-const char* CMMUTManager::AtomLabel_residue(PCAtom p_atom) {
+const char* CMMUTManager::AtomLabel_residue(Pmmdb::Atom p_atom) {
 //--------------------------------------------------------------------
   int mask[10] = { 0,0,1,1,1,1,0,0,0,0 };
   if (GetNumberOfModels()>1) mask[1]=1;
@@ -681,7 +681,7 @@ const char* CMMUTManager::AtomLabel_residue(PCAtom p_atom) {
   return al;
 }
 //--------------------------------------------------------------------
-const char* CMMUTManager::AtomLabel_chain(PCAtom p_atom) {
+const char* CMMUTManager::AtomLabel_chain(Pmmdb::Atom p_atom) {
 //--------------------------------------------------------------------
   int mask[10] = { 0,0,1,0,0,0,0,0,0,0 };
   if (GetNumberOfModels()>1) mask[1]=1;
@@ -690,7 +690,7 @@ const char* CMMUTManager::AtomLabel_chain(PCAtom p_atom) {
 }
 
 //--------------------------------------------------------------------
-Boolean CMMUTManager::ChainIDisDigit(PCChain p_ch) {
+Boolean CMMUTManager::ChainIDisDigit(Pmmdb::Chain p_ch) {
 //--------------------------------------------------------------------
    const char *digits[10] = { "0", "1", "2", "3", "4","5", "6", "7", "8", "9"  };
   if ( NameComparison(p_ch->GetChainID(),10,digits) >= 0 ) {
@@ -703,24 +703,24 @@ Boolean CMMUTManager::ChainIDisDigit(PCChain p_ch) {
 }
 
 //--------------------------------------------------------------------
-const char* CMMUTManager::AtomLabel_residue1(PCResidue p_res) {
+const char* CMMUTManager::AtomLabel_residue1(Pmmdb::Residue p_res) {
 //--------------------------------------------------------------------
   int mask[10] = { 0,0,1,1,1,1,0,0,0,0 };
   if (GetNumberOfModels()>1 || ChainIDisDigit(p_res->chain) ) mask[1]=1;
-  PCAtom p_atom=p_res->GetAtom(0); 
+  Pmmdb::Atom p_atom=p_res->GetAtom(0); 
   const char *al = AtomLabel(p_atom,mask).c_str();
   return al;
 }
 
 //--------------------------------------------------------------------
- const char* CMMUTManager::AtomLabel_mask(PCAtom p_atom, int mask[]) {
+ const char* CMMUTManager::AtomLabel_mask(Pmmdb::Atom p_atom, int mask[]) {
 //--------------------------------------------------------------------
   const char *al = AtomLabel(p_atom,mask).c_str();
   return al;
 }
  
 //--------------------------------------------------------------------
-std::string CMMUTManager::AtomLabel(PCAtom p_atom, int mask[]) {
+std::string CMMUTManager::AtomLabel(Pmmdb::Atom p_atom, int mask[]) {
 //--------------------------------------------------------------------
   //Mask parameters
   //  0  Molecule
@@ -791,7 +791,7 @@ int CMMUTManager::ApplyTransform(int selHnd,double rotmat[],
   mat33 rot;
   vect3 tran;
   int i,j,ii;
-  PPCAtom selAtoms;
+  mmdb::PPAtom selAtoms;
   int nAtoms;
 
   if ( selHnd >= 0 ) 
@@ -820,7 +820,7 @@ int CMMUTManager::ApplyTransform(int selHnd,double rotmat[],
 int CMMUTManager::WriteSelection (int selHnd,char *file, char *format) {
 //-------------------------------------------------------------------------
   PCMMUTManager mmdb2;
-  PPCAtom selAtom;
+  mmdb::PPAtom selAtom;
   int nSelAtoms,i,RC;
 
   mmdb2 = new CMMUTManager();
@@ -858,7 +858,7 @@ int CMMUTManager::WriteSelection (int selHnd,char *file, char *format) {
 //-------------------------------------------------------------------------
 int CMMUTManager::PutSelectedAtoms (int selHnd , const PCMMDBManager mmdb2) {
 //-------------------------------------------------------------------------
-  PPCAtom selAtom;
+  mmdb::PPAtom selAtom;
   int nSelAtoms,i;
   GetSelIndex ( selHnd, selAtom, nSelAtoms);
   //cout << "nSelAtoms " << nSelAtoms << endl;
@@ -874,13 +874,13 @@ int CMMUTManager::CopySelection (int selHnd , const PCMMDBManager mmdb2 ) {
 //-------------------------------------------------------------------------
   int          RC,i,j,k;
   int          nChains,nResidues,nAtoms;
-  PPCChain     chain;
-  PPCResidue   res;
-  PPCAtom      atom;
+  PPmmdb::Chain     chain;
+  mmdb::PPResidue   res;
+  mmdb::PPAtom      atom;
 
-  PCResidue newRes = 0;
-  PCChain newChain = 0;
-  PCModel newModel = 0;
+  Pmmdb::Residue newRes = 0;
+  Pmmdb::Chain newChain = 0;
+  Pmmdb::Model newModel = 0;
 
   int nAcopied=0, nRcopied=0, nCcopied=0, nMcopied=0;
 
@@ -899,7 +899,7 @@ int CMMUTManager::CopySelection (int selHnd , const PCMMDBManager mmdb2 ) {
             for (k=0;k<nAtoms;k++) {
               if (atom[k] && atom[k]->isInSelection(selHnd))  {
                 if(nAcopied==0) {
-                   newRes = new CResidue();
+                   newRes = new mmdb::Residue();
                    newRes->SetResID(res[j]->name,res[j]->seqNum, \
                             res[j]->GetInsCode());
                 }
@@ -909,7 +909,7 @@ int CMMUTManager::CopySelection (int selHnd , const PCMMDBManager mmdb2 ) {
             }
             if (nAcopied>0) {
               if (nRcopied == 0) {
-                newChain = new CChain();
+                newChain = new mmdb::Chain();
                 newChain->SetChainID(chain[i]->GetChainID());
               }
               newChain->AddResidue(newRes);
@@ -919,7 +919,7 @@ int CMMUTManager::CopySelection (int selHnd , const PCMMDBManager mmdb2 ) {
           }
         }
         if (nRcopied>0) {
-          if (nCcopied==0) newModel = new CModel();
+          if (nCcopied==0) newModel = new mmdb::Model();
           newModel->AddChain(newChain);
           nRcopied = 0;
           nCcopied++;
@@ -937,9 +937,9 @@ int CMMUTManager::CopySelection (int selHnd , const PCMMDBManager mmdb2 ) {
 }
 
 //-----------------------------------------------------------------------
-PCResidue CMMUTManager::NextResidue( PCResidue pRes ,int increment) {
+Pmmdb::Residue CMMUTManager::NextResidue( Pmmdb::Residue pRes ,int increment) {
 //-----------------------------------------------------------------------
-  PCChain pc = pRes->GetChain();
+  Pmmdb::Chain pc = pRes->GetChain();
   int resno = pc->GetResidueNo(pRes->GetSeqNum(),pRes->GetInsCode());
   if (resno < pc->GetNumberOfResidues()) {
     return pc->GetResidue(resno+increment);
@@ -956,7 +956,7 @@ int CMMUTManager::FindCloseAtomPairs ( int selHnd, double min_distance,
 // Find all atoms in set selHnd  within min_distance to max_distance of
 // another member of the set and return a seelction handle that lists them
 // Originally implemented to help fing SSbonds
-  PPCAtom selAtoms,selAtoms2;
+  mmdb::PPAtom selAtoms,selAtoms2;
   int nSelAtoms,nSelAtoms2;
   PSContact contact = NULL; 
   int ncontacts; 

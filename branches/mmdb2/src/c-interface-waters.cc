@@ -184,7 +184,7 @@ int blob_under_pointer_to_screen_centre() {
 SCM water_chain_from_shelx_ins_scm(int imol) {
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
-      CChain *water_chain =
+      mmdb::Chain *water_chain =
 	 graphics_info_t::molecules[imol].water_chain_from_shelx_ins();
       if (water_chain) {
 	 r = scm_makfrom0str(water_chain->GetChainID());
@@ -196,7 +196,7 @@ SCM water_chain_from_shelx_ins_scm(int imol) {
 SCM water_chain_scm(int imol) {
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
-      CChain *water_chain = graphics_info_t::molecules[imol].water_chain();
+      mmdb::Chain *water_chain = graphics_info_t::molecules[imol].water_chain();
       if (water_chain) {
 	 r = scm_makfrom0str(water_chain->GetChainID());
       } 
@@ -212,7 +212,7 @@ PyObject *water_chain_from_shelx_ins_py(int imol) {
 
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
-      CChain *water_chain =
+      mmdb::Chain *water_chain =
 	 graphics_info_t::molecules[imol].water_chain_from_shelx_ins();
       if (water_chain) {
 	 r = PyString_FromString(water_chain->GetChainID());
@@ -227,7 +227,7 @@ PyObject *water_chain_from_shelx_ins_py(int imol) {
 PyObject *water_chain_py(int imol) {
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
-      CChain *water_chain = graphics_info_t::molecules[imol].water_chain();
+      mmdb::Chain *water_chain = graphics_info_t::molecules[imol].water_chain();
       if (water_chain) {
 	 r = PyString_FromString(water_chain->GetChainID());
       } 

@@ -55,14 +55,14 @@ coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
    int SelectionHandle = stored_mol->NewSelection();
    
    stored_mol->SelectSphere(SelectionHandle, STYPE_ATOM, rc.x(), rc.y(), rc.z(), rrr, SKEY_OR);
-   PPCAtom sphere_atoms = 0;
+   mmdb::PPAtom sphere_atoms = 0;
    int n_sphere_atoms = 0;
    stored_mol->GetSelIndex(SelectionHandle, sphere_atoms, n_sphere_atoms);
 
    atom_selection_container_t stored_mol_asc = make_asc(stored_mol);
 
    for (unsigned int irot=0; irot<n_rotatmers; irot++) {
-      CResidue *r = r_rotamer.GetResidue(rest, irot);
+      mmdb::Residue *r = r_rotamer.GetResidue(rest, irot);
 
       for (int ivr=-n_vr; ivr<=n_vr; ivr++) {
       
@@ -110,7 +110,7 @@ coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
 // Throws an exception if fragment does not have 3 residues.
 // 
 coot::minimol::fragment
-coot::backrub::make_test_fragment(CResidue *r, double rotation_angle) const {
+coot::backrub::make_test_fragment(mmdb::Residue *r, double rotation_angle) const {
 
    coot::minimol::fragment f(chain_id);
    std::vector<std::string> prev_res_atoms;
@@ -191,7 +191,7 @@ coot::backrub::make_test_fragment(CResidue *r, double rotation_angle) const {
 clipper::Coord_orth
 coot::backrub::rotamer_residue_centre() const {
 
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int n_residue_atoms;
    orig_this_residue->GetAtomTable(residue_atoms, n_residue_atoms);
    float sum_x=0, sum_y=0, sum_z=0;
@@ -214,7 +214,7 @@ coot::backrub::residue_radius(const clipper::Coord_orth &rc) {
 
    float r = 0; 
 
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int n_residue_atoms;
    orig_this_residue->GetAtomTable(residue_atoms, n_residue_atoms);
    float sum_x=0, sum_y=0, sum_z=0;
@@ -249,7 +249,7 @@ coot::backrub::score_fragment(minimol::fragment &frag) const {
 } 
 
 coot::minimol::residue
-coot::backrub::make_residue_include_only(CResidue *orig_prev_residue,
+coot::backrub::make_residue_include_only(mmdb::Residue *orig_prev_residue,
 					 const std::vector<std::string> &prev_res_atoms) const {
 
    coot::minimol::residue r(orig_prev_residue, prev_res_atoms);
@@ -272,7 +272,7 @@ coot::backrub::setup_this_and_prev_next_ca_positions() {
    //
    // Throw an exception if we can't find either CA atoms.
 
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
 
    short int found = 0;
@@ -360,7 +360,7 @@ coot::backrub::setup_this_and_prev_next_ca_positions() {
 // const because we are fiddling with f, not data members.
 // 
 void
-coot::backrub::rotate_individual_peptides_back_best(CResidue *r, double rotation_angle,
+coot::backrub::rotate_individual_peptides_back_best(mmdb::Residue *r, double rotation_angle,
 						    coot::minimol::fragment *f) const {
 
    // Simple-minded optimisation.  Do a grid-search.  Pick the
@@ -387,10 +387,10 @@ coot::backrub::rotate_individual_peptides_back_best(CResidue *r, double rotation
 //
 // 
 double
-coot::backrub::sample_individual_peptide(CResidue *r, double rotation_angle,
+coot::backrub::sample_individual_peptide(mmdb::Residue *r, double rotation_angle,
 					 coot::minimol::fragment *f,
-					 CResidue *residue_front,
-					 CResidue *residue_back,
+					 mmdb::Residue *residue_front,
+					 mmdb::Residue *residue_back,
 					 bool is_leading_peptide_flag) const {
 
    // So f has had the big rotation applied.  Now we want to apply
@@ -400,7 +400,7 @@ coot::backrub::sample_individual_peptide(CResidue *r, double rotation_angle,
    // Let's only consider the position of the O when doing that.
    //
    
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    clipper::Coord_orth O_pos;
    bool found_O_pos = 0;
@@ -645,7 +645,7 @@ coot::get_clash_score(const coot::minimol::molecule &a_rotamer,
 //
 float
 coot::backrub::get_clash_score(const coot::minimol::molecule &a_rotamer,
-			       PPCAtom atom_selection, int n_sphere_atoms) const {
+			       mmdb::PPAtom atom_selection, int n_sphere_atoms) const {
 
    // Clashes to that are to H bonders have a different dist_crit
    // (smaller).  Tested on both atoms not being carbon (for now).

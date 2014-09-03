@@ -90,7 +90,7 @@ namespace coot {
       std::string seq_int_to_string(int i) const;
       std::vector<GtkCanvasItem *> canvas_item_vec;
       int max_number_of_residues_in_a_chain(CMMDBManager *mol_in) const;
-      std::string colour_by_secstr(CResidue *res, CModel *model) const;
+      std::string colour_by_secstr(mmdb::Residue *res, mmdb::Model *model) const;
       std::string fixed_font;
       void draw_debugging_box() const;
 

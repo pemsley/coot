@@ -505,12 +505,12 @@ int CXXQADSurface::allowProbeToEatWithinGridRange(Coord_orth probeCoordOrth, Gri
 }
 
 int CXXQADSurface::coordIsBuriedByNeighbours(Coord_orth &point,int iAtom1){
-	PCAtom Atom1 = selectedAtoms[iAtom1];
+	Pmmdb::Atom Atom1 = selectedAtoms[iAtom1];
 	vector<int> &theNeighbourhood = neighbourhoods[iAtom1];
 	int buried = 0;
 	
 	for (unsigned iAtom2 = 0; iAtom2<theNeighbourhood.size() && !buried; iAtom2++){
-		PCAtom Atom2 = selectedAtoms[theNeighbourhood[iAtom2]];
+		Pmmdb::Atom Atom2 = selectedAtoms[theNeighbourhood[iAtom2]];
 		if (Atom2 != Atom1){
 			Coord_orth atomCoordOrth(Atom2->x, Atom2->y, Atom2->z);
 			double accessibleRadius  = fastGetAtomRadius(iAtom2)+probeRadius;
@@ -794,7 +794,7 @@ int CXXQADSurface::calculateAveragedNormals(){
 	
 }
 
-double CXXQADSurface::getAtomRadius(PCAtom theAtom){
+double CXXQADSurface::getAtomRadius(Pmmdb::Atom theAtom){
 	//Here get handle of a radius data type from MMDB if such has been stored
 	int iRadiusHandle = theMMDBManager->GetUDDHandle(UDR_ATOM, "PerAtomRadius");
 	double theRadius;
@@ -873,7 +873,7 @@ int CXXQADSurface::toruses()
 
 	//loop over all atoms in selection
 	for (int atomNr  = 0;atomNr < nSelectedAtoms; atomNr++) { 
-		PCAtom centralAtom = selectedAtoms[atomNr];
+		Pmmdb::Atom centralAtom = selectedAtoms[atomNr];
 
 		Coord_orth atomCoordOrth(centralAtom->x, centralAtom->y, centralAtom->z);
 		Coord_frac uvw = atomCoordOrth.coord_frac(clipperCell);
@@ -887,7 +887,7 @@ int CXXQADSurface::toruses()
 		CXXNewHood theNewHood(centralAtom, radiusOfAtom1, probeRadius);
 		
 		for (unsigned sphereAtomNr = 0; sphereAtomNr < neighbourhoods[atomNr].size(); sphereAtomNr++) {
-			PCAtom sphereAtom = selectedAtoms[neighbourhoods[atomNr][sphereAtomNr]];
+			Pmmdb::Atom sphereAtom = selectedAtoms[neighbourhoods[atomNr][sphereAtomNr]];
 			double radiusOfAtom2 = fastGetAtomRadius(sphereAtomNr);
 			theNewHood.addAtom(sphereAtom, radiusOfAtom2);
 		}

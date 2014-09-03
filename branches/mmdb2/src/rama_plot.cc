@@ -899,21 +899,21 @@ coot::rama_plot::generate_phi_psis(CMMDBManager *mol_in, bool is_primary) {
    phi_psi_model_sets.push_back(empty);
    for (int imod=1; imod<=n_models; imod++) {
       coot::phi_psis_for_model_t model_phi_psis(imod);
-      CModel *model_p = mol_in->GetModel(imod);
+      mmdb::Model *model_p = mol_in->GetModel(imod);
       if (model_p) { 
-	 CChain *chain_p;
+	 mmdb::Chain *chain_p;
 	 int nchains = model_p->GetNumberOfChains();
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    int nres = chain_p->GetNumberOfResidues();
-	    CResidue *residue_p;
+	    mmdb::Residue *residue_p;
 	    if (nres > 2) { 
 	       for (int ires=1; ires<(nres-1); ires++) { 
 		  residue_p = chain_p->GetResidue(ires);
 
 		  // this could be improved
-		  CResidue *res_prev = chain_p->GetResidue(ires-1);
-		  CResidue *res_next = chain_p->GetResidue(ires+1);
+		  mmdb::Residue *res_prev = chain_p->GetResidue(ires-1);
+		  mmdb::Residue *res_next = chain_p->GetResidue(ires+1);
 
 		  if (res_prev && residue_p && res_next) {
 		     try {
@@ -953,14 +953,14 @@ coot::rama_plot::generate_phi_psis_by_selection(CMMDBManager *mol,
       coot::phi_psis_for_model_t empty(0);
       secondary_phi_psi_model_sets.push_back(empty);
    }
-   PCResidue *residues = NULL;
+   Pmmdb::Residue *residues = NULL;
    int n_residues;
    mol->GetSelIndex(SelectionHandle, residues, n_residues);
    coot::phi_psis_for_model_t model_phi_psis(1); // model 1.
    for (int ires=1; ires<(n_residues-1); ires++) {
-      CResidue *res_prev = residues[ires-1];
-      CResidue *res_this = residues[ires];
-      CResidue *res_next = residues[ires+1];
+      mmdb::Residue *res_prev = residues[ires-1];
+      mmdb::Residue *res_this = residues[ires];
+      mmdb::Residue *res_next = residues[ires+1];
       std::string chain_id_1 = res_prev->GetChainID();
       std::string chain_id_2 = res_this->GetChainID();
       std::string chain_id_3 = res_next->GetChainID();
@@ -1418,8 +1418,8 @@ coot::rama_plot::make_phi_psi_pair(CMMDBManager *mol1,
 				   const std::string &chain_id2,
 				   int i_seq_num,
 				   const std::string &ins_code) const {
-   PCResidue *SelResidue1;
-   PCResidue *SelResidue2;
+   Pmmdb::Residue *SelResidue1;
+   Pmmdb::Residue *SelResidue2;
    int nSelResidues1, nSelResidues2;
    coot::util::phi_psi_pair_helper_t r;
    r.is_valid_pair_flag = 0;
@@ -1477,7 +1477,7 @@ coot::rama_plot::make_phi_psi_pair(CMMDBManager *mol1,
 
 // SelResidue is guaranteed to have 3 residues (there is no protection
 // for that in this function).
-std::pair<bool, coot::util::phi_psi_t> coot::rama_plot::get_phi_psi(PCResidue *SelResidue) const {
+std::pair<bool, coot::util::phi_psi_t> coot::rama_plot::get_phi_psi(Pmmdb::Residue *SelResidue) const {
    return coot::util::get_phi_psi(SelResidue);
 }
 
@@ -1569,31 +1569,31 @@ coot::rama_plot::set_seqnum_offset(int imol1, int imol2,
 				   const std::string &chain_id_1,
 				   const std::string &chain_id_2) {
 
-   seqnum_offset = MinInt4;
+   seqnum_offset = mmdb::MinInt4;
    if (is_valid_model_molecule(imol1)) { 
       if (is_valid_model_molecule(imol2)) {
 
 	 int imod = 1;
       
-	 CModel *model_p_1 = mol1->GetModel(imod);
-	 CChain *chain_p_1;
+	 mmdb::Model *model_p_1 = mol1->GetModel(imod);
+	 mmdb::Chain *chain_p_1;
 	 // run over chains of the existing mol
 	 int nchains_1 = model_p_1->GetNumberOfChains();
 	 for (int ichain_1=0; ichain_1<nchains_1; ichain_1++) {
 	    chain_p_1 = model_p_1->GetChain(ichain_1);
 	    if (chain_id_1 == chain_p_1->GetChainID()) {
 	       int nres_1 = chain_p_1->GetNumberOfResidues();
-	       PCResidue residue_p_1;
+	       Pmmdb::Residue residue_p_1;
 	       if (nres_1 > 0) {
 		  residue_p_1 = chain_p_1->GetResidue(0);
-		  CModel *model_p_2 = mol2->GetModel(imod);
-		  CChain *chain_p_2;
+		  mmdb::Model *model_p_2 = mol2->GetModel(imod);
+		  mmdb::Chain *chain_p_2;
 		  int nchains_2 = model_p_2->GetNumberOfChains();
 		  for (int ichain_2=0; ichain_2<nchains_2; ichain_2++) {
 		     chain_p_2 = model_p_2->GetChain(ichain_2);
 		     if (chain_id_2 == chain_p_2->GetChainID()) {
 			int nres_2 = chain_p_2->GetNumberOfResidues();
-			PCResidue residue_p_2;
+			Pmmdb::Residue residue_p_2;
 			if (nres_2 > 0) {
 			   residue_p_2 = chain_p_2->GetResidue(0);
 
@@ -1609,7 +1609,7 @@ coot::rama_plot::set_seqnum_offset(int imol1, int imol2,
 
    std::cout << "DEBUG:: seqnum_offset is: " << seqnum_offset << std::endl;
    
-   if (seqnum_offset == MinInt4) {
+   if (seqnum_offset == mmdb::MinInt4) {
       std::cout << "WARNING:: Ooops! Failed to set the Chain Residue numbering different\n"
 		<< "WARNING::        offset correctly." << std::endl;
       std::cout << "WARNING:: Ooops! Bad Kleywegts will result!" << std::endl;

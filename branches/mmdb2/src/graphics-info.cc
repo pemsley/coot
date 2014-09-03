@@ -469,7 +469,7 @@ graphics_info_t::add_dir_file(const std::string &dirname, const std::string &fil
 void
 graphics_info_t::setRotationCentre(int index, int imol) {
 
-   PCAtom atom = molecules[imol].atom_sel.atom_selection[index];
+   Pmmdb::Atom atom = molecules[imol].atom_sel.atom_selection[index];
    
    float x = atom->x; 
    float y = atom->y; 
@@ -525,7 +525,7 @@ graphics_info_t::setRotationCentre(int index, int imol) {
 
 // update the green square, where we are.
 void
-graphics_info_t::update_ramachandran_plot_point_maybe(int imol, CAtom *atom) {
+graphics_info_t::update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom) {
 
    coot::residue_spec_t r(atom->residue);
    update_ramachandran_plot_point_maybe(imol, r);
@@ -619,7 +619,7 @@ graphics_info_t::setRotationCentre(const symm_atom_info_t &symm_atom_info) {
    std::cout << "setRotationCentre by symmetry atom" << std::endl;
    
    // Invalid read according to valgrind
-   PCAtom atom = symm_atom_info.trans_sel[symm_atom_info.atom_index];
+   Pmmdb::Atom atom = symm_atom_info.trans_sel[symm_atom_info.atom_index];
 
    if (atom) { 
       float x = atom->x; // invalid read according to valgrind.
@@ -2204,8 +2204,8 @@ graphics_info_t::set_density_level_string(int imol, float dlevel) {
 void
 graphics_info_t::display_geometry_distance() {
 
-   CAtom *atom1 = molecules[geometry_atom_index_1_mol_no].atom_sel.atom_selection[geometry_atom_index_1];
-   CAtom *atom2 = molecules[geometry_atom_index_2_mol_no].atom_sel.atom_selection[geometry_atom_index_2];
+   mmdb::Atom *atom1 = molecules[geometry_atom_index_1_mol_no].atom_sel.atom_selection[geometry_atom_index_1];
+   mmdb::Atom *atom2 = molecules[geometry_atom_index_2_mol_no].atom_sel.atom_selection[geometry_atom_index_2];
       
    clipper::Coord_orth p1(atom1->x, atom1->y, atom1->z);
    clipper::Coord_orth p2(atom2->x, atom2->y, atom2->z);
@@ -2255,9 +2255,9 @@ void
 graphics_info_t::display_geometry_angle() const {
 
    /// old way, where we dont do symmetry atoms
-//    CAtom *atom1 = molecules[geometry_atom_index_1_mol_no].atom_sel.atom_selection[geometry_atom_index_1];
-//    CAtom *atom2 = molecules[geometry_atom_index_2_mol_no].atom_sel.atom_selection[geometry_atom_index_2];
-//    CAtom *atom3 = molecules[geometry_atom_index_3_mol_no].atom_sel.atom_selection[geometry_atom_index_3];
+//    mmdb::Atom *atom1 = molecules[geometry_atom_index_1_mol_no].atom_sel.atom_selection[geometry_atom_index_1];
+//    mmdb::Atom *atom2 = molecules[geometry_atom_index_2_mol_no].atom_sel.atom_selection[geometry_atom_index_2];
+//    mmdb::Atom *atom3 = molecules[geometry_atom_index_3_mol_no].atom_sel.atom_selection[geometry_atom_index_3];
       
    clipper::Coord_orth p1(angle_tor_pos_1.x(), angle_tor_pos_1.y(), angle_tor_pos_1.z());
    clipper::Coord_orth p2(angle_tor_pos_2.x(), angle_tor_pos_2.y(), angle_tor_pos_2.z());
@@ -2326,10 +2326,10 @@ graphics_info_t::set_angle_tors(int imol,
 
    bool r = 0;
    if (is_valid_model_molecule(imol)) { 
-      CAtom *at1 = molecules[imol].get_atom(as1);
-      CAtom *at2 = molecules[imol].get_atom(as2);
-      CAtom *at3 = molecules[imol].get_atom(as3);
-      CAtom *at4 = molecules[imol].get_atom(as4);
+      mmdb::Atom *at1 = molecules[imol].get_atom(as1);
+      mmdb::Atom *at2 = molecules[imol].get_atom(as2);
+      mmdb::Atom *at3 = molecules[imol].get_atom(as3);
+      mmdb::Atom *at4 = molecules[imol].get_atom(as4);
       if (! at1)
 	 std::cout << "   WARNING:: atom not found in molecule #"
 		   << imol << " " << as1 << std::endl;
@@ -2551,15 +2551,15 @@ graphics_info_t::add_vector_to_RotationCentre(const coot::Cartesian &vec) {
 
 
 // return NULL on not found:
-CAtom *
+mmdb::Atom *
 graphics_info_t::find_atom_in_moving_atoms(const coot::atom_spec_t &at) const {
 
-   CAtom *cat = NULL;
+   mmdb::Atom *cat = NULL;
    if (moving_atoms_asc->mol != NULL) { 
 
       int SelHnd = coot::get_selection_handle(moving_atoms_asc->mol, at);
       int nSelAtoms; 
-      PPCAtom local_SelAtom = NULL; 
+      mmdb::PPAtom local_SelAtom = NULL; 
       moving_atoms_asc->mol->GetSelIndex(SelHnd, local_SelAtom, nSelAtoms);
       if (nSelAtoms > 0)
 	 cat = local_SelAtom[0];
@@ -2627,8 +2627,8 @@ graphics_info_t::create_pointer_atom_molecule_maybe() const {
 
       // do we attach a model, chain etc here?
       // Yes.
-      CModel *model_p = new CModel;
-      CChain *chain_p = new CChain;
+      mmdb::Model *model_p = new mmdb::Model;
+      mmdb::Chain *chain_p = new mmdb::Chain;
    
       model_p->AddChain(chain_p);
       MMDBManager->AddModel(model_p);
@@ -2711,7 +2711,7 @@ graphics_info_t::start_baton_here() {
 // baton_next_ca_options) and display it.
 // 
 void
-graphics_info_t::baton_next_directions(int imol_for_skel, CAtom *latest_atom,
+graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_atom,
 				       const coot::Cartesian &baton_root,
 				       const clipper::Coord_grid &cg_start,
 				       short int use_cg_start) {
@@ -2805,8 +2805,8 @@ graphics_info_t::baton_build_atoms_molecule() const {
 
    // do we attach a model, chain etc here?
    // Yes.
-   CModel *model_p = new CModel;
-   CChain *chain_p = new CChain;
+   mmdb::Model *model_p = new mmdb::Model;
+   mmdb::Chain *chain_p = new mmdb::Chain;
    chain_p->SetChainID(baton_build_chain_id.c_str());
    
    model_p->AddChain(chain_p);
@@ -2858,7 +2858,7 @@ graphics_info_t::accept_baton_position() {
    // First add the atom to the baton build molecule
    //
    //
-   CAtom *baton_atom = NULL; // for baton_next_directions() usage?
+   mmdb::Atom *baton_atom = NULL; // for baton_next_directions() usage?
    int imol = baton_build_atoms_molecule();
    if (imol >= 0) {
       baton_atom = molecules[imol].add_baton_atom(baton_tip, 
@@ -3052,7 +3052,7 @@ graphics_info_t::baton_build_delete_last_residue() {
 
    int imol = baton_build_atoms_molecule();
    if (imol > -1) {
-      std::pair<short int, CAtom *> new_centre
+      std::pair<short int, mmdb::Atom *> new_centre
 	 = molecules[imol].baton_build_delete_last_residue();
       if (new_centre.first) {
 	 coot::Cartesian new_centre_cart(new_centre.second->x,
@@ -3174,8 +3174,8 @@ graphics_info_t::create_empty_molecule(const std::string &molname) {
 
    MyCMMDBManager *MMDBManager = new MyCMMDBManager();
 
-   CModel *model_p = new CModel;
-   CChain *chain_p = new CChain;
+   mmdb::Model *model_p = new mmdb::Model;
+   mmdb::Chain *chain_p = new mmdb::Chain;
    
    model_p->AddChain(chain_p);
    MMDBManager->AddModel(model_p);
@@ -3527,7 +3527,7 @@ graphics_info_t::rama_plot_for_single_phi_psi(int imol, int atom_index) {
 
       // construct label:
       std::string label;
-      CAtom *at = molecules[imol].atom_sel.atom_selection[atom_index];
+      mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[atom_index];
       int resno            = at->GetSeqNum();
       std::string chain_id = at->GetChainID();
       label = int_to_string(resno);
@@ -3555,7 +3555,7 @@ graphics_info_t::rama_plot_for_2_phi_psis(int imol, int atom_index) {
 
       // construct label:
       std::string label;
-      CAtom *at = molecules[imol].atom_sel.atom_selection[atom_index];
+      mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[atom_index];
       int resno            = at->GetSeqNum();
       std::string chain_id = at->GetChainID();
       label = int_to_string(resno);
@@ -3764,11 +3764,11 @@ graphics_info_t::setup_flash_bond_internal(int i_torsion_index) {
       if (moving_atoms_asc->n_selected_atoms == 0) {
 	 std::cout << "ERROR: no atoms in moving_atoms_asc" << std::endl;
       } else { 
-	 CModel *model_p = moving_atoms_asc->mol->GetModel(1);
+	 mmdb::Model *model_p = moving_atoms_asc->mol->GetModel(1);
 	 if (model_p) {
-	    CChain *chain_p = model_p->GetChain(0);
+	    mmdb::Chain *chain_p = model_p->GetChain(0);
 	    if (chain_p) {
-	       CResidue *residue_p = chain_p->GetResidue(0);
+	       mmdb::Residue *residue_p = chain_p->GetResidue(0);
 	       if (residue_p) {
 
 		  std::string residue_type(residue_p->GetResName());
@@ -3791,7 +3791,7 @@ graphics_info_t::setup_flash_bond_internal(int i_torsion_index) {
 			if ((atom_names.first != "") &&
 			    (atom_names.second != "")) {
 		     
-			   PPCAtom residue_atoms;
+			   mmdb::PPAtom residue_atoms;
 			   int nResidueAtoms;
 			   residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
 		     
@@ -5245,7 +5245,7 @@ graphics_info_t::measure_lsq_plane_deviant_atom(int imol, int atom_index) {
 
    int r = 0;
    if (molecules[imol].has_model()) {
-      CAtom *at = molecules[imol].atom_sel.atom_selection[atom_index];
+      mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[atom_index];
       clipper::Coord_orth p(at->x, at->y, at->z);
 
       if (lsq_plane_atom_positions->size() > 2) {
@@ -5283,7 +5283,7 @@ int
 graphics_info_t::add_lsq_plane_atom(int imol, int atom_index) {
 
    if (molecules[imol].has_model()) {
-      CAtom *at = molecules[imol].atom_sel.atom_selection[atom_index];
+      mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[atom_index];
       clipper::Coord_orth p(at->x, at->y, at->z);
       std::string s("Added plane atom ");
       s += at->name;

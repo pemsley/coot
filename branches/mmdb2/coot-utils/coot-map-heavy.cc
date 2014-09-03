@@ -35,7 +35,7 @@
 // return status success (something moved = 1) or error/failure (0)
 //
 int
-coot::util::fit_to_map_by_simplex_rigid(PPCAtom atom_selection,
+coot::util::fit_to_map_by_simplex_rigid(mmdb::PPAtom atom_selection,
 					int n_selected_atoms,
 					const clipper::Xmap<float> &xmap) { 
 
@@ -123,7 +123,7 @@ coot::util::fit_to_map_by_simplex_rigid(PPCAtom atom_selection,
 // internal simplex setup function:
 void 
 coot::util::setup_simplex_x_internal_rigid(gsl_vector *x,
-					   PPCAtom atom_selection,
+					   mmdb::PPAtom atom_selection,
 					   int n_selected_atoms) {
 
    // unnecessary, I think.  All rots and trans angles are set to 0.
@@ -244,7 +244,7 @@ coot::util::z_weighted_density_at_point(const clipper::Coord_orth &pt,
 }
 
 float
-coot::util::z_weighted_density_score(const std::vector<CAtom *> &atoms,
+coot::util::z_weighted_density_score(const std::vector<mmdb::Atom *> &atoms,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
 				     const clipper::Xmap<float> &map) {
    float sum_d = 0;
@@ -271,12 +271,12 @@ coot::util::z_weighted_density_score(const minimol::molecule &mol,
 }
 
 float
-coot::util::z_weighted_density_score_new(const std::vector<std::pair<CAtom *, float> > &atom_atom_number_pairs,
+coot::util::z_weighted_density_score_new(const std::vector<std::pair<mmdb::Atom *, float> > &atom_atom_number_pairs,
 					 const clipper::Xmap<float> &map) {
 
    float sum_d = 0;
    for (unsigned int iat=0; iat<atom_atom_number_pairs.size(); iat++) {
-      const CAtom *at = atom_atom_number_pairs[iat].first;
+      const mmdb::Atom *at = atom_atom_number_pairs[iat].first;
       clipper::Coord_orth co(at->x, at->y, at->z);
       float d = coot::util::density_at_point(map, co) * atom_atom_number_pairs[iat].second;
       sum_d += d;
@@ -324,8 +324,8 @@ coot::util::score_atoms(const minimol::residue &residue,
 
 // annealing_factor is default arg 1.0
 // 
-std::pair<clipper::RTop_orth, std::vector<CAtom> >
-coot::util::jiggle_atoms(const std::vector<CAtom *> &atoms,
+std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> >
+coot::util::jiggle_atoms(const std::vector<mmdb::Atom *> &atoms,
 			 const clipper::Coord_orth &centre_pt,
 			 float jiggle_trans_scale_factor,
 			 float annealing_factor) {
@@ -335,7 +335,7 @@ coot::util::jiggle_atoms(const std::vector<CAtom *> &atoms,
 
    clipper::RTop_orth rtop = make_rtop_orth_for_jiggle_atoms(jiggle_trans_scale_factor,
 							     annealing_factor);
-   std::vector<CAtom> new_atoms(atoms.size());
+   std::vector<mmdb::Atom> new_atoms(atoms.size());
    for (unsigned int i=0; i<atoms.size(); i++) { 
       new_atoms[i].Copy(atoms[i]);
    }
@@ -351,7 +351,7 @@ coot::util::jiggle_atoms(const std::vector<CAtom *> &atoms,
       new_atoms[i].y = new_pt.y();
       new_atoms[i].z = new_pt.z();
    }
-   return std::pair<clipper::RTop_orth, std::vector<CAtom> > (rtop, new_atoms);
+   return std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > (rtop, new_atoms);
 }
 
 // We want to pass atoms of the same type as we get back (so that they
@@ -360,13 +360,13 @@ coot::util::jiggle_atoms(const std::vector<CAtom *> &atoms,
 // 
 // annealing_factor is default arg 1.0
 // 
-std::pair<clipper::RTop_orth, std::vector<CAtom> >
-coot::util::jiggle_atoms(const std::vector<CAtom > &atoms,
+std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> >
+coot::util::jiggle_atoms(const std::vector<mmdb::Atom > &atoms,
 			 const clipper::Coord_orth &centre_pt,
 			 float jiggle_trans_scale_factor,
 			 float annealing_factor) {
 
-   std::vector<CAtom> new_atoms(atoms.size());
+   std::vector<mmdb::Atom> new_atoms(atoms.size());
    // now apply rtop to atoms (shift the atoms relative to the
    // centre_pt before doing the wiggle
    clipper::RTop_orth rtop = make_rtop_orth_for_jiggle_atoms(jiggle_trans_scale_factor, annealing_factor);
@@ -380,7 +380,7 @@ coot::util::jiggle_atoms(const std::vector<CAtom > &atoms,
       new_atoms[i].y = new_pt.y();
       new_atoms[i].z = new_pt.z();
    }
-   return std::pair<clipper::RTop_orth, std::vector<CAtom> > (rtop, new_atoms);
+   return std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > (rtop, new_atoms);
 }
 
 clipper::RTop_orth

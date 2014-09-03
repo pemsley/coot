@@ -118,7 +118,7 @@ molecule_class_info_t::make_ribbons() {
   molHnd->GetMolBonds();
   molHnd->GetModel(1)->CalcSecStructure(0);
   int nSelAtoms;
-  PPCAtom selAtoms=0;
+  mmdb::PPAtom selAtoms=0;
 
   molHnd->GetSelIndex(selHnd,selAtoms,nSelAtoms);
 

@@ -39,8 +39,8 @@ molecule_class_info_t::add_extra_bond_restraint(coot::atom_spec_t atom_1,
 						coot::atom_spec_t atom_2,
 						double bond_dist, double esd) {
    int r = -1; // unset
-   CAtom *at_1 = get_atom(atom_1);
-   CAtom *at_2 = get_atom(atom_2);
+   mmdb::Atom *at_1 = get_atom(atom_1);
+   mmdb::Atom *at_2 = get_atom(atom_2);
    if (at_1) {
       int atom_index = -1;
       at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
@@ -146,14 +146,14 @@ molecule_class_info_t::delete_extra_restraints_worse_than(const double &n_sigma)
 
    std::vector<coot::extra_restraints_t::extra_bond_restraint_t> ebrv_l;
 
-   std::map<coot::atom_spec_t, CAtom *> atom_map;
-   std::map<coot::atom_spec_t, CAtom *>::const_iterator it_1;
-   std::map<coot::atom_spec_t, CAtom *>::const_iterator it_2;
+   std::map<coot::atom_spec_t, mmdb::Atom *> atom_map;
+   std::map<coot::atom_spec_t, mmdb::Atom *>::const_iterator it_1;
+   std::map<coot::atom_spec_t, mmdb::Atom *>::const_iterator it_2;
    // first fill the dist_map and fill the atom_map as you do so.
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
       coot::extra_restraints_t::extra_bond_restraint_t &br = extra_restraints.bond_restraints[i];
-      CAtom *at_1 = NULL;
-      CAtom *at_2 = NULL;
+      mmdb::Atom *at_1 = NULL;
+      mmdb::Atom *at_2 = NULL;
       it_1 = atom_map.find(br.atom_1);
       it_2 = atom_map.find(br.atom_2);
       if (it_1 == atom_map.end()) {
@@ -234,7 +234,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 			     "*", // elements
 			     "*"); // alt locs
    int nSelAtoms;
-   PPCAtom SelAtom; 
+   mmdb::PPAtom SelAtom; 
    atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 
    // bonded_neighbours in this case, means bonded or angle-related
@@ -263,8 +263,8 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
    if (n_contacts > 0) {
       if (pscontact) {
 	 for (int i=0; i<n_contacts; i++) {
-	    CAtom *at_1 = SelAtom[pscontact[i].id1];
-	    CAtom *at_2 = SelAtom[pscontact[i].id2];
+	    mmdb::Atom *at_1 = SelAtom[pscontact[i].id1];
+	    mmdb::Atom *at_2 = SelAtom[pscontact[i].id2];
 	    std::string ele_1 = at_1->element;
 	    std::string ele_2 = at_2->element;
 	    if (ele_1 != " H" && ele_2 != " H") { 
@@ -357,10 +357,10 @@ molecule_class_info_t::add_extra_torsion_restraint(coot::atom_spec_t atom_1,
 						   coot::atom_spec_t atom_4,
 						   double torsion_angle, double esd, int period) {
 
-   CAtom *at_1 = get_atom(atom_1);
-   CAtom *at_2 = get_atom(atom_2);
-   CAtom *at_3 = get_atom(atom_3);
-   CAtom *at_4 = get_atom(atom_4);
+   mmdb::Atom *at_1 = get_atom(atom_1);
+   mmdb::Atom *at_2 = get_atom(atom_2);
+   mmdb::Atom *at_3 = get_atom(atom_3);
+   mmdb::Atom *at_4 = get_atom(atom_4);
    if (at_1) {
       int atom_index = -1;
       at_1->GetUDData(atom_sel.UDDAtomIndexHandle, atom_index); // set atom_index
@@ -394,32 +394,32 @@ int
 molecule_class_info_t::morph_fit_all(const clipper::Xmap<float> &xmap_in, float transformation_average_radius) {
 
    int imod = 1;
-   CModel *model_p = atom_sel.mol->GetModel(imod);
-   CChain *chain_p;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   mmdb::Chain *chain_p;
    int n_neighb=2; // either side of central residue
    int n_chains = model_p->GetNumberOfChains();
 
    // the central residue and it's upstream and downstream neighbours (if it has them)
-   std::vector<std::pair<CResidue *, std::vector<CResidue *> > > moving_residues;
+   std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Residue *> > > moving_residues;
    
    for (int ichain=0; ichain<n_chains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
 
       for (int ires=0; ires<nres; ires++) { // residue-in-chain loop
-	 std::vector<CResidue *> v; // up and downstream neighbours
+	 std::vector<mmdb::Residue *> v; // up and downstream neighbours
 
 	 for (int ifragres=-n_neighb; ifragres<=n_neighb; ifragres++) {
 	    if (ifragres != 0) {
 	       int idx = ires+ifragres;
 	       if ((idx >=0) && (idx<nres)) { 
-		  CResidue *r = chain_p->GetResidue(idx);
+		  mmdb::Residue *r = chain_p->GetResidue(idx);
 		  if (r)
 		     v.push_back(r);
 	       }
 	    }
 	 }
-	 std::pair<CResidue *, std::vector<CResidue *> > p(chain_p->GetResidue(ires), v);
+	 std::pair<mmdb::Residue *, std::vector<mmdb::Residue *> > p(chain_p->GetResidue(ires), v);
 	 moving_residues.push_back(p);
       }
    }
@@ -431,32 +431,32 @@ molecule_class_info_t::morph_fit_chain(const std::string &chain_id,
 				       const clipper::Xmap<float> &xmap_in, float transformation_average_radius) {
 
    int imod = 1;
-   CModel *model_p = atom_sel.mol->GetModel(imod);
-   CChain *chain_p;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   mmdb::Chain *chain_p;
    int n_neighb=2; // either side of central residue
    int n_chains = model_p->GetNumberOfChains();
 
    // the central residue and it's upstream and downstream neighbours (if it has them)
-   std::vector<std::pair<CResidue *, std::vector<CResidue *> > > moving_residues;
+   std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Residue *> > > moving_residues;
    
    for (int ichain=0; ichain<n_chains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       if (std::string(chain_p->GetChainID()) == chain_id) { 
 	 int nres = chain_p->GetNumberOfResidues();
 	 for (int ires=0; ires<nres; ires++) { // residue-in-chain loop
-	    std::vector<CResidue *> v; // up and downstream neighbours
+	    std::vector<mmdb::Residue *> v; // up and downstream neighbours
 	    
 	    for (int ifragres=-n_neighb; ifragres<=n_neighb; ifragres++) {
 	       if (ifragres != 0) {
 		  int idx = ires+ifragres;
 		  if ((idx >=0) && (idx<nres)) { 
-		     CResidue *r = chain_p->GetResidue(idx);
+		     mmdb::Residue *r = chain_p->GetResidue(idx);
 		     if (r)
 			v.push_back(r);
 		  }
 	       }
 	    }
-	    std::pair<CResidue *, std::vector<CResidue *> > p(chain_p->GetResidue(ires), v);
+	    std::pair<mmdb::Residue *, std::vector<mmdb::Residue *> > p(chain_p->GetResidue(ires), v);
 	    moving_residues.push_back(p);
 	 }
       }
@@ -470,13 +470,13 @@ molecule_class_info_t::morph_fit_residues(const std::vector<coot::residue_spec_t
 					  const clipper::Xmap<float> &xmap_in, float transformation_average_radius) {
 
    // fill this from specs:
-   std::vector<std::pair<CResidue *, std::vector<CResidue *> > > moving_residues;
+   std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Residue *> > > moving_residues;
    for (unsigned int i=0; i<residue_specs.size(); i++) { 
-      CResidue *r = get_residue(residue_specs[i]);
+      mmdb::Residue *r = get_residue(residue_specs[i]);
       if (r) { 
-	 std::vector<CResidue *> env_residues =
+	 std::vector<mmdb::Residue *> env_residues =
 	    coot::residues_near_residue(r, atom_sel.mol, transformation_average_radius);
-	 std::pair<CResidue *, std::vector<CResidue *> > p(r, env_residues);
+	 std::pair<mmdb::Residue *, std::vector<mmdb::Residue *> > p(r, env_residues);
 	 moving_residues.push_back(p);
       }
    }
@@ -485,7 +485,7 @@ molecule_class_info_t::morph_fit_residues(const std::vector<coot::residue_spec_t
 
 
 int
-molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std::vector<CResidue *> > > moving_residues,
+molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Residue *> > > moving_residues,
 					  const clipper::Xmap<float> &xmap_in, float transformation_average_radius) {
 
    int success = 0;
@@ -493,12 +493,12 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std:
    // construct minimol fragments 
 
    // store the local origin too.
-   std::map<CResidue *, morph_rtop_triple> rtop_map;
+   std::map<mmdb::Residue *, morph_rtop_triple> rtop_map;
 
    for (unsigned int ires=0; ires<moving_residues.size(); ires++) {
       
-      std::vector<CResidue *> fragment_residues;
-      CResidue *residue_p = moving_residues[ires].first;
+      std::vector<mmdb::Residue *> fragment_residues;
+      mmdb::Residue *residue_p = moving_residues[ires].first;
       std::pair<bool, clipper::Coord_orth> local_centre = residue_centre(residue_p);
       if (local_centre.first) { 
 	 std::cout << "\rINFO:: Getting RTops for " << coot::residue_spec_t(residue_p);
@@ -506,7 +506,7 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std:
 
 	 fragment_residues.push_back(moving_residues[ires].first);
 	 for (unsigned int ires_l=0; ires_l<moving_residues[ires].second.size(); ires_l++) {
-	    CResidue *r = moving_residues[ires].second[ires_l];
+	    mmdb::Residue *r = moving_residues[ires].second[ires_l];
 	    fragment_residues.push_back(r);
 	 }
 	 coot::minimol::fragment f;
@@ -539,17 +539,17 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std:
       std::cout << std::endl; // for \r RTop specs
    }
 
-   std::map<CResidue *, morph_rtop_triple>::const_iterator it;
+   std::map<mmdb::Residue *, morph_rtop_triple>::const_iterator it;
    // std::cout << "rtop_map.size(): " << rtop_map.size() << std::endl;
    if (rtop_map.size()) {
       success = 1;
       make_backup();
 
-      std::map<CResidue *, morph_rtop_triple> simple_shifts;
-      std::map<CResidue *, morph_rtop_triple> smooth_shifts;
+      std::map<mmdb::Residue *, morph_rtop_triple> simple_shifts;
+      std::map<mmdb::Residue *, morph_rtop_triple> smooth_shifts;
       
       for (it=rtop_map.begin(); it!=rtop_map.end(); it++) {
-	 CResidue *this_residue = it->first;
+	 mmdb::Residue *this_residue = it->first;
 	 if (it->second.valid) {
 
 	    // Morphing step is super-fast
@@ -559,11 +559,11 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std:
 	    std::vector<std::pair<clipper::RTop_orth, float> > rtops;
 	    // std::cout << "this residue:\n" << it->second.second.format() << std::endl;
 	    rtops.push_back(std::pair<clipper::RTop_orth,float>(it->second.rtop, 1));
- 	    std::vector<CResidue *> neighb_residues =
+ 	    std::vector<mmdb::Residue *> neighb_residues =
  	       coot::residues_near_residue(this_residue, atom_sel.mol, transformation_average_radius);
 
   	    for (unsigned int i_n_res=0; i_n_res<neighb_residues.size(); i_n_res++) { 
-	       std::map<CResidue *, morph_rtop_triple>::const_iterator it_for_neighb =
+	       std::map<mmdb::Residue *, morph_rtop_triple>::const_iterator it_for_neighb =
 		  rtop_map.find(neighb_residues[i_n_res]);
 	       if (it_for_neighb != rtop_map.end()) { 
 		  if (it_for_neighb->second.valid) {
@@ -624,15 +624,15 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<CResidue *, std:
 //
 // This doesn't do backups or unsaved changes marking of course.
 void
-molecule_class_info_t::morph_residue_atoms_by_average_rtops(CResidue *residue_p,
+molecule_class_info_t::morph_residue_atoms_by_average_rtops(mmdb::Residue *residue_p,
 							    const std::vector<std::pair<clipper::RTop_orth, float> > &rtops) {
 
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    if (rtops.size()) { 
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	 CAtom *at = residue_atoms[iat];
+	 mmdb::Atom *at = residue_atoms[iat];
 	 clipper::Coord_orth pt(at->x, at->y, at->z);
 	 clipper::Coord_orth sum_transformed_pts(0,0,0);
 	 double sum_weights = 0.0;
@@ -658,12 +658,12 @@ molecule_class_info_t::morph_residue_atoms_by_average_rtops(CResidue *residue_p,
 
 
 void
-molecule_class_info_t::morph_show_shifts(const std::map<CResidue *, morph_rtop_triple> &simple_shifts,
-					 const std::map<CResidue *, morph_rtop_triple> &smooth_shifts) const {
+molecule_class_info_t::morph_show_shifts(const std::map<mmdb::Residue *, morph_rtop_triple> &simple_shifts,
+					 const std::map<mmdb::Residue *, morph_rtop_triple> &smooth_shifts) const {
 
    // write a file
    
-   std::map<CResidue *, morph_rtop_triple>::const_iterator it;
+   std::map<mmdb::Residue *, morph_rtop_triple>::const_iterator it;
    std::ofstream f("morph-shifts.scm");
 
    std::string ss;
@@ -677,9 +677,9 @@ molecule_class_info_t::morph_show_shifts(const std::map<CResidue *, morph_rtop_t
    f << ss << "\n";
 
    for (it=simple_shifts.begin(); it!=simple_shifts.end(); it++) {
-      CResidue *r = it->first;
+      mmdb::Residue *r = it->first;
       std::pair<bool, clipper::Coord_orth> rc = residue_centre(r);
-      CAtom *C_alpha = r->GetAtom(" CA ");
+      mmdb::Atom *C_alpha = r->GetAtom(" CA ");
       if (! C_alpha)
 	 C_alpha = r->GetAtom(" P  ");
       if (C_alpha) {
@@ -732,9 +732,9 @@ molecule_class_info_t::morph_show_shifts(const std::map<CResidue *, morph_rtop_t
       }
    }
    for (it=smooth_shifts.begin(); it!=smooth_shifts.end(); it++) {
-      CResidue *r = it->first;
+      mmdb::Residue *r = it->first;
       std::pair<bool, clipper::Coord_orth> rc = residue_centre(r);
-      CAtom *C_alpha = r->GetAtom(" CA ");
+      mmdb::Atom *C_alpha = r->GetAtom(" CA ");
       if (! C_alpha)
 	 C_alpha = r->GetAtom(" P  ");
       if (C_alpha) {
@@ -800,7 +800,7 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
    bool simple_move = false;
    
    if (atom_sel.mol) {
-      CModel *model_p = atom_sel.mol->GetModel(imodel);
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imodel);
       if (model_p) {
 
 	 make_backup();
@@ -812,13 +812,13 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 	 PCSheet sheet_p;
 	 PCStrand strand_p;
 
-	 CChain *chain_p = model_p->GetChain(chain_id.c_str());
+	 mmdb::Chain *chain_p = model_p->GetChain(chain_id.c_str());
 	 if (chain_p) { 
 
 	    // store the RTops for some residues (we also need the
 	    // local around which the rtop_orth is performed)
 	    // 
-	    std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtop_map; 
+	    std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtop_map; 
 
 	    std::cout << "INFO:: " << nhelix << " helices" << std::endl;
 	    std::cout << "INFO:: " << nsheet << " sheets"  << std::endl;
@@ -827,11 +827,11 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 	       helix_p = model_p->GetHelix(ih);
 	       if (helix_p) {
 
-		  std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtops_fragment = 
+		  std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtops_fragment = 
 		     fit_by_secondary_structure_fragment(chain_p, chain_id, helix_p->initSeqNum, helix_p->endSeqNum,
 							 xmap_in, simple_move);
 		  // add rtops_fragment bits to overall rtops_map;
-		  std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it;
+		  std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it;
 		  for (it=rtops_fragment.begin(); it!=rtops_fragment.end(); it++)
 		     rtop_map[it->first] = it->second;
 
@@ -856,14 +856,14 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 		     
 		     if (std::string(strand_p->initChainID) == chain_id) {
 			if (std::string(strand_p->endChainID) == chain_id) {
-			   std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtops_fragment = 
+			   std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtops_fragment = 
 			      fit_by_secondary_structure_fragment(chain_p, chain_id,
 								  strand_p->initSeqNum,
 								  strand_p->endSeqNum,
 								  xmap_in, simple_move);
 
 			   // add rtops_fragment bits to overall rtops_map;
-			   std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it;
+			   std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it;
 			   for (it=rtops_fragment.begin(); it!=rtops_fragment.end(); it++)
 			      rtop_map[it->first] = it->second;
 			}
@@ -880,25 +880,25 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 	    // The residues in a given SSE all have the same RTop_orth.
 	    //
 	    int nres = chain_p->GetNumberOfResidues();
-	    CResidue *residue_p;
-	    CAtom *at;
-	    std::map<CResidue *, clipper::Coord_orth> residue_centres;
+	    mmdb::Residue *residue_p;
+	    mmdb::Atom *at;
+	    std::map<mmdb::Residue *, clipper::Coord_orth> residue_centres;
 	    for (int ires=0; ires<nres; ires++) {
 
 	       residue_p = chain_p->GetResidue(ires);
-	       std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it_ss =
+	       std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it_ss =
 		  rtop_map.find(residue_p);
 	       if (it_ss != rtop_map.end()) {
 		  
 		  // OK this was a residue in a SSE.  We know how to move these atoms (i.e. use their own
 		  // RTop, not morphing). This block is what Israel Sanchez-Fernandez wanted.
 		  // 
-		  PPCAtom residue_atoms = 0;
+		  mmdb::PPAtom residue_atoms = 0;
 		  int n_residue_atoms;
 		  residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 		  clipper::Coord_orth centre = it_ss->second.first;
 		  for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-		     CAtom *at = residue_atoms[iat];
+		     mmdb::Atom *at = residue_atoms[iat];
 		     clipper::Coord_orth pt_1 = coot::co(at);
 		     clipper::Coord_orth pt_2 = pt_1 - centre;
 		     clipper::Coord_orth pt_3 = pt_2.transform(it_ss->second.second);
@@ -932,7 +932,7 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 		  // get the centre of the environment residues from
 		  // the cache (if not in the cache, add them to the
 		  // cache).
-		  std::vector<CResidue *> env_residues =
+		  std::vector<mmdb::Residue *> env_residues =
 		     coot::residues_near_residue(residue_p, atom_sel.mol, local_radius);
 		  for (unsigned int ires=0; ires<env_residues.size(); ires++) { 
 		     if (residue_centres.find(env_residues[ires]) == residue_centres.end()) {
@@ -949,7 +949,7 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 		     // std::tuple<clipper::RTop_orth, clipper::Coord_orth, float> 
 		     std::vector<atom_morph_info_t> rtops_for_atom;
 		     for (unsigned int ier=0; ier<env_residues.size(); ier++) { 
-			std::map<CResidue *, clipper::Coord_orth>::const_iterator it;
+			std::map<mmdb::Residue *, clipper::Coord_orth>::const_iterator it;
 			it = residue_centres.find(env_residues[ier]);
 			if (it != residue_centres.end()) {
 			   const clipper::Coord_orth &pt_e_r = it->second;
@@ -957,7 +957,7 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 			   if (d_sqrd < 1.0) d_sqrd = 1.0;
 			   double d = sqrt(d_sqrd);
 			   double w = 1.0/d;
-			   std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it_rtop =
+			   std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it_rtop =
 			      rtop_map.find(env_residues[ier]);
 			   if (it_rtop != rtop_map.end()) { 
 			      atom_morph_info_t t(it_rtop->second.second, pt_e_r, w);
@@ -997,8 +997,8 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
    return status;
 }
 
-std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >
-molecule_class_info_t::fit_by_secondary_structure_fragment(CChain *chain_p,
+std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >
+molecule_class_info_t::fit_by_secondary_structure_fragment(mmdb::Chain *chain_p,
 							   const std::string &chain_id,
 							   int initSeqNum,
 							   int endSeqNum,
@@ -1006,12 +1006,12 @@ molecule_class_info_t::fit_by_secondary_structure_fragment(CChain *chain_p,
 							   bool simple_move) {
 
    
-   std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtop_map;
+   std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtop_map;
    
    coot::minimol::fragment f(chain_id);
-   std::vector<CResidue *> added_residues;
+   std::vector<mmdb::Residue *> added_residues;
    for (int res_no=initSeqNum; res_no<=endSeqNum; res_no++) {
-      CResidue *residue_p = chain_p->GetResidue(res_no, "");
+      mmdb::Residue *residue_p = chain_p->GetResidue(res_no, "");
       if (residue_p) { 
 	 f.addresidue(coot::minimol::residue(residue_p), false);
 	 added_residues.push_back(residue_p);

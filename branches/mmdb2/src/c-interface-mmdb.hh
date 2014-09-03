@@ -40,7 +40,7 @@ SCM display_scm(SCM o);
 
 #ifdef USE_PYTHON
 CMMDBManager * mmdb_manager_from_python_expression(PyObject *molecule_expression);
-std::deque<CModel *> mmdb_models_from_python_expression(PyObject *molecule_expression);
+std::deque<mmdb::Model *> mmdb_models_from_python_expression(PyObject *molecule_expression);
 #endif // PYTHON
 #endif 
 

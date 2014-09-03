@@ -5016,7 +5016,7 @@ void on_go_to_atom_atom_list_selection_changed_gtk1(GtkList         *atom_gtklis
 	 //       std::cout << "DEBUG:: buton_label " << item_data->button_label << std::endl;
 
 	 if (item_data) { 
-	    CAtom *at = item_data->atom;
+	    mmdb::Atom *at = item_data->atom;
 
 	    // Try looking up at in g.go_to_atom_molecule() here?
 	    if (at) {

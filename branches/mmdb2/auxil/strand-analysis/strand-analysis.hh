@@ -36,7 +36,7 @@ namespace coot {
 
    stats_t get_rtop_and_apply(const std::vector<clipper::Coord_orth> &found_atoms_strand_1,
 			      const std::vector<clipper::Coord_orth> &found_atoms_strand_2,
-			      PPCResidue SelResidues2, int nSelResidues2);
+			      mmdb::PPResidue SelResidues2, int nSelResidues2);
 
    class strand_info_t {
    public: 
@@ -64,7 +64,7 @@ namespace coot {
 		      CMMDBManager *mol,
 		      CStrand *strand,
 		      int SelectionHandle);
-      void strand_analysis(CModel *model_p,
+      void strand_analysis(mmdb::Model *model_p,
 			   CMMDBManager *mol,
 			   const std::string &filename);
 

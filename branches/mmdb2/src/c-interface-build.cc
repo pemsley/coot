@@ -293,10 +293,10 @@ add_ligand_delete_residue_copy_molecule(int imol_ligand_new,
 		   << " is not a valid molecule" << std::endl;
       } else { 
 	 graphics_info_t g;
-	 CResidue *res_ligand_new =
+	 mmdb::Residue *res_ligand_new =
 	    g.molecules[imol_ligand_new].get_residue(chain_id_ligand_new,
 						     res_no_ligand_new, "");
-	 CResidue *res_ligand_current =
+	 mmdb::Residue *res_ligand_current =
 	    g.molecules[imol_current].get_residue(chain_id_ligand_current,
 						  res_no_ligand_current, "");
 	 if (!res_ligand_current || !res_ligand_new) {
@@ -316,15 +316,15 @@ add_ligand_delete_residue_copy_molecule(int imol_ligand_new,
 	    // now find the residue in imol_ligand_current.
 	    // and replace its atoms.
 	    int imodel = 1;
-	    CModel *model_p = n->GetModel(imodel);
-	    CChain *chain_p;
+	    mmdb::Model *model_p = n->GetModel(imodel);
+	    mmdb::Chain *chain_p;
 	    int nchains = model_p->GetNumberOfChains();
 	    for (int ichain=0; ichain<nchains; ichain++) {
 	       chain_p = model_p->GetChain(ichain);
 	       if (! strncmp(chain_id_ligand_current, chain_p->GetChainID(), 4)) {
 		  int nres = chain_p->GetNumberOfResidues();
-		  CResidue *residue_p;
-		  CAtom *at;
+		  mmdb::Residue *residue_p;
+		  mmdb::Atom *at;
 		  for (int ires=0; ires<nres; ires++) {
 		     residue_p = chain_p->GetResidue(ires);
 		     if (residue_p->GetSeqNum() == res_no_ligand_current) {
@@ -339,7 +339,7 @@ add_ligand_delete_residue_copy_molecule(int imol_ligand_new,
 
 			n_atoms = res_ligand_new->GetNumberOfAtoms();
 			for (int iat=0; iat<n_atoms; iat++) {
-			   CAtom *at_copy = new CAtom;
+			   mmdb::Atom *at_copy = new mmdb::Atom;
 			   at_copy->Copy(res_ligand_new->GetAtom(iat));
 			   residue_p->AddAtom(at_copy);
 			}
@@ -421,12 +421,12 @@ int copy_residue_range(int imol_target,    const char *chain_id_target,
 	 std::cout << "WARNING:: not a valid model molecule " 
 		   << imol_reference << std::endl;
       } else { 
-	 CChain *chain_p = graphics_info_t::molecules[imol_reference].get_chain(chain_id_reference);
+	 mmdb::Chain *chain_p = graphics_info_t::molecules[imol_reference].get_chain(chain_id_reference);
 	 if (! chain_p) { 
 	    std::cout << "WARNING:: not chain " << chain_id_reference << " in molecule " 
 		      << imol_reference << std::endl;
 	 } else { 
-	    CChain *chain_pt = graphics_info_t::molecules[imol_target].get_chain(chain_id_target);
+	    mmdb::Chain *chain_pt = graphics_info_t::molecules[imol_target].get_chain(chain_id_target);
 	    if (! chain_pt) { 
 	       std::cout << "WARNING:: not chain " << chain_id_target << " in molecule " 
 			 << imol_target << std::endl;
@@ -663,7 +663,7 @@ int add_terminal_residue(int imol,
 	 if (atom_indx >= 0) {
 	    std::string term_type = g.molecules[imol].get_term_type(atom_indx);
 	    std::string inscode = "";
-	    CResidue *res_p =
+	    mmdb::Residue *res_p =
 	       g.molecules[imol].residue_from_external(residue_number, inscode,
 						       std::string(chain_id));
 
@@ -837,7 +837,7 @@ void delete_residue(int imol, const char *chain_id, int resno, const char *insco
 
    if (is_valid_model_molecule(imol)) { 
       graphics_info_t g;
-      int model_number_ANY = MinInt4;
+      int model_number_ANY = mmdb::MinInt4;
       short int istat =
 	 g.molecules[imol].delete_residue(model_number_ANY, chain_id, resno,
 					  std::string(inscode));
@@ -945,7 +945,7 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
    graphics_info_t g;
 
    if (is_valid_model_molecule(imol)) { 
-      CResidue *residue_p =
+      mmdb::Residue *residue_p =
 	 graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
       if (residue_p) {
 	 graphics_info_t g;
@@ -1313,10 +1313,10 @@ regularize_residues(int imol, const std::vector<coot::residue_spec_t> &residue_s
    std::string alt_conf;
    if (is_valid_model_molecule(imol)) {
       if (residue_specs.size() > 0) {
-	 std::vector<CResidue *> residues;
+	 std::vector<mmdb::Residue *> residues;
 	 for (unsigned int i=0; i<residue_specs.size(); i++) {
 	    coot::residue_spec_t rs = residue_specs[i];
-	    CResidue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
 	    if (r) {
 	       residues.push_back(r);
 	    }
@@ -1355,10 +1355,10 @@ refine_residues_with_alt_conf(int imol, const std::vector<coot::residue_spec_t> 
    coot::refinement_results_t rr;
    if (is_valid_model_molecule(imol)) {
       if (residue_specs.size() > 0) {
-	 std::vector<CResidue *> residues;
+	 std::vector<mmdb::Residue *> residues;
 	 for (unsigned int i=0; i<residue_specs.size(); i++) {
 	    coot::residue_spec_t rs = residue_specs[i];
-	    CResidue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
 	    if (r) {
 	       residues.push_back(r);
 	    }
@@ -1410,10 +1410,10 @@ SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf)
       std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(r);
 
       if (residue_specs.size() > 0) {
-	 std::vector<CResidue *> residues;
+	 std::vector<mmdb::Residue *> residues;
 	 for (unsigned int i=0; i<residue_specs.size(); i++) {
 	    coot::residue_spec_t rs = residue_specs[i];
-	    CResidue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
 	    if (r) {
 	       residues.push_back(r);
 	    }
@@ -1473,10 +1473,10 @@ PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r, const char *al
      std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(r);
 
       if (residue_specs.size() > 0) {
-        std::vector<CResidue *> residues;
+        std::vector<mmdb::Residue *> residues;
         for (unsigned int i=0; i<residue_specs.size(); i++) {
           coot::residue_spec_t rs = residue_specs[i];
-          CResidue *r = graphics_info_t::molecules[imol].get_residue(rs);
+          mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
           if (r) {
             residues.push_back(r);
           }
@@ -1516,10 +1516,10 @@ PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char
       std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(r);
 
       if (residue_specs.size() > 0) {
-	 std::vector<CResidue *> residues;
+	 std::vector<mmdb::Residue *> residues;
 	 for (unsigned int i=0; i<residue_specs.size(); i++) {
 	    coot::residue_spec_t rs = residue_specs[i];
-	    CResidue *r = graphics_info_t::molecules[imol].get_residue(rs);
+	    mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
 	    if (r) {
 	       residues.push_back(r);
 	    }
@@ -1629,7 +1629,7 @@ void delete_atom(int imol, const char *chain_id, int resno, const char *ins_code
    std::string altloc_string = altLoc;
    
 
-   CResidue *residue_p =
+   mmdb::Residue *residue_p =
       graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
    if (residue_p) {
      if (residue_p->GetNumberOfAtoms() > 1) {
@@ -1802,7 +1802,7 @@ void delete_atom_by_atom_index(int imol, int index, short int do_delete_dialog) 
       const char *ins_code  = g.molecules[imol].atom_sel.atom_selection[index]->GetInsCode();
       int resno             = g.molecules[imol].atom_sel.atom_selection[index]->GetSeqNum();
 
-      CResidue *residue_p =
+      mmdb::Residue *residue_p =
 	 graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
       if (residue_p) {
 	 coot::residue_spec_t spec(residue_p);
@@ -1840,7 +1840,7 @@ void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialo
    // we can simply construct spec from chain_id, resno and inscode.
    // There are other places where we do this too (to delete a residue
    // from the geometry graphs).
-   CResidue *residue_p =
+   mmdb::Residue *residue_p =
       graphics_info_t::molecules[imol].get_residue(chain_id, resno, inscode);
    if (residue_p) {
       graphics_info_t g;
@@ -2096,7 +2096,7 @@ auto_fit_best_rotamer(int resno,
 	 }
 
 	 // get the residue so that it can update the geometry graph
-	 CResidue *residue_p = g.molecules[imol_coords].get_residue(chain, resno, ins);
+	 mmdb::Residue *residue_p = g.molecules[imol_coords].get_residue(chain, resno, ins);
 	 if (residue_p) {
 	    g.update_geometry_graphs(&residue_p, 1, imol_coords, imol_map);
 	 }
@@ -2154,7 +2154,7 @@ rotamer_score(int imol, const char *chain_id, int res_no, const char *insertion_
 
    if (is_valid_model_molecule(imol)) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      CResidue *residue_p =
+      mmdb::Residue *residue_p =
 	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, insertion_code);
       if (residue_p) {
 	 float lp = graphics_info_t::rotamer_lowest_probability;
@@ -2183,7 +2183,7 @@ int n_rotamers(int imol, const char *chain_id, int resno, const char *ins_code) 
 
    int r = -1; 
    if (is_valid_model_molecule(imol)) { 
-      CResidue *res = graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
+      mmdb::Residue *res = graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
       if (res) {
 	 graphics_info_t g;
 #ifdef USE_DUNBRACK_ROTAMERS
@@ -2237,7 +2237,7 @@ SCM get_rotamer_name_scm(int imol, const char *chain_id, int resno, const char *
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
-      CResidue *res = graphics_info_t::molecules[imol].get_residue(res_spec);
+      mmdb::Residue *res = graphics_info_t::molecules[imol].get_residue(res_spec);
       if (res) {
 #ifdef USE_DUNBRACK_ROTAMERS
 #else
@@ -2261,7 +2261,7 @@ PyObject *get_rotamer_name_py(int imol, const char *chain_id, int resno, const c
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
-      CResidue *res = graphics_info_t::molecules[imol].get_residue(res_spec);
+      mmdb::Residue *res = graphics_info_t::molecules[imol].get_residue(res_spec);
       if (res) {
 #ifdef USE_DUNBRACK_ROTAMERS
 #else
@@ -2715,15 +2715,15 @@ char *resname_from_serial_number(int imol, const char *chain_id, int serial_num)
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int nchains = mol->GetNumberOfChains(1);
       for (int ichain=0; ichain<nchains; ichain++) {
-	 CChain *chain_p = mol->GetChain(1,ichain);
+	 mmdb::Chain *chain_p = mol->GetChain(1,ichain);
 	 std::string mol_chain_id(chain_p->GetChainID());
 	 if (mol_chain_id == std::string(chain_id)) {
 	    int nres = chain_p->GetNumberOfResidues();
 	    if (serial_num < nres) {
 	       int ch_n_res;
-	       PCResidue *residues;
+	       Pmmdb::Residue *residues;
 	       chain_p->GetResidueTable(residues, ch_n_res);
-	       CResidue *this_res = residues[serial_num];
+	       mmdb::Residue *this_res = residues[serial_num];
 	       r = this_res->GetResName();
 	    }
 	 }
@@ -2748,15 +2748,15 @@ int  seqnum_from_serial_number(int imol, const char *chain_id, int serial_num) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int nchains = mol->GetNumberOfChains(1);
       for (int ichain=0; ichain<nchains; ichain++) {
-	 CChain *chain_p = mol->GetChain(1,ichain);
+	 mmdb::Chain *chain_p = mol->GetChain(1,ichain);
 	 std::string mol_chain_id(chain_p->GetChainID());
 	 if (mol_chain_id == std::string(chain_id)) {
 	    int nres = chain_p->GetNumberOfResidues();
 	    if (serial_num < nres) {
 	       int ch_n_res;
-	       PCResidue *residues;
+	       Pmmdb::Residue *residues;
 	       chain_p->GetResidueTable(residues, ch_n_res);
-	       CResidue *this_res = residues[serial_num];
+	       mmdb::Residue *this_res = residues[serial_num];
 	       iseqnum = this_res->GetSeqNum();
 	    } else {
 	       std::cout << "WARNING:: seqnum_from_serial_number: requested residue with serial_num "
@@ -2789,15 +2789,15 @@ char *insertion_code_from_serial_number(int imol, const char *chain_id, int seri
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int nchains = mol->GetNumberOfChains(1);
       for (int ichain=0; ichain<nchains; ichain++) {
-	 CChain *chain_p = mol->GetChain(1,ichain);
+	 mmdb::Chain *chain_p = mol->GetChain(1,ichain);
 	 std::string mol_chain_id(chain_p->GetChainID());
 	 if (mol_chain_id == std::string(chain_id)) {
 	    int nres = chain_p->GetNumberOfResidues();
 	    if (serial_num < nres) {
 	       int ch_n_res;
-	       PCResidue *residues;
+	       Pmmdb::Residue *residues;
 	       chain_p->GetResidueTable(residues, ch_n_res);
-	       CResidue *this_res = residues[serial_num];
+	       mmdb::Residue *this_res = residues[serial_num];
 	       r = this_res->GetInsCode();
 	    }
 	 }
@@ -2819,7 +2819,7 @@ chain_id_scm(int imol, int ichain) {
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      CChain *chain_p = mol->GetChain(1,ichain);
+      mmdb::Chain *chain_p = mol->GetChain(1,ichain);
       if (chain_p) 
 	 r = scm_from_locale_string(chain_p->GetChainID());
    }
@@ -2840,7 +2840,7 @@ chain_id_py(int imol, int ichain) {
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      CChain *chain_p = mol->GetChain(1,ichain);
+      mmdb::Chain *chain_p = mol->GetChain(1,ichain);
       if (chain_p) 
 	 r = PyString_FromString(chain_p->GetChainID());
    }
@@ -2917,7 +2917,7 @@ int is_solvent_chain_p(int imol, const char *chain_id) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int nchains = mol->GetNumberOfChains(1);
       for (int ichain=0; ichain<nchains; ichain++) {
-	 CChain *chain_p = mol->GetChain(1,ichain);
+	 mmdb::Chain *chain_p = mol->GetChain(1,ichain);
 	 std::string mol_chain_id(chain_p->GetChainID());
 	 if (mol_chain_id == std::string(chain_id)) {
 	    r = chain_p->isSolventChain();
@@ -2941,7 +2941,7 @@ int is_protein_chain_p(int imol, const char *chain_id) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int nchains = mol->GetNumberOfChains(1);
       for (int ichain=0; ichain<nchains; ichain++) {
-	 CChain *chain_p = mol->GetChain(1,ichain);
+	 mmdb::Chain *chain_p = mol->GetChain(1,ichain);
 	 std::string mol_chain_id(chain_p->GetChainID());
 	 if (mol_chain_id == std::string(chain_id)) {
 	    r = chain_p->isAminoacidChain();
@@ -2965,7 +2965,7 @@ int is_nucleotide_chain_p(int imol, const char *chain_id) {
       CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int nchains = mol->GetNumberOfChains(1);
       for (int ichain=0; ichain<nchains; ichain++) {
-	 CChain *chain_p = mol->GetChain(1,ichain);
+	 mmdb::Chain *chain_p = mol->GetChain(1,ichain);
 	 std::string mol_chain_id(chain_p->GetChainID());
 	 if (mol_chain_id == std::string(chain_id)) {
 	    r = chain_p->isNucleotideChain();
@@ -3033,7 +3033,7 @@ void write_header_secondary_structure_info(int imol, const char *file_name) {
 	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 int n_models = mol->GetNumberOfModels();
 	 int imod = 1;
-	 CModel *model_p = mol->GetModel(imod);
+	 mmdb::Model *model_p = mol->GetModel(imod);
 	 int ss_status = model_p->CalcSecStructure(1);
 	 
 	 // now do something clever with the residues of model_p to
@@ -4602,7 +4602,7 @@ int clear_and_update_molecule_py(int molecule_number, PyObject *molecule_express
    int state = 0;
    if (is_valid_model_molecule(molecule_number)) {
       
-      std::deque<CModel *> model_list =
+      std::deque<mmdb::Model *> model_list =
          mmdb_models_from_python_expression(molecule_expression);
 
       if (!model_list.empty()) {
@@ -5103,8 +5103,8 @@ void do_base_mutation(const char *type) {
       // save a residue spec in graphics-info-defines.cc not generate it here.
       // 
       int idx = g.mutate_residue_atom_index;
-      CAtom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[idx];
-      CResidue *r = at->residue;
+      mmdb::Atom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[idx];
+      mmdb::Residue *r = at->residue;
       if (r) {
 	 std::string cbn = "";
 	 if (coot::util::nucleotide_is_DNA(r)) {
@@ -5225,7 +5225,7 @@ int fix_nomenclature_errors(int imol) {
    int ifixed = 0;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      std::vector<CResidue *> vr =
+      std::vector<mmdb::Residue *> vr =
 	 graphics_info_t::molecules[imol].fix_nomenclature_errors(g.Geom_p());
       ifixed = vr.size();
       g.update_geometry_graphs(graphics_info_t::molecules[imol].atom_sel,
@@ -5453,7 +5453,7 @@ SCM missing_atom_info_scm(int imol) {
       coot::util::missing_atom_info m_i_info =
 	 g.molecules[imol].missing_atoms(missing_hydrogens_flag, g.Geom_p());
       for (unsigned int i=0; i<m_i_info.residues_with_missing_atoms.size(); i++) {
-	 CResidue *residue_p = m_i_info.residues_with_missing_atoms[i];
+	 mmdb::Residue *residue_p = m_i_info.residues_with_missing_atoms[i];
 	 int resno                = residue_p->GetSeqNum();
 	 std::string chain_id     = residue_p->GetChainID();
 	 std::string residue_type = residue_p->GetResName();
@@ -6568,14 +6568,14 @@ int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, f
 	 std::string alt_conf = "";
 
 	 // convert for mmdb residue list to std::vector or residues.
-	 std::vector<CResidue *> residues;
-	 PPCResidue SelResidues = 0;
+	 std::vector<mmdb::Residue *> residues;
+	 mmdb::PPResidue SelResidues = 0;
 	 int nSelResidues;
 	 mol_orig->GetSelIndex(SelectionHandle, SelResidues, nSelResidues);
 	 for (int i=0; i<nSelResidues; i++)
 	    residues.push_back(SelResidues[i]);
 	 
-	 std::pair<CMMDBManager *, std::vector<CResidue *> > mp = 
+	 std::pair<CMMDBManager *, std::vector<mmdb::Residue *> > mp = 
 	    g.create_mmdbmanager_from_res_vector(residues,
 						 imol_orig, // for uddatom index.
 						 mol_orig, alt_conf);
@@ -7107,7 +7107,7 @@ void
 show_partial_charge_info(int imol, const char *chain_id, int resno, const char *ins_code) {
 
    if (is_valid_model_molecule(imol)) {
-      CResidue *residue =
+      mmdb::Residue *residue =
 	 graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
       if (residue) {
 	 std::string resname = residue->GetResName();
@@ -7265,7 +7265,7 @@ float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_
       int imol_map = g.Imol_Refinement_Map();
       if (is_valid_map_molecule(imol_map)) { 
 	 float map_sigma = g.molecules[imol_map].map_sigma();
-	 PPCAtom atom_selection = g.molecules[imol].atom_sel.atom_selection;
+	 mmdb::PPAtom atom_selection = g.molecules[imol].atom_sel.atom_selection;
 	 int n_atoms = g.molecules[imol].atom_sel.n_selected_atoms;
 	 bool use_biased_density_scoring = false; // not for all-molecule
 	 g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
@@ -7288,7 +7288,7 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
       if (is_valid_map_molecule(imol_map)) { 
 	 float map_sigma = g.molecules[imol_map].map_sigma();
 	 
-	 PPCAtom atom_selection = 0;
+	 mmdb::PPAtom atom_selection = 0;
 	 int n_atoms;
 
 	 int SelHnd = mol->NewSelection(); // d

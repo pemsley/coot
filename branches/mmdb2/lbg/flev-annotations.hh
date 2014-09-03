@@ -42,12 +42,12 @@ namespace coot {
       // the "base" (heavy) atom name in first and the H name in second.
       std::vector<std::pair<std::string, std::string> > atoms_with_riding_hydrogens;
       std::vector<std::pair<std::string, std::string> > atoms_with_rotating_hydrogens;
-      bool add_named_torsion(CAtom *h_at, CAtom *at,
+      bool add_named_torsion(mmdb::Atom *h_at, mmdb::Atom *at,
 			     const dictionary_residue_restraints_t &restraints,
 			     CMMDBManager *mol,
 			     int hydrogen_type); // fill named_torsions
-      std::vector<std::pair<CAtom *, std::vector<clipper::Coord_orth> > >
-      named_hydrogens_to_reference_ligand(CResidue *ligand_residue_3d,
+      std::vector<std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > >
+      named_hydrogens_to_reference_ligand(mmdb::Residue *ligand_residue_3d,
 					  const dictionary_residue_restraints_t &restraints) const;
 
       // Can throw an exception
@@ -56,21 +56,21 @@ namespace coot {
       // the H is attached) and the hydrogen position - in that order.
       // 
       std::pair<clipper::Coord_orth, clipper::Coord_orth>
-      hydrogen_pos(const coot::named_torsion_t &named_tor, CResidue *res) const;
+      hydrogen_pos(const coot::named_torsion_t &named_tor, mmdb::Residue *res) const;
       
-      std::vector<CAtom *> close_atoms(const clipper::Coord_orth &pt,
-				       const std::vector<CResidue *> &env_residues) const;
+      std::vector<mmdb::Atom *> close_atoms(const clipper::Coord_orth &pt,
+				       const std::vector<mmdb::Residue *> &env_residues) const;
 
       bash_distance_t find_bash_distance(const clipper::Coord_orth &ligand_atom_pos,
 					 const clipper::Coord_orth &hydrogen_pos,
-					 const std::vector<CAtom *> &close_residue_atoms) const;
+					 const std::vector<mmdb::Atom *> &close_residue_atoms) const;
       double get_radius(const std::string &ele) const;
 
       // find an atom (the atom, perhaps) bonded to lig_at that is not H_at.
       // Return its position. Can throw a std::runtime_error if not found.
       // 
-      clipper::Coord_orth get_atom_pos_bonded_to_atom(CAtom *lig_at, CAtom *H_at, // not H_at
-						      CResidue *ligand_residue,
+      clipper::Coord_orth get_atom_pos_bonded_to_atom(mmdb::Atom *lig_at, mmdb::Atom *H_at, // not H_at
+						      mmdb::Residue *ligand_residue,
 						      const protein_geometry &geom) const;
       
       
@@ -80,19 +80,19 @@ namespace coot {
       std::vector<named_torsion_t> named_torsions;
       
       // fill the named_torsions vector, a trivial wrapper to the below function
-      void cannonballs(CResidue *ligand_residue_3d,
+      void cannonballs(mmdb::Residue *ligand_residue_3d,
 		       const std::string &prodrg_3d_ligand_file_name,
 		       const coot::dictionary_residue_restraints_t &restraints);
 
       // fill the named_torsions vector
-      void cannonballs(CResidue *ligand_residue_3d,
+      void cannonballs(mmdb::Residue *ligand_residue_3d,
 		       CMMDBManager *mol,
 		       const coot::dictionary_residue_restraints_t &restraints);
       
       // apply those cannonball direction onto the real reference ligand:
-      void distances_to_protein(CResidue *residue_reference,
+      void distances_to_protein(mmdb::Residue *residue_reference,
 				CMMDBManager *mol_reference);
-      void distances_to_protein_using_correct_Hs(CResidue *residue_reference,
+      void distances_to_protein_using_correct_Hs(mmdb::Residue *residue_reference,
 						 CMMDBManager *mol_reference,
 						 const protein_geometry &geom);
 
@@ -129,7 +129,7 @@ namespace coot {
    std::ostream& operator<<(std::ostream &s, fle_residues_helper_t fler);
 
 
-   bool is_a_metal(CResidue *res);
+   bool is_a_metal(mmdb::Residue *res);
 
    // The bonds from the protein to the ligand which contain
    // ligand-atom-name residue-spec and bond type (acceptor/donor).
@@ -164,11 +164,11 @@ namespace coot {
 	 bond_type = bond_type_in;
 	 bond_length = bl_in;
       }
-      static int get_bond_type(CAtom *at_donor, CAtom *at_acceptor, bool ligand_atom_is_donor_flag) {
+      static int get_bond_type(mmdb::Atom *at_donor, mmdb::Atom *at_acceptor, bool ligand_atom_is_donor_flag) {
 	 int r_bond_type = BOND_OTHER;
 
-	 CAtom *ligand_atom = at_donor;
-	 CAtom *residue_atom = at_acceptor;
+	 mmdb::Atom *ligand_atom = at_donor;
+	 mmdb::Atom *residue_atom = at_acceptor;
 
 	 if (! ligand_atom_is_donor_flag)
 	    std::swap(ligand_atom, residue_atom);

@@ -30,8 +30,8 @@ coot::restraints_container_t::add_extra_start_pos_restraints(const extra_restrai
 
    for (unsigned int i=0; i<extra_restraints.start_pos_restraints.size(); i++) {
       
-      CResidue *r_1 = NULL;
-      CAtom *at_1 = 0;
+      mmdb::Residue *r_1 = NULL;
+      mmdb::Atom *at_1 = 0;
       bool fixed_1 = 0;
       if (from_residue_vector) {
 	 for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
@@ -56,7 +56,7 @@ coot::restraints_container_t::add_extra_start_pos_restraints(const extra_restrai
 		      SKEY_NEW // selection key
 		      );
 	 int nSelResidues_local = 0;
-	 PPCResidue SelResidue_local= 0;
+	 mmdb::PPResidue SelResidue_local= 0;
 	 mol->GetSelIndex (selHnd, SelResidue_local, nSelResidues_local);
 	 for (int ir=0; ir<nSelResidues_local; ir++) {
 	    if (coot::residue_spec_t(extra_restraints.start_pos_restraints[i].atom_1) ==
@@ -69,7 +69,7 @@ coot::restraints_container_t::add_extra_start_pos_restraints(const extra_restrai
       }
       
       if (r_1) {
-         PPCAtom residue_atoms_1 = 0;
+         mmdb::PPAtom residue_atoms_1 = 0;
          int n_residue_atoms_1;
          r_1->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
 
@@ -105,12 +105,12 @@ void
 coot::restraints_container_t::add_extra_angle_restraints(const extra_restraints_t &extra_restraints) {
 
    for (unsigned int i=0; i<extra_restraints.angle_restraints.size(); i++) {
-      CResidue *r_1 = NULL;
-      CResidue *r_2 = NULL;
-      CResidue *r_3 = NULL;
-      CAtom *at_1 = 0;
-      CAtom *at_2 = 0;
-      CAtom *at_3 = 0;
+      mmdb::Residue *r_1 = NULL;
+      mmdb::Residue *r_2 = NULL;
+      mmdb::Residue *r_3 = NULL;
+      mmdb::Atom *at_1 = 0;
+      mmdb::Atom *at_2 = 0;
+      mmdb::Atom *at_3 = 0;
       bool fixed_1 = 0;
       bool fixed_2 = 0;
       bool fixed_3 = 0;
@@ -147,7 +147,7 @@ coot::restraints_container_t::add_extra_angle_restraints(const extra_restraints_
 		      SKEY_NEW // selection key
 		      );
 	 int nSelResidues_local = 0;
-	 PPCResidue SelResidue_local= 0;
+	 mmdb::PPResidue SelResidue_local= 0;
 	 mol->GetSelIndex (selHnd, SelResidue_local, nSelResidues_local);
 	 for (int ir=0; ir<nSelResidues_local; ir++) {
 	    if (coot::residue_spec_t(extra_restraints.angle_restraints[i].atom_1) ==
@@ -164,7 +164,7 @@ coot::restraints_container_t::add_extra_angle_restraints(const extra_restraints_
       }
 
       if (r_1 && r_2 && r_3) {
-	 PPCAtom residue_atoms = 0;
+	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 r_1->GetAtomTable(residue_atoms, n_residue_atoms);
 	 for (int iat=0; iat<n_residue_atoms; iat++) {

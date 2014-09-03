@@ -12,7 +12,7 @@ std::vector<coot::alt_confed_chi_angles>
 coot::primitive_chi_angles::get_chi_angles() {
 
    std::vector<coot::alt_confed_chi_angles> nv;
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
 
@@ -230,8 +230,8 @@ coot::primitive_chi_angles::get_atom_name_quads() const {
 
 std::vector<coot::atom_index_quad>
 coot::primitive_chi_angles::get_quads(const std::vector<coot::atom_name_quad> &atom_name_quads,
-				      CResidue *residue) const {
-   PPCAtom residue_atoms = 0;
+				      mmdb::Residue *residue) const {
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
    return get_atom_index_quads(atom_name_quads, residue_atoms, n_residue_atoms);
@@ -240,7 +240,7 @@ coot::primitive_chi_angles::get_quads(const std::vector<coot::atom_name_quad> &a
 
 std::vector<coot::atom_index_quad>
 coot::primitive_chi_angles::get_atom_index_quads(const std::vector<coot::atom_name_quad> &atom_name_quads_in,
-                                          const PPCAtom atoms, int nresatoms) const {
+                                          const mmdb::PPAtom atoms, int nresatoms) const {
 
    std::vector<coot::atom_index_quad> v;
    for (int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
@@ -296,10 +296,10 @@ coot::primitive_chi_angles::get_atom_index_quads(const std::vector<coot::atom_na
 
 std::vector<coot::alt_confed_atom_index_quad>
 coot::primitive_chi_angles::get_quads_using_altconfs(const std::vector<coot::atom_name_quad> &atom_name_quads,
-                                              CResidue *residue) const {
+                                              mmdb::Residue *residue) const {
 
    std::vector<coot::alt_confed_atom_index_quad> alt_v;
-   PPCAtom atoms = 0;
+   mmdb::PPAtom atoms = 0;
    int n_residue_atoms;
    residue->GetAtomTable(atoms, n_residue_atoms);
 
@@ -385,6 +385,6 @@ coot::primitive_chi_angles::get_quads_using_altconfs(const std::vector<coot::ato
 }
 
 clipper::Coord_orth
-coot::primitive_chi_angles::atom_to_co(CAtom *at) const {
+coot::primitive_chi_angles::atom_to_co(mmdb::Atom *at) const {
    return clipper::Coord_orth(at->x, at->y, at->z);
 }

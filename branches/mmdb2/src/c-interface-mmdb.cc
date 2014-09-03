@@ -52,7 +52,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
    if (inmodel > 0) {
       mol = new CMMDBManager; 
       for(int imodel=0; imodel<inmodel; imodel++) {
-	 CModel *model_p = new CModel;
+	 mmdb::Model *model_p = new mmdb::Model;
 	 SCM imodel_scm = SCM_MAKINUM(imodel);
 	 SCM model_expression = scm_list_ref(molecule_expression, imodel_scm);
 	 SCM model_expression_length = scm_length(model_expression);
@@ -93,7 +93,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 		  int n_residues = scm_to_int(n_residues_scm);
 		  // printf("there were %d residues\n", n_residues);
 		  if (n_residues > 0) {
-		     CChain *chain_p = new CChain;
+		     mmdb::Chain *chain_p = new mmdb::Chain;
 		     std::string chain_id = scm_to_locale_string(chain_id_scm);
 		     chain_p->SetChainID(chain_id.c_str());
 		     for (int ires=0; ires<n_residues; ires++) {
@@ -121,7 +121,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 			   int n_atoms = scm_to_int(n_atoms_scm);
 
 			   if (n_atoms > 0) {
-			      CResidue *residue_p = new CResidue;
+			      mmdb::Residue *residue_p = new mmdb::Residue;
 			      std::string resname = scm_to_locale_string(scm_residue_name);
 			      int resno = scm_to_int(scm_residue_number);
 			      // std::cout << "DEBUG:: Found resno:   " << resno << std::endl;
@@ -181,7 +181,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 					     float x = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(0)));
 					     float y = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(1)));
 					     float z = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(2)));
-					     CAtom *atom = new CAtom;
+					     mmdb::Atom *atom = new mmdb::Atom;
 					     atom->SetCoordinates(x, y, z, occ, b);
 					     if ( ! ((atom_name == "") && (ele == ""))) {
 						atom->SetAtomName(atom_name.c_str());
@@ -245,7 +245,7 @@ CMMDBManager *
 mmdb_manager_from_python_expression(PyObject *molecule_expression) {
 
    CMMDBManager *mol = 0;
-   std::deque<CModel *> model_list = mmdb_models_from_python_expression(molecule_expression);
+   std::deque<mmdb::Model *> model_list = mmdb_models_from_python_expression(molecule_expression);
    
    if (!model_list.empty()) {
       mol = new CMMDBManager;
@@ -263,16 +263,16 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
 } 
 
 
-std::deque<CModel *>
+std::deque<mmdb::Model *>
 mmdb_models_from_python_expression(PyObject *molecule_expression) {
 
-   std::deque<CModel *> model_list;
+   std::deque<mmdb::Model *> model_list;
 
    int inmodel = PyObject_Length(molecule_expression);
 
    if (inmodel > 0) {
       for(int imodel=0; imodel<inmodel; imodel++) {
-         CModel *model_p = new CModel;
+         mmdb::Model *model_p = new mmdb::Model;
          PyObject *model_expression = PyList_GetItem(molecule_expression, imodel);
          int len_model_expression = PyObject_Length(model_expression);
          if (len_model_expression > 0) {
@@ -307,7 +307,7 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                   int n_residues = PyObject_Length(residues_list);
 		  // printf("there were %d residues\n", n_residues);
                   if (n_residues > 0) {
-                     CChain *chain_p = new CChain;
+                     mmdb::Chain *chain_p = new mmdb::Chain;
                      std::string chain_id = PyString_AsString(chain_id_python);
                      chain_p->SetChainID(chain_id.c_str());
                      for (int ires=0; ires<n_residues; ires++) {
@@ -331,7 +331,7 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                            }
                            int n_atoms = PyObject_Length(atoms_list);
                            if (n_atoms > 0) {
-                              CResidue *residue_p = new CResidue;
+                              mmdb::Residue *residue_p = new mmdb::Residue;
                               std::string resname = PyString_AsString(python_residue_name);
                               int resno = PyInt_AsLong(python_residue_number);
                               // std::cout << "DEBUG:: Found resno:   " << resno << std::endl;
@@ -421,7 +421,7 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                                                 std::cout << bad_str << std::endl;
                                              }
                                              
-                                             CAtom *atom = new CAtom;
+                                             mmdb::Atom *atom = new mmdb::Atom;
                                              atom->SetCoordinates(x, y, z, occ, b);
                                              atom->SetAtomName(atom_name.c_str());
                                              atom->SetElementName(ele.c_str());

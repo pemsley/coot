@@ -39,8 +39,8 @@ centre_of_molecule(atom_selection_container_t SelAtom);
 
 atom_selection_container_t get_atom_selection(std::string t, bool convert_to_v2_name_flag);
 int fix_nucleic_acid_residue_names(atom_selection_container_t asc);
-int fix_nucleic_acid_residue_name(CResidue *r); // return whether it was changed or not.
-void convert_to_old_nucleotide_atom_names(CResidue *r);
+int fix_nucleic_acid_residue_name(mmdb::Residue *r); // return whether it was changed or not.
+void convert_to_old_nucleotide_atom_names(mmdb::Residue *r);
 void fix_element_name_lengths(CMMDBManager *mol);
 
 // return the number of fixed atoms
@@ -66,9 +66,9 @@ namespace coot {
 
 // needs <iostream>
 // 
-ostream& operator<<(ostream& s, CAtom &atom);
+ostream& operator<<(ostream& s, mmdb::Atom &atom);
 
-ostream& operator<<(ostream& s, PCAtom atom); 
+ostream& operator<<(ostream& s, Pmmdb::Atom atom); 
 
 namespace coot { 
   // mdl mol file support

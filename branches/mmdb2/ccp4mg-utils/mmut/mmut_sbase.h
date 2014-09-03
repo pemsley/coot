@@ -263,20 +263,20 @@ public:
   int LoadSynonyms (pstr filename );
   std::string  ListMonomer(char *mon, bool unremediated=false);
   void InitialiseErrorReporting () { reported_errors.clear(); }
-  std::string AssignAtomType ( PCResidue pRes,
+  std::string AssignAtomType ( Pmmdb::Residue pRes,
       LoadedPCSBStructure monlib,
       std::map<std::string,std::string> &customResSynonym,
       int udd_sbaseCompoundID,int udd_sbaseAtomOrdinal, 
       int udd_atomEnergyType, const bool unremediated= false );
-  std::string ListAtomType ( PCMMUTManager molHnd, PCResidue pRes,
+  std::string ListAtomType ( PCMMUTManager molHnd, Pmmdb::Residue pRes,
   int udd_sbaseCompoundID, int udd_sbaseAtomOrdinal, int udd_atomEnergyType );
-  //int GraphSearch ( PCResidue pRes, PCSBStructure &pSbaseRes,
+  //int GraphSearch ( Pmmdb::Residue pRes, PCSBStructure &pSbaseRes,
   //     int &nAtom, ivector &nMatchAtom, imatrix &matchAtom  );
 
   PCSBStructure GetStructure ( const ResName resNam , LoadedPCSBStructure monlib, const bool unremediated=false);
   int LoadMonomerLibrary( char* filename, LoadedPCSBStructure &monlib);
   PCSBStructure LoadCifMonomer ( const ResName resNam , const PCMMCIFFile file, const bool unscramble=true );
-  int MatchGraphs(PCResidue pRes,int Hflag, Boolean Cflag, const pstr altLoc, 
+  int MatchGraphs(Pmmdb::Residue pRes,int Hflag, Boolean Cflag, const pstr altLoc, 
 		  PCSBStructure pSbaseRes, int &nMatched,
 		  ivector match, int minMatchSize );
   //PCLibAtom LibAtom (char *);
@@ -289,7 +289,7 @@ public:
   PCLibBond LibBond ( char *, char *);
   int maxAtomInRes;
   Tree GetMonomerLibraryTree(const char *monomer_name);
-  PPCAtom GetMonomerLibraryStructure(const char *monomer_name);
+  mmdb::PPAtom GetMonomerLibraryStructure(const char *monomer_name);
 
   //private:
 

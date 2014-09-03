@@ -43,7 +43,7 @@ coot::surface::fill_from(CMMDBManager *mol, int selHnd, float col_scale, bool as
    // debug::
    bool debug = 0;
 
-   PPCAtom atoms;
+   mmdb::PPAtom atoms;
    int n_atoms;
    mol->GetSelIndex(selHnd, atoms, n_atoms);
    std::vector<float> save_charges(n_atoms, -100); // all unset
@@ -77,7 +77,7 @@ coot::surface::fill_from(CMMDBManager *mol, int selHnd, float col_scale, bool as
 
    if (debug) {
       std::cout << "========post=============" << std::endl;
-      PPCAtom atoms;
+      mmdb::PPAtom atoms;
       int n_atoms;
       mol->GetSelIndex(selHnd, atoms, n_atoms);
       for (int iat=0; iat<n_atoms; iat++) {

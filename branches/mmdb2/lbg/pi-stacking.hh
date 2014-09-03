@@ -16,13 +16,13 @@ namespace coot {
 	 PI_CATION_STACKING, // for cations on the protein residues (ligand pi)
 	 CATION_PI_STACKING, // for cations on the ligand (protein TRY, PRO, TRP)
       };
-      CResidue *res;
+      mmdb::Residue *res;
       stacking_t type; // pi-pi or pi-cation
       std::vector<std::string> ligand_ring_atom_names;
       float overlap_score; 
       std::string ligand_cationic_atom_name; // for cations on the ligand
       
-      pi_stacking_instance_t(CResidue *res_in, stacking_t type_in,
+      pi_stacking_instance_t(mmdb::Residue *res_in, stacking_t type_in,
 			     const std::vector<std::string> &ring_atoms) {
 	 res = res_in;
 	 type = type_in;
@@ -31,7 +31,7 @@ namespace coot {
       
       // and the constructor for CATION_PI_STACKING
       // 
-      pi_stacking_instance_t(CResidue *residue_in,
+      pi_stacking_instance_t(mmdb::Residue *residue_in,
 			     const std::string &ligand_atom_name_in) {
 	 type = CATION_PI_STACKING;
 	 res = residue_in;
@@ -46,13 +46,13 @@ namespace coot {
    private: 
       // can throw an exception
       std::pair<float, pi_stacking_instance_t::stacking_t>
-      get_pi_overlap_to_ligand_ring(CResidue *res, const clipper::Coord_orth &pt) const;
+      get_pi_overlap_to_ligand_ring(mmdb::Residue *res, const clipper::Coord_orth &pt) const;
 
-      float get_pi_overlap_to_ligand_cation(CResidue *res, const clipper::Coord_orth &pt) const;
+      float get_pi_overlap_to_ligand_cation(mmdb::Residue *res, const clipper::Coord_orth &pt) const;
       
       std::pair<clipper::Coord_orth, clipper::Coord_orth>
       get_ring_pi_centre_points(const std::vector<std::string> &ring_atom_names,
-				CResidue *res_ref) const;
+				mmdb::Residue *res_ref) const;
       
       // can throw an exception if not enough points found in pts.
       std::pair<clipper::Coord_orth, clipper::Coord_orth>
@@ -72,10 +72,10 @@ namespace coot {
       overlap_of_cation_pi(const clipper::Coord_orth &ligand_pi_point,
 			   const clipper::Coord_orth &cation_atom_point) const;
 
-      std::vector<clipper::Coord_orth> get_cation_atom_positions(CResidue *res) const;
+      std::vector<clipper::Coord_orth> get_cation_atom_positions(mmdb::Residue *res) const;
       // by search through res_ref
       std::vector<std::pair<std::string, clipper::Coord_orth> >
-	 get_ligand_cations(CResidue *res, const coot::dictionary_residue_restraints_t &monomer_restraints) const;
+	 get_ligand_cations(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &monomer_restraints) const;
 
       std::vector<std::vector<std::string> >
       get_aromatic_ring_list(const dictionary_residue_restraints_t &monomer_restraints) const;
@@ -87,8 +87,8 @@ namespace coot {
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
       void init(const dictionary_residue_restraints_t &monomer_restraints,
-		const std::vector<CResidue *> &filtered_residues,
-		CResidue *res_ref,
+		const std::vector<mmdb::Residue *> &filtered_residues,
+		mmdb::Residue *res_ref,
 		const std::vector<std::vector<std::string> > &aromatic_ring_list_atom_names);
 
       
@@ -96,13 +96,13 @@ namespace coot {
       // a vector of residues and types
       std::vector<pi_stacking_instance_t> stackings;
       pi_stacking_container_t (const dictionary_residue_restraints_t &monomer_restraints,
-			       const std::vector<CResidue *> &filtered_residues,
-			       CResidue *res_ref);
+			       const std::vector<mmdb::Residue *> &filtered_residues,
+			       mmdb::Residue *res_ref);
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
       pi_stacking_container_t (const dictionary_residue_restraints_t &monomer_restraints,
-			       const std::vector<CResidue *> &filtered_residues,
-			       CResidue *res_ref,
+			       const std::vector<mmdb::Residue *> &filtered_residues,
+			       mmdb::Residue *res_ref,
 			       const RDKit::ROMol &mol);
 #endif // MAKE_ENHANCED_LIGAND_TOOLS      
    };

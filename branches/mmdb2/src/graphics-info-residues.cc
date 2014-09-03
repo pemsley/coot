@@ -42,7 +42,7 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
       // 
       std::vector<std::string> residue_types;
       for (unsigned int i=0; i<v.size(); i++) { 
-	 CResidue *r= molecules[imol].get_residue(v[i]);
+	 mmdb::Residue *r= molecules[imol].get_residue(v[i]);
 	 if (r) {
 	    std::string comp_id = r->GetResName();
 	    if (std::find(residue_types.begin(), residue_types.end(), comp_id) ==
@@ -65,7 +65,7 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
 	 imol_moving_atoms = imol;
 	 // now select everything in moving mol
 	 int selhnd = moving_mol->NewSelection();
-	 PPCAtom atom_selection = 0;
+	 mmdb::PPAtom atom_selection = 0;
 	 int n_selected_atoms;
 	 moving_mol->SelectAtoms(selhnd, 0, "*",
 				 ANY_RES, "*",
@@ -77,7 +77,7 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
 	 moving_mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
 
 	 try { 
-	    std::vector<std::pair<CAtom *, CAtom *> > pairs = 
+	    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > pairs = 
 	       coot::torsionable_bonds(mol, atom_selection, n_selected_atoms, Geom_p());
 	    
 	    GtkWidget *w = wrapped_create_multi_residue_torsion_dialog(pairs);
@@ -104,7 +104,7 @@ graphics_info_t::setup_graphics_ligand_view_aa() {
    if (show_graphics_ligand_view_flag) { // user control
       std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
       if (active_atom.first) {
-	 CResidue *residue_p = molecules[active_atom.second.first].get_residue(active_atom.second.second);
+	 mmdb::Residue *residue_p = molecules[active_atom.second.first].get_residue(active_atom.second.second);
 	 if (0)
 	    std::cout << "-------------------------- setup_graphics_ligand_view_aa() imol: "
 		      << active_atom.second.first
@@ -122,7 +122,7 @@ graphics_info_t::setup_graphics_ligand_view_aa(int imol) {
    if (show_graphics_ligand_view_flag) { // user control
       std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec(imol);
       if (active_atom.first) {
-	 CResidue *residue_p = molecules[active_atom.second.first].get_residue(active_atom.second.second);
+	 mmdb::Residue *residue_p = molecules[active_atom.second.first].get_residue(active_atom.second.second);
 	 if (0)
 	    std::cout << "-------------------------- setup_graphics_ligand_view_aa() imol: "
 		      << active_atom.second.first
@@ -133,7 +133,7 @@ graphics_info_t::setup_graphics_ligand_view_aa(int imol) {
 }
 
 void
-graphics_info_t::setup_graphics_ligand_view(int imol, CResidue *residue_p, const std::string &alt_conf) {
+graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, const std::string &alt_conf) {
 
    if (show_graphics_ligand_view_flag) { // user control
       if (!use_graphics_interface_flag) {

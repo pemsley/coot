@@ -202,7 +202,7 @@ coot::util::fffear_search::fill_nxmap(CMMDBManager *mol, int SelectionHandle,
    // template<class T> bool EDcalc_iso<T>::operator() ( NXmap<T>& nxmap, const Atom_list& atoms ) const
    //
 
-   PCAtom *atom_selection;
+   Pmmdb::Atom *atom_selection;
    int n_atoms;
    mol->GetSelIndex(SelectionHandle, atom_selection, n_atoms);
 
@@ -279,7 +279,7 @@ coot::util::fffear_search::fill_nxmap_mask(CMMDBManager *mol, int SelectionHandl
    // template<class T> bool EDcalc_mask<T>::operator() ( NXmap<T>& nxmap, const Atom_list& atoms ) const
 
    //
-   PCAtom *atom_selection;
+   Pmmdb::Atom *atom_selection;
    int n_atoms;
    mol->GetSelIndex(SelectionHandle, atom_selection, n_atoms);
 

@@ -139,8 +139,8 @@ Tree CMGSBase::GetMonomerLibraryTree(const char *monomer_name){
   return tree;
 }
 
-PPCAtom CMGSBase::GetMonomerLibraryStructure(const char *monomer_name){
-  PPCAtom mon_atoms=0;
+mmdb::PPAtom CMGSBase::GetMonomerLibraryStructure(const char *monomer_name){
+  mmdb::PPAtom mon_atoms=0;
   if(SBase) return 0;
   LoadedPCSBStructure monlib;
   CSBStructure *pStruct = GetStructure(monomer_name,monlib);
@@ -149,12 +149,12 @@ PPCAtom CMGSBase::GetMonomerLibraryStructure(const char *monomer_name){
   if(pStruct){
     Tree tree = GetMonomerLibraryTree(monomer_name);
     // Then make some atoms, populate mon_atoms, etc. After lunch.
-    mon_atoms = new PCAtom[tree.GetNumberOfVertices()];
+    mon_atoms = new Pmmdb::Atom[tree.GetNumberOfVertices()];
     std::vector<Cartesian> carts = tree.GetAllCartesians();
     //std::cout << carts.size() << " " << tree.GetNumberOfVertices() <<  " " << pStruct->nAtoms << "\n";
     for(unsigned i=0;i<carts.size();i++){
       //std::cout << carts[i] << ", "<< pStruct->Atom[i]->pdb_name << " " << pStruct->Atom[i]->element << " " << pStruct->Atom[i]->energyType << "\n";
-      mon_atoms[i] = new CAtom();
+      mon_atoms[i] = new mmdb::Atom();
       //mon_atoms[i]->x = carts[i].get_x();
       //mon_atoms[i]->y = carts[i].get_y();
       //mon_atoms[i]->z = carts[i].get_z();
@@ -887,7 +887,7 @@ std::string  CMGSBase::ListMonomer(char *mon, bool unremediated) {
 
 
 //------------------------------------------------------------------------
-std::string CMGSBase::AssignAtomType ( PCResidue pRes,
+std::string CMGSBase::AssignAtomType ( Pmmdb::Residue pRes,
        LoadedPCSBStructure monlib,
        std::map<std::string,std::string> &customResSynonym,
        int udd_sbaseCompoundID,int udd_sbaseAtomOrdinal,
@@ -895,7 +895,7 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
 //------------------------------------------------------------------------
 
   int RC;
-  PPCAtom pAtom;
+  mmdb::PPAtom pAtom;
   int ia, j, k, nAtominRes,nmatch,alt_nmatch;
   bool got_alt_names,try_atom_match,use_alt_names = false;          
   PCSBStructure pSbaseRes = NULL;
@@ -914,7 +914,7 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
   AtomName name1,name2,name3;
   std::ostringstream output;
 
-  //PPCAtom atomTable;
+  //mmdb::PPAtom atomTable;
   //int nAtomTable;
 
   pRes->GetResidueID ( AtomID );
@@ -1230,7 +1230,7 @@ std::string CMGSBase::AssignAtomType ( PCResidue pRes,
 }
 
 
-int CMGSBase::MatchGraphs(PCResidue pRes,int Hflag, Boolean Cflag, 
+int CMGSBase::MatchGraphs(Pmmdb::Residue pRes,int Hflag, Boolean Cflag, 
                           const pstr altLoc, 
                           PCSBStructure pSbaseRes, int &nMatched,
 			  ivector match, int tolMatch ) {
@@ -1342,12 +1342,12 @@ int CMGSBase::MatchGraphs(PCResidue pRes,int Hflag, Boolean Cflag,
 }
 
 //------------------------------------------------------------------------
-std::string CMGSBase::ListAtomType ( PCMMUTManager molHnd, PCResidue pRes,
+std::string CMGSBase::ListAtomType ( PCMMUTManager molHnd, Pmmdb::Residue pRes,
         int udd_sbaseCompoundID,
         int udd_sbaseAtomOrdinal, int udd_atomEnergyType ) {
 //------------------------------------------------------------------------
  
-  PPCAtom pAtom;
+  mmdb::PPAtom pAtom;
   int nAtominRes,ia, j;
   pstr compoundID = NULL;
   int atomType;

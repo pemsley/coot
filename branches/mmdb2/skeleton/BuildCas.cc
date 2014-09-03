@@ -170,12 +170,12 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 
    atom_selection_container_t atom_selection_container;
 
-   CChain* chain_p = new CChain;
+   mmdb::Chain* chain_p = new mmdb::Chain;
    chain_p->SetChainID ( "X" );  // new chain ID
 
 //    // start of with space for the first residue (actually, the only residue)
 //    // 
-//    CResidue* res_p = new CResidue;
+//    mmdb::Residue* res_p = new mmdb::Residue;
 //    res_p->seqNum = 1;   // set the residue number to 1;
 
 //    strcpy(res_p->name, "SKELETONBONE"); 
@@ -202,20 +202,20 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 
    int i_atom_loop_count = 0; 
    int i_res_add = 0; 
-   CResidue* res_p = 0;
+   mmdb::Residue* res_p = 0;
 
    std::cout << "we were passed " << c.size() << " atoms to convert " << std::endl; 
    for (unsigned int ii=0; ii<c.size(); ii++) { 
       // for (int ii=0; ii<c.size(); ii++) {  // or 230 for testing
 
       if (i_atom_loop_count == 0 || diff_residue_flag == 1) { 
-	    res_p = new CResidue;
+	    res_p = new mmdb::Residue;
 	    res_p->seqNum = 1 + i_res_add;   // set the residue number to 1 + ... 
 	    strcpy(res_p->name, molecule_name.c_str()); 
 	    chain_p->AddResidue ( res_p );
       }
    
-      PCAtom atom = new CAtom;
+      Pmmdb::Atom atom = new mmdb::Atom;
 
       atom->SetCoordinates(c[ii].x(), c[ii].y(), c[ii].z(), 1.0, 99);
       atom->SetResidue(res_p); 
@@ -242,7 +242,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 
 
 
-   CModel* model_p = new CModel;
+   mmdb::Model* model_p = new mmdb::Model;
    model_p->AddChain(chain_p);
 
    MMDBManager->AddModel(model_p);
@@ -271,7 +271,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
    }
    */
 
-   PPCAtom SelAtom;
+   mmdb::PPAtom SelAtom;
    
    int selHnd = MMDBManager->NewSelection();
    int nSelAtoms;
@@ -385,7 +385,7 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
    
    if (AtomSel.n_selected_atoms > 0) { 
       
-      PCAtom point_atom_p = new CAtom;
+      Pmmdb::Atom point_atom_p = new mmdb::Atom;
       point_atom_p->SetCoordinates(current_point.get_x(),
 				   current_point.get_y(),
 				   current_point.get_z(), 1.0, 99.9);
@@ -409,10 +409,10 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 		  
 		  // cout << "Here: " << ix << " " << iy << " " << iz << " " << isym << endl; 
 
-		  PPCAtom trans_selection = new PCAtom[AtomSel.n_selected_atoms];
+		  mmdb::PPAtom trans_selection = new Pmmdb::Atom[AtomSel.n_selected_atoms];
 		  for (int ii=0; ii<AtomSel.n_selected_atoms; ii++) {
 		     
-		     trans_selection[ii] = new CAtom;
+		     trans_selection[ii] = new mmdb::Atom;
 		     trans_selection[ii]->Copy(AtomSel.atom_selection[ii]);
 		     trans_selection[ii]->Transform(my_matt);
 		  }
@@ -435,7 +435,7 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 		     for (int ii=0; ii<ncontacts; ii++) {
 			
 			// consider pushing back contact[ii].id2, with 
-			// vector <PCAtom> big_ball;
+			// vector <Pmmdb::Atom> big_ball;
 			// 
 			coot::Cartesian a(trans_selection [ contact[ii].id2 ]->x,
 				    trans_selection [ contact[ii].id2 ]->y,
@@ -1463,7 +1463,7 @@ BuildCas::fit_next_in_segment(const clipper::Xmap<float> &map) {
 // Given a vector of cartesians, return a vector of cartesians that
 // are "close to" a target point (start_point).
 //
-// If were were using mmdb (i.e. PCAtoms, this function may be faster -
+// If were were using mmdb (i.e. Pmmdb::Atoms, this function may be faster -
 // consider recoding if this function is slow).
 //
 // We naively check all points in the big_ball.
@@ -1551,8 +1551,8 @@ BuildCas::move_by_symmetry(coot::Cartesian middle_mol,
    float current_min_dist = (middle_mol - target_point).amplitude(); 
    float test_dist; 
    mat44 my_matt;
-   PCAtom atom = new CAtom;
-   PCAtom trans_atom = new CAtom; 
+   Pmmdb::Atom atom = new mmdb::Atom;
+   Pmmdb::Atom trans_atom = new mmdb::Atom; 
 
    // we will use mmdb atoms to have the symmetry applied to it.
    // 

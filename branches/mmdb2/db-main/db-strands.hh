@@ -29,7 +29,7 @@ namespace coot {
       std::vector<std::string> get_reference_pdb_list() const;
       CMMDBManager * get_mol(const std::string &filename) const;
       std::vector<coot::minimol::molecule>
-      strand_analysis(CModel *model_p, CMMDBManager *mol,
+      strand_analysis(mmdb::Model *model_p, CMMDBManager *mol,
 		      const std::string &filename, int strand_length) const;
       std::pair<bool, clipper::RTop_orth>
       orient_strand_on_z(int SelHnd, CMMDBManager *mol) const;

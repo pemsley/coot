@@ -230,7 +230,7 @@ graphics_info_t::symmetry_atom_pick(const coot::Cartesian &front, const coot::Ca
       atom_selection_container_t SelAtom = graphics_info_t::molecules[p_i.imol].atom_sel; 
       
       std::string alt_conf_bit("");
-      CAtom *at = molecules[p_i.imol].atom_sel.atom_selection[p_i.atom_index];
+      mmdb::Atom *at = molecules[p_i.imol].atom_sel.atom_selection[p_i.atom_index];
       if (strncmp(at->altLoc, "", 1))
 	 alt_conf_bit=std::string(",") + std::string(at->altLoc);
       
@@ -401,7 +401,7 @@ graphics_info_t::moving_atoms_atom_pick() const {
 // 
 // static
 bool
-graphics_info_t::fixed_atom_for_refinement_p(CAtom *at) {
+graphics_info_t::fixed_atom_for_refinement_p(mmdb::Atom *at) {
 
    bool r = 0; 
    if (is_valid_model_molecule(imol_moving_atoms)) {
@@ -429,7 +429,7 @@ graphics_info_t::check_if_moving_atom_pull() {
    if (pi.success == GL_TRUE) {
 
       // Flash picked atom.
-      CAtom *at = moving_atoms_asc->atom_selection[pi.atom_index];
+      mmdb::Atom *at = moving_atoms_asc->atom_selection[pi.atom_index];
       clipper::Coord_orth co(at->x, at->y, at->z);
       graphics_info_t::flash_position(co);
 
@@ -495,7 +495,7 @@ graphics_info_t::move_moving_atoms_by_shear(int screenx, int screeny,
    // now tinker with the moving atoms coordinates...
    if (moving_atoms_dragged_atom_index >= 0) {
       if (moving_atoms_dragged_atom_index < moving_atoms_asc->n_selected_atoms) {
-	 CAtom *at = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
+	 mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
 	 if (at) {
 	    
 	    move_moving_atoms_by_shear_internal(diff, squared_flag);
@@ -531,7 +531,7 @@ graphics_info_t::move_moving_atoms_by_simple_translation(int screenx, int screen
    coot::Cartesian current_mouse_real_world = unproject_xyz(screenx, screeny, 0.5);
 
    coot::Cartesian diff = current_mouse_real_world - old_mouse_real_world;
-   CAtom *at;
+   mmdb::Atom *at;
    for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
       at = moving_atoms_asc->atom_selection[i];
       at->x += diff.x();
@@ -568,7 +568,7 @@ graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny) {
    coot::Cartesian current_mouse_real_world = unproject_xyz(screenx, screeny, 0.5);
 
    coot::Cartesian diff = current_mouse_real_world - old_mouse_real_world;
-   CAtom *at = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
+   mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
    at->x += diff.x();
    at->y += diff.y();
    at->z += diff.z();
@@ -589,13 +589,13 @@ void
 graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff_std, short int squared_flag) {
 
    coot::Cartesian diff = diff_std;
-   CAtom *mat = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
+   mmdb::Atom *mat = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
    coot::Cartesian moving_atom(mat->x, mat->y, mat->z);
    float d_to_moving_at_max = -9999999.9;
    int d_array_size = moving_atoms_asc->n_selected_atoms;
    float *d_to_moving_at = new float[d_array_size];
    float frac;
-   CAtom *at;
+   mmdb::Atom *at;
    
    for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
 
@@ -610,7 +610,7 @@ graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff
    double dr;
    for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
 
-      CAtom *at = moving_atoms_asc->atom_selection[i];
+      mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
       coot::Cartesian atom_pt(at->x, at->y, at->z);
       if (squared_flag == 0) {
 	 // 	 frac = (1.0 - d_to_moving_at[i]/d_to_moving_at_max); old
@@ -680,7 +680,7 @@ graphics_info_t::moving_atoms_centre() const {
 } 
 
 								       
-// Presumes that rotation centre can be got from CAtom *rot_trans_rotation_origin_atom;
+// Presumes that rotation centre can be got from mmdb::Atom *rot_trans_rotation_origin_atom;
 // 
 void
 graphics_info_t::rotate_intermediate_atoms_round_screen_z(double angle) {
@@ -695,7 +695,7 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_z(double angle) {
 	    clipper::Coord_orth screen_vector =  clipper::Coord_orth(screen_z.x(), 
 								     screen_z.y(), 
 								     screen_z.z());
-	    CAtom *rot_centre = rot_trans_rotation_origin_atom;
+	    mmdb::Atom *rot_centre = rot_trans_rotation_origin_atom;
 	    clipper::Coord_orth rotation_centre(rot_centre->x, 
 						rot_centre->y, 
 						rot_centre->z);
@@ -738,7 +738,7 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_z(double angle) {
    }
 } 
 
-// Presumes that rotation centre can be got from CAtom *rot_trans_rotation_origin_atom;
+// Presumes that rotation centre can be got from mmdb::Atom *rot_trans_rotation_origin_atom;
 // 
 void
 graphics_info_t::rotate_intermediate_atoms_round_screen_x(double angle) {
@@ -755,7 +755,7 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_x(double angle) {
 	    clipper::Coord_orth screen_vector =  clipper::Coord_orth(screen_x.x(), 
 								     screen_x.y(), 
 								     screen_x.z());
-	    CAtom *rot_centre = rot_trans_rotation_origin_atom;
+	    mmdb::Atom *rot_centre = rot_trans_rotation_origin_atom;
 	    clipper::Coord_orth rotation_centre(rot_centre->x, 
 						rot_centre->y, 
 						rot_centre->z);

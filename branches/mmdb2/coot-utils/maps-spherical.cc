@@ -37,7 +37,7 @@ coot::util::emma::sfs_from_boxed_molecule(CMMDBManager *mol_orig, float border) 
 
    CMMDBManager *mol = new CMMDBManager;
    mol->Copy(mol_orig, MMDBFCM_All);
-   PPCAtom atom_selection = 0;
+   mmdb::PPAtom atom_selection = 0;
    int n_selected_atoms;
    // now do selection
    int SelHnd = mol->NewSelection(); // d

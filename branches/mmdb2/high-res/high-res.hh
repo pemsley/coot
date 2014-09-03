@@ -16,11 +16,11 @@ namespace coot {
       void mark_neighbours(int iatom, int igroup,
 			   const std::string &atom_name,
 			   const std::vector<std::vector<int> > &neighbours,
-			   PPCAtom atom_selection, int uddhandle);
+			   mmdb::PPAtom atom_selection, int uddhandle);
       coot::minimol::molecule
       filter_on_groups(const std::vector<std::vector<int> > &groups,
 		       CMMDBManager *mol,
-		       PPCAtom atom_selection,
+		       mmdb::PPAtom atom_selection,
 		       int n_selected_atom) const;
 
       static bool fragment_sorter(const coot::minimol::fragment &a,

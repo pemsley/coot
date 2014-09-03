@@ -55,7 +55,7 @@ namespace coot {
       // mol) and use all the atoms of mol to "bump into" each atom (and
       // that of course reduces the fraction of solvent exposure.
       // 
-      std::vector<std::pair<CAtom *, float> > solvent_exposure(int SelHnd_in, CMMDBManager *mol) const;
+      std::vector<std::pair<mmdb::Atom *, float> > solvent_exposure(int SelHnd_in, CMMDBManager *mol) const;
 
       // create (and later delete, of course) a new molecule by deep
       // copying and assembling the passed residues.  Use that to make
@@ -63,9 +63,9 @@ namespace coot {
       // dots_representation_info_t::solvent_exposure()
       // 
       std::vector<std::pair<coot::atom_spec_t, float> >
-      solvent_accessibilities(CResidue *res_ref, const std::vector<CResidue *> &residues) const;
+      solvent_accessibilities(mmdb::Residue *res_ref, const std::vector<mmdb::Residue *> &residues) const;
       std::vector<solvent_exposure_difference_helper_t>
-      solvent_exposure_differences(CResidue *res_ref, const std::vector<CResidue *> &residues) const;
+      solvent_exposure_differences(mmdb::Residue *res_ref, const std::vector<mmdb::Residue *> &residues) const;
    };
 
 }

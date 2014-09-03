@@ -41,7 +41,7 @@ lbg_info_t::search() const {
 
    // mol.debug();
 
-   CResidue *res = 0;
+   mmdb::Residue *res = 0;
    
    CGraph *graph = new CGraph;
    int n_atoms = 0;

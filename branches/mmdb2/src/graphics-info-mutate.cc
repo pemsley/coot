@@ -82,9 +82,9 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
    molci.install_model(0, asc, "terminal residue", display_in_display_control_widget_status);
 
    // every (usually 1, occasionally 2) residue in the molecule
-   CModel *model_p = asc.mol->GetModel(1);
+   mmdb::Model *model_p = asc.mol->GetModel(1);
    
-   CChain *chain;
+   mmdb::Chain *chain;
    // run over chains of the existing mol
    int nchains = model_p->GetNumberOfChains();
    if (nchains <= 0) { 
@@ -94,7 +94,7 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 
       //std::string target_res_type("ALA");
       std::string target_res_type(res_type);
-      CResidue *std_res = molci.get_standard_residue_instance(target_res_type);
+      mmdb::Residue *std_res = molci.get_standard_residue_instance(target_res_type);
 
       if (std_res == NULL) {
 	 std::cout << "WARNING:: Can't find standard residue for " 
@@ -107,22 +107,22 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 	       // This should not be happen.
 	       std::cout << "NULL chain in add_cb_to_terminal_res" << std::endl;
 	    } else { 
-	       CResidue *std_res_copy = coot::deep_copy_this_residue(std_res, "", 1, -1);
+	       mmdb::Residue *std_res_copy = coot::deep_copy_this_residue(std_res, "", 1, -1);
 	       if (std_res_copy) { 
 		  int nres = chain->GetNumberOfResidues();
 		  for (int ires=0; ires<nres; ires++) { 
-		     PCResidue residue_p = chain->GetResidue(ires);
+		     Pmmdb::Residue residue_p = chain->GetResidue(ires);
 		     //
 		     std::cout << "INFO:: mutating residue in add_cb_to_terminal_res\n";
 		     istat = molci.move_std_residue(std_res_copy, residue_p);
 
 		     if (istat) { 
 
-			PPCAtom residue_atoms;
+			mmdb::PPAtom residue_atoms;
 			int nResidueAtoms;
 			residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
 
-			PPCAtom std_residue_atoms;
+			mmdb::PPAtom std_residue_atoms;
 			int n_std_ResidueAtoms;
 			std_res_copy->GetAtomTable(std_residue_atoms, n_std_ResidueAtoms);
 
@@ -217,7 +217,7 @@ graphics_info_t::do_mutation(const std::string &residue_type, short int do_stub_
 	 if (mutate_auto_fit_do_post_refine_flag) {
 	    // Run refine zone with autoaccept, autorange on
 	    // the "clicked" atom:
-	    CAtom *at = molecules[mutate_auto_fit_residue_imol].atom_sel.atom_selection[mutate_auto_fit_residue_atom_index];
+	    mmdb::Atom *at = molecules[mutate_auto_fit_residue_imol].atom_sel.atom_selection[mutate_auto_fit_residue_atom_index];
 	    std::string chain_id = at->GetChainID();
 	    short int auto_range = 1;
 	    refine(mutate_auto_fit_residue_imol, auto_range,
@@ -381,7 +381,7 @@ graphics_info_t::mutate_chain(int imol, const std::string &chain_id,
 // not really mutation, but hey ho...
 // ------- cis trans conversion ---------
 void
-graphics_info_t::cis_trans_conversion(CAtom *at, int imol, short int is_N_flag) {
+graphics_info_t::cis_trans_conversion(mmdb::Atom *at, int imol, short int is_N_flag) {
 
    if (molecules[imol].has_model()) { 
       int istatus = molecules[imol].cis_trans_conversion(at, is_N_flag);

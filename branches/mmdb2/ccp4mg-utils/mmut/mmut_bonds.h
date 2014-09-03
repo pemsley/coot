@@ -58,15 +58,15 @@ public :
   std::string FindBonds (int udd_sbaseCompoundID,
 		 int udd_sbaseAtomOrdinal, int udd_atomEnergyType );
 
-  void AddConnection (int ia1, int ia2, PPCAtom selAtom1, PPCAtom selAtom2,
+  void AddConnection (int ia1, int ia2, mmdb::PPAtom selAtom1, mmdb::PPAtom selAtom2,
                        int offset1 =0 , int offset2 = 0);
-  void AddConnection (int ia1, int ia2, PPCAtom selAtom,int offset=0);
-  void AddConnection (PCAtom pa1, PCAtom pa2);
-  int DeleteConnection ( PCAtom pa1 , PCAtom pa2);
+  void AddConnection (int ia1, int ia2, mmdb::PPAtom selAtom,int offset=0);
+  void AddConnection (Pmmdb::Atom pa1, Pmmdb::Atom pa2);
+  int DeleteConnection ( Pmmdb::Atom pa1 , Pmmdb::Atom pa2);
 
-  bool isInterResBond ( PCAtom p1, PCAtom p2);
-  int IntraResContacts ( PCResidue p1, int nAlt,  PPCAtom modelSelAtom[]=NULL, int nSelAtom[]=NULL, int firstModel=0, int lastModel=0);
-  bool ltBondDistance ( PCAtom pa1, PCAtom pa2, realtype dist);
+  bool isInterResBond ( Pmmdb::Atom p1, Pmmdb::Atom p2);
+  int IntraResContacts ( Pmmdb::Residue p1, int nAlt,  mmdb::PPAtom modelSelAtom[]=NULL, int nSelAtom[]=NULL, int firstModel=0, int lastModel=0);
+  bool ltBondDistance ( Pmmdb::Atom pa1, Pmmdb::Atom pa2, realtype dist);
 
  private:
  

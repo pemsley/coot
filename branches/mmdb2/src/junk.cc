@@ -106,7 +106,7 @@ int toggle_active_mol(int imol) {
          if (mutate_auto_fit_do_post_refine_flag) {
 	    // Run refine zone with autoaccept, autorange on
 	    // the "clicked" atom:
-	    CAtom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
+	    mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
 	    std::string chain_id = at->GetChainID();
 	    refine_auto_range(naii.imol, chain_id.c_str(), at->GetSeqNum(),
 			      at->altLoc);
@@ -205,7 +205,7 @@ graphics_info_t::rot_trans_obj(int x_diff, const std::string &button_label) {
       if (rot_trans_rotation_origin_atom) {
 	 
 	 // int indx = rot_trans_atom_index_rotation_origin_atom;
-	 CAtom *rot_centre = rot_trans_rotation_origin_atom;
+	 mmdb::Atom *rot_centre = rot_trans_rotation_origin_atom;
 	 clipper::Coord_orth rotation_centre(rot_centre->x, 
 					     rot_centre->y, 
 					     rot_centre->z);
@@ -415,7 +415,7 @@ graphics_info_t::find_atom_index_in_moving_atoms(char *chain_id, int resno, char
 					  );
 
       int nSelAtoms; 
-      PPCAtom local_SelAtom = NULL; 
+      mmdb::PPAtom local_SelAtom = NULL; 
       moving_atoms_asc->mol->GetSelIndex(SelHnd, local_SelAtom, nSelAtoms);   
       if (nSelAtoms > 0) {
 	 for(int i=0; i<moving_atoms_asc->n_selected_atoms; i++) { 
@@ -500,12 +500,12 @@ graphics_info_t::find_atom_index_in_moving_atoms(char *chain_id, int resno, char
 // pair.first  = 1 for success
 // 
 std::pair<clipper::RTop_orth, short int>
-molecule_class_info_t::get_ori_to_this_res(CResidue *res) const {
+molecule_class_info_t::get_ori_to_this_res(mmdb::Residue *res) const {
 
    std::pair<clipper::RTop_orth, short int>  pair;
    // clipper::RTop_orth op;
 
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
    res->GetAtomTable(residue_atoms, nResidueAtoms);
    if (nResidueAtoms == 0) {
@@ -654,7 +654,7 @@ void add_to_history(std::vector<std::string> ls) {
       if () {
 	 // update the graph then 
 	 if (vr.size() > 0) {
-	    PCResidue *selresidues[vr.size()];
+	    Pmmdb::Residue *selresidues[vr.size()];
 	    for (int i=0; i<vr.size(); i++) {
 	       selresidues[i] = vr[i];
 	    }
@@ -1277,21 +1277,21 @@ coot::get_f_phi_columns(const std::string &filename) {
       make_backup();
       atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
       
-      CModel *model_p = atom_sel.mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 if (to_chain == chain_p) { 
 	    int nres = chain_p->GetNumberOfResidues();
-	    PCResidue residue_p;
+	    Pmmdb::Residue residue_p;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = to_chain->GetResidue(ires);
 	       int resno = residue_p->GetSeqNum();
 	       if (resno <= residue_range_2 && resno >= residue_range_1) { 
 		  int n_atoms = residue_p->GetNumberOfAtoms();
-		  CAtom *at;
+		  mmdb::Atom *at;
 		  for (int iat=0; iat<n_atoms; iat++) {
 		     at = residue_p->GetAtom(iat);
 		     clipper::Coord_orth p(at->x, at->y, at->z);
@@ -1348,8 +1348,8 @@ coot::get_f_phi_columns(const std::string &filename) {
       int n_models = atom_sel.mol->GetNumberOfModels();
       for (int imod=1; imod<=n_models; imod++) { 
       
-	 CModel *model_p = atom_sel.mol->GetModel(imod);
-	 CChain *chain_p;
+	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+	 mmdb::Chain *chain_p;
 	 int nchains = model_p->GetNumberOfChains();
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
@@ -1360,8 +1360,8 @@ coot::get_f_phi_columns(const std::string &filename) {
 	    // of atoms, not chains).
 
 	    int nres = chain_p->GetNumberOfResidues();
-	    PCResidue residue_p;
-	    CAtom *at = 0;
+	    Pmmdb::Residue residue_p;
+	    mmdb::Atom *at = 0;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       int n_atoms = residue_p->GetNumberOfAtoms();
@@ -1438,7 +1438,7 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 // 		<< ai->altconf << std::endl;
 
       imol = ai->molecule_number;  // hehe
-      CAtom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
+      mmdb::Atom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
       std::pair<short int, float>  occ_entry = graphics_info_t::float_from_entry(GTK_WIDGET(ls->data));
       if (occ_entry.first) {
 	 if (at) { 
@@ -1469,7 +1469,7 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 // 		<< ai->residue_number << " " << ai->atom_name << " "
 // 		<< ai->altconf << std::endl;
       imol = ai->molecule_number;  // hehe
-      CAtom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
+      mmdb::Atom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
       std::pair<short int, float>  temp_entry = graphics_info_t::float_from_entry(GTK_WIDGET(ls->data));
       if (temp_entry.first) {
 	 if (at) { 
@@ -1706,7 +1706,7 @@ int test_torsion_derivs() {
    geom.init_standard();
    int selHnd = atom_sel.mol->NewSelection();
    int nSelResidues; 
-   PCResidue *SelResidues = NULL;
+   Pmmdb::Residue *SelResidues = NULL;
    atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
 			chn,
 			resno-1, "",
@@ -1791,7 +1791,7 @@ pick_intermediate_atom(const atom_selection_container_t &SelAtom) {
    pick_info pi = pick_atom(SelAtom, -1, front, back, pick_mode, 0);
    if (pi.success == GL_TRUE) {
       std::cout << "flashing picked intermediate atom" << std::endl;
-      CAtom *at = graphics_info_t::molecules[pi.imol].atom_sel.atom_selection[pi.atom_index];
+      mmdb::Atom *at = graphics_info_t::molecules[pi.imol].atom_sel.atom_selection[pi.atom_index];
       clipper::Coord_orth co(at->x, at->y, at->z);
       graphics_info_t::flash_position(co);
    } 
@@ -1843,7 +1843,7 @@ pick_intermediate_atom(const atom_selection_container_t &SelAtom) {
 
 
 	 
-	 CAtom *at = new CAtom();
+	 mmdb::Atom *at = new mmdb::Atom();
 	 std::string h_name = " H";
 	 if (i<100) { // protection (unlikely needed of course)
 	    h_name += coot::util::int_to_string(i);
@@ -1964,8 +1964,8 @@ molecule_class_info_t::get_vector(const coot::residue_spec_t &central_residue_sp
 
    clipper::Coord_orth r(0,0,0);
 
-   CResidue *central_residue = get_residue(central_residue_spec);
-   CResidue *neighbour_residue = get_residue(neighbour_residue_spec);
+   mmdb::Residue *central_residue = get_residue(central_residue_spec);
+   mmdb::Residue *neighbour_residue = get_residue(neighbour_residue_spec);
 
    if (! central_residue) {
       std::string message = "Missing residue ";
@@ -1985,10 +1985,10 @@ molecule_class_info_t::get_vector(const coot::residue_spec_t &central_residue_sp
 
 	 double min_dist = 42e32;
 	 clipper::Coord_orth shortest_dist(0,0,0); // "best"
-	 PPCAtom c_residue_atoms = 0;
+	 mmdb::PPAtom c_residue_atoms = 0;
 	 int c_n_residue_atoms;
 	 central_residue->GetAtomTable(c_residue_atoms, c_n_residue_atoms);
-	 PPCAtom n_residue_atoms = 0;
+	 mmdb::PPAtom n_residue_atoms = 0;
 	 int n_n_residue_atoms;
 	 neighbour_residue->GetAtomTable(n_residue_atoms, n_n_residue_atoms);
 	 for (unsigned int iat=0; iat<c_n_residue_atoms; iat++) {
@@ -2028,7 +2028,7 @@ molecule_class_info_t::get_vector(const coot::residue_spec_t &central_residue_sp
 // Of course the asc that is passed is the moving atoms asc.
 // 
 short int 
-graphics_info_t::update_residue_by_chi_change_old(CResidue *residue,
+graphics_info_t::update_residue_by_chi_change_old(mmdb::Residue *residue,
 						  atom_selection_container_t &asc,
 						  int nth_chi, double diff) {
 
@@ -2051,7 +2051,7 @@ graphics_info_t::update_residue_by_chi_change_old(CResidue *residue,
    if (istat.first) { // failure
 
       if (0) {
-	 PPCAtom residue_atoms;
+	 mmdb::PPAtom residue_atoms;
 	 int n_residue_atoms;
 	 
 	 residue->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -2073,7 +2073,7 @@ graphics_info_t::update_residue_by_chi_change_old(CResidue *residue,
 				chi_angles_clicked_atom_spec,
 				find_hydrogen_torsions_flag);
       if (0) {
-	 PPCAtom residue_atoms;
+	 mmdb::PPAtom residue_atoms;
 	 int n_residue_atoms;
 	 
 	 residue->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -2112,8 +2112,8 @@ graphics_info_t::update_residue_by_chi_change_old(CResidue *residue,
 
 
 
-   std::vector<fle_ligand_bond_t> get_fle_ligand_bonds(CResidue *res_ref,
-						       const std::vector<CResidue *> &residues,
+   std::vector<fle_ligand_bond_t> get_fle_ligand_bonds(mmdb::Residue *res_ref,
+						       const std::vector<mmdb::Residue *> &residues,
 						       const std::map<std::string, std::string> &name_map);
    
 
@@ -2125,8 +2125,8 @@ graphics_info_t::update_residue_by_chi_change_old(CResidue *residue,
 // in res_ref (often/typically), but are in the flat residue.
 // 
 std::vector<coot::fle_ligand_bond_t>
-coot::get_fle_ligand_bonds(CResidue *ligand_res,
-			   const std::vector<CResidue *> &residues,
+coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
+			   const std::vector<mmdb::Residue *> &residues,
 			   const std::map<std::string, std::string> &name_map) { 
    std::vector<coot::fle_ligand_bond_t> v;
 
@@ -2134,7 +2134,7 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
    double bond_length = 3.3;
 
    double bl_2 = bond_length * bond_length;
-   PPCAtom ligand_residue_atoms = 0;
+   mmdb::PPAtom ligand_residue_atoms = 0;
    int n_ligand_residue_atoms;
    ligand_res->GetAtomTable(ligand_residue_atoms, n_ligand_residue_atoms);
    for (unsigned int iat=0; iat<n_ligand_residue_atoms; iat++) {
@@ -2144,7 +2144,7 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 				    ligand_residue_atoms[iat]->y,
 				    ligand_residue_atoms[iat]->z);
 	 for (unsigned int ires=0; ires<residues.size(); ires++) {
-	    PPCAtom residue_atoms = 0;
+	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    residues[ires]->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (unsigned int jat=0; jat<n_residue_atoms; jat++) {

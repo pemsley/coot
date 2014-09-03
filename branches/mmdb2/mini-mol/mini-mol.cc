@@ -75,8 +75,8 @@ coot::minimol::molecule::molecule(const coot::minimol::fragment &frag) {
 // to set the positions of the atoms.  Used in rigid body
 // fitting of atoms moved with an atom selection (jiggle_fit)
 // 
-coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
-				  const std::vector<CAtom> &atoms) {
+coot::minimol::molecule::molecule(mmdb::PPAtom atom_selection, int n_residues_atoms,
+				  const std::vector<mmdb::Atom> &atoms) {
 
    if (atoms.size() != n_residues_atoms) {
       std::cout << "ERROR inconsistence size in minimol molecule constructor"
@@ -85,9 +85,9 @@ coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
    }
 
    for (int iat=0; iat<n_residues_atoms; iat++) {
-      CAtom *at = atom_selection[iat];
-      CResidue *residue_p = at->residue;
-      CChain *chain_p = at->GetChain();
+      mmdb::Atom *at = atom_selection[iat];
+      mmdb::Residue *residue_p = at->residue;
+      mmdb::Chain *chain_p = at->GetChain();
       int resno = residue_p->GetSeqNum();
       std::string res_name = residue_p->GetResName();
       std::string chain_id = chain_p->GetChainID();
@@ -147,7 +147,7 @@ coot::minimol::molecule::molecule(PPCAtom atom_selection, int n_residues_atoms,
 // coot-coord-utils.
 // 
 std::pair<bool, int>
-coot::minimol::molecule::min_resno_in_chain(CChain *chain_p) const {
+coot::minimol::molecule::min_resno_in_chain(mmdb::Chain *chain_p) const {
 
    bool found_residues = 0;
    int min_resno = 99999999;
@@ -160,7 +160,7 @@ coot::minimol::molecule::min_resno_in_chain(CChain *chain_p) const {
 		<< std::endl;
    } else { 
       int nres = chain_p->GetNumberOfResidues();
-      CResidue *residue_p;
+      mmdb::Residue *residue_p;
       int resno;
       for (int ires=0; ires<nres; ires++) {
 	 residue_p = chain_p->GetResidue(ires);
@@ -198,11 +198,11 @@ coot::minimol::molecule::setup(CMMDBManager *mol) {
       // for (int imod=1; imod<=n_models; imod++) {
       if (imod == 1) { 
       
-	 CModel *model_p = mol->GetModel(imod);
+	 mmdb::Model *model_p = mol->GetModel(imod);
 	 if (! model_p) {
 	    // std::cout << "NULL model_p in ::setup() " << std::endl;
 	 } else { 
-	    CChain *chain_p;
+	    mmdb::Chain *chain_p;
 	    // run over chains of the existing mol 
 	    int nchains = model_p->GetNumberOfChains();
 	    if (nchains <= 0) { 
@@ -228,8 +228,8 @@ coot::minimol::molecule::setup(CMMDBManager *mol) {
 		     std::pair<short int, int> min_info = min_resno_in_chain(chain_p);
 		     if (min_info.first) { 
 			fragments[ifrag].resize_for(nres, min_info.second);
-			PCResidue residue_p;
-			CAtom *at;
+			Pmmdb::Residue residue_p;
+			mmdb::Atom *at;
 			for (int ires=0; ires<nres; ires++) { 
 			   residue_p = chain_p->GetResidue(ires);
 			   coot::minimol::residue r(residue_p->seqNum); 
@@ -502,15 +502,15 @@ coot::minimol::molecule::fragment_for_chain(const std::string &chain_id) {
    return imatch;
 }
 
-// Make a residue from a CResidue *:
+// Make a residue from a mmdb::Residue *:
 // 
-coot::minimol::residue::residue(CResidue* residue_p) {
+coot::minimol::residue::residue(mmdb::Residue* residue_p) {
 
    seqnum = residue_p->seqNum;
    ins_code = residue_p->GetInsCode();
    name = residue_p->name;
    int nResidueAtoms;
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
    for (int i=0; i<nResidueAtoms; i++) {
       addatom(std::string(residue_atoms[i]->name),
@@ -525,14 +525,14 @@ coot::minimol::residue::residue(CResidue* residue_p) {
 }
 
 // 
-coot::minimol::residue::residue(CResidue *residue_p,
+coot::minimol::residue::residue(mmdb::Residue *residue_p,
 				const std::vector<std::string> &keep_only_these_atoms) {
 
    seqnum = residue_p->seqNum;
    ins_code = residue_p->GetInsCode();
    name = residue_p->name;
    int nResidueAtoms;
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
    for (int i=0; i<nResidueAtoms; i++) {
       std::string atom_name = residue_atoms[i]->name;
@@ -626,7 +626,7 @@ coot::minimol::fragment::operator[](int i) {
 // 	 std::cout << "DEBUG:: residues.size() is " << residues.size() << " and offset_diff is " << offset_diff
 // 		   << " new_offset " << new_offset << " residues_offset " << residues_offset
 // 		   << " and passed i " << i << std::endl;
-// 	 std::cout << "FYI: MinInt4 is " << MinInt4 << std::endl;
+// 	 std::cout << "FYI: mmdb::MinInt4 is " << MinInt4 << std::endl;
 	 
 	 std::vector<residue> new_residues(residues.size() - offset_diff);
 	 // copy across the current residues...
@@ -781,7 +781,7 @@ coot::minimol::atom::atom(std::string atom_name,
    temperature_factor = dbf;
 }
 
-coot::minimol::atom::atom(CAtom *at) {
+coot::minimol::atom::atom(mmdb::Atom *at) {
    name = at->name;
    element = at->element;
    pos = clipper::Coord_orth(at->x, at->y, at->z);
@@ -823,10 +823,10 @@ coot::minimol::molecule::pcmmdbmanager() const {
 
    // we have to add to the mmdb mol atom by atom
 
-   CModel *model_p = new CModel;
-   CChain *chain_p;
-   CResidue *res_p;
-   CAtom    *atom_p;
+   mmdb::Model *model_p = new mmdb::Model;
+   mmdb::Chain *chain_p;
+   mmdb::Residue *res_p;
+   mmdb::Atom    *atom_p;
    int i_add; // error flag
    for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) {
 //       std::cout << "fragment_id for fragment " << ifrag << " is "
@@ -838,13 +838,13 @@ coot::minimol::molecule::pcmmdbmanager() const {
       if (n_residues != 0) n_residues = n_residues -1;
 //       std::cout << "   writing out " << n_residues
 // 		<< " residues for " << fragments[ifrag].fragment_id << std::endl; 
-      chain_p = new CChain;
+      chain_p = new mmdb::Chain;
       chain_p->SetChainID((char *)fragments[ifrag].fragment_id.c_str());
       model_p->AddChain(chain_p);
       // see that residues are not zero index (fragments and atoms *are*).
       for (int ires=fragments[ifrag].min_res_no(); ires<=fragments[ifrag].max_residue_number(); ires++) {
 	 if (fragments[ifrag][ires].atoms.size() > 0) {
-	    res_p = new CResidue;
+	    res_p = new mmdb::Residue;
 	    res_p->SetResID((*this)[ifrag][ires].name.c_str(),
 			    (*this)[ifrag][ires].seqnum,
 			    (*this)[ifrag][ires].ins_code.c_str());
@@ -855,7 +855,7 @@ coot::minimol::molecule::pcmmdbmanager() const {
 	       // 		      << fragments[ifrag][ires].atoms.size()
 	       // 		      << " atoms " << std::endl;
 	       for (unsigned int iatom=0; iatom<fragments[ifrag][ires].atoms.size(); iatom++) {
-		  atom_p = new CAtom;
+		  atom_p = new mmdb::Atom;
 		  atom_p->SetCoordinates((*this)[ifrag][ires][iatom].pos.x(),
 					 (*this)[ifrag][ires][iatom].pos.y(),
 					 (*this)[ifrag][ires][iatom].pos.z(),
@@ -959,7 +959,7 @@ coot::minimol::molecule::molecule_of_atom_types(std::string at_type) const {
 // Sometimes one does.
 //
 // If this is called with an uninitialised res (res.seqnum ==
-// MinInt4), throw a runtime_error.
+// mmdb::MinInt4), throw a runtime_error.
 //
 void
 coot::minimol::fragment::addresidue(const coot::minimol::residue &res,
@@ -1037,7 +1037,7 @@ coot::minimol::operator<<(std::ostream& s, coot::minimol::atom at) {
 std::ostream&
 coot::minimol::operator<<(std::ostream& s, coot::minimol::residue res) {
 
-   if (res.seqnum == MinInt4) 
+   if (res.seqnum == mmdb::MinInt4) 
       s << "residue is undefined! ";
    if (res.atoms.size() > 0) 
       s << res.name << " contains " << res.atoms.size() << " atoms";

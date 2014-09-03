@@ -275,11 +275,11 @@ graphics_info_t::residue_tree_selection_func(GtkTreeSelection *selection,
 		   // std::cout << "Null residue " << residue_data << std::endl;
 		   // std::cout << "should expand here, perhaps?" << std::endl;
 		} else {
-		   // CResidue *res = (CResidue *) residue_data;
+		   // mmdb::Residue *res = (mmdb::Residue *) residue_data;
 		   
 		   coot::residue_spec_t *rsp = static_cast<coot::residue_spec_t *> (residue_data);
-		   CResidue *res = molecules[go_to_imol].get_residue(*rsp);
-		   CAtom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
+		   mmdb::Residue *res = molecules[go_to_imol].get_residue(*rsp);
+		   mmdb::Atom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
 		   if (!at) {
 		      std::cout << "ERROR:: failed to get atom in intelligent_this_residue_mmdb_atom: "
 				<< go_to_imol << " " << res << " (tree selected)" << std::endl;
@@ -343,13 +343,13 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
 		// std::cout << "should expand here, perhaps?" << std::endl;
 	     } else {
 
-		// CResidue *res = (CResidue *) residue_data;
+		// mmdb::Residue *res = (mmdb::Residue *) residue_data;
 
 		coot::residue_spec_t *rsp = static_cast<coot::residue_spec_t *> (residue_data);
 
-		CResidue *res = molecules[go_to_imol].get_residue(*rsp);
+		mmdb::Residue *res = molecules[go_to_imol].get_residue(*rsp);
 		
-		CAtom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
+		mmdb::Atom *at = molecules[go_to_imol].intelligent_this_residue_mmdb_atom(res);
 		// this does simple setting, nothing else
 		if (!at) {
 		   std::cout << "ERROR:: failed to get atom in intelligent_this_residue_mmdb_atom: "
@@ -462,7 +462,7 @@ graphics_info_t::atom_tree_atom_row_activated(GtkTreeView        *treeview,
 	    if (! atom_data) {
 	       std::cout << "ERROR:: no atom data!" << std::endl;
 	    } else {
-	       CAtom *at = (CAtom *) atom_data;
+	       mmdb::Atom *at = (mmdb::Atom *) atom_data;
 	       // std::cout << " reading from atom at: " << at << std::endl;
 	       g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
 							at->GetSeqNum(),
@@ -505,7 +505,7 @@ graphics_info_t::atom_tree_selection_func(GtkTreeSelection *selection,
 	    if (! atom_data) {
 	       std::cout << "ERROR:: no atom data!" << std::endl;
 	    } else {
-	       CAtom *at = (CAtom *) atom_data;
+	       mmdb::Atom *at = (mmdb::Atom *) atom_data;
 	       // std::cout << " reading from atom at: " << at << std::endl;
 	       g.set_go_to_atom_chain_residue_atom_name(at->GetChainID(),
 							at->GetSeqNum(),

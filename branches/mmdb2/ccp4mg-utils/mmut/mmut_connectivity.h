@@ -56,20 +56,20 @@ class Connectivity {
   std::vector<Connection> TotalSelection_new;
   int IsInTotalSelection(int idx) const;
   int nSelAtomsTot;
-  PPCAtom SelAtomsTot;
+  mmdb::PPAtom SelAtomsTot;
   
  public:
   Connectivity();
   ~Connectivity();
-  void AddBonds(CMMANManager *molhnd, int selhnd, const PPCAtom SelAtoms_in, const int nSelAtoms_in, int all_selHnd);
-  void AddContacts(CMMANManager *molhnd, int selhnd, const PPCAtom SelAtoms_in, const int nSelAtoms_in, const PSContact contacts_in, const int ncontacts_in);
-  void AddTrace(PCMMANManager molhnd, const PPCAtom selAtoms, const int nSelAtoms,
+  void AddBonds(CMMANManager *molhnd, int selhnd, const mmdb::PPAtom SelAtoms_in, const int nSelAtoms_in, int all_selHnd);
+  void AddContacts(CMMANManager *molhnd, int selhnd, const mmdb::PPAtom SelAtoms_in, const int nSelAtoms_in, const PSContact contacts_in, const int ncontacts_in);
+  void AddTrace(PCMMANManager molhnd, const mmdb::PPAtom selAtoms, const int nSelAtoms,
 		realtype cutoff );
   std::vector<std::vector<int> > GetConnectivityLists(void) const;
   std::vector<std::vector<int> > GetExternalConnectivityLists(void) const;
   int GetNumberOfAtoms(void) const;
-  PPCAtom GetAtoms(void) const;
-  std::vector<int> GetCAtomIndex(void);
+  mmdb::PPAtom GetAtoms(void) const;
+  std::vector<int> Getmmdb::AtomIndex(void);
   void Clear(void);
   //Tree GetTree(PCMMANManager molhnd) const;
 };
@@ -89,8 +89,8 @@ class Connectivity2 {
 
 
  public:
-  std::vector<PCAtom> pAtom1;
-  std::vector<PCAtom> pAtom2;
+  std::vector<Pmmdb::Atom> pAtom1;
+  std::vector<Pmmdb::Atom> pAtom2;
   std::vector<Cartesian> XYZ1;
   std::vector<SimpleConnection> connected;
   std::vector<int> tags;
@@ -100,24 +100,24 @@ class Connectivity2 {
 
   Connectivity2(int data_mode=CONN_ATOM_ATOM,int crystal_axes=0,int tagged=0);
   ~Connectivity2();
-  void AddConnection(PCAtom p_atom1,PCAtom p_atom2, const std::string &label_in="", int tag=-1);
+  void AddConnection(Pmmdb::Atom p_atom1,Pmmdb::Atom p_atom2, const std::string &label_in="", int tag=-1);
   void AddConnection( double xyz1[3] ,  double xyz2[3] , const std::string &label_in,int tag=-1);
-  void AddConnection(  PCAtom p_atom1, double xyz2[3] ,
+  void AddConnection(  Pmmdb::Atom p_atom1, double xyz2[3] ,
     const std::string &label_in, int tag=-1);
-  void InsertConnection(bool replace, unsigned int position,PCAtom p_atom1,PCAtom p_atom2, const std::string &label_in="", int tag=-1);
+  void InsertConnection(bool replace, unsigned int position,Pmmdb::Atom p_atom1,Pmmdb::Atom p_atom2, const std::string &label_in="", int tag=-1);
   void InsertConnection( bool replace, unsigned int position, double xyz1[3] ,  double xyz2[3] , const std::string &label_in,int tag=-1);
-  void InsertConnection(  bool replace, unsigned int position, PCAtom p_atom1, double xyz2[3] ,
+  void InsertConnection(  bool replace, unsigned int position, Pmmdb::Atom p_atom1, double xyz2[3] ,
     const std::string &label_in, int tag=-1);
-  void AddUniqueConnection(PCAtom p_atom1,PCAtom p_atom2, const std::string &label_in="",int tag = -1);
+  void AddUniqueConnection(Pmmdb::Atom p_atom1,Pmmdb::Atom p_atom2, const std::string &label_in="",int tag = -1);
   void UpdateCoordinates(bool label_dist=false);
-  void RemoveConnection(PCAtom p_atom1,PCAtom p_atom);
-  void RemoveConnection(PCAtom p_atom1,int position);
+  void RemoveConnection(Pmmdb::Atom p_atom1,Pmmdb::Atom p_atom);
+  void RemoveConnection(Pmmdb::Atom p_atom1,int position);
   void DeleteConnection(int index);
   void DeleteConnections();
   int GetNofConnections() { return  connected.size(); }
-  std::vector<unsigned int> FindConnections(PCAtom p_atom1,PCAtom p_atom,bool switchpos=1);
-  std::vector<unsigned int> FindConnections(PCAtom p_atom1, int position=0);
-  int FindNofConnections(PCAtom p_atom1,int position=0);
+  std::vector<unsigned int> FindConnections(Pmmdb::Atom p_atom1,Pmmdb::Atom p_atom,bool switchpos=1);
+  std::vector<unsigned int> FindConnections(Pmmdb::Atom p_atom1, int position=0);
+  int FindNofConnections(Pmmdb::Atom p_atom1,int position=0);
   void Clear(void);	
   int SelectVectors (int nSelTags , int *selTags );
   realtype* Extent();
@@ -125,25 +125,25 @@ class Connectivity2 {
   int DataMode(void) { return data_mode; }
   std::string GetLabel(int i){ return connected[i].label ; }
   Cartesian GetCoordinate(int i, int j=1);
-  PCAtom GetAtom(int i, int j=1);
+  Pmmdb::Atom GetAtom(int i, int j=1);
   std::string GetAtomID ( int i, int j);
   int GetTag(int iV);
   int SetTag(int iV,int i);
   int AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager molHnd2,int selHnd2_in,realtype  dist1, realtype  dist2, int  seqDist, int inter_model=0, int closest_bonding=5, int handle_hbond=0 );
-  int AddRangeConnections(int set, PCResidue res1,PCResidue res2, 
-		 PCResidue mres1, 
+  int AddRangeConnections(int set, Pmmdb::Residue res1,Pmmdb::Residue res2, 
+		 Pmmdb::Residue mres1, 
 		 const std::vector<std::string>& mainchain_name,
 			        int tag );
-  int AddCloseRangeConnections(int set,PCResidue res1,
-                    PCResidue res2,PCMMANManager M2,
+  int AddCloseRangeConnections(int set,Pmmdb::Residue res1,
+                    Pmmdb::Residue res2,PCMMANManager M2,
 		      double central_cutoff, double cutoff,
 		    const std::vector<std::string>& mainchain_name,
                     const std::string &centralAtom, int tag );
 
   int GetSelection (int mode=1 );
   int Superpose(int fixed);
-  int MatchGraphs(PCResidue pRes1,const pstr altLoc1,
-                  PCResidue pRes2,const pstr altLoc2,
+  int MatchGraphs(Pmmdb::Residue pRes1,const pstr altLoc1,
+                  Pmmdb::Residue pRes2,const pstr altLoc2,
 		  int Hflag,int tag, float fracMinMatch=-1.0,
                   bool keep_matches=true);
 };

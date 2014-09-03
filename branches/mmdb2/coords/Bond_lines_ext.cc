@@ -86,7 +86,7 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
    cout << "found " << ncontacts << " bone contacts from "
 	 << SelAtom.n_selected_atoms << " selected bone atoms. " <<  endl;
 
-   PPCAtom atom_sel = SelAtom.atom_selection; // shorter form
+   mmdb::PPAtom atom_sel = SelAtom.atom_selection; // shorter form
  
    if (ncontacts > 0) {
       
@@ -157,7 +157,7 @@ Bond_lines_ext::find_molecule_middle(atom_selection_container_t SelAtom,
    cout << "found " << ncontacts << " bone contacts from "
 	 << SelAtom.n_selected_atoms << " selected bone atoms. " <<  endl;
 
-   PPCAtom atom_sel = SelAtom.atom_selection; // shorter form
+   mmdb::PPAtom atom_sel = SelAtom.atom_selection; // shorter form
  
    if (ncontacts > 0) {
 

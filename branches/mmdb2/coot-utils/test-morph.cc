@@ -13,13 +13,13 @@ get_coords_centre(const std::vector<coot::residue_spec_t> &residues,
    clipper::Coord_orth sum(0,0,0);
    int n_pt=0;
    for (unsigned int ires=0; ires<residues.size(); ires++) {
-      CResidue *residue_p = coot::util::get_residue(residues[ires], mol);
+      mmdb::Residue *residue_p = coot::util::get_residue(residues[ires], mol);
       if (residue_p) { 
-	 PPCAtom residue_atoms = 0;
+	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	    CAtom *at = residue_atoms[iat];
+	    mmdb::Atom *at = residue_atoms[iat];
 	    clipper::Coord_orth pt(at->x, at->y, at->z);
 	    sum += pt;
 	    n_pt++;
@@ -63,8 +63,8 @@ int main(int argc, char **argv) {
 
 	 
 	 int imod = 1;
-	 CModel *model_p = mol->GetModel(imod);
-	 CChain *chain_p;
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 mmdb::Chain *chain_p;
 	 int n_chains = model_p->GetNumberOfChains();
 
 	 // Just test a few for now.
@@ -74,7 +74,7 @@ int main(int argc, char **argv) {
 	 for (int ichain=0; ichain<n_chains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    int nres = chain_p->GetNumberOfResidues();
-	    CResidue *residue_p;
+	    mmdb::Residue *residue_p;
 	    for (int ires=0; ires<nres; ires++) {
 
 	       residue_p = chain_p->GetResidue(ires);
@@ -109,7 +109,7 @@ int main(int argc, char **argv) {
 				   SKEY_OR
 				   );
 	       }
-	       PPCAtom atom_sel=NULL;
+	       mmdb::PPAtom atom_sel=NULL;
 	       int n_sel;
 	       mol->GetSelIndex(SelHnd, atom_sel, n_sel);
 

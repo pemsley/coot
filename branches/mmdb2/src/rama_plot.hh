@@ -349,7 +349,7 @@ public:
    // Not sure about this yet
 //    void add_phi_psi(std::vector <util::phi_psi_t> *phi_psi_vec,
 // 		    CMMDBManager *mol, const char *chain_id,
-// 		    CResidue *prev, CResidue *this_res, CResidue *next_res);
+// 		    mmdb::Residue *prev, mmdb::Residue *this_res, mmdb::Residue *next_res);
 
    util::phi_psi_pair_helper_t make_phi_psi_pair(CMMDBManager *mol1,
 						 CMMDBManager *mol2,
@@ -360,7 +360,7 @@ public:
 
    // SelResidue is guaranteed to have 3 residues (there is no protection
    // for that in this function).
-   std::pair<bool, util::phi_psi_t> get_phi_psi(PCResidue *SelResidue) const;
+   std::pair<bool, util::phi_psi_t> get_phi_psi(Pmmdb::Residue *SelResidue) const;
 
    void map_mouse_pos(double x, double y);
    void mouse_motion_notify(GdkEventMotion *event, double x, double y);

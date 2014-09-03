@@ -132,8 +132,8 @@ return p_sbase;
 std::string CMMANManager::GetMolBonds (std::string monlib_file) {
 //-----------------------------------------------------------------------
   int nres,natoms,i;
-  PPCAtom atomTable = NULL;
-  PPCResidue selRes = NULL;
+  mmdb::PPAtom atomTable = NULL;
+  mmdb::PPResidue selRes = NULL;
   std::string output;
   int selHnd = -1;
 
@@ -197,7 +197,7 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
   //Select(selH,STYPE_ATOM,"/*/*/(ASP,ASN,LYS,TYR,LEU,GLU,GLN,HIS,SER,PHE,TRP,PRO,ARG,MET,CYS)/1HB,1HD1,1HE2,1HH1",SKEY_NEW);
   //Select(selH,STYPE_ATOM,"/*/*/(A,C,T,G,U)/C2*",SKEY_OR);
   //int nat;
-  //PPCAtom selat;
+  //mmdb::PPAtom selat;
   //GetSelIndex(selH, selat, nat );
   //cout << "unremediated nat " << nat << endl;
   //if (nat>0) { 
@@ -256,7 +256,7 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
 }
 
 //-----------------------------------------------------------------------
-int CMMANManager::EditBonds (int mode, PCAtom p_atom1, PCAtom p_atom2) {
+int CMMANManager::EditBonds (int mode, Pmmdb::Atom p_atom1, Pmmdb::Atom p_atom2) {
 //-----------------------------------------------------------------------
   if (!p_bonds) return 1;
   if (mode < 0) 
@@ -278,10 +278,10 @@ int CMMANManager::EditBonds (int mode, PCAtom p_atom1, PCAtom p_atom2) {
 //---------------------------------------------------------------------
 int CMMANManager::SetupAtomEnergyTypes () {
 //---------------------------------------------------------------------
-  PPCResidue resTable = NULL;
-  PPCAtom atomTable = NULL;
+  mmdb::PPResidue resTable = NULL;
+  mmdb::PPAtom atomTable = NULL;
   int i,j,nres,nat;
-  PCResidue p_res;
+  Pmmdb::Residue p_res;
   pstr compoundID = NULL;
   PCSBStructure p_sbase_struct;
   cpstr atomType;
@@ -351,7 +351,7 @@ int CMMANManager::GetAtomTypeData ( int selHnd, int type,
                                 rvector &dataout, int &nat ) {
 //--------------------------------------------------------------------------
 
-  PPCAtom atomTable;
+  mmdb::PPAtom atomTable;
   int i;
   int atomOrdinal;
 
@@ -394,7 +394,7 @@ Return an array of radii for selected atoms - expected to be used in
 drawing spheres etc.
 */
 
-  PPCAtom atomTable;
+  mmdb::PPAtom atomTable;
   int nat,i;
   int atomOrdinal;
   std::vector<double> atomRadii;
@@ -437,7 +437,7 @@ drawing spheres etc.
 }
 
 //--------------------------------------------------------------------
-int CMMANManager::GetAtomEnergyType(PCAtom p_atom) {
+int CMMANManager::GetAtomEnergyType(Pmmdb::Atom p_atom) {
 //--------------------------------------------------------------------
   int atomType;
   p_atom->GetUDData(udd_atomEnergyType, atomType);
@@ -445,7 +445,7 @@ int CMMANManager::GetAtomEnergyType(PCAtom p_atom) {
 }
 
 //---------------------------------------------------------------------
-realtype CMMANManager::GetAtomVDWRadius(PCAtom p_atom) {
+realtype CMMANManager::GetAtomVDWRadius(Pmmdb::Atom p_atom) {
 //---------------------------------------------------------------------
   int atomType;
   p_atom->GetUDData(udd_atomEnergyType, atomType);
@@ -457,7 +457,7 @@ realtype CMMANManager::GetAtomVDWRadius(PCAtom p_atom) {
 int CMMANManager::GetAtomTypeData ( int selHnd, int type,
                                 ivector &dataout, int &nat ) {
 //--------------------------------------------------------------------------
-  PPCAtom atomTable;
+  mmdb::PPAtom atomTable;
   int i;
   int atomOrd;
 
@@ -482,7 +482,7 @@ int CMMANManager::GetAtomTypeData ( int selHnd, int type,
 }
 
 //---------------------------------------------------------------------
-int CMMANManager::GetAtomHBondType1(PCAtom p_atom) {
+int CMMANManager::GetAtomHBondType1(Pmmdb::Atom p_atom) {
 //---------------------------------------------------------------------
   int atomOrd;
   std::string name;
@@ -491,7 +491,7 @@ int CMMANManager::GetAtomHBondType1(PCAtom p_atom) {
   return p_sbase->libAtom[atomOrd].hbType;
 }
 //---------------------------------------------------------------------
-const char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
+const char* CMMANManager::GetAtomHBondType(Pmmdb::Atom p_atom) {
 //---------------------------------------------------------------------
   int atomOrd;
   p_atom->GetUDData(udd_atomEnergyType, atomOrd);
@@ -505,7 +505,7 @@ const char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
 //---------------------------------------------------------------------
 int CMMANManager::LoadCharge(std::string loadfrom ) {
 //---------------------------------------------------------------------
-  PPCAtom atomTable = NULL;
+  mmdb::PPAtom atomTable = NULL;
   int i,nat,udd;
   int atomOrd,atomEtype;
   PCSBStructure pSbaseRes=NULL;
@@ -595,7 +595,7 @@ std::string CMMANManager::PrintCharges(void) {
   std::string AtomID;
   bool useUDD =0;
   realtype charge;
-  PPCAtom atomTable = NULL;
+  mmdb::PPAtom atomTable = NULL;
   int i,nat,udd;
 
   if (useUDD) {
@@ -626,7 +626,7 @@ std::string CMMANManager::PrintCharges(void) {
 }
  
 //-------------------------------------------------------------------- 
-pstr CMMANManager::GetSbaseCompoundID(PCAtom p_atom) {
+pstr CMMANManager::GetSbaseCompoundID(Pmmdb::Atom p_atom) {
 //--------------------------------------------------------------------
   pstr sbaseCompoundID = NULL;
   p_atom->residue->GetUDData(udd_sbaseCompoundID,sbaseCompoundID);
@@ -634,7 +634,7 @@ pstr CMMANManager::GetSbaseCompoundID(PCAtom p_atom) {
 }
 
 //---------------------------------------------------------------------
-pstr CMMANManager::GetSbaseCompoundID(PCResidue p_res) {
+pstr CMMANManager::GetSbaseCompoundID(Pmmdb::Residue p_res) {
 //---------------------------------------------------------------------
   pstr sbaseCompoundID = NULL;
   p_res->GetUDData(udd_sbaseCompoundID,sbaseCompoundID);
@@ -642,7 +642,7 @@ pstr CMMANManager::GetSbaseCompoundID(PCResidue p_res) {
 }
 
 //-------------------------------------------------------------------
-int CMMANManager::GetSbaseAtomOrdinal(PCAtom p_atom) {
+int CMMANManager::GetSbaseAtomOrdinal(Pmmdb::Atom p_atom) {
 //-------------------------------------------------------------------
   int sbaseAtomOrdinal;
   p_atom->GetUDData(udd_sbaseAtomOrdinal,sbaseAtomOrdinal);
@@ -656,13 +656,13 @@ void CMMANManager::SetLabelMask(int i,int value) {
 }
 
 //---------------------------------------------------------------------
-std::string CMMANManager::AtomLabel(PCAtom p_atom) {
+std::string CMMANManager::AtomLabel(Pmmdb::Atom p_atom) {
 //--------------------------------------------------------------------
   return AtomLabel(p_atom, &label_mask[0]);
 }
 
 //--------------------------------------------------------------------
-std::string CMMANManager::AtomLabel(PCAtom p_atom,int mask[]) {
+std::string CMMANManager::AtomLabel(Pmmdb::Atom p_atom,int mask[]) {
 //--------------------------------------------------------------------
 /*
 There is a simpler version of this method in CMMUTManager which
@@ -797,7 +797,7 @@ label << " " << p_atom->x << " " << p_atom->y << " " << p_atom->z;
 }
 
 //-----------------------------------------------------------------------
-std::string CMMANManager::ListSecStructure (int mask_in[] , PCAtom pAtom) {
+std::string CMMANManager::ListSecStructure (int mask_in[] , Pmmdb::Atom pAtom) {
 //-----------------------------------------------------------------------
   // Return a string with one SSE defined per line -
   // for use  in GUI listing SSEs
@@ -807,7 +807,7 @@ std::string CMMANManager::ListSecStructure (int mask_in[] , PCAtom pAtom) {
   int label_mask2[20] = {0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
   std::ostringstream output;
   int           nr;
-  PPCResidue  selRes=NULL;
+  mmdb::PPResidue  selRes=NULL;
   int mask[7];
   int last_sec = -1;
   int last_i = -1;
@@ -881,7 +881,7 @@ std::string CMMANManager::ListSecStructure (int mask_in[] , PCAtom pAtom) {
 
 
 //----------------------------------------------------------------------
-int CMMANManager::TestBonding ( PCAtom patom1, PCAtom patom2, int max ) {
+int CMMANManager::TestBonding ( Pmmdb::Atom patom1, Pmmdb::Atom patom2, int max ) {
 //----------------------------------------------------------------------
 // For pair of atoms return 2=bonded, 3=1,3 liked, 4=1-4 linked, 
 // 5=compatible Hbond types
@@ -937,7 +937,7 @@ int CMMANManager::TestBonding ( PCAtom patom1, PCAtom patom2, int max ) {
 }
 
 //---------------------------------------------------------------------
-void CMMANManager::ListBonds(int selHnd,int natoms,PPCAtom selAtom) {
+void CMMANManager::ListBonds(int selHnd,int natoms,mmdb::PPAtom selAtom) {
 //---------------------------------------------------------------------
   // List the bonds
   PSAtomBond AtomBond;
@@ -971,8 +971,8 @@ mode will determine the properties that are restored
 mode MMAN_COORDINATES - restore coordinates only
 */
   int nAtoms,nRestoreAtoms,i;
-  PPCAtom atoms = NULL;
-  PPCAtom restoreAtoms = NULL;
+  mmdb::PPAtom atoms = NULL;
+  mmdb::PPAtom restoreAtoms = NULL;
   GetAtomTable1(atoms,nAtoms);
   restore_molHnd->GetAtomTable1(restoreAtoms,nRestoreAtoms);
   if ( nAtoms != nRestoreAtoms) return 1;
@@ -1023,7 +1023,7 @@ mode MMAN_COORDINATES - restore coordinates only
 }
 
 //---------------------------------------------------------------------------
-int CMMANManager::MoveFragment(int nMove, PPCAtom moveAtoms, Cartesian dxyz){
+int CMMANManager::MoveFragment(int nMove, mmdb::PPAtom moveAtoms, Cartesian dxyz){
 //--------------------------------------------------------------------------- 
   /*
   Move a defined set of atoms
@@ -1042,8 +1042,8 @@ int CMMANManager::MoveFragment(int nMove, PPCAtom moveAtoms, Cartesian dxyz){
 int CMMANManager::LoadUDDData( const int property ) { 
 //-----------------------------------------------------------------------
   int selHnd;
-  PPCAtom atomTable = NULL;
-  PPCResidue resTable = NULL;
+  mmdb::PPAtom atomTable = NULL;
+  mmdb::PPResidue resTable = NULL;
   int nAtoms,nRes;
   int udd;
 
@@ -1146,7 +1146,7 @@ int CMMANManager::LoadUDDData( const int property ) {
 
 
 
-CMMANManager* GetMMANManager(PCAtom pAtom) {
+CMMANManager* GetMMANManager(Pmmdb::Atom pAtom) {
   return  (PCMMANManager)(PCMMDBFile)pAtom->GetCoordHierarchy();
 }
 
@@ -1177,7 +1177,7 @@ int CMMANManager::GenerateSymmetryModel(int model,int nsym,int i,int j,int k) {
 //------------------------------------------------------------------------
   // Apply transformation
   int new_model;
-  PCModel p_model;
+  Pmmdb::Model p_model;
   mat44 TMatrix;
 
   new_model =  CopyModel(model);
@@ -1191,7 +1191,7 @@ int CMMANManager::ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,int 
 //------------------------------------------------------------------------
   // Apply transformation
   mat44 TMatrix, invTMatrix, multTMatrix;
-  PCModel p_model;
+  Pmmdb::Model p_model;
 
   p_model = GetModel(model);
   if (p_model == NULL) return 1;
@@ -1224,7 +1224,7 @@ int CMMANManager::IfSymmetryNeighbours(int selHnd, int model, int nsym,
   PSContact contact = NULL; 
   int ncontacts; 
   int   maxlen = 0;
-  PPCAtom selAtoms=NULL, modelAtoms=NULL;
+  mmdb::PPAtom selAtoms=NULL, modelAtoms=NULL;
   int modelSelHnd, nSelAtoms, nModelAtoms;
 
   if ( dist < 0.1 || dist > 100.0 ) dist = 10.0;
@@ -1260,9 +1260,9 @@ int CMMANManager::IfSymmetryNeighbours(int selHnd, int model, int nsym,
 //------------------------------------------------------------------------
 int CMMANManager::CopyModel(int model) {
 //------------------------------------------------------------------------
-  PCModel new_model;
+  Pmmdb::Model new_model;
   
-  new_model = new CModel();
+  new_model = new mmdb::Model();
   new_model->Copy(GetModel(model));
   AddModel(new_model);
   PDBCleanup(PDBCLEAN_SERIAL);
@@ -1270,8 +1270,8 @@ int CMMANManager::CopyModel(int model) {
 
   // Copy atom types and bonds
   int selHnd1,selHnd2;
-  PPCAtom p_atom1,p_atom2;
-  PPCResidue p_res1,p_res2;
+  mmdb::PPAtom p_atom1,p_atom2;
+  mmdb::PPResidue p_res1,p_res2;
   int ia2,nat1,nat2,nb,eType,RC,udd;
   char S[100];
   PSAtomBond bonds;
@@ -1361,8 +1361,8 @@ int CMMANManager::SelectChainTermini( void ) {
   Return a selection handle for set of CA atoms of N/C chain termini residues
   This is used for labelling the termini
   */
-  PPCChain chainTable = NULL;
-  PPCResidue resTable = NULL;
+  PPmmdb::Chain chainTable = NULL;
+  mmdb::PPResidue resTable = NULL;
   int nChains,nRes,iser1,iser2;
 
   int tmpHnd = NewSelection();
@@ -1401,8 +1401,8 @@ int CMMANManager::SelectSSETermini( int selHnd ) {
   Return a selection handle for set of CA atoms of SSE termini residues
   This is used for labelling the termini
   */
-  PPCResidue resTable = NULL;
-  PCAtom pCA,pCA0;
+  mmdb::PPResidue resTable = NULL;
+  Pmmdb::Atom pCA,pCA0;
   int nRes,iser1,iser2;
   int nr, nr0, current_SSE;
   int resSelHnd;
@@ -1459,7 +1459,7 @@ int CMMANManager::SelectSSETermini( int selHnd ) {
 }
 
 //-----------------------------------------------------------------
-bool CMMANManager::isAminoacid (PCResidue pres) {
+bool CMMANManager::isAminoacid (Pmmdb::Residue pres) {
 //-----------------------------------------------------------------
   pstr sbaseCompoundID=NULL;
   PCSBStructure  pSbRes;
@@ -1476,10 +1476,10 @@ bool CMMANManager::isAminoacid (PCResidue pres) {
     return pres->isAminoacid();
   } else {
     if ( pres->chain->GetModel()->GetSerNum()>1) {
-      PCChain pc = NULL;
+      Pmmdb::Chain pc = NULL;
       if (GetModel(1) != NULL) pc = GetModel(1)->GetChain(pres->chain->GetChainID());
       if (!pc)  return  pres->isAminoacid();
-      PCResidue pres1= pc->GetResidue(pres->seqNum,pres->insCode);
+      Pmmdb::Residue pres1= pc->GetResidue(pres->seqNum,pres->insCode);
       if (!pres1) return  pres->isAminoacid();
       pres1->GetUDData(udd_sbaseCompoundID,sbaseCompoundID);
     } else {
@@ -1509,7 +1509,7 @@ bool CMMANManager::isAminoacid (PCResidue pres) {
 }
 
 //------------------------------------------------------------------------
-int CMMANManager::GetRestypeCode ( PCResidue pres ) {
+int CMMANManager::GetRestypeCode ( Pmmdb::Residue pres ) {
 //------------------------------------------------------------------------
   pstr sbaseCompoundID=NULL;
   PCSBStructure  pSbRes;
@@ -1596,8 +1596,8 @@ int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
   // Remove atoms closer that cutoff distance from a selection
   //std::cout << "ExcludeOverlappedAtoms\n";
   int tmpHnd1,tmpHnd2;
-  PPCAtom selAtoms1=NULL;
-  PPCAtom selAtoms2=NULL;
+  mmdb::PPAtom selAtoms1=NULL;
+  mmdb::PPAtom selAtoms2=NULL;
   int nat1,nat2;
   PSContact contacts = NULL;
   int ncontacts;
@@ -1721,7 +1721,7 @@ int CMMANManager::SetTransform ( const realtype rot ,const std::vector<float>& a
   int selHnd;
 
   if ((!transform_com_set) || selHndin>0 ) {
-    PPCAtom atomTable;
+    mmdb::PPAtom atomTable;
     int nAtoms;
     realtype xx=0.0,yy=0.0,zz=0.0;
     if (selHndin > 0 ) {
@@ -1840,7 +1840,7 @@ std::string CMMANManager::GetTransformString() {
 }
 
 //----------------------------------------------------------------------------
-int CMMANManager::TransformToSuperposeAtoms (  PPCAtom A1, int nA, PPCAtom A2) {
+int CMMANManager::TransformToSuperposeAtoms (  mmdb::PPAtom A1, int nA, mmdb::PPAtom A2) {
 //-----------------------------------------------------------------------------
   /*
   Atom set A1 should be in this model and are the 'moving' atoms
@@ -1855,11 +1855,11 @@ int CMMANManager::TransformToSuperposeAtoms (  PPCAtom A1, int nA, PPCAtom A2) {
   return rv;
 }
 //----------------------------------------------------------------------------
-double CMMANManager::DeltaResidueOrientation (PCResidue pRes,PCResidue pResFx) {
+double CMMANManager::DeltaResidueOrientation (Pmmdb::Residue pRes,Pmmdb::Residue pResFx) {
 //-----------------------------------------------------------------------------
   // Create selection of atoms that will be superposed
-  PCAtom mvAtoms[5];
-  PCAtom fxAtoms[5];
+  Pmmdb::Atom mvAtoms[5];
+  Pmmdb::Atom fxAtoms[5];
   int nat=0;
   const char *names[] = { "CA" , "N", "C", "CB" };
 
@@ -1887,10 +1887,10 @@ int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd,
          int fxSelHnd , realtype central_cutoff, realtype cutoff ,
          int mvSuperposeHnd,int fxSuperposeHnd ) {
 //------------------------------------------------------------------------
-  PPCAtom fxSelAtoms = NULL;
+  mmdb::PPAtom fxSelAtoms = NULL;
   int fxNAtoms;
   int fxResHnd;
-  PPCResidue fxRes = NULL;
+  mmdb::PPResidue fxRes = NULL;
   int fxNRes;
 
   // Max possible number of superposed atoms
@@ -1911,14 +1911,14 @@ int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd,
   // Create selection of atoms that will be superposed
   //mvSuperposeHnd = NewSelection();
   //fxSuperposeHnd = fxMolHnd->NewSelection();
-  PPCAtom fxSuperpose = NULL;
-  PPCAtom mvSuperpose = NULL;
+  mmdb::PPAtom fxSuperpose = NULL;
+  mmdb::PPAtom mvSuperpose = NULL;
   int fxNSuperpose,mvNSuperpose;
 
 
   //Get the 'central' atoms in the moving model
   int centralHnd = NewSelection();
-  PPCAtom centralAtoms;
+  mmdb::PPAtom centralAtoms;
   int centralNAtoms;
   Select(centralHnd,STYPE_ATOM,0,"*",ANY_RES,
        "*",ANY_RES, "*","*","CA","C","*",SKEY_NEW);
@@ -1927,9 +1927,9 @@ int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd,
 
   // Loop over residues in fixed model
 
-  PCAtom pCentralAtom;
-  PCResidue closeRes;
-  PCAtom fxAtom,closeAtom;
+  Pmmdb::Atom pCentralAtom;
+  Pmmdb::Residue closeRes;
+  Pmmdb::Atom fxAtom,closeAtom;
   int ncontacts,best_match;
   double score,best_score;
 
@@ -2013,7 +2013,7 @@ int CMMANManager::CopyCoordinates(const PCMMDBManager fromMolHnd,int fromModel) 
   /*
   Copy coordinates - assume same number of atoms in both models
   */
-  PPCAtom toAtoms=NULL, fromAtoms=NULL;
+  mmdb::PPAtom toAtoms=NULL, fromAtoms=NULL;
   int toSelHnd,fromSelHnd, toNat, fromNat;
 
   if (GetNumberOfModels() == 1) {
@@ -2058,7 +2058,7 @@ int CMMANManager::LoadSerial(const PCMMDBManager fromMolHnd ) {
   /*
   Copy serial numbers from one MMDBManager to UDD of another MMDBManager
   */
-  PPCAtom toAtoms=NULL, fromAtoms=NULL;
+  mmdb::PPAtom toAtoms=NULL, fromAtoms=NULL;
   int toSelHnd,fromSelHnd, toNat, fromNat;
 
   toSelHnd = NewSelection();
@@ -2111,7 +2111,7 @@ std::string CMMANManager::PrintSecStructure (void) {
 
   std::ostringstream output;
   int           nr;
-  PPCResidue    selRes=NULL;
+  mmdb::PPResidue    selRes=NULL;
   std::string resid;
 
   output << "Secondary Structure Assignment based on Kabsch & Sanders"

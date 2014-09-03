@@ -275,10 +275,10 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 //
 // We can only handle atoms in the residue that have altconf of "" - others are ignored.
 //
-lig_build::molfile_molecule_t::molfile_molecule_t(CResidue *residue_p,
+lig_build::molfile_molecule_t::molfile_molecule_t(mmdb::Residue *residue_p,
 						  const coot::dictionary_residue_restraints_t &restraints) {
 
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
@@ -296,10 +296,10 @@ lig_build::molfile_molecule_t::molfile_molecule_t(CResidue *residue_p,
    } 
    
    
-   std::map<std::string, std::vector<CAtom *> > atom_map;
-   std::map<std::string, std::vector<CAtom *> >::const_iterator it_1_atom_map;
-   std::map<std::string, std::vector<CAtom *> >::const_iterator it_2_atom_map;
-   std::map<CAtom *, int> atom_index_map;
+   std::map<std::string, std::vector<mmdb::Atom *> > atom_map;
+   std::map<std::string, std::vector<mmdb::Atom *> >::const_iterator it_1_atom_map;
+   std::map<std::string, std::vector<mmdb::Atom *> >::const_iterator it_2_atom_map;
+   std::map<mmdb::Atom *, int> atom_index_map;
    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
       atom_map[residue_atoms[iat]->name].push_back(residue_atoms[iat]);
       atom_index_map[residue_atoms[iat]] = iat;
@@ -314,8 +314,8 @@ lig_build::molfile_molecule_t::molfile_molecule_t(CResidue *residue_p,
       it_2_atom_map = atom_map.find(atom_name_2);
       if (it_1_atom_map != atom_map.end()) { 
 	 if (it_2_atom_map != atom_map.end()) {
-	    const std::vector<CAtom *> &v_1 = it_1_atom_map->second;
-	    const std::vector<CAtom *> &v_2 = it_2_atom_map->second;
+	    const std::vector<mmdb::Atom *> &v_1 = it_1_atom_map->second;
+	    const std::vector<mmdb::Atom *> &v_2 = it_2_atom_map->second;
 	    for (unsigned int iat_1=0; iat_1<v_1.size(); iat_1++) {
 	       std::string alt_conf_1 = v_1[iat_1]->altLoc;
 	       if (alt_conf_1 == "") {

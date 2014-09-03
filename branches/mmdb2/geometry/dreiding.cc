@@ -5,10 +5,10 @@
 // can thow a std::runtime_error
 double
 coot::protein_geometry::dreiding_torsion_energy(const std::string &comp_id,
-						CAtom *atom_0,
-						CAtom *atom_1,
-						CAtom *atom_2,
-						CAtom *atom_3) const {
+						mmdb::Atom *atom_0,
+						mmdb::Atom *atom_1,
+						mmdb::Atom *atom_2,
+						mmdb::Atom *atom_3) const {
 
    double d = 0;
 

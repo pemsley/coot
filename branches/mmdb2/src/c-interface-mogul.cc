@@ -24,7 +24,7 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
    graphics_info_t g;
 
    if (is_valid_model_molecule(imol)) { 
-      CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (residue_p == NULL) {
 	 std::cout << "WARNING:: no such residue" << std::endl;
       } else { 
@@ -33,7 +33,7 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 	    show_mogul_geometry_dialog(m, residue_p);
 #endif	    
 	    int new_obj = new_generic_object_number("Mogul Validation");
-	    PPCAtom residue_atoms = 0;
+	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (unsigned int i=0; i<m.n_items(); i++) {
@@ -44,8 +44,8 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 		  int idx_2 = m[i].idx_2 - 1;
 		  if (idx_1 >= 0 && idx_1 < n_residue_atoms) { 
 		     if (idx_2 >= 0 && idx_2 < n_residue_atoms) {
-			CAtom *at_1 = residue_atoms[idx_1];
-			CAtom *at_2 = residue_atoms[idx_2];
+			mmdb::Atom *at_1 = residue_atoms[idx_1];
+			mmdb::Atom *at_2 = residue_atoms[idx_2];
 			std::string hex_colour = m[i].colour();
 			to_generic_object_add_line(new_obj, hex_colour.c_str(), 2,
 						   at_1->x, at_1->y, at_1->z,
@@ -62,9 +62,9 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 		  if (idx_1 >= 0 && idx_1 < n_residue_atoms) { 
 		     if (idx_2 >= 0 && idx_2 < n_residue_atoms) {
 			if (idx_3 >= 0 && idx_3 < n_residue_atoms) {
-			   CAtom *at_1 = residue_atoms[idx_1];
-			   CAtom *at_2 = residue_atoms[idx_2];
-			   CAtom *at_3 = residue_atoms[idx_3];
+			   mmdb::Atom *at_1 = residue_atoms[idx_1];
+			   mmdb::Atom *at_2 = residue_atoms[idx_2];
+			   mmdb::Atom *at_3 = residue_atoms[idx_3];
 			   std::string hex_colour = m[i].colour();
 			   try {
 			      float radius = 0.5;
@@ -103,10 +103,10 @@ mogul_markup(int imol, const char *chain_id, int res_no, const char *ins_code, c
 // 		     if (idx_2 >= 0 && idx_2 < n_residue_atoms) {
 // 			if (idx_3 >= 0 && idx_3 < n_residue_atoms) {
 // 			   if (idx_4 >= 0 && idx_4 < n_residue_atoms) {
-// 			      CAtom *at_1 = residue_atoms[idx_1];
-// 			      CAtom *at_2 = residue_atoms[idx_2];
-// 			      CAtom *at_3 = residue_atoms[idx_3];
-// 			      CAtom *at_4 = residue_atoms[idx_4];
+// 			      mmdb::Atom *at_1 = residue_atoms[idx_1];
+// 			      mmdb::Atom *at_2 = residue_atoms[idx_2];
+// 			      mmdb::Atom *at_3 = residue_atoms[idx_3];
+// 			      mmdb::Atom *at_4 = residue_atoms[idx_4];
 // 			      clipper::Coord_orth centre(0.5*(at_2->x + at_3->x),
 // 							 0.5*(at_2->y + at_3->y),
 // 							 0.5*(at_2->z + at_3->z));
@@ -153,7 +153,7 @@ int update_restraints_using_mogul(int imol, const char *chain_id, int res_no, co
    int s = 0;
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) { 
-      CResidue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (residue_p) { 
 	 coot::mogul m(mogul_out_file_name);
 	 coot::dictionary_residue_restraints_t new_restraints =
@@ -166,7 +166,7 @@ int update_restraints_using_mogul(int imol, const char *chain_id, int res_no, co
 
 // results tabl
 void
-show_mogul_geometry_dialog(const coot::mogul &m, CResidue *residue) {
+show_mogul_geometry_dialog(const coot::mogul &m, mmdb::Residue *residue) {
 
    if (graphics_info_t::use_graphics_interface_flag) { 
 #ifdef HAVE_GOOCANVAS
@@ -205,7 +205,7 @@ coot::mogul_results_add_cell_renderer(GtkTreeView *tree_view,
 // results table
 // 
 GtkWidget
-*wrapped_create_mogul_geometry_dialog(const coot::mogul &m, CResidue *residue) {
+*wrapped_create_mogul_geometry_dialog(const coot::mogul &m, mmdb::Residue *residue) {
 
    GtkWidget *w = create_mogul_geometry_results_table_dialog(); // results table
 
@@ -213,7 +213,7 @@ GtkWidget
 
       // fill w here.
 
-      PPCAtom residue_atoms = 0;
+      mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue->GetAtomTable(residue_atoms, n_residue_atoms);
       
@@ -242,7 +242,7 @@ set_null_goograph_pointer(GtkWidget *w) {
 void
 coot::fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview,
 			   GtkWidget *mogul_results_dialog,
-			   const coot::mogul &m, CResidue *r) {
+			   const coot::mogul &m, mmdb::Residue *r) {
 
    // We want to see: atom-name-1 atom-name-2 value mean median std-dev z
    // 
@@ -258,7 +258,7 @@ coot::fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview,
    gtk_tree_view_set_model(tv_bonds, GTK_TREE_MODEL(tree_store_bonds));
    GtkTreeIter   toplevel;
 
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    r->GetAtomTable(residue_atoms, n_residue_atoms);
 
@@ -267,8 +267,8 @@ coot::fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview,
       if (item.type == coot::mogul_item::BOND) {
 	 int idx_1 = m[i].idx_1-1;
 	 int idx_2 = m[i].idx_2-1;
-	 CAtom *at_1 = residue_atoms[idx_1];
-	 CAtom *at_2 = residue_atoms[idx_2];
+	 mmdb::Atom *at_1 = residue_atoms[idx_1];
+	 mmdb::Atom *at_2 = residue_atoms[idx_2];
 	 std::string atom_name_1 = at_1->name;
 	 std::string atom_name_2 = at_2->name;
 
@@ -379,7 +379,7 @@ coot::on_mogul_bonds_selection_changed(GtkTreeSelection *treeselection,
 
 void
 coot::fill_mogul_angles_tab(GtkTreeView *mogul_angles_treeview, GtkWidget *dialog,
-			    const coot::mogul &m, CResidue *r) {
+			    const coot::mogul &m, mmdb::Residue *r) {
 
    // We want to see: atom-name-1 atom-name-2 atom-name-3 value mean median std-dev z
    // 
@@ -393,7 +393,7 @@ coot::fill_mogul_angles_tab(GtkTreeView *mogul_angles_treeview, GtkWidget *dialo
    gtk_tree_view_set_model(tv_angles, GTK_TREE_MODEL(tree_store_angles));
    GtkTreeIter   toplevel;
 
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    r->GetAtomTable(residue_atoms, n_residue_atoms);
 
@@ -403,9 +403,9 @@ coot::fill_mogul_angles_tab(GtkTreeView *mogul_angles_treeview, GtkWidget *dialo
 	 int idx_1 = m[i].idx_1-1;
 	 int idx_2 = m[i].idx_2-1;
 	 int idx_3 = m[i].idx_3-1;
-	 CAtom *at_1 = residue_atoms[idx_1];
-	 CAtom *at_2 = residue_atoms[idx_2];
-	 CAtom *at_3 = residue_atoms[idx_3];
+	 mmdb::Atom *at_1 = residue_atoms[idx_1];
+	 mmdb::Atom *at_2 = residue_atoms[idx_2];
+	 mmdb::Atom *at_3 = residue_atoms[idx_3];
 	 std::string atom_name_1 = at_1->name;
 	 std::string atom_name_2 = at_2->name;
 	 std::string atom_name_3 = at_3->name;
@@ -537,7 +537,7 @@ coot::on_mogul_angles_selection_changed(GtkTreeSelection *treeselection,
 
 void
 coot::fill_mogul_torsions_tab(GtkTreeView *mogul_torsions_treeview, GtkWidget *dialog,
-			      const coot::mogul &m, CResidue *r) {
+			      const coot::mogul &m, mmdb::Residue *r) {
    
    // We want to see: atom-name-1 atom-name-2 atom-name-3 atom-name-4 value mean median std-dev z
    // 
@@ -550,7 +550,7 @@ coot::fill_mogul_torsions_tab(GtkTreeView *mogul_torsions_treeview, GtkWidget *d
    gtk_tree_view_set_model(tv_torsions, GTK_TREE_MODEL(tree_store_torsions));
    GtkTreeIter   toplevel;
 
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    r->GetAtomTable(residue_atoms, n_residue_atoms);
 
@@ -561,10 +561,10 @@ coot::fill_mogul_torsions_tab(GtkTreeView *mogul_torsions_treeview, GtkWidget *d
 	 int idx_2 = m[i].idx_2-1;
 	 int idx_3 = m[i].idx_3-1;
 	 int idx_4 = m[i].idx_4-1;
-	 CAtom *at_1 = residue_atoms[idx_1];
-	 CAtom *at_2 = residue_atoms[idx_2];
-	 CAtom *at_3 = residue_atoms[idx_3];
-	 CAtom *at_4 = residue_atoms[idx_4];
+	 mmdb::Atom *at_1 = residue_atoms[idx_1];
+	 mmdb::Atom *at_2 = residue_atoms[idx_2];
+	 mmdb::Atom *at_3 = residue_atoms[idx_3];
+	 mmdb::Atom *at_4 = residue_atoms[idx_4];
 	 std::string atom_name_1 = at_1->name;
 	 std::string atom_name_2 = at_2->name;
 	 std::string atom_name_3 = at_3->name;

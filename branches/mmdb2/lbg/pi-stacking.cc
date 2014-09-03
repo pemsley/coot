@@ -15,8 +15,8 @@
 #include "pi-stacking.hh"
 
 coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_residue_restraints_t &monomer_restraints,
-						       const std::vector<CResidue *> &residues,
-						       CResidue *res_ref) {
+						       const std::vector<mmdb::Residue *> &residues,
+						       mmdb::Residue *res_ref) {
 
    // get a list of aromatic bonds, so that they can be used to find
    // aromatic rings.
@@ -30,8 +30,8 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_residue_restraints_t &monomer_restraints,
-						       const std::vector<CResidue *> &residues,
-						       CResidue *res_ref, const RDKit::ROMol &mol) {
+						       const std::vector<mmdb::Residue *> &residues,
+						       mmdb::Residue *res_ref, const RDKit::ROMol &mol) {
 
    // get a list of aromatic bonds, so that they can be used to find
    // aromatic rings.
@@ -44,8 +44,8 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 
 void
 coot::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t &monomer_restraints,
-				    const std::vector<CResidue *> &residues,
-				    CResidue *res_ref,
+				    const std::vector<mmdb::Residue *> &residues,
+				    mmdb::Residue *res_ref,
 				    const std::vector<std::vector<std::string> > &aromatic_ring_list) {
 
    bool debug = false;
@@ -264,12 +264,12 @@ coot::pi_stacking_container_t::get_aromatic_ring_list(const coot::dictionary_res
 
 // by search through res_ref
 std::vector<std::pair<std::string, clipper::Coord_orth> >
-coot::pi_stacking_container_t::get_ligand_cations(CResidue *res_ref,
+coot::pi_stacking_container_t::get_ligand_cations(mmdb::Residue *res_ref,
 						 const coot::dictionary_residue_restraints_t &monomer_restraints) const {
 
    std::vector<std::pair<std::string, clipper::Coord_orth> > v;
    int n_residue_atoms;
-   PPCAtom residue_atoms = NULL;
+   mmdb::PPAtom residue_atoms = NULL;
    res_ref->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) { 
       std::string ele(residue_atoms[iat]->element);
@@ -281,7 +281,7 @@ coot::pi_stacking_container_t::get_ligand_cations(CResidue *res_ref,
 	    const dict_bond_restraint_t &br = monomer_restraints.bond_restraint[ibond];
 	    if (br.atom_id_1_4c() == atom_name) { 
 	       std::string other_atom_name = br.atom_id_2_4c();
-	       CAtom *at = res_ref->GetAtom(other_atom_name.c_str());
+	       mmdb::Atom *at = res_ref->GetAtom(other_atom_name.c_str());
 	       if (at) { 
 		  if (br.type() == "single")
 		     n_bonds++;
@@ -294,7 +294,7 @@ coot::pi_stacking_container_t::get_ligand_cations(CResidue *res_ref,
 
 	    if (br.atom_id_2_4c() == atom_name) {
 	       std::string other_atom_name = br.atom_id_1_4c();
-	       CAtom *at = res_ref->GetAtom(other_atom_name.c_str());
+	       mmdb::Atom *at = res_ref->GetAtom(other_atom_name.c_str());
 	       if (at) { 
 		  if (br.type() == "single")
 		     n_bonds++;
@@ -330,7 +330,7 @@ coot::pi_stacking_container_t::get_ligand_cations(CResidue *res_ref,
 // should return the stacking type, e.g. PI_CATION_STACKING.
 // 
 std::pair<float, coot::pi_stacking_instance_t::stacking_t>
-coot::pi_stacking_container_t::get_pi_overlap_to_ligand_ring(CResidue *res,
+coot::pi_stacking_container_t::get_pi_overlap_to_ligand_ring(mmdb::Residue *res,
 							     const clipper::Coord_orth &ligand_pi_point) const {
 
    float pi_pi_score = 0;
@@ -380,7 +380,7 @@ coot::pi_stacking_container_t::get_pi_overlap_to_ligand_ring(CResidue *res,
 // falls through returning 0.0).
 // 
 float
-coot::pi_stacking_container_t::get_pi_overlap_to_ligand_cation(CResidue *res,
+coot::pi_stacking_container_t::get_pi_overlap_to_ligand_cation(mmdb::Residue *res,
 							       const clipper::Coord_orth &pt) const {
 
    float score = 0.0;
@@ -454,13 +454,13 @@ coot::pi_stacking_container_t::overlap_of_pi_spheres(const clipper::Coord_orth &
 // 
 std::pair<clipper::Coord_orth, clipper::Coord_orth>
 coot::pi_stacking_container_t::get_ring_pi_centre_points(const std::vector<std::string> &ring_atom_names,
-							 CResidue *res_ref) const {
+							 mmdb::Residue *res_ref) const {
    // dummy points, overwritten.
    clipper::Coord_orth pt_1(0,0,0);
    clipper::Coord_orth pt_2(0,0,0);
 
    int n_residue_atoms;
-   PPCAtom residue_atoms = NULL;
+   mmdb::PPAtom residue_atoms = NULL;
    res_ref->GetAtomTable(residue_atoms, n_residue_atoms);
 
    // fill this vector
@@ -699,14 +699,14 @@ coot::pi_stacking_container_t::ring_atom_names(const std::string &residue_name) 
 
 
 std::vector<clipper::Coord_orth>
-coot::pi_stacking_container_t::get_cation_atom_positions(CResidue *res) const {
+coot::pi_stacking_container_t::get_cation_atom_positions(mmdb::Residue *res) const {
    
    std::vector<clipper::Coord_orth> v;
 
    std::string res_name(res->GetResName());
 
    if (res_name == "LYS") {
-      PPCAtom residue_atoms = 0;
+      mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       res->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {
@@ -721,7 +721,7 @@ coot::pi_stacking_container_t::get_cation_atom_positions(CResidue *res) const {
    }
 
    if (res_name == "ARG") {
-      PPCAtom residue_atoms = 0;
+      mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       res->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {

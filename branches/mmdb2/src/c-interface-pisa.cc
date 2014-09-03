@@ -59,7 +59,7 @@ int pisa_interaction(int imol_1, int imol_2) {
 	 CMMDBManager *mol2 = graphics_info_t::molecules[imol_2].atom_sel.mol;
 
 	 coot::close_residues_from_different_molecules_t cr;
-	 std::pair<std::vector<CResidue *>, std::vector<CResidue *> > res_pair = 
+	 std::pair<std::vector<mmdb::Residue *>, std::vector<mmdb::Residue *> > res_pair = 
 	    cr.close_residues(mol1, mol2, dist);
 
 	 if (res_pair.first.size() > 0) { 
@@ -862,8 +862,8 @@ add_generic_object_bond(int imol1, int imol2,
 
    if (is_valid_model_molecule(imol1)) {
       if (is_valid_model_molecule(imol2)) {
-	 CAtom *at1 = graphics_info_t::molecules[imol1].get_atom(atom_spec_1);
-	 CAtom *at2 = graphics_info_t::molecules[imol2].get_atom(atom_spec_2);
+	 mmdb::Atom *at1 = graphics_info_t::molecules[imol1].get_atom(atom_spec_1);
+	 mmdb::Atom *at2 = graphics_info_t::molecules[imol2].get_atom(atom_spec_2);
 	 if (! at1)
 	    std::cout << "WARNING:: failed to get atom from spec " << atom_spec_1
 		      << " in molecule " << imol1 << "\n";
@@ -916,7 +916,7 @@ make_complementary_dotted_surfaces(int imol_1, int imol_2,
    // be a symmetry copy of imol_1.
    
    // make synthetic molecules, dots where each residue contains one atom (dot).
-   // then call std::pair<std::vector<CResidue *>, std::vector<CResidue *> >
+   // then call std::pair<std::vector<mmdb::Residue *>, std::vector<mmdb::Residue *> >
    // coot::close_residues_from_different_molecules_t::close_residues(CMMDBManager *mol1,
    //                                                                 CMMDBManager *mol2,
    //                                                                 float dist)

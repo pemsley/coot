@@ -41,7 +41,7 @@ namespace coot {
 
    // caller needs to delete returned residue and its chain
    // 
-   CResidue *deep_copy_residue(CResidue *residue);
+   mmdb::Residue *deep_copy_residue(mmdb::Residue *residue);
 	 
    // Atom names for a torsion bond, old/Stuart style
    // 
@@ -78,7 +78,7 @@ namespace coot {
 
       std::vector<atom_name_pair> atom_name_pair_list;
       std::vector<atom_name_quad> atom_name_quad_list;
-      clipper::Coord_orth atom_to_co(CAtom *at) const;
+      clipper::Coord_orth atom_to_co(mmdb::Atom *at) const;
 
    public:
       std::vector<atom_name_pair> AtomPairs() const {
@@ -104,18 +104,18 @@ namespace coot {
 
       std::vector<coot::atom_index_pair> 
       get_atom_index_pairs(const std::vector<coot::atom_name_pair> &atom_name_pairs,
-			   const PPCAtom atoms, int nresatoms) const;
+			   const mmdb::PPAtom atoms, int nresatoms) const;
 
       std::vector<coot::atom_index_quad> 
       get_atom_index_quads(const std::vector<coot::atom_name_quad> &atom_name_pairs,
-			   const PPCAtom atoms, int nresatoms) const;
+			   const mmdb::PPAtom atoms, int nresatoms) const;
 
       static Cartesian coord_orth_to_cartesian(const clipper::Coord_orth &c);
       static clipper::Coord_orth coord_orth_to_cart(const Cartesian &c);
       std::vector<coot::atom_index_quad>
       get_quads(const std::vector<coot::atom_name_quad> &atom_name_quads,
-		CResidue *residue) const;
-      std::vector<std::pair<int, float> > get_chi_angles(CResidue *res) const; // [1-indexed]
+		mmdb::Residue *residue) const;
+      std::vector<std::pair<int, float> > get_chi_angles(mmdb::Residue *res) const; // [1-indexed]
    };
 
    

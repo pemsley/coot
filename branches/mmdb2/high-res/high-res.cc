@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <map>
 #include "coords/mmdb-extras.h" // for atom_selection_container_t used in coot-close
-#include "coords/mmdb.h" // for formatting of CAtom
+#include "coords/mmdb.h" // for formatting of mmdb::Atom
 #include "coords/coot-close.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-atom-graph.hh"
@@ -119,7 +119,7 @@ coot::high_res::get_middle_pos(const coot::minimol::molecule &minimol_mol) const
 	 }
       }
       if (most_contacts >= 0) { 
-	 CAtom *at = asc.atom_selection[most_contacts_index];
+	 mmdb::Atom *at = asc.atom_selection[most_contacts_index];
 	 r.first = clipper::Coord_orth(at->x, at->y, at->z);
       } 
       delete [] pscontact;
@@ -493,10 +493,10 @@ coot::high_res::buccafilter() {
       for (int i=0; i<10; i++)
 	 std::cout << "  " << asc.atom_selection[i] << std::endl;
 
-      std::map<CChain *, int> chain_numbers;
+      std::map<mmdb::Chain *, int> chain_numbers;
       int imod = 1;
-      CModel *model_p = asc.mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = asc.mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       std::cout << "mol has " << nchains << " chains " << std::endl;
       for (int ich=0; ich<nchains; ich++) {
@@ -511,8 +511,8 @@ coot::high_res::buccafilter() {
 	 asc.atom_selection[iat]->PutUDData(uddhandle, 0);
    
       for (int ic=0; ic< ncontacts; ic++) {
-	 CChain *chain1 = asc.atom_selection[contact[ic].id1]->GetChain();
-	 CChain *chain2 = asc.atom_selection[contact[ic].id2]->GetChain();
+	 mmdb::Chain *chain1 = asc.atom_selection[contact[ic].id1]->GetChain();
+	 mmdb::Chain *chain2 = asc.atom_selection[contact[ic].id2]->GetChain();
 	 if (chain1 != chain2) {
 	    ich1 = chain_numbers[chain1];
 	    ich2 = chain_numbers[chain2];
@@ -646,7 +646,7 @@ void
 coot::high_res::mark_neighbours(int iatom, int igroup,
 				const std::string &atom_name,
 				const std::vector<std::vector<int> > &neighbours,
-				PPCAtom atom_selection, int uddhandle) {
+				mmdb::PPAtom atom_selection, int uddhandle) {
 
    int ig;
    atom_selection[iatom]->GetUDData(uddhandle, ig);
@@ -668,7 +668,7 @@ coot::high_res::mark_neighbours(int iatom, int igroup,
 coot::minimol::molecule
 coot::high_res::filter_on_groups(const std::vector<std::vector<int> > &groups,
 				 CMMDBManager *mol,
-				 PPCAtom atom_selection,
+				 mmdb::PPAtom atom_selection,
 				 int n_selected_atoms) const {
 
    coot::minimol::molecule m;
@@ -691,7 +691,7 @@ coot::high_res::filter_on_groups(const std::vector<std::vector<int> > &groups,
       clipper::Coord_orth sum(0.0, 0.0, 0.0);
       int n_grp_ats = groups[igroup].size();
       for (int iat=0; iat<n_grp_ats; iat++) {
-	 CAtom *at = atom_selection[groups[igroup][iat]];
+	 mmdb::Atom *at = atom_selection[groups[igroup][iat]];
 	 clipper::Coord_orth pt(at->x, at->y, at->z);
 	 sum += pt;
       }
@@ -701,7 +701,7 @@ coot::high_res::filter_on_groups(const std::vector<std::vector<int> > &groups,
       // double dist_crit = 0.5; // A
       int n_group_within_lim = 0;
       for (int iat=0; iat<n_grp_ats; iat++) {
-	 CAtom *at = atom_selection[groups[igroup][iat]];
+	 mmdb::Atom *at = atom_selection[groups[igroup][iat]];
 	 clipper::Coord_orth pt(at->x, at->y, at->z);
 	 //      double d = clipper::Coord_orth::length(mean_pt, pt);
 	 // 	 if (d < dist_crit) {
@@ -724,7 +724,7 @@ coot::high_res::filter_on_groups(const std::vector<std::vector<int> > &groups,
 	 clipper::Coord_orth av_pt(new_sum.x()*frac,
 				   new_sum.y()*frac,
 				   new_sum.z()*frac);
-	 CAtom *speced_at = atom_selection[groups[igroup][0]];
+	 mmdb::Atom *speced_at = atom_selection[groups[igroup][0]];
 	 std::string atom_name(speced_at->name);
 	 std::string atom_element(speced_at->element);
 	 int resno = speced_at->GetSeqNum();

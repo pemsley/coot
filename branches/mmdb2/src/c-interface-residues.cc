@@ -149,7 +149,7 @@ print_glyco_tree(int imol, const std::string &chain_id, int res_no, const std::s
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      CResidue *r = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      mmdb::Residue *r = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
       CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
 	 
       if (r) {

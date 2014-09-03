@@ -56,7 +56,7 @@
 #include "clipper/core/hkl_compute.h"
 #include "clipper/core/map_interp.h"
 
-#include "ligand.hh" // has mmdb-manager because PPCAtom is part
+#include "ligand.hh" // has mmdb-manager because mmdb::PPAtom is part
   		     // of mask_map interface.
 
 #include <mmdb/mmdb_coormngr.h> // for GetMassCenter()
@@ -76,7 +76,7 @@ coot::make_mols_from_atom_selection_string(CMMDBManager *mol,
 					   bool fill_masking_molecule_flag) {
    int SelHnd = mol->NewSelection();
    mol->Select(SelHnd, STYPE_ATOM, atom_selection_string.c_str(), SKEY_NEW);
-   PPCAtom atom_selection = NULL;
+   mmdb::PPAtom atom_selection = NULL;
    int n_selected_atoms;
    mol->GetSelIndex(SelHnd, atom_selection, n_selected_atoms);
 
@@ -297,7 +297,7 @@ coot::ligand::mask_map(CMMDBManager *mol, short int mask_waters_flag) {
 
    float atom_radius = map_atom_mask_radius; // Angstroems
 
-   PPCAtom atoms;
+   mmdb::PPAtom atoms;
 
    int n_atoms = make_selected_atoms(&atoms, mol); // modify atoms
    protein_atoms.init(mol);
@@ -338,7 +338,7 @@ coot::ligand::mask_map(CMMDBManager *mol,
    // 0 where the atoms are not (e.g. ligand
    // density figure)
 
-   PPCAtom atom_selection = NULL;
+   mmdb::PPAtom atom_selection = NULL;
    int n_selected_atoms;
    mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
    std::cout << "INFO:: Masking around " << n_selected_atoms << " atoms" << std::endl;
@@ -552,7 +552,7 @@ coot::ligand::set_masked_map_value(float v) {
 }
 
 int
-coot::ligand::make_selected_atoms(PPCAtom *atoms_p, CMMDBManager *mol) {
+coot::ligand::make_selected_atoms(mmdb::PPAtom *atoms_p, CMMDBManager *mol) {
 
    int selHnd = mol->NewSelection();
    mol->SelectAtoms (selHnd, 0, "*",
@@ -2088,15 +2088,15 @@ coot::ligand::limit_solutions(unsigned int iclust,
    }
 
    if (filter_by_torsion_match) {
-      // make a vector of final solution CResidues:
-      std::vector<std::pair<CResidue *, CMMDBManager *>  >
+      // make a vector of final solution mmdb::Residues:
+      std::vector<std::pair<mmdb::Residue *, CMMDBManager *>  >
 	 final_solution_residues(final_ligand[iclust].size());
       for (unsigned int i=0; i<final_ligand[iclust].size(); i++) {
 	 CMMDBManager *mol = get_solution(iclust, i).pcmmdbmanager();
 	 if (mol) {
-	    CResidue *r = util::get_first_residue(mol);
+	    mmdb::Residue *r = util::get_first_residue(mol);
 	    if (r) {
-	       std::pair<CResidue *, CMMDBManager *> p(r, mol);
+	       std::pair<mmdb::Residue *, CMMDBManager *> p(r, mol);
 	       final_solution_residues[i] = p;
 	    }
 	 }

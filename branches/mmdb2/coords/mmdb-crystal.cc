@@ -149,29 +149,29 @@ molecule_extents_t::molecule_extents_t(atom_selection_container_t selection,
 
    // cout << "centre at: " << centre << endl;
    
-   extents_selection = new PCAtom[6];
+   extents_selection = new Pmmdb::Atom[6];
 
-   extents_selection[0] = new CAtom;
+   extents_selection[0] = new mmdb::Atom;
    extents_selection[0]->SetCoordinates(front.get_x(), front.get_y(),
 					front.get_z(), 1.0 ,99.9);
 
-   extents_selection[1] = new CAtom; // back is at max_z;
+   extents_selection[1] = new mmdb::Atom; // back is at max_z;
    extents_selection[1]->SetCoordinates(back.get_x(), back.get_y(),
 					back.get_z(), 1.0 ,99.9);
 
-   extents_selection[2] = new CAtom;
+   extents_selection[2] = new mmdb::Atom;
    extents_selection[2]->SetCoordinates(left.get_x(), left.get_y(),
 					left.get_z(), 1.0 ,99.9);
 
-   extents_selection[3] = new CAtom;
+   extents_selection[3] = new mmdb::Atom;
    extents_selection[3]->SetCoordinates(right.get_x(), right.get_y(),
 					right.get_z(), 1.0 ,99.9);
 
-   extents_selection[4] = new CAtom;
+   extents_selection[4] = new mmdb::Atom;
    extents_selection[4]->SetCoordinates(bottom.get_x(), bottom.get_y(),
 					bottom.get_z(), 1.0 ,99.9);
 
-   extents_selection[5] = new CAtom;
+   extents_selection[5] = new mmdb::Atom;
    extents_selection[5]->SetCoordinates(top.get_x(), top.get_y(),
 					top.get_z(), 1.0 ,99.9);
 
@@ -292,7 +292,7 @@ molecule_extents_t::which_boxes(coot::Cartesian point,
 
    std::vector<std::pair<symm_trans_t, Cell_Translation> > symm_trans;
    int n = AtomSel.mol->GetNumberOfSymOps();
-   // PPCAtom trans_selection; old style
+   // mmdb::PPAtom trans_selection; old style
    coot::trans_selection_t trans_selection_obj;
    bool in;
 
@@ -442,9 +442,9 @@ molecule_extents_t::which_strict_ncs(const coot::Cartesian &centre_pt,
       m[imat][2][3] = strict_ncs_matrices[imat].m[2].v4[3];  // t
    }
 
-   CAtom atom;
-   CAtom trans_atom;
-   CAtom tmp_atom;
+   mmdb::Atom atom;
+   mmdb::Atom trans_atom;
+   mmdb::Atom tmp_atom;
    atom.SetCoordinates(centre_pt.x(), centre_pt.y(), centre_pt.z(), 1.0, 10.0);
    realtype diff_x, diff_y, diff_z, u, v, w, u_cs, v_cs, w_cs;
    symm_trans_t  symm_trans_this;
@@ -502,7 +502,7 @@ molecule_extents_t::which_strict_ncs(const coot::Cartesian &centre_pt,
       int px_shift = symm_trans_this.x();
       int py_shift = symm_trans_this.y();
       int pz_shift = symm_trans_this.z();
-      PPCAtom trans_selection;
+      mmdb::PPAtom trans_selection;
       int in;
       
       for (int x_shift=px_shift-1; x_shift<=px_shift+1; x_shift++) { 
@@ -611,7 +611,7 @@ molecule_extents_t::coord_to_unit_cell_translations(coot::Cartesian point,
 // I am also angry because it just takes *so long* to track down problems
 // with mmdb.
 //
-// And here's another thing: look at atom1.Copy(PCAtom atom2).  Now,
+// And here's another thing: look at atom1.Copy(Pmmdb::Atom atom2).  Now,
 // does that copy inside to out (atom2 to atom1) or the other way
 // round (atom 1 to atom2)?  Impossible to tell without const.  It
 // would have been so much easier to say atom2 = atom1.Copy(); but no,
@@ -623,12 +623,12 @@ molecule_extents_t::coord_to_unit_cell_translations(coot::Cartesian point,
 // MMDBManager top-level.  Not elegant, obviously, but not worth the
 // rant.
 // 
-PPCAtom 
+mmdb::PPAtom 
 molecule_extents_t::trans_sel(CMMDBCryst *my_cryst,
 			      symm_trans_t symm_trans) const {
 
-   CAtom atom;
-   PPCAtom trans_selection = new PCAtom[6];
+   mmdb::Atom atom;
+   mmdb::PPAtom trans_selection = new Pmmdb::Atom[6];
    mat44 my_matt;
    
    // Modify my_matt so that it is a coordinate transformation
@@ -638,7 +638,7 @@ molecule_extents_t::trans_sel(CMMDBCryst *my_cryst,
 			symm_trans.y(), symm_trans.z());
 
    for (int ii=0; ii<6; ii++) {
-      trans_selection[ii] = new CAtom;
+      trans_selection[ii] = new mmdb::Atom;
 
       trans_selection[ii]->SetCoordinates(extents_selection[ii]->x,
 					  extents_selection[ii]->y,
@@ -649,12 +649,12 @@ molecule_extents_t::trans_sel(CMMDBCryst *my_cryst,
    return trans_selection;
 }
 
-PPCAtom
+mmdb::PPAtom
 molecule_extents_t::trans_sel(CMMDBManager *mol,
 			      const symm_trans_t &symm_trans) const {
 
-   CAtom atom;
-   PPCAtom trans_selection = new PCAtom[6];
+   mmdb::Atom atom;
+   mmdb::PPAtom trans_selection = new Pmmdb::Atom[6];
    mat44 my_matt;
    
    // Modify my_matt so that it is a coordinate transformation
@@ -664,7 +664,7 @@ molecule_extents_t::trans_sel(CMMDBManager *mol,
 		   symm_trans.y(), symm_trans.z());
 
    for (int ii=0; ii<6; ii++) {
-      trans_selection[ii] = new CAtom;
+      trans_selection[ii] = new mmdb::Atom;
 
       trans_selection[ii]->SetCoordinates(extents_selection[ii]->x,
 					  extents_selection[ii]->y,
@@ -677,16 +677,16 @@ molecule_extents_t::trans_sel(CMMDBManager *mol,
 
 }
 
-// Return the 6 modified coordinates of the extents in a PPCAtom.  The
+// Return the 6 modified coordinates of the extents in a mmdb::PPAtom.  The
 // coordinates are transformed by the my_mat matrix and are shifted by
 // the cell shifts.
 // 
-PPCAtom
+mmdb::PPAtom
 molecule_extents_t::trans_sel(CMMDBManager *mol, mat44 my_mat,
 			      int x_shift, int y_shift, int z_shift) const {
 
-   CAtom atom;
-   PPCAtom trans_selection = new PCAtom[6];
+   mmdb::Atom atom;
+   mmdb::PPAtom trans_selection = new Pmmdb::Atom[6];
    
    // Modify my_matt so that it is a coordinate transformation
    // matrix.
@@ -716,7 +716,7 @@ molecule_extents_t::trans_sel(CMMDBManager *mol, mat44 my_mat,
 // 0  0 0      1 
 
    for (int ii=0; ii<6; ii++) {
-      trans_selection[ii] = new CAtom;
+      trans_selection[ii] = new mmdb::Atom;
 
       trans_selection[ii]->SetCoordinates(extents_selection[ii]->x,
 					  extents_selection[ii]->y,
@@ -737,7 +737,7 @@ coot::trans_selection_t
 molecule_extents_t::trans_sel_o(CMMDBManager *mol, const symm_trans_t &symm_trans) const {
 
    coot::trans_selection_t t;
-   CAtom atom;
+   mmdb::Atom atom;
    mat44 my_matt;
    mat44 to_origin_matt;
    
@@ -786,7 +786,7 @@ molecule_extents_t::trans_sel_o(CMMDBManager *mol, const symm_trans_t &symm_tran
 // Not used?
 // 
 bool
-molecule_extents_t::point_is_in_box(const coot::Cartesian &point, PPCAtom TransSel) const { 
+molecule_extents_t::point_is_in_box(const coot::Cartesian &point, mmdb::PPAtom TransSel) const { 
 
    // front back left right bottom top
    //      z         x            y
@@ -990,7 +990,7 @@ to_string(const std::pair<symm_trans_t, Cell_Translation> &sts) {
 // return an atom selection that has had the symm_trans
 // applied to it.
 //
-PPCAtom
+mmdb::PPAtom
 translated_atoms(atom_selection_container_t AtomSel,
 		symm_trans_t symm_trans) {
 
@@ -1003,10 +1003,10 @@ translated_atoms(atom_selection_container_t AtomSel,
 	   << endl;
    }
       
-   PPCAtom trans_selection = new PCAtom[AtomSel.n_selected_atoms];
+   mmdb::PPAtom trans_selection = new Pmmdb::Atom[AtomSel.n_selected_atoms];
    for (int ii=0; ii<AtomSel.n_selected_atoms; ii++) {
 
-      trans_selection[ii] = new CAtom;
+      trans_selection[ii] = new mmdb::Atom;
       trans_selection[ii]->Copy(AtomSel.atom_selection[ii]);
       trans_selection[ii]->Transform(my_matt);
       trans_selection[ii]->SetResidue(    AtomSel.atom_selection[ii]->GetResidue());
@@ -1037,7 +1037,7 @@ coot::Cartesian translate_atom(atom_selection_container_t AtomSel, int ii,
 	   << endl;
    }
 
-   PCAtom trans_atom = new CAtom;
+   Pmmdb::Atom trans_atom = new mmdb::Atom;
 
    trans_atom->Copy(AtomSel.atom_selection[ii]);
    trans_atom->Transform(my_matt);
@@ -1074,7 +1074,7 @@ translate_atom_with_pre_shift(atom_selection_container_t AtomSel, int ii,
 	   << endl;
    }
 
-   CAtom trans_atom;
+   mmdb::Atom trans_atom;
 
    trans_atom.Copy(AtomSel.atom_selection[ii]);
    trans_atom.Transform(pre_shift_matt);

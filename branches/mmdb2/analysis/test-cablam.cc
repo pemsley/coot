@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
       atom_selection_container_t asc = get_atom_selection(file_name, false);
 
       int n_selected_residues;
-      PCResidue *SelResidues = 0;
+      Pmmdb::Residue *SelResidues = 0;
       int selHnd = asc.mol->NewSelection();
       asc.mol->Select ( selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
 			"*", // Chain id
@@ -26,7 +26,7 @@ int main(int argc, char **argv) {
       asc.mol->GetSelIndex (selHnd, SelResidues, n_selected_residues);
 
       int imodel = 1;
-      CModel *model_p = asc.mol->GetModel(imodel);
+      mmdb::Model *model_p = asc.mol->GetModel(imodel);
       if (model_p)
 	 model_p->CalcSecStructure(imodel);
 

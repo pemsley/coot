@@ -45,7 +45,7 @@ DefineClass(CMMANManager);
 DefineStreamFunctions(CMMANManager) ;
 
 // Function to return the parent PCMMANManager of an atom
-CMMANManager* GetMMANManager(PCAtom pAtom);
+CMMANManager* GetMMANManager(Pmmdb::Atom pAtom);
 
   
 class CMMANManager : public CMMUTManager  {
@@ -63,31 +63,31 @@ class CMMANManager : public CMMUTManager  {
 
     //Bonds
     std::string GetMolBonds (std::string monlib_file="");
-    int EditBonds (int mode, PCAtom p_atom1, PCAtom p_atom2);
+    int EditBonds (int mode, Pmmdb::Atom p_atom1, Pmmdb::Atom p_atom2);
 
     //Sbase and Atom Energy types
-    pstr GetSbaseCompoundID(PCAtom atom);
-    pstr GetSbaseCompoundID(PCResidue res);
-    int GetSbaseAtomOrdinal(PCAtom atom);
+    pstr GetSbaseCompoundID(Pmmdb::Atom atom);
+    pstr GetSbaseCompoundID(Pmmdb::Residue res);
+    int GetSbaseAtomOrdinal(Pmmdb::Atom atom);
 
     int SetupAtomEnergyTypes();
     int GetAtomTypeData (int selHnd,int type,ivector &dataout,int &nat );
     int GetAtomTypeData (int selHnd,int type,rvector &dataout,int &nat );
     std::vector<double> GetAtomRadii ( int selHnd, int type, double scale );
-    int GetAtomEnergyType(PCAtom p_atom);
+    int GetAtomEnergyType(Pmmdb::Atom p_atom);
 
-    realtype GetAtomVDWRadius(PCAtom p_atom);
-    const char* GetAtomHBondType(PCAtom p_atom);
-    int GetAtomHBondType1(PCAtom p_atom);
+    realtype GetAtomVDWRadius(Pmmdb::Atom p_atom);
+    const char* GetAtomHBondType(Pmmdb::Atom p_atom);
+    int GetAtomHBondType1(Pmmdb::Atom p_atom);
     int LoadCharge(std::string loadfrom);
     std::string PrintCharges(void);
 
     void SetLabelMask(int i, int value);
-    std::string AtomLabel(PCAtom p_atom);
-    std::string AtomLabel(PCAtom p_atom,int mask[]);
-    void ListBonds(int selHnd,int natoms,PPCAtom selAtom);
-    std::string ListSecStructure (int mask_in[], PCAtom pAtom=NULL );
-    int TestBonding ( PCAtom patom1, PCAtom patom2, int max=5);
+    std::string AtomLabel(Pmmdb::Atom p_atom);
+    std::string AtomLabel(Pmmdb::Atom p_atom,int mask[]);
+    void ListBonds(int selHnd,int natoms,mmdb::PPAtom selAtom);
+    std::string ListSecStructure (int mask_in[], Pmmdb::Atom pAtom=NULL );
+    int TestBonding ( Pmmdb::Atom patom1, Pmmdb::Atom patom2, int max=5);
     int RestoreData (PCMMDBManager restore_molHnd, int mode=MMAN_COORDINATES);
     int LoadUDDData( const int property=PROPERTY_B );
 
@@ -97,12 +97,12 @@ class CMMANManager : public CMMUTManager  {
     int ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,int undo_nsym=-1,int undo_i=0,int undo_j=0,int undo_k=0);
     int IfSymmetryNeighbours(int selHnd, int model, int nsym, 
 			     int i, int j, int k, double dist );
-    int MoveFragment(int nMove, PPCAtom moveAtoms, Cartesian dxyz); 
+    int MoveFragment(int nMove, mmdb::PPAtom moveAtoms, Cartesian dxyz); 
     int SelectChainTermini( void );
     int SelectSSETermini( int selHnd=-1 );
 
-    bool isAminoacid (PCResidue pres);
-    int GetRestypeCode ( PCResidue pres);
+    bool isAminoacid (Pmmdb::Residue pres);
+    int GetRestypeCode ( Pmmdb::Residue pres);
     std::map<std::string,PCSBStructure> monlib; 
 
     int SetCustomRestype ( const std::string &resname , const int &restype , Boolean clear=false);
@@ -119,8 +119,8 @@ class CMMANManager : public CMMUTManager  {
     std::vector<float> GetTransform();
     std::string GetTransformString();
     bool GetIsTransformed() { return isTransformed; }
-    int TransformToSuperposeAtoms (  PPCAtom A1, int nA, PPCAtom A2 );
-    double DeltaResidueOrientation (PCResidue pRes, PCResidue pResFx);
+    int TransformToSuperposeAtoms (  mmdb::PPAtom A1, int nA, mmdb::PPAtom A2 );
+    double DeltaResidueOrientation (Pmmdb::Residue pRes, Pmmdb::Residue pResFx);
     int TransformToSuperposeCloseAtoms(PCMMANManager fxMolHnd, int fxSelHnd , realtype central_cutoff, realtype cutoff, int mvSuperposeHnd,int fxSuperposeHnd);
     int CopyCoordinates(const PCMMDBManager fromMolHnd,int fromModel=1);
     int LoadSerial(const PCMMDBManager fromMolHnd );

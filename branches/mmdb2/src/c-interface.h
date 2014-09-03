@@ -4958,7 +4958,7 @@ void set_dynamic_map_zoom_offset(int i);
 /*! \name Add Terminal Residue Functions */
 /* \{ */
 void do_add_terminal_residue(short int state);
-/*  execution of this is in graphics_info_t because it uses a CResidue */
+/*  execution of this is in graphics_info_t because it uses a mmdb::Residue */
 /*  in the interface and we can't have that in c-interface.h */
 /*  (compilation of coot_wrap_guile goes mad on inclusion of */
 /*   mmdb_manager.h) */

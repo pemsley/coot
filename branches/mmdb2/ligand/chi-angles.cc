@@ -429,19 +429,19 @@ coot::chi_angles::change_by(int ichi, double diff, coot::protein_geometry* geom_
    std::string resname(residue->GetResName());
 
    // PRO variables, used on the outside.
-   PPCAtom ordered_residue_atoms = 0; 
+   mmdb::PPAtom ordered_residue_atoms = 0; 
    int CA_index = -1; // unfound initially (tree base)
    
    if (resname == "PRO") {
-      PPCAtom residue_atoms;
+      mmdb::PPAtom residue_atoms;
       int nResidueAtoms;
       residue->GetAtomTable(residue_atoms, nResidueAtoms);
 
-      CAtom *n = 0;
-      CAtom *ca = 0;
-      CAtom *cb = 0;
-      CAtom *cg = 0;
-      CAtom *cd = 0;
+      mmdb::Atom *n = 0;
+      mmdb::Atom *ca = 0;
+      mmdb::Atom *cb = 0;
+      mmdb::Atom *cg = 0;
+      mmdb::Atom *cd = 0;
       if (nResidueAtoms > 2) {
 	 for (int i=0; i<nResidueAtoms; i++) {
 	    if (std::string(residue_atoms[i]->name) == " N  ")
@@ -458,7 +458,7 @@ coot::chi_angles::change_by(int ichi, double diff, coot::protein_geometry* geom_
 	 
 	 if (n && ca && cb && cg && cd) {
 	    
-	    ordered_residue_atoms = new PCAtom[nResidueAtoms];
+	    ordered_residue_atoms = new Pmmdb::Atom[nResidueAtoms];
 	    ordered_residue_atoms[0] = n;
 	    ordered_residue_atoms[1] = ca;
 	    ordered_residue_atoms[2] = cb;
@@ -499,7 +499,7 @@ coot::chi_angles::change_by(int ichi, double diff, coot::protein_geometry* geom_
 
    // short int isuccess = 0;
    std::pair<short int, float> p(0, 0.0);
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
    residue->GetAtomTable(residue_atoms, nResidueAtoms);
    if (resname == "PRO")
@@ -540,25 +540,25 @@ coot::chi_angles::change_by(int ichi, double diff, coot::protein_geometry* geom_
 }
 
 
-// CResidue *
-// coot::chi_angles::deep_copy_residue(const CResidue *residue) const {
+// mmdb::Residue *
+// coot::chi_angles::deep_copy_residue(const mmdb::Residue *residue) const {
 
-//    // Horrible casting to CResidue because GetSeqNum and GetAtomTable
+//    // Horrible casting to mmdb::Residue because GetSeqNum and GetAtomTable
 //    // are not const functions.
 //    // 
-//    CResidue *rres = new CResidue;
-//    CChain   *chain_p = new CChain;
-//    chain_p->SetChainID(((CResidue *)residue)->GetChainID());
-//    rres->seqNum = ((CResidue *)residue)->GetSeqNum();
+//    mmdb::Residue *rres = new mmdb::Residue;
+//    mmdb::Chain   *chain_p = new mmdb::Chain;
+//    chain_p->SetChainID(((mmdb::Residue *)residue)->GetChainID());
+//    rres->seqNum = ((mmdb::Residue *)residue)->GetSeqNum();
 //    strcpy(rres->name, residue->name);
 
-//    PPCAtom residue_atoms;
+//    mmdb::PPAtom residue_atoms;
 //    int nResidueAtoms;
-//    ((CResidue *)residue)->GetAtomTable(residue_atoms, nResidueAtoms);
-//    CAtom *atom_p;
+//    ((mmdb::Residue *)residue)->GetAtomTable(residue_atoms, nResidueAtoms);
+//    mmdb::Atom *atom_p;
    
 //    for(int iat=0; iat<nResidueAtoms; iat++) { 
-//       atom_p = new CAtom;
+//       atom_p = new mmdb::Atom;
 // //       atom_p->SetCoordinates(residue_atoms[iat]->x,
 // // 			     residue_atoms[iat]->y,
 // // 			     residue_atoms[iat]->z,
@@ -603,7 +603,7 @@ coot::chi_angles::change_by(int ichi, double diff,
 
    // short int isuccess = 0;
    std::pair<short int, float> p(0, 0.0);
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
    residue->GetAtomTable(residue_atoms, nResidueAtoms);
    if (nResidueAtoms == 0) {
@@ -645,7 +645,7 @@ coot::chi_angles::change_by(int ichi, double diff,
 
    std::pair<short int, float> p(1, 0.0);
    
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
    residue->GetAtomTable(residue_atoms, nResidueAtoms);
    std::string residue_name = residue->name;
@@ -681,7 +681,7 @@ coot::chi_angles::change_by_internal(int ichi,
 				     double diff,
 				     const std::vector<coot::atom_name_pair> &atom_name_pairs,
 				     const std::vector<std::vector<int> > &contact_indices,
-				     PPCAtom residue_atoms_in,
+				     mmdb::PPAtom residue_atoms_in,
 				     int nResidueAtoms,
 				     const coot::atom_spec_t &tree_base_atom) {
 
@@ -698,7 +698,7 @@ coot::chi_angles::change_by_internal(int ichi,
 		    residue_atoms_in[i]->z);
       coords.push_back(c);
    }
-   PPCAtom residue_atoms = residue_atoms_in;
+   mmdb::PPAtom residue_atoms = residue_atoms_in;
    std::vector<coot::atom_index_pair> atom_index_pairs
       = get_atom_index_pairs(atom_name_pairs, residue_atoms_in, nResidueAtoms);
 
@@ -899,7 +899,7 @@ coot::chi_angles::get_torsion_bonds_atom_pairs(const std::string &monomer_type,
 
 std::vector<coot::atom_index_pair> 
 coot::chi_angles::get_atom_index_pairs(const std::vector<coot::atom_name_pair> &atom_name_pairs,
-				     const PPCAtom atoms, int nresatoms) const {
+				     const mmdb::PPAtom atoms, int nresatoms) const {
 
    int i_store_index;
    std::vector<coot::atom_index_pair> index_pairs;
@@ -934,7 +934,7 @@ coot::chi_angles::get_atom_index_pairs(const std::vector<coot::atom_name_pair> &
 
 std::vector<coot::atom_index_quad>
 coot::chi_angles::get_atom_index_quads(const std::vector<coot::atom_name_quad> &atom_name_quads,
-				       const PPCAtom atoms, int nresatoms) const {
+				       const mmdb::PPAtom atoms, int nresatoms) const {
 
    std::vector<coot::atom_index_quad> index_quads;
    for (unsigned int iquad=0; iquad<atom_name_quads.size(); iquad++) {

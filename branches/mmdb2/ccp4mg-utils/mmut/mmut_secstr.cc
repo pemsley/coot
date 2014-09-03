@@ -110,7 +110,7 @@ int **CSecStructure::GetHBonds (int imodel) {
   return hbonds;
 }
 //--------------------------------------------------------------------
-PPCAtom *CSecStructure::GetHBondAtoms (int imodel) {
+mmdb::PPAtom *CSecStructure::GetHBondAtoms (int imodel) {
 //--------------------------------------------------------------------
   int RC;
   if (!secstr || !hbonds || nRes < 0 ) 
@@ -147,10 +147,10 @@ int CSecStructure::InitMemory( int nres ) {
   nRes = nres;
   // Reserve memory for hbonds and secstr 
   GetMatrixMemory ( hbonds, nres, 3, 0, 0);
-  hbond_atoms = new PPCAtom[nres];
+  hbond_atoms = new mmdb::PPAtom[nres];
   hbondsN = nres;
   for ( i = 0; i < nres; i++) {
-     hbond_atoms[i] = new PCAtom[6];
+     hbond_atoms[i] = new Pmmdb::Atom[6];
      for ( j = 0; j < 6; j++) hbond_atoms[i][j] = 0;
      for ( j = 0; j <= 2; j++) hbonds[i][j] = 0;
   }
@@ -185,7 +185,7 @@ int CSecStructure::CalculateSecondaryStructure (int imodel ) {
 //   and store the information in the hbonds matrix
 // Analyse the info in hbonds matrix to assign secondary structure to secstr vector
 
-  PPCResidue    selRes;
+  mmdb::PPResidue    selRes;
   int		nres,nres2;
   PSContact     contact = NULL;
   int           ncontacts;
@@ -204,7 +204,7 @@ int CSecStructure::CalculateSecondaryStructure (int imodel ) {
   //cout << "CalculateSecondaryStructure " << imodel << " " << nres << " " << selRes[0]->GetModel()->GetSerNum() << endl;
 
   // Create array of pointers to CA atoms in amino acids 
-  PPCAtom selCa = new PCAtom[nres];
+  mmdb::PPAtom selCa = new Pmmdb::Atom[nres];
   for ( i = 0; i < nres; i++ ) {
     if ( selRes[i]->isAminoacid() ) {
       namino++; 
@@ -217,7 +217,7 @@ int CSecStructure::CalculateSecondaryStructure (int imodel ) {
         
   // Second copy of the same data
   nres2 = nres;
-  PPCAtom selCa2 = new PCAtom[nres];
+  mmdb::PPAtom selCa2 = new Pmmdb::Atom[nres];
   for ( i = 0; i < nres; i++ ) selCa2[i] = selCa[i];
 
   // Find all close Ca's - i.e. find the contacts between the two
@@ -430,8 +430,8 @@ std::string CSecStructure::Print (int imodel) {
                                         "alpha helix"};
   std::ostringstream output;
   int           nr;
-  PPCResidue    selRes;
-  PCResidue     j;
+  mmdb::PPResidue    selRes;
+  Pmmdb::Residue     j;
   std::string resid;
     int first_model=1;
   int last_model=1;
@@ -490,9 +490,9 @@ std::string CSecStructure::Print (int imodel) {
 }
  
 //-----------------------------------------------------------------------
-Boolean CSecStructure::IsHBond ( PCResidue PCRes1, PCResidue PCRes2 ) {
+Boolean CSecStructure::IsHBond ( Pmmdb::Residue PCRes1, Pmmdb::Residue PCRes2 ) {
 //-----------------------------------------------------------------------
-  PCAtom        NAtom, OAtom , CAtom;
+  Pmmdb::Atom        NAtom, OAtom , mmdb::Atom;
   realtype	dx,dy,dz;
    
 // This probably need the option of supporting alternative criteria
@@ -503,12 +503,12 @@ Boolean CSecStructure::IsHBond ( PCResidue PCRes1, PCResidue PCRes2 ) {
 
   if ( (NAtom = PCRes1->GetAtom( "N")) != NULL &&
        (OAtom = PCRes2->GetAtom( "O")) != NULL &&
-       (CAtom = PCRes2->GetAtom( "C")) != NULL &&
+       (mmdb::Atom = PCRes2->GetAtom( "C")) != NULL &&
        ( fabs (dx = (NAtom->x - OAtom->x ))) < NOmaxdist &&
        ( fabs (dy = (NAtom->y - OAtom->y ))) < NOmaxdist &&
        ( fabs (dz = (NAtom->z - OAtom->z ))) < NOmaxdist &&
        	dx*dx+dy*dy+dz*dz <= NOmaxdist2 &&
-            GetMolHnd(0)->BondAngle ( NAtom, OAtom, CAtom ) >= NOCanglemin ) {
+            GetMolHnd(0)->BondAngle ( NAtom, OAtom, mmdb::Atom ) >= NOCanglemin ) {
     return 1;
   } else {
     return 0;

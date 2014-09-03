@@ -223,7 +223,7 @@ int test_function(int i, int j) {
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       graphics_info_t g;
       if (pp.first) {
-	 CResidue *residue = g.molecules[pp.second.first].get_residue(pp.second.second);
+	 mmdb::Residue *residue = g.molecules[pp.second.first].get_residue(pp.second.second);
 	 CMMDBManager *mol = g.molecules[pp.second.first].atom_sel.mol;
 	 if (residue) {
 	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
@@ -262,7 +262,7 @@ int test_function(int i, int j) {
       atom_selection_container_t asc = get_atom_selection("test-frag.pdb", 1);
       coot::dots_representation_info_t dots;
       int sel_hnd = asc.SelectionHandle;
-      std::vector<std::pair<CAtom *, float> > v =
+      std::vector<std::pair<mmdb::Atom *, float> > v =
 	 dots.solvent_exposure(sel_hnd, asc.mol);
 
    } 
@@ -331,8 +331,8 @@ int test_function(int i, int j) {
       if (is_valid_model_molecule(imol)) { 
 	 const coot::residue_spec_t clicked_residue("A", 1);
 	 short int is_n_term_addition = 1;
-	 CAtom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[10];
-	 CChain *chain_p = at->GetChain();
+	 mmdb::Atom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[10];
+	 mmdb::Chain *chain_p = at->GetChain();
 	 std::pair<bool, std::string> p = 
 	    graphics_info_t::molecules[imol].residue_type_next_residue_by_alignment(clicked_residue, chain_p, is_n_term_addition, graphics_info_t::alignment_wgap, graphics_info_t::alignment_wspace);
 	 if (p.first == 1) { 
@@ -441,7 +441,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       // now test making a dictionary
       int imol_2 = scm_to_int(j_scm);
       if (is_valid_model_molecule(imol_2)) {
-	 CResidue *residue_2_p = g.molecules[imol_2].get_residue("A", 304, "");
+	 mmdb::Residue *residue_2_p = g.molecules[imol_2].get_residue("A", 304, "");
 	 if (! residue_2_p) {
 	    std::cout << " residue not found " << std::endl;
 	 } else {
@@ -600,7 +600,7 @@ void glyco_tree_test() {
    if (pp.first) {
       int imol = pp.second.first;
       graphics_info_t g;
-      CResidue *residue_p = g.molecules[imol].get_residue(pp.second.second);
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(pp.second.second);
       CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
 
       std::vector<std::string> types_with_no_dictionary =

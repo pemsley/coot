@@ -17,7 +17,7 @@ class CXXTriangle {
 private:
 	friend class CXXFlatTriangle;
 	int ijk[4];
-	class CAtom *theAtom;
+	class mmdb::Atom *theAtom;
 	int shouldBeDrawn;
 public:
 	CXXTriangle() : theAtom(0), shouldBeDrawn(1) {
@@ -29,7 +29,7 @@ public:
 	CXXTriangle(const int &i, const int &j, const int &k, const int &l) : theAtom(0), shouldBeDrawn(1){
 	  ijk[0]=i; ijk[1]=j; ijk[2]=k; ijk[3]=l;
 	};
-	CXXTriangle(const int &i, const int &j, const int &k, CAtom *anAtom) : theAtom(anAtom), shouldBeDrawn(1){
+	CXXTriangle(const int &i, const int &j, const int &k, mmdb::Atom *anAtom) : theAtom(anAtom), shouldBeDrawn(1){
 	  ijk[0]=i; ijk[1]=j; ijk[2]=k; ijk[3]=0;
 	};
 	CXXTriangle(const int *ijk_in) : theAtom(0), shouldBeDrawn(1){ 
@@ -44,8 +44,8 @@ public:
 	int doDraw() const {
 		return shouldBeDrawn;
 	};
-	CAtom *getAtom() const;
-	void setAtom(CAtom *anAtom);
+	mmdb::Atom *getAtom() const;
+	void setAtom(mmdb::Atom *anAtom);
 	void setElement(const int target, const int value) {
 		ijk[target] = value;
 	};

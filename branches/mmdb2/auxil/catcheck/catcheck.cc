@@ -44,7 +44,7 @@ void water_coordination_check(CMMDBManager *mol, float max_dist) {
    //    2) the waters
    // Then do a distance check between them:
 
-   PCAtom *whole_protein_atom_sel;
+   Pmmdb::Atom *whole_protein_atom_sel;
    int SelectionHandle = mol->NewSelection();
    mol->SelectAtoms (SelectionHandle, 0, "*",
 		     ANY_RES, // starting resno, an int
@@ -59,7 +59,7 @@ void water_coordination_check(CMMDBManager *mol, float max_dist) {
    int nSelAtoms_all;
    mol->GetSelIndex(SelectionHandle, whole_protein_atom_sel, nSelAtoms_all);
 
-   PCAtom *waters_atom_sel = 0;
+   Pmmdb::Atom *waters_atom_sel = 0;
    int SelectionHandle_waters = mol->NewSelection();
    mol->SelectAtoms (SelectionHandle_waters, 0, "*",
 		     ANY_RES, // starting resno, an int
@@ -98,8 +98,8 @@ void water_coordination_check(CMMDBManager *mol, float max_dist) {
    }
    
    for (int i=0; i< ncontacts; i++) {
-      CAtom *at = waters_atom_sel[contact[i].id2];
-      CAtom *pat = whole_protein_atom_sel[contact[i].id1];
+      mmdb::Atom *at = waters_atom_sel[contact[i].id2];
+      mmdb::Atom *pat = whole_protein_atom_sel[contact[i].id1];
       std::string p_ele(pat->element);
       std::string w_ele(at->element);
       if (p_ele != " C") {
@@ -126,13 +126,13 @@ void water_coordination_check(CMMDBManager *mol, float max_dist) {
 
    for (int i=0; i<atom_contacts.size(); i++) {
       std::cout << "index: " << atom_contacts[i].this_index << std::endl;
-      CAtom *at = waters_atom_sel[atom_contacts[i].this_index];
+      mmdb::Atom *at = waters_atom_sel[atom_contacts[i].this_index];
       std::cout << "at: " << at << std::endl;
       std::cout << atom_contacts[i].this_index << " " << at->GetResName() << " "
 		<< at->GetSeqNum() << " " << at->GetChainID() << " has "
 		<< atom_contacts[i].contact_indices.size() << " contacts\n";
       for (int j=0; j<atom_contacts[i].contact_indices.size(); j++) {
-	 CAtom *pat = whole_protein_atom_sel[atom_contacts[i].contact_indices[j]];
+	 mmdb::Atom *pat = whole_protein_atom_sel[atom_contacts[i].contact_indices[j]];
 	 std::string p_ele(pat->element);
 	 std::cout << "   "
 		   << pat->GetAtomName() << " " << pat->GetResName() << " "

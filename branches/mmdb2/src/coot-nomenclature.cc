@@ -35,19 +35,19 @@
 // Here we rename atoms to fix nomeclature errors. Note ILEs are not fixed
 // by renaming atoms.
 // 
-std::vector<CResidue *>
+std::vector<mmdb::Residue *>
 coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 
-   std::vector<CResidue *> vr = fix_and_swap_maybe(Geom_p, 1);
+   std::vector<mmdb::Residue *> vr = fix_and_swap_maybe(Geom_p, 1);
    return vr;
 }
 
 // just list the swaps needed - don't apply them.
 // 
-std::vector<CResidue *>
+std::vector<mmdb::Residue *>
 coot::nomenclature::list(coot::protein_geometry *Geom_p) {
 
-   std::vector<CResidue *> vr = fix_and_swap_maybe(Geom_p, 0);
+   std::vector<mmdb::Residue *> vr = fix_and_swap_maybe(Geom_p, 0);
    return vr;
 }
 
@@ -55,17 +55,17 @@ coot::nomenclature::list(coot::protein_geometry *Geom_p) {
 // Here we rename atoms to fix nomeclature errors. Note ILEs are not fixed
 // by renaming atoms.
 // 
-std::vector<CResidue *>
+std::vector<mmdb::Residue *>
 coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool apply_swaps) {
 
-   std::vector<CResidue *> vr;
+   std::vector<mmdb::Residue *> vr;
    if (mol_) { 
 
       int n_models = mol_->GetNumberOfModels();
       for (int imod=1; imod<=n_models; imod++) { 
       
-	 CModel *model_p = mol_->GetModel(imod);
-	 CChain *chain_p;
+	 mmdb::Model *model_p = mol_->GetModel(imod);
+	 mmdb::Chain *chain_p;
 	 // run over chains of the existing mol
 	 int nchains = model_p->GetNumberOfChains();
 	 if (nchains <= 0) { 
@@ -82,7 +82,7 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 			    << std::endl;
 	       } else { 
 		  int nres = chain_p->GetNumberOfResidues();
-		  PCResidue residue_p;
+		  Pmmdb::Residue residue_p;
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);
 		     std::string residue_name(residue_p->GetResName());
@@ -156,11 +156,11 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 				    // the residue for the given
 				    // alt_conf
 				    std::string alt_conf_bad = c[ibad].second.alt_conf;
-				    PPCAtom residue_atoms;
+				    mmdb::PPAtom residue_atoms;
 				    int n_residue_atoms;
 				    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-				    CAtom *og1 = 0;
-				    CAtom *cg2 = 0;
+				    mmdb::Atom *og1 = 0;
+				    mmdb::Atom *cg2 = 0;
 				    for (int iat=0; iat<n_residue_atoms; iat++) {
 				       std::string alt_conf = residue_atoms[iat]->altLoc;
 				       std::string atom_name = residue_atoms[iat]->name;
@@ -236,11 +236,11 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 				 target_atom_1 = " CD1";
 				 target_atom_2 = " CD2";
 			      }
-			      PPCAtom residue_atoms;
+			      mmdb::PPAtom residue_atoms;
 			      int n_residue_atoms;
 			      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-			      CAtom *cg1 = 0; // cd1 and cd2 for LEU of course
-			      CAtom *cg2 = 0;
+			      mmdb::Atom *cg1 = 0; // cd1 and cd2 for LEU of course
+			      mmdb::Atom *cg2 = 0;
 			      for (int iat=0; iat<n_residue_atoms; iat++) {
 				 std::string alt_conf = residue_atoms[iat]->altLoc;
 				 std::string atom_name = residue_atoms[iat]->name;
@@ -286,13 +286,13 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 
 // test chi2 (and potentially fix) so that chi2 is the range -90 -> +90.
 int
-coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p,
+coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *residue_p,
 							     bool apply_swap_if_found) {
 
    // PDBv3 FIXME - all this function.
 
    int iswapped = 0; // number of alt confs swapped in this residue
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
@@ -314,11 +314,11 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p
    // failing that, there are missing atoms and we can't determine the
    // torsion
    for (unsigned int ialtconf=0; ialtconf<alt_conf_list.size(); ialtconf++) {
-      CAtom *CA  = 0;
-      CAtom *CB  = 0;
-      CAtom *CG  = 0;
-      CAtom *CD1 = 0;
-      CAtom *CD2 = 0;
+      mmdb::Atom *CA  = 0;
+      mmdb::Atom *CB  = 0;
+      mmdb::Atom *CG  = 0;
+      mmdb::Atom *CD1 = 0;
+      mmdb::Atom *CD2 = 0;
       for (int i=0; i<n_residue_atoms; i++) {
 	 std::string atom_name = residue_atoms[i]->name;
 	 std::string atom_altconf = residue_atoms[i]->altLoc;
@@ -374,12 +374,12 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p
 	       // if cg2_tors is in range, then we swap atom names
 	       if (cg2_tors > -90.0 && cg2_tors < 90.0) {
 		  // find CE1 and CE2 and swap if both sets exists.
-		  CAtom *CE1 = 0;
-		  CAtom *CE2 = 0;
-		  CAtom *HD1 = 0;
-		  CAtom *HD2 = 0;
-		  CAtom *HE1 = 0;
-		  CAtom *HE2 = 0;
+		  mmdb::Atom *CE1 = 0;
+		  mmdb::Atom *CE2 = 0;
+		  mmdb::Atom *HD1 = 0;
+		  mmdb::Atom *HD2 = 0;
+		  mmdb::Atom *HE1 = 0;
+		  mmdb::Atom *HE2 = 0;
 		  for (int ie=0; ie<n_residue_atoms; ie++) {
 		     std::string e_atom_name = residue_atoms[ie]->name;
 		     std::string e_atom_altconf = residue_atoms[ie]->altLoc;
@@ -442,11 +442,11 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(CResidue *residue_p
 // GLU:: test chi3 (and potentially fix) so that chi3 is the range -90 -> +90.
 // 
 int
-coot::nomenclature::test_and_fix_ASP_GLU_nomenclature_errors(CResidue *residue_p,
+coot::nomenclature::test_and_fix_ASP_GLU_nomenclature_errors(mmdb::Residue *residue_p,
 							     bool apply_swap_if_found) {
 
    int iswapped = 0;
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
@@ -521,8 +521,8 @@ coot::nomenclature::test_and_fix_ASP_GLU_nomenclature_errors(CResidue *residue_p
 		  std::string swap_name_2 = " OE2";
 	       }
 
-	       CAtom *at_1 = 0;
-	       CAtom *at_2 = 0;
+	       mmdb::Atom *at_1 = 0;
+	       mmdb::Atom *at_2 = 0;
 	       for (int i=0; i<n_residue_atoms; i++) {
 		  std::string atom_name = residue_atoms[i]->name;
 		  std::string atom_altconf = residue_atoms[i]->altLoc;

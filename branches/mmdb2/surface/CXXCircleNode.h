@@ -31,9 +31,9 @@ private:
 	double theAngle;
 	int theFlag;
 	int thisIsDeleted;
-	CAtom *atomI;
-	CAtom *atomJ;
-	CAtom *atomK;
+	mmdb::Atom *atomI;
+	mmdb::Atom *atomJ;
+	mmdb::Atom *atomK;
 public:
     CXXCircleNode();    
 	CXXCircleNode ( const CXXCircle *aParent, const CXXCircle *anOtherCircle, const CXXCoord &crd, int aFlag);
@@ -54,9 +54,9 @@ public:
 	const double &getAngle() const {
 		return theAngle;
 	};
-	const PCAtom getAtomI() const {return atomI;};
-	const PCAtom getAtomJ() const {return atomJ;};
-	const PCAtom getAtomK() const {return atomK;};
+	const Pmmdb::Atom getAtomI() const {return atomI;};
+	const Pmmdb::Atom getAtomJ() const {return atomJ;};
+	const Pmmdb::Atom getAtomK() const {return atomK;};
 
 	const int getFlag() const {
 		return theFlag;

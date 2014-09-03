@@ -163,7 +163,7 @@ namespace coot {
 
    protected:
 
-      CResidue *residue;
+      mmdb::Residue *residue;
       std::string residue_type;
       // look it up in the appropriate dunbrack_rotamer:
       // 
@@ -172,11 +172,11 @@ namespace coot {
       std::vector<atom_name_pair>
       atom_name_pair_list(const std::string &res_type) const;
       std::vector<coot::atom_index_pair> get_atom_index_pairs(const std::vector<coot::atom_name_pair> &atom_name_pairs,
-							      const PPCAtom atoms, int nresatoms) const;
+							      const mmdb::PPAtom atoms, int nresatoms) const;
 
       std::vector<coot::atom_name_quad> atom_name_quad_list(const std::string &residue_type) const;
       std::vector<coot::atom_index_quad> get_atom_index_quads(const std::vector<coot::atom_name_quad> &atom_name_quads,
-							      const PPCAtom atoms, int nresatoms) const;
+							      const mmdb::PPAtom atoms, int nresatoms) const;
 
       void add_all_rotamers();  // an autogen function
       void add_richardson_rotamers(); 
@@ -226,7 +226,7 @@ namespace coot {
 				   double diff,
 				   const std::vector<coot::atom_name_pair> &atom_name_pairs,
 				   const std::vector<std::vector<int> > &contact_indices,
-				   PPCAtom residue_atoms,
+				   mmdb::PPAtom residue_atoms,
 				   int nResidueAtoms,
 				   const coot::atom_spec_t &tree_base_atom);
 
@@ -239,7 +239,7 @@ namespace coot {
 
    public:
 
-      chi_angles(CResidue *residue_in, short int add_extra_PHE_and_TYR_rotamers_flag) {
+      chi_angles(mmdb::Residue *residue_in, short int add_extra_PHE_and_TYR_rotamers_flag) {
 	 residue = residue_in;
 	 if (residue)
 	    residue_type = residue->GetResName();
@@ -258,7 +258,7 @@ namespace coot {
 	 setup_chi_atom_quads();
       }
 
-      CResidue *Residue() const { return residue; } 
+      mmdb::Residue *Residue() const { return residue; } 
       std::string Residue_Type() const { return residue_type; }
       void setup_chi_atom_quads();
       void add_chi_pair(const std::string &residue_type,
