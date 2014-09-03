@@ -286,7 +286,8 @@ namespace coot {
       //
       // selection_key_type is typically either SKEY_NEW or SKEY_OR
       // 
-      int select_atoms(mmdb::Manager *mol, int selhnd, int selection_key_type);
+      int select_atoms(mmdb::Manager *mol, int selhnd,
+		       mmdb::SELECTION_KEY selection_key);
 
 #ifndef SWIG      
       friend std::ostream& operator<< (std::ostream& s, const residue_spec_t &spec);
