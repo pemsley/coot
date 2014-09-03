@@ -52,8 +52,8 @@ coot::lsq_improve::lsq_improve(mmdb::Manager *mol_ref, const std::string &ref_se
 
 	 // now apply the passed selections
 	 // 
-	 mol->Select(sel_hnd_1, mmdb::STYPE_ATOM,    ref_selection_string.c_str(), SKEY_OR);
-	 mol->Select(sel_hnd_2, mmdb::STYPE_ATOM, moving_selection_string.c_str(), SKEY_OR);
+	 mol->Select(sel_hnd_1, mmdb::STYPE_ATOM,    ref_selection_string.c_str(), mmdb::SKEY_OR);
+	 mol->Select(sel_hnd_2, mmdb::STYPE_ATOM, moving_selection_string.c_str(), mmdb::SKEY_OR);
 
 	 mmdb::PPAtom atom_sel_1=NULL;
 	 mmdb::PPAtom atom_sel_2=NULL;
@@ -68,7 +68,7 @@ coot::lsq_improve::lsq_improve(mmdb::Manager *mol_ref, const std::string &ref_se
 			   "*", // atom name
 			   "*", // elements
 			   "*",  // alt loc.
-			   SKEY_AND
+			   mmdb::SKEY_AND
 			   );
    
 	 mol->SelectAtoms (sel_hnd_2, 2, "*",
@@ -80,7 +80,7 @@ coot::lsq_improve::lsq_improve(mmdb::Manager *mol_ref, const std::string &ref_se
 			   "*", // atom name
 			   "*", // elements
 			   "*",  // alt loc.
-			   SKEY_AND
+			   mmdb::SKEY_AND
 			   );
 	 
 	 mol->GetSelIndex(sel_hnd_1, atom_sel_1, n_sel_1);
@@ -181,14 +181,14 @@ coot::lsq_improve::get_new_matches(int round_number, int round_max,
    mol->GetSelIndex(sel_hnd_2, atom_sel_2, n_sel_2);
 
    int ncontacts = 0;
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
 
    // round_number  round_max  -> multiplier
    //    0             10         1
    //    5             10         1 - (1-0.3)*round_number/round_max
    //   10             10         0.3
    mmdb::realtype min_dist = 0.3;
-   mmdb::realtype multiplier = 1.0 - (1.0 - min_dist)*realtype(round_number)/realtype(round_max);
+   mmdb::realtype multiplier = 1.0 - (1.0 - min_dist)*mmdb::realtype(round_number)/mmdb::realtype(round_max);
    mmdb::realtype max_dist = crit_close * multiplier;
 
    std::cout << "   round " << round_number << " multiplier  " << multiplier

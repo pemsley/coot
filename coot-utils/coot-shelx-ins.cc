@@ -773,9 +773,9 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 // 		  std::cout << "DEBUG::  pre-orthog:\n" << ocaf.format() << std::endl;
 // 		  std::cout << "DEBUG:: post-orthog:\n" <<  cao.format() << std::endl;
 
-		  at->WhatIsSet |= ASET_Anis_tFac; // is anisotropic
+		  at->WhatIsSet |= mmdb::ASET_Anis_tFac; // is anisotropic
 		  float u_synth = (at->u11 + at->u22 + at->u33)/3.0;
-		  at->WhatIsSet |= ASET_tempFactor; // has synthetic B factor
+		  at->WhatIsSet |= mmdb::ASET_tempFactor; // has synthetic B factor
 		  at->tempFactor = 8.0 * M_PI * M_PI * u_synth;
 		  at->PutUDData(udd_non_riding_atom_flag_handle, 1);
 	       }
@@ -1251,7 +1251,7 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
 			      int ipart = altloc_to_part_no(std::string(at->altLoc));
 			      f << "PART    " << ipart << "\n";
 			   }
-			   if (at->WhatIsSet & ASET_Anis_tFac) {
+			   if (at->WhatIsSet & mmdb::ASET_Anis_tFac) {
 			      // Anisotropic
 
 			      clipper::U_aniso_orth cao(at->u11, at->u22, at->u33,
@@ -1274,7 +1274,7 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
 			        << caf(1,2)*b*c << "  " << caf(0,2)*a*c << "  " << caf(0,1)*a*b
 			        << "\n";
 			   } else { 
-			      if (at->WhatIsSet & ASET_tempFactor) {
+			      if (at->WhatIsSet & mmdb::ASET_tempFactor) {
 				 // Isotropic B factor
 				 std::string at_name(at->name);
 				 float b_factor = at->tempFactor;

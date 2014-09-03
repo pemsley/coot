@@ -79,7 +79,7 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
    mol->GetSelIndex   (selHnd_1, sel_1_atoms, n_sel_1_atoms);
    mol->GetSelIndex   (selHnd_2, sel_2_atoms, n_sel_2_atoms);
 
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    long i_contact_group = 1;
 
@@ -312,7 +312,7 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
    int n_sel_1_atoms;
    int n_sel_2_atoms;
    mmdb::mat44 my_matt;
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    long i_contact_group = 1;
    for (int i=0; i<4; i++) 
@@ -657,7 +657,7 @@ coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, mmdb::Manager *mol
 	 my_matt[i][j] = 0.0;      
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
    
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    long i_contact_group = 1;
 

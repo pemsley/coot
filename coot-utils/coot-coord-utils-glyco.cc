@@ -119,7 +119,7 @@ coot::beam_in_linked_residue::setup_by_comp_id(const std::string &comp_id_ref,
    
       mmdb::Manager *t_mol = new mmdb::Manager;
       int status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
-      if (status != Error_NoError) {
+      if (status != mmdb::Error_NoError) {
 	 std::cout << "ERROR:: on reading " << full_path_pdb_filename << std::endl;
       } else {
 
@@ -180,7 +180,7 @@ coot::beam_in_linked_residue::setup_by_group_group(const std::string &group_ref,
    } else { 
       mmdb::Manager *t_mol = new mmdb::Manager;
       int status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
-      if (status != Error_NoError) {
+      if (status != mmdb::Error_NoError) {
 	 std::cout << "ERROR:: on reading " << full_path_pdb_filename << std::endl;
       } else {
 
@@ -237,7 +237,7 @@ coot::beam_in_linked_residue::setup_by_comp_id_group(const std::string &comp_id_
    } else {
       mmdb::Manager *t_mol = new mmdb::Manager;
       int pdb_status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
-      if (pdb_status != Error_NoError) {
+      if (pdb_status != mmdb::Error_NoError) {
 	 std::cout << "ERROR:: on reading " << full_path_pdb_filename << std::endl;
       } else {
 

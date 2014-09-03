@@ -21,18 +21,14 @@
 
 // add a casting hack for old versions of mmdb
 //
-#ifndef MMDB_MAJOR_VERSION
-#define PSTR_CAST_HACK (pstr *) // old, old, full of old-ability
-#else 
 #if (MMDB_MAJOR_VERSION == 1)
 #if (MMDB_MINOR_VERSION < 24)
-#define PSTR_CAST_HACK (pstr *)
+#define PSTR_CAST_HACK (mmdb::pstr *)
 #else 
 #define PSTR_CAST_HACK
 #endif
 #else 
 #define PSTR_CAST_HACK
-#endif
 #endif
 
 // This can throw a std::runtime_error.
@@ -40,12 +36,12 @@
 clipper::Cell
 coot::smcif::get_cell(mmdb::mmcif::PData data) const {
 
-   pstr cell_a = NULL;
-   pstr cell_b = NULL;
-   pstr cell_c = NULL;
-   pstr cell_alpha = NULL;
-   pstr cell_beta  = NULL;
-   pstr cell_gamma = NULL;
+   mmdb::pstr cell_a = NULL;
+   mmdb::pstr cell_b = NULL;
+   mmdb::pstr cell_c = NULL;
+   mmdb::pstr cell_alpha = NULL;
+   mmdb::pstr cell_beta  = NULL;
+   mmdb::pstr cell_gamma = NULL;
    
    int ierr = 0;
    ierr += data->GetString (cell_a,     "" ,"_cell_length_a");
@@ -138,7 +134,7 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 
 
    int ierr = 0;
-   pstr S = NULL;
+   mmdb::pstr S = NULL;
    mmdb::mmcif::PLoop loop = data->FindLoop(PSTR_CAST_HACK loopTagsAtom);
    if (loop) {
       int ll = loop->GetLoopLength();
@@ -272,7 +268,7 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 	       at->u12 = cao(0,1);
 	       at->u13 = cao(0,2);
 	       at->u23 = cao(1,2);
-	       at->WhatIsSet |= ASET_Anis_tFac; // is anisotropic
+	       at->WhatIsSet |= mmdb::ASET_Anis_tFac; // is anisotropic
 	    } 
 	 }
       }
@@ -312,9 +308,9 @@ mmdb::Manager *
 coot::smcif::read_sm_cif(const std::string &file_name) const {
 
    mmdb::Manager *mol = NULL;
-   pstr S = NULL;
-   mmdb::mmcif::PData data = new CMMCIFData();
-   data->SetFlag (CIFFL_SuggestCategories);
+   mmdb::pstr S = NULL;
+   mmdb::mmcif::Data *data = new mmdb::mmcif::Data();
+   data->SetFlag (mmdb::mmcif::CIFFL_SuggestCategories);
    int ierr = data->ReadMMCIFData (file_name.c_str());
    if (ierr) {
       std::cout << "WARNING:: Error reading small-molecule cif \"" << file_name << "\"" << std::endl;
@@ -421,10 +417,10 @@ coot::smcif::get_resolution(const clipper::Cell &cell,
 
    clipper::HKL hkl;
    int h,k,l;
-   pstr S = NULL;
+   mmdb::pstr S = NULL;
    clipper::ftype slim = 0.0;
-   mmdb::mmcif::PData data = new CMMCIFData();
-   data->SetFlag (CIFFL_SuggestCategories);
+   mmdb::mmcif::Data *data = new mmdb::mmcif::Data();
+   data->SetFlag (mmdb::mmcif::CIFFL_SuggestCategories);
    int ierr = data->ReadMMCIFData (file_name.c_str());
    if (ierr) {
       std::cout << "WARNING:: Error reading small-molecule cif \"" << file_name << "\"" << std::endl;
@@ -462,8 +458,8 @@ std::pair<bool,clipper::Spacegroup>
 coot::smcif::get_space_group(const std::string &file_name) const {
 
    std::pair<bool,clipper::Spacegroup> s;
-   mmdb::mmcif::PData data = new CMMCIFData();
-   data->SetFlag (CIFFL_SuggestCategories);
+   mmdb::mmcif::Data *data = new mmdb::mmcif::Data();
+   data->SetFlag (mmdb::mmcif::CIFFL_SuggestCategories);
    int ierr = data->ReadMMCIFData (file_name.c_str());
    if (! ierr) {
       s  = get_space_group(data);
@@ -479,8 +475,8 @@ clipper::Cell
 coot::smcif::get_cell_for_data(const std::string &file_name) const {
 
    clipper::Cell c;
-   mmdb::mmcif::PData data = new CMMCIFData();
-   data->SetFlag (CIFFL_SuggestCategories);
+   mmdb::mmcif::Data *data = new mmdb::mmcif::Data();
+   data->SetFlag (mmdb::mmcif::CIFFL_SuggestCategories);
    int ierr = data->ReadMMCIFData (file_name.c_str());
    if (! ierr) {
       c = get_cell_for_data(data);
@@ -493,8 +489,8 @@ coot::smcif::get_cell_for_data(const std::string &file_name) const {
 void
 coot::smcif::setup_hkls(const std::string &file_name) {
 
-   mmdb::mmcif::PData data = new CMMCIFData();
-   data->SetFlag (CIFFL_SuggestCategories);
+   mmdb::mmcif::Data *data = new mmdb::mmcif::Data();
+   data->SetFlag (mmdb::mmcif::CIFFL_SuggestCategories);
 
    int ierr = data->ReadMMCIFData (file_name.c_str());
    if (ierr) {
@@ -565,8 +561,8 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 	    myfsigf.init(mydata, data_cell);
 	    my_fphi.init(mydata, data_cell);
 
-	    mmdb::mmcif::PData data = new CMMCIFData();
-	    data->SetFlag (CIFFL_SuggestCategories);
+	    mmdb::mmcif::Data *data = new mmdb::mmcif::Data();
+	    data->SetFlag (mmdb::mmcif::CIFFL_SuggestCategories);
 
 	    int ierr = data->ReadMMCIFData (file_name.c_str());
 	    if (ierr) {
@@ -757,7 +753,7 @@ coot::smcif::get_space_group(mmdb::mmcif::PData data, const std::string &symm_ta
    clipper::Spacegroup spg;
 
    int ierr;
-   pstr S = NULL;
+   mmdb::pstr S = NULL;
    std::vector<std::string> symm_strings;
       
    const char *loopTag1[2] = { symm_tag.c_str(), ""};

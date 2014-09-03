@@ -65,7 +65,7 @@ coot::util::water_coordination_t::water_coordination_t(mmdb::Manager *mol, mmdb:
 		     "*",   // atname
 		     "MG,CA,K,NA,LI,RB,BE,BA,FR,CS,SR",   // metals
 		     "*" ,   // alt loc.
-		     SKEY_OR);
+		     mmdb::SKEY_OR);
    
 
    // c.f. addSymmetry_whole_chain() in Bond-lines.cc 
@@ -226,7 +226,7 @@ coot::util::water_coordination_t::add_contacts(mmdb::Manager *mol,
 
    
 
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts = 0;
    long i_contact_group = 1;
    mmdb::mat44 other_mat;

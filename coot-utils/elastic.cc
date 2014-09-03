@@ -17,7 +17,7 @@ coot::elastic_network_model_t::elastic_network_model_t(mmdb::Manager *mol,
       mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
       // std::cout << "selected " << n_selected_atoms << " atoms " << std::endl;
       
-      PSContact pscontact = NULL;
+      mmdb::Contact *pscontact = NULL;
       int n_contacts;
       long i_contact_group = 1;
       mmdb::mat44 my_matt;
