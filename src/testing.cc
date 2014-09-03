@@ -2395,8 +2395,8 @@ int test_copy_cell_symm_orig_scale_headers() {
 
    int r = 0;
 
-   mmdb::Manager *m1 = new CMMDBManager;
-   mmdb::Manager *m2 = new CMMDBManager;
+   mmdb::Manager *m1 = new mmdb::Manager;
+   mmdb::Manager *m2 = new mmdb::Manager;
 
    int set1 = m1->PutPDBString("CRYST1   69.782   69.782  157.017  90.00  90.00  90.00 P 41 21 2     8");
    int set2 = m1->PutPDBString("ORIGX1      1.000000  0.000000  0.000000        0.00000");                         
@@ -2695,7 +2695,7 @@ int test_position_residue_by_internal_coords() {
 	 std::cout << "   WARNING:: Trouble initialising SBase" << std::endl;
       } else { 
 
-	 mmdb::Manager *r_mol = new CMMDBManager;
+	 mmdb::Manager *r_mol = new mmdb::Manager;
 	 r_mol->ReadPDBASCII("coot-ccp4/monomer-ASN.pdb");
    
 	 mmdb::Residue *r = coot::util::get_first_residue(r_mol);
@@ -2733,7 +2733,7 @@ int test_beam_in_residue() {
 
    testing_data t;
    int status = 0;
-   mmdb::Manager *r_mol = new CMMDBManager;
+   mmdb::Manager *r_mol = new mmdb::Manager;
    r_mol->ReadPDBASCII("coot-ccp4/monomer-ASN.pdb");
    mmdb::Residue *r = coot::util::get_first_residue(r_mol);
    if (r) {
@@ -2752,7 +2752,7 @@ int test_multi_residue_torsion() {
    int status = 0;
    testing_data t;
    t.geom.try_dynamic_add("NAG", 1);
-   mmdb::Manager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    mol->ReadPDBASCII("ASN-NAG-pair.pdb");
    mmdb::Residue *res_1 = coot::util::get_first_residue(mol);
    if (res_1) {
@@ -2818,7 +2818,7 @@ test_torsions_from_residue_selection() {
    graphics_info_t g;
    testing_data t;
    t.geom.try_dynamic_add("NAG", 1);
-   mmdb::Manager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    mol->ReadPDBASCII("frank.pdb"); // frankenstein, standard PDB file
 				   // with added refmac LINKRs (refmac
 				   // deletes HETATMs so we can't use

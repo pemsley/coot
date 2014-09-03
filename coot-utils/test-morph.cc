@@ -42,7 +42,7 @@ int main(int argc, char **argv) {
       
       mmdb::InitMatType();
       
-      mmdb::Manager *mol = new CMMDBManager;
+      mmdb::Manager *mol = new mmdb::Manager;
       mmdb::ERROR_CODE err = mol->ReadCoorFile(file_name.c_str());
       if (err) {
 	 std::cout << "There was an error reading " << file_name.c_str() << ".\n";

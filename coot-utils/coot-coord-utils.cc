@@ -189,7 +189,7 @@ coot::residue_spec_t::select_atoms(mmdb::Manager *mol, int selhnd, int selection
 
 mmdb::Manager *
 coot::util::copy_molecule(mmdb::Manager *mol) {
-   mmdb::Manager *n = new CMMDBManager;
+   mmdb::Manager *n = new mmdb::Manager;
    n->Copy(mol, MMDBFCM_All);
    return n;
 }
@@ -2904,7 +2904,7 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
 //    if (have_flanking_residue_at_end)
 //       end_offset = +1; 
 
-   mmdb::Manager *residues_mol = new CMMDBManager;
+   mmdb::Manager *residues_mol = new mmdb::Manager;
    mmdb::Model *model = new mmdb::Model;
    mmdb::Chain *chain = new mmdb::Chain;
    short int whole_res_flag = 0; // not all alt confs, only this one ("A") and "".
@@ -3056,7 +3056,7 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
       model_p->AddChain(chain_p);
    }
 
-   mmdb::Manager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    mol->AddModel(model_p);
 
    return std::pair<bool, mmdb::Manager *> (1, mol);
@@ -3084,7 +3084,7 @@ coot::util::create_mmdbmanager_from_residue_specs(const std::vector<coot::residu
 // a new residue for each point
 mmdb::Manager *coot::util::create_mmdbmanager_from_points(const std::vector<clipper::Coord_orth> &pts) {
 
-   mmdb::Manager *new_mol = new CMMDBManager;
+   mmdb::Manager *new_mol = new mmdb::Manager;
    mmdb::Model *model_p = new mmdb::Model;
    mmdb::Chain *chain_p = new mmdb::Chain;
    chain_p->SetChainID("A");
@@ -3155,7 +3155,7 @@ coot::mol_has_symmetry(mmdb::Manager *mol) {
 std::pair<mmdb::Manager *, int>
 coot::util::create_mmdbmanager_from_mmdbmanager(mmdb::Manager *mol_in) { 
 
-   mmdb::Manager *residues_mol = new CMMDBManager;
+   mmdb::Manager *residues_mol = new mmdb::Manager;
    int atom_index_handle = residues_mol->RegisterUDInteger(UDR_ATOM, "mol's atom index");
    int afix_handle_orig = mol_in->GetUDDHandle(UDR_ATOM, "shelx afix");
    int afix_handle_new_mol = -1;
@@ -3206,7 +3206,7 @@ coot::util::create_mmdbmanager_from_atom_selection(mmdb::Manager *orig_mol,
 mmdb::Manager *
 coot::util::create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_mol,
 							    int SelectionHandle) { 
-   mmdb::Manager *atoms_mol = new CMMDBManager;
+   mmdb::Manager *atoms_mol = new mmdb::Manager;
 
    mmdb::PPAtom atoms;
    int n_selected_atoms;
@@ -3353,7 +3353,7 @@ mmdb::Manager *
 coot::util::create_mmdbmanager_from_residue(mmdb::Residue *res) {
 
    mmdb::Residue *r = coot::util::deep_copy_this_residue(res);
-   mmdb::Manager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    mmdb::Model *model_p = new mmdb::Model;
    mmdb::Chain *chain_p = new mmdb::Chain;
    chain_p->AddResidue(r);
@@ -3376,7 +3376,7 @@ coot::util::create_mmdbmanager_from_atom(mmdb::Atom *at) {
    chain_p->SetChainID("A");
    mmdb::Model *model_p = new mmdb::Model;
    model_p->AddChain(chain_p);
-   mmdb::Manager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    mol->AddModel(model_p);
    return mol;
 } 
@@ -6056,11 +6056,11 @@ coot::util::remove_wrong_cis_peptides(mmdb::Manager *mol) {
 // 	     << std::endl;
 
 
-   PCCisPep       CisPep;
+   mmdb::PCisPep CisPep;
    int n_models = mol->GetNumberOfModels();
    for (int imod=1; imod<=n_models; imod++) { 
-      std::vector<CCisPep> bad_cis_peptides;
-      std::vector<CCisPep> good_cis_peptides;
+      std::vector<mmdb::CisPep> bad_cis_peptides;
+      std::vector<mmdb::CisPep> good_cis_peptides;
       mmdb::Model *model_p = mol->GetModel(imod);
       int ncp = model_p->GetNumberOfCisPeps();
       for (int icp=1; icp<=ncp; icp++) {
@@ -6105,7 +6105,7 @@ coot::util::remove_wrong_cis_peptides(mmdb::Manager *mol) {
 	 // delete all CISPEPs and add back the good ones
 	 model_p->RemoveCisPeps();
 	 for (unsigned int igood=0; igood<good_cis_peptides.size(); igood++) {
-	    PCCisPep good = new CCisPep;
+	    mmdb::CisPep *good = new mmdb::CisPep;
 	    *good = good_cis_peptides[igood];
 	    model_p->AddCisPep(good);
 	 }
@@ -6123,7 +6123,7 @@ coot::mol_by_symmetry(mmdb::Manager *mol,
 
    bool verbose_output = 0; // should be a passed param?
    
-   mmdb::Manager *mol2 = new CMMDBManager;
+   mmdb::Manager *mol2 = new mmdb::Manager;
    mol2->Copy(mol, MMDBFCM_All);
 
    // Usually gets filled by GetTMatrix().
@@ -7179,7 +7179,7 @@ coot::nearest_residue_by_sequence(mmdb::Manager *mol,
 
 // copy cell, symm, origin and scale cards from m1 to m2 (if possible)
 bool
-coot::util::copy_cell_and_symm_headers(mmdb::Manager *m1, CMMDBManager *m2) {
+coot::util::copy_cell_and_symm_headers(mmdb::Manager *m1, mmdb::Manager *m2) {
 
    bool r = 0;
 

@@ -43,7 +43,7 @@ coot::protein_geometry testing_data::geom;
 
 
 namespace coot { 
-   class SortableChainsmmdb::Manager : public CMMDBManager {
+   class SortableChainsmmdb::Manager : public mmdb::Manager {
    public:
       void SortChains();
    };
@@ -125,7 +125,7 @@ bool test_quaternion_quaternion(coot::util::quaternion q) {
 void test_sort_chains() {
 
    std::string file_name = "test-sort-chains.pdb";
-   mmdb::Manager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    mol->ReadCoorFile(file_name.c_str());
    coot::sort_chains(mol);
    mol->WritePDBASCII("test-sort-chains-sorted.pdb");
@@ -134,8 +134,8 @@ void test_sort_chains() {
 void test_lsq_improve() {
 
    std::cout << "========================= lsq-improve ==================" << std::endl;
-   mmdb::Manager *mol_1 = new CMMDBManager;
-   mmdb::Manager *mol_2 = new CMMDBManager;
+   mmdb::Manager *mol_1 = new mmdb::Manager;
+   mmdb::Manager *mol_2 = new mmdb::Manager;
 
    std::string ref_pdb = "tutorial-modern.pdb";
    std::string mov_pdb = "1py3-matched-A6-13.pdb";
@@ -266,7 +266,7 @@ int test_glyco_tree() {
    int dynamic_add_status_4 = t.geom.try_dynamic_add("GAL", 1);
    // int dynamic_add_status_4 = t.geom.try_dynamic_add("GLB", 1); minimal
    
-   mmdb::Manager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    // std::string file_name = "3u2s.pdb";
    // coot::residue_spec_t spec("G", 560, "");
 
@@ -288,7 +288,7 @@ int test_glyco_tree() {
 
 int test_helix_analysis() {
 
-   mmdb::Manager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    // std::string file_name = "theor-helix-down-z.pdb";
    std::string file_name = "helix-just-off-z.pdb";
    // file_name = "../src/pdb2qc1-sans-sans-ASN.pdb";

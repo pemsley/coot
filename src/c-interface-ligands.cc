@@ -1812,7 +1812,7 @@ int get_ccp4srs_monomer_and_dictionary(const char *comp_id) {
    graphics_info_t g;
    mmdb::Residue *residue_p = g.Geom_p()->get_ccp4srs_residue(comp_id);
    if (residue_p) {
-      mmdb::Manager *mol = new CMMDBManager;
+      mmdb::Manager *mol = new mmdb::Manager;
       mmdb::Model *model_p = new mmdb::Model;
       mmdb::Chain *chain_p = new mmdb::Chain;
       residue_p->SetResID(comp_id, 1, "");
@@ -2394,7 +2394,7 @@ new_molecule_sans_biggest_ligand(int imol) {
 	 // with the spec of r from the new molecule.
 	 //
 	 res = r;
-	 mmdb::Manager *new_mol = new CMMDBManager;
+	 mmdb::Manager *new_mol = new mmdb::Manager;
 	 new_mol->Copy(mol, MMDBFCM_All);
 	 atom_selection_container_t asc = make_asc(new_mol);
 	 std::string label = "Copy_of_";

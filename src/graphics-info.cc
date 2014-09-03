@@ -2623,7 +2623,7 @@ graphics_info_t::create_pointer_atom_molecule_maybe() const {
       // If we get here, it was not found, let's create one:
 	 
       std::cout << "Creating a molecule for Pointer Atoms" << std::endl;
-      Mymmdb::Manager *MMDBManager = new MyCMMDBManager();
+      Mymmdb::Manager *MMDBManager = new Mymmdb::Manager();
 
       // do we attach a model, chain etc here?
       // Yes.
@@ -2800,7 +2800,7 @@ graphics_info_t::baton_build_atoms_molecule() const {
    
    std::cout << "INFO:: Creating a molecule for Baton Atoms" << std::endl;
    // not found, let's create one:
-   mmdb::Manager *MMDBManager = new CMMDBManager();
+   mmdb::Manager *MMDBManager = new mmdb::Manager();
    
 
    // do we attach a model, chain etc here?
@@ -3172,7 +3172,7 @@ graphics_info_t::create_empty_molecule(const std::string &molname) {
 
    std::cout << "Creating a molecule for " << molname << std::endl;
 
-   Mymmdb::Manager *MMDBManager = new MyCMMDBManager();
+   Mymmdb::Manager *MMDBManager = new Mymmdb::Manager();
 
    mmdb::Model *model_p = new mmdb::Model;
    mmdb::Chain *chain_p = new mmdb::Chain;

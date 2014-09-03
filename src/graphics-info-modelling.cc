@@ -555,7 +555,7 @@ graphics_info_t::copy_model_molecule(int imol) {
    if (is_valid_model_molecule(imol)) { 
       int new_mol_number = graphics_info_t::create_molecule();
       mmdb::Manager *m = graphics_info_t::molecules[imol].atom_sel.mol;
-      mmdb::Manager *n = new CMMDBManager;
+      mmdb::Manager *n = new mmdb::Manager;
       n->Copy(m, MMDBFCM_All);
       atom_selection_container_t asc = make_asc(n);
       std::string label = "Copy_of_";
@@ -987,7 +987,7 @@ graphics_info_t::create_mmdbmanager_from_res_selection(mmdb::PResidue *SelResidu
 //    if (have_flanking_residue_at_end)
 //       end_offset = +1; 
 
-   mmdb::Manager *residues_mol = new CMMDBManager;
+   mmdb::Manager *residues_mol = new mmdb::Manager;
    mmdb::Model *model = new mmdb::Model;
    mmdb::Chain *chain = new mmdb::Chain;
    short int whole_res_flag = 0; // not all alt confs, only this one ("A") and "".
@@ -2554,7 +2554,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       atom_selection_container_t rt_asc;
       // No! It cannot point to the same mmdb::Atoms.
       // rt_asc.mol = molecules[imol_rot_trans_object].atom_sel.mol; 
-      // Mymmdb::Manager *mol = new MyCMMDBManager;
+      // Mymmdb::Manager *mol = new Mymmdb::Manager;
       // mol->Copy(molecules[imol_rot_trans_object].atom_sel.mol, MMDBFCM_All);
       // how about we instead use:
       // mmdb::Manager *mol = create_mmdbmanager_from_res_selection();
@@ -3415,7 +3415,7 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
 	    return 0;
 	 } else { 
 
-	    Mymmdb::Manager *mol = new MyCMMDBManager;
+	    Mymmdb::Manager *mol = new Mymmdb::Manager;
 	    mmdb::Model *model_p = new mmdb::Model;
 	    mmdb::Chain *chain_p = new mmdb::Chain;
 	    mmdb::Residue *res_p = new mmdb::Residue;

@@ -65,7 +65,7 @@ bool identity_matrix_test(const clipper::RTop_orth &rtop) {
 
 // return the matrix rotation angle
 compare_stats_t
-compare_by_overlap(std::string chain_id, int resno, mmdb::Manager *mol1, CMMDBManager *mol2) {
+compare_by_overlap(std::string chain_id, int resno, mmdb::Manager *mol1, mmdb::Manager *mol2) {
 
    compare_stats_t stats;
    std::vector<coot::lsq_range_match_info_t> matches;

@@ -31,9 +31,9 @@ namespace coot {
       dots_representation_info_t(mmdb::Manager *mol);
       // make dots around the atoms of mol, only if they are close to
       // atoms of mol_exclude
-      dots_representation_info_t(mmdb::Manager *mol, CMMDBManager *mol_exclude);
+      dots_representation_info_t(mmdb::Manager *mol, mmdb::Manager *mol_exclude);
       // mol_exclude can be NULL.
-      void add_dots(int SelHnd_in, mmdb::Manager *mol, CMMDBManager *mol_exclude,
+      void add_dots(int SelHnd_in, mmdb::Manager *mol, mmdb::Manager *mol_exclude,
 		    double dots_density, const colour_t &single_col, bool use_single_col);
       void close_yourself() {
 	 points.clear();

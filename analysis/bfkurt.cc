@@ -11,7 +11,7 @@ coot_extras::b_factor_analysis::b_factor_analysis(const mmdb::Manager *mol_in, b
 
    // for each chain, we want a vector of residues, which contain the kertosis
    // 
-   mmdb::Manager *mol = (CMMDBManager *) mol_in; // ghastly.
+   mmdb::Manager *mol = (mmdb::Manager *) mol_in; // ghastly.
    is_mol_from_shelx_flag = is_mol_from_shelx_flag_in;
    
    // recall kurtosis, $k$ of $N$ observations:

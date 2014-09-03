@@ -409,7 +409,7 @@ int SSE(mmdb::Residue *res) {
 
 mmdb::Manager *get_mol(const std::string &filename) {
 
-   mmdb::Manager *MMDBManager = new CMMDBManager();
+   mmdb::Manager *MMDBManager = new mmdb::Manager();
    int err = MMDBManager->ReadCoorFile((char *)filename.c_str());
    if (err) {
       std::cout << "Error reading " << filename << std::endl;

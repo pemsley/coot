@@ -6,7 +6,7 @@
 mmdb::Manager *make_mol(const std::vector<ProteinDB::Chain> &chains, const std::string &chain_id,
 		       int first_res_no, bool preserve_residue_names) {
 
-   mmdb::Manager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    std::vector<mmdb::Residue *> needs_cb_and_o;
 
    for (unsigned int ich=0; ich<chains.size(); ich++) {
@@ -22,7 +22,7 @@ mmdb::Manager *make_mol(const std::vector<ProteinDB::Chain> &chains, const std::
 mmdb::Manager *make_mol(const ProteinDB::Chain &chain, const std::string &chain_id, 
 		       int first_res_no, bool preserve_residue_names) { 
 
-  mmdb::Manager *mol = new CMMDBManager; 
+  mmdb::Manager *mol = new mmdb::Manager; 
   std::vector<mmdb::Residue *> residues = add_chain_to_molecule(chain, chain_id, first_res_no,
 							   preserve_residue_names, mol);
   add_cbs_and_os(residues, mol);

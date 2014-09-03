@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
 	       l.new_residue_type = new_residue_type;
 
 	       // Get a base residue
-	       mmdb::Manager *mol = new CMMDBManager;
+	       mmdb::Manager *mol = new mmdb::Manager;
 	       std::string pdb_file_name =
 		  "pdb-templates/pyranose-pyranose-via-" + link_type + ".pdb";
 
@@ -83,7 +83,7 @@ int main(int argc, char **argv) {
 	 if (argc == 4)
 	    new_residue_type = argv[3];
       
-	 mmdb::Manager *mol = new CMMDBManager;
+	 mmdb::Manager *mol = new mmdb::Manager;
 	 int status = mol->ReadPDBASCII(file_name.c_str());
 	 if (status != Error_NoError) {
 	    std::cout << "ERROR:: on reading " << file_name << std::endl;

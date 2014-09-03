@@ -74,7 +74,7 @@ main(int argc, char **argv) {
    // Does mmdb unmangle hydrogen names?  No, it turns out.
    // 
 //    if (0) { 
-//       mmdb::Manager *mol = new CMMDBManager;
+//       mmdb::Manager *mol = new mmdb::Manager;
 //       mol->ReadCoorFile("prodrg.pdb");
 //       int imod = 1;
 //       mmdb::Model *model_p = mol->GetModel(imod);

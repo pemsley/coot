@@ -310,7 +310,7 @@ add_ligand_delete_residue_copy_molecule(int imol_ligand_new,
 			 << std::endl;
 	       
 	 } else { 
-	    mmdb::Manager *n = new CMMDBManager;
+	    mmdb::Manager *n = new mmdb::Manager;
 	    n->Copy(g.molecules[imol_current].atom_sel.mol, MMDBFCM_All);
 
 	    // now find the residue in imol_ligand_current.
@@ -4708,7 +4708,7 @@ void save_symmetry_coords(int imol,
    if (imol >= 0) { 
       if (imol < graphics_info_t::n_molecules()) { 
 	 if (graphics_info_t::molecules[imol].has_model()) { 
-	    mmdb::Manager *mol2 = new CMMDBManager;
+	    mmdb::Manager *mol2 = new mmdb::Manager;
 	    mol2->Copy(graphics_info_t::molecules[imol].atom_sel.mol, MMDBFCM_All);
 	    
 	    atom_selection_container_t asc = make_asc(mol2);
@@ -4945,7 +4945,7 @@ new_molecule_by_symmetry_with_atom_selection(int imol,
    return imol_new;
 }
 
-mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(CMMDBManager *mol,
+mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(mmdb::Manager *mol,
 							    double m11, double m12, double m13, 
 							    double m21, double m22, double m23, 
 							    double m31, double m32, double m33, 

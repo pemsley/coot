@@ -1526,7 +1526,7 @@ coot::rama_plot::draw_it(mmdb::Manager *mol) {
 
 void
 coot::rama_plot::draw_it(int imol1, int imol2,
-			 mmdb::Manager *mol1, CMMDBManager *mol2) {
+			 mmdb::Manager *mol1, mmdb::Manager *mol2) {
 
    molecule_numbers_ = std::pair<int, int> (imol1, imol2); // save for later
    display_background();
@@ -1543,7 +1543,7 @@ coot::rama_plot::draw_it(int imol1, int imol2,
 // 
 void
 coot::rama_plot::draw_it(int imol1, int imol2,
-			 mmdb::Manager *mol1, CMMDBManager *mol2,
+			 mmdb::Manager *mol1, mmdb::Manager *mol2,
 			 const std::string &chain_id_1, const std::string &chain_id_2) {
 
    molecule_numbers_ = std::pair<int, int> (imol1, imol2); // save for later

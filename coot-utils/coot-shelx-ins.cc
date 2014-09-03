@@ -2205,7 +2205,7 @@ coot::unshelx(mmdb::Manager *shelx_mol) {
 mmdb::Manager *
 coot::reshelx(mmdb::Manager *mol) {
 
-   mmdb::Manager *shelx_mol = new CMMDBManager;
+   mmdb::Manager *shelx_mol = new mmdb::Manager;
 
    int imod = 1;
    mmdb::Model *shelx_model_p = new mmdb::Model;

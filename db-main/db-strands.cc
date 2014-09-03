@@ -101,7 +101,7 @@ coot::db_strands::get_reference_strands(int n_strands, int strand_length) {
 mmdb::Manager *
 coot::db_strands::get_mol(const std::string &filename) const {
 
-   mmdb::Manager *MMDBManager = new CMMDBManager();
+   mmdb::Manager *MMDBManager = new mmdb::Manager();
    mmdb::ERROR_CODE err = MMDBManager->ReadCoorFile(filename.c_str());
    if (err) {
       std::cout << "Error reading " << filename << std::endl;
