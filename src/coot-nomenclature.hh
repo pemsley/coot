@@ -8,7 +8,7 @@
 namespace coot {
 
    class nomenclature {
-      CMMDBManager *mol_;
+      mmdb::Manager *mol_;
       // return swap status.
       int test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *residue_p,
 						   bool apply_swap_when_found);
@@ -23,7 +23,7 @@ namespace coot {
                                                                      // if flagged.
 
    public:
-      nomenclature(CMMDBManager *mol) {
+      nomenclature(mmdb::Manager *mol) {
 	 mol_ = mol;
       }
       // Here we rename atoms to fix nomeclature errors. Note ILEs are not fixed

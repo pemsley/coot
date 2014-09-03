@@ -23,7 +23,7 @@
 
 // return the number of trimmed atoms
 int
-coot::util::trim_molecule_by_map(CMMDBManager *mol,
+coot::util::trim_molecule_by_map(mmdb::Manager *mol,
 				 const clipper::Xmap<float> &xmap,
 				 float map_level,
 				 short int remove_or_zero_occ_flag,
@@ -59,7 +59,7 @@ coot::util::trim_molecule_by_map(CMMDBManager *mol,
 	    } else { 
 	       int nres = chain->GetNumberOfResidues();
 	       for (int ires=0; ires<nres; ires++) { 
-		  Pmmdb::Residue residue_p = chain->GetResidue(ires);
+		  mmdb::PResidue residue_p = chain->GetResidue(ires);
 		  std::string resname = residue_p->name;
 		  if (((resname == "WAT" || resname == "HOH") && waters_only_flag)
 		      || !waters_only_flag) {

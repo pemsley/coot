@@ -127,7 +127,7 @@ matches_pdb_name(const std::string &file_str) {
 void
 coot::strands_t::analyse_pdb_file(const std::string &filename) {
 
-   CMMDBManager *mol = get_mol(filename);
+   mmdb::Manager *mol = get_mol(filename);
    if (mol) { 
       mmdb::Model *model_p = mol->GetModel(1);
       int status = model_p->CalcSecStructure(1);
@@ -155,8 +155,8 @@ distance_checks(mmdb::Model *model_p) {
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
-      Pmmdb::Residue residue_p_1;
-      Pmmdb::Residue residue_p_2;
+      mmdb::PResidue residue_p_1;
+      mmdb::PResidue residue_p_2;
       for (int ires=0; ires<(nres-1); ires++) {
 	 residue_p_1 = chain_p->GetResidue(ires);
 	 residue_p_2 = chain_p->GetResidue(ires+1);
@@ -190,7 +190,7 @@ distance_checks(mmdb::Model *model_p) {
 // mol gives us the handle and access to the Select() function
 // 
 void
-coot::strands_t::strand_analysis(mmdb::Model *model_p, CMMDBManager *mol,
+coot::strands_t::strand_analysis(mmdb::Model *model_p, mmdb::Manager *mol,
 				 const std::string &filename) {
 
    PCSheets sheets = model_p->GetSheets();
@@ -245,7 +245,7 @@ coot::strands_t::strand_analysis(mmdb::Model *model_p, CMMDBManager *mol,
 
 void
 coot::strands_t::add_strand(const std::string &filename,
-			    CMMDBManager *mol,
+			    mmdb::Manager *mol,
 			    CStrand *strand_p,
 			    int SelectionHandle) {
 
@@ -280,7 +280,7 @@ coot::strands_t::add_strand(const std::string &filename,
 
 // return the bool == 1 on good rtop.
 std::pair<bool, clipper::RTop_orth>
-orient_strand_on_z(int SelHnd, CMMDBManager *mol) {
+orient_strand_on_z(int SelHnd, mmdb::Manager *mol) {
 
    clipper::RTop_orth rtop = clipper::RTop_orth::identity();
    bool stat = 0;
@@ -327,7 +327,7 @@ orient_strand_on_z(int SelHnd, CMMDBManager *mol) {
 }
 
 // fiddle with mol
-void apply_rtop_to_strand(int SelHnd, CMMDBManager *mol,
+void apply_rtop_to_strand(int SelHnd, mmdb::Manager *mol,
 			  const clipper::RTop_orth &rtop) {
 
    int nSelResidues = 0;
@@ -407,9 +407,9 @@ int SSE(mmdb::Residue *res) {
    return res->SSE;
 } 
 
-CMMDBManager *get_mol(const std::string &filename) {
+mmdb::Manager *get_mol(const std::string &filename) {
 
-   CMMDBManager *MMDBManager = new CMMDBManager();
+   mmdb::Manager *MMDBManager = new CMMDBManager();
    int err = MMDBManager->ReadCoorFile((char *)filename.c_str());
    if (err) {
       std::cout << "Error reading " << filename << std::endl;
@@ -673,11 +673,11 @@ coot::strands_t::residual_between_strands(int istrand, int jstrand, int strand_l
    // get first set of atoms
    int nSelResidues1 = 0;
    mmdb::PPResidue SelResidues1;
-   CMMDBManager *mol1 = strand_infos[istrand].mol;
+   mmdb::Manager *mol1 = strand_infos[istrand].mol;
    mol1->GetSelIndex(strand_infos[istrand].SelectionHandle, SelResidues1, nSelResidues1);
    int nSelResidues2 = 0;
    mmdb::PPResidue SelResidues2;
-   CMMDBManager *mol2 = strand_infos[jstrand].mol;
+   mmdb::Manager *mol2 = strand_infos[jstrand].mol;
    mol2->GetSelIndex(strand_infos[jstrand].SelectionHandle, SelResidues2, nSelResidues2);
    std::vector<clipper::Coord_orth> found_atoms_strand_1;
    std::vector<clipper::Coord_orth> found_atoms_strand_2;

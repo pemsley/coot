@@ -594,7 +594,7 @@ namespace coot {
       // coordinates in the residue.  Fake up some bond and angle
       // esds.
       dictionary_residue_restraints_t(mmdb::Residue *residue_p);
-      dictionary_residue_restraints_t(CMMDBManager *mol); // mol contains one residue in a hierarchy
+      dictionary_residue_restraints_t(mmdb::Manager *mol); // mol contains one residue in a hierarchy
       
       std::string cif_file_name;
       void clear_dictionary_residue();
@@ -717,8 +717,8 @@ namespace coot {
 				  int atom_2_comp_id_in,
 				  const std::string &atom_id_1,
 				  const std::string &atom_id_2,
-				  realtype value_dist_in,
-				  realtype value_dist_esd_in) :
+				  mmdb::realtype value_dist_in,
+				  mmdb::realtype value_dist_esd_in) :
 	 basic_dict_restraint_t(atom_id_1, atom_id_2) {
 	 atom_1_comp_id = atom_1_comp_id_in;
 	 atom_2_comp_id = atom_2_comp_id_in;
@@ -741,8 +741,8 @@ namespace coot {
 				   const std::string &atom_id_1,
 				   const std::string &atom_id_2,
 				   const std::string &atom_id_3_in,
-				   realtype value_angle_in,
-				   realtype value_angle_esd_in) :
+				   mmdb::realtype value_angle_in,
+				   mmdb::realtype value_angle_esd_in) :
 	 basic_dict_restraint_t(atom_id_1, atom_id_2) {
 	 atom_id_3_ = atom_id_3_in;
 	 atom_1_comp_id = atom_1_comp_id_in;
@@ -984,7 +984,7 @@ namespace coot {
 		    const std::string &new_atom_id_in,
 		    const std::string &new_type_symbol_in,
 		    const std::string &new_type_energy_in,
-		    realtype new_partial_charge_in) {
+		    mmdb::realtype new_partial_charge_in) {
 	 function = CHEM_MOD_FUNCTION_UNSET;
 	 if (function_in == "add")
 	    function = CHEM_MOD_FUNCTION_ADD;
@@ -1003,7 +1003,7 @@ namespace coot {
       std::string new_atom_id;
       std::string new_type_symbol;
       std::string new_type_energy;
-      realtype new_partial_charge;
+      mmdb::realtype new_partial_charge;
       friend std::ostream& operator<<(std::ostream &s, const chem_mod_atom &a);
    };
    std::ostream& operator<<(std::ostream &s, const chem_mod_atom &a);
@@ -1045,8 +1045,8 @@ namespace coot {
 		    const std::string &atom_id_1_in,
 		    const std::string &atom_id_2_in,
 		    const std::string &new_type_in,
-		    realtype new_value_dist_in,
-		    realtype new_value_dist_esd_in) {
+		    mmdb::realtype new_value_dist_in,
+		    mmdb::realtype new_value_dist_esd_in) {
 	 function = CHEM_MOD_FUNCTION_UNSET;
 	 if (function_in == "add")
 	    function = CHEM_MOD_FUNCTION_ADD;
@@ -1064,8 +1064,8 @@ namespace coot {
       std::string atom_id_1;
       std::string atom_id_2;
       std::string new_type;
-      realtype new_value_dist;
-      realtype new_value_dist_esd;
+      mmdb::realtype new_value_dist;
+      mmdb::realtype new_value_dist_esd;
       friend std::ostream& operator<<(std::ostream &s, const chem_mod_bond &a);
    };
    std::ostream& operator<<(std::ostream &s, const chem_mod_bond &a);
@@ -1076,8 +1076,8 @@ namespace coot {
 		     const std::string &atom_id_1_in,
 		     const std::string &atom_id_2_in,
 		     const std::string &atom_id_3_in,
-		     realtype new_value_angle_in,
-		     realtype new_value_angle_esd_in) {
+		     mmdb::realtype new_value_angle_in,
+		     mmdb::realtype new_value_angle_esd_in) {
 	 function = CHEM_MOD_FUNCTION_UNSET;
 	 if (function_in == "add")
 	    function = CHEM_MOD_FUNCTION_ADD;
@@ -1096,8 +1096,8 @@ namespace coot {
       std::string atom_id_2;
       std::string atom_id_3;
       std::string new_type;
-      realtype new_value_angle;
-      realtype new_value_angle_esd;
+      mmdb::realtype new_value_angle;
+      mmdb::realtype new_value_angle_esd;
       friend std::ostream& operator<<(std::ostream &s, const chem_mod_angle &a);
    };
    std::ostream& operator<<(std::ostream &s, const chem_mod_angle &a);
@@ -1109,8 +1109,8 @@ namespace coot {
 		   const std::string &atom_id_2_in,
 		   const std::string &atom_id_3_in,
 		   const std::string &atom_id_4_in,
-		   realtype new_value_angle_in,
-		   realtype new_value_angle_esd_in,
+		   mmdb::realtype new_value_angle_in,
+		   mmdb::realtype new_value_angle_esd_in,
 		   int new_period_in) {
 	 function = CHEM_MOD_FUNCTION_UNSET;
 	 if (function_in == "add")
@@ -1133,8 +1133,8 @@ namespace coot {
       std::string atom_id_3;
       std::string atom_id_4;
       std::string new_type;
-      realtype new_value_angle;
-      realtype new_value_angle_esd;
+      mmdb::realtype new_value_angle;
+      mmdb::realtype new_value_angle_esd;
       int new_period;
       friend std::ostream& operator<<(std::ostream &s, const chem_mod_tor &a);
    };
@@ -1155,9 +1155,9 @@ namespace coot {
       }
       chem_mod_function_t function;
       std::string plane_id;
-      std::vector<std::pair<std::string, realtype> > atom_id_esd;
-      void add_atom(const std::string &atom_id, realtype esd) {
-	 std::pair<std::string, realtype> p(atom_id, esd);
+      std::vector<std::pair<std::string, mmdb::realtype> > atom_id_esd;
+      void add_atom(const std::string &atom_id, mmdb::realtype esd) {
+	 std::pair<std::string, mmdb::realtype> p(atom_id, esd);
 	 atom_id_esd.push_back(p);
       }
       friend std::ostream& operator<<(std::ostream &s, const chem_mod_plane &a);
@@ -1206,12 +1206,12 @@ namespace coot {
    public:
       enum hb_t { HB_UNASSIGNED=-1, HB_NEITHER, HB_DONOR, HB_ACCEPTOR, HB_BOTH, HB_HYDROGEN };
       std::string type;
-      realtype weight;
+      mmdb::realtype weight;
       int hb_type;
       // radii are negative if not assigned.
-      realtype vdw_radius;
-      realtype vdwh_radius;
-      realtype ion_radius;
+      mmdb::realtype vdw_radius;
+      mmdb::realtype vdwh_radius;
+      mmdb::realtype ion_radius;
       std::string element;
       int valency; // negative if unset
       int sp_hybridisation; // negative if unset
@@ -1567,7 +1567,7 @@ namespace coot {
       enum { UNSET_NUMBER = -1 };  // An unset number, for example the
       // number of atoms.
 
-      bool close_float_p (const realtype &f1, const realtype &f2) { //testing func
+      bool close_float_p (const mmdb::realtype &f1, const realtype &f2) { //testing func
 	 float d = fabsf(f1-f2);
 	 if (d < 0.001)
 	    return true;
@@ -1639,7 +1639,7 @@ namespace coot {
 			    const std::string &atom_id_4c,
 			    const std::string &type_symbol,
 			    const std::string &type_energy,
-			    const std::pair<bool, realtype> &partial_charge,
+			    const std::pair<bool, mmdb::realtype> &partial_charge,
 			    const std::pair<bool, clipper::Coord_orth> &model_pos,
 			    const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
 
@@ -1655,7 +1655,7 @@ namespace coot {
       void mon_lib_add_bond(std::string comp_id,
 			    std::string atom_id_1, std::string atom_id_2,
 			    std::string type,
-			    realtype value_dist, realtype value_dist_esd);
+			    mmdb::realtype value_dist, realtype value_dist_esd);
 
       void mon_lib_add_bond_no_target_geom(std::string comp_id,
 					   std::string atom_id_1, std::string atom_id_2,
@@ -1665,7 +1665,7 @@ namespace coot {
 			     std::string atom_id_1,
 			     std::string atom_id_2,
 			     std::string atom_id_3,
-			     realtype value_angle, realtype value_angle_esd);
+			     mmdb::realtype value_angle, realtype value_angle_esd);
 
       void mon_lib_add_torsion(std::string comp_id,
 			       std::string torsion_id,
@@ -1673,7 +1673,7 @@ namespace coot {
 			       std::string atom_id_2,
 			       std::string atom_id_3,
 			       std::string atom_id_4,
-			       realtype value_angle, realtype value_angle_esd,
+			       mmdb::realtype value_angle, realtype value_angle_esd,
 			       int period);
 
       void mon_lib_add_chiral(std::string comp_id,
@@ -1691,7 +1691,7 @@ namespace coot {
       void mon_lib_add_plane(const std::string &comp_id,
 			     const std::string &plane_id,
 			     const std::string &atom_id,
-			     const realtype &dist_esd);
+			     const mmdb::realtype &dist_esd);
 
       void add_restraint(std::string comp_id, const dict_bond_restraint_t &restr);
       void add_restraint(std::string comp_id, const dict_angle_restraint_t &restr);
@@ -1772,8 +1772,8 @@ namespace coot {
 			 int atom_2_comp_id,
 			 const std::string &atom_id_1,
 			 const std::string &atom_id_2,
-			 realtype value_dist,
-			 realtype value_dist_esd);
+			 mmdb::realtype value_dist,
+			 mmdb::realtype value_dist_esd);
       
       void link_add_angle(const std::string &link_id,
 			  int atom_1_comp_id,
@@ -1782,8 +1782,8 @@ namespace coot {
 			  const std::string &atom_id_1,
 			  const std::string &atom_id_2,
 			  const std::string &atom_id_3,
-			  realtype value_dist,
-			  realtype value_dist_esd);
+			  mmdb::realtype value_dist,
+			  mmdb::realtype value_dist_esd);
 
       // we want to allow synthetic/programatic addition of link
       // torsion restraints (so we can then know the rotatable bonds
@@ -1798,8 +1798,8 @@ namespace coot {
 			    const std::string &atom_id_2,
 			    const std::string &atom_id_3,
 			    const std::string &atom_id_4,
-			    realtype value_dist,
-			    realtype value_dist_esd,
+			    mmdb::realtype value_dist,
+			    mmdb::realtype value_dist_esd,
 			    int period,
 			    const std::string &id); // psi, phi (or carbo link id)
 
@@ -2156,7 +2156,7 @@ namespace coot {
 
       // calls try_dynamic_add if needed.
       // make HETATMs if non-standard residue name.
-      CMMDBManager *mol_from_dictionary(const std::string &three_letter_code,
+      mmdb::Manager *mol_from_dictionary(const std::string &three_letter_code,
 					bool idealised_flag);
       
       // Used by above (or maybe you just want a residue?)

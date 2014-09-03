@@ -54,9 +54,9 @@ public:
 	const double &getAngle() const {
 		return theAngle;
 	};
-	const Pmmdb::Atom getAtomI() const {return atomI;};
-	const Pmmdb::Atom getAtomJ() const {return atomJ;};
-	const Pmmdb::Atom getAtomK() const {return atomK;};
+	const mmdb::PAtom getAtomI() const {return atomI;};
+	const mmdb::PAtom getAtomJ() const {return atomJ;};
+	const mmdb::PAtom getAtomK() const {return atomK;};
 
 	const int getFlag() const {
 		return theFlag;

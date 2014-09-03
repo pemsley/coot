@@ -41,7 +41,7 @@ atom_selection_container_t get_atom_selection(std::string t, bool convert_to_v2_
 int fix_nucleic_acid_residue_names(atom_selection_container_t asc);
 int fix_nucleic_acid_residue_name(mmdb::Residue *r); // return whether it was changed or not.
 void convert_to_old_nucleotide_atom_names(mmdb::Residue *r);
-void fix_element_name_lengths(CMMDBManager *mol);
+void fix_element_name_lengths(mmdb::Manager *mol);
 
 // return the number of fixed atoms
 int fix_away_atoms(atom_selection_container_t asc);
@@ -59,8 +59,8 @@ int write_atom_selection_file(atom_selection_container_t asc,
 
 // used by above
 namespace coot {
-  void delete_hydrogens_from_mol(CMMDBManager *mol);
-  void delete_aniso_records_from_atoms(CMMDBManager *mol);
+  void delete_hydrogens_from_mol(mmdb::Manager *mol);
+  void delete_aniso_records_from_atoms(mmdb::Manager *mol);
 }
 
 
@@ -68,7 +68,7 @@ namespace coot {
 // 
 ostream& operator<<(ostream& s, mmdb::Atom &atom);
 
-ostream& operator<<(ostream& s, Pmmdb::Atom atom); 
+ostream& operator<<(ostream& s, mmdb::PAtom atom); 
 
 namespace coot { 
   // mdl mol file support

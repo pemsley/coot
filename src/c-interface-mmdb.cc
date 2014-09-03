@@ -41,16 +41,16 @@
 
 #ifdef USE_GUILE
 
-CMMDBManager *
+mmdb::Manager *
 mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 
-   CMMDBManager *mol = 0;
+   mmdb::Manager *mol = 0;
 
    SCM nmodel = scm_length(molecule_expression);
    int inmodel = scm_to_int(nmodel);
 
    if (inmodel > 0) {
-      mol = new CMMDBManager; 
+      mol = new mmdb::Manager; 
       for(int imodel=0; imodel<inmodel; imodel++) {
 	 mmdb::Model *model_p = new mmdb::Model;
 	 SCM imodel_scm = SCM_MAKINUM(imodel);
@@ -241,14 +241,14 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 #endif  // USE_GUILE
 #ifdef USE_PYTHON
 
-CMMDBManager *
+mmdb::Manager *
 mmdb_manager_from_python_expression(PyObject *molecule_expression) {
 
-   CMMDBManager *mol = 0;
+   mmdb::Manager *mol = 0;
    std::deque<mmdb::Model *> model_list = mmdb_models_from_python_expression(molecule_expression);
    
    if (!model_list.empty()) {
-      mol = new CMMDBManager;
+      mol = new mmdb::Manager;
       while (!model_list.empty()) {
          mol->AddModel(model_list.front());
          model_list.pop_front();
@@ -482,7 +482,7 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
 #endif // USE_PYTHON
 
 // delete CONECT records from mmdb manager
-void mmdb_manager_delete_conect(CMMDBManager *mol) {
+void mmdb_manager_delete_conect(mmdb::Manager *mol) {
 
   graphics_info_t g;
 

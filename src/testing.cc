@@ -357,7 +357,7 @@ int test_alt_conf_rotamers() {
 	 std::string chain_id = chain_p->GetChainID();
 	 if (chain_id == "B") {
 	    int nres = chain_p->GetNumberOfResidues();
-	    Pmmdb::Residue residue_p;
+	    mmdb::PResidue residue_p;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       int resno = residue_p->GetSeqNum();
@@ -501,7 +501,7 @@ int test_wiggly_ligands () {
 // 
 residue_selection_t
 testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
-					   Pmmdb::Residue *SelResidues,
+					   mmdb::PResidue *SelResidues,
 					   int nSelResidues,
 					   const std::string &chain_id,
 					   int resno_mid,
@@ -527,7 +527,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
    short int in_alt_conf_split_flag = 0;
    const char *chn = chain_id.c_str(); // mmdb thing.  Needs updating on new mmdb?
 	       
-   std::pair<CMMDBManager *, int> residues_mol_pair = 
+   std::pair<mmdb::Manager *, int> residues_mol_pair = 
       coot::util::create_mmdbmanager_from_res_selection(atom_sel.mol,
 							SelResidues, nSelResidues, 
 							have_flanking_residue_at_start,
@@ -579,7 +579,7 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 
    int post_refine_selHnd = residues_mol_pair.first->NewSelection();
    int post_refine_nSelResidues; 
-   Pmmdb::Residue *post_refine_SelResidues = NULL;
+   mmdb::PResidue *post_refine_SelResidues = NULL;
    residues_mol_pair.first->Select(post_refine_selHnd, STYPE_RESIDUE, 0,
 				   chn,
 				   resno_mid-side_step, "",
@@ -630,7 +630,7 @@ int test_ramachandran_probabilities() {
    for (int i=0; i<resnos.size(); i++) { 
       int selHnd = atom_sel.mol->NewSelection();
       int nSelResidues; 
-      Pmmdb::Residue *SelResidues = NULL;
+      mmdb::PResidue *SelResidues = NULL;
       atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
 			   chn,
 			   resnos[i]-2, "",
@@ -870,7 +870,7 @@ int test_peptide_link() {
       return 0;
 
    std::vector<std::pair<bool,mmdb::Residue *> > residues;
-   CMMDBManager *mol = asc.mol;
+   mmdb::Manager *mol = asc.mol;
    int imod = 1;
    mmdb::Model *model_p = mol->GetModel(imod);
    mmdb::Chain *chain_p;
@@ -881,7 +881,7 @@ int test_peptide_link() {
       int nres = chain_p->GetNumberOfResidues();
       std::string chain_id = chain_p->GetChainID();
       if (chain_id == "B") { 
-	 Pmmdb::Residue residue_p;
+	 mmdb::PResidue residue_p;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    int resno = residue_p->GetSeqNum();
@@ -949,7 +949,7 @@ restr_res_vector() {
    atom_selection_container_t asc = get_atom_selection(f, 1);
 
    std::vector<std::pair<bool,mmdb::Residue *> > residues;
-   CMMDBManager *mol = asc.mol;
+   mmdb::Manager *mol = asc.mol;
    std::cout << "restr_res_vector: mol: " << mol << std::endl;
    std::vector<coot::atom_spec_t> fixed_atom_specs;
 
@@ -966,7 +966,7 @@ restr_res_vector() {
       int nres = chain_p->GetNumberOfResidues();
       std::string chain_id = chain_p->GetChainID();
       if (chain_id == "B") { 
-	 Pmmdb::Residue residue_p;
+	 mmdb::PResidue residue_p;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    int resno = residue_p->GetSeqNum();
@@ -1017,7 +1017,7 @@ test_add_atom() {
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
-      Pmmdb::Residue residue_p;
+      mmdb::PResidue residue_p;
       mmdb::Atom *at;
       while (ires_count<n_test_residues) {
 	 residue_p = chain_p->GetResidue(ires_count);
@@ -1122,7 +1122,7 @@ test_dipole() {
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
-	 Pmmdb::Residue residue_p;
+	 mmdb::PResidue residue_p;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    if (std::string(residue_p->GetResName()) == res_type) { 
@@ -1190,7 +1190,7 @@ int test_segid_exchange() {
 	 chain_p = model_p->GetChain(ichain);
 	 std::string chain_id = chain_p->GetChainID();
 	 int nres = chain_p->GetNumberOfResidues();
-	 Pmmdb::Residue residue_p;
+	 mmdb::PResidue residue_p;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    residues.push_back(residue_p);
@@ -1721,7 +1721,7 @@ test_coot_atom_tree_proline() {
 
 
 // can return null;
-mmdb::Residue *test_get_residue(CMMDBManager *mol, const std::string &chain_id_ref, int resno_ref) {
+mmdb::Residue *test_get_residue(mmdb::Manager *mol, const std::string &chain_id_ref, int resno_ref) {
 
    mmdb::Residue *residue_p = 0;
    
@@ -1736,7 +1736,7 @@ mmdb::Residue *test_get_residue(CMMDBManager *mol, const std::string &chain_id_r
       std::string chain_id = chain_p->GetChainID();
       if (chain_id == chain_id_ref) {
 	 int nres = chain_p->GetNumberOfResidues();
-	 Pmmdb::Residue res;
+	 mmdb::PResidue res;
 	 for (int ires=0; ires<nres; ires++) { 
 	    res = chain_p->GetResidue(ires);
 	    int resno = res->GetSeqNum();
@@ -2284,7 +2284,7 @@ int test_translate_close_to_origin() {
    clipper::Coord_orth origin(0,0,0);
    std::vector<clipper::Coord_orth> pts;
    pts.push_back(clipper::Coord_orth(99.9, 100.1, 100.0));
-   CMMDBManager *mol = coot::util::create_mmdbmanager_from_points(pts);
+   mmdb::Manager *mol = coot::util::create_mmdbmanager_from_points(pts);
    clipper::Cell_descr cell_descr(100,100,100,
 				  clipper::Util::d2rad(90.0), 
 				  clipper::Util::d2rad(90.0), 
@@ -2395,8 +2395,8 @@ int test_copy_cell_symm_orig_scale_headers() {
 
    int r = 0;
 
-   CMMDBManager *m1 = new CMMDBManager;
-   CMMDBManager *m2 = new CMMDBManager;
+   mmdb::Manager *m1 = new CMMDBManager;
+   mmdb::Manager *m2 = new CMMDBManager;
 
    int set1 = m1->PutPDBString("CRYST1   69.782   69.782  157.017  90.00  90.00  90.00 P 41 21 2     8");
    int set2 = m1->PutPDBString("ORIGX1      1.000000  0.000000  0.000000        0.00000");                         
@@ -2424,8 +2424,8 @@ int test_copy_cell_symm_orig_scale_headers() {
 
    std::cout << "m1 spacegroup " << spc_1 << std::endl;
 
-   realtype a[6];
-   realtype vol;
+   mmdb::realtype a[6];
+   mmdb::realtype vol;
    int orthcode;
    m1->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
    std::cout << "PutPDBString: cell "
@@ -2573,7 +2573,7 @@ int test_COO_mod() {
 
       // refine ...
       
-      Pmmdb::Residue *SelResidues = new Pmmdb::Residue[1];
+      mmdb::PResidue *SelResidues = new Pmmdb::Residue[1];
       SelResidues[0] = asc.atom_selection[0]->residue;
       
       residue_selection_t result =
@@ -2695,7 +2695,7 @@ int test_position_residue_by_internal_coords() {
 	 std::cout << "   WARNING:: Trouble initialising SBase" << std::endl;
       } else { 
 
-	 CMMDBManager *r_mol = new CMMDBManager;
+	 mmdb::Manager *r_mol = new CMMDBManager;
 	 r_mol->ReadPDBASCII("coot-ccp4/monomer-ASN.pdb");
    
 	 mmdb::Residue *r = coot::util::get_first_residue(r_mol);
@@ -2733,7 +2733,7 @@ int test_beam_in_residue() {
 
    testing_data t;
    int status = 0;
-   CMMDBManager *r_mol = new CMMDBManager;
+   mmdb::Manager *r_mol = new CMMDBManager;
    r_mol->ReadPDBASCII("coot-ccp4/monomer-ASN.pdb");
    mmdb::Residue *r = coot::util::get_first_residue(r_mol);
    if (r) {
@@ -2752,7 +2752,7 @@ int test_multi_residue_torsion() {
    int status = 0;
    testing_data t;
    t.geom.try_dynamic_add("NAG", 1);
-   CMMDBManager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new CMMDBManager;
    mol->ReadPDBASCII("ASN-NAG-pair.pdb");
    mmdb::Residue *res_1 = coot::util::get_first_residue(mol);
    if (res_1) {
@@ -2786,7 +2786,7 @@ int test_multi_residue_torsion() {
 	 coot::bonded_pair_container_t bpc;
 	 bpc.try_add(bp);
 	 atom_selection_container_t asc;
-	 asc.mol = (MyCMMDBManager *) mol;
+	 asc.mol = (Mymmdb::Manager *) mol;
 	 asc.atom_selection = atom_selection;
 	 asc.n_selected_atoms = n_selected_atoms;
 	 asc.SelectionHandle = selhnd;
@@ -2818,7 +2818,7 @@ test_torsions_from_residue_selection() {
    graphics_info_t g;
    testing_data t;
    t.geom.try_dynamic_add("NAG", 1);
-   CMMDBManager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new CMMDBManager;
    mol->ReadPDBASCII("frank.pdb"); // frankenstein, standard PDB file
 				   // with added refmac LINKRs (refmac
 				   // deletes HETATMs so we can't use

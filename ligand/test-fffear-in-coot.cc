@@ -284,7 +284,7 @@ main(int argc, char **argv) {
 	    
 	    for (unsigned int iop=0; iop<possible_rtops.size(); iop++) { 
 	       clipper::RTop_orth rtop = possible_rtops[iop];
-	       CMMDBManager *new_mol = new CMMDBManager;
+	       mmdb::Manager *new_mol = new CMMDBManager;
 	       new_mol->Copy(atom_sel.mol, MMDBFCM_All);
 	       // now apply rtop to all atoms of new_mol:
 	       int imod = 1;
@@ -296,7 +296,7 @@ main(int argc, char **argv) {
 	       for (int ichain=0; ichain<nchains; ichain++) {
 		  chain_p = model_p->GetChain(ichain);
 		  int nres = chain_p->GetNumberOfResidues();
-		  Pmmdb::Residue residue_p;
+		  mmdb::PResidue residue_p;
 		  mmdb::Atom *at;
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);
@@ -323,7 +323,7 @@ main(int argc, char **argv) {
 
 	    for (unsigned int iop=0; iop<p.size(); iop++) {
 	       clipper::RTop_orth rtop = p[iop].second;
-	       CMMDBManager *new_mol = new CMMDBManager;
+	       mmdb::Manager *new_mol = new CMMDBManager;
 	       new_mol->Copy(atom_sel.mol, MMDBFCM_All);
 	       // now apply rtop to all atoms of new_mol:
 	       int imod = 1;
@@ -335,7 +335,7 @@ main(int argc, char **argv) {
 	       for (int ichain=0; ichain<nchains; ichain++) {
 		  chain_p = model_p->GetChain(ichain);
 		  int nres = chain_p->GetNumberOfResidues();
-		  Pmmdb::Residue residue_p;
+		  mmdb::PResidue residue_p;
 		  mmdb::Atom *at;
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);

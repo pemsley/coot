@@ -3,8 +3,8 @@
 #include <vector>
 #include <mmdb2/mmdb_manager.h>
 
-CMMDBManager *get_mol(const std::string &filename);
-void water_coordination_check(CMMDBManager *mol, float max_dist);
+mmdb::Manager *get_mol(const std::string &filename);
+void water_coordination_check(mmdb::Manager *mol, float max_dist);
 
 class contact_info_t {
 public:

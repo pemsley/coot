@@ -17,7 +17,7 @@ void molecule_from_comp_id(const std::string &comp_id) {
       // std::string three_letter_code = "06C"; // simplest
 	 
       bool idealised_flag = true;
-      CMMDBManager *mol = geom.mol_from_dictionary(comp_id, idealised_flag);
+      mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, idealised_flag);
 
       if (! mol) {
 	 std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;

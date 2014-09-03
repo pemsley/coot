@@ -27,7 +27,7 @@ coot::cablam::get_closest_CA_CA_approach(const coot::torsion_atom_quad &quad) co
 } 
 
 
-coot::cablam::cablam(Pmmdb::Residue *residues, int n_sel_residues) {
+coot::cablam::cablam(mmdb::PResidue *residues, int n_sel_residues) {
 
    std::map<mmdb::Residue *, torsion_atom_quad> residue_quads;
 

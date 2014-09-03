@@ -786,7 +786,7 @@ private:
    get_centres_from_bond_indices(const std::vector<int> &bond_indices) const;
    lig_build::pos_t get_new_pos_not_towards_ring_centres(int atom_index,
 							 const std::vector<int> &bond_indices) const;
-   CMMDBManager *get_cmmdbmanager(const std::string &filename) const;
+   mmdb::Manager *get_cmmdbmanager(const std::string &filename) const;
 
    // sbase functions
    float search_similarity;
@@ -1065,7 +1065,7 @@ public:
    // read an MDL mol file.
    widgeted_molecule_t  import_mol_file(const lig_build::molfile_molecule_t &mol_in,
 					const std::string &filename,
-					CMMDBManager *pdb_mol);
+					mmdb::Manager *pdb_mol);
    static gboolean on_highlight_key_press_event (GooCanvasItem *item,
 						 GooCanvasItem *target,
 						 GdkEventKey *event,
@@ -1238,7 +1238,7 @@ public:
 // 
 lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 		std::pair<bool, coot::residue_spec_t> ligand_spec_pair,
-		CMMDBManager *mol,
+		mmdb::Manager *mol,
 		const std::string &view_name, // annotate the decoration
 		const std::string &molecule_file_name,
 		int imol, // molecule number of the molecule of the

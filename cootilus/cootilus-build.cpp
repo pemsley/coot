@@ -13,7 +13,7 @@ Coot_nucleic_acid_build::Coot_nucleic_acid_build( std::string filename )
 }
 
 
-bool Coot_nucleic_acid_build::build( CMMDBManager* mmdb, const clipper::Xmap<float>& xmap, const clipper::Coord_orth& centre, double radius ) const
+bool Coot_nucleic_acid_build::build( mmdb::Manager* mmdb, const clipper::Xmap<float>& xmap, const clipper::Coord_orth& centre, double radius ) const
 {
   clipper::MMDBfile* mmdbfile = static_cast<clipper::MMDBfile*>( mmdb );
 

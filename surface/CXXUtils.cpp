@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-int CXXUtils::assignCharge(PCMMDBManager theManager, int selHnd, CXXChargeTable *theChargeTable){
+int CXXUtils::assignCharge(mmdb::PManager theManager, int selHnd, CXXChargeTable *theChargeTable){
 	mmdb::Atom **SelAtom;
 	int nSelAtoms;
 	theManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
@@ -21,7 +21,7 @@ int CXXUtils::assignCharge(PCMMDBManager theManager, int selHnd, CXXChargeTable 
 	return 0;
 }
 
-int CXXUtils::assignUnitedAtomRadius  (PCMMDBManager theManager, int selHnd) {
+int CXXUtils::assignUnitedAtomRadius  (mmdb::PManager theManager, int selHnd) {
 	// Add a radius property to the atoms
 	int iRadiusHandle = theManager->RegisterUDReal(UDR_ATOM, "PerAtomRadius");
 	if (!iRadiusHandle) {
@@ -98,7 +98,7 @@ void CXXUtils::reformatAtomRadii(){
 	}
 }
 
-int CXXUtils::selectionStringToSelHnd(PCMMDBManager allAtomsManager_in, std::string selectionString, int existingSelection, int selKeyRequest){
+int CXXUtils::selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::string selectionString, int existingSelection, int selKeyRequest){
 	int selHnd, selKey;
 	if (existingSelection == -1) {
 		selHnd = allAtomsManager_in->NewSelection();
@@ -118,7 +118,7 @@ int CXXUtils::selectionStringToSelHnd(PCMMDBManager allAtomsManager_in, std::str
 	return selHnd;
 }
 
-int CXXUtils::unCharge(PCMMDBManager theManager, int selHnd){
+int CXXUtils::unCharge(mmdb::PManager theManager, int selHnd){
 	mmdb::Atom **SelAtom;
 	int nSelAtoms;
 	theManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);

@@ -139,9 +139,9 @@ namespace coot {
       
       std::vector<std::vector<std::string> >
       rotamer_atoms(const std::string &residue_name) const;
-      std::vector<std::vector<int> > rotamer_atom_names_to_indices(const std::vector<std::vector<std::string> > &residue_rotamer_atoms, Pmmdb::Atom *residue_atoms, int n_residue_atoms) const;
+      std::vector<std::vector<int> > rotamer_atom_names_to_indices(const std::vector<std::vector<std::string> > &residue_rotamer_atoms, mmdb::PAtom *residue_atoms, int n_residue_atoms) const;
       double chi_torsion(const std::vector<int> &chi_angle_atom_indices,
-			 Pmmdb::Atom *residue_atoms);
+			 mmdb::PAtom *residue_atoms);
       std::vector<coot::simple_rotamer>
       get_all_rotamers(const std::string &res_type) const;
       std::vector<mmdb::Atom *> ordered_residue_atoms(mmdb::Residue *residue_p) const;
@@ -166,7 +166,7 @@ namespace coot {
       }
 
    protected:
-      CMMDBManager *stored_mol;
+      mmdb::Manager *stored_mol;
       float Probability_limit() const { return probability_limit; }
       void set_probability_limit(float lim) { probability_limit = lim;}
       std::string alt_conf;

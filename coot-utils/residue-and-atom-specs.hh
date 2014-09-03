@@ -69,7 +69,7 @@ namespace coot {
 	    return false;
       }
 
-      void selectatoms(CMMDBManager *mol, int SelHnd) {
+      void selectatoms(mmdb::Manager *mol, int SelHnd) {
 	 const char *chainid = chain.c_str();
 	 const char *inscode = insertion_code.c_str();
 	 const char *atname  = atom_name.c_str(); // atom name
@@ -286,7 +286,7 @@ namespace coot {
       //
       // selection_key_type is typically either SKEY_NEW or SKEY_OR
       // 
-      int select_atoms(CMMDBManager *mol, int selhnd, int selection_key_type);
+      int select_atoms(mmdb::Manager *mol, int selhnd, int selection_key_type);
 
 #ifndef SWIG      
       friend std::ostream& operator<< (std::ostream& s, const residue_spec_t &spec);

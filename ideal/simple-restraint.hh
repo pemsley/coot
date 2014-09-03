@@ -614,18 +614,18 @@ namespace coot {
    public:
       std::string chain_id;
       std::vector<geometry_distortion_info_t> geometry_distortion;
-      Pmmdb::Atom *atom;
+      mmdb::PAtom *atom;
       int n_atoms;
       int min_resno; 
       int max_resno;
       geometry_distortion_info_container_t(const std::vector<geometry_distortion_info_t> &geometry_distortion_in, 
-					   Pmmdb::Atom *atom_in, 
+					   mmdb::PAtom *atom_in, 
 					   const std::string &chain_id_in) { 
 	 geometry_distortion = geometry_distortion_in;
 	 atom = atom_in;
 	 chain_id = chain_id_in;
       }
-      geometry_distortion_info_container_t(Pmmdb::Atom *atom_in, int n_atoms_in, 
+      geometry_distortion_info_container_t(mmdb::PAtom *atom_in, int n_atoms_in, 
 					   const std::string &chain_id_in) { 
 	 atom = atom_in;
 	 n_atoms = n_atoms_in;
@@ -770,7 +770,7 @@ namespace coot {
 			mmdb::Residue *res);
 
    std::pair<std::vector<std::string> , std::vector <coot::atom_spec_t> >
-   inverted_chiral_volumes(CMMDBManager *mol, protein_geometry *geom_p,
+   inverted_chiral_volumes(mmdb::Manager *mol, protein_geometry *geom_p,
 			   int cif_dictionary_read_number);
       
    
@@ -1003,7 +1003,7 @@ namespace coot {
       int n_atoms;
       gsl_vector *x; // these are the variables, x_k, y_k, z_k, x_l etc.
       bool are_all_one_atom_residues; 
-      CMMDBManager *mol;
+      mmdb::Manager *mol;
       
       // The bool is the "atoms of this residue are fixed" flag.
       std::vector<std::pair<bool,mmdb::Residue *> > residues_vec;
@@ -1050,8 +1050,8 @@ namespace coot {
       // from which we generate restraints, not all the atoms of which
       // are variables.
       // 
-      Pmmdb::Residue previous_residue;
-      Pmmdb::Residue next_residue;
+      mmdb::PResidue previous_residue;
+      mmdb::PResidue next_residue;
       
       bool verbose_geometry_reporting;
    
@@ -1109,15 +1109,15 @@ namespace coot {
 			 short int have_disulfide_residues,
 			 const std::string &altloc,
 			 const char *chain_id,
-			 CMMDBManager *mol_in, 
+			 mmdb::Manager *mol_in, 
 			 const std::vector<atom_spec_t> &fixed_atom_specs);
 
       void init_from_residue_vec(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
 				 const coot::protein_geometry &geom,
-				 CMMDBManager *mol_in,
+				 mmdb::Manager *mol_in,
 				 const std::vector<atom_spec_t> &fixed_atom_specs);
 
-      void init_shared_pre(CMMDBManager *mol_in);
+      void init_shared_pre(mmdb::Manager *mol_in);
 
       void init_shared_post(const std::vector<atom_spec_t> &fixed_atom_specs);
       // neighbour residues already are fixed.
@@ -1293,73 +1293,73 @@ namespace coot {
 
       int add_bonds(int idr, mmdb::PPAtom res_selection,
 		    int i_no_res_atoms,
-		    Pmmdb::Residue SelRes,
+		    mmdb::PResidue SelRes,
 		    const coot::protein_geometry &geom); 
 
       int add_angles(int idr, mmdb::PPAtom res_selection,
 		     int i_no_res_atoms,
-		     Pmmdb::Residue SelRes,
+		     mmdb::PResidue SelRes,
 		     const coot::protein_geometry &geom); 
    
       int add_torsions(int idr, mmdb::PPAtom res_selection,
 		       int i_no_res_atoms,
-		       Pmmdb::Residue SelRes,
+		       mmdb::PResidue SelRes,
 		       const coot::protein_geometry &geom);
 
       int add_chirals(int idr, mmdb::PPAtom res_selection,
 		      int i_no_res_atoms,
-		      Pmmdb::Residue SelRes,
+		      mmdb::PResidue SelRes,
 		      const coot::protein_geometry &geom);
 
       int add_planes  (int idr, mmdb::PPAtom res_selection,
 		       int i_no_res_atoms,
-		       Pmmdb::Residue SelRes,
+		       mmdb::PResidue SelRes,
 		       const coot::protein_geometry &geom);
 
       restraint_counts_t 
       apply_mods(int idr, mmdb::PPAtom res_selection,
 		 int i_no_res_atoms,
-		 Pmmdb::Residue SelRes,
+		 mmdb::PResidue SelRes,
 		 const coot::protein_geometry &geom);
 
       void
       apply_mod(const std::string &mod_name,
 		const coot::protein_geometry &geom,
 		int idr,
-		Pmmdb::Residue residue_p);
+		mmdb::PResidue residue_p);
 
       void apply_mod_bond(const coot::chem_mod_bond &mod_bond,
-			  Pmmdb::Residue residue_p);
+			  mmdb::PResidue residue_p);
 
       void apply_mod_angle(const coot::chem_mod_angle &mod_angle,
-			  Pmmdb::Residue residue_p);
+			  mmdb::PResidue residue_p);
 
       void apply_mod_plane(const coot::chem_mod_plane &mod_plane,
-			   Pmmdb::Residue residue_p);
+			   mmdb::PResidue residue_p);
 
       void mod_bond_add(const coot::chem_mod_bond &mod_bond,
-			Pmmdb::Residue residue_p);
+			mmdb::PResidue residue_p);
 
       void mod_bond_change(const coot::chem_mod_bond &mod_bond,
-			   Pmmdb::Residue residue_p);
+			   mmdb::PResidue residue_p);
 
       void mod_bond_delete(const coot::chem_mod_bond &mod_bond,
-			   Pmmdb::Residue residue_p);
+			   mmdb::PResidue residue_p);
 
       void mod_angle_add(const coot::chem_mod_angle &mod_angle,
-			Pmmdb::Residue residue_p);
+			mmdb::PResidue residue_p);
 
       void mod_angle_change(const coot::chem_mod_angle &mod_angle,
-			   Pmmdb::Residue residue_p);
+			   mmdb::PResidue residue_p);
 
       void mod_angle_delete(const coot::chem_mod_angle &mod_angle,
-			   Pmmdb::Residue residue_p);
+			   mmdb::PResidue residue_p);
 
       void mod_plane_add(const coot::chem_mod_plane &mod_plane,
-			 Pmmdb::Residue residue_p);
+			 mmdb::PResidue residue_p);
 
       void mod_plane_delete(const coot::chem_mod_plane &mod_plane,
-			    Pmmdb::Residue residue_p);
+			    mmdb::PResidue residue_p);
       
       bool dictionary_name_matches_coords_resname(const std::string &comp_id,
 						  const std::string &resname) const {
@@ -1476,34 +1476,34 @@ namespace coot {
 					       const protein_geometry &geom) const;
    
       int add_link_bond(std::string link_type,
-			Pmmdb::Residue first, Pmmdb::Residue second,
+			mmdb::PResidue first, Pmmdb::Residue second,
 			short int is_fixed_first_res,
 			short int is_fixed_second_res,
 			const coot::protein_geometry &geom);
 
       int add_link_angle(std::string link_type,
-			 Pmmdb::Residue first, Pmmdb::Residue second,
+			 mmdb::PResidue first, Pmmdb::Residue second,
 			 short int is_fixed_first_res,
 			 short int is_fixed_second_res,
 			 const coot::protein_geometry &geom);
 
       int add_link_torsion(std::string link_type,
 			   int phi_psi_restraints_type,
-			   Pmmdb::Residue first, Pmmdb::Residue second,
+			   mmdb::PResidue first, Pmmdb::Residue second,
 			   short int is_fixed_first, short int is_fixed_second,
 			   const coot::protein_geometry &geom);
 
       int add_rama(std::string link_type,
-		   Pmmdb::Residue prev,
-		   Pmmdb::Residue this_res,
-		   Pmmdb::Residue post,
+		   mmdb::PResidue prev,
+		   mmdb::PResidue this_res,
+		   mmdb::PResidue post,
 		   bool is_fixed_first_res,
 		   bool is_fixed_second_res,
 		   bool is_fixed_third_res,
 		   const coot::protein_geometry &geom);
 
       int add_link_plane(std::string link_type,
-			 Pmmdb::Residue first, Pmmdb::Residue second,
+			 mmdb::PResidue first, Pmmdb::Residue second,
 			 short int is_fixed_first_res,
 			 short int is_fixed_second_res,
 			 const coot::protein_geometry &geom);
@@ -1514,7 +1514,7 @@ namespace coot {
 			      const coot::protein_geometry &geom);
 
       int add_link_plane_tmp(std::string link_type,
-			 Pmmdb::Residue first, Pmmdb::Residue second,
+			 mmdb::PResidue first, Pmmdb::Residue second,
 			 short int is_fixed_first_res,
 			 short int is_fixed_second_res,
 			 const coot::protein_geometry &geom);
@@ -1670,7 +1670,7 @@ namespace coot {
 			     short int have_disulfide_residues,
 			     const std::string &altloc,
 			     const char *chain_id,
-			     CMMDBManager *mol, // const in an ideal world
+			     mmdb::Manager *mol, // const in an ideal world
 			     const std::vector<atom_spec_t> &fixed_atom_specs);
 
       // Interface used by Refine button callback:
@@ -1681,7 +1681,7 @@ namespace coot {
 			     short int have_disulfide_residues,
 			     const std::string &altloc,
 			     const char *chain_id,
-			     CMMDBManager *mol, // const in an ideal world
+			     mmdb::Manager *mol, // const in an ideal world
 			     const std::vector<atom_spec_t> &fixed_atom_specs,
 			     const clipper::Xmap<float> &map_in,
 			     float map_weight);
@@ -1691,9 +1691,9 @@ namespace coot {
       // The whole chain is selected (without flanking atoms) and we
       // use geometry_distortion() function.
       // 
-      restraints_container_t(Pmmdb::Residue *SelResidues, int nSelResidues,
+      restraints_container_t(mmdb::PResidue *SelResidues, int nSelResidues,
 			     const std::string &chain_id,
-			     CMMDBManager *mol);
+			     mmdb::Manager *mol);
 
       // 20081106 construct from a vector of residues, each of which
       // has a flag attached that denotes whether or not it is a fixed
@@ -1708,7 +1708,7 @@ namespace coot {
       // 
       restraints_container_t(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
 			     const coot::protein_geometry &geom,			     
-			     CMMDBManager *mol,
+			     mmdb::Manager *mol,
 			     const std::vector<atom_spec_t> &fixed_atom_specs);
 
       // 
@@ -1731,8 +1731,8 @@ namespace coot {
       // 
       restraints_container_t(mmdb::PPAtom moving_residue_atoms, // e.g. atom of residue 16,17,18
 			     int n_moving_residue_atoms, // e.g. 21
-			     Pmmdb::Residue previous_residue, // e.g. residue 15
-			     Pmmdb::Residue next_atom,
+			     mmdb::PResidue previous_residue, // e.g. residue 15
+			     mmdb::PResidue next_atom,
 			     const std::vector<int> &fixed_atom_indices);
 
       restraints_container_t(){
@@ -1901,8 +1901,8 @@ namespace coot {
       std::vector<double> atom_z_weight;  // weight e.d. fit by atomic number
 
       // Make a MMDBManager from the selection and return this new
-      // PCMMDBManager.  It is the users responsibility to delete it.
-      CMMDBManager *results() const;
+      // mmdb::PManager.  It is the users responsibility to delete it.
+      mmdb::Manager *results() const;
       void adjust_variables(const atom_selection_container_t &asc);
 
       LogRamachandran LogRama() const { return lograma; };
@@ -1950,25 +1950,25 @@ namespace coot {
 
    // this can throw an exception
    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
-   torsionable_bonds(CMMDBManager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
+   torsionable_bonds(mmdb::Manager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
 		     protein_geometry *geom);
    // not sure this needs to public
    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
    torsionable_link_bonds(std::vector<mmdb::Residue *> residues_in,
-			  CMMDBManager *mol,
+			  mmdb::Manager *mol,
 			  protein_geometry *geom);
 
    // And the atom_quad version of that (for setting link torsions)
    // 
    std::vector<torsion_atom_quad>
-   torsionable_quads(CMMDBManager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
+   torsionable_quads(mmdb::Manager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
 		     protein_geometry *geom);
    std::vector<torsion_atom_quad>
    torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
-			  CMMDBManager *mol, protein_geometry *geom_p);
+			  mmdb::Manager *mol, protein_geometry *geom_p);
    
    // this can throw an std::runtime exception
-   void multi_residue_torsion_fit_map(CMMDBManager *mol,
+   void multi_residue_torsion_fit_map(mmdb::Manager *mol,
 				      const clipper::Xmap<float> &xmap,
 				      int n_trials,
 				      coot::protein_geometry *geom_p); 
@@ -1976,7 +1976,7 @@ namespace coot {
    double get_rand_angle(double current_angle, const torsion_atom_quad &quad, int itrial, int n_trials);
    
    void simple_refine(mmdb::Residue *residue_p,
-		      CMMDBManager *mol,
+		      mmdb::Manager *mol,
 		      const dictionary_residue_restraints_t &dict_restraints);
 
 } // namespace coot

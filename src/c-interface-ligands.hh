@@ -43,22 +43,22 @@ namespace coot {
 
    // return 100 if no other contact found (strange!)
    // 
-   double find_water_protein_length(mmdb::Residue *ligand_residue, CMMDBManager *mol);
+   double find_water_protein_length(mmdb::Residue *ligand_residue, mmdb::Manager *mol);
 
 
-   std::vector<fle_ligand_bond_t> get_covalent_bonds(CMMDBManager *mol,
+   std::vector<fle_ligand_bond_t> get_covalent_bonds(mmdb::Manager *mol,
 						     int SelHnd_lig,
 						     int SelHnd_all,
 						     const residue_spec_t &ligand_spec,
 						     const protein_geometry &geom);
    // which calls 
-   std::vector<fle_ligand_bond_t> get_covalent_bonds_by_distance(CMMDBManager *mol,
+   std::vector<fle_ligand_bond_t> get_covalent_bonds_by_distance(mmdb::Manager *mol,
 						     int SelHnd_lig,
 						     int SelHnd_all,
 						     const residue_spec_t &ligand_spec,
 						     const protein_geometry &geom);
    std::vector<fle_ligand_bond_t> get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
-							      CMMDBManager *mol);
+							      mmdb::Manager *mol);
 
    std::vector<fle_ligand_bond_t> get_metal_bonds(mmdb::Residue *ligand_res,
 						  const std::vector<mmdb::Residue *> &residues);
@@ -68,7 +68,7 @@ namespace coot {
    // 
    std::vector<fle_ligand_bond_t> get_fle_ligand_bonds(mmdb::Residue *res_ref,
 						       const std::vector<mmdb::Residue *> &residues,
-						       CMMDBManager *mol,
+						       mmdb::Manager *mol,
 						       const std::map<std::string, std::string> &name_map,
 						       const protein_geometry &geom,
 						       float water_dist_max,

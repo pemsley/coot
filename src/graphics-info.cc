@@ -469,7 +469,7 @@ graphics_info_t::add_dir_file(const std::string &dirname, const std::string &fil
 void
 graphics_info_t::setRotationCentre(int index, int imol) {
 
-   Pmmdb::Atom atom = molecules[imol].atom_sel.atom_selection[index];
+   mmdb::PAtom atom = molecules[imol].atom_sel.atom_selection[index];
    
    float x = atom->x; 
    float y = atom->y; 
@@ -619,7 +619,7 @@ graphics_info_t::setRotationCentre(const symm_atom_info_t &symm_atom_info) {
    std::cout << "setRotationCentre by symmetry atom" << std::endl;
    
    // Invalid read according to valgrind
-   Pmmdb::Atom atom = symm_atom_info.trans_sel[symm_atom_info.atom_index];
+   mmdb::PAtom atom = symm_atom_info.trans_sel[symm_atom_info.atom_index];
 
    if (atom) { 
       float x = atom->x; // invalid read according to valgrind.
@@ -2623,7 +2623,7 @@ graphics_info_t::create_pointer_atom_molecule_maybe() const {
       // If we get here, it was not found, let's create one:
 	 
       std::cout << "Creating a molecule for Pointer Atoms" << std::endl;
-      MyCMMDBManager *MMDBManager = new MyCMMDBManager();
+      Mymmdb::Manager *MMDBManager = new MyCMMDBManager();
 
       // do we attach a model, chain etc here?
       // Yes.
@@ -2800,7 +2800,7 @@ graphics_info_t::baton_build_atoms_molecule() const {
    
    std::cout << "INFO:: Creating a molecule for Baton Atoms" << std::endl;
    // not found, let's create one:
-   CMMDBManager *MMDBManager = new CMMDBManager();
+   mmdb::Manager *MMDBManager = new CMMDBManager();
    
 
    // do we attach a model, chain etc here?
@@ -3172,7 +3172,7 @@ graphics_info_t::create_empty_molecule(const std::string &molname) {
 
    std::cout << "Creating a molecule for " << molname << std::endl;
 
-   MyCMMDBManager *MMDBManager = new MyCMMDBManager();
+   Mymmdb::Manager *MMDBManager = new MyCMMDBManager();
 
    mmdb::Model *model_p = new mmdb::Model;
    mmdb::Chain *chain_p = new mmdb::Chain;

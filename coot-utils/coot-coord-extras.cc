@@ -38,7 +38,7 @@
 // geom_p gets updated to include the residue restraints if necessary
 // 
 std::pair<int, std::vector<std::string> >
-coot::util::check_dictionary_for_residues(Pmmdb::Residue *SelResidues, int nSelResidues,
+coot::util::check_dictionary_for_residues(mmdb::PResidue *SelResidues, int nSelResidues,
 					  coot::protein_geometry *geom_p,
 					  int read_number) {
 
@@ -726,7 +726,7 @@ coot::torsionable_bonds_monomer_internal_quads(mmdb::Residue *residue_p,
 
 
 coot::bonded_pair_container_t 
-coot::linkrs_in_atom_selection(CMMDBManager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
+coot::linkrs_in_atom_selection(mmdb::Manager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
 			       protein_geometry *geom_p) {
    coot::bonded_pair_container_t bpc;
 #ifdef MMDB_WITHOUT_LINKR

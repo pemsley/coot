@@ -120,7 +120,7 @@ namespace coot {
       void set_new_residue_number(int n) { new_res_no = n; }
 
       // helper function
-      static std::pair<mmdb::Residue *, mmdb::Residue *> get_residue_pair(CMMDBManager *mol);
+      static std::pair<mmdb::Residue *, mmdb::Residue *> get_residue_pair(mmdb::Manager *mol);
 
    };
 

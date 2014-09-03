@@ -69,7 +69,7 @@ coot::atom_tree_t::atom_tree_t(const dictionary_residue_restraints_t &rest,
 // 
 coot::atom_tree_t::atom_tree_t(const std::vector<std::vector<int> > &contact_indices,
 			       int base_atom_index, 
-			       CMMDBManager *mol,
+			       mmdb::Manager *mol,
 			       int selection_handle) {
    
    made_from_minimol_residue_flag = 0;

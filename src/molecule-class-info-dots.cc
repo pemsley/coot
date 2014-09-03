@@ -6,19 +6,19 @@
 // ---------------------------------------------------------------------------------------
 
 // make a surface on mol
-coot::dots_representation_info_t::dots_representation_info_t(CMMDBManager *mol) {
+coot::dots_representation_info_t::dots_representation_info_t(mmdb::Manager *mol) {
 
    is_closed = 0;
    int SelHnd = mol->NewSelection();
    mol->SelectAtoms(SelHnd, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
-   CMMDBManager *dum = NULL;
+   mmdb::Manager *dum = NULL;
    colour_t dummy_col;
    add_dots(SelHnd, mol, dum, 1.0, dummy_col, false);
    mol->DeleteSelection(SelHnd);
 }
 
-coot::dots_representation_info_t::dots_representation_info_t(CMMDBManager *mol,
-							     CMMDBManager *mol_exclude) {
+coot::dots_representation_info_t::dots_representation_info_t(mmdb::Manager *mol,
+							     mmdb::Manager *mol_exclude) {
 
    is_closed = 0;
    int SelHnd = mol->NewSelection();
@@ -80,8 +80,8 @@ coot::dots_representation_info_t::get_colour(const std::string &ele) const {
 // 20111123 modern usage
 //
 void
-coot::dots_representation_info_t::add_dots(int SelHnd, CMMDBManager *mol,
-					   CMMDBManager *mol_exclude,
+coot::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
+					   mmdb::Manager *mol_exclude,
 					   double dot_density,
 					   const coot::colour_t &single_colour,
 					   bool use_single_colour) {

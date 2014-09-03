@@ -45,7 +45,7 @@ DefineClass(CMMANManager);
 DefineStreamFunctions(CMMANManager) ;
 
 // Function to return the parent PCMMANManager of an atom
-CMMANManager* GetMMANManager(Pmmdb::Atom pAtom);
+CMMANManager* GetMMANManager(mmdb::PAtom pAtom);
 
   
 class CMMANManager : public CMMUTManager  {
@@ -63,32 +63,32 @@ class CMMANManager : public CMMUTManager  {
 
     //Bonds
     std::string GetMolBonds (std::string monlib_file="");
-    int EditBonds (int mode, Pmmdb::Atom p_atom1, Pmmdb::Atom p_atom2);
+    int EditBonds (int mode, mmdb::PAtom p_atom1, Pmmdb::Atom p_atom2);
 
     //Sbase and Atom Energy types
-    pstr GetSbaseCompoundID(Pmmdb::Atom atom);
-    pstr GetSbaseCompoundID(Pmmdb::Residue res);
-    int GetSbaseAtomOrdinal(Pmmdb::Atom atom);
+    pstr GetSbaseCompoundID(mmdb::PAtom atom);
+    pstr GetSbaseCompoundID(mmdb::PResidue res);
+    int GetSbaseAtomOrdinal(mmdb::PAtom atom);
 
     int SetupAtomEnergyTypes();
     int GetAtomTypeData (int selHnd,int type,ivector &dataout,int &nat );
     int GetAtomTypeData (int selHnd,int type,rvector &dataout,int &nat );
     std::vector<double> GetAtomRadii ( int selHnd, int type, double scale );
-    int GetAtomEnergyType(Pmmdb::Atom p_atom);
+    int GetAtomEnergyType(mmdb::PAtom p_atom);
 
-    realtype GetAtomVDWRadius(Pmmdb::Atom p_atom);
-    const char* GetAtomHBondType(Pmmdb::Atom p_atom);
-    int GetAtomHBondType1(Pmmdb::Atom p_atom);
+    mmdb::realtype GetAtomVDWRadius(mmdb::PAtom p_atom);
+    const char* GetAtomHBondType(mmdb::PAtom p_atom);
+    int GetAtomHBondType1(mmdb::PAtom p_atom);
     int LoadCharge(std::string loadfrom);
     std::string PrintCharges(void);
 
     void SetLabelMask(int i, int value);
-    std::string AtomLabel(Pmmdb::Atom p_atom);
-    std::string AtomLabel(Pmmdb::Atom p_atom,int mask[]);
+    std::string AtomLabel(mmdb::PAtom p_atom);
+    std::string AtomLabel(mmdb::PAtom p_atom,int mask[]);
     void ListBonds(int selHnd,int natoms,mmdb::PPAtom selAtom);
-    std::string ListSecStructure (int mask_in[], Pmmdb::Atom pAtom=NULL );
-    int TestBonding ( Pmmdb::Atom patom1, Pmmdb::Atom patom2, int max=5);
-    int RestoreData (PCMMDBManager restore_molHnd, int mode=MMAN_COORDINATES);
+    std::string ListSecStructure (int mask_in[], mmdb::PAtom pAtom=NULL );
+    int TestBonding ( mmdb::PAtom patom1, Pmmdb::Atom patom2, int max=5);
+    int RestoreData (mmdb::PManager restore_molHnd, int mode=MMAN_COORDINATES);
     int LoadUDDData( const int property=PROPERTY_B );
 
     int CopyModel(int model);
@@ -101,17 +101,17 @@ class CMMANManager : public CMMUTManager  {
     int SelectChainTermini( void );
     int SelectSSETermini( int selHnd=-1 );
 
-    bool isAminoacid (Pmmdb::Residue pres);
-    int GetRestypeCode ( Pmmdb::Residue pres);
+    bool isAminoacid (mmdb::PResidue pres);
+    int GetRestypeCode ( mmdb::PResidue pres);
     std::map<std::string,PCSBStructure> monlib; 
 
     int SetCustomRestype ( const std::string &resname , const int &restype , Boolean clear=false);
     int SetCustomResSynonym ( const std::string &resname , const std::string &alias , Boolean clear=false);
 
 
-    int ExcludeOverlappedAtoms ( const int selHnd ,const realtype cutoff );
+    int ExcludeOverlappedAtoms ( const int selHnd ,const mmdb::realtype cutoff );
     int SetTransform ( const std::vector<float>& transf , const std::vector<float>& transl , const bool reset);
-    int SetTransform ( const realtype rot ,const std::vector<float>& axis, const int selHnd = -1 );
+    int SetTransform ( const mmdb::realtype rot ,const std::vector<float>& axis, const int selHnd = -1 );
     int SetTransform ( const matrix tMat, const bool reset);
     int SetTransform ( mat44 &TMatrix , const bool reset);
     int ReApplyTransform( const bool reset=0);
@@ -120,10 +120,10 @@ class CMMANManager : public CMMUTManager  {
     std::string GetTransformString();
     bool GetIsTransformed() { return isTransformed; }
     int TransformToSuperposeAtoms (  mmdb::PPAtom A1, int nA, mmdb::PPAtom A2 );
-    double DeltaResidueOrientation (Pmmdb::Residue pRes, Pmmdb::Residue pResFx);
-    int TransformToSuperposeCloseAtoms(PCMMANManager fxMolHnd, int fxSelHnd , realtype central_cutoff, realtype cutoff, int mvSuperposeHnd,int fxSuperposeHnd);
-    int CopyCoordinates(const PCMMDBManager fromMolHnd,int fromModel=1);
-    int LoadSerial(const PCMMDBManager fromMolHnd );
+    double DeltaResidueOrientation (mmdb::PResidue pRes, Pmmdb::Residue pResFx);
+    int TransformToSuperposeCloseAtoms(PCMMANManager fxMolHnd, int fxSelHnd , mmdb::realtype central_cutoff, realtype cutoff, int mvSuperposeHnd,int fxSuperposeHnd);
+    int CopyCoordinates(const mmdb::PManager fromMolHnd,int fromModel=1);
+    int LoadSerial(const mmdb::PManager fromMolHnd );
     bool GetUnremediated() { return unremediated; };
     std::string PrintSecStructure (void);
 
@@ -152,7 +152,7 @@ class CMMANManager : public CMMUTManager  {
 
     bool isTransformed,transform_com_set ;
     mat44 current_transform;
-    realtype transform_com[3];
+    mmdb::realtype transform_com[3];
 
     bool unremediated;
 

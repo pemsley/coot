@@ -333,7 +333,7 @@ PyObject *python_representation_kk(int imol) {
    PyObject *r = Py_False;
    
    if (is_valid_model_molecule(imol)) {
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int nchains = mol->GetNumberOfChains(1);
       
       PyObject *chain_list = PyList_New(nchains);
@@ -342,7 +342,7 @@ PyObject *python_representation_kk(int imol) {
 	 mmdb::Chain *chain_p = mol->GetChain(1,ichain);
 	 PyObject *chain_id = PyString_FromString(chain_p->GetChainID());
          int nres;
-         Pmmdb::Residue *residues;
+         mmdb::PResidue *residues;
          chain_p->GetResidueTable(residues, nres);
          
          PyObject *chain_info = PyList_New(2);

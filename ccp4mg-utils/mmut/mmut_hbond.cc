@@ -134,7 +134,7 @@ int CHBond::Calculate0(int model)  {
   SAtomBond *donorBond = 0;
   SAtomBond *acceptorBond = 0;
   int nDBonds,nABonds,nH;
-  realtype H_A, D_H_A;
+  mmdb::realtype H_A, D_H_A;
   int donor_angles_OK;
 
   //std::ostringstream label;
@@ -417,8 +417,8 @@ std::string CHBond::Print(bool geometry) {
   std::ostringstream output;
   std::string first,second,first_bonded,second_bonded;
   float first_angle, second_angle, distance;
-  std::vector<Pmmdb::Atom>::iterator i = hbonds.pAtom1.begin();
-  std::vector<Pmmdb::Atom>::iterator j = hbonds.pAtom2.begin();
+  std::vector<mmdb::PAtom>::iterator i = hbonds.pAtom1.begin();
+  std::vector<mmdb::PAtom>::iterator j = hbonds.pAtom2.begin();
   PCMMUTManager molHnd0,molHnd1;
   output.setf(ios::fixed);
   output.setf(ios::showpoint);

@@ -1506,7 +1506,7 @@ graphics_info_t::check_if_in_180_degree_flip_define(GdkEventButton *event) {
 	    // update graphs here
 	    // make a molecule from the residue so that we can call
 	    // update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
-	    std::pair<CMMDBManager *, int> mp = 
+	    std::pair<mmdb::Manager *, int> mp = 
 	       coot::util::create_mmdbmanager_from_res_selection(molecules[naii.imol].atom_sel.mol,
 								 &residue, 1, 0, 0,
 								 alt_conf, chain_id, 0);

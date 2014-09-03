@@ -55,11 +55,11 @@ namespace coot {
       // Well (sigh) it's needed in the calculation of the bonds which
       // uses mol->SeekContacts, even though we have a perfectly good
       // atom selection. There should be a version of SeekContacts
-      // that does not need a CMMDBManager... Grumble grumble...
+      // that does not need a mmdb::Manager... Grumble grumble...
       //
       dunbrack(mmdb::Residue *residue,
 	       const std::string &alt_conf_in,
-	       CMMDBManager *mol,
+	       mmdb::Manager *mol,
 	       float lowest_probability) :
 	 rotamer(residue, alt_conf_in, 0) {
 	 set_probability_limit(lowest_probability);
@@ -72,7 +72,7 @@ namespace coot {
 
       dunbrack(mmdb::Residue *residue,
 	       const std::string &alt_conf_in,
-	       CMMDBManager *mol,
+	       mmdb::Manager *mol,
 	       float lowest_probability,
 	       short int add_extra_PHE_and_TYR_rotamers_flag) :
 	 rotamer(residue, alt_conf_in, add_extra_PHE_and_TYR_rotamers_flag) {

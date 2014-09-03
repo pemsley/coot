@@ -157,8 +157,8 @@ namespace coot {
       int udd_afix_handle;
       int status;
       bool is_protein_flag;
-      CMMDBManager *mol;
-      shelx_read_file_info_t(int a, int b, CMMDBManager *mol_in) {
+      mmdb::Manager *mol;
+      shelx_read_file_info_t(int a, int b, mmdb::Manager *mol_in) {
 	 status = a;
 	 udd_afix_handle = b;
 	 mol = mol_in;
@@ -206,7 +206,7 @@ namespace coot {
       std::string make_atom_element(const std::string &atom_name_in,
 				    const int &atomic_weight) const;
       // return the success status of the assignment, 1 is OK, 0 is fail.
-      bool try_assign_cell(CMMDBManager *mol);
+      bool try_assign_cell(mmdb::Manager *mol);
 
       bool is_unit_line(const std::string &s) const {
 	 bool r = 0;
@@ -240,7 +240,7 @@ namespace coot {
 		       int udd_riding_atom_negative_u_value_handle,
 		       bool have_udd_atoms, int current_afix,
 		       clipper::Cell &cell, const std::vector<mmdb::Atom *> &atom_vector) const;
-      std::pair<int, std::string> write_ins_file_internal(CMMDBManager *mol_in,
+      std::pair<int, std::string> write_ins_file_internal(mmdb::Manager *mol_in,
 							  const std::string &filename) const;
       
       mmdb::Atom *previous_non_riding_atom(const std::vector<mmdb::Atom *> &atom_vector,
@@ -274,7 +274,7 @@ namespace coot {
       shelx_read_file_info_t read_file(const std::string &filename);
       ShelxIns(const std::string &filename);
       // return status and message string
-      std::pair<int, std::string> write_ins_file(CMMDBManager *mol, const std::string &filename);
+      std::pair<int, std::string> write_ins_file(mmdb::Manager *mol, const std::string &filename);
       // is this real shelx data or an empty holder?
       short int is_filled_p() const { return filled_flag; }
       int add_fvar(float f); // return the shelx index FVAR number for this fvar
@@ -298,9 +298,9 @@ namespace coot {
 						 int shelx_latt);
 
 // return null on no conversion.
-   CMMDBManager *unshelx(CMMDBManager *mol);
+   mmdb::Manager *unshelx(CMMDBManager *mol);
 // return null on no conversion.
-   CMMDBManager *reshelx(CMMDBManager *mol);
+   mmdb::Manager *reshelx(CMMDBManager *mol);
 
 }
 

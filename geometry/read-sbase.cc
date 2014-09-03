@@ -440,7 +440,7 @@ coot::protein_geometry::residue_from_best_match(CGraph &graph1, CGraph &graph2,
       r.name = monomer_p->chem_name();
       r.comp_id = graph2.GetName();
       int n;
-      realtype p1, p2;
+      mmdb::realtype p1, p2;
       ivector FV1, FV2;
       match.GetMatch(imatch, FV1, FV2, n, p1, p2); // n p1 p2 set
       if (0)

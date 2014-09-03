@@ -79,8 +79,8 @@ namespace coot {
   };
 
    class model_bond_atom_info_t {
-      std::vector<Pmmdb::Atom> hydrogen_atoms_;
-      std::vector<Pmmdb::Atom> non_hydrogen_atoms_;
+      std::vector<mmdb::PAtom> hydrogen_atoms_;
+      std::vector<mmdb::PAtom> non_hydrogen_atoms_;
    public:
       mmdb::PPAtom     Hydrogen_atoms() const;
       mmdb::PPAtom non_Hydrogen_atoms() const;
@@ -363,9 +363,9 @@ class Bond_lines_container {
 
    // now wit optional arg.  If atom_colour_type is set, then use/fill
    // it to get colour indices from chainids.
-   void handle_MET_or_MSE_case (Pmmdb::Atom mse_atom, int udd_handle, int atom_colour_type,
+   void handle_MET_or_MSE_case (mmdb::PAtom mse_atom, int udd_handle, int atom_colour_type,
 				coot::my_atom_colour_map_t *atom_colour_map = 0);
-   void handle_long_bonded_atom(Pmmdb::Atom     atom, int udd_handle, int atom_colour_type,
+   void handle_long_bonded_atom(mmdb::PAtom     atom, int udd_handle, int atom_colour_type,
 				coot::my_atom_colour_map_t *atom_colour_map = 0);
 
    // void check_atom_limits(atom_selection_container_t SelAtoms) const;
@@ -437,11 +437,11 @@ class Bond_lines_container {
    }
 
    // return the UDD handle
-   int set_rainbow_colours(CMMDBManager *mol);
+   int set_rainbow_colours(mmdb::Manager *mol);
    void do_colour_by_chain_bonds_change_only(const atom_selection_container_t &asc,
 					     int draw_hydrogens_flag);
 
-   void try_set_b_factor_scale(CMMDBManager *mol);
+   void try_set_b_factor_scale(mmdb::Manager *mol);
    graphical_bonds_container make_graphical_bonds(bool thinning_flag) const;
    void add_bonds_het_residues(const std::vector<std::pair<bool, mmdb::Residue *> > &het_residues, int atom_colour_t, short int have_udd_atoms, int udd_handle);
    void het_residue_aromatic_rings(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &restraints, int col);
@@ -712,7 +712,7 @@ public:
 	 st = st_in;
       }
       // modify m
-      int GetTMatrix(CMMDBManager *mol, mat44 *m) const {
+      int GetTMatrix(mmdb::Manager *mol, mat44 *m) const {
 	 return mol->GetTMatrix(*m, st.isym(), st.x(), st.y(), st.z());
       } 
    };
@@ -720,7 +720,7 @@ public:
    std::vector<symmetry_atom_bond> find_intermolecular_symmetry(const atom_selection_container_t &SelAtom) const;
 
    graphical_bonds_container
-   intermolecular_symmetry_graphical_bonds(CMMDBManager *mol,
+   intermolecular_symmetry_graphical_bonds(mmdb::Manager *mol,
 					   const std::vector <symmetry_atom_bond> &sabv,
 					   const std::pair<symm_trans_t, Cell_Translation> &symm_trans);
 

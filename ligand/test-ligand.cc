@@ -65,7 +65,7 @@ bool identity_matrix_test(const clipper::RTop_orth &rtop) {
 
 // return the matrix rotation angle
 compare_stats_t
-compare_by_overlap(std::string chain_id, int resno, CMMDBManager *mol1, CMMDBManager *mol2) {
+compare_by_overlap(std::string chain_id, int resno, mmdb::Manager *mol1, CMMDBManager *mol2) {
 
    compare_stats_t stats;
    std::vector<coot::lsq_range_match_info_t> matches;
@@ -98,7 +98,7 @@ compare_by_overlap(std::string chain_id, int resno, CMMDBManager *mol1, CMMDBMan
       for (int ichain_1=0; ichain_1<nchains_1; ichain_1++) {
 	 chain_p_1 = model_p_1->GetChain(ichain_1);
 	 int nres_1 = chain_p_1->GetNumberOfResidues();
-	 Pmmdb::Residue residue_p_1;
+	 mmdb::PResidue residue_p_1;
 	 mmdb::Atom *at_1;
 	 for (int ires_1=0; ires_1<nres_1; ires_1++) { 
 	    residue_p_1 = chain_p_1->GetResidue(ires_1);
@@ -116,7 +116,7 @@ compare_by_overlap(std::string chain_id, int resno, CMMDBManager *mol1, CMMDBMan
 		  chain_p_2 = model_p_2->GetChain(ichain_2);
 		  if (std::string(chain_p_1->GetChainID()) == std::string(chain_p_2->GetChainID())) {
 		     int nres_2 = chain_p_2->GetNumberOfResidues();
-		     Pmmdb::Residue residue_p_2;
+		     mmdb::PResidue residue_p_2;
 		     mmdb::Atom *at_2;
 		     for (int ires_2=0; ires_2<nres_2; ires_2++) { 
 			residue_p_2 = chain_p_2->GetResidue(ires_2);
@@ -175,7 +175,7 @@ int test_torsion_general(atom_selection_container_t asc, std::string pdb_filenam
 	 chain_p = model_p->GetChain(ichain);
 	 if (target_chain_id == chain_p->GetChainID()) { 
 	    int nres = chain_p->GetNumberOfResidues();
-	    Pmmdb::Residue residue_p;
+	    mmdb::PResidue residue_p;
 	    mmdb::Atom *at;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
@@ -194,9 +194,9 @@ int test_torsion_general(atom_selection_container_t asc, std::string pdb_filenam
 		     reverse_atom_specs.push_back(as);
 		  }
 		  std::reverse(reverse_atom_specs.begin(), reverse_atom_specs.end());
-		  CMMDBManager *res_mol_1 =
+		  mmdb::Manager *res_mol_1 =
 		     coot::util::create_mmdbmanager_from_residue(residue_p);
-		  CMMDBManager *res_mol_2 =
+		  mmdb::Manager *res_mol_2 =
 		     coot::util::create_mmdbmanager_from_residue(residue_p);
 
 		  mmdb::Residue *res_copy_1 = coot::util::get_residue("", target_resno, "", res_mol_1);

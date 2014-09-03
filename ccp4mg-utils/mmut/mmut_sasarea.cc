@@ -349,27 +349,27 @@ int CSASArea::Calculate0 (int imodel)  {
 
 
 //-----------------------------------------------------------------------
-int CSASArea::LeeAndRichards(realtype *radwithhoh,int imodel,int imode,
+int CSASArea::LeeAndRichards(mmdb::realtype *radwithhoh,int imodel,int imode,
                      int local_selHnd ){
 //-----------------------------------------------------------------------
 
   PCBrick brick;
-  realtype total_carea;
+  mmdb::realtype total_carea;
   int i,j,k,l,nnbr;
-  realtype aarc,xr,yr,zr,rr,rrx2,rrsq;
+  mmdb::realtype aarc,xr,yr,zr,rr,rrx2,rrsq;
   int x,y,z,ix,iy,iz;
-  realtype sumr, dx, dy, dz, dijsq,rj;
-  realtype *rnnbr;
-  realtype **xyznnbr;
+  mmdb::realtype sumr, dx, dy, dz, dijsq,rj;
+  mmdb::realtype *rnnbr;
+  mmdb::realtype **xyznnbr;
   int nzp;
-  realtype zgrid,rsec2r,rsecr,rsec2n,rsecn;
-  realtype *arci, *arcf;
-  realtype arcsum;
+  mmdb::realtype zgrid,rsec2r,rsecr,rsec2n,rsecn;
+  mmdb::realtype *arci, *arcf;
+  mmdb::realtype arcsum;
   int karc;
-  realtype *dsq,  *d;
-  realtype *dxn,  *dyn;
-  realtype alpha, beta, ti, tf;
-  realtype aarea,carea,aarea0;
+  mmdb::realtype *dsq,  *d;
+  mmdb::realtype *dxn,  *dyn;
+  mmdb::realtype alpha, beta, ti, tf;
+  mmdb::realtype aarea,carea,aarea0;
   int skip_plane;
   mmdb::PPAtom selected_atoms, tmp_sel_atoms[2];
   int natoms_sel, tmp_natoms[2];
@@ -387,7 +387,7 @@ int CSASArea::LeeAndRichards(realtype *radwithhoh,int imodel,int imode,
     molHnds[1]->GetSelIndex(selHnds[1],tmp_sel_atoms[1],tmp_natoms[1]);
     //cout << "tmp_natoms " << tmp_natoms[0] << " " << tmp_natoms[1] << endl;
     natoms_sel = tmp_natoms[0]+tmp_natoms[1];
-    selected_atoms= new Pmmdb::Atom[natoms_sel];
+    selected_atoms= new mmdb::PAtom[natoms_sel];
     for (i=0;i<tmp_natoms[0];i++) selected_atoms[i] = tmp_sel_atoms[0][i];
     j = tmp_natoms[0];
     for (i=0;i<tmp_natoms[1];i++) {
@@ -397,16 +397,16 @@ int CSASArea::LeeAndRichards(realtype *radwithhoh,int imodel,int imode,
   }
   //cout << "LeeAndRichards natoms_sel" << natoms_sel << endl;
 
-  arci = new realtype[ICT];
-  arcf = new realtype[ICT];
-  dxn = new realtype[MAXNNBR];
-  dyn = new realtype[MAXNNBR];
-  d = new realtype[MAXNNBR];
-  dsq = new realtype[MAXNNBR];
-  rnnbr = new realtype[MAXNNBR];
-  xyznnbr = new realtype*[MAXNNBR];
+  arci = new mmdb::realtype[ICT];
+  arcf = new mmdb::realtype[ICT];
+  dxn = new mmdb::realtype[MAXNNBR];
+  dyn = new mmdb::realtype[MAXNNBR];
+  d = new mmdb::realtype[MAXNNBR];
+  dsq = new mmdb::realtype[MAXNNBR];
+  rnnbr = new mmdb::realtype[MAXNNBR];
+  xyznnbr = new mmdb::realtype*[MAXNNBR];
   for(i=0;i<MAXNNBR;i++)
-    xyznnbr[i] = new realtype[3];
+    xyznnbr[i] = new mmdb::realtype[3];
 
   total_carea = 0.0;
 
@@ -608,19 +608,19 @@ int CSASArea::LeeAndRichards(realtype *radwithhoh,int imodel,int imode,
 }
 
 //-------------------------------------------------------------------------
-int CSASArea::WodakAndJanin(realtype *radwithhoh,int imodel){
+int CSASArea::WodakAndJanin(mmdb::realtype *radwithhoh,int imodel){
 //-------------------------------------------------------------------------
 
   mmdb::PPAtom selected_atoms;
   int natoms_sel;
   GetSelection ( selected_atoms, natoms_sel,imodel);
   // This doesn't seem to want to work
-  realtype b,bpr,ri,rj,dij;
+  mmdb::realtype b,bpr,ri,rj,dij;
   int i,j;
  
-  realtype A;
-  realtype B;
-  realtype S;
+  mmdb::realtype A;
+  mmdb::realtype B;
+  mmdb::realtype S;
 
   for(i=0;i<natoms_sel;i++){
     if(!selected_atoms[i]->Ter) {
@@ -677,7 +677,7 @@ int CSASArea::WodakAndJanin(realtype *radwithhoh,int imodel){
 }
 
 //-------------------------------------------------------------------------
-int CSASArea::SurfacePoints(realtype *radwithhoh,int imodel) {
+int CSASArea::SurfacePoints(mmdb::realtype *radwithhoh,int imodel) {
 //-------------------------------------------------------------------------
 
   mmdb::PPAtom selected_atoms;
@@ -687,14 +687,14 @@ int CSASArea::SurfacePoints(realtype *radwithhoh,int imodel) {
 
   int i,j,k,x,y,z;
   int nAtomTypes,atom_type;
-  realtype ri,rj,rk,sarea,points,equat,vert,phi,theta;
-  realtype hor,trunc,rxy,rz;
+  mmdb::realtype ri,rj,rk,sarea,points,equat,vert,phi,theta;
+  mmdb::realtype hor,trunc,rxy,rz;
   int nvert,ipt,nhor;
-  realtype ***xyzsph;
+  mmdb::realtype ***xyzsph;
   int nnbr, ix, iy, iz;
-  realtype sumr, dx, dy, dz, dijsq;
-  realtype **xyznnbr;
-  realtype *rnnbr;
+  mmdb::realtype sumr, dx, dy, dz, dijsq;
+  mmdb::realtype **xyznnbr;
+  mmdb::realtype *rnnbr;
   int *nptsph;
   int issurface;
   int *npoint;
@@ -705,17 +705,17 @@ int CSASArea::SurfacePoints(realtype *radwithhoh,int imodel) {
   nAtomTypes = dynamic_cast<PCMMANManager>(molHnds[0])->GetMGSBase()->GetNofLibAtoms();
   //cout << "nAtomTypes" << nAtomTypes << endl;
   
-  xyzsph = new realtype**[nAtomTypes];
+  xyzsph = new mmdb::realtype**[nAtomTypes];
   for(i=0;i<nAtomTypes;i++){
-    xyzsph[i] = new realtype*[MAXPNT];
+    xyzsph[i] = new mmdb::realtype*[MAXPNT];
     for(j=0;j<MAXPNT;j++)
-      xyzsph[i][j] = new realtype[3];
+      xyzsph[i][j] = new mmdb::realtype[3];
   }
 
-  rnnbr = new realtype[MAXNNBR];
-  xyznnbr = new realtype*[MAXNNBR];
+  rnnbr = new mmdb::realtype[MAXNNBR];
+  xyznnbr = new mmdb::realtype*[MAXNNBR];
   for(i=0;i<MAXNNBR;i++)
-    xyznnbr[i] = new realtype[3];
+    xyznnbr[i] = new mmdb::realtype[3];
 
   nptsph = new int[nAtomTypes];
 
@@ -739,16 +739,16 @@ int CSASArea::SurfacePoints(realtype *radwithhoh,int imodel) {
       trunc = 0.0;
 
       for(j=0;j<nvert;j++){
-        phi = (realtype)j*PI/vert;
+        phi = (mmdb::realtype)j*PI/vert;
         hor = sin(phi)*equat - trunc;
         nhor = (int)hor;
         if(j==0) nhor =1;
-        trunc = (realtype)nhor - hor;
+        trunc = (mmdb::realtype)nhor - hor;
         rxy = sin(phi)*ri;
         rz = cos(phi)*ri;
 
         for(k=0;k<nhor-1;k++){
-          theta = 2.0*PI*(realtype)k/(realtype)nhor;
+          theta = 2.0*PI*(mmdb::realtype)k/(realtype)nhor;
           ipt++;
           if(ipt>MAXPNT){
             cout << "npt > MAXPNT in solvent accessible area calc\n";
@@ -845,9 +845,9 @@ int CSASArea::SurfacePoints(realtype *radwithhoh,int imodel) {
   delete [] xyznnbr;
 
   for(i=0;i<natoms_sel;i++){
-    total_area += (realtype)npoint[i];
+    total_area += (mmdb::realtype)npoint[i];
     if(!selected_atoms[i]->Ter) {
-      selected_atoms[i]->PutUDData(atomUDDHnd,(realtype)npoint[i]/point_density);
+      selected_atoms[i]->PutUDData(atomUDDHnd,(mmdb::realtype)npoint[i]/point_density);
     }else{
       selected_atoms[i]->PutUDData(atomUDDHnd,0.0);
     }
@@ -863,7 +863,7 @@ int CSASArea::SurfacePoints(realtype *radwithhoh,int imodel) {
 int CSASArea::ResSASArea (int imodel) {
 //--------------------------------------------------------------------
   // Sum over all atoms in a residue for residue SAS area
-  realtype sas,tot;
+  mmdb::realtype sas,tot;
   int nr0,nat0, ntot, RC;
   mmdb::PPAtom atomTable;
   mmdb::PPResidue resTable;
@@ -911,7 +911,7 @@ std::string CSASArea::Print(int imodel, string selection1, int set_selHnd1, stri
   mmdb::PPAtom selected_atoms;
   mmdb::PPResidue selected_res;
   int RC,i,natoms_sel,nres_sel;
-  realtype sas,total, set_total1,set_total2 ;
+  mmdb::realtype sas,total, set_total1,set_total2 ;
   std::ostringstream output;
 
   output.setf(ios::fixed);
@@ -974,10 +974,10 @@ std::string CSASArea::Print(int imodel, string selection1, int set_selHnd1, stri
 
 
 //----------------------------------------------------------------
-void CSASArea::SortAB(realtype *arci, realtype *arcf, int &karc)  {
+void CSASArea::SortAB(mmdb::realtype *arci, realtype *arcf, int &karc)  {
 //----------------------------------------------------------------
   int i,j,it;
-  realtype aa,bb,temp;
+  mmdb::realtype aa,bb,temp;
 
   for(j=0;j<=karc;j++){
     aa = arci[j];
@@ -1000,9 +1000,9 @@ void CSASArea::SortAB(realtype *arci, realtype *arcf, int &karc)  {
 
 
 //--------------------------------------------------------------
-void CSASArea::ArcLap(realtype *arci, realtype *arcf, int &karc)  {
+void CSASArea::ArcLap(mmdb::realtype *arci, realtype *arcf, int &karc)  {
 //--------------------------------------------------------------
-  realtype t;
+  mmdb::realtype t;
   int k,l,ks;//,m;
 
   t = arcf[0];

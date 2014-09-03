@@ -36,22 +36,22 @@ private:
     StringIntMap pointers;
     vector<CXXTriangle, CXX::CXXAlloc<CXXTriangle> > triangles;
     vector<CXXSurfaceVertex, CXX::CXXAlloc<CXXSurfaceVertex> > vertices;
-    PCMMDBManager allAtomsManager;
+    mmdb::PManager allAtomsManager;
     int init();
     int nTriangles;
     char fileName[512];
-    double getAtomRadius(Pmmdb::Atom);
+    double getAtomRadius(mmdb::PAtom);
     
 public:
     CXXSurface ();
     ~CXXSurface ();
     CXXSurface (string path);
-    CXXSurface (PCMMDBManager, const std::string selectionString);
-    CXXSurface (PCMMDBManager, const std::string selectionString, const std::string contextString);
-    CXXSurface (PCMMDBManager, const std::string selectionString, const std::string contextString, const double delta, const double probeRadius, const bool blend_edges);
-    CXXSurface (PCMMDBManager, const int);
-    CXXSurface (PCMMDBManager, const int, const double, const double, const bool);
-    CXXSurface (PCMMDBManager, const int, const int, const double, const double, const bool);
+    CXXSurface (mmdb::PManager, const std::string selectionString);
+    CXXSurface (mmdb::PManager, const std::string selectionString, const std::string contextString);
+    CXXSurface (mmdb::PManager, const std::string selectionString, const std::string contextString, const double delta, const double probeRadius, const bool blend_edges);
+    CXXSurface (mmdb::PManager, const int);
+    CXXSurface (mmdb::PManager, const int, const double, const double, const bool);
+    CXXSurface (mmdb::PManager, const int, const int, const double, const double, const bool);
     CXXSurface (int);
     std::string report(); 
     int writeAsGrasp(const std::string &path);
@@ -79,7 +79,7 @@ public:
     int getCoord(const string &type, const int iVertex, double *buffer);
     int getCoord(const int handle, const int iVertex, double *buffer);
     int getPointer(const string &type, int iVertex, void **return_p);
-    CMMDBManager *getMMDBManager() const;
+    mmdb::Manager *getMMDBManager() const;
     int setCoord (const string &type, int iVertex, const CXXCoord &crd);
     void setScalar (int scalarHandle, int iVertex, double &value);
     void setScalar (const std::string name, int iVertex, double &value);
@@ -93,25 +93,25 @@ public:
     int updateWithPointerData(int count, const string name, int start, void **data);
     int extendTriangles(int *triangleBuffer, int count);
 	
-    int assignAtom(PCMMDBManager, int);
+    int assignAtom(mmdb::PManager, int);
     int colorByAssignedAtom();
-    int colorByColourArray(const std::vector<double*> &colours, CMMDBManager *molHnd, int selHnd);
+    int colorByColourArray(const std::vector<double*> &colours, mmdb::Manager *molHnd, int selHnd);
 	
     int numberOfTriangles() const;
     int numberOfVertices() const;
     
     int vertex(int iTriangle, int iCorner) const;
 
-   int calculateFromAtoms(PCMMDBManager, const std::string , const std::string , const double, const double, const bool);
-    int calculateFromAtoms(PCMMDBManager, const int, const int, const double, const double, const bool );
-    int calculateVDWFromAtoms(PCMMDBManager, const int, const int, const double, const double, const bool );
-    int calculateAccessibleFromAtoms(PCMMDBManager, const int, const int, const double, const double, const bool );
-    int calculateFromAtoms(PCMMDBManager, const std::string , const double, const double, const bool);
-    int calculateFromAtoms(PCMMDBManager, const int, const double, const double, const bool);
+   int calculateFromAtoms(mmdb::PManager, const std::string , const std::string , const double, const double, const bool);
+    int calculateFromAtoms(mmdb::PManager, const int, const int, const double, const double, const bool );
+    int calculateVDWFromAtoms(mmdb::PManager, const int, const int, const double, const double, const bool );
+    int calculateAccessibleFromAtoms(mmdb::PManager, const int, const int, const double, const double, const bool );
+    int calculateFromAtoms(mmdb::PManager, const std::string , const double, const double, const bool);
+    int calculateFromAtoms(mmdb::PManager, const int, const double, const double, const bool);
  	
     int upLoadSphere(CXXSphereElement &theSphere, double probeRadius, const int sense);
-    int selectionStringToSelHnd(PCMMDBManager, const std::string selectionString);
-    int getIntegerUDDataOfAtom(Pmmdb::Atom theAtom, int handle);
+    int selectionStringToSelHnd(mmdb::PManager, const std::string selectionString);
+    int getIntegerUDDataOfAtom(mmdb::PAtom theAtom, int handle);
     int operator == (const CXXSurface &comparator) const{
         return (this == &comparator);
     } 

@@ -192,7 +192,7 @@ void density_score_molecule(std::string pdb_filename,
 		  std::cout << "NULL chain in ... " << std::endl;
 	       } else { 
 		  int nres = chain_p->GetNumberOfResidues();
-		  Pmmdb::Residue residue_p;
+		  mmdb::PResidue residue_p;
 		  std::vector<scored_residue_t> scored_res;
 		  
 		  // For each residue in chain

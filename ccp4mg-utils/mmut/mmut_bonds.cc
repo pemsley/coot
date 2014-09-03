@@ -99,8 +99,8 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
   int nr;
   PSContact contacts = NULL;
   int ic,nContacts;
-  Pmmdb::Atom pa1,pa2;
-  Pmmdb::Residue pr1;
+  mmdb::PAtom pa1,pa2;
+  mmdb::PResidue pr1;
 
   int nAlt;
   int nAltTot = 0 ;
@@ -384,7 +384,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
 
 
 //-----------------------------------------------------------
-void CMolBonds::AddConnection ( Pmmdb::Atom pa1 , Pmmdb::Atom pa2) {
+void CMolBonds::AddConnection ( mmdb::PAtom pa1 , Pmmdb::Atom pa2) {
 //-----------------------------------------------------------
   
   //cout << "AddConnection " <<  GetMolHnd(0)->AtomLabel_atom(pa1) << " " 
@@ -412,16 +412,16 @@ void CMolBonds::AddConnection ( Pmmdb::Atom pa1 , Pmmdb::Atom pa2) {
 
 
 //-----------------------------------------------------------
-int CMolBonds::DeleteConnection ( Pmmdb::Atom pa1 , Pmmdb::Atom pa2) {
+int CMolBonds::DeleteConnection ( mmdb::PAtom pa1 , Pmmdb::Atom pa2) {
 //-----------------------------------------------------------
 // Delete the connection between two atom - need to zap
 // from the bond list of both atoms
 
   SAtomBond *AtomBond;
   int nAtomBonds;
-  Pmmdb::Atom atoms[10];
+  mmdb::PAtom atoms[10];
   byte order[10];
-  Pmmdb::Atom pA,pB;
+  mmdb::PAtom pA,pB;
 
   //char AtomID1[30];
   //char AtomID2[30];
@@ -545,14 +545,14 @@ void CMolBonds::AddConnection ( int ia1 , int ia2,
 }
 
 //---------------------------------------------------------------------
-int CMolBonds::IntraResContacts ( Pmmdb::Residue pRes, int nAlt, 
+int CMolBonds::IntraResContacts ( mmdb::PResidue pRes, int nAlt, 
      mmdb::PPAtom modelSelAtom[], int nSelAtom[], int firstModel, int lastModel ) {
 //---------------------------------------------------------------------
   mmdb::PPAtom pAtom1=0;
   mmdb::PPAtom pAtom2=0;
   int nAtom1,nAtom2,nContacts,ic;
   PSContact contacts = NULL;
-  Pmmdb::Atom pa1,pa2;
+  mmdb::PAtom pa1,pa2;
 
   pAtom1 = NULL;
   pAtom2 = NULL;
@@ -604,10 +604,10 @@ int CMolBonds::IntraResContacts ( Pmmdb::Residue pRes, int nAlt,
 }
 
 //---------------------------------------------------------------------
-bool CMolBonds::ltBondDistance ( Pmmdb::Atom pa1, Pmmdb::Atom pa2, realtype dist ) {
+bool CMolBonds::ltBondDistance ( mmdb::PAtom pa1, Pmmdb::Atom pa2, mmdb::realtype dist ) {
 //---------------------------------------------------------------------
   PCLibElement la1,la2;
-  realtype rmax;
+  mmdb::realtype rmax;
   if ( (la1 = params->sbase->LibElement(pa1->element)) &&
        (la2 = params->sbase->LibElement(pa2->element)) ) {
     rmax = (la1->maxBondRad + la2->maxBondRad) * params->maxBondRadFactor;
@@ -619,7 +619,7 @@ bool CMolBonds::ltBondDistance ( Pmmdb::Atom pa1, Pmmdb::Atom pa2, realtype dist
 }
 
 //----------------------------------------------------------------------
-bool CMolBonds::isInterResBond ( Pmmdb::Atom pa1, Pmmdb::Atom pa2 ) {
+bool CMolBonds::isInterResBond ( mmdb::PAtom pa1, Pmmdb::Atom pa2 ) {
 //----------------------------------------------------------------------
   int type1,type2,n;
   AtomName a1,a2;

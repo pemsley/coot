@@ -25,8 +25,8 @@
 // LSQing
 //
 std::pair<short int, clipper::RTop_orth>
-coot::util::get_lsq_matrix(CMMDBManager *mol1,
-			   CMMDBManager *mol2,
+coot::util::get_lsq_matrix(mmdb::Manager *mol1,
+			   mmdb::Manager *mol2,
 			   const std::vector<coot::lsq_range_match_info_t> &matches,
 			   int every_nth,
 			   bool summary_to_screen) {
@@ -107,8 +107,8 @@ coot::util::get_lsq_matrix(CMMDBManager *mol1,
 // On useful return, first.size() == second.size() and first.size() > 0.
 // 
 std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> > 
-coot::util::get_matching_indices(CMMDBManager *mol1,
-				 CMMDBManager *mol2,
+coot::util::get_matching_indices(mmdb::Manager *mol1,
+				 mmdb::Manager *mol2,
 				 const coot::lsq_range_match_info_t &match,
 				 int every_nth) {
 
@@ -155,8 +155,8 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
       int ires_matcher = ires - match.to_reference_start_resno + match.from_matcher_start_resno;
       int SelHnd_res1 = mol1->NewSelection();
       int SelHnd_res2 = mol2->NewSelection();
-      Pmmdb::Residue *SelResidue_1 = NULL;
-      Pmmdb::Residue *SelResidue_2 = NULL;
+      mmdb::PResidue *SelResidue_1 = NULL;
+      mmdb::PResidue *SelResidue_2 = NULL;
       int nSelResidues_1, nSelResidues_2;
 
 //      std::cout << "Searching for residue number " << ires << " "
@@ -278,8 +278,8 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 	 if (match.match_type_flag == COOT_LSQ_ALL) {
 
 	    if (! match.is_single_atom_match) {
-	       Pmmdb::Atom *residue_atoms1 = NULL;
-	       Pmmdb::Atom *residue_atoms2 = NULL;
+	       mmdb::PAtom *residue_atoms1 = NULL;
+	       mmdb::PAtom *residue_atoms2 = NULL;
 	       int n_residue_atoms1;
 	       int n_residue_atoms2;
 	       SelResidue_1[0]->GetAtomTable(residue_atoms1, n_residue_atoms1);
@@ -306,8 +306,8 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 	       }
 	    } else {
 	       // is single atom match
-	       Pmmdb::Atom *residue_atoms1 = NULL;
-	       Pmmdb::Atom *residue_atoms2 = NULL;
+	       mmdb::PAtom *residue_atoms1 = NULL;
+	       mmdb::PAtom *residue_atoms2 = NULL;
 	       int n_residue_atoms1;
 	       int n_residue_atoms2;
 	       SelResidue_1[0]->GetAtomTable(residue_atoms1, n_residue_atoms1);

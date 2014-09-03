@@ -40,7 +40,7 @@
 // at all.
 // 
 widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mol_in,
-					 CMMDBManager *pdb_mol) { 
+					 mmdb::Manager *pdb_mol) { 
 
    bool debug_local = false;
 
@@ -1264,7 +1264,7 @@ widgeted_molecule_t::get_solvent_accessibility(const clipper::Coord_orth &pt,
 }
 
 std::string
-widgeted_molecule_t::get_atom_name(const clipper::Coord_orth &pt, CMMDBManager *mol) const {
+widgeted_molecule_t::get_atom_name(const clipper::Coord_orth &pt, mmdb::Manager *mol) const {
 
    std::string atom_name;
    double close_2 = 0.01 * 0.01;

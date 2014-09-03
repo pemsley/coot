@@ -651,7 +651,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	    int imatch_best = 0;
 	    for (int imatch=0; imatch<n_match; imatch++) {
 	       int nv;
-	       realtype p1, p2;
+	       mmdb::realtype p1, p2;
 	       ivector FV1, FV2;
 	       match.GetMatch(imatch, FV1, FV2, nv, p1, p2); // n p1 p2 set
 	       // std::cout << "   imatch " << imatch << " " << nv << std::endl;

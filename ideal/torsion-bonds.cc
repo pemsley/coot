@@ -7,7 +7,7 @@
 // this can throw an exception
 // 
 std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
-coot::torsionable_bonds(CMMDBManager *mol, mmdb::PPAtom atom_selection,
+coot::torsionable_bonds(mmdb::Manager *mol, mmdb::PPAtom atom_selection,
 			int n_selected_atoms,
 			coot::protein_geometry *geom_p) { 
 
@@ -68,7 +68,7 @@ coot::torsionable_bonds(CMMDBManager *mol, mmdb::PPAtom atom_selection,
 
 std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
 coot::torsionable_link_bonds(std::vector<mmdb::Residue *> residues_in,
-			     CMMDBManager *mol, coot::protein_geometry *geom_p) {
+			     mmdb::Manager *mol, coot::protein_geometry *geom_p) {
 
    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v;
 
@@ -164,7 +164,7 @@ coot::torsionable_link_bonds(std::vector<mmdb::Residue *> residues_in,
 // this can throw an exception
 // 
 std::vector<coot::torsion_atom_quad>
-coot::torsionable_quads(CMMDBManager *mol, mmdb::PPAtom atom_selection,
+coot::torsionable_quads(mmdb::Manager *mol, mmdb::PPAtom atom_selection,
 			int n_selected_atoms,
 			coot::protein_geometry *geom_p) {
 
@@ -198,7 +198,7 @@ coot::torsionable_quads(CMMDBManager *mol, mmdb::PPAtom atom_selection,
 // 
 std::vector<coot::torsion_atom_quad>
 coot::torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
-			     CMMDBManager *mol, coot::protein_geometry *geom_p) {
+			     mmdb::Manager *mol, coot::protein_geometry *geom_p) {
 
    std::vector<coot::torsion_atom_quad> quads;
    std::vector<std::pair<bool, mmdb::Residue *> > residues(residues_in.size());
@@ -329,7 +329,7 @@ coot::torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
 
 // this can throw an exception.
 void
-coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
+coot::multi_residue_torsion_fit_map(mmdb::Manager *mol,
 				    const clipper::Xmap<float> &xmap,
 				    int n_trials,
 				    coot::protein_geometry *geom_p) {

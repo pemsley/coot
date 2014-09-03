@@ -146,8 +146,8 @@ coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const
 
 	 char *symbol = NULL;
 	 char *label  = NULL;
-	 realtype xf,yf,zf, occ, tf;
-	 realtype x,y,z;
+	 mmdb::realtype xf,yf,zf, occ, tf;
+	 mmdb::realtype x,y,z;
 	 int ierr_tot = 0;
 	 char *disorder_assembly = NULL;
 	 char *disorder_group = NULL;
@@ -229,7 +229,7 @@ coot::smcif::read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const
    if (loop) {
       int ll = loop->GetLoopLength();
       char *label  = NULL;
-      realtype u11, u22, u33, u12, u13, u23;
+      mmdb::realtype u11, u22, u33, u12, u13, u23;
       int ierr_tot = 0;
       for (unsigned int il=0; il<ll; il++) {
 	 label  = loop->GetString(loopTagsAniso[0], il, ierr);
@@ -308,10 +308,10 @@ coot::smcif::symbol_to_element(const std::string &symbol) const {
 
 
 
-CMMDBManager *
+mmdb::Manager *
 coot::smcif::read_sm_cif(const std::string &file_name) const {
 
-   CMMDBManager *mol = NULL;
+   mmdb::Manager *mol = NULL;
    pstr S = NULL;
    PCMMCIFData data = new CMMCIFData();
    data->SetFlag (CIFFL_SuggestCategories);
@@ -367,7 +367,7 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 
 		     if (atoms.size()) {
 
-			mol = new CMMDBManager;
+			mol = new mmdb::Manager;
 			mmdb::Model *model_p = new mmdb::Model;
 			mmdb::Chain *chain_p = new mmdb::Chain;
 			mmdb::Residue *residue_p = new mmdb::Residue;
@@ -593,9 +593,9 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 		  clipper::HKL_data_base* f_sigf_input;
 		  int ll = loop->GetLoopLength();
 		  int h,k,l;
-		  realtype F, sigF, A, B;
-		  realtype Fsqm, Fsqs;
-		  realtype fpc_f, fpc_p;
+		  mmdb::realtype F, sigF, A, B;
+		  mmdb::realtype Fsqm, Fsqs;
+		  mmdb::realtype fpc_f, fpc_p;
 		  clipper::xtype x1[2]; 
 		  if (ll > 0) {
 		     for (unsigned int il=0; il<ll; il++) {
@@ -679,8 +679,8 @@ coot::smcif::get_cell_for_data(PCMMCIFData data) const {
    clipper::Cell cell;
 
    int ierr;
-   realtype a, b, c;
-   realtype alpha, beta, gamma;
+   mmdb::realtype a, b, c;
+   mmdb::realtype alpha, beta, gamma;
 
    ierr = data->GetReal (a, "", "_cell_length_a");
    if (ierr) { 
@@ -862,7 +862,7 @@ coot::smcif::sigmaa_maps() const {
 //       InitMatType(); // delete me when not stand-alone
 //       std::string file_name = argv[1];
 //       coot::smcif smcif;
-//       CMMDBManager *mol = smcif.read_sm_cif(file_name);
+//       mmdb::Manager *mol = smcif.read_sm_cif(file_name);
 //    }
 //    clipper::ClipperInstantiator::instance().destroy();
 //    return 0;

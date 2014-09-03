@@ -175,7 +175,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 //    istart_minus_flag = 0;  // from simple restraint code
 //    iend_plus_flag    = 0;
 
-   CMMDBManager *mol = molecules[imol].atom_sel.mol; // short-hand usage
+   mmdb::Manager *mol = molecules[imol].atom_sel.mol; // short-hand usage
 
    // We want to check for flanking atoms if the dictionary "group"
    // entry is not non-polymer.  So let's do a quick residue selection
@@ -185,7 +185,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 
    int SelHnd_first = mol->NewSelection(); // d
    int n_residue_first;
-   Pmmdb::Residue *residue_first = NULL;
+   mmdb::PResidue *residue_first = NULL;
    mol->Select(SelHnd_first, STYPE_RESIDUE, 0,
 	       chain_id_1.c_str(),
 	       resno_1, inscode_1.c_str(),
@@ -249,7 +249,7 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    //
    int selHnd = mol->NewSelection();
    int nSelResidues; 
-   Pmmdb::Residue *SelResidues = NULL;
+   mmdb::PResidue *SelResidues = NULL;
    mol->Select(selHnd, STYPE_RESIDUE, 0,
 	       chain_id_1.c_str(),
 	       iselection_resno_start, "*",
@@ -336,7 +336,7 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 					   int resno_1,
 					   int resno_2,
 					   int nSelResidues,
-					   Pmmdb::Residue *SelResidues,
+					   mmdb::PResidue *SelResidues,
 					   const std::string &chain_id_1,
 					   const std::string &altconf,
 					   short int have_flanking_residue_at_start,
@@ -388,7 +388,7 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 if (altconf != "")
 	    in_alt_conf_split_flag = 1;
 	    
-	 CMMDBManager *residues_mol = 
+	 mmdb::Manager *residues_mol = 
 	    create_mmdbmanager_from_res_selection(SelResidues, nSelResidues, 
 						  have_flanking_residue_at_start,
 						  have_flanking_residue_at_end,
@@ -554,8 +554,8 @@ graphics_info_t::copy_model_molecule(int imol) {
    int iret = -1;
    if (is_valid_model_molecule(imol)) { 
       int new_mol_number = graphics_info_t::create_molecule();
-      CMMDBManager *m = graphics_info_t::molecules[imol].atom_sel.mol;
-      CMMDBManager *n = new CMMDBManager;
+      mmdb::Manager *m = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *n = new CMMDBManager;
       n->Copy(m, MMDBFCM_All);
       atom_selection_container_t asc = make_asc(n);
       std::string label = "Copy_of_";
@@ -652,7 +652,7 @@ coot::refinement_results_t
 graphics_info_t::refine_residues_vec(int imol, 
 				     const std::vector<mmdb::Residue *> &residues,
 				     const char *alt_conf, 
-				     CMMDBManager *mol) {
+				     mmdb::Manager *mol) {
 
    bool use_map_flag = 1;
    coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
@@ -673,7 +673,7 @@ coot::refinement_results_t
 graphics_info_t::regularize_residues_vec(int imol, 
 					 const std::vector<mmdb::Residue *> &residues,
 					 const char *alt_conf, 
-					 CMMDBManager *mol) {
+					 mmdb::Manager *mol) {
 
    bool use_map_flag = 0;
    coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
@@ -698,7 +698,7 @@ coot::refinement_results_t
 graphics_info_t::generate_molecule_and_refine(int imol,
 					      const std::vector<mmdb::Residue *> &residues,
 					      const char *alt_conf,
-					      CMMDBManager *mol,
+					      mmdb::Manager *mol,
 					      bool use_map_flag) { 
 
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
@@ -739,7 +739,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       
 	 std::string residues_alt_conf = alt_conf;
 	 imol_moving_atoms = imol;
-	 std::pair<CMMDBManager *, std::vector<mmdb::Residue *> > residues_mol_and_res_vec =
+	 std::pair<mmdb::Manager *, std::vector<mmdb::Residue *> > residues_mol_and_res_vec =
 	    create_mmdbmanager_from_res_vector(residues, imol, mol, residues_alt_conf);
 
 	 // We only want to act on these new residues and molecule, if
@@ -827,12 +827,12 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 // Consider setting those to be RES_ANY for other cases.
 // 
 atom_selection_container_t
-graphics_info_t::make_moving_atoms_asc(CMMDBManager *residues_mol,
+graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 				       int resno_1,
 				       int resno_2) const {
 
    atom_selection_container_t local_moving_atoms_asc;
-   local_moving_atoms_asc.mol = (MyCMMDBManager *) residues_mol;
+   local_moving_atoms_asc.mol = (Mymmdb::Manager *) residues_mol;
    local_moving_atoms_asc.UDDOldAtomIndexHandle = -1;  // true?
    local_moving_atoms_asc.UDDAtomIndexHandle = -1;
    if (residues_mol)
@@ -859,7 +859,7 @@ graphics_info_t::make_moving_atoms_asc(CMMDBManager *residues_mol,
 
 
 atom_selection_container_t
-graphics_info_t::make_moving_atoms_asc(CMMDBManager *residues_mol,
+graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 				       const std::vector<mmdb::Residue *> &residues) const {
 
    atom_selection_container_t local_moving_atoms_asc;
@@ -885,7 +885,7 @@ graphics_info_t::make_moving_atoms_asc(CMMDBManager *residues_mol,
 			   SKEY_OR);
    }
 
-   local_moving_atoms_asc.mol = (MyCMMDBManager *) residues_mol;
+   local_moving_atoms_asc.mol = (Mymmdb::Manager *) residues_mol;
    local_moving_atoms_asc.SelectionHandle = SelHnd;
    residues_mol->GetSelIndex(local_moving_atoms_asc.SelectionHandle,
 			     local_moving_atoms_asc.atom_selection,
@@ -901,7 +901,7 @@ graphics_info_t::make_moving_atoms_asc(CMMDBManager *residues_mol,
 // entry and a list of the residue type that don't have restraints.
 // 
 std::pair<int, std::vector<std::string> >
-graphics_info_t::check_dictionary_for_residue_restraints(Pmmdb::Residue *SelResidues, int nSelResidues) {
+graphics_info_t::check_dictionary_for_residue_restraints(mmdb::PResidue *SelResidues, int nSelResidues) {
 
    int status;
    bool status_OK = 1; // pass, by default
@@ -969,8 +969,8 @@ graphics_info_t::adjust_refinement_residue_name(const std::string &resname) cons
 // we should call it?  Next bug fix here: move over to the function call.
 // 
 // 
-CMMDBManager *
-graphics_info_t::create_mmdbmanager_from_res_selection(Pmmdb::Residue *SelResidues, 
+mmdb::Manager *
+graphics_info_t::create_mmdbmanager_from_res_selection(mmdb::PResidue *SelResidues, 
 						       int nSelResidues, 
 						       int have_flanking_residue_at_start,
 						       int have_flanking_residue_at_end, 
@@ -987,7 +987,7 @@ graphics_info_t::create_mmdbmanager_from_res_selection(Pmmdb::Residue *SelResidu
 //    if (have_flanking_residue_at_end)
 //       end_offset = +1; 
 
-   CMMDBManager *residues_mol = new CMMDBManager;
+   mmdb::Manager *residues_mol = new CMMDBManager;
    mmdb::Model *model = new mmdb::Model;
    mmdb::Chain *chain = new mmdb::Chain;
    short int whole_res_flag = 0; // not all alt confs, only this one ("A") and "".
@@ -1048,19 +1048,19 @@ graphics_info_t::create_mmdbmanager_from_res_selection(Pmmdb::Residue *SelResidu
 // 
 // return a NULL in the first of the pair if the past residue vector is of size 0.
 // 
-std::pair<CMMDBManager *, std::vector<mmdb::Residue *> >
+std::pair<mmdb::Manager *, std::vector<mmdb::Residue *> >
 graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Residue *> &residues,
 						    int imol, 
-						    CMMDBManager *mol_in,
+						    mmdb::Manager *mol_in,
 						    std::string alt_conf) {
    
-   CMMDBManager *new_mol = 0;
+   mmdb::Manager *new_mol = 0;
    std::vector<mmdb::Residue *> rv;
    int n_flanker = 0; // a info/debugging counter
 
    if (residues.size() > 0) { 
 
-      new CMMDBManager;
+      new mmdb::Manager;
       mmdb::Model *model_p = new mmdb::Model;
       mmdb::Chain *chain_p = new mmdb::Chain;
    
@@ -1110,7 +1110,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	 } 
       }
 
-      new_mol = new CMMDBManager;
+      new_mol = new mmdb::Manager;
       new_mol->AddModel(model_p);
       new_mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
       new_mol->FinishStructEdit();
@@ -1192,7 +1192,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
    }
 //    std::cout << "DEBUG:: in create_mmdbmanager_from_res_vector: " << rv.size()
 // 	     << " free residues and " << n_flanker << " flankers" << std::endl;
-   return std::pair <CMMDBManager *, std::vector<mmdb::Residue *> > (new_mol, rv);
+   return std::pair <mmdb::Manager *, std::vector<mmdb::Residue *> > (new_mol, rv);
 }
 
 
@@ -1431,14 +1431,14 @@ graphics_info_t::flash_selection(int imol,
 
    // First make an atom selection of the residues selected to regularize.
    // 
-   int selHnd = ((CMMDBManager *)molecules[imol].atom_sel.mol)->NewSelection();
+   int selHnd = ((mmdb::Manager *)molecules[imol].atom_sel.mol)->NewSelection();
    int nSelAtoms;
    mmdb::PPAtom SelAtom;
    const char *chn  = chain_id_1.c_str();
    const char *ins1 = ins_code_1.c_str();
    const char *ins2 = ins_code_2.c_str();
 
-   ((CMMDBManager *)molecules[imol].atom_sel.mol)->SelectAtoms(selHnd, 0, 
+   ((mmdb::Manager *)molecules[imol].atom_sel.mol)->SelectAtoms(selHnd, 0, 
 							       chn,
 							       resno_1, ins1,
 							       resno_2, ins2,
@@ -1447,7 +1447,7 @@ graphics_info_t::flash_selection(int imol,
 							       "*" );    // Alternate locations.
 
 
-   ((CMMDBManager *)molecules[imol].atom_sel.mol)->GetSelIndex(selHnd,
+   ((mmdb::Manager *)molecules[imol].atom_sel.mol)->GetSelIndex(selHnd,
 							       SelAtom,
 							       nSelAtoms);
 //    cout << nSelAtoms << " atoms selected to regularize from residue "
@@ -1936,7 +1936,7 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
    if (atoms.size() > 0) { 
 
       atom_selection_container_t rigid_body_asc;
-      // 	 rigid_body_asc.mol = (MyCMMDBManager *) moved_mol.pcmmdbmanager();
+      // 	 rigid_body_asc.mol = (Mymmdb::Manager *) moved_mol.pcmmdbmanager();
 
       // 	 int SelHnd = rigid_body_asc.mol->NewSelection();
       // 	 rigid_body_asc.mol->SelectAtoms(SelHnd, 0, "*",
@@ -2073,11 +2073,11 @@ graphics_info_t::execute_add_terminal_residue(int imol,
       if (molecules[imol].has_model()) {
 	 // float phi = graphics_info_t::terminal_residue_addition_direct_phi;
 	 // float psi = graphics_info_t::terminal_residue_addition_direct_psi;
-	 CMMDBManager *orig_mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 mmdb::Manager *orig_mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 //	    mmdb::Residue *res_new = add_terminal_residue_directly(terminus_type, res_p,
 	 // chain_id, res_type, phi, psi);
 	 mmdb::Residue *res_new = 0;
-	 CMMDBManager *new_mol = coot::util::create_mmdbmanager_from_residue(res_new);
+	 mmdb::Manager *new_mol = coot::util::create_mmdbmanager_from_residue(res_new);
 	 if (new_mol) { 
 	    atom_selection_container_t extra_residue_asc = make_asc(new_mol);
 	    graphics_info_t::molecules[imol].add_coords(extra_residue_asc);
@@ -2151,7 +2151,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	 //
 	 mmdb::PPAtom atom_sel = NULL;
 	 int n_selected_atoms = 0;
-	 realtype radius = 8.0;  // more than enough for 2 residue mainchains.
+	 mmdb::realtype radius = 8.0;  // more than enough for 2 residue mainchains.
 	 int SelHndSphere = molecules[imol].atom_sel.mol->NewSelection();
 	 mmdb::Atom *terminal_at = NULL;
 	 std::string atom_name = "Unassigned";
@@ -2239,7 +2239,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {
 		  bf = 11.0;
 	       } 
-	       terminal_res_asc.mol = (MyCMMDBManager *) mmol.pcmmdbmanager();
+	       terminal_res_asc.mol = (Mymmdb::Manager *) mmol.pcmmdbmanager();
 
 	       int SelHnd = terminal_res_asc.mol->NewSelection();
 	       terminal_res_asc.mol->SelectAtoms(SelHnd, 0, "*",
@@ -2375,7 +2375,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
       coot::ideal_rna ir(RNA_or_DNA_str, form_str, single_stranded_flag,
 			 seq, graphics_info_t::standard_residues_asc.mol);
       ir.use_v3_names();
-      CMMDBManager *mol = ir.make_molecule();
+      mmdb::Manager *mol = ir.make_molecule();
 
       int match_resno;
       int interesting_resno;
@@ -2397,7 +2397,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
-	 Pmmdb::Residue residue_p;
+	 mmdb::PResidue residue_p;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    // 	 std::cout << "testing vs resno " << residue_p->GetSeqNum()
@@ -2431,7 +2431,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 	       coot::util::transform_mol(mol, rtop_pair.second);
 	       // byte gz = GZM_NONE;
 	       // mol->WritePDBASCII("overlapped.pdb", gz);
-	       CMMDBManager *residue_mol =
+	       mmdb::Manager *residue_mol =
 		  coot::util::create_mmdbmanager_from_residue(interesting_residue_p);
 
 	       atom_selection_container_t asc = make_asc(residue_mol);
@@ -2443,7 +2443,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 	       for (int ichain=0; ichain<nchains; ichain++) {
 		  chain_p = model_p->GetChain(ichain);
 		  int nres = chain_p->GetNumberOfResidues();
-		  Pmmdb::Residue residue_p;
+		  mmdb::PResidue residue_p;
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);
 		     if (residue_p->GetSeqNum() == interesting_residue_p->GetSeqNum()) {
@@ -2554,12 +2554,12 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       atom_selection_container_t rt_asc;
       // No! It cannot point to the same mmdb::Atoms.
       // rt_asc.mol = molecules[imol_rot_trans_object].atom_sel.mol; 
-      // MyCMMDBManager *mol = new MyCMMDBManager;
+      // Mymmdb::Manager *mol = new MyCMMDBManager;
       // mol->Copy(molecules[imol_rot_trans_object].atom_sel.mol, MMDBFCM_All);
       // how about we instead use:
-      // CMMDBManager *mol = create_mmdbmanager_from_res_selection();
+      // mmdb::Manager *mol = create_mmdbmanager_from_res_selection();
       //
-      Pmmdb::Residue *sel_residues = NULL;
+      mmdb::PResidue *sel_residues = NULL;
       int n_sel_residues;
       int selHnd = molecules[imol_rot_trans_object].atom_sel.mol->NewSelection();
       molecules[imol_rot_trans_object].atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
@@ -2581,7 +2581,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 	 alt_conf_split_flag = 1;
 
       // create a complete new clean copy of chains/residues/atoms
-      std::pair<CMMDBManager *, int> mp(0, 0);
+      std::pair<mmdb::Manager *, int> mp(0, 0);
 
 
       if (rot_trans_object_type == ROT_TRANS_TYPE_ZONE) 
@@ -3232,7 +3232,7 @@ graphics_info_t::drag_intermediate_atom(const coot::atom_spec_t &atom_spec, cons
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
-	 Pmmdb::Residue residue_p;
+	 mmdb::PResidue residue_p;
 	 mmdb::Atom *at;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
@@ -3415,7 +3415,7 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
 	    return 0;
 	 } else { 
 
-	    MyCMMDBManager *mol = new MyCMMDBManager;
+	    Mymmdb::Manager *mol = new MyCMMDBManager;
 	    mmdb::Model *model_p = new mmdb::Model;
 	    mmdb::Chain *chain_p = new mmdb::Chain;
 	    mmdb::Residue *res_p = new mmdb::Residue;
@@ -3461,7 +3461,7 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
 coot::rotamer_probability_info_t
 graphics_info_t::get_rotamer_probability(mmdb::Residue *res,
 					 const std::string &altconf,
-					 CMMDBManager *mol,
+					 mmdb::Manager *mol,
 					 float lowest_probability,
 					 short int add_extra_PHE_and_TYR_rotamers_flag) {
 
@@ -3816,7 +3816,7 @@ graphics_info_t::rotate_multi_residue_torsion(double x, double y) {
 // 	    chain_p = model_p->GetChain(ichain);
 // 	    int nres = chain_p->GetNumberOfResidues();
 // 	    for (int ires=0; ires<nres; ires++) { 
-// 	       Pmmdb::Residue residue_p = chain_p->GetResidue(ires);
+// 	       mmdb::PResidue residue_p = chain_p->GetResidue(ires);
 // 	       std::cout << "DEBUG:: residue " << residue_p->GetChainID()
 // 			 << " " << residue_p->GetSeqNum()
 // 			 << " " << residue_p->name

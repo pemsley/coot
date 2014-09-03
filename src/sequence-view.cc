@@ -69,7 +69,7 @@ coot::sequence_view *coot::sequence_view_object_t::seq_view = NULL;
   #define gtk_canvas_window_to_world gnome_canvas_window_to_world
 #endif
 
-coot::sequence_view::sequence_view(CMMDBManager *mol_in, std::string name, int coot_mol_no_in) {
+coot::sequence_view::sequence_view(mmdb::Manager *mol_in, std::string name, int coot_mol_no_in) {
 
    GtkWidget *top_lev = create_sequence_view_dialog();
    gtk_widget_set_usize(GTK_WIDGET(top_lev), 500, 160);
@@ -96,7 +96,7 @@ coot::sequence_view::sequence_view(CMMDBManager *mol_in, std::string name, int c
 }
 
 void
-coot::sequence_view::setup_internal(CMMDBManager *mol_in) {
+coot::sequence_view::setup_internal(mmdb::Manager *mol_in) {
 
 //    GtkWidget *sequence_view_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 //    gtk_container_set_border_width (GTK_CONTAINER(sequence_view_window), 2);
@@ -512,7 +512,7 @@ coot::sequence_view::seq_int_to_string(int i) const {
 // The canvas is all correct by the the time this has been called.
 //
 void
-coot::sequence_view::mol_to_canvas(CMMDBManager *mol_in) {
+coot::sequence_view::mol_to_canvas(mmdb::Manager *mol_in) {
    
    // Insertion codes are ignored.
 
@@ -610,7 +610,7 @@ coot::sequence_view::colour_by_secstr(mmdb::Residue *residue_p, mmdb::Model *mod
 }
 
 
-coot::sequence_view::sequence_view(CMMDBManager *mol_in, GtkWidget *container_widget) {
+coot::sequence_view::sequence_view(mmdb::Manager *mol_in, GtkWidget *container_widget) {
 
    // we need to create a canvas in container_widget
    //
@@ -646,7 +646,7 @@ coot::sequence_view::draw_mol_chain_label(std::string mol_chain, int i_row, int 
 
 
 void 
-coot::sequence_view::generate_from(CMMDBManager *mol_in) {
+coot::sequence_view::generate_from(mmdb::Manager *mol_in) {
    mol.push_back(mol_in);
    mol_to_canvas(mol_in);
 }
@@ -675,7 +675,7 @@ coot::sequence_view::undisplay(int coot_molecule_no) {
 
 
 int
-coot::sequence_view::max_number_of_residues_in_a_chain(CMMDBManager *mol_in) const {
+coot::sequence_view::max_number_of_residues_in_a_chain(mmdb::Manager *mol_in) const {
 
    int r = 0;
    int nres;

@@ -50,12 +50,12 @@ coot::operator<<(std::ostream &s, h_bond hb) {
 // selHnd_2 is for everything (else).
 // 
 std::vector<coot::h_bond>
-coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::protein_geometry &geom) {
+coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::protein_geometry &geom) {
 
    bool debug = 0;
    
-   realtype min_dist = 2.4; // H-bonds are longer than this
-   realtype max_dist = 3.9; // H-bonds are shorter than this
+   mmdb::realtype min_dist = 2.4; // H-bonds are longer than this
+   mmdb::realtype max_dist = 3.9; // H-bonds are shorter than this
    
    std::vector<coot::h_bond> v;
 
@@ -297,15 +297,15 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 // are different in H-bond analysis).
 // 
 std::vector<coot::h_bond>
-coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManager *mol,
+coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manager *mol,
 					 const protein_geometry &geom,
-					 realtype max_dist) {
+					 mmdb::realtype max_dist) {
    std::vector<coot::h_bond> v;
    // (and mark HB hydrogens too)
    int hb_type_udd_handle = mark_donors_and_acceptors(selHnd_1, selHnd_2, mol, geom); // using UDD data
 
    // These distance are from the acceptor to the H - not the donor
-   realtype min_dist = 0.1; // H-bonds are longer than this
+   mmdb::realtype min_dist = 0.1; // H-bonds are longer than this
    
    mmdb::PPAtom sel_1_atoms = 0;
    mmdb::PPAtom sel_2_atoms = 0;
@@ -594,7 +594,7 @@ coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(mmdb::Atom *at_1, /
 // 
 // return the UDD handle
 int
-coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, CMMDBManager *mol,
+coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manager *mol,
 					 const coot::protein_geometry &geom) {
 
    bool debug = 0;
@@ -641,7 +641,7 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, CMMDBManage
 // What is the nearest neighbour of the atoms in mol?
 // 
 std::map<mmdb::Atom *, std::vector<std::pair<mmdb::Atom *, float> > >
-coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, CMMDBManager *mol) {
+coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, mmdb::Manager *mol) {
 
    std::map<mmdb::Atom *, std::vector<std::pair<mmdb::Atom *, float> > > atom_map;
    mmdb::PPAtom sel_1_atoms = 0;
@@ -773,7 +773,7 @@ coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, CMMDBManager *mol)
 // return the hb_type_udd_handle as second.
 // 
 std::pair<bool, int>
-coot::h_bonds::check_hb_status(int selhnd, CMMDBManager *mol, const protein_geometry &geom) {
+coot::h_bonds::check_hb_status(int selhnd, mmdb::Manager *mol, const protein_geometry &geom) {
 
    bool status = false;
    mmdb::PPAtom residue_atoms = 0;

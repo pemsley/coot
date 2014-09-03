@@ -45,7 +45,7 @@
 // Before we ask this question, we need to match residues which chiral
 // restraints.
 //
-// i.e we need a function that takes a CMMDBManager * and returns
+// i.e we need a function that takes a mmdb::Manager * and returns
 // pairs of simple_restraint, mmdb::Residue, that is done in
 //  molecule_class_info-other.cc
 // 
@@ -175,7 +175,7 @@ coot::is_inverted_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_rest
 // 0 is good.
 // 
 std::pair<std::vector<std::string> , std::vector <coot::atom_spec_t> >
-coot::inverted_chiral_volumes(CMMDBManager *mol, protein_geometry *geom_p,
+coot::inverted_chiral_volumes(mmdb::Manager *mol, protein_geometry *geom_p,
 			      int cif_dictionary_read_number) {
 
    std::vector <coot::atom_spec_t> v;
@@ -204,7 +204,7 @@ coot::inverted_chiral_volumes(CMMDBManager *mol, protein_geometry *geom_p,
 	       std::cout << "NULL chain in ... " << std::endl;
 	    } else { 
 	       int nres = chain_p->GetNumberOfResidues();
-	       Pmmdb::Residue residue_p;
+	       mmdb::PResidue residue_p;
 	       // mmdb::Atom *at;
 	       for (int ires=0; ires<nres; ires++) { 
 		  residue_p = chain_p->GetResidue(ires);

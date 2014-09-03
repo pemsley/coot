@@ -694,7 +694,7 @@ start_ligand_builder_gui() {
 
 #ifdef HAVE_GOOCANVAS
       lig_build::molfile_molecule_t mm;
-      CMMDBManager *mol = NULL;
+      mmdb::Manager *mol = NULL;
       std::string molecule_file_name = "coot-lidia.mol"; // non-null file name passed to lbg, used
       // in save function
       std::string view_name;

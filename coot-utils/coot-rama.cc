@@ -36,7 +36,7 @@ std::ostream& coot::util::operator<<(std::ostream &s, coot::util::phi_psi_t v) {
 }
 
 coot::util::phi_psi_t
-coot::util::ramachandran_angles(Pmmdb::Residue *SelResidues, int nSelResidues) {
+coot::util::ramachandran_angles(mmdb::PResidue *SelResidues, int nSelResidues) {
 
    if (nSelResidues != 3) {
       std::string mess = "EXCEPTION: ramachandran_angles was given ";
@@ -59,7 +59,7 @@ coot::util::ramachandran_angles(Pmmdb::Residue *SelResidues, int nSelResidues) {
 // SelResidue is guaranteed to have 3 residues (there is no protection
 // for that in this function).
 std::pair<bool, coot::util::phi_psi_t>
-coot::util::get_phi_psi(Pmmdb::Residue *SelResidue) {
+coot::util::get_phi_psi(mmdb::PResidue *SelResidue) {
    return get_phi_psi(SelResidue[0], SelResidue[1], SelResidue[2]);
 } 
 

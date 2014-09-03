@@ -2,14 +2,14 @@
 #include <iostream>
 #include "bfkurt.hh"
 
-CMMDBManager *get_atom_selection(std::string pdb_name); 
+mmdb::Manager *get_atom_selection(std::string pdb_name); 
 
 
 int main(int argc, char **argv) { 
 
    if (argc > 1) { 
       std::string pdb_file_name = argv[1];
-      CMMDBManager *mol = get_atom_selection(pdb_file_name);
+      mmdb::Manager *mol = get_atom_selection(pdb_file_name);
       if (! mol) { 
 	 std::cout << "Failed to read pdb file\n";
       } else {
@@ -24,11 +24,11 @@ int main(int argc, char **argv) {
 } 
 
 
-CMMDBManager *
+mmdb::Manager *
 get_atom_selection(std::string pdb_name) {
 
    int err;
-   CMMDBManager* MMDBManager;
+   mmdb::Manager* MMDBManager;
 
    // Needed for the error message printing: 
    // MMDBManager->GetInputBuffer(S, lcount);
@@ -40,7 +40,7 @@ get_atom_selection(std::string pdb_name) {
    //
    InitMatType();
 
-   MMDBManager = new CMMDBManager;
+   MMDBManager = new mmdb::Manager;
    
    MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
 			  mmdb::MMDBF_IgnoreDuplSeqNum |

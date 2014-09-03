@@ -118,10 +118,10 @@ molecule_class_info_t::delete_ghost_selections() {
 
 // This is a ghost_molecule_display_t member function
 void
-coot::ghost_molecule_display_t::update_bonds(CMMDBManager *mol) {
+coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 
    atom_selection_container_t asc;
-   asc.mol = (MyCMMDBManager *) mol;
+   asc.mol = (Mymmdb::Manager *) mol;
 
    // We should update the atom selection here: Yes, this needs to
    // happen.  Otherwise: a modification is made and when we come to
@@ -258,7 +258,7 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 	       if (! chain_p->isSolventChain()) { 
 		  chain_ids[ichain] = chain_p->GetChainID();
 		  int iselhnd = atom_sel.mol->NewSelection();
-		  Pmmdb::Atom *atom_selection = NULL;
+		  mmdb::PAtom *atom_selection = NULL;
 		  int nSelAtoms;
 		  atom_sel.mol->SelectAtoms(iselhnd, imod,
 					    chain_p->GetChainID(),
@@ -286,7 +286,7 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 		  residue_types[ichain].resize(nres);
 // 		  std::cout << "INFO:: residues_types[" << ichain << "] resized to "
 // 			    << residue_types[ichain].size() << std::endl;
-		  Pmmdb::Residue residue_p;
+		  mmdb::PResidue residue_p;
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);
 		     std::string resname(residue_p->name);
@@ -576,7 +576,7 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
 	 // ivector  Ca1,Ca2;      // C-alpha correspondence vectors
 	 // Ca1[i] corresponds to a[i], where a is
 	 // selection identified by selHndCa1
-	 Pmmdb::Atom *atom_selection1 = NULL;
+	 mmdb::PAtom *atom_selection1 = NULL;
 	 int n_selected_atoms_1;
 	 atom_sel.mol->GetSelIndex(SSMAlign->selHndCa1,
 				   atom_selection1,
@@ -1184,7 +1184,7 @@ molecule_class_info_t::copy_chain(mmdb::Chain *from_chain, mmdb::Chain *to_chain
 	    mmdb::Chain *new_chain = new mmdb::Chain;
 	    new_chain->Copy(from_chain);
 	    int nres = new_chain->GetNumberOfResidues();
-	    Pmmdb::Residue residue_p;
+	    mmdb::PResidue residue_p;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = new_chain->GetResidue(ires);
 	       int n_atoms = residue_p->GetNumberOfAtoms();
@@ -1272,7 +1272,7 @@ molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *
 
 	 if ((resno>=residue_range_1) && (resno<=residue_range_2)) {
 
-	    Pmmdb::Atom *from_residue_atoms;
+	    mmdb::PAtom *from_residue_atoms;
 	    int n_from_residue_atoms;
 	    
 	    // OK, copy this residue:
@@ -1308,7 +1308,7 @@ molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *
 	       
 	       // OK, that residue existed.
 
-	       Pmmdb::Atom *old_to_residue_atoms;
+	       mmdb::PAtom *old_to_residue_atoms;
 	       int n_old_to_residue_atoms;
 	       to_residue->GetAtomTable(old_to_residue_atoms, n_old_to_residue_atoms);
 	       for (int iat=0; iat<n_old_to_residue_atoms; iat++) {
@@ -1374,7 +1374,7 @@ molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *
 	    
 	    if (to_residue) {
 	       // Now we need to transform the atoms of to_residue:
-	       Pmmdb::Atom *to_residue_atoms;
+	       mmdb::PAtom *to_residue_atoms;
 	       int n_to_residue_atoms;
 	       to_residue->GetAtomTable(to_residue_atoms, n_to_residue_atoms);
 	       for (int iat=0; iat<n_to_residue_atoms; iat++) {
@@ -1752,7 +1752,7 @@ molecule_class_info_t::set_ncs_master_chain(const std::string &new_master_chain_
 	       if (! chain_p->isSolventChain()) { 
 		  chain_ids[ichain] = chain_p->GetChainID();
 		  int iselhnd = atom_sel.mol->NewSelection();
-		  Pmmdb::Atom *atom_selection = NULL;
+		  mmdb::PAtom *atom_selection = NULL;
 		  int nSelAtoms;
 		  atom_sel.mol->SelectAtoms(iselhnd, imod,
 					    chain_p->GetChainID(),
@@ -1766,7 +1766,7 @@ molecule_class_info_t::set_ncs_master_chain(const std::string &new_master_chain_
 		  residue_types[ichain].resize(nres);
 // 		  std::cout << "INFO:: residues_types[" << ichain << "] resized to "
 // 			    << residue_types[ichain].size() << std::endl;
-		  Pmmdb::Residue residue_p;
+		  mmdb::PResidue residue_p;
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);
 		     std::string resname(residue_p->name);
@@ -2215,8 +2215,8 @@ molecule_class_info_t::ncs_chain_differences(std::string master_chain_id,
 	       
 	    int nres_this     = this_chain_p->GetNumberOfResidues();
 	    int nres_master = master_chain_p->GetNumberOfResidues();
-	    Pmmdb::Residue this_residue_p;
-	    Pmmdb::Residue master_residue_p;
+	    mmdb::PResidue this_residue_p;
+	    mmdb::PResidue master_residue_p;
 	    std::vector<coot::ncs_residue_info_t> residue_info;
 
 	    // return first == 0 if residues not found in chain

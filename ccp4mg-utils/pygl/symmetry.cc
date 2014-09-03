@@ -47,7 +47,7 @@
 mmdb::PPAtom molecule_extents_t::trans_sel(CMMDBCryst *my_cryst, symm_trans_t symm_trans)  const{
 
    mmdb::Atom atom;
-   mmdb::PPAtom trans_selection = new Pmmdb::Atom[6];
+   mmdb::PPAtom trans_selection = new mmdb::PAtom[6];
    mat44 my_matt;
    
    // Modify my_matt so that it is a coordinate transformation
@@ -71,7 +71,7 @@ mmdb::PPAtom molecule_extents_t::trans_sel(CMMDBCryst *my_cryst, symm_trans_t sy
 void Symmetry::AddSymmetry(float symm_distance) {
 
    if (nSelAtoms>0) {
-      Pmmdb::Atom point_atom_p = new mmdb::Atom;
+      mmdb::PAtom point_atom_p = new mmdb::Atom;
       point_atom_p->SetCoordinates(point.get_x(), point.get_y(),
                                    point.get_z(), 1.0, 99.9);
 
@@ -201,7 +201,7 @@ molecule_extents_t::molecule_extents_t(mmdb::PPAtom SelAtoms, int nSelAtoms) {
 
    // std::cout << "centre at: " << centre << std::endl;
    
-   extents_selection = new Pmmdb::Atom[6];
+   extents_selection = new mmdb::PAtom[6];
 
    extents_selection[0] = new mmdb::Atom;
    extents_selection[0]->SetCoordinates(front.get_x(), front.get_y(),
@@ -336,7 +336,7 @@ mmdb::PPAtom Symmetry::trans_sel(const symm_trans_t &symm_tran) const{
 	   << std::endl;
    }
 
-   mmdb::PPAtom trans_selection = new Pmmdb::Atom[nSelAtoms];
+   mmdb::PPAtom trans_selection = new mmdb::PAtom[nSelAtoms];
    for (int ii=0; ii<nSelAtoms; ii++) {
 
       trans_selection[ii] = new mmdb::Atom;
@@ -351,7 +351,7 @@ std::vector<symm_trans_t> molecule_extents_t::GetUnitCellOps(PCMMANManager molhn
 
    std::vector<symm_trans_t> symm_trans;
 
-   realtype u, v, w;
+   mmdb::realtype u, v, w;
    PCMMDBCryst my_cryst_p = (CMMDBCryst *) &(molhnd->get_cell());
    my_cryst_p->Orth2Frac(0,0,0, u, v, w);
    Cell_Translation c_t = Cell_Translation(int (rint (u)), int (rint (v)), int (rint (w)));
@@ -448,7 +448,7 @@ std::vector<symm_trans_t> molecule_extents_t::which_box(Cartesian point, PCMMANM
    std::vector<symm_trans_t> symm_trans;
    Cartesian p;
    
-   realtype u, v, w;
+   mmdb::realtype u, v, w;
    PCMMDBCryst my_cryst_p = (CMMDBCryst *) &(molhnd->get_cell());
 
    my_cryst_p->Orth2Frac(point.get_x(), point.get_y(), point.get_z(), u, v, w);

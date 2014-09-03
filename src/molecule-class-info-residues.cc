@@ -100,7 +100,7 @@ molecule_class_info_t::apply_charges(const coot::protein_geometry &geom) {
    float fraction_hydrogens = 0.15;
 
    if (atom_sel.n_selected_atoms > 0) { 
-      CMMDBManager *mol = atom_sel.mol;
+      mmdb::Manager *mol = atom_sel.mol;
 
       int n_H = 0;
       int n_all = 0; 
@@ -129,7 +129,7 @@ molecule_class_info_t::apply_charges(const coot::protein_geometry &geom) {
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    int nres = chain_p->GetNumberOfResidues();
-	    Pmmdb::Residue residue_p;
+	    mmdb::PResidue residue_p;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       std::string res_type = residue_p->GetResName();
@@ -163,7 +163,7 @@ molecule_class_info_t::assign_hetatms() {
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
-	 Pmmdb::Residue residue_p;
+	 mmdb::PResidue residue_p;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    r += coot::hetify_residue_atoms_as_needed(residue_p);
@@ -219,7 +219,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  const std::string &alt_conf = alt_confs[iac];
 
 
-		  CMMDBManager *residue_mol = coot::util::create_mmdbmanager_from_residue(residue_p);
+		  mmdb::Manager *residue_mol = coot::util::create_mmdbmanager_from_residue(residue_p);
 		  mmdb::Residue *residue_cp_p = coot::util::get_first_residue(residue_mol);
 
 		  coot::util::delete_alt_confs_except(residue_cp_p, alt_conf);
@@ -764,7 +764,7 @@ molecule_class_info_t::has_residue_with_name(const std::string comp_id) const {
 //////////////////////////////////////////////////////////////////////////////
 
 void 
-coot::animated_ligand_interactions_t::draw(CMMDBManager *mol,
+coot::animated_ligand_interactions_t::draw(mmdb::Manager *mol,
 					   const gl_context_info_t &gl_info,
 					   const long &start_time) const {
 
@@ -1073,7 +1073,7 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
 int
 molecule_class_info_t::watson_crick_pair_for_residue_range(const std::string &chain_id,
 							   int resno_start, int resno_end,
-							   CMMDBManager *standard_residues_mol) {
+							   mmdb::Manager *standard_residues_mol) {
    int status = 0;
    std::vector<mmdb::Residue *> new_residues;
    mmdb::Model *model_p = NULL;
@@ -1352,7 +1352,7 @@ molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue
 						 int n_trials,
 						 coot::protein_geometry *geom_p) {
 
-   CMMDBManager *moving_mol =
+   mmdb::Manager *moving_mol =
       coot::util::create_mmdbmanager_from_residue_specs(residue_specs, atom_sel.mol);
    
    // do we need to send over the base atom too?  Or just say

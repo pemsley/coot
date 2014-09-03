@@ -117,7 +117,7 @@ coot::beam_in_linked_residue::setup_by_comp_id(const std::string &comp_id_ref,
    
    if (coot::file_exists(full_path_pdb_filename)) {
    
-      CMMDBManager *t_mol = new CMMDBManager;
+      mmdb::Manager *t_mol = new CMMDBManager;
       int status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
       if (status != Error_NoError) {
 	 std::cout << "ERROR:: on reading " << full_path_pdb_filename << std::endl;
@@ -178,7 +178,7 @@ coot::beam_in_linked_residue::setup_by_group_group(const std::string &group_ref,
       std::cout << "WARNING:: link template file " << full_path_pdb_filename
 		<< " does not exist " << std::endl;
    } else { 
-      CMMDBManager *t_mol = new CMMDBManager;
+      mmdb::Manager *t_mol = new CMMDBManager;
       int status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
       if (status != Error_NoError) {
 	 std::cout << "ERROR:: on reading " << full_path_pdb_filename << std::endl;
@@ -235,7 +235,7 @@ coot::beam_in_linked_residue::setup_by_comp_id_group(const std::string &comp_id_
       std::cout << "WARNING:: link template file " << full_path_pdb_filename
 		<< " does not exist " << std::endl;
    } else {
-      CMMDBManager *t_mol = new CMMDBManager;
+      mmdb::Manager *t_mol = new CMMDBManager;
       int pdb_status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
       if (pdb_status != Error_NoError) {
 	 std::cout << "ERROR:: on reading " << full_path_pdb_filename << std::endl;
@@ -407,7 +407,7 @@ coot::beam_in_linked_residue::get_residue_raw() const {
 	       // Try getting a molecule, then extracting the residue
 	       // (yes, that works).
 	       //
-	       CMMDBManager *r_mol = geom_p->mol_from_dictionary(comp_id_new, 1);
+	       mmdb::Manager *r_mol = geom_p->mol_from_dictionary(comp_id_new, 1);
 	       if (r_mol) {
 		  mmdb::Residue *r_new = coot::util::get_first_residue(r_mol);
 	       
@@ -620,7 +620,7 @@ coot::beam_in_linked_residue::make_reference_atom_names(const std::string &comp_
 
 mmdb::Residue *
 coot::beam_in_linked_residue::get_residue(const std::string &comp_id,
-					  CMMDBManager*mol) const {
+					  mmdb::Manager*mol) const {
 
    mmdb::Residue *r = NULL;
    int imod = 1;
@@ -662,7 +662,7 @@ coot::operator<<(std::ostream &o, const linked_residue_t &lr) {
 
 // should this be part of protein_geometry?
 // 
-coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, CMMDBManager *mol,
+coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
 				 coot::protein_geometry *geom_p_in) {
 
    float dist_crit = 3.0; // A

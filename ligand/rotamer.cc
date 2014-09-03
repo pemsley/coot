@@ -244,7 +244,7 @@ coot::rotamer::probability_of_this_rotamer() {
 // 	     << residue->GetSeqNum() << " " << residue->GetChainID() << " "
 // 	     << residue_name << std::endl;
 
-   Pmmdb::Atom *residue_atoms;
+   mmdb::PAtom *residue_atoms;
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
    std::vector<std::vector<std::string> > rotamer_ats = rotamer_atoms(residue_name);
@@ -492,7 +492,7 @@ coot::rotamer::rotamer_atoms(const std::string &residue_name) const {
 
 std::vector<std::vector<int> >
 coot::rotamer::rotamer_atom_names_to_indices(const std::vector<std::vector<std::string> > &residue_rotamer_atoms,
-					      Pmmdb::Atom *residue_atoms,
+					      mmdb::PAtom *residue_atoms,
 					      int n_residue_atoms) const {
 
    std::vector<std::string> atom_indices(n_residue_atoms);
@@ -542,7 +542,7 @@ coot::rotamer::rotamer_atom_names_to_indices(const std::vector<std::vector<std::
 // return in degrees
 double
 coot::rotamer::chi_torsion(const std::vector<int> &chi_angle_atoms_indices,
-			    Pmmdb::Atom *residue_atoms) {
+			    mmdb::PAtom *residue_atoms) {
 
    double tors = 0.0;
 
@@ -728,7 +728,7 @@ coot::rotamer::GetResidue_old(int i_rot) const {
       }
 
       int nres_atoms = nResidueAtoms;
-      Pmmdb::Atom *ordered_residue_atoms_ppcatom = new Pmmdb::Atom[nres_atoms];
+      mmdb::PAtom *ordered_residue_atoms_ppcatom = new Pmmdb::Atom[nres_atoms];
       for(int i=0; i<nResidueAtoms; i++)
 	 ordered_residue_atoms_ppcatom[i] = ordered_atoms[i];
       
@@ -770,7 +770,7 @@ coot::rotamer::GetResidue_old(int i_rot) const {
       // Contact indices:
       //
       atom_selection_container_t res_asc;
-      res_asc.mol = (MyCMMDBManager *) stored_mol;
+      res_asc.mol = (Mymmdb::Manager *) stored_mol;
       res_asc.n_selected_atoms = nResidueAtoms;
       res_asc.atom_selection = ordered_residue_atoms_ppcatom;
 

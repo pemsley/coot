@@ -198,7 +198,7 @@ class CLibElement {
   Element name;
   Element bad_name;
   int defaultAtomIndex;  //default LibAtom index
-  realtype maxBondRad;
+  mmdb::realtype maxBondRad;
 
 };
 
@@ -213,11 +213,11 @@ class CLibAtom {
 
   char type [energy_type_len+1];
   int hbType;
-  realtype vdwRadius;
-  realtype vdwHRadius;
-  realtype ionRadius;
+  mmdb::realtype vdwRadius;
+  mmdb::realtype vdwHRadius;
+  mmdb::realtype ionRadius;
   Element element;
-  realtype charge;
+  mmdb::realtype charge;
 
   static int nHbCodes;
   static const char *hbCharCode[6];
@@ -240,9 +240,9 @@ class CLibBond {
   char atomType1[energy_type_len+1];
   char atomType2[energy_type_len+1];
   int bondType;
-  //realtype const;
-  realtype length;
-  //realtype length_esd;
+  //mmdb::realtype const;
+  mmdb::realtype length;
+  //mmdb::realtype length_esd;
 
   static int nBondCodes;
   static const char *bondCharCode[6];
@@ -263,20 +263,20 @@ public:
   int LoadSynonyms (pstr filename );
   std::string  ListMonomer(char *mon, bool unremediated=false);
   void InitialiseErrorReporting () { reported_errors.clear(); }
-  std::string AssignAtomType ( Pmmdb::Residue pRes,
+  std::string AssignAtomType ( mmdb::PResidue pRes,
       LoadedPCSBStructure monlib,
       std::map<std::string,std::string> &customResSynonym,
       int udd_sbaseCompoundID,int udd_sbaseAtomOrdinal, 
       int udd_atomEnergyType, const bool unremediated= false );
-  std::string ListAtomType ( PCMMUTManager molHnd, Pmmdb::Residue pRes,
+  std::string ListAtomType ( PCMMUTManager molHnd, mmdb::PResidue pRes,
   int udd_sbaseCompoundID, int udd_sbaseAtomOrdinal, int udd_atomEnergyType );
-  //int GraphSearch ( Pmmdb::Residue pRes, PCSBStructure &pSbaseRes,
+  //int GraphSearch ( mmdb::PResidue pRes, PCSBStructure &pSbaseRes,
   //     int &nAtom, ivector &nMatchAtom, imatrix &matchAtom  );
 
   PCSBStructure GetStructure ( const ResName resNam , LoadedPCSBStructure monlib, const bool unremediated=false);
   int LoadMonomerLibrary( char* filename, LoadedPCSBStructure &monlib);
   PCSBStructure LoadCifMonomer ( const ResName resNam , const PCMMCIFFile file, const bool unscramble=true );
-  int MatchGraphs(Pmmdb::Residue pRes,int Hflag, Boolean Cflag, const pstr altLoc, 
+  int MatchGraphs(mmdb::PResidue pRes,int Hflag, Boolean Cflag, const pstr altLoc, 
 		  PCSBStructure pSbaseRes, int &nMatched,
 		  ivector match, int minMatchSize );
   //PCLibAtom LibAtom (char *);
@@ -326,7 +326,7 @@ public:
   int nLibBonds;
   CLibBond *libBond[MGSBASE_MAX_LIBBONDS];
 
-  realtype fracMatch;
+  mmdb::realtype fracMatch;
 };
 
 

@@ -33,7 +33,7 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
 
    if (is_valid_model_molecule(imol)) {
 
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       if (! mol)
 	 std::cout << "no (reference) mol" << std::endl;
 
@@ -58,7 +58,7 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
       // uses dynamic add
       bool dict_status = geom_p->have_dictionary_for_residue_types(residue_types);
 
-      CMMDBManager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
+      mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
       if (! moving_mol) {
 	 std::cout << "WARNING:: multi_torsion_residues() no moving mol" << std::endl;
       } else {

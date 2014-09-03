@@ -1283,7 +1283,7 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *widget, int imol,
 }
 
 void
-graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol, Pmmdb::Atom atom,
+graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol, mmdb::PAtom atom,
 						      int iatom) {
 
    GtkWidget *residue_info_dialog = lookup_widget(table, "residue_info_dialog");
@@ -2434,7 +2434,7 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 		  // new addition 25Feb2004
 		  rama_plot_for_2_phi_psis(imol, atom_index);
 
-		  CMMDBManager *mol = new CMMDBManager;
+		  mmdb::Manager *mol = new CMMDBManager;
 		  mmdb::Model *model = new mmdb::Model;
 		  mmdb::Chain *chain = new mmdb::Chain;
 		  mmdb::Residue *res1 = new mmdb::Residue;

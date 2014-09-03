@@ -295,10 +295,10 @@ SCM highly_coordinated_waters_scm(int imol, int coordination_number, float dist_
 
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       bool mol_has_symmetry = coot::mol_has_symmetry(mol);
       if (mol_has_symmetry) {
-	 CMMDBManager *new_mol = coot::util::copy_molecule(mol);
+	 mmdb::Manager *new_mol = coot::util::copy_molecule(mol);
 	 coot::util::translate_close_to_origin(new_mol);
 	 mol = new_mol; // do water coordination check with a molecule
 			// that has been translated as close as
@@ -375,10 +375,10 @@ PyObject *highly_coordinated_waters_py(int imol, int coordination_number, float 
 
    PyObject *ret = Py_False;
    if (is_valid_model_molecule(imol)) {
-     CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+     mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
      bool mol_has_symmetry = coot::mol_has_symmetry(mol);
      if (mol_has_symmetry) {
-       CMMDBManager *new_mol = coot::util::copy_molecule(mol);
+       mmdb::Manager *new_mol = coot::util::copy_molecule(mol);
        coot::util::translate_close_to_origin(new_mol);
        mol = new_mol; // do water coordination check with a molecule
 			// that has been translated as close as

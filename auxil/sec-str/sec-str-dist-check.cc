@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
 
    if (argc > 1) { 
       std::string filename = argv[1];
-      CMMDBManager *mol = get_mol(filename);
+      mmdb::Manager *mol = get_mol(filename);
       if (mol) { 
 	 mmdb::Model *model_p = mol->GetModel(1);
 	 int status = model_p->CalcSecStructure(1);
@@ -43,8 +43,8 @@ distance_checks(mmdb::Model *model_p) {
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
-      Pmmdb::Residue residue_p_1;
-      Pmmdb::Residue residue_p_2;
+      mmdb::PResidue residue_p_1;
+      mmdb::PResidue residue_p_2;
       for (int ires=0; ires<(nres-1); ires++) {
 	 residue_p_1 = chain_p->GetResidue(ires);
 	 residue_p_2 = chain_p->GetResidue(ires+1);
@@ -78,9 +78,9 @@ int SSE(mmdb::Residue *res) {
    return res->SSE;
 } 
 
-CMMDBManager *get_mol(const std::string &filename) {
+mmdb::Manager *get_mol(const std::string &filename) {
 
-   CMMDBManager *MMDBManager = new CMMDBManager();
+   mmdb::Manager *MMDBManager = new CMMDBManager();
    int err = MMDBManager->ReadCoorFile((char *)filename.c_str());
    if (err) {
       std::cout << "Error reading " << filename << std::endl;

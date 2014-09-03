@@ -33,7 +33,7 @@ namespace coot {
       
       richardson_rotamer(mmdb::Residue *res,
 			 const std::string &alt_conf,
-			 CMMDBManager *mol,
+			 mmdb::Manager *mol,
 			 float lowest_probability,
 			 short int add_extra_PHE_and_TYR_rotamers_flag) :
 	 rotamer(res, alt_conf, add_extra_PHE_and_TYR_rotamers_flag) {

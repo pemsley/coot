@@ -31,8 +31,8 @@
 #include "atom_util.h"
 #include "rgbreps.h"
 
-mmdb::PPAtom GetAtomPair(const std::vector<std::pair<Pmmdb::Atom,Pmmdb::Atom> > &pair, int i){
-  mmdb::PPAtom atom_pair = new Pmmdb::Atom[2];
+mmdb::PPAtom GetAtomPair(const std::vector<std::pair<mmdb::PAtom,Pmmdb::Atom> > &pair, int i){
+  mmdb::PPAtom atom_pair = new mmdb::PAtom[2];
   atom_pair[0] = pair[i].first;
   atom_pair[1] = pair[i].second;
   return atom_pair;
@@ -277,7 +277,7 @@ double *AtomColourVector::GetRGB ( int i ) {
 
 
 //-----------------------------------------------------------------------
-int AtomColourVector::SetupResidueColourVector( PCMMDBManager molHnd, 
+int AtomColourVector::SetupResidueColourVector( mmdb::PManager molHnd, 
                                    int selHnd ) {
 //-----------------------------------------------------------------------
   /*
@@ -288,7 +288,7 @@ int AtomColourVector::SetupResidueColourVector( PCMMDBManager molHnd,
  
   mmdb::PPAtom pAtoms;
   int CAselHnd,nAtoms,idx;
-  Pmmdb::Residue pRes;
+  mmdb::PResidue pRes;
 
   
   molHnd->GetSelIndex ( selHnd,pAtoms,nAtoms);

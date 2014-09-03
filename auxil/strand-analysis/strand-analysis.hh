@@ -5,10 +5,10 @@
 std::vector<clipper::Coord_orth> z_control_points(int nres);
 
 std::pair<bool, clipper::RTop_orth>
-orient_strand_on_z(int handle, CMMDBManager *mol);
+orient_strand_on_z(int handle, mmdb::Manager *mol);
 
 // fiddle with mol
-void apply_rtop_to_strand(int SelHnd, CMMDBManager *mol,
+void apply_rtop_to_strand(int SelHnd, mmdb::Manager *mol,
 			  const clipper::RTop_orth &rtop);
 
 
@@ -43,7 +43,7 @@ namespace coot {
       std::string name;
       CStrand strand;
       int length;
-      CMMDBManager *mol;
+      mmdb::Manager *mol;
       int SelectionHandle;
    }; 
 
@@ -61,11 +61,11 @@ namespace coot {
    public:
       void analyse_pdb_file(const std::string &filename);
       void add_strand(const std::string &filename,
-		      CMMDBManager *mol,
+		      mmdb::Manager *mol,
 		      CStrand *strand,
 		      int SelectionHandle);
       void strand_analysis(mmdb::Model *model_p,
-			   CMMDBManager *mol,
+			   mmdb::Manager *mol,
 			   const std::string &filename);
 
       void post_read_analysis(int this_length) const;

@@ -7,7 +7,7 @@ int main(int argc, char **argv) {
 
    if (argc > 1) {
       char *filename = argv[1];
-      CMMDBManager *mol = new CMMDBManager;
+      mmdb::Manager *mol = new CMMDBManager;
       mol->ReadCoorFile(filename);
 
       std::cout << "(define obj (new-generic-object-number \"EJD's vectors\"))"
@@ -24,7 +24,7 @@ int main(int argc, char **argv) {
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    int nres = chain_p->GetNumberOfResidues();
-	    Pmmdb::Residue residue_p;
+	    mmdb::PResidue residue_p;
 	    mmdb::Atom *at;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
@@ -37,7 +37,7 @@ int main(int argc, char **argv) {
 		  for (int jchain=0; jchain<nchains; jchain++) {
 		     mmdb::Chain *chain2_p = model_p->GetChain(jchain);
 		     int nres2 = chain2_p->GetNumberOfResidues();
-		     Pmmdb::Residue residue2_p;
+		     mmdb::PResidue residue2_p;
 		     mmdb::Atom *at2;
 		     for (int jres=0; jres<nres2; jres++) { 
 			residue2_p = chain2_p->GetResidue(jres);

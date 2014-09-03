@@ -21,7 +21,7 @@ namespace coot {
    class cablam {
       clipper::Coord_orth get_closest_CA_CA_approach(const coot::torsion_atom_quad &quad) const;
  public:
-      cablam(Pmmdb::Residue *residues, int n_sel_residues);
+      cablam(mmdb::PResidue *residues, int n_sel_residues);
    };
 
 }

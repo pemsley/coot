@@ -58,7 +58,7 @@
 lbg_info_t *
 lbg(lig_build::molfile_molecule_t mm,
     std::pair<bool, coot::residue_spec_t> ligand_spec_pair,
-    CMMDBManager *mol,
+    mmdb::Manager *mol,
     const std::string &view_name,
     const std::string &molecule_file_name,
     int imol,
@@ -181,7 +181,7 @@ lbg_info_t::new_lbg_window() {
    
    lig_build::molfile_molecule_t blank_mol;
    std::pair<bool, coot::residue_spec_t> ligand_spec_pair(0, 0);
-   CMMDBManager *mol = NULL;
+   mmdb::Manager *mol = NULL;
    std::string view_name;
    std::string molecule_file_name;
    int imol = -1;
@@ -2946,7 +2946,7 @@ lbg_info_t::handle_read_draw_coords_mol_and_solv_acc(const std::string &coot_pdb
 						     const std::string &coot_mdl_file,
 						     const std::string &sa_file) {
    
-   CMMDBManager *flat_pdb_mol = get_cmmdbmanager(coot_pdb_file);
+   mmdb::Manager *flat_pdb_mol = get_cmmdbmanager(coot_pdb_file);
    lig_build::molfile_molecule_t mm;
    mm.read(coot_mdl_file);
    widgeted_molecule_t wmol = import_mol_file(mm, coot_mdl_file, flat_pdb_mol);
@@ -2957,10 +2957,10 @@ lbg_info_t::handle_read_draw_coords_mol_and_solv_acc(const std::string &coot_pdb
 }
 
 
-CMMDBManager *
+mmdb::Manager *
 lbg_info_t::get_cmmdbmanager(const std::string &file_name) const {
 
-   CMMDBManager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new CMMDBManager;
 
    int err = mol->ReadCoorFile(file_name.c_str());
    if (err) {
@@ -3378,7 +3378,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       std::cout << "..................... using my mdl parser.... " << std::endl;
       // read as an MDL mol file
       // 
-      CMMDBManager *mol = NULL; // no atom names to transfer
+      mmdb::Manager *mol = NULL; // no atom names to transfer
       lig_build::molfile_molecule_t mm;
       mm.read(file_name);
       widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
@@ -3416,7 +3416,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
       //    Old way (Pre-Feb 2013) goving via a molfile_molecule_t
       //    
       //    lig_build::molfile_molecule_t mm = coot::make_molfile_molecule(*m, iconf);
-      //    CMMDBManager *mol = NULL; // no atom names to transfer
+      //    mmdb::Manager *mol = NULL; // no atom names to transfer
       //    widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
 
       const RDKit::Conformer conformer = m->getConformer(iconf);
@@ -3437,7 +3437,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
 widgeted_molecule_t
 lbg_info_t::import_mol_file(const lig_build::molfile_molecule_t &mol_in,
 			    const std::string &file_name,
-			    CMMDBManager *pdb_mol) {
+			    mmdb::Manager *pdb_mol) {
 
    widgeted_molecule_t new_mol(mol_in, pdb_mol);
    mdl_file_name = file_name;
@@ -3598,7 +3598,7 @@ lbg_info_t::clean_up_2d_representation() {
 	 RDKit::WedgeMolBonds(rdkm, &conf);
 	 lig_build::molfile_molecule_t mm =
 	    coot::make_molfile_molecule(rdkm, iconf);
-	 CMMDBManager *mol = NULL; // no atom names to transfer
+	 mmdb::Manager *mol = NULL; // no atom names to transfer
 	 widgeted_molecule_t wmol(mm, mol);
 	 render_from_molecule(wmol);
 	 update_descriptor_attributes();

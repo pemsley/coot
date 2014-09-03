@@ -25,7 +25,7 @@
 #include "base-pairing.hh"
 
 mmdb::Residue *
-coot::watson_crick_partner(mmdb::Residue *res_ref, CMMDBManager *standard_residues) {
+coot::watson_crick_partner(mmdb::Residue *res_ref, mmdb::Manager *standard_residues) {
 
    mmdb::Residue *res = NULL;
    std::string nucleic_acid_type = "DNA";
@@ -119,7 +119,7 @@ coot::watson_crick_partner(mmdb::Residue *res_ref, CMMDBManager *standard_residu
    ir.use_v3_names();
    std::cout << "::::::::::: nucleic_acid_type " << nucleic_acid_type << std::endl;
    std::cout << "::::::::::: nucleic_acid form " << form << std::endl;
-   CMMDBManager *mol = ir.make_molecule();
+   mmdb::Manager *mol = ir.make_molecule();
 
    clipper::RTop_orth rtop;
    bool rtop_is_good = 0;
@@ -232,8 +232,8 @@ coot::base_pair_match_matix(mmdb::Residue *res_ref, mmdb::Residue *res_mov) {
       std::vector<clipper::Coord_orth> ref_pts;
       std::vector<clipper::Coord_orth> mov_pts;
       int found_atoms = 0;
-      Pmmdb::Atom *ref_atoms = NULL;
-      Pmmdb::Atom *mov_atoms = NULL;
+      mmdb::PAtom *ref_atoms = NULL;
+      mmdb::PAtom *mov_atoms = NULL;
       int n_ref_atoms = 0;
       int n_mov_atoms = 0;
       res_ref->GetAtomTable( ref_atoms, n_ref_atoms);

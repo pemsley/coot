@@ -289,7 +289,7 @@ namespace coot {
 	 name = name_in;
 	 display_it_flag = 1;
       }
-      void update_bonds(CMMDBManager *mol); // the parent's mol
+      void update_bonds(mmdb::Manager *mol); // the parent's mol
       bool is_empty() { return (SelectionHandle == -1); }
       ncs_residue_info_t get_differences(mmdb::Residue *this_residue_p, 
 					 mmdb::Residue *master_residue_p, 
@@ -340,7 +340,7 @@ namespace coot {
    public:
       animated_ligand_interactions_t(const fle_ligand_bond_t &lb) :
 	 fle_ligand_bond_t(lb) { }
-      void draw(CMMDBManager *mol,
+      void draw(mmdb::Manager *mol,
 		const gl_context_info_t &gl_info,
 		const long &start_time) const;
    };
@@ -371,7 +371,7 @@ namespace coot {
       bool chain_id_is_set;
       int res_no;
       std::string chain_id;
-      goto_residue_string_info_t(const std::string &goto_residue_string, CMMDBManager *mol);
+      goto_residue_string_info_t(const std::string &goto_residue_string, mmdb::Manager *mol);
    }; 
 
    class atom_attribute_setting_help_t {
@@ -464,7 +464,7 @@ namespace coot {
 
       // Return the selection handle.  It is up to the caller to
       // dispose of the atom selection, with a DeleteSelection().
-      int select_atoms(CMMDBManager *mol) const;
+      int select_atoms(mmdb::Manager *mol) const;
       void using_altconf(const std::string &altconf_in) {
 	 altconf = altconf_in;
 	 alt_conf_is_set = 1;
@@ -482,7 +482,7 @@ namespace coot {
       bool draw_hydrogens_flag;
       graphical_bonds_container bonds_box;
       atom_selection_info_t atom_sel_info;
-      CMMDBManager *mol;
+      mmdb::Manager *mol;
       int display_list_handle;
       void update_self() {
 	 if (representation_type != BALL_AND_STICK || representation_type != LIQUORICE) {
@@ -493,7 +493,7 @@ namespace coot {
 	 display_list_handle = handle_in;
       }
       void fill_bonds_box();
-     additional_representations_t(CMMDBManager *mol_in,
+     additional_representations_t(mmdb::Manager *mol_in,
 				  int representation_type_in,
 				  int bonds_box_type_in,
 				  float bond_width_in,
@@ -510,7 +510,7 @@ namespace coot {
      }
      // on changind the outside (molecule_class_info_t's mol) we need
      // to change that of the additional_representations too.
-     void change_mol(CMMDBManager *mol_in) { 
+     void change_mol(mmdb::Manager *mol_in) { 
        mol = mol_in;
      } 
      void clear() { 
@@ -786,9 +786,9 @@ class molecule_class_info_t {
    //
    short int molecule_is_all_c_alphas() const; 
    
-   std::string make_symm_atom_label_string(Pmmdb::Atom atom,
+   std::string make_symm_atom_label_string(mmdb::PAtom atom,
 					   const std::pair <symm_trans_t, Cell_Translation> &symm_trans) const;
-   std::string make_atom_label_string(Pmmdb::Atom atom, int brief_atom_labels_flag) const;
+   std::string make_atom_label_string(mmdb::PAtom atom, int brief_atom_labels_flag) const;
 
    // rebuild/save state command
    std::vector<std::string> save_state_command_strings_;
@@ -972,16 +972,16 @@ class molecule_class_info_t {
    // alignment
    coot::chain_mutation_info_container_t
    align_on_chain(const std::string &chain_id,
-		  Pmmdb::Residue *SelResidues, int nSelResidues,
+		  mmdb::PResidue *SelResidues, int nSelResidues,
 		  const std::string &target,
-		  realtype wgap,
-		  realtype wspace,
+		  mmdb::realtype wgap,
+		  mmdb::realtype wspace,
 		  bool is_nucleic_acid_flag = false,
 		  bool console_output = true) const;
 
 
    std::string
-   make_model_string_for_alignment(Pmmdb::Residue *SelResidues,
+   make_model_string_for_alignment(mmdb::PResidue *SelResidues,
 				   int nSelResidues) const;
    // renumber_reidues starting at 1 and removing insertion codes
    // (no backup).  For use in alignment (maybe other places)
@@ -1586,7 +1586,7 @@ public:        //                      public
 		      bool is_from_shelx_ins=0);
 
    void install_model(int imol_no_in, 
-		      CMMDBManager *mol, const std::string &mol_name,
+		      mmdb::Manager *mol, const std::string &mol_name,
 		      short int display_in_display_control_widget_status,
 		      bool is_from_shelx_ins=0);
 
@@ -2028,8 +2028,8 @@ public:        //                      public
    std::string get_term_type(int atom_index); 
    // by alignment (against asigned pir seq file) return, "HIS", "ALA" etc, if we can.
    std::pair<bool, std::string> find_terminal_residue_type(const std::string &chain_id, int resno,
-							   realtype alignment_wgap,
-							   realtype alignment_wspace,
+							   mmdb::realtype alignment_wgap,
+							   mmdb::realtype alignment_wspace,
 							   bool is_nucleic_acid_flag = false) const;
 
 
@@ -2149,12 +2149,12 @@ public:        //                      public
    coot::chain_mutation_info_container_t align_and_mutate(const std::string chain_id,
 							  const coot::fasta &seq,
 							  bool renumber_residues_flag,
-							  realtype wgap,
-							  realtype wspace);
+							  mmdb::realtype wgap,
+							  mmdb::realtype wspace);
    
    void mutate_chain(const std::string &chain_id,
 		     const coot::chain_mutation_info_container_t &mut_cont_info,
-		     Pmmdb::Residue *SelResidues,
+		     mmdb::PResidue *SelResidues,
 		     int nSelResidues,
 		     bool renumber_residues_flag);
 
@@ -2162,12 +2162,12 @@ public:        //                      public
    residue_type_next_residue_by_alignment(const coot::residue_spec_t &clicked_residue,
 					  mmdb::Chain *clicked_residue_chain_p, 
 					  short int is_n_term_addition,
-					  realtype alignment_wgap,
-					  realtype alignment_wspace) const;
+					  mmdb::realtype alignment_wgap,
+					  mmdb::realtype alignment_wspace) const;
 
    // return a status flag (alignments done)
    std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > 
-   residue_mismatches(realtype alignment_wgap, realtype aligment_wspace) const;
+   residue_mismatches(mmdb::realtype alignment_wgap, realtype aligment_wspace) const;
 
    // Try to align on all chains - pick the best one and return it in
    // the second.  If there is no chain that matches within match_frag
@@ -2175,7 +2175,7 @@ public:        //                      public
    // 
    std::pair<bool, std::pair<std::string, coot::chain_mutation_info_container_t> >
    try_align_on_all_chains(const std::string &target, float match_fragment,
-			   realtype wgap, realtype wspace) const;
+			   mmdb::realtype wgap, realtype wspace) const;
 
    void make_backup_from_outside(); // when we have a multi mutate, we
 				    // want the wrapper to make a
@@ -2420,7 +2420,7 @@ public:        //                      public
    std::string Refmac_out_name() const;
    std::string Refmac_mtz_out_name() const;
    std::string name_sans_extension(short int include_path_flag) const;
-   CMMDBManager *get_residue_range_as_mol(const std::string &chain_id,
+   mmdb::Manager *get_residue_range_as_mol(const std::string &chain_id,
 					  int resno_start,
 					  int resno_end) const;
 
@@ -2732,7 +2732,7 @@ public:        //                      public
    std::string make_new_alt_conf(const std::vector<std::string> &residue_alt_confs, 
 				 int alt_conf_split_type_in) const;
    short int have_atoms_for_rotamer(mmdb::Residue *res) const;
-   CMMDBManager * create_mmdbmanager_from_res_selection(Pmmdb::Residue *SelResidues, 
+   mmdb::Manager * create_mmdbmanager_from_res_selection(mmdb::PResidue *SelResidues, 
 							int nSelResidues, 
 							int have_flanking_residue_at_start,
 							int have_flanking_residue_at_end, 
@@ -2743,7 +2743,7 @@ public:        //                      public
    // merge molecules
    
    std::pair<int, std::vector<std::string> > merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
-   std::pair<bool, std::vector<std::string> > try_add_by_consolidation(CMMDBManager *adding_mol);
+   std::pair<bool, std::vector<std::string> > try_add_by_consolidation(mmdb::Manager *adding_mol);
 
    int renumber_residue_range(const std::string &chain_id,
 			      int start_resno, int last_resno, int offset);
@@ -2869,9 +2869,9 @@ public:        //                      public
    // ---- cis <-> trans conversion
    int cis_trans_conversion(const std::string &chain_id, int resno, const std::string &inscode);
    int cis_trans_conversion(mmdb::Atom *at, short int is_N_flag);
-   int cis_trans_convert(Pmmdb::Residue *mol_residues,   // internal function, make private
-			 Pmmdb::Residue *trans_residues, // or move into utils?
-			 Pmmdb::Residue *cis_residues);
+   int cis_trans_convert(mmdb::PResidue *mol_residues,   // internal function, make private
+			 mmdb::PResidue *trans_residues, // or move into utils?
+			 mmdb::PResidue *cis_residues);
 
 
    // ---- baton build redirection ----
@@ -2989,7 +2989,7 @@ public:        //                      public
    coot::minimol::molecule eigen_flip_residue(const std::string &chain_id, int resno); 
 
    // replace molecule
-   int replace_molecule(CMMDBManager *mol);
+   int replace_molecule(mmdb::Manager *mol);
    int replace_models(std::deque<mmdb::Model *> model_list);
 
 
@@ -2998,7 +2998,7 @@ public:        //                      public
    void set_b_factor_bonds_scale_factor(float f);
 
    int
-   apply_sequence(int imol_map, CMMDBManager *mol,
+   apply_sequence(int imol_map, mmdb::Manager *mol,
 		  std::vector<coot::residue_spec_t> mmdb_residues,
 		  std::string best_seq, std::string chain_id,
 		  int resno_offset,
@@ -3232,7 +3232,7 @@ public:        //                      public
    coot::rotamer_score_t get_all_molecule_rotamer_score(const coot::rotamer_probability_tables &rpt) const;
 
    // --------- lsq-improve ------------
-   void lsq_improve(CMMDBManager *mol_ref, const std::string &ref_selection_str,
+   void lsq_improve(mmdb::Manager *mol_ref, const std::string &ref_selection_str,
 		    const std::string &moving_selection_str, int n_res, float dist_crit);
 
    std::vector<ProteinDB::Chain> protein_db_loops(const std::vector<coot::residue_spec_t> &residue_specs,
@@ -3265,7 +3265,7 @@ public:        //                      public
    // ------------ watson crick pair additions  ---------
    int watson_crick_pair_for_residue_range(const std::string &chain_id,
 					   int resno_start, int resno_end,
-					   CMMDBManager *standard_residues_mol);
+					   mmdb::Manager *standard_residues_mol);
 
    // --------- Pretty (hopefully) animated ligand interactions -----------
    std::vector<coot::animated_ligand_interactions_t> animated_ligand_interactions_vec;

@@ -149,7 +149,7 @@ mmdb::PPAtom CMGSBase::GetMonomerLibraryStructure(const char *monomer_name){
   if(pStruct){
     Tree tree = GetMonomerLibraryTree(monomer_name);
     // Then make some atoms, populate mon_atoms, etc. After lunch.
-    mon_atoms = new Pmmdb::Atom[tree.GetNumberOfVertices()];
+    mon_atoms = new mmdb::PAtom[tree.GetNumberOfVertices()];
     std::vector<Cartesian> carts = tree.GetAllCartesians();
     //std::cout << carts.size() << " " << tree.GetNumberOfVertices() <<  " " << pStruct->nAtoms << "\n";
     for(unsigned i=0;i<carts.size();i++){
@@ -458,7 +458,7 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
       //cout << "bond " << structure->Atom[new_bond->atom1-1]->pdb_name << " " << structure->Atom[new_bond->atom2-1]->pdb_name<< endl;
      //RC = CIFGetString(bt,Loop,CIFTAG_COMP_BOND_TYPE,N,10,"");
      //bondType=encodeBondType(bt);
-     realtype length;
+     mmdb::realtype length;
      RC = CIFGetReal1( length,Loop, "value_dist", N );
       if (new_bond->atom1>0 && new_bond->atom2>0) {
         new_bond->length = length;
@@ -505,7 +505,7 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
         if ( strcmp (atom2, structure->Atom[j]->pdb_name) == 0 ) new_angle->atom2 = j+1;
         if ( strcmp (atom3, structure->Atom[j]->pdb_name) == 0 ) new_angle->atom3 = j+1;
       }
-      realtype angle;
+      mmdb::realtype angle;
       RC = CIFGetReal1( angle,Loop, "value_angle", N );
       if (new_angle->atom1>0 && new_angle->atom2>0 && new_angle->atom3>0) {
         //std::cout << "Adding angle " << atom1 << " " << atom2 << " " << atom3 << "\n";
@@ -570,7 +570,7 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
         if ( strcmp (atom3, structure->Atom[j]->pdb_name) == 0 ) new_torsion->atom3 = j+1;
         if ( strcmp (atom4, structure->Atom[j]->pdb_name) == 0 ) new_torsion->atom4 = j+1;
       }
-      realtype torsion;
+      mmdb::realtype torsion;
       RC = CIFGetReal1( torsion,Loop, "value_angle", N );
       if (new_torsion->atom1>0 && new_torsion->atom2>0 && new_torsion->atom3>0 && new_torsion->atom4>0) {
         //std::cout << "Adding torsion " << atom1 << " " << atom2 << " " << atom3 << " " << atom4 << "\n";
@@ -887,7 +887,7 @@ std::string  CMGSBase::ListMonomer(char *mon, bool unremediated) {
 
 
 //------------------------------------------------------------------------
-std::string CMGSBase::AssignAtomType ( Pmmdb::Residue pRes,
+std::string CMGSBase::AssignAtomType ( mmdb::PResidue pRes,
        LoadedPCSBStructure monlib,
        std::map<std::string,std::string> &customResSynonym,
        int udd_sbaseCompoundID,int udd_sbaseAtomOrdinal,
@@ -1230,7 +1230,7 @@ std::string CMGSBase::AssignAtomType ( Pmmdb::Residue pRes,
 }
 
 
-int CMGSBase::MatchGraphs(Pmmdb::Residue pRes,int Hflag, Boolean Cflag, 
+int CMGSBase::MatchGraphs(mmdb::PResidue pRes,int Hflag, Boolean Cflag, 
                           const pstr altLoc, 
                           PCSBStructure pSbaseRes, int &nMatched,
 			  ivector match, int tolMatch ) {
@@ -1238,7 +1238,7 @@ int CMGSBase::MatchGraphs(Pmmdb::Residue pRes,int Hflag, Boolean Cflag,
   PCGraph G,G1;
   PCGraphMatch U;
   ivector      F1,F2;
-  realtype     p1,p2;
+  mmdb::realtype     p1,p2;
   int     rc,htype;
   int nInResidue,minMatch,natMatch;
 
@@ -1342,7 +1342,7 @@ int CMGSBase::MatchGraphs(Pmmdb::Residue pRes,int Hflag, Boolean Cflag,
 }
 
 //------------------------------------------------------------------------
-std::string CMGSBase::ListAtomType ( PCMMUTManager molHnd, Pmmdb::Residue pRes,
+std::string CMGSBase::ListAtomType ( PCMMUTManager molHnd, mmdb::PResidue pRes,
         int udd_sbaseCompoundID,
         int udd_sbaseAtomOrdinal, int udd_atomEnergyType ) {
 //------------------------------------------------------------------------

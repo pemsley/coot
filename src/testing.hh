@@ -99,7 +99,7 @@ int test_map_tools();
 int test_phi_psi_values();
 
 
-mmdb::Residue *test_get_residue(CMMDBManager *mol, const std::string &chain_id, int resno);
+mmdb::Residue *test_get_residue(mmdb::Manager *mol, const std::string &chain_id, int resno);
 bool test_tree_rotation(const coot::dictionary_residue_restraints_t &rest,
 			mmdb::Residue *res,
 			const std::string &rotate_atom_1,
@@ -127,9 +127,9 @@ public:
 
 class residue_selection_t {
 public:
-   CMMDBManager *mol;
+   mmdb::Manager *mol;
    int nSelResidues;
-   Pmmdb::Residue *SelResidues;
+   mmdb::PResidue *SelResidues;
    int SelectionHandle;
    void clear_up() {
       mol->DeleteSelection(SelectionHandle);

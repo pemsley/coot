@@ -149,7 +149,7 @@ molecule_extents_t::molecule_extents_t(atom_selection_container_t selection,
 
    // cout << "centre at: " << centre << endl;
    
-   extents_selection = new Pmmdb::Atom[6];
+   extents_selection = new mmdb::PAtom[6];
 
    extents_selection[0] = new mmdb::Atom;
    extents_selection[0]->SetCoordinates(front.get_x(), front.get_y(),
@@ -308,7 +308,7 @@ molecule_extents_t::which_boxes(coot::Cartesian point,
       //       symm_trans vector.
 
       // OK, so what now is the fractional position of the point?
-      realtype u, v, w, u_cs, v_cs, w_cs;
+      mmdb::realtype u, v, w, u_cs, v_cs, w_cs;
       int point_unit_cell[3];
       AtomSel.mol->Orth2Frac(point.x(), point.y(), point.z(), u, v, w);
       point_unit_cell[0] = int(u+0.5);
@@ -327,9 +327,9 @@ molecule_extents_t::which_boxes(coot::Cartesian point,
       // First find the minium cell dimension and compare that to the
       // search radius.
       int ishift=1;
-      realtype a[6];
-      realtype vol;
-      realtype min_cell = 9999999.9; // A
+      mmdb::realtype a[6];
+      mmdb::realtype vol;
+      mmdb::realtype min_cell = 9999999.9; // A
       int orthcode;
       AtomSel.mol->GetCell(a[0], a[1], a[2], a[3], a[4], a[5], vol, orthcode);
       for (int i=0; i<3; i++) 
@@ -446,7 +446,7 @@ molecule_extents_t::which_strict_ncs(const coot::Cartesian &centre_pt,
    mmdb::Atom trans_atom;
    mmdb::Atom tmp_atom;
    atom.SetCoordinates(centre_pt.x(), centre_pt.y(), centre_pt.z(), 1.0, 10.0);
-   realtype diff_x, diff_y, diff_z, u, v, w, u_cs, v_cs, w_cs;
+   mmdb::realtype diff_x, diff_y, diff_z, u, v, w, u_cs, v_cs, w_cs;
    symm_trans_t  symm_trans_this;
 
    for (int ii=0; ii<n; ii++) {
@@ -537,7 +537,7 @@ molecule_extents_t::which_strict_ncs(const coot::Cartesian &centre_pt,
 
 // Is this nonsense really necessary?
 void
-molecule_extents_t::shift_matrix(CMMDBManager *mol,
+molecule_extents_t::shift_matrix(mmdb::Manager *mol,
 				 mat44 my_matt,
 				 int x_shift, int y_shift, int z_shift,
 				 mat44 new_matrix) const {
@@ -563,15 +563,15 @@ molecule_extents_t::coord_to_unit_cell_translations(coot::Cartesian point,
    //
    // we don't need to use clipper, we can use:
    //
-   // CMMDBManager::Orth2Frac Orthogonal-to-fractional transformation
-   // of coordinates and CMMDBManager::Frac2Orth.
+   // mmdb::Manager::Orth2Frac Orthogonal-to-fractional transformation
+   // of coordinates and mmdb::Manager::Frac2Orth.
    //
    // mind-bogglingly ugly code necessary to use an CMMDBCryst (we can't just use
    // the simple object because the destructor will crush it).
    // 
    // PCMMDBCryst my_cryst_p = (CMMDBCryst *) &(AtomSel.mol->get_cell());
 
-   realtype u, v, w;
+   mmdb::realtype u, v, w;
 
    // 20031105 Well, we don't need PCMMDBCryst my_cryst_p, we can use
    // the function at the mmdb manager level
@@ -604,14 +604,14 @@ molecule_extents_t::coord_to_unit_cell_translations(coot::Cartesian point,
 // of my screaming at this concept: ARRRRRRRGGGHHH!
 //
 // I tried getting round this by passing the mat44, but that gives problems
-// because a mat44 is not a class it is a typedef realtype[4][4] and you
+// because a mat44 is not a class it is a typedef mmdb::realtype[4][4] and you
 // can't pass arguments and create functions that return arguments of
 // that type.  Arrrrgh!
 //
 // I am also angry because it just takes *so long* to track down problems
 // with mmdb.
 //
-// And here's another thing: look at atom1.Copy(Pmmdb::Atom atom2).  Now,
+// And here's another thing: look at atom1.Copy(mmdb::PAtom atom2).  Now,
 // does that copy inside to out (atom2 to atom1) or the other way
 // round (atom 1 to atom2)?  Impossible to tell without const.  It
 // would have been so much easier to say atom2 = atom1.Copy(); but no,
@@ -628,7 +628,7 @@ molecule_extents_t::trans_sel(CMMDBCryst *my_cryst,
 			      symm_trans_t symm_trans) const {
 
    mmdb::Atom atom;
-   mmdb::PPAtom trans_selection = new Pmmdb::Atom[6];
+   mmdb::PPAtom trans_selection = new mmdb::PAtom[6];
    mat44 my_matt;
    
    // Modify my_matt so that it is a coordinate transformation
@@ -650,11 +650,11 @@ molecule_extents_t::trans_sel(CMMDBCryst *my_cryst,
 }
 
 mmdb::PPAtom
-molecule_extents_t::trans_sel(CMMDBManager *mol,
+molecule_extents_t::trans_sel(mmdb::Manager *mol,
 			      const symm_trans_t &symm_trans) const {
 
    mmdb::Atom atom;
-   mmdb::PPAtom trans_selection = new Pmmdb::Atom[6];
+   mmdb::PPAtom trans_selection = new mmdb::PAtom[6];
    mat44 my_matt;
    
    // Modify my_matt so that it is a coordinate transformation
@@ -682,11 +682,11 @@ molecule_extents_t::trans_sel(CMMDBManager *mol,
 // the cell shifts.
 // 
 mmdb::PPAtom
-molecule_extents_t::trans_sel(CMMDBManager *mol, mat44 my_mat,
+molecule_extents_t::trans_sel(mmdb::Manager *mol, mat44 my_mat,
 			      int x_shift, int y_shift, int z_shift) const {
 
    mmdb::Atom atom;
-   mmdb::PPAtom trans_selection = new Pmmdb::Atom[6];
+   mmdb::PPAtom trans_selection = new mmdb::PAtom[6];
    
    // Modify my_matt so that it is a coordinate transformation
    // matrix.
@@ -734,7 +734,7 @@ molecule_extents_t::trans_sel(CMMDBManager *mol, mat44 my_mat,
 // multiply by s_t
 //
 coot::trans_selection_t
-molecule_extents_t::trans_sel_o(CMMDBManager *mol, const symm_trans_t &symm_trans) const {
+molecule_extents_t::trans_sel_o(mmdb::Manager *mol, const symm_trans_t &symm_trans) const {
 
    coot::trans_selection_t t;
    mmdb::Atom atom;
@@ -1003,7 +1003,7 @@ translated_atoms(atom_selection_container_t AtomSel,
 	   << endl;
    }
       
-   mmdb::PPAtom trans_selection = new Pmmdb::Atom[AtomSel.n_selected_atoms];
+   mmdb::PPAtom trans_selection = new mmdb::PAtom[AtomSel.n_selected_atoms];
    for (int ii=0; ii<AtomSel.n_selected_atoms; ii++) {
 
       trans_selection[ii] = new mmdb::Atom;
@@ -1037,7 +1037,7 @@ coot::Cartesian translate_atom(atom_selection_container_t AtomSel, int ii,
 	   << endl;
    }
 
-   Pmmdb::Atom trans_atom = new mmdb::Atom;
+   mmdb::PAtom trans_atom = new mmdb::Atom;
 
    trans_atom->Copy(AtomSel.atom_selection[ii]);
    trans_atom->Transform(my_matt);

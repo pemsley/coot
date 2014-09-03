@@ -74,7 +74,7 @@ void
 debug_atom_selection_container(atom_selection_container_t asc) {
 
    //
-   Pmmdb::Atom ap;
+   mmdb::PAtom ap;
    
    cout << "DEBUG: asc " << "mol=" << asc.mol << endl;
    cout << "DEBUG: asc " << "n_selected_atoms=" << asc.n_selected_atoms << endl;
@@ -127,10 +127,10 @@ int check_ccp4_symm() {
 } 
 
 atom_selection_container_t
-make_asc(CMMDBManager *mol) {
+make_asc(mmdb::Manager *mol) {
 
    atom_selection_container_t asc;
-   asc.mol = (MyCMMDBManager *) mol;
+   asc.mol = (Mymmdb::Manager *) mol;
    
    asc.SelectionHandle = mol->NewSelection();
    asc.mol->SelectAtoms (asc.SelectionHandle, 0, "*",
@@ -259,7 +259,7 @@ coot::deep_copy_this_residue(mmdb::Residue *residue,
 // or has an altLoc of "".
 // 
 std::pair<mmdb::Residue *, atom_selection_container_t>
-coot::deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
+coot::deep_copy_this_residue_and_make_asc(mmdb::Manager *orig_mol,
 					  mmdb::Residue *residue,
 					  const std::string &altconf,
 					  short int whole_residue_flag,
@@ -320,8 +320,8 @@ coot::deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
 
    // urgh.  This consting business makes a mess.
    mmdb::Residue *r = (mmdb::Residue *)residue;
-   Pmmdb::Residue *SelResidues = &r;
-   std::pair<CMMDBManager *, int> mol_i =
+   mmdb::PResidue *SelResidues = &r;
+   std::pair<mmdb::Manager *, int> mol_i =
       coot::util::create_mmdbmanager_from_res_selection(orig_mol, SelResidues,
 							1, 0, 0, altconf, chain_id1, 1);
 
@@ -598,7 +598,7 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
 }
 
 template <class T>
-coot::contact_info::contact_info(CMMDBManager *mol, int selhnd,
+coot::contact_info::contact_info(mmdb::Manager *mol, int selhnd,
 				 const std::vector<T> &link_torsions,
 				 coot::protein_geometry *geom_p) {
 
@@ -632,7 +632,7 @@ coot::contact_info::contact_info(CMMDBManager *mol, int selhnd,
 
 
 // instantiate that:
-template coot::contact_info::contact_info(CMMDBManager *mol, int selhnd,
+template coot::contact_info::contact_info(mmdb::Manager *mol, int selhnd,
 				 const std::vector<coot::torsion_atom_quad> &link_torsions,
 				 coot::protein_geometry *geom_p);
 
@@ -766,36 +766,36 @@ void
 coot::contact_info::setup_atom_radii() {
 
    atom_radii.resize(23);
-   atom_radii[ 0] = std::pair<std::string, realtype> (" C", 0.77);
-   atom_radii[ 1] = std::pair<std::string, realtype> (" N", 0.65);
-   atom_radii[ 2] = std::pair<std::string, realtype> (" O", 0.6);
-   atom_radii[ 3] = std::pair<std::string, realtype> (" H", 0.35);
-   // atom_radii[ 4] = std::pair<std::string, realtype> (" S", 0.9);
-   atom_radii[ 4] = std::pair<std::string, realtype> (" S", 1.1); // S-S bonds 2.16A?
-   atom_radii[ 5] = std::pair<std::string, realtype> (" P", 1.0);
-   atom_radii[ 6] = std::pair<std::string, realtype> ("SE", 1.15);
-   atom_radii[ 7] = std::pair<std::string, realtype> ("BR", 1.15);
-   atom_radii[ 8] = std::pair<std::string, realtype> ("CL", 1.0);
-   atom_radii[ 9] = std::pair<std::string, realtype> (" I", 1.4);
-   atom_radii[10] = std::pair<std::string, realtype> (" F", 0.5);
-   atom_radii[11] = std::pair<std::string, realtype> (" K", 2.2);
-   atom_radii[12] = std::pair<std::string, realtype> ("AS", 1.3);
-   atom_radii[13] = std::pair<std::string, realtype> ("NA", 1.8);
-   atom_radii[14] = std::pair<std::string, realtype> ("MG", 1.5);
-   atom_radii[15] = std::pair<std::string, realtype> ("AU", 1.4);
-   atom_radii[16] = std::pair<std::string, realtype> ("BE", 1.05);
-   atom_radii[17] = std::pair<std::string, realtype> ("FE", 1.4);
-   atom_radii[18] = std::pair<std::string, realtype> ("ZN", 1.35);
-   atom_radii[19] = std::pair<std::string, realtype> ("PD", 1.6);
-   atom_radii[20] = std::pair<std::string, realtype> ("PB", 1.46);
-   atom_radii[21] = std::pair<std::string, realtype> ("PT", 1.46);
-   atom_radii[22] = std::pair<std::string, realtype> ("AG", 1.36);
+   atom_radii[ 0] = std::pair<std::string, mmdb::realtype> (" C", 0.77);
+   atom_radii[ 1] = std::pair<std::string, mmdb::realtype> (" N", 0.65);
+   atom_radii[ 2] = std::pair<std::string, mmdb::realtype> (" O", 0.6);
+   atom_radii[ 3] = std::pair<std::string, mmdb::realtype> (" H", 0.35);
+   // atom_radii[ 4] = std::pair<std::string, mmdb::realtype> (" S", 0.9);
+   atom_radii[ 4] = std::pair<std::string, mmdb::realtype> (" S", 1.1); // S-S bonds 2.16A?
+   atom_radii[ 5] = std::pair<std::string, mmdb::realtype> (" P", 1.0);
+   atom_radii[ 6] = std::pair<std::string, mmdb::realtype> ("SE", 1.15);
+   atom_radii[ 7] = std::pair<std::string, mmdb::realtype> ("BR", 1.15);
+   atom_radii[ 8] = std::pair<std::string, mmdb::realtype> ("CL", 1.0);
+   atom_radii[ 9] = std::pair<std::string, mmdb::realtype> (" I", 1.4);
+   atom_radii[10] = std::pair<std::string, mmdb::realtype> (" F", 0.5);
+   atom_radii[11] = std::pair<std::string, mmdb::realtype> (" K", 2.2);
+   atom_radii[12] = std::pair<std::string, mmdb::realtype> ("AS", 1.3);
+   atom_radii[13] = std::pair<std::string, mmdb::realtype> ("NA", 1.8);
+   atom_radii[14] = std::pair<std::string, mmdb::realtype> ("MG", 1.5);
+   atom_radii[15] = std::pair<std::string, mmdb::realtype> ("AU", 1.4);
+   atom_radii[16] = std::pair<std::string, mmdb::realtype> ("BE", 1.05);
+   atom_radii[17] = std::pair<std::string, mmdb::realtype> ("FE", 1.4);
+   atom_radii[18] = std::pair<std::string, mmdb::realtype> ("ZN", 1.35);
+   atom_radii[19] = std::pair<std::string, mmdb::realtype> ("PD", 1.6);
+   atom_radii[20] = std::pair<std::string, mmdb::realtype> ("PB", 1.46);
+   atom_radii[21] = std::pair<std::string, mmdb::realtype> ("PT", 1.46);
+   atom_radii[22] = std::pair<std::string, mmdb::realtype> ("AG", 1.36);
 }
 
-realtype
+mmdb::realtype
 coot::contact_info::get_radius(const std::string &element) const {
 
-   realtype r = 0.9;
+   mmdb::realtype r = 0.9;
    for (unsigned int i=0; i<atom_radii.size(); i++) {
       if (atom_radii[i].first == element) {
 	 r = atom_radii[i].second;

@@ -48,7 +48,7 @@ int test_parallel_plane_restraints() {
 
    int status = 0;
    testing_data t;
-   CMMDBManager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new CMMDBManager;
    int ierr = mol->ReadPDBASCII("3tu4-test-37,38.pdb");
    std::cout << "ReadPDBASCII() returned " << ierr << std::endl;
 

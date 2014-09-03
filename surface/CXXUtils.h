@@ -19,10 +19,10 @@ class CXXChargeTable;
 
 namespace CXXUtils{
 	
-	int assignUnitedAtomRadius(PCMMDBManager, int selHnd);
-	int assignCharge(PCMMDBManager theManager, int selHnd, CXXChargeTable *theChargeTable);
-	int selectionStringToSelHnd(PCMMDBManager allAtomsManager_in, std::string selectionString, int existingSelection=-1, int selKeyRequest=SKEY_NEW);
-	int unCharge(PCMMDBManager theManager,int selHnd);
+	int assignUnitedAtomRadius(mmdb::PManager, int selHnd);
+	int assignCharge(mmdb::PManager theManager, int selHnd, CXXChargeTable *theChargeTable);
+	int selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::string selectionString, int existingSelection=-1, int selKeyRequest=SKEY_NEW);
+	int unCharge(mmdb::PManager theManager,int selHnd);
 	void reformatAtomRadii();
 	
 	typedef struct AtomRadius_{

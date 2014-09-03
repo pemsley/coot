@@ -670,8 +670,8 @@ void build_beta_surface(CMMANManager *molH, int atom_selHnd_in, Displayobject &o
   //PolyCollection *polys = new PolyCollection();
   for(int j=0;j<nAtoms;j++){
     if(atomTable[j]->isInSelection(CAselHnd) && molH->isAminoacid(atomTable[j]->residue)){
-      Pmmdb::Atom pCA = atomTable[j];
-      Pmmdb::Residue pRes = pCA->residue;
+      mmdb::PAtom pCA = atomTable[j];
+      mmdb::PResidue pRes = pCA->residue;
       // Save the CA pointer
       if(int(pRes->SSE)== SSE_Strand || int(pRes->SSE)== SSE_Bulge){
         cavertices.push_back(Cartesian(pCA->x,pCA->y,pCA->z));
@@ -1303,7 +1303,7 @@ void ConnectivityDraw::RedrawPrimitives(Displayobject &obj, int mode, const CPar
 
 }
 
-std::vector<Cartesian> GetLineThroughBasePairs(Pmmdb::Residue res1, Pmmdb::Residue res2){
+std::vector<Cartesian> GetLineThroughBasePairs(mmdb::PResidue res1, Pmmdb::Residue res2){
   int natoms1;
   mmdb::PPAtom atoms1=0;
   res1->GetAtomTable1(atoms1,natoms1);
@@ -1391,13 +1391,13 @@ std::vector<Cartesian> GetLineThroughBasePairs(Pmmdb::Residue res1, Pmmdb::Resid
 Cartesian GetClosestSplinePoint(const std::vector<Cartesian> &carts, const SplineInfo &splineinfo);
 Cartesian GetClosestSplinePoint(const Cartesian &cart, const SplineInfo &splineinfo);
 
-std::vector<Cartesian> GetBasePairEnds(Pmmdb::Residue res1, Pmmdb::Residue res2, const SplineInfo &splineinfo){
+std::vector<Cartesian> GetBasePairEnds(mmdb::PResidue res1, Pmmdb::Residue res2, const SplineInfo &splineinfo){
   std::vector<Cartesian> carts(2);
-  Pmmdb::Atom c11 = res1->GetAtom("C1\'");
-  Pmmdb::Atom c21 = res1->GetAtom("C2\'");
-  Pmmdb::Atom c31 = res1->GetAtom("C3\'");
-  Pmmdb::Atom c41 = res1->GetAtom("C4\'");
-  Pmmdb::Atom o41 = res1->GetAtom("O4\'");
+  mmdb::PAtom c11 = res1->GetAtom("C1\'");
+  mmdb::PAtom c21 = res1->GetAtom("C2\'");
+  mmdb::PAtom c31 = res1->GetAtom("C3\'");
+  mmdb::PAtom c41 = res1->GetAtom("C4\'");
+  mmdb::PAtom o41 = res1->GetAtom("O4\'");
 
   if(!c11) c11 = res1->GetAtom("C1*");
   if(!c21) c21 = res1->GetAtom("C2*");
@@ -1405,11 +1405,11 @@ std::vector<Cartesian> GetBasePairEnds(Pmmdb::Residue res1, Pmmdb::Residue res2,
   if(!c41) c41 = res1->GetAtom("C4*");
   if(!o41) o41 = res1->GetAtom("O4*");
 
-  Pmmdb::Atom c12 = res2->GetAtom("C1\'");
-  Pmmdb::Atom c22 = res2->GetAtom("C2\'");
-  Pmmdb::Atom c32 = res2->GetAtom("C3\'");
-  Pmmdb::Atom c42 = res2->GetAtom("C4\'");
-  Pmmdb::Atom o42 = res2->GetAtom("O4\'");
+  mmdb::PAtom c12 = res2->GetAtom("C1\'");
+  mmdb::PAtom c22 = res2->GetAtom("C2\'");
+  mmdb::PAtom c32 = res2->GetAtom("C3\'");
+  mmdb::PAtom c42 = res2->GetAtom("C4\'");
+  mmdb::PAtom o42 = res2->GetAtom("O4\'");
 
   if(!c11) c12 = res2->GetAtom("C1*");
   if(!c21) c22 = res2->GetAtom("C2*");
@@ -1417,9 +1417,9 @@ std::vector<Cartesian> GetBasePairEnds(Pmmdb::Residue res1, Pmmdb::Residue res2,
   if(!c41) c42 = res2->GetAtom("C4*");
   if(!o41) o42 = res2->GetAtom("O4*");
 
-  Pmmdb::Atom c51 = res1->GetAtom("C5\'");
+  mmdb::PAtom c51 = res1->GetAtom("C5\'");
   if(!c51) c51 = res1->GetAtom("C5*");
-  Pmmdb::Atom c52 = res2->GetAtom("C5\'");
+  mmdb::PAtom c52 = res2->GetAtom("C5\'");
   if(!c52) c52 = res2->GetAtom("C5*");
 
   if(c11&&c21&&c31&&c41&&o41&&c12&&c22&&c32&&c42&&o42){
@@ -1477,17 +1477,17 @@ std::vector<Cartesian> GetBasePairEnds(Pmmdb::Residue res1, Pmmdb::Residue res2,
   return carts;
 }
 
-void DrawBaseBlock(PolyCollection *polys, Pmmdb::Residue res1, double *col1, const CParamsManager &params ){
+void DrawBaseBlock(PolyCollection *polys, mmdb::PResidue res1, double *col1, const CParamsManager &params ){
 
     float thickness = params.GetFloat("cylinder_width")-0.02;
     if (thickness<0.02)thickness=0.1;
  
-    Pmmdb::Atom n1 = res1->GetAtom("N1");
-    Pmmdb::Atom c2 = res1->GetAtom("C2");
-    Pmmdb::Atom n3 = res1->GetAtom("N3");
-    Pmmdb::Atom c4 = res1->GetAtom("C4");
-    Pmmdb::Atom c5 = res1->GetAtom("C5");
-    Pmmdb::Atom c6 = res1->GetAtom("C6");
+    mmdb::PAtom n1 = res1->GetAtom("N1");
+    mmdb::PAtom c2 = res1->GetAtom("C2");
+    mmdb::PAtom n3 = res1->GetAtom("N3");
+    mmdb::PAtom c4 = res1->GetAtom("C4");
+    mmdb::PAtom c5 = res1->GetAtom("C5");
+    mmdb::PAtom c6 = res1->GetAtom("C6");
 
     if(n1&&c2&&n3&&c4&&c5&&c6){
       Cartesian n1cart(n1->x,n1->y,n1->z);
@@ -1559,9 +1559,9 @@ void DrawBaseBlock(PolyCollection *polys, Pmmdb::Residue res1, double *col1, con
       quad = new QuadElement(carts,col1,Cartesian::MidPoint(carts),1.0);
       polys->add_primitive(quad);
 
-      Pmmdb::Atom n9 = res1->GetAtom("N9");
-      Pmmdb::Atom c8 = res1->GetAtom("C8");
-      Pmmdb::Atom n7 = res1->GetAtom("N7");
+      mmdb::PAtom n9 = res1->GetAtom("N9");
+      mmdb::PAtom c8 = res1->GetAtom("C8");
+      mmdb::PAtom n7 = res1->GetAtom("N7");
       if(n9&&c8&&n7){
         Cartesian n9cart(n9->x,n9->y,n9->z);
         Cartesian c8cart(c8->x,c8->y,c8->z);
@@ -1635,7 +1635,7 @@ void DrawBaseBlocks(Displayobject &obj, CMMANManager *molHnd, int selHnd, mmdb::
   molHnd->Select(C5sel,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","C5'","C","*",SKEY_OR);
   for(int ii=0;ii<nSelAtoms;ii++){
     if(selAtoms[ii]->isInSelection(C5sel)){
-      Pmmdb::Residue res = selAtoms[ii]->GetResidue();
+      mmdb::PResidue res = selAtoms[ii]->GetResidue();
       if(res){
         int restype = molHnd->GetRestypeCode(res);
 	//std::cout << res->name << " " << restype << std::endl;
@@ -1815,7 +1815,7 @@ Cartesian GetClosestSplinePoint(const std::vector<Cartesian> &carts, const Splin
 }
 
 void DrawBasePairs(Displayobject &obj, const CNABasePairs &bp, const SplineInfo &splineinfo, const CParamsManager &params){
-  std::vector<std::pair<Pmmdb::Residue,Pmmdb::Residue> > base_pairs = bp.GetPairs();
+  std::vector<std::pair<mmdb::PResidue,Pmmdb::Residue> > base_pairs = bp.GetPairs();
   std::vector<std::pair<double*,double*> > colours = bp.GetColours();
   PolyCollection *polys = new PolyCollection();
   double cylinders_size = params.GetFloat("nucleic_stick_width");
@@ -1824,8 +1824,8 @@ void DrawBasePairs(Displayobject &obj, const CNABasePairs &bp, const SplineInfo 
   int cylinders_accu = 8;
 
   for(unsigned ii=0;ii<base_pairs.size();ii++){
-    Pmmdb::Residue res1 = base_pairs[ii].first;
-    Pmmdb::Residue res2 = base_pairs[ii].second;
+    mmdb::PResidue res1 = base_pairs[ii].first;
+    mmdb::PResidue res2 = base_pairs[ii].second;
     double *col1 = colours[ii].first;
     double *col2 = colours[ii].second;
 

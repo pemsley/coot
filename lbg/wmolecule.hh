@@ -555,11 +555,11 @@ private:
 
    // This uses mmdb and clipper, so is not in lig-build.hh
    // 
-   std::string get_atom_name(const clipper::Coord_orth &pt, CMMDBManager *mol) const;
+   std::string get_atom_name(const clipper::Coord_orth &pt, mmdb::Manager *mol) const;
 
 public:
    widgeted_molecule_t() { init(); }
-   widgeted_molecule_t(const lig_build::molfile_molecule_t &mol_in, CMMDBManager *pdb_mol);
+   widgeted_molecule_t(const lig_build::molfile_molecule_t &mol_in, mmdb::Manager *pdb_mol);
 
    // return 0 as first if not highlighting a bond
    std::pair<bool, widgeted_bond_t> highlighted_bond_p(int x, int y) const;

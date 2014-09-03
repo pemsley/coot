@@ -96,13 +96,13 @@ namespace coot {
 
    class h_bonds {
       // return the udd handle (donor, acceptors and HB hydrogens, that is)
-      int  mark_donors_and_acceptors(int donor_selHnd, int acceptor_selHnd, CMMDBManager *mol,
+      int  mark_donors_and_acceptors(int donor_selHnd, int acceptor_selHnd, mmdb::Manager *mol,
 				     const protein_geometry &geom);
       
       // What is the nearest neighbour of the atoms in mol?
       // 
       std::map<mmdb::Atom *,  std::vector<std::pair<mmdb::Atom *, float> > >
-      make_neighbour_map(int selHnd_1, int selHnd_2, CMMDBManager *mol);
+      make_neighbour_map(int selHnd_1, int selHnd_2, mmdb::Manager *mol);
       
       std::pair<bool, h_bond> 
       make_h_bond_from_ligand_hydrogen(mmdb::Atom *at_1, // H on ligand
@@ -119,12 +119,12 @@ namespace coot {
       h_bonds() {}
       
       std::vector<h_bond>
-      get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const protein_geometry &geom);
+      get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const protein_geometry &geom);
 
       std::vector<h_bond>
-      get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManager *mol,
+      get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manager *mol,
 				const protein_geometry &geom,
-				realtype max_dist =3.9);
+				mmdb::realtype max_dist =3.9);
 
       // Check that some (formally, at least one) of the atoms have a defined HB status
       // (energy_lib_atom hb_t).
@@ -132,7 +132,7 @@ namespace coot {
       // Return the hb_type_udd_handle as second.
       // 
       std::pair<bool, int>
-      check_hb_status(int selhnd, CMMDBManager *mol, const protein_geometry &geom); 
+      check_hb_status(int selhnd, mmdb::Manager *mol, const protein_geometry &geom); 
       
       class atom_sorter {
 	 mmdb::Atom *at;

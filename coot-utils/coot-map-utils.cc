@@ -1420,7 +1420,7 @@ coot::util::segment_map::path_to_peak(const clipper::Coord_grid &start_point,
 // pass a negative atom_selection_handle to build an atom map for the whole molecule
 // 
 clipper::Xmap<float>
-coot::util::calc_atom_map(CMMDBManager *mol,
+coot::util::calc_atom_map(mmdb::Manager *mol,
 			  int atom_selection_handle,
 			  const clipper::Cell &cell,
 			  const clipper::Spacegroup &space_group,
@@ -1495,7 +1495,7 @@ coot::util::calc_atom_map(CMMDBManager *mol,
 // 5: side-chain atoms if is standard amino-acid, else nothing
 // 
 float
-coot::util::map_to_model_correlation(CMMDBManager *mol,
+coot::util::map_to_model_correlation(mmdb::Manager *mol,
 				     const std::vector<residue_spec_t> &specs,
 				     const std::vector<residue_spec_t> &specs_for_masking_neighbs,
 				     unsigned short int atom_mask_mode,
@@ -1826,7 +1826,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 //    4: nothing
 //    5: nothing
 std::vector<std::pair<coot::residue_spec_t, float> >
-coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
+coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
 						 const std::vector<coot::residue_spec_t> &specs,
 						 unsigned short int atom_mask_mode,
 						 float atom_radius, // for masking 
@@ -2007,7 +2007,7 @@ coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
 // Input maps is a difference map, return a vector of doubles for a plot
 // 
 std::vector<std::pair<double, double> >
-coot::util::qq_plot_for_map_over_model(CMMDBManager *mol,
+coot::util::qq_plot_for_map_over_model(mmdb::Manager *mol,
 				       const std::vector<coot::residue_spec_t> &specs,
 				       const std::vector<coot::residue_spec_t> &nb_residues,
 				       int atom_mask_mode,
@@ -2091,7 +2091,7 @@ coot::util::qq_plot_for_map_over_model(CMMDBManager *mol,
 // caller deletes the selection!
 int
 coot::util::specs_to_atom_selection(const std::vector<coot::residue_spec_t> &specs,
-				    CMMDBManager *mol,
+				    mmdb::Manager *mol,
 				    int atom_mask_mode) {
 
    int SelHnd = -1;

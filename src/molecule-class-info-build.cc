@@ -235,7 +235,7 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 
 	    make_backup();
 
-	    CMMDBManager *mol = atom_sel.mol;
+	    mmdb::Manager *mol = atom_sel.mol;
 	 
 	    CLink *link = new CLink; // sym ids default to 1555 1555
 

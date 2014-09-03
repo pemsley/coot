@@ -82,7 +82,7 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 			    << std::endl;
 	       } else { 
 		  int nres = chain_p->GetNumberOfResidues();
-		  Pmmdb::Residue residue_p;
+		  mmdb::PResidue residue_p;
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);
 		     std::string residue_name(residue_p->GetResName());

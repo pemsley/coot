@@ -869,7 +869,7 @@ coot::rama_plot::draw_phi_psi_points_for_model(const coot::phi_psis_for_model_t 
 // fill phi_psi vector
 //
 void
-coot::rama_plot::generate_phi_psis(CMMDBManager *mol_in) {
+coot::rama_plot::generate_phi_psis(mmdb::Manager *mol_in) {
    if (mol_in) { 
       bool is_primary = 1;
       generate_phi_psis(mol_in, is_primary);
@@ -879,7 +879,7 @@ coot::rama_plot::generate_phi_psis(CMMDBManager *mol_in) {
 // fill phi_psi vector
 //
 void
-coot::rama_plot::generate_secondary_phi_psis(CMMDBManager *mol_in) {
+coot::rama_plot::generate_secondary_phi_psis(mmdb::Manager *mol_in) {
    if (mol_in) { 
       bool is_primary = 0;
       generate_phi_psis(mol_in, is_primary);
@@ -890,7 +890,7 @@ coot::rama_plot::generate_secondary_phi_psis(CMMDBManager *mol_in) {
 // fill phi_psi vector
 //
 void
-coot::rama_plot::generate_phi_psis(CMMDBManager *mol_in, bool is_primary) {
+coot::rama_plot::generate_phi_psis(mmdb::Manager *mol_in, bool is_primary) {
 
    int n_models = mol_in->GetNumberOfModels();
    phi_psi_model_sets.clear();
@@ -940,7 +940,7 @@ coot::rama_plot::generate_phi_psis(CMMDBManager *mol_in, bool is_primary) {
 }
 
 void
-coot::rama_plot::generate_phi_psis_by_selection(CMMDBManager *mol,
+coot::rama_plot::generate_phi_psis_by_selection(mmdb::Manager *mol,
 						bool is_primary,
 						int SelectionHandle) {
 
@@ -953,7 +953,7 @@ coot::rama_plot::generate_phi_psis_by_selection(CMMDBManager *mol,
       coot::phi_psis_for_model_t empty(0);
       secondary_phi_psi_model_sets.push_back(empty);
    }
-   Pmmdb::Residue *residues = NULL;
+   mmdb::PResidue *residues = NULL;
    int n_residues;
    mol->GetSelIndex(SelectionHandle, residues, n_residues);
    coot::phi_psis_for_model_t model_phi_psis(1); // model 1.
@@ -1412,14 +1412,14 @@ coot::rama_plot::tooltip_like_box(const mouse_util_t &t) {
 // existed in the both the first and seconde molecules).
 //
 coot::util::phi_psi_pair_helper_t
-coot::rama_plot::make_phi_psi_pair(CMMDBManager *mol1,
-				   CMMDBManager *mol2,
+coot::rama_plot::make_phi_psi_pair(mmdb::Manager *mol1,
+				   mmdb::Manager *mol2,
 				   const std::string &chain_id1,
 				   const std::string &chain_id2,
 				   int i_seq_num,
 				   const std::string &ins_code) const {
-   Pmmdb::Residue *SelResidue1;
-   Pmmdb::Residue *SelResidue2;
+   mmdb::PResidue *SelResidue1;
+   mmdb::PResidue *SelResidue2;
    int nSelResidues1, nSelResidues2;
    coot::util::phi_psi_pair_helper_t r;
    r.is_valid_pair_flag = 0;
@@ -1477,7 +1477,7 @@ coot::rama_plot::make_phi_psi_pair(CMMDBManager *mol1,
 
 // SelResidue is guaranteed to have 3 residues (there is no protection
 // for that in this function).
-std::pair<bool, coot::util::phi_psi_t> coot::rama_plot::get_phi_psi(Pmmdb::Residue *SelResidue) const {
+std::pair<bool, coot::util::phi_psi_t> coot::rama_plot::get_phi_psi(mmdb::PResidue *SelResidue) const {
    return coot::util::get_phi_psi(SelResidue);
 }
 
@@ -1498,7 +1498,7 @@ coot::rama_plot::draw_phi_psis_on_canvas(char *filename) {
 
    // or however you want to get your mmdbmanager
    // 
-   CMMDBManager *mol = rama_get_mmdb_manager(filename); 
+   mmdb::Manager *mol = rama_get_mmdb_manager(filename); 
 
    if (mol) { 
       // put the results in the *primary* list
@@ -1512,7 +1512,7 @@ coot::rama_plot::draw_phi_psis_on_canvas(char *filename) {
 
 
 void
-coot::rama_plot::draw_it(CMMDBManager *mol) {
+coot::rama_plot::draw_it(mmdb::Manager *mol) {
 
    if (mol) { 
       display_background();
@@ -1526,7 +1526,7 @@ coot::rama_plot::draw_it(CMMDBManager *mol) {
 
 void
 coot::rama_plot::draw_it(int imol1, int imol2,
-			 CMMDBManager *mol1, CMMDBManager *mol2) {
+			 mmdb::Manager *mol1, CMMDBManager *mol2) {
 
    molecule_numbers_ = std::pair<int, int> (imol1, imol2); // save for later
    display_background();
@@ -1537,13 +1537,13 @@ coot::rama_plot::draw_it(int imol1, int imol2,
       hide_stats_frame();
 }
 
-// the CMMDBManager could have gone out of date when we come to redraw
+// the mmdb::Manager could have gone out of date when we come to redraw
 // the widget after refinement, so we pass the imol1 and imol2 so that
 // we can ask globjects if the molecule numbers are still valid.
 // 
 void
 coot::rama_plot::draw_it(int imol1, int imol2,
-			 CMMDBManager *mol1, CMMDBManager *mol2,
+			 mmdb::Manager *mol1, CMMDBManager *mol2,
 			 const std::string &chain_id_1, const std::string &chain_id_2) {
 
    molecule_numbers_ = std::pair<int, int> (imol1, imol2); // save for later
@@ -1564,8 +1564,8 @@ coot::rama_plot::draw_it(int imol1, int imol2,
 // 
 void
 coot::rama_plot::set_seqnum_offset(int imol1, int imol2,
-				   CMMDBManager *mol1,
-				   CMMDBManager *mol2,
+				   mmdb::Manager *mol1,
+				   mmdb::Manager *mol2,
 				   const std::string &chain_id_1,
 				   const std::string &chain_id_2) {
 
@@ -1583,7 +1583,7 @@ coot::rama_plot::set_seqnum_offset(int imol1, int imol2,
 	    chain_p_1 = model_p_1->GetChain(ichain_1);
 	    if (chain_id_1 == chain_p_1->GetChainID()) {
 	       int nres_1 = chain_p_1->GetNumberOfResidues();
-	       Pmmdb::Residue residue_p_1;
+	       mmdb::PResidue residue_p_1;
 	       if (nres_1 > 0) {
 		  residue_p_1 = chain_p_1->GetResidue(0);
 		  mmdb::Model *model_p_2 = mol2->GetModel(imod);
@@ -1593,7 +1593,7 @@ coot::rama_plot::set_seqnum_offset(int imol1, int imol2,
 		     chain_p_2 = model_p_2->GetChain(ichain_2);
 		     if (chain_id_2 == chain_p_2->GetChainID()) {
 			int nres_2 = chain_p_2->GetNumberOfResidues();
-			Pmmdb::Residue residue_p_2;
+			mmdb::PResidue residue_p_2;
 			if (nres_2 > 0) {
 			   residue_p_2 = chain_p_2->GetResidue(0);
 
@@ -1709,8 +1709,8 @@ coot::rama_plot::draw_it(const std::vector<coot::util::phi_psi_t> &phi_psi_s) {
 }
 
 void 
-coot::rama_plot::draw_2_phi_psi_sets_on_canvas(CMMDBManager *mol1, 
-					       CMMDBManager *mol2) { 
+coot::rama_plot::draw_2_phi_psi_sets_on_canvas(mmdb::Manager *mol1, 
+					       mmdb::Manager *mol2) { 
 
 
    // Are you sure that you want to edit this function? (not the one below?)
@@ -1737,8 +1737,8 @@ coot::rama_plot::draw_2_phi_psi_sets_on_canvas(CMMDBManager *mol1,
 
 // Kleywegt plots call this function
 void 
-coot::rama_plot::draw_2_phi_psi_sets_on_canvas(CMMDBManager *mol1, 
-					       CMMDBManager *mol2,
+coot::rama_plot::draw_2_phi_psi_sets_on_canvas(mmdb::Manager *mol1, 
+					       mmdb::Manager *mol2,
 					       std::string chainid1,
 					       std::string chainid2) {
 
@@ -2217,11 +2217,11 @@ coot::rama_plot::draw_axes() {
 
 
 
-CMMDBManager *
+mmdb::Manager *
 coot::rama_plot::rama_get_mmdb_manager(std::string pdb_name) {
 
    int err;
-   CMMDBManager* MMDBManager;
+   mmdb::Manager* MMDBManager;
 
    // Needed for the error message printing: 
    // MMDBManager->GetInputBuffer(S, lcount);
@@ -2233,7 +2233,7 @@ coot::rama_plot::rama_get_mmdb_manager(std::string pdb_name) {
    //
    InitMatType();
 
-   MMDBManager = new CMMDBManager;
+   MMDBManager = new mmdb::Manager;
 
    std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
    err = MMDBManager->ReadCoorFile((char *)pdb_name.c_str());

@@ -49,7 +49,7 @@ namespace coot_extras {
       bool is_mol_from_shelx_flag;
 
    public:
-      b_factor_analysis(const CMMDBManager *mol, bool is_from_shelx_ins_flag_in);
+      b_factor_analysis(const mmdb::Manager *mol, bool is_from_shelx_ins_flag_in);
       short int write_table(const std::string &filename,
 			    const std::string &pdb_filename,
 			    short int write_only_questionables_flag) const;

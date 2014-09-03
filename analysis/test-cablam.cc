@@ -11,7 +11,7 @@ int main(int argc, char **argv) {
       atom_selection_container_t asc = get_atom_selection(file_name, false);
 
       int n_selected_residues;
-      Pmmdb::Residue *SelResidues = 0;
+      mmdb::PResidue *SelResidues = 0;
       int selHnd = asc.mol->NewSelection();
       asc.mol->Select ( selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
 			"*", // Chain id

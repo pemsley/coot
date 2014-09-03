@@ -287,7 +287,7 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
    if (residue_p) {
       Pmmdb::Model   model;
       Pmmdb::Chain   chain;
-      // Pmmdb::Residue res = 0;
+      // mmdb::PResidue res = 0;
       CGraph    graph;
       PPCVertex V;
       PPCEdge   E;
@@ -437,7 +437,7 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
 // mol contains one residue in a hierarchy, the residue from which the
 // dictionary should be constructed.
 // 
-coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(CMMDBManager *mol) {
+coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(mmdb::Manager *mol) {
 
    mmdb::Residue *residue_p = NULL;
    filled_with_bond_order_data_only_flag = true; // it has nothing initially
@@ -2809,7 +2809,7 @@ coot::protein_geometry::add_planar_peptide_restraint() {
 
    std::string link_id = "TRANS";
    std::string plane_id = "plane3";
-   realtype dist_esd = 0.05;
+   mmdb::realtype dist_esd = 0.05;
 
    std::string atom_id; 
    std::vector<std::pair<int, std::string> > v;
@@ -3392,8 +3392,8 @@ coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_f
 
 	    if (flag_and_have_coords) { 
 	       mmdb::Atom *atom = new mmdb::Atom;
-	       realtype occ = 1.0;
-	       realtype b = 20.0;
+	       mmdb::realtype occ = 1.0;
+	       mmdb::realtype b = 20.0;
 	       std::string ele = atom_info[iat].type_symbol; // element
 	       atom->SetCoordinates(p.x(), p.y(), p.z(), occ, b);
 	       atom->SetAtomName(atom_info[iat].atom_id_4c.c_str());
@@ -3423,11 +3423,11 @@ coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_f
 
 
 
-CMMDBManager *
+mmdb::Manager *
 coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code,
 					    bool idealised_flag) {
 
-   CMMDBManager *mol = NULL;
+   mmdb::Manager *mol = NULL;
    mmdb::Residue *residue_p = get_residue(three_letter_code, idealised_flag);
    if (residue_p) { 
       mmdb::Chain *chain_p = new mmdb::Chain;
@@ -3435,7 +3435,7 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
       chain_p->AddResidue(residue_p);
       mmdb::Model *model_p = new mmdb::Model;
       model_p->AddChain(chain_p);
-      mol = new CMMDBManager;
+      mol = new mmdb::Manager;
       mol->AddModel(model_p);
    }
    return mol;

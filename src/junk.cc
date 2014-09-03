@@ -112,7 +112,7 @@ int toggle_active_mol(int imol) {
 			      at->altLoc);
 	 }
 
-realtype u, v, w;
+mmdb::realtype u, v, w;
       // get cell_trans_for_symm
       coot::Cartesian centre_point = centre_of_molecule();
       atom_sel.mol->Orth2Frac(centre_point.x(), centre_point.y(), centre_point.z(), u, v, w);
@@ -654,7 +654,7 @@ void add_to_history(std::vector<std::string> ls) {
       if () {
 	 // update the graph then 
 	 if (vr.size() > 0) {
-	    Pmmdb::Residue *selresidues[vr.size()];
+	    mmdb::PResidue *selresidues[vr.size()];
 	    for (int i=0; i<vr.size(); i++) {
 	       selresidues[i] = vr[i];
 	    }
@@ -1285,7 +1285,7 @@ coot::get_f_phi_columns(const std::string &filename) {
 	 chain_p = model_p->GetChain(ichain);
 	 if (to_chain == chain_p) { 
 	    int nres = chain_p->GetNumberOfResidues();
-	    Pmmdb::Residue residue_p;
+	    mmdb::PResidue residue_p;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = to_chain->GetResidue(ires);
 	       int resno = residue_p->GetSeqNum();
@@ -1360,7 +1360,7 @@ coot::get_f_phi_columns(const std::string &filename) {
 	    // of atoms, not chains).
 
 	    int nres = chain_p->GetNumberOfResidues();
-	    Pmmdb::Residue residue_p;
+	    mmdb::PResidue residue_p;
 	    mmdb::Atom *at = 0;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
@@ -1706,7 +1706,7 @@ int test_torsion_derivs() {
    geom.init_standard();
    int selHnd = atom_sel.mol->NewSelection();
    int nSelResidues; 
-   Pmmdb::Residue *SelResidues = NULL;
+   mmdb::PResidue *SelResidues = NULL;
    atom_sel.mol->Select(selHnd, STYPE_RESIDUE, 0,
 			chn,
 			resno-1, "",

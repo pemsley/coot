@@ -91,7 +91,7 @@ coot::CartesianPair
 screen_x_to_real_space_vector(GtkWidget *widget);
 coot::Cartesian screen_z_to_real_space_vector(GtkWidget *widget);
 
-std::string make_symm_atom_label_string(Pmmdb::Atom atom, symm_trans_t symm_trans);
+std::string make_symm_atom_label_string(mmdb::PAtom atom, symm_trans_t symm_trans);
 
 coot::Symm_Atom_Pick_Info_t symmetry_atom_pick();
 // used by symmetry_atom_pick():
@@ -107,8 +107,8 @@ fill_hybrid_atoms(std::vector<coot::clip_hybrid_atom> *hybrid_atoms,
 
 
 // now in molecule_class_info, where they should have been.
-/* std::string make_atom_label_string(Pmmdb::Atom atom); */
-/* std::string make_atom_label_string_old(Pmmdb::Atom atom); */
+/* std::string make_atom_label_string(mmdb::PAtom atom); */
+/* std::string make_atom_label_string_old(mmdb::PAtom atom); */
 
 
 

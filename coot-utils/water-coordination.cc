@@ -22,13 +22,13 @@
 #include <algorithm>
 #include "coot-coord-utils.hh"
 
-coot::util::water_coordination_t::water_coordination_t(CMMDBManager *mol, realtype radius) {
+coot::util::water_coordination_t::water_coordination_t(mmdb::Manager *mol, mmdb::realtype radius) {
 
    if (! mol)
       return; 
 
-   realtype min_dist = 0.5;
-   realtype max_dist = radius;
+   mmdb::realtype min_dist = 0.5;
+   mmdb::realtype max_dist = radius;
    
    mat44 my_matt;
    CSymOps symm;
@@ -38,9 +38,9 @@ coot::util::water_coordination_t::water_coordination_t(CMMDBManager *mol, realty
 	 my_matt[i][j] = 0.0;      
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
-   Pmmdb::Atom *water_selection = NULL;
+   mmdb::PAtom *water_selection = NULL;
    int n_water_atoms;
-   Pmmdb::Atom *atom_selection = NULL;
+   mmdb::PAtom *atom_selection = NULL;
    int n_selected_atoms;
    int SelHnd = mol->NewSelection();
    int SelHnd_waters = mol->NewSelection();
@@ -218,10 +218,10 @@ coot::util::water_coordination_t::sort_contacts_func(const coot::util::contact_a
 }
 
 void
-coot::util::water_coordination_t::add_contacts(CMMDBManager *mol, 
-					       Pmmdb::Atom *water_selection, int n_water_atoms, 
-					       Pmmdb::Atom *atom_selection, int n_selected_atoms,
-					       realtype min_dist, realtype max_dist,
+coot::util::water_coordination_t::add_contacts(mmdb::Manager *mol, 
+					       mmdb::PAtom *water_selection, int n_water_atoms, 
+					       mmdb::PAtom *atom_selection, int n_selected_atoms,
+					       mmdb::realtype min_dist, realtype max_dist,
 					       const mat44 &my_mat) {
 
    

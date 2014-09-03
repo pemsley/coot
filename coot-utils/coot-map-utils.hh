@@ -155,7 +155,7 @@ namespace coot {
 
       // pass a negative atom_selection to build an atom map for the whole molecule
       // 
-      clipper::Xmap<float> calc_atom_map(CMMDBManager *mol,
+      clipper::Xmap<float> calc_atom_map(mmdb::Manager *mol,
 					 int atom_selection_handle, 
 					 const clipper::Cell &cell,
 					 const clipper::Spacegroup &space_group,
@@ -169,7 +169,7 @@ namespace coot {
       // 2: side-chain atoms if is standard amino-acid, else all atoms
       // 3: side-chain atoms-exclusing CB if is standard amino-acid, else all atoms
       // 
-      float map_to_model_correlation(CMMDBManager *mol,
+      float map_to_model_correlation(mmdb::Manager *mol,
 				     const std::vector<residue_spec_t> &specs_for_correl,
 				     const std::vector<residue_spec_t> &specs_for_masking_neighbs,
 				     unsigned short int atom_mask_mode,
@@ -180,7 +180,7 @@ namespace coot {
       // the first of the pair contains the correlation for the given residue spec.
       // 
       std::vector<std::pair<residue_spec_t, float> >
-      map_to_model_correlation_per_residue(CMMDBManager *mol,
+      map_to_model_correlation_per_residue(mmdb::Manager *mol,
 					   const std::vector<residue_spec_t> &specs,
 					   unsigned short int atom_mask_mode,
 					   float atom_radius, // for masking 
@@ -215,7 +215,7 @@ namespace coot {
 
       // should this be here, or is it heavy?
       std::vector<std::pair<double, double> >
-      qq_plot_for_map_over_model(CMMDBManager *mol,
+      qq_plot_for_map_over_model(mmdb::Manager *mol,
 				 const std::vector<coot::residue_spec_t> &specs,
 				 const std::vector<coot::residue_spec_t> &nb_residues,
 				 int atom_mask_mode,
@@ -224,7 +224,7 @@ namespace coot {
       // caller deletes the selection!
       int
       specs_to_atom_selection(const std::vector<coot::residue_spec_t> &specs,
-			      CMMDBManager *mol,
+			      mmdb::Manager *mol,
 			      int atom_mask_mode);
 
       // return a map and its standard deviation.  scale is applied to
