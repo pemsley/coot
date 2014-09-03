@@ -43,7 +43,7 @@
 
 #include <string.h> // strcmp
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include <mmdb/mmdb_tables.h>
 
 #include <clipper/ccp4/ccp4_mtz_io.h>

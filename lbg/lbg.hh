@@ -46,7 +46,7 @@
 
 #include "gsl/gsl_multimin.h"
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #ifndef MONOMER_DIR_STR
 #define MONOMER_DIR_STR "COOT_CCP4SRS_DIR"
 #endif 

@@ -24,7 +24,7 @@
 #define IDEAL_RNA_HH
 
 #include <string>
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
 namespace coot {
 

@@ -27,7 +27,7 @@
 
 #include <string>
 #include <iostream> // fixes undefined strchr, strchrr problems
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include <gtk/gtk.h>
 
 #include "graphics-info.h"

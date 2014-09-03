@@ -3,7 +3,7 @@
 #ifndef ELASTIC_HH
 #define ELASTIC_HH
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include <string>
 #include <vector>
 
