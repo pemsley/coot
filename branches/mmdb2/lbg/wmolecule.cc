@@ -1136,7 +1136,7 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
 
    bool status = 0;
 
-   PCMMCIFFile mmCIFFile = new CMMCIFFile();
+   Pmmdb::mmcif::File mmCIFFile = new mmdb::mmcif::File();
 
    mmdb::mmcif::PData   mmCIFData = NULL;
    mmdb::mmcif::PStruct mmCIFStruct;
@@ -1146,9 +1146,9 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
    mmCIFData = mmCIFFile->GetCIFData("comp_list");
    rc = mmCIFData->AddStructure ("_chem_comp", mmCIFStruct);
    // std::cout << "rc on AddStructure returned " << rc << std::endl;
-   if (rc!=CIFRC_Ok && rc!=CIFRC_Created)  {
+   if (rc!=mmdb::mmcif::CIFRC_Ok && rc!=CIFRC_Created)  {
       // badness!
-      std::cout << "rc not CIFRC_Ok " << rc << std::endl;
+      std::cout << "rc not mmdb::mmcif::CIFRC_Ok " << rc << std::endl;
       printf ( " **** error: attempt to retrieve Loop as a Structure.\n" );
       if (!mmCIFStruct)  {
          printf ( " **** error: mmCIFStruct is NULL - report as a bug\n" );
@@ -1190,7 +1190,7 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
       mmCIFData = mmCIFFile->GetCIFData(comp_monomer_name.c_str());
       rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
 
-      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+      if (rc == mmdb::mmcif::CIFRC_Ok || rc == CIFRC_Created) {
          for (int i=0; i<atoms.size(); i++) {
 
             mmCIFLoop->PutString(comp_id.c_str(), "comp_id", i);
@@ -1206,7 +1206,7 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
       // bond loop
 
       rc = mmCIFData->AddLoop("_chem_comp_bond", mmCIFLoop);
-      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+      if (rc == mmdb::mmcif::CIFRC_Ok || rc == CIFRC_Created) {
          // std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
          for (int i=0; i<bonds.size(); i++) {
             // std::cout << "ading bond number " << i << std::endl;

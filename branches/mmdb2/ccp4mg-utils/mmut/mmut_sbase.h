@@ -275,7 +275,7 @@ public:
 
   PCSBStructure GetStructure ( const ResName resNam , LoadedPCSBStructure monlib, const bool unremediated=false);
   int LoadMonomerLibrary( char* filename, LoadedPCSBStructure &monlib);
-  PCSBStructure LoadCifMonomer ( const ResName resNam , const PCMMCIFFile file, const bool unscramble=true );
+  PCSBStructure LoadCifMonomer ( const ResName resNam , const Pmmdb::mmcif::File file, const bool unscramble=true );
   int MatchGraphs(mmdb::PResidue pRes,int Hflag, Boolean Cflag, const pstr altLoc, 
 		  PCSBStructure pSbaseRes, int &nMatched,
 		  ivector match, int minMatchSize );

@@ -264,7 +264,7 @@ PCSBStructure CMGSBase::GetStructure( const ResName resNam ,
   LoadedPCSBStructure_iter p = loadedPStruct.find(resn);
   if (p!=loadedPStruct.end()) return p->second;
 
-  PCMMCIFFile file = new CMMCIFFile;
+  Pmmdb::mmcif::File file = new mmdb::mmcif::File;
 
   // Look in users monomer library first
   if ( strlen(user_monomers_dir)>1 ) {
@@ -347,7 +347,7 @@ CMGSBase::~CMGSBase() {
 
 
 //-----------------------------------------------------------------------------
-PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile file ,
+PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const Pmmdb::mmcif::File file ,
                         const bool unscramble ) {
 //-----------------------------------------------------------------------------
   // Load the monomer info from CIF file
@@ -712,7 +712,7 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
             LoadedPCSBStructure &monlist ) {
 //------------------------------------------------------------------
   PCSBStructure pStruct;
-  PCMMCIFFile file;
+  Pmmdb::mmcif::File file;
   mmdb::mmcif::PLoop Loop;
   mmdb::mmcif::PData dataBlock;
   int RC,N;
@@ -721,7 +721,7 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
   std::map<std::string,std::string> codes;
   int nmon = 0;
 
-  file = new CMMCIFFile;
+  file = new mmdb::mmcif::File;
   
   RC = file->ReadMMCIFFile ( filename );
   if (RC!=0) return nmon; 
@@ -744,7 +744,7 @@ PCSBStructure CMGSBase::LoadCifMonomer (const ResName mon, const PCMMCIFFile fil
   }
 
   delete file;
-  file = new CMMCIFFile;  
+  file = new mmdb::mmcif::File;  
   RC = file->ReadMMCIFFile ( filename );
 
   for ( std::map<std::string,std::string>::iterator p = codes.begin(); 
@@ -1381,12 +1381,12 @@ int CMGSBase::LoadSynonyms( pstr filename ) {
   int RC;
   CFile f;
   mmdb::mmcif::PLoop Loop=NULL;
-  PCMMCIFFile file;
+  Pmmdb::mmcif::File file;
   mmdb::mmcif::PData dataBlock;
   ResName id,alt_id;
   std::string str_id, str_alt_id;
 
-  file = new CMMCIFFile;
+  file = new mmdb::mmcif::File;
   RC = file->ReadMMCIFFile ( filename );
   //printf("file %s %i RC %i\n",filename,file,RC);
   dataBlock = file->GetCIFData ( "comp_synonym_list" );
@@ -1418,12 +1418,12 @@ int CMGSBase::LoadMonLib (pstr filename ) {
   int RC,n;
   CFile f;
   mmdb::mmcif::PLoop Loop1=NULL;
-  PCMMCIFFile file;
+  Pmmdb::mmcif::File file;
   mmdb::mmcif::PData dataBlock;
   char dataName[200];
 
  
-  file = new CMMCIFFile;
+  file = new mmdb::mmcif::File;
   RC = file->ReadMMCIFFile ( filename );
   //printf("file %i RC %i\n",file,RC);
   dataBlock = file->GetCIFData ( "link_list" );
