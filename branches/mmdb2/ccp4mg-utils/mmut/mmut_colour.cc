@@ -281,7 +281,7 @@ int CMolColour::ByChain( ) {
   int i,j;
   int chnHnd, nChains;
   Pmmdb::PChain selChains;
-  ivector cols;
+  mmdb::ivector cols;
   int ic = firstChainColour;
 
   molHnd->GetSelIndex (selHnd, selAtoms, natoms );
@@ -326,7 +326,7 @@ int CMolColour::BValue () {
   mmdb::PPAtom selAtoms;
   int i,j;
   float frac;
-  ivector colourbin;
+  mmdb::ivector colourbin;
   molHnd->GetSelIndex (selHnd, selAtoms, natoms );
   FreeVectorMemory( colour,0);
   GetVectorMemory ( colour, natoms, 0);
@@ -400,7 +400,7 @@ int CColours::SetColours (int n, const char *cols[]) {
 }
 
 //-----------------------------------------------------------------------
-int CColours::GetCode ( int nAppCol, const psvector appCol, ivector code ) {
+int CColours::GetCode ( int nAppCol, const psvector appCol, mmdb::ivector code ) {
 //-----------------------------------------------------------------------
   //*****BEWARE code is in range 1 to nColours
   int i,j;

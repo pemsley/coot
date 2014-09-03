@@ -179,7 +179,7 @@ namespace coot {
       }
       
       std::string type() const { return type_; }
-      int mmdb_bond_type() const; // for mmdb::math::Graph CEdge usage 
+      int mmdb_bond_type() const; // for mmdb::math::Graph mmdb::math::Edge usage 
       // can throw a std::runtime_error exception (if target values not set)
       double value_dist() const {
 	 if (have_target_values)

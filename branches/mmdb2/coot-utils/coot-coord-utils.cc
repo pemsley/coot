@@ -2141,7 +2141,7 @@ coot::graph_match(mmdb::Residue *res_moving,
 	 std::cout << "INFO:: match.MatchGraphs must match at least "
 		   << minMatch << " atoms."
 		   << std::endl;
-	 Boolean vertext_type = True;
+	 bool vertext_type = True;
 	 match.MatchGraphs(&graph1, &graph2, minMatch, vertext_type);
 	 int n_match = match.GetNofMatches();
 	 std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
@@ -2156,7 +2156,7 @@ coot::graph_match(mmdb::Residue *res_moving,
 	    std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > matching_atoms; 
 	    int n;
 	    mmdb::realtype p1, p2;
-	    ivector FV1, FV2;
+	    mmdb::ivector FV1, FV2;
 	    match.GetMatch(imatch, FV1, FV2, n, p1, p2); // n p1 p2 set
 // 	    For understanding only.  
 // 	    std::cout << "Match number: " << imatch << "  " << p1*100 << "% "
@@ -2164,8 +2164,8 @@ coot::graph_match(mmdb::Residue *res_moving,
 	    std::vector<clipper::Coord_orth> coords_1_local;
 	    std::vector<clipper::Coord_orth> coords_2_local;
 	    for (int ipair=1; ipair<=n; ipair++) {
-	       PCVertex V1 = graph1.GetVertex ( FV1[ipair] );
-	       PCVertex V2 = graph2.GetVertex ( FV2[ipair] );
+	       Pmmdb::math::Vertex V1 = graph1.GetVertex ( FV1[ipair] );
+	       Pmmdb::math::Vertex V2 = graph2.GetVertex ( FV2[ipair] );
 	       if ((!V1) || (!V2))  {
 		  std::cout << "Can't get vertices for match "
 			    << ipair << std::endl;

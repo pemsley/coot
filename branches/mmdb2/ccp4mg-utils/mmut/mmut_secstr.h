@@ -45,7 +45,7 @@ public :
  // Destructor
  ~CSecStructure();
  
-  int GetSecondaryStructure ( int &nres, ivector &secstrout,
+  int GetSecondaryStructure ( int &nres, mmdb::ivector &secstrout,
             imatrix &hbondsout, int imodel=0 );
   void SetParams (int nv,double *value, int niv, int *ivalue);
   int **GetHBonds (int imodel = 0);
@@ -64,13 +64,13 @@ public :
 
   int nRes;
   imatrix hbonds;
-  ivector secstr;
+  mmdb::ivector secstr;
   mmdb::PPAtom *hbond_atoms;
      
   int hbondsN;  //The first element dimension of hbonds - required for freeing memory
   void InitParams();
   int CalculateSecondaryStructure(int imodel = 0);
   int InitMemory( int nRes );
-  Boolean IsHBond ( mmdb::PResidue PCRes1, mmdb::PResidue PCRes );
+  bool IsHBond ( mmdb::PResidue PCRes1, mmdb::PResidue PCRes );
 };
 #endif

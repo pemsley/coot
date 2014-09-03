@@ -59,7 +59,7 @@ class CMMANBase {
   int exclude_hydrogen;
   int exclude_alternate;
   char* use_altLoc;
-  Boolean own_selHnds;
+  bool own_selHnds;
   int selMode[MAXSETS];
   PCMMUTManager molHnds[MAXSETS];
   int selHnds[MAXSETS];   // Selection handles passed in from application

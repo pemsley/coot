@@ -156,7 +156,7 @@ coot::basic_dict_restraint_t::basic_dict_restraint_t(const std::string &at1,
 }
 
 
-// for mmdb::math::Graph CEdge usage
+// for mmdb::math::Graph mmdb::math::Edge usage
 //
 // if the bond type is "deloc" then return a single bond.  This
 // doesn't matter (at the moment) because the code using this doesn't
@@ -336,7 +336,7 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
       }
 
 	 
-      // Boolean calc_only = true;
+      // bool calc_only = true;
       // mol->MakeBonds(calc_only);  // crash, hence above hack.
 
       std::string comp_id = residue_p->GetResName();

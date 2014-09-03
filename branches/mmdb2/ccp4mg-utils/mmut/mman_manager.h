@@ -105,8 +105,8 @@ class CMMANManager : public CMMUTManager  {
     int GetRestypeCode ( mmdb::PResidue pres);
     std::map<std::string,PCSBStructure> monlib; 
 
-    int SetCustomRestype ( const std::string &resname , const int &restype , Boolean clear=false);
-    int SetCustomResSynonym ( const std::string &resname , const std::string &alias , Boolean clear=false);
+    int SetCustomRestype ( const std::string &resname , const int &restype , bool clear=false);
+    int SetCustomResSynonym ( const std::string &resname , const std::string &alias , bool clear=false);
 
 
     int ExcludeOverlappedAtoms ( const int selHnd ,const mmdb::realtype cutoff );

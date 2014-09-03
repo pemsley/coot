@@ -215,7 +215,7 @@ protected:
 // 
 class to_vertex_list_t { 
 
-   //vector<Boolean> vertex_list; 
+   //vector<bool> vertex_list; 
    int *vertex_list; 
    int vertex_list_size;  // the size of the array
    int n_vertices;        // the maximum index filled so far.
