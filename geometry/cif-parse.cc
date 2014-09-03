@@ -56,7 +56,7 @@ int
 coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_number_in) {
 
    int ret_val = 0; 
-   CMMCIFFile ciffile;
+   mmdb::mmcif::File ciffile;
 
    // Here we would want to check through dict_res_restraints for the
    // existance of this restraint.  If it does exist, kill it by
@@ -90,9 +90,9 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
       std::string comp_id_1; 
       std::string comp_id_2;  // initially unset
    
-      if (ierr!=CIFRC_Ok) {
+      if (ierr!=mmdb::mmcif::CIFRC_Ok) {
 	 std::cout << "dirty mmCIF file? " << ciffilename.c_str() << std::endl;
-	 std::cout << "    Bad CIFRC_Ok on ReadMMCIFFile" << std::endl;
+	 std::cout << "    Bad mmdb::mmcif::CIFRC_Ok on ReadMMCIFFile" << std::endl;
 	 std::cout << "    " << mmdb::GetErrorDescription(ierr) << std::endl;
 	 char        err_buff[1000];
 	 std::cout <<  "CIF error rc=" << ierr << " reason:" << 
@@ -2849,7 +2849,7 @@ coot::dictionary_residue_restraints_t::quoted_atom_name(const std::string &an) c
 void
 coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) const {
 
-   PCMMCIFFile mmCIFFile = new CMMCIFFile(); // d
+   Pmmdb::mmcif::File mmCIFFile = new mmdb::mmcif::File(); // d
       
    mmdb::mmcif::PData   mmCIFData = NULL;
    mmdb::mmcif::PStruct mmCIFStruct;
@@ -2863,9 +2863,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
    mmCIFData = mmCIFFile->GetCIFData("comp_list");
    rc = mmCIFData->AddStructure ("_chem_comp", mmCIFStruct);
    // std::cout << "rc on AddStructure returned " << rc << std::endl;
-   if (rc!=CIFRC_Ok && rc!=CIFRC_Created)  {
+   if (rc!=mmdb::mmcif::CIFRC_Ok && rc!=CIFRC_Created)  {
       // badness!
-      std::cout << "rc not CIFRC_Ok " << rc << std::endl;
+      std::cout << "rc not mmdb::mmcif::CIFRC_Ok " << rc << std::endl;
       printf ( " **** error: attempt to retrieve Loop as a Structure.\n" );
       if (!mmCIFStruct)  {
 	 printf ( " **** error: mmCIFStruct is NULL - report as a bug\n" );
@@ -2876,7 +2876,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       } else { 
 	 printf(" -- structure was already in mmCIF, it will be extended\n");
       }
-      // std::cout << "SUMMARY:: rc CIFRC_Ok or newly created. " << std::endl;
+      // std::cout << "SUMMARY:: rc mmdb::mmcif::CIFRC_Ok or newly created. " << std::endl;
 
       mmdb::mmcif::PLoop mmCIFLoop = new CMMCIFLoop; // 20100212
       // data_comp_list, id, three_letter_code, name group etc:
@@ -2922,7 +2922,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       
       if (atom_info.size()) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
-	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == CIFRC_Created) {
 	    for (int i=0; i<atom_info.size(); i++) {
 	       const dict_atom &ai = atom_info[i];
 	       const char *ss =  residue_info.comp_id.c_str();
@@ -2954,7 +2954,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       if (bond_restraint.size()) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_bond", mmCIFLoop);
-	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == CIFRC_Created) {
 	    // std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
 	    for (int i=0; i<bond_restraint.size(); i++) {
 	       // std::cout << "ading bond number " << i << std::endl;
@@ -2989,7 +2989,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       if (angle_restraint.size()) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_angle", mmCIFLoop);
-	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == CIFRC_Created) {
 	    // std::cout << " number of angles: " << angle_restraint.size() << std::endl;
 	    for (int i=0; i<angle_restraint.size(); i++) {
 	       // std::cout << "ading angle number " << i << std::endl;
@@ -3023,7 +3023,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       if (torsion_restraint.size() > 0) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_tor", mmCIFLoop);
-	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == CIFRC_Created) {
 	    // std::cout << " number of torsions: " << torsion_restraint.size() << std::endl;
 	    for (int i=0; i<torsion_restraint.size(); i++) {
 	       // std::cout << "ading torsion number " << i << std::endl;
@@ -3061,7 +3061,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       // 
       if (chiral_restraint.size() > 0) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_chir", mmCIFLoop);
-	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == CIFRC_Created) {
 	    // std::cout << " number of chirals: " << chiral_restraint.size() << std::endl;
 	    for (int i=0; i<chiral_restraint.size(); i++) {
 	       // std::cout << "ading chiral number " << i << std::endl;
@@ -3099,7 +3099,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       // plane loop
       if (plane_restraint.size() > 0) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_plane_atom", mmCIFLoop);
-	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == CIFRC_Created) {
 	    // std::cout << " number of planes: " << plane_restraint.size() << std::endl;
 	    int icount = 0;
 	    for (int i=0; i<plane_restraint.size(); i++) {
@@ -3219,7 +3219,7 @@ coot::protein_geometry::hydrogens_connect_file(const std::string &resname,
 // constructor
 coot::simple_cif_reader::simple_cif_reader(const std::string &cif_dictionary_file_name) {
    
-   CMMCIFFile ciffile;
+   mmdb::mmcif::File ciffile;
    struct stat buf;
    int istat = stat(cif_dictionary_file_name.c_str(), &buf);
    if (istat != 0) {
@@ -3227,7 +3227,7 @@ coot::simple_cif_reader::simple_cif_reader(const std::string &cif_dictionary_fil
 		<< " not found" << std::endl;
    } else {
       int ierr = ciffile.ReadMMCIFFile((char *)cif_dictionary_file_name.c_str());
-      if (ierr != CIFRC_Ok) {
+      if (ierr != mmdb::mmcif::CIFRC_Ok) {
 	 std::cout << "Dirty mmCIF file? " << cif_dictionary_file_name
 		   << std::endl;
       } else {

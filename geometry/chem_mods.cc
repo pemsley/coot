@@ -150,7 +150,7 @@ coot::protein_geometry::add_mod(mmdb::mmcif::PData data) {
    int r = 0; 
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
-      PCMMCIFCategory cat = data->GetCategory(icat);
+      mmdb::mmcif::PCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
       mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str()) ;
             

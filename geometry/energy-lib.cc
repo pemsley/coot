@@ -44,15 +44,23 @@ coot::energy_lib_t::read(const std::string &file_name, bool print_info_message_f
       return;
    }
    
-   CMMCIFFile ciffile;
+   mmdb::mmcif::File ciffile;
    int ierr = ciffile.ReadMMCIFFile(file_name.c_str());
-   if (ierr!=CIFRC_Ok) {
-      std::cout << "dirty mmCIF file? " << file_name.c_str() << std::endl;
-      std::cout << "    Bad CIFRC_Ok on ReadMMCIFFile" << std::endl;
-      std::cout << "    " << mmdb::GetErrorDescription(ierr) << std::endl;
-      char        err_buff[1000];
-      std::cout <<  "CIF error rc=" << ierr << " reason:" << 
-	 GetCIFMessage (err_buff,ierr) << std::endl;
+   if (ierr!=mmdb::mmcif::CIFRC_Ok) {
+      
+       std::cout << "dirty mmCIF file? " << file_name.c_str() << std::endl;
+       std::cout << "    Bad mmdb::mmcif::CIFRC_Ok on ReadMMCIFFile" << std::endl;
+
+
+       // FIXME-boring
+       
+       //        mmdb::cpstr ed = mmdb::GetErrorDescription();
+       //        std::cout << "    " << ed << std::endl;
+       //        char        err_buff[1000];
+       //        std::cout <<  "CIF error rc=" << ierr << " reason:" << 
+       // 	 GetCIFMessage (err_buff, ierr) << std::endl;
+       
+      
    } else {
       if (print_info_message_flag)
 	 std::cout << "There are " << ciffile.GetNofData() << " data in "
@@ -67,7 +75,7 @@ coot::energy_lib_t::read(const std::string &file_name, bool print_info_message_f
 	 if (std::string(data->GetDataName()) == "energy") {
 	    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
-	       PCMMCIFCategory cat = data->GetCategory(icat);
+	       mmdb::mmcif::PCategory cat = data->GetCategory(icat);
 	       std::string cat_name(cat->GetCategoryName());
 	       
 	       // std::cout << "DEBUG:: init_link is handling " << cat_name << std::endl;
