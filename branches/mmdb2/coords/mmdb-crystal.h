@@ -165,7 +165,7 @@ class molecule_extents_t {
 
    // use extents to fill transsel, use cryst from mol (not coords of mol)
    coot::trans_selection_t trans_sel_o(mmdb::Manager *mol, const symm_trans_t &symm_trans) const;
-   mmdb::PPAtom trans_sel(CMMDBCryst *my_cryst, symm_trans_t symm_trans) const;
+   mmdb::PPAtom trans_sel(mmdb::CMMDBCryst *my_cryst, symm_trans_t symm_trans) const;
    mmdb::PPAtom trans_sel(mmdb::Manager *mol, const symm_trans_t &symm_trans) const;
    mmdb::PPAtom trans_sel(mmdb::Manager *mol, mmdb::mat44 my_mat,
 		     int x_shift, int y_shift, int z_shift) const;
@@ -214,7 +214,7 @@ coot::Cartesian translate_atom_with_pre_shift(atom_selection_container_t AtomSel
 					      int i, 
 					      const std::pair<symm_trans_t, Cell_Translation> &symm_trans);
 
-// Tinker with asc (actually, internally, the CMMDBCryst of asc)
+// Tinker with asc (actually, internally, the mmdb::CMMDBCryst of asc)
 // 
 // Return 1 on success, 0 on failure.
 int set_mmdb_cell_and_symm(atom_selection_container_t asc, 

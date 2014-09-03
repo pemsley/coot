@@ -80,7 +80,7 @@ coot::monomer_utils::add_torsion_bond_by_name(const std::string &atom_name_1,
 coot::contact_info
 coot::monomer_utils::getcontacts(const atom_selection_container_t &asc) const {
 
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    float min_dist = 0.1;
    float max_dist = 1.9; // CB->SG CYS 1.8A

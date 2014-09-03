@@ -685,7 +685,7 @@ public:
 						   float min_dist, float max_dist); 
 
    atom_selection_container_t
-      ContactSel(mmdb::PPAtom trans_sel, PSContact contact, int ncontacts) const;
+      ContactSel(mmdb::PPAtom trans_sel, mmdb::Contact *contact, int ncontacts) const;
    void do_symmetry_Ca_bonds(atom_selection_container_t SelAtom,
 			     symm_trans_t symm_trans);
 

@@ -243,7 +243,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 
    // now find contacts:
    // 
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    long i_contact_group = 1;
    mmdb::mat44 my_matt;

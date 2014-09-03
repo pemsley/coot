@@ -58,7 +58,7 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
       return;
    }
 
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts;
    long i_contact_group = 1;
 
@@ -129,7 +129,7 @@ Bond_lines_ext::find_molecule_middle(atom_selection_container_t SelAtom,
       return centre;
    }
 
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts;
    long i_contact_group = 1;
 

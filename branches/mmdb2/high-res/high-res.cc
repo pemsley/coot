@@ -77,7 +77,7 @@ coot::high_res::get_middle_pos(const coot::minimol::molecule &minimol_mol) const
 
    mmdb::Manager *mol = minimol_mol.pcmmdbmanager();
    r.second = mol;
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts = -1;
    float min_dist = 1.0;
    float max_dist = 15.0;
@@ -224,7 +224,7 @@ coot::high_res::make_trees() {
    mmdb::Manager *mol = globular_molecule.pcmmdbmanager();
    atom_selection_container_t asc = make_asc(mol);
 
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    float min_dist = 1.0;
    float max_dist = 1.9;
@@ -265,7 +265,7 @@ coot::high_res::make_trees() {
 		  int err = mol->GetTMatrix(my_matt, isym, ix, iy, iz); 
 		  nsymops++;
 		  if (err != 0) { 
-		     std::cout << "WARNING:: something BAD with CMMDBCryst.GetTMatrix\n";
+		     std::cout << "WARNING:: something BAD with mmdb::CMMDBCryst.GetTMatrix\n";
 		  } else { 
 		     pscontact = NULL;
 		     mol->SeekContacts(asc.atom_selection, asc.n_selected_atoms, 
@@ -348,7 +348,7 @@ coot::high_res::buccafilter_neighbours() {
    mmdb::Manager *mol = globular_molecule.pcmmdbmanager();
    atom_selection_container_t asc = make_asc(mol);
    
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts;
 
    mmdb::realtype min_dist = 0.0;
@@ -374,8 +374,8 @@ coot::high_res::buccafilter_neighbours() {
 						 "buccaneer filter group");
       for (int i=0; i<asc.n_selected_atoms; i++) {
 	 int istat = asc.atom_selection[i]->PutUDData(uddhandle, -1);
-	 if (istat == UDDATA_WrongUDRType) {
-	    std::cout << "ERROR::  UDDATA_WrongUDRType in "
+	 if (istat == mmdb:UDDATA_WrongUDRType) {
+	    std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in "
 		      << "buccafilter" << std::endl;
 	 }
       }
@@ -472,7 +472,7 @@ coot::high_res::buccafilter() {
    mmdb::Manager *mol = globular_molecule.pcmmdbmanager();
    atom_selection_container_t asc = make_asc(mol);
    
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts;
 
    mmdb::realtype min_dist = 0.0;

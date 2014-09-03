@@ -39,8 +39,8 @@ class CMMUTManager : public mmdb::Manager  {
     CMMUTManager();
     ~CMMUTManager();
 
-    const CMMDBCryst& get_cell() { return Cryst; } 
-    CMMDBCryst* get_cell_p() { return & Cryst; } 
+    const mmdb::CMMDBCryst& get_cell() { return Cryst; } 
+    mmdb::CMMDBCryst* get_cell_p() { return & Cryst; } 
   
     void ListAtomInfo(int selHnd);
     void PrintAtomicComposition(int selHnd);

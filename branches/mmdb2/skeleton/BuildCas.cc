@@ -159,7 +159,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 //       int err2 = MMDBManager->get_cell_p()->GetTMatrix(my_matt, isym, 0, 0, 0); 
       
 //       if (err2 != 0) {
-// 	 cout << "!! something BAD with MMDB CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
+// 	 cout << "!! something BAD with MMDB mmdb::CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
 // 	      << endl;
 //       } else {
 // 	 cout << "DEBUG: symop " << isym << " clipper::MMDB seems OK..." << endl;
@@ -193,7 +193,7 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 //       int err2 = MMDBManager->get_cell_p()->GetTMatrix(my_matt, isym, 0, 0, 0); 
       
 //       if (err2 != 0) {
-// 	 cout << "!! something BAD with MMDB CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
+// 	 cout << "!! something BAD with MMDB mmdb::CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
 // 	      << endl;
 //       } else {
 // 	 cout << "DEBUG: symop " << isym << " clipper::MMDB seems OK..." << endl;
@@ -312,13 +312,13 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 //       int err2 = MMDBManager->get_cell_p()->GetTMatrix(my_matt, isym, 0, 0, 0); 
       
 //       if (err1 != 0) {
-// 	 cout << "!! something BAD with asc.mol CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
+// 	 cout << "!! something BAD with asc.mol mmdb::CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
 // 	      << endl;
 //       } else {
 // 	 cout << "DEBUG: symop " << isym << "       asc.mol seems OK..." << endl;
 //       }
 //       if (err2 != 0) {
-// 	 cout << "!! something BAD with MMDB CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
+// 	 cout << "!! something BAD with MMDB mmdb::CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
 // 	      << endl;
 //       } else {
 // 	 cout << "DEBUG: symop " << isym << " clipper::MMDB seems OK..." << endl;
@@ -380,7 +380,7 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
    // vector <Cartesian_and_Grid> big_ball_l; // of points, _l local, no shadowing
    vector <coot::Cartesian> big_ball_l; // of points, _l local, no shadowing
    mmdb::mat44 my_matt;
-   PSContact contact;
+   mmdb::Contact *contact;
    int ncontacts;
    
    if (AtomSel.n_selected_atoms > 0) { 
@@ -390,7 +390,7 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 				   current_point.get_y(),
 				   current_point.get_z(), 1.0, 99.9);
       
-      // CMMDBCryst *cryst_p =  (CMMDBCryst *) &AtomSel.mol->get_cell();
+      // mmdb::CMMDBCryst *cryst_p =  (mmdb::CMMDBCryst *) &AtomSel.mol->get_cell();
 
       cout << "DEBUG: There are " << AtomSel.mol->GetNumberOfSymOps() << " sym ops" << endl; 
       cout << "symmetry expanding about " << current_point << endl; 
@@ -404,7 +404,7 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 		  int err = AtomSel.mol->GetTMatrix(my_matt, isym, ix, iy, iz); 
 
 		  if (err != 0)
-		     cout << "!! something BAD with CMMDBCryst.GetTMatrix"
+		     cout << "!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
 			  << endl;
 		  
 		  // cout << "Here: " << ix << " " << iy << " " << iz << " " << isym << endl; 
@@ -1546,7 +1546,7 @@ BuildCas::build_big_ball(const clipper::Xmap<float> &map,
 coot::Cartesian
 BuildCas::move_by_symmetry(coot::Cartesian middle_mol, 
 			   coot::Cartesian target_point,
-			   CMMDBCryst *cryst_p) const {
+			   mmdb::CMMDBCryst *cryst_p) const {
 
    float current_min_dist = (middle_mol - target_point).amplitude(); 
    float test_dist; 

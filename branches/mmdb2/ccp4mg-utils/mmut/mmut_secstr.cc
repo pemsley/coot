@@ -187,7 +187,7 @@ int CSecStructure::CalculateSecondaryStructure (int imodel ) {
 
   mmdb::PPResidue    selRes;
   int		nres,nres2;
-  PSContact     contact = NULL;
+  mmdb::Contact *    contact = NULL;
   int           ncontacts;
   int		ir1, ir2, irdif;
   int		i,j,k,l;

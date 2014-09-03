@@ -97,7 +97,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
   int nModels,nm,nAtominModel; 
 
   int nr;
-  PSContact contacts = NULL;
+  mmdb::Contact *contacts = NULL;
   int ic,nContacts;
   mmdb::PAtom pa1,pa2;
   mmdb::PResidue pr1;
@@ -551,7 +551,7 @@ int CMolBonds::IntraResContacts ( mmdb::PResidue pRes, int nAlt,
   mmdb::PPAtom pAtom1=0;
   mmdb::PPAtom pAtom2=0;
   int nAtom1,nAtom2,nContacts,ic;
-  PSContact contacts = NULL;
+  mmdb::Contact *contacts = NULL;
   mmdb::PAtom pa1,pa2;
 
   pAtom1 = NULL;

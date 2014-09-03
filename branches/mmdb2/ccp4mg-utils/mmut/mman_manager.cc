@@ -1221,7 +1221,7 @@ int CMMANManager::IfSymmetryNeighbours(int selHnd, int model, int nsym,
                  int i, int j, int k, double dist ) {
 //-----------------------------------------------------------------------
   mmdb::mat44 TMatrix;
-  PSContact contact = NULL; 
+  mmdb::Contact *contact = NULL; 
   int ncontacts; 
   int   maxlen = 0;
   mmdb::PPAtom selAtoms=NULL, modelAtoms=NULL;
@@ -1599,7 +1599,7 @@ int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
   mmdb::PPAtom selAtoms1=NULL;
   mmdb::PPAtom selAtoms2=NULL;
   int nat1,nat2;
-  PSContact contacts = NULL;
+  mmdb::Contact *contacts = NULL;
   int ncontacts;
   mmdb::mat44 * TMatrix=0;
   int iser1,iser2;
@@ -1940,7 +1940,7 @@ int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd,
 
     pCentralAtom = fxRes[ir]->GetAtom("CA","*","*");
     if (pCentralAtom) {
-      PSContact contact= NULL;
+      mmdb::Contact *contact= NULL;
       ncontacts = 0;
       SeekContacts (pCentralAtom,centralAtoms,centralNAtoms,
 		    0.0, central_cutoff,0,contact,ncontacts,-1);

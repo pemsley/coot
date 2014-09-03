@@ -993,7 +993,7 @@ int CXXSurface::getIntegerUDDataOfAtom(mmdb::PAtom theAtom, int handle){
     int rc = theAtom->GetUDData(handle, result);
     switch (rc)  {
             
-    case  mmdb::UDDATA_WrongUDRType :
+    case  mmdb::mmdb:UDDATA_WrongUDRType :
             printf ( " wrong UDD registration type\n" );
             break;
             

@@ -152,7 +152,7 @@ coot::dunbrack_rotamer::compare_rotamers(const coot::simple_rotamer &a,
 coot::contact_info
 coot::dunbrack::getcontacts(const atom_selection_container_t &asc) const {
 
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    float min_dist = 0.1;
    float max_dist = 1.9; // CB->SG CYS 1.8A

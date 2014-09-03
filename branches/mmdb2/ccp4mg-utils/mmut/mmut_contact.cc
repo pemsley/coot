@@ -123,7 +123,7 @@ int CContact::Calculate0(int model)  {
 
   mmdb::realtype min_cutoff,max_cutoff,frac;
   mmdb::realtype vdw1,vdw2;
-  PSContact contacts = NULL;
+  mmdb::Contact *contacts = NULL;
   int ncontacts;
 
   int n;

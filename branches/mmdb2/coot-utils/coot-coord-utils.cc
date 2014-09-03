@@ -604,7 +604,7 @@ coot::closest_approach(mmdb::Manager *mol,
 //    mmdb::PPAtom residue_atoms_1 = 0, residue_atoms_2 = 0;
 //    int ncontacts = 0;
 //    mmdb::realtype dist_closest = 9999999999.9;
-//    PSContact contact = NULL;
+//    mmdb::Contact *contact = NULL;
 //    long i_contact_group = 0;
 //    mmdb::mat44 my_matt;
 //    for (int i=0; i<4; i++) 

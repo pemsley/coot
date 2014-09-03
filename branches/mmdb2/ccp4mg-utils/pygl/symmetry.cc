@@ -44,7 +44,7 @@
 #endif
 #endif
 
-mmdb::PPAtom molecule_extents_t::trans_sel(CMMDBCryst *my_cryst, symm_trans_t symm_trans)  const{
+mmdb::PPAtom molecule_extents_t::trans_sel(mmdb::CMMDBCryst *my_cryst, symm_trans_t symm_trans)  const{
 
    mmdb::Atom atom;
    mmdb::PPAtom trans_selection = new mmdb::PAtom[6];
@@ -320,7 +320,7 @@ std::vector<matrix> Symmetry::GetSymmetryMatrices()  const{
            symm_mats.back()(k,j) = my_matt[k][j];
 
      if (err != 0)
-        std::cout << "!!!!!!!!!!!!!! something BAD with CMMDBCryst.GetTMatrix" << std::endl;
+        std::cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix" << std::endl;
    }
    
    return symm_mats;
@@ -332,7 +332,7 @@ mmdb::PPAtom Symmetry::trans_sel(const symm_trans_t &symm_tran) const{
    int err = my_cryst_p->GetTMatrix(my_matt, symm_tran.isym(), symm_tran.x(),
                                  symm_tran.y(), symm_tran.z());
    if (err != 0) {
-      std::cout << "!!!!!!!!!!!!!! something BAD with CMMDBCryst.GetTMatrix"
+      std::cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
 	   << std::endl;
    }
 
@@ -352,7 +352,7 @@ std::vector<symm_trans_t> molecule_extents_t::GetUnitCellOps(PCMMANManager molhn
    std::vector<symm_trans_t> symm_trans;
 
    mmdb::realtype u, v, w;
-   PCMMDBCryst my_cryst_p = (CMMDBCryst *) &(molhnd->get_cell());
+   Pmmdb::CMMDBCryst my_cryst_p = (mmdb::CMMDBCryst *) &(molhnd->get_cell());
    my_cryst_p->Orth2Frac(0,0,0, u, v, w);
    Cell_Translation c_t = Cell_Translation(int (rint (u)), int (rint (v)), int (rint (w)));
    int n = my_cryst_p->GetNumberOfSymOps();
@@ -449,7 +449,7 @@ std::vector<symm_trans_t> molecule_extents_t::which_box(Cartesian point, PCMMANM
    Cartesian p;
    
    mmdb::realtype u, v, w;
-   PCMMDBCryst my_cryst_p = (CMMDBCryst *) &(molhnd->get_cell());
+   Pmmdb::CMMDBCryst my_cryst_p = (mmdb::CMMDBCryst *) &(molhnd->get_cell());
 
    my_cryst_p->Orth2Frac(point.get_x(), point.get_y(), point.get_z(), u, v, w);
    Cell_Translation c_t = Cell_Translation(int (rint (u)), int (rint (v)), int (rint (w)));
@@ -580,7 +580,7 @@ Symmetry::Symmetry(PCMMANManager molhnd_in, mmdb::PPAtom SelAtoms_in, int nSelAt
   bl = bl_in;
 
   symm_trans.clear();
-  my_cryst_p = (CMMDBCryst *) &(molhnd->get_cell());
+  my_cryst_p = (mmdb::CMMDBCryst *) &(molhnd->get_cell());
 
   molecule_extents_t extents(SelAtoms, nSelAtoms);
 
