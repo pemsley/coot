@@ -43,8 +43,8 @@ get_atom_selection(std::string pdb_name) {
    MMDBManager = new CMMDBManager;
    
    MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
-			  MMDBF_IgnoreDuplSeqNum |
-			  MMDBF_IgnoreNonCoorPDBErrors );
+			  mmdb::MMDBF_IgnoreDuplSeqNum |
+			  mmdb::MMDBF_IgnoreNonCoorPDBErrors );
    
    std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
    err = MMDBManager->ReadCoorFile((char *)pdb_name.c_str());
