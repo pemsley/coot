@@ -60,7 +60,7 @@
 #define UNSET mmdb::MinInt4
 
 #ifndef  __MMDB_MMCIF__
-#include <mmdb/mmdb_mmcif.h>
+#include <mmdb2/mmdb_utils.h>
 #endif
   
 #include <iostream>
@@ -262,7 +262,7 @@ main(int argc, char **argv) {
 
 	    std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
 
-	    if ((inputs.resno_start != mmdb::MinInt4) && inputs.resno_end != MinInt4)
+	    if ((inputs.resno_start != mmdb::MinInt4) && inputs.resno_end != mmdb::MinInt4)
 	       local_residues =
 		  fill_residues(chain_id, inputs.resno_start, inputs.resno_end, asc.mol);
 

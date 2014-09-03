@@ -128,14 +128,14 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
 #ifdef HAVE_MMDB_IGNORE_HASH
        
-	  MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
+	  MMDBManager->SetFlag ( mmdb::MMDBF_IgnoreBlankLines |
 // 				 mmdb::MMDBF_IgnoreDuplSeqNum |
 				 mmdb::MMDBF_IgnoreNonCoorPDBErrors |
-				 MMDBF_IgnoreHash |
+				 mmdb::MMDBF_IgnoreHash |
 				 mmdb::MMDBF_IgnoreRemarks);
 #else
-	  MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
-//				 mmdb::MMDBF_IgnoreDuplSeqNum |
+	  MMDBManager->SetFlag ( mmdb::MMDBF_IgnoreBlankLines |
+//				 mmdb::mmdb::MMDBF_IgnoreDuplSeqNum |
 				 mmdb::MMDBF_IgnoreNonCoorPDBErrors |
 				 mmdb::MMDBF_IgnoreRemarks);
 #endif // HAVE_MMDB_IGNORE_HASH       
@@ -165,17 +165,17 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 	     // we read the coordinate file OK.
 	     //
 	     switch (MMDBManager->GetFileType())  {
-	     case MMDB_FILE_PDB    :  cout << " PDB"         ;
+	     case mmdb::MMDB_FILE_PDB    :  cout << " PDB"         ;
 		break;
-	     case MMDB_FILE_CIF    :  cout << " mmCIF"       ; 
+	     case mmdb::MMDB_FILE_CIF    :  cout << " mmCIF"       ; 
 		break;
-	     case MMDB_FILE_Binary :  cout << " MMDB binary" ;
+	     case mmdb::MMDB_FILE_Binary :  cout << " MMDB binary" ;
 		break;
 	     default:
 		cout << " Unknown (report as a bug!)\n";
 	     }
 
-	     MMDBManager->PDBCleanup(PDBCLEAN_ELEMENT);
+	     MMDBManager->PDBCleanup(mmdb::PDBCLEAN_ELEMENT);
 	  
 	     cout << " file " << pdb_name.c_str() << " has been read.\n";
 	     asc.read_success = 1; // TRUE
@@ -581,7 +581,7 @@ ostream& operator<<(ostream& s, mmdb::PAtom atom) {
 int
 write_atom_selection_file(atom_selection_container_t asc,
 			  const std::string &filename,
-			  byte gz,
+			  mmdb::byte gz,
 			  bool write_hydrogens,     // optional arg
 			  bool write_aniso_records, // optional arg
 			  bool write_conect_records // optional arg
@@ -617,7 +617,7 @@ write_atom_selection_file(atom_selection_container_t asc,
 	 mmdb::Manager *n = new mmdb::Manager;
 	 n->Copy(mol, mmdb::MMDBFCM_All);
 	 // Eugene's magic code
-	 n->Delete ( MMDBFCM_SC );
+	 n->Delete ( mmdb::MMDBFCM_SC );
 	 mol = n;
 	 mol_needs_deleting = true;
       }
@@ -643,7 +643,7 @@ write_atom_selection_file(atom_selection_container_t asc,
 	    }
 	 }
       }
-      ierr = mol->WritePDBASCII((char *)filename.c_str());
+      ierr = mol->WritePDBASCII(filename.c_str());
       // now put the names back
       if (udd_old > 0 && udd_new > 0) { 
       	 for (int i=0; i<asc.n_selected_atoms; i++) {
@@ -702,7 +702,7 @@ coot::delete_hydrogens_from_mol(mmdb::Manager *mol) {
 void
 coot::delete_aniso_records_from_atoms(mmdb::Manager *mol) {
 
-   std::cout << "ASET_Anis_tFac " << ASET_Anis_tFac << " " << ~ASET_Anis_tFac << std::endl;
+   std::cout << "ASET_Anis_tFac " << mmdb::ASET_Anis_tFac << " " << ~mmdb::ASET_Anis_tFac << std::endl;
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = mol->GetModel(imod);
       mmdb::Chain *chain_p;
@@ -717,7 +717,7 @@ coot::delete_aniso_records_from_atoms(mmdb::Manager *mol) {
 	    int n_atoms = residue_p->GetNumberOfAtoms();
 	    for (int iat=0; iat<n_atoms; iat++) {
 	       at = residue_p->GetAtom(iat);
-	       at->WhatIsSet &=  ~ASET_Anis_tFac;
+	       at->WhatIsSet &=  ~mmdb::ASET_Anis_tFac;
 	    }
 	 }
       }

@@ -278,8 +278,8 @@ coot::deep_copy_this_residue_and_make_asc(mmdb::Manager *orig_mol,
    chain_p->SetChainID(chain_id1.c_str());
    rres->seqNum = ((mmdb::Residue *)residue)->GetSeqNum();
    /* Copy insertion code - a char[10] */
-   memcpy(rres->insCode, residue->insCode, sizeof(InsCode));
-   memcpy(rres->name, residue->name, sizeof(ResName));
+   memcpy(rres->insCode, residue->insCode, sizeof(mmdb::InsCode));
+   memcpy(rres->name, residue->name, sizeof(mmdb::ResName));
    
    mmdb::PPAtom residue_atoms;
    int nResidueAtoms;

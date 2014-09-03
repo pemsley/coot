@@ -624,7 +624,7 @@ molecule_extents_t::coord_to_unit_cell_translations(coot::Cartesian point,
 // rant.
 // 
 mmdb::PPAtom 
-molecule_extents_t::trans_sel(mmdb::CMMDBCryst *my_cryst,
+molecule_extents_t::trans_sel(mmdb::Cryst *my_cryst,
 			      symm_trans_t symm_trans) const {
 
    mmdb::Atom atom;
@@ -1023,8 +1023,6 @@ coot::Cartesian translate_atom(atom_selection_container_t AtomSel, int ii,
    //
    mmdb::mat44 my_matt;
    
-   // mmdb::CMMDBCryst *cryst_p = (mmdb::CMMDBCryst *) &AtomSel.mol->get_cell();
-   
    int err = AtomSel.mol->GetTMatrix(my_matt,
 				     symm_trans.isym(),
 				     symm_trans.x(),
@@ -1054,8 +1052,6 @@ translate_atom_with_pre_shift(atom_selection_container_t AtomSel, int ii,
    //
    mmdb::mat44 my_matt;
    mmdb::mat44 pre_shift_matt;
-   
-   // mmdb::CMMDBCryst *cryst_p = (mmdb::CMMDBCryst *) &AtomSel.mol->get_cell();
    
    int err = AtomSel.mol->GetTMatrix(my_matt,
 				     symm_trans.first.isym(),

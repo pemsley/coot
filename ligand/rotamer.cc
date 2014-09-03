@@ -770,7 +770,7 @@ coot::rotamer::GetResidue_old(int i_rot) const {
       // Contact indices:
       //
       atom_selection_container_t res_asc;
-      res_asc.mol = (Mymmdb::Manager *) stored_mol;
+      res_asc.mol = stored_mol;
       res_asc.n_selected_atoms = nResidueAtoms;
       res_asc.atom_selection = ordered_residue_atoms_ppcatom;
 
