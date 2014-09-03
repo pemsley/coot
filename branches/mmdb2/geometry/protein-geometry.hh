@@ -1567,7 +1567,7 @@ namespace coot {
       enum { UNSET_NUMBER = -1 };  // An unset number, for example the
       // number of atoms.
 
-      bool close_float_p (const mmdb::realtype &f1, const realtype &f2) { //testing func
+      bool close_float_p (const mmdb::realtype &f1, const mmdb::realtype &f2) { //testing func
 	 float d = fabsf(f1-f2);
 	 if (d < 0.001)
 	    return true;
@@ -1655,7 +1655,7 @@ namespace coot {
       void mon_lib_add_bond(std::string comp_id,
 			    std::string atom_id_1, std::string atom_id_2,
 			    std::string type,
-			    mmdb::realtype value_dist, realtype value_dist_esd);
+			    mmdb::realtype value_dist, mmdb::realtype value_dist_esd);
 
       void mon_lib_add_bond_no_target_geom(std::string comp_id,
 					   std::string atom_id_1, std::string atom_id_2,
@@ -1665,7 +1665,7 @@ namespace coot {
 			     std::string atom_id_1,
 			     std::string atom_id_2,
 			     std::string atom_id_3,
-			     mmdb::realtype value_angle, realtype value_angle_esd);
+			     mmdb::realtype value_angle, mmdb::realtype value_angle_esd);
 
       void mon_lib_add_torsion(std::string comp_id,
 			       std::string torsion_id,
@@ -1673,7 +1673,7 @@ namespace coot {
 			       std::string atom_id_2,
 			       std::string atom_id_3,
 			       std::string atom_id_4,
-			       mmdb::realtype value_angle, realtype value_angle_esd,
+			       mmdb::realtype value_angle, mmdb::realtype value_angle_esd,
 			       int period);
 
       void mon_lib_add_chiral(std::string comp_id,

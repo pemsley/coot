@@ -129,7 +129,7 @@ class Connectivity2 {
   std::string GetAtomID ( int i, int j);
   int GetTag(int iV);
   int SetTag(int iV,int i);
-  int AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager molHnd2,int selHnd2_in,mmdb::realtype  dist1, realtype  dist2, int  seqDist, int inter_model=0, int closest_bonding=5, int handle_hbond=0 );
+  int AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager molHnd2,int selHnd2_in,mmdb::realtype  dist1, mmdb::realtype  dist2, int  seqDist, int inter_model=0, int closest_bonding=5, int handle_hbond=0 );
   int AddRangeConnections(int set, mmdb::PResidue res1,Pmmdb::Residue res2, 
 		 mmdb::PResidue mres1, 
 		 const std::vector<std::string>& mainchain_name,

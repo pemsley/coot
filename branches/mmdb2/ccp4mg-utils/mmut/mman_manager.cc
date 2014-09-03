@@ -1884,7 +1884,7 @@ double CMMANManager::DeltaResidueOrientation (mmdb::PResidue pRes,Pmmdb::Residue
 
 //------------------------------------------------------------------------
 int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd, 
-         int fxSelHnd , mmdb::realtype central_cutoff, realtype cutoff ,
+         int fxSelHnd , mmdb::realtype central_cutoff, mmdb::realtype cutoff ,
          int mvSuperposeHnd,int fxSuperposeHnd ) {
 //------------------------------------------------------------------------
   mmdb::PPAtom fxSelAtoms = NULL;

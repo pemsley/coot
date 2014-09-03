@@ -26,13 +26,13 @@
 #include <cartesian.h>
 
 
-inline void setrealp(mmdb::realtype *a, int i, realtype val){
+inline void setrealp(mmdb::realtype *a, int i, mmdb::realtype val){
 
   a[i] = val;
 
 }
 
-inline void setrealpp(mmdb::realtype **a, int i, int j, realtype val){
+inline void setrealpp(mmdb::realtype **a, int i, int j, mmdb::realtype val){
 
   a[i][j] = val;
 

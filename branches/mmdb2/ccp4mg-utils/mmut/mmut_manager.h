@@ -48,7 +48,7 @@ class CMMUTManager : public mmdb::Manager  {
     void PrintSequence(int selHnd);
     void PrintBValues(int selHnd);
     //void PrintLengthsAndAngles(int selHnd);
-    //void PrintLengthsAndAngles(mmdb::realtype min, realtype max);
+    //void PrintLengthsAndAngles(mmdb::realtype min, mmdb::realtype max);
  
     int NumberOfHydrogens(int selHnd);
     int ResNoLookup(pstr resname);
