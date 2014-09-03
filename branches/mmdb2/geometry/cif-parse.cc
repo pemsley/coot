@@ -105,7 +105,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
       
 	 for(int idata=0; idata<ciffile.GetNofData(); idata++) { 
          
-	    PCMMCIFData data = ciffile.GetCIFData(idata);
+	    mmdb::mmcif::PData data = ciffile.GetCIFData(idata);
 	    
 	    // note that chem_link goes here to:
 	    // 
@@ -148,7 +148,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	       // All catagories have loops (AFAICS). 
 	       // std::cout << "DEBUG:: got catagory: " << cat_name << std::endl; 
 
-	       PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
+	       mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
 
 	       int n_loop_time = 0;
 	       if (mmCIFLoop == NULL) {
@@ -159,7 +159,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		     // not have a loop (the refmac files do) for the
 		     // chem_comp info.
 		     handled = 1;
-		     PCMMCIFStruct structure = data->GetStructure(cat_name.c_str());
+		     mmdb::mmcif::PStruct structure = data->GetStructure(cat_name.c_str());
 		     if (structure) {
 			comp_id_1 = chem_comp_component(structure);
 		     }
@@ -167,7 +167,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
 		  if (cat_name == "_chem_comp_chir") {
 		     handled = 1;
-		     PCMMCIFStruct structure = data->GetStructure(cat_name.c_str());
+		     mmdb::mmcif::PStruct structure = data->GetStructure(cat_name.c_str());
 		     if (structure) {
 			chem_comp_chir_structure(structure);
 		     }
@@ -175,7 +175,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		     
 		  if (cat_name == "_chem_comp_tor") {
 		     handled = 1;
-		     PCMMCIFStruct structure = data->GetStructure(cat_name.c_str());
+		     mmdb::mmcif::PStruct structure = data->GetStructure(cat_name.c_str());
 		     if (structure) {
 			chem_comp_tor_structure(structure);
 		     }
@@ -285,7 +285,7 @@ coot::protein_geometry::get_cif_file_name(const std::string &comp_id) const {
 // return the comp id (so that later we can associate the file name with the comp_id).
 // 
 std::string 
-coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
+coot::protein_geometry::chem_comp_component(mmdb::mmcif::PStruct structure) {
 
    int n_tags = structure->GetNofTags();
    std::string cat_name = structure->GetCategoryName();
@@ -370,7 +370,7 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
 
 // non-looping (single) tor
 void
-coot::protein_geometry::chem_comp_tor_structure(PCMMCIFStruct structure) {
+coot::protein_geometry::chem_comp_tor_structure(mmdb::mmcif::PStruct structure) {
    
    int n_tags = structure->GetNofTags();
    std::string cat_name = structure->GetCategoryName();
@@ -452,7 +452,7 @@ coot::protein_geometry::chem_comp_tor_structure(PCMMCIFStruct structure) {
 
 // non-looping (single) chir
 void
-coot::protein_geometry::chem_comp_chir_structure(PCMMCIFStruct structure) {
+coot::protein_geometry::chem_comp_chir_structure(mmdb::mmcif::PStruct structure) {
 
    int n_tags = structure->GetNofTags();
    std::string cat_name = structure->GetCategoryName();
@@ -930,7 +930,7 @@ coot::protein_geometry::mon_lib_add_plane(const std::string &comp_id,
 // return the chem_comp
 // 
 std::string
-coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::chem_comp(mmdb::mmcif::PLoop mmCIFLoop) {
 
    int ierr = 0;
    std::string returned_chem_comp; 
@@ -1024,7 +1024,7 @@ coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
 // 
 // return the comp_id
 std::string
-coot::protein_geometry::simple_mon_lib_chem_comp(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::simple_mon_lib_chem_comp(mmdb::mmcif::PLoop mmCIFLoop) {
 
    int ierr = 0;
    std::string comp_id;
@@ -1086,7 +1086,7 @@ coot::protein_geometry::simple_mon_lib_chem_comp(PCMMCIFLoop mmCIFLoop) {
 
 // return the number of atoms.
 int 
-coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 
    // If the number of atoms with partial charge matches the number of
    // atoms, then set a flag in the residue that this monomer has
@@ -1284,7 +1284,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 
 
 void
-coot::protein_geometry::comp_tree(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::comp_tree(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string comp_id;
    std::string atom_id;
@@ -1361,7 +1361,7 @@ coot::protein_geometry::atom_name_for_tree_4c(const std::string &comp_id, const 
 
 
 int
-coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop) {
 
    bool verbose_output = 0; // can be passed, perhaps.
    std::string comp_id;
@@ -1484,7 +1484,7 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
    return nbond;
 }
 void
-coot::protein_geometry::comp_angle(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::comp_angle(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string comp_id;
    std::string atom_id_1, atom_id_2, atom_id_3;
@@ -1550,7 +1550,7 @@ coot::protein_geometry::comp_angle(PCMMCIFLoop mmCIFLoop) {
 } 
 
 void
-coot::protein_geometry::comp_torsion(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::comp_torsion(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string comp_id, id;
    std::string atom_id_1, atom_id_2, atom_id_3, atom_id_4;
@@ -1648,7 +1648,7 @@ coot::protein_geometry::comp_torsion(PCMMCIFLoop mmCIFLoop) {
 
 
 std::pair<int, std::vector<std::string> >
-coot::protein_geometry::comp_chiral(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::comp_chiral(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string comp_id;
    std::string id, atom_id_centre;
@@ -1727,7 +1727,7 @@ coot::protein_geometry::comp_chiral(PCMMCIFLoop mmCIFLoop) {
 }
 
 void
-coot::protein_geometry::comp_plane(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::comp_plane(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string comp_id;
    std::string atom_id, plane_id;
@@ -1776,14 +1776,14 @@ coot::protein_geometry::comp_plane(PCMMCIFLoop mmCIFLoop) {
 } 
 // 
 int
-coot::protein_geometry::add_chem_mods(PCMMCIFData data) {
+coot::protein_geometry::add_chem_mods(mmdb::mmcif::PData data) {
 
    int n_mods = 0;
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
       PCMMCIFCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
-      PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
+      mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
             
       if (mmCIFLoop == NULL) { 
 	 std::cout << "null loop" << std::endl; 
@@ -1799,13 +1799,13 @@ coot::protein_geometry::add_chem_mods(PCMMCIFData data) {
 
 // 
 void
-coot::protein_geometry::add_synonyms(PCMMCIFData data) {
+coot::protein_geometry::add_synonyms(mmdb::mmcif::PData data) {
 
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
       PCMMCIFCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
-      PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
+      mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
             
       if (mmCIFLoop == NULL) { 
 	 std::cout << "null loop" << std::endl; 
@@ -1819,7 +1819,7 @@ coot::protein_geometry::add_synonyms(PCMMCIFData data) {
 }
 
 void 
-coot::protein_geometry::add_chem_comp_synonym(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::add_chem_comp_synonym(mmdb::mmcif::PLoop mmCIFLoop) {
 
    int ierr = 0;
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
@@ -1854,7 +1854,7 @@ coot::protein_geometry::add_chem_comp_synonym(PCMMCIFLoop mmCIFLoop) {
 
 
 int 
-coot::protein_geometry::add_chem_mod(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::add_chem_mod(mmdb::mmcif::PLoop mmCIFLoop) {
 
    int n_chem_mods = 0;
 
@@ -1903,7 +1903,7 @@ coot::protein_geometry::add_chem_mod(PCMMCIFLoop mmCIFLoop) {
 // links (no new atoms in a link, you see).
 // 
 int
-coot::protein_geometry::init_links(PCMMCIFData data) {
+coot::protein_geometry::init_links(mmdb::mmcif::PData data) {
 
    int r = 0; 
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
@@ -1913,7 +1913,7 @@ coot::protein_geometry::init_links(PCMMCIFData data) {
 
       // std::cout << "DEBUG:: init_link is handling " << cat_name << std::endl;
 
-      PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
+      mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
             
       if (mmCIFLoop == NULL) { 
 	 std::cout << "null loop" << std::endl; 
@@ -1944,7 +1944,7 @@ coot::protein_geometry::init_links(PCMMCIFData data) {
 // to the link groups (the modifications
 // themselves are in data_mod_list).
 void
-coot::protein_geometry::add_chem_links(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::add_chem_links(mmdb::mmcif::PLoop mmCIFLoop) {
 
 
    char *s;
@@ -2032,7 +2032,7 @@ coot::protein_geometry::add_chem_links(PCMMCIFLoop mmCIFLoop) {
 }
 
 int
-coot::protein_geometry::link_bond(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::link_bond(mmdb::mmcif::PLoop mmCIFLoop) {
    std::string link_id;
    std::string atom_id_1, atom_id_2;
    std::string type;
@@ -2083,7 +2083,7 @@ coot::protein_geometry::link_bond(PCMMCIFLoop mmCIFLoop) {
 }
 
 void
-coot::protein_geometry::link_angle(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::link_angle(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string link_id;
    std::string atom_id_1, atom_id_2, atom_id_3;
@@ -2140,7 +2140,7 @@ coot::protein_geometry::link_angle(PCMMCIFLoop mmCIFLoop) {
 
 
 void
-coot::protein_geometry::link_torsion(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::link_torsion(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string link_id;
    std::string  atom_id_1, atom_id_2, atom_id_3, atom_id_4;
@@ -2211,7 +2211,7 @@ coot::protein_geometry::link_torsion(PCMMCIFLoop mmCIFLoop) {
 }
 
 int 
-coot::protein_geometry::link_chiral(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::link_chiral(mmdb::mmcif::PLoop mmCIFLoop) {
 
    int n_chiral = 0;
    std::string chiral_id;
@@ -2271,7 +2271,7 @@ coot::protein_geometry::link_chiral(PCMMCIFLoop mmCIFLoop) {
 }
 
 void
-coot::protein_geometry::link_plane(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::link_plane(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string link_id;
    std::string atom_id, plane_id;
@@ -2851,8 +2851,8 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
    PCMMCIFFile mmCIFFile = new CMMCIFFile(); // d
       
-   PCMMCIFData   mmCIFData = NULL;
-   PCMMCIFStruct mmCIFStruct;
+   mmdb::mmcif::PData   mmCIFData = NULL;
+   mmdb::mmcif::PStruct mmCIFStruct;
    char S[2000];
    
    //  2.1  Example 1: add a structure into mmCIF object
@@ -2878,7 +2878,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       }
       // std::cout << "SUMMARY:: rc CIFRC_Ok or newly created. " << std::endl;
 
-      PCMMCIFLoop mmCIFLoop = new CMMCIFLoop; // 20100212
+      mmdb::mmcif::PLoop mmCIFLoop = new CMMCIFLoop; // 20100212
       // data_comp_list, id, three_letter_code, name group etc:
 
       rc = mmCIFData->AddLoop("_chem_comp", mmCIFLoop);
@@ -3233,11 +3233,11 @@ coot::simple_cif_reader::simple_cif_reader(const std::string &cif_dictionary_fil
       } else {
 	 for(int idata=0; idata<ciffile.GetNofData(); idata++) { 
          
-	    PCMMCIFData data = ciffile.GetCIFData(idata);
+	    mmdb::mmcif::PData data = ciffile.GetCIFData(idata);
 	    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
 	       PCMMCIFCategory cat = data->GetCategory(icat);
 	       std::string cat_name(cat->GetCategoryName());
-	       PCMMCIFLoop mmCIFLoop =
+	       mmdb::mmcif::PLoop mmCIFLoop =
 		  data->GetLoop(cat_name.c_str() );
 	       if (mmCIFLoop == NULL) { 
 		  std::cout << "null loop" << std::endl; 
@@ -3263,7 +3263,7 @@ coot::simple_cif_reader::simple_cif_reader(const std::string &cif_dictionary_fil
 // maybe these function need their own file.  For now they can go here.
 // 
 void
-coot::protein_geometry::pdbx_chem_comp_descriptor(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string comp_id;
    std::string type;

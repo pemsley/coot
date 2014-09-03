@@ -179,7 +179,7 @@ namespace coot {
       }
       
       std::string type() const { return type_; }
-      int mmdb_bond_type() const; // for CGraph CEdge usage 
+      int mmdb_bond_type() const; // for mmdb::math::Graph CEdge usage 
       // can throw a std::runtime_error exception (if target values not set)
       double value_dist() const {
 	 if (have_target_values)
@@ -698,10 +698,10 @@ namespace coot {
       dictionary_residue_restraints_t match_to_reference(const dictionary_residue_restraints_t &ref,
 							 mmdb::Residue *residue_p);
 
-      // make a CGraph from the atom_info and bond restraints.
+      // make a mmdb::math::Graph from the atom_info and bond restraints.
       //
       // Caller disposes of the memory with a delete().
-      CGraph *make_graph(bool use_hydrogen) const;
+      mmdb::math::Graph *make_graph(bool use_hydrogen) const;
       
    };
 
@@ -1491,10 +1491,10 @@ namespace coot {
       void add_energy_lib_bond(    const energy_lib_bond    &bond);
       void add_energy_lib_angle(   const energy_lib_angle   &angle);
       void add_energy_lib_torsion(const energy_lib_torsion &torsion);
-      void add_energy_lib_atoms( PCMMCIFLoop mmCIFLoop);
-      void add_energy_lib_bonds( PCMMCIFLoop mmCIFLoop);
-      void add_energy_lib_angles(PCMMCIFLoop mmCIFLoop);
-      void add_energy_lib_torsions(PCMMCIFLoop mmCIFLoop);
+      void add_energy_lib_atoms( mmdb::mmcif::PLoop mmCIFLoop);
+      void add_energy_lib_bonds( mmdb::mmcif::PLoop mmCIFLoop);
+      void add_energy_lib_angles(mmdb::mmcif::PLoop mmCIFLoop);
+      void add_energy_lib_torsions(mmdb::mmcif::PLoop mmCIFLoop);
    };
 
 
@@ -1593,38 +1593,38 @@ namespace coot {
       // 
       std::map<std::string,dictionary_residue_restraints_t> simple_monomer_descriptions;
 
-      int  comp_atom   (PCMMCIFLoop mmCIFLoop); 
+      int  comp_atom   (mmdb::mmcif::PLoop mmCIFLoop); 
       std::string comp_atom_pad_atom_name(const std::string &atom_id, const std::string &type_symbol) const;
       // return the comp_id
-      std::string chem_comp   (PCMMCIFLoop mmCIFLoop);
-      void comp_tree   (PCMMCIFLoop mmCIFLoop); 
-      int  comp_bond   (PCMMCIFLoop mmCIFLoop); 
-      void comp_angle  (PCMMCIFLoop mmCIFLoop); 
-      void comp_torsion(PCMMCIFLoop mmCIFLoop); 
-      void comp_plane  (PCMMCIFLoop mmCIFLoop); 
+      std::string chem_comp   (mmdb::mmcif::PLoop mmCIFLoop);
+      void comp_tree   (mmdb::mmcif::PLoop mmCIFLoop); 
+      int  comp_bond   (mmdb::mmcif::PLoop mmCIFLoop); 
+      void comp_angle  (mmdb::mmcif::PLoop mmCIFLoop); 
+      void comp_torsion(mmdb::mmcif::PLoop mmCIFLoop); 
+      void comp_plane  (mmdb::mmcif::PLoop mmCIFLoop); 
       std::pair<int, std::vector<std::string> >
-      comp_chiral (PCMMCIFLoop mmCIFLoop);  // return the number of chirals and a vector
+      comp_chiral (mmdb::mmcif::PLoop mmCIFLoop);  // return the number of chirals and a vector
 						 // of monomer names that have had
 						 // chirals added (almost certainly just
 						 // one of them, of course).
 
-      void add_chem_links (PCMMCIFLoop mmCIFLoop); // references to the modifications
+      void add_chem_links (mmdb::mmcif::PLoop mmCIFLoop); // references to the modifications
                                                 // to the link groups (the modifications
                                                 // themselves are in data_mod_list)
-      int  link_bond   (PCMMCIFLoop mmCIFLoop); 
-      void link_angle  (PCMMCIFLoop mmCIFLoop); 
-      void link_torsion(PCMMCIFLoop mmCIFLoop); 
-      void link_plane  (PCMMCIFLoop mmCIFLoop);
-      int  link_chiral  (PCMMCIFLoop mmCIFLoop); // return number of new chirals
-      void pdbx_chem_comp_descriptor(PCMMCIFLoop mmCIFLoop); 
+      int  link_bond   (mmdb::mmcif::PLoop mmCIFLoop); 
+      void link_angle  (mmdb::mmcif::PLoop mmCIFLoop); 
+      void link_torsion(mmdb::mmcif::PLoop mmCIFLoop); 
+      void link_plane  (mmdb::mmcif::PLoop mmCIFLoop);
+      int  link_chiral  (mmdb::mmcif::PLoop mmCIFLoop); // return number of new chirals
+      void pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop); 
 
       // return the comp id (so that later we can associate the file name with the comp_id).
       // 
-      std::string chem_comp_component(PCMMCIFStruct structure);
+      std::string chem_comp_component(mmdb::mmcif::PStruct structure);
       // non-looping (single) tor
-      void chem_comp_tor_structure(PCMMCIFStruct structure);
+      void chem_comp_tor_structure(mmdb::mmcif::PStruct structure);
       // non-looping (single) chir
-      void chem_comp_chir_structure(PCMMCIFStruct structure);
+      void chem_comp_chir_structure(mmdb::mmcif::PStruct structure);
 
 
       void mon_lib_add_chem_comp(const std::string &comp_id,
@@ -1711,7 +1711,7 @@ namespace coot {
 
       // return the comp id (so that later we can associate the file name with the comp_id).
       // 
-      std::string simple_mon_lib_chem_comp   (PCMMCIFLoop mmCIFLoop);
+      std::string simple_mon_lib_chem_comp   (mmdb::mmcif::PLoop mmCIFLoop);
       // add to simple_monomer_descriptions not dict_res_restraints.
 
 
@@ -1728,27 +1728,27 @@ namespace coot {
 
       // mod stuff (references by chem links)
 
-      int add_chem_mods(PCMMCIFData data);
-      int add_chem_mod(PCMMCIFLoop mmCIFLoop);
-      int add_mod(PCMMCIFData data);
+      int add_chem_mods(mmdb::mmcif::PData data);
+      int add_chem_mod(mmdb::mmcif::PLoop mmCIFLoop);
+      int add_mod(mmdb::mmcif::PData data);
 
-      int add_mods(PCMMCIFData data);
-      int add_chem_mods(PCMMCIFLoop mmCIFLoop);
+      int add_mods(mmdb::mmcif::PData data);
+      int add_chem_mods(mmdb::mmcif::PLoop mmCIFLoop);
       
       // which calls:
-      void add_chem_mod_atom( PCMMCIFLoop mmCIFLoop);
-      void add_chem_mod_bond( PCMMCIFLoop mmCIFLoop);
-      void add_chem_mod_tree( PCMMCIFLoop mmCIFLoop);
-      void add_chem_mod_angle(PCMMCIFLoop mmCIFLoop);
-      void add_chem_mod_tor(  PCMMCIFLoop mmCIFLoop);
-      void add_chem_mod_chir( PCMMCIFLoop mmCIFLoop);
-      void add_chem_mod_plane(PCMMCIFLoop mmCIFLoop);
+      void add_chem_mod_atom( mmdb::mmcif::PLoop mmCIFLoop);
+      void add_chem_mod_bond( mmdb::mmcif::PLoop mmCIFLoop);
+      void add_chem_mod_tree( mmdb::mmcif::PLoop mmCIFLoop);
+      void add_chem_mod_angle(mmdb::mmcif::PLoop mmCIFLoop);
+      void add_chem_mod_tor(  mmdb::mmcif::PLoop mmCIFLoop);
+      void add_chem_mod_chir( mmdb::mmcif::PLoop mmCIFLoop);
+      void add_chem_mod_plane(mmdb::mmcif::PLoop mmCIFLoop);
 
 
       // synonyms (for RNA/DNA)
       // 
-      void add_synonyms(PCMMCIFData data);
-      void add_chem_comp_synonym(PCMMCIFLoop mmCIFLoop);
+      void add_synonyms(mmdb::mmcif::PData data);
+      void add_chem_comp_synonym(mmdb::mmcif::PLoop mmCIFLoop);
       class residue_name_synonym {
       public:
 	 residue_name_synonym(std::string &comp_id_in,
@@ -1765,7 +1765,7 @@ namespace coot {
       std::vector<residue_name_synonym> residue_name_synonyms;
 
       // link stuff
-      int init_links(PCMMCIFData data);
+      int init_links(mmdb::mmcif::PData data);
 
       void link_add_bond(const std::string &link_id,
 			 int atom_1_comp_id,
@@ -2329,11 +2329,11 @@ namespace coot {
 
 
 #ifdef HAVE_CCP4SRS
-      match_results_t residue_from_best_match(CGraph &graph1, CGraph &graph2,
-					      CGraphMatch &match, int n_match,
+      match_results_t residue_from_best_match(mmdb::math::Graph &graph1, mmdb::math::Graph &graph2,
+					      mmdb::math::GraphMatch &match, int n_match,
 					      CCP4SRSMonomer *monomer_p) const;
       std::vector<match_results_t>
-      compare_vs_ccp4srs(CGraph *graph_1, float similarity, int n_vertices) const;
+      compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices) const;
       
 
 #endif // HAVE_CCP4SRS      

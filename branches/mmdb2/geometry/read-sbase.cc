@@ -429,8 +429,8 @@ coot::protein_geometry::try_load_sbase_description(const std::vector<std::string
 
 #ifdef HAVE_CCP4SRS
 coot::match_results_t
-coot::protein_geometry::residue_from_best_match(CGraph &graph1, CGraph &graph2,
-						CGraphMatch &match, int n_match,
+coot::protein_geometry::residue_from_best_match(mmdb::math::Graph &graph1, mmdb::math::Graph &graph2,
+						mmdb::math::GraphMatch &match, int n_match,
 						CCP4SRSMonomer *monomer_p) const {
 
    match_results_t r("", "", NULL);
@@ -471,7 +471,7 @@ coot::protein_geometry::residue_from_best_match(CGraph &graph1, CGraph &graph2,
 
 #ifdef HAVE_CCP4SRS
 std::vector<coot::match_results_t>
-coot::protein_geometry::compare_vs_ccp4srs(CGraph *graph_1, float similarity, int n_vertices) const {
+coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices) const {
 
    std::vector<coot::match_results_t> v;
 
@@ -489,7 +489,7 @@ coot::protein_geometry::compare_vs_ccp4srs(CGraph *graph_1, float similarity, in
       }
   
       int exclude_H_flag = 1;  // neglect hydrogens
-      CGraph *graph_2 = NULL;
+      mmdb::math::Graph *graph_2 = NULL;
       int min_match = coot::get_min_match(n_vertices, similarity);
 
       if (0) // debug
@@ -524,7 +524,7 @@ coot::protein_geometry::compare_vs_ccp4srs(CGraph *graph_1, float similarity, in
 	       // 
 	       graph_2->Build(False); // 20100608 was True
 
-	       CGraphMatch *match  = new CGraphMatch();
+	       mmdb::math::GraphMatch *match  = new mmdb::math::GraphMatch();
 	       if (min_match > 0) { 
 
 		  match->MatchGraphs(graph_1, graph_2, min_match);

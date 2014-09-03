@@ -138,7 +138,7 @@ protected:
 
 
 std::vector<std::string>
-lbg_info_t::compare_vs_sbase(CGraph *graph1) const {
+lbg_info_t::compare_vs_sbase(mmdb::math::Graph *graph1) const {
 
    std::vector<std::string> v;
    if (! SBase) {
@@ -150,8 +150,8 @@ lbg_info_t::compare_vs_sbase(CGraph *graph1) const {
       int minMatch = 4;
       
       for (int is=0; is<nStructures; is++) {
-	 CGraphMatch match;
-	 CGraph *G = new CGraph;
+	 mmdb::math::GraphMatch match;
+	 mmdb::math::Graph *G = new mmdb::math::Graph;
 	 int status = SBase->GetGraph(is, G, H_flag);
 	 if (status !=  SBASE_Ok) {
 	    std::cout << "bad status on get graph " << is << std::endl;
@@ -180,13 +180,13 @@ lbg_info_t::compare_vs_sbase(CGraph *graph1) const {
       
       for (int is=0; is<nStructures; is++) {
 	 std::cout << " testing structure " << is << std::endl;
-	 CGraph *G = new CGraph;
+	 mmdb::math::Graph *G = new mmdb::math::Graph;
 	 int status = SBase->GetGraph(is, G, H_flag);
 	 if (status != SBASE_Ok) {
 	    std::cout << "bad status on get graph " << is << std::endl;
 	 } else {
 	    // good
-	    CGraphMatch match;
+	    mmdb::math::GraphMatch match;
 	    match.MatchGraphs(graph1, G, minMatch, 1);
 	    int n_match = match.GetNofMatches();
 	    std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
@@ -199,8 +199,8 @@ lbg_info_t::compare_vs_sbase(CGraph *graph1) const {
 
 
 lbg_info_t::match_results_t
-lbg_info_t::residue_from_best_match(CGraph &graph1, CGraph &graph2,
-				    CGraphMatch &match, int n_match,
+lbg_info_t::residue_from_best_match(mmdb::math::Graph &graph1, mmdb::math::Graph &graph2,
+				    mmdb::math::GraphMatch &match, int n_match,
 				    CSBStructure *SBS) const {
 
    lbg_info_t::match_results_t r("", "", NULL);

@@ -1647,7 +1647,7 @@ PyObject *mark_intermediate_atom_as_fixed_py(int imol, PyObject *atom_spec, int 
 
 
    } else {
-       PCMMCIFData   mmCIF;
+       mmdb::mmcif::PData   mmCIF;
        mmCIF = new CMMCIFData();
        int rc = mmCIF->ReadMMCIFData ((char *)cif_dictionary_filename.c_str());
        if (rc==CIFRC_CantOpenFile)  {

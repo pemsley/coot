@@ -156,7 +156,7 @@ coot::basic_dict_restraint_t::basic_dict_restraint_t(const std::string &at1,
 }
 
 
-// for CGraph CEdge usage
+// for mmdb::math::Graph CEdge usage
 //
 // if the bond type is "deloc" then return a single bond.  This
 // doesn't matter (at the moment) because the code using this doesn't
@@ -284,9 +284,9 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
       mmdb::PModel   model;
       mmdb::PChain   chain;
       // mmdb::PResidue res = 0;
-      CGraph    graph;
-      PPCVertex V;
-      PPCEdge   E;
+      mmdb::math::Graph    graph;
+      mmdb::math::PPVertex V;
+      mmdb::math::PPEdge   E;
       int       i, im,ic,ir, nV,nE, k1,k2;
 
       graph.MakeGraph   ( residue_p,NULL );
@@ -363,7 +363,7 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
       for (unsigned int iat=0; iat<nResidueAtoms; iat++) { 
 	 mmdb::Atom *at_1 = residue_atoms[iat];
 	 int n_bonds_1 = at_1->GetNBonds();
-	 SAtomBond *AtomBonds = NULL;
+	 mmdb::AtomBond *AtomBonds = NULL;
 	 int n_bonds_2; 
 	 at_1->GetBonds(AtomBonds, n_bonds_2);
 	 for (unsigned int ibond=0; ibond<n_bonds_2; ibond++) {

@@ -5,12 +5,12 @@
 namespace coot {
 
    class smcif {
-      clipper::Cell get_cell(PCMMCIFData data) const;
-      clipper::Cell get_cell_for_data(PCMMCIFData data) const;
+      clipper::Cell get_cell(mmdb::mmcif::PData data) const;
+      clipper::Cell get_cell_for_data(mmdb::mmcif::PData data) const;
       std::pair<bool,clipper::Spacegroup> get_space_group(const std::vector<std::string> &symm_strings) const;
-      std::vector<mmdb::Atom *> read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const;
-      std::pair<bool,clipper::Spacegroup> get_space_group(PCMMCIFData data) const;
-      std::pair<bool,clipper::Spacegroup> get_space_group(PCMMCIFData data, const std::string &symm_tag) const;
+      std::vector<mmdb::Atom *> read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const;
+      std::pair<bool,clipper::Spacegroup> get_space_group(mmdb::mmcif::PData data) const;
+      std::pair<bool,clipper::Spacegroup> get_space_group(mmdb::mmcif::PData data, const std::string &symm_tag) const;
 
 
       // e.g. "O"    -> " O"

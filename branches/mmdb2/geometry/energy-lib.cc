@@ -58,7 +58,7 @@ coot::energy_lib_t::read(const std::string &file_name, bool print_info_message_f
 	 std::cout << "There are " << ciffile.GetNofData() << " data in "
 		   << file_name << std::endl;
       for(int idata=0; idata<ciffile.GetNofData(); idata++) { 
-	 PCMMCIFData data = ciffile.GetCIFData(idata);
+	 mmdb::mmcif::PData data = ciffile.GetCIFData(idata);
 	 // if (std::string(data->GetDataName()).substr(0,5) == "_lib_atom") {
 	 // energy_lib_atoms(mmCIFLoop);
 
@@ -72,7 +72,7 @@ coot::energy_lib_t::read(const std::string &file_name, bool print_info_message_f
 	       
 	       // std::cout << "DEBUG:: init_link is handling " << cat_name << std::endl;
 	       
-	       PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str());
+	       mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str());
 	       
 	       if (mmCIFLoop == NULL) { 
 		  std::cout << "null loop" << std::endl; 
@@ -95,7 +95,7 @@ coot::energy_lib_t::read(const std::string &file_name, bool print_info_message_f
 
 
 void
-coot::energy_lib_t::add_energy_lib_atoms(PCMMCIFLoop mmCIFLoop) {
+coot::energy_lib_t::add_energy_lib_atoms(mmdb::mmcif::PLoop mmCIFLoop) {
 
    // note that that:
    // if (ierr) {
@@ -226,7 +226,7 @@ coot::operator<<(std::ostream &s, const energy_lib_torsion &torsion) {
 
 
 void
-coot::energy_lib_t::add_energy_lib_bonds(PCMMCIFLoop mmCIFLoop) {
+coot::energy_lib_t::add_energy_lib_bonds(mmdb::mmcif::PLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
       
@@ -282,7 +282,7 @@ coot::energy_lib_t::add_energy_lib_bonds(PCMMCIFLoop mmCIFLoop) {
 }
 
 void
-coot::energy_lib_t::add_energy_lib_angles(PCMMCIFLoop mmCIFLoop) {
+coot::energy_lib_t::add_energy_lib_angles(mmdb::mmcif::PLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
       
@@ -344,7 +344,7 @@ coot::energy_lib_t::add_energy_lib_angles(PCMMCIFLoop mmCIFLoop) {
 }
 
 void
-coot::energy_lib_t::add_energy_lib_torsions(PCMMCIFLoop mmCIFLoop) {
+coot::energy_lib_t::add_energy_lib_torsions(mmdb::mmcif::PLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
 
