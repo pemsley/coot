@@ -598,7 +598,7 @@ write_atom_selection_file(atom_selection_container_t asc,
    } else {
 
       if (! write_hydrogens) {
-	 mmdb::Manager *n = new CMMDBManager;
+	 mmdb::Manager *n = new mmdb::Manager;
 	 n->Copy(mol, MMDBFCM_All);
 	 coot::delete_hydrogens_from_mol(n);
 	 mol = n;
@@ -606,7 +606,7 @@ write_atom_selection_file(atom_selection_container_t asc,
       }
 
       if (! write_aniso_records) {
-	 mmdb::Manager *n = new CMMDBManager;
+	 mmdb::Manager *n = new mmdb::Manager;
 	 n->Copy(mol, MMDBFCM_All);
 	 coot::delete_aniso_records_from_atoms(n);
 	 mol = n;
@@ -614,7 +614,7 @@ write_atom_selection_file(atom_selection_container_t asc,
       }
 
       if (! write_conect_records) {
-	 mmdb::Manager *n = new CMMDBManager;
+	 mmdb::Manager *n = new mmdb::Manager;
 	 n->Copy(mol, MMDBFCM_All);
 	 // Eugene's magic code
 	 n->Delete ( MMDBFCM_SC );
@@ -801,7 +801,7 @@ coot::mdl_mol_to_asc(const lig_build::molfile_molecule_t &m) {
 
       chain_p->AddResidue(residue_p);
       model_p->AddChain(chain_p);
-      mmdb::Manager *mol = new CMMDBManager;
+      mmdb::Manager *mol = new mmdb::Manager;
       mol->AddModel(model_p);
       asc = make_asc(mol);
    }

@@ -2960,7 +2960,7 @@ lbg_info_t::handle_read_draw_coords_mol_and_solv_acc(const std::string &coot_pdb
 mmdb::Manager *
 lbg_info_t::get_cmmdbmanager(const std::string &file_name) const {
 
-   mmdb::Manager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    mmdb::ERROR_CODE err = mol->ReadCoorFile(file_name.c_str());
    if (err) {
       std::cout << "WARNING:: Problem reading coordinates file " << file_name << std::endl;

@@ -288,9 +288,9 @@ public:
    // The graphics interface, given that you have a mmdb::Manager. 
    // 
    void draw_it(mmdb::Manager *mol);
-   void draw_it(int imol1, int imol2, mmdb::Manager *mol1, CMMDBManager *mol2); // no chain ids.
+   void draw_it(int imol1, int imol2, mmdb::Manager *mol1, mmdb::Manager *mol2); // no chain ids.
    void draw_it(int imol1, int imol2,
-		mmdb::Manager *mol1, CMMDBManager *mol2,
+		mmdb::Manager *mol1, mmdb::Manager *mol2,
 		const std::string &chain_id_1, const std::string &chain_id_2);
    
    void draw_it(const util::phi_psi_t &phipsi);

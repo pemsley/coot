@@ -3025,7 +3025,7 @@ molecule_class_info_t::edit_residue_pull_residue(int atom_index,
 						       atom_sel.UDDAtomIndexHandle);
       if (ret_res) { 
 
-	 Mymmdb::Manager *MMDBManager = new MyCMMDBManager;
+	 Mymmdb::Manager *MMDBManager = new Mymmdb::Manager;
 	 mmdb::Model *model_p = new mmdb::Model;
 	 mmdb::Chain *chain_p = new mmdb::Chain;
 	 
@@ -4850,7 +4850,7 @@ molecule_class_info_t::create_mmdbmanager_from_res_selection(mmdb::PResidue *Sel
 //    if (have_flanking_residue_at_end)
 //       end_offset = +1; 
 
-   mmdb::Manager *residues_mol = new CMMDBManager;
+   mmdb::Manager *residues_mol = new mmdb::Manager;
    mmdb::Model *model = new mmdb::Model;
    mmdb::Chain *chain = new mmdb::Chain;
    bool whole_res_flag = 0; // not all alt confs, only this one ("A") and "".

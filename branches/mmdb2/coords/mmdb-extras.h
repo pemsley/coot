@@ -48,7 +48,7 @@ using namespace std;  // ugh.  This should not be here.  FIXME
 #include <mmdb2/mmdb_manager.h>
 #endif
 
-class Mymmdb::Manager : public CMMDBManager { 
+class Mymmdb::Manager : public mmdb::Manager { 
  public: 
   const CMMDBCryst& get_cell() { return Cryst; } 
   CMMDBCryst* get_cell_p() { return & Cryst; } 

@@ -940,7 +940,7 @@ void set_display_control_button_state(int imol, const std::string &button_type, 
 /*                  Abstraction of New molecule by symmetry functions       */
 /*  ----------------------------------------------------------------------- */
 
-mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(CMMDBManager *mol,
+mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(mmdb::Manager *mol,
 							    double m11, double m12, double m13, 
 							    double m21, double m22, double m23, 
 							    double m31, double m32, double m33, 

@@ -366,7 +366,7 @@ namespace coot {
   // create a new molecule.  rtop_frac comes from the symmetry
   // operator.  If pre_shift_abc is not of size 3 then don't apply it
   // (if it is, do so, of course).
-  mmdb::Manager *mol_by_symmetry(CMMDBManager *mol, 
+  mmdb::Manager *mol_by_symmetry(mmdb::Manager *mol, 
 				clipper::Cell cell,
 				clipper::RTop_frac rtop_frac,
 				std::vector<int> pre_shift_abc);
@@ -379,7 +379,7 @@ namespace coot {
    public:
       close_residues_from_different_molecules_t() {};
       std::pair<std::vector<mmdb::Residue *>, std::vector<mmdb::Residue *> >
-	 close_residues(mmdb::Manager *mol1, CMMDBManager *mol2, float dist);
+	 close_residues(mmdb::Manager *mol1, mmdb::Manager *mol2, float dist);
       void clean_up() { delete combined_mol; } 
    };
 
@@ -611,7 +611,7 @@ namespace coot {
 
 #ifdef HAVE_MMDB_WITH_CISPEP
 	 // Full from mmdb structure
-	 cis_peptide_info_t(CCisPep *cis) {
+	 cis_peptide_info_t(mmdb::CisPep *cis) {
 	    serial_number = cis->serNum;
 	    chain_id_1 = cis->chainID1;
 	    residue_name_1 = cis->pep1;
@@ -945,11 +945,11 @@ namespace coot {
       };
 
       // a simple full copy, caller deletes.
-      mmdb::Manager *copy_molecule(CMMDBManager *mol);
+      mmdb::Manager *copy_molecule(mmdb::Manager *mol);
 
       // copy cell, symm, origin and scale cards from m1 to m2 (if possible)
       // return success status.
-      bool copy_cell_and_symm_headers(mmdb::Manager *m1, CMMDBManager *m2);
+      bool copy_cell_and_symm_headers(mmdb::Manager *m1, mmdb::Manager *m2);
 
       // adjust the atoms of residue_p
       void delete_alt_confs_except(mmdb::Residue *residue_p, const std::string &alt_conf);
@@ -978,7 +978,7 @@ namespace coot {
 
       // We don't mess with the chain ids (give as we get), but also
       // return the handle for the atom index transfer.
-      std::pair<mmdb::Manager *, int> create_mmdbmanager_from_mmdbmanager(CMMDBManager *);
+      std::pair<mmdb::Manager *, int> create_mmdbmanager_from_mmdbmanager(mmdb::Manager *);
 
 
      std::pair<bool, mmdb::Manager *>
@@ -991,14 +991,14 @@ namespace coot {
       //
       mmdb::Manager *create_mmdbmanager_from_residue(mmdb::Residue *res);
 
-      mmdb::Manager *create_mmdbmanager_from_atom_selection(CMMDBManager *orig_mol,
+      mmdb::Manager *create_mmdbmanager_from_atom_selection(mmdb::Manager *orig_mol,
 							   int SelectionHandle,
 							   bool invert_selection_flag=0);
       // uses the following:
-      mmdb::Manager *create_mmdbmanager_from_atom_selection_straight(CMMDBManager *orig_mol,
+      mmdb::Manager *create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_mol,
 								    int SelectionHandle);
       // Beware: This destroys (inverts) the atom selection as passed.
-      mmdb::Manager *create_mmdbmanager_from_inverted_atom_selection(CMMDBManager *orig_mol,
+      mmdb::Manager *create_mmdbmanager_from_inverted_atom_selection(mmdb::Manager *orig_mol,
 								    int SelectionHandle);
 
       mmdb::Manager *create_mmdbmanager_from_atom(mmdb::Atom *at);

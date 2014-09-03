@@ -298,9 +298,9 @@ namespace coot {
 						 int shelx_latt);
 
 // return null on no conversion.
-   mmdb::Manager *unshelx(CMMDBManager *mol);
+   mmdb::Manager *unshelx(mmdb::Manager *mol);
 // return null on no conversion.
-   mmdb::Manager *reshelx(CMMDBManager *mol);
+   mmdb::Manager *reshelx(mmdb::Manager *mol);
 
 }
 

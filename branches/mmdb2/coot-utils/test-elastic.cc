@@ -8,7 +8,7 @@ coot::test_elastic() {
 
    std::string file_name = "bit.pdb";
     file_name = "1x8b.pdb";
-   mmdb::Manager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    mol->ReadCoorFile(file_name.c_str());
 
    int selhnd = mol->NewSelection();

@@ -7,7 +7,7 @@ int main(int argc, char **argv) {
 
    if (argc > 1) {
       char *filename = argv[1];
-      mmdb::Manager *mol = new CMMDBManager;
+      mmdb::Manager *mol = new mmdb::Manager;
       mol->ReadCoorFile(filename);
 
       std::cout << "(define obj (new-generic-object-number \"EJD's vectors\"))"

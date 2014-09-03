@@ -3271,7 +3271,7 @@ molecule_class_info_t::get_residue_range_as_mol(const std::string &chain_id,
 
    int imod = 1;
 
-   mmdb::Manager *mol_new = new CMMDBManager;
+   mmdb::Manager *mol_new = new mmdb::Manager;
    mmdb::Model *model_new = new mmdb::Model;
    mmdb::Chain *chain_new = new mmdb::Chain;
    

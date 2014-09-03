@@ -2434,7 +2434,7 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 		  // new addition 25Feb2004
 		  rama_plot_for_2_phi_psis(imol, atom_index);
 
-		  mmdb::Manager *mol = new CMMDBManager;
+		  mmdb::Manager *mol = new mmdb::Manager;
 		  mmdb::Model *model = new mmdb::Model;
 		  mmdb::Chain *chain = new mmdb::Chain;
 		  mmdb::Residue *res1 = new mmdb::Residue;
