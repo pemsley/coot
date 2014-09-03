@@ -2167,7 +2167,7 @@ public:        //                      public
 
    // return a status flag (alignments done)
    std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > 
-   residue_mismatches(mmdb::realtype alignment_wgap, realtype aligment_wspace) const;
+   residue_mismatches(mmdb::realtype alignment_wgap, mmdb::realtype aligment_wspace) const;
 
    // Try to align on all chains - pick the best one and return it in
    // the second.  If there is no chain that matches within match_frag
@@ -2175,7 +2175,7 @@ public:        //                      public
    // 
    std::pair<bool, std::pair<std::string, coot::chain_mutation_info_container_t> >
    try_align_on_all_chains(const std::string &target, float match_fragment,
-			   mmdb::realtype wgap, realtype wspace) const;
+			   mmdb::realtype wgap, mmdb::realtype wspace) const;
 
    void make_backup_from_outside(); // when we have a multi mutate, we
 				    // want the wrapper to make a

@@ -70,8 +70,8 @@ private:
   int ResSASArea (int imodel);
   //int GetAtomTypes(int natoms, mmdb::PPAtom selected_atoms, 
     //	int iatom_types[], int iatom_types_lookup[] );
-  void  SortAB(mmdb::realtype *arci, realtype *arcf, int &karc);
-  void ArcLap(mmdb::realtype *arci, realtype *arcf, int &karc);
+  void  SortAB(mmdb::realtype *arci, mmdb::realtype *arcf, int &karc);
+  void ArcLap(mmdb::realtype *arci, mmdb::realtype *arcf, int &karc);
 
 };
 #endif

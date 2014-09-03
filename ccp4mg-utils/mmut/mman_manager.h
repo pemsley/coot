@@ -121,7 +121,7 @@ class CMMANManager : public CMMUTManager  {
     bool GetIsTransformed() { return isTransformed; }
     int TransformToSuperposeAtoms (  mmdb::PPAtom A1, int nA, mmdb::PPAtom A2 );
     double DeltaResidueOrientation (mmdb::PResidue pRes, Pmmdb::Residue pResFx);
-    int TransformToSuperposeCloseAtoms(PCMMANManager fxMolHnd, int fxSelHnd , mmdb::realtype central_cutoff, realtype cutoff, int mvSuperposeHnd,int fxSuperposeHnd);
+    int TransformToSuperposeCloseAtoms(PCMMANManager fxMolHnd, int fxSelHnd , mmdb::realtype central_cutoff, mmdb::realtype cutoff, int mvSuperposeHnd,int fxSuperposeHnd);
     int CopyCoordinates(const mmdb::PManager fromMolHnd,int fromModel=1);
     int LoadSerial(const mmdb::PManager fromMolHnd );
     bool GetUnremediated() { return unremediated; };

@@ -458,7 +458,7 @@ coot::chain_mutation_info_container_t
 molecule_class_info_t::align_and_mutate(const std::string chain_id,
 					const coot::fasta &fasta_seq,
 					bool renumber_residues_flag,
-					mmdb::realtype wgap, realtype wspace) {
+					mmdb::realtype wgap, mmdb::realtype wspace) {
 
    coot::chain_mutation_info_container_t mutation_info;
    std::string target = fasta_seq.sequence;
@@ -751,7 +751,7 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 // return the chain_id.
 // 
 std::pair<bool, std::pair<std::string, coot::chain_mutation_info_container_t> >
-molecule_class_info_t::try_align_on_all_chains(const std::string &target, float match_fragment_crit, mmdb::realtype wgap, realtype wspace) const {
+molecule_class_info_t::try_align_on_all_chains(const std::string &target, float match_fragment_crit, mmdb::realtype wgap, mmdb::realtype wspace) const {
 
    coot::chain_mutation_info_container_t cmi;
    bool success = 0;
@@ -817,7 +817,7 @@ molecule_class_info_t::make_model_string_for_alignment(mmdb::PResidue *SelResidu
 
 
 std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > 
-molecule_class_info_t::residue_mismatches(mmdb::realtype alignment_wgap, realtype alignment_wspace) const {
+molecule_class_info_t::residue_mismatches(mmdb::realtype alignment_wgap, mmdb::realtype alignment_wspace) const {
 
    std::vector<coot::chain_mutation_info_container_t> ar;
    bool status = 0;

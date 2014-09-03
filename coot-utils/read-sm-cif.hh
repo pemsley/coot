@@ -68,8 +68,8 @@ namespace coot {
 	 u23 = 0;
       }
       simple_sm_u(const std::string label_in,
-		  mmdb::realtype u11_in, realtype u22_in, realtype u33_in,
-		  mmdb::realtype u12_in, realtype u13_in, realtype u23_in) {
+		  mmdb::realtype u11_in, mmdb::realtype u22_in, mmdb::realtype u33_in,
+		  mmdb::realtype u12_in, mmdb::realtype u13_in, mmdb::realtype u23_in) {
 	 label = label_in;
 	 u11 = u11_in;
 	 u22 = u22_in;

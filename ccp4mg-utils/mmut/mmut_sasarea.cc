@@ -974,7 +974,7 @@ std::string CSASArea::Print(int imodel, string selection1, int set_selHnd1, stri
 
 
 //----------------------------------------------------------------
-void CSASArea::SortAB(mmdb::realtype *arci, realtype *arcf, int &karc)  {
+void CSASArea::SortAB(mmdb::realtype *arci, mmdb::realtype *arcf, int &karc)  {
 //----------------------------------------------------------------
   int i,j,it;
   mmdb::realtype aa,bb,temp;
@@ -1000,7 +1000,7 @@ void CSASArea::SortAB(mmdb::realtype *arci, realtype *arcf, int &karc)  {
 
 
 //--------------------------------------------------------------
-void CSASArea::ArcLap(mmdb::realtype *arci, realtype *arcf, int &karc)  {
+void CSASArea::ArcLap(mmdb::realtype *arci, mmdb::realtype *arcf, int &karc)  {
 //--------------------------------------------------------------
   mmdb::realtype t;
   int k,l,ks;//,m;

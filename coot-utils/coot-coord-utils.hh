@@ -921,7 +921,7 @@ namespace coot {
 	 void add_contacts(mmdb::Manager *mol,
 			   mmdb::PAtom *water_selection, int n_water_atoms, 
 			   mmdb::PAtom *atom_selection, int n_selected_atoms,
-			   mmdb::realtype min_dist, realtype max_dist,
+			   mmdb::realtype min_dist, mmdb::realtype max_dist,
 			   const mat44 &my_mat);
 	 void sort_contacts(std::vector<contact_atoms_info_t> *v) const;
 	 static bool sort_contacts_func(const contact_atoms_info_t &first,

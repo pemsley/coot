@@ -703,7 +703,7 @@ coot::protein_geometry::mon_lib_add_bond(std::string comp_id,
 				   std::string atom_id_1,
 				   std::string atom_id_2,
 				   std::string type,
-				   mmdb::realtype value_dist, realtype value_dist_esd) {
+				   mmdb::realtype value_dist, mmdb::realtype value_dist_esd) {
 
 //     std::cout << "adding bond for " << comp_id << " " << atom_id_1
 // 	      << " " << atom_id_2 << " " << type << " " << value_dist

@@ -935,7 +935,7 @@ std::string Connectivity2::Print ( const std::string &tag1, const std::string &t
  
 }
 
-int Connectivity2::AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager molHnd2,int selHnd2_in,mmdb::realtype  dist1, realtype  dist2, int  seqDist , int inter_model, int closest_bonding, int handle_hbond) {
+int Connectivity2::AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager molHnd2,int selHnd2_in,mmdb::realtype  dist1, mmdb::realtype  dist2, int  seqDist , int inter_model, int closest_bonding, int handle_hbond) {
   // closest_bonding -- min 'bonding' number allowed from TestBonding 
   // -- can be 0, 2=bonded, 3=1-3bonded 1-4 = 1-4 bonded
   // handle_hbond - flag treatment of HBond -- not implemented yet
