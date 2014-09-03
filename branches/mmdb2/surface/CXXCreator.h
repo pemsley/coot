@@ -82,7 +82,7 @@ private:
 						  //of a selection containing all atoms
 public:
 	
-	CXXCreator (pstr thePdb);   // reads a pdb from file to make creator 
+	CXXCreator (mmdb::pstr thePdb);   // reads a pdb from file to make creator 
 	CXXCreator (mmdb::PManager theManager); //can also be created from an MMDBManager ...
 	CXXCreator (mmdb::PManager theManager, int selHnd, int context_selHnd=-1); //can also be created from an MMDBManager + selHnd
 

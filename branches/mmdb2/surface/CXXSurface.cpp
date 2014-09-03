@@ -18,7 +18,7 @@
 #include "CXXTorusElement.h"
 #include "CXXSphereElement.h"
 #include <mmdb2/mmdb_tables.h>
-#include <mmdb/mmdb_uddata.h>
+#include <mmdb2/mmdb_uddata.h>
 #include "CXXCircle.h"
 #include "CXXTriangle.h"
 #include "CXXSphereFlatTriangle.h"
@@ -957,9 +957,9 @@ double CXXSurface::getAtomRadius(mmdb::PAtom theAtom){
     double theRadius;
     if (iRadiusHandle>0){
         int success = theAtom->GetUDData (iRadiusHandle, theRadius);
-        if (success != mmdb::UDDATA_Ok) theRadius = getVdWaalsRadius(theAtom->element);
+        if (success != mmdb::UDDATA_Ok) theRadius = mmdb::getVdWaalsRadius(theAtom->element);
     }
-    else theRadius = getVdWaalsRadius(theAtom->element);
+    else theRadius = mmdb::getVdWaalsRadius(theAtom->element);
     return theRadius;
 }
 
@@ -993,19 +993,19 @@ int CXXSurface::getIntegerUDDataOfAtom(mmdb::PAtom theAtom, int handle){
     int rc = theAtom->GetUDData(handle, result);
     switch (rc)  {
             
-        case  UDDATA_WrongUDRType :
+    case  mmdb::UDDATA_WrongUDRType :
             printf ( " wrong UDD registration type\n" );
             break;
             
-        case  UDDATA_WrongHandle  :
+    case  mmdb::UDDATA_WrongHandle  :
             printf ( " wrong UDD handle\n" );
             break;
             
-        case  UDDATA_NoData :
+    case  mmdb::UDDATA_NoData :
             printf ( " UDD not found.\n" );
             break;
             
-        case  mmdb::UDDATA_Ok :
+    case  mmdb::UDDATA_Ok :
             break;			
     }	
     

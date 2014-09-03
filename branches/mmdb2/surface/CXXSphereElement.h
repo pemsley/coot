@@ -20,7 +20,7 @@ class CXXSphereTriangleEdge;
 #include "CXXSphereTriangle.h"
 //class CXXSphereTriangle;
 class CXXSphereNode;
-class mmdb::Atom;
+// class mmdb::Atom;
 #include "CXXSphereFlatTriangle.h"
 //class CXXSphereFlatTriangle;
 class CXXTriangle;

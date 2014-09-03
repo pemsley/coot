@@ -16,7 +16,8 @@
 
 #include "CXXCircle.h"
 
-class mmdb::Atom;
+// class mmdb::Atom;
+
 using namespace std;
 
 class CXXSphereNode {
@@ -27,7 +28,7 @@ private:
 	int shouldBeDrawn;
 	mmdb::Atom *theAtom;
 public:
-		CXXSphereNode();
+	CXXSphereNode();
 	CXXSphereNode(const CXXCoord &aCoord);
 	const CXXCoord &vertex() const;
 	int setDoDraw(const int yesNo);

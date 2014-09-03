@@ -3,7 +3,7 @@
 #include "clipper/clipper.h"
 #include <mmdb2/mmdb_manager.h>
 #include <mmdb2/mmdb_tables.h>
-#include <mmdb/mmdb_uddata.h>
+#include <mmdb2/mmdb_uddata.h>
 #include <math.h>
 #include "CXXCircle.h"
 #include "CXXCoord.h"
@@ -31,7 +31,7 @@ class CXXQADSurface {
 	} GRIDCELL;
 	
 private: 
-		double sample;
+	double sample;
 	double probeRadius;
 	double atomRadius;
 	mmdb::PPAtom	selectedAtoms;

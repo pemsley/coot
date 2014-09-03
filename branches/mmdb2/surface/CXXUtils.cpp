@@ -28,7 +28,7 @@ int CXXUtils::assignUnitedAtomRadius  (mmdb::PManager theManager, int selHnd) {
 		printf ( " registration failed.\n" );
 		exit ( 1 );
 	}
-	if (iRadiusHandle==UDDATA_WrongUDRType) {
+	if (iRadiusHandle==mmdb::UDDATA_WrongUDRType) {
 		printf ( " wrong registration type used.\n" );
 		exit ( 2 );
 	}
@@ -98,8 +98,9 @@ void CXXUtils::reformatAtomRadii(){
 	}
 }
 
-int CXXUtils::selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::string selectionString, int existingSelection, int selKeyRequest){
-	int selHnd, selKey;
+int CXXUtils::selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::string selectionString, int existingSelection, mmdb::SELECTION_KEY selKeyRequest){
+   int selHnd;
+   mmdb::SELECTION_KEY selKey;
 	if (existingSelection == -1) {
 		selHnd = allAtomsManager_in->NewSelection();
 	}
