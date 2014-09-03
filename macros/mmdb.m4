@@ -68,7 +68,7 @@ src
 lib/src
 lib/src/mmdb'
 for ac_dir in $ac_mmdb_dirs; do
-   if test -r "$mmdb_prefix/$ac_dir/mmdb/mmdb_manager.h"; then
+   if test -r "$mmdb_prefix/$ac_dir/mmdb2/mmdb_manager.h"; then
       ac_MMDB_CXXFLAGS="-I$mmdb_prefix/$ac_dir"
       break
    fi
@@ -79,65 +79,37 @@ done
  #
  # not libdirstem because mmdb is in lib no matter what.
  #  ac_MMDB_LDOPTS="-L$mmdb_prefix/$acl_libdirstem -L$mmdb_prefix -lmmdb -lm"
- ac_MMDB_LDOPTS="-L$mmdb_prefix/lib -lmmdb -lm"
+ ac_MMDB_LDOPTS="-L$mmdb_prefix/lib -lmmdb2 -lm"
 else
  # the compiler looks in the "standard" places for MMDB.  In real life,
  # it would be quite unlikely that MMDB would be installed in /usr/include, 
  # /usr/lib etc. so this code will not usually find the right dependencies.
  ac_MMDB_CXXFLAGS=""
- ac_MMDB_LDOPTS="-lmmdb -lm"
+ ac_MMDB_LDOPTS="-lmmdb2 -lm"
 fi
 
 AC_MSG_CHECKING([for MMDB])
 
-	LIBS="$save_LIBS $ac_MMDB_LDOPTS"
-	CXXFLAGS="$save_CXXFLAGS $ac_MMDB_CXXFLAGS"
-	#
-	# AC_TRY_LINK uses the c compiler (set by AC_LANG), so we will
-	# temporarily reassign $CC to the c++ compiler.
- 	#
-	AC_LANG_PUSH(C++)
-	AC_TRY_LINK([#include <mmdb/mmdb_manager.h>] ,[ CMMDBManager a;  ], have_generic_mmdb=yes, have_generic_mmdb=no)
-        AC_TRY_COMPILE([#include <mmdb/mmdb_manager.h>] ,[ CAtom at; const char *name = "test"; at.SetAtomName(name); CMMDBManager *m; cpstr sg = m->GetSpaceGroup(); ], have_mmdb=yes, have_mmdb=no)
-	AC_TRY_COMPILE([#include <mmdb/mmdb_manager.h>] ,[ CMMDBManager *m; m->SetFlag(MMDBF_IgnoreHash)  ], have_mmdb_ignore_hash=yes, have_mmdb_ignore_hash=no)	
-	AC_TRY_COMPILE([#include <mmdb/mmdb_manager.h>] ,[ CMMDBManager *m; m->GetModel(1)->GetNumberOfCisPeps(); ], have_mmdb_with_cispep=yes, have_mmdb_with_cispep=no)	
-	AC_TRY_COMPILE([#include <mmdb/mmdb_manager.h>] ,[ CLinkR c; ], have_mmdb_with_linkr=yes, have_mmdb_with_linkr=no)	
-	AC_LANG_POP(C++)  # the language we have just quit
-	AC_MSG_RESULT($have_mmdb)
+   LIBS="$save_LIBS $ac_MMDB_LDOPTS"
+   CXXFLAGS="$save_CXXFLAGS $ac_MMDB_CXXFLAGS"
+   #
+   # AC_TRY_LINK uses the c compiler (set by AC_LANG), so we will
+   # temporarily reassign $CC to the c++ compiler.
+   #
+   AC_LANG_PUSH(C++)
+   AC_TRY_LINK([#include    <mmdb2/mmdb_manager.h>] ,[ mmdb::Manager a;  ], have_mmdb=yes, have_mmdb=no)
+   AC_LANG_POP(C++)  # the language we have just quit
+   AC_MSG_RESULT($have_mmdb)
 
 if test x$have_mmdb = xyes; then
 
  LIBS="$saved_LIBS"
- if test $have_mmdb_ignore_hash = yes ; then
-    HASH_FLAG=-DHAVE_MMDB_IGNORE_HASH
- else
-    HASH_FLAG=
- fi
- if test "$have_mmdb_with_cispep" = "yes" ; then
-    CISPEP_FLAG=-DHAVE_MMDB_WITH_CISPEP
- fi
- if test "$have_mmdb_with_linkr" = "no" ; then
-    CLINKR_FLAG=-DMMDB_WITHOUT_LINKR
- fi
+ HASH_FLAG=-DHAVE_MMDB_IGNORE_HASH
+ CISPEP_FLAG=-DHAVE_MMDB_WITH_CISPEP
  CXXFLAGS="$saved_CXXFLAGS"
- MMDB_CXXFLAGS="$ac_MMDB_CXXFLAGS $HASH_FLAG $CISPEP_FLAG $CLINKR_FLAG"
+ MMDB_CXXFLAGS="$ac_MMDB_CXXFLAGS $HASH_FLAG $CISPEP_FLAG"
  MMDB_LIBS="$ac_MMDB_LDOPTS"
 ifelse([$1], , :, [$1])
-
-else
-
- # no (CAtom checked) mmdb:
-
- if test x$have_generic_mmdb = xyes ; then
-   echo Opps - You have an mmdb library, but it is out of date.
-   echo You need version 1.12 or later
- fi
-
- LIBS="$saved_LIBS"
- CXXFLAGS="$saved_CXXFLAGS"
- MMDB_LIBS=""
- MMDB_CXXFLAGS=""
- ifelse([$2], , :, [$2])
 
 fi
 
