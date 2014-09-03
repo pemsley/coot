@@ -26,7 +26,7 @@
 #include "coot-utils/coot-coord-utils.hh"
 
 #include <mmdb/mmdb_align.h>
-#include <mmdb/mmdb_tables.h>
+#include <mmdb2/mmdb_tables.h>
 
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"

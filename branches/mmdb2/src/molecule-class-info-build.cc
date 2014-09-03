@@ -210,7 +210,7 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 				 const std::string &link_name, float length,
 				 const coot::protein_geometry &geom) {
 
-   // I don't see how link_name and length are part of a CLink.
+   // I don't see how link_name and length are part of a mmdb::Link.
    // Perhaps they should not be passed then?
    
    mmdb::Atom *at_1 = get_atom(spec_1);
@@ -237,7 +237,7 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 
 	    mmdb::Manager *mol = atom_sel.mol;
 	 
-	    CLink *link = new CLink; // sym ids default to 1555 1555
+	    mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
 
 	    strncpy(link->atName1,  at_1->GetAtomName(), 19);
 	    strncpy(link->aloc1,    at_1->altLoc, 9);
@@ -283,11 +283,11 @@ molecule_class_info_t::delete_any_link_containing_residue(const coot::residue_sp
       for (unsigned int imod=1; imod<=n_models; imod++) {
 	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
 	 if ((res_spec.model_number == imod) || (res_spec.model_number == mmdb::MinInt4)) {
-	    CLinkContainer *links = model_p->GetLinks();
+	    mmdb::LinkContainer *links = model_p->GetLinks();
 	    int n_links = model_p->GetNumberOfLinks();
 	    for (unsigned int ilink=1; ilink<=n_links; ilink++) { 
-	       CLink *link_p = model_p->GetLink(ilink);
-	       // CLink *link = static_cast<CLink *>(links->GetContainerClass(ilink));
+	       mmdb::Link *link_p = model_p->GetLink(ilink);
+	       // mmdb::Link *link = static_cast<mmdb::Link *>(links->GetContainerClass(ilink));
 
 	       if (link_p) { 
 
@@ -312,16 +312,16 @@ molecule_class_info_t::delete_any_link_containing_residue(const coot::residue_sp
 }
 
 void
-molecule_class_info_t::delete_link(CLink *link, mmdb::Model *model_p) {
+molecule_class_info_t::delete_link(mmdb::Link *link, mmdb::Model *model_p) {
 
    // Copy out the links, delete all links and add the saved links back
    
-   std::vector<CLink *> saved_links;
+   std::vector<mmdb::Link *> saved_links;
    int n_links = model_p->GetNumberOfLinks();
    for (unsigned int ilink=1; ilink<=n_links; ilink++) {
-      CLink *model_link = model_p->GetLink(ilink);
+      mmdb::Link *model_link = model_p->GetLink(ilink);
       if (model_link != link) { 
-	 CLink *copy_link = new CLink(*model_link);
+	 mmdb::Link *copy_link = new mmdb::Link(*model_link);
 	 saved_links.push_back(copy_link);
       }
    }

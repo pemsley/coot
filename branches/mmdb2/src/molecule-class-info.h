@@ -3259,7 +3259,7 @@ public:        //                      public
 		  const std::string &link_name, float length,
 		  const coot::protein_geometry &geom);
    void delete_any_link_containing_residue(const coot::residue_spec_t &res_spec);
-   void delete_link(CLink *link, mmdb::Model *model_p);
+   void delete_link(mmdb::Link *link, mmdb::Model *model_p);
 
 
    // ------------ watson crick pair additions  ---------

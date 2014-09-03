@@ -1116,7 +1116,7 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
       int n_links = model_p->GetNumberOfLinks();
       if (n_links > 0) { 
 	 for (int i_link=1; i_link<=n_links; i_link++) {
-	    PCLink link = model_p->GetLink(i_link);
+	    mmdb::PLink link = model_p->GetLink(i_link);
 	 
 	    // For the moment, don't make Link dashed bonds to
 	    // symmetry-related molecules.
@@ -1133,7 +1133,7 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
       int n_linkrs = model_p->GetNumberOfLinkRs();
       if (n_linkrs > 0) { 
 	 for (int i_link=1; i_link<=n_linkrs; i_link++) {
-	    PCLinkR link = model_p->GetLinkR(i_link);
+	    mmdb::PLinkR link = model_p->GetLinkR(i_link);
 	    add_link_bond(model_p, atom_colour_type, link);
 	 }
       }
@@ -1143,14 +1143,14 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
 
 void
 Bond_lines_container::add_link_bond(mmdb::Model *model_p, int atom_colour_type,
-				    CLink *link) {
+				    mmdb::Link *link) {
 
    add_link_bond_templ(model_p, atom_colour_type, link);
 }
 
 void
 Bond_lines_container::add_link_bond(mmdb::Model *model_p, int atom_colour_type,
-				    CLinkR *linkr) {
+				    mmdb::LinkR *linkr) {
 
    // Missing LINKR bond is due to incorrect placement of atom names in the LINKR card
    if (0) 

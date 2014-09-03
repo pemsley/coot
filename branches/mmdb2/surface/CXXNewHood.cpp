@@ -13,7 +13,7 @@
 #include "CXXSurface.h"
 #include "CXXNewHood.h"
 #include <mmdb2/mmdb_manager.h>
-#include <mmdb/mmdb_tables.h>
+#include <mmdb2/mmdb_tables.h>
 #include "CXXCircle.h"
 #include "CXXCircleNode.h"
 #include "CXXTorusElement.h"

@@ -11,7 +11,7 @@
 #include "CXXCircle.h"
 #include "CXXNewHood.h"
 #include <mmdb2/mmdb_manager.h>
-#include <mmdb/mmdb_tables.h>
+#include <mmdb2/mmdb_tables.h>
 
 CXXCircle::CXXCircle() :
 theAtomJ(0),

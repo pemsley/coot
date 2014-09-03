@@ -356,8 +356,8 @@ class Bond_lines_container {
    
    void construct_from_model_links(mmdb::Model *model, int atom_colour_type);
    // which wraps...
-   void add_link_bond(mmdb::Model *model_p, int atom_colour_type, CLink *link);
-   void add_link_bond(mmdb::Model *model_p, int atom_colour_type, CLinkR *linkr);
+   void add_link_bond(mmdb::Model *model_p, int atom_colour_type, mmdb::Link *link);
+   void add_link_bond(mmdb::Model *model_p, int atom_colour_type, mmdb::LinkR *linkr);
 
    template<class T> void add_link_bond_templ(mmdb::Model *model_p, int atom_colour_type, T *link);
 

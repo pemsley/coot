@@ -4860,7 +4860,7 @@ SCM link_info_scm(int imol) {
 	    int n_links = model_p->GetNumberOfLinks();
 	    if (n_links > 0) { 
 	       for (int i_link=1; i_link<=n_links; i_link++) {
-		  PCLink link = model_p->GetLink(i_link);
+		  mmdb::PLink link = model_p->GetLink(i_link);
 
 		  std::pair<coot::atom_spec_t, coot::atom_spec_t> atoms = coot::link_atoms(link);
 		  SCM l = scm_list_3(SCM_MAKINUM(imod),
@@ -4893,7 +4893,7 @@ PyObject *link_info_py(int imol) {
 	    int n_links = model_p->GetNumberOfLinks();
 	    if (n_links > 0) { 
 	       for (int i_link=1; i_link<=n_links; i_link++) {
-		  PCLink link = model_p->GetLink(i_link);
+		  mmdb::PLink link = model_p->GetLink(i_link);
 		  std::pair<coot::atom_spec_t, coot::atom_spec_t> atoms = coot::link_atoms(link);
 		  PyObject *l = PyList_New(3);
 		  PyList_SetItem(l, 0, PyInt_FromLong(imod));

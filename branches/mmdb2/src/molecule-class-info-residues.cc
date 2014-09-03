@@ -44,7 +44,7 @@
 #include "graphics-info.h"  // for rama probablity definitions
 
 #include <mmdb2/mmdb_manager.h>
-#include <mmdb/mmdb_tables.h>  // for Get1LetterCode()
+#include <mmdb2/mmdb_tables.h>  // for Get1LetterCode()
 #include "coords/mmdb-extras.h"
 #include "coords/Cartesian.h"
 #include "coords/mmdb-crystal.h"

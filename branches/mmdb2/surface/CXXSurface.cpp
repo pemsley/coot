@@ -17,7 +17,7 @@
 #include "CXXNewHood.h"
 #include "CXXTorusElement.h"
 #include "CXXSphereElement.h"
-#include <mmdb/mmdb_tables.h>
+#include <mmdb2/mmdb_tables.h>
 #include <mmdb/mmdb_uddata.h>
 #include "CXXCircle.h"
 #include "CXXTriangle.h"
