@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
 				   "*", // atom name
 				   "*", // elements
 				   "*",  // alt loc.
-				   SKEY_OR
+				   mmdb::SKEY_OR
 				   );
 	       }
 	       mmdb::PPAtom atom_sel=NULL;

@@ -114,7 +114,8 @@ molecule_class_info_t::make_ribbons() {
   molHnd->ReadCoorFile(name_.c_str());
   int selHnd = molHnd->NewSelection();
 
-  molHnd->SelectAtoms(selHnd, 0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",SKEY_OR );
+  molHnd->SelectAtoms(selHnd, 0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",
+		      mmdb::SKEY_OR );
   molHnd->GetMolBonds();
   molHnd->GetModel(1)->CalcSecStructure(0);
   int nSelAtoms;

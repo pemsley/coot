@@ -284,7 +284,7 @@ namespace coot {
       // that matches the spec.  Caller is responsible for deleting
       // the atom selection.
       //
-      // selection_key_type is typically either mmdb::SKEY_NEW or SKEY_OR
+      // selection_key_type is typically either mmdb::SKEY_NEW or mmdb::SKEY_OR
       // 
       int select_atoms(mmdb::Manager *mol, int selhnd,
 		       mmdb::SELECTION_KEY selection_key);
