@@ -1036,7 +1036,7 @@ graphics_info_t::create_mmdbmanager_from_res_selection(mmdb::PResidue *SelResidu
    chain->SetChainID(chain_id_1.c_str());
    model->AddChain(chain);
    residues_mol->AddModel(model);
-   residues_mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   residues_mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    residues_mol->FinishStructEdit();
 
    return residues_mol;
@@ -1112,7 +1112,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 
       new_mol = new mmdb::Manager;
       new_mol->AddModel(model_p);
-      new_mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      new_mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       new_mol->FinishStructEdit();
 
       
@@ -3437,7 +3437,7 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
 	    chain_p->SetChainID(residue->GetChainID());
 	    model_p->AddChain(chain_p);
 	    mol->AddModel(model_p);
-	    mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+	    mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	    mol->FinishStructEdit();
 
 	    imol_moving_atoms = imol;

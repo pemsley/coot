@@ -1265,7 +1265,7 @@ int CMMANManager::CopyModel(int model) {
   new_model = new mmdb::Model();
   new_model->Copy(GetModel(model));
   AddModel(new_model);
-  PDBCleanup(PDBCLEAN_SERIAL);
+  PDBCleanup(mmdb::PDBCLEAN_SERIAL);
   //cout << "serNum " << new_model->GetSerNum();
 
   // Copy atom types and bonds

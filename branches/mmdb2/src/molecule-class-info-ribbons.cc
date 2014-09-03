@@ -52,7 +52,7 @@
 void
 molecule_class_info_t::make_ribbons() {
 
-  InitMatType();
+  mmdb::InitMatType();
   graphics_info_t g;
   coot::protein_geometry* gp = g.Geom_p();
   std::string mon_lib_dir = gp->get_mon_lib_dir();

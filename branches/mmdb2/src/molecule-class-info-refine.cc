@@ -607,7 +607,7 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 	 } 
       }
       std::cout << std::endl;
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();

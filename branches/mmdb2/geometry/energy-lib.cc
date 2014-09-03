@@ -49,7 +49,7 @@ coot::energy_lib_t::read(const std::string &file_name, bool print_info_message_f
    if (ierr!=CIFRC_Ok) {
       std::cout << "dirty mmCIF file? " << file_name.c_str() << std::endl;
       std::cout << "    Bad CIFRC_Ok on ReadMMCIFFile" << std::endl;
-      std::cout << "    " << GetErrorDescription(ierr) << std::endl;
+      std::cout << "    " << mmdb::GetErrorDescription(ierr) << std::endl;
       char        err_buff[1000];
       std::cout <<  "CIF error rc=" << ierr << " reason:" << 
 	 GetCIFMessage (err_buff,ierr) << std::endl;

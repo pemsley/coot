@@ -93,7 +93,7 @@ coot::util::trim_molecule_by_map(mmdb::Manager *mol,
    }
    if ((n_changed > 0) && (remove_or_zero_occ_flag == coot::util::TRIM_BY_MAP_DELETE)) {
       mol->FinishStructEdit();
-      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    }
    return n_changed;
 }

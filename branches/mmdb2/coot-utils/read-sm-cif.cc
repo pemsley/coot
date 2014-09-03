@@ -859,7 +859,7 @@ coot::smcif::sigmaa_maps() const {
 // int main(int argc, char **argv) {
 
 //    if (argc > 1) {
-//       InitMatType(); // delete me when not stand-alone
+//       mmdb::InitMatType(); // delete me when not stand-alone
 //       std::string file_name = argv[1];
 //       coot::smcif smcif;
 //       mmdb::Manager *mol = smcif.read_sm_cif(file_name);

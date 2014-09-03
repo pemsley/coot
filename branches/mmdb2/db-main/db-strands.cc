@@ -102,7 +102,7 @@ mmdb::Manager *
 coot::db_strands::get_mol(const std::string &filename) const {
 
    mmdb::Manager *MMDBManager = new CMMDBManager();
-   int err = MMDBManager->ReadCoorFile((char *)filename.c_str());
+   mmdb::ERROR_CODE err = MMDBManager->ReadCoorFile(filename.c_str());
    if (err) {
       std::cout << "Error reading " << filename << std::endl;
       delete MMDBManager;
@@ -254,7 +254,7 @@ coot::db_strands::trim_to_mainchain(mmdb::Manager *mol) const {
 	 residue_p->TrimAtomTable();
       }
    }
-   mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    mol->FinishStructEdit();
 }
 

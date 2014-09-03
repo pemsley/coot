@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
 mmdb::Manager *
 get_atom_selection(std::string pdb_name) {
 
-   int err;
+   mmdb::ERROR_CODE err;
    mmdb::Manager* MMDBManager;
 
    // Needed for the error message printing: 
@@ -38,7 +38,7 @@ get_atom_selection(std::string pdb_name) {
 
    //   Make routine initializations
    //
-   InitMatType();
+   mmdb::InitMatType();
 
    MMDBManager = new mmdb::Manager;
    
@@ -47,13 +47,13 @@ get_atom_selection(std::string pdb_name) {
 			  mmdb::MMDBF_IgnoreNonCoorPDBErrors );
    
    std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
-   err = MMDBManager->ReadCoorFile((char *)pdb_name.c_str());
+   err = MMDBManager->ReadCoorFile(pdb_name.c_str());
    
    if (err) {
       // does_file_exist(pdb_name.c_str());
       std::cout << "There was an error reading " << pdb_name.c_str() << ". \n";
       std::cout << "ERROR " << err << " READ: "
-		<< GetErrorDescription(err) << std::endl;
+		<< mmdb::GetErrorDescription(err) << std::endl;
       //
       // This makes my stomach churn too. Sorry.
       // 

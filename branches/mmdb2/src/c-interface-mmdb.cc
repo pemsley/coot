@@ -232,7 +232,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
       }
    }
    if (mol) { 
-      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       mol->FinishStructEdit();
    }
    return mol;
@@ -256,7 +256,7 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
    }
    
    if (mol) { 
-      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       mol->FinishStructEdit();
    }
    return mol;

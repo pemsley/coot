@@ -1382,7 +1382,7 @@ molecule_class_info_t::delete_residue_sidechain(const std::string &chain_id,
    if (was_deleted) {
       atom_sel.atom_selection = NULL;
       atom_sel.mol->FinishStructEdit();
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel = make_asc(atom_sel.mol);
       trim_atom_label_table();
       unalt_conf_residue_atoms(residue_for_deletion);
@@ -2221,7 +2221,7 @@ molecule_class_info_t::set_residue_to_rotamer_move_atoms(mmdb::Residue *res, mmd
    }
 
    if (i_done) { 
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1;
@@ -2526,7 +2526,7 @@ molecule_class_info_t::baton_build_delete_last_residue() {
 // 	 atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle); // prefered.
 //       }
 
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1; 
@@ -4889,7 +4889,7 @@ molecule_class_info_t::create_mmdbmanager_from_res_selection(mmdb::PResidue *Sel
    chain->SetChainID(chain_id_1.c_str());
    model->AddChain(chain);
    residues_mol->AddModel(model);
-   residues_mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   residues_mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    residues_mol->FinishStructEdit();
 
    return residues_mol;
@@ -5277,7 +5277,7 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
 
    int status = 0;
 
-   // PDBCleanup(PDBCLEAN_SERIAL) doesn't move the residue to
+   // PDBCleanup(mmdb::PDBCLEAN_SERIAL) doesn't move the residue to
    // the end of the chain when we change the seqNum. Boo.
    // So, let's make a vector of residues that we will add
    // (insert) after the original residues have been deleted.
@@ -5375,7 +5375,7 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
 	 } 
       }      
       
-      atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL);
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL);
       atom_sel.mol->FinishStructEdit();
       update_molecule_after_additions();
       // need to redraw the bonds:
@@ -6660,7 +6660,7 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 			   chain_p->SetChainID(to_chain_id.c_str());
 			   istat = 1;
 			   have_unsaved_changes_flag = 1;
-			   atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+			   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 			   atom_sel.mol->FinishStructEdit();
 			   atom_sel = make_asc(atom_sel.mol);
 			   make_bonds_type_checked();
@@ -6777,7 +6777,7 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
 
 		     istat = 1;
 		     have_unsaved_changes_flag = 1;
-		     atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+		     atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 		     atom_sel.mol->FinishStructEdit();
 		     atom_sel = make_asc(atom_sel.mol);
 		     make_bonds_type_checked();
@@ -6879,7 +6879,7 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
 			   }
 			   istat = 1;
 			   have_unsaved_changes_flag = 1;
-			   atom_sel.mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+			   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 			   atom_sel.mol->FinishStructEdit();
 			   atom_sel = make_asc(atom_sel.mol);
 			   make_bonds_type_checked();
@@ -8260,7 +8260,7 @@ molecule_class_info_t::replace_models(std::deque<mmdb::Model *> model_list) {
          model_list.pop_front();
       }
       
-      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       mol->FinishStructEdit();
       
       atom_sel = make_asc(mol);

@@ -443,11 +443,11 @@ int
 coot::minimol::molecule::read_file(std::string pdb_filename) {
 
    mmdb::Manager mol;
-   int ierr = mol.ReadCoorFile((char *)pdb_filename.c_str());
+   mmdb::ERROR_CODE ierr = mol.ReadCoorFile(pdb_filename.c_str());
    if (ierr) {
       std::cout << "There was an error reading " << pdb_filename << ". \n";
       std::cout << "ERROR " << ierr << " READ: "
-		<< GetErrorDescription(ierr) << std::endl;
+		<< mmdb::GetErrorDescription(ierr) << std::endl;
       int  error_count;
       char error_buf[500];
       mol.GetInputBuffer(error_buf, error_count);
@@ -819,7 +819,7 @@ mmdb::PManager
 coot::minimol::molecule::pcmmdbmanager() const {
 
    mmdb::PManager mol = new mmdb::Manager;
-   InitMatType();
+   mmdb::InitMatType();
 
    // we have to add to the mmdb mol atom by atom
 
@@ -907,7 +907,7 @@ coot::minimol::molecule::pcmmdbmanager() const {
 //       std::cout << "DEBUG:: pcmmdbmanager: no spacegroup for this molecule\n";
    }
 
-   mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    return mol;
 }
 

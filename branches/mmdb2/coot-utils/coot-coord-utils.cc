@@ -266,7 +266,7 @@ coot::sort_chains(mmdb::Manager *mol) {
       mmdb::Model *model_p = mol->GetModel(imod);
       model_p->SortChains(SORT_CHAIN_ChainID_Asc); // "B" comes after "A"
    }
-   mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    mol->FinishStructEdit();
 #endif   
 #else
@@ -309,7 +309,7 @@ coot::sort_chains(mmdb::Manager *mol) {
       mol->DeleteModel(2);
       
    }
-   mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    mol->FinishStructEdit();
 #endif
    
@@ -339,7 +339,7 @@ coot::sort_residues(mmdb::Manager *mol) {
         chain_p->SortResidues();
       }
    }
-   mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    mol->FinishStructEdit();
 #endif   
 #endif
@@ -2956,7 +2956,7 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
    chain->SetChainID(chain_id_1.c_str());
    model->AddChain(chain);
    residues_mol->AddModel(model);
-   residues_mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   residues_mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    residues_mol->FinishStructEdit();
 
    if (afix_handle_orig >= 0) { 
