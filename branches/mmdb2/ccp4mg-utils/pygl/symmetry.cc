@@ -48,7 +48,7 @@ mmdb::PPAtom molecule_extents_t::trans_sel(CMMDBCryst *my_cryst, symm_trans_t sy
 
    mmdb::Atom atom;
    mmdb::PPAtom trans_selection = new mmdb::PAtom[6];
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    
    // Modify my_matt so that it is a coordinate transformation
    // matrix.
@@ -307,7 +307,7 @@ std::vector<int> Symmetry::GetSymmetryMatrixNumbers() const {
 
 std::vector<matrix> Symmetry::GetSymmetryMatrices()  const{
   std::vector<matrix> symm_mats;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
 
    for(unsigned int i=0;i<symm_trans.size();i++){
      //std::cout << "GetSymmetryMatrices " << symm_trans[i].isym() << " " << symm_trans[i].x() << " " << symm_trans[i].y() << " " << symm_trans[i].z() << "\n";
@@ -328,7 +328,7 @@ std::vector<matrix> Symmetry::GetSymmetryMatrices()  const{
 }
 
 mmdb::PPAtom Symmetry::trans_sel(const symm_trans_t &symm_tran) const{
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    int err = my_cryst_p->GetTMatrix(my_matt, symm_tran.isym(), symm_tran.x(),
                                  symm_tran.y(), symm_tran.z());
    if (err != 0) {
@@ -405,7 +405,7 @@ std::vector<symm_trans_t> molecule_extents_t::GetUnitCellOps(PCMMANManager molhn
      Cartesian ftr(right.get_x(),top.get_y(),front.get_z());
      Cartesian centre = (top+bottom)*0.5;
 
-     mat44 my_matt;
+     mmdb::mat44 my_matt;
      for(int ii=0; ii<n; ii++) {
        for(int x_shift = (c_t.us-2); x_shift<(3+c_t.us); x_shift++) { 
          for(int y_shift = (c_t.vs-2); y_shift<(3+c_t.vs); y_shift++) { 

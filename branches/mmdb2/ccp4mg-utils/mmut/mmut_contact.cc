@@ -143,7 +143,7 @@ int CContact::Calculate0(int model)  {
   //cout << "nSelAtoms " << model << " " << nSelAtoms << " " << nSelAtoms2 << endl;
   if ( nSelAtoms <= 0 || nSelAtoms2 <= 0 ) return 1;
   // Find the close contacts between two sets of atoms
-  mat44 * TMatrix=0;
+  mmdb::mat44 * TMatrix=0;
   if(test_VDW_radius==1) {
     min_cutoff = 5.0 * VDW_fraction_min;
     max_cutoff = 5.0 * VDW_fraction_max;

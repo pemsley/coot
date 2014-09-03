@@ -790,7 +790,7 @@ namespace coot {
       // Return NULL on no such chain:
       mmdb::Chain *chain_only_of_type(mmdb::Manager *mol, const std::string &residue_type);
 
-      clipper::RTop_orth matrix_convert(mat44 mat);
+      clipper::RTop_orth matrix_convert(mmdb::mat44 mat);
 
       // Return -1 on badness.
       // 
@@ -922,7 +922,7 @@ namespace coot {
 			   mmdb::PAtom *water_selection, int n_water_atoms, 
 			   mmdb::PAtom *atom_selection, int n_selected_atoms,
 			   mmdb::realtype min_dist, mmdb::realtype max_dist,
-			   const mat44 &my_mat);
+			   const mmdb::mat44 &my_mat);
 	 void sort_contacts(std::vector<contact_atoms_info_t> *v) const;
 	 static bool sort_contacts_func(const contact_atoms_info_t &first,
 					const contact_atoms_info_t &second);

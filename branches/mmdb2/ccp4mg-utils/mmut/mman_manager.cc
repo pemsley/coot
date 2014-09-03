@@ -1156,7 +1156,7 @@ std::string CMMANManager::GetSymOpTitle(int nsym,int i,int j,int k) {
 //---------------------------------------------------------------------
   std::ostringstream output;
   CSymOp SymOp;      
-  mat44 TMatrix;
+  mmdb::mat44 TMatrix;
   char symOpTitle[100]; 
 
   if (nsym < 0 || nsym >= GetNumberOfSymOps()) return output.str();
@@ -1178,7 +1178,7 @@ int CMMANManager::GenerateSymmetryModel(int model,int nsym,int i,int j,int k) {
   // Apply transformation
   int new_model;
   mmdb::PModel p_model;
-  mat44 TMatrix;
+  mmdb::mat44 TMatrix;
 
   new_model =  CopyModel(model);
   p_model = GetModel(new_model);
@@ -1190,7 +1190,7 @@ int CMMANManager::GenerateSymmetryModel(int model,int nsym,int i,int j,int k) {
 int CMMANManager::ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,int undo_nsym,int undo_i,int undo_j,int undo_k) {
 //------------------------------------------------------------------------
   // Apply transformation
-  mat44 TMatrix, invTMatrix, multTMatrix;
+  mmdb::mat44 TMatrix, invTMatrix, multTMatrix;
   mmdb::PModel p_model;
 
   p_model = GetModel(model);
@@ -1220,7 +1220,7 @@ int CMMANManager::ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,int 
 int CMMANManager::IfSymmetryNeighbours(int selHnd, int model, int nsym, 
                  int i, int j, int k, double dist ) {
 //-----------------------------------------------------------------------
-  mat44 TMatrix;
+  mmdb::mat44 TMatrix;
   PSContact contact = NULL; 
   int ncontacts; 
   int   maxlen = 0;
@@ -1601,7 +1601,7 @@ int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
   int nat1,nat2;
   PSContact contacts = NULL;
   int ncontacts;
-  mat44 * TMatrix=0;
+  mmdb::mat44 * TMatrix=0;
   int iser1,iser2;
   int ndel = 0;
 
@@ -1655,7 +1655,7 @@ int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
 }
 
 int CMMANManager::SetTransform ( const matrix tMat, const bool reset) {
-   mat44 TMatrix;
+   mmdb::mat44 TMatrix;
    for (int i = 0;i<4;i++) {
      for (int j = 0;j<4;j++) {
        TMatrix[j][i]=tMat(j,i);
@@ -1668,7 +1668,7 @@ int CMMANManager::SetTransform ( const matrix tMat, const bool reset) {
 
 int CMMANManager::SetTransform ( const std::vector<float>& transf , const std::vector<float>& transl , const bool reset) {
 
-  mat44 TMatrix;
+  mmdb::mat44 TMatrix;
 
   if ( transf.size() != 9 || transl.size() != 3) {
     if (reset) {
@@ -1705,7 +1705,7 @@ int CMMANManager::SetTransform ( const std::vector<float>& transf , const std::v
 void CMMANManager::UnSetTransform(bool apply_inverse) {
   //cout << "UnSetTransform isTransformed " << isTransformed << endl; 
   if (isTransformed && apply_inverse) {
-    mat44 InvMatrix;
+    mmdb::mat44 InvMatrix;
     Mat4Inverse(current_transform,InvMatrix);
     ApplyTransform(InvMatrix);
   }
@@ -1717,7 +1717,7 @@ void CMMANManager::UnSetTransform(bool apply_inverse) {
 
 
 int CMMANManager::SetTransform ( const mmdb::realtype rot ,const std::vector<float>& axis , const int selHndin) {
-  mat44 Tmat;
+  mmdb::mat44 Tmat;
   int selHnd;
 
   if ((!transform_com_set) || selHndin>0 ) {
@@ -1759,11 +1759,11 @@ int CMMANManager::SetTransform ( const mmdb::realtype rot ,const std::vector<flo
 
 
 
-int CMMANManager::SetTransform (mat44 &TMatrix , const bool reset) {
+int CMMANManager::SetTransform (mmdb::mat44 &TMatrix , const bool reset) {
 
   if (reset) UnSetTransform();
 
-  mat44 newMatrix;
+  mmdb::mat44 newMatrix;
   
   ApplyTransform(TMatrix);
   
@@ -1845,9 +1845,9 @@ int CMMANManager::TransformToSuperposeAtoms (  mmdb::PPAtom A1, int nA, mmdb::PP
   /*
   Atom set A1 should be in this model and are the 'moving' atoms
   Atom set A2 can be in another model and are the 'fixed' atoms
-  This method avoids need to pass a mat44 to Python
+  This method avoids need to pass a mmdb::mat44 to Python
   */
-  mat44 TMatrix;
+  mmdb::mat44 TMatrix;
   int rv = SuperposeAtoms ( TMatrix, A1, nA, A2 );
   if (rv == SPOSEAT_Ok) {
     SetTransform (TMatrix,0);
@@ -1870,7 +1870,7 @@ double CMMANManager::DeltaResidueOrientation (mmdb::PResidue pRes,mmdb::PResidue
   }
   if (nat<0) return -10.0;
   
-  mat44 TMatrix;
+  mmdb::mat44 TMatrix;
   int rv = SuperposeAtoms ( TMatrix, mvAtoms, nat,fxAtoms );
   if (rv != SPOSEAT_Ok)return -10.0;
   double ld=0.0;

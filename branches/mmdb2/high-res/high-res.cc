@@ -81,7 +81,7 @@ coot::high_res::get_middle_pos(const coot::minimol::molecule &minimol_mol) const
    int n_contacts = -1;
    float min_dist = 1.0;
    float max_dist = 15.0;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;
@@ -248,7 +248,7 @@ coot::high_res::make_trees() {
       std::cout << "Finding contacts for " << asc.n_selected_atoms << " atoms\n";
       
 
-      mat44 my_matt;
+      mmdb::mat44 my_matt;
       for (int i=0; i<4; i++) 
 	 for (int j=0; j<4; j++) 
 	    my_matt[i][j] = 0.0;

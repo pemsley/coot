@@ -30,7 +30,7 @@ coot::util::water_coordination_t::water_coordination_t(mmdb::Manager *mol, mmdb:
    mmdb::realtype min_dist = 0.5;
    mmdb::realtype max_dist = radius;
    
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    CSymOps symm;
 
    for (int i=0; i<4; i++) 
@@ -84,7 +84,7 @@ coot::util::water_coordination_t::water_coordination_t(mmdb::Manager *mol, mmdb:
    mol->GetSelIndex(SelHnd_waters, water_selection, n_water_atoms);
    mol->GetSelIndex(SelHnd,         atom_selection, n_selected_atoms);
 
-   mat44 test_mat;
+   mmdb::mat44 test_mat;
    int i_symm_err = mol->GetTMatrix(test_mat, 0, 0, 0, 0);
 
    if (i_symm_err) { // no symmetry fallback
@@ -222,14 +222,14 @@ coot::util::water_coordination_t::add_contacts(mmdb::Manager *mol,
 					       mmdb::PAtom *water_selection, int n_water_atoms, 
 					       mmdb::PAtom *atom_selection, int n_selected_atoms,
 					       mmdb::realtype min_dist, mmdb::realtype max_dist,
-					       const mat44 &my_mat) {
+					       const mmdb::mat44 &my_mat) {
 
    
 
    PSContact pscontact = NULL;
    int n_contacts = 0;
    long i_contact_group = 1;
-   mat44 other_mat;
+   mmdb::mat44 other_mat;
 
    // It's a bit grim that this is needed.  I can't see how to use
    // my_mat in SeekContacts() directly.

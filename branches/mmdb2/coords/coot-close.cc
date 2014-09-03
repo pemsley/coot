@@ -43,7 +43,7 @@ closest_approach(const clipper::Coord_orth &moving_point,
    clipper::Coord_orth trans_pos;
    double closest_dist_sq = 99999999999.9;
    double d_sq;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    int err;
    int nsymm = mol->GetNumberOfSymOps();
    // std::cout << "nsymm: " << nsymm << std::endl;
@@ -89,7 +89,7 @@ closest_approach_transformation(const clipper::Coord_orth &moving_point,
    clipper::Coord_orth trans_pos;
    double closest_dist_sq = 99999999999.9;
    double d_sq;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    int err;
    int nsymm = mol->GetNumberOfSymOps();
    // std::cout << "nsymm: " << nsymm << std::endl;

@@ -424,8 +424,8 @@ molecule_extents_t::which_strict_ncs(const coot::Cartesian &centre_pt,
 
    std::vector<std::pair<int, symm_trans_t> > r;
    int n = strict_ncs_matrices.size();
-   // mat44 m[n]; GNU code
-   mat44 *m = new mat44[n]; // give it back at end;
+   // mmdb::mat44 m[n]; GNU code
+   mmdb::mat44 *m = new mmdb::mat44[n]; // give it back at end;
 
    for (unsigned int imat=0; imat<strict_ncs_matrices.size(); imat++) { 
       m[imat][0][0] = strict_ncs_matrices[imat].m[0].v4[0];
@@ -467,7 +467,7 @@ molecule_extents_t::which_strict_ncs(const coot::Cartesian &centre_pt,
 
       float min_dist = 99999999999.9;
       float b, dist;
-      mat44 shifted_mat;
+      mmdb::mat44 shifted_mat;
       
       for (int x_shift= -1; x_shift<= 1; x_shift++) { 
 	 for (int y_shift= -1; y_shift<= 1; y_shift++) { 
@@ -538,10 +538,10 @@ molecule_extents_t::which_strict_ncs(const coot::Cartesian &centre_pt,
 // Is this nonsense really necessary?
 void
 molecule_extents_t::shift_matrix(mmdb::Manager *mol,
-				 mat44 my_matt,
+				 mmdb::mat44 my_matt,
 				 int x_shift, int y_shift, int z_shift,
-				 mat44 new_matrix) const {
-   mat44 amat;
+				 mmdb::mat44 new_matrix) const {
+   mmdb::mat44 amat;
    mol->GetTMatrix(amat, 0, x_shift, y_shift, z_shift);
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++)
@@ -603,8 +603,8 @@ molecule_extents_t::coord_to_unit_cell_translations(coot::Cartesian point,
 // const because GetTMatrix() is not a const function.  Here is a bit
 // of my screaming at this concept: ARRRRRRRGGGHHH!
 //
-// I tried getting round this by passing the mat44, but that gives problems
-// because a mat44 is not a class it is a typedef mmdb::realtype[4][4] and you
+// I tried getting round this by passing the mmdb::mat44, but that gives problems
+// because a mmdb::mat44 is not a class it is a typedef mmdb::realtype[4][4] and you
 // can't pass arguments and create functions that return arguments of
 // that type.  Arrrrgh!
 //
@@ -629,7 +629,7 @@ molecule_extents_t::trans_sel(CMMDBCryst *my_cryst,
 
    mmdb::Atom atom;
    mmdb::PPAtom trans_selection = new mmdb::PAtom[6];
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    
    // Modify my_matt so that it is a coordinate transformation
    // matrix.
@@ -655,7 +655,7 @@ molecule_extents_t::trans_sel(mmdb::Manager *mol,
 
    mmdb::Atom atom;
    mmdb::PPAtom trans_selection = new mmdb::PAtom[6];
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    
    // Modify my_matt so that it is a coordinate transformation
    // matrix.
@@ -682,7 +682,7 @@ molecule_extents_t::trans_sel(mmdb::Manager *mol,
 // the cell shifts.
 // 
 mmdb::PPAtom
-molecule_extents_t::trans_sel(mmdb::Manager *mol, mat44 my_mat,
+molecule_extents_t::trans_sel(mmdb::Manager *mol, mmdb::mat44 my_mat,
 			      int x_shift, int y_shift, int z_shift) const {
 
    mmdb::Atom atom;
@@ -692,7 +692,7 @@ molecule_extents_t::trans_sel(mmdb::Manager *mol, mat44 my_mat,
    // matrix.
    //
 
-   mat44 amat;
+   mmdb::mat44 amat;
    mol->GetTMatrix(amat, 0, x_shift, y_shift, z_shift);
    for (int i=0; i<3; i++) 
       for (int j=0; j<3; j++)
@@ -738,8 +738,8 @@ molecule_extents_t::trans_sel_o(mmdb::Manager *mol, const symm_trans_t &symm_tra
 
    coot::trans_selection_t t;
    mmdb::Atom atom;
-   mat44 my_matt;
-   mat44 to_origin_matt;
+   mmdb::mat44 my_matt;
+   mmdb::mat44 to_origin_matt;
    
    mol->GetTMatrix(my_matt, symm_trans.isym(), symm_trans.x(),
 		   symm_trans.y(), symm_trans.z());
@@ -899,7 +899,7 @@ SymmMatrix::getMat() const  {
    return (double**) (mat);
 }
 
-// creates from a mat44.
+// creates from a mmdb::mat44.
 SymmMatrix::SymmMatrix(double** in_mat) {
 
    for (int ii=0; ii<4; ii++) { 
@@ -994,7 +994,7 @@ mmdb::PPAtom
 translated_atoms(atom_selection_container_t AtomSel,
 		symm_trans_t symm_trans) {
 
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    int err = AtomSel.mol->GetTMatrix(my_matt, symm_trans.isym(), symm_trans.x(),
 				      symm_trans.y(), symm_trans.z());
    
@@ -1021,7 +1021,7 @@ translated_atoms(atom_selection_container_t AtomSel,
 coot::Cartesian translate_atom(atom_selection_container_t AtomSel, int ii,
 			 symm_trans_t symm_trans) {
    //
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    
    // CMMDBCryst *cryst_p = (CMMDBCryst *) &AtomSel.mol->get_cell();
    
@@ -1052,8 +1052,8 @@ coot::Cartesian
 translate_atom_with_pre_shift(atom_selection_container_t AtomSel, int ii,
 			      const std::pair<symm_trans_t, Cell_Translation> &symm_trans) {
    //
-   mat44 my_matt;
-   mat44 pre_shift_matt;
+   mmdb::mat44 my_matt;
+   mmdb::mat44 pre_shift_matt;
    
    // CMMDBCryst *cryst_p = (CMMDBCryst *) &AtomSel.mol->get_cell();
    

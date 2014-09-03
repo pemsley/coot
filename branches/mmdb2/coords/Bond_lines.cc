@@ -219,7 +219,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
    long i_contact_group = 1;
 
    // matrix stuff
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    CSymOps symm;
 
    // update my_matt;  You can't do this if you haven't set the space group.
@@ -1997,7 +1997,7 @@ Bond_lines_container::find_intermolecular_symmetry(const atom_selection_containe
    // std::cout << "in find_intermolecular_symmetry() n_symm is " << n_symm << std::endl;
 
    int shift_lim = 1;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    mmdb::realtype max_bond_dist = 2.25; // I guess
 
    for (int x_shift= -shift_lim; x_shift <= shift_lim; x_shift++) { 
@@ -2186,8 +2186,8 @@ Bond_lines_container::addSymmetry_whole_chain(const atom_selection_container_t &
 					      const std::vector <std::pair<symm_trans_t, Cell_Translation> > &symm_trans) {
 
    graphical_bonds_container gbc;
-   mat44 my_matt;
-   mat44 identity_matt;
+   mmdb::mat44 my_matt;
+   mmdb::mat44 identity_matt;
    //   PSContact contact = NULL;
    // int ncontacts;
    // long i_contact_group = 1;
@@ -2203,7 +2203,7 @@ Bond_lines_container::addSymmetry_whole_chain(const atom_selection_container_t &
    // There should be only one of these in the new (may 2004) system:
    for (unsigned int ii=0; ii<symm_trans.size(); ii++) {
 
-      mat44 mol_to_origin_matt;
+      mmdb::mat44 mol_to_origin_matt;
       SelAtom.mol->GetTMatrix(mol_to_origin_matt, 0,
 			      -symm_trans[ii].second.us,
 			      -symm_trans[ii].second.vs,
@@ -2398,7 +2398,7 @@ Bond_lines_container::intermolecular_symmetry_graphical_bonds(mmdb::Manager *mol
 							      const std::pair<symm_trans_t, Cell_Translation> &symm_trans) {
 
    graphical_bonds_container gbc;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
 
    if (0)
       std::cout << "in intermolecular_symmetry_graphical_bonds() running through " << sabv.size()
@@ -2447,7 +2447,7 @@ Bond_lines_container::addSymmetry_calphas(const atom_selection_container_t &SelA
    graphical_bonds_container gbc;
    // std::cout << "DEBUG:: There are " << symm_trans.size() << "
    // symm_trans units" << std::endl;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    mmdb::Atom t_atom1;
    mmdb::Atom t_atom2;
 
@@ -2455,7 +2455,7 @@ Bond_lines_container::addSymmetry_calphas(const atom_selection_container_t &SelA
       int err = SelAtom.mol->GetTMatrix(my_matt, symm_trans[ii].first.isym(), symm_trans[ii].first.x(),
 					symm_trans[ii].first.y(), symm_trans[ii].first.z());
 
-      mat44 mol_to_origin_matt;
+      mmdb::mat44 mol_to_origin_matt;
       SelAtom.mol->GetTMatrix(mol_to_origin_matt, 0,
 			      -symm_trans[ii].second.us,
 			      -symm_trans[ii].second.vs,
@@ -2586,7 +2586,7 @@ Bond_lines_container::add_NCS_molecule(const atom_selection_container_t &SelAtom
 				       short int symmetry_whole_chain_flag) {
 
    graphical_bonds_container gbc;
-   mat44 m;
+   mmdb::mat44 m;
 
    if (symmetry_as_ca_flag) {
       gbc = add_NCS_molecule_calphas(SelAtom, point, symm_distance, strict_ncs_mat);
@@ -2628,7 +2628,7 @@ Bond_lines_container::add_NCS_molecule_whole_chain(const atom_selection_containe
 						   const std::pair<coot::coot_mat44, symm_trans_t> &strict_ncs_mat) {
 
    graphical_bonds_container gbc;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    
    my_matt[0][0] = strict_ncs_mat.first.m[0].v4[0];
    my_matt[0][1] = strict_ncs_mat.first.m[0].v4[1];
@@ -2747,7 +2747,7 @@ Bond_lines_container::ContactSel(mmdb::PPAtom trans_sel,
 mmdb::PPAtom
 Bond_lines_container::trans_sel(atom_selection_container_t AtomSel,
 				const std::pair<symm_trans_t, Cell_Translation> &symm_trans) const {
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    //
    // modify my_matt;
    // 
@@ -2773,7 +2773,7 @@ Bond_lines_container::trans_sel(atom_selection_container_t AtomSel,
 // 	<< my_matt[3][2] << " "  << my_matt[3][3] << " "  << endl;
 
 
-   mat44 mol_to_origin_matt;
+   mmdb::mat44 mol_to_origin_matt;
    AtomSel.mol->GetTMatrix(mol_to_origin_matt, 0,
 			   -symm_trans.second.us,
 			   -symm_trans.second.vs,
@@ -2823,7 +2823,7 @@ Bond_lines_container::do_disulphide_bonds(atom_selection_container_t SelAtom,
    // 
    mmdb::PPAtom Sulfur_selection;
    int n_sulfurs;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    PSContact contact = NULL;
    int ncontacts = 0; // initially no S contacts.
    long i_contact_group = 1;
@@ -3387,7 +3387,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal_old(atom_selection_container_t S
 
    mmdb::PPAtom Ca_selection = NULL; 
    int n_ca;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    int ncontacts;
    long i_contact_group = 1;
    PSContact contact = NULL;
@@ -3978,7 +3978,7 @@ Bond_lines_container::do_symmetry_Ca_bonds(atom_selection_container_t SelAtom,
    Cell_Translation cell_trans;
    mmdb::PPAtom trans_ca_selection = NULL; // trans_sel(SelAtom, symm_trans);
    int n_ca;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    int ncontacts;
    long i_contact_group = 1;
    PSContact contact = NULL;
@@ -4063,7 +4063,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 			  // do_bonds_to_hydrogens_in)
 
    // matrix stuff
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    CSymOps symm;
 
    for (int i=0; i<4; i++) 
@@ -4287,7 +4287,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
    long i_contact_group = 1;
 
    // matrix stuff
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    CSymOps symm;
    int col = 0; // atom (segment) colour
    coot::my_atom_colour_map_t atom_colour_map;
@@ -4603,7 +4603,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 			  // do_bonds_to_hydrogens_in)
 
    // matrix stuff
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    CSymOps symm;
 
    for (int i=0; i<4; i++) 

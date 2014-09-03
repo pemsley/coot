@@ -1431,7 +1431,7 @@ molecule_class_info_t::update_strict_ncs_symmetry(const coot::Cartesian &centre_
       std::cout << "DEBUG:: Update ncs symmetry for " << strict_ncs_matrices.size()
 		<< " NCS matrices" << std::endl;
 
-   // We need to convert from internal coot_mat44 to mat44s, then do
+   // We need to convert from internal coot_mat44 to mmdb::mat44s, then do
    // similar things to update_symmetry()
 
    Cell_Translation c_t = extents.coord_to_unit_cell_translations(centre_point, atom_sel);

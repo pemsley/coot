@@ -961,7 +961,7 @@ int Connectivity2::AddContacts(PCMMANManager molHnd1,int selHnd1, PCMMANManager 
   molHnd2->GetSelIndex(selHnd2,selAtoms2,nat2);
   //std::cout << "nat1,nat2 " << nat1 << " " << nat2 <<endl;
   if (nat1>0 && nat2>0) {
-    mat44 * TMatrix=0;
+    mmdb::mat44 * TMatrix=0;
     molHnd1->SeekContacts( selAtoms,nat1,selAtoms2,nat2,dist1,dist2,seqDist,
 			 contacts,ncontacts,0,TMatrix,0,0);
     
@@ -1327,7 +1327,7 @@ int Connectivity2::MatchGraphs(mmdb::PResidue pRes1,const pstr altLoc1,
         A1[j] = new mmdb::Atom();
         A2[j] = new mmdb::Atom();
       }
-      mat44 TMatrix;
+      mmdb::mat44 TMatrix;
       double distSqMin=9999999.9,distSq;
       int rv;
       i=best_matches.begin();

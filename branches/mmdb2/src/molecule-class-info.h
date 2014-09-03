@@ -2588,7 +2588,7 @@ public:        //                      public
    // So that we can move around all the atoms of a ligand (typically)
    void translate_by(float x, float y, float z);
    void translate_by_internal(const clipper::Coord_orth &co, mmdb::Residue *residue_p);
-   void transform_by(mat44 mat); // can't make this const: mmdb probs.
+   void transform_by(mmdb::mat44 mat); // can't make this const: mmdb probs.
    void transform_by(const clipper::RTop_orth &rtop);
    void transform_by(const clipper::RTop_orth &rtop, mmdb::Residue *res);
    // called by above (no backup or bonds update here in internal function).

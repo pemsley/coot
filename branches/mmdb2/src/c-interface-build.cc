@@ -4712,8 +4712,8 @@ void save_symmetry_coords(int imol,
 	    mol2->Copy(graphics_info_t::molecules[imol].atom_sel.mol, MMDBFCM_All);
 	    
 	    atom_selection_container_t asc = make_asc(mol2);
-	    mat44 mat;
-	    mat44 mat_origin_shift;
+	    mmdb::mat44 mat;
+	    mmdb::mat44 mat_origin_shift;
 
 	    mol2->GetTMatrix(mat_origin_shift, 0,
 			     -pre_shift_to_origin_na,

@@ -2044,7 +2044,7 @@ void set_show_symmetry_master(short int state) {
       for (int ii=0; ii<g.n_molecules(); ii++)
 	 if (is_valid_model_molecule(ii)) {
 	    n_model_molecules++;
-	    mat44 my_matt;
+	    mmdb::mat44 my_matt;
 	    int err = graphics_info_t::molecules[ii].atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
 	    if (err == SYMOP_Ok) {
 	       n_has_symm++;

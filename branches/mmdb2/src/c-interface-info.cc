@@ -2037,7 +2037,7 @@ int undo_symmetry_view() {
 	 for (unsigned int ibox=0; ibox<boxes.size(); ibox++) {
 	    symm_trans_t st = boxes[ibox].first;
 	    Cell_Translation pre_shift = boxes[ibox].second;
-	    mat44 my_matt;
+	    mmdb::mat44 my_matt;
 	    int err = atom_sel.mol->GetTMatrix(my_matt, st.isym(), st.x(), st.y(), st.z());
 	    if (err == SYMOP_Ok) {
 	       clipper::RTop_orth rtop_symm = coot::util::make_rtop_orth_from(my_matt);

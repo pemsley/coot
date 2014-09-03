@@ -296,7 +296,7 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 	    // mmdb::ivector Ca1, Ca2;
 	    // rvector dist1;
 	    // int nCa1, nCa2;
-	    // mat44 tmat;
+	    // mmdb::mat44 tmat;
 	    // mmdb::realtype rmsdAchieved, seqIdentity, nCombs;
 	    // int nAligned, nGaps, nMisD;
 	    // CSuperpose Superpose;  type in class CSSMAlign
