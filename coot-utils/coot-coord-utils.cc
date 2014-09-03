@@ -175,13 +175,14 @@ coot::util::pair_residue_atoms(mmdb::Residue *a_residue_p,
 // that matches the spec.
 //
 int
-coot::residue_spec_t::select_atoms(mmdb::Manager *mol, int selhnd, int selection_key_type) {
+coot::residue_spec_t::select_atoms(mmdb::Manager *mol, int selhnd,
+				   mmdb::SELECTION_KEY selection_key) {
 
    if (mol) { 
       mol->SelectAtoms(selhnd, 0, chain.c_str(),
 		       resno, insertion_code.c_str(),
 		       resno, insertion_code.c_str(),
-		       "*", "*", "*", "*", selection_key_type);
+		       "*", "*", "*", "*", selection_key);
    }
    return selhnd;
 } 
