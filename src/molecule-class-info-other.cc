@@ -1022,7 +1022,7 @@ molecule_class_info_t::delete_residue(int model_number,
 
 			// so we have a matching residue:
 			int iseqno = res->GetSeqNum();
-			pstr inscode = res->GetInsCode();
+			mmdb::pstr inscode = res->GetInsCode();
 			std::string inscodestr(inscode);
 			if (ins_code == inscodestr) {
 			   make_backup();
@@ -1210,7 +1210,7 @@ molecule_class_info_t::delete_residue_with_full_spec(int imodel,
 		  if (res) { 
 		     if (res->GetSeqNum() == resno) {
 
-			pstr inscode_res = res->GetInsCode();
+			mmdb::pstr inscode_res = res->GetInsCode();
 			std::string inscode_res_str(inscode_res);
 
 			if (inscode_res_str == ins_code) { 
@@ -1348,7 +1348,7 @@ molecule_class_info_t::delete_residue_sidechain(const std::string &chain_id,
 	    if (res) { 
 	       if (res->GetSeqNum() == resno) {
 
-                  pstr inscode_res = res->GetInsCode();
+                  mmdb::pstr inscode_res = res->GetInsCode();
                   std::string inscode_res_str(inscode_res);
 
 		  if (inscode_res_str == inscode) { 
@@ -2514,7 +2514,7 @@ molecule_class_info_t::baton_build_delete_last_residue() {
       mmdb::Residue *residue_p = chain_p->GetResidue(nres-1); // is a serial number
 
       int iseqno = residue_p->GetSeqNum();
-      pstr inscode = residue_p->GetInsCode();
+      mmdb::pstr inscode = residue_p->GetInsCode();
       chain_p->DeleteResidue(iseqno, inscode);
 
       // Kevin's Baton Build crash: Argh.  I have no idea why.
@@ -3025,7 +3025,7 @@ molecule_class_info_t::edit_residue_pull_residue(int atom_index,
 						       atom_sel.UDDAtomIndexHandle);
       if (ret_res) { 
 
-	 Mymmdb::Manager *MMDBManager = new Mymmdb::Manager;
+	 mmdb::Manager *MMDBManager = new mmdb::Manager;
 	 mmdb::Model *model_p = new mmdb::Model;
 	 mmdb::Chain *chain_p = new mmdb::Chain;
 	 
@@ -6007,7 +6007,7 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 
 	 mmdb::mat44 my_matt;
 	 int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
-	 if (err != SYMOP_Ok) {
+	 if (err != mmdb::SYMOP_Ok) {
 	    cout << "!! Warning:: No symmetry available for this molecule"
 		 << endl;
 	 } else { 
@@ -6450,9 +6450,9 @@ molecule_class_info_t::set_occupancy_residue_range(const std::string &chain_id, 
    } else {
       for (int i=0; i<nSelAtoms; i++) {
          SelAtoms[i]->occupancy = occ_val;
-         if (SelAtoms[i]->WhatIsSet | ASET_Occupancy) {
-            // ASET_Occupancy not set in mmdb yet
-            SelAtoms[i]->WhatIsSet |= ASET_Occupancy;
+         if (SelAtoms[i]->WhatIsSet | mmdb::ASET_Occupancy) {
+            // mmdb::ASET_Occupancy not set in mmdb yet
+            SelAtoms[i]->WhatIsSet |= mmdb::ASET_Occupancy;
          }
       }
       atom_sel.mol->DeleteSelection(SelHnd);
@@ -6492,9 +6492,9 @@ molecule_class_info_t::set_b_factor_residue_range(const std::string &chain_id,
    } else {
       for (int i=0; i<nSelAtoms; i++) {
          SelAtoms[i]->tempFactor = b_val;
-         if (SelAtoms[i]->WhatIsSet | ASET_tempFactor) {
-            // ASET_tempFactor not set in mmdb yet
-            SelAtoms[i]->WhatIsSet |= ASET_tempFactor;
+         if (SelAtoms[i]->WhatIsSet | mmdb::ASET_tempFactor) {
+            // mmdb::ASET_tempFactor not set in mmdb yet
+            SelAtoms[i]->WhatIsSet |= mmdb::ASET_tempFactor;
          }
       }
       atom_sel.mol->DeleteSelection(SelHnd);
@@ -6768,7 +6768,7 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
 			if (residue_p->GetSeqNum() >= start_resno &&
 			    residue_p->GetSeqNum() <= end_resno) {
 			   int iseqnum  = residue_p->GetSeqNum();
-			   pstr inscode = residue_p->GetInsCode();
+			   mmdb::pstr inscode = residue_p->GetInsCode();
 			   mmdb::Residue *residue_copy = coot::util::deep_copy_this_residue(residue_p);
 			   chain_p->DeleteResidue(iseqnum, inscode);
 			   new_chain_p->AddResidue(residue_copy);
@@ -6862,7 +6862,7 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
 					   residue_p->GetSeqNum() <= end_resno) {
 
 					  int iseqnum  = residue_p->GetSeqNum();
-					  pstr inscode = residue_p->GetInsCode();
+					  mmdb::pstr inscode = residue_p->GetInsCode();
 					  mmdb::Residue *residue_copy =
 					     coot::util::deep_copy_this_residue_add_chain(residue_p, "", 1, 1);
 					  // delete the residue in the "from" chain:
@@ -8254,7 +8254,7 @@ molecule_class_info_t::replace_models(std::deque<mmdb::Model *> model_list) {
       
       mmdb::Manager *mol = atom_sel.mol;
       // mol->DeleteAllModels(); // Crash 20120105
-      mol->Delete(MMDBFCM_Coord);
+      mol->Delete(mmdb::MMDBFCM_Coord);
       while (!model_list.empty()) {
          mol->AddModel(model_list.front());
          model_list.pop_front();

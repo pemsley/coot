@@ -395,7 +395,7 @@ PyObject *python_representation_kk(int imol) {
                at_altconf = PyString_FromString(at->altLoc);
 
                at_b = at_biso;
-               if (at->WhatIsSet & ASET_Anis_tFac) {
+               if (at->WhatIsSet & mmdb::ASET_Anis_tFac) {
                   at_b = PyList_New(7);
                   PyList_SetItem(at_b, 0, at_biso);
                   PyList_SetItem(at_b, 1, PyFloat_FromDouble(at->u11));

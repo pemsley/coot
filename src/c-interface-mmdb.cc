@@ -129,7 +129,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 			      std::string inscode = scm_to_locale_string(scm_residue_inscode);
 			      residue_p->SetResName(resname.c_str());
 			      residue_p->seqNum = resno;
-			      memcpy(residue_p->insCode, inscode.c_str(), sizeof(InsCode));
+			      memcpy(residue_p->insCode, inscode.c_str(), sizeof(mmdb::InsCode));
 			      for (int iat=0; iat<n_atoms; iat++) {
 				 SCM iat_scm = SCM_MAKINUM(iat);
 				 SCM atom_expression = scm_list_ref(atoms_list, iat_scm);
@@ -339,7 +339,7 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                               std::string inscode = PyString_AsString(python_residue_inscode);
                               residue_p->SetResName(resname.c_str());
                               residue_p->seqNum = resno;
-                              memcpy(residue_p->insCode, inscode.c_str(), sizeof(InsCode));
+                              memcpy(residue_p->insCode, inscode.c_str(), sizeof(mmdb::InsCode));
                               for (int iat=0; iat<n_atoms; iat++) {
                                  PyObject *atom_expression = PyList_GetItem(atoms_list, iat);
                                  int len_atom_expr = PyObject_Length(atom_expression);
@@ -435,7 +435,7 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                                                 atom->u12 = b_u12;
                                                 atom->u13 = b_u13;
                                                 atom->u23 = b_u23;
-                                                atom->WhatIsSet |= ASET_Anis_tFac;
+                                                atom->WhatIsSet |= mmdb::ASET_Anis_tFac;
                                              }
                                              residue_p->AddAtom(atom);
 					     
@@ -487,6 +487,6 @@ void mmdb_manager_delete_conect(mmdb::Manager *mol) {
   graphics_info_t g;
 
   if (g.write_conect_records_flag != 1) {
-    mol->Delete ( MMDBFCM_SC );
+     mol->Delete ( mmdb::MMDBFCM_SC );
   }
 }

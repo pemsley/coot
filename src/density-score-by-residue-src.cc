@@ -43,7 +43,7 @@
 #include <vector>
 
 
-#include <mmdb/mmdb_align.h>
+#include <mmdb2/mmdb_math_align.h>
 #include <mmdb2/mmdb_tables.h>
 
 #include "coot-utils/coot-coord-utils.hh"

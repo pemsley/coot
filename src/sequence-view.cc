@@ -529,7 +529,7 @@ coot::sequence_view::mol_to_canvas(mmdb::Manager *mol_in) {
 #endif // HAVE_MMDB_WITH_CISPEP   
    std::cout << "done.\n";
 
-   if (status == SSERC_Ok) {
+   if (status == mmdb::SSERC_Ok) {
       std::cout << "INFO:: SSE status was OK\n";
    } else {
       std::cout << "INFO:: SSE status was bad\n" << status << "\n";
@@ -597,13 +597,13 @@ coot::sequence_view::colour_by_secstr(mmdb::Residue *residue_p, mmdb::Model *mod
 
    switch (residue_p->SSE)  {
 
-   case SSE_Strand : s = "firebrick3";  break;
-   case SSE_Bulge  : s = "firebrick1";  break;
-   case SSE_3Turn  : s = "MediumBlue";  break;
-   case SSE_4Turn  : s = "SteelBlue4";  break;
-   case SSE_5Turn  : s = "DodgerBlue4"; break;
-   case SSE_Helix  : s = "navy";        break;
-   case SSE_None   : s = "black";       break;
+   case mmdb::SSE_Strand : s = "firebrick3";  break;
+   case mmdb::SSE_Bulge  : s = "firebrick1";  break;
+   case mmdb::SSE_3Turn  : s = "MediumBlue";  break;
+   case mmdb::SSE_4Turn  : s = "SteelBlue4";  break;
+   case mmdb::SSE_5Turn  : s = "DodgerBlue4"; break;
+   case mmdb::SSE_Helix  : s = "navy";        break;
+   case mmdb::SSE_None   : s = "black";       break;
    } 
 
    return s;

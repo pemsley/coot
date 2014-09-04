@@ -2786,7 +2786,7 @@ int test_multi_residue_torsion() {
 	 coot::bonded_pair_container_t bpc;
 	 bpc.try_add(bp);
 	 atom_selection_container_t asc;
-	 asc.mol = (Mymmdb::Manager *) mol;
+	 asc.mol = mol;
 	 asc.atom_selection = atom_selection;
 	 asc.n_selected_atoms = n_selected_atoms;
 	 asc.SelectionHandle = selhnd;
