@@ -171,7 +171,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
       // 
       // 
       int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
-      if (err != SYMOP_Ok) {
+      if (err != mmdb::SYMOP_Ok) {
 	 cout << "!! Warning:: No symmetry available for this molecule"
 	      << endl;
       } else { 
@@ -2317,7 +2317,7 @@ coot::additional_representations_t::fill_bonds_box() {
    if (representation_type != coot::BALL_AND_STICK) { 
       atom_selection_container_t atom_sel;
 
-      atom_sel.mol =  (Mymmdb::Manager *) mol;
+      atom_sel.mol = mol;
       atom_sel.SelectionHandle = mol->NewSelection();
    
       if (atom_sel_info.type == coot::atom_selection_info_t::BY_ATTRIBUTES) {
@@ -3248,7 +3248,7 @@ molecule_class_info_t::export_coordinates(std::string filename) const {
    if (err) { 
       std::cout << "WARNING:: export coords: There was an error in writing "
 		<< filename << std::endl; 
-      std::cout << mmdb::GetErrorDescription(err) << std::endl;
+      // std::cout << mmdb::GetErrorDescription(err) << std::endl; FIXME - Boring
       graphics_info_t g;
       std::string s = "ERROR:: writing coordinates file ";
       s += filename;
@@ -5481,7 +5481,7 @@ molecule_class_info_t::save_coordinates(const std::string filename,
    if (coot::util::extension_is_for_shelx_coords(ext)) {
       write_shelx_ins_file(filename);
    } else {
-      byte bz = GZM_NONE;
+      mmdb::byte bz = mmdb::io::GZM_NONE;
 
       ierr = write_atom_selection_file(atom_sel, filename, bz,
                                        save_hydrogens, save_aniso_records, 
@@ -5975,13 +5975,13 @@ molecule_class_info_t::make_backup() { // changes history details
 
 #if defined(_MSC_VER)
             // and again, although not used any more!?
-	    byte gz = GZM_NONE;
+	    mmdb::byte gz = mmdb::io::GZM_NONE;
 #else
-	    byte gz;
+	    mmdb::byte gz;
         if (g.backup_compress_files_flag) {
-          gz = GZM_ENFORCE;
+	   gz = mmdb::io::GZM_ENFORCE;
         } else {
-          gz = GZM_NONE;
+	   gz = mmdb::io::GZM_NONE;
         }
 #endif
 	    // Writing out a modified binary mmdb like this results in the
@@ -6604,7 +6604,7 @@ molecule_class_info_t::write_pdb_file(const std::string &filename) {
       if (coot::util::extension_is_for_shelx_coords(ext)) {
 	 write_shelx_ins_file(filename);
       } else {
-	 byte bz = GZM_NONE;
+	 mmdb::byte bz = mmdb::io::GZM_NONE;
 	 err = write_atom_selection_file(atom_sel, filename, bz);
       }
    }

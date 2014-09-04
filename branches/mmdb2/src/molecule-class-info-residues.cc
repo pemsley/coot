@@ -577,13 +577,13 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
             if (residue_p) { 
                bool do_it = true; // unset for secondary structure
                int sse = residue_p->SSE;
-               // std::cout << "residue->SSE is " << sse << " vs " << SSE_Strand << " and " << SSE_Helix
+               // std::cout << "residue->SSE is " << sse << " vs " <<mmdb::SSE_Strand << " and " <<mmdb::SSE_Helix
                // << std::endl;
                switch (residue_p->SSE)  {
-               case SSE_Strand:
+               case mmdb::SSE_Strand:
                   do_it = 0;
                   break;
-               case SSE_Helix:
+               case mmdb::SSE_Helix:
                   do_it = 0;
                   break;
                }
@@ -1488,7 +1488,7 @@ molecule_class_info_t::sequence_from_chain(mmdb::Chain *chain_p) const {
    if (residues) { 
       for (int i=0; i<n_residues; i++) {
 	 std::string this_residue = "X";
-	 pstr rn = residues[i]->GetResName();
+	 mmdb::pstr rn = residues[i]->GetResName();
 	 std::string residue_name(residues[i]->GetResName());
 	 mmdb::Get1LetterCode(rn, r); // mmdb
 	 this_residue = r[0];

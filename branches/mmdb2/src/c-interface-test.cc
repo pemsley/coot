@@ -241,11 +241,11 @@ int test_function(int i, int j) {
       if (is_valid_model_molecule(0)) {
 	 mmdb::Manager *mol = graphics_info_t::molecules[0].atom_sel.mol;
 	 std::vector<std::string> h;
-	 CTitleContainer *tc_p = mol->GetRemarks();
+	 mmdb::TitleContainer *tc_p = mol->GetRemarks();
 	 int l = tc_p->Length();
 	 for (unsigned int i=0; i<l; i++) { 
-	    CRemark *cr = static_cast<CRemark *> (tc_p->GetContainerClass(i));
-	    std::cout << "container: " << cr->Remark << std::endl;
+	    mmdb::Remark *cr = static_cast<mmdb::Remark *> (tc_p->GetContainerClass(i));
+	    std::cout << "container: " << cr->remark << std::endl;
 	 }
       }
    }

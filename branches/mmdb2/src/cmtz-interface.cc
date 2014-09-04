@@ -395,8 +395,9 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
   int sigfp_pos;
   int sigfm_pos;
   //  coot::mtz_column_types_info_t a;
-  int good_no_of_fpm = mod(col_labs.fpm_cols.size(), 2);
-  int good_no_of_sigfpm = mod(col_labs.sigfpm_cols.size(), 2);
+  // why do I use mmdb functions here?
+  int good_no_of_fpm    = mmdb::mod(col_labs.fpm_cols.size(), 2);
+  int good_no_of_sigfpm = mmdb::mod(col_labs.sigfpm_cols.size(), 2);
   if (good_no_of_fpm && good_no_of_sigfpm) {
     std::cout << "WARNING:: inconsistent number of F+/F- and or sigF+/sigF-, i.e. not multiple of 2.\n" << std::endl;
     std::cout << "Detection of F+/F- and associated sigmas may be screwed!" << std::endl;
@@ -475,11 +476,12 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
   int im_pos;
   int sigip_pos;
   int sigim_pos;
-  int good_no_of_ipm = mod(col_labs.ipm_cols.size(), 2);
-  int good_no_of_sigipm = mod(col_labs.sigipm_cols.size(), 2);
+  int good_no_of_ipm    = mmdb::mod(col_labs.ipm_cols.size(),    2);
+  int good_no_of_sigipm = mmdb::mod(col_labs.sigipm_cols.size(), 2);
   if (good_no_of_ipm && good_no_of_sigipm) {
-    std::cout << "WARNING:: inconsistent number of I+/I- and or sigI+/sigI-, i.e. not multiple of 2.\n" << std::endl;
-    std::cout << "Detection of I+/I- and associated sigmas may be screwed!" << std::endl;
+     std::cout << "WARNING:: inconsistent number of I+/I- and or sigI+/sigI-, i.e. not multiple of 2.\n"
+	       << std::endl;
+     std::cout << "Detection of I+/I- and associated sigmas may be screwed!" << std::endl;
   }
   for (i=0; i<col_labs.ipm_cols.size(); i++) {
      ip_pos = col_labs.ipm_cols[i].column_position;
@@ -553,7 +555,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
    /* HL coefficients */
   int hl_pos;
   int hl_next_pos;
-  int good_no_of_hls = mod(col_labs.hl_cols.size(), 4);
+  int good_no_of_hls = mmdb::mod(col_labs.hl_cols.size(), 4);
   if (good_no_of_hls) {
     std::cout << "WARNING:: inconsistent number of HL coefficients, i.e. not multiple of 4.\nDetection of HL sets may be screwed!" << std::endl;
   }

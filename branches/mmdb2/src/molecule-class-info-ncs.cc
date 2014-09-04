@@ -50,7 +50,7 @@
 #include "graphics-info.h"
 
 #ifdef HAVE_SSMLIB
-#include <ssm/ssm_align.h>
+#include <ssm-dev/ssm_align.h>
 #endif
 
 // This is called by make_bonds_type_checked(), which is called by
@@ -121,7 +121,7 @@ void
 coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 
    atom_selection_container_t asc;
-   asc.mol = (Mymmdb::Manager *) mol;
+   asc.mol = mol;
 
    // We should update the atom selection here: Yes, this needs to
    // happen.  Otherwise: a modification is made and when we come to
@@ -141,7 +141,7 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
    int imod = 1;
    // 
    mol->SelectAtoms(SelectionHandle, imod,
-		    (char *) chain_id.c_str(),
+		    chain_id.c_str(),
 		    mmdb::ANY_RES, "*",
 		    mmdb::ANY_RES, "*",
 		    "*", "*", "*", "*");

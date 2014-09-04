@@ -2261,11 +2261,11 @@ coot::rama_plot::rama_get_mmdb_manager(std::string pdb_name) {
       // we read the coordinate file OK.
       //
       switch (MMDBManager->GetFileType())  {
-      case MMDB_FILE_PDB    :  std::cout << " PDB"         ;
+      case mmdb::MMDB_FILE_PDB    :  std::cout << " PDB"         ;
 	 break;
-      case MMDB_FILE_CIF    :  std::cout << " mmCIF"       ; 
+      case mmdb::MMDB_FILE_CIF    :  std::cout << " mmCIF"       ; 
 	 break;
-      case MMDB_FILE_Binary :  std::cout << " MMDB binary" ;
+      case mmdb::MMDB_FILE_Binary :  std::cout << " MMDB binary" ;
 	 break;
       default:
 	 std::cout << " Unknown (report as a bug!)\n";

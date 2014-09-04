@@ -2141,7 +2141,7 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
 	 mmdb::Manager *mmdb = SelAtom.mol;
 	    
 	 // get a list of all the atoms
-	 clipper::mmdb::mmdb::PPAtom psel;
+	 mmdb::PAtom *psel;
 	 int hndl, nsel;
 	 hndl = mmdb->NewSelection();
 	 mmdb->SelectAtoms( hndl, 0, 0, mmdb::SKEY_NEW );

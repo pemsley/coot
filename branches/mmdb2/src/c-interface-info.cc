@@ -1135,7 +1135,7 @@ SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code
 			at_segid = scm_makfrom0str(at->segID);
 			at_altconf = scm_makfrom0str(at->altLoc);
 			SCM at_b = at_biso;
-			if (at->WhatIsSet & ASET_Anis_tFac) {
+			if (at->WhatIsSet & mmdb::ASET_Anis_tFac) {
 			   at_b = SCM_EOL;
 			   at_b = scm_cons(at_biso, at_b);
 			   at_b = scm_cons(scm_float2num(at->u11), at_b);
@@ -1220,7 +1220,7 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
                         at_altconf = PyString_FromString(at->altLoc);
 
 			at_b = at_biso;
-			if (at->WhatIsSet & ASET_Anis_tFac) {
+			if (at->WhatIsSet & mmdb::ASET_Anis_tFac) {
 			   at_b = PyList_New(7);
 			   PyList_SetItem(at_b, 0, at_biso);
 			   PyList_SetItem(at_b, 1, PyFloat_FromDouble(at->u11));
@@ -2039,7 +2039,7 @@ int undo_symmetry_view() {
 	    Cell_Translation pre_shift = boxes[ibox].second;
 	    mmdb::mat44 my_matt;
 	    int err = atom_sel.mol->GetTMatrix(my_matt, st.isym(), st.x(), st.y(), st.z());
-	    if (err == SYMOP_Ok) {
+	    if (err == mmdb::SYMOP_Ok) {
 	       clipper::RTop_orth rtop_symm = coot::util::make_rtop_orth_from(my_matt);
 	       // and we also need an RTop for the pre-shift
 	       clipper::Coord_frac pre_shift_cf(pre_shift.us, pre_shift.vs, pre_shift.ws);
@@ -4759,12 +4759,12 @@ SCM remarks_scm(int imol) {
    
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      CTitleContainer *tc_p = mol->GetRemarks();
+      mmdb::TitleContainer *tc_p = mol->GetRemarks();
       int l = tc_p->Length();
       for (unsigned int i=0; i<l; i++) { 
-	 CRemark *cr = static_cast<CRemark *> (tc_p->GetContainerClass(i));
+	 mmdb::Remark *cr = static_cast<mmdb::Remark *> (tc_p->GetContainerClass(i));
 	 SCM a_scm = SCM_MAKINUM(cr->remarkNum);
-	 SCM b_scm = scm_makfrom0str(cr->Remark);
+	 SCM b_scm = scm_makfrom0str(cr->remark);
 	 SCM l2 = SCM_LIST2(a_scm, b_scm);
 	 r = scm_cons(l2, r);
       }
@@ -4783,14 +4783,14 @@ PyObject *remarks_py(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      CTitleContainer *tc_p = mol->GetRemarks();
+      mmdb::TitleContainer *tc_p = mol->GetRemarks();
       int n_records = tc_p->Length();
       o = PyList_New(n_records);
       for (unsigned int i=0; i<n_records; i++) {
-	 CRemark *cr = static_cast<CRemark *> (tc_p->GetContainerClass(i));
+	 mmdb::Remark *cr = static_cast<mmdb::Remark *> (tc_p->GetContainerClass(i));
 	 PyObject *l = PyList_New(2);
 	 PyList_SetItem(l, 0, PyInt_FromLong(cr->remarkNum));
-	 PyList_SetItem(l, 1, PyString_FromString(cr->Remark));
+	 PyList_SetItem(l, 1, PyString_FromString(cr->remark));
 	 PyList_SetItem(o, i, l);
       }
    }

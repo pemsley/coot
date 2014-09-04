@@ -3026,8 +3026,8 @@ void print_header_secondary_structure_info(int imol) {
 void write_header_secondary_structure_info(int imol, const char *file_name) {
 
    if (is_valid_model_molecule(imol)) { 
-      CFile f;
-      bool Text = True;
+      mmdb::io::File f;
+      bool Text = true;
       f.assign(file_name, Text);
       if (f.rewrite()) { 
 	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
@@ -3040,7 +3040,7 @@ void write_header_secondary_structure_info(int imol, const char *file_name) {
 	 // build mmdb sheet and strand objects and attach them to the
 	 // model (should be part of mmdb).
 	 
-	 if (ss_status == SSERC_Ok) {
+	 if (ss_status == mmdb::SSERC_Ok) {
 	    std::cout << "INFO:: SSE status was OK\n";
 	    model_p->PDBASCIIDumpPS(f); // dump CHelix and CStrand records.
 	 }
@@ -6248,7 +6248,7 @@ int rigid_body_fit_with_residue_ranges(int imol,
 				residue_ranges[ir].chain_id.c_str(),
 				residue_ranges[ir].start_resno, "*",
 				residue_ranges[ir].end_resno, "*",
-				"*","*","*","*",SKEY_OR);
+				"*","*","*","*", mmdb::SKEY_OR);
 	    }
 
 	    mmdb::Manager *mol_from_selected =

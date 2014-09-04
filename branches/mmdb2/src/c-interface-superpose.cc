@@ -50,7 +50,7 @@
 // #include "Python.h"
 // #endif
 
-#include <ssm/ssm_align.h>
+#include <ssm-dev/ssm_align.h>
 #include <iostream>
 #include "interface.h"
 

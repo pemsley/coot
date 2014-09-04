@@ -808,9 +808,9 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 
 	 int nhelix = model_p->GetNumberOfHelices();
 	 int nsheet = model_p->GetNumberOfSheets();
-	 PCHelix helix_p;
-	 PCSheet sheet_p;
-	 PCStrand strand_p;
+	mmdb::Helix * helix_p;
+	mmdb::Sheet * sheet_p;
+	mmdb::Strand * strand_p;
 
 	 mmdb::Chain *chain_p = model_p->GetChain(chain_id.c_str());
 	 if (chain_p) { 
@@ -845,7 +845,7 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 
 	       int nstrand = sheet_p->nStrands;
 	       for (int istrand=0; istrand<nstrand; istrand++) {
-		  strand_p = sheet_p->Strand[istrand];
+		  strand_p = sheet_p->strand[istrand];
 		  if (strand_p) { 
 		     std::cout << "---- handle strand ------ id: " << strand_p->sheetID << " # "
 			       << strand_p->strandNo << " " << strand_p->initChainID << " "

@@ -56,7 +56,7 @@
 #include "coot-utils/coot-map-utils.hh"
 
 #include "molecule-class-info.h"
-#include <mmdb2/mmdb_align.h>
+#include <mmdb2/mmdb_math_align.h>
 #include <mmdb2/mmdb_tables.h>
 
 int
@@ -422,7 +422,7 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	 mmdb::Residue *residue_p = residues_for_deletion[ird].first;
 	 if (residue_p) {
 	    int seqnum = residue_p->GetSeqNum();
-	    pstr inscode = residue_p->GetInsCode();
+	    mmdb::pstr inscode = residue_p->GetInsCode();
 	    residue_p->chain->DeleteResidue(seqnum, inscode);
 	    residues_for_deletion[ird].first = NULL;
 	 } 
@@ -535,7 +535,7 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
       std::cout << "INFO:: input target sequence: " << target  << std::endl;
    }
 
-   CAlignment align;
+   mmdb::math::Alignment align;
 
    // 20080601.  Don't monkey with these.  If I uncomment the next
    // line (as it used to be) then the I get an N-term alignment error

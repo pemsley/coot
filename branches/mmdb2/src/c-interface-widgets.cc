@@ -118,13 +118,13 @@ void remarks_dialog(int imol) {
       if (is_valid_model_molecule(imol)) {
 	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 if (mol) {
-	    CTitleContainer *tc_p = mol->GetRemarks();
+	    mmdb::TitleContainer *tc_p = mol->GetRemarks();
 	    int l = tc_p->Length();
 	    std::map<int, std::vector<std::string> > remarks;
 	    for (unsigned int i=0; i<l; i++) { 
-	       CRemark *cr = static_cast<CRemark *> (tc_p->GetContainerClass(i));
+	       mmdb::Remark *cr = static_cast<mmdb::Remark *> (tc_p->GetContainerClass(i));
 	       int rn = cr->remarkNum;
-	       std::string s = cr->Remark;
+	       std::string s = cr->remark;
 	       remarks[rn].push_back(s);
 	    }
 	    if (! remarks.size()) {

@@ -201,7 +201,7 @@ void update_preference_gui() {
   float fval1;
   float fval2;
   float fval3;
-  std::vector<int> mmdb::ivector;
+  std::vector<int> ivector;
   unsigned short int v = 4;
   graphics_info_t g;
   
@@ -229,7 +229,7 @@ void update_preference_gui() {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_file_overwrite_no_radiobutton");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), True);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       }
       break;
 
@@ -239,7 +239,7 @@ void update_preference_gui() {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_file_filter_off_radiobutton");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), True);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       }
       break;
 
@@ -249,7 +249,7 @@ void update_preference_gui() {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       } else {
 	w = lookup_widget(dialog, "preferences_file_sort_by_date_off_radiobutton");
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), True);
+	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
       }
       break;
 

@@ -832,7 +832,7 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 				       int resno_2) const {
 
    atom_selection_container_t local_moving_atoms_asc;
-   local_moving_atoms_asc.mol = (Mymmdb::Manager *) residues_mol;
+   local_moving_atoms_asc.mol = residues_mol;
    local_moving_atoms_asc.UDDOldAtomIndexHandle = -1;  // true?
    local_moving_atoms_asc.UDDAtomIndexHandle = -1;
    if (residues_mol)
@@ -885,7 +885,7 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 			   mmdb::SKEY_OR);
    }
 
-   local_moving_atoms_asc.mol = (Mymmdb::Manager *) residues_mol;
+   local_moving_atoms_asc.mol = residues_mol;
    local_moving_atoms_asc.SelectionHandle = SelHnd;
    residues_mol->GetSelIndex(local_moving_atoms_asc.SelectionHandle,
 			     local_moving_atoms_asc.atom_selection,
@@ -2239,7 +2239,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       if (graphics_info_t::molecules[imol].is_from_shelx_ins()) {
 		  bf = 11.0;
 	       } 
-	       terminal_res_asc.mol = (Mymmdb::Manager *) mmol.pcmmdbmanager();
+	       terminal_res_asc.mol = mmol.pcmmdbmanager();
 
 	       int SelHnd = terminal_res_asc.mol->NewSelection();
 	       terminal_res_asc.mol->SelectAtoms(SelHnd, 0, "*",
@@ -3415,7 +3415,7 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
 	    return 0;
 	 } else { 
 
-	    Mymmdb::Manager *mol = new Mymmdb::Manager;
+	    mmdb::Manager *mol = new mmdb::Manager;
 	    mmdb::Model *model_p = new mmdb::Model;
 	    mmdb::Chain *chain_p = new mmdb::Chain;
 	    mmdb::Residue *res_p = new mmdb::Residue;
