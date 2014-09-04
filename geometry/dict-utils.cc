@@ -769,7 +769,7 @@ coot::dictionary_residue_restraints_t::extra_name_swaps_from_name_clash(const st
 	    bool found = false;
 	    for (unsigned int k=0; k<change_name.size(); k++) {
 	       if (change_name[k].first == to_name) {
-		  found == true;
+		  found = true;
 		  break;
 	       }
 	    }
