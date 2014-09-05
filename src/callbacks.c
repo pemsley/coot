@@ -9232,7 +9232,7 @@ on_coot_doc_url_monolithic_button_clicked
                                         gpointer         user_data)
 {
 
-  browser_url("http://www.biop.ox.ac.uk/coot/doc/coot.html");
+  browser_url("https://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/web/docs/coot.html");
 
 }
 
@@ -9242,7 +9242,7 @@ on_coot_doc_url_sectioned_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  browser_url("http://www.biop.ox.ac.uk/coot/doc/coot/index.html");
+  browser_url("https://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/web/docs/coot.html");
 }
 
 

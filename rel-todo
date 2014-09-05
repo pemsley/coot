@@ -3,8 +3,6 @@
 
 ---- 
 
-   o About -> Online Documentation needs to be fixed.
-
    o chiral centre inverter in C++. Needs a gui presence.
 
    o Promote to the gui Sloop (db loop)
@@ -32,6 +30,8 @@
 
    o Look at the N-O distances of the nitro in 2DZ A403. The target
      distances are not equal.  Why not?
+
+   o gui-prosmart.scm (or user-defined-restraints?) should be a plug-in
 
    ---
 
