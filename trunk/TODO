@@ -1342,9 +1342,8 @@ Punted from 0.6:
 
    o The test-mogl.scm script needs to be updated. Do this at work.
 
-     Hydrogens on the wrong way round like this means that the ligand
-     fitting failed.  I corrected them by hand and the ligand fitting
-     worked nicely (except a rotation round an acyl bond).
+   o lbg: get molecule needs to get comp-id (3 letter codes) (if caps
+     or numbers)
 
    o Lots of testing of add other solvent molecules, jiggle-fit, in
      low-resolution maps, perhaps?
