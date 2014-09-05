@@ -2655,14 +2655,11 @@ int mutate_single_residue_by_seqno(int ires, const char *inscode,
 
    int status = -1; 
    std::string target_as_str = coot::util::single_letter_to_3_letter_code(target_res_type);
-   
-   if (imol < graphics_n_molecules()) {
-      if (imol >= 0) { 
-	 status = graphics_info_t::molecules[imol].mutate(ires,
-							  std::string(inscode),
-							  std::string(chain_id),
-							  target_as_str);
-      }
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      status = g.molecules[imol].mutate(ires, std::string(inscode),
+					std::string(chain_id), target_as_str);
    }
    return status;
 }
@@ -2681,7 +2678,8 @@ int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start,
       status = graphics_info_t::molecules[imol].nudge_residue_sequence(chain_id,
 								       res_no_range_start,
 								       res_no_range_end,
-								       nudge_by, nudge_residue_numbers_also);
+								       nudge_by,
+								       nudge_residue_numbers_also);
    }
    return status;
 } 
