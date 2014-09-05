@@ -5,9 +5,6 @@
    
    o test match_this_residue_and_dictionary and match_residue_and_dictionary
 
-   o Look at the N-O distances of the nitro in 2DZ A403. The target
-     distances are not equal.  Why not?
-
    o About -> Online Documentation needs to be fixed.
 
    o convert the residue too in match_residue_and_dictionary().  It should have a test :-)
@@ -39,12 +36,12 @@
 
    o column types are not set in mtz file written by mmcif_sfs_to_mtz().
 
+   o Look at the N-O distances of the nitro in 2DZ A403. The target
+     distances are not equal.  Why not?
+
    ---
 
    o Try glyco tree builder 528 on 4lxr. 
-
-   o lbg: get molecule needs to get comp-id (3 letter codes) (if caps
-     or numbers)
 
    o build NAG-NAG on 3bt1 on 172U ASN.
 
