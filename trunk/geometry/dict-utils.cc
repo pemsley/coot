@@ -594,7 +594,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 							  CResidue *residue_p,
 							  const std::string &new_comp_id) {
    dictionary_residue_restraints_t dict = *this;
-   bool debug = true;
+   bool debug = false;
    typedef std::pair<std::string, std::string> SP;
    std::vector<SP> change_name;
    std::vector<std::string> same_name;
@@ -626,7 +626,8 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    g_2->MakeSymmetryRelief(False);
    
    CGraphMatch match;
-   int minMatch = n_atoms;
+   int minMatch = ref.number_of_non_hydrogen_atoms() -2;
+   if (minMatch<3) minMatch = 3;
 
    Boolean vertext_type = True;
    std::string s;

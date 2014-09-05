@@ -7131,7 +7131,8 @@ void handle_online_coot_search_request(const char *entry_text) {
 	    s += bits[i];
 	 }
 	 // s += "+coot+site%3Awww.ysbl.york.ac.uk";
-	 s += "+coot+site%3Awww.biop.ox.ac.uk";
+	 // s += "+coot+site%3Awww.biop.ox.ac.uk";
+	 s += "+coot+site%3Awww2.mrc-lmb.cam.ac.uk";
 	 browser_url(s.c_str());
       }
    } 

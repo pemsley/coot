@@ -45185,7 +45185,6 @@ distances more than:</property>
 
 	      <child>
 		<widget class="GtkButton" id="coot_doc_url_sectioned_button">
-		  <property name="visible">True</property>
 		  <property name="tooltip" translatable="yes">Open URL in Web Browser</property>
 		  <property name="can_focus">True</property>
 		  <property name="label" translatable="yes">  Open  </property>
@@ -45227,12 +45226,11 @@ distances more than:</property>
 
 	      <child>
 		<widget class="GtkEntry" id="doc_2_entry">
-		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
 		  <property name="editable">False</property>
 		  <property name="visibility">True</property>
 		  <property name="max_length">0</property>
-		  <property name="text" translatable="yes">http://www.biop.ox.ac.uk/coot/doc/coot/index.html</property>
+		  <property name="text" translatable="yes">http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/web/docs/coot.html</property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char">*</property>
 		  <property name="activates_default">False</property>
@@ -45253,7 +45251,7 @@ distances more than:</property>
 		  <property name="editable">False</property>
 		  <property name="visibility">True</property>
 		  <property name="max_length">0</property>
-		  <property name="text" translatable="yes">http://www.biop.ox.ac.uk/coot/doc/coot.html</property>
+		  <property name="text" translatable="yes">http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/web/docs/coot.html</property>
 		  <property name="has_frame">True</property>
 		  <property name="invisible_char">*</property>
 		  <property name="activates_default">False</property>
@@ -45269,7 +45267,6 @@ distances more than:</property>
 
 	      <child>
 		<widget class="GtkLabel" id="label255">
-		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">   Sectioned   </property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
@@ -45297,7 +45294,6 @@ distances more than:</property>
 
 	      <child>
 		<widget class="GtkLabel" id="label254">
-		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">   All in one page   </property>
 		  <property name="use_underline">False</property>
 		  <property name="use_markup">False</property>
