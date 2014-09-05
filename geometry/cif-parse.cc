@@ -94,11 +94,12 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	 std::cout << "dirty mmCIF file? " << ciffilename.c_str() << std::endl;
 	 std::cout << "    Bad mmdb::mmcif::CIFRC_Ok on ReadMMCIFFile" << std::endl;
 
-	 // FIXME boring	 
-// 	 std::cout << "    " << mmdb::GetErrorDescription(ierr) << std::endl;
-// 	 char        err_buff[1000];
-// 	 std::cout <<  "CIF error rc=" << ierr << " reason:" << 
-// 	    GetCIFMessage (err_buff,ierr) << std::endl;
+	 std::cout << "    " << mmdb::GetErrorDescription(mmdb::ERROR_CODE(ierr))
+		   << std::endl;
+	 
+ 	 char        err_buff[1000];
+ 	 std::cout <<  "CIF error rc=" << ierr << " reason:" << 
+ 	    mmdb::mmcif::GetCIFMessage (err_buff, ierr) << std::endl;
 
       } else {
 	 if (verbose_mode)

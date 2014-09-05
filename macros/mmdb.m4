@@ -55,42 +55,27 @@ if test x$mmdb_prefix != x; then
 	# --with-mmdb=/some/thing
 	#
 
- # should ideally be MMDB_CXXFLAGS="-I$MMDB_prefix/include", and the like
- # when MMDB and dependencies get installed - we infact, include both
- # directories.
- #  
-ac_mmdb_dirs='
-.
-include
-include/mmdb
-lib
-src
-lib/src
-lib/src/mmdb'
-for ac_dir in $ac_mmdb_dirs; do
-   if test -r "$mmdb_prefix/$ac_dir/mmdb2/mmdb_manager.h"; then
-      ac_MMDB_CXXFLAGS="-I$mmdb_prefix/$ac_dir"
-      break
+   if test -r "$mmdb_prefix/include/mmdb2/mmdb_manager.h"; then
+      ac_MMDB_CXXFLAGS="-I$mmdb_prefix/include"
    fi
-done
- #
- # SGI compiler CC (CXX=CC) needs -lm to link maths library, but 
- # GCC c++ does not.
- #
- # not libdirstem because mmdb is in lib no matter what.
- #  ac_MMDB_LDOPTS="-L$mmdb_prefix/$acl_libdirstem -L$mmdb_prefix -lmmdb -lm"
- ac_MMDB_LDOPTS="-L$mmdb_prefix/lib -lmmdb2 -lm"
+   #
+   # SGI compiler CC (CXX=CC) needs -lm to link maths library, but 
+   # GCC c++ does not.
+   #
+   # not libdirstem because mmdb is in lib no matter what.
+   #  ac_MMDB_LDOPTS="-L$mmdb_prefix/$acl_libdirstem -L$mmdb_prefix -lmmdb -lm"
+   ac_MMDB_LIBS="-L$mmdb_prefix/lib -lmmdb2 -lm"
 else
- # the compiler looks in the "standard" places for MMDB.  In real life,
- # it would be quite unlikely that MMDB would be installed in /usr/include, 
- # /usr/lib etc. so this code will not usually find the right dependencies.
- ac_MMDB_CXXFLAGS=""
- ac_MMDB_LDOPTS="-lmmdb2 -lm"
+   # the compiler looks in the "standard" places for MMDB.  In real life,
+   # it would be quite unlikely that MMDB would be installed in /usr/include, 
+   # /usr/lib etc. so this code will not usually find the right dependencies.
+   ac_MMDB_CXXFLAGS=""
+   ac_MMDB_LIBS="-lmmdb2 -lm"
 fi
 
 AC_MSG_CHECKING([for MMDB])
 
-   LIBS="$save_LIBS $ac_MMDB_LDOPTS"
+   LIBS="$save_LIBS $ac_MMDB_LIBS"
    CXXFLAGS="$save_CXXFLAGS $ac_MMDB_CXXFLAGS"
    #
    # AC_TRY_LINK uses the c compiler (set by AC_LANG), so we will
@@ -108,7 +93,7 @@ if test x$have_mmdb = xyes; then
  CISPEP_FLAG=-DHAVE_MMDB_WITH_CISPEP
  CXXFLAGS="$saved_CXXFLAGS"
  MMDB_CXXFLAGS="$ac_MMDB_CXXFLAGS $HASH_FLAG $CISPEP_FLAG"
- MMDB_LIBS="$ac_MMDB_LDOPTS"
+ MMDB_LIBS="$ac_MMDB_LIBS"
 ifelse([$1], , :, [$1])
 
 fi
