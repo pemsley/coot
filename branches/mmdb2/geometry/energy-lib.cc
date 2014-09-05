@@ -50,15 +50,11 @@ coot::energy_lib_t::read(const std::string &file_name, bool print_info_message_f
       
        std::cout << "dirty mmCIF file? " << file_name.c_str() << std::endl;
        std::cout << "    Bad mmdb::mmcif::CIFRC_Ok on ReadMMCIFFile" << std::endl;
-
-
-       // FIXME-boring
-       
-       //        mmdb::cpstr ed = mmdb::GetErrorDescription();
-       //        std::cout << "    " << ed << std::endl;
-       //        char        err_buff[1000];
-       //        std::cout <<  "CIF error rc=" << ierr << " reason:" << 
-       // 	 GetCIFMessage (err_buff, ierr) << std::endl;
+       mmdb::cpstr ed = mmdb::GetErrorDescription(mmdb::ERROR_CODE(ierr));
+       std::cout << "    " << ed << std::endl;
+       char        err_buff[1000];
+       std::cout <<  "CIF error rc=" << ierr << " reason:" << 
+	  mmdb::mmcif::GetCIFMessage (err_buff, ierr) << std::endl;
        
       
    } else {

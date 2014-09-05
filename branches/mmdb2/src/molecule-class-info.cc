@@ -3248,7 +3248,7 @@ molecule_class_info_t::export_coordinates(std::string filename) const {
    if (err) { 
       std::cout << "WARNING:: export coords: There was an error in writing "
 		<< filename << std::endl; 
-      // std::cout << mmdb::GetErrorDescription(err) << std::endl; FIXME - Boring
+      std::cout << mmdb::GetErrorDescription(mmdb::ERROR_CODE(err)) << std::endl; 
       graphics_info_t g;
       std::string s = "ERROR:: writing coordinates file ";
       s += filename;
