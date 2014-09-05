@@ -567,7 +567,10 @@ namespace coot {
       std::vector<std::pair<std::string, std::string> >
       extra_name_swaps_from_name_clash(const std::vector<std::pair<std::string, std::string> > &change_name) const;
       std::string invent_new_name(const std::string &ele) const;
-      void change_names(CResidue *residue_p, const std::vector<std::pair<std::string, std::string> > &change_name) const;
+
+      // change the atom names and the residue type of the passed residue.
+      bool change_names(CResidue *residue_p, const std::vector<std::pair<std::string, std::string> > &change_name,
+			const std::string &new_comp_id) const;
 
       
    public:
@@ -696,7 +699,8 @@ namespace coot {
       // changed.
       // 
       dictionary_residue_restraints_t match_to_reference(const dictionary_residue_restraints_t &ref,
-							 CResidue *residue_p);
+							 CResidue *residue_p,
+							 const std::string &new_comp_id);
 
       // make a CGraph from the atom_info and bond restraints.
       //

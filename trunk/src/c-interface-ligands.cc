@@ -567,7 +567,7 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 	       // << rp_2.second.residue_info.comp_id << " to "
 	       // << rp_1.second.residue_info.comp_id << " names" << std::endl;
 	       coot::dictionary_residue_restraints_t new_dict =
-		  rp_2.second.match_to_reference(rp_1.second, residue_p);
+		  rp_2.second.match_to_reference(rp_1.second, residue_p, output_comp_id_name);
 	       new_dict.residue_info.comp_id = output_comp_id;
 	       new_dict.residue_info.name =    output_comp_id_name;
 	       new_dict.write_cif(cif_dict_out);
@@ -611,7 +611,7 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 	    if (dict_2.first) {
 	       
 	       coot::dictionary_residue_restraints_t new_dict =
-		  dict_1.second.match_to_reference(dict_2.second, this_residue);
+		  dict_1.second.match_to_reference(dict_2.second, this_residue, output_comp_id);
 	       new_dict.residue_info.comp_id = output_comp_id;
 	       new_dict.residue_info.name =  ".";
 	       new_dict.write_cif(cif_dict_out);

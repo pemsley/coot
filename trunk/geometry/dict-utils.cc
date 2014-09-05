@@ -591,7 +591,8 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 // 
 coot::dictionary_residue_restraints_t
 coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary_residue_restraints_t &ref,
-							  CResidue *residue_p) {
+							  CResidue *residue_p,
+							  const std::string &new_comp_id) {
    dictionary_residue_restraints_t dict = *this;
    bool debug = true;
    typedef std::pair<std::string, std::string> SP;
@@ -702,13 +703,10 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	       }
 	    }
 	    // also header info.
-	    dict.residue_info.comp_id           = ref.residue_info.comp_id;
-	    dict.residue_info.three_letter_code = ref.residue_info.three_letter_code;
-	    dict.residue_info.name              = ref.residue_info.name;
-	    dict.residue_info.group             = ref.residue_info.group;
-
-	    // change the residue atom names too (if non-NULL).
-	    change_names(residue_p, change_name);
+	    dict.residue_info.comp_id           = new_comp_id;
+	    dict.residue_info.three_letter_code = new_comp_id;
+	    dict.residue_info.name              = ref.residue_info.name;  // possibly wrong
+	    dict.residue_info.group             = ref.residue_info.group; // probably right.
 
 	    // do any of the target (to) names exist in dict already?  If so,
 	    // we will need to invent a new name for those already-existing
@@ -719,6 +717,14 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 
 	    // do the swap
 	    dict.atom_id_swap(change_name);
+
+	    // change the residue atom names too (if non-NULL).
+	    bool something_changed = change_names(residue_p, change_name, new_comp_id);
+	    if (something_changed) {
+	       CMMDBManager *m = residue_p->chain->GetCoordHierarchy();
+	       if (m)
+		  m->FinishStructEdit();
+	    } 
 	 }
       }
    }
@@ -729,9 +735,11 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    return dict;
 }
 
-void
+bool
 coot::dictionary_residue_restraints_t::change_names(CResidue *residue_p,
-						    const std::vector<std::pair<std::string, std::string> > &change_name) const {
+						    const std::vector<std::pair<std::string, std::string> > &change_name, const std::string &new_comp_id) const {
+
+   bool changed_something = false;
 
    if (residue_p) {
       PPCAtom res_selection = NULL;
@@ -744,10 +752,15 @@ coot::dictionary_residue_restraints_t::change_names(CResidue *residue_p,
 	    if (change_name[j].first == atom_name) {
 	       // 4 chars?
 	       at->SetAtomName(change_name[j].second.c_str());
-	    } 
+	       changed_something = true;
+	    }
 	 }
       }
    }
+   if (changed_something) {
+      residue_p->SetResName(new_comp_id.c_str());
+   } 
+   return changed_something;
 }
 
 
