@@ -1279,6 +1279,175 @@ Punted from 0.6:
    Release 0.9, Facelift-release [Dec 2013]
 
 
+   o Re-write ligand fitting tutorial using UJ6 from 4cgf (needs
+     flexible fitting and consideration of chirality)
+
+   o sharpen a Patterson. Kevin message
+
+   o GLC pyranose 1-4 linked template.
+
+   o PISA Interfaces surface colours are wrong. 
+
+   o add surface and ball and stick ligand to tutorial.
+
+   o hydrophobicity surface for next year (that's 2014, right?)
+
+   o Reconsider descision to disallow reading of molecules with
+     different residues but the same residue number and insertion code.
+
+   o Consider change to configure.ac ::: 1
+
+   o Felix Frolow: (copy-residue-range-from-ncs-master-to-chains 0 "A" 1 500 (list "B" "C" "D" "E")) 
+     but master chain is not A.
+ 
+     :-( Sorry Felix.
+
+   o interesting ligand series examples: 4cie..s 4cj4..5 4cje..p
+     "The Sample Challange". Journal of Computer-aided molecular design.  Tom Peat.
+     Anthony Nicholls (Open Eye) behind this.
+
+     Also look at trypsin for the sample challenge.  Does it look like benzamidine?
+
+     2xx series, e.g. 2xx7, 2xx8, 2xxh, 2xxi, 2xxj
+
+   o in FLEV the carboxylate of ligand Q31 doesn't make a H-bond to
+     the mainchain.  Why not?
+
+   o new molecule from atom selection (Copy Fragment) should generate
+     a PDB file that has a CRYST1 card.
+
+   o the question is why the chemical features on the
+      carboxylate are asymmetric.  undelocalize()?
+
+   o Lots of testing of add other solvent molecules, jiggle-fit, in
+     low-resolution maps, perhaps?
+
+    on mogul validation of MFX the 3rd time (after deleting hydrogens)
+
+       (why does the residue pointer recover in 3?)
+
+#0  __strlen_sse2 () at ../sysdeps/x86_64/multiarch/../strlen.S:31
+#1  0x00007f0eff2bfa20 in std::basic_string<char, std::char_traits<char>, std::allocator<char> >::basic_string(char const*, std::allocator<char> const&) ()
+   from /usr/lib/libstdc++.so.6
+#2  0x0000000000594b56 in coot::fill_mogul_bonds_tab (mogul_bonds_treeview=<value optimised out>, mogul_results_dialog=<value optimised out>, m=..., 
+    r=<value optimised out>) at ../../coot/trunk/src/c-interface-mogul.cc:269
+#3  0x00000000005980ad in wrapped_create_mogul_geometry_dialog (m=..., residue=0x51d8c20) at ../../coot/trunk/src/c-interface-mogul.cc:221
+#4  0x000000000059814f in show_mogul_geometry_dialog (m=..., residue=0xffffffffffffffff) at ../../coot/trunk/src/c-interface-mogul.cc:170
+#5  0x0000000000598398 in mogul_markup (imol=<value optimised out>, chain_id=0x5b91c90 "", res_no=1, ins_code=0x5c23550 "", 
+    mogul_out_file_name=<value optimised out>) at ../../coot/trunk/src/c-interface-mogul.cc:30
+
+
+   o is 4CJN published yet?
+
+   o The test-mogl.scm script needs to be updated. Do this at work.
+
+
+
+     Hydrogens on the wrong way round like this means that the ligand
+     fitting failed.  I corrected them by hand and the ligand fitting
+     worked nicely (except a rotation round an acyl bond).
+
+   o Lots of testing of add other solvent molecules, jiggle-fit, in
+     low-resolution maps, perhaps?
+
+   o Charge function in Lidia 
+
+   o conditional SWIG - at compile time - for ENHANCED_LIGAND.
+
+* Done?  Needs to be checked - e.g. by Garib.  Maybe I can do it?
+
+   o hydrogenate the N terminus of tutorial-modern, what is happening to H3?
+
+   o set_monomer_restraints() for planes needs some thought about how
+     to handle individual atom esds.
+
+   o When (for example) with-ssmlib-prefix is specified, but the
+     include/libs are not found, then we should exit configure with 
+     an error
+
+  * Wish: highlight bond/atom/angles of restraints selected in
+    Restraints editor [DB via BL].
+
+   o George S. Riding atom U problem
+
+* Needs B factor from U checked.  And integrated into test/test-data.
+
+   o bundle coot.probe and coot.reduce in the binaries
+
+   o what's this: 
+
+     Ooops fixed atom dialog has gone!
+
+     (I had indeed dismissed the Fixed Atom Dialog)  
+
+   o why is one of the N+ in the nitros chiral in the thumbnail of 128?
+
+   o modified residue (e.g. oxidised Cys).  Mutate it back to CYS.
+     It's still HETATMs.
+
+   o Jim Brannigan wants to see alt conf phi/psi angles in Residue Info.
+
+   o in the mmcif to mtz reader, if there are 2 cells, use the first
+     one, not the last one!  --- needs a clipper patch --- bleugh.
+
+   o Top right exit should not write a state file.
+
+       --no-state-file should not write a state file.
+
+    But what about starting with interactive no to state-file reading?
+
+    That also should write a state file. (user can use quick-save-as
+    if they want)
+
+* Improved now?  Needs checking.
+
+   o check that FE-CYS link "just works" in sphere refine.
+
+   o build NH4 in lbg.  Is the N charged in the resulting mol file?
+
+   o for ligand check, turn off flips in reduce.
+
+* There are no FLIP args, maybe it's on by default? 
+
+   o in FLEV 2D, click on a bond -> 3d view centre to middle of those
+     2 interacting atom
+
+   o Pavel message: Map D to H so that you can refine proteins vs neutron data.
+
+   o fit_to_map_by_random_jiggle should return a valid value.
+
+   o ALPHA2-3 link refinement is broken?
+
+   o go to atom Atom list for residue with insertion codes: e.g. H 60 in 3biu.
+
+   o FUC - alpha1-2 - b- galact beta-1-4 NAG
+
+                          beta-1-3 NAG
+
+
+   o We need FUC decorations and GAL (beta galactose) decorations
+
+*Done.  Needs a test.
+
+   o get flavin.mol - and write a python script to show the bond
+     properties (including aromaticity of bonds).  C10-C4X should be
+     aromatic, shouldn't it?
+
+* Sort of.  It'll do for now.
+
+   o Tim G: AFIX problems.
+
+   o remove graphics_info_t from molecule_class_info_t::update_symmetry().
+
+   o Ethan Merrit: 4l2e ligand what is lldf from the VTF validation
+     report?
+
+   o Think about orienting a ligand for nice graphics view.  Attach it
+     to the GUI Ligand button.
+
+   o make refmac from recent pdbe work with intensities.
+
+   o get rid of SWIG_FLAGS, see configure.in
 
    o lbg: get molecule needs to get comp-id (3 letter codes) (if caps
      or numbers)
