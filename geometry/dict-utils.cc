@@ -593,7 +593,7 @@ coot::dictionary_residue_restraints_t
 coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary_residue_restraints_t &ref,
 							  CResidue *residue_p) {
    dictionary_residue_restraints_t dict = *this;
-   bool debug = false;
+   bool debug = true;
    typedef std::pair<std::string, std::string> SP;
    std::vector<SP> change_name;
    std::vector<std::string> same_name;
@@ -606,20 +606,20 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    CGraph *g_1 = make_graph(use_hydrogens);
    CGraph *g_2 = ref.make_graph(use_hydrogens);
 
-   if (0) {
-      std::cout << "this-name:::::::::::::::::::" << residue_info.comp_id << std::endl;
-      std::cout << " ref-name:::::::::::::::::::" << ref.residue_info.comp_id << std::endl;
+   if (debug) {
+      std::cout << "this-name :::::::::::::::::::" << residue_info.comp_id << std::endl;
+      std::cout << " ref-name :::::::::::::::::::" << ref.residue_info.comp_id << std::endl;
       g_1->Print();
       g_2->Print();
    }
    
-   g_1->SetName ("thing 1 ");
+   g_1->SetName ("working-residue");
    g_1->MakeVertexIDs();
    
-   g_2->SetName ("thing 2 ");
+   g_2->SetName ("reference-residue");
    g_2->MakeVertexIDs();
 
-   Boolean use_bond_order = false;
+   Boolean use_bond_order = False;
 
    g_1->MakeSymmetryRelief(False);
    g_2->MakeSymmetryRelief(False);

@@ -2,9 +2,13 @@
  0.8
 
 ---- 
+   
+   o test match_this_residue_and_dictionary and match_residue_and_dictionary
 
-   o Don't display Save Molecule dialog if there are no molecules to save.
-     Use the status bar.
+   o Look at the N-O distances of the nitro in 2DZ A403. The target
+     distances are not equal.  Why not?
+
+   o About -> Online Documentation needs to be fixed.
 
    o convert the residue too in match_residue_and_dictionary().  It should have a test :-)
 
@@ -14,6 +18,8 @@
 
    o Promote to the gui Sloop (db loop)
 
+     - mostly done?
+
    o Make Marcin's APPLE OpenGL include patch.
 
    o if you have a wedge bond in lbg, try to make it a single bond.
@@ -21,15 +27,17 @@
    o Refining 55A SAH in 3NPN, it should not try to get dictionary up
      and downstrean neighbour if the residue's group is "monomer".
 
-   o imol_map should not be passed to molecule_class_info_t::auto_fit_best_rotamer().
-
    o I want to be able to set the path for reduce and probe in my
      .coot.py file (not .coot)
 
    o fit_to_map_by_random_jiggle should return a valid value.
 
+   o Oliver Clark HOLE radius bug
+
    o save_state_file() needs to write a python file when called from
      python (redefine save_save_file_py()).
+
+   o column types are not set in mtz file written by mmcif_sfs_to_mtz().
 
    ---
 
@@ -69,13 +77,10 @@
 
    o a nice function - for ligand presentation (and rendering) is to
      find the screen centre and view quaternion that orients the ligand
-     nicely.
+     nicely. Puntable.
 
-   o change the front-page icons on the glade file.
+   o change the front-page icons on the glade file. Puntable.
 
-   o column types are not set in mtz file written by mmcif_sfs_to_mtz().
-
-   o Oliver Clark HOLE radius bug
 
 
 -------

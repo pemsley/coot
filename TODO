@@ -1278,6 +1278,8 @@ Punted from 0.6:
 
    Release 0.9, Facelift-release [Dec 2013]
 
+   o adding a water twice at the same position (after rbf?).  
+     Can you stop this happening? Or alert user?  Or something?
 
    o Re-write ligand fitting tutorial using UJ6 from 4cgf (needs
      flexible fitting and consideration of chirality)
@@ -1336,12 +1338,9 @@ Punted from 0.6:
 #5  0x0000000000598398 in mogul_markup (imol=<value optimised out>, chain_id=0x5b91c90 "", res_no=1, ins_code=0x5c23550 "", 
     mogul_out_file_name=<value optimised out>) at ../../coot/trunk/src/c-interface-mogul.cc:30
 
-
    o is 4CJN published yet?
 
    o The test-mogl.scm script needs to be updated. Do this at work.
-
-
 
      Hydrogens on the wrong way round like this means that the ligand
      fitting failed.  I corrected them by hand and the ligand fitting

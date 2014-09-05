@@ -85,12 +85,27 @@ invert_chiral_centre(int imol, std::string chain_id, int res_no, std::string ins
 // Write a new dictionary to cif_dict_out.
 // 
 // Return 1 if was successful in doing the atom matching and writing the cif file.
+//
+// e.g: match_residue_and_dictionary(0, "A", 1, "", "DRG-pyrogen.cif", "DRG-renamed.cif", "DRG", "LYS")
 int
 match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::string ins_code,
 			     std::string cif_dict_in,
 			     std::string cif_dict_out,
-			     std::string cif_dict_comp_id,
-			     std::string reference_comp_id);
+			     std::string cif_dict_comp_id, // comp-id in the input file
+			     std::string reference_comp_id,
+			     std::string output_comp_id,
+			     std::string output_comp_id_name);
+
+// This is the GUI interface: User sits over on top of the residue
+// they want to change and provides an output dictionary cif file
+// name, a reference-comp-id and a compd-id for the new residue (type).
+int
+match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::string ins_code,
+				  std::string cif_dict_out,
+				  std::string reference_comp_id,
+				  std::string output_comp_id);
+				  
+
 
 
 #endif // C_INTERFACE_LIGANDS_SWIG_HH
