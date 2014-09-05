@@ -274,4 +274,5 @@
 
 	    (read-pdb pdb-file-name)
 	    (format #t "make-and-draw-map with ~s~%" mtz-file-name)
-	    (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)))))
+	    (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0)
+	    (make-and-draw-map mtz-file-name "DELFWT" "PHDELWT" "" 0 1)))))
