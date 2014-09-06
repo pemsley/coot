@@ -2887,6 +2887,18 @@ on_fit_loop1_activate                  (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 
 void
+on_fit_loop_by_database_search1_activate                  (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_fit_loop_by_rama_search1_activate                  (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_fit_loop1_activate                  (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
 on_fit_loop_ok_button_clicked          (GtkButton       *button,
                                         gpointer         user_data);
 

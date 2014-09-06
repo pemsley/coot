@@ -20,8 +20,16 @@
 
 if COOT_USE_PYTHON
 
-dist_pkgpython_SCRIPTS = coot.py
-dist_python_SCRIPTS = coot.pth
+# if coot.py is called __init.py and goes in site-packages/coot/
+#dist_pkgpython_SCRIPTS = __init__.py
+#dist_python_SCRIPTS = coot.pth
+
+#__init__.py: coot.py
+#	cp coot.py __init__.py
+
+
+dist_python_SCRIPTS = coot.py coot.pth
+
 
 endif
 
@@ -290,6 +298,8 @@ coot_bin_SOURCES = \
 	coot_pythonmodule.cc     \
 	coot-preferences.h       \
 	coot-references.h        \
+	coot-setup-python.cc     \
+	coot-setup-python.hh     \
 	coot_wrap_guile_gtk2.cc  \
         dots-representation.hh   \
 	drag-and-drop.hh         \

@@ -8335,8 +8335,26 @@ on_fit_loop1_activate                  (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
-   GtkWidget *w = wrapped_fit_loop_dialog();
+/*    GtkWidget *w = wrapped_fit_loop_dialog(); */
+/*    gtk_widget_show(w); */
+}
+
+
+void
+on_fit_loop_by_rama_search1_activate (GtkMenuItem     *menuitem,
+				      gpointer         user_data)
+{
+
+   GtkWidget *w = wrapped_fit_loop_rama_search_dialog();
    gtk_widget_show(w);
+}
+
+
+void
+on_fit_loop_by_database_search1_activate (GtkMenuItem     *menuitem,
+					  gpointer         user_data)
+{
+  wrapped_fit_loop_db_loop_dialog();
 }
 
 

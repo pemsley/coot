@@ -1278,6 +1278,10 @@ Punted from 0.6:
 
    Release 0.9, Facelift-release [Dec 2013]
 
+   o can you make the double-line filter in contouring faster: using
+     an index hash? (use long long) Write a test - scroll up and down
+     a 20A sphere, say.
+
    o adding a water twice at the same position (after rbf?).  
      Can you stop this happening? Or alert user?  Or something?
 

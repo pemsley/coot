@@ -1617,7 +1617,7 @@ void do_mutate_sequence(GtkWidget *dialog) {
    }
 }
 
-GtkWidget *wrapped_fit_loop_dialog() {
+GtkWidget *wrapped_fit_loop_rama_search_dialog() {
 
    GtkWidget *w = wrapped_create_mutate_sequence_dialog();
 
@@ -1643,6 +1643,25 @@ GtkWidget *wrapped_fit_loop_dialog() {
 
    return w;
 }
+
+void wrapped_fit_loop_db_loop_dialog() {
+
+   std::vector<std::string> v;
+   v.push_back("click-protein-db-loop-gui");
+
+   if (graphics_info_t::prefer_python) {
+#ifdef USE_PYTHON
+      std::string c = graphics_info_t::pythonize_command_strings(v);
+      safe_python_command(c);
+#endif
+   } else {
+#ifdef USE_GUILE
+      std::string c = graphics_info_t::schemize_command_strings(v);
+      safe_scheme_command(c);
+#endif
+   }
+}
+
 
 // And the function called by the Fit Loop (OK) button.
 // 
