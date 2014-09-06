@@ -1350,6 +1350,11 @@ Punted from 0.6:
 
    o Charge function in Lidia 
 
+   o I want to be able to set the path for reduce and probe in my
+     .coot.py file (not .coot)
+
+     I've forgotten why this was an issue.
+
    o conditional SWIG - at compile time - for ENHANCED_LIGAND.
 
 * Done?  Needs to be checked - e.g. by Garib.  Maybe I can do it?

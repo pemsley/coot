@@ -3,16 +3,15 @@
 
 ---- 
 
-   o Promote Sloop (db loop) to the gui 
-
-   o Make Marcin's APPLE OpenGL include patch.
-
-   o I want to be able to set the path for reduce and probe in my
-     .coot.py file (not .coot)
+   o libexec coot-real
 
    o fit_to_map_by_random_jiggle should return a valid value.
 
    o Oliver Clark HOLE radius bug
+
+   o Promote Sloop (db loop) to the gui 
+
+   o Make Marcin's APPLE OpenGL include patch.
 
    o save_state_file() needs to write a python file when called from
      python (redefine save_save_file_py()).
