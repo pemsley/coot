@@ -699,6 +699,9 @@ namespace coot {
       // matching to find the set of atom names that match/need to be
       // changed.
       // 
+      // If new_comp_id is "auto", suggest_new_comp_id() is called to
+      // generate a comp_id string.
+      // 
       dictionary_residue_restraints_t match_to_reference(const dictionary_residue_restraints_t &ref,
 							 CResidue *residue_p,
 							 const std::string &new_comp_id);
