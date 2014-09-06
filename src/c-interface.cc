@@ -6063,25 +6063,25 @@ run_python_script(const char *filename_in) {
 int
 import_python_module(const char *module_name, int use_namespace) { 
 
-  int err = 1;
+   int err = 1;
 
 #ifdef USE_PYTHON
   
-  std::string simple;
-  if (use_namespace) {
-    simple = "import ";
-    simple += module_name;
-  } else {
-    simple = "from ";
-    simple += module_name;
-    simple += " import *";
-  }
-  std::cout << "Importing python module " << module_name 
-	    << " using command " << simple << std::endl;
-  // not a const argument?  Dear oh dear....
-  err = PyRun_SimpleString((char *)simple.c_str());
+   std::string simple;
+   if (use_namespace) {
+      simple = "import ";
+      simple += module_name;
+   } else {
+      simple = "from ";
+      simple += module_name;
+      simple += " import *";
+   }
+   std::cout << "Importing python module " << module_name 
+	     << " using command " << simple << std::endl;
+   // not a const argument?  Dear oh dear....
+   err = PyRun_SimpleString((char *)simple.c_str());
 #endif // USE_PYTHON
-  return err;
+   return err;
 }
 
 
