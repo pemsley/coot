@@ -188,8 +188,8 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 
 	    std::string type_1 = bond_restraint[ib].type().substr(0,4);
 	    std::string type_2 = r.bond_restraint[jb].type().substr(0,4);
-	    std::string up_1 = coot::util::upcase(type_1);
-	    std::string up_2 = coot::util::upcase(type_2);
+	    std::string up_1 = util::upcase(type_1);
+	    std::string up_2 = util::upcase(type_2);
 	    if (up_1 != up_2) {
 	       std::cout << "Bond-Restraint:: " << comp_id_s << " mismatch bond order  between "
 			 << bond_restraint[ib].atom_id_1() << " "
@@ -592,12 +592,16 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 coot::dictionary_residue_restraints_t
 coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary_residue_restraints_t &ref,
 							  CResidue *residue_p,
-							  const std::string &new_comp_id) {
+							  const std::string &new_comp_id_in) {
    dictionary_residue_restraints_t dict = *this;
    bool debug = false;
    typedef std::pair<std::string, std::string> SP;
    std::vector<SP> change_name;
    std::vector<std::string> same_name;
+
+   std::string new_comp_id = new_comp_id_in;
+   if (new_comp_id == "auto")
+      new_comp_id = suggest_new_comp_id(residue_info.comp_id);
 
    bool use_hydrogens = false;
    int n_atoms = atom_info.size();

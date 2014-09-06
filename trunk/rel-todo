@@ -3,21 +3,9 @@
 
 ---- 
 
-   o use coot::suggest_new_comp_id(rest.second.residue_info.comp_id)
-     for "auto" mode of match_this_residue_and_dictionary()z
-
-   o chiral centre inverter in C++. Needs a gui presence.
-
-   o Promote to the gui Sloop (db loop)
-
-     - mostly done?
+   o Promote Sloop (db loop) to the gui 
 
    o Make Marcin's APPLE OpenGL include patch.
-
-   o if you have a wedge bond in lbg, try to make it a single bond.
-
-   o Refining 55A SAH in 3NPN, it should not try to get dictionary up
-     and downstrean neighbour if the residue's group is "monomer".
 
    o I want to be able to set the path for reduce and probe in my
      .coot.py file (not .coot)
@@ -666,6 +654,25 @@ Program terminated with signal 11, Segmentation fault.
 
    o About -> Online Documentation needs to be fixed.
 
+* Done.
+
+   o chiral centre inverter in C++. Needs a gui presence.
+
+* Done.
+
+   o Refining 55A SAH in 3NPN, it should not try to get dictionary up
+     and downstrean neighbour if the residue's group is "monomer".
+
+* It isn't a monomer.
+
+   o use coot::suggest_new_comp_id(rest.second.residue_info.comp_id)
+     for "auto" mode of match_this_residue_and_dictionary()
+
+* Done.
+
+   o if you have a wedge bond in lbg, try to make it a single bond.
+
+* Done.
 
 -----
 
