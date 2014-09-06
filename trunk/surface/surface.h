@@ -22,7 +22,12 @@
 #define _CCP4MG_Surface_
 
 #define GL_GLEXT_PROTOTYPES 1
-#include <GL/gl.h>
+
+#if __APPLE__
+#   include <OpenGL/gl.h>
+#else
+#   include <GL/gl.h>
+#endif
 
 #include <string>
 #include <mmdb/mmdb_manager.h>

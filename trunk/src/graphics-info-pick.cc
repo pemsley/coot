@@ -29,8 +29,6 @@
 #include <vector> // for mmdb-crystal
 
 #include <math.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
 
 #include <string.h> // strncmp
 
@@ -42,6 +40,12 @@
 #include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
+
+#if __APPLE__
+#   include <OpenGL/glu.h>
+#else
+#   include <GL/glu.h>
+#endif
 
 #include "molecule-class-info.h"
 

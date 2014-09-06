@@ -20,8 +20,13 @@
 
 #include <string.h>
 #include <string>
-#include <GL/gl.h>
-#include <GL/glut.h> // for GLUT bitmap fonts, maybe deletable.
+
+#if __APPLE__
+#   include <OpenGL/glut.h>
+#else
+#   include <GL/glut.h>
+#endif
+
 #include <mmdb/mmdb_manager.h>
 #include "graphics-ligand-view.hh"
 

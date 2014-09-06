@@ -42,7 +42,12 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 //#include "mmdb.h"
 
 // display list GLuint
-#include <GL/gl.h>
+#if __APPLE__
+#   include <OpenGL/gl.h>
+#else
+#   include <GL/gl.h>
+#endif
+
 
 #include "clipper/ccp4/ccp4_map_io.h"
 
