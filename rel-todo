@@ -3,8 +3,6 @@
 
 ---- 
 
-   o libexec coot-real
-
    o fit_to_map_by_random_jiggle should return a valid value.
 
    o Oliver Clark HOLE radius bug
@@ -670,6 +668,10 @@ Program terminated with signal 11, Segmentation fault.
 * Done.
 
    o if you have a wedge bond in lbg, try to make it a single bond.
+
+* Done.
+
+   o libexec coot-real
 
 * Done.
 

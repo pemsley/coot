@@ -2,7 +2,11 @@
 #ifndef COOT_COLOUR_HH
 #define COOT_COLOUR_HH
 
-#include <GL/gl.h>
+#if __APPLE__
+#   include <OpenGL/gl.h>
+#else
+#   include <GL/gl.h>
+#endif
 
 namespace coot { 
    class colour_t {

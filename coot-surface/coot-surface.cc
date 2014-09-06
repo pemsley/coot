@@ -24,7 +24,12 @@
 #include <windows.h>
 #endif
 
-#include <GL/gl.h>
+#if __APPLE__
+#   include <OpenGL/gl.h>
+#else
+#   include <GL/gl.h>
+#endif
+
 #include "coot-surface.hh"
 #include "surface/CXXCreator.h"
 #include "surface/CXXUtils.h"
