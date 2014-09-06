@@ -3,6 +3,9 @@
 
 ---- 
 
+   o use coot::suggest_new_comp_id(rest.second.residue_info.comp_id)
+     for "auto" mode of match_this_residue_and_dictionary()z
+
    o chiral centre inverter in C++. Needs a gui presence.
 
    o Promote to the gui Sloop (db loop)
@@ -659,7 +662,9 @@ Program terminated with signal 11, Segmentation fault.
    
    o convert the residue too in match_residue_and_dictionary().  It should have a test :-)
 
-* It actually does.  Still needs a test though.
+* Done.
+
+   o About -> Online Documentation needs to be fixed.
 
 
 -----

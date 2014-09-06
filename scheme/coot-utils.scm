@@ -3111,7 +3111,7 @@
 ;; This should almost all be c++ code so that Bernie doesn't have to
 ;; redo it.  This is temporary then.
 ;; 
-(define (chiral-centre-inverter)
+(define (chiral-centre-inverter-scm-version)
   
   ;; return "LI2" given "LIG", 
   ;;        "LI3" given "LI2"
@@ -3653,10 +3653,8 @@
 				  (load pref-file)))))))))))))
 	
 ;; Americans...
-(define chiral-center-inverter chiral-centre-inverter)
+;; (define chiral-center-inverter chiral-centre-inverter)
 
-
-	
 ;; to determine if we have pygtk
 ;; 
 (define (coot-has-pygtk?)

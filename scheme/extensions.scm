@@ -478,7 +478,8 @@
 	(add-simple-coot-menu-menuitem 
 	 submenu-models "Invert This Chiral Centre"
 	 (lambda ()
-	   (chiral-centre-inverter)))
+	   (using-active-atom
+	    (invert-chiral-centre aa-imol aa-chain-id aa-res-no aa-ins-code aa-atom-name))))
 
 	
 	;; ---- J ---------

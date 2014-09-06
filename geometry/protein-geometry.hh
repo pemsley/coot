@@ -426,10 +426,11 @@ namespace coot {
 	 if (volume_sign == CHIRAL_RESTRAINT_POSITIVE) {
 	    volume_sign = CHIRAL_RESTRAINT_NEGATIVE;
 	    target_volume_ = -target_volume_;
-	 }
-	 if (volume_sign == CHIRAL_RESTRAINT_NEGATIVE) { 
-	    volume_sign = CHIRAL_RESTRAINT_POSITIVE;
-	    target_volume_ = -target_volume_;
+	 } else { 
+	    if (volume_sign == CHIRAL_RESTRAINT_NEGATIVE) { 
+	       volume_sign = CHIRAL_RESTRAINT_POSITIVE;
+	       target_volume_ = -target_volume_;
+	    }
 	 }
       }
       bool matches_names(const dict_chiral_restraint_t &r) const {
