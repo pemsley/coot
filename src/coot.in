@@ -29,7 +29,7 @@ include
 lib"
 
    old_dir="old"
-   old_dir=revision-$($coot_real --version | sed -e 's/.*revision //' -e 's/).*//')
+   old_dir=revision-$($coot_bin --version | sed -e 's/.*revision //' -e 's/).*//')
    echo in apply_pending_install COOT_PREFIX is set too $COOT_PREFIX
 
    if [ -d $COOT_PREFIX/$old_dir ] ; then
@@ -124,7 +124,8 @@ else
 fi
 echo COOT_PREFIX is $COOT_PREFIX
 
-coot_real=$current_exe_dir/coot-real
+coot_bin=$COOT_PREFIX/libexec/coot-bin
+
 # echo coot-real is at $coot_real
 
 # unlimit coredumpsize:
@@ -254,8 +255,8 @@ if [ -e $COOT_PREFIX/pending-install ] ; then
 fi
   
 # "Use $@ to stop word splitting" from Ben Eisenbraun.  
-echo $coot_real "$@"
-$coot_real "$@"
+echo about to run $coot_bin "$@"
+$coot_bin "$@"
 status=$?
 
 if [ $status != 0 ] ; then
