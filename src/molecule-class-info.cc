@@ -530,14 +530,7 @@ molecule_class_info_t::label_atoms(int brief_atom_labels_flag) {
 	 n_atoms_to_label = labelled_symm_atom_index_list.size();
 
 	 for (int ii=0; ii<n_atoms_to_label ; ii++) {
-
-	       // symm_trans_t st = g.labelled_symm_atom_symm_trans(ii);
-
-	       // cout << "symm label for atom: " <<  ii << " ppc index: "
-	       //     << g.labelled_symm_atom(ii) << " " << st << endl;
-
-	       //label_symm_atom(g.labelled_symm_atom(ii), st);
-	       test_label_symm_atom(ii);
+	    label_symmetry_atom(ii);
 	 }
       }
    }
@@ -2570,7 +2563,7 @@ molecule_class_info_t::filter_by_resolution(clipper::HKL_data< clipper::datatype
 
 
 void
-molecule_class_info_t::test_label_symm_atom(int i) {
+molecule_class_info_t::label_symmetry_atom(int i) {
    //
  
    // same test as has_model():
@@ -2580,11 +2573,16 @@ molecule_class_info_t::test_label_symm_atom(int i) {
 
 	 int iatom_index = labelled_symm_atom_index_list[i];
 
-	 if (iatom_index < atom_sel.n_selected_atoms) { 
+	 if (iatom_index < atom_sel.n_selected_atoms) {
+
+	    // look at translate_atom_with_pre_shift(), it translate
+	    // the negative of the passed translation, so print the
+	    // negative.
+	    // 
 	    std::pair <symm_trans_t, Cell_Translation> st = labelled_symm_atom_symm_trans_[i];
-	 
+	    std::pair <symm_trans_t, Cell_Translation> st_inv(st.first, st.second.inv());
 	    std::string label =
-	       make_symm_atom_label_string(atom_sel.atom_selection[iatom_index], st);
+	       make_symm_atom_label_string(atom_sel.atom_selection[iatom_index], st_inv);
 
 	    GLfloat blueish[3] = { 0.7, 0.7, 1.0 };
 	 
@@ -2600,11 +2598,6 @@ molecule_class_info_t::test_label_symm_atom(int i) {
 	 }
       }
    }
-}
-
-void
-molecule_class_info_t::label_symm_atom(int i, symm_trans_t symm_trans) {
-   // This never gets called AFAICS.
 }
 
 // Put a label at the ith atom of mol_class_info::atom_selection. 

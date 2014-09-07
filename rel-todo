@@ -3,9 +3,11 @@
 
 ---- 
 
-   o fit_to_map_by_random_jiggle should return a valid value.
+   o B-factor colouring bug - Oliver Clark 
 
-   o Oliver Clark HOLE radius bug
+   o fit_to_map_by_random_jiggle should return a valid value - Oliver Clark 
+
+   o HOLE radius bug - Oliver Clark 
 
    o save_state_file() needs to write a python file when called from
      python (redefine save_save_file_py()).
