@@ -108,17 +108,17 @@ However, not all SHELX commands are interpreted.
 \item {\bf Most other} pre-coordinate SHELXL instructions are not
   interpreted\footnote{This includes SHELX style restraints. As a
     consequence, unconventional residues, e.g. ligand molecules,
-    require refmac style descriptions for refinement/regularization in
-    Coot.} and are written to \texttt{ins} unchanged. (In other words,
-  there are certain limitations of Coot's ability to create a fully
-  valid \texttt{ins} file, and will definitely fail if we try to
-  create \texttt{ins} from scratch, e.g. from a \texttt{pdb}
-  file.\footnote{You should be using SHELXPRO for that.}) There is,
-  however, a mechanism to insert SHELX instructions into the the new
-  \texttt{ins} file: with the scripting command
-  \texttt{(add-shelx-string-to-molecule \emph{imol string})}\\It is
-  also accessible through the SHELX menu (after running the
-  script\linebreak[4]\texttt{shelx-extension.scm}).
+    require mmcif dictionaries (such as the Refmac dictionary) for
+    refinement/regularization in Coot.} and are written to
+  \texttt{ins} unchanged. (In other words, there are certain
+  limitations of Coot's ability to create a fully valid \texttt{ins}
+  file, and will definitely fail if we try to create \texttt{ins} from
+  scratch, e.g. from a \texttt{pdb} file.\footnote{You should be using
+    SHELXPRO for that.}) There is, however, a mechanism to insert
+  SHELX instructions into the the new \texttt{ins} file: with the
+  scripting command \texttt{(add-shelx-string-to-molecule \emph{imol
+      string})}\\It is also accessible through the SHELX menu (after
+  running the script\linebreak[4]\texttt{shelx-extension.scm}).
 
 \end{itemize}
 
@@ -129,8 +129,8 @@ included in the\linebreak[4]\texttt{.coot} file.
 
 \subsection{Reading \texttt{fcf} files}
 
-Coot can open \texttt{fcf} files and calculate
-calculates\linebreak[4]$\sigma$-A-weighted electron density and
+Coot can open \texttt{fcf} files and 
+calculates$\sigma_A$-weighted electron density and
 difference maps.
 
 \subsection{Reading \texttt{lst} files}
@@ -188,7 +188,10 @@ electron density map and maybe fix problematic parts of the structure.
 
 \subsection{Reading the project}
 \begin{itemize}
-\item We'll start Coot with\\\texttt{\$ coot --script shelx-extension.scm}
+\item We'll start Coot: \\\texttt{\$ coot}
+
+
+\item \textsf{Extensions $\rightarrow$ Modules $\rightarrow$ SHELX}
 
   [\textsl{An additional menu item, SHELX appears in the menu bar}.]
 
@@ -323,8 +326,15 @@ SHELXL.
 \subsection{Analysing \texttt{lst} files}
 
 \begin{itemize}
-\item Start Coot with\\\texttt{\$ coot --script shelx-extension.scm}
+\item Start Coot with\\\texttt{\$ coot}
 
+
+\item \textsf{Extensions $\rightarrow$ Modules $\rightarrow$ SHELX}
+
+  [\textsl{An additional menu item, SHELX appears in the menu bar}.]
+
+
+\item
   Open the project viscotoxin-b2 with \textsf{SHELX$\to$Read SHELX
     project\ldots}\\and select any of the \texttt{viscotoxin-b2}
   files, i.e. \texttt{res}, \texttt{lst} or \texttt{hkl}.
@@ -346,7 +356,7 @@ out of density.
   plot, B-factor Variance Graph and Density Fit Graph show 1024 A as
   an outlier\linebreak[4](Figure \ref{fig:viscotoxin}). Click
   \textsf{Validate$\to$Temp. fact. variance analysis} and
-  select\linebreak[4]\textsf{viscotoxin-b2.res}. Examine the plot by
+  select \textsf{viscotoxin-b2.res}. Examine the plot by
   clicking on outliers. Similarly, you can take a look at the
   Ramachandran plot and Density fit analysis as well (you will find a
   similar degree of badness there).
@@ -447,11 +457,13 @@ variables and occupancies according to the SHELX convention.
     difference density blobs around it. It is a hint for an alternate
     conformation.}]
 
-\item To add an alternate conformation here, we select \textsf{Add
-    Alt. Conf.} in the \textsf{Model/Fit/Refine} window. In the pop-up
+\item To add an alternate conformation here, we click on the ``Add
+  Alternative Conformation to a Residue'' button in the Coot toolbar
+  (down the right-hand side).
+
+  In the pop-up
   you can choose to split the whole residue or only atoms beyond
-  C$\alpha$ (this is a question of taste, I believe). Click on any
-  atom of 2035.
+  C$\alpha$. Click on any atom of residue 2035.
 
   [\textsl{Coot has now split the residue, displays a set of white
     atoms. We can pick a rotamer in the rotamer selection window.}]
@@ -476,11 +488,10 @@ variables and occupancies according to the SHELX convention.
 \end{itemize}
 
 We can now save coordinates or perhaps re-run SHELXL to see how well
-we managed to fix things (would take about 3 minutes for 5 cycles on a
-2GHz laptop). But life is too short\ldots
+we managed to fix things (this should take a couple of minutes).
 
 \end{document}
-%% Anything else? I'm sure I;ve missed something.
+
 
 
 
