@@ -3,31 +3,21 @@
 
 ---- 
 
+   o change the front-page icons on the glade file. Puntable.
 
    ---
-
-   o Glyco should be a plug-in/module
 
    o Try glyco tree builder 528 on 4lxr. 
 
    o build NAG-NAG on 3bt1 on 172U ASN.
 
-   o 4gos is great for carbohydrate building (Andre L. example).  Also
-     the BMA fails to build in corectly.  It's a ligand LSQ fit
-     problem, I think. When this works, put it in the GUI.
+* Nasty - and interesting.
 
    ---
-
-   o Finish the Coot Shelx Tutorial 
-
-   o readlink -f on Mac: Marcin message
 
    o a nice function - for ligand presentation (and rendering) is to
      find the screen centre and view quaternion that orients the ligand
      nicely. Puntable.
-
-   o change the front-page icons on the glade file. Puntable.
-
 
 
 -------
@@ -694,6 +684,18 @@ Program terminated with signal 11, Segmentation fault.
      Have a second look.  Test.
 
 * There was. Fixed.
+
+   o Glyco should be a plug-in/module
+
+* Done.
+
+   o readlink -f on Mac: Marcin message
+
+* Done.
+
+   o Finish the Coot Shelx Tutorial 
+
+* Done.
 
 -----
 
