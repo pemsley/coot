@@ -3,12 +3,6 @@
 
 ---- 
 
-   o save_state_file() needs to write a python file when called from
-     python (redefine save_save_file_py()).
-
-   o gui-prosmart.scm (or user-defined-restraints?) should be a plug-in/module.
-
-   o Hole Needs to be a module.
 
    ---
 
@@ -689,6 +683,20 @@ Program terminated with signal 11, Segmentation fault.
    o fit_to_map_by_random_jiggle should return a valid value - Oliver Clark 
 
 * Done.
+
+   o save_state_file() needs to write a python file when called from
+     python (redefine save_save_file_py()).
+
+* Already done.
+
+   o gui-prosmart.scm (or user-defined-restraints?) should be a plug-in/module.
+
+* Done.
+
+   o Hole Needs to be a module.
+
+* Actually, now in the Representations menu, as it doesn't add a
+  top-level menu item.
 
 -----
 

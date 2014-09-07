@@ -18,7 +18,7 @@
 ;;;; 02110-1301, USA
 
 
-(define (add-plugin-shelx)
+(define (add-module-shelx)
 
   (if (defined? 'coot-main-menubar)
 
