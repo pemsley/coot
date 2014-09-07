@@ -1,6 +1,4 @@
 
-
-
 (define (add-pyranose-pseudo-ring-plane-restraints comp-id)
 
   (define (filter-out plane-name-sub-string plane-restraints)
@@ -339,14 +337,14 @@
 	 menu "Torsion Fit this residue"
 	 (lambda ()
 	   (using-active-atom
-	    (multi-residue-torsion-fit aa-imol (list (list aa-chain-id aa-res-no aa-ins-code)) 10000))))
+	    (multi-residue-torsion-fit aa-imol (list (list aa-chain-id aa-res-no aa-ins-code)) 30000))))
 
 	(add-simple-coot-menu-menuitem 
 	 menu "Torsion Fit & Refine this residue"
 	 (lambda ()
 	   (using-active-atom
 	    (let ((centre-residue (list aa-chain-id aa-res-no aa-ins-code)))
-	      (multi-residue-torsion-fit aa-imol (list centre-residue ) 10000)
+	      (multi-residue-torsion-fit aa-imol (list centre-residue ) 30000)
 	      (with-auto-accept
 	       (refine-residues aa-imol (list centre-residue)))))))
 
