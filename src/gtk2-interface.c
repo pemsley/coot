@@ -20577,7 +20577,7 @@ create_preferences (void)
   preferences = gtk_dialog_new ();
   gtk_widget_set_name (preferences, "preferences");
   gtk_window_set_title (GTK_WINDOW (preferences), _("Preferences"));
-  gtk_window_set_default_size (GTK_WINDOW (preferences), 750, 480);
+  gtk_window_set_default_size (GTK_WINDOW (preferences), 780, 480);
   gtk_window_set_type_hint (GTK_WINDOW (preferences), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox77 = GTK_DIALOG (preferences)->vbox;

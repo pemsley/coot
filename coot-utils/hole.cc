@@ -180,6 +180,21 @@ coot::hole::generate() {
 
       int selhnd = mol->NewSelection();
       make_atom_selection(selhnd, pt, radius_prev);
+
+      // if that didn't select atoms, then we increase the radius, try this for up to 10 rounds:
+      int n_rounds = 10;
+      int i_round = 0;
+      PPCAtom atom_selection = 0;
+      int n_selected_atoms;
+      mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
+      while ((n_selected_atoms == 0) && (i_round < n_rounds)) { 
+	 mol->DeleteSelection(selhnd);// not sure if needed
+	 selhnd = mol->NewSelection();
+	 make_atom_selection(selhnd, pt, radius_prev*(i_round+1+0.2)*(i_round+1+0.2));
+	 i_round++;
+      }
+
+      
       std::pair<clipper::Coord_orth, double> new_pt = optimize_point(pt, selhnd);
       probe_path.push_back(new_pt);
       double d = sqrt(l.lengthsq());

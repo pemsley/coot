@@ -3,31 +3,20 @@
 
 ---- 
 
-   o B-factor colouring bug - Oliver Clark 
-
    o fit_to_map_by_random_jiggle should return a valid value - Oliver Clark 
-
-   o HOLE radius bug - Oliver Clark 
 
    o save_state_file() needs to write a python file when called from
      python (redefine save_save_file_py()).
 
-   o column types are not set in mtz file written by mmcif_sfs_to_mtz().
-
-   o Look at the N-O distances of the nitro in 2DZ A403. The target
-     distances are not equal.  Why not?
-
-   o gui-prosmart.scm (or user-defined-restraints?) should be a plug-in
+   o gui-prosmart.scm (or user-defined-restraints?) should be a plug-in/module.
 
    ---
+
+   o Glyco should be a plug-in/module
 
    o Try glyco tree builder 528 on 4lxr. 
 
    o build NAG-NAG on 3bt1 on 172U ASN.
-
-   o why does 201 and 202 disconnect in chain-N-with-FUC-reordered-with-link.pdb?
-
-   o Glyco should be a plug-in
 
    o 4gos is great for carbohydrate building (Andre L. example).  Also
      the BMA fails to build in corectly.  It's a ligand LSQ fit
@@ -677,6 +666,25 @@ Program terminated with signal 11, Segmentation fault.
 
 * Done.
 
+
+   o B-factor colouring bug - Oliver Clark 
+
+* Done.
+
+   o Look at the N-O distances of the nitro in 2DZ A403. The target
+     distances are not equal.  Why not?
+
+* Because (lidia-core's) mogulify_mol() was not being called on the
+  molecule created in pyrogen.py.  It is now.
+
+   o lbg: alerts should be off by default.
+
+* Done.
+
+   o HOLE radius bug - Oliver Clark 
+
+* Done - keep increasing the radius for the atom selection if no atoms
+  found for a given probe position.
 
 -----
 
