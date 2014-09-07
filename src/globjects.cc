@@ -51,12 +51,12 @@
 #if __APPLE__
 #   include <OpenGL/gl.h>
 #   include <OpenGL/glu.h>
-#   include <OpenGL/glut.h>
 #else
 #   include <GL/gl.h>
 #   include <GL/glu.h>
-#   include <GL/glut.h> // needed for wirecube and wiresphere.
 #endif
+
+#include <GL/glut.h> // needed for wirecube and wiresphere.
 
 #ifdef WINDOWS_MINGW
 // in windows we need these for some newer openGL functions

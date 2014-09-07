@@ -21,11 +21,7 @@
 #include <string.h>
 #include <string>
 
-#if __APPLE__
-#   include <OpenGL/glut.h>
-#else
-#   include <GL/glut.h>
-#endif
+#include <GL/glut.h>
 
 #include <mmdb/mmdb_manager.h>
 #include "graphics-ligand-view.hh"
