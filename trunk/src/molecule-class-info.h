@@ -1293,8 +1293,7 @@ public:        //                      public
 				 float bond_width_in,
 				 int bonds_box_type);
 
-   void      label_symm_atom(int i, symm_trans_t symm_trans);
-   void test_label_symm_atom(int i);
+   void label_symmetry_atom(int i);
    
    void label_atom(int i, int brief_atom_labels_flag);
 

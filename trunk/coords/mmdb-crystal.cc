@@ -1055,8 +1055,6 @@ translate_atom_with_pre_shift(atom_selection_container_t AtomSel, int ii,
    mat44 my_matt;
    mat44 pre_shift_matt;
    
-   // CMMDBCryst *cryst_p = (CMMDBCryst *) &AtomSel.mol->get_cell();
-   
    int err = AtomSel.mol->GetTMatrix(my_matt,
 				     symm_trans.first.isym(),
 				     symm_trans.first.x(),

@@ -97,7 +97,7 @@ class Cell_Translation {
    Cell_Translation() {us=0; vs=0; ws=0;}
    Cell_Translation(int a, int b, int c);
    friend ostream& operator<<(ostream &s, Cell_Translation ct);
- 
+   Cell_Translation inv() const { return Cell_Translation(-us, -vs, -ws); }
 };
 
 std::string to_string(const std::pair<symm_trans_t, Cell_Translation> &sts);
