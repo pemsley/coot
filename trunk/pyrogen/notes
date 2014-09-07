@@ -54,4 +54,10 @@ Fri Sep  5 09:52:24 BST 2014
    Put the amino-acid (and nucleic acid) name matching into pyrogen (not GLY, ALA)
 
 
+---
+Sun Sep  7 03:04:50 BST 2014
+
+    What is coot::regularize() doing?  Creating a molecule but not returning it?
+
+
 ------

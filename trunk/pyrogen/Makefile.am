@@ -64,6 +64,7 @@ libpyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
                                 $(top_builddir)/ideal/libcoot-ideal.la             \
                                 $(top_builddir)/geometry/libcoot-geometry.la       \
                                 $(top_builddir)/coords/libcoot-coords.la           \
+			        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
                                 $(RDKIT_LIBS) -lboost_python
 
 
