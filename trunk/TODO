@@ -1292,6 +1292,11 @@ Punted from 0.6:
 
    o GLC pyranose 1-4 linked template.
 
+
+   o column types are not set in mtz file written by mmcif_sfs_to_mtz().
+
+* clipper bug.  Punt.
+
    o PISA Interfaces surface colours are wrong. 
 
    o add surface and ball and stick ligand to tutorial.
