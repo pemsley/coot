@@ -3,12 +3,12 @@
 
 ---- 
 
-   o fit_to_map_by_random_jiggle should return a valid value - Oliver Clark 
-
    o save_state_file() needs to write a python file when called from
      python (redefine save_save_file_py()).
 
    o gui-prosmart.scm (or user-defined-restraints?) should be a plug-in/module.
+
+   o Hole Needs to be a module.
 
    ---
 
@@ -685,6 +685,10 @@ Program terminated with signal 11, Segmentation fault.
 
 * Done - keep increasing the radius for the atom selection if no atoms
   found for a given probe position.
+
+   o fit_to_map_by_random_jiggle should return a valid value - Oliver Clark 
+
+* Done.
 
 -----
 
