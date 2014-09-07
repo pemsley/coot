@@ -1330,6 +1330,12 @@ Punted from 0.6:
    o the question is why the chemical features on the
       carboxylate are asymmetric.  undelocalize()?
 
+   o test water_to_protein_distance_limits() use in find-waters
+     in findwaters, allow the user to change the distance limits: 
+     set_water_to_protein_distance_limits()
+
+* This is just too boring - punted.
+
    o Lots of testing of add other solvent molecules, jiggle-fit, in
      low-resolution maps, perhaps?
 

@@ -24,13 +24,6 @@
 
    o readlink -f on Mac: Marcin message
 
-   o test water_to_protein_distance_limits() use in find-waters
-     in findwaters, allow the user to change the distance limits: 
-     set_water_to_protein_distance_limits()
-
-   o I think that there was a bug in coot::dict_plane_restraint_t::matches_names()
-     Have a second look.  Test.
-
    o a nice function - for ligand presentation (and rendering) is to
      find the screen centre and view quaternion that orients the ligand
      nicely. Puntable.
@@ -697,6 +690,12 @@ Program terminated with signal 11, Segmentation fault.
 
 * Actually, now in the Representations menu, as it doesn't add a
   top-level menu item.
+
+
+   o I think that there was a bug in coot::dict_plane_restraint_t::matches_names()
+     Have a second look.  Test.
+
+* There was. Fixed.
 
 -----
 
