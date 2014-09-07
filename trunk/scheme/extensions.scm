@@ -1412,6 +1412,11 @@
 	 (lambda ()
 	   (add-module-prosmart)))
 
+	(add-simple-coot-menu-menuitem
+	 submenu-modules "Carbohydrate" 
+	 (lambda ()
+	   (add-module-carbohydrate)))
+
 
 	;; ---------------------------------------------------------------------
 	;;     Settings

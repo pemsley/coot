@@ -94,6 +94,7 @@
 								      ;; "check-for-updates.scm"
 								      "gui-hole.scm"
 								      "gui-prosmart.scm"
+								      "gui-add-linked-cho.scm"
 								      "jligand-gui.scm"
 								      "get-recent-pdbe.scm"
 								      "extensions.scm"
