@@ -252,6 +252,8 @@ coot::dict_plane_restraint_t::matches_names(const coot::dict_plane_restraint_t &
    int n_found = 0;
    if (atom_ids.size() != r.atom_ids.size())
       return false;
+   if (atom_ids.size() > 0)
+      status = false; // initial setting.
    
    for (unsigned int i=0; i<atom_ids.size(); i++) {
       const std::string &ref_atom = atom_ids[i].first;
