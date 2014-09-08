@@ -1517,6 +1517,36 @@ coot::protein_geometry::set_verbose(bool verbose_flag) {
 }
 
 
+// return empty file name on failure.
+std::string
+coot::protein_geometry::comp_id_to_file_name(const std::string &comp_id) const {
+
+   std::string file_name;
+
+   if (comp_id.length() > 0) { 
+      char *cmld = getenv("COOT_MONOMER_LIB_DIR");
+      std::string d;
+      if (! cmld) {
+	 d = PKGDATADIR;
+	 d = util::append_dir_dir(d, "lib");
+	 d = util::append_dir_dir(d, "data");
+	 d = util::append_dir_dir(d, "monomers");
+      } else {
+	 d = cmld;
+      }
+
+      if (! d.empty()) {
+	 std::string c0(1,comp_id[0]);
+	 std::string lc0 = util::downcase(c0);
+	 d = util::append_dir_dir(d, lc0);
+	 std::string lfn = comp_id + ".cif";
+	 file_name = util::append_dir_file(d, lfn);
+      }
+   }
+   return file_name;
+} 
+
+
 // Return 0 on failure to do a dynamic add (actually, the number of
 // atoms read).
 // 

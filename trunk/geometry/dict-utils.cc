@@ -589,10 +589,10 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 // matching to find the set of atom names that match/need to be
 // changed.
 // 
-coot::dictionary_residue_restraints_t
+std::pair<unsigned int, coot::dictionary_residue_restraints_t>
 coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary_residue_restraints_t &ref,
 							  CResidue *residue_p,
-							  const std::string &new_comp_id_in) {
+							  const std::string &new_comp_id_in) const {
    dictionary_residue_restraints_t dict = *this;
    bool debug = false;
    typedef std::pair<std::string, std::string> SP;
@@ -637,8 +637,11 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    std::string s;
    if (!use_hydrogens)
       s = " non-hydrogen";
-   std::cout << "INFO:: Matching Graphs with minMatch " << minMatch << " with "
-	     << n_atoms << s << " atoms" << std::endl;
+
+   if (debug)
+      std::cout << "INFO:: Matching Graphs with minMatch " << minMatch << " with "
+		<< n_atoms << s << " atoms" << std::endl;
+   
    int build_result_1 = g_1->Build(False);
 
    if (build_result_1 != 0) {
@@ -737,7 +740,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    delete g_1;
    delete g_2;
    
-   return dict;
+   return std::pair<unsigned int, dictionary_residue_restraints_t> (change_name.size(), dict);
 }
 
 bool
