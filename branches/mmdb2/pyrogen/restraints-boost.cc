@@ -24,6 +24,8 @@ namespace coot {
    RDKit::ROMol *rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 					  const std::string &comp_id);
    RDKit::ROMol *hydrogen_exchanges(const RDKit::ROMol &r);
+   RDKit::ROMol *mogulify(const RDKit::ROMol &r);
+
 }
 
 
@@ -32,7 +34,19 @@ BOOST_PYTHON_MODULE(libpyrogen_boost) {
    def("regularize_with_dict",     coot::regularize_with_dict,     return_value_policy<manage_new_object>());
    def("rdkit_mol_chem_comp_pdbx", coot::rdkit_mol_chem_comp_pdbx, return_value_policy<manage_new_object>());
    def("hydrogen_exchanges",       coot::hydrogen_exchanges,       return_value_policy<manage_new_object>());
+   def("mogulify",                 coot::mogulify,                 return_value_policy<manage_new_object>());
 }
+
+
+RDKit::ROMol*
+coot::mogulify(const RDKit::ROMol &mol) {
+   
+   RDKit::RWMol rw(mol);
+   coot::mogulify_mol(rw);
+   RDKit::ROMol *ro = new RDKit::ROMol(rw);
+   return ro;
+} 
+
 
 
 RDKit::ROMol *

@@ -164,7 +164,7 @@ def make_restraints_for_bond_orders(mol):
                                 'non-polymer',
                                 mol.GetNumAtoms(),
                                 mol.GetNumAtoms(),
-                                'Partial']
+                                '.']
     return restraints
 
 # match_atom_index can be of type int or a list - otherwise trouble.
@@ -612,13 +612,14 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
       mogul_out_file_name = os.path.join(mogul_dir, file_name_stub + '-mogul.out')
       Chem.AllChem.ComputeGasteigerCharges(sane_H_mol)
 
+      moguled_mol = pyrogen_boost.mogulify(sane_H_mol) # Nitro bond orders (and other things?)
       if not os.path.isdir(mogul_dir):
 	  checked_mkdir(mogul_dir)
 	  if os.path.isdir(mogul_dir):
-	      mb = Chem.MolToMolBlock(sane_H_mol)
+	      mb = Chem.MolToMolBlock(moguled_mol)
 	      print >> file(sdf_file_name,'w'), mb
       else:
-	  mb = Chem.MolToMolBlock(sane_H_mol)
+	  mb = Chem.MolToMolBlock(moguled_mol)
 	  print >> file(sdf_file_name,'w'), mb
 
       
@@ -647,6 +648,12 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
 
       mogul_state = execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
       if mogul_state:
+
+         # Here we need to think about matching to reference
+         # dictionary of amino acids (for standard atom names).
+         # That function takes a dictionary and a mmdb::Residue.
+         # How does that fit in here?
+         #
          restraints = pysw.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
                                                           compound_name, sane_H_mol, bor,
 							  mmcif_dict_name,

@@ -1660,7 +1660,7 @@ graphics_info_t::refine_residue_range(int imol,
       // Used to be pointer comparison, let that be done in the calling function.
       if (chain_id_1 != chain_id_2) {
 
-	 // for now we will bug out.  In futre, we will want to be
+	 // for now we will bug out.  In future, we will want to be
 	 // able to refine glycosylation.
 	 //
 	 std::cout << "Picked atoms are not in the same chain.  Failure" << std::endl;
@@ -1696,7 +1696,7 @@ graphics_info_t::refine_residue_range(int imol,
 		  // residue_range_atom_index_2 = i_atom_no_1; // refining just one atom.
 		  
 		  execute_rigid_body_refine(0); // no autorange for waters.
-	       }
+	       } 
 	    }
 	    if (!simple_water) { 
 	       flash_selection(imol, resno_1, ins_code_1, resno_2, ins_code_2, altconf, chain_id_1);

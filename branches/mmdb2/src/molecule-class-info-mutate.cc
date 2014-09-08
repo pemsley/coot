@@ -65,29 +65,32 @@ molecule_class_info_t::mutate(int resno, const std::string &insertion_code,
 			      const std::string &residue_type) {
 
    int istat = -1;
-   mmdb::Residue *res;
+   if (atom_sel.mol) { 
+      mmdb::Residue *res;
+      mmdb::PResidue *SelResidues;
+      int nSelResidues;
+      int SelHnd = atom_sel.mol->NewSelection();
+      atom_sel.mol->Select(SelHnd, mmdb::STYPE_RESIDUE, 1,
+			   chain_id.c_str(),
+			   resno, insertion_code.c_str(),
+			   resno, insertion_code.c_str(),
+			   "*", "*", "*", "*",
+			   mmdb::SKEY_NEW);
 
-   int nSelResidues;
-   mmdb::PPResidue SelResidues;
-   int SelHnd = atom_sel.mol->NewSelection();
-   atom_sel.mol->Select(SelHnd, mmdb::STYPE_RESIDUE, 1,
-			(char *) chain_id.c_str(),
-			resno, (char *) insertion_code.c_str(),
-			resno, (char *) insertion_code.c_str(),
-			"*", "*", "*", "*",
-			mmdb::SKEY_NEW);
+      atom_sel.mol->GetSelIndex ( SelHnd, SelResidues,nSelResidues );
 
-   atom_sel.mol->GetSelIndex ( SelHnd, SelResidues,nSelResidues );
-
-   if (nSelResidues < 1) {
-      std::cout << "WARNING:: Can't find residue (mutate) "
-		<< resno << " " << insertion_code << " "
-		<< chain_id << "\n";
+      if (nSelResidues < 1) {
+	 std::cout << "WARNING:: Can't find residue (mutate) "
+		   << resno << " " << insertion_code << " "
+		   << chain_id << "\n";
+      } else {
+	 res = SelResidues[0];
+	 istat = mutate(res, residue_type); // 1 is good.
+      }
+      // atom_sel.mol->DeleteSelection(SelHnd);
    } else {
-      res = SelResidues[0];
-      istat = mutate(res, residue_type); // 1 is good.
-   }
-   // atom_sel.mol->DeleteSelection(SelHnd);
+      std::cout << "ERROR:: Null mol" << std::endl;
+   } 
    return istat;
 }
 
@@ -99,13 +102,15 @@ molecule_class_info_t::mutate(int atom_index, const std::string &residue_type,
    mmdb::Residue *res = atom_sel.atom_selection[atom_index]->residue;
    int r = mutate(res, residue_type);
 
-   if (do_stub_flag) {
-      int resno = res->GetSeqNum();
-      std::string chain_id(res->GetChainID());
-      std::string inscode(res->GetInsCode());
-      delete_residue_sidechain(chain_id, resno, inscode);
-   } 
+   if (atom_sel.mol) { 
 
+      if (do_stub_flag) {
+	 int resno = res->GetSeqNum();
+	 std::string chain_id(res->GetChainID());
+	 std::string inscode(res->GetInsCode());
+	 delete_residue_sidechain(chain_id, resno, inscode);
+      }
+   }
    return r;
 }
 
@@ -143,7 +148,7 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
 					 "*", // Chain(s) it's "A" in this case.
 					 mmdb::ANY_RES,"*",  // starting res
 					 mmdb::ANY_RES,"*",  // ending res
-					 (char *) residue_type.c_str(),  // residue name
+					 residue_type.c_str(),  // residue name
 					 "*",  // Residue must contain this atom name?
 					 "*",  // Residue must contain this Element?
 					 "*",  // altLocs
@@ -394,9 +399,9 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	 mmdb::PResidue *local_residues;
 	 int local_n_selected_residues;
 	 atom_sel.mol->Select(SelectionHandle, mmdb::STYPE_RESIDUE, 0,
-			      (char *) chain_id.c_str(),
-			      rs.resno, (char *) rs.insertion_code.c_str(),
-			      rs.resno, (char *) rs.insertion_code.c_str(),
+			      chain_id.c_str(),
+			      rs.resno, rs.insertion_code.c_str(),
+			      rs.resno, rs.insertion_code.c_str(),
 			      "*", "*", "*", "*",
 			      mmdb::SKEY_NEW
 			      );
@@ -470,7 +475,7 @@ molecule_class_info_t::align_and_mutate(const std::string chain_id,
       int nSelResidues;
    
       mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
-		  (char *) chain_id.c_str(),
+		  chain_id.c_str(),
 		  mmdb::ANY_RES, "*",
 		  mmdb::ANY_RES, "*",
 		  "*",  // residue name

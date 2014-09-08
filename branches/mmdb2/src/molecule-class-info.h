@@ -42,7 +42,12 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 //#include "mmdb.h"
 
 // display list GLuint
-#include <GL/gl.h>
+#if __APPLE__
+#   include <OpenGL/gl.h>
+#else
+#   include <GL/gl.h>
+#endif
+
 
 #include "clipper/ccp4/ccp4_map_io.h"
 
@@ -1288,8 +1293,7 @@ public:        //                      public
 				 float bond_width_in,
 				 int bonds_box_type);
 
-   void      label_symm_atom(int i, symm_trans_t symm_trans);
-   void test_label_symm_atom(int i);
+   void label_symmetry_atom(int i);
    
    void label_atom(int i, int brief_atom_labels_flag);
 

@@ -8335,8 +8335,26 @@ on_fit_loop1_activate                  (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
 
-   GtkWidget *w = wrapped_fit_loop_dialog();
+/*    GtkWidget *w = wrapped_fit_loop_dialog(); */
+/*    gtk_widget_show(w); */
+}
+
+
+void
+on_fit_loop_by_rama_search1_activate (GtkMenuItem     *menuitem,
+				      gpointer         user_data)
+{
+
+   GtkWidget *w = wrapped_fit_loop_rama_search_dialog();
    gtk_widget_show(w);
+}
+
+
+void
+on_fit_loop_by_database_search1_activate (GtkMenuItem     *menuitem,
+					  gpointer         user_data)
+{
+  wrapped_fit_loop_db_loop_dialog();
 }
 
 
@@ -9232,7 +9250,7 @@ on_coot_doc_url_monolithic_button_clicked
                                         gpointer         user_data)
 {
 
-  browser_url("http://www.biop.ox.ac.uk/coot/doc/coot.html");
+  browser_url("https://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/web/docs/coot.html");
 
 }
 
@@ -9242,7 +9260,7 @@ on_coot_doc_url_sectioned_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-  browser_url("http://www.biop.ox.ac.uk/coot/doc/coot/index.html");
+  browser_url("https://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/web/docs/coot.html");
 }
 
 

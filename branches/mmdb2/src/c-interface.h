@@ -3100,8 +3100,14 @@ void mutate_sequence_molecule_menu_item_activate(GtkWidget *item,
 void mutate_sequence_chain_option_menu_item_activate (GtkWidget *item,
 						      GtkPositionType pos);
 
-GtkWidget *wrapped_fit_loop_dialog();
+/* My Rama-Search Loop fit */
+GtkWidget *wrapped_fit_loop_rama_search_dialog();
 void fit_loop_from_widget(GtkWidget *w);
+
+/* wrapper for Kevin's DB Loop (called from callbacks.c) */
+void wrapped_fit_loop_db_loop_dialog();
+
+
 
 /*  ----------------------------------------------------------------------- */
 /*                         Align and Mutate GUI                             */

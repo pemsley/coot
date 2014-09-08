@@ -31,9 +31,6 @@
 #include <math.h>
 #include <string.h>  // strncpy
 
-#include <GL/gl.h>
-#include <GL/glu.h>
-
 #include <mmdb2/mmdb_manager.h>
 
 #include "coords/cos-sin.h"
@@ -44,6 +41,14 @@
 #include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
+
+#if __APPLE__
+#   include <OpenGL/glu.h>
+#else
+#   include <GL/glu.h>
+#endif
+
+
 #include "molecule-class-info.h"
 #include "globjects.h"
 #include "pick.h"

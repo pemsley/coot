@@ -542,7 +542,11 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 			     std::string cif_dict_in,
 			     std::string cif_dict_out,
 			     std::string cif_dict_comp_id,
-			     std::string reference_comp_id) {
+			     std::string reference_comp_id,
+			     std::string output_comp_id,
+			     std::string output_comp_id_name) {
+
+   int result = 0;
 
    if (coot::file_exists(cif_dict_in)) {
       coot::protein_geometry geom_local;
@@ -562,9 +566,15 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 	       // std::cout << "------ about to match "
 	       // << rp_2.second.residue_info.comp_id << " to "
 	       // << rp_1.second.residue_info.comp_id << " names" << std::endl;
-	       coot::dictionary_residue_restraints_t new_dict =
-		  rp_2.second.match_to_reference(rp_1.second, residue_p);
-	       new_dict.write_cif(cif_dict_out);
+	       std::pair<unsigned int, coot::dictionary_residue_restraints_t> new_dict =
+		  rp_2.second.match_to_reference(rp_1.second, residue_p, output_comp_id_name);
+	       if (new_dict.first > 0) { 
+		  new_dict.second.residue_info.comp_id = output_comp_id;
+		  new_dict.second.residue_info.name =    output_comp_id_name;
+		  new_dict.second.write_cif(cif_dict_out);
+	       } else {
+		  std::cout << "INFO:: not similar enough" << std::endl;
+	       } 
 	    } else {
 	       std::cout << " not bonds from " << cif_dict_in << std::endl;
 	    }
@@ -575,12 +585,65 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
    } else {
       std::cout << "WARNING:: " << cif_dict_in << " file not found" << std::endl;
    } 
+   return result;
+}
+
+
+// This is the GUI interface: User sits over on top of the residue
+// they want to change and provides an output dictionary cif file
+// name, a reference-comp-id and a compd-id for the new residue (type).
+int
+match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::string ins_code,
+				  std::string cif_dict_out,
+				  std::string reference_comp_id,
+				  std::string output_comp_id) {
 
    int result = 0;
 
-   return result;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      mmdb::Residue *this_residue = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      if (this_residue) {
+	 std::string this_residue_type = this_residue->GetResName();
+	 std::pair<short int, coot::dictionary_residue_restraints_t> dict_1 =
+	    g.Geom_p()->get_monomer_restraints(this_residue_type);
+	 if (dict_1.first) {
 
+	    std::pair<short int, coot::dictionary_residue_restraints_t> dict_2 =
+	       g.Geom_p()->get_monomer_restraints(reference_comp_id);
+	    
+	    if (dict_2.first) {
+	       
+	       std::pair<unsigned int, coot::dictionary_residue_restraints_t> new_dict =
+		  dict_1.second.match_to_reference(dict_2.second, this_residue, output_comp_id);
+	       if (new_dict.first > 0) { 
+		  new_dict.second.residue_info.comp_id = output_comp_id;
+		  new_dict.second.residue_info.name =  ".";
+		  new_dict.second.write_cif(cif_dict_out);
+	       }
+	       
+	    } else {
+	       std::cout << "WARNING:: match_this_residue_and_dictionary, no dictionary "
+			 << " for reference type " << output_comp_id << std::endl;
+	    } 
+	 } else {
+	    std::cout << "WARNING:: match_this_residue_and_dictionary, no dictionary for type "
+	       << this_residue_type << std::endl;
+	 } 
+      } else {
+	 std::cout << "WARNING:: match_this_residue_and_dictionary, no such residue " <<
+	    coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: match_this_residue_and_dictionary, no such molecule " << imol
+		<< std::endl;
+   } 
+   return result;
 } 
+				  
+
+
+
 
 
 

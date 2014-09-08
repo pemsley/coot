@@ -20,8 +20,9 @@
 
 #include <string.h>
 #include <string>
-#include <GL/gl.h>
-#include <GL/glut.h> // for GLUT bitmap fonts, maybe deletable.
+
+#include <GL/glut.h>
+
 #include <mmdb2/mmdb_manager.h>
 #include "graphics-ligand-view.hh"
 

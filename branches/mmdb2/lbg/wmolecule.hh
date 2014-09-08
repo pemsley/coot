@@ -421,7 +421,7 @@ public:
 			  const lig_build::atom_t &atom_other,
 			  bool allow_triple_toggle,
 			  GooCanvasItem *root) {
-      // std::cout << "change_bond_order " << atom_changed << " " << atom_other << std::endl;
+      // std::cout << "change_bond_order() " << atom_changed << " " << atom_other << std::endl;
       lig_build:: atom_t at_1 = atom_changed;
       lig_build:: atom_t at_2 = atom_other;
       lig_build::bond_t::bond_type_t bt = get_bond_type();
@@ -431,15 +431,15 @@ public:
 	 else 
 	    bt = lig_build::bond_t::DOUBLE_BOND;
       } else { 
-	 if (bt == lig_build::bond_t::DOUBLE_BOND)
+	 if (bt == lig_build::bond_t::DOUBLE_BOND) { 
 	    if (allow_triple_toggle)
 	       bt = lig_build::bond_t::TRIPLE_BOND;
 	    else
 	       bt = lig_build::bond_t::SINGLE_BOND;
-	 else 
-	    if (bt == lig_build::bond_t::TRIPLE_BOND)
+	 } else {
+	    if (bt == lig_build::bond_t::TRIPLE_BOND) { 
 	       bt = lig_build::bond_t::DOUBLE_BOND;
-	    else
+	    } else { 
 	       if (bt == lig_build::bond_t::IN_BOND) {
 		  std::swap(atom_1, atom_2);
 		  std::swap(at_1, at_2);
@@ -449,10 +449,14 @@ public:
 		     bt = lig_build::bond_t::IN_BOND;
 		  }
 	       }
+	    }
+	 }
       }
+
+      if (0)
+	 std::cout << "changing bond type from " << get_bond_type() << " to "
+		   << bt << std::endl;
       
-//       std::cout << "changing bond type from " << get_bond_type() << " to "
-// 		<< bt << std::endl;
       set_bond_type(bt);
       make_new_canvas_item_given_type(at_1, at_2, bt, root);
    }
