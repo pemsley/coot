@@ -2655,14 +2655,11 @@ int mutate_single_residue_by_seqno(int ires, const char *inscode,
 
    int status = -1; 
    std::string target_as_str = coot::util::single_letter_to_3_letter_code(target_res_type);
-   
-   if (imol < graphics_n_molecules()) {
-      if (imol >= 0) { 
-	 status = graphics_info_t::molecules[imol].mutate(ires,
-							  std::string(inscode),
-							  std::string(chain_id),
-							  target_as_str);
-      }
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      status = g.molecules[imol].mutate(ires, std::string(inscode),
+					std::string(chain_id), target_as_str);
    }
    return status;
 }
@@ -2681,7 +2678,8 @@ int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start,
       status = graphics_info_t::molecules[imol].nudge_residue_sequence(chain_id,
 								       res_no_range_start,
 								       res_no_range_end,
-								       nudge_by, nudge_residue_numbers_also);
+								       nudge_by,
+								       nudge_residue_numbers_also);
    }
    return status;
 } 
@@ -7238,17 +7236,17 @@ int backrub_rotamer(int imol, const char *chain_id, int res_no,
 float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
 				  int n_trials,
 				  float jiggle_scale_factor) {
-   float val = -101.0;
+   float val = -999.0;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int imol_map = g.Imol_Refinement_Map();
       if (is_valid_map_molecule(imol_map)) { 
 	 coot::residue_spec_t rs(chain_id, resno, ins_code);
 	 float map_sigma = g.molecules[imol_map].map_sigma();
-	 g.molecules[imol].fit_to_map_by_random_jiggle(rs,
-						       g.molecules[imol_map].xmap,
-						       map_sigma,
-						       n_trials, jiggle_scale_factor);
+	 val = g.molecules[imol].fit_to_map_by_random_jiggle(rs,
+							     g.molecules[imol_map].xmap,
+							     map_sigma,
+							     n_trials, jiggle_scale_factor);
 	 graphics_draw();
       } else {
 	 std::cout << "WARNING:: Refinement map not set" << std::endl;
@@ -7260,6 +7258,7 @@ float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, con
 
 float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_scale_factor) {
 
+   float val = -999.0;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int imol_map = g.Imol_Refinement_Map();
@@ -7268,19 +7267,20 @@ float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_
 	 mmdb::PPAtom atom_selection = g.molecules[imol].atom_sel.atom_selection;
 	 int n_atoms = g.molecules[imol].atom_sel.n_selected_atoms;
 	 bool use_biased_density_scoring = false; // not for all-molecule
-	 g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
-						       g.molecules[imol_map].xmap,
-						       map_sigma,
-						       n_trials, jiggle_scale_factor,
-						       use_biased_density_scoring);
+	 val = g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
+							     g.molecules[imol_map].xmap,
+							     map_sigma,
+							     n_trials, jiggle_scale_factor,
+							     use_biased_density_scoring);
 	 graphics_draw();
       }
    }
-   return 0.0;
+   return val;
 }
 
 float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor) {
 
+   float val = -999.0;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int imol_map = g.Imol_Refinement_Map();
@@ -7302,11 +7302,11 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
 	 mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
 	 if (n_atoms) { 
 	    bool use_biased_density_scoring = false; // not for all-molecule
-	    g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
-							  g.molecules[imol_map].xmap,
-							  map_sigma,
-							  n_trials, jiggle_scale_factor,
-							  use_biased_density_scoring);
+	    val = g.molecules[imol].fit_to_map_by_random_jiggle(atom_selection, n_atoms,
+								g.molecules[imol_map].xmap,
+								map_sigma,
+								n_trials, jiggle_scale_factor,
+								use_biased_density_scoring);
 	    mol->DeleteSelection(SelHnd);
 	    graphics_draw();
 	 } else {
@@ -7314,7 +7314,7 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
 	 } 
       }
    }
-   return 0.0;
+   return val;
 }
 
 

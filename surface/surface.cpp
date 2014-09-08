@@ -21,10 +21,14 @@
 #ifdef _MVS
 #include <windows.h>
 #endif
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glext.h>
+
 #include "surface.h"
+#if __APPLE__
+#   include <OpenGL/glext.h>
+#else
+#   include <GL/glext.h>
+#endif
+
 #include <CXXSurface.h>
 #include "mg_colour.h"
 #include "atom_util.h"

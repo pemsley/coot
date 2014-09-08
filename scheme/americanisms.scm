@@ -27,3 +27,6 @@
 ;; an americanism
 (define set-dots-color set-dots-colour)
 
+;; an americanism
+(define invert-chiral-center invert-chiral-centre)
+

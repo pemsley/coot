@@ -426,10 +426,11 @@ namespace coot {
 	 if (volume_sign == CHIRAL_RESTRAINT_POSITIVE) {
 	    volume_sign = CHIRAL_RESTRAINT_NEGATIVE;
 	    target_volume_ = -target_volume_;
-	 }
-	 if (volume_sign == CHIRAL_RESTRAINT_NEGATIVE) { 
-	    volume_sign = CHIRAL_RESTRAINT_POSITIVE;
-	    target_volume_ = -target_volume_;
+	 } else { 
+	    if (volume_sign == CHIRAL_RESTRAINT_NEGATIVE) { 
+	       volume_sign = CHIRAL_RESTRAINT_POSITIVE;
+	       target_volume_ = -target_volume_;
+	    }
 	 }
       }
       bool matches_names(const dict_chiral_restraint_t &r) const {
@@ -568,6 +569,10 @@ namespace coot {
       extra_name_swaps_from_name_clash(const std::vector<std::pair<std::string, std::string> > &change_name) const;
       std::string invent_new_name(const std::string &ele) const;
       void change_names(mmdb::Residue *residue_p, const std::vector<std::pair<std::string, std::string> > &change_name) const;
+      
+      // change the atom names and the residue type of the passed residue.
+      bool change_names(mmdb::Residue *residue_p, const std::vector<std::pair<std::string, std::string> > &change_name,
+			const std::string &new_comp_id) const;
 
       
    public:
@@ -695,8 +700,13 @@ namespace coot {
       // matching to find the set of atom names that match/need to be
       // changed.
       // 
-      dictionary_residue_restraints_t match_to_reference(const dictionary_residue_restraints_t &ref,
-							 mmdb::Residue *residue_p);
+      // If new_comp_id is "auto", suggest_new_comp_id() is called to
+      // generate a comp_id string.
+      //
+      std::pair<unsigned int, dictionary_residue_restraints_t>
+      match_to_reference(const dictionary_residue_restraints_t &ref,
+			 mmdb::Residue *residue_p,
+			 const std::string &new_comp_id) const;
 
       // make a mmdb::math::Graph from the atom_info and bond restraints.
       //
@@ -1876,6 +1886,10 @@ namespace coot {
       std::vector<std::string> non_auto_load_residue_names;
       bool is_non_auto_load_ligand(const std::string resname) const;
       void fill_default_non_auto_load_residue_names(); // build-it defaults
+
+      // return empty file name on failure.
+      std::string comp_id_to_file_name(const std::string &comp_id) const;
+
 
    public:
 

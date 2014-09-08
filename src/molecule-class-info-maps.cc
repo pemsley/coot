@@ -2984,7 +2984,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(coot::residue_spec_t &spec,
 						   int n_trials,
 						   float jiggle_scale_factor) {
 
-   float v = -101.0;
+   float v = -999.0;
    mmdb::Residue *residue_p = get_residue(spec);
    if (residue_p) {
       mmdb::PPAtom residue_atoms = 0;
@@ -3138,6 +3138,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       make_backup();
       std::cout << "INFO:: Improved fit from " << initial_score << " to "
 		<< best_score << std::endl;
+      v = best_score;
       if (! best_molecule.is_empty()) {
 	 mmdb::Manager *mol = best_molecule.pcmmdbmanager();
 	 if (mol) {

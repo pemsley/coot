@@ -91,7 +91,10 @@
 	     (cond 
 	      ((eq? #t use-gui?) 
 	       (append pre-list (list "coot-gui.scm") post-list (list "tips-gui.scm"
-								      "check-for-updates.scm"
+								      ;; "check-for-updates.scm"
+								      "gui-hole.scm"
+								      "gui-prosmart.scm"
+								      "gui-add-linked-cho.scm"
 								      "jligand-gui.scm"
 								      "get-recent-pdbe.scm"
 								      "extensions.scm"

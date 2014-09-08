@@ -1329,6 +1329,7 @@ bool
 lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_mouse,
 				   bool button_1_is_pressed) {
 
+
    // button_down_bond_addition is check later so that we can
    // distinguish between canvas dragging and new bond rotation.
 
@@ -1358,6 +1359,8 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_
 	       button_down_bond_addition = changed_status;
 	 }
       } else {
+
+
 	 // highlighted item was a bond then.
 	 int ind_1 = highlight_data.get_bond_indices().first;
 	 int ind_2 = highlight_data.get_bond_indices().second;
@@ -1381,14 +1384,19 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_
 	       mol.bonds[bond_index].change_bond_order(at_1, at_2, 1, root);
 	    else {
 
-	       // (bt is OUT_BOND if we want to convert an OUT_BOND to an IN_BOND).
+	       lig_build::bond_t::bond_type_t current_bt = mol.bonds[bond_index].get_bond_type();
+	       
+	       // bt is the bond type we want to change to (or add)
 	       // 
+	       // (bt is OUT_BOND if we want to convert an OUT_BOND to an IN_BOND (because it
+	       // depends only on the "Stereo" button being depressed)).
+	       // 
+
 	       if (bt == lig_build::bond_t::OUT_BOND) {
 
-		  if (mol.bonds[bond_index].get_bond_type() != lig_build::bond_t::OUT_BOND &&
-		      mol.bonds[bond_index].get_bond_type() != lig_build::bond_t::IN_BOND) {
+		  if (current_bt != lig_build::bond_t::OUT_BOND &&
+		      current_bt != lig_build::bond_t::IN_BOND) {
 		     
-
 		     // if it is not currently a stereo out bond, convert
 		     // it to a stereo out bond. If it is a stereo_out
 		     // bond, convert it with change_bond_order().
@@ -1398,23 +1406,31 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_
 		     
 		  } else {
 
-		     // was already a stereo bond
-// 		     std::cout << "!!!!! was already a stereo bond, with current: "
-// 			       << mol.bonds[bond_index].get_bond_type() << std::endl;
 		     if (mol.bonds[bond_index].get_bond_type() == lig_build::bond_t::IN_BOND) { 
 			highlight_data.swap_bond_indices();
 		     }
 			 
 		     mol.bonds[bond_index].change_bond_order(at_1, at_2, root); // out to in and vice
              		                                                      // versa (with direction change)
-		  } 
+		  }
+		  
 	       } else {
 
 		  // Not to a wedge bond
 
-		  // conventional/usual change
-		  mol.bonds[bond_index].change_bond_order(at_1, at_2, root); // single to double
-				  		                             // or visa versa
+		  if (current_bt == lig_build::bond_t::OUT_BOND ||
+		      current_bt == lig_build::bond_t::IN_BOND) {
+
+		     // We want to change from wedge to single
+		     mol.bonds[bond_index].set_bond_type(lig_build::bond_t::SINGLE_BOND);
+		     mol.bonds[bond_index].make_new_canvas_item(at_1, at_2, root);
+
+		  } else {
+		     
+		     // conventional/usual change
+		     mol.bonds[bond_index].change_bond_order(at_1, at_2, root); // single to double
+				  		                                // or visa versa
+		  } 
 	       }
 	    } 
 

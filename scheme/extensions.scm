@@ -56,7 +56,7 @@
 
 
 
-(define (add-plugin-user-defined-restraints)
+(define (add-module-user-defined-restraints)
   (if (defined? 'coot-main-menubar)
       (let ((menu (coot-menubar-menu "Restraints")))
 	(load-by-search "user-define-restraints.scm"))))
@@ -87,8 +87,8 @@
 	    (menuitem-pisa (gtk-menu-item-new-with-label "PISA..."))
 	    (submenu-pdbe (gtk-menu-new))
 	    (menuitem-pdbe (gtk-menu-item-new-with-label "PDBe..."))
-	    (submenu-plugins (gtk-menu-new))
-	    (menuitem-plugins (gtk-menu-item-new-with-label "Plug-ins..."))
+	    (submenu-modules (gtk-menu-new))
+	    (menuitem-modules (gtk-menu-item-new-with-label "Modules..."))
 	    (submenu-ncs (gtk-menu-new))
 	    (menuitem-ncs (gtk-menu-item-new-with-label "NCS...")))
 
@@ -124,9 +124,9 @@
 	(gtk-menu-append menu menuitem-7)
 	(gtk-widget-show menuitem-7)
 
-	(gtk-menu-item-set-submenu menuitem-plugins submenu-plugins)
-	(gtk-menu-append menu menuitem-plugins)
-	(gtk-widget-show menuitem-plugins)
+	(gtk-menu-item-set-submenu menuitem-modules submenu-modules)
+	(gtk-menu-append menu menuitem-modules)
+	(gtk-widget-show menuitem-modules)
 
 	(gtk-menu-item-set-submenu menuitem-pdbe submenu-pdbe)
 	(gtk-menu-append menu menuitem-pdbe)
@@ -407,8 +407,7 @@
 
 	;; --- D --- 
 
-	(add-simple-coot-menu-menuitem submenu-models "DB Loop..." click-protein-db-loop-gui)
-
+	;; (add-simple-coot-menu-menuitem submenu-models "DB Loop..." click-protein-db-loop-gui)
 
 	;; errr... move this...
 	(let ((submenu (gtk-menu-new))
@@ -478,7 +477,8 @@
 	(add-simple-coot-menu-menuitem 
 	 submenu-models "Invert This Chiral Centre"
 	 (lambda ()
-	   (chiral-centre-inverter)))
+	   (using-active-atom
+	    (invert-chiral-centre aa-imol aa-chain-id aa-res-no aa-ins-code aa-atom-name))))
 
 	
 	;; ---- J ---------
@@ -1243,6 +1243,13 @@
 					(let ((n (string->number text)))
 					  (if (number? n)
 					      (clear-dots imol n)))))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-representation "HOLE..." 
+	 (lambda ()
+	   (hole-ify)))
+
+
 	(add-simple-coot-menu-menuitem
 	 submenu-representation "Label All CAs..."
 	 (lambda ()
@@ -1386,20 +1393,29 @@
 
 
 	;; ---------------------------------------------------------------------
-	;;     Plugins
+	;;     Modules
 	;; ---------------------------------------------------------------------
 
 
 	(add-simple-coot-menu-menuitem
-	 submenu-plugins "SHELX..." 
+	 submenu-modules "SHELX" 
 	 (lambda ()
-	   (add-plugin-shelx)))
+	   (add-module-shelx)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-plugins "User-defined Restraints..." 
+	 submenu-modules "User-defined Restraints" 
 	 (lambda ()
-	   (add-plugin-user-defined-restraints)))
+	   (add-module-user-defined-restraints)))
 
+	(add-simple-coot-menu-menuitem
+	 submenu-modules "ProSMART" 
+	 (lambda ()
+	   (add-module-prosmart)))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-modules "Carbohydrate" 
+	 (lambda ()
+	   (add-module-carbohydrate)))
 
 
 	;; ---------------------------------------------------------------------

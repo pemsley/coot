@@ -29,7 +29,7 @@ include
 lib"
 
    old_dir="old"
-   old_dir=revision-$($coot_real --version | sed -e 's/.*revision //' -e 's/).*//')
+   old_dir=revision-$($coot_bin --version | sed -e 's/.*revision //' -e 's/).*//')
    echo in apply_pending_install COOT_PREFIX is set too $COOT_PREFIX
 
    if [ -d $COOT_PREFIX/$old_dir ] ; then
@@ -115,17 +115,21 @@ function check_for_no_graphics {
 
 
 current_exe_dir=$(dirname $0)
-# echo current_exe_dir is $current_exe_dir
+systype=$(uname)
 
-if [ $current_exe_dir = . ] ; then 
-  COOT_PREFIX=$(readlink -f $(dirname $PWD))
+if [ $systype = Darwin ] ; then 
+   COOT_PREFIX="$(cd "$(dirname "$current_exe_dir")" 2>/dev/null && pwd)"
 else 
-  COOT_PREFIX=$(readlink -f $(dirname "$current_exe_dir"))
+   if [ $current_exe_dir = . ] ; then 
+      COOT_PREFIX=$(readlink -f $(dirname $PWD))
+   else 
+      COOT_PREFIX=$(readlink -f $(dirname "$current_exe_dir"))
+   fi
 fi
 echo COOT_PREFIX is $COOT_PREFIX
 
-coot_real=$current_exe_dir/coot-real
-# echo coot-real is at $coot_real
+coot_bin=$COOT_PREFIX/libexec/coot-bin
+
 
 # unlimit coredumpsize:
 # ulimit -c unlimited
@@ -149,23 +153,6 @@ COOT_PIXMAPS_DIR=$COOT_PREFIX/share/coot/pixmaps
 COOT_DATA_DIR=$COOT_PREFIX/share/coot
 COOT_RESOURCES_FILE=$COOT_PREFIX/share/coot/cootrc
 COOT_REF_STRUCTS=$COOT_PREFIX/share/coot/reference-structures
-systype=`uname`
-
-# # is this still needed?  I think not.
-# #
-# if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then 
-
-#     PYTHONHOME=$COOT_PREFIX
-#     # for MinGW we only use Coot's pythonpath otherwise too complicated
-#     # i'm probably the only one using it anyway...
-#     # PYTHONPATH=$COOT_PREFIX/share/coot/python
-#     COOT_PYTHON_DIR=$COOT_PREFIX/lib/python2.7/site-packages/coot
-# else
-#     PYTHONHOME=$COOT_PREFIX
-#     # now python files are in a canonical location, let's use COOT_PYTHON_DIR 
-#     # (which overrides PKGPYTHONDIR) to find them
-#     COOT_PYTHON_DIR=$COOT_PREFIX/lib/python2.7/site-packages/coot
-# fi
 
 COOT_PYTHON_DIR=$COOT_PREFIX/lib/python2.7/site-packages/coot
 
@@ -254,8 +241,8 @@ if [ -e $COOT_PREFIX/pending-install ] ; then
 fi
   
 # "Use $@ to stop word splitting" from Ben Eisenbraun.  
-echo $coot_real "$@"
-$coot_real "$@"
+echo about to run $coot_bin "$@"
+$coot_bin "$@"
 status=$?
 
 if [ $status != 0 ] ; then

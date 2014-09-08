@@ -188,8 +188,8 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 
 	    std::string type_1 = bond_restraint[ib].type().substr(0,4);
 	    std::string type_2 = r.bond_restraint[jb].type().substr(0,4);
-	    std::string up_1 = coot::util::upcase(type_1);
-	    std::string up_2 = coot::util::upcase(type_2);
+	    std::string up_1 = util::upcase(type_1);
+	    std::string up_2 = util::upcase(type_2);
 	    if (up_1 != up_2) {
 	       std::cout << "Bond-Restraint:: " << comp_id_s << " mismatch bond order  between "
 			 << bond_restraint[ib].atom_id_1() << " "
@@ -589,14 +589,20 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 // matching to find the set of atom names that match/need to be
 // changed.
 // 
-coot::dictionary_residue_restraints_t
+std::pair<unsigned int, coot::dictionary_residue_restraints_t>
 coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary_residue_restraints_t &ref,
-							  mmdb::Residue *residue_p) {
+							  mmdb::Residue *residue_p,
+							  const std::string &new_comp_id_in) const {
+
    dictionary_residue_restraints_t dict = *this;
    bool debug = false;
    typedef std::pair<std::string, std::string> SP;
    std::vector<SP> change_name;
    std::vector<std::string> same_name;
+
+   std::string new_comp_id = new_comp_id_in;
+   if (new_comp_id == "auto")
+      new_comp_id = suggest_new_comp_id(residue_info.comp_id);
 
    bool use_hydrogens = false;
    int n_atoms = atom_info.size();
@@ -606,17 +612,17 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    mmdb::math::Graph *g_1 = make_graph(use_hydrogens);
    mmdb::math::Graph *g_2 = ref.make_graph(use_hydrogens);
 
-   if (0) {
-      std::cout << "this-name:::::::::::::::::::" << residue_info.comp_id << std::endl;
-      std::cout << " ref-name:::::::::::::::::::" << ref.residue_info.comp_id << std::endl;
+   if (debug) {
+      std::cout << "this-name :::::::::::::::::::" << residue_info.comp_id << std::endl;
+      std::cout << " ref-name :::::::::::::::::::" << ref.residue_info.comp_id << std::endl;
       g_1->Print();
       g_2->Print();
    }
    
-   g_1->SetName ("thing 1 ");
+   g_1->SetName ("working-residue");
    g_1->MakeVertexIDs();
    
-   g_2->SetName ("thing 2 ");
+   g_2->SetName ("reference-residue");
    g_2->MakeVertexIDs();
 
    bool use_bond_order = false;
@@ -625,14 +631,18 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    g_2->MakeSymmetryRelief(false);
    
    mmdb::math::GraphMatch match;
-   int minMatch = n_atoms;
+   int minMatch = ref.number_of_non_hydrogen_atoms() -2;
+   if (minMatch<3) minMatch = 3;
 
    bool vertext_type = true;
    std::string s;
    if (!use_hydrogens)
       s = " non-hydrogen";
-   std::cout << "INFO:: Matching Graphs with minMatch " << minMatch << " with "
-	     << n_atoms << s << " atoms" << std::endl;
+
+   if (debug)
+      std::cout << "INFO:: Matching Graphs with minMatch " << minMatch << " with "
+		<< n_atoms << s << " atoms" << std::endl;
+   
    int build_result_1 = g_1->Build(false);
 
    if (build_result_1 != 0) {
@@ -702,13 +712,10 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	       }
 	    }
 	    // also header info.
-	    dict.residue_info.comp_id           = ref.residue_info.comp_id;
-	    dict.residue_info.three_letter_code = ref.residue_info.three_letter_code;
-	    dict.residue_info.name              = ref.residue_info.name;
-	    dict.residue_info.group             = ref.residue_info.group;
-
-	    // change the residue atom names too (if non-NULL).
-	    change_names(residue_p, change_name);
+	    dict.residue_info.comp_id           = new_comp_id;
+	    dict.residue_info.three_letter_code = new_comp_id;
+	    dict.residue_info.name              = ref.residue_info.name;  // possibly wrong
+	    dict.residue_info.group             = ref.residue_info.group; // probably right.
 
 	    // do any of the target (to) names exist in dict already?  If so,
 	    // we will need to invent a new name for those already-existing
@@ -719,6 +726,14 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 
 	    // do the swap
 	    dict.atom_id_swap(change_name);
+
+	    // change the residue atom names too (if non-NULL).
+	    bool something_changed = change_names(residue_p, change_name, new_comp_id);
+	    if (something_changed) {
+	       mmdb::Manager *m = residue_p->chain->GetCoordHierarchy();
+	       if (m)
+		  m->FinishStructEdit();
+	    } 
 	 }
       }
    }
@@ -726,12 +741,14 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    delete g_1;
    delete g_2;
    
-   return dict;
+   return std::pair<unsigned int, dictionary_residue_restraints_t> (change_name.size(), dict);
 }
 
-void
+bool
 coot::dictionary_residue_restraints_t::change_names(mmdb::Residue *residue_p,
-						    const std::vector<std::pair<std::string, std::string> > &change_name) const {
+						    const std::vector<std::pair<std::string, std::string> > &change_name, const std::string &new_comp_id) const {
+
+   bool changed_something = false;
 
    if (residue_p) {
       mmdb::PPAtom res_selection = NULL;
@@ -744,10 +761,15 @@ coot::dictionary_residue_restraints_t::change_names(mmdb::Residue *residue_p,
 	    if (change_name[j].first == atom_name) {
 	       // 4 chars?
 	       at->SetAtomName(change_name[j].second.c_str());
-	    } 
+	       changed_something = true;
+	    }
 	 }
       }
    }
+   if (changed_something) {
+      residue_p->SetResName(new_comp_id.c_str());
+   } 
+   return changed_something;
 }
 
 
@@ -769,7 +791,7 @@ coot::dictionary_residue_restraints_t::extra_name_swaps_from_name_clash(const st
 	    bool found = false;
 	    for (unsigned int k=0; k<change_name.size(); k++) {
 	       if (change_name[k].first == to_name) {
-		  found == true;
+		  found = true;
 		  break;
 	       }
 	    }

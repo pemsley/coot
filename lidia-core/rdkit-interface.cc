@@ -912,7 +912,27 @@ coot::add_H_to_ring_N_as_needed(RDKit::RWMol *mol,
 void
 coot::mogulify_mol(RDKit::RWMol &mol) {
 
+   // Mogul doesn't care about charges
    // charge_guanidinos(&mol);
+
+   // unfused aromatic rings should have aromatic bonds, not single
+   // and double bonds (fused rings should be kekulized).
+   //
+   // I've checked this - it seems that mogul can cope with single and
+   // double bonds in the mol file for benzene (the target geometry is
+   // symmetric).
+
+   // aromatic rings that are pi-bonded to metals should have aromatic
+   // bonds in the ring.
+
+   // perchlorate: 3 double bonds and 1 single bond.
+
+   // phosphate: phosphonate, phosphinate: use one double bond and 3 single bonds.
+
+   // sulfone and sulfonamide use 2 double S=O bonds
+
+   // sulfoxide: use a double S=O bond
+   
    mogulify_nitro_groups(&mol);
    // debug_rdkit_molecule(&mol);
 }

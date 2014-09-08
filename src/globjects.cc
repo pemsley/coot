@@ -48,14 +48,21 @@
 #include <gtk/gtkgl.h>
 #endif // (GTK_MAJOR_VERSION == 1)
 
-#include <GL/gl.h>
-#include <GL/glu.h>
+#if __APPLE__
+#   include <OpenGL/gl.h>
+#   include <OpenGL/glu.h>
+#else
+#   include <GL/gl.h>
+#   include <GL/glu.h>
+#endif
+
 #include <GL/glut.h> // needed for wirecube and wiresphere.
+
 #ifdef WINDOWS_MINGW
 // in windows we need these for some newer openGL functions
 #include <GL/glext.h>
-//#include <GL/wglext.h>
 #endif // WINDOWS_MINGW
+
 #include "compat/sleep-fixups.h"
 
 #include <string.h> // strncmp

@@ -3740,10 +3740,11 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 		  } else {
 		     if (bond_colour_type == coot::COLOUR_BY_B_FACTOR) {
 			float scaled_b = at->tempFactor*b_factor_scale;
+			float max_b = 62;
 			if (scaled_b < 10.0) {
 			   return BLUE_BOND;
 			} else {
-			   if (scaled_b > 80.0) {
+			   if (scaled_b > max_b) {
 			      return RED_BOND;
 			   } else {
 			      if (scaled_b < 22.0) {
@@ -3755,7 +3756,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 				    if (scaled_b < 48.0) {
 				       return YELLOW_BOND;
 				    } else {
-				       if (scaled_b < 62.0) {
+				       if (scaled_b <= max_b) {
 					  return ORANGE_BOND;
 				       }
 				    }

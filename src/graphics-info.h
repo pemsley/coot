@@ -34,7 +34,13 @@
 
 // need gtk things
 #include <gtk/gtk.h>
-#include <GL/gl.h>
+
+#if __APPLE__
+#   include <OpenGL/gl.h>
+#else
+#   include <GL/gl.h>
+#endif
+
 
 #if (GTK_MAJOR_VERSION == 1)
 #include <gtkgl/gtkglarea.h>

@@ -3395,56 +3395,61 @@ coot::util::deep_copy_this_residue_add_chain(mmdb::Residue *residue,
 					     bool whole_residue_flag,
 					     bool attach_to_new_chain_flag) {
 
-   // Horrible casting to mmdb::Residue because GetSeqNum and GetAtomTable
-   // are not const functions.
-   // 
-   mmdb::Residue *rres = new mmdb::Residue;
-   mmdb::Chain   *chain_p = NULL;
-   if (attach_to_new_chain_flag) { 
-      chain_p = new mmdb::Chain;
-      chain_p->SetChainID(residue->GetChainID());
-   }
-   rres->seqNum = residue->GetSeqNum();
-   strcpy(rres->name, residue->name);
+   mmdb::Residue *rres = NULL;
 
-   mmdb::PPAtom residue_atoms;
-   int nResidueAtoms;
-   ((mmdb::Residue *)residue)->GetAtomTable(residue_atoms, nResidueAtoms);
-   mmdb::Atom *atom_p;
+   if (residue) { 
+      rres = new mmdb::Residue;
+      mmdb::Chain *chain_p = NULL;
+      if (attach_to_new_chain_flag) { 
+	 chain_p = new mmdb::Chain;
+	 chain_p->SetChainID(residue->GetChainID());
+      }
+      rres->seqNum = residue->GetSeqNum();
+      strcpy(rres->name, residue->name);
+
+      mmdb::PAtom *residue_atoms;
+      int nResidueAtoms;
+      residue->GetAtomTable(residue_atoms, nResidueAtoms);
+      mmdb::Atom *atom_p;
    
-   for(int iat=0; iat<nResidueAtoms; iat++) {
-      if (! residue_atoms[iat]->isTer()) { 
-	 std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
-	 if (whole_residue_flag ||
-	     this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
-	    atom_p = new mmdb::Atom;
-	    atom_p->Copy(residue_atoms[iat]);
-	    rres->AddAtom(atom_p);
+      for(int iat=0; iat<nResidueAtoms; iat++) {
+	 if (! residue_atoms[iat]->isTer()) { 
+	    std::string this_atom_alt_loc(residue_atoms[iat]->altLoc);
+	    if (whole_residue_flag ||
+		this_atom_alt_loc  == altconf || this_atom_alt_loc == "") { 
+	       atom_p = new mmdb::Atom;
+	       atom_p->Copy(residue_atoms[iat]);
+	       rres->AddAtom(atom_p);
+	    }
 	 }
       }
+      if (attach_to_new_chain_flag)
+	 chain_p->AddResidue(rres);
    }
-   if (attach_to_new_chain_flag)
-      chain_p->AddResidue(rres);
    return rres;
 }
 
 mmdb::Residue *
 coot::util::deep_copy_this_residue(mmdb::Residue *residue) { 
 
-   mmdb::Residue *rres = new mmdb::Residue;
-   rres->seqNum = residue->GetSeqNum();
-   strcpy(rres->name, residue->name);
+   mmdb::Residue *rres = NULL;
 
-   mmdb::PPAtom residue_atoms = 0;
-   int nResidueAtoms;
-   residue->GetAtomTable(residue_atoms, nResidueAtoms);
-   mmdb::Atom *atom_p;
+   if (residue) { 
+      rres = new mmdb::Residue;
+      rres->seqNum = residue->GetSeqNum();
+      strcpy(rres->name, residue->name);
+
+      mmdb::PAtom *residue_atoms = 0;
+      int nResidueAtoms;
+      residue->GetAtomTable(residue_atoms, nResidueAtoms);
+      mmdb::Atom *atom_p;
    
-   for(int iat=0; iat<nResidueAtoms; iat++) {
-      if (! residue_atoms[iat]->isTer()) { 
-	 atom_p = new mmdb::Atom;
-	 atom_p->Copy(residue_atoms[iat]);
-	 rres->AddAtom(atom_p);
+      for(int iat=0; iat<nResidueAtoms; iat++) {
+	 if (! residue_atoms[iat]->isTer()) { 
+	    atom_p = new mmdb::Atom;
+	    atom_p->Copy(residue_atoms[iat]);
+	    rres->AddAtom(atom_p);
+	 }
       }
    }
    return rres;

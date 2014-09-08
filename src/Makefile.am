@@ -20,8 +20,16 @@
 
 if COOT_USE_PYTHON
 
-dist_pkgpython_SCRIPTS = coot.py
-dist_python_SCRIPTS = coot.pth
+# if coot.py is called __init.py and goes in site-packages/coot/
+#dist_pkgpython_SCRIPTS = __init__.py
+#dist_python_SCRIPTS = coot.pth
+
+#__init__.py: coot.py
+#	cp coot.py __init__.py
+
+
+dist_python_SCRIPTS = coot.py coot.pth
+
 
 endif
 
@@ -201,7 +209,8 @@ INCLUDES = \
 #	$(WITH_SCRIPT_CFLAGS) 
 
 
-bin_PROGRAMS = coot-real density-score-by-residue-real fix-nomenclature-errors
+libexec_PROGRAMS = coot-bin
+bin_PROGRAMS = density-score-by-residue-real fix-nomenclature-errors
 dist_bin_SCRIPTS = coot density-score-by-residue
 check_PROGRAMS = test-coot-align test-cholesky
 
@@ -211,7 +220,7 @@ fix_nomenclature_errors_SOURCES = \
 	coot-nomenclature.cc
 
 
-coot_real_SOURCES = \
+coot_bin_SOURCES = \
 	main.cc 		 \
 	svn-revision.cc 	 \
 	c-inner-main.c		 \
@@ -289,6 +298,8 @@ coot_real_SOURCES = \
 	coot_pythonmodule.cc     \
 	coot-preferences.h       \
 	coot-references.h        \
+	coot-setup-python.cc     \
+	coot-setup-python.hh     \
 	coot_wrap_guile_gtk2.cc  \
         dots-representation.hh   \
 	drag-and-drop.hh         \
@@ -401,7 +412,7 @@ coot_real_SOURCES = \
 	xmap-utils.h		 
 
 if COOT_USE_PYTHON
-   coot_real_SOURCES += coot_wrap_python_gtk2.cc
+   coot_bin_SOURCES += coot_wrap_python_gtk2.cc
    EXTRA_DIST += coot_wrap_python_pre_gtk2.cc 
 endif
 
@@ -437,13 +448,13 @@ fix_nomenclature_errors_LDADD = \
 	$(MMDB_LIBS)		
 
 
-# coot_real_LDFLAGS = -static -lstdc++
-coot_real_LDFLAGS =
+# coot_bin_LDFLAGS = -static -lstdc++
+coot_bin_LDFLAGS =
 
 # 20101220 Note: when libtool/ltmain.sh is fixed, OPENMP_CFLAGS will
 # not be needed here. So says Justin Lecher (see email).
 #
-coot_real_LDADD =  $(OPENMP_CFLAGS)     \
+coot_bin_LDADD = $(OPENMP_CFLAGS)       \
                 $(COOT_EXTRA_LIBS)      \
 		$(GUILE_GTK_LIBS)       \
 		$(GUILE_LDFLAGS)	\

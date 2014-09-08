@@ -70,10 +70,8 @@ namespace coot {
 			 const std::string &monomer_type,
 			 const std::string &file_name);
 
-   // return a new rdkit molecule
-   void 
-   regularize(PyObject *rdkit_mol, PyObject *restraints_py,
-	      const std::string &res_name);
+   void regularize(PyObject *rdkit_mol, PyObject *restraints_py,
+		   const std::string &res_name);
 
    //
    void regularize_and_write_pdb(PyObject *rdkit_mol, PyObject *restraints_py,
