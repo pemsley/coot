@@ -415,11 +415,11 @@ main (int argc, char *argv[]) {
     GtkWidget *w;
 #ifndef USE_GUILE
     w = lookup_widget(window1, "scripting_scheme1");
-    gtk_widget_set_sensitive(w, False);
+    gtk_widget_set_sensitive(w, FALSE);
 #endif
 #ifndef USE_PYTHON
     w = lookup_widget(window1, "scripting_python1");
-    gtk_widget_set_sensitive(w, False);
+    gtk_widget_set_sensitive(w, FALSE);
 #endif
   }
 
@@ -700,7 +700,7 @@ void add_ligand_builder_menu_item_maybe() {
 #ifdef HAVE_GOOCANVAS
 	 // all is hunky dory, it's OK to see the menu item
 #else 	 
-	 gtk_widget_set_sensitive(w, False);  // or hide!?
+	 gtk_widget_set_sensitive(w, FALSE);  // or hide!?
 #endif // HAVE_GOOCANVAS
       }
    }
