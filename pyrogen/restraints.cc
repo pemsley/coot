@@ -78,15 +78,71 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
 			    bond_order_restraints);
 
 
-   dictionary_residue_restraints_t restraints = mmcif_dict_from_mol_inner(comp_id, compound_name,
-									  rdkit_mol_py,
-									  quartet_planes, quartet_hydrogen_planes);
+   dictionary_residue_restraints_t restraints =
+      mmcif_dict_from_mol_inner(comp_id, compound_name, rdkit_mol_py,
+				quartet_planes, quartet_hydrogen_planes);
    restraints.conservatively_replace_with(mogul_restraints);
    restraints.write_cif(mmcif_out_file_name);
+
+   if (0) { // testing.
+      std::pair<CResidue *, dictionary_residue_restraints_t> matched_restraints =
+	 match_restraints_to_amino_acids(restraints, NULL);
+
+      if (matched_restraints.first) {
+	 std::cout << "......... about to write matched.cif" << std::endl;
+	 matched_restraints.second.write_cif("matched.cif");
+      }
+   }
 
    return monomer_restraints_to_python(restraints);
       
 }
+
+std::pair<CResidue *, coot::dictionary_residue_restraints_t>
+coot::match_restraints_to_amino_acids(const coot::dictionary_residue_restraints_t &restraints,
+				      CResidue *residue_p) {
+
+   CResidue *returned_res = NULL;
+   dictionary_residue_restraints_t returned_dict;
+
+   unsigned int n_comp_ids = 19;
+   std::string comp_ids[] = { "CYS", "ASP", "GLU",        "HIS", "ILE", "LYS", "LEU", "MET",
+			      "ASN", "PRO", "GLN", "ARG", "SER", "THR", "VAL", "TRP", "TYR",
+			      "G", "C"};
+   protein_geometry pg;
+   int read_number = 0;
+   for (unsigned int i=0; i<n_comp_ids; i++) { 
+      pg.try_dynamic_add(comp_ids[i], i);
+   }
+
+   std::string out_comp_id = restraints.residue_info.comp_id;
+   int best_n_matches = 0;
+   std::string best_comp_id;
+   
+   for (unsigned int i=0; i<n_comp_ids; i++) {
+      std::pair<bool, dictionary_residue_restraints_t> rest = pg.get_monomer_restraints(comp_ids[i]);
+      if (rest.first) {
+	 std::pair<unsigned int, dictionary_residue_restraints_t> r_new =
+	    restraints.match_to_reference(rest.second, NULL, out_comp_id);
+	 std::cout << "Using " << comp_ids[i] << " found " << r_new.first << " matches" << std::endl;
+	 if (r_new.first > best_n_matches) {
+	    best_n_matches = r_new.first;
+	    best_comp_id = comp_ids[i];
+	 }
+      }
+   }
+
+   if (! best_comp_id.empty()) {
+      returned_res = util::deep_copy_this_residue(residue_p);
+      std::pair<bool, dictionary_residue_restraints_t> rest = pg.get_monomer_restraints(best_comp_id);
+      std::pair<unsigned int, dictionary_residue_restraints_t> r_new =
+	 restraints.match_to_reference(rest.second, returned_res, out_comp_id);
+      returned_dict = r_new.second;
+   } 
+   return std::pair<CResidue *, coot::dictionary_residue_restraints_t> (returned_res, returned_dict);
+
+}
+
 
 PyObject *
 coot::types_from_mmcif_dictionary(const std::string &file_name) {

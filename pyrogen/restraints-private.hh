@@ -81,6 +81,11 @@ namespace coot {
 
    int assign_chirals_rdkit_tags(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
    int assign_chirals_mmcif_tags(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
-   
+
+   // Use the pointer to test if the match was successful.
+   std::pair<CResidue *, dictionary_residue_restraints_t>
+   match_restraints_to_amino_acids(const dictionary_residue_restraints_t &restraints,
+				   CResidue *residue_p);
+
 }
 

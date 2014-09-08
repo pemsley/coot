@@ -701,10 +701,11 @@ namespace coot {
       // 
       // If new_comp_id is "auto", suggest_new_comp_id() is called to
       // generate a comp_id string.
-      // 
-      dictionary_residue_restraints_t match_to_reference(const dictionary_residue_restraints_t &ref,
-							 CResidue *residue_p,
-							 const std::string &new_comp_id);
+      //
+      std::pair<unsigned int, dictionary_residue_restraints_t>
+      match_to_reference(const dictionary_residue_restraints_t &ref,
+			 CResidue *residue_p,
+			 const std::string &new_comp_id) const;
 
       // make a CGraph from the atom_info and bond restraints.
       //
@@ -1884,6 +1885,10 @@ namespace coot {
       std::vector<std::string> non_auto_load_residue_names;
       bool is_non_auto_load_ligand(const std::string resname) const;
       void fill_default_non_auto_load_residue_names(); // build-it defaults
+
+      // return empty file name on failure.
+      std::string comp_id_to_file_name(const std::string &comp_id) const;
+
 
    public:
 
