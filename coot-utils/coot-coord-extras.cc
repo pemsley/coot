@@ -38,7 +38,7 @@
 // geom_p gets updated to include the residue restraints if necessary
 // 
 std::pair<int, std::vector<std::string> >
-coot::util::check_dictionary_for_residues(PCResidue *SelResidues, int nSelResidues,
+coot::util::check_dictionary_for_residues(mmdb::PResidue *SelResidues, int nSelResidues,
 					  coot::protein_geometry *geom_p,
 					  int read_number) {
 
@@ -68,12 +68,12 @@ coot::util::check_dictionary_for_residues(PCResidue *SelResidues, int nSelResidu
 
 
 // For use with wiggly ligands, constructed from a minimol residue,
-// the get_contact_indices_from_restraints() needs a CResidue *.
+// the get_contact_indices_from_restraints() needs a mmdb::Residue *.
 // Caller disposes.
-CResidue *
+mmdb::Residue *
 coot::GetResidue(const minimol::residue &res_in) {
 
-   CResidue *res = new CResidue;
+   mmdb::Residue *res = new mmdb::Residue;
 
    std::string residue_name = res_in.name; 
    int seqnum = res_in.seqnum; 
@@ -82,7 +82,7 @@ coot::GetResidue(const minimol::residue &res_in) {
 
    for (unsigned int i=0; i<res_in.atoms.size(); i++) {
       coot::minimol::atom mat = res_in.atoms[i];
-      CAtom *at = new CAtom;
+      mmdb::Atom *at = new mmdb::Atom;
       at->SetAtomName(mat.name.c_str());
       at->SetElementName(mat.element.c_str());
       at->SetCoordinates(mat.pos.x(), mat.pos.y(), mat.pos.z(),
@@ -113,7 +113,7 @@ coot::GetResidue(const minimol::residue &res_in) {
 // regular_residue_flag) if you know how.
 // 
 std::vector<std::vector<int> >
-coot::util::get_contact_indices_from_restraints(CResidue *residue,
+coot::util::get_contact_indices_from_restraints(mmdb::Residue *residue,
 						coot::protein_geometry *geom_p,
 						bool regular_residue_flag,
 						bool add_reverse_contacts) {
@@ -121,7 +121,7 @@ coot::util::get_contact_indices_from_restraints(CResidue *residue,
    int nResidueAtoms = residue->GetNumberOfAtoms(); 
    std::vector<std::vector<int> > contact_indices(nResidueAtoms);
    std::string restype(residue->name);
-   CAtom *atom_p;
+   mmdb::Atom *atom_p;
 
    int n_restr = geom_p->size();
 
@@ -177,14 +177,14 @@ coot::util::get_contact_indices_from_restraints(CResidue *residue,
 }
 
 std::vector<std::vector<int> >
-coot::util::get_contact_indices_from_restraints(CResidue *residue,
+coot::util::get_contact_indices_from_restraints(mmdb::Residue *residue,
 						const coot::dictionary_residue_restraints_t &restraints,
 						bool regular_residue_flag,
 						bool add_reverse_contacts) {
    
    int nResidueAtoms = residue->GetNumberOfAtoms(); 
    std::vector<std::vector<int> > contact_indices(nResidueAtoms);
-   CAtom *atom_p;
+   mmdb::Atom *atom_p;
    
    for (unsigned int ibr=0; ibr< restraints.bond_restraint.size(); ibr++) {
       for (int iat=0; iat<nResidueAtoms; iat++) {
@@ -226,12 +226,12 @@ coot::util::get_contact_indices_from_restraints(CResidue *residue,
 // a tree along the main chain.
 // 
 std::vector<std::vector<int> >
-coot::util::get_contact_indices_for_PRO_residue(PPCAtom residue_atoms,
+coot::util::get_contact_indices_for_PRO_residue(mmdb::PPAtom residue_atoms,
 						int nResidueAtoms, 
 						coot::protein_geometry *geom_p) { 
 
    std::vector<std::vector<int> > contact_indices(nResidueAtoms);
-   CAtom *atom_p;
+   mmdb::Atom *atom_p;
    int n_restr = geom_p->size();
    for (int icomp=0; icomp<n_restr; icomp++) {
       if ((*geom_p)[icomp].residue_info.comp_id == "PRO") {
@@ -286,7 +286,7 @@ coot::util::dict_residue_atom_info_t::dict_residue_atom_info_t(const std::string
 // This one we can do a dynamic add.
 // 
 bool
-coot::util::is_nucleotide_by_dict_dynamic_add(CResidue *residue_p, coot::protein_geometry *geom_p) {
+coot::util::is_nucleotide_by_dict_dynamic_add(mmdb::Residue *residue_p, coot::protein_geometry *geom_p) {
 
    bool is_nuc = 0;
    bool ifound = 0;
@@ -323,7 +323,7 @@ coot::util::is_nucleotide_by_dict_dynamic_add(CResidue *residue_p, coot::protein
 // This one we can NOT do a dynamic add.
 //
 bool
-coot::util::is_nucleotide_by_dict(CResidue *residue_p, const coot::protein_geometry &geom) {
+coot::util::is_nucleotide_by_dict(mmdb::Residue *residue_p, const coot::protein_geometry &geom) {
 
    bool is_nuc = 0;
    std::string residue_name = residue_p->GetResName();
@@ -348,7 +348,7 @@ coot::util::is_nucleotide_by_dict(CResidue *residue_p, const coot::protein_geome
 // 
 // Return the number of rotated torsions.
 // 
-coot::match_torsions::match_torsions(CResidue *res_moving_in, CResidue *res_ref_in,
+coot::match_torsions::match_torsions(mmdb::Residue *res_moving_in, mmdb::Residue *res_ref_in,
 				     const coot::dictionary_residue_restraints_t &rest) {
 
    res_moving = res_moving_in;
@@ -496,11 +496,11 @@ coot::match_torsions::get_torsion(int torsion_type,
 }
 
 std::pair<bool, double>
-coot::match_torsions::get_torsion(CResidue *res, const coot::atom_name_quad &quad) const {
+coot::match_torsions::get_torsion(mmdb::Residue *res, const coot::atom_name_quad &quad) const {
 
    bool status = 0;
    double tors = 0;
-   std::vector<CAtom *> atoms(4, static_cast<CAtom *> (NULL));
+   std::vector<mmdb::Atom *> atoms(4, static_cast<mmdb::Atom *> (NULL));
    atoms[0] = res->GetAtom(quad.atom_name(0).c_str());
    atoms[1] = res->GetAtom(quad.atom_name(1).c_str());
    atoms[2] = res->GetAtom(quad.atom_name(2).c_str());
@@ -573,13 +573,13 @@ coot::match_torsions::apply_torsion_by_contacts(const coot::atom_name_quad &movi
       coot::minimol::residue wiggled_ligand_residue = tree.GetResidue();
 
       // transfer from the ligand_residue to res_moving
-      PPCAtom residue_atoms = 0;
+      mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       int n_transfered = 0;
       res_moving->GetAtomTable(residue_atoms, n_residue_atoms);
       if (wiggled_ligand_residue.atoms.size() <= n_residue_atoms) { 
 	 for (unsigned int iat=0; iat<wiggled_ligand_residue.atoms.size(); iat++) { 
-	    CAtom *at = res_moving->GetAtom(wiggled_ligand_residue.atoms[iat].name.c_str(), NULL, alt_conf.c_str());
+	    mmdb::Atom *at = res_moving->GetAtom(wiggled_ligand_residue.atoms[iat].name.c_str(), NULL, alt_conf.c_str());
 	    if (at) {
 	       if (0)
 		  std::cout << "transfering coords was "
@@ -609,13 +609,13 @@ coot::match_torsions::apply_torsion_by_contacts(const coot::atom_name_quad &movi
 // Don't return any hydrogen torsions - perhaps we should make that a
 // passed parameter.
 // 
-std::vector<std::pair<CAtom *, CAtom *> >
-coot::torsionable_bonds_monomer_internal(CResidue *residue_p,
-					 PPCAtom atom_selection, int n_selected_atoms,
+std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
+coot::torsionable_bonds_monomer_internal(mmdb::Residue *residue_p,
+					 mmdb::PPAtom atom_selection, int n_selected_atoms,
 					 bool include_pyranose_ring_torsions_flag,
 					 coot::protein_geometry *geom_p) {
 
-   std::vector<std::pair<CAtom *, CAtom *> > v;
+   std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v;
 
    bool hydrogen_torsions = false;
    std::string rn = residue_p->GetResName();
@@ -634,11 +634,11 @@ coot::torsionable_bonds_monomer_internal(CResidue *residue_p,
 	    std::string tr_atom_name_3 = tors_restraints[itor].atom_id_3_4c();
 
 	    for (unsigned int iat1=0; iat1<n_selected_atoms; iat1++) {
-	       CResidue *res_1 = atom_selection[iat1]->residue;
+	       mmdb::Residue *res_1 = atom_selection[iat1]->residue;
 	       std::string atom_name_1 = atom_selection[iat1]->name;
 	       for (unsigned int iat2=0; iat2<n_selected_atoms; iat2++) {
 		  if (iat1 != iat2) { 
-		     CResidue *res_2 = atom_selection[iat2]->residue;
+		     mmdb::Residue *res_2 = atom_selection[iat2]->residue;
 		     if (res_1 == res_2) {
 			std::string atom_name_2 = atom_selection[iat2]->name;
 			if (atom_name_1 == tr_atom_name_2) {
@@ -648,7 +648,7 @@ coot::torsionable_bonds_monomer_internal(CResidue *residue_p,
 				  (is_pyranose && !tors_restraints[itor].is_pyranose_ring_torsion()) ||
 				  (! is_pyranose)) { 
 
-				 std::pair<CAtom *, CAtom *> p(atom_selection[iat1],
+				 std::pair<mmdb::Atom *, mmdb::Atom *> p(atom_selection[iat1],
 							       atom_selection[iat2]);
 				 v.push_back(p);
 			      }
@@ -670,8 +670,8 @@ coot::torsionable_bonds_monomer_internal(CResidue *residue_p,
 // passed parameter.
 // 
 std::vector<coot::torsion_atom_quad>
-coot::torsionable_bonds_monomer_internal_quads(CResidue *residue_p,
-					       PPCAtom atom_selection, int n_selected_atoms,
+coot::torsionable_bonds_monomer_internal_quads(mmdb::Residue *residue_p,
+					       mmdb::PPAtom atom_selection, int n_selected_atoms,
 					       bool include_pyranose_ring_torsions_flag,
 					       coot::protein_geometry *geom_p) {
    std::vector<coot::torsion_atom_quad> quads;
@@ -687,7 +687,7 @@ coot::torsionable_bonds_monomer_internal_quads(CResidue *residue_p,
    for (unsigned int itor=0; itor<tors_restraints.size(); itor++) {
       if (! tors_restraints[itor].is_const()) { 
 	 std::string tor_atom_name[5];
-	 std::vector<CAtom *> ats(5, static_cast<CAtom *>(NULL));
+	 std::vector<mmdb::Atom *> ats(5, static_cast<mmdb::Atom *>(NULL));
 	 tor_atom_name[1] = tors_restraints[itor].atom_id_1_4c();
 	 tor_atom_name[2] = tors_restraints[itor].atom_id_2_4c();
 	 tor_atom_name[3] = tors_restraints[itor].atom_id_3_4c();
@@ -726,27 +726,27 @@ coot::torsionable_bonds_monomer_internal_quads(CResidue *residue_p,
 
 
 coot::bonded_pair_container_t 
-coot::linkrs_in_atom_selection(CMMDBManager *mol, PPCAtom atom_selection, int n_selected_atoms,
+coot::linkrs_in_atom_selection(mmdb::Manager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
 			       protein_geometry *geom_p) {
    coot::bonded_pair_container_t bpc;
 #ifdef MMDB_WITHOUT_LINKR
 #else
    // normal case
-   std::vector<CResidue *> residues;
+   std::vector<mmdb::Residue *> residues;
    for (unsigned int i=0; i<n_selected_atoms; i++) {
-      CResidue *r = atom_selection[i]->residue;
+      mmdb::Residue *r = atom_selection[i]->residue;
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	 residues.push_back(r);
    }
 
    bool found = false; 
-   CModel *model_p = mol->GetModel(1);
+   mmdb::Model *model_p = mol->GetModel(1);
    int n_linkrs = model_p->GetNumberOfLinkRs();
    std::cout << "model has " << n_linkrs << " LINKR records"
 	     << " and " << model_p->GetNumberOfLinks() << " LINK records"
 	     << std::endl;
    for (unsigned int ilink=0; ilink<n_linkrs; ilink++) { 
-      PCLinkR linkr = model_p->GetLinkR(ilink);
+      mmdb::PLinkR linkr = model_p->GetLinkR(ilink);
       coot::residue_spec_t link_spec_1(linkr->chainID1,
 				       linkr->seqNum1,
 				       linkr->insCode1);

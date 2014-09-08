@@ -66,16 +66,16 @@ coot::protein_geometry::read_ccp4srs_residues() {
 
 // Here res_name is the tlc/comp_id.
 // 
-CResidue *
+mmdb::Residue *
 coot::protein_geometry::get_ccp4srs_residue(const std::string &res_name) const {
 
-   CResidue *residue_p = NULL;
+   mmdb::Residue *residue_p = NULL;
 
 #ifdef HAVE_CCP4SRS   
    if (SBase) {
       CCP4SRSMonomer *monomer_p = SBase->getMonomer(res_name.c_str());
       if (monomer_p) {
-	 residue_p = new CResidue;
+	 residue_p = new mmdb::Residue;
 	 for (int iat=0; iat<monomer_p->n_atoms(); iat++) {
 	    CCP4SRSAtom *at = monomer_p->atom(iat);
 
@@ -95,7 +95,7 @@ coot::protein_geometry::get_ccp4srs_residue(const std::string &res_name) const {
 	    }
 
 	    if (add_atom_ok) { 
-	       CAtom *new_atom = new CAtom;
+	       mmdb::Atom *new_atom = new mmdb::Atom;
 	       new_atom->SetCoordinates(at->x(), at->y(), at->z(), 1.0, 30.0);
 	       new_atom->SetAtomName(new_atom_name.c_str());
 	       new_atom->SetElementName(at->element());
@@ -429,8 +429,8 @@ coot::protein_geometry::try_load_sbase_description(const std::vector<std::string
 
 #ifdef HAVE_CCP4SRS
 coot::match_results_t
-coot::protein_geometry::residue_from_best_match(CGraph &graph1, CGraph &graph2,
-						CGraphMatch &match, int n_match,
+coot::protein_geometry::residue_from_best_match(mmdb::math::Graph &graph1, mmdb::math::Graph &graph2,
+						mmdb::math::GraphMatch &match, int n_match,
 						CCP4SRSMonomer *monomer_p) const {
 
    match_results_t r("", "", NULL);
@@ -440,15 +440,15 @@ coot::protein_geometry::residue_from_best_match(CGraph &graph1, CGraph &graph2,
       r.name = monomer_p->chem_name();
       r.comp_id = graph2.GetName();
       int n;
-      realtype p1, p2;
-      ivector FV1, FV2;
+      mmdb::realtype p1, p2;
+      mmdb::ivector FV1, FV2;
       match.GetMatch(imatch, FV1, FV2, n, p1, p2); // n p1 p2 set
       if (0)
 	 std::cout << "   match " << imatch << " " << " set n pairs " << n << std::endl;
       int n_type_match = 0;
       for (int ipair=1; ipair<=n; ipair++) {
-	 PCVertex V1 = graph1.GetVertex ( FV1[ipair] );
-	 PCVertex V2 = graph2.GetVertex ( FV2[ipair] );
+	 Pmmdb::math::Vertex V1 = graph1.GetVertex ( FV1[ipair] );
+	 Pmmdb::math::Vertex V2 = graph2.GetVertex ( FV2[ipair] );
 	 if ((!V1) || (!V2))  {
 	    std::cout << "Can't get vertices for match " << ipair << std::endl;
 	 } else {
@@ -471,7 +471,7 @@ coot::protein_geometry::residue_from_best_match(CGraph &graph1, CGraph &graph2,
 
 #ifdef HAVE_CCP4SRS
 std::vector<coot::match_results_t>
-coot::protein_geometry::compare_vs_ccp4srs(CGraph *graph_1, float similarity, int n_vertices) const {
+coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices) const {
 
    std::vector<coot::match_results_t> v;
 
@@ -489,7 +489,7 @@ coot::protein_geometry::compare_vs_ccp4srs(CGraph *graph_1, float similarity, in
       }
   
       int exclude_H_flag = 1;  // neglect hydrogens
-      CGraph *graph_2 = NULL;
+      mmdb::math::Graph *graph_2 = NULL;
       int min_match = coot::get_min_match(n_vertices, similarity);
 
       if (0) // debug
@@ -524,7 +524,7 @@ coot::protein_geometry::compare_vs_ccp4srs(CGraph *graph_1, float similarity, in
 	       // 
 	       graph_2->Build(False); // 20100608 was True
 
-	       CGraphMatch *match  = new CGraphMatch();
+	       mmdb::math::GraphMatch *match  = new mmdb::math::GraphMatch();
 	       if (min_match > 0) { 
 
 		  match->MatchGraphs(graph_1, graph_2, min_match);

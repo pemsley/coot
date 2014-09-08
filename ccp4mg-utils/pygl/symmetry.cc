@@ -44,21 +44,21 @@
 #endif
 #endif
 
-PPCAtom molecule_extents_t::trans_sel(CMMDBCryst *my_cryst, symm_trans_t symm_trans)  const{
+mmdb::PPAtom molecule_extents_t::trans_sel(mmdb::CMMDBCryst *my_cryst, symm_trans_t symm_trans)  const{
 
-   CAtom atom;
-   PPCAtom trans_selection = new PCAtom[6];
-   mat44 my_matt;
+   mmdb::Atom atom;
+   mmdb::PPAtom trans_selection = new mmdb::PAtom[6];
+   mmdb::mat44 my_matt;
    
    // Modify my_matt so that it is a coordinate transformation
    // matrix.
    //
    my_cryst->GetTMatrix(my_matt, symm_trans.isym(), symm_trans.x(),
 		       symm_trans.y(), symm_trans.z());
-   // CAtom tmp[10];
+   // mmdb::Atom tmp[10];
 
    for (int ii=0; ii<6; ii++) {
-      trans_selection[ii] = new CAtom;
+      trans_selection[ii] = new mmdb::Atom;
       trans_selection[ii]->SetCoordinates(extents_selection[ii]->x,
 					  extents_selection[ii]->y,
 					  extents_selection[ii]->z,
@@ -71,13 +71,13 @@ PPCAtom molecule_extents_t::trans_sel(CMMDBCryst *my_cryst, symm_trans_t symm_tr
 void Symmetry::AddSymmetry(float symm_distance) {
 
    if (nSelAtoms>0) {
-      PCAtom point_atom_p = new CAtom;
+      mmdb::PAtom point_atom_p = new mmdb::Atom;
       point_atom_p->SetCoordinates(point.get_x(), point.get_y(),
                                    point.get_z(), 1.0, 99.9);
 
       for(unsigned int ii=0; ii<symm_trans.size(); ii++) {
 
-         PPCAtom trans_selection = trans_sel(symm_trans[ii]);
+         mmdb::PPAtom trans_selection = trans_sel(symm_trans[ii]);
 	 symmetries.push_back(trans_selection);
       }
       delete point_atom_p;
@@ -121,7 +121,7 @@ Cartesian molecule_extents_t::get_back() {
    return back;
 } 
 
-molecule_extents_t::molecule_extents_t(PPCAtom SelAtoms, int nSelAtoms) {
+molecule_extents_t::molecule_extents_t(mmdb::PPAtom SelAtoms, int nSelAtoms) {
 
    float atom_x, atom_y, atom_z;
    float max_x, max_y, max_z, min_x, min_y, min_z;
@@ -201,29 +201,29 @@ molecule_extents_t::molecule_extents_t(PPCAtom SelAtoms, int nSelAtoms) {
 
    // std::cout << "centre at: " << centre << std::endl;
    
-   extents_selection = new PCAtom[6];
+   extents_selection = new mmdb::PAtom[6];
 
-   extents_selection[0] = new CAtom;
+   extents_selection[0] = new mmdb::Atom;
    extents_selection[0]->SetCoordinates(front.get_x(), front.get_y(),
 				       front.get_z(), 1.0 ,99.9);
 
-   extents_selection[1] = new CAtom; // back is at max_z;
+   extents_selection[1] = new mmdb::Atom; // back is at max_z;
    extents_selection[1]->SetCoordinates(back.get_x(), back.get_y(),
 					back.get_z(), 1.0 ,99.9);
 
-   extents_selection[2] = new CAtom;
+   extents_selection[2] = new mmdb::Atom;
    extents_selection[2]->SetCoordinates(left.get_x(), left.get_y(),
 					left.get_z(), 1.0 ,99.9);
 
-   extents_selection[3] = new CAtom;
+   extents_selection[3] = new mmdb::Atom;
    extents_selection[3]->SetCoordinates(right.get_x(), right.get_y(),
 					right.get_z(), 1.0 ,99.9);
 
-   extents_selection[4] = new CAtom;
+   extents_selection[4] = new mmdb::Atom;
    extents_selection[4]->SetCoordinates(bottom.get_x(), bottom.get_y(),
 					bottom.get_z(), 1.0 ,99.9);
 
-   extents_selection[5] = new CAtom;
+   extents_selection[5] = new mmdb::Atom;
    extents_selection[5]->SetCoordinates(top.get_x(), top.get_y(),
 					top.get_z(), 1.0 ,99.9);
 
@@ -237,7 +237,7 @@ Cell_Translation::Cell_Translation(int a, int b, int c) {
 
 }
 
-bool molecule_extents_t::point_is_in_box(Cartesian point, PPCAtom TransSel) const { 
+bool molecule_extents_t::point_is_in_box(Cartesian point, mmdb::PPAtom TransSel) const { 
 
    // front back left right bottom top
    //      z         x            y
@@ -307,7 +307,7 @@ std::vector<int> Symmetry::GetSymmetryMatrixNumbers() const {
 
 std::vector<matrix> Symmetry::GetSymmetryMatrices()  const{
   std::vector<matrix> symm_mats;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
 
    for(unsigned int i=0;i<symm_trans.size();i++){
      //std::cout << "GetSymmetryMatrices " << symm_trans[i].isym() << " " << symm_trans[i].x() << " " << symm_trans[i].y() << " " << symm_trans[i].z() << "\n";
@@ -320,26 +320,26 @@ std::vector<matrix> Symmetry::GetSymmetryMatrices()  const{
            symm_mats.back()(k,j) = my_matt[k][j];
 
      if (err != 0)
-        std::cout << "!!!!!!!!!!!!!! something BAD with CMMDBCryst.GetTMatrix" << std::endl;
+        std::cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix" << std::endl;
    }
    
    return symm_mats;
 
 }
 
-PPCAtom Symmetry::trans_sel(const symm_trans_t &symm_tran) const{
-   mat44 my_matt;
+mmdb::PPAtom Symmetry::trans_sel(const symm_trans_t &symm_tran) const{
+   mmdb::mat44 my_matt;
    int err = my_cryst_p->GetTMatrix(my_matt, symm_tran.isym(), symm_tran.x(),
                                  symm_tran.y(), symm_tran.z());
    if (err != 0) {
-      std::cout << "!!!!!!!!!!!!!! something BAD with CMMDBCryst.GetTMatrix"
+      std::cout << "!!!!!!!!!!!!!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
 	   << std::endl;
    }
 
-   PPCAtom trans_selection = new PCAtom[nSelAtoms];
+   mmdb::PPAtom trans_selection = new mmdb::PAtom[nSelAtoms];
    for (int ii=0; ii<nSelAtoms; ii++) {
 
-      trans_selection[ii] = new CAtom;
+      trans_selection[ii] = new mmdb::Atom;
       trans_selection[ii]->Copy(SelAtoms[ii]);
       trans_selection[ii]->residue = SelAtoms[ii]->residue; // Is this OK?
       trans_selection[ii]->Transform(my_matt);
@@ -351,8 +351,8 @@ std::vector<symm_trans_t> molecule_extents_t::GetUnitCellOps(PCMMANManager molhn
 
    std::vector<symm_trans_t> symm_trans;
 
-   realtype u, v, w;
-   PCMMDBCryst my_cryst_p = (CMMDBCryst *) &(molhnd->get_cell());
+   mmdb::realtype u, v, w;
+   Pmmdb::CMMDBCryst my_cryst_p = (mmdb::CMMDBCryst *) &(molhnd->get_cell());
    my_cryst_p->Orth2Frac(0,0,0, u, v, w);
    Cell_Translation c_t = Cell_Translation(int (rint (u)), int (rint (v)), int (rint (w)));
    int n = my_cryst_p->GetNumberOfSymOps();
@@ -405,7 +405,7 @@ std::vector<symm_trans_t> molecule_extents_t::GetUnitCellOps(PCMMANManager molhn
      Cartesian ftr(right.get_x(),top.get_y(),front.get_z());
      Cartesian centre = (top+bottom)*0.5;
 
-     mat44 my_matt;
+     mmdb::mat44 my_matt;
      for(int ii=0; ii<n; ii++) {
        for(int x_shift = (c_t.us-2); x_shift<(3+c_t.us); x_shift++) { 
          for(int y_shift = (c_t.vs-2); y_shift<(3+c_t.vs); y_shift++) { 
@@ -443,13 +443,13 @@ std::vector<symm_trans_t> molecule_extents_t::GetUnitCellOps(PCMMANManager molhn
 
 }
 
-std::vector<symm_trans_t> molecule_extents_t::which_box(Cartesian point, PCMMANManager molhnd, PPCAtom SelAtoms, int nSelAtoms, Cartesian tl, Cartesian tr, Cartesian br, Cartesian bl) {
+std::vector<symm_trans_t> molecule_extents_t::which_box(Cartesian point, PCMMANManager molhnd, mmdb::PPAtom SelAtoms, int nSelAtoms, Cartesian tl, Cartesian tr, Cartesian br, Cartesian bl) {
 
    std::vector<symm_trans_t> symm_trans;
    Cartesian p;
    
-   realtype u, v, w;
-   PCMMDBCryst my_cryst_p = (CMMDBCryst *) &(molhnd->get_cell());
+   mmdb::realtype u, v, w;
+   Pmmdb::CMMDBCryst my_cryst_p = (mmdb::CMMDBCryst *) &(molhnd->get_cell());
 
    my_cryst_p->Orth2Frac(point.get_x(), point.get_y(), point.get_z(), u, v, w);
    Cell_Translation c_t = Cell_Translation(int (rint (u)), int (rint (v)), int (rint (w)));
@@ -468,7 +468,7 @@ std::vector<symm_trans_t> molecule_extents_t::which_box(Cartesian point, PCMMANM
 
 		  symm_trans_t s_t(ii, x_shift, y_shift, z_shift);
 		  
-		  PPCAtom trans_selection = trans_sel(my_cryst_p, s_t);
+		  mmdb::PPAtom trans_selection = trans_sel(my_cryst_p, s_t);
 		  p = point;
 		  bool in = point_is_in_box(p, trans_selection);
 		  if (in == 1) {
@@ -566,7 +566,7 @@ Symmetry::~Symmetry(){
   symm_trans.clear();
 }
 
-Symmetry::Symmetry(PCMMANManager molhnd_in, PPCAtom SelAtoms_in, int nSelAtoms_in, Cartesian point_in, Cartesian tl_in, Cartesian tr_in, Cartesian br_in, Cartesian bl_in, int draw_unit_cell, int xshifts, int yshifts, int zshifts){
+Symmetry::Symmetry(PCMMANManager molhnd_in, mmdb::PPAtom SelAtoms_in, int nSelAtoms_in, Cartesian point_in, Cartesian tl_in, Cartesian tr_in, Cartesian br_in, Cartesian bl_in, int draw_unit_cell, int xshifts, int yshifts, int zshifts){
   molhnd = molhnd_in;
   SelAtoms = SelAtoms_in;
   clear_symmetries();
@@ -580,7 +580,7 @@ Symmetry::Symmetry(PCMMANManager molhnd_in, PPCAtom SelAtoms_in, int nSelAtoms_i
   bl = bl_in;
 
   symm_trans.clear();
-  my_cryst_p = (CMMDBCryst *) &(molhnd->get_cell());
+  my_cryst_p = (mmdb::CMMDBCryst *) &(molhnd->get_cell());
 
   molecule_extents_t extents(SelAtoms, nSelAtoms);
 
@@ -591,7 +591,7 @@ Symmetry::Symmetry(PCMMANManager molhnd_in, PPCAtom SelAtoms_in, int nSelAtoms_i
 
 }
 
-std::vector<PPCAtom> Symmetry::GetSymmetries(){
+std::vector<mmdb::PPAtom> Symmetry::GetSymmetries(){
 
   if(symm_trans.size()>0){
       AddSymmetry(100.0);
@@ -606,7 +606,7 @@ unsigned int Symmetry::GetNumSymmetries(){
   return symmetries.size();
 }
 
-PPCAtom Symmetry::GetSymmetry(int nsym){
+mmdb::PPAtom Symmetry::GetSymmetry(int nsym){
   if(symmetries.size()==0)
     symmetries = GetSymmetries();
   return symmetries[nsym];

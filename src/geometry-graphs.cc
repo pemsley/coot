@@ -237,7 +237,7 @@ coot::geometry_graphs::render_geometry_distortion_blocks_internal(const coot::ge
    int chain_number = chain_id_to_chain_index(dc.chain_id);
 
    int idx_1, idx_2, idx_3, idx_4;
-   realtype occ_1, occ_2, occ_3;
+   mmdb::realtype occ_1, occ_2, occ_3;
    for (unsigned int i=0; i<dc.geometry_distortion.size(); i++) {
       
       if (dc.geometry_distortion[i].restraint.restraint_type == coot::BOND_RESTRAINT) {

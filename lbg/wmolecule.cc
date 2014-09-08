@@ -40,7 +40,7 @@
 // at all.
 // 
 widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mol_in,
-					 CMMDBManager *pdb_mol) { 
+					 mmdb::Manager *pdb_mol) { 
 
    bool debug_local = false;
 
@@ -1136,19 +1136,18 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
 
    bool status = 0;
 
-   PCMMCIFFile mmCIFFile = new CMMCIFFile();
-
-   PCMMCIFData   mmCIFData = NULL;
-   PCMMCIFStruct mmCIFStruct;
+   mmdb::mmcif::File *mmCIFFile = new mmdb::mmcif::File();
+   mmdb::mmcif::Data   *mmCIFData = NULL;
+   mmdb::mmcif::Struct *mmCIFStruct;
    char S[2000];
 
-   int rc = mmCIFFile->AddMMCIFData("comp_list");
+   int rc = mmCIFFile->AddCIFData("comp_list");
    mmCIFData = mmCIFFile->GetCIFData("comp_list");
    rc = mmCIFData->AddStructure ("_chem_comp", mmCIFStruct);
    // std::cout << "rc on AddStructure returned " << rc << std::endl;
-   if (rc!=CIFRC_Ok && rc!=CIFRC_Created)  {
+   if (rc!=mmdb::mmcif::CIFRC_Ok && rc!=mmdb::mmcif::CIFRC_Created)  {
       // badness!
-      std::cout << "rc not CIFRC_Ok " << rc << std::endl;
+      std::cout << "rc not mmdb::mmcif::CIFRC_Ok " << rc << std::endl;
       printf ( " **** error: attempt to retrieve Loop as a Structure.\n" );
       if (!mmCIFStruct)  {
          printf ( " **** error: mmCIFStruct is NULL - report as a bug\n" );
@@ -1163,7 +1162,7 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
       int n_non_H_atoms = atoms.size();
       std::string description_level = "M";
 
-      PCMMCIFLoop mmCIFLoop = new CMMCIFLoop; // 20100212
+      mmdb::mmcif::Loop *mmCIFLoop = new mmdb::mmcif::Loop; // 20100212
 
       rc = mmCIFData->AddLoop("_chem_comp", mmCIFLoop);
       int i=0;
@@ -1186,11 +1185,11 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
 
       std::string comp_monomer_name = "comp_";
       comp_monomer_name += comp_id;
-      rc = mmCIFFile->AddMMCIFData(comp_monomer_name.c_str());
+      rc = mmCIFFile->AddCIFData(comp_monomer_name.c_str());
       mmCIFData = mmCIFFile->GetCIFData(comp_monomer_name.c_str());
       rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
 
-      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+      if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
          for (int i=0; i<atoms.size(); i++) {
 
             mmCIFLoop->PutString(comp_id.c_str(), "comp_id", i);
@@ -1206,7 +1205,7 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
       // bond loop
 
       rc = mmCIFData->AddLoop("_chem_comp_bond", mmCIFLoop);
-      if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+      if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
          // std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
          for (int i=0; i<bonds.size(); i++) {
             // std::cout << "ading bond number " << i << std::endl;
@@ -1264,7 +1263,7 @@ widgeted_molecule_t::get_solvent_accessibility(const clipper::Coord_orth &pt,
 }
 
 std::string
-widgeted_molecule_t::get_atom_name(const clipper::Coord_orth &pt, CMMDBManager *mol) const {
+widgeted_molecule_t::get_atom_name(const clipper::Coord_orth &pt, mmdb::Manager *mol) const {
 
    std::string atom_name;
    double close_2 = 0.01 * 0.01;
@@ -1278,14 +1277,14 @@ widgeted_molecule_t::get_atom_name(const clipper::Coord_orth &pt, CMMDBManager *
    } else { 
 
       int imod = 1;
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
-	 CResidue *residue_p;
-	 CAtom *at;
+	 mmdb::Residue *residue_p;
+	 mmdb::Atom *at;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    int n_atoms = residue_p->GetNumberOfAtoms();

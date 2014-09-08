@@ -41,18 +41,18 @@
 
 #ifdef USE_GUILE
 
-CMMDBManager *
+mmdb::Manager *
 mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 
-   CMMDBManager *mol = 0;
+   mmdb::Manager *mol = 0;
 
    SCM nmodel = scm_length(molecule_expression);
    int inmodel = scm_to_int(nmodel);
 
    if (inmodel > 0) {
-      mol = new CMMDBManager; 
+      mol = new mmdb::Manager; 
       for(int imodel=0; imodel<inmodel; imodel++) {
-	 CModel *model_p = new CModel;
+	 mmdb::Model *model_p = new mmdb::Model;
 	 SCM imodel_scm = SCM_MAKINUM(imodel);
 	 SCM model_expression = scm_list_ref(molecule_expression, imodel_scm);
 	 SCM model_expression_length = scm_length(model_expression);
@@ -93,7 +93,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 		  int n_residues = scm_to_int(n_residues_scm);
 		  // printf("there were %d residues\n", n_residues);
 		  if (n_residues > 0) {
-		     CChain *chain_p = new CChain;
+		     mmdb::Chain *chain_p = new mmdb::Chain;
 		     std::string chain_id = scm_to_locale_string(chain_id_scm);
 		     chain_p->SetChainID(chain_id.c_str());
 		     for (int ires=0; ires<n_residues; ires++) {
@@ -121,7 +121,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 			   int n_atoms = scm_to_int(n_atoms_scm);
 
 			   if (n_atoms > 0) {
-			      CResidue *residue_p = new CResidue;
+			      mmdb::Residue *residue_p = new mmdb::Residue;
 			      std::string resname = scm_to_locale_string(scm_residue_name);
 			      int resno = scm_to_int(scm_residue_number);
 			      // std::cout << "DEBUG:: Found resno:   " << resno << std::endl;
@@ -129,7 +129,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 			      std::string inscode = scm_to_locale_string(scm_residue_inscode);
 			      residue_p->SetResName(resname.c_str());
 			      residue_p->seqNum = resno;
-			      memcpy(residue_p->insCode, inscode.c_str(), sizeof(InsCode));
+			      memcpy(residue_p->insCode, inscode.c_str(), sizeof(mmdb::InsCode));
 			      for (int iat=0; iat<n_atoms; iat++) {
 				 SCM iat_scm = SCM_MAKINUM(iat);
 				 SCM atom_expression = scm_list_ref(atoms_list, iat_scm);
@@ -181,7 +181,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 					     float x = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(0)));
 					     float y = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(1)));
 					     float z = scm_to_double(scm_list_ref(pos_expr, SCM_MAKINUM(2)));
-					     CAtom *atom = new CAtom;
+					     mmdb::Atom *atom = new mmdb::Atom;
 					     atom->SetCoordinates(x, y, z, occ, b);
 					     if ( ! ((atom_name == "") && (ele == ""))) {
 						atom->SetAtomName(atom_name.c_str());
@@ -232,7 +232,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
       }
    }
    if (mol) { 
-      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       mol->FinishStructEdit();
    }
    return mol;
@@ -241,14 +241,14 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 #endif  // USE_GUILE
 #ifdef USE_PYTHON
 
-CMMDBManager *
+mmdb::Manager *
 mmdb_manager_from_python_expression(PyObject *molecule_expression) {
 
-   CMMDBManager *mol = 0;
-   std::deque<CModel *> model_list = mmdb_models_from_python_expression(molecule_expression);
+   mmdb::Manager *mol = 0;
+   std::deque<mmdb::Model *> model_list = mmdb_models_from_python_expression(molecule_expression);
    
    if (!model_list.empty()) {
-      mol = new CMMDBManager;
+      mol = new mmdb::Manager;
       while (!model_list.empty()) {
          mol->AddModel(model_list.front());
          model_list.pop_front();
@@ -256,23 +256,23 @@ mmdb_manager_from_python_expression(PyObject *molecule_expression) {
    }
    
    if (mol) { 
-      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       mol->FinishStructEdit();
    }
    return mol;
 } 
 
 
-std::deque<CModel *>
+std::deque<mmdb::Model *>
 mmdb_models_from_python_expression(PyObject *molecule_expression) {
 
-   std::deque<CModel *> model_list;
+   std::deque<mmdb::Model *> model_list;
 
    int inmodel = PyObject_Length(molecule_expression);
 
    if (inmodel > 0) {
       for(int imodel=0; imodel<inmodel; imodel++) {
-         CModel *model_p = new CModel;
+         mmdb::Model *model_p = new mmdb::Model;
          PyObject *model_expression = PyList_GetItem(molecule_expression, imodel);
          int len_model_expression = PyObject_Length(model_expression);
          if (len_model_expression > 0) {
@@ -307,7 +307,7 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                   int n_residues = PyObject_Length(residues_list);
 		  // printf("there were %d residues\n", n_residues);
                   if (n_residues > 0) {
-                     CChain *chain_p = new CChain;
+                     mmdb::Chain *chain_p = new mmdb::Chain;
                      std::string chain_id = PyString_AsString(chain_id_python);
                      chain_p->SetChainID(chain_id.c_str());
                      for (int ires=0; ires<n_residues; ires++) {
@@ -331,7 +331,7 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                            }
                            int n_atoms = PyObject_Length(atoms_list);
                            if (n_atoms > 0) {
-                              CResidue *residue_p = new CResidue;
+                              mmdb::Residue *residue_p = new mmdb::Residue;
                               std::string resname = PyString_AsString(python_residue_name);
                               int resno = PyInt_AsLong(python_residue_number);
                               // std::cout << "DEBUG:: Found resno:   " << resno << std::endl;
@@ -339,7 +339,7 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                               std::string inscode = PyString_AsString(python_residue_inscode);
                               residue_p->SetResName(resname.c_str());
                               residue_p->seqNum = resno;
-                              memcpy(residue_p->insCode, inscode.c_str(), sizeof(InsCode));
+                              memcpy(residue_p->insCode, inscode.c_str(), sizeof(mmdb::InsCode));
                               for (int iat=0; iat<n_atoms; iat++) {
                                  PyObject *atom_expression = PyList_GetItem(atoms_list, iat);
                                  int len_atom_expr = PyObject_Length(atom_expression);
@@ -421,7 +421,7 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                                                 std::cout << bad_str << std::endl;
                                              }
                                              
-                                             CAtom *atom = new CAtom;
+                                             mmdb::Atom *atom = new mmdb::Atom;
                                              atom->SetCoordinates(x, y, z, occ, b);
                                              atom->SetAtomName(atom_name.c_str());
                                              atom->SetElementName(ele.c_str());
@@ -435,7 +435,7 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
                                                 atom->u12 = b_u12;
                                                 atom->u13 = b_u13;
                                                 atom->u23 = b_u23;
-                                                atom->WhatIsSet |= ASET_Anis_tFac;
+                                                atom->WhatIsSet |= mmdb::ASET_Anis_tFac;
                                              }
                                              residue_p->AddAtom(atom);
 					     
@@ -482,11 +482,11 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
 #endif // USE_PYTHON
 
 // delete CONECT records from mmdb manager
-void mmdb_manager_delete_conect(CMMDBManager *mol) {
+void mmdb_manager_delete_conect(mmdb::Manager *mol) {
 
   graphics_info_t g;
 
   if (g.write_conect_records_flag != 1) {
-    mol->Delete ( MMDBFCM_SC );
+     mol->Delete ( mmdb::MMDBFCM_SC );
   }
 }

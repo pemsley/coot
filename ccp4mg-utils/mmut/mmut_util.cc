@@ -25,7 +25,7 @@
 
 using namespace std;
 
-void printrealp(realtype *a, int size){
+void printrealp(mmdb::realtype *a, int size){
  
   int i,k;
 
@@ -40,7 +40,7 @@ void printrealp(realtype *a, int size){
 
 }
 
-void printrealpp(realtype **a, int rows, int cols){
+void printrealpp(mmdb::realtype **a, int rows, int cols){
  
   int i,k,l;
 
@@ -95,7 +95,7 @@ void printintpp(int **a, int rows, int cols){
 
 }
 
-std::vector<Cartesian> PPCAtomsToCartesians(int natoms, PPCAtom atoms){
+std::vector<Cartesian> mmdb::PPAtomsToCartesians(int natoms, mmdb::PPAtom atoms){
 
   std::vector<Cartesian> carts(natoms);
 

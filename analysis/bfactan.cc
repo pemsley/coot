@@ -2,14 +2,14 @@
 #include <iostream>
 #include "bfkurt.hh"
 
-CMMDBManager *get_atom_selection(std::string pdb_name); 
+mmdb::Manager *get_atom_selection(std::string pdb_name); 
 
 
 int main(int argc, char **argv) { 
 
    if (argc > 1) { 
       std::string pdb_file_name = argv[1];
-      CMMDBManager *mol = get_atom_selection(pdb_file_name);
+      mmdb::Manager *mol = get_atom_selection(pdb_file_name);
       if (! mol) { 
 	 std::cout << "Failed to read pdb file\n";
       } else {
@@ -24,11 +24,11 @@ int main(int argc, char **argv) {
 } 
 
 
-CMMDBManager *
+mmdb::Manager *
 get_atom_selection(std::string pdb_name) {
 
-   int err;
-   CMMDBManager* MMDBManager;
+   mmdb::ERROR_CODE err;
+   mmdb::Manager* MMDBManager;
 
    // Needed for the error message printing: 
    // MMDBManager->GetInputBuffer(S, lcount);
@@ -38,22 +38,22 @@ get_atom_selection(std::string pdb_name) {
 
    //   Make routine initializations
    //
-   InitMatType();
+   mmdb::InitMatType();
 
-   MMDBManager = new CMMDBManager;
+   MMDBManager = new mmdb::Manager;
    
-   MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
-			  MMDBF_IgnoreDuplSeqNum |
-			  MMDBF_IgnoreNonCoorPDBErrors );
+   MMDBManager->SetFlag ( mmdb::MMDBF_IgnoreBlankLines |
+			  mmdb::MMDBF_IgnoreDuplSeqNum |
+			  mmdb::MMDBF_IgnoreNonCoorPDBErrors );
    
    std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
-   err = MMDBManager->ReadCoorFile((char *)pdb_name.c_str());
+   err = MMDBManager->ReadCoorFile(pdb_name.c_str());
    
    if (err) {
       // does_file_exist(pdb_name.c_str());
       std::cout << "There was an error reading " << pdb_name.c_str() << ". \n";
       std::cout << "ERROR " << err << " READ: "
-		<< GetErrorDescription(err) << std::endl;
+		<< mmdb::GetErrorDescription(err) << std::endl;
       //
       // This makes my stomach churn too. Sorry.
       // 
@@ -72,11 +72,11 @@ get_atom_selection(std::string pdb_name) {
       // we read the coordinate file OK.
       //
       switch (MMDBManager->GetFileType())  {
-      case MMDB_FILE_PDB    :  std::cout << " PDB"         ;
+      case mmdb::MMDB_FILE_PDB    :  std::cout << " PDB"         ;
 	 break;
-      case MMDB_FILE_CIF    :  std::cout << " mmCIF"       ; 
+      case mmdb::MMDB_FILE_CIF    :  std::cout << " mmCIF"       ; 
 	 break;
-      case MMDB_FILE_Binary :  std::cout << " MMDB binary" ;
+      case mmdb::MMDB_FILE_Binary :  std::cout << " MMDB binary" ;
 	 break;
       default:
 	 std::cout << " Unknown (report as a bug!)\n";

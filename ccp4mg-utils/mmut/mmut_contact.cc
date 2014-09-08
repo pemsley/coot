@@ -117,13 +117,13 @@ int CContact::Calculate(bool separate_models )  {
 //-------------------------------------------------------------------
 int CContact::Calculate0(int model)  {
 //-------------------------------------------------------------------
-  PPCAtom selAtoms;
-  PPCAtom selAtoms2;
+  mmdb::PPAtom selAtoms;
+  mmdb::PPAtom selAtoms2;
   int nSelAtoms,nSelAtoms2; 
 
-  realtype min_cutoff,max_cutoff,frac;
-  realtype vdw1,vdw2;
-  PSContact contacts = NULL;
+  mmdb::realtype min_cutoff,max_cutoff,frac;
+  mmdb::realtype vdw1,vdw2;
+  mmdb::Contact *contacts = NULL;
   int ncontacts;
 
   int n;
@@ -143,7 +143,7 @@ int CContact::Calculate0(int model)  {
   //cout << "nSelAtoms " << model << " " << nSelAtoms << " " << nSelAtoms2 << endl;
   if ( nSelAtoms <= 0 || nSelAtoms2 <= 0 ) return 1;
   // Find the close contacts between two sets of atoms
-  mat44 * TMatrix=0;
+  mmdb::mat44 * TMatrix=0;
   if(test_VDW_radius==1) {
     min_cutoff = 5.0 * VDW_fraction_min;
     max_cutoff = 5.0 * VDW_fraction_max;
@@ -212,10 +212,10 @@ std::string CContact::Print(bool geometry) {
 //-----------------------------------------------------------------------
 
   std::ostringstream output;
-  std::vector<PCAtom>::iterator i = close_contacts.pAtom1.begin();
-  std::vector<PCAtom>::iterator j = close_contacts.pAtom2.begin();
+  std::vector<mmdb::PAtom>::iterator i = close_contacts.pAtom1.begin();
+  std::vector<mmdb::PAtom>::iterator j = close_contacts.pAtom2.begin();
   std::string first,second;
-  realtype dist,vdw1,vdw2,sum_vdw,frac;
+  mmdb::realtype dist,vdw1,vdw2,sum_vdw,frac;
   output.setf(ios::fixed);
   output.setf(ios::showpoint);
   output.setf(ios::left,ios::adjustfield);

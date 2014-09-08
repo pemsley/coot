@@ -31,7 +31,7 @@
 #include <iostream>
 #include <vector>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 #include "coords/mmdb-crystal.h"
@@ -124,10 +124,10 @@ molecule_class_info_t::fill_residue_selection(int SelHnd_selection,
 				res_specs_vec[ir].resno,
 				res_specs_vec[ir].insertion_code.c_str(),
 				no_waters.c_str(),
-				"*", "*", "*", SKEY_OR);
+				"*", "*", "*", mmdb::SKEY_OR);
    }
 
-   PPCAtom atoms = NULL;
+   mmdb::PPAtom atoms = NULL;
    int n_atoms;
    atom_sel.mol->GetSelIndex(SelHnd_selection, atoms, n_atoms);
    std::cout << "debug:: fill_residue_selection selected "
@@ -153,8 +153,8 @@ molecule_class_info_t::make_surface(const std::vector<coot::residue_spec_t> &res
 
    atom_sel.mol->SelectAtoms(SelHnd_protein, 0,
 			     "*",
-			     ANY_RES, "*",
-			     ANY_RES, "*",
+			     mmdb::ANY_RES, "*",
+			     mmdb::ANY_RES, "*",
 			     "!HOH",    // RNames
 			     "*", "*",  // ANames, Elements
 			     "*" );     // Alternate locations.

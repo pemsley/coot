@@ -1,11 +1,11 @@
 
 #include <string>
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
-void distance_checks(CModel *model_p);
-int SSE(CResidue *res);
-CMMDBManager *get_mol(const std::string &filename);
-float oxygen_check(CResidue *residue_p_1, CResidue *residue_p_2);
+void distance_checks(mmdb::Model *model_p);
+int SSE(mmdb::Residue *res);
+mmdb::Manager *get_mol(const std::string &filename);
+float oxygen_check(mmdb::Residue *residue_p_1, mmdb::Residue *residue_p_2);
 
 
 

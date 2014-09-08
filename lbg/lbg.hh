@@ -46,7 +46,7 @@
 
 #include "gsl/gsl_multimin.h"
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #ifndef MONOMER_DIR_STR
 #define MONOMER_DIR_STR "COOT_CCP4SRS_DIR"
 #endif 
@@ -786,14 +786,14 @@ private:
    get_centres_from_bond_indices(const std::vector<int> &bond_indices) const;
    lig_build::pos_t get_new_pos_not_towards_ring_centres(int atom_index,
 							 const std::vector<int> &bond_indices) const;
-   CMMDBManager *get_cmmdbmanager(const std::string &filename) const;
+   mmdb::Manager *get_cmmdbmanager(const std::string &filename) const;
 
    // sbase functions
    float search_similarity;
    
 #ifdef HAVE_CCP4SRS   
-   coot::match_results_t residue_from_best_match(CGraph &graph_1, CGraph &graph_2,
-						 CGraphMatch &match, int n_match, 
+   coot::match_results_t residue_from_best_match(mmdb::math::Graph &graph_1, mmdb::math::Graph &graph_2,
+						 mmdb::math::GraphMatch &match, int n_match, 
 						 CCP4SRSMonomer *monomer_p) const;
 #endif   
    void display_search_results(const std::vector<coot::match_results_t> &v) const;
@@ -1065,7 +1065,7 @@ public:
    // read an MDL mol file.
    widgeted_molecule_t  import_mol_file(const lig_build::molfile_molecule_t &mol_in,
 					const std::string &filename,
-					CMMDBManager *pdb_mol);
+					mmdb::Manager *pdb_mol);
    static gboolean on_highlight_key_press_event (GooCanvasItem *item,
 						 GooCanvasItem *target,
 						 GdkEventKey *event,
@@ -1238,7 +1238,7 @@ public:
 // 
 lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 		std::pair<bool, coot::residue_spec_t> ligand_spec_pair,
-		CMMDBManager *mol,
+		mmdb::Manager *mol,
 		const std::string &view_name, // annotate the decoration
 		const std::string &molecule_file_name,
 		int imol, // molecule number of the molecule of the

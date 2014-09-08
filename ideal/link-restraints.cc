@@ -33,7 +33,7 @@
 
 #include "coot-utils/coot-coord-extras.hh"  // is_nucleotide_by_dict
 
-// #include "mmdb.h" // for printing of CAtom pointers as info not raw
+// #include "mmdb.h" // for printing of mmdb::Atom pointers as info not raw
                      // pointers.  Removed. Too much (linking issues in)
                      // Makefile pain.
 
@@ -43,14 +43,14 @@
 // Residue 1 of the link is the first atom of the link
 int
 coot::restraints_container_t::add_link_bond(std::string link_type,
-					    PCResidue first, PCResidue second,
+					    mmdb::PResidue first, mmdb::PResidue second,
 					    short int is_fixed_first,
 					    short int is_fixed_second,
 					    const coot::protein_geometry &geom) {
 
 
-   PPCAtom first_sel;
-   PPCAtom second_sel;
+   mmdb::PPAtom first_sel;
+   mmdb::PPAtom second_sel;
    int n_first_res_atoms, n_second_res_atoms;
    std::vector<bool> fixed_atom_flags(2);  // 2 atoms in this restraint.
 
@@ -153,15 +153,15 @@ coot::restraints_container_t::add_link_bond(std::string link_type,
 // relationship.  Residue 1 of the link was the first atom of the link
 int
 coot::restraints_container_t::add_link_angle(std::string link_type,
-					     PCResidue first, PCResidue second,
+					     mmdb::PResidue first, mmdb::PResidue second,
 					     short int is_fixed_first,  // residue
 					     short int is_fixed_second, // residue
 					     const coot::protein_geometry &geom) {
 
    int nangle = 0;
    
-   PPCAtom first_sel;
-   PPCAtom second_sel;
+   mmdb::PPAtom first_sel;
+   mmdb::PPAtom second_sel;
    int n_first_res_atoms, n_second_res_atoms;
    int n_atom_1, n_atom_2, n_atom_3;
    int index1, index2, index3;
@@ -169,7 +169,7 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
    first->GetAtomTable(first_sel,   n_first_res_atoms); 
    second->GetAtomTable(second_sel, n_second_res_atoms);
 
-   PPCAtom atom_1_sel, atom_2_sel, atom_3_sel; // assigned to either
+   mmdb::PPAtom atom_1_sel, atom_2_sel, atom_3_sel; // assigned to either
 					       // first_sel or
 					       // second_sel when
 					       // atom_1_comp_id
@@ -308,7 +308,7 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 int
 coot::restraints_container_t::add_link_torsion(std::string link_type,
 					       int phi_psi_restraints_type,
-					       PCResidue first, PCResidue second,
+					       mmdb::PResidue first, mmdb::PResidue second,
 					       short int is_fixed_first, short int is_fixed_second,
 					       const coot::protein_geometry &geom) {
 
@@ -319,8 +319,8 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
    
    int n_torsion = 0;
       
-   PPCAtom first_sel;
-   PPCAtom second_sel;
+   mmdb::PPAtom first_sel;
+   mmdb::PPAtom second_sel;
    int n_first_res_atoms, n_second_res_atoms;
    int n_atom_1, n_atom_2, n_atom_3, n_atom_4;
 
@@ -330,7 +330,7 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
 
    // assigned to either first_sel or second_sel when atom_1_comp_id
    // (etc.) are known.
-   PPCAtom atom_1_sel, atom_2_sel, atom_3_sel, atom_4_sel;
+   mmdb::PPAtom atom_1_sel, atom_2_sel, atom_3_sel, atom_4_sel;
 
    if (n_first_res_atoms <= 0) {
       std::cout << "no atoms in first residue!? " << std::endl;
@@ -532,7 +532,7 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
    // correct comp_id for that atom.
    //
    int selHnd = mol->NewSelection();
-   PPCResidue     SelResidue;
+   mmdb::PPResidue     SelResidue;
    int nSelResidues;
 
 
@@ -541,7 +541,7 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
 //    double td;
 
 
-   mol->Select ( selHnd,STYPE_RESIDUE, 1, // .. TYPE, iModel
+   mol->Select ( selHnd,mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 		 chain_id_save.c_str(), // Chain(s)
 		 istart_res, "*",  // starting res
 		 iend_res,   "*",  // ending res
@@ -549,7 +549,7 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
 		 "*",  // Residue must contain this atom name?
 		 "*",  // Residue must contain this Element?
 		 "*",  // altLocs
-		 SKEY_NEW // selection key
+		 mmdb::SKEY_NEW // selection key
 		 );
    mol->GetSelIndex(selHnd, SelResidue, nSelResidues);
    std::cout << "INFO:: GetSelIndex (make_link_restraints) returned " << nSelResidues
@@ -619,8 +619,8 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       //
       std::string link_type = bonded_residue_pairs[ibonded_residue].link_type;
 
-      CResidue *sel_res_1 = bonded_residue_pairs[ibonded_residue].res_1;
-      CResidue *sel_res_2 = bonded_residue_pairs[ibonded_residue].res_2;
+      mmdb::Residue *sel_res_1 = bonded_residue_pairs[ibonded_residue].res_1;
+      mmdb::Residue *sel_res_2 = bonded_residue_pairs[ibonded_residue].res_2;
 
       if (0) { 
 	 std::cout << " ------- looking for link :" << link_type
@@ -762,7 +762,7 @@ coot::restraints_container_t::add_rama_links_from_res_vec(const coot::bonded_pai
 // Simple, residue-name and restraints group type link finder
 // 
 std::string
-coot::restraints_container_t::find_link_type(CResidue *first, CResidue *second,
+coot::restraints_container_t::find_link_type(mmdb::Residue *first, mmdb::Residue *second,
 					     const coot::protein_geometry &geom) const {
 
    // Should return TRANS, PTRANS (PRO-TRANS), CIS, PCIS, p, BETA1-2, BETA1-4 etc.
@@ -814,7 +814,7 @@ coot::restraints_container_t::find_link_type(CResidue *first, CResidue *second,
 // reversed arguments.
 // 
 std::string
-coot::restraints_container_t::find_glycosidic_linkage_type(CResidue *first, CResidue *second,
+coot::restraints_container_t::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second,
 							   const protein_geometry &geom) const {
 
    return geom.find_glycosidic_linkage_type(first, second);
@@ -841,7 +841,7 @@ coot::restraints_container_t::link_infos_are_glycosidic_p(const std::vector<std:
 // Return link_type as "" if not found.
 // 
 std::pair<std::string, bool>
-coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue *second,
+coot::restraints_container_t::find_link_type_rigourous(mmdb::Residue *first, mmdb::Residue *second,
 						       const coot::protein_geometry &geom) const {
 
    bool debug = false;
@@ -1009,7 +1009,7 @@ coot::restraints_container_t::find_link_type_rigourous(CResidue *first, CResidue
 // 
 std::pair<std::string, bool>
 coot::restraints_container_t::general_link_find_close_link(std::vector<std::pair<coot::chem_link, bool> > &li,
-							   CResidue *r1, CResidue *r2,
+							   mmdb::Residue *r1, mmdb::Residue *r2,
 							   bool order_switch_flag,
 							   const coot::protein_geometry &geom) const {
 
@@ -1032,7 +1032,7 @@ coot::restraints_container_t::general_link_find_close_link(std::vector<std::pair
 
 std::string
 coot::restraints_container_t::general_link_find_close_link_inner(std::vector<std::pair<coot::chem_link, bool> > &li,
-								 CResidue *r1, CResidue *r2,
+								 mmdb::Residue *r1, mmdb::Residue *r2,
 								 bool order_switch_flag,
 								 const coot::protein_geometry &geom) const {
 
@@ -1054,8 +1054,8 @@ coot::restraints_container_t::general_link_find_close_link_inner(std::vector<std
 	       for (unsigned int ib=0; ib<lr.link_bond_restraint.size(); ib++) {
 		  std::string atom_id_1 = lr.link_bond_restraint[ib].atom_id_1_4c();
 		  std::string atom_id_2 = lr.link_bond_restraint[ib].atom_id_2_4c();
-		  CAtom *at_1 = r1->GetAtom(atom_id_1.c_str());
-		  CAtom *at_2 = r2->GetAtom(atom_id_2.c_str());
+		  mmdb::Atom *at_1 = r1->GetAtom(atom_id_1.c_str());
+		  mmdb::Atom *at_2 = r2->GetAtom(atom_id_2.c_str());
 		  if (at_1 && at_2) {
 		     clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
 		     clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
@@ -1089,7 +1089,7 @@ coot::restraints_container_t::general_link_find_close_link_inner(std::vector<std
 		     else
 			std::cout << "NULL";
 		     std::cout << std::endl;
-		     PPCAtom residue_atoms = 0;
+		     mmdb::PPAtom residue_atoms = 0;
 		     int n_residue_atoms;
 		     r1->GetAtomTable(residue_atoms, n_residue_atoms);
 		     for (unsigned int i=0; i<n_residue_atoms; i++) { 
@@ -1121,7 +1121,7 @@ coot::restraints_container_t::general_link_find_close_link_inner(std::vector<std
 }
 
 int coot::restraints_container_t::add_link_plane(std::string link_type,
-						 PCResidue first, PCResidue second,
+						 mmdb::PResidue first, mmdb::PResidue second,
 						 short int is_fixed_first_res,
 						 short int is_fixed_second_res,
 						 const coot::protein_geometry &geom) {
@@ -1133,12 +1133,12 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
    
    int n_plane = 0;
 
-   PPCAtom first_sel;
-   PPCAtom second_sel;
-   PPCAtom atom_sel;  // gets assigned to either first or second
+   mmdb::PPAtom first_sel;
+   mmdb::PPAtom second_sel;
+   mmdb::PPAtom atom_sel;  // gets assigned to either first or second
    int n_first_res_atoms, n_second_res_atoms;
    int link_res_n_atoms; // gets assigned to either n_first_res_atoms, n_second_res_atoms
-   PCResidue res; 
+   mmdb::PResidue res; 
 
    first->GetAtomTable(first_sel,   n_first_res_atoms); 
    second->GetAtomTable(second_sel, n_second_res_atoms);

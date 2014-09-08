@@ -34,7 +34,7 @@
 // alt_conf is an optional arg.
 // 
 RDKit::RWMol
-coot::rdkit_mol(CResidue *residue_p, const coot::protein_geometry &geom) {
+coot::rdkit_mol(mmdb::Residue *residue_p, const coot::protein_geometry &geom) {
 
    if (! residue_p) {
       throw std::runtime_error("Null residue in coot::rdkit_mol()");
@@ -67,7 +67,7 @@ coot::rdkit_mol(CResidue *residue_p, const coot::protein_geometry &geom) {
 // alt_conf is an optional argument, default "".
 // undelocalize is an optional argument, default false
 RDKit::RWMol
-coot::rdkit_mol(CResidue *residue_p,
+coot::rdkit_mol(mmdb::Residue *residue_p,
 		const coot::dictionary_residue_restraints_t &restraints,
 		const std::string &alt_conf,
 		bool do_undelocalize) {
@@ -85,7 +85,7 @@ coot::rdkit_mol(CResidue *residue_p,
    m.setProp("_Name", n);
    
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    // this is so that we don't add multiple copies of an atom with
    // the same name (that is, only add the first atom of a given
@@ -97,7 +97,7 @@ coot::rdkit_mol(CResidue *residue_p,
    // atoms).
    // 
    std::vector<std::string> added_atom_names;
-   std::vector<CAtom *>     added_atoms; // gets added to as added_atom_names gets added to.
+   std::vector<mmdb::Atom *>     added_atoms; // gets added to as added_atom_names gets added to.
    std::map<std::string, int> atom_index;
    int current_atom_id = 0;
    std::vector<int> bonded_atoms; // vector of the atoms that we will
@@ -108,11 +108,11 @@ coot::rdkit_mol(CResidue *residue_p,
    
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (unsigned int iat_1=0; iat_1<n_residue_atoms; iat_1++) {
-      CAtom *at_1 = residue_atoms[iat_1];
+      mmdb::Atom *at_1 = residue_atoms[iat_1];
       if (! at_1->Ter) {
 	 std::string atom_name_1(at_1->name);
 	 if (debug)
-	    std::cout << "rdkit_mol() handling atom " << iat_1 << " with CResidue atom name "
+	    std::cout << "rdkit_mol() handling atom " << iat_1 << " with mmdb::Residue atom name "
 		      << atom_name_1 << std::endl;
 	 std::string atom_alt_conf(at_1->altLoc);
 	 if (atom_alt_conf == alt_conf) { 
@@ -122,7 +122,7 @@ coot::rdkit_mol(CResidue *residue_p,
 		  // is the atom to wich atom_name_1 is bonded in the
 		  // atoms of the residue?
 		  for (unsigned int iat_2=0; iat_2<n_residue_atoms; iat_2++) {
-		     CAtom *at_2 = residue_atoms[iat_2];
+		     mmdb::Atom *at_2 = residue_atoms[iat_2];
 		     std::string atom_name_2 = at_2->name;
 		     if (atom_name_2 == restraints.bond_restraint[ib].atom_id_2_4c()) {
 			found_a_bonded_atom = true;
@@ -134,7 +134,7 @@ coot::rdkit_mol(CResidue *residue_p,
 		  // is the atom to wich atom_name_1 is bonded in the
 		  // atoms of the residue?
 		  for (unsigned int iat_2=0; iat_2<n_residue_atoms; iat_2++) {
-		     CAtom *at_2 = residue_atoms[iat_2];
+		     mmdb::Atom *at_2 = residue_atoms[iat_2];
 		     std::string atom_name_2 = at_2->name;
 		     if (atom_name_2 == restraints.bond_restraint[ib].atom_id_1_4c()) {
 			found_a_bonded_atom = true;
@@ -157,7 +157,7 @@ coot::rdkit_mol(CResidue *residue_p,
 
    for (unsigned int iat=0; iat<bonded_atoms.size(); iat++) {
 
-      CAtom *at = residue_atoms[bonded_atoms[iat]];
+      mmdb::Atom *at = residue_atoms[bonded_atoms[iat]];
       std::string atom_name(at->name);
       if (debug)
 	 std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " bonded_atoms " 
@@ -364,7 +364,7 @@ coot::rdkit_mol(CResidue *residue_p,
 	 int idx_2 = -1; // unset
 
 	 // we can't run through n_residue_atoms because the atom in the
-	 // CResidue may not have been added to the atom in the rdkit
+	 // mmdb::Residue may not have been added to the atom in the rdkit
 	 // molecule (as is the case for an alt conf).
 
 	 for (unsigned int iat=0; iat<m.getNumAtoms(); iat++) {
@@ -630,7 +630,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 // should kekulize flag be an argmuent?
 // 
 RDKit::RWMol
-coot::rdkit_mol_sanitized(CResidue *residue_p, const protein_geometry &geom) {
+coot::rdkit_mol_sanitized(mmdb::Residue *residue_p, const protein_geometry &geom) {
 
    RDKit::RWMol mol = coot::rdkit_mol(residue_p, geom);
    rdkit_mol_sanitize(mol);
@@ -726,13 +726,13 @@ coot::convert_bond_type(const std::string &t) {
 // used in the rdkit_mol() "constructor".
 // 
 RDKit::Atom::ChiralType
-coot::get_chiral_tag(CResidue *residue_p,
+coot::get_chiral_tag(mmdb::Residue *residue_p,
 		     const dictionary_residue_restraints_t &restraints,
-		     CAtom *atom_p) {
+		     mmdb::Atom *atom_p) {
 
    RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED; // as yet
    
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    std::string atom_name = atom_p->name;
@@ -1119,23 +1119,23 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 
 // returns NULL on fail. Caller deletes.
 //
-CResidue *
+mmdb::Residue *
 coot::make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name) {
 
-   CResidue *residue_p = NULL;
+   mmdb::Residue *residue_p = NULL;
    lig_build::molfile_molecule_t mol = coot::make_molfile_molecule(rdkm, iconf);
 
-   // now convert mol to a CResidue *
+   // now convert mol to a mmdb::Residue *
    // 
    if (mol.atoms.size()) {
-      residue_p = new CResidue;
+      residue_p = new mmdb::Residue;
       residue_p->seqNum = 1;
       residue_p->SetResName(res_name.c_str());
-      CChain *chain_p = new CChain;
+      mmdb::Chain *chain_p = new mmdb::Chain;
       chain_p->SetChainID("");
       chain_p->AddResidue(residue_p);
       for (unsigned int iat=0; iat<mol.atoms.size(); iat++) { 
-	 CAtom *at = new CAtom;
+	 mmdb::Atom *at = new mmdb::Atom;
 	 std::string atom_name = mol.atoms[iat].name; // overridden hopefully
 	 at->SetAtomName(atom_name.c_str());
 	 at->SetElementName(mol.atoms[iat].element.c_str());
@@ -1341,7 +1341,7 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
 // This calls undelocalise.  Is that what we want to do?
 // 
 std::pair<bool, std::string>
-coot::add_hydrogens_with_rdkit(CResidue *residue_p,
+coot::add_hydrogens_with_rdkit(mmdb::Residue *residue_p,
 			      const coot::dictionary_residue_restraints_t &restraints) {
 
    bool r = 0;
@@ -1355,7 +1355,7 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 	 // have.
 	 //
 	 std::vector<std::string> existing_H_names;
-	 PPCAtom residue_atoms = 0;
+	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
@@ -1427,7 +1427,7 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 		  std::string name = "";
 		  try {
 		     at_p->getProp("name", name);
-		     CAtom *res_atom = residue_p->GetAtom(name.c_str());
+		     mmdb::Atom *res_atom = residue_p->GetAtom(name.c_str());
 		     if (res_atom) {
 			std::cout << "setting heavy atom " << name << " to "
 				  << r_pos << std::endl;
@@ -1459,7 +1459,7 @@ coot::add_hydrogens_with_rdkit(CResidue *residue_p,
 			   int n = at_p->getAtomicNum();
 			   std::string element = tbl->getElementSymbol(n);
 			
-			   CAtom *at = new CAtom;
+			   mmdb::Atom *at = new mmdb::Atom;
 			   at->SetAtomName(name.c_str());
 			   // at->SetElementName(element.c_str()); // FIXME?
 			   at->SetElementName(" H");  // PDBv3 FIXME
@@ -2310,15 +2310,15 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
 // should be in rdkit-interface.hh/cc?)
 // 
 // ignore alt confs.
-void coot::update_coords(RDKit::RWMol *mol_p, int iconf, CResidue *residue_p) {
+void coot::update_coords(RDKit::RWMol *mol_p, int iconf, mmdb::Residue *residue_p) {
 
    int n_atoms;
-   PPCAtom residue_atoms = NULL;
+   mmdb::PPAtom residue_atoms = NULL;
    residue_p->GetAtomTable(residue_atoms, n_atoms);
    RDKit::Conformer &conf = mol_p->getConformer(iconf);
    for (unsigned int iat=0; iat<n_atoms; iat++) {
       std::string residue_atom_name(residue_atoms[iat]->name);
-      CAtom *r_at = residue_atoms[iat];
+      mmdb::Atom *r_at = residue_atoms[iat];
       for (unsigned int jat=0; jat<n_atoms; jat++) { 
 	 RDKit::ATOM_SPTR at_p = (*mol_p)[jat];
 	 try {

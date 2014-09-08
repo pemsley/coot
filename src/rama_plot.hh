@@ -47,7 +47,7 @@ typedef GnomeCanvasPoints GtkCanvasPoints;
 // ------------------------ End of Canvas stuff ------------------------------
 
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "clipper/core/ramachandran.h"
 #include "coot-utils/coot-rama.hh"
 
@@ -99,7 +99,7 @@ namespace coot {
 
    // the container class with the residue spec -> phi-psi map (associative array)
    //
-   // generating from a CMMDBManager makes a vector of these (one for each model).
+   // generating from a mmdb::Manager makes a vector of these (one for each model).
    // 
    class phi_psis_for_model_t {
 
@@ -242,8 +242,8 @@ class rama_plot {
                       // corresponding residue in the B chain (in the above example it is 100).
    int get_seqnum_2(int seqnum_1) const;
    void set_seqnum_offset(int imol1, int imol2,
-			  CMMDBManager *mol1,
-			  CMMDBManager *mol2,
+			  mmdb::Manager *mol1,
+			  mmdb::Manager *mol2,
 			  const std::string &chain_id_1,
 			  const std::string &chain_id_2);
    util::phi_psi_t green_box;
@@ -285,12 +285,12 @@ public:
    void set_n_diffs(int nd);
 
 
-   // The graphics interface, given that you have a CMMDBManager. 
+   // The graphics interface, given that you have a mmdb::Manager. 
    // 
-   void draw_it(CMMDBManager *mol);
-   void draw_it(int imol1, int imol2, CMMDBManager *mol1, CMMDBManager *mol2); // no chain ids.
+   void draw_it(mmdb::Manager *mol);
+   void draw_it(int imol1, int imol2, mmdb::Manager *mol1, mmdb::Manager *mol2); // no chain ids.
    void draw_it(int imol1, int imol2,
-		CMMDBManager *mol1, CMMDBManager *mol2,
+		mmdb::Manager *mol1, mmdb::Manager *mol2,
 		const std::string &chain_id_1, const std::string &chain_id_2);
    
    void draw_it(const util::phi_psi_t &phipsi);
@@ -304,16 +304,16 @@ public:
    void black_border();
    void cell_border(int i, int j, int step);
 
-   void generate_phi_psis(CMMDBManager *mol);
-   void generate_phi_psis(CMMDBManager *mol, bool primary_flag);
-   void generate_secondary_phi_psis(CMMDBManager *mol);
-   void generate_phi_psis_by_selection(CMMDBManager *mol,
+   void generate_phi_psis(mmdb::Manager *mol);
+   void generate_phi_psis(mmdb::Manager *mol, bool primary_flag);
+   void generate_secondary_phi_psis(mmdb::Manager *mol);
+   void generate_phi_psis_by_selection(mmdb::Manager *mol,
 				       bool is_primary_flag,
 				       int SelectionHandle);
 				       
 
    
-   void generate_phi_psis(CMMDBManager *mol, int SelectionHandle);
+   void generate_phi_psis(mmdb::Manager *mol, int SelectionHandle);
    
    void generate_phi_psis_debug();
 
@@ -348,11 +348,11 @@ public:
 
    // Not sure about this yet
 //    void add_phi_psi(std::vector <util::phi_psi_t> *phi_psi_vec,
-// 		    CMMDBManager *mol, const char *chain_id,
-// 		    CResidue *prev, CResidue *this_res, CResidue *next_res);
+// 		    mmdb::Manager *mol, const char *chain_id,
+// 		    mmdb::Residue *prev, mmdb::Residue *this_res, mmdb::Residue *next_res);
 
-   util::phi_psi_pair_helper_t make_phi_psi_pair(CMMDBManager *mol1,
-						 CMMDBManager *mol2,
+   util::phi_psi_pair_helper_t make_phi_psi_pair(mmdb::Manager *mol1,
+						 mmdb::Manager *mol2,
 						 const std::string &chain_id1,
 						 const std::string &chain_id2,
 						 int resno,
@@ -360,7 +360,7 @@ public:
 
    // SelResidue is guaranteed to have 3 residues (there is no protection
    // for that in this function).
-   std::pair<bool, util::phi_psi_t> get_phi_psi(PCResidue *SelResidue) const;
+   std::pair<bool, util::phi_psi_t> get_phi_psi(mmdb::PResidue *SelResidue) const;
 
    void map_mouse_pos(double x, double y);
    void mouse_motion_notify(GdkEventMotion *event, double x, double y);
@@ -371,18 +371,18 @@ public:
    gint button_press_backbone_edit (GtkWidget *widget, GdkEventButton *event); 
 
    void draw_phi_psis_on_canvas(char *filename);
-   // void update_canvas(CMMDBManager *mol);  // mol was updated(?)
+   // void update_canvas(mmdb::Manager *mol);  // mol was updated(?)
 
    void draw_2_phi_psi_sets_on_canvas(char *file1, char *file2);
-   void draw_2_phi_psi_sets_on_canvas(CMMDBManager *mol1, 
-				      CMMDBManager *mol2);
-   void draw_2_phi_psi_sets_on_canvas(CMMDBManager *mol1, 
-				      CMMDBManager *mol2,
+   void draw_2_phi_psi_sets_on_canvas(mmdb::Manager *mol1, 
+				      mmdb::Manager *mol2);
+   void draw_2_phi_psi_sets_on_canvas(mmdb::Manager *mol1, 
+				      mmdb::Manager *mol2,
 				      std::string chain_id1, std::string chain_id2);
 
    void draw_phi_psi_differences(); 
 
-   CMMDBManager *rama_get_mmdb_manager(std::string pdb_name);
+   mmdb::Manager *rama_get_mmdb_manager(std::string pdb_name);
    // void tooltip_like_box(int i, short int is_seconary);
    void tooltip_like_box(const mouse_util_t &t); 
    int draw_phi_psi_as_gly(const util::phi_psi_t &phi_psi); 

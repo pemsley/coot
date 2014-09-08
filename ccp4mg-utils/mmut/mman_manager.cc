@@ -102,18 +102,18 @@ PCSASArea CMMANManager::GetSASArea ( int selHndin ) {
   if ( !p_sas ) 
     p_sas = new CSASArea( dynamic_cast<PCMMUTManager>(this),selHndin );
 
-  udd_atomSAS = GetUDDHandle( UDR_ATOM,"atom_sas");
+  udd_atomSAS = GetUDDHandle( mmdb::UDR_ATOM,"atom_sas");
   if (udd_atomSAS <= 0 )
-    udd_atomSAS = RegisterUDReal ( UDR_ATOM,"atom_sas" );
+    udd_atomSAS = RegisterUDReal ( mmdb::UDR_ATOM,"atom_sas" );
   //cout << "udd_atomSAS " << udd_atomSAS << endl;
   if ( udd_atomSAS <= 0 ) {
     printf ( "ERROR registering UDD atom SAS data.\n" );
     return NULL;
   }
 
-  udd_resSAS = GetUDDHandle( UDR_RESIDUE,"residue_sas");
+  udd_resSAS = GetUDDHandle( mmdb::UDR_RESIDUE,"residue_sas");
   if (udd_resSAS <= 0 )
-    udd_resSAS = RegisterUDReal ( UDR_RESIDUE,"residue_sas" );
+    udd_resSAS = RegisterUDReal ( mmdb::UDR_RESIDUE,"residue_sas" );
   if ( udd_resSAS <= 0 ) {
     printf ( "ERROR registering UDD residue SAS data.\n" );
     return NULL;
@@ -132,8 +132,8 @@ return p_sbase;
 std::string CMMANManager::GetMolBonds (std::string monlib_file) {
 //-----------------------------------------------------------------------
   int nres,natoms,i;
-  PPCAtom atomTable = NULL;
-  PPCResidue selRes = NULL;
+  mmdb::PPAtom atomTable = NULL;
+  mmdb::PPResidue selRes = NULL;
   std::string output;
   int selHnd = -1;
 
@@ -163,7 +163,7 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
     GetAtomTable1(atomTable,natoms);
 
   if ( udd_sbaseCompoundID < 0 ) {
-    udd_sbaseCompoundID = RegisterUDString(UDR_RESIDUE,"sbaseCompoundID" );
+    udd_sbaseCompoundID = RegisterUDString(mmdb::UDR_RESIDUE,"sbaseCompoundID" );
     if ( udd_sbaseCompoundID < 0 ) {
       printf ( "ERROR registering sbase CompoundID data.\n" );
       return "";
@@ -171,7 +171,7 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
   }
 
   if (udd_sbaseAtomOrdinal < 0) {
-    udd_sbaseAtomOrdinal = RegisterUDInteger(UDR_ATOM,"sbaseAtomOrdinal" );
+    udd_sbaseAtomOrdinal = RegisterUDInteger(mmdb::UDR_ATOM,"sbaseAtomOrdinal" );
     if ( udd_sbaseAtomOrdinal < 0 ) {
       printf ( "ERROR registering sbase AtomOrdinal data.\n" );
       return "";
@@ -179,7 +179,7 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
   }
 
   if (udd_atomEnergyType < 0) {
-    udd_atomEnergyType = RegisterUDInteger(UDR_ATOM,"atomEnergyType" );
+    udd_atomEnergyType = RegisterUDInteger(mmdb::UDR_ATOM,"atomEnergyType" );
     if ( udd_atomEnergyType < 0 ) {
        printf ( "ERROR registering atom EnergyType data.\n" );
        return "";
@@ -194,10 +194,10 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
 
   
   //int selH = NewSelection();
-  //Select(selH,STYPE_ATOM,"/*/*/(ASP,ASN,LYS,TYR,LEU,GLU,GLN,HIS,SER,PHE,TRP,PRO,ARG,MET,CYS)/1HB,1HD1,1HE2,1HH1",SKEY_NEW);
-  //Select(selH,STYPE_ATOM,"/*/*/(A,C,T,G,U)/C2*",SKEY_OR);
+  //Select(selH,mmdb::STYPE_ATOM,"/*/*/(ASP,ASN,LYS,TYR,LEU,GLU,GLN,HIS,SER,PHE,TRP,PRO,ARG,MET,CYS)/1HB,1HD1,1HE2,1HH1",mmdb::SKEY_NEW);
+  //Select(selH,mmdb::STYPE_ATOM,"/*/*/(A,C,T,G,U)/C2*",SKEY_OR);
   //int nat;
-  //PPCAtom selat;
+  //mmdb::PPAtom selat;
   //GetSelIndex(selH, selat, nat );
   //cout << "unremediated nat " << nat << endl;
   //if (nat>0) { 
@@ -215,7 +215,7 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
   } else {
     int resSelHnd;
     resSelHnd = NewSelection();
-    Select (resSelHnd,STYPE_RESIDUE,selHnd,SKEY_OR); 
+    Select (resSelHnd,mmdb::STYPE_RESIDUE,selHnd,SKEY_OR); 
     GetSelIndex ( resSelHnd, selRes, nres );
   }
 
@@ -256,7 +256,7 @@ std::string CMMANManager::GetMolBonds (std::string monlib_file) {
 }
 
 //-----------------------------------------------------------------------
-int CMMANManager::EditBonds (int mode, PCAtom p_atom1, PCAtom p_atom2) {
+int CMMANManager::EditBonds (int mode, mmdb::PAtom p_atom1, mmdb::PAtom p_atom2) {
 //-----------------------------------------------------------------------
   if (!p_bonds) return 1;
   if (mode < 0) 
@@ -278,17 +278,17 @@ int CMMANManager::EditBonds (int mode, PCAtom p_atom1, PCAtom p_atom2) {
 //---------------------------------------------------------------------
 int CMMANManager::SetupAtomEnergyTypes () {
 //---------------------------------------------------------------------
-  PPCResidue resTable = NULL;
-  PPCAtom atomTable = NULL;
+  mmdb::PPResidue resTable = NULL;
+  mmdb::PPAtom atomTable = NULL;
   int i,j,nres,nat;
-  PCResidue p_res;
+  mmdb::PResidue p_res;
   pstr compoundID = NULL;
   PCSBStructure p_sbase_struct;
   cpstr atomType;
   int atomOrdinal;
   PCSBAtom p_sbase_atom;
 
-  udd_atomEnergyType = RegisterUDInteger(UDR_ATOM,"atomEnergyType" );
+  udd_atomEnergyType = RegisterUDInteger(mmdb::UDR_ATOM,"atomEnergyType" );
   if ( udd_atomEnergyType < 0 ) {
     printf ( "ERROR registering atomEnergyType data.\n" );
     return 1;
@@ -351,7 +351,7 @@ int CMMANManager::GetAtomTypeData ( int selHnd, int type,
                                 rvector &dataout, int &nat ) {
 //--------------------------------------------------------------------------
 
-  PPCAtom atomTable;
+  mmdb::PPAtom atomTable;
   int i;
   int atomOrdinal;
 
@@ -394,7 +394,7 @@ Return an array of radii for selected atoms - expected to be used in
 drawing spheres etc.
 */
 
-  PPCAtom atomTable;
+  mmdb::PPAtom atomTable;
   int nat,i;
   int atomOrdinal;
   std::vector<double> atomRadii;
@@ -437,7 +437,7 @@ drawing spheres etc.
 }
 
 //--------------------------------------------------------------------
-int CMMANManager::GetAtomEnergyType(PCAtom p_atom) {
+int CMMANManager::GetAtomEnergyType(mmdb::PAtom p_atom) {
 //--------------------------------------------------------------------
   int atomType;
   p_atom->GetUDData(udd_atomEnergyType, atomType);
@@ -445,7 +445,7 @@ int CMMANManager::GetAtomEnergyType(PCAtom p_atom) {
 }
 
 //---------------------------------------------------------------------
-realtype CMMANManager::GetAtomVDWRadius(PCAtom p_atom) {
+mmdb::realtype CMMANManager::GetAtomVDWRadius(mmdb::PAtom p_atom) {
 //---------------------------------------------------------------------
   int atomType;
   p_atom->GetUDData(udd_atomEnergyType, atomType);
@@ -455,9 +455,9 @@ realtype CMMANManager::GetAtomVDWRadius(PCAtom p_atom) {
 
 //--------------------------------------------------------------------------
 int CMMANManager::GetAtomTypeData ( int selHnd, int type,
-                                ivector &dataout, int &nat ) {
+                                mmdb::ivector &dataout, int &nat ) {
 //--------------------------------------------------------------------------
-  PPCAtom atomTable;
+  mmdb::PPAtom atomTable;
   int i;
   int atomOrd;
 
@@ -482,7 +482,7 @@ int CMMANManager::GetAtomTypeData ( int selHnd, int type,
 }
 
 //---------------------------------------------------------------------
-int CMMANManager::GetAtomHBondType1(PCAtom p_atom) {
+int CMMANManager::GetAtomHBondType1(mmdb::PAtom p_atom) {
 //---------------------------------------------------------------------
   int atomOrd;
   std::string name;
@@ -491,7 +491,7 @@ int CMMANManager::GetAtomHBondType1(PCAtom p_atom) {
   return p_sbase->libAtom[atomOrd].hbType;
 }
 //---------------------------------------------------------------------
-const char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
+const char* CMMANManager::GetAtomHBondType(mmdb::PAtom p_atom) {
 //---------------------------------------------------------------------
   int atomOrd;
   p_atom->GetUDData(udd_atomEnergyType, atomOrd);
@@ -505,7 +505,7 @@ const char* CMMANManager::GetAtomHBondType(PCAtom p_atom) {
 //---------------------------------------------------------------------
 int CMMANManager::LoadCharge(std::string loadfrom ) {
 //---------------------------------------------------------------------
-  PPCAtom atomTable = NULL;
+  mmdb::PPAtom atomTable = NULL;
   int i,nat,udd;
   int atomOrd,atomEtype;
   PCSBStructure pSbaseRes=NULL;
@@ -513,9 +513,9 @@ int CMMANManager::LoadCharge(std::string loadfrom ) {
 
 
   if (useUDD) {
-    udd = GetUDDHandle( UDR_ATOM,"atom_charge");
+    udd = GetUDDHandle( mmdb::UDR_ATOM,"atom_charge");
     if (udd <= 0 )
-      udd = RegisterUDReal ( UDR_ATOM,"atom_charge" );
+      udd = RegisterUDReal ( mmdb::UDR_ATOM,"atom_charge" );
     //cout << "udd " << udd << endl;
     if ( udd <= 0 ) {
       printf ( "ERROR registering UDD atom charge data.\n" );
@@ -594,12 +594,12 @@ std::string CMMANManager::PrintCharges(void) {
   //char AtomID[30];
   std::string AtomID;
   bool useUDD =0;
-  realtype charge;
-  PPCAtom atomTable = NULL;
+  mmdb::realtype charge;
+  mmdb::PPAtom atomTable = NULL;
   int i,nat,udd;
 
   if (useUDD) {
-    udd = GetUDDHandle( UDR_ATOM,"atom_charge");
+    udd = GetUDDHandle( mmdb::UDR_ATOM,"atom_charge");
     if (udd <= 0 ) {
       output << "No charges loaded";
       return output.str();
@@ -626,7 +626,7 @@ std::string CMMANManager::PrintCharges(void) {
 }
  
 //-------------------------------------------------------------------- 
-pstr CMMANManager::GetSbaseCompoundID(PCAtom p_atom) {
+pstr CMMANManager::GetSbaseCompoundID(mmdb::PAtom p_atom) {
 //--------------------------------------------------------------------
   pstr sbaseCompoundID = NULL;
   p_atom->residue->GetUDData(udd_sbaseCompoundID,sbaseCompoundID);
@@ -634,7 +634,7 @@ pstr CMMANManager::GetSbaseCompoundID(PCAtom p_atom) {
 }
 
 //---------------------------------------------------------------------
-pstr CMMANManager::GetSbaseCompoundID(PCResidue p_res) {
+pstr CMMANManager::GetSbaseCompoundID(mmdb::PResidue p_res) {
 //---------------------------------------------------------------------
   pstr sbaseCompoundID = NULL;
   p_res->GetUDData(udd_sbaseCompoundID,sbaseCompoundID);
@@ -642,7 +642,7 @@ pstr CMMANManager::GetSbaseCompoundID(PCResidue p_res) {
 }
 
 //-------------------------------------------------------------------
-int CMMANManager::GetSbaseAtomOrdinal(PCAtom p_atom) {
+int CMMANManager::GetSbaseAtomOrdinal(mmdb::PAtom p_atom) {
 //-------------------------------------------------------------------
   int sbaseAtomOrdinal;
   p_atom->GetUDData(udd_sbaseAtomOrdinal,sbaseAtomOrdinal);
@@ -656,13 +656,13 @@ void CMMANManager::SetLabelMask(int i,int value) {
 }
 
 //---------------------------------------------------------------------
-std::string CMMANManager::AtomLabel(PCAtom p_atom) {
+std::string CMMANManager::AtomLabel(mmdb::PAtom p_atom) {
 //--------------------------------------------------------------------
   return AtomLabel(p_atom, &label_mask[0]);
 }
 
 //--------------------------------------------------------------------
-std::string CMMANManager::AtomLabel(PCAtom p_atom,int mask[]) {
+std::string CMMANManager::AtomLabel(mmdb::PAtom p_atom,int mask[]) {
 //--------------------------------------------------------------------
 /*
 There is a simpler version of this method in CMMUTManager which
@@ -797,7 +797,7 @@ label << " " << p_atom->x << " " << p_atom->y << " " << p_atom->z;
 }
 
 //-----------------------------------------------------------------------
-std::string CMMANManager::ListSecStructure (int mask_in[] , PCAtom pAtom) {
+std::string CMMANManager::ListSecStructure (int mask_in[] , mmdb::PAtom pAtom) {
 //-----------------------------------------------------------------------
   // Return a string with one SSE defined per line -
   // for use  in GUI listing SSEs
@@ -807,7 +807,7 @@ std::string CMMANManager::ListSecStructure (int mask_in[] , PCAtom pAtom) {
   int label_mask2[20] = {0,0,0,1,1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
   std::ostringstream output;
   int           nr;
-  PPCResidue  selRes=NULL;
+  mmdb::PPResidue  selRes=NULL;
   int mask[7];
   int last_sec = -1;
   int last_i = -1;
@@ -881,7 +881,7 @@ std::string CMMANManager::ListSecStructure (int mask_in[] , PCAtom pAtom) {
 
 
 //----------------------------------------------------------------------
-int CMMANManager::TestBonding ( PCAtom patom1, PCAtom patom2, int max ) {
+int CMMANManager::TestBonding ( mmdb::PAtom patom1, mmdb::PAtom patom2, int max ) {
 //----------------------------------------------------------------------
 // For pair of atoms return 2=bonded, 3=1,3 liked, 4=1-4 linked, 
 // 5=compatible Hbond types
@@ -937,7 +937,7 @@ int CMMANManager::TestBonding ( PCAtom patom1, PCAtom patom2, int max ) {
 }
 
 //---------------------------------------------------------------------
-void CMMANManager::ListBonds(int selHnd,int natoms,PPCAtom selAtom) {
+void CMMANManager::ListBonds(int selHnd,int natoms,mmdb::PPAtom selAtom) {
 //---------------------------------------------------------------------
   // List the bonds
   PSAtomBond AtomBond;
@@ -962,7 +962,7 @@ void CMMANManager::ListBonds(int selHnd,int natoms,PPCAtom selAtom) {
 }
 
 //--------------------------------------------------------------------
-int CMMANManager::RestoreData (PCMMDBManager restore_molHnd, int mode) {
+int CMMANManager::RestoreData (mmdb::PManager restore_molHnd, int mode) {
 //--------------------------------------------------------------------
 /*
 Restore data from an already loaded instance of CMMANManager
@@ -971,8 +971,8 @@ mode will determine the properties that are restored
 mode MMAN_COORDINATES - restore coordinates only
 */
   int nAtoms,nRestoreAtoms,i;
-  PPCAtom atoms = NULL;
-  PPCAtom restoreAtoms = NULL;
+  mmdb::PPAtom atoms = NULL;
+  mmdb::PPAtom restoreAtoms = NULL;
   GetAtomTable1(atoms,nAtoms);
   restore_molHnd->GetAtomTable1(restoreAtoms,nRestoreAtoms);
   if ( nAtoms != nRestoreAtoms) return 1;
@@ -1023,7 +1023,7 @@ mode MMAN_COORDINATES - restore coordinates only
 }
 
 //---------------------------------------------------------------------------
-int CMMANManager::MoveFragment(int nMove, PPCAtom moveAtoms, Cartesian dxyz){
+int CMMANManager::MoveFragment(int nMove, mmdb::PPAtom moveAtoms, Cartesian dxyz){
 //--------------------------------------------------------------------------- 
   /*
   Move a defined set of atoms
@@ -1042,8 +1042,8 @@ int CMMANManager::MoveFragment(int nMove, PPCAtom moveAtoms, Cartesian dxyz){
 int CMMANManager::LoadUDDData( const int property ) { 
 //-----------------------------------------------------------------------
   int selHnd;
-  PPCAtom atomTable = NULL;
-  PPCResidue resTable = NULL;
+  mmdb::PPAtom atomTable = NULL;
+  mmdb::PPResidue resTable = NULL;
   int nAtoms,nRes;
   int udd;
 
@@ -1051,15 +1051,15 @@ int CMMANManager::LoadUDDData( const int property ) {
 
   switch (property) {
   case PROPERTY_SEC:
-    udd = GetUDDHandle ( UDR_RESIDUE,"tmp_res_int" );
+    udd = GetUDDHandle ( mmdb::UDR_RESIDUE,"tmp_res_int" );
     if (udd <= 0 ) {
       udd = -1;
-      udd = RegisterUDInteger ( UDR_RESIDUE,"tmp_res_int" );
+      udd = RegisterUDInteger ( mmdb::UDR_RESIDUE,"tmp_res_int" );
       if (udd <= 0 ) return udd;
     }
     selHnd = NewSelection();
-    Select(selHnd,STYPE_RESIDUE,0,"*",ANY_RES,
-       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+    Select(selHnd,mmdb::STYPE_RESIDUE,0,"*",mmdb::ANY_RES,
+       "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
     GetSelIndex(selHnd,resTable,nRes);
     for (int j=0;j<nRes;j++) {
        resTable[j]->PutUDData(udd,resTable[j]->SSE);
@@ -1070,37 +1070,37 @@ int CMMANManager::LoadUDDData( const int property ) {
     break;
 
   case PROPERTY_ATOM_SAS:
-    udd = GetUDDHandle( UDR_ATOM,"atom_sas");
+    udd = GetUDDHandle( mmdb::UDR_ATOM,"atom_sas");
     return udd;
     break;
   case PROPERTY_RES_SAS:
-    udd = GetUDDHandle( UDR_RESIDUE,"residue_sas");
+    udd = GetUDDHandle( mmdb::UDR_RESIDUE,"residue_sas");
     return udd;
     break;
   case PROPERTY_ATOM_CONTACT:
-    udd = GetUDDHandle( UDR_ATOM,"atom_contact");
+    udd = GetUDDHandle( mmdb::UDR_ATOM,"atom_contact");
     return udd;
     break;
   case PROPERTY_RES_CONTACT:
-    udd = GetUDDHandle( UDR_RESIDUE,"residue_contact");
+    udd = GetUDDHandle( mmdb::UDR_RESIDUE,"residue_contact");
     return udd;
     break; 
   }
 
 
   //Copy some data such as b or x into a UDD
-  udd = GetUDDHandle ( UDR_ATOM,"tmp_atom_real" );
+  udd = GetUDDHandle ( mmdb::UDR_ATOM,"tmp_atom_real" );
   if (udd <= 0 ) {
     udd = -1;
-    udd = RegisterUDReal ( UDR_ATOM,"tmp_atom_real" );
+    udd = RegisterUDReal ( mmdb::UDR_ATOM,"tmp_atom_real" );
     if (udd <= 0 ) return udd;
   }
   //cout << "Property udd " << udd << endl;
 
   // Loop over all atoms to do a copy 
   selHnd = NewSelection();
-  Select(selHnd,STYPE_ATOM,0,"*",ANY_RES,
-         "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+  Select(selHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,
+         "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
   GetSelIndex(selHnd,atomTable,nAtoms);
  
   switch (property) {
@@ -1146,7 +1146,7 @@ int CMMANManager::LoadUDDData( const int property ) {
 
 
 
-CMMANManager* GetMMANManager(PCAtom pAtom) {
+CMMANManager* GetMMANManager(mmdb::PAtom pAtom) {
   return  (PCMMANManager)(PCMMDBFile)pAtom->GetCoordHierarchy();
 }
 
@@ -1156,7 +1156,7 @@ std::string CMMANManager::GetSymOpTitle(int nsym,int i,int j,int k) {
 //---------------------------------------------------------------------
   std::ostringstream output;
   CSymOp SymOp;      
-  mat44 TMatrix;
+  mmdb::mat44 TMatrix;
   char symOpTitle[100]; 
 
   if (nsym < 0 || nsym >= GetNumberOfSymOps()) return output.str();
@@ -1177,8 +1177,8 @@ int CMMANManager::GenerateSymmetryModel(int model,int nsym,int i,int j,int k) {
 //------------------------------------------------------------------------
   // Apply transformation
   int new_model;
-  PCModel p_model;
-  mat44 TMatrix;
+  mmdb::PModel p_model;
+  mmdb::mat44 TMatrix;
 
   new_model =  CopyModel(model);
   p_model = GetModel(new_model);
@@ -1190,8 +1190,8 @@ int CMMANManager::GenerateSymmetryModel(int model,int nsym,int i,int j,int k) {
 int CMMANManager::ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,int undo_nsym,int undo_i,int undo_j,int undo_k) {
 //------------------------------------------------------------------------
   // Apply transformation
-  mat44 TMatrix, invTMatrix, multTMatrix;
-  PCModel p_model;
+  mmdb::mat44 TMatrix, invTMatrix, multTMatrix;
+  mmdb::PModel p_model;
 
   p_model = GetModel(model);
   if (p_model == NULL) return 1;
@@ -1220,11 +1220,11 @@ int CMMANManager::ApplySymmetrytoModel(int model,int nsym,int i,int j,int k,int 
 int CMMANManager::IfSymmetryNeighbours(int selHnd, int model, int nsym, 
                  int i, int j, int k, double dist ) {
 //-----------------------------------------------------------------------
-  mat44 TMatrix;
-  PSContact contact = NULL; 
+  mmdb::mat44 TMatrix;
+  mmdb::Contact *contact = NULL; 
   int ncontacts; 
   int   maxlen = 0;
-  PPCAtom selAtoms=NULL, modelAtoms=NULL;
+  mmdb::PPAtom selAtoms=NULL, modelAtoms=NULL;
   int modelSelHnd, nSelAtoms, nModelAtoms;
 
   if ( dist < 0.1 || dist > 100.0 ) dist = 10.0;
@@ -1235,8 +1235,8 @@ int CMMANManager::IfSymmetryNeighbours(int selHnd, int model, int nsym,
   } 
 
   modelSelHnd = NewSelection();
-  Select(modelSelHnd,STYPE_ATOM,model,"*",ANY_RES,
-       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+  Select(modelSelHnd,mmdb::STYPE_ATOM,model,"*",mmdb::ANY_RES,
+       "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
   GetSelIndex(modelSelHnd,modelAtoms,nModelAtoms);
   if ( nModelAtoms <= 0 ) {
     DeleteSelection(modelSelHnd);
@@ -1260,18 +1260,18 @@ int CMMANManager::IfSymmetryNeighbours(int selHnd, int model, int nsym,
 //------------------------------------------------------------------------
 int CMMANManager::CopyModel(int model) {
 //------------------------------------------------------------------------
-  PCModel new_model;
+  mmdb::PModel new_model;
   
-  new_model = new CModel();
+  new_model = new mmdb::Model();
   new_model->Copy(GetModel(model));
   AddModel(new_model);
-  PDBCleanup(PDBCLEAN_SERIAL);
+  PDBCleanup(mmdb::PDBCLEAN_SERIAL);
   //cout << "serNum " << new_model->GetSerNum();
 
   // Copy atom types and bonds
   int selHnd1,selHnd2;
-  PPCAtom p_atom1,p_atom2;
-  PPCResidue p_res1,p_res2;
+  mmdb::PPAtom p_atom1,p_atom2;
+  mmdb::PPResidue p_res1,p_res2;
   int ia2,nat1,nat2,nb,eType,RC,udd;
   char S[100];
   PSAtomBond bonds;
@@ -1280,10 +1280,10 @@ int CMMANManager::CopyModel(int model) {
   selHnd2 = NewSelection();
 
   // Copy residue UDD
-  Select(selHnd1,STYPE_RESIDUE,model,"*",ANY_RES, 
-       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
-  Select(selHnd2,STYPE_RESIDUE,new_model->GetSerNum(),"*",ANY_RES, 
-       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+  Select(selHnd1,mmdb::STYPE_RESIDUE,model,"*",mmdb::ANY_RES, 
+       "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
+  Select(selHnd2,mmdb::STYPE_RESIDUE,new_model->GetSerNum(),"*",mmdb::ANY_RES, 
+       "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
   GetSelIndex(selHnd1, p_res1, nat1);
   GetSelIndex(selHnd2, p_res2, nat2);
   for ( int ia=0;ia<nat1;ia++) {
@@ -1291,10 +1291,10 @@ int CMMANManager::CopyModel(int model) {
     RC = p_res2[ia]->PutUDData(udd_sbaseCompoundID, eType);
   }  
 
-  Select(selHnd1,STYPE_ATOM,model,"*",ANY_RES, 
-       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
-  Select(selHnd2,STYPE_ATOM,new_model->GetSerNum(),"*",ANY_RES, 
-       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+  Select(selHnd1,mmdb::STYPE_ATOM,model,"*",mmdb::ANY_RES, 
+       "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
+  Select(selHnd2,mmdb::STYPE_ATOM,new_model->GetSerNum(),"*",mmdb::ANY_RES, 
+       "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
   GetSelIndex(selHnd1, p_atom1, nat1);
   GetSelIndex(selHnd2, p_atom2, nat2);
   //cout << "nat1,nat2 " << nat1 << " " << nat2 << endl;
@@ -1306,10 +1306,10 @@ int CMMANManager::CopyModel(int model) {
     RC = p_atom2[ia]->PutUDData(udd_sbaseAtomOrdinal, eType);
   }
 
-  udd = GetUDDHandle ( UDR_ATOM,"tmp_atom_int" );
+  udd = GetUDDHandle ( mmdb::UDR_ATOM,"tmp_atom_int" );
   if (udd <= 0 ) {
     udd = -1;
-    udd = RegisterUDInteger( UDR_ATOM,"tmp_atom_int" );
+    udd = RegisterUDInteger( mmdb::UDR_ATOM,"tmp_atom_int" );
   }
 
   // Put incremental index in udd 
@@ -1361,8 +1361,8 @@ int CMMANManager::SelectChainTermini( void ) {
   Return a selection handle for set of CA atoms of N/C chain termini residues
   This is used for labelling the termini
   */
-  PPCChain chainTable = NULL;
-  PPCResidue resTable = NULL;
+  Pmmdb::PChain chainTable = NULL;
+  mmdb::PPResidue resTable = NULL;
   int nChains,nRes,iser1,iser2;
 
   int tmpHnd = NewSelection();
@@ -1401,8 +1401,8 @@ int CMMANManager::SelectSSETermini( int selHnd ) {
   Return a selection handle for set of CA atoms of SSE termini residues
   This is used for labelling the termini
   */
-  PPCResidue resTable = NULL;
-  PCAtom pCA,pCA0;
+  mmdb::PPResidue resTable = NULL;
+  mmdb::PAtom pCA,pCA0;
   int nRes,iser1,iser2;
   int nr, nr0, current_SSE;
   int resSelHnd;
@@ -1411,7 +1411,7 @@ int CMMANManager::SelectSSETermini( int selHnd ) {
   
   if (selHnd>=0) {
     resSelHnd = NewSelection();
-    Select(resSelHnd,STYPE_RESIDUE,selHnd,SKEY_NEW);
+    Select(resSelHnd,mmdb::STYPE_RESIDUE,selHnd,mmdb::SKEY_NEW);
     GetSelIndex(resSelHnd,resTable,nRes);
   } else {
     noSelHnd = true;
@@ -1459,7 +1459,7 @@ int CMMANManager::SelectSSETermini( int selHnd ) {
 }
 
 //-----------------------------------------------------------------
-bool CMMANManager::isAminoacid (PCResidue pres) {
+bool CMMANManager::isAminoacid (mmdb::PResidue pres) {
 //-----------------------------------------------------------------
   pstr sbaseCompoundID=NULL;
   PCSBStructure  pSbRes;
@@ -1476,10 +1476,10 @@ bool CMMANManager::isAminoacid (PCResidue pres) {
     return pres->isAminoacid();
   } else {
     if ( pres->chain->GetModel()->GetSerNum()>1) {
-      PCChain pc = NULL;
+      mmdb::PChain pc = NULL;
       if (GetModel(1) != NULL) pc = GetModel(1)->GetChain(pres->chain->GetChainID());
       if (!pc)  return  pres->isAminoacid();
-      PCResidue pres1= pc->GetResidue(pres->seqNum,pres->insCode);
+      mmdb::PResidue pres1= pc->GetResidue(pres->seqNum,pres->insCode);
       if (!pres1) return  pres->isAminoacid();
       pres1->GetUDData(udd_sbaseCompoundID,sbaseCompoundID);
     } else {
@@ -1509,7 +1509,7 @@ bool CMMANManager::isAminoacid (PCResidue pres) {
 }
 
 //------------------------------------------------------------------------
-int CMMANManager::GetRestypeCode ( PCResidue pres ) {
+int CMMANManager::GetRestypeCode ( mmdb::PResidue pres ) {
 //------------------------------------------------------------------------
   pstr sbaseCompoundID=NULL;
   PCSBStructure  pSbRes;
@@ -1577,13 +1577,13 @@ int CMMANManager::GetRestypeCode ( PCResidue pres ) {
 
 }
 
-int CMMANManager::SetCustomRestype ( const std::string &resname , const int &restype , Boolean clear ) {
+int CMMANManager::SetCustomRestype ( const std::string &resname , const int &restype , bool clear ) {
   //cout << "SetCustomRestype " << resname << " " << restype << endl;
   if (clear) customResTypes.clear();
   customResTypes[resname]=restype;
   return customResTypes.size();
 }
-int CMMANManager::SetCustomResSynonym ( const std::string &resname , const std::string &alias , Boolean clear ) {
+int CMMANManager::SetCustomResSynonym ( const std::string &resname , const std::string &alias , bool clear ) {
   if (clear) customResSynonym.clear();
   customResSynonym[resname]=alias;
   return customResSynonym.size();
@@ -1591,17 +1591,17 @@ int CMMANManager::SetCustomResSynonym ( const std::string &resname , const std::
 
 //------------------------------------------------------------------------
 int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
-                                const realtype cutoff ) {
+                                const mmdb::realtype cutoff ) {
 //------------------------------------------------------------------------
   // Remove atoms closer that cutoff distance from a selection
   //std::cout << "ExcludeOverlappedAtoms\n";
   int tmpHnd1,tmpHnd2;
-  PPCAtom selAtoms1=NULL;
-  PPCAtom selAtoms2=NULL;
+  mmdb::PPAtom selAtoms1=NULL;
+  mmdb::PPAtom selAtoms2=NULL;
   int nat1,nat2;
-  PSContact contacts = NULL;
+  mmdb::Contact *contacts = NULL;
   int ncontacts;
-  mat44 * TMatrix=0;
+  mmdb::mat44 * TMatrix=0;
   int iser1,iser2;
   int ndel = 0;
 
@@ -1612,10 +1612,10 @@ int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
   for(int imodel=1;imodel<=nmodels;imodel++){
  
     // Copy the selection
-    Select(tmpHnd1,STYPE_ATOM,imodel,"*", ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
-    Select(tmpHnd1,STYPE_ATOM,selHnd,SKEY_AND);
-    Select(tmpHnd2,STYPE_ATOM,imodel,"*", ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
-    Select(tmpHnd2,STYPE_ATOM,selHnd,SKEY_AND);
+    Select(tmpHnd1,mmdb::STYPE_ATOM,imodel,"*", mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
+    Select(tmpHnd1,mmdb::STYPE_ATOM,selHnd,SKEY_AND);
+    Select(tmpHnd2,mmdb::STYPE_ATOM,imodel,"*", mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
+    Select(tmpHnd2,mmdb::STYPE_ATOM,selHnd,SKEY_AND);
     selAtoms1 = NULL;
     selAtoms2 = NULL;
     
@@ -1639,7 +1639,7 @@ int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
         // beware each contact listed twice
         if ( iser1 > iser2 ) {
           iser2 = iser1;
-          SelectAtoms(selHnd,iser1,iser2,SKEY_XOR);
+          SelectAtoms(selHnd,iser1,iser2,mmdb::SKEY_XOR);
           ndel++;
         }
       } }
@@ -1655,7 +1655,7 @@ int CMMANManager::ExcludeOverlappedAtoms ( const int selHnd ,  \
 }
 
 int CMMANManager::SetTransform ( const matrix tMat, const bool reset) {
-   mat44 TMatrix;
+   mmdb::mat44 TMatrix;
    for (int i = 0;i<4;i++) {
      for (int j = 0;j<4;j++) {
        TMatrix[j][i]=tMat(j,i);
@@ -1668,7 +1668,7 @@ int CMMANManager::SetTransform ( const matrix tMat, const bool reset) {
 
 int CMMANManager::SetTransform ( const std::vector<float>& transf , const std::vector<float>& transl , const bool reset) {
 
-  mat44 TMatrix;
+  mmdb::mat44 TMatrix;
 
   if ( transf.size() != 9 || transl.size() != 3) {
     if (reset) {
@@ -1705,7 +1705,7 @@ int CMMANManager::SetTransform ( const std::vector<float>& transf , const std::v
 void CMMANManager::UnSetTransform(bool apply_inverse) {
   //cout << "UnSetTransform isTransformed " << isTransformed << endl; 
   if (isTransformed && apply_inverse) {
-    mat44 InvMatrix;
+    mmdb::mat44 InvMatrix;
     Mat4Inverse(current_transform,InvMatrix);
     ApplyTransform(InvMatrix);
   }
@@ -1716,20 +1716,20 @@ void CMMANManager::UnSetTransform(bool apply_inverse) {
 }
 
 
-int CMMANManager::SetTransform ( const realtype rot ,const std::vector<float>& axis , const int selHndin) {
-  mat44 Tmat;
+int CMMANManager::SetTransform ( const mmdb::realtype rot ,const std::vector<float>& axis , const int selHndin) {
+  mmdb::mat44 Tmat;
   int selHnd;
 
   if ((!transform_com_set) || selHndin>0 ) {
-    PPCAtom atomTable;
+    mmdb::PPAtom atomTable;
     int nAtoms;
-    realtype xx=0.0,yy=0.0,zz=0.0;
+    mmdb::realtype xx=0.0,yy=0.0,zz=0.0;
     if (selHndin > 0 ) {
       selHnd = selHndin;
     } else {
       selHnd = NewSelection();
-      Select(selHnd,STYPE_ATOM,0,"*",ANY_RES,
-       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+      Select(selHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,
+       "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
     }
     GetSelIndex(selHnd,atomTable,nAtoms);
     //cout <<" selHndin " << selHndin << " nAtoms " << nAtoms << endl;
@@ -1759,11 +1759,11 @@ int CMMANManager::SetTransform ( const realtype rot ,const std::vector<float>& a
 
 
 
-int CMMANManager::SetTransform (mat44 &TMatrix , const bool reset) {
+int CMMANManager::SetTransform (mmdb::mat44 &TMatrix , const bool reset) {
 
   if (reset) UnSetTransform();
 
-  mat44 newMatrix;
+  mmdb::mat44 newMatrix;
   
   ApplyTransform(TMatrix);
   
@@ -1840,14 +1840,14 @@ std::string CMMANManager::GetTransformString() {
 }
 
 //----------------------------------------------------------------------------
-int CMMANManager::TransformToSuperposeAtoms (  PPCAtom A1, int nA, PPCAtom A2) {
+int CMMANManager::TransformToSuperposeAtoms (  mmdb::PPAtom A1, int nA, mmdb::PPAtom A2) {
 //-----------------------------------------------------------------------------
   /*
   Atom set A1 should be in this model and are the 'moving' atoms
   Atom set A2 can be in another model and are the 'fixed' atoms
-  This method avoids need to pass a mat44 to Python
+  This method avoids need to pass a mmdb::mat44 to Python
   */
-  mat44 TMatrix;
+  mmdb::mat44 TMatrix;
   int rv = SuperposeAtoms ( TMatrix, A1, nA, A2 );
   if (rv == SPOSEAT_Ok) {
     SetTransform (TMatrix,0);
@@ -1855,11 +1855,11 @@ int CMMANManager::TransformToSuperposeAtoms (  PPCAtom A1, int nA, PPCAtom A2) {
   return rv;
 }
 //----------------------------------------------------------------------------
-double CMMANManager::DeltaResidueOrientation (PCResidue pRes,PCResidue pResFx) {
+double CMMANManager::DeltaResidueOrientation (mmdb::PResidue pRes,mmdb::PResidue pResFx) {
 //-----------------------------------------------------------------------------
   // Create selection of atoms that will be superposed
-  PCAtom mvAtoms[5];
-  PCAtom fxAtoms[5];
+  mmdb::PAtom mvAtoms[5];
+  mmdb::PAtom fxAtoms[5];
   int nat=0;
   const char *names[] = { "CA" , "N", "C", "CB" };
 
@@ -1870,7 +1870,7 @@ double CMMANManager::DeltaResidueOrientation (PCResidue pRes,PCResidue pResFx) {
   }
   if (nat<0) return -10.0;
   
-  mat44 TMatrix;
+  mmdb::mat44 TMatrix;
   int rv = SuperposeAtoms ( TMatrix, mvAtoms, nat,fxAtoms );
   if (rv != SPOSEAT_Ok)return -10.0;
   double ld=0.0;
@@ -1884,13 +1884,13 @@ double CMMANManager::DeltaResidueOrientation (PCResidue pRes,PCResidue pResFx) {
 
 //------------------------------------------------------------------------
 int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd, 
-         int fxSelHnd , realtype central_cutoff, realtype cutoff ,
+         int fxSelHnd , mmdb::realtype central_cutoff, mmdb::realtype cutoff ,
          int mvSuperposeHnd,int fxSuperposeHnd ) {
 //------------------------------------------------------------------------
-  PPCAtom fxSelAtoms = NULL;
+  mmdb::PPAtom fxSelAtoms = NULL;
   int fxNAtoms;
   int fxResHnd;
-  PPCResidue fxRes = NULL;
+  mmdb::PPResidue fxRes = NULL;
   int fxNRes;
 
   // Max possible number of superposed atoms
@@ -1900,7 +1900,7 @@ int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd,
   
   //Get list of target residues
   fxResHnd = fxMolHnd->NewSelection();
-  fxMolHnd->Select(fxResHnd,STYPE_RESIDUE,fxSelHnd,SKEY_NEW);
+  fxMolHnd->Select(fxResHnd,mmdb::STYPE_RESIDUE,fxSelHnd,mmdb::SKEY_NEW);
   fxMolHnd->GetSelIndex(fxResHnd,fxRes,fxNRes);
   //cout << "fxNAtoms,fxNRes " << fxNAtoms << " " << fxNRes << endl;
   if (fxNRes<=0) {
@@ -1911,25 +1911,25 @@ int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd,
   // Create selection of atoms that will be superposed
   //mvSuperposeHnd = NewSelection();
   //fxSuperposeHnd = fxMolHnd->NewSelection();
-  PPCAtom fxSuperpose = NULL;
-  PPCAtom mvSuperpose = NULL;
+  mmdb::PPAtom fxSuperpose = NULL;
+  mmdb::PPAtom mvSuperpose = NULL;
   int fxNSuperpose,mvNSuperpose;
 
 
   //Get the 'central' atoms in the moving model
   int centralHnd = NewSelection();
-  PPCAtom centralAtoms;
+  mmdb::PPAtom centralAtoms;
   int centralNAtoms;
-  Select(centralHnd,STYPE_ATOM,0,"*",ANY_RES,
-       "*",ANY_RES, "*","*","CA","C","*",SKEY_NEW);
+  Select(centralHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,
+       "*",mmdb::ANY_RES, "*","*","CA","C","*",mmdb::SKEY_NEW);
   GetSelIndex(centralHnd,centralAtoms,centralNAtoms);
   //cout << "centralNAtoms " << centralNAtoms << endl;
 
   // Loop over residues in fixed model
 
-  PCAtom pCentralAtom;
-  PCResidue closeRes;
-  PCAtom fxAtom,closeAtom;
+  mmdb::PAtom pCentralAtom;
+  mmdb::PResidue closeRes;
+  mmdb::PAtom fxAtom,closeAtom;
   int ncontacts,best_match;
   double score,best_score;
 
@@ -1940,7 +1940,7 @@ int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd,
 
     pCentralAtom = fxRes[ir]->GetAtom("CA","*","*");
     if (pCentralAtom) {
-      PSContact contact= NULL;
+      mmdb::Contact *contact= NULL;
       ncontacts = 0;
       SeekContacts (pCentralAtom,centralAtoms,centralNAtoms,
 		    0.0, central_cutoff,0,contact,ncontacts,-1);
@@ -2009,11 +2009,11 @@ int CMMANManager::TransformToSuperposeCloseAtoms( PCMMANManager fxMolHnd,
   }
 }
 
-int CMMANManager::CopyCoordinates(const PCMMDBManager fromMolHnd,int fromModel) {
+int CMMANManager::CopyCoordinates(const mmdb::PManager fromMolHnd,int fromModel) {
   /*
   Copy coordinates - assume same number of atoms in both models
   */
-  PPCAtom toAtoms=NULL, fromAtoms=NULL;
+  mmdb::PPAtom toAtoms=NULL, fromAtoms=NULL;
   int toSelHnd,fromSelHnd, toNat, fromNat;
 
   if (GetNumberOfModels() == 1) {
@@ -2021,13 +2021,13 @@ int CMMANManager::CopyCoordinates(const PCMMDBManager fromMolHnd,int fromModel) 
     toSelHnd = -1;
   } else { 
     toSelHnd = NewSelection();
-    Select(toSelHnd,STYPE_ATOM,1,"*",ANY_RES,
-       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+    Select(toSelHnd,mmdb::STYPE_ATOM,1,"*",mmdb::ANY_RES,
+       "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
     GetSelIndex(toSelHnd,toAtoms,toNat);
   }
   fromSelHnd = fromMolHnd->NewSelection();
-  fromMolHnd->Select(fromSelHnd,STYPE_ATOM,fromModel,"*",ANY_RES,
-       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+  fromMolHnd->Select(fromSelHnd,mmdb::STYPE_ATOM,fromModel,"*",mmdb::ANY_RES,
+       "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
   fromMolHnd->GetSelIndex(fromSelHnd,fromAtoms,fromNat);
   if (fromNat != toNat ) {
     cout << "ERROR copying coordinates - different number of atoms" << endl;
@@ -2052,23 +2052,23 @@ int CMMANManager::CopyCoordinates(const PCMMDBManager fromMolHnd,int fromModel) 
 }
 
 //---------------------------------------------------------------------------
-int CMMANManager::LoadSerial(const PCMMDBManager fromMolHnd ) {
+int CMMANManager::LoadSerial(const mmdb::PManager fromMolHnd ) {
 //---------------------------------------------------------------------------
 
   /*
   Copy serial numbers from one MMDBManager to UDD of another MMDBManager
   */
-  PPCAtom toAtoms=NULL, fromAtoms=NULL;
+  mmdb::PPAtom toAtoms=NULL, fromAtoms=NULL;
   int toSelHnd,fromSelHnd, toNat, fromNat;
 
   toSelHnd = NewSelection();
-  Select(toSelHnd,STYPE_ATOM,0,"*",ANY_RES,
-     "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+  Select(toSelHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,
+     "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
   GetSelIndex(toSelHnd,toAtoms,toNat);
 
   fromSelHnd = fromMolHnd->NewSelection();
-  fromMolHnd->Select(fromSelHnd,STYPE_ATOM,0,"*",ANY_RES,
-       "*",ANY_RES, "*","*","*","*","*",SKEY_NEW);
+  fromMolHnd->Select(fromSelHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,
+       "*",mmdb::ANY_RES, "*","*","*","*","*",mmdb::SKEY_NEW);
   fromMolHnd->GetSelIndex(fromSelHnd,fromAtoms,fromNat);
   if (fromNat != toNat ) {
     cout << "ERROR copying serial numbers - different number of atoms" << endl;
@@ -2079,8 +2079,8 @@ int CMMANManager::LoadSerial(const PCMMDBManager fromMolHnd ) {
   }
 
   // Get a UDD identifier
-  int udd_serial =  GetUDDHandle( UDR_ATOM,"atomSerial");
-  if (udd_serial<=0)  udd_serial = RegisterUDInteger(UDR_ATOM,"atomSerial" );
+  int udd_serial =  GetUDDHandle( mmdb::UDR_ATOM,"atomSerial");
+  if (udd_serial<=0)  udd_serial = RegisterUDInteger(mmdb::UDR_ATOM,"atomSerial" );
   if ( udd_serial < 0 ) {
      printf ( "ERROR registering atom serial data.\n" );
      return -1;
@@ -2111,7 +2111,7 @@ std::string CMMANManager::PrintSecStructure (void) {
 
   std::ostringstream output;
   int           nr;
-  PPCResidue    selRes=NULL;
+  mmdb::PPResidue    selRes=NULL;
   std::string resid;
 
   output << "Secondary Structure Assignment based on Kabsch & Sanders"

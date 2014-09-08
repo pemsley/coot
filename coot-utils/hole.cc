@@ -5,7 +5,7 @@
 #include "coot-coord-utils.hh"
 #include "coot-hole.hh"
 
-coot::hole::hole(CMMDBManager *mol_in, 
+coot::hole::hole(mmdb::Manager *mol_in, 
 		 const clipper::Coord_orth &from_pt_in,
 		 const clipper::Coord_orth &to_pt_in,
 		 const coot::protein_geometry &geom) {
@@ -28,16 +28,16 @@ coot::hole::assign_vdw_radii(const coot::protein_geometry &geom) {
 
    double radius; 
    
-   radius_handle = mol->RegisterUDReal(UDR_ATOM, "atom_radius");
+   radius_handle = mol->RegisterUDReal(mmdb::UDR_ATOM, "atom_radius");
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
-	 CResidue *residue_p;
-	 CAtom *at;
+	 mmdb::Residue *residue_p;
+	 mmdb::Atom *at;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    int n_atoms = residue_p->GetNumberOfAtoms();
@@ -60,7 +60,7 @@ coot::hole::assign_vdw_radii(const coot::protein_geometry &geom) {
 	       } else {
 		  std::string ele = at->element;
 		  // make a reasonable default
-		  realtype radius = 1.7;
+		  mmdb::realtype radius = 1.7;
  		  if (ele == " N")
  		     radius = 1.55;
  		  if (ele == " 0")
@@ -79,21 +79,21 @@ void
 coot::hole::debug_atom_radii() const {
 
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 int nres = chain_p->GetNumberOfResidues();
-	 CResidue *residue_p;
-	 CAtom *at;
+	 mmdb::Residue *residue_p;
+	 mmdb::Atom *at;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    int n_atoms = residue_p->GetNumberOfAtoms();
 	    std::string residue_name = residue_p->GetResName();
 	    for (int iat=0; iat<n_atoms; iat++) {
 	       at = residue_p->GetAtom(iat);
-	       realtype radius;
+	       mmdb::realtype radius;
 	       at->GetUDData(radius_handle, radius);
 	       std::cout << "   " << coot::atom_spec_t(at) << " with radius " << radius<< std::endl;
 	    }
@@ -109,16 +109,16 @@ coot::hole::make_atom_selection(int selhnd, const clipper::Coord_orth &pt,
    // what protein atoms are within radius_prev of pt?
 
    mol->SelectAtoms(selhnd, 0, "*",
-		    ANY_RES, "*", ANY_RES, "*",
+		    mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
 		    "!HOH", // residue names
 		    "*", // atom names
 		    "H,C,O,N,S", // elements
 		    "*", "*", "*", // altlocs, segments, charges
 		    -1, -1, // occupancy (no limits)
-		    pt.x(), pt.y(), pt.z(), radius_prev, SKEY_NEW);
+		    pt.x(), pt.y(), pt.z(), radius_prev, mmdb::SKEY_NEW);
 
    if (0) {
-      PPCAtom atom_selection = 0;
+      mmdb::PPAtom atom_selection = 0;
       int n_selected_atoms;
       mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
       std::cout << "in make_atom_selection() selected " << n_selected_atoms
@@ -184,7 +184,7 @@ coot::hole::generate() {
       // if that didn't select atoms, then we increase the radius, try this for up to 10 rounds:
       int n_rounds = 10;
       int i_round = 0;
-      PPCAtom atom_selection = 0;
+      mmdb::PPAtom atom_selection = 0;
       int n_selected_atoms;
       mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
       while ((n_selected_atoms == 0) && (i_round < n_rounds)) { 
@@ -228,7 +228,7 @@ coot::hole::optimize_point(const clipper::Coord_orth &pt, int selhnd) {
    int move_count = 0; // increment if we try to make a move that does not improve
    double biggest_allowed_distance_to_protein = 5.0;
    
-   PPCAtom atom_selection = 0;
+   mmdb::PPAtom atom_selection = 0;
    int n_selected_atoms;
    mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
    // std::cout << "optimize_point(): n_selected_atoms: " << n_selected_atoms
@@ -277,7 +277,7 @@ double
 coot::hole::sphere_size(const clipper::Coord_orth &pt, int selhnd) const {
 
    double r = -1;
-   PPCAtom atom_selection = 0;
+   mmdb::PPAtom atom_selection = 0;
    int n_selected_atoms;
    mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
 
@@ -286,7 +286,7 @@ coot::hole::sphere_size(const clipper::Coord_orth &pt, int selhnd) const {
    
    double largest_possible_sphere = 99999;
    bool was_set = 0;
-   realtype atom_vdw_radius;
+   mmdb::realtype atom_vdw_radius;
 
    for (unsigned int iat=0; iat<n_selected_atoms; iat++) {
       clipper::Coord_orth atom_pos(atom_selection[iat]->x,

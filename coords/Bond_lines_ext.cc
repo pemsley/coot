@@ -25,7 +25,7 @@
 
 #include "Cartesian.h"
 
-#include <mmdb/mmdb_manager.h> 
+#include <mmdb2/mmdb_manager.h> 
 
 #include "mmdb-extras.h"
 #include "mmdb-crystal.h"
@@ -58,13 +58,13 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
       return;
    }
 
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts;
    long i_contact_group = 1;
 
    // matrix stuff
-   mat44 my_matt;
-   CSymOps symm;
+   mmdb::mat44 my_matt;
+   mmdb::SymOps symm;
 
    // update my_matt;  You can't do this if you haven't set the space group.
    // 
@@ -86,7 +86,7 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
    cout << "found " << ncontacts << " bone contacts from "
 	 << SelAtom.n_selected_atoms << " selected bone atoms. " <<  endl;
 
-   PPCAtom atom_sel = SelAtom.atom_selection; // shorter form
+   mmdb::PPAtom atom_sel = SelAtom.atom_selection; // shorter form
  
    if (ncontacts > 0) {
       
@@ -129,13 +129,13 @@ Bond_lines_ext::find_molecule_middle(atom_selection_container_t SelAtom,
       return centre;
    }
 
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts;
    long i_contact_group = 1;
 
    // matrix stuff
-   mat44 my_matt;
-   CSymOps symm;
+   mmdb::mat44 my_matt;
+   mmdb::SymOps symm;
 
    // update my_matt;  You can't do this if you haven't set the space group.
    // 
@@ -157,7 +157,7 @@ Bond_lines_ext::find_molecule_middle(atom_selection_container_t SelAtom,
    cout << "found " << ncontacts << " bone contacts from "
 	 << SelAtom.n_selected_atoms << " selected bone atoms. " <<  endl;
 
-   PPCAtom atom_sel = SelAtom.atom_selection; // shorter form
+   mmdb::PPAtom atom_sel = SelAtom.atom_selection; // shorter form
  
    if (ncontacts > 0) {
 

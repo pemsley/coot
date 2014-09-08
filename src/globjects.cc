@@ -79,7 +79,7 @@
 #include "drag-and-drop.hh"
 #include "interface.h"
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 #include "coords/mmdb-crystal.h"
@@ -706,7 +706,7 @@ int graphics_info_t::rot_trans_atom_index_1 = -1;
 int graphics_info_t::rot_trans_atom_index_2 = -1;
 int graphics_info_t::imol_rot_trans_object = -1; 
 // int graphics_info_t::rot_trans_atom_index_rotation_origin_atom = -1; // old
-CAtom *graphics_info_t::rot_trans_rotation_origin_atom = NULL;
+mmdb::Atom *graphics_info_t::rot_trans_rotation_origin_atom = NULL;
 
 float *graphics_info_t::previous_rot_trans_adjustment = new float[6];
 
@@ -962,8 +962,8 @@ std::string graphics_info_t::align_and_mutate_chain_from_optionmenu;
 int         graphics_info_t::nsv_canvas_pixel_limit = 22500;
 
 // Bob recommends:
-realtype    graphics_info_t::alignment_wgap   = -0.5; // was -3.0;
-realtype    graphics_info_t::alignment_wspace = -0.4;
+mmdb::realtype    graphics_info_t::alignment_wgap   = -0.5; // was -3.0;
+mmdb::realtype    graphics_info_t::alignment_wspace = -0.4;
 
 //
 short int graphics_info_t::in_reverse_direction_define = 0;
@@ -3271,8 +3271,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	       // it is now
 	       std::string at_info = atom_info_as_text_for_statusbar(cl_at.first, cl_at.second);
 	       g.add_status_bar_text(at_info);
-	       CAtom *at = g.molecules[cl_at.second].atom_sel.atom_selection[cl_at.first];
-	       CResidue *residue_p  = at->residue;
+	       mmdb::Atom *at = g.molecules[cl_at.second].atom_sel.atom_selection[cl_at.first];
+	       mmdb::Residue *residue_p  = at->residue;
 	       std::string alt_conf = at->altLoc;
 	       g.setup_graphics_ligand_view(cl_at.second, residue_p, alt_conf);
 	    }
@@ -4029,7 +4029,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	 if ( nearest_atom_index_info.success == GL_TRUE ) {
 	    int im = nearest_atom_index_info.imol;
 	    info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
-	    CResidue          *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
+	    mmdb::Residue          *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
 	    std::string alt_conf = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->altLoc;
 	    info.setup_graphics_ligand_view(im, r, alt_conf);
 	 } else {
@@ -4064,7 +4064,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 	    
 	    int im = nearest_atom_index_info.imol; 
 	    info.molecules[im].add_to_labelled_atom_list(nearest_atom_index_info.atom_index);
-	    CResidue          *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
+	    mmdb::Residue          *r = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->residue;
 	    std::string alt_conf = info.molecules[im].atom_sel.atom_selection[nearest_atom_index_info.atom_index]->altLoc;
 	    info.setup_graphics_ligand_view(im, r, alt_conf);
 	    info.graphics_draw();

@@ -22,33 +22,33 @@
 #include <algorithm>
 #include "coot-coord-utils.hh"
 
-coot::util::water_coordination_t::water_coordination_t(CMMDBManager *mol, realtype radius) {
+coot::util::water_coordination_t::water_coordination_t(mmdb::Manager *mol, mmdb::realtype radius) {
 
    if (! mol)
       return; 
 
-   realtype min_dist = 0.5;
-   realtype max_dist = radius;
+   mmdb::realtype min_dist = 0.5;
+   mmdb::realtype max_dist = radius;
    
-   mat44 my_matt;
-   CSymOps symm;
+   mmdb::mat44 my_matt;
+   mmdb::SymOps symm;
 
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;      
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
-   PCAtom *water_selection = NULL;
+   mmdb::PAtom *water_selection = NULL;
    int n_water_atoms;
-   PCAtom *atom_selection = NULL;
+   mmdb::PAtom *atom_selection = NULL;
    int n_selected_atoms;
    int SelHnd = mol->NewSelection();
    int SelHnd_waters = mol->NewSelection();
 
    mol->SelectAtoms (SelHnd_waters, 0, "*",
-		     ANY_RES, // starting resno, an int
+		     mmdb::ANY_RES, // starting resno, an int
 		     "*", // any insertion code
-		     ANY_RES, // ending resno
+		     mmdb::ANY_RES, // ending resno
 		     "*", // ending insertion code
 		     "HOH", // residue name
 		     "*",   // atname
@@ -57,23 +57,23 @@ coot::util::water_coordination_t::water_coordination_t(CMMDBManager *mol, realty
 		     );
 
    mol->SelectAtoms (SelHnd_waters, 0, "*",
-		     ANY_RES, // starting resno, an int
+		     mmdb::ANY_RES, // starting resno, an int
 		     "*", // any insertion code
-		     ANY_RES, // ending resno
+		     mmdb::ANY_RES, // ending resno
 		     "*", // ending insertion code
 		     "*", // residue name
 		     "*",   // atname
 		     "MG,CA,K,NA,LI,RB,BE,BA,FR,CS,SR",   // metals
 		     "*" ,   // alt loc.
-		     SKEY_OR);
+		     mmdb::SKEY_OR);
    
 
    // c.f. addSymmetry_whole_chain() in Bond-lines.cc 
    
    mol->SelectAtoms (SelHnd, 0, "*",
-		     ANY_RES, // starting resno, an int
+		     mmdb::ANY_RES, // starting resno, an int
 		     "*", // any insertion code
-		     ANY_RES, // ending resno
+		     mmdb::ANY_RES, // ending resno
 		     "*", // ending insertion code
 		     "*", // any residue name
 		     "*",
@@ -84,7 +84,7 @@ coot::util::water_coordination_t::water_coordination_t(CMMDBManager *mol, realty
    mol->GetSelIndex(SelHnd_waters, water_selection, n_water_atoms);
    mol->GetSelIndex(SelHnd,         atom_selection, n_selected_atoms);
 
-   mat44 test_mat;
+   mmdb::mat44 test_mat;
    int i_symm_err = mol->GetTMatrix(test_mat, 0, 0, 0, 0);
 
    if (i_symm_err) { // no symmetry fallback
@@ -108,7 +108,7 @@ coot::util::water_coordination_t::water_coordination_t(CMMDBManager *mol, realty
 }
 
 
-coot::util::contact_atoms_info_t::contact_atom_t::contact_atom_t(CAtom *contactor, CAtom *central_atom) {
+coot::util::contact_atoms_info_t::contact_atom_t::contact_atom_t(mmdb::Atom *contactor, mmdb::Atom *central_atom) {
 
    clipper::Coord_orth co_1(   contactor->x,    contactor->y,    contactor->z);
    clipper::Coord_orth co_2(central_atom->x, central_atom->y, central_atom->z);
@@ -119,7 +119,7 @@ coot::util::contact_atoms_info_t::contact_atom_t::contact_atom_t(CAtom *contacto
 // But don't add them if they are not matching alt confs
 // 
 void
-coot::util::water_coordination_t::add_contact(CAtom *atom_central, CAtom *atom_contactor) {
+coot::util::water_coordination_t::add_contact(mmdb::Atom *atom_central, mmdb::Atom *atom_contactor) {
 
    std::string alt_conf_1 = atom_contactor->altLoc;
    std::string alt_conf_2 = atom_central->altLoc;
@@ -218,18 +218,18 @@ coot::util::water_coordination_t::sort_contacts_func(const coot::util::contact_a
 }
 
 void
-coot::util::water_coordination_t::add_contacts(CMMDBManager *mol, 
-					       PCAtom *water_selection, int n_water_atoms, 
-					       PCAtom *atom_selection, int n_selected_atoms,
-					       realtype min_dist, realtype max_dist,
-					       const mat44 &my_mat) {
+coot::util::water_coordination_t::add_contacts(mmdb::Manager *mol, 
+					       mmdb::PAtom *water_selection, int n_water_atoms, 
+					       mmdb::PAtom *atom_selection, int n_selected_atoms,
+					       mmdb::realtype min_dist, mmdb::realtype max_dist,
+					       const mmdb::mat44 &my_mat) {
 
    
 
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts = 0;
    long i_contact_group = 1;
-   mat44 other_mat;
+   mmdb::mat44 other_mat;
 
    // It's a bit grim that this is needed.  I can't see how to use
    // my_mat in SeekContacts() directly.

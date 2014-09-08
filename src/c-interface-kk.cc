@@ -194,8 +194,8 @@ PyObject *refine_zone_with_score_py(int imol, const char *chain_id,
    PyObject *rv = Py_False;
    
    if (is_valid_model_molecule(imol)) {
-      CResidue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, "");
-      CResidue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, "");
+      mmdb::Residue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, "");
+      mmdb::Residue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, "");
       if (res_1 && res_2) { 
 	 std::string resname_1(res_1->GetResName());
 	 std::string resname_2(res_2->GetResName());
@@ -226,8 +226,8 @@ SCM refine_zone_with_score_scm(int imol, const char *chain_id,
    SCM rv = SCM_BOOL_F;
    
    if (is_valid_model_molecule(imol)) {
-      CResidue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, "");
-      CResidue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, "");
+      mmdb::Residue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, "");
+      mmdb::Residue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, "");
       if (res_1 && res_2) { 
 	 std::string resname_1(res_1->GetResName());
 	 std::string resname_2(res_2->GetResName());
@@ -333,16 +333,16 @@ PyObject *python_representation_kk(int imol) {
    PyObject *r = Py_False;
    
    if (is_valid_model_molecule(imol)) {
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int nchains = mol->GetNumberOfChains(1);
       
       PyObject *chain_list = PyList_New(nchains);
       
       for (int ichain=0; ichain<nchains; ichain++) {
-	 CChain *chain_p = mol->GetChain(1,ichain);
+	 mmdb::Chain *chain_p = mol->GetChain(1,ichain);
 	 PyObject *chain_id = PyString_FromString(chain_p->GetChainID());
          int nres;
-         PCResidue *residues;
+         mmdb::PResidue *residues;
          chain_p->GetResidueTable(residues, nres);
          
          PyObject *chain_info = PyList_New(2);
@@ -350,7 +350,7 @@ PyObject *python_representation_kk(int imol) {
          PyObject *res_list = PyList_New(nres);
          
          for (int ires=0; ires<nres; ires++) {
-            CResidue *this_res = residues[ires];
+            mmdb::Residue *this_res = residues[ires];
             
             //get the residue name, number, and insertion code
             PyObject *res_name, *res_num, *res_inscode;
@@ -376,7 +376,7 @@ PyObject *python_representation_kk(int imol) {
             PyObject *all_atoms = PyList_New(0);
             for (int iat=0; iat<n_atoms; iat++) {
 
-               CAtom *at = this_res->GetAtom(iat);
+               mmdb::Atom *at = this_res->GetAtom(iat);
                if (at->Ter) continue; //ignore TER records
                
                at_x  = PyFloat_FromDouble(at->x);
@@ -395,7 +395,7 @@ PyObject *python_representation_kk(int imol) {
                at_altconf = PyString_FromString(at->altLoc);
 
                at_b = at_biso;
-               if (at->WhatIsSet & ASET_Anis_tFac) {
+               if (at->WhatIsSet & mmdb::ASET_Anis_tFac) {
                   at_b = PyList_New(7);
                   PyList_SetItem(at_b, 0, at_biso);
                   PyList_SetItem(at_b, 1, PyFloat_FromDouble(at->u11));

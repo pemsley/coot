@@ -52,9 +52,9 @@ class ClickedLine {
 void DrawLipids(Displayobject &obj, const std::vector<MMUTLipid> &lipids, CMMANManager *molHnd, AtomColourVector *atom_colour_vector, const CParamsManager &params, const CParamsManager &global_params);
 
 void DrawBasePairs(Displayobject &obj, const CNABasePairs &bp, const SplineInfo &splineinfo, const CParamsManager &params);
-void DrawBaseBlocks(Displayobject &obj, CMMANManager *molHnd, int selHnd, PPCAtom selAtoms, int nSelAtoms, AtomColourVector *atom_colour_vector, const CParamsManager &params);
+void DrawBaseBlocks(Displayobject &obj, CMMANManager *molHnd, int selHnd, mmdb::PPAtom selAtoms, int nSelAtoms, AtomColourVector *atom_colour_vector, const CParamsManager &params);
 
-void DrawAnisoU(Displayobject &obj, int selHndin, PPCAtom selAtoms, int nSelAtoms, AtomColourVector *atom_colour_vector,int style, double scale,const CParamsManager &global_params);
+void DrawAnisoU(Displayobject &obj, int selHndin, mmdb::PPAtom selAtoms, int nSelAtoms, AtomColourVector *atom_colour_vector,int style, double scale,const CParamsManager &global_params);
 
 void DrawSimpleConnection(Displayobject &obj, const std::vector<SimpleConnection> &conn, const std::vector<double> &colour, int style=DASHLINE, int width=1, int labelstyle=NOTLABELLED,std::string labelcolour="");
 

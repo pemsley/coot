@@ -8,7 +8,7 @@ int main(int argc, char **argv) {
 
    if (argc > 1) { 
       std::string filename = argv[1];
-      CMMDBManager *mol = get_mol(filename);
+      mmdb::Manager *mol = get_mol(filename);
       if (mol) { 
 	 water_coordination_check(mol, 3.2);
       }
@@ -19,9 +19,9 @@ int main(int argc, char **argv) {
    return 0;
 }
 
-CMMDBManager *get_mol(const std::string &filename) {
+mmdb::Manager *get_mol(const std::string &filename) {
 
-   CMMDBManager *MMDBManager = new CMMDBManager();
+   mmdb::Manager *MMDBManager = new mmdb::Manager();
    int err = MMDBManager->ReadCoorFile((char *)filename.c_str());
    if (err) {
       std::cout << "Error reading " << filename << std::endl;
@@ -37,19 +37,19 @@ contact_info_t::contacts_less(const contact_info_t &a, const contact_info_t &b) 
    return (b.contact_indices.size() < a.contact_indices.size());
 } 
 
-void water_coordination_check(CMMDBManager *mol, float max_dist) {
+void water_coordination_check(mmdb::Manager *mol, float max_dist) {
 
    // Make 2 atom selections,
    //    1) the whole molecule
    //    2) the waters
    // Then do a distance check between them:
 
-   PCAtom *whole_protein_atom_sel;
+   mmdb::PAtom *whole_protein_atom_sel;
    int SelectionHandle = mol->NewSelection();
    mol->SelectAtoms (SelectionHandle, 0, "*",
-		     ANY_RES, // starting resno, an int
+		     mmdb::ANY_RES, // starting resno, an int
 		     "*", // any insertion code
-		     ANY_RES, // ending resno
+		     mmdb::ANY_RES, // ending resno
 		     "*", // ending insertion code
 		     "*", // any residue name
 		     "*", // atom name
@@ -59,12 +59,12 @@ void water_coordination_check(CMMDBManager *mol, float max_dist) {
    int nSelAtoms_all;
    mol->GetSelIndex(SelectionHandle, whole_protein_atom_sel, nSelAtoms_all);
 
-   PCAtom *waters_atom_sel = 0;
+   mmdb::PAtom *waters_atom_sel = 0;
    int SelectionHandle_waters = mol->NewSelection();
    mol->SelectAtoms (SelectionHandle_waters, 0, "*",
-		     ANY_RES, // starting resno, an int
+		     mmdb::ANY_RES, // starting resno, an int
 		     "*", // any insertion code
-		     ANY_RES, // ending resno
+		     mmdb::ANY_RES, // ending resno
 		     "*", // ending insertion code
 		     "WAT,HOH", // any residue name
 		     "*", // atom name
@@ -77,13 +77,13 @@ void water_coordination_check(CMMDBManager *mol, float max_dist) {
    std::cout << "All Atoms: " << nSelAtoms_all << "   waters: " << nSelAtoms_waters
 	     << std::endl;
 
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
    long i_contact_group = 1;
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts;
    
    mol->SeekContacts(whole_protein_atom_sel, nSelAtoms_all,
@@ -98,8 +98,8 @@ void water_coordination_check(CMMDBManager *mol, float max_dist) {
    }
    
    for (int i=0; i< ncontacts; i++) {
-      CAtom *at = waters_atom_sel[contact[i].id2];
-      CAtom *pat = whole_protein_atom_sel[contact[i].id1];
+      mmdb::Atom *at = waters_atom_sel[contact[i].id2];
+      mmdb::Atom *pat = whole_protein_atom_sel[contact[i].id1];
       std::string p_ele(pat->element);
       std::string w_ele(at->element);
       if (p_ele != " C") {
@@ -126,13 +126,13 @@ void water_coordination_check(CMMDBManager *mol, float max_dist) {
 
    for (int i=0; i<atom_contacts.size(); i++) {
       std::cout << "index: " << atom_contacts[i].this_index << std::endl;
-      CAtom *at = waters_atom_sel[atom_contacts[i].this_index];
+      mmdb::Atom *at = waters_atom_sel[atom_contacts[i].this_index];
       std::cout << "at: " << at << std::endl;
       std::cout << atom_contacts[i].this_index << " " << at->GetResName() << " "
 		<< at->GetSeqNum() << " " << at->GetChainID() << " has "
 		<< atom_contacts[i].contact_indices.size() << " contacts\n";
       for (int j=0; j<atom_contacts[i].contact_indices.size(); j++) {
-	 CAtom *pat = whole_protein_atom_sel[atom_contacts[i].contact_indices[j]];
+	 mmdb::Atom *pat = whole_protein_atom_sel[atom_contacts[i].contact_indices[j]];
 	 std::string p_ele(pat->element);
 	 std::cout << "   "
 		   << pat->GetAtomName() << " " << pat->GetResName() << " "

@@ -24,10 +24,10 @@
 #include "ideal-rna.hh"
 #include "base-pairing.hh"
 
-CResidue *
-coot::watson_crick_partner(CResidue *res_ref, CMMDBManager *standard_residues) {
+mmdb::Residue *
+coot::watson_crick_partner(mmdb::Residue *res_ref, mmdb::Manager *standard_residues) {
 
-   CResidue *res = NULL;
+   mmdb::Residue *res = NULL;
    std::string nucleic_acid_type = "DNA";
    std::string form = "A"; // overriden later if nucleic_acid_type is "RNA";
 
@@ -119,22 +119,22 @@ coot::watson_crick_partner(CResidue *res_ref, CMMDBManager *standard_residues) {
    ir.use_v3_names();
    std::cout << "::::::::::: nucleic_acid_type " << nucleic_acid_type << std::endl;
    std::cout << "::::::::::: nucleic_acid form " << form << std::endl;
-   CMMDBManager *mol = ir.make_molecule();
+   mmdb::Manager *mol = ir.make_molecule();
 
    clipper::RTop_orth rtop;
    bool rtop_is_good = 0;
 
    if (mol) { 
       int imod = 1;
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       if (nchains == 2) { 
 	 chain_p = model_p->GetChain(0);
 	 int nres = chain_p->GetNumberOfResidues();
 	 if (nres == 1) { 
-	    CResidue *res_moving = chain_p->GetResidue(0);
+	    mmdb::Residue *res_moving = chain_p->GetResidue(0);
 	    // we need to match res_moving onto res_ref atom by atom
 	    std::pair<bool, clipper::RTop_orth> m =
 	       coot::base_pair_match_matix(res_ref, res_moving);
@@ -161,7 +161,7 @@ coot::watson_crick_partner(CResidue *res_ref, CMMDBManager *standard_residues) {
       }
    }
 
-   CResidue *rres = NULL;
+   mmdb::Residue *rres = NULL;
    if (res) {
       rres = coot::util::deep_copy_this_residue(res);
    }
@@ -171,7 +171,7 @@ coot::watson_crick_partner(CResidue *res_ref, CMMDBManager *standard_residues) {
 
 
 std::pair<bool, clipper::RTop_orth> 
-coot::base_pair_match_matix(CResidue *res_ref, CResidue *res_mov) {
+coot::base_pair_match_matix(mmdb::Residue *res_ref, mmdb::Residue *res_mov) {
    
    std::string res_name = res_ref->GetResName();
    bool is_pyrimidine = 0;
@@ -232,15 +232,15 @@ coot::base_pair_match_matix(CResidue *res_ref, CResidue *res_mov) {
       std::vector<clipper::Coord_orth> ref_pts;
       std::vector<clipper::Coord_orth> mov_pts;
       int found_atoms = 0;
-      PCAtom *ref_atoms = NULL;
-      PCAtom *mov_atoms = NULL;
+      mmdb::PAtom *ref_atoms = NULL;
+      mmdb::PAtom *mov_atoms = NULL;
       int n_ref_atoms = 0;
       int n_mov_atoms = 0;
       res_ref->GetAtomTable( ref_atoms, n_ref_atoms);
       res_mov->GetAtomTable( mov_atoms, n_mov_atoms);
       for (unsigned int i=0; i<base_atom_names.size(); i++) {
-	 CAtom *at_ref = NULL;
-	 CAtom *at_mov = NULL;
+	 mmdb::Atom *at_ref = NULL;
+	 mmdb::Atom *at_mov = NULL;
 	 for (int iref=0; iref<n_ref_atoms; iref++) {
 	    std::string ref_atom_name = ref_atoms[iref]->name;
 	    if (ref_atom_name == base_atom_names[i]) { 

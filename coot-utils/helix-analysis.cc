@@ -4,20 +4,20 @@
 
 
 void
-coot::helix_params_container_t::make(CMMDBManager *mol_in, const std::string chain_id,
+coot::helix_params_container_t::make(mmdb::Manager *mol_in, const std::string chain_id,
 				     int resno_helix_start, int resno_helix_end) {
 
    mol = mol_in;
    int imod = 1;
-   CModel *model_p = mol->GetModel(imod);
-   CChain *chain_p;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
    int n_chains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<n_chains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       if (chain_id == chain_p->GetChainID()) { 
 	 int nres = chain_p->GetNumberOfResidues();
-	 CResidue *residue_p;
-	 CAtom *at;
+	 mmdb::Residue *residue_p;
+	 mmdb::Atom *at;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
 	    int resno = residue_p->GetSeqNum();
@@ -43,7 +43,7 @@ coot::helix_params_container_t::make(CMMDBManager *mol_in, const std::string cha
 // get the set of atoms starting from the given residue serial number.
 coot::atom_quad
 coot::helix_params_container_t::get_quad(const std::string &atom_name,
-					 CChain *chain_p,
+					 mmdb::Chain *chain_p,
 					 int res_serial_no) {
 
    atom_quad quad;
@@ -51,9 +51,9 @@ coot::helix_params_container_t::get_quad(const std::string &atom_name,
    for (int ires=0; ires<4; ires++) {
       int isr = res_serial_no + ires;
       if (isr < nres) {
-	 CResidue *res_p = chain_p->GetResidue(isr);
+	 mmdb::Residue *res_p = chain_p->GetResidue(isr);
 	 if (res_p) {
-	    CAtom *at = res_p->GetAtom(atom_name.c_str());
+	    mmdb::Atom *at = res_p->GetAtom(atom_name.c_str());
 	    if (at) {
 	       if (ires == 0) quad.atom_1 = at;
 	       if (ires == 1) quad.atom_2 = at;

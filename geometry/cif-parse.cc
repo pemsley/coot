@@ -56,7 +56,7 @@ int
 coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_number_in) {
 
    int ret_val = 0; 
-   CMMCIFFile ciffile;
+   mmdb::mmcif::File ciffile;
 
    // Here we would want to check through dict_res_restraints for the
    // existance of this restraint.  If it does exist, kill it by
@@ -90,13 +90,16 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
       std::string comp_id_1; 
       std::string comp_id_2;  // initially unset
    
-      if (ierr!=CIFRC_Ok) {
+      if (ierr!=mmdb::mmcif::CIFRC_Ok) {
 	 std::cout << "dirty mmCIF file? " << ciffilename.c_str() << std::endl;
-	 std::cout << "    Bad CIFRC_Ok on ReadMMCIFFile" << std::endl;
-	 std::cout << "    " << GetErrorDescription(ierr) << std::endl;
-	 char        err_buff[1000];
-	 std::cout <<  "CIF error rc=" << ierr << " reason:" << 
-	    GetCIFMessage (err_buff,ierr) << std::endl;
+	 std::cout << "    Bad mmdb::mmcif::CIFRC_Ok on ReadMMCIFFile" << std::endl;
+
+	 std::cout << "    " << mmdb::GetErrorDescription(mmdb::ERROR_CODE(ierr))
+		   << std::endl;
+	 
+ 	 char        err_buff[1000];
+ 	 std::cout <<  "CIF error rc=" << ierr << " reason:" << 
+ 	    mmdb::mmcif::GetCIFMessage (err_buff, ierr) << std::endl;
 
       } else {
 	 if (verbose_mode)
@@ -105,7 +108,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
       
 	 for(int idata=0; idata<ciffile.GetNofData(); idata++) { 
          
-	    PCMMCIFData data = ciffile.GetCIFData(idata);
+	    mmdb::mmcif::PData data = ciffile.GetCIFData(idata);
 	    
 	    // note that chem_link goes here to:
 	    // 
@@ -142,13 +145,13 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	    std::vector<std::string> comp_ids_for_chirals;
 	    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
 
-	       PCMMCIFCategory cat = data->GetCategory(icat);
+	       mmdb::mmcif::PCategory cat = data->GetCategory(icat);
 	       std::string cat_name(cat->GetCategoryName());
 	       
 	       // All catagories have loops (AFAICS). 
 	       // std::cout << "DEBUG:: got catagory: " << cat_name << std::endl; 
 
-	       PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
+	       mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
 
 	       int n_loop_time = 0;
 	       if (mmCIFLoop == NULL) {
@@ -159,7 +162,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		     // not have a loop (the refmac files do) for the
 		     // chem_comp info.
 		     handled = 1;
-		     PCMMCIFStruct structure = data->GetStructure(cat_name.c_str());
+		     mmdb::mmcif::PStruct structure = data->GetStructure(cat_name.c_str());
 		     if (structure) {
 			comp_id_1 = chem_comp_component(structure);
 		     }
@@ -167,7 +170,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
 		  if (cat_name == "_chem_comp_chir") {
 		     handled = 1;
-		     PCMMCIFStruct structure = data->GetStructure(cat_name.c_str());
+		     mmdb::mmcif::PStruct structure = data->GetStructure(cat_name.c_str());
 		     if (structure) {
 			chem_comp_chir_structure(structure);
 		     }
@@ -175,7 +178,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		     
 		  if (cat_name == "_chem_comp_tor") {
 		     handled = 1;
-		     PCMMCIFStruct structure = data->GetStructure(cat_name.c_str());
+		     mmdb::mmcif::PStruct structure = data->GetStructure(cat_name.c_str());
 		     if (structure) {
 			chem_comp_tor_structure(structure);
 		     }
@@ -285,7 +288,7 @@ coot::protein_geometry::get_cif_file_name(const std::string &comp_id) const {
 // return the comp id (so that later we can associate the file name with the comp_id).
 // 
 std::string 
-coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
+coot::protein_geometry::chem_comp_component(mmdb::mmcif::PStruct structure) {
 
    int n_tags = structure->GetNofTags();
    std::string cat_name = structure->GetCategoryName();
@@ -370,7 +373,7 @@ coot::protein_geometry::chem_comp_component(PCMMCIFStruct structure) {
 
 // non-looping (single) tor
 void
-coot::protein_geometry::chem_comp_tor_structure(PCMMCIFStruct structure) {
+coot::protein_geometry::chem_comp_tor_structure(mmdb::mmcif::PStruct structure) {
    
    int n_tags = structure->GetNofTags();
    std::string cat_name = structure->GetCategoryName();
@@ -387,8 +390,8 @@ coot::protein_geometry::chem_comp_tor_structure(PCMMCIFStruct structure) {
    std::pair<bool, std::string> atom_id_3(0, "");
    std::pair<bool, std::string> atom_id_4(0, "");
    std::pair<bool, int> period(0, 0);
-   std::pair<bool, realtype> value_angle(0, 0);
-   std::pair<bool, realtype> value_angle_esd(0, 0);
+   std::pair<bool, mmdb::realtype> value_angle(0, 0);
+   std::pair<bool, mmdb::realtype> value_angle_esd(0, 0);
    
    for (int itag=0; itag<n_tags; itag++) {
       std::string tag = structure->GetTag(itag);
@@ -452,7 +455,7 @@ coot::protein_geometry::chem_comp_tor_structure(PCMMCIFStruct structure) {
 
 // non-looping (single) chir
 void
-coot::protein_geometry::chem_comp_chir_structure(PCMMCIFStruct structure) {
+coot::protein_geometry::chem_comp_chir_structure(mmdb::mmcif::PStruct structure) {
 
    int n_tags = structure->GetNofTags();
    std::string cat_name = structure->GetCategoryName();
@@ -602,7 +605,7 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const std::string &atom_id_4c,
 					 const std::string &type_symbol,
 					 const std::string &type_energy,
-					 const std::pair<bool, realtype> &partial_charge,
+					 const std::pair<bool, mmdb::realtype> &partial_charge,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos_ideal) { 
 
@@ -703,7 +706,7 @@ coot::protein_geometry::mon_lib_add_bond(std::string comp_id,
 				   std::string atom_id_1,
 				   std::string atom_id_2,
 				   std::string type,
-				   realtype value_dist, realtype value_dist_esd) {
+				   mmdb::realtype value_dist, mmdb::realtype value_dist_esd) {
 
 //     std::cout << "adding bond for " << comp_id << " " << atom_id_1
 // 	      << " " << atom_id_2 << " " << type << " " << value_dist
@@ -785,8 +788,8 @@ coot::protein_geometry::mon_lib_add_angle(std::string comp_id,
 				    std::string atom_id_1,
 				    std::string atom_id_2,
 				    std::string atom_id_3,
-				    realtype value_angle,
-				    realtype value_angle_esd) {
+				    mmdb::realtype value_angle,
+				    mmdb::realtype value_angle_esd) {
 
 //    std::cout << "adding angle " << comp_id <<  " " << atom_id_1
 // 	     << " " << atom_id_2 << " " << atom_id_3 << " "
@@ -806,8 +809,8 @@ coot::protein_geometry::mon_lib_add_torsion(std::string comp_id,
 					    std::string atom_id_2,
 					    std::string atom_id_3,
 					    std::string atom_id_4,
-					    realtype value_angle,
-					    realtype value_angle_esd,
+					    mmdb::realtype value_angle,
+					    mmdb::realtype value_angle_esd,
 					    int period) {
 
    if (0)
@@ -883,7 +886,7 @@ void
 coot::protein_geometry::mon_lib_add_plane(const std::string &comp_id,
 					  const std::string &plane_id,
 					  const std::string &atom_id,
-					  const realtype &dist_esd) {
+					  const mmdb::realtype &dist_esd) {
 
    if (0)
       std::cout << "adding plane " << comp_id <<  " " << plane_id
@@ -930,7 +933,7 @@ coot::protein_geometry::mon_lib_add_plane(const std::string &comp_id,
 // return the chem_comp
 // 
 std::string
-coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::chem_comp(mmdb::mmcif::PLoop mmCIFLoop) {
 
    int ierr = 0;
    std::string returned_chem_comp; 
@@ -1024,7 +1027,7 @@ coot::protein_geometry::chem_comp(PCMMCIFLoop mmCIFLoop) {
 // 
 // return the comp_id
 std::string
-coot::protein_geometry::simple_mon_lib_chem_comp(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::simple_mon_lib_chem_comp(mmdb::mmcif::PLoop mmCIFLoop) {
 
    int ierr = 0;
    std::string comp_id;
@@ -1086,7 +1089,7 @@ coot::protein_geometry::simple_mon_lib_chem_comp(PCMMCIFLoop mmCIFLoop) {
 
 // return the number of atoms.
 int 
-coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 
    // If the number of atoms with partial charge matches the number of
    // atoms, then set a flag in the residue that this monomer has
@@ -1113,7 +1116,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
       std::string atom_id;
       std::string type_symbol; 
       std::string type_energy = "unset";
-      std::pair<bool, realtype> partial_charge(0,0);
+      std::pair<bool, mmdb::realtype> partial_charge(0,0);
 
       std::pair<bool, int> pdbx_align(0, 0);
       int xalign;
@@ -1170,7 +1173,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	       pdbx_stereo_config_flag = std::pair<bool, std::string> (1, s);
 	 }
 
-	 realtype x,y,z;
+	 mmdb::realtype x,y,z;
 	 pdbx_model_Cartn_ideal.first = 0;
 	 int ierr_optional_x = mmCIFLoop->GetReal(x, "pdbx_model_Cartn_x_ideal", j);
 	 int ierr_optional_y = mmCIFLoop->GetReal(y, "pdbx_model_Cartn_y_ideal", j);
@@ -1219,7 +1222,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 	 // It's possible that this data type is not in the cif file,
 	 // so don't fail if we can't read it.
 
-	 realtype tmp_var;
+	 mmdb::realtype tmp_var;
 	 ierr = mmCIFLoop->GetReal(tmp_var, "partial_charge", j);
 	 if (ierr == 0) {
 	    partial_charge = std::pair<bool, float>(1, tmp_var);
@@ -1284,7 +1287,7 @@ coot::protein_geometry::comp_atom(PCMMCIFLoop mmCIFLoop) {
 
 
 void
-coot::protein_geometry::comp_tree(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::comp_tree(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string comp_id;
    std::string atom_id;
@@ -1361,13 +1364,13 @@ coot::protein_geometry::atom_name_for_tree_4c(const std::string &comp_id, const 
 
 
 int
-coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop) {
 
    bool verbose_output = 0; // can be passed, perhaps.
    std::string comp_id;
    std::string atom_id_1, atom_id_2;
    std::string type;
-   realtype value_dist = -1.0, value_dist_esd = -1.0;
+   mmdb::realtype value_dist = -1.0, value_dist_esd = -1.0;
 
    char *s; 
    int nbond = 0;
@@ -1484,11 +1487,11 @@ coot::protein_geometry::comp_bond(PCMMCIFLoop mmCIFLoop) {
    return nbond;
 }
 void
-coot::protein_geometry::comp_angle(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::comp_angle(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string comp_id;
    std::string atom_id_1, atom_id_2, atom_id_3;
-   realtype value_angle, value_angle_esd;
+   mmdb::realtype value_angle, value_angle_esd;
    int comp_id_index = -1;
 
    char *s; 
@@ -1550,11 +1553,11 @@ coot::protein_geometry::comp_angle(PCMMCIFLoop mmCIFLoop) {
 } 
 
 void
-coot::protein_geometry::comp_torsion(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::comp_torsion(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string comp_id, id;
    std::string atom_id_1, atom_id_2, atom_id_3, atom_id_4;
-   realtype value_angle, value_angle_esd;
+   mmdb::realtype value_angle, value_angle_esd;
    int period;
 
    char *s; 
@@ -1648,7 +1651,7 @@ coot::protein_geometry::comp_torsion(PCMMCIFLoop mmCIFLoop) {
 
 
 std::pair<int, std::vector<std::string> >
-coot::protein_geometry::comp_chiral(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::comp_chiral(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string comp_id;
    std::string id, atom_id_centre;
@@ -1727,11 +1730,11 @@ coot::protein_geometry::comp_chiral(PCMMCIFLoop mmCIFLoop) {
 }
 
 void
-coot::protein_geometry::comp_plane(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::comp_plane(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string comp_id;
    std::string atom_id, plane_id;
-   realtype dist_esd; 
+   mmdb::realtype dist_esd; 
 
    char *s; 
    int ierr;
@@ -1776,14 +1779,14 @@ coot::protein_geometry::comp_plane(PCMMCIFLoop mmCIFLoop) {
 } 
 // 
 int
-coot::protein_geometry::add_chem_mods(PCMMCIFData data) {
+coot::protein_geometry::add_chem_mods(mmdb::mmcif::PData data) {
 
    int n_mods = 0;
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
-      PCMMCIFCategory cat = data->GetCategory(icat);
+      mmdb::mmcif::PCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
-      PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
+      mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
             
       if (mmCIFLoop == NULL) { 
 	 std::cout << "null loop" << std::endl; 
@@ -1799,13 +1802,13 @@ coot::protein_geometry::add_chem_mods(PCMMCIFData data) {
 
 // 
 void
-coot::protein_geometry::add_synonyms(PCMMCIFData data) {
+coot::protein_geometry::add_synonyms(mmdb::mmcif::PData data) {
 
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
-      PCMMCIFCategory cat = data->GetCategory(icat);
+      mmdb::mmcif::PCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
-      PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
+      mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
             
       if (mmCIFLoop == NULL) { 
 	 std::cout << "null loop" << std::endl; 
@@ -1819,7 +1822,7 @@ coot::protein_geometry::add_synonyms(PCMMCIFData data) {
 }
 
 void 
-coot::protein_geometry::add_chem_comp_synonym(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::add_chem_comp_synonym(mmdb::mmcif::PLoop mmCIFLoop) {
 
    int ierr = 0;
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
@@ -1854,7 +1857,7 @@ coot::protein_geometry::add_chem_comp_synonym(PCMMCIFLoop mmCIFLoop) {
 
 
 int 
-coot::protein_geometry::add_chem_mod(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::add_chem_mod(mmdb::mmcif::PLoop mmCIFLoop) {
 
    int n_chem_mods = 0;
 
@@ -1903,17 +1906,17 @@ coot::protein_geometry::add_chem_mod(PCMMCIFLoop mmCIFLoop) {
 // links (no new atoms in a link, you see).
 // 
 int
-coot::protein_geometry::init_links(PCMMCIFData data) {
+coot::protein_geometry::init_links(mmdb::mmcif::PData data) {
 
    int r = 0; 
    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
-      PCMMCIFCategory cat = data->GetCategory(icat);
+      mmdb::mmcif::PCategory cat = data->GetCategory(icat);
       std::string cat_name(cat->GetCategoryName());
 
       // std::cout << "DEBUG:: init_link is handling " << cat_name << std::endl;
 
-      PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
+      mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
             
       if (mmCIFLoop == NULL) { 
 	 std::cout << "null loop" << std::endl; 
@@ -1944,7 +1947,7 @@ coot::protein_geometry::init_links(PCMMCIFData data) {
 // to the link groups (the modifications
 // themselves are in data_mod_list).
 void
-coot::protein_geometry::add_chem_links(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::add_chem_links(mmdb::mmcif::PLoop mmCIFLoop) {
 
 
    char *s;
@@ -2032,11 +2035,11 @@ coot::protein_geometry::add_chem_links(PCMMCIFLoop mmCIFLoop) {
 }
 
 int
-coot::protein_geometry::link_bond(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::link_bond(mmdb::mmcif::PLoop mmCIFLoop) {
    std::string link_id;
    std::string atom_id_1, atom_id_2;
    std::string type;
-   realtype value_dist, value_dist_esd;
+   mmdb::realtype value_dist, value_dist_esd;
    int atom_1_comp_id, atom_2_comp_id;
 
    char *s;
@@ -2083,12 +2086,12 @@ coot::protein_geometry::link_bond(PCMMCIFLoop mmCIFLoop) {
 }
 
 void
-coot::protein_geometry::link_angle(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::link_angle(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string link_id;
    std::string atom_id_1, atom_id_2, atom_id_3;
    std::string type;
-   realtype value_angle, value_angle_esd;
+   mmdb::realtype value_angle, value_angle_esd;
    int atom_1_comp_id, atom_2_comp_id, atom_3_comp_id;
 
    char *s;
@@ -2140,11 +2143,11 @@ coot::protein_geometry::link_angle(PCMMCIFLoop mmCIFLoop) {
 
 
 void
-coot::protein_geometry::link_torsion(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::link_torsion(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string link_id;
    std::string  atom_id_1, atom_id_2, atom_id_3, atom_id_4;
-   realtype value_angle, value_angle_esd;
+   mmdb::realtype value_angle, value_angle_esd;
    int atom_1_comp_id, atom_2_comp_id, atom_3_comp_id, atom_4_comp_id;
    char *s;
    int ierr;
@@ -2211,7 +2214,7 @@ coot::protein_geometry::link_torsion(PCMMCIFLoop mmCIFLoop) {
 }
 
 int 
-coot::protein_geometry::link_chiral(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::link_chiral(mmdb::mmcif::PLoop mmCIFLoop) {
 
    int n_chiral = 0;
    std::string chiral_id;
@@ -2271,11 +2274,11 @@ coot::protein_geometry::link_chiral(PCMMCIFLoop mmCIFLoop) {
 }
 
 void
-coot::protein_geometry::link_plane(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::link_plane(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string link_id;
    std::string atom_id, plane_id;
-   realtype dist_esd;
+   mmdb::realtype dist_esd;
    int atom_comp_id;
 
    char *s; 
@@ -2320,8 +2323,8 @@ coot::protein_geometry::link_add_bond(const std::string &link_id,
 				      int atom_2_comp_id,
 				      const std::string &atom_id_1,
 				      const std::string &atom_id_2,
-				      realtype value_dist,
-				      realtype value_dist_esd) {
+				      mmdb::realtype value_dist,
+				      mmdb::realtype value_dist_esd) {
 
    dict_link_bond_restraint_t lbr(atom_1_comp_id,
 				  atom_2_comp_id,
@@ -2360,8 +2363,8 @@ coot::protein_geometry::link_add_angle(const std::string &link_id,
 				       const std::string &atom_id_1,
 				       const std::string &atom_id_2,
 				       const std::string &atom_id_3,
-				       realtype value_dist,
-				       realtype value_dist_esd) {
+				       mmdb::realtype value_dist,
+				       mmdb::realtype value_dist_esd) {
    
    dict_link_angle_restraint_t lar(atom_1_comp_id,
 				   atom_2_comp_id,
@@ -2396,8 +2399,8 @@ coot::protein_geometry::link_add_torsion(const std::string &link_id,
 					 const std::string &atom_id_2,
 					 const std::string &atom_id_3,
 					 const std::string &atom_id_4,
-					 realtype value_dist,
-					 realtype value_dist_esd,
+					 mmdb::realtype value_dist,
+					 mmdb::realtype value_dist_esd,
 					 int period,
 					 const std::string &id) {  // e.g. phi, psi, omega
 
@@ -2849,36 +2852,36 @@ coot::dictionary_residue_restraints_t::quoted_atom_name(const std::string &an) c
 void
 coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) const {
 
-   PCMMCIFFile mmCIFFile = new CMMCIFFile(); // d
+   mmdb::mmcif::File *mmCIFFile = new mmdb::mmcif::File(); // d
       
-   PCMMCIFData   mmCIFData = NULL;
-   PCMMCIFStruct mmCIFStruct;
+   mmdb::mmcif::PData   mmCIFData = NULL;
+   mmdb::mmcif::PStruct mmCIFStruct;
    char S[2000];
    
    //  2.1  Example 1: add a structure into mmCIF object
 
    int rc;
 
-   rc = mmCIFFile->AddMMCIFData("comp_list");
+   rc = mmCIFFile->AddCIFData("comp_list");
    mmCIFData = mmCIFFile->GetCIFData("comp_list");
    rc = mmCIFData->AddStructure ("_chem_comp", mmCIFStruct);
-   // std::cout << "rc on AddStructure returned " << rc << std::endl;
-   if (rc!=CIFRC_Ok && rc!=CIFRC_Created)  {
+
+   if (rc!=mmdb::mmcif::CIFRC_Ok && rc!=mmdb::mmcif::CIFRC_Created)  {
       // badness!
-      std::cout << "rc not CIFRC_Ok " << rc << std::endl;
+      std::cout << "rc not mmdb::mmcif::CIFRC_Ok " << rc << std::endl;
       printf ( " **** error: attempt to retrieve Loop as a Structure.\n" );
       if (!mmCIFStruct)  {
 	 printf ( " **** error: mmCIFStruct is NULL - report as a bug\n" );
       }
    } else {
-      if (rc==CIFRC_Created) { 
+      if (rc == mmdb::mmcif::CIFRC_Created) {
 	 // printf ( " -- new structure created\n" );
       } else { 
 	 printf(" -- structure was already in mmCIF, it will be extended\n");
       }
-      // std::cout << "SUMMARY:: rc CIFRC_Ok or newly created. " << std::endl;
+      // std::cout << "SUMMARY:: rc mmdb::mmcif::CIFRC_Ok or newly created. " << std::endl;
 
-      PCMMCIFLoop mmCIFLoop = new CMMCIFLoop; // 20100212
+      mmdb::mmcif::Loop *mmCIFLoop = new mmdb::mmcif::Loop; // 20100212
       // data_comp_list, id, three_letter_code, name group etc:
 
       rc = mmCIFData->AddLoop("_chem_comp", mmCIFLoop);
@@ -2906,7 +2909,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       std::string comp_monomer_name = "comp_";
       comp_monomer_name += residue_info.comp_id.c_str(); 
-      rc = mmCIFFile->AddMMCIFData(comp_monomer_name.c_str());
+      rc = mmCIFFile->AddCIFData(comp_monomer_name.c_str());
       mmCIFData = mmCIFFile->GetCIFData(comp_monomer_name.c_str());
 
       // shall we add coordinates too?
@@ -2922,7 +2925,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       
       if (atom_info.size()) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
-	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    for (int i=0; i<atom_info.size(); i++) {
 	       const dict_atom &ai = atom_info[i];
 	       const char *ss =  residue_info.comp_id.c_str();
@@ -2954,7 +2957,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       if (bond_restraint.size()) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_bond", mmCIFLoop);
-	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
 	    for (int i=0; i<bond_restraint.size(); i++) {
 	       // std::cout << "ading bond number " << i << std::endl;
@@ -2989,7 +2992,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       if (angle_restraint.size()) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_angle", mmCIFLoop);
-	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of angles: " << angle_restraint.size() << std::endl;
 	    for (int i=0; i<angle_restraint.size(); i++) {
 	       // std::cout << "ading angle number " << i << std::endl;
@@ -3023,7 +3026,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       if (torsion_restraint.size() > 0) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_tor", mmCIFLoop);
-	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of torsions: " << torsion_restraint.size() << std::endl;
 	    for (int i=0; i<torsion_restraint.size(); i++) {
 	       // std::cout << "ading torsion number " << i << std::endl;
@@ -3061,7 +3064,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       // 
       if (chiral_restraint.size() > 0) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_chir", mmCIFLoop);
-	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of chirals: " << chiral_restraint.size() << std::endl;
 	    for (int i=0; i<chiral_restraint.size(); i++) {
 	       // std::cout << "ading chiral number " << i << std::endl;
@@ -3099,7 +3102,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       // plane loop
       if (plane_restraint.size() > 0) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_plane_atom", mmCIFLoop);
-	 if (rc == CIFRC_Ok || rc == CIFRC_Created) {
+	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of planes: " << plane_restraint.size() << std::endl;
 	    int icount = 0;
 	    for (int i=0; i<plane_restraint.size(); i++) {
@@ -3219,7 +3222,7 @@ coot::protein_geometry::hydrogens_connect_file(const std::string &resname,
 // constructor
 coot::simple_cif_reader::simple_cif_reader(const std::string &cif_dictionary_file_name) {
    
-   CMMCIFFile ciffile;
+   mmdb::mmcif::File ciffile;
    struct stat buf;
    int istat = stat(cif_dictionary_file_name.c_str(), &buf);
    if (istat != 0) {
@@ -3227,17 +3230,17 @@ coot::simple_cif_reader::simple_cif_reader(const std::string &cif_dictionary_fil
 		<< " not found" << std::endl;
    } else {
       int ierr = ciffile.ReadMMCIFFile((char *)cif_dictionary_file_name.c_str());
-      if (ierr != CIFRC_Ok) {
+      if (ierr != mmdb::mmcif::CIFRC_Ok) {
 	 std::cout << "Dirty mmCIF file? " << cif_dictionary_file_name
 		   << std::endl;
       } else {
 	 for(int idata=0; idata<ciffile.GetNofData(); idata++) { 
          
-	    PCMMCIFData data = ciffile.GetCIFData(idata);
+	    mmdb::mmcif::PData data = ciffile.GetCIFData(idata);
 	    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
-	       PCMMCIFCategory cat = data->GetCategory(icat);
+	       mmdb::mmcif::PCategory cat = data->GetCategory(icat);
 	       std::string cat_name(cat->GetCategoryName());
-	       PCMMCIFLoop mmCIFLoop =
+	       mmdb::mmcif::PLoop mmCIFLoop =
 		  data->GetLoop(cat_name.c_str() );
 	       if (mmCIFLoop == NULL) { 
 		  std::cout << "null loop" << std::endl; 
@@ -3263,7 +3266,7 @@ coot::simple_cif_reader::simple_cif_reader(const std::string &cif_dictionary_fil
 // maybe these function need their own file.  For now they can go here.
 // 
 void
-coot::protein_geometry::pdbx_chem_comp_descriptor(PCMMCIFLoop mmCIFLoop) {
+coot::protein_geometry::pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop) {
 
    std::string comp_id;
    std::string type;

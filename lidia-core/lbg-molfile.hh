@@ -26,7 +26,7 @@
 
 #include "clipper/core/coords.h"
 
-#include <mmdb/mmdb_manager.h> // 20110408 for the constructor using restraints and CResidue
+#include <mmdb2/mmdb_manager.h> // 20110408 for the constructor using restraints and mmdb::Residue
 #include "geometry/protein-geometry.hh"
 
 #include "lig-build.hh"
@@ -108,7 +108,7 @@ namespace lig_build {
       // This is a bit of bone-headedness on my part - this is not
       // needed for what I want - I do not need the atom position.
       // 
-      molfile_molecule_t(CResidue *residue_p,
+      molfile_molecule_t(mmdb::Residue *residue_p,
 			 const coot::dictionary_residue_restraints_t &restraints);
 
       // This is what I want - make fake atom positions and return a

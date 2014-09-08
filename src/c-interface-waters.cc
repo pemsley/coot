@@ -45,7 +45,7 @@
 #include <vector>
 #include <string>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 #include "coords/mmdb-crystal.h"
@@ -184,7 +184,7 @@ int blob_under_pointer_to_screen_centre() {
 SCM water_chain_from_shelx_ins_scm(int imol) {
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
-      CChain *water_chain =
+      mmdb::Chain *water_chain =
 	 graphics_info_t::molecules[imol].water_chain_from_shelx_ins();
       if (water_chain) {
 	 r = scm_makfrom0str(water_chain->GetChainID());
@@ -196,7 +196,7 @@ SCM water_chain_from_shelx_ins_scm(int imol) {
 SCM water_chain_scm(int imol) {
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
-      CChain *water_chain = graphics_info_t::molecules[imol].water_chain();
+      mmdb::Chain *water_chain = graphics_info_t::molecules[imol].water_chain();
       if (water_chain) {
 	 r = scm_makfrom0str(water_chain->GetChainID());
       } 
@@ -212,7 +212,7 @@ PyObject *water_chain_from_shelx_ins_py(int imol) {
 
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
-      CChain *water_chain =
+      mmdb::Chain *water_chain =
 	 graphics_info_t::molecules[imol].water_chain_from_shelx_ins();
       if (water_chain) {
 	 r = PyString_FromString(water_chain->GetChainID());
@@ -227,7 +227,7 @@ PyObject *water_chain_from_shelx_ins_py(int imol) {
 PyObject *water_chain_py(int imol) {
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
-      CChain *water_chain = graphics_info_t::molecules[imol].water_chain();
+      mmdb::Chain *water_chain = graphics_info_t::molecules[imol].water_chain();
       if (water_chain) {
 	 r = PyString_FromString(water_chain->GetChainID());
       } 
@@ -295,10 +295,10 @@ SCM highly_coordinated_waters_scm(int imol, int coordination_number, float dist_
 
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       bool mol_has_symmetry = coot::mol_has_symmetry(mol);
       if (mol_has_symmetry) {
-	 CMMDBManager *new_mol = coot::util::copy_molecule(mol);
+	 mmdb::Manager *new_mol = coot::util::copy_molecule(mol);
 	 coot::util::translate_close_to_origin(new_mol);
 	 mol = new_mol; // do water coordination check with a molecule
 			// that has been translated as close as
@@ -375,10 +375,10 @@ PyObject *highly_coordinated_waters_py(int imol, int coordination_number, float 
 
    PyObject *ret = Py_False;
    if (is_valid_model_molecule(imol)) {
-     CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+     mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
      bool mol_has_symmetry = coot::mol_has_symmetry(mol);
      if (mol_has_symmetry) {
-       CMMDBManager *new_mol = coot::util::copy_molecule(mol);
+       mmdb::Manager *new_mol = coot::util::copy_molecule(mol);
        coot::util::translate_close_to_origin(new_mol);
        mol = new_mol; // do water coordination check with a molecule
 			// that has been translated as close as

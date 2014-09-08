@@ -46,7 +46,7 @@
 
 #include "canvas-fixes.hh"
 
-exptl::nsv::nsv(CMMDBManager *mol,
+exptl::nsv::nsv(mmdb::Manager *mol,
 		const std::string &molecule_name,
 		int molecule_number_in,
 		bool use_graphics_interface_in) {
@@ -55,7 +55,7 @@ exptl::nsv::nsv(CMMDBManager *mol,
    nsv(mol, molecule_name, molecule_number_in, use_graphics_interface_in);
 }
 
-exptl::nsv::nsv(CMMDBManager *mol,
+exptl::nsv::nsv(mmdb::Manager *mol,
 		const std::string &molecule_name,
 		int molecule_number_in,
 		bool use_graphics_interface_in,
@@ -128,7 +128,7 @@ exptl::nsv::on_nsv_dialog_destroy (GtkObject *obj,
 
 
 void
-exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
+exptl::nsv::setup_canvas(mmdb::Manager *mol, GtkWidget *scrolled_window) {
 
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
    fixed_font_str = "monospace";
@@ -172,7 +172,7 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 		   << lowest_resno << " total_res_range: " << total_res_range << std::endl;
       }
       
-      std::vector<CResidue*> ins_code_residues =
+      std::vector<mmdb::Residue*> ins_code_residues =
 	 coot::util::residues_with_insertion_codes(mol);
 
 
@@ -286,12 +286,12 @@ exptl::nsv::setup_canvas(CMMDBManager *mol, GtkWidget *scrolled_window) {
 }
 
 void
-exptl::nsv::mol_to_canvas(CMMDBManager *mol, int lowest_resno, double x_offset) {
+exptl::nsv::mol_to_canvas(mmdb::Manager *mol, int lowest_resno, double x_offset) {
 
    int imod = 1;
-   CModel *model_p = mol->GetModel(imod);
+   mmdb::Model *model_p = mol->GetModel(imod);
    int ss_status = model_p->CalcSecStructure(1);
-   CChain *chain_p;
+   mmdb::Chain *chain_p;
    // run over chains of the existing mol
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
@@ -302,13 +302,13 @@ exptl::nsv::mol_to_canvas(CMMDBManager *mol, int lowest_resno, double x_offset) 
 }
 
 void
-exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number, int lowest_resno, double x_offset) {
+exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int position_number, int lowest_resno, double x_offset) {
 
    int nres = chain_p->GetNumberOfResidues();
    GtkCanvasItem *item;
 
    for (int ires=0; ires<nres; ires++) {
-      CResidue *residue_p = chain_p->GetResidue(ires);
+      mmdb::Residue *residue_p = chain_p->GetResidue(ires);
       add_text_and_rect(residue_p, position_number, lowest_resno, x_offset);  // adds items to canvas_item_vec
    }
 
@@ -333,14 +333,14 @@ exptl::nsv::chain_to_canvas(CChain *chain_p, int position_number, int lowest_res
 
 
 bool
-exptl::nsv::add_text_and_rect(CResidue *residue_p,
+exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
 			      int position_number,
 			      int lowest_resno,
 			      double x_offset) {
 
    bool too_wide = false;
    if (residue_p) { 
-      CAtom *at = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
+      mmdb::Atom *at = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
       coot::atom_spec_t at_spec(at);
       std::string res_code =
 	 coot::util::three_letter_to_one_letter_with_specials(residue_p->GetResName());
@@ -476,12 +476,12 @@ exptl::nsv::rect_event (GtkObject *obj,
 
 
 std::vector<exptl::nsv::chain_length_residue_units_t> 
-exptl::nsv::get_residue_counts(CMMDBManager *mol) const {
+exptl::nsv::get_residue_counts(mmdb::Manager *mol) const {
 
    std::vector<exptl::nsv::chain_length_residue_units_t> chain_length_residue_units;
    int imod = 1;
-   CModel *model_p = mol->GetModel(imod);
-   CChain *chain_p;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
    // run over chains of the existing mol
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
@@ -489,8 +489,8 @@ exptl::nsv::get_residue_counts(CMMDBManager *mol) const {
 			       // insertion codes and gaps.
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
-      PCResidue residue_p = 0;
-      CAtom *at;
+      mmdb::PResidue residue_p = 0;
+      mmdb::Atom *at;
       int lowest_resno = 9999999;
       int highest_resno = -9999999;
       std::vector<coot::residue_spec_t> specs;
@@ -649,19 +649,19 @@ exptl::nsv::origin_marker() {
 
 
 std::string
-exptl::nsv::colour_by_secstr(CResidue *residue_p) const {
+exptl::nsv::colour_by_secstr(mmdb::Residue *residue_p) const {
 
    std::string s("black");
 
    switch (residue_p->SSE)  {
 
-   case SSE_Strand : s = "firebrick3";  break;
-   case SSE_Bulge  : s = "firebrick1";  break;
-   case SSE_3Turn  : s = "MediumBlue";  break;
-   case SSE_4Turn  : s = "SteelBlue4";  break;
-   case SSE_5Turn  : s = "DodgerBlue4"; break;
-   case SSE_Helix  : s = "navy";        break;
-   case SSE_None   : s = "black";       break;
+   case mmdb::SSE_Strand : s = "firebrick3";  break;
+   case mmdb::SSE_Bulge  : s = "firebrick1";  break;
+   case mmdb::SSE_3Turn  : s = "MediumBlue";  break;
+   case mmdb::SSE_4Turn  : s = "SteelBlue4";  break;
+   case mmdb::SSE_5Turn  : s = "DodgerBlue4"; break;
+   case mmdb::SSE_Helix  : s = "navy";        break;
+   case mmdb::SSE_None   : s = "black";       break;
    } 
    return s;
 }

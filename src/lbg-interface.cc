@@ -48,7 +48,7 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
    
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
-      CResidue *residue_p =
+      mmdb::Residue *residue_p =
 	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (residue_p) {
 	 try {
@@ -65,7 +65,7 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
 	       }
 	    }
 
-	    CMMDBManager *mol =
+	    mmdb::Manager *mol =
 	       coot::util::create_mmdbmanager_from_residue(residue_p);
 	    if (!mol) {
 	       std::cout << "ERROR:: failed to make mol for lbg" << std::endl;
@@ -164,7 +164,7 @@ void smiles_to_ligand_builder(const char *smiles_string) {
 	    }
 	 }
    
-	 CMMDBManager *mol = NULL;
+	 mmdb::Manager *mol = NULL;
 	 std::pair<bool, coot::residue_spec_t> dummy_spec(0, coot::residue_spec_t());
 	 bool use_graphics_flag = graphics_info_t::use_graphics_interface_flag;
 	 bool stand_alone_flag = 0; // no, it isn't from here.

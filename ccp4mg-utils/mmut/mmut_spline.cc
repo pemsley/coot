@@ -35,7 +35,7 @@
 #define HALF_PI (M_PI * 0.5)
 #endif
 
-Cartesian AtToCart(PCAtom at){
+Cartesian AtToCart(mmdb::PAtom at){
   return Cartesian(at->x,at->y,at->z);
 }
 
@@ -67,7 +67,7 @@ void Replace(std::vector<Cartesian> &old_vec, const std::vector<Cartesian> &new_
    old_vec.insert(old_vec.begin()+start,new_vec.begin(),new_vec.begin()+end-start);
 }
 
-std::vector<Cartesian> GetBasePairEnds(PCResidue res1, PCResidue res2);
+std::vector<Cartesian> GetBasePairEnds(mmdb::PResidue res1, mmdb::PResidue res2);
 
 SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVector *atom_colour_vector,int spline_accu, int udd_chain, int udd_CA, int flatten_beta_sheet, int flatten_loop,int smooth_helix){
 
@@ -77,16 +77,16 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
 
 
   int CAselHnd;
-  PPCAtom atomTable;
-  PCResidue pRes;
+  mmdb::PPAtom atomTable;
+  mmdb::PResidue pRes;
   int nAtoms;
-  PCAtom pCAprev,pCA;
+  mmdb::PAtom pCAprev,pCA;
   float dist2;
   int newchain;
 
   SplineInfo splineinfo;
-  std::vector<std::vector<PCAtom> > cavertices;
-  std::vector<std::vector<PCAtom> > nac5vertices;
+  std::vector<std::vector<mmdb::PAtom> > cavertices;
+  std::vector<std::vector<mmdb::PAtom> > nac5vertices;
 
   Cartesian pos;
 
@@ -98,13 +98,13 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
 
 
   int atom_selHnd = molH->NewSelection();
-  molH->Select(atom_selHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
-  molH->Select(atom_selHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+  molH->Select(atom_selHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
+  molH->Select(atom_selHnd,mmdb::STYPE_ATOM,atom_selHnd_in,SKEY_AND);
 
   // Find all CA - to use as quick check if atom is in this set
   CAselHnd = molH->NewSelection();
-  molH->Select(CAselHnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","CA","C","*",SKEY_NEW);
-  molH->Select(CAselHnd,STYPE_ATOM,atom_selHnd_in,SKEY_AND);
+  molH->Select(CAselHnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","CA","C","*",mmdb::SKEY_NEW);
+  molH->Select(CAselHnd,mmdb::STYPE_ATOM,atom_selHnd_in,SKEY_AND);
   molH->ExcludeOverlappedAtoms(CAselHnd,0.8);
 
   //if (atom_colour_vector)
@@ -114,8 +114,8 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
    
   // Start the vector for the first 'chain'
   splineinfo.colours.push_back(std::vector<Cartesian>(0));
-  cavertices.push_back(std::vector<PCAtom>(0));
-  nac5vertices.push_back(std::vector<PCAtom>(0));
+  cavertices.push_back(std::vector<mmdb::PAtom>(0));
+  nac5vertices.push_back(std::vector<mmdb::PAtom>(0));
   std::vector<int> prev_atoms;
   std::vector<int> next_atoms;
 
@@ -143,7 +143,7 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
 	          (pCA->z - pCAprev->z)*(pCA->z - pCAprev->z);
           if(dist2 > 20.0 || 
                 pCA->GetChainID()!= pCAprev->GetChainID()){
-	    cavertices.push_back(std::vector<PCAtom>(0));
+	    cavertices.push_back(std::vector<mmdb::PAtom>(0));
 	    splineinfo.colours.push_back(std::vector<Cartesian>(0));
             newchain = 1;
             nChain++;
@@ -215,36 +215,36 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
 
 
   int CA_nAtoms;
-  PPCAtom CA_atomTable;
+  mmdb::PPAtom CA_atomTable;
   // Find all CA - to use as quick check if atom is in this set
   for(unsigned ii=0; ii<cavertices.size(); ii++){
    prev_atoms.push_back(0);
-   std::list<PCAtom> prev_atom_p;
+   std::list<mmdb::PAtom> prev_atom_p;
    if(cavertices[ii].size()>1){
     
     int CA_this_chain_selHnd = molH->NewSelection();
-    molH->Select(CA_this_chain_selHnd,STYPE_ATOM,0,cavertices[ii][0]->GetChainID(),
-		 ANY_RES,"*",ANY_RES,"*","*","CA","C","*",SKEY_NEW);
+    molH->Select(CA_this_chain_selHnd,mmdb::STYPE_ATOM,0,cavertices[ii][0]->GetChainID(),
+		 mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","CA","C","*",mmdb::SKEY_NEW);
     molH->ExcludeOverlappedAtoms(CA_this_chain_selHnd,0.8);
-    //molH->Select(CA_this_chain_selHnd,STYPE_ATOM,atom_selHnd,SKEY_AND);
+    //molH->Select(CA_this_chain_selHnd,mmdb::STYPE_ATOM,atom_selHnd,SKEY_AND);
 
     molH->GetSelIndex ( CA_this_chain_selHnd, CA_atomTable, CA_nAtoms );
     //std::cout << "Selected " << CA_nAtoms << " CA atoms\n"; std::cout.flush();
     //std::cout << "Sequence number of first atom in table " << CA_atomTable[0]->GetResidueNo() << "\n";
 
     //std::cout << "Sequence number of first atom "  << cavertices[ii][0]->GetResidueNo() << "\n";
-    PCAtom first_at = cavertices[ii][0];
+    mmdb::PAtom first_at = cavertices[ii][0];
     int resno = first_at->GetResidueNo();
 
-    PCAtom curr_at = first_at;
+    mmdb::PAtom curr_at = first_at;
     int curr_resno = resno;
 
     bool in_this_chain = true;
     //if(CA_atomTable[0]->GetResidueNo()>cavertices[ii][0]->GetResidueNo()){
     while(in_this_chain&&curr_resno>0&&curr_at->isInSelection(CA_this_chain_selHnd)){
       if(CA_atomTable[curr_resno-1]&&CA_atomTable[curr_resno]){
-         PCAtom pCA1 = CA_atomTable[curr_resno];
-         PCAtom pCA2 = CA_atomTable[curr_resno-1];
+         mmdb::PAtom pCA1 = CA_atomTable[curr_resno];
+         mmdb::PAtom pCA2 = CA_atomTable[curr_resno-1];
          dist2 = (pCA1->x - pCA2->x)*(pCA1->x - pCA2->x) +
                  (pCA1->y - pCA2->y)*(pCA1->y - pCA2->y)+
 	         (pCA1->z - pCA2->z)*(pCA1->z - pCA2->z);
@@ -260,8 +260,8 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
     }
    }
    if(prev_atoms[ii]>0){
-    std::vector<PCAtom> new_ca0;
-    std::list<PCAtom>::iterator patom_iter = prev_atom_p.begin();
+    std::vector<mmdb::PAtom> new_ca0;
+    std::list<mmdb::PAtom>::iterator patom_iter = prev_atom_p.begin();
     while(patom_iter!=prev_atom_p.end()){
       new_ca0.push_back(*patom_iter);
       patom_iter++;
@@ -276,24 +276,24 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
    next_atoms.push_back(0);
    if(cavertices[ii].size()>1){
     int CA_this_chain_selHnd = molH->NewSelection();
-    molH->Select(CA_this_chain_selHnd,STYPE_ATOM,0,cavertices[ii].back()->GetChainID(),
-		 ANY_RES,"*",ANY_RES,"*","*","CA","C","*",SKEY_NEW);
+    molH->Select(CA_this_chain_selHnd,mmdb::STYPE_ATOM,0,cavertices[ii].back()->GetChainID(),
+		 mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","CA","C","*",mmdb::SKEY_NEW);
     molH->ExcludeOverlappedAtoms(CA_this_chain_selHnd,0.8);
-    //molH->Select(CA_this_chain_selHnd,STYPE_ATOM,atom_selHnd,SKEY_AND);
+    //molH->Select(CA_this_chain_selHnd,mmdb::STYPE_ATOM,atom_selHnd,SKEY_AND);
 
     molH->GetSelIndex ( CA_this_chain_selHnd, CA_atomTable, CA_nAtoms );
     //std::cout << "Sequence number of last atom " << cavertices[ii].back()->GetResidueNo() << "\n";
-    PCAtom first_at = cavertices[ii].back();
+    mmdb::PAtom first_at = cavertices[ii].back();
     int resno = first_at->GetResidueNo();
 
-    PCAtom curr_at = first_at;
+    mmdb::PAtom curr_at = first_at;
     int curr_resno = resno;
 
     bool in_this_chain = true;
     while(in_this_chain&&curr_resno+1<CA_nAtoms&&curr_at->isInSelection(CA_this_chain_selHnd)){
       if(CA_atomTable[curr_resno+1]){
-         PCAtom pCA1 = CA_atomTable[curr_resno];
-         PCAtom pCA2 = CA_atomTable[curr_resno+1];
+         mmdb::PAtom pCA1 = CA_atomTable[curr_resno];
+         mmdb::PAtom pCA2 = CA_atomTable[curr_resno+1];
          dist2 = (pCA1->x - pCA2->x)*(pCA1->x - pCA2->x) +
                  (pCA1->y - pCA2->y)*(pCA1->y - pCA2->y)+
 	         (pCA1->z - pCA2->z)*(pCA1->z - pCA2->z);
@@ -318,30 +318,30 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
   //std::cout << "splineinfo.colours.back().size(): " << splineinfo.colours.back().size() << "\n";
 
   //CNABasePairs bp(molH,atom_selHnd,atomTable,nAtoms,0);
-  //std::vector<std::pair<PCResidue,PCResidue> > base_pairs = bp.GetPairs();
+  //std::vector<std::pair<mmdb::PResidue,mmdb::PResidue> > base_pairs = bp.GetPairs();
 
   splineinfo.nacolours.push_back(std::vector<Cartesian>(0));
-  PCAtom c5prev = 0;
+  mmdb::PAtom c5prev = 0;
   for(int j=0;j<nAtoms;j++){
-    PCResidue res = atomTable[j]->GetResidue();
+    mmdb::PResidue res = atomTable[j]->GetResidue();
     if(res){
       int restype = molH->GetRestypeCode(res);
       if(restype==RESTYPE_NUCL||restype==RESTYPE_DNA||restype==RESTYPE_RNA){
-        PCAtom c5 = res->GetAtom("C5\'");
+        mmdb::PAtom c5 = res->GetAtom("C5\'");
         if(!c5) c5 = res->GetAtom("C5*");
-        //PCAtom c5 = res->GetAtom("P");
+        //mmdb::PAtom c5 = res->GetAtom("P");
         if(nac5vertices.back().size()>0&&c5){
-          PCAtom nac5prev = nac5vertices.back().back();
+          mmdb::PAtom nac5prev = nac5vertices.back().back();
           double distnca = (AtToCart(c5) - AtToCart(nac5prev)).length();
           if(distnca> 9.5 ||(c5prev&&c5->GetChainID()!=c5prev->GetChainID())){
-            PCResidue resp = c5prev->GetResidue();
-            PCAtom c3p = resp->GetAtom("C3\'");
+            mmdb::PResidue resp = c5prev->GetResidue();
+            mmdb::PAtom c3p = resp->GetAtom("C3\'");
             if(!c3p) c3p = resp->GetAtom("C3*");
             if(!c3p) c3p = resp->GetAtom("C5\'");
             if(!c3p) c3p = resp->GetAtom("C5*");
 	    nac5vertices.back().pop_back(); 
 	    nac5vertices.back().push_back(c3p); 
-            nac5vertices.push_back(std::vector<PCAtom>(0));
+            nac5vertices.push_back(std::vector<mmdb::PAtom>(0));
 	    splineinfo.nacolours.push_back(std::vector<Cartesian>(0));
           }
         }
@@ -370,7 +370,7 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
   }
   
   if(c5prev&&nac5vertices.size()>0&&nac5vertices.back().size()>0){
-    PCAtom c3 = c5prev->GetResidue()->GetAtom("C3\'");
+    mmdb::PAtom c3 = c5prev->GetResidue()->GetAtom("C3\'");
     if(!c3) c3 = c5prev->GetResidue()->GetAtom("C5*");
     if(c3){
       nac5vertices.back().pop_back(); 
@@ -382,9 +382,9 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
   //for(unsigned ii=0;ii<nac5vertices.size();ii++)
     //std::cout << "  " << ii << " " << nac5vertices[ii].size() << "\n";
 
-  std::vector<std::vector<PCAtom> >::iterator mna=nac5vertices.begin();  
+  std::vector<std::vector<mmdb::PAtom> >::iterator mna=nac5vertices.begin();  
   while(mna!=nac5vertices.end()){
-    std::vector<PCAtom>::iterator l=(*mna).begin();
+    std::vector<mmdb::PAtom>::iterator l=(*mna).begin();
     splineinfo.nasplines.push_back(std::vector<Cartesian>(0));
     splineinfo.n1_nasplines.push_back(std::vector<Cartesian>(0));
     splineinfo.n2_nasplines.push_back(std::vector<Cartesian>(0));
@@ -407,13 +407,13 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
         if(l>=(*mna).begin()+2)
           posm2 = AtToCart(*(l-2));
         pos= AtToCart(*l);
-        PCAtom n1 = (*l)->GetResidue()->GetAtom("N1");
-        PCAtom c2 = (*l)->GetResidue()->GetAtom("C2");
-        PCAtom n3 = (*l)->GetResidue()->GetAtom("N3");
-        PCAtom c4 = (*l)->GetResidue()->GetAtom("C4");
-        PCAtom c5 = (*l)->GetResidue()->GetAtom("C5");
-        PCAtom c6 = (*l)->GetResidue()->GetAtom("C6");
-        PCAtom n9 = (*l)->GetResidue()->GetAtom("N9");
+        mmdb::PAtom n1 = (*l)->GetResidue()->GetAtom("N1");
+        mmdb::PAtom c2 = (*l)->GetResidue()->GetAtom("C2");
+        mmdb::PAtom n3 = (*l)->GetResidue()->GetAtom("N3");
+        mmdb::PAtom c4 = (*l)->GetResidue()->GetAtom("C4");
+        mmdb::PAtom c5 = (*l)->GetResidue()->GetAtom("C5");
+        mmdb::PAtom c6 = (*l)->GetResidue()->GetAtom("C6");
+        mmdb::PAtom n9 = (*l)->GetResidue()->GetAtom("N9");
         bool reverse=false;
         if(n9&&strncmp((*l)->GetResidue()->name,"EDA",3))
           reverse = true;
@@ -434,9 +434,9 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
            v2.normalize();
            Cartesian n1 = Cartesian::CrossProduct(v1,v2); // Normal 1 not N1, Oh dear.
            if(strncmp((*l)->GetResidue()->name,"PSU",3)==0){
-             PCAtom c1p = (*l)->GetResidue()->GetAtom("C1\'");
+             mmdb::PAtom c1p = (*l)->GetResidue()->GetAtom("C1\'");
              if(!c1p) c1p = (*l)->GetResidue()->GetAtom("C1*");
-             PCAtom c2p = (*l)->GetResidue()->GetAtom("C2\'");
+             mmdb::PAtom c2p = (*l)->GetResidue()->GetAtom("C2\'");
              if(!c2p) c2p = (*l)->GetResidue()->GetAtom("C2*");
              Cartesian c1c2 = AtToCart(c1p) - AtToCart(c2p);
              if(Cartesian::DotProduct(c1c2,n1)>0.0) reverse = true;
@@ -526,11 +526,11 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
   // the control points which are the CA position.
   // Then create the spline for the chain.
   //std::cout << "Starting to build splines\n"; std::cout.flush();
-  std::vector<std::vector<PCAtom> >::iterator m=cavertices.begin();  
+  std::vector<std::vector<mmdb::PAtom> >::iterator m=cavertices.begin();  
   int ichain = 0;
   while(m!=cavertices.end()){
     //std::cout << "Starting to build a spline\n"; std::cout.flush();
-    std::vector<PCAtom>::iterator l=(*m).begin();
+    std::vector<mmdb::PAtom>::iterator l=(*m).begin();
     splineinfo.splines.push_back(std::vector<Cartesian>(0));
     splineinfo.n1_splines.push_back(std::vector<Cartesian>(0));
     splineinfo.n2_splines.push_back(std::vector<Cartesian>(0));
@@ -1028,13 +1028,13 @@ SplineInfo GetSplineInfo (CMMANManager *molH, int atom_selHnd_in ,AtomColourVect
 
 }
 
-std::vector<std::vector<Cartesian> > GetExternalCartesians(PCMMDBManager molhnd, const std::vector<std::vector<int> > &ext_conn_lists, int side_to_ribbon, int side_to_worm ){
+std::vector<std::vector<Cartesian> > GetExternalCartesians(mmdb::PManager molhnd, const std::vector<std::vector<int> > &ext_conn_lists, int side_to_ribbon, int side_to_worm ){
 
-  PPCAtom atomTable=0;
+  mmdb::PPAtom atomTable=0;
   int nAtoms;
   molhnd->GetAtomTable ( atomTable, nAtoms );  
   std::vector<std::vector<Cartesian> > carts;
-  PCAtom atom;
+  mmdb::PAtom atom;
   int udd_chain,udd_CA,idx,ids;
   int spline_accu = 4;
   
@@ -1045,15 +1045,15 @@ std::vector<std::vector<Cartesian> > GetExternalCartesians(PCMMDBManager molhnd,
     // Create a spline through all atoms 
     // Set up UDD for GetSplineInfo to load with index to spline data
     // for each selected residue
-    udd_chain = molhnd->GetUDDHandle ( UDR_ATOM,"tmp_atom_int" );
-    if (udd_chain<=0) udd_chain = molhnd->RegisterUDInteger(UDR_ATOM,"tmp_atom_int" );
-    udd_CA = molhnd->GetUDDHandle ( UDR_ATOM,"tmp_atom_int1" );
-    if (udd_CA<=0) udd_CA = molhnd->RegisterUDInteger(UDR_ATOM,"tmp_atom_int1" );
+    udd_chain = molhnd->GetUDDHandle ( mmdb::UDR_ATOM,"tmp_atom_int" );
+    if (udd_chain<=0) udd_chain = molhnd->RegisterUDInteger(mmdb::UDR_ATOM,"tmp_atom_int" );
+    udd_CA = molhnd->GetUDDHandle ( mmdb::UDR_ATOM,"tmp_atom_int1" );
+    if (udd_CA<=0) udd_CA = molhnd->RegisterUDInteger(mmdb::UDR_ATOM,"tmp_atom_int1" );
     for (int i=0;i<nAtoms;i++)atomTable[i]->PutUDData(udd_CA,-1);
 
     SplineInfo splineinfo;
-    PPCAtom SelAtoms=0;
-    PCAtom pCA; 
+    mmdb::PPAtom SelAtoms=0;
+    mmdb::PAtom pCA; 
     int nSelAtoms=0;
     molhnd->GetSelIndex(side_to_ribbon,SelAtoms,nSelAtoms);
     bool isworm=false;
@@ -1073,8 +1073,8 @@ std::vector<std::vector<Cartesian> > GetExternalCartesians(PCMMDBManager molhnd,
         atom = atomTable[*this_ext_iter];
         pCA =  atom->GetResidue()->GetAtom("CA");
         if((!strncmp((atom)->GetResidue()->name,"PRO",3)) && pCA != NULL &&
-             pCA->GetUDData(udd_CA,idx) == UDDATA_Ok && 
-             pCA->GetUDData(udd_chain,ids) == UDDATA_Ok && 
+             pCA->GetUDData(udd_CA,idx) == mmdb::UDDATA_Ok && 
+             pCA->GetUDData(udd_chain,ids) == mmdb::UDDATA_Ok && 
              idx >= 0 && 
              (!strncmp(atom->name," N",2)) && 
              unsigned(ids) < splineinfo.splines.size() &&
@@ -1084,9 +1084,9 @@ std::vector<std::vector<Cartesian> > GetExternalCartesians(PCMMDBManager molhnd,
 					   splineinfo.splines[ids][idx].get_y(),
                                            splineinfo.splines[ids][idx].get_z() ));
         }else if ((!isworm) && 
-                   atom->GetUDData(udd_CA,idx) == UDDATA_Ok && 
+                   atom->GetUDData(udd_CA,idx) == mmdb::UDDATA_Ok && 
                    idx >= 0 && 
-                   atom->GetUDData(udd_chain,ids) == UDDATA_Ok &&
+                   atom->GetUDData(udd_chain,ids) == mmdb::UDDATA_Ok &&
                    unsigned(ids) < splineinfo.splines.size() &&
                    unsigned(idx * spline_accu) < (splineinfo.splines[ids].size()) ) {
           // Get the coords out of the SplineInfo

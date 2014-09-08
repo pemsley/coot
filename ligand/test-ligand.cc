@@ -65,7 +65,7 @@ bool identity_matrix_test(const clipper::RTop_orth &rtop) {
 
 // return the matrix rotation angle
 compare_stats_t
-compare_by_overlap(std::string chain_id, int resno, CMMDBManager *mol1, CMMDBManager *mol2) {
+compare_by_overlap(std::string chain_id, int resno, mmdb::Manager *mol1, mmdb::Manager *mol2) {
 
    compare_stats_t stats;
    std::vector<coot::lsq_range_match_info_t> matches;
@@ -92,14 +92,14 @@ compare_by_overlap(std::string chain_id, int resno, CMMDBManager *mol1, CMMDBMan
 
       int imod = 1;
       
-      CModel *model_p_1 = mol1->GetModel(imod);
-      CChain *chain_p_1;
+      mmdb::Model *model_p_1 = mol1->GetModel(imod);
+      mmdb::Chain *chain_p_1;
       int nchains_1 = model_p_1->GetNumberOfChains();
       for (int ichain_1=0; ichain_1<nchains_1; ichain_1++) {
 	 chain_p_1 = model_p_1->GetChain(ichain_1);
 	 int nres_1 = chain_p_1->GetNumberOfResidues();
-	 PCResidue residue_p_1;
-	 CAtom *at_1;
+	 mmdb::PResidue residue_p_1;
+	 mmdb::Atom *at_1;
 	 for (int ires_1=0; ires_1<nres_1; ires_1++) { 
 	    residue_p_1 = chain_p_1->GetResidue(ires_1);
 	    int n_atoms_1 = residue_p_1->GetNumberOfAtoms();
@@ -109,15 +109,15 @@ compare_by_overlap(std::string chain_id, int resno, CMMDBManager *mol1, CMMDBMan
 	       coot::atom_spec_t s(at_1);
 
 	       // other molecule:
-	       CModel *model_p_2 = mol2->GetModel(imod);
-	       CChain *chain_p_2;
+	       mmdb::Model *model_p_2 = mol2->GetModel(imod);
+	       mmdb::Chain *chain_p_2;
 	       int nchains_2 = model_p_2->GetNumberOfChains();
 	       for (int ichain_2=0; ichain_2<nchains_2; ichain_2++) {
 		  chain_p_2 = model_p_2->GetChain(ichain_2);
 		  if (std::string(chain_p_1->GetChainID()) == std::string(chain_p_2->GetChainID())) {
 		     int nres_2 = chain_p_2->GetNumberOfResidues();
-		     PCResidue residue_p_2;
-		     CAtom *at_2;
+		     mmdb::PResidue residue_p_2;
+		     mmdb::Atom *at_2;
 		     for (int ires_2=0; ires_2<nres_2; ires_2++) { 
 			residue_p_2 = chain_p_2->GetResidue(ires_2);
 			if (residue_p_1->GetSeqNum() == residue_p_2->GetSeqNum()) { 
@@ -164,19 +164,19 @@ int test_torsion_general(atom_selection_container_t asc, std::string pdb_filenam
    // create_mmdbmanager_from_residue()
    int target_resno = 81;
    bool reverse_torsion = 0;
-   CModel *model_p = asc.mol->GetModel(1);
+   mmdb::Model *model_p = asc.mol->GetModel(1);
    if (! model_p) {
       std::cout << "   Model not found " << std::endl;
    } else { 
-      CChain *chain_p;
+      mmdb::Chain *chain_p;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 if (target_chain_id == chain_p->GetChainID()) { 
 	    int nres = chain_p->GetNumberOfResidues();
-	    PCResidue residue_p;
-	    CAtom *at;
+	    mmdb::PResidue residue_p;
+	    mmdb::Atom *at;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       if (residue_p->GetSeqNum() == target_resno) { 
@@ -194,13 +194,13 @@ int test_torsion_general(atom_selection_container_t asc, std::string pdb_filenam
 		     reverse_atom_specs.push_back(as);
 		  }
 		  std::reverse(reverse_atom_specs.begin(), reverse_atom_specs.end());
-		  CMMDBManager *res_mol_1 =
+		  mmdb::Manager *res_mol_1 =
 		     coot::util::create_mmdbmanager_from_residue(residue_p);
-		  CMMDBManager *res_mol_2 =
+		  mmdb::Manager *res_mol_2 =
 		     coot::util::create_mmdbmanager_from_residue(residue_p);
 
-		  CResidue *res_copy_1 = coot::util::get_residue("", target_resno, "", res_mol_1);
-		  CResidue *res_copy_2 = coot::util::get_residue("", target_resno, "", res_mol_2);
+		  mmdb::Residue *res_copy_1 = coot::util::get_residue("", target_resno, "", res_mol_1);
+		  mmdb::Residue *res_copy_2 = coot::util::get_residue("", target_resno, "", res_mol_2);
 
 		  if (! res_copy_1) {
 		     std::cout << "   Error can't find residue in new molecule" << std::endl;
@@ -219,7 +219,7 @@ int test_torsion_general(atom_selection_container_t asc, std::string pdb_filenam
 		  int istat_1 = tg_1.change_by(diff, &tree1); // fiddle with tree
 		  int istat_2 = tg_2.change_by(diff, &tree2);
 
-		  PPCAtom residue_atoms;
+		  mmdb::PPAtom residue_atoms;
 		  int n_residue_atoms;
 		  res_copy_1->GetAtomTable(residue_atoms, n_residue_atoms);
 		  std::vector< coot::Cartesian > coords;

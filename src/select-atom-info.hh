@@ -60,12 +60,12 @@ namespace coot {
       bool has_occ_edit() const { return occ_editted; }
       bool has_altloc_edit() const { return altloc_edited; }
       // return NULL on atom not found:
-      CAtom *get_atom(CMMDBManager *mol) const {
-	 CAtom *at = NULL;
+      mmdb::Atom *get_atom(mmdb::Manager *mol) const {
+	 mmdb::Atom *at = NULL;
 	 if (mol) { 
 	    int SelectionHandle = mol->NewSelection();
 	    int n_atoms;
-	    PCAtom *atoms;
+	    mmdb::PAtom *atoms;
 	    mol->SelectAtoms(SelectionHandle, 0,
 			     chain_id.c_str(),
 			     residue_number, insertion_code.c_str(),

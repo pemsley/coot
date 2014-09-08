@@ -5,22 +5,22 @@ namespace coot {
 
    class high_res { 
       coot::minimol::molecule globular_molecule;
-      std::pair<clipper::Coord_orth, CMMDBManager *> get_middle_pos(const coot::minimol::molecule &mol) const;
+      std::pair<clipper::Coord_orth, mmdb::Manager *> get_middle_pos(const coot::minimol::molecule &mol) const;
       void fill_globular_protein(const coot::minimol::molecule &mol, 
 				 const clipper::Coord_orth &target,
-				 CMMDBManager *mmdb_mol);
+				 mmdb::Manager *mmdb_mol);
       void fill_globular_protein_by_fragments(const coot::minimol::molecule &mol, 
 					      const clipper::Coord_orth &target,
-					      CMMDBManager *mmdb_mol);
+					      mmdb::Manager *mmdb_mol);
       void make_trees();
       void mark_neighbours(int iatom, int igroup,
 			   const std::string &atom_name,
 			   const std::vector<std::vector<int> > &neighbours,
-			   PPCAtom atom_selection, int uddhandle);
+			   mmdb::PPAtom atom_selection, int uddhandle);
       coot::minimol::molecule
       filter_on_groups(const std::vector<std::vector<int> > &groups,
-		       CMMDBManager *mol,
-		       PPCAtom atom_selection,
+		       mmdb::Manager *mol,
+		       mmdb::PPAtom atom_selection,
 		       int n_selected_atom) const;
 
       static bool fragment_sorter(const coot::minimol::fragment &a,

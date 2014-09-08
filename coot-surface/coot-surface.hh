@@ -31,7 +31,7 @@ class CColourScheme {
   int SetSchemeInt (  const std::vector<int>& ityp , const std::vector<std::string>& cols);
   int SetSchemeInt ( int n, int typ[] , char *cols[] );
   int SetSchemeFloat (  const std::vector<float>& rtyp , const std::vector<std::string>& cols);
-  int SetSchemeFloat ( int n, realtype typ[] , char *cols[] );
+  int SetSchemeFloat ( int n, mmdb::realtype typ[] , char *cols[] );
   int SetSchemeString (  const std::vector<std::string>& chtyp , const std::vector<std::string>& cols);
   int SetSchemeString ( int n, char *typ[] , char *cols[] );
   void SetBlendMode (int modein ) { blend_mode = modein; }
@@ -66,14 +66,14 @@ class CColourScheme {
       
    public:
 
-      void fill_from(CMMDBManager *mol, int selHnd, float col_scale, bool assign_charges);
-      void fill_surface(CMMDBManager *mol, int selHnd_selection, int SelHnd_all, float col_scale,
+      void fill_from(mmdb::Manager *mol, int selHnd, float col_scale, bool assign_charges);
+      void fill_surface(mmdb::Manager *mol, int selHnd_selection, int SelHnd_all, float col_scale,
 			bool assign_charges);
       void draw(double *override_colour, int selective_override);
       void transparent_draw(float opacity);
-      void evaluateElectrostaticPotential(CMMDBManager *theManager, int selHnd, float col_scale);
-      int evaluatePhiAndColourWithDefaultScheme(CMMDBManager *theManager, const int selHnd, float col_scale);
-      int evaluatePhiAndColourWithScheme(CMMDBManager *theManager,
+      void evaluateElectrostaticPotential(mmdb::Manager *theManager, int selHnd, float col_scale);
+      int evaluatePhiAndColourWithDefaultScheme(mmdb::Manager *theManager, const int selHnd, float col_scale);
+      int evaluatePhiAndColourWithScheme(mmdb::Manager *theManager,
 					 const int selHnd,
 					 CColourScheme &colourScheme);
       int interpolateIntoMap(const std::string &coordinateType,

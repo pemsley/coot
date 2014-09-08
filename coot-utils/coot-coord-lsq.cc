@@ -25,8 +25,8 @@
 // LSQing
 //
 std::pair<short int, clipper::RTop_orth>
-coot::util::get_lsq_matrix(CMMDBManager *mol1,
-			   CMMDBManager *mol2,
+coot::util::get_lsq_matrix(mmdb::Manager *mol1,
+			   mmdb::Manager *mol2,
 			   const std::vector<coot::lsq_range_match_info_t> &matches,
 			   int every_nth,
 			   bool summary_to_screen) {
@@ -107,8 +107,8 @@ coot::util::get_lsq_matrix(CMMDBManager *mol1,
 // On useful return, first.size() == second.size() and first.size() > 0.
 // 
 std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> > 
-coot::util::get_matching_indices(CMMDBManager *mol1,
-				 CMMDBManager *mol2,
+coot::util::get_matching_indices(mmdb::Manager *mol1,
+				 mmdb::Manager *mol2,
 				 const coot::lsq_range_match_info_t &match,
 				 int every_nth) {
 
@@ -155,8 +155,8 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
       int ires_matcher = ires - match.to_reference_start_resno + match.from_matcher_start_resno;
       int SelHnd_res1 = mol1->NewSelection();
       int SelHnd_res2 = mol2->NewSelection();
-      PCResidue *SelResidue_1 = NULL;
-      PCResidue *SelResidue_2 = NULL;
+      mmdb::PResidue *SelResidue_1 = NULL;
+      mmdb::PResidue *SelResidue_2 = NULL;
       int nSelResidues_1, nSelResidues_2;
 
 //      std::cout << "Searching for residue number " << ires << " "
@@ -164,7 +164,7 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 //      std::cout << "Searching for residue number " << ires_matcher << " "
 //		<< match.matcher_chain_id << " in matcher molecule" << std::endl;
       
-      mol1->Select (SelHnd_res1, STYPE_RESIDUE,
+      mol1->Select (SelHnd_res1, mmdb::STYPE_RESIDUE,
 		    match.model_number_reference,
 		    match.reference_chain_id.c_str(), // Chain(s)
 		    ires, "*",  // starting res
@@ -173,9 +173,9 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 		    "*",  // Residue must contain this atom name?
 		    "*",  // Residue must contain this Element?
 		    "*",  // altLocs
-		    SKEY_NEW // selection key
+		    mmdb::SKEY_NEW // selection key
 		    );
-      mol2->Select (SelHnd_res2, STYPE_RESIDUE, // .. TYPE, 
+      mol2->Select (SelHnd_res2, mmdb::STYPE_RESIDUE, // .. TYPE, 
 		    match.model_number_matcher,
 		    match.matcher_chain_id.c_str(), // Chain(s)
 		    ires_matcher, "*",  // starting res
@@ -184,7 +184,7 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 		    "*",  // Residue must contain this atom name?
 		    "*",  // Residue must contain this Element?
 		    "*",  // altLocs
-		    SKEY_NEW // selection key
+		    mmdb::SKEY_NEW // selection key
 		    );
 
       mol1->GetSelIndex(SelHnd_res1, SelResidue_1, nSelResidues_1);
@@ -215,8 +215,8 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 	    // CA/P names
 	    std::string ca_name;
 
-	    CAtom *at1 = NULL;
-	    CAtom *at2 = NULL;
+	    mmdb::Atom *at1 = NULL;
+	    mmdb::Atom *at2 = NULL;
 	    if (SelResidue_1[0]->isAminoacid()) {
 	      ca_name = " CA ";
 	    } else {
@@ -257,8 +257,8 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
                mc_at_names = amc_at_names;
             }
 	    for (unsigned int iat=0; iat<mc_at_names.size(); iat++) {
-	       CAtom *at1 = SelResidue_1[0]->GetAtom(mc_at_names[iat].c_str());
-	       CAtom *at2 = SelResidue_2[0]->GetAtom(mc_at_names[iat].c_str());
+	       mmdb::Atom *at1 = SelResidue_1[0]->GetAtom(mc_at_names[iat].c_str());
+	       mmdb::Atom *at2 = SelResidue_2[0]->GetAtom(mc_at_names[iat].c_str());
 	       if (at1) {
 		  if (!at2) {
 		     std::cout << "WARNING:: no " << mc_at_names[iat]
@@ -278,19 +278,19 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 	 if (match.match_type_flag == COOT_LSQ_ALL) {
 
 	    if (! match.is_single_atom_match) {
-	       PCAtom *residue_atoms1 = NULL;
-	       PCAtom *residue_atoms2 = NULL;
+	       mmdb::PAtom *residue_atoms1 = NULL;
+	       mmdb::PAtom *residue_atoms2 = NULL;
 	       int n_residue_atoms1;
 	       int n_residue_atoms2;
 	       SelResidue_1[0]->GetAtomTable(residue_atoms1, n_residue_atoms1);
 	       SelResidue_2[0]->GetAtomTable(residue_atoms2, n_residue_atoms2);
 	       for (int iat=0; iat<n_residue_atoms1; iat++) {
-		  CAtom *at1 = residue_atoms1[iat];
+		  mmdb::Atom *at1 = residue_atoms1[iat];
 		  std::string at1_name(at1->name);
 		  std::string at1_altconf(at1->altLoc);
 		  short int found_atom2 = 0;
 		  for (int jat=0; jat<n_residue_atoms2; jat++) {
-		     CAtom *at2 = residue_atoms2[jat];
+		     mmdb::Atom *at2 = residue_atoms2[jat];
 		     std::string at2_name(at2->name);
 		     std::string at2_altconf(at2->altLoc);
 
@@ -306,8 +306,8 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 	       }
 	    } else {
 	       // is single atom match
-	       PCAtom *residue_atoms1 = NULL;
-	       PCAtom *residue_atoms2 = NULL;
+	       mmdb::PAtom *residue_atoms1 = NULL;
+	       mmdb::PAtom *residue_atoms2 = NULL;
 	       int n_residue_atoms1;
 	       int n_residue_atoms2;
 	       SelResidue_1[0]->GetAtomTable(residue_atoms1, n_residue_atoms1);
@@ -318,14 +318,14 @@ coot::util::get_matching_indices(CMMDBManager *mol1,
 // 			 << coot::residue_spec_t(SelResidue_2[0])
 // 			 << std::endl;
 	       for (int iat=0; iat<n_residue_atoms1; iat++) {
-		  CAtom *at1 = residue_atoms1[iat];
+		  mmdb::Atom *at1 = residue_atoms1[iat];
 		  std::string at1_name(at1->name);
 		  std::string at1_altconf(at1->altLoc);
 		  short int found_atom2 = 0;
 		  if (at1_name == match.reference_atom_name) { 
 		     if (at1_altconf == match.reference_alt_conf) { 
 			for (int jat=0; jat<n_residue_atoms2; jat++) {
-			   CAtom *at2 = residue_atoms2[jat];
+			   mmdb::Atom *at2 = residue_atoms2[jat];
 			   std::string at2_name(at2->name);
 			   std::string at2_altconf(at2->altLoc);
 			   if (at2_name == match.matcher_atom_name) { 

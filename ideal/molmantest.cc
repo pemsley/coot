@@ -23,12 +23,12 @@
 #include <string>
 #include <vector>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "mmdb-extras.h"
 #include "mmdb.h"
 
 
-void molman(MyCMMDBManager *mol) {
+void molman(Mymmdb::Manager *mol) {
 
    int nmodels = mol->GetNumberOfModels();
    std::cout << "models: " << nmodels << std::endl;
@@ -38,12 +38,12 @@ void molman(MyCMMDBManager *mol) {
 		<< nchains << " chains"  << std::endl;
       for (int ichain=0; ichain<nchains; ichain++) {
 	 int nres = mol->GetNumberOfResidues(imodel,ichain);
-	 PCChain chn = mol->GetChain(imodel, ichain);
+	 mmdb::PChain chn = mol->GetChain(imodel, ichain);
 	 std::string chain_name = chn->GetChainID();
 	 std::cout << "   chain: " << chain_name << " " << ichain
 		   << " has " << nres << " residues" << std::endl;
 	 for (int ires=0; ires<nres; ires++) {
-	    PCResidue res = mol->GetResidue(imodel,ichain,ires);
+	    mmdb::PResidue res = mol->GetResidue(imodel,ichain,ires);
 	    int natoms = res->GetNumberOfAtoms();
 	    int seqno  = res->GetSeqNum();
 	    std::cout << "      residue " << ires << ", seqno "

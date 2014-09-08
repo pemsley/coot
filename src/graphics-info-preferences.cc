@@ -945,7 +945,6 @@ graphics_info_t::get_model_toolbar_icons_list() {
 }
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 graphics_info_t::update_toolbar_icons(GtkTreeModel *model, int toolbar_index) {
 
@@ -997,6 +996,4 @@ graphics_info_t::update_main_toolbar_icons(GtkTreeModel *model) {
     update_toolbar_icons(model, MAIN_TOOLBAR);
 
 }
-
-#endif // GTK_MAJOR_VERSION
 

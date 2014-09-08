@@ -83,7 +83,7 @@ namespace coot {
 
    class atom_graph { 
       
-      CMMDBManager *mol_internal_ptr_copy;
+      mmdb::Manager *mol_internal_ptr_copy;
       std::vector<std::vector<node_info> > nodes;
       std::vector<coot::minimol::atom> atoms;
       std::vector<std::vector<graph_atom_info> > atom_info;
@@ -138,7 +138,7 @@ namespace coot {
       void write_molecule_from_atom_info(const std::string &file_name) const;
       std::string chain_id(int chain_number) const;
 
-      std::vector<realtype> cell;
+      std::vector<mmdb::realtype> cell;
 
       // this will do for a space group for now:
       std::string spgr;
@@ -216,13 +216,13 @@ namespace coot {
    public:
 
       // We need access to the molecule's cryst - so we pass the
-      // CMMDBManager.  Don't bother to try and const it - it's just
+      // mmdb::Manager.  Don't bother to try and const it - it's just
       // too painful.  The danger is of course now that atom_graph is
       // used when mol has gone out of scope/deleted.  Don't do that,
       // then.  Yeah, I know - sorry (not really my fault - there's no
       // way to pass just the crystal-info.).
       // 
-      atom_graph(CMMDBManager *mol,
+      atom_graph(mmdb::Manager *mol,
 		 const std::vector<std::vector<coot::node_info> > &connection_indices,
 		 const std::vector<clipper::Coord_orth> &coords);
       void sort();

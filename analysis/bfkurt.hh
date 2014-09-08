@@ -12,7 +12,7 @@
 #include <vector>
 #endif // HAVE_VECTOR
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
 namespace coot_extras { 
 
@@ -44,12 +44,12 @@ namespace coot_extras {
 
    class b_factor_analysis { 
       std::vector<std::pair<std::string, std::vector<my_stats_t> > > kurtoses;
-      my_stats_t stats(CResidue *residue_p) const;
+      my_stats_t stats(mmdb::Residue *residue_p) const;
       void set_questionable_flags(float z);
       bool is_mol_from_shelx_flag;
 
    public:
-      b_factor_analysis(const CMMDBManager *mol, bool is_from_shelx_ins_flag_in);
+      b_factor_analysis(const mmdb::Manager *mol, bool is_from_shelx_ins_flag_in);
       short int write_table(const std::string &filename,
 			    const std::string &pdb_filename,
 			    short int write_only_questionables_flag) const;

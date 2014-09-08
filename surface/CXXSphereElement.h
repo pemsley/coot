@@ -20,7 +20,7 @@ class CXXSphereTriangleEdge;
 #include "CXXSphereTriangle.h"
 //class CXXSphereTriangle;
 class CXXSphereNode;
-class CAtom;
+// class mmdb::Atom;
 #include "CXXSphereFlatTriangle.h"
 //class CXXSphereFlatTriangle;
 class CXXTriangle;
@@ -40,7 +40,7 @@ public:
 
 class CXXSphereElement{
 private:
-	const CAtom *theAtom;
+	const mmdb::Atom *theAtom;
 	CXXCoord theCentre;
 	vector<CXXSphereNode, CXX::CXXAlloc<CXXSphereNode> >theVertices;
 	vector<CXXSphereTriangle, CXX::CXXAlloc<CXXSphereTriangle> >theTriangles;
@@ -58,7 +58,7 @@ public:
 	//Constructor to fully triangulate a sphere element at a given coordinate and radius
 	CXXSphereElement(const CXXCoord &position, double radius, double del);
 	//Create a fully triangulated Sphere elment covering an atom using the above
-	CXXSphereElement (CAtom *anAtom, double delta);
+	CXXSphereElement (mmdb::Atom *anAtom, double delta);
 
 	//Create a triangulated sphere element from a centr, a radius, 
 	// and three unit vectors pointing to the surface. Assume all angles
@@ -105,7 +105,7 @@ public:
 	const double radius() const;
 	const int nEdges() const;
 	const CXXSphereTriangleEdge &edge(const int iEdge) const;
-	const CAtom *getAtom() const;
+	const mmdb::Atom *getAtom() const;
 	const double delta() const;
 
 	//This will calculate a triangulated surface from current position, radius, and delta
@@ -125,11 +125,11 @@ public:
 	int scaleBy (const double factor);
 	
 	// Might wish to assign an atom to the surface
-	int setAtom(const CAtom *anAtom);
+	int setAtom(const mmdb::Atom *anAtom);
 	
 	int addTriangularPatch(const CXXCoord &u1, 
 						   const CXXCoord &u2, 
-						   const CXXCoord &u3, CAtom *, 
+						   const CXXCoord &u3, mmdb::Atom *, 
 						   vector<CXXCircle, CXX::CXXAlloc<CXXCircle> >&circles, 
 						   int UseOrGenerate);
 	
@@ -170,7 +170,7 @@ public:
 	
 	int addVertex(const CXXCircleNode &aCircle);
 
-	void initWith(const CXXCoord &aCentre, PCAtom atomI, PCAtom atomJ, PCAtom atomK, 
+	void initWith(const CXXCoord &aCentre, mmdb::PAtom atomI, mmdb::PAtom atomJ, mmdb::PAtom atomK, 
 									double delta, double radius_in, const bool *includeAtoms);
 		
 };

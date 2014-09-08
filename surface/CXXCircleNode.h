@@ -11,7 +11,7 @@
 #define CXXCircleNode_included
 #include <string.h>
 #ifndef  __MMDB_Manager__
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #endif
 #include "CXXAlloc.h"
 
@@ -31,9 +31,9 @@ private:
 	double theAngle;
 	int theFlag;
 	int thisIsDeleted;
-	CAtom *atomI;
-	CAtom *atomJ;
-	CAtom *atomK;
+	mmdb::Atom *atomI;
+	mmdb::Atom *atomJ;
+	mmdb::Atom *atomK;
 public:
     CXXCircleNode();    
 	CXXCircleNode ( const CXXCircle *aParent, const CXXCircle *anOtherCircle, const CXXCoord &crd, int aFlag);
@@ -54,9 +54,9 @@ public:
 	const double &getAngle() const {
 		return theAngle;
 	};
-	const PCAtom getAtomI() const {return atomI;};
-	const PCAtom getAtomJ() const {return atomJ;};
-	const PCAtom getAtomK() const {return atomK;};
+	const mmdb::PAtom getAtomI() const {return atomI;};
+	const mmdb::PAtom getAtomJ() const {return atomJ;};
+	const mmdb::PAtom getAtomK() const {return atomK;};
 
 	const int getFlag() const {
 		return theFlag;

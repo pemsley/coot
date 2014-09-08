@@ -6,7 +6,7 @@
 #include <vector>
 #include <iostream>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
 #include "geometry/protein-geometry.hh"
 
@@ -14,14 +14,14 @@ namespace coot {
 
    // The residues here are in order.  res_1 is comp_1 and res_2 is comp_2
    class bonded_pair_t {
-      void delete_atom(CResidue *res, const std::string &atom_name);
+      void delete_atom(mmdb::Residue *res, const std::string &atom_name);
    public:
-      CResidue *res_1;
-      CResidue *res_2;
+      mmdb::Residue *res_1;
+      mmdb::Residue *res_2;
       std::string link_type;
       bool is_fixed_first;
       bool is_fixed_second;
-      bonded_pair_t(CResidue *r1, CResidue *r2, bool is_fixed_first_in, bool is_fixed_second_in,
+      bonded_pair_t(mmdb::Residue *r1, mmdb::Residue *r2, bool is_fixed_first_in, bool is_fixed_second_in,
 		    const std::string &lt) {
 	 res_1 = r1;
 	 res_2 = r2;
@@ -35,7 +35,7 @@ namespace coot {
 	 is_fixed_first  = false;
 	 is_fixed_second = false;
       } 
-      bool matches(CResidue *r1, CResidue *r2) const {
+      bool matches(mmdb::Residue *r1, mmdb::Residue *r2) const {
 	 if (r1 == res_1 && r2 == res_2) {
 	    return true;
 	 } else{
@@ -56,7 +56,7 @@ namespace coot {
 	 return bp;
       } 
       // matches?, swap-is-needed-to-match?
-      std::pair<bool, bool> matches_info(CResidue *r1, CResidue *r2) const {
+      std::pair<bool, bool> matches_info(mmdb::Residue *r1, mmdb::Residue *r2) const {
 	 if (r1 == res_1 && r2 == res_2) {
 	    return std::pair<bool, bool> (true, false);
 	 } else{
@@ -90,10 +90,10 @@ namespace coot {
       unsigned int size() const { return bonded_residues.size(); }
       bonded_pair_t operator[](unsigned int i) { return bonded_residues[i]; }
       const bonded_pair_t operator[](unsigned int i) const { return bonded_residues[i]; }
-      bool linked_already_p(CResidue *r1, CResidue *r2) const;
+      bool linked_already_p(mmdb::Residue *r1, mmdb::Residue *r2) const;
       friend std::ostream& operator<<(std::ostream &s, bonded_pair_container_t bpc);
       // test order switch too.
-      bool matches(CResidue *r1, CResidue *r2) const {
+      bool matches(mmdb::Residue *r1, mmdb::Residue *r2) const {
 	 bool r = false;
 	 for (unsigned int i=0; i<bonded_residues.size(); i++) { 
 	    if (bonded_residues[i].matches(r1, r2)) {
@@ -103,7 +103,7 @@ namespace coot {
 	 }
 	 return r;
       }
-      bonded_pair_match_info_t match_info(CResidue *r1, CResidue *r2) const {
+      bonded_pair_match_info_t match_info(mmdb::Residue *r1, mmdb::Residue *r2) const {
 	 bonded_pair_match_info_t mi(false, false, "");
 	 for (unsigned int i=0; i<bonded_residues.size(); i++) {
 	    std::pair<bool, bool> bb = bonded_residues[i].matches_info(r1, r2);

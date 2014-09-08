@@ -391,7 +391,7 @@ void Text::SetRasterPosition(double x, double y, double z) const {
   glRasterPos3d(x,y,z);
 
   GLboolean valid=GL_TRUE;
-  glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID,&valid);
+  glGetBoolean(GL_CURRENT_RASTER_POSITION_VALID,&valid);
   if(!valid){
     GLdouble rx,ry,rz;
     GLdouble modelMatrix[16];
@@ -1477,7 +1477,7 @@ void BillBoardText::SetRasterPosition(double x_in, double y_in, double z_in) con
   glRasterPos3d(x,y,z);
 
   GLboolean valid=GL_TRUE;
-  glGetBooleanv(GL_CURRENT_RASTER_POSITION_VALID,&valid);
+  glGetBoolean(GL_CURRENT_RASTER_POSITION_VALID,&valid);
   if(!valid){
     GLdouble rx,ry,rz;
     double curr_modelMatrix[16];

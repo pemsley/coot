@@ -5,12 +5,12 @@
 namespace coot {
 
    class smcif {
-      clipper::Cell get_cell(PCMMCIFData data) const;
-      clipper::Cell get_cell_for_data(PCMMCIFData data) const;
+      clipper::Cell get_cell(mmdb::mmcif::PData data) const;
+      clipper::Cell get_cell_for_data(mmdb::mmcif::PData data) const;
       std::pair<bool,clipper::Spacegroup> get_space_group(const std::vector<std::string> &symm_strings) const;
-      std::vector<CAtom *> read_coordinates(PCMMCIFData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const;
-      std::pair<bool,clipper::Spacegroup> get_space_group(PCMMCIFData data) const;
-      std::pair<bool,clipper::Spacegroup> get_space_group(PCMMCIFData data, const std::string &symm_tag) const;
+      std::vector<mmdb::Atom *> read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const;
+      std::pair<bool,clipper::Spacegroup> get_space_group(mmdb::mmcif::PData data) const;
+      std::pair<bool,clipper::Spacegroup> get_space_group(mmdb::mmcif::PData data, const std::string &symm_tag) const;
 
 
       // e.g. "O"    -> " O"
@@ -45,7 +45,7 @@ namespace coot {
       smcif(const std::string &file_name) {
 	 read_sm_cif(file_name);
       }
-      CMMDBManager *read_sm_cif(const std::string &file_name) const;
+      mmdb::Manager *read_sm_cif(const std::string &file_name) const;
       // return success status, true is good
       bool read_data_sm_cif(const std::string &file_name);
       // return an empty map if not possible
@@ -58,7 +58,7 @@ namespace coot {
    class simple_sm_u {
    public:
       std::string label; // atom name
-      realtype u11, u22, u33, u12, u13, u23;
+      mmdb::realtype u11, u22, u33, u12, u13, u23;
       simple_sm_u() {
 	 u11 = 0;
 	 u22 = 0;
@@ -68,8 +68,8 @@ namespace coot {
 	 u23 = 0;
       }
       simple_sm_u(const std::string label_in,
-		  realtype u11_in, realtype u22_in, realtype u33_in,
-		  realtype u12_in, realtype u13_in, realtype u23_in) {
+		  mmdb::realtype u11_in, mmdb::realtype u22_in, mmdb::realtype u33_in,
+		  mmdb::realtype u12_in, mmdb::realtype u13_in, mmdb::realtype u23_in) {
 	 label = label_in;
 	 u11 = u11_in;
 	 u22 = u22_in;

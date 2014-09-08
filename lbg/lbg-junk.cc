@@ -138,7 +138,7 @@ protected:
 
 
 std::vector<std::string>
-lbg_info_t::compare_vs_sbase(CGraph *graph1) const {
+lbg_info_t::compare_vs_sbase(mmdb::math::Graph *graph1) const {
 
    std::vector<std::string> v;
    if (! SBase) {
@@ -150,8 +150,8 @@ lbg_info_t::compare_vs_sbase(CGraph *graph1) const {
       int minMatch = 4;
       
       for (int is=0; is<nStructures; is++) {
-	 CGraphMatch match;
-	 CGraph *G = new CGraph;
+	 mmdb::math::GraphMatch match;
+	 mmdb::math::Graph *G = new mmdb::math::Graph;
 	 int status = SBase->GetGraph(is, G, H_flag);
 	 if (status !=  SBASE_Ok) {
 	    std::cout << "bad status on get graph " << is << std::endl;
@@ -180,13 +180,13 @@ lbg_info_t::compare_vs_sbase(CGraph *graph1) const {
       
       for (int is=0; is<nStructures; is++) {
 	 std::cout << " testing structure " << is << std::endl;
-	 CGraph *G = new CGraph;
+	 mmdb::math::Graph *G = new mmdb::math::Graph;
 	 int status = SBase->GetGraph(is, G, H_flag);
 	 if (status != SBASE_Ok) {
 	    std::cout << "bad status on get graph " << is << std::endl;
 	 } else {
 	    // good
-	    CGraphMatch match;
+	    mmdb::math::GraphMatch match;
 	    match.MatchGraphs(graph1, G, minMatch, 1);
 	    int n_match = match.GetNofMatches();
 	    std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
@@ -199,8 +199,8 @@ lbg_info_t::compare_vs_sbase(CGraph *graph1) const {
 
 
 lbg_info_t::match_results_t
-lbg_info_t::residue_from_best_match(CGraph &graph1, CGraph &graph2,
-				    CGraphMatch &match, int n_match,
+lbg_info_t::residue_from_best_match(mmdb::math::Graph &graph1, mmdb::math::Graph &graph2,
+				    mmdb::math::GraphMatch &match, int n_match,
 				    CSBStructure *SBS) const {
 
    lbg_info_t::match_results_t r("", "", NULL);
@@ -220,8 +220,8 @@ lbg_info_t::residue_from_best_match(CGraph &graph1, CGraph &graph2,
    for (int imatch=0; imatch<n_match; imatch++) {
       std::vector<std::pair<std::pair<std::string, std::string>, std::pair<std::string, std::string> > > matching_atoms; 
       int n;
-      realtype p1, p2;
-      ivector FV1, FV2;
+      mmdb::realtype p1, p2;
+      mmdb::ivector FV1, FV2;
       match.GetMatch(imatch, FV1, FV2, n, p1, p2); // n p1 p2 set
       // 	    For understanding only.  
       // 	    std::cout << "Match number: " << imatch << "  " << p1*100 << "% "
@@ -229,15 +229,15 @@ lbg_info_t::residue_from_best_match(CGraph &graph1, CGraph &graph2,
       std::vector<clipper::Coord_orth> coords_1_local;
       std::vector<clipper::Coord_orth> coords_2_local;
       for (int ipair=1; ipair<=n; ipair++) {
-	 PCVertex V1 = graph1.GetVertex ( FV1[ipair] );
-	 PCVertex V2 = graph2.GetVertex ( FV2[ipair] );
+	 Pmmdb::math::Vertex V1 = graph1.GetVertex ( FV1[ipair] );
+	 Pmmdb::math::Vertex V2 = graph2.GetVertex ( FV2[ipair] );
 	 if ((!V1) || (!V2))  {
 	    std::cout << "Can't get vertices for match "
 		      << ipair << std::endl;
 	 } else  {
 
-	    CAtom *at1 = NULL; // = cleaned_res_moving->atom[V1->GetUserID()];
-	    CAtom *at2 = NULL; // = cleaned_res_reference->atom[V2->GetUserID()];
+	    mmdb::Atom *at1 = NULL; // = cleaned_res_moving->atom[V1->GetUserID()];
+	    mmdb::Atom *at2 = NULL; // = cleaned_res_reference->atom[V2->GetUserID()];
 	    coords_1_local.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
 	    coords_2_local.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
 	    std::pair<std::string, std::string> atom_info_1(at1->name, at1->altLoc);

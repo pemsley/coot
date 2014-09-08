@@ -180,12 +180,12 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
    if (asc_ref.n_selected_atoms > 0) { 
       if (asc_mov.n_selected_atoms > 0) {
 
-	 CMMDBManager *mol1 = asc_ref.mol;
-	 CMMDBManager *mol2 = asc_mov.mol;
+	 mmdb::Manager *mol1 = asc_ref.mol;
+	 mmdb::Manager *mol2 = asc_mov.mol;
 
 	 // debug atom selections:
-	 PCAtom *debug_atom_selection1 = NULL;
-	 PCAtom *debug_atom_selection2 = NULL;
+	 mmdb::PAtom *debug_atom_selection1 = NULL;
+	 mmdb::PAtom *debug_atom_selection2 = NULL;
 	 int n_selected_atoms_1_debug, n_selected_atoms_2_debug;
 	 asc_mov.mol->GetSelIndex(asc_mov.SelectionHandle,
 				  debug_atom_selection1,
@@ -242,8 +242,8 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 
 
 	    if (move_copy_of_imol2_flag) { 
-	       mol2 = new CMMDBManager;
-	       mol2->Copy(asc_mov.mol, MMDBFCM_All);
+	       mol2 = new mmdb::Manager;
+	       mol2->Copy(asc_mov.mol, mmdb::MMDBFCM_All);
 	       std::string name = "Copy_of_";
 	       name += moving_mol_name;
 	       int imol2_new = graphics_info_t::create_molecule();
@@ -255,8 +255,8 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 	    
 	    // OK, let's get a consistent naming system:  1 is moving: 2 is reference
 
-	    PCAtom *atom_selection1 = NULL;
-	    PCAtom *atom_selection2 = NULL;
+	    mmdb::PAtom *atom_selection1 = NULL;
+	    mmdb::PAtom *atom_selection2 = NULL;
 	    int n_selected_atoms_1, n_selected_atoms_2;
 	    asc_mov.mol->GetSelIndex(SSMAlign->selHndCa1,
 				     atom_selection1,
@@ -269,7 +269,7 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 		      << " (moving) and " << n_selected_atoms_2 << " (reference)"
 		      << std::endl;
 	    
-	    // realtype *rv = SSMAlign->dist1;
+	    // mmdb::realtype *rv = SSMAlign->dist1;
 	    std::string res_type1;
 	    std::string res_type2;
 	    std::string res_no_str_1;
@@ -293,11 +293,11 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 	    graphics_info_t::molecules[imol2].transform_by(SSMAlign->TMatrix);
 	    graphics_info_t::molecules[imol2].set_show_symmetry(0); 
 	    // 
-	    // ivector Ca1, Ca2;
+	    // mmdb::ivector Ca1, Ca2;
 	    // rvector dist1;
 	    // int nCa1, nCa2;
-	    // mat44 tmat;
-	    // realtype rmsdAchieved, seqIdentity, nCombs;
+	    // mmdb::mat44 tmat;
+	    // mmdb::realtype rmsdAchieved, seqIdentity, nCombs;
 	    // int nAligned, nGaps, nMisD;
 	    // CSuperpose Superpose;  type in class CSSMAlign
 	    // 
@@ -335,7 +335,7 @@ void
 graphics_info_t::make_and_print_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 							 atom_selection_container_t asc_ref,
 							 atom_selection_container_t asc_mov,
-							 PCAtom *atom_selection1, PCAtom *atom_selection2,
+							 mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
 							 int n_selected_atoms_1, int n_selected_atoms_2) const {
 
    std::pair<std::string, std::string> aligned_sequences =
@@ -398,7 +398,7 @@ std::pair<std::string, std::string>
 graphics_info_t::get_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 						       atom_selection_container_t asc_ref,
 						       atom_selection_container_t asc_mov,
-						       PCAtom *atom_selection1, PCAtom *atom_selection2,
+						       mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
 						       int n_selected_atoms_1, int n_selected_atoms_2) const {
 
    std::string s;
@@ -445,8 +445,8 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 // 	       // this path rarely happens?
 // 	       int atom_sel2_index = previous_t_index + 1;
 // 	       if (atom_sel2_index < SSMAlign->nsel2) { 
-// 		  CAtom *at    = atom_selection2[t_index];
-// 		  CAtom *ti_at = atom_selection2[atom_sel2_index];
+// 		  mmdb::Atom *at    = atom_selection2[t_index];
+// 		  mmdb::Atom *ti_at = atom_selection2[atom_sel2_index];
 // 		  if (debug) { 
 // 		     std::cout << "t_index: " << t_index << std::endl;
 // 		     std::cout << "atom_sel2_index: " << atom_sel2_index << std::endl;
@@ -487,21 +487,21 @@ void
 graphics_info_t::print_ssm_sequence_alignment(ssm::Align *SSMAlign,
 					      atom_selection_container_t asc_ref,
 					      atom_selection_container_t asc_mov,
-					      PCAtom *atom_selection1, PCAtom *atom_selection2,
+					      mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
 					      int n_selected_atoms_1, int n_selected_atoms_2,
 					      short int move_copy_of_imol2_flag) {
 
    std::cout << "Another Go...\n\n";
 
-   CChain *moving_chain_p = 0;
-   CChain *reference_chain_p = 0;
+   mmdb::Chain *moving_chain_p = 0;
+   mmdb::Chain *reference_chain_p = 0;
    std::string mov_chain_id = std::string(atom_selection1[0]->GetChainID());
    std::string ref_chain_id = std::string(atom_selection2[0]->GetChainID());
    std::string slc_1, slc_2; // single letter code.
 
    int nchains_ref = asc_ref.mol->GetNumberOfChains(1);
    for (int ich=0; ich<nchains_ref; ich++) {
-      CChain *chain_p = asc_ref.mol->GetChain(1, ich);
+      mmdb::Chain *chain_p = asc_ref.mol->GetChain(1, ich);
       std::string mol_chain_id(chain_p->GetChainID());
       if (mol_chain_id == std::string(ref_chain_id)) {
 	 reference_chain_p = chain_p;
@@ -510,7 +510,7 @@ graphics_info_t::print_ssm_sequence_alignment(ssm::Align *SSMAlign,
    }
    int nchains_mov = asc_mov.mol->GetNumberOfChains(1);
    for (int ich=0; ich<nchains_mov; ich++) {
-      CChain *chain_p = asc_mov.mol->GetChain(1, ich);
+      mmdb::Chain *chain_p = asc_mov.mol->GetChain(1, ich);
       std::string mol_chain_id(chain_p->GetChainID());
       if (mol_chain_id == std::string(mov_chain_id)) {
 	 moving_chain_p = chain_p;
@@ -529,12 +529,12 @@ graphics_info_t::print_ssm_sequence_alignment(ssm::Align *SSMAlign,
 	 std::cout << "      Moving  Reference   Distance" << std::endl;
 	 for (int ires=0; ires<n_selected_atoms_1; ires++) {
 	    if (ires < SSMAlign->nalgn) { 
-	       CAtom *mov_at = atom_selection1[ires];
+	       mmdb::Atom *mov_at = atom_selection1[ires];
 	    
 	       int mov_index = SSMAlign->Ca1[ires];
 	       std::cout << "      " << mov_at->GetChainID() << " " << mov_at->GetSeqNum();
 	       if ((mov_index > -1) && (mov_index < n_selected_atoms_1)) { 
-		  CAtom *ref_at = atom_selection2[mov_index];
+		  mmdb::Atom *ref_at = atom_selection2[mov_index];
 		  if (ref_at) {
 		     clipper::Coord_orth pos1(mov_at->x, mov_at->y, mov_at->z);
 		     clipper::Coord_orth pos2(ref_at->x, ref_at->y, ref_at->z);

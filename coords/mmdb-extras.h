@@ -45,15 +45,8 @@ using namespace std;  // ugh.  This should not be here.  FIXME
 
 #ifndef MMDB_MANAGER_H
 #define MMDB_MANAGER_H
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #endif
-
-class MyCMMDBManager : public CMMDBManager { 
- public: 
-  const CMMDBCryst& get_cell() { return Cryst; } 
-  CMMDBCryst* get_cell_p() { return & Cryst; } 
-}; 
-
 
 #include "geometry/protein-geometry.hh"
 
@@ -66,24 +59,24 @@ class MyCMMDBManager : public CMMDBManager {
 //
 class atom_selection_container_t { 
 public:
-   CMMDBManager *mol;
+   mmdb::Manager *mol;
    int n_selected_atoms; 
-   PPCAtom atom_selection; 
+   mmdb::PPAtom atom_selection; 
    std::string read_error_message;
    int read_success;
    int SelectionHandle;
    int UDDAtomIndexHandle; // no negative is OK.
    int UDDOldAtomIndexHandle; // ditto. // set initially to -1 in make_asc
 
-   atom_selection_container_t(CMMDBManager *mol_in, int selhnd) {
-      // one day this casting should go away...
-      mol =  (MyCMMDBManager *) mol_in;
-      atom_selection = NULL;
-      mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
-      SelectionHandle = selhnd;
-      UDDAtomIndexHandle = -1;
-      UDDOldAtomIndexHandle = -1;
-      read_success = 1;
+   atom_selection_container_t(mmdb::Manager *mol_in, int selhnd) {
+
+     mol = mol_in;
+     atom_selection = NULL;
+     mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
+     SelectionHandle = selhnd;
+     UDDAtomIndexHandle = -1;
+     UDDOldAtomIndexHandle = -1;
+     read_success = 1;
    }
 
    atom_selection_container_t() {
@@ -122,7 +115,7 @@ void
 debug_atom_selection_container(atom_selection_container_t asc);
 
 // create this struct:
-atom_selection_container_t make_asc(CMMDBManager *mol); 
+atom_selection_container_t make_asc(mmdb::Manager *mol); 
 
 // Bond things
 //
@@ -154,16 +147,16 @@ namespace coot {
   // caller should delete the chain of this residue (which will
   // implicitly delete this residue too).
   // 
-  CResidue *
-  deep_copy_this_residue(CResidue *residue, 
+  mmdb::Residue *
+  deep_copy_this_residue(mmdb::Residue *residue, 
 			 const std::string &altconf, 
 			 short int whole_residue_flag,
 			 int atom_index_handle,
 			 bool embed_in_chain_flag=true);
 
-  std::pair<CResidue *, atom_selection_container_t>
-    deep_copy_this_residue_and_make_asc(CMMDBManager *orig_mol,
-					CResidue *residue, 
+  std::pair<mmdb::Residue *, atom_selection_container_t>
+    deep_copy_this_residue_and_make_asc(mmdb::Manager *orig_mol,
+					mmdb::Residue *residue, 
 					const std::string &altconf, 
 					short int whole_residue_flag,
 					int atom_index_handle, 
@@ -171,7 +164,7 @@ namespace coot {
 
   // 13 14 15 20 21 22  -> 1
   // 13 14 15 20 22 21  -> 0
-  short int progressive_residues_in_chain_check(const CChain *chain_p); 
+  short int progressive_residues_in_chain_check(const mmdb::Chain *chain_p); 
 
   class contact_info {
 
@@ -185,12 +178,12 @@ namespace coot {
       }
     };
 
-    std::vector<std::pair<std::string, realtype> > atom_radii;
+    std::vector<std::pair<std::string, mmdb::realtype> > atom_radii;
     void setup_atom_radii();
-    realtype get_radius(const std::string &element) const;
+    mmdb::realtype get_radius(const std::string &element) const;
 
     void contacts_from_monomer_restraints(const atom_selection_container_t asc, 
-			    std::map<CResidue *, dictionary_residue_restraints_t> &res_restraints); // non-const for map [] usage
+			    std::map<mmdb::Residue *, dictionary_residue_restraints_t> &res_restraints); // non-const for map [] usage
 
     void setup_from_monomer_restraints(const atom_selection_container_t &asc, 
 				       coot::protein_geometry *geom_p);
@@ -198,25 +191,25 @@ namespace coot {
 
   public:
     std::vector<contacts_pair> contacts;
-    contact_info(PSContact con_in, int nc) {
+    contact_info(mmdb::Contact *con_in, int nc) {
       for (int i=0; i<nc; i++) { 
 	contacts.push_back(contacts_pair(con_in[i].id1, con_in[i].id2));
       }
     }
-    contact_info(PPCAtom atom_selection, PSContact con_in, int nc) {
+    contact_info(mmdb::PPAtom atom_selection, mmdb::Contact *con_in, int nc) {
       setup_atom_radii();
       for (int i=0; i<nc; i++) { 
-	CAtom *at_1 = atom_selection[con_in[i].id1];
-	CAtom *at_2 = atom_selection[con_in[i].id2];
+	mmdb::Atom *at_1 = atom_selection[con_in[i].id1];
+	mmdb::Atom *at_2 = atom_selection[con_in[i].id2];
 	std::string ele_1 = at_1->element;
 	std::string ele_2 = at_2->element;
-	realtype dx = at_1->x - at_2->x;
-	realtype dy = at_1->y - at_2->y;
-	realtype dz = at_1->z - at_2->z;
-	realtype dist_2 = dx*dx + dy*dy + dz*dz;
-	realtype dist = sqrt(dist_2);
-	realtype r1 = get_radius(ele_1);
-	realtype r2 = get_radius(ele_2);
+	mmdb::realtype dx = at_1->x - at_2->x;
+	mmdb::realtype dy = at_1->y - at_2->y;
+	mmdb::realtype dz = at_1->z - at_2->z;
+	mmdb::realtype dist_2 = dx*dx + dy*dy + dz*dz;
+	mmdb::realtype dist = sqrt(dist_2);
+	mmdb::realtype r1 = get_radius(ele_1);
+	mmdb::realtype r2 = get_radius(ele_2);
 	if (dist < (r1 + r2 + 0.1))
 	  contacts.push_back(contacts_pair(con_in[i].id1, con_in[i].id2));
       }
@@ -243,13 +236,13 @@ namespace coot {
 
     contact_info(const atom_selection_container_t &asc,
 		 protein_geometry *geom_p, 
-		 const std::vector<std::pair<CAtom *, CAtom *> > &link_bond_atoms);
+		 const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &link_bond_atoms);
 
     // like above, but we have link atom quads (selhnd is a selection
     // handle - usually all atoms in mol, but not necessarily).
     // 
     template<class T>
-    contact_info(CMMDBManager *mol, int selhnd,
+    contact_info(mmdb::Manager *mol, int selhnd,
 		 const std::vector<T> &link_torsions,
 		 protein_geometry *geom_p);
 
@@ -270,7 +263,7 @@ namespace coot {
 
   // Typically this is used on an asc (moving atoms) to get the N of a
   // peptide (say).  Return NULL on atom not found.
-  CAtom *get_first_atom_with_atom_name(const std::string &atomname, 
+  mmdb::Atom *get_first_atom_with_atom_name(const std::string &atomname, 
 				       const atom_selection_container_t &asc); 
 
   // tinker with asc

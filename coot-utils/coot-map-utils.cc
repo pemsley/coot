@@ -268,7 +268,7 @@ coot::util::density_around_point(const clipper::Coord_orth &point,
 
 
 float
-coot::util::map_score(PPCAtom atom_selection,
+coot::util::map_score(mmdb::PPAtom atom_selection,
 		      int n_selected_atoms,
 		      const clipper::Xmap<float> &xmap,
 		      short int with_atomic_weighting) {
@@ -288,7 +288,7 @@ coot::util::map_score(PPCAtom atom_selection,
    return f;
 }
 
-float coot::util::map_score_atom(CAtom *atom,
+float coot::util::map_score_atom(mmdb::Atom *atom,
 				 const clipper::Xmap<float> &xmap) {
 
    float f = 0;
@@ -322,7 +322,7 @@ coot::util::max_gridding(const clipper::Xmap<float> &xmap) {
 }
 
 clipper::RTop_orth
-coot::util::make_rtop_orth_from(mat44 mat) {
+coot::util::make_rtop_orth_from(mmdb::mat44 mat) {
 
    clipper::Mat33<double> clipper_mat(mat[0][0], mat[0][1], mat[0][2],
 				      mat[1][0], mat[1][1], mat[1][2],
@@ -498,7 +498,7 @@ coot::util::laplacian_transform(const clipper::Xmap<float> &xmap_in) {
 // 
 // return a torsion.  Return -1111 (less than -1000) on failure
 float
-coot::util::spin_search(const clipper::Xmap<float> &xmap, CResidue *res, coot::torsion tors) {
+coot::util::spin_search(const clipper::Xmap<float> &xmap, mmdb::Residue *res, coot::torsion tors) {
 
    // The plan:
    //
@@ -510,7 +510,7 @@ coot::util::spin_search(const clipper::Xmap<float> &xmap, CResidue *res, coot::t
 
    float best_ori = -1111.1; //returned thing
    
-   std::vector<CAtom * > match_atoms = tors.matching_atoms(res);
+   std::vector<mmdb::Atom * > match_atoms = tors.matching_atoms(res);
 
    if (match_atoms.size() != 4) { 
       std::cout << "ERROR:: not all atoms for torsion found in residue!" << std::endl;
@@ -686,7 +686,7 @@ coot::util::backrub_residue_triple_t::trim_this_residue_atoms() {
 }
 
 void
-coot::util::backrub_residue_triple_t::trim_residue_atoms_generic(CResidue *residue_p,
+coot::util::backrub_residue_triple_t::trim_residue_atoms_generic(mmdb::Residue *residue_p,
 								 std::vector<std::string> keep_atom_vector,
 								 bool use_keep_atom_vector) {
 
@@ -696,7 +696,7 @@ coot::util::backrub_residue_triple_t::trim_residue_atoms_generic(CResidue *resid
    
    if (residue_p) {
       std::vector<int> delete_atom_index_vec;
-      PPCAtom residue_atoms;
+      mmdb::PPAtom residue_atoms;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int i=0; i<n_residue_atoms; i++) {
@@ -1420,7 +1420,7 @@ coot::util::segment_map::path_to_peak(const clipper::Coord_grid &start_point,
 // pass a negative atom_selection_handle to build an atom map for the whole molecule
 // 
 clipper::Xmap<float>
-coot::util::calc_atom_map(CMMDBManager *mol,
+coot::util::calc_atom_map(mmdb::Manager *mol,
 			  int atom_selection_handle,
 			  const clipper::Cell &cell,
 			  const clipper::Spacegroup &space_group,
@@ -1431,7 +1431,7 @@ coot::util::calc_atom_map(CMMDBManager *mol,
 
    std::vector<clipper::Atom> l;
 
-   PPCAtom sel_atoms = 0;
+   mmdb::PPAtom sel_atoms = 0;
    int n_atoms;
    mol->GetSelIndex(atom_selection_handle, sel_atoms, n_atoms);
 
@@ -1440,7 +1440,7 @@ coot::util::calc_atom_map(CMMDBManager *mol,
    // (coords are nan and ele is scrambled text)
    // 
 //    for (unsigned int i=0; i<n_atoms; i++) {
-//       CAtom mmdb_atom;
+//       mmdb::Atom mmdb_atom;
 //       mmdb_atom.Copy(sel_atoms[i]);
 //       clipper::MMDBAtom clipper_mmdb_at(mmdb_atom);
 //       clipper::Atom atom(clipper_mmdb_at);
@@ -1452,7 +1452,7 @@ coot::util::calc_atom_map(CMMDBManager *mol,
 
    for (unsigned int iat=0; iat<n_atoms; iat++) {
       float rescale_b_u = 1/(8*M_PI*M_PI);
-      CAtom *at = sel_atoms[iat];
+      mmdb::Atom *at = sel_atoms[iat];
       clipper::Coord_orth pt(at->x, at->y, at->z);
       std::string ele(at->element);
       clipper::Atom cat;
@@ -1495,7 +1495,7 @@ coot::util::calc_atom_map(CMMDBManager *mol,
 // 5: side-chain atoms if is standard amino-acid, else nothing
 // 
 float
-coot::util::map_to_model_correlation(CMMDBManager *mol,
+coot::util::map_to_model_correlation(mmdb::Manager *mol,
 				     const std::vector<residue_spec_t> &specs,
 				     const std::vector<residue_spec_t> &specs_for_masking_neighbs,
 				     unsigned short int atom_mask_mode,
@@ -1519,7 +1519,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       std::string atom_name_selection = "*";
 
       if (atom_mask_mode != 0) { // main chain for standard amino acids
-	 CResidue *res = get_residue(specs[ilocal], mol);
+	 mmdb::Residue *res = get_residue(specs[ilocal], mol);
 	 if (res) {
 	    std::string residue_name(res->GetResName());
 	    if (is_standard_residue_name(residue_name)) { 
@@ -1551,13 +1551,13 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 		       atom_name_selection.c_str(), 
 		       "*", // elements
 		       "*", // alt loc.
-		       SKEY_OR
+		       mmdb::SKEY_OR
 		       );
    }
 
-   std::vector<CResidue *> neighb_residues;
+   std::vector<mmdb::Residue *> neighb_residues;
    for (unsigned int inb=0; inb<specs_for_masking_neighbs.size(); inb++) { 
-      CResidue *r = get_residue(specs_for_masking_neighbs[inb], mol);
+      mmdb::Residue *r = get_residue(specs_for_masking_neighbs[inb], mol);
       if (r)
 	 neighb_residues.push_back(r);
    }
@@ -1575,7 +1575,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       clipper::Xmap_base::Map_reference_index ix;
       for (ix = masked_map.first(); !ix.last(); ix.next())
 	 masked_map[ix] = 0;
-      PPCAtom atom_selection = 0;
+      mmdb::PPAtom atom_selection = 0;
       int n_atoms;
       mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
 
@@ -1662,12 +1662,12 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
       // Now we need to (potentially) cut into that near the atoms of neighb_residues.
       //
       for (unsigned int ir=0; ir<neighb_residues.size(); ir++) { 
-	 PPCAtom residue_atoms = 0;
+	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
-	 CResidue *residue_p = neighb_residues[ir];
+	 mmdb::Residue *residue_p = neighb_residues[ir];
 	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
-	    CAtom *at = residue_atoms[iat];
+	    mmdb::Atom *at = residue_atoms[iat];
 	    clipper::Coord_orth pt = co(at);
 
 	    clipper::Coord_frac cf = pt.coord_frac(masked_map.cell());
@@ -1826,7 +1826,7 @@ coot::util::map_to_model_correlation(CMMDBManager *mol,
 //    4: nothing
 //    5: nothing
 std::vector<std::pair<coot::residue_spec_t, float> >
-coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
+coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
 						 const std::vector<coot::residue_spec_t> &specs,
 						 unsigned short int atom_mask_mode,
 						 float atom_radius, // for masking 
@@ -1841,7 +1841,7 @@ coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
       std::string atom_name_selection = "*";
 
       if (atom_mask_mode != 0) { // main chain for standard amino acids
-	 CResidue *res = get_residue(specs[ispec], mol);
+	 mmdb::Residue *res = get_residue(specs[ispec], mol);
 	 if (res) {
 	    std::string residue_name(res->GetResName());
 	    if (is_standard_residue_name(residue_name)) { 
@@ -1873,10 +1873,10 @@ coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
 		       atom_name_selection.c_str(), 
 		       "*", // elements
 		       "*", // alt loc.
-		       SKEY_OR
+		       mmdb::SKEY_OR
 		       );
       if (0) { // debugging selection
-	 PPCAtom atom_selection = 0;
+	 mmdb::PPAtom atom_selection = 0;
 	 int n_atoms;
 	 mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
 
@@ -1901,7 +1901,7 @@ coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
 						    reference_map.cell(),
 						    reference_map.grid_sampling());
       clipper::Xmap_base::Map_reference_index ix;
-      PPCAtom atom_selection = 0;
+      mmdb::PPAtom atom_selection = 0;
       int n_atoms;
       mol->GetSelIndex(SelHnd, atom_selection, n_atoms);
 
@@ -2007,7 +2007,7 @@ coot::util::map_to_model_correlation_per_residue(CMMDBManager *mol,
 // Input maps is a difference map, return a vector of doubles for a plot
 // 
 std::vector<std::pair<double, double> >
-coot::util::qq_plot_for_map_over_model(CMMDBManager *mol,
+coot::util::qq_plot_for_map_over_model(mmdb::Manager *mol,
 				       const std::vector<coot::residue_spec_t> &specs,
 				       const std::vector<coot::residue_spec_t> &nb_residues,
 				       int atom_mask_mode,
@@ -2019,9 +2019,9 @@ coot::util::qq_plot_for_map_over_model(CMMDBManager *mol,
    // First, identify parts of the map which correspond to the atom
    // selection (that are not covered by the neighbouring reisdues.
 
-   std::vector<CResidue *> neighb_residues;
+   std::vector<mmdb::Residue *> neighb_residues;
    for (unsigned int i=0; i<nb_residues.size(); i++) { 
-      CResidue *r = get_residue(nb_residues[i], mol);
+      mmdb::Residue *r = get_residue(nb_residues[i], mol);
       if (r)
 	 neighb_residues.push_back(r);
    }
@@ -2029,7 +2029,7 @@ coot::util::qq_plot_for_map_over_model(CMMDBManager *mol,
    // We must delete the selection!
    // 
    int SelHnd = specs_to_atom_selection(specs, mol, atom_mask_mode); // d
-   PPCAtom sel_atoms = 0;
+   mmdb::PPAtom sel_atoms = 0;
    int n_atoms;
    mol->GetSelIndex(SelHnd, sel_atoms, n_atoms);
 
@@ -2040,7 +2040,7 @@ coot::util::qq_plot_for_map_over_model(CMMDBManager *mol,
 
    int n_points_masked = 0;
    for (unsigned int iat=0; iat<n_atoms; iat++) { 
-      CAtom *at = sel_atoms[iat];
+      mmdb::Atom *at = sel_atoms[iat];
       clipper::Coord_orth c_o = co(at);
       float radius = 1.5 + at->tempFactor*1.5/80.0; // should be some function of tempFactor;
       float radius_sq = radius * radius;
@@ -2091,7 +2091,7 @@ coot::util::qq_plot_for_map_over_model(CMMDBManager *mol,
 // caller deletes the selection!
 int
 coot::util::specs_to_atom_selection(const std::vector<coot::residue_spec_t> &specs,
-				    CMMDBManager *mol,
+				    mmdb::Manager *mol,
 				    int atom_mask_mode) {
 
    int SelHnd = -1;
@@ -2103,7 +2103,7 @@ coot::util::specs_to_atom_selection(const std::vector<coot::residue_spec_t> &spe
 	 std::string atom_name_selection = "*";
 
 	 if (atom_mask_mode != 0) { // main chain for standard amino acids
-	    CResidue *res = get_residue(specs[ilocal], mol);
+	    mmdb::Residue *res = get_residue(specs[ilocal], mol);
 	    if (res) {
 	       std::string residue_name(res->GetResName());
 	       if (is_standard_residue_name(residue_name)) { 
@@ -2135,7 +2135,7 @@ coot::util::specs_to_atom_selection(const std::vector<coot::residue_spec_t> &spe
 			  atom_name_selection.c_str(), 
 			  "*", // elements
 			  "*", // alt loc.
-			  SKEY_OR
+			  mmdb::SKEY_OR
 			  );
       }
    }

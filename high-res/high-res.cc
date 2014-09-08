@@ -21,7 +21,7 @@
 #include <algorithm>
 #include <map>
 #include "coords/mmdb-extras.h" // for atom_selection_container_t used in coot-close
-#include "coords/mmdb.h" // for formatting of CAtom
+#include "coords/mmdb.h" // for formatting of mmdb::Atom
 #include "coords/coot-close.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-atom-graph.hh"
@@ -36,7 +36,7 @@ coot::high_res::high_res(const coot::minimol::molecule &mol) {
    // 
    // Also return the mmdb_manager that we used to find this.
    // 
-   std::pair<clipper::Coord_orth, CMMDBManager *> middle_pos = get_middle_pos(mol);
+   std::pair<clipper::Coord_orth, mmdb::Manager *> middle_pos = get_middle_pos(mol);
    clipper::Coord_orth target_pos = middle_pos.first;
 
    fill_globular_protein(mol, middle_pos.first, middle_pos.second);
@@ -48,7 +48,7 @@ coot::high_res::high_res(const coot::minimol::molecule &mol) {
 coot::high_res::high_res(const coot::minimol::molecule &mol,
 			 int iflag) {
 
-   std::pair<clipper::Coord_orth, CMMDBManager *> middle_pos = get_middle_pos(mol);
+   std::pair<clipper::Coord_orth, mmdb::Manager *> middle_pos = get_middle_pos(mol);
    fill_globular_protein_by_fragments(mol, middle_pos.first, middle_pos.second);
    delete middle_pos.second;
 }
@@ -56,7 +56,7 @@ coot::high_res::high_res(const coot::minimol::molecule &mol,
 coot::high_res::high_res(const coot::minimol::molecule &mol,
 			 const clipper::Coord_orth &given_centre) {
 
-   std::pair<clipper::Coord_orth, CMMDBManager *> middle_pos = get_middle_pos(mol);
+   std::pair<clipper::Coord_orth, mmdb::Manager *> middle_pos = get_middle_pos(mol);
    fill_globular_protein_by_fragments(mol, given_centre, middle_pos.second);
    delete middle_pos.second;
 
@@ -69,19 +69,19 @@ coot::high_res::output_pdb(const std::string &filename) const {
 }
 
 
-std::pair<clipper::Coord_orth, CMMDBManager *> 
+std::pair<clipper::Coord_orth, mmdb::Manager *> 
 coot::high_res::get_middle_pos(const coot::minimol::molecule &minimol_mol) const { 
 
-   std::pair<clipper::Coord_orth, CMMDBManager *> r;
+   std::pair<clipper::Coord_orth, mmdb::Manager *> r;
    long i_contact_group = 1;
 
-   CMMDBManager *mol = minimol_mol.pcmmdbmanager();
+   mmdb::Manager *mol = minimol_mol.pcmmdbmanager();
    r.second = mol;
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts = -1;
    float min_dist = 1.0;
    float max_dist = 15.0;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;
@@ -89,7 +89,7 @@ coot::high_res::get_middle_pos(const coot::minimol::molecule &minimol_mol) const
    atom_selection_container_t asc = make_asc(mol);
    
    int err = mol->GetTMatrix(my_matt, 0, 0, 0, 0);
-   if (err != SYMOP_Ok) {
+   if (err != mmdb::SYMOP_Ok) {
       cout << "!! Warning:: No symmetry available for this molecule"
 	   << endl;
    } else { 
@@ -119,7 +119,7 @@ coot::high_res::get_middle_pos(const coot::minimol::molecule &minimol_mol) const
 	 }
       }
       if (most_contacts >= 0) { 
-	 CAtom *at = asc.atom_selection[most_contacts_index];
+	 mmdb::Atom *at = asc.atom_selection[most_contacts_index];
 	 r.first = clipper::Coord_orth(at->x, at->y, at->z);
       } 
       delete [] pscontact;
@@ -129,13 +129,14 @@ coot::high_res::get_middle_pos(const coot::minimol::molecule &minimol_mol) const
    return r;
 }
 
+// needed?
+#include "coords/coot-close.hh"
 
 void
 coot::high_res::fill_globular_protein(const coot::minimol::molecule &mol, 
 				      const clipper::Coord_orth &target_pos_in,
-				      CMMDBManager *mmdb_mol) { 
+				      mmdb::Manager *mmdb_mol) { 
 
-   std::cout << "DEBUG:: ##################### globular_molecule making" << std::endl;
    clipper::Coord_orth sum_atoms = target_pos_in;
    clipper::Coord_orth target_pos = target_pos_in;
    // now a bit of jiggery pokery
@@ -157,10 +158,9 @@ coot::high_res::fill_globular_protein(const coot::minimol::molecule &mol,
 	   ires++) {
 	 for (int iat=0; iat<mol[ifrag][ires].n_atoms(); iat++) {
 
-	    t = closest_approach(mol[ifrag][ires][iat].pos, 
-				 target_pos,
-				 mmdb_mol);
-
+	    t = ::closest_approach(mol[ifrag][ires][iat].pos, 
+				   target_pos, mmdb_mol);
+	    
 // 	    std::cout << "MOVING start pos " 
 // 		      << mol[ifrag][ires][iat].pos.x() << " " 
 // 		      << mol[ifrag][ires][iat].pos.y() << " " 
@@ -195,7 +195,7 @@ coot::high_res::fill_globular_protein(const coot::minimol::molecule &mol,
 void
 coot::high_res::fill_globular_protein_by_fragments(const coot::minimol::molecule &mol, 
 						   const clipper::Coord_orth &target_pos_in,
-						   CMMDBManager *mmdb_mol) {
+						   mmdb::Manager *mmdb_mol) {
    
    // first we want a fragmented minimol molecule
    globular_molecule = mol.fragmentize();
@@ -221,10 +221,10 @@ coot::high_res::fill_globular_protein_by_fragments(const coot::minimol::molecule
 void
 coot::high_res::make_trees() { 
 
-   CMMDBManager *mol = globular_molecule.pcmmdbmanager();
+   mmdb::Manager *mol = globular_molecule.pcmmdbmanager();
    atom_selection_container_t asc = make_asc(mol);
 
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    float min_dist = 1.0;
    float max_dist = 1.9;
@@ -235,8 +235,8 @@ coot::high_res::make_trees() {
    if (mol->GetNumberOfSymOps() == 0) {
       std::cout << "WARNING:: no symmetry available! no connections!\n";
    } else { 
-      realtype cell[6];
-      realtype vol;
+      mmdb::realtype cell[6];
+      mmdb::realtype vol;
       int orthcode;
       mol->GetCell(cell[0], cell[1], cell[2], cell[3], cell[4], cell[5], vol, orthcode);
       std::cout << "  Spacegroup: " << mol->GetSpaceGroup() << "\n";
@@ -248,7 +248,7 @@ coot::high_res::make_trees() {
       std::cout << "Finding contacts for " << asc.n_selected_atoms << " atoms\n";
       
 
-      mat44 my_matt;
+      mmdb::mat44 my_matt;
       for (int i=0; i<4; i++) 
 	 for (int j=0; j<4; j++) 
 	    my_matt[i][j] = 0.0;
@@ -265,7 +265,7 @@ coot::high_res::make_trees() {
 		  int err = mol->GetTMatrix(my_matt, isym, ix, iy, iz); 
 		  nsymops++;
 		  if (err != 0) { 
-		     std::cout << "WARNING:: something BAD with CMMDBCryst.GetTMatrix\n";
+		     std::cout << "WARNING:: something BAD with mmdb::CMMDBCryst.GetTMatrix\n";
 		  } else { 
 		     pscontact = NULL;
 		     mol->SeekContacts(asc.atom_selection, asc.n_selected_atoms, 
@@ -345,14 +345,14 @@ coot::high_res::buccafilter_neighbours() {
    // selection to do that.
    //
 
-   CMMDBManager *mol = globular_molecule.pcmmdbmanager();
+   mmdb::Manager *mol = globular_molecule.pcmmdbmanager();
    atom_selection_container_t asc = make_asc(mol);
    
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts;
 
-   realtype min_dist = 0.0;
-   realtype max_dist = 2.0;
+   mmdb::realtype min_dist = 0.0;
+   mmdb::realtype max_dist = 2.0;
 
    std::cout << "INFO asc has has " << asc.n_selected_atoms
 	     << " selected atoms" << std::endl;
@@ -370,12 +370,12 @@ coot::high_res::buccafilter_neighbours() {
 
       // mark each atom with a group (cluster) id.  Initially set the
       // group id to -1 (unset).
-      int uddhandle = asc.mol->RegisterUDInteger(UDR_ATOM,
+      int uddhandle = asc.mol->RegisterUDInteger(mmdb::UDR_ATOM,
 						 "buccaneer filter group");
       for (int i=0; i<asc.n_selected_atoms; i++) {
 	 int istat = asc.atom_selection[i]->PutUDData(uddhandle, -1);
-	 if (istat == UDDATA_WrongUDRType) {
-	    std::cout << "ERROR::  UDDATA_WrongUDRType in "
+	 if (istat == mmdb::UDDATA_WrongUDRType) {
+	    std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in "
 		      << "buccafilter" << std::endl;
 	 }
       }
@@ -401,7 +401,7 @@ coot::high_res::buccafilter_neighbours() {
       for (int iat=0; iat<asc.n_selected_atoms; iat++) {
 	 // Tinker with the UDD of the atom selection
 	 ierr = asc.atom_selection[iat]->GetUDData(uddhandle, ic);
-	 if (ierr == UDDATA_Ok) {
+	 if (ierr == mmdb::UDDATA_Ok) {
 	    if (ic == -1) {
 	       char *at_name = asc.atom_selection[iat]->name;
 	       std::string atom_name(at_name);
@@ -469,14 +469,14 @@ coot::high_res::buccafilter() {
    // globular_molecule.fragments = fragments;
    // globular_molecule.write_file("fragmented.pdb"); // debug
 
-   CMMDBManager *mol = globular_molecule.pcmmdbmanager();
+   mmdb::Manager *mol = globular_molecule.pcmmdbmanager();
    atom_selection_container_t asc = make_asc(mol);
    
-   PSContact contact = NULL;
+   mmdb::Contact *contact = NULL;
    int ncontacts;
 
-   realtype min_dist = 0.0;
-   realtype max_dist = 2.0;
+   mmdb::realtype min_dist = 0.0;
+   mmdb::realtype max_dist = 2.0;
 
    std::cout << "INFO asc has " << asc.n_selected_atoms
 	     << " selected atoms" << std::endl;
@@ -493,10 +493,10 @@ coot::high_res::buccafilter() {
       for (int i=0; i<10; i++)
 	 std::cout << "  " << asc.atom_selection[i] << std::endl;
 
-      std::map<CChain *, int> chain_numbers;
+      std::map<mmdb::Chain *, int> chain_numbers;
       int imod = 1;
-      CModel *model_p = asc.mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = asc.mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       std::cout << "mol has " << nchains << " chains " << std::endl;
       for (int ich=0; ich<nchains; ich++) {
@@ -506,13 +506,13 @@ coot::high_res::buccafilter() {
    
       int ich1;
       int ich2;
-      int uddhandle = asc.mol->RegisterUDInteger(UDR_ATOM, "delete me flag");
+      int uddhandle = asc.mol->RegisterUDInteger(mmdb::UDR_ATOM, "delete me flag");
       for (int iat=0; iat<asc.n_selected_atoms; iat++)
 	 asc.atom_selection[iat]->PutUDData(uddhandle, 0);
    
       for (int ic=0; ic< ncontacts; ic++) {
-	 CChain *chain1 = asc.atom_selection[contact[ic].id1]->GetChain();
-	 CChain *chain2 = asc.atom_selection[contact[ic].id2]->GetChain();
+	 mmdb::Chain *chain1 = asc.atom_selection[contact[ic].id1]->GetChain();
+	 mmdb::Chain *chain2 = asc.atom_selection[contact[ic].id2]->GetChain();
 	 if (chain1 != chain2) {
 	    ich1 = chain_numbers[chain1];
 	    ich2 = chain_numbers[chain2];
@@ -646,7 +646,7 @@ void
 coot::high_res::mark_neighbours(int iatom, int igroup,
 				const std::string &atom_name,
 				const std::vector<std::vector<int> > &neighbours,
-				PPCAtom atom_selection, int uddhandle) {
+				mmdb::PPAtom atom_selection, int uddhandle) {
 
    int ig;
    atom_selection[iatom]->GetUDData(uddhandle, ig);
@@ -667,8 +667,8 @@ coot::high_res::mark_neighbours(int iatom, int igroup,
 
 coot::minimol::molecule
 coot::high_res::filter_on_groups(const std::vector<std::vector<int> > &groups,
-				 CMMDBManager *mol,
-				 PPCAtom atom_selection,
+				 mmdb::Manager *mol,
+				 mmdb::PPAtom atom_selection,
 				 int n_selected_atoms) const {
 
    coot::minimol::molecule m;
@@ -691,7 +691,7 @@ coot::high_res::filter_on_groups(const std::vector<std::vector<int> > &groups,
       clipper::Coord_orth sum(0.0, 0.0, 0.0);
       int n_grp_ats = groups[igroup].size();
       for (int iat=0; iat<n_grp_ats; iat++) {
-	 CAtom *at = atom_selection[groups[igroup][iat]];
+	 mmdb::Atom *at = atom_selection[groups[igroup][iat]];
 	 clipper::Coord_orth pt(at->x, at->y, at->z);
 	 sum += pt;
       }
@@ -701,7 +701,7 @@ coot::high_res::filter_on_groups(const std::vector<std::vector<int> > &groups,
       // double dist_crit = 0.5; // A
       int n_group_within_lim = 0;
       for (int iat=0; iat<n_grp_ats; iat++) {
-	 CAtom *at = atom_selection[groups[igroup][iat]];
+	 mmdb::Atom *at = atom_selection[groups[igroup][iat]];
 	 clipper::Coord_orth pt(at->x, at->y, at->z);
 	 //      double d = clipper::Coord_orth::length(mean_pt, pt);
 	 // 	 if (d < dist_crit) {
@@ -724,7 +724,7 @@ coot::high_res::filter_on_groups(const std::vector<std::vector<int> > &groups,
 	 clipper::Coord_orth av_pt(new_sum.x()*frac,
 				   new_sum.y()*frac,
 				   new_sum.z()*frac);
-	 CAtom *speced_at = atom_selection[groups[igroup][0]];
+	 mmdb::Atom *speced_at = atom_selection[groups[igroup][0]];
 	 std::string atom_name(speced_at->name);
 	 std::string atom_element(speced_at->element);
 	 int resno = speced_at->GetSeqNum();

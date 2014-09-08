@@ -42,7 +42,7 @@ namespace coot {
       // geom_p gets updated to include the residue restraints if necessary
       // 
       std::pair<int, std::vector<std::string> >
-      check_dictionary_for_residues(PCResidue *SelResidues, int nSelResidues,
+      check_dictionary_for_residues(mmdb::PResidue *SelResidues, int nSelResidues,
 				    protein_geometry *geom_p, int read_number);
 
       // We also now pass regular_residue_flag so that the indexing of the
@@ -54,32 +54,32 @@ namespace coot {
       // regular_residue_flag) if you know how.
       // 
       std::vector<std::vector<int> >
-      get_contact_indices_from_restraints(CResidue *residue,
+      get_contact_indices_from_restraints(mmdb::Residue *residue,
 					  protein_geometry *geom_p,
 					  bool regular_residue_flag,
 					  bool add_reverse_contacts);
 
       std::vector<std::vector<int> >
-      get_contact_indices_from_restraints(CResidue *residue,
+      get_contact_indices_from_restraints(mmdb::Residue *residue,
 					  const dictionary_residue_restraints_t &restraints,
 					  bool regular_residue_flag,
 					  bool add_reverse_contacts);
 
 
       std::vector<std::vector<int> >
-      get_contact_indices_for_PRO_residue(PPCAtom residue_atom,
+      get_contact_indices_for_PRO_residue(mmdb::PPAtom residue_atom,
 					  int nResidueAtoms, 
 					  protein_geometry *geom_p);
 
       class missing_atom_info {
       public:
 	 std::vector<std::string> residues_with_no_dictionary;
-	 std::vector<CResidue *>  residues_with_missing_atoms;
-	 std::vector<std::pair<CResidue *, std::vector<CAtom *> > > atoms_in_coords_but_not_in_dict;
+	 std::vector<mmdb::Residue *>  residues_with_missing_atoms;
+	 std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Atom *> > > atoms_in_coords_but_not_in_dict;
 	 missing_atom_info() {}
 	 missing_atom_info(const std::vector<std::string> &residues_with_no_dictionary_in,
-			   const std::vector<CResidue *>  &residues_with_missing_atoms_in,
-			   const std::vector<std::pair<CResidue *, std::vector<CAtom *> > > &atoms_in_coords_but_not_in_dict_in) {
+			   const std::vector<mmdb::Residue *>  &residues_with_missing_atoms_in,
+			   const std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Atom *> > > &atoms_in_coords_but_not_in_dict_in) {
 	    residues_with_no_dictionary = residues_with_no_dictionary_in;
 	    residues_with_missing_atoms = residues_with_missing_atoms_in;
 	    atoms_in_coords_but_not_in_dict = atoms_in_coords_but_not_in_dict_in;
@@ -116,15 +116,15 @@ namespace coot {
       };
 
       // do we need to pass read number to this function too?
-      bool is_nucleotide_by_dict_dynamic_add(CResidue *residue_p, protein_geometry *geom_p);
-      bool is_nucleotide_by_dict(CResidue *residue_p, const protein_geometry &geom);
+      bool is_nucleotide_by_dict_dynamic_add(mmdb::Residue *residue_p, protein_geometry *geom_p);
+      bool is_nucleotide_by_dict(mmdb::Residue *residue_p, const protein_geometry &geom);
    }
 
-   CResidue *GetResidue(const minimol::residue &r); // For use with wiggly
+   mmdb::Residue *GetResidue(const minimol::residue &r); // For use with wiggly
 					   // ligands, constructed from
 					   // a minimol residue, the
 					   // get_contact_indices_from_restraints()
-					   // needs a CResidue *.  Caller disposes.
+					   // needs a mmdb::Residue *.  Caller disposes.
       
 
 
@@ -169,22 +169,22 @@ namespace coot {
       // which atoms to move.
       //
       // 
-      CResidue *residue;
-      PPCAtom atom_selection;   // for the multi-residue interface
+      mmdb::Residue *residue;
+      mmdb::PPAtom atom_selection;   // for the multi-residue interface
       int     n_selected_atoms; // (we can't do residue_p->GetAtomTable())
       bool made_from_minimol_residue_flag; 
       std::vector<std::pair<int, int> > bonds;
       std::vector<atom_vertex> atom_vertex_vec;
       void construct_internal(const dictionary_residue_restraints_t &rest,
-			      CResidue *res,
+			      mmdb::Residue *res,
 			      const std::string &altconf);
       std::map<std::string, map_index_t, std::less<std::string> > name_to_index;
    private: 
-      bool fill_atom_vertex_vec(const dictionary_residue_restraints_t &rest, CResidue *res,
+      bool fill_atom_vertex_vec(const dictionary_residue_restraints_t &rest, mmdb::Residue *res,
 				const std::string &altconf);
       bool fill_atom_vertex_vec_using_contacts(const std::vector<std::vector<int> > &contact_indices,
 					       int base_atom_index);
-      bool fill_torsions(const dictionary_residue_restraints_t &rest, CResidue *res,
+      bool fill_torsions(const dictionary_residue_restraints_t &rest, mmdb::Residue *res,
 			 const std::string &altconf);
       void fill_name_map(const std::string &altconf);
 
@@ -192,7 +192,7 @@ namespace coot {
       // 
       std::pair<bool, atom_index_quad>
       get_atom_index_quad(const dict_torsion_restraint_t &tr,
-			  CResidue *res, const std::string &altconf) const;
+			  mmdb::Residue *res, const std::string &altconf) const;
       
       std::vector<map_index_t> get_back_atoms(const map_index_t &index2) const;
 
@@ -224,7 +224,7 @@ namespace coot {
 			   double angle);
       double quad_to_torsion(const map_index_t &index2) const;
 
-      map_index_t get_index(CAtom *atom) const;
+      map_index_t get_index(mmdb::Atom *atom) const;
 
       bool in_forward_atoms(const map_index_t &bond_atom_index,
 			    const map_index_t &fixed) const;
@@ -232,7 +232,7 @@ namespace coot {
 
       // factored out:
       bool fill_atom_vertex_vec_using_contacts_by_atom_selection(const std::vector<std::vector<int> > &contact_indices,
-								 PPCAtom residue_atoms,
+								 mmdb::PPAtom residue_atoms,
 								 int n_residue_atoms,
 								 int base_atom_index);
       
@@ -274,7 +274,7 @@ namespace coot {
       // should fall back to using the bonds in the restraint. And
       // throw an exception if there are no bonds.
       //
-      atom_tree_t(const dictionary_residue_restraints_t &rest, CResidue *res,
+      atom_tree_t(const dictionary_residue_restraints_t &rest, mmdb::Residue *res,
 		  const std::string &altconf);
 
       // the constructor, given a list of bonds and a base atom index.
@@ -283,7 +283,7 @@ namespace coot {
       // 
       atom_tree_t(const std::vector<std::vector<int> > &contact_indices,
 		  int base_atom_index, 
-		  CResidue *res,
+		  mmdb::Residue *res,
 		  const std::string &alconf);
 
       // constructor can throw an exception
@@ -309,7 +309,7 @@ namespace coot {
       // 
       atom_tree_t(const std::vector<std::vector<int> > &contact_indices,
 		  int base_atom_index, 
-		  CMMDBManager *mol,
+		  mmdb::Manager *mol,
 		  int selection_handle);
       
 
@@ -322,7 +322,7 @@ namespace coot {
 
       // Rotate round the 2 middle atoms of the torsion by angle (in
       // degress).  This is a relative rotation - not setting the
-      // torsion angle.  The atoms of the CResidue residue are
+      // torsion angle.  The atoms of the mmdb::Residue residue are
       // manipulated.
       // 
       // This can be used either by the residue or atom_selection
@@ -408,8 +408,8 @@ namespace coot {
    //
    class match_torsions {
       enum { REFERENCE_TORSION, MOVING_TORSION};
-      CResidue *res_moving;
-      CResidue *res_ref;
+      mmdb::Residue *res_moving;
+      mmdb::Residue *res_ref;
       dictionary_residue_restraints_t moving_residue_restraints;
       std::pair<bool, double> apply_torsion(const atom_name_quad &quad_moving,
 					    const atom_name_quad &reference,
@@ -420,10 +420,10 @@ namespace coot {
       // return in radians
       std::pair<bool, double> get_torsion(int torsion_type, const atom_name_quad &quad) const;
       // return in radians
-      std::pair<bool, double> get_torsion(CResidue *res, const atom_name_quad &quad) const;
+      std::pair<bool, double> get_torsion(mmdb::Residue *res, const atom_name_quad &quad) const;
       
    public: 
-      match_torsions(CResidue *res_moving, CResidue *res_ref,
+      match_torsions(mmdb::Residue *res_moving, mmdb::Residue *res_ref,
 		     const dictionary_residue_restraints_t &moving_residue_restraints_in);
       int match (const std::vector<dict_torsion_restraint_t>  &tr_moving,
 		 const std::vector<dict_torsion_restraint_t>  &tr_ref);
@@ -441,24 +441,24 @@ namespace coot {
    //
    // These functions should be part of protein_geometry, should they not?
    // 
-   std::vector<std::pair<CAtom *, CAtom *> >
-   torsionable_bonds_monomer_internal(CResidue *residue_p,
-				      PPCAtom atom_selection, int n_selected_atoms,
+   std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
+   torsionable_bonds_monomer_internal(mmdb::Residue *residue_p,
+				      mmdb::PPAtom atom_selection, int n_selected_atoms,
 				      bool include_pyranose_ring_torsions_flag,
 				      protein_geometry *geom_p);
 
    // The quad version of this (for actually setting torsions)
    // 
    std::vector<torsion_atom_quad>
-   torsionable_bonds_monomer_internal_quads(CResidue *residue_p,
-				      PPCAtom atom_selection, int n_selected_atoms,
+   torsionable_bonds_monomer_internal_quads(mmdb::Residue *residue_p,
+				      mmdb::PPAtom atom_selection, int n_selected_atoms,
 				      bool include_pyranose_ring_torsions_flag,
 				      protein_geometry *geom_p);
 
    // only uses the LINKR records in the first model.
    //
    bonded_pair_container_t    
-   linkrs_in_atom_selection(CMMDBManager *mol, PPCAtom atom_selection, int n_selected_atoms,
+   linkrs_in_atom_selection(mmdb::Manager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
 			    protein_geometry *geom_p);
 
    
@@ -475,15 +475,15 @@ namespace coot {
    //    User has an ASN onto which they want to beam in a NAG.
    // 
    //    setup:
-   //    Make CResidue *s and/or molecule for the N-linked NAG reference residues.
+   //    Make mmdb::Residue *s and/or molecule for the N-linked NAG reference residues.
    // 
-   ///   Get the CResidue * for the user residue ASN 
-   //    Get the CAtoms *s for the OD1, ND2, GC and CB in user residue [1]
-   //    Get the CAtoms *s for the OD1, ND2, GC and CB in N-linked ASN molecule [2]
+   ///   Get the mmdb::Residue * for the user residue ASN 
+   //    Get the mmdb::Atoms *s for the OD1, ND2, GC and CB in user residue [1]
+   //    Get the mmdb::Atoms *s for the OD1, ND2, GC and CB in N-linked ASN molecule [2]
    //
    //    LSQ fit the NAG residue from the reference ASN+NAG pair using
    //    matrix that rotates [2] onto [1].  (We don't need the ASN from
-   //    that pair).  Now we can add that rotated NAG CResidue * to user
+   //    that pair).  Now we can add that rotated NAG mmdb::Residue * to user
    //    molecule.  we have N-linked-NAG template - consider renaming to
    //    ASN-NAG-via-NAG-ASN i.e. the general case
    //    {ResType1}-{ResType2}-via-{LinkName} where ResType1 and ResType2
@@ -494,9 +494,9 @@ namespace coot {
    // of the input residues (for example).
    // 
    class beam_in_linked_residue {
-      CResidue *residue_ref; // in user-defined molecule
-      CResidue *template_res_ref;
-      CResidue *template_res_mov;
+      mmdb::Residue *residue_ref; // in user-defined molecule
+      mmdb::Residue *template_res_ref;
+      mmdb::Residue *template_res_mov;
       std::string comp_id_ref;
       std::string comp_id_new;
       protein_geometry *geom_p;
@@ -507,8 +507,8 @@ namespace coot {
       // return success status (0 = fail).
       std::vector<std::string> make_reference_atom_names(const std::string &comp_id) const;
       // get the given residue from the template coordinates
-      CResidue *get_residue(const std::string &comp_id, CMMDBManager*mol) const;
-      std::vector<CAtom *> get_atoms(CResidue *residue_p,
+      mmdb::Residue *get_residue(const std::string &comp_id, mmdb::Manager*mol) const;
+      std::vector<mmdb::Atom *> get_atoms(mmdb::Residue *residue_p,
 				     const std::vector<std::string> &names) const;
       bool setup_by_comp_id(const std::string &comp_id_ref,
 			    const std::string &new_res_type);
@@ -517,14 +517,14 @@ namespace coot {
       bool setup_by_group_group(const std::string &group_ref,
 				const std::string &group_new);
       // move the residues of mov_res, don't change object variables.
-      bool lsq_fit(CResidue *ref_res,
-		   CResidue *matcher_res,
-		   CResidue *mov_res,
+      bool lsq_fit(mmdb::Residue *ref_res,
+		   mmdb::Residue *matcher_res,
+		   mmdb::Residue *mov_res,
 		   const std::vector<std::string> &lsq_atom_names_ref,
 		   const std::vector<std::string> &lsq_atom_names_match) const;
       // apply the chem mod (specifically, the CHEM_MOD_FUNCTION_DELETE
       // (delete all atoms with the given name)
-      void delete_atom(CResidue *res, const std::string &atom_name) const;
+      void delete_atom(mmdb::Residue *res, const std::string &atom_name) const;
       std::string atom_id_mmdb_expand(const std::string &atom_id,
 				      const std::string &res_name) const; 
 
@@ -536,26 +536,26 @@ namespace coot {
       //
       // simply get the attached residue, don't handle the positioning
       // of the O6 on the residue to which we are adding.
-      CResidue *get_residue_raw() const; 
+      mmdb::Residue *get_residue_raw() const; 
       
    public:
-      beam_in_linked_residue(CResidue *residue_ref,
+      beam_in_linked_residue(mmdb::Residue *residue_ref,
 			     const std::string &link_type_in,
 			     const std::string &new_residue_type,
 			     protein_geometry *geom_p);
       // This can return NULL if we were unable to make the residue to be attached.
-      CResidue *get_residue() const;
+      mmdb::Residue *get_residue() const;
    };
 
 
    // the class that is the template for the glyco_tree
    class linked_residue_t {
    public:
-      CResidue * residue;
+      mmdb::Residue * residue;
       std::string residue_name;
       std::string link_type; // to parent (root node has this as "")
       bool order_switch; // should be false most of the time
-      linked_residue_t(CResidue *residue_in, const std::string &link_in) {
+      linked_residue_t(mmdb::Residue *residue_in, const std::string &link_in) {
 	 residue = residue_in;
 	 if (residue)
 	    residue_name = residue->GetResName();
@@ -600,24 +600,24 @@ namespace coot {
 
    class glyco_tree_t {
       protein_geometry *geom_p;
-      bool is_pyranose(CResidue *r) const; 
-      tree<linked_residue_t> find_rooted_tree(CResidue *residue_root_p,
-					      const std::vector<CResidue *> &residues) const;
-      tree<linked_residue_t> find_ASN_rooted_tree(CResidue *residue_p,
-						  const std::vector<CResidue *> &residues) const;
-      tree<linked_residue_t> find_stand_alone_tree(const std::vector<CResidue *> &residues) const;
+      bool is_pyranose(mmdb::Residue *r) const; 
+      tree<linked_residue_t> find_rooted_tree(mmdb::Residue *residue_root_p,
+					      const std::vector<mmdb::Residue *> &residues) const;
+      tree<linked_residue_t> find_ASN_rooted_tree(mmdb::Residue *residue_p,
+						  const std::vector<mmdb::Residue *> &residues) const;
+      tree<linked_residue_t> find_stand_alone_tree(const std::vector<mmdb::Residue *> &residues) const;
       void compare_vs_allowed_trees(const tree<linked_residue_t> &tr) const;
       bool compare_trees(const tree<linked_residue_t> &tree_for_testing,
 			 const tree<linked_residue_t> &tree_reference) const;
       tree<linked_residue_t> oligomannose_tree() const;
       tree<linked_residue_t>      complex_tree() const;
       tree<linked_residue_t>       hybrid_tree() const;
-      static bool residue_comparitor(CResidue *res1, CResidue *res2) {
+      static bool residue_comparitor(mmdb::Residue *res1, mmdb::Residue *res2) {
 	 return (residue_spec_t(res1) < residue_spec_t(res2));
       } 
       
    public:
-      glyco_tree_t(CResidue *residue_p, CMMDBManager *mol, protein_geometry *geom_p_in);
+      glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol, protein_geometry *geom_p_in);
       void print(const tree<linked_residue_t> &glyco_tree) const;
 
    }; 

@@ -16,8 +16,8 @@
 #endif
 
 #ifndef  __MMDB_Manager__
-#include <mmdb/mmdb_manager.h>
-#include <mmdb/mmdb_tables.h>
+#include <mmdb2/mmdb_manager.h>
+#include <mmdb2/mmdb_tables.h>
 #endif
 #ifndef  __CXXException__
 #include "CXXException.h"
@@ -57,9 +57,9 @@ private:
 	CXXChargeTable theChargeTable;
 
 	// Matter
-	PCMMDBManager  theMMDBManager;
+	mmdb::PManager  theMMDBManager;
 	int  nSelAtoms;
-	PPCAtom SelAtom;
+	mmdb::PPAtom SelAtom;
 	
 	// private read accessors
 	double lookUpCharge(int atomNr);
@@ -82,9 +82,9 @@ private:
 						  //of a selection containing all atoms
 public:
 	
-	CXXCreator (pstr thePdb);   // reads a pdb from file to make creator 
-	CXXCreator (PCMMDBManager theManager); //can also be created from an MMDBManager ...
-	CXXCreator (PCMMDBManager theManager, int selHnd, int context_selHnd=-1); //can also be created from an MMDBManager + selHnd
+	CXXCreator (mmdb::pstr thePdb);   // reads a pdb from file to make creator 
+	CXXCreator (mmdb::PManager theManager); //can also be created from an MMDBManager ...
+	CXXCreator (mmdb::PManager theManager, int selHnd, int context_selHnd=-1); //can also be created from an MMDBManager + selHnd
 
 	int setParameters( double IonicStrength, double Temperature, double gridSpacing);
 	

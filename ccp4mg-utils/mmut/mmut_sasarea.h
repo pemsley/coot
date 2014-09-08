@@ -53,25 +53,25 @@ private:
   //the algorithm parameters parameters
   //PCMMANManager molHnd;
   int method;
-  realtype HOHrad;
-  realtype brick_margin;   
-  realtype point_density;
+  mmdb::realtype HOHrad;
+  mmdb::realtype brick_margin;   
+  mmdb::realtype point_density;
   int exclude_solvent;
   AltLoc keep_altLoc;
 
   // the derived data
   int atomUDDHnd;
   int resUDDHnd;
-  realtype total_area;
+  mmdb::realtype total_area;
 
-  int LeeAndRichards( realtype *radwithhoh,int imodel, int imode=0, int local_selHnd=-1 );
-  int WodakAndJanin( realtype *radwithhoh,int imodel);
-  int SurfacePoints( realtype *radwithhoh,int imodel);
+  int LeeAndRichards( mmdb::realtype *radwithhoh,int imodel, int imode=0, int local_selHnd=-1 );
+  int WodakAndJanin( mmdb::realtype *radwithhoh,int imodel);
+  int SurfacePoints( mmdb::realtype *radwithhoh,int imodel);
   int ResSASArea (int imodel);
-  //int GetAtomTypes(int natoms, PPCAtom selected_atoms, 
+  //int GetAtomTypes(int natoms, mmdb::PPAtom selected_atoms, 
     //	int iatom_types[], int iatom_types_lookup[] );
-  void  SortAB(realtype *arci, realtype *arcf, int &karc);
-  void ArcLap(realtype *arci, realtype *arcf, int &karc);
+  void  SortAB(mmdb::realtype *arci, mmdb::realtype *arcf, int &karc);
+  void ArcLap(mmdb::realtype *arci, mmdb::realtype *arcf, int &karc);
 
 };
 #endif

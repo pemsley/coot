@@ -10,17 +10,17 @@
 #define CXXPointyBit_included
 #include "CXXCoord.h"
 
-class CAtom;
+class mmdb::Atom;
 
 class PointyBit {
 public:
-	CAtom *atomI;
-	CAtom *atomJ;
+	mmdb::Atom *atomI;
+	mmdb::Atom *atomJ;
 	CXXCoord coord;
 	int   isNull;
 	PointyBit() : atomI(0), atomJ(0), isNull(1) {};
         
-	PointyBit(CAtom *_atomI, CAtom *_atomJ, const CXXCoord &_coord, int _isNull) :
+	PointyBit(mmdb::Atom *_atomI, mmdb::Atom *_atomJ, const CXXCoord &_coord, int _isNull) :
 	atomI(_atomI), atomJ(_atomJ), coord(_coord), isNull(_isNull) {};
 };
 

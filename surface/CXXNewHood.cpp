@@ -12,8 +12,8 @@
 
 #include "CXXSurface.h"
 #include "CXXNewHood.h"
-#include <mmdb/mmdb_manager.h>
-#include <mmdb/mmdb_tables.h>
+#include <mmdb2/mmdb_manager.h>
+#include <mmdb2/mmdb_tables.h>
 #include "CXXCircle.h"
 #include "CXXCircleNode.h"
 #include "CXXTorusElement.h"
@@ -30,7 +30,7 @@ CXXNewHood::CXXNewHood(){
 	init();
 }
 
-CXXNewHood::CXXNewHood(PCAtom centralAtom, double radiusOfAtom1, double probeRadius) :
+CXXNewHood::CXXNewHood(mmdb::PAtom centralAtom, double radiusOfAtom1, double probeRadius) :
 theAtomI(centralAtom), 
 theRadius(radiusOfAtom1+probeRadius), 
 theProbeRadius(probeRadius){
@@ -51,7 +51,7 @@ void CXXNewHood::initWith(const CXXBall *aBall){
 	theCentre = aBall->getCoord();
 };
 
-int CXXNewHood::addAtom(PCAtom anAtomJ, double radiusOfAtom2){
+int CXXNewHood::addAtom(mmdb::PAtom anAtomJ, double radiusOfAtom2){
 	if (anAtomJ->serNum == theAtomI->serNum) {
 		//		std::cout << "Rejecting self " << anAtomJ->serNum << " " <<  theAtomI->serNum << endl;
 		return 0; //Worried this might not be unique
@@ -190,7 +190,7 @@ double CXXNewHood::getRadius() const{
 int CXXNewHood::nCircles() const{
 	return theCircles.size();
 }
-const PCAtom CXXNewHood::getAtomI() const {
+const mmdb::PAtom CXXNewHood::getAtomI() const {
 	return theAtomI;
 }
 

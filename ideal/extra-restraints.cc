@@ -193,10 +193,10 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
    // don't add the restraint if both the residues are fixed.
    // 
    for (unsigned int i=0; i<extra_restraints.bond_restraints.size(); i++) {
-      CResidue *r_1 = NULL;
-      CResidue *r_2 = NULL;
-      CAtom *at_1 = 0;
-      CAtom *at_2 = 0;
+      mmdb::Residue *r_1 = NULL;
+      mmdb::Residue *r_2 = NULL;
+      mmdb::Atom *at_1 = 0;
+      mmdb::Atom *at_2 = 0;
       bool fixed_1 = 0;
       bool fixed_2 = 0;
       if (from_residue_vector) {
@@ -216,7 +216,7 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 
 	 // bleugh.
 	 int selHnd = mol->NewSelection();  // d
-	 mol->Select (selHnd, STYPE_RESIDUE, 1,       // .. TYPE, iModel
+	 mol->Select (selHnd, mmdb::STYPE_RESIDUE, 1,       // .. TYPE, iModel
 		      chain_id_save.c_str(), // Chain(s)
 		      istart_res, "*", // starting res
 		      iend_res,   "*", // ending   res
@@ -224,10 +224,10 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 		      "*",  // Residue must contain this atom name?
 		      "*",  // Residue must contain this Element?
 		      "*",  // altLocs
-		      SKEY_NEW // selection key
+		      mmdb::SKEY_NEW // selection key
 		      );
 	 int nSelResidues_local = 0;
-	 PPCResidue SelResidue_local= 0;
+	 mmdb::PPResidue SelResidue_local= 0;
 	 mol->GetSelIndex (selHnd, SelResidue_local, nSelResidues_local);
 	 for (int ir=0; ir<nSelResidues_local; ir++) {
 	    if (coot::residue_spec_t(extra_restraints.bond_restraints[i].atom_1) ==
@@ -247,8 +247,8 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
       
       if (r_1 && r_2) {
 	 if (! (fixed_1 && fixed_2)) {
-	    PPCAtom residue_atoms_1 = 0;
-	    PPCAtom residue_atoms_2 = 0;
+	    mmdb::PPAtom residue_atoms_1 = 0;
+	    mmdb::PPAtom residue_atoms_2 = 0;
 	    int n_residue_atoms_1;
 	    int n_residue_atoms_2;
 	    r_1->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
@@ -311,14 +311,14 @@ void
 coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraints_t &extra_restraints) {
 
    for (unsigned int i=0; i<extra_restraints.torsion_restraints.size(); i++) {
-      CResidue *r_1 = NULL;
-      CResidue *r_2 = NULL;
-      CResidue *r_3 = NULL;
-      CResidue *r_4 = NULL;
-      CAtom *at_1 = 0;
-      CAtom *at_2 = 0;
-      CAtom *at_3 = 0;
-      CAtom *at_4 = 0;
+      mmdb::Residue *r_1 = NULL;
+      mmdb::Residue *r_2 = NULL;
+      mmdb::Residue *r_3 = NULL;
+      mmdb::Residue *r_4 = NULL;
+      mmdb::Atom *at_1 = 0;
+      mmdb::Atom *at_2 = 0;
+      mmdb::Atom *at_3 = 0;
+      mmdb::Atom *at_4 = 0;
       bool fixed_1 = 0;
       bool fixed_2 = 0;
       bool fixed_3 = 0;
@@ -350,7 +350,7 @@ coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraint
 	 
 	 // bleugh.
 	 int selHnd = mol->NewSelection();
-	 mol->Select (selHnd, STYPE_RESIDUE, 1,       // .. TYPE, iModel
+	 mol->Select (selHnd, mmdb::STYPE_RESIDUE, 1,       // .. TYPE, iModel
 		      chain_id_save.c_str(), // Chain(s)
 		      istart_res, "*", // starting res
 		      iend_res,   "*", // ending   res
@@ -358,10 +358,10 @@ coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraint
 		      "*",  // Residue must contain this atom name?
 		      "*",  // Residue must contain this Element?
 		      "*",  // altLocs
-		      SKEY_NEW // selection key
+		      mmdb::SKEY_NEW // selection key
 		      );
 	 int nSelResidues_local = 0;
-	 PPCResidue SelResidue_local= 0;
+	 mmdb::PPResidue SelResidue_local= 0;
 	 mol->GetSelIndex (selHnd, SelResidue_local, nSelResidues_local);
 	 for (int ir=0; ir<nSelResidues_local; ir++) {
 	    if (coot::residue_spec_t(extra_restraints.torsion_restraints[i].atom_1) ==
@@ -381,7 +381,7 @@ coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraint
       }
 
       if (r_1 && r_2 && r_3 && r_4) {
-	 PPCAtom residue_atoms = 0;
+	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 r_1->GetAtomTable(residue_atoms, n_residue_atoms);
 	 for (int iat=0; iat<n_residue_atoms; iat++) {
@@ -463,8 +463,8 @@ coot::restraints_container_t::add_extra_parallel_plane_restraints(const extra_re
       std::vector<int> plane_1_atom_indices;
       std::vector<int> plane_2_atom_indices;
       const parallel_planes_t &r = extra_restraints.parallel_plane_restraints[i];
-      CResidue *r_1 = util::get_residue(r.plane_1_atoms.res_spec, mol);
-      CResidue *r_2 = util::get_residue(r.plane_2_atoms.res_spec, mol);
+      mmdb::Residue *r_1 = util::get_residue(r.plane_1_atoms.res_spec, mol);
+      mmdb::Residue *r_2 = util::get_residue(r.plane_2_atoms.res_spec, mol);
 
       if (0) { 
 	 std::cout << "------ in add_extra_parallel_plane_restraints() extracting 1 " << r.plane_1_atoms.res_spec
@@ -504,7 +504,7 @@ coot::restraints_container_t::add_extra_parallel_plane_restraints(const extra_re
 	       }
 	    } 
 	 
-	    PPCAtom residue_atoms = 0;
+	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 
 	    // add to plane_1_atom_indices
@@ -514,13 +514,13 @@ coot::restraints_container_t::add_extra_parallel_plane_restraints(const extra_re
 	       std::string plane_atom_expanded_name =
 		  dri_1.second.atom_name_for_tree_4c(r.plane_1_atoms.atom_names[i_rest_at]);
 	       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-		  CAtom *at = residue_atoms[iat];
+		  mmdb::Atom *at = residue_atoms[iat];
 		  std::string atom_name(at->name);
 		  std::string alt_conf(at->altLoc);
 		  if (plane_atom_expanded_name == atom_name) {
 		     if (r.plane_1_atoms.alt_conf == alt_conf) {
 			int idx = -1;
-			if (at->GetUDData(udd_atom_index_handle, idx) == UDDATA_Ok) { 
+			if (at->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) { 
 			   if (idx != -1) {
 			      plane_1_atom_indices.push_back(idx);
 			      if (0)
@@ -542,14 +542,14 @@ coot::restraints_container_t::add_extra_parallel_plane_restraints(const extra_re
 	       std::string plane_atom_expanded_name =
 		  dri_2.second.atom_name_for_tree_4c(r.plane_2_atoms.atom_names[i_rest_at]);
 	       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-		  CAtom *at = residue_atoms[iat];
+		  mmdb::Atom *at = residue_atoms[iat];
 		  std::string atom_name(at->name);
 		  std::string alt_conf(at->altLoc);
 		  // std::cout << "testing :" << plane_atom_expanded_name << ": vs :" << atom_name << ":" << std::endl;
 		  if (plane_atom_expanded_name == atom_name) {
 		     if (r.plane_2_atoms.alt_conf == alt_conf) {
 			int idx = -1;
-			if (at->GetUDData(udd_atom_index_handle, idx) == UDDATA_Ok) { 
+			if (at->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) { 
 			   if (idx != -1) {
 			      plane_2_atom_indices.push_back(idx);
 			      if (0)

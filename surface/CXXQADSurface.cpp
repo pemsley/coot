@@ -10,7 +10,7 @@ using namespace std;
 
 CXXQADSurface::~CXXQADSurface() {}
 
-CXXQADSurface::CXXQADSurface(PCMMDBManager theMMDBManager_in, int selHndl_in, 
+CXXQADSurface::CXXQADSurface(mmdb::PManager theMMDBManager_in, int selHndl_in, 
 							 double probeRadius_in, double sample_in){
 	
 	theMMDBManager = theMMDBManager_in;
@@ -31,7 +31,7 @@ CXXQADSurface::CXXQADSurface(PCMMDBManager theMMDBManager_in, int selHndl_in,
 	}
 	
 	//Pre identify all contacts 
-	PSContact contacts;
+	mmdb::Contact *contacts = NULL;
 	contacts = 0;
 	int nContacts = 0;
 	cout << "Off to precalculate contacts..."; cout.flush();
@@ -505,12 +505,12 @@ int CXXQADSurface::allowProbeToEatWithinGridRange(Coord_orth probeCoordOrth, Gri
 }
 
 int CXXQADSurface::coordIsBuriedByNeighbours(Coord_orth &point,int iAtom1){
-	PCAtom Atom1 = selectedAtoms[iAtom1];
+	mmdb::PAtom Atom1 = selectedAtoms[iAtom1];
 	vector<int> &theNeighbourhood = neighbourhoods[iAtom1];
 	int buried = 0;
 	
 	for (unsigned iAtom2 = 0; iAtom2<theNeighbourhood.size() && !buried; iAtom2++){
-		PCAtom Atom2 = selectedAtoms[theNeighbourhood[iAtom2]];
+		mmdb::PAtom Atom2 = selectedAtoms[theNeighbourhood[iAtom2]];
 		if (Atom2 != Atom1){
 			Coord_orth atomCoordOrth(Atom2->x, Atom2->y, Atom2->z);
 			double accessibleRadius  = fastGetAtomRadius(iAtom2)+probeRadius;
@@ -794,15 +794,15 @@ int CXXQADSurface::calculateAveragedNormals(){
 	
 }
 
-double CXXQADSurface::getAtomRadius(PCAtom theAtom){
+double CXXQADSurface::getAtomRadius(mmdb::PAtom theAtom){
 	//Here get handle of a radius data type from MMDB if such has been stored
-	int iRadiusHandle = theMMDBManager->GetUDDHandle(UDR_ATOM, "PerAtomRadius");
+	int iRadiusHandle = theMMDBManager->GetUDDHandle(mmdb::UDR_ATOM, "PerAtomRadius");
 	double theRadius;
 	if (iRadiusHandle>0){
 		int success = theAtom->GetUDData (iRadiusHandle, theRadius);
-		if (success != UDDATA_Ok) theRadius = getVdWaalsRadius(theAtom->element);
+		if (success != mmdb::UDDATA_Ok) theRadius = mmdb::getVdWaalsRadius(theAtom->element);
 	}
-	else theRadius = getVdWaalsRadius(theAtom->element);
+	else theRadius = mmdb::getVdWaalsRadius(theAtom->element);
 	return theRadius;
 }
 
@@ -873,7 +873,7 @@ int CXXQADSurface::toruses()
 
 	//loop over all atoms in selection
 	for (int atomNr  = 0;atomNr < nSelectedAtoms; atomNr++) { 
-		PCAtom centralAtom = selectedAtoms[atomNr];
+		mmdb::PAtom centralAtom = selectedAtoms[atomNr];
 
 		Coord_orth atomCoordOrth(centralAtom->x, centralAtom->y, centralAtom->z);
 		Coord_frac uvw = atomCoordOrth.coord_frac(clipperCell);
@@ -887,7 +887,7 @@ int CXXQADSurface::toruses()
 		CXXNewHood theNewHood(centralAtom, radiusOfAtom1, probeRadius);
 		
 		for (unsigned sphereAtomNr = 0; sphereAtomNr < neighbourhoods[atomNr].size(); sphereAtomNr++) {
-			PCAtom sphereAtom = selectedAtoms[neighbourhoods[atomNr][sphereAtomNr]];
+			mmdb::PAtom sphereAtom = selectedAtoms[neighbourhoods[atomNr][sphereAtomNr]];
 			double radiusOfAtom2 = fastGetAtomRadius(sphereAtomNr);
 			theNewHood.addAtom(sphereAtom, radiusOfAtom2);
 		}

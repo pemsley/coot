@@ -10,13 +10,13 @@
 #include "CXXCreator.h"
 #include <algorithm>
 
-CXXCreator::CXXCreator (pstr thePdb) {
-	InitMatType();
+CXXCreator::CXXCreator (mmdb::pstr thePdb) {
+	mmdb::InitMatType();
 
 	int RC;
 	
-	theMMDBManager = new CMMDBManager();
-	theMMDBManager->SetFlag( MMDBF_PrintCIFWarnings );
+	theMMDBManager = new mmdb::Manager();
+	theMMDBManager->SetFlag( mmdb::MMDBF_PrintCIFWarnings );
 	
 	
 	RC = theMMDBManager->ReadCoorFile (thePdb);
@@ -31,27 +31,27 @@ CXXCreator::CXXCreator (pstr thePdb) {
 	theMMDBManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 }
 
-CXXCreator::CXXCreator (PCMMDBManager theMMDBManager_in) {
+CXXCreator::CXXCreator (mmdb::PManager theMMDBManager_in) {
 	theMMDBManager = theMMDBManager_in;
 	int selHnd = selectAllAtoms();
 	theMMDBManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 }
 
-CXXCreator::CXXCreator (PCMMDBManager theMMDBManager, int selHnd, int context_selHnd ) {
+CXXCreator::CXXCreator (mmdb::PManager theMMDBManager, int selHnd, int context_selHnd ) {
 	init();
 	theMMDBManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
         
         int neighbour_selhnd;
         int nSelAtomsNeighbours;
-        PPCAtom SelAtomNeighbours;
+        mmdb::PPAtom SelAtomNeighbours;
 
-        //theMMDBManager->Select(neighbour_selhnd,STYPE_ATOM,0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_NEW);
+        //theMMDBManager->Select(neighbour_selhnd,mmdb::STYPE_ATOM,0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
 
         /* 35 angstroms seems overly generous, but I still get incorrect charges with ca 25 angstroms. */
         if (context_selHnd>0) {
           neighbour_selhnd = theMMDBManager->NewSelection();
-          theMMDBManager->SelectNeighbours(neighbour_selhnd,STYPE_ATOM,SelAtom,nSelAtoms,0.0,35.0,SKEY_OR);
-          theMMDBManager->Select(neighbour_selhnd,STYPE_ATOM,context_selHnd,SKEY_AND);
+          theMMDBManager->SelectNeighbours(neighbour_selhnd,mmdb::STYPE_ATOM,SelAtom,nSelAtoms,0.0,35.0,mmdb::SKEY_OR);
+          theMMDBManager->Select(neighbour_selhnd,mmdb::STYPE_ATOM,context_selHnd,mmdb::SKEY_AND);
 	  theMMDBManager->GetSelIndex(neighbour_selhnd, SelAtomNeighbours, nSelAtomsNeighbours);
           //theMMDBManager->DeleteSelection(neighbour_selhnd);
           SelAtom = SelAtomNeighbours;
@@ -81,7 +81,7 @@ void CXXCreator::init(){
 int CXXCreator::selectAllAtoms(){
 		//make new selection. First create new selection handle...
 	int selHnd = theMMDBManager->NewSelection();
-	theMMDBManager->SelectAtoms( selHnd, 0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*" );	
+	theMMDBManager->SelectAtoms( selHnd, 0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*" );	
 	
 	// first select all atoms in the pdb
 	// !! WARNING: This does not exclude HETATOM records - how do deal with this ??
@@ -108,7 +108,7 @@ CXXCoord CXXCreator::getAtomCoord(int atomNr) {
 		throw theException;
 	}
 	if(SelAtom){
-	PCAtom theAtom = SelAtom[atomNr];
+	mmdb::PAtom theAtom = SelAtom[atomNr];
         if(theAtom){
 	theCoord.setX(theAtom->x);
 	theCoord.setY(theAtom->y);
@@ -127,9 +127,9 @@ double CXXCreator::getAtomRadius(int atomNr) {
 		throw theException;
 	}
 	if(SelAtom){
-	PCAtom theAtom = SelAtom[atomNr];
+	mmdb::PAtom theAtom = SelAtom[atomNr];
 	if(theAtom){
-	radius = getVdWaalsRadius(theAtom->element);
+	   radius = mmdb::getVdWaalsRadius(theAtom->element);
 	}
 	}
 	return radius;
@@ -144,7 +144,7 @@ string CXXCreator::getAtomElement(int atomNr) {
 		CXXException theException = CXXException("ERROR in: CXXCoord::getAtomElement(atomNr) - atomNr out of range");
 		throw theException;
 	}
-	PCAtom theAtom = SelAtom[atomNr];
+	mmdb::PAtom theAtom = SelAtom[atomNr];
 	
 	theElement = theAtom->element;
 	
@@ -159,7 +159,7 @@ string CXXCreator::getAtomName(int atomNr) {
 		CXXException theException = CXXException("ERROR in: CXXCoord::getAtomName(atomNr) - atomNr out of range");
 		throw theException;
 	}
-	PCAtom theAtom = SelAtom[atomNr];
+	mmdb::PAtom theAtom = SelAtom[atomNr];
 	theName = theAtom->name;
 	
 	
@@ -169,14 +169,14 @@ string CXXCreator::getAtomName(int atomNr) {
 
 string CXXCreator::getAtomResidueName(int atomNr) {
 	
-	pstr name;
+        mmdb::pstr name;
 	string theResidueName;
 	
 	if (atomNr >= nSelAtoms) {
 		CXXException theException = CXXException("ERROR in: CXXCoord::getAtomResidue(atomNr) - atomNr out of range");
 		throw theException;
 	}
-	PCAtom theAtom = SelAtom[atomNr];
+	mmdb::PAtom theAtom = SelAtom[atomNr];
 	name = theAtom->GetResName();
 	theResidueName = name;
 	
@@ -191,7 +191,7 @@ double CXXCreator::lookUpCharge(int atomNr) {
 	double theCharge = 0.0;
 
 	if(SelAtom){
-	   PCAtom theAtom = SelAtom[atomNr];
+	   mmdb::PAtom theAtom = SelAtom[atomNr];
 	   if(theAtom){
 	      theCharge = SelAtom[atomNr]->charge;
 	   }
@@ -335,7 +335,7 @@ double CXXCreator::getGridVolumeOfAtom(CXXCoord gridOrigin, CXXCoord xGridVector
 		
 		double atomRadius;
 		atomRadius = getAtomRadius(atomNr);
-		double volume = 4.0*Pi*atomRadius*atomRadius*atomRadius/3.0;
+		double volume = 4.0*mmdb::Pi*atomRadius*atomRadius*atomRadius/3.0;
 		return volume;
 	}
 	
@@ -765,7 +765,7 @@ charge(i,j,k)/h =   dielGrid(i-1,j,k,0)[potentialGrid(i,j,k) - potentialGrid(i-1
 	// Use approximate formula to derive spectral radius of this problem based on dimensions of grid
 	
 	double lambda = 0;
-	lambda = 1.0/3.0* (cos(Pi/(space->getDimI())) + cos(Pi/(space->getDimJ())) + cos(Pi/(space->getDimK())) );
+	lambda = 1.0/3.0* (cos(mmdb::Pi/(space->getDimI())) + cos(mmdb::Pi/(space->getDimJ())) + cos(mmdb::Pi/(space->getDimK())) );
 	std::cout << "\nSpecctral radius of problem approximated as: " << lambda << "\n";
 	
 	// caclculating initial over relaxation parameter

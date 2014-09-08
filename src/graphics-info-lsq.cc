@@ -43,7 +43,7 @@
 
 #include <iostream>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 #include "coords/mmdb-crystal.h"
@@ -81,8 +81,8 @@ graphics_info_t::lsq_get_and_apply_matrix_maybe(int imol_ref, int imol_moving,
 	 if (imol_moving < n_molecules()) {
 	    if (molecules[imol_moving].has_model()) {
 
-	       CMMDBManager *mol_ref = molecules[imol_ref].atom_sel.mol;
-	       CMMDBManager *mol_mov = molecules[imol_moving].atom_sel.mol;
+	       mmdb::Manager *mol_ref = molecules[imol_ref].atom_sel.mol;
+	       mmdb::Manager *mol_mov = molecules[imol_moving].atom_sel.mol;
 	       std::pair<short int, clipper::RTop_orth> rtop_info =
 		  coot::util::get_lsq_matrix(mol_ref, mol_mov,
 					     matches, 1);

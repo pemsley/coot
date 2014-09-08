@@ -161,7 +161,7 @@ namespace coot {
 	    items[ii].set_max_z_badness(b);
       }
 
-      coot::dictionary_residue_restraints_t make_restraints(CResidue *residue_p,
+      coot::dictionary_residue_restraints_t make_restraints(mmdb::Residue *residue_p,
 						      const std::string &comp_id,
 						      const coot::protein_geometry &geom);
       // coot:: needed?

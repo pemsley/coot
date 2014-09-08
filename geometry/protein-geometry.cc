@@ -156,7 +156,7 @@ coot::basic_dict_restraint_t::basic_dict_restraint_t(const std::string &at1,
 }
 
 
-// for CGraph CEdge usage
+// for mmdb::math::Graph mmdb::math::Edge usage
 //
 // if the bond type is "deloc" then return a single bond.  This
 // doesn't matter (at the moment) because the code using this doesn't
@@ -269,37 +269,33 @@ coot::dict_plane_restraint_t::matches_names(const coot::dict_plane_restraint_t &
    return status;
 }
 
-// for debugging
-#ifndef  __MMDB_Graph__
-#include <mmdb/mmdb_graph.h>
-#endif
 
 // constructor.  Caller should make sure that there are no bonds
 // before constructing this (mol->RemoveBonds());
 //
-coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(CResidue *residue_p) {
+coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(mmdb::Residue *residue_p) {
 
    init(residue_p);
 }
 
 void
-coot::dictionary_residue_restraints_t::init(CResidue *residue_p) {
+coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
 
    filled_with_bond_order_data_only_flag = false;
    if (residue_p) {
-      PCModel   model;
-      PCChain   chain;
-      // PCResidue res = 0;
-      CGraph    graph;
-      PPCVertex V;
-      PPCEdge   E;
+      mmdb::PModel   model;
+      mmdb::PChain   chain;
+      // mmdb::PResidue res = 0;
+      mmdb::math::Graph    graph;
+      mmdb::math::PPVertex V;
+      mmdb::math::PPEdge   E;
       int       i, im,ic,ir, nV,nE, k1,k2;
 
       graph.MakeGraph   ( residue_p,NULL );
       graph.GetVertices ( V,nV );
       graph.GetEdges    ( E,nE );
 
-      PPCAtom residue_atoms = 0;
+      mmdb::PPAtom residue_atoms = 0;
       int nResidueAtoms;
       residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
 	 
@@ -342,7 +338,7 @@ coot::dictionary_residue_restraints_t::init(CResidue *residue_p) {
       }
 
 	 
-      // Boolean calc_only = true;
+      // bool calc_only = true;
       // mol->MakeBonds(calc_only);  // crash, hence above hack.
 
       std::string comp_id = residue_p->GetResName();
@@ -360,20 +356,20 @@ coot::dictionary_residue_restraints_t::init(CResidue *residue_p) {
 				      n_all, n_non_H, desc_level);
       // also fill atom_info with dict_atom objects
       for (unsigned int iat=0; iat<nResidueAtoms; iat++) {
-	 CAtom *at = residue_atoms[iat];
+	 mmdb::Atom *at = residue_atoms[iat];
 	 dict_atom da(at->name, at->name, "", "", std::pair<bool, float> (false, 0));
 	 atom_info.push_back(da);
       }
 
       std::vector<atom_pair_t> bond_pairs;
       for (unsigned int iat=0; iat<nResidueAtoms; iat++) { 
-	 CAtom *at_1 = residue_atoms[iat];
+	 mmdb::Atom *at_1 = residue_atoms[iat];
 	 int n_bonds_1 = at_1->GetNBonds();
-	 SAtomBond *AtomBonds = NULL;
+	 mmdb::AtomBond *AtomBonds = NULL;
 	 int n_bonds_2; 
 	 at_1->GetBonds(AtomBonds, n_bonds_2);
 	 for (unsigned int ibond=0; ibond<n_bonds_2; ibond++) {
-	    CAtom *at_2 = AtomBonds[ibond].atom;
+	    mmdb::Atom *at_2 = AtomBonds[ibond].atom;
 	    if (at_1 < at_2) { // pointer comparison
 	       std::string at_name_1(at_1->name);
 	       std::string at_name_2(at_2->name);
@@ -399,11 +395,11 @@ coot::dictionary_residue_restraints_t::init(CResidue *residue_p) {
       for (unsigned int ibp=0; ibp<bond_pairs.size(); ibp++) { 
 	 for (unsigned int jbp=ibp; jbp<bond_pairs.size(); jbp++) {
 	    if (ibp != jbp) {
-	       CAtom *shared_atom = bond_pairs[ibp].shared_atom(bond_pairs[jbp]);
+	       mmdb::Atom *shared_atom = bond_pairs[ibp].shared_atom(bond_pairs[jbp]);
 	       if (shared_atom) {
-		  CAtom *at_1 = bond_pairs[ibp].at_1;
-		  CAtom *at_2 = bond_pairs[ibp].at_2;
-		  CAtom *at_3 = bond_pairs[jbp].at_1;
+		  mmdb::Atom *at_1 = bond_pairs[ibp].at_1;
+		  mmdb::Atom *at_2 = bond_pairs[ibp].at_2;
+		  mmdb::Atom *at_3 = bond_pairs[jbp].at_1;
 		  if (at_1 == shared_atom) {
 		     at_1 = bond_pairs[ibp].at_2;
 		     at_2 = bond_pairs[ibp].at_1; // shared atom
@@ -439,14 +435,14 @@ coot::dictionary_residue_restraints_t::init(CResidue *residue_p) {
 // mol contains one residue in a hierarchy, the residue from which the
 // dictionary should be constructed.
 // 
-coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(CMMDBManager *mol) {
+coot::dictionary_residue_restraints_t::dictionary_residue_restraints_t(mmdb::Manager *mol) {
 
-   CResidue *residue_p = NULL;
+   mmdb::Residue *residue_p = NULL;
    filled_with_bond_order_data_only_flag = true; // it has nothing initially
    
    int imod = 1;
-   CModel *model_p = mol->GetModel(imod);
-   CChain *chain_p;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
    int n_chains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<n_chains; ichain++) {
       chain_p = model_p->GetChain(ichain);
@@ -1278,14 +1274,14 @@ std::ostream& coot::operator<<(std::ostream &s, coot::list_chem_mod mod) {
 // no order switch is considered.
 // 
 std::string
-coot::protein_geometry::find_glycosidic_linkage_type(CResidue *first, CResidue *second) const {
+coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second) const {
 
    // Fixup needed for PDBv3
 
    double critical_dist = 3.0; // A, less than that and Coot should
 			       // try to make the bond.
-   PPCAtom res_selection_1 = NULL;
-   PPCAtom res_selection_2 = NULL;
+   mmdb::PPAtom res_selection_1 = NULL;
+   mmdb::PPAtom res_selection_2 = NULL;
    int i_no_res_atoms_1;
    int i_no_res_atoms_2;
    double d;
@@ -1489,7 +1485,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(CResidue *first, CResidue *
 }
 
 std::pair<std::string, bool>
-coot::protein_geometry::find_glycosidic_linkage_type_with_order_switch(CResidue *first, CResidue *second) const {
+coot::protein_geometry::find_glycosidic_linkage_type_with_order_switch(mmdb::Residue *first, mmdb::Residue *second) const {
 
    std::pair<std::string, bool> r("", false);
 
@@ -2159,7 +2155,7 @@ coot::protein_geometry::have_at_least_minimal_dictionary_for_residue_type(const 
 // list of atoms that do not match the dictionary.
 // 
 std::pair<bool, std::vector<std::string> >
-coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
+coot::protein_geometry::atoms_match_dictionary(mmdb::Residue *residue_p,
 					       bool check_hydrogens_too_flag,
 					       bool apply_bond_distance_check,
 					       const coot::dictionary_residue_restraints_t &restraints) const {
@@ -2167,7 +2163,7 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
    std::vector<std::string> atom_name_vec;
    bool status = 1; // nothing fails to match (so far).
 
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
@@ -2225,7 +2221,7 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
 
 
 std::pair<bool, std::vector<std::string> >
-coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
+coot::protein_geometry::atoms_match_dictionary(mmdb::Residue *residue_p,
 					       bool check_hydrogens_too_flag,
 					       bool apply_bond_distance_check) const {
 
@@ -2245,7 +2241,7 @@ coot::protein_geometry::atoms_match_dictionary(CResidue *residue_p,
 // atom names that dont't match.
 //
 std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
-coot::protein_geometry::atoms_match_dictionary(const std::vector<CResidue *> &residues,
+coot::protein_geometry::atoms_match_dictionary(const std::vector<mmdb::Residue *> &residues,
 					       bool check_hydrogens_too_flag,
 					       bool apply_bond_distance_check) const {
 
@@ -2273,22 +2269,22 @@ coot::protein_geometry::atoms_match_dictionary(const std::vector<CResidue *> &re
 }
 
 bool
-coot::protein_geometry::atoms_match_dictionary_bond_distance_check(CResidue *residue_p,
+coot::protein_geometry::atoms_match_dictionary_bond_distance_check(mmdb::Residue *residue_p,
 								   bool check_hydrogens_too_flag,
 								   const coot::dictionary_residue_restraints_t &restraints) const { 
 
    bool status = true; // good
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    if (n_residue_atoms > 2) { 
       for (unsigned int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
 	 for (unsigned int iat=0; iat<(n_residue_atoms-1); iat++) {
-	    const CAtom *at_1 = residue_atoms[iat];
+	    const mmdb::Atom *at_1 = residue_atoms[iat];
 	    std::string atom_name_1(at_1->name);
 	    if (restraints.bond_restraint[ibond].atom_id_1_4c() == atom_name_1) { 
 	       for (unsigned int jat=iat+1; jat<n_residue_atoms; jat++) {
-		  const CAtom *at_2 = residue_atoms[jat];
+		  const mmdb::Atom *at_2 = residue_atoms[jat];
 		  std::string atom_name_2(at_2->name);
 		  if (restraints.bond_restraint[ibond].atom_id_2_4c() == atom_name_2) {
 		     std::string alt_conf_1(at_1->altLoc);
@@ -2841,7 +2837,7 @@ coot::protein_geometry::add_planar_peptide_restraint() {
 
    std::string link_id = "TRANS";
    std::string plane_id = "plane3";
-   realtype dist_esd = 0.05;
+   mmdb::realtype dist_esd = 0.05;
 
    std::string atom_id; 
    std::vector<std::pair<int, std::string> > v;
@@ -3341,7 +3337,7 @@ coot::protein_geometry::monomer_types() const {
 // 3l0u).
 // 
 std::string
-coot::protein_geometry::get_group(CResidue *r) const {
+coot::protein_geometry::get_group(mmdb::Residue *r) const {
 
    std::string res_name = r->GetResName();
    return get_group(res_name);
@@ -3382,11 +3378,11 @@ coot::protein_geometry::get_group(const std::string &res_name_in) const {
 }
 
 // optional arg: bool try_autoload_if_needed=true.
-CResidue *
+mmdb::Residue *
 coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_flag,
 				    bool try_autoload_if_needed) {
 
-   CResidue *residue_p = NULL;
+   mmdb::Residue *residue_p = NULL;
 
    // might use try_dynamic_add (if needed).
    bool r = have_dictionary_for_residue_type(comp_id, 42, try_autoload_if_needed);
@@ -3394,7 +3390,7 @@ coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_f
    bool make_hetatoms = ! coot::util::is_standard_residue_name(comp_id);
 
 
-   std::vector<CAtom *> atoms;
+   std::vector<mmdb::Atom *> atoms;
    for (int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
 
@@ -3423,9 +3419,9 @@ coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_f
 	    }
 
 	    if (flag_and_have_coords) { 
-	       CAtom *atom = new CAtom;
-	       realtype occ = 1.0;
-	       realtype b = 20.0;
+	       mmdb::Atom *atom = new mmdb::Atom;
+	       mmdb::realtype occ = 1.0;
+	       mmdb::realtype b = 20.0;
 	       std::string ele = atom_info[iat].type_symbol; // element
 	       atom->SetCoordinates(p.x(), p.y(), p.z(), occ, b);
 	       atom->SetAtomName(atom_info[iat].atom_id_4c.c_str());
@@ -3445,7 +3441,7 @@ coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_f
       }
    }
    if (atoms.size() > 0) {
-      residue_p = new CResidue;
+      residue_p = new mmdb::Residue;
       residue_p->SetResID(comp_id.c_str(), 1, "");
       for (unsigned int iat=0; iat<atoms.size(); iat++) 
 	 residue_p->AddAtom(atoms[iat]);
@@ -3455,19 +3451,19 @@ coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_f
 
 
 
-CMMDBManager *
+mmdb::Manager *
 coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code,
 					    bool idealised_flag) {
 
-   CMMDBManager *mol = NULL;
-   CResidue *residue_p = get_residue(three_letter_code, idealised_flag);
+   mmdb::Manager *mol = NULL;
+   mmdb::Residue *residue_p = get_residue(three_letter_code, idealised_flag);
    if (residue_p) { 
-      CChain *chain_p = new CChain;
+      mmdb::Chain *chain_p = new mmdb::Chain;
       chain_p->SetChainID("A");
       chain_p->AddResidue(residue_p);
-      CModel *model_p = new CModel;
+      mmdb::Model *model_p = new mmdb::Model;
       model_p->AddChain(chain_p);
-      mol = new CMMDBManager;
+      mol = new mmdb::Manager;
       mol->AddModel(model_p);
    }
    return mol;

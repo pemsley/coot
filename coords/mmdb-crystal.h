@@ -113,14 +113,14 @@ class molecule_extents_t {
    // left, right, minimum and maximum in x;
    // bottom, top  minimum and maximum in y;
 
-   PPCAtom extents_selection;
+   mmdb::PPAtom extents_selection;
    float expansion_size_;
    // Grrr.. we cant have a function that returns an mmdb symmetry matrix.
    // So modify it in place.
-   void shift_matrix(CMMDBManager *mol,
-		     mat44 my_matt,
+   void shift_matrix(mmdb::Manager *mol,
+		     mmdb::mat44 my_matt,
 		     int x_shift, int y_shift, int z_shift,
-		     mat44 new_matrix) const;
+		     mmdb::mat44 new_matrix) const;
 
    Cell_Translation atom_sel_cell_trans;  // The reverse
 					  // transformation to bring
@@ -164,14 +164,14 @@ class molecule_extents_t {
    // new style
 
    // use extents to fill transsel, use cryst from mol (not coords of mol)
-   coot::trans_selection_t trans_sel_o(CMMDBManager *mol, const symm_trans_t &symm_trans) const;
-   PPCAtom trans_sel(CMMDBCryst *my_cryst, symm_trans_t symm_trans) const;
-   PPCAtom trans_sel(CMMDBManager *mol, const symm_trans_t &symm_trans) const;
-   PPCAtom trans_sel(CMMDBManager *mol, mat44 my_mat,
+   coot::trans_selection_t trans_sel_o(mmdb::Manager *mol, const symm_trans_t &symm_trans) const;
+   mmdb::PPAtom trans_sel(mmdb::Cryst *my_cryst, symm_trans_t symm_trans) const;
+   mmdb::PPAtom trans_sel(mmdb::Manager *mol, const symm_trans_t &symm_trans) const;
+   mmdb::PPAtom trans_sel(mmdb::Manager *mol, mmdb::mat44 my_mat,
 		     int x_shift, int y_shift, int z_shift) const;
 
 
-   bool point_is_in_box(const coot::Cartesian &point, PPCAtom TransSel) const;
+   bool point_is_in_box(const coot::Cartesian &point, mmdb::PPAtom TransSel) const;
 
    friend ostream& operator<<(ostream &s, molecule_extents_t);
 };
@@ -188,11 +188,11 @@ class SymmMatrix {
  public:
 
    SymmMatrix(); // creates identity matrix.
-   SymmMatrix(double** in_mat); // creates from a mat44.
+   SymmMatrix(double** in_mat); // creates from a mmdb::mat44.
 
    double** getMat() const;
    // float[4][4] testing() const;  // oh.  C++ does not allow us to return
-                                    // a mat44 - grumble.
+                                    // a mmdb::mat44 - grumble.
 
    void add_unit_shift(int x, int y, int z);
    friend ostream& operator<<(ostream&, SymmMatrix);
@@ -203,7 +203,7 @@ class SymmMatrix {
 // return an atom selection that has had the symm_trans
 // applied to it.
 //
-PPCAtom translated_atoms(atom_selection_container_t AtomSel,
+mmdb::PPAtom translated_atoms(atom_selection_container_t AtomSel,
 			 symm_trans_t symm_trans);
 
 coot::Cartesian translate_atom(atom_selection_container_t AtomSel, 
@@ -214,7 +214,7 @@ coot::Cartesian translate_atom_with_pre_shift(atom_selection_container_t AtomSel
 					      int i, 
 					      const std::pair<symm_trans_t, Cell_Translation> &symm_trans);
 
-// Tinker with asc (actually, internally, the CMMDBCryst of asc)
+// Tinker with asc (actually, internally, the mmdb::CMMDBCryst of asc)
 // 
 // Return 1 on success, 0 on failure.
 int set_mmdb_cell_and_symm(atom_selection_container_t asc, 

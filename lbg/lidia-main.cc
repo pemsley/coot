@@ -58,7 +58,7 @@ void set_rotation_centre(const clipper::Coord_orth &pos) {}
 int
 main(int argc, char *argv[]) {
 
-   InitMatType(); // mmdb program. 
+   mmdb::InitMatType(); // mmdb program. 
 
 #ifdef USE_PYTHON
    Py_Initialize();
@@ -69,7 +69,7 @@ main(int argc, char *argv[]) {
    gtk_init (&argc, &argv);
    std::string molecule_file_name = "";
    lig_build::molfile_molecule_t mm;
-   CMMDBManager *mol = NULL; // no atom names to transfer
+   mmdb::Manager *mol = NULL; // no atom names to transfer
 
    if (argc > 1) {
       std::string file_name(argv[1]);

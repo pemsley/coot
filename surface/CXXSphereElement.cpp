@@ -19,8 +19,8 @@
 #include "CXXNewHood.h"
 #include "CXXTorusElement.h"
 #include <math.h>
-#include <mmdb/mmdb_manager.h>
-#include <mmdb/mmdb_tables.h>
+#include <mmdb2/mmdb_manager.h>
+#include <mmdb2/mmdb_tables.h>
 
 
 void CXXSphereElement::init(){
@@ -39,7 +39,7 @@ theAtom(0)
 CXXSphereElement::~CXXSphereElement(){
 }
 */
-CXXSphereElement::CXXSphereElement (PCAtom anAtom, double del) : 
+CXXSphereElement::CXXSphereElement (mmdb::PAtom anAtom, double del) : 
 theAtom(anAtom), 
 deltaRadians(del)
 {
@@ -141,7 +141,7 @@ int CXXSphereElement::calculate(){
 }
 
 int CXXSphereElement::addTriangularPatch(const CXXCoord &u1_in, const CXXCoord &u2_in, 
-										 const CXXCoord &u3_in, CAtom *anAtom, vector<CXXCircle, CXX::CXXAlloc<CXXCircle> >&circles, 
+										 const CXXCoord &u3_in, mmdb::Atom *anAtom, vector<CXXCircle, CXX::CXXAlloc<CXXCircle> >&circles, 
                                          int UseOrGenerate)
 {	
 	
@@ -272,9 +272,9 @@ void CXXSphereElement::initWith(const CXXCircleNode &aNode, double delta,
     deltaRadians=delta;
 	init();
 	
-	CAtom *atomK=aNode.getAtomK();
-	CAtom *atomJ=aNode.getAtomJ();
-	CAtom *atomI=aNode.getAtomI();
+	mmdb::Atom *atomK=aNode.getAtomK();
+	mmdb::Atom *atomJ=aNode.getAtomJ();
+	mmdb::Atom *atomI=aNode.getAtomI();
 	
 	CXXCoord u1(atomK->x, atomK->y, atomK->z);
 	CXXCoord u2(atomJ->x, atomJ->y, atomJ->z);
@@ -323,7 +323,7 @@ void CXXSphereElement::initWith(const CXXCircleNode &aNode, double delta,
 	}
 }
 
-void CXXSphereElement::initWith(const CXXCoord &aCentre, PCAtom atomI, PCAtom atomJ, PCAtom atomK, 
+void CXXSphereElement::initWith(const CXXCoord &aCentre, mmdb::PAtom atomI, mmdb::PAtom atomJ, mmdb::PAtom atomK, 
 								double delta, double radius_in, const bool *includeAtoms){
 	
 	int UseOrGenerate = CXXSphereElement::GenerateCircles;
@@ -674,12 +674,12 @@ int CXXSphereElement::scaleBy (const double factor){
 	return 0;
 }
 
-int CXXSphereElement::setAtom(const CAtom *anAtom){
+int CXXSphereElement::setAtom(const mmdb::Atom *anAtom){
 	theAtom = anAtom;
 	return 0;
 }
 
-const CAtom *CXXSphereElement::getAtom() const{
+const mmdb::Atom *CXXSphereElement::getAtom() const{
 	return theAtom;
 }
 

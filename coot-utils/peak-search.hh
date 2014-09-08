@@ -23,7 +23,7 @@
 #include <vector>
 #endif
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "clipper/core/coords.h"
 #include "clipper/core/xmap.h"
 #include "clipper/contrib/skeleton.h"
@@ -58,9 +58,9 @@ namespace coot {
       void mask_around_coord(clipper::Xmap<float> *xmap,
 			     const clipper::Coord_orth &co, float atom_radius) const;
       std::vector<clipper::Coord_orth>
-      make_sample_protein_coords(CMMDBManager *mol) const;
+      make_sample_protein_coords(mmdb::Manager *mol) const;
       std::vector<clipper::Coord_orth>
-      make_sample_protein_coords(CMMDBManager *mol, int every_n) const;
+      make_sample_protein_coords(mmdb::Manager *mol, int every_n) const;
       clipper::Coord_orth
       move_point_close_to_protein(const clipper::Coord_orth &pt,
 				  const std::vector<clipper::Coord_orth> &protein,
@@ -120,7 +120,7 @@ namespace coot {
       // 
       std::vector<std::pair<clipper::Coord_orth, float> >
       get_peaks(const clipper::Xmap<float> &xmap,
-		CMMDBManager *mol, 
+		mmdb::Manager *mol, 
 		float n_sigma,
 		int do_positive_levels_flag,
 		int also_negative_levels_flag);

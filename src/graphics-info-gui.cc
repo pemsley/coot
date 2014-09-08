@@ -53,7 +53,7 @@
 #include <unistd.h>
 #endif
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 #include "coords/mmdb-crystal.h"
@@ -1255,7 +1255,7 @@ graphics_info_t::add_drag_refine_idle_function() {
 void
 graphics_info_t::fill_output_residue_info_widget(GtkWidget *widget, int imol,
 						 const std::string residue_name,
-						 PPCAtom atoms, int n_atoms) {
+						 mmdb::PPAtom atoms, int n_atoms) {
 
    // first do the label of the dialog
    GtkWidget *label_widget = lookup_widget(widget, "residue_info_residue_label");
@@ -1283,7 +1283,7 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *widget, int imol,
 }
 
 void
-graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol, PCAtom atom,
+graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol, mmdb::PAtom atom,
 						      int iatom) {
 
    GtkWidget *residue_info_dialog = lookup_widget(table, "residue_info_dialog");
@@ -1649,7 +1649,7 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 	    (coot::select_atom_info *) gtk_object_get_user_data(GTK_OBJECT(widget_o));
 	 if (ai) {
 	    imol = ai->molecule_number;  // hehe
-	    CAtom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
+	    mmdb::Atom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
 	    // std::cout << "got atom at " << at << std::endl;
 	    std::pair<short int, float>  occ_entry =
 	       graphics_info_t::float_from_entry(GTK_WIDGET(widget_o));
@@ -1672,7 +1672,7 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 	 ai = (coot::select_atom_info *) gtk_object_get_user_data(GTK_OBJECT(widget_b));
 	 if (ai) {
 	    imol = ai->molecule_number;  // hehe
-	    CAtom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
+	    mmdb::Atom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
 	    std::pair<short int, float>  temp_entry =
 	       graphics_info_t::float_from_entry(GTK_WIDGET(widget_b));
 	    if (temp_entry.first) {
@@ -1692,7 +1692,7 @@ graphics_info_t::apply_residue_info_changes(GtkWidget *dialog) {
 	 ai = (coot::select_atom_info *) gtk_object_get_user_data(GTK_OBJECT(widget_alt));
 	 if (ai) {
 	    imol = ai->molecule_number;  // hehe
-	    CAtom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
+	    mmdb::Atom *at = ai->get_atom(graphics_info_t::molecules[imol].atom_sel.mol);
 	    std::string entry_text = gtk_entry_get_text(GTK_ENTRY(widget_alt));
 	    if (at) { 
 	       coot::select_atom_info local_at = *ai;
@@ -2293,7 +2293,7 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
    if (imol < n_molecules()) { 
       if (molecules[imol].has_model()) { 
 	 if (atom_index < molecules[imol].atom_sel.n_selected_atoms) { 
-	    CAtom *this_atom_p = molecules[imol].atom_sel.atom_selection[atom_index];
+	    mmdb::Atom *this_atom_p = molecules[imol].atom_sel.atom_selection[atom_index];
 	    int offset = 0; // usually this and next residue
 	    std::string this_atname(this_atom_p->name);
 	    if (this_atname == " N  ") { 
@@ -2320,7 +2320,7 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 					      search_altconf  // alt loc.
 					      );
 	    int nSelAtoms;
-	    PPCAtom SelectAtoms;
+	    mmdb::PPAtom SelectAtoms;
 	    molecules[imol].atom_sel.mol->GetSelIndex(SelectionHandle, SelectAtoms, nSelAtoms);
 	    if (nSelAtoms < 4) { // the very min
 	       std::cout <<  "WARNING:: not enough atoms in atom selection in "
@@ -2329,22 +2329,22 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 
 
 	       // We construct a moving atom asc atom by atom...
-	       CAtom *next_ca = NULL, *next_n = NULL;
-	       CAtom *this_c = NULL, *this_o = NULL, *this_ca = NULL;
+	       mmdb::Atom *next_ca = NULL, *next_n = NULL;
+	       mmdb::Atom *this_c = NULL, *this_o = NULL, *this_ca = NULL;
 	       
 	       // and the extra atoms that we need (we extract the
 	       // coordinates) to construct a pair of ramachandran
 	       // points in the rama_plot:
 
-	       CAtom *prev_c = NULL;
-	       CAtom *this_n = NULL;
-	       CAtom *next_c = NULL;
-	       CAtom *next_plus_1_n = NULL;
+	       mmdb::Atom *prev_c = NULL;
+	       mmdb::Atom *this_n = NULL;
+	       mmdb::Atom *next_c = NULL;
+	       mmdb::Atom *next_plus_1_n = NULL;
 
 	       // to get prev_c and next_plus_1_n we do atom selections:
 
 	       // You can add (this) hydrogen to that list if you want.
-	       CAtom *at;
+	       mmdb::Atom *at;
 	       // 
 	       for (int iat=0; iat<nSelAtoms; iat++) { 
 		  at = SelectAtoms[iat];
@@ -2391,7 +2391,7 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 							  );
 
 	       int nSelAtoms_prev_c;
-	       PPCAtom SelectAtoms_prev_c;
+	       mmdb::PPAtom SelectAtoms_prev_c;
 
 	       molecules[imol].atom_sel.mol->GetSelIndex(SelHnd_prev_c, 
 							 SelectAtoms_prev_c, 
@@ -2416,7 +2416,7 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 							  search_altconf  // alt loc.
 							  );
 	       int nSelAtoms_next_plus_1_n;
-	       PPCAtom SelectAtoms_next_plus_1_n;
+	       mmdb::PPAtom SelectAtoms_next_plus_1_n;
 
 	       molecules[imol].atom_sel.mol->GetSelIndex(SelHnd_next_plus_1_n, 
 							 SelectAtoms_next_plus_1_n, 
@@ -2434,34 +2434,34 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 		  // new addition 25Feb2004
 		  rama_plot_for_2_phi_psis(imol, atom_index);
 
-		  CMMDBManager *mol = new CMMDBManager;
-		  CModel *model = new CModel;
-		  CChain *chain = new CChain;
-		  CResidue *res1 = new CResidue;
-		  CResidue *res2 = new CResidue;
+		  mmdb::Manager *mol = new mmdb::Manager;
+		  mmdb::Model *model = new mmdb::Model;
+		  mmdb::Chain *chain = new mmdb::Chain;
+		  mmdb::Residue *res1 = new mmdb::Residue;
+		  mmdb::Residue *res2 = new mmdb::Residue;
 		  res1->SetResName(this_ca->GetResName());
 		  res2->SetResName(next_ca->GetResName());
 		  res1->seqNum = this_ca->GetSeqNum();
 		  res2->seqNum = next_ca->GetSeqNum();
 		  chain->SetChainID(this_ca->GetChainID());
 
-		  at = new CAtom; 
+		  at = new mmdb::Atom; 
 		  at->Copy(this_ca);
 		  res1->AddAtom(at);
 
-		  at = new CAtom; 
+		  at = new mmdb::Atom; 
 		  at->Copy(this_c);
 		  res1->AddAtom(at);
 
-		  at = new CAtom; 
+		  at = new mmdb::Atom; 
 		  at->Copy(this_o);
 		  res1->AddAtom(at);
 
-		  at = new CAtom; 
+		  at = new mmdb::Atom; 
 		  at->Copy(next_ca);
 		  res2->AddAtom(at);
 
-		  at = new CAtom; 
+		  at = new mmdb::Atom; 
 		  at->Copy(next_n);
 		  res2->AddAtom(at);
 
@@ -2469,7 +2469,7 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 		  chain->AddResidue(res2);
 		  model->AddChain(chain);
 		  mol->AddModel(model);
-		  mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+		  mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 		  mol->FinishStructEdit();
 		  imol_moving_atoms = imol;
 		  moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
@@ -2584,9 +2584,9 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
    std::pair<short int, clipper::Coord_orth> next_n = rama_points.get("next_n");
 
    if (this_c.first && this_o.first && next_n.first) { 
-      CAtom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
-      CAtom *c_atom_p = coot::get_first_atom_with_atom_name(" C  ", *moving_atoms_asc);
-      CAtom *o_atom_p = coot::get_first_atom_with_atom_name(" O  ", *moving_atoms_asc);
+      mmdb::Atom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
+      mmdb::Atom *c_atom_p = coot::get_first_atom_with_atom_name(" C  ", *moving_atoms_asc);
+      mmdb::Atom *o_atom_p = coot::get_first_atom_with_atom_name(" O  ", *moving_atoms_asc);
       
       double rad_angle = clipper::Util::d2rad(adj->value);
       clipper::Coord_orth new_c = 
@@ -2665,9 +2665,9 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
    std::pair<short int, clipper::Coord_orth> this_o = rama_points.get("this_o");
 
    if (this_c.first && this_o.first) { 
-      CAtom *c_atom_p = coot::get_first_atom_with_atom_name(" C  ", *moving_atoms_asc);
-      CAtom *o_atom_p = coot::get_first_atom_with_atom_name(" O  ", *moving_atoms_asc);
-      CAtom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
+      mmdb::Atom *c_atom_p = coot::get_first_atom_with_atom_name(" C  ", *moving_atoms_asc);
+      mmdb::Atom *o_atom_p = coot::get_first_atom_with_atom_name(" O  ", *moving_atoms_asc);
+      mmdb::Atom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
 
       clipper::Coord_orth carbonyl_n_pos(n_atom_p->x, n_atom_p->y, n_atom_p->z);
 
@@ -2739,9 +2739,9 @@ void
 graphics_info_t::change_peptide_carbonyl_by(double angle) { 
 
 //    std::cout << "move carbonyl by " << angle << std::endl;
-   CAtom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
-   CAtom *c_atom_p = coot::get_first_atom_with_atom_name(" C  ", *moving_atoms_asc);
-   CAtom *o_atom_p = coot::get_first_atom_with_atom_name(" O  ", *moving_atoms_asc);
+   mmdb::Atom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
+   mmdb::Atom *c_atom_p = coot::get_first_atom_with_atom_name(" C  ", *moving_atoms_asc);
+   mmdb::Atom *o_atom_p = coot::get_first_atom_with_atom_name(" O  ", *moving_atoms_asc);
 
    clipper::Coord_orth carbonyl_n_pos(n_atom_p->x, n_atom_p->y, n_atom_p->z);
    clipper::Coord_orth carbonyl_c_pos(c_atom_p->x, c_atom_p->y, c_atom_p->z);
@@ -2815,8 +2815,8 @@ graphics_info_t::phi_psi_pairs_from_moving_atoms() {
    // this_C and next_N.  The rest we will pull out of a pre-stored vector of
    // pairs (made in execute_setup_backbone_torsion_edit): rama_points.
 
-   CAtom *c_atom_p = coot::get_first_atom_with_atom_name(" C  ", *moving_atoms_asc);
-   CAtom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
+   mmdb::Atom *c_atom_p = coot::get_first_atom_with_atom_name(" C  ", *moving_atoms_asc);
+   mmdb::Atom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
 
    clipper::Coord_orth this_c (c_atom_p->x, c_atom_p->y, c_atom_p->z);
    clipper::Coord_orth next_n (n_atom_p->x, n_atom_p->y, n_atom_p->z);
@@ -2869,9 +2869,9 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
 
 //    std::cout << "move peptide by " << angle << std::endl;
 
-   CAtom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
-   CAtom *c_atom_p = coot::get_first_atom_with_atom_name(" C  ", *moving_atoms_asc);
-   CAtom *o_atom_p = coot::get_first_atom_with_atom_name(" O  ", *moving_atoms_asc);
+   mmdb::Atom *n_atom_p = coot::get_first_atom_with_atom_name(" N  ", *moving_atoms_asc);
+   mmdb::Atom *c_atom_p = coot::get_first_atom_with_atom_name(" C  ", *moving_atoms_asc);
+   mmdb::Atom *o_atom_p = coot::get_first_atom_with_atom_name(" O  ", *moving_atoms_asc);
 
    clipper::Coord_orth carbonyl_n_pos(n_atom_p->x, n_atom_p->y, n_atom_p->z);
    clipper::Coord_orth carbonyl_c_pos(c_atom_p->x, c_atom_p->y, c_atom_p->z);
@@ -3864,7 +3864,7 @@ graphics_info_t::wrapped_create_lsq_plane_dialog() {
 
 // 
 GtkWidget *
-wrapped_create_multi_residue_torsion_dialog(const std::vector<std::pair<CAtom *, CAtom *> > &pairs) {
+wrapped_create_multi_residue_torsion_dialog(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &pairs) {
 
    GtkWidget *w = create_multi_residue_torsion_dialog();
    GtkWidget *vbox = lookup_widget(GTK_WIDGET(w), "multi_residue_torsion_vbox");

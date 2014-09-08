@@ -33,7 +33,7 @@
 #endif // HAVE_STRING
 
 #include "clipper/core/xmap.h"
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "geometry/protein-geometry.hh"
 
 namespace coot {
@@ -144,9 +144,9 @@ namespace coot {
       class side_chain_score_t {
 
 	 // create a copy of the generate scores input data
-	 CMMDBManager *mol;
+	 mmdb::Manager *mol;
 	 clipper::Xmap<float> *xmap;
-	 std::vector <CResidue *> standard_residues;
+	 std::vector <mmdb::Residue *> standard_residues;
 	 
 	 // pairs of (chain_id and sequence)
 	 std::vector<std::pair<std::string, std::string> > input_sequence;
@@ -162,25 +162,25 @@ namespace coot {
 	    // return (i<999 ? 1 : 0);  20140308 : what did I mean!?
 	    return true;
 	 }
-	 // isn't auto_fit_score using a CResidue a better fit?
+	 // isn't auto_fit_score using a mmdb::Residue a better fit?
 	 float auto_fit_score(const std::string &chain_id,
 			      int resno,
 			      const side_chain_name_index &idx);
 	 
-	 float auto_fit_score(CResidue *res, // current res used to fit new one.
+	 float auto_fit_score(mmdb::Residue *res, // current res used to fit new one.
 			      const side_chain_name_index &idx,
 			      const coot::dictionary_residue_restraints_t &rest,
 			      const clipper::Xmap<float> &xmap);
 
 	 short int cache_standard_residues();
-	 CResidue *get_standard_residue(const side_chain_name_index &idx) const;
+	 mmdb::Residue *get_standard_residue(const side_chain_name_index &idx) const;
 
 	 void move_std_res_to_this_res_pos(const clipper::RTop_orth &rtop,
-					   CResidue *std_res); // move std_res atoms
+					   mmdb::Residue *std_res); // move std_res atoms
 
 	 float best_rotamer_score(const clipper::Xmap<float> &xmap,
 				  const dictionary_residue_restraints_t &rest,
-				  CResidue *res) const;
+				  mmdb::Residue *res) const;
 
 	 // not const because it adds UDD data to mol
 	 std::vector<residue_range_t> find_unassigned_regions(float pr_cut);
@@ -218,7 +218,7 @@ namespace coot {
 	 void add_fasta_sequence(const std::string &sequence_chain_id_in,
 				 const std::string &seq);
 	 void slider() const;
-	 void generate_scores(CMMDBManager *mol,
+	 void generate_scores(mmdb::Manager *mol,
 			      const clipper::Xmap<float> &xmap);
 
 	 void test_residue_range_marking();

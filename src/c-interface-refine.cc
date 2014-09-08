@@ -107,8 +107,8 @@ void refine_zone(int imol, const char *chain_id,
 
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
-      CResidue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, "");
-      CResidue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, "");
+      mmdb::Residue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, "");
+      mmdb::Residue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, "");
       if (res_1 && res_2) { 
 	 std::string resname_1(res_1->GetResName());
 	 std::string resname_2(res_2->GetResName());
@@ -297,8 +297,8 @@ SCM refine_zone_with_full_residue_spec_scm(int imol, const char *chain_id,
    SCM r = SCM_BOOL_F;
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
-      CResidue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, inscode_1);
-      CResidue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, inscode_2);
+      mmdb::Residue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, inscode_1);
+      mmdb::Residue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, inscode_2);
       if (res_1 && res_2) { 
 	 std::string resname_1(res_1->GetResName());
 	 std::string resname_2(res_2->GetResName());
@@ -326,8 +326,8 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
    PyObject *r = Py_False;
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
-      CResidue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, inscode_1);
-      CResidue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, inscode_2);
+      mmdb::Residue *res_1 = g.molecules[imol].get_residue(chain_id, resno1, inscode_1);
+      mmdb::Residue *res_2 = g.molecules[imol].get_residue(chain_id, resno2, inscode_2);
       if (res_1 && res_2) { 
 	 std::string resname_1(res_1->GetResName());
 	 std::string resname_2(res_2->GetResName());
@@ -794,13 +794,13 @@ add_initial_position_restraints(int imol, const std::vector<coot::residue_spec_t
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       for (unsigned int i=0; i<residue_specs.size(); i++) {
-	 CResidue *residue_p = g.molecules[imol].get_residue(residue_specs[i]);
+	 mmdb::Residue *residue_p = g.molecules[imol].get_residue(residue_specs[i]);
 	 if (residue_p) {
-	    PPCAtom residue_atoms = 0;
+	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-	       CAtom *at = residue_atoms[iat];
+	       mmdb::Atom *at = residue_atoms[iat];
 	       add_extra_start_pos_restraint(imol,
 					     at->GetChainID(), 
 					     at->GetSeqNum(), 
